@@ -64,23 +64,36 @@ void base::clear_msg(plr_t pnum)
 	    message_queue.end());
 }
 
+void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
+{
+	SNetEvent ev;
+	ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
+	ev.playerid = pnum;
+	ev._eData = reinterpret_cast<BYTE*>(&leaveinfo);
+	ev.databytes = sizeof(leaveinfo);
+	run_event_handler(ev);
+	connected_table[pnum] = false;
+	disconnect_net(pnum);
+	clear_msg(pnum);
+	turn_queue[pnum].clear();
+}
+
 void base::recv_disconnect(packet &pkt)
 {
 	plr_t pkt_plr = pkt.newplr();
+	leaveinfo_t leaveinfo = pkt.leaveinfo();
 
 	if (pkt_plr != plr_self) {
-		if (connected_table[pkt_plr]) {
-			auto leaveinfo = pkt.leaveinfo();
-			SNetEvent ev;
-			ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
-			ev.playerid = pkt_plr;
-			ev._eData = reinterpret_cast<BYTE*>(&leaveinfo);
-			ev.databytes = sizeof(leaveinfo);
-			run_event_handler(ev);
-			connected_table[pkt_plr] = false;
-			disconnect_net(pkt_plr);
-			clear_msg(pkt_plr);
-			turn_queue[pkt_plr].clear();
+		if (pkt_plr < MAX_PLRS && connected_table[pkt_plr]) {
+			disconnect_plr(pkt_plr, leaveinfo);
+		} else if (pkt_plr == PLR_MASTER) {
+			// server down
+			for (pkt_plr = 0; pkt_plr < MAX_PLRS; pkt_plr++) {
+				if (pkt_plr != plr_self && connected_table[pkt_plr]) {
+					disconnect_plr(pkt_plr, leaveinfo);
+				}
+			}
+			disconnect_plr(SNPLAYER_MASTER, leaveinfo);
 		}
 	} else {
 		ABORT(); // we were dropped by the owner?!?

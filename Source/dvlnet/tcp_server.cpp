@@ -254,6 +254,11 @@ void tcp_server::close()
 
 	if (acceptor == NULL)
 		return;
+
+	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
+		PLR_MASTER, (leaveinfo_t)LEAVE_DROP);
+	send_packet(*pkt);
+
 	acceptor->close();
 	connTimer.cancel();
 

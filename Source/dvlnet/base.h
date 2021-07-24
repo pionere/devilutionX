@@ -57,6 +57,7 @@ protected:
 private:
 	plr_t get_owner();
 	void clear_msg(plr_t pnum);
+	void disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo);
 };
 
 } // namespace net

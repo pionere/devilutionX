@@ -608,9 +608,14 @@ static void multi_handle_events(SNetEvent *pEvt)
 
 	LeftReason = pEvt->_eData[0];
 	pnum = pEvt->playerid;
-	sgbPlayerLeftGameTbl[pnum] = LeftReason;
-	if (LeftReason == LEAVE_ENDING)
-		gbSomebodyWonGameKludge = true;
+	if (pnum < MAX_PLRS) {
+		sgbPlayerLeftGameTbl[pnum] = LeftReason;
+		if (LeftReason == LEAVE_ENDING)
+			gbSomebodyWonGameKludge = true;
+	} else {
+		assert(pnum == SNPLAYER_MASTER);
+		EventPlrMsg("Server is down");
+	}
 
 	dthread_remove_player(pnum);
 
