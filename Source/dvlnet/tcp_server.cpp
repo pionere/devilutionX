@@ -116,6 +116,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	    game_init_info);
 	start_send(con, *reply);
 	//send_connect(con);
+	return true;
 }
 
 bool tcp_server::handle_recv_packet(const scc &con, packet &pkt)
