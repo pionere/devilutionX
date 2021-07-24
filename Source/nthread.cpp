@@ -102,7 +102,7 @@ bool nthread_recv_turns(bool *received)
 	}
 }
 
-static unsigned int nthread_handler(void *data)
+static int SDLCALL nthread_handler(void* data)
 {
 	int delta;
 	bool received;

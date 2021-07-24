@@ -13,7 +13,7 @@ static bool _gbThreadLive;
 static event_emul *sghWorkToDoEvent;
 static SDL_Thread *sghThread = NULL;
 
-static unsigned int dthread_handler(void *data)
+static int SDLCALL dthread_handler(void* data)
 {
 	DMegaPkt *pkt;
 	unsigned dwMilliseconds;

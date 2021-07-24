@@ -3,23 +3,15 @@
 #include "../types.h"
 #include "appfat.h"
 #include <SDL.h>
-#include <set>
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static int SDLCALL ThreadTranslate(void *ptr)
-{
-	auto handler = (unsigned int (*)(void *))ptr;
-
-	return handler(NULL);
-}
-
-SDL_Thread* CreateThread(unsigned int (*handler)(void *))
+SDL_Thread* CreateThread(SDL_ThreadFunction handler)
 {
 #ifdef USE_SDL1
-	SDL_Thread *ret = SDL_CreateThread(ThreadTranslate, (void *)handler);
+	SDL_Thread *ret = SDL_CreateThread(handler, NULL);
 #else
-	SDL_Thread *ret = SDL_CreateThread(ThreadTranslate, NULL, (void *)handler);
+	SDL_Thread *ret = SDL_CreateThread(handler, NULL, NULL);
 #endif
 	if (ret == NULL) {
 		ErrSdl();

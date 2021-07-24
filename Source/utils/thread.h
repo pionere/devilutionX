@@ -18,6 +18,6 @@ void EndEvent(event_emul *event);
 void SetEvent(event_emul *e);
 void ResetEvent(event_emul *e);
 void WaitForEvent(event_emul* e);
-SDL_Thread* CreateThread(unsigned int (*handler)(void *));
+SDL_Thread* CreateThread(SDL_ThreadFunction handler);
 
 } // namespace dvl
