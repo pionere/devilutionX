@@ -613,8 +613,6 @@ void ShowProgress(unsigned int uMsg)
 	if (gbSomebodyWonGameKludge && myplr.plrlevel == DLV_HELL4) {
 		PrepDoEnding(gbSoundOn);
 	}
-
-	gbSomebodyWonGameKludge = false;
 }
 
 DEVILUTION_END_NAMESPACE

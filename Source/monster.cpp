@@ -6,7 +6,6 @@
 #include "all.h"
 #include "monstai.h"
 #include "engine/render/cl2_render.hpp"
-#include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -2312,10 +2311,6 @@ void DoEnding()
 {
 	bool bMusicOn;
 	int musicVolume;
-
-	if (gbMaxPlayers != 1) {
-		SNetLeaveGame(LEAVE_ENDING);
-	}
 
 	music_stop();
 

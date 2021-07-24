@@ -25,7 +25,7 @@ bool gbZoomflag;
 /** Enable updating of player character, set to false once Diablo dies */
 bool gbProcessPlayers;
 bool gbLoadGame;
-bool gbCineflag;
+bool gbCineflag = false;
 int gbRedrawFlags;
 int PauseMode;
 #ifdef HELLFIRE
@@ -258,7 +258,6 @@ static void InitGameUI()
 {
 	gbZoomflag = true;
 	CalcViewportGeometry();
-	gbCineflag = false;
 	InitCursor();
 	InitLightTable();
 #ifdef _DEBUG
@@ -446,7 +445,7 @@ static void run_game_loop()
 		HeapProfilerDump("first_game_iteration");
 #endif
 	}
-
+	NetClose();
 	if (gbMaxPlayers != 1) {
 		pfile_write_hero();
 	}
@@ -473,8 +472,6 @@ bool StartGame(bool bSinglePlayer)
 	gbSelectHero = true;
 
 	while (TRUE) {
-		gbLoadGame = false;
-
 		if (!NetInit(bSinglePlayer)) {
 			gbRunGameResult = true;
 			break;
@@ -485,7 +482,6 @@ bool StartGame(bool bSinglePlayer)
 		UiDestroy();
 
 		run_game_loop();
-		NetClose();
 		if (!gbRunGameResult)
 			break;
 		// If the player left the game into the main menu,

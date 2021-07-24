@@ -633,7 +633,7 @@ void NetClose()
 	nthread_cleanup();
 	dthread_cleanup();
 	tmsg_cleanup();
-	UIDisconnectGame();
+	UIDisconnectGame(gbCineflag ? LEAVE_ENDING : LEAVE_UNKNOWN);
 }
 
 /*void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, char *name_2)
@@ -737,16 +737,16 @@ bool NetInit(bool bSinglePlayer)
 		sgGameInitInfo.bTickRate = SPEED_NORMAL;
 		sgGameInitInfo.bMaxPlayers = MAX_PLRS;
 		gbJoinGame = false;
-		gbGameDestroyed = false;
-		static_assert(LEAVE_NONE == 0, "NetInit uses memset to reset the LEAVE_ enum values.");
-		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
-		guSendDelta = 0;
 		memset(players, 0, sizeof(players));
-		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
 		if (!multi_init_game(bSinglePlayer, sgGameInitInfo))
 			return false;
+		static_assert(LEAVE_NONE == 0, "NetInit uses memset to reset the LEAVE_ enum values.");
+		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
+		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
+		guSendDelta = 0;
 		_gbNetInited = true;
 		_gbTimeout = false;
+		gbGameDestroyed = false;
 		delta_init();
 		InitPlrMsg();
 		buffer_init(&sgHiPriBuf);
@@ -758,7 +758,6 @@ bool NetInit(bool bSinglePlayer)
 		sgdwGameLoops = 0;
 		sgbSentThisCycle = 0;
 		gbDeltaSender = mypnum;
-		gbSomebodyWonGameKludge = false;
 		nthread_send_turn(0, 0);
 		SetupLocalPlr();
 		if (!gbJoinGame)

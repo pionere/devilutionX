@@ -490,10 +490,10 @@ int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt)
 	return selgame_selectedGame;
 }
 
-void UIDisconnectGame()
+void UIDisconnectGame(int reason)
 {
 	selgame_remove_event_handlers();
-	SNetLeaveGame(LEAVE_UNKNOWN);
+	SNetLeaveGame(reason);
 }
 
 DEVILUTION_END_NAMESPACE
