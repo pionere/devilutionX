@@ -44,7 +44,7 @@ plr_t tcp_server::next_free_conn()
 	for (i = 0; i < MAX_PLRS; i++)
 		if (connections[i] == NULL)
 			break;
-	return i;
+	return i < ((SNetGameData*)gameInitInfo.data())->bMaxPlayers ? i : MAX_PLRS;
 }
 
 plr_t tcp_server::next_free_queue()
