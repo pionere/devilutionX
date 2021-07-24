@@ -72,10 +72,12 @@ void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 	ev._eData = reinterpret_cast<BYTE*>(&leaveinfo);
 	ev.databytes = sizeof(leaveinfo);
 	run_event_handler(ev);
-	connected_table[pnum] = false;
-	disconnect_net(pnum);
-	clear_msg(pnum);
-	turn_queue[pnum].clear();
+	if (pnum < MAX_PLRS) {
+		connected_table[pnum] = false;
+		disconnect_net(pnum);
+		clear_msg(pnum);
+		turn_queue[pnum].clear();
+	}
 }
 
 void base::recv_disconnect(packet &pkt)
