@@ -64,17 +64,14 @@ void ResetEvent(event_emul *e)
 	}
 }
 
-int WaitForEvent(event_emul *e)
+void WaitForEvent(event_emul *e)
 {
 	if (SDL_LockMutex(e->mutex) <= -1) {
 		ErrSdl();
 	}
-	int ret = SDL_CondWait(e->cond, e->mutex);
-	if (ret <= -1 || SDL_CondSignal(e->cond) <= -1 || SDL_UnlockMutex(e->mutex) <= -1) {
-		SDL_Log("%s", SDL_GetError());
-		return -1;
+	if (SDL_CondWait(e->cond, e->mutex) <= -1 || SDL_CondSignal(e->cond) <= -1 || SDL_UnlockMutex(e->mutex) <= -1) {
+		ErrSdl();
 	}
-	return ret;
 }
 
 DEVILUTION_END_NAMESPACE

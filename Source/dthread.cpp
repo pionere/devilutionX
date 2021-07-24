@@ -20,9 +20,8 @@ static unsigned int dthread_handler(void *data)
 	unsigned dwMilliseconds;
 
 	while (_gbDthread_running) {
-		if (sgpInfoHead == NULL && WaitForEvent(sghWorkToDoEvent) == -1) {
-			app_fatal("dthread4:\n%s", SDL_GetError());
-		}
+		if (sgpInfoHead == NULL)
+			WaitForEvent(sghWorkToDoEvent);
 
 		sgMemCrit.Enter();
 		pkt = sgpInfoHead;
