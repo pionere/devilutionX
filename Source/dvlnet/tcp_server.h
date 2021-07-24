@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <array>
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
 #include <asio/ts/io_context.hpp>
@@ -52,13 +51,16 @@ private:
 	asio::steady_timer connTimer;
 	packet_factory pktfty;
 	asio::ip::tcp::acceptor* acceptor = NULL;
-	scc connections[MAX_PLRS];
+	scc nextcon;
+	scc pending_connections[MAX_PLRS] = { };
+	scc connections[MAX_PLRS] = { };
 	buffer_t game_init_info;
 
 	scc make_connection();
-	plr_t next_free();
+	plr_t next_free_conn();
+	plr_t next_free_queue();
 	void start_accept();
-	void handle_accept(const scc &con, const asio::error_code &ec);
+	void handle_accept(bool valid, const asio::error_code &ec);
 	void start_recv(const scc &con);
 	void handle_recv(const scc &con, const asio::error_code &ec, size_t bytes_read);
 	void handle_recv_newplr(const scc &con, packet &pkt);

@@ -37,12 +37,22 @@ tcp_server::scc tcp_server::make_connection()
 	return std::make_shared<client_connection>(ioc);
 }
 
-plr_t tcp_server::next_free()
+plr_t tcp_server::next_free_conn()
 {
 	plr_t i;
 
 	for (i = 0; i < MAX_PLRS; i++)
 		if (connections[i] == NULL)
+			break;
+	return i;
+}
+
+plr_t tcp_server::next_free_queue()
+{
+	plr_t i;
+
+	for (i = 0; i < MAX_PLRS; i++)
+		if (pending_connections[i] == NULL)
 			break;
 	return i;
 }
@@ -91,15 +101,22 @@ void tcp_server::send_connect(const scc &con)
 
 void tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 {
-	auto pnum = next_free();
-	if (pnum == MAX_PLRS)
+	plr_t i, pnum;
+
+	pnum = next_free_conn();
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (pending_connections[i] == con)
+			break;
+	}
+	if (pnum == MAX_PLRS || i == MAX_PLRS)
 		throw server_exception();
+	pending_connections[i] = NULL;
+	connections[pnum] = con;
+	con->pnum = pnum;
 	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
 	    pkt.cookie(), pnum,
 	    game_init_info);
 	start_send(con, *reply);
-	con->pnum = pnum;
-	connections[pnum] = con;
 	send_connect(con);
 }
 
@@ -143,24 +160,31 @@ void tcp_server::handle_send(const scc &con, const asio::error_code &ec, size_t 
 
 void tcp_server::start_accept()
 {
-	auto nextcon = make_connection();
-	acceptor->async_accept(nextcon->socket,
-	    std::bind(&tcp_server::handle_accept,
-	        this, nextcon,
-	        std::placeholders::_1));
+	if (next_free_queue() != MAX_PLRS) {
+		nextcon = make_connection();
+		acceptor->async_accept(nextcon->socket,
+			std::bind(&tcp_server::handle_accept,
+				this, true,
+				std::placeholders::_1));
+	} else {
+		nextcon = NULL;
+		connTimer.expires_after(std::chrono::seconds(10));
+		connTimer.async_wait(std::bind(&tcp_server::handle_accept,
+			this, false,
+			std::placeholders::_1));
+	}
 }
 
-void tcp_server::handle_accept(const scc &con, const asio::error_code &ec)
+void tcp_server::handle_accept(bool valid, const asio::error_code &ec)
 {
 	if (ec)
 		return;
-	if (next_free() == MAX_PLRS) {
-		drop_connection(con);
-	} else {
+	if (valid) {
 		asio::ip::tcp::no_delay option(true);
-		con->socket.set_option(option);
-		con->timeout = TIMEOUT_CONNECT;
-		start_recv(con);
+		nextcon->socket.set_option(option);
+		nextcon->timeout = TIMEOUT_CONNECT;
+		pending_connections[next_free_queue()] = nextcon;
+		start_recv(nextcon);
 	}
 	start_accept();
 }
@@ -179,8 +203,18 @@ void tcp_server::handle_timeout(const asio::error_code &ec)
 	if (ec)
 		return;
 
-	scc expired_connections[MAX_PLRS] = { };
+	scc expired_connections[2 * MAX_PLRS] = { };
 	n = 0;
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (pending_connections[i] != NULL) {
+			if (pending_connections[i]->timeout > 0) {
+				pending_connections[i]->timeout--;
+			} else {
+				expired_connections[n] = pending_connections[i];
+				n++;
+			}
+		}
+	}
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (connections[i] != NULL) {
 			if (connections[i]->timeout > 0) {
@@ -198,24 +232,51 @@ void tcp_server::handle_timeout(const asio::error_code &ec)
 
 void tcp_server::drop_connection(const scc &con)
 {
-	if (con->pnum != PLR_BROADCAST) {
-		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
-		    con->pnum, (leaveinfo_t)LEAVE_DROP);
-		connections[con->pnum] = NULL;
-		send_packet(*pkt);
-		// TODO: investigate if it is really ok for the server to
-		//       drop a client directly.
+	plr_t i, pnum = con->pnum;
+
+	if (pnum != PLR_BROADCAST) {
+		// live connection
+		if (connections[pnum] == con) {
+			connections[pnum] = NULL;
+			// notify the other clients
+			auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
+				pnum, (leaveinfo_t)LEAVE_DROP);
+			send_packet(*pkt);
+		}
+	} else {
+		// pending connection
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (pending_connections[i] == con) {
+				pending_connections[i] = NULL;
+			}
+		}
 	}
 	con->socket.close();
 }
 
 void tcp_server::close()
 {
+	int i;
+
 	if (acceptor == NULL)
 		return;
 	acceptor->close();
 	connTimer.cancel();
 
+	ioc.poll();
+	if (nextcon != NULL)
+		nextcon->socket.close();
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (connections[i] != NULL) {
+			connections[i]->socket.shutdown(asio::socket_base::shutdown_both);
+			connections[i]->socket.close();
+		}
+	}
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (pending_connections[i] != NULL) {
+			pending_connections[i]->socket.close();
+		}
+	}
 	ioc.poll();
 
 	delete acceptor;
