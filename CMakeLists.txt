@@ -23,10 +23,11 @@ option(DIST "Dynamically link only glibc and SDL2" OFF)
 option(BINARY_RELEASE "Enable options for binary release" OFF)
 option(NIGHTLY_BUILD "Enable options for nightly build" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
-option(NONET "Disable network support" OFF)
 option(NOSOUND "Disable sound support" OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
-option(ZEROTIER "Build with zerotier support" OFF)
+option(NONET "Disable network support" OFF)
+cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
+cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 RELEASE_OPTION(CPACK "Configure CPack")
@@ -554,8 +555,10 @@ endif()
 foreach(
   def_name
   NOSOUND
-  NONET
   NOWIDESCREEN
+  NONET
+  NETENCRYPT
+  ZEROTIER
   PREFILL_PLAYER_NAME
   GPERF
   GPERF_HEAP_MAIN

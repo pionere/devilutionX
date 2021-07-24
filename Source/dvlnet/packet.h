@@ -5,7 +5,7 @@
 #include <memory>
 #include <array>
 #include <cstring>
-#ifndef NONET
+#ifdef NETENCRYPT
 #include <sodium.h>
 #endif
 
@@ -31,7 +31,7 @@ typedef uint8_t plr_t;
 typedef DWORD cookie_t;
 typedef DWORD turn_t;
 typedef uint8_t leaveinfo_t;
-#ifndef NONET
+#ifdef NETENCRYPT
 typedef std::array<unsigned char, crypto_secretbox_KEYBYTES> key_t;
 #else
 // Stub out the key_t definition as we're not doing any encryption.

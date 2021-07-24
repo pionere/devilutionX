@@ -5,10 +5,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-#ifndef NONET
-static constexpr bool DisableEncryption = false;
-#endif
-
 const buffer_t &packet::encrypted_data()
 {
 	return encrypted_buffer;
@@ -21,32 +17,25 @@ void packet_in::create(buffer_t buf)
 
 bool packet_in::decrypt()
 {
-#ifndef NONET
-	if (!DisableEncryption) {
-		if (encrypted_buffer.size() < crypto_secretbox_NONCEBYTES
-		        + crypto_secretbox_MACBYTES
-		        + sizeof(NetPktHdr))
-			return false;
-		auto pktlen = (encrypted_buffer.size()
-		    - crypto_secretbox_NONCEBYTES
-		    - crypto_secretbox_MACBYTES);
-		decrypted_buffer.resize(pktlen);
-		if (crypto_secretbox_open_easy(decrypted_buffer.data(),
-		        encrypted_buffer.data()
-		            + crypto_secretbox_NONCEBYTES,
-		        encrypted_buffer.size()
-		            - crypto_secretbox_NONCEBYTES,
-		        encrypted_buffer.data(),
-		        key.data()))
-			return false;
-	} else
+#ifdef NETENCRYPT
+	if (encrypted_buffer.size() < crypto_secretbox_NONCEBYTES
+		 + crypto_secretbox_MACBYTES + sizeof(NetPktHdr))
+		return false;
+	auto pktlen = (encrypted_buffer.size()
+		 - crypto_secretbox_NONCEBYTES
+		 - crypto_secretbox_MACBYTES);
+	decrypted_buffer.resize(pktlen);
+	if (crypto_secretbox_open_easy(decrypted_buffer.data(),
+			encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
+			encrypted_buffer.size() - crypto_secretbox_NONCEBYTES,
+			encrypted_buffer.data(),
+			key.data()))
+		return false;
+#else
+	if (encrypted_buffer.size() < sizeof(NetPktHdr))
+		return false;
+	decrypted_buffer = encrypted_buffer;
 #endif
-	{
-		if (encrypted_buffer.size() < sizeof(NetPktHdr))
-			return false;
-		decrypted_buffer = encrypted_buffer;
-	}
-
 	return true;
 }
 
@@ -55,29 +44,23 @@ void packet_out::encrypt()
 	encrypted_buffer = decrypted_buffer;
 	if (encrypted_buffer.size() < sizeof(NetPktHdr))
 		ABORT();
-#ifndef NONET
-	if (!DisableEncryption) {
-		auto lenCleartext = encrypted_buffer.size();
-		encrypted_buffer.insert(encrypted_buffer.begin(),
-		    crypto_secretbox_NONCEBYTES, 0);
-		encrypted_buffer.insert(encrypted_buffer.end(),
-		    crypto_secretbox_MACBYTES, 0);
-		randombytes_buf(encrypted_buffer.data(), crypto_secretbox_NONCEBYTES);
-		if (crypto_secretbox_easy(encrypted_buffer.data()
-		            + crypto_secretbox_NONCEBYTES,
-		        encrypted_buffer.data()
-		            + crypto_secretbox_NONCEBYTES,
-		        lenCleartext,
-		        encrypted_buffer.data(),
-		        key.data()))
-			ABORT();
-	}
+#ifdef NETENCRYPT
+	auto lenCleartext = encrypted_buffer.size();
+	encrypted_buffer.insert(encrypted_buffer.begin(), crypto_secretbox_NONCEBYTES, 0);
+	encrypted_buffer.insert(encrypted_buffer.end(), crypto_secretbox_MACBYTES, 0);
+	randombytes_buf(encrypted_buffer.data(), crypto_secretbox_NONCEBYTES);
+	if (crypto_secretbox_easy(encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
+			encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
+			lenCleartext,
+			encrypted_buffer.data(),
+			key.data()))
+		ABORT();
 #endif
 }
 
 void packet_factory::setup_password(const char* passwd)
 {
-#ifndef NONET
+#ifdef NETENCRYPT
 	if (sodium_init() < 0)
 		ABORT();
 	std::string pw = std::string(passwd);
