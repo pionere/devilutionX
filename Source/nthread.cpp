@@ -22,7 +22,6 @@ const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData
 const unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
 static Uint32 guNextTick;
 static bool _gbTickInSync;
-static SDL_threadID glpNThreadId;
 static SDL_Thread *sghThread = NULL;
 static bool _sbNthreadShouldRun;
 
@@ -147,10 +146,8 @@ void nthread_start(bool request_delta)
 		_gbMutexDisabled = false;
 		sgMemCrit.Enter();
 		_sbNthreadShouldRun = true;
-		sghThread = CreateThread(nthread_handler, &glpNThreadId);
-		if (sghThread == NULL) {
-			app_fatal("nthread2:\n%s", SDL_GetError());
-		}
+		sghThread = CreateThread(nthread_handler);
+		assert(sghThread != NULL);
 	}
 }
 
@@ -158,7 +155,7 @@ void nthread_cleanup()
 {
 	_sbNthreadShouldRun = false;
 	gdwTurnsInTransit = 0;
-	if (sghThread != NULL && glpNThreadId != SDL_GetThreadID(NULL)) {
+	if (sghThread != NULL && SDL_GetThreadID(sghThread) != SDL_GetThreadID(NULL)) {
 		if (!_gbMutexDisabled)
 			sgMemCrit.Leave();
 		SDL_WaitThread(sghThread, NULL);

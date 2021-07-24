@@ -553,7 +553,7 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, unsigned dwLen)
 	}
 }
 
-static void multi_send_plrinfo_msg(int pnum, char cmd)
+static void multi_send_plrinfo_msg(int pnum, BYTE cmd)
 {
 	PkPlayerStruct pkplr;
 

@@ -14,7 +14,7 @@ static int SDLCALL ThreadTranslate(void *ptr)
 	return handler(NULL);
 }
 
-SDL_Thread *CreateThread(unsigned int (*handler)(void *), SDL_threadID *threadId)
+SDL_Thread* CreateThread(unsigned int (*handler)(void *))
 {
 #ifdef USE_SDL1
 	SDL_Thread *ret = SDL_CreateThread(ThreadTranslate, (void *)handler);
@@ -24,7 +24,6 @@ SDL_Thread *CreateThread(unsigned int (*handler)(void *), SDL_threadID *threadId
 	if (ret == NULL) {
 		ErrSdl();
 	}
-	*threadId = SDL_GetThreadID(ret);
 	return ret;
 }
 

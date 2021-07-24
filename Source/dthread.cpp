@@ -8,9 +8,8 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static CCritSect sgMemCrit;
-static SDL_threadID glpDThreadId;
 static DMegaPkt *sgpInfoHead;
-static bool _gbDthread_running;
+static bool _gbThreadLive;
 static event_emul *sghWorkToDoEvent;
 static SDL_Thread *sghThread = NULL;
 
@@ -19,7 +18,7 @@ static unsigned int dthread_handler(void *data)
 	DMegaPkt *pkt;
 	unsigned dwMilliseconds;
 
-	while (_gbDthread_running) {
+	while (_gbThreadLive) {
 		if (sgpInfoHead == NULL)
 			WaitForEvent(sghWorkToDoEvent);
 
@@ -58,7 +57,7 @@ void dthread_remove_player(int pnum)
 	sgMemCrit.Leave();
 }
 
-void dthread_send_delta(int pnum, char cmd, void *pbSrc, int dwLen)
+void dthread_send_delta(int pnum, BYTE cmd, void *pbSrc, int dwLen)
 {
 	DMegaPkt *pkt;
 	DMegaPkt *p;
@@ -89,16 +88,12 @@ void dthread_start()
 	}
 
 	sghWorkToDoEvent = StartEvent();
-	if (sghWorkToDoEvent == NULL) {
-		app_fatal("dthread:1\n%s", SDL_GetError());
-	}
+	assert(sghWorkToDoEvent != NULL);
 
-	_gbDthread_running = true;
+	_gbThreadLive = true;
 
-	sghThread = CreateThread(dthread_handler, &glpDThreadId);
-	if (sghThread == NULL) {
-		app_fatal("dthread2:\n%s", SDL_GetError());
-	}
+	sghThread = CreateThread(dthread_handler);
+	assert(sghThread != NULL);
 }
 
 void dthread_cleanup()
@@ -109,9 +104,9 @@ void dthread_cleanup()
 		return;
 	}
 
-	_gbDthread_running = false;
+	_gbThreadLive = false;
 	SetEvent(sghWorkToDoEvent);
-	if (sghThread != NULL && glpDThreadId != SDL_GetThreadID(NULL)) {
+	if (sghThread != NULL && SDL_GetThreadID(sghThread) != SDL_GetThreadID(NULL)) {
 		SDL_WaitThread(sghThread, NULL);
 		sghThread = NULL;
 	}
