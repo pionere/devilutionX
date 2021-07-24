@@ -251,7 +251,7 @@ endif()
 
 if(ZEROTIER)
   add_subdirectory(3rdParty/libzt)
-endif(
+endif()
 
 add_library(smacker STATIC
   3rdParty/libsmacker/smk_bitstream.c
