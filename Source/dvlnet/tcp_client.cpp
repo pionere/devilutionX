@@ -108,7 +108,7 @@ void tcp_client::handle_send(const asio::error_code &ec, size_t bytesSent)
 
 void tcp_client::send_packet(packet &pkt)
 {
-	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.data()));
+	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
 	auto buf = asio::buffer(*frame);
 	asio::async_write(sock, buf, [this, frame](const asio::error_code &ec, size_t bytesSent) {
 		handle_send(ec, bytesSent);

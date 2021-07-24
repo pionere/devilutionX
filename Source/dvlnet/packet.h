@@ -82,7 +82,7 @@ public:
 	packet(const key_t &k)
 	    : key(k) {};
 
-	const buffer_t &data();
+	const buffer_t &encrypted_data();
 
 	packet_type type();
 	plr_t src();
@@ -155,10 +155,10 @@ void packet_proc<P>::process_data()
 		self.process_element(m_newplr);
 		self.process_element(m_leaveinfo);
 		break;
+	case PT_INFO_REQUEST:
+		break;
 	case PT_INFO_REPLY:
 		self.process_element(m_info);
-		break;
-	case PT_INFO_REQUEST:
 		break;
 	}
 }

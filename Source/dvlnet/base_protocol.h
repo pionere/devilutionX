@@ -99,7 +99,7 @@ void base_protocol<P>::send_info_request()
 {
 	auto pkt = pktfty.make_out_packet<PT_INFO_REQUEST>(PLR_BROADCAST,
 	    PLR_MASTER);
-	proto.send_oob_mc(pkt->data());
+	proto.send_oob_mc(pkt->encrypted_data());
 }
 
 template <class P>
@@ -109,7 +109,7 @@ void base_protocol<P>::wait_join()
 	    sizeof(cookie_t));
 	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
 	    PLR_MASTER, cookie_self);
-	proto.send(firstpeer, pkt->data());
+	proto.send(firstpeer, pkt->encrypted_data());
 	for (auto i = 0; i < 500; ++i) {
 		recv();
 		if (plr_self != PLR_BROADCAST)
@@ -163,11 +163,11 @@ void base_protocol<P>::send_packet(packet &pkt)
 		if (pkt_plr == mypnum)
 			return;
 		if (peers[pkt_plr])
-			proto.send(peers[pkt_plr], pkt.data());
+			proto.send(peers[pkt_plr], pkt.encrypted_data());
 	} else if (pkt_plr == PLR_BROADCAST) {
 		for (auto &peer : peers)
 			if (peer)
-				proto.send(peer, pkt.data());
+				proto.send(peer, pkt.encrypted_data());
 	} else if (pkt_plr == PLR_MASTER) {
 		throw dvlnet_exception();
 	} else {
@@ -222,13 +222,13 @@ void base_protocol<P>::handle_join_request(packet &pkt, endpoint sender)
 	for (plr_t j = 0; j < MAX_PLRS; ++j) {
 		if ((j != plr_self) && (j != i) && peers[j]) {
 			auto infopkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, j, peers[j].serialize());
-			proto.send(sender, infopkt->data());
+			proto.send(sender, infopkt->encrypted_data());
 		}
 	}
 	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST,
 	    pkt.cookie(), i,
 	    game_init_info);
-	proto.send(sender, reply->data());
+	proto.send(sender, reply->encrypted_data());
 }
 
 template <class P>
@@ -262,7 +262,7 @@ void base_protocol<P>::recv_ingame(packet &pkt, endpoint sender)
 				auto reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST,
 				    PLR_MASTER,
 				    buf);
-				proto.send_oob(sender, reply->data());
+				proto.send_oob(sender, reply->encrypted_data());
 			}
 		}
 		return;

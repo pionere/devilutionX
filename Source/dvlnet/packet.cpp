@@ -66,7 +66,7 @@ void CheckPacketTypeOneOf(std::initializer_list<packet_type> expectedTypes, std:
 
 } // namespace
 
-const buffer_t &packet::data()
+const buffer_t &packet::encrypted_data()
 {
 	return encrypted_buffer;
 }
