@@ -11,8 +11,22 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-typedef std::vector<unsigned char> buffer_t;
-typedef size_t net_size_t;
+typedef std::vector<BYTE> buffer_t;
+
+struct message_t {
+	int sender; // change int to something else in devilution code later
+	buffer_t payload;
+	message_t()
+	    : sender(-1)
+	    , payload({})
+	{
+	}
+	message_t(int s, buffer_t p)
+	    : sender(s)
+	    , payload(p)
+	{
+	}
+};
 
 static constexpr uint8_t PLR_MASTER = SNPLAYER_MASTER;
 static constexpr uint8_t PLR_BROADCAST = SNPLAYER_ALL;

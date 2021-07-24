@@ -36,9 +36,9 @@ private:
 	asio::ip::tcp::socket sock = asio::ip::tcp::socket(ioc);
 	tcp_server* local_server = NULL;
 
-	void handle_recv(const asio::error_code &ec, net_size_t bytesRead);
+	void handle_recv(const asio::error_code &ec, size_t bytesRead);
 	void start_recv();
-	void handle_send(const asio::error_code &ec, net_size_t bytesSent);
+	void handle_send(const asio::error_code &ec, size_t bytesSent);
 	void close();
 };
 

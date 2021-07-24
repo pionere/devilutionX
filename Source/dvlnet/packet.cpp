@@ -188,8 +188,8 @@ void packet_factory::setup_password(const char* passwd)
 	if (sodium_init() < 0)
 		ABORT();
 	std::string pw = std::string(passwd);
-	pw.resize(std::min<net_size_t>(pw.size(), crypto_pwhash_argon2id_PASSWD_MAX));
-	pw.resize(std::max<net_size_t>(pw.size(), crypto_pwhash_argon2id_PASSWD_MIN), 0);
+	pw.resize(std::min<size_t>(pw.size(), crypto_pwhash_argon2id_PASSWD_MAX));
+	pw.resize(std::max<size_t>(pw.size(), crypto_pwhash_argon2id_PASSWD_MIN), 0);
 	std::string salt("W9bE9dQgVaeybwr2");
 	salt.resize(crypto_pwhash_argon2id_SALTBYTES, 0);
 	if (crypto_pwhash(key.data(), crypto_secretbox_KEYBYTES,

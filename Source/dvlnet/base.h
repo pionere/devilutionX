@@ -33,21 +33,6 @@ protected:
 	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };
 	buffer_t game_init_info;
 
-	struct message_t {
-		int sender; // change int to something else in devilution code later
-		buffer_t payload;
-		message_t()
-		    : sender(-1)
-		    , payload({})
-		{
-		}
-		message_t(int s, buffer_t p)
-		    : sender(s)
-		    , payload(p)
-		{
-		}
-	};
-
 	message_t message_last;
 	std::deque<message_t> message_queue;
 	turn_t turn_last[MAX_PLRS] = { };

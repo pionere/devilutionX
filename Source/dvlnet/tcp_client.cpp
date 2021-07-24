@@ -76,7 +76,7 @@ void tcp_client::poll()
 	ioc.poll();
 }
 
-void tcp_client::handle_recv(const asio::error_code &ec, net_size_t bytesRead)
+void tcp_client::handle_recv(const asio::error_code &ec, size_t bytesRead)
 {
 	if (ec || bytesRead == 0) {
 		// error in recv from server
@@ -101,7 +101,7 @@ void tcp_client::start_recv()
 	        std::placeholders::_1, std::placeholders::_2));
 }
 
-void tcp_client::handle_send(const asio::error_code &ec, net_size_t bytesSent)
+void tcp_client::handle_send(const asio::error_code &ec, size_t bytesSent)
 {
 	// empty for now
 }
