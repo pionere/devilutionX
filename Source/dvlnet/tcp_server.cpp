@@ -32,7 +32,7 @@ void tcp_server::make_default_gamename(char (&gamename)[128])
 	}
 }
 
-tcp_server::scc tcp_server::make_connection()
+tcp_server::scc tcp_server::make_connection(asio::io_context &ioc)
 {
 	return std::make_shared<client_connection>(ioc);
 }
@@ -92,12 +92,12 @@ void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, size_t 
 	start_recv(con);
 }
 
-void tcp_server::send_connect(const scc &con)
+/*void tcp_server::send_connect(const scc &con)
 {
 	auto pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST,
 	    con->pnum);
 	send_packet(*pkt);
-}
+}*/
 
 void tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 {
@@ -117,7 +117,7 @@ void tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	    pkt.cookie(), pnum,
 	    game_init_info);
 	start_send(con, *reply);
-	send_connect(con);
+	//send_connect(con);
 }
 
 void tcp_server::handle_recv_packet(packet &pkt)
@@ -131,7 +131,7 @@ void tcp_server::send_packet(packet &pkt)
 	plr_t src = pkt.src();
 
 	if (dest == PLR_BROADCAST) {
-		for (auto i = 0; i < MAX_PLRS; ++i)
+		for (int i = 0; i < MAX_PLRS; i++)
 			if (i != src && connections[i] != NULL)
 				start_send(connections[i], pkt);
 	} else {
@@ -147,21 +147,15 @@ void tcp_server::start_send(const scc &con, packet &pkt)
 	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
 	auto buf = asio::buffer(*frame);
 	asio::async_write(con->socket, buf,
-	    [this, con, frame](const asio::error_code &ec, size_t bytesSent) {
-		    handle_send(con, ec, bytesSent);
-		    delete frame;
-	    });
-}
-
-void tcp_server::handle_send(const scc &con, const asio::error_code &ec, size_t bytesSent)
-{
-	// empty for now
+		[frame](const asio::error_code &ec, size_t bytesSent) {
+			delete frame;
+		});
 }
 
 void tcp_server::start_accept()
 {
 	if (next_free_queue() != MAX_PLRS) {
-		nextcon = make_connection();
+		nextcon = make_connection(ioc);
 		acceptor->async_accept(nextcon->socket,
 			std::bind(&tcp_server::handle_accept,
 				this, true,

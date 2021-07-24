@@ -56,19 +56,18 @@ private:
 	scc connections[MAX_PLRS] = { };
 	buffer_t game_init_info;
 
-	scc make_connection();
+	static scc make_connection(asio::io_context &ioc);
 	plr_t next_free_conn();
 	plr_t next_free_queue();
 	void start_accept();
 	void handle_accept(bool valid, const asio::error_code &ec);
 	void start_recv(const scc &con);
-	void handle_recv(const scc &con, const asio::error_code &ec, size_t bytes_read);
+	void handle_recv(const scc &con, const asio::error_code &ec, size_t bytesRead);
 	void handle_recv_newplr(const scc &con, packet &pkt);
 	void handle_recv_packet(packet &pkt);
-	void send_connect(const scc &con);
+	//void send_connect(const scc &con);
 	void send_packet(packet &pkt);
 	void start_send(const scc &con, packet &pkt);
-	void handle_send(const scc &con, const asio::error_code &ec, size_t bytes_sent);
 	void start_timeout();
 	void handle_timeout(const asio::error_code &ec);
 	void drop_connection(const scc &con);
