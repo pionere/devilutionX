@@ -272,7 +272,7 @@ static void multi_deactivate_player(int pnum, int reason)
 			RemovePlrMissiles(pnum);
 		}
 		if (reason != LEAVE_NONE) {
-			pszFmt = "Player '%s' just left the game";
+			pszFmt = "Player '%s' left the game";
 			switch (reason) {
 			//case LEAVE_UNKNOWN:
 			//	break;
@@ -286,6 +286,7 @@ static void multi_deactivate_player(int pnum, int reason)
 			}
 			EventPlrMsg(pszFmt, plr._pName);
 		}
+		sgwPackPlrOffsetTbl[pnum] = 0;
 		plr.plractive = FALSE;
 		plr._pName[0] = '\0';
 		guTeamInviteRec &= ~(1 << pnum);
@@ -778,27 +779,26 @@ bool NetInit(bool bSinglePlayer)
 
 void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 {
+	if ((unsigned)pnum >= MAX_PLRS)
+		return;
 	// assert(pnum != mypnum);
-	/// ASSERT: assert((unsigned)pnum < MAX_PLRS);
-
 	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
-		sgwPackPlrOffsetTbl[pnum] = 0;
-		if (piHdr->wOffset != 0) {
-			return;
-		}
+		// invalid data -> drop
+		return;
 	}
 	if (sgwPackPlrOffsetTbl[pnum] == 0 && piHdr->bCmd != CMD_ACK_PLRINFO) {
 		multi_send_plrinfo_msg(pnum, CMD_ACK_PLRINFO);
 	}
 
+	if (piHdr->wBytes == 0)
+		return; // 'invalid' data -> skip to prevent reactivation of a player
 	memcpy((char *)&netplr[pnum] + piHdr->wOffset, &piHdr[1], piHdr->wBytes); /* todo: cast? */
 	sgwPackPlrOffsetTbl[pnum] += piHdr->wBytes;
 	if (sgwPackPlrOffsetTbl[pnum] != sizeof(*netplr)) {
 		return;
 	}
 
-	sgwPackPlrOffsetTbl[pnum] = 0;
-	multi_deactivate_player(pnum, LEAVE_NONE);
+	//sgwPackPlrOffsetTbl[pnum] = 0; - do NOT reset the offset to prevent reactivation of a player
 	// TODO: validate PkPlayerStruct coming from internet?
 	UnPackPlayer(&netplr[pnum], pnum);
 	if (piHdr->bCmd != CMD_ACK_PLRINFO) {
