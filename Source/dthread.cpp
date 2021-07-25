@@ -32,7 +32,7 @@ static int SDLCALL dthread_handler(void* data)
 
 		if (pkt != NULL) {
 			if (pkt->dmpPlr != MAX_PLRS)
-				multi_send_zero_packet(pkt->dmpPlr, pkt->dmpCmd, &pkt->data[0], pkt->dmpLen);
+				multi_send_large_direct_msg(pkt->dmpPlr, pkt->dmpCmd, &pkt->data[0], pkt->dmpLen);
 			dwMilliseconds = (1000 / 4) * pkt->dmpLen / gdwDeltaBytesSec;
 
 			mem_free_dbg(pkt);

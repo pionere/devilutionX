@@ -2364,7 +2364,7 @@ static unsigned On_SEND_PLRINFO(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		DeltaQueuePacket(pnum, cmd, cmd->wBytes + sizeof(*cmd));
 	else if (pnum != mypnum)
-		multi_recv_plrinfo_msg(pnum, cmd, cmd->bCmd == CMD_ACK_PLRINFO);
+		multi_recv_plrinfo_msg(pnum, cmd);
 
 	return cmd->wBytes + sizeof(*cmd);
 }

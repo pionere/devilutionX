@@ -32,10 +32,10 @@ void multi_disband_team(int pnum);
 void multi_net_ping();
 bool multi_handle_turn();
 void multi_process_network_packets();
-void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, unsigned dwLen);
+void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen);
 void NetClose();
 bool NetInit(bool bSinglePlayer);
-void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* plrInfo, bool recv);
+void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr);
 
 #ifdef __cplusplus
 }

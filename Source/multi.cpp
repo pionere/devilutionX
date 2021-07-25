@@ -776,7 +776,7 @@ bool NetInit(bool bSinglePlayer)
 	return true;
 }
 
-void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
+void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 {
 	// assert(pnum != mypnum);
 	/// ASSERT: assert((unsigned)pnum < MAX_PLRS);
@@ -787,7 +787,7 @@ void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 			return;
 		}
 	}
-	if (!recv && sgwPackPlrOffsetTbl[pnum] == 0) {
+	if (sgwPackPlrOffsetTbl[pnum] == 0 && piHdr->bCmd != CMD_ACK_PLRINFO) {
 		multi_send_plrinfo_msg(pnum, CMD_ACK_PLRINFO);
 	}
 
@@ -801,7 +801,7 @@ void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 	multi_deactivate_player(pnum, LEAVE_NONE);
 	// TODO: validate PkPlayerStruct coming from internet?
 	UnPackPlayer(&netplr[pnum], pnum);
-	if (!recv) {
+	if (piHdr->bCmd != CMD_ACK_PLRINFO) {
 		return;
 	}
 
