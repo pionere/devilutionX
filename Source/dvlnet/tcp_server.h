@@ -15,8 +15,8 @@ namespace net {
 
 class tcp_server {
 public:
-	tcp_server(asio::io_context &ioc, const char* bindAddr,
-	    unsigned short port, const char* passwd, buffer_t info);
+	tcp_server(asio::io_context &ioc, buffer_t info);
+	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd);
 	void close();
 	virtual ~tcp_server() = default;
 
@@ -40,9 +40,9 @@ private:
 	typedef std::shared_ptr<client_connection> scc;
 
 	asio::io_context &ioc;
+	asio::ip::tcp::acceptor acceptor;
 	asio::steady_timer connTimer;
 	packet_factory pktfty;
-	asio::ip::tcp::acceptor* acceptor = NULL;
 	scc nextcon;
 	scc pending_connections[MAX_PLRS] = { };
 	scc connections[MAX_PLRS] = { };

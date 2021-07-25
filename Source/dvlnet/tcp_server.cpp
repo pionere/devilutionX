@@ -10,18 +10,42 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-tcp_server::tcp_server(asio::io_context &ioc, const char* bindAddr,
-    unsigned short port, const char* passwd, buffer_t info)
+tcp_server::tcp_server(asio::io_context &ioc, buffer_t info)
     : ioc(ioc)
-    , connTimer(ioc)
-    , game_init_info(info)
+	, acceptor(ioc)
+	, connTimer(ioc)
+	, game_init_info(info)
+{
+	assert(game_init_info.size() == sizeof(SNetGameData));
+}
+
+bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const char* passwd)
 {
 	pktfty.setup_password(passwd);
-	auto addr = asio::ip::address::from_string(bindAddr);
-	auto ep = asio::ip::tcp::endpoint(addr, port);
-	acceptor = new asio::ip::tcp::acceptor(ioc, ep, true);
+	asio::error_code err;
+	auto addr = asio::ip::address::from_string(bindAddr, err);
+	if (!err) {
+		auto ep = asio::ip::tcp::endpoint(addr, port);
+		acceptor.open(ep.protocol(), err);
+		if (err)
+			goto error;
+		acceptor.set_option(asio::socket_base::reuse_address(true), err);
+		assert(!err);
+		acceptor.bind(ep, err);
+	}
+	if (err)
+		goto error;
+	acceptor.listen(2 * MAX_PLRS, err);
+	if (err)
+		goto error;
+
 	start_accept();
 	start_timeout();
+	return true;
+error:
+	SDL_SetError("%s", err.message().c_str());
+	close();
+	return false;
 }
 
 void tcp_server::make_default_gamename(char (&gamename)[128])
@@ -71,6 +95,7 @@ void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, size_t 
 		drop_connection(con);
 		return;
 	}
+	con->timeout = TIMEOUT_ACTIVE;
 	con->recv_buffer.resize(bytesRead);
 	con->recv_queue.write(std::move(con->recv_buffer));
 	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
@@ -112,8 +137,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	connections[pnum] = con;
 	con->pnum = pnum;
 	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
-	    pkt.pktJoinReqCookie(), pnum,
-	    game_init_info);
+	    pkt.pktJoinReqCookie(), pnum, game_init_info);
 	start_send(con, *reply);
 	//send_connect(con);
 	return true;
@@ -162,7 +186,7 @@ void tcp_server::start_accept()
 {
 	if (next_free_queue() != MAX_PLRS) {
 		nextcon = make_connection(ioc);
-		acceptor->async_accept(nextcon->socket,
+		acceptor.async_accept(nextcon->socket,
 			std::bind(&tcp_server::handle_accept,
 				this, true,
 				std::placeholders::_1));
@@ -180,8 +204,10 @@ void tcp_server::handle_accept(bool valid, const asio::error_code &ec)
 	if (ec)
 		return;
 	if (valid) {
+		asio::error_code err;
 		asio::ip::tcp::no_delay option(true);
-		nextcon->socket.set_option(option);
+		nextcon->socket.set_option(option, err);
+		assert(!err);
 		nextcon->timeout = TIMEOUT_CONNECT;
 		pending_connections[next_free_queue()] = nextcon;
 		start_recv(nextcon);
@@ -251,41 +277,49 @@ void tcp_server::drop_connection(const scc &con)
 			}
 		}
 	}
-	con->socket.close();
+	asio::error_code err;
+	con->socket.close(err);
 }
 
 void tcp_server::close()
 {
 	int i;
+	asio::error_code err;
 
-	if (acceptor == NULL)
-		return;
+	if (acceptor.is_open()) {
+		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
+			PLR_MASTER, (leaveinfo_t)LEAVE_DROP);
+		send_packet(*pkt);
+		ioc.poll(err);
+		err.clear();
+	}
 
-	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
-		PLR_MASTER, (leaveinfo_t)LEAVE_DROP);
-	send_packet(*pkt);
+	acceptor.close(err);
+	err.clear();
+	connTimer.cancel(err);
+	err.clear();
 
-	acceptor->close();
-	connTimer.cancel();
-
-	ioc.poll();
-	if (nextcon != NULL)
-		nextcon->socket.close();
+	ioc.poll(err);
+	err.clear();
+	if (nextcon != NULL) {
+		nextcon->socket.close(err);
+		err.clear();
+	}
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (connections[i] != NULL) {
-			connections[i]->socket.shutdown(asio::socket_base::shutdown_both);
-			connections[i]->socket.close();
+			connections[i]->socket.shutdown(asio::socket_base::shutdown_both, err);
+			err.clear();
+			connections[i]->socket.close(err);
+			err.clear();
 		}
 	}
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (pending_connections[i] != NULL) {
-			pending_connections[i]->socket.close();
+			pending_connections[i]->socket.close(err);
+			err.clear();
 		}
 	}
-	ioc.poll();
-
-	delete acceptor;
-	acceptor = NULL;
+	ioc.poll(err);
 }
 
 } // namespace net

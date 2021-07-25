@@ -38,7 +38,6 @@ private:
 
 	void handle_recv(const asio::error_code &ec, size_t bytesRead);
 	void start_recv();
-	void handle_send(const asio::error_code &ec, size_t bytesSent);
 	void close();
 };
 
