@@ -9,21 +9,21 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 BYTE gbNetUpdateRate;
-static CCritSect sgMemCrit;
+static CCritSect sgThreadMutex;
 uint32_t gdwTurnsInTransit;
 uint32_t* glpMsgTbl[MAX_PLRS];
 /* flag to tell the receiver whether a delta should be sent */
 static uint32_t turn_delta_request;
 static BYTE sgbPacketCountdown;
 static BYTE sgbSyncCountdown;
-static bool _gbMutexDisabled;
+static bool _gbRunThread;
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
 const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
 const unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
 static Uint32 guNextTick;
 static bool _gbTickInSync;
 static SDL_Thread *sghThread = NULL;
-static bool _sbNthreadShouldRun;
+static bool _gbThreadLive;
 
 void nthread_terminate_game(const char *pszFcn)
 {
@@ -107,10 +107,10 @@ static int SDLCALL nthread_handler(void* data)
 	int delta;
 	bool received;
 
-	while (_sbNthreadShouldRun) {
-		sgMemCrit.Enter();
-		if (!_sbNthreadShouldRun) {
-			sgMemCrit.Leave();
+	while (_gbThreadLive) {
+		sgThreadMutex.Enter();
+		if (!_gbThreadLive) {
+			sgThreadMutex.Leave();
 			break;
 		}
 		nthread_send_turn(0, 0);
@@ -118,7 +118,7 @@ static int SDLCALL nthread_handler(void* data)
 			delta = guNextTick - SDL_GetTicks();
 		else
 			delta = gnTickDelay;
-		sgMemCrit.Leave();
+		sgThreadMutex.Leave();
 		if (delta > 0)
 			SDL_Delay(delta);
 	}
@@ -143,9 +143,9 @@ void nthread_start(bool request_delta)
 	gdwTurnsInTransit = 1; // TODO: add to SNetGameData ? (was defaultturnsintransit in vanilla)
 	static_assert(sizeof(TurnPkt) <= gdwNormalMsgSize, "TurnPkt does not fit in a message.");
 	if (gbMaxPlayers != 1) {
-		_gbMutexDisabled = false;
-		sgMemCrit.Enter();
-		_sbNthreadShouldRun = true;
+		_gbRunThread = false;
+		sgThreadMutex.Enter();
+		_gbThreadLive = true;
 		sghThread = CreateThread(nthread_handler);
 		assert(sghThread != NULL);
 	}
@@ -153,11 +153,11 @@ void nthread_start(bool request_delta)
 
 void nthread_cleanup()
 {
-	_sbNthreadShouldRun = false;
+	_gbThreadLive = false;
 	gdwTurnsInTransit = 0;
 	if (sghThread != NULL && SDL_GetThreadID(sghThread) != SDL_GetThreadID(NULL)) {
-		if (!_gbMutexDisabled)
-			sgMemCrit.Leave();
+		if (!_gbRunThread)
+			sgThreadMutex.Leave();
 		SDL_WaitThread(sghThread, NULL);
 		sghThread = NULL;
 	}
@@ -167,10 +167,10 @@ void nthread_ignore_mutex(bool bStart)
 {
 	if (sghThread != NULL) {
 		if (bStart)
-			sgMemCrit.Leave();
+			sgThreadMutex.Leave();
 		else
-			sgMemCrit.Enter();
-		_gbMutexDisabled = bStart;
+			sgThreadMutex.Enter();
+		_gbRunThread = bStart;
 	}
 }
 
