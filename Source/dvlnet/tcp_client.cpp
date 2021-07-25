@@ -18,7 +18,7 @@ namespace net {
 bool tcp_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
 {
 	setup_gameinfo(std::move(info));
-	local_server = new tcp_server(ioc, game_init_info, SRV_BASIC);
+	local_server = new tcp_server(ioc, game_init_info);
 	if (local_server->setup_server(addrstr, port, passwd)) {
 		return join_game(addrstr, port, passwd);
 	}
@@ -112,7 +112,7 @@ void tcp_client::send_packet(packet &pkt)
 {
 	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
 	auto buf = asio::buffer(*frame);
-	asio::async_write(sock, buf, [this, frame](const asio::error_code &ec, size_t bytesSent) {
+	asio::async_write(sock, buf, [frame](const asio::error_code &ec, size_t bytesSent) {
 		delete frame;
 	});
 }
