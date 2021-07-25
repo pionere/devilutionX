@@ -62,13 +62,13 @@ static void SelconnLoad()
 {
 	LoadBackgroundArt("ui_art\\selconn.pcx");
 
+	vecConnItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
 #ifdef ZEROTIER
 	vecConnItems.push_back(new UiListItem("Zerotier", SELCONN_ZT));
 #endif
 #ifdef TCPIP
 	vecConnItems.push_back(new UiListItem("Client-Server (TCP)", SELCONN_TCP));
 #endif
-	vecConnItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
 
 	UiAddBackground(&vecSelConnDlg);
 	UiAddLogo(&vecSelConnDlg);
@@ -143,8 +143,10 @@ bool UiSelectProvider(bool bMulti)
 	selconn_ReturnValue = true;
 	selconn_EndMenu = false;
 
-	if (!selconn_bMulti)
-		SelconnSelect(1);
+	if (!selconn_bMulti) {
+		assert(vecConnItems[0]->m_value == SELCONN_LOOPBACK);
+		SelconnSelect(0);
+	}
 
 	while (!selconn_EndMenu) {
 		UiClearScreen();
