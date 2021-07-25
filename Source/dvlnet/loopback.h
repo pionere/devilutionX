@@ -1,27 +1,35 @@
 #pragma once
 
-#include "base.h"
+#include <deque>
+
+#include "abstract_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-class loopback : public base {
+class loopback : public abstract_net {
 public:
+	bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
+	bool join_game(const char* addrstr, unsigned port, const char* passwd);
+	bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
+	void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
+	bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
+	void SNetSendTurn(uint32_t turn);
+	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
+	void SNetUnregisterEventHandler(int evtype);
+	void SNetLeaveGame(int reason);
+	void SNetDropPlayer(int playerid);
+	uint32_t SNetGetOwnerTurnsWaiting();
+	uint32_t SNetGetTurnsInTransit();
 
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
-	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
-	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
-	virtual bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
-	virtual void SNetSendTurn(uint32_t turn);
-	virtual void SNetLeaveGame(int reason);
-	virtual void SNetDropPlayer(int playerid);
-	virtual uint32_t SNetGetOwnerTurnsWaiting();
-	virtual uint32_t SNetGetTurnsInTransit();
-	virtual void make_default_gamename(char (&gamename)[128]);
+	loopback() = default;
+	~loopback() = default;
 
-protected:
-	virtual void poll();
-	virtual void send_packet(packet &pkt);
+	void make_default_gamename(char (&gamename)[128]);
+
+private:
+	buffer_t message_last;
+	std::deque<buffer_t> message_queue;
 };
 
 } // namespace net
