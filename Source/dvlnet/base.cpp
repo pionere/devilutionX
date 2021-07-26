@@ -31,13 +31,17 @@ void base::disconnect_net(plr_t pnum)
 
 void base::recv_accept(packet &pkt)
 {
-	if (plr_self != PLR_BROADCAST) {
-		return; // already have player id - should not happen...
+	if (plr_self != PLR_BROADCAST || pkt.pktJoinAccCookie() != cookie_self) {
+		// ignore the packet if player id is set or the cookie does not match
+		return;
 	}
-	if (pkt.pktJoinAccCookie() == cookie_self) {
-		plr_self = pkt.pktJoinAccPlr();
-		connected_table[plr_self] = true;
+	plr_self = pkt.pktJoinAccPlr();
+	if (plr_self >= MAX_PLRS) {
+		// Invalid player id -> ignore
+		plr_self = PLR_BROADCAST;
+		return;
 	}
+	connected_table[plr_self] = true;
 	auto &pkt_info = pkt.pktJoinAccInfo();
 #ifdef ZEROTIER
 	//if (pkt_info.size() != sizeof(SNetGameData)) {
@@ -56,6 +60,7 @@ void base::recv_accept(packet &pkt)
 
 void base::clear_msg(plr_t pnum)
 {
+	turn_queue[pnum].clear();
 	message_queue.erase(std::remove_if(message_queue.begin(),
 	                        message_queue.end(),
 	                        [&](message_t &msg) {
@@ -76,7 +81,6 @@ void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 		connected_table[pnum] = false;
 		disconnect_net(pnum);
 		clear_msg(pnum);
-		turn_queue[pnum].clear();
 	}
 }
 
@@ -113,7 +117,10 @@ void base::recv_local(packet &pkt)
 		message_queue.emplace_back(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd()));
 		break;
 	case PT_TURN:
-		turn_queue[pkt_plr].push_back(pkt.pktTurn());
+		// TODO: validate pkt_plr if the server can not be trusted?
+		//if (pkt_plr < MAX_PLRS) {
+			turn_queue[pkt_plr].push_back(pkt.pktTurn());
+		//}
 		break;
 	case PT_JOIN_ACCEPT:
 		recv_accept(pkt);
@@ -145,21 +152,20 @@ bool base::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 
 void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
-	if (receiver != SNPLAYER_ALL /*&& receiver != SNPLAYER_OTHERS*/
-	    && (receiver < 0 || receiver >= MAX_PLRS))
-		ABORT();
-	buffer_t message(data, data + size);
-	if (receiver == plr_self || receiver == SNPLAYER_ALL)
+	if (receiver == SNPLAYER_ALL || receiver == plr_self) {
 		message_queue.emplace_back(plr_self, buffer_t(data, data + size));
-	plr_t dest;
-	if (receiver == SNPLAYER_ALL /*|| receiver == SNPLAYER_OTHERS*/)
-		dest = PLR_BROADCAST;
-	else
-		dest = receiver;
-	if (dest != plr_self) {
-		auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
-		send_packet(*pkt);
+		if (receiver == plr_self)
+			return;
 	}
+	plr_t dest;
+	if (receiver == SNPLAYER_ALL/* || receiver == SNPLAYER_OTHERS*/)
+		dest = PLR_BROADCAST;
+	else {
+		assert((unsigned)receiver < MAX_PLRS);
+		dest = receiver;
+	}
+	auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
+	send_packet(*pkt);
 }
 
 bool base::SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
