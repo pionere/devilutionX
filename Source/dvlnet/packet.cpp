@@ -29,7 +29,7 @@ bool packet_in::decrypt()
 			encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
 			encrypted_buffer.size() - crypto_secretbox_NONCEBYTES,
 			encrypted_buffer.data(),
-			key.data()))
+			key.data))
 		return false;
 #else
 	if (encrypted_buffer.size() < sizeof(NetPktHdr))
@@ -42,8 +42,7 @@ bool packet_in::decrypt()
 void packet_out::encrypt()
 {
 	encrypted_buffer = decrypted_buffer;
-	if (encrypted_buffer.size() < sizeof(NetPktHdr))
-		ABORT();
+	assert(encrypted_buffer.size() >= sizeof(NetPktHdr));
 #ifdef NETENCRYPT
 	auto lenCleartext = encrypted_buffer.size();
 	encrypted_buffer.insert(encrypted_buffer.begin(), crypto_secretbox_NONCEBYTES, 0);
@@ -53,7 +52,7 @@ void packet_out::encrypt()
 			encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
 			lenCleartext,
 			encrypted_buffer.data(),
-			key.data()))
+			key.data))
 		ABORT();
 #endif
 }
@@ -68,7 +67,7 @@ void packet_factory::setup_password(const char* passwd)
 	pw.resize(std::max<size_t>(pw.size(), crypto_pwhash_argon2id_PASSWD_MIN), 0);
 	std::string salt("W9bE9dQgVaeybwr2");
 	salt.resize(crypto_pwhash_argon2id_SALTBYTES, 0);
-	if (crypto_pwhash(key.data(), crypto_secretbox_KEYBYTES,
+	if (crypto_pwhash(key.data, crypto_secretbox_KEYBYTES,
 	        pw.data(), pw.size(),
 	        reinterpret_cast<const unsigned char *>(salt.data()),
 	        3 * crypto_pwhash_argon2id_OPSLIMIT_MIN,

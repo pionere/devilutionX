@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <string>
 #include <memory>
-#include <array>
 #include <cstring>
 #ifdef NETENCRYPT
 #include <sodium.h>
@@ -29,10 +28,10 @@ enum packet_type : uint8_t {
 
 typedef uint8_t plr_t;
 typedef DWORD cookie_t;
-typedef DWORD turn_t;
+typedef uint32_t turn_t;
 typedef uint8_t leaveinfo_t;
 #ifdef NETENCRYPT
-typedef std::array<unsigned char, crypto_secretbox_KEYBYTES> key_t;
+typedef struct key_t { BYTE data[crypto_secretbox_KEYBYTES]; } key_t;
 #else
 // Stub out the key_t definition as we're not doing any encryption.
 using key_t = uint8_t;
@@ -141,7 +140,6 @@ public:
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_cookie;
 	}
 	SNetGameData &pktJoinAccInfo() {
-		// TODO: endianness
 		return reinterpret_cast<NetPktJoinAccept*>(decrypted_buffer.data())->m_info;
 	}
 	// PT_INFO_REPLY
@@ -266,7 +264,7 @@ inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n, buffer_t i
 	memcpy((BYTE*)data + sizeof(NetPktConnect), i.data(), i.size());
 }
 
-template <>
+/*template <>
 inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n)
 {
 	decrypted_buffer.resize(sizeof(NetPktConnect));
@@ -275,7 +273,7 @@ inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n)
 	data->npHdr.m_src = s;
 	data->npHdr.m_dest = d;
 	data->m_newplr = n;
-}
+}*/
 
 template <>
 inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n, leaveinfo_t l)
