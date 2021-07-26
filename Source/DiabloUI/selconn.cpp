@@ -36,6 +36,10 @@ static void SelconnFocus(unsigned index)
 #ifdef TCPIP
 	case SELCONN_TCP:
 	case SELCONN_TCPD:
+#ifndef NOHOSTING
+	case SELCONN_TCPS:
+	case SELCONN_TCPDS:
+#endif
 		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to a TCP-compatible network.");
 		//numplayers = MAX_PLRS;
 		break;
@@ -70,6 +74,10 @@ static void SelconnLoad()
 #ifdef TCPIP
 	vecConnItems.push_back(new UiListItem("Client-Server (TCP)", SELCONN_TCP));
 	vecConnItems.push_back(new UiListItem("Client-Server (TCP-D)", SELCONN_TCPD));
+#ifndef NOHOSTING
+	vecConnItems.push_back(new UiListItem("Server (TCP)", SELCONN_TCPS));
+	vecConnItems.push_back(new UiListItem("Server (TCP-D)", SELCONN_TCPDS));
+#endif // NOHOSTING
 #endif // TCPIP
 
 	UiAddBackground(&vecSelConnDlg);

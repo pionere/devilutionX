@@ -122,7 +122,10 @@ void selgame_GameSelection_Init()
 	vecSelGameDialog.push_back(new UiArtText("Select Action", rect4, UIS_CENTER | UIS_BIG));
 
 	vecSelGameDlgItems.push_back(new UiListItem("Create Game", SELGAME_CREATE));
-	vecSelGameDlgItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
+#ifndef NOHOSTING
+	if (provider != SELCONN_TCPS && provider != SELCONN_TCPDS)
+#endif
+		vecSelGameDlgItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
 	vecSelGameDialog.push_back(new UiList(vecSelGameDlgItems, PANEL_LEFT + 305, (UI_OFFSET_Y + 255), 285, 26, UIS_CENTER | UIS_MED | UIS_GOLD));
 

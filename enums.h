@@ -3090,6 +3090,8 @@ typedef enum conn_type {
 	SELCONN_ZT,       // zerotier (p2p)
 	SELCONN_TCP,      // tcp/ip server-client
 	SELCONN_TCPD,     // tcp/ip server-client + p2p
+	SELCONN_TCPS,     // tcp/ip server
+	SELCONN_TCPDS,    // tcp/ip server + p2p
 	SELCONN_LOOPBACK, // local
 } conn_type;
 

@@ -29,6 +29,7 @@ option(NONET "Disable network support" OFF)
 cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
 cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
 cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
+cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 RELEASE_OPTION(CPACK "Configure CPack")
@@ -420,6 +421,7 @@ if(NOT NONET)
     Source/dvlnet/tcp_client.cpp
     Source/dvlnet/tcp_server.cpp
     Source/dvlnet/tcpd_client.cpp
+    Source/dvlnet/tcp_host.cpp
     Source/dvlnet/protocol_zt.cpp
     Source/dvlnet/zerotier_native.cpp
     Source/dvlnet/zerotier_lwip.cpp)
@@ -568,8 +570,9 @@ foreach(
   NOSOUND
   NOWIDESCREEN
   NONET
-  TCPIP
   NETENCRYPT
+  NOHOSTING
+  TCPIP
   ZEROTIER
   PREFILL_PLAYER_NAME
   GPERF

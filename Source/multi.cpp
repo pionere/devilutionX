@@ -477,6 +477,67 @@ void multi_process_msgs()
 	}
 }
 
+#ifndef NOHOSTING
+static unsigned gameProgress;
+extern Uint32 guNextTick;
+static int game_server_callback()
+{
+	int delta, i;
+	bool active;
+
+	switch (nthread_recv_turns()) {
+	case TS_DESYNC:
+		// TODO: drop the offending players?
+		multi_parse_turns();
+		multi_process_msgs();
+		nthread_send_turn();
+		gameProgress++;
+		delta = 1;
+		break;
+	case TS_ACTIVE:
+		multi_parse_turns();
+		multi_process_msgs();
+		gameProgress++;
+		active = false;
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (!(player_state[i] & PCS_CONNECTED))
+				continue;
+			active = true;
+			if (player_state[i] & PCS_TURN_ARRIVED)
+				gameProgress++;
+		}
+		if (active) {
+			nthread_send_turn();
+		}
+		/* fall-through */
+	case TS_LIVE:
+		delta = guNextTick - SDL_GetTicks();
+		break;
+	case TS_TIMEOUT:
+		delta = 1; //gnTickDelay;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+
+	if (delta > 0)
+		SDL_Delay(delta);
+
+	while (gameProgress >= 100)
+		gameProgress -= 100;
+	return gameProgress;
+}
+
+void RunGameServer()
+{
+	currLvl._dLevelIdx = NUM_STDLVLS;
+	gbActivePlayers = 0;
+	gameProgress = 0;
+	UiProgressDialog("...Server is running...", game_server_callback);
+}
+#endif
+
 /**
  * Send a (possible) large packet to the target player using TCmdPlrInfoHdr without using the queue.
  *
@@ -621,7 +682,11 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 			gbSelectProvider = false;
 		}
 		// select hero
+#ifndef NOHOSTING
+		if (provider != SELCONN_TCPS && provider != SELCONN_TCPDS && gbSelectHero) {
+#else
 		if (gbSelectHero) {
+#endif
 			dlgresult = UiSelHeroDialog(
 				pfile_ui_set_hero_infos,
 				pfile_ui_save_create,
@@ -641,7 +706,13 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		}
 		gbSelectHero = bSinglePlayer;
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
-		pfile_create_player_description();
+#ifndef NOHOSTING
+		if (provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+			mypnum = SNPLAYER_MASTER;
+			sgGameInitInfo.bPlayerId = SNPLAYER_MASTER;
+		} else
+#endif
+			pfile_create_player_description();
 
 		if (gbLoadGame) {
 			// mypnum = 0;
@@ -655,6 +726,12 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		//  sets sgGameInitInfo except for bPlayerId, dwSeed (if not joining a game) and dwVersionId
 		dlgresult = UiSelectGame(&sgGameInitInfo, multi_handle_events);
 		if (dlgresult == SELGAME_PREVIOUS) {
+#ifndef NOHOSTING
+			if (provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+				gbSelectProvider = true;
+				mypnum = 0;
+			}
+#endif
 			gbSelectHero = true;
 			continue;
 		}
@@ -710,6 +787,7 @@ bool NetInit(bool bSinglePlayer)
 		static_assert(LEAVE_NONE == 0, "NetInit uses memset to reset the LEAVE_ enum values.");
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
 		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
+		memset(player_state, 0, sizeof(player_state));
 		guSendDelta = 0;
 		_gbNetInited = true;
 		_gbTimeout = false;
@@ -720,13 +798,20 @@ bool NetInit(bool bSinglePlayer)
 		dthread_start();
 		sgdwGameLoops = 0;
 		nthread_send_turn();
+#ifndef NOHOSTING
+		if (provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+			RunGameServer();
+			NetClose();
+			continue;
+		}
+#endif // !NOHOSTING
 		nthread_run();
 		SetupLocalPlr();
 		if (!gbJoinGame)
 			break;
 		multi_send_plrinfo_msg(SNPLAYER_ALL, NMSG_SEND_PLRINFO);
 		if (DownloadDeltaInfo()) {
-			//nthread_finish(); - do not, because if would send a join-level message
+			//nthread_finish(); - do not, because it would send a join-level message
 			break;
 		}
 		NetClose();
@@ -750,7 +835,10 @@ void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 		return;
 	}
 	if (sgwPackPlrOffsetTbl[pnum] == 0 && piHdr->bCmd != NMSG_ACK_PLRINFO) {
-		multi_send_plrinfo_msg(pnum, NMSG_ACK_PLRINFO);
+#ifndef NOHOSTING
+		if (mypnum < MAX_PLRS)
+#endif
+			multi_send_plrinfo_msg(pnum, NMSG_ACK_PLRINFO);
 	}
 
 	if (piHdr->wBytes == 0)

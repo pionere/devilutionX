@@ -495,10 +495,10 @@ static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 			// invalid data starting type -> drop the packet
 			goto done;
 		}
-		if ((unsigned)pnum >= MAX_PLRS) {
+		/*if ((unsigned)pnum >= MAX_PLRS && pnum != SNPLAYER_MASTER) {
 			// message from an invalid player -> drop the packet
 			goto done;
-		}
+		}*/
 		// start receiving
 		gbDeltaSender = pnum;
 		_gbRecvCmd = cmd->bCmd;
@@ -1960,7 +1960,11 @@ static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdPlrDamage *cmd = (TCmdPlrDamage *)pCmd;
 
+#ifndef NOHOSTING
+	if (cmd->pdPnum == mypnum && mypnum < MAX_PLRS) {
+#else
 	if (cmd->pdPnum == mypnum) {
+#endif
 		if (currLvl._dType != DTYPE_TOWN && currLvl._dLevelIdx == plr.plrlevel) {
 			if (!myplr._pInvincible /*&& SwapLE32(cmd->pdDamage) <= 192000*/) {
 				PlrDecHp(mypnum, SwapLE32(cmd->pdDamage), DMGTYPE_PLAYER);
@@ -2278,7 +2282,11 @@ static unsigned On_ACK_INVITE(TCmd *pCmd, int pnum)
 	guTeamInviteSent &= ~(1 << pnum);
 
 	plr._pTeam = cmd->bParam1;
+#ifndef NOHOSTING
+	if (mypnum < MAX_PLRS && cmd->bParam1 == myplr._pTeam) {
+#else
 	if (cmd->bParam1 == myplr._pTeam) {
+#endif
 		if (pnum == mypnum)
 			EventPlrMsg("You joined team %c.", 'a' + plr._pTeam);
 		else
@@ -2331,7 +2339,12 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 			if (teamplr == mypnum) {
 				EventPlrMsg("You were kicked from your team.");
 			} else {
-				EventPlrMsg("%s was kicked from %s team.", plx(teamplr)._pName, team == myplr._pTeam ? "your" : "their");
+				EventPlrMsg("%s was kicked from %s team.", plx(teamplr)._pName,
+#ifndef NOHOSTING
+					(mypnum < MAX_PLRS && team == myplr._pTeam) ? "your" : "their");
+#else
+					team == myplr._pTeam ? "your" : "their");
+#endif
 			}
 		}
 	} else {
@@ -2345,7 +2358,12 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 		if (teamplr == mypnum)
 			EventPlrMsg("You left your team.");
 		else
-			EventPlrMsg("%s left %s team.", plx(teamplr)._pName, team == myplr._pTeam ? "your" : "their");
+			EventPlrMsg("%s left %s team.", plx(teamplr)._pName,
+#ifndef NOHOSTING
+				(mypnum < MAX_PLRS && team == myplr._pTeam) ? "your" : "their");
+#else
+				team == myplr._pTeam ? "your" : "their");
+#endif
 	}
 
 	return sizeof(*cmd);
@@ -2452,7 +2470,11 @@ static unsigned On_OPENCRYPT(TCmd *pCmd, int pnum)
 
 unsigned ParseMsg(int pnum, TCmd *pCmd)
 {
+#ifndef NOHOSTING
+	if ((unsigned)pnum >= MAX_PLRS && pnum != SNPLAYER_MASTER) {
+#else
 	if ((unsigned)pnum >= MAX_PLRS) {
+#endif
 		dev_fatal("ParseMsg: illegal player %d", pnum);
 	}
 	switch (pCmd->bCmd) {

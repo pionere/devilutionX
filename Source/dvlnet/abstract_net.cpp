@@ -5,6 +5,7 @@
 #include "dvlnet/protocol_zt.h"
 #include "dvlnet/tcp_client.h"
 #include "dvlnet/tcpd_client.h"
+#include "dvlnet/tcp_host.h"
 #include "dvlnet/loopback.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -18,6 +19,12 @@ std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 		return std::make_unique<tcp_client>();
 	case SELCONN_TCPD:
 		return std::make_unique<tcpd_client>();
+#ifndef NOHOSTING 
+	case SELCONN_TCPS:
+		return std::make_unique<tcp_host_client>(SRV_BASIC);
+	case SELCONN_TCPDS:
+		return std::make_unique<tcp_host_client>(SRV_DIRECT);
+#endif // NOHOSTING
 #endif // TCPIP
 #ifdef ZEROTIER
 	case SELCONN_ZT:
