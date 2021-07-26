@@ -25,31 +25,55 @@ bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const c
 	auto addr = asio::ip::address::from_string(bindAddr, err);
 	if (!err) {
 		auto ep = asio::ip::tcp::endpoint(addr, port);
-		acceptor.open(ep.protocol(), err);
-		if (err)
-			goto error;
-		acceptor.set_option(asio::socket_base::reuse_address(true), err);
-		assert(!err);
-		acceptor.bind(ep, err);
+		connect_acceptor(acceptor, ep, err);
 	}
-	if (err)
-		goto error;
-	acceptor.listen(2 * MAX_PLRS, err);
-	if (err)
-		goto error;
+	if (err) {
+		SDL_SetError("%s", err.message().c_str());
+		close();
+		return false;
+	}
 
 	start_accept();
 	start_timeout();
 	return true;
-error:
-	SDL_SetError("%s", err.message().c_str());
-	close();
-	return false;
+}
+
+void tcp_server::connect_acceptor(asio::ip::tcp::acceptor &acceptor,
+	const asio::ip::tcp::endpoint& ep, asio::error_code &ec)
+{
+	acceptor.open(ep.protocol(), ec);
+	if (ec)
+		return;
+	acceptor.set_option(asio::socket_base::reuse_address(true), ec);
+	assert(!ec);
+	acceptor.bind(ep, ec);
+	if (ec)
+		return;
+	acceptor.listen(2 * MAX_PLRS, ec);
+}
+
+void tcp_server::connect_socket(asio::ip::tcp::socket &sock,
+	const char* addrstr, unsigned port, 
+	asio::io_context &ioc, asio::error_code &ec)
+{
+	std::string strPort = std::to_string(port);
+	auto resolver = asio::ip::tcp::resolver(ioc);
+	auto addrList = resolver.resolve(addrstr, strPort, ec);
+	if (ec)
+		return;
+	asio::connect(sock, addrList, ec);
+	if (ec)
+		return;
+	asio::ip::tcp::no_delay option(true);
+	sock.set_option(option, ec);
+	assert(!ec);
 }
 
 void tcp_server::endpoint_to_string(const scc &con, std::string &addr)
 {
-	auto ep = con->socket.remote_endpoint();
+	asio::error_code err;
+	const auto &ep = con->socket.remote_endpoint(err);
+	assert(!err);
 	char buf[PORT_LENGTH + 2];
 	snprintf(buf, sizeof(buf), ":%05d", ep.port());
 	addr = ep.address().to_string();

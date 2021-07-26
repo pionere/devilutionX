@@ -38,32 +38,17 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 		sizeof(cookie_t));
 	setup_password(passwd);
 	// connect to the server
-	std::string strPort = std::to_string(port);
 	asio::error_code err;
-	auto resolver = asio::ip::tcp::resolver(ioc);
-	auto addrList = resolver.resolve(addrstr, strPort, err);
-	if (!err) {
-		asio::connect(sock, addrList, err);
-	}
+	tcp_server::connect_socket(sock, addrstr, port, ioc, err);
 	if (err) {
 		SDL_SetError("%s", err.message().c_str());
 		close();
 		return false;
 	}
-	asio::ip::tcp::no_delay option(true);
-	sock.set_option(option, err);
-	assert(!err);
 	// setup acceptor for the direct connection to other players
-	auto ep = sock.local_endpoint(err);
+	const auto &ep = sock.local_endpoint(err);
 	assert(!err);
-	acceptor.open(ep.protocol(), err);
-	if (!err) {
-		acceptor.set_option(asio::socket_base::reuse_address(true), err);
-		assert(!err);
-		acceptor.bind(ep, err);
-		if (!err)
-			acceptor.listen(MAX_PLRS, err);
-	}
+	tcp_server::connect_acceptor(acceptor, ep, err);
 	if (err) {
 		SDL_SetError("%s", err.message().c_str());
 		close();
@@ -365,11 +350,11 @@ void tcpd_client::start_recv()
 void tcpd_client::send_packet(packet &pkt)
 {
 	if (pkt.pktType() == PT_TURN) {
-		plr_t dest = pkt.pktDest();
-		plr_t src = plr_self; //pkt.pktSrc();
+		//plr_t dest = pkt.pktDest();
+		//plr_t src = plr_self; //pkt.pktSrc();
 
-		assert(pkt.pktSrc() == src);
-		assert(dest == PLR_BROADCAST);
+		//assert(pkt.pktSrc() == src);
+		//assert(dest == PLR_BROADCAST);
 		//if (dest == PLR_BROADCAST) {
 			for (int i = 0; i < MAX_PLRS; i++)
 				if (/*i != src &&*/ connections[i] != NULL)

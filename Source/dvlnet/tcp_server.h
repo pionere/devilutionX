@@ -23,6 +23,11 @@ public:
 	virtual ~tcp_server() = default;
 
 	static void make_default_gamename(char (&gamename)[128]);
+	static void connect_acceptor(asio::ip::tcp::acceptor &acceptor,
+		const asio::ip::tcp::endpoint& ep, asio::error_code &ec);
+	static void connect_socket(asio::ip::tcp::socket &sock,
+		const char* addrstr, unsigned port, 
+		asio::io_context &ioc, asio::error_code &ec);
 private:
 	static constexpr int TIMEOUT_CONNECT = 30;
 	static constexpr int TIMEOUT_ACTIVE = 60;

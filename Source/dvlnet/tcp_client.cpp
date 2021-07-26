@@ -37,21 +37,13 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 	memset(connected_table, 0, sizeof(connected_table));
 	randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
 	    sizeof(cookie_t));
-	std::string strPort = std::to_string(port);
-	auto resolver = asio::ip::tcp::resolver(ioc);
 	asio::error_code err;
-	auto addrList = resolver.resolve(addrstr, strPort, err);
-	if (!err) {
-		asio::connect(sock, addrList, err);
-	}
+	tcp_server::connect_socket(sock, addrstr, port, ioc, err);
 	if (err) {
 		SDL_SetError("%s", err.message().c_str());
 		close();
 		return false;
 	}
-	asio::ip::tcp::no_delay option(true);
-	sock.set_option(option, err);
-	assert(!err);
 	start_recv();
 
 	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,

@@ -19,7 +19,7 @@ enum packet_type : uint8_t {
 	PT_TURN,
 	PT_JOIN_REQUEST,
 	PT_JOIN_ACCEPT,
-	PT_CONNECT,			// zt-only
+	PT_CONNECT,			// tcpd, zt-only
 	PT_DISCONNECT,
 	PT_INFO_REQUEST,	// zt-only
 	PT_INFO_REPLY,		// zt-only
