@@ -18,7 +18,7 @@ public:
 	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
 	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) { };
-	void SNetUnregisterEventHandler(int evtype);
+	void SNetUnregisterEventHandler(int evtype) { };
 	void SNetLeaveGame(int reason);
 	void SNetDropPlayer(int playerid);
 
