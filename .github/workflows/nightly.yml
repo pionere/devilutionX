@@ -51,6 +51,10 @@ jobs:
             packages: 'sdl2:x86-windows sdl2-ttf:x86-windows'
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NONET=ON -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
             artifact: 'hellone-nightly-x86.zip'
+          - name: hellsrv-x86
+            packages: 'sdl2:x86-windows sdl2-mixer:x86-windows sdl2-ttf:x86-windows libsodium:x86-windows'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D NOHOSTING=OFF -D HOSTONLY=ON -D HELLFIRE=ON -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+            artifact: 'hellsrv-nightly-x86.zip'
           # x64 builds
           - name: diablo
             packages: 'sdl2:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows libsodium:x64-windows'
@@ -167,6 +171,12 @@ jobs:
         name: hellone-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellone-nightly-x86.zip
 
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellsrv-nightly-x86.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellsrv-nightly-x86.zip
+
     # x64 builds
     - name: Download a diablo artifact
       uses: actions/download-artifact@v2
@@ -234,6 +244,8 @@ jobs:
           hellone-nightly-x64.zip | Hellfire build for Windows x64<br>- merges the mpq files on the first run (takes a few minutes)
           
           hellone-nightly-x86.zip | Minimal Hellfire build for Windows x86<br>- no internet, controller, sound or widescreen support<br>- merges the mpq files on the first run (takes a few minutes)
+          
+          hellsrv-nightly-x86.zip | Minimal Hellfire server for Windows x86<br>- no controller, sound or widescreen support<br>- only server functionality
         draft: false
         prerelease: true
         files: |
@@ -245,6 +257,7 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-x86.zip
           ${{github.workspace}}/hellone-nightly-x64.zip
           ${{github.workspace}}/hellone-nightly-x86.zip
+          ${{github.workspace}}/hellsrv-nightly-x86.zip
         fail_on_unmatched_files: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

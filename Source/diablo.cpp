@@ -471,7 +471,7 @@ bool StartGame(bool bSinglePlayer)
 			gbRunGameResult = true;
 			break;
 		}
-
+#ifndef HOSTONLY
 		run_game_loop();
 		if (!gbRunGameResult)
 			break;
@@ -479,6 +479,7 @@ bool StartGame(bool bSinglePlayer)
 		// initialize main menu resources.
 		UiInitialize();
 		pfile_create_player_description();
+#endif
 	}
 
 	return gbRunGameResult;

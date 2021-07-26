@@ -30,6 +30,7 @@ cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
 cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
 cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
 cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
+cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 RELEASE_OPTION(CPACK "Configure CPack")
@@ -572,6 +573,7 @@ foreach(
   NONET
   NETENCRYPT
   NOHOSTING
+  HOSTONLY
   TCPIP
   ZEROTIER
   PREFILL_PLAYER_NAME

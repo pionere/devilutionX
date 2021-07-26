@@ -66,14 +66,17 @@ static void SelconnFocus(unsigned index)
 static void SelconnLoad()
 {
 	LoadBackgroundArt("ui_art\\selconn.pcx");
-
+#ifndef HOSTONLY
 	vecConnItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
 #ifdef ZEROTIER
 	vecConnItems.push_back(new UiListItem("Zerotier", SELCONN_ZT));
 #endif
+#endif // HOSTONLY
 #ifdef TCPIP
+#ifndef HOSTONLY
 	vecConnItems.push_back(new UiListItem("Client-Server (TCP)", SELCONN_TCP));
 	vecConnItems.push_back(new UiListItem("Client-Server (TCP-D)", SELCONN_TCPD));
+#endif // HOSTONLY
 #ifndef NOHOSTING
 	vecConnItems.push_back(new UiListItem("Server (TCP)", SELCONN_TCPS));
 	vecConnItems.push_back(new UiListItem("Server (TCP-D)", SELCONN_TCPDS));

@@ -36,7 +36,9 @@ static void MainmenuLoad(const char *name, void (*fnSound)(const char *file))
 {
 	gfnSoundFunction = fnSound;
 
+#ifndef HOSTONLY
 	vecMenuItems.push_back(new UiListItem("Single Player", MAINMENU_SINGLE_PLAYER));
+#endif
 	vecMenuItems.push_back(new UiListItem("Multi Player", MAINMENU_MULTIPLAYER));
 	vecMenuItems.push_back(new UiListItem("Replay Intro", MAINMENU_REPLAY_INTRO));
 	vecMenuItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));

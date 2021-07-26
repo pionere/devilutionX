@@ -805,6 +805,7 @@ bool NetInit(bool bSinglePlayer)
 			continue;
 		}
 #endif // !NOHOSTING
+#ifndef HOSTONLY
 		nthread_run();
 		SetupLocalPlr();
 		if (!gbJoinGame)
@@ -815,6 +816,7 @@ bool NetInit(bool bSinglePlayer)
 			break;
 		}
 		NetClose();
+#endif
 	}
 	assert(mypnum == sgGameInitInfo.bPlayerId);
 	assert(gbMaxPlayers == sgGameInitInfo.bMaxPlayers);
