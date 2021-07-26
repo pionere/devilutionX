@@ -192,7 +192,7 @@ unsigned sync_all_monsters(const BYTE *pbBuf, unsigned dwMaxLen)
 
 static void sync_monster(int pnum, const TSyncMonster *symon)
 {
-	MonsterStruct *mon;
+	/*MonsterStruct *mon;
 	int mnum, md;
 	DWORD delta;
 
@@ -234,7 +234,7 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 		md = GetDirection(symon->_mx, symon->_my, mon->_menemyx, mon->_menemyy);
 		MonStartStand(mnum, md);
 		mon->_msquelch = SQUELCH_MAX;
-	}
+	}*/
 }
 
 void sync_update(int pnum, const TSyncHeader *pHdr)
