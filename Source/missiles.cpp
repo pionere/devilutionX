@@ -735,8 +735,9 @@ static bool MonsterMHit(int mnum, int mi)
 			return false;
 	}
 
-	if (pnum == mypnum)
+	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
+	//}
 
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);

@@ -448,7 +448,6 @@ void ShowProgress(unsigned int uMsg)
 	WNDPROC saveProc;
 
 	gbSomebodyWonGameKludge = false;
-	plrmsg_delay(true);
 
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
@@ -606,8 +605,6 @@ void ShowProgress(unsigned int uMsg)
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
 
-	NetSendCmdSendJoinLevel();
-	plrmsg_delay(false);
 	ResetPal();
 
 	if (gbSomebodyWonGameKludge && myplr.plrlevel == DLV_HELL4) {

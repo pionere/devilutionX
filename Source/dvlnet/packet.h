@@ -53,6 +53,7 @@ typedef struct NetPktMessage {
 typedef struct NetPktTurn {
 	NetPktHdr npHdr;
 	turn_t m_turn;
+	//BYTE m_message[0];
 } NetPktTurn;
 
 typedef struct NetPktJoinRequest {
@@ -121,6 +122,12 @@ public:
 	// PT_TURN
 	turn_t pktTurn() const {
 		return reinterpret_cast<const NetPktTurn*>(decrypted_buffer.data())->m_turn;
+	}
+	buffer_t::const_iterator pktTurnBegin() const {
+		return decrypted_buffer.begin() + sizeof(NetPktTurn);
+	}
+	buffer_t::const_iterator pktTurnEnd() const {
+		return decrypted_buffer.end();
 	}
 	// PT_JOIN_REQUEST
 	cookie_t pktJoinReqCookie() const {
@@ -211,14 +218,15 @@ inline void packet_out::create<PT_MESSAGE>(plr_t s, plr_t d, const BYTE* msg, un
 }
 
 template <>
-inline void packet_out::create<PT_TURN>(plr_t s, plr_t d, turn_t u)
+inline void packet_out::create<PT_TURN>(plr_t s, plr_t d, turn_t u, const BYTE* msg, unsigned size)
 {
-	decrypted_buffer.resize(sizeof(NetPktTurn));
+	decrypted_buffer.resize(sizeof(NetPktTurn) + size);
 	NetPktTurn* data = (NetPktTurn*)decrypted_buffer.data();
 	data->npHdr.m_type = PT_TURN;
 	data->npHdr.m_src = s;
 	data->npHdr.m_dest = d;
 	data->m_turn = u;
+	memcpy((BYTE*)data + sizeof(NetPktTurn), msg, size);
 }
 
 template <>

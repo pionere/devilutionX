@@ -37,20 +37,33 @@ void SNetSendMessage(int receiver, const BYTE* data, unsigned databytes)
 	dvlnet_inst->SNetSendMessage(receiver, data, databytes);
 }
 
-bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
+SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetReceiveTurns(turns, status);
+	return dvlnet_inst->SNetReceiveTurn(status);
 }
 
-void SNetSendTurn(uint32_t turn)
+void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	dvlnet_inst->SNetSendTurn(turn);
+	dvlnet_inst->SNetSendTurn(turn, data, size);
+}
+
+turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS])
+{
+#ifdef ZEROTIER
+	std::lock_guard<std::mutex> lg(storm_net_mutex);
+#endif
+	return dvlnet_inst->SNetPollTurns(status);
+}
+
+uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS])
+{
+	return dvlnet_inst->SNetLastTurn(status);
 }
 
 /*void SNetGetProviderCaps(struct _SNETCAPS *caps)
@@ -154,25 +167,6 @@ bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePas
 	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", pszGameName, port);
 	snprintf(gpszGamePassword, sizeof(gpszGamePassword), "%s", pszGamePassword);
 	return dvlnet_inst->join_game(pszGameName, port, pszGamePassword);
-}
-
-/**
- * @brief Is this the mirror image of SNetGetTurnsInTransit?
- */
-uint32_t SNetGetOwnerTurnsWaiting()
-{
-#ifdef ZEROTIER
-	std::lock_guard<std::mutex> lg(storm_net_mutex);
-#endif
-	return dvlnet_inst->SNetGetOwnerTurnsWaiting();
-}
-
-uint32_t SNetGetTurnsInTransit()
-{
-#ifdef ZEROTIER
-	std::lock_guard<std::mutex> lg(storm_net_mutex);
-#endif
-	return dvlnet_inst->SNetGetTurnsInTransit();
 }
 
 #ifdef ZEROTIER

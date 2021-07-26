@@ -18,14 +18,14 @@ public:
 
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
-	virtual bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
-	virtual void SNetSendTurn(uint32_t turn);
+	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
+	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
+	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
+	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
 	virtual void SNetUnregisterEventHandler(int evtype);
 	virtual void SNetLeaveGame(int reason);
 	virtual void SNetDropPlayer(int playerid);
-	virtual uint32_t SNetGetOwnerTurnsWaiting();
-	virtual uint32_t SNetGetTurnsInTransit();
 
 	virtual ~base() = default;
 
@@ -33,10 +33,9 @@ protected:
 	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };
 	buffer_t game_init_info;
 
-	message_t message_last;
-	std::deque<message_t> message_queue;
-	turn_t turn_last[MAX_PLRS] = { };
-	std::deque<turn_t> turn_queue[MAX_PLRS] = { };
+	SNetMessage message_last;
+	std::deque<SNetMessage> message_queue;
+	std::deque<SNetTurn> turn_queue[MAX_PLRS] = { };
 	bool connected_table[MAX_PLRS] = { };
 
 	plr_t plr_self;

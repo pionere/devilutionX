@@ -43,6 +43,7 @@ void ClearPanels();
 void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 void diablo_color_cyc_logic();
+void game_logic();
 
 /* rdata */
 

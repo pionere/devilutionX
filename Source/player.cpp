@@ -2213,9 +2213,9 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 	}
 
-	if (pnum == mypnum) {
+	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
-	}
+	//}
 
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);
@@ -2920,7 +2920,7 @@ void ProcessPlayers()
 	ValidatePlayer();
 #endif
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel && (pnum == mypnum || !plr._pLvlChanging)) {
+		if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel && !plr._pLvlChanging) {
 			//CheckCheatStats(pnum);
 
 			if (pnum == mypnum) {

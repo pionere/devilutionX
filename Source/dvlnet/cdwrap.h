@@ -24,14 +24,14 @@ public:
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned int size);
-	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
-	virtual void SNetSendTurn(uint32_t turn);
+	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
+	virtual void SNetSendTurn(uint32_t turn, const BYTE *data, unsigned size);
+	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
+	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
 	virtual void SNetUnregisterEventHandler(int evtype);
 	virtual void SNetLeaveGame(int reason);
 	virtual void SNetDropPlayer(int playerid);
-	virtual uint32_t SNetGetOwnerTurnsWaiting();
-	virtual uint32_t SNetGetTurnsInTransit();
 	virtual void make_default_gamename(char (&gamename)[128]);
 
 	cdwrap();
@@ -82,15 +82,27 @@ void cdwrap<T>::SNetSendMessage(int receiver, const BYTE* data, unsigned int siz
 }
 
 template <class T>
-bool cdwrap<T>::SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
+SNetTurnPkt* cdwrap<T>::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 {
-	return dvlnet_wrap->SNetReceiveTurns(turns, status);
+	return dvlnet_wrap->SNetReceiveTurn(status);
 }
 
 template <class T>
-void cdwrap<T>::SNetSendTurn(uint32_t turn)
+void cdwrap<T>::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
-	dvlnet_wrap->SNetSendTurn(turn);
+	dvlnet_wrap->SNetSendTurn(turn, data, size);
+}
+
+template <class T>
+turn_status cdwrap<T>::SNetPollTurns(unsigned (&status)[MAX_PLRS])
+{
+	return dvlnet_wrap->SNetPollTurns(status);
+}
+
+template <class T>
+uint32_t cdwrap<T>::SNetLastTurn(unsigned (&status)[MAX_PLRS])
+{
+	return dvlnet_wrap->SNetLastTurn(status);
 }
 
 template <class T>
@@ -119,18 +131,6 @@ template <class T>
 void cdwrap<T>::SNetDropPlayer(int playerid)
 {
 	dvlnet_wrap->SNetDropPlayer(playerid);
-}
-
-template <class T>
-uint32_t cdwrap<T>::SNetGetOwnerTurnsWaiting()
-{
-	return dvlnet_wrap->SNetGetOwnerTurnsWaiting();
-}
-
-template <class T>
-uint32_t cdwrap<T>::SNetGetTurnsInTransit()
-{
-	return dvlnet_wrap->SNetGetTurnsInTransit();
 }
 
 template <class T>

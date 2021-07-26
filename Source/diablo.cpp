@@ -18,7 +18,6 @@ DEVILUTION_BEGIN_NAMESPACE
 DWORD glSeedTbl[NUM_LEVELS];
 int MouseX;
 int MouseY;
-static bool _gbGameLoopStartup;
 bool gbRunGame;
 bool gbRunGameResult;
 bool gbZoomflag;
@@ -334,7 +333,7 @@ static bool ProcessInput()
 	return true;
 }
 
-static void game_logic()
+void game_logic()
 {
 	if (gbProcessPlayers) {
 		ProcessPlayers();
@@ -363,22 +362,17 @@ static void game_logic()
 	pfile_update(false);
 }
 
-/**
- * @param bStartup Process additional ticks before returning
- */
-static void game_loop(bool bStartup)
+static void game_loop()
 {
 	int i;
 
-	i = gbMaxPlayers == 1 ? 1 : (bStartup ? gnTicksRate * 3 : 3);
+	i = gbMaxPlayers == 1 ? 1 : 3;
 
 	do {
 		if (!multi_handle_turn()) {
 			static_assert(CURSOR_NONE == 0, "BitOr optimization of timeout_cursor depends on CURSOR_NONE being 0.");
-			if ((sgnTimeoutCurs | gbActionBtnDown | gbAltActionBtnDown) == 0) {
+			if (multi_check_timeout() && (sgnTimeoutCurs | gbActionBtnDown | gbAltActionBtnDown) == 0) {
 				sgnTimeoutCurs = pcurs;
-				multi_net_ping();
-				InitDiabloMsg(EMSG_DESYNC);
 				NewCursor(CURSOR_HOURGLASS);
 				gbRedrawFlags = REDRAW_ALL;
 			}
@@ -404,10 +398,13 @@ static void run_game_loop()
 	WNDPROC saveProc;
 	MSG msg;
 
-	nthread_ignore_mutex(true);
+	//nthread_run();
+	// Save 2.8 MiB of RAM by freeing all main menu resources before starting the game.
+	UiDestroy();
 	InitGameUI();
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(GameWndProc);
+	// process remaining packets of delta-load
 	RunDeltaPackets();
 	gbRunGame = true;
 	gbProcessPlayers = true;
@@ -417,8 +414,8 @@ static void run_game_loop()
 	LoadPWaterPalette();
 	PaletteFadeIn();
 	gbRedrawFlags = REDRAW_ALL;
-	_gbGameLoopStartup = true;
-	nthread_ignore_mutex(false);
+	// process packets arrived during LoadLevel / delta-load and disable nthread
+	nthread_finish();
 
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 	unsigned run_game_iteration = 0;
@@ -436,9 +433,7 @@ static void run_game_loop()
 			continue;
 		}
 		diablo_color_cyc_logic();
-		multi_process_network_packets();
-		game_loop(_gbGameLoopStartup);
-		_gbGameLoopStartup = false;
+		game_loop();
 		DrawAndBlit();
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 	if (run_game_iteration++ == 0)
@@ -476,10 +471,6 @@ bool StartGame(bool bSinglePlayer)
 			gbRunGameResult = true;
 			break;
 		}
-
-		// Save 2.8 MiB of RAM by freeing all main menu resources
-		// before starting the game.
-		UiDestroy();
 
 		run_game_loop();
 		if (!gbRunGameResult)
@@ -1626,7 +1617,7 @@ void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_DIABRETOWN:
 		if (gbMaxPlayers != 1)
 			pfile_write_hero();
-		nthread_ignore_mutex(true);
+		nthread_run();
 		PaletteFadeOut();
 		sound_stop();
 		music_stop();
@@ -1638,8 +1629,8 @@ void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		LoadPWaterPalette();
 		if (gbRunGame)
 			PaletteFadeIn();
-		nthread_ignore_mutex(false);
-		_gbGameLoopStartup = true;
+		// process packets arrived during LoadLevel and disable nthread
+		nthread_finish();
 		return;
 	}
 

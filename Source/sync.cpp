@@ -37,8 +37,10 @@ static void sync_monster_pos(TSyncMonster *symon, int mnum)
 	symon->_mndx = mnum;
 	symon->_mx = monster[mnum]._mx;
 	symon->_my = monster[mnum]._my;
+	symon->_mdir = monster[mnum]._mdir;
 	symon->_menemy = encode_enemy(mnum);
-	symon->_mdelta = monster_dists[mnum] > 255 ? 255 : monster_dists[mnum];
+	symon->_mhitpoints = SDL_SwapLE32(monster[mnum]._mhitpoints);
+	symon->_mactive = SDL_SwapLE32(monster[mnum]._msquelch);
 
 	static_assert(MAXDUNX + MAXDUNY + 0x1000 < 0xFFFE, "sync_init_monsters expects a dungeon to fit to 16-bit II.");
 	monster_dists[mnum] = 0xFFFE;

@@ -1003,9 +1003,9 @@ typedef struct TCmdMonstSkill {
 
 typedef struct TCmdMonstDamage {
 	BYTE bCmd;
+	BYTE mdLevel;
 	WORD mdMnum;
 	INT mdHitpoints;
-	DWORD mdDamage;
 } TCmdMonstDamage;
 
 typedef struct TCmdMonstKill {
@@ -1078,14 +1078,8 @@ typedef struct TCmdString {
 	char str[MAX_SEND_STR_LEN];
 } TCmdString;
 
-typedef struct TFakeCmdPlr {
-	BYTE bCmd;
-	BYTE bPlr;
-} TFakeCmdPlr;
-
 typedef struct TFakeDropPlr {
 	BYTE bCmd;
-	BYTE bPlr;
 	DWORD dwReason;
 } TFakeDropPlr;
 
@@ -1127,8 +1121,10 @@ typedef struct TSyncMonster {
 	BYTE _mndx;
 	BYTE _mx;
 	BYTE _my;
+	BYTE _mdir;
 	BYTE _menemy;
-	BYTE _mdelta;
+	DWORD _mactive;
+	INT	_mhitpoints;
 } TSyncMonster;
 
 typedef struct TurnPktHdr {
@@ -1146,6 +1142,16 @@ typedef struct TurnPkt {
 	TurnPktHdr hdr;
 	BYTE body[MAX_NETMSG_SIZE - sizeof(TurnPktHdr)];
 } TurnPkt;
+
+typedef struct MsgPktHdr {
+	WORD wCheck;
+	WORD wLen;
+} MsgPktHdr;
+
+typedef struct MsgPkt {
+	MsgPktHdr hdr;
+	BYTE body[MAX_NETMSG_SIZE - sizeof(MsgPktHdr)];
+} MsgPkt;
 
 typedef struct DMonsterStr {
 	BYTE _mx;
@@ -1565,6 +1571,12 @@ typedef struct SNetEvent {
 	BYTE* _eData;
 	unsigned databytes;
 } SNetEvent;
+
+typedef struct SNetTurnPkt {
+	uint32_t nmpTurn;
+	unsigned nmpLen;
+	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
+} SNetTurnPkt;
 
 //////////////////////////////////////////////////
 // path

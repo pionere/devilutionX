@@ -44,9 +44,6 @@ void base::recv_accept(packet &pkt)
 	connected_table[plr_self] = true;
 	auto &pkt_info = pkt.pktJoinAccInfo();
 #ifdef ZEROTIER
-	//if (pkt_info.size() != sizeof(SNetGameData)) {
-	//	ABORT();
-	//}
 	// we joined and did not create
 	game_init_info = buffer_t((BYTE*)&pkt_info, (BYTE*)&pkt_info + sizeof(SNetGameData));
 #endif
@@ -63,7 +60,7 @@ void base::clear_msg(plr_t pnum)
 	turn_queue[pnum].clear();
 	message_queue.erase(std::remove_if(message_queue.begin(),
 	                        message_queue.end(),
-	                        [&](message_t &msg) {
+	                        [&](SNetMessage &msg) {
 		                        return msg.sender == pnum;
 	                        }),
 	    message_queue.end());
@@ -114,19 +111,19 @@ void base::recv_local(packet &pkt)
 	}
 	switch (pkt.pktType()) {
 	case PT_MESSAGE:
-		message_queue.emplace_back(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd()));
+		message_queue.emplace_back(SNetMessage(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd())));
 		break;
 	case PT_TURN:
 		// TODO: validate pkt_plr if the server can not be trusted?
 		//if (pkt_plr < MAX_PLRS) {
-			turn_queue[pkt_plr].push_back(pkt.pktTurn());
+			turn_queue[pkt_plr].push_back(SNetTurn(pkt.pktTurn(), buffer_t(pkt.pktTurnBegin(), pkt.pktTurnEnd())));
 		//}
 		break;
 	case PT_JOIN_ACCEPT:
 		recv_accept(pkt);
 		break;
 	case PT_CONNECT:
-		connected_table[pkt.pktConnectPlr()] = true; // this can probably be removed
+		//connected_table[pkt.pktConnectPlr()] = true; // this can probably be removed
 		break;
 	case PT_DISCONNECT:
 		recv_disconnect(pkt);
@@ -153,7 +150,7 @@ bool base::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
 	if (receiver == SNPLAYER_ALL || receiver == plr_self) {
-		message_queue.emplace_back(plr_self, buffer_t(data, data + size));
+		message_queue.emplace_back(SNetMessage(plr_self, buffer_t(data, data + size)));
 		if (receiver == plr_self)
 			return;
 	}
@@ -168,45 +165,153 @@ void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 	send_packet(*pkt);
 }
 
-bool base::SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
+SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 {
-	poll();
-	bool allTurnsArrived = true;
-	for (auto i = 0; i < MAX_PLRS; ++i) {
-		status[i] = 0;
-		if (connected_table[i]) {
-			status[i] |= PS_CONNECTED;
-			if (turn_queue[i].empty())
-				allTurnsArrived = false;
-		}
-	}
-	if (allTurnsArrived) {
-		for (auto i = 0; i < MAX_PLRS; ++i) {
-			if (connected_table[i]) {
-				status[i] |= PS_ACTIVE | PS_TURN_ARRIVED;
-				turn_last[i] = turn_queue[i].front();
-				turn_queue[i].pop_front();
-				data[i] = &turn_last[i];
-			}
-		}
-		return true;
-	}
-	for (auto i = 0; i < MAX_PLRS; ++i) {
-		if (connected_table[i]) {
-			if (!turn_queue[i].empty()) {
-				status[i] |= PS_ACTIVE;
+	SNetTurnPkt* pkt;
+	SNetTurn* pt;
+	int i;
+	BYTE* data;
+	unsigned dwLen;
+	uint32_t turn = 0;
+
+	dwLen = 0;
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (status[i] & PCS_TURN_ARRIVED) {
+			pt = &turn_queue[i].front();
+			//       pnum           size
+			dwLen += sizeof(BYTE) + sizeof(unsigned);
+			if (pt->turn_id != 0) {
+				turn = pt->turn_id;
+				dwLen += pt->payload.size();
 			}
 		}
 	}
-	return false;
+	pkt = (SNetTurnPkt*)DiabloAllocPtr(dwLen + sizeof(SNetTurnPkt) - sizeof(pkt->data));
+	pkt->nmpTurn = turn;
+	pkt->nmpLen = dwLen;
+	data = pkt->data;
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (status[i] & PCS_TURN_ARRIVED) {
+			*data = i;
+			data++;
+			pt = &turn_queue[i].front();
+			if (pt->turn_id != 0) {
+				dwLen = pt->payload.size();
+				*(unsigned*)data = dwLen;
+				data += sizeof(unsigned);
+				memcpy(data, pt->payload.data(), dwLen);
+				data += dwLen;
+			} else {
+				*(unsigned*)data = 0;
+				data += sizeof(unsigned);
+			}
+			turn_queue[i].pop_front();
+		}
+	}
+	return pkt;
 }
 
-void base::SNetSendTurn(uint32_t turn)
+void base::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
+	turn_queue[plr_self].emplace_back(SNetTurn(turn, buffer_t(data, data + size)));
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
-	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn);
+	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn, data, size);
 	send_packet(*pkt);
-	turn_queue[plr_self].push_back(pkt->pktTurn());
+}
+
+turn_status base::SNetPollTurns(unsigned (&status)[MAX_PLRS])
+{
+	constexpr int SPLIT_LIMIT = 100; // the number of turns after the desync is unresolvable
+	turn_status result;
+	turn_t myturn, minturn, turn;
+	int i, j;
+
+	poll();
+	memset(status, 0, sizeof(status));
+	// TODO: do not assume plr_self has a turn?
+	assert(!turn_queue[plr_self].empty());
+	myturn = SwapLE32(turn_queue[plr_self].front().turn_id);
+	status[plr_self] = (myturn != 0 ? 0 : PCS_JOINED) | PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
+	result = TS_ACTIVE; // or TS_LIVE
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (i == plr_self || !connected_table[i])
+			continue;
+		if (turn_queue[i].empty()) {
+			status[i] = PCS_CONNECTED;
+			result = TS_TIMEOUT;
+			continue;
+		}
+		status[i] = PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
+		turn = SwapLE32(turn_queue[i].front().turn_id);
+		if (turn == myturn) {
+			continue;
+		}
+		if (turn < myturn) {
+			// drop obsolete turns (except initial turns)
+			if (turn == 0) {
+				status[i] |= PCS_JOINED;
+			} else {
+				// TODO: report the drop (if !payload.empty())
+				turn_queue[i].pop_front();
+				status[i] = 0;
+				i--;
+			}
+			continue;
+		}
+		if (result == TS_ACTIVE) // or TS_LIVE
+			result = TS_DESYNC;
+	}
+	if (result == TS_DESYNC) {
+		if (myturn == 0)
+			result = TS_ACTIVE; // or TS_LIVE
+		// find the highest turn
+		// TODO: prevent non-host players from running forward?
+		minturn = 0;
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (!connected_table[i])
+				continue;
+			turn = SwapLE32(turn_queue[i].front().turn_id);
+			if (turn > minturn)
+				minturn = turn;
+		}
+		// find the lowest turn which is in SPLIT_LIMIT distance from the highest one
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (!connected_table[i])
+				continue;
+			turn = SwapLE32(turn_queue[i].front().turn_id);
+			if (turn == 0 || minturn == turn)
+				continue;
+			result = TS_DESYNC;
+			if (minturn > turn && (minturn - turn < SPLIT_LIMIT)) {
+				minturn = turn;
+				for (j = 0; j < i; j++)
+					if (!(status[j] & PCS_JOINED))
+						status[j] &= ~PCS_TURN_ARRIVED;
+			} else 
+				status[i] &= ~PCS_TURN_ARRIVED;
+		}
+	}
+	return result;
+}
+
+uint32_t base::SNetLastTurn(unsigned (&status)[MAX_PLRS])
+{
+	int i;
+
+	turn_t minturn = 0, turn;
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (status[i] & PCS_TURN_ARRIVED) {
+			turn = SwapLE32(turn_queue[i].front().turn_id);
+			if (turn != 0) {
+				minturn = turn;
+				break;
+			}
+		}
+	}
+	if (!(status[plr_self] & PCS_TURN_ARRIVED))
+		// TODO: report the drop (if !payload.empty())
+		turn_queue[plr_self].clear();
+	return minturn;
 }
 
 /*void base::SNetGetProviderCaps(struct _SNETCAPS *caps)
@@ -261,26 +366,6 @@ void base::SNetDropPlayer(int playerid)
 	    (leaveinfo_t)LEAVE_DROP);
 	send_packet(*pkt);
 	recv_local(*pkt);
-}
-
-plr_t base::get_owner()
-{
-	for (auto i = 0; i < MAX_PLRS; ++i) {
-		if (connected_table[i]) {
-			return i;
-		}
-	}
-	return PLR_BROADCAST; // should be unreachable
-}
-
-uint32_t base::SNetGetOwnerTurnsWaiting()
-{
-	return turn_queue[get_owner()].size();
-}
-
-uint32_t base::SNetGetTurnsInTransit()
-{
-	return turn_queue[plr_self].size();
 }
 
 } // namespace net

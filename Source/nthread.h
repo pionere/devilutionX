@@ -14,18 +14,20 @@ extern "C" {
 
 extern BYTE gbNetUpdateRate;
 extern const unsigned gdwDeltaBytesSec;
-extern uint32_t gdwTurnsInTransit;
-extern uint32_t* glpMsgTbl[MAX_PLRS];
+extern uint32_t sgbSentThisCycle;
 extern const unsigned gdwLargestMsgSize;
 extern const unsigned gdwNormalMsgSize;
 
-void nthread_terminate_game(const char *pszFcn);
-uint32_t nthread_send_turn(uint32_t cur_turn, int turn_delta);
-bool nthread_recv_turns(bool *received);
-//void nthread_request_delta();
-void nthread_start(bool request_delta);
+/*
+ * Send a new turn to the other players.
+ * (data does not matter as long as it is a valid address)
+ */
+void nthread_send_turn(BYTE* data = &gbNetUpdateRate, unsigned size = 0);
+int nthread_recv_turns();
+void nthread_start();
 void nthread_cleanup();
-void nthread_ignore_mutex(bool bStart);
+void nthread_run();
+void nthread_finish();
 bool nthread_has_50ms_passed();
 
 #ifdef __cplusplus

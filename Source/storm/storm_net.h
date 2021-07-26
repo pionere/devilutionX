@@ -46,24 +46,16 @@ void SNetLeaveGame(int reason);
  *
  *  Sends a turn (data packet) to all players in the game. Network data
  *  is sent using class 02 and is retrieved by the other client using
- *  SNetReceiveTurns().
+ *  SNetReceiveTurn().
  *
  *  turn:       the data packet.
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-void SNetSendTurn(uint32_t turn);
-bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
-
-/*  SNetGetTurnsInTransit @ 115
- *
- *  Retrieves the number of turns (buffers) that have been queued
- *  before sending them over the network.
- *
- *  @return the number of turns
- */
-uint32_t SNetGetTurnsInTransit();
-uint32_t SNetGetOwnerTurnsWaiting();
+void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
+SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
+turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
+uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
 
 typedef void (*SEVTHANDLER)(SNetEvent* );
 

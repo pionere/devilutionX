@@ -2,7 +2,9 @@
 
 #include <exception>
 #include <memory>
+#ifdef ZEROTIER
 #include <string>
+#endif
 #include <vector>
 
 #include "all.h"
@@ -13,15 +15,30 @@ namespace net {
 
 typedef std::vector<BYTE> buffer_t;
 
-struct message_t {
+struct SNetTurn {
+	uint32_t turn_id;
+	buffer_t payload;
+	SNetTurn()
+	    : turn_id(-1)
+	    , payload({})
+	{
+	}
+	SNetTurn(uint32_t t, buffer_t p)
+	    : turn_id(t)
+	    , payload(p)
+	{
+	}
+};
+
+struct SNetMessage {
 	int sender; // change int to something else in devilution code later
 	buffer_t payload;
-	message_t()
+	SNetMessage()
 	    : sender(-1)
 	    , payload({})
 	{
 	}
-	message_t(int s, buffer_t p)
+	SNetMessage(int s, buffer_t p)
 	    : sender(s)
 	    , payload(p)
 	{
@@ -45,15 +62,14 @@ public:
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd) = 0;
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) = 0;
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size) = 0;
-	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
-	    = 0;
-	virtual void SNetSendTurn(uint32_t turn) = 0;
+	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) = 0;
+	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size) = 0;
+	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) = 0;
+	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) = 0;
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) = 0;
 	virtual void SNetUnregisterEventHandler(int evtype) = 0;
 	virtual void SNetLeaveGame(int reason) = 0;
 	virtual void SNetDropPlayer(int playerid) = 0;
-	virtual uint32_t SNetGetOwnerTurnsWaiting() = 0;
-	virtual uint32_t SNetGetTurnsInTransit() = 0;
 	virtual ~abstract_net() = default;
 
 	virtual void make_default_gamename(char (&gamename)[128]) = 0;

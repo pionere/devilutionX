@@ -5,107 +5,119 @@
  */
 #include "all.h"
 #include "storm/storm_net.h"
+#include <deque>
 
 DEVILUTION_BEGIN_NAMESPACE
 
 BYTE gbNetUpdateRate;
+/* The id of the next turn. */
+uint32_t sgbSentThisCycle;
+/* Main mutex of the thread to control its execution. */
 static CCritSect sgThreadMutex;
-uint32_t gdwTurnsInTransit;
-uint32_t* glpMsgTbl[MAX_PLRS];
-/* flag to tell the receiver whether a delta should be sent */
-static uint32_t turn_delta_request;
+/* Data mutex of the thread to control access to sgTurnQueue. */
+static CCritSect sgDataMutex;
+/* Queued turns while loading a level, or delta-info. */
+static std::deque<SNetTurnPkt*> sgTurnQueue;
+/* Counter to keep track of the network-update(turn) progress. */
 static BYTE sgbPacketCountdown;
-static BYTE sgbSyncCountdown;
-static bool _gbRunThread;
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
 const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
 const unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
-static Uint32 guNextTick;
+Uint32 guNextTick;
 static bool _gbTickInSync;
 static SDL_Thread *sghThread = NULL;
 static bool _gbThreadLive;
+static bool _gbRunThread;
 
-void nthread_terminate_game(const char *pszFcn)
+void nthread_send_turn(BYTE *data, unsigned len)
 {
-	DWORD sErr;
+	uint32_t turn = sgbSentThisCycle;
 
-	sErr = SErrGetLastError();
-	if (sErr == STORM_ERROR_INVALID_PLAYER) {
-		return;
-	} else if (sErr == STORM_ERROR_GAME_TERMINATED) {
-		gbGameDestroyed = true;
-	} else if (sErr == STORM_ERROR_NOT_IN_GAME) {
-		gbGameDestroyed = true;
-	} else {
-		app_fatal("%s:\n%s", pszFcn, SDL_GetError());
-	}
+	SNetSendTurn(SwapLE32(turn), data, len);
+	turn++;
+	if (turn >= 0x7FFFFFFF)
+		turn &= 0xFFFF;
+	sgbSentThisCycle = turn;
 }
 
-uint32_t nthread_send_turn(uint32_t cur_turn, int turn_delta)
+int nthread_recv_turns()
 {
-	uint32_t turn, new_cur_turn, curTurnsInTransit;
+	turn_status status = SNetPollTurns(player_state);
 
-	new_cur_turn = cur_turn;
-	curTurnsInTransit = SNetGetTurnsInTransit();
-	/*if (!SNetGetTurnsInTransit(&curTurnsInTransit)) {
-		nthread_terminate_game("SNetGetTurnsInTransit");
-		return 0;
-	}*/
-	while (curTurnsInTransit++ < gdwTurnsInTransit) {
-
-		turn = turn_delta_request | (new_cur_turn & 0x7FFFFFFF);
-		turn_delta_request = 0;
-
-		SNetSendTurn(turn);
-		/*if (!SNetSendTurn(turn)) {
-			nthread_terminate_game("SNetSendTurn");
-			return 0;
-		}*/
-
-		new_cur_turn += turn_delta;
-		if (new_cur_turn >= 0x7FFFFFFF)
-			new_cur_turn &= 0xFFFF;
-	}
-	return new_cur_turn;
-}
-
-bool nthread_recv_turns(bool *received)
-{
-	*received = false;
+	if (status == TS_DESYNC)
+		return status;
 	sgbPacketCountdown--;
 	if (sgbPacketCountdown != 0) {
 		guNextTick += gnTickDelay;
-		return true;
+		return TS_LIVE;
 	}
-	sgbSyncCountdown--;
 	sgbPacketCountdown = gbNetUpdateRate;
-	if (sgbSyncCountdown != 0) {
-		*received = true;
-		guNextTick += gnTickDelay;
-		return true;
-	}
-	if (!SNetReceiveTurns(glpMsgTbl, player_state)) {
+	if (status == TS_TIMEOUT) {
 		_gbTickInSync = false;
 		sgbPacketCountdown = 1;
-		sgbSyncCountdown = 1;
-		return false;
+		return TS_TIMEOUT;
 	} else {
 		if (!_gbTickInSync) {
 			_gbTickInSync = true;
 			guNextTick = SDL_GetTicks();
 		}
-		sgbSyncCountdown = 4;
-		multi_parse_turns();
-		*received = true;
 		guNextTick += gnTickDelay;
-		return true;
+		return TS_ACTIVE;
+	}
+}
+
+static void nthread_parse_turns()
+{
+	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
+
+	sgDataMutex.Enter();
+	sgTurnQueue.push_back(turn);
+	sgDataMutex.Leave();
+}
+
+static void nthread_process_pending_turns()
+{
+	SNetTurnPkt* turn;
+	int i;
+
+	while (gbRunGame) {
+		sgDataMutex.Enter();
+		if (sgTurnQueue.empty()) {
+			sgDataMutex.Leave();
+			break;
+		}
+
+		turn = sgTurnQueue.front();
+		sgTurnQueue.pop_front();
+		sgDataMutex.Leave();
+
+		// skip turns arrived before delta-info
+		if (turn->nmpTurn < guDeltaTurn) {
+			MemFreeDbg(turn);
+			continue;
+		}
+
+		multi_process_turn(turn);
+		MemFreeDbg(turn);
+		multi_process_msgs();
+		for (i = gbNetUpdateRate; i > 0; i--) {
+			multi_mon_seeds();
+			game_logic();
+			++lvlLoad;
+		}
+		// remove the generated NetCmds
+		// there should be only a few obsolete ones (e.g. monster hit by a trap)
+		multi_init_buffers();
+
+		// reset geBufferMsgs to normal
+		assert(geBufferMsgs == MSG_NORMAL || geBufferMsgs == MSG_INITIAL_PENDINGTURN);
+		geBufferMsgs = MSG_NORMAL;
 	}
 }
 
 static int SDLCALL nthread_handler(void* data)
 {
 	int delta;
-	bool received;
 
 	while (_gbThreadLive) {
 		sgThreadMutex.Enter();
@@ -113,11 +125,49 @@ static int SDLCALL nthread_handler(void* data)
 			sgThreadMutex.Leave();
 			break;
 		}
-		nthread_send_turn(0, 0);
-		if (nthread_recv_turns(&received))
+		if (geBufferMsgs == MSG_DOWNLOAD_DELTA) {
+			multi_process_msgs();
+			if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
+				// delta-download finished -> jump to 'present'
+				// necessary in case the current player is the only player on a hosted server
+				sgbSentThisCycle = sgbSentThisCycle >= guDeltaTurn ? sgbSentThisCycle : guDeltaTurn;
+			} else
+				sgbSentThisCycle = 0;
+		} else if (geBufferMsgs == MSG_REQUEST_DOWNLOAD_DELTA) {
+			sgbSentThisCycle = 0;
+			// wait a few turns to stabilize the turn-id
+			if (sgTurnQueue.size() * gbNetUpdateRate * gnTickDelay > 500) {
+				geBufferMsgs = MSG_DOWNLOAD_DELTA;
+				
+				TCmd cmd;
+				cmd.bCmd = NMSG_SEND_DELTAINFO;
+				multi_send_direct_msg(SNPLAYER_ALL, (BYTE*)&cmd, sizeof(cmd));
+			}
+		}
+
+		switch (nthread_recv_turns()) {
+		case TS_DESYNC: {
+			uint32_t turn = /*SwapLE32(*/SNetLastTurn(player_state);//);
+			if (!(player_state[mypnum] & PCS_TURN_ARRIVED))
+				sgbSentThisCycle = turn;
+			nthread_parse_turns();
+			nthread_send_turn();
+			delta = 1; //gnTickDelay;
+		} break;
+		case TS_ACTIVE:
+			nthread_parse_turns();
+			nthread_send_turn();
+			/* fall-through */
+		case TS_LIVE:
 			delta = guNextTick - SDL_GetTicks();
-		else
-			delta = gnTickDelay;
+			break;
+		case TS_TIMEOUT:
+			delta = 1; //gnTickDelay;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
 		sgThreadMutex.Leave();
 		if (delta > 0)
 			SDL_Delay(delta);
@@ -125,23 +175,14 @@ static int SDLCALL nthread_handler(void* data)
 	return 0;
 }
 
-void nthread_request_delta()
+void nthread_start()
 {
-	turn_delta_request = 0x80000000;
-}
-
-void nthread_start(bool request_delta)
-{
-	guNextTick = SDL_GetTicks();
+	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
 	_gbTickInSync = true;
+	sgbSentThisCycle = 0;
 	sgbPacketCountdown = 1;
-	sgbSyncCountdown = 1;
-	if (request_delta)
-		nthread_request_delta();
-	else
-		turn_delta_request = 0;
-	gdwTurnsInTransit = 1; // TODO: add to SNetGameData ? (was defaultturnsintransit in vanilla)
 	static_assert(sizeof(TurnPkt) <= gdwNormalMsgSize, "TurnPkt does not fit in a message.");
+	static_assert(sizeof(MsgPkt) <= gdwNormalMsgSize, "MsgPkt does not fit in a message.");
 	if (gbMaxPlayers != 1) {
 		_gbRunThread = false;
 		sgThreadMutex.Enter();
@@ -153,25 +194,61 @@ void nthread_start(bool request_delta)
 
 void nthread_cleanup()
 {
+	SNetTurnPkt* tmp;
+
 	_gbThreadLive = false;
-	gdwTurnsInTransit = 0;
 	if (sghThread != NULL && SDL_GetThreadID(sghThread) != SDL_GetThreadID(NULL)) {
 		if (!_gbRunThread)
 			sgThreadMutex.Leave();
 		SDL_WaitThread(sghThread, NULL);
 		sghThread = NULL;
 	}
+	while (!sgTurnQueue.empty()) {
+		tmp = sgTurnQueue.front();
+		sgTurnQueue.pop_front();
+		MemFreeDbg(tmp);
+	}
 }
 
-void nthread_ignore_mutex(bool bStart)
+void nthread_run()
+{
+	plrmsg_delay(true);
+	if (sghThread != NULL) {
+		sgThreadMutex.Leave();
+		_gbRunThread = true;
+	}
+}
+
+void nthread_finish()
 {
 	if (sghThread != NULL) {
-		if (bStart)
-			sgThreadMutex.Leave();
-		else
-			sgThreadMutex.Enter();
-		_gbRunThread = bStart;
+		// for the first pending turn the current player should be considered
+		//  as 'external' in On_SYNCQUESTEXT
+		geBufferMsgs = MSG_INITIAL_PENDINGTURN;
+
+		nthread_process_pending_turns();
+
+		// 'pause' the nthread
+		sgThreadMutex.Enter();
+		_gbRunThread = false;
+
+		nthread_process_pending_turns();
+
+		// skip till next turn
+		if (_gbTickInSync) {
+			guNextTick += (gbNetUpdateRate - sgbPacketCountdown) * gnTickDelay;
+		}
+		sgbPacketCountdown = 1; //gbNetUpdateRate;
+		// reset DeltaTurn to prevent turn-skips in case of turn_id-overflow
+		guDeltaTurn = 0;
+		// reset geBufferMsgs to normal in case there was no pending turn
+		geBufferMsgs = MSG_NORMAL;
 	}
+	// TODO: move these somewhere else?
+	//   1. it prevents NetInit from calling in a symmetric way
+	//   2. plrmsg_delay calls are non-symmetric...
+	NetSendCmdSendJoinLevel();
+	plrmsg_delay(false);
 }
 
 /**

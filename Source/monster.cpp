@@ -1545,7 +1545,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 	if ((unsigned)pnum < MAX_PLRS) {
 		mon->_mWhoHit |= 1 << pnum;
 		if (pnum == mypnum) {
-			NetSendCmdMonstDamage(mnum, mon->_mhitpoints, dam);
+			NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 		}
 	}
 	PlayEffect(mnum, MS_GOTHIT);
@@ -1670,7 +1670,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
 		dmon->_mWhoHit |= 1 << offm;
 		if (offm == mypnum) {
-			NetSendCmdMonstDamage(defm, dmon->_mhitpoints, dam);
+			NetSendCmdMonstDamage(defm, dmon->_mhitpoints);
 		}
 	}
 	PlayEffect(defm, MS_GOTHIT);
@@ -1769,12 +1769,7 @@ static void M2MStartKill(int offm, int defm)
 
 void MonStartKill(int mnum, int pnum)
 {
-	if (pnum != mypnum && pnum != -1)
-		// Wait for the message from the killer so we get the exact location as well.
-		// Necessary to have synced drops. Sendmsg should be false anyway.
-		return;
-
-	MonstStartKill(mnum, pnum, true);
+	MonstStartKill(mnum, pnum, pnum == mypnum || pnum == -1);
 }
 
 void MonSyncStartKill(int mnum, int x, int y, int pnum)

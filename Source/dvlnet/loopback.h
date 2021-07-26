@@ -13,14 +13,14 @@ public:
 	bool join_game(const char* addrstr, unsigned port, const char* passwd);
 	bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
 	void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
-	bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
-	void SNetSendTurn(uint32_t turn);
-	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
+	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
+	void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
+	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
+	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
+	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) { };
 	void SNetUnregisterEventHandler(int evtype);
 	void SNetLeaveGame(int reason);
 	void SNetDropPlayer(int playerid);
-	uint32_t SNetGetOwnerTurnsWaiting();
-	uint32_t SNetGetTurnsInTransit();
 
 	loopback() = default;
 	~loopback() = default;
@@ -30,6 +30,7 @@ public:
 private:
 	buffer_t message_last;
 	std::deque<buffer_t> message_queue;
+	std::deque<SNetTurn> turn_queue;
 };
 
 } // namespace net

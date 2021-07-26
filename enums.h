@@ -2654,10 +2654,18 @@ typedef enum event_type {
 } event_type;
 
 typedef enum player_status {
-	PS_CONNECTED    = 0x01, // was 0x10000
-	PS_TURN_ARRIVED = 0x02, // was 0x20000
-	PS_ACTIVE       = 0x04, // was 0x40000
+	PCS_CONNECTED    = 0x01, // was 0x10000 - player sent a packet recently 
+	PCS_TURN_ARRIVED = 0x02, // was 0x20000 - the next turn of the player has arrived
+	PCS_ACTIVE       = 0x04, // was 0x40000 - a future turn (next or later) of the player has arrived
+	PCS_JOINED       = 0x08, //             - the player just joined (sent an initial turn)
 } player_status;
+
+typedef enum turn_status {
+	TS_LIVE,	// turn is not due
+	TS_ACTIVE,	// turn is due and all turns arrived
+	TS_TIMEOUT,	// turn is due, but not all turns arrived
+	TS_DESYNC,	// turn is not necessary due, but a higher than current turn arrived
+} turn_status;
 
 typedef enum leave_reason {
 	LEAVE_NONE,
@@ -2921,6 +2929,19 @@ typedef enum spell_id {
 	SPL_INVALID = NUM_SPELLS
 } spell_id;
 
+typedef enum _msg_id {
+	NMSG_SEND_DELTAINFO,
+	NMSG_ACK_PLRINFO,
+	NMSG_SEND_PLRINFO,
+	NMSG_DLEVEL_DATA,
+	NMSG_DLEVEL_SEP,
+	NMSG_DLEVEL_JUNK,
+	NMSG_DLEVEL_PLR,
+	NMSG_DLEVEL_END,
+	NMSG_STRING,
+	FAKE_NMSG_DROPID,
+} _msg_id;
+
 typedef enum _cmd_id {
 	CMD_SYNCDATA,
 	CMD_WALKXY,
@@ -2958,8 +2979,6 @@ typedef enum _cmd_id {
 	CMD_DELPLRITEM,
 	CMD_USEPLRITEM,
 	CMD_DROPITEM,
-	CMD_GETITEM,
-	CMD_AGETITEM,
 	CMD_PUTITEM,
 	CMD_SYNCPUTITEM,
 	CMD_RESPAWNITEM,
@@ -2967,7 +2986,6 @@ typedef enum _cmd_id {
 	CMD_REQUESTAGITEM,
 	CMD_GOTOGETITEM,
 	CMD_GOTOAGETITEM,
-	CMD_ITEMEXTRA,
 	CMD_OPERATEOBJ,
 	CMD_OPOBJT,
 	CMD_DOOROPEN,
@@ -2983,13 +3001,6 @@ typedef enum _cmd_id {
 	CMD_RETOWN,
 	CMD_ACK_JOINLEVEL,
 	CMD_SEND_JOINLEVEL,
-	CMD_ACK_PLRINFO,
-	CMD_SEND_PLRINFO,
-	CMD_DLEVEL_DATA,
-	CMD_DLEVEL_SEP,
-	CMD_DLEVEL_JUNK,
-	CMD_DLEVEL_END,
-	CMD_STRING,
 	CMD_INVITE,
 	CMD_ACK_INVITE,
 	CMD_DEC_INVITE,
@@ -3003,8 +3014,6 @@ typedef enum _cmd_id {
 	CMD_CHEAT_EXPERIENCE,
 	CMD_CHEAT_SPELL_LEVEL,
 	CMD_DEBUG,
-	FAKE_CMD_SETID,
-	FAKE_CMD_DROPID,
 } _cmd_id;
 
 // TODO: check the meaning of the values
@@ -3016,8 +3025,10 @@ typedef enum _dcmd_id {
 
 typedef enum _msg_mode {
 	MSG_NORMAL,
+	MSG_REQUEST_DOWNLOAD_DELTA,
 	MSG_DOWNLOAD_DELTA,
-	MSG_RUN_DELTA,
+	//MSG_RUN_DELTA,
+	MSG_INITIAL_PENDINGTURN,
 } _msg_mode;
 
 typedef enum _talker_id {

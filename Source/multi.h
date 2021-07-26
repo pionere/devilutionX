@@ -14,27 +14,30 @@ extern "C" {
 
 extern bool gbSomebodyWonGameKludge;
 extern BYTE gbActivePlayers;
-extern bool gbGameDestroyed;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
 extern BYTE gbMaxPlayers;
 extern const char *szGameName;
 extern const char *szGamePassword;
 extern BYTE gbDeltaSender;
+extern uint32_t guDeltaTurn;
+extern unsigned guSendDelta;
 extern unsigned player_state[MAX_PLRS];
 
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen);
 void NetSendHiPri(BYTE *pbMsg, BYTE bLen);
 void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE len);
-void multi_parse_turns();
+void multi_process_turn(SNetTurnPkt *turn);
 void multi_player_left(int pnum, int reason);
 void multi_disband_team(int pnum);
-void multi_net_ping();
+bool multi_check_timeout();
 bool multi_handle_turn();
-void multi_process_network_packets();
+void multi_mon_seeds();
+void multi_process_msgs();
 void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen);
 void NetClose();
 bool NetInit(bool bSinglePlayer);
+void multi_init_buffers();
 void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr);
 
 #ifdef __cplusplus
