@@ -49,7 +49,7 @@ error:
 
 void tcp_server::endpoint_to_string(const scc &con, std::string &addr)
 {
-	auto &ep = con->socket.remote_endpoint();
+	auto ep = con->socket.remote_endpoint();
 	char buf[PORT_LENGTH + 2];
 	snprintf(buf, sizeof(buf), ":%05d", ep.port());
 	addr = ep.address().to_string();
