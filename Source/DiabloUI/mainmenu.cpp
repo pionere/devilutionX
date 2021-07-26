@@ -4,7 +4,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static int _gnAttractTimeout; //seconds
+static const int _gnAttractTimeout = 30; //seconds
 static DWORD _gdwAttractTicks;
 
 static std::vector<UiItemBase *> vecMainMenuDialog;
@@ -78,27 +78,23 @@ static void MainmenuFree()
 	vecMenuItems.clear();
 }
 
-void UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const char *file), int attractTimeOut)
+int UiMainMenuDialog(const char* name, void (*fnSound)(const char* file))
 {
+	MainmenuLoad(name, fnSound);
+
+	mainmenu_restart_repintro(); // for automatic starts
+
 	_gnMainMenuResult = 0;
 	while (_gnMainMenuResult == 0) {
-		_gnAttractTimeout = attractTimeOut;
-		MainmenuLoad(name, fnSound);
-
-		mainmenu_restart_repintro(); // for automatic starts
-
-		while (_gnMainMenuResult == 0) {
-			UiClearScreen();
-			UiPollAndRender();
-			if (SDL_GetTicks() >= _gdwAttractTicks) {
-				_gnMainMenuResult = MAINMENU_ATTRACT_MODE;
-			}
+		UiClearScreen();
+		UiPollAndRender();
+		if (SDL_GetTicks() >= _gdwAttractTicks) {
+			_gnMainMenuResult = MAINMENU_ATTRACT_MODE;
 		}
-
-		MainmenuFree();
 	}
 
-	*pdwResult = _gnMainMenuResult;
+	MainmenuFree();
+	return _gnMainMenuResult;
 }
 
 DEVILUTION_END_NAMESPACE

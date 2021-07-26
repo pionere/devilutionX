@@ -66,38 +66,34 @@ static void mainmenu_play_intro()
 
 void mainmenu_loop()
 {
-	bool done;
-	int menu;
-
 	mainmenu_refresh_music();
-	done = false;
 
-	do {
-		menu = 0;
-		UiMainMenuDialog(gszProductName, &menu, effects_play_sound, 30);
-
-		switch (menu) {
+	while (TRUE) {
+		switch (UiMainMenuDialog(gszProductName, effects_play_sound)) {
 		case MAINMENU_SINGLE_PLAYER:
-			if (!mainmenu_single_player())
-				done = true;
+			if (mainmenu_single_player())
+				continue;
 			break;
 		case MAINMENU_MULTIPLAYER:
-			if (!mainmenu_multi_player())
-				done = true;
+			if (mainmenu_multi_player())
+				continue;
 			break;
 		case MAINMENU_ATTRACT_MODE:
 		case MAINMENU_REPLAY_INTRO:
 			if (gbActive)
 				mainmenu_play_intro();
-			break;
+			continue;
 		case MAINMENU_SHOW_CREDITS:
 			UiCreditsDialog();
-			break;
+			continue;
 		case MAINMENU_EXIT_DIABLO:
-			done = true;
+			break;
+		default:
+			ASSUME_UNREACHABLE
 			break;
 		}
-	} while (!done);
+		break;
+	}
 
 	music_stop();
 }
