@@ -1,5 +1,6 @@
 #pragma once
 #ifdef TCPIP
+#include <string>
 #include <memory>
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
@@ -14,8 +15,9 @@ DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class tcp_server {
+	friend class tcpd_client;
 public:
-	tcp_server(asio::io_context &ioc, buffer_t info);
+	tcp_server(asio::io_context &ioc, buffer_t info, unsigned serverType);
 	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd);
 	void close();
 	virtual ~tcp_server() = default;
@@ -24,7 +26,7 @@ public:
 private:
 	static constexpr int TIMEOUT_CONNECT = 30;
 	static constexpr int TIMEOUT_ACTIVE = 60;
-
+	static constexpr int PORT_LENGTH = 5;
 	struct client_connection {
 		frame_queue recv_queue;
 		buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
@@ -47,8 +49,11 @@ private:
 	scc pending_connections[MAX_PLRS] = { };
 	scc connections[MAX_PLRS] = { };
 	buffer_t game_init_info;
+	unsigned serverType;
 
 	static scc make_connection(asio::io_context &ioc);
+	static void endpoint_to_string(const scc &con, std::string &addr);
+
 	plr_t next_free_conn();
 	plr_t next_free_queue();
 	void start_accept();

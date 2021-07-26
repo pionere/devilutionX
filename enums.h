@@ -3087,10 +3087,16 @@ typedef enum _selgame_selections {
 } _selgame_selections;
 
 typedef enum conn_type {
-	SELCONN_ZT,
-	SELCONN_TCP,
-	SELCONN_LOOPBACK,
+	SELCONN_ZT,       // zerotier (p2p)
+	SELCONN_TCP,      // tcp/ip server-client
+	SELCONN_TCPD,     // tcp/ip server-client + p2p
+	SELCONN_LOOPBACK, // local
 } conn_type;
+
+typedef enum server_type {
+	SRV_BASIC,
+	SRV_DIRECT,
+} server_type;
 
 typedef enum panel_button_id {
 	PANBTN_MAINMENU,

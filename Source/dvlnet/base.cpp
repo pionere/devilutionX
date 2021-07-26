@@ -29,6 +29,11 @@ void base::disconnect_net(plr_t pnum)
 {
 }
 
+void base::recv_connect(packet &pkt)
+{
+	//	connected_table[pkt.pktConnectPlr()] = true; // this can probably be removed
+}
+
 void base::recv_accept(packet &pkt)
 {
 	if (plr_self != PLR_BROADCAST || pkt.pktJoinAccCookie() != cookie_self) {
@@ -123,7 +128,7 @@ void base::recv_local(packet &pkt)
 		recv_accept(pkt);
 		break;
 	case PT_CONNECT:
-		//connected_table[pkt.pktConnectPlr()] = true; // this can probably be removed
+		recv_connect(pkt);
 		break;
 	case PT_DISCONNECT:
 		recv_disconnect(pkt);

@@ -18,7 +18,7 @@ namespace net {
 bool tcp_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
 {
 	setup_gameinfo(std::move(info));
-	local_server = new tcp_server(ioc, game_init_info);
+	local_server = new tcp_server(ioc, game_init_info, SRV_BASIC);
 	if (local_server->setup_server(addrstr, port, passwd)) {
 		return join_game(addrstr, port, passwd);
 	}

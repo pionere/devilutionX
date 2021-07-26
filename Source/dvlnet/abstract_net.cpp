@@ -4,6 +4,7 @@
 #include "dvlnet/cdwrap.h"
 #include "dvlnet/protocol_zt.h"
 #include "dvlnet/tcp_client.h"
+#include "dvlnet/tcpd_client.h"
 #include "dvlnet/loopback.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -15,7 +16,9 @@ std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 #ifdef TCPIP
 	case SELCONN_TCP:
 		return std::make_unique<tcp_client>();
-#endif
+	case SELCONN_TCPD:
+		return std::make_unique<tcpd_client>();
+#endif // TCPIP
 #ifdef ZEROTIER
 	case SELCONN_ZT:
 		return std::make_unique<cdwrap<base_protocol<protocol_zt>>>();

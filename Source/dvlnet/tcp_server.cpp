@@ -1,20 +1,19 @@
 #include "tcp_server.h"
 #ifdef TCPIP
 #include <chrono>
-#include <functional>
 #include <memory>
-#include <utility>
 
 #include "base.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-tcp_server::tcp_server(asio::io_context &ioc, buffer_t info)
+tcp_server::tcp_server(asio::io_context &ioc, buffer_t info, unsigned srvType)
     : ioc(ioc)
 	, acceptor(ioc)
 	, connTimer(ioc)
 	, game_init_info(info)
+	, serverType(srvType)
 {
 	assert(game_init_info.size() == sizeof(SNetGameData));
 }
@@ -46,6 +45,15 @@ error:
 	SDL_SetError("%s", err.message().c_str());
 	close();
 	return false;
+}
+
+void tcp_server::endpoint_to_string(const scc &con, std::string &addr)
+{
+	auto &ep = con->socket.remote_endpoint();
+	char buf[PORT_LENGTH + 2];
+	snprintf(buf, sizeof(buf), ":%05d", ep.port());
+	addr = ep.address().to_string();
+	addr.append(buf);
 }
 
 void tcp_server::make_default_gamename(char (&gamename)[128])
@@ -140,6 +148,17 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	    pkt.pktJoinReqCookie(), pnum, game_init_info);
 	start_send(con, *reply);
 	//send_connect(con);
+	if (serverType == SRV_DIRECT) {
+		std::string addr;
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (connections[i] != NULL && connections[i] != con) {
+				endpoint_to_string(connections[i], addr);
+				auto oldConPkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST,
+					i, buffer_t(addr.begin(), addr.end()));
+				start_send(con, *oldConPkt);
+			}
+		}
+	}
 	return true;
 }
 

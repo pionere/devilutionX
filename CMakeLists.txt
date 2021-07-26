@@ -419,6 +419,7 @@ if(NOT NONET)
   list(APPEND devilutionx_SRCS
     Source/dvlnet/tcp_client.cpp
     Source/dvlnet/tcp_server.cpp
+    Source/dvlnet/tcpd_client.cpp
     Source/dvlnet/protocol_zt.cpp
     Source/dvlnet/zerotier_native.cpp
     Source/dvlnet/zerotier_lwip.cpp)
@@ -544,7 +545,7 @@ target_link_libraries(${BIN_TARGET} PRIVATE
   smacker
   Radon)
 
-if(NETENCRYPT)
+if(NOT NONET)
   target_link_libraries(${BIN_TARGET} PRIVATE sodium)
 endif()
 if(TCPIP)
