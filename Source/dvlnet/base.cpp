@@ -116,12 +116,12 @@ void base::recv_local(packet &pkt)
 	}
 	switch (pkt.pktType()) {
 	case PT_MESSAGE:
-		message_queue.emplace_back(SNetMessage(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd())));
+		message_queue.emplace_back(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd()));
 		break;
 	case PT_TURN:
 		// TODO: validate pkt_plr if the server can not be trusted?
 		//if (pkt_plr < MAX_PLRS) {
-			turn_queue[pkt_plr].push_back(SNetTurn(pkt.pktTurn(), buffer_t(pkt.pktTurnBegin(), pkt.pktTurnEnd())));
+			turn_queue[pkt_plr].emplace_back(pkt.pktTurn(), buffer_t(pkt.pktTurnBegin(), pkt.pktTurnEnd()));
 		//}
 		break;
 	case PT_JOIN_ACCEPT:
@@ -155,7 +155,7 @@ bool base::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
 	if (receiver == SNPLAYER_ALL || receiver == plr_self) {
-		message_queue.emplace_back(SNetMessage(plr_self, buffer_t(data, data + size)));
+		message_queue.emplace_back(plr_self, buffer_t(data, data + size));
 		if (receiver == plr_self)
 			return;
 	}
@@ -218,7 +218,7 @@ SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 
 void base::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
-	turn_queue[plr_self].emplace_back(SNetTurn(turn, buffer_t(data, data + size)));
+	turn_queue[plr_self].emplace_back(turn, buffer_t(data, data + size));
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
 	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn, data, size);
 	send_packet(*pkt);

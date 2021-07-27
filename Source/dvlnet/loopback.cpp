@@ -100,7 +100,7 @@ uint32_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 
 void loopback::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
-	turn_queue.emplace_back(SNetTurn(turn, buffer_t(data, data + size)));
+	turn_queue.emplace_back(turn, buffer_t(data, data + size));
 }
 
 void loopback::SNetLeaveGame(int reason)
