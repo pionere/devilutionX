@@ -12,20 +12,20 @@ namespace radon
 		: public Named
 	{
 	public:
-
+#ifdef FULL
 		Key();
-
+#endif
 		Key(const std::string & name, const std::string & value);
+#ifdef FULL
+		Key(const std::string & name, const float & value);
+#endif
+		const std::string &getStringValue() const;
+#ifdef FULL
+		float getFloatValue();
 
-		//Key(const std::string & name, const float & value);
-
-		std::string getStringValue();
-
-		//float getFloatValue();
-
-		//void setValue(float & value);
-
-		void setValue(std::string & value);
+		void setValue(float & value);
+#endif
+		void setValue(const std::string & value);
 
 	private:
 		std::string value;

@@ -237,19 +237,20 @@ void setIniValue(const char *sectionName, const char *keyName, const char *value
 {
 	radon::File &ini = getIni();
 
-	radon::Section *section = ini.getSection(sectionName);
+	const std::string stringSection(sectionName);
+	radon::Section* section = ini.getSection(stringSection);
 	if (section == NULL) {
-		ini.addSection(sectionName);
-		section = ini.getSection(sectionName);
+		section = ini.addSection(stringSection);
 	}
 
-	std::string stringValue(value);
+	const std::string stringKey(keyName);
+	const std::string stringValue(value);
 
-	radon::Key *key = section->getKey(keyName);
+	radon::Key* key = section->getKey(stringKey);
 	if (key == NULL) {
-		section->addKey(radon::Key(keyName, stringValue));
+		section->addKey(stringKey, stringValue);
 	} else {
-		if (key->getStringValue().compare(stringValue) == 0)
+		if (key->getStringValue() == stringValue)
 			return;
 		key->setValue(stringValue);
 	}

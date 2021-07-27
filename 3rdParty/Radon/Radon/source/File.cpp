@@ -22,17 +22,20 @@ namespace radon
 			while (std::getline(stream, buffer)) {
 				if (buffer[0] == ';' || buffer[0] == '#') continue;
 				if (buffer[0] == '[') {
-					nameOfCurrent = buffer.substr(1, buffer.find("]") - 1);
-					sections.push_back(Section(nameOfCurrent));
+					auto endPos = buffer.find("]");
+					if (endPos == std::string::npos)
+						continue;
+					nameOfCurrent = buffer.substr(1, endPos - 1);
+					sections.emplace_back(nameOfCurrent);
 				} else if (!sections.empty()) {
-					int equalsPosition = buffer.find('=');
+					auto equalsPosition = buffer.find('=');
 					if (equalsPosition == std::string::npos)
 						continue;
 
 					std::string nameOfElement = buffer.substr(0, equalsPosition);
 					std::string valueOfElement = buffer.substr(equalsPosition + 1, buffer.size());
 
-					sections.back().addKey(Key(nameOfElement, valueOfElement));
+					sections.back().addKey(nameOfElement, valueOfElement);
 				}
 			}
 		}
@@ -41,7 +44,7 @@ namespace radon
 
 	Section *File::getSection(const std::string & name)
 	{
-		for (int i = 0; i < (int)sections.size(); i++)
+		for (size_t i = 0; i < sections.size(); i++)
 		{
 			if (sections[i].getName() == name)
 			{
@@ -53,9 +56,11 @@ namespace radon
 	}
 
 
-	void File::addSection(const std::string & name)
+	Section* File::addSection(const std::string & name)
 	{
-		sections.push_back(Section(name));
+		return &sections.emplace_back(name);
+		//sections.emplace_back(name);
+		//return &sections.back();
 	}
 
 
@@ -63,9 +68,9 @@ namespace radon
 	{
 		std::ofstream file(path.data(), std::ios::out | std::ios::trunc);
 
-		for (int i = 0; i < (int)sections.size(); i++) {
-			file << "[" << sections[i].getName() << "] \n";
-			for(int j = 0; j < (int)sections[i].keys.size(); j++) {
+		for (size_t i = 0; i < sections.size(); i++) {
+			file << "[" << sections[i].getName() << "]\n";
+			for (size_t j = 0; j < sections[i].keys.size(); j++) {
 				file << sections[i].keys[j].getName() << "=" << sections[i].keys[j].getStringValue() << "\n";
 			}
 		}

@@ -4,11 +4,12 @@
 
 namespace radon
 {
+#ifdef FULL
 	Named::Named()
 	{
 		setName("You need to set name!");
 	}
-
+#endif
 
 	Named::Named(const std::string & name)
 	{
@@ -22,7 +23,7 @@ namespace radon
 	}
 
 
-	std::string Named::getName()
+	const std::string& Named::getName() const
 	{
 		return name;
 	}

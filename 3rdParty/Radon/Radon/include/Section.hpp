@@ -15,14 +15,14 @@ namespace radon
 		: public Named
 	{
 	public:
-
+#ifdef FULL
 		Section();
-
+#endif
 		Section(const std::string & name);
 
 		Key *getKey(const std::string & name);
 
-		void addKey(Key variable);
+		void addKey(const std::string & name, const std::string & value);
 
 	private:
 		std::vector<Key> keys;

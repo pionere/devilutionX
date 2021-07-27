@@ -6,11 +6,12 @@
 
 namespace radon
 {
+#ifdef FULL
 	Section::Section()
 		: Named()
 	{
 	}
-
+#endif
 
 	Section::Section(const std::string & name)
 		: Named(name)
@@ -20,7 +21,7 @@ namespace radon
 
 	Key *Section::getKey(const std::string & name)
 	{
-		for (int i = 0; i < (int)keys.size(); i++)
+		for (size_t i = 0; i < keys.size(); i++)
 		{
 			if (keys[i].getName() == name)
 				return &keys[i];
@@ -30,8 +31,8 @@ namespace radon
 	}
 
 
-	void Section::addKey(Key key)
+	void Section::addKey(const std::string & name, const std::string & value)
 	{
-		keys.push_back(key);
+		keys.emplace_back(name, value);
 	}
 }

@@ -9,14 +9,14 @@ namespace radon
 	class Named
 	{
 	public:
-
+#ifdef FULL
 		Named();
-
+#endif
 		Named(const std::string & name);
 
 		void setName(const std::string & name);
 
-		std::string getName();
+		const std::string &getName() const;
 
 	protected:
 		std::string name;
