@@ -312,7 +312,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 		ErrSdl();
 	}
 
-	SVidFrameEnd = SDL_GetTicks() * 1000 + SVidFrameLength;
+	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
 	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
 	return SVidSMK;
 }
@@ -377,7 +377,7 @@ bool SVidPlayContinue()
 		}
 	}
 
-	if (SDL_GetTicks() * 1000 >= SVidFrameEnd) {
+	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
 		return SVidLoadNextFrame(); // Skip video and audio if the system is to slow
 	}
 #ifndef NOSOUND
@@ -395,7 +395,7 @@ bool SVidPlayContinue()
 		mem_free_dbg(audio);
 	}
 #endif // NOSOUND
-	if (SDL_GetTicks() * 1000 >= SVidFrameEnd) {
+	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
 		return SVidLoadNextFrame(); // Skip video if the system is to slow
 	}
 
@@ -454,9 +454,9 @@ bool SVidPlayContinue()
 
 	RenderPresent();
 
-	double now = SDL_GetTicks() * 1000;
+	double now = SDL_GetTicks() * 1000.0;
 	if (now < SVidFrameEnd) {
-		SDL_Delay((SVidFrameEnd - now) / 1000); // wait with next frame if the system is too fast
+		SDL_Delay((Uint32)((SVidFrameEnd - now) / 1000)); // wait with next frame if the system is too fast
 	}
 
 	return SVidLoadNextFrame();
