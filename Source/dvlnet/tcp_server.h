@@ -68,11 +68,12 @@ private:
 	bool handle_recv_newplr(const scc &con, packet &pkt);
 	bool handle_recv_packet(const scc &con, packet &pkt);
 	//void send_connect(const scc &con);
-	bool send_packet(packet &pkt);
 	void start_send(const scc &con, packet &pkt);
 	void start_timeout();
 	void handle_timeout(const asio::error_code &ec);
 	void drop_connection(const scc &con);
+protected:
+	virtual bool send_packet(packet &pkt);
 };
 
 } //namespace net
