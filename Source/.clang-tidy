@@ -32,6 +32,7 @@
 #   A purely stylistic change that we do not want.
 #
 # -modernize-concat-nested-namespaces
+# -modernize-avoid-bind
 #   Compatibility with older compilers.
 Checks: >
   -*,
@@ -47,7 +48,8 @@ Checks: >
   readability-*,
   -modernize-avoid-c-arrays,
   -modernize-use-trailing-return-type,
-  -modernize-concat-nested-namespaces
+  -modernize-concat-nested-namespaces,
+  -modernize-avoid-bind
 
 HeaderFilterRegex: "^(Source|test)\\.h$"
 
@@ -58,6 +60,7 @@ CheckOptions:
   - { key: readability-identifier-naming.TemplateParameterCase,   value: CamelCase  }
   - { key: readability-identifier-naming.FunctionCase,            value: CamelCase  }
   - { key: readability-identifier-naming.ParameterCase,           value: camelBack  }
+  - { key: readability-identifier-naming.MemberCase,              value: camelBack  }
   - { key: readability-identifier-naming.VariableCase,            value: camelBack  }
   - { key: readability-identifier-naming.ClassMemberCase,         value: lower_case }
   - { key: readability-identifier-naming.GlobalVariableCase,      value: aNy_CasE   }

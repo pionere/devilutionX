@@ -172,6 +172,7 @@ int Joystick::ToSdlJoyButton(ControllerButton button)
 	return -1;
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static): Not static if joystick mappings are defined.
 bool Joystick::IsHatButtonPressed(ControllerButton button) const
 {
 	switch (button) {
@@ -306,9 +307,6 @@ Joystick *Joystick::Get(const SDL_Event &event)
 	case SDL_JOYBUTTONDOWN:
 	case SDL_JOYBUTTONUP:
 		return Get(event.jbutton.which);
-		return Get(event.jbutton.which);
-	default:
-		return NULL;
 #else
 	case SDL_JOYAXISMOTION:
 	case SDL_JOYBALLMOTION:
@@ -316,10 +314,9 @@ Joystick *Joystick::Get(const SDL_Event &event)
 	case SDL_JOYBUTTONDOWN:
 	case SDL_JOYBUTTONUP:
 		return joysticks_->empty() ? NULL : &(*joysticks_)[0];
-	default:
-		return NULL;
 #endif
 	}
+	return NULL;
 }
 
 bool Joystick::IsPressedOnAnyJoystick(ControllerButton button)
