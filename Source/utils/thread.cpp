@@ -19,48 +19,46 @@ SDL_Thread* CreateThread(SDL_ThreadFunction handler)
 	return ret;
 }
 
-event_emul *StartEvent()
+void StartEvent(event_emul &ev)
 {
-	event_emul *ret;
-	ret = (event_emul *)malloc(sizeof(event_emul));
-	ret->mutex = SDL_CreateMutex();
-	if (ret->mutex == NULL) {
+	ev.mutex = SDL_CreateMutex();
+	if (ev.mutex == NULL) {
 		ErrSdl();
 	}
-	ret->cond = SDL_CreateCond();
-	if (ret->cond == NULL) {
-		ErrSdl();
-	}
-	return ret;
-}
-
-void EndEvent(event_emul *event)
-{
-	SDL_DestroyCond(event->cond);
-	SDL_DestroyMutex(event->mutex);
-	free(event);
-}
-
-void SetEvent(event_emul *e)
-{
-	if (SDL_LockMutex(e->mutex) <= -1 || SDL_CondSignal(e->cond) <= -1 || SDL_UnlockMutex(e->mutex) <= -1) {
+	ev.cond = SDL_CreateCond();
+	if (ev.cond == NULL) {
 		ErrSdl();
 	}
 }
 
-void ResetEvent(event_emul *e)
+void EndEvent(event_emul &ev)
 {
-	if (SDL_LockMutex(e->mutex) <= -1 || SDL_CondWaitTimeout(e->cond, e->mutex, 0) <= -1 || SDL_UnlockMutex(e->mutex) <= -1) {
+	SDL_DestroyCond(ev.cond);
+	ev.cond = NULL;
+	SDL_DestroyMutex(ev.mutex);
+	ev.mutex = NULL;
+}
+
+void SetEvent(event_emul &ev)
+{
+	if (SDL_LockMutex(ev.mutex) <= -1 || SDL_CondSignal(ev.cond) <= -1 || SDL_UnlockMutex(ev.mutex) <= -1) {
 		ErrSdl();
 	}
 }
 
-void WaitForEvent(event_emul *e)
+void ResetEvent(event_emul &ev)
 {
-	if (SDL_LockMutex(e->mutex) <= -1) {
+	if (SDL_LockMutex(ev.mutex) <= -1 || SDL_CondWaitTimeout(ev.cond, ev.mutex, 0) <= -1 || SDL_UnlockMutex(ev.mutex) <= -1) {
 		ErrSdl();
 	}
-	if (SDL_CondWait(e->cond, e->mutex) <= -1 || SDL_CondSignal(e->cond) <= -1 || SDL_UnlockMutex(e->mutex) <= -1) {
+}
+
+void WaitForEvent(event_emul &ev)
+{
+	if (SDL_LockMutex(ev.mutex) <= -1) {
+		ErrSdl();
+	}
+	if (SDL_CondWait(ev.cond, ev.mutex) <= -1 || SDL_CondSignal(ev.cond) <= -1 || SDL_UnlockMutex(ev.mutex) <= -1) {
 		ErrSdl();
 	}
 }

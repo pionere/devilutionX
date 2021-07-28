@@ -13,11 +13,11 @@ typedef struct event_emul {
 	SDL_cond *cond;
 } event_emul;
 
-event_emul *StartEvent();
-void EndEvent(event_emul *event);
-void SetEvent(event_emul *e);
-void ResetEvent(event_emul *e);
-void WaitForEvent(event_emul* e);
+void StartEvent(event_emul &ev);
+void EndEvent(event_emul &ev);
+void SetEvent(event_emul &ev);
+void ResetEvent(event_emul &ev);
+void WaitForEvent(event_emul &ev);
 SDL_Thread* CreateThread(SDL_ThreadFunction handler);
 
 } // namespace dvl

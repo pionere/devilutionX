@@ -4,13 +4,14 @@
  * Implementation of functions for updating game state from network commands.
  */
 #include "all.h"
+#include "diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 static CCritSect sgMemCrit;
 static DMegaPkt *sgpInfoHead;
 static bool _gbThreadLive;
-static event_emul *sghWorkToDoEvent;
+static event_emul sghWorkToDoEvent;
 static SDL_Thread *sghThread = NULL;
 
 static int SDLCALL dthread_handler(void* data)
@@ -62,7 +63,7 @@ void dthread_send_delta(int pnum, BYTE cmd, void *pbSrc, int dwLen)
 	DMegaPkt *pkt;
 	DMegaPkt *p;
 
-	assert(gbMaxPlayers != 1);
+	assert(provider != SELCONN_LOOPBACK);
 
 	pkt = (DMegaPkt *)DiabloAllocPtr(dwLen + sizeof(DMegaPkt) - sizeof(pkt->data));
 	pkt->dmpNext = NULL;
@@ -83,15 +84,14 @@ void dthread_send_delta(int pnum, BYTE cmd, void *pbSrc, int dwLen)
 
 void dthread_start()
 {
-	if (gbMaxPlayers == 1) {
+	if (provider == SELCONN_LOOPBACK) {
 		return;
 	}
 
-	sghWorkToDoEvent = StartEvent();
-	assert(sghWorkToDoEvent != NULL);
+	StartEvent(sghWorkToDoEvent);
+	assert(sghWorkToDoEvent.mutex != NULL && sghWorkToDoEvent.cond != NULL);
 
 	_gbThreadLive = true;
-
 	sghThread = CreateThread(dthread_handler);
 	assert(sghThread != NULL);
 }
@@ -100,18 +100,14 @@ void dthread_cleanup()
 {
 	DMegaPkt *tmp;
 
-	if (sghWorkToDoEvent == NULL) {
-		return;
-	}
-
-	_gbThreadLive = false;
-	SetEvent(sghWorkToDoEvent);
+	_gbThreadLive = false;	
 	if (sghThread != NULL && SDL_GetThreadID(sghThread) != SDL_GetThreadID(NULL)) {
+		SetEvent(sghWorkToDoEvent);
 		SDL_WaitThread(sghThread, NULL);
 		sghThread = NULL;
+		EndEvent(sghWorkToDoEvent);
+		assert(sghWorkToDoEvent.mutex == NULL && sghWorkToDoEvent.cond == NULL);
 	}
-	EndEvent(sghWorkToDoEvent);
-	sghWorkToDoEvent = NULL;
 
 	while (sgpInfoHead != NULL) {
 		tmp = sgpInfoHead->dmpNext;
