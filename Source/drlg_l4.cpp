@@ -1547,9 +1547,7 @@ static void DRLG_L4Corners()
 	for (j = 1; j < DMAXY - 1; j++) {
 		for (i = 1; i < DMAXX - 1; i++) {
 			if (dungeon[i][j] >= 18 && dungeon[i][j] <= 30) {
-				if (dungeon[i + 1][j] < 18) {
-					dungeon[i][j] += 98;
-				} else if (dungeon[i][j + 1] < 18) {
+				if (dungeon[i + 1][j] < 18 || dungeon[i][j + 1] < 18) {
 					dungeon[i][j] += 98;
 				}
 			}

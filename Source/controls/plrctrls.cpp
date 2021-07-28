@@ -174,6 +174,7 @@ bool HasRangedSpell()
 
 bool CanTargetMonster(int mi)
 {
+	// The first MAX_MINIONS monsters are reserved for players' golems.
 	if (mi < MAX_MINIONS)
 		return false;
 
@@ -195,18 +196,17 @@ bool CanTargetMonster(int mi)
 
 void FindRangedTarget()
 {
-	int rotations = 0;
-	int distance = 0;
+	int rotations = 0, distance = 0, i, mnum;
 	bool canTalk = false;
 
-	// The first MAX_PLRS monsters are reserved for players' golems.
-	for (int mi = MAX_PLRS; mi < MAXMONSTERS; mi++) {
-		if (!CanTargetMonster(mi))
+	for (i = 0; i < nummonsters; i++) {
+		mnum = monstactive[i];
+		if (!CanTargetMonster(mnum))
 			continue;
-		const bool newCanTalk = CanTalkToMonst(mi);
+		const bool newCanTalk = CanTalkToMonst(mnum);
 		if (pcursmonst != -1 && !canTalk && newCanTalk)
 			continue;
-		const MonsterStruct &mon = monster[mi];
+		const MonsterStruct &mon = monster[mnum];
 		const int mx = mon._mfutx;
 		const int my = mon._mfuty;
 		const int newDdistance = GetDistanceRanged(mx, my);
@@ -220,7 +220,7 @@ void FindRangedTarget()
 		distance = newDdistance;
 		rotations = newRotations;
 		canTalk = newCanTalk;
-		pcursmonst = mi;
+		pcursmonst = mnum;
 	}
 }
 
@@ -986,7 +986,7 @@ struct RightStickAccumulator {
 		lastTc = SDL_GetTicks();
 	}
 
-	DWORD lastTc;
+	Uint32 lastTc;
 	float hiresDX;
 	float hiresDY;
 };

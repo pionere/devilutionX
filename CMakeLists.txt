@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 
+if(POLICY CMP0092)
+  cmake_policy(SET CMP0092 NEW)
+endif()
 if(POLICY CMP0083)
   cmake_policy(SET CMP0083 NEW)
 endif()
@@ -108,6 +111,7 @@ if(GPERF)
 endif()
 
 if(NINTENDO_SWITCH)
+  list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/switch")
   include(switch_defs)
 endif()
 
@@ -237,6 +241,8 @@ if(NOT NONET)
         ASIO_HAS_UNISTD_H=ON)
 
       target_include_directories(asio BEFORE INTERFACE CMake/ctr/asio/include)
+  elseif(NINTENDO_SWITCH)
+    include(asio_defs)
   endif()
 endif()
 
@@ -412,7 +418,10 @@ if(NINTENDO_SWITCH)
   list(APPEND devilutionx_SRCS
     Source/platform/switch/network.cpp
     Source/platform/switch/keyboard.cpp
-    Source/platform/switch/docking.cpp)
+    Source/platform/switch/docking.cpp
+    Source/platform/switch/random.cpp
+    Source/platform/switch/asio/net/if.c
+    Source/platform/switch/asio/sys/signal.c)
 endif()
 
 if(VITA)

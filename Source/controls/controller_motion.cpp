@@ -119,14 +119,14 @@ bool ProcessControllerMotion(const SDL_Event &event, ControllerButtonEvent ctrlE
 {
 #if HAS_GAMECTRL == 1
 	GameController *const controller = GameController::Get(event);
-	if (controller != NULL && controller->ProcessAxisMotion(event)) {
+	if (controller != NULL && GameController::ProcessAxisMotion(event)) {
 		ScaleJoysticks();
 		return true;
 	}
 #endif
 #if HAS_JOYSTICK == 1
 	Joystick *const joystick = Joystick::Get(event);
-	if (joystick != NULL && joystick->ProcessAxisMotion(event)) {
+	if (joystick != NULL && Joystick::ProcessAxisMotion(event)) {
 		ScaleJoysticks();
 		return true;
 	}

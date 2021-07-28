@@ -37,7 +37,7 @@ ControllerButtonEvent ToControllerButtonEvent(const SDL_Event &event)
 #if HAS_JOYSTICK == 1
 	const Joystick *const joystick = Joystick::Get(event);
 	if (joystick != NULL)
-		result.button = joystick->ToControllerButton(event);
+		result.button = Joystick::ToControllerButton(event);
 #endif
 	return result;
 }

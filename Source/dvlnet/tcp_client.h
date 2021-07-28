@@ -40,9 +40,9 @@ private:
 	asio::ip::tcp::socket sock = asio::ip::tcp::socket(ioc);
 	std::unique_ptr<tcp_server> local_server; // must be declared *after* ioc
 
-	void handle_recv(const asio::error_code &error, size_t bytes_read);
+	void handle_recv(const asio::error_code &error, size_t bytesRead);
 	void start_recv();
-	void handle_send(const asio::error_code &error, size_t bytes_sent);
+	void handle_send(const asio::error_code &error, size_t bytesSent);
 };
 
 } // namespace net

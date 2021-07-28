@@ -20,7 +20,7 @@ bool switch_potions_and_clicks = false;
 
 namespace {
 
-DWORD TranslateControllerButtonToKey(ControllerButton controllerButton)
+uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton)
 {
 	switch (controllerButton) {
 	case ControllerButton_BUTTON_A: // Bottom button
@@ -156,7 +156,6 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 		case ControllerButton_BUTTON_START:
 		case ControllerButton_BUTTON_BACK:
 			return true;
-			break;
 		default:
 			break;
 		}
