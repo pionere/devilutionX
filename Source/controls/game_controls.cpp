@@ -193,18 +193,18 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 			switch (ctrlEvent.button) {
 			case ControllerButton_BUTTON_DPAD_UP:
 				*action = GameActionSendKey { DVL_VK_ESCAPE, ctrlEvent.up };
-				return true;
+				break;
 			case ControllerButton_BUTTON_DPAD_RIGHT:
 				if (!ctrlEvent.up)
 					*action = GameAction(GameActionType_TOGGLE_INVENTORY);
-				return true;
+				break;
 			case ControllerButton_BUTTON_DPAD_DOWN:
 				*action = GameActionSendKey { DVL_VK_TAB, ctrlEvent.up };
-				return true;
+				break;
 			case ControllerButton_BUTTON_DPAD_LEFT:
 				if (!ctrlEvent.up)
 					*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
-				return true;
+				break;
 			case ControllerButton_BUTTON_Y: // Top button
 #ifdef __3DS__
 				if (!ctrlEvent.up) {
@@ -214,29 +214,28 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 #else
 				// Not mapped. Reserved for future use.
 #endif
-				return true;
+				break;
 			case ControllerButton_BUTTON_B: // Right button
 				// Not mapped. TODO: map to attack in place.
-				return true;
+				break;
 			case ControllerButton_BUTTON_A: // Bottom button
 				if (!ctrlEvent.up)
 					*action = GameAction(GameActionType_TOGGLE_SPELL_BOOK);
-				return true;
+				break;
 			case ControllerButton_BUTTON_X: // Left button
 				if (!ctrlEvent.up)
 					*action = GameAction(GameActionType_TOGGLE_QUEST_LOG);
-				return true;
+				break;
 			case ControllerButton_BUTTON_LEFTSHOULDER:
 				if (!ctrlEvent.up)
 					*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
-				return true;
+				break;
 			case ControllerButton_BUTTON_RIGHTSHOULDER:
 				if (!ctrlEvent.up)
 					*action = GameAction(GameActionType_TOGGLE_INVENTORY);
-				return true;
-			default:
-				return true;
+				break;
 			}
+			return true;
 		}
 
 		// Bottom button: Closes menus or opens quick spell book if nothing is open.
