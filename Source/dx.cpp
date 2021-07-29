@@ -102,11 +102,12 @@ void lock_buf(BYTE idx)
 
 static void unlock_buf_priv()
 {
+#ifdef _DEBUG
 	if (_guLockCount == 0)
 		app_fatal("draw main unlock error");
 	if (gpBuffer == NULL)
 		app_fatal("draw consistency error");
-
+#endif
 	_guLockCount--;
 	if (_guLockCount == 0) {
 		gpBufEnd -= (uintptr_t)gpBuffer;
