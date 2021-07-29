@@ -16,7 +16,6 @@ static bool _gbCauldronFlag;
 static bool _gbTFountainFlag;
 static bool _gbPFountainFlag;
 static bool _gbBFountainFlag;
-static bool _gbBCrossFlag;
 int zharlib;
 static int themex;
 static int themey;
@@ -402,7 +401,6 @@ void InitThemes()
 	_gbPFountainFlag = true;
 	_gbTFountainFlag = true;
 	_gbTreasureFlag = true;
-	_gbBCrossFlag = false;
 	_gbWeaponFlag = true;
 	zharlib = -1;
 
@@ -923,7 +921,6 @@ static void Theme_BrnCross(int tidx)
 
 	Place_Obj3(tidx, OBJ_TBCROSS, bcrossrnd);
 	PlaceThemeMonsts(tidx, monstrnd);
-	_gbBCrossFlag = true;
 }
 
 /**

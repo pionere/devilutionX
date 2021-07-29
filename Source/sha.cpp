@@ -9,6 +9,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+static SHA1Context sgSHA1[3];
+
 /**
  * Standard circular left shift, portable version.
  * Necessary because the MSVC-compiler messed up the inlining of the original code.
@@ -28,8 +30,6 @@ static uint32_t SHA1CircularShiftB(uint32_t bits, uint32_t word)
 	assert(bits > 0);
 	return (word << bits) | ((int32_t)word >> (32 - bits));
 }
-
-SHA1Context sgSHA1[3];
 
 static void SHA1Init(SHA1Context *context)
 {

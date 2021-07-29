@@ -98,10 +98,6 @@ void LoadRndLvlPal()
 	LoadPalette(szFileName);
 }
 
-void ResetPal()
-{
-}
-
 void IncreaseGamma()
 {
 	if (_gnGammaCorrection < 100) {

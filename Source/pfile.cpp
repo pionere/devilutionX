@@ -15,8 +15,12 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PFILE_SAVE_MPQ_HASHCOUNT	2048
 #define PFILE_SAVE_MPQ_BLOCKCOUNT	2048
 
-const char *PASSWORD_SINGLE = "xrgyrkj1";
-const char *PASSWORD_MULTI = "szqnlsk1";
+bool gbValidSaveFile;
+
+static const char *PASSWORD_SINGLE = "xrgyrkj1";
+static const char *PASSWORD_MULTI = "szqnlsk1";
+/** List of character names for the character selection screen. */
+static char hero_names[MAX_CHARACTERS][PLR_NAME_LEN];
 
 #ifdef HELLFIRE
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.hsv"
@@ -26,25 +30,17 @@ const char *PASSWORD_MULTI = "szqnlsk1";
 #define SAVE_FILE_FORMAT_MULTI "multi_%d.sv"
 #endif
 
-namespace {
-
-std::string GetSavePath(unsigned save_num)
+static std::string GetSavePath(unsigned save_num)
 {
 	std::string path = GetPrefPath();
 
 	const char* fmt = gbMaxPlayers != 1 ? SAVE_FILE_FORMAT_MULTI : SAVE_FILE_FORMAT_SINGLE;
-
-	char save_file_name[21];
+	static_assert(MAX_CHARACTERS < 100, "Name of the save-file does not fit to the temporary buffer.");
+	char save_file_name[std::max(sizeof(SAVE_FILE_FORMAT_MULTI), sizeof(SAVE_FILE_FORMAT_SINGLE))];
 	snprintf(save_file_name, sizeof(save_file_name), fmt, save_num);
 	path.append(save_file_name);
 	return path;
 }
-
-} // namespace
-
-/** List of character names for the character selection screen. */
-static char hero_names[MAX_CHARACTERS][PLR_NAME_LEN];
-bool gbValidSaveFile;
 
 static unsigned pfile_get_save_num_from_name(const char *name)
 {

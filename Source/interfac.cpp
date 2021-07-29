@@ -605,8 +605,6 @@ void ShowProgress(unsigned int uMsg)
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
 
-	ResetPal();
-
 	if (gbSomebodyWonGameKludge && myplr.plrlevel == DLV_HELL4) {
 		PrepDoEnding(gbSoundOn);
 	}

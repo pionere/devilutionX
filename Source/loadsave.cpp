@@ -763,7 +763,6 @@ void LoadGame(bool firstflag)
 	//ProcessVisionList();
 
 	SyncMissilesAnim();
-	ResetPal();
 	NewCursor(CURSOR_HAND);
 	gbProcessPlayers = true;
 }
