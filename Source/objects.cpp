@@ -2106,7 +2106,7 @@ static void ObjL2Special(int x1, int y1, int x2, int y2)
 	}
 }
 
-static void DoorSet(int oi, int dx, int dy)
+static void DoorSet(int dx, int dy, int otype)
 {
 	int pn;
 
@@ -2118,7 +2118,7 @@ static void DoorSet(int oi, int dx, int dy)
 		if (pn == 79)
 			ObjSetMicro(dx, dy, 208);
 		if (pn == 86)
-			ObjSetMicro(dx, dy, object[oi]._otype == OBJ_L1LDOOR ? 232 : 234);
+			ObjSetMicro(dx, dy, otype == OBJ_L1LDOOR ? 232 : 234);
 		if (pn == 91)
 			ObjSetMicro(dx, dy, 215);
 		if (pn == 93)
@@ -2147,7 +2147,7 @@ static void DoorSet(int oi, int dx, int dy)
 	if (pn == 45)
 		ObjSetMicro(dx, dy, 394);
 	if (pn == 50)
-		ObjSetMicro(dx, dy, object[oi]._otype == OBJ_L1LDOOR ? 411 : 412);
+		ObjSetMicro(dx, dy, otype == OBJ_L1LDOOR ? 411 : 412);
 	if (pn == 54)
 		ObjSetMicro(dx, dy, 397);
 	if (pn == 55)
@@ -4106,7 +4106,7 @@ static void SyncL1Doors(int oi)
 			x--;
 		}
 	}
-	DoorSet(oi, x, y);
+	DoorSet(x, y, os->_otype);
 }
 
 static void SyncL2Doors(int oi)
