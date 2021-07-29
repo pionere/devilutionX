@@ -46,7 +46,7 @@ typedef struct AffixData {
 
 typedef struct UniqItemData {
 	const char *UIName;
-	char UIItemId;
+	BYTE UIItemId;
 	BYTE UIMinLvl;
 	int UIValue;
 	BYTE UIPower1;
@@ -82,7 +82,7 @@ typedef struct ItemData {
 	BYTE iLoc;
 	int iCurs;
 	char itype;
-	char iItemId;
+	BYTE iItemId;
 	const char *iName;
 	char iMinMLvl;
 	uint16_t iDurability;

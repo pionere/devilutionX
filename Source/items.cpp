@@ -1940,7 +1940,7 @@ static int CheckUnique(int ii, int lvl, int uper, bool recreate)
 	int i, ui;
 	BYTE uok[NUM_UITEM];
 	bool uniq;
-	char uid;
+	BYTE uid;
 
 	if (random_(28, 100) > uper)
 		return -1;
