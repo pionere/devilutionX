@@ -17,8 +17,8 @@ static BYTE *option_cel;
 static BYTE *sgpLogo;
 static bool _gbMouseNavigation;
 #ifdef HELLFIRE
-static int LogoAnim_tick;
-static BYTE LogoAnim_frame;
+static Uint32 guNextLogoAnimTc;
+static BYTE gbLogoAnimFrame;
 #endif
 static void (*gmUpdateFunc)();
 TMenuItem *sgpCurrentMenu;
@@ -45,7 +45,7 @@ void FreeGMenu()
 void InitGMenu()
 {
 #ifdef HELLFIRE
-	LogoAnim_frame = 1;
+	gbLogoAnimFrame = 1;
 #endif
 	sgpCurrentMenu = NULL;
 	sgpCurrItem = NULL;
@@ -182,25 +182,25 @@ void gmenu_draw()
 	TMenuItem *i;
 
 	assert(sgpCurrentMenu != NULL);
-		GameMenuMove();
-		if (gmUpdateFunc != NULL)
-			gmUpdateFunc();
+	GameMenuMove();
+	if (gmUpdateFunc != NULL)
+		gmUpdateFunc();
 #ifdef HELLFIRE
-		DWORD ticks = SDL_GetTicks();
-		if ((int)(ticks - LogoAnim_tick) > 25) {
-			LogoAnim_frame++;
-			if (LogoAnim_frame > 16)
-				LogoAnim_frame = 1;
-			LogoAnim_tick = ticks;
-		}
-		nCel = LogoAnim_frame;
+	Uint32 currTc = SDL_GetTicks();
+	if (currTc > guNextLogoAnimTc) {
+		guNextLogoAnimTc = currTc + 25;
+		gbLogoAnimFrame++;
+		if (gbLogoAnimFrame > 16)
+			gbLogoAnimFrame = 1;
+	}
+	nCel = gbLogoAnimFrame;
 #else
-		nCel = 1;
+	nCel = 1;
 #endif
-		CelDraw((SCREEN_WIDTH - LOGO_WIDTH) / 2 + SCREEN_X, 102 + SCREEN_Y + UI_OFFSET_Y, sgpLogo, nCel, LOGO_WIDTH);
-		y = 160 + SCREEN_Y + UI_OFFSET_Y;
-		for (i = sgpCurrentMenu; i->fnMenu != NULL; i++, y += 45)
-			gmenu_draw_menu_item(i, y);
+	CelDraw((SCREEN_WIDTH - LOGO_WIDTH) / 2 + SCREEN_X, 102 + SCREEN_Y + UI_OFFSET_Y, sgpLogo, nCel, LOGO_WIDTH);
+	y = 160 + SCREEN_Y + UI_OFFSET_Y;
+	for (i = sgpCurrentMenu; i->fnMenu != NULL; i++, y += 45)
+		gmenu_draw_menu_item(i, y);
 }
 
 bool gmenu_presskeys(int vkey)

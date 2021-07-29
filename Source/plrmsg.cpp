@@ -9,59 +9,62 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static BYTE plr_msg_slot;
 _plrmsg plr_msgs[PMSG_COUNT];
+static Uint32 guDelayStartTc;
 
 void plrmsg_delay(bool delay)
 {
 	int i;
 	_plrmsg *pMsg;
-	static DWORD plrmsg_ticks;
+	Uint32 deltaTc;
 
+	deltaTc = SDL_GetTicks();
 	if (delay) {
-		plrmsg_ticks = SDL_GetTicks();
+		guDelayStartTc = deltaTc;
 		return;
 	}
-
-	plrmsg_ticks = SDL_GetTicks() - plrmsg_ticks;
+	deltaTc -= guDelayStartTc;
 	pMsg = plr_msgs;
 	for (i = 0; i < PMSG_COUNT; i++, pMsg++)
-		pMsg->time += plrmsg_ticks;
+		pMsg->time += deltaTc;
+}
+
+static _plrmsg* AddPlrMsg(int pnum)
+{
+	_plrmsg* pMsg = &plr_msgs[plr_msg_slot];
+
+	static_assert((PMSG_COUNT & (PMSG_COUNT - 1)) == 0, "Modulo to BitAnd optimization requires a power of 2.");
+	plr_msg_slot = (plr_msg_slot + 1) % PMSG_COUNT;
+	pMsg->player = pnum;
+	pMsg->time = SDL_GetTicks();
+	return pMsg;
 }
 
 #ifdef _DEBUG
 void ErrorPlrMsg(const char *pszMsg)
 {
-	_plrmsg *pMsg = &plr_msgs[plr_msg_slot];
-	plr_msg_slot = (plr_msg_slot + 1) & (PMSG_COUNT - 1);
-	pMsg->player = MAX_PLRS;
-	pMsg->time = SDL_GetTicks();
+	_plrmsg* pMsg;
+	
+	pMsg = AddPlrMsg(MAX_PLRS);
 	SStrCopy(pMsg->str, pszMsg, sizeof(pMsg->str));
 }
 #endif
 
 void EventPlrMsg(const char *pszFmt, ...)
 {
-	_plrmsg *pMsg;
+	_plrmsg* pMsg;
 	va_list va;
 
 	va_start(va, pszFmt);
-	pMsg = &plr_msgs[plr_msg_slot];
-	plr_msg_slot = (plr_msg_slot + 1) & (PMSG_COUNT - 1);
-	pMsg->player = MAX_PLRS;
-	pMsg->time = SDL_GetTicks();
+	pMsg = AddPlrMsg(MAX_PLRS);
 	vsnprintf(pMsg->str, sizeof(pMsg->str), pszFmt, va);
 	va_end(va);
 }
 
 void SendPlrMsg(int pnum, const char *pszStr)
 {
-	_plrmsg *pMsg = &plr_msgs[plr_msg_slot];
-	plr_msg_slot = (plr_msg_slot + 1) & (PMSG_COUNT - 1);
-	pMsg->player = pnum;
-	pMsg->time = SDL_GetTicks();
-#ifdef _DEBUG
-	strlen(plr._pName); /* these are used in debug */
-	strlen(pszStr);
-#endif
+	_plrmsg* pMsg;
+
+	pMsg = AddPlrMsg(pnum);
 	snprintf(pMsg->str, sizeof(pMsg->str), "%s: %s", plr._pName, pszStr);
 }
 
@@ -69,10 +72,10 @@ void ClearPlrMsg()
 {
 	int i;
 	_plrmsg *pMsg = plr_msgs;
-	DWORD tick = SDL_GetTicks();
+	Uint32 currTc = SDL_GetTicks();
 
 	for (i = 0; i < PMSG_COUNT; i++, pMsg++) {
-		if ((int)(tick - pMsg->time) > 10000)
+		if ((int)(currTc - pMsg->time) > 10000)
 			pMsg->str[0] = '\0';
 	}
 }

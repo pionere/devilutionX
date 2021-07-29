@@ -14,8 +14,10 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define PFILE_SAVE_MPQ_HASHCOUNT	2048
 #define PFILE_SAVE_MPQ_BLOCKCOUNT	2048
+#define PFILE_SAVE_INTERVAL			60000
 
 bool gbValidSaveFile;
+static Uint32 guNextSaveTc;
 
 static const char *PASSWORD_SINGLE = "xrgyrkj1";
 static const char *PASSWORD_MULTI = "szqnlsk1";
@@ -342,6 +344,7 @@ static void pfile_read_player_from_save()
 	UnPackPlayer(&pkplr, 0); // mypnum
 	gbValidSaveFile = pfile_archive_contains_game(archive);
 	pfile_SFileCloseArchive(archive);
+	guNextSaveTc = SDL_GetTicks() + PFILE_SAVE_INTERVAL;
 }
 
 void pfile_create_player_description()
@@ -466,13 +469,10 @@ BYTE *pfile_read(const char *pszName)
 
 void pfile_update(bool force_save)
 {
-	// BUGFIX: these tick values should be treated as unsigned to handle overflows correctly (fixed)
-	static DWORD save_prev_tc;
-
 	if (gbMaxPlayers != 1) {
-		DWORD tick = SDL_GetTicks();
-		if (force_save || tick - save_prev_tc > 60000) {
-			save_prev_tc = tick;
+		Uint32 currTc = SDL_GetTicks();
+		if (force_save || currTc > guNextSaveTc) {
+			guNextSaveTc = currTc + PFILE_SAVE_INTERVAL;
 			pfile_write_hero();
 		}
 	}

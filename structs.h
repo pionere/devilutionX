@@ -530,7 +530,7 @@ static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 128, "Ali
 
 typedef struct TSnd {
 	SoundSample *DSB;
-	int start_tc;
+	Uint32 nextTc;
 } TSnd;
 
 typedef struct TSFX {
@@ -1692,7 +1692,7 @@ typedef struct STextStruct {
 //////////////////////////////////////////////////
 
 typedef struct _plrmsg {
-	DWORD time;
+	Uint32 time;
 	BYTE player;
 	char str[144];
 } _plrmsg;

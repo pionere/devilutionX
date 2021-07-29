@@ -68,15 +68,15 @@ bool snd_playing(TSnd *pSnd)
 
 void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
 {
-	DWORD tc;
+	Uint32 currTc;
 
 	assert(pSnd != NULL);
 	assert(gbSoundOn);
 
-	tc = SDL_GetTicks();
-	if (tc - pSnd->start_tc < 80) {
+	currTc = SDL_GetTicks();
+	if (currTc < pSnd->nextTc)
 		return;
-	}
+	pSnd->nextTc = currTc + 80;
 
 	lVolume += _gnSoundVolume;
 	if (lVolume < VOLUME_MIN) {
@@ -86,7 +86,6 @@ void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
 	}
 	assert(pSnd->DSB != NULL);
 	pSnd->DSB->Play(lVolume, lPan);
-	pSnd->start_tc = tc;
 }
 
 TSnd *sound_file_load(const char *path)
@@ -100,7 +99,7 @@ TSnd *sound_file_load(const char *path)
 	SFileOpenFile(path, &file);
 	pSnd = (TSnd *)DiabloAllocPtr(sizeof(TSnd));
 	memset(pSnd, 0, sizeof(TSnd));
-	pSnd->start_tc = SDL_GetTicks() - 80 - 1;
+	pSnd->nextTc = 0;
 
 	dwBytes = SFileGetFileSize(file);
 	wave_file = DiabloAllocPtr(dwBytes);
@@ -142,7 +141,7 @@ void snd_init()
 		SDL_Log("%s", Mix_GetError());
 	}
 	Mix_AllocateChannels(25);
-	Mix_ReserveChannels(1); // reserve one channel for naration (SFileDda*)
+	Mix_ReserveChannels(1); // reserve one channel for narration (SFileDda*)
 }
 
 void music_stop()

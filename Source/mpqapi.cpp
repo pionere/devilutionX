@@ -437,7 +437,7 @@ static bool ReadMPQHeader(Archive *archive, _FILEHEADER *hdr)
 static _BLOCKENTRY *mpqapi_new_block(int *block_index)
 {
 	_BLOCKENTRY *pBlock;
-	DWORD i, blockCount;
+	uint32_t i, blockCount;
 
 	pBlock = cur_archive.sgpBlockTbl;
 	blockCount = cur_archive.blockCount;
@@ -693,7 +693,7 @@ bool mpqapi_write_file(const char *pszName, const BYTE *pbData, DWORD dwLen)
 
 	cur_archive.modified = true;
 	mpqapi_remove_hash_entry(pszName);
-	pBlock = mpqapi_add_file(pszName, 0, 0);
+	pBlock = mpqapi_add_file(pszName, NULL, 0);
 	if (!mpqapi_write_file_contents(pszName, pbData, dwLen, pBlock)) {
 		mpqapi_remove_hash_entry(pszName);
 		return false;

@@ -4,8 +4,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static const int _gnAttractTimeout = 30; //seconds
-static DWORD _gdwAttractTicks;
+static const int ATTRACT_TIMEOUT = 30; //seconds
+static Uint32 guAttractTc;
 
 static std::vector<UiItemBase *> vecMainMenuDialog;
 static std::vector<UiListItem *> vecMenuItems;
@@ -29,7 +29,7 @@ static void MainmenuEsc()
 
 void mainmenu_restart_repintro()
 {
-	_gdwAttractTicks = SDL_GetTicks() + _gnAttractTimeout * 1000;
+	guAttractTc = SDL_GetTicks() + ATTRACT_TIMEOUT * 1000;
 }
 
 static void MainmenuLoad(const char *name, void (*fnSound)(const char *file))
@@ -90,7 +90,7 @@ int UiMainMenuDialog(const char* name, void (*fnSound)(const char* file))
 	while (_gnMainMenuResult == 0) {
 		UiClearScreen();
 		UiPollAndRender();
-		if (SDL_GetTicks() >= _gdwAttractTicks) {
+		if (SDL_GetTicks() >= guAttractTc) {
 			_gnMainMenuResult = MAINMENU_ATTRACT_MODE;
 		}
 	}

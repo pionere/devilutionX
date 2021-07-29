@@ -1,5 +1,5 @@
 /**
- * @file plrmsg.cpp
+ * @file scrollrt.cpp
  *
  * Implementation of functionality for rendering the dungeons, monsters and calling other render routines.
  */
@@ -54,9 +54,9 @@ BYTE sgSaveBack[MAX_CURSOR_AREA];
  * Specfies whether the FPS counter is shown.
  */
 bool gbFrameflag = false;
-int frameend;
-int framerate;
-int framestart;
+static unsigned guFrameCnt;
+static unsigned guFrameRate;
+static Uint32 guFpsStartTc;
 
 /* data */
 
@@ -1328,7 +1328,7 @@ void ScrollView()
 /*void EnableFrameCount()
 {
 	gbFrameflag = !gbFrameflag;
-	framestart = SDL_GetTicks();
+	guFpsStartTc = SDL_GetTicks();
 }*/
 
 /**
@@ -1336,17 +1336,17 @@ void ScrollView()
  */
 static void DrawFPS()
 {
-	DWORD tc, frames;
+	Uint32 currTc, deltaTc;
 
-	frameend++;
-	tc = SDL_GetTicks();
-	frames = tc - framestart;
-	if (tc - framestart >= 1000) {
-		framestart = tc;
-		framerate = 1000 * frameend / frames;
-		frameend = 0;
+	guFrameCnt++;
+	currTc = SDL_GetTicks();
+	deltaTc = currTc - guFpsStartTc;
+	if (deltaTc >= 1000) {
+		guFpsStartTc = currTc;
+		guFrameRate = 1000 * guFrameCnt / deltaTc;
+		guFrameCnt = 0;
 	}
-	snprintf(tempstr, sizeof(tempstr), "%d FPS", framerate);
+	snprintf(tempstr, sizeof(tempstr), "%d FPS", guFrameRate);
 	PrintGameStr(8, 65, tempstr, COL_RED);
 }
 

@@ -56,7 +56,7 @@ bool textInputActive = true;
 
 static void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)]);
 
-static DWORD _gdwFadeTc;
+static Uint32 _gdwFadeTc;
 static int _gnFadeValue = 0;
 
 struct ScrollBarState {
@@ -576,10 +576,13 @@ void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size, int y)
 
 void UiFadeIn()
 {
+	Uint32 currTc;
+
 	if (_gnFadeValue < 256) {
+		currTc = SDL_GetTicks();
 		if (_gnFadeValue == 0 && _gdwFadeTc == 0)
-			_gdwFadeTc = SDL_GetTicks();
-		_gnFadeValue = (SDL_GetTicks() - _gdwFadeTc) >> 1; // instead of >> 1 it was / 2.083 ... 32 frames @ 60hz
+			_gdwFadeTc = currTc;
+		_gnFadeValue = (currTc - _gdwFadeTc) >> 1; // instead of >> 1 it was / 2.083 ... 32 frames @ 60hz
 		if (_gnFadeValue > 256) {
 			_gnFadeValue = 256;
 			_gdwFadeTc = 0;
