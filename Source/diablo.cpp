@@ -258,7 +258,6 @@ static void InitGameUI()
 	gbZoomflag = true;
 	CalcViewportGeometry();
 	InitCursor();
-	InitLightTable();
 #ifdef _DEBUG
 	LoadDebugGFX();
 #endif
@@ -288,7 +287,6 @@ static void FreeGameUI()
 
 	FreeItemGFX();
 	FreeCursor();
-	FreeLightTable();
 #ifdef _DEBUG
 	FreeDebugGFX();
 #endif

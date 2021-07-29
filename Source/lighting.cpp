@@ -20,7 +20,7 @@ char lightmax;
 #endif
 BYTE darkness[16][128];
 BYTE distance[64][16][16];
-BYTE *pLightTbl;
+BYTE pLightTbl[LIGHTSIZE];
 
 /**
  * CrawlTable specifies X- and Y-coordinate deltas from a missile target coordinate.
@@ -694,17 +694,6 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible)
 			} while (LightPos(x1, y1, doautomap, vFlags));
 		}
 	}
-}
-
-void FreeLightTable()
-{
-	MemFreeDbg(pLightTbl);
-}
-
-void InitLightTable()
-{
-	assert(pLightTbl == NULL);
-	pLightTbl = DiabloAllocPtr(LIGHTSIZE);
 }
 
 void MakeLightTable()
