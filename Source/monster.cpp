@@ -1881,7 +1881,7 @@ static bool MonDoWalk(int mnum)
 		dev_fatal("MonDoWalk: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mAnimFrame == mon->_mAnims[MA_WALK].aFrames) {
+	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		switch (mon->_mmode) {
 		case MM_WALK: // Movement towards NW, N, and NE
 			dMonster[mon->_mx][mon->_my] = 0;
@@ -2457,7 +2457,7 @@ void MonWalkDir(int mnum, int md)
 		dev_fatal("MonWalkDir: Invalid monster %d", mnum);
 	}
 	NewMonsterAnim(mnum, MA_WALK, md);
-	mwi = MWVel[monster[mnum]._mAnims[MA_WALK].aFrames - 1];
+	mwi = MWVel[monster[mnum]._mAnimLen - 1];
 	switch (md) {
 	case DIR_N:
 		MonStartWalk1(mnum, 0, -mwi[1], -1, -1);
