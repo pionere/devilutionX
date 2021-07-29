@@ -246,7 +246,7 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
 		dev_fatal("Draw Missile 2 type %d: NULL Cel Buffer", mis->_miType);
 	}
 	nCel = mis->_miAnimFrame;
-	frames = SwapLE32(*(DWORD *)pCelBuff);
+	frames = SwapLE32(*(uint32_t *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, mis->_miType);
 	}
@@ -325,7 +325,7 @@ static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 
 	nCel = mon->_mAnimFrame;
 #ifdef _DEBUG
-	int frames = SwapLE32(*(DWORD *)pCelBuff);
+	int frames = SwapLE32(*(uint32_t *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		const char *szMode = "unknown action";
 		if (mon->_mmode < lengthof(szMonModeAssert))
@@ -411,7 +411,7 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 		}
 		nCel = plr._pAnimFrame;
 #ifdef _DEBUG
-		int frames = SwapLE32(*(DWORD *)pCelBuff);
+		int frames = SwapLE32(*(uint32_t *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char *szMode = "unknown action";
 			if (plr._pmode <= PM_QUIT)
@@ -435,7 +435,7 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, 1);
 		} else {
 			l = light_table_index;
-			if (light_table_index < 5)
+			if (light_table_index <= 5)
 				light_table_index = 0;
 			else
 				light_table_index -= 5;
@@ -472,7 +472,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
-			int frames = SwapLE32(*(DWORD *)pCelBuff);
+			int frames = SwapLE32(*(uint32_t *)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
 				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, plr._pName, plr._pdir, nCel, frames);
 			}
@@ -528,8 +528,8 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 	}
 
 	nCel = os->_oAnimFrame;
-	frames = SwapLE32(*(DWORD *)pCelBuff);
-	if (nCel < 1 || frames > 50 || nCel > (int)frames) {
+	frames = SwapLE32(*(uint32_t *)pCelBuff);
+	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, os->_otype);
 	}
 
@@ -647,10 +647,9 @@ static void drawFloor(int x, int y, int sx, int sy)
  */
 static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 {
-	int nCel, ii;
+	int nCel, ii, frames;
 	ItemStruct *is;
 	BYTE *pCelBuff;
-	DWORD *pFrameTable;
 
 	ii = dItem[x][y];
 	if (ii == 0)
@@ -669,10 +668,10 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Item \"%s\" 1: NULL Cel Buffer", is->_iName);
 	}
-	pFrameTable = (DWORD *)pCelBuff;
+	frames = SwapLE32(*(uint32_t *)pCelBuff);
 	nCel = is->_iAnimFrame;
-	if (nCel < 1 || pFrameTable[0] > 50 || nCel > (int)pFrameTable[0]) {
-		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iName, nCel, pFrameTable[0], is->_itype);
+	if (nCel < 1 || frames > 50 || nCel > frames) {
+		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iName, nCel, frames, is->_itype);
 	}
 
 	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
@@ -706,11 +705,10 @@ static void DrawMonsterHelper(int mnum, int x, int y, int sx, int sy)
  */
 static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 {
-	int px, mpnum, nCel;
+	int px, mpnum, nCel, frames;
 	BYTE bFlag, bDead, bArch, bMap, dd;
 	DeadStruct *pDeadGuy;
 	BYTE *pCelBuff;
-	DWORD *pFrameTable;
 
 	assert((unsigned)sx < MAXDUNX);
 	assert((unsigned)sy < MAXDUNY);
@@ -759,10 +757,10 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		if (pCelBuff == NULL) {
 			dev_fatal("Dead body(%d) without Data(%d) to draw .", bDead, dd);
 		}
-		pFrameTable = (DWORD *)pCelBuff;
+		frames = SwapLE32(*(uint32_t *)pCelBuff);
 		nCel = pDeadGuy->_deadFrame;
-		if (nCel < 1 || pFrameTable[0] > 50 || nCel > (int)pFrameTable[0]) {
-			dev_fatal("Unclipped dead: frame %d of %d, deadnum==%d", nCel, pFrameTable[0], bDead);
+		if (nCel < 1 || frames > 50 || nCel > frames) {
+			dev_fatal("Unclipped dead: frame %d of %d, deadnum==%d", nCel, frames, bDead);
 		}
 		if (pDeadGuy->_deadtrans != 0) {
 			Cl2DrawLightTbl(px, dy, pCelBuff, nCel, pDeadGuy->_deadWidth, pDeadGuy->_deadtrans);
