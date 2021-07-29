@@ -4437,11 +4437,8 @@ bool DirOK(int mnum, int mdir)
 		if (nSolidTable[dPiece[fx - 1][fy]] || nSolidTable[dPiece[fx][fy - 1]])
 			return false;
 	if (monster[mnum].leaderflag == MLEADER_PRESENT) {
-		if (abs(fx - monster[monster[mnum].leader]._mfutx) >= 4
-		    || abs(fy - monster[monster[mnum].leader]._mfuty) >= 4) {
-			return false;
-		}
-		return true;
+		return abs(fx - monster[monster[mnum].leader]._mfutx) < 4
+		    && abs(fy - monster[monster[mnum].leader]._mfuty) < 4;
 	}
 	if (monster[mnum]._uniqtype == 0 || !(uniqMonData[monster[mnum]._uniqtype - 1].mUnqAttr & 2))
 		return true;
