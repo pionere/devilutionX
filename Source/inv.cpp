@@ -793,6 +793,22 @@ static int SwapItem(ItemStruct *a, ItemStruct *b)
 	return h._iCurs + CURSOR_FIRSTITEM;
 }
 
+static int SwapHoldBodyItem(PlayerStruct* p, ItemStruct* holditem, int invLoc)
+{
+	ItemStruct* is;
+	int cn;
+
+	NetSendCmdChItem(holditem, invLoc);
+	is = &p->InvBody[invLoc];
+
+	cn = CURSOR_HAND;
+	if (is->_itype == ITYPE_NONE)
+		copy_pod(*is, *holditem);
+	else
+		cn = SwapItem(is, holditem);
+	return cn;
+}
+
 static void CheckInvPaste()
 {
 	PlayerStruct *p;
@@ -833,13 +849,19 @@ static void CheckInvPaste()
 	switch (InvSlotTbl[r]) {
 	case SLOT_HEAD:
 		il = ILOC_HELM;
+		r = INVLOC_HEAD;
 		break;
 	case SLOT_RING_LEFT:
+		il = ILOC_RING;
+		r = INVLOC_RING_LEFT;
+		break;
 	case SLOT_RING_RIGHT:
 		il = ILOC_RING;
+		r = INVLOC_RING_RIGHT;
 		break;
 	case SLOT_AMULET:
 		il = ILOC_AMULET;
+		r = INVLOC_AMULET;
 		break;
 	case SLOT_HAND_LEFT:
 	case SLOT_HAND_RIGHT:
@@ -847,6 +869,7 @@ static void CheckInvPaste()
 		break;
 	case SLOT_CHEST:
 		il = ILOC_ARMOR;
+		r = INVLOC_CHEST;
 		break;
 	case SLOT_STORAGE:
 		il = ILOC_UNEQUIPABLE;
@@ -861,7 +884,7 @@ static void CheckInvPaste()
 		ii = r - SLOTXY_INV_FIRST;
 		if (holditem->_itype == ITYPE_GOLD) {
 			iv = p->InvGrid[ii];
-			if (iv != 0) {
+			//if (iv != 0) {
 				if (iv > 0) {
 					if (p->InvList[iv - 1]._itype != ITYPE_GOLD) {
 						it = iv;
@@ -869,7 +892,7 @@ static void CheckInvPaste()
 				} else {
 					it = -iv;
 				}
-			}
+			//}
 		} else {
 			yy = 10 * ((ii / 10) - ((sy - 1) >> 1));
 			if (yy < 0)
@@ -920,37 +943,10 @@ static void CheckInvPaste()
 	cn = CURSOR_HAND;
 	switch (il) {
 	case ILOC_HELM:
-		NetSendCmdChItem(holditem, INVLOC_HEAD);
-		is = &p->InvBody[INVLOC_HEAD];
-		if (is->_itype == ITYPE_NONE)
-			copy_pod(*is, *holditem);
-		else
-			cn = SwapItem(is, holditem);
-		break;
 	case ILOC_RING:
-		if (r == SLOTXY_RING_LEFT) {
-			NetSendCmdChItem(holditem, INVLOC_RING_LEFT);
-			is = &p->InvBody[INVLOC_RING_LEFT];
-			if (is->_itype == ITYPE_NONE)
-				copy_pod(*is, *holditem);
-			else
-				cn = SwapItem(is, holditem);
-		} else {
-			NetSendCmdChItem(holditem, INVLOC_RING_RIGHT);
-			is = &p->InvBody[INVLOC_RING_RIGHT];
-			if (is->_itype == ITYPE_NONE)
-				copy_pod(*is, *holditem);
-			else
-				cn = SwapItem(is, holditem);
-		}
-		break;
 	case ILOC_AMULET:
-		NetSendCmdChItem(holditem, INVLOC_AMULET);
-		is = &p->InvBody[INVLOC_AMULET];
-		if (is->_itype == ITYPE_NONE)
-			copy_pod(*is, *holditem);
-		else
-			cn = SwapItem(is, holditem);
+	case ILOC_ARMOR:
+		cn = SwapHoldBodyItem(p, holditem, r);
 		break;
 	case ILOC_ONEHAND:
 		is = &p->InvBody[INVLOC_HAND_LEFT];
@@ -1016,7 +1012,7 @@ static void CheckInvPaste()
 		}
 		NetSendCmdDelItem(INVLOC_HAND_RIGHT);
 
-		if (is->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE) {
+		/*if (is->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE) {
 			NetSendCmdChItem(holditem, INVLOC_HAND_LEFT);
 			if (is->_itype == ITYPE_NONE)
 				SwapItem(is, wRight);
@@ -1024,15 +1020,14 @@ static void CheckInvPaste()
 		} else {
 			NetSendCmdChItem(holditem, INVLOC_HAND_LEFT);
 			copy_pod(*is, *holditem);
-		}
-		break;
-	case ILOC_ARMOR:
-		NetSendCmdChItem(holditem, INVLOC_CHEST);
-		is = &p->InvBody[INVLOC_CHEST];
-		if (is->_itype == ITYPE_NONE)
-			copy_pod(*is, *holditem);
-		else
+		}*/
+		if (/*is->_itype == ITYPE_NONE && */wRight->_itype != ITYPE_NONE) {
+			NetSendCmdChItem(holditem, INVLOC_HAND_LEFT);
+			SwapItem(is, wRight);
 			cn = SwapItem(is, holditem);
+		} else {
+			cn = SwapHoldBodyItem(p, holditem, INVLOC_HAND_LEFT);
+		}
 		break;
 	case ILOC_UNEQUIPABLE:
 		if (holditem->_itype == ITYPE_GOLD && it == 0) {
@@ -1051,13 +1046,7 @@ static void CheckInvPaste()
 					p->_pGold += ig;
 					SetGoldItemValue(holditem, holditem->_ivalue - ig);
 					SetGoldItemValue(is, GOLD_MAX_LIMIT);
-					// BUGFIX: incorrect values here are leftover from beta
-					if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
-						cn = ICURS_GOLD_LARGE + CURSOR_FIRSTITEM;
-					else if (holditem->_ivalue <= GOLD_SMALL_LIMIT)
-						cn = ICURS_GOLD_SMALL + CURSOR_FIRSTITEM;
-					else
-						cn = ICURS_GOLD_MEDIUM + CURSOR_FIRSTITEM;
+					cn = holditem->_iCurs + CURSOR_FIRSTITEM;
 				}
 			} else {
 				il = p->_pNumInv;
@@ -1066,13 +1055,6 @@ static void CheckInvPaste()
 				p->_pNumInv++;
 				p->InvGrid[ii] = p->_pNumInv;
 				p->_pGold += holditem->_ivalue;
-				if (holditem->_ivalue <= GOLD_MAX_LIMIT) {
-					SetGoldItemValue(&p->InvList[il], holditem->_ivalue);
-#ifdef HELLFIRE
-				} else {
-					p->InvList[il]._iCurs = ICURS_GOLD_LARGE;
-#endif
-				}
 			}
 		} else {
 			if (it == 0) {
@@ -1089,7 +1071,7 @@ static void CheckInvPaste()
 					p->_pGold += holditem->_ivalue;
 				cn = SwapItem(&p->InvList[il], holditem);
 				if (holditem->_itype == ITYPE_GOLD)
-					CalculateGold(mypnum);
+					p->_pGold -= holditem->_ivalue;
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 					if (abs(p->InvGrid[i]) == it)
 						p->InvGrid[i] = 0;
@@ -1118,8 +1100,10 @@ static void CheckInvPaste()
 		ASSUME_UNREACHABLE
 	}
 	CalcPlrInv(mypnum, true);
-	if (cn == CURSOR_HAND)
+	if (cn == CURSOR_HAND) {
+		holditem->_itype = ITYPE_NONE;
 		SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
+	}
 	NewCursor(cn);
 }
 
@@ -1232,13 +1216,13 @@ static void CheckInvCut(bool bShift)
 	case INVITEM_HAND_LEFT:
 	case INVITEM_HAND_RIGHT:
 	case INVITEM_CHEST:
-		static_assert(INVITEM_HEAD == INVLOC_HEAD, "Switch of CheckInvCut expects matching enum values I.");
-		static_assert(INVITEM_RING_LEFT == INVLOC_RING_LEFT, "Switch of CheckInvCut expects matching enum values II.");
-		static_assert(INVITEM_RING_RIGHT == INVLOC_RING_RIGHT, "Switch of CheckInvCut expects matching enum values III.");
-		static_assert(INVITEM_AMULET == INVLOC_AMULET, "Switch of CheckInvCut expects matching enum values IV.");
-		static_assert(INVITEM_HAND_LEFT == INVLOC_HAND_LEFT, "Switch of CheckInvCut expects matching enum values V.");
-		static_assert(INVITEM_HAND_RIGHT == INVLOC_HAND_RIGHT, "Switch of CheckInvCut expects matching enum values VI.");
-		static_assert(INVITEM_CHEST == INVLOC_CHEST, "Switch of CheckInvCut expects matching enum values VII.");
+		static_assert((int)INVITEM_HEAD == (int)INVLOC_HEAD, "Switch of CheckInvCut expects matching enum values I.");
+		static_assert((int)INVITEM_RING_LEFT == (int)INVLOC_RING_LEFT, "Switch of CheckInvCut expects matching enum values II.");
+		static_assert((int)INVITEM_RING_RIGHT == (int)INVLOC_RING_RIGHT, "Switch of CheckInvCut expects matching enum values III.");
+		static_assert((int)INVITEM_AMULET == (int)INVLOC_AMULET, "Switch of CheckInvCut expects matching enum values IV.");
+		static_assert((int)INVITEM_HAND_LEFT == (int)INVLOC_HAND_LEFT, "Switch of CheckInvCut expects matching enum values V.");
+		static_assert((int)INVITEM_HAND_RIGHT == (int)INVLOC_HAND_RIGHT, "Switch of CheckInvCut expects matching enum values VI.");
+		static_assert((int)INVITEM_CHEST == (int)INVLOC_CHEST, "Switch of CheckInvCut expects matching enum values VII.");
 		pi = &p->InvBody[r];
 		assert(pi->_itype != ITYPE_NONE);
 		break;
