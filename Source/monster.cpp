@@ -2364,7 +2364,6 @@ void PrepDoEnding(bool soundOn)
 static bool MonDoDeath(int mnum)
 {
 	MonsterStruct *mon;
-	int x, y;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoDeath: Invalid monster %d", mnum);

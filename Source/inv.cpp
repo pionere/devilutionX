@@ -1208,7 +1208,8 @@ static void CheckInvCut(bool bShift)
 	PlayerStruct *p;
 	ItemStruct *pi;
 	char ii;
-	int r, i, j;
+	BYTE r;
+	int i, j;
 
 	p = &myplr;
 	if (p->_pmode > PM_WALK3) {
@@ -1225,31 +1226,20 @@ static void CheckInvCut(bool bShift)
 
 	switch (r) {
 	case INVITEM_HEAD:
-		pi = &p->InvBody[INVLOC_HEAD];
-		assert(pi->_itype != ITYPE_NONE);
-		break;
 	case INVITEM_RING_LEFT:
-		pi = &p->InvBody[INVLOC_RING_LEFT];
-		assert(pi->_itype != ITYPE_NONE);
-		break;
 	case INVITEM_RING_RIGHT:
-		pi = &p->InvBody[INVLOC_RING_RIGHT];
-		assert(pi->_itype != ITYPE_NONE);
-		break;
 	case INVITEM_AMULET:
-		pi = &p->InvBody[INVLOC_AMULET];
-		assert(pi->_itype != ITYPE_NONE);
-		break;
 	case INVITEM_HAND_LEFT:
-		pi = &p->InvBody[INVLOC_HAND_LEFT];
-		assert(pi->_itype != ITYPE_NONE);
-		break;
 	case INVITEM_HAND_RIGHT:
-		pi = &p->InvBody[INVLOC_HAND_RIGHT];
-		assert(pi->_itype != ITYPE_NONE);
-		break;
 	case INVITEM_CHEST:
-		pi = &p->InvBody[INVLOC_CHEST];
+		static_assert(INVITEM_HEAD == INVLOC_HEAD, "Switch of CheckInvCut expects matching enum values I.");
+		static_assert(INVITEM_RING_LEFT == INVLOC_RING_LEFT, "Switch of CheckInvCut expects matching enum values II.");
+		static_assert(INVITEM_RING_RIGHT == INVLOC_RING_RIGHT, "Switch of CheckInvCut expects matching enum values III.");
+		static_assert(INVITEM_AMULET == INVLOC_AMULET, "Switch of CheckInvCut expects matching enum values IV.");
+		static_assert(INVITEM_HAND_LEFT == INVLOC_HAND_LEFT, "Switch of CheckInvCut expects matching enum values V.");
+		static_assert(INVITEM_HAND_RIGHT == INVLOC_HAND_RIGHT, "Switch of CheckInvCut expects matching enum values VI.");
+		static_assert(INVITEM_CHEST == INVLOC_CHEST, "Switch of CheckInvCut expects matching enum values VII.");
+		pi = &p->InvBody[r];
 		assert(pi->_itype != ITYPE_NONE);
 		break;
 	default:
