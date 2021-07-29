@@ -125,7 +125,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	} else {
 		dataSize = SFileGetFileSize(hFile);
 	}
-	fileBuffer = (BYTE *)malloc(dataSize);
+	fileBuffer = DiabloAllocPtr(dataSize);
 	if (dataSize < sizeof(PCXHEADER) || !SFileReadFile(hFile, fileBuffer, dataSize, NULL)) {
 		free(fileBuffer);
 		SFileCloseFile(hFile);
@@ -191,18 +191,6 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 
 	free(fileBuffer);
 	return true;
-}
-
-void *SMemAlloc(size_t amount)
-{
-	assert(amount != -1u);
-	return malloc(amount);
-}
-
-void SMemFree(void *location)
-{
-	assert(location != NULL);
-	free(location);
 }
 
 bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue)

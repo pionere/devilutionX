@@ -109,29 +109,6 @@ bool SBmpLoadImage(
     unsigned *pdwHeight,
     unsigned *pdwBpp);
 
-/*  SMemAlloc @ 401
- *
- *  Allocates a block of memory. This block is different
- *  from the standard malloc by including a header containing
- *  information about the block.
- *
- *  amount:       The amount of memory to allocate, in bytes.
- *
- *  Returns a pointer to the allocated memory. This pointer does NOT include
- *  the additional storm header.
- */
-void *SMemAlloc(size_t amount);
-
-/*  SMemFree @ 403
- *
- *  Frees a block of memory that was created using SMemAlloc,
- *  includes the log file and line for debugging purposes.
- *
- *  location:     The memory location to be freed.
- *
- */
-void SMemFree(void *location);
-
 bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue);
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize);
 void setIniValue(const char *sectionName, const char *keyName, const char *value);

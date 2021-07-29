@@ -143,13 +143,11 @@ BYTE *DiabloAllocPtr(size_t dwBytes)
 	BYTE *buf;
 
 	sgMemCrit.Enter();
-	buf = (BYTE *)SMemAlloc(dwBytes);
+	buf = (BYTE *)malloc(dwBytes);
 	sgMemCrit.Leave();
 
-	if (buf == NULL) {
-		app_fatal("System memory exhausted.\n"
-		             "Make sure you have at least 64MB of free system memory before running the game");
-	}
+	if (buf == NULL)
+		app_fatal("System memory exhausted.");
 
 	return buf;
 }
@@ -162,7 +160,7 @@ void mem_free_dbg(void *p)
 {
 	if (p != NULL) {
 		sgMemCrit.Enter();
-		SMemFree(p);
+		free(p);
 		sgMemCrit.Leave();
 	}
 }
