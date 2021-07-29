@@ -630,6 +630,14 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
 	}
 
+	if (iflgs & ISPL_LIFETOMANA) {
+		ihp -= plr._pMaxHPBase >> 1;
+		imana += plr._pMaxHPBase >> 1;
+	}
+	if (iflgs & ISPL_MANATOLIFE) {
+		ihp += plr._pMaxManaBase >> 1;
+		imana -= plr._pMaxManaBase >> 1;
+	}
 	if (iflgs & ISPL_ALLRESZERO) {
 		// reset resistances to zero if the respective special effect is active
 		fr = 0;
@@ -1589,11 +1597,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_LIGHT:
 		is->_iPLLight += param1;
 		break;
-#ifdef HELLFIRE
 	case IPL_MULT_ARROWS:
 		is->_iFlags |= ISPL_MULT_ARROWS;
 		break;
-#endif
 	case IPL_INVCURS:
 		is->_iCurs = param1;
 		break;
@@ -1662,18 +1668,12 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_NOMINSTR:
 		is->_iMinStr = 0;
 		break;
-#ifdef HELLFIRE
 	case IPL_MANATOLIFE:
-		r2 = ((myplr._pMaxManaBase >> 6) * 50 / 100);
-		is->_iPLMana -= (r2 << 6);
-		is->_iPLHP += (r2 << 6);
+		is->_iFlags |= ISPL_MANATOLIFE;
 		break;
 	case IPL_LIFETOMANA:
-		r2 = ((myplr._pMaxHPBase >> 6) * 40 / 100);
-		is->_iPLHP -= (r2 << 6);
-		is->_iPLMana += (r2 << 6);
+		is->_iFlags |= ISPL_LIFETOMANA;
 		break;
-#endif
 	case IPL_FASTCAST:
 		static_assert((ISPL_FASTCAST & (ISPL_FASTCAST - 1)) == 0, "Optimized SaveItemPower depends simple flag-like cast-speed modifiers.");
 		static_assert(ISPL_FASTCAST == ISPL_FASTERCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers I.");
@@ -3013,11 +3013,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_LIGHT:
 		snprintf(tempstr, sizeof(tempstr), "%+i%% light radius", 10 * is->_iPLLight);
 		break;
-#ifdef HELLFIRE
 	case IPL_MULT_ARROWS:
 		copy_cstr(tempstr, "multiple arrows per shot");
 		break;
-#endif
 	case IPL_THORNS:
 		copy_cstr(tempstr, "attacker takes 1-3 damage");
 		break;
@@ -3094,7 +3092,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "50% Mana moved to Health");
 		break;
 	case IPL_LIFETOMANA:
-		copy_cstr(tempstr, "40% Health moved to Mana");
+		copy_cstr(tempstr, "50% Health moved to Mana");
 		break;
 	case IPL_FASTCAST:
 		if (is->_iFlags & ISPL_FASTESTCAST)

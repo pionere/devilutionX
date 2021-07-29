@@ -3611,6 +3611,8 @@ typedef enum item_special_effect {
 	ISPL_THORNS         = 0x00040000,
 	ISPL_INFRAVISION    = 0x00080000, /* unused */ 
 	ISPL_ALLRESZERO     = 0x00100000,
+	ISPL_LIFETOMANA     = 0x00200000,
+	ISPL_MANATOLIFE     = 0x00400000,
 	ISPL_NOMANA         = 0x80000000,
 } item_special_effect;
 
