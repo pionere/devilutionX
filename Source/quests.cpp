@@ -189,7 +189,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 		sfxdnum = TEXT_QM_ZHAR;
 		qn = Q_ZHAR;
 		break;
-	case UMT_LAZURUS: //"Arch-Bishop Lazarus" - multi
+	case UMT_LAZARUS: //"Arch-Bishop Lazarus" - multi
 		if (gbMaxPlayers != 1) {
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
 			quests[Q_BETRAYER]._qvar1 = 7;
@@ -206,7 +206,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			InitVPReturnTrigger(false);
 		}
 		sfxdelay = 30;
-		sfxdnum = TEXT_QM_LAZURUS;
+		sfxdnum = TEXT_QM_LAZARUS;
 		qn = Q_BETRAYER;
 		break;
 	case UMT_WARLORD: //"Warlord of Blood"

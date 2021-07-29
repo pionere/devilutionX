@@ -108,7 +108,7 @@ void (*AiProc[])(int i) = {
 	&MAI_Counselor,
 	&MAI_Mega,
 	&MAI_Diablo,
-	&MAI_Lazurus,
+	&MAI_Lazarus,
 	&MAI_Lazhelp,
 	&MAI_Lachdanan,
 	&MAI_Warlord,
@@ -656,7 +656,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		xp = 2 * setpc_x + DBORDERX + 8;
 		yp = 2 * setpc_y + DBORDERY + 12;
 		break;
-	case UMT_LAZURUS:
+	case UMT_LAZARUS:
 		if (gbMaxPlayers == 1) {
 			xp = DBORDERX + 16;
 			yp = DBORDERY + 30;
@@ -868,7 +868,7 @@ static void PlaceQuestMonsters()
 
 			AddMonsterType(MT_ADVOCATE, FALSE);
 			AddMonsterType(MT_HLSPWN, FALSE);
-			PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
+			PlaceUniqueMonst(UMT_LAZARUS, 0, 0);
 			PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
 			PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
 		}
@@ -895,7 +895,7 @@ static void PlaceQuestMonsters()
 	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		AddMonsterType(MT_ADVOCATE, FALSE);
 		AddMonsterType(MT_HLSPWN, FALSE);
-		PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
+		PlaceUniqueMonst(UMT_LAZARUS, 0, 0);
 		PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
 		PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
 	}
@@ -1066,7 +1066,7 @@ bool MonTalker(int mnum)
 {
 	return monster[mnum].mtalkmsg != TEXT_NONE;
 	/*char ai = monster[mnum]._mAi;
-	return ai == AI_LAZURUS
+	return ai == AI_LAZARUS
 	    || ai == AI_WARLORD
 	    || ai == AI_GARBUD
 	    || ai == AI_ZHAR
@@ -1619,7 +1619,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 			return;
 		}
 		break;
-	case UMT_LAZURUS:
+	case UMT_LAZARUS:
 		//if (effect_is_playing(USFX_LAZ1))
 			stream_stop();
 		break;
@@ -2260,7 +2260,7 @@ static bool MonDoTalk(int mnum)
 	if (effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
 		return false;
 	InitQTextMsg(mon->mtalkmsg, gbMaxPlayers == 1 /*mon->_mListener == mypnum*/); // MON_TIMER
-	if (mon->_uniqtype - 1 == UMT_LAZURUS) {
+	if (mon->_uniqtype - 1 == UMT_LAZARUS) {
 		if (gbMaxPlayers != 1) {
 			quests[Q_BETRAYER]._qvar1 = 6;
 			mon->_msquelch = SQUELCH_MAX;
@@ -3940,7 +3940,7 @@ void MAI_Counselor(int mnum)
 			MonStartFadein(mnum, md, true);
 		}
 	}
-	if (mon->_mmode == MM_STAND && mon->_mAi != AI_LAZURUS) {
+	if (mon->_mmode == MM_STAND && mon->_mAi != AI_LAZARUS) {
 		MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mint);
 	}
 }
@@ -4067,12 +4067,12 @@ void MAI_SnotSpil(int mnum)
 	MAI_Fallen(mnum);
 }
 
-void MAI_Lazurus(int mnum)
+void MAI_Lazarus(int mnum)
 {
 	MonsterStruct *mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MAI_Lazurus: Invalid monster %d", mnum);
+		dev_fatal("MAI_Lazarus: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND)

@@ -54,7 +54,7 @@ void MAI_Counselor(int mnum);
 void MAI_Garbud(int mnum);
 void MAI_Zhar(int mnum);
 void MAI_SnotSpil(int mnum);
-void MAI_Lazurus(int mnum);
+void MAI_Lazarus(int mnum);
 void MAI_Lazhelp(int mnum);
 void MAI_Lachdanan(int mnum);
 void MAI_Warlord(int mnum);

@@ -293,7 +293,7 @@ void ValidateData()
 	assert(uniqMonData[UMT_LACHDAN].mtype == MT_RBLACK);
 	assert(uniqMonData[UMT_WARLORD].mtype == MT_BTBLACK);
 	// umt checks for PlaceQuestMonsters
-	assert(uniqMonData[UMT_LAZURUS].mtype == MT_ADVOCATE);
+	assert(uniqMonData[UMT_LAZARUS].mtype == MT_ADVOCATE);
 	assert(uniqMonData[UMT_BLACKJADE].mtype == MT_HLSPWN);
 	assert(uniqMonData[UMT_RED_VEX].mtype == MT_HLSPWN);
 
