@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern PortalStruct portal[MAXPORTAL];
+extern PortalStruct portals[MAXPORTAL];
 
 void InitPortals();
 //void SetPortalStats(int i, bool o, int x, int y, int lvl);

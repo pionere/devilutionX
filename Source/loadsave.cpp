@@ -610,7 +610,7 @@ static void LoadLight(LightListStruct *pLight)
 
 static void LoadPortal(int i)
 {
-	PortalStruct *pPortal = &portal[i];
+	PortalStruct *pPortal = &portals[i];
 
 	pPortal->_wopen = LoadBool();
 	CopyInt(tbuff, &pPortal->x);
@@ -1293,7 +1293,7 @@ static void SaveLight(LightListStruct *pLight)
 
 static void SavePortal(int i)
 {
-	PortalStruct *pPortal = &portal[i];
+	PortalStruct *pPortal = &portals[i];
 
 	SaveBool(pPortal->_wopen);
 	CopyInt(&pPortal->x, tbuff);

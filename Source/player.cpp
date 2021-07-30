@@ -1965,7 +1965,7 @@ void StartTWarp(int pnum, int pidx)
 	if (plr.plrlevel != DLV_TOWN) {
 		plr.plrlevel = DLV_TOWN;
 	} else {
-		plr.plrlevel = portal[pidx].level;
+		plr.plrlevel = portals[pidx].level;
 	}
 	plr._pmode = PM_NEWLVL;
 	plr._pInvincible = TRUE;
