@@ -452,8 +452,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mgoalvar2 = 0;
 	mon->_mgoalvar3 = 0;
 	mon->_mDelFlag = FALSE;
-	mon->_mRndSeed = GetRndSeed();
-	mon->_mAISeed = GetRndSeed();
+	mon->_mAISeed = mon->_mRndSeed = GetRndSeed();
 	mon->mtalkmsg = TEXT_NONE;
 
 	mon->_uniqtype = 0;
