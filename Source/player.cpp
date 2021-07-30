@@ -498,9 +498,9 @@ void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLe
 	plr._pAnimXOffset = (width - 64) >> 1;
 }
 
-static void ClearPlrPVars(int pnum)
+/*static void ClearPlrPVars(int pnum)
 {
-	/*if ((unsigned)pnum >= MAX_PLRS) {
+	/ *if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("ClearPlrPVars: illegal player %d", pnum);
 	}
 	plr._pVar1 = 0;
@@ -510,8 +510,8 @@ static void ClearPlrPVars(int pnum)
 	plr._pVar5 = 0;
 	plr._pVar6 = 0;
 	plr._pVar7 = 0;
-	plr._pVar8 = 0;*/
-}
+	plr._pVar8 = 0;* /
+}*/
 
 void SetPlrAnims(int pnum)
 {
@@ -925,7 +925,7 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 		//plr._pxvel = 0;
 		//plr._pyvel = 0;
 
-		ClearPlrPVars(pnum);
+		//ClearPlrPVars(pnum);
 
 		/*if (plr._pHitPoints >= (1 << 6)) {
 			plr._pmode = PM_STAND;
@@ -1081,18 +1081,48 @@ void FixPlayerLocation(int pnum)
 	}
 }
 
+void AssertFixPlayerLocation(int pnum)
+{
+	if ((unsigned)pnum >= MAX_PLRS) {
+		app_fatal("FixPlayerLocation: illegal player %d", pnum);
+	}
+	assert(plr._pfutx == plr._px);
+	assert(plr._poldx == plr._px);
+	assert(plr._pfuty == plr._py);
+	assert(plr._poldy == plr._py);
+	assert(plr._pxoff == 0);
+	assert(plr._pyoff == 0);
+	if (pnum == mypnum) {
+		assert(ScrollInfo._sxoff == 0);
+		assert(ScrollInfo._syoff == 0);
+		assert(ScrollInfo._sdir == SDIR_NONE);
+		assert(ViewX == plr._px);
+		assert(ViewY == plr._py);
+	}
+}
+
+static void StartStand(int pnum, int dir)
+{
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("StartStand: illegal player %d", pnum);
+	}
+
+	plr._pmode = PM_STAND;
+
+	if (!(plr._pGFXLoad & PFILE_STAND)) {
+		LoadPlrGFX(pnum, PFILE_STAND);
+	}
+
+	NewPlrAnim(pnum, plr._pNAnim, dir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
+}
+
 void PlrStartStand(int pnum, int dir)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("PlrStartStand: illegal player %d", pnum);
 	}
 	if (plr._pHitPoints >= (1 << 6)) {
-		if (!(plr._pGFXLoad & PFILE_STAND)) {
-			LoadPlrGFX(pnum, PFILE_STAND);
-		}
-
-		NewPlrAnim(pnum, plr._pNAnim, dir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
-		plr._pmode = PM_STAND;
+		StartStand(pnum, dir);
 		RemovePlrFromMap(pnum);
 		dPlayer[plr._px][plr._py] = pnum + 1;
 		FixPlayerLocation(pnum);
@@ -1103,8 +1133,13 @@ void PlrStartStand(int pnum, int dir)
 
 static void StartWalkStand(int pnum)
 {
+	plr._pmode = PM_STAND;
+}
+
+static void PlrStartWalkStand(int pnum)
+{
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartWalkStand: illegal player %d", pnum);
+		dev_fatal("PlrStartWalkStand: illegal player %d", pnum);
 	}
 	plr._pmode = PM_STAND;
 	plr._pfutx = plr._px;
@@ -1430,7 +1465,7 @@ static bool StartAttack(int pnum)
 	}
 	NewPlrAnim(pnum, plr._pAAnim, dir, plr._pAFrames, PlrAnimFrameLens[PA_ATTACK], plr._pAWidth);
 
-	FixPlayerLocation(pnum);
+	AssertFixPlayerLocation(pnum);
 	return true;
 }
 
@@ -1486,7 +1521,7 @@ static void StartRangeAttack(int pnum)
 	}
 	NewPlrAnim(pnum, plr._pAAnim, dir, plr._pAFrames, PlrAnimFrameLens[PA_ATTACK], plr._pAWidth);
 
-	FixPlayerLocation(pnum);
+	AssertFixPlayerLocation(pnum);
 }
 
 static void StartBlock(int pnum, int dir)
@@ -1502,7 +1537,7 @@ static void StartBlock(int pnum, int dir)
 	}
 	NewPlrAnim(pnum, plr._pBAnim, dir, plr._pBFrames, PlrAnimFrameLens[PA_BLOCK], plr._pBWidth);
 
-	FixPlayerLocation(pnum);
+	AssertFixPlayerLocation(pnum);
 }
 
 static void StartSpell(int pnum)
@@ -1570,7 +1605,7 @@ static void StartSpell(int pnum)
 
 	PlaySfxLoc(sd->sSFX, plr._px, plr._py);
 
-	FixPlayerLocation(pnum);
+	AssertFixPlayerLocation(pnum);
 }
 
 /*
@@ -2043,18 +2078,16 @@ static bool PlrDoWalk(int pnum)
 		break;
 	}
 
-	if (pnum == mypnum && ScrollInfo._sdir != SDIR_NONE) {
-		ViewX = plr._px - ScrollInfo._sdx;
-		ViewY = plr._py - ScrollInfo._sdy;
-	}
-
 	if (plr.walkpath[0] != DIR_NONE) {
+		//PlrStartWalkStand(pnum);
 		StartWalkStand(pnum);
 	} else {
-		PlrStartStand(pnum, plr._pdir);
+		//PlrStartStand(pnum, plr._pdir);
+		StartStand(pnum, plr._pdir);
 	}
+	FixPlayerLocation(pnum);
 
-	ClearPlrPVars(pnum);
+	//ClearPlrPVars(pnum);
 
 	ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	ChangeVisionXY(plr._pvid, plr._px, plr._py);
@@ -2390,8 +2423,9 @@ static bool PlrDoAttack(int pnum)
 			}
 
 			if (hitcnt != 0 && WeaponDur(pnum, 40 - hitcnt * 8)) {
-				PlrStartStand(pnum, dir);
-				ClearPlrPVars(pnum);
+				//PlrStartStand(pnum, dir);
+				StartStand(pnum, dir);
+				//ClearPlrPVars(pnum);
 				return true;
 			}
 		}
@@ -2400,8 +2434,9 @@ static bool PlrDoAttack(int pnum)
 	if (plr._pAnimFrame < plr._pAFrames)
 		return false;
 
-	PlrStartStand(pnum, dir);
-	ClearPlrPVars(pnum);
+	//PlrStartStand(pnum, dir);
+	StartStand(pnum, dir);
+	//ClearPlrPVars(pnum);
 	return true;
 }
 
@@ -2435,8 +2470,9 @@ static bool PlrDoRangeAttack(int pnum)
 			UseMana(pnum, plr._pVar5, SPLFROM_MANA);
 
 			if (WeaponDur(pnum, 40)) {
-				PlrStartStand(pnum, plr._pdir);
-				ClearPlrPVars(pnum);
+				//PlrStartStand(pnum, plr._pdir);
+				StartStand(pnum, plr._pdir);
+				//ClearPlrPVars(pnum);
 				return true;
 			}
 		}
@@ -2445,8 +2481,9 @@ static bool PlrDoRangeAttack(int pnum)
 	if (plr._pAnimFrame < plr._pAFrames)
 		return false;
 
-	PlrStartStand(pnum, plr._pdir);
-	ClearPlrPVars(pnum);
+	//PlrStartStand(pnum, plr._pdir);
+	StartStand(pnum, plr._pdir);
+	//ClearPlrPVars(pnum);
 	return true;
 }
 
@@ -2500,8 +2537,11 @@ void PlrStartBlock(int pnum, int dir)
 		return;
 	}
 
-	if (plr._pmode != PM_BLOCK)
+	if (plr._pmode != PM_BLOCK) {
+		assert(plr._pmode == PM_STAND);
+		AssertFixPlayerLocation(pnum);
 		StartBlock(pnum, dir);
+	}
 
 	PlaySfxLoc(IS_ISWORD, plr._px, plr._py);
 	if (random_(3, 10) == 0) {
@@ -2529,7 +2569,8 @@ static bool PlrDoBlock(int pnum)
 				plr._pAnimFrameLen = plr._pVar1;
 				plr._pAnimCnt = 0;
 			} else {
-				PlrStartStand(pnum, plr._pdir);
+				//PlrStartStand(pnum, plr._pdir);
+				StartStand(pnum, plr._pdir);
 				//ClearPlrPVars(pnum);
 				return true;
 			}
@@ -2614,8 +2655,9 @@ static bool PlrDoSpell(int pnum)
 	if (plr._pAnimFrame < plr._pSFrames)
 		return false;
 
-	PlrStartStand(pnum, plr._pdir);
-	ClearPlrPVars(pnum);
+	//PlrStartStand(pnum, plr._pdir);
+	StartStand(pnum, plr._pdir);
+	//ClearPlrPVars(pnum);
 	return true;
 }
 
@@ -2637,8 +2679,9 @@ static bool PlrDoGotHit(int pnum)
 
 	if (plr._pAnimFrame < plr._pHFrames)
 		return false;
-	PlrStartStand(pnum, plr._pdir);
-	ClearPlrPVars(pnum);
+	//PlrStartStand(pnum, plr._pdir);
+	StartStand(pnum, plr._pdir);
+	//ClearPlrPVars(pnum);
 	if (random_(3, 4) != 0) {
 		ArmorDur(pnum);
 	}
@@ -2709,7 +2752,8 @@ static void CheckNewPath(int pnum)
 			}
 
 			if (!StartWalk(pnum)) {
-				PlrStartStand(pnum, plr._pdir);
+				//PlrStartStand(pnum, plr._pdir);
+				StartStand(pnum, plr._pdir);
 				plr.destAction = ACTION_NONE;
 			}
 		}
@@ -2778,7 +2822,7 @@ static void CheckNewPath(int pnum)
 			ASSUME_UNREACHABLE
 		}
 
-		FixPlayerLocation(pnum);
+		AssertFixPlayerLocation(pnum);
 		plr.destAction = ACTION_NONE;
 
 		return;
