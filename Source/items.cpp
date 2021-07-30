@@ -389,7 +389,7 @@ void InitItems()
 			if (currLvl._dLevelIdx == DLV_NEST4)
 				SpawnQuestItemInArea(IDI_BROWNSUIT, 3);
 			else if (currLvl._dLevelIdx == DLV_NEST3)
-				SpawnQuestItemInArea(IDI_GREYSUIT, 3);
+				SpawnQuestItemInArea(IDI_GRAYSUIT, 3);
 		}
 #endif
 		// TODO: eliminate level range-check?
@@ -1353,7 +1353,7 @@ static void GetBookSpell(int ii, int lvl)
 	else if (sd->sType == STYPE_LIGHTNING)
 		is->_iCurs = ICURS_BOOK_BLUE;
 	else // if (sd->sType == STYPE_MAGIC)
-		is->_iCurs = ICURS_BOOK_GREY;
+		is->_iCurs = ICURS_BOOK_GRAY;
 }
 
 static void GetScrollSpell(int ii, int lvl)

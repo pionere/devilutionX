@@ -776,7 +776,7 @@ void TalkToTowner(int tnum)
 			}
 			break;
 		case QUEST_ACTIVE:
-			if (PlrHasItem(pnum, IDI_GREYSUIT, &i)) {
+			if (PlrHasItem(pnum, IDI_GRAYSUIT, &i)) {
 				PlrInvItemRemove(pnum, i);
 				qt = TEXT_JERSEY7;
 				break;
