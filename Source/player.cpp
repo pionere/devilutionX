@@ -1136,7 +1136,7 @@ static void StartWalkStand(int pnum)
 	plr._pmode = PM_STAND;
 }
 
-static void PlrStartWalkStand(int pnum)
+/*static void PlrStartWalkStand(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrStartWalkStand: illegal player %d", pnum);
@@ -1154,7 +1154,7 @@ static void PlrStartWalkStand(int pnum)
 		ViewX = plr._px;
 		ViewY = plr._py;
 	}
-}
+}*/
 
 static void PlrChangeLightOff(int pnum)
 {
@@ -1937,7 +1937,7 @@ __attribute__((no_sanitize("shift-base")))
 void StartNewLvl(int pnum, int fom, int lvl)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("StartNewLvl: illegal player %d", pnum);
+		dev_fatal("StartNewLvl: illegal player %d", pnum);
 	}
 	InitLevelChange(pnum);
 
@@ -1970,7 +1970,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 void RestartTownLvl(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("RestartTownLvl: illegal player %d", pnum);
+		dev_fatal("RestartTownLvl: illegal player %d", pnum);
 	}
 	InitLevelChange(pnum);
 
@@ -1993,7 +1993,7 @@ void RestartTownLvl(int pnum)
 void StartTWarp(int pnum, int pidx)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("StartWarpLvl: illegal player %d", pnum);
+		dev_fatal("StartWarpLvl: illegal player %d", pnum);
 	}
 	InitLevelChange(pnum);
 
