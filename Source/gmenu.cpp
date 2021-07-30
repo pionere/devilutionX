@@ -30,8 +30,7 @@ void gmenu_draw_pause()
 	if (currLvl._dLevelIdx != DLV_TOWN)
 		RedBack();
 	if (sgpCurrentMenu == NULL) {
-		light_table_index = 0;
-		PrintLargeString(316 + PANEL_LEFT, 336, "Pause");
+		PrintLargeString(316 + PANEL_LEFT, 336, "Pause", 0);
 	}
 }
 
@@ -157,8 +156,7 @@ static void gmenu_draw_menu_item(TMenuItem *pItem, int y)
 		CelDraw(x + 2 + pos + PANEL_LEFT, y - 12, option_cel, 1, 27);
 	}
 	x = SCREEN_WIDTH / 2 - w / 2 + SCREEN_X;
-	light_table_index = (pItem->dwFlags & GMENU_ENABLED) ? 0 : LIGHTMAX;
-	PrintLargeString(x, y, pItem->pszStr);
+	PrintLargeString(x, y, pItem->pszStr, (pItem->dwFlags & GMENU_ENABLED) ? 0 : LIGHTMAX);
 	if (pItem == sgpCurrItem) {
 		DrawPentSpn(x - 54, x + 4 + w, y + 1);
 	}

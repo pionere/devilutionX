@@ -629,7 +629,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	MonsterStruct *mon;
 	int count;
 
-	if (uniquetrans >= (LIGHTSIZE / 256 - LIGHTMAX)) {
+	if (uniquetrans >= NUM_LIGHT_TRNS) {
 		return;
 	}
 
@@ -754,7 +754,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		mon->_mgoal = MGOAL_INQUIRING;
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
-	LoadFileWithMem(filestr, &pLightTbl[256 * (LIGHTMAX + uniquetrans)]);
+	LoadFileWithMem(filestr, LightTrns[uniquetrans]);
 
 	mon->_uniqtrans = uniquetrans++;
 

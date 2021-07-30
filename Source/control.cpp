@@ -1754,7 +1754,7 @@ void RedBack()
 	bool inHell = currLvl._dType == DTYPE_HELL;
 
 	dst = &gpBuffer[SCREENXY(0, 0)];
-	tbl = &pLightTbl[(LIGHTMAX + LIGHTIDX_CORAL) * 256];
+	tbl = LightTrns[LIGHTIDX_CORAL];
 	for (h = VIEWPORT_HEIGHT; h > 0; h--, dst += BUFFER_WIDTH - SCREEN_WIDTH) {
 		for (w = SCREEN_WIDTH; w > 0; w--) {
 			if (!inHell || *dst >= 32)

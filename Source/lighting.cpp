@@ -20,7 +20,7 @@ char lightmax;
 #endif
 BYTE darkness[16][128];
 BYTE distance[64][16][16];
-BYTE pLightTbl[LIGHTSIZE];
+BYTE LightTrns[NUM_LIGHT_TRNS][256];
 
 /**
  * CrawlTable specifies X- and Y-coordinate deltas from a missile target coordinate.
@@ -706,7 +706,7 @@ void MakeLightTable()
 
 	const int lights = LIGHTMAX;
 
-	tbl = pLightTbl;
+	tbl = LightTrns[0];
 	shade = 0;
 	for (i = 0; i < lights; i++) {
 		*tbl++ = 0;
@@ -763,9 +763,9 @@ void MakeLightTable()
 			shade++;
 	}
 
-	// assert(tbl == &pLightTbl[lights * 256]);
-	tbl = pLightTbl;
-	memset(&tbl[lights * 256], 0, 256);
+	// assert(tbl == LightTrns[lights]);
+	memset(LightTrns[lights], 0, 256);
+	tbl = LightTrns[0];
 
 	if (currLvl._dType == DTYPE_HELL) {
 		for (i = 0; i < lights; i++) {
@@ -820,11 +820,10 @@ void MakeLightTable()
 #endif
 	}
 
-	tbl = pLightTbl;
-	LoadFileWithMem("PlrGFX\\Infra.TRN", &tbl[(lights + LIGHTIDX_RED) * 256]);
-	LoadFileWithMem("PlrGFX\\Stone.TRN", &tbl[(lights + LIGHTIDX_GRAY) * 256]);
+	LoadFileWithMem("PlrGFX\\Infra.TRN", LightTrns[LIGHTIDX_RED]);
+	LoadFileWithMem("PlrGFX\\Stone.TRN", LightTrns[LIGHTIDX_GRAY]);
 
-	tbl = &tbl[(lights + LIGHTIDX_CORAL) * 256];
+	tbl = LightTrns[LIGHTIDX_CORAL];
 	for (i = 0; i < 8; i++) {
 		for (col = 226; col < 239; col++) {
 			if (i != 0 || col != 226) {
@@ -1270,7 +1269,7 @@ void lighting_color_cycling()
 	if (light4flag)
 		l = 4;
 #endif
-	tbl = pLightTbl;
+	tbl = LightTrns[0];
 
 	for (j = 0; j < l; j++) {
 		tbl++;

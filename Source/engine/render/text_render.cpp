@@ -262,27 +262,6 @@ void FreeText()
 	MemFreeDbg(pSPentSpn2Cels);
 }
 
-/*void PrintChar(const CelOutputBuffer &out, int sx, int sy, int nCel, text_color col)
-{
-	switch (col) {
-	case COL_WHITE:
-		CelDrawTo(out, sx, sy, *pPanelText, nCel);
-		return;
-	case COL_BLUE:
-		CelDrawLightTo(out, sx, sy, *pPanelText, nCel, fontColorTableBlue);
-		break;
-	case COL_RED:
-		CelDrawLightTo(out, sx, sy, *pPanelText, nCel, fontColorTableRed);
-		break;
-	case COL_GOLD:
-		CelDrawLightTo(out, sx, sy, *pPanelText, nCel, fontColorTableGold);
-		break;
-	case COL_BLACK:
-		light_table_index = 15;
-		CelDrawLightTo(out, sx, sy, *pPanelText, nCel, nullptr);
-		return;
-	}
-}*/
 /**
  * @brief Print letter to the back buffer
  * @param sx Backbuffer offset
@@ -292,27 +271,29 @@ void FreeText()
  */
 void PrintChar(int sx, int sy, int nCel, BYTE col)
 {
+	BYTE *tbl;
+
 	switch (col) {
 	case COL_WHITE:
 		CelDraw(sx, sy, pPanelText, nCel, 13);
-		break;
+		return;
 	case COL_BLUE:
-		CelDrawLight(sx, sy, pPanelText, nCel, 13, fontColorTableBlue);
+		tbl = fontColorTableBlue;
 		break;
 	case COL_RED:
-		CelDrawLight(sx, sy, pPanelText, nCel, 13, fontColorTableRed);
+		tbl = fontColorTableRed;
 		break;
 	case COL_GOLD:
-		CelDrawLight(sx, sy, pPanelText, nCel, 13, fontColorTableGold);
+		tbl = fontColorTableGold;
 		break;
 	/*case COL_BLACK:
-		light_table_index = LIGHTMAX;
-		CelDrawLight(sx, sy, pPanelText, nCel, 13, NULL);
+		tbl = LightTrns[LIGHTMAX];
 		break;*/
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
+	CelDrawLight(sx, sy, pPanelText, nCel, 13, tbl);
 }
 
 int GetLargeStringWidth(const char* text)
@@ -410,14 +391,21 @@ int PrintLimitedString(int x, int y, const char *text, int limit, BYTE col)
 	return x;
 }
 
-void PrintLargeString(int x, int y, const char *text)
+void PrintLargeString(int x, int y, const char* text, int light)
 {
-	BYTE c;
+	BYTE c, *tbl;
 
+	// TODO: uncomment if performance is required
+	//tbl = light == 0 ? NULL : LightTrns[light];
+	tbl = LightTrns[light];
 	while (*text != '\0') {
 		c = lfontframe[gbFontTransTbl[(BYTE)*text++]];
-		if (c != 0)
-			CelDrawLight(x, y, BigTGold_cel, c, 46, NULL);
+		if (c != 0) {
+			/*if (tbl == NULL)
+				CelDraw(x, y, BigTGold_cel, c, 46);
+			else*/
+				CelDrawLight(x, y, BigTGold_cel, c, 46, tbl);
+		}
 		x += lfontkern[c] + 2;
 	}
 }

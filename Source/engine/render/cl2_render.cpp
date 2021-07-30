@@ -9,20 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static inline int lightidx(BYTE light)
-{
-	/*int idx;
-
-	idx = (LIGHTMAX + 1) * 256;
-	if (light == 2)
-		idx += 256; // gray colors
-	if (light >= 4)
-		idx += (light - 1) << 8;
-	return idx;*/
-	//assert(light != 0);
-	return (LIGHTMAX + light) * 256;
-}
-
 /**
  * @brief Apply the color swaps to a CL2 sprite
  * @param p CL2 buffer
@@ -386,7 +372,7 @@ void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth,
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
-	tbl = &pLightTbl[lightidx(light)];
+	tbl = LightTrns[light];
 
 	Cl2BlitLight(
 	    pDecodeTo,
@@ -418,7 +404,7 @@ void Cl2DrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
 	if (light_table_index != 0)
-		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, &pLightTbl[light_table_index * 256]);
+		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, LightTrns[light_table_index]);
 	else
 		Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }

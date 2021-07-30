@@ -19,7 +19,7 @@ enum {
 };
 
 /** Specifies the draw masks used to render transparency of the right side of tiles. */
-static DWORD RightMask[TILE_HEIGHT] = {
+static uint32_t RightMask[TILE_HEIGHT] = {
 	0xEAAAAAAA, 0xF5555555,
 	0xFEAAAAAA, 0xFF555555,
 	0xFFEAAAAA, 0xFFF55555,
@@ -38,7 +38,7 @@ static DWORD RightMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF
 };
 /** Specifies the draw masks used to render transparency of the left side of tiles. */
-static DWORD LeftMask[TILE_HEIGHT] = {
+static uint32_t LeftMask[TILE_HEIGHT] = {
 	0xAAAAAAAB, 0x5555555F,
 	0xAAAAAABF, 0x555555FF,
 	0xAAAAABFF, 0x55555FFF,
@@ -57,7 +57,7 @@ static DWORD LeftMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF
 };
 /** Specifies the draw masks used to render transparency of wall tiles. */
-static DWORD WallMask[TILE_HEIGHT] = {
+static uint32_t WallMask[TILE_HEIGHT] = {
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555,
@@ -76,7 +76,7 @@ static DWORD WallMask[TILE_HEIGHT] = {
 	0xAAAAAAAA, 0x55555555
 };
 
-static DWORD SolidMask[TILE_HEIGHT] = {
+static uint32_t SolidMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
@@ -95,7 +95,7 @@ static DWORD SolidMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF
 };
 
-static DWORD RightFoliageMask[TILE_HEIGHT] = {
+static uint32_t RightFoliageMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0x3FFFFFFF,
 	0x0FFFFFFF, 0x03FFFFFF,
 	0x00FFFFFF, 0x003FFFFF,
@@ -114,7 +114,7 @@ static DWORD RightFoliageMask[TILE_HEIGHT] = {
 	0x0FFFFFFF, 0x3FFFFFFF,
 };
 
-static DWORD LeftFoliageMask[TILE_HEIGHT] = {
+static uint32_t LeftFoliageMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFC,
 	0xFFFFFFF0, 0xFFFFFFC0,
 	0xFFFFFF00, 0xFFFFFC00,
@@ -133,22 +133,24 @@ static DWORD LeftFoliageMask[TILE_HEIGHT] = {
 	0xFFFFFFF0, 0xFFFFFFFC,
 };
 
-inline static void RenderLine(BYTE *dst, BYTE *src, int n, BYTE *tbl, DWORD mask)
+inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int light)
 {
 //#ifdef NO_OVERDRAW
 //	if (dst >= gpBufStart && dst <= gpBufEnd)
 //#endif
 	{
 		assert(n != 0);
-		int i = ((sizeof(DWORD) * CHAR_BIT) - n);
+		int i = ((sizeof(uint32_t) * CHAR_BIT) - n);
+		BYTE* tbl;
 		// Add the lower bits about we don't care.
 		mask |= (1 << i) - 1;
 		if (mask == 0xFFFFFFFF) {
-			if (light_table_index == LIGHTMAX) {
+			if (light == LIGHTMAX) {
 				memset(dst, 0, n);
-			} else if (light_table_index == 0) {
+			} else if (light == 0) {
 				memcpy(dst, src, n);
 			} else {
+				tbl = LightTrns[light];
 				for (i = 0; i < n; i++) {
 					dst[i] = tbl[src[i]];
 				}
@@ -156,19 +158,20 @@ inline static void RenderLine(BYTE *dst, BYTE *src, int n, BYTE *tbl, DWORD mask
 		} else {
 			// Clear the lower bits of the mask to avoid testing i < n in the loops.
 			mask = (mask >> i) << i;
-			if (light_table_index == LIGHTMAX) {
+			if (light == LIGHTMAX) {
 				for (i = 0; mask != 0; i++, mask <<= 1) {
 					if (mask & 0x80000000) {
 						dst[i] = 0;
 					}
 				}
-			} else if (light_table_index == 0) {
+			} else if (light == 0) {
 				for (i = 0; mask != 0; i++, mask <<= 1) {
 					if (mask & 0x80000000) {
 						dst[i] = src[i];
 					}
 				}
 			} else {
+				tbl = LightTrns[light];
 				for (i = 0; mask != 0; i++, mask <<= 1) {
 					if (mask & 0x80000000) {
 						dst[i] = tbl[src[i]];
@@ -196,17 +199,16 @@ __attribute__((no_sanitize("shift-base")))
  */
 void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 {
-	int i, j;
-	char c, v, tile;
-	BYTE *src, *dst, *tbl;
-	DWORD m, *mask, *pFrameTable;
+	int i, j, light;
+	char v, tile;
+	BYTE *src, *dst;
+	uint32_t m, *mask, *pFrameTable;
 
 	dst = pBuff;
-	pFrameTable = (DWORD *)pDungeonCels;
+	pFrameTable = (uint32_t *)pDungeonCels;
 
 	src = &pDungeonCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
 	tile = (levelCelBlock & 0x7000) >> 12;
-	tbl = &pLightTbl[256 * light_table_index];
 
 	mask = &SolidMask[TILE_HEIGHT - 1];
 
@@ -215,16 +217,14 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 			mask = &WallMask[TILE_HEIGHT - 1];
 		} else if (adt == RADT_LEFT) {
 			if (tile != RT_LTRIANGLE) {
-				c = pieceFlags[level_piece_id];
-				if (c & PFLAG_TRANS_MASK_LEFT) {
+				if (pieceFlags[level_piece_id] & PFLAG_TRANS_MASK_LEFT) {
 					mask = &LeftMask[TILE_HEIGHT - 1];
 				}
 			}
 		} else {
 			// assert(adt == RADT_RIGHT);
 			if (tile != RT_RTRIANGLE) {
-				c = pieceFlags[level_piece_id];
-				if (c & PFLAG_TRANS_MASK_RIGHT) {
+				if (pieceFlags[level_piece_id] & PFLAG_TRANS_MASK_RIGHT) {
 					mask = &RightMask[TILE_HEIGHT - 1];
 				}
 			}
@@ -247,12 +247,13 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 	}
 #endif
 
+	light = light_table_index;
 	static_assert(TILE_HEIGHT - 2 < TILE_WIDTH / 2, "Line with negative or zero width.");
 	static_assert(TILE_WIDTH / 2 <= sizeof(*mask) * CHAR_BIT, "Mask is too small to cover the tile.");
 	switch (tile) {
 	case RT_SQUARE:
 		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2, tbl, *mask);
+			RenderLine(dst, src, TILE_WIDTH / 2, *mask, light);
 			src += TILE_WIDTH / 2;
 			dst += TILE_WIDTH / 2;
 		}
@@ -264,7 +265,7 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 			for (j = TILE_WIDTH / 2; j != 0; j -= v, m <<= v) {
 				v = *src++;
 				if (v > 0) {
-					RenderLine(dst, src, v, tbl, m);
+					RenderLine(dst, src, v, m, light);
 					src += v;
 					dst += v;
 				} else {
@@ -278,28 +279,28 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, tbl, *mask);
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
 			src += TILE_WIDTH / 2 - i;
 			dst += TILE_WIDTH / 2 - i;
 		}
 		for (i = 2; i != TILE_WIDTH / 2; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, tbl, *mask);
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
 			src += TILE_WIDTH / 2 - i;
 			dst += TILE_WIDTH / 2 - i;
 		}
 		break;
 	case RT_RTRIANGLE:
 		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, tbl, *mask);
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
 			src += TILE_WIDTH / 2 - i;
 			dst += TILE_WIDTH / 2 - i;
 			src += i & 2;
 			dst += i;
 		}
 		for (i = 2; i != TILE_HEIGHT; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, tbl, *mask);
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
 			src += TILE_WIDTH / 2 - i;
 			dst += TILE_WIDTH / 2 - i;
 			src += i & 2;
@@ -310,26 +311,26 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, tbl, *mask);
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
 			src += TILE_WIDTH / 2 - i;
 			dst += TILE_WIDTH / 2 - i;
 		}
 		for (i = TILE_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2, tbl, *mask);
+			RenderLine(dst, src, TILE_WIDTH / 2, *mask, light);
 			src += TILE_WIDTH / 2;
 			dst += TILE_WIDTH / 2;
 		}
 		break;
 	case RT_RTRAPEZOID:
 		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, tbl, *mask);
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
 			src += TILE_WIDTH / 2 - i;
 			dst += TILE_WIDTH / 2 - i;
 			src += i & 2;
 			dst += i;
 		}
 		for (i = TILE_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2, tbl, *mask);
+			RenderLine(dst, src, TILE_WIDTH / 2, *mask, light);
 			src += TILE_WIDTH / 2;
 			dst += TILE_WIDTH / 2;
 		}

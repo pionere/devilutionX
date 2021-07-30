@@ -8,13 +8,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define LIGHTSIZE				6912 // 27 * 256
-
-#define LIGHTIDX_RED	1
-#define LIGHTIDX_GRAY	2
-#define LIGHTIDX_CORAL	3
-#define LIGHTIDX_UNIQ	4
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,14 +18,20 @@ extern BYTE lightactive[MAXLIGHTS];
 extern LightListStruct LightList[MAXLIGHTS];
 extern int numlights;
 extern int numvision;
+extern bool gbDolighting;
 #ifdef _DEBUG
 extern char lightmax;
 #define LIGHTMAX lightmax
 #else
 #define LIGHTMAX 15
 #endif
-extern bool gbDolighting;
-extern BYTE pLightTbl[LIGHTSIZE];
+#define NUM_LIGHT_TRNS	LIGHTMAX + 12
+
+#define LIGHTIDX_RED	LIGHTMAX + 1
+#define LIGHTIDX_GRAY	LIGHTMAX + 2
+#define LIGHTIDX_CORAL	LIGHTMAX + 3
+#define LIGHTIDX_UNIQ	LIGHTMAX + 4
+extern BYTE LightTrns[NUM_LIGHT_TRNS][256];
 
 void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum);
 void DoUnVision(int nXPos, int nYPos, int nRadius);
