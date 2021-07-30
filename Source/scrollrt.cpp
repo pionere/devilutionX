@@ -241,6 +241,8 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
 	if (mis->_miPreFlag != pre || !mis->_miDrawFlag)
 		return;
 
+	mx = sx + mis->_mixoff - mis->_miAnimXOffset;
+	my = sy + mis->_miyoff;
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Missile 2 type %d: NULL Cel Buffer", mis->_miType);
@@ -250,14 +252,12 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, mis->_miType);
 	}
-	mx = sx + mis->_mixoff - mis->_miAnimXOffset;
-	my = sy + mis->_miyoff;
 	if (mis->_miUniqTrans != 0)
-		Cl2DrawLightTbl(mx, my, mis->_miAnimData, mis->_miAnimFrame, mis->_miAnimWidth, mis->_miUniqTrans);
+		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mis->_miAnimWidth, mis->_miUniqTrans);
 	else if (mis->_miLightFlag)
-		Cl2DrawLight(mx, my, mis->_miAnimData, mis->_miAnimFrame, mis->_miAnimWidth);
+		Cl2DrawLight(mx, my, pCelBuff, nCel, mis->_miAnimWidth);
 	else
-		Cl2Draw(mx, my, mis->_miAnimData, mis->_miAnimFrame, mis->_miAnimWidth);
+		Cl2Draw(mx, my, pCelBuff, nCel, mis->_miAnimWidth);
 }
 
 /**
@@ -300,10 +300,11 @@ static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 {
 	MonsterStruct *mon;
 	int mx, my, nCel, nWidth;
-	char trans;
+	BYTE trans;
+	BYTE litFlag = dFlags[x][y] & BFLAG_LIT;
 	BYTE *pCelBuff;
 
-	if (!(dFlags[x][y] & BFLAG_LIT) && !myplr._pInfraFlag)
+	if (!litFlag && !myplr._pInfraFlag)
 		return;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -343,22 +344,17 @@ static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 	if (mnum == pcursmonst) {
 		Cl2DrawOutline(PAL16_RED + 9, mx, my, pCelBuff, nCel, nWidth);
 	}
-	if (!(dFlags[x][y] & BFLAG_LIT)) {
-		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, 1);
-	} else {
-		if (myplr._pInfraFlag && light_table_index > 8)
-			trans = 1;
-		else if (mon->_mmode == MM_STONE)
-			trans = 2;
-		else if (mon->_uniqtype != 0)
-			trans = mon->_uniqtrans + 4;
-		else
-			trans = 0;
-		if (trans != 0)
-			Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
-		else
-			Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
+	if (!litFlag || (myplr._pInfraFlag && light_table_index > 8))
+		trans = LIGHTIDX_RED;
+	else if (mon->_mmode == MM_STONE)
+		trans = LIGHTIDX_GRAY;
+	else if (mon->_uniqtype != 0)
+		trans = mon->_uniqtrans;
+	else {
+		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
+		return;
 	}
+	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
@@ -400,9 +396,10 @@ static void DrawTowner(int tnum, int x, int y, int sx, int sy)
 static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 {
 	int px, py, nCel, nWidth, l;
+	BYTE litFlag = dFlags[x][y] & BFLAG_LIT;
 	BYTE *pCelBuff;
 
-	if (dFlags[x][y] & BFLAG_LIT || myplr._pInfraFlag) {
+	if (litFlag || myplr._pInfraFlag) {
 		px = sx + plr._pxoff - plr._pAnimXOffset;
 		py = sy + plr._pyoff;
 		pCelBuff = plr._pAnimData;
@@ -431,8 +428,8 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == mypnum) {
 			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
-		} else if (!(dFlags[x][y] & BFLAG_LIT) || (myplr._pInfraFlag && light_table_index > 8)) {
-			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, 1);
+		} else if (!litFlag || (myplr._pInfraFlag && light_table_index > 8)) {
+			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, LIGHTIDX_RED);
 		} else {
 			l = light_table_index;
 			if (light_table_index <= 5)

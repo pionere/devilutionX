@@ -8,6 +8,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define LIGHTSIZE				6912 // 27 * 256
+
+#define LIGHTIDX_RED	1
+#define LIGHTIDX_GRAY	2
+#define LIGHTIDX_CORAL	3
+#define LIGHTIDX_UNIQ	4
+
 #ifdef __cplusplus
 extern "C" {
 #endif

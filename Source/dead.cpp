@@ -64,7 +64,7 @@ void InitDead()
 			dead[nd]._deadFrame = mon->_mAnims[MA_DEATH].aFrames;
 			dead[nd]._deadWidth = mon->_mAnimWidth;
 			dead[nd]._deadXOffset = mon->_mAnimXOffset;
-			dead[nd]._deadtrans = mon->_uniqtrans + 4;
+			dead[nd]._deadtrans = mon->_uniqtrans;
 			mon->_udeadval = nd + 1;
 			nd++;
 		}

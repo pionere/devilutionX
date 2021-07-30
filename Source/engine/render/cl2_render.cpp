@@ -9,16 +9,18 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static inline int lightidx(char light)
+static inline int lightidx(BYTE light)
 {
-	int idx;
+	/*int idx;
 
 	idx = (LIGHTMAX + 1) * 256;
 	if (light == 2)
 		idx += 256; // gray colors
 	if (light >= 4)
 		idx += (light - 1) << 8;
-	return idx;
+	return idx;*/
+	//assert(light != 0);
+	return (LIGHTMAX + light) * 256;
 }
 
 /**
@@ -370,9 +372,9 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, in
  * @param pCelBuff CL2 buffer
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
- * @param light Light shade to use
+ * @param light index of the light shade to use (!= 0)
  */
-void Cl2DrawLightTbl(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, char light)
+void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light)
 {
 	int nDataSize;
 	const BYTE *pRLEBytes, *tbl;

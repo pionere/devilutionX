@@ -821,10 +821,10 @@ void MakeLightTable()
 	}
 
 	tbl = pLightTbl;
-	LoadFileWithMem("PlrGFX\\Infra.TRN", &tbl[(lights + 1) * 256]);
-	LoadFileWithMem("PlrGFX\\Stone.TRN", &tbl[(lights + 2) * 256]);
+	LoadFileWithMem("PlrGFX\\Infra.TRN", &tbl[(lights + LIGHTIDX_RED) * 256]);
+	LoadFileWithMem("PlrGFX\\Stone.TRN", &tbl[(lights + LIGHTIDX_GRAY) * 256]);
 
-	tbl = &tbl[(lights + 3) * 256];
+	tbl = &tbl[(lights + LIGHTIDX_CORAL) * 256];
 	for (i = 0; i < 8; i++) {
 		for (col = 226; col < 239; col++) {
 			if (i != 0 || col != 226) {

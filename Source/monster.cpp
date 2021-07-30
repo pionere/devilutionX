@@ -25,7 +25,7 @@ MonsterStruct monster[MAXMONSTERS];
 MapMonData mapMonTypes[MAX_LVLMTYPES];
 /* The number of monster types on the current level. */
 int nummtypes;
-/* The number of unique monsters on the current level. */
+/* The next light-index to be used for the trn of a unique monster. */
 int uniquetrans;
 
 /** Light radius of unique monsters */
@@ -158,7 +158,7 @@ void InitLevelMonsters()
 
 	nummonsters = 0;
 	nummtypes = 0;
-	uniquetrans = 0;
+	uniquetrans = LIGHTIDX_UNIQ;
 	monstimgtot = 4000;
 	totalmonsters = MAXMONSTERS;
 
@@ -629,7 +629,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	MonsterStruct *mon;
 	int count;
 
-	if (uniquetrans >= (LIGHTSIZE / 256 - (LIGHTMAX + 4))) {
+	if (uniquetrans >= (LIGHTSIZE / 256 - LIGHTMAX)) {
 		return;
 	}
 
@@ -754,7 +754,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		mon->_mgoal = MGOAL_INQUIRING;
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
-	LoadFileWithMem(filestr, &pLightTbl[256 * (LIGHTMAX + 4 + uniquetrans)]);
+	LoadFileWithMem(filestr, &pLightTbl[256 * (LIGHTMAX + uniquetrans)]);
 
 	mon->_uniqtrans = uniquetrans++;
 

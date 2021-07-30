@@ -1747,29 +1747,19 @@ void DrawDurIcon()
 
 void RedBack()
 {
-	const int idx = (LIGHTMAX + 3) * 256;
-
 	assert(gpBuffer != NULL);
 
 	int w, h;
 	BYTE *dst, *tbl;
+	bool inHell = currLvl._dType == DTYPE_HELL;
 
 	dst = &gpBuffer[SCREENXY(0, 0)];
-	tbl = &pLightTbl[idx];
-	if (currLvl._dType != DTYPE_HELL) {
-		for (h = VIEWPORT_HEIGHT; h; h--, dst += BUFFER_WIDTH - SCREEN_WIDTH) {
-			for (w = SCREEN_WIDTH; w; w--) {
+	tbl = &pLightTbl[(LIGHTMAX + LIGHTIDX_CORAL) * 256];
+	for (h = VIEWPORT_HEIGHT; h > 0; h--, dst += BUFFER_WIDTH - SCREEN_WIDTH) {
+		for (w = SCREEN_WIDTH; w > 0; w--) {
+			if (!inHell || *dst >= 32)
 				*dst = tbl[*dst];
-				dst++;
-			}
-		}
-	} else {
-		for (h = VIEWPORT_HEIGHT; h; h--, dst += BUFFER_WIDTH - SCREEN_WIDTH) {
-			for (w = SCREEN_WIDTH; w; w--) {
-				if (*dst >= 32)
-					*dst = tbl[*dst];
-				dst++;
-			}
+			dst++;
 		}
 	}
 }

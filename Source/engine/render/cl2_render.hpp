@@ -50,9 +50,9 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, in
  * @param pCelBuff CL2 buffer
  * @param nCel CL2 frame number
  * @param nWidth CL2 width of the frame
- * @param light Light shade to use
+ * @param light index of the light shade to use (!= 0)
  */
-void Cl2DrawLightTbl(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, char light);
+void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light);
 
 /**
  * @brief Blit CL2 sprite, and apply lighting, to the given buffer at the given coordinates

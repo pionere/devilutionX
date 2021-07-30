@@ -1505,7 +1505,7 @@ typedef struct DeadStruct {
 	int _deadFrame;
 	int _deadWidth;
 	int _deadXOffset;
-	char _deadtrans;
+	BYTE _deadtrans;
 } DeadStruct;
 
 #ifdef X86_32bit_COMP

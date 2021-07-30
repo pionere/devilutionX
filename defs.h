@@ -66,8 +66,6 @@
 #define MAXDUNX					112
 #define MAXDUNY					112
 
-#define LIGHTSIZE				6912 // 27 * 256
-
 #define GMENU_SLIDER			0x40000000
 #define GMENU_ENABLED			0x80000000
 

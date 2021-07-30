@@ -2214,7 +2214,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		mis->_miAnimFrame = 7;
 	mis->_miLightFlag = TRUE;
 	if (mon->_uniqtype != 0) {
-		mis->_miUniqTrans = mon->_uniqtrans + 4;
+		mis->_miUniqTrans = mon->_uniqtrans;
 		mis->_miLid = mon->mlid;
 	}
 	// mis->_miRange = 256;
