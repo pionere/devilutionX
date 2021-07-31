@@ -262,7 +262,81 @@ static void DRLG_L4MakeMegas()
 		dungeon[i][DMAXY - 1] = 30;
 }
 
-static int L4HWallOk(int x, int y)
+/*
+ * Add horizontal wall.
+ *
+ * @param i: the x coordinate of the walls first tile
+ * @param j: the y coordinate of the walls first tile
+ * @param dx: the length of the wall
+ * @return true if after the change a check for vertical wall is necessary.
+ */
+static bool L4HorizWall(int i, int j, int dx)
+{
+	int xx;
+	BYTE bv;
+	// convert the internal tiles
+	for (xx = 1; xx < dx; xx++) {
+		dungeon[i + xx][j] = 2;
+	}
+	// convert the last tile
+	bv = dungeon[i + dx][j];
+	switch (bv) {
+	case 10:
+		bv = 17;
+		break;
+	case 12:
+	case 13:
+		break;
+	case 15:
+		bv = 14;
+		break;
+	case 16:
+		break;
+	case 21:
+		bv = 23;
+		break;
+	case 22:
+		bv = 29;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	dungeon[i + dx][j] = bv;
+	// add 'door'
+	xx = RandRange(1, dx - 3);
+	dungeon[i + xx][j] = 57;
+	dungeon[i + xx + 2][j] = 56;
+	dungeon[i + xx + 1][j] = 60;
+
+	if (dungeon[i + xx][j - 1] == 6) {
+		dungeon[i + xx][j - 1] = 58;
+	}
+	if (dungeon[i + xx + 1][j - 1] == 6) {
+		dungeon[i + xx + 1][j - 1] = 59;
+	}
+	// convert the first tile
+	if (dungeon[i][j] == 13) {
+		dungeon[i][j] = 17;
+	} else if (dungeon[i][j] == 16) {
+		dungeon[i][j] = 11;
+		return true;
+	} else if (dungeon[i][j] == 12) {
+		dungeon[i][j] = 14;
+		return true;
+	}
+	return false;
+}
+
+static constexpr uint32_t HORIZ_WALL_ENDS =
+	  (1 << 10)
+	| (1 << 12)
+	| (1 << 13)
+	| (1 << 15)
+	| (1 << 16)
+	| (1 << 21)
+	| (1 << 22);
+static bool L4AddHWall(int x, int y)
 {
 	int i;
 	BYTE bv;
@@ -283,13 +357,88 @@ static int L4HWallOk(int x, int y)
 
 	i -= x;
 	if (i > 3
-	 && (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22))
-		return i;
+	// && (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22)) {
+	 && (HORIZ_WALL_ENDS & (1 << bv))) {
+		return L4HorizWall(x, y, i);
+	}
 
-	return -1;
+	return false;
 }
 
-static int L4VWallOk(int x, int y)
+/*
+ * Add vertical wall.
+ *
+ * @param i: the x coordinate of the walls first tile
+ * @param j: the y coordinate of the walls first tile
+ * @param dy: the length of the wall
+ */
+static void L4VertWall(int i, int j, int dy)
+{
+	int yy;
+	BYTE bv;
+	// convert the first tile
+	if (dungeon[i][j] == 14)
+		dungeon[i][j] = 17;
+	else if (dungeon[i][j] == 8)
+		dungeon[i][j] = 9;
+	else if (dungeon[i][j] == 15)
+		dungeon[i][j] = 10; // TODO: return true to check horizontal wall?
+	// convert the internal tiles
+	for (yy = 1; yy < dy; yy++) {
+		dungeon[i][j + yy] = 1;
+	}
+	// convert the last tile
+	bv = dungeon[i][j + dy];
+	switch (bv) {
+	case 8:
+		break;
+	case 9:
+		bv = 10;
+		break;
+	case 11:
+		bv = 17;
+		break;
+	case 14:
+	case 15:
+		break;
+	case 16:
+		bv = 13;
+		break;
+	case 21:
+		bv = 22;
+		break;
+	case 23:
+		bv = 29;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	dungeon[i][j + dy] = bv;
+	// add 'door'
+	yy = RandRange(1, dy - 3);
+	dungeon[i][j + yy] = 53;
+	dungeon[i][j + yy + 2] = 52;
+	dungeon[i][j + yy + 1] = 60;
+
+	if (dungeon[i - 1][j + yy] == 6) {
+		dungeon[i - 1][j + yy] = 54;
+	}
+	if (dungeon[i - 1][j + yy - 1] == 6) {
+		dungeon[i - 1][j + yy - 1] = 55;
+	}
+}
+
+static constexpr uint32_t VERT_WALL_ENDS =
+	  (1 << 8)
+	| (1 << 9)
+	| (1 << 11)
+	| (1 << 14)
+	| (1 << 15)
+	| (1 << 16)
+	| (1 << 21)
+	| (1 << 23);
+static void L4AddVWall(int x, int y)
 {
 	int j;
 	BYTE bv;
@@ -310,186 +459,46 @@ static int L4VWallOk(int x, int y)
 
 	j -= y;
 	if (j > 3
-	 && (bv == 8 || bv == 9 || bv == 11 || bv == 14 || bv == 15 || bv == 16 || bv == 21 || bv == 23))
-		return j;
-
-	return -1;
-}
-
-static void L4HorizWall(int i, int j, int dx)
-{
-	int xx;
-
-	if (dungeon[i][j] == 13)
-		dungeon[i][j] = 17;
-	else if (dungeon[i][j] == 16)
-		dungeon[i][j] = 11;
-	else if (dungeon[i][j] == 12)
-		dungeon[i][j] = 14;
-
-	for (xx = 1; xx < dx; xx++) {
-		dungeon[i + xx][j] = 2;
+	 //&& (bv == 8 || bv == 9 || bv == 11 || bv == 14 || bv == 15 || bv == 16 || bv == 21 || bv == 23)) {
+	 && (VERT_WALL_ENDS & (1 << bv))) {
+		/*return*/ L4VertWall(x, y, j);
 	}
 
-	if (dungeon[i + dx][j] == 15)
-		dungeon[i + dx][j] = 14;
-	else if (dungeon[i + dx][j] == 10)
-		dungeon[i + dx][j] = 17;
-	else if (dungeon[i + dx][j] == 21)
-		dungeon[i + dx][j] = 23;
-	else if (dungeon[i + dx][j] == 22)
-		dungeon[i + dx][j] = 29;
-
-	xx = RandRange(1, dx - 3);
-	dungeon[i + xx][j] = 57;
-	dungeon[i + xx + 2][j] = 56;
-	dungeon[i + xx + 1][j] = 60;
-
-	if (dungeon[i + xx][j - 1] == 6) {
-		dungeon[i + xx][j - 1] = 58;
-	}
-	if (dungeon[i + xx + 1][j - 1] == 6) {
-		dungeon[i + xx + 1][j - 1] = 59;
-	}
-}
-
-static void L4VertWall(int i, int j, int dy)
-{
-	int yy;
-
-	if (dungeon[i][j] == 14)
-		dungeon[i][j] = 17;
-	else if (dungeon[i][j] == 8)
-		dungeon[i][j] = 9;
-	else if (dungeon[i][j] == 15)
-		dungeon[i][j] = 10;
-
-	for (yy = 1; yy < dy; yy++) {
-		dungeon[i][j + yy] = 1;
-	}
-
-	if (dungeon[i][j + dy] == 11)
-		dungeon[i][j + dy] = 17;
-	else if (dungeon[i][j + dy] == 9)
-		dungeon[i][j + dy] = 10;
-	else if (dungeon[i][j + dy] == 16)
-		dungeon[i][j + dy] = 13;
-	else if (dungeon[i][j + dy] == 21)
-		dungeon[i][j + dy] = 22;
-	else if (dungeon[i][j + dy] == 23)
-		dungeon[i][j + dy] = 29;
-
-	yy = RandRange(1, dy - 3);
-	dungeon[i][j + yy] = 53;
-	dungeon[i][j + yy + 2] = 52;
-	dungeon[i][j + yy + 1] = 60;
-
-	if (dungeon[i - 1][j + yy] == 6) {
-		dungeon[i - 1][j + yy] = 54;
-	}
-	if (dungeon[i - 1][j + yy - 1] == 6) {
-		dungeon[i - 1][j + yy - 1] = 55;
-	}
+	//return false;
 }
 
 static void L4AddWall()
 {
-	int i, j, x, y;
+	int i, j;
+	bool checkVert;
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			if (dflags[i][j]) {
 				continue;
 			}
-			if (dungeon[i][j] == 10) {
-				x = L4HWallOk(i, j);
-				if (x != -1) {
-					L4HorizWall(i, j, x);
-				}
-			}
-			if (dungeon[i][j] == 12) {
-				x = L4HWallOk(i, j);
-				if (x != -1) {
-					L4HorizWall(i, j, x);
-				}
-			}
-			if (dungeon[i][j] == 13) {
-				x = L4HWallOk(i, j);
-				if (x != -1) {
-					L4HorizWall(i, j, x);
-				}
-			}
-			if (dungeon[i][j] == 15) {
-				x = L4HWallOk(i, j);
-				if (x != -1) {
-					L4HorizWall(i, j, x);
-				}
-			}
-			if (dungeon[i][j] == 16) {
-				x = L4HWallOk(i, j);
-				if (x != -1) {
-					L4HorizWall(i, j, x);
-				}
-			}
-			if (dungeon[i][j] == 21) {
-				x = L4HWallOk(i, j);
-				if (x != -1) {
-					L4HorizWall(i, j, x);
-				}
-			}
-			if (dungeon[i][j] == 22) {
-				x = L4HWallOk(i, j);
-				if (x != -1) {
-					L4HorizWall(i, j, x);
-				}
-			}
-			if (dungeon[i][j] == 8) {
-				y = L4VWallOk(i, j);
-				if (y != -1) {
-					L4VertWall(i, j, y);
-				}
-			}
-			if (dungeon[i][j] == 9) {
-				y = L4VWallOk(i, j);
-				if (y != -1) {
-					L4VertWall(i, j, y);
-				}
-			}
-			if (dungeon[i][j] == 11) {
-				y = L4VWallOk(i, j);
-				if (y != -1) {
-					L4VertWall(i, j, y);
-				}
-			}
-			if (dungeon[i][j] == 14) {
-				y = L4VWallOk(i, j);
-				if (y != -1) {
-					L4VertWall(i, j, y);
-				}
-			}
-			if (dungeon[i][j] == 15) {
-				y = L4VWallOk(i, j);
-				if (y != -1) {
-					L4VertWall(i, j, y);
-				}
-			}
-			if (dungeon[i][j] == 16) {
-				y = L4VWallOk(i, j);
-				if (y != -1) {
-					L4VertWall(i, j, y);
-				}
-			}
-			if (dungeon[i][j] == 21) {
-				y = L4VWallOk(i, j);
-				if (y != -1) {
-					L4VertWall(i, j, y);
-				}
-			}
-			if (dungeon[i][j] == 23) {
-				y = L4VWallOk(i, j);
-				if (y != -1) {
-					L4VertWall(i, j, y);
-				}
+			checkVert = false;
+			switch (dungeon[i][j]) {
+			case 15:
+			case 16:
+			case 21:
+				checkVert = true;
+				/* fall-through */
+			case 10:
+			case 12:
+			case 13:
+			case 22:
+				checkVert |= L4AddHWall(i, j);
+				if (!checkVert)
+					break;
+				/* fall-through */
+			case 8:
+			case 9:
+			case 11:
+			case 14:
+			case 23:
+				L4AddVWall(i, j);
+				break;
 			}
 		}
 	}
