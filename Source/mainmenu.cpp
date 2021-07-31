@@ -39,8 +39,6 @@ static bool mainmenu_init_menu(bool bSinglePlayer)
 
 static bool mainmenu_single_player()
 {
-	gbMaxPlayers = 1;
-
 	if (getIniInt("devilutionx", "game speed", &gnTicksRate)) {
 		if (gnTicksRate < SPEED_NORMAL)
 			gnTicksRate = SPEED_NORMAL;
@@ -53,7 +51,6 @@ static bool mainmenu_single_player()
 
 static bool mainmenu_multi_player()
 {
-	gbMaxPlayers = MAX_PLRS;
 	return mainmenu_init_menu(false);
 }
 

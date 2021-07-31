@@ -105,7 +105,7 @@ void InitQuests()
 		quests[questdebug]._qactive = QUEST_ACTIVE;
 #endif
 
-	if (gbMaxPlayers != 1)
+	if (IsMultiGame)
 		quests[Q_BETRAYER]._qvar1 = 2;
 	if (quests[Q_PWATER]._qactive == QUEST_NOTAVAIL)
 		quests[Q_PWATER]._qvar1 = 2;
@@ -190,7 +190,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 		qn = Q_ZHAR;
 		break;
 	case UMT_LAZARUS: //"Arch-Bishop Lazarus" - multi
-		if (gbMaxPlayers != 1) {
+		if (IsMultiGame) {
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
 			quests[Q_BETRAYER]._qvar1 = 7;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
@@ -499,7 +499,7 @@ void ResyncQuests()
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}*/
 	}
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		// TODO: eliminate relative level-indices?
 		//if (quests[Q_SKELKING]._qactive == QUEST_INIT
 		//    && currLvl._dLevelIdx >= questlist[Q_SKELKING]._qdlvl - 1

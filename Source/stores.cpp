@@ -1992,7 +1992,7 @@ static void HealerBuyItem()
 	bool infinite;
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
-	infinite = idx < (gbMaxPlayers == 1 ? 2 : 3);
+	infinite = idx < (IsMultiGame ? 3 : 2);
 	if (infinite)
 		myplr.HoldItem._iSeed = GetRndSeed();
 

@@ -496,7 +496,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 		mon->mMagicRes = cmon->cmData->mMagicRes2;
 	}
 
-	if (gbMaxPlayers == 1) {
+	if (!IsMultiGame) {
 		mon->_mmaxhp >>= 1;
 		if (mon->_mmaxhp < 64) {
 			mon->_mmaxhp = 64;
@@ -656,30 +656,30 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		yp = 2 * setpc_y + DBORDERY + 12;
 		break;
 	case UMT_LAZARUS:
-		if (gbMaxPlayers == 1) {
-			xp = DBORDERX + 16;
-			yp = DBORDERY + 30;
-		} else {
+		if (IsMultiGame) {
 			xp = 2 * setpc_x + DBORDERX + 3;
 			yp = 2 * setpc_y + DBORDERY + 6;
+		} else {
+			xp = DBORDERX + 16;
+			yp = DBORDERY + 30;
 		}
 		break;
 	case UMT_RED_VEX:
-		if (gbMaxPlayers == 1) {
-			xp = DBORDERX + 24;
-			yp = DBORDERY + 29;
-		} else {
+		if (IsMultiGame) {
 			xp = 2 * setpc_x + DBORDERX + 5;
 			yp = 2 * setpc_y + DBORDERY + 3;
+		} else {
+			xp = DBORDERX + 24;
+			yp = DBORDERY + 29;
 		}
 		break;
 	case UMT_BLACKJADE:
-		if (gbMaxPlayers == 1) {
-			xp = DBORDERX + 22;
-			yp = DBORDERY + 33;
-		} else {
+		if (IsMultiGame) {
 			xp = 2 * setpc_x + DBORDERX + 5;
 			yp = 2 * setpc_y + DBORDERY + 9;
+		} else {
+			xp = DBORDERX + 22;
+			yp = DBORDERY + 33;
 		}
 		break;
 	case UMT_WARLORD:
@@ -792,7 +792,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		mon->_mMinDamage2 = 4 * mon->_mMinDamage2 + 6;
 		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
 	}
-	if (gbMaxPlayers == 1) {
+	if (!IsMultiGame) {
 		mon->_mmaxhp = mon->_mmaxhp >> 1;
 		if (mon->_mmaxhp < 64) {
 			mon->_mmaxhp = 64;
@@ -860,7 +860,7 @@ static void PlaceQuestMonsters()
 			mem_free_dbg(setp);
 		}
 
-		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && gbMaxPlayers != 1) {
+		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && IsMultiGame) {
 			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
@@ -913,7 +913,7 @@ void InitMonsters()
 	const int tdy[4] = { -1,  2, -1,  2 };
 
 #ifdef _DEBUG
-	if (gbMaxPlayers != 1)
+	if (IsMultiGame)
 		CheckDungeonClear();
 #endif
 	if (!currLvl._dSetLvl) {
@@ -939,7 +939,7 @@ void InitMonsters()
 				if (!nSolidTable[dPiece[xx][yy]])
 					na++;
 		numplacemonsters = na / 30;
-		if (gbMaxPlayers != 1)
+		if (IsMultiGame)
 			numplacemonsters += numplacemonsters >> 1;
 		if (numplacemonsters > MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters)
 			numplacemonsters = MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters;
@@ -2258,9 +2258,9 @@ static bool MonDoTalk(int mnum)
 	mon->_mgoal = MGOAL_TALKING;
 	if (effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
 		return false;
-	InitQTextMsg(mon->mtalkmsg, gbMaxPlayers == 1 /*mon->_mListener == mypnum*/); // MON_TIMER
+	InitQTextMsg(mon->mtalkmsg, !IsMultiGame /*mon->_mListener == mypnum*/); // MON_TIMER
 	if (mon->_uniqtype - 1 == UMT_LAZARUS) {
-		if (gbMaxPlayers != 1) {
+		if (IsMultiGame) {
 			quests[Q_BETRAYER]._qvar1 = 6;
 			mon->_msquelch = SQUELCH_MAX;
 			mon->mtalkmsg = TEXT_NONE;
@@ -2345,18 +2345,18 @@ void PrepDoEnding(bool soundOn)
 	if (killLevel > myplr._pDiabloKillLevel)
 		myplr._pDiabloKillLevel = killLevel;
 
-	if (gbMaxPlayers == 1) {
-		// save the hero + items
-		pfile_write_hero();
-		// delete the game
-		pfile_delete_save_file(SAVEFILE_GAME);
-	} else {
+	if (IsMultiGame) {
 		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 			plr._pmode = PM_QUIT;
 			plr._pInvincible = TRUE;
 			if (plr._pHitPoints < (1 << 6))
 				plr._pHitPoints = (1 << 6);
 		}
+	} else {
+		// save the hero + items
+		pfile_write_hero();
+		// delete the game
+		pfile_delete_save_file(SAVEFILE_GAME);
 	}
 }
 
@@ -3724,7 +3724,7 @@ void MAI_SkelKing(int mnum)
 	}
 		
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (gbMaxPlayers == 1
+		if (!IsMultiGame
 		    && ((dist >= 3 && v < 4 * mon->_mint + 35) || v < 6)
 		    && LineClear(mon->_mx, mon->_my, fx, fy)) {
 			nx = mon->_mx + offset_x[md];
@@ -3948,7 +3948,7 @@ void MAI_Garbud(int mnum)
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) { // MON_TIMER
 			//if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
-			if (quests[Q_GARBUD]._qvar1 == 4 && (gbMaxPlayers != 1 || !effect_is_playing(USFX_GARBUD4))) {
+			if (quests[Q_GARBUD]._qvar1 == 4 && (IsMultiGame || !effect_is_playing(USFX_GARBUD4))) {
 				mon->_mgoal = MGOAL_NORMAL;
 				// mon->_msquelch = SQUELCH_MAX;
 				mon->mtalkmsg = TEXT_NONE;
@@ -3985,7 +3985,7 @@ void MAI_Zhar(int mnum)
 			mon->_mgoal = MGOAL_INQUIRING;
 		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) { // MON_TIMER - also set in objects.cpp
 			//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
-			if (quests[Q_ZHAR]._qvar1 == 2 && (gbMaxPlayers != 1 || !effect_is_playing(USFX_ZHAR2))) {
+			if (quests[Q_ZHAR]._qvar1 == 2 && (IsMultiGame || !effect_is_playing(USFX_ZHAR2))) {
 				// mon->_msquelch = SQUELCH_MAX;
 				mon->mtalkmsg = TEXT_NONE;
 				mon->_mgoal = MGOAL_NORMAL;
@@ -4031,7 +4031,7 @@ void MAI_SnotSpil(int mnum)
 	case 3: // banner received or talked after the banner was given to ogden -> attack
 		//if (mon->_mVar8++ < gnTicksRate * 6) // MON_TIMER
 		//	return; // wait till the sfx is running, but don't rely on effect_is_playing
-		if (gbMaxPlayers == 1 && effect_is_playing(alltext[TEXT_BANNER12].sfxnr))
+		if (!IsMultiGame && effect_is_playing(alltext[TEXT_BANNER12].sfxnr))
 			return;
 		quests[Q_LTBANNER]._qactive = QUEST_DONE;
 		quests[Q_LTBANNER]._qvar1 = 4;
@@ -4068,7 +4068,17 @@ void MAI_Lazarus(int mnum)
 
 	mon->_mdir = MonGetDir(mnum);
 	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VILE13) {
-		if (gbMaxPlayers == 1) {
+		if (IsMultiGame) {
+			if (mon->_mgoal == MGOAL_INQUIRING) {
+				if (quests[Q_BETRAYER]._qvar1 <= 3) {
+					mon->_mmode = MM_TALK;
+					mon->_mListener = mypnum;
+				} else {
+					mon->mtalkmsg = TEXT_NONE;
+					mon->_mgoal = MGOAL_NORMAL;
+				}
+			}
+		} else {
 			if (mon->_mgoal == MGOAL_INQUIRING && myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y) {
 				PlayInGameMovie("gendata\\fprst3.smk");
 				mon->_mmode = MM_TALK;
@@ -4082,16 +4092,6 @@ void MAI_Lazarus(int mnum)
 				mon->mtalkmsg = TEXT_NONE;
 				mon->_mgoal = MGOAL_NORMAL;
 				quests[Q_BETRAYER]._qvar1 = 6;
-			}
-		} else {
-			if (mon->_mgoal == MGOAL_INQUIRING) {
-				if (quests[Q_BETRAYER]._qvar1 <= 3) {
-					mon->_mmode = MM_TALK;
-					mon->_mListener = mypnum;
-				} else {
-					mon->mtalkmsg = TEXT_NONE;
-					mon->_mgoal = MGOAL_NORMAL;
-				}
 			}
 		}
 	}
@@ -4115,7 +4115,7 @@ void MAI_Lazhelp(int mnum)
 	mon->_mdir = MonGetDir(mnum);
 
 	if (mon->_mgoal == MGOAL_INQUIRING || mon->_mgoal == MGOAL_TALKING) {
-		if (gbMaxPlayers == 1 && quests[Q_BETRAYER]._qvar1 <= 5)
+		if (!IsMultiGame && quests[Q_BETRAYER]._qvar1 <= 5)
 			return;
 		mon->mtalkmsg = TEXT_NONE;
 		mon->_mgoal = MGOAL_NORMAL;
@@ -4140,7 +4140,7 @@ void MAI_Lachdanan(int mnum)
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
 			//if (mon->_mVar8++ >= gnTicksRate * 32) {
-			if (gbMaxPlayers != 1 || !effect_is_playing(USFX_LACH3)) {
+			if (IsMultiGame || !effect_is_playing(USFX_LACH3)) {
 				mon->mtalkmsg = TEXT_NONE;
 				MonStartKill(mnum, -1);
 			}
@@ -4181,7 +4181,7 @@ void MAI_Warlord(int mnum)
 	case 1: // warlord spotted
 		//if (mon->_mVar8++ < gnTicksRate * 8) // MON_TIMER
 		//	return; // wait till the sfx is running, but don't rely on effect_is_playing
-		if (gbMaxPlayers == 1 && effect_is_playing(alltext[TEXT_WARLRD9].sfxnr))
+		if (!IsMultiGame && effect_is_playing(alltext[TEXT_WARLRD9].sfxnr))
 			return;
 		quests[Q_WARLORD]._qvar1 = 2;
 		if (mon->_mListener == mypnum || !plx(mon->_mListener).plractive || plx(mon->_mListener).plrlevel != currLvl._dLevelIdx) {
@@ -4247,7 +4247,7 @@ void ProcessMonsters()
 			continue;
 		mnum = monstactive[i];
 		mon = &monster[mnum];
-		if (gbMaxPlayers != 1) {
+		if (IsMultiGame) {
 			SetRndSeed(mon->_mAISeed);
 			mon->_mAISeed = GetRndSeed();
 		}

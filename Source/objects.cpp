@@ -849,7 +849,7 @@ static void AddLazStand()
 {
 	int xp, yp;
 
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 		return;
 	}
@@ -909,7 +909,7 @@ void InitObjects()
 	case DTYPE_CAVES:
 		if (QuestStatus(Q_MUSHROOM))
 			AddMushPatch();
-		if (currLvl._dLevelIdx == DLV_CAVES1 && gbMaxPlayers == 1)
+		if (currLvl._dLevelIdx == DLV_CAVES1 && !IsMultiGame)
 			AddSlainHero();
 		else if (currLvl._dLevelIdx == DLV_CAVES4)
 			AddStoryBooks();
@@ -1247,7 +1247,7 @@ static void AddBarrel(int oi)
 static int FindValidShrine(int filter)
 {
 	int rv;
-	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
+	BYTE excl = IsMultiGame ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
 
 	while (TRUE) {
 		rv = random_(0, NUM_SHRINETYPE);

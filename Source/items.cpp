@@ -1332,7 +1332,7 @@ static void GetBookSpell(int ii, int lvl)
 	bs = 0;
 	while (TRUE) {
 		if (spelldata[bs].sBookLvl != SPELL_NA && lvl >= spelldata[bs].sBookLvl
-		 && (gbMaxPlayers != 1
+		 && (IsMultiGame
 			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
 			if (rv == 0)
 				break;
@@ -1370,7 +1370,7 @@ static void GetScrollSpell(int ii, int lvl)
 	bs = 0;
 	while (TRUE) {
 		if (spelldata[bs].sScrollLvl != SPELL_NA && lvl >= spelldata[bs].sScrollLvl
-		 && (gbMaxPlayers != 1
+		 && (IsMultiGame
 			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
 			if (rv == 0)
 				break;
@@ -1403,7 +1403,7 @@ static void GetStaffSpell(int ii, int lvl)
 	bs = 0;
 	while (TRUE) {
 		if (spelldata[bs].sStaffLvl != SPELL_NA && lvl >= spelldata[bs].sStaffLvl
-		 && (gbMaxPlayers != 1
+		 && (IsMultiGame
 			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
 			if (rv == 0)
 				break;
@@ -1948,7 +1948,7 @@ static int CheckUnique(int ii, int lvl, int uper, bool recreate)
 	static_assert(NUM_UITEM <= UCHAR_MAX, "Unique index must fit to a BYTE in CheckUnique.");
 
 	uid = AllItemsList[items[ii]._iIdx].iItemId;
-	uniq = !recreate && gbMaxPlayers == 1;
+	uniq = !recreate && !IsMultiGame;
 	ui = 0;
 	for (i = 0; i < NUM_UITEM; i++) {
 		if (UniqueItemList[i].UIItemId == uid
@@ -2088,7 +2088,7 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 		return;
 
 	mon = &monster[mnum];
-	if ((mon->MData->mTreasure & 0x8000) != 0 && gbMaxPlayers == 1) {
+	if ((mon->MData->mTreasure & 0x8000) != 0 && !IsMultiGame) {
 		// fix drop in single player
 		idx = mon->MData->mTreasure & 0xFFF;
 		SpawnUnique(idx, x, y, sendmsg, false);
@@ -2471,7 +2471,7 @@ static void ItemDoppel()
 	int i;
 	ItemStruct *is;
 
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		for (i = DBORDERY; i < DSIZEY + DBORDERY; i++) {
 			if (dItem[idoppelx][i] != 0) {
 				is = &items[dItem[idoppelx][i] - 1];
@@ -3724,7 +3724,7 @@ void SpawnHealer(int lvl)
 	SetItemSData(&healitem[0], IDI_HEAL);
 	SetItemSData(&healitem[1], IDI_FULLHEAL);
 
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		SetItemSData(&healitem[2], IDI_RESURRECT);
 
 		srnd = 3;
@@ -3738,7 +3738,7 @@ void SpawnHealer(int lvl)
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndHealerItem(lvl), lvl);
 		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL
-			&& (items[0]._iSpell != SPL_HEALOTHER || gbMaxPlayers == 1));
+			&& (items[0]._iSpell != SPL_HEALOTHER || !IsMultiGame));
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_HEALER;
 		copy_pod(healitem[i], items[0]);

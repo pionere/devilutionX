@@ -203,7 +203,7 @@ static void InitL4Dungeon()
 static void DRLG_LoadL4SP()
 {
 	assert(pSetPiece == NULL);
-	if (gbMaxPlayers != 1 && QuestStatus(Q_BETRAYER)) {
+	if (IsMultiGame && QuestStatus(Q_BETRAYER)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
 	} else if (QuestStatus(Q_WARLORD)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
@@ -1873,7 +1873,7 @@ static void DRLG_L4(int entry)
 		} else {
 			mini_set stairs[2] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
-				{ (gbMaxPlayers == 1 && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) ?
+				{ (!IsMultiGame && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) ?
 					L4PENTA : L4PENTA2, entry != ENTRY_MAIN }
 			};
 			doneflag = DRLG_L4PlaceMiniSets(stairs, 2);

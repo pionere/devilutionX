@@ -183,7 +183,7 @@ void nthread_start()
 	sgbPacketCountdown = 1;
 	static_assert(sizeof(TurnPkt) <= gdwNormalMsgSize, "TurnPkt does not fit in a message.");
 	static_assert(sizeof(MsgPkt) <= gdwNormalMsgSize, "MsgPkt does not fit in a message.");
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		_gbRunThread = false;
 		sgThreadMutex.Enter();
 		_gbThreadLive = true;
@@ -262,7 +262,7 @@ bool nthread_has_50ms_passed()
 
 	currentTickCount = SDL_GetTicks();
 	ticksElapsed = currentTickCount - guNextTick;
-	if (gbMaxPlayers == 1 && ticksElapsed > (int)(10 * gnTickDelay)) {
+	if (!IsMultiGame && ticksElapsed > (int)(10 * gnTickDelay)) {
 		guNextTick = currentTickCount;
 		ticksElapsed = 0;
 	}

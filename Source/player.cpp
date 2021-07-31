@@ -831,7 +831,7 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	exp = exp * dLvl / 8;
 
 	// Prevent power leveling
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		assert(plr._pLevel >= 0 && plr._pLevel <= MAXCHARLEVEL);
 		// cap to 1/32 of current levels xp
 		expCap = plr._pNextExper / 32;
@@ -1798,7 +1798,7 @@ void StartPlrKill(int pnum, int dmgtype)
 	plr._pVar7 = 0; // DEATH_DELAY
 	plr._pVar8 = 1; // DEATH_TICK
 
-	diablolevel = gbMaxPlayers != 1 && plr.plrlevel == DLV_HELL4;
+	diablolevel = IsMultiGame && plr.plrlevel == DLV_HELL4;
 	if (pnum != mypnum && dmgtype == DMGTYPE_NPC && !diablolevel) {
 		for (i = 0; i < NUM_INVLOC; i++) {
 			plr.InvBody[i]._itype = ITYPE_NONE;
@@ -2700,7 +2700,7 @@ static bool PlrDoDeath(int pnum)
 			// assert(pnum == mypnum);
 			if (--plr._pVar7 == 0) {
 				gbDeathflag = true;
-				if (gbMaxPlayers == 1) {
+				if (!IsMultiGame) {
 					gamemenu_on();
 				}
 			}
@@ -3514,7 +3514,7 @@ void PlayDungMsgs()
 	PlayerStruct *p;
 
 	sfxdelay = 0;
-	if (gbMaxPlayers != 1)
+	if (IsMultiGame)
 		return;
 
 	if ((unsigned)mypnum >= MAX_PLRS) {

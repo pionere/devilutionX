@@ -675,7 +675,7 @@ void TalkToTowner(int tnum)
 	case TOWN_PEGBOY:
 		break;
 	case TOWN_STORY:
-		if (gbMaxPlayers == 1) {
+		if (!IsMultiGame) {
 			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_LAZSTAFF, &i)) {
 				PlrInvItemRemove(pnum, i);
 				quests[Q_BETRAYER]._qvar1 = 2;

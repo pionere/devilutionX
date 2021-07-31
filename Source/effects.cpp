@@ -1388,7 +1388,7 @@ static void priv_sound_init(BYTE bLoadMask)
 void sound_init()
 {
 	BYTE mask = sfx_MISC;
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		mask |= sfx_WARRIOR | sfx_ROGUE | sfx_SORCERER;
 #ifdef HELLFIRE
 		mask |= sfx_MONK;

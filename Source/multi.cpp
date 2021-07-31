@@ -39,10 +39,12 @@ static int sglTimeoutStart;
 /* The base value to initialize the AI_Seeds of monsters in multi-player games. */
 static uint32_t sgdwGameLoops;
 /**
- * Specifies the maximum number of players in a game, where 1
- * represents a single player game and 4 represents a multi player game.
+ * Specifies the type of the current game
+ * 0: single player game
+ * 1: 'fake' multi player game (loopback)
+ * 2: 'real' multi player game (tcp/ip, zerotier, etc...)
  */
-BYTE gbMaxPlayers;
+BYTE gbGameMode;
 /* Specifies whether there is a timeout at the moment. */
 static bool _gbTimeout;
 /* Specifies the pnum of the delta-sender. */
@@ -599,7 +601,7 @@ static void SetupLocalPlr()
 		x = 39 + DBORDERX;
 		y = 13 + DBORDERY;
 	}
-	if (!leveldebug || gbMaxPlayers != 1) {
+	if (!leveldebug || IsMultiGame) {
 		EnterLevel(DLV_TOWN);
 	}
 #else
@@ -681,6 +683,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 			}
 			gbSelectProvider = false;
 		}
+		gbGameMode = bSinglePlayer ? 0 : (provider == SELCONN_LOOPBACK ? 1 : 2);
 		// select hero
 #ifndef NOHOSTING
 		if (provider != SELCONN_TCPS && provider != SELCONN_TCPDS && gbSelectHero) {
@@ -749,7 +752,6 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		break;
 	}
 
-	gbMaxPlayers = sgGameInitInfo.bMaxPlayers;
 	gnTicksRate = sgGameInitInfo.bTickRate;
 	gnTickDelay = 1000 / gnTicksRate;
 	gbNetUpdateRate = sgGameInitInfo.bNetUpdateRate;
@@ -819,7 +821,6 @@ bool NetInit(bool bSinglePlayer)
 #endif
 	}
 	assert(mypnum == sgGameInitInfo.bPlayerId);
-	assert(gbMaxPlayers == sgGameInitInfo.bMaxPlayers);
 	assert(gnTicksRate == sgGameInitInfo.bTickRate);
 	assert(gnTickDelay == 1000 / gnTicksRate);
 	assert(gbNetUpdateRate == sgGameInitInfo.bNetUpdateRate);

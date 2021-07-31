@@ -279,7 +279,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		InitQuestGfx(); // values
 		InitQuestText(); // gfx + values
 
-		for (pnum = 0; pnum < gbMaxPlayers; pnum++)
+		for (pnum = 0; pnum < (IsMultiGame ? MAX_PLRS : 1); pnum++)
 			InitPlrGFXMem(pnum); // gfx
 
 		InitStores(); // gfx + values (some stored in savefiles)
@@ -346,7 +346,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 			HoldThemeRooms();
 			InitMonsters();
 			IncProgress();
-			if (gbMaxPlayers != 1 || firstflag || lvldir == ENTRY_LOAD || !myplr._pLvlVisited[currLvl._dLevelIdx]) {
+			if (IsMultiGame || firstflag || lvldir == ENTRY_LOAD || !myplr._pLvlVisited[currLvl._dLevelIdx]) {
 				InitObjects();
 				InitItems();
 				CreateThemeRooms();
@@ -392,7 +392,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	}
 	InitMissiles();
 	SavePreLighting();
-	if (gbMaxPlayers != 1)
+	if (IsMultiGame)
 		DeltaLoadLevel();
 	else if (!firstflag && lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx])
 		LoadLevel();
@@ -406,7 +406,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr.plractive && plr.plrlevel == currLvl._dLevelIdx && (!plr._pLvlChanging || pnum == mypnum)) {
 			if (plr._pHitPoints >= (1 << 6)) {
-				/*if (gbMaxPlayers == 1)
+				/*if (!IsMultiGame)
 					dPlayer[plr._px][plr._py] = pnum + 1;
 				else*/
 					SyncInitPlrPos(pnum);
@@ -482,10 +482,10 @@ void ShowProgress(unsigned int uMsg)
 		break;
 	case WM_DIABNEXTLVL:
 		IncProgress();
-		if (gbMaxPlayers == 1) {
-			SaveLevel();
-		} else {
+		if (IsMultiGame) {
 			DeltaSaveLevel();
+		} else {
+			SaveLevel();
 		}
 		IncProgress();
 		FreeLevelMem();
@@ -497,10 +497,10 @@ void ShowProgress(unsigned int uMsg)
 		break;
 	case WM_DIABPREVLVL:
 		IncProgress();
-		if (gbMaxPlayers == 1) {
-			SaveLevel();
-		} else {
+		if (IsMultiGame) {
 			DeltaSaveLevel();
+		} else {
+			SaveLevel();
 		}
 		IncProgress();
 		FreeLevelMem();
@@ -513,10 +513,10 @@ void ShowProgress(unsigned int uMsg)
 	case WM_DIABSETLVL:
 		SetReturnLvlPos();
 		IncProgress();
-		if (gbMaxPlayers == 1) {
-			SaveLevel();
-		} else {
+		if (IsMultiGame) {
 			DeltaSaveLevel();
+		} else {
+			SaveLevel();
 		}
 		IncProgress();
 		FreeLevelMem();
@@ -527,10 +527,10 @@ void ShowProgress(unsigned int uMsg)
 		break;
 	case WM_DIABRTNLVL:
 		IncProgress();
-		if (gbMaxPlayers == 1) {
-			SaveLevel();
-		} else {
+		if (IsMultiGame) {
 			DeltaSaveLevel();
+		} else {
+			SaveLevel();
 		}
 		IncProgress();
 		FreeLevelMem();
@@ -541,10 +541,10 @@ void ShowProgress(unsigned int uMsg)
 		break;
 	case WM_DIABWARPLVL:
 		IncProgress();
-		if (gbMaxPlayers == 1) {
-			SaveLevel();
-		} else {
+		if (IsMultiGame) {
 			DeltaSaveLevel();
+		} else {
+			SaveLevel();
 		}
 		IncProgress();
 		FreeLevelMem();
@@ -555,10 +555,10 @@ void ShowProgress(unsigned int uMsg)
 		break;
 	case WM_DIABTWARPDN:
 		IncProgress();
-		if (gbMaxPlayers == 1) {
-			SaveLevel();
-		} else {
+		if (IsMultiGame) {
 			DeltaSaveLevel();
+		} else {
+			SaveLevel();
 		}
 		IncProgress();
 		FreeLevelMem();
@@ -569,10 +569,10 @@ void ShowProgress(unsigned int uMsg)
 		break;
 	case WM_DIABTWARPUP:
 		IncProgress();
-		if (gbMaxPlayers == 1) {
-			SaveLevel();
-		} else {
+		if (IsMultiGame) {
 			DeltaSaveLevel();
+		} else {
+			SaveLevel();
 		}
 		IncProgress();
 		FreeLevelMem();
@@ -583,10 +583,10 @@ void ShowProgress(unsigned int uMsg)
 		break;
 	case WM_DIABRETOWN:
 		IncProgress();
-		if (gbMaxPlayers == 1) {
-			SaveLevel();
-		} else {
+		if (IsMultiGame) {
 			DeltaSaveLevel();
+		} else {
+			SaveLevel();
 		}
 		IncProgress();
 		FreeLevelMem();

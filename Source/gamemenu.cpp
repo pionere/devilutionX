@@ -85,10 +85,10 @@ static void gamemenu_update_multi()
 
 void gamemenu_on()
 {
-	if (gbMaxPlayers == 1) {
-		gmenu_set_items(sgSingleMenu, gamemenu_update_single);
-	} else {
+	if (IsMultiGame) {
 		gmenu_set_items(sgMultiMenu, gamemenu_update_multi);
+	} else {
+		gmenu_set_items(sgSingleMenu, gamemenu_update_single);
 	}
 	PressEscKey();
 }
@@ -211,7 +211,7 @@ static void gamemenu_get_gamma()
 
 static void gamemenu_get_speed()
 {
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		sgOptionsMenu[3].dwFlags &= ~(GMENU_ENABLED | GMENU_SLIDER);
 		const char *speed;
 		if (gnTicksRate >= SPEED_FASTEST)

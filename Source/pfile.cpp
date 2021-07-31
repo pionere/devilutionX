@@ -36,7 +36,7 @@ static std::string GetSavePath(unsigned save_num)
 {
 	std::string path = GetPrefPath();
 
-	const char* fmt = gbMaxPlayers != 1 ? SAVE_FILE_FORMAT_MULTI : SAVE_FILE_FORMAT_SINGLE;
+	const char* fmt = IsMultiGame ? SAVE_FILE_FORMAT_MULTI : SAVE_FILE_FORMAT_SINGLE;
 	static_assert(MAX_CHARACTERS < 100, "Name of the save-file does not fit to the temporary buffer.");
 	char save_file_name[std::max(sizeof(SAVE_FILE_FORMAT_MULTI), sizeof(SAVE_FILE_FORMAT_SINGLE))];
 	snprintf(save_file_name, sizeof(save_file_name), fmt, save_num);
@@ -66,7 +66,7 @@ static bool pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 		return false;
 	} else {
 		bool ret = false;
-		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
+		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 		dwlen = SFileGetFileSize(file);
 		if (dwlen != 0) {
@@ -91,7 +91,7 @@ static void pfile_encode_hero(const PkPlayerStruct *pPack)
 {
 	BYTE *packed;
 	DWORD packed_len;
-	const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
+	const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 	packed_len = codec_get_encoded_len(sizeof(*pPack));
 	packed = (BYTE *)DiabloAllocPtr(packed_len);
@@ -141,7 +141,7 @@ void pfile_write_hero()
 	if (pfile_open_archive()) {
 		PackPlayer(&pkplr, mypnum);
 		pfile_encode_hero(&pkplr);
-		pfile_flush(gbMaxPlayers == 1);
+		pfile_flush(!IsMultiGame);
 	}
 }
 
@@ -199,7 +199,7 @@ static bool pfile_archive_contains_game(HANDLE hsArchive)
 {
 	HANDLE file;
 
-	if (gbMaxPlayers != 1)
+	if (IsMultiGame)
 		return false;
 
 	if (!SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_FROM_MPQ, &file))
@@ -300,7 +300,7 @@ static bool GetTempSaveNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
 
 bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
 {
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		if (lvl != 0)
 			return false;
 		copy_cstr(dst, SAVEFILE_HERO);
@@ -376,7 +376,7 @@ void GetPermLevelNames(char (&szPerm)[MAX_PATH])
 
 void pfile_remove_temp_files()
 {
-	if (gbMaxPlayers == 1) {
+	if (!IsMultiGame) {
 		if (!pfile_open_archive())
 			app_fatal("Unable to write to save file archive");
 		mpqapi_remove_hash_entries(GetTempSaveNames);
@@ -391,7 +391,7 @@ void pfile_rename_temp_to_perm()
 	char szTemp[MAX_PATH];
 	char szPerm[MAX_PATH];
 
-	assert(gbMaxPlayers == 1);
+	assert(!IsMultiGame);
 	if (!pfile_open_archive())
 		app_fatal("Unable to write to save file archive");
 
@@ -413,7 +413,7 @@ void pfile_rename_temp_to_perm()
 void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD qwLen)
 {
 	{
-		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
+		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 		codec_encode(pbData, dwLen, qwLen, password);
 	}
@@ -457,7 +457,7 @@ BYTE *pfile_read(const char *pszName)
 	pfile_SFileCloseArchive(archive);
 
 	{
-		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
+		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 		len = codec_decode(buf, len, password);
 		if (len == 0) {
@@ -469,7 +469,7 @@ BYTE *pfile_read(const char *pszName)
 
 void pfile_update(bool force_save)
 {
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		Uint32 currTc = SDL_GetTicks();
 		if (force_save || currTc > guNextSaveTc) {
 			guNextSaveTc = currTc + PFILE_SAVE_INTERVAL;

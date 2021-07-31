@@ -150,7 +150,7 @@ bool DownloadDeltaInfo()
 {
 	bool success;
 
-	// assert(gbMaxPlayers != 1);
+	// assert(IsMultiGame);
 	DeltaAllocMegaPkt();
 	guDeltaTurn = 0;
 	sgbDeltaChunks = 0;
@@ -178,7 +178,7 @@ bool DownloadDeltaInfo()
 
 void RunDeltaPackets()
 {
-	//if (gbMaxPlayers == 1)
+	//if (!IsMultiGame)
 	//	return;
 
 	//geBufferMsgs = MSG_RUN_DELTA;
@@ -559,7 +559,7 @@ static void delta_kill_monster(const TCmdMonstKill* mon)
 	DMonsterStr *pD;
 	BYTE bLevel;
 
-	if (gbMaxPlayers == 1)
+	if (!IsMultiGame)
 		return;
 
 	bLevel = mon->mkLevel;
@@ -578,7 +578,7 @@ static void delta_monster_hp(const TCmdMonstDamage* mon)
 	DMonsterStr *pD;
 	BYTE bLevel;
 
-	if (gbMaxPlayers == 1)
+	if (!IsMultiGame)
 		return;
 
 	bLevel = mon->mdLevel;
@@ -601,7 +601,7 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	const TSyncMonster* pSync;
 	const BYTE *pbBuf;
 
-	if (gbMaxPlayers == 1)
+	if (!IsMultiGame)
 		return;
 
 	/// ASSERT: assert(pHdr->bLevel < NUM_LEVELS);
@@ -632,7 +632,7 @@ static void delta_awake_golem(TCmdGolem *pG, int mnum)
 	DMonsterStr *pD;
 	BYTE bLevel;
 
-	if (gbMaxPlayers == 1)
+	if (!IsMultiGame)
 		return;
 
 	bLevel = pG->_currlevel;
@@ -659,7 +659,7 @@ static void delta_leave_sync(BYTE bLevel)
 
 static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 {
-	if (gbMaxPlayers == 1)
+	if (!IsMultiGame)
 		return;
 
 	_gbLevelDeltaChanged[bLevel] = true;
@@ -672,7 +672,7 @@ static bool delta_get_item(const TCmdGItem *pI)
 	int i;
 	BYTE bLevel;
 
-	if (gbMaxPlayers == 1)
+	if (!IsMultiGame)
 		return true;
 
 	bLevel = pI->bLevel;
@@ -721,7 +721,7 @@ static void delta_put_item(const TCmdPItem *pI, int x, int y)
 	DItemStr *pD;
 	BYTE bLevel;
 
-	if (gbMaxPlayers == 1)
+	if (!IsMultiGame)
 		return;
 
 	bLevel = pI->bLevel;
@@ -784,7 +784,7 @@ void DeltaAddItem(int ii)
 	int i;
 	DItemStr *pD;
 
-	if (gbMaxPlayers == 1)
+	if (!IsMultiGame)
 		return;
 
 	is = &items[ii];
@@ -818,7 +818,7 @@ void DeltaSaveLevel()
 {
 	int pnum;
 
-	assert(gbMaxPlayers != 1);
+	assert(IsMultiGame);
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum != mypnum)
 			plr._pGFXLoad = 0;
@@ -877,7 +877,7 @@ void DeltaLoadLevel()
 	int i;
 	int x, y;
 
-	assert(gbMaxPlayers != 1);
+	assert(IsMultiGame);
 
 	deltaload = true;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
@@ -1366,7 +1366,7 @@ void delta_close_portal(int pnum)
 
 static void check_update_plr(int pnum)
 {
-	if (gbMaxPlayers != 1 && pnum == mypnum)
+	if (IsMultiGame && pnum == mypnum)
 		pfile_update(true);
 }
 

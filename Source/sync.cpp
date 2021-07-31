@@ -154,7 +154,7 @@ unsigned sync_all_monsters(const BYTE *pbBuf, unsigned dwMaxLen)
 	int i, idx;
 	WORD wLen;
 
-	if (gbMaxPlayers == 1 /*|| nummonsters < 1*/) { // nummonsters is always >= MAX_MINIONS
+	if (!IsMultiGame /*|| nummonsters < 1*/) { // nummonsters is always >= MAX_MINIONS
 		return dwMaxLen;
 	}
 	if (dwMaxLen < sizeof(*pHdr) + sizeof(TSyncMonster)) {

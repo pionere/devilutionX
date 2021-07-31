@@ -210,7 +210,7 @@ void T_CryptOpen()
 unsigned char GetOpenWarps()
 {
 	unsigned char twarps = 1 << TWARP_CATHEDRAL;
-	if (gbMaxPlayers == 1) {
+	if (!IsMultiGame) {
 		twarps |= myplr.pTownWarps << 1;
 #ifdef HELLFIRE
 		if (myplr._pLevel >= 10)

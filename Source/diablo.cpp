@@ -306,7 +306,7 @@ static bool ProcessInput()
 #endif
 
 	if (gmenu_is_active()) {
-		return gbMaxPlayers != 1;
+		return IsMultiGame;
 	}
 
 	if (sgnTimeoutCurs == CURSOR_NONE) {
@@ -364,7 +364,7 @@ static void game_loop()
 {
 	int i;
 
-	i = gbMaxPlayers == 1 ? 1 : 3;
+	i = IsMultiGame ? 3 : 1;
 
 	do {
 		if (!multi_handle_turn()) {
@@ -439,7 +439,7 @@ static void run_game_loop()
 #endif
 	}
 	NetClose();
-	if (gbMaxPlayers != 1) {
+	if (IsMultiGame) {
 		pfile_write_hero();
 	}
 
@@ -971,7 +971,7 @@ static void AltActionBtnDown(bool bShift)
 
 static void diablo_pause_game()
 {
-	if (gbMaxPlayers == 1) {
+	if (!IsMultiGame) {
 		gbGamePaused = !gbGamePaused;
 		if (gbGamePaused) {
 			sound_stop();
@@ -984,7 +984,7 @@ static void diablo_hotkey_msg(int actKey)
 {
 	char entryKey[16];
 
-	if (gbMaxPlayers == 1)
+	if (!IsMultiGame)
 		return;
 
 	static_assert(ACT_MSG0 + 1 == ACT_MSG1, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 1.");
@@ -1332,7 +1332,7 @@ static void PressKey(int vkey)
 	case ACT_VER:
 		EventPlrMsg(gszProductName);
 		if (!GetAsyncKeyState(DVL_VK_SHIFT)) {
-			if (gbMaxPlayers != 1) {
+			if (IsMultiGame) {
 				EventPlrMsg(szGameName);
 				if (szGamePassword[0] != '\0') {
 					char desc[128];
@@ -1604,7 +1604,7 @@ void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_DIABTWARPDN:
 	case WM_DIABTWARPUP:
 	case WM_DIABRETOWN:
-		if (gbMaxPlayers != 1)
+		if (IsMultiGame)
 			pfile_write_hero();
 		nthread_run();
 		PaletteFadeOut();

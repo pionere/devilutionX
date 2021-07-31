@@ -16,7 +16,7 @@ extern bool gbSomebodyWonGameKludge;
 extern BYTE gbActivePlayers;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
-extern BYTE gbMaxPlayers;
+extern BYTE gbGameMode;
 extern const char *szGameName;
 extern const char *szGamePassword;
 extern BYTE gbDeltaSender;
@@ -39,6 +39,9 @@ void NetClose();
 bool NetInit(bool bSinglePlayer);
 void multi_init_buffers();
 void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr);
+
+#define IsLocalGame	(gbGameMode <= 1)
+#define IsMultiGame (gbGameMode >= 1)
 
 #ifdef __cplusplus
 }
