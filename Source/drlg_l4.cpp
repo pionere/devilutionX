@@ -358,7 +358,7 @@ static bool L4AddHWall(int x, int y)
 	i -= x;
 	if (i > 3
 	// && (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22)) {
-	 && (HORIZ_WALL_ENDS & (1 << bv))) {
+	 && (bv < 23 && (HORIZ_WALL_ENDS & (1 << bv)))) {
 		return L4HorizWall(x, y, i);
 	}
 
@@ -382,7 +382,7 @@ static void L4VertWall(int i, int j, int dy)
 	else if (dungeon[i][j] == 8)
 		dungeon[i][j] = 9;
 	else if (dungeon[i][j] == 15)
-		dungeon[i][j] = 10; // TODO: return true to check horizontal wall?
+		dungeon[i][j] = 10;
 	// convert the internal tiles
 	for (yy = 1; yy < dy; yy++) {
 		dungeon[i][j + yy] = 1;
@@ -460,7 +460,7 @@ static void L4AddVWall(int x, int y)
 	j -= y;
 	if (j > 3
 	 //&& (bv == 8 || bv == 9 || bv == 11 || bv == 14 || bv == 15 || bv == 16 || bv == 21 || bv == 23)) {
-	 && (VERT_WALL_ENDS & (1 << bv))) {
+	 && (bv < 24 && (VERT_WALL_ENDS & (1 << bv)))) {
 		/*return*/ L4VertWall(x, y, j);
 	}
 
