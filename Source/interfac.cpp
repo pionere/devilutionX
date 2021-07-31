@@ -466,22 +466,17 @@ void ShowProgress(unsigned int uMsg)
 	switch (uMsg) {
 	case WM_DIABLOADGAME:
 		IncProgress();
-		IncProgress();
 		LoadGame(true);
-		IncProgress();
 		IncProgress();
 		break;
 	case WM_DIABNEWGAME:
-		IncProgress();
 		FreeLevelMem();
 		IncProgress();
 		pfile_remove_temp_files();
 		IncProgress();
 		LoadGameLevel(true, ENTRY_MAIN);
-		IncProgress();
 		break;
 	case WM_DIABNEXTLVL:
-		IncProgress();
 		if (IsMultiGame) {
 			DeltaSaveLevel();
 		} else {
@@ -493,10 +488,8 @@ void ShowProgress(unsigned int uMsg)
 		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_MAIN);
-		IncProgress();
 		break;
 	case WM_DIABPREVLVL:
-		IncProgress();
 		if (IsMultiGame) {
 			DeltaSaveLevel();
 		} else {
@@ -508,11 +501,9 @@ void ShowProgress(unsigned int uMsg)
 		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_PREV);
-		IncProgress();
 		break;
 	case WM_DIABSETLVL:
 		SetReturnLvlPos();
-		IncProgress();
 		if (IsMultiGame) {
 			DeltaSaveLevel();
 		} else {
@@ -523,10 +514,8 @@ void ShowProgress(unsigned int uMsg)
 		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_SETLVL);
-		IncProgress();
 		break;
 	case WM_DIABRTNLVL:
-		IncProgress();
 		if (IsMultiGame) {
 			DeltaSaveLevel();
 		} else {
@@ -537,10 +526,8 @@ void ShowProgress(unsigned int uMsg)
 		IncProgress();
 		GetReturnLvlPos();
 		LoadGameLevel(false, ENTRY_RTNLVL);
-		IncProgress();
 		break;
 	case WM_DIABWARPLVL:
-		IncProgress();
 		if (IsMultiGame) {
 			DeltaSaveLevel();
 		} else {
@@ -551,10 +538,8 @@ void ShowProgress(unsigned int uMsg)
 		GetPortalLevel();
 		IncProgress();
 		LoadGameLevel(false, ENTRY_WARPLVL);
-		IncProgress();
 		break;
 	case WM_DIABTWARPDN:
-		IncProgress();
 		if (IsMultiGame) {
 			DeltaSaveLevel();
 		} else {
@@ -565,10 +550,8 @@ void ShowProgress(unsigned int uMsg)
 		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_TWARPDN);
-		IncProgress();
 		break;
 	case WM_DIABTWARPUP:
-		IncProgress();
 		if (IsMultiGame) {
 			DeltaSaveLevel();
 		} else {
@@ -579,10 +562,8 @@ void ShowProgress(unsigned int uMsg)
 		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_TWARPUP);
-		IncProgress();
 		break;
 	case WM_DIABRETOWN:
-		IncProgress();
 		if (IsMultiGame) {
 			DeltaSaveLevel();
 		} else {
@@ -593,10 +574,9 @@ void ShowProgress(unsigned int uMsg)
 		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_MAIN);
-		IncProgress();
 		break;
 	}
-
+	IncProgress();
 	assert(ghMainWnd != NULL);
 
 	PaletteFadeOut();
