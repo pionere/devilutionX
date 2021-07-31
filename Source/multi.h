@@ -12,13 +12,13 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern const char* szGameName;
+extern const char* szGamePassword;
 extern bool gbSomebodyWonGameKludge;
 extern BYTE gbActivePlayers;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
 extern BYTE gbGameMode;
-extern const char *szGameName;
-extern const char *szGamePassword;
 extern BYTE gbDeltaSender;
 extern uint32_t guDeltaTurn;
 extern unsigned guSendDelta;
@@ -27,21 +27,22 @@ extern unsigned player_state[MAX_PLRS];
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen);
 void NetSendHiPri(BYTE *pbMsg, BYTE bLen);
 void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE len);
+void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen);
+void multi_process_msgs();
+bool multi_handle_turn();
 void multi_process_turn(SNetTurnPkt *turn);
 void multi_player_left(int pnum, int reason);
 void multi_disband_team(int pnum);
 bool multi_check_timeout();
-bool multi_handle_turn();
 void multi_mon_seeds();
-void multi_process_msgs();
-void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen);
 void NetClose();
 bool NetInit(bool bSinglePlayer);
 void multi_init_buffers();
 void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr);
 
 #define IsLocalGame	(gbGameMode <= 1)
-#define IsMultiGame (gbGameMode >= 1)
+#define IsMultiGame	(gbGameMode >= 1)
+#define IsGameSrv	(gbGameMode == 3)
 
 #ifdef __cplusplus
 }

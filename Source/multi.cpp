@@ -43,6 +43,7 @@ static uint32_t sgdwGameLoops;
  * 0: single player game
  * 1: 'fake' multi player game (loopback)
  * 2: 'real' multi player game (tcp/ip, zerotier, etc...)
+ * 3: game server
  */
 BYTE gbGameMode;
 /* Specifies whether there is a timeout at the moment. */
@@ -683,10 +684,14 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 			}
 			gbSelectProvider = false;
 		}
-		gbGameMode = bSinglePlayer ? 0 : (provider == SELCONN_LOOPBACK ? 1 : 2);
+		gbGameMode = bSinglePlayer ? 0
+#ifndef NOHOSTING
+			: (provider == SELCONN_TCPS || provider == SELCONN_TCPDS) ? 3
+#endif
+			: (provider == SELCONN_LOOPBACK ? 1 : 2);
 		// select hero
 #ifndef NOHOSTING
-		if (provider != SELCONN_TCPS && provider != SELCONN_TCPDS && gbSelectHero) {
+		if (!IsGameSrv && gbSelectHero) {
 #else
 		if (gbSelectHero) {
 #endif
@@ -710,7 +715,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		gbSelectHero = bSinglePlayer;
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 #ifndef NOHOSTING
-		if (provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+		if (IsGameSrv) {
 			mypnum = SNPLAYER_MASTER;
 			sgGameInitInfo.bPlayerId = SNPLAYER_MASTER;
 		} else
@@ -730,7 +735,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		dlgresult = UiSelectGame(&sgGameInitInfo, multi_handle_events);
 		if (dlgresult == SELGAME_PREVIOUS) {
 #ifndef NOHOSTING
-			if (provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+			if (IsGameSrv) {
 				gbSelectProvider = true;
 				mypnum = 0;
 			}
@@ -801,7 +806,7 @@ bool NetInit(bool bSinglePlayer)
 		sgdwGameLoops = 0;
 		nthread_send_turn();
 #ifndef NOHOSTING
-		if (provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+		if (IsGameSrv) {
 			RunGameServer();
 			NetClose();
 			continue;
