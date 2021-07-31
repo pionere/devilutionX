@@ -105,7 +105,7 @@ static void gmenu_left_right(bool isRight)
 
 void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)())
 {
-	PauseMode = 0;
+	gbGamePaused = false;
 	_gbMouseNavigation = false;
 	sgpCurrentMenu = pItem;
 	gmUpdateFunc = gmUpdFunc;

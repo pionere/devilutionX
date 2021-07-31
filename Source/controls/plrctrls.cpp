@@ -23,7 +23,7 @@ bool InGameMenu()
 	    || gbTalkflag
 	    || gbQtextflag
 	    || gmenu_is_active()
-	    || PauseMode == 2
+	    || gbGamePaused
 	    || myplr._pInvincible;
 }
 

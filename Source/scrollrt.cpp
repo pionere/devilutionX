@@ -1193,7 +1193,7 @@ static void DrawView()
 	}
 	if (gbDeathflag) {
 		RedBack();
-	} else if (PauseMode != 0) {
+	} else if (gbGamePaused) {
 		gmenu_draw_pause();
 	}
 

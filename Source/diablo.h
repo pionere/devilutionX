@@ -23,7 +23,7 @@ extern bool gbProcessPlayers;
 extern bool gbLoadGame;
 extern bool gbCineflag;
 extern int gbRedrawFlags;
-extern int PauseMode;
+extern bool gbGamePaused;
 #ifdef HELLFIRE
 extern bool gbUseNestArt;
 #endif

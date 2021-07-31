@@ -26,7 +26,7 @@ bool gbProcessPlayers;
 bool gbLoadGame;
 bool gbCineflag = false;
 int gbRedrawFlags;
-int PauseMode;
+bool gbGamePaused;
 #ifdef HELLFIRE
 bool gbUseNestArt;
 #endif
@@ -297,7 +297,7 @@ static void PressKey(int vkey);
 
 static bool ProcessInput()
 {
-	if (PauseMode == 2) {
+	if (gbGamePaused) {
 		return false;
 	}
 
@@ -837,7 +837,7 @@ static void ActionBtnDown(bool bShift)
 	assert(sgnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(!gbDeathflag);
-	assert(PauseMode != 2);
+	assert(!gbGamePaused);
 	assert(!gbDoomflag);
 
 	if (gbSkillListFlag) {
@@ -921,7 +921,7 @@ static void AltActionBtnDown(bool bShift)
 {
 	assert(!gmenu_is_active());
 	assert(sgnTimeoutCurs == CURSOR_NONE);
-	assert(PauseMode != 2);
+	assert(!gbGamePaused);
 	assert(!gbDoomflag);
 
 	if (myplr._pInvincible)
@@ -972,10 +972,8 @@ static void AltActionBtnDown(bool bShift)
 static void diablo_pause_game()
 {
 	if (gbMaxPlayers == 1) {
-		if (PauseMode != 0) {
-			PauseMode = 0;
-		} else {
-			PauseMode = 2;
+		gbGamePaused = !gbGamePaused;
+		if (gbGamePaused) {
 			sound_stop();
 		}
 		gbRedrawFlags = REDRAW_ALL;
@@ -1151,7 +1149,7 @@ static void PressKey(int vkey)
 		diablo_pause_game();
 		return;
 	}
-	if (PauseMode == 2) {
+	if (gbGamePaused) {
 		return;
 	}
 
@@ -1413,7 +1411,7 @@ static void PressChar(WPARAM vkey)
 	if (sgnTimeoutCurs != CURSOR_NONE || gbDeathflag)
 		return;
 
-	if (PauseMode == 2) {
+	if (gbGamePaused) {
 		return;
 	}
 	switch (vkey) {
