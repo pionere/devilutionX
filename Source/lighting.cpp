@@ -628,7 +628,7 @@ static bool LightPos(int x1, int y1, bool doautomap, const char vFlags)
 void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible)
 {
 	const char* cr;
-	int i, x1, x2, y1, y2, limit;
+	int i, x1, y1, limit;
 	int d, dx, dy, xinc, yinc;
 	const char vFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
 
@@ -647,11 +647,9 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible)
 		x1 = nXPos;
 		y1 = nYPos;
 		limit = nRadius;
-		x2 = x1 + *++cr;
-		y2 = y1 + *++cr;
+		dx = *++cr;
+		dy = *++cr;
 
-		dx = x2 - x1;
-		dy = y2 - y1;
 		// find out step size and direction on the y coordinate
 		xinc = dx < 0 ? -1 : 1;
 		yinc = dy < 0 ? -1 : 1;
@@ -764,8 +762,8 @@ void MakeLightTable()
 	}
 
 	// assert(tbl == LightTrns[lights]);
-	memset(LightTrns[lights], 0, 256);
 	tbl = LightTrns[0];
+	memset(LightTrns[lights], 0, 256);
 
 	if (currLvl._dType == DTYPE_HELL) {
 		for (i = 0; i < lights; i++) {
