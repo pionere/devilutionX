@@ -980,14 +980,17 @@ static void diablo_pause_game()
 	}
 }
 
-static void diablo_hotkey_msg(DWORD dwMsg)
+static void diablo_hotkey_msg(int actKey)
 {
-	if (gbMaxPlayers == 1) {
-		return;
-	}
-
 	char entryKey[16];
-	snprintf(entryKey, sizeof(entryKey), "QuickMsg%02d", dwMsg);
+
+	if (gbMaxPlayers == 1)
+		return;
+
+	static_assert(ACT_MSG0 + 1 == ACT_MSG1, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 1.");
+	static_assert(ACT_MSG1 + 1 == ACT_MSG2, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 2.");
+	static_assert(ACT_MSG2 + 1 == ACT_MSG3, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 3.");
+	snprintf(entryKey, sizeof(entryKey), "QuickMsg%02d", actKey - ACT_MSG0);
 	if (!getIniValue("NetMsg", entryKey, gbNetMsg, sizeof(gbNetMsg)))
 		return;
 
@@ -998,7 +1001,7 @@ static bool PressSysKey(int wParam)
 {
 	if (gmenu_is_active() || wParam != DVL_VK_F10)
 		return false;
-	diablo_hotkey_msg(1);
+	diablo_hotkey_msg(ACT_MSG1);
 	return true;
 }
 
@@ -1124,27 +1127,19 @@ static void PressKey(int vkey)
 		return;
 	}
 
+	int transKey = WMButtonInputTransTbl[vkey];
 	if (gbDeathflag) {
 		if (vkey == DVL_VK_RETURN) {
 			control_type_message();
 		} else if (vkey == DVL_VK_LBUTTON) {
 			DoLimitedPanBtn();
 		} else {
-			int transKey = WMButtonInputTransTbl[vkey];
-			if (transKey == ACT_MSG0) {
-				diablo_hotkey_msg(0);
-			} else if (transKey == ACT_MSG1) {
-				diablo_hotkey_msg(1);
-			} else if (transKey == ACT_MSG2) {
-				diablo_hotkey_msg(2);
-			} else if (transKey == ACT_MSG3) {
-				diablo_hotkey_msg(3);
-			}
+			if (transKey >= ACT_MSG0 && transKey <= ACT_MSG3)
+				diablo_hotkey_msg(transKey);
 		}
 		return;
 	}
 
-	int transKey = WMButtonInputTransTbl[vkey];
 	if (transKey == ACT_PAUSE) {
 		diablo_pause_game();
 		return;
@@ -1322,10 +1317,7 @@ static void PressKey(int vkey)
 	case ACT_MSG1:
 	case ACT_MSG2:
 	case ACT_MSG3:
-		static_assert(ACT_MSG0 + 1 == ACT_MSG1, "PressKey expects a continuous assignment of ACT_MSGx 1.");
-		static_assert(ACT_MSG1 + 1 == ACT_MSG2, "PressKey expects a continuous assignment of ACT_MSGx 2.");
-		static_assert(ACT_MSG2 + 1 == ACT_MSG3, "PressKey expects a continuous assignment of ACT_MSGx 3.");
-		diablo_hotkey_msg(transKey - ACT_MSG0);
+		diablo_hotkey_msg(transKey);
 		break;
 	case ACT_GAMMA_DEC:
 		DecreaseGamma();
