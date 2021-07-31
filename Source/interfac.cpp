@@ -279,7 +279,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		InitQuestGfx(); // values
 		InitQuestText(); // gfx + values
 
-		for (pnum = 0; pnum < (IsMultiGame ? MAX_PLRS : 1); pnum++)
+		for (pnum = 0; pnum < (IsLocalGame ? 1 : MAX_PLRS); pnum++)
 			InitPlrGFXMem(pnum); // gfx
 
 		InitStores(); // gfx + values (some stored in savefiles)

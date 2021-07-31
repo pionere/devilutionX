@@ -352,7 +352,7 @@ void FindActor()
 	else
 		CheckTownersNearby();
 
-	if (IsMultiGame)
+	if (!IsLocalGame)
 		CheckPlayerNearby();
 }
 

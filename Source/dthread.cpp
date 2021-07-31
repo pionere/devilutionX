@@ -4,7 +4,6 @@
  * Implementation of functions for updating game state from network commands.
  */
 #include "all.h"
-#include "diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -63,7 +62,7 @@ void dthread_send_delta(int pnum, BYTE cmd, void *pbSrc, int dwLen)
 	DMegaPkt *pkt;
 	DMegaPkt *p;
 
-	assert(provider != SELCONN_LOOPBACK);
+	assert(!IsLocalGame);
 
 	pkt = (DMegaPkt *)DiabloAllocPtr(dwLen + sizeof(DMegaPkt) - sizeof(pkt->data));
 	pkt->dmpNext = NULL;
@@ -84,7 +83,7 @@ void dthread_send_delta(int pnum, BYTE cmd, void *pbSrc, int dwLen)
 
 void dthread_start()
 {
-	if (provider == SELCONN_LOOPBACK) {
+	if (IsLocalGame) {
 		return;
 	}
 

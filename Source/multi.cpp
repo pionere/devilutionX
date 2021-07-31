@@ -601,7 +601,7 @@ static void SetupLocalPlr()
 		x = 39 + DBORDERX;
 		y = 13 + DBORDERY;
 	}
-	if (!leveldebug || IsMultiGame) {
+	if (!leveldebug || !IsLocalGame) {
 		EnterLevel(DLV_TOWN);
 	}
 #else

@@ -984,7 +984,7 @@ static void diablo_hotkey_msg(int actKey)
 {
 	char entryKey[16];
 
-	if (!IsMultiGame)
+	if (IsLocalGame)
 		return;
 
 	static_assert(ACT_MSG0 + 1 == ACT_MSG1, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 1.");
@@ -1332,7 +1332,7 @@ static void PressKey(int vkey)
 	case ACT_VER:
 		EventPlrMsg(gszProductName);
 		if (!GetAsyncKeyState(DVL_VK_SHIFT)) {
-			if (IsMultiGame) {
+			if (!IsLocalGame) {
 				EventPlrMsg(szGameName);
 				if (szGamePassword[0] != '\0') {
 					char desc[128];

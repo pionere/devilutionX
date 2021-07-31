@@ -1388,13 +1388,13 @@ static void priv_sound_init(BYTE bLoadMask)
 void sound_init()
 {
 	BYTE mask = sfx_MISC;
-	if (IsMultiGame) {
+	if (IsLocalGame) {
+		mask |= sgSFXSets[SFXS_MASK][myplr._pClass];
+	} else {
 		mask |= sfx_WARRIOR | sfx_ROGUE | sfx_SORCERER;
 #ifdef HELLFIRE
 		mask |= sfx_MONK;
 #endif
-	} else {
-		mask |= sgSFXSets[SFXS_MASK][myplr._pClass];
 	}
 
 	priv_sound_init(mask);

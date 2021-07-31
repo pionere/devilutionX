@@ -838,7 +838,7 @@ void InitControlPan()
 	guTeamInviteSent = 0;
 	guTeamMute = 0;
 	sgszTalkMsg[0] = '\0';
-	if (IsMultiGame) {
+	if (!IsLocalGame) {
 		pTalkPnl = LoadFileInMem("CtrlPan\\TalkPnl.CEL");
 		pTalkBtns = LoadFileInMem("CtrlPan\\TalkButt.CEL");
 	}
@@ -846,7 +846,7 @@ void InitControlPan()
 	pPanelButtons = LoadFileInMem("CtrlPan\\Menu.CEL");
 	for (i = 0; i < lengthof(gabPanbtn); i++)
 		gabPanbtn[i] = false;
-	numpanbtns = IsMultiGame ? NUM_PANBTNS : NUM_PANBTNS - 2;
+	numpanbtns = IsLocalGame ? NUM_PANBTNS - 2 : NUM_PANBTNS;
 	pChrButtons = LoadFileInMem("Data\\CharBut.CEL");
 	for (i = 0; i < lengthof(_gabChrbtn); i++)
 		_gabChrbtn[i] = false;
@@ -984,7 +984,7 @@ void DoLimitedPanBtn()
 	 && MouseY >= SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1]
 	 && MouseY <= SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1] + MENUBTN_HEIGHT) {
 		control_set_button_down(PANBTN_MAINMENU);
-	} else if (gabPanbtn[PANBTN_MAINMENU] && IsMultiGame) {
+	} else if (gabPanbtn[PANBTN_MAINMENU] && !IsLocalGame) {
 		if (MouseX >= PanBtnPos[PANBTN_SENDMSG][0]
 		 && MouseX <= PanBtnPos[PANBTN_SENDMSG][0] + MENUBTN_WIDTH
 		 && MouseY >= SCREEN_HEIGHT - PanBtnPos[PANBTN_SENDMSG][1]
@@ -2228,7 +2228,7 @@ void DrawTalkPan()
 
 void control_type_message()
 {
-	if (!IsMultiGame) {
+	if (IsLocalGame) {
 		return;
 	}
 
@@ -2320,7 +2320,7 @@ bool control_talk_last_key(int vkey)
 	unsigned result;
 
 	assert(gbTalkflag);
-	assert(IsMultiGame);
+	assert(!IsLocalGame);
 
 	if ((unsigned)vkey < DVL_VK_SPACE)
 		return false;

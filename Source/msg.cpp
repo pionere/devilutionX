@@ -150,7 +150,7 @@ bool DownloadDeltaInfo()
 {
 	bool success;
 
-	// assert(IsMultiGame);
+	// assert(!IsLocalGame);
 	DeltaAllocMegaPkt();
 	guDeltaTurn = 0;
 	sgbDeltaChunks = 0;
@@ -178,7 +178,7 @@ bool DownloadDeltaInfo()
 
 void RunDeltaPackets()
 {
-	//if (!IsMultiGame)
+	//if (IsLocalGame)
 	//	return;
 
 	//geBufferMsgs = MSG_RUN_DELTA;
