@@ -12,11 +12,11 @@ int qtexty;
 /** Pointer to the current text being displayed */
 const char *qtextptr;
 /** Time of last rendering of the text */
-DWORD qtextTime;
+Uint32 qtextTime;
 /** Specify if the quest dialog window is being shown */
 bool gbQtextflag;
 /** Vertical speed of the scrolling text in ms/px */
-DWORD scrolltexty;
+int scrolltexty;
 /** Graphics for the window border */
 BYTE *pTextBoxCels;
 
@@ -67,7 +67,7 @@ void DrawQText()
 	BYTE c;
 	const char *pnl;
 	const char *str, *sstr, *endstr;
-	DWORD currTime;
+	Uint32 currTime;
 	BYTE *pStart, *pEnd;
 
 	DrawQTextBack();
@@ -124,6 +124,8 @@ void DrawQText()
 	gpBufEnd = pEnd;
 
 	for (currTime = SDL_GetTicks(); qtextTime + scrolltexty < currTime; qtextTime += scrolltexty) {
+		if (PauseMode == 2)
+			continue;
 		qtexty--;
 		if (qtexty <= 49 + SCREEN_Y + UI_OFFSET_Y) {
 			qtexty += 38;
