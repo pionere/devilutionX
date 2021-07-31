@@ -2953,7 +2953,7 @@ void MAI_Sneak(int mnum)
 		dev_fatal("MAI_Sneak: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mmode != MM_STAND)
+	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 	mx = mon->_mx;
 	my = mon->_my;
@@ -3323,7 +3323,7 @@ void MAI_Scav(int mnum)
 		dev_fatal("MAI_Scav: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mmode != MM_STAND)
+	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && mon->_mgoal != MGOAL_HEALING) {
 		if (mon->leaderflag != MLEADER_NONE) {
