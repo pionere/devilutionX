@@ -700,7 +700,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 				pfile_ui_save_create,
 				pfile_delete_save,
 				//pfile_ui_set_class_stats,
-				gszHero);
+				&mySaveIdx);
 
 			if (dlgresult == SELHERO_PREVIOUS) {
 				// SErrSetLastError(1223);

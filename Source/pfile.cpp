@@ -21,8 +21,6 @@ static Uint32 guNextSaveTc;
 
 static const char *PASSWORD_SINGLE = "xrgyrkj1";
 static const char *PASSWORD_MULTI = "szqnlsk1";
-/** List of character names for the character selection screen. */
-static char hero_names[MAX_CHARACTERS][PLR_NAME_LEN];
 
 #ifdef HELLFIRE
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.hsv"
@@ -42,18 +40,6 @@ static std::string GetSavePath(unsigned save_num)
 	snprintf(save_file_name, sizeof(save_file_name), fmt, save_num);
 	path.append(save_file_name);
 	return path;
-}
-
-static unsigned pfile_get_save_num_from_name(const char *name)
-{
-	unsigned i;
-
-	for (i = 0; i < MAX_CHARACTERS; i++) {
-		if (strcasecmp(hero_names[i], name) == 0)
-			break;
-	}
-
-	return i;
 }
 
 static bool pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
@@ -108,11 +94,7 @@ static bool pfile_open_save_mpq(unsigned save_num)
 
 static bool pfile_open_archive()
 {
-	unsigned save_num;
-
-	save_num = pfile_get_save_num_from_name(myplr._pName);
-	assert(save_num < MAX_CHARACTERS);
-	return pfile_open_save_mpq(save_num);
+	return pfile_open_save_mpq(mySaveIdx);
 }
 
 static void pfile_flush(bool is_single_player)
@@ -136,18 +118,19 @@ void pfile_write_hero()
 	}
 }
 
-static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, bool bHasSaveFile)
+static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, unsigned saveIdx, bool bHasSaveFile)
 {
-	memset(heroinfo, 0, sizeof(*heroinfo));
+	memset(heroinfo->hiName, 0, sizeof(heroinfo->hiName));
 	SStrCopy(heroinfo->hiName, p->_pName, sizeof(heroinfo->hiName));
+	heroinfo->hiIdx = saveIdx;
 	heroinfo->hiLevel = p->_pLevel;
 	heroinfo->hiClass = p->_pClass;
+	heroinfo->hiRank = p->_pDiabloKillLevel;
 	heroinfo->hiStrength = p->_pStrength;
 	heroinfo->hiMagic = p->_pMagic;
 	heroinfo->hiDexterity = p->_pDexterity;
 	heroinfo->hiVitality = p->_pVitality;
 	heroinfo->hiHasSaved = bHasSaveFile;
-	heroinfo->hiRank = p->_pDiabloKillLevel;
 }
 
 /*bool pfile_rename_hero(const char *name_1, const char *name_2)
@@ -157,26 +140,8 @@ static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, bool 
 	_uiheroinfo uihero;
 	bool found = false;
 
-	if (pfile_get_save_num_from_name(name_2) == MAX_CHARACTERS) {
-		for (i = 0; i != MAX_PLRS; i++) {
-			if (!strcasecmp(name_1, players[i]._pName)) {
-				found = true;
-				break;
-			}
-		}
-	}
-
-	if (!found)
-		return false;
-	save_num = pfile_get_save_num_from_name(name_1);
-	if (save_num == MAX_CHARACTERS)
-		return false;
-
-	SStrCopy(hero_names[save_num], name_2, PLR_NAME_LEN);
 	SStrCopy(players[i]._pName, name_2, PLR_NAME_LEN);
-	if (!strcasecmp(gszHero, name_1))
-		SStrCopy(gszHero, name_2, sizeof(gszHero));
-	game_2_ui_player(&players[0], &uihero, gbValidSaveFile);
+	game_2_ui_player(&players[0], &uihero, mySaveIdx, gbValidSaveFile);
 	pfile_write_hero();
 	return true;
 }*/
@@ -204,17 +169,14 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 {
 	int i;
 
-	memset(hero_names, 0, sizeof(hero_names));
-
 	for (i = 0; i < MAX_CHARACTERS; i++) {
 		PkPlayerStruct pkplr;
 		HANDLE archive = pfile_open_save_archive(i);
 		if (archive != NULL) {
 			if (pfile_read_hero(archive, &pkplr)) {
-				_uiheroinfo uihero;
-				copy_str(hero_names[i], pkplr.pName);
 				UnPackPlayer(&pkplr, 0);
-				game_2_ui_player(&players[0], &uihero, pfile_archive_contains_game(archive));
+				_uiheroinfo uihero;
+				game_2_ui_player(&players[0], &uihero, i, pfile_archive_contains_game(archive));
 				ui_add_hero_info(&uihero);
 			}
 			SFileCloseArchive(archive);
@@ -233,26 +195,29 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 bool pfile_ui_save_create(_uiheroinfo *heroinfo)
 {
 	unsigned save_num;
+	HANDLE archive;
 	PkPlayerStruct pkplr;
 
-	save_num = pfile_get_save_num_from_name(heroinfo->hiName);
+	save_num = heroinfo->hiIdx;
 	if (save_num >= MAX_CHARACTERS) {
 		for (save_num = 0; save_num < MAX_CHARACTERS; save_num++) {
-			if (!hero_names[save_num][0])
+			archive = pfile_open_save_archive(save_num);
+			if (archive == NULL)
 				break;
+			SFileCloseArchive(archive);
 		}
 		if (save_num >= MAX_CHARACTERS)
 			return false;
 	}
 	if (!pfile_open_save_mpq(save_num))
 		return false;
+	heroinfo->hiIdx = save_num;
+	static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 	mpqapi_remove_hash_entries(pfile_get_file_name);
-	copy_str(hero_names[save_num], heroinfo->hiName);
-	CreatePlayer(0, heroinfo->hiClass);
-	copy_str(players[0]._pName, heroinfo->hiName);
+	CreatePlayer(*heroinfo);
 	PackPlayer(&pkplr, 0);
 	pfile_encode_hero(&pkplr);
-	game_2_ui_player(&players[0], heroinfo, false);
+	//game_2_ui_player(&players[0], heroinfo, save_num, false);
 	pfile_flush(true);
 	return true;
 }
@@ -312,21 +277,17 @@ void pfile_delete_save(_uiheroinfo *hero_info)
 {
 	unsigned save_num;
 
-	save_num = pfile_get_save_num_from_name(hero_info->hiName);
-	if (save_num < MAX_CHARACTERS) {
-		hero_names[save_num][0] = '\0';
-		RemoveFile(GetSavePath(save_num).c_str());
-	}
+	save_num = hero_info->hiIdx;
+	assert(save_num < MAX_CHARACTERS);
+	RemoveFile(GetSavePath(save_num).c_str());
 }
 
 static void pfile_read_player_from_save()
 {
 	HANDLE archive;
-	unsigned save_num;
 	PkPlayerStruct pkplr;
 
-	save_num = pfile_get_save_num_from_name(gszHero);
-	archive = pfile_open_save_archive(save_num);
+	archive = pfile_open_save_archive(mySaveIdx);
 	if (archive == NULL)
 		app_fatal("Unable to open archive");
 	if (!pfile_read_hero(archive, &pkplr))
@@ -424,13 +385,11 @@ void pfile_delete_save_file(const char *pszName)
 
 BYTE *pfile_read(const char *pszName)
 {
-	unsigned save_num;
 	DWORD nread, len;
 	HANDLE archive, save;
 	BYTE *buf;
 
-	save_num = pfile_get_save_num_from_name(myplr._pName);
-	archive = pfile_open_save_archive(save_num);
+	archive = pfile_open_save_archive(mySaveIdx);
 	if (archive == NULL)
 		app_fatal("Unable to open save file archive");
 

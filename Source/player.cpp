@@ -654,36 +654,35 @@ void SetPlrAnims(int pnum)
 /**
  * @param c plr_classes value
  */
-void CreatePlayer(int pnum, BYTE c)
+void CreatePlayer(const _uiheroinfo &heroinfo)
 {
 	int val, hp, mana;
-	int i;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("CreatePlayer: illegal player %d", pnum);
-	}
+	int i, pnum = 0;
 
 	memset(&plr, 0, sizeof(PlayerStruct));
 	//SetRndSeed(SDL_GetTicks());
 
-	plr._pClass = c;
+	plr._pLevel = heroinfo.hiLevel;
+	plr._pClass = heroinfo.hiClass;
+	//plr._pDiabloKillLevel = heroinfo.hiRank;
+	copy_cstr(plr._pName, heroinfo.hiName);
 
-	val = StrengthTbl[c];
+	val = heroinfo.hiStrength;
 	plr._pStrength = val;
 	plr._pBaseStr = val;
 
-	val = DexterityTbl[c];
+	val = heroinfo.hiDexterity;
 	plr._pDexterity = val;
 	plr._pBaseDex = val;
 
-	val = VitalityTbl[c];
+	val = heroinfo.hiVitality;
 	plr._pVitality = val;
 	plr._pBaseVit = val;
 
 	hp = val << (6 + 1);
 	plr._pHitPoints = plr._pMaxHP = plr._pHPBase = plr._pMaxHPBase = hp;
 
-	val = MagicTbl[c];
+	val = heroinfo.hiMagic;
 	plr._pMagic = val;
 	plr._pBaseMag = val;
 
@@ -707,7 +706,7 @@ void CreatePlayer(int pnum, BYTE c)
 	//plr._pAltMoveSkill = SPL_INVALID;
 	//plr._pAltMoveSkillType = RSPLTYPE_INVALID;
 
-	if (c == PC_SORCERER) {
+	if (plr._pClass == PC_SORCERER) {
 		plr._pSkillLvl[SPL_FIREBOLT] = 2;
 		plr._pSkillExp[SPL_FIREBOLT] = SkillExpLvlsTbl[1];
 		plr._pMemSkills = SPELL_MASK(SPL_FIREBOLT);

@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern char gszHero[16];
+extern unsigned mySaveIdx;
 
 void mainmenu_loop();
 

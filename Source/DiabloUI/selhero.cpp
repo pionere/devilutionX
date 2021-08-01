@@ -14,7 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
 static _uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
 static _uiheroinfo selhero_heros[MAX_CHARACTERS];
-static const unsigned MaxViewportItems = 6;
+static const unsigned MAX_VIEWPORT_ITEMS = 6;
 static char textStats[5][4];
 static char selhero_title[32];
 static int selhero_result;
@@ -177,13 +177,13 @@ static void SelheroSetStats()
 
 static void SelheroUpdateViewportItems()
 {
-	const unsigned numViewportHeroes = std::min(selhero_SaveCount - ListOffset, MaxViewportItems);
+	const unsigned numViewportHeroes = std::min(selhero_SaveCount - ListOffset, MAX_VIEWPORT_ITEMS);
 	for (unsigned i = 0; i < numViewportHeroes; i++) {
 		const unsigned index = i + ListOffset;
 		vecSelHeroDlgItems[i]->m_text = selhero_heros[index].hiName;
 		vecSelHeroDlgItems[i]->m_value = index;
 	}
-	if (numViewportHeroes < MaxViewportItems) {
+	if (numViewportHeroes < MAX_VIEWPORT_ITEMS) {
 		vecSelHeroDlgItems[numViewportHeroes]->m_text = "New Hero";
 		vecSelHeroDlgItems[numViewportHeroes]->m_value = selhero_SaveCount;
 	}
@@ -192,8 +192,8 @@ static void SelheroUpdateViewportItems()
 static void SelheroScrollIntoView(unsigned index)
 {
 	unsigned newOffset = ListOffset;
-	if (index >= ListOffset + MaxViewportItems)
-		newOffset = index - (MaxViewportItems - 1);
+	if (index >= ListOffset + MAX_VIEWPORT_ITEMS)
+		newOffset = index - (MAX_VIEWPORT_ITEMS - 1);
 	if (index < ListOffset)
 		newOffset = index;
 	if (newOffset != ListOffset) {
@@ -296,7 +296,7 @@ static void SelheroListInit()
 	vecSelDlgItems.push_back(new UiArtText("Select Hero", rect1, UIS_CENTER | UIS_BIG));
 
 	SelheroFreeListItems();
-	unsigned num_viewport_heroes = std::min(selhero_SaveCount + 1, MaxViewportItems);
+	unsigned num_viewport_heroes = std::min(selhero_SaveCount + 1, MAX_VIEWPORT_ITEMS);
 	for (unsigned i = 0; i < num_viewport_heroes; i++) {
 		vecSelHeroDlgItems.push_back(new UiListItem("", -1));
 	}
@@ -319,7 +319,7 @@ static void SelheroListInit()
 	vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect5, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(vecSelDlgItems, selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo, false);
-	UiInitScrollBar(scrollBar, MaxViewportItems);
+	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS);
 	snprintf(selhero_title, sizeof(selhero_title), "%s Player Characters", selconn_bMulti ? "Multi" : "Single");
 }
 
@@ -344,14 +344,17 @@ static void SelheroClassSelectorFocus(unsigned index)
 {
 	//_uidefaultstats defaults;
 	//gfnHeroStats(index, &defaults);
-	assert(vecSelHeroDlgItems[index]->m_value == index);
+	assert((unsigned)vecSelHeroDlgItems[index]->m_value == index);
 
+	selhero_heroInfo.hiIdx = MAX_CHARACTERS;
 	selhero_heroInfo.hiLevel = 1;
 	selhero_heroInfo.hiClass = index;
+	//selhero_heroInfo.hiRank = 0;
 	selhero_heroInfo.hiStrength = StrengthTbl[index]; //defaults.dsStrength;
 	selhero_heroInfo.hiMagic = MagicTbl[index]; //defaults.dsMagic;
 	selhero_heroInfo.hiDexterity = DexterityTbl[index]; //defaults.dsDexterity;
 	selhero_heroInfo.hiVitality = VitalityTbl[index]; //defaults.dsVitality;
+	//selhero_heroInfo.hiHasSaved = FALSE;
 
 	SelheroSetStats();
 }
@@ -461,27 +464,13 @@ static void SelheroNameSelect(unsigned index)
 		UiSelOkDialog(selhero_title, "Invalid name. A name cannot contain spaces, reserved characters, or reserved words.\n", false);
 		LoadBackgroundArt("ui_art\\selhero.pcx");
 	} else {
-		bool overwrite = true;
-		for (unsigned i = 0; i < selhero_SaveCount; i++) {
-			if (strcasecmp(selhero_heros[i].hiName, selhero_heroInfo.hiName) == 0) {
-				ArtBackground.Unload();
-				char dialogText[256];
-				snprintf(dialogText, sizeof(dialogText), "Character already exists. Do you want to overwrite \"%s\"?", selhero_heroInfo.hiName);
-				overwrite = UiSelHeroYesNoDialog(selhero_title, dialogText);
-				LoadBackgroundArt("ui_art\\selhero.pcx");
-				break;
-			}
-		}
-
-		if (overwrite) {
-			if (gfnHeroCreate(&selhero_heroInfo)) {
-				SelheroLoadSelect(1);
-				return;
-			} else {
-				std::vector<UiItemBase*> allItems = vecSelHeroDialog;
-				allItems.insert(allItems.end(), vecSelDlgItems.begin(), vecSelDlgItems.end());
-				UiErrorOkDialog("Unable to create character.", allItems);
-			}
+		if (gfnHeroCreate(&selhero_heroInfo)) {
+			SelheroLoadSelect(1);
+			return;
+		} else {
+			std::vector<UiItemBase*> allItems = vecSelHeroDialog;
+			allItems.insert(allItems.end(), vecSelDlgItems.begin(), vecSelDlgItems.end());
+			UiErrorOkDialog("Unable to create character.", allItems);
 		}
 	}
 
@@ -498,7 +487,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 	bool (*fncreate)(_uiheroinfo *),
 	void (*fnremove)(_uiheroinfo *),
 	//void (*fnstats)(unsigned int, _uidefaultstats *),
-	char (&name)[16])
+	unsigned* saveIdx)
 {
 	do {
 		SelheroInit();
@@ -538,7 +527,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 		}
 	} while (selhero_navigateYesNo);
 
-	copy_str(name, selhero_heroInfo.hiName);
+	*saveIdx = selhero_heroInfo.hiIdx;
 
 	UnloadScrollBar();
 	return selhero_result;

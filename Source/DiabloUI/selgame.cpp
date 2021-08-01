@@ -161,8 +161,8 @@ void selgame_GameSelection_Focus(unsigned index)
  */
 /*bool UpdateHeroLevel(_uiheroinfo *pInfo)
 {
-	if (strcasecmp(pInfo->hiName, gszHero) == 0)
-		selgame_heroLevel = pInfo->level;
+	if (pInfo->hiIdx == mySaveIdx)
+		selgame_heroLevel = pInfo->hiLevel;
 
 	return true;
 }*/

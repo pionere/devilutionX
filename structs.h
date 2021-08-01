@@ -1526,6 +1526,7 @@ typedef struct _uidefaultstats {
 } _uidefaultstats;
 
 typedef struct _uiheroinfo {
+	BYTE hiIdx;
 	BYTE hiLevel;
 	BYTE hiClass;
 	BYTE hiRank;
