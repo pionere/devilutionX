@@ -161,7 +161,7 @@ void selgame_GameSelection_Focus(unsigned index)
  */
 /*bool UpdateHeroLevel(_uiheroinfo *pInfo)
 {
-	if (strcasecmp(pInfo->name, gszHero) == 0)
+	if (strcasecmp(pInfo->hiName, gszHero) == 0)
 		selgame_heroLevel = pInfo->level;
 
 	return true;

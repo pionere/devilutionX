@@ -1519,22 +1519,22 @@ static_assert((sizeof(DeadStruct) & (sizeof(DeadStruct) - 1)) == 32, "Align Dead
 // TPDEF PTR FCN VOID PLAYSND
 
 typedef struct _uidefaultstats {
-	WORD strength;
-	WORD magic;
-	WORD dexterity;
-	WORD vitality;
+	WORD dsStrength;
+	WORD dsMagic;
+	WORD dsDexterity;
+	WORD dsVitality;
 } _uidefaultstats;
 
 typedef struct _uiheroinfo {
-	char name[16];
-	WORD level;
-	BYTE heroclass;
-	BYTE herorank;
-	WORD strength;
-	WORD magic;
-	WORD dexterity;
-	WORD vitality;
-	bool hassaved;
+	BYTE hiLevel;
+	BYTE hiClass;
+	BYTE hiRank;
+	char hiName[16];
+	int16_t hiStrength;
+	int16_t hiMagic;
+	int16_t hiDexterity;
+	int16_t hiVitality;
+	BOOL hiHasSaved;
 } _uiheroinfo;
 
 //////////////////////////////////////////////////

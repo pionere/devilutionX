@@ -144,15 +144,15 @@ void pfile_write_hero()
 static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, bool bHasSaveFile)
 {
 	memset(heroinfo, 0, sizeof(*heroinfo));
-	SStrCopy(heroinfo->name, p->_pName, sizeof(heroinfo->name));
-	heroinfo->level = p->_pLevel;
-	heroinfo->heroclass = p->_pClass;
-	heroinfo->strength = p->_pStrength;
-	heroinfo->magic = p->_pMagic;
-	heroinfo->dexterity = p->_pDexterity;
-	heroinfo->vitality = p->_pVitality;
-	heroinfo->hassaved = bHasSaveFile;
-	heroinfo->herorank = p->_pDiabloKillLevel;
+	SStrCopy(heroinfo->hiName, p->_pName, sizeof(heroinfo->hiName));
+	heroinfo->hiLevel = p->_pLevel;
+	heroinfo->hiClass = p->_pClass;
+	heroinfo->hiStrength = p->_pStrength;
+	heroinfo->hiMagic = p->_pMagic;
+	heroinfo->hiDexterity = p->_pDexterity;
+	heroinfo->hiVitality = p->_pVitality;
+	heroinfo->hiHasSaved = bHasSaveFile;
+	heroinfo->hiRank = p->_pDiabloKillLevel;
 }
 
 /*bool pfile_rename_hero(const char *name_1, const char *name_2)
@@ -229,10 +229,10 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 
 void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats)
 {
-	class_stats->strength = StrengthTbl[player_class_nr];
-	class_stats->magic = MagicTbl[player_class_nr];
-	class_stats->dexterity = DexterityTbl[player_class_nr];
-	class_stats->vitality = VitalityTbl[player_class_nr];
+	class_stats->dsStrength = StrengthTbl[player_class_nr];
+	class_stats->dsMagic = MagicTbl[player_class_nr];
+	class_stats->dsDexterity = DexterityTbl[player_class_nr];
+	class_stats->dsVitality = VitalityTbl[player_class_nr];
 }
 
 bool pfile_ui_save_create(_uiheroinfo *heroinfo)
@@ -240,7 +240,7 @@ bool pfile_ui_save_create(_uiheroinfo *heroinfo)
 	unsigned save_num;
 	PkPlayerStruct pkplr;
 
-	save_num = pfile_get_save_num_from_name(heroinfo->name);
+	save_num = pfile_get_save_num_from_name(heroinfo->hiName);
 	if (save_num >= MAX_CHARACTERS) {
 		for (save_num = 0; save_num < MAX_CHARACTERS; save_num++) {
 			if (!hero_names[save_num][0])
@@ -252,9 +252,9 @@ bool pfile_ui_save_create(_uiheroinfo *heroinfo)
 	if (!pfile_open_save_mpq(save_num))
 		return false;
 	mpqapi_remove_hash_entries(pfile_get_file_name);
-	copy_str(hero_names[save_num], heroinfo->name);
-	CreatePlayer(0, heroinfo->heroclass);
-	copy_str(players[0]._pName, heroinfo->name);
+	copy_str(hero_names[save_num], heroinfo->hiName);
+	CreatePlayer(0, heroinfo->hiClass);
+	copy_str(players[0]._pName, heroinfo->hiName);
 	PackPlayer(&pkplr, 0);
 	pfile_encode_hero(&pkplr);
 	game_2_ui_player(&players[0], heroinfo, false);
@@ -317,7 +317,7 @@ void pfile_delete_save(_uiheroinfo *hero_info)
 {
 	unsigned save_num;
 
-	save_num = pfile_get_save_num_from_name(hero_info->name);
+	save_num = pfile_get_save_num_from_name(hero_info->hiName);
 	if (save_num < MAX_CHARACTERS) {
 		hero_names[save_num][0] = '\0';
 		RemoveFile(GetSavePath(save_num).c_str());

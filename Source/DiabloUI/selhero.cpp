@@ -162,17 +162,17 @@ static void SelheroFree()
 
 static void SelheroSetStats()
 {
-	int heroclass = selhero_heroInfo.heroclass;
+	int heroclass = selhero_heroInfo.hiClass;
 #ifdef HELLFIRE
 	if (heroclass == PC_BARBARIAN)
 		heroclass = PC_WARRIOR; // The graphics is missing from heros.pcx
 #endif
 	SELHERO_DIALOG_HERO_IMG->m_frame = heroclass;
-	snprintf(textStats[0], sizeof(textStats[0]), "%d", selhero_heroInfo.level);
-	snprintf(textStats[1], sizeof(textStats[1]), "%d", selhero_heroInfo.strength);
-	snprintf(textStats[2], sizeof(textStats[2]), "%d", selhero_heroInfo.magic);
-	snprintf(textStats[3], sizeof(textStats[3]), "%d", selhero_heroInfo.dexterity);
-	snprintf(textStats[4], sizeof(textStats[4]), "%d", selhero_heroInfo.vitality);
+	snprintf(textStats[0], sizeof(textStats[0]), "%d", selhero_heroInfo.hiLevel);
+	snprintf(textStats[1], sizeof(textStats[1]), "%d", selhero_heroInfo.hiStrength);
+	snprintf(textStats[2], sizeof(textStats[2]), "%d", selhero_heroInfo.hiMagic);
+	snprintf(textStats[3], sizeof(textStats[3]), "%d", selhero_heroInfo.hiDexterity);
+	snprintf(textStats[4], sizeof(textStats[4]), "%d", selhero_heroInfo.hiVitality);
 }
 
 static void SelheroUpdateViewportItems()
@@ -180,7 +180,7 @@ static void SelheroUpdateViewportItems()
 	const unsigned numViewportHeroes = std::min(selhero_SaveCount - ListOffset, MaxViewportItems);
 	for (unsigned i = 0; i < numViewportHeroes; i++) {
 		const unsigned index = i + ListOffset;
-		vecSelHeroDlgItems[i]->m_text = selhero_heros[index].name;
+		vecSelHeroDlgItems[i]->m_text = selhero_heros[index].hiName;
 		vecSelHeroDlgItems[i]->m_value = index;
 	}
 	if (numViewportHeroes < MaxViewportItems) {
@@ -259,7 +259,7 @@ static void SelheroListFocus(unsigned index)
 {
 	SelheroScrollIntoView(index);
 	int baseFlags = UIS_CENTER | UIS_BIG;
-	if (selhero_SaveCount != 0 && index < selhero_SaveCount) {
+	if (index < selhero_SaveCount) {
 		memcpy(&selhero_heroInfo, &selhero_heros[index], sizeof(selhero_heroInfo));
 		SelheroSetStats();
 		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
@@ -345,12 +345,12 @@ static void SelheroClassSelectorFocus(unsigned index)
 	_uidefaultstats defaults;
 	gfnHeroStats(index, &defaults);
 
-	selhero_heroInfo.level = 1;
-	selhero_heroInfo.heroclass = vecSelHeroDlgItems[index]->m_value;
-	selhero_heroInfo.strength = defaults.strength;
-	selhero_heroInfo.magic = defaults.magic;
-	selhero_heroInfo.dexterity = defaults.dexterity;
-	selhero_heroInfo.vitality = defaults.vitality;
+	selhero_heroInfo.hiLevel = 1;
+	selhero_heroInfo.hiClass = vecSelHeroDlgItems[index]->m_value;
+	selhero_heroInfo.hiStrength = defaults.dsStrength;
+	selhero_heroInfo.hiMagic = defaults.dsMagic;
+	selhero_heroInfo.hiDexterity = defaults.dsDexterity;
+	selhero_heroInfo.hiVitality = defaults.dsVitality;
 
 	SelheroSetStats();
 }
@@ -392,12 +392,12 @@ static void SelheroListSelect(unsigned index)
 		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 		UiInitList(vecSelDlgItems, vecSelHeroDlgItems.size(), SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
-		memset(&selhero_heroInfo.name, 0, sizeof(selhero_heroInfo.name));
+		memset(&selhero_heroInfo.hiName, 0, sizeof(selhero_heroInfo.hiName));
 		snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 		return;
 	}
 
-	if (selhero_heroInfo.hassaved) {
+	if (selhero_heroInfo.hiHasSaved) {
 		SelheroFreeDlgItems();
 
 		SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
@@ -430,19 +430,19 @@ static void SelheroNameEsc()
 static void SelheroClassSelectorSelect(unsigned index)
 {
 	snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
-	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
+	memset(selhero_heroInfo.hiName, '\0', sizeof(selhero_heroInfo.hiName));
 #if defined(PREFILL_PLAYER_NAME) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 #ifndef PREFILL_PLAYER_NAME
 	if (sgbControllerActive)
 #endif
-		SStrCopy(selhero_heroInfo.name, SelheroGenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
+		SStrCopy(selhero_heroInfo.hiName, SelheroGenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.hiName));
 #endif
 	SelheroFreeDlgItems();
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
 	vecSelDlgItems.push_back(new UiArtText("Enter Name", rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 317), 320, 33 };
-	vecSelDlgItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.name, 15, rect2, UIS_MED | UIS_GOLD));
+	vecSelDlgItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.hiName, 15, rect2, UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 429), 140, 35 };
 	vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
@@ -455,17 +455,17 @@ static void SelheroClassSelectorSelect(unsigned index)
 
 static void SelheroNameSelect(unsigned index)
 {
-	if (!UiValidPlayerName(selhero_heroInfo.name)) {
+	if (!UiValidPlayerName(selhero_heroInfo.hiName)) {
 		ArtBackground.Unload();
 		UiSelOkDialog(selhero_title, "Invalid name. A name cannot contain spaces, reserved characters, or reserved words.\n", false);
 		LoadBackgroundArt("ui_art\\selhero.pcx");
 	} else {
 		bool overwrite = true;
 		for (unsigned i = 0; i < selhero_SaveCount; i++) {
-			if (strcasecmp(selhero_heros[i].name, selhero_heroInfo.name) == 0) {
+			if (strcasecmp(selhero_heros[i].hiName, selhero_heroInfo.hiName) == 0) {
 				ArtBackground.Unload();
 				char dialogText[256];
-				snprintf(dialogText, sizeof(dialogText), "Character already exists. Do you want to overwrite \"%s\"?", selhero_heroInfo.name);
+				snprintf(dialogText, sizeof(dialogText), "Character already exists. Do you want to overwrite \"%s\"?", selhero_heroInfo.hiName);
 				overwrite = UiSelHeroYesNoDialog(selhero_title, dialogText);
 				LoadBackgroundArt("ui_art\\selhero.pcx");
 				break;
@@ -530,14 +530,14 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 			char dialogTitle[32];
 			char dialogText[256];
 			snprintf(dialogTitle, sizeof(dialogTitle), "Delete %s Player Hero", selconn_bMulti ? "Multi" : "Single");
-			snprintf(dialogText, sizeof(dialogText), "Are you sure you want to delete the character \"%s\"?", selhero_heroInfo.name);
+			snprintf(dialogText, sizeof(dialogText), "Are you sure you want to delete the character \"%s\"?", selhero_heroInfo.hiName);
 
 			if (UiSelHeroYesNoDialog(dialogTitle, dialogText))
 				fnremove(&selhero_heroInfo);
 		}
 	} while (selhero_navigateYesNo);
 
-	copy_str(name, selhero_heroInfo.name);
+	copy_str(name, selhero_heroInfo.hiName);
 
 	UnloadScrollBar();
 	return selhero_result;
