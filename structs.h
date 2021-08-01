@@ -327,7 +327,7 @@ typedef struct PlayerStruct {
 	int _pVar6;
 	int _pVar7;
 	int _pVar8;
-	BOOLEAN _pLvlVisited[NUM_LEVELS];
+	BOOLEAN _pLvlVisited[NUM_LEVELS]; // TODO: only for local players -> remove from PlayerStruct?
 	int _pGFXLoad;
 	BYTE *_pNAnim[NUM_DIRS]; // Stand animations
 	unsigned _pNFrames;

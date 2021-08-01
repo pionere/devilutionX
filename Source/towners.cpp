@@ -510,10 +510,10 @@ void TalkToTowner(int tnum)
 
 	switch (tw->_ttype) {
 	case TOWN_TAVERN:
-		if (!plr._pLvlVisited[DLV_TOWN]) {
+		if (!plr._pLvlVisited[DLV_CATHEDRAL1] && plr._pLevel == 1) {
 			qt = TEXT_INTRO;
 		}
-		if (plr._pLvlVisited[DLV_CATHEDRAL2] && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
+		if (plr._pLvlVisited[DLV_CATHEDRAL3] && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_SKELKING]._qactive == QUEST_INIT && qt == TEXT_NONE) {
 				quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 				quests[Q_SKELKING]._qlog = TRUE;
@@ -526,7 +526,7 @@ void TalkToTowner(int tnum)
 				qt = TEXT_KING4;
 			}
 		}
-		if (plr._pLvlVisited[DLV_CATHEDRAL3] && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
+		if (plr._pLvlVisited[DLV_CATHEDRAL4] && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_LTBANNER]._qactive == QUEST_INIT && qt == TEXT_NONE) {
 				quests[Q_LTBANNER]._qactive = QUEST_ACTIVE;
 				quests[Q_LTBANNER]._qlog = TRUE;
@@ -560,7 +560,7 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_SMITH:
-		if (plr._pLvlVisited[DLV_CATHEDRAL4] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
+		if (plr._pLvlVisited[DLV_CATACOMBS1] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_ROCK]._qvar1 <= 1) {
 				quests[Q_ROCK]._qvar1 = 2;
 				quests[Q_ROCK]._qactive = QUEST_ACTIVE;
@@ -577,7 +577,7 @@ void TalkToTowner(int tnum)
 				qt = TEXT_INFRA7;
 			}
 		}
-		if (plr._pLvlVisited[DLV_CAVES1] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
+		if (plr._pLvlVisited[DLV_CAVES2] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_ANVIL]._qvar1 <= 1 && qt == TEXT_NONE) {
 				quests[Q_ANVIL]._qvar1 = 2;
 				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
@@ -643,7 +643,7 @@ void TalkToTowner(int tnum)
 	case TOWN_DRUNK:
 		break;
 	case TOWN_HEALER:
-		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && plr._pLvlVisited[DLV_CATHEDRAL1]) {
+		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && plr._pLvlVisited[DLV_CATHEDRAL2]) {
 			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 			quests[Q_PWATER]._qlog = TRUE;
 			// quests[Q_PWATER]._qmsg = TEXT_POISON3;

@@ -424,6 +424,8 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	ProcessLightList();
 	ProcessVisionList();
 
+	myplr._pLvlVisited[currLvl._dLevelIdx] = TRUE;
+
 	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 
 	while (!IncProgress())

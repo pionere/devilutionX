@@ -1908,7 +1908,6 @@ void RemovePlrMissiles(int pnum)
 static void InitLevelChange(int pnum)
 {
 	ClrPlrPath(pnum);
-	plr._pLvlVisited[plr.plrlevel] = TRUE;
 	if (plr.plrlevel == currLvl._dLevelIdx) {
 		AddUnLight(plr._plid);
 		AddUnVision(plr._pvid);
