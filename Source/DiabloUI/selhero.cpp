@@ -435,7 +435,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 #ifndef PREFILL_PLAYER_NAME
 	if (sgbControllerActive)
 #endif
-		SStrCopy(selhero_heroInfo.hiName, SelheroGenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.hiName));
+		SStrCopy(selhero_heroInfo.hiName, SelheroGenerateName(selhero_heroInfo.hiClass), sizeof(selhero_heroInfo.hiName));
 #endif
 	SelheroFreeDlgItems();
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
