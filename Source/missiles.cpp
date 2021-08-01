@@ -3438,7 +3438,7 @@ void MI_Portal(int mi)
 
 	if (mis->_miType == MIS_TOWN) {
 		p = &myplr;
-		if (p->_px == mis->_mix && p->_py == mis->_miy && !p->_pLvlChanging && p->_pmode == PM_STAND && !mis->_miVar3) {
+		if (p->_px == mis->_mix && p->_py == mis->_miy && /*!p->_pLvlChanging && */p->_pmode == PM_STAND && !mis->_miVar3) {
 			mis->_miVar3 = TRUE;
 			NetSendCmdParam1(true, CMD_TWARP, mis->_miSource);
 		}
