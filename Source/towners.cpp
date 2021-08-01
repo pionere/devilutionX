@@ -512,28 +512,30 @@ void TalkToTowner(int tnum)
 	case TOWN_TAVERN:
 		if (!plr._pLvlVisited[DLV_CATHEDRAL1] && plr._pLevel == 1) {
 			qt = TEXT_INTRO;
+			break;
 		}
 		if (plr._pLvlVisited[DLV_CATHEDRAL3] && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_SKELKING]._qactive == QUEST_INIT && qt == TEXT_NONE) {
+			if (quests[Q_SKELKING]._qactive == QUEST_INIT) {
 				quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 				quests[Q_SKELKING]._qlog = TRUE;
 				qn = Q_SKELKING;
 				qt = TEXT_KING2;
+				break;
 			}
-			if (quests[Q_SKELKING]._qactive == QUEST_DONE && quests[Q_SKELKING]._qlog && qt == TEXT_NONE) {
+			if (quests[Q_SKELKING]._qactive == QUEST_DONE && quests[Q_SKELKING]._qlog) {
 				quests[Q_SKELKING]._qlog = FALSE;
 				// qn = Q_SKELKING; - let the others hear the final message
 				qt = TEXT_KING4;
+				break;
 			}
 		}
 		if (plr._pLvlVisited[DLV_CATHEDRAL4] && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_LTBANNER]._qactive == QUEST_INIT && qt == TEXT_NONE) {
+			if (quests[Q_LTBANNER]._qactive == QUEST_INIT) {
 				quests[Q_LTBANNER]._qactive = QUEST_ACTIVE;
 				quests[Q_LTBANNER]._qlog = TRUE;
 				qn = Q_LTBANNER;
 				qt = TEXT_BANNER2;
-			}
-			if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasItem(pnum, IDI_BANNER, &i) && qt == TEXT_NONE) {
+			} else if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasItem(pnum, IDI_BANNER, &i)) {
 				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_HARCREST, tw->_tx, tw->_ty + 1, false, true);
 				quests[Q_LTBANNER]._qlog = FALSE;
@@ -567,25 +569,26 @@ void TalkToTowner(int tnum)
 				quests[Q_ROCK]._qlog = TRUE;
 				qn = Q_ROCK;
 				qt = TEXT_INFRA5;
+				break;
 			}
-			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i) && qt == TEXT_NONE) {
+			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i)) {
 				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1, false, true);
 				quests[Q_ROCK]._qactive = QUEST_DONE;
 				quests[Q_ROCK]._qlog = FALSE;
 				qn = Q_ROCK;
 				qt = TEXT_INFRA7;
+				break;
 			}
 		}
 		if (plr._pLvlVisited[DLV_CAVES2] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_ANVIL]._qvar1 <= 1 && qt == TEXT_NONE) {
+			if (quests[Q_ANVIL]._qvar1 <= 1) {
 				quests[Q_ANVIL]._qvar1 = 2;
 				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 				quests[Q_ANVIL]._qlog = TRUE;
 				qn = Q_ANVIL;
 				qt = TEXT_ANVIL5;
-			}
-			if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ANVIL, &i) && qt == TEXT_NONE) {
+			} else if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ANVIL, &i)) {
 				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1, false, true);
 				quests[Q_ANVIL]._qactive = QUEST_DONE;
@@ -611,21 +614,22 @@ void TalkToTowner(int tnum)
 					quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
 					qn = Q_MUSHROOM;
 					qt = TEXT_MUSH10;
-				} else if (quests[Q_MUSHROOM]._qmsg != TEXT_MUSH9) {
+					break;
+				}
+				if (quests[Q_MUSHROOM]._qmsg != TEXT_MUSH9) {
 					quests[Q_MUSHROOM]._qmsg = TEXT_MUSH9;
 					qn = Q_MUSHROOM;
 					qt = TEXT_MUSH9;
+					break;
 				}
 			}
-			if (qt == TEXT_NONE) {
-				if (PlrHasItem(pnum, IDI_SPECELIX, &i) || PlrHasBeltItem(pnum, IDI_SPECELIX)) {
-					quests[Q_MUSHROOM]._qactive = QUEST_DONE;
-					qn = Q_MUSHROOM;
-					qt = TEXT_MUSH12;
-				} else if (PlrHasItem(pnum, IDI_BRAIN, &i) && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
-					quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH11;
-					qt = TEXT_MUSH11;
-				}
+			if (PlrHasItem(pnum, IDI_SPECELIX, &i) || PlrHasBeltItem(pnum, IDI_SPECELIX)) {
+				quests[Q_MUSHROOM]._qactive = QUEST_DONE;
+				qn = Q_MUSHROOM;
+				qt = TEXT_MUSH12;
+			} else if (PlrHasItem(pnum, IDI_BRAIN, &i) && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
+				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH11;
+				qt = TEXT_MUSH11;
 			}
 		}
 		break;
@@ -656,10 +660,9 @@ void TalkToTowner(int tnum)
 			SpawnUnique(UITEM_TRING, tw->_tx, tw->_ty + 1, false, true);
 			qn = Q_PWATER;
 			qt = TEXT_POISON5;
-		}
-		if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
+		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
 		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
-			if (PlrHasItem(pnum, IDI_BRAIN, &i) && qt == TEXT_NONE) {
+			if (PlrHasItem(pnum, IDI_BRAIN, &i)) {
 				PlrInvItemRemove(pnum, i);
 				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty, false, true);
 				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
