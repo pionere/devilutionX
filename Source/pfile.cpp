@@ -125,11 +125,6 @@ static HANDLE pfile_open_save_archive(unsigned save_num)
 	return SFileOpenArchive(GetSavePath(save_num).c_str(), 0);
 }
 
-static void pfile_SFileCloseArchive(HANDLE hsArchive)
-{
-	SFileCloseArchive(hsArchive);
-}
-
 void pfile_write_hero()
 {
 	PkPlayerStruct pkplr;
@@ -222,7 +217,7 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 				game_2_ui_player(&players[0], &uihero, pfile_archive_contains_game(archive));
 				ui_add_hero_info(&uihero);
 			}
-			pfile_SFileCloseArchive(archive);
+			SFileCloseArchive(archive);
 		}
 	}
 }
@@ -339,7 +334,7 @@ static void pfile_read_player_from_save()
 
 	UnPackPlayer(&pkplr, 0); // mypnum
 	gbValidSaveFile = pfile_archive_contains_game(archive);
-	pfile_SFileCloseArchive(archive);
+	SFileCloseArchive(archive);
 	guNextSaveTc = SDL_GetTicks() + PFILE_SAVE_INTERVAL;
 }
 
@@ -450,7 +445,7 @@ BYTE *pfile_read(const char *pszName)
 	if (!SFileReadFile(save, buf, len, &nread))
 		app_fatal("Unable to read save file");
 	SFileCloseFile(save);
-	pfile_SFileCloseArchive(archive);
+	SFileCloseArchive(archive);
 
 	{
 		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
