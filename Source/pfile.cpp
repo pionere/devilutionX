@@ -122,11 +122,7 @@ static void pfile_flush(bool is_single_player)
 
 static HANDLE pfile_open_save_archive(unsigned save_num)
 {
-	HANDLE archive;
-
-	if (SFileOpenArchive(GetSavePath(save_num).c_str(), 0, &archive))
-		return archive;
-	return NULL;
+	return SFileOpenArchive(GetSavePath(save_num).c_str(), 0);
 }
 
 static void pfile_SFileCloseArchive(HANDLE hsArchive)

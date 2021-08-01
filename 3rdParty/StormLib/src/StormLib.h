@@ -1005,7 +1005,7 @@ LCID   WINAPI SFileSetLocale(LCID lcNewLocale);
 //-----------------------------------------------------------------------------
 // Functions for archive manipulation
 
-bool   WINAPI SFileOpenArchive(const TCHAR * szMpqName, DWORD dwFlags, HANDLE * phMpq);
+HANDLE   WINAPI SFileOpenArchive(const TCHAR* szMpqName, DWORD dwFlags);
 //bool   WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwCreateFlags, DWORD dwMaxFileCount, HANDLE * phMpq);
 //bool   WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCreateInfo, HANDLE * phMpq);
 
@@ -1013,7 +1013,7 @@ bool   WINAPI SFileOpenArchive(const TCHAR * szMpqName, DWORD dwFlags, HANDLE * 
 bool   WINAPI SFileSetDownloadCallback(HANDLE hMpq, SFILE_DOWNLOAD_CALLBACK DownloadCB, void * pvUserData);
 bool   WINAPI SFileFlushArchive(HANDLE hMpq);
 #endif
-bool   WINAPI SFileCloseArchive(HANDLE hMpq);
+void   WINAPI SFileCloseArchive(HANDLE hMpq);
 
 // Adds another listfile into MPQ. The currently added listfile(s) remain,
 // so you can use this API to combining more listfiles.
@@ -1043,7 +1043,9 @@ bool   WINAPI SFileCloseArchive(HANDLE hMpq);
 // Functions for file manipulation
 
 // Reading from MPQ file
+#ifdef FULL
 bool   WINAPI SFileHasFile(HANDLE hMpq, const char * szFileName);
+#endif
 bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * phFile);
 DWORD  WINAPI SFileGetFileSize(HANDLE hFile);
 DWORD  WINAPI SFileGetFilePointer(HANDLE hFile);

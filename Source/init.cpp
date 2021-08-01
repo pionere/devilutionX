@@ -33,9 +33,7 @@ HANDLE diabdat_mpq;
 HANDLE diabdat_mpqs[NUM_MPQS];
 #endif
 
-namespace {
-
-HANDLE init_test_access(const char *mpq_name)
+static HANDLE init_test_access(const char* mpq_name)
 {
 	HANDLE archive;
 #if defined(__3DS__)
@@ -51,7 +49,8 @@ HANDLE init_test_access(const char *mpq_name)
 	for (int i = 0; i < lengthof(paths); i++) { 
 		mpq_abspath = paths[i];
 		mpq_abspath += mpq_name;
-		if (SFileOpenArchive(mpq_abspath.c_str(), MPQ_OPEN_READ_ONLY, &archive)) {
+		archive = SFileOpenArchive(mpq_abspath.c_str(), MPQ_OPEN_READ_ONLY);
+		if (archive != NULL) {
 			SFileSetBasePath(paths[i]);
 			return archive;
 		}
@@ -59,8 +58,6 @@ HANDLE init_test_access(const char *mpq_name)
 
 	return NULL;
 }
-
-} // namespace
 
 /* data */
 
@@ -186,6 +183,7 @@ void init_archives()
 	int entryCount = 0;
 	while (std::getline(input, line)) {
 		for (i = 0; i < NUM_MPQS; i++) {
+			//if (diabdat_mpqs[i] != NULL && SFileHasFile(diabdat_mpqs[i], line.c_str())) {
 			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_CHECK_EXISTS, NULL)) {
 				entryCount++;
 				break;

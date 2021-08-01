@@ -221,8 +221,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	//0x800000 // Edge detection
 	//0x200800 // Clear FB
 
-	HANDLE videoFile;
-	SFileOpenFile(filename, &videoFile);
+	HANDLE videoFile = SFileOpenFile(filename);
 
 	DWORD bytestoread = SFileGetFileSize(videoFile);
 	SVidBuffer = DiabloAllocPtr(bytestoread);

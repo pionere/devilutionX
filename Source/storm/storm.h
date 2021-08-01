@@ -73,15 +73,15 @@ extern "C" {
 #define SFILE_OPEN_LOCAL_FILE		0xFFFFFFFF
 #define SFILE_OPEN_CHECK_EXISTS		0xFFFFFFFC
 
-bool WINAPI SFileCloseArchive(HANDLE hArchive);
+void WINAPI SFileCloseArchive(HANDLE hArchive);
 void WINAPI SFileCloseFile(HANDLE hFile);
 
 DWORD WINAPI SFileGetFileSize(HANDLE hFile);
 DWORD WINAPI SFileGetFilePointer(HANDLE hFile);
 DWORD WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
-bool WINAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
+HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
 
-bool SFileOpenFile(const char *filename, HANDLE *phFile);
+HANDLE SFileOpenFile(const char* filename);
 bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchScope, HANDLE *phFile);
 
 bool WINAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead, DWORD *read);

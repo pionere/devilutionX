@@ -203,10 +203,9 @@ LCID WINAPI SFileSetLocale(LCID lcNewLocale)
 //   dwFlags    - See MPQ_OPEN_XXX in StormLib.h
 //   phMpq      - Pointer to store open archive handle
 
-bool WINAPI SFileOpenArchive(
+HANDLE WINAPI SFileOpenArchive(
     const TCHAR * szMpqName,
-    DWORD dwFlags,
-    HANDLE * phMpq)
+    DWORD dwFlags)
 {
     TMPQUserData * pUserData;
     TFileStream * pStream = NULL;       // Open file stream
@@ -219,10 +218,10 @@ bool WINAPI SFileOpenArchive(
     int nError = ERROR_SUCCESS;
 
     // Verify the parameters
-    if(szMpqName == NULL || *szMpqName == 0 || phMpq == NULL)
+    if(szMpqName == NULL || *szMpqName == 0)
     {
         SetLastError(ERROR_INVALID_PARAMETER);
-        return false;
+        return NULL;
     }
 
     // One time initialization of MPQ cryptography
@@ -234,7 +233,7 @@ bool WINAPI SFileOpenArchive(
     // Open the MPQ archive file
     pStream = FileStream_OpenFile(szMpqName, dwStreamFlags);
     if(pStream == NULL)
-        return false;
+        return NULL;
 
     // Check the file size. There must be at least 0x20 bytes
     if(nError == ERROR_SUCCESS)
@@ -516,9 +515,7 @@ bool WINAPI SFileOpenArchive(
     // Free the header buffer
     if(pbHeaderBuffer != NULL)
         STORM_FREE(pbHeaderBuffer);
-    if(phMpq != NULL)
-        *phMpq = ha;
-    return (nError == ERROR_SUCCESS);
+    return ha;
 }
 
 #ifdef FULL
@@ -635,7 +632,7 @@ bool WINAPI SFileFlushArchive(HANDLE hMpq)
 // bool SFileCloseArchive(HANDLE hMpq);
 //
 
-bool WINAPI SFileCloseArchive(HANDLE hMpq)
+void WINAPI SFileCloseArchive(HANDLE hMpq)
 {
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
     bool bResult = false;
@@ -643,8 +640,10 @@ bool WINAPI SFileCloseArchive(HANDLE hMpq)
     // Only if the handle is valid
     if(ha == NULL)
     {
+#ifdef FULL
         SetLastError(ERROR_INVALID_HANDLE);
-        return false;
+#endif
+        return;// false;
     }
 
     // Invalidate the add file callback so it won't be called
@@ -659,5 +658,7 @@ bool WINAPI SFileCloseArchive(HANDLE hMpq)
 
     // Free all memory used by MPQ archive
     FreeArchiveHandle(ha);
+#ifdef FULL
     return bResult;
+#endif
 }

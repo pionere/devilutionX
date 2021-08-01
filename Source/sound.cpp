@@ -96,7 +96,7 @@ TSnd *sound_file_load(const char *path)
 	DWORD dwBytes;
 	int error;
 
-	SFileOpenFile(path, &file);
+	file = SFileOpenFile(path);
 	pSnd = (TSnd *)DiabloAllocPtr(sizeof(TSnd));
 	memset(pSnd, 0, sizeof(TSnd));
 	pSnd->nextTc = 0;
@@ -159,8 +159,8 @@ void music_start(int nTrack)
 	assert((unsigned)nTrack < NUM_MUSIC);
 	if (gbMusicOn) {
 		music_stop();
-		HANDLE hMusic;
-		if (SFileOpenFile(sgszMusicTracks[nTrack], &hMusic)) {
+		HANDLE hMusic = SFileOpenFile(sgszMusicTracks[nTrack]);
+		if (hMusic != NULL) {
 			DWORD bytestoread = SFileGetFileSize(hMusic);
 			BYTE *_gMusicBuffer = DiabloAllocPtr(bytestoread);
 			SFileReadFile(hMusic, _gMusicBuffer, bytestoread, NULL);

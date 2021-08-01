@@ -380,12 +380,12 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 //
 //   hMpq          - Handle of opened MPQ archive
 //   szFileName    - Name of file to look for
-
+#ifdef FULL
 bool WINAPI SFileHasFile(HANDLE hMpq, const char * szFileName)
 {
     return SFileOpenFileEx(hMpq, szFileName, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
-
+#endif
 //-----------------------------------------------------------------------------
 void WINAPI SFileCloseFile(HANDLE hFile)
 {

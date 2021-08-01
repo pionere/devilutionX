@@ -69,12 +69,12 @@ void palette_init()
 void LoadPalette(const char *pszFileName)
 {
 	int i;
-	void *pBuf;
+	HANDLE pBuf;
 	BYTE PalData[256][3];
 
 	assert(pszFileName != NULL);
 
-	SFileOpenFile(pszFileName, &pBuf);
+	pBuf = SFileOpenFile(pszFileName);
 	SFileReadFile(pBuf, PalData, sizeof(PalData), NULL);
 	SFileCloseFile(pBuf);
 

@@ -63,31 +63,28 @@ unsigned char AsciiToLowerTable_Path[256] = {
 	0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
 
-bool SFileOpenFile(const char *filename, HANDLE *phFile)
+HANDLE SFileOpenFile(const char* filename)
 {
 	unsigned i;
-	bool result = false;
+	HANDLE result = NULL;
 
 	if (directFileAccess && SBasePath != NULL) {
 		std::string path = *SBasePath + filename;
 		for (i = SBasePath->size(); i < path.size(); ++i)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
-		result = SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, phFile);
+		SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, &result);
 	}
-	if (!result) {
 #ifdef MPQONE
-		result = SFileOpenFileEx(diabdat_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
+	if (result == NULL)
+		SFileOpenFileEx(diabdat_mpq, filename, SFILE_OPEN_FROM_MPQ, &result);
 #else
-		for (i = 0; i < NUM_MPQS; i++) {
-			if (diabdat_mpqs[i] != NULL
-			 && SFileOpenFileEx(diabdat_mpqs[i], filename, SFILE_OPEN_FROM_MPQ, phFile)) {
-				result = true;
-				break;
-			}
-		}
-#endif
+	for (i = 0; i < NUM_MPQS && result == NULL; i++) {
+		if (diabdat_mpqs[i] == NULL)
+			continue;
+		SFileOpenFileEx(diabdat_mpqs[i], filename, SFILE_OPEN_FROM_MPQ, &result);
 	}
-	if (!result || *phFile == NULL) {
+#endif
+	if (result == NULL) {
 		SDL_Log("%s: Not found: %s", __FUNCTION__, filename);
 	}
 	return result;
@@ -115,7 +112,8 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	}
 
 	// check if the file exists
-	if (!SFileOpenFile(pszFileName, &hFile)) {
+	hFile = SFileOpenFile(pszFileName);
+	if (hFile == NULL) {
 		return false;
 	}
 

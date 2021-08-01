@@ -177,7 +177,7 @@ BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen)
 	BYTE *buf;
 	size_t fileLen;
 
-	SFileOpenFile(pszName, &file);
+	file = SFileOpenFile(pszName);
 	fileLen = SFileGetFileSize(file);
 
 	if (pdwFileLen != NULL)
@@ -209,7 +209,7 @@ void LoadFileWithMem(const char *pszName, BYTE *p)
 		app_fatal("LoadFileWithMem(NULL):\n%s", pszName);
 	}
 
-	SFileOpenFile(pszName, &hsFile);
+	hsFile = SFileOpenFile(pszName);
 
 	dwFileLen = SFileGetFileSize(hsFile);
 	if (dwFileLen == 0) {

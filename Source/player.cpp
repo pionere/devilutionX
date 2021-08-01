@@ -398,8 +398,8 @@ static unsigned GetPlrGFXSize(const char *szCel)
 				}*/
 				snprintf(Type, sizeof(Type), "%c%c%c", *cc, *a, *w);
 				snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
-				if (SFileOpenFile(pszName, &hsFile)) {
-					/// ASSERT: assert(hsFile != NULL);
+				hsFile = SFileOpenFile(pszName);
+				if (hsFile != NULL) {
 					dwSize = SFileGetFileSize(hsFile);
 					SFileCloseFile(hsFile);
 					if (dwMaxSize < dwSize) {
