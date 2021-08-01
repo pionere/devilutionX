@@ -141,7 +141,7 @@ bool PosOkPortal(int x, int y)
 
 	ps = portals;
 	for (i = MAXPORTAL; i != 0; i--, ps++) {
-		if (ps->_wopen && ps->level == lvl && ((ps->x == x && ps->y == y) || (ps->x == x - 1 && ps->y == y - 1)))
+		if (ps->_wopen && ps->level == lvl && (ps->x == x && ps->y == y))
 			return false;
 	}
 	return true;
