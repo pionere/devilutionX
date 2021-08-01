@@ -435,7 +435,7 @@ void GetReturnLvlPos()
 {
 	ViewX = ReturnLvlX;
 	ViewY = ReturnLvlY;
-	EnterLevel(ReturnLvl);
+	//EnterLevel(ReturnLvl);
 }
 
 void LoadPWaterPalette()

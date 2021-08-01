@@ -443,6 +443,20 @@ void EnterLevel(BYTE lvl)
 		currLvl._dLevel += HELL_LEVEL_BONUS;
 }
 
+static void SwitchGameLevel(int lvldir)
+{
+	if (IsMultiGame) {
+		DeltaSaveLevel();
+	} else {
+		SaveLevel();
+	}
+	IncProgress();
+	FreeLevelMem();
+	EnterLevel(myplr.plrlevel);
+	IncProgress();
+	LoadGameLevel(false, lvldir);
+}
+
 void ShowProgress(unsigned int uMsg)
 {
 	WNDPROC saveProc;
@@ -477,103 +491,33 @@ void ShowProgress(unsigned int uMsg)
 		LoadGameLevel(true, ENTRY_MAIN);
 		break;
 	case WM_DIABNEXTLVL:
-		if (IsMultiGame) {
-			DeltaSaveLevel();
-		} else {
-			SaveLevel();
-		}
-		IncProgress();
-		FreeLevelMem();
 		assert(myplr.plrlevel == currLvl._dLevelIdx + 1);
-		EnterLevel(myplr.plrlevel);
-		IncProgress();
-		LoadGameLevel(false, ENTRY_MAIN);
+		SwitchGameLevel(ENTRY_MAIN);
 		break;
 	case WM_DIABPREVLVL:
-		if (IsMultiGame) {
-			DeltaSaveLevel();
-		} else {
-			SaveLevel();
-		}
-		IncProgress();
-		FreeLevelMem();
 		assert(myplr.plrlevel == currLvl._dLevelIdx - 1);
-		EnterLevel(myplr.plrlevel);
-		IncProgress();
-		LoadGameLevel(false, ENTRY_PREV);
+		SwitchGameLevel(ENTRY_PREV);
 		break;
 	case WM_DIABSETLVL:
 		SetReturnLvlPos();
-		if (IsMultiGame) {
-			DeltaSaveLevel();
-		} else {
-			SaveLevel();
-		}
-		IncProgress();
-		FreeLevelMem();
-		EnterLevel(myplr.plrlevel);
-		IncProgress();
-		LoadGameLevel(false, ENTRY_SETLVL);
+		SwitchGameLevel(ENTRY_SETLVL);
 		break;
 	case WM_DIABRTNLVL:
-		if (IsMultiGame) {
-			DeltaSaveLevel();
-		} else {
-			SaveLevel();
-		}
-		IncProgress();
-		FreeLevelMem();
-		IncProgress();
-		GetReturnLvlPos();
-		LoadGameLevel(false, ENTRY_RTNLVL);
+		assert(myplr.plrlevel == ReturnLvl);
+		SwitchGameLevel(ENTRY_RTNLVL);
 		break;
 	case WM_DIABWARPLVL:
-		if (IsMultiGame) {
-			DeltaSaveLevel();
-		} else {
-			SaveLevel();
-		}
-		IncProgress();
-		FreeLevelMem();
-		GetPortalLevel();
-		IncProgress();
-		LoadGameLevel(false, ENTRY_WARPLVL);
+		UseCurrentPortal();
+		SwitchGameLevel(ENTRY_WARPLVL);
 		break;
 	case WM_DIABTWARPDN:
-		if (IsMultiGame) {
-			DeltaSaveLevel();
-		} else {
-			SaveLevel();
-		}
-		IncProgress();
-		FreeLevelMem();
-		EnterLevel(myplr.plrlevel);
-		IncProgress();
-		LoadGameLevel(false, ENTRY_TWARPDN);
+		SwitchGameLevel(ENTRY_TWARPDN);
 		break;
 	case WM_DIABTWARPUP:
-		if (IsMultiGame) {
-			DeltaSaveLevel();
-		} else {
-			SaveLevel();
-		}
-		IncProgress();
-		FreeLevelMem();
-		EnterLevel(myplr.plrlevel);
-		IncProgress();
-		LoadGameLevel(false, ENTRY_TWARPUP);
+		SwitchGameLevel(ENTRY_TWARPUP);
 		break;
 	case WM_DIABRETOWN:
-		if (IsMultiGame) {
-			DeltaSaveLevel();
-		} else {
-			SaveLevel();
-		}
-		IncProgress();
-		FreeLevelMem();
-		EnterLevel(myplr.plrlevel);
-		IncProgress();
-		LoadGameLevel(false, ENTRY_MAIN);
+		SwitchGameLevel(ENTRY_MAIN);
 		break;
 	}
 	IncProgress();

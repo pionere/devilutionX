@@ -106,18 +106,11 @@ void SetCurrentPortal(int p)
 	portalindex = p;
 }
 
-void GetPortalLevel()
+void UseCurrentPortal()
 {
-	if (currLvl._dLevelIdx != DLV_TOWN) {
-		EnterLevel(DLV_TOWN);
-		assert(myplr.plrlevel == DLV_TOWN);
-	} else {
-		EnterLevel(portals[portalindex].level);
-		assert(myplr.plrlevel == currLvl._dLevelIdx);
-		if (portalindex == mypnum) {
-			NetSendCmd(true, CMD_DEACTIVATEPORTAL);
-			DeactivatePortal(portalindex);
-		}
+	if (currLvl._dLevelIdx == DLV_TOWN && portalindex == mypnum) {
+		NetSendCmd(true, CMD_DEACTIVATEPORTAL);
+		//DeactivatePortal(portalindex);
 	}
 }
 
