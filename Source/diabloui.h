@@ -13,7 +13,7 @@ void UiTitleDialog();
 void UiDestroy();
 
 bool UiValidPlayerName(const char *name);
-int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo *)), bool(*fncreate)(_uiheroinfo *), void(*fnremove)(_uiheroinfo *), void(*fnstats)(unsigned int, _uidefaultstats *), char (&name)[16]);
+int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo *)), bool(*fncreate)(_uiheroinfo *), void(*fnremove)(_uiheroinfo *), char (&name)[16]);
 void UiCreditsDialog();
 int UiMainMenuDialog(const char* name, void(*fnSound)(const char* file));
 

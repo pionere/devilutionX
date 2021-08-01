@@ -23,7 +23,7 @@ static bool selhero_navigateYesNo;
 static bool selhero_deleteEnabled;
 
 static bool(*gfnHeroCreate)(_uiheroinfo *);
-static void (*gfnHeroStats)(unsigned int, _uidefaultstats *);
+//static void (*gfnHeroStats)(unsigned int, _uidefaultstats *);
 
 static std::vector<UiItemBase *> vecSelHeroDialog;
 static std::vector<UiListItem *> vecSelHeroDlgItems;
@@ -342,15 +342,16 @@ static void SelheroLoadFocus(unsigned index)
 
 static void SelheroClassSelectorFocus(unsigned index)
 {
-	_uidefaultstats defaults;
-	gfnHeroStats(index, &defaults);
+	//_uidefaultstats defaults;
+	//gfnHeroStats(index, &defaults);
+	assert(vecSelHeroDlgItems[index]->m_value == index);
 
 	selhero_heroInfo.hiLevel = 1;
-	selhero_heroInfo.hiClass = vecSelHeroDlgItems[index]->m_value;
-	selhero_heroInfo.hiStrength = defaults.dsStrength;
-	selhero_heroInfo.hiMagic = defaults.dsMagic;
-	selhero_heroInfo.hiDexterity = defaults.dsDexterity;
-	selhero_heroInfo.hiVitality = defaults.dsVitality;
+	selhero_heroInfo.hiClass = index;
+	selhero_heroInfo.hiStrength = StrengthTbl[index]; //defaults.dsStrength;
+	selhero_heroInfo.hiMagic = MagicTbl[index]; //defaults.dsMagic;
+	selhero_heroInfo.hiDexterity = DexterityTbl[index]; //defaults.dsDexterity;
+	selhero_heroInfo.hiVitality = VitalityTbl[index]; //defaults.dsVitality;
 
 	SelheroSetStats();
 }
@@ -496,14 +497,14 @@ static void SelHeroGetHeroInfo(_uiheroinfo *pInfo)
 int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 	bool (*fncreate)(_uiheroinfo *),
 	void (*fnremove)(_uiheroinfo *),
-	void (*fnstats)(unsigned int, _uidefaultstats *),
+	//void (*fnstats)(unsigned int, _uidefaultstats *),
 	char (&name)[16])
 {
 	do {
 		SelheroInit();
 
 		gfnHeroCreate = fncreate;
-		gfnHeroStats = fnstats;
+		//gfnHeroStats = fnstats;
 		//selhero_result = 0;
 
 		selhero_navigateYesNo = false;

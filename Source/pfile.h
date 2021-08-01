@@ -22,7 +22,7 @@ void pfile_create_player_description();
 //bool pfile_rename_hero(const char *name_1, const char *name_2);
 void pfile_flush_W();
 void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *));
-void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats);
+//void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats);
 bool pfile_ui_save_create(_uiheroinfo *heroinfo);
 bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH]);
 void pfile_delete_save(_uiheroinfo *hero_info);

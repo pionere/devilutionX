@@ -227,13 +227,13 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 	}
 }
 
-void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats)
+/*void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats)
 {
 	class_stats->dsStrength = StrengthTbl[player_class_nr];
 	class_stats->dsMagic = MagicTbl[player_class_nr];
 	class_stats->dsDexterity = DexterityTbl[player_class_nr];
 	class_stats->dsVitality = VitalityTbl[player_class_nr];
-}
+}*/
 
 bool pfile_ui_save_create(_uiheroinfo *heroinfo)
 {
