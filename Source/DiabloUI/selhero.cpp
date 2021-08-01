@@ -481,7 +481,6 @@ static void SelheroNameSelect(unsigned index)
 				allItems.insert(allItems.end(), vecSelDlgItems.begin(), vecSelDlgItems.end());
 				UiErrorOkDialog("Unable to create character.", allItems);
 			}
-			UiErrorOkDialog("Unable to create character.", vecSelDlgItems);
 		}
 	}
 
