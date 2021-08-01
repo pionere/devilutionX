@@ -1979,9 +1979,6 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 		}
 		if (i == RANGE)
 			return MIRES_FAIL_DELETE;
-		if (misource == mypnum) {
-			NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, tx, ty, currLvl._dLevelIdx);
-		}
 	} else {
 		tx = dx;
 		ty = dy;
@@ -1993,7 +1990,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 			mis->_miRange = 0;
 	}
 	// setup the new portal
-	return AddPortal(mi, 0, 0, tx, ty, 0, 0, 0, spllvl);
+	return AddPortal(mi, 0, 0, tx, ty, 0, 0, misource, spllvl);
 }
 
 /**
@@ -2012,6 +2009,8 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miRange = P_RANGE;
 	if (spllvl >= 0) {
 		PlaySfxLoc(LS_SENTINEL, dx, dy);
+		if (misource == mypnum)
+			NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, dx, dy, currLvl._dLevelIdx);
 		mis->_miVar1 = P_RANGE - mis->_miAnimLen;
 		// mis->_miVar2 = 0;
 	} else {

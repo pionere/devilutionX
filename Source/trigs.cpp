@@ -351,7 +351,7 @@ void InitVPEntryTrigger(bool recreate)
 	trigs[i]._tlvl = questlist[Q_BETRAYER]._qslvl;
 	numtrigs = i + 1;
 
-	AddMissile(0, 0, quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, MIS_RPORTAL, 0, 0, 0, 0, recreate ? -1 : 0);
+	AddMissile(0, 0, quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, MIS_RPORTAL, 0, -1, 0, 0, recreate ? -1 : 0);
 }
 
 void InitVPReturnTrigger(bool recreate)
