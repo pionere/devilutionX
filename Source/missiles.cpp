@@ -1667,8 +1667,8 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
-	if (micaster == 0) {
-		if (misource != -1) {
+	if (misource != -1) {
+		if (micaster == 0) {
 			av = 2 * spllvl + 16;
 			if (av > 63)
 				av = 63;
@@ -1681,14 +1681,15 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 				maxdam = mindam + 9;
 			}
 		} else {
-			av = 16;
-			mindam = currLvl._dLevel;
-			maxdam = mindam + 2 * mindam - 1;
+			//assert(misource >= MAX_MINIONS);
+			av = 26;
+			mindam = monster[misource]._mMinDamage;
+			maxdam = monster[misource]._mMaxDamage;
 		}
 	} else {
-		av = 26;
-		mindam = monster[misource]._mMinDamage;
-		maxdam = monster[misource]._mMaxDamage;
+		av = 16;
+		mindam = currLvl._dLevel;
+		maxdam = mindam + 2 * mindam - 1;
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
@@ -1823,6 +1824,7 @@ int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		dy += YDirAdd[midir];
 	}
 	mis = &missile[mi];
+	//assert(misource != -1);
 	if (micaster == 0) {
 		mindam = (plx(misource)._pMagic >> 2) + 10;
 		maxdam = mindam + 10;
@@ -2277,6 +2279,7 @@ int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 8);
+	//assert(misource != -1);
 	if (micaster == 0) {
 		if (!plx(misource)._pInvincible)
 			PlrDecHp(misource, 320, DMGTYPE_NPC);
@@ -2682,6 +2685,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		mis->_miVar2 += 5;
 	}
 	mis->_miRange = mis->_miVar2 + 20;
+	//assert(misource != -1);
 	if (micaster == 0) {
 		mis->_miMinDam = plx(misource)._pMagic;
 		mis->_miMaxDam = mis->_miMinDam + (spllvl << 4);
