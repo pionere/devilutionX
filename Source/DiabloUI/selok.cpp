@@ -16,17 +16,9 @@ void selok_Free()
 {
 	ArtBackground.Unload();
 
-	for (unsigned i = 0; i < vecSelOkDialogItems.size(); i++) {
-		UiListItem *pUIListItem = vecSelOkDialogItems[i];
-		delete pUIListItem;
-	}
-	vecSelOkDialogItems.clear();
+	UiClearListItems(vecSelOkDialogItems);
 
-	for (unsigned i = 0; i < vecSelOkDialog.size(); i++) {
-		UiItemBase *pUIItem = vecSelOkDialog[i];
-		delete pUIItem;
-	}
-	vecSelOkDialog.clear();
+	UiClearItems(vecSelOkDialog);
 }
 
 void selok_Select(unsigned index)

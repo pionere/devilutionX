@@ -68,6 +68,8 @@ void UiInitScrollBar(UiScrollBar *ui_sb, unsigned viewport_size);
 void UiClearScreen();
 void UiPollAndRender();
 void UiRenderItems(const std::vector<UiItemBase *> &uiItems);
+void UiClearItems(std::vector<UiItemBase *> &uiItems);
+void UiClearListItems(std::vector<UiListItem *> &uiItems);
 void UiInitList_clear();
 
 void mainmenu_restart_repintro();

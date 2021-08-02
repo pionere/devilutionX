@@ -27,11 +27,7 @@ static void TitleFree()
 #ifndef HELLFIRE
 	ArtLogos[LOGO_BIG].Unload();
 #endif
-	for (unsigned i = 0; i < vecTitleScreen.size(); i++) {
-		UiItemBase *pUIItem = vecTitleScreen[i];
-		delete pUIItem;
-	}
-	vecTitleScreen.clear();
+	UiClearItems(vecTitleScreen);
 }
 
 void UiTitleDialog()

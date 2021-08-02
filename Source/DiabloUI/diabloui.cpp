@@ -54,8 +54,6 @@ char *UiTextInput;
 int UiTextInputLen;
 bool textInputActive = true;
 
-static void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)]);
-
 static Uint32 _gdwFadeTc;
 static int _gnFadeValue = 0;
 
@@ -144,9 +142,7 @@ void UiPlaySelectSound()
 		gfnSoundFunction("sfx\\items\\titlslct.wav");
 }
 
-namespace {
-
-void UiFocus(unsigned itemIndex)
+static void UiFocus(unsigned itemIndex)
 {
 	if (SelectedItem == itemIndex)
 		return;
@@ -159,7 +155,7 @@ void UiFocus(unsigned itemIndex)
 		gfnListFocus(itemIndex);
 }
 
-void UiFocusUp()
+static void UiFocusUp()
 {
 	if (SelectedItem > 0)
 		UiFocus(SelectedItem - 1);
@@ -167,7 +163,7 @@ void UiFocusUp()
 		UiFocus(SelectedItemMax);
 }
 
-void UiFocusDown()
+static void UiFocusDown()
 {
 	if (SelectedItem < SelectedItemMax)
 		UiFocus(SelectedItem + 1);
@@ -177,7 +173,7 @@ void UiFocusDown()
 
 // UiFocusPageUp/Down mimics the slightly weird behaviour of actual Diablo.
 
-void UiFocusPageUp()
+static void UiFocusPageUp()
 {
 	unsigned pageStart = ListOffset;
 	if (pageStart == 0) {
@@ -193,7 +189,7 @@ void UiFocusPageUp()
 	}
 }
 
-void UiFocusPageDown()
+static void UiFocusPageDown()
 {
 	unsigned pageEnd = ListOffset + ListViewportSize;
 	if (pageEnd > SelectedItemMax || pageEnd == 0) {
@@ -225,7 +221,7 @@ static void SelheroSetName(char *inBuf, char *outBuf, int cnt)
 }
 #endif
 
-bool HandleMenuAction(MenuAction menuAction)
+static bool HandleMenuAction(MenuAction menuAction)
 {
 	switch (menuAction) {
 	case MenuAction_SELECT:
@@ -256,9 +252,7 @@ bool HandleMenuAction(MenuAction menuAction)
 	}
 }
 
-} // namespace
-
-void UiFocusNavigation(SDL_Event *event)
+static void UiFocusNavigation(SDL_Event* event)
 {
 	switch (event->type) {
 	case SDL_KEYUP:
@@ -533,6 +527,13 @@ int GetCenterOffset(int w, int bw)
 	return (bw - w) / 2;
 }
 
+static void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)])
+{
+	for (int i = 0; i < lengthof(orig_palette); i++) {
+		orig_palette[i] = pPal[i];
+	}
+}
+
 void LoadBackgroundArt(const char *pszFile, int frames)
 {
 	SDL_Color pPal[256];
@@ -594,7 +595,7 @@ void UiFadeIn()
 	RenderPresent();
 }
 
-void DrawSelector(const SDL_Rect &rect)
+static void DrawSelector(const SDL_Rect &rect)
 {
 	int size = FOCUS_SMALL;
 	if (rect.h >= 42)
@@ -636,9 +637,7 @@ void UiPollAndRender()
 #endif
 }
 
-namespace {
-
-void Render(UiText *uiText)
+static void Render(UiText* uiText)
 {
 	DrawTTF(uiText->m_text,
 	    uiText->m_rect,
@@ -648,12 +647,12 @@ void Render(UiText *uiText)
 	    uiText->m_render_cache);
 }
 
-void Render(const UiArtText *uiArtText)
+static void Render(const UiArtText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
 }
 
-void Render(const UiImage *uiImage)
+static void Render(const UiImage* uiImage)
 {
 	int x = uiImage->m_rect.x;
 	if ((uiImage->m_iFlags & UIS_CENTER) && uiImage->m_art != NULL) {
@@ -667,12 +666,12 @@ void Render(const UiImage *uiImage)
 	}
 }
 
-void Render(const UiArtTextButton *uiButton)
+static void Render(const UiArtTextButton* uiButton)
 {
 	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
 }
 
-void Render(const UiList *uiList)
+static void Render(const UiList* uiList)
 {
 	for (unsigned i = 0; i < uiList->m_vecItems.size(); ++i) {
 		SDL_Rect rect = uiList->itemRect(i);
@@ -683,7 +682,7 @@ void Render(const UiList *uiList)
 	}
 }
 
-void Render(const UiScrollBar *uiSb)
+static void Render(const UiScrollBar* uiSb)
 {
 	// Bar background (tiled):
 	{
@@ -715,7 +714,7 @@ void Render(const UiScrollBar *uiSb)
 	}
 }
 
-void Render(const UiEdit *uiEdit)
+static void Render(const UiEdit* uiEdit)
 {
 	DrawSelector(uiEdit->m_rect);
 	SDL_Rect rect = uiEdit->m_rect;
@@ -725,7 +724,7 @@ void Render(const UiEdit *uiEdit)
 	DrawArtStr(uiEdit->m_value, rect, uiEdit->m_iFlags, /*drawTextCursor=*/true);
 }
 
-void RenderItem(UiItemBase *item)
+static void RenderItem(UiItemBase* item)
 {
 	if (item->has_flag(UIS_HIDDEN))
 		return;
@@ -757,7 +756,7 @@ void RenderItem(UiItemBase *item)
 	}
 }
 
-bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton *uiButton)
+static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton* uiButton)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT)
 		return false;
@@ -769,7 +768,7 @@ bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton
 Uint32 dbClickTimer;
 #endif
 
-bool HandleMouseEventList(const SDL_Event &event, UiList *uiList)
+static bool HandleMouseEventList(const SDL_Event &event, UiList* uiList)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT)
 		return false;
@@ -795,7 +794,7 @@ bool HandleMouseEventList(const SDL_Event &event, UiList *uiList)
 	return true;
 }
 
-bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar *uiSb)
+static bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar* uiSb)
 {
 	if (event.button.button != SDL_BUTTON_LEFT)
 		return false;
@@ -830,7 +829,7 @@ bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar *uiSb)
 	return false;
 }
 
-bool HandleMouseEvent(const SDL_Event &event, UiItemBase *item)
+static bool HandleMouseEvent(const SDL_Event &event, UiItemBase* item)
 {
 	if (item->has_any_flag(UIS_HIDDEN | UIS_DISABLED) || !IsInsideRect(event, item->m_rect))
 		return false;
@@ -848,19 +847,28 @@ bool HandleMouseEvent(const SDL_Event &event, UiItemBase *item)
 	}
 }
 
-} // namespace
-
-void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)])
-{
-	for (int i = 0; i < lengthof(orig_palette); i++) {
-		orig_palette[i] = pPal[i];
-	}
-}
-
 void UiRenderItems(const std::vector<UiItemBase *> &uiItems)
 {
-	for (unsigned i = 0; i < uiItems.size(); i++)
+	for (size_t i = 0; i < uiItems.size(); i++)
 		RenderItem((UiItemBase *)uiItems[i]);
+}
+
+void UiClearItems(std::vector<UiItemBase *> &uiItems)
+{
+	for (size_t i = 0; i < uiItems.size(); i++) {
+		UiItemBase* pUIItem = uiItems[i];
+		delete pUIItem;
+	}
+	uiItems.clear();
+}
+
+void UiClearListItems(std::vector<UiListItem *> &uiItems)
+{
+	for (size_t i = 0; i < uiItems.size(); i++) {
+		UiListItem* pUIItem = uiItems[i];
+		delete pUIItem;
+	}
+	uiItems.clear();
 }
 
 bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &uiItems)

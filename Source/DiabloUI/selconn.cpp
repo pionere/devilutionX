@@ -125,17 +125,9 @@ static void SelconnFree()
 {
 	ArtBackground.Unload();
 
-	for (unsigned i = 0; i < vecConnItems.size(); i++) {
-		UiListItem *pUIItem = vecConnItems[i];
-		delete pUIItem;
-	}
-	vecConnItems.clear();
+	UiClearListItems(vecConnItems);
 
-	for (unsigned i = 0; i < vecSelConnDlg.size(); i++) {
-		UiItemBase *pUIMenuItem = vecSelConnDlg[i];
-		delete pUIMenuItem;
-	}
-	vecSelConnDlg.clear();
+	UiClearItems(vecSelConnDlg);
 }
 
 static void SelconnSelect(unsigned index)

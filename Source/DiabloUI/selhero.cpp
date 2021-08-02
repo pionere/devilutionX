@@ -130,31 +130,19 @@ static void SelheroUiFocusNavigationYesNo()
 
 static void SelheroFreeListItems()
 {
-	for (unsigned i = 0; i < vecSelHeroDlgItems.size(); i++) {
-		UiListItem *pUIItem = vecSelHeroDlgItems[i];
-		delete pUIItem;
-	}
-	vecSelHeroDlgItems.clear();
+	UiClearListItems(vecSelHeroDlgItems);
 }
 
 static void SelheroFreeDlgItems()
 {
-	for (unsigned i = 0; i < vecSelDlgItems.size(); i++) {
-		UiItemBase *pUIItem = vecSelDlgItems[i];
-		delete pUIItem;
-	}
-	vecSelDlgItems.clear();
+	UiClearItems(vecSelDlgItems);
 }
 
 static void SelheroFree()
 {
 	ArtBackground.Unload();
 
-	for (unsigned i = 0; i < vecSelHeroDialog.size(); i++) {
-		UiItemBase *pUIItem = vecSelHeroDialog[i];
-		delete pUIItem;
-	}
-	vecSelHeroDialog.clear();
+	UiClearItems(vecSelHeroDialog);
 
 	SelheroFreeDlgItems();
 	SelheroFreeListItems();
@@ -489,10 +477,10 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 	//void (*fnstats)(unsigned int, _uidefaultstats *),
 	unsigned* saveIdx)
 {
-	do {
+	gfnHeroCreate = fncreate;
+	while (TRUE) {
 		SelheroInit();
 
-		gfnHeroCreate = fncreate;
 		//gfnHeroStats = fnstats;
 		//selhero_result = 0;
 
@@ -516,16 +504,16 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 		}
 		SelheroFree();
 
-		if (selhero_navigateYesNo) {
-			char dialogTitle[32];
-			char dialogText[256];
-			snprintf(dialogTitle, sizeof(dialogTitle), "Delete %s Player Hero", selconn_bMulti ? "Multi" : "Single");
-			snprintf(dialogText, sizeof(dialogText), "Are you sure you want to delete the character \"%s\"?", selhero_heroInfo.hiName);
+		if (selhero_endMenu)
+			break;
+		char dialogTitle[32];
+		char dialogText[256];
+		snprintf(dialogTitle, sizeof(dialogTitle), "Delete %s Player Hero", selconn_bMulti ? "Multi" : "Single");
+		snprintf(dialogText, sizeof(dialogText), "Are you sure you want to delete the character \"%s\"?", selhero_heroInfo.hiName);
 
-			if (UiSelHeroYesNoDialog(dialogTitle, dialogText))
-				fnremove(&selhero_heroInfo);
-		}
-	} while (selhero_navigateYesNo);
+		if (UiSelHeroYesNoDialog(dialogTitle, dialogText))
+			fnremove(&selhero_heroInfo);
+	}
 
 	*saveIdx = selhero_heroInfo.hiIdx;
 

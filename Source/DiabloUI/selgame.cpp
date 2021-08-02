@@ -71,17 +71,9 @@ static void selgame_remove_event_handlers()
 
 static void selgame_FreeVectors()
 {
-	for (unsigned i = 0; i < vecSelGameDlgItems.size(); i++) {
-		UiListItem *pUIItem = vecSelGameDlgItems[i];
-		delete pUIItem;
-	}
-	vecSelGameDlgItems.clear();
+	UiClearListItems(vecSelGameDlgItems);
 
-	for (unsigned i = 0; i < vecSelGameDialog.size(); i++) {
-		UiItemBase *pUIItem = vecSelGameDialog[i];
-		delete pUIItem;
-	}
-	vecSelGameDialog.clear();
+	UiClearItems(vecSelGameDialog);
 }
 
 static void selgame_Free()

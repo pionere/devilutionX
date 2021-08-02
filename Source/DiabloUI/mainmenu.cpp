@@ -67,17 +67,9 @@ static void MainmenuFree()
 #endif
 	ArtBackground.Unload();
 
-	for (unsigned i = 0; i < vecMainMenuDialog.size(); i++) {
-		UiItemBase *pUIItem = vecMainMenuDialog[i];
-		delete pUIItem;
-	}
-	vecMainMenuDialog.clear();
+	UiClearItems(vecMainMenuDialog);
 
-	for (unsigned i = 0; i < vecMenuItems.size(); i++) {
-		UiListItem *pUIMenuItem = vecMenuItems[i];
-		delete pUIMenuItem;
-	}
-	vecMenuItems.clear();
+	UiClearListItems(vecMenuItems);
 }
 
 int UiMainMenuDialog(const char* name, void (*fnSound)(const char* file))

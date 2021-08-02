@@ -292,11 +292,9 @@ public:
 	int m_value;
 };
 
-typedef std::vector<UiListItem *> vUiListItem;
-
 class UiList : public UiItemBase {
 public:
-	UiList(vUiListItem vItems, int16_t x, int16_t y, uint16_t item_width, uint16_t item_height, int flags = 0)
+	UiList(std::vector<UiListItem *> vItems, int16_t x, int16_t y, uint16_t item_width, uint16_t item_height, int flags = 0)
 	    : UiItemBase(x, y, item_width, item_height * vItems.size(), flags)
 	{
 		m_type = UI_LIST;
@@ -338,4 +336,5 @@ public:
 	uint16_t m_width, m_height;
 	std::vector<UiListItem *> m_vecItems;
 };
+
 DEVILUTION_END_NAMESPACE

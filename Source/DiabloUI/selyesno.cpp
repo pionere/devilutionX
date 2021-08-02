@@ -17,17 +17,9 @@ static void SelyesnoFree()
 {
 	ArtBackground.Unload();
 
-	for (unsigned i = 0; i < vecSelYesNoDialogItems.size(); i++) {
-		UiListItem *pUIListItem = vecSelYesNoDialogItems[i];
-		delete pUIListItem;
-	}
-	vecSelYesNoDialogItems.clear();
+	UiClearListItems(vecSelYesNoDialogItems);
 
-	for (unsigned i = 0; i < vecSelYesNoDialog.size(); i++) {
-		UiItemBase *pUIItem = vecSelYesNoDialog[i];
-		delete pUIItem;
-	}
-	vecSelYesNoDialog.clear();
+	UiClearItems(vecSelYesNoDialog);
 }
 
 static void SelyesnoSelect(unsigned index)

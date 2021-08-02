@@ -209,11 +209,7 @@ static void Deinit(std::vector<UiItemBase *> renderBehind)
 	UnloadSmlButtonArt();
 	UnloadTtfFont();
 
-	for (unsigned i = 0; i < vecOkDialog.size(); i++) {
-		UiItemBase *pUIItem = vecOkDialog[i];
-		delete pUIItem;
-	}
-	vecOkDialog.clear();
+	UiClearItems(vecOkDialog);
 }
 
 static void DialogLoop(const std::vector<UiItemBase *> &uiItems, const std::vector<UiItemBase *> &renderBehind)
