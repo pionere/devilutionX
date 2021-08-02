@@ -833,13 +833,7 @@ typedef struct PkItemStruct {
 	DWORD dwBuff;
 } PkItemStruct;
 
-typedef struct _FILETIME {
-	DWORD dwLowDateTime;
-	DWORD dwHighDateTime;
-} FILETIME;
-
 typedef struct PkPlayerStruct {
-	FILETIME archiveTime;
 	BYTE plrlevel;
 	BYTE pTeam;
 	BYTE px;
