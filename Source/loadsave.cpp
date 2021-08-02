@@ -691,12 +691,14 @@ void LoadGame(bool firstflag)
 			monstactive[i] = LoadInt();
 		for (i = 0; i < nummonsters; i++)
 			LoadMonster(monstactive[i]);
+		static_assert(MAXMISSILES <= CHAR_MAX, "LoadGame handles missile-ids as chars.");
 		for (i = 0; i < MAXMISSILES; i++)
 			missileactive[i] = LoadChar();
 		for (i = 0; i < MAXMISSILES; i++)
 			missileavail[i] = LoadChar();
 		for (i = 0; i < nummissiles; i++)
 			LoadMissile(missileactive[i]);
+		static_assert(MAXOBJECTS <= CHAR_MAX, "LoadGame handles object-ids as chars.");
 		for (i = 0; i < MAXOBJECTS; i++)
 			objectactive[i] = LoadChar();
 		for (i = 0; i < MAXOBJECTS; i++)
@@ -719,6 +721,7 @@ void LoadGame(bool firstflag)
 	for (i = 0; i < numvision; i++)
 		LoadLight(&VisionList[visionactive[i]]);
 
+	static_assert(MAXITEMS <= CHAR_MAX, "LoadGame handles item-ids as chars.");
 	for (i = 0; i < MAXITEMS; i++)
 		itemactive[i] = LoadChar();
 	for (i = 0; i < MAXITEMS; i++)
@@ -1416,7 +1419,7 @@ void SaveLevel()
 	int dwLen;
 	BYTE *SaveBuff;
 
-	if (currLvl._dLevelIdx == 0)
+	if (currLvl._dLevelIdx == DLV_TOWN)
 		glSeedTbl[0] = GetRndSeed();
 
 	dwLen = codec_get_encoded_len(FILEBUFF);
@@ -1495,6 +1498,7 @@ void LoadLevel()
 			monstactive[i] = LoadInt();
 		for (i = 0; i < nummonsters; i++)
 			LoadMonster(monstactive[i]);
+		static_assert(MAXOBJECTS <= CHAR_MAX, "LoadLevel handles object-ids as chars.");
 		for (i = 0; i < MAXOBJECTS; i++)
 			objectactive[i] = LoadChar();
 		for (i = 0; i < MAXOBJECTS; i++)
@@ -1507,6 +1511,7 @@ void LoadLevel()
 		}
 	}
 
+	static_assert(MAXITEMS <= CHAR_MAX, "LoadLevel handles item-ids as chars.");
 	for (i = 0; i < MAXITEMS; i++)
 		itemactive[i] = LoadChar();
 	for (i = 0; i < MAXITEMS; i++)
