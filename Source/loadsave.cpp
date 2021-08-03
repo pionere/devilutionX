@@ -857,6 +857,7 @@ void LoadGame()
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
 	}
 	// load meta-data III. (modified by LoadGameLevel)
+	LoadInt(&boylevel);
 	LoadInt(&numpremium);
 	LoadInt(&premiumlevel);
 	LoadInt(&numlights);
@@ -878,8 +879,17 @@ void LoadGame()
 	for ( ; i < 128; i++)
 		LoadBool();
 
+	LoadItemData(&boyitem);
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		LoadItemData(&premiumitems[i]);
+	if (currLvl._dType == DTYPE_TOWN) {
+		for (i = 0; i < SMITH_ITEMS; i++)
+			LoadItemData(&smithitem[i]);
+		for (i = 0; i < HEALER_ITEMS; i++)
+			LoadItemData(&healitem[i]);
+		for (i = 0; i < WITCH_ITEMS; i++)
+			LoadItemData(&witchitem[i]);
+	}
 
 	mem_free_dbg(fileBuff);
 
@@ -1491,6 +1501,7 @@ void SaveGame()
 		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
 	}
 	// save meta-data III. (modified by LoadGameLevel)
+	SaveInt(&boylevel);
 	SaveInt(&numpremium);
 	SaveInt(&premiumlevel);
 	SaveInt(&numlights);
@@ -1512,8 +1523,17 @@ void SaveGame()
 	for ( ; i < 128; i++)
 		SaveBool(FALSE);
 
+	SaveItemData(&boyitem);
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		SaveItemData(&premiumitems[i]);
+	if (currLvl._dType == DTYPE_TOWN) {
+		for (i = 0; i < SMITH_ITEMS; i++)
+			SaveItemData(&smithitem[i]);
+		for (i = 0; i < HEALER_ITEMS; i++)
+			SaveItemData(&healitem[i]);
+		for (i = 0; i < WITCH_ITEMS; i++)
+			SaveItemData(&witchitem[i]);
+	}
 
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
 	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff, dwLen);
