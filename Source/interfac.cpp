@@ -403,15 +403,17 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	ResyncQuests();
 	SyncPortals();
 
-	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr.plractive && plr.plrlevel == currLvl._dLevelIdx && (!plr._pLvlChanging || pnum == mypnum)) {
-			if (plr._pHitPoints >= (1 << 6)) {
-				/*if (!IsMultiGame)
-					dPlayer[plr._px][plr._py] = pnum + 1;
-				else*/
-					SyncInitPlrPos(pnum);
-			} else {
-				dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
+	if (lvldir != ENTRY_LOAD) {
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (plr.plractive && plr.plrlevel == currLvl._dLevelIdx && (!plr._pLvlChanging || pnum == mypnum)) {
+				if (plr._pHitPoints >= (1 << 6)) {
+					/*if (!IsMultiGame)
+						dPlayer[plr._px][plr._py] = pnum + 1;
+					else*/
+						SyncInitPlrPos(pnum);
+				} else {
+					dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
+				}
 			}
 		}
 	}
