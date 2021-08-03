@@ -15,6 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define DELTA_ERROR_FAIL_1		MAX_CHUNKS + 3
 #define DELTA_ERROR_FAIL_2		MAX_CHUNKS + 4
 #define DELTA_ERROR_FAIL_3		MAX_CHUNKS + 5
+#define DELTA_ERROR_FAIL_4		MAX_CHUNKS + 6
 
 // fields to handle item records
 
@@ -354,6 +355,11 @@ static void DeltaImportPlr()
 
 	// player-index
 	pnum = *src;
+	if (pnum >= MAX_PLRS) {
+		// invalid data -> quit
+		sgbDeltaChunks = DELTA_ERROR_FAIL_4;
+		return;
+	}
 	src++;
 
 	UnPackPlayer((PkPlayerStruct*)src, pnum);
@@ -429,6 +435,8 @@ static void DeltaImportData()
 	if (sgSendRecvBuf.compressed)
 		PkwareDecompress(sgSendRecvBuf.content, sgdwRecvOffset, sizeof(sgSendRecvBuf.content));
 
+	sgbDeltaChunks++;
+
 	if (_gbRecvCmd == NMSG_DLEVEL_DATA) {
 		DeltaImportLevel();
 	} else if (_gbRecvCmd == NMSG_DLEVEL_JUNK) {
@@ -437,8 +445,6 @@ static void DeltaImportData()
 		assert(_gbRecvCmd == NMSG_DLEVEL_PLR);
 		DeltaImportPlr();
 	}
-
-	sgbDeltaChunks++;
 }
 
 static void DeltaImportEnd(TCmdPlrInfoHdr *cmd)
@@ -563,7 +569,7 @@ static void delta_kill_monster(const TCmdMonstKill* mon)
 		return;
 
 	bLevel = mon->mkLevel;
-	/// ASSERT: assert(bLevel < NUM_LEVELS);
+	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevels[bLevel].monster[SwapLE16(mon->mkMnum)];
@@ -582,7 +588,7 @@ static void delta_monster_hp(const TCmdMonstDamage* mon)
 		return;
 
 	bLevel = mon->mdLevel;
-	/// ASSERT: assert(bLevel < NUM_LEVELS);
+	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevels[bLevel].monster[SwapLE16(mon->mdMnum)];
@@ -604,7 +610,7 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	if (!IsMultiGame)
 		return;
 
-	/// ASSERT: assert(pHdr->bLevel < NUM_LEVELS);
+	// TODO: validate bLevel - assert(pHdr->bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[pHdr->bLevel] = true;
 	pDLvl = &sgLevels[pHdr->bLevel];
@@ -636,7 +642,7 @@ static void delta_awake_golem(TCmdGolem *pG, int mnum)
 		return;
 
 	bLevel = pG->_currlevel;
-	/// ASSERT: assert(bLevel < NUM_LEVELS);
+	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevels[bLevel].monster[mnum];
@@ -676,6 +682,8 @@ static bool delta_get_item(const TCmdGItem *pI)
 		return true;
 
 	bLevel = pI->bLevel;
+	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
+
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF || pD->item.dwSeed != pI->item.dwSeed || pD->item.wIndx != pI->item.wIndx || pD->item.wCI != pI->item.wCI)
@@ -725,6 +733,8 @@ static void delta_put_item(const TCmdPItem *pI, int x, int y)
 		return;
 
 	bLevel = pI->bLevel;
+	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
+
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
