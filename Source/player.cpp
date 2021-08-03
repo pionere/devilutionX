@@ -3116,16 +3116,16 @@ void MakePlrPath(int pnum, int xx, int yy, bool endspace)
 	plr.walkpath[path] = DIR_NONE;
 }
 
-void SyncPlrAnim()
+void SyncPlrAnim(int pnum)
 {
 	PlayerStruct* p;
 	int sType, aType;
 	BYTE** anim;
 
-	if ((unsigned)mypnum >= MAX_PLRS) {
-		dev_fatal("SyncPlrAnim: illegal player %d", mypnum);
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("SyncPlrAnim: illegal player %d", pnum);
 	}
-	p = &myplr;
+	p = &plr;
 	switch (p->_pmode) {
 	case PM_STAND:
 		anim = p->_pNAnim;

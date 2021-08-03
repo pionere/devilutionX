@@ -385,6 +385,8 @@ static void LoadPlayer(int pnum)
 	// Omit pointer _pDData
 	// Omit pointer _pBData
 	// Omit pointer alignment
+
+	SyncPlrAnim(pnum);
 }
 
 static void LoadMonster(int mnum)
@@ -534,7 +536,7 @@ static void LoadMissile(int mi)
 	CopyInt(tbuff, &mis->_miVar8);
 }
 
-static void LoadObject(int oi)
+static void LoadObject(int oi, bool full)
 {
 	ObjectStruct *os = &object[oi];
 
@@ -558,7 +560,13 @@ static void LoadObject(int oi)
 	CopyInt(tbuff, &os->_oPreFlag);
 	CopyInt(tbuff, &os->_oTrapFlag);
 	CopyInt(tbuff, &os->_oDoorFlag);
-	CopyInt(tbuff, &os->_olid);
+	if (full) {
+		CopyInt(tbuff, &os->_olid);
+	} else {
+		// reset dynamic lights
+		os->_olid = -1;
+		tbuff += 4;
+	}
 	CopyInt(tbuff, &os->_oRndSeed);
 	CopyInt(tbuff, &os->_oVar1);
 	CopyInt(tbuff, &os->_oVar2);
@@ -568,6 +576,8 @@ static void LoadObject(int oi)
 	CopyInt(tbuff, &os->_oVar6);
 	CopyInt(tbuff, &os->_oVar7);
 	CopyInt(tbuff, &os->_oVar8);
+
+	SyncObjectAnim(oi);
 }
 
 static void LoadItem(int ii)
@@ -703,9 +713,7 @@ void LoadGame(bool firstflag)
 		for (i = 0; i < MAXOBJECTS; i++)
 			objectavail[i] = LoadChar();
 		for (i = 0; i < nobjects; i++)
-			LoadObject(objectactive[i]);
-		for (i = 0; i < nobjects; i++)
-			SyncObjectAnim(objectactive[i]);
+			LoadObject(objectactive[i], true);
 	}
 	static_assert(MAXITEMS <= CHAR_MAX, "LoadGame handles item-ids as chars.");
 	for (i = 0; i < MAXITEMS; i++)
@@ -1507,11 +1515,7 @@ void LoadLevel()
 		for (i = 0; i < MAXOBJECTS; i++)
 			objectavail[i] = LoadChar();
 		for (i = 0; i < nobjects; i++)
-			LoadObject(objectactive[i]);
-		for (i = 0; i < nobjects; i++) {
-			object[objectactive[i]]._olid = -1; // reset dynamic lights
-			SyncObjectAnim(objectactive[i]);
-		}
+			LoadObject(objectactive[i], false);
 	}
 
 	static_assert(MAXITEMS <= CHAR_MAX, "LoadLevel handles item-ids as chars.");
