@@ -1424,7 +1424,7 @@ void SaveGame()
 
 void SaveLevel()
 {
-	int i, j;
+	int i;
 	char szName[MAX_PATH];
 	int dwLen;
 	BYTE *SaveBuff;
@@ -1464,10 +1464,7 @@ void SaveLevel()
 	for (i = 0; i < numitems; i++)
 		SaveItemData(&items[itemactive[i]]);
 
-	for (i = 0; i < MAXDUNX; i++)
-		for (j = 0; j < MAXDUNY; j++)
-			SaveChar(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE /*| BFLAG_DEAD_PLAYER*/));
-
+	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
@@ -1489,7 +1486,7 @@ void LoadLevel()
 {
 	int i;
 	char szName[MAX_PATH];
-	BYTE *fileBuff;
+	BYTE *fileBuff, *tmp;
 
 	GetPermLevelNames(szName);
 	fileBuff = pfile_read(szName);
@@ -1535,12 +1532,18 @@ void LoadLevel()
 		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
 		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
-		memset(dMissile, 0, MAXDUNX * MAXDUNY); /// BUGFIX: supposed to load saved missiles with "CopyBytes"?
+		memset(dMissile, 0, MAXDUNX * MAXDUNY);
+		assert(nummissiles == 0);
 	}
 
 	AutomapZoomReset();
 	ResyncQuests();
 	SyncPortals();
+
+	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in LoadLevel.");
+	tmp = &dFlags[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, tmp++)
+		*tmp &= ~(BFLAG_MISSILE | BFLAG_VISIBLE /*| BFLAG_DEAD_PLAYER*/);
 
 	//RedoPlayerLight();
 
