@@ -255,6 +255,20 @@ void FreeLevelMem()
 
 static void InitGameUI()
 {
+	int pnum;
+
+	InitHelp(); // values
+	InitControlPan(); // gfx + values
+	InitText(); // gfx
+	InitInv(); // gfx + values
+	InitGMenu(); // gfx
+	InitQuestGfx(); // values
+	InitQuestText(); // gfx + values
+	InitStores(); // gfx + values (some stored in savefiles)
+	for (pnum = 0; pnum < (IsLocalGame ? 1 : MAX_PLRS); pnum++)
+		InitPlrGFXMem(pnum); // gfx
+	InitItemGFX(); // gfx + values (some stored in savefiles)
+
 	gbZoomflag = true;
 	CalcViewportGeometry();
 	InitCursor();
@@ -264,7 +278,6 @@ static void InitGameUI()
 	assert(ghMainWnd != NULL);
 	music_stop();
 	ShowProgress((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
-	InitGMenu();
 	InitLevelCursor();
 	sgnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = false;

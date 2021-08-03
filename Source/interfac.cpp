@@ -292,26 +292,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	LoadLvlGFX();
 	IncProgress();
 
-	if (firstflag) {
-		// initialize values which are not stored in savefiles
-		InitHelp(); // values
-
-		InitInv(); // gfx + values
-		InitItemGFX(); // gfx + values (some stored in savefiles)
-		InitQuestGfx(); // values
-		InitQuestText(); // gfx + values
-
-		for (pnum = 0; pnum < (IsLocalGame ? 1 : MAX_PLRS); pnum++)
-			InitPlrGFXMem(pnum); // gfx
-
-		InitStores(); // gfx + values (some stored in savefiles)
-		InitText(); // gfx
-		InitControlPan(); // gfx + values
-	}
-
-	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-
-	IncProgress();
 	InitAutomap();
 
 	if (lvldir != ENTRY_LOAD) {
