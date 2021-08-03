@@ -250,6 +250,28 @@ static void CreateLevel(int lvldir)
 	LoadRndLvlPal();
 }
 
+static void InitPlayers(bool firstflag)
+{
+	int pnum;
+
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr.plractive || currLvl._dLevelIdx != plr.plrlevel)
+			continue;
+		InitPlayerGFX(pnum);
+		InitPlayer(pnum, firstflag, true);
+		if (!plr._pLvlChanging || pnum == mypnum) {
+			if (plr._pHitPoints >= (1 << 6)) {
+				/*if (!IsMultiGame)
+					dPlayer[plr._px][plr._py] = pnum + 1;
+				else*/
+					SyncInitPlrPos(pnum);
+			} else {
+				dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
+			}
+		}
+	}
+}
+
 void LoadGameLevel(bool firstflag, int lvldir)
 {
 	int pnum;
@@ -329,17 +351,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 		IncProgress();
 
-		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel) {
-				InitPlayerGFX(pnum);
-				if (lvldir != ENTRY_LOAD)
-					InitPlayer(pnum, firstflag, true);
-			}
-		}
-
-		PlayDungMsgs();
-		IncProgress();
-
 		SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
 		if (currLvl._dType != DTYPE_TOWN) {
@@ -375,17 +386,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 			GetPortalLvlPos();
 		IncProgress();
 
-		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel) {
-				InitPlayerGFX(pnum);
-				if (lvldir != ENTRY_LOAD)
-					InitPlayer(pnum, firstflag, true);
-			}
-		}
-
-		PlayDungMsgs();
-
-		IncProgress();
 		IncProgress();
 
 		InitItems();
@@ -405,20 +405,10 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	ResyncQuests();
 	SyncPortals();
 
-	if (lvldir != ENTRY_LOAD) {
-		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			if (plr.plractive && plr.plrlevel == currLvl._dLevelIdx && (!plr._pLvlChanging || pnum == mypnum)) {
-				if (plr._pHitPoints >= (1 << 6)) {
-					/*if (!IsMultiGame)
-						dPlayer[plr._px][plr._py] = pnum + 1;
-					else*/
-						SyncInitPlrPos(pnum);
-				} else {
-					dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
-				}
-			}
-		}
-	}
+	IncProgress();
+	if (lvldir != ENTRY_LOAD)
+		InitPlayers(firstflag);
+	PlayDungMsgs();
 
 	SetDungeonMicros(0, 0, MAXDUNX, MAXDUNY);
 

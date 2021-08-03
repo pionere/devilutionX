@@ -386,6 +386,7 @@ static void LoadPlayer(int pnum)
 	// Omit pointer _pBData
 	// Omit pointer alignment
 
+	InitPlayerGFX(pnum);
 	SyncPlrAnim(pnum);
 }
 
