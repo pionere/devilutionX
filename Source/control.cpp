@@ -1084,9 +1084,11 @@ void CheckBtnUp()
 
 void FreeControlPan()
 {
+	MemFreeDbg(pFlasks);
 	MemFreeDbg(pChrPanel);
 	MemFreeDbg(pSpellCels);
 	MemFreeDbg(pPanelButtons);
+	MemFreeDbg(pTalkPnl);
 	MemFreeDbg(pTalkBtns);
 	MemFreeDbg(pChrButtons);
 	MemFreeDbg(pDurIcons);
