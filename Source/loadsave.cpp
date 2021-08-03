@@ -759,9 +759,8 @@ static void LoadPortal(int i)
 
 /**
  * @brief Load game state
- * @param firstflag Can be set to false if we are simply reloading the current game
  */
-void LoadGame(bool firstflag)
+void LoadGame()
 {
 	int i;
 	BYTE* fileBuff;
@@ -804,7 +803,7 @@ void LoadGame(bool firstflag)
 	for (i = 0; i < MAXPORTAL; i++)
 		LoadPortal(i);
 	// load level-data
-	LoadGameLevel(firstflag, ENTRY_LOAD);
+	LoadGameLevel(ENTRY_LOAD);
 	ViewX = _ViewX;
 	ViewY = _ViewY;
 

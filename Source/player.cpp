@@ -882,13 +882,9 @@ void AddPlrMonstExper(int mnum)
 void InitPlayer(int pnum, bool FirstTime, bool active)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("InitPlayer: illegal player %d", pnum);
+		dev_fatal("InitPlayer: illegal player %d", pnum);
 	}
 	if (FirstTime) {
-		plr._pManaShield = 0;
-		plr._pTimer[PLTR_INFRAVISION] = 0;
-		plr._pTimer[PLTR_RAGE] = 0;
-
 		plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
 		plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
 			| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);

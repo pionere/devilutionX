@@ -250,7 +250,7 @@ static void CreateLevel(int lvldir)
 	LoadRndLvlPal();
 }
 
-static void InitPlayers(bool firstflag)
+static void InitPlayers()
 {
 	int pnum;
 
@@ -258,7 +258,7 @@ static void InitPlayers(bool firstflag)
 		if (!plr.plractive || currLvl._dLevelIdx != plr.plrlevel)
 			continue;
 		InitPlayerGFX(pnum);
-		InitPlayer(pnum, firstflag, true);
+		InitPlayer(pnum, false, true);
 		if (!plr._pLvlChanging || pnum == mypnum) {
 			if (plr._pHitPoints >= (1 << 6)) {
 				/*if (!IsMultiGame)
@@ -272,7 +272,7 @@ static void InitPlayers(bool firstflag)
 	}
 }
 
-void LoadGameLevel(bool firstflag, int lvldir)
+void LoadGameLevel(int lvldir)
 {
 #ifdef _DEBUG
 	if (setseed)
@@ -335,7 +335,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 			HoldThemeRooms();
 			InitMonsters();
 			IncProgress();
-			if (IsMultiGame /*|| firstflag*/ || lvldir == ENTRY_LOAD || !myplr._pLvlVisited[currLvl._dLevelIdx]) {
+			if (IsMultiGame || lvldir == ENTRY_LOAD || !myplr._pLvlVisited[currLvl._dLevelIdx]) {
 				InitObjects();
 				InitItems();
 				CreateThemeRooms();
@@ -372,8 +372,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	SavePreLighting();
 	if (IsMultiGame)
 		DeltaLoadLevel();
-	else if (/*!firstflag &&*/ lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx]) {
-		assert(!firstflag);
+	else if (lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx]) {
 		LoadLevel();
 	}
 
@@ -385,7 +384,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 	IncProgress();
 	if (lvldir != ENTRY_LOAD)
-		InitPlayers(firstflag);
+		InitPlayers();
 	PlayDungMsgs();
 
 	SetDungeonMicros(0, 0, MAXDUNX, MAXDUNY);
@@ -428,7 +427,7 @@ static void SwitchGameLevel(int lvldir)
 	FreeLevelMem();
 	EnterLevel(myplr.plrlevel);
 	IncProgress();
-	LoadGameLevel(false, lvldir);
+	LoadGameLevel(lvldir);
 }
 
 void ShowProgress(unsigned int uMsg)
@@ -454,7 +453,7 @@ void ShowProgress(unsigned int uMsg)
 	switch (uMsg) {
 	case WM_DIABLOADGAME:
 		IncProgress();
-		LoadGame(true);
+		LoadGame();
 		IncProgress();
 		break;
 	case WM_DIABNEWGAME:
@@ -462,7 +461,7 @@ void ShowProgress(unsigned int uMsg)
 		IncProgress();
 		pfile_remove_temp_files();
 		IncProgress();
-		LoadGameLevel(true, ENTRY_MAIN);
+		LoadGameLevel(ENTRY_MAIN);
 		break;
 	case WM_DIABNEXTLVL:
 		assert(myplr.plrlevel == currLvl._dLevelIdx + 1);

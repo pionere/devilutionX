@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void LoadGame(bool firstflag);
+void LoadGame();
 void SaveGame();
 void SaveLevel();
 void LoadLevel();

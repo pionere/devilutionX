@@ -608,18 +608,23 @@ static void SetupLocalPlr()
 #else
 	EnterLevel(DLV_TOWN);
 #endif
+	InitPlayer(mypnum, true, false);
 	x += plrxoff[mypnum];
 	y += plryoff[mypnum];
 	p = &myplr;
 	SetPlayerLoc(p, x, y);
-	p->plrlevel = currLvl._dLevelIdx;
+	assert(currLvl._dLevelIdx == DLV_TOWN);
+	p->plrlevel = DLV_TOWN;
+	p->_pManaShield = 0;
+	p->_pTimer[PLTR_INFRAVISION] = 0;
+	p->_pTimer[PLTR_RAGE] = 0;
+	assert(p->destAction == ACTION_NONE);
+	assert(p->pDungMsgs == 0);
+#ifdef HELLFIRE
+	assert(p->pDungMsgs2 == 0);
+#endif
 	p->_pLvlChanging = TRUE;
 	p->_pmode = PM_NEWLVL;
-	p->destAction = ACTION_NONE;
-	p->pDungMsgs = 0;
-#ifdef HELLFIRE
-	p->pDungMsgs2 = 0;
-#endif
 	lvlLoad = 10;
 	gbActivePlayers = 1;
 	p->plractive = TRUE;
