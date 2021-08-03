@@ -763,7 +763,7 @@ void LoadGame(bool firstflag)
 	mem_free_dbg(fileBuff);
 
 	AutomapZoomReset();
-	ResyncQuests();
+	//ResyncQuests();
 
 	//RedoPlayerLight();
 	//ProcessLightList();
@@ -1536,9 +1536,11 @@ void LoadLevel()
 		assert(nummissiles == 0);
 	}
 
+	mem_free_dbg(fileBuff);
+
 	AutomapZoomReset();
-	ResyncQuests();
-	SyncPortals();
+	//ResyncQuests();
+	//SyncPortals();
 
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in LoadLevel.");
 	tmp = &dFlags[0][0];
@@ -1546,8 +1548,6 @@ void LoadLevel()
 		*tmp &= ~(BFLAG_MISSILE | BFLAG_VISIBLE /*| BFLAG_DEAD_PLAYER*/);
 
 	//RedoPlayerLight();
-
-	mem_free_dbg(fileBuff);
 }
 
 DEVILUTION_END_NAMESPACE
