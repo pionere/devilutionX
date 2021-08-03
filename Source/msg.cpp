@@ -2183,7 +2183,7 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 	if (plr._pmode != PM_DEATH)
 		plr._pInvincible = FALSE;
 	if (pnum == mypnum) {
-		SyncInitPlrPos(pnum);
+		InitLvlPlayer(pnum);
 	} else {
 		if (!plr.plractive) {
 			if (plr._pName[0] == '\0') {
@@ -2203,7 +2203,7 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 		plr._pTimer[PLTR_RAGE] = msg_calc_rage(cmd->lTimer2);
 		plr._pGFXLoad = 0;
 		if (currLvl._dLevelIdx == plr.plrlevel) {
-			SyncInitPlr(pnum);
+			InitLvlPlayer(pnum);
 			CalcPlrItemVals(pnum, true);
 			NetSendCmdAckJoinLevel();
 		}

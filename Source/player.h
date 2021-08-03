@@ -33,7 +33,8 @@ void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, int exp);
 void AddPlrMonstExper(int mnum);
-void InitPlayer(int pnum, bool FirstTime, bool active);
+void InitPlayer(int pnum);
+void InitLvlPlayer(int pnum);
 //void PlrClrTrans(int x, int y);
 //void PlrDoTrans(int x, int y);
 void FixPlayerLocation(int pnum);
@@ -62,7 +63,6 @@ bool PosOkPlayer(int pnum, int x, int y);
 void MakePlrPath(int pnum, int xx, int yy, bool endspace);
 void SyncPlrAnim(int pnum);
 void SyncInitPlrPos(int pnum);
-void SyncInitPlr(int pnum);
 void IncreasePlrStr(int pnum);
 void IncreasePlrMag(int pnum);
 void IncreasePlrDex(int pnum);

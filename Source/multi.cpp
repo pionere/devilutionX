@@ -595,20 +595,23 @@ static void SetupLocalPlr()
 	PlayerStruct *p;
 	int x, y;
 
+	gbDeathflag = false;
+	ScrollInfo._sdx = 0;
+	ScrollInfo._sdy = 0;
+	ScrollInfo._sxoff = 0;
+	ScrollInfo._syoff = 0;
+	ScrollInfo._sdir = SDIR_NONE;
+
 	x = 65 + DBORDERX;
 	y = 58 + DBORDERY;
 #ifdef _DEBUG
-	if (debug_mode_key_inverted_v) {
-		x = 39 + DBORDERX;
-		y = 13 + DBORDERY;
-	}
 	if (!leveldebug || !IsLocalGame) {
 		EnterLevel(DLV_TOWN);
 	}
 #else
 	EnterLevel(DLV_TOWN);
 #endif
-	InitPlayer(mypnum, true, false);
+	//InitPlayer(mypnum);
 	x += plrxoff[mypnum];
 	y += plryoff[mypnum];
 	p = &myplr;
@@ -618,13 +621,25 @@ static void SetupLocalPlr()
 	p->_pManaShield = 0;
 	p->_pTimer[PLTR_INFRAVISION] = 0;
 	p->_pTimer[PLTR_RAGE] = 0;
+#ifdef _DEBUG
+	if (debug_mode_key_inverted_v) {
+		p->_pMemSkills = SPL_INVALID;
+	} else if (debug_mode_god_mode) {
+		p->_pMemSkills |= SPELL_MASK(SPL_TELEPORT);
+		if (p->_pSkillLvl[SPL_TELEPORT] == 0) {
+			p->_pSkillLvl[SPL_TELEPORT] = 1;
+		}
+	}
+#endif
 	assert(p->destAction == ACTION_NONE);
 	assert(p->pDungMsgs == 0);
 #ifdef HELLFIRE
 	assert(p->pDungMsgs2 == 0);
 #endif
 	p->_pLvlChanging = TRUE;
+	//p->_pInvincible = TRUE; - does not matter in town
 	p->_pmode = PM_NEWLVL;
+
 	lvlLoad = 10;
 	gbActivePlayers = 1;
 	p->plractive = TRUE;

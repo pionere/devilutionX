@@ -255,20 +255,10 @@ static void InitPlayers()
 	int pnum;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (!plr.plractive || currLvl._dLevelIdx != plr.plrlevel)
+		if (!plr.plractive || currLvl._dLevelIdx != plr.plrlevel || plr._pLvlChanging)
 			continue;
 		InitPlayerGFX(pnum);
-		InitPlayer(pnum, false, true);
-		if (!plr._pLvlChanging || pnum == mypnum) {
-			if (plr._pHitPoints >= (1 << 6)) {
-				/*if (!IsMultiGame)
-					dPlayer[plr._px][plr._py] = pnum + 1;
-				else*/
-					SyncInitPlrPos(pnum);
-			} else {
-				dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
-			}
-		}
+		InitLvlPlayer(pnum);
 	}
 }
 

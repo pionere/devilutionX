@@ -144,7 +144,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
 	plr._pDiabloKillLevel = pPack->pDiabloKillLevel;
 	plr._pStatPts = SwapLE16(pPack->pStatPts);
-	InitPlayer(pnum, true, false);
+	InitPlayer(pnum);
 	plr._pBaseStr = SwapLE16(pPack->pBaseStr);
 	plr._pBaseMag = SwapLE16(pPack->pBaseMag);
 	plr._pBaseDex = SwapLE16(pPack->pBaseDex);
@@ -212,6 +212,8 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	memcpy(plr._pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(plr._pAltMoveSkillHotKey));
 	memcpy(plr._pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(plr._pAltMoveSkillTypeHotKey));
 
+	// TODO: add to pPack? _pmode ?
+	plr._pInvincible = FALSE;
 	plr.pTownWarps = 0;
 	plr.palign_CB = 0;
 	plr.pDungMsgs = 0;

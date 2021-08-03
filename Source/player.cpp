@@ -729,7 +729,123 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 		plr._pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
 
 	CreatePlrItems(pnum);
+
+	// TODO: at the moment player is created and right after that unpack is called
+	//  this makes the two calls below unnecessary, but CreatePlayer would be more
+	//  complete if these are enabled...
+	//InitPlayer(pnum);
+	//CalcPlrInv(pnum, false);
+
 	//SetRndSeed(0);
+}
+
+/*
+ * Initialize player fields at startup(unpack).
+ *  - calculate derived values
+ *  - reset skills (TODO: move to SetupLocalPlr?)
+ */
+void InitPlayer(int pnum)
+{
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("InitPlayer: illegal player %d", pnum);
+	}
+	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
+	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
+		| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
+
+	plr._pAtkSkill = SPL_ATTACK;
+	plr._pAtkSkillType = RSPLTYPE_ABILITY;
+	plr._pMoveSkill = SPL_WALK;
+	plr._pMoveSkillType = RSPLTYPE_ABILITY;
+	plr._pAltAtkSkill = SPL_INVALID;
+	plr._pAltAtkSkillType = RSPLTYPE_INVALID;
+	plr._pAltMoveSkill = SPL_INVALID;
+	plr._pAltMoveSkillType = RSPLTYPE_INVALID;
+	if (!(plr._pSkillFlags & SFLAG_MELEE))
+		plr._pAtkSkill = SPL_RATTACK;
+
+	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
+
+	// TODO: BUGFIX: should only be set if plr.plrlevel == currLvl._dLevelIdx?
+	//if (plr._pmode != PM_DEATH)
+	//	plr._pInvincible = FALSE;
+}
+
+/*
+ * Initialize players on the current level.
+ */
+void InitLvlPlayer(int pnum)
+{
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("InitLvlPlayer: illegal player %d", pnum);
+	}
+	assert(plr.plrlevel == currLvl._dLevelIdx);
+	if (currLvl._dLevelIdx != DLV_TOWN) {
+		plr._pSkillFlags	|= SFLAG_DUNGEON;
+	} else {
+		plr._pSkillFlags	&= ~SFLAG_DUNGEON;
+		if (plr._pHitPoints < (1 << 6))
+			PlrSetHp(pnum, 64);
+	}
+
+	SetPlrAnims(pnum);
+
+	//plr._pxoff = 0;
+	//plr._pyoff = 0;
+	//plr._pxvel = 0;
+	//plr._pyvel = 0;
+
+	//ClearPlrPVars(pnum);
+
+	/*if (plr._pHitPoints >= (1 << 6)) {
+		plr._pmode = PM_STAND;
+		NewPlrAnim(pnum, plr._pNAnim, DIR_S, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
+		plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
+		plr._pAnimCnt = random_(2, 3);
+	} else {
+		plr._pmode = PM_DEATH;
+		NewPlrAnim(pnum, plr._pDAnim, DIR_S, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
+		plr._pAnimFrame = plr._pAnimLen - 1;
+		plr._pVar8 = 2 * plr._pAnimLen; // DEATH_TICK
+		plr._pVar7 = 0; // DEATH_DELAY
+	}*/
+
+	/*if (pnum == mypnum) {
+		plr._px = ViewX;
+		plr._py = ViewY;
+	}*/
+	SyncInitPlrPos(pnum);
+
+	PlrStartStand(pnum, DIR_S);
+	// TODO: randomize AnimFrame/AnimCnt for live players?
+	// plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
+	// plr._pAnimCnt = random_(2, 3);
+
+	//plr._pfutx = plr._px;
+	//plr._pfuty = plr._py;
+
+	plr.walkpath[0] = DIR_NONE;
+	plr.destAction = ACTION_NONE;
+
+	if (pnum == mypnum) {
+		plr._plid = AddLight(plr._px, plr._py, plr._pLightRad);
+	} else {
+		plr._plid = -1;
+	}
+	plr._pvid = AddVision(plr._px, plr._py, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
+
+	/*if (plr._pmode != PM_DEATH)
+		plr._pInvincible = FALSE;
+
+	*/if (pnum == mypnum) {
+		// TODO: BUGFIX: sure?
+		//    - what if we just joined with a dead player?
+		//    - what if the player was killed while entering a portal?
+		//gbDeathflag = false;
+		assert(ScrollInfo._sxoff == 0);
+		assert(ScrollInfo._syoff == 0);
+		assert(ScrollInfo._sdir == SDIR_NONE);
+	}
 }
 
 void NextPlrLevel(int pnum)
@@ -877,115 +993,6 @@ void AddPlrMonstExper(int mnum)
 
 	e = mon->mExp / totplrs;
 	AddPlrExperience(mypnum, mon->mLevel, e);
-}
-
-void InitPlayer(int pnum, bool FirstTime, bool active)
-{
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("InitPlayer: illegal player %d", pnum);
-	}
-	if (FirstTime) {
-		plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
-		plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
-			| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
-
-		plr._pAtkSkill = SPL_ATTACK;
-		plr._pAtkSkillType = RSPLTYPE_ABILITY;
-		plr._pMoveSkill = SPL_WALK;
-		plr._pMoveSkillType = RSPLTYPE_ABILITY;
-		plr._pAltAtkSkill = SPL_INVALID;
-		plr._pAltAtkSkillType = RSPLTYPE_INVALID;
-		plr._pAltMoveSkill = SPL_INVALID;
-		plr._pAltMoveSkillType = RSPLTYPE_INVALID;
-		if (!(plr._pSkillFlags & SFLAG_MELEE))
-			plr._pAtkSkill = SPL_RATTACK;
-
-		plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
-	}
-
-	if (active) {
-		assert(plr.plrlevel == currLvl._dLevelIdx);
-		if (currLvl._dLevelIdx != DLV_TOWN)
-			plr._pSkillFlags	|= SFLAG_DUNGEON;
-		else
-			plr._pSkillFlags	&= ~SFLAG_DUNGEON;
-
-		SetPlrAnims(pnum);
-
-		//plr._pxoff = 0;
-		//plr._pyoff = 0;
-		//plr._pxvel = 0;
-		//plr._pyvel = 0;
-
-		//ClearPlrPVars(pnum);
-
-		/*if (plr._pHitPoints >= (1 << 6)) {
-			plr._pmode = PM_STAND;
-			NewPlrAnim(pnum, plr._pNAnim, DIR_S, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
-			plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
-			plr._pAnimCnt = random_(2, 3);
-		} else {
-			plr._pmode = PM_DEATH;
-			NewPlrAnim(pnum, plr._pDAnim, DIR_S, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
-			plr._pAnimFrame = plr._pAnimLen - 1;
-			plr._pVar8 = 2 * plr._pAnimLen; // DEATH_TICK
-			plr._pVar7 = 0; // DEATH_DELAY
-		}*/
-
-		if (pnum == mypnum) {
-			plr._px = ViewX;
-			plr._py = ViewY;
-		} else {
-			SyncInitPlrPos(pnum);
-			/*for (i = 0; i <= 8 && !PosOkPlayer(pnum, plrxoff2[i] + plr._px, plryoff2[i] + plr._py); i++)
-				;
-			plr._px += plrxoff2[i];
-			plr._py += plryoff2[i];*/
-		}
-
-		PlrStartStand(pnum, DIR_S);
-		// TODO: randomize AnimFrame/AnimCnt for live players?
-		// plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
-		// plr._pAnimCnt = random_(2, 3);
-
-		//plr._pfutx = plr._px;
-		//plr._pfuty = plr._py;
-
-		plr.walkpath[0] = DIR_NONE;
-		plr.destAction = ACTION_NONE;
-
-		if (pnum == mypnum) {
-			plr._plid = AddLight(plr._px, plr._py, plr._pLightRad);
-		} else {
-			plr._plid = -1;
-		}
-		plr._pvid = AddVision(plr._px, plr._py, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
-	}
-
-#ifdef _DEBUG
-	if (debug_mode_key_inverted_v && FirstTime) {
-		plr._pMemSkills = SPL_INVALID;
-	} else if (debug_mode_god_mode && FirstTime) {
-		plr._pMemSkills |= SPELL_MASK(SPL_TELEPORT);
-		if (plr._pSkillLvl[SPL_TELEPORT] == 0) {
-			plr._pSkillLvl[SPL_TELEPORT] = 1;
-		}
-	}
-#endif
-
-	// TODO: BUGFIX: should only be set if plr.plrlevel == currLvl._dLevelIdx?
-	if (plr._pmode != PM_DEATH)
-		plr._pInvincible = FALSE;
-
-	if (pnum == mypnum) {
-		// TODO: BUGFIX: sure?
-		//    - what if we just joined with a dead player?
-		//    - what if the player was killed while entering a portal?
-		gbDeathflag = false;
-		ScrollInfo._sxoff = 0;
-		ScrollInfo._syoff = 0;
-		ScrollInfo._sdir = SDIR_NONE;
-	}
 }
 
 static bool PlrDirOK(int pnum, int dir)
@@ -3185,16 +3192,16 @@ void SyncInitPlrPos(int pnum)
 	dPlayer[plr._px][plr._py] = pnum + 1;
 }
 
-void SyncInitPlr(int pnum)
+/*void SyncInitPlr(int pnum)
 {
-	/*if ((unsigned)pnum >= MAX_PLRS) {
+	/ *if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("SyncInitPlr: illegal player %d", pnum);
-	}*/
+	}* /
 
 	//SetPlrAnims(pnum);
-	InitPlayer(pnum, false, true);
+	InitLvlPlayer(pnum);
 	//SyncInitPlrPos(pnum);
-}
+}*/
 
 /*void CheckStats(int pnum)
 {
