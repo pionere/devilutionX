@@ -907,11 +907,8 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 		plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
 	}
 
-#ifdef _DEBUG
-	if (active && (plr.plrlevel == currLvl._dLevelIdx || leveldebug)) {
-#else
-	if (active && plr.plrlevel == currLvl._dLevelIdx) {
-#endif
+	if (active) {
+		assert(plr.plrlevel == currLvl._dLevelIdx);
 		if (currLvl._dLevelIdx != DLV_TOWN)
 			plr._pSkillFlags	|= SFLAG_DUNGEON;
 		else

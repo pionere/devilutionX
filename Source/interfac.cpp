@@ -346,7 +346,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 			HoldThemeRooms();
 			InitMonsters();
 			IncProgress();
-			if (IsMultiGame || firstflag || lvldir == ENTRY_LOAD || !myplr._pLvlVisited[currLvl._dLevelIdx]) {
+			if (IsMultiGame /*|| firstflag*/ || lvldir == ENTRY_LOAD || !myplr._pLvlVisited[currLvl._dLevelIdx]) {
 				InitObjects();
 				InitItems();
 				CreateThemeRooms();
@@ -394,8 +394,10 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	SavePreLighting();
 	if (IsMultiGame)
 		DeltaLoadLevel();
-	else if (!firstflag && lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx])
+	else if (/*!firstflag &&*/ lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx]) {
+		assert(!firstflag);
 		LoadLevel();
+	}
 
 	IncProgress();
 
