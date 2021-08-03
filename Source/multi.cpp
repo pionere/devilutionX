@@ -624,8 +624,6 @@ static void SetupLocalPlr()
 	gbActivePlayers = 1;
 	p->plractive = TRUE;
 	assert(p->_pTeam == mypnum);
-	// initialize values which are stored in save files TODO: move to LoadGameLevel?
-	InitAutomapOnce();
 }
 
 static void multi_handle_events(SNetEvent *pEvt)

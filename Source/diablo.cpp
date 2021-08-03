@@ -257,6 +257,7 @@ static void InitGameUI()
 {
 	int pnum;
 
+	InitAutomapOnce(); // values
 	InitHelp(); // values
 	InitControlPan(); // gfx + values
 	InitText(); // gfx
