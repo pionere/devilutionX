@@ -212,8 +212,9 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	memcpy(plr._pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(plr._pAltMoveSkillHotKey));
 	memcpy(plr._pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(plr._pAltMoveSkillTypeHotKey));
 
-	// TODO: add to pPack? _pmode ?
+	// TODO: add to pPack? (_pInvincible, _pmode)
 	plr._pInvincible = FALSE;
+	plr._pmode = PM_NEWLVL;
 	plr.pTownWarps = 0;
 	plr.palign_CB = 0;
 	plr.pDungMsgs = 0;

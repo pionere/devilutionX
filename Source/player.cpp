@@ -816,28 +816,30 @@ void InitLvlPlayer(int pnum)
 	}*/
 	SyncInitPlrPos(pnum);
 
-	PlrStartStand(pnum, DIR_S);
-	// TODO: randomize AnimFrame/AnimCnt for live players?
-	// plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
-	// plr._pAnimCnt = random_(2, 3);
+	if (plr._pmode == PM_NEWLVL) {
+		PlrStartStand(pnum, DIR_S);
+		// TODO: randomize AnimFrame/AnimCnt for live players?
+		// plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
+		// plr._pAnimCnt = random_(2, 3);
 
-	//plr._pfutx = plr._px;
-	//plr._pfuty = plr._py;
+		//plr._pfutx = plr._px;
+		//plr._pfuty = plr._py;
 
-	plr.walkpath[0] = DIR_NONE;
-	plr.destAction = ACTION_NONE;
+		plr.walkpath[0] = DIR_NONE;
+		plr.destAction = ACTION_NONE;
 
-	if (pnum == mypnum) {
-		plr._plid = AddLight(plr._px, plr._py, plr._pLightRad);
-	} else {
-		plr._plid = -1;
+		if (pnum == mypnum) {
+			plr._plid = AddLight(plr._px, plr._py, plr._pLightRad);
+		} else {
+			plr._plid = -1;
+		}
+		plr._pvid = AddVision(plr._px, plr._py, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
 	}
-	plr._pvid = AddVision(plr._px, plr._py, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
 
 	/*if (plr._pmode != PM_DEATH)
 		plr._pInvincible = FALSE;
 
-	*/if (pnum == mypnum) {
+	if (pnum == mypnum) {
 		// TODO: BUGFIX: sure?
 		//    - what if we just joined with a dead player?
 		//    - what if the player was killed while entering a portal?
@@ -845,7 +847,7 @@ void InitLvlPlayer(int pnum)
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
 		assert(ScrollInfo._sdir == SDIR_NONE);
-	}
+	}*/
 }
 
 void NextPlrLevel(int pnum)
