@@ -633,58 +633,57 @@ static void LoadPortal(int i)
 void LoadGame(bool firstflag)
 {
 	int i;
-	BYTE *LoadBuff;
-	int _ViewX, _ViewY, _nummonsters, _numitems, _nummissiles, _nobjects;
+	BYTE* fileBuff;
+	int _ViewX, _ViewY;
 
 	FreeLevelMem();
+
 	pfile_remove_temp_files();
-	LoadBuff = pfile_read(SAVEFILE_GAME);
-	tbuff = LoadBuff;
+	fileBuff = pfile_read(SAVEFILE_GAME);
+	tbuff = fileBuff;
 
 	if (LoadInt() != SAVE_INITIAL)
 		app_fatal("Invalid save file");
-
+	// load game-info
 	i = LoadInt();
 	currLvl._dLevelIdx = i & 0xFF;
 	EnterLevel(i & 0xFF);
 	gnDifficulty = (i >> 8) & 0xFF;
-
+	for (i = 0; i < NUM_LEVELS; i++) {
+		glSeedTbl[i] = LoadInt();
+	}
+	// load player-data
 	_ViewX = LoadInt();
 	_ViewY = LoadInt();
 	gbInvflag = LoadBool();
 	gbChrflag = LoadBool();
-	_nummonsters = LoadInt();
-	_numitems = LoadInt();
-	_nummissiles = LoadInt();
-	_nobjects = LoadInt();
-
-	for (i = 0; i < NUM_LEVELS; i++) {
-		glSeedTbl[i] = LoadInt();
-	}
+	gbAutomapflag = LoadBool();
+	AutoMapScale = LoadInt();
 
 	LoadPlayer(mypnum);
 
+	// load meta-data I.
 	ReturnLvlX = LoadInt();
 	ReturnLvlY = LoadInt();
 	ReturnLvl = LoadInt();
-
+	// load meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
 		LoadQuest(i);
 	for (i = 0; i < MAXPORTAL; i++)
 		LoadPortal(i);
-
+	// load level-data
 	LoadGameLevel(firstflag, ENTRY_LOAD);
-	SyncPlrAnim();
-
 	ViewX = _ViewX;
 	ViewY = _ViewY;
-	nummonsters = _nummonsters;
-	numitems = _numitems;
-	nummissiles = _nummissiles;
-	nobjects = _nobjects;
 
-	for (i = 0; i < MAXMONSTERS; i++)
-		tbuff += 4; // Skip monstkills[i]
+	if (currLvl._dType != DTYPE_TOWN) {
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
+	}
+
+	nummonsters = LoadInt();
+	nummissiles = LoadInt();
+	nobjects = LoadInt();
+	numitems = LoadInt();
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
@@ -708,19 +707,6 @@ void LoadGame(bool firstflag)
 		for (i = 0; i < nobjects; i++)
 			SyncObjectAnim(objectactive[i]);
 	}
-
-	numlights = LoadInt();
-	for (i = 0; i < MAXLIGHTS; i++)
-		lightactive[i] = LoadChar();
-	for (i = 0; i < numlights; i++)
-		LoadLight(&LightList[lightactive[i]]);
-
-	numvision = LoadInt();
-	for (i = 0; i < MAXVISION; i++)
-		visionactive[i] = LoadChar();
-	for (i = 0; i < numvision; i++)
-		LoadLight(&VisionList[visionactive[i]]);
-
 	static_assert(MAXITEMS <= CHAR_MAX, "LoadGame handles item-ids as chars.");
 	for (i = 0; i < MAXITEMS; i++)
 		itemactive[i] = LoadChar();
@@ -729,34 +715,44 @@ void LoadGame(bool firstflag)
 	for (i = 0; i < numitems; i++)
 		LoadItem(itemactive[i]);
 
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
+
+	if (currLvl._dType != DTYPE_TOWN) {
+		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
+		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
+	}
+	// load meta-data III. (modified by LoadGameLevel)
+	numpremium = LoadInt();
+	premiumlevel = LoadInt();
+	numlights = LoadInt();
+	numvision = LoadInt();
+
+	for (i = 0; i < MAXLIGHTS; i++)
+		lightactive[i] = LoadChar();
+	for (i = 0; i < numlights; i++)
+		LoadLight(&LightList[lightactive[i]]);
+
+	for (i = 0; i < MAXVISION; i++)
+		visionactive[i] = LoadChar();
+	for (i = 0; i < numvision; i++)
+		LoadLight(&VisionList[visionactive[i]]);
+
 	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
 	for (i = 0; i < NUM_UITEM; i++)
 		UniqueItemFlags[i] = LoadBool();
 	for ( ; i < 128; i++)
 		LoadBool();
 
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
-		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
-	}
-
-	numpremium = LoadInt();
-	premiumlevel = LoadInt();
-
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		LoadItemData(&premiumitems[i]);
 
-	gbAutomapflag = LoadBool();
-	AutoMapScale = LoadInt();
-	mem_free_dbg(LoadBuff);
+	mem_free_dbg(fileBuff);
+
 	AutomapZoomReset();
 	ResyncQuests();
 
@@ -766,6 +762,7 @@ void LoadGame(bool firstflag)
 	//ProcessVisionList();
 
 	SyncMissilesAnim();
+
 	NewCursor(CURSOR_HAND);
 	gbProcessPlayers = true;
 }
@@ -1313,33 +1310,39 @@ void SaveGame()
 	tbuff = fileBuff;
 
 	SaveInt(SAVE_INITIAL);
-
+	// save game-info
 	SaveInt((gnDifficulty << 8) | currLvl._dLevelIdx);
+	for (i = 0; i < NUM_LEVELS; i++) {
+		SaveInt(glSeedTbl[i]);
+	}
+	// save player-data
 	SaveInt(ViewX);
 	SaveInt(ViewY);
 	SaveBool(gbInvflag);
 	SaveBool(gbChrflag);
-	SaveInt(nummonsters);
-	SaveInt(numitems);
-	SaveInt(nummissiles);
-	SaveInt(nobjects);
-
-	for (i = 0; i < NUM_LEVELS; i++) {
-		SaveInt(glSeedTbl[i]);
-	}
+	SaveBool(gbAutomapflag);
+	SaveInt(AutoMapScale);
 
 	SavePlayer(mypnum);
 
+	// save meta-data I.
 	SaveInt(ReturnLvlX);
 	SaveInt(ReturnLvlY);
 	SaveInt(ReturnLvl);
-
+	// save meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
 		SaveQuest(i);
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
-	for (i = 0; i < MAXMONSTERS; i++)
-		tbuff += 4; // Skip monstkills[i]
+	// save level-data
+	if (currLvl._dType != DTYPE_TOWN) {
+		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
+	}
+
+	SaveInt(nummonsters);
+	SaveInt(nummissiles);
+	SaveInt(nobjects);
+	SaveInt(numitems);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
@@ -1359,51 +1362,48 @@ void SaveGame()
 		for (i = 0; i < nobjects; i++)
 			SaveObject(objectactive[i]);
 	}
-	SaveInt(numlights);
-	for (i = 0; i < MAXLIGHTS; i++)
-		SaveChar(lightactive[i]);
-	for (i = 0; i < numlights; i++)
-		SaveLight(&LightList[lightactive[i]]);
-
-	SaveInt(numvision);
-	for (i = 0; i < MAXVISION; i++)
-		SaveChar(visionactive[i]);
-	for (i = 0; i < numvision; i++)
-		SaveLight(&VisionList[visionactive[i]]);
-
 	for (i = 0; i < MAXITEMS; i++)
 		SaveChar(itemactive[i]);
 	for (i = 0; i < MAXITEMS; i++)
 		SaveChar(itemavail[i]);
 	for (i = 0; i < numitems; i++)
 		SaveItemData(&items[itemactive[i]]);
+	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
+
+	if (currLvl._dType != DTYPE_TOWN) {
+		CopyInts(dMonster, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
+		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
+	}
+	// save meta-data III. (modified by LoadGameLevel)
+	SaveInt(numpremium);
+	SaveInt(premiumlevel);
+	SaveInt(numlights);
+	SaveInt(numvision);
+
+	for (i = 0; i < MAXLIGHTS; i++)
+		SaveChar(lightactive[i]);
+	for (i = 0; i < numlights; i++)
+		SaveLight(&LightList[lightactive[i]]);
+
+	for (i = 0; i < MAXVISION; i++)
+		SaveChar(visionactive[i]);
+	for (i = 0; i < numvision; i++)
+		SaveLight(&VisionList[visionactive[i]]);
+
 	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
 	for (i = 0; i < NUM_UITEM; i++)
 		SaveBool(UniqueItemFlags[i]);
 	for ( ; i < 128; i++)
 		SaveBool(FALSE);
 
-	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		CopyInts(dMonster, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
-		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
-	}
-
-	SaveInt(numpremium);
-	SaveInt(premiumlevel);
-
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		SaveItemData(&premiumitems[i]);
 
-	SaveBool(gbAutomapflag);
-	SaveInt(AutoMapScale);
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
 	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff, dwLen);
 	mem_free_dbg(fileBuff);
@@ -1420,7 +1420,7 @@ void SaveLevel()
 	BYTE *SaveBuff;
 
 	if (currLvl._dLevelIdx == DLV_TOWN)
-		glSeedTbl[0] = GetRndSeed();
+		glSeedTbl[DLV_TOWN] = GetRndSeed();
 
 	dwLen = codec_get_encoded_len(FILEBUFF);
 	SaveBuff = DiabloAllocPtr(dwLen);
