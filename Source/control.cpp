@@ -861,7 +861,6 @@ void InitControlPan()
 	guBooktab = 0;
 	gbSbookflag = false;
 	SpellPages[0][0] = Abilities[myplr._pClass];
-	pQLogCel = LoadFileInMem("Data\\Quest.CEL");
 	pGBoxBuff = LoadFileInMem("CtrlPan\\Golddrop.cel");
 	gbDropGoldFlag = false;
 	dropGoldValue = 0;
@@ -1092,7 +1091,6 @@ void FreeControlPan()
 	MemFreeDbg(pTalkBtns);
 	MemFreeDbg(pChrButtons);
 	MemFreeDbg(pDurIcons);
-	MemFreeDbg(pQLogCel);
 	MemFreeDbg(pSpellBkCel);
 	MemFreeDbg(pSBkIconCels);
 	MemFreeDbg(pGBoxBuff);

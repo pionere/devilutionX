@@ -53,10 +53,17 @@ const int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
 const int QuestGroup5[2] = { Q_JERSEY, Q_FARMER };
 #endif
 
-void InitQuestGfx()
+void InitQuestGFX()
 {
 	gbQuestlog = false;
 	WaterDone = 0;
+
+	pQLogCel = LoadFileInMem("Data\\Quest.CEL");
+}
+
+void FreeQuestGFX()
+{
+	MemFreeDbg(pQLogCel);
 }
 
 void InitQuests()

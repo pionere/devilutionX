@@ -261,7 +261,7 @@ static void InitGameUI()
 	InitText(); // gfx
 	InitInv(); // gfx + values
 	InitGMenu(); // gfx
-	InitQuestGfx(); // values
+	InitQuestGFX(); // gfx + values
 	InitQuestText(); // gfx + values
 	InitStores(); // gfx + values (some stored in savefiles)
 	for (pnum = 0; pnum < (IsLocalGame ? 1 : MAX_PLRS); pnum++)
@@ -298,6 +298,7 @@ static void FreeGameUI()
 	FreeText();
 	FreeInvGFX();
 	FreeGMenu();
+	FreeQuestGFX();
 	FreeQuestText();
 	FreeStoreMem();
 
