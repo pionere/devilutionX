@@ -68,9 +68,6 @@ int debug_mode_key_w;
 int debug_mode_key_inverted_v;
 BOOL debug_mode_god_mode;
 int debug_mode_key_i;
-int dbgplr;
-int dbgqst;
-int dbgmon;
 int arrowdebug;
 #endif
 /** Default controls. */

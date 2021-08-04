@@ -64,9 +64,6 @@ extern int debug_mode_key_w;
 extern int debug_mode_key_inverted_v;
 extern BOOL debug_mode_god_mode;
 extern int debug_mode_key_i;
-extern int dbgplr;
-extern int dbgqst;
-extern int dbgmon;
 #endif
 
 #ifdef __cplusplus

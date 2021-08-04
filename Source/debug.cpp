@@ -15,6 +15,9 @@ int level_seeds[NUM_LEVELS + 1];
 int seed_table[DEBUGSEEDS];
 
 BYTE *pSquareCel;
+int dbgplr;
+int dbgqst;
+int dbgmon;
 char dMonsDbg[NUM_LEVELS][MAXDUNX][MAXDUNY];
 char dFlagDbg[NUM_LEVELS][MAXDUNX][MAXDUNY];
 
