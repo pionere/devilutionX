@@ -233,8 +233,8 @@ static void LoadItemData(ItemStruct *is)
 	LoadInt(&is->_iAnimCnt);
 	LoadInt(&is->_iAnimLen);
 	LoadInt(&is->_iAnimFrame);
-	tbuff += 4; // LoadInt(&is->_iAnimWidth);
-	tbuff += 4; // LoadInt(&is->_iAnimXOffset);
+	//LoadInt(&is->_iAnimWidth);
+	//LoadInt(&is->_iAnimXOffset);
 	LoadInt(&is->_iPostDraw);
 	LoadInt(&is->_iIdentified);
 	CopyBytes(tbuff, sizeof(is->_iName), is->_iName);
@@ -457,37 +457,37 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pNumInv);
 	LoadItemData(&plr.HoldItem);
 
-	tbuff += 4; // Skip to Calc _pISlMinDam
-	tbuff += 4; // Skip to Calc _pISlMaxDam
-	tbuff += 4; // Skip to Calc _pIBlMinDam
-	tbuff += 4; // Skip to Calc _pIBlMaxDam
-	tbuff += 4; // Skip to Calc _pIPcMinDam
-	tbuff += 4; // Skip to Calc _pIPcMaxDam
-	//tbuff += 4; // Skip to Calc _pIEvasion
-	tbuff += 4; // Skip to Calc _pIAC
-	tbuff += 4; // Skip to Calc _pIHitChance
-	tbuff += 1; // Skip to Calc _pIBaseHitBonus
-	tbuff += 1; // Skip to Calc _pICritChance
-	tbuff += 1; // Skip to Calc _pIBlockChance
+	/*Skip to Calc
+	tbuff += 4; // _pISlMinDam
+	tbuff += 4; // _pISlMaxDam
+	tbuff += 4; // _pIBlMinDam
+	tbuff += 4; // _pIBlMaxDam
+	tbuff += 4; // _pIPcMinDam
+	tbuff += 4; // _pIPcMaxDam
+	tbuff += 4; // _pIEvasion
+	tbuff += 4; // _pIAC
+	tbuff += 4; // _pIHitChance
+	tbuff += 1; // _pIBaseHitBonus
+	tbuff += 1; // _pICritChance
+	tbuff += 1; // _pIBlockChance
 	tbuff += 1; // Alignment
-	tbuff += 4; // Skip to Calc _pIMagToHit
 
-	tbuff += 8; // Skip to Calc _pISpells
-	tbuff += 4; // Skip to Calc _pIFlags
-	tbuff += 4; // Skip to Calc _pIGetHit
-	tbuff += 1; // Skip to Calc _pISplLvlAdd
-	tbuff += 1; // Skip to Calc _pIArrowVelBonus
-	tbuff += 1; // Skip to Calc _pILifeSteal
-	tbuff += 1; // Skip to Calc _pIManaSteal
-	tbuff += 4; // Skip to Calc _pIEnAc
-	tbuff += 4; // Skip to Calc _pIFMinDam
-	tbuff += 4; // Skip to Calc _pIFMaxDam
-	tbuff += 4; // Skip to Calc _pILMinDam
-	tbuff += 4; // Skip to Calc _pILMaxDam
-	tbuff += 4; // Skip to Calc _pIMMinDam
-	tbuff += 4; // Skip to Calc _pIMMaxDam
-	tbuff += 4; // Skip to Calc _pIAMinDam
-	tbuff += 4; // Skip to Calc _pIAMaxDam
+	tbuff += 8; // _pISpells
+	tbuff += 4; // _pIFlags
+	tbuff += 4; // _pIGetHit
+	tbuff += 1; // _pISplLvlAdd
+	tbuff += 1; // _pIArrowVelBonus
+	tbuff += 1; // _pILifeSteal
+	tbuff += 1; // _pIManaSteal
+	tbuff += 4; // _pIEnAc
+	tbuff += 4; // _pIFMinDam
+	tbuff += 4; // _pIFMaxDam
+	tbuff += 4; // _pILMinDam
+	tbuff += 4; // _pILMaxDam
+	tbuff += 4; // _pIMMinDam
+	tbuff += 4; // _pIMMaxDam
+	tbuff += 4; // _pIAMinDam
+	tbuff += 4; // _pIAMaxDam*/
 	LoadByte(&plr.pTownWarps);
 	LoadByte(&plr.palign_CB);
 	LoadByte(&plr.pDungMsgs);
@@ -744,6 +744,7 @@ static void LoadPortal(int i)
 	PortalStruct *pPortal = &portals[i];
 
 	pPortal->_wopen = LoadBool();
+	tbuff += 3; // Alignment
 	LoadInt(&pPortal->x);
 	LoadInt(&pPortal->y);
 	LoadInt(&pPortal->level);
@@ -789,6 +790,7 @@ void LoadGame()
 	gbInvflag = LoadBool();
 	gbChrflag = LoadBool();
 	gbAutomapflag = LoadBool();
+	tbuff += 1; // Alignment
 	LoadInt(&AutoMapScale);
 
 	LoadPlayer(mypnum);
@@ -921,8 +923,8 @@ static void SaveItemData(ItemStruct *is)
 	SaveInt(&is->_iAnimCnt);
 	SaveInt(&is->_iAnimLen);
 	SaveInt(&is->_iAnimFrame);
-	tbuff += 4; // SaveInt(&is->_iAnimWidth);
-	tbuff += 4; // SaveInt(&is->_iAnimXOffset);
+	//SaveInt(&is->_iAnimWidth);
+	//SaveInt(&is->_iAnimXOffset);
 	SaveInt(&is->_iPostDraw);
 	SaveInt(&is->_iIdentified);
 	CopyBytes(is->_iName, sizeof(is->_iName), tbuff);
@@ -1147,38 +1149,38 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pNumInv);
 	SaveItemData(&plr.HoldItem);
 
-	tbuff += 4; // Skip to Calc _pISlMinDam
-	tbuff += 4; // Skip to Calc _pISlMaxDam
-	tbuff += 4; // Skip to Calc _pIBlMinDam
-	tbuff += 4; // Skip to Calc _pIBlMaxDam
-	tbuff += 4; // Skip to Calc _pIPcMinDam
-	tbuff += 4; // Skip to Calc _pIPcMaxDam
-	//tbuff += 4; // Skip to Calc _pIEvasion
-	tbuff += 4; // Skip to Calc _pIAC
-	tbuff += 4; // Skip to Calc _pIHitChance
-	tbuff += 1; // Skip to Calc _pIBaseHitBonus
-	tbuff += 1; // Skip to Calc _pICritChance
-	tbuff += 1; // Skip to Calc _pIBlockChance
+	/*Skip to Calc
+	tbuff += 4; // _pISlMinDam
+	tbuff += 4; // _pISlMaxDam
+	tbuff += 4; // _pIBlMinDam
+	tbuff += 4; // _pIBlMaxDam
+	tbuff += 4; // _pIPcMinDam
+	tbuff += 4; // _pIPcMaxDam
+	tbuff += 4; // _pIEvasion
+	tbuff += 4; // _pIAC
+	tbuff += 4; // _pIHitChance
+	tbuff += 1; // _pIBaseHitBonus
+	tbuff += 1; // _pICritChance
+	tbuff += 1; // _pIBlockChance
 	tbuff += 1; // Alignment
-	tbuff += 4; // Skip to Calc _pIMagToHit
 
-	tbuff += 8; // Skip to Calc _pISpells
-	tbuff += 4; // Skip to Calc _pIFlags
-	tbuff += 4; // Skip to Calc _pIGetHit
+	tbuff += 8; // _pISpells
+	tbuff += 4; // _pIFlags
+	tbuff += 4; // _pIGetHit
+	tbuff += 1; // _pISplLvlAdd
+	tbuff += 1; // _pIArrowVelBonus
+	tbuff += 1; // _pILifeSteal
+	tbuff += 1; // _pIManaSteal
+	tbuff += 4; // _pIEnAc
+	tbuff += 4; // _pIFMinDam
+	tbuff += 4; // _pIFMaxDam
+	tbuff += 4; // _pILMinDam
+	tbuff += 4; // _pILMaxDam
+	tbuff += 4; // _pIMMinDam
+	tbuff += 4; // _pIMMaxDam
+	tbuff += 4; // _pIAMinDam
+	tbuff += 4; // _pIAMaxDam*/
 
-	tbuff += 1; // Skip to Calc _pISplLvlAdd
-	tbuff += 1; // Skip to Calc _pIArrowVelBonus (_pISplCost in vanilla)
-	tbuff += 1; // Skip to Calc _pILifeSteal
-	tbuff += 1; // Skip to Calc _pIManaSteal
-	tbuff += 4; // Skip to Calc _pIEnAc
-	tbuff += 4; // Skip to Calc _pIFMinDam
-	tbuff += 4; // Skip to Calc _pIFMaxDam
-	tbuff += 4; // Skip to Calc _pILMinDam
-	tbuff += 4; // Skip to Calc _pILMaxDam
-	tbuff += 4; // Skip to Calc _pIMMinDam
-	tbuff += 4; // Skip to Calc _pIMMaxDam
-	tbuff += 4; // Skip to Calc _pIAMinDam
-	tbuff += 4; // Skip to Calc _pIAMaxDam
 	SaveByte(&plr.pTownWarps);
 	SaveByte(&plr.palign_CB);
 	SaveByte(&plr.pDungMsgs);
@@ -1414,6 +1416,7 @@ static void SavePortal(int i)
 	PortalStruct *pPortal = &portals[i];
 
 	SaveBool(pPortal->_wopen);
+	tbuff += 3; // Alignment
 	SaveInt(&pPortal->x);
 	SaveInt(&pPortal->y);
 	SaveInt(&pPortal->level);
@@ -1441,6 +1444,7 @@ void SaveGame()
 	SaveBool(gbInvflag);
 	SaveBool(gbChrflag);
 	SaveBool(gbAutomapflag);
+	tbuff += 1; // Alignment
 	SaveInt(&AutoMapScale);
 
 	SavePlayer(mypnum);
