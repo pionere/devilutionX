@@ -1087,7 +1087,7 @@ static void MonEnemy(int mnum)
 	bestsameroom = false;
 	if (mnum >= MAX_MINIONS) {
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (!plx(i).plractive || currLvl._dLevelIdx != plx(i).plrlevel || plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6))
+			if (!plx(i).plractive || currLvl._dLevelIdx != plx(i)._pDunLevel || plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6))
 				continue;
 			sameroom = tv == dTransVal[plx(i)._px][plx(i)._py];
 			dist = std::max(abs(mon->_mx - plx(i)._px), abs(mon->_my - plx(i)._py));
@@ -2342,8 +2342,8 @@ void PrepDoEnding(bool soundOn)
 	gbCineflag = true;
 
 	killLevel = gnDifficulty + 1;
-	if (killLevel > myplr._pDiabloKillLevel)
-		myplr._pDiabloKillLevel = killLevel;
+	if (killLevel > myplr._pRank)
+		myplr._pRank = killLevel;
 
 	if (IsMultiGame) {
 		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
@@ -4035,7 +4035,7 @@ void MAI_SnotSpil(int mnum)
 			return;
 		quests[Q_LTBANNER]._qactive = QUEST_DONE;
 		quests[Q_LTBANNER]._qvar1 = 4;
-		if (mon->_mListener == mypnum || !plx(mon->_mListener).plractive || plx(mon->_mListener).plrlevel != currLvl._dLevelIdx) {
+		if (mon->_mListener == mypnum || !plx(mon->_mListener).plractive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {
 			NetSendCmd(true, CMD_OPENSPIL);
 			NetSendCmdQuest(Q_LTBANNER, true);
 		}
@@ -4171,7 +4171,7 @@ void MAI_Warlord(int mnum)
 		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
 			return;
 		quests[Q_WARLORD]._qvar1 = 1;
-		if (mon->_menemy == mypnum || !plx(mon->_menemy).plractive || plx(mon->_menemy).plrlevel != currLvl._dLevelIdx) {
+		if (mon->_menemy == mypnum || !plx(mon->_menemy).plractive || plx(mon->_menemy)._pDunLevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		mon->_mmode = MM_TALK;
@@ -4184,7 +4184,7 @@ void MAI_Warlord(int mnum)
 		if (!IsMultiGame && effect_is_playing(alltext[TEXT_WARLRD9].sfxnr))
 			return;
 		quests[Q_WARLORD]._qvar1 = 2;
-		if (mon->_mListener == mypnum || !plx(mon->_mListener).plractive || plx(mon->_mListener).plrlevel != currLvl._dLevelIdx) {
+		if (mon->_mListener == mypnum || !plx(mon->_mListener).plractive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		// mon->_msquelch = SQUELCH_MAX;

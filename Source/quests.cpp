@@ -404,7 +404,7 @@ void DRLG_CheckQuests()
 
 void SetReturnLvlPos()
 {
-	switch (myplr.plrlevel) {
+	switch (myplr._pDunLevel) {
 	case SL_SKELKING:
 		ReturnLvlX = quests[Q_SKELKING]._qtx + 1;
 		ReturnLvlY = quests[Q_SKELKING]._qty;

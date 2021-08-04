@@ -245,7 +245,7 @@ static void multi_deactivate_player(int pnum, int reason)
 		DeactivatePortal(pnum);
 		delta_close_portal(pnum);
 		multi_disband_team(pnum);
-		if (plr.plrlevel == currLvl._dLevelIdx) {
+		if (plr._pDunLevel == currLvl._dLevelIdx) {
 			AddUnLight(plr._plid);
 			AddUnVision(plr._pvid);
 			RemovePlrFromMap(pnum);
@@ -446,7 +446,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 			plr._pHitPoints = SwapLE32(pkt->php);
 			//plr._pMaxHP = SwapLE32(pkt->pmhp);
 			plr._pMana = SwapLE32(pkt->pmp);
-			if (currLvl._dLevelIdx != plr.plrlevel) {
+			if (currLvl._dLevelIdx != plr._pDunLevel) {
 				SetPlayerLoc(&plr, pkt->px, pkt->py);
 			}
 		}
@@ -617,7 +617,7 @@ static void SetupLocalPlr()
 	p = &myplr;
 	SetPlayerLoc(p, x, y);
 	assert(currLvl._dLevelIdx == DLV_TOWN);
-	p->plrlevel = DLV_TOWN;
+	p->_pDunLevel = DLV_TOWN;
 	p->_pManaShield = 0;
 	p->_pTimer[PLTR_INFRAVISION] = 0;
 	p->_pTimer[PLTR_RAGE] = 0;

@@ -125,7 +125,7 @@ static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, unsig
 	heroinfo->hiIdx = saveIdx;
 	heroinfo->hiLevel = p->_pLevel;
 	heroinfo->hiClass = p->_pClass;
-	heroinfo->hiRank = p->_pDiabloKillLevel;
+	heroinfo->hiRank = p->_pRank;
 	heroinfo->hiStrength = p->_pStrength;
 	heroinfo->hiMagic = p->_pMagic;
 	heroinfo->hiDexterity = p->_pDexterity;

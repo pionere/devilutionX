@@ -318,7 +318,7 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr.destParam4);
 	LoadByte(&plr.plractive);
 	LoadByte(&plr._pLvlChanging);
-	LoadByte(&plr.plrlevel);
+	LoadByte(&plr._pDunLevel);
 	tbuff += 1; // Alignment
 	LoadInt(&plr._px);
 	LoadInt(&plr._py);
@@ -402,7 +402,7 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pManaPer);
 	LoadInt16(&plr._pStatPts);
 	LoadByte(&plr._pLvlUp);
-	LoadByte(&plr._pDiabloKillLevel);
+	LoadByte(&plr._pRank);
 	LoadInt(&plr._pExperience);
 	LoadInt(&plr._pNextExper);
 	tbuff += 1; // Skip to Calc _pMagResist
@@ -752,7 +752,7 @@ static void LoadPortal(int i)
 /*static void RedoPlayerLight()
 {
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel)
+		if (plr.plractive && currLvl._dLevelIdx == plr._pDunLevel)
 			ChangeLightXY(plr._plid, plr._px, plr._py);
 	}
 }*/
@@ -1007,7 +1007,7 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr.destParam4);
 	SaveByte(&plr.plractive);
 	SaveByte(&plr._pLvlChanging);
-	SaveByte(&plr.plrlevel);
+	SaveByte(&plr._pDunLevel);
 	tbuff += 1; // Alignment
 	SaveInt(&plr._px);
 	SaveInt(&plr._py);
@@ -1092,7 +1092,7 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pManaPer);
 	SaveInt16(&plr._pStatPts);
 	SaveByte(&plr._pLvlUp);
-	SaveByte(&plr._pDiabloKillLevel);
+	SaveByte(&plr._pRank);
 	SaveInt(&plr._pExperience);
 	SaveInt(&plr._pNextExper);
 	tbuff += 1; // Skip to Calc _pMagResist

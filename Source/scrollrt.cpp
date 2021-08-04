@@ -462,7 +462,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr.plractive && plr._pHitPoints < (1 << 6) && plr.plrlevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
+		if (plr.plractive && plr._pHitPoints < (1 << 6) && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
 #ifdef _DEBUG
 			BYTE *pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {

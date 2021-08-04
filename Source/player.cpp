@@ -664,7 +664,7 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 
 	plr._pLevel = heroinfo.hiLevel;
 	plr._pClass = heroinfo.hiClass;
-	//plr._pDiabloKillLevel = heroinfo.hiRank;
+	//plr._pRank = heroinfo.hiRank;
 	copy_cstr(plr._pName, heroinfo.hiName);
 
 	val = heroinfo.hiStrength;
@@ -766,7 +766,7 @@ void InitPlayer(int pnum)
 
 	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
 
-	// TODO: BUGFIX: should only be set if plr.plrlevel == currLvl._dLevelIdx?
+	// TODO: BUGFIX: should only be set if plr._pDunLevel == currLvl._dLevelIdx?
 	//if (plr._pmode != PM_DEATH)
 	//	plr._pInvincible = FALSE;
 }
@@ -779,7 +779,7 @@ void InitLvlPlayer(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("InitLvlPlayer: illegal player %d", pnum);
 	}
-	assert(plr.plrlevel == currLvl._dLevelIdx);
+	assert(plr._pDunLevel == currLvl._dLevelIdx);
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		plr._pSkillFlags	|= SFLAG_DUNGEON;
 	} else {
@@ -1799,7 +1799,7 @@ void StartPlrKill(int pnum, int dmgtype)
 	plr._pVar7 = 0; // DEATH_DELAY
 	plr._pVar8 = 1; // DEATH_TICK
 
-	diablolevel = IsMultiGame && plr.plrlevel == DLV_HELL4;
+	diablolevel = IsMultiGame && plr._pDunLevel == DLV_HELL4;
 	if (pnum != mypnum && dmgtype == DMGTYPE_NPC && !diablolevel) {
 		for (i = 0; i < NUM_INVLOC; i++) {
 			plr.InvBody[i]._itype = ITYPE_NONE;
@@ -1807,7 +1807,7 @@ void StartPlrKill(int pnum, int dmgtype)
 		CalcPlrInv(pnum, false);
 	}
 
-	if (plr.plrlevel == currLvl._dLevelIdx) {
+	if (plr._pDunLevel == currLvl._dLevelIdx) {
 		RemovePlrFromMap(pnum);
 		dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 		FixPlayerLocation(pnum);
@@ -1877,7 +1877,7 @@ void SyncPlrResurrect(int pnum)
 
 	CalcPlrInv(pnum, true);
 
-	if (plr.plrlevel == currLvl._dLevelIdx) {
+	if (plr._pDunLevel == currLvl._dLevelIdx) {
 		PlacePlayer(pnum);
 		PlrStartStand(pnum, plr._pdir);
 	} else {
@@ -1909,7 +1909,7 @@ void RemovePlrMissiles(int pnum)
 static void InitLevelChange(int pnum)
 {
 	ClrPlrPath(pnum);
-	if (plr.plrlevel == currLvl._dLevelIdx) {
+	if (plr._pDunLevel == currLvl._dLevelIdx) {
 		AddUnLight(plr._plid);
 		AddUnVision(plr._pvid);
 		RemovePlrMissiles(pnum);
@@ -1961,7 +1961,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		app_fatal("StartNewLvl %d", fom);
 		break;
 	}
-	plr.plrlevel = lvl;
+	plr._pDunLevel = lvl;
 	if (pnum == mypnum) {
 		PostMessage(fom, 0, 0);
 	}
@@ -1974,7 +1974,7 @@ void RestartTownLvl(int pnum)
 	}
 	InitLevelChange(pnum);
 
-	plr.plrlevel = DLV_TOWN;
+	plr._pDunLevel = DLV_TOWN;
 
 	PlrSetHp(pnum, 64);
 	PlrSetMana(pnum, 0);
@@ -1995,10 +1995,10 @@ void StartTWarp(int pnum, int pidx)
 	}
 	InitLevelChange(pnum);
 
-	if (plr.plrlevel != DLV_TOWN) {
-		plr.plrlevel = DLV_TOWN;
+	if (plr._pDunLevel != DLV_TOWN) {
+		plr._pDunLevel = DLV_TOWN;
 	} else {
-		plr.plrlevel = portals[pidx].level;
+		plr._pDunLevel = portals[pidx].level;
 	}
 
 	if (pnum == mypnum) {
@@ -2960,7 +2960,7 @@ void ProcessPlayers()
 	ValidatePlayer();
 #endif
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel && !plr._pLvlChanging) {
+		if (plr.plractive && currLvl._dLevelIdx == plr._pDunLevel && !plr._pLvlChanging) {
 			//CheckCheatStats(pnum);
 
 			if (pnum == mypnum) {
@@ -3185,7 +3185,7 @@ void SyncPlrAnim(int pnum)
 
 void SyncInitPlrPos(int pnum)
 {
-	assert(plr.plrlevel == currLvl._dLevelIdx);
+	assert(plr._pDunLevel == currLvl._dLevelIdx);
 
 	if (PlacePlayer(pnum)) {
 		RemovePlrFromMap(pnum);

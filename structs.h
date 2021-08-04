@@ -228,7 +228,7 @@ typedef struct PlayerStruct {
 	int destParam4;
 	BOOLEAN plractive;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
-	BYTE plrlevel;
+	BYTE _pDunLevel;
 	BYTE _pTeam;
 	int _px;      // Tile X-position of player
 	int _py;      // Tile Y-position of player
@@ -310,7 +310,7 @@ typedef struct PlayerStruct {
 	int _pManaPer;
 	WORD _pStatPts;
 	BOOLEAN _pLvlUp;
-	BYTE _pDiabloKillLevel;
+	BYTE _pRank;
 	unsigned _pExperience;
 	unsigned _pNextExper;
 	char _pMagResist;
@@ -834,7 +834,7 @@ typedef struct PkItemStruct {
 } PkItemStruct;
 
 typedef struct PkPlayerStruct {
-	BYTE plrlevel;
+	BYTE pDunLevel;
 	BYTE pTeam;
 	BYTE px;
 	BYTE py;
@@ -848,7 +848,7 @@ typedef struct PkPlayerStruct {
 	WORD pBaseMag;
 	WORD pBaseDex;
 	WORD pBaseVit;
-	BYTE pDiabloKillLevel;
+	BYTE pRank;
 	WORD pStatPts;
 	DWORD pExperience;
 	INT pGold;
@@ -864,7 +864,7 @@ typedef struct PkPlayerStruct {
 	PkItemStruct SpdList[MAXBELTITEMS];
 	PkItemStruct InvList[NUM_INV_GRID_ELEM];
 	char InvGrid[NUM_INV_GRID_ELEM];
-	BYTE _pNumInv;
+	BYTE pNumInv;
 	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
 	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
 	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
@@ -1381,7 +1381,7 @@ typedef struct TownerStruct {
 	int _tAnimWidth;
 	int _tAnimXOffset;
 	char _tAnimOrder;
-	BYTE _tListener;
+	BYTE _tListener; // unused
 	BYTE _tStoreId;
 	int _tStoreTalk;
 	BOOL _tSelFlag;

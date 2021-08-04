@@ -157,7 +157,7 @@ void PrintDebugPlayer(bool bNextPlayer)
 	if (players[dbgplr].plractive) {
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Plr %i is %s", dbgplr, players[dbgplr]._pName);
 		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Lvl = %i : Change = %i", players[dbgplr].plrlevel, players[dbgplr]._pLvlChanging);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Lvl = %i : Change = %i", players[dbgplr]._pDunLevel, players[dbgplr]._pLvlChanging);
 		NetSendCmdString(1 << mypnum);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %i, y = %i : fx = %i, fy = %i", players[dbgplr]._px, players[dbgplr]._py, players[dbgplr]._pfutx, players[dbgplr]._pfuty);
 		NetSendCmdString(1 << mypnum);

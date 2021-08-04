@@ -1724,7 +1724,7 @@ int SyncPutItem(int pnum, int x, int y, int ii, bool plrAround)
 	int xx, yy;
 	ItemStruct *is;
 
-	// assert(plr.plrlevel == currLvl._dLevelIdx);
+	// assert(plr._pDunLevel == currLvl._dLevelIdx);
 	if (numitems >= MAXITEMS)
 		return -1;
 
@@ -2091,7 +2091,7 @@ void SyncUseItem(int pnum, int cii)
 		return;
 
 	/* TODO validate packages from internet
-	if (AllLevels[plr.plrlevel].dType == DTYPE_TOWN
+	if (AllLevels[plr._pDunLevel].dType == DTYPE_TOWN
 #ifdef HELLFIRE
 	 && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE)
 #else

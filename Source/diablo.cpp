@@ -213,7 +213,7 @@ static void diablo_parse_flags(int argc, char **argv)
 		} else if (strcasecmp("-l", argv[i]) == 0) {
 			leveldebug = TRUE;
 			EnterLevel(SDL_atoi(argv[++i]));
-			players[0].plrlevel = currLvl._dLevelIdx;
+			players[0]._pDunLevel = currLvl._dLevelIdx;
 		} else if (strcasecmp("-m", argv[i]) == 0) {
 			monstdebug = TRUE;
 			DebugMonsters[debugmonsttypes++] = SDL_atoi(argv[++i]);

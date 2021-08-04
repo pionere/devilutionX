@@ -25,7 +25,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 
 	memset(pPack, 0, sizeof(*pPack));
 	p = &plr;
-	pPack->plrlevel = p->plrlevel;
+	pPack->pDunLevel = p->_pDunLevel;
 	pPack->pTeam = p->_pTeam;
 	pPack->px = p->_px;
 	pPack->py = p->_py;
@@ -40,7 +40,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pBaseMag = SwapLE16(p->_pBaseMag);
 	pPack->pBaseDex = SwapLE16(p->_pBaseDex);
 	pPack->pBaseVit = SwapLE16(p->_pBaseVit);
-	pPack->pDiabloKillLevel = p->_pDiabloKillLevel;
+	pPack->pRank = p->_pRank;
 	pPack->pStatPts = SwapLE16(p->_pStatPts);
 	pPack->pExperience = SwapLE32(p->_pExperience);
 	pPack->pGold = SwapLE32(p->_pGold);
@@ -91,7 +91,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
 		pPack->InvGrid[i] = p->InvGrid[i];
 
-	pPack->_pNumInv = p->_pNumInv;
+	pPack->pNumInv = p->_pNumInv;
 
 	memcpy(pPack->pAtkSkillHotKey, p->_pAtkSkillHotKey, sizeof(pPack->pAtkSkillHotKey));
 	memcpy(pPack->pAtkSkillTypeHotKey, p->_pAtkSkillTypeHotKey, sizeof(pPack->pAtkSkillTypeHotKey));
@@ -131,7 +131,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 
 	// TODO: validate data from the internet
 	SetPlayerLoc(&plr, pPack->px, pPack->py);
-	plr.plrlevel = pPack->plrlevel;
+	plr._pDunLevel = pPack->pDunLevel;
 	plr._pTeam = pPack->pTeam;
 	ClrPlrPath(pnum);
 	plr.destAction = ACTION_NONE;
@@ -142,7 +142,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._pManaShield = pPack->pManaShield;
 	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
 	plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
-	plr._pDiabloKillLevel = pPack->pDiabloKillLevel;
+	plr._pRank = pPack->pRank;
 	plr._pStatPts = SwapLE16(pPack->pStatPts);
 	InitPlayer(pnum);
 	plr._pBaseStr = SwapLE16(pPack->pBaseStr);
@@ -201,7 +201,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
 		plr.InvGrid[i] = pPack->InvGrid[i];
 
-	plr._pNumInv = pPack->_pNumInv;
+	plr._pNumInv = pPack->pNumInv;
 
 	memcpy(plr._pAtkSkillHotKey, pPack->pAtkSkillHotKey, sizeof(plr._pAtkSkillHotKey));
 	memcpy(plr._pAtkSkillTypeHotKey, pPack->pAtkSkillTypeHotKey, sizeof(plr._pAtkSkillTypeHotKey));

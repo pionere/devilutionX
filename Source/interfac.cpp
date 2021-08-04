@@ -43,7 +43,7 @@ static void InitCutscene(unsigned int uMsg)
 			progress_id = 1;
 			break;
 		case DTYPE_HELL:
-			lvl = myplr.plrlevel; // the destination level
+			lvl = myplr._pDunLevel; // the destination level
 			progress_id = 1;
 			break;
 		case DTYPE_CRYPT:
@@ -79,7 +79,7 @@ static void InitCutscene(unsigned int uMsg)
 		}
 		break;
 	case WM_DIABSETLVL:
-		lvl = myplr.plrlevel; // the destination level
+		lvl = myplr._pDunLevel; // the destination level
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		if (lvl == SL_BONECHAMB) {
@@ -116,7 +116,7 @@ static void InitCutscene(unsigned int uMsg)
 	case WM_DIABTWARPDN:
 	case WM_DIABTWARPUP:
 	case WM_DIABRETOWN: {
-		lvl = myplr.plrlevel; // the destination level
+		lvl = myplr._pDunLevel; // the destination level
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		switch (AllLevels[lvl].dType) {
@@ -255,7 +255,7 @@ static void InitPlayers()
 	int pnum;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (!plr.plractive || currLvl._dLevelIdx != plr.plrlevel || plr._pLvlChanging)
+		if (!plr.plractive || currLvl._dLevelIdx != plr._pDunLevel || plr._pLvlChanging)
 			continue;
 		InitPlayerGFX(pnum);
 		InitLvlPlayer(pnum);
@@ -415,7 +415,7 @@ static void SwitchGameLevel(int lvldir)
 	}
 	IncProgress();
 	FreeLevelMem();
-	EnterLevel(myplr.plrlevel);
+	EnterLevel(myplr._pDunLevel);
 	IncProgress();
 	LoadGameLevel(lvldir);
 }
@@ -454,11 +454,11 @@ void ShowProgress(unsigned int uMsg)
 		LoadGameLevel(ENTRY_MAIN);
 		break;
 	case WM_DIABNEXTLVL:
-		assert(myplr.plrlevel == currLvl._dLevelIdx + 1);
+		assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
 		SwitchGameLevel(ENTRY_MAIN);
 		break;
 	case WM_DIABPREVLVL:
-		assert(myplr.plrlevel == currLvl._dLevelIdx - 1);
+		assert(myplr._pDunLevel == currLvl._dLevelIdx - 1);
 		SwitchGameLevel(ENTRY_PREV);
 		break;
 	case WM_DIABSETLVL:
@@ -466,7 +466,7 @@ void ShowProgress(unsigned int uMsg)
 		SwitchGameLevel(ENTRY_SETLVL);
 		break;
 	case WM_DIABRTNLVL:
-		assert(myplr.plrlevel == ReturnLvl);
+		assert(myplr._pDunLevel == ReturnLvl);
 		SwitchGameLevel(ENTRY_RTNLVL);
 		break;
 	case WM_DIABWARPLVL:
@@ -492,7 +492,7 @@ void ShowProgress(unsigned int uMsg)
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
 
-	if (gbSomebodyWonGameKludge && myplr.plrlevel == DLV_HELL4) {
+	if (gbSomebodyWonGameKludge && myplr._pDunLevel == DLV_HELL4) {
 		PrepDoEnding(gbSoundOn);
 	}
 }

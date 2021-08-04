@@ -901,7 +901,7 @@ void ToggleLighting()
 	} else {
 		memcpy(dLight, dPreLight, sizeof(dLight));
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (players[i].plractive && players[i].plrlevel == currLvl._dLevelIdx) {
+			if (players[i].plractive && players[i]._pDunLevel == currLvl._dLevelIdx) {
 				DoLighting(players[i]._px, players[i]._py, players[i]._pLightRad, -1);
 			}
 		}

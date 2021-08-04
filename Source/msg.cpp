@@ -370,7 +370,7 @@ static void DeltaImportPlr()
 	EventPlrMsg("Player '%s' (level %d) is already in the game", plr._pName, plr._pLevel);
 
 	assert(plr._pGFXLoad == 0);
-	//if (plr.plrlevel == currLvl._dLevelIdx)
+	//if (plr._pDunLevel == currLvl._dLevelIdx)
 	//	SyncInitPlr(pnum);
 }
 
@@ -991,9 +991,9 @@ void NetSendCmdSendJoinLevel()
 	TCmdSendJoinLevel cmd;
 
 	cmd.bCmd = CMD_SEND_JOINLEVEL;
-	cmd.lLevel = myplr.plrlevel; // currLvl._dLevelIdx
-	cmd.px = myplr._px;
-	cmd.py = myplr._py;
+	cmd.lLevel = myplr._pDunLevel;	// currLvl._dLevelIdx
+	cmd.px = myplr._px;				// ViewX
+	cmd.py = myplr._py;				// ViewY
 	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
 	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
 
@@ -1034,7 +1034,7 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	cmd.mkX = monster[mnum]._mx;
 	cmd.mkY = monster[mnum]._my;
 	cmd.mkDir = monster[mnum]._mdir;
-	cmd.mkLevel = plr.plrlevel;
+	cmd.mkLevel = plr._pDunLevel;
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
@@ -1414,7 +1414,7 @@ static unsigned On_WALKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLoc *cmd = (TCmdLoc *)pCmd;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		MakePlrPath(pnum, cmd->x, cmd->y, true);
 		plr.destAction = ACTION_NONE;
@@ -1455,7 +1455,7 @@ static unsigned On_BLOCK(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_BLOCK;
 		plr.destParam1 = cmd->bParam1; // direction
@@ -1467,7 +1467,7 @@ static unsigned On_GOTOGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		plr.destAction = ACTION_PICKUPITEM;
 		plr.destParam1 = SwapLE16(cmd->wParam1);
@@ -1497,7 +1497,7 @@ static unsigned On_GOTOAGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		plr.destAction = ACTION_PICKUPAITEM;
 		plr.destParam1 = SwapLE16(cmd->wParam1);
@@ -1561,7 +1561,7 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 	x = cmd->x;
 	y = cmd->y;
 #ifdef HELLFIRE
-	if (plr.plrlevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, SwapLE16(cmd->item.wIndx))) {
+	if (plr._pDunLevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, SwapLE16(cmd->item.wIndx))) {
 		return sizeof(*cmd);
 	}
 #endif
@@ -1624,7 +1624,7 @@ static unsigned On_SATTACKXY(TCmd *pCmd, int pnum)
 	TCmdLocAttack *cmd = (TCmdLocAttack *)pCmd;
 	int sn;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->laSkill;
 		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1645,7 +1645,7 @@ static unsigned On_RATTACKXY(TCmd *pCmd, int pnum)
 	TCmdLocAttack *cmd = (TCmdLocAttack *)pCmd;
 	int sn;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->laSkill;
 		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1666,7 +1666,7 @@ static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 	TCmdLocSkill *cmd = (TCmdLocSkill *)pCmd;
 	BYTE sn;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->lsSkill;
 		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1705,7 +1705,7 @@ static unsigned On_OPOBJXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		int oi = SwapLE16(cmd->wParam1);
 		plr.destAction = ACTION_OPERATE;
 		plr.destParam1 = oi;
@@ -1721,7 +1721,7 @@ static unsigned On_DISARMXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		int oi = SwapLE16(cmd->wParam1);
 		plr.destAction = ACTION_DISARM;
 		plr.destParam1 = oi;
@@ -1737,7 +1737,7 @@ static unsigned On_OPOBJT(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		plr.destAction = ACTION_OPERATETK;
 		plr.destParam1 = SwapLE16(cmd->wParam1);
 	}
@@ -1750,7 +1750,7 @@ static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 	TCmdMonstAttack *cmd = (TCmdMonstAttack *)pCmd;
 	int mnum, x, y, sn;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		mnum = SwapLE16(cmd->maMnum);
 		x = monster[mnum]._mfutx;
 		y = monster[mnum]._mfuty;
@@ -1774,7 +1774,7 @@ static unsigned On_ATTACKPID(TCmd *pCmd, int pnum)
 	TCmdPlrAttack *cmd = (TCmdPlrAttack *)pCmd;
 	int tnum, sn;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		tnum = cmd->paPnum;
 		MakePlrPath(pnum, plx(tnum)._pfutx, plx(tnum)._pfuty, false);
 		sn = cmd->paSkill;
@@ -1795,7 +1795,7 @@ static unsigned On_RATTACKID(TCmd *pCmd, int pnum)
 	TCmdMonstAttack *cmd = (TCmdMonstAttack *)pCmd;
 	int sn;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->maSkill;
 		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1815,7 +1815,7 @@ static unsigned On_RATTACKPID(TCmd *pCmd, int pnum)
 	TCmdPlrAttack *cmd = (TCmdPlrAttack *)pCmd;
 	int sn;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->paSkill;
 		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1835,7 +1835,7 @@ static unsigned On_SPELLID(TCmd *pCmd, int pnum)
 	TCmdMonstSkill *cmd = (TCmdMonstSkill *)pCmd;
 	BYTE sn;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->msSkill;
 		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1856,7 +1856,7 @@ static unsigned On_SPELLPID(TCmd *pCmd, int pnum)
 	TCmdPlrSkill *cmd = (TCmdPlrSkill *)pCmd;
 	BYTE sn;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->psSkill;
 		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1876,7 +1876,7 @@ static unsigned On_KNOCKBACK(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		// assert(cmd->wParam1 >= MAX_MINIONS); TODO: validate data from internet
 		MonGetKnockback(SwapLE16(cmd->wParam1));
 		MonStartHit(SwapLE16(cmd->wParam1), pnum, 0);
@@ -1889,7 +1889,7 @@ static unsigned On_TALKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (currLvl._dLevelIdx == plr.plrlevel) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		plr.destAction = ACTION_TALK;
 		plr.destParam1 = SwapLE16(cmd->wParam1);
@@ -1975,7 +1975,7 @@ static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
 #else
 	if (cmd->pdPnum == mypnum) {
 #endif
-		if (currLvl._dType != DTYPE_TOWN && currLvl._dLevelIdx == plr.plrlevel) {
+		if (currLvl._dType != DTYPE_TOWN && currLvl._dLevelIdx == plr._pDunLevel) {
 			if (!myplr._pInvincible /*&& SwapLE32(cmd->pdDamage) <= 192000*/) {
 				PlrDecHp(mypnum, SwapLE32(cmd->pdDamage), DMGTYPE_PLAYER);
 			}
@@ -1989,9 +1989,9 @@ static unsigned On_DOOROPEN(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
+	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncDoorOpen(SwapLE16(cmd->wParam1));
-	delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOOROPEN, plr.plrlevel);
+	delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOOROPEN, plr._pDunLevel);
 
 	return sizeof(*cmd);
 }
@@ -2000,9 +2000,9 @@ static unsigned On_DOORCLOSE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
+	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncDoorClose(SwapLE16(cmd->wParam1));
-	delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOORCLOSE, plr.plrlevel);
+	delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOORCLOSE, plr._pDunLevel);
 
 	return sizeof(*cmd);
 }
@@ -2011,9 +2011,9 @@ static unsigned On_TRAPDISABLE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
+	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncTrapDisable(SwapLE16(cmd->wParam1));
-	delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPDISABLE, plr.plrlevel);
+	delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPDISABLE, plr._pDunLevel);
 
 	return sizeof(*cmd);
 }
@@ -2022,9 +2022,9 @@ static unsigned On_TRAPOPEN(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
+	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncTrapOpen(SwapLE16(cmd->wParam1));
-	delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPOPEN, plr.plrlevel);
+	delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPOPEN, plr._pDunLevel);
 
 	return sizeof(*cmd);
 }
@@ -2033,9 +2033,9 @@ static unsigned On_TRAPCLOSE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
+	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncTrapClose(SwapLE16(cmd->wParam1));
-	delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPCLOSE, plr.plrlevel);
+	delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPCLOSE, plr._pDunLevel);
 
 	return sizeof(*cmd);
 }
@@ -2044,9 +2044,9 @@ static unsigned On_OPERATEOBJ(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
+	if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 		SyncOpObject(pnum, SwapLE16(cmd->wParam1));
-	delta_sync_object(SwapLE16(cmd->wParam1), CMD_OPERATEOBJ, plr.plrlevel);
+	delta_sync_object(SwapLE16(cmd->wParam1), CMD_OPERATEOBJ, plr._pDunLevel);
 
 	return sizeof(*cmd);
 }
@@ -2055,9 +2055,9 @@ static unsigned On_CHESTCLOSE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
+	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncChestClose(SwapLE16(cmd->wParam1));
-	delta_sync_object(SwapLE16(cmd->wParam1), CMD_CHESTCLOSE, plr.plrlevel);
+	delta_sync_object(SwapLE16(cmd->wParam1), CMD_CHESTCLOSE, plr._pDunLevel);
 
 	return sizeof(*cmd);
 }
@@ -2198,11 +2198,11 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 		}
 		plr._px = cmd->px;
 		plr._py = cmd->py;
-		plr.plrlevel = cmd->lLevel;
+		plr._pDunLevel = cmd->lLevel;
 		plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1) > gbNetUpdateRate ? SwapLE16(cmd->lTimer1) - gbNetUpdateRate : 0;
 		plr._pTimer[PLTR_RAGE] = msg_calc_rage(cmd->lTimer2);
 		plr._pGFXLoad = 0;
-		if (currLvl._dLevelIdx == plr.plrlevel) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
 			InitLvlPlayer(pnum);
 			CalcPlrItemVals(pnum, true);
 			NetSendCmdAckJoinLevel();
@@ -2400,7 +2400,7 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 {
 	TCmdQuest *cmd = (TCmdQuest *)pCmd;
 
-	if (currLvl._dLevelIdx != plr.plrlevel || geBufferMsgs == MSG_INITIAL_PENDINGTURN)
+	if (currLvl._dLevelIdx != plr._pDunLevel || geBufferMsgs == MSG_INITIAL_PENDINGTURN)
 		SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
 	_gbJunkDeltaChanged = true;
 

@@ -1611,7 +1611,7 @@ static void Obj_Light(int oi)
 #endif
 	{
 		for (pnum = 0; pnum < MAX_PLRS && !turnon; pnum++) {
-			if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel) {
+			if (plr.plractive && currLvl._dLevelIdx == plr._pDunLevel) {
 				dx = abs(plr._px - ox);
 				dy = abs(plr._py - oy);
 				if (dx < tr && dy < tr)
@@ -2181,7 +2181,7 @@ void RedoPlayerVision()
 	int pnum;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel) {
+		if (plr.plractive && currLvl._dLevelIdx == plr._pDunLevel) {
 			ChangeVisionXY(plr._pvid, plr._px, plr._py);
 		}
 	}
