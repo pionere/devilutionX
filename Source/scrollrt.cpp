@@ -10,6 +10,12 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/** Specifies the player viewpoint X-coordinate of the map. */
+int ViewX;
+/** Specifies the player viewpoint Y-coordinate of the map. */
+int ViewY;
+ScrollStruct ScrollInfo;
+
 /**
  * Specifies the current light entry.
  */

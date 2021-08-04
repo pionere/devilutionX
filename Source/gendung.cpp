@@ -51,11 +51,6 @@ bool nMissileTable[MAXTILES + 1];
 int gnDifficulty;
 /** Contains the data of the active dungeon level. */
 LevelStruct currLvl;
-/** Specifies the player viewpoint X-coordinate of the map. */
-int ViewX;
-/** Specifies the player viewpoint Y-coordinate of the map. */
-int ViewY;
-ScrollStruct ScrollInfo;
 int MicroTileLen;
 /** Specifies the number of transparency blocks on the map. */
 BYTE numtrans;
