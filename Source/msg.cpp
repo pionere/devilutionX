@@ -826,13 +826,7 @@ void DeltaAddItem(int ii)
 
 void DeltaSaveLevel()
 {
-	int pnum;
-
 	assert(IsMultiGame);
-	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (pnum != mypnum)
-			plr._pGFXLoad = 0;
-	}
 	delta_leave_sync(currLvl._dLevelIdx);
 }
 
