@@ -212,7 +212,7 @@ void CheckCursMove()
 	//	sy = PANEL_TOP - 1;
 	//}
 
-	if (!gbZoomflag) {
+	if (gbZoomInFlag) {
 		sx >>= 1;
 		sy >>= 1;
 	}
@@ -250,7 +250,7 @@ void CheckCursMove()
 		my++;
 	}
 
-	if (!gbZoomflag) {
+	if (gbZoomInFlag) {
 		sy -= TILE_HEIGHT / 4;
 	}
 

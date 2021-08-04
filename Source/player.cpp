@@ -1379,7 +1379,7 @@ static bool StartWalk(int pnum)
 		ScrollInfo._sdy = plr._poldy - ViewY;
 
 		dir = dir2sdir[dir];
-		if (gbZoomflag) {
+		if (!gbZoomInFlag) {
 			if (abs(ScrollInfo._sdx) >= 3 || abs(ScrollInfo._sdy) >= 3) {
 				ScrollInfo._sdir = SDIR_NONE;
 			} else {

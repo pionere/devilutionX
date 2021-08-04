@@ -20,7 +20,7 @@ int MouseX;
 int MouseY;
 bool gbRunGame;
 bool gbRunGameResult;
-bool gbZoomflag;
+bool gbZoomInFlag;
 /** Enable updating of player character, set to false once Diablo dies */
 bool gbProcessPlayers;
 bool gbLoadGame;
@@ -267,7 +267,7 @@ static void InitGameUI()
 		InitPlrGFXMem(pnum); // gfx
 	InitItemGFX(); // gfx + values (some stored in savefiles)
 
-	gbZoomflag = true;
+	gbZoomInFlag = false;
 	CalcViewportGeometry();
 	InitCursor();
 	ScrollInfo._sdx = 0;
@@ -1338,7 +1338,7 @@ static void PressKey(int vkey)
 		IncreaseGamma();
 		break;
 	case ACT_ZOOM:
-		gbZoomflag = !gbZoomflag;
+		gbZoomInFlag = !gbZoomInFlag;
 		CalcViewportGeometry();
 		break;
 	case ACT_VER:

@@ -1351,7 +1351,7 @@ static void GetMousePos(int x, int y, int *outx, int *outy)
 	px *= TILE_WIDTH / 2;
 	py *= TILE_HEIGHT / 2;
 
-	if (!gbZoomflag) {
+	if (gbZoomInFlag) {
 		px <<= 1;
 		py <<= 1;
 	}

@@ -953,7 +953,7 @@ int RowsCoveredByPanel()
 	/*}
 
 	int rows = PANEL_HEIGHT / TILE_HEIGHT;
-	if (!gbZoomflag) {
+	if (gbZoomInFlag) {
 		rows /= 2;
 	}
 
@@ -971,7 +971,7 @@ void CalcTileOffset(int *offsetX, int *offsetY)
 
 	x = SCREEN_WIDTH;
 	y = VIEWPORT_HEIGHT;
-	if (!gbZoomflag) {
+	if (gbZoomInFlag) {
 		x >>= 1;
 		y >>= 1;
 	}
@@ -995,7 +995,7 @@ void TilesInView(int *rcolumns, int *rrows)
 	int columns = (SCREEN_WIDTH + TILE_WIDTH - 1) / TILE_WIDTH;
 	int rows = (VIEWPORT_HEIGHT + TILE_HEIGHT - 1) / TILE_HEIGHT;
 
-	if (!gbZoomflag) {
+	if (gbZoomInFlag) {
 		// Half the number of tiles, rounded up
 		columns++;
 		columns >>= 1;
@@ -1049,7 +1049,7 @@ void CalcViewportGeometry()
 	}
 
 	// Slightly lower the zoomed view
-	if (!gbZoomflag) {
+	if (gbZoomInFlag) {
 		tileOffsetY += TILE_HEIGHT / 4;
 		if (yo < TILE_HEIGHT / 4)
 			tileRows++;
@@ -1066,7 +1066,7 @@ static void DrawGame()
 	int x, y, sx, sy, columns, rows;
 
 	// Limit rendering to the view area
-	//if (gbZoomflag)
+	//if (!gbZoomInFlag)
 	//	gpBufEnd = &gpBuffer[SCREENXY(0, VIEWPORT_HEIGHT)];
 	//else
 	//	gpBufEnd = &gpBuffer[SCREENXY(0, VIEWPORT_HEIGHT / 2)];
@@ -1135,7 +1135,7 @@ static void DrawGame()
 	// Allow rendering to the whole screen
 	//gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT)];
 
-	if (!gbZoomflag) {
+	if (gbZoomInFlag) {
 		Zoom();
 	}
 }

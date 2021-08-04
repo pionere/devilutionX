@@ -18,7 +18,7 @@ extern int MouseY;
 extern bool gbSndInited;
 extern bool gbRunGame;
 extern bool gbRunGameResult;
-extern bool gbZoomflag;
+extern bool gbZoomInFlag;
 extern bool gbProcessPlayers;
 extern bool gbLoadGame;
 extern bool gbCineflag;
