@@ -2183,6 +2183,8 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 	if (plr._pmode != PM_DEATH)
 		plr._pInvincible = FALSE;
 	if (pnum == mypnum) {
+		// necessary only if switching from or to town
+		InitPlayerGFX(pnum);
 		InitLvlPlayer(pnum);
 	} else {
 		if (!plr.plractive) {
