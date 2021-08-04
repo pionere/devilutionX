@@ -40,7 +40,6 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pBaseMag = SwapLE16(p->_pBaseMag);
 	pPack->pBaseDex = SwapLE16(p->_pBaseDex);
 	pPack->pBaseVit = SwapLE16(p->_pBaseVit);
-	pPack->pRank = p->_pRank;
 	pPack->pStatPts = SwapLE16(p->_pStatPts);
 	pPack->pExperience = SwapLE32(p->_pExperience);
 	pPack->pGold = SwapLE32(p->_pGold);
@@ -92,6 +91,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pPack->InvGrid[i] = p->InvGrid[i];
 
 	pPack->pNumInv = p->_pNumInv;
+	pPack->pRank = p->_pRank;
 
 	memcpy(pPack->pAtkSkillHotKey, p->_pAtkSkillHotKey, sizeof(pPack->pAtkSkillHotKey));
 	memcpy(pPack->pAtkSkillTypeHotKey, p->_pAtkSkillTypeHotKey, sizeof(pPack->pAtkSkillTypeHotKey));
@@ -133,8 +133,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	SetPlayerLoc(&plr, pPack->px, pPack->py);
 	plr._pDunLevel = pPack->pDunLevel;
 	plr._pTeam = pPack->pTeam;
-	ClrPlrPath(pnum);
-	plr.destAction = ACTION_NONE;
 	copy_str(plr._pName, pPack->pName);
 	plr._pClass = pPack->pClass;
 	plr._pLevel = pPack->pLevel;
@@ -142,7 +140,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._pManaShield = pPack->pManaShield;
 	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
 	plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
-	plr._pRank = pPack->pRank;
 	plr._pStatPts = SwapLE16(pPack->pStatPts);
 	InitPlayer(pnum);
 	plr._pBaseStr = SwapLE16(pPack->pBaseStr);
@@ -202,6 +199,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		plr.InvGrid[i] = pPack->InvGrid[i];
 
 	plr._pNumInv = pPack->pNumInv;
+	plr._pRank = pPack->pRank;
 
 	memcpy(plr._pAtkSkillHotKey, pPack->pAtkSkillHotKey, sizeof(plr._pAtkSkillHotKey));
 	memcpy(plr._pAtkSkillTypeHotKey, pPack->pAtkSkillTypeHotKey, sizeof(plr._pAtkSkillTypeHotKey));
@@ -212,6 +210,9 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	memcpy(plr._pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(plr._pAltMoveSkillHotKey));
 	memcpy(plr._pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(plr._pAltMoveSkillTypeHotKey));
 
+	// reset fields which are used even by non-local players, but not part of pPack
+	ClrPlrPath(pnum);
+	plr.destAction = ACTION_NONE;
 	// TODO: add to pPack? (_pInvincible, _pmode)
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;

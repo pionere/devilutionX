@@ -848,7 +848,6 @@ typedef struct PkPlayerStruct {
 	WORD pBaseMag;
 	WORD pBaseDex;
 	WORD pBaseVit;
-	BYTE pRank;
 	WORD pStatPts;
 	DWORD pExperience;
 	INT pGold;
@@ -865,6 +864,7 @@ typedef struct PkPlayerStruct {
 	PkItemStruct InvList[NUM_INV_GRID_ELEM];
 	char InvGrid[NUM_INV_GRID_ELEM];
 	BYTE pNumInv;
+	BYTE pRank;
 	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
 	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
 	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
