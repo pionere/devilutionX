@@ -269,7 +269,7 @@ static void InitGameUI()
 
 	gbZoomInFlag = false;
 	CalcViewportGeometry();
-	InitCursor();
+	InitCursorGFX(); // gfx + values
 	ScrollInfo._sdx = 0;
 	ScrollInfo._sdy = 0;
 	ScrollInfo._sxoff = 0;
@@ -303,7 +303,7 @@ static void FreeGameUI()
 		FreePlayerGFX(i);
 
 	FreeItemGFX();
-	FreeCursor();
+	FreeCursorGFX();
 #ifdef _DEBUG
 	FreeDebugGFX();
 #endif

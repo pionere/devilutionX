@@ -125,7 +125,7 @@ constexpr bool validateCursorAreas()
 }
 static_assert(validateCursorAreas(), "One of the cursor area does not fit to the defined maximum.");*/
 
-void InitCursor()
+void InitCursorGFX()
 {
 	assert(pCursCels == NULL);
 	
@@ -146,10 +146,10 @@ void InitCursor()
 	ClearCursor();
 }
 
-void FreeCursor()
+void FreeCursorGFX()
 {
 	MemFreeDbg(pCursCels);
-	ClearCursor();
+	//ClearCursor();
 }
 
 void NewCursor(int i)

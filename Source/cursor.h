@@ -25,8 +25,8 @@ extern int cursmx;
 extern int cursmy;
 extern int pcurs;
 
-void InitCursor();
-void FreeCursor();
+void InitCursorGFX();
+void FreeCursorGFX();
 void NewCursor(int i);
 void InitLevelCursor();
 void CheckTownPortal();
