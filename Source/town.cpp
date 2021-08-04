@@ -212,14 +212,6 @@ unsigned char GetOpenWarps()
 	unsigned char twarps = 1 << TWARP_CATHEDRAL;
 	if (!IsMultiGame) {
 		twarps |= myplr.pTownWarps << 1;
-#ifdef HELLFIRE
-		if (myplr._pLevel >= 10)
-			twarps |= 1 << TWARP_CATACOMB;
-		if (myplr._pLevel >= 15)
-			twarps |= 1 << TWARP_CAVES;
-		if (myplr._pLevel >= 20)
-			twarps |= 1 << TWARP_HELL;
-#endif
 	} else {
 		twarps |= (1 << TWARP_CATACOMB) | (1 << TWARP_CAVES) | (1 << TWARP_HELL);
 	}
