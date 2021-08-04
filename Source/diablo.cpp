@@ -32,6 +32,7 @@ bool gbUseNestArt;
 #endif
 /* Cursor before a timeout happened. */
 static int sgnTimeoutCurs;
+bool gbDeathflag;
 bool gbActionBtnDown;
 bool gbAltActionBtnDown;
 DWORD sgdwLastABD, sgdwLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
@@ -267,6 +268,7 @@ static void InitGameUI()
 		InitPlrGFXMem(pnum); // gfx
 	InitItemGFX(); // gfx + values (some stored in savefiles)
 
+	gbDeathflag = false;
 	gbZoomInFlag = false;
 	CalcViewportGeometry();
 	InitCursorGFX(); // gfx + values

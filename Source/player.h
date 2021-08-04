@@ -19,7 +19,6 @@ extern "C" {
 extern int mypnum;
 extern PlayerStruct players[MAX_PLRS];
 extern BYTE lvlLoad;
-extern bool gbDeathflag;
 
 void LoadPlrGFX(int pnum, unsigned gfxflag);
 void InitPlayerGFX(int pnum);

@@ -27,6 +27,7 @@ extern bool gbGamePaused;
 #ifdef HELLFIRE
 extern bool gbUseNestArt;
 #endif
+extern bool gbDeathflag;
 extern bool gbActionBtnDown;
 extern bool gbAltActionBtnDown;
 extern int gnTicksRate;

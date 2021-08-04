@@ -595,7 +595,6 @@ static void SetupLocalPlr()
 	PlayerStruct *p;
 	int x, y;
 
-	gbDeathflag = false;
 	x = 65 + DBORDERX;
 	y = 58 + DBORDERY;
 #ifdef _DEBUG

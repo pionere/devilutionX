@@ -12,7 +12,6 @@ int mypnum;
 PlayerStruct players[MAX_PLRS];
 /* Counter to suppress animations in case the current player is changing the level. */
 BYTE lvlLoad;
-bool gbDeathflag;
 bool _gbPlrGfxSizeLoaded = false;
 int plr_lframe_size;
 int plr_wframe_size;
