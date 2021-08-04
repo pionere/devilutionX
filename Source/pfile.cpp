@@ -65,8 +65,7 @@ static bool pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 					ret = true;
 				}
 			}
-			if (buf != NULL)
-				mem_free_dbg(buf);
+			mem_free_dbg(buf);
 		}
 		SFileCloseFile(file);
 		return ret;

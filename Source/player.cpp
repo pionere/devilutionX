@@ -1618,7 +1618,7 @@ static void StartSpell(int pnum)
  *
  * @return TRUE if the player had to be displaced.
  */
-bool PlacePlayer(int pnum)
+static bool PlacePlayer(int pnum)
 {
 	int i, nx, ny, x, y;
 	bool done;

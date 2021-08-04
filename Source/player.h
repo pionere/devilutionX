@@ -40,7 +40,6 @@ void InitLvlPlayer(int pnum);
 void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum, int dir);
 void PlrStartBlock(int pnum, int dir);
-bool PlacePlayer(int pnum);
 void RemovePlrFromMap(int pnum);
 void StartPlrHit(int pnum, int dam, bool forcehit);
 void StartPlrKill(int pnum, int dmgtype);

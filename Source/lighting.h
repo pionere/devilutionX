@@ -18,7 +18,6 @@ extern BYTE lightactive[MAXLIGHTS];
 extern LightListStruct LightList[MAXLIGHTS];
 extern int numlights;
 extern int numvision;
-extern bool gbDolighting;
 #ifdef _DEBUG
 extern char lightmax;
 #define LIGHTMAX lightmax

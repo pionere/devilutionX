@@ -319,7 +319,7 @@ static void LoadPlayer(int pnum)
 	LoadByte(&plr.plractive);
 	LoadByte(&plr._pLvlChanging);
 	LoadByte(&plr._pDunLevel);
-	tbuff += 1; // Alignment
+	LoadByte(&plr._pTeam);
 	LoadInt(&plr._px);
 	LoadInt(&plr._py);
 	LoadInt(&plr._pfutx);
@@ -356,21 +356,21 @@ static void LoadPlayer(int pnum)
 	LoadByte(&plr._pOilFrom);
 	tbuff += 1; // Alignment
 
-	CopyBytes(tbuff, 64, plr._pSkillLvl);
-	CopyBytes(tbuff, 64, plr._pSkillActivity);
-	LoadInts(plr._pSkillExp, 64);
+	CopyBytes(tbuff, lengthof(plr._pSkillLvl), plr._pSkillLvl);
+	CopyBytes(tbuff, lengthof(plr._pSkillActivity), plr._pSkillActivity);
+	LoadInts(plr._pSkillExp, lengthof(plr._pSkillExp));
 	LoadInt64(&plr._pMemSkills);
 	LoadInt64(&plr._pAblSkills);
 	LoadInt64(&plr._pScrlSkills);
 
-	CopyBytes(tbuff, 4, plr._pAtkSkillHotKey);
-	CopyBytes(tbuff, 4, plr._pAtkSkillTypeHotKey);
-	CopyBytes(tbuff, 4, plr._pMoveSkillHotKey);
-	CopyBytes(tbuff, 4, plr._pMoveSkillTypeHotKey);
-	CopyBytes(tbuff, 4, plr._pAltAtkSkillHotKey);
-	CopyBytes(tbuff, 4, plr._pAltAtkSkillTypeHotKey);
-	CopyBytes(tbuff, 4, plr._pAltMoveSkillHotKey);
-	CopyBytes(tbuff, 4, plr._pAltMoveSkillTypeHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAtkSkillHotKey), plr._pAtkSkillHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAtkSkillTypeHotKey), plr._pAtkSkillTypeHotKey);
+	CopyBytes(tbuff, lengthof(plr._pMoveSkillHotKey), plr._pMoveSkillHotKey);
+	CopyBytes(tbuff, lengthof(plr._pMoveSkillTypeHotKey), plr._pMoveSkillTypeHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAltAtkSkillHotKey), plr._pAltAtkSkillHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAltAtkSkillTypeHotKey), plr._pAltAtkSkillTypeHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillHotKey), plr._pAltMoveSkillHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillTypeHotKey), plr._pAltMoveSkillTypeHotKey);
 
 	LoadByte(&plr._pSkillFlags);
 	LoadByte(&plr._pInvincible);
@@ -405,10 +405,10 @@ static void LoadPlayer(int pnum)
 	LoadByte(&plr._pRank);
 	LoadInt(&plr._pExperience);
 	LoadInt(&plr._pNextExper);
-	tbuff += 1; // Skip to Calc _pMagResist
-	tbuff += 1; // Skip to Calc _pFireResist
-	tbuff += 1; // Skip to Calc _pLghtResist
-	tbuff += 1; // Skip to Calc _pAcidResist
+	LoadByte(&plr._pMagResist);  // overwritten by Calc
+	LoadByte(&plr._pFireResist); // overwritten by Calc
+	LoadByte(&plr._pLghtResist); // overwritten by Calc
+	LoadByte(&plr._pAcidResist); // overwritten by Calc
 	LoadInt(&plr._pGold);
 
 	LoadInt(&plr._pInfraFlag);
@@ -424,29 +424,29 @@ static void LoadPlayer(int pnum)
 	tbuff += 1; // Alignment
 
 	LoadInt(&plr._pGFXLoad);
-	tbuff += 4 * 8; // Skip pointers _pNAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
 	LoadInt(&plr._pNFrames);
 	LoadInt(&plr._pNWidth);
-	tbuff += 4 * 8; // Skip pointers _pWAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
 	LoadInt(&plr._pWFrames);
 	LoadInt(&plr._pWWidth);
-	tbuff += 4 * 8; // Skip pointers _pAAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
 	LoadInt(&plr._pAFrames);
 	LoadInt(&plr._pAWidth);
 	LoadInt(&plr._pAFNum);
-	tbuff += 4 * 8; // Skip pointers _pLAnim
-	tbuff += 4 * 8; // Skip pointers _pFAnim
-	tbuff += 4 * 8; // Skip pointers _pTAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
 	LoadInt(&plr._pSFrames);
 	LoadInt(&plr._pSWidth);
 	LoadInt(&plr._pSFNum);
-	tbuff += 4 * 8; // Skip pointers _pHAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
 	LoadInt(&plr._pHFrames);
 	LoadInt(&plr._pHWidth);
-	tbuff += 4 * 8; // Skip pointers _pDAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
 	LoadInt(&plr._pDFrames);
 	LoadInt(&plr._pDWidth);
-	tbuff += 4 * 8; // Skip pointers _pBAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
 	LoadInt(&plr._pBFrames);
 	LoadInt(&plr._pBWidth);
 
@@ -500,7 +500,7 @@ static void LoadPlayer(int pnum)
 	// Omit pointer _pAData
 	// Omit pointer _pLData
 	// Omit pointer _pFData
-	// Omit pointer  _pTData
+	// Omit pointer _pTData
 	// Omit pointer _pHData
 	// Omit pointer _pDData
 	// Omit pointer _pBData
@@ -686,7 +686,7 @@ static void LoadObject(int oi, bool full)
 	} else {
 		// reset dynamic lights
 		os->_olid = -1;
-		tbuff += 4;
+		tbuff += 4; // Skip _olid
 	}
 	LoadInt(&os->_oRndSeed);
 	LoadInt(&os->_oVar1);
@@ -821,14 +821,14 @@ void LoadGame()
 			LoadInt(&monstactive[i]);
 		for (i = 0; i < nummonsters; i++)
 			LoadMonster(monstactive[i]);
-		static_assert(MAXMISSILES <= CHAR_MAX, "LoadGame handles missile-ids as chars.");
+		static_assert(MAXMISSILES <= UCHAR_MAX, "LoadGame handles missile-ids as bytes.");
 		for (i = 0; i < MAXMISSILES; i++)
 			LoadByte(&missileactive[i]);
 		for (i = 0; i < MAXMISSILES; i++)
 			LoadByte(&missileavail[i]);
 		for (i = 0; i < nummissiles; i++)
 			LoadMissile(missileactive[i]);
-		static_assert(MAXOBJECTS <= CHAR_MAX, "LoadGame handles object-ids as chars.");
+		static_assert(MAXOBJECTS <= UCHAR_MAX, "LoadGame handles object-ids as bytes.");
 		for (i = 0; i < MAXOBJECTS; i++)
 			LoadByte(&objectactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
@@ -836,7 +836,7 @@ void LoadGame()
 		for (i = 0; i < nobjects; i++)
 			LoadObject(objectactive[i], true);
 	}
-	static_assert(MAXITEMS <= CHAR_MAX, "LoadGame handles item-ids as chars.");
+	static_assert(MAXITEMS <= UCHAR_MAX, "LoadGame handles item-ids as bytes.");
 	for (i = 0; i < MAXITEMS; i++)
 		LoadByte(&itemactive[i]);
 	for (i = 0; i < MAXITEMS; i++)
@@ -1008,7 +1008,7 @@ static void SavePlayer(int pnum)
 	SaveByte(&plr.plractive);
 	SaveByte(&plr._pLvlChanging);
 	SaveByte(&plr._pDunLevel);
-	tbuff += 1; // Alignment
+	SaveByte(&plr._pTeam);
 	SaveInt(&plr._px);
 	SaveInt(&plr._py);
 	SaveInt(&plr._pfutx);
@@ -1046,21 +1046,21 @@ static void SavePlayer(int pnum)
 	SaveByte(&plr._pOilFrom);
 	tbuff += 1; // Alignment
 
-	CopyBytes(plr._pSkillLvl, 64, tbuff);
-	CopyBytes(plr._pSkillActivity, 64, tbuff);
-	SaveInts(plr._pSkillExp, 64);
+	CopyBytes(plr._pSkillLvl, lengthof(plr._pSkillLvl), tbuff);
+	CopyBytes(plr._pSkillActivity, lengthof(plr._pSkillActivity), tbuff);
+	SaveInts(plr._pSkillExp, lengthof(plr._pSkillExp));
 	SaveInt64(&plr._pMemSkills);
 	SaveInt64(&plr._pAblSkills);
 	SaveInt64(&plr._pScrlSkills);
 
-	CopyBytes(plr._pAtkSkillHotKey, 4, tbuff);
-	CopyBytes(plr._pAtkSkillTypeHotKey, 4, tbuff);
-	CopyBytes(plr._pMoveSkillHotKey, 4, tbuff);
-	CopyBytes(plr._pMoveSkillTypeHotKey, 4, tbuff);
-	CopyBytes(plr._pAltAtkSkillHotKey, 4, tbuff);
-	CopyBytes(plr._pAltAtkSkillTypeHotKey, 4, tbuff);
-	CopyBytes(plr._pAltMoveSkillHotKey, 4, tbuff);
-	CopyBytes(plr._pAltMoveSkillTypeHotKey, 4, tbuff);
+	CopyBytes(plr._pAtkSkillHotKey, lengthof(plr._pAtkSkillHotKey), tbuff);
+	CopyBytes(plr._pAtkSkillTypeHotKey, lengthof(plr._pAtkSkillTypeHotKey), tbuff);
+	CopyBytes(plr._pMoveSkillHotKey, lengthof(plr._pMoveSkillHotKey), tbuff);
+	CopyBytes(plr._pMoveSkillTypeHotKey, lengthof(plr._pMoveSkillTypeHotKey), tbuff);
+	CopyBytes(plr._pAltAtkSkillHotKey, lengthof(plr._pAltAtkSkillHotKey), tbuff);
+	CopyBytes(plr._pAltAtkSkillTypeHotKey, lengthof(plr._pAltAtkSkillTypeHotKey), tbuff);
+	CopyBytes(plr._pAltMoveSkillHotKey, lengthof(plr._pAltMoveSkillHotKey), tbuff);
+	CopyBytes(plr._pAltMoveSkillTypeHotKey, lengthof(plr._pAltMoveSkillTypeHotKey), tbuff);
 
 	SaveByte(&plr._pSkillFlags);
 	SaveByte(&plr._pInvincible);
@@ -1095,10 +1095,10 @@ static void SavePlayer(int pnum)
 	SaveByte(&plr._pRank);
 	SaveInt(&plr._pExperience);
 	SaveInt(&plr._pNextExper);
-	tbuff += 1; // Skip to Calc _pMagResist
-	tbuff += 1; // Skip to Calc _pFireResist
-	tbuff += 1; // Skip to Calc _pLghtResist
-	tbuff += 1; // Skip to Calc _pAcidResist
+	SaveByte(&plr._pMagResist);
+	SaveByte(&plr._pFireResist);
+	SaveByte(&plr._pLghtResist);
+	SaveByte(&plr._pAcidResist);
 	SaveInt(&plr._pGold);
 
 	SaveInt(&plr._pInfraFlag);
@@ -1114,29 +1114,29 @@ static void SavePlayer(int pnum)
 	tbuff += 1;                                     // Alignment
 
 	SaveInt(&plr._pGFXLoad);
-	tbuff += 4 * 8; // Skip pointers _pNAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
 	SaveInt(&plr._pNFrames);
 	SaveInt(&plr._pNWidth);
-	tbuff += 4 * 8; // Skip pointers _pWAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
 	SaveInt(&plr._pWFrames);
 	SaveInt(&plr._pWWidth);
-	tbuff += 4 * 8; // Skip pointers _pAAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
 	SaveInt(&plr._pAFrames);
 	SaveInt(&plr._pAWidth);
 	SaveInt(&plr._pAFNum);
-	tbuff += 4 * 8; // Skip pointers _pLAnim
-	tbuff += 4 * 8; // Skip pointers _pFAnim
-	tbuff += 4 * 8; // Skip pointers _pTAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
 	SaveInt(&plr._pSFrames);
 	SaveInt(&plr._pSWidth);
 	SaveInt(&plr._pSFNum);
-	tbuff += 4 * 8; // Skip pointers _pHAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
 	SaveInt(&plr._pHFrames);
 	SaveInt(&plr._pHWidth);
-	tbuff += 4 * 8; // Skip pointers _pDAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
 	SaveInt(&plr._pDFrames);
 	SaveInt(&plr._pDWidth);
-	tbuff += 4 * 8; // Skip pointers _pBAnim
+	tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
 	SaveInt(&plr._pBFrames);
 	SaveInt(&plr._pBWidth);
 
@@ -1535,6 +1535,7 @@ void SaveGame()
 			SaveItemData(&witchitem[i]);
 	}
 
+	assert(tbuff - fileBuff <= FILEBUFF);
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
 	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff, dwLen);
 	mem_free_dbg(fileBuff);
@@ -1548,14 +1549,14 @@ void SaveLevel()
 	int i;
 	char szName[MAX_PATH];
 	int dwLen;
-	BYTE *SaveBuff;
+	BYTE* fileBuff;
 
 	if (currLvl._dLevelIdx == DLV_TOWN)
 		glSeedTbl[DLV_TOWN] = GetRndSeed();
 
 	dwLen = codec_get_encoded_len(FILEBUFF);
-	SaveBuff = DiabloAllocPtr(dwLen);
-	tbuff = SaveBuff;
+	fileBuff = DiabloAllocPtr(dwLen);
+	tbuff = fileBuff;
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
@@ -1598,9 +1599,10 @@ void SaveLevel()
 	}
 
 	GetTempLevelNames(szName);
-	dwLen = codec_get_encoded_len(tbuff - SaveBuff);
-	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
-	mem_free_dbg(SaveBuff);
+	assert(tbuff - fileBuff <= FILEBUFF);
+	dwLen = codec_get_encoded_len(tbuff - fileBuff);
+	pfile_write_save_file(szName, fileBuff, tbuff - fileBuff, dwLen);
+	mem_free_dbg(fileBuff);
 }
 
 void LoadLevel()
