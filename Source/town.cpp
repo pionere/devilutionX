@@ -211,7 +211,7 @@ unsigned char GetOpenWarps()
 {
 	unsigned char twarps = 1 << TWARP_CATHEDRAL;
 	if (!IsMultiGame) {
-		twarps |= myplr.pTownWarps << 1;
+		twarps |= TownWarps << 1;
 	} else {
 		twarps |= (1 << TWARP_CATACOMB) | (1 << TWARP_CAVES) | (1 << TWARP_HELL);
 	}

@@ -16,6 +16,10 @@ extern bool gbQuestlog;
 extern int ReturnLvlX;
 extern int ReturnLvlY;
 extern int ReturnLvl;
+extern BYTE TownWarps;
+extern BYTE WaterDone;
+extern BYTE DungMsgs;
+extern BYTE DungMsgs2;
 extern QuestStruct quests[NUM_QUESTS];
 
 void InitQuests();
@@ -37,6 +41,7 @@ void QuestlogDown();
 void QuestlogEnter();
 void CheckQuestlog();
 void SetMultiQuest(int qn, int qa, int qlog, int qvar);
+void PlayDungMsgs();
 
 #ifdef __cplusplus
 }

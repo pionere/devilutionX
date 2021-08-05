@@ -15,7 +15,10 @@ QuestStruct quests[NUM_QUESTS];
 int qline;
 int qlist[NUM_QUESTS];
 int numqlines;
-int WaterDone;
+BYTE TownWarps;
+BYTE WaterDone;
+BYTE DungMsgs;
+BYTE DungMsgs2;
 int ReturnLvlX;
 int ReturnLvlY;
 int ReturnLvl;
@@ -56,7 +59,11 @@ const int QuestGroup5[2] = { Q_JERSEY, Q_FARMER };
 void InitQuestGFX()
 {
 	gbQuestlog = false;
+
+	TownWarps = 0;
 	WaterDone = 0;
+	DungMsgs = 0;
+	DungMsgs2 = 0;
 
 	pQLogCel = LoadFileInMem("Data\\Quest.CEL");
 }
@@ -126,10 +133,15 @@ void CheckQuests()
 			quests[Q_PWATER]._qvar1 = 2;
 			NetSendCmdQuest(Q_PWATER, true);
 			PlaySfxLoc(IS_QUESTDN, myplr._px, myplr._py);
-			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 			WaterDone = 32;
+			//quests[Q_PWATER]._qvar2 = 1; // LOADWATERPAL
+			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 		}
 		if (WaterDone > 0) {
+			//if (quests[Q_PWATER]._qvar2 == 1) { // LOADWATERPAL
+			//	quests[Q_PWATER]._qvar2 = 2;
+			//	LoadPalette("Levels\\L3Data\\L3pwater.pal");
+			//}
 			palette_update_quest_palette(WaterDone);
 			WaterDone--;
 		}
@@ -452,7 +464,11 @@ void LoadPWaterPalette()
 		return;
 
 	if (quests[Q_PWATER]._qvar1 == 2) {
-		LoadPalette("Levels\\L3Data\\L3pwater.pal");
+		//if (WaterDone == 0)
+			LoadPalette("Levels\\L3Data\\L3pwater.pal");
+		//else
+		//	quests[Q_PWATER]._qvar2 = 1; // LOADWATERPAL
+	}
 	//else
 	//	LoadPalette("Levels\\L3Data\\L3pfoul.pal");
 }
@@ -675,6 +691,53 @@ void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 		qs->_qlog = qlog;
 		if (qvar > qs->_qvar1)
 			qs->_qvar1 = qvar;
+	}
+}
+
+void PlayDungMsgs()
+{
+	sfxdelay = 0;
+	if (IsMultiGame)
+		return;
+
+	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !(DungMsgs & DMSG_CATHEDRAL)) {
+		DungMsgs |= DMSG_CATHEDRAL;
+		sfxdelay = 40;
+		sfxdnum = TEXT_DM_CATHEDRAL;
+	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !(DungMsgs & DMSG_CATACOMBS)) {
+		DungMsgs |= DMSG_CATACOMBS;
+		sfxdelay = 40;
+		sfxdnum = TEXT_DM_CATACOMBS;
+	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !(DungMsgs & DMSG_CAVES)) {
+		DungMsgs |= DMSG_CAVES;
+		sfxdelay = 40;
+		sfxdnum = TEXT_DM_CAVES;
+	} else if (currLvl._dLevelIdx == DLV_HELL1 && !(DungMsgs & DMSG_HELL)) {
+		DungMsgs |= DMSG_HELL;
+		sfxdelay = 40;
+		sfxdnum = TEXT_DM_HELL;
+	} else if (currLvl._dLevelIdx == DLV_HELL4 && !(DungMsgs & DMSG_DIABLO)) {
+		DungMsgs |= DMSG_DIABLO;
+		sfxdelay = 40;
+		sfxdnum = TEXT_DM_DIABLO;
+#ifdef HELLFIRE
+	} else if (currLvl._dLevelIdx == DLV_NEST1 && !(DungMsgs2 & DMSG2_DEFILER)) {
+		DungMsgs2 |= DMSG2_DEFILER;
+		sfxdelay = 10;
+		sfxdnum = TEXT_DM_NEST;
+	} else if (currLvl._dLevelIdx == DLV_NEST3 && !(DungMsgs2 & DMSG2_DEFILER1)) {
+		DungMsgs2 |= DMSG2_DEFILER1;
+		sfxdelay = 10;
+		sfxdnum = TEXT_DM_DEFILER;
+	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !(DungMsgs2 & DMSG2_DEFILER2)) {
+		DungMsgs2 |= DMSG2_DEFILER2;
+		sfxdelay = 30;
+		sfxdnum = TEXT_DM_CRYPT;
+#endif
+	} else if (currLvl._dLevelIdx == SL_SKELKING && !(DungMsgs & DMSG_SKING)) {
+		DungMsgs |= DMSG_SKING;
+		sfxdelay = 30;
+		sfxdnum = TEXT_DM_SKING;
 	}
 }
 

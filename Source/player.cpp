@@ -1953,7 +1953,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		if (pnum == mypnum) {
 			TWarpFrom = currLvl._dLevelIdx;
 			assert(currLvl._dType >= 2);
-			plr.pTownWarps |= 1 << (currLvl._dType - 2);
+			TownWarps |= 1 << (currLvl._dType - 2);
 		}
 		break;
 	default:
@@ -3502,59 +3502,6 @@ void RestorePlrHpVit(int pnum)
 	PlrFillHp(pnum);
 
 	// CalcPlrInv(pnum, true);
-}
-
-void PlayDungMsgs()
-{
-	PlayerStruct *p;
-
-	sfxdelay = 0;
-	if (IsMultiGame)
-		return;
-
-	if ((unsigned)mypnum >= MAX_PLRS) {
-		dev_fatal("PlayDungMsgs: illegal player %d", mypnum);
-	}
-	p = &myplr;
-	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !(p->pDungMsgs & DMSG_CATHEDRAL)) {
-		p->pDungMsgs |= DMSG_CATHEDRAL;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_CATHEDRAL;
-	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !(p->pDungMsgs & DMSG_CATACOMBS)) {
-		p->pDungMsgs |= DMSG_CATACOMBS;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_CATACOMBS;
-	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !(p->pDungMsgs & DMSG_CAVES)) {
-		p->pDungMsgs |= DMSG_CAVES;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_CAVES;
-	} else if (currLvl._dLevelIdx == DLV_HELL1 && !(p->pDungMsgs & DMSG_HELL)) {
-		p->pDungMsgs |= DMSG_HELL;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_HELL;
-	} else if (currLvl._dLevelIdx == DLV_HELL4 && !(p->pDungMsgs & DMSG_DIABLO)) {
-		p->pDungMsgs |= DMSG_DIABLO;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_DIABLO;
-#ifdef HELLFIRE
-	} else if (currLvl._dLevelIdx == DLV_NEST1 && !(p->pDungMsgs2 & DMSG2_DEFILER)) {
-		p->pDungMsgs2 |= DMSG2_DEFILER;
-		sfxdelay = 10;
-		sfxdnum = TEXT_DM_NEST;
-	} else if (currLvl._dLevelIdx == DLV_NEST3 && !(p->pDungMsgs2 & DMSG2_DEFILER1)) {
-		p->pDungMsgs2 |= DMSG2_DEFILER1;
-		sfxdelay = 10;
-		sfxdnum = TEXT_DM_DEFILER;
-	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !(p->pDungMsgs2 & DMSG2_DEFILER2)) {
-		p->pDungMsgs2 |= DMSG2_DEFILER2;
-		sfxdelay = 30;
-		sfxdnum = TEXT_DM_CRYPT;
-#endif
-	} else if (currLvl._dLevelIdx == SL_SKELKING && !(p->pDungMsgs & DMSG_SKING)) {
-		p->pDungMsgs |= DMSG_SKING;
-		sfxdelay = 30;
-		sfxdnum = TEXT_DM_SKING;
-	}
 }
 
 DEVILUTION_END_NAMESPACE

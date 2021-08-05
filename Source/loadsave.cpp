@@ -488,10 +488,6 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // _pIMMaxDam
 	tbuff += 4; // _pIAMinDam
 	tbuff += 4; // _pIAMaxDam*/
-	LoadByte(&plr.pTownWarps);
-	LoadByte(&plr.palign_CB);
-	LoadByte(&plr.pDungMsgs);
-	LoadByte(&plr.pDungMsgs2);
 
 	CalcPlrInv(pnum, false);
 
@@ -799,6 +795,10 @@ void LoadGame()
 	LoadInt(&ReturnLvlX);
 	LoadInt(&ReturnLvlY);
 	LoadInt(&ReturnLvl);
+	LoadByte(&TownWarps);
+	LoadByte(&WaterDone);
+	LoadByte(&DungMsgs);
+	LoadByte(&DungMsgs2);
 	// load meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
 		LoadQuest(i);
@@ -1181,11 +1181,6 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // _pIAMinDam
 	tbuff += 4; // _pIAMaxDam*/
 
-	SaveByte(&plr.pTownWarps);
-	SaveByte(&plr.palign_CB);
-	SaveByte(&plr.pDungMsgs);
-	SaveByte(&plr.pDungMsgs2);
-
 	// Omit pointer _pNData
 	// Omit pointer _pWData
 	// Omit pointer _pAData
@@ -1453,6 +1448,10 @@ void SaveGame()
 	SaveInt(&ReturnLvlX);
 	SaveInt(&ReturnLvlY);
 	SaveInt(&ReturnLvl);
+	SaveByte(&TownWarps);
+	SaveByte(&WaterDone);
+	SaveByte(&DungMsgs);
+	SaveByte(&DungMsgs2);
 	// save meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
 		SaveQuest(i);
