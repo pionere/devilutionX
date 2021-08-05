@@ -3012,9 +3012,9 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		pi = plr.InvList;
 		for (i = plr._pNumInv; i > 0; i--, pi++)
 			pi->_iDurability = pi->_iMaxDur;
-		pi = plr.SpdList;
-		for (i = MAXBELTITEMS; i != 0; i--, pi++)
-			pi->_iDurability = pi->_iMaxDur; // belt items don't have durability?
+		//pi = plr.SpdList;
+		//for (i = MAXBELTITEMS; i != 0; i--, pi++)
+		//	pi->_iDurability = pi->_iMaxDur; // belt items don't have durability?
 
 		if (pnum != mypnum)
 			return;
@@ -3044,9 +3044,9 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		pi = plr.InvList;
 		for (i = plr._pNumInv; i > 0; i--, pi++)
 			pi->_iCharges = pi->_iMaxCharges;
-		pi = plr.SpdList;
-		for (i = MAXBELTITEMS; i != 0; i--, pi++)
-			pi->_iCharges = pi->_iMaxCharges; // belt items don't have charges?
+		//pi = plr.SpdList;
+		//for (i = MAXBELTITEMS; i != 0; i--, pi++)
+		//	pi->_iCharges = pi->_iMaxCharges; // belt items don't have charges?
 
 		if (pnum != mypnum)
 			return;
@@ -3209,10 +3209,10 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		for (i = plr._pNumInv; i > 0; i--, pi++)
 			if (pi->_iMagical != ITEM_QUALITY_NORMAL)
 				pi->_iIdentified = TRUE;
-		pi = plr.SpdList;
-		for (i = MAXBELTITEMS; i != 0; i--, pi++)
-			if (pi->_iMagical != ITEM_QUALITY_NORMAL)
-				pi->_iIdentified = TRUE; // belt items can't be magical?
+		//pi = plr.SpdList;
+		//for (i = MAXBELTITEMS; i != 0; i--, pi++)
+		//	if (pi->_iMagical != ITEM_QUALITY_NORMAL)
+		//		pi->_iIdentified = TRUE; // belt items can't be magical?
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_GLIMMERING);
@@ -3297,8 +3297,8 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 			if (pi->_itype == ITYPE_NONE || random_(0, 3) != 0)
 				continue;
 			r = pi->_iDurability;
-			if (r != DUR_INDESTRUCTIBLE && r != 0) {
-				r /= 2;
+			if (r != DUR_INDESTRUCTIBLE /*&& r != 0*/) {
+				r >>= 1;
 				if (r == 0) {
 					if (pnum == mypnum)
 						NetSendCmdDelItem(i);
