@@ -619,6 +619,15 @@ static void LoadMonster(int mnum)
 	SyncMonsterAnim(mnum);
 }
 
+static void LoadTowner(int tnum)
+{
+	TownerStruct* tw = &towners[tnum];
+
+	LoadInt(&tw->_tAnimCnt);
+	LoadInt(&tw->_tAnimFrame);
+	LoadInt(&tw->_tAnimFrameCnt);
+}
+
 static void LoadMissile(int mi)
 {
 	MissileStruct *mis = &missile[mi];
@@ -883,6 +892,7 @@ void LoadGame()
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
 	}
 	// load meta-data III. (modified by LoadGameLevel)
+	//LoadInt(&numtowners);
 	LoadInt(&boylevel);
 	LoadInt(&numpremium);
 	LoadInt(&premiumlevel);
@@ -919,6 +929,8 @@ void LoadGame()
 			LoadItemData(&healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
 			LoadItemData(&witchitem[i]);
+		for (i = 0; i < MAX_TOWNERS; i++)
+			LoadTowner(i);
 	}
 
 	mem_free_dbg(fileBuff);
@@ -1312,6 +1324,15 @@ static void SaveMonster(int mnum)
 	// Omit pointer MData;
 }
 
+static void SaveTowner(int tnum)
+{
+	TownerStruct* tw = &towners[tnum];
+
+	SaveInt(&tw->_tAnimCnt);
+	SaveInt(&tw->_tAnimFrame);
+	SaveInt(&tw->_tAnimFrameCnt);
+}
+
 static void SaveMissile(int mi)
 {
 	MissileStruct *mis = &missile[mi];
@@ -1536,6 +1557,7 @@ void SaveGame()
 		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
 	}
 	// save meta-data III. (modified by LoadGameLevel)
+	//SaveInt(&numtowners);
 	SaveInt(&boylevel);
 	SaveInt(&numpremium);
 	SaveInt(&premiumlevel);
@@ -1572,6 +1594,8 @@ void SaveGame()
 			SaveItemData(&healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
 			SaveItemData(&witchitem[i]);
+		for (i = 0; i < MAX_TOWNERS; i++)
+			SaveTowner(i);
 	}
 
 	assert(tbuff - fileBuff <= FILEBUFF);
