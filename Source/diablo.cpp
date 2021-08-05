@@ -511,8 +511,12 @@ static void diablo_init_screen()
 	if (!sgbControllerActive)
 #endif
 		SetCursorPos(MouseX, MouseY);
-
-	ClrDiabloMsg();
+	static_assert(EMSG_NONE == 0, "ClrDiabloMsg is not called, because zero initialization cares about it.");
+	// not the best place to call this, since it is an in-game 'system'
+	// InitGameUI would be more appropriate place, but calling it once would
+	// suffice for the moment, because the player can not leave the game
+	// until the messages are cleared
+	//ClrDiabloMsg();
 }
 
 static void InitControls()
