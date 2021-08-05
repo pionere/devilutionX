@@ -139,11 +139,11 @@ static void gamemenu_load_game(bool bActivate)
 	ClrDiabloMsg();
 	PaletteFadeOut();
 	CalcViewportGeometry();
+	InitLevelCursor();
 	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
 	LoadPWaterPalette();
 	PaletteFadeIn();
-	NewCursor(CURSOR_HAND);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
 }
