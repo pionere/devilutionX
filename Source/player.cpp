@@ -3178,7 +3178,7 @@ void SyncPlrAnim(int pnum)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	p->_pAnimFrameLen = PlrGFXAnimLens[p->_pClass][aType];
+	p->_pAnimFrameLen = PlrAnimFrameLens[aType];
 	p->_pAnimData = anim[p->_pdir];
 }
 
