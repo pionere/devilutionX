@@ -133,10 +133,12 @@ static void gamemenu_load_game(bool bActivate)
 	InitDiabloMsg(EMSG_LOADING);
 	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
+	gbDeathflag = false;
+	gbZoomInFlag = false;
 	LoadGame();
 	ClrDiabloMsg();
 	PaletteFadeOut();
-	gbDeathflag = false;
+	CalcViewportGeometry();
 	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
 	LoadPWaterPalette();

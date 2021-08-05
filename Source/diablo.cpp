@@ -270,7 +270,6 @@ static void InitGameUI()
 
 	gbDeathflag = false;
 	gbZoomInFlag = false;
-	CalcViewportGeometry();
 	InitCursorGFX(); // gfx + values
 	ScrollInfo._sdx = 0;
 	ScrollInfo._sdy = 0;
@@ -284,6 +283,7 @@ static void InitGameUI()
 	assert(ghMainWnd != NULL);
 	music_stop();
 	ShowProgress((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
+	CalcViewportGeometry();
 	InitLevelCursor();
 	sgnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = false;
