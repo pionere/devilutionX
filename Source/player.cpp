@@ -867,7 +867,7 @@ void NextPlrLevel(int pnum)
 	CalcPlrInv(pnum, true);
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	if (sgbControllerActive)
+	if (sgbControllerActive && pnum == mypnum)
 		FocusOnCharInfo();
 #endif
 }
