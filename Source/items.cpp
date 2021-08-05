@@ -749,15 +749,15 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		g += ANIM_ID_HEAVY_ARMOR;
 	}
 
-	if (plr._pgfxnum != g && Loadgfx) {
+	if (plr._pgfxnum != g) {
 		plr._pgfxnum = g;
-		plr._pGFXLoad = 0;
-		LoadPlrGFX(pnum, PFILE_STAND);
-		SetPlrAnims(pnum);
+		if (Loadgfx) {
+			plr._pGFXLoad = 0;
+			LoadPlrGFX(pnum, PFILE_STAND);
+			SetPlrAnims(pnum);
 
-		NewPlrAnim(pnum, plr._pNAnim, plr._pdir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
-	} else {
-		plr._pgfxnum = g;
+			NewPlrAnim(pnum, plr._pNAnim, plr._pdir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
+		}
 	}
 
 	// add class bonuses as item bonus

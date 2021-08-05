@@ -864,7 +864,7 @@ void NextPlrLevel(int pnum)
 	PlrFillHp(pnum);
 	PlrFillMana(pnum);
 
-	CalcPlrInv(pnum, true);
+	CalcPlrInv(pnum, false); // last parameter should not matter
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (sgbControllerActive && pnum == mypnum)
@@ -2976,7 +2976,7 @@ void ProcessPlayers()
 				if (plr._pTimer[PLTR_INFRAVISION] != 0) {
 					plr._pTimer[PLTR_INFRAVISION]--;
 					if (plr._pTimer[PLTR_INFRAVISION] == 0) {
-						CalcPlrItemVals(pnum, true);
+						CalcPlrItemVals(pnum, false); // last parameter should not matter
 					}
 				}
 			}
@@ -2989,7 +2989,7 @@ void ProcessPlayers()
 						plr._pTimer[PLTR_RAGE] = -RAGE_COOLDOWN_TICK;
 						PlaySfxLoc(sgSFXSets[SFXS_PLR_72][plr._pClass], plr._px, plr._py);
 					}
-					CalcPlrItemVals(pnum, true);
+					CalcPlrItemVals(pnum, false); // last parameter should not matter
 				}
 			}
 

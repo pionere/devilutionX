@@ -2164,7 +2164,7 @@ static unsigned On_ACK_JOINLEVEL(TCmd *pCmd, int pnum)
 	plr._pManaShield = cmd->lManashield;
 	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1) > gbNetUpdateRate ? SwapLE16(cmd->lTimer1) - gbNetUpdateRate : 0;
 	plr._pTimer[PLTR_RAGE] = msg_calc_rage(cmd->lTimer2);
-	CalcPlrItemVals(pnum, true);
+	CalcPlrItemVals(pnum, false); // last parameter should not matter
 
 	return sizeof(*cmd);
 }
@@ -2200,7 +2200,7 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 		plr._pGFXLoad = 0;
 		if (currLvl._dLevelIdx == plr._pDunLevel) {
 			InitLvlPlayer(pnum);
-			CalcPlrItemVals(pnum, true);
+			CalcPlrItemVals(pnum, false); // last parameter should not matter
 			NetSendCmdAckJoinLevel();
 		}
 	}

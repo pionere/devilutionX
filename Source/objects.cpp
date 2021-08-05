@@ -3322,7 +3322,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		ASSUME_UNREACHABLE
 	}
 
-	CalcPlrInv(pnum, true);
+	CalcPlrInv(pnum, true); // only because of MURPHY...
 	gbRedrawFlags = REDRAW_ALL;
 }
 

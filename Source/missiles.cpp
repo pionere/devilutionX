@@ -2642,7 +2642,7 @@ int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	if (plr._pTimer[PLTR_RAGE] == 0) {
 		plr._pTimer[PLTR_RAGE] = 32 * spllvl + 245;
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][plr._pClass], plr._px, plr._py);
-		CalcPlrItemVals(pnum, true);
+		CalcPlrItemVals(pnum, false); // last parameter should not matter
 	}
 	return MIRES_DELETE;
 }

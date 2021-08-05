@@ -1918,7 +1918,7 @@ static void WitchRechargeItem()
 		pi = &myplr.InvList[i];
 	pi->_iCharges = pi->_iMaxCharges;
 
-	CalcPlrInv(mypnum, true);
+	CalcPlrInv(mypnum, false); // last parameter should not matter
 }
 
 static void S_WRechargeEnter()
