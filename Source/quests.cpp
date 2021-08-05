@@ -19,6 +19,8 @@ BYTE TownWarps;
 BYTE WaterDone;
 BYTE DungMsgs;
 BYTE DungMsgs2;
+static_assert(NUM_LEVELS <= 32, "LvlVisited can not maintain too many levels.");
+uint32_t LvlVisited;
 int ReturnLvlX;
 int ReturnLvlY;
 int ReturnLvl;
@@ -64,6 +66,7 @@ void InitQuestGFX()
 	WaterDone = 0;
 	DungMsgs = 0;
 	DungMsgs2 = 0;
+	LvlVisited = 0;
 
 	pQLogCel = LoadFileInMem("Data\\Quest.CEL");
 }

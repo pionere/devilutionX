@@ -327,7 +327,6 @@ typedef struct PlayerStruct {
 	int _pVar6;
 	int _pVar7;
 	int _pVar8;
-	BOOLEAN _pLvlVisited[NUM_LEVELS]; // TODO: only for local players -> remove from PlayerStruct?
 	int _pGFXLoad;
 	BYTE *_pNAnim[NUM_DIRS]; // Stand animations
 	unsigned _pNFrames;
@@ -399,9 +398,9 @@ typedef struct PlayerStruct {
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[180];
+	int alignment[188];
 #else
-	int alignment[182];
+	int alignment[190];
 #endif
 #endif
 } PlayerStruct;

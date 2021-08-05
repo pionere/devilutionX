@@ -20,7 +20,11 @@ extern BYTE TownWarps;
 extern BYTE WaterDone;
 extern BYTE DungMsgs;
 extern BYTE DungMsgs2;
+extern uint32_t LvlVisited;
 extern QuestStruct quests[NUM_QUESTS];
+
+#define LEVEL_MASK(x)			((uint32_t)1 << (x))
+#define IsLvlVisited(x)			((LvlVisited & LEVEL_MASK(x)) != 0)
 
 void InitQuests();
 void InitQuestGFX();

@@ -69,6 +69,16 @@ static inline void SaveInt16(const int16_t* src)
 	tbuff += sizeof(int16_t);
 }
 
+static inline void SaveInt32(const uint32_t* src)
+{
+	uint32_t buf = *(uint32_t*)src;
+
+	buf = SwapLE32(buf);
+	*(uint32_t*)tbuff = buf;
+
+	tbuff += sizeof(uint32_t);
+}
+
 static inline void SaveInt(const int* src)
 {
 	uint32_t buf = *src;
@@ -161,6 +171,16 @@ static inline void LoadInt16(int16_t* dst)
 	*(uint16_t*)dst = buf;
 
 	tbuff += sizeof(uint16_t);
+}
+
+static inline void LoadInt32(uint32_t* dst)
+{
+	uint32_t buf = *(uint32_t*)tbuff;
+
+	buf = SwapLE32(buf);
+	*(uint32_t*)dst = buf;
+
+	tbuff += sizeof(uint32_t);
 }
 
 static inline void LoadInt(int* dst)
@@ -420,8 +440,6 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pVar6);
 	LoadInt(&plr._pVar7);
 	LoadInt(&plr._pVar8);
-	CopyBytes(tbuff, NUM_LEVELS, plr._pLvlVisited);
-	tbuff += 1; // Alignment
 
 	//tbuff += 4; // Skip _pGFXLoad
 	//tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
@@ -799,6 +817,7 @@ void LoadGame()
 	LoadByte(&WaterDone);
 	LoadByte(&DungMsgs);
 	LoadByte(&DungMsgs2);
+	LoadInt32(&LvlVisited);
 	// load meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
 		LoadQuest(i);
@@ -1112,8 +1131,6 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pVar6);
 	SaveInt(&plr._pVar7);
 	SaveInt(&plr._pVar8);
-	CopyBytes(plr._pLvlVisited, NUM_LEVELS, tbuff);
-	tbuff += 1;                                     // Alignment
 
 	//tbuff += 4; // Skip _pGFXLoad
 	//tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
@@ -1452,6 +1469,7 @@ void SaveGame()
 	SaveByte(&WaterDone);
 	SaveByte(&DungMsgs);
 	SaveByte(&DungMsgs2);
+	SaveInt32(&LvlVisited);
 	// save meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
 		SaveQuest(i);

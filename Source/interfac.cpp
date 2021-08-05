@@ -325,7 +325,7 @@ void LoadGameLevel(int lvldir)
 			HoldThemeRooms();
 			InitMonsters();
 			IncProgress();
-			if (IsMultiGame || lvldir == ENTRY_LOAD || !myplr._pLvlVisited[currLvl._dLevelIdx]) {
+			if (IsMultiGame || lvldir == ENTRY_LOAD || !IsLvlVisited(currLvl._dLevelIdx)) {
 				InitObjects();
 				InitItems();
 				CreateThemeRooms();
@@ -362,7 +362,7 @@ void LoadGameLevel(int lvldir)
 	SavePreLighting();
 	if (IsMultiGame)
 		DeltaLoadLevel();
-	else if (lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx]) {
+	else if (lvldir != ENTRY_LOAD && IsLvlVisited(currLvl._dLevelIdx)) {
 		LoadLevel();
 	}
 
@@ -385,7 +385,7 @@ void LoadGameLevel(int lvldir)
 	ProcessLightList();
 	ProcessVisionList();
 
-	myplr._pLvlVisited[currLvl._dLevelIdx] = TRUE;
+	LvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
 
 	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 

@@ -510,11 +510,11 @@ void TalkToTowner(int tnum)
 
 	switch (tw->_ttype) {
 	case TOWN_TAVERN:
-		if (!plr._pLvlVisited[DLV_CATHEDRAL1] && plr._pLevel == 1) {
+		if (!IsLvlVisited(DLV_CATHEDRAL1) && plr._pLevel == 1) {
 			qt = TEXT_INTRO;
 			break;
 		}
-		if (plr._pLvlVisited[DLV_CATHEDRAL3] && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
+		if (IsLvlVisited(DLV_CATHEDRAL3) && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_SKELKING]._qactive == QUEST_INIT) {
 				quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 				quests[Q_SKELKING]._qlog = TRUE;
@@ -529,7 +529,7 @@ void TalkToTowner(int tnum)
 				break;
 			}
 		}
-		if (plr._pLvlVisited[DLV_CATHEDRAL4] && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
+		if (IsLvlVisited(DLV_CATHEDRAL4) && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_LTBANNER]._qactive == QUEST_INIT) {
 				quests[Q_LTBANNER]._qactive = QUEST_ACTIVE;
 				quests[Q_LTBANNER]._qlog = TRUE;
@@ -562,7 +562,7 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_SMITH:
-		if (plr._pLvlVisited[DLV_CATACOMBS1] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
+		if (IsLvlVisited(DLV_CATACOMBS1) && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_ROCK]._qvar1 <= 1) {
 				quests[Q_ROCK]._qvar1 = 2;
 				quests[Q_ROCK]._qactive = QUEST_ACTIVE;
@@ -581,7 +581,7 @@ void TalkToTowner(int tnum)
 				break;
 			}
 		}
-		if (plr._pLvlVisited[DLV_CAVES2] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
+		if (IsLvlVisited(DLV_CAVES2) && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_ANVIL]._qvar1 <= 1) {
 				quests[Q_ANVIL]._qvar1 = 2;
 				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
@@ -635,7 +635,7 @@ void TalkToTowner(int tnum)
 		break;
 	case TOWN_BMAID:
 #ifdef HELLFIRE
-		if (!plr._pLvlVisited[DLV_CRYPT1] && PlrHasItem(pnum, IDI_MAPOFDOOM, &i)) {
+		if (!IsLvlVisited(DLV_CRYPT1) && PlrHasItem(pnum, IDI_MAPOFDOOM, &i)) {
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 			quests[Q_GRAVE]._qlog = TRUE;
 			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
@@ -647,7 +647,7 @@ void TalkToTowner(int tnum)
 	case TOWN_DRUNK:
 		break;
 	case TOWN_HEALER:
-		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && plr._pLvlVisited[DLV_CATHEDRAL2]) {
+		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && IsLvlVisited(DLV_CATHEDRAL2)) {
 			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 			quests[Q_PWATER]._qlog = TRUE;
 			// quests[Q_PWATER]._qmsg = TEXT_POISON3;
@@ -720,12 +720,12 @@ void TalkToTowner(int tnum)
 				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
 				qt = TEXT_FARMER2;
-			} else if (!plr._pLvlVisited[DLV_CAVES1] && plr._pLevel < 15) {
-				if (plr._pLvlVisited[DLV_CATACOMBS3])
+			} else if (!IsLvlVisited(DLV_CAVES1) && plr._pLevel < 15) {
+				if (IsLvlVisited(DLV_CATACOMBS3))
 					qt = TEXT_FARMER9;
-				else if (plr._pLvlVisited[DLV_CATACOMBS1])
+				else if (IsLvlVisited(DLV_CATACOMBS1))
 					qt = TEXT_FARMER7;
-				else if (plr._pLvlVisited[DLV_CATHEDRAL2])
+				else if (IsLvlVisited(DLV_CATHEDRAL2))
 					qt = TEXT_FARMER5;
 				else
 					qt = TEXT_FARMER8;
@@ -793,7 +793,7 @@ void TalkToTowner(int tnum)
 			}
 			if (quests[Q_JERSEY]._qvar1 != 0) {
 				qt = TEXT_JERSEY5;
-			} else if (!plr._pLvlVisited[DLV_CAVES1] && plr._pLevel < 15) {
+			} else if (!IsLvlVisited(DLV_CAVES1) && plr._pLevel < 15) {
 				switch (random_(0, 4)) {
 				case 0:
 					qt = TEXT_JERSEY9;
