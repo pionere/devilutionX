@@ -451,7 +451,7 @@ void LoadPWaterPalette()
 	if (currLvl._dLevelIdx != SL_POISONWATER)
 		return;
 
-	if (quests[Q_PWATER]._qactive == QUEST_DONE)
+	if (quests[Q_PWATER]._qvar1 == 2) {
 		LoadPalette("Levels\\L3Data\\L3pwater.pal");
 	//else
 	//	LoadPalette("Levels\\L3Data\\L3pfoul.pal");
