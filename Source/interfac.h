@@ -13,8 +13,7 @@ extern "C" {
 #endif
 
 void interface_msg_pump();
-bool IncProgress();
-void ShowProgress(unsigned int uMsg);
+void ShowCutscene(unsigned uMsg);
 void LoadGameLevel(int lvldir);
 void EnterLevel(BYTE lvl);
 void FreeLvlGFX();

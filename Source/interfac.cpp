@@ -18,7 +18,7 @@ const int BarPos[3][2] = { { 53, 37 }, { 53, 421 }, { 53, 37 } };
 /** The width of the progress bar. PANEL_WIDTH - std::max(BarPos[i][0]) * 2 */
 #define BAR_WIDTH		PANEL_WIDTH - 53 * 2
 
-static void FreeInterface()
+static void FreeCutscene()
 {
 	MemFreeDbg(sgpBackCel);
 }
@@ -420,7 +420,7 @@ static void SwitchGameLevel(int lvldir)
 	LoadGameLevel(lvldir);
 }
 
-void ShowProgress(unsigned int uMsg)
+void ShowCutscene(unsigned uMsg)
 {
 	WNDPROC saveProc;
 
@@ -487,7 +487,7 @@ void ShowProgress(unsigned int uMsg)
 	assert(ghMainWnd != NULL);
 
 	PaletteFadeOut();
-	FreeInterface();
+	FreeCutscene();
 
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);

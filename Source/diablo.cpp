@@ -282,7 +282,7 @@ static void InitGameUI()
 #endif
 	assert(ghMainWnd != NULL);
 	music_stop();
-	ShowProgress((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
+	ShowCutscene((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
 	CalcViewportGeometry();
 	InitLevelCursor();
 	sgnTimeoutCurs = CURSOR_NONE;
@@ -1627,7 +1627,7 @@ void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		music_stop();
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
-		ShowProgress(uMsg);
+		ShowCutscene(uMsg);
 		gbRedrawFlags = REDRAW_ALL;
 		DrawAndBlit();
 		LoadPWaterPalette();
