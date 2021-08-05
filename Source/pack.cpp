@@ -216,10 +216,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	// TODO: add to pPack? (_pInvincible, _pmode)
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;
-	plr.pTownWarps = 0;
-	plr.palign_CB = 0;
-	plr.pDungMsgs = 0;
-	plr.pDungMsgs2 = 0;
 	plr._plid = -1;
 	plr._pvid = -1;
 

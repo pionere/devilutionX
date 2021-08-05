@@ -625,10 +625,6 @@ static void SetupLocalPlr()
 	}
 #endif
 	assert(p->destAction == ACTION_NONE);
-	assert(p->pDungMsgs == 0);
-#ifdef HELLFIRE
-	assert(p->pDungMsgs2 == 0);
-#endif
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town
 	p->_pmode = PM_NEWLVL;
