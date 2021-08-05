@@ -888,6 +888,8 @@ void LoadGame()
 	LoadInt(&premiumlevel);
 	LoadInt(&numlights);
 	LoadInt(&numvision);
+	//LoadByte(&numtrans);
+	//tbuff += 3; // Alignment
 
 	for (i = 0; i < MAXLIGHTS; i++)
 		LoadByte(&lightactive[i]);
@@ -898,6 +900,8 @@ void LoadGame()
 		LoadByte(&visionactive[i]);
 	for (i = 0; i < numvision; i++)
 		LoadLight(&VisionList[visionactive[i]]);
+
+	CopyBytes(tbuff, sizeof(TransList), TransList);
 
 	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
 	for (i = 0; i < NUM_UITEM; i++)
@@ -1537,6 +1541,8 @@ void SaveGame()
 	SaveInt(&premiumlevel);
 	SaveInt(&numlights);
 	SaveInt(&numvision);
+	//SaveByte(&numtrans);
+	//tbuff += 3; // Alignment
 
 	for (i = 0; i < MAXLIGHTS; i++)
 		SaveByte(&lightactive[i]);
@@ -1547,6 +1553,8 @@ void SaveGame()
 		SaveByte(&visionactive[i]);
 	for (i = 0; i < numvision; i++)
 		SaveLight(&VisionList[visionactive[i]]);
+
+	CopyBytes(TransList, sizeof(TransList), tbuff);
 
 	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
 	for (i = 0; i < NUM_UITEM; i++)
