@@ -280,7 +280,7 @@ void LoadGameLevel(int lvldir)
 	LoadLvlGFX();
 	IncProgress();
 
-	InitAutomap();
+	InitLvlAutomap();
 
 	if (lvldir != ENTRY_LOAD) {
 		InitLighting();

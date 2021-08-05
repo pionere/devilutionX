@@ -27,9 +27,16 @@ extern int AutoMapYOfs;
 void InitAutomapOnce();
 
 /**
- * @brief Loads the mapping between tile IDs and automap shapes.
+ * @brief Calculates the cached values of automap which are depending on the scale.
  */
-void InitAutomap();
+void InitAutomapScale();
+
+/**
+ * @brief Initializes the automap of a dungeon level.
+ *  1. Loads the mapping between tile IDs and automap shapes.
+ *  2. Resets the offsets.
+ */
+void InitLvlAutomap();
 
 /**
  * @brief Display/Hide the automap.
@@ -70,11 +77,6 @@ void DrawAutomap();
  * @brief Marks the given coordinate as within view on the automap.
  */
 void SetAutomapView(int x, int y);
-
-/**
- * @brief Resets the zoom level of the automap.
- */
-void AutomapZoomReset();
 
 #ifdef __cplusplus
 }

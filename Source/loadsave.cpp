@@ -820,6 +820,8 @@ void LoadGame()
 	gbChrflag = LoadBool();
 	gbAutomapflag = LoadBool();
 	LoadInt(&AutoMapScale);
+	LoadInt(&AutoMapXOfs);
+	LoadInt(&AutoMapYOfs);
 
 	LoadPlayer(mypnum);
 
@@ -935,7 +937,7 @@ void LoadGame()
 
 	mem_free_dbg(fileBuff);
 
-	AutomapZoomReset();
+	InitAutomapScale();
 	//ResyncQuests();
 
 	//RedoPlayerLight();
@@ -1493,6 +1495,8 @@ void SaveGame()
 	SaveBool(gbChrflag);
 	SaveBool(gbAutomapflag);
 	SaveInt(&AutoMapScale);
+	SaveInt(&AutoMapXOfs);
+	SaveInt(&AutoMapYOfs);
 
 	SavePlayer(mypnum);
 
@@ -1724,7 +1728,6 @@ void LoadLevel()
 
 	mem_free_dbg(fileBuff);
 
-	AutomapZoomReset();
 	//ResyncQuests();
 	//SyncPortals();
 

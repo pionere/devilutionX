@@ -59,19 +59,39 @@ unsigned AmLine4;
 #define MAPFLAG_DOHORZ_CAVE 0x0080
 
 /**
- * @brief Initializes the automap.
+ * @brief Initializes the automap configuration.
  */
 void InitAutomapOnce()
 {
 	gbAutomapflag = false;
 	AutoMapScale = MAP_SCALE_MIN;
-	AutomapZoomReset();
+	InitAutomapScale();
+	// these values are initialized by InitAutomap
+	//_gbAutomapData = false;
+	//memset(automaptype, 0, sizeof(automaptype));
+	//memset(automapview, 0, sizeof(automapview));
+	//AutoMapXOfs = 0;
+	//AutoMapYOfs = 0;
 }
 
 /**
- * @brief Loads the mapping between tile IDs and automap shapes.
+ * @brief Calculates the cached values of automap which are depending on the scale.
  */
-void InitAutomap()
+void InitAutomapScale()
+{
+	AmLine64 = (AutoMapScale << 6) / 128;
+	AmLine32 = AmLine64 >> 1;
+	AmLine16 = AmLine32 >> 1;
+	AmLine8 = AmLine16 >> 1;
+	AmLine4 = AmLine8 >> 1;
+}
+
+/**
+ * @brief Initializes the automap of a dungeon level.
+ *  1. Loads the mapping between tile IDs and automap shapes.
+ *  2. Resets the offsets.
+ */
+void InitLvlAutomap()
 {
 	size_t dwTiles, i;
 	BYTE *pAFile;
@@ -119,6 +139,9 @@ void InitAutomap()
 	}
 
 	memset(automapview, 0, sizeof(automapview));
+
+	AutoMapXOfs = 0;
+	AutoMapYOfs = 0;
 }
 
 /**
@@ -126,13 +149,11 @@ void InitAutomap()
  */
 void ToggleAutomap()
 {
-	if (!gbAutomapflag) {
+	gbAutomapflag = !gbAutomapflag;
+	//if (gbAutomapflag) {
 		AutoMapXOfs = 0;
 		AutoMapYOfs = 0;
-		gbAutomapflag = true;
-	} else {
-		gbAutomapflag = false;
-	}
+	//}
 }
 
 /**
@@ -783,20 +804,6 @@ void SetAutomapView(int x, int y)
 		ASSUME_UNREACHABLE
 		break;
 	}
-}
-
-/**
- * @brief Resets the zoom level of the automap.
- */
-void AutomapZoomReset()
-{
-	AutoMapXOfs = 0;
-	AutoMapYOfs = 0;
-	AmLine64 = (AutoMapScale << 6) / 128;
-	AmLine32 = AmLine64 >> 1;
-	AmLine16 = AmLine32 >> 1;
-	AmLine8 = AmLine16 >> 1;
-	AmLine4 = AmLine8 >> 1;
 }
 
 DEVILUTION_END_NAMESPACE
