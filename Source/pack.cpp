@@ -25,10 +25,11 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 
 	memset(pPack, 0, sizeof(*pPack));
 	p = &plr;
-	pPack->pDunLevel = p->_pDunLevel;
 	pPack->px = p->_px;
 	pPack->py = p->_py;
 	copy_str(pPack->pName, p->_pName);
+	pPack->pLvlChanging = p->_pLvlChanging;
+	pPack->pDunLevel = p->_pDunLevel;
 	pPack->pClass = p->_pClass;
 	pPack->pLevel = p->_pLevel;
 	pPack->pRank = p->_pRank;
@@ -91,7 +92,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
 		pPack->InvGrid[i] = p->InvGrid[i];
 
-	pPack->pNumInv = p->_pNumInv;
+	pPack->pNumInv = SwapLE32(p->_pNumInv);
 
 	memcpy(pPack->pAtkSkillHotKey, p->_pAtkSkillHotKey, sizeof(pPack->pAtkSkillHotKey));
 	memcpy(pPack->pAtkSkillTypeHotKey, p->_pAtkSkillTypeHotKey, sizeof(pPack->pAtkSkillTypeHotKey));
@@ -131,8 +132,9 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 
 	// TODO: validate data from the internet
 	SetPlayerLoc(&plr, pPack->px, pPack->py);
-	plr._pDunLevel = pPack->pDunLevel;
 	copy_str(plr._pName, pPack->pName);
+	plr._pLvlChanging = pPack->pLvlChanging;
+	plr._pDunLevel = pPack->pDunLevel;
 	plr._pClass = pPack->pClass;
 	plr._pLevel = pPack->pLevel;
 	plr._pRank = pPack->pRank;

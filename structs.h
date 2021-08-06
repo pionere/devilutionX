@@ -817,10 +817,11 @@ typedef struct PkItemStruct {
 } PkItemStruct;
 
 typedef struct PkPlayerStruct {
-	BYTE pDunLevel;
 	BYTE px;
 	BYTE py;
 	char pName[PLR_NAME_LEN];
+	BOOLEAN pLvlChanging;
+	BYTE pDunLevel;
 	BYTE pClass;
 	BYTE pLevel;
 	BYTE pRank;
@@ -847,7 +848,7 @@ typedef struct PkPlayerStruct {
 	PkItemStruct SpdList[MAXBELTITEMS];
 	PkItemStruct InvList[NUM_INV_GRID_ELEM];
 	char InvGrid[NUM_INV_GRID_ELEM];
-	BYTE pNumInv;
+	INT pNumInv;
 	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
 	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
 	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
