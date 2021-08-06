@@ -688,7 +688,6 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 	mana = val << (6 + 1);
 	plr._pMana = plr._pMaxMana = plr._pManaBase = plr._pMaxManaBase = mana;
 
-	plr._pLevel = 1;
 	plr._pLvlUp = false; // indicator whether the stat button should be shown
 	//plr._pNextExper = PlrExpLvlsTbl[1];
 	plr._pLightRad = 10;
@@ -872,16 +871,17 @@ void NextPlrLevel(int pnum)
 #endif
 }
 
-static void AddPlrSkillExp(int pnum, int lvl, int exp)
+static void AddPlrSkillExp(int pnum, int lvl, unsigned exp)
 {
-	int i, n = 0, dLvl;
+	int i, n = 0;
 	BYTE shr, sn, sl;
-	unsigned xp;
+	unsigned xp, dLvl;
 	BYTE skills[NUM_SPELLS];
 
-	// collect the active skills
+	// collect the active skills below a level limit
+	lvl += 8;
 	for (i = 0; i < NUM_SPELLS; i++) {
-		if (plr._pSkillActivity[i] != 0 && (4 * plr._pSkillLvl[i]) < lvl + 8) {
+		if (plr._pSkillActivity[i] != 0 && (4 * plr._pSkillLvl[i]) < lvl) {
 			skills[n] = i;
 			n++;
 		}
@@ -900,7 +900,7 @@ static void AddPlrSkillExp(int pnum, int lvl, int exp)
 		plr._pSkillActivity[sn]--;
 
 		sl = plr._pSkillLvl[sn];
-		dLvl = 8 + lvl - (4 * sl);
+		dLvl = lvl - (4 * sl);
 		xp = (exp * dLvl) >> shr; // / (8 * n);
 
 		xp += plr._pSkillExp[sn];
@@ -920,9 +920,10 @@ static void AddPlrSkillExp(int pnum, int lvl, int exp)
 	}
 }
 
-void AddPlrExperience(int pnum, int lvl, int exp)
+void AddPlrExperience(int pnum, int lvl, unsigned exp)
 {
-	int expCap, dLvl;
+	unsigned expCap;
+	int dLvl;
 
 	if (pnum != mypnum) {
 		return;
@@ -977,7 +978,7 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 void AddPlrMonstExper(int mnum)
 {
 	MonsterStruct *mon;
-	int totplrs, i, e;
+	unsigned totplrs, i, e;
 	BYTE pmask;
 
 	mon = &monster[mnum];
