@@ -308,10 +308,6 @@ typedef struct PlayerStruct {
 	BYTE _pRank;
 	unsigned _pExperience;
 	unsigned _pNextExper;
-	char _pMagResist;
-	char _pFireResist;
-	char _pLghtResist;
-	char _pAcidResist;
 	int _pGold;
 	BOOL _pInfraFlag;
 	int _pVar1;
@@ -362,6 +358,10 @@ typedef struct PlayerStruct {
 	int _pIPcMaxDam;
 	int _pIEvasion;
 	int _pIAC;
+	char _pMagResist;
+	char _pFireResist;
+	char _pLghtResist;
+	char _pAcidResist;
 	int _pIHitChance;
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pICritChance; // 200 == 100%

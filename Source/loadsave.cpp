@@ -418,10 +418,6 @@ static void LoadPlayer(int pnum)
 	LoadByte(&plr._pRank);
 	LoadInt(&plr._pExperience);
 	LoadInt(&plr._pNextExper);
-	LoadByte(&plr._pMagResist);  // overwritten by Calc
-	LoadByte(&plr._pFireResist); // overwritten by Calc
-	LoadByte(&plr._pLghtResist); // overwritten by Calc
-	LoadByte(&plr._pAcidResist); // overwritten by Calc
 	LoadInt(&plr._pGold);
 
 	LoadInt(&plr._pInfraFlag);
@@ -477,6 +473,10 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // _pIPcMaxDam
 	tbuff += 4; // _pIEvasion
 	tbuff += 4; // _pIAC
+	tbuff += 1; // _pMagResist
+	tbuff += 1; // _pFireResist
+	tbuff += 1; // _pLghtResist
+	tbuff += 1; // _pAcidResist
 	tbuff += 4; // _pIHitChance
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
@@ -1128,10 +1128,6 @@ static void SavePlayer(int pnum)
 	SaveByte(&plr._pRank);
 	SaveInt(&plr._pExperience);
 	SaveInt(&plr._pNextExper);
-	SaveByte(&plr._pMagResist);
-	SaveByte(&plr._pFireResist);
-	SaveByte(&plr._pLghtResist);
-	SaveByte(&plr._pAcidResist);
 	SaveInt(&plr._pGold);
 
 	SaveInt(&plr._pInfraFlag);
@@ -1187,6 +1183,10 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // _pIPcMaxDam
 	tbuff += 4; // _pIEvasion
 	tbuff += 4; // _pIAC
+	tbuff += 1; // _pMagResist
+	tbuff += 1; // _pFireResist
+	tbuff += 1; // _pLghtResist
+	tbuff += 1; // _pAcidResist
 	tbuff += 4; // _pIHitChance
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
