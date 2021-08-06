@@ -2785,9 +2785,8 @@ static void CheckNewPath(int pnum)
 				i = plr.destParam1;
 				x = abs(plr._px - items[i]._ix);
 				y = abs(plr._py - items[i]._iy);
-				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND && !items[i]._iRequest) {
+				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND) {
 					NetSendCmdGItem(CMD_REQUESTGITEM, i);
-					items[i]._iRequest = TRUE;
 				}
 			}
 			break;

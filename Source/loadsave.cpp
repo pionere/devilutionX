@@ -294,7 +294,6 @@ static void LoadItemData(ItemStruct *is)
 	LoadByte(&is->_iPLLight);
 	LoadByte(&is->_iDamType);
 	LoadByte(&is->_iSplLvlAdd);
-	LoadByte(&is->_iRequest);
 	LoadByte(&is->_iManaSteal);
 	LoadByte(&is->_iLifeSteal);
 	tbuff += 2; // Alignment
@@ -1002,7 +1001,6 @@ static void SaveItemData(ItemStruct *is)
 	SaveByte(&is->_iPLLight);
 	SaveByte(&is->_iDamType);
 	SaveByte(&is->_iSplLvlAdd);
-	SaveByte(&is->_iRequest);
 	SaveByte(&is->_iManaSteal);
 	SaveByte(&is->_iLifeSteal);
 	tbuff += 2; // Alignment

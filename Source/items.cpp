@@ -2427,7 +2427,6 @@ void RespawnItem(int ii, bool FlipFlag)
 	//is->_iAnimWidth = 96;
 	//is->_iAnimXOffset = 16;
 	is->_iPostDraw = FALSE;
-	is->_iRequest = FALSE;
 	if (FlipFlag) {
 		is->_iAnimFrame = 1;
 		is->_iAnimFlag = TRUE;

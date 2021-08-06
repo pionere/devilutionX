@@ -109,20 +109,6 @@ typedef struct ItemData {
 static_assert((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData to power of 2 for better performance.");
 #endif
 
-typedef struct ItemGetRecordStruct {
-	INT nSeed;
-	WORD nIndex;
-	WORD wCI;
-	unsigned int dwTimestamp;
-#ifdef X86_32bit_COMP
-	int alignment[1];
-#endif
-} ItemGetRecordStruct;
-
-#ifdef X86_32bit_COMP
-static_assert((sizeof(ItemGetRecordStruct) & (sizeof(ItemGetRecordStruct) - 1)) == 0, "Align ItemGetRecordStruct to power of 2 for better performance.");
-#endif
-
 typedef struct ItemStruct {
 	int _iSeed;
 	WORD _iIdx;
@@ -176,7 +162,6 @@ typedef struct ItemStruct {
 	char _iPLLight;
 	BYTE _iDamType;
 	char _iSplLvlAdd;
-	BOOLEAN _iRequest;
 	BYTE _iManaSteal;
 	BYTE _iLifeSteal;
 	int _iUid;
