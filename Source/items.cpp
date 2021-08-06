@@ -457,7 +457,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	int tac = 0;  // armor class
 
-	int g, wt; // graphics, weapon-type
+	int gfx, wt; // graphics, weapon-type
 	bool bf;   // blockflag
 	int i;
 
@@ -680,32 +680,32 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	bf = false;
 	wt = SFLAG_MELEE;
-	g = ANIM_ID_UNARMED;
-
+	gfx = ITYPE_MISC;
 	if (wLeft->_itype != ITYPE_NONE
 	    && wLeft->_iClass == ICLASS_WEAPON
 	    && wLeft->_iStatFlag) {
-		g = wLeft->_itype;
+		gfx = wLeft->_itype;
 	}
 
-	switch (g) {
-	case ANIM_ID_UNARMED:
+	switch (gfx) {
+	case ITYPE_MISC:
+		gfx = ANIM_ID_UNARMED;
 		break;
 	case ITYPE_SWORD:
-		g = ANIM_ID_SWORD;
+		gfx = ANIM_ID_SWORD;
 		break;
 	case ITYPE_AXE:
-		g = ANIM_ID_AXE;
+		gfx = ANIM_ID_AXE;
 		break;
 	case ITYPE_BOW:
 		wt = SFLAG_RANGED;
-		g = ANIM_ID_BOW;
+		gfx = ANIM_ID_BOW;
 		break;
 	case ITYPE_MACE:
-		g = ANIM_ID_MACE;
+		gfx = ANIM_ID_MACE;
 		break;
 	case ITYPE_STAFF:
-		g = ANIM_ID_STAFF;
+		gfx = ANIM_ID_STAFF;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -725,11 +725,11 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
 		tac += ((plr._pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
 		bf = true;
-		g++;
+		gfx++;
 	}
 
-	if (g == ANIM_ID_UNARMED || g == ANIM_ID_UNARMED_SHIELD) {
-		if (g == ANIM_ID_UNARMED_SHIELD) {
+	if (gfx == ANIM_ID_UNARMED || gfx == ANIM_ID_UNARMED_SHIELD) {
+		if (gfx == ANIM_ID_UNARMED_SHIELD) {
 			minbl = 3 << 1;
 			maxbl = 3 << 1;
 		} else {
@@ -744,13 +744,13 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	pi = &plr.InvBody[INVLOC_CHEST];
 	if (pi->_itype == ITYPE_MARMOR && pi->_iStatFlag) {
-		g += ANIM_ID_MEDIUM_ARMOR;
+		gfx |= ANIM_ID_MEDIUM_ARMOR;
 	} else if (pi->_itype == ITYPE_HARMOR && pi->_iStatFlag) {
-		g += ANIM_ID_HEAVY_ARMOR;
+		gfx |= ANIM_ID_HEAVY_ARMOR;
 	}
 
-	if (plr._pgfxnum != g) {
-		plr._pgfxnum = g;
+	if (plr._pgfxnum != gfx) {
+		plr._pgfxnum = gfx;
 		if (Loadgfx) {
 			plr._pGFXLoad = 0;
 			LoadPlrGFX(pnum, PFILE_STAND);
