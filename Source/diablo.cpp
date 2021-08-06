@@ -562,6 +562,7 @@ static void diablo_init()
 
 static void diablo_splash()
 {
+#ifndef HOSTONLY
 	if (!_gbShowintro)
 		return;
 
@@ -573,6 +574,7 @@ static void diablo_splash()
 	}
 
 	UiTitleDialog();
+#endif
 }
 
 static void diablo_deinit()

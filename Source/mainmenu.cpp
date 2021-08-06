@@ -56,9 +56,11 @@ static bool mainmenu_multi_player()
 
 static void mainmenu_play_intro()
 {
+#ifndef HOSTONLY
 	music_stop();
 	play_movie(INTRO_ARCHIVE, MOV_SKIP);
 	mainmenu_refresh_music();
+#endif
 }
 
 void mainmenu_loop()
