@@ -103,7 +103,7 @@ static void nthread_process_pending_turns()
 		for (i = gbNetUpdateRate; i > 0; i--) {
 			multi_mon_seeds();
 			game_logic();
-			++lvlLoad;
+			++gbLvlLoad;
 		}
 		// remove the generated NetCmds
 		// there should be only a few obsolete ones (e.g. monster hit by a trap)

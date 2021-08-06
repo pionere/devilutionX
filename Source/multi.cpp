@@ -629,7 +629,7 @@ static void SetupLocalPlr()
 	//p->_pInvincible = TRUE; - does not matter in town
 	p->_pmode = PM_NEWLVL;
 
-	lvlLoad = 10;
+	gbLvlLoad = 10;
 	gbActivePlayers = 1;
 	p->plractive = TRUE;
 	assert(p->_pTeam == mypnum);

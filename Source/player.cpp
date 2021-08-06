@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 int mypnum;
 PlayerStruct players[MAX_PLRS];
 /* Counter to suppress animations in case the current player is changing the level. */
-BYTE lvlLoad;
+BYTE gbLvlLoad;
 bool _gbPlrGfxSizeLoaded = false;
 int plr_lframe_size;
 int plr_wframe_size;
@@ -1917,7 +1917,7 @@ static void InitLevelChange(int pnum)
 				gbQtextflag = false;
 				stream_stop();
 			}
-			lvlLoad = 10;
+			gbLvlLoad = 10;
 			// show the current player on the last frames before changing the level
 			//RemovePlrFromMap(pnum);
 		} else {
@@ -2944,8 +2944,8 @@ void ProcessPlayers()
 		dev_fatal("ProcessPlayers: illegal player %d", mypnum);
 	}
 
-	if (lvlLoad > 0) {
-		lvlLoad--;
+	if (gbLvlLoad > 0) {
+		gbLvlLoad--;
 	}
 #ifndef NOSOUND
 	if (sfxdelay > 0) {

@@ -348,7 +348,7 @@ static void AddInitItems()
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl | CF_PREGEN;
-		// assert(lvlLoad != 0);
+		// assert(gbLvlLoad != 0);
 		SetupItem(ii);
 
 		GetRandomItemSpace(ii);
@@ -1843,7 +1843,7 @@ void SetupItem(int ii)
 	is->_iIdentified = FALSE;
 	is->_iPostDraw = FALSE;
 
-	if (lvlLoad == 0) {
+	if (gbLvlLoad == 0) {
 		is->_iAnimFrame = 1;
 		is->_iAnimFlag = TRUE;
 		is->_iSelFlag = 0;
@@ -2331,7 +2331,7 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	ii = itemavail[0];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
-	// assert(lvlLoad != 0);
+	// assert(gbLvlLoad != 0);
 	SetupItem(ii);
 	//items[ii]._iPostDraw = TRUE;
 	items[ii]._iCreateInfo = items_get_currlevel() | CF_PREGEN;

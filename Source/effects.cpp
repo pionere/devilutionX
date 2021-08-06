@@ -1260,7 +1260,7 @@ static void PlaySFX_priv(TSFX *pSFX, bool loc, int x, int y)
 {
 	int lPan, lVolume;
 
-	if (!gbSoundOn || lvlLoad != 0)
+	if (!gbSoundOn || gbLvlLoad != 0)
 		return;
 
 	lPan = 0;
@@ -1291,7 +1291,7 @@ void PlayEffect(int mnum, int mode)
 	int sndIdx, lVolume, lPan;
 	TSnd *snd;
 
-	if (!gbSoundOn || lvlLoad != 0)
+	if (!gbSoundOn || gbLvlLoad != 0)
 		return;
 
 	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
