@@ -78,30 +78,28 @@ static_assert((sizeof(UniqItemData) & (sizeof(UniqItemData) - 1)) == 64, "Align 
 
 typedef struct ItemData {
 	BYTE iRnd;
-	BYTE iClass;
-	BYTE iLoc;
-	int iCurs;
-	int itype;
-	BYTE iItemId;
-	const char *iName;
 	BYTE iMinMLvl;
-	BYTE iDurability;
+	BYTE iItemId; // unique_base_item
+	const char* iName;
+	int iCurs; // item_cursor_graphic
+	int itype; // item_type
+	int iMiscId; // item_misc_id
+	int iSpell; // spell_id
+	BYTE iClass; // item_class
+	BYTE iLoc; // item_equip_type
 	BYTE iDamType;
 	BYTE iMinDam;
 	BYTE iMaxDam;
-	BYTE iMinAC;
-	BYTE iMaxAC;
 	BYTE iMinStr;
 	BYTE iMinMag;
 	BYTE iMinDex;
-	// item_misc_id
-	int iMiscId;
-	// spell_id
-	int iSpell;
 	BOOLEAN iUsable;
+	BYTE iMinAC;
+	BYTE iMaxAC;
+	BYTE iDurability;
 	int iValue;
 #ifdef X86_32bit_COMP
-	int alignment[4];
+	int alignment[6];
 #endif
 } ItemData;
 
@@ -113,9 +111,20 @@ typedef struct ItemStruct {
 	int _iSeed;
 	WORD _iIdx;
 	WORD _iCreateInfo;
-	int _itype;
 	int _ix;
 	int _iy;
+	int _iCurs;		// item_cursor_graphic
+	int _itype;
+	int _iMiscId;	// item_misc_id
+	int _iSpell;	// spell_id
+	BYTE _iClass;	// item_class enum
+	BYTE _iLoc;		// item_equip_type
+	BYTE _iDamType;
+	BYTE _iMinDam;
+	BYTE _iMaxDam;
+	BYTE _iMinStr;
+	BYTE _iMinMag;
+	BYTE _iMinDex;
 	BOOL _iAnimFlag;
 	BYTE *_iAnimData;        // PSX name -> ItemFrame
 	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
@@ -127,19 +136,14 @@ typedef struct ItemStruct {
 	BOOL _iPostDraw;
 	BOOL _iIdentified;
 	char _iName[32];
+	BYTE _iPrePower;
+	BYTE _iSufPower;
 	BYTE _iSelFlag;
 	BYTE _iMagical;	// item_quality
-	BYTE _iLoc;		// item_equip_type
-	BYTE _iClass;	// item_class enum
-	int _iCurs;		// item_cursor_graphic
 	int _ivalue;
 	int _iIvalue;
-	BYTE _iMinDam;
-	BYTE _iMaxDam;
 	int _iAC;
 	int _iFlags;	// item_special_effect
-	int _iMiscId;	// item_misc_id
-	int _iSpell;	// spell_id
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
@@ -160,7 +164,6 @@ typedef struct ItemStruct {
 	int _iPLDamMod;
 	int _iPLGetHit;
 	char _iPLLight;
-	BYTE _iDamType;
 	char _iSplLvlAdd;
 	BYTE _iManaSteal;
 	BYTE _iLifeSteal;
@@ -174,16 +177,11 @@ typedef struct ItemStruct {
 	BYTE _iAMinDam;
 	BYTE _iAMaxDam;
 	int _iPLEnAc;
-	BYTE _iPrePower;
-	BYTE _iSufPower;
 	int _iVAdd;
 	int _iVMult;
-	BYTE _iMinStr;
-	BYTE _iMinMag;
-	BYTE _iMinDex;
 	BOOL _iStatFlag;
 #ifdef X86_32bit_COMP
-	int alignment[4];
+	int alignment[6];
 #endif
 } ItemStruct;
 

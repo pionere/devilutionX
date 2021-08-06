@@ -987,22 +987,22 @@ void SetItemData(int ii, int idata)
 
 	is->_iIdx = idata;
 	ids = &AllItemsList[idata];
-	is->_itype = ids->itype;
-	is->_iCurs = ids->iCurs;
 	strcpy(is->_iName, ids->iName);
-	is->_iLoc = ids->iLoc;
+	is->_iCurs = ids->iCurs;
+	is->_itype = ids->itype;
+	is->_iMiscId = ids->iMiscId;
+	is->_iSpell = ids->iSpell;
 	is->_iClass = ids->iClass;
+	is->_iLoc = ids->iLoc;
 	is->_iDamType = ids->iDamType;
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
-	is->_iAC = ids->iMinAC == ids->iMaxAC ? ids->iMinAC : RandRange(ids->iMinAC, ids->iMaxAC);
-	is->_iMiscId = ids->iMiscId;
-	is->_iSpell = ids->iSpell;
-	is->_iDurability = ids->iDurability;
-	is->_iMaxDur = ids->iDurability;
 	is->_iMinStr = ids->iMinStr;
 	is->_iMinMag = ids->iMinMag;
 	is->_iMinDex = ids->iMinDex;
+	is->_iAC = ids->iMinAC == ids->iMaxAC ? ids->iMinAC : RandRange(ids->iMinAC, ids->iMaxAC);
+	is->_iDurability = ids->iDurability;
+	is->_iMaxDur = ids->iDurability;
 	is->_ivalue = ids->iValue;
 	is->_iIvalue = ids->iValue;
 

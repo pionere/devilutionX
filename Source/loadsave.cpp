@@ -244,9 +244,20 @@ static void LoadItemData(ItemStruct *is)
 	LoadInt(&is->_iSeed);
 	LoadInt16(&is->_iCreateInfo);
 	LoadInt16(&is->_iIdx);
-	LoadInt(&is->_itype);
 	LoadInt(&is->_ix);
 	LoadInt(&is->_iy);
+	LoadInt(&is->_iCurs);
+	LoadInt(&is->_itype);
+	LoadInt(&is->_iMiscId);
+	LoadInt(&is->_iSpell);
+	LoadByte(&is->_iClass);
+	LoadByte(&is->_iLoc);
+	LoadByte(&is->_iDamType);
+	LoadByte(&is->_iMinDam);
+	LoadByte(&is->_iMaxDam);
+	LoadByte(&is->_iMinStr);
+	LoadByte(&is->_iMinMag);
+	LoadByte(&is->_iMinDex);
 	LoadInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
@@ -258,20 +269,14 @@ static void LoadItemData(ItemStruct *is)
 	LoadInt(&is->_iPostDraw);
 	LoadInt(&is->_iIdentified);
 	CopyBytes(tbuff, sizeof(is->_iName), is->_iName);
+	LoadByte(&is->_iPrePower);
+	LoadByte(&is->_iSufPower);
 	LoadByte(&is->_iSelFlag);
 	LoadByte(&is->_iMagical);
-	LoadByte(&is->_iLoc);
-	LoadByte(&is->_iClass);
-	LoadInt(&is->_iCurs);
 	LoadInt(&is->_ivalue);
 	LoadInt(&is->_iIvalue);
-	LoadByte(&is->_iMinDam);
-	LoadByte(&is->_iMaxDam);
-	tbuff += 2; // Alignment
 	LoadInt(&is->_iAC);
 	LoadInt(&is->_iFlags);
-	LoadInt(&is->_iMiscId);
-	LoadInt(&is->_iSpell);
 	LoadInt(&is->_iCharges);
 	LoadInt(&is->_iMaxCharges);
 	LoadInt(&is->_iDurability);
@@ -292,11 +297,9 @@ static void LoadItemData(ItemStruct *is)
 	LoadInt(&is->_iPLDamMod);
 	LoadInt(&is->_iPLGetHit);
 	LoadByte(&is->_iPLLight);
-	LoadByte(&is->_iDamType);
 	LoadByte(&is->_iSplLvlAdd);
 	LoadByte(&is->_iManaSteal);
 	LoadByte(&is->_iLifeSteal);
-	tbuff += 2; // Alignment
 	LoadInt(&is->_iUid);
 	LoadByte(&is->_iFMinDam);
 	LoadByte(&is->_iFMaxDam);
@@ -307,15 +310,8 @@ static void LoadItemData(ItemStruct *is)
 	LoadByte(&is->_iAMinDam);
 	LoadByte(&is->_iAMaxDam);
 	LoadInt(&is->_iPLEnAc);
-	LoadByte(&is->_iPrePower);
-	LoadByte(&is->_iSufPower);
-	tbuff += 2; // Alignment
 	LoadInt(&is->_iVAdd);
 	LoadInt(&is->_iVMult);
-	LoadByte(&is->_iMinStr);
-	LoadByte(&is->_iMinMag);
-	LoadByte(&is->_iMinDex);
-	tbuff += 1; // Alignment
 	LoadInt(&is->_iStatFlag);
 }
 
@@ -951,9 +947,20 @@ static void SaveItemData(ItemStruct *is)
 	SaveInt(&is->_iSeed);
 	SaveInt16(&is->_iCreateInfo);
 	SaveInt16(&is->_iIdx);
-	SaveInt(&is->_itype);
 	SaveInt(&is->_ix);
 	SaveInt(&is->_iy);
+	SaveInt(&is->_iCurs);
+	SaveInt(&is->_itype);
+	SaveInt(&is->_iMiscId);
+	SaveInt(&is->_iSpell);
+	SaveByte(&is->_iClass);
+	SaveByte(&is->_iLoc);
+	SaveByte(&is->_iDamType);
+	SaveByte(&is->_iMinDam);
+	SaveByte(&is->_iMaxDam);
+	SaveByte(&is->_iMinStr);
+	SaveByte(&is->_iMinMag);
+	SaveByte(&is->_iMinDex);
 	SaveInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
@@ -965,20 +972,14 @@ static void SaveItemData(ItemStruct *is)
 	SaveInt(&is->_iPostDraw);
 	SaveInt(&is->_iIdentified);
 	CopyBytes(is->_iName, sizeof(is->_iName), tbuff);
+	SaveByte(&is->_iPrePower);
+	SaveByte(&is->_iSufPower);
 	SaveByte(&is->_iSelFlag);
 	SaveByte(&is->_iMagical);
-	SaveByte(&is->_iLoc);
-	SaveByte(&is->_iClass);
-	SaveInt(&is->_iCurs);
 	SaveInt(&is->_ivalue);
 	SaveInt(&is->_iIvalue);
-	SaveByte(&is->_iMinDam);
-	SaveByte(&is->_iMaxDam);
-	tbuff += 2; // Alignment
 	SaveInt(&is->_iAC);
 	SaveInt(&is->_iFlags);
-	SaveInt(&is->_iMiscId);
-	SaveInt(&is->_iSpell);
 	SaveInt(&is->_iCharges);
 	SaveInt(&is->_iMaxCharges);
 	SaveInt(&is->_iDurability);
@@ -999,11 +1000,9 @@ static void SaveItemData(ItemStruct *is)
 	SaveInt(&is->_iPLDamMod);
 	SaveInt(&is->_iPLGetHit);
 	SaveByte(&is->_iPLLight);
-	SaveByte(&is->_iDamType);
 	SaveByte(&is->_iSplLvlAdd);
 	SaveByte(&is->_iManaSteal);
 	SaveByte(&is->_iLifeSteal);
-	tbuff += 2; // Alignment
 	SaveInt(&is->_iUid);
 	SaveByte(&is->_iFMinDam);
 	SaveByte(&is->_iFMaxDam);
@@ -1014,15 +1013,8 @@ static void SaveItemData(ItemStruct *is)
 	SaveByte(&is->_iAMinDam);
 	SaveByte(&is->_iAMaxDam);
 	SaveInt(&is->_iPLEnAc);
-	SaveByte(&is->_iPrePower);
-	SaveByte(&is->_iSufPower);
-	tbuff += 2; // Alignment
 	SaveInt(&is->_iVAdd);
 	SaveInt(&is->_iVMult);
-	SaveByte(&is->_iMinStr);
-	SaveByte(&is->_iMinMag);
-	SaveByte(&is->_iMinDex);
-	tbuff += 1; // Alignment
 	SaveInt(&is->_iStatFlag);
 }
 
