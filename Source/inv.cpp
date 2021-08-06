@@ -9,6 +9,10 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 bool gbInvflag;
+BYTE gbTSpell;   // the spell to cast after the target is selected
+char gbTSplFrom; // the source of the spell after the target is selected
+char gbOilFrom;
+
 BYTE *pInvCels;
 BYTE *pBeltCels;
 
@@ -200,6 +204,9 @@ void InitInv()
 	pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL");
 	pBeltCels = LoadFileInMem("Data\\Inv\\Belt.CEL");
 	gbInvflag = false;
+	//gbTSpell = SPL_NULL;
+	//gbTSplFrom = 0;
+	//gbOilFrom = 0;
 }
 
 static void InvDrawSlotBack(int X, int Y, int W, int H)
@@ -1997,8 +2004,8 @@ bool InvUseItem(int cii)
 		sn = is->_iSpell;
 		if (spelldata[sn].scCurs != CURSOR_NONE) {
 			NewCursor(spelldata[sn].scCurs);
-			plr._pTSpell = sn;
-			plr._pTSplFrom = cii;
+			gbTSpell = sn;
+			gbTSplFrom = cii;
 		} else {
 			NetSendCmdLocSkill(cursmx, cursmy, sn, cii, GetSpellLevel(pnum, sn));
 		}
@@ -2030,7 +2037,7 @@ bool InvUseItem(int cii)
 	case IMISC_OILRESIST:
 	case IMISC_OILCHANCE:
 	case IMISC_OILCLEAN:
-		plr._pOilFrom = cii;
+		gbOilFrom = cii;
 		NewCursor(CURSOR_OIL);
 		return true;
 #ifdef HELLFIRE

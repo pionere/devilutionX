@@ -259,9 +259,6 @@ typedef struct PlayerStruct {
 	BYTE _pAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
 	BYTE _pAltMoveSkill;     // the selected movement skill for the secondary action
 	BYTE _pAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
-	BYTE _pTSpell;   // the spell to cast after the target is selected
-	char _pTSplFrom; // the source of the spell after the target is selected
-	char _pOilFrom;
 	BYTE _pSkillLvl[64];
 	BYTE _pSkillActivity[64];
 	unsigned _pSkillExp[64];

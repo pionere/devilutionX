@@ -681,8 +681,8 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 		if (spelldata[atkSkill].spCurs != CURSOR_NONE) {
 			NewCursor(spelldata[atkSkill].spCurs);
-			myplr._pTSpell = atkSkill;
-			myplr._pTSplFrom = asf;
+			gbTSpell = atkSkill;
+			gbTSplFrom = asf;
 			return;
 		}
 
@@ -791,8 +791,7 @@ bool TryIconCurs(bool bShift)
 	case CURSOR_REPAIR:
 	case CURSOR_RECHARGE:
 		if (pcursinvitem != INVITEM_NONE) {
-			PlayerStruct *p = &myplr;
-			NetSendCmdLocSkill(p->_px, p->_py, p->_pTSpell, p->_pTSplFrom, pcursinvitem);
+			NetSendCmdLocSkill(myplr._px, myplr._py, gbTSpell, gbTSplFrom, pcursinvitem);
 		}
 		break;
 	case CURSOR_DISARM:
@@ -806,7 +805,7 @@ bool TryIconCurs(bool bShift)
 		break;
 	case CURSOR_OIL:
 		if (pcursinvitem != INVITEM_NONE)
-			NetSendCmdBParam2(true, CMD_DOOIL, myplr._pOilFrom, pcursinvitem);
+			NetSendCmdBParam2(true, CMD_DOOIL, gbOilFrom, pcursinvitem);
 		break;
 	case CURSOR_TELEKINESIS:
 		if (pcursobj != OBJ_NONE)
@@ -818,14 +817,14 @@ bool TryIconCurs(bool bShift)
 		break;
 	case CURSOR_RESURRECT:
 		if (pcursplr != PLR_NONE) {
-			int sn = myplr._pTSpell;
-			int sf = myplr._pTSplFrom;
+			int sn = gbTSpell;
+			int sf = gbTSplFrom;
 			NetSendCmdLocSkill(players[pcursplr]._px, players[pcursplr]._py, sn, sf, pcursplr);
 		}
 		break;
 	case CURSOR_TELEPORT: {
-		int sn = myplr._pTSpell;
-		int sf = myplr._pTSplFrom;
+		int sn = gbTSpell;
+		int sf = gbTSplFrom;
 		int sl = GetSpellLevel(mypnum, sn);
 		if (pcursmonst != -1)
 			NetSendCmdMonstSkill(pcursmonst, sn, sf, sl);
@@ -836,8 +835,8 @@ bool TryIconCurs(bool bShift)
 	} break;
 	case CURSOR_HEALOTHER:
 		if (pcursplr != PLR_NONE) {
-			int sn = myplr._pTSpell;
-			int sf = myplr._pTSplFrom;
+			int sn = gbTSpell;
+			int sf = gbTSplFrom;
 			int sl = GetSpellLevel(mypnum, sn);
 			NetSendCmdPlrSkill(pcursplr, sn, sf, sl);
 		}
