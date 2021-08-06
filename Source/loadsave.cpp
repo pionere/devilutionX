@@ -336,7 +336,7 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr.destParam2);
 	LoadInt(&plr.destParam3);
 	LoadInt(&plr.destParam4);
-	LoadByte(&plr.plractive);
+	LoadByte(&plr._pActive);
 	LoadByte(&plr._pLvlChanging);
 	LoadByte(&plr._pDunLevel);
 	LoadByte(&plr._pTeam);
@@ -776,7 +776,7 @@ static void LoadPortal(int i)
 /*static void RedoPlayerLight()
 {
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr.plractive && currLvl._dLevelIdx == plr._pDunLevel)
+		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel)
 			ChangeLightXY(plr._plid, plr._px, plr._py);
 	}
 }*/
@@ -1049,7 +1049,7 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr.destParam2);
 	SaveInt(&plr.destParam3);
 	SaveInt(&plr.destParam4);
-	SaveByte(&plr.plractive);
+	SaveByte(&plr._pActive);
 	SaveByte(&plr._pLvlChanging);
 	SaveByte(&plr._pDunLevel);
 	SaveByte(&plr._pTeam);

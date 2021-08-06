@@ -154,10 +154,10 @@ void PrintDebugPlayer(bool bNextPlayer)
 	if (bNextPlayer)
 		dbgplr = ((BYTE)dbgplr + 1) & 3;
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Plr %i : Active = %i", dbgplr, players[dbgplr].plractive);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Plr %i : Active = %i", dbgplr, players[dbgplr]._pActive);
 	NetSendCmdString(1 << mypnum);
 
-	if (players[dbgplr].plractive) {
+	if (players[dbgplr]._pActive) {
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Plr %i is %s", dbgplr, players[dbgplr]._pName);
 		NetSendCmdString(1 << mypnum);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Lvl = %i : Change = %i", players[dbgplr]._pDunLevel, players[dbgplr]._pLvlChanging);

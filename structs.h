@@ -226,7 +226,7 @@ typedef struct PlayerStruct {
 	int destParam2;
 	int destParam3;
 	int destParam4;
-	BOOLEAN plractive;
+	BOOLEAN _pActive;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
 	BYTE _pDunLevel;
 	BYTE _pTeam;

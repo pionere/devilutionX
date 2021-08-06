@@ -2449,7 +2449,7 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum != misource
-		 && plr.plractive && plr._pDunLevel == currLvl._dLevelIdx
+		 && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx
 		 && plr._px == dx && plr._py == dy
 		 && plr._pHitPoints >= (1 << 6)) {
 			hp = RandRange(1, 10);
@@ -2820,7 +2820,7 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	int pnum;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr.plractive && plr._pDunLevel == currLvl._dLevelIdx
+		if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx
 		 && LineClear(sx, sy, plr._pfutx, plr._pfuty)) {
 			AddMissile(plr._pfutx, plr._pfuty, 0, 0, 0, MIS_EXAPOCA2, micaster, misource, 0, 0, 0);
 		}

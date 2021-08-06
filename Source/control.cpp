@@ -2025,7 +2025,7 @@ static bool PlrHasTeam()
 	int pnum;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++)
-		if (pnum != mypnum && plr._pTeam == myplr._pTeam && plr.plractive)
+		if (pnum != mypnum && plr._pTeam == myplr._pTeam && plr._pActive)
 			return true;
 	return false;
 }
@@ -2051,7 +2051,7 @@ void DrawTeamBook()
 		pnum = i + guTeamTab * NUM_BOOK_ENTRIES;
 		if (pnum >= MAX_PLRS)
 			break;
-		if (!plr.plractive)
+		if (!plr._pActive)
 			continue;
 		// name
 		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, plr._pName, false, COL_WHITE, 0);
@@ -2109,7 +2109,7 @@ void CheckTeamClick(bool shift)
 		int pnum = dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
 		dy = dy % (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
 		pnum += guTeamTab * NUM_BOOK_ENTRIES;
-		if (pnum >= MAX_PLRS || !plr.plractive)
+		if (pnum >= MAX_PLRS || !plr._pActive)
 			return;
 		if (dx <= SBOOK_CELWIDTH) {
 			// clicked on the icon

@@ -240,7 +240,7 @@ static void multi_deactivate_player(int pnum, int reason)
 {
 	const char *pszFmt;
 
-	if (plr.plractive) {
+	if (plr._pActive) {
 		RemovePortalMissile(pnum);
 		DeactivatePortal(pnum);
 		delta_close_portal(pnum);
@@ -267,7 +267,7 @@ static void multi_deactivate_player(int pnum, int reason)
 			EventPlrMsg(pszFmt, plr._pName);
 		}
 		sgwPackPlrOffsetTbl[pnum] = 0;
-		plr.plractive = FALSE;
+		plr._pActive = FALSE;
 		plr._pName[0] = '\0';
 		guTeamInviteRec &= ~(1 << pnum);
 		guTeamInviteSent &= ~(1 << pnum);
@@ -631,7 +631,7 @@ static void SetupLocalPlr()
 
 	gbLvlLoad = 10;
 	gbActivePlayers = 1;
-	p->plractive = TRUE;
+	p->_pActive = TRUE;
 	assert(p->_pTeam == mypnum);
 }
 
@@ -865,7 +865,7 @@ void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 	}
 
 	//sgwPackPlrOffsetTbl[pnum] = 0; - do NOT reset the offset to prevent reactivation of a player
-	if (plr.plractive)
+	if (plr._pActive)
 		return; // player was imported during delta-load -> skip
 	// TODO: validate PkPlayerStruct coming from internet?
 	UnPackPlayer(&netplr[pnum], pnum);

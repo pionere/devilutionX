@@ -364,8 +364,8 @@ static void DeltaImportPlr()
 
 	UnPackPlayer((PkPlayerStruct*)src, pnum);
 
-	assert(!plr.plractive);
-	plr.plractive = TRUE;
+	assert(!plr._pActive);
+	plr._pActive = TRUE;
 	gbActivePlayers++;
 	EventPlrMsg("Player '%s' (level %d) is already in the game", plr._pName, plr._pLevel);
 
@@ -411,7 +411,7 @@ void DeltaExportData(int pnum, uint32_t turn)
 	}
 	// players
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (plx(i).plractive) {
+		if (plx(i)._pActive) {
 			dstEnd = DeltaExportPlr(i);
 			size = DeltaCompressData(dstEnd);
 			dthread_send_delta(pnum, NMSG_DLEVEL_PLR, &sgSendRecvBuf, size);
@@ -2181,13 +2181,13 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 		InitPlayerGFX(pnum);
 		InitLvlPlayer(pnum);
 	} else {
-		if (!plr.plractive) {
+		if (!plr._pActive) {
 			if (plr._pName[0] == '\0') {
 				// plrinfo_msg did not arrive -> drop the player
 				SNetDropPlayer(pnum);
 				return sizeof(*cmd);
 			}
-			plr.plractive = TRUE;
+			plr._pActive = TRUE;
 			assert(plr._pTeam == pnum);
 			gbActivePlayers++;
 			EventPlrMsg("Player '%s' (level %d) just joined the game", plr._pName, plr._pLevel);
