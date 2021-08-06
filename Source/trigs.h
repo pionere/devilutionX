@@ -14,6 +14,7 @@ extern "C" {
 
 extern int numtrigs;
 extern TriggerStruct trigs[MAXTRIGGERS];
+extern BYTE gbOpenWarps;
 extern BYTE gbTWarpFrom;
 
 void InitTriggers();

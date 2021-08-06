@@ -207,13 +207,13 @@ void T_CryptOpen()
 /**
  * Return the available town-warps for the current player
  */
-unsigned char GetOpenWarps()
+static BYTE GetOpenWarps()
 {
-	unsigned char twarps = 1 << TWARP_CATHEDRAL;
-	if (!IsMultiGame) {
-		twarps |= gbTownWarps << 1;
-	} else {
+	BYTE twarps = 1 << TWARP_CATHEDRAL;
+	if (IsMultiGame) {
 		twarps |= (1 << TWARP_CATACOMB) | (1 << TWARP_CAVES) | (1 << TWARP_HELL);
+	} else {
+		twarps |= gbTownWarps;
 	}
 #ifdef HELLFIRE
 	if (quests[Q_FARMER]._qactive == QUEST_DONE || quests[Q_JERSEY]._qactive == QUEST_DONE)
@@ -230,7 +230,6 @@ unsigned char GetOpenWarps()
 void T_Pass3()
 {
 	int x;
-	unsigned char twarps;
 
 	LoadFileWithMem("Levels\\TownData\\Town.RDUN", (BYTE*)&dPiece[0][0]);
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -245,25 +244,25 @@ void T_Pass3()
 		T_FillTile(50 + DBORDERX, 60 + DBORDERY, 342 - 1);
 	}
 
-	twarps = GetOpenWarps();
-	if (!(twarps & (1 << TWARP_CATACOMB)))
+	gbOpenWarps = GetOpenWarps();
+	if (!(gbOpenWarps & (1 << TWARP_CATACOMB)))
 		T_FillTile(38 + DBORDERX, 10 + DBORDERY, 320 - 1);
-	if (!(twarps & (1 << TWARP_CAVES))) {
+	if (!(gbOpenWarps & (1 << TWARP_CAVES))) {
 		T_FillTile(6 + DBORDERX, 58 + DBORDERY, 332 - 1);
 		T_FillTile(6 + DBORDERX, 60 + DBORDERY, 331 - 1);
 	}
-	if (!(twarps & (1 << TWARP_HELL))) {
+	if (!(gbOpenWarps & (1 << TWARP_HELL))) {
 		for (x = 26 + DBORDERX; x < 36 + DBORDERX; x += 2) {
 			T_FillTile(x, 68 + DBORDERY, random_(0, 4));
 		}
 	}
 
 #ifdef HELLFIRE
-	if (!(twarps & (1 << TWARP_NEST)))
+	if (!(gbOpenWarps & (1 << TWARP_NEST)))
 		T_HiveClosed();
 	else
 		T_HiveOpen();
-	if (!(twarps & (1 << TWARP_CRYPT)))
+	if (!(gbOpenWarps & (1 << TWARP_CRYPT)))
 		T_CryptClosed();
 	else
 		T_CryptOpen();

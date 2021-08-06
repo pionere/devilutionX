@@ -1954,8 +1954,8 @@ void StartNewLvl(int pnum, int fom, int lvl)
 	case WM_DIABTWARPUP:
 		if (pnum == mypnum) {
 			gbTWarpFrom = currLvl._dLevelIdx;
-			assert(currLvl._dType >= 2);
-			gbTownWarps |= 1 << (currLvl._dType - 2);
+			assert(currLvl._dType > 1);
+			gbTownWarps |= 1 << (currLvl._dType - 1);
 		}
 		break;
 	default:

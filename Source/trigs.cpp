@@ -84,12 +84,11 @@ static void InitNoTriggers()
  */
 static void InitTownTriggers()
 {
+	assert(gbOpenWarps & (1 << TWARP_CATHEDRAL));
 	trigs[TWARP_CATHEDRAL]._tx = 15 + DBORDERX;
 	trigs[TWARP_CATHEDRAL]._ty = 19 + DBORDERY;
 	trigs[TWARP_CATHEDRAL]._tmsg = WM_DIABTWARPDN;
 	trigs[TWARP_CATHEDRAL]._tlvl = DLV_CATHEDRAL1;
-
-	gbOpenWarps = GetOpenWarps();
 
 	if (gbOpenWarps & (1 << TWARP_CATACOMB)) {
 		trigs[TWARP_CATACOMB]._tx = 39 + DBORDERX;
