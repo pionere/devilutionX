@@ -13,18 +13,18 @@ extern "C" {
 #endif
 
 extern bool gbQuestlog;
-extern int ReturnLvlX;
-extern int ReturnLvlY;
-extern int ReturnLvl;
-extern BYTE TownWarps;
-extern BYTE WaterDone;
-extern BYTE DungMsgs;
-extern BYTE DungMsgs2;
-extern uint32_t LvlVisited;
+extern int gnReturnLvlX;
+extern int gnReturnLvlY;
+extern int gnReturnLvl;
+extern BYTE gbTownWarps;
+extern BYTE gbWaterDone;
+extern BYTE gbDungMsgs;
+extern BYTE gbDungMsgs2;
+extern uint32_t guLvlVisited;
 extern QuestStruct quests[NUM_QUESTS];
 
 #define LEVEL_MASK(x)			((uint32_t)1 << (x))
-#define IsLvlVisited(x)			((LvlVisited & LEVEL_MASK(x)) != 0)
+#define IsLvlVisited(x)			((guLvlVisited & LEVEL_MASK(x)) != 0)
 
 void InitQuests();
 void InitQuestGFX();

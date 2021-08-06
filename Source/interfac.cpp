@@ -385,7 +385,7 @@ void LoadGameLevel(int lvldir)
 	ProcessLightList();
 	ProcessVisionList();
 
-	LvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
+	guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
 
 	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 
@@ -466,7 +466,7 @@ void ShowCutscene(unsigned uMsg)
 		SwitchGameLevel(ENTRY_SETLVL);
 		break;
 	case WM_DIABRTNLVL:
-		assert(myplr._pDunLevel == ReturnLvl);
+		assert(myplr._pDunLevel == gnReturnLvl);
 		SwitchGameLevel(ENTRY_RTNLVL);
 		break;
 	case WM_DIABWARPLVL:

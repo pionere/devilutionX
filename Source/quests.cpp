@@ -15,15 +15,15 @@ QuestStruct quests[NUM_QUESTS];
 int qline;
 int qlist[NUM_QUESTS];
 int numqlines;
-BYTE TownWarps;
-BYTE WaterDone;
-BYTE DungMsgs;
-BYTE DungMsgs2;
-static_assert(NUM_LEVELS <= 32, "LvlVisited can not maintain too many levels.");
-uint32_t LvlVisited;
-int ReturnLvlX;
-int ReturnLvlY;
-int ReturnLvl;
+BYTE gbTownWarps;
+BYTE gbWaterDone;
+BYTE gbDungMsgs;
+BYTE gbDungMsgs2;
+static_assert(NUM_LEVELS <= 32, "guLvlVisited can not maintain too many levels.");
+uint32_t guLvlVisited;
+int gnReturnLvlX;
+int gnReturnLvlY;
+int gnReturnLvl;
 
 /**
  * A quest group containing the three quests the Butcher,
@@ -62,11 +62,11 @@ void InitQuestGFX()
 {
 	gbQuestlog = false;
 
-	TownWarps = 0;
-	WaterDone = 0;
-	DungMsgs = 0;
-	DungMsgs2 = 0;
-	LvlVisited = 0;
+	gbTownWarps = 0;
+	gbWaterDone = 0;
+	gbDungMsgs = 0;
+	gbDungMsgs2 = 0;
+	guLvlVisited = 0;
 
 	pQLogCel = LoadFileInMem("Data\\Quest.CEL");
 }
@@ -136,17 +136,17 @@ void CheckQuests()
 			quests[Q_PWATER]._qvar1 = 2;
 			NetSendCmdQuest(Q_PWATER, true);
 			PlaySfxLoc(IS_QUESTDN, myplr._px, myplr._py);
-			WaterDone = 32;
+			gbWaterDone = 32;
 			//quests[Q_PWATER]._qvar2 = 1; // LOADWATERPAL
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 		}
-		if (WaterDone > 0) {
+		if (gbWaterDone > 0) {
 			//if (quests[Q_PWATER]._qvar2 == 1) { // LOADWATERPAL
 			//	quests[Q_PWATER]._qvar2 = 2;
 			//	LoadPalette("Levels\\L3Data\\L3pwater.pal");
 			//}
-			palette_update_quest_palette(WaterDone);
-			WaterDone--;
+			palette_update_quest_palette(gbWaterDone);
+			gbWaterDone--;
 		}
 	}
 }
@@ -428,24 +428,24 @@ void SetReturnLvlPos()
 {
 	switch (myplr._pDunLevel) {
 	case SL_SKELKING:
-		ReturnLvlX = quests[Q_SKELKING]._qtx + 1;
-		ReturnLvlY = quests[Q_SKELKING]._qty;
-		ReturnLvl = questlist[Q_SKELKING]._qdlvl;
+		gnReturnLvlX = quests[Q_SKELKING]._qtx + 1;
+		gnReturnLvlY = quests[Q_SKELKING]._qty;
+		gnReturnLvl = questlist[Q_SKELKING]._qdlvl;
 		break;
 	case SL_BONECHAMB:
-		ReturnLvlX = quests[Q_SCHAMB]._qtx + 1;
-		ReturnLvlY = quests[Q_SCHAMB]._qty;
-		ReturnLvl = questlist[Q_SCHAMB]._qdlvl;
+		gnReturnLvlX = quests[Q_SCHAMB]._qtx + 1;
+		gnReturnLvlY = quests[Q_SCHAMB]._qty;
+		gnReturnLvl = questlist[Q_SCHAMB]._qdlvl;
 		break;
 	case SL_POISONWATER:
-		ReturnLvlX = quests[Q_PWATER]._qtx;
-		ReturnLvlY = quests[Q_PWATER]._qty + 1;
-		ReturnLvl = questlist[Q_PWATER]._qdlvl;
+		gnReturnLvlX = quests[Q_PWATER]._qtx;
+		gnReturnLvlY = quests[Q_PWATER]._qty + 1;
+		gnReturnLvl = questlist[Q_PWATER]._qdlvl;
 		break;
 	case SL_VILEBETRAYER:
-		ReturnLvlX = quests[Q_BETRAYER]._qtx + 1;
-		ReturnLvlY = quests[Q_BETRAYER]._qty - 1;
-		ReturnLvl = questlist[Q_BETRAYER]._qdlvl;
+		gnReturnLvlX = quests[Q_BETRAYER]._qtx + 1;
+		gnReturnLvlY = quests[Q_BETRAYER]._qty - 1;
+		gnReturnLvl = questlist[Q_BETRAYER]._qdlvl;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -455,9 +455,9 @@ void SetReturnLvlPos()
 
 void GetReturnLvlPos()
 {
-	ViewX = ReturnLvlX;
-	ViewY = ReturnLvlY;
-	//EnterLevel(ReturnLvl);
+	ViewX = gnReturnLvlX;
+	ViewY = gnReturnLvlY;
+	//EnterLevel(gnReturnLvl);
 }
 
 void LoadPWaterPalette()
@@ -467,7 +467,7 @@ void LoadPWaterPalette()
 		return;
 
 	if (quests[Q_PWATER]._qvar1 == 2) {
-		//if (WaterDone == 0)
+		//if (gbWaterDone == 0)
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 		//else
 		//	quests[Q_PWATER]._qvar2 = 1; // LOADWATERPAL
@@ -703,42 +703,42 @@ void PlayDungMsgs()
 	if (IsMultiGame)
 		return;
 
-	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !(DungMsgs & DMSG_CATHEDRAL)) {
-		DungMsgs |= DMSG_CATHEDRAL;
+	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !(gbDungMsgs & DMSG_CATHEDRAL)) {
+		gbDungMsgs |= DMSG_CATHEDRAL;
 		sfxdelay = 40;
 		sfxdnum = TEXT_DM_CATHEDRAL;
-	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !(DungMsgs & DMSG_CATACOMBS)) {
-		DungMsgs |= DMSG_CATACOMBS;
+	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !(gbDungMsgs & DMSG_CATACOMBS)) {
+		gbDungMsgs |= DMSG_CATACOMBS;
 		sfxdelay = 40;
 		sfxdnum = TEXT_DM_CATACOMBS;
-	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !(DungMsgs & DMSG_CAVES)) {
-		DungMsgs |= DMSG_CAVES;
+	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !(gbDungMsgs & DMSG_CAVES)) {
+		gbDungMsgs |= DMSG_CAVES;
 		sfxdelay = 40;
 		sfxdnum = TEXT_DM_CAVES;
-	} else if (currLvl._dLevelIdx == DLV_HELL1 && !(DungMsgs & DMSG_HELL)) {
-		DungMsgs |= DMSG_HELL;
+	} else if (currLvl._dLevelIdx == DLV_HELL1 && !(gbDungMsgs & DMSG_HELL)) {
+		gbDungMsgs |= DMSG_HELL;
 		sfxdelay = 40;
 		sfxdnum = TEXT_DM_HELL;
-	} else if (currLvl._dLevelIdx == DLV_HELL4 && !(DungMsgs & DMSG_DIABLO)) {
-		DungMsgs |= DMSG_DIABLO;
+	} else if (currLvl._dLevelIdx == DLV_HELL4 && !(gbDungMsgs & DMSG_DIABLO)) {
+		gbDungMsgs |= DMSG_DIABLO;
 		sfxdelay = 40;
 		sfxdnum = TEXT_DM_DIABLO;
 #ifdef HELLFIRE
-	} else if (currLvl._dLevelIdx == DLV_NEST1 && !(DungMsgs2 & DMSG2_DEFILER)) {
-		DungMsgs2 |= DMSG2_DEFILER;
+	} else if (currLvl._dLevelIdx == DLV_NEST1 && !(gbDungMsgs2 & DMSG2_DEFILER)) {
+		gbDungMsgs2 |= DMSG2_DEFILER;
 		sfxdelay = 10;
 		sfxdnum = TEXT_DM_NEST;
-	} else if (currLvl._dLevelIdx == DLV_NEST3 && !(DungMsgs2 & DMSG2_DEFILER1)) {
-		DungMsgs2 |= DMSG2_DEFILER1;
+	} else if (currLvl._dLevelIdx == DLV_NEST3 && !(gbDungMsgs2 & DMSG2_DEFILER1)) {
+		gbDungMsgs2 |= DMSG2_DEFILER1;
 		sfxdelay = 10;
 		sfxdnum = TEXT_DM_DEFILER;
-	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !(DungMsgs2 & DMSG2_DEFILER2)) {
-		DungMsgs2 |= DMSG2_DEFILER2;
+	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !(gbDungMsgs2 & DMSG2_DEFILER2)) {
+		gbDungMsgs2 |= DMSG2_DEFILER2;
 		sfxdelay = 30;
 		sfxdnum = TEXT_DM_CRYPT;
 #endif
-	} else if (currLvl._dLevelIdx == SL_SKELKING && !(DungMsgs & DMSG_SKING)) {
-		DungMsgs |= DMSG_SKING;
+	} else if (currLvl._dLevelIdx == SL_SKELKING && !(gbDungMsgs & DMSG_SKING)) {
+		gbDungMsgs |= DMSG_SKING;
 		sfxdelay = 30;
 		sfxdnum = TEXT_DM_SKING;
 	}

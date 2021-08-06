@@ -10,8 +10,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int numtrigs;
 TriggerStruct trigs[MAXTRIGGERS];
-unsigned char townwarps;
-int TWarpFrom;
+BYTE gbOpenWarps;
+BYTE gbTWarpFrom;
 
 #define PIECE dPiece[cursmx][cursmy]
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the cathedral from town. */
@@ -89,34 +89,34 @@ static void InitTownTriggers()
 	trigs[TWARP_CATHEDRAL]._tmsg = WM_DIABTWARPDN;
 	trigs[TWARP_CATHEDRAL]._tlvl = DLV_CATHEDRAL1;
 
-	townwarps = GetOpenWarps();
+	gbOpenWarps = GetOpenWarps();
 
-	if (townwarps & (1 << TWARP_CATACOMB)) {
+	if (gbOpenWarps & (1 << TWARP_CATACOMB)) {
 		trigs[TWARP_CATACOMB]._tx = 39 + DBORDERX;
 		trigs[TWARP_CATACOMB]._ty = 11 + DBORDERY;
 		trigs[TWARP_CATACOMB]._tmsg = WM_DIABTWARPDN;
 		trigs[TWARP_CATACOMB]._tlvl = DLV_CATACOMBS1;
 	}
-	if (townwarps & (1 << TWARP_CAVES)) {
+	if (gbOpenWarps & (1 << TWARP_CAVES)) {
 		trigs[TWARP_CAVES]._tx = 7 + DBORDERX;
 		trigs[TWARP_CAVES]._ty = 59 + DBORDERY;
 		trigs[TWARP_CAVES]._tmsg = WM_DIABTWARPDN;
 		trigs[TWARP_CAVES]._tlvl = DLV_CAVES1;
 	}
-	if (townwarps & (1 << TWARP_HELL)) {
+	if (gbOpenWarps & (1 << TWARP_HELL)) {
 		trigs[TWARP_HELL]._tx = 31 + DBORDERX;
 		trigs[TWARP_HELL]._ty = 70 + DBORDERY;
 		trigs[TWARP_HELL]._tmsg = WM_DIABTWARPDN;
 		trigs[TWARP_HELL]._tlvl = DLV_HELL1;
 	}
 #ifdef HELLFIRE
-	if (townwarps & (1 << TWARP_NEST)) {
+	if (gbOpenWarps & (1 << TWARP_NEST)) {
 		trigs[TWARP_NEST]._tx = 70 + DBORDERX;
 		trigs[TWARP_NEST]._ty = 52 + DBORDERY;
 		trigs[TWARP_NEST]._tmsg = WM_DIABTWARPDN;
 		trigs[TWARP_NEST]._tlvl = DLV_NEST1;
 	}
-	if (townwarps & (1 << TWARP_CRYPT)) {
+	if (gbOpenWarps & (1 << TWARP_CRYPT)) {
 		trigs[TWARP_CRYPT]._tx = 26 + DBORDERX;
 		trigs[TWARP_CRYPT]._ty = 14 + DBORDERY;
 		trigs[TWARP_CRYPT]._tmsg = WM_DIABTWARPDN;
@@ -373,7 +373,7 @@ static int ForceTownTrig()
 		return TWARP_CATHEDRAL;
 	}
 
-	if (townwarps & (1 << TWARP_CATACOMB)) {
+	if (gbOpenWarps & (1 << TWARP_CATACOMB)) {
 		if (TOWN_L2_WARP) {
 			// Down to catacombs
 			cursmx = trigs[TWARP_CATACOMB]._tx;
@@ -382,7 +382,7 @@ static int ForceTownTrig()
 		}
 	}
 
-	if (townwarps & (1 << TWARP_CAVES)) {
+	if (gbOpenWarps & (1 << TWARP_CAVES)) {
 		if (TOWN_L3_WARP) {
 			//Down to caves
 			cursmx = trigs[TWARP_CAVES]._tx;
@@ -391,7 +391,7 @@ static int ForceTownTrig()
 		}
 	}
 
-	if (townwarps & (1 << TWARP_HELL)) {
+	if (gbOpenWarps & (1 << TWARP_HELL)) {
 		if (TOWN_L4_WARP) {
 			// Down to hell
 			cursmx = trigs[TWARP_HELL]._tx;
@@ -401,7 +401,7 @@ static int ForceTownTrig()
 	}
 
 #ifdef HELLFIRE
-	if (townwarps & (1 << TWARP_NEST)) {
+	if (gbOpenWarps & (1 << TWARP_NEST)) {
 		if (TOWN_L5_WARP) {
 			// Down to Hive
 			cursmx = trigs[TWARP_NEST]._tx;
@@ -409,7 +409,7 @@ static int ForceTownTrig()
 			return TWARP_NEST;
 		}
 	}
-	if (townwarps & (1 << TWARP_CRYPT)) {
+	if (gbOpenWarps & (1 << TWARP_CRYPT)) {
 		if (TOWN_L6_WARP) {
 			// Down to Crypt
 			cursmx = trigs[TWARP_CRYPT]._tx;
@@ -863,14 +863,14 @@ void CheckTriggers()
 			break;
 		case WM_DIABRTNLVL:
 			fom = WM_DIABRTNLVL;
-			lvl = ReturnLvl;
+			lvl = gnReturnLvl;
 			break;
 		case WM_DIABSETLVL:
 			fom = WM_DIABSETLVL;
 			lvl = trigs[i]._tlvl;
 			break;
 		case WM_DIABTWARPDN:
-			if (!(townwarps & (1 << i)))
+			if (!(gbOpenWarps & (1 << i)))
 				continue;
 			fom = WM_DIABTWARPDN;
 			lvl = trigs[i]._tlvl;

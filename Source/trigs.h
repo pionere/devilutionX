@@ -14,7 +14,7 @@ extern "C" {
 
 extern int numtrigs;
 extern TriggerStruct trigs[MAXTRIGGERS];
-extern int TWarpFrom;
+extern BYTE gbTWarpFrom;
 
 void InitTriggers();
 void InitVPEntryTrigger(bool recreate);

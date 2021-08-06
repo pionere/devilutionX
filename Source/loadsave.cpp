@@ -817,14 +817,14 @@ void LoadGame()
 	LoadPlayer(mypnum);
 
 	// load meta-data I.
-	LoadInt(&ReturnLvlX);
-	LoadInt(&ReturnLvlY);
-	LoadInt(&ReturnLvl);
-	LoadByte(&TownWarps);
-	LoadByte(&WaterDone);
-	LoadByte(&DungMsgs);
-	LoadByte(&DungMsgs2);
-	LoadInt32(&LvlVisited);
+	LoadInt(&gnReturnLvlX);
+	LoadInt(&gnReturnLvlY);
+	LoadInt(&gnReturnLvl);
+	LoadByte(&gbTownWarps);
+	LoadByte(&gbWaterDone);
+	LoadByte(&gbDungMsgs);
+	LoadByte(&gbDungMsgs2);
+	LoadInt32(&guLvlVisited);
 	// load meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
 		LoadQuest(i);
@@ -1483,14 +1483,14 @@ void SaveGame()
 	SavePlayer(mypnum);
 
 	// save meta-data I.
-	SaveInt(&ReturnLvlX);
-	SaveInt(&ReturnLvlY);
-	SaveInt(&ReturnLvl);
-	SaveByte(&TownWarps);
-	SaveByte(&WaterDone);
-	SaveByte(&DungMsgs);
-	SaveByte(&DungMsgs2);
-	SaveInt32(&LvlVisited);
+	SaveInt(&gnReturnLvlX);
+	SaveInt(&gnReturnLvlY);
+	SaveInt(&gnReturnLvl);
+	SaveByte(&gbTownWarps);
+	SaveByte(&gbWaterDone);
+	SaveByte(&gbDungMsgs);
+	SaveByte(&gbDungMsgs2);
+	SaveInt32(&guLvlVisited);
 	// save meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
 		SaveQuest(i);
