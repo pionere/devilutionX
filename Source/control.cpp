@@ -20,6 +20,8 @@ bool gabPanbtn[NUM_PANBTNS];
 bool gbLvlbtndown;
 /** Flask images CEL */
 BYTE *pFlasks;
+int gnHPPer;
+int gnManaPer;
 /** Low-Durability images CEL */
 BYTE *pDurIcons;
 
@@ -786,9 +788,9 @@ void DrawLifeFlask()
 			filled = 82 * hp / maxHP;
 		if (filled > 82)
 			filled = 82;
-		myplr._pHPPer = filled;
+		gnHPPer = filled;
 	} else {
-		filled = myplr._pHPPer;
+		filled = gnHPPer;
 	}
 
 	x = SCREEN_X + 80 - 28;
@@ -811,9 +813,9 @@ void DrawManaFlask()
 			filled = 82 * mana / maxMana;
 		if (filled > 82)
 			filled = 82;
-		myplr._pManaPer = filled;
+		gnManaPer = filled;
 	} else {
-		filled = myplr._pManaPer;
+		filled = gnManaPer;
 	}
 
 	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92);

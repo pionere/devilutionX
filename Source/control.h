@@ -12,6 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern int gnHPPer;
+extern int gnManaPer;
 extern bool gbDropGoldFlag;
 extern int dropGoldValue;
 extern int initialDropGoldValue;

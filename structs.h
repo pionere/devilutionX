@@ -302,12 +302,10 @@ typedef struct PlayerStruct {
 	int _pMaxHPBase;
 	int _pHitPoints;
 	int _pMaxHP;
-	int _pHPPer;
 	int _pManaBase;
 	int _pMaxManaBase;
 	int _pMana;
 	int _pMaxMana;
-	int _pManaPer;
 	WORD _pStatPts;
 	BOOLEAN _pLvlUp;
 	BYTE _pRank;
@@ -398,9 +396,9 @@ typedef struct PlayerStruct {
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[188];
-#else
 	int alignment[190];
+#else
+	int alignment[192];
 #endif
 #endif
 } PlayerStruct;

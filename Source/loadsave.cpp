@@ -414,12 +414,10 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pMaxHPBase);
 	LoadInt(&plr._pHitPoints);
 	LoadInt(&plr._pMaxHP);
-	LoadInt(&plr._pHPPer);
 	LoadInt(&plr._pManaBase);
 	LoadInt(&plr._pMaxManaBase);
 	LoadInt(&plr._pMana);
 	LoadInt(&plr._pMaxMana);
-	LoadInt(&plr._pManaPer);
 	LoadInt16(&plr._pStatPts);
 	LoadByte(&plr._pLvlUp);
 	LoadByte(&plr._pRank);
@@ -818,6 +816,9 @@ void LoadGame()
 	gbZoomInFlag = LoadBool();
 	gbInvflag = LoadBool();
 	gbChrflag = LoadBool();
+	LoadInt(&gnHPPer);
+	LoadInt(&gnManaPer);
+
 	gbAutomapflag = LoadBool();
 	LoadInt(&AutoMapScale);
 	LoadInt(&AutoMapXOfs);
@@ -1128,12 +1129,10 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pMaxHPBase);
 	SaveInt(&plr._pHitPoints);
 	SaveInt(&plr._pMaxHP);
-	SaveInt(&plr._pHPPer);
 	SaveInt(&plr._pManaBase);
 	SaveInt(&plr._pMaxManaBase);
 	SaveInt(&plr._pMana);
 	SaveInt(&plr._pMaxMana);
-	SaveInt(&plr._pManaPer);
 	SaveInt16(&plr._pStatPts);
 	SaveByte(&plr._pLvlUp);
 	SaveByte(&plr._pRank);
@@ -1493,6 +1492,9 @@ void SaveGame()
 	SaveBool(gbZoomInFlag);
 	SaveBool(gbInvflag);
 	SaveBool(gbChrflag);
+	SaveInt(&gnHPPer);
+	SaveInt(&gnManaPer);
+
 	SaveBool(gbAutomapflag);
 	SaveInt(&AutoMapScale);
 	SaveInt(&AutoMapXOfs);
