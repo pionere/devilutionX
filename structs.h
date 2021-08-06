@@ -77,20 +77,20 @@ static_assert((sizeof(UniqItemData) & (sizeof(UniqItemData) - 1)) == 64, "Align 
 #endif
 
 typedef struct ItemData {
-	int iRnd;
+	BYTE iRnd;
 	BYTE iClass;
 	BYTE iLoc;
 	int iCurs;
-	char itype;
+	int itype;
 	BYTE iItemId;
 	const char *iName;
-	char iMinMLvl;
-	uint16_t iDurability;
+	BYTE iMinMLvl;
+	BYTE iDurability;
 	BYTE iDamType;
 	BYTE iMinDam;
 	BYTE iMaxDam;
-	int iMinAC;
-	int iMaxAC;
+	BYTE iMinAC;
+	BYTE iMaxAC;
 	BYTE iMinStr;
 	BYTE iMinMag;
 	BYTE iMinDex;
@@ -101,7 +101,7 @@ typedef struct ItemData {
 	BOOLEAN iUsable;
 	int iValue;
 #ifdef X86_32bit_COMP
-	int alignment[2];
+	int alignment[4];
 #endif
 } ItemData;
 
