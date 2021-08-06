@@ -371,11 +371,6 @@ static void LoadPlayer(int pnum)
 	LoadByte(&plr._pAltMoveSkill);
 	LoadByte(&plr._pAltMoveSkillType);
 
-	LoadByte(&plr._pTSpell);
-	LoadByte(&plr._pTSplFrom);
-	LoadByte(&plr._pOilFrom);
-	tbuff += 1; // Alignment
-
 	CopyBytes(tbuff, lengthof(plr._pSkillLvl), plr._pSkillLvl);
 	CopyBytes(tbuff, lengthof(plr._pSkillActivity), plr._pSkillActivity);
 	LoadInts(plr._pSkillExp, lengthof(plr._pSkillExp));
@@ -1085,11 +1080,6 @@ static void SavePlayer(int pnum)
 	SaveByte(&plr._pAltAtkSkillType);
 	SaveByte(&plr._pAltMoveSkill);
 	SaveByte(&plr._pAltMoveSkillType);
-
-	SaveByte(&plr._pTSpell);
-	SaveByte(&plr._pTSplFrom);
-	SaveByte(&plr._pOilFrom);
-	tbuff += 1; // Alignment
 
 	CopyBytes(plr._pSkillLvl, lengthof(plr._pSkillLvl), tbuff);
 	CopyBytes(plr._pSkillActivity, lengthof(plr._pSkillActivity), tbuff);
