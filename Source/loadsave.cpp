@@ -337,8 +337,12 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr.destParam3);
 	LoadInt(&plr.destParam4);
 	LoadByte(&plr._pActive);
+	LoadByte(&plr._pInvincible);
 	LoadByte(&plr._pLvlChanging);
 	LoadByte(&plr._pDunLevel);
+	LoadByte(&plr._pClass);
+	LoadByte(&plr._pLevel);
+	LoadByte(&plr._pRank);
 	LoadByte(&plr._pTeam);
 	LoadInt(&plr._px);
 	LoadInt(&plr._py);
@@ -387,16 +391,10 @@ static void LoadPlayer(int pnum)
 	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillHotKey), plr._pAltMoveSkillHotKey);
 	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillTypeHotKey), plr._pAltMoveSkillTypeHotKey);
 
-	LoadByte(&plr._pSkillFlags);
-	LoadByte(&plr._pInvincible);
 	LoadInt16(&plr._pTimer[PLTR_INFRAVISION]);
 	LoadInt16(&plr._pTimer[PLTR_RAGE]);
 
 	CopyBytes(tbuff, PLR_NAME_LEN, plr._pName);
-	LoadByte(&plr._pClass);
-	LoadByte(&plr._pLevel);
-	LoadByte(&plr._pLightRad);
-	LoadByte(&plr._pManaShield);
 	LoadInt16(&plr._pBaseStr);
 	LoadInt16(&plr._pBaseMag);
 	LoadInt16(&plr._pBaseDex);
@@ -414,7 +412,8 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pMana);
 	LoadInt(&plr._pMaxMana);
 	LoadInt16(&plr._pStatPts);
-	LoadByte(&plr._pRank);
+	LoadByte(&plr._pLightRad);
+	LoadByte(&plr._pManaShield);
 	LoadInt(&plr._pExperience);
 	LoadInt(&plr._pNextExper);
 	LoadInt(&plr._pGold);
@@ -477,10 +476,10 @@ static void LoadPlayer(int pnum)
 	tbuff += 1; // _pLghtResist
 	tbuff += 1; // _pAcidResist
 	tbuff += 4; // _pIHitChance
+	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
 	tbuff += 1; // _pIBlockChance
-	tbuff += 1; // Alignment
 
 	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags
@@ -1047,8 +1046,12 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr.destParam3);
 	SaveInt(&plr.destParam4);
 	SaveByte(&plr._pActive);
+	SaveByte(&plr._pInvincible);
 	SaveByte(&plr._pLvlChanging);
 	SaveByte(&plr._pDunLevel);
+	SaveByte(&plr._pClass);
+	SaveByte(&plr._pLevel);
+	SaveByte(&plr._pRank);
 	SaveByte(&plr._pTeam);
 	SaveInt(&plr._px);
 	SaveInt(&plr._py);
@@ -1098,16 +1101,10 @@ static void SavePlayer(int pnum)
 	CopyBytes(plr._pAltMoveSkillHotKey, lengthof(plr._pAltMoveSkillHotKey), tbuff);
 	CopyBytes(plr._pAltMoveSkillTypeHotKey, lengthof(plr._pAltMoveSkillTypeHotKey), tbuff);
 
-	SaveByte(&plr._pSkillFlags);
-	SaveByte(&plr._pInvincible);
 	SaveInt16(&plr._pTimer[PLTR_INFRAVISION]);
 	SaveInt16(&plr._pTimer[PLTR_RAGE]);
 
 	CopyBytes(plr._pName, PLR_NAME_LEN, tbuff);
-	SaveByte(&plr._pClass);
-	SaveByte(&plr._pLevel);
-	SaveByte(&plr._pLightRad);
-	SaveByte(&plr._pManaShield);
 	SaveInt16(&plr._pBaseStr);
 	SaveInt16(&plr._pBaseMag);
 	SaveInt16(&plr._pBaseDex);
@@ -1125,7 +1122,8 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pMana);
 	SaveInt(&plr._pMaxMana);
 	SaveInt16(&plr._pStatPts);
-	SaveByte(&plr._pRank);
+	SaveByte(&plr._pLightRad);
+	SaveByte(&plr._pManaShield);
 	SaveInt(&plr._pExperience);
 	SaveInt(&plr._pNextExper);
 	SaveInt(&plr._pGold);
@@ -1188,10 +1186,10 @@ static void SavePlayer(int pnum)
 	tbuff += 1; // _pLghtResist
 	tbuff += 1; // _pAcidResist
 	tbuff += 4; // _pIHitChance
+	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
 	tbuff += 1; // _pIBlockChance
-	tbuff += 1; // Alignment
 
 	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags

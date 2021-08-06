@@ -26,14 +26,13 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	memset(pPack, 0, sizeof(*pPack));
 	p = &plr;
 	pPack->pDunLevel = p->_pDunLevel;
-	pPack->pTeam = p->_pTeam;
 	pPack->px = p->_px;
 	pPack->py = p->_py;
 	copy_str(pPack->pName, p->_pName);
 	pPack->pClass = p->_pClass;
 	pPack->pLevel = p->_pLevel;
-	pPack->pLightRad = p->_pLightRad;
-	pPack->pManaShield = p->_pManaShield;
+	pPack->pRank = p->_pRank;
+	pPack->pTeam = p->_pTeam;
 	pPack->pTimer[PLTR_INFRAVISION] = SwapLE16(p->_pTimer[PLTR_INFRAVISION]);
 	pPack->pTimer[PLTR_RAGE] = SwapLE16(p->_pTimer[PLTR_RAGE]);
 	pPack->pBaseStr = SwapLE16(p->_pBaseStr);
@@ -41,6 +40,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pBaseDex = SwapLE16(p->_pBaseDex);
 	pPack->pBaseVit = SwapLE16(p->_pBaseVit);
 	pPack->pStatPts = SwapLE16(p->_pStatPts);
+	pPack->pLightRad = p->_pLightRad;
+	pPack->pManaShield = p->_pManaShield;
 	pPack->pExperience = SwapLE32(p->_pExperience);
 	pPack->pGold = SwapLE32(p->_pGold);
 	pPack->pHPBase = SwapLE32(p->_pHPBase);
@@ -91,7 +92,6 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pPack->InvGrid[i] = p->InvGrid[i];
 
 	pPack->pNumInv = p->_pNumInv;
-	pPack->pRank = p->_pRank;
 
 	memcpy(pPack->pAtkSkillHotKey, p->_pAtkSkillHotKey, sizeof(pPack->pAtkSkillHotKey));
 	memcpy(pPack->pAtkSkillTypeHotKey, p->_pAtkSkillTypeHotKey, sizeof(pPack->pAtkSkillTypeHotKey));
@@ -132,15 +132,16 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	// TODO: validate data from the internet
 	SetPlayerLoc(&plr, pPack->px, pPack->py);
 	plr._pDunLevel = pPack->pDunLevel;
-	plr._pTeam = pPack->pTeam;
 	copy_str(plr._pName, pPack->pName);
 	plr._pClass = pPack->pClass;
 	plr._pLevel = pPack->pLevel;
-	plr._pLightRad = pPack->pLightRad;
-	plr._pManaShield = pPack->pManaShield;
+	plr._pRank = pPack->pRank;
+	plr._pTeam = pPack->pTeam;
 	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
 	plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
 	plr._pStatPts = SwapLE16(pPack->pStatPts);
+	plr._pLightRad = pPack->pLightRad;
+	plr._pManaShield = pPack->pManaShield;
 	InitPlayer(pnum);
 	plr._pBaseStr = SwapLE16(pPack->pBaseStr);
 	plr._pBaseMag = SwapLE16(pPack->pBaseMag);
@@ -199,7 +200,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		plr.InvGrid[i] = pPack->InvGrid[i];
 
 	plr._pNumInv = pPack->pNumInv;
-	plr._pRank = pPack->pRank;
 
 	memcpy(plr._pAtkSkillHotKey, pPack->pAtkSkillHotKey, sizeof(plr._pAtkSkillHotKey));
 	memcpy(plr._pAtkSkillTypeHotKey, pPack->pAtkSkillTypeHotKey, sizeof(plr._pAtkSkillTypeHotKey));

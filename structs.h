@@ -227,8 +227,12 @@ typedef struct PlayerStruct {
 	int destParam3;
 	int destParam4;
 	BOOLEAN _pActive;
+	BOOLEAN _pInvincible;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
 	BYTE _pDunLevel;
+	BYTE _pClass;
+	BYTE _pLevel;
+	BYTE _pRank;
 	BYTE _pTeam;
 	int _px;      // Tile X-position of player
 	int _py;      // Tile Y-position of player
@@ -273,20 +277,8 @@ typedef struct PlayerStruct {
 	BYTE _pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
 	BYTE _pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
 	BYTE _pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	BYTE _pSkillFlags;     // Bitmask of allowed skill-types (SFLAG_*)
-	BOOLEAN _pInvincible;
 	int16_t _pTimer[NUM_PLRTIMERS];
 	char _pName[PLR_NAME_LEN];
-	// plr_class enum value.
-	// TODO: this could very well be `enum plr_class _pClass`
-	// since there are 3 bytes of alingment after this field.
-	// it could just be that the compiler optimized away all accesses to
-	// the higher bytes by using byte instructions, since all possible values
-	// of plr_class fit into one byte.
-	BYTE _pClass;
-	BYTE _pLevel;
-	BYTE _pLightRad;
-	BYTE _pManaShield;
 	WORD _pBaseStr;
 	WORD _pBaseMag;
 	WORD _pBaseDex;
@@ -304,7 +296,8 @@ typedef struct PlayerStruct {
 	int _pMana;
 	int _pMaxMana;
 	WORD _pStatPts;
-	BYTE _pRank;
+	BYTE _pLightRad;
+	BYTE _pManaShield;
 	unsigned _pExperience;
 	unsigned _pNextExper;
 	int _pGold;
@@ -362,6 +355,7 @@ typedef struct PlayerStruct {
 	char _pLghtResist;
 	char _pAcidResist;
 	int _pIHitChance;
+	BYTE _pSkillFlags;    // Bitmask of allowed skill-types (SFLAG_*)
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pICritChance; // 200 == 100%
 	BYTE _pIBlockChance;
@@ -824,20 +818,21 @@ typedef struct PkItemStruct {
 
 typedef struct PkPlayerStruct {
 	BYTE pDunLevel;
-	BYTE pTeam;
 	BYTE px;
 	BYTE py;
 	char pName[PLR_NAME_LEN];
 	BYTE pClass;
 	BYTE pLevel;
-	BYTE pLightRad;
-	BYTE pManaShield;
+	BYTE pRank;
+	BYTE pTeam;
 	WORD pTimer[NUM_PLRTIMERS];
 	WORD pBaseStr;
 	WORD pBaseMag;
 	WORD pBaseDex;
 	WORD pBaseVit;
 	WORD pStatPts;
+	BYTE pLightRad;
+	BYTE pManaShield;
 	DWORD pExperience;
 	INT pGold;
 	INT pHPBase;
@@ -853,7 +848,6 @@ typedef struct PkPlayerStruct {
 	PkItemStruct InvList[NUM_INV_GRID_ELEM];
 	char InvGrid[NUM_INV_GRID_ELEM];
 	BYTE pNumInv;
-	BYTE pRank;
 	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
 	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
 	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
