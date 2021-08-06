@@ -51,7 +51,7 @@ typedef enum unique_base_item {
 	UITYPE_HELM        = 0x23,
 	UITYPE_GREATHELM   = 0x24,
 	UITYPE_CROWN       = 0x25,
-	UITYPE_38          = 0x26,
+	UITYPE_38          = 0x26,	// unused
 	UITYPE_RAGS        = 0x27,
 	UITYPE_STUDARMOR   = 0x28,
 	UITYPE_CLOAK       = 0x29,
@@ -68,21 +68,21 @@ typedef enum unique_base_item {
 	UITYPE_KITESHIELD  = 0x34,
 	UITYPE_GOTHSHIELD  = 0x35,
 	UITYPE_RING        = 0x36,
-	UITYPE_55          = 0x37,
+	UITYPE_55          = 0x37,	// unused
 	UITYPE_AMULET      = 0x38,
 	UITYPE_SKCROWN     = 0x39,
 	UITYPE_INFRARING   = 0x3A,
 	UITYPE_OPTAMULET   = 0x3B,
 	UITYPE_TRING       = 0x3C,
 	UITYPE_HARCREST    = 0x3D,
-	UITYPE_MAPOFDOOM   = 0x3E,
-	UITYPE_ELIXIR      = 0x3F,
+	UITYPE_MAPOFDOOM   = 0x3E,	// 'unused'
+	UITYPE_ELIXIR      = 0x3F,	// 'unused'
 	UITYPE_ARMOFVAL    = 0x40,
 	UITYPE_STEELVEIL   = 0x41,
 	UITYPE_GRISWOLD    = 0x42,
-	UITYPE_LGTFORGE    = 0x43,
-	UITYPE_LAZSTAFF    = 0x44,
-	UITYPE_BOVINE      = 0x45,
+	UITYPE_LGTFORGE    = 0x43,	// 'unused'
+	UITYPE_LAZSTAFF    = 0x44,	// 'unused'
+	UITYPE_BOVINE      = 0x45,  // hellfire-only
 } unique_base_item;
 
 typedef enum item_effect_type {
@@ -1429,15 +1429,14 @@ typedef enum sfx_set {
 } sfx_set;
 
 typedef enum item_equip_type {
-	ILOC_NONE        = 0x0,
-	ILOC_ONEHAND     = 0x1,
-	ILOC_TWOHAND     = 0x2,
-	ILOC_ARMOR       = 0x3,
-	ILOC_HELM        = 0x4,
-	ILOC_RING        = 0x5,
-	ILOC_AMULET      = 0x6,
-	ILOC_UNEQUIPABLE = 0x7,
-	ILOC_BELT        = 0x8,
+	ILOC_UNEQUIPABLE,
+	ILOC_ONEHAND,
+	ILOC_TWOHAND,
+	ILOC_ARMOR,
+	ILOC_HELM,
+	ILOC_RING,
+	ILOC_AMULET,
+	ILOC_BELT,
 } item_equip_type;
 
 typedef enum missile_id {
