@@ -393,9 +393,9 @@ typedef struct PlayerStruct {
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[190];
-#else
 	int alignment[192];
+#else
+	int alignment[194];
 #endif
 #endif
 } PlayerStruct;
