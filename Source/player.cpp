@@ -688,7 +688,6 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 	mana = val << (6 + 1);
 	plr._pMana = plr._pMaxMana = plr._pManaBase = plr._pMaxManaBase = mana;
 
-	plr._pLvlUp = false; // indicator whether the stat button should be shown
 	//plr._pNextExper = PlrExpLvlsTbl[1];
 	plr._pLightRad = 10;
 
@@ -856,7 +855,6 @@ void NextPlrLevel(int pnum)
 	plr._pLevel++;
 
 	plr._pStatPts += 4;
-	plr._pLvlUp = TRUE;
 
 	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
 
@@ -864,6 +862,9 @@ void NextPlrLevel(int pnum)
 	PlrFillMana(pnum);
 
 	CalcPlrInv(pnum, false); // last parameter should not matter
+
+	if (pnum == mypnum)
+		gbLvlUp = true;
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (sgbControllerActive && pnum == mypnum)

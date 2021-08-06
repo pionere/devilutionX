@@ -304,7 +304,6 @@ typedef struct PlayerStruct {
 	int _pMana;
 	int _pMaxMana;
 	WORD _pStatPts;
-	BOOLEAN _pLvlUp;
 	BYTE _pRank;
 	unsigned _pExperience;
 	unsigned _pNextExper;

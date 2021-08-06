@@ -16,11 +16,11 @@ BYTE *pPanelButtons;
 int numpanbtns;
 /** Specifies whether the menu-button is pressed. */
 bool gabPanbtn[NUM_PANBTNS];
-/** Specifies whether the LevelUp-button is pressed. */
-bool gbLvlbtndown;
 /** Flask images CEL */
 BYTE *pFlasks;
+/** Specifies how much the life flask is filled (percentage). */
 int gnHPPer;
+/** Specifies how much the mana flask is filled (percentage). */
 int gnManaPer;
 /** Low-Durability images CEL */
 BYTE *pDurIcons;
@@ -74,6 +74,10 @@ BYTE *pSBkIconCels;
 unsigned guBooktab;
 /** Specifies whether the Character-Panel is displayed. */
 bool gbChrflag;
+/** Specifies whether the LevelUp button is displayed. */
+bool gbLvlUp;
+/** Specifies whether the LevelUp button is pressed. */
+bool gbLvlbtndown;
 /** Char-Panel background CEL */
 BYTE *pChrPanel;
 /** Char-Panel button images CEL */
@@ -857,6 +861,7 @@ void InitControlPan()
 	infostr[0] = '\0';
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbChrflag = false;
+	gbLvlUp = false;
 	gbSkillListFlag = false;
 	pSpellBkCel = LoadFileInMem("Data\\SpellBk.CEL");
 	pSBkIconCels = LoadFileInMem("Data\\SpellI2.CEL");
@@ -973,7 +978,7 @@ bool DoPanBtn()
 		HandleSkillBtn(my < SCREEN_HEIGHT - (SPLICONLENGTH + 4));
 		return true;
 	}
-	if (myplr._pLvlUp && InLvlUpRect())
+	if (gbLvlUp && InLvlUpRect())
 		gbLvlbtndown = true;
 	return gbLvlbtndown;
 }
@@ -1007,7 +1012,7 @@ void HandlePanBtn(int i)
 	case PANBTN_CHARINFO:
 		gbQuestlog = false;
 		gbSkillListFlag = false;
-		myplr._pLvlUp = FALSE;
+		gbLvlUp = false;
 		gbChrflag = !gbChrflag;
 		break;
 	case PANBTN_INVENTORY:

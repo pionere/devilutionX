@@ -158,7 +158,7 @@ static void scrollrt_draw_cursor_item()
 	}
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !gbInvflag && (!gbChrflag || !myplr._pLvlUp))
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !gbInvflag && (!gbChrflag || !gbLvlUp))
 		return;
 #endif
 
@@ -1176,7 +1176,7 @@ static void DrawView()
 	} else if (gbQuestlog) {
 		DrawQuestLog();
 	}
-	if (myplr._pLvlUp && stextflag == STORE_NONE) {
+	if (gbLvlUp && stextflag == STORE_NONE) {
 		DrawLevelUpIcon();
 	}
 	if (gbQtextflag) {
