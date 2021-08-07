@@ -2845,18 +2845,14 @@ void DisarmObject(int pnum, int oi)
 	if (os->_oTrapFlag) {
 		trapdisper = 2 * plr._pDexterity - 8 * currLvl._dLevel;
 		if (random_(154, 100) <= trapdisper) {
+			os->_oTrapFlag = FALSE;
 			for (i = 0; i < numobjects; i++) {
 				on = &objects[objectactive[i]];
 				if ((on->_otype == OBJ_TRAPL || on->_otype == OBJ_TRAPR)
 				 && dObject[on->_oVar1][on->_oVar2] - 1 == oi) {
 					on->_oVar4 = TRAP_INACTIVE;
-					os->_oTrapFlag = FALSE;
 				}
 			}
-#ifndef HELLFIRE
-			if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3)
-				os->_oTrapFlag = FALSE;
-#endif
 		}
 	}
 }
