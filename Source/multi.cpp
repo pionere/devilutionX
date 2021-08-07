@@ -623,8 +623,8 @@ static void SetupLocalPlr()
 	p->_pAltAtkSkillType = RSPLTYPE_INVALID;
 	p->_pAltMoveSkill = SPL_INVALID;
 	p->_pAltMoveSkillType = RSPLTYPE_INVALID;
-	if (!(plr._pSkillFlags & SFLAG_MELEE))
-		plr._pAtkSkill = SPL_RATTACK;
+	if (!(p->_pSkillFlags & SFLAG_MELEE))
+		p->_pAtkSkill = SPL_RATTACK;
 
 #ifdef _DEBUG
 	if (debug_mode_key_inverted_v) {
