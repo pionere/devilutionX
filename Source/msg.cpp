@@ -981,9 +981,9 @@ void NetSendCmdSendJoinLevel()
 	TCmdSendJoinLevel cmd;
 
 	cmd.bCmd = CMD_SEND_JOINLEVEL;
-	cmd.lLevel = myplr._pDunLevel;	// currLvl._dLevelIdx
-	cmd.px = myplr._px;				// ViewX
-	cmd.py = myplr._py;				// ViewY
+	cmd.lLevel = currLvl._dLevelIdx;
+	cmd.px = ViewX;
+	cmd.py = ViewY;
 	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
 	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
 
@@ -2172,6 +2172,9 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 	plr._pLvlChanging = FALSE;
 	if (plr._pmode != PM_DEATH)
 		plr._pInvincible = FALSE;
+	plr._pDunLevel = cmd->lLevel;
+	plr._px = cmd->px;
+	plr._py = cmd->py;
 	if (pnum == mypnum) {
 		InitLvlPlayer(pnum);
 	} else {
@@ -2191,9 +2194,6 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 			gbActivePlayers++;
 			EventPlrMsg("Player '%s' (level %d) just joined the game", plr._pName, plr._pLevel);
 		}
-		plr._px = cmd->px;
-		plr._py = cmd->py;
-		plr._pDunLevel = cmd->lLevel;
 		plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1) > gbNetUpdateRate ? SwapLE16(cmd->lTimer1) - gbNetUpdateRate : 0;
 		plr._pTimer[PLTR_RAGE] = msg_calc_rage(cmd->lTimer2);
 		if (currLvl._dLevelIdx == plr._pDunLevel) {

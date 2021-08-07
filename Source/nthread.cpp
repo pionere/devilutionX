@@ -245,12 +245,9 @@ void nthread_finish()
 		geBufferMsgs = MSG_NORMAL;
 	}
 	// TODO: move these somewhere else?
-	//   0. strange place to set px/py
 	//   1. it prevents NetInit from calling in a symmetric way
 	//   2. plrmsg_delay calls are non-symmetric...
 	if (myplr._pmode == PM_NEWLVL) { // skip in case the game is loaded
-		myplr._px = ViewX;
-		myplr._py = ViewY;
 		NetSendCmdSendJoinLevel();
 	}
 	plrmsg_delay(false);
