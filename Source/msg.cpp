@@ -368,10 +368,6 @@ static void DeltaImportPlr()
 	plr._pActive = TRUE;
 	gbActivePlayers++;
 	EventPlrMsg("Player '%s' (level %d) is already in the game", plr._pName, plr._pLevel);
-
-	assert(plr._pGFXLoad == 0);
-	//if (plr._pDunLevel == currLvl._dLevelIdx)
-	//	SyncInitPlr(pnum);
 }
 
 static DWORD DeltaCompressData(BYTE *end)
@@ -2177,8 +2173,6 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 	if (plr._pmode != PM_DEATH)
 		plr._pInvincible = FALSE;
 	if (pnum == mypnum) {
-		// necessary only if switching from or to town
-		InitPlayerGFX(pnum);
 		InitLvlPlayer(pnum);
 	} else {
 		if (!plr._pActive) {
@@ -2202,7 +2196,6 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 		plr._pDunLevel = cmd->lLevel;
 		plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1) > gbNetUpdateRate ? SwapLE16(cmd->lTimer1) - gbNetUpdateRate : 0;
 		plr._pTimer[PLTR_RAGE] = msg_calc_rage(cmd->lTimer2);
-		plr._pGFXLoad = 0;
 		if (currLvl._dLevelIdx == plr._pDunLevel) {
 			InitLvlPlayer(pnum);
 			CalcPlrItemVals(pnum, false); // last parameter should not matter

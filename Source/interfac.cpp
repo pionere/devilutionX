@@ -257,7 +257,6 @@ static void InitPlayers()
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pLvlChanging)
 			continue;
-		InitPlayerGFX(pnum);
 		InitLvlPlayer(pnum);
 	}
 }

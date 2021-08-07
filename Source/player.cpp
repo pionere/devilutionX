@@ -359,7 +359,7 @@ void InitPlayerGFX(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("InitPlayerGFX: illegal player %d", pnum);
 	}
-
+	plr._pGFXLoad = 0;
 	if (plr._pHitPoints < (1 << 6)) {
 		plr._pgfxnum = ANIM_ID_UNARMED;
 		gfxflag = PFILE_DEATH;
@@ -785,6 +785,7 @@ void InitLvlPlayer(int pnum)
 			PlrSetHp(pnum, 64);
 	}
 
+	InitPlayerGFX(pnum); // for the local player this is necessary only if switching from or to town
 	SetPlrAnims(pnum);
 
 	//plr._pxoff = 0;
@@ -3202,17 +3203,6 @@ void SyncInitPlrPos(int pnum)
 	}
 	dPlayer[plr._px][plr._py] = pnum + 1;
 }
-
-/*void SyncInitPlr(int pnum)
-{
-	/ *if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("SyncInitPlr: illegal player %d", pnum);
-	}* /
-
-	//SetPlrAnims(pnum);
-	InitLvlPlayer(pnum);
-	//SyncInitPlrPos(pnum);
-}*/
 
 /*void CheckStats(int pnum)
 {
