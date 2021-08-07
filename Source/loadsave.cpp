@@ -686,17 +686,10 @@ static void LoadObject(int oi, bool full)
 	LoadInt(&os->_oLightFlag);
 	LoadByte(&os->_oBreak);
 	LoadByte(&os->_oSelFlag);
-	tbuff += 2; // Alignment
+	LoadByte(&os->_oTrapFlag);
+	LoadByte(&os->_oDoorFlag);
 	LoadInt(&os->_oPreFlag);
-	LoadInt(&os->_oTrapFlag);
-	LoadInt(&os->_oDoorFlag);
-	if (full) {
-		LoadInt(&os->_olid);
-	} else {
-		// reset dynamic lights
-		os->_olid = -1;
-		tbuff += 4; // Skip _olid
-	}
+	LoadInt(&os->_olid);
 	LoadInt(&os->_oRndSeed);
 	LoadInt(&os->_oVar1);
 	LoadInt(&os->_oVar2);
@@ -707,6 +700,10 @@ static void LoadObject(int oi, bool full)
 	LoadInt(&os->_oVar7);
 	LoadInt(&os->_oVar8);
 
+	if (!full) {
+		// reset dynamic lights
+		os->_olid = -1;
+	}
 	SyncObjectAnim(oi);
 }
 
@@ -1402,10 +1399,9 @@ static void SaveObject(int oi)
 	SaveInt(&os->_oLightFlag);
 	SaveByte(&os->_oBreak);
 	SaveByte(&os->_oSelFlag);
-	tbuff += 2; // Alignment
+	SaveByte(&os->_oTrapFlag);
+	SaveByte(&os->_oDoorFlag);
 	SaveInt(&os->_oPreFlag);
-	SaveInt(&os->_oTrapFlag);
-	SaveInt(&os->_oDoorFlag);
 	SaveInt(&os->_olid);
 	SaveInt(&os->_oRndSeed);
 	SaveInt(&os->_oVar1);
