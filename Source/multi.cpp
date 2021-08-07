@@ -614,6 +614,18 @@ static void SetupLocalPlr()
 	p->_pManaShield = 0;
 	p->_pTimer[PLTR_INFRAVISION] = 0;
 	p->_pTimer[PLTR_RAGE] = 0;
+	// reset skills
+	p->_pAtkSkill = SPL_ATTACK;
+	p->_pAtkSkillType = RSPLTYPE_ABILITY;
+	p->_pMoveSkill = SPL_WALK;
+	p->_pMoveSkillType = RSPLTYPE_ABILITY;
+	p->_pAltAtkSkill = SPL_INVALID;
+	p->_pAltAtkSkillType = RSPLTYPE_INVALID;
+	p->_pAltMoveSkill = SPL_INVALID;
+	p->_pAltMoveSkillType = RSPLTYPE_INVALID;
+	if (!(plr._pSkillFlags & SFLAG_MELEE))
+		plr._pAtkSkill = SPL_RATTACK;
+
 #ifdef _DEBUG
 	if (debug_mode_key_inverted_v) {
 		p->_pMemSkills = SPL_INVALID;

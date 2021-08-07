@@ -739,7 +739,6 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 /*
  * Initialize player fields at startup(unpack).
  *  - calculate derived values
- *  - reset skills (TODO: move to SetupLocalPlr?)
  */
 void InitPlayer(int pnum)
 {
@@ -749,17 +748,6 @@ void InitPlayer(int pnum)
 	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
 	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
 		| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
-
-	plr._pAtkSkill = SPL_ATTACK;
-	plr._pAtkSkillType = RSPLTYPE_ABILITY;
-	plr._pMoveSkill = SPL_WALK;
-	plr._pMoveSkillType = RSPLTYPE_ABILITY;
-	plr._pAltAtkSkill = SPL_INVALID;
-	plr._pAltAtkSkillType = RSPLTYPE_INVALID;
-	plr._pAltMoveSkill = SPL_INVALID;
-	plr._pAltMoveSkillType = RSPLTYPE_INVALID;
-	if (!(plr._pSkillFlags & SFLAG_MELEE))
-		plr._pAtkSkill = SPL_RATTACK;
 
 	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
 
