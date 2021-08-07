@@ -270,14 +270,14 @@ typedef struct PlayerStruct {
 	int _pMagic;
 	int _pDexterity;
 	int _pVitality;
-	int _pHPBase;
-	int _pMaxHPBase;
-	int _pHitPoints;
-	int _pMaxHP;
-	int _pManaBase;
-	int _pMaxManaBase;
-	int _pMana;
-	int _pMaxMana;
+	int _pHPBase;    // the hp of the player if they would not wear an item
+	int _pMaxHPBase; // the maximum hp of the player without items
+	int _pHitPoints; // the current hp of the player
+	int _pMaxHP;     // the maximum hp of the player
+	int _pManaBase;    // the mana of the player if they would not wear an item
+	int _pMaxManaBase; // the maximum mana of the player without items
+	int _pMana;        // the current mana of the player
+	int _pMaxMana;     // the maximum mana of the player
 	WORD _pStatPts;
 	BYTE _pLightRad;
 	BYTE _pManaShield;

@@ -153,9 +153,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._pGold = SwapLE32(pPack->pGold);
 	plr._pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
 	plr._pHPBase = SwapLE32(pPack->pHPBase);
-	if (plr._pHPBase < 64) // TODO: is this necessary?
-		plr._pHPBase = 64;
-
 	plr._pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
 	plr._pManaBase = SwapLE32(pPack->pManaBase);
 

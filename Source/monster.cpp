@@ -1993,12 +1993,9 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			return;
 		}
 	}
-	if (mon->_mType == MT_YZOMBIE && pnum == mypnum) {
-#ifdef HELLFIRE
-		if (plr._pMaxHP > 64) {
-#else
-		if (plr._pMaxHP > 64 && plr._pMaxHPBase > 64) {
-#endif
+	if (mon->_mType == MT_YZOMBIE) {
+		if (plr._pMaxHPBase > 64 && plr._pMaxHP > 64) {
+			// FIXME: notify players on other level or add to CMD_*_JOINLEVEL?
 			tmp = plr._pMaxHP - 64;
 			plr._pMaxHP = tmp;
 			if (plr._pHitPoints > tmp) {
