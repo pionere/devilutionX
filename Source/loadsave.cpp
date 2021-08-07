@@ -767,6 +767,72 @@ static void LoadPortal(int i)
 	}
 }*/
 
+static void LoadLevelData(bool full)
+{
+	int i;
+
+	if (currLvl._dType != DTYPE_TOWN) {
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
+		if (!full)
+			SetDead();
+	}
+
+	LoadInt(&nummonsters);
+	if (full)
+		LoadInt(&nummissiles);
+	LoadInt(&numobjects);
+	LoadInt(&numitems);
+
+	if (currLvl._dType != DTYPE_TOWN) {
+		for (i = 0; i < MAXMONSTERS; i++)
+			LoadInt(&monstactive[i]);
+		for (i = 0; i < nummonsters; i++)
+			LoadMonster(monstactive[i]);
+		if (full) {
+			static_assert(MAXMISSILES <= UCHAR_MAX, "LoadLevelData handles missile-ids as bytes.");
+			for (i = 0; i < MAXMISSILES; i++)
+				LoadByte(&missileactive[i]);
+			for (i = 0; i < MAXMISSILES; i++)
+				LoadByte(&missileavail[i]);
+			for (i = 0; i < nummissiles; i++)
+				LoadMissile(missileactive[i]);
+		}
+		static_assert(MAXOBJECTS <= UCHAR_MAX, "LoadLevelData handles object-ids as bytes.");
+		for (i = 0; i < MAXOBJECTS; i++)
+			LoadByte(&objectactive[i]);
+		for (i = 0; i < MAXOBJECTS; i++)
+			LoadByte(&objectavail[i]);
+		for (i = 0; i < numobjects; i++)
+			LoadObject(objectactive[i], full);
+	}
+	static_assert(MAXITEMS <= UCHAR_MAX, "LoadLevelData handles item-ids as bytes.");
+	for (i = 0; i < MAXITEMS; i++)
+		LoadByte(&itemactive[i]);
+	for (i = 0; i < MAXITEMS; i++)
+		LoadByte(&itemavail[i]);
+	for (i = 0; i < numitems; i++)
+		LoadItem(itemactive[i]);
+
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
+	if (full)
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
+
+	if (currLvl._dType != DTYPE_TOWN) {
+		LoadInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
+		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
+		if (full)
+			CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
+		else {
+			memset(dMissile, 0, sizeof(dMissile));
+			assert(nummissiles == 0);
+		}
+	}
+}
+
 /**
  * @brief Load game state
  */
@@ -834,56 +900,8 @@ void LoadGame()
 	LoadGameLevel(ENTRY_LOAD);
 	ViewX = _ViewX;
 	ViewY = _ViewY;
+	LoadLevelData(true);
 
-	if (currLvl._dType != DTYPE_TOWN) {
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
-	}
-
-	LoadInt(&nummonsters);
-	LoadInt(&nummissiles);
-	LoadInt(&numobjects);
-	LoadInt(&numitems);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
-			LoadInt(&monstactive[i]);
-		for (i = 0; i < nummonsters; i++)
-			LoadMonster(monstactive[i]);
-		static_assert(MAXMISSILES <= UCHAR_MAX, "LoadGame handles missile-ids as bytes.");
-		for (i = 0; i < MAXMISSILES; i++)
-			LoadByte(&missileactive[i]);
-		for (i = 0; i < MAXMISSILES; i++)
-			LoadByte(&missileavail[i]);
-		for (i = 0; i < nummissiles; i++)
-			LoadMissile(missileactive[i]);
-		static_assert(MAXOBJECTS <= UCHAR_MAX, "LoadGame handles object-ids as bytes.");
-		for (i = 0; i < MAXOBJECTS; i++)
-			LoadByte(&objectactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			LoadByte(&objectavail[i]);
-		for (i = 0; i < numobjects; i++)
-			LoadObject(objectactive[i], true);
-	}
-	static_assert(MAXITEMS <= UCHAR_MAX, "LoadGame handles item-ids as bytes.");
-	for (i = 0; i < MAXITEMS; i++)
-		LoadByte(&itemactive[i]);
-	for (i = 0; i < MAXITEMS; i++)
-		LoadByte(&itemavail[i]);
-	for (i = 0; i < numitems; i++)
-		LoadItem(itemactive[i]);
-
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		LoadInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
-		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
-	}
 	// load meta-data III. (modified by LoadGameLevel)
 	//LoadInt(&numtowners);
 	LoadInt(&boylevel);
@@ -1443,6 +1461,62 @@ static void SavePortal(int i)
 	SaveInt(&pPortal->level);
 }
 
+static void SaveLevelData(bool full)
+{
+	int i;
+
+	if (currLvl._dType != DTYPE_TOWN) {
+		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
+	}
+
+	SaveInt(&nummonsters);
+	if (full)
+		SaveInt(&nummissiles);
+	SaveInt(&numobjects);
+	SaveInt(&numitems);
+
+	if (currLvl._dType != DTYPE_TOWN) {
+		for (i = 0; i < MAXMONSTERS; i++)
+			SaveInt(&monstactive[i]);
+		for (i = 0; i < nummonsters; i++)
+			SaveMonster(monstactive[i]);
+		if (full) {
+			for (i = 0; i < MAXMISSILES; i++)
+				SaveByte(&missileactive[i]);
+			for (i = 0; i < MAXMISSILES; i++)
+				SaveByte(&missileavail[i]);
+			for (i = 0; i < nummissiles; i++)
+				SaveMissile(missileactive[i]);
+		}
+		for (i = 0; i < MAXOBJECTS; i++)
+			SaveByte(&objectactive[i]);
+		for (i = 0; i < MAXOBJECTS; i++)
+			SaveByte(&objectavail[i]);
+		for (i = 0; i < numobjects; i++)
+			SaveObject(objectactive[i]);
+	}
+	for (i = 0; i < MAXITEMS; i++)
+		SaveByte(&itemactive[i]);
+	for (i = 0; i < MAXITEMS; i++)
+		SaveByte(&itemavail[i]);
+	for (i = 0; i < numitems; i++)
+		SaveItemData(&items[itemactive[i]]);
+	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
+	if (full)
+		CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
+
+	if (currLvl._dType != DTYPE_TOWN) {
+		SaveInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
+		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
+		if (full)
+			CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
+	}
+}
+
 void SaveGame()
 {
 	int i;
@@ -1497,51 +1571,8 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	if (currLvl._dType != DTYPE_TOWN) {
-		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
-	}
+	SaveLevelData(true);
 
-	SaveInt(&nummonsters);
-	SaveInt(&nummissiles);
-	SaveInt(&numobjects);
-	SaveInt(&numitems);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
-			SaveInt(&monstactive[i]);
-		for (i = 0; i < nummonsters; i++)
-			SaveMonster(monstactive[i]);
-		for (i = 0; i < MAXMISSILES; i++)
-			SaveByte(&missileactive[i]);
-		for (i = 0; i < MAXMISSILES; i++)
-			SaveByte(&missileavail[i]);
-		for (i = 0; i < nummissiles; i++)
-			SaveMissile(missileactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			SaveByte(&objectactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			SaveByte(&objectavail[i]);
-		for (i = 0; i < numobjects; i++)
-			SaveObject(objectactive[i]);
-	}
-	for (i = 0; i < MAXITEMS; i++)
-		SaveByte(&itemactive[i]);
-	for (i = 0; i < MAXITEMS; i++)
-		SaveByte(&itemavail[i]);
-	for (i = 0; i < numitems; i++)
-		SaveItemData(&items[itemactive[i]]);
-	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		SaveInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
-		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
-		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
-	}
 	// save meta-data III. (modified by LoadGameLevel)
 	//SaveInt(&numtowners);
 	SaveInt(&boylevel);
@@ -1607,45 +1638,7 @@ void SaveLevel()
 	fileBuff = DiabloAllocPtr(dwLen);
 	tbuff = fileBuff;
 
-	if (currLvl._dType != DTYPE_TOWN) {
-		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
-	}
-
-	SaveInt(&nummonsters);
-	SaveInt(&numitems);
-	SaveInt(&numobjects);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
-			SaveInt(&monstactive[i]);
-		for (i = 0; i < nummonsters; i++)
-			SaveMonster(monstactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			SaveByte(&objectactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			SaveByte(&objectavail[i]);
-		for (i = 0; i < numobjects; i++)
-			SaveObject(objectactive[i]);
-	}
-
-	for (i = 0; i < MAXITEMS; i++)
-		SaveByte(&itemactive[i]);
-	for (i = 0; i < MAXITEMS; i++)
-		SaveByte(&itemavail[i]);
-	for (i = 0; i < numitems; i++)
-		SaveItemData(&items[itemactive[i]]);
-
-	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		SaveInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
-		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
-		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
-	}
+	SaveLevelData(false);
 
 	GetTempLevelNames(szName);
 	assert(tbuff - fileBuff <= FILEBUFF);
@@ -1664,49 +1657,7 @@ void LoadLevel()
 	fileBuff = pfile_read(szName);
 	tbuff = fileBuff;
 
-	if (currLvl._dType != DTYPE_TOWN) {
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
-		SetDead();
-	}
-
-	LoadInt(&nummonsters);
-	LoadInt(&numitems);
-	LoadInt(&numobjects);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
-			LoadInt(&monstactive[i]);
-		for (i = 0; i < nummonsters; i++)
-			LoadMonster(monstactive[i]);
-		static_assert(MAXOBJECTS <= CHAR_MAX, "LoadLevel handles object-ids as chars.");
-		for (i = 0; i < MAXOBJECTS; i++)
-			LoadByte(&objectactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			LoadByte(&objectavail[i]);
-		for (i = 0; i < numobjects; i++)
-			LoadObject(objectactive[i], false);
-	}
-
-	static_assert(MAXITEMS <= CHAR_MAX, "LoadLevel handles item-ids as chars.");
-	for (i = 0; i < MAXITEMS; i++)
-		LoadByte(&itemactive[i]);
-	for (i = 0; i < MAXITEMS; i++)
-		LoadByte(&itemavail[i]);
-	for (i = 0; i < numitems; i++)
-		LoadItem(itemactive[i]);
-
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		LoadInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
-		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
-		memset(dMissile, 0, MAXDUNX * MAXDUNY);
-		assert(nummissiles == 0);
-	}
+	LoadLevelData(false);
 
 	mem_free_dbg(fileBuff);
 
