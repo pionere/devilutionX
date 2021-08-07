@@ -1953,7 +1953,6 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		break;
 	case WM_DIABTWARPUP:
 		if (pnum == mypnum) {
-			gbTWarpFrom = currLvl._dLevelIdx;
 			assert(currLvl._dType > 1);
 			static_assert((int)TWARP_CATHEDRAL == (int)DTYPE_CATHEDRAL - 1, "Dtype to Warp conversion requires matching enums I.");
 			static_assert((int)TWARP_CATACOMB == (int)DTYPE_CATACOMBS - 1, "Dtype to Warp conversion requires matching enums II.");
@@ -1961,7 +1960,8 @@ void StartNewLvl(int pnum, int fom, int lvl)
 			static_assert((int)TWARP_HELL == (int)DTYPE_HELL - 1, "Dtype to Warp conversion requires matching enums IV.");
 			static_assert((int)TWARP_NEST == (int)DTYPE_NEST - 1, "Dtype to Warp conversion requires matching enums V.");
 			static_assert((int)TWARP_CRYPT == (int)DTYPE_CRYPT - 1, "Dtype to Warp conversion requires matching enums VI.");
-			gbTownWarps |= 1 << (currLvl._dType - 1);
+			gbTWarpFrom = (currLvl._dType - 1);
+			gbTownWarps |= 1 << gbTWarpFrom;
 		}
 		break;
 	default:

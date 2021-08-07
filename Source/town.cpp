@@ -282,7 +282,7 @@ void CreateTown(int entry)
 	DRLG_Init_Globals();
 
 	if (entry == ENTRY_MAIN) {
-		// New game - set by SetupLocalCoords in multi.cpp
+		// New game - set by SetupLocalPlr in multi.cpp
 		//  or Restart in Town - _px/_py is not set
 		ViewX = myplr._px = 65 + DBORDERX;
 		ViewY = myplr._py = 58 + DBORDERY;
@@ -290,24 +290,32 @@ void CreateTown(int entry)
 		ViewX = 15 + DBORDERX;
 		ViewY = 21 + DBORDERY;
 	} else if (entry == ENTRY_TWARPUP) {
-		if (gbTWarpFrom == DLV_CATACOMBS1) {
+		switch (gbTWarpFrom) {
+		case TWARP_CATACOMB:
 			ViewX = 39 + DBORDERX;
 			ViewY = 12 + DBORDERY;
-		} else if (gbTWarpFrom == DLV_CAVES1) {
+			break;
+		case TWARP_CAVES:
 			ViewX = 8 + DBORDERX;
 			ViewY = 59 + DBORDERY;
-		} else if (gbTWarpFrom == DLV_HELL1) {
+			break;
+		case TWARP_HELL:
 			ViewX = 31 + DBORDERX;
 			ViewY = 71 + DBORDERY;
+			break;
 #ifdef HELLFIRE
-		} else if (gbTWarpFrom == DLV_NEST1) {
-			ViewX = 69 + DBORDERX;
-			ViewY = 52 + DBORDERY;
-		} else {
-			assert(gbTWarpFrom == DLV_CRYPT1);
+		case TWARP_CRYPT:
 			ViewX = 26 + DBORDERX;
 			ViewY = 15 + DBORDERY;
+			break;
+		case TWARP_NEST:
+			ViewX = 69 + DBORDERX;
+			ViewY = 52 + DBORDERY;
+			break;
 #endif
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 	}
 
