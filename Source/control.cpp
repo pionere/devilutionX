@@ -1580,7 +1580,7 @@ void DrawInfoStr()
 		DrawTooltip(infostr, xx, yy, infoclr);
 	} else if (pcursobj != OBJ_NONE) {
 		GetObjectStr(pcursobj);
-		ObjectStruct* os = &object[pcursobj];
+		ObjectStruct* os = &objects[pcursobj];
 		x = os->_ox - 1;
 		y = os->_oy - 1;
 		GetMousePos(x, y, &xx, &yy);

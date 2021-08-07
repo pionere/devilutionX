@@ -1192,21 +1192,21 @@ bool ItemSpaceOk(int x, int y)
 	oi = dObject[x][y];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._oSolidFlag)
+		if (objects[oi]._oSolidFlag)
 			return false;
 	}
 
 	oi = dObject[x + 1][y + 1];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._oSelFlag != 0)
+		if (objects[oi]._oSelFlag != 0)
 			return false;
 	}
 
 	oi = dObject[x + 1][y];
 	if (oi > 0) {
 		oi2 = dObject[x][y + 1];
-		if (oi2 > 0 && object[oi - 1]._oSelFlag != 0 && object[oi2 - 1]._oSelFlag != 0)
+		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
 			return false;
 	}
 
@@ -2357,7 +2357,7 @@ void SpawnRock()
 
 	for (i = 0; i < numobjects; i++) {
 		oi = objectactive[i];
-		if (object[oi]._otype == OBJ_STAND)
+		if (objects[oi]._otype == OBJ_STAND)
 			break;
 	}
 	if (i != numobjects) {
@@ -2369,7 +2369,7 @@ void SpawnRock()
 		items[i]._iAnimFrame = 11;
 		items[i]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
 		items[i]._iSeed = GetRndSeed(); // make sure it is unique
-		SetItemLoc(i, object[oi]._ox, object[oi]._oy);
+		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
 		DeltaAddItem(i);
 
 		itemactive[numitems] = i;

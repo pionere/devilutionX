@@ -668,7 +668,7 @@ static void LoadMissile(int mi)
 
 static void LoadObject(int oi, bool full)
 {
-	ObjectStruct *os = &object[oi];
+	ObjectStruct* os = &objects[oi];
 
 	LoadInt(&os->_otype);
 	LoadInt(&os->_ox);
@@ -1366,7 +1366,7 @@ static void SaveMissile(int mi)
 
 static void SaveObject(int oi)
 {
-	ObjectStruct *os = &object[oi];
+	ObjectStruct* os = &objects[oi];
 
 	SaveInt(&os->_otype);
 	SaveInt(&os->_ox);

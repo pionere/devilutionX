@@ -507,14 +507,14 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 
 	if (oi > 0) {
 		oi--;
-		os = &object[oi];
+		os = &objects[oi];
 		if (os->_oPreFlag != pre)
 			return;
 		sx = ox - os->_oAnimXOffset;
 		sy = oy;
 	} else {
 		oi = -(oi + 1);
-		os = &object[oi];
+		os = &objects[oi];
 		if (os->_oPreFlag != pre)
 			return;
 		xx = os->_ox - x;

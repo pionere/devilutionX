@@ -1440,7 +1440,7 @@ static bool StartAttack(int pnum)
 			return false;
 		if (abs(dObject[dx][dy]) != i + 1) // this should always be false, but never trust the internet
 			return false;
-		if (object[i]._oBreak != 1) {
+		if (objects[i]._oBreak != 1) {
 			if (plr.destAction == ACTION_DISARM)
 				DisarmObject(pnum, i);
 			OperateObject(pnum, i, false);
@@ -2375,7 +2375,7 @@ static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 	mpo = dObject[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		if (object[mpo]._oBreak == 1) {
+		if (objects[mpo]._oBreak == 1) {
 			OperateObject(pnum, mpo, false);
 			return true;
 		}
@@ -3093,7 +3093,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 		mpo = dObject[x][y];
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-			if (object[mpo]._oSolidFlag) {
+			if (objects[mpo]._oSolidFlag) {
 				return false;
 			}
 		}

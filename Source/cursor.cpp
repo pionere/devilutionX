@@ -587,7 +587,7 @@ void CheckCursMove()
 		bv = dObject[mx + 1][my];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (object[bv]._oSelFlag >= 2) {
+			if (objects[bv]._oSelFlag >= 2) {
 				cursmx = mx + 1;
 				cursmy = my;
 				pcursobj = bv;
@@ -597,7 +597,7 @@ void CheckCursMove()
 		bv = dObject[mx][my + 1];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (object[bv]._oSelFlag >= 2) {
+			if (objects[bv]._oSelFlag >= 2) {
 				cursmx = mx;
 				cursmy = my + 1;
 				pcursobj = bv;
@@ -607,7 +607,7 @@ void CheckCursMove()
 	bv = dObject[mx][my];
 	if (bv != 0) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (object[bv]._oSelFlag == 1 || object[bv]._oSelFlag == 3) {
+		if (objects[bv]._oSelFlag == 1 || objects[bv]._oSelFlag == 3) {
 			cursmx = mx;
 			cursmy = my;
 			pcursobj = bv;
@@ -616,7 +616,7 @@ void CheckCursMove()
 	bv = dObject[mx + 1][my + 1];
 	if (bv != 0) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (object[bv]._oSelFlag >= 2) {
+		if (objects[bv]._oSelFlag >= 2) {
 			cursmx = mx + 1;
 			cursmy = my + 1;
 			pcursobj = bv;

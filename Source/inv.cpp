@@ -1615,21 +1615,21 @@ bool CanPut(int x, int y)
 	oi = dObject[x][y];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._oSolidFlag)
+		if (objects[oi]._oSolidFlag)
 			return false;
 	}
 
 	oi = dObject[x + 1][y + 1];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._oSelFlag != 0)
+		if (objects[oi]._oSelFlag != 0)
 			return false;
 	}
 
 	oi = dObject[x + 1][y];
 	if (oi > 0) {
 		oi2 = dObject[x][y + 1];
-		if (oi2 > 0 && object[oi - 1]._oSelFlag != 0 && object[oi2 - 1]._oSelFlag != 0)
+		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
 			return false;
 	}
 

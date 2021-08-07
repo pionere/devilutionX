@@ -4826,7 +4826,7 @@ bool PosOkMonst(int mnum, int x, int y)
 	oi = dObject[x][y];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._oSolidFlag)
+		if (objects[oi]._oSolidFlag)
 			return false;
 	}
 
@@ -4843,7 +4843,7 @@ bool PosOkMonst2(int mnum, int x, int y)
 	oi = dObject[x][y];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._oSolidFlag)
+		if (objects[oi]._oSolidFlag)
 			return false;
 	}
 
@@ -4860,8 +4860,8 @@ bool PosOkMonst3(int mnum, int x, int y)
 	oi = dObject[x][y];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		isdoor = object[oi]._oDoorFlag;
-		if (object[oi]._oSolidFlag && !isdoor) {
+		isdoor = objects[oi]._oDoorFlag;
+		if (objects[oi]._oSolidFlag && !isdoor) {
 			return false;
 		}
 	}

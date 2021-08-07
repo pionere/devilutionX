@@ -749,8 +749,8 @@ static void Theme_Library(int tidx)
 			if (CheckThemeObj3(xx, yy, tidx, -1) && dMonster[xx][yy] == 0 && random_(0, librnd) == 0) {
 				oi = AddObject(OBJ_BOOKSTAND, xx, yy);
 				if (random_(0, 2 * librnd) != 0 && oi != -1) { /// BUGFIX: check AddObject succeeded (fixed)
-					object[oi]._oSelFlag = 0;
-					object[oi]._oAnimFrame += 2;
+					objects[oi]._oSelFlag = 0;
+					objects[oi]._oAnimFrame += 2;
 				}
 			}
 		}

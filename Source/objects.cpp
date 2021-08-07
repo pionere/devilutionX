@@ -30,7 +30,7 @@ int objectactive[MAXOBJECTS];
 int numobjects;
 int leverid;
 int objectavail[MAXOBJECTS];
-ObjectStruct object[MAXOBJECTS];
+ObjectStruct objects[MAXOBJECTS];
 //bool gbInitObjFlag;
 
 /** Specifies the X-coordinate delta between barrels. */
@@ -363,7 +363,7 @@ static void ClrAllObjects()
 {
 	int i;
 
-	memset(object, 0, sizeof(object));
+	memset(objects, 0, sizeof(objects));
 	memset(objectactive, 0, sizeof(objectactive));
 
 	numobjects = 0;
@@ -396,8 +396,8 @@ static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2,
 	oi = AddObject(type, x, y);
 	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
 	leverid++;
-	object[oi]._oVar6 = object[oi]._oAnimFrame + 1; // LEVER_BOOK_ANIM
-	object[oi]._oVar7 = qn; // LEVER_BOOK_QUEST
+	objects[oi]._oVar6 = objects[oi]._oAnimFrame + 1; // LEVER_BOOK_ANIM
+	objects[oi]._oVar7 = qn; // LEVER_BOOK_QUEST
 }
 
 static void InitRndBarrels()
@@ -542,7 +542,7 @@ static void AddObjTraps()
 				continue;
 
 			oi--;
-			if (!AllObjects[object[oi]._otype].oTrapFlag)
+			if (!AllObjects[objects[oi]._otype].oTrapFlag)
 				continue;
 
 			if (random_(144, 100) >= rndv)
@@ -575,8 +575,8 @@ static void AddObjTraps()
 			on = AddObject(on, tx, ty);
 			if (on == -1)
 				return;
-			object[oi]._oTrapFlag = TRUE;
-			object[on]._oVar1 = oi; // TRAP_OI_REF
+			objects[oi]._oTrapFlag = TRUE;
+			objects[on]._oVar1 = oi; // TRAP_OI_REF
 		}
 	}
 }
@@ -591,9 +591,9 @@ static void AddChestTraps()
 			oi = dObject[i][j];
 			if (oi > 0) {
 				oi--;
-				if (object[oi]._otype >= OBJ_CHEST1 && object[oi]._otype <= OBJ_CHEST3 && !object[oi]._oTrapFlag && random_(0, 100) < 10) {
-					object[oi]._otype += OBJ_TCHEST1 - OBJ_CHEST1;
-					object[oi]._oTrapFlag = TRUE;
+				if (objects[oi]._otype >= OBJ_CHEST1 && objects[oi]._otype <= OBJ_CHEST3 && !objects[oi]._oTrapFlag && random_(0, 100) < 10) {
+					objects[oi]._otype += OBJ_TCHEST1 - OBJ_CHEST1;
+					objects[oi]._oTrapFlag = TRUE;
 					if (currLvl._dType == DTYPE_CATACOMBS) {
 						r = random_(0, 2);
 					} else {
@@ -628,7 +628,7 @@ static void AddChestTraps()
 						ASSUME_UNREACHABLE;
 #endif
 					}
-					object[oi]._oVar4 = r; // CHEST_TRAP_TYPE
+					objects[oi]._oVar4 = r; // CHEST_TRAP_TYPE
 
 				}
 			}
@@ -1036,7 +1036,7 @@ void SetMapObjects(BYTE *pMap)
 /*static void DeleteObject_(int oi, int idx)
 {
 	objectavail[MAXOBJECTS - numobjects] = oi;
-	dObject[object[oi]._ox][object[oi]._oy] = 0;
+	dObject[objects[oi]._ox][objects[oi]._oy] = 0;
 	numobjects--;
 	if (numobjects > 0 && idx != numobjects)
 		objectactive[idx] = objectactive[numobjects];
@@ -1047,7 +1047,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	ObjectStruct *os;
 	const ObjectData *ods;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_ox = x;
 	os->_oy = y;
 	os->_otype = type;
@@ -1082,7 +1082,7 @@ void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	// LEVER_EFFECT
 	os->_oVar1 = x1;
 	os->_oVar2 = y1;
@@ -1097,7 +1097,7 @@ static void AddChest(int oi)
 	ObjectStruct *os;
 	int num;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (random_(147, 2) == 0)
 		os->_oAnimFrame += 3;
 	os->_oRndSeed = GetRndSeed();
@@ -1117,7 +1117,7 @@ static void AddL1Door(int oi)
 	ObjectStruct *os;
 	int x, y;
 
-	os = &object[oi];
+	os = &objects[oi];
 	x = os->_ox;
 	y = os->_oy;
 	os->_oVar4 = DOOR_CLOSED;
@@ -1141,7 +1141,7 @@ static void AddL2Door(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oDoorFlag = TRUE;
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
@@ -1157,7 +1157,7 @@ static void AddL3Door(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oDoorFlag = TRUE;
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
@@ -1172,7 +1172,7 @@ static void AddSarc(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	dObject[os->_ox][os->_oy - 1] = -(oi + 1);
 	os->_oVar1 = random_(153, 10);       // SARC_ITEM
 	os->_oRndSeed = GetRndSeed();
@@ -1184,7 +1184,7 @@ static void AddSarc(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oVar1 = trapid; // FLAMETRAP_ID
 	os->_oVar2 = TRAP_ACTIVE;
 	os->_oVar3 = FLAMETRAP_DIR_Y;
@@ -1195,7 +1195,7 @@ static void AddFlameLever(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oVar1 = trapid; // FLAMETRAP_ID
 }*/
 
@@ -1207,7 +1207,7 @@ static void AddTrap(int oi)
 	mt = currLvl._dLevel;
 	mt = mt / 6 + 1;
 	mt = random_(148, mt) & 3;
-	os = &object[oi];
+	os = &objects[oi];
 	// TRAP_MISTYPE
 	static_assert(MIS_ARROW == 0, "AddTrap might have an 'undefined'(0) missile-type, which is expected to be a standard arrow.");
 	// os->_oVar3 = MIS_ARROW;
@@ -1222,7 +1222,7 @@ static void AddObjLight(int oi, int diffr)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	//if (gbInitObjFlag) {
 		if (diffr != 0)
 			DoLighting(os->_ox, os->_oy, diffr, -1);
@@ -1234,7 +1234,7 @@ static void AddBarrel(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	//os->_oVar1 = 0;
 	os->_oRndSeed = GetRndSeed();
 	os->_oVar2 = (os->_otype == OBJ_BARRELEX) ? 0 : random_(149, 10); // BARREL_ITEM
@@ -1261,7 +1261,7 @@ static void AddShrine(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oPreFlag = TRUE;
 	os->_oRndSeed = GetRndSeed();
 	os->_oVar1 = FindValidShrine(NUM_SHRINETYPE); // SHRINE_TYPE
@@ -1275,33 +1275,33 @@ static void AddBookcase(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
 	os->_oPreFlag = TRUE;
 }
 
 static void ObjAddRndSeed(int oi)
 {
-	object[oi]._oRndSeed = GetRndSeed();
+	objects[oi]._oRndSeed = GetRndSeed();
 }
 
 static void AddPurifyingFountain(int oi)
 {
 	int ox, oy;
 
-	ox = object[oi]._ox;
-	oy = object[oi]._oy;
+	ox = objects[oi]._ox;
+	oy = objects[oi]._oy;
 	dObject[ox][oy - 1] = -(oi + 1);
 	dObject[ox - 1][oy] = -(oi + 1);
 	dObject[ox - 1][oy - 1] = -(oi + 1);
-	//object[oi]._oRndSeed = GetRndSeed();
+	//objects[oi]._oRndSeed = GetRndSeed();
 }
 
 static void AddArmorStand(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
 }
 
@@ -1309,7 +1309,7 @@ static void AddCauldronGoatShrine(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
 	os->_oVar1 = FindValidShrine(SHRINE_THAUMATURGIC); // SHRINE_TYPE
 }
@@ -1318,19 +1318,19 @@ static void AddMurkyFountain(int oi)
 {
 	int ox, oy;
 
-	ox = object[oi]._ox;
-	oy = object[oi]._oy;
+	ox = objects[oi]._ox;
+	oy = objects[oi]._oy;
 	dObject[ox][oy - 1] = -(oi + 1);
 	dObject[ox - 1][oy] = -(oi + 1);
 	dObject[ox - 1][oy - 1] = -(oi + 1);
-	//object[oi]._oRndSeed = GetRndSeed();
+	//objects[oi]._oRndSeed = GetRndSeed();
 }
 
 static void AddDecap(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
 	os->_oAnimFrame = RandRange(1, 8);
 	os->_oPreFlag = TRUE;
@@ -1339,7 +1339,7 @@ static void AddDecap(int oi)
 static void AddVileBook(int oi)
 {
 	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		object[oi]._oAnimFrame = 4;
+		objects[oi]._oAnimFrame = 4;
 	}
 }
 
@@ -1347,7 +1347,7 @@ static void AddMagicCircle(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	//os->_oRndSeed = GetRndSeed();
 	os->_oPreFlag = TRUE;
 	os->_oVar6 = VILE_CIRCLE_TARGET_NONE;
@@ -1361,7 +1361,7 @@ static void AddStoryBook(int oi)
 
 	bookframe = quests[Q_DIABLO]._qvar1;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oVar1 = bookframe;
 	// STORY_BOOK_MSG
 	if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
@@ -1379,7 +1379,7 @@ static void AddWeaponRack(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
 }
 
@@ -1387,7 +1387,7 @@ static void AddTorturedBody(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	//os->_oRndSeed = GetRndSeed();
 	os->_oAnimFrame = RandRange(1, 4);
 	os->_oPreFlag = TRUE;
@@ -1437,7 +1437,7 @@ void SetupHBook(int oi, int bookidx)
 	ObjectStruct *os;
 	int frame;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oVar1 = 1;
 	frame = 2 * os->_oVar1;
 	os->_oAnimFrame = 5 - frame;
@@ -1507,8 +1507,8 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_TCHEST2:
 	case OBJ_TCHEST3:
 		AddChest(oi);
-		object[oi]._oTrapFlag = TRUE;
-		object[oi]._oVar4 = random_(0, currLvl._dType == DTYPE_CATACOMBS ? 2 : 3); // CHEST_TRAP_TYPE
+		objects[oi]._oTrapFlag = TRUE;
+		objects[oi]._oVar4 = random_(0, currLvl._dType == DTYPE_CATACOMBS ? 2 : 3); // CHEST_TRAP_TYPE
 		break;
 	case OBJ_SARC:
 		AddSarc(oi);
@@ -1520,7 +1520,7 @@ int AddObject(int type, int ox, int oy)
 		AddFlameLever(oi);
 		break;
 	case OBJ_WATER:
-		object[oi]._oAnimFrame = 1;
+		objects[oi]._oAnimFrame = 1;
 		break;*/
 	case OBJ_TRAPL:
 	case OBJ_TRAPR:
@@ -1601,7 +1601,7 @@ static void Obj_Light(int oi)
 	const int lr = 8;
 	const int *flicker = flickers[0];
 
-	os = &object[oi];
+	os = &objects[oi];
 	ox = os->_ox;
 	oy = os->_oy;
 	tr = lr + 10;
@@ -1641,7 +1641,7 @@ static void GetVileMissPos(int *dx, int *dy)
 	int xx, yy, k, j, i;
 
 	i = dObject[*dx][*dy] - 1;
-	assert(object[i]._otype == OBJ_MCIRCLE1 || object[i]._otype == OBJ_MCIRCLE2);
+	assert(objects[i]._otype == OBJ_MCIRCLE1 || objects[i]._otype == OBJ_MCIRCLE2);
 
 	for (k = 0; k < 50; k++) {
 		for (j = -k; j <= k; j++) {
@@ -1663,7 +1663,7 @@ static void Obj_Circle(int oi)
 	ObjectStruct *os;
 	int ox, oy;
 
-	os = &object[oi];
+	os = &objects[oi];
 	ox = os->_ox;
 	oy = os->_oy;
 	if (myplr._px == ox && myplr._py == oy) {
@@ -1711,7 +1711,7 @@ static void Obj_StopAnim(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oAnimFrame == os->_oAnimLen) {
 		os->_oAnimFlag = FALSE;
 	}
@@ -1723,7 +1723,7 @@ static void Obj_Door(int oi)
 	int dx, dy;
 	bool dok;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oVar4 == DOOR_CLOSED)
 		return;
 	dx = os->_ox;
@@ -1738,7 +1738,7 @@ static void Obj_Door(int oi)
 	int i;
 
 	for (i = 0; i < numobjects; i++) {
-		os = &object[objectactive[i]];
+		os = &objects[objectactive[i]];
 		if (os->_otype == OBJ_FLAMEHOLE && os->_oVar1 == tid) { // FLAMETRAP_ID
 			os->_oVar4 = FLAMETRAP_FIRE_ACTIVE;
 			os->_oAnimFlag = TRUE;
@@ -1754,7 +1754,7 @@ static void Obj_FlameTrap(int oi)
 	int x, y;
 	int i;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oVar2 != TRAP_ACTIVE) {
 		if (os->_oVar4 != FLAMETRAP_FIRE_INACTIVE) {
 			os->_oAnimFrame--;
@@ -1805,12 +1805,12 @@ static void Obj_Trap(int oi)
 
 	int sx, sy, dx, dy, x, y;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oVar4 != TRAP_ACTIVE)
 		return;
 
 	trigNum = 0;
-	on = &object[os->_oVar1]; // TRAP_OI_REF
+	on = &objects[os->_oVar1]; // TRAP_OI_REF
 	switch (on->_otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -1880,7 +1880,7 @@ static void Obj_BCrossDamage(int oi)
 	p = &myplr;
 	if (p->_pInvincible)
 		return;
-	if (p->_px != object[oi]._ox || p->_py != object[oi]._oy - 1)
+	if (p->_px != objects[oi]._ox || p->_py != objects[oi]._oy - 1)
 		return;
 
 	damage = 4 + (currLvl._dLevel >> 2);
@@ -1898,7 +1898,7 @@ void ProcessObjects()
 
 	for (i = 0; i < numobjects; ++i) {
 		oi = objectactive[i];
-		switch (object[oi]._otype) {
+		switch (objects[oi]._otype) {
 		case OBJ_L1LIGHT:
 			Obj_Light(oi);
 			break;
@@ -1951,22 +1951,22 @@ void ProcessObjects()
 			Obj_BCrossDamage(oi);
 			break;
 		}
-		if (!object[oi]._oAnimFlag)
+		if (!objects[oi]._oAnimFlag)
 			continue;
 
-		object[oi]._oAnimCnt++;
+		objects[oi]._oAnimCnt++;
 
-		if (object[oi]._oAnimCnt < object[oi]._oAnimFrameLen)
+		if (objects[oi]._oAnimCnt < objects[oi]._oAnimFrameLen)
 			continue;
 
-		object[oi]._oAnimCnt = 0;
-		object[oi]._oAnimFrame++;
-		if (object[oi]._oAnimFrame > object[oi]._oAnimLen)
-			object[oi]._oAnimFrame = 1;
+		objects[oi]._oAnimCnt = 0;
+		objects[oi]._oAnimFrame++;
+		if (objects[oi]._oAnimFrame > objects[oi]._oAnimLen)
+			objects[oi]._oAnimFrame = 1;
 	}
 	/*for (i = 0; i < numobjects; ) {
 		oi = objectactive[i];
-		if (object[oi]._oDelFlag) {
+		if (objects[oi]._oDelFlag) {
 			DeleteObject_(oi, i);
 		} else {
 			i++;
@@ -2191,7 +2191,7 @@ static void OpenDoor(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	os->_oVar4 = DOOR_OPEN;
 	os->_oPreFlag = TRUE;
 	os->_oSelFlag = 2;
@@ -2204,7 +2204,7 @@ static bool CloseDoor(int oi)
 	ObjectStruct *os;
 	int xp, yp;
 
-	os = &object[oi];
+	os = &objects[oi];
 	xp = os->_ox;
 	yp = os->_oy;
 	os->_oVar4 = (dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0 ? DOOR_CLOSED : DOOR_BLOCKED;
@@ -2223,7 +2223,7 @@ static void OperateL1Door(int oi, bool sendmsg)
 	ObjectStruct *os;
 	int sfx;
 
-	os = &object[oi];
+	os = &objects[oi];
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
@@ -2264,7 +2264,7 @@ static void OperateL1Door(int oi, bool sendmsg)
 static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 {
 	// check if (x;y) is the right position
-	if (abs(object[oi]._ox - x) > 1 || abs(object[oi]._oy - y) != 1)
+	if (abs(objects[oi]._ox - x) > 1 || abs(objects[oi]._oy - y) != 1)
 		return;
 	OperateL1Door(oi, sendmsg);
 }
@@ -2272,7 +2272,7 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 {
 	// check if (x;y) is the right position
-	if (abs(object[oi]._ox - x) != 1 || abs(object[oi]._oy - y) > 1)
+	if (abs(objects[oi]._ox - x) != 1 || abs(objects[oi]._oy - y) > 1)
 		return;
 	OperateL1Door(oi, sendmsg);
 }
@@ -2281,7 +2281,7 @@ static void OperateL2Door(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
@@ -2311,7 +2311,7 @@ static void OperateL2Door(int oi, bool sendmsg)
 static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 {
 	// check if (x;y) is the right position
-	if (abs(object[oi]._ox - x) > 1 || abs(object[oi]._oy - y) != 1)
+	if (abs(objects[oi]._ox - x) > 1 || abs(objects[oi]._oy - y) != 1)
 		return;
 	OperateL2Door(oi, sendmsg);
 }
@@ -2319,7 +2319,7 @@ static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
 {
 	// check if (x;y) is the right position
-	if (abs(object[oi]._ox - x) != 1 || abs(object[oi]._oy - y) > 1)
+	if (abs(objects[oi]._ox - x) != 1 || abs(objects[oi]._oy - y) > 1)
 		return;
 	OperateL2Door(oi, sendmsg);
 }
@@ -2328,7 +2328,7 @@ static void OperateL3Door(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
@@ -2358,7 +2358,7 @@ static void OperateL3Door(int oi, bool sendmsg)
 static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 {
 	// check if (x;y) is the right position
-	if (abs(object[oi]._ox - x) != 1 || abs(object[oi]._oy - y) > 1)
+	if (abs(objects[oi]._ox - x) != 1 || abs(objects[oi]._oy - y) > 1)
 		return;
 	OperateL3Door(oi, sendmsg);
 }
@@ -2366,7 +2366,7 @@ static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 {
 	// check if (x;y) is the right position
-	if (abs(object[oi]._ox - x) > 1 || abs(object[oi]._oy - y) != 1)
+	if (abs(objects[oi]._ox - x) > 1 || abs(objects[oi]._oy - y) != 1)
 		return;
 	OperateL3Door(oi, sendmsg);
 }
@@ -2380,20 +2380,20 @@ void MonstCheckDoors(int mx, int my)
 			oi = dObject[mx + i][my + j];
 			if (oi != 0) {
 				oi = oi >= 0 ? oi - 1 : -(oi + 1);
-				if (!object[oi]._oDoorFlag || object[oi]._oVar4 != DOOR_CLOSED)
+				if (!objects[oi]._oDoorFlag || objects[oi]._oVar4 != DOOR_CLOSED)
 					continue;
-				if (object[oi]._otype == OBJ_L1LDOOR) {
+				if (objects[oi]._otype == OBJ_L1LDOOR) {
 					OperateL1LDoor(mx, my, oi, true);
-				} else if (object[oi]._otype == OBJ_L1RDOOR) {
+				} else if (objects[oi]._otype == OBJ_L1RDOOR) {
 					OperateL1RDoor(mx, my, oi, true);
-				} else if (object[oi]._otype == OBJ_L2LDOOR) {
+				} else if (objects[oi]._otype == OBJ_L2LDOOR) {
 					OperateL2LDoor(mx, my, oi, true);
-				} else if (object[oi]._otype == OBJ_L2RDOOR) {
+				} else if (objects[oi]._otype == OBJ_L2RDOOR) {
 					OperateL2RDoor(mx, my, oi, true);
-				} else if (object[oi]._otype == OBJ_L3LDOOR) {
+				} else if (objects[oi]._otype == OBJ_L3LDOOR) {
 					OperateL3LDoor(mx, my, oi, true);
 				} else {
-					//assert(object[oi]._otype == OBJ_L3RDOOR);
+					//assert(objects[oi]._otype == OBJ_L3RDOOR);
 					OperateL3RDoor(mx, my, oi, true);
 				}
 			}
@@ -2449,7 +2449,7 @@ static void OperateLever(int oi, bool sendmsg)
 	ObjectStruct *os, *on;
 	int i;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -2462,7 +2462,7 @@ static void OperateLever(int oi, bool sendmsg)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 	if (currLvl._dLevelIdx == DLV_HELL4) {
 		for (i = 0; i < numobjects; i++) {
-			on = &object[objectactive[i]]; //         LEVER_INDEX
+			on = &objects[objectactive[i]]; //         LEVER_INDEX
 			if (on->_otype == OBJ_SWITCHSKL && os->_oVar8 == on->_oVar8 && on->_oSelFlag != 0) {
 				return;
 			}
@@ -2487,13 +2487,13 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 
 	assert(currLvl._dSetLvl);
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		missile_added = false;
 		for (i = 0; i < numobjects; i++) {
-			on = &object[objectactive[i]];
+			on = &objects[objectactive[i]];
 			if (on->_otype != OBJ_MCIRCLE2)
 				continue;
 			if (on->_oVar6 == VILE_CIRCLE_TARGET_A) {
@@ -2506,7 +2506,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 				continue;
 			}
 			on->_oVar6 = VILE_CIRCLE_TARGET_CENTER;
-			object[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
+			objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 			GetVileMissPos(&dx, &dy);
 			AddMissile(plr._px, plr._py, dx, dy, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0, 0);
 			missile_added = true;
@@ -2560,7 +2560,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	if (numitems >= MAXITEMS && !deltaload) {
 		return;
 	}
-	os = &object[oi];
+	os = &objects[oi];
 	// assert(os->_oSelFlag != 0);
 	qn = os->_oVar7;     // LEVER_BOOK_QUEST
 	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
@@ -2599,7 +2599,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	ObjectStruct *os;
 	int i, mdir;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 
@@ -2641,7 +2641,7 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -2669,7 +2669,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 			PlaySFX(sgSFXSets[SFXS_PLR_24][plr._pClass]);
 		return;
 	}
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -2689,7 +2689,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	ObjectStruct *os;
 	BYTE pc;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -2722,7 +2722,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	int i;
 	bool disable;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 
@@ -2732,7 +2732,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(true, disable ? CMD_TRAPCLOSE : CMD_TRAPOPEN, oi);
 	for (i = 0; i < numobjects; i++) {
-		on = &object[objectactive[i]]; //         FLAMETRAP_ID
+		on = &objects[objectactive[i]]; //         FLAMETRAP_ID
 		if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
 			on->_oVar2 = disable ? TRAP_INACTIVE : TRAP_ACTIVE;
 		}
@@ -2743,7 +2743,7 @@ static void OperateSarc(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -2774,7 +2774,7 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	ObjectStruct *os;
 	int iv;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	if (!deltaload && pnum != -1) { // TODO: possible desync of player-items?
@@ -2841,12 +2841,12 @@ void DisarmObject(int pnum, int oi)
 
 	if (pnum == mypnum)
 		NewCursor(CURSOR_HAND);
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oTrapFlag) {
 		trapdisper = 2 * plr._pDexterity - 8 * currLvl._dLevel;
 		if (random_(154, 100) <= trapdisper) {
 			for (i = 0; i < numobjects; i++) {
-				on = &object[objectactive[i]];
+				on = &objects[objectactive[i]];
 				if ((on->_otype == OBJ_TRAPL || on->_otype == OBJ_TRAPR)
 				 && dObject[on->_oVar1][on->_oVar2] - 1 == oi) {
 					on->_oVar4 = TRAP_INACTIVE;
@@ -2865,7 +2865,7 @@ static void CloseChest(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag != 0)
 		return;
 	os->_oSelFlag = 1;
@@ -2930,7 +2930,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 #endif
 	assert((unsigned)oi < MAXOBJECTS);
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -3062,7 +3062,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		break;
 	case SHRINE_THAUMATURGIC:
 		for (i = 0; i < numobjects; i++) {
-			os = &object[objectactive[i]];
+			os = &objects[objectactive[i]];
 			if ((os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3)
 			 || (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3)) {
 				CloseChest(objectactive[i], sendmsg);
@@ -3330,7 +3330,7 @@ static void OperateSkelBook(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -3352,7 +3352,7 @@ static void OperateBookCase(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -3385,7 +3385,7 @@ static void OperateDecap(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -3405,7 +3405,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	ObjectStruct *os;
 	int itype;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -3427,21 +3427,21 @@ static void OperateArmorStand(int oi, bool sendmsg)
 static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
 {
 	OperateShrine(pnum, LS_GSHRINE, 1, oi, sendmsg);
-	object[oi]._oAnimFlag = TRUE;
+	objects[oi]._oAnimFlag = TRUE;
 }
 
 static void OperateCauldron(int pnum, int oi, bool sendmsg)
 {
 	OperateShrine(pnum, LS_CALDRON, 1, oi, sendmsg);
-	object[oi]._oAnimFrame = 3;
-	object[oi]._oAnimFlag = FALSE;
+	objects[oi]._oAnimFrame = 3;
+	objects[oi]._oAnimFlag = FALSE;
 }
 
 static void OperateFountains(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	// SetRndSeed(os->_oRndSeed);
 	switch (os->_otype) {
 	case OBJ_BLOODFTN:
@@ -3501,7 +3501,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 
@@ -3528,7 +3528,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	// assert(os->_oSelFlag != 0);
 
 	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_ANIM_FRAME
@@ -3576,7 +3576,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 
 static void OperateLazStand(int oi, bool sendmsg)
 {
-	ObjectStruct *os = &object[oi];
+	ObjectStruct* os = &objects[oi];
 
 	if (numitems >= MAXITEMS) {
 		return;
@@ -3601,7 +3601,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	int i;
 	bool triggered;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
@@ -3614,7 +3614,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 
 	triggered = true;
 	for (i = 0; i < numobjects; i++) {
-		on = &object[objectactive[i]];
+		on = &objects[objectactive[i]];
 		if (on->_otype != OBJ_CRUXM && on->_otype != OBJ_CRUXR && on->_otype != OBJ_CRUXL)
 			continue;
 		if (os->_oVar8 != on->_oVar8 || on->_oBreak == -1)
@@ -3642,7 +3642,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 
 static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os = &object[oi];
+	ObjectStruct* os = &objects[oi];
 	int mpo;
 	int xp, yp;
 
@@ -3689,7 +3689,7 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 				mpo = dObject[xp][yp];
 				if (mpo > 0) {
 					mpo--;
-					if (object[mpo]._otype == OBJ_BARRELEX && object[mpo]._oBreak != -1)
+					if (objects[mpo]._otype == OBJ_BARRELEX && objects[mpo]._oBreak != -1)
 						OperateBarrel(true, pnum, mpo, sendmsg);
 				}
 			}
@@ -3721,7 +3721,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	bool sendmsg;
 
 	sendmsg = (pnum == mypnum);
-	switch (object[oi]._otype) {
+	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 		if (TeleFlag)
 			OperateL1Door(oi, sendmsg);
@@ -3855,28 +3855,28 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 
 void SyncDoorOpen(int oi)
 {
-	if (object[oi]._oVar4 == DOOR_CLOSED)
+	if (objects[oi]._oVar4 == DOOR_CLOSED)
 		SyncOpObject(-1, oi);
 }
 void SyncDoorClose(int oi)
 {
-	if (object[oi]._oVar4 == DOOR_OPEN)
+	if (objects[oi]._oVar4 == DOOR_OPEN)
 		SyncOpObject(-1, oi);
 }
 
 void SyncTrapDisable(int oi)
 {
-	object[oi]._oVar4 = TRAP_INACTIVE;
+	objects[oi]._oVar4 = TRAP_INACTIVE;
 }
 
 void SyncTrapOpen(int oi)
 {
-	if (object[oi]._oAnimFrame == FLAMETRAP_INACTIVE_FRAME)
+	if (objects[oi]._oAnimFrame == FLAMETRAP_INACTIVE_FRAME)
 		SyncOpObject(-1, oi);
 }
 void SyncTrapClose(int oi)
 {
-	if (object[oi]._oAnimFrame == FLAMETRAP_ACTIVE_FRAME)
+	if (objects[oi]._oAnimFrame == FLAMETRAP_ACTIVE_FRAME)
 		SyncOpObject(-1, oi);
 }
 
@@ -3894,7 +3894,7 @@ void SyncChestClose(int oi)
 
 void SyncOpObject(int pnum, int oi)
 {
-	switch (object[oi]._otype) {
+	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
 		OperateL1Door(oi, false);
@@ -4004,7 +4004,7 @@ static void SyncLever(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oSelFlag == 0)
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 }
@@ -4013,7 +4013,7 @@ static void SyncBookLever(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 		//if (os->_otype == OBJ_BLINDBOOK) {
@@ -4050,7 +4050,7 @@ static void SyncL1Doors(int oi)
 	ObjectStruct *os;
 	int x, y, pn;
 
-	os = &object[oi];
+	os = &objects[oi];
 
 	x = os->_ox;
 	y = os->_oy;
@@ -4114,7 +4114,7 @@ static void SyncL2Doors(int oi)
 	ObjectStruct *os;
 	int x, y;
 
-	os = &object[oi];
+	os = &objects[oi];
 	x = os->_ox;
 	y = os->_oy;
 	if (os->_otype == OBJ_L2LDOOR) {
@@ -4141,7 +4141,7 @@ static void SyncL3Doors(int oi)
 	ObjectStruct *os;
 	int x, y;
 
-	os = &object[oi];
+	os = &objects[oi];
 	x = os->_ox;
 	y = os->_oy;
 	if (os->_otype == OBJ_L3LDOOR) {
@@ -4161,9 +4161,9 @@ void SyncObjectAnim(int oi)
 {
 	int type;
 
-	type = object[oi]._otype;
-	object[oi]._oAnimData = pObjCels[AllObjects[type].ofindex];
-	object[oi]._oAnimFrameLen = AllObjects[type].oAnimFrameLen;
+	type = objects[oi]._otype;
+	objects[oi]._oAnimData = pObjCels[AllObjects[type].ofindex];
+	objects[oi]._oAnimFrameLen = AllObjects[type].oAnimFrameLen;
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -4197,7 +4197,7 @@ void GetObjectStr(int oi)
 {
 	ObjectStruct *os;
 
-	os = &object[oi];
+	os = &objects[oi];
 	switch (os->_otype) {
 	case OBJ_LEVER:
 	//case OBJ_FLAMELVR:

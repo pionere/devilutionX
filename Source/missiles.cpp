@@ -1154,8 +1154,8 @@ static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 	oi = dObject[mx][my];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (!object[oi]._oMissFlag) {
-			if (object[oi]._oBreak == 1)
+		if (!objects[oi]._oMissFlag) {
+			if (objects[oi]._oBreak == 1)
 				OperateObject(-1, oi, false);
 			hit = 2;
 		}

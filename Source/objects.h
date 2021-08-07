@@ -15,7 +15,7 @@ extern "C" {
 extern int objectactive[MAXOBJECTS];
 extern int numobjects;
 extern int objectavail[MAXOBJECTS];
-extern ObjectStruct object[MAXOBJECTS];
+extern ObjectStruct objects[MAXOBJECTS];
 //extern bool gbInitObjFlag;
 
 void InitObjectGFX();

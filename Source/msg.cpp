@@ -1701,7 +1701,7 @@ static unsigned On_OPOBJXY(TCmd *pCmd, int pnum)
 		plr.destParam1 = oi;
 		plr.destParam2 = cmd->x;
 		plr.destParam3 = cmd->y;
-		MakePlrPath(pnum, cmd->x, cmd->y, !(object[oi]._oSolidFlag | object[oi]._oDoorFlag));
+		MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag));
 	}
 
 	return sizeof(*cmd);
@@ -1717,7 +1717,7 @@ static unsigned On_DISARMXY(TCmd *pCmd, int pnum)
 		plr.destParam1 = oi;
 		plr.destParam2 = cmd->x;
 		plr.destParam3 = cmd->y;
-		MakePlrPath(pnum, cmd->x, cmd->y, !(object[oi]._oSolidFlag | object[oi]._oDoorFlag));
+		MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag));
 	}
 
 	return sizeof(*cmd);
