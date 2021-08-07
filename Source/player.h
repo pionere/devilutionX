@@ -30,7 +30,7 @@ void CreatePlayer(const _uiheroinfo &heroinfo);
 #ifdef _DEBUG
 void NextPlrLevel(int pnum);
 #endif
-void AddPlrExperience(int pnum, int lvl, int exp);
+void AddPlrExperience(int pnum, int lvl, unsigned exp);
 void AddPlrMonstExper(int mnum);
 void InitPlayer(int pnum);
 void InitLvlPlayer(int pnum);
