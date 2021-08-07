@@ -737,7 +737,7 @@ typedef struct ObjectStruct {
 	//BOOL _oDelFlag;
 	BOOL _oSolidFlag;
 	BOOL _oMissFlag;
-	BOOL _oLight;
+	BOOL _oLightFlag;
 	char _oBreak; // check
 	char _oSelFlag; // check
 	BOOL _oPreFlag;

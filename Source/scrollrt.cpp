@@ -538,7 +538,7 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 
 	if (oi == pcursobj)
 		CelDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
-	if (os->_oLight) {
+	if (os->_oLightFlag) {
 		CelClippedDrawLight(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	} else {
 		CelClippedDraw(sx, sy, pCelBuff, nCel, os->_oAnimWidth);

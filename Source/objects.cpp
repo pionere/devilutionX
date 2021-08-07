@@ -1068,7 +1068,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	os->_oAnimXOffset = (os->_oAnimWidth - 64) >> 1;
 	os->_oSolidFlag = ods->oSolidFlag;
 	os->_oMissFlag = ods->oMissFlag;
-	os->_oLight = ods->oLightFlag;
+	os->_oLightFlag = ods->oLightFlag;
 	// os->_oDelFlag = FALSE; - unused
 	os->_oBreak = ods->oBreak;
 	os->_oSelFlag = ods->oSelFlag;

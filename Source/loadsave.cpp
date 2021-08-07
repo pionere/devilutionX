@@ -683,7 +683,7 @@ static void LoadObject(int oi, bool full)
 	LoadInt(&os->_oAnimXOffset);
 	LoadInt(&os->_oSolidFlag);
 	LoadInt(&os->_oMissFlag);
-	LoadInt(&os->_oLight);
+	LoadInt(&os->_oLightFlag);
 	LoadByte(&os->_oBreak);
 	LoadByte(&os->_oSelFlag);
 	tbuff += 2; // Alignment
@@ -1399,7 +1399,7 @@ static void SaveObject(int oi)
 	SaveInt(&os->_oAnimXOffset);
 	SaveInt(&os->_oSolidFlag);
 	SaveInt(&os->_oMissFlag);
-	SaveInt(&os->_oLight);
+	SaveInt(&os->_oLightFlag);
 	SaveByte(&os->_oBreak);
 	SaveByte(&os->_oSelFlag);
 	tbuff += 2; // Alignment
@@ -1626,7 +1626,6 @@ void SaveGame()
 
 void SaveLevel()
 {
-	int i;
 	char szName[MAX_PATH];
 	int dwLen;
 	BYTE* fileBuff;
