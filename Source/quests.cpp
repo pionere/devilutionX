@@ -488,7 +488,7 @@ static void ResyncBanner()
 		// TODO: add the opening of the entrance to Banner2.DUN?
 	} else {
 		ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
-		//for (i = 0; i < nobjects; i++)
+		//for (i = 0; i < numobjects; i++)
 		//	SyncObjectAnim(objectactive[i]);
 		BYTE tv = dTransVal[2 * setpc_x + 1 + DBORDERX][2 * (setpc_y + 6) + 1 + DBORDERY];
 		DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x + setpc_w - 1, setpc_y + setpc_h - 1, tv);
@@ -514,13 +514,13 @@ void ResyncQuests()
 			    setpc_w + setpc_x + 1,
 			    setpc_h + setpc_y + 1);
 			ObjChangeMapResync(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 2, (setpc_h >> 1) + setpc_y - 2);
-			for (i = 0; i < nobjects; i++)
+			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
 		if (quests[Q_LTBANNER]._qvar1 == 3) {
 			ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1);
-			for (i = 0; i < nobjects; i++)
+			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}*/
@@ -551,7 +551,7 @@ void ResyncQuests()
 				ObjChangeMapResync(1, 18, 20, 24);
 			if (quests[Q_BETRAYER]._qvar1 >= 7)
 				InitVPReturnTrigger(true);
-			//for (i = 0; i < nobjects; i++)
+			//for (i = 0; i < numobjects; i++)
 			//	SyncObjectAnim(objectactive[i]);
 		}
 		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl) {

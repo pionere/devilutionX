@@ -2355,12 +2355,12 @@ void SpawnRock()
 	if (numitems >= MAXITEMS)
 		return;
 
-	for (i = 0; i < nobjects; i++) {
+	for (i = 0; i < numobjects; i++) {
 		oi = objectactive[i];
 		if (object[oi]._otype == OBJ_STAND)
 			break;
 	}
-	if (i != nobjects) {
+	if (i != numobjects) {
 		i = itemavail[0];
 		SetItemData(i, IDI_ROCK);
 		SetupItem(i);

@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 extern int objectactive[MAXOBJECTS];
-extern int nobjects;
+extern int numobjects;
 extern int objectavail[MAXOBJECTS];
 extern ObjectStruct object[MAXOBJECTS];
 //extern bool gbInitObjFlag;

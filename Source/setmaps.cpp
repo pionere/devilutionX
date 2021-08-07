@@ -75,7 +75,7 @@ static int ObjIndex(int x, int y)
 {
 	int i, oi;
 
-	for (i = 0; i < nobjects; i++) {
+	for (i = 0; i < numobjects; i++) {
 		oi = objectactive[i];
 		if (object[oi]._ox == x && object[oi]._oy == y)
 			return oi;

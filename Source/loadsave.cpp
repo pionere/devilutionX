@@ -841,7 +841,7 @@ void LoadGame()
 
 	LoadInt(&nummonsters);
 	LoadInt(&nummissiles);
-	LoadInt(&nobjects);
+	LoadInt(&numobjects);
 	LoadInt(&numitems);
 
 	if (currLvl._dType != DTYPE_TOWN) {
@@ -861,7 +861,7 @@ void LoadGame()
 			LoadByte(&objectactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
 			LoadByte(&objectavail[i]);
-		for (i = 0; i < nobjects; i++)
+		for (i = 0; i < numobjects; i++)
 			LoadObject(objectactive[i], true);
 	}
 	static_assert(MAXITEMS <= UCHAR_MAX, "LoadGame handles item-ids as bytes.");
@@ -1503,7 +1503,7 @@ void SaveGame()
 
 	SaveInt(&nummonsters);
 	SaveInt(&nummissiles);
-	SaveInt(&nobjects);
+	SaveInt(&numobjects);
 	SaveInt(&numitems);
 
 	if (currLvl._dType != DTYPE_TOWN) {
@@ -1521,7 +1521,7 @@ void SaveGame()
 			SaveByte(&objectactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
 			SaveByte(&objectavail[i]);
-		for (i = 0; i < nobjects; i++)
+		for (i = 0; i < numobjects; i++)
 			SaveObject(objectactive[i]);
 	}
 	for (i = 0; i < MAXITEMS; i++)
@@ -1613,7 +1613,7 @@ void SaveLevel()
 
 	SaveInt(&nummonsters);
 	SaveInt(&numitems);
-	SaveInt(&nobjects);
+	SaveInt(&numobjects);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
@@ -1624,7 +1624,7 @@ void SaveLevel()
 			SaveByte(&objectactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
 			SaveByte(&objectavail[i]);
-		for (i = 0; i < nobjects; i++)
+		for (i = 0; i < numobjects; i++)
 			SaveObject(objectactive[i]);
 	}
 
@@ -1671,7 +1671,7 @@ void LoadLevel()
 
 	LoadInt(&nummonsters);
 	LoadInt(&numitems);
-	LoadInt(&nobjects);
+	LoadInt(&numobjects);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
@@ -1683,7 +1683,7 @@ void LoadLevel()
 			LoadByte(&objectactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
 			LoadByte(&objectavail[i]);
-		for (i = 0; i < nobjects; i++)
+		for (i = 0; i < numobjects; i++)
 			LoadObject(objectactive[i], false);
 	}
 

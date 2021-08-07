@@ -27,7 +27,7 @@ int trapid;
 BYTE *pObjCels[NUM_OFILE_TYPES] = { 0 };
 int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
-int nobjects;
+int numobjects;
 int leverid;
 int objectavail[MAXOBJECTS];
 ObjectStruct object[MAXOBJECTS];
@@ -366,7 +366,7 @@ static void ClrAllObjects()
 	memset(object, 0, sizeof(object));
 	memset(objectactive, 0, sizeof(objectactive));
 
-	nobjects = 0;
+	numobjects = 0;
 	for (i = 0; i < MAXOBJECTS; i++)
 		objectavail[i] = i;
 
@@ -1035,11 +1035,11 @@ void SetMapObjects(BYTE *pMap)
 
 /*static void DeleteObject_(int oi, int idx)
 {
-	objectavail[MAXOBJECTS - nobjects] = oi;
+	objectavail[MAXOBJECTS - numobjects] = oi;
 	dObject[object[oi]._ox][object[oi]._oy] = 0;
-	nobjects--;
-	if (nobjects > 0 && idx != nobjects)
-		objectactive[idx] = objectactive[nobjects];
+	numobjects--;
+	if (numobjects > 0 && idx != numobjects)
+		objectactive[idx] = objectactive[numobjects];
 }*/
 
 static void SetupObject(int oi, int x, int y, int type)
@@ -1420,13 +1420,13 @@ void AddHBooks(int bookidx, int ox, int oy)
 {
 	int oi;
 
-	if (nobjects >= MAXOBJECTS)
+	if (numobjects >= MAXOBJECTS)
 		return;
 
 	oi = objectavail[0];
-	objectactive[nobjects] = oi;
-	nobjects++;
-	objectavail[0] = objectavail[MAXOBJECTS - nobjects];
+	objectactive[numobjects] = oi;
+	numobjects++;
+	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, OBJ_STORYBOOK);
 	SetupHBook(oi, bookidx);
@@ -1458,13 +1458,13 @@ int AddObject(int type, int ox, int oy)
 {
 	int oi;
 
-	if (nobjects >= MAXOBJECTS)
+	if (numobjects >= MAXOBJECTS)
 		return -1;
 
 	oi = objectavail[0];
-	objectactive[nobjects] = oi;
-	nobjects++;
-	objectavail[0] = objectavail[MAXOBJECTS - nobjects];
+	objectactive[numobjects] = oi;
+	numobjects++;
+	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, type);
 	switch (type) {
@@ -1737,7 +1737,7 @@ static void Obj_Door(int oi)
 	ObjectStruct *os;
 	int i;
 
-	for (i = 0; i < nobjects; i++) {
+	for (i = 0; i < numobjects; i++) {
 		os = &object[objectactive[i]];
 		if (os->_otype == OBJ_FLAMEHOLE && os->_oVar1 == tid) { // FLAMETRAP_ID
 			os->_oVar4 = FLAMETRAP_FIRE_ACTIVE;
@@ -1896,7 +1896,7 @@ void ProcessObjects()
 {
 	int i, oi;
 
-	for (i = 0; i < nobjects; ++i) {
+	for (i = 0; i < numobjects; ++i) {
 		oi = objectactive[i];
 		switch (object[oi]._otype) {
 		case OBJ_L1LIGHT:
@@ -1964,7 +1964,7 @@ void ProcessObjects()
 		if (object[oi]._oAnimFrame > object[oi]._oAnimLen)
 			object[oi]._oAnimFrame = 1;
 	}
-	/*for (i = 0; i < nobjects; ) {
+	/*for (i = 0; i < numobjects; ) {
 		oi = objectactive[i];
 		if (object[oi]._oDelFlag) {
 			DeleteObject_(oi, i);
@@ -2461,7 +2461,7 @@ static void OperateLever(int oi, bool sendmsg)
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 	if (currLvl._dLevelIdx == DLV_HELL4) {
-		for (i = 0; i < nobjects; i++) {
+		for (i = 0; i < numobjects; i++) {
 			on = &object[objectactive[i]]; //         LEVER_INDEX
 			if (on->_otype == OBJ_SWITCHSKL && os->_oVar8 == on->_oVar8 && on->_oSelFlag != 0) {
 				return;
@@ -2492,7 +2492,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		return;
 	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		missile_added = false;
-		for (i = 0; i < nobjects; i++) {
+		for (i = 0; i < numobjects; i++) {
 			on = &object[objectactive[i]];
 			if (on->_otype != OBJ_MCIRCLE2)
 				continue;
@@ -2547,7 +2547,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		}
 	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
-		//for (i = 0; i < nobjects; i++)
+		//for (i = 0; i < numobjects; i++)
 		//	SyncObjectAnim(objectactive[i]);
 	}
 }
@@ -2731,7 +2731,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 
 	if (sendmsg)
 		NetSendCmdParam1(true, disable ? CMD_TRAPCLOSE : CMD_TRAPOPEN, oi);
-	for (i = 0; i < nobjects; i++) {
+	for (i = 0; i < numobjects; i++) {
 		on = &object[objectactive[i]]; //         FLAMETRAP_ID
 		if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
 			on->_oVar2 = disable ? TRAP_INACTIVE : TRAP_ACTIVE;
@@ -2845,7 +2845,7 @@ void DisarmObject(int pnum, int oi)
 	if (os->_oTrapFlag) {
 		trapdisper = 2 * plr._pDexterity - 8 * currLvl._dLevel;
 		if (random_(154, 100) <= trapdisper) {
-			for (i = 0; i < nobjects; i++) {
+			for (i = 0; i < numobjects; i++) {
 				on = &object[objectactive[i]];
 				if ((on->_otype == OBJ_TRAPL || on->_otype == OBJ_TRAPR)
 				 && dObject[on->_oVar1][on->_oVar2] - 1 == oi) {
@@ -3061,7 +3061,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_CREEPY);
 		break;
 	case SHRINE_THAUMATURGIC:
-		for (i = 0; i < nobjects; i++) {
+		for (i = 0; i < numobjects; i++) {
 			os = &object[objectactive[i]];
 			if ((os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3)
 			 || (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3)) {
@@ -3613,7 +3613,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	os->_oBreak = -1;
 
 	triggered = true;
-	for (i = 0; i < nobjects; i++) {
+	for (i = 0; i < numobjects; i++) {
 		on = &object[objectactive[i]];
 		if (on->_otype != OBJ_CRUXM && on->_otype != OBJ_CRUXR && on->_otype != OBJ_CRUXL)
 			continue;
