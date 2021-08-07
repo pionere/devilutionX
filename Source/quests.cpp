@@ -192,7 +192,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 {
 	int qn;
 
-	switch (monster[mnum]._uniqtype - 1) {
+	switch (monsters[mnum]._uniqtype - 1) {
 	case UMT_GARBUD: //"Gharbad the Weak"
 		quests[Q_GARBUD]._qactive = QUEST_DONE;
 		sfxdelay = 30;

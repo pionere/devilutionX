@@ -2087,7 +2087,7 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 	if (numitems >= MAXITEMS)
 		return;
 
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 	if ((mon->MData->mTreasure & 0x8000) != 0 && !IsMultiGame) {
 		// fix drop in single player
 		idx = mon->MData->mTreasure & 0xFFF;

@@ -57,7 +57,7 @@ void InitDead()
 	nd++;
 
 	for (i = MAX_MINIONS; i < nummonsters; i++) {
-		mon = &monster[monstactive[i]];
+		mon = &monsters[monstactive[i]];
 		if (mon->_uniqtype != 0) {
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 				dead[nd]._deadData[d] = mon->_mAnims[MA_DEATH].aData[d];
@@ -81,7 +81,7 @@ void AddDead(int mnum)
 	if (mnum >= MAX_MINIONS)
 		MonUpdateLeader(mnum);
 
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 	mon->_mDelFlag = TRUE;
 
 	dx = mon->_mx;
@@ -99,7 +99,7 @@ void SetDead()
 	int dx, dy;
 
 	for (i = 0; i < nummonsters; i++) {
-		mon = &monster[monstactive[i]];
+		mon = &monsters[monstactive[i]];
 		if (mon->mlid != 0) {
 			for (dx = 0; dx < MAXDUNX; dx++) {
 				for (dy = 0; dy < MAXDUNY; dy++) {

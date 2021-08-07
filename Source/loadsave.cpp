@@ -512,7 +512,7 @@ static void LoadPlayer(int pnum)
 
 static void LoadMonster(int mnum)
 {
-	MonsterStruct *mon = &monster[mnum];
+	MonsterStruct* mon = &monsters[mnum];
 
 	LoadInt(&mon->_mmode);
 	LoadInt(&mon->_msquelch);
@@ -1212,7 +1212,7 @@ static void SavePlayer(int pnum)
 
 static void SaveMonster(int mnum)
 {
-	MonsterStruct *mon = &monster[mnum];
+	MonsterStruct* mon = &monsters[mnum];
 
 	SaveInt(&mon->_mmode);
 	SaveInt(&mon->_msquelch);

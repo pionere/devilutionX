@@ -22,8 +22,8 @@ static void sync_init_monsters()
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
 		static_assert(MAXDUNX + MAXDUNY + 0x1000 < 0xFFFE, "sync_init_monsters expects a dungeon to fit to 16-bit I.");
-		monster_dists[mnum] = abs(px - monster[mnum]._mx) + abs(py - monster[mnum]._my);
-		if (monster[mnum]._msquelch == 0) {
+		monster_dists[mnum] = abs(px - monsters[mnum]._mx) + abs(py - monsters[mnum]._my);
+		if (monsters[mnum]._msquelch == 0) {
 			static_assert(MAXDUNX + MAXDUNY < 0x1000, "sync_init_monsters expects a dungeon to fit to 16-bit I/a.");
 			monster_dists[mnum] |= 0x1000;
 		} else if (monster_prio[mnum] != 0) {
@@ -35,16 +35,16 @@ static void sync_init_monsters()
 static void sync_monster_pos(TSyncMonster *symon, int mnum)
 {
 	symon->_mndx = mnum;
-	symon->_mx = monster[mnum]._mx;
-	symon->_my = monster[mnum]._my;
-	symon->_mdir = monster[mnum]._mdir;
+	symon->_mx = monsters[mnum]._mx;
+	symon->_my = monsters[mnum]._my;
+	symon->_mdir = monsters[mnum]._mdir;
 	symon->_menemy = encode_enemy(mnum);
-	symon->_mhitpoints = SDL_SwapLE32(monster[mnum]._mhitpoints);
-	symon->_mactive = SDL_SwapLE32(monster[mnum]._msquelch);
+	symon->_mhitpoints = SDL_SwapLE32(monsters[mnum]._mhitpoints);
+	symon->_mactive = SDL_SwapLE32(monsters[mnum]._msquelch);
 
 	static_assert(MAXDUNX + MAXDUNY + 0x1000 < 0xFFFE, "sync_init_monsters expects a dungeon to fit to 16-bit II.");
 	monster_dists[mnum] = 0xFFFE;
-	monster_prio[mnum] = monster[mnum]._msquelch == 0 ? 0xFFFF : 0xFFFE;
+	monster_prio[mnum] = monsters[mnum]._msquelch == 0 ? 0xFFFF : 0xFFFE;
 }
 
 static int sync_closest_monster()
@@ -197,7 +197,7 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 	DWORD delta;
 
 	mnum = symon->_mndx;
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 
 	delta = abs(myplr._px - mon->_mx) + abs(myplr._py - mon->_my);
 	if (delta > 255) {

@@ -3367,14 +3367,14 @@ static void OperateBookCase(int pnum, int oi, bool sendmsg)
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_BOOK, sendmsg, false);
 	if (QuestStatus(Q_ZHAR) && quests[Q_ZHAR]._qactive != QUEST_DONE
-	 && dTransVal[monster[MAX_MINIONS]._mx][monster[MAX_MINIONS]._my] == dTransVal[plr._px][plr._py]
-	 && monster[MAX_MINIONS].mtalkmsg == TEXT_ZHAR1) {
-		assert((monster[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
-		monster[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
-		//MonStartStand(MAX_MINIONS, monster[MAX_MINIONS]._mdir);
-		//monster[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
-		monster[MAX_MINIONS]._mmode = MM_TALK;
-		//monster[MAX_MINIONS]._mVar8 = 0; // MON_TIMER
+	 && dTransVal[monsters[MAX_MINIONS]._mx][monsters[MAX_MINIONS]._my] == dTransVal[plr._px][plr._py]
+	 && monsters[MAX_MINIONS].mtalkmsg == TEXT_ZHAR1) {
+		assert((monsters[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
+		monsters[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
+		//MonStartStand(MAX_MINIONS, monsters[MAX_MINIONS]._mdir);
+		//monsters[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
+		monsters[MAX_MINIONS]._mmode = MM_TALK;
+		//monsters[MAX_MINIONS]._mVar8 = 0; // MON_TIMER
 		quests[Q_ZHAR]._qvar1 = 2;
 		if (sendmsg)
 			NetSendCmdQuest(Q_ZHAR, true);

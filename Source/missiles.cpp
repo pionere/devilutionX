@@ -198,7 +198,7 @@ static bool FindClosest(int sx, int sy, int &dx, int &dy)
 			assert(IN_DUNGEON_AREA(tx, ty));
 			mid = dMonster[tx][ty];
 			if (mid > 0
-			 && monster[mid - 1]._mhitpoints >= (1 << 6)
+			 && monsters[mid - 1]._mhitpoints >= (1 << 6)
 			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
 				dx = tx;
 				dy = ty;
@@ -223,8 +223,8 @@ static bool FindClosestChain(int sx, int sy, int &dx, int &dy)
 			assert(IN_DUNGEON_AREA(tx, ty));
 			mid = dMonster[tx][ty];
 			if (mid > 0
-			 && (monster[mid - 1].mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE
-			 && monster[mid - 1]._mhitpoints >= (1 << 6)
+			 && (monsters[mid - 1].mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE
+			 && monsters[mid - 1]._mhitpoints >= (1 << 6)
 			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
 				dx = tx;
 				dy = ty;
@@ -605,7 +605,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	int hper, dam;
 	bool ret;
 
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 	mis = &missile[mi];
 	hper = 90 - mon->_mArmorClass - mis->_miDist;
 	if (random_(68, 100) >= hper && mon->_mmode != MM_STONE)
@@ -646,7 +646,7 @@ static bool MonsterMHit(int mnum, int mi)
 	int pnum, tmac, hper, dam;
 	bool ret;
 
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 	mis = &missile[mi];
 	pnum = mis->_miSource;
 	if (mis->_miSubType == 0) {
@@ -860,7 +860,7 @@ static bool PlayerMHit(int pnum, int mi)
 		return false;
 	}
 	mis = &missile[mi];
-	mon = &monster[mis->_miSource];
+	mon = &monsters[mis->_miSource];
 	if (mis->_miSubType == 0) {
 		hper = 30 + mon->_mHit
 		    + (2 * mon->mLevel)
@@ -1068,7 +1068,7 @@ static int CheckMonCol(int mnum, int mx, int my)
 		negate = false;
 	}
 
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 	mode = mon->_mmode;
 	static_assert(MM_WALK3 - MM_WALK == 2, "CheckMonCol expects ordered MM_WALKs I.");
 	static_assert(MM_WALK + 1 == MM_WALK2, "CheckMonCol expects ordered MM_WALKs II.");
@@ -1570,8 +1570,8 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 				mis->_miVar2 = dy;
 			}
 		} else {
-			mis->_miMinDam = monster[misource]._mMinDamage << 6;
-			mis->_miMaxDam = monster[misource]._mMaxDamage << 6;
+			mis->_miMinDam = monsters[misource]._mMinDamage << 6;
+			mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 		}
 	} else {
 		mis->_miMinDam = currLvl._dLevel << 6;
@@ -1683,8 +1683,8 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		} else {
 			//assert(misource >= MAX_MINIONS);
 			av = 26;
-			mindam = monster[misource]._mMinDamage;
-			maxdam = monster[misource]._mMaxDamage;
+			mindam = monsters[misource]._mMinDamage;
+			maxdam = monsters[misource]._mMaxDamage;
 		}
 	} else {
 		av = 16;
@@ -1717,8 +1717,8 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_mityoff += 3 * mis->_miyvel;
 	GetMissilePos(mi);
 	mis->_miRange = 256;
-	mis->_miMinDam = monster[misource]._mMinDamage << 6;
-	mis->_miMaxDam = monster[misource]._mMaxDamage << 6;
+	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
+	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 8);
@@ -1836,8 +1836,8 @@ int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		if (i > 50)
 			i = 50;
 	} else {
-		mindam = monster[misource]._mMinDamage;
-		maxdam = monster[misource]._mMaxDamage;
+		mindam = monsters[misource]._mMinDamage;
+		maxdam = monsters[misource]._mMaxDamage;
 		i = 16;
 	}
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
@@ -1870,8 +1870,8 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			mindam = 1;
 			maxdam = plx(misource)._pMagic + (spllvl << 3);
 		} else {
-			mindam = monster[misource]._mMinDamage;
-			maxdam = monster[misource]._mMaxDamage;
+			mindam = monsters[misource]._mMinDamage;
+			maxdam = monsters[misource]._mMaxDamage;
 		}
 	} else {
 		mindam = currLvl._dLevel;
@@ -2042,7 +2042,7 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			mis->_miMinDam = dam;
 			mis->_miMaxDam = dam << 3;
 		} else {
-			mis->_miMinDam = mis->_miMaxDam = monster[misource].mLevel << 1;
+			mis->_miMinDam = mis->_miMaxDam = monsters[misource].mLevel << 1;
 		}
 	} else {
 		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel << 1;
@@ -2181,7 +2181,7 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			mis->_miMaxDam = plx(misource)._pMagic << 6;
 	//	} else {
 	//		mindam = 1 << 6;
-	//		maxdam = monster[misource].mMaxDamage << 6;
+	//		maxdam = monsters[misource].mMaxDamage << 6;
 	//	}
 	//} else {
 	//	mindam = 1 << 6;
@@ -2198,7 +2198,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	AnimStruct *anim;
 
 	GetMissileVel(mi, sx, sy, dx, dy, 18);
-	mon = &monster[misource];
+	mon = &monsters[misource];
 	anim = &mon->_mAnims[
 		(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
 		(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
@@ -2234,7 +2234,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	MonsterStruct *mon;
 
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
-	mon = &monster[misource];
+	mon = &monsters[misource];
 	anim = &mon->_mAnims[MA_WALK];
 	mis = &missile[mi];
 	mis->_miDir = midir;
@@ -2285,8 +2285,8 @@ int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			PlrDecHp(misource, 320, DMGTYPE_NPC);
 		mis->_miMinDam = mis->_miMaxDam = (plx(misource)._pMagic * (spllvl + 1)) << (-3 + 6);
 	} else {
-		mis->_miMinDam = monster[misource]._mMinDamage << 6;
-		mis->_miMaxDam = monster[misource]._mMaxDamage << 6;
+		mis->_miMinDam = monsters[misource]._mMinDamage << 6;
+		mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	}
 	return MIRES_DONE;
 }
@@ -2304,9 +2304,9 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
-	mis->_miRange = 5 * (monster[misource]._mint + 4);
-	mis->_miMinDam = monster[misource]._mMinDamage << 6;
-	mis->_miMaxDam = monster[misource]._mMaxDamage << 6;
+	mis->_miRange = 5 * (monsters[misource]._mint + 4);
+	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
+	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	//mis->_miLid = -1;
 	//PutMissile(mi);
 	return MIRES_DONE;
@@ -2317,7 +2317,7 @@ int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	mis->_miRange = 40 * (monster[misource]._mint + 1) + random_(50, 15);
+	mis->_miRange = 40 * (monsters[misource]._mint + 1) + random_(50, 15);
 	mis->_miLightFlag = TRUE;
 	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;
@@ -2345,7 +2345,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			assert(IN_DUNGEON_AREA(tx, ty));
 			mid = dMonster[tx][ty];
 			mid = mid >= 0 ? mid - 1 : -(mid + 1);
-			mon = &monster[mid];
+			mon = &monsters[mid];
 			if (!(mon->_mFlags & MFLAG_NOSTONE)) {
 				if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mhitpoints >= (1 << 6)) {
 					mis->_miVar1 = mon->_mmode;
@@ -2690,8 +2690,8 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		mis->_miMinDam = plx(misource)._pMagic;
 		mis->_miMaxDam = mis->_miMinDam + (spllvl << 4);
 	} else {
-		mis->_miMinDam = monster[misource]._mMinDamage << 1;
-		mis->_miMaxDam = monster[misource]._mMaxDamage << 1;
+		mis->_miMinDam = monsters[misource]._mMinDamage << 1;
+		mis->_miMaxDam = monsters[misource]._mMaxDamage << 1;
 	}
 	return MIRES_DONE;
 }
@@ -2901,7 +2901,7 @@ static bool Sentfire(int mi, int sx, int sy)
 
 	mis = &missile[mi];
 	if (LineClear(mis->_mix, mis->_miy, sx, sy)) {
-		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6) && dMonster[sx][sy] - 1 >= MAX_MINIONS) {
+		if (dMonster[sx][sy] > 0 && monsters[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6) && dMonster[sx][sy] - 1 >= MAX_MINIONS) {
 			AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, 0, mis->_miSpllvl);
 			SetMissDir(mi, 2);
 			mis->_miVar2 = 3;
@@ -3611,7 +3611,7 @@ void MI_Chain(int mi)
 							sd = sd >= 0 ? sd - 1 : -(sd + 1);
 						else
 							sd = MAX_MINIONS;
-						SetRndSeed(monster[sd]._mRndSeed);
+						SetRndSeed(monsters[sd]._mRndSeed);
 						sd = random_(0, lengthof(offset_x));
 						dx = mx + offset_x[sd];
 						dy = my + offset_y[sd];
@@ -3709,7 +3709,7 @@ void MI_Stone(int mi)
 	MonsterStruct *mon;
 
 	mis = &missile[mi];
-	mon = &monster[mis->_miVar2];
+	mon = &monsters[mis->_miVar2];
 	// assert(mon->_mmode == MM_STONE);
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
@@ -3754,7 +3754,7 @@ void MI_Rhino(int mi)
 
 	mis = &missile[mi];
 	mnum = mis->_miSource;
-	if (monster[mnum]._mmode != MM_CHARGE) {
+	if (monsters[mnum]._mmode != MM_CHARGE) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
@@ -3763,7 +3763,7 @@ void MI_Rhino(int mi)
 	ax = mis->_mix;
 	ay = mis->_miy;
 	dMonster[ax][ay] = 0;
-	if (monster[mnum]._mAi == AI_SNAKE) {
+	if (monsters[mnum]._mAi == AI_SNAKE) {
 		mis->_mitxoff += 2 * mis->_mixvel;
 		mis->_mityoff += 2 * mis->_miyvel;
 		GetMissilePos(mi);
@@ -3776,19 +3776,19 @@ void MI_Rhino(int mi)
 		mis->_mityoff += mis->_miyvel;
 	}
 	GetMissilePos(mi);
-	if (!PosOkMonst(mnum, mis->_mix, mis->_miy) || (monster[mnum]._mAi == AI_SNAKE && !PosOkMonst(mnum, mix2, miy2))) {
+	if (!PosOkMonst(mnum, mis->_mix, mis->_miy) || (monsters[mnum]._mAi == AI_SNAKE && !PosOkMonst(mnum, mix2, miy2))) {
 		MissToMonst(mi, ax, ay);
 		mis->_miDelFlag = TRUE;
 		return;
 	}
 	bx = missile[mi]._mix;
 	by = missile[mi]._miy;
-	monster[mnum]._mfutx = bx;
-	monster[mnum]._moldx = bx;
-	monster[mnum]._mx = bx;
-	monster[mnum]._mfuty = by;
-	monster[mnum]._moldy = by;
-	monster[mnum]._my = by;
+	monsters[mnum]._mfutx = bx;
+	monsters[mnum]._moldx = bx;
+	monsters[mnum]._mx = bx;
+	monsters[mnum]._mfuty = by;
+	monsters[mnum]._moldy = by;
+	monsters[mnum]._my = by;
 	dMonster[bx][by] = -(mnum + 1);
 	if (missile[mi]._miLid != -1)
 		ChangeLightXY(missile[mi]._miLid, bx, by);
@@ -3811,8 +3811,8 @@ void MI_Rhino(int mi)
 	mnum = mis->_miSource;
 	bx = mis->_mix;
 	by = mis->_miy;
-	cx = monster[mnum]._menemyx;
-	cy = monster[mnum]._menemyy;
+	cx = monsters[mnum]._menemyx;
+	cy = monsters[mnum]._menemyy;
 	if ((bx != ax || by != ay)
 	 && ((mis->_miVar1 && (abs(ax - cx) >= 4 || abs(ay - cy) >= 4)) || mis->_miVar2 > 1)
 	 && PosOkMonst(mnum, ax, ay)) {
@@ -3820,7 +3820,7 @@ void MI_Rhino(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	if (!(monster[mnum]._mFlags & MFLAG_TARGETS_MONSTER)) {
+	if (!(monsters[mnum]._mFlags & MFLAG_TARGETS_MONSTER)) {
 		tnum = dPlayer[bx][by];
 	} else {
 		tnum = dMonster[bx][by];
@@ -3829,7 +3829,7 @@ void MI_Rhino(int mi)
 		mis->_mixvel *= -1;
 		mis->_miyvel *= -1;
 		mis->_miDir = OPPOSITE(mis->_miDir);
-		mis->_miAnimData = monster[mnum]._mAnims[MA_WALK].aData[mis->_miDir];
+		mis->_miAnimData = monsters[mnum]._mAnims[MA_WALK].aData[mis->_miDir];
 		mis->_miVar2++;
 		if (tnum > 0)
 			mis->_miVar1 = TRUE;
@@ -4161,7 +4161,7 @@ void SyncMissilesAnim()
 		mis->_miAnimData = misanimdata[mis->_miAnimType][mis->_miDir];
 		mis->_miAnimFrameLen = misfiledata[mis->_miAnimType].mfAnimFrameLen[mis->_miDir];
 		if (mis->_miType == MIS_RHINO) {
-			mon = &monster[mis->_miSource];
+			mon = &monsters[mis->_miSource];
 			anim = &mon->_mAnims[
 				(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
 				(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];

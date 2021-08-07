@@ -983,7 +983,7 @@ void AddPlrMonstExper(int mnum)
 	unsigned totplrs, i, e;
 	BYTE pmask;
 
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 	pmask = mon->_mWhoHit;
 	if (!(pmask & (1 << mypnum)))
 		return;
@@ -1413,11 +1413,11 @@ static bool StartAttack(int pnum)
 		sl = plr.destParam4;
 		break;
 	case ACTION_ATTACKMON:
-		dx = monster[i]._mfutx;
-		dy = monster[i]._mfuty;
+		dx = monsters[i]._mfutx;
+		dy = monsters[i]._mfuty;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
 			return false;
-		if (monster[i].mtalkmsg != TEXT_NONE && monster[i].mtalkmsg != TEXT_VILE14) {
+		if (monsters[i].mtalkmsg != TEXT_NONE && monsters[i].mtalkmsg != TEXT_VILE14) {
 			TalktoMonster(i, pnum);
 			return true;
 		}
@@ -1489,12 +1489,12 @@ static void StartRangeAttack(int pnum)
 		sl = plr.destParam4;
 		break;
 	case ACTION_RATTACKMON:
-		if (monster[i].mtalkmsg != TEXT_NONE && monster[i].mtalkmsg != TEXT_VILE14) {
+		if (monsters[i].mtalkmsg != TEXT_NONE && monsters[i].mtalkmsg != TEXT_VILE14) {
 			TalktoMonster(i, pnum);
 			return;
 		}
-		dx = monster[i]._mfutx;
-		dy = monster[i]._mfuty;
+		dx = monsters[i]._mfutx;
+		dy = monsters[i]._mfuty;
 		sn = plr.destParam2;
 		sl = plr.destParam3;
 		break;
@@ -1560,8 +1560,8 @@ static void StartSpell(int pnum)
 		dy = plr.destParam3;
 		break;
 	case ACTION_SPELLMON:
-		dx = monster[i]._mfutx;
-		dy = monster[i]._mfuty;
+		dx = monsters[i]._mfutx;
+		dy = monsters[i]._mfuty;
 		break;
 	case ACTION_SPELLPLR:
 		dx = plx(i)._pfutx;
@@ -1901,7 +1901,7 @@ void RemovePlrMissiles(int pnum)
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
 		if (missile[mi]._miSource == pnum && missile[mi]._miType == MIS_STONE) {
-			monster[missile[mi]._miVar2]._mmode = missile[mi]._miVar1;
+			monsters[missile[mi]._miVar2]._mmode = missile[mi]._miVar1;
 			DeleteMissile(mi, i);
 			i--;
 		}
@@ -2187,7 +2187,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		dev_fatal("PlrHitMonst: illegal player %d", pnum);
 	}
 
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 
 	tmac = mon->_mArmorClass;
 	if (plr._pIEnAc > 0) {
@@ -2743,7 +2743,7 @@ static void CheckNewPath(int pnum)
 	}
 
 	if (plr.destAction == ACTION_ATTACKMON) {
-		MakePlrPath(pnum, monster[plr.destParam1]._mfutx, monster[plr.destParam1]._mfuty, false);
+		MakePlrPath(pnum, monsters[plr.destParam1]._mfutx, monsters[plr.destParam1]._mfuty, false);
 	} else if (plr.destAction == ACTION_ATTACKPLR) {
 		MakePlrPath(pnum, plx(plr.destParam1)._pfutx, plx(plr.destParam1)._pfuty, false);
 	}
@@ -3085,7 +3085,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 			if (mpo < 0) {
 				return false;
 			}
-			if (monster[mpo - 1]._mhitpoints >= (1 << 6)) {
+			if (monsters[mpo - 1]._mhitpoints >= (1 << 6)) {
 				return false;
 			}
 			if (currLvl._dLevelIdx == DLV_TOWN) {

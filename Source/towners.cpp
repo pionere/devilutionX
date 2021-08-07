@@ -174,8 +174,8 @@ static void InitTownerInfo(int tnum, int w, int type, int store_id, int store_ta
 	TownerStruct *tw;
 
 	dMonster[x][y] = tnum + 1;
-	monster[tnum]._mfutx = monster[tnum]._mx = x;
-	monster[tnum]._mfuty = monster[tnum]._my = y;
+	monsters[tnum]._mfutx = monsters[tnum]._mx = x;
+	monsters[tnum]._mfuty = monsters[tnum]._my = y;
 	tw = &towners[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
 	// tw->_tListener = MAX_PLRS;

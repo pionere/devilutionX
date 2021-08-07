@@ -186,13 +186,13 @@ void PrintDebugMonster(int m)
 	bool bActive;
 	int i;
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %i = %s", m, monster[m].mName);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %i = %s", m, monsters[m].mName);
 	NetSendCmdString(1 << mypnum);
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "X = %i, Y = %i", monster[m]._mx, monster[m]._my);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "X = %i, Y = %i", monsters[m]._mx, monsters[m]._my);
 	NetSendCmdString(1 << mypnum);
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Enemy = %i, HP = %i", monster[m]._menemy, monster[m]._mhitpoints);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Enemy = %i, HP = %i", monsters[m]._menemy, monsters[m]._mhitpoints);
 	NetSendCmdString(1 << mypnum);
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Mode = %i, Var1 = %i", monster[m]._mmode, monster[m]._mVar1);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Mode = %i, Var1 = %i", monsters[m]._mmode, monsters[m]._mVar1);
 	NetSendCmdString(1 << mypnum);
 
 	bActive = false;
@@ -202,7 +202,7 @@ void PrintDebugMonster(int m)
 			bActive = true;
 	}
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Active List = %i, Squelch = %i", bActive, monster[m]._msquelch);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Active List = %i, Squelch = %i", bActive, monsters[m]._msquelch);
 	NetSendCmdString(1 << mypnum);
 }
 

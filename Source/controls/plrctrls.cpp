@@ -180,7 +180,7 @@ bool CanTargetMonster(int mi)
 	if (mi < MAX_MINIONS)
 		return false;
 
-	const MonsterStruct &monst = monster[mi];
+	const MonsterStruct &monst = monsters[mi];
 	if (monst._mFlags & MFLAG_HIDDEN)
 		return false;
 	if (monst._mhitpoints < (1 << 6)) // dead
@@ -208,7 +208,7 @@ void FindRangedTarget()
 		const bool newCanTalk = CanTalkToMonst(mnum);
 		if (pcursmonst != -1 && !canTalk && newCanTalk)
 			continue;
-		const MonsterStruct &mon = monster[mnum];
+		const MonsterStruct &mon = monsters[mnum];
 		const int mx = mon._mfutx;
 		const int my = mon._mfuty;
 		const int newDdistance = GetDistanceRanged(mx, my);
@@ -1190,8 +1190,8 @@ static bool SpellHasActorTarget()
 		return false;
 
 	if (spl == SPL_FIREWALL && pcursmonst != -1) {
-		cursmx = monster[pcursmonst]._mx;
-		cursmy = monster[pcursmonst]._my;
+		cursmx = monsters[pcursmonst]._mx;
+		cursmy = monsters[pcursmonst]._my;
 	}
 
 	return pcursplr != PLR_NONE || pcursmonst != -1;

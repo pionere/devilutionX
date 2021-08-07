@@ -1586,7 +1586,7 @@ void DrawInfoStr()
 		GetMousePos(x, y, &xx, &yy);
 		DrawTooltip(infostr, xx, yy, infoclr);
 	} else if (pcursmonst != -1) {
-		MonsterStruct* mon = &monster[pcursmonst];
+		MonsterStruct* mon = &monsters[pcursmonst];
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
 		col = COL_WHITE;

@@ -889,7 +889,7 @@ void DeltaLoadLevel()
 					RemoveMonFromMap(i);
 				x = mstr->_mx;
 				y = mstr->_my;
-				mon = &monster[i];
+				mon = &monsters[i];
 				SetMonsterLoc(mon, x, y);
 				// check if only the position of the monster was modified
 				if (mstr->_mhitpoints != -1)
@@ -1021,9 +1021,9 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	cmd.bCmd = CMD_MONSTDEATH;
 	cmd.mkMnum = SwapLE16(mnum);
 	cmd.mkPnum = pnum;
-	cmd.mkX = monster[mnum]._mx;
-	cmd.mkY = monster[mnum]._my;
-	cmd.mkDir = monster[mnum]._mdir;
+	cmd.mkX = monsters[mnum]._mx;
+	cmd.mkY = monsters[mnum]._my;
+	cmd.mkDir = monsters[mnum]._mdir;
 	cmd.mkLevel = plr._pDunLevel;
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
@@ -1742,8 +1742,8 @@ static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		mnum = SwapLE16(cmd->maMnum);
-		x = monster[mnum]._mfutx;
-		y = monster[mnum]._mfuty;
+		x = monsters[mnum]._mfutx;
+		y = monsters[mnum]._mfuty;
 		if (abs(plr._px - x) > 1 || abs(plr._py - y) > 1)
 			MakePlrPath(pnum, x, y, false);
 		sn = cmd->maSkill;

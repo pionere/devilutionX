@@ -1295,7 +1295,7 @@ void PlayEffect(int mnum, int mode)
 		return;
 
 	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 	snd = mapMonTypes[mon->_mMTidx].cmSnds[mode][sndIdx];
 	if (snd == NULL || snd_playing(snd)) {
 		return;

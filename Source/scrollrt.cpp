@@ -317,7 +317,7 @@ static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 		dev_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
 	}
 
-	mon = &monster[mnum];
+	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_HIDDEN) {
 		return;
 	}

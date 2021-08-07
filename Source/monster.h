@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define SQUELCH_MAX					UCHAR_MAX
 #define MINION_INACTIVE(x)			((x->_mx | x->_my) == 0)
-#define MINION_NR_INACTIVE(x)		((monster[x]._mx | monster[x]._my) == 0)
+#define MINION_NR_INACTIVE(x)		((monsters[x]._mx | monsters[x]._my) == 0)
 #define OPPOSITE(x)					(((x) + 4) & 7)
 /** Maps from direction to the opposite direction. */
 //const int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
@@ -21,7 +21,7 @@ extern "C" {
 
 extern int monstactive[MAXMONSTERS];
 extern int nummonsters;
-extern MonsterStruct monster[MAXMONSTERS];
+extern MonsterStruct monsters[MAXMONSTERS];
 extern MapMonData mapMonTypes[MAX_LVLMTYPES];
 extern int nummtypes;
 
