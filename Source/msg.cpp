@@ -2187,8 +2187,13 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 				SNetDropPlayer(pnum);
 				return sizeof(*cmd);
 			}
+			// TODO: validate data from internet
+			//assert(plr._pTeam == pnum);
+			//assert(plr._pManaShield == 0);
+			//assert(cmd->lLevel == DLV_TOWN);
+			//assert(cmd->lTimer1 == 0);
+			//assert(cmd->lTimer2 == 0);
 			plr._pActive = TRUE;
-			assert(plr._pTeam == pnum);
 			gbActivePlayers++;
 			EventPlrMsg("Player '%s' (level %d) just joined the game", plr._pName, plr._pLevel);
 		}
