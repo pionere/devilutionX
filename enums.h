@@ -2437,8 +2437,8 @@ typedef enum townwarp_dest {
 	TWARP_CAVES,
 	TWARP_HELL,
 #ifdef HELLFIRE
-	TWARP_NEST,
 	TWARP_CRYPT,
+	TWARP_NEST,
 #endif
 	NUM_TWARP
 } townwarp_dest;
