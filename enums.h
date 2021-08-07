@@ -2408,6 +2408,12 @@ typedef enum object_graphic_id {
 	NUM_OFILE_TYPES
 } object_graphic_id;
 
+typedef enum object_break_mode {
+	OBM_UNBREAKABLE,
+	OBM_BREAKABLE,
+	OBM_BROKEN
+} object_break_mode;
+
 typedef enum dungeon_type {
 	DTYPE_TOWN,
 	DTYPE_CATHEDRAL,

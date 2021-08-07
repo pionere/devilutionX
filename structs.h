@@ -710,7 +710,7 @@ typedef struct ObjectData {
 	BOOL oSolidFlag;
 	BOOL oMissFlag;
 	BOOL oLightFlag;
-	char oBreak;
+	BYTE oBreak;
 	char oSelFlag;
 	BOOL oTrapFlag;
 #ifdef X86_32bit_COMP
@@ -738,7 +738,7 @@ typedef struct ObjectStruct {
 	BOOL _oSolidFlag;
 	BOOL _oMissFlag;
 	BOOL _oLightFlag;
-	char _oBreak; // check
+	BYTE _oBreak; // object_break_mode
 	char _oSelFlag; // check
 	BOOL _oPreFlag;
 	BOOL _oTrapFlag;

@@ -3610,18 +3610,18 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	//os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
-	os->_oBreak = -1;
+	os->_oBreak = OBM_BROKEN;
 
 	triggered = true;
 	for (i = 0; i < numobjects; i++) {
 		on = &objects[objectactive[i]];
 		if (on->_otype != OBJ_CRUXM && on->_otype != OBJ_CRUXR && on->_otype != OBJ_CRUXL)
 			continue;
-		if (os->_oVar8 != on->_oVar8 || on->_oBreak == -1)
+		if (os->_oVar8 != on->_oVar8 || on->_oBreak == OBM_BROKEN) // LEVER_INDEX
 			continue;
 		triggered = false;
 	}
-	if (triggered)
+	if (triggered) // LEVER_EFFECT
 		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 
 	if (deltaload) {
@@ -3664,7 +3664,7 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 	//os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
-	os->_oBreak = -1;
+	os->_oBreak = OBM_BROKEN;
 	os->_oSelFlag = 0;
 	os->_oPreFlag = TRUE;
 	if (deltaload) {
@@ -3689,7 +3689,7 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 				mpo = dObject[xp][yp];
 				if (mpo > 0) {
 					mpo--;
-					if (objects[mpo]._otype == OBJ_BARRELEX && objects[mpo]._oBreak != -1)
+					if (objects[mpo]._otype == OBJ_BARRELEX && objects[mpo]._oBreak != OBM_BROKEN)
 						OperateBarrel(true, pnum, mpo, sendmsg);
 				}
 			}

@@ -1440,7 +1440,7 @@ static bool StartAttack(int pnum)
 			return false;
 		if (abs(dObject[dx][dy]) != i + 1) // this should always be false, but never trust the internet
 			return false;
-		if (objects[i]._oBreak != 1) {
+		if (objects[i]._oBreak != OBM_BREAKABLE) {
 			if (plr.destAction == ACTION_DISARM)
 				DisarmObject(pnum, i);
 			OperateObject(pnum, i, false);
@@ -2377,7 +2377,7 @@ static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 	mpo = dObject[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		if (objects[mpo]._oBreak == 1) {
+		if (objects[mpo]._oBreak == OBM_BREAKABLE) {
 			OperateObject(pnum, mpo, false);
 			return true;
 		}
