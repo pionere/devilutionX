@@ -615,7 +615,6 @@ static void SetupLocalPlr()
 #else
 	EnterLevel(DLV_TOWN);
 #endif
-	//InitPlayer(mypnum);
 	x += plrxoff[mypnum];
 	y += plryoff[mypnum];
 	p = &myplr;

@@ -703,11 +703,6 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 	//plr._pAltMoveSkill = SPL_INVALID;
 	//plr._pAltMoveSkillType = RSPLTYPE_INVALID;
 
-	if (plr._pClass == PC_SORCERER) {
-		plr._pSkillLvl[SPL_FIREBOLT] = 2;
-		plr._pSkillExp[SPL_FIREBOLT] = SkillExpLvlsTbl[1];
-		plr._pMemSkills = SPELL_MASK(SPL_FIREBOLT);
-	}
 	for (i = 0; i < lengthof(plr._pAtkSkillHotKey); i++)
 		plr._pAtkSkillHotKey[i] = SPL_INVALID;
 	for (i = 0; i < lengthof(plr._pAtkSkillTypeHotKey); i++)
@@ -725,6 +720,12 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeHotKey); i++)
 		plr._pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
 
+	if (plr._pClass == PC_SORCERER) {
+		plr._pSkillLvl[SPL_FIREBOLT] = 2;
+		plr._pSkillExp[SPL_FIREBOLT] = SkillExpLvlsTbl[1];
+		plr._pMemSkills = SPELL_MASK(SPL_FIREBOLT);
+	}
+
 	CreatePlrItems(pnum);
 
 	// TODO: at the moment player is created and right after that unpack is called
@@ -738,6 +739,7 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 
 /*
  * Initialize player fields at startup(unpack).
+ *  - verify the data
  *  - calculate derived values
  */
 void InitPlayer(int pnum)
@@ -745,11 +747,17 @@ void InitPlayer(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("InitPlayer: illegal player %d", pnum);
 	}
+	// verify the data
+	if (plr._pClass >= NUM_CLASSES)
+		plr._pClass = PC_WARRIOR;
+	if (plr._pLevel > MAXCHARLEVEL)
+		plr._pLevel = MAXCHARLEVEL;
+	// calculate derived values
+	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
+
 	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
 	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
 		| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
-
-	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
 
 	// TODO: BUGFIX: should only be set if plr._pDunLevel == currLvl._dLevelIdx?
 	//if (plr._pmode != PM_DEATH)
@@ -852,13 +860,13 @@ void NextPlrLevel(int pnum)
 
 	CalcPlrInv(pnum, false); // last parameter should not matter
 
-	if (pnum == mypnum)
+	if (pnum == mypnum) {
 		gbLvlUp = true;
-
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	if (sgbControllerActive && pnum == mypnum)
-		FocusOnCharInfo();
+		if (sgbControllerActive)
+			FocusOnCharInfo();
 #endif
+	}
 }
 
 static void AddPlrSkillExp(int pnum, int lvl, unsigned exp)
