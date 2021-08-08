@@ -2091,12 +2091,24 @@ static bool PlrDoWalk(int pnum)
 	return true;
 }
 
+static bool ReduceItemDur(ItemStruct* pi, BYTE iLoc, int pnum)
+{
+	if (pi->_iDurability == DUR_INDESTRUCTIBLE)
+		return false;
+
+	pi->_iDurability--;
+	if (pi->_iDurability != 0)
+		return false;
+	pi->_itype = ITYPE_NONE;
+	if (pnum == mypnum)
+		NetSendCmdDelItem(iLoc);
+	CalcPlrInv(pnum, true);
+	return true;
+}
+
 static bool WeaponDur(int pnum, int durrnd)
 {
-	ItemStruct *pi;
-	if (pnum != mypnum) {
-		return false;
-	}
+	ItemStruct* pi;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("WeaponDur: illegal player %d", pnum);
@@ -2109,53 +2121,21 @@ static bool WeaponDur(int pnum, int durrnd)
 	// check dual-wield
 	pi = &plr.InvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && random_(3, 2) != 0) {
-		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return false;
-		}
-
-		pi->_iDurability--;
-		if (pi->_iDurability == 0) {
-			pi->_itype = ITYPE_NONE;
-			NetSendCmdDelItem(INVLOC_HAND_RIGHT);
-			CalcPlrInv(pnum, true);
-			return true;
-		}
-		return false;
+		return ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
 	}
 
 	// check weapon in left hand
 	pi = &plr.InvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE) {
 		assert(pi->_iClass == ICLASS_WEAPON);
-		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return false;
-		}
-
-		pi->_iDurability--;
-		if (pi->_iDurability == 0) {
-			pi->_itype = ITYPE_NONE;
-			NetSendCmdDelItem(INVLOC_HAND_LEFT);
-			CalcPlrInv(pnum, true);
-			return true;
-		}
-		return false;
+		return ReduceItemDur(pi, INVLOC_HAND_LEFT, pnum);
 	}
 
-	// check armor in right hand if left hand is empty
+	// check shield in right hand if left hand is empty
 	pi = &plr.InvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype != ITYPE_NONE) {
 		assert(pi->_itype == ITYPE_SHIELD);
-		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return false;
-		}
-
-		pi->_iDurability--;
-		if (pi->_iDurability == 0) {
-			pi->_itype = ITYPE_NONE;
-			NetSendCmdDelItem(INVLOC_HAND_RIGHT);
-			CalcPlrInv(pnum, true);
-			return true;
-		}
+		return ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
 	}
 
 	return false;
@@ -2488,38 +2468,13 @@ static void ShieldDur(int pnum)
 {
 	ItemStruct *pi;
 
-	if (pnum != mypnum) {
-		return;
-	}
-
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("ShieldDur: illegal player %d", pnum);
 	}
 
-	pi = &plr.InvBody[INVLOC_HAND_LEFT];
-	if (pi->_itype == ITYPE_SHIELD) {
-		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return;
-		}
-
-		pi->_iDurability--;
-		if (pi->_iDurability == 0) {
-			pi->_itype = ITYPE_NONE;
-			NetSendCmdDelItem(INVLOC_HAND_LEFT);
-			CalcPlrInv(pnum, true);
-		}
-	}
-
 	pi = &plr.InvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype == ITYPE_SHIELD) {
-		if (pi->_iDurability != DUR_INDESTRUCTIBLE) {
-			pi->_iDurability--;
-			if (pi->_iDurability == 0) {
-				pi->_itype = ITYPE_NONE;
-				NetSendCmdDelItem(INVLOC_HAND_RIGHT);
-				CalcPlrInv(pnum, true);
-			}
-		}
+		ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
 	}
 }
 
@@ -2581,11 +2536,7 @@ static bool PlrDoBlock(int pnum)
 static void ArmorDur(int pnum)
 {
 	ItemStruct *pi, *pio;
-	inv_body_loc loc;
-
-	if (pnum != mypnum) {
-		return;
-	}
+	BYTE loc;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("ArmorDur: illegal player %d", pnum);
@@ -2606,18 +2557,7 @@ static void ArmorDur(int pnum)
 		loc = INVLOC_HEAD;
 	}
 
-	if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-		return;
-	}
-
-	pi->_iDurability--;
-	if (pi->_iDurability != 0) {
-		return;
-	}
-
-	pi->_itype = ITYPE_NONE;
-	NetSendCmdDelItem(loc);
-	CalcPlrInv(pnum, true);
+	ReduceItemDur(pi, loc, pnum);
 }
 
 static bool PlrDoSpell(int pnum)
