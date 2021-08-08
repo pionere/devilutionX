@@ -952,9 +952,6 @@ void LoadGame()
 	//ProcessVisionList();
 
 	SyncMissilesAnim();
-
-	NewCursor(CURSOR_HAND);
-	gbProcessPlayers = true;
 }
 
 static void SaveItemData(ItemStruct *is)

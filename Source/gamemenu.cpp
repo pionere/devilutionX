@@ -140,6 +140,7 @@ static void gamemenu_load_game(bool bActivate)
 	PaletteFadeOut();
 	CalcViewportGeometry();
 	InitLevelCursor();
+	gbProcessPlayers = true;
 	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
 	LoadPWaterPalette();
