@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern BYTE gbNetUpdateRate;
+extern BYTE gbEmptyTurns;
 extern const unsigned gdwDeltaBytesSec;
 extern uint32_t sgbSentThisCycle;
 extern const unsigned gdwLargestMsgSize;

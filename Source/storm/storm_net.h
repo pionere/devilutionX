@@ -56,6 +56,15 @@ void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
 SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
 turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
+#ifdef ADAPTIVE_NETUPDATE
+/*  SNetGetTurnsInTransit @ 115
+ *
+ *  Retrieves the number of turns that have been sent over the network but not processed yet.
+ *
+ *  @return the number of turns
+ */
+unsigned SNetGetTurnsInTransit();
+#endif
 
 typedef void (*SEVTHANDLER)(SNetEvent* );
 

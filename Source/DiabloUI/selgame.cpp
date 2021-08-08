@@ -388,11 +388,13 @@ void selgame_Speed_Esc()
 void selgame_Speed_Select(unsigned index)
 {
 	selgame_gameData->bTickRate = vecSelGameDlgItems[index]->m_value;
-
+#ifdef ADAPTIVE_NETUPDATE
+	selgame_gameData->bNetUpdateRate = 1;
+#else
 	int latency = 80;
 	getIniInt("Network", "Latency", &latency);
 	selgame_gameData->bNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->bTickRate));
-
+#endif
 	if (provider == SELCONN_LOOPBACK) {
 		selgame_gameData->bNetUpdateRate = 1;
 		selgame_Password[0] = '\0';

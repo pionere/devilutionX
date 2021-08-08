@@ -393,7 +393,10 @@ bool multi_handle_turn()
 	case TS_ACTIVE:
 		multi_parse_turns();
 		multi_process_msgs();
-		multi_send_turn_packet();
+#ifdef ADAPTIVE_NETUPDATE
+		if (SNetGetTurnsInTransit() <= gbEmptyTurns)
+#endif
+			multi_send_turn_packet();
 		break;
 	case TS_LIVE:
 		break;

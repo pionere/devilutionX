@@ -10,6 +10,10 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 BYTE gbNetUpdateRate;
+BYTE gbEmptyTurns;
+#ifdef ADAPTIVE_NETUPDATE
+char gbNetUpdateWeight;
+#endif
 /* The id of the next turn. */
 uint32_t sgbSentThisCycle;
 /* Main mutex of the thread to control its execution. */
@@ -32,11 +36,20 @@ static bool _gbRunThread;
 void nthread_send_turn(BYTE *data, unsigned len)
 {
 	uint32_t turn = sgbSentThisCycle;
-
+// enabled for everyone to allow connection with adaptive hosts
+//#ifdef ADAPTIVE_NETUPDATE
+restart:
+//#endif
 	SNetSendTurn(SwapLE32(turn), data, len);
 	turn++;
 	if (turn >= 0x7FFFFFFF)
 		turn &= 0xFFFF;
+//#ifdef ADAPTIVE_NETUPDATE
+	if (gbEmptyTurns != 0 && SNetGetTurnsInTransit() <= gbEmptyTurns) {
+		len = 0;
+		goto restart;
+	}
+//#endif
 	sgbSentThisCycle = turn;
 }
 
@@ -53,10 +66,34 @@ int nthread_recv_turns()
 	}
 	sgbPacketCountdown = gbNetUpdateRate;
 	if (status == TS_TIMEOUT) {
+#ifdef ADAPTIVE_NETUPDATE
+		if (_gbTickInSync) {
+			gbNetUpdateWeight += 10;
+			if (gbNetUpdateWeight > 100) {
+				if (((gbEmptyTurns * gbNetUpdateRate) * gnTickDelay) < 200) {
+					gbEmptyTurns++;
+					gbNetUpdateWeight = 0;
+				} else {
+					gbNetUpdateWeight = 50;
+				}
+			}
+		}
+#endif
 		_gbTickInSync = false;
 		sgbPacketCountdown = 1;
 		return TS_TIMEOUT;
 	} else {
+#ifdef ADAPTIVE_NETUPDATE
+		gbNetUpdateWeight--;
+		if (gbNetUpdateWeight < -100) {
+			if (gbEmptyTurns != 0) {
+				gbEmptyTurns--;
+				gbNetUpdateWeight = 0;
+			} else {
+				gbNetUpdateWeight = -50;
+			}
+		}
+#endif
 		if (!_gbTickInSync) {
 			_gbTickInSync = true;
 			guNextTick = SDL_GetTicks();
@@ -180,6 +217,14 @@ void nthread_start()
 	_gbTickInSync = true;
 	sgbSentThisCycle = 0;
 	sgbPacketCountdown = 1;
+	gbEmptyTurns = 0;
+#ifdef ADAPTIVE_NETUPDATE
+	gbNetUpdateWeight = 0;
+#else
+	// allow connection with adaptive hosts
+	if (gbNetUpdateRate == 1 && !IsLocalGame)
+		gbEmptyTurns = 1;
+#endif
 	static_assert(sizeof(TurnPkt) <= gdwNormalMsgSize, "TurnPkt does not fit in a message.");
 	static_assert(sizeof(MsgPkt) <= gdwNormalMsgSize, "MsgPkt does not fit in a message.");
 	if (!IsLocalGame) {

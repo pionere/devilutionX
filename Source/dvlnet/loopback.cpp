@@ -116,6 +116,17 @@ void loopback::SNetDropPlayer(int playerid)
 #endif
 }
 
+#ifdef ADAPTIVE_NETUPDATE
+unsigned loopback::SNetGetTurnsInTransit()
+{
+#ifdef _DEVMODE
+	if (!turn_queue.empty())
+		ABORT(); // should be empty or should have one entry
+#endif
+	return 0; // turn_queue.size();
+}
+#endif
+
 void loopback::make_default_gamename(char (&gamename)[128])
 {
 	copy_cstr(gamename, "loopback");
