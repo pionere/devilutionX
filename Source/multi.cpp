@@ -188,15 +188,27 @@ void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE bLen)
 	}
 }
 
-void multi_mon_seeds()
+void multi_rnd_seeds()
 {
 	int i;
-	uint32_t l;
+	uint32_t seed;
+
+	if (!IsMultiGame)
+		return;
 
 	sgdwGameLoops++;
-	l = (sgdwGameLoops >> 8) | (sgdwGameLoops << 24); // _rotr(sgdwGameLoops, 8)
-	for (i = 0; i < MAXMONSTERS; i++)
-		monsters[i]._mAISeed = l + i;
+	seed = (sgdwGameLoops >> 8) | (sgdwGameLoops << 24); // _rotr(sgdwGameLoops, 8)
+	SetRndSeed(seed);
+	for (i = 0; i < MAXMONSTERS; i++, seed++)
+		monsters[i]._mAISeed = seed;
+}
+
+void multi_mis_seeds()
+{
+	if (!IsMultiGame)
+		return;
+
+	SetRndSeed(monsters[0]._mAISeed);
 }
 
 static void multi_parse_turns()
@@ -399,7 +411,6 @@ bool multi_handle_turn()
 		break;
 	}
 	_gbTimeout = false;
-	multi_mon_seeds();
 	return true;
 }
 

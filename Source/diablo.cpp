@@ -353,6 +353,7 @@ static bool ProcessInput()
 
 void game_logic()
 {
+	multi_rnd_seeds();
 	if (gbProcessPlayers) {
 		ProcessPlayers();
 	}
@@ -362,6 +363,7 @@ void game_logic()
 	} else {
 		ProcessTowners();
 	}
+	multi_mis_seeds();
 	ProcessMissiles();
 	ProcessItems();
 	ProcessLightList();

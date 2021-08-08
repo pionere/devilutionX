@@ -101,7 +101,6 @@ static void nthread_process_pending_turns()
 		MemFreeDbg(turn);
 		multi_process_msgs();
 		for (i = gbNetUpdateRate; i > 0; i--) {
-			multi_mon_seeds();
 			game_logic();
 			++gbLvlLoad;
 		}
