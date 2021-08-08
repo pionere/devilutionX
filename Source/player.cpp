@@ -1959,7 +1959,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 	}
 	plr._pDunLevel = lvl;
 	if (pnum == mypnum) {
-		PostMessage(fom, 0, 0);
+		PostMessage(fom, 0);
 	}
 }
 
@@ -1983,7 +1983,7 @@ void RestartTownLvl(int pnum)
 	if (pnum == mypnum) {
 		gbDeathflag = false;
 		gamemenu_off();
-		PostMessage(WM_DIABRETOWN, 0, 0);
+		PostMessage(WM_DIABRETOWN, 0);
 	}
 }
 
@@ -2002,7 +2002,7 @@ void StartTWarp(int pnum, int pidx)
 
 	if (pnum == mypnum) {
 		SetCurrentPortal(pidx);
-		PostMessage(WM_DIABWARPLVL, 0, 0);
+		PostMessage(WM_DIABWARPLVL, 0);
 	}
 }
 

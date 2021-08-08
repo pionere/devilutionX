@@ -41,8 +41,8 @@ void AltActionBtnCmd(bool bShift);
 bool TryIconCurs(bool bShift);
 bool PressEscKey();
 void ClearPanels();
-void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+void DisableInputWndProc(UINT uMsg, WPARAM wParam);
+void GameWndProc(UINT uMsg, WPARAM wParam);
 void diablo_color_cyc_logic();
 void game_logic();
 

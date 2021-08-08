@@ -28,12 +28,11 @@ typedef void *HANDLE;
 
 typedef HANDLE HMODULE, HDC, HINSTANCE;
 
-typedef void (*WNDPROC)(UINT, WPARAM, LPARAM);
+typedef void (*WNDPROC)(UINT, WPARAM);
 
 typedef struct tagMSG {
 	UINT message;
 	WPARAM wParam;
-	LPARAM lParam;
 } MSG, *LPMSG;
 
 //
@@ -46,9 +45,9 @@ BYTE GetAsyncKeyState(int vKey);
 
 bool PeekMessage(LPMSG lpMsg);
 
-bool TranslateMessage(const MSG *lpMsg);
+void TranslateMessage(const MSG* lpMsg);
 void DispatchMessage(const MSG *lpMsg);
-bool PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
+void PostMessage(UINT Msg, WPARAM wParam);
 
 #ifndef TRUE
 #define TRUE true

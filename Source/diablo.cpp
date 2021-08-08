@@ -1519,10 +1519,10 @@ static void PressChar(WPARAM vkey)
 #endif
 }
 
-static void GetMousePos(LPARAM lParam)
+static void GetMousePos(WPARAM wParam)
 {
-	MouseX = (int16_t)(lParam & 0xFFFF);
-	MouseY = (int16_t)((lParam >> 16) & 0xFFFF);
+	MouseX = (int16_t)(wParam & 0xFFFF);
+	MouseY = (int16_t)((wParam >> 16) & 0xFFFF);
 }
 
 static void UpdateActionBtnState(int vKey, bool dir)
@@ -1533,7 +1533,7 @@ static void UpdateActionBtnState(int vKey, bool dir)
 		gbAltActionBtnDown = dir;
 }
 
-void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 {
 	switch (uMsg) {
 	case DVL_WM_KEYDOWN:
@@ -1547,7 +1547,7 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case DVL_WM_SYSCOMMAND:
 		return;
 	case DVL_WM_MOUSEMOVE:
-		GetMousePos(lParam);
+		GetMousePos(wParam);
 		return;
 	case DVL_WM_LBUTTONDOWN:
 		UpdateActionBtnState(DVL_VK_LBUTTON, true);
@@ -1570,7 +1570,7 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	MainWndProc(uMsg);
 }
 
-void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+void GameWndProc(UINT uMsg, WPARAM wParam)
 {
 	switch (uMsg) {
 	case DVL_WM_KEYDOWN:
@@ -1595,23 +1595,23 @@ void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		gbRunGameResult = false;
 		return;
 	case DVL_WM_MOUSEMOVE:
-		GetMousePos(lParam);
+		GetMousePos(wParam);
 		gmenu_on_mouse_move();
 		return;
 	case DVL_WM_LBUTTONDOWN:
-		GetMousePos(lParam);
+		GetMousePos(wParam);
 		PressKey(DVL_VK_LBUTTON);
 		return;
 	case DVL_WM_LBUTTONUP:
-		GetMousePos(lParam);
+		GetMousePos(wParam);
 		ReleaseKey(DVL_VK_LBUTTON);
 		return;
 	case DVL_WM_RBUTTONDOWN:
-		GetMousePos(lParam);
+		GetMousePos(wParam);
 		PressKey(DVL_VK_RBUTTON);
 		return;
 	case DVL_WM_RBUTTONUP:
-		GetMousePos(lParam);
+		GetMousePos(wParam);
 		ReleaseKey(DVL_VK_RBUTTON);
 		return;
 	case DVL_WM_CAPTURECHANGED:

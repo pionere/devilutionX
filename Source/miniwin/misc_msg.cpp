@@ -646,7 +646,6 @@ bool PeekMessage(LPMSG lpMsg)
 	}
 
 	lpMsg->message = 0;
-	lpMsg->lParam = 0;
 	lpMsg->wParam = 0;
 
 	if (e.type == SDL_QUIT) {
@@ -774,7 +773,7 @@ bool PeekMessage(LPMSG lpMsg)
 				lpMsg->message = action.send_mouse_click.up ? DVL_WM_RBUTTONUP : DVL_WM_RBUTTONDOWN;
 				break;
 			}
-			lpMsg->lParam = PositionForMouse(MouseX, MouseY);
+			lpMsg->wParam = PositionForMouse(MouseX, MouseY);
 			break;
 		}
 		return true;
@@ -805,37 +804,38 @@ bool PeekMessage(LPMSG lpMsg)
 		lpMsg->message = e.type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
 		lpMsg->wParam = (DWORD)key;
 #ifdef _DEBUG
-		// HACK: Encode modifier in lParam for TranslateMessage later
-		lpMsg->lParam = e.key.keysym.mod << 16;
+//		// HACK: Encode modifier in lParam for TranslateMessage later
+//		lpMsg->lParam = e.key.keysym.mod << 16;
+		lpMsg->wParam |= e.key.keysym.mod << 16;
 #endif
 	} break;
 	case SDL_MOUSEMOTION:
 		lpMsg->message = DVL_WM_MOUSEMOVE;
-		lpMsg->lParam = PositionForMouse(e.motion.x, e.motion.y);
-		lpMsg->wParam = KeystateForMouse(0);
+		lpMsg->wParam = PositionForMouse(e.motion.x, e.motion.y);
+		//lpMsg->lParam = KeystateForMouse(0);
 		break;
 	case SDL_MOUSEBUTTONDOWN: {
 		int button = e.button.button;
 		if (button == SDL_BUTTON_LEFT) {
 			lpMsg->message = DVL_WM_LBUTTONDOWN;
-			lpMsg->lParam = PositionForMouse(e.button.x, e.button.y);
-			lpMsg->wParam = KeystateForMouse(DVL_MK_LBUTTON);
+			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
+			//lpMsg->lParam = KeystateForMouse(DVL_MK_LBUTTON);
 		} else if (button == SDL_BUTTON_RIGHT) {
 			lpMsg->message = DVL_WM_RBUTTONDOWN;
-			lpMsg->lParam = PositionForMouse(e.button.x, e.button.y);
-			lpMsg->wParam = KeystateForMouse(DVL_MK_RBUTTON);
+			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
+			//lpMsg->lParam = KeystateForMouse(DVL_MK_RBUTTON);
 		}
 	} break;
 	case SDL_MOUSEBUTTONUP: {
 		int button = e.button.button;
 		if (button == SDL_BUTTON_LEFT) {
 			lpMsg->message = DVL_WM_LBUTTONUP;
-			lpMsg->lParam = PositionForMouse(e.button.x, e.button.y);
-			lpMsg->wParam = KeystateForMouse(0);
+			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
+			//lpMsg->lParam = KeystateForMouse(0);
 		} else if (button == SDL_BUTTON_RIGHT) {
 			lpMsg->message = DVL_WM_RBUTTONUP;
-			lpMsg->lParam = PositionForMouse(e.button.x, e.button.y);
-			lpMsg->wParam = KeystateForMouse(0);
+			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
+			//lpMsg->lParam = KeystateForMouse(0);
 		}
 	} break;
 #ifndef USE_SDL1
@@ -926,12 +926,13 @@ bool PeekMessage(LPMSG lpMsg)
  * Remark: HACK in PeekMessage needs to be re-enabled in case TranslateMessage is used
  *  in a non-debug environment.
  */
-bool TranslateMessage(const MSG *lpMsg)
+void TranslateMessage(const MSG* lpMsg)
 {
 #ifdef _DEBUG
 	if (lpMsg->message == DVL_WM_KEYDOWN) {
 		int key = lpMsg->wParam;
-		unsigned mod = (DWORD)lpMsg->lParam >> 16;
+		//unsigned mod = (DWORD)lpMsg->lParam >> 16;
+		unsigned mod = (DWORD)lpMsg->wParam >> 16;
 
 		bool shift = (mod & KMOD_SHIFT) != 0;
 		if (key >= 'A' && key <= 'Z') {
@@ -1007,19 +1008,15 @@ bool TranslateMessage(const MSG *lpMsg)
 				key = '?'; // UNIMPLEMENTED();
 			}
 		} else
-			return true;
+			return;
 
-#ifdef _DEBUG
 		if (key >= 32) {
 			SDL_Log("char: %c", key);
 		}
-#endif
 		// XXX: This does not add extended info to lParam
-		PostMessage(DVL_WM_CHAR, key, 0);
+		PostMessage(DVL_WM_CHAR, key);
 	}
-
 #endif
-	return true;
 }
 
 BYTE GetAsyncKeyState(int vKey)
@@ -1062,19 +1059,17 @@ void DispatchMessage(const MSG *lpMsg)
 {
 	assert(CurrentWndProc != NULL);
 
-	CurrentWndProc(lpMsg->message, lpMsg->wParam, lpMsg->lParam);
+	CurrentWndProc(lpMsg->message, lpMsg->wParam);
 }
 
-bool PostMessage(UINT type, WPARAM wParam, LPARAM lParam)
+void PostMessage(UINT type, WPARAM wParam)
 {
 	MSG message;
+
 	message.message = type;
 	message.wParam = wParam;
-	message.lParam = lParam;
 
 	message_queue.push_back(message);
-
-	return true;
 }
 
 DEVILUTION_END_NAMESPACE
