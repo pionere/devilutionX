@@ -589,12 +589,12 @@ static LPARAM PositionForMouse(short x, short y)
 	return (((uint16_t)(y & 0xFFFF)) << 16) | (uint16_t)(x & 0xFFFF);
 }
 
-static WPARAM KeystateForMouse(WPARAM ret)
+/*static WPARAM KeystateForMouse(WPARAM ret)
 {
 	ret |= (SDL_GetModState() & KMOD_SHIFT) ? DVL_MK_SHIFT : 0;
 	// XXX: other DVL_MK_* codes not implemented
 	return ret;
-}
+}*/
 
 static bool FalseAvail(const char *name, int value)
 {
@@ -802,7 +802,7 @@ bool PeekMessage(LPMSG lpMsg)
 		//if (key == -1)
 		//	return FalseAvail(e.type == SDL_KEYDOWN ? "SDL_KEYDOWN" : "SDL_KEYUP", e.key.keysym.sym);
 		lpMsg->message = e.type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
-		lpMsg->wParam = (DWORD)key;
+		lpMsg->wParam = (WPARAM)key;
 #ifdef _DEBUG
 //		// HACK: Encode modifier in lParam for TranslateMessage later
 //		lpMsg->lParam = e.key.keysym.mod << 16;
@@ -931,8 +931,8 @@ void TranslateMessage(const MSG* lpMsg)
 #ifdef _DEBUG
 	if (lpMsg->message == DVL_WM_KEYDOWN) {
 		int key = lpMsg->wParam;
-		//unsigned mod = (DWORD)lpMsg->lParam >> 16;
-		unsigned mod = (DWORD)lpMsg->wParam >> 16;
+		//unsigned mod = lpMsg->lParam >> 16;
+		unsigned mod = lpMsg->wParam >> 16;
 
 		bool shift = (mod & KMOD_SHIFT) != 0;
 		if (key >= 'A' && key <= 'Z') {
