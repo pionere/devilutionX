@@ -711,34 +711,32 @@ bool PeekMessage(LPMSG lpMsg)
 			break;
 		case GameActionType_TOGGLE_QUICK_SPELL_MENU:
 			if (!gbInvflag || BlurInventory()) {
-				if (!gbSkillListFlag)
+				if (!gbSkillListFlag) {
+					ClearPanels();
 					DoSkillList(true);
-				else
+					StoreSpellCoords();
+				} else {
 					gbSkillListFlag = false;
-				gbChrflag = false;
-				gbQuestlog = false;
-				gbSbookflag = false;
-				gbTeamFlag = false;
-				StoreSpellCoords();
+				}
 			}
 			break;
 		case GameActionType_TOGGLE_CHARACTER_INFO:
+			gbQuestlog = false;
+			gbSkillListFlag = false;
+			gbLvlUp = false;
 			gbChrflag = !gbChrflag;
 			if (gbChrflag) {
-				gbQuestlog = false;
-				gbSkillListFlag = false;
 				if (pcurs == CURSOR_DISARM)
 					NewCursor(CURSOR_HAND);
 				FocusOnCharInfo();
 			}
 			break;
 		case GameActionType_TOGGLE_QUEST_LOG:
-			if (!gbQuestlog) {
+			gbChrflag = false;
+			gbSkillListFlag = false;
+			gbQuestlog = !gbQuestlog;
+			if (gbQuestlog) {
 				StartQuestlog();
-				gbChrflag = false;
-				gbSkillListFlag = false;
-			} else {
-				gbQuestlog = false;
 			}
 			break;
 		case GameActionType_TOGGLE_INVENTORY:

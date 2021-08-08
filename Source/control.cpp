@@ -1030,10 +1030,9 @@ void HandlePanBtn(int i)
 	case PANBTN_QLOG:
 		gbChrflag = false;
 		gbSkillListFlag = false;
-		if (!gbQuestlog)
+		gbQuestlog = !gbQuestlog;
+		if (gbQuestlog)
 			StartQuestlog();
-		else
-			gbQuestlog = false;
 		break;
 	case PANBTN_AUTOMAP:
 		ToggleAutomap();

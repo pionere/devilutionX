@@ -617,7 +617,7 @@ void DrawQuestLog()
 
 void StartQuestlog()
 {
-	DWORD i;
+	int i;
 
 	numqlines = 0;
 	for (i = 0; i < NUM_QUESTS; i++) {
@@ -633,7 +633,6 @@ void StartQuestlog()
 		// qtopline = 11;
 		qline = 11;
 	}
-	gbQuestlog = true;
 }
 
 void QuestlogUp()
