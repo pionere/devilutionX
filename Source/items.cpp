@@ -681,9 +681,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	bf = false;
 	wt = SFLAG_MELEE;
 	gfx = ITYPE_MISC;
-	if (wLeft->_itype != ITYPE_NONE
-	    && wLeft->_iClass == ICLASS_WEAPON
-	    && wLeft->_iStatFlag) {
+	if (wLeft->_itype != ITYPE_NONE && wLeft->_iStatFlag) {
+		assert(wLeft->_iClass == ICLASS_WEAPON);
 		gfx = wLeft->_itype;
 	}
 

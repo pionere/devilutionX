@@ -739,7 +739,6 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 
 /*
  * Initialize player fields at startup(unpack).
- *  - verify the data
  *  - calculate derived values
  */
 void InitPlayer(int pnum)
@@ -747,21 +746,12 @@ void InitPlayer(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("InitPlayer: illegal player %d", pnum);
 	}
-	// verify the data
-	if (plr._pClass >= NUM_CLASSES)
-		plr._pClass = PC_WARRIOR;
-	if (plr._pLevel > MAXCHARLEVEL)
-		plr._pLevel = MAXCHARLEVEL;
 	// calculate derived values
 	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
 
 	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
 	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
 		| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
-
-	// TODO: BUGFIX: should only be set if plr._pDunLevel == currLvl._dLevelIdx?
-	//if (plr._pmode != PM_DEATH)
-	//	plr._pInvincible = FALSE;
 }
 
 /*

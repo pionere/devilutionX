@@ -141,14 +141,13 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._pTeam = pPack->pTeam;
 	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
 	plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
-	plr._pStatPts = SwapLE16(pPack->pStatPts);
-	plr._pLightRad = pPack->pLightRad;
-	plr._pManaShield = pPack->pManaShield;
-	InitPlayer(pnum);
 	plr._pBaseStr = SwapLE16(pPack->pBaseStr);
 	plr._pBaseMag = SwapLE16(pPack->pBaseMag);
 	plr._pBaseDex = SwapLE16(pPack->pBaseDex);
 	plr._pBaseVit = SwapLE16(pPack->pBaseVit);
+	plr._pStatPts = SwapLE16(pPack->pStatPts);
+	plr._pLightRad = pPack->pLightRad;
+	plr._pManaShield = pPack->pManaShield;
 	plr._pExperience = SwapLE32(pPack->pExperience);
 	plr._pGold = SwapLE32(pPack->pGold);
 	plr._pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
@@ -218,6 +217,22 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._plid = -1;
 	plr._pvid = -1;
 
+	// verify the data
+	if (plr._pClass >= NUM_CLASSES)
+		plr._pClass = PC_WARRIOR;   // reset invalid class
+	if (plr._pLevel > MAXCHARLEVEL)
+		plr._pLevel = MAXCHARLEVEL; // reduce invalid level
+	// TODO: check if the items conform to the wielding rules?
+	/*pi = &plr.InvBody[INVLOC_HAND_LEFT];
+	if (pi->_itype != ITYPE_NONE && pi->_iClass != ICLASS_WEAPON)
+		pi->_itype = ITYPE_NONE;    // remove invalid weapon in left hand
+	if (pi->_itype == ITYPE_NONE) {
+		pi = &plr.InvBody[INVLOC_HAND_RIGHT];
+		if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON) {
+			copy_pod(plr.InvBody[INVLOC_HAND_LEFT], *pi);
+			pi->_itype = ITYPE_NONE; // move weapon from right hand to left hand
+		}
+	}*/
 	// verify the gold-seeds
 	for (i = 0; i < plr._pNumInv; i++) {
 		if (plr.InvList[i]._iIdx == IDI_GOLD) {
@@ -232,6 +247,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		}
 	}
 	// recalculate the cached fields
+	InitPlayer(pnum);
 	CalcPlrInv(pnum, false);
 }
 
