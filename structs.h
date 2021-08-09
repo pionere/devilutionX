@@ -1278,9 +1278,16 @@ typedef struct QuestData {
 // TPDEF PTR FCN VOID TMenuFcn
 
 typedef struct TMenuItem {
-	DWORD dwFlags;
 	const char *pszStr;
 	void (*fnMenu)(bool); /* fix, should have one arg */
+	uint32_t dwFlags;
+	//union {
+	//	uint32_t dwMenuParam;
+	//	struct {
+			uint16_t wMenuParam1;
+			uint16_t wMenuParam2;
+	//	};
+	//};
 } TMenuItem;
 
 // TPDEF PTR FCN VOID TMenuUpdateFcn

@@ -12,13 +12,13 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern TMenuItem *sgpCurrentMenu;
+extern TMenuItem* gpCurrentMenu;
 
 void gmenu_draw_pause();
 void FreeGMenu();
 void InitGMenu();
 bool gmenu_is_active();
-void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)());
+void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)());
 void gmenu_draw();
 bool gmenu_presskeys(int vkey);
 void gmenu_on_mouse_move();
@@ -33,7 +33,7 @@ void gmenu_slider_steps(TMenuItem *pItem, int steps);
 #endif
 
 inline bool gmenu_is_active() {
-	return sgpCurrentMenu != NULL;
+	return gpCurrentMenu != NULL;
 }
 
 DEVILUTION_END_NAMESPACE

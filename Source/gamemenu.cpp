@@ -23,46 +23,38 @@ static void gamemenu_speed(bool bActivate);
 /** Contains the game menu items of the single player menu. */
 static TMenuItem sgSingleMenu[] = {
 	// clang-format off
-	// dwFlags,      pszStr,          fnMenu
-	{ GMENU_ENABLED, "Save Game",     &gamemenu_save_game  },
-	{ GMENU_ENABLED, "Settings",      &gamemenu_settings   },
-	{ GMENU_ENABLED, "New Game",      &gamemenu_new_game   },
-	{ GMENU_ENABLED, "Load Game",     &gamemenu_load_game  },
-	{ GMENU_ENABLED, "Quit Game",     &gamemenu_quit_game  },
-	{ GMENU_ENABLED, NULL,            NULL }
+	// pszStr,     fnMenu,              dwFlags,
+	{ "Save Game", &gamemenu_save_game, GMENU_ENABLED, },
+	{ "Settings",  &gamemenu_settings,  GMENU_ENABLED, },
+	{ "New Game",  &gamemenu_new_game,  GMENU_ENABLED, },
+	{ "Load Game", &gamemenu_load_game, GMENU_ENABLED, },
+	{ "Quit Game", &gamemenu_quit_game, GMENU_ENABLED, },
 	// clang-format on
 };
 /** Contains the game menu items of the multi player menu. */
 static TMenuItem sgMultiMenu[] = {
 	// clang-format off
-	// dwFlags,      pszStr,            fnMenu
-	{ GMENU_ENABLED, "Settings",        &gamemenu_settings     },
-	{ GMENU_ENABLED, "New Game",        &gamemenu_new_game     },
-	{ GMENU_ENABLED, "Restart In Town", &gamemenu_restart_town },
-	{ GMENU_ENABLED, "Quit Game",       &gamemenu_quit_game    },
-	{ GMENU_ENABLED, NULL,              NULL                   },
+	// pszStr,           fnMenu,                 dwFlags,
+	{ "Settings",        &gamemenu_settings,     GMENU_ENABLED, },
+	{ "New Game",        &gamemenu_new_game,     GMENU_ENABLED, },
+	{ "Restart In Town", &gamemenu_restart_town, GMENU_ENABLED, },
+	{ "Quit Game",       &gamemenu_quit_game,    GMENU_ENABLED, },
 	// clang-format on
 };
-static TMenuItem sgOptionsMenu[] = {
+static TMenuItem sgSettingsMenu[] = {
 	// clang-format off
-	// dwFlags,                     pszStr,          fnMenu
-	{ GMENU_ENABLED | GMENU_SLIDER, NULL,            &gamemenu_music_volume  },
-	{ GMENU_ENABLED | GMENU_SLIDER, NULL,            &gamemenu_sound_volume  },
-	{ GMENU_ENABLED | GMENU_SLIDER, "Gamma",         &gamemenu_gamma         },
-	{ GMENU_ENABLED | GMENU_SLIDER, "Speed",         &gamemenu_speed         },
-	{ GMENU_ENABLED               , "Previous Menu", &gamemenu_previous      },
-	{ GMENU_ENABLED               , NULL,            NULL                    },
+	// pszStr,          fnMenu,                 dwFlags,
+#ifdef NOSOUND
+	{ "Music Disabled", &gamemenu_music_volume, 0, },
+	{ "Sound Disabled", &gamemenu_sound_volume, 0, },
+#else
+	{ "Music",          &gamemenu_music_volume, GMENU_ENABLED | GMENU_SLIDER, },
+	{ "Sound",          &gamemenu_sound_volume, GMENU_ENABLED | GMENU_SLIDER, },
+#endif
+	{ "Gamma",          &gamemenu_gamma,        GMENU_ENABLED | GMENU_SLIDER, },
+	{ "Speed",          &gamemenu_speed,        GMENU_ENABLED | GMENU_SLIDER, },
+	{ "Previous Menu",  &gamemenu_previous,     GMENU_ENABLED, },
 	// clang-format on
-};
-/** Specifies the menu names for music enabled and disabled. */
-static const char *const music_toggle_names[] = {
-	"Music",
-	"Music Disabled",
-};
-/** Specifies the menu names for sound enabled and disabled. */
-static const char *const sound_toggle_names[] = {
-	"Sound",
-	"Sound Disabled",
 };
 
 static void gamemenu_update_single()
@@ -71,10 +63,7 @@ static void gamemenu_update_single()
 
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
 
-	enable = false;
-	if (myplr._pmode != PM_DEATH && !gbDeathflag)
-		enable = true;
-
+	enable = myplr._pmode != PM_DEATH && !gbDeathflag;
 	gmenu_enable(&sgSingleMenu[0], enable);
 }
 
@@ -86,16 +75,16 @@ static void gamemenu_update_multi()
 void gamemenu_on()
 {
 	if (IsMultiGame) {
-		gmenu_set_items(sgMultiMenu, gamemenu_update_multi);
+		gmenu_set_items(sgMultiMenu, lengthof(sgMultiMenu), gamemenu_update_multi);
 	} else {
-		gmenu_set_items(sgSingleMenu, gamemenu_update_single);
+		gmenu_set_items(sgSingleMenu, lengthof(sgSingleMenu), gamemenu_update_single);
 	}
 	PressEscKey();
 }
 
 void gamemenu_off()
 {
-	gmenu_set_items(NULL, NULL);
+	gmenu_set_items(NULL, 0, NULL);
 }
 
 static void gamemenu_previous(bool bActivate)
@@ -179,43 +168,45 @@ static void gamemenu_restart_town(bool bActivate)
 	NetSendCmd(true, CMD_RETOWN);
 }
 
-static void gamemenu_sound_music_toggle(const char *const *names, TMenuItem *menu_item, int volume)
+static void gamemenu_sound_music_toggle(/*const char *const *names,*/TMenuItem* menu_item, int volume)
 {
 #ifndef NOSOUND
 	assert(gbSndInited);
 	//if (gbSndInited) {
-		menu_item->dwFlags |= GMENU_ENABLED | GMENU_SLIDER;
-		menu_item->pszStr = *names;
-		gmenu_slider_steps(menu_item, 17);
+	//	menu_item->dwFlags |= GMENU_ENABLED | GMENU_SLIDER;
+	//	menu_item->pszStr = *names;
+		gmenu_slider_steps(menu_item, 16 /*(VOLUME_MAX - VOLUME_MIN) / 100*/);
 		gmenu_slider_set(menu_item, VOLUME_MIN, VOLUME_MAX, volume);
 	//	return;
 	//}
 #else
-	menu_item->dwFlags &= ~(GMENU_ENABLED | GMENU_SLIDER);
-	menu_item->pszStr = names[1];
+	//menu_item->dwFlags &= ~(GMENU_ENABLED | GMENU_SLIDER);
+	//menu_item->pszStr = names[1];
 #endif
 }
 
 static void gamemenu_get_music()
 {
-	gamemenu_sound_music_toggle(music_toggle_names, &sgOptionsMenu[0], sound_get_music_volume());
+	gamemenu_sound_music_toggle(/*music_toggle_names,*/ &sgSettingsMenu[0], sound_get_music_volume());
 }
 
 static void gamemenu_get_sound()
 {
-	gamemenu_sound_music_toggle(sound_toggle_names, &sgOptionsMenu[1], sound_get_sound_volume());
+	gamemenu_sound_music_toggle(/*sound_toggle_names,*/ &sgSettingsMenu[1], sound_get_sound_volume());
 }
 
 static void gamemenu_get_gamma()
 {
-	gmenu_slider_steps(&sgOptionsMenu[2], 15);
-	gmenu_slider_set(&sgOptionsMenu[2], 30, 100, GetGamma());
+	gmenu_slider_steps(&sgSettingsMenu[2], 14 /*(100 - 30) / 5*/);
+	gmenu_slider_set(&sgSettingsMenu[2], 30, 100, GetGamma());
 }
 
 static void gamemenu_get_speed()
 {
+	TMenuItem* pItem = &sgSettingsMenu[3];
+
 	if (IsMultiGame) {
-		sgOptionsMenu[3].dwFlags &= ~(GMENU_ENABLED | GMENU_SLIDER);
+		pItem->dwFlags = 0; // &= ~(GMENU_ENABLED | GMENU_SLIDER);
 		const char *speed;
 		if (gnTicksRate >= SPEED_FASTEST)
 			speed = "Speed: Fastest";
@@ -225,15 +216,15 @@ static void gamemenu_get_speed()
 			speed = "Speed: Fast";
 		else // if (gnTicksRate == SPEED_NORMAL)
 			speed = "Speed: Normal";
-		sgOptionsMenu[3].pszStr = speed;
+		pItem->pszStr = speed;
 		return;
 	}
 
-	sgOptionsMenu[3].dwFlags |= GMENU_ENABLED | GMENU_SLIDER;
+	pItem->dwFlags = GMENU_ENABLED | GMENU_SLIDER; // |= GMENU_ENABLED | GMENU_SLIDER;
 
-	sgOptionsMenu[3].pszStr = "Speed";
-	gmenu_slider_steps(&sgOptionsMenu[3], SPEED_FASTEST - SPEED_NORMAL + 1);
-	gmenu_slider_set(&sgOptionsMenu[3], SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);
+	pItem->pszStr = "Speed";
+	gmenu_slider_steps(pItem, SPEED_FASTEST - SPEED_NORMAL);
+	gmenu_slider_set(pItem, SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);
 }
 
 static void gamemenu_settings(bool bActivate)
@@ -242,7 +233,7 @@ static void gamemenu_settings(bool bActivate)
 	gamemenu_get_sound();
 	gamemenu_get_gamma();
 	gamemenu_get_speed();
-	gmenu_set_items(sgOptionsMenu, NULL);
+	gmenu_set_items(sgSettingsMenu, lengthof(sgSettingsMenu), NULL);
 }
 
 static void gamemenu_music_volume(bool bActivate)
@@ -257,7 +248,7 @@ static void gamemenu_music_volume(bool bActivate)
 		else
 			volume = VOLUME_MAX;
 	} else {
-		volume = gmenu_slider_get(&sgOptionsMenu[0], VOLUME_MIN, VOLUME_MAX);
+		volume = gmenu_slider_get(&sgSettingsMenu[0], VOLUME_MIN, VOLUME_MAX);
 	}
 	sound_set_music_volume(volume);
 	if (volume == VOLUME_MIN) {
@@ -286,7 +277,7 @@ static void gamemenu_sound_volume(bool bActivate)
 		else
 			volume = VOLUME_MAX;
 	} else {
-		volume = gmenu_slider_get(&sgOptionsMenu[1], VOLUME_MIN, VOLUME_MAX);
+		volume = gmenu_slider_get(&sgSettingsMenu[1], VOLUME_MIN, VOLUME_MAX);
 	}
 	sound_set_sound_volume(volume);
 	if (volume == VOLUME_MIN) {
@@ -312,7 +303,7 @@ static void gamemenu_gamma(bool bActivate)
 		else
 			gamma = 30;
 	} else {
-		gamma = gmenu_slider_get(&sgOptionsMenu[2], 30, 100);
+		gamma = gmenu_slider_get(&sgSettingsMenu[2], 30, 100);
 	}
 	UpdateGamma(gamma);
 	gamemenu_get_gamma();
@@ -327,7 +318,7 @@ static void gamemenu_speed(bool bActivate)
 		else
 			gnTicksRate = SPEED_NORMAL;
 	} else {
-		gnTicksRate = gmenu_slider_get(&sgOptionsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
+		gnTicksRate = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
 	}
 	setIniInt("devilutionx", "game speed", gnTicksRate);
 	gnTickDelay = 1000 / gnTicksRate;

@@ -26,7 +26,7 @@ uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton)
 	case ControllerButton_BUTTON_A: // Bottom button
 		return gbQuestlog ? DVL_VK_SPACE : DVL_VK_ESCAPE;
 	case ControllerButton_BUTTON_B: // Right button
-		return (sgpCurrentMenu != NULL || stextflag != STORE_NONE || gbQuestlog) ? DVL_VK_RETURN : DVL_VK_SPACE;
+		return (gmenu_is_active() || stextflag != STORE_NONE || gbQuestlog) ? DVL_VK_RETURN : DVL_VK_SPACE;
 	case ControllerButton_BUTTON_Y: // Top button
 		return DVL_VK_RETURN;
 	case ControllerButton_BUTTON_LEFTSTICK:
