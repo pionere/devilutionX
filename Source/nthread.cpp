@@ -38,18 +38,20 @@ void nthread_send_turn(BYTE *data, unsigned len)
 	uint32_t turn = sgbSentThisCycle;
 // enabled for everyone to allow connection with adaptive hosts
 //#ifdef ADAPTIVE_NETUPDATE
+#ifndef NONET
 restart:
-//#endif
+#endif
 	SNetSendTurn(SwapLE32(turn), data, len);
 	turn++;
 	if (turn >= 0x7FFFFFFF)
 		turn &= 0xFFFF;
 //#ifdef ADAPTIVE_NETUPDATE
+#ifndef NONET
 	if (gbEmptyTurns != 0 && SNetGetTurnsInTransit() <= gbEmptyTurns) {
 		len = 0;
 		goto restart;
 	}
-//#endif
+#endif
 	sgbSentThisCycle = turn;
 }
 
@@ -220,7 +222,7 @@ void nthread_start()
 	gbEmptyTurns = 0;
 #ifdef ADAPTIVE_NETUPDATE
 	gbNetUpdateWeight = 0;
-#else
+#elif !defined(NONET)
 	// allow connection with adaptive hosts
 	if (gbNetUpdateRate == 1 && !IsLocalGame)
 		gbEmptyTurns = 1;
