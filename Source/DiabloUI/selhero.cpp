@@ -13,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static _uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
-static _uiheroinfo selhero_heros[MAX_CHARACTERS];
+static std::vector<_uiheroinfo> selhero_heros;
 static const unsigned MAX_VIEWPORT_ITEMS = 6;
 static char textStats[5][4];
 static char selhero_title[32];
@@ -467,7 +467,7 @@ static void SelheroNameSelect(unsigned index)
 
 static void SelHeroGetHeroInfo(_uiheroinfo *pInfo)
 {
-	selhero_heros[selhero_SaveCount] = *pInfo;
+	selhero_heros.emplace_back(*pInfo);
 	selhero_SaveCount++;
 }
 
@@ -488,7 +488,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 
 		selhero_SaveCount = 0;
 		fninfo(SelHeroGetHeroInfo);
-		std::reverse(selhero_heros, selhero_heros + selhero_SaveCount);
+		std::reverse(selhero_heros.begin(), selhero_heros.end());
 
 		if (selhero_SaveCount != 0) {
 			SelheroListInit();
