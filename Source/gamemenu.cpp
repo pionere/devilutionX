@@ -23,37 +23,37 @@ static void gamemenu_speed(bool bActivate);
 /** Contains the game menu items of the single player menu. */
 static TMenuItem sgSingleMenu[] = {
 	// clang-format off
-	// pszStr,     fnMenu,              dwFlags,
-	{ "Save Game", &gamemenu_save_game, GMENU_ENABLED, },
-	{ "Settings",  &gamemenu_settings,  GMENU_ENABLED, },
-	{ "New Game",  &gamemenu_new_game,  GMENU_ENABLED, },
-	{ "Load Game", &gamemenu_load_game, GMENU_ENABLED, },
-	{ "Quit Game", &gamemenu_quit_game, GMENU_ENABLED, },
+	// pszStr,     fnMenu,              dwFlags, wMenuParam*
+	{ "Save Game", &gamemenu_save_game, GMENU_ENABLED, 0, 0 },
+	{ "Settings",  &gamemenu_settings,  GMENU_ENABLED, 0, 0 },
+	{ "New Game",  &gamemenu_new_game,  GMENU_ENABLED, 0, 0 },
+	{ "Load Game", &gamemenu_load_game, GMENU_ENABLED, 0, 0 },
+	{ "Quit Game", &gamemenu_quit_game, GMENU_ENABLED, 0, 0 },
 	// clang-format on
 };
 /** Contains the game menu items of the multi player menu. */
 static TMenuItem sgMultiMenu[] = {
 	// clang-format off
-	// pszStr,           fnMenu,                 dwFlags,
-	{ "Settings",        &gamemenu_settings,     GMENU_ENABLED, },
-	{ "New Game",        &gamemenu_new_game,     GMENU_ENABLED, },
-	{ "Restart In Town", &gamemenu_restart_town, GMENU_ENABLED, },
-	{ "Quit Game",       &gamemenu_quit_game,    GMENU_ENABLED, },
+	// pszStr,           fnMenu,                 dwFlags, wMenuParam*
+	{ "Settings",        &gamemenu_settings,     GMENU_ENABLED, 0, 0 },
+	{ "New Game",        &gamemenu_new_game,     GMENU_ENABLED, 0, 0 },
+	{ "Restart In Town", &gamemenu_restart_town, GMENU_ENABLED, 0, 0 },
+	{ "Quit Game",       &gamemenu_quit_game,    GMENU_ENABLED, 0, 0 },
 	// clang-format on
 };
 static TMenuItem sgSettingsMenu[] = {
 	// clang-format off
-	// pszStr,          fnMenu,                 dwFlags,
+	// pszStr,          fnMenu,                 dwFlags, wMenuParam*
 #ifdef NOSOUND
-	{ "Music Disabled", &gamemenu_music_volume, 0, },
-	{ "Sound Disabled", &gamemenu_sound_volume, 0, },
+	{ "Music Disabled", &gamemenu_music_volume, 0, 0, 0 },
+	{ "Sound Disabled", &gamemenu_sound_volume, 0, 0, 0 },
 #else
-	{ "Music",          &gamemenu_music_volume, GMENU_ENABLED | GMENU_SLIDER, },
-	{ "Sound",          &gamemenu_sound_volume, GMENU_ENABLED | GMENU_SLIDER, },
+	{ "Music",          &gamemenu_music_volume, GMENU_ENABLED | GMENU_SLIDER, 0, 0 },
+	{ "Sound",          &gamemenu_sound_volume, GMENU_ENABLED | GMENU_SLIDER, 0, 0 },
 #endif
-	{ "Gamma",          &gamemenu_gamma,        GMENU_ENABLED | GMENU_SLIDER, },
-	{ "Speed",          &gamemenu_speed,        GMENU_ENABLED | GMENU_SLIDER, },
-	{ "Previous Menu",  &gamemenu_previous,     GMENU_ENABLED, },
+	{ "Gamma",          &gamemenu_gamma,        GMENU_ENABLED | GMENU_SLIDER, 0, 0 },
+	{ "Speed",          &gamemenu_speed,        GMENU_ENABLED | GMENU_SLIDER, 0, 0 },
+	{ "Previous Menu",  &gamemenu_previous,     GMENU_ENABLED, 0, 0 },
 	// clang-format on
 };
 
