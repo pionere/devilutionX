@@ -22,12 +22,16 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Logo CEL above the menu */
 static BYTE* gpLogoCel;
 #ifdef HELLFIRE
+/** The next tick to increment the frame of the logo animation. */
 static Uint32 guNextLogoAnimTc;
+/** The current frame of the logo animation. */
 static BYTE gbLogoAnimFrame;
 #endif
-/** Slider buttons CEL */
+/** Slider CEL */
 static BYTE* gpOptbarCel;
+/** Slider button CEL */
 static BYTE* gpOptionCel;
+/** Speficifies whether the mouse is pressed while navigating the menu. */
 static bool _gbMouseNavigation;
 /** The array of the current menu items. */
 TMenuItem* gpCurrentMenu;

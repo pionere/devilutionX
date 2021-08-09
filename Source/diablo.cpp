@@ -389,6 +389,10 @@ static void game_loop()
 	i = IsMultiGame ? 3 : 1;
 
 	do {
+		// TODO: stop processing the turns if the game is in pause mode? (ProcessInput returns false)
+		//  Currently one last live turn is processed, afterwards the empty turns do not
+		//  cause any trouble, but if the live turn is not processed, it has to be
+		//  saved/discarded if the game is saved/loaded. (SNetGetLiveTurnsInTransit)
 		if (!multi_handle_turn()) {
 			static_assert(CURSOR_NONE == 0, "BitOr optimization of timeout_cursor depends on CURSOR_NONE being 0.");
 			if (multi_check_timeout() && (sgnTimeoutCurs | gbActionBtnDown | gbAltActionBtnDown) == 0) {
