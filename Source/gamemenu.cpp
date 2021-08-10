@@ -63,13 +63,17 @@ static void gamemenu_update_single()
 
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
 
-	enable = myplr._pmode != PM_DEATH && !gbDeathflag;
+	enable = pcurs == CURSOR_HAND && myplr._pmode != PM_DEATH && !gbDeathflag;
 	gmenu_enable(&sgSingleMenu[0], enable);
 }
 
 static void gamemenu_update_multi()
 {
 	gmenu_enable(&sgMultiMenu[2], gbDeathflag);
+}
+
+static void gamemenu_update_settings()
+{
 }
 
 void gamemenu_on()
@@ -140,15 +144,6 @@ static void gamemenu_load_game(bool bActivate)
 
 static void gamemenu_save_game(bool bActivate)
 {
-	if (pcurs != CURSOR_HAND) {
-		return;
-	}
-
-	if (myplr._pmode == PM_DEATH || gbDeathflag) {
-		gamemenu_off();
-		return;
-	}
-
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
 	NewCursor(CURSOR_NONE);
 	gamemenu_off();
@@ -233,7 +228,7 @@ static void gamemenu_settings(bool bActivate)
 	gamemenu_get_sound();
 	gamemenu_get_gamma();
 	gamemenu_get_speed();
-	gmenu_set_items(sgSettingsMenu, lengthof(sgSettingsMenu), NULL);
+	gmenu_set_items(sgSettingsMenu, lengthof(sgSettingsMenu), gamemenu_update_settings);
 }
 
 static void gamemenu_music_volume(bool bActivate)

@@ -128,9 +128,6 @@ void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 	guCurrentMenuSize = nItems;
 	guCurrItemIdx = 0;
 	gmUpdateFunc = gmUpdFunc;
-	if (gmUpdFunc != NULL) {
-		gmUpdateFunc();
-	}
 	PlaySFX(IS_TITLEMOV);
 }
 
@@ -192,9 +189,9 @@ void gmenu_draw()
 	int nCel, i, y;
 
 	assert(gmenu_is_active());
+	assert(gmUpdateFunc != NULL);
+	gmUpdateFunc();
 	GameMenuMove();
-	if (gmUpdateFunc != NULL)
-		gmUpdateFunc();
 #ifdef HELLFIRE
 	Uint32 currTc = SDL_GetTicks();
 	if (currTc > guNextLogoAnimTc) {
@@ -216,6 +213,9 @@ void gmenu_draw()
 
 bool gmenu_presskeys(int vkey)
 {
+	assert(gmUpdateFunc != NULL);
+	gmUpdateFunc();
+
 	switch (vkey) {
 	case DVL_VK_LBUTTON:
 		return gmenu_left_mouse(true);
@@ -226,7 +226,7 @@ bool gmenu_presskeys(int vkey)
 		break;
 	case DVL_VK_ESCAPE:
 	case DVL_VK_SPACE:
-		gmenu_set_items(NULL, 0, NULL);
+		gamemenu_off(); // TODO: add gmCloseFunc?
 		break;
 	case DVL_VK_LEFT:
 		gmenu_left_right(false);
@@ -333,7 +333,7 @@ void gmenu_slider_set(TMenuItem *pItem, int min, int max, int value)
 {
 	int nSteps;
 
-	assert(pItem != NULL);
+	//assert(pItem != NULL);
 	nSteps = pItem->wMenuParam1;
 	pItem->wMenuParam2 = ((max - min) / 2 + (value - min) * nSteps) / (max - min);
 }
@@ -345,6 +345,7 @@ int gmenu_slider_get(TMenuItem *pItem, int min, int max)
 {
 	int nSteps, step;
 
+	//assert(pItem != NULL);
 	step = pItem->wMenuParam2;
 	nSteps = pItem->wMenuParam1;
 
@@ -356,6 +357,7 @@ int gmenu_slider_get(TMenuItem *pItem, int min, int max)
  */
 void gmenu_slider_steps(TMenuItem *pItem, int steps)
 {
+	//assert(pItem != NULL);
 	// assert(steps >= 1);
 	pItem->wMenuParam1 = steps;
 }
