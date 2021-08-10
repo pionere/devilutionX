@@ -87,7 +87,7 @@ int gossipstart;
 /** End of possible gossip dialogs for current store */
 int gossipend;
 /** Text lines */
-STextStruct stext[STORE_LINES];
+static STextStruct stextlines[STORE_LINES];
 /** Currently selected text line from stext */
 int stextsel;
 /** Remember currently selected text line from stext while displaying a dialog */
@@ -186,7 +186,7 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 	char valstr[32];
 
 	sx = (_gbStextsize ? QPANEL_X + 7 : STORE_PNL_X + 7) + x;
-	sy = 44 + SCREEN_Y + UI_OFFSET_Y + y * 12 + stext[y]._syoff;
+	sy = 44 + SCREEN_Y + UI_OFFSET_Y + y * 12 + stextlines[y]._syoff;
 	limit = _gbStextsize ? QPANEL_WIDTH - 7 * 2 : STORE_PNL_WIDTH - 7 * 2;
 	if (cjustflag) {
 		width = GetStringWidth(str);
@@ -275,14 +275,14 @@ void ClearSText(int s, int e)
 	int i;
 
 	for (i = s; i < e; i++) {
-		stext[i]._sx = 0;
-		stext[i]._syoff = 0;
-		stext[i]._sstr[0] = 0;
-		stext[i]._sjust = false;
-		stext[i]._sclr = COL_WHITE;
-		stext[i]._sline = false;
-		stext[i]._ssel = false;
-		stext[i]._sval = -1;
+		stextlines[i]._sx = 0;
+		stextlines[i]._syoff = 0;
+		stextlines[i]._sstr[0] = 0;
+		stextlines[i]._sjust = false;
+		stextlines[i]._sclr = COL_WHITE;
+		stextlines[i]._sline = false;
+		stextlines[i]._ssel = false;
+		stextlines[i]._sval = -1;
 	}
 }
 
@@ -290,7 +290,7 @@ static void AddSLine(int y)
 {
 	STextStruct *ss;
 
-	ss = &stext[y];
+	ss = &stextlines[y];
 	ss->_sx = 0;
 	ss->_syoff = 0;
 	ss->_sstr[0] = 0;
@@ -299,19 +299,19 @@ static void AddSLine(int y)
 
 static void AddSTextVal(int y, int val)
 {
-	stext[y]._sval = val;
+	stextlines[y]._sval = val;
 }
 
 static void OffsetSTextY(int y, int yo)
 {
-	stext[y]._syoff = yo;
+	stextlines[y]._syoff = yo;
 }
 
 static void AddSText(int x, int y, bool j, const char *str, BYTE clr, bool sel)
 {
 	STextStruct *ss;
 
-	ss = &stext[y];
+	ss = &stextlines[y];
 	ss->_sx = x;
 	ss->_syoff = 0;
 	SStrCopy(ss->_sstr, str, sizeof(ss->_sstr));
@@ -447,7 +447,7 @@ static void S_ScrollSBuy()
 		}
 	}
 
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stext[stextsel]._ssel)
+	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
@@ -510,7 +510,7 @@ static void S_ScrollSPBuy()
 		idx++;
 	}
 
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stext[stextsel]._ssel)
+	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
@@ -600,7 +600,7 @@ static void S_ScrollSSell()
 		idx++;
 	}
 
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stext[stextsel]._ssel)
+	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
@@ -741,7 +741,7 @@ static void S_ScrollWBuy()
 		}
 	}
 
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stext[stextsel]._ssel)
+	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
@@ -1001,7 +1001,7 @@ static void S_ScrollHBuy()
 		}
 	}
 
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stext[stextsel]._ssel)
+	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
@@ -1265,7 +1265,7 @@ void StartStore(char s)
 	}
 
 	for (i = 0; i < STORE_LINES; i++) {
-		if (stext[i]._ssel)
+		if (stextlines[i]._ssel)
 			break;
 	}
 
@@ -1310,10 +1310,10 @@ void DrawSText()
 	}
 
 	for (i = 0; i < STORE_LINES; i++) {
-		if (stext[i]._sline)
+		if (stextlines[i]._sline)
 			DrawSLine(i);
-		if (stext[i]._sstr[0] != '\0')
-			PrintSString(stext[i]._sx, i, stext[i]._sjust, stext[i]._sstr, stext[i]._sclr, stext[i]._sval);
+		if (stextlines[i]._sstr[0] != '\0')
+			PrintSString(stextlines[i]._sx, i, stextlines[i]._sjust, stextlines[i]._sstr, stextlines[i]._sclr, stextlines[i]._sval);
 	}
 
 	if (_gbStextscrl)
@@ -1413,7 +1413,7 @@ void STextUp()
 		stextsel--;
 		if (stextsel < 0)
 			stextsel = STORE_LINES - 1;
-	} while (!stext[stextsel]._ssel);
+	} while (!stextlines[stextsel]._ssel);
 }
 
 void STextDown()
@@ -1433,7 +1433,7 @@ void STextDown()
 		stextsel++;
 		if (stextsel == STORE_LINES)
 			stextsel = 0;
-	} while (!stext[stextsel]._ssel);
+	} while (!stextlines[stextsel]._ssel);
 }
 
 void STextPrior()
@@ -2090,7 +2090,7 @@ static void S_ConfirmEnter()
 	stextsel = stextlhold;
 	stextsidx = std::min(stextvhold, stextsmax);
 
-	while (stextsel != -1 && !stext[stextsel]._ssel) {
+	while (stextsel != -1 && !stextlines[stextsel]._ssel) {
 		stextsel--;
 	}
 }
@@ -2408,14 +2408,14 @@ void CheckStoreBtn()
 			if (y >= 22)
 				y = 22;
 			// allow clicking on multi-line items
-			else if (_gbStextscrl /*&& y < 21*/ && !stext[y]._ssel) {
+			else if (_gbStextscrl /*&& y < 21*/ && !stextlines[y]._ssel) {
 				y--;
-				if (!stext[y]._ssel) {
+				if (!stextlines[y]._ssel) {
 					y--;
 				}
 			}
-			//if (stext[y]._ssel || (_gbStextscrl && y == STORE_BACK)) {
-			if (stext[y]._ssel) {
+			//if (stextlines[y]._ssel || (_gbStextscrl && y == STORE_BACK)) {
+			if (stextlines[y]._ssel) {
 				stextsel = y;
 				STextEnter();
 			}
