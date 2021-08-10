@@ -56,6 +56,8 @@ DEVILUTION_BEGIN_NAMESPACE
 BYTE *pSTextBoxCels;
 BYTE *pSTextSlidCels;
 
+/* Temporary item to store the current item while in store. */
+static ItemStruct storeitem;
 /* The item for sale by Wirt. */
 ItemStruct boyitem;
 /* The level of the item by Wirt. */
@@ -890,17 +892,15 @@ static void S_StartNoRoom()
 
 static void S_StartConfirm()
 {
-	ItemStruct* is;
 	BYTE iclr;
 
 	StartStore(stextshold);
 	_gbStextscrl = false;
 	ClearSText(5, STORE_LINES);
-	is = &myplr._pHoldItem;
-	iclr = StoreItemColor(is);
-	AddSText(20, 8, false, ItemName(is), iclr, false);
-	AddSTextVal(8, is->_iIvalue);
-	PrintStoreItem(is, 9, iclr);
+	iclr = StoreItemColor(&storeitem);
+	AddSText(20, 8, false, ItemName(&storeitem), iclr, false);
+	AddSTextVal(8, storeitem._iIvalue);
+	PrintStoreItem(&storeitem, 9, iclr);
 
 	switch (stextshold) {
 	case STORE_BBOY:
@@ -1100,7 +1100,6 @@ static void S_StartSIdentify()
 
 static void S_StartIdShow()
 {
-	ItemStruct *is;
 	BYTE iclr;
 
 	//assert(stextshold == STORE_SIDENTIFY);
@@ -1110,13 +1109,12 @@ static void S_StartIdShow()
 	//_gbStextsize = true;
 	_gbStextscrl = false;
 
-	is = &myplr._pHoldItem;
-	iclr = StoreItemColor(is);
+	iclr = StoreItemColor(&storeitem);
 
 	AddSLine(3);
 	AddSText(0, 7, true, "This item is:", COL_WHITE, false);
-	AddSText(20, 11, false, ItemName(is), iclr, false);
-	PrintStoreItem(is, 12, iclr);
+	AddSText(20, 11, false, ItemName(&storeitem), iclr, false);
+	PrintStoreItem(&storeitem, 12, iclr);
 	AddSText(0, 18, true, "Done", COL_WHITE, true);
 	AddSLine(21);
 }
@@ -1547,9 +1545,9 @@ static bool StoreAutoPlace(bool saveflag)
 {
 	int pnum = mypnum;
 
-	return WeaponAutoPlace(pnum, &plr._pHoldItem, saveflag)
-		|| AutoPlaceBelt(pnum, &plr._pHoldItem, saveflag)
-		|| AutoPlaceInv(pnum, &plr._pHoldItem, saveflag);
+	return WeaponAutoPlace(pnum, &storeitem, saveflag)
+		|| AutoPlaceBelt(pnum, &storeitem, saveflag)
+		|| AutoPlaceInv(pnum, &storeitem, saveflag);
 }
 
 /**
@@ -1559,7 +1557,7 @@ static void SmithBuyItem()
 {
 	int idx;
 
-	TakePlrsMoney(myplr._pHoldItem._iIvalue);
+	TakePlrsMoney(storeitem._iIvalue);
 	StoreAutoPlace(true);
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	do {
@@ -1573,8 +1571,8 @@ static void StoreStartBuy(ItemStruct *is, int price)
 	if (myplr._pGold < price) {
 		StartStore(STORE_NOMONEY);
 	} else {
-		copy_pod(myplr._pHoldItem, *is);
-		//myplr._pHoldItem._iIvalue = price; // only for boyitem
+		copy_pod(storeitem, *is);
+		//storeitem._iIvalue = price; // only for boyitem
 		if (StoreAutoPlace(false))
 			StartStore(STORE_CONFIRM);
 		else
@@ -1605,7 +1603,7 @@ static void SmithBuyPItem()
 {
 	int i, xx, idx;
 
-	TakePlrsMoney(myplr._pHoldItem._iIvalue);
+	TakePlrsMoney(storeitem._iIvalue);
 	StoreAutoPlace(true);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
@@ -1768,7 +1766,7 @@ static void S_SSellEnter()
 		idx = stextsidx + ((stextsel - stextup) >> 2);
 		stextshold = STORE_SSELL;
 		stextvhold = stextsidx;
-		copy_pod(myplr._pHoldItem, storehold[idx]);
+		copy_pod(storeitem, storehold[idx]);
 
 		if (StoreGoldFit(idx))
 			StartStore(STORE_CONFIRM);
@@ -1785,7 +1783,7 @@ static void SmithRepairItem()
 	ItemStruct *pi;
 	int i, idx;
 
-	TakePlrsMoney(myplr._pHoldItem._iIvalue);
+	TakePlrsMoney(storeitem._iIvalue);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 
@@ -1810,7 +1808,7 @@ static void S_SRepairEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		copy_pod(myplr._pHoldItem, storehold[idx]);
+		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
 		else
@@ -1857,9 +1855,9 @@ static void WitchBuyItem()
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 
 	if (idx < 3)
-		myplr._pHoldItem._iSeed = GetRndSeed();
+		storeitem._iSeed = GetRndSeed();
 
-	TakePlrsMoney(myplr._pHoldItem._iIvalue);
+	TakePlrsMoney(storeitem._iIvalue);
 	StoreAutoPlace(true);
 
 	if (idx >= 3) {
@@ -1899,7 +1897,7 @@ static void S_WSellEnter()
 		idx = stextsidx + ((stextsel - stextup) >> 2);
 		stextshold = STORE_WSELL;
 		stextvhold = stextsidx;
-		copy_pod(myplr._pHoldItem, storehold[idx]);
+		copy_pod(storeitem, storehold[idx]);
 		if (StoreGoldFit(idx))
 			StartStore(STORE_CONFIRM);
 		else
@@ -1915,7 +1913,7 @@ static void WitchRechargeItem()
 	ItemStruct *pi;
 	int i, idx;
 
-	TakePlrsMoney(myplr._pHoldItem._iIvalue);
+	TakePlrsMoney(storeitem._iIvalue);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 
@@ -1941,7 +1939,7 @@ static void S_WRechargeEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		copy_pod(myplr._pHoldItem, storehold[idx]);
+		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
 		else
@@ -1984,9 +1982,9 @@ static void S_BoyEnter()
 
 static void BoyBuyItem()
 {
-	TakePlrsMoney(myplr._pHoldItem._iIvalue);
+	TakePlrsMoney(storeitem._iIvalue);
 	// restore the price of the item
-	//myplr._pHoldItem._iIvalue = boyitem._iIvalue;
+	//storeitem._iIvalue = boyitem._iIvalue;
 	StoreAutoPlace(true);
 	boyitem._itype = ITYPE_NONE;
 }
@@ -2002,9 +2000,9 @@ static void HealerBuyItem()
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	infinite = idx < (IsMultiGame ? 3 : 2);
 	if (infinite)
-		myplr._pHoldItem._iSeed = GetRndSeed();
+		storeitem._iSeed = GetRndSeed();
 
-	TakePlrsMoney(myplr._pHoldItem._iIvalue);
+	TakePlrsMoney(storeitem._iIvalue);
 	StoreAutoPlace(true);
 
 	if (infinite)
@@ -2039,8 +2037,8 @@ static void StoryIdItem()
 	else
 		pi = &myplr._pInvList[idx];
 	pi->_iIdentified = TRUE;
-	myplr._pHoldItem._iIdentified = TRUE;
-	TakePlrsMoney(myplr._pHoldItem._iIvalue);
+	storeitem._iIdentified = TRUE;
+	TakePlrsMoney(storeitem._iIvalue);
 	CalcPlrInv(mypnum, true);
 }
 
@@ -2183,7 +2181,7 @@ static void S_SIDEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		copy_pod(myplr._pHoldItem, storehold[idx]);
+		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
 		else
