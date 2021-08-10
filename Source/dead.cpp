@@ -89,6 +89,7 @@ void AddDead(int mnum)
 	dv = mon->_mmode == MM_STONE ? stonendx : (mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval);
 	dir = mon->_mdir;
 	dMonster[dx][dy] = 0;
+	static_assert(MAXDEAD <= 0x1F, "Encoding of dDead requires the maximum number of deads to be low.");
 	dDead[dx][dy] = (dv & 0x1F) + (dir << 5);
 }
 

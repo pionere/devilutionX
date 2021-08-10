@@ -76,45 +76,45 @@ ItemStruct witchitem[WITCH_ITEMS];
 ItemStruct healitem[HEALER_ITEMS];
 
 /** The current towner being interacted with */
-int talker;
+static int talker;
 /** The current interaction mode(STORE*) */
 char stextflag;
 /** Is the current dialog full size */
-bool _gbStextsize;
+static bool _gbStextsize;
 /** Does the current panel have a scrollbar */
-bool _gbStextscrl;
+static bool _gbStextscrl;
 /** Scroll position */
-int stextsidx;
+static int stextsidx;
 /** Next scroll position */
-int stextdown;
+static int stextdown;
 /** Previous scroll position */
-int stextup;
+static int stextup;
 /** Remember current interaction mode(STORE*) while displaying a dialog */
-int stextshold;
+static int stextshold;
 /** Start of possible gossip dialogs for current store */
-int gossipstart;
+static int gossipstart;
 /** End of possible gossip dialogs for current store */
-int gossipend;
+static int gossipend;
 /** Text lines */
 static STextStruct stextlines[STORE_LINES];
 /** Currently selected text line from stext */
-int stextsel;
+static int stextsel;
 /** Remember currently selected text line from stext while displaying a dialog */
-int stextlhold;
+static int stextlhold;
 /** Number of text lines in the current dialog */
-int stextsmax;
+static int stextsmax;
 /** Copies of the players items as presented in the store */
-ItemStruct storehold[STORAGE_LIMIT];
+static ItemStruct storehold[STORAGE_LIMIT];
 /** Map of inventory items being presented in the store */
-char storehidx[STORAGE_LIMIT];
+static char storehidx[STORAGE_LIMIT];
 /** Current index into storehidx/storehold */
-int storenumh;
+static int storenumh;
 /** Remember last scroll position */
-int stextvhold;
+static int stextvhold;
 /** Count down for the push state of the scroll up button */
-char stextscrlubtn;
+static char stextscrlubtn;
 /** Count down for the push state of the scroll down button */
-char stextscrldbtn;
+static char stextscrldbtn;
 
 /** Maps from towner IDs to NPC names. */
 const char *const talkname[] = {
