@@ -1644,13 +1644,17 @@ typedef struct TriggerStruct {
 typedef struct STextStruct {
 	int _sx;
 	int _syoff;
-	char _sstr[128];
+	char _sstr[112];
 	bool _sjust;
 	BYTE _sclr;
 	bool _sline;
 	bool _ssel;
 	int _sval;
 } STextStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align STextStruct closer to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // plrmsg

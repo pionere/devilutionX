@@ -56,13 +56,21 @@ DEVILUTION_BEGIN_NAMESPACE
 BYTE *pSTextBoxCels;
 BYTE *pSTextSlidCels;
 
-int boylevel;
+/* The item for sale by Wirt. */
 ItemStruct boyitem;
+/* The level of the item by Wirt. */
+int boylevel;
+/* The standard items for sale by the smith. */
 ItemStruct smithitem[SMITH_ITEMS];
-int premiumlevel;
-int numpremium;
+/* The premium items for sale by the smith. */
 ItemStruct premiumitems[SMITH_PREMIUM_ITEMS];
+/* The base level of the premium items by the smith. */
+int premiumlevel;
+/* The number of premium items for sale. */
+int numpremium;
+/* The items for sale by the witch. */
 ItemStruct witchitem[WITCH_ITEMS];
+/* The items for sale by the healer. */
 ItemStruct healitem[HEALER_ITEMS];
 
 /** The current towner being interacted with */
@@ -1180,7 +1188,7 @@ static void S_StartDrunk()
 	AddSLine(5);
 }
 
-void StartStore(char s)
+void StartStore(int s)
 {
 	int i;
 
@@ -1259,6 +1267,9 @@ void StartStore(char s)
 		break;
 	case STORE_BARMAID:
 		S_StartBarMaid();
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 

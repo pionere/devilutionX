@@ -43,7 +43,7 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 void DrawSLine(int y);
 void DrawSTextHelp();
 void ClearSText(int s, int e);
-void StartStore(char s);
+void StartStore(int s);
 void DrawSText();
 void STextESC();
 void STextUp();
