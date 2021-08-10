@@ -25,9 +25,6 @@ void plrctrls_after_game_logic();
 // Handles item, object, and monster auto-aim.
 void plrctrls_after_check_curs_move();
 
-// Moves the map if active, the cursor otherwise.
-void HandleRightStickMotion();
-
 // Whether we're in a dialog menu that the game handles natively with keyboard controls.
 bool InGameMenu();
 

@@ -10,7 +10,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 bool sgbControllerActive = false;
-POS32 speedspellscoords[50];
+static POS32 speedspellscoords[50];
 int speedspellcount = 0;
 
 /**
@@ -27,9 +27,7 @@ bool InGameMenu()
 	    || myplr._pInvincible;
 }
 
-namespace {
-
-int slot = SLOTXY_INV_FIRST;
+static int slot = SLOTXY_INV_FIRST;
 
 /**
  * Number of angles to turn to face the coordinate
@@ -37,7 +35,7 @@ int slot = SLOTXY_INV_FIRST;
  * @param y Tile coordinates
  * @return -1 == down
  */
-int GetRotaryDistance(int x, int y)
+static int GetRotaryDistance(int x, int y)
 {
 	int d, d1, d2;
 
@@ -59,7 +57,7 @@ int GetRotaryDistance(int x, int y)
  * @param dx Tile coordinates
  * @param dy Tile coordinates
  */
-int GetMinDistance(int dx, int dy)
+static int GetMinDistance(int dx, int dy)
 {
 	return std::max(abs(myplr._pfutx - dx), abs(myplr._pfuty - dy));
 }
@@ -71,7 +69,7 @@ int GetMinDistance(int dx, int dy)
  * @param maxDistance the max number of steps to search
  * @return number of steps, or 0 if not reachable
  */
-int GetDistance(int dx, int dy, int maxDistance)
+static int GetDistance(int dx, int dy, int maxDistance)
 {
 	if (GetMinDistance(dx, dy) > maxDistance) {
 		return 0;
@@ -90,7 +88,7 @@ int GetDistance(int dx, int dy, int maxDistance)
  * @param dx Tile coordinates
  * @param dy Tile coordinates
  */
-int GetDistanceRanged(int dx, int dy)
+static int GetDistanceRanged(int dx, int dy)
 {
 	int a = myplr._pfutx - dx;
 	int b = myplr._pfuty - dy;
@@ -98,7 +96,7 @@ int GetDistanceRanged(int dx, int dy)
 	return sqrt(a * a + b * b);
 }
 
-void FindItemOrObject()
+static void FindItemOrObject()
 {
 	int mx = myplr._pfutx;
 	int my = myplr._pfuty;
@@ -151,7 +149,7 @@ void FindItemOrObject()
 	}
 }
 
-void CheckTownersNearby()
+static void CheckTownersNearby()
 {
 	for (int i = 0; i < numtowners; i++) {
 		int distance = GetDistance(towners[i]._tx, towners[i]._ty, 2);
@@ -161,7 +159,7 @@ void CheckTownersNearby()
 	}
 }
 
-bool HasRangedSpell()
+static bool HasRangedSpell()
 {
 	int spl = myplr._pAltAtkSkill;
 	if (spl == SPL_INVALID)
@@ -174,7 +172,7 @@ bool HasRangedSpell()
 	    && (spelldata[spl].sFlags & myplr._pSkillFlags) != 0;
 }
 
-bool CanTargetMonster(int mi)
+static bool CanTargetMonster(int mi)
 {
 	// The first MAX_MINIONS monsters are reserved for players' golems.
 	if (mi < MAX_MINIONS)
@@ -196,7 +194,7 @@ bool CanTargetMonster(int mi)
 	return true;
 }
 
-void FindRangedTarget()
+static void FindRangedTarget()
 {
 	int rotations = 0, distance = 0, i, mnum;
 	bool canTalk = false;
@@ -226,7 +224,7 @@ void FindRangedTarget()
 	}
 }
 
-void FindMeleeTarget()
+static void FindMeleeTarget()
 {
 	bool visited[MAXDUNX][MAXDUNY] = { { 0 } };
 	int maxSteps = MAX_PATH_LENGTH;
@@ -290,7 +288,7 @@ void FindMeleeTarget()
 	}
 }
 
-void CheckMonstersNearby()
+static void CheckMonstersNearby()
 {
 	if ((myplr._pSkillFlags & SFLAG_RANGED) || HasRangedSpell()) {
 		FindRangedTarget();
@@ -300,7 +298,7 @@ void CheckMonstersNearby()
 	FindMeleeTarget();
 }
 
-void CheckPlayerNearby()
+static void CheckPlayerNearby()
 {
 	int newDdistance;
 	int rotations = 0;
@@ -345,7 +343,7 @@ void CheckPlayerNearby()
 	}
 }
 
-void FindActor()
+static void FindActor()
 {
 	if (currLvl._dType != DTYPE_TOWN)
 		CheckMonstersNearby();
@@ -356,7 +354,7 @@ void FindActor()
 		CheckPlayerNearby();
 }
 
-void FindTrigger()
+static void FindTrigger()
 {
 	int rotations;
 	int distance = 0;
@@ -407,7 +405,7 @@ void FindTrigger()
 	CheckTownPortal();
 }
 
-void Interact()
+static void Interact()
 {
 	if (currLvl._dType == DTYPE_TOWN) {
 		if (pcursmonst != -1)
@@ -423,7 +421,7 @@ void Interact()
 	}
 }
 
-void AttrIncBtnSnap(AxisDirection dir)
+static void AttrIncBtnSnap(AxisDirection dir)
 {
 	static AxisDirectionRepeater repeater;
 	dir = repeater.Get(dir);
@@ -476,7 +474,7 @@ void AttrIncBtnSnap(AxisDirection dir)
  * If mouse coords are at SLOTXY_CHEST_LAST, consider this center of equipment
  * small inventory squares are 29x29 (roughly)
  */
-void InvMove(AxisDirection dir)
+static void InvMove(AxisDirection dir)
 {
 	static AxisDirectionRepeater repeater(/*min_interval_ms=*/100);
 	dir = repeater.Get(dir);
@@ -699,7 +697,7 @@ void InvMove(AxisDirection dir)
 /**
  * check if hot spell at X Y exists
  */
-bool HSExists(int x, int y)
+static bool HSExists(int x, int y)
 {
 	for (int r = 0; r < speedspellcount; r++) {
 		if (x >= speedspellscoords[r].x - SPLICONLENGTH / 2
@@ -712,7 +710,7 @@ bool HSExists(int x, int y)
 	return false;
 }
 
-void HotSpellMove(AxisDirection dir)
+static void HotSpellMove(AxisDirection dir)
 {
 	static AxisDirectionRepeater repeater;
 	dir = repeater.Get(dir);
@@ -762,7 +760,7 @@ void HotSpellMove(AxisDirection dir)
 	}
 }
 
-void SpellBookMove(AxisDirection dir)
+static void SpellBookMove(AxisDirection dir)
 {
 	static AxisDirectionRepeater repeater;
 	dir = repeater.Get(dir);
@@ -803,7 +801,7 @@ static const int Offsets[8][2] = {
  *
  *  @return true if step is blocked
  */
-bool IsPathBlocked(int x, int y, int dir)
+static bool IsPathBlocked(int x, int y, int dir)
 {
 	int d1, d2, d1x, d1y, d2x, d2y;
 
@@ -854,7 +852,7 @@ static bool CanChangeDirection()
 	return false;
 }
 
-void WalkInDir(AxisDirection dir)
+static void WalkInDir(AxisDirection dir)
 {
 	const int x = myplr._pfutx;
 	const int y = myplr._pfuty;
@@ -877,7 +875,7 @@ void WalkInDir(AxisDirection dir)
 	NetSendCmdLoc(true, CMD_WALKXY, dx, dy);
 }
 
-void QuestLogMove(AxisDirection moveDir)
+static void QuestLogMove(AxisDirection moveDir)
 {
 	static AxisDirectionRepeater repeater;
 	moveDir = repeater.Get(moveDir);
@@ -887,7 +885,7 @@ void QuestLogMove(AxisDirection moveDir)
 		QuestlogDown();
 }
 
-void StoreMove(AxisDirection moveDir)
+static void StoreMove(AxisDirection moveDir)
 {
 	static AxisDirectionRepeater repeater;
 	moveDir = repeater.Get(moveDir);
@@ -899,7 +897,7 @@ void StoreMove(AxisDirection moveDir)
 
 typedef void (*HandleLeftStickOrDPadFn)(dvl::AxisDirection);
 
-HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
+static HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
 {
 	if (gbInvflag) {
 		return &InvMove;
@@ -917,14 +915,14 @@ HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
 	return NULL;
 }
 
-void ProcessLeftStickOrDPadGameUI()
+static void ProcessLeftStickOrDPadGameUI()
 {
 	HandleLeftStickOrDPadFn handler = GetLeftStickOrDPadGameUIHandler();
 	if (handler != NULL)
 		handler(GetLeftStickOrDpadDirection(true));
 }
 
-void Movement()
+static void Movement()
 {
 	if (InGameMenu()
 	    || IsControllerButtonPressed(ControllerButton_BUTTON_START)
@@ -975,8 +973,6 @@ struct RightStickAccumulator {
 	float hiresDX;
 	float hiresDY;
 };
-
-} // namespace
 
 void StoreSpellCoords()
 {
@@ -1036,7 +1032,8 @@ bool IsMovingMouseCursorWithController()
 	return rightStickX != 0 || rightStickY != 0;
 }
 
-void HandleRightStickMotion()
+// Moves the map if active, the cursor otherwise.
+static void HandleRightStickMotion()
 {
 	static RightStickAccumulator acc;
 	// deadzone is handled in ScaleJoystickAxes() already
