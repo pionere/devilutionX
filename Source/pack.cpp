@@ -127,7 +127,7 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 
 void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 {
-	int i, j, g;
+	int i, j;
 	ItemStruct *pi;
 	PkItemStruct *pki;
 
@@ -235,14 +235,12 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 			pi->_itype = ITYPE_NONE; // move weapon from right hand to left hand
 		}
 	}*/
-	// verify the gold-seeds, calculate gold amount
-	g = 0;
+	// verify the gold-seeds TODO check gold values?
 	for (i = 0; i < plr._pNumInv; i++) {
 		pi = &plr._pInvList[i];
 		if (pi->_iIdx == IDI_GOLD) {
-			if (pi->_ivalue > GOLD_MAX_LIMIT)
-				pi->_ivalue = GOLD_MAX_LIMIT;
-			g += pi->_ivalue;
+			//if (pi->_ivalue > GOLD_MAX_LIMIT)
+			//	pi->_ivalue = GOLD_MAX_LIMIT;
 			for (j = 0; j < plr._pNumInv; j++) {
 				if (i != j
 				 && plr._pInvList[j]._iIdx == IDI_GOLD && plr._pInvList[j]._iSeed == pi->_iSeed) {
@@ -252,7 +250,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 			}
 		}
 	}
-	plr._pGold = g;
 	// recalculate the cached fields
 	InitPlayer(pnum);
 	CalcPlrInv(pnum, false);

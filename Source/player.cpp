@@ -747,6 +747,8 @@ void InitPlayer(int pnum)
 		dev_fatal("InitPlayer: illegal player %d", pnum);
 	}
 	// calculate derived values
+	CalculateGold(pnum);
+
 	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
 
 	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
