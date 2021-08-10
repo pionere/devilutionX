@@ -822,6 +822,7 @@ typedef struct PkPlayerStruct {
 	BYTE pSkillActivity[64];
 	DWORD pSkillExp[64];
 	uint64_t pMemSkills;
+	PkItemStruct pHoldItem;
 	PkItemStruct pInvBody[NUM_INVLOC];
 	PkItemStruct pSpdList[MAXBELTITEMS];
 	PkItemStruct pInvList[NUM_INV_GRID_ELEM];

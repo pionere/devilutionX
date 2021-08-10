@@ -61,6 +61,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	}
 	pPack->pMemSkills = SwapLE64(p->_pMemSkills);
 
+	PackItem(&pPack->pHoldItem, &p->_pHoldItem);
+
 	pki = &pPack->pInvBody[0];
 	pi = &p->_pInvBody[0];
 
@@ -164,6 +166,8 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		plr._pSkillExp[i] = SwapLE32(pPack->pSkillExp[i]);
 	}
 	plr._pMemSkills = SwapLE64(pPack->pMemSkills);
+
+	UnPackItem(&pPack->pHoldItem, &plr._pHoldItem);
 
 	pki = &pPack->pInvBody[0];
 	pi = &plr._pInvBody[0];
