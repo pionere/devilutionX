@@ -508,7 +508,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	unsigned amin = 0;  // min acid damage
 	unsigned amax = 0;  // max acid damage
 
-	pi = plr.InvBody;
+	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
 			if (pi->_iSpell != SPL_NULL) {
@@ -675,8 +675,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pMana = imana + plr._pManaBase;
 	plr._pMaxMana = imana + plr._pMaxManaBase;
 
-	wLeft = &plr.InvBody[INVLOC_HAND_LEFT];
-	wRight = &plr.InvBody[INVLOC_HAND_RIGHT];
+	wLeft = &plr._pInvBody[INVLOC_HAND_LEFT];
+	wRight = &plr._pInvBody[INVLOC_HAND_RIGHT];
 
 	bf = false;
 	wt = SFLAG_MELEE;
@@ -741,7 +741,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		maxbl *= 100;
 	}
 
-	pi = &plr.InvBody[INVLOC_CHEST];
+	pi = &plr._pInvBody[INVLOC_CHEST];
 	if (pi->_itype == ITYPE_MARMOR && pi->_iStatFlag) {
 		gfx |= ANIM_ID_MEDIUM_ARMOR;
 	} else if (pi->_itype == ITYPE_HARMOR && pi->_iStatFlag) {
@@ -876,12 +876,12 @@ void CalcPlrScrolls(int pnum)
 
 	plr._pScrlSkills = 0;
 
-	pi = plr.InvList;
+	pi = plr._pInvList;
 	for (i = plr._pNumInv; i > 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
 			plr._pScrlSkills |= SPELL_MASK(pi->_iSpell);
 	}
-	pi = plr.SpdList;
+	pi = plr._pSpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
 			plr._pScrlSkills |= SPELL_MASK(pi->_iSpell);
@@ -895,7 +895,7 @@ void CalcPlrStaff(int pnum)
 	ItemStruct *pi;
 
 	plr._pISpells = 0;
-	pi = &plr.InvBody[INVLOC_HAND_LEFT];
+	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iCharges > 0 && pi->_iStatFlag) {
 		plr._pISpells |= SPELL_MASK(pi->_iSpell);
 	}
@@ -913,7 +913,7 @@ static void CalcSelfItems(int pnum)
 	ma = plr._pBaseMag;
 	da = plr._pBaseDex;
 
-	pi = plr.InvBody;
+	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			pi->_iStatFlag = TRUE;
@@ -926,7 +926,7 @@ static void CalcSelfItems(int pnum)
 	}
 	do {
 		changeflag = false;
-		pi = plr.InvBody;
+		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
 				if (sa < pi->_iMinStr || ma < pi->_iMinMag || da < pi->_iMinDex) {
@@ -948,12 +948,12 @@ static void CalcPlrItemMin(int pnum)
 	ItemStruct *pi;
 	int i;
 
-	pi = plr.InvList;
+	pi = plr._pInvList;
 	for (i = plr._pNumInv; i != 0; i--, pi++) {
 		ItemStatOk(pnum, pi);
 	}
 
-	pi = plr.SpdList;
+	pi = plr._pSpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			ItemStatOk(pnum, pi);
@@ -1046,7 +1046,7 @@ void GetGoldSeed(int pnum, ItemStruct *is)
 		}
 		if (pnum == mypnum) {
 			for (i = 0; i < plr._pNumInv; i++) {
-				if (plr.InvList[i]._iSeed == s)
+				if (plr._pInvList[i]._iSeed == s)
 					doneflag = false;
 			}
 		}
@@ -1077,7 +1077,7 @@ void CreatePlrItems(int pnum)
 	ItemStruct *pi;
 	int i;
 
-	pi = plr.InvBody;
+	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--) {
 		pi->_itype = ITYPE_NONE;
 		pi++;
@@ -1085,9 +1085,9 @@ void CreatePlrItems(int pnum)
 
 	// converting this to a for loop creates a `rep stosd` instruction,
 	// so this probably actually was a memset
-	memset(&plr.InvGrid, 0, sizeof(plr.InvGrid));
+	memset(&plr._pInvGrid, 0, sizeof(plr._pInvGrid));
 
-	pi = plr.InvList;
+	pi = plr._pInvList;
 	for (i = NUM_INV_GRID_ELEM; i != 0; i--) {
 		pi->_itype = ITYPE_NONE;
 		pi++;
@@ -1095,7 +1095,7 @@ void CreatePlrItems(int pnum)
 
 	plr._pNumInv = 0;
 
-	pi = plr.SpdList;
+	pi = plr._pSpdList;
 	for (i = MAXBELTITEMS; i != 0; i--) {
 		pi->_itype = ITYPE_NONE;
 		pi++;
@@ -1103,73 +1103,73 @@ void CreatePlrItems(int pnum)
 
 	switch (plr._pClass) {
 	case PC_WARRIOR:
-		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_WARRSWORD);
-		CreateBaseItem(&plr.InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
+		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_LEFT], IDI_WARRSWORD);
+		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
 
-		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
-		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[1], IDI_HEAL);
 		break;
 	case PC_ROGUE:
-		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_ROGUEBOW);
+		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_LEFT], IDI_ROGUEBOW);
 
-		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
-		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[1], IDI_HEAL);
 		break;
 	case PC_SORCERER:
-		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_SORCSTAFF);
+		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_LEFT], IDI_SORCSTAFF);
 
 #ifdef HELLFIRE
-		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
-		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[1], IDI_HEAL);
 #else
-		CreateBaseItem(&plr.SpdList[0], IDI_MANA);
-		CreateBaseItem(&plr.SpdList[1], IDI_MANA);
+		CreateBaseItem(&plr._pSpdList[0], IDI_MANA);
+		CreateBaseItem(&plr._pSpdList[1], IDI_MANA);
 #endif
 		break;
 #ifdef HELLFIRE
 	case PC_MONK:
-		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_MONKSTAFF);
+		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_LEFT], IDI_MONKSTAFF);
 
-		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
-		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[1], IDI_HEAL);
 		break;
 	case PC_BARD:
-		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_BARDSWORD);
-		CreateBaseItem(&plr.InvBody[INVLOC_HAND_RIGHT], IDI_BARDDAGGER);
+		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_LEFT], IDI_BARDSWORD);
+		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_RIGHT], IDI_BARDDAGGER);
 
-		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
-		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[1], IDI_HEAL);
 		break;
 	case PC_BARBARIAN:
-		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_BARBCLUB);
-		CreateBaseItem(&plr.InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
+		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_LEFT], IDI_BARBCLUB);
+		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
 
-		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
-		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr._pSpdList[1], IDI_HEAL);
 		break;
 #endif
 	}
 
-	CreateBaseItem(&plr.HoldItem, IDI_GOLD);
+	CreateBaseItem(&plr._pHoldItem, IDI_GOLD);
 
 #ifdef _DEBUG
 	if (debug_mode_key_w) {
-		SetGoldItemValue(&plr.HoldItem, GOLD_MAX_LIMIT);
+		SetGoldItemValue(&plr._pHoldItem, GOLD_MAX_LIMIT);
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			if (plr.InvGrid[i] == 0) {
-				GetItemSeed(&plr.HoldItem);
-				copy_pod(plr.InvList[plr._pNumInv], plr.HoldItem);
-				plr.InvGrid[i] = ++plr._pNumInv;
+			if (plr._pInvGrid[i] == 0) {
+				GetItemSeed(&plr._pHoldItem);
+				copy_pod(plr._pInvList[plr._pNumInv], plr._pHoldItem);
+				plr._pInvGrid[i] = ++plr._pNumInv;
 				plr._pGold += GOLD_MAX_LIMIT;
 			}
 		}
 	} else
 #endif
 	{
-		SetGoldItemValue(&plr.HoldItem, 100);
-		plr._pGold = plr.HoldItem._ivalue;
-		copy_pod(plr.InvList[plr._pNumInv++], plr.HoldItem);
-		plr.InvGrid[30] = plr._pNumInv;
+		SetGoldItemValue(&plr._pHoldItem, 100);
+		plr._pGold = plr._pHoldItem._ivalue;
+		copy_pod(plr._pInvList[plr._pNumInv++], plr._pHoldItem);
+		plr._pInvGrid[30] = plr._pNumInv;
 	}
 
 	CalcPlrItemVals(pnum, false);
@@ -2536,9 +2536,9 @@ static void DoIdentify(int pnum, int cii)
 	ItemStruct *pi;
 
 	if (cii >= NUM_INVLOC)
-		pi = &plr.InvList[cii - NUM_INVLOC];
+		pi = &plr._pInvList[cii - NUM_INVLOC];
 	else
-		pi = &plr.InvBody[cii];
+		pi = &plr._pInvBody[cii];
 
 	pi->_iIdentified = TRUE;
 	CalcPlrInv(pnum, true);
@@ -2570,9 +2570,9 @@ static void DoRepair(int pnum, int cii)
 	ItemStruct *pi;
 
 	if (cii >= INVITEM_INV_FIRST) {
-		pi = &plr.InvList[cii - INVITEM_INV_FIRST];
+		pi = &plr._pInvList[cii - INVITEM_INV_FIRST];
 	} else {
-		pi = &plr.InvBody[cii];
+		pi = &plr._pInvBody[cii];
 	}
 
 	RepairItem(pi, plr._pLevel);
@@ -2610,9 +2610,9 @@ static void DoRecharge(int pnum, int cii)
 	int r;
 
 	if (cii >= NUM_INVLOC) {
-		pi = &plr.InvList[cii - NUM_INVLOC];
+		pi = &plr._pInvList[cii - NUM_INVLOC];
 	} else {
-		pi = &plr.InvBody[cii];
+		pi = &plr._pInvBody[cii];
 	}
 	if (pi->_itype == ITYPE_STAFF && pi->_iSpell != SPL_NULL) {
 		r = spelldata[pi->_iSpell].sBookLvl;
@@ -2659,9 +2659,9 @@ static void DoWhittle(int pnum, int cii)
 	ItemStruct *pi;
 
 	if (cii >= NUM_INVLOC) {
-		pi = &plr.InvList[cii - NUM_INVLOC];
+		pi = &plr._pInvList[cii - NUM_INVLOC];
 	} else {
-		pi = &plr.InvBody[cii];
+		pi = &plr._pInvBody[cii];
 	}
 
 	if (pi->_itype == ITYPE_STAFF
@@ -2704,18 +2704,18 @@ static void DoBuckle(int pnum, int cii)
 	ItemStruct *pi;
 
 	if (cii >= NUM_INVLOC) {
-		return; //pi = &plr.InvList[cii - NUM_INVLOC];
+		return; //pi = &plr._pInvList[cii - NUM_INVLOC];
 	} else {
-		pi = &plr.InvBody[cii];
+		pi = &plr._pInvBody[cii];
 	}
 
 	if (pi->_itype == ITYPE_SHIELD) {
 		// move the item to the left hand
-		if (plr.InvBody[INVITEM_HAND_LEFT]._itype == ITYPE_NONE) {
-			// assert(pi == &plr.InvBody[INVITEM_HAND_RIGHT]);
-			copy_pod(plr.InvBody[INVITEM_HAND_LEFT], plr.InvBody[INVITEM_HAND_RIGHT]);
-			plr.InvBody[INVITEM_HAND_RIGHT]._itype = ITYPE_NONE;
-			pi = &plr.InvBody[INVITEM_HAND_LEFT];
+		if (plr._pInvBody[INVITEM_HAND_LEFT]._itype == ITYPE_NONE) {
+			// assert(pi == &plr._pInvBody[INVITEM_HAND_RIGHT]);
+			copy_pod(plr._pInvBody[INVITEM_HAND_LEFT], plr._pInvBody[INVITEM_HAND_RIGHT]);
+			plr._pInvBody[INVITEM_HAND_RIGHT]._itype = ITYPE_NONE;
+			pi = &plr._pInvBody[INVITEM_HAND_LEFT];
 		}
 		BuckleItem(pi);
 		CalcPlrInv(pnum, true);
@@ -2727,11 +2727,11 @@ static ItemStruct* PlrItem(int pnum, int cii)
 {
 	if (cii <= INVITEM_INV_LAST) {
 		if (cii < INVITEM_INV_FIRST) {
-			return &plr.InvBody[cii];
+			return &plr._pInvBody[cii];
 		} else
-			return &plr.InvList[cii - INVITEM_INV_FIRST];
+			return &plr._pInvList[cii - INVITEM_INV_FIRST];
 	} else {
-		return &plr.SpdList[cii - INVITEM_BELT_FIRST];
+		return &plr._pSpdList[cii - INVITEM_BELT_FIRST];
 	}
 }
 
@@ -2739,7 +2739,7 @@ static void RemovePlrItem(int pnum, int cii)
 {
 	if (cii < INVITEM_BELT_FIRST) {
 		if (cii < INVITEM_INV_FIRST) {
-			plr.InvBody[cii]._itype = ITYPE_NONE;
+			plr._pInvBody[cii]._itype = ITYPE_NONE;
 		} else
 			RemoveInvItem(pnum, cii - INVITEM_INV_FIRST);
 	} else {

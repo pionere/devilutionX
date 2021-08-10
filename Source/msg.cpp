@@ -1175,7 +1175,7 @@ void NetSendCmdPutHoldItem(BYTE bCmd, BYTE x, BYTE y)
 	cmd.y = y;
 	cmd.bLevel = currLvl._dLevelIdx;
 
-	PackPkItem(&cmd.item, &myplr.HoldItem);
+	PackPkItem(&cmd.item, &myplr._pHoldItem);
 
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }

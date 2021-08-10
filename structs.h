@@ -319,12 +319,12 @@ typedef struct PlayerStruct {
 	BYTE *_pBAnim[NUM_DIRS]; // Block animations
 	unsigned _pBFrames;
 	int _pBWidth;
-	ItemStruct InvBody[NUM_INVLOC];
-	ItemStruct SpdList[MAXBELTITEMS];
-	ItemStruct InvList[NUM_INV_GRID_ELEM];
-	char InvGrid[NUM_INV_GRID_ELEM];
+	ItemStruct _pInvBody[NUM_INVLOC];
+	ItemStruct _pSpdList[MAXBELTITEMS];
+	ItemStruct _pInvList[NUM_INV_GRID_ELEM];
+	char _pInvGrid[NUM_INV_GRID_ELEM];
 	int _pNumInv;
-	ItemStruct HoldItem;
+	ItemStruct _pHoldItem;
 	int _pISlMinDam;
 	int _pISlMaxDam;
 	int _pIBlMinDam;
@@ -823,10 +823,10 @@ typedef struct PkPlayerStruct {
 	BYTE pSkillActivity[64];
 	DWORD pSkillExp[64];
 	uint64_t pMemSkills;
-	PkItemStruct InvBody[NUM_INVLOC];
-	PkItemStruct SpdList[MAXBELTITEMS];
-	PkItemStruct InvList[NUM_INV_GRID_ELEM];
-	char InvGrid[NUM_INV_GRID_ELEM];
+	PkItemStruct pInvBody[NUM_INVLOC];
+	PkItemStruct pSpdList[MAXBELTITEMS];
+	PkItemStruct pInvList[NUM_INV_GRID_ELEM];
+	char pInvGrid[NUM_INV_GRID_ELEM];
 	INT pNumInv;
 	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
 	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey

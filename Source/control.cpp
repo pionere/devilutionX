@@ -259,14 +259,14 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 		break;
 	case RSPLTYPE_SCROLL:
 		v = 0;
-		pi = myplr.InvList;
+		pi = myplr._pInvList;
 		for (t = myplr._pNumInv; t > 0; t--, pi++) {
 			if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 			    && pi->_iSpell == sn) {
 				v++;
 			}
 		}
-		pi = myplr.SpdList;
+		pi = myplr._pSpdList;
 		for (t = MAXBELTITEMS; t > 0; t--, pi++) {
 			if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 			    && pi->_iSpell == sn) {
@@ -278,8 +278,8 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 		break;
 	case RSPLTYPE_CHARGES:
 		snprintf(tempstr, sizeof(tempstr), "%d/%d",
-			myplr.InvBody[INVLOC_HAND_LEFT]._iCharges,
-			myplr.InvBody[INVLOC_HAND_LEFT]._iMaxCharges);
+			myplr._pInvBody[INVLOC_HAND_LEFT]._iCharges,
+			myplr._pInvBody[INVLOC_HAND_LEFT]._iMaxCharges);
 		PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, true, COL_WHITE, 1);
 		break;
 	case RSPLTYPE_INVALID:
@@ -1638,8 +1638,7 @@ void DrawInfoStr()
 	} else if (pcurstrig != -1) {
 		DrawTrigInfo();
 	} else if (pcurs >= CURSOR_FIRSTITEM) {
-		ItemStruct *is = &myplr.HoldItem;
-		GetItemInfo(is);
+		GetItemInfo(&myplr._pHoldItem);
 		DrawTooltip(infostr, MouseX + cursW / 2, MouseY, infoclr);
 	}
 }
@@ -1744,7 +1743,7 @@ void DrawDurIcon()
 
 	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92 + 32);
 
-	inv = myplr.InvBody;
+	inv = myplr._pInvBody;
 	x = DrawDurIcon4Item(&inv[INVLOC_HEAD], x, 4);
 	x = DrawDurIcon4Item(&inv[INVLOC_CHEST], x, 3);
 	x = DrawDurIcon4Item(&inv[INVLOC_HAND_LEFT], x, 0);
@@ -1835,7 +1834,7 @@ void DrawSpellBook()
 				mana = 0;
 				break;
 			case RSPLTYPE_CHARGES:
-				snprintf(tempstr, sizeof(tempstr), "Staff (%i charges)", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
+				snprintf(tempstr, sizeof(tempstr), "Staff (%i charges)", p->_pInvBody[INVLOC_HAND_LEFT]._iCharges);
 				mana = 0;
 				break;
 			case RSPLTYPE_SPELL:
@@ -1955,14 +1954,14 @@ static void control_remove_gold()
 
 	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
 	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
-	is = &plr.InvList[gi];
+	is = &plr._pInvList[gi];
 	val = is->_ivalue - dropGoldValue;
 	if (val > 0) {
 		SetGoldItemValue(is, val);
 	} else {
 		PlrInvItemRemove(pnum, gi);
 	}
-	is = &plr.HoldItem;
+	is = &plr._pHoldItem;
 	CreateBaseItem(is, IDI_GOLD);
 	is->_iStatFlag = TRUE;
 	SetGoldItemValue(is, dropGoldValue);

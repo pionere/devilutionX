@@ -131,7 +131,7 @@ static int sync_prio_monster()
 	}
 
 	assert((unsigned)sync_pinum < NUM_INVLOC);
-	is = &myplr.InvBody[sync_pinum];
+	is = &myplr._pInvBody[sync_pinum];
 	if (is->_itype != ITYPE_NONE) {
 		pHdr->bPInvLoc = sync_pinum;
 		pHdr->wPInvIndx = is->_iIdx;

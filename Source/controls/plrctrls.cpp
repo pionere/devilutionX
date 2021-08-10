@@ -1120,7 +1120,7 @@ void UseBeltItem(int type)
 {
 	ItemStruct *pi;
 
-	pi = myplr.SpdList;
+	pi = myplr._pSpdList;
 	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
 		const int id = AllItemsList[pi->_iIdx].iMiscId;
 		const int spellId = AllItemsList[pi->_iIdx].iSpell;
@@ -1260,9 +1260,9 @@ static void CtrlUseInvItem()
 		return;
 
 	if (pcursinvitem <= INVITEM_INV_LAST)
-		is = &myplr.InvList[pcursinvitem - INVITEM_INV_FIRST];
+		is = &myplr._pInvList[pcursinvitem - INVITEM_INV_FIRST];
 	else
-		is = &myplr.SpdList[pcursinvitem - INVITEM_BELT_FIRST];
+		is = &myplr._pSpdList[pcursinvitem - INVITEM_BELT_FIRST];
 
 	if (is->_iMiscId == IMISC_SCROLL && spelldata[is->_iSpell].sTargeted) {
 		return;

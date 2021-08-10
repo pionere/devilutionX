@@ -55,12 +55,12 @@ void GiveGoldCheat()
 	int i;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (myplr.InvGrid[i] == 0) {
-			pi = &myplr.InvList[myplr._pNumInv];
+		if (myplr._pInvGrid[i] == 0) {
+			pi = &myplr._pInvList[myplr._pNumInv];
 			CreateBaseItem(pi, IDI_GOLD);
 			SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 			myplr._pGold += GOLD_MAX_LIMIT;
-			myplr.InvGrid[i] = ++myplr._pNumInv;
+			myplr._pInvGrid[i] = ++myplr._pNumInv;
 		}
 	}
 }
@@ -92,14 +92,14 @@ void TakeGoldCheat()
 	char ig;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		ig = myplr.InvGrid[i];
-		if (ig > 0 && myplr.InvList[ig - 1]._itype == ITYPE_GOLD)
+		ig = myplr._pInvGrid[i];
+		if (ig > 0 && myplr._pInvList[ig - 1]._itype == ITYPE_GOLD)
 			RemoveInvItem(mypnum, ig - 1);
 	}
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
-		if (myplr.SpdList[i]._itype == ITYPE_GOLD)
-			myplr.SpdList[i]._itype = ITYPE_NONE;
+		if (myplr._pSpdList[i]._itype == ITYPE_GOLD)
+			myplr._pSpdList[i]._itype = ITYPE_NONE;
 	}
 
 	myplr._pGold = 0;

@@ -619,12 +619,12 @@ static void S_StartSSell()
 		storehold[i]._itype = ITYPE_NONE;
 
 	p = &myplr;
-	pi = p->InvList;
+	pi = p->_pInvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (SmithSellOk(pi))
 			AddStoreSell(pi, i);
 #ifdef HELLFIRE
-	pi = p->SpdList;
+	pi = p->_pSpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++)
 		if (SmithSellOk(pi))
 			AddStoreSell(pi, -(i + 1));
@@ -681,11 +681,11 @@ static void S_StartSRepair()
 		storehold[i]._itype = ITYPE_NONE;
 
 	p = &myplr;
-	pi = p->InvBody;
+	pi = p->_pInvBody;
 	for (i = 0; i < NUM_INVLOC; i++, pi++)
 		if (SmithRepairOk(pi))
 			AddStoreHoldRepair(pi, -(i + 1));
-	pi = p->InvList;
+	pi = p->_pInvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (SmithRepairOk(pi))
 			AddStoreHoldRepair(pi, i);
@@ -788,11 +788,11 @@ static void S_StartWSell()
 		storehold[i]._itype = ITYPE_NONE;
 
 	p = &myplr;
-	pi = p->InvList;
+	pi = p->_pInvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (WitchSellOk(pi))
 			AddStoreSell(pi, i);
-	pi = p->SpdList;
+	pi = p->_pSpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++)
 		if (WitchSellOk(pi))
 			AddStoreSell(pi, -(i + 1));
@@ -841,11 +841,11 @@ static void S_StartWRecharge()
 		storehold[i]._itype = ITYPE_NONE;
 
 	p = &myplr;
-	pi = p->InvBody;
+	pi = p->_pInvBody;
 	for (i = 0; i < NUM_INVLOC; i++, pi++)
 		if (WitchRechargeOk(pi))
 			AddStoreHoldRecharge(pi, -(i + 1));
-	pi = p->InvList;
+	pi = p->_pInvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (WitchRechargeOk(pi))
 			AddStoreHoldRecharge(pi, i);
@@ -890,7 +890,7 @@ static void S_StartConfirm()
 	StartStore(stextshold);
 	_gbStextscrl = false;
 	ClearSText(5, STORE_LINES);
-	is = &myplr.HoldItem;
+	is = &myplr._pHoldItem;
 	iclr = StoreItemColor(is);
 	AddSText(20, 8, false, ItemName(is), iclr, false);
 	AddSTextVal(8, is->_iIvalue);
@@ -1068,11 +1068,11 @@ static void S_StartSIdentify()
 		storehold[i]._itype = ITYPE_NONE;
 
 	p = &myplr;
-	pi = p->InvBody;
+	pi = p->_pInvBody;
 	for (i = 0; i < NUM_INVLOC; i++, pi++)
 		if (IdItemOk(pi))
 			AddStoreHoldId(pi, -(i + 1));
-	pi = p->InvList;
+	pi = p->_pInvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (IdItemOk(pi))
 			AddStoreHoldId(pi, i);
@@ -1104,7 +1104,7 @@ static void S_StartIdShow()
 	//_gbStextsize = true;
 	_gbStextscrl = false;
 
-	is = &myplr.HoldItem;
+	is = &myplr._pHoldItem;
 	iclr = StoreItemColor(is);
 
 	AddSLine(3);
@@ -1505,7 +1505,7 @@ void TakePlrsMoney(int cost)
 	p = &myplr;
 	p->_pGold -= cost;
 	for (i = 0; i < p->_pNumInv && cost > 0; i++) {
-		pi = &p->InvList[i];
+		pi = &p->_pInvList[i];
 		if (pi->_itype != ITYPE_GOLD)
 			continue;
 		value = pi->_ivalue;
@@ -1520,7 +1520,7 @@ void TakePlrsMoney(int cost)
 		}
 	}
 	for (i = 0; i < p->_pNumInv && cost > 0; i++) {
-		pi = &p->InvList[i];
+		pi = &p->_pInvList[i];
 		if (pi->_itype != ITYPE_GOLD)
 			continue;
 		value = pi->_ivalue;
@@ -1538,9 +1538,9 @@ static bool StoreAutoPlace(bool saveflag)
 {
 	int pnum = mypnum;
 
-	return WeaponAutoPlace(pnum, &plr.HoldItem, saveflag)
-		|| AutoPlaceBelt(pnum, &plr.HoldItem, saveflag)
-		|| AutoPlaceInv(pnum, &plr.HoldItem, saveflag);
+	return WeaponAutoPlace(pnum, &plr._pHoldItem, saveflag)
+		|| AutoPlaceBelt(pnum, &plr._pHoldItem, saveflag)
+		|| AutoPlaceInv(pnum, &plr._pHoldItem, saveflag);
 }
 
 /**
@@ -1550,7 +1550,7 @@ static void SmithBuyItem()
 {
 	int idx;
 
-	TakePlrsMoney(myplr.HoldItem._iIvalue);
+	TakePlrsMoney(myplr._pHoldItem._iIvalue);
 	StoreAutoPlace(true);
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	do {
@@ -1564,8 +1564,8 @@ static void StoreStartBuy(ItemStruct *is, int price)
 	if (myplr._pGold < price) {
 		StartStore(STORE_NOMONEY);
 	} else {
-		copy_pod(myplr.HoldItem, *is);
-		//myplr.HoldItem._iIvalue = price; // only for boyitem
+		copy_pod(myplr._pHoldItem, *is);
+		//myplr._pHoldItem._iIvalue = price; // only for boyitem
 		if (StoreAutoPlace(false))
 			StartStore(STORE_CONFIRM);
 		else
@@ -1596,7 +1596,7 @@ static void SmithBuyPItem()
 {
 	int i, xx, idx;
 
-	TakePlrsMoney(myplr.HoldItem._iIvalue);
+	TakePlrsMoney(myplr._pHoldItem._iIvalue);
 	StoreAutoPlace(true);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
@@ -1651,7 +1651,7 @@ static bool StoreGoldFit(int idx)
 	}
 	// add the empty slots
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (myplr.InvGrid[i] == 0)
+		if (myplr._pInvGrid[i] == 0)
 			numsqrs++;
 	}
 
@@ -1660,7 +1660,7 @@ static bool StoreGoldFit(int idx)
 		return true;
 
 	// check for not full piles of gold if there is still not enough place
-	pi = myplr.InvList;
+	pi = myplr._pInvList;
 	for (i = myplr._pNumInv; i > 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
 			cost -= GOLD_MAX_LIMIT - pi->_ivalue;
@@ -1682,14 +1682,14 @@ static void PlaceStoreGold(int v)
 
 	p = &myplr;
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (p->InvGrid[i] == 0) {
+		if (p->_pInvGrid[i] == 0) {
 			SetGoldItemValue(&golditem, v);
 			GetGoldSeed(mypnum, &golditem);
 			ii = p->_pNumInv;
 			NetSendCmdChItem(&golditem, INVITEM_INV_FIRST + ii);
-			copy_pod(p->InvList[ii], golditem);
+			copy_pod(p->_pInvList[ii], golditem);
 			p->_pNumInv++;
-			p->InvGrid[i] = p->_pNumInv;
+			p->_pInvGrid[i] = p->_pNumInv;
 			break;
 		}
 	}
@@ -1724,7 +1724,7 @@ static void StoreSellItem()
 	}
 	p = &myplr;
 	p->_pGold += cost;
-	pi = p->InvList;
+	pi = p->_pInvList;
 	for (i = p->_pNumInv; i > 0 && cost > 0; i--, pi++) {
 		if (pi->_itype != ITYPE_GOLD)
 			continue;
@@ -1760,7 +1760,7 @@ static void S_SSellEnter()
 		idx = stextsidx + ((stextsel - stextup) >> 2);
 		stextshold = STORE_SSELL;
 		stextvhold = stextsidx;
-		copy_pod(myplr.HoldItem, storehold[idx]);
+		copy_pod(myplr._pHoldItem, storehold[idx]);
 
 		if (StoreGoldFit(idx))
 			StartStore(STORE_CONFIRM);
@@ -1777,15 +1777,15 @@ static void SmithRepairItem()
 	ItemStruct *pi;
 	int i, idx;
 
-	TakePlrsMoney(myplr.HoldItem._iIvalue);
+	TakePlrsMoney(myplr._pHoldItem._iIvalue);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 
 	i = storehidx[idx];
 	if (i < 0) {
-		pi = &myplr.InvBody[-(i + 1)];
+		pi = &myplr._pInvBody[-(i + 1)];
 	} else {
-		pi = &myplr.InvList[i];
+		pi = &myplr._pInvList[i];
 	}
 	pi->_iDurability = pi->_iMaxDur;
 }
@@ -1802,7 +1802,7 @@ static void S_SRepairEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		copy_pod(myplr.HoldItem, storehold[idx]);
+		copy_pod(myplr._pHoldItem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
 		else
@@ -1849,9 +1849,9 @@ static void WitchBuyItem()
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 
 	if (idx < 3)
-		myplr.HoldItem._iSeed = GetRndSeed();
+		myplr._pHoldItem._iSeed = GetRndSeed();
 
-	TakePlrsMoney(myplr.HoldItem._iIvalue);
+	TakePlrsMoney(myplr._pHoldItem._iIvalue);
 	StoreAutoPlace(true);
 
 	if (idx >= 3) {
@@ -1891,7 +1891,7 @@ static void S_WSellEnter()
 		idx = stextsidx + ((stextsel - stextup) >> 2);
 		stextshold = STORE_WSELL;
 		stextvhold = stextsidx;
-		copy_pod(myplr.HoldItem, storehold[idx]);
+		copy_pod(myplr._pHoldItem, storehold[idx]);
 		if (StoreGoldFit(idx))
 			StartStore(STORE_CONFIRM);
 		else
@@ -1907,15 +1907,15 @@ static void WitchRechargeItem()
 	ItemStruct *pi;
 	int i, idx;
 
-	TakePlrsMoney(myplr.HoldItem._iIvalue);
+	TakePlrsMoney(myplr._pHoldItem._iIvalue);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 
 	i = storehidx[idx];
 	if (i < 0)
-		pi = &myplr.InvBody[-(i + 1)];
+		pi = &myplr._pInvBody[-(i + 1)];
 	else
-		pi = &myplr.InvList[i];
+		pi = &myplr._pInvList[i];
 	pi->_iCharges = pi->_iMaxCharges;
 
 	CalcPlrInv(mypnum, false); // last parameter should not matter
@@ -1933,7 +1933,7 @@ static void S_WRechargeEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		copy_pod(myplr.HoldItem, storehold[idx]);
+		copy_pod(myplr._pHoldItem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
 		else
@@ -1976,9 +1976,9 @@ static void S_BoyEnter()
 
 static void BoyBuyItem()
 {
-	TakePlrsMoney(myplr.HoldItem._iIvalue);
+	TakePlrsMoney(myplr._pHoldItem._iIvalue);
 	// restore the price of the item
-	//myplr.HoldItem._iIvalue = boyitem._iIvalue;
+	//myplr._pHoldItem._iIvalue = boyitem._iIvalue;
 	StoreAutoPlace(true);
 	boyitem._itype = ITYPE_NONE;
 }
@@ -1994,9 +1994,9 @@ static void HealerBuyItem()
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	infinite = idx < (IsMultiGame ? 3 : 2);
 	if (infinite)
-		myplr.HoldItem._iSeed = GetRndSeed();
+		myplr._pHoldItem._iSeed = GetRndSeed();
 
-	TakePlrsMoney(myplr.HoldItem._iIvalue);
+	TakePlrsMoney(myplr._pHoldItem._iIvalue);
 	StoreAutoPlace(true);
 
 	if (infinite)
@@ -2027,12 +2027,12 @@ static void StoryIdItem()
 
 	idx = storehidx[((stextlhold - stextup) >> 2) + stextvhold];
 	if (idx < 0)
-		pi = &myplr.InvBody[-(idx + 1)];
+		pi = &myplr._pInvBody[-(idx + 1)];
 	else
-		pi = &myplr.InvList[idx];
+		pi = &myplr._pInvList[idx];
 	pi->_iIdentified = TRUE;
-	myplr.HoldItem._iIdentified = TRUE;
-	TakePlrsMoney(myplr.HoldItem._iIvalue);
+	myplr._pHoldItem._iIdentified = TRUE;
+	TakePlrsMoney(myplr._pHoldItem._iIvalue);
 	CalcPlrInv(mypnum, true);
 }
 
@@ -2175,7 +2175,7 @@ static void S_SIDEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		copy_pod(myplr.HoldItem, storehold[idx]);
+		copy_pod(myplr._pHoldItem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
 		else

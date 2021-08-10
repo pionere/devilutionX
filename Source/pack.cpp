@@ -62,8 +62,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	}
 	pPack->pMemSkills = SwapLE64(p->_pMemSkills);
 
-	pki = &pPack->InvBody[0];
-	pi = &p->InvBody[0];
+	pki = &pPack->pInvBody[0];
+	pi = &p->_pInvBody[0];
 
 	for (i = 0; i < NUM_INVLOC; i++) {
 		PackItem(pki, pi);
@@ -71,8 +71,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pi++;
 	}
 
-	pki = &pPack->SpdList[0];
-	pi = &p->SpdList[0];
+	pki = &pPack->pSpdList[0];
+	pi = &p->_pSpdList[0];
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
 		PackItem(pki, pi);
@@ -80,8 +80,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pi++;
 	}
 
-	pki = &pPack->InvList[0];
-	pi = &p->InvList[0];
+	pki = &pPack->pInvList[0];
+	pi = &p->_pInvList[0];
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		PackItem(pki, pi);
@@ -90,7 +90,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	}
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
-		pPack->InvGrid[i] = p->InvGrid[i];
+		pPack->pInvGrid[i] = p->_pInvGrid[i];
 
 	pPack->pNumInv = SwapLE32(p->_pNumInv);
 
@@ -167,8 +167,8 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	}
 	plr._pMemSkills = SwapLE64(pPack->pMemSkills);
 
-	pki = &pPack->InvBody[0];
-	pi = &plr.InvBody[0];
+	pki = &pPack->pInvBody[0];
+	pi = &plr._pInvBody[0];
 
 	for (i = 0; i < NUM_INVLOC; i++) {
 		UnPackItem(pki, pi);
@@ -176,8 +176,8 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		pi++;
 	}
 
-	pki = &pPack->SpdList[0];
-	pi = &plr.SpdList[0];
+	pki = &pPack->pSpdList[0];
+	pi = &plr._pSpdList[0];
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
 		UnPackItem(pki, pi);
@@ -185,8 +185,8 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		pi++;
 	}
 
-	pki = &pPack->InvList[0];
-	pi = &plr.InvList[0];
+	pki = &pPack->pInvList[0];
+	pi = &plr._pInvList[0];
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		UnPackItem(pki, pi);
@@ -195,7 +195,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	}
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
-		plr.InvGrid[i] = pPack->InvGrid[i];
+		plr._pInvGrid[i] = pPack->pInvGrid[i];
 
 	plr._pNumInv = pPack->pNumInv;
 
@@ -223,23 +223,23 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	if (plr._pLevel > MAXCHARLEVEL)
 		plr._pLevel = MAXCHARLEVEL; // reduce invalid level
 	// TODO: check if the items conform to the wielding rules?
-	/*pi = &plr.InvBody[INVLOC_HAND_LEFT];
+	/*pi = &plr._pInvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iClass != ICLASS_WEAPON)
 		pi->_itype = ITYPE_NONE;    // remove invalid weapon in left hand
 	if (pi->_itype == ITYPE_NONE) {
-		pi = &plr.InvBody[INVLOC_HAND_RIGHT];
+		pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 		if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON) {
-			copy_pod(plr.InvBody[INVLOC_HAND_LEFT], *pi);
+			copy_pod(plr._pInvBody[INVLOC_HAND_LEFT], *pi);
 			pi->_itype = ITYPE_NONE; // move weapon from right hand to left hand
 		}
 	}*/
 	// verify the gold-seeds
 	for (i = 0; i < plr._pNumInv; i++) {
-		if (plr.InvList[i]._iIdx == IDI_GOLD) {
+		if (plr._pInvList[i]._iIdx == IDI_GOLD) {
 			for (j = 0; j < plr._pNumInv; j++) {
 				if (i != j) {
-					if (plr.InvList[j]._iIdx == IDI_GOLD && plr.InvList[i]._iSeed == plr.InvList[j]._iSeed) {
-						plr.InvList[i]._iSeed = GetRndSeed();
+					if (plr._pInvList[j]._iIdx == IDI_GOLD && plr._pInvList[i]._iSeed == plr._pInvList[j]._iSeed) {
+						plr._pInvList[i]._iSeed = GetRndSeed();
 						j = -1;
 					}
 				}

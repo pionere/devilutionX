@@ -445,7 +445,7 @@ bool PlrHasItem(int pnum, int item, int *outidx)
 	ItemStruct* pi;
 	int i;
 
-	pi = plr.InvList;
+	pi = plr._pInvList;
 	for (i = 0; i < plr._pNumInv; i++, pi++) {
 		if (pi->_iIdx == item) {
 			*outidx = i;
@@ -461,7 +461,7 @@ static bool PlrHasBeltItem(int pnum, int item)
 	ItemStruct* pi;
 	int i;
 
-	pi = plr.SpdList;
+	pi = plr._pSpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		if (pi->_iIdx == item) {
 			return true;
@@ -828,8 +828,8 @@ void TalkToTowner(int tnum)
 	case TOWN_GIRL:
 		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
 			if (PlrHasItem(pnum, IDI_THEODORE, &i)) {
-				ii = plr.InvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
-				SetRndSeed(plr.InvList[i]._iSeed); // and uses its seed
+				ii = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
+				SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
 				PlrInvItemRemove(pnum, i);
 				CreateAmulet(ii, tw->_tx, tw->_ty, true, true);
 				// quests[Q_GIRL]._qlog = FALSE;

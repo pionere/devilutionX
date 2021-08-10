@@ -450,12 +450,12 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pBFrames);
 	LoadInt(&plr._pBWidth);
 
-	LoadItems(plr.InvBody, NUM_INVLOC);
-	LoadItems(plr.SpdList, MAXBELTITEMS);
-	LoadItems(plr.InvList, NUM_INV_GRID_ELEM);
-	CopyBytes(tbuff, NUM_INV_GRID_ELEM, plr.InvGrid);
+	LoadItems(plr._pInvBody, NUM_INVLOC);
+	LoadItems(plr._pSpdList, MAXBELTITEMS);
+	LoadItems(plr._pInvList, NUM_INV_GRID_ELEM);
+	CopyBytes(tbuff, NUM_INV_GRID_ELEM, plr._pInvGrid);
 	LoadInt(&plr._pNumInv);
-	LoadItemData(&plr.HoldItem);
+	LoadItemData(&plr._pHoldItem);
 
 	/*Skip to Calc
 	tbuff += 4; // _pISlMinDam
@@ -1167,12 +1167,12 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pBFrames);
 	SaveInt(&plr._pBWidth);
 
-	SaveItems(plr.InvBody, NUM_INVLOC);
-	SaveItems(plr.SpdList, MAXBELTITEMS);
-	SaveItems(plr.InvList, NUM_INV_GRID_ELEM);
-	CopyBytes(plr.InvGrid, NUM_INV_GRID_ELEM, tbuff);
+	SaveItems(plr._pInvBody, NUM_INVLOC);
+	SaveItems(plr._pSpdList, MAXBELTITEMS);
+	SaveItems(plr._pInvList, NUM_INV_GRID_ELEM);
+	CopyBytes(plr._pInvGrid, NUM_INV_GRID_ELEM, tbuff);
 	SaveInt(&plr._pNumInv);
-	SaveItemData(&plr.HoldItem);
+	SaveItemData(&plr._pHoldItem);
 
 	/*Skip to Calc
 	tbuff += 4; // _pISlMinDam

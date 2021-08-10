@@ -1790,7 +1790,7 @@ void StartPlrKill(int pnum, int dmgtype)
 	diablolevel = IsMultiGame && plr._pDunLevel == DLV_HELL4;
 	if (pnum != mypnum && dmgtype == DMGTYPE_NPC && !diablolevel) {
 		for (i = 0; i < NUM_INVLOC; i++) {
-			plr.InvBody[i]._itype = ITYPE_NONE;
+			plr._pInvBody[i]._itype = ITYPE_NONE;
 		}
 		CalcPlrInv(pnum, false);
 	}
@@ -1804,7 +1804,7 @@ void StartPlrKill(int pnum, int dmgtype)
 			plr._pVar7 = 30; // DEATH_DELAY
 
 			if (pcurs >= CURSOR_FIRSTITEM) {
-				PlrDeadItem(pnum, &plr.HoldItem);
+				PlrDeadItem(pnum, &plr._pHoldItem);
 				NewCursor(CURSOR_HAND);
 			}
 
@@ -1830,7 +1830,7 @@ void StartPlrKill(int pnum, int dmgtype)
 				plr._pExperience -= (plr._pExperience - PlrExpLvlsTbl[plr._pLevel - 1]) >> 2;
 
 				if (!diablolevel) {
-					pi = &plr.InvBody[0];
+					pi = &plr._pInvBody[0];
 					for (i = NUM_INVLOC; i != 0; i--, pi++) {
 						PlrDeadItem(pnum, pi);
 					}
@@ -2117,20 +2117,20 @@ static bool WeaponDur(int pnum, int durrnd)
 	}
 
 	// check dual-wield
-	pi = &plr.InvBody[INVLOC_HAND_RIGHT];
+	pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && random_(3, 2) != 0) {
 		return ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
 	}
 
 	// check weapon in left hand
-	pi = &plr.InvBody[INVLOC_HAND_LEFT];
+	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE) {
 		assert(pi->_iClass == ICLASS_WEAPON);
 		return ReduceItemDur(pi, INVLOC_HAND_LEFT, pnum);
 	}
 
 	// check shield in right hand if left hand is empty
-	pi = &plr.InvBody[INVLOC_HAND_RIGHT];
+	pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype != ITYPE_NONE) {
 		assert(pi->_itype == ITYPE_SHIELD);
 		return ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
@@ -2470,7 +2470,7 @@ static void ShieldDur(int pnum)
 		dev_fatal("ShieldDur: illegal player %d", pnum);
 	}
 
-	pi = &plr.InvBody[INVLOC_HAND_RIGHT];
+	pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype == ITYPE_SHIELD) {
 		ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
 	}
@@ -2541,8 +2541,8 @@ static void ArmorDur(int pnum)
 	}
 
 	loc = INVLOC_CHEST;
-	pi = &plr.InvBody[INVLOC_CHEST];
-	pio = &plr.InvBody[INVLOC_HEAD];
+	pi = &plr._pInvBody[INVLOC_CHEST];
+	pio = &plr._pInvBody[INVLOC_HEAD];
 	if (pi->_itype == ITYPE_NONE) {
 		if (pio->_itype == ITYPE_NONE)
 			return; // neither chest nor head equipment
@@ -2821,7 +2821,7 @@ static void ValidatePlayer()
 	assert(p->_pExperience <= p->_pNextExper);
 
 	gt = 0;
-	pi = p->InvList;
+	pi = p->_pInvList;
 	for (i = p->_pNumInv; i != 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
 			//if (pi->_ivalue > GOLD_MAX_LIMIT)

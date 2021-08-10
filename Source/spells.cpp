@@ -71,12 +71,12 @@ bool HasMana(int pnum, int sn, int sf)
 		static_assert((int)NUM_INVLOC == (int)INVITEM_INV_FIRST, "Equipped items must preceed INV items in HasMana.");
 		static_assert(INVITEM_INV_FIRST < INVITEM_BELT_FIRST, "INV items must preceed BELT items in HasMana.");
 		if (sf < INVITEM_INV_FIRST) {
-			is = &plr.InvBody[sf];
+			is = &plr._pInvBody[sf];
 			return is->_itype != ITYPE_NONE && is->_iSpell == sn && is->_iCharges > 0;
 		} else if (sf < INVITEM_BELT_FIRST) {
-			is = &plr.InvList[sf - INVITEM_INV_FIRST];
+			is = &plr._pInvList[sf - INVITEM_INV_FIRST];
 		} else {
-			is = &plr.SpdList[sf - INVITEM_BELT_FIRST];
+			is = &plr._pSpdList[sf - INVITEM_BELT_FIRST];
 		}
 		return is->_itype != ITYPE_NONE && is->_iSpell == sn && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
 	}
@@ -93,7 +93,7 @@ int SpellSourceInv(int sn)
 	static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_INVALID || (int)INVITEM_INV_LAST < (int)SPLFROM_INVALID, "SpellSourceInv expects the INV indices to be distinct from SPLFROM_INVALID.");
 	static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_MANA || (int)INVITEM_INV_LAST < (int)SPLFROM_MANA, "SpellSourceInv expects the INV indices to be distinct from SPL_MANA.");
 	static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_INV_LAST < (int)SPLFROM_ABILITY, "SpellSourceInv expects the INV indices to be distinct from SPLFROM_ABILITY.");
-	pi = p->InvList;
+	pi = p->_pInvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn)
 			return INVITEM_INV_FIRST + i;
@@ -101,7 +101,7 @@ int SpellSourceInv(int sn)
 	static_assert((int)INVITEM_BELT_FIRST > (int)SPLFROM_INVALID || (int)INVITEM_BELT_LAST < (int)SPLFROM_INVALID, "SpellSourceInv expects the BELT indices to be distinct from SPLFROM_INVALID.");
 	static_assert((int)INVITEM_BELT_FIRST > (int)SPLFROM_MANA || (int)INVITEM_BELT_LAST < (int)SPLFROM_MANA, "SpellSourceInv expects the BELT indices to be distinct from SPL_MANA.");
 	static_assert((int)INVITEM_BELT_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_BELT_LAST < (int)SPLFROM_ABILITY, "SpellSourceInv expects the BELT indices to be distinct from SPLFROM_ABILITY.");
-	pi = p->SpdList;
+	pi = p->_pSpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn)
 			return INVITEM_BELT_FIRST + i;
@@ -117,7 +117,7 @@ int SpellSourceEquipment(int sn)
 	static_assert((int)INVITEM_HAND_LEFT != (int)SPLFROM_INVALID, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPLFROM_INVALID.");
 	static_assert((int)INVITEM_HAND_LEFT != (int)SPLFROM_MANA, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPL_MANA.");
 	static_assert((int)INVITEM_HAND_LEFT != (int)SPLFROM_ABILITY, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPLFROM_ABILITY.");
-	pi = &myplr.InvBody[INVLOC_HAND_LEFT];
+	pi = &myplr._pInvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iCharges > 0) {
 		return INVITEM_HAND_LEFT;
 	}

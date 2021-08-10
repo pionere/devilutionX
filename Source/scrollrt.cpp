@@ -214,10 +214,10 @@ static void scrollrt_draw_cursor_item()
 	cCels = pCursCels;
 	if (frame >= CURSOR_FIRSTITEM) {
 		col = ICOL_YELLOW;
-		if (myplr.HoldItem._iMagical != ITEM_QUALITY_NORMAL) {
+		if (myplr._pHoldItem._iMagical != ITEM_QUALITY_NORMAL) {
 			col = ICOL_BLUE;
 		}
-		if (!myplr.HoldItem._iStatFlag) {
+		if (!myplr._pHoldItem._iStatFlag) {
 			col = ICOL_RED;
 		}
 

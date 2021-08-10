@@ -2949,7 +2949,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	switch (os->_oVar1) { // SHRINE_TYPE
 	case SHRINE_HIDDEN:
 		cnt = 0;
-		pi = plr.InvBody;
+		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype != ITYPE_NONE
 			 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
@@ -2958,7 +2958,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		}
 		if (cnt != 0) {
 			r = random_(0, cnt);
-			pi = plr.InvBody;
+			pi = plr._pInvBody;
 			for (i = NUM_INVLOC; i != 0; i--, pi++) {
 				if (pi->_itype != ITYPE_NONE
 				 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
@@ -2979,10 +2979,10 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_HIDDEN);
 		break;
 	case SHRINE_GLOOMY:
-		pi = &plr.InvBody[INVLOC_HAND_LEFT];
+		pi = &plr._pInvBody[INVLOC_HAND_LEFT];
 		pi->_iDurability = pi->_iMaxDur;
 
-		pi = &plr.InvBody[INVLOC_HAND_RIGHT];
+		pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 		if (pi->_iClass == ICLASS_WEAPON)
 			pi->_iDurability = pi->_iMaxDur;
 
@@ -2991,10 +2991,10 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_GLOOMY);
 		break;
 	case SHRINE_WEIRD:
-		pi = &plr.InvBody[INVLOC_HEAD];
+		pi = &plr._pInvBody[INVLOC_HEAD];
 		pi->_iDurability = pi->_iMaxDur;
 		
-		pi = &plr.InvBody[INVLOC_CHEST];
+		pi = &plr._pInvBody[INVLOC_CHEST];
 		pi->_iDurability = std::max(1, pi->_iDurability >> 1);
 
 		if (pnum != mypnum)
@@ -3002,13 +3002,13 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_WEIRD);
 		break;
 	case SHRINE_RELIGIOUS:
-		pi = plr.InvBody;
+		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++)
 			pi->_iDurability = pi->_iMaxDur;
-		pi = plr.InvList;
+		pi = plr._pInvList;
 		for (i = plr._pNumInv; i > 0; i--, pi++)
 			pi->_iDurability = pi->_iMaxDur;
-		//pi = plr.SpdList;
+		//pi = plr._pSpdList;
 		//for (i = MAXBELTITEMS; i != 0; i--, pi++)
 		//	pi->_iDurability = pi->_iMaxDur; // belt items don't have durability?
 
@@ -3034,13 +3034,13 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_MAGICAL);
 		break;
 	case SHRINE_STONE:
-		pi = plr.InvBody;
+		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++)
 			pi->_iCharges = pi->_iMaxCharges;
-		pi = plr.InvList;
+		pi = plr._pInvList;
 		for (i = plr._pNumInv; i > 0; i--, pi++)
 			pi->_iCharges = pi->_iMaxCharges;
-		//pi = plr.SpdList;
+		//pi = plr._pSpdList;
 		//for (i = MAXBELTITEMS; i != 0; i--, pi++)
 		//	pi->_iCharges = pi->_iMaxCharges; // belt items don't have charges?
 
@@ -3049,7 +3049,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_STONE);
 		break;
 	case SHRINE_CREEPY:
-		pi = &plr.InvBody[INVLOC_HAND_LEFT];
+		pi = &plr._pInvBody[INVLOC_HAND_LEFT];
 		pi->_iCharges = pi->_iMaxCharges;
 
 		if (pnum != mypnum)
@@ -3100,10 +3100,10 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_CRYPTIC);
 		break;
 	case SHRINE_ELDRITCH:
-		pi = plr.InvList;
+		pi = plr._pInvList;
 		for (i = plr._pNumInv; i > 0; i--, pi++)
 			ConvertPotion(pi);
-		pi = plr.SpdList;
+		pi = plr._pSpdList;
 		for (i = MAXBELTITEMS; i != 0; i--, pi++)
 			ConvertPotion(pi);
 		if (pnum != mypnum)
@@ -3173,16 +3173,16 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		break;
 	case SHRINE_SPIRITUAL:
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			if (plr.InvGrid[i] == 0) {
+			if (plr._pInvGrid[i] == 0) {
 				r = currLvl._dLevel + random_(160, 2 * currLvl._dLevel);
 				plr._pGold += r;
 				SetGoldItemValue(&golditem, r);
 				golditem._iSeed = GetRndSeed();
 				cnt = plr._pNumInv;
 				NetSendCmdChItem(&golditem, INVITEM_INV_FIRST + cnt);
-				copy_pod(plr.InvList[cnt], golditem);
+				copy_pod(plr._pInvList[cnt], golditem);
 				plr._pNumInv++;
-				plr.InvGrid[i] = plr._pNumInv;
+				plr._pInvGrid[i] = plr._pNumInv;
 			}
 		}
 		if (pnum != mypnum)
@@ -3197,15 +3197,15 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_SECLUDED);
 		break;
 	case SHRINE_GLIMMERING:
-		pi = plr.InvBody;
+		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++)
 			if (pi->_iMagical != ITEM_QUALITY_NORMAL)
 				pi->_iIdentified = TRUE;
-		pi = plr.InvList;
+		pi = plr._pInvList;
 		for (i = plr._pNumInv; i > 0; i--, pi++)
 			if (pi->_iMagical != ITEM_QUALITY_NORMAL)
 				pi->_iIdentified = TRUE;
-		//pi = plr.SpdList;
+		//pi = plr._pSpdList;
 		//for (i = MAXBELTITEMS; i != 0; i--, pi++)
 		//	if (pi->_iMagical != ITEM_QUALITY_NORMAL)
 		//		pi->_iIdentified = TRUE; // belt items can't be magical?
@@ -3288,7 +3288,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_SOLAR);
 	} break;
 	case SHRINE_MURPHYS:
-		pi = plr.InvBody;
+		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype == ITYPE_NONE || random_(0, 3) != 0)
 				continue;
