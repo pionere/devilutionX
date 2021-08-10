@@ -161,7 +161,7 @@ void NewCursor(int i)
 
 void InitLevelCursor()
 {
-	NewCursor(CURSOR_HAND);
+	NewCursor(myplr._pHoldItem._itype == ITYPE_NONE ? CURSOR_HAND : myplr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
 	cursmx = ViewX;
 	cursmy = ViewY;
 	pcurstemp = -1;
