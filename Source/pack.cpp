@@ -34,20 +34,29 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pLevel = p->_pLevel;
 	pPack->pRank = p->_pRank;
 	pPack->pTeam = p->_pTeam;
+	pPack->pStatPts = SwapLE16(p->_pStatPts);
+	pPack->pLightRad = p->_pLightRad;
+	pPack->pManaShield = p->_pManaShield;
 	pPack->pTimer[PLTR_INFRAVISION] = SwapLE16(p->_pTimer[PLTR_INFRAVISION]);
 	pPack->pTimer[PLTR_RAGE] = SwapLE16(p->_pTimer[PLTR_RAGE]);
+	pPack->pExperience = SwapLE32(p->_pExperience);
 	pPack->pBaseStr = SwapLE16(p->_pBaseStr);
 	pPack->pBaseMag = SwapLE16(p->_pBaseMag);
 	pPack->pBaseDex = SwapLE16(p->_pBaseDex);
 	pPack->pBaseVit = SwapLE16(p->_pBaseVit);
-	pPack->pStatPts = SwapLE16(p->_pStatPts);
-	pPack->pLightRad = p->_pLightRad;
-	pPack->pManaShield = p->_pManaShield;
-	pPack->pExperience = SwapLE32(p->_pExperience);
 	pPack->pHPBase = SwapLE32(p->_pHPBase);
 	pPack->pMaxHPBase = SwapLE32(p->_pMaxHPBase);
 	pPack->pManaBase = SwapLE32(p->_pManaBase);
 	pPack->pMaxManaBase = SwapLE32(p->_pMaxManaBase);
+
+	memcpy(pPack->pAtkSkillHotKey, p->_pAtkSkillHotKey, sizeof(pPack->pAtkSkillHotKey));
+	memcpy(pPack->pAtkSkillTypeHotKey, p->_pAtkSkillTypeHotKey, sizeof(pPack->pAtkSkillTypeHotKey));
+	memcpy(pPack->pMoveSkillHotKey, p->_pMoveSkillHotKey, sizeof(pPack->pMoveSkillHotKey));
+	memcpy(pPack->pMoveSkillTypeHotKey, p->_pMoveSkillTypeHotKey, sizeof(pPack->pMoveSkillTypeHotKey));
+	memcpy(pPack->pAltAtkSkillHotKey, p->_pAltAtkSkillHotKey, sizeof(pPack->pAltAtkSkillHotKey));
+	memcpy(pPack->pAltAtkSkillTypeHotKey, p->_pAltAtkSkillTypeHotKey, sizeof(pPack->pAltAtkSkillTypeHotKey));
+	memcpy(pPack->pAltMoveSkillHotKey, p->_pAltMoveSkillHotKey, sizeof(pPack->pAltMoveSkillHotKey));
+	memcpy(pPack->pAltMoveSkillTypeHotKey, p->_pAltMoveSkillTypeHotKey, sizeof(pPack->pAltMoveSkillTypeHotKey));
 
 	static_assert(sizeof(p->_pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy I.");
 	static_assert(sizeof(pPack->pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy II.");
@@ -94,15 +103,6 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pPack->pInvGrid[i] = p->_pInvGrid[i];
 
 	pPack->pNumInv = SwapLE32(p->_pNumInv);
-
-	memcpy(pPack->pAtkSkillHotKey, p->_pAtkSkillHotKey, sizeof(pPack->pAtkSkillHotKey));
-	memcpy(pPack->pAtkSkillTypeHotKey, p->_pAtkSkillTypeHotKey, sizeof(pPack->pAtkSkillTypeHotKey));
-	memcpy(pPack->pMoveSkillHotKey, p->_pMoveSkillHotKey, sizeof(pPack->pMoveSkillHotKey));
-	memcpy(pPack->pMoveSkillTypeHotKey, p->_pMoveSkillTypeHotKey, sizeof(pPack->pMoveSkillTypeHotKey));
-	memcpy(pPack->pAltAtkSkillHotKey, p->_pAltAtkSkillHotKey, sizeof(pPack->pAltAtkSkillHotKey));
-	memcpy(pPack->pAltAtkSkillTypeHotKey, p->_pAltAtkSkillTypeHotKey, sizeof(pPack->pAltAtkSkillTypeHotKey));
-	memcpy(pPack->pAltMoveSkillHotKey, p->_pAltMoveSkillHotKey, sizeof(pPack->pAltMoveSkillHotKey));
-	memcpy(pPack->pAltMoveSkillTypeHotKey, p->_pAltMoveSkillTypeHotKey, sizeof(pPack->pAltMoveSkillTypeHotKey));
 }
 
 /**
@@ -140,20 +140,29 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._pLevel = pPack->pLevel;
 	plr._pRank = pPack->pRank;
 	plr._pTeam = pPack->pTeam;
+	plr._pStatPts = SwapLE16(pPack->pStatPts);
+	plr._pLightRad = pPack->pLightRad;
+	plr._pManaShield = pPack->pManaShield;
 	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
 	plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
+	plr._pExperience = SwapLE32(pPack->pExperience);
 	plr._pBaseStr = SwapLE16(pPack->pBaseStr);
 	plr._pBaseMag = SwapLE16(pPack->pBaseMag);
 	plr._pBaseDex = SwapLE16(pPack->pBaseDex);
 	plr._pBaseVit = SwapLE16(pPack->pBaseVit);
-	plr._pStatPts = SwapLE16(pPack->pStatPts);
-	plr._pLightRad = pPack->pLightRad;
-	plr._pManaShield = pPack->pManaShield;
-	plr._pExperience = SwapLE32(pPack->pExperience);
 	plr._pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
 	plr._pHPBase = SwapLE32(pPack->pHPBase);
 	plr._pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
 	plr._pManaBase = SwapLE32(pPack->pManaBase);
+
+	memcpy(plr._pAtkSkillHotKey, pPack->pAtkSkillHotKey, sizeof(plr._pAtkSkillHotKey));
+	memcpy(plr._pAtkSkillTypeHotKey, pPack->pAtkSkillTypeHotKey, sizeof(plr._pAtkSkillTypeHotKey));
+	memcpy(plr._pMoveSkillHotKey, pPack->pMoveSkillHotKey, sizeof(plr._pMoveSkillHotKey));
+	memcpy(plr._pMoveSkillTypeHotKey, pPack->pMoveSkillTypeHotKey, sizeof(plr._pMoveSkillTypeHotKey));
+	memcpy(plr._pAltAtkSkillHotKey, pPack->pAltAtkSkillHotKey, sizeof(plr._pAltAtkSkillHotKey));
+	memcpy(plr._pAltAtkSkillTypeHotKey, pPack->pAltAtkSkillTypeHotKey, sizeof(plr._pAltAtkSkillTypeHotKey));
+	memcpy(plr._pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(plr._pAltMoveSkillHotKey));
+	memcpy(plr._pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(plr._pAltMoveSkillTypeHotKey));
 
 	static_assert(sizeof(plr._pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy V.");
 	static_assert(sizeof(pPack->pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VI.");
@@ -200,15 +209,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		plr._pInvGrid[i] = pPack->pInvGrid[i];
 
 	plr._pNumInv = pPack->pNumInv;
-
-	memcpy(plr._pAtkSkillHotKey, pPack->pAtkSkillHotKey, sizeof(plr._pAtkSkillHotKey));
-	memcpy(plr._pAtkSkillTypeHotKey, pPack->pAtkSkillTypeHotKey, sizeof(plr._pAtkSkillTypeHotKey));
-	memcpy(plr._pMoveSkillHotKey, pPack->pMoveSkillHotKey, sizeof(plr._pMoveSkillHotKey));
-	memcpy(plr._pMoveSkillTypeHotKey, pPack->pMoveSkillTypeHotKey, sizeof(plr._pMoveSkillTypeHotKey));
-	memcpy(plr._pAltAtkSkillHotKey, pPack->pAltAtkSkillHotKey, sizeof(plr._pAltAtkSkillHotKey));
-	memcpy(plr._pAltAtkSkillTypeHotKey, pPack->pAltAtkSkillTypeHotKey, sizeof(plr._pAltAtkSkillTypeHotKey));
-	memcpy(plr._pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(plr._pAltMoveSkillHotKey));
-	memcpy(plr._pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(plr._pAltMoveSkillTypeHotKey));
 
 	// reset fields which are used even by non-local players, but not part of pPack
 	ClrPlrPath(pnum);

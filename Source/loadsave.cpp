@@ -339,6 +339,13 @@ static void LoadPlayer(int pnum)
 	LoadByte(&plr._pLevel);
 	LoadByte(&plr._pRank);
 	LoadByte(&plr._pTeam);
+	LoadInt16(&plr._pStatPts);
+	LoadByte(&plr._pLightRad);
+	LoadByte(&plr._pManaShield);
+	LoadInt16(&plr._pTimer[PLTR_INFRAVISION]);
+	LoadInt16(&plr._pTimer[PLTR_RAGE]);
+	LoadInt(&plr._pExperience);
+	LoadInt(&plr._pNextExper);
 	LoadInt(&plr._px);
 	LoadInt(&plr._py);
 	LoadInt(&plr._pfutx);
@@ -365,10 +372,21 @@ static void LoadPlayer(int pnum)
 	LoadByte(&plr._pAtkSkillType);
 	LoadByte(&plr._pMoveSkill);
 	LoadByte(&plr._pMoveSkillType);
+
 	LoadByte(&plr._pAltAtkSkill);
 	LoadByte(&plr._pAltAtkSkillType);
 	LoadByte(&plr._pAltMoveSkill);
 	LoadByte(&plr._pAltMoveSkillType);
+
+	CopyBytes(tbuff, lengthof(plr._pAtkSkillHotKey), plr._pAtkSkillHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAtkSkillTypeHotKey), plr._pAtkSkillTypeHotKey);
+	CopyBytes(tbuff, lengthof(plr._pMoveSkillHotKey), plr._pMoveSkillHotKey);
+	CopyBytes(tbuff, lengthof(plr._pMoveSkillTypeHotKey), plr._pMoveSkillTypeHotKey);
+
+	CopyBytes(tbuff, lengthof(plr._pAltAtkSkillHotKey), plr._pAltAtkSkillHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAltAtkSkillTypeHotKey), plr._pAltAtkSkillTypeHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillHotKey), plr._pAltMoveSkillHotKey);
+	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillTypeHotKey), plr._pAltMoveSkillTypeHotKey);
 
 	CopyBytes(tbuff, lengthof(plr._pSkillLvl), plr._pSkillLvl);
 	CopyBytes(tbuff, lengthof(plr._pSkillActivity), plr._pSkillActivity);
@@ -376,44 +394,26 @@ static void LoadPlayer(int pnum)
 	LoadInt64(&plr._pMemSkills);
 	LoadInt64(&plr._pAblSkills);
 	LoadInt64(&plr._pScrlSkills);
-
-	CopyBytes(tbuff, lengthof(plr._pAtkSkillHotKey), plr._pAtkSkillHotKey);
-	CopyBytes(tbuff, lengthof(plr._pAtkSkillTypeHotKey), plr._pAtkSkillTypeHotKey);
-	CopyBytes(tbuff, lengthof(plr._pMoveSkillHotKey), plr._pMoveSkillHotKey);
-	CopyBytes(tbuff, lengthof(plr._pMoveSkillTypeHotKey), plr._pMoveSkillTypeHotKey);
-	CopyBytes(tbuff, lengthof(plr._pAltAtkSkillHotKey), plr._pAltAtkSkillHotKey);
-	CopyBytes(tbuff, lengthof(plr._pAltAtkSkillTypeHotKey), plr._pAltAtkSkillTypeHotKey);
-	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillHotKey), plr._pAltMoveSkillHotKey);
-	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillTypeHotKey), plr._pAltMoveSkillTypeHotKey);
-
-	LoadInt16(&plr._pTimer[PLTR_INFRAVISION]);
-	LoadInt16(&plr._pTimer[PLTR_RAGE]);
-
 	CopyBytes(tbuff, PLR_NAME_LEN, plr._pName);
+
 	LoadInt16(&plr._pBaseStr);
 	LoadInt16(&plr._pBaseMag);
 	LoadInt16(&plr._pBaseDex);
 	LoadInt16(&plr._pBaseVit);
+	LoadInt(&plr._pHPBase);
+	LoadInt(&plr._pMaxHPBase);
+	LoadInt(&plr._pManaBase);
+	LoadInt(&plr._pMaxManaBase);
+
 	LoadInt(&plr._pStrength);
 	LoadInt(&plr._pMagic);
 	LoadInt(&plr._pDexterity);
 	LoadInt(&plr._pVitality);
-	LoadInt(&plr._pHPBase);
-	LoadInt(&plr._pMaxHPBase);
 	LoadInt(&plr._pHitPoints);
 	LoadInt(&plr._pMaxHP);
-	LoadInt(&plr._pManaBase);
-	LoadInt(&plr._pMaxManaBase);
 	LoadInt(&plr._pMana);
 	LoadInt(&plr._pMaxMana);
-	LoadInt16(&plr._pStatPts);
-	LoadByte(&plr._pLightRad);
-	LoadByte(&plr._pManaShield);
-	LoadInt(&plr._pExperience);
-	LoadInt(&plr._pNextExper);
-	LoadInt(&plr._pGold);
 
-	LoadInt(&plr._pInfraFlag);
 	LoadInt(&plr._pVar1);
 	LoadInt(&plr._pVar2);
 	LoadInt(&plr._pVar3);
@@ -450,14 +450,16 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pBFrames);
 	LoadInt(&plr._pBWidth);
 
+	LoadItemData(&plr._pHoldItem);
 	LoadItems(plr._pInvBody, NUM_INVLOC);
 	LoadItems(plr._pSpdList, MAXBELTITEMS);
 	LoadItems(plr._pInvList, NUM_INV_GRID_ELEM);
 	CopyBytes(tbuff, NUM_INV_GRID_ELEM, plr._pInvGrid);
 	LoadInt(&plr._pNumInv);
-	LoadItemData(&plr._pHoldItem);
+	LoadInt(&plr._pGold);
 
 	/*Skip to Calc
+	tbuff += 4; // _pInfraFlag
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam
@@ -1055,6 +1057,13 @@ static void SavePlayer(int pnum)
 	SaveByte(&plr._pLevel);
 	SaveByte(&plr._pRank);
 	SaveByte(&plr._pTeam);
+	SaveInt16(&plr._pStatPts);
+	SaveByte(&plr._pLightRad);
+	SaveByte(&plr._pManaShield);
+	SaveInt16(&plr._pTimer[PLTR_INFRAVISION]);
+	SaveInt16(&plr._pTimer[PLTR_RAGE]);
+	SaveInt(&plr._pExperience);
+	SaveInt(&plr._pNextExper);
 	SaveInt(&plr._px);
 	SaveInt(&plr._py);
 	SaveInt(&plr._pfutx);
@@ -1087,50 +1096,42 @@ static void SavePlayer(int pnum)
 	SaveByte(&plr._pAltMoveSkill);
 	SaveByte(&plr._pAltMoveSkillType);
 
+	CopyBytes(plr._pAtkSkillHotKey, lengthof(plr._pAtkSkillHotKey), tbuff);
+	CopyBytes(plr._pAtkSkillTypeHotKey, lengthof(plr._pAtkSkillTypeHotKey), tbuff);
+	CopyBytes(plr._pMoveSkillHotKey, lengthof(plr._pMoveSkillHotKey), tbuff);
+	CopyBytes(plr._pMoveSkillTypeHotKey, lengthof(plr._pMoveSkillTypeHotKey), tbuff);
+
+	CopyBytes(plr._pAltAtkSkillHotKey, lengthof(plr._pAltAtkSkillHotKey), tbuff);
+	CopyBytes(plr._pAltAtkSkillTypeHotKey, lengthof(plr._pAltAtkSkillTypeHotKey), tbuff);
+	CopyBytes(plr._pAltMoveSkillHotKey, lengthof(plr._pAltMoveSkillHotKey), tbuff);
+	CopyBytes(plr._pAltMoveSkillTypeHotKey, lengthof(plr._pAltMoveSkillTypeHotKey), tbuff);
+
 	CopyBytes(plr._pSkillLvl, lengthof(plr._pSkillLvl), tbuff);
 	CopyBytes(plr._pSkillActivity, lengthof(plr._pSkillActivity), tbuff);
 	SaveInts(plr._pSkillExp, lengthof(plr._pSkillExp));
 	SaveInt64(&plr._pMemSkills);
 	SaveInt64(&plr._pAblSkills);
 	SaveInt64(&plr._pScrlSkills);
-
-	CopyBytes(plr._pAtkSkillHotKey, lengthof(plr._pAtkSkillHotKey), tbuff);
-	CopyBytes(plr._pAtkSkillTypeHotKey, lengthof(plr._pAtkSkillTypeHotKey), tbuff);
-	CopyBytes(plr._pMoveSkillHotKey, lengthof(plr._pMoveSkillHotKey), tbuff);
-	CopyBytes(plr._pMoveSkillTypeHotKey, lengthof(plr._pMoveSkillTypeHotKey), tbuff);
-	CopyBytes(plr._pAltAtkSkillHotKey, lengthof(plr._pAltAtkSkillHotKey), tbuff);
-	CopyBytes(plr._pAltAtkSkillTypeHotKey, lengthof(plr._pAltAtkSkillTypeHotKey), tbuff);
-	CopyBytes(plr._pAltMoveSkillHotKey, lengthof(plr._pAltMoveSkillHotKey), tbuff);
-	CopyBytes(plr._pAltMoveSkillTypeHotKey, lengthof(plr._pAltMoveSkillTypeHotKey), tbuff);
-
-	SaveInt16(&plr._pTimer[PLTR_INFRAVISION]);
-	SaveInt16(&plr._pTimer[PLTR_RAGE]);
-
 	CopyBytes(plr._pName, PLR_NAME_LEN, tbuff);
+
 	SaveInt16(&plr._pBaseStr);
 	SaveInt16(&plr._pBaseMag);
 	SaveInt16(&plr._pBaseDex);
 	SaveInt16(&plr._pBaseVit);
+	SaveInt(&plr._pHPBase);
+	SaveInt(&plr._pMaxHPBase);
+	SaveInt(&plr._pManaBase);
+	SaveInt(&plr._pMaxManaBase);
+
 	SaveInt(&plr._pStrength);
 	SaveInt(&plr._pMagic);
 	SaveInt(&plr._pDexterity);
 	SaveInt(&plr._pVitality);
-	SaveInt(&plr._pHPBase);
-	SaveInt(&plr._pMaxHPBase);
 	SaveInt(&plr._pHitPoints);
 	SaveInt(&plr._pMaxHP);
-	SaveInt(&plr._pManaBase);
-	SaveInt(&plr._pMaxManaBase);
 	SaveInt(&plr._pMana);
 	SaveInt(&plr._pMaxMana);
-	SaveInt16(&plr._pStatPts);
-	SaveByte(&plr._pLightRad);
-	SaveByte(&plr._pManaShield);
-	SaveInt(&plr._pExperience);
-	SaveInt(&plr._pNextExper);
-	SaveInt(&plr._pGold);
 
-	SaveInt(&plr._pInfraFlag);
 	SaveInt(&plr._pVar1);
 	SaveInt(&plr._pVar2);
 	SaveInt(&plr._pVar3);
@@ -1167,14 +1168,16 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pBFrames);
 	SaveInt(&plr._pBWidth);
 
+	SaveItemData(&plr._pHoldItem);
 	SaveItems(plr._pInvBody, NUM_INVLOC);
 	SaveItems(plr._pSpdList, MAXBELTITEMS);
 	SaveItems(plr._pInvList, NUM_INV_GRID_ELEM);
 	CopyBytes(plr._pInvGrid, NUM_INV_GRID_ELEM, tbuff);
 	SaveInt(&plr._pNumInv);
-	SaveItemData(&plr._pHoldItem);
+	SaveInt(&plr._pGold);
 
 	/*Skip to Calc
+	tbuff += 4; // _pInfraFlag
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam

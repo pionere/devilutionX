@@ -217,6 +217,12 @@ typedef struct PlayerStruct {
 	BYTE _pLevel;
 	BYTE _pRank;
 	BYTE _pTeam;
+	WORD _pStatPts;
+	BYTE _pLightRad;
+	BYTE _pManaShield;
+	int16_t _pTimer[NUM_PLRTIMERS];
+	unsigned _pExperience;
+	unsigned _pNextExper;
 	int _px;      // Tile X-position of player
 	int _py;      // Tile Y-position of player
 	int _pfutx;   // Future tile X-position of player. Set at start of walking animation
@@ -246,12 +252,6 @@ typedef struct PlayerStruct {
 	BYTE _pAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
 	BYTE _pAltMoveSkill;     // the selected movement skill for the secondary action
 	BYTE _pAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
-	BYTE _pSkillLvl[64];
-	BYTE _pSkillActivity[64];
-	unsigned _pSkillExp[64];
-	uint64_t _pMemSkills;  // Bitmask of learned skills
-	uint64_t _pAblSkills;  // Bitmask of abilities
-	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls
 	BYTE _pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
 	BYTE _pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
 	BYTE _pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
@@ -260,31 +260,29 @@ typedef struct PlayerStruct {
 	BYTE _pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
 	BYTE _pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
 	BYTE _pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	int16_t _pTimer[NUM_PLRTIMERS];
+	BYTE _pSkillLvl[64];
+	BYTE _pSkillActivity[64];
+	unsigned _pSkillExp[64];
+	uint64_t _pMemSkills;  // Bitmask of learned skills
+	uint64_t _pAblSkills;  // Bitmask of abilities
+	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls
 	char _pName[PLR_NAME_LEN];
 	WORD _pBaseStr;
 	WORD _pBaseMag;
 	WORD _pBaseDex;
 	WORD _pBaseVit;
+	int _pHPBase;    // the hp of the player if they would not wear an item
+	int _pMaxHPBase; // the maximum hp of the player without items
+	int _pManaBase;    // the mana of the player if they would not wear an item
+	int _pMaxManaBase; // the maximum mana of the player without items
 	int _pStrength;
 	int _pMagic;
 	int _pDexterity;
 	int _pVitality;
-	int _pHPBase;    // the hp of the player if they would not wear an item
-	int _pMaxHPBase; // the maximum hp of the player without items
 	int _pHitPoints; // the current hp of the player
 	int _pMaxHP;     // the maximum hp of the player
-	int _pManaBase;    // the mana of the player if they would not wear an item
-	int _pMaxManaBase; // the maximum mana of the player without items
 	int _pMana;        // the current mana of the player
 	int _pMaxMana;     // the maximum mana of the player
-	WORD _pStatPts;
-	BYTE _pLightRad;
-	BYTE _pManaShield;
-	unsigned _pExperience;
-	unsigned _pNextExper;
-	int _pGold;
-	BOOL _pInfraFlag;
 	int _pVar1;
 	int _pVar2;
 	int _pVar3;
@@ -319,12 +317,14 @@ typedef struct PlayerStruct {
 	BYTE *_pBAnim[NUM_DIRS]; // Block animations
 	unsigned _pBFrames;
 	int _pBWidth;
+	ItemStruct _pHoldItem;
 	ItemStruct _pInvBody[NUM_INVLOC];
 	ItemStruct _pSpdList[MAXBELTITEMS];
 	ItemStruct _pInvList[NUM_INV_GRID_ELEM];
 	char _pInvGrid[NUM_INV_GRID_ELEM];
 	int _pNumInv;
-	ItemStruct _pHoldItem;
+	int _pGold;
+	BOOL _pInfraFlag;
 	int _pISlMinDam;
 	int _pISlMaxDam;
 	int _pIBlMinDam;
@@ -805,19 +805,27 @@ typedef struct PkPlayerStruct {
 	BYTE pLevel;
 	BYTE pRank;
 	BYTE pTeam;
+	WORD pStatPts;
+	BYTE pLightRad;
+	BYTE pManaShield;
 	WORD pTimer[NUM_PLRTIMERS];
+	DWORD pExperience;
 	WORD pBaseStr;
 	WORD pBaseMag;
 	WORD pBaseDex;
 	WORD pBaseVit;
-	WORD pStatPts;
-	BYTE pLightRad;
-	BYTE pManaShield;
-	DWORD pExperience;
 	INT pHPBase;
 	INT pMaxHPBase;
 	INT pManaBase;
 	INT pMaxManaBase;
+	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
+	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
+	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
+	BYTE pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
+	BYTE pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
+	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
+	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
+	BYTE pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
 	BYTE pSkillLvl[64];
 	BYTE pSkillActivity[64];
 	DWORD pSkillExp[64];
@@ -828,14 +836,6 @@ typedef struct PkPlayerStruct {
 	PkItemStruct pInvList[NUM_INV_GRID_ELEM];
 	char pInvGrid[NUM_INV_GRID_ELEM];
 	INT pNumInv;
-	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
 } PkPlayerStruct;
 #pragma pack(pop)
 
