@@ -3174,15 +3174,13 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	case SHRINE_SPIRITUAL:
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			if (plr._pInvGrid[i] == 0) {
+				pi = &plr._pInvList[plr._pNumInv];
+				CreateBaseItem(pi, IDI_GOLD);
 				r = currLvl._dLevel + random_(160, 2 * currLvl._dLevel);
 				plr._pGold += r;
-				SetGoldItemValue(&golditem, r);
-				golditem._iSeed = GetRndSeed();
-				cnt = plr._pNumInv;
-				NetSendCmdChItem(&golditem, INVITEM_INV_FIRST + cnt);
-				copy_pod(plr._pInvList[cnt], golditem);
-				plr._pNumInv++;
-				plr._pInvGrid[i] = plr._pNumInv;
+				SetGoldItemValue(pi, r);
+				NetSendCmdChItem(pi, INVITEM_INV_FIRST + plr._pNumInv);
+				plr._pInvGrid[i] = ++plr._pNumInv;
 			}
 		}
 		if (pnum != mypnum)
