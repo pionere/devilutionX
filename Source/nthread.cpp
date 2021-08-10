@@ -9,27 +9,34 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-BYTE gbNetUpdateRate;
-BYTE gbEmptyTurns;
-#ifdef ADAPTIVE_NETUPDATE
-char gbNetUpdateWeight;
-#endif
+const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
+const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
+const unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
+
 /* The id of the next turn. */
 uint32_t sgbSentThisCycle;
+Uint32 guNextTick;
+/* The number of game-logic cycles between turns. */
+BYTE gbNetUpdateRate;
+#ifndef NONET
+/* The number of extra turns to be queued to ensure fluent gameplay. */
+BYTE gbEmptyTurns;
+#ifdef ADAPTIVE_NETUPDATE
+/* The 'health' of the connection. Incremented on timeout, decremented if a turn is received on time. */
+char gbNetUpdateWeight;
+#endif // ADAPTIVE_NETUPDATE
+/* The thread to handle turns while connecting or loading a level. */
+static SDL_Thread* sghThread = NULL;
 /* Main mutex of the thread to control its execution. */
 static CCritSect sgThreadMutex;
 /* Data mutex of the thread to control access to sgTurnQueue. */
 static CCritSect sgDataMutex;
 /* Queued turns while loading a level, or delta-info. */
 static std::deque<SNetTurnPkt*> sgTurnQueue;
+#endif // NONET
 /* Counter to keep track of the network-update(turn) progress. */
 static BYTE sgbPacketCountdown;
-const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
-const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
-const unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
-Uint32 guNextTick;
 static bool _gbTickInSync;
-static SDL_Thread *sghThread = NULL;
 static bool _gbThreadLive;
 static bool _gbRunThread;
 
@@ -104,7 +111,7 @@ int nthread_recv_turns()
 		return TS_ACTIVE;
 	}
 }
-
+#ifndef NONET
 static void nthread_parse_turns()
 {
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
@@ -212,17 +219,18 @@ static int SDLCALL nthread_handler(void* data)
 	}
 	return 0;
 }
-
+#endif
 void nthread_start()
 {
 	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
 	_gbTickInSync = true;
 	sgbSentThisCycle = 0;
 	sgbPacketCountdown = 1;
+#ifndef NONET
 	gbEmptyTurns = 0;
 #ifdef ADAPTIVE_NETUPDATE
 	gbNetUpdateWeight = 0;
-#elif !defined(NONET)
+#else
 	// allow connection with adaptive hosts
 	if (gbNetUpdateRate == 1 && !IsLocalGame)
 		gbEmptyTurns = 1;
@@ -236,10 +244,12 @@ void nthread_start()
 		sghThread = CreateThread(nthread_handler);
 		assert(sghThread != NULL);
 	}
+#endif
 }
 
 void nthread_cleanup()
 {
+#ifndef NONET
 	SNetTurnPkt* tmp;
 
 	_gbThreadLive = false;
@@ -254,19 +264,23 @@ void nthread_cleanup()
 		sgTurnQueue.pop_front();
 		MemFreeDbg(tmp);
 	}
+#endif
 }
 
 void nthread_run()
 {
 	plrmsg_delay(true);
+#ifndef NONET
 	if (sghThread != NULL) {
 		sgThreadMutex.Leave();
 		_gbRunThread = true;
 	}
+#endif
 }
 
 void nthread_finish()
 {
+#ifndef NONET
 	if (sghThread != NULL) {
 		// for the first pending turn the current player should be considered
 		//  as 'external' in On_SYNCQUESTEXT
@@ -290,6 +304,7 @@ void nthread_finish()
 		// reset geBufferMsgs to normal in case there was no pending turn
 		geBufferMsgs = MSG_NORMAL;
 	}
+#endif
 	// TODO: move these somewhere else?
 	//   1. it prevents NetInit from calling in a symmetric way
 	//   2. plrmsg_delay calls are non-symmetric...

@@ -4,7 +4,7 @@
  * Implementation of functions for updating game state from network commands.
  */
 #include "all.h"
-
+#ifndef NONET
 DEVILUTION_BEGIN_NAMESPACE
 
 static CCritSect sgMemCrit;
@@ -116,3 +116,4 @@ void dthread_cleanup()
 }
 
 DEVILUTION_END_NAMESPACE
+#endif // NONET

@@ -12,10 +12,17 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+#ifndef NONET
 void dthread_remove_player(int pnum);
 void dthread_send_delta(int pnum, BYTE cmd, void* pbSrc, int dwLen);
 void dthread_start();
 void dthread_cleanup();
+#else
+void dthread_remove_player(int pnum) { };
+void dthread_send_delta(int pnum, BYTE cmd, void* pbSrc, int dwLen) { };
+void dthread_start() { };
+void dthread_cleanup() { };
+#endif // NONET
 
 /* data */
 #ifdef __cplusplus
