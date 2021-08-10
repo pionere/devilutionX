@@ -814,7 +814,6 @@ typedef struct PkPlayerStruct {
 	BYTE pLightRad;
 	BYTE pManaShield;
 	DWORD pExperience;
-	INT pGold;
 	INT pHPBase;
 	INT pMaxHPBase;
 	INT pManaBase;

@@ -44,7 +44,6 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pLightRad = p->_pLightRad;
 	pPack->pManaShield = p->_pManaShield;
 	pPack->pExperience = SwapLE32(p->_pExperience);
-	pPack->pGold = SwapLE32(p->_pGold);
 	pPack->pHPBase = SwapLE32(p->_pHPBase);
 	pPack->pMaxHPBase = SwapLE32(p->_pMaxHPBase);
 	pPack->pManaBase = SwapLE32(p->_pManaBase);
@@ -126,7 +125,7 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 
 void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 {
-	int i, j;
+	int i, j, g;
 	ItemStruct *pi;
 	PkItemStruct *pki;
 
@@ -149,7 +148,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._pLightRad = pPack->pLightRad;
 	plr._pManaShield = pPack->pManaShield;
 	plr._pExperience = SwapLE32(pPack->pExperience);
-	plr._pGold = SwapLE32(pPack->pGold);
 	plr._pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
 	plr._pHPBase = SwapLE32(pPack->pHPBase);
 	plr._pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
@@ -233,19 +231,24 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 			pi->_itype = ITYPE_NONE; // move weapon from right hand to left hand
 		}
 	}*/
-	// verify the gold-seeds
+	// verify the gold-seeds, calculate gold amount
+	g = 0;
 	for (i = 0; i < plr._pNumInv; i++) {
-		if (plr._pInvList[i]._iIdx == IDI_GOLD) {
+		pi = &plr._pInvList[i];
+		if (pi->_iIdx == IDI_GOLD) {
+			if (pi->_ivalue > GOLD_MAX_LIMIT)
+				pi->_ivalue = GOLD_MAX_LIMIT;
+			g += pi->_ivalue;
 			for (j = 0; j < plr._pNumInv; j++) {
-				if (i != j) {
-					if (plr._pInvList[j]._iIdx == IDI_GOLD && plr._pInvList[i]._iSeed == plr._pInvList[j]._iSeed) {
-						plr._pInvList[i]._iSeed = GetRndSeed();
-						j = -1;
-					}
+				if (i != j
+				 && plr._pInvList[j]._iIdx == IDI_GOLD && plr._pInvList[j]._iSeed == pi->_iSeed) {
+					pi->_iSeed = GetRndSeed();
+					j = -1;
 				}
 			}
 		}
 	}
+	plr._pGold = g;
 	// recalculate the cached fields
 	InitPlayer(pnum);
 	CalcPlrInv(pnum, false);
