@@ -364,8 +364,6 @@ void InitItems()
 {
 	int i;
 
-	SpawnStoreGold();
-
 	numitems = 0;
 
 	memset(items, 0, sizeof(items));
@@ -3745,12 +3743,6 @@ void SpawnHealer(int lvl)
 		healitem[i]._itype = ITYPE_NONE;
 	}
 	SortHealer();
-}
-
-void SpawnStoreGold()
-{
-	SetItemSData(&golditem, IDI_GOLD);
-	golditem._iStatFlag = TRUE;
 }
 
 static void RecreateSmithItem(int ii, int iseed, int idx, int lvl)

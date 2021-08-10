@@ -56,7 +56,6 @@ DEVILUTION_BEGIN_NAMESPACE
 BYTE *pSTextBoxCels;
 BYTE *pSTextSlidCels;
 
-ItemStruct golditem;
 int boylevel;
 ItemStruct boyitem;
 ItemStruct smithitem[SMITH_ITEMS];
@@ -158,7 +157,6 @@ void SetupTownStores()
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx] * SDL_GetTicks());
 	l = StoresLimitedItemLvl();
-	SpawnStoreGold();
 	SpawnSmith(l);
 	SpawnWitch(l);
 	SpawnHealer(l);
@@ -1678,18 +1676,17 @@ static bool StoreGoldFit(int idx)
 static void PlaceStoreGold(int v)
 {
 	PlayerStruct *p;
-	int ii, i;
+	ItemStruct* pi;
+	int i;
 
 	p = &myplr;
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		if (p->_pInvGrid[i] == 0) {
-			SetGoldItemValue(&golditem, v);
-			GetGoldSeed(mypnum, &golditem);
-			ii = p->_pNumInv;
-			NetSendCmdChItem(&golditem, INVITEM_INV_FIRST + ii);
-			copy_pod(p->_pInvList[ii], golditem);
-			p->_pNumInv++;
-			p->_pInvGrid[i] = p->_pNumInv;
+			pi = &p->_pInvList[p->_pNumInv];
+			CreateBaseItem(pi, IDI_GOLD);
+			SetGoldItemValue(pi, v);
+			NetSendCmdChItem(pi, INVITEM_INV_FIRST + p->_pNumInv);
+			p->_pInvGrid[i] = ++p->_pNumInv;
 			break;
 		}
 	}

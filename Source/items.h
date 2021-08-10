@@ -65,7 +65,6 @@ void SpawnPremium(int lvl);
 void SpawnWitch(int lvl);
 void SpawnBoy(int lvl);
 void SpawnHealer(int lvl);
-void SpawnStoreGold();
 void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo);
 int ItemNoFlippy();
 void CreateSpellBook(int ispell, int x, int y);

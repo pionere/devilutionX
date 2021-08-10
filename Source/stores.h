@@ -19,8 +19,6 @@ extern BYTE *pSTextSlidCels;
 /** Currently active store */
 extern char stextflag;
 
-/** Temporary item used to generate gold piles by various function */
-extern ItemStruct golditem;
 /** Current level of the item sold by Wirt */
 extern int boylevel;
 /** Current item sold by Wirt */
