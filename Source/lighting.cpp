@@ -439,7 +439,7 @@ static void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int
 	}
 }
 
-void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
+void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 {
 	int x, y, v, xoff, yoff, mult, radius_block;
 	int min_x, max_x, min_y, max_y;
@@ -453,7 +453,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	block_x = 0;
 	block_y = 0;
 
-	if (lnum >= 0) {
+	if (lnum < MAXLIGHTS) {
 		xoff = LightList[lnum]._xoff;
 		yoff = LightList[lnum]._yoff;
 		if (xoff < 0) {
@@ -902,7 +902,7 @@ void ToggleLighting()
 		memcpy(dLight, dPreLight, sizeof(dLight));
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (players[i]._pActive && players[i]._pDunLevel == currLvl._dLevelIdx) {
-				DoLighting(players[i]._px, players[i]._py, players[i]._pLightRad, -1);
+				DoLighting(players[i]._px, players[i]._py, players[i]._pLightRad, NO_LIGHT);
 			}
 		}
 	}
@@ -933,17 +933,17 @@ void InitLighting()
 	}
 }
 
-int AddLight(int x, int y, int r)
+unsigned AddLight(int x, int y, int r)
 {
 	LightListStruct *lis;
 	int lnum;
 
 #ifdef _DEBUG
 	if (lightflag)
-		return -1;
+		return NO_LIGHT;
 #endif
-
-	lnum = -1;
+	static_assert(NO_LIGHT >= MAXLIGHTS, "Handling of lights expects NO_LIGHT out of the [0..MAXLIGHTS) range");
+	lnum = NO_LIGHT;
 
 	if (numlights < MAXLIGHTS) {
 		lnum = lightactive[numlights++];
@@ -961,20 +961,20 @@ int AddLight(int x, int y, int r)
 	return lnum;
 }
 
-void AddUnLight(int lnum)
+void AddUnLight(unsigned lnum)
 {
 #ifdef _DEBUG
 	if (lightflag)
 		return;
 #endif
-	if (lnum == -1)
+	if (lnum >= MAXLIGHTS)
 		return;
 
 	LightList[lnum]._ldel = true;
 	gbDolighting = true;
 }
 
-void ChangeLightRadius(int lnum, int r)
+void ChangeLightRadius(unsigned lnum, int r)
 {
 	LightListStruct *lis;
 
@@ -982,7 +982,7 @@ void ChangeLightRadius(int lnum, int r)
 	if (lightflag)
 		return;
 #endif
-	if (lnum == -1)
+	if (lnum >= MAXLIGHTS)
 		return;
 
 	lis = &LightList[lnum];
@@ -991,7 +991,7 @@ void ChangeLightRadius(int lnum, int r)
 	gbDolighting = true;
 }
 
-void ChangeLightXY(int lnum, int x, int y)
+void ChangeLightXY(unsigned lnum, int x, int y)
 {
 	LightListStruct *lis;
 
@@ -999,7 +999,7 @@ void ChangeLightXY(int lnum, int x, int y)
 	if (lightflag)
 		return;
 #endif
-	if (lnum == -1)
+	if (lnum >= MAXLIGHTS)
 		return;
 
 	lis = &LightList[lnum];
@@ -1009,7 +1009,7 @@ void ChangeLightXY(int lnum, int x, int y)
 	gbDolighting = true;
 }
 
-void ChangeLightOff(int lnum, int xoff, int yoff)
+void ChangeLightOff(unsigned lnum, int xoff, int yoff)
 {
 	LightListStruct *lis;
 
@@ -1017,7 +1017,7 @@ void ChangeLightOff(int lnum, int xoff, int yoff)
 	if (lightflag)
 		return;
 #endif
-	if (lnum == -1)
+	if (lnum >= MAXLIGHTS)
 		return;
 
 	lis = &LightList[lnum];
@@ -1030,7 +1030,7 @@ void ChangeLightOff(int lnum, int xoff, int yoff)
 /*
  * Same as ChangeLightXY, but also sets the x/y-offsets to zero.
  */
-void ChangeLightXYOff(int lnum, int x, int y)
+void ChangeLightXYOff(unsigned lnum, int x, int y)
 {
 	LightListStruct *lis;
 
@@ -1038,7 +1038,7 @@ void ChangeLightXYOff(int lnum, int x, int y)
 	if (lightflag)
 		return;
 #endif
-	if (lnum == -1)
+	if (lnum >= MAXLIGHTS)
 		return;
 
 	lis = &LightList[lnum];
@@ -1050,7 +1050,7 @@ void ChangeLightXYOff(int lnum, int x, int y)
 	gbDolighting = true;
 }
 
-void CondChangeLightOff(int lnum, int xoff, int yoff)
+void CondChangeLightOff(unsigned lnum, int xoff, int yoff)
 {
 	LightListStruct *lis;
 	int lx, ly;
@@ -1060,7 +1060,7 @@ void CondChangeLightOff(int lnum, int xoff, int yoff)
 	if (lightflag)
 		return;
 #endif
-	if (lnum == -1)
+	if (lnum >= MAXLIGHTS)
 		return;
 
 	lis = &LightList[lnum];
@@ -1078,7 +1078,7 @@ void CondChangeLightOff(int lnum, int xoff, int yoff)
 	gbDolighting = true;
 }
 
-void ChangeLight(int lnum, int x, int y, int r)
+void ChangeLight(unsigned lnum, int x, int y, int r)
 {
 	LightListStruct *lis;
 
@@ -1086,7 +1086,7 @@ void ChangeLight(int lnum, int x, int y, int r)
 	if (lightflag)
 		return;
 #endif
-	if (lnum == -1)
+	if (lnum >= MAXLIGHTS)
 		return;
 
 	lis = &LightList[lnum];
@@ -1178,19 +1178,19 @@ int AddVision(int x, int y, int r, bool mine)
 	return vnum;
 }
 
-void AddUnVision(int vnum)
+void AddUnVision(unsigned vnum)
 {
-	assert(vnum != -1);
+	assert(vnum < MAXVISION);
 
 	VisionList[vnum]._ldel = true;
 	_gbDovision = true;
 }
 
-void ChangeVisionRadius(int vnum, int r)
+void ChangeVisionRadius(unsigned vnum, int r)
 {
 	LightListStruct *vis;
 
-	if (vnum == -1)
+	if (vnum >= MAXVISION)
 		return;
 
 	vis = &VisionList[vnum];
@@ -1199,11 +1199,11 @@ void ChangeVisionRadius(int vnum, int r)
 	_gbDovision = true;
 }
 
-void ChangeVisionXY(int vnum, int x, int y)
+void ChangeVisionXY(unsigned vnum, int x, int y)
 {
 	LightListStruct *vis;
 
-	if (vnum == -1)
+	if (vnum >= MAXVISION)
 		return;
 
 	vis = &VisionList[vnum];

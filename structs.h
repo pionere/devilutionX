@@ -242,8 +242,8 @@ typedef struct PlayerStruct {
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;
 	int _pAnimXOffset;
-	int _plid;
-	int _pvid;
+	unsigned _plid;
+	unsigned _pvid;
 	BYTE _pAtkSkill;         // the selected attack skill for the primary action
 	BYTE _pAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
 	BYTE _pMoveSkill;        // the selected movement skill for the primary action
@@ -468,7 +468,7 @@ typedef struct MissileStruct {
 	int _miMinDam;
 	int _miMaxDam;
 	int _miDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
-	int _miLid;
+	unsigned _miLid;
 	int _miVar1;
 	int _miVar2;
 	int _miVar3;
@@ -743,7 +743,7 @@ typedef struct ObjectStruct {
 	BOOLEAN _oTrapFlag;
 	BOOLEAN _oDoorFlag;
 	BOOL _oPreFlag;
-	int _olid;
+	unsigned _olid;
 	int _oRndSeed;
 	int _oVar1;
 	int _oVar2;

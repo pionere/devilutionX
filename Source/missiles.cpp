@@ -2307,7 +2307,7 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	mis->_miRange = 5 * (monsters[misource]._mint + 4);
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
-	//mis->_miLid = -1;
+	//mis->_miLid = NO_LIGHT;
 	//PutMissile(mi);
 	return MIRES_DONE;
 }
@@ -2875,7 +2875,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 		SetMissDir(mi, midir);
 
 	mis->_miAnimAdd = 1;
-	mis->_miLid = -1;
+	mis->_miLid = NO_LIGHT;
 
 	if (mds->mlSFX != SFX_NONE) {
 		PlaySfxLoc(mds->mlSFX, mis->_misx, mis->_misy, mds->mlSFXCnt);
@@ -3135,7 +3135,7 @@ void MI_Firewall(int mi)
 		AddUnLight(mis->_miLid);
 	} else if (mis->_miDir == 0) {
 		if (mis->_miVar2 == 0) {
-			//assert(mis->_miLid == -1);
+			//assert(mis->_miLid == NO_LIGHT);
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		} else {
 			//assert(mis->_miVar2 < sizeof(ExpLight));
@@ -3430,7 +3430,7 @@ void MI_Portal(int mi)
 		mis->_miRange--;
 	if (mis->_miRange == mis->_miVar1) {
 		SetMissDir(mi, 1);
-		if (currLvl._dType != DLV_TOWN && mis->_miLid == -1)
+		if (currLvl._dType != DLV_TOWN && mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, 15);
 	} else if (mis->_miDir != 1 && currLvl._dType != DLV_TOWN) {
 		if (mis->_miVar2 == 0)
@@ -3790,7 +3790,7 @@ void MI_Rhino(int mi)
 	monsters[mnum]._moldy = by;
 	monsters[mnum]._my = by;
 	dMonster[bx][by] = -(mnum + 1);
-	if (missile[mi]._miLid != -1)
+	if (missile[mi]._miLid != NO_LIGHT)
 		ChangeLightXY(missile[mi]._miLid, bx, by);
 	ShiftMissilePos(mi);
 	PutMissile(mi);

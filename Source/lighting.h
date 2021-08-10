@@ -12,6 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+#define NO_LIGHT			MAXLIGHTS
+
 extern BYTE visionactive[MAXVISION];
 extern LightListStruct VisionList[MAXVISION];
 extern BYTE lightactive[MAXLIGHTS];
@@ -32,7 +34,7 @@ extern char lightmax;
 #define LIGHTIDX_UNIQ	LIGHTMAX + 4
 extern BYTE LightTrns[NUM_LIGHT_TRNS][256];
 
-void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum);
+void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum);
 void DoUnVision(int nXPos, int nYPos, int nRadius);
 void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible);
 void MakeLightTable();
@@ -41,21 +43,21 @@ void ToggleLighting();
 #endif
 void InitLightMax();
 void InitLighting();
-int AddLight(int x, int y, int r);
-void AddUnLight(int lnum);
-void ChangeLightRadius(int lnum, int r);
-void ChangeLightXY(int lnum, int x, int y);
-void ChangeLightOff(int lnum, int xoff, int yoff);
-void ChangeLightXYOff(int lnum, int x, int y);
-void CondChangeLightOff(int lnum, int xoff, int yoff);
-void ChangeLight(int lnum, int x, int y, int r);
+unsigned AddLight(int x, int y, int r);
+void AddUnLight(unsigned lnum);
+void ChangeLightRadius(unsigned lnum, int r);
+void ChangeLightXY(unsigned lnum, int x, int y);
+void ChangeLightOff(unsigned lnum, int xoff, int yoff);
+void ChangeLightXYOff(unsigned lnum, int x, int y);
+void CondChangeLightOff(unsigned lnum, int xoff, int yoff);
+void ChangeLight(unsigned lnum, int x, int y, int r);
 void ProcessLightList();
 void SavePreLighting();
 void InitVision();
 int AddVision(int x, int y, int r, bool mine);
-void AddUnVision(int vnum);
-void ChangeVisionRadius(int vnum, int r);
-void ChangeVisionXY(int vnum, int x, int y);
+void AddUnVision(unsigned vnum);
+void ChangeVisionRadius(unsigned vnum, int r);
+void ChangeVisionXY(unsigned vnum, int x, int y);
 void ProcessVisionList();
 void lighting_color_cycling();
 

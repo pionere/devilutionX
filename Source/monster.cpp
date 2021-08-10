@@ -458,7 +458,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_uniqtype = 0;
 	mon->_uniqtrans = 0;
 	mon->_udeadval = 0;
-	mon->mlid = 0;
+	mon->mlid = NO_LIGHT;
 
 	mon->leader = 0;
 	mon->leaderflag = MLEADER_NONE;
@@ -1315,7 +1315,7 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mx = mon->_mfutx = mx;
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
-	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN)) {
+	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		ChangeLightXY(mon->mlid, mx, my);
 		MonChangeLightOff(mnum);
 	}
@@ -1353,7 +1353,7 @@ static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mfutx = /*mon->_mVar1 =*/ mx; // the Monster's x-coordinate after the movement
 	mon->_mfuty = /*mon->_mVar2 =*/ my; // the Monster's y-coordinate after the movement
 	dMonster[mx][my] = -(mnum + 1);
-	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN)) {
+	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		//ChangeLightXY(mon->mlid, mon->_mVar4, mon->_mVar5);
 		MonChangeLightOff(mnum);
 	}
@@ -1460,7 +1460,7 @@ static void MonStartGetHit(int mnum)
 	mon->_myoff = 0;
 	mon->_mx = mon->_mfutx = mon->_moldx;
 	mon->_my = mon->_mfuty = mon->_moldy;
-	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
+	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 	RemoveMonFromMap(mnum);
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
@@ -1907,7 +1907,7 @@ static bool MonDoWalk(int mnum)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
+		if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = true;
@@ -1922,7 +1922,7 @@ static bool MonDoWalk(int mnum)
 			mon->_mVar7 += mon->_myvel; // MWALK_YOFF
 			mon->_mxoff = mon->_mVar6 >> 4;
 			mon->_myoff = mon->_mVar7 >> 4;
-			if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
+			if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 				MonChangeLightOff(mnum);
 		//}
 		rv = false;
@@ -2183,7 +2183,7 @@ static bool MonDoFadein(int mnum)
 		return false;
 
 	mon->_mFlags &= ~MFLAG_REV_ANIMATION;
-	if (mon->mlid != 0) { // && !(mon->_mFlags & MFLAG_HIDDEN)) {
+	if (mon->mlid != NO_LIGHT) { // && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		ChangeLightRadius(mon->mlid, MON_LIGHTRAD);
 		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 	}
@@ -2206,7 +2206,7 @@ static bool MonDoFadeout(int mnum)
 	mon->_mFlags &= ~MFLAG_REV_ANIMATION;
 	//if (mon->_mType < MT_INCIN || mon->_mType > MT_HELLBURN) {
 		mon->_mFlags |= MFLAG_HIDDEN;
-		if (mon->mlid != 0) {
+		if (mon->mlid != NO_LIGHT) {
 			ChangeLightRadius(mon->mlid, 0);
 		}
 	//}

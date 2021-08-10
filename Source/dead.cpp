@@ -100,7 +100,7 @@ void SetDead()
 
 	for (i = 0; i < nummonsters; i++) {
 		mon = &monsters[monstactive[i]];
-		if (mon->mlid != 0) {
+		if (mon->mlid != NO_LIGHT) {
 			for (dx = 0; dx < MAXDUNX; dx++) {
 				for (dy = 0; dy < MAXDUNY; dy++) {
 					if ((dDead[dx][dy] & 0x1F) == mon->_udeadval)

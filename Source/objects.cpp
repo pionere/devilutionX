@@ -1225,8 +1225,8 @@ static void AddObjLight(int oi, int diffr)
 	os = &objects[oi];
 	//if (gbInitObjFlag) {
 		if (diffr != 0)
-			DoLighting(os->_ox, os->_oy, diffr, -1);
-		os->_olid = -1;
+			DoLighting(os->_ox, os->_oy, diffr, NO_LIGHT);
+		os->_olid = NO_LIGHT;
 	//}
 }
 
@@ -1622,16 +1622,16 @@ static void Obj_Light(int oi)
 	if (turnon) {
 		tr -= 10;
 		tr += flicker[os->_oAnimFrame];
-		if (os->_olid == -1)
+		if (os->_olid == NO_LIGHT)
 			os->_olid = AddLight(ox, oy, tr);
 		else {
 			if (LightList[os->_olid]._lradius != tr)
 				ChangeLight(os->_olid, ox, oy, tr);
 		}
 	} else {
-		if (os->_olid != -1) {
+		if (os->_olid != NO_LIGHT) {
 			AddUnLight(os->_olid);
-			os->_olid = -1;
+			os->_olid = NO_LIGHT;
 		}
 	}
 }

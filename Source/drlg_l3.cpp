@@ -2243,7 +2243,7 @@ static void DRLG_L3LightTiles()
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
 				if (dPiece[i][j] >= 382 && dPiece[i][j] <= 457) {
-					DoLighting(i, j, 9, -1);
+					DoLighting(i, j, 9, NO_LIGHT);
 				}
 			}
 		}
@@ -2256,7 +2256,7 @@ static void DRLG_L3LightTiles()
 				pn = dPiece[i][j];
 				if (pn >= 56 && pn <= 161
 				 && (pn <= 147 || pn >= 154 || pn == 150 || pn == 152)) {
-					DoLighting(i, j, 7, -1);
+					DoLighting(i, j, 7, NO_LIGHT);
 				}
 			}
 		}

@@ -896,7 +896,7 @@ void DeltaLoadLevel()
 					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
 				if (mstr->_mhitpoints == 0) {
 					// SetDead: inline for better performance
-					if (mon->mlid != 0)
+					if (mon->mlid != NO_LIGHT)
 						ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 					AddDead(i);
 				} else {

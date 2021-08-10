@@ -817,7 +817,7 @@ void InitLvlPlayer(int pnum)
 		if (pnum == mypnum) {
 			plr._plid = AddLight(plr._px, plr._py, plr._pLightRad);
 		} else {
-			plr._plid = -1;
+			plr._plid = NO_LIGHT;
 		}
 		plr._pvid = AddVision(plr._px, plr._py, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
 	}
@@ -1191,7 +1191,7 @@ static void PlrChangeOffset(int pnum)
 		//	SetCursorPos(MouseX + px, MouseY + py);
 	}
 
-	//if (plr._plid != -1)
+	//if (plr._plid != NO_LIGHT)
 		PlrChangeLightOff(pnum);
 }
 
@@ -1252,7 +1252,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
-	//if (plr._plid != -1) {
+	//if (plr._plid != NO_LIGHT) {
 		ChangeLightXY(plr._plid, plr._px, plr._py);
 		PlrChangeLightOff(pnum);
 	//}
@@ -1292,7 +1292,7 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	plr._pfutx = /*plr._pVar1 =*/ px; // the Player's x-coordinate after the movement
 	plr._pfuty = /*plr._pVar2 =*/ py; // the Player's y-coordinate after the movement
 	dPlayer[px][py] = -(pnum + 1);
-	/*if (plr._plid != -1) {
+	/*if (plr._plid != NO_LIGHT) {
 		//ChangeLightXY(plr._plid, plr._pVar4, plr._pVar5);
 		PlrChangeLightOff(pnum);
 	}*/
