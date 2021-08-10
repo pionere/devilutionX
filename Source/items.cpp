@@ -1077,15 +1077,19 @@ void CreatePlrItems(int pnum)
 	ItemStruct *pi;
 	int i;
 
+	plr._pHoldItem._itype = ITYPE_NONE;
+
 	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--) {
 		pi->_itype = ITYPE_NONE;
 		pi++;
 	}
 
-	// converting this to a for loop creates a `rep stosd` instruction,
-	// so this probably actually was a memset
-	memset(&plr._pInvGrid, 0, sizeof(plr._pInvGrid));
+	pi = plr._pSpdList;
+	for (i = MAXBELTITEMS; i != 0; i--) {
+		pi->_itype = ITYPE_NONE;
+		pi++;
+	}
 
 	pi = plr._pInvList;
 	for (i = NUM_INV_GRID_ELEM; i != 0; i--) {
@@ -1093,13 +1097,9 @@ void CreatePlrItems(int pnum)
 		pi++;
 	}
 
-	plr._pNumInv = 0;
-
-	pi = plr._pSpdList;
-	for (i = MAXBELTITEMS; i != 0; i--) {
-		pi->_itype = ITYPE_NONE;
-		pi++;
-	}
+	// zero values are expected -> no need to zfill
+	//memset(&plr._pInvGrid, 0, sizeof(plr._pInvGrid));
+	assert(plr._pNumInv == 0);
 
 	switch (plr._pClass) {
 	case PC_WARRIOR:
@@ -1150,15 +1150,16 @@ void CreatePlrItems(int pnum)
 #endif
 	}
 
-	CreateBaseItem(&plr._pHoldItem, IDI_GOLD);
+	pi = &plr._pInvList[plr._pNumInv];
+	CreateBaseItem(pi, IDI_GOLD);
 
 #ifdef _DEBUG
 	if (debug_mode_key_w) {
-		SetGoldItemValue(&plr._pHoldItem, GOLD_MAX_LIMIT);
+		SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			if (plr._pInvGrid[i] == 0) {
-				GetItemSeed(&plr._pHoldItem);
-				copy_pod(plr._pInvList[plr._pNumInv], plr._pHoldItem);
+				GetItemSeed(pi);
+				copy_pod(plr._pInvList[plr._pNumInv], pi);
 				plr._pInvGrid[i] = ++plr._pNumInv;
 				plr._pGold += GOLD_MAX_LIMIT;
 			}
@@ -1166,10 +1167,9 @@ void CreatePlrItems(int pnum)
 	} else
 #endif
 	{
-		SetGoldItemValue(&plr._pHoldItem, 100);
-		plr._pGold = plr._pHoldItem._ivalue;
-		copy_pod(plr._pInvList[plr._pNumInv++], plr._pHoldItem);
-		plr._pInvGrid[30] = plr._pNumInv;
+		SetGoldItemValue(pi, 100);
+		plr._pGold = 100;
+		plr._pInvGrid[30] = ++plr._pNumInv;
 	}
 
 	CalcPlrItemVals(pnum, false);
