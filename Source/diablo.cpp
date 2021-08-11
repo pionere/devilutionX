@@ -15,7 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 #include <gperftools/heap-profiler.h>
 #endif
-DWORD glSeedTbl[NUM_LEVELS];
+uint32_t glSeedTbl[NUM_LEVELS];
 int MouseX;
 int MouseY;
 bool gbRunGame;
@@ -27,16 +27,13 @@ bool gbLoadGame;
 bool gbCineflag = false;
 int gbRedrawFlags;
 bool gbGamePaused;
-#ifdef HELLFIRE
-bool gbUseNestArt;
-#endif
 /* Cursor before a timeout happened. */
 static int sgnTimeoutCurs;
 bool gbDeathflag;
 bool gbActionBtnDown;
 bool gbAltActionBtnDown;
-DWORD sgdwLastABD, sgdwLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
-int actionBtnKey, altActionBtnKey;
+static Uint32 guLastABD, guLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
+static int actionBtnKey, altActionBtnKey;
 int gnTicksRate = SPEED_NORMAL;
 unsigned gnTickDelay = 1000 / SPEED_NORMAL;
 
@@ -147,9 +144,6 @@ static void print_help_and_exit()
 	printf("    %-20s %-30s\n", "-n", "Skip startup videos");
 	printf("    %-20s %-30s\n", "-f", "Display frames per second");
 	printf("    %-20s %-30s\n", "-x", "Run in windowed mode");
-#ifdef HELLFIRE
-	printf("    %-20s %-30s\n", "--nestart", "Use alternate nest palette");
-#endif
 #ifdef _DEBUG
 	printf("\nDebug options:\n");
 	printf("    %-20s %-30s\n", "-w", "Enable cheats");
@@ -188,10 +182,6 @@ static void diablo_parse_flags(int argc, char **argv)
 			gbFrameflag = true;
 		} else if (strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
-#ifdef HELLFIRE
-		} else if (strcasecmp("--nestart", argv[i]) == 0) {
-			gbUseNestArt = true;
-#endif
 #ifdef _DEBUG
 		} else if (strcasecmp("-^", argv[i]) == 0) {
 			debug_mode_key_inverted_v = TRUE;
@@ -932,14 +922,14 @@ static void PressKey(int vkey)
 	case ACT_ACT:
 		if (!gbActionBtnDown) {
 			gbActionBtnDown = true;
-			sgdwLastABD = SDL_GetTicks();
+			guLastABD = SDL_GetTicks();
 			ActionBtnDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
 		}
 		break;
 	case ACT_ALTACT:
 		if (!gbAltActionBtnDown) {
 			gbAltActionBtnDown = true;
-			sgdwLastAABD = SDL_GetTicks();
+			guLastAABD = SDL_GetTicks();
 			AltActionBtnDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
 		}
 		break;
@@ -1416,12 +1406,12 @@ static bool ProcessInput()
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		plrctrls_after_check_curs_move();
 #endif
-		DWORD tick = SDL_GetTicks();
-		if (gbActionBtnDown && (tick - sgdwLastABD) >= 200) {
+		Uint32 tick = SDL_GetTicks();
+		if (gbActionBtnDown && (tick - guLastABD) >= 200) {
 			gbActionBtnDown = false;
 			PressKey(actionBtnKey);
 		}
-		if (gbAltActionBtnDown && (tick - sgdwLastAABD) >= 200) {
+		if (gbAltActionBtnDown && (tick - guLastAABD) >= 200) {
 			gbAltActionBtnDown = false;
 			PressKey(altActionBtnKey);
 		}
