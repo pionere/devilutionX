@@ -16,6 +16,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PFILE_SAVE_MPQ_BLOCKCOUNT	2048
 #define PFILE_SAVE_INTERVAL			60000
 
+unsigned mySaveIdx;
 bool gbValidSaveFile;
 static Uint32 guNextSaveTc;
 

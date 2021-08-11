@@ -8,8 +8,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-unsigned mySaveIdx;
-
 /** The active music track id for the main menu. */
 int menu_music_track_id = TMUSIC_INTRO;
 

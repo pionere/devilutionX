@@ -12,8 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern unsigned mySaveIdx;
-
 void mainmenu_loop();
 
 #ifdef __cplusplus

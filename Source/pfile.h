@@ -15,6 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern unsigned mySaveIdx;
 extern bool gbValidSaveFile;
 
 void pfile_write_hero();
