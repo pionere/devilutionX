@@ -198,22 +198,20 @@ bool pfile_ui_create_save(_uiheroinfo* heroinfo)
 	HANDLE archive;
 	PkPlayerStruct pkplr;
 
-	save_num = heroinfo->hiIdx;
-	if (save_num >= MAX_CHARACTERS) {
-		for (save_num = 0; save_num < MAX_CHARACTERS; save_num++) {
-			archive = pfile_open_save_archive(save_num);
-			if (archive == NULL)
-				break;
-			SFileCloseArchive(archive);
-		}
-		if (save_num >= MAX_CHARACTERS)
-			return false;
+	assert(heroinfo->hiIdx == MAX_CHARACTERS);
+	for (save_num = 0; save_num < MAX_CHARACTERS; save_num++) {
+		archive = pfile_open_save_archive(save_num);
+		if (archive == NULL)
+			break;
+		SFileCloseArchive(archive);
 	}
+	if (save_num >= MAX_CHARACTERS)
+		return false;
 	if (!pfile_open_save_mpq(save_num))
 		return false;
-	heroinfo->hiIdx = save_num;
 	static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
-	mpqapi_remove_hash_entries(pfile_get_file_name);
+	heroinfo->hiIdx = save_num;
+	//mpqapi_remove_hash_entries(pfile_get_file_name);
 	CreatePlayer(*heroinfo);
 	PackPlayer(&pkplr, 0);
 	pfile_encode_hero(&pkplr);
@@ -226,6 +224,7 @@ static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
 {
 	const char *fmt;
 
+	static_assert(NUM_LEVELS < 100, "PermSaveNames are too short to fit the number of levels.");
 	if (dwIndex < NUM_STDLVLS)
 		fmt = "perml%02d";
 	else if (dwIndex < NUM_LEVELS) {
@@ -242,6 +241,7 @@ static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
 {
 	const char *fmt;
 
+	static_assert(NUM_LEVELS < 100, "TempSaveNames are too short to fit the number of levels.");
 	if (dwIndex < NUM_STDLVLS)
 		fmt = "templ%02d";
 	else if (dwIndex < NUM_LEVELS) {
