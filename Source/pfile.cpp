@@ -302,7 +302,6 @@ void pfile_read_hero_from_save()
 {
 	pfile_read_player_from_save();
 	mypnum = 0;
-	players[0]._pTeam = 0;
 }
 
 void GetTempLevelName(char (&szTemp)[MAX_PATH])

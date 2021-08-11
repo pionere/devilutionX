@@ -624,6 +624,7 @@ static void SetupLocalPlr()
 	SetPlayerLoc(p, x, y);
 	assert(currLvl._dLevelIdx == DLV_TOWN);
 	p->_pDunLevel = DLV_TOWN;
+	p->_pTeam = mypnum;
 	p->_pManaShield = 0;
 	p->_pTimer[PLTR_INFRAVISION] = 0;
 	p->_pTimer[PLTR_RAGE] = 0;
@@ -657,7 +658,6 @@ static void SetupLocalPlr()
 	gbLvlLoad = 10;
 	gbActivePlayers = 1;
 	p->_pActive = TRUE;
-	assert(p->_pTeam == mypnum);
 }
 
 static void multi_handle_events(SNetEvent *pEvt)
@@ -781,7 +781,6 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 			if (mypnum != pnum) {
 				copy_pod(plr, myplr);
 				mypnum = pnum;
-				myplr._pTeam = mypnum;
 				//pfile_read_player_from_save();
 			}
 			gbJoinGame = true;
