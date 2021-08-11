@@ -1635,7 +1635,7 @@ void SaveLevel()
 
 	SaveLevelData(false);
 
-	GetTempLevelNames(szName);
+	GetTempLevelName(szName);
 	assert(tbuff - fileBuff <= FILEBUFF);
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
 	pfile_write_save_file(szName, fileBuff, tbuff - fileBuff, dwLen);
@@ -1648,7 +1648,7 @@ void LoadLevel()
 	char szName[MAX_PATH];
 	BYTE *fileBuff, *tmp;
 
-	GetPermLevelNames(szName);
+	GetPermLevelName(szName);
 	fileBuff = pfile_read(szName);
 	tbuff = fileBuff;
 

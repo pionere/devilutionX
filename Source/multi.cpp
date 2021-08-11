@@ -729,8 +729,8 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 #endif
 			dlgresult = UiSelHeroDialog(
 				pfile_ui_set_hero_infos,
-				pfile_ui_save_create,
-				pfile_delete_save,
+				pfile_ui_create_save,
+				pfile_ui_delete_save,
 				//pfile_ui_set_class_stats,
 				&mySaveIdx);
 
@@ -752,7 +752,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 			sgGameInitInfo.bPlayerId = SNPLAYER_MASTER;
 		} else
 #endif
-			pfile_create_player_description();
+			pfile_read_hero_from_save();
 
 		if (gbLoadGame) {
 			// mypnum = 0;

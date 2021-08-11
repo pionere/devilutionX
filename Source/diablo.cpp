@@ -1514,7 +1514,7 @@ static void diablo_color_cyc_logic()
 
 static void InitGameUI()
 {
-	int pnum;
+	int i;
 
 	InitAutomapOnce(); // values
 	InitHelp(); // values
@@ -1524,9 +1524,9 @@ static void InitGameUI()
 	InitGMenu(); // gfx
 	InitQuestGFX(); // gfx + values
 	InitQuestText(); // gfx + values
-	InitStores(); // gfx + values (some stored in savefiles)
-	for (pnum = 0; pnum < (IsLocalGame ? 1 : MAX_PLRS); pnum++)
-		InitPlrGFXMem(pnum); // gfx
+	InitStoreGFX(); // gfx + values (some stored in savefiles)
+	for (i = 0; i < (IsLocalGame ? 1 : MAX_PLRS); i++)
+		InitPlrGFXMem(i); // gfx
 	InitItemGFX(); // gfx + values (some stored in savefiles)
 
 	gbDeathflag = false;
@@ -1561,7 +1561,7 @@ static void FreeGameUI()
 	FreeGMenu();
 	FreeQuestGFX();
 	FreeQuestText();
-	FreeStoreMem();
+	FreeStoreGFX();
 
 	for (i = 0; i < MAX_PLRS; i++)
 		FreePlayerGFX(i);
@@ -1574,7 +1574,7 @@ static void FreeGameUI()
 	FreeLevelMem();
 }
 
-static void run_game_loop()
+static void run_game()
 {
 	WNDPROC saveProc;
 	MSG msg;
@@ -1653,13 +1653,13 @@ bool StartGame(bool bSinglePlayer)
 			break;
 		}
 #ifndef HOSTONLY
-		run_game_loop();
+		run_game();
 		if (!gbRunGameResult)
 			break;
 		// If the player left the game into the main menu,
 		// initialize main menu resources.
 		UiInitialize();
-		pfile_create_player_description();
+		pfile_read_hero_from_save();
 #endif
 	}
 

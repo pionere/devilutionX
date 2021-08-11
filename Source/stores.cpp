@@ -129,7 +129,7 @@ const char *const talkname[] = {
 	"Wirt"
 };
 
-void InitStores()
+void InitStoreGFX()
 {
 	int i;
 
@@ -161,7 +161,7 @@ static int StoresLimitedItemLvl()
 	return l;
 }
 
-void SetupTownStores()
+void InitStores()
 {
 	int l;
 
@@ -174,7 +174,7 @@ void SetupTownStores()
 	SpawnPremium(l);
 }
 
-void FreeStoreMem()
+void FreeStoreGFX()
 {
 	MemFreeDbg(pSTextBoxCels);
 	MemFreeDbg(pSTextSlidCels);

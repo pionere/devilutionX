@@ -36,9 +36,9 @@ extern ItemStruct witchitem[WITCH_ITEMS];
 /** Items sold by Pepin */
 extern ItemStruct healitem[HEALER_ITEMS];
 
+void InitStoreGFX();
 void InitStores();
-void SetupTownStores();
-void FreeStoreMem();
+void FreeStoreGFX();
 void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int val = -1);
 void DrawSLine(int y);
 void DrawSTextHelp();

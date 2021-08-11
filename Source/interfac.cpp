@@ -303,7 +303,7 @@ void LoadGameLevel(int lvldir)
 			IncProgress();
 			InitObjectGFX();
 		} else {
-			SetupTownStores();
+			InitStores();
 			IncProgress();
 			IncProgress();
 		}
