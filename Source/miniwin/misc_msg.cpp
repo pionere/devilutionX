@@ -584,7 +584,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 	}*/
 }
 
-static WPARAM PositionForMouse(short x, short y)
+static WPARAM PositionForMouse(Sint32 x, Sint32 y)
 {
 	return (((uint16_t)(y & 0xFFFF)) << 16) | (uint16_t)(x & 0xFFFF);
 }
