@@ -289,9 +289,9 @@ static void pfile_read_player_from_save()
 
 	archive = pfile_open_save_archive(mySaveIdx);
 	if (archive == NULL)
-		app_fatal("Unable to open archive");
+		app_fatal("Unable to open save file archive");
 	if (!pfile_read_hero(archive, &pkplr))
-		app_fatal("Unable to load character");
+		app_fatal("Unable to read save file");
 
 	UnPackPlayer(&pkplr, 0); // mypnum
 	gbValidSaveFile = pfile_archive_contains_game(archive);
@@ -316,7 +316,7 @@ void GetPermLevelName(char (&szPerm)[MAX_PATH])
 
 	GetTempLevelName(szPerm);
 	if (!pfile_open_archive())
-		app_fatal("Unable to read to save file archive");
+		app_fatal("Unable to open file archive");
 
 	has_file = mpqapi_has_file(szPerm);
 	pfile_flush(true);
@@ -329,7 +329,7 @@ void pfile_remove_temp_files()
 {
 	if (!IsMultiGame) {
 		if (!pfile_open_archive())
-			app_fatal("Unable to write to save file archive");
+			app_fatal("Unable to open file archive");
 		mpqapi_remove_hash_entries(GetTempLevelNames);
 		pfile_flush(true);
 	}
@@ -344,7 +344,7 @@ void pfile_rename_temp_to_perm()
 
 	assert(!IsMultiGame);
 	if (!pfile_open_archive())
-		app_fatal("Unable to write to save file archive");
+		app_fatal("Unable to open file archive");
 
 	dwIndex = 0;
 	while (GetTempLevelNames(dwIndex, szTemp)) {
@@ -369,7 +369,7 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 		codec_encode(pbData, dwLen, qwLen, password);
 	}
 	if (!pfile_open_archive())
-		app_fatal("Unable to write to save file archive");
+		app_fatal("Unable to open file archive");
 	mpqapi_write_file(pszName, pbData, qwLen);
 	pfile_flush(true);
 }
@@ -377,7 +377,7 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 void pfile_delete_save_file(const char *pszName)
 {
 	if (!pfile_open_archive())
-		app_fatal("Unable to write to save file archive");
+		app_fatal("Unable to open file archive");
 	mpqapi_remove_hash_entry(pszName);
 	pfile_flush(true);
 }
