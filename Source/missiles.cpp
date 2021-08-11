@@ -1243,7 +1243,7 @@ void LoadMissileGFX(BYTE midx)
 {
 	char pszName[256];
 	int i, n;
-	unsigned char **mad;
+	BYTE** mad;
 	const char *name;
 
 	mad = misanimdata[midx];
@@ -1275,7 +1275,7 @@ void InitMissileGFX()
 
 static void FreeMissileGFX(int midx, int n)
 {
-	unsigned char **mad;
+	BYTE** mad;
 	int i;
 
 	mad = misanimdata[midx];

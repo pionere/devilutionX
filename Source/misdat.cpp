@@ -197,7 +197,7 @@ const MisFileData misfiledata[NUM_MFILE + 1] = {
 };
 
 // container for live data of missile-animations
-unsigned char *misanimdata[NUM_MFILE + 1][16] = { { 0 } };
+BYTE* misanimdata[NUM_MFILE + 1][16] = { { 0 } };
 
 /* Unused missile graphic:
 // anim_index      mfAnimFAmt, mfName,      mfFlags,               mfAnimFrameLen[16],                                 mfAnimLen[16],                                                      mfAnimWidth[16],                                                            mfAnimXOffset[16]

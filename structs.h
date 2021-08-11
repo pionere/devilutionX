@@ -396,7 +396,7 @@ typedef struct TextData {
 // TPDEF PTR FCN VOID MIPROC
 
 typedef struct MissileData {
-	unsigned char mName;
+	BYTE mName;
 	int (*mAddProc)(int, int, int, int, int, int, char, int, int);
 	void (*mProc)(int);
 	BOOL mDraw;
@@ -406,8 +406,8 @@ typedef struct MissileData {
 	BYTE mFileNum;
 	int mlSFX;
 	int miSFX;
-	unsigned char mlSFXCnt;
-	unsigned char miSFXCnt;
+	BYTE mlSFXCnt;
+	BYTE miSFXCnt;
 } MissileData;
 
 #ifdef X86_32bit_COMP
@@ -418,8 +418,8 @@ typedef struct MisFileData {
 	int mfAnimFAmt;
 	const char *mfName;
 	int mfFlags;
-	unsigned char mfAnimFrameLen[16];
-	unsigned char mfAnimLen[16];
+	BYTE mfAnimFrameLen[16];
+	BYTE mfAnimLen[16];
 	int mfAnimWidth;
 	int mfAnimXOffset;
 #ifdef X86_32bit_COMP
@@ -437,7 +437,7 @@ typedef struct MissileStruct {
 	BYTE _miResist;
 	BYTE _miAnimType;
 	BOOL _miAnimFlag;
-	unsigned char *_miAnimData;
+	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
 	int _miAnimWidth;
@@ -496,7 +496,7 @@ typedef struct TSnd {
 } TSnd;
 
 typedef struct TSFX {
-	unsigned char bFlags;
+	BYTE bFlags;
 	const char *pszName;
 	TSnd *pSnd;
 } TSFX;
@@ -727,7 +727,7 @@ typedef struct ObjectStruct {
 	int _ox;
 	int _oy;
 	BOOL _oAnimFlag;
-	unsigned char *_oAnimData;
+	BYTE* _oAnimData;
 	int _oAnimFrameLen; // Tick length of each frame in the current animation
 	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _oAnimFrameLen
 	int _oAnimLen;   // Number of frames in current animation
@@ -1251,9 +1251,9 @@ typedef struct QuestStruct {
 	BYTE _qactive;
 	int _qtx;
 	int _qty;
-	unsigned int _qmsg;
-	unsigned char _qvar1;
-	unsigned char _qvar2;
+	unsigned _qmsg;
+	BYTE _qvar1;
+	BYTE _qvar2;
 	BOOL _qlog;
 #ifdef X86_32bit_COMP
 	int alignment[2];
@@ -1310,10 +1310,10 @@ typedef struct SpellData {
 	BYTE spCurs; // cursor for spells
 	BYTE sFlags; // the required flags(SFLAG*) to use the skill
 	BYTE sMinInt;
-	unsigned char sSFX;
-	unsigned char sMissile;
-	unsigned char sManaAdj;
-	unsigned char sMinMana;
+	BYTE sSFX;
+	BYTE sMissile;
+	BYTE sManaAdj;
+	BYTE sMinMana;
 	WORD sStaffMin;
 	WORD sStaffMax;
 	int sBookCost;
@@ -1326,12 +1326,6 @@ static_assert((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellDa
 //////////////////////////////////////////////////
 // towners
 //////////////////////////////////////////////////
-
-typedef struct TNQ {
-	unsigned char _qsttype;
-	unsigned char _qstmsg;
-	BOOLEAN _qstmsgact;
-} TNQ;
 
 typedef struct TownerStruct {
 	int _ttype;
@@ -1394,13 +1388,13 @@ typedef struct MICROS {
 //////////////////////////////////////////////////
 
 typedef struct ShadowStruct {
-	unsigned char strig;
-	unsigned char s1;
-	unsigned char s2;
-	unsigned char s3;
-	unsigned char nv1;
-	unsigned char nv2;
-	unsigned char nv3;
+	BYTE strig;
+	BYTE s1;
+	BYTE s2;
+	BYTE s3;
+	BYTE nv1;
+	BYTE nv2;
+	BYTE nv3;
 } ShadowStruct;
 
 typedef struct ROOMHALLNODE {
@@ -1465,7 +1459,7 @@ static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "A
 //////////////////////////////////////////////////
 
 typedef struct DeadStruct {
-	unsigned char *_deadData[NUM_DIRS];
+	BYTE* _deadData[NUM_DIRS];
 	int _deadFrame;
 	int _deadWidth;
 	int _deadXOffset;
