@@ -755,13 +755,13 @@ static void diablo_hotkey_msg(int actKey)
 	NetSendCmdString(SNPLAYER_ALL);
 }
 
-static bool PressSysKey(int wParam)
+/*static bool PressSysKey(int wParam)
 {
 	if (gmenu_is_active() || wParam != DVL_VK_F10)
 		return false;
 	diablo_hotkey_msg(ACT_MSG1);
 	return true;
-}
+}*/
 
 static void ReleaseKey(int vkey)
 {
@@ -1279,8 +1279,8 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 		UpdateActionBtnState(wParam, false);
 		return;
 	case DVL_WM_CHAR:
-	case DVL_WM_SYSKEYDOWN:
-	case DVL_WM_SYSCOMMAND:
+	//case DVL_WM_SYSKEYDOWN:
+	//case DVL_WM_SYSCOMMAND:
 		return;
 	case DVL_WM_MOUSEMOVE:
 		GetMousePos(wParam);
@@ -1318,14 +1318,14 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_WM_CHAR:
 		PressChar(wParam);
 		return;
-	case DVL_WM_SYSKEYDOWN:
-		if (PressSysKey(wParam))
-			return;
-		break;
-	case DVL_WM_SYSCOMMAND:
-		if (wParam != DVL_SC_CLOSE)
-			break;
-		/* fall-through */
+	//case DVL_WM_SYSKEYDOWN:
+	//	if (PressSysKey(wParam))
+	//		return;
+	//	break;
+	//case DVL_WM_SYSCOMMAND:
+	//	if (wParam != DVL_SC_CLOSE)
+	//		break;
+	//	/* fall-through */
 	case DVL_WM_QUIT:
 		gbRunGame = false;
 		gbRunGameResult = false;
@@ -1354,14 +1354,14 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
 		break;
-	case WM_DIABNEXTLVL:
-	case WM_DIABPREVLVL:
-	case WM_DIABRTNLVL:
-	case WM_DIABSETLVL:
-	case WM_DIABWARPLVL:
-	case WM_DIABTWARPDN:
-	case WM_DIABTWARPUP:
-	case WM_DIABRETOWN:
+	case DVL_DWM_NEXTLVL:
+	case DVL_DWM_PREVLVL:
+	case DVL_DWM_RTNLVL:
+	case DVL_DWM_SETLVL:
+	case DVL_DWM_WARPLVL:
+	case DVL_DWM_TWARPDN:
+	case DVL_DWM_TWARPUP:
+	case DVL_DWM_RETOWN:
 		if (IsMultiGame)
 			pfile_write_hero();
 		nthread_run();
@@ -1533,7 +1533,7 @@ static void InitGameUI()
 #endif
 	assert(ghMainWnd != NULL);
 	music_stop();
-	ShowCutscene((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
+	ShowCutscene((gbLoadGame && gbValidSaveFile) ? DVL_DWM_LOADGAME : DVL_DWM_NEWGAME);
 	CalcViewportGeometry();
 	InitLevelCursor();
 	sgnTimeoutCurs = CURSOR_NONE;

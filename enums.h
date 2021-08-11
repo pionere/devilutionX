@@ -2844,21 +2844,6 @@ typedef enum _path_direction {
 	PDIR_SW
 } _path_direction;
 
-typedef enum interface_mode {
-	WM_DIABNEXTLVL  = 0x402, // dungeon -> next level  WM_USER+2
-	WM_DIABPREVLVL  = 0x403, // dungeon -> previous level
-	WM_DIABRTNLVL   = 0x404, // setlevel -> dungeon
-	WM_DIABSETLVL   = 0x405, // dungeon -> setlevel
-	WM_DIABWARPLVL  = 0x406, // portal
-	WM_DIABTWARPDN  = 0x407, // town -> dungeon
-	WM_DIABTWARPUP  = 0x408, // dungeon -> town
-	WM_DIABRETOWN   = 0x409, // restart in town
-	WM_DIABNEWGAME  = 0x40A,
-	WM_DIABLOADGAME = 0x40B
-	// WM_LEIGHSKIP = 0x40C, // psx only
-	// WM_DIAVNEWLVL = 0x40D, // psx only
-} interface_mode;
-
 typedef enum lvl_entry {
 	ENTRY_MAIN    = 0,
 	ENTRY_PREV    = 1,

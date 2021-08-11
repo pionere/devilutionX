@@ -29,7 +29,7 @@ static void InitCutscene(unsigned int uMsg)
 	assert(sgpBackCel == NULL);
 
 	switch (uMsg) {
-	case WM_DIABNEXTLVL:
+	case DVL_DWM_NEXTLVL:
 		lvl = currLvl._dLevelIdx;
 		assert(currLvl._dType == AllLevels[lvl].dType);
 		switch (AllLevels[lvl].dType) {
@@ -56,7 +56,7 @@ static void InitCutscene(unsigned int uMsg)
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		break;
-	case WM_DIABPREVLVL:
+	case DVL_DWM_PREVLVL:
 		lvl = currLvl._dLevelIdx;
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
@@ -78,7 +78,7 @@ static void InitCutscene(unsigned int uMsg)
 			ASSUME_UNREACHABLE
 		}
 		break;
-	case WM_DIABSETLVL:
+	case DVL_DWM_SETLVL:
 		lvl = myplr._pDunLevel; // the destination level
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
@@ -90,7 +90,7 @@ static void InitCutscene(unsigned int uMsg)
 			progress_id = 0;
 		}
 		break;
-	case WM_DIABRTNLVL:
+	case DVL_DWM_RTNLVL:
 		lvl = currLvl._dLevelIdx;
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
@@ -102,20 +102,20 @@ static void InitCutscene(unsigned int uMsg)
 			progress_id = 0;
 		}
 		break;
-	case WM_DIABWARPLVL:
+	case DVL_DWM_WARPLVL:
 		sgpBackCel = LoadFileInMem("Gendata\\Cutportl.CEL");
 		LoadPalette("Gendata\\Cutportl.pal");
 		progress_id = 1;
 		break;
-	case WM_DIABLOADGAME:
-	case WM_DIABNEWGAME:
+	case DVL_DWM_LOADGAME:
+	case DVL_DWM_NEWGAME:
 		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL");
 		LoadPalette("Gendata\\Cutstart.pal");
 		progress_id = 1;
 		break;
-	case WM_DIABTWARPDN:
-	case WM_DIABTWARPUP:
-	case WM_DIABRETOWN: {
+	case DVL_DWM_TWARPDN:
+	case DVL_DWM_TWARPUP:
+	case DVL_DWM_RETOWN: {
 		lvl = myplr._pDunLevel; // the destination level
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
@@ -440,45 +440,45 @@ void ShowCutscene(unsigned uMsg)
 	IncProgress();
 
 	switch (uMsg) {
-	case WM_DIABLOADGAME:
+	case DVL_DWM_LOADGAME:
 		IncProgress();
 		LoadGame();
 		IncProgress();
 		break;
-	case WM_DIABNEWGAME:
+	case DVL_DWM_NEWGAME:
 		FreeLevelMem();
 		IncProgress();
 		pfile_remove_temp_files();
 		IncProgress();
 		LoadGameLevel(ENTRY_MAIN);
 		break;
-	case WM_DIABNEXTLVL:
+	case DVL_DWM_NEXTLVL:
 		assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
 		SwitchGameLevel(ENTRY_MAIN);
 		break;
-	case WM_DIABPREVLVL:
+	case DVL_DWM_PREVLVL:
 		assert(myplr._pDunLevel == currLvl._dLevelIdx - 1);
 		SwitchGameLevel(ENTRY_PREV);
 		break;
-	case WM_DIABSETLVL:
+	case DVL_DWM_SETLVL:
 		SetReturnLvlPos();
 		SwitchGameLevel(ENTRY_SETLVL);
 		break;
-	case WM_DIABRTNLVL:
+	case DVL_DWM_RTNLVL:
 		assert(myplr._pDunLevel == gnReturnLvl);
 		SwitchGameLevel(ENTRY_RTNLVL);
 		break;
-	case WM_DIABWARPLVL:
+	case DVL_DWM_WARPLVL:
 		UseCurrentPortal();
 		SwitchGameLevel(ENTRY_WARPLVL);
 		break;
-	case WM_DIABTWARPDN:
+	case DVL_DWM_TWARPDN:
 		SwitchGameLevel(ENTRY_TWARPDN);
 		break;
-	case WM_DIABTWARPUP:
+	case DVL_DWM_TWARPUP:
 		SwitchGameLevel(ENTRY_TWARPUP);
 		break;
-	case WM_DIABRETOWN:
+	case DVL_DWM_RETOWN:
 		SwitchGameLevel(ENTRY_MAIN);
 		break;
 	}

@@ -1934,13 +1934,13 @@ void StartNewLvl(int pnum, int fom, int lvl)
 	InitLevelChange(pnum);
 
 	switch (fom) {
-	case WM_DIABNEXTLVL:
-	case WM_DIABPREVLVL:
-	case WM_DIABRTNLVL:
-	case WM_DIABTWARPDN:
-	case WM_DIABSETLVL:
+	case DVL_DWM_NEXTLVL:
+	case DVL_DWM_PREVLVL:
+	case DVL_DWM_RTNLVL:
+	case DVL_DWM_TWARPDN:
+	case DVL_DWM_SETLVL:
 		break;
-	case WM_DIABTWARPUP:
+	case DVL_DWM_TWARPUP:
 		if (pnum == mypnum) {
 			assert(currLvl._dType > 1);
 			static_assert((int)TWARP_CATHEDRAL == (int)DTYPE_CATHEDRAL - 1, "Dtype to Warp conversion requires matching enums I.");
@@ -1985,7 +1985,7 @@ void RestartTownLvl(int pnum)
 	if (pnum == mypnum) {
 		gbDeathflag = false;
 		gamemenu_off();
-		PostMessage(WM_DIABRETOWN, 0);
+		PostMessage(DVL_DWM_RETOWN, 0);
 	}
 }
 
@@ -2004,7 +2004,7 @@ void StartTWarp(int pnum, int pidx)
 
 	if (pnum == mypnum) {
 		SetCurrentPortal(pidx);
-		PostMessage(WM_DIABWARPLVL, 0);
+		PostMessage(DVL_DWM_WARPLVL, 0);
 	}
 }
 

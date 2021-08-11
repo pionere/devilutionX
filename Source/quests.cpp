@@ -156,7 +156,7 @@ int ForceQuests()
 	int i;
 
 	for (i = 0; i < numtrigs; i++) {
-		if (trigs[i]._tmsg == WM_DIABSETLVL) {
+		if (trigs[i]._tmsg == DVL_DWM_SETLVL) {
 			/*      ^
 			 *      |
 			 * ----++------>

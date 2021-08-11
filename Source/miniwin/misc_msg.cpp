@@ -584,7 +584,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 	}*/
 }
 
-static LPARAM PositionForMouse(short x, short y)
+static WPARAM PositionForMouse(short x, short y)
 {
 	return (((uint16_t)(y & 0xFFFF)) << 16) | (uint16_t)(x & 0xFFFF);
 }
@@ -596,12 +596,14 @@ static LPARAM PositionForMouse(short x, short y)
 	return ret;
 }*/
 
+#ifdef _DEBUG
 static bool FalseAvail(const char *name, int value)
 {
 	//SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Unhandled SDL event: %s %d", name, value);
 	SDL_Log("Unhandled SDL event: %s %d", name, value);
 	return true;
 }
+#endif
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 /**
@@ -645,13 +647,8 @@ bool PeekMessage(LPMSG lpMsg)
 		return false;
 	}
 
-	lpMsg->message = 0;
+	lpMsg->message = DVL_WM_NONE;
 	lpMsg->wParam = 0;
-
-	if (e.type == SDL_QUIT) {
-		lpMsg->message = DVL_WM_QUIT;
-		return true;
-	}
 
 #if HAS_TOUCHPAD == 1
 	handle_touch(&e, MouseX, MouseY);
@@ -670,6 +667,11 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	if (e.type == SDL_QUIT) {
+		lpMsg->message = DVL_WM_QUIT;
+		return true;
+	}
+
 	if (HandleControllerAddedOrRemovedEvent(e))
 		return true;
 
@@ -778,19 +780,15 @@ bool PeekMessage(LPMSG lpMsg)
 		}
 		return true;
 	}
-#endif
 #if (HAS_TOUCHPAD == 1 || HAS_DPAD == 1) && !defined(USE_SDL1)
 	if (e.type < SDL_JOYAXISMOTION || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
 #else
 	if (e.type < SDL_JOYAXISMOTION) {
 #endif
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
 			sgbControllerActive = false;
-#endif
-		if (mouseWarping && e.type == SDL_MOUSEMOTION)
-			mouseWarping = false;
 	}
+#endif // HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 
 	switch (e.type) {
 	case SDL_QUIT:
@@ -810,6 +808,8 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 	} break;
 	case SDL_MOUSEMOTION:
+		if (mouseWarping)
+			mouseWarping = false;
 		lpMsg->message = DVL_WM_MOUSEMOVE;
 		lpMsg->wParam = PositionForMouse(e.motion.x, e.motion.y);
 		//lpMsg->lParam = KeystateForMouse(0);
@@ -851,6 +851,7 @@ bool PeekMessage(LPMSG lpMsg)
 			lpMsg->wParam = DVL_VK_RIGHT;
 		}
 		break;
+#ifdef _DEBUG
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 	case SDL_AUDIODEVICEADDED:
 		return FalseAvail("SDL_AUDIODEVICEADDED", e.adevice.which);
@@ -858,9 +859,10 @@ bool PeekMessage(LPMSG lpMsg)
 		return FalseAvail("SDL_AUDIODEVICEREMOVED", e.adevice.which);
 	case SDL_KEYMAPCHANGED:
 		return FalseAvail("SDL_KEYMAPCHANGED", 0);
-#endif
+#endif // SDL_VERSION_ATLEAST(2, 0, 4)
 	case SDL_TEXTEDITING:
 		return FalseAvail("SDL_TEXTEDITING", e.edit.length);
+#endif // _DEBUG
 	case SDL_TEXTINPUT:
 		lpMsg->message = DVL_WM_CHAR;
 		lpMsg->wParam = utf8_to_latin1(e.text.text).c_str()[0];
@@ -905,14 +907,18 @@ bool PeekMessage(LPMSG lpMsg)
 		case SDL_WINDOWEVENT_CLOSE:
 			lpMsg->message = DVL_WM_QUERYENDSESSION;
 			break;
+#ifdef _DEBUG
 		default:
 			return FalseAvail("SDL_WINDOWEVENT", e.window.event);
+#endif // _DEBUG
 		}
 
 		break;
-#endif
+#endif // !USE_SDL1
+#ifdef _DEBUG
 	default:
 		return FalseAvail("unknown", e.type);
+#endif // _DEBUG
 	}
 	return true;
 }

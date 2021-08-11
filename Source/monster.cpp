@@ -923,8 +923,8 @@ void InitMonsters()
 	// reserve the entry/exit area
 	for (i = 0; i < numtrigs; i++) {
 		ts = &trigs[i];
-		if (ts->_tmsg == WM_DIABTWARPUP || ts->_tmsg == WM_DIABPREVLVL
-		 || (ts->_tmsg == WM_DIABNEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
+		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL
+		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
 			for (j = 0; j < lengthof(tdx); j++)
 				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false, false);
 		}
@@ -971,8 +971,8 @@ void InitMonsters()
 	}
 	for (i = 0; i < numtrigs; i++) {
 		ts = &trigs[i];
-		if (ts->_tmsg == WM_DIABTWARPUP || ts->_tmsg == WM_DIABPREVLVL
-		 || (ts->_tmsg == WM_DIABNEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
+		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL
+		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
 			for (j = 0; j < lengthof(tdx); j++)
 				DoUnVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15);
 		}

@@ -87,38 +87,38 @@ static void InitTownTriggers()
 	assert(gbOpenWarps & (1 << TWARP_CATHEDRAL));
 	trigs[TWARP_CATHEDRAL]._tx = 15 + DBORDERX;
 	trigs[TWARP_CATHEDRAL]._ty = 19 + DBORDERY;
-	trigs[TWARP_CATHEDRAL]._tmsg = WM_DIABTWARPDN;
+	trigs[TWARP_CATHEDRAL]._tmsg = DVL_DWM_TWARPDN;
 	trigs[TWARP_CATHEDRAL]._tlvl = DLV_CATHEDRAL1;
 
 	if (gbOpenWarps & (1 << TWARP_CATACOMB)) {
 		trigs[TWARP_CATACOMB]._tx = 39 + DBORDERX;
 		trigs[TWARP_CATACOMB]._ty = 11 + DBORDERY;
-		trigs[TWARP_CATACOMB]._tmsg = WM_DIABTWARPDN;
+		trigs[TWARP_CATACOMB]._tmsg = DVL_DWM_TWARPDN;
 		trigs[TWARP_CATACOMB]._tlvl = DLV_CATACOMBS1;
 	}
 	if (gbOpenWarps & (1 << TWARP_CAVES)) {
 		trigs[TWARP_CAVES]._tx = 7 + DBORDERX;
 		trigs[TWARP_CAVES]._ty = 59 + DBORDERY;
-		trigs[TWARP_CAVES]._tmsg = WM_DIABTWARPDN;
+		trigs[TWARP_CAVES]._tmsg = DVL_DWM_TWARPDN;
 		trigs[TWARP_CAVES]._tlvl = DLV_CAVES1;
 	}
 	if (gbOpenWarps & (1 << TWARP_HELL)) {
 		trigs[TWARP_HELL]._tx = 31 + DBORDERX;
 		trigs[TWARP_HELL]._ty = 70 + DBORDERY;
-		trigs[TWARP_HELL]._tmsg = WM_DIABTWARPDN;
+		trigs[TWARP_HELL]._tmsg = DVL_DWM_TWARPDN;
 		trigs[TWARP_HELL]._tlvl = DLV_HELL1;
 	}
 #ifdef HELLFIRE
 	if (gbOpenWarps & (1 << TWARP_NEST)) {
 		trigs[TWARP_NEST]._tx = 70 + DBORDERX;
 		trigs[TWARP_NEST]._ty = 52 + DBORDERY;
-		trigs[TWARP_NEST]._tmsg = WM_DIABTWARPDN;
+		trigs[TWARP_NEST]._tmsg = DVL_DWM_TWARPDN;
 		trigs[TWARP_NEST]._tlvl = DLV_NEST1;
 	}
 	if (gbOpenWarps & (1 << TWARP_CRYPT)) {
 		trigs[TWARP_CRYPT]._tx = 26 + DBORDERX;
 		trigs[TWARP_CRYPT]._ty = 14 + DBORDERY;
-		trigs[TWARP_CRYPT]._tmsg = WM_DIABTWARPDN;
+		trigs[TWARP_CRYPT]._tmsg = DVL_DWM_TWARPDN;
 		trigs[TWARP_CRYPT]._tlvl = DLV_CRYPT1;
 	}
 #endif
@@ -136,12 +136,12 @@ static void InitL1Triggers()
 			if (dPiece[i][j] == 129) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 115) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 				numtrigs++;
 			}
 		}
@@ -158,17 +158,17 @@ static void InitL2Triggers()
 			if (dPiece[i][j] == 267 && (quests[Q_SCHAMB]._qactive == QUEST_NOTAVAIL || abs(quests[Q_SCHAMB]._qtx - i) > 1 || abs(quests[Q_SCHAMB]._qty - j) > 1)) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 559) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+				trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
 				numtrigs++;
 			} else if (dPiece[i][j] == 271) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 				numtrigs++;
 			}
 		}
@@ -185,17 +185,17 @@ static void InitL3Triggers()
 			if (dPiece[i][j] == 171) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 168) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 549) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+				trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
 				numtrigs++;
 			}
 		}
@@ -212,17 +212,17 @@ static void InitL4Triggers()
 			if (dPiece[i][j] == 82) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 421) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+				trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
 				numtrigs++;
 			} else if (dPiece[i][j] == 120) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 				numtrigs++;
 			}
 		}
@@ -233,7 +233,7 @@ static void InitL4Triggers()
 			if (dPiece[i][j] == 370 && quests[Q_BETRAYER]._qactive == QUEST_DONE) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 				numtrigs++;
 			}
 		}
@@ -251,17 +251,17 @@ static void InitL5Triggers()
 			if (dPiece[i][j] == 184) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+				trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
 				numtrigs++;
 			} else if (dPiece[i][j] == 158) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 126) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 				numtrigs++;
 			}
 		}
@@ -278,17 +278,17 @@ static void InitL6Triggers()
 			if (dPiece[i][j] == 66) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 63) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 80) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+				trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
 				numtrigs++;
 			}
 		}
@@ -307,7 +307,7 @@ static void InitQuestTriggers()
 		 && currLvl._dLevelIdx == questlist[i]._qdlvl && qs->_qactive != QUEST_NOTAVAIL) {
 			trigs[numtrigs]._tx = qs->_qtx;
 			trigs[numtrigs]._ty = qs->_qty;
-			trigs[numtrigs]._tmsg = WM_DIABSETLVL;
+			trigs[numtrigs]._tmsg = DVL_DWM_SETLVL;
 			trigs[numtrigs]._tlvl = questlist[i]._qslvl;
 			numtrigs++;
 		}
@@ -319,7 +319,7 @@ static void InitSKingTriggers()
 	numtrigs = 1;
 	trigs[0]._tx = DBORDERX + 66;
 	trigs[0]._ty = DBORDERY + 26;
-	trigs[0]._tmsg = WM_DIABRTNLVL;
+	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 }
 
 static void InitSChambTriggers()
@@ -327,7 +327,7 @@ static void InitSChambTriggers()
 	numtrigs = 1;
 	trigs[0]._tx = DBORDERX + 54;
 	trigs[0]._ty = DBORDERY + 23;
-	trigs[0]._tmsg = WM_DIABRTNLVL;
+	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 }
 
 static void InitPWaterTriggers()
@@ -335,7 +335,7 @@ static void InitPWaterTriggers()
 	numtrigs = 1;
 	trigs[0]._tx = DBORDERX + 14;
 	trigs[0]._ty = DBORDERY + 67;
-	trigs[0]._tmsg = WM_DIABRTNLVL;
+	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 }
 
 void InitVPEntryTrigger(bool recreate)
@@ -346,7 +346,7 @@ void InitVPEntryTrigger(bool recreate)
 
 	trigs[i]._tx = quests[Q_BETRAYER]._qtx;
 	trigs[i]._ty = quests[Q_BETRAYER]._qty;
-	trigs[i]._tmsg = WM_DIABSETLVL;
+	trigs[i]._tmsg = DVL_DWM_SETLVL;
 	trigs[i]._tlvl = questlist[Q_BETRAYER]._qslvl;
 	numtrigs = i + 1;
 
@@ -358,7 +358,7 @@ void InitVPReturnTrigger(bool recreate)
 	numtrigs = 1;
 	trigs[0]._tx = DBORDERX + 19;
 	trigs[0]._ty = DBORDERX + 16;
-	trigs[0]._tmsg = WM_DIABRTNLVL;
+	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 
 	AddMissile(0, 0, DBORDERX + 19, DBORDERY + 16, 0, MIS_RPORTAL, 0, 0, 0, 0, recreate ? -1 : 0);
 }
@@ -427,7 +427,7 @@ static int ForceL1Trig()
 	if (L1_UP_WARP) {
 		// Up to level (currLvl._dLevelIdx - 1) / Up to town
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -437,7 +437,7 @@ static int ForceL1Trig()
 	if (L1_DOWN_WARP) {
 		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -453,7 +453,7 @@ static int ForceL2Trig()
 
 	if (L2_UP_WARP && (quests[Q_SCHAMB]._qactive == QUEST_NOTAVAIL || abs(quests[Q_SCHAMB]._qtx - cursmx) > 1 || abs(quests[Q_SCHAMB]._qty - cursmy) > 1)) {
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
 				// Up to level (currLvl._dLevelIdx - 1)
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
@@ -465,7 +465,7 @@ static int ForceL2Trig()
 	if (L2_DOWN_WARP) {
 		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -476,7 +476,7 @@ static int ForceL2Trig()
 	if (currLvl._dLevelIdx == DLV_CATACOMBS1) {
 		if (L2_TOWN_WARP) {
 			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
 					cursmx = trigs[i]._tx;
 					cursmy = trigs[i]._ty;
@@ -497,7 +497,7 @@ static int ForceL3Trig()
 	 || L3_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
 		// Up to level (currLvl._dLevelIdx - 1)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -511,7 +511,7 @@ static int ForceL3Trig()
 	 || L3_DOWN_WARPx(dPiece[cursmx + 2][cursmy + 1])) {
 		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -523,7 +523,7 @@ static int ForceL3Trig()
 		if (L3_TOWN_WARP
 		 || L3_TOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
 			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
 					cursmx = trigs[i]._tx;
 					cursmy = trigs[i]._ty;
@@ -542,7 +542,7 @@ static int ForceL4Trig()
 	if (L4_UP_WARP) {
 		// Up to level (currLvl._dLevelIdx - 1)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -553,7 +553,7 @@ static int ForceL4Trig()
 	if (L4_DOWN_WARP) {
 		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -564,7 +564,7 @@ static int ForceL4Trig()
 	if (currLvl._dLevelIdx == DLV_HELL1) {
 		if (L4_TOWN_WARP) {
 			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
 					cursmx = trigs[i]._tx;
 					cursmy = trigs[i]._ty;
@@ -578,7 +578,7 @@ static int ForceL4Trig()
 		if (L4_PENTA_WARP) {
 			// Down to Diablo
 			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+				if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
 					cursmx = trigs[i]._tx;
 					cursmy = trigs[i]._ty;
 					return i;
@@ -598,7 +598,7 @@ static int ForceL5Trig()
 	if (L5_UP_WARP) {
 		// Up to Crypt level (currLvl._dLevelIdx - 21)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -609,7 +609,7 @@ static int ForceL5Trig()
 	 || L5_DOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
 		// Down to Crypt level (currLvl._dLevelIdx - 19)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -619,7 +619,7 @@ static int ForceL5Trig()
 	if (currLvl._dLevelIdx == DLV_CRYPT1) {
 		if (L5_TOWN_WARP) {
 			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
 					cursmx = trigs[i]._tx;
 					cursmy = trigs[i]._ty;
@@ -639,7 +639,7 @@ static int ForceL6Trig()
 	 || L6_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
 		// Up to Nest level (currLvl._dLevelIdx - 17)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -651,7 +651,7 @@ static int ForceL6Trig()
 	 || L6_DOWN_WARPx(dPiece[cursmx + 1][cursmy])) {
 		// Down to level (currLvl._dLevelIdx - 15)
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -663,7 +663,7 @@ static int ForceL6Trig()
 		if (L6_TOWN_WARP
 		 || L6_TOWN_WARPx(dPiece[cursmx][cursmy + 1]) ) {
 			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
 					cursmx = trigs[i]._tx;
 					cursmy = trigs[i]._ty;
@@ -851,31 +851,26 @@ void CheckTriggers()
 			continue;
 		}
 
-		switch (trigs[i]._tmsg) {
-		case WM_DIABNEXTLVL:
-			fom = WM_DIABNEXTLVL;
+		fom = trigs[i]._tmsg;
+		switch (fom) {
+		case DVL_DWM_NEXTLVL:
 			lvl = currLvl._dLevelIdx + 1;
 			break;
-		case WM_DIABPREVLVL:
-			fom = WM_DIABPREVLVL;
+		case DVL_DWM_PREVLVL:
 			lvl = currLvl._dLevelIdx - 1;
 			break;
-		case WM_DIABRTNLVL:
-			fom = WM_DIABRTNLVL;
+		case DVL_DWM_RTNLVL:
 			lvl = gnReturnLvl;
 			break;
-		case WM_DIABSETLVL:
-			fom = WM_DIABSETLVL;
+		case DVL_DWM_SETLVL:
 			lvl = trigs[i]._tlvl;
 			break;
-		case WM_DIABTWARPDN:
+		case DVL_DWM_TWARPDN:
 			if (!(gbOpenWarps & (1 << i)))
 				continue;
-			fom = WM_DIABTWARPDN;
 			lvl = trigs[i]._tlvl;
 			break;
-		case WM_DIABTWARPUP:
-			fom = WM_DIABTWARPUP;
+		case DVL_DWM_TWARPUP:
 			lvl = 0;
 			break;
 		default:

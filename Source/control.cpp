@@ -1478,16 +1478,16 @@ static void DrawTrigInfo()
 	} else {
 		// standard trigger
 		switch (trigs[pcurstrig]._tmsg) {
-		case WM_DIABNEXTLVL:
+		case DVL_DWM_NEXTLVL:
 			snprintf(infostr, sizeof(infostr), "Down to %s", AllLevels[currLvl._dLevelIdx + 1].dLevelName);
 			break;
-		case WM_DIABPREVLVL:
+		case DVL_DWM_PREVLVL:
 			if (currLvl._dLevelIdx == 1)
 				copy_cstr(infostr, "Up to town");
 			else
 				snprintf(infostr, sizeof(infostr), "Up to %s", AllLevels[currLvl._dLevelIdx - 1].dLevelName);
 			break;
-		case WM_DIABRTNLVL:
+		case DVL_DWM_RTNLVL:
 			switch (currLvl._dLevelIdx) {
 			case SL_SKELKING:
 				qn = Q_SKELKING;
@@ -1504,7 +1504,7 @@ static void DrawTrigInfo()
 			}
 			snprintf(infostr, sizeof(infostr), "Back to %s", AllLevels[questlist[qn]._qdlvl].dLevelName);
 			break;
-		case WM_DIABSETLVL:
+		case DVL_DWM_SETLVL:
 			// quest trigger
 			// TODO: use dLevelName?
 			switch (trigs[pcurstrig]._tlvl) {
@@ -1527,7 +1527,7 @@ static void DrawTrigInfo()
 				ASSUME_UNREACHABLE
 			}
 			break;
-		case WM_DIABTWARPDN:
+		case DVL_DWM_TWARPDN:
 			switch (pcurstrig) {
 			case TWARP_CATHEDRAL:
 				copy_cstr(infostr, "Down to dungeon");
@@ -1553,7 +1553,7 @@ static void DrawTrigInfo()
 				ASSUME_UNREACHABLE
 			}
 			break;
-		case WM_DIABTWARPUP:
+		case DVL_DWM_TWARPUP:
 			copy_cstr(infostr, "Up to town");
 			break;
 		default:
