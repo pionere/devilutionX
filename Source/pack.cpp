@@ -133,7 +133,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 
 	// TODO: validate data from the internet
 	SetPlayerLoc(&plr, pPack->px, pPack->py);
-	copy_str(plr._pName, pPack->pName);
+	copy_cstr(plr._pName, pPack->pName);
 	plr._pLvlChanging = pPack->pLvlChanging;
 	plr._pDunLevel = pPack->pDunLevel;
 	plr._pClass = pPack->pClass;
@@ -220,10 +220,14 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._pvid = -1;
 
 	// verify the data
+	//  make sure the name is NULL terminated
+	plr._pName[sizeof(plr._pName) - 1] = '\0';
 	if (plr._pClass >= NUM_CLASSES)
-		plr._pClass = PC_WARRIOR;   // reset invalid class
+		plr._pClass = PC_WARRIOR;	// reset invalid class
 	if (plr._pLevel > MAXCHARLEVEL)
-		plr._pLevel = MAXCHARLEVEL; // reduce invalid level
+		plr._pLevel = MAXCHARLEVEL;	// reduce invalid level
+	if (plr._pTeam >= MAX_PLRS)
+		plr._pTeam = pnum;			// overwrite invalid team
 	// TODO: check if the items conform to the wielding rules?
 	/*pi = &plr._pInvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iClass != ICLASS_WEAPON)
