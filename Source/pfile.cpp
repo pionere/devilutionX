@@ -282,7 +282,7 @@ void pfile_ui_delete_save(_uiheroinfo* hero_info)
 	RemoveFile(GetSavePath(save_num).c_str());
 }
 
-static void pfile_read_player_from_save()
+void pfile_read_hero_from_save()
 {
 	HANDLE archive;
 	PkPlayerStruct pkplr;
@@ -294,15 +294,10 @@ static void pfile_read_player_from_save()
 		app_fatal("Unable to read save file");
 
 	UnPackPlayer(&pkplr, 0); // mypnum
+	mypnum = 0;
 	gbValidSaveFile = pfile_archive_contains_game(archive);
 	SFileCloseArchive(archive);
 	guNextSaveTc = SDL_GetTicks() + PFILE_SAVE_INTERVAL;
-}
-
-void pfile_read_hero_from_save()
-{
-	pfile_read_player_from_save();
-	mypnum = 0;
 }
 
 void GetTempLevelName(char (&szTemp)[MAX_PATH])
