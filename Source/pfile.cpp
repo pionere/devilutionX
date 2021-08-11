@@ -153,16 +153,10 @@ void pfile_flush_W()
 
 static bool pfile_archive_contains_game(HANDLE hsArchive)
 {
-	HANDLE file;
-
 	if (IsMultiGame)
 		return false;
 
-	if (!SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_FROM_MPQ, &file))
-		return false;
-
-	SFileCloseFile(file);
-	return true;
+	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
 
 void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))

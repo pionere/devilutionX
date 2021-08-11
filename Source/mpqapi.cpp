@@ -330,7 +330,7 @@ struct Archive {
 
 	~Archive()
 	{
-		CloseArchive(TRUE);
+		CloseArchive(true);
 	}
 
 private:
@@ -775,7 +775,7 @@ bool OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 	}
 	return true;
 on_error:
-	cur_archive.CloseArchive(TRUE);
+	cur_archive.CloseArchive(true);
 	return false;
 }
 
