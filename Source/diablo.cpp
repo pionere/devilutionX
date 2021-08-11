@@ -238,276 +238,6 @@ static void diablo_parse_flags(int argc, char **argv)
 	}
 }
 
-void FreeLevelMem()
-{
-	stream_stop();
-	music_stop();
-
-	FreeLvlGFX();
-	FreeMissiles();
-	FreeMonsters();
-	FreeObjectGFX();
-	FreeMonsterSnd();
-	FreeTownerGFX();
-}
-
-static void InitGameUI()
-{
-	int pnum;
-
-	InitAutomapOnce(); // values
-	InitHelp(); // values
-	InitControlPan(); // gfx + values
-	InitText(); // gfx
-	InitInv(); // gfx + values
-	InitGMenu(); // gfx
-	InitQuestGFX(); // gfx + values
-	InitQuestText(); // gfx + values
-	InitStores(); // gfx + values (some stored in savefiles)
-	for (pnum = 0; pnum < (IsLocalGame ? 1 : MAX_PLRS); pnum++)
-		InitPlrGFXMem(pnum); // gfx
-	InitItemGFX(); // gfx + values (some stored in savefiles)
-
-	gbDeathflag = false;
-	gbZoomInFlag = false;
-	InitCursorGFX(); // gfx + values
-	ScrollInfo._sdx = 0;
-	ScrollInfo._sdy = 0;
-	ScrollInfo._sxoff = 0;
-	ScrollInfo._syoff = 0;
-	ScrollInfo._sdir = SDIR_NONE;
-
-#ifdef _DEBUG
-	LoadDebugGFX();
-#endif
-	assert(ghMainWnd != NULL);
-	music_stop();
-	ShowCutscene((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
-	CalcViewportGeometry();
-	InitLevelCursor();
-	sgnTimeoutCurs = CURSOR_NONE;
-	gbActionBtnDown = false;
-	gbAltActionBtnDown = false;
-}
-
-static void FreeGameUI()
-{
-	int i;
-
-	FreeControlPan();
-	FreeText();
-	FreeInvGFX();
-	FreeGMenu();
-	FreeQuestGFX();
-	FreeQuestText();
-	FreeStoreMem();
-
-	for (i = 0; i < MAX_PLRS; i++)
-		FreePlayerGFX(i);
-
-	FreeItemGFX();
-	FreeCursorGFX();
-#ifdef _DEBUG
-	FreeDebugGFX();
-#endif
-	FreeLevelMem();
-}
-
-static void PressKey(int vkey);
-
-static bool ProcessInput()
-{
-	if (gbGamePaused) {
-		return false;
-	}
-
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	plrctrls_every_frame();
-#endif
-
-	if (gmenu_is_active()) {
-		return IsMultiGame;
-	}
-
-	if (sgnTimeoutCurs == CURSOR_NONE) {
-#if HAS_TOUCHPAD == 1
-		finish_simulated_mouse_clicks(MouseX, MouseY);
-#endif
-		CheckCursMove();
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-		plrctrls_after_check_curs_move();
-#endif
-		DWORD tick = SDL_GetTicks();
-		if (gbActionBtnDown && (tick - sgdwLastABD) >= 200) {
-			gbActionBtnDown = false;
-			PressKey(actionBtnKey);
-		}
-		if (gbAltActionBtnDown && (tick - sgdwLastAABD) >= 200) {
-			gbAltActionBtnDown = false;
-			PressKey(altActionBtnKey);
-		}
-	}
-
-	return true;
-}
-
-void game_logic()
-{
-	multi_rnd_seeds();
-	if (gbProcessPlayers) {
-		ProcessPlayers();
-	}
-	if (currLvl._dType != DTYPE_TOWN) {
-		ProcessMonsters();
-		ProcessObjects();
-	} else {
-		ProcessTowners();
-	}
-	multi_mis_seeds();
-	ProcessMissiles();
-	ProcessItems();
-	ProcessLightList();
-	ProcessVisionList();
-
-#ifdef _DEBUG
-	if (debug_mode_key_inverted_v && GetAsyncKeyState(DVL_VK_SHIFT)) {
-		ScrollView();
-	}
-#endif
-
-	sound_update();
-	ClearPlrMsg();
-	CheckTriggers();
-	CheckQuests();
-	pfile_update(false);
-}
-
-static void game_loop()
-{
-	int i;
-
-	i = IsMultiGame ? 3 : 1;
-
-	do {
-		// TODO: stop processing the turns if the game is in pause mode? (ProcessInput returns false)
-		//  Currently one last live turn is processed, afterwards the empty turns do not
-		//  cause any trouble, but if the live turn is not processed, it has to be
-		//  saved/discarded if the game is saved/loaded. (SNetGetLiveTurnsInTransit)
-		if (!multi_handle_turn()) {
-			if (multi_check_timeout() && sgnTimeoutCurs == CURSOR_NONE) {
-				sgnTimeoutCurs = pcurs;
-				NewCursor(CURSOR_HOURGLASS);
-				gbRedrawFlags = REDRAW_ALL;
-			}
-			scrollrt_draw_game_screen(true);
-			break;
-		}
-		if (sgnTimeoutCurs != CURSOR_NONE) {
-			NewCursor(sgnTimeoutCurs);
-			sgnTimeoutCurs = CURSOR_NONE;
-			gbRedrawFlags = REDRAW_ALL;
-		}
-		if (ProcessInput()) {
-			game_logic();
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-			plrctrls_after_game_logic();
-#endif
-		}
-	} while (--i != 0 && gbRunGame && nthread_has_50ms_passed());
-}
-
-static void run_game_loop()
-{
-	WNDPROC saveProc;
-	MSG msg;
-
-	//nthread_run();
-	// Save 2.8 MiB of RAM by freeing all main menu resources before starting the game.
-	UiDestroy();
-	InitGameUI();
-	assert(ghMainWnd != NULL);
-	saveProc = SetWindowProc(GameWndProc);
-	// process remaining packets of delta-load
-	RunDeltaPackets();
-	gbRunGame = true;
-	gbProcessPlayers = true;
-	gbRunGameResult = true;
-	gbRedrawFlags = REDRAW_ALL;
-	DrawAndBlit();
-	LoadPWaterPalette();
-	PaletteFadeIn();
-	gbRedrawFlags = REDRAW_ALL;
-	// process packets arrived during LoadLevel / delta-load and disable nthread
-	nthread_finish();
-
-#ifdef GPERF_HEAP_FIRST_GAME_ITERATION
-	unsigned run_game_iteration = 0;
-#endif
-	while (TRUE) {
-		while (gbRunGame && PeekMessage(&msg)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		if (!gbRunGame)
-			break;
-		if (!nthread_has_50ms_passed()) {
-			ProcessInput();
-			DrawAndBlit();
-			continue;
-		}
-		diablo_color_cyc_logic();
-		game_loop();
-		DrawAndBlit();
-#ifdef GPERF_HEAP_FIRST_GAME_ITERATION
-	if (run_game_iteration++ == 0)
-		HeapProfilerDump("first_game_iteration");
-#endif
-	}
-	NetClose();
-	if (IsMultiGame) {
-		pfile_write_hero();
-	}
-
-	pfile_flush_W();
-	PaletteFadeOut();
-	NewCursor(CURSOR_NONE);
-	ClearScreenBuffer();
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game_screen(true);
-	saveProc = SetWindowProc(saveProc);
-	assert(saveProc == GameWndProc);
-	FreeGameUI();
-
-	if (gbCineflag) {
-		gbCineflag = false;
-		DoEnding();
-	}
-}
-
-bool StartGame(bool bSinglePlayer)
-{
-	gbSelectProvider = true;
-	gbSelectHero = true;
-
-	while (TRUE) {
-		if (!NetInit(bSinglePlayer)) {
-			gbRunGameResult = true;
-			break;
-		}
-#ifndef HOSTONLY
-		run_game_loop();
-		if (!gbRunGameResult)
-			break;
-		// If the player left the game into the main menu,
-		// initialize main menu resources.
-		UiInitialize();
-		pfile_create_player_description();
-#endif
-	}
-
-	return gbRunGameResult;
-}
-
 static void diablo_init_screen()
 {
 	MouseX = SCREEN_WIDTH / 2;
@@ -599,12 +329,6 @@ static void diablo_deinit()
 		SDL_Quit();
 }
 
-void diablo_quit(int exitStatus)
-{
-	diablo_deinit();
-	exit(exitStatus);
-}
-
 int DiabloMain(int argc, char **argv)
 {
 	diablo_parse_flags(argc, argv);
@@ -616,7 +340,26 @@ int DiabloMain(int argc, char **argv)
 	return 0;
 }
 
-BYTE ValidateSkill(BYTE sn, BYTE splType, int *sf)
+void diablo_quit(int exitStatus)
+{
+	diablo_deinit();
+	exit(exitStatus);
+}
+
+void FreeLevelMem()
+{
+	stream_stop();
+	music_stop();
+
+	FreeLvlGFX();
+	FreeMissiles();
+	FreeMonsters();
+	FreeObjectGFX();
+	FreeMonsterSnd();
+	FreeTownerGFX();
+}
+
+static BYTE ValidateSkill(BYTE sn, BYTE splType, int *sf)
 {
 	PlayerStruct *p;
 
@@ -1573,7 +1316,7 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 	MainWndProc(uMsg);
 }
 
-void GameWndProc(UINT uMsg, WPARAM wParam)
+static void GameWndProc(UINT uMsg, WPARAM wParam)
 {
 	switch (uMsg) {
 	case DVL_WM_KEYDOWN:
@@ -1651,8 +1394,108 @@ void GameWndProc(UINT uMsg, WPARAM wParam)
 	MainWndProc(uMsg);
 }
 
+static bool ProcessInput()
+{
+	if (gbGamePaused) {
+		return false;
+	}
 
-void diablo_color_cyc_logic()
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	plrctrls_every_frame();
+#endif
+
+	if (gmenu_is_active()) {
+		return IsMultiGame;
+	}
+
+	if (sgnTimeoutCurs == CURSOR_NONE) {
+#if HAS_TOUCHPAD == 1
+		finish_simulated_mouse_clicks(MouseX, MouseY);
+#endif
+		CheckCursMove();
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+		plrctrls_after_check_curs_move();
+#endif
+		DWORD tick = SDL_GetTicks();
+		if (gbActionBtnDown && (tick - sgdwLastABD) >= 200) {
+			gbActionBtnDown = false;
+			PressKey(actionBtnKey);
+		}
+		if (gbAltActionBtnDown && (tick - sgdwLastAABD) >= 200) {
+			gbAltActionBtnDown = false;
+			PressKey(altActionBtnKey);
+		}
+	}
+
+	return true;
+}
+
+void game_logic()
+{
+	multi_rnd_seeds();
+	if (gbProcessPlayers) {
+		ProcessPlayers();
+	}
+	if (currLvl._dType != DTYPE_TOWN) {
+		ProcessMonsters();
+		ProcessObjects();
+	} else {
+		ProcessTowners();
+	}
+	multi_mis_seeds();
+	ProcessMissiles();
+	ProcessItems();
+	ProcessLightList();
+	ProcessVisionList();
+
+#ifdef _DEBUG
+	if (debug_mode_key_inverted_v && GetAsyncKeyState(DVL_VK_SHIFT)) {
+		ScrollView();
+	}
+#endif
+
+	sound_update();
+	ClearPlrMsg();
+	CheckTriggers();
+	CheckQuests();
+	pfile_update(false);
+}
+
+static void game_loop()
+{
+	int i;
+
+	i = IsMultiGame ? 3 : 1;
+
+	do {
+		// TODO: stop processing the turns if the game is in pause mode? (ProcessInput returns false)
+		//  Currently one last live turn is processed, afterwards the empty turns do not
+		//  cause any trouble, but if the live turn is not processed, it has to be
+		//  saved/discarded if the game is saved/loaded. (SNetGetLiveTurnsInTransit)
+		if (!multi_handle_turn()) {
+			if (multi_check_timeout() && sgnTimeoutCurs == CURSOR_NONE) {
+				sgnTimeoutCurs = pcurs;
+				NewCursor(CURSOR_HOURGLASS);
+				gbRedrawFlags = REDRAW_ALL;
+			}
+			scrollrt_draw_game_screen(true);
+			break;
+		}
+		if (sgnTimeoutCurs != CURSOR_NONE) {
+			NewCursor(sgnTimeoutCurs);
+			sgnTimeoutCurs = CURSOR_NONE;
+			gbRedrawFlags = REDRAW_ALL;
+		}
+		if (ProcessInput()) {
+			game_logic();
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+			plrctrls_after_game_logic();
+#endif
+		}
+	} while (--i != 0 && gbRunGame && nthread_has_50ms_passed());
+}
+
+static void diablo_color_cyc_logic()
 {
 	if (!gbColorCyclingEnabled)
 		return;
@@ -1667,6 +1510,160 @@ void diablo_color_cyc_logic()
 #endif
 	else if (currLvl._dType == DTYPE_CAVES)
 		palette_update_caves();
+}
+
+static void InitGameUI()
+{
+	int pnum;
+
+	InitAutomapOnce(); // values
+	InitHelp(); // values
+	InitControlPan(); // gfx + values
+	InitText(); // gfx
+	InitInv(); // gfx + values
+	InitGMenu(); // gfx
+	InitQuestGFX(); // gfx + values
+	InitQuestText(); // gfx + values
+	InitStores(); // gfx + values (some stored in savefiles)
+	for (pnum = 0; pnum < (IsLocalGame ? 1 : MAX_PLRS); pnum++)
+		InitPlrGFXMem(pnum); // gfx
+	InitItemGFX(); // gfx + values (some stored in savefiles)
+
+	gbDeathflag = false;
+	gbZoomInFlag = false;
+	InitCursorGFX(); // gfx + values
+	ScrollInfo._sdx = 0;
+	ScrollInfo._sdy = 0;
+	ScrollInfo._sxoff = 0;
+	ScrollInfo._syoff = 0;
+	ScrollInfo._sdir = SDIR_NONE;
+
+#ifdef _DEBUG
+	LoadDebugGFX();
+#endif
+	assert(ghMainWnd != NULL);
+	music_stop();
+	ShowCutscene((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
+	CalcViewportGeometry();
+	InitLevelCursor();
+	sgnTimeoutCurs = CURSOR_NONE;
+	gbActionBtnDown = false;
+	gbAltActionBtnDown = false;
+}
+
+static void FreeGameUI()
+{
+	int i;
+
+	FreeControlPan();
+	FreeText();
+	FreeInvGFX();
+	FreeGMenu();
+	FreeQuestGFX();
+	FreeQuestText();
+	FreeStoreMem();
+
+	for (i = 0; i < MAX_PLRS; i++)
+		FreePlayerGFX(i);
+
+	FreeItemGFX();
+	FreeCursorGFX();
+#ifdef _DEBUG
+	FreeDebugGFX();
+#endif
+	FreeLevelMem();
+}
+
+static void run_game_loop()
+{
+	WNDPROC saveProc;
+	MSG msg;
+
+	//nthread_run();
+	// Save 2.8 MiB of RAM by freeing all main menu resources before starting the game.
+	UiDestroy();
+	InitGameUI();
+	assert(ghMainWnd != NULL);
+	saveProc = SetWindowProc(GameWndProc);
+	// process remaining packets of delta-load
+	RunDeltaPackets();
+	gbRunGame = true;
+	gbProcessPlayers = true;
+	gbRunGameResult = true;
+	gbRedrawFlags = REDRAW_ALL;
+	DrawAndBlit();
+	LoadPWaterPalette();
+	PaletteFadeIn();
+	gbRedrawFlags = REDRAW_ALL;
+	// process packets arrived during LoadLevel / delta-load and disable nthread
+	nthread_finish();
+
+#ifdef GPERF_HEAP_FIRST_GAME_ITERATION
+	unsigned run_game_iteration = 0;
+#endif
+	while (TRUE) {
+		while (gbRunGame && PeekMessage(&msg)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		if (!gbRunGame)
+			break;
+		if (!nthread_has_50ms_passed()) {
+			ProcessInput();
+			DrawAndBlit();
+			continue;
+		}
+		diablo_color_cyc_logic();
+		game_loop();
+		DrawAndBlit();
+#ifdef GPERF_HEAP_FIRST_GAME_ITERATION
+	if (run_game_iteration++ == 0)
+		HeapProfilerDump("first_game_iteration");
+#endif
+	}
+	NetClose();
+	if (IsMultiGame) {
+		pfile_write_hero();
+	}
+
+	pfile_flush_W();
+	PaletteFadeOut();
+	NewCursor(CURSOR_NONE);
+	ClearScreenBuffer();
+	gbRedrawFlags = REDRAW_ALL;
+	scrollrt_draw_game_screen(true);
+	saveProc = SetWindowProc(saveProc);
+	assert(saveProc == GameWndProc);
+	FreeGameUI();
+
+	if (gbCineflag) {
+		gbCineflag = false;
+		DoEnding();
+	}
+}
+
+bool StartGame(bool bSinglePlayer)
+{
+	gbSelectProvider = true;
+	gbSelectHero = true;
+
+	while (TRUE) {
+		if (!NetInit(bSinglePlayer)) {
+			gbRunGameResult = true;
+			break;
+		}
+#ifndef HOSTONLY
+		run_game_loop();
+		if (!gbRunGameResult)
+			break;
+		// If the player left the game into the main menu,
+		// initialize main menu resources.
+		UiInitialize();
+		pfile_create_player_description();
+#endif
+	}
+
+	return gbRunGameResult;
 }
 
 DEVILUTION_END_NAMESPACE
