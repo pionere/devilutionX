@@ -296,7 +296,6 @@ void PlayInGameMovie(const char *pszMovie)
 	PaletteFadeOut();
 	play_movie(pszMovie, 0);
 	ClearScreenBuffer();
-	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_screen(true);
 	PaletteFadeIn();
 	gbRedrawFlags = REDRAW_ALL;

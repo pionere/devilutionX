@@ -1621,7 +1621,6 @@ static void run_game()
 	PaletteFadeOut();
 	//NewCursor(CURSOR_NONE);
 	//ClearScreenBuffer();
-	//gbRedrawFlags = REDRAW_ALL;
 	//scrollrt_draw_screen(true);
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == GameWndProc);

@@ -174,7 +174,6 @@ static void DrawCutscene()
 	DrawProgress();
 
 	unlock_buf(1);
-	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_screen(false);
 }
 
