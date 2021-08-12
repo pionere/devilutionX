@@ -217,8 +217,6 @@ static void multi_parse_turns()
 	// TODO: use pre-allocated space?
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
 
-	multi_process_turn(turn);
-
 	if (!gbJoinGame && guSendDelta != 0) {
 		for (pnum = 0; pnum < MAX_PLRS; pnum++, guSendDelta >>= 1) {
 			if (guSendDelta & 1) {
@@ -226,6 +224,8 @@ static void multi_parse_turns()
 			}
 		}
 	}
+
+	multi_process_turn(turn);
 	MemFreeDbg(turn);
 }
 
