@@ -65,7 +65,7 @@ char gszProductName[MAX_SEND_STR_LEN] = "Diablo v1.09";
 
 void init_cleanup()
 {
-	pfile_flush_W();
+	pfile_flush(true);
 
 #ifdef MPQONE
 	SFileCloseArchive(diabdat_mpq);

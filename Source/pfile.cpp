@@ -97,7 +97,7 @@ static bool pfile_open_archive()
 	return pfile_open_save_mpq(mySaveIdx);
 }
 
-static void pfile_flush(bool bFree)
+void pfile_flush(bool bFree)
 {
 	mpqapi_flush_and_close(bFree);
 }
@@ -107,14 +107,14 @@ static HANDLE pfile_open_save_archive(unsigned save_num)
 	return SFileOpenArchive(GetSavePath(save_num).c_str(), 0);
 }
 
-void pfile_write_hero()
+void pfile_write_hero(bool bFree)
 {
 	PkPlayerStruct pkplr;
 
 	if (pfile_open_archive()) {
 		PackPlayer(&pkplr, mypnum);
 		pfile_encode_hero(&pkplr);
-		pfile_flush(!IsMultiGame);
+		pfile_flush(bFree);
 	}
 }
 
@@ -145,11 +145,6 @@ static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo, unsi
 	pfile_write_hero();
 	return true;
 }*/
-
-void pfile_flush_W()
-{
-	pfile_flush(true);
-}
 
 static bool pfile_archive_contains_game(HANDLE hsArchive)
 {
@@ -411,7 +406,7 @@ void pfile_update(bool force_save)
 		Uint32 currTc = SDL_GetTicks();
 		if (force_save || currTc > guNextSaveTc) {
 			guNextSaveTc = currTc + PFILE_SAVE_INTERVAL;
-			pfile_write_hero();
+			pfile_write_hero(false);
 		}
 	}
 }

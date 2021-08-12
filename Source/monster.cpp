@@ -2351,7 +2351,7 @@ void PrepDoEnding(bool soundOn)
 		}
 	} else {
 		// save the hero + items
-		pfile_write_hero();
+		pfile_write_hero(true);
 		// delete the game
 		pfile_delete_save_file(SAVEFILE_GAME);
 	}

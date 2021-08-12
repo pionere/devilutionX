@@ -1363,7 +1363,7 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_DWM_TWARPUP:
 	case DVL_DWM_RETOWN:
 		if (IsMultiGame)
-			pfile_write_hero();
+			pfile_write_hero(false);
 		nthread_run();
 		PaletteFadeOut();
 		sound_stop();
@@ -1612,11 +1612,11 @@ static void run_game()
 #endif
 	}
 	NetClose();
-	if (IsMultiGame) {
-		pfile_write_hero();
-	}
+	if (IsMultiGame)
+		pfile_write_hero(true);
+	else
+		pfile_flush(true);
 
-	pfile_flush_W();
 	PaletteFadeOut();
 	NewCursor(CURSOR_NONE);
 	ClearScreenBuffer();

@@ -1617,7 +1617,7 @@ void SaveGame()
 	mem_free_dbg(fileBuff);
 	gbValidSaveFile = TRUE;
 	pfile_rename_temp_to_perm();
-	pfile_write_hero();
+	pfile_write_hero(true);
 }
 
 void SaveLevel()
