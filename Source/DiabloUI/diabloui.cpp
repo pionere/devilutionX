@@ -583,10 +583,10 @@ void UiFadeIn()
 		currTc = SDL_GetTicks();
 		if (_gnFadeValue == 0 && _gdwFadeTc == 0)
 			_gdwFadeTc = currTc;
-		_gnFadeValue = (currTc - _gdwFadeTc) >> 1; // instead of >> 1 it was / 2.083 ... 32 frames @ 60hz
+		_gnFadeValue = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
 		if (_gnFadeValue > 256) {
 			_gnFadeValue = 256;
-			_gdwFadeTc = 0;
+			//_gdwFadeTc = 0;
 		}
 		SetFadeLevel(_gnFadeValue);
 	}
