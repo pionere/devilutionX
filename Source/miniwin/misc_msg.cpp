@@ -870,11 +870,11 @@ bool PeekMessage(LPMSG lpMsg)
 	case SDL_WINDOWEVENT:
 		switch (e.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:
-			gbActive = true;
+			gbWndActive = true;
 			lpMsg->message = DVL_WM_PAINT;
 			break;
 		case SDL_WINDOWEVENT_HIDDEN:
-			gbActive = false;
+			gbWndActive = false;
 			break;
 		case SDL_WINDOWEVENT_EXPOSED:
 			lpMsg->message = DVL_WM_PAINT;

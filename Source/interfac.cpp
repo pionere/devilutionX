@@ -175,7 +175,7 @@ static void DrawCutscene()
 
 	unlock_buf(1);
 	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game_screen(false);
+	scrollrt_draw_screen(false);
 }
 
 void interface_msg_pump()
@@ -430,7 +430,7 @@ void ShowCutscene(unsigned uMsg)
 
 	interface_msg_pump();
 	ClearScreenBuffer();
-	scrollrt_draw_game_screen(true);
+	scrollrt_draw_screen(true);
 	InitCutscene(uMsg);
 	BlackPalette();
 	DrawCutscene();

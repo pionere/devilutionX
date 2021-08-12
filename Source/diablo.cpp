@@ -1374,7 +1374,7 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		gbAltActionBtnDown = false;
 		ShowCutscene(uMsg);
 		gbRedrawFlags = REDRAW_ALL;
-		DrawAndBlit();
+		scrollrt_draw_game();
 		LoadPWaterPalette();
 		if (gbRunGame)
 			PaletteFadeIn();
@@ -1470,7 +1470,7 @@ static void game_loop()
 				NewCursor(CURSOR_HOURGLASS);
 				gbRedrawFlags = REDRAW_ALL;
 			}
-			//scrollrt_draw_game_screen(true);
+			//scrollrt_draw_screen(true);
 			break;
 		}
 		if (sgnTimeoutCurs != CURSOR_NONE) {
@@ -1582,7 +1582,7 @@ static void run_game()
 	// process remaining packets of delta-load
 	RunDeltaPackets();
 	gbRedrawFlags = REDRAW_ALL;
-	DrawAndBlit();
+	scrollrt_draw_game();
 	LoadPWaterPalette();
 	PaletteFadeIn();
 	gbRedrawFlags = REDRAW_ALL;
@@ -1601,12 +1601,12 @@ static void run_game()
 			break;
 		if (!nthread_has_50ms_passed()) {
 			ProcessInput();
-			DrawAndBlit();
+			scrollrt_draw_game();
 			continue;
 		}
 		diablo_color_cyc_logic();
 		game_loop();
-		DrawAndBlit();
+		scrollrt_draw_game();
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 	if (run_game_iteration++ == 0)
 		HeapProfilerDump("first_game_iteration");
@@ -1622,7 +1622,7 @@ static void run_game()
 	//NewCursor(CURSOR_NONE);
 	//ClearScreenBuffer();
 	//gbRedrawFlags = REDRAW_ALL;
-	//scrollrt_draw_game_screen(true);
+	//scrollrt_draw_screen(true);
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == GameWndProc);
 	FreeGameUI();

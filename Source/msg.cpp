@@ -27,20 +27,20 @@ static TMegaPkt *sgpMegaPkt;
 /* The tail of the sgpMegaPkt linked list. */
 static TMegaPkt *sgpCurrPkt;
 /* Buffer to send/receive delta info. */
-static DBuffer sgSendRecvBuf;
+static DBuffer sgDeltaSendRecvBuf;
 /* Current offset in the delta info buffer. */
-static DWORD sgdwRecvOffset;
+static unsigned guGameDeltaOffset;
 /* Flag to tell if the delta info is currently processed. */
 bool deltaload;
 /* Container to keep the delta info of portals and quests. */
-static DJunk sgJunk;
+static DJunk sgJunkDelta;
 /* Container to keep the delta info of items/monsters/objects for each level. */
-static DLevel sgLevels[NUM_LEVELS];
+static DLevel sgLevelDelta[NUM_LEVELS];
 /* Container to keep the delta info of the automap. */
-static LocalLevel sgLocals[NUM_LEVELS];
+static LocalLevel sgLocalDelta[NUM_LEVELS];
 /* Container to keep the flags if there is active delta info for each level. */
 static bool _gbLevelDeltaChanged[NUM_LEVELS];
-/* Specifies whether there is an active delta info in sgJunk. */
+/* Specifies whether there is an active delta info in sgJunkDelta. */
 static bool _gbJunkDeltaChanged;
 /* Counter to keep the progress of delta-load
  * 0..NUM_LEVELS     : level data
@@ -49,9 +49,9 @@ static bool _gbJunkDeltaChanged;
  * MAX_CHUNKS - 1    : end of data
  * MAX_CHUNKS        : download success
  */
-static BYTE sgbDeltaChunks;
+static BYTE gbGameDeltaChunks;
 /* the type of the last delta-load message. (NMSG_DLEVEL_*) */
-static BYTE _gbRecvCmd;
+static BYTE _gbGameDeltaCmd;
 /* the current messaging mode. (MSG_*) */
 _msg_mode geBufferMsgs = MSG_NORMAL;
 /* Buffer holding the character message to send over to other players */
@@ -138,13 +138,13 @@ static int msg_wait_for_delta()
 	// wait for nthread to download the delta
 	SDL_Delay(gnTickDelay);
 
-	if (sgbDeltaChunks > MAX_CHUNKS)
+	if (gbGameDeltaChunks > MAX_CHUNKS)
 		return 100;
-	if (sgbDeltaChunks == MAX_CHUNKS - 1) {
-		sgbDeltaChunks = MAX_CHUNKS;
+	if (gbGameDeltaChunks == MAX_CHUNKS - 1) {
+		gbGameDeltaChunks = MAX_CHUNKS;
 		return 99;
 	}
-	return 100 * sgbDeltaChunks / MAX_CHUNKS;
+	return 100 * gbGameDeltaChunks / MAX_CHUNKS;
 }
 
 bool DownloadDeltaInfo()
@@ -154,23 +154,23 @@ bool DownloadDeltaInfo()
 	// assert(!IsLocalGame);
 	DeltaAllocMegaPkt();
 	guDeltaTurn = 0;
-	sgbDeltaChunks = 0;
-	_gbRecvCmd = NMSG_DLEVEL_END;
+	gbGameDeltaChunks = 0;
+	_gbGameDeltaCmd = NMSG_DLEVEL_END;
 	gbDeltaSender = SNPLAYER_ALL;
-	sgdwRecvOffset = 0;
+	guGameDeltaOffset = 0;
 	// trigger delta-download in nthread
-	geBufferMsgs = MSG_REQUEST_DOWNLOAD_DELTA;
+	geBufferMsgs = MSG_REQUEST_GAME_DELTA;
 	//guDeltaStart = SDL_GetTicks();
 	success = UiProgressDialog("Waiting for game data...", msg_wait_for_delta);
-	assert(geBufferMsgs == MSG_NORMAL || !success || sgbDeltaChunks != MAX_CHUNKS);
+	assert(geBufferMsgs == MSG_NORMAL || !success || gbGameDeltaChunks != MAX_CHUNKS);
 	geBufferMsgs = MSG_NORMAL;
 	if (success) {
-		if (sgbDeltaChunks == MAX_CHUNKS)
+		if (gbGameDeltaChunks == MAX_CHUNKS)
 			return true;
 #ifdef _DEVMODE
-		DrawDlg(/*sgbDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended %d" :*/"Unable to get game data %d", sgbDeltaChunks);
+		DrawDlg(/*gbGameDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended %d" :*/"Unable to get game data %d", gbGameDeltaChunks);
 #else
-		DrawDlg(/*sgbDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended" :*/"Unable to get game data");
+		DrawDlg(/*gbGameDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended" :*/"Unable to get game data");
 #endif
 	}
 	DeltaFreeMegaPkts();
@@ -193,17 +193,17 @@ static BYTE *DeltaExportLevel(BYTE bLvl)
 	DItemStr *item;
 	DMonsterStr *mon;
 	int i;
-	BYTE *dst = sgSendRecvBuf.content;
+	BYTE* dst = sgDeltaSendRecvBuf.content;
 
-	static_assert(sizeof(sgSendRecvBuf.content) >= sizeof(DLevel) + 1, "Delta-Level might not fit to the buffer.");
+	static_assert(sizeof(sgDeltaSendRecvBuf.content) >= sizeof(DLevel) + 1, "Delta-Level might not fit to the buffer.");
 
 	// level-index
 	*dst = bLvl;
 	dst++;
 
 	// export items
-	item = sgLevels[bLvl].item;
-	for (i = 0; i < lengthof(sgLevels[bLvl].item); i++, item++) {
+	item = sgLevelDelta[bLvl].item;
+	for (i = 0; i < lengthof(sgLevelDelta[bLvl].item); i++, item++) {
 		if (item->bCmd == 0xFF) {
 			*dst = 0xFF;
 			dst++;
@@ -214,12 +214,12 @@ static BYTE *DeltaExportLevel(BYTE bLvl)
 	}
 
 	// export objects
-	memcpy(dst, sgLevels[bLvl].object, sizeof(sgLevels[bLvl].object));
-	dst += sizeof(sgLevels[bLvl].object);
+	memcpy(dst, sgLevelDelta[bLvl].object, sizeof(sgLevelDelta[bLvl].object));
+	dst += sizeof(sgLevelDelta[bLvl].object);
 
 	// export monsters
-	mon = sgLevels[bLvl].monster;
-	for (i = 0; i < lengthof(sgLevels[bLvl].monster); i++, mon++) {
+	mon = sgLevelDelta[bLvl].monster;
+	for (i = 0; i < lengthof(sgLevelDelta[bLvl].monster); i++, mon++) {
 		if (mon->_mx == 0xFF) {
 			*dst = 0xFF;
 			dst++;
@@ -239,7 +239,7 @@ static void DeltaImportLevel()
 	int i;
 	BYTE *src, bLvl;
 
-	src = sgSendRecvBuf.content;
+	src = sgDeltaSendRecvBuf.content;
 	// level-index
 	bLvl = *src;
 	src++;
@@ -247,7 +247,7 @@ static void DeltaImportLevel()
 	_gbLevelDeltaChanged[bLvl] = true;
 
 	// import items
-	item = sgLevels[bLvl].item;
+	item = sgLevelDelta[bLvl].item;
 	for (i = 0; i < MAXITEMS; i++, item++) {
 		if (*src == 0xFF) {
 			memset(item, 0xFF, sizeof(DItemStr));
@@ -260,11 +260,11 @@ static void DeltaImportLevel()
 		}
 	}
 	// import objects
-	memcpy(sgLevels[bLvl].object, src, sizeof(sgLevels[bLvl].object));
-	src += sizeof(sgLevels[bLvl].object);
+	memcpy(sgLevelDelta[bLvl].object, src, sizeof(sgLevelDelta[bLvl].object));
+	src += sizeof(sgLevelDelta[bLvl].object);
 
 	// import monsters
-	mon = sgLevels[bLvl].monster;
+	mon = sgLevelDelta[bLvl].monster;
 	for (i = 0; i < MAXMONSTERS; i++, mon++) {
 		if (*src == 0xFF) {
 			memset(mon, 0xFF, sizeof(DMonsterStr));
@@ -280,10 +280,10 @@ static BYTE *DeltaExportJunk()
 {
 	DQuest *mq;
 	int i;
-	BYTE *dst = sgSendRecvBuf.content;
+	BYTE* dst = sgDeltaSendRecvBuf.content;
 
 	// TODO: add delta_SetMultiQuest instead?
-	mq = sgJunk.quests;
+	mq = sgJunkDelta.jQuests;
 	for (i = 0; i < NUM_QUESTS; i++) {
 		mq->qlog = quests[i]._qlog;
 		mq->qstate = quests[i]._qactive;
@@ -291,10 +291,10 @@ static BYTE *DeltaExportJunk()
 		mq++;
 	}
 
-	static_assert(sizeof(sgSendRecvBuf.content) >= sizeof(sgJunk), "Delta-Junk does not fit to the buffer.");
+	static_assert(sizeof(sgDeltaSendRecvBuf.content) >= sizeof(sgJunkDelta), "Delta-Junk does not fit to the buffer.");
 	// export portals + quests
-	memcpy(dst, &sgJunk, sizeof(sgJunk));
-	dst += sizeof(sgJunk);
+	memcpy(dst, &sgJunkDelta, sizeof(sgJunkDelta));
+	dst += sizeof(sgJunkDelta);
 
 	return dst;
 }
@@ -304,17 +304,17 @@ static void DeltaImportJunk()
 	DPortal *pD;
 	DQuest *mq;
 	int i;
-	BYTE *src = sgSendRecvBuf.content;
+	BYTE* src = sgDeltaSendRecvBuf.content;
 
 	_gbJunkDeltaChanged = true;
 
 	// import portals + quests
-	memcpy(&sgJunk, src, sizeof(sgJunk));
-	//src += sizeof(sgJunk);
+	memcpy(&sgJunkDelta, src, sizeof(sgJunkDelta));
+	//src += sizeof(sgJunkDelta);
 
 	// update the game state
 	// portals
-	pD = sgJunk.portal;
+	pD = sgJunkDelta.jPortals;
 	for (i = 0; i < MAXPORTAL; i++, pD++) {
 		if (pD->x != 0xFF) {
 			ActivatePortal(i, pD->x, pD->y, pD->level);
@@ -323,7 +323,7 @@ static void DeltaImportJunk()
 		//	SetPortalStats(i, false, 0, 0, 0);
 	}
 	// quests
-	mq = sgJunk.quests;
+	mq = sgJunkDelta.jQuests;
 	for (i = 0; i < NUM_QUESTS; i++, mq++) {
 		if (mq->qstate != 0xFF) {
 			quests[i]._qlog = mq->qlog;
@@ -335,9 +335,9 @@ static void DeltaImportJunk()
 
 static BYTE* DeltaExportPlr(int pnum)
 {
-	BYTE* dst = sgSendRecvBuf.content;
+	BYTE* dst = sgDeltaSendRecvBuf.content;
 
-	static_assert(sizeof(sgSendRecvBuf.content) >= sizeof(PkPlayerStruct) + 1, "Delta-Plr does not fit to the buffer.");
+	static_assert(sizeof(sgDeltaSendRecvBuf.content) >= sizeof(PkPlayerStruct) + 1, "Delta-Plr does not fit to the buffer.");
 
 	// player-index
 	*dst = pnum;
@@ -351,13 +351,13 @@ static BYTE* DeltaExportPlr(int pnum)
 static void DeltaImportPlr()
 {
 	int pnum;
-	BYTE* src = sgSendRecvBuf.content;
+	BYTE* src = sgDeltaSendRecvBuf.content;
 
 	// player-index
 	pnum = *src;
 	if (pnum >= MAX_PLRS) {
 		// invalid data -> quit
-		sgbDeltaChunks = DELTA_ERROR_FAIL_4;
+		gbGameDeltaChunks = DELTA_ERROR_FAIL_4;
 		return;
 	}
 	src++;
@@ -374,11 +374,11 @@ static DWORD DeltaCompressData(BYTE *end)
 {
 	DWORD size, pkSize;
 
-	size = end - sgSendRecvBuf.content;
-	pkSize = PkwareCompress(sgSendRecvBuf.content, size);
-	sgSendRecvBuf.compressed = size != pkSize;
+	size = end - sgDeltaSendRecvBuf.content;
+	pkSize = PkwareCompress(sgDeltaSendRecvBuf.content, size);
+	sgDeltaSendRecvBuf.compressed = size != pkSize;
 
-	return pkSize + sizeof(sgSendRecvBuf.compressed);
+	return pkSize + sizeof(sgDeltaSendRecvBuf.compressed);
 }
 
 void DeltaExportData(int pnum, uint32_t turn)
@@ -388,12 +388,12 @@ void DeltaExportData(int pnum, uint32_t turn)
 	BYTE src, numChunks = 0;
 
 	// levels
-	for (i = 0; i < lengthof(sgLevels); i++) {
+	for (i = 0; i < lengthof(sgLevelDelta); i++) {
 		if (!_gbLevelDeltaChanged[i])
 			continue;
 		dstEnd = DeltaExportLevel(i);
 		size = DeltaCompressData(dstEnd);
-		dthread_send_delta(pnum, NMSG_DLEVEL_DATA, &sgSendRecvBuf, size);
+		dthread_send_delta(pnum, NMSG_DLEVEL_DATA, &sgDeltaSendRecvBuf, size);
 		src = 0;
 		dthread_send_delta(pnum, NMSG_DLEVEL_SEP, &src, 1);
 		numChunks++;
@@ -402,7 +402,7 @@ void DeltaExportData(int pnum, uint32_t turn)
 	if (_gbJunkDeltaChanged) {
 		dstEnd = DeltaExportJunk();
 		size = DeltaCompressData(dstEnd);
-		dthread_send_delta(pnum, NMSG_DLEVEL_JUNK, &sgSendRecvBuf, size);
+		dthread_send_delta(pnum, NMSG_DLEVEL_JUNK, &sgDeltaSendRecvBuf, size);
 		numChunks++;
 	}
 	// players
@@ -410,7 +410,7 @@ void DeltaExportData(int pnum, uint32_t turn)
 		if (plx(i)._pActive) {
 			dstEnd = DeltaExportPlr(i);
 			size = DeltaCompressData(dstEnd);
-			dthread_send_delta(pnum, NMSG_DLEVEL_PLR, &sgSendRecvBuf, size);
+			dthread_send_delta(pnum, NMSG_DLEVEL_PLR, &sgDeltaSendRecvBuf, size);
 			src = 0;
 			dthread_send_delta(pnum, NMSG_DLEVEL_SEP, &src, 1);
 			numChunks++;
@@ -418,27 +418,27 @@ void DeltaExportData(int pnum, uint32_t turn)
 	}
 
 	// current number of chunks sent + turn-id + end
-	sgSendRecvBuf.compressed = FALSE;
-	dstEnd = sgSendRecvBuf.content;
+	sgDeltaSendRecvBuf.compressed = FALSE;
+	dstEnd = sgDeltaSendRecvBuf.content;
 	*dstEnd = numChunks;
 	dstEnd++;
 	*(uint32_t*)dstEnd = SDL_SwapLE32(turn);
-	dthread_send_delta(pnum, NMSG_DLEVEL_END, &sgSendRecvBuf, sizeof(sgSendRecvBuf.compressed) + sizeof(BYTE) + sizeof(uint32_t));
+	dthread_send_delta(pnum, NMSG_DLEVEL_END, &sgDeltaSendRecvBuf, sizeof(sgDeltaSendRecvBuf.compressed) + sizeof(BYTE) + sizeof(uint32_t));
 }
 
 static void DeltaImportData()
 {
-	if (sgSendRecvBuf.compressed)
-		PkwareDecompress(sgSendRecvBuf.content, sgdwRecvOffset, sizeof(sgSendRecvBuf.content));
+	if (sgDeltaSendRecvBuf.compressed)
+		PkwareDecompress(sgDeltaSendRecvBuf.content, guGameDeltaOffset, sizeof(sgDeltaSendRecvBuf.content));
 
-	sgbDeltaChunks++;
+	gbGameDeltaChunks++;
 
-	if (_gbRecvCmd == NMSG_DLEVEL_DATA) {
+	if (_gbGameDeltaCmd == NMSG_DLEVEL_DATA) {
 		DeltaImportLevel();
-	} else if (_gbRecvCmd == NMSG_DLEVEL_JUNK) {
+	} else if (_gbGameDeltaCmd == NMSG_DLEVEL_JUNK) {
 		DeltaImportJunk();
 	} else {
-		assert(_gbRecvCmd == NMSG_DLEVEL_PLR);
+		assert(_gbGameDeltaCmd == NMSG_DLEVEL_PLR);
 		DeltaImportPlr();
 	}
 }
@@ -451,25 +451,25 @@ static void DeltaImportEnd(TCmdPlrInfoHdr *cmd)
 	// stop nthread from processing the the normal messages
 	geBufferMsgs = MSG_NORMAL;
 
-	assert(cmd->wBytes == SwapLE16(sizeof(sgSendRecvBuf.compressed) + sizeof(BYTE) + sizeof(uint32_t)));
+	assert(cmd->wBytes == SwapLE16(sizeof(sgDeltaSendRecvBuf.compressed) + sizeof(BYTE) + sizeof(uint32_t)));
 	buf = (DBuffer*)&cmd[1];
 	assert(!buf->compressed);
 	data = buf->content;
-	if (sgbDeltaChunks != *data) {
+	if (gbGameDeltaChunks != *data) {
 		// not all chunks arrived -> quit
-		sgbDeltaChunks = DELTA_ERROR_FAIL_3;
+		gbGameDeltaChunks = DELTA_ERROR_FAIL_3;
 		return;
 	}
 	data++;
 	guDeltaTurn = SDL_SwapLE32(*(uint32_t*)data);
-	sgbDeltaChunks = MAX_CHUNKS - 1;
+	gbGameDeltaChunks = MAX_CHUNKS - 1;
 }
 
 static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 {
 	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
+	if (geBufferMsgs != MSG_GAME_DELTA)
 		goto done; // the player is already active -> drop the packet
 
 	if (gbDeltaSender != pnum) {
@@ -477,9 +477,9 @@ static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 			// delta is already on its way from a different player -> drop the packet
 			goto done;
 		}
-		if (sgdwRecvOffset != 0) {
+		if (guGameDeltaOffset != 0) {
 			// the source of the delta is dropped -> drop the packages and quit
-			sgbDeltaChunks = DELTA_ERROR_FAIL_0;
+			gbGameDeltaChunks = DELTA_ERROR_FAIL_0;
 			goto done;
 		}
 		if (cmd->wOffset != 0) {
@@ -489,7 +489,7 @@ static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 		if (cmd->bCmd == NMSG_DLEVEL_END) {
 			// nothing received till now -> empty delta
 			gbDeltaSender = pnum;
-			// _gbRecvCmd = NMSG_DLEVEL_END;
+			// _gbGameDeltaCmd = NMSG_DLEVEL_END;
 			DeltaImportEnd(cmd);
 			goto done;
 		}
@@ -503,45 +503,45 @@ static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 		}*/
 		// start receiving
 		gbDeltaSender = pnum;
-		_gbRecvCmd = cmd->bCmd;
-		// sgdwRecvOffset = 0;
+		_gbGameDeltaCmd = cmd->bCmd;
+		// guGameDeltaOffset = 0;
 	} else {
 		// a packet from a previous sender
-		if (_gbRecvCmd != cmd->bCmd) {
+		if (_gbGameDeltaCmd != cmd->bCmd) {
 			// process previous package
-			if (_gbRecvCmd != NMSG_DLEVEL_SEP && _gbRecvCmd != NMSG_DLEVEL_END)
+			if (_gbGameDeltaCmd != NMSG_DLEVEL_SEP && _gbGameDeltaCmd != NMSG_DLEVEL_END)
 				DeltaImportData();
-			_gbRecvCmd = cmd->bCmd;
-			if (_gbRecvCmd == NMSG_DLEVEL_END) {
+			_gbGameDeltaCmd = cmd->bCmd;
+			if (_gbGameDeltaCmd == NMSG_DLEVEL_END) {
 				// final package -> done
 				DeltaImportEnd(cmd);
 				goto done;
-			} else if (_gbRecvCmd == NMSG_DLEVEL_SEP) {
+			} else if (_gbGameDeltaCmd == NMSG_DLEVEL_SEP) {
 				// separator package -> wait for next
 				goto done;
 			} else {
 				// start receiving a new package
-				assert(_gbRecvCmd == NMSG_DLEVEL_DATA || _gbRecvCmd == NMSG_DLEVEL_JUNK || _gbRecvCmd == NMSG_DLEVEL_PLR);
-				sgdwRecvOffset = 0;
+				assert(_gbGameDeltaCmd == NMSG_DLEVEL_DATA || _gbGameDeltaCmd == NMSG_DLEVEL_JUNK || _gbGameDeltaCmd == NMSG_DLEVEL_PLR);
+				guGameDeltaOffset = 0;
 			}
 		} else {
 			// continue previous package
-			if (_gbRecvCmd != NMSG_DLEVEL_DATA && _gbRecvCmd != NMSG_DLEVEL_JUNK && _gbRecvCmd != NMSG_DLEVEL_PLR) {
+			if (_gbGameDeltaCmd != NMSG_DLEVEL_DATA && _gbGameDeltaCmd != NMSG_DLEVEL_JUNK && _gbGameDeltaCmd != NMSG_DLEVEL_PLR) {
 				// lost or duplicated package -> drop the connection and quit
-				sgbDeltaChunks = DELTA_ERROR_FAIL_1;
+				gbGameDeltaChunks = DELTA_ERROR_FAIL_1;
 				goto done;
 			}
 		}
 	}
 
-	if (cmd->wOffset != sgdwRecvOffset) {
+	if (cmd->wOffset != guGameDeltaOffset) {
 		// lost or duplicated package -> drop the connection and quit
-		sgbDeltaChunks = DELTA_ERROR_FAIL_2;
+		gbGameDeltaChunks = DELTA_ERROR_FAIL_2;
 		goto done;
 	}
 
-	memcpy(((BYTE*)&sgSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
-	sgdwRecvOffset += cmd->wBytes;
+	memcpy(((BYTE*)&sgDeltaSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
+	guGameDeltaOffset += cmd->wBytes;
 done:
 	return cmd->wBytes + sizeof(*cmd);
 }
@@ -550,9 +550,9 @@ void delta_init()
 {
 	_gbJunkDeltaChanged = false;
 	memset(_gbLevelDeltaChanged, 0, sizeof(_gbLevelDeltaChanged));
-	memset(&sgJunk, 0xFF, sizeof(sgJunk));
-	memset(sgLevels, 0xFF, sizeof(sgLevels));
-	memset(sgLocals, 0, sizeof(sgLocals));
+	memset(&sgJunkDelta, 0xFF, sizeof(sgJunkDelta));
+	memset(sgLevelDelta, 0xFF, sizeof(sgLevelDelta));
+	memset(sgLocalDelta, 0, sizeof(sgLocalDelta));
 	deltaload = false;
 }
 
@@ -568,7 +568,7 @@ static void delta_kill_monster(const TCmdMonstKill* mon)
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[bLevel] = true;
-	pD = &sgLevels[bLevel].monster[SwapLE16(mon->mkMnum)];
+	pD = &sgLevelDelta[bLevel].monster[SwapLE16(mon->mkMnum)];
 	pD->_mx = mon->mkX;
 	pD->_my = mon->mkY;
 	pD->_mdir = mon->mkDir;
@@ -587,7 +587,7 @@ static void delta_monster_hp(const TCmdMonstDamage* mon)
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[bLevel] = true;
-	pD = &sgLevels[bLevel].monster[SwapLE16(mon->mdMnum)];
+	pD = &sgLevelDelta[bLevel].monster[SwapLE16(mon->mdMnum)];
 	// In vanilla code the value was discarded if hp was higher than the current one.
 	// That disregards the healing monsters.
 	// Now it is always updated except the monster is already dead.
@@ -609,7 +609,7 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	// TODO: validate bLevel - assert(pHdr->bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[pHdr->bLevel] = true;
-	pDLvl = &sgLevels[pHdr->bLevel];
+	pDLvl = &sgLevelDelta[pHdr->bLevel];
 
 	pbBuf = (const BYTE *)&pHdr[1];
 
@@ -641,7 +641,7 @@ static void delta_awake_golem(TCmdGolem *pG, int mnum)
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[bLevel] = true;
-	pD = &sgLevels[bLevel].monster[mnum];
+	pD = &sgLevelDelta[bLevel].monster[mnum];
 	pD->_mx = pG->_mx;
 	pD->_my = pG->_my;
 	pD->_mactive = SQUELCH_MAX;
@@ -656,7 +656,7 @@ static void delta_leave_sync(BYTE bLevel)
 		glSeedTbl[DLV_TOWN] = GetRndSeed();
 		return;
 	}
-	memcpy(&sgLocals[bLevel].automapsv, automapview, sizeof(automapview));
+	memcpy(&sgLocalDelta[bLevel].automapsv, automapview, sizeof(automapview));
 }
 
 static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
@@ -665,7 +665,7 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 		return;
 
 	_gbLevelDeltaChanged[bLevel] = true;
-	sgLevels[bLevel].object[oi].bCmd = bCmd;
+	sgLevelDelta[bLevel].object[oi].bCmd = bCmd;
 }
 
 static bool delta_get_item(const TCmdGItem *pI)
@@ -680,7 +680,7 @@ static bool delta_get_item(const TCmdGItem *pI)
 	bLevel = pI->bLevel;
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
-	pD = sgLevels[bLevel].item;
+	pD = sgLevelDelta[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF || pD->item.dwSeed != pI->item.dwSeed || pD->item.wIndx != pI->item.wIndx || pD->item.wCI != pI->item.wCI)
 			continue;
@@ -705,7 +705,7 @@ static bool delta_get_item(const TCmdGItem *pI)
 	if ((pI->item.wCI & CF_PREGEN) == 0)
 		return false;
 
-	pD = sgLevels[bLevel].item;
+	pD = sgLevelDelta[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
 			_gbLevelDeltaChanged[bLevel] = true;
@@ -731,7 +731,7 @@ static void delta_put_item(const TCmdPItem *pI, int x, int y)
 	bLevel = pI->bLevel;
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
-	pD = sgLevels[bLevel].item;
+	pD = sgLevelDelta[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
 		 && pD->item.dwSeed == pI->item.dwSeed
@@ -745,7 +745,7 @@ static void delta_put_item(const TCmdPItem *pI, int x, int y)
 		}
 	}
 
-	pD = sgLevels[bLevel].item;
+	pD = sgLevelDelta[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
 			_gbLevelDeltaChanged[bLevel] = true;
@@ -794,7 +794,7 @@ void DeltaAddItem(int ii)
 		return;
 
 	is = &items[ii];
-	pD = sgLevels[currLvl._dLevelIdx].item;
+	pD = sgLevelDelta[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
 		 && pD->item.dwSeed == SwapLE32(is->_iSeed)
@@ -807,7 +807,7 @@ void DeltaAddItem(int ii)
 		}
 	}
 
-	pD = sgLevels[currLvl._dLevelIdx].item;
+	pD = sgLevelDelta[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
 			_gbLevelDeltaChanged[currLvl._dLevelIdx] = true;
@@ -881,7 +881,7 @@ void DeltaLoadLevel()
 
 	deltaload = true;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
-		mstr = sgLevels[currLvl._dLevelIdx].monster;
+		mstr = sgLevelDelta[currLvl._dLevelIdx].monster;
 		for (i = 0; i < nummonsters; i++, mstr++) {
 			if (mstr->_mx != 0xFF) {
 				// skip minions and prespawn skeletons
@@ -909,9 +909,9 @@ void DeltaLoadLevel()
 		}
 		// SetDead();
 
-		memcpy(automapview, sgLocals[currLvl._dLevelIdx].automapsv, sizeof(automapview));
+		memcpy(automapview, sgLocalDelta[currLvl._dLevelIdx].automapsv, sizeof(automapview));
 
-		dstr = sgLevels[currLvl._dLevelIdx].object;
+		dstr = sgLevelDelta[currLvl._dLevelIdx].object;
 		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
 			if (dstr->bCmd != 0xFF) {
 				switch (dstr->bCmd) {
@@ -945,7 +945,7 @@ void DeltaLoadLevel()
 	}
 
 	// load items last, because they depend on the object state
-	itm = sgLevels[currLvl._dLevelIdx].item;
+	itm = sgLevelDelta[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_TAKEN) {
 			ii = FindGetItem(SwapLE32(itm->item.dwSeed), SwapLE16(itm->item.wIndx), SwapLE16(itm->item.wCI));
@@ -1352,15 +1352,15 @@ void NetSendCmdString(unsigned int pmask)
 static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
 {
 	_gbJunkDeltaChanged = true;
-	sgJunk.portal[pnum].x = x;
-	sgJunk.portal[pnum].y = y;
-	sgJunk.portal[pnum].level = bLevel;
+	sgJunkDelta.jPortals[pnum].x = x;
+	sgJunkDelta.jPortals[pnum].y = y;
+	sgJunkDelta.jPortals[pnum].level = bLevel;
 }
 
 void delta_close_portal(int pnum)
 {
-	//memset(&sgJunk.portal[pnum], 0xFF, sizeof(sgJunk.portal[pnum]));
-	sgJunk.portal[pnum].x = 0xFF;
+	//memset(&sgJunkDelta.portal[pnum], 0xFF, sizeof(sgJunkDelta.portal[pnum]));
+	sgJunkDelta.jPortals[pnum].x = 0xFF;
 	// assert(_gbJunkDeltaChanged == true);
 }
 
@@ -2109,10 +2109,10 @@ static unsigned On_PLRSKILLLVL(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_SEND_DELTAINFO(TCmd *pCmd, int pnum)
+static unsigned On_SEND_GAME_DELTA(TCmd *pCmd, int pnum)
 {
 	if (pnum != mypnum && pnum < MAX_PLRS)
-		guSendDelta |= 1 << pnum;
+		guSendGameDelta |= 1 << pnum;
 
 	return sizeof(*pCmd);
 }
@@ -2121,7 +2121,7 @@ static unsigned On_SEND_PLRINFO(TCmd *pCmd, int pnum)
 {
 	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
 
-	if (geBufferMsgs == MSG_DOWNLOAD_DELTA || geBufferMsgs == MSG_REQUEST_DOWNLOAD_DELTA)
+	if (geBufferMsgs == MSG_GAME_DELTA || geBufferMsgs == MSG_REQUEST_GAME_DELTA)
 		DeltaQueuePacket(pnum, cmd, cmd->wBytes + sizeof(*cmd));
 	else if (pnum != mypnum)
 		multi_recv_plrinfo_msg(pnum, cmd);
@@ -2252,7 +2252,7 @@ static unsigned On_STRING(TCmd *pCmd, int pnum)
 {
 	TCmdString *cmd = (TCmdString *)pCmd;
 
-	//if (geBufferMsgs != MSG_DOWNLOAD_DELTA && geBufferMsgs != MSG_REQUEST_DOWNLOAD_DELTA) {
+	//if (geBufferMsgs != MSG_GAME_DELTA && geBufferMsgs != MSG_REQUEST_GAME_DELTA) {
 		if (pnum < MAX_PLRS) {
 			if (!(guTeamMute & (1 << pnum))) {
 				SendPlrMsg(pnum, cmd->str);
@@ -2482,8 +2482,8 @@ unsigned ParseMsg(int pnum, TCmd *pCmd)
 		dev_fatal("ParseMsg: illegal player %d", pnum);
 	}
 	switch (pCmd->bCmd) {
-	case NMSG_SEND_DELTAINFO:
-		return On_SEND_DELTAINFO(pCmd, pnum);
+	case NMSG_SEND_GAME_DELTA:
+		return On_SEND_GAME_DELTA(pCmd, pnum);
 	case NMSG_ACK_PLRINFO:
 		return On_ACK_PLRINFO(pCmd, pnum);
 	case NMSG_SEND_PLRINFO:
@@ -2507,7 +2507,7 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("ParseCmd: illegal player %d", pnum);
 	}
-	assert(geBufferMsgs != MSG_DOWNLOAD_DELTA && geBufferMsgs != MSG_REQUEST_DOWNLOAD_DELTA);
+	assert(geBufferMsgs != MSG_GAME_DELTA && geBufferMsgs != MSG_REQUEST_GAME_DELTA);
 	switch (pCmd->bCmd) {
 	case CMD_SYNCDATA:
 		return On_SYNCDATA(pCmd, pnum);

@@ -170,22 +170,22 @@ static int SDLCALL nthread_handler(void* data)
 			sgThreadMutex.Leave();
 			break;
 		}
-		if (geBufferMsgs == MSG_DOWNLOAD_DELTA) {
+		if (geBufferMsgs == MSG_GAME_DELTA) {
 			multi_process_msgs();
-			if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
+			if (geBufferMsgs != MSG_GAME_DELTA) {
 				// delta-download finished -> jump to 'present'
 				// necessary in case the current player is the only player on a hosted server
 				sgbSentThisCycle = sgbSentThisCycle >= guDeltaTurn ? sgbSentThisCycle : guDeltaTurn;
 			} else
 				sgbSentThisCycle = 0;
-		} else if (geBufferMsgs == MSG_REQUEST_DOWNLOAD_DELTA) {
+		} else if (geBufferMsgs == MSG_REQUEST_GAME_DELTA) {
 			sgbSentThisCycle = 0;
 			// wait a few turns to stabilize the turn-id
 			if (sgTurnQueue.size() * gbNetUpdateRate * gnTickDelay > 500) {
-				geBufferMsgs = MSG_DOWNLOAD_DELTA;
+				geBufferMsgs = MSG_GAME_DELTA;
 				
 				TCmd cmd;
-				cmd.bCmd = NMSG_SEND_DELTAINFO;
+				cmd.bCmd = NMSG_SEND_GAME_DELTA;
 				multi_send_direct_msg(SNPLAYER_ALL, (BYTE*)&cmd, sizeof(cmd));
 			}
 		}

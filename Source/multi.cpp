@@ -28,8 +28,8 @@ static bool gbJoinGame;
 static int sgbPlayerLeftGameTbl[MAX_PLRS];
 /* The number of active players in the game. */
 BYTE gbActivePlayers;
-/* Mask of pnum values who requested delta-info. */
-unsigned guSendDelta;
+/* Mask of pnum values who requested game delta. */
+unsigned guSendGameDelta;
 /* Specifies whether the provider needs to be selected in the menu. */
 bool gbSelectProvider;
 /* Specifies whether the hero needs to be selected in the menu. */
@@ -217,9 +217,9 @@ static void multi_parse_turns()
 	// TODO: use pre-allocated space?
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
 
-	if (!gbJoinGame && guSendDelta != 0) {
-		for (pnum = 0; pnum < MAX_PLRS; pnum++, guSendDelta >>= 1) {
-			if (guSendDelta & 1) {
+	if (!gbJoinGame && guSendGameDelta != 0) {
+		for (pnum = 0; pnum < MAX_PLRS; pnum++, guSendGameDelta >>= 1) {
+			if (guSendGameDelta & 1) {
 				DeltaExportData(pnum, turn->nmpTurn);
 			}
 		}
@@ -294,7 +294,7 @@ static void multi_check_left_plrs()
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (sgbPlayerLeftGameTbl[i] != LEAVE_NONE) {
-			if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+			if (geBufferMsgs == MSG_GAME_DELTA)
 				msg_send_drop_plr(i, sgbPlayerLeftGameTbl[i]);
 			else
 				multi_deactivate_player(i, sgbPlayerLeftGameTbl[i]);
@@ -826,7 +826,7 @@ bool NetInit(bool bSinglePlayer)
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
 		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
 		memset(player_state, 0, sizeof(player_state));
-		guSendDelta = 0;
+		guSendGameDelta = 0;
 		_gbNetInited = true;
 		_gbTimeout = false;
 		delta_init();

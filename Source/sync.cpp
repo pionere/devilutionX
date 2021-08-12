@@ -247,7 +247,7 @@ void sync_update(int pnum, const TSyncHeader *pHdr)
 	//assert(pHdr->bCmd == CMD_SYNCDATA);
 	//assert(currLvl._dLevelIdx == pHdr->bLevel);
 	/// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
-	//assert(geBufferMsgs != MSG_DOWNLOAD_DELTA && pnum != mypnum);
+	//assert(geBufferMsgs != MSG_GAME_DELTA && pnum != mypnum);
 	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		sync_monster(pnum, (TSyncMonster *)pbBuf);
 		pbBuf += sizeof(TSyncMonster);

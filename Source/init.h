@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern bool gbActive;
+extern bool gbWndActive;
 extern WNDPROC CurrentWndProc;
 #ifdef MPQONE
 extern HANDLE diabdat_mpq;

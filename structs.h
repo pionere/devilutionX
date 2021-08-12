@@ -1153,8 +1153,8 @@ typedef struct DQuest {
 } DQuest;
 
 typedef struct DJunk {
-	DPortal portal[MAXPORTAL];
-	DQuest quests[NUM_QUESTS];
+	DPortal jPortals[MAXPORTAL];
+	DQuest jQuests[NUM_QUESTS];
 } DJunk;
 
 typedef struct DBuffer {

@@ -244,9 +244,9 @@ void LimitFrameRate()
 {
 	if (!gbFPSLimit)
 		return;
-	static uint32_t frameDeadline;
-	uint32_t tc = SDL_GetTicks() * 1000;
-	uint32_t v = 0;
+	static Uint32 frameDeadline;
+	Uint32 tc = SDL_GetTicks() * 1000;
+	Uint32 v = 0;
 	if (frameDeadline > tc) {
 		v = tc % gnRefreshDelay;
 		SDL_Delay(v / 1000 + 1); // ceil
@@ -258,7 +258,7 @@ void RenderPresent()
 {
 	SDL_Surface *surface = GetOutputSurface();
 
-	if (!gbActive) {
+	if (!gbWndActive) {
 		LimitFrameRate();
 		return;
 	}

@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static Art dialogArt;
 static bool _gbDialogEnd;
+static bool gbInDialog = false;
 static std::vector<UiItemBase *> vecNULL;
 static std::vector<UiItemBase *> vecOkDialog;
 
@@ -247,19 +248,17 @@ static void DialogLoop(const std::vector<UiItemBase *> &uiItems, const std::vect
 
 static void UiOkDialog(const char *text, const char *caption, bool error, const std::vector<UiItemBase *> &renderBehind)
 {
-	static bool inDialog = false;
-
-	if (gbActive && !inDialog) {
-		inDialog = true;
+	if (gbWndActive && !gbInDialog) {
+		gbInDialog = true;
 		Init(text, caption, error, renderBehind);
 		if (font != NULL) {
 			DialogLoop(vecOkDialog, renderBehind);
 			Deinit(renderBehind);
-			inDialog = false;
+			gbInDialog = false;
 			return;
 		}
 		Deinit(renderBehind);
-		inDialog = false;
+		gbInDialog = false;
 	}
 
 	if (SDL_ShowCursor(SDL_ENABLE) <= -1) {

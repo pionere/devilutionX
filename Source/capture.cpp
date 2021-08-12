@@ -178,7 +178,7 @@ void CaptureScreen()
 	std::ofstream *out = CaptureFile(&FileName);
 	if (out == NULL)
 		return;
-	DrawAndBlit();
+	scrollrt_draw_game();
 	PaletteGetEntries(256, palette);
 	RedPalette();
 

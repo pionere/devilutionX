@@ -2920,7 +2920,7 @@ typedef enum spell_id {
 } spell_id;
 
 typedef enum _msg_id {
-	NMSG_SEND_DELTAINFO,
+	NMSG_SEND_GAME_DELTA,
 	NMSG_ACK_PLRINFO,
 	NMSG_SEND_PLRINFO,
 	NMSG_DLEVEL_DATA,
@@ -3015,8 +3015,8 @@ typedef enum _dcmd_id {
 
 typedef enum _msg_mode {
 	MSG_NORMAL,
-	MSG_REQUEST_DOWNLOAD_DELTA,
-	MSG_DOWNLOAD_DELTA,
+	MSG_REQUEST_GAME_DELTA,
+	MSG_GAME_DELTA,
 	//MSG_RUN_DELTA,
 	MSG_INITIAL_PENDINGTURN,
 } _msg_mode;

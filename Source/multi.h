@@ -21,7 +21,7 @@ extern bool gbSelectHero;
 extern BYTE gbGameMode;
 extern BYTE gbDeltaSender;
 extern uint32_t guDeltaTurn;
-extern unsigned guSendDelta;
+extern unsigned guSendGameDelta;
 extern unsigned player_state[MAX_PLRS];
 
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen);

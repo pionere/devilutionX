@@ -77,7 +77,7 @@ void mainmenu_loop()
 			break;
 		case MAINMENU_ATTRACT_MODE:
 		case MAINMENU_REPLAY_INTRO:
-			if (gbActive)
+			if (gbWndActive)
 				mainmenu_play_intro();
 			continue;
 		case MAINMENU_SHOW_CREDITS:

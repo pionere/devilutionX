@@ -107,7 +107,7 @@ static void gamemenu_new_game(bool bActivate)
 
 	gbDeathflag = false;
 	//gbRedrawFlags = REDRAW_ALL;
-	//scrollrt_draw_game_screen(true);
+	//scrollrt_draw_screen(true);
 	gbRunGame = false;
 	gamemenu_off();
 }
@@ -125,7 +125,7 @@ static void gamemenu_load_game(bool bActivate)
 	NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_LOADING);
 	gbRedrawFlags = REDRAW_ALL;
-	DrawAndBlit();
+	scrollrt_draw_game();
 	gbDeathflag = false;
 	gbZoomInFlag = false;
 	LoadGame();
@@ -135,7 +135,7 @@ static void gamemenu_load_game(bool bActivate)
 	InitLevelCursor();
 	gbProcessPlayers = true;
 	gbRedrawFlags = REDRAW_ALL;
-	DrawAndBlit();
+	scrollrt_draw_game();
 	LoadPWaterPalette();
 	PaletteFadeIn();
 	interface_msg_pump();
@@ -149,7 +149,7 @@ static void gamemenu_save_game(bool bActivate)
 	gamemenu_off();
 	InitDiabloMsg(EMSG_SAVING);
 	gbRedrawFlags = REDRAW_ALL;
-	DrawAndBlit();
+	scrollrt_draw_game();
 	SaveGame();
 	ClrDiabloMsg();
 	gbRedrawFlags = REDRAW_ALL;

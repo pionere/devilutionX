@@ -42,8 +42,8 @@ void ClearScreenBuffer();
 #ifdef _DEBUG
 void ScrollView();
 #endif
-void scrollrt_draw_game_screen(bool draw_cursor);
-void DrawAndBlit();
+void scrollrt_draw_screen(bool draw_cursor);
+void scrollrt_draw_game();
 
 #ifdef __cplusplus
 }

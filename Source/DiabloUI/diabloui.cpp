@@ -380,9 +380,9 @@ void UiHandleEvents(SDL_Event *event)
 
 	if (event->type == SDL_WINDOWEVENT) {
 		if (event->window.event == SDL_WINDOWEVENT_SHOWN)
-			gbActive = true;
+			gbWndActive = true;
 		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN)
-			gbActive = false;
+			gbWndActive = false;
 	}
 #endif
 }

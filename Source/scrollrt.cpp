@@ -117,7 +117,7 @@ void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
 /**
  * @brief Remove the cursor from the back buffer
  */
-static void scrollrt_draw_cursor_back_buffer()
+static void scrollrt_remove_back_buffer_cursor()
 {
 	int i;
 	BYTE *src, *dst;
@@ -145,7 +145,7 @@ static void scrollrt_draw_cursor_back_buffer()
 /**
  * @brief Draw the cursor on the back buffer
  */
-static void scrollrt_draw_cursor_item()
+static void scrollrt_draw_cursor()
 {
 	int i, mx, my, frame;
 	BYTE *src, *dst, *cCels;
@@ -1404,7 +1404,7 @@ static void DoBlitScreen()
 
 	ysize = dwHgt;
 
-	if (!gbActive) {
+	if (!gbWndActive) {
 		return;
 	}
 
@@ -1454,7 +1454,7 @@ static void DoBlitScreen()
  * @brief Redraw screen
  * @param draw_cursor
  */
-void scrollrt_draw_game_screen(bool draw_cursor)
+void scrollrt_draw_screen(bool draw_cursor)
 {
 	//int hgt;
 	bool redraw;
@@ -1470,18 +1470,18 @@ void scrollrt_draw_game_screen(bool draw_cursor)
 
 	if (draw_cursor) {
 		lock_buf(0);
-		scrollrt_draw_cursor_item();
+		scrollrt_draw_cursor();
 		unlock_buf(0);
 	}
 
 	//DrawMain(hgt, 0);
-	if (redraw && gbActive) {
+	if (redraw && gbWndActive) {
 		DoBlitScreen();
 	}
 
 	if (draw_cursor) {
 		lock_buf(0);
-		scrollrt_draw_cursor_back_buffer();
+		scrollrt_remove_back_buffer_cursor();
 		unlock_buf(0);
 	}
 	RenderPresent();
@@ -1490,7 +1490,7 @@ void scrollrt_draw_game_screen(bool draw_cursor)
 /**
  * @brief Render the game
  */
-void DrawAndBlit()
+void scrollrt_draw_game()
 {
 	if (!gbRunGame) {
 		return;
@@ -1498,7 +1498,7 @@ void DrawAndBlit()
 
 	lock_buf(0);
 	DrawView();
-	scrollrt_draw_cursor_item();
+	scrollrt_draw_cursor();
 
 	if (gbFrameflag)
 		DrawFPS();
@@ -1506,12 +1506,12 @@ void DrawAndBlit()
 	unlock_buf(0);
 
 	//DrawMain(hgt, drawFlags);
-	if (gbActive) {
+	if (gbWndActive) {
 		DoBlitScreen();
 	}
 
 	lock_buf(0);
-	scrollrt_draw_cursor_back_buffer();
+	scrollrt_remove_back_buffer_cursor();
 	unlock_buf(0);
 	RenderPresent();
 
