@@ -13,7 +13,6 @@ DEVILUTION_BEGIN_NAMESPACE
 static Art dialogArt;
 static bool _gbDialogEnd;
 static bool gbInDialog = false;
-static std::vector<UiItemBase *> vecNULL;
 static std::vector<UiItemBase *> vecOkDialog;
 
 static void DialogActionOK()
@@ -148,9 +147,9 @@ static void DialogActionOK()
 	ApplyGamma(logical_palette, FallbackPalette, 256);
 }*/
 
-static void Init(const char *text, const char *caption, bool error, std::vector<UiItemBase *> renderBehind)
+static void Init(const char *text, const char *caption, bool error, const std::vector<UiItemBase*>* renderBehind)
 {
-	if (renderBehind.empty()) {
+	if (renderBehind == NULL) {
 		//assert(error || (ArtBackground.surface == NULL && ArtCursor.surface == NULL));
 		if (ArtBackground.surface != NULL)
 			ArtBackground.Unload();
@@ -200,9 +199,9 @@ static void Init(const char *text, const char *caption, bool error, std::vector<
 	}
 }
 
-static void Deinit(std::vector<UiItemBase *> renderBehind)
+static void Deinit(const std::vector<UiItemBase *>* renderBehind)
 {
-	if (renderBehind.size() == 0) {
+	if (renderBehind == NULL) {
 		ArtBackground.Unload();
 		ArtCursor.Unload();
 	}
@@ -213,7 +212,7 @@ static void Deinit(std::vector<UiItemBase *> renderBehind)
 	UiClearItems(vecOkDialog);
 }
 
-static void DialogLoop(const std::vector<UiItemBase *> &uiItems, const std::vector<UiItemBase *> &renderBehind)
+static void DialogLoop(const std::vector<UiItemBase*> &uiItems, const std::vector<UiItemBase*>* renderBehind)
 {
 	SDL_Event event;
 	_gbDialogEnd = false;
@@ -239,14 +238,15 @@ static void DialogLoop(const std::vector<UiItemBase *> &uiItems, const std::vect
 		}
 
 		// UiClearScreen();
-		UiRenderItems(renderBehind);
+		if (renderBehind != NULL)
+			UiRenderItems(*renderBehind);
 		UiRenderItems(uiItems);
 		DrawMouse();
 		UiFadeIn();
 	} while (!_gbDialogEnd);
 }
 
-static void UiOkDialog(const char *text, const char *caption, bool error, const std::vector<UiItemBase *> &renderBehind)
+static void UiOkDialog(const char* text, const char* caption, bool error, const std::vector<UiItemBase*>* renderBehind)
 {
 	if (gbWndActive && !gbInDialog) {
 		gbInDialog = true;
@@ -275,19 +275,14 @@ static void UiOkDialog(const char *text, const char *caption, bool error, const 
 	}
 }
 
-void UiErrorOkDialog(const char *text, const char *caption, const std::vector<UiItemBase *> &renderBehind)
+void UiErrorOkDialog(const char* text, const char* caption, bool error)
 {
-	UiOkDialog(text, caption, /*error=*/true, renderBehind);
+	UiOkDialog(text, caption, error, NULL);
 }
 
-void UiErrorOkDialog(const char *text, const char *caption, bool error)
+void UiErrorOkDialog(const char* text, const std::vector<UiItemBase*>* renderBehind)
 {
-	UiOkDialog(text, caption, error, vecNULL);
-}
-
-void UiErrorOkDialog(const char *text, const std::vector<UiItemBase *> &renderBehind)
-{
-	UiErrorOkDialog(text, NULL, renderBehind);
+	UiOkDialog(text, NULL, true, renderBehind);
 }
 
 DEVILUTION_END_NAMESPACE
