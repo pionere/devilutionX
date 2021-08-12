@@ -12,6 +12,12 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Should the movie continue playing. */
 bool gbMoviePlaying = false;
 
+static void GetMousePos(WPARAM wParam)
+{
+	MouseX = (int16_t)(wParam & 0xFFFF);
+	MouseY = (int16_t)((wParam >> 16) & 0xFFFF);
+}
+
 /**
  * @brief Start playback of a given video.
  * @param pszMovie The file name of the video
@@ -32,6 +38,9 @@ void play_movie(const char *pszMovie, int movieFlags)
 	while (video_stream != NULL) {
 		while (PeekMessage(&Msg)) {
 			switch (Msg.message) {
+			case DVL_WM_MOUSEMOVE:
+				GetMousePos(Msg.wParam);
+				continue;
 			case DVL_WM_KEYDOWN:
 				if (Msg.wParam == DVL_VK_ESCAPE)
 					break;
@@ -61,8 +70,6 @@ void play_movie(const char *pszMovie, int movieFlags)
 #endif
 
 	gbMoviePlaying = false;
-	SDL_GetMouseState(&MouseX, &MouseY);
-	OutputToLogical(&MouseX, &MouseY);
 }
 
 DEVILUTION_END_NAMESPACE

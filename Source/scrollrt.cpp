@@ -1149,7 +1149,7 @@ static void DrawView()
 	if (gbAutomapflag) {
 		DrawAutomap();
 	}
-	//if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
+	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}
 	DrawLifeFlask();
@@ -1167,7 +1167,7 @@ static void DrawView()
 
 	DrawDurIcon();
 
-	//if (drawFlags & REDRAW_SPEED_BAR) {
+	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {
 		DrawInvBelt();
 	//}
 
@@ -1215,7 +1215,7 @@ static void DrawView()
 	if (gbTalkflag) {
 		DrawTalkPan();
 	}
-	//if (drawFlags & REDRAW_CTRL_BUTTONS) {
+	//if (gbRedrawFlags & REDRAW_CTRL_BUTTONS) {
 		DrawCtrlBtns();
 	//}
 }
@@ -1492,7 +1492,7 @@ void scrollrt_draw_game()
 
 	unlock_buf(0);
 
-	//DrawMain(hgt, drawFlags);
+	//DrawMain(hgt, gbRedrawFlags);
 	if (gbWndActive) {
 		DoBlitScreen();
 	}
