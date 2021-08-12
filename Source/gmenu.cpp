@@ -279,6 +279,7 @@ bool gmenu_left_mouse(bool isDown)
 	TMenuItem *pItem;
 	int i, w;
 
+	assert(gmenu_is_active());
 	if (!isDown) {
 		if (_gbMouseNavigation) {
 			_gbMouseNavigation = false;
@@ -288,9 +289,6 @@ bool gmenu_left_mouse(bool isDown)
 		}
 	}
 
-	if (!gmenu_is_active()) {
-		return false;
-	}
 	if (MouseY >= PANEL_TOP) {
 		return false;
 	}

@@ -591,7 +591,7 @@ bool TryIconCurs(bool bShift)
 static void ActionBtnDown(bool bShift)
 {
 	assert(!gbDropGoldFlag);
-	assert(!gmenu_left_mouse(true));
+	assert(!gmenu_is_active() || !gmenu_left_mouse(true));
 	assert(sgnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(!gbDeathflag);
@@ -766,7 +766,8 @@ static void diablo_hotkey_msg(int actKey)
 static void ReleaseKey(int vkey)
 {
 	if (vkey == DVL_VK_LBUTTON) {
-		gmenu_left_mouse(false);
+		if (gmenu_is_active())
+			gmenu_left_mouse(false);
 		if (gabPanbtn[PANBTN_MAINMENU])
 			CheckBtnUp();
 		if (gbChrbtnactive)
@@ -1332,7 +1333,8 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		return;
 	case DVL_WM_MOUSEMOVE:
 		GetMousePos(wParam);
-		gmenu_on_mouse_move();
+		if (gmenu_is_active())
+			gmenu_on_mouse_move();
 		return;
 	case DVL_WM_LBUTTONDOWN:
 		GetMousePos(wParam);
