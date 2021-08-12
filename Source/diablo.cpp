@@ -1470,7 +1470,7 @@ static void game_loop()
 				NewCursor(CURSOR_HOURGLASS);
 				gbRedrawFlags = REDRAW_ALL;
 			}
-			scrollrt_draw_game_screen(true);
+			//scrollrt_draw_game_screen(true);
 			break;
 		}
 		if (sgnTimeoutCurs != CURSOR_NONE) {
@@ -1618,10 +1618,10 @@ static void run_game()
 		pfile_flush(true);
 
 	PaletteFadeOut();
-	NewCursor(CURSOR_NONE);
-	ClearScreenBuffer();
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game_screen(true);
+	//NewCursor(CURSOR_NONE);
+	//ClearScreenBuffer();
+	//gbRedrawFlags = REDRAW_ALL;
+	//scrollrt_draw_game_screen(true);
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == GameWndProc);
 	FreeGameUI();
