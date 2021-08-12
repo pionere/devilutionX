@@ -428,7 +428,7 @@ void ShowCutscene(unsigned uMsg)
 
 	interface_msg_pump();
 	ClearScreenBuffer();
-	scrollrt_draw_screen(true);
+	scrollrt_draw_screen(false);
 	InitCutscene(uMsg);
 	BlackPalette();
 	DrawCutscene();
@@ -442,13 +442,12 @@ void ShowCutscene(unsigned uMsg)
 		IncProgress();
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
 			LoadGame();
-			IncProgress();
 		} else {
 			//FreeLevelMem();
 			pfile_remove_temp_files();
-			IncProgress();
 			LoadGameLevel(ENTRY_MAIN);
 		}
+		IncProgress();
 		break;
 	case DVL_DWM_NEXTLVL:
 		assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
