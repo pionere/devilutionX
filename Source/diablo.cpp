@@ -1504,7 +1504,7 @@ static void diablo_color_cyc_logic()
 		palette_update_caves();
 }
 
-static void InitGameUI()
+static WNDPROC InitGameUI()
 {
 	int i;
 
@@ -1533,14 +1533,15 @@ static void InitGameUI()
 #ifdef _DEBUG
 	LoadDebugGFX();
 #endif
-	assert(ghMainWnd != NULL);
-	music_stop();
-	ShowCutscene((gbLoadGame && gbValidSaveFile) ? DVL_DWM_LOADGAME : DVL_DWM_NEWGAME);
-	CalcViewportGeometry();
-	InitLevelCursor();
+
 	sgnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = false;
 	gbAltActionBtnDown = false;
+	gbRunGame = true;
+	gbProcessPlayers = true;
+	gbRunGameResult = true;
+
+	return SetWindowProc(GameWndProc);
 }
 
 static void FreeGameUI()
@@ -1571,15 +1572,15 @@ static void run_game()
 	WNDPROC saveProc;
 	MSG msg;
 
+	saveProc = InitGameUI();
+
 	nthread_run();
-	InitGameUI();
-	assert(ghMainWnd != NULL);
-	saveProc = SetWindowProc(GameWndProc);
+	music_stop();
+	ShowCutscene((gbLoadGame && gbValidSaveFile) ? DVL_DWM_LOADGAME : DVL_DWM_NEWGAME);
+	CalcViewportGeometry();
+	InitLevelCursor();
 	// process remaining packets of delta-load
 	RunDeltaPackets();
-	gbRunGame = true;
-	gbProcessPlayers = true;
-	gbRunGameResult = true;
 	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
 	LoadPWaterPalette();
