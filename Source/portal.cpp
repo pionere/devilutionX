@@ -101,13 +101,9 @@ void RemovePortalMissile(int pnum)
 	}
 }
 
-void SetCurrentPortal(int p)
+void UseCurrentPortal(int p)
 {
 	portalindex = p;
-}
-
-void UseCurrentPortal()
-{
 	if (currLvl._dLevelIdx == DLV_TOWN && portalindex == mypnum) {
 		NetSendCmd(true, CMD_DEACTIVATEPORTAL);
 		//DeactivatePortal(portalindex);

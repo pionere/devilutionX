@@ -2003,7 +2003,7 @@ void StartTWarp(int pnum, int pidx)
 	}
 
 	if (pnum == mypnum) {
-		SetCurrentPortal(pidx);
+		UseCurrentPortal(pidx);
 		PostMessage(DVL_DWM_WARPLVL, 0);
 	}
 }

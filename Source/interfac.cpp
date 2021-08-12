@@ -469,7 +469,6 @@ void ShowCutscene(unsigned uMsg)
 		SwitchGameLevel(ENTRY_RTNLVL);
 		break;
 	case DVL_DWM_WARPLVL:
-		UseCurrentPortal();
 		SwitchGameLevel(ENTRY_WARPLVL);
 		break;
 	case DVL_DWM_TWARPDN:

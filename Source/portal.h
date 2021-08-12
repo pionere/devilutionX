@@ -23,8 +23,7 @@ void ActivatePortal(int i, int x, int y, int lvl);
 void DeactivatePortal(int i);
 bool PortalOnLevel(int i);
 void RemovePortalMissile(int id);
-void SetCurrentPortal(int p);
-void UseCurrentPortal();
+void UseCurrentPortal(int p);
 void GetPortalLvlPos();
 bool PosOkPortal(int x, int y);
 
