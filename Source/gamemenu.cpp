@@ -106,8 +106,8 @@ static void gamemenu_new_game(bool bActivate)
 	}
 
 	gbDeathflag = false;
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game_screen(true);
+	//gbRedrawFlags = REDRAW_ALL;
+	//scrollrt_draw_game_screen(true);
 	gbRunGame = false;
 	gamemenu_off();
 }
