@@ -95,7 +95,6 @@ typedef enum window_messages {
 	DVL_DWM_WARPLVL, //  = 0x406, // portal
 	DVL_DWM_RETOWN, //   = 0x409, // restart in town
 	DVL_DWM_NEWGAME, //  = 0x40A,
-	DVL_DWM_LOADGAME, // = 0x40B
 	// WM_LEIGHSKIP = 0x40C, // psx only
 	// WM_DIAVNEWLVL = 0x40D, // psx only
 } window_messages;

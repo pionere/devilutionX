@@ -1615,7 +1615,7 @@ void SaveGame()
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
 	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff, dwLen);
 	mem_free_dbg(fileBuff);
-	gbValidSaveFile = TRUE;
+	gbValidSaveFile = true;
 	pfile_rename_temp_to_perm();
 	pfile_write_hero(true);
 }

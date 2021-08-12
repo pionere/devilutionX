@@ -107,7 +107,6 @@ static void InitCutscene(unsigned int uMsg)
 		LoadPalette("Gendata\\Cutportl.pal");
 		progress_id = 1;
 		break;
-	case DVL_DWM_LOADGAME:
 	case DVL_DWM_NEWGAME:
 		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL");
 		LoadPalette("Gendata\\Cutstart.pal");
@@ -439,17 +438,17 @@ void ShowCutscene(unsigned uMsg)
 	IncProgress();
 
 	switch (uMsg) {
-	case DVL_DWM_LOADGAME:
-		IncProgress();
-		LoadGame();
-		IncProgress();
-		break;
 	case DVL_DWM_NEWGAME:
-		FreeLevelMem();
 		IncProgress();
-		pfile_remove_temp_files();
-		IncProgress();
-		LoadGameLevel(ENTRY_MAIN);
+		if (gbLoadGame/*&& gbValidSaveFile*/) {
+			LoadGame();
+			IncProgress();
+		} else {
+			//FreeLevelMem();
+			pfile_remove_temp_files();
+			IncProgress();
+			LoadGameLevel(ENTRY_MAIN);
+		}
 		break;
 	case DVL_DWM_NEXTLVL:
 		assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
@@ -478,6 +477,9 @@ void ShowCutscene(unsigned uMsg)
 		break;
 	case DVL_DWM_RETOWN:
 		SwitchGameLevel(ENTRY_MAIN);
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	IncProgress();

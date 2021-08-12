@@ -1576,7 +1576,7 @@ static void run_game()
 
 	nthread_run();
 	music_stop();
-	ShowCutscene((gbLoadGame && gbValidSaveFile) ? DVL_DWM_LOADGAME : DVL_DWM_NEWGAME);
+	ShowCutscene(DVL_DWM_NEWGAME);
 	CalcViewportGeometry();
 	InitLevelCursor();
 	// process remaining packets of delta-load
