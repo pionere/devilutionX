@@ -900,7 +900,14 @@ void CalcPlrStaff(int pnum)
 	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, plr._pISpells);
 }
 
-static void CalcSelfItems(int pnum)
+static void ItemStatOk(ItemStruct* is, int sa, int ma, int da)
+{
+	is->_iStatFlag = sa >= is->_iMinStr
+				  && da >= is->_iMinDex
+				  && ma >= is->_iMinMag;
+}
+
+static void CalcItemReqs(int pnum)
 {
 	int i;
 	ItemStruct *pi;
@@ -939,32 +946,23 @@ static void CalcSelfItems(int pnum)
 			}
 		}
 	} while (changeflag);
-}
 
-static void CalcPlrItemMin(int pnum)
-{
-	ItemStruct *pi;
-	int i;
+	pi = &plr._pHoldItem;
+	ItemStatOk(pi, sa, ma, da);
 
 	pi = plr._pInvList;
-	for (i = plr._pNumInv; i != 0; i--, pi++) {
-		ItemStatOk(pnum, pi);
-	}
+	for (i = plr._pNumInv; i != 0; i--, pi++)
+		ItemStatOk(pi, sa, ma, da);
 
 	pi = plr._pSpdList;
-	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE) {
-			ItemStatOk(pnum, pi);
-		}
-	}
+	for (i = MAXBELTITEMS; i != 0; i--, pi++)
+		ItemStatOk(pi, sa, ma, da);
 }
 
 void CalcPlrInv(int pnum, bool Loadgfx)
 {
-	//CalcPlrItemMin(pnum);
-	CalcSelfItems(pnum);
+	CalcItemReqs(pnum);
 	CalcPlrItemVals(pnum, Loadgfx);
-	CalcPlrItemMin(pnum);
 	//if (pnum == mypnum) {
 		CalcPlrSpells(pnum);
 		//CalcPlrBookVals(pnum);
