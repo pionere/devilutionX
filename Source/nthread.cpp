@@ -269,11 +269,12 @@ void nthread_cleanup()
 
 void nthread_run()
 {
-	plrmsg_delay(true);
 #ifndef NONET
-	if (sghThread != NULL) {
-		sgThreadMutex.Leave();
+	if (sghThread != NULL && !_gbRunThread) {
 		_gbRunThread = true;
+		sgThreadMutex.Leave();
+
+		plrmsg_delay(true);
 	}
 #endif
 }
@@ -303,15 +304,13 @@ void nthread_finish()
 		guDeltaTurn = 0;
 		// reset geBufferMsgs to normal in case there was no pending turn
 		geBufferMsgs = MSG_NORMAL;
+
+		plrmsg_delay(false);
 	}
 #endif
-	// TODO: move these somewhere else?
-	//   1. it prevents NetInit from calling in a symmetric way
-	//   2. plrmsg_delay calls are non-symmetric...
 	if (myplr._pmode == PM_NEWLVL) { // skip in case the game is loaded
 		NetSendCmdSendJoinLevel();
 	}
-	plrmsg_delay(false);
 }
 
 /**

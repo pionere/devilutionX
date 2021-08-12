@@ -1571,9 +1571,7 @@ static void run_game()
 	WNDPROC saveProc;
 	MSG msg;
 
-	//nthread_run();
-	// Save 2.8 MiB of RAM by freeing all main menu resources before starting the game.
-	UiDestroy();
+	nthread_run();
 	InitGameUI();
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(GameWndProc);
@@ -1645,6 +1643,9 @@ bool StartGame(bool bSinglePlayer)
 			break;
 		}
 #ifndef HOSTONLY
+		// Save 2.8 MiB of RAM by freeing all main menu resources before starting the game.
+		UiDestroy();
+
 		run_game();
 		if (!gbRunGameResult)
 			break;
