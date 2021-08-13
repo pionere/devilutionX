@@ -64,7 +64,7 @@ if(NOT VERSION_NUM)
   include(CMake/git.cmake)
   get_git_tag(VERSION_NUM)
   if (NOT "${VERSION_NUM}" STREQUAL "")
-    string(REGEX MATCH "([0-9]+\.[0-9]+\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
+    string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
   endif()
   get_git_commit_hash(GIT_COMMIT_HASH)
   if(NOT VERSION_SUFFIX)
@@ -876,7 +876,7 @@ if(NINTENDO_3DS)
   set(APP_AUTHOR      "Diasurgical Team")
   set(APP_ICON        "${PROJECT_SOURCE_DIR}/Packaging/ctr/icon.png")
   set(APP_BANNER      "${PROJECT_SOURCE_DIR}/Packaging/ctr/banner.png")
-  set(APP_AUDIO       "${PROJECT_SOURCE_DIR}/Packaging/ctr/audio_silent.wav")
+  set(APP_AUDIO       "${CMAKE_BINARY_DIR}/banner_audio.wav")
   set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template.rsf")
   set(APP_ROMFS       "${CMAKE_BINARY_DIR}/romfs")
   set(APP_ROMFS_FILES
@@ -889,13 +889,35 @@ if(NINTENDO_3DS)
 	  set(APP_BANNER      "${PROJECT_SOURCE_DIR}/Packaging/ctr/banner_hellfire.png")
 	  set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template_hellfire.rsf")
   endif()
-  file(MAKE_DIRECTORY ${APP_ROMFS})
-  file(COPY ${APP_ROMFS_FILES}
-     DESTINATION ${APP_ROMFS})
   set(APP_VERSION ${PROJECT_VERSION})
+
+  find_program(FFMPEG ffmpeg)
+  if(FFMPEG)
+    add_custom_command(OUTPUT ${APP_AUDIO}
+      COMMAND ${FFMPEG} -y -ss 3.3 -t 3 -i "${PROJECT_SOURCE_DIR}/Packaging/resources/shareware-startup.wav" -af "afade=t=in:st=0:d=0.1,afade=t=out:st=2.9:d=0.1" ${APP_AUDIO}
+      DEPENDS ${PROJECT_SOURCE_DIR}/Packaging/resources/shareware-startup.wav
+      VERBATIM)
+  else()
+    add_custom_command(OUTPUT ${APP_AUDIO}
+      COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/Packaging/ctr/audio_silent.wav ${APP_AUDIO}
+      DEPENDS ${PROJECT_SOURCE_DIR}/Packaging/ctr/audio_silent.wav
+      VERBATIM)
+  endif()
+
+  add_custom_target(romfs_directory
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_ROMFS})
+
+  add_custom_target(romfs_files
+    COMMAND ${CMAKE_COMMAND} -E copy ${APP_ROMFS_FILES} ${APP_ROMFS}
+    DEPENDS romfs_directory)
+
   include(Tools3DS)
   add_3dsx_target(${BIN_TARGET})
-  add_cia_target(${BIN_TARGET} ${APP_RSF} ${APP_BANNER} ${APP_AUDIO} ${APP_ROMFS})
+  add_cia_target(${BIN_TARGET} ${APP_RSF} ${APP_BANNER} ${APP_AUDIO})
+
+  get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
+  add_dependencies(${APP_TARGET_PREFIX}_3dsx romfs_files)
+  add_dependencies(${APP_TARGET_PREFIX}_cia romfs_files)
 endif()
 
 if(CPACK)
@@ -923,6 +945,17 @@ if(CPACK)
       DESTINATION "."
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.CharisSILB.txt"
+      DESTINATION "LICENSE"
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.freetype.txt"
+      DESTINATION "LICENSE"
+    )
+    if(ZEROTIER)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.zlib.txt"
+        DESTINATION "LICENSE"
+      )
+    endif()
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/README-SDL.txt"
       DESTINATION "LICENSE"
     )
     #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/brotlidec.dll"

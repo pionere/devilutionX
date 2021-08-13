@@ -39,7 +39,7 @@ inline FILE* FileOpen(const char *path, const char *mode)
 
 inline bool FileExists(const char *path)
 {
-#if _POSIX_C_SOURCE >= 200112L || defined(_BSD_SOURCE) || defined(__APPLE__)
+#if (_POSIX_C_SOURCE >= 200112L || defined(_BSD_SOURCE) || defined(__APPLE__)) && !defined(__ANDROID__)
 	return ::access(path, F_OK) == 0;
 #else
 	FILE *file = FileOpen(path, "rb");
