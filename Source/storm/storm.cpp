@@ -24,12 +24,9 @@ extern "C" std::uint32_t GetLastError();
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE
-namespace {
 
-bool directFileAccess = false;
-std::string *SBasePath = NULL;
-
-} // namespace
+static bool directFileAccess = false;
+static std::string *SBasePath = NULL;
 
 radon::File &getIni()
 {
@@ -152,24 +149,27 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		// than image width for efficiency.
 		const int xSkip = dwBuffersize / height - width;
 		assert(xSkip >= 0);
+		// width of PCX data is always even -> need to skip a bit if the width is odd
+		const BYTE srcSkip = width % 2;
+		const BYTE PCX_MAX_SINGLE_PIXEL = 0xBF;
+		const BYTE PCX_RUNLENGTH_MASK = 0x3F;
 		dataPtr = fileBuffer + sizeof(PCXHEADER);
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; dataPtr++) {
 				byte = *dataPtr;
-				if (byte < 0xC0) {
+				if (byte <= PCX_MAX_SINGLE_PIXEL) {
 					*pBuffer = byte;
 					pBuffer++;
 					x++;
 					continue;
 				}
+				byte &= PCX_RUNLENGTH_MASK;
 				dataPtr++;
-
-				for (int i = 0; i < (byte & 0x3F); i++) {
-					*pBuffer = *dataPtr;
-					pBuffer++;
-					x++;
-				}
+				memset(pBuffer, *dataPtr, byte);
+				pBuffer += byte;
+				x += byte;
 			}
+			dataPtr += srcSkip;
 			// Skip the pitch padding.
 			pBuffer += xSkip;
 		}
