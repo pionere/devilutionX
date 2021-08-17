@@ -17,7 +17,7 @@ extern BYTE *pSTextBoxCels;
 /** Scrollbar graphics */
 extern BYTE *pSTextSlidCels;
 /** Currently active store */
-extern char stextflag;
+extern BYTE stextflag;
 
 /** Current level of the item sold by Wirt */
 extern int boylevel;

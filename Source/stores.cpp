@@ -53,6 +53,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_DRUNK_GOSSIP		12
 #define STORE_DRUNK_EXIT		18
 
+#define STORE_ID_PRICE			100
+#define STORE_BOY_PRICE			50
+
 BYTE *pSTextBoxCels;
 BYTE *pSTextSlidCels;
 
@@ -78,7 +81,7 @@ ItemStruct healitem[HEALER_ITEMS];
 /** The current towner being interacted with */
 static int talker;
 /** The current interaction mode(STORE*) */
-char stextflag;
+BYTE stextflag;
 /** Is the current dialog full size */
 static bool gbWidePanel;
 /** Does the current panel have a scrollbar */
@@ -1053,8 +1056,8 @@ static void AddStoreHoldId(const ItemStruct *is, int i)
 
 	holditem = &storehold[storenumh];
 	copy_pod(*holditem, *is);
-	holditem->_ivalue = 100;
-	holditem->_iIvalue = 100;
+	holditem->_ivalue = STORE_ID_PRICE;
+	holditem->_iIvalue = STORE_ID_PRICE;
 	storehidx[storenumh] = i;
 	storenumh++;
 }
@@ -1326,11 +1329,12 @@ void DrawStore()
 
 void STextESC()
 {
-	if (gbQtextflag) {
+	assert(!gbQtextflag);
+	/*if (gbQtextflag) {
 		gbQtextflag = false;
-		if (currLvl._dType == DTYPE_TOWN)
+		//if (currLvl._dType == DTYPE_TOWN)
 			stream_stop();
-	} else {
+	} else {*/
 		switch (stextflag) {
 		case STORE_SMITH:
 		case STORE_WITCH:
@@ -1397,7 +1401,7 @@ void STextESC()
 			ASSUME_UNREACHABLE
 			break;
 		}
-	}
+	//}
 }
 
 void STextUp()
@@ -1944,13 +1948,13 @@ static void S_BoyEnter()
 {
 	if (boyitem._itype != ITYPE_NONE) {
 		if (stextsel == STORE_BOY_QUERY) {
-			if (myplr._pGold < 50) {
+			if (myplr._pGold < STORE_BOY_PRICE) {
 				stextshold = STORE_BOY;
 				stextlhold = STORE_BOY_QUERY;
 				stextvhold = stextsidx;
 				StartStore(STORE_NOMONEY);
 			} else {
-				TakePlrsMoney(50);
+				TakePlrsMoney(STORE_BOY_PRICE);
 				StartStore(STORE_BBOY);
 			}
 			return;
@@ -2013,6 +2017,7 @@ static void S_BBuyEnter()
 		stextlhold = STORE_BOY_BUY;
 		StoreStartBuy(&boyitem, boyitem._iIvalue);
 	} else {
+		assert(stextsel == 22);
 		stextflag = STORE_NONE;
 	}
 }
@@ -2029,7 +2034,7 @@ static void StoryIdItem()
 		pi = &myplr._pInvList[idx];
 	pi->_iIdentified = TRUE;
 	storeitem._iIdentified = TRUE;
-	TakePlrsMoney(storeitem._iIvalue);
+	TakePlrsMoney(STORE_ID_PRICE);
 	CalcPlrInv(mypnum, true);
 }
 
@@ -2369,23 +2374,22 @@ void CheckStoreBtn()
 				return;
 		} else {
 			if (MouseX < 344 + PANEL_LEFT || MouseX > 616 + PANEL_LEFT)
-				return;		}
+				return;
+		}
 		y = (MouseY - (32 + UI_OFFSET_Y)) / 12;
 		if (gbHasScroll && MouseX > 600 + PANEL_LEFT) {
 			if (y == 4) {
-				if (stextscrlubtn <= 0) {
+				stextscrlubtn--;
+				if (stextscrlubtn < 0) {
+					stextscrlubtn = 2;
 					STextUp();
-					stextscrlubtn = 10;
-				} else {
-					stextscrlubtn--;
 				}
 			}
 			if (y == 20) {
-				if (stextscrldbtn <= 0) {
+				stextscrldbtn--;
+				if (stextscrldbtn < 0) {
+					stextscrldbtn = 2;
 					STextDown();
-					stextscrldbtn = 10;
-				} else {
-					stextscrldbtn--;
 				}
 			}
 		} else if (y >= 5) {
