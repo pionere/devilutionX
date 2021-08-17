@@ -190,9 +190,6 @@ const BYTE InvSlotTbl[] = {
 	// clang-format on
 };
 
-/** Specifies the starting inventory slots for placement of 2x2 items. */
-const int AP2x2Tbl[10] = { 8, 28, 6, 26, 4, 24, 2, 22, 0, 20 };
-
 void FreeInvGFX()
 {
 	MemFreeDbg(pInvCels);
@@ -626,72 +623,30 @@ bool AutoPlaceInv(int pnum, ItemStruct *is, bool saveflag)
 	w = InvItemWidth[i] / INV_SLOT_SIZE_PX;
 	h = InvItemHeight[i] / INV_SLOT_SIZE_PX;
 
+	static_assert(NUM_INV_GRID_ELEM % 10 == 0, "AutoPlaceInv expects 10 slot per row.");
 	pi = saveflag ? is : NULL;
-	if (w == 1 && h == 1) {
-		for (i = 30; i <= 39; i++) {
+	if (h == 1) {
+		for (i = 0; i < NUM_INV_GRID_ELEM; i++)
 			if (AutoPlace(pnum, i, w, h, pi))
 				return true;
-		}
-		for (i = 20; i <= 29; i++) {
-			if (AutoPlace(pnum, i, w, h, pi))
-				return true;
-		}
-		for (i = 10; i <= 19; i++) {
-			if (AutoPlace(pnum, i, w, h, pi))
-				return true;
-		}
-		for (i = 0; i <= 9; i++) {
-			if (AutoPlace(pnum, i, w, h, pi))
-				return true;
-		}
-	}
-	if (w == 1 && h == 2) {
-		for (i = 29; i >= 20; i--) {
-			if (AutoPlace(pnum, i, w, h, pi))
-				return true;
-		}
+	} else if (h == 2) {
 		for (i = 9; i >= 0; i--) {
 			if (AutoPlace(pnum, i, w, h, pi))
+				return true;
+			if (AutoPlace(pnum, i + 20, w, h, pi))
 				return true;
 		}
 		for (i = 19; i >= 10; i--) {
 			if (AutoPlace(pnum, i, w, h, pi))
 				return true;
 		}
-	}
-	if (w == 1 && h == 3) {
-		for (i = 0; i < 20; i++) {
+	} else if (h == 3) {
+		for (i = 10; i < 20; i++)
 			if (AutoPlace(pnum, i, w, h, pi))
 				return true;
-		}
-	}
-	if (w == 2 && h == 2) {
-		for (i = 0; i < 10; i++) {
-			if (AutoPlace(pnum, AP2x2Tbl[i], w, h, pi))
-				return true;
-		}
-		for (i = 21; i < 29; i += 2) {
+		for (i = 0; i < 10; i++)
 			if (AutoPlace(pnum, i, w, h, pi))
 				return true;
-		}
-		for (i = 1; i < 9; i += 2) {
-			if (AutoPlace(pnum, i, w, h, pi))
-				return true;
-		}
-		for (i = 10; i < 19; i++) {
-			if (AutoPlace(pnum, i, w, h, pi))
-				return true;
-		}
-	}
-	if (w == 2 && h == 3) {
-		for (i = 0; i < 9; i++) {
-			if (AutoPlace(pnum, i, w, h, pi))
-				return true;
-		}
-		for (i = 10; i < 19; i++) {
-			if (AutoPlace(pnum, i, w, h, pi))
-				return true;
-		}
 	}
 	return false;
 }
