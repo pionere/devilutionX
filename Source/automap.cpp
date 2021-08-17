@@ -531,28 +531,15 @@ static uint16_t GetAutomapType(int x, int y, bool view)
 {
 	uint16_t rv;
 
-	if (view && x == -1 && y >= 0 && y < DMAXY && automapview[0][y]) {
-		if (GetAutomapType(0, y, false) & MAPFLAG_DIRT) {
-			return 0;
-		} else {
-			return MAPFLAG_DIRT;
-		}
+	if ((unsigned)x >= DMAXX) {
+		return x == -1 && view
+			&& (unsigned)y < DMAXY && automapview[0][y] ? MAPFLAG_DIRT : 0;
+	}
+	if ((unsigned)y >= DMAXY) {
+		return y == -1 && view
+			&& (unsigned)x < DMAXX && automapview[x][0] ? MAPFLAG_DIRT : 0;
 	}
 
-	if (view && y == -1 && x >= 0 && x < DMAXY && automapview[x][0]) {
-		if (GetAutomapType(x, 0, false) & MAPFLAG_DIRT) {
-			return 0;
-		} else {
-			return MAPFLAG_DIRT;
-		}
-	}
-
-	if (x < 0 || x >= DMAXX) {
-		return 0;
-	}
-	if (y < 0 || y >= DMAXX) {
-		return 0;
-	}
 	if (!automapview[x][y] && view) {
 		return 0;
 	}
