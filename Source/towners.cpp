@@ -460,7 +460,7 @@ void ProcessTowners()
 	}
 }
 
-bool PlrHasItem(int pnum, int item, int *outidx)
+bool PlrHasStorageItem(int pnum, int item, int* outidx)
 {
 	ItemStruct* pi;
 	int i;
@@ -555,7 +555,7 @@ void TalkToTowner(int tnum)
 				quests[Q_LTBANNER]._qlog = TRUE;
 				qn = Q_LTBANNER;
 				qt = TEXT_BANNER2;
-			} else if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasItem(pnum, IDI_BANNER, &i)) {
+			} else if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_BANNER, &i)) {
 				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, false, true);
 				quests[Q_LTBANNER]._qlog = FALSE;
@@ -591,7 +591,7 @@ void TalkToTowner(int tnum)
 				qt = TEXT_INFRA5;
 				break;
 			}
-			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i)) {
+			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_ROCK, &i)) {
 				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_INFRARING, TPOS_SMITH + 1, false, true);
 				quests[Q_ROCK]._qactive = QUEST_DONE;
@@ -608,7 +608,7 @@ void TalkToTowner(int tnum)
 				quests[Q_ANVIL]._qlog = TRUE;
 				qn = Q_ANVIL;
 				qt = TEXT_ANVIL5;
-			} else if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ANVIL, &i)) {
+			} else if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_ANVIL, &i)) {
 				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH + 1, false, true);
 				quests[Q_ANVIL]._qactive = QUEST_DONE;
@@ -619,7 +619,7 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_WITCH:
-		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_FUNGALTM, &i)) {
+		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_FUNGALTM, &i)) {
 			PlrInvItemRemove(pnum, i);
 			quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
 			quests[Q_MUSHROOM]._qlog = TRUE;
@@ -628,7 +628,7 @@ void TalkToTowner(int tnum)
 			qt = TEXT_MUSH8;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
 			if (quests[Q_MUSHROOM]._qvar1 < QS_MUSHGIVEN) {
-				if (PlrHasItem(pnum, IDI_MUSHROOM, &i)) {
+				if (PlrHasStorageItem(pnum, IDI_MUSHROOM, &i)) {
 					PlrInvItemRemove(pnum, i);
 					quests[Q_MUSHROOM]._qvar1 = QS_MUSHGIVEN;
 					quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
@@ -643,11 +643,11 @@ void TalkToTowner(int tnum)
 					break;
 				}
 			}
-			if (PlrHasItem(pnum, IDI_SPECELIX, &i) || PlrHasBeltItem(pnum, IDI_SPECELIX)) {
+			if (PlrHasStorageItem(pnum, IDI_SPECELIX, &i) || PlrHasBeltItem(pnum, IDI_SPECELIX)) {
 				quests[Q_MUSHROOM]._qactive = QUEST_DONE;
 				qn = Q_MUSHROOM;
 				qt = TEXT_MUSH12;
-			} else if (PlrHasItem(pnum, IDI_BRAIN, &i) && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
+			} else if (PlrHasStorageItem(pnum, IDI_BRAIN, &i) && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
 				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH11;
 				qt = TEXT_MUSH11;
 			}
@@ -655,7 +655,7 @@ void TalkToTowner(int tnum)
 		break;
 	case TOWN_BMAID:
 #ifdef HELLFIRE
-		if (!IsLvlVisited(DLV_CRYPT1) && PlrHasItem(pnum, IDI_MAPOFDOOM, &i)) {
+		if (!IsLvlVisited(DLV_CRYPT1) && PlrHasStorageItem(pnum, IDI_MAPOFDOOM, &i)) {
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 			quests[Q_GRAVE]._qlog = TRUE;
 			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
@@ -682,7 +682,7 @@ void TalkToTowner(int tnum)
 			qt = TEXT_POISON5;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
 		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
-			if (PlrHasItem(pnum, IDI_BRAIN, &i)) {
+			if (PlrHasStorageItem(pnum, IDI_BRAIN, &i)) {
 				PlrInvItemRemove(pnum, i);
 				SpawnQuestItemAround(IDI_SPECELIX, TPOS_HEALER + 1, false, true);
 				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
@@ -699,7 +699,7 @@ void TalkToTowner(int tnum)
 		break;
 	case TOWN_STORY:
 		if (!IsMultiGame) {
-			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_LAZSTAFF, &i)) {
+			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_LAZSTAFF, &i)) {
 				PlrInvItemRemove(pnum, i);
 				quests[Q_BETRAYER]._qvar1 = 2;
 				quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
@@ -733,7 +733,7 @@ void TalkToTowner(int tnum)
 		case QUEST_NOTAVAIL:
 			break;
 		case QUEST_INIT:
-			if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
+			if (PlrHasStorageItem(pnum, IDI_RUNEBOMB, &i)) {
 				quests[Q_FARMER]._qactive = QUEST_ACTIVE;
 				quests[Q_FARMER]._qvar1 = 1;
 				quests[Q_FARMER]._qlog = TRUE;
@@ -760,7 +760,7 @@ void TalkToTowner(int tnum)
 			}
 			break;
 		case QUEST_ACTIVE:
-			qt = PlrHasItem(pnum, IDI_RUNEBOMB, &i) ? TEXT_FARMER2 : TEXT_FARMER3;
+			qt = PlrHasStorageItem(pnum, IDI_RUNEBOMB, &i) ? TEXT_FARMER2 : TEXT_FARMER3;
 			break;
 		case QUEST_DONE:
 			if (quests[Q_FARMER]._qlog && quests[Q_FARMER]._qvar1 == pnum + 2) {
@@ -780,7 +780,7 @@ void TalkToTowner(int tnum)
 		case QUEST_NOTAVAIL:
 			break;
 		case QUEST_INIT:
-			if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
+			if (PlrHasStorageItem(pnum, IDI_RUNEBOMB, &i)) {
 				quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 				quests[Q_JERSEY]._qvar1 = 1;
 				// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
@@ -799,11 +799,11 @@ void TalkToTowner(int tnum)
 			}
 			break;
 		case QUEST_ACTIVE:
-			if (PlrHasItem(pnum, IDI_GRAYSUIT, &i)) {
+			if (PlrHasStorageItem(pnum, IDI_GRAYSUIT, &i)) {
 				PlrInvItemRemove(pnum, i);
 				qt = TEXT_JERSEY7;
 				break;
-			} else if (PlrHasItem(pnum, IDI_BROWNSUIT, &i)) {
+			} else if (PlrHasStorageItem(pnum, IDI_BROWNSUIT, &i)) {
 				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_BOVINE, TPOS_COWFARM, false, true);
 				quests[Q_JERSEY]._qactive = QUEST_DONE;
@@ -847,7 +847,7 @@ void TalkToTowner(int tnum)
 		break;
 	case TOWN_GIRL:
 		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
-			if (PlrHasItem(pnum, IDI_THEODORE, &i)) {
+			if (PlrHasStorageItem(pnum, IDI_THEODORE, &i)) {
 				ii = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
 				SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
 				PlrInvItemRemove(pnum, i);

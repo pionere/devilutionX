@@ -4957,7 +4957,7 @@ void TalktoMonster(int mnum, int pnum)
 			if (pnum == mypnum)
 				NetSendCmdQuest(Q_LTBANNER, true);
 		} else if (quests[Q_LTBANNER]._qvar1 == 1) {
-			if (PlrHasItem(pnum, IDI_BANNER, &iv)) {
+			if (PlrHasStorageItem(pnum, IDI_BANNER, &iv)) {
 				if (pnum == mypnum) {
 					PlrInvItemRemove(pnum, iv);
 				}
@@ -4994,7 +4994,7 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_VEIL]._qlog = TRUE;
 			if (pnum == mypnum)
 				NetSendCmdQuest(Q_VEIL, true);
-		} else if (quests[Q_VEIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_GLDNELIX, &iv)) {
+		} else if (quests[Q_VEIL]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_GLDNELIX, &iv)) {
 			mon->mtalkmsg = TEXT_VEIL11;
 			// mon->_mgoal = MGOAL_INQUIRING;
 			//mon->_mVar8 = 0; // init MON_TIMER

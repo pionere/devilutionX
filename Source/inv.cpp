@@ -1468,14 +1468,14 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		idx = TEXT_IM_MAPOFDOOM;
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int nn, i;
-		if ((idx == IDI_NOTE1 || PlrHasItem(pnum, IDI_NOTE1, &nn))
-		 && (idx == IDI_NOTE2 || PlrHasItem(pnum, IDI_NOTE2, &nn))
-		 && (idx == IDI_NOTE3 || PlrHasItem(pnum, IDI_NOTE3, &nn))) {
+		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
+		 && (idx == IDI_NOTE2 || PlrHasStorageItem(pnum, IDI_NOTE2, &nn))
+		 && (idx == IDI_NOTE3 || PlrHasStorageItem(pnum, IDI_NOTE3, &nn))) {
 			static_assert((int)IDI_NOTE1 + 1 == (int)IDI_NOTE2, "CheckQuestItem requires an ordered IDI_NOTE enum I.");
 			static_assert((int)IDI_NOTE2 + 1 == (int)IDI_NOTE3, "CheckQuestItem requires an ordered IDI_NOTE enum II.");
 			for (i = IDI_NOTE1; i <= IDI_NOTE3; i++) {
 				if (idx != i) {
-					PlrHasItem(pnum, i, &nn);
+					PlrHasStorageItem(pnum, i, &nn);
 					PlrInvItemRemove(pnum, nn);
 				}
 			}

@@ -2780,7 +2780,7 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	if (!deltaload && pnum != -1) { // TODO: possible desync of player-items?
 		if (numitems >= MAXITEMS)
 			return;
-		if (!PlrHasItem(pnum, IDI_BLDSTONE, &iv))
+		if (!PlrHasStorageItem(pnum, IDI_BLDSTONE, &iv))
 			return;
 		quests[Q_BLOOD]._qvar1++;
 		if (sendmsg) {
