@@ -100,10 +100,10 @@ const BYTE shrineavail[NUM_SHRINETYPE] = {
 	SHRINETYPE_ANY,    // SHRINE_GLIMMERING
 	SHRINETYPE_MULTI,  // SHRINE_TAINTED
 	SHRINETYPE_ANY,    // SHRINE_GLISTENING
-#ifdef HELLFIRE
 	SHRINETYPE_ANY,    // SHRINE_SPARKLING
-	SHRINETYPE_ANY,    // SHRINE_SOLAR
 	SHRINETYPE_ANY,    // SHRINE_MURPHYS
+#ifdef HELLFIRE
+	SHRINETYPE_ANY,    // SHRINE_SOLAR
 #endif
 };
 /** Maps from book_id to book name. */
@@ -3335,7 +3335,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		    0,
 		    0);
 		break;
-#ifdef HELLFIRE
 	case SHRINE_SPARKLING:
 		AddPlrExperience(pnum, plr._pLevel, 500 * currLvl._dLevel);
 		AddMissile(
@@ -3354,6 +3353,13 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_SPARKLING);
 		break;
+	case SHRINE_MURPHYS:
+		if (pnum != mypnum)
+			return;
+		NetSendShrineCmd(SHRINE_MURPHYS, os->_oRndSeed);
+		InitDiabloMsg(EMSG_SHRINE_MURPHYS);
+		break;
+#ifdef HELLFIRE
 	case SHRINE_SOLAR: { // BUGFIX: missiles are not added/handled by the delta info...
 		static_assert(MIS_RUNEFIRE + 1 == MIS_RUNELIGHT, "SHRINE_SOLAR expects runes in a given order I.");
 		static_assert(MIS_RUNEFIRE + 2 == MIS_RUNENOVA, "SHRINE_SOLAR expects runes in a given order II.");
@@ -3373,12 +3379,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_SOLAR);
 	} break;
-	case SHRINE_MURPHYS:
-		if (pnum != mypnum)
-			return;
-		NetSendShrineCmd(SHRINE_MURPHYS, os->_oRndSeed);
-		InitDiabloMsg(EMSG_SHRINE_MURPHYS);
-		break;
 #endif
 	default:
 		ASSUME_UNREACHABLE

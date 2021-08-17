@@ -46,10 +46,10 @@ const char *const MsgStrings[NUM_EMSGS] = {
 	"There can be only one.",					 		// EMSG_SHRINE_TAINTED
 	"The warmth of a fireside calls.",					// EMSG_SHRINE_GLISTENING
 	"Arcane knowledge gained!",							// EMSG_BONECHAMB
-#ifdef HELLFIRE
 	"Some experience is gained by touch.",				// EMSG_SHRINE_SPARKLING
-	"Let the sun guide your path.",						// EMSG_SHRINE_SOLAR
 	"That which can break will.",						// EMSG_SHRINE_MURPHYS
+#ifdef HELLFIRE
+	"Let the sun guide your path.",						// EMSG_SHRINE_SOLAR
 #endif
 // obsolete messages
 // "No automap available in town"
