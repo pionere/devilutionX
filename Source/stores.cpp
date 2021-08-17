@@ -943,8 +943,11 @@ static void S_StartBoy()
 	if (boyitem._itype != ITYPE_NONE) {
 		AddSText(0, STORE_BOY_GOSSIP1, true, "Talk to Wirt", COL_BLUE, true);
 		AddSText(0, 12, true, "I have something for sale,", COL_GOLD, false);
-		AddSText(0, 14, true, "but it will cost 50 gold", COL_GOLD, false);
-		AddSText(0, 16, true, "just to take a look. ", COL_GOLD, false);
+		if (!boyitem._iIdentified) {
+			static_assert(STORE_BOY_PRICE == 50, "Hardcoded boy price is 50.");
+			AddSText(0, 14, true, "but it will cost 50 gold", COL_GOLD, false);
+			AddSText(0, 16, true, "just to take a look. ", COL_GOLD, false);
+		}
 		AddSText(0, STORE_BOY_QUERY, true, "What have you got?", COL_WHITE, true);
 		AddSText(0, STORE_BOY_EXIT1, true, "Say goodbye", COL_WHITE, true);
 	} else {
@@ -1948,7 +1951,9 @@ static void S_BoyEnter()
 {
 	if (boyitem._itype != ITYPE_NONE) {
 		if (stextsel == STORE_BOY_QUERY) {
-			if (myplr._pGold < STORE_BOY_PRICE) {
+			if (boyitem._iIdentified) {
+				StartStore(STORE_BBOY);
+			} else if (myplr._pGold < STORE_BOY_PRICE) {
 				stextshold = STORE_BOY;
 				stextlhold = STORE_BOY_QUERY;
 				stextvhold = stextsidx;
