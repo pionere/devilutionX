@@ -1151,10 +1151,7 @@ void NetSendCmdGItem(BYTE bCmd, BYTE ii)
 
 	cmd.bCmd = bCmd;
 	cmd.bPnum = mypnum;
-	cmd.bMaster = mypnum;
 	cmd.bLevel = currLvl._dLevelIdx;
-	cmd.bCursitem = ii;
-	cmd.dwTime = 0;
 	is = &items[ii];
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;

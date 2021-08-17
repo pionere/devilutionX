@@ -995,14 +995,11 @@ typedef struct TCmdQuest {
 
 typedef struct TCmdGItem {
 	BYTE bCmd;
-	BYTE bMaster;
 	BYTE bPnum;
-	BYTE bCursitem;
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
 	PkItemStruct item;
-	INT dwTime;
 } TCmdGItem;
 
 typedef struct TCmdPItem {
