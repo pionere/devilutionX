@@ -111,7 +111,10 @@ typedef struct ItemStruct {
 	int _iSeed;
 	WORD _iIdx;
 	WORD _iCreateInfo;
-	int _ix;
+	union {
+		int _ix;
+		int _iPHolder; // parent index of a placeholder entry in InvList
+	};
 	int _iy;
 	int _iCurs;		// item_cursor_graphic
 	int _itype;
@@ -234,7 +237,6 @@ typedef struct PlayerStruct {
 	int _pxvel;   // Pixel X-velocity while walking. Indirectly applied to _pxoff via _pvar6
 	int _pyvel;   // Pixel Y-velocity while walking. Indirectly applied to _pyoff via _pvar7
 	int _pdir;    // Direction faced by player (direction enum)
-	int _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BYTE *_pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
 	int _pAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
@@ -321,10 +323,9 @@ typedef struct PlayerStruct {
 	ItemStruct _pInvBody[NUM_INVLOC];
 	ItemStruct _pSpdList[MAXBELTITEMS];
 	ItemStruct _pInvList[NUM_INV_GRID_ELEM];
-	char _pInvGrid[NUM_INV_GRID_ELEM];
-	int _pNumInv;
 	int _pGold;
-	BOOL _pInfraFlag;
+	BOOLEAN _pInfraFlag;
+	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	int _pISlMinDam;
 	int _pISlMaxDam;
 	int _pIBlMinDam;
@@ -368,7 +369,7 @@ typedef struct PlayerStruct {
 	BYTE *_pDData;
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
-	int alignment[192];
+	int alignment[207];
 #endif
 } PlayerStruct;
 
@@ -985,6 +986,12 @@ typedef struct TCmdGolem {
 	BYTE _currlevel;
 } TCmdGolem;
 
+typedef struct TCmdShrine {
+	BYTE bCmd;
+	BYTE shType;
+	INT shSeed;
+} TCmdShrine;
+
 typedef struct TCmdQuest {
 	BYTE bCmd;
 	BYTE q;
@@ -995,7 +1002,6 @@ typedef struct TCmdQuest {
 
 typedef struct TCmdGItem {
 	BYTE bCmd;
-	BYTE bPnum;
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
@@ -1007,19 +1013,29 @@ typedef struct TCmdPItem {
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
-	PkItemStruct item;
 } TCmdPItem;
 
-typedef struct TCmdChItem {
+typedef struct TCmdRPItem {
 	BYTE bCmd;
-	BYTE bLoc;
-	INT dwSeed;
-	WORD wIndx;
-	WORD wCI;
-	BYTE bCh;
-	BYTE bMCh;
-	BOOLEAN bId;
-} TCmdChItem;
+	BYTE bLevel;
+	BYTE x;
+	BYTE y;
+	PkItemStruct item;
+} TCmdRPItem;
+
+typedef struct TCmdStore1 {
+	BYTE bCmd;
+	BYTE stCmd;
+	BYTE stLoc;
+	INT stValue;
+} TCmdStore1;
+
+typedef struct TCmdStore2 {
+	BYTE bCmd;
+	BYTE stCmd;
+	PkItemStruct item;
+	INT stValue;
+} TCmdStore2;
 
 typedef struct TCmdPlrInfoHdr {
 	BYTE bCmd;

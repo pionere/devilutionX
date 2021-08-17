@@ -75,6 +75,8 @@ bool HasMana(int pnum, int sn, int sf)
 			return is->_itype != ITYPE_NONE && is->_iSpell == sn && is->_iCharges > 0;
 		} else if (sf < INVITEM_BELT_FIRST) {
 			is = &plr._pInvList[sf - INVITEM_INV_FIRST];
+			if (is->_itype == ITYPE_PLACEHOLDER)
+				return false;
 		} else {
 			is = &plr._pSpdList[sf - INVITEM_BELT_FIRST];
 		}
@@ -94,8 +96,9 @@ int SpellSourceInv(int sn)
 	static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_MANA || (int)INVITEM_INV_LAST < (int)SPLFROM_MANA, "SpellSourceInv expects the INV indices to be distinct from SPL_MANA.");
 	static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_INV_LAST < (int)SPLFROM_ABILITY, "SpellSourceInv expects the INV indices to be distinct from SPLFROM_ABILITY.");
 	pi = p->_pInvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn)
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
+		if (pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn
+		 && pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER)
 			return INVITEM_INV_FIRST + i;
 	}
 	static_assert((int)INVITEM_BELT_FIRST > (int)SPLFROM_INVALID || (int)INVITEM_BELT_LAST < (int)SPLFROM_INVALID, "SpellSourceInv expects the BELT indices to be distinct from SPLFROM_INVALID.");
@@ -103,7 +106,8 @@ int SpellSourceInv(int sn)
 	static_assert((int)INVITEM_BELT_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_BELT_LAST < (int)SPLFROM_ABILITY, "SpellSourceInv expects the BELT indices to be distinct from SPLFROM_ABILITY.");
 	pi = p->_pSpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn)
+		if (pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn
+		 && pi->_itype != ITYPE_NONE)
 			return INVITEM_BELT_FIRST + i;
 	}
 

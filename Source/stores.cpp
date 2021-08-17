@@ -574,7 +574,7 @@ static void AddStoreSell(ItemStruct *is, int i)
 
 static bool SmithSellOk(const ItemStruct *is)
 {
-	return is->_itype != ITYPE_NONE
+	return is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER
 #ifdef HELLFIRE
 		&& (is->_itype != ITYPE_MISC
 		 || (is->_iMiscId > IMISC_OILFIRST && is->_iMiscId < IMISC_OILLAST))
@@ -628,7 +628,7 @@ static void S_StartSSell()
 
 	p = &myplr;
 	pi = p->_pInvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++)
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
 		if (SmithSellOk(pi))
 			AddStoreSell(pi, i);
 #ifdef HELLFIRE
@@ -655,7 +655,7 @@ static void S_StartSSell()
 
 static bool SmithRepairOk(const ItemStruct *is)
 {
-	return is->_itype != ITYPE_NONE && is->_iDurability != is->_iMaxDur;
+	return is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER && is->_iDurability != is->_iMaxDur;
 }
 
 static void AddStoreHoldRepair(const ItemStruct *is, int i)
@@ -694,7 +694,7 @@ static void S_StartSRepair()
 		if (SmithRepairOk(pi))
 			AddStoreHoldRepair(pi, -(i + 1));
 	pi = p->_pInvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++)
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
 		if (SmithRepairOk(pi))
 			AddStoreHoldRepair(pi, i);
 
@@ -797,7 +797,7 @@ static void S_StartWSell()
 
 	p = &myplr;
 	pi = p->_pInvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++)
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
 		if (WitchSellOk(pi))
 			AddStoreSell(pi, i);
 	pi = p->_pSpdList;
@@ -821,7 +821,7 @@ static void S_StartWSell()
 
 static bool WitchRechargeOk(const ItemStruct *is)
 {
-	return is->_itype != ITYPE_NONE && is->_iCharges != is->_iMaxCharges;
+	return is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER && is->_iCharges != is->_iMaxCharges;
 }
 
 static void AddStoreHoldRecharge(const ItemStruct *is, int i)
@@ -854,7 +854,7 @@ static void S_StartWRecharge()
 		if (WitchRechargeOk(pi))
 			AddStoreHoldRecharge(pi, -(i + 1));
 	pi = p->_pInvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++)
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
 		if (WitchRechargeOk(pi))
 			AddStoreHoldRecharge(pi, i);
 
@@ -888,6 +888,13 @@ static void S_StartNoRoom()
 	gbHasScroll = false;
 	ClearSText(5, STORE_LINES);
 	AddSText(0, 14, true, "You do not have enough room in inventory", COL_WHITE, true);
+}
+
+static void S_StartWait()
+{
+	if (pcurs == CURSOR_HAND)
+		NewCursor(CURSOR_HOURGLASS);
+	stextflag = STORE_WAIT;
 }
 
 static void S_StartConfirm()
@@ -1048,7 +1055,7 @@ static void S_StartStory()
 
 static bool IdItemOk(const ItemStruct *is)
 {
-	return is->_itype != ITYPE_NONE
+	return is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER
 		&& is->_iMagical != ITEM_QUALITY_NORMAL
 		&& !is->_iIdentified;
 }
@@ -1082,7 +1089,7 @@ static void S_StartSIdentify()
 		if (IdItemOk(pi))
 			AddStoreHoldId(pi, -(i + 1));
 	pi = p->_pInvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++)
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
 		if (IdItemOk(pi))
 			AddStoreHoldId(pi, i);
 
@@ -1505,16 +1512,18 @@ static void S_SmithEnter()
 	}
 }
 
-void TakePlrsMoney(int cost)
+bool TakePlrsMoney(int pnum, int cost)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
 	int i, value;
 
-	p = &myplr;
+	p = &plr;
+	if (p->_pGold < cost)
+		return false;
 	p->_pGold -= cost;
-	for (i = 0; i < p->_pNumInv && cost > 0; i++) {
-		pi = &p->_pInvList[i];
+	pi = p->_pInvList;
+	for (i = 0; i < NUM_INV_GRID_ELEM && cost > 0; i++, pi++) {
 		if (pi->_itype != ITYPE_GOLD)
 			continue;
 		value = pi->_ivalue;
@@ -1524,12 +1533,11 @@ void TakePlrsMoney(int cost)
 		if (cost < 0) {
 			SetGoldItemValue(pi, -cost);
 		} else {
-			PlrInvItemRemove(mypnum, i);
-			i--;
+			pi->_itype = ITYPE_NONE;
 		}
 	}
-	for (i = 0; i < p->_pNumInv && cost > 0; i++) {
-		pi = &p->_pInvList[i];
+	pi = p->_pInvList;
+	for (i = 0; i < NUM_INV_GRID_ELEM && cost > 0; i++) {
 		if (pi->_itype != ITYPE_GOLD)
 			continue;
 		value = pi->_ivalue;
@@ -1537,19 +1545,41 @@ void TakePlrsMoney(int cost)
 		if (cost < 0) {
 			SetGoldItemValue(pi, -cost);
 		} else {
-			PlrInvItemRemove(mypnum, i);
-			i--;
+			pi->_itype = ITYPE_NONE;
 		}
 	}
+	return true;
 }
 
-static bool StoreAutoPlace(bool saveflag)
+static bool StoreAutoPlace(int pnum, bool saveflag)
 {
-	int pnum = mypnum;
-
-	return WeaponAutoPlace(pnum, &storeitem, saveflag)
-		|| AutoPlaceBelt(pnum, &storeitem, saveflag)
+	return /*WeaponAutoPlace(pnum, &storeitem, saveflag)
+		|| */AutoPlaceBelt(pnum, &storeitem, saveflag)
 		|| AutoPlaceInv(pnum, &storeitem, saveflag);
+}
+
+static void SendStoreCmd1(unsigned idx, BYTE bStoreId, int value)
+{
+	TCmdStore1 cmd;
+
+	cmd.bCmd = CMD_STORE_1;
+	cmd.stCmd = bStoreId;
+	cmd.stLoc = idx;
+	cmd.stValue = SwapLE32(value);
+
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+}
+
+static void SendStoreCmd2(BYTE bStoreId)
+{
+	TCmdStore2 cmd;
+
+	cmd.bCmd = CMD_STORE_2;
+	cmd.stCmd = bStoreId;
+	PackPkItem(&cmd.item, &storeitem);
+	cmd.stValue = SwapLE32(storeitem._iIvalue);
+
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
 /**
@@ -1559,8 +1589,8 @@ static void SmithBuyItem()
 {
 	int idx;
 
-	TakePlrsMoney(storeitem._iIvalue);
-	StoreAutoPlace(true);
+	SendStoreCmd2(STORE_SBUY);
+
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	do {
 		copy_pod(smithitem[idx], smithitem[idx + 1]);
@@ -1575,7 +1605,7 @@ static void StoreStartBuy(ItemStruct *is, int price)
 	} else {
 		copy_pod(storeitem, *is);
 		//storeitem._iIvalue = price; // only for boyitem
-		if (StoreAutoPlace(false))
+		if (StoreAutoPlace(mypnum, false))
 			StartStore(STORE_CONFIRM);
 		else
 			StartStore(STORE_NOROOM);
@@ -1605,8 +1635,7 @@ static void SmithBuyPItem()
 {
 	int i, xx, idx;
 
-	TakePlrsMoney(storeitem._iIvalue);
-	StoreAutoPlace(true);
+	SendStoreCmd2(STORE_SPBUY);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	xx = 0;
@@ -1645,95 +1674,71 @@ static void S_SPBuyEnter()
 	}
 }
 
-static bool StoreGoldFit(int idx)
+static bool StoreGoldFit(int cost, int slotCurs)
 {
 	ItemStruct *pi;
-	int i, cost, numsqrs;
+	int i, numsqrs;
 
-	cost = storehold[idx]._iIvalue;
-
-	numsqrs = 0;
 	// add the item slots but only if it is not in the belt, since gold can not be placed there
-	if (storehidx[idx] >= 0) {
-		i = storehold[idx]._iCurs + CURSOR_FIRSTITEM;
-		numsqrs = InvItemHeight[i] * InvItemWidth[i] / (INV_SLOT_SIZE_PX * INV_SLOT_SIZE_PX);
+	if (slotCurs != CURSOR_NONE) {
+		numsqrs = InvItemHeight[slotCurs] * InvItemWidth[slotCurs] / (INV_SLOT_SIZE_PX * INV_SLOT_SIZE_PX);
+		cost -= numsqrs * GOLD_MAX_LIMIT;
 	}
-	// add the empty slots
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (myplr._pInvGrid[i] == 0)
-			numsqrs++;
-	}
-
-	cost -= numsqrs * GOLD_MAX_LIMIT;
-	if (cost <= 0)
-		return true;
-
-	// check for not full piles of gold if there is still not enough place
 	pi = myplr._pInvList;
-	for (i = myplr._pNumInv; i > 0; i--, pi++) {
-		if (pi->_itype == ITYPE_GOLD) {
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
+		if (pi->_itype == ITYPE_NONE)
+			// add the empty slots
+			cost -= GOLD_MAX_LIMIT;
+		else if (pi->_itype == ITYPE_GOLD)
+			// check for not full piles of gold
 			cost -= GOLD_MAX_LIMIT - pi->_ivalue;
-			if (cost <= 0)
-				return true;
-		}
 	}
-	return false;
+
+	return cost <= 0;
 }
 
 /**
  * @brief Add gold pile to the players inventory
  * @param v The value of the gold pile
  */
-static void PlaceStoreGold(int v)
+static void PlaceStoreGold(PlayerStruct* p, int v)
 {
-	PlayerStruct *p;
 	ItemStruct* pi;
 	int i;
 
-	p = &myplr;
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (p->_pInvGrid[i] == 0) {
-			pi = &p->_pInvList[p->_pNumInv];
+	pi = p->_pInvList;
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
+		if (pi->_itype == ITYPE_NONE) {
 			CreateBaseItem(pi, IDI_GOLD);
 			SetGoldItemValue(pi, v);
-			NetSendCmdChItem(pi, INVITEM_INV_FIRST + p->_pNumInv);
-			p->_pInvGrid[i] = ++p->_pNumInv;
 			break;
 		}
 	}
 }
 
-/**
- * @brief Sells an item from the player's inventory or belt.
- */
-static void StoreSellItem()
+static bool SyncSellItem(int pnum, int cii, int cost)
 {
-	PlayerStruct *p;
-	ItemStruct *pi;
-	int i, idx, cost, val;
+	PlayerStruct* p;
+	ItemStruct* pi;
+	int i, val;
 
-	idx = stextvhold + ((stextlhold - stextup) >> 2);
-	i = storehidx[idx];
-	if (i >= 0) {
-		RemoveInvItem(mypnum, i);
-		i += INVITEM_INV_FIRST;
-	} else {
-		i = -(i + 1);
-		RemoveSpdBarItem(mypnum, i);
-		i += INVITEM_BELT_FIRST;
-	}
-	NetSendCmdDelItem(i);
-	cost = storehold[idx]._iIvalue;
-	storenumh--;
-	while (idx < storenumh) {
-		copy_pod(storehold[idx], storehold[idx + 1]);
-		storehidx[idx] = storehidx[idx + 1];
-		idx++;
-	}
-	p = &myplr;
+	if (cii >= NUM_INVELEM)
+		return false;
+	pi = PlrItem(pnum, cii);
+	if (pi->_itype == ITYPE_NONE)
+		return false;
+	i = pi->_iCurs + CURSOR_FIRSTITEM;
+	if (cii > INVITEM_INV_LAST || cii < INVITEM_INV_FIRST)
+		i = CURSOR_NONE;
+	if (!StoreGoldFit(cost, i))
+		return false;
+
+	SyncPlrItemRemove(pnum, cii);
+	// AddPlrMoney
+	p = &plr;
 	p->_pGold += cost;
 	pi = p->_pInvList;
-	for (i = p->_pNumInv; i > 0 && cost > 0; i--, pi++) {
+	for (i = NUM_INV_GRID_ELEM; i > 0 && cost > 0; i--, pi++) {
 		if (pi->_itype != ITYPE_GOLD)
 			continue;
 		val = GOLD_MAX_LIMIT - pi->_ivalue;
@@ -1749,31 +1754,159 @@ static void StoreSellItem()
 	}
 	if (cost > 0) {
 		while (cost > GOLD_MAX_LIMIT) {
-			PlaceStoreGold(GOLD_MAX_LIMIT);
+			PlaceStoreGold(p, GOLD_MAX_LIMIT);
 			cost -= GOLD_MAX_LIMIT;
 		}
-		PlaceStoreGold(cost);
+		PlaceStoreGold(p, cost);
 	}
+	return true;
+}
+
+void SyncStoreCmd(int pnum, int cmd, int ii, int price)
+{
+	ItemStruct* pi;
+	BYTE lastshold, nextMode = STORE_NONE;
+
+	if (pnum == mypnum && stextflag != STORE_NONE) {
+		if (stextflag == STORE_WAIT) {
+			nextMode = stextshold;
+			if (pcurs == CURSOR_HOURGLASS && gnTimeoutCurs == CURSOR_NONE)
+				NewCursor(CURSOR_HAND);
+		}
+		stextflag = STORE_NONE;
+	}
+
+	//if (plr._pDunLevel != DLV_TOWN)
+	//	return;
+	lastshold = cmd;
+	switch (lastshold) {
+	case STORE_HBUY:
+	case STORE_SBUY:
+	case STORE_SPBUY:
+	case STORE_WBUY:
+	case STORE_BBOY:
+		assert(ii == MAXITEMS);
+		copy_pod(storeitem, items[MAXITEMS]);
+		if (!StoreAutoPlace(pnum, false) || !TakePlrsMoney(pnum, price))
+			return;
+		// TODO: validate price?
+		//StorePrepareItemBuy(&storeitem);
+		//ItemStatOk(pnum, &storeitem);
+		if (storeitem._iMagical != ITEM_QUALITY_NORMAL)
+			storeitem._iIdentified = TRUE;
+		StoreAutoPlace(pnum, true);
+		break;
+	case STORE_SSELL:
+		if (!SyncSellItem(pnum, ii, price)) {
+			return;
+		}
+		lastshold = nextMode;
+		break;
+	case STORE_SIDENTIFY:
+		assert(price == STORE_ID_PRICE);
+		if (!TakePlrsMoney(pnum, STORE_ID_PRICE))
+			return;
+		pi = PlrItem(pnum, ii);
+		if (pi->_iMagical != ITEM_QUALITY_NORMAL) {
+			pi->_iIdentified = TRUE;
+		}
+		lastshold = STORE_IDSHOW;
+		break;
+	case STORE_SREPAIR:
+		if (!TakePlrsMoney(pnum, price))
+			return;
+		pi = PlrItem(pnum, ii);
+		// TODO: validate price?
+		pi->_iDurability = pi->_iMaxDur;
+		break;
+	case STORE_WRECHARGE:
+		if (!TakePlrsMoney(pnum, price))
+			return;
+		pi = PlrItem(pnum, ii);
+		// TODO: validate price?
+		pi->_iCharges = pi->_iMaxCharges;
+		break;
+	case STORE_BOY:
+		assert(price == STORE_BOY_PRICE);
+		if (!TakePlrsMoney(pnum, STORE_BOY_PRICE))
+			return;
+		//lastshold = STORE_BOY;
+		lastshold = STORE_BBOY;
+		break;
+	}
+
+	CalcPlrInv(pnum, plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
+
+	// pnum != mypnum or the current player was impatient -> done
+	if (nextMode == STORE_NONE)
+		return;
+
+	StartStore(lastshold);
+	// deliberate redirect -> done
+	if (stextshold != lastshold)
+		return;
+	// store page is empty -> done
+	if (stextsel == STORE_BACK) {
+		return;
+	}
+
+	stextsel = stextlhold;
+	stextsidx = std::min(stextvhold, stextsmax);
+
+	while (stextsel != -1 && !stextlines[stextsel]._ssel) {
+		stextsel--;
+	}
+}
+
+/**
+ * @brief Sells an item from the player's inventory or belt.
+ */
+static void StoreSellItem()
+{
+	int i, idx, cost;
+
+	idx = stextvhold + ((stextlhold - stextup) >> 2);
+	i = storehidx[idx];
+	if (i >= 0) {
+		i += INVITEM_INV_FIRST;
+	} else {
+		i = INVITEM_BELT_FIRST - (i + 1);
+	}
+	cost = storehold[idx]._iIvalue;
+	SendStoreCmd1(i, STORE_SSELL, cost);
+
+	storenumh--;
+	while (idx < storenumh) {
+		copy_pod(storehold[idx], storehold[idx + 1]);
+		storehidx[idx] = storehidx[idx + 1];
+		idx++;
+	}
+}
+
+static void S_SSell()
+{
+	int idx;
+
+	stextlhold = stextsel;
+	idx = stextsidx + ((stextsel - stextup) >> 2);
+	stextshold = stextflag;
+	stextvhold = stextsidx;
+	copy_pod(storeitem, storehold[idx]);
+
+	idx = storehidx[idx] >= 0 ? storeitem._iCurs + CURSOR_FIRSTITEM : CURSOR_NONE;
+	if (StoreGoldFit(storeitem._iIvalue, idx))
+		StartStore(STORE_CONFIRM);
+	else
+		StartStore(STORE_NOROOM);
 }
 
 static void S_SSellEnter()
 {
-	int idx;
-
 	if (stextsel == STORE_BACK) {
 		StartStore(STORE_SMITH);
 		stextsel = STORE_SMITH_SELL;
 	} else {
-		stextlhold = stextsel;
-		idx = stextsidx + ((stextsel - stextup) >> 2);
-		stextshold = STORE_SSELL;
-		stextvhold = stextsidx;
-		copy_pod(storeitem, storehold[idx]);
-
-		if (StoreGoldFit(idx))
-			StartStore(STORE_CONFIRM);
-		else
-			StartStore(STORE_NOROOM);
+		S_SSell();
 	}
 }
 
@@ -1782,20 +1915,18 @@ static void S_SSellEnter()
  */
 static void SmithRepairItem()
 {
-	ItemStruct *pi;
 	int i, idx;
-
-	TakePlrsMoney(storeitem._iIvalue);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 
 	i = storehidx[idx];
 	if (i < 0) {
-		pi = &myplr._pInvBody[-(i + 1)];
+		i = INVITEM_BODY_FIRST - (i + 1);
 	} else {
-		pi = &myplr._pInvList[i];
+		i += INVITEM_INV_FIRST;
 	}
-	pi->_iDurability = pi->_iMaxDur;
+
+	SendStoreCmd1(i, STORE_SREPAIR, storeitem._iIvalue);
 }
 
 static void S_SRepairEnter()
@@ -1857,8 +1988,7 @@ static void WitchBuyItem()
 	if (idx < 3)
 		storeitem._iSeed = GetRndSeed();
 
-	TakePlrsMoney(storeitem._iIvalue);
-	StoreAutoPlace(true);
+	SendStoreCmd2(STORE_WBUY);
 
 	if (idx >= 3) {
 		do {
@@ -1887,21 +2017,11 @@ static void S_WBuyEnter()
 
 static void S_WSellEnter()
 {
-	int idx;
-
 	if (stextsel == STORE_BACK) {
 		StartStore(STORE_WITCH);
 		stextsel = STORE_WITCH_SELL;
 	} else {
-		stextlhold = stextsel;
-		idx = stextsidx + ((stextsel - stextup) >> 2);
-		stextshold = STORE_WSELL;
-		stextvhold = stextsidx;
-		copy_pod(storeitem, storehold[idx]);
-		if (StoreGoldFit(idx))
-			StartStore(STORE_CONFIRM);
-		else
-			StartStore(STORE_NOROOM);
+		S_SSell();
 	}
 }
 
@@ -1910,21 +2030,17 @@ static void S_WSellEnter()
  */
 static void WitchRechargeItem()
 {
-	ItemStruct *pi;
 	int i, idx;
-
-	TakePlrsMoney(storeitem._iIvalue);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 
 	i = storehidx[idx];
-	if (i < 0)
-		pi = &myplr._pInvBody[-(i + 1)];
-	else
-		pi = &myplr._pInvList[i];
-	pi->_iCharges = pi->_iMaxCharges;
-
-	CalcPlrInv(mypnum, false); // last parameter should not matter
+	if (i < 0) {
+		i = INVITEM_BODY_FIRST - (i + 1);
+	} else {
+		i += INVITEM_INV_FIRST;
+	}
+	SendStoreCmd1(i, STORE_WRECHARGE, storeitem._iIvalue);
 }
 
 static void S_WRechargeEnter()
@@ -1951,16 +2067,16 @@ static void S_BoyEnter()
 {
 	if (boyitem._itype != ITYPE_NONE) {
 		if (stextsel == STORE_BOY_QUERY) {
+			stextshold = STORE_BOY;
+			stextlhold = STORE_BOY_QUERY;
+			stextvhold = stextsidx;
 			if (boyitem._iIdentified) {
 				StartStore(STORE_BBOY);
 			} else if (myplr._pGold < STORE_BOY_PRICE) {
-				stextshold = STORE_BOY;
-				stextlhold = STORE_BOY_QUERY;
-				stextvhold = stextsidx;
 				StartStore(STORE_NOMONEY);
 			} else {
-				TakePlrsMoney(STORE_BOY_PRICE);
-				StartStore(STORE_BBOY);
+				SendStoreCmd1(0, STORE_BOY, STORE_BOY_PRICE);
+				S_StartWait();
 			}
 			return;
 		}
@@ -1982,11 +2098,9 @@ static void S_BoyEnter()
 
 static void BoyBuyItem()
 {
-	TakePlrsMoney(storeitem._iIvalue);
-	// restore the price of the item
-	//storeitem._iIvalue = boyitem._iIvalue;
-	StoreAutoPlace(true);
 	boyitem._itype = ITYPE_NONE;
+
+	SendStoreCmd2(STORE_BBOY);
 }
 
 /**
@@ -2002,8 +2116,7 @@ static void HealerBuyItem()
 	if (infinite)
 		storeitem._iSeed = GetRndSeed();
 
-	TakePlrsMoney(storeitem._iIvalue);
-	StoreAutoPlace(true);
+	SendStoreCmd2(STORE_HBUY);
 
 	if (infinite)
 		return;
@@ -2029,18 +2142,15 @@ static void S_BBuyEnter()
 
 static void StoryIdItem()
 {
-	ItemStruct *pi;
 	int idx;
 
 	idx = storehidx[((stextlhold - stextup) >> 2) + stextvhold];
 	if (idx < 0)
-		pi = &myplr._pInvBody[-(idx + 1)];
+		idx = INVITEM_BODY_FIRST -(idx + 1);
 	else
-		pi = &myplr._pInvList[idx];
-	pi->_iIdentified = TRUE;
+		idx += INVITEM_INV_FIRST;
 	storeitem._iIdentified = TRUE;
-	TakePlrsMoney(STORE_ID_PRICE);
-	CalcPlrInv(mypnum, true);
+	SendStoreCmd1(idx, STORE_SIDENTIFY, STORE_ID_PRICE);
 }
 
 static void S_ConfirmEnter()
@@ -2067,14 +2177,14 @@ static void S_ConfirmEnter()
 			break;
 		case STORE_BBOY:
 			BoyBuyItem();
-			lastshold = STORE_BOY;
+			//lastshold = STORE_BOY;
 			break;
 		case STORE_HBUY:
 			HealerBuyItem();
 			break;
 		case STORE_SIDENTIFY:
 			StoryIdItem();
-			lastshold = STORE_IDSHOW;
+			//lastshold = STORE_IDSHOW;
 			break;
 		case STORE_SPBUY:
 			SmithBuyPItem();
@@ -2083,16 +2193,20 @@ static void S_ConfirmEnter()
 			ASSUME_UNREACHABLE
 			break;
 		}
+		//lastshold = STORE_WAIT;
+		S_StartWait();
+		return;
 	}
 
 	StartStore(lastshold);
-
-	if (stextshold != lastshold) {
-		return;
-	}
-	if (stextsel == STORE_BACK) {
-		return;
-	}
+	// deliberate redirect -> done
+	//if (stextshold != lastshold) {
+	//	return;
+	//}
+	// store page is empty -> done
+	//if (stextsel == STORE_BACK) {
+	//	return;
+	//}
 
 	stextsel = stextlhold;
 	stextsidx = std::min(stextvhold, stextsmax);
@@ -2287,7 +2401,6 @@ void STextEnter()
 		//if (currLvl._dType == DTYPE_TOWN)
 			stream_stop();
 	} else {
-		PlaySFX(IS_TITLSLCT);
 		switch (stextflag) {
 		case STORE_SMITH:
 			S_SmithEnter();
@@ -2358,10 +2471,13 @@ void STextEnter()
 		case STORE_BARMAID:
 			S_BarmaidEnter();
 			break;
+		case STORE_WAIT:
+			return;
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
+		PlaySFX(IS_TITLSLCT);
 	}
 }
 
@@ -2373,7 +2489,8 @@ void CheckStoreBtn()
 		gbQtextflag = false;
 		//if (currLvl._dType == DTYPE_TOWN)
 			stream_stop();
-	} else if (stextsel != -1 && MouseY >= (32 + UI_OFFSET_Y) && MouseY < (320 + UI_OFFSET_Y)) {
+	} else if (stextsel != -1 && stextflag != STORE_WAIT
+	 && MouseY >= (32 + UI_OFFSET_Y) && MouseY < (320 + UI_OFFSET_Y)) {
 		if (gbWidePanel) {
 			if (MouseX < 24 + PANEL_LEFT || MouseX > 616 + PANEL_LEFT)
 				return;

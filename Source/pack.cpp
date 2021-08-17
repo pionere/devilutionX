@@ -10,7 +10,10 @@ DEVILUTION_BEGIN_NAMESPACE
 static void PackItem(PkItemStruct *pis, const ItemStruct *is)
 {
 	if (is->_itype == ITYPE_NONE) {
-		pis->wIndx = 0xFFFF;
+		pis->wIndx = SwapLE16(IDI_NONE);
+	} else if (is->_itype == ITYPE_PLACEHOLDER) {
+		pis->wIndx = SwapLE16(IDI_PHOLDER);
+		pis->dwBuff = SwapLE32(is->_iPHolder);
 	} else {
 		PackPkItem(pis, is);
 	}
@@ -98,11 +101,6 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pki++;
 		pi++;
 	}
-
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
-		pPack->pInvGrid[i] = p->_pInvGrid[i];
-
-	pPack->pNumInv = SwapLE32(p->_pNumInv);
 }
 
 /**
@@ -117,8 +115,11 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 {
 	uint16_t idx = SwapLE16(pis->wIndx);
 
-	if (idx == 0xFFFF) {
+	if (idx == IDI_NONE) {
 		is->_itype = ITYPE_NONE;
+	} else if (idx == IDI_PHOLDER) {
+		is->_itype = ITYPE_PLACEHOLDER;
+		is->_iPHolder = SwapLE32(pis->dwBuff);
 	} else {
 		UnPackPkItem(pis);
 		copy_pod(*is, items[MAXITEMS]);
@@ -128,7 +129,7 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 {
 	int i, j;
-	ItemStruct *pi;
+	ItemStruct *pi, *is;
 	PkItemStruct *pki;
 
 	// TODO: validate data from the internet
@@ -205,11 +206,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		pi++;
 	}
 
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
-		plr._pInvGrid[i] = pPack->pInvGrid[i];
-
-	plr._pNumInv = pPack->pNumInv;
-
 	// reset fields which are used even by non-local players, but not part of pPack
 	ClrPlrPath(pnum);
 	plr.destAction = ACTION_NONE;
@@ -228,26 +224,29 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		plr._pLevel = MAXCHARLEVEL;	// reduce invalid level
 	if (plr._pTeam >= MAX_PLRS)
 		plr._pTeam = pnum;			// overwrite invalid team
-	// TODO: check if the items conform to the wielding rules?
-	/*pi = &plr._pInvBody[INVLOC_HAND_LEFT];
-	if (pi->_itype != ITYPE_NONE && pi->_iClass != ICLASS_WEAPON)
+	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
+	if (pi->_iClass != ICLASS_WEAPON || pi->_itype == ITYPE_PLACEHOLDER)
 		pi->_itype = ITYPE_NONE;    // remove invalid weapon in left hand
 	if (pi->_itype == ITYPE_NONE) {
 		pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
-		if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON) {
-			copy_pod(plr._pInvBody[INVLOC_HAND_LEFT], *pi);
-			pi->_itype = ITYPE_NONE; // move weapon from right hand to left hand
-		}
-	}*/
+		if (pi->_itype != ITYPE_SHIELD)
+			pi->_itype = ITYPE_NONE; // remove invalid weapon/item in right hand
+	}
+	// TODO: check if the items conform to the wielding rules?
+	// TODO: check placeholders
 	// verify the gold-seeds TODO check gold values?
-	for (i = 0; i < plr._pNumInv; i++) {
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		pi = &plr._pInvList[i];
-		if (pi->_iIdx == IDI_GOLD) {
+		if (pi->_iIdx == IDI_GOLD
+		 && pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER) {
 			//if (pi->_ivalue > GOLD_MAX_LIMIT)
 			//	pi->_ivalue = GOLD_MAX_LIMIT;
-			for (j = 0; j < plr._pNumInv; j++) {
-				if (i != j
-				 && plr._pInvList[j]._iIdx == IDI_GOLD && plr._pInvList[j]._iSeed == pi->_iSeed) {
+			for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
+				if (i == j)
+					continue;
+				is = &plr._pInvList[j];
+				if (is->_iIdx == IDI_GOLD && is->_iSeed == pi->_iSeed
+				 && is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER) {
 					pi->_iSeed = GetRndSeed();
 					j = -1;
 				}

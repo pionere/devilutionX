@@ -20,6 +20,7 @@ void FreeTownerGFX();
 void ProcessTowners();
 bool PlrHasStorageItem(int pnum, int item, int* outidx);
 void TalkToTowner(int tnum);
+void SyncTownerQ(int pnum, int idx);
 
 #ifdef __cplusplus
 }

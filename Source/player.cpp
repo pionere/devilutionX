@@ -2726,7 +2726,7 @@ static void CheckNewPath(int pnum)
 				x = abs(plr._px - items[i]._ix);
 				y = abs(plr._py - items[i]._iy);
 				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND) {
-					NetSendCmdGItem(CMD_REQUESTGITEM, i);
+					NetSendCmdGItem(CMD_GETITEM, i);
 				}
 			}
 			break;
@@ -2736,7 +2736,7 @@ static void CheckNewPath(int pnum)
 				x = abs(plr._px - items[i]._ix);
 				y = abs(plr._py - items[i]._iy);
 				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND) {
-					NetSendCmdGItem(CMD_REQUESTAGITEM, i);
+					NetSendCmdGItem(CMD_AUTOGETITEM, i);
 				}
 			}
 			break;
@@ -2824,7 +2824,7 @@ static void ValidatePlayer()
 
 	gt = 0;
 	pi = p->_pInvList;
-	for (i = p->_pNumInv; i != 0; i--, pi++) {
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
 			//if (pi->_ivalue > GOLD_MAX_LIMIT)
 			//	pi->_ivalue = GOLD_MAX_LIMIT;

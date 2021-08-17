@@ -466,8 +466,9 @@ bool PlrHasStorageItem(int pnum, int item, int* outidx)
 	int i;
 
 	pi = plr._pInvList;
-	for (i = 0; i < plr._pNumInv; i++, pi++) {
-		if (pi->_iIdx == item) {
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
+		if (pi->_iIdx == item
+		 && pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER) {
 			*outidx = i;
 			return true;
 		}
@@ -503,13 +504,103 @@ static void TownerTalk(int store, int talk)
 	StartStore(store);
 }
 
+void SyncTownerQ(int pnum, int idx)
+{
+	int i;
+
+	//if (plr._pmode == PM_DEATH)
+	//	return;
+	//if (plr._pDunLevel != DLV_TOWN)
+	//	return;
+	if (!PlrHasStorageItem(pnum, idx, &i))
+		return;
+
+	switch (idx) {
+	case IDI_BANNER:
+		if (quests[Q_LTBANNER]._qvar1 >= 2)
+			return;
+		quests[Q_LTBANNER]._qlog = FALSE;
+		quests[Q_LTBANNER]._qvar1 = 2;
+		if (currLvl._dLevelIdx == DLV_TOWN)
+			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, pnum == mypnum, false);
+		break;
+	case IDI_ROCK:
+		if (quests[Q_ROCK]._qactive == QUEST_DONE /*|| quests[Q_ROCK]._qactive == QUEST_NOTAVAIL*/)
+			return;
+		quests[Q_ROCK]._qactive = QUEST_DONE;
+		//quests[Q_ROCK]._qlog = FALSE;
+		if (currLvl._dLevelIdx == DLV_TOWN)
+			SpawnUnique(UITEM_INFRARING, TPOS_SMITH + 1, pnum == mypnum, false);
+		break;
+	case IDI_ANVIL:
+		if (quests[Q_ANVIL]._qactive == QUEST_DONE /*|| quests[Q_ANVIL]._qactive == QUEST_NOTAVAIL*/)
+			return;
+		quests[Q_ANVIL]._qactive = QUEST_DONE;
+		//quests[Q_ANVIL]._qlog = FALSE;
+		if (currLvl._dLevelIdx == DLV_TOWN)
+			SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH + 1, pnum == mypnum, false);
+		break;
+	case IDI_FUNGALTM:
+		if (quests[Q_MUSHROOM]._qactive != QUEST_INIT)
+			return;
+		quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
+		quests[Q_MUSHROOM]._qlog = TRUE;
+		quests[Q_MUSHROOM]._qvar1 = QS_TOMEGIVEN;
+		break;
+	case IDI_MUSHROOM:
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN)
+			return;
+		quests[Q_MUSHROOM]._qvar1 = QS_MUSHGIVEN;
+		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
+		break;
+	case IDI_BRAIN:
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN)
+			return;
+		quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
+		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
+		if (currLvl._dLevelIdx == DLV_TOWN)
+			SpawnQuestItemAround(IDI_SPECELIX, TPOS_HEALER + 1, pnum == mypnum, false);
+		break;
+	case IDI_LAZSTAFF:
+		if (quests[Q_BETRAYER]._qvar1 >= 2 /*|| quests[Q_BETRAYER]._qactive != QUEST_ACTIVE*/)
+			return;
+		quests[Q_BETRAYER]._qvar1 = 2;
+		quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
+		quests[Q_BETRAYER]._qlog = TRUE;
+		break;
+#ifdef HELLFIRE
+	case IDI_GRAYSUIT:
+		break;
+	case IDI_BROWNSUIT:
+		if (quests[Q_JERSEY]._qactive != QUEST_ACTIVE)
+			return;
+		quests[Q_JERSEY]._qactive = QUEST_DONE;
+		if (currLvl._dLevelIdx == DLV_TOWN)
+			SpawnUnique(UITEM_BOVINE, TPOS_COWFARM, pnum == mypnum, false);
+		break;
+	case IDI_THEODORE:
+		if (quests[Q_GIRL]._qactive != QUEST_ACTIVE)
+			return;
+		quests[Q_GIRL]._qactive = QUEST_DONE;
+		// quests[Q_GIRL]._qlog = FALSE;
+		if (currLvl._dLevelIdx == DLV_TOWN) {
+			WORD wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
+			SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
+			CreateAmulet(wCI, TPOS_GIRL, pnum == mypnum, false);
+		}
+		break;
+#endif
+	default:
+		return;
+	}
+
+	SyncPlrStorageRemove(pnum, i);
+}
+
 void TalkToTowner(int tnum)
 {
 	TownerStruct *tw;
 	int i, dx, dy, qt, qn, pnum = mypnum;
-#ifdef HELLFIRE
-	int ii;
-#endif
 
 	tw = &towners[tnum];
 	dx = abs(plr._px - tw->_tx);
@@ -556,11 +647,7 @@ void TalkToTowner(int tnum)
 				qn = Q_LTBANNER;
 				qt = TEXT_BANNER2;
 			} else if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_BANNER, &i)) {
-				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, false, true);
-				quests[Q_LTBANNER]._qlog = FALSE;
-				quests[Q_LTBANNER]._qvar1 = 2;
-				qn = Q_LTBANNER;
+				NetSendCmdParam1(true, CMD_QTOWNER, IDI_BANNER);
 				qt = TEXT_BANNER3;
 			}
 		}
@@ -592,11 +679,7 @@ void TalkToTowner(int tnum)
 				break;
 			}
 			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_ROCK, &i)) {
-				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_INFRARING, TPOS_SMITH + 1, false, true);
-				quests[Q_ROCK]._qactive = QUEST_DONE;
-				quests[Q_ROCK]._qlog = FALSE;
-				qn = Q_ROCK;
+				NetSendCmdParam1(true, CMD_QTOWNER, IDI_ROCK);
 				qt = TEXT_INFRA7;
 				break;
 			}
@@ -609,30 +692,19 @@ void TalkToTowner(int tnum)
 				qn = Q_ANVIL;
 				qt = TEXT_ANVIL5;
 			} else if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_ANVIL, &i)) {
-				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH + 1, false, true);
-				quests[Q_ANVIL]._qactive = QUEST_DONE;
-				quests[Q_ANVIL]._qlog = FALSE;
-				qn = Q_ANVIL;
+				NetSendCmdParam1(true, CMD_QTOWNER, IDI_ANVIL);
 				qt = TEXT_ANVIL7;
 			}
 		}
 		break;
 	case TOWN_WITCH:
 		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_FUNGALTM, &i)) {
-			PlrInvItemRemove(pnum, i);
-			quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
-			quests[Q_MUSHROOM]._qlog = TRUE;
-			quests[Q_MUSHROOM]._qvar1 = QS_TOMEGIVEN;
-			qn = Q_MUSHROOM;
+			NetSendCmdParam1(true, CMD_QTOWNER, IDI_FUNGALTM);
 			qt = TEXT_MUSH8;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
 			if (quests[Q_MUSHROOM]._qvar1 < QS_MUSHGIVEN) {
 				if (PlrHasStorageItem(pnum, IDI_MUSHROOM, &i)) {
-					PlrInvItemRemove(pnum, i);
-					quests[Q_MUSHROOM]._qvar1 = QS_MUSHGIVEN;
-					quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
-					qn = Q_MUSHROOM;
+					NetSendCmdParam1(true, CMD_QTOWNER, IDI_MUSHROOM);
 					qt = TEXT_MUSH10;
 					break;
 				}
@@ -683,11 +755,7 @@ void TalkToTowner(int tnum)
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
 		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
 			if (PlrHasStorageItem(pnum, IDI_BRAIN, &i)) {
-				PlrInvItemRemove(pnum, i);
-				SpawnQuestItemAround(IDI_SPECELIX, TPOS_HEALER + 1, false, true);
-				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
-				quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
-				qn = Q_MUSHROOM;
+				NetSendCmdParam1(true, CMD_QTOWNER, IDI_BRAIN);
 				qt = TEXT_MUSH4;
 			} else if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
 				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH3;
@@ -700,10 +768,7 @@ void TalkToTowner(int tnum)
 	case TOWN_STORY:
 		if (!IsMultiGame) {
 			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_LAZSTAFF, &i)) {
-				PlrInvItemRemove(pnum, i);
-				quests[Q_BETRAYER]._qvar1 = 2;
-				quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
-				quests[Q_BETRAYER]._qlog = TRUE;
+				NetSendCmdParam1(true, CMD_QTOWNER, IDI_LAZSTAFF);
 				qt = TEXT_VILE1;
 			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
 				quests[Q_BETRAYER]._qvar1 = 8;
@@ -800,14 +865,11 @@ void TalkToTowner(int tnum)
 			break;
 		case QUEST_ACTIVE:
 			if (PlrHasStorageItem(pnum, IDI_GRAYSUIT, &i)) {
-				PlrInvItemRemove(pnum, i);
+				NetSendCmdParam1(true, CMD_QTOWNER, IDI_GRAYSUIT);
 				qt = TEXT_JERSEY7;
 				break;
 			} else if (PlrHasStorageItem(pnum, IDI_BROWNSUIT, &i)) {
-				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_BOVINE, TPOS_COWFARM, false, true);
-				quests[Q_JERSEY]._qactive = QUEST_DONE;
-				qn = Q_JERSEY;
+				NetSendCmdParam1(true, CMD_QTOWNER, IDI_BROWNSUIT);
 				qt = TEXT_JERSEY8;
 				break;
 			}
@@ -848,14 +910,8 @@ void TalkToTowner(int tnum)
 	case TOWN_GIRL:
 		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
 			if (PlrHasStorageItem(pnum, IDI_THEODORE, &i)) {
-				ii = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
-				SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
-				PlrInvItemRemove(pnum, i);
-				CreateAmulet(ii, TPOS_GIRL, true, true);
-				// quests[Q_GIRL]._qlog = FALSE;
-				quests[Q_GIRL]._qactive = QUEST_DONE;
+				NetSendCmdParam1(true, CMD_QTOWNER, IDI_THEODORE);
 				qt = TEXT_GIRL4;
-				qn = Q_GIRL;
 			} else if (quests[Q_GIRL]._qvar1 == 0) {
 				if (quests[Q_GIRL]._qvar2++ == 0) {
 					qt = TEXT_GIRL1;

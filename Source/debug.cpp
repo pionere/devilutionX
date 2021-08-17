@@ -54,13 +54,12 @@ void GiveGoldCheat()
 	ItemStruct *pi;
 	int i;
 
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (myplr._pInvGrid[i] == 0) {
-			pi = &myplr._pInvList[myplr._pNumInv];
+	pi = myplr._pInvList;
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
+		if (pi->_itype == ITYPE_NONE) {
 			CreateBaseItem(pi, IDI_GOLD);
 			SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 			myplr._pGold += GOLD_MAX_LIMIT;
-			myplr._pInvGrid[i] = ++myplr._pNumInv;
 		}
 	}
 }
@@ -88,18 +87,13 @@ void StoresCheat()
 
 void TakeGoldCheat()
 {
+	ItemStruct* pi;
 	int i;
-	char ig;
 
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		ig = myplr._pInvGrid[i];
-		if (ig > 0 && myplr._pInvList[ig - 1]._itype == ITYPE_GOLD)
-			RemoveInvItem(mypnum, ig - 1);
-	}
-
-	for (i = 0; i < MAXBELTITEMS; i++) {
-		if (myplr._pSpdList[i]._itype == ITYPE_GOLD)
-			myplr._pSpdList[i]._itype = ITYPE_NONE;
+	pi = myplr._pInvList;
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
+		if (pi->_itype == ITYPE_GOLD)
+			pi->_itype = ITYPE_NONE;
 	}
 
 	myplr._pGold = 0;
@@ -344,6 +338,14 @@ void ValidateData()
 			minAmu = ids.iMinMLvl;
 		//if (ids.itype == ITYPE_STAFF && strlen(ids.iName) > maxStaff)
 		//	maxStaff = strlen(ids.iName);
+		if (ids.iLoc == ILOC_BELT) {
+			if (!ids.iUsable)
+				app_fatal("Belt item %s (%d) should be usable.", ids.iName, i);
+			if (InvItemWidth[ids.iCurs + CURSOR_FIRSTITEM] != INV_SLOT_SIZE_PX)
+				app_fatal("Belt item %s (%d) is too wide.", ids.iName, i);
+			if (InvItemHeight[ids.iCurs + CURSOR_FIRSTITEM] != INV_SLOT_SIZE_PX)
+				app_fatal("Belt item %s (%d) is too tall.", ids.iName, i);
+		}
 	}
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);

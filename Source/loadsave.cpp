@@ -357,7 +357,6 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pxvel);
 	LoadInt(&plr._pyvel);
 	LoadInt(&plr._pdir);
-	LoadInt(&plr._pgfxnum);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
 	LoadInt(&plr._pAnimCnt);
@@ -454,12 +453,12 @@ static void LoadPlayer(int pnum)
 	LoadItems(plr._pInvBody, NUM_INVLOC);
 	LoadItems(plr._pSpdList, MAXBELTITEMS);
 	LoadItems(plr._pInvList, NUM_INV_GRID_ELEM);
-	CopyBytes(tbuff, NUM_INV_GRID_ELEM, plr._pInvGrid);
-	LoadInt(&plr._pNumInv);
 	LoadInt(&plr._pGold);
 
 	/*Skip to Calc
-	tbuff += 4; // _pInfraFlag
+	tbuff += 1; // _pInfraFlag
+	tbuff += 1; // _pgfxnum
+	tbuff += 2; // Alignment
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam
@@ -1075,7 +1074,6 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pxvel);
 	SaveInt(&plr._pyvel);
 	SaveInt(&plr._pdir);
-	SaveInt(&plr._pgfxnum);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
 	SaveInt(&plr._pAnimCnt);
@@ -1172,12 +1170,12 @@ static void SavePlayer(int pnum)
 	SaveItems(plr._pInvBody, NUM_INVLOC);
 	SaveItems(plr._pSpdList, MAXBELTITEMS);
 	SaveItems(plr._pInvList, NUM_INV_GRID_ELEM);
-	CopyBytes(plr._pInvGrid, NUM_INV_GRID_ELEM, tbuff);
-	SaveInt(&plr._pNumInv);
 	SaveInt(&plr._pGold);
 
 	/*Skip to Calc
-	tbuff += 4; // _pInfraFlag
+	tbuff += 1; // _pInfraFlag
+	tbuff += 1; // _pgfxnum
+	tbuff += 2; // Alignment
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam

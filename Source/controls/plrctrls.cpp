@@ -1215,11 +1215,11 @@ static void UpdateSpellTarget()
 /**
  * @brief Try dropping item in all 9 possible places
  */
-bool TryDropItem()
+static void TryDropItem()
 {
 	cursmx = myplr._pfutx + 1;
 	cursmy = myplr._pfuty;
-	return DropItem();
+	DropItem();
 }
 
 void PerformSpellAction()
@@ -1259,10 +1259,7 @@ static void CtrlUseInvItem()
 	if (pcursinvitem == INVITEM_NONE)
 		return;
 
-	if (pcursinvitem <= INVITEM_INV_LAST)
-		is = &myplr._pInvList[pcursinvitem - INVITEM_INV_FIRST];
-	else
-		is = &myplr._pSpdList[pcursinvitem - INVITEM_BELT_FIRST];
+	is = PlrItem(mypnum, pcursinvitem);
 
 	if (is->_iMiscId == IMISC_SCROLL && spelldata[is->_iSpell].sTargeted) {
 		return;
@@ -1278,8 +1275,10 @@ void PerformSecondaryAction()
 		return;
 	}
 
-	if (pcurs >= CURSOR_FIRSTITEM && !TryDropItem())
+	if (pcurs >= CURSOR_FIRSTITEM) {
+		TryDropItem();
 		return;
+	}
 	if (pcurs > CURSOR_HAND)
 		NewCursor(CURSOR_HAND);
 

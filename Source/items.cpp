@@ -455,8 +455,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	int tac = 0;  // armor class
 
-	int gfx, wt; // graphics, weapon-type
-	bool bf;   // blockflag
+	BYTE gfx;    // graphics
+	int wt; // weapon-type
+	bool bf;     // blockflag
 	int i;
 
 	int btohit = 0; // bonus chance to hit
@@ -678,14 +679,10 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	bf = false;
 	wt = SFLAG_MELEE;
-	gfx = ITYPE_MISC;
-	if (wLeft->_itype != ITYPE_NONE && wLeft->_iStatFlag) {
-		assert(wLeft->_iClass == ICLASS_WEAPON);
-		gfx = wLeft->_itype;
-	}
+	gfx = wLeft->_iStatFlag ? wLeft->_itype : ITYPE_NONE;
 
 	switch (gfx) {
-	case ITYPE_MISC:
+	case ITYPE_NONE:
 		gfx = ANIM_ID_UNARMED;
 		break;
 	case ITYPE_SWORD:
@@ -711,7 +708,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 #ifdef HELLFIRE
 	if (plr._pClass == PC_MONK) {
-		if (wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag) {
+		if (gfx == ANIM_ID_STAFF) {
 			bf = true;
 			plr._pIFlags |= ISPL_FASTBLOCK;
 		} else if (wRight->_itype == ITYPE_NONE
@@ -875,8 +872,9 @@ void CalcPlrScrolls(int pnum)
 	plr._pScrlSkills = 0;
 
 	pi = plr._pInvList;
-	for (i = plr._pNumInv; i > 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
+	for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++) {
+		if (pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER
+		 && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
 			plr._pScrlSkills |= SPELL_MASK(pi->_iSpell);
 	}
 	pi = plr._pSpdList;
@@ -951,7 +949,7 @@ static void CalcItemReqs(int pnum)
 	ItemStatOk(pi, sa, ma, da);
 
 	pi = plr._pInvList;
-	for (i = plr._pNumInv; i != 0; i--, pi++)
+	for (i = NUM_INV_GRID_ELEM; i != 0; i--, pi++)
 		ItemStatOk(pi, sa, ma, da);
 
 	pi = plr._pSpdList;
@@ -1027,30 +1025,6 @@ void GetItemSeed(ItemStruct *is)
 	is->_iSeed = GetRndSeed();
 }
 
-void GetGoldSeed(int pnum, ItemStruct *is)
-{
-	int i, ii, s;
-	bool doneflag;
-
-	do {
-		doneflag = true;
-		s = GetRndSeed();
-		for (i = 0; i < numitems; i++) {
-			ii = itemactive[i];
-			if (items[ii]._iSeed == s)
-				doneflag = false;
-		}
-		if (pnum == mypnum) {
-			for (i = 0; i < plr._pNumInv; i++) {
-				if (plr._pInvList[i]._iSeed == s)
-					doneflag = false;
-			}
-		}
-	} while (!doneflag);
-
-	is->_iSeed = s;
-}
-
 void CreateBaseItem(ItemStruct *is, int idata)
 {
 	SetItemSData(is, idata);
@@ -1071,9 +1045,10 @@ void SetGoldItemValue(ItemStruct *is, int value)
 void CreatePlrItems(int pnum)
 {
 	ItemStruct *pi;
-	int i;
+	//int i;
 
-	plr._pHoldItem._itype = ITYPE_NONE;
+	static_assert(ITYPE_NONE == 0, "CreatePlrItems skips item initialization by expecting ITYPE_NONE to be zero.");
+	/*plr._pHoldItem._itype = ITYPE_NONE;
 
 	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--) {
@@ -1091,11 +1066,7 @@ void CreatePlrItems(int pnum)
 	for (i = NUM_INV_GRID_ELEM; i != 0; i--) {
 		pi->_itype = ITYPE_NONE;
 		pi++;
-	}
-
-	// zero values are expected -> no need to zfill
-	//memset(&plr._pInvGrid, 0, sizeof(plr._pInvGrid));
-	assert(plr._pNumInv == 0);
+	}*/
 
 	switch (plr._pClass) {
 	case PC_WARRIOR:
@@ -1146,17 +1117,16 @@ void CreatePlrItems(int pnum)
 #endif
 	}
 
-	pi = &plr._pInvList[plr._pNumInv];
+	pi = &plr._pInvList[0];
 	CreateBaseItem(pi, IDI_GOLD);
 
 #ifdef _DEBUG
 	if (debug_mode_key_w) {
 		SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			if (plr._pInvGrid[i] == 0) {
+			if (plr._pInvList[i]._itype == ITYPE_NONE) {
 				GetItemSeed(pi);
-				copy_pod(plr._pInvList[plr._pNumInv], pi);
-				plr._pInvGrid[i] = ++plr._pNumInv;
+				copy_pod(plr._pInvList[i], *pi);
 				plr._pGold += GOLD_MAX_LIMIT;
 			}
 		}
@@ -1165,7 +1135,6 @@ void CreatePlrItems(int pnum)
 	{
 		SetGoldItemValue(pi, 100);
 		plr._pGold = 100;
-		plr._pInvGrid[30] = ++plr._pNumInv;
 	}
 
 	CalcPlrItemVals(pnum, false);
@@ -2529,15 +2498,11 @@ void SyncItemAnim(int ii)
 
 static void DoIdentify(int pnum, int cii)
 {
-	ItemStruct *pi;
-
-	if (cii >= NUM_INVLOC)
-		pi = &plr._pInvList[cii - NUM_INVLOC];
-	else
-		pi = &plr._pInvBody[cii];
+	ItemStruct* pi = PlrItem(pnum, cii);
 
 	pi->_iIdentified = TRUE;
-	CalcPlrInv(pnum, true);
+	// assert(plr._pmode != PM_DEATH);
+	CalcPlrInv(pnum, plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
 }
 
 static void RepairItem(ItemStruct *is, int lvl)
@@ -2563,23 +2528,24 @@ static void RepairItem(ItemStruct *is, int lvl)
 
 static void DoRepair(int pnum, int cii)
 {
-	ItemStruct *pi;
+	ItemStruct* pi = PlrItem(pnum, cii);
 
-	if (cii >= INVITEM_INV_FIRST) {
-		pi = &plr._pInvList[cii - INVITEM_INV_FIRST];
-	} else {
-		pi = &plr._pInvBody[cii];
-	}
+	static_assert((int)ITYPE_SWORD + 1 == (int)ITYPE_AXE, "DoRepair check requires a specific ITYPE order I.");
+	static_assert((int)ITYPE_AXE + 1 == (int)ITYPE_BOW, "DoRepair check requires a specific ITYPE order II.");
+	static_assert((int)ITYPE_BOW + 1 == (int)ITYPE_MACE, "DoRepair check requires a specific ITYPE order III.");
+	static_assert((int)ITYPE_MACE + 1 == (int)ITYPE_STAFF, "DoRepair check requires a specific ITYPE order IV.");
+	static_assert((int)ITYPE_STAFF + 1 == (int)ITYPE_SHIELD, "DoRepair check requires a specific ITYPE order V.");
+	static_assert((int)ITYPE_SHIELD + 1 == (int)ITYPE_HELM, "DoRepair check requires a specific ITYPE order VI.");
+	static_assert((int)ITYPE_HELM + 1 == (int)ITYPE_LARMOR, "DoRepair check requires a specific ITYPE order VII.");
+	static_assert((int)ITYPE_LARMOR + 1 == (int)ITYPE_MARMOR, "DoRepair check requires a specific ITYPE order VIII.");
+	static_assert((int)ITYPE_MARMOR + 1 == (int)ITYPE_HARMOR, "DoRepair check requires a specific ITYPE order IX.");
+	if (pi->_itype < ITYPE_SWORD || pi->_itype > ITYPE_HARMOR)
+		return;
 
 	RepairItem(pi, plr._pLevel);
 	if (pi->_iMaxDur == 0) {
-		if (cii >= INVITEM_INV_FIRST) {
-			RemoveInvItem(pnum, cii - INVITEM_INV_FIRST);
-		} else {
-			pi->_itype = ITYPE_NONE;
-		}
+		SyncPlrItemRemove(pnum, cii);
 	}
-	CalcPlrInv(pnum, true);
 }
 
 static void RechargeItem(ItemStruct *is, int r)
@@ -2602,14 +2568,9 @@ static void RechargeItem(ItemStruct *is, int r)
 
 static void DoRecharge(int pnum, int cii)
 {
-	ItemStruct *pi;
+	ItemStruct* pi = PlrItem(pnum, cii);
 	int r;
 
-	if (cii >= NUM_INVLOC) {
-		pi = &plr._pInvList[cii - NUM_INVLOC];
-	} else {
-		pi = &plr._pInvBody[cii];
-	}
 	if (pi->_itype == ITYPE_STAFF && pi->_iSpell != SPL_NULL) {
 		r = spelldata[pi->_iSpell].sBookLvl;
 		//r = random_(38, plr._pLevel / r) + 1;
@@ -2652,13 +2613,7 @@ static void DoClean(ItemStruct *pi, bool whittle)
 #ifdef HELLFIRE
 static void DoWhittle(int pnum, int cii)
 {
-	ItemStruct *pi;
-
-	if (cii >= NUM_INVLOC) {
-		pi = &plr._pInvList[cii - NUM_INVLOC];
-	} else {
-		pi = &plr._pInvBody[cii];
-	}
+	ItemStruct* pi = PlrItem(pnum, cii);
 
 	if (pi->_itype == ITYPE_STAFF
 	 && (pi->_iSpell != SPL_NULL || pi->_iMagical != ITEM_QUALITY_NORMAL)) {
@@ -2719,16 +2674,22 @@ static void DoBuckle(int pnum, int cii)
 }
 #endif
 
-static ItemStruct* PlrItem(int pnum, int cii)
+ItemStruct* PlrItem(int pnum, int cii)
 {
+	ItemStruct* pi;
+
 	if (cii <= INVITEM_INV_LAST) {
 		if (cii < INVITEM_INV_FIRST) {
-			return &plr._pInvBody[cii];
-		} else
-			return &plr._pInvList[cii - INVITEM_INV_FIRST];
+			pi = &plr._pInvBody[cii];
+		} else {
+			pi = &plr._pInvList[cii - INVITEM_INV_FIRST];
+			if (pi->_itype == ITYPE_PLACEHOLDER)
+				pi = &plr._pInvList[pi->_iPHolder];
+		}
 	} else {
-		return &plr._pSpdList[cii - INVITEM_BELT_FIRST];
+		pi = &plr._pSpdList[cii - INVITEM_BELT_FIRST];
 	}
+	return pi;
 }
 
 static void RemovePlrItem(int pnum, int cii)
@@ -2736,10 +2697,11 @@ static void RemovePlrItem(int pnum, int cii)
 	if (cii < INVITEM_BELT_FIRST) {
 		if (cii < INVITEM_INV_FIRST) {
 			plr._pInvBody[cii]._itype = ITYPE_NONE;
-		} else
-			RemoveInvItem(pnum, cii - INVITEM_INV_FIRST);
+		} else {
+			SyncPlrStorageRemove(pnum, cii - INVITEM_INV_FIRST);
+		}
 	} else {
-		RemoveSpdBarItem(pnum, cii - INVITEM_BELT_FIRST);
+		SyncPlrSpdBarRemove(pnum, cii - INVITEM_BELT_FIRST);
 	}
 }
 
@@ -2750,6 +2712,11 @@ static void RemovePlrItem(int pnum, int cii)
  */
 void DoAbility(int pnum, BOOL id, int cii)
 {
+	// TODO: validate on server side?
+	if (plr._pmode == PM_DEATH)
+		return;
+	if (cii >= NUM_INVELEM)
+		return;
 	// TODO: add to Abilities table in player.cpp?
 	if (id) {
 		DoIdentify(pnum, cii);
@@ -2788,6 +2755,11 @@ void DoOil(int pnum, int from, int cii)
 	WORD idx, ci;
 	BYTE targetPowerFrom, targetPowerTo;
 
+	// TODO: validate these on server side?
+	if (plr._pmode == PM_DEATH)
+		return;
+	if (from >= NUM_INVELEM || cii >= NUM_INVELEM)
+		return;
 	is = PlrItem(pnum, from);
 	if (is->_itype == ITYPE_NONE)
 		return;
@@ -2796,8 +2768,7 @@ void DoOil(int pnum, int from, int cii)
 		return;
 
 	pi = PlrItem(pnum, cii);
-	assert(pi->_itype != ITYPE_NONE);
-	if (pi->_itype == ITYPE_MISC || pi->_itype == ITYPE_GOLD)
+	if (pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_MISC || pi->_itype == ITYPE_GOLD)
 		return;
 
 	if (oilType == IMISC_OILCLEAN) {

@@ -2965,15 +2965,17 @@ typedef enum _cmd_id {
 	CMD_ADDVIT,
 	CMD_DOABILITY,
 	CMD_DOOIL,
-	CMD_CHANGEPLRITEM,
+	CMD_SPLITPLRGOLD,
+	CMD_PASTEPLRITEM,
+	CMD_PASTEPLRBELTITEM,
+	CMD_CUTPLRITEM,
 	CMD_DELPLRITEM,
 	CMD_USEPLRITEM,
-	CMD_DROPITEM,
+	CMD_DPUTITEM,
 	CMD_PUTITEM,
-	CMD_SYNCPUTITEM,
 	CMD_RESPAWNITEM,
-	CMD_REQUESTGITEM,
-	CMD_REQUESTAGITEM,
+	CMD_GETITEM,
+	CMD_AUTOGETITEM,
 	CMD_GOTOGETITEM,
 	CMD_GOTOAGETITEM,
 	CMD_OPERATEOBJ,
@@ -2984,6 +2986,7 @@ typedef enum _cmd_id {
 	CMD_TRAPOPEN,
 	CMD_TRAPCLOSE,
 	CMD_CHESTCLOSE,
+	CMD_SHRINE,
 	CMD_ACTIVATEPORTAL,
 	CMD_DEACTIVATEPORTAL,
 	CMD_NEWLVL,
@@ -2996,8 +2999,13 @@ typedef enum _cmd_id {
 	CMD_DEC_INVITE,
 	CMD_REV_INVITE,
 	CMD_KICK_PLR,
+	CMD_STORE_1,
+	CMD_STORE_2,
+	CMD_QTOWNER,
+	CMD_QMONSTER,
 	CMD_SYNCQUEST,
 	CMD_SYNCQUESTEXT,
+	CMD_BLOODPASS,
 	CMD_OPENSPIL,
 	CMD_CHEAT_EXPERIENCE,
 	CMD_CHEAT_SPELL_LEVEL,
@@ -3242,21 +3250,22 @@ typedef enum item_misc_id {
 } item_misc_id;
 
 typedef enum item_type {
-	ITYPE_MISC   = 0x0,
-	ITYPE_SWORD  = 0x1,
-	ITYPE_AXE    = 0x2,
-	ITYPE_BOW    = 0x3,
-	ITYPE_MACE   = 0x4,
-	ITYPE_SHIELD = 0x5,
-	ITYPE_HELM   = 0x6,
-	ITYPE_LARMOR = 0x7,
-	ITYPE_MARMOR = 0x8,
-	ITYPE_HARMOR = 0x9,
-	ITYPE_STAFF  = 0xA,
-	ITYPE_GOLD   = 0xB,
-	ITYPE_RING   = 0xC,
-	ITYPE_AMULET = 0xD,
-	ITYPE_NONE   = -1,
+	ITYPE_NONE,
+	ITYPE_SWORD,
+	ITYPE_AXE,
+	ITYPE_BOW,
+	ITYPE_MACE,
+	ITYPE_STAFF,
+	ITYPE_SHIELD,
+	ITYPE_HELM,
+	ITYPE_LARMOR,
+	ITYPE_MARMOR,
+	ITYPE_HARMOR,
+	ITYPE_MISC,
+	ITYPE_GOLD,
+	ITYPE_RING,
+	ITYPE_AMULET,
+	ITYPE_PLACEHOLDER,
 } item_type;
 
 typedef enum _item_indexes {
@@ -3313,10 +3322,12 @@ typedef enum _item_indexes {
 	IDI_CLUB       = 0x85,
 	IDI_DROPSHSTAFF= 0x91,
 #ifdef HELLFIRE
-	NUM_IDI        = 0xA3
+	NUM_IDI        = 0xA3,
 #else
-	NUM_IDI        = 0x9E
+	NUM_IDI        = 0x9E,
 #endif
+	IDI_PHOLDER    = 0xFFFE,
+	IDI_NONE       = 0xFFFF
 } _item_indexes;
 
 typedef enum _item_damage_type {
@@ -3401,6 +3412,7 @@ typedef enum talk_id {
 	STORE_TAVERN    = 0x15,
 	STORE_DRUNK     = 0x16,
 	STORE_BARMAID   = 0x17,
+	STORE_WAIT,
 } talk_id;
 
 typedef enum _unique_items {
@@ -3606,6 +3618,7 @@ typedef enum item_special_effect {
 
 // Logical equipment locations
 typedef enum inv_item {
+	INVITEM_BODY_FIRST = 0,
 	INVITEM_HEAD       = 0,
 	INVITEM_RING_LEFT  = 1,
 	INVITEM_RING_RIGHT = 2,

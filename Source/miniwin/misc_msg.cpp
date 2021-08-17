@@ -605,31 +605,6 @@ static bool FalseAvail(const char *name, int value)
 }
 #endif
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-/**
- * @brief Try to clean the inventory related cursor states.
- * @return True if it is safe to close the inventory
- */
-bool BlurInventory()
-{
-	if (pcurs >= CURSOR_FIRSTITEM) {
-		if (!TryDropItem()) {
-			int pc = myplr._pClass;
-			PlaySFX(sgSFXSets[SFXS_PLR_16][pc], sgSFXSets[SFXS_PLR_16][pc] == PS_WARR16 ? 3 : 1);
-			return false;
-		}
-	}
-
-	gbInvflag = false;
-	if (pcurs > CURSOR_HAND)
-		NewCursor(CURSOR_HAND);
-	if (gbChrflag)
-		FocusOnCharInfo();
-
-	return true;
-}
-#endif
-
 bool PeekMessage(LPMSG lpMsg)
 {
 #ifdef __SWITCH__
@@ -711,14 +686,12 @@ bool PeekMessage(LPMSG lpMsg)
 			PerformSpellAction();
 			break;
 		case GameActionType_TOGGLE_QUICK_SPELL_MENU:
-			if (!gbInvflag || BlurInventory()) {
-				if (!gbSkillListFlag) {
-					ClearPanels();
-					DoSkillList(true);
-					StoreSpellCoords();
-				} else {
-					gbSkillListFlag = false;
-				}
+			if (!gbSkillListFlag) {
+				ClearPanels();
+				DoSkillList(true);
+				StoreSpellCoords();
+			} else {
+				gbSkillListFlag = false;
 			}
 			break;
 		case GameActionType_TOGGLE_CHARACTER_INFO:
@@ -727,8 +700,6 @@ bool PeekMessage(LPMSG lpMsg)
 			gbLvlUp = false;
 			gbChrflag = !gbChrflag;
 			if (gbChrflag) {
-				if (pcurs == CURSOR_DISARM)
-					NewCursor(CURSOR_HAND);
 				FocusOnCharInfo();
 			}
 			break;
@@ -741,25 +712,19 @@ bool PeekMessage(LPMSG lpMsg)
 			}
 			break;
 		case GameActionType_TOGGLE_INVENTORY:
+			gbSbookflag = false;
+			gbSkillListFlag = false;
+			gbTeamFlag = false;
+			gbInvflag = !gbInvflag;
 			if (gbInvflag) {
-				BlurInventory();
-			} else {
-				gbSbookflag = false;
-				gbSkillListFlag = false;
-				gbTeamFlag = false;
-				gbInvflag = true;
-				if (pcurs == CURSOR_DISARM)
-					NewCursor(CURSOR_HAND);
 				FocusOnInventory();
 			}
 			break;
 		case GameActionType_TOGGLE_SPELL_BOOK:
-			if (BlurInventory()) {
-				gbInvflag = false;
-				gbSkillListFlag = false;
-				gbTeamFlag = false;
-				gbSbookflag = !gbSbookflag;
-			}
+			gbInvflag = false;
+			gbSkillListFlag = false;
+			gbTeamFlag = false;
+			gbSbookflag = !gbSbookflag;
 			break;
 		case GameActionType_SEND_KEY:
 			lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;

@@ -29,6 +29,7 @@ extern bool gbActionBtnDown;
 extern bool gbAltActionBtnDown;
 extern int gnTicksRate;
 extern unsigned gnTickDelay;
+extern int gnTimeoutCurs;
 
 void FreeLevelMem();
 bool StartGame(bool bSinglePlayer);

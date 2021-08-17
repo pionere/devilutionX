@@ -140,6 +140,27 @@ static void scrollrt_remove_back_buffer_cursor()
 	sgCursWdt = 0;
 }
 
+void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
+{
+	BYTE col;
+
+	col = ICOL_YELLOW;
+	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
+		col = ICOL_BLUE;
+	}
+	if (!is->_iStatFlag) {
+		col = ICOL_RED;
+	}
+
+	if (outline)
+		CelDrawOutline(col, sx, sy, pCelBuff, nCel, nWidth);
+	if (col != ICOL_RED) {
+		CelClippedDraw(sx, sy, pCelBuff, nCel, nWidth);
+	} else {
+		CelDrawLightRed(sx, sy, pCelBuff, nCel, nWidth);
+	}
+}
+
 /**
  * @brief Draw the cursor on the back buffer
  */
@@ -147,7 +168,6 @@ static void scrollrt_draw_cursor()
 {
 	int i, mx, my, frame;
 	BYTE *src, *dst, *cCels;
-	BYTE col;
 
 	assert(sgCursWdt == 0);
 
@@ -210,23 +230,10 @@ static void scrollrt_draw_cursor()
 
 	frame = pcurs;
 	cCels = pCursCels;
-	if (frame >= CURSOR_FIRSTITEM) {
-		col = ICOL_YELLOW;
-		if (myplr._pHoldItem._iMagical != ITEM_QUALITY_NORMAL) {
-			col = ICOL_BLUE;
-		}
-		if (!myplr._pHoldItem._iStatFlag) {
-			col = ICOL_RED;
-		}
-
-		CelDrawOutline(col, mx, my, cCels, frame, cursW);
-		if (col != ICOL_RED) {
-			CelClippedDraw(mx, my, cCels, frame, cursW);
-		} else {
-			CelDrawLightRed(mx, my, cCels, frame, cursW);
-		}
-	} else {
+	if (frame < CURSOR_FIRSTITEM) {
 		CelClippedDraw(mx, my, cCels, frame, cursW);
+	} else {
+		scrollrt_draw_item(&myplr._pHoldItem, true, mx, my, cCels, frame, cursW);
 	}
 }
 

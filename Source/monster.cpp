@@ -4030,13 +4030,10 @@ void MAI_SnotSpil(int mnum)
 		//	return; // wait till the sfx is running, but don't rely on effect_is_playing
 		if (!IsMultiGame && effect_is_playing(alltext[TEXT_BANNER12].sfxnr))
 			return;
-		quests[Q_LTBANNER]._qactive = QUEST_DONE;
-		quests[Q_LTBANNER]._qvar1 = 4;
 		if (mon->_mListener == mypnum || !plx(mon->_mListener)._pActive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {
 			NetSendCmd(true, CMD_OPENSPIL);
-			NetSendCmdQuest(Q_LTBANNER, true);
 		}
-		// mon->_msquelch = SQUELCH_MAX;
+		return;
 	case 4:
 		if (mon->mtalkmsg != TEXT_NONE) {
 			// TODO: does not work when a player enters the level and the timer is running
@@ -4933,6 +4930,35 @@ int PreSpawnSkeleton()
 	return n;
 }
 
+void SyncMonsterQ(int pnum, int idx)
+{
+	int i;
+
+	// TODO: validate on server side?
+	if (plr._pmode == PM_DEATH)
+		return;
+	if (!PlrHasStorageItem(pnum, idx, &i))
+		return;
+
+	switch (idx) {
+	case IDI_BANNER:
+		break;
+	case IDI_GLDNELIX:
+		//if (plr._pDunLevel != questlist[Q_VEIL]._qdlvl)
+		//	return;
+		if (quests[Q_VEIL]._qactive != QUEST_ACTIVE)
+			return;
+		quests[Q_VEIL]._qactive = QUEST_DONE;
+		if (currLvl._dLevelIdx == questlist[Q_VEIL]._qdlvl)
+			SpawnUnique(UITEM_STEELVEIL, plr._px, plr._py, pnum == mypnum, false);
+		break;
+	default:
+		return;
+	}
+
+	SyncPlrStorageRemove(pnum, i);
+}
+
 void TalktoMonster(int mnum, int pnum)
 {
 	MonsterStruct *mon;
@@ -4958,10 +4984,8 @@ void TalktoMonster(int mnum, int pnum)
 				NetSendCmdQuest(Q_LTBANNER, true);
 		} else if (quests[Q_LTBANNER]._qvar1 == 1) {
 			if (PlrHasStorageItem(pnum, IDI_BANNER, &iv)) {
-				if (pnum == mypnum) {
-					PlrInvItemRemove(pnum, iv);
-				}
 				mon->mtalkmsg = TEXT_BANNER12;
+				NetSendCmdParam1(true, CMD_QMONSTER, IDI_BANNER);
 			}
 		} else if (quests[Q_LTBANNER]._qvar1 == 2) {
 			mon->mtalkmsg = TEXT_BANNER12;
@@ -4973,7 +4997,6 @@ void TalktoMonster(int mnum, int pnum)
 				NetSendCmdQuest(Q_LTBANNER, true);
 		}
 	} else if (mon->_mAi == AI_GARBUD) {
-		assert(quests[Q_GARBUD]._qvar1 < 4);
 		mon->mtalkmsg = TEXT_GARBUD1 + quests[Q_GARBUD]._qvar1;
 		if (mon->mtalkmsg == TEXT_GARBUD1) {
 			quests[Q_GARBUD]._qactive = QUEST_ACTIVE;
@@ -4984,6 +5007,8 @@ void TalktoMonster(int mnum, int pnum)
 		} //else if (mon->mtalkmsg == TEXT_GARBUD4)
 		//	mon->_mVar8 = 0; // init MON_TIMER
 		quests[Q_GARBUD]._qvar1++;
+		if (quests[Q_GARBUD]._qvar1 > 4)
+			quests[Q_GARBUD]._qvar1 = 4;
 		if (pnum == mypnum)
 			NetSendCmdQuest(Q_GARBUD, true);
 	} else if (mon->_mAi == AI_LACHDAN) {
@@ -4994,16 +5019,9 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_VEIL]._qlog = TRUE;
 			if (pnum == mypnum)
 				NetSendCmdQuest(Q_VEIL, true);
-		} else if (quests[Q_VEIL]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_GLDNELIX, &iv)) {
+		} else if (quests[Q_VEIL]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_GLDNELIX, &iv)) {
 			mon->mtalkmsg = TEXT_VEIL11;
-			// mon->_mgoal = MGOAL_INQUIRING;
-			//mon->_mVar8 = 0; // init MON_TIMER
-			quests[Q_VEIL]._qactive = QUEST_DONE;
-			if (pnum == mypnum) {
-				PlrInvItemRemove(pnum, iv);
-				NetSendCmdQuest(Q_VEIL, false);
-			}
-			SpawnUnique(UITEM_STEELVEIL, plr._px, plr._py, true, false);
+			NetSendCmdParam1(true, CMD_QMONSTER, IDI_GLDNELIX);
 		}
 	} else if (mon->_mAi == AI_ZHAR) {
 		if (quests[Q_ZHAR]._qactive == QUEST_INIT) {

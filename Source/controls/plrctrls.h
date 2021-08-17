@@ -41,7 +41,6 @@ void PerformPrimaryAction();
 
 // Open chests, doors, pickup items.
 void PerformSecondaryAction();
-bool TryDropItem();
 void FocusOnInventory();
 void PerformSpellAction();
 void StoreSpellCoords();

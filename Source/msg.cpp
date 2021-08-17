@@ -717,24 +717,22 @@ static bool delta_get_item(const TCmdGItem *pI)
 	return true;
 }
 
-static void delta_put_item(const TCmdPItem *pI, int x, int y)
+static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 {
 	int i;
 	DItemStr *pD;
-	BYTE bLevel;
 
 	if (!IsMultiGame)
 		return;
 
-	bLevel = pI->bLevel;
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	pD = sgLevelDelta[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
-		 && pD->item.dwSeed == pI->item.dwSeed
-		 && pD->item.wIndx == pI->item.wIndx
-		 && pD->item.wCI == pI->item.wCI) {
+		 && pD->item.dwSeed == pItem->dwSeed
+		 && pD->item.wIndx == pItem->wIndx
+		 && pD->item.wCI == pItem->wCI) {
 			if (pD->bCmd == DCMD_DROPPED)
 				return;
 			if (pD->bCmd == DCMD_TAKEN)
@@ -750,7 +748,7 @@ static void delta_put_item(const TCmdPItem *pI, int x, int y)
 			pD->bCmd = DCMD_DROPPED;
 			pD->x = x;
 			pD->y = y;
-			copy_pod(pD->item, pI->item);
+			copy_pod(pD->item, *pItem);
 			return;
 		}
 	}
@@ -1131,6 +1129,17 @@ void NetSendCmdBParam2(bool bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
+void NetSendShrineCmd(BYTE type, int seed)
+{
+	TCmdShrine cmd;
+
+	cmd.bCmd = CMD_SHRINE;
+	cmd.shType = type;
+	cmd.shSeed = SwapLE32(seed);
+
+	NetSendHiPri((BYTE*)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdQuest(BYTE q, bool extOnly)
 {
 	TCmdQuest cmd;
@@ -1150,7 +1159,6 @@ void NetSendCmdGItem(BYTE bCmd, BYTE ii)
 	TCmdGItem cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.bPnum = mypnum;
 	cmd.bLevel = currLvl._dLevelIdx;
 	is = &items[ii];
 	cmd.x = is->_ix;
@@ -1161,16 +1169,14 @@ void NetSendCmdGItem(BYTE bCmd, BYTE ii)
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdPutHoldItem(BYTE bCmd, BYTE x, BYTE y)
+void NetSendCmdPutItem(BYTE x, BYTE y)
 {
 	TCmdPItem cmd;
 
-	cmd.bCmd = bCmd;
+	cmd.bCmd = CMD_PUTITEM;
+	cmd.bLevel = currLvl._dLevelIdx;
 	cmd.x = x;
 	cmd.y = y;
-	cmd.bLevel = currLvl._dLevelIdx;
-
-	PackPkItem(&cmd.item, &myplr._pHoldItem);
 
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
@@ -1178,7 +1184,7 @@ void NetSendCmdPutHoldItem(BYTE bCmd, BYTE x, BYTE y)
 void NetSendCmdRespawnItem(int ii)
 {
 	ItemStruct *is;
-	TCmdPItem cmd;
+	TCmdRPItem cmd;
 
 	is = &items[ii];
 	cmd.bCmd = CMD_RESPAWNITEM;
@@ -1187,22 +1193,6 @@ void NetSendCmdRespawnItem(int ii)
 	cmd.bLevel = currLvl._dLevelIdx;
 
 	PackPkItem(&cmd.item, is);
-
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-}
-
-void NetSendCmdChItem(ItemStruct *is, BYTE bLoc)
-{
-	TCmdChItem cmd;
-
-	cmd.bCmd = CMD_CHANGEPLRITEM;
-	cmd.bLoc = bLoc;
-	cmd.dwSeed = SwapLE32(is->_iSeed);
-	cmd.wIndx = SwapLE16(is->_iIdx);
-	cmd.wCI = SwapLE16(is->_iCreateInfo);
-	cmd.bCh = is->_iCharges;
-	cmd.bMCh = is->_iMaxCharges;
-	cmd.bId = is->_iIdentified;
 
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
@@ -1220,10 +1210,10 @@ void NetSendCmdDelItem(BYTE bLoc)
 void NetSendCmdDItem(int ii)
 {
 	ItemStruct *is;
-	TCmdPItem cmd;
+	TCmdRPItem cmd;
 
 	is = &items[ii];
-	cmd.bCmd = CMD_DROPITEM;
+	cmd.bCmd = CMD_DPUTITEM;
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
 	cmd.bLevel = currLvl._dLevelIdx;
@@ -1461,17 +1451,25 @@ static unsigned On_GOTOGETITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_REQUESTGITEM(TCmd *pCmd, int pnum)
+static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
+	int ii;
 
-	if (delta_get_item(cmd) && currLvl._dLevelIdx == cmd->bLevel) {
-		int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
-		if (ii != -1) {
-			if (cmd->bPnum != mypnum)
-				SyncGetItemIdx(ii);
-			else
-				InvGetItem(mypnum, ii);
+	if (delta_get_item(cmd)) {
+		if (plr._pHoldItem._itype != ITYPE_NONE) {
+			PkItemStruct pkItem;
+			PackPkItem(&pkItem, &plr._pHoldItem);
+			delta_put_item(&pkItem, cmd->bLevel, cmd->x, cmd->y);
+			// plr._pHoldItem._itype = ITYPE_NONE;
+		}
+		if (currLvl._dLevelIdx == cmd->bLevel) {
+			ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
+			assert(ii != -1);
+			InvGetItem(pnum, ii);
+		} else {
+			UnPackPkItem(&cmd->item);
+			copy_pod(plr._pHoldItem, items[MAXITEMS]);
 		}
 	}
 
@@ -1491,17 +1489,26 @@ static unsigned On_GOTOAGETITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_REQUESTAGITEM(TCmd *pCmd, int pnum)
+static unsigned On_AUTOGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
+	int ii;
+	bool result;
 
-	if (delta_get_item(cmd) && currLvl._dLevelIdx == cmd->bLevel) {
-		int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
-		if (ii != -1) {
-			if (cmd->bPnum != mypnum)
-				SyncGetItemIdx(ii);
-			else
-				AutoGetItem(mypnum, ii);
+	if (delta_get_item(cmd)) {
+		if (currLvl._dLevelIdx == cmd->bLevel) {
+			ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
+			assert(ii != -1);
+			result = AutoGetItem(pnum, ii);
+		} else {
+			UnPackPkItem(&cmd->item);
+			ii = MAXITEMS;
+			result = SyncAutoGetItem(pnum, MAXITEMS);
+		}
+		if (!result) {
+			PkItemStruct pkItem;
+			PackPkItem(&pkItem, &items[ii]);
+			delta_put_item(&pkItem, cmd->bLevel, cmd->x, cmd->y);
 		}
 	}
 
@@ -1545,44 +1552,39 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 
 static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 {
-	TCmdPItem *cmd = (TCmdPItem *)pCmd;
+	TCmdPItem* cmd = (TCmdPItem*)pCmd;
+	ItemStruct* pi;
 	int x, y;
 
-	check_update_plr(pnum);
-	x = cmd->x;
-	y = cmd->y;
+	pi = &plr._pHoldItem;
+	if (pi->_itype != ITYPE_NONE) {
+		x = cmd->x;
+		y = cmd->y;
 #ifdef HELLFIRE
-	if (plr._pDunLevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, SwapLE16(cmd->item.wIndx))) {
-		return sizeof(*cmd);
-	}
-#endif
-	if (currLvl._dLevelIdx == cmd->bLevel) {
-		UnPackPkItem(&cmd->item);
-		int ii = InvPutItem(pnum, x, y, MAXITEMS);
-		if (ii == -1)
+		if (plr._pDunLevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, pi->_iIdx)) {
+			pi->_itype = ITYPE_NONE;
+			if (pnum == mypnum) {
+				check_update_plr(pnum);
+				NewCursor(CURSOR_HAND);
+			}
 			return sizeof(*cmd);
-		x = items[ii]._ix;
-		y = items[ii]._iy;
-	}
-	delta_put_item(cmd, x, y);
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
-{
-	TCmdPItem *cmd = (TCmdPItem *)pCmd;
-
-	if (currLvl._dLevelIdx == cmd->bLevel) {
-		UnPackPkItem(&cmd->item);
-		int ii = SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, true);
-		if (ii != -1) {
-			delta_put_item(cmd, items[ii]._ix, items[ii]._iy);
-			check_update_plr(pnum);
 		}
-	} else {
-		delta_put_item(cmd, cmd->x, cmd->y);
-		check_update_plr(pnum);
+#endif
+		PkItemStruct pkItem;
+		PackPkItem(&pkItem, pi);
+		delta_put_item(&pkItem, cmd->bLevel, x, y);
+
+		if (currLvl._dLevelIdx == cmd->bLevel) {
+			copy_pod(items[MAXITEMS], *pi);
+			pi->_itype = ITYPE_NONE;
+			SyncPutItem(pnum, x, y, true);
+			if (pnum == mypnum) {
+				check_update_plr(pnum);
+				NewCursor(CURSOR_HAND);
+			}
+		} else {
+			pi->_itype = ITYPE_NONE;
+		}
 	}
 
 	return sizeof(*cmd);
@@ -1590,22 +1592,22 @@ static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 
 static unsigned On_RESPAWNITEM(TCmd *pCmd, int pnum)
 {
-	TCmdPItem *cmd = (TCmdPItem *)pCmd;
+	TCmdRPItem* cmd = (TCmdRPItem*)pCmd;
 
 	if (currLvl._dLevelIdx == cmd->bLevel && pnum != mypnum) {
 		UnPackPkItem(&cmd->item);
-		SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, false);
+		SyncPutItem(pnum, cmd->x, cmd->y, false);
 	}
-	delta_put_item(cmd, cmd->x, cmd->y);
+	delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_DROPITEM(TCmd *pCmd, int pnum)
+static unsigned On_DPUTITEM(TCmd *pCmd, int pnum)
 {
-	TCmdPItem *cmd = (TCmdPItem *)pCmd;
+	TCmdRPItem* cmd = (TCmdRPItem*)pCmd;
 
-	delta_put_item(cmd, cmd->x, cmd->y);
+	delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y);
 
 	return sizeof(*cmd);
 }
@@ -2053,19 +2055,50 @@ static unsigned On_CHESTCLOSE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_CHANGEPLRITEM(TCmd *pCmd, int pnum)
+/**
+ * Sync Shrine effect with every player
+ */
+static unsigned On_SHRINE(TCmd *pCmd, int pnum)
 {
-	TCmdChItem *cmd = (TCmdChItem *)pCmd;
-	ItemStruct *is;
+	TCmdShrine* cmd = (TCmdShrine*)pCmd;
 
-	if (pnum != mypnum) {
-		RecreateItem(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI), 0);
-		is = &items[MAXITEMS];
-		is->_iCharges = cmd->bCh;
-		is->_iMaxCharges = cmd->bMCh;
-		is->_iIdentified = cmd->bId;
-		SyncPlrItemChange(pnum, cmd->bLoc, MAXITEMS);
-	}
+	SyncShrineCmd(pnum, cmd->shType, SwapLE32(cmd->shSeed));
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_SPLITPLRGOLD(TCmd* pCmd, int pnum)
+{
+	TCmdParam2* cmd = (TCmdParam2*)pCmd;
+
+	SyncSplitGold(pnum, SwapLE16(cmd->wParam1), SwapLE16(cmd->wParam2));
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_PASTEPLRITEM(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+
+	InvPasteItem(pnum, cmd->bParam1);
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_PASTEPLRBELTITEM(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+
+	InvPasteBeltItem(pnum, cmd->bParam1);
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_CUTPLRITEM(TCmd *pCmd, int pnum)
+{
+	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+
+	InvCutItem(pnum, cmd->bParam1, cmd->bParam2);
 
 	return sizeof(*cmd);
 }
@@ -2074,8 +2107,7 @@ static unsigned On_DELPLRITEM(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
-	if (pnum != mypnum)
-		SyncPlrItemRemove(pnum, cmd->bParam1);
+	SyncPlrItemRemove(pnum, cmd->bParam1);
 
 	return sizeof(*cmd);
 }
@@ -2375,6 +2407,51 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 }
 
 /**
+ * Execute store transactions I.
+ */
+static unsigned On_STORE_1(TCmd* pCmd, int pnum)
+{
+	TCmdStore1* cmd = (TCmdStore1*)pCmd;
+
+	SyncStoreCmd(pnum, cmd->stCmd, cmd->stLoc, SwapLE32(cmd->stValue));
+
+	return sizeof(*cmd);
+}
+
+/**
+ * Execute store transactions II.
+ */
+static unsigned On_STORE_2(TCmd* pCmd, int pnum)
+{
+	TCmdStore2* cmd = (TCmdStore2*)pCmd;
+
+	UnPackPkItem(&cmd->item);
+	SyncStoreCmd(pnum, cmd->stCmd, MAXITEMS, SwapLE32(cmd->stValue));
+
+	return sizeof(*cmd);
+}
+
+/* Sync item rewards in town. */
+static unsigned On_QTOWNER(TCmd* pCmd, int pnum)
+{
+	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+
+	SyncTownerQ(pnum, SwapLE16(cmd->wParam1));
+
+	return sizeof(*cmd);
+}
+
+/* Sync item rewards in dungeon. */
+static unsigned On_QMONSTER(TCmd* pCmd, int pnum)
+{
+	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+
+	SyncMonsterQ(pnum, SwapLE16(cmd->wParam1));
+
+	return sizeof(*cmd);
+}
+
+/**
  * Sync Quest with every player.
  */
 static unsigned On_SYNCQUEST(TCmd *pCmd, int pnum)
@@ -2440,8 +2517,21 @@ static unsigned On_REMSHIELD(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
+static unsigned On_BLOODPASS(TCmd* pCmd, int pnum)
+{
+	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+
+	if (SyncBloodPass(pnum, SwapLE16(cmd->wParam1)))
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_OPERATEOBJ, plr._pDunLevel);
+
+	return sizeof(*cmd);
+}
+
 static unsigned On_OPENSPIL(TCmd *pCmd, int pnum)
 {
+	quests[Q_LTBANNER]._qactive = QUEST_DONE;
+	quests[Q_LTBANNER]._qvar1 = 4;
+
 	if (currLvl._dLevelIdx == questlist[Q_LTBANNER]._qdlvl) {
 		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 		BYTE tv = dTransVal[2 * setpc_x + 1 + DBORDERX][2 * (setpc_y + 6) + 1 + DBORDERY];
@@ -2552,24 +2642,28 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_DOABILITY(pCmd, pnum);
 	case CMD_DOOIL:
 		return On_DOOIL(pCmd, pnum);
-	case CMD_CHANGEPLRITEM:
-		return On_CHANGEPLRITEM(pCmd, pnum);
+	case CMD_SPLITPLRGOLD:
+		return On_SPLITPLRGOLD(pCmd, pnum);
+	case CMD_PASTEPLRITEM:
+		return On_PASTEPLRITEM(pCmd, pnum);
+	case CMD_PASTEPLRBELTITEM:
+		return On_PASTEPLRBELTITEM(pCmd, pnum);
+	case CMD_CUTPLRITEM:
+		return On_CUTPLRITEM(pCmd, pnum);
 	case CMD_DELPLRITEM:
 		return On_DELPLRITEM(pCmd, pnum);
 	case CMD_USEPLRITEM:
 		return On_USEPLRITEM(pCmd, pnum);
-	case CMD_DROPITEM:
-		return On_DROPITEM(pCmd, pnum);
+	case CMD_DPUTITEM:
+		return On_DPUTITEM(pCmd, pnum);
 	case CMD_PUTITEM:
 		return On_PUTITEM(pCmd, pnum);
-	case CMD_SYNCPUTITEM:
-		return On_SYNCPUTITEM(pCmd, pnum);
 	case CMD_RESPAWNITEM:
 		return On_RESPAWNITEM(pCmd, pnum);
-	case CMD_REQUESTGITEM:
-		return On_REQUESTGITEM(pCmd, pnum);
-	case CMD_REQUESTAGITEM:
-		return On_REQUESTAGITEM(pCmd, pnum);
+	case CMD_GETITEM:
+		return On_GETITEM(pCmd, pnum);
+	case CMD_AUTOGETITEM:
+		return On_AUTOGETITEM(pCmd, pnum);
 	case CMD_GOTOGETITEM:
 		return On_GOTOGETITEM(pCmd, pnum);
 	case CMD_GOTOAGETITEM:
@@ -2590,6 +2684,8 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_TRAPCLOSE(pCmd, pnum);
 	case CMD_CHESTCLOSE:
 		return On_CHESTCLOSE(pCmd, pnum);
+	case CMD_SHRINE:
+		return On_SHRINE(pCmd, pnum);
 	case CMD_ACTIVATEPORTAL:
 		return On_ACTIVATEPORTAL(pCmd, pnum);
 	case CMD_DEACTIVATEPORTAL:
@@ -2614,10 +2710,20 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_REV_INVITE(pCmd, pnum);
 	case CMD_KICK_PLR:
 		return On_KICK_PLR(pCmd, pnum);
+	case CMD_STORE_1:
+		return On_STORE_1(pCmd, pnum);
+	case CMD_STORE_2:
+		return On_STORE_2(pCmd, pnum);
+	case CMD_QTOWNER:
+		return On_QTOWNER(pCmd, pnum);
+	case CMD_QMONSTER:
+		return On_QMONSTER(pCmd, pnum);
 	case CMD_SYNCQUEST:
 		return On_SYNCQUEST(pCmd, pnum);
 	case CMD_SYNCQUESTEXT:
 		return On_SYNCQUESTEXT(pCmd, pnum);
+	case CMD_BLOODPASS:
+		return On_BLOODPASS(pCmd, pnum);
 	case CMD_OPENSPIL:
 		return On_OPENSPIL(pCmd, pnum);
 #ifdef _DEBUG

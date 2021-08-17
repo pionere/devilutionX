@@ -27,8 +27,6 @@ bool gbLoadGame;
 bool gbCineflag = false;
 int gbRedrawFlags;
 bool gbGamePaused;
-/* Cursor before a timeout happened. */
-static int sgnTimeoutCurs;
 bool gbDeathflag;
 bool gbActionBtnDown;
 bool gbAltActionBtnDown;
@@ -36,6 +34,8 @@ static Uint32 guLastABD, guLastAABD; // tick counter when the last time one of t
 static int actionBtnKey, altActionBtnKey;
 int gnTicksRate = SPEED_NORMAL;
 unsigned gnTickDelay = 1000 / SPEED_NORMAL;
+/* Cursor before a timeout happened. */
+int gnTimeoutCurs;
 
 /* rdata */
 
@@ -551,7 +551,7 @@ bool TryIconCurs(bool bShift)
 		if (pcursobj != OBJ_NONE)
 			NetSendCmdParam1(true, CMD_OPOBJT, pcursobj);
 		if (pcursitem != ITEM_NONE)
-			NetSendCmdGItem(CMD_REQUESTAGITEM, pcursitem);
+			NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
 		if (pcursmonst != -1 && !MonTalker(pcursmonst))
 			NetSendCmdParam1(true, CMD_KNOCKBACK, pcursmonst);
 		break;
@@ -592,7 +592,7 @@ static void ActionBtnDown(bool bShift)
 {
 	assert(!gbDropGoldFlag);
 	assert(!gmenu_is_active() || !gmenu_left_mouse(true));
-	assert(sgnTimeoutCurs == CURSOR_NONE);
+	assert(gnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(!gbDeathflag);
 	assert(!gbGamePaused);
@@ -678,7 +678,7 @@ void AltActionBtnCmd(bool bShift)
 static void AltActionBtnDown(bool bShift)
 {
 	assert(!gmenu_is_active());
-	assert(sgnTimeoutCurs == CURSOR_NONE);
+	assert(gnTimeoutCurs == CURSOR_NONE);
 	assert(!gbGamePaused);
 	assert(!gbDoomflag);
 
@@ -877,7 +877,7 @@ static void PressKey(int vkey)
 		return;
 	}
 
-	if (sgnTimeoutCurs != CURSOR_NONE) {
+	if (gnTimeoutCurs != CURSOR_NONE) {
 		return;
 	}
 
@@ -1159,7 +1159,7 @@ static void PressChar(WPARAM vkey)
 			return;
 	}
 #ifdef _DEBUG
-	if (sgnTimeoutCurs != CURSOR_NONE || gbDeathflag)
+	if (gnTimeoutCurs != CURSOR_NONE || gbDeathflag)
 		return;
 
 	if (gbGamePaused) {
@@ -1400,7 +1400,7 @@ static bool ProcessInput()
 		return IsMultiGame;
 	}
 
-	if (sgnTimeoutCurs == CURSOR_NONE) {
+	if (gnTimeoutCurs == CURSOR_NONE) {
 #if HAS_TOUCHPAD == 1
 		finish_simulated_mouse_clicks(MouseX, MouseY);
 #endif
@@ -1465,18 +1465,18 @@ static void game_loop()
 		//  cause any trouble, but if the live turn is not processed, it has to be
 		//  saved/discarded if the game is saved/loaded. (SNetGetLiveTurnsInTransit)
 		if (!multi_handle_turn()) {
-			if (multi_check_timeout() && sgnTimeoutCurs == CURSOR_NONE) {
-				sgnTimeoutCurs = pcurs;
+			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
+				gnTimeoutCurs = pcurs;
 				NewCursor(CURSOR_HOURGLASS);
-				gbRedrawFlags = REDRAW_ALL;
+				//gbRedrawFlags = REDRAW_ALL;
 			}
 			//scrollrt_draw_screen(true);
 			break;
 		}
-		if (sgnTimeoutCurs != CURSOR_NONE) {
-			NewCursor(sgnTimeoutCurs);
-			sgnTimeoutCurs = CURSOR_NONE;
-			gbRedrawFlags = REDRAW_ALL;
+		if (gnTimeoutCurs != CURSOR_NONE) {
+			NewCursor(gnTimeoutCurs);
+			gnTimeoutCurs = CURSOR_NONE;
+			//gbRedrawFlags = REDRAW_ALL;
 		}
 		if (ProcessInput()) {
 			game_logic();
@@ -1534,7 +1534,7 @@ static WNDPROC InitGameUI()
 	LoadDebugGFX();
 #endif
 
-	sgnTimeoutCurs = CURSOR_NONE;
+	gnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = false;
 	gbAltActionBtnDown = false;
 	gbRunGame = true;

@@ -260,16 +260,16 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 	case RSPLTYPE_SCROLL:
 		v = 0;
 		pi = myplr._pInvList;
-		for (t = myplr._pNumInv; t > 0; t--, pi++) {
-			if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-			    && pi->_iSpell == sn) {
+		for (t = NUM_INV_GRID_ELEM; t > 0; t--, pi++) {
+			if (pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn
+			 && pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER) {
 				v++;
 			}
 		}
 		pi = myplr._pSpdList;
 		for (t = MAXBELTITEMS; t > 0; t--, pi++) {
-			if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-			    && pi->_iSpell == sn) {
+			if (pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn
+			 && pi->_itype != ITYPE_NONE) {
 				v++;
 			}
 		}
@@ -1948,25 +1948,12 @@ void DrawGoldSplit(int amount)
 
 static void control_remove_gold()
 {
-	ItemStruct *is;
-	int val;
-	int pnum = mypnum, gi = initialDropGoldIndex;
+	int gi;
 
 	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
 	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
-	is = &plr._pInvList[gi];
-	val = is->_ivalue - dropGoldValue;
-	if (val > 0) {
-		SetGoldItemValue(is, val);
-	} else {
-		PlrInvItemRemove(pnum, gi);
-	}
-	is = &plr._pHoldItem;
-	CreateBaseItem(is, IDI_GOLD);
-	is->_iStatFlag = TRUE;
-	SetGoldItemValue(is, dropGoldValue);
-	NewCursor(is->_iCurs + CURSOR_FIRSTITEM);
-	CalculateGold(pnum);
+	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using WORD.");
+	NetSendCmdParam2(true, CMD_SPLITPLRGOLD, gi, dropGoldValue);
 }
 
 void control_drop_gold(char vkey)
