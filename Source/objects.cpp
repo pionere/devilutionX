@@ -686,6 +686,42 @@ static void LoadMapSetObjs(const char *map)
 	LoadMapSetObjects(map, 2 * setpc_x, 2 * setpc_y, NULL);
 }
 
+static void SetupObject(int oi, int x, int y, int type)
+{
+	ObjectStruct *os;
+	const ObjectData *ods;
+
+	os = &objects[oi];
+	os->_ox = x;
+	os->_oy = y;
+	os->_otype = type;
+	ods = &AllObjects[type];
+	os->_oAnimData = pObjCels[ods->ofindex];
+	os->_oAnimFlag = ods->oAnimFlag;
+	os->_oAnimFrameLen = ods->oAnimFrameLen;
+	if (ods->oAnimFlag) {
+		os->_oAnimCnt = random_(146, ods->oAnimFrameLen);
+		os->_oAnimLen = ods->oAnimLen;
+		os->_oAnimFrame = RandRange(1, ods->oAnimLen);
+	} else {
+		os->_oAnimCnt = 0;
+		os->_oAnimLen = ods->oAnimLen;
+		os->_oAnimFrame = ods->oAnimBaseFrame;
+	}
+	os->_oAnimWidth = ods->oAnimWidth;
+	os->_oAnimXOffset = (os->_oAnimWidth - 64) >> 1;
+	os->_oSolidFlag = ods->oSolidFlag;
+	os->_oMissFlag = ods->oMissFlag;
+	os->_oLightFlag = ods->oLightFlag;
+	// os->_oDelFlag = FALSE; - unused
+	os->_oBreak = ods->oBreak;
+	os->_oSelFlag = ods->oSelFlag;
+	static_assert(FALSE == 0, "SetupObject expects the objects to be zero-filled and skips a few initialization steps.");
+	//os->_oPreFlag = FALSE;
+	//os->_oTrapFlag = FALSE;
+	//os->_oDoorFlag = FALSE;
+}
+
 static void AddDiabObjs()
 {
 	LeverRect lr;
@@ -698,6 +734,43 @@ static void AddDiabObjs()
 }
 
 #ifdef HELLFIRE
+static void SetupHBook(int oi, int bookidx)
+{
+	ObjectStruct *os;
+	int frame;
+
+	os = &objects[oi];
+	os->_oVar1 = 1;
+	frame = 2 * os->_oVar1;
+	os->_oAnimFrame = 5 - frame;
+	os->_oVar4 = os->_oAnimFrame + 1;       // STORY_BOOK_ANIM_FRAME
+	if (bookidx >= 5) {
+		os->_oVar2 = TEXT_BOOKA + bookidx - 5; // STORY_BOOK_MSG
+		os->_oVar3 = 15;                    // STORY_BOOK_NAME
+		os->_oVar8 = bookidx + 1;           // STORY_BOOK_NAKRUL_IDX
+	} else {
+		os->_oVar2 = TEXT_BOOK4 + bookidx;  // STORY_BOOK_MSG
+		os->_oVar3 = bookidx + 10;          // STORY_BOOK_NAME
+		os->_oVar8 = 0;                     // STORY_BOOK_NAKRUL_IDX
+	}
+}
+
+static void AddHBooks(int bookidx, int ox, int oy)
+{
+	int oi;
+
+	if (numobjects >= MAXOBJECTS)
+		return;
+
+	oi = objectavail[0];
+	objectactive[numobjects] = oi;
+	numobjects++;
+	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
+	dObject[ox][oy] = oi + 1;
+	SetupObject(oi, ox, oy, OBJ_STORYBOOK);
+	SetupHBook(oi, bookidx);
+}
+
 static void AddLvl2xBooks(int bookidx)
 {
 	int xp, yp;
@@ -774,6 +847,28 @@ static int ProgressUberLever(int bookidx, int status)
 	return 0;
 }
 #endif
+
+static void AddMushPatch()
+{
+	int oi;
+	int xp, yp;
+
+	if (!RndLoc5x5(&xp, &yp))
+		return;
+	oi = AddObject(OBJ_MUSHPATCH, xp, yp);
+	oi = -(oi + 1);
+	dObject[xp - 1][yp - 1] = oi;
+	dObject[xp][yp - 1] = oi;
+	dObject[xp - 1][yp] = oi;
+}
+
+static void AddSlainHero()
+{
+	int xp, yp;
+
+	if (RndLoc5x5(&xp, &yp))
+		AddObject(OBJ_SLAINHERO, xp, yp);
+}
 
 static void AddStoryBooks()
 {
@@ -1041,42 +1136,6 @@ void SetMapObjects(BYTE *pMap)
 	if (numobjects > 0 && idx != numobjects)
 		objectactive[idx] = objectactive[numobjects];
 }*/
-
-static void SetupObject(int oi, int x, int y, int type)
-{
-	ObjectStruct *os;
-	const ObjectData *ods;
-
-	os = &objects[oi];
-	os->_ox = x;
-	os->_oy = y;
-	os->_otype = type;
-	ods = &AllObjects[type];
-	os->_oAnimData = pObjCels[ods->ofindex];
-	os->_oAnimFlag = ods->oAnimFlag;
-	os->_oAnimFrameLen = ods->oAnimFrameLen;
-	if (ods->oAnimFlag) {
-		os->_oAnimCnt = random_(146, ods->oAnimFrameLen);
-		os->_oAnimLen = ods->oAnimLen;
-		os->_oAnimFrame = RandRange(1, ods->oAnimLen);
-	} else {
-		os->_oAnimCnt = 0;
-		os->_oAnimLen = ods->oAnimLen;
-		os->_oAnimFrame = ods->oAnimBaseFrame;
-	}
-	os->_oAnimWidth = ods->oAnimWidth;
-	os->_oAnimXOffset = (os->_oAnimWidth - 64) >> 1;
-	os->_oSolidFlag = ods->oSolidFlag;
-	os->_oMissFlag = ods->oMissFlag;
-	os->_oLightFlag = ods->oLightFlag;
-	// os->_oDelFlag = FALSE; - unused
-	os->_oBreak = ods->oBreak;
-	os->_oSelFlag = ods->oSelFlag;
-	static_assert(FALSE == 0, "SetupObject expects the objects to be zero-filled and skips a few initialization steps.");
-	//os->_oPreFlag = FALSE;
-	//os->_oTrapFlag = FALSE;
-	//os->_oDoorFlag = FALSE;
-}
 
 void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 {
@@ -1392,67 +1451,6 @@ static void AddTorturedBody(int oi)
 	os->_oAnimFrame = RandRange(1, 4);
 	os->_oPreFlag = TRUE;
 }
-
-void AddMushPatch()
-{
-	int oi;
-	int xp, yp;
-
-	if (!RndLoc5x5(&xp, &yp))
-		return;
-	oi = AddObject(OBJ_MUSHPATCH, xp, yp);
-	oi = -(oi + 1);
-	dObject[xp - 1][yp - 1] = oi;
-	dObject[xp][yp - 1] = oi;
-	dObject[xp - 1][yp] = oi;
-}
-
-void AddSlainHero()
-{
-	int xp, yp;
-
-	if (RndLoc5x5(&xp, &yp))
-		AddObject(OBJ_SLAINHERO, xp, yp);
-}
-
-#ifdef HELLFIRE
-void AddHBooks(int bookidx, int ox, int oy)
-{
-	int oi;
-
-	if (numobjects >= MAXOBJECTS)
-		return;
-
-	oi = objectavail[0];
-	objectactive[numobjects] = oi;
-	numobjects++;
-	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
-	dObject[ox][oy] = oi + 1;
-	SetupObject(oi, ox, oy, OBJ_STORYBOOK);
-	SetupHBook(oi, bookidx);
-}
-
-void SetupHBook(int oi, int bookidx)
-{
-	ObjectStruct *os;
-	int frame;
-
-	os = &objects[oi];
-	os->_oVar1 = 1;
-	frame = 2 * os->_oVar1;
-	os->_oAnimFrame = 5 - frame;
-	os->_oVar4 = os->_oAnimFrame + 1;       // STORY_BOOK_ANIM_FRAME
-	if (bookidx >= 5) {
-		os->_oVar2 = TEXT_BOOKA + bookidx - 5; // STORY_BOOK_MSG
-		os->_oVar3 = 15;                    // STORY_BOOK_NAME
-		os->_oVar8 = bookidx + 1;           // STORY_BOOK_NAKRUL_IDX
-	} else {
-		os->_oVar2 = TEXT_BOOK4 + bookidx;  // STORY_BOOK_MSG
-		os->_oVar3 = bookidx + 10;          // STORY_BOOK_NAME
-		os->_oVar8 = 0;                     // STORY_BOOK_NAKRUL_IDX
-	}
-}
-#endif
 
 int AddObject(int type, int ox, int oy)
 {
