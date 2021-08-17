@@ -45,7 +45,7 @@ const BYTE ItemCAnimTbl[NUM_ICURS] = {
 #endif
 };
 /** Map of item type .cel file names. */
-const char *const ItemDropNames[ITEMTYPES] = {
+const char* const ItemLoadList[ITEMTYPES] = {
 	"Armor2",
 	"Axe",
 	"FBttle",
@@ -326,11 +326,11 @@ static inline int items_get_currlevel()
 void InitItemGFX()
 {
 	int i;
-	char arglist[64];
+	char filestr[32];
 
 	for (i = 0; i < ITEMTYPES; i++) {
-		snprintf(arglist, sizeof(arglist), "Items\\%s.CEL", ItemDropNames[i]);
-		itemanims[i] = LoadFileInMem(arglist);
+		snprintf(filestr, sizeof(filestr), "Items\\%s.CEL", ItemLoadList[i]);
+		itemanims[i] = LoadFileInMem(filestr);
 	}
 	memset(UniqueItemFlags, 0, sizeof(UniqueItemFlags));
 }
