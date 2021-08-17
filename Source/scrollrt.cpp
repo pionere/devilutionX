@@ -17,6 +17,18 @@ int ViewY;
 ScrollStruct ScrollInfo;
 
 /**
+  * Container to hold the cached properties of the viewport.
+  *
+  * _vColumns: the number of columns to draw to ensure the screen is covered. 
+  * _vRows: the number of rows to draw to ensure the screen is covered.
+  * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
+  * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
+  * _vShiftX: the base offset to ViewX.
+  * _vShiftY: the base offset to ViewY.
+*/
+static ViewportStruct gsTileVp;
+
+/**
  * Specifies the current light entry.
  */
 int light_table_index;
@@ -951,7 +963,7 @@ static void Zoom()
 /**
  * @brief Gets the number of rows covered by the main panel
  */
-int RowsCoveredByPanel()
+static int RowsCoveredByPanel()
 {
 	//if (SCREEN_WIDTH <= PANEL_WIDTH) {
 		return 0;
@@ -970,7 +982,7 @@ int RowsCoveredByPanel()
  * @param offsetX Offset in pixels
  * @param offsetY Offset in pixels
  */
-void CalcTileOffset(int *offsetX, int *offsetY)
+static void CalcTileOffset(int *offsetX, int *offsetY)
 {
 	unsigned x, y;
 
@@ -995,7 +1007,7 @@ void CalcTileOffset(int *offsetX, int *offsetY)
  * @param columns Tiles needed per row
  * @param rows Both even and odd rows
  */
-void TilesInView(int *rcolumns, int *rrows)
+static void TilesInView(int *rcolumns, int *rrows)
 {
 	int columns = (SCREEN_WIDTH + TILE_WIDTH - 1) / TILE_WIDTH;
 	int rows = (VIEWPORT_HEIGHT + TILE_HEIGHT - 1) / TILE_HEIGHT;
@@ -1012,55 +1024,84 @@ void TilesInView(int *rcolumns, int *rrows)
 	*rrows = rows;
 }
 
-int tileOffsetX;
-int tileOffsetY;
-int tileShiftX;
-int tileShiftY;
-int tileColums;
-int tileRows;
-
-void CalcViewportGeometry()
+static void CalcTileViewport()
 {
 	int xo, yo;
 
 	// Adjust by player offset and tile grid alignment
 	CalcTileOffset(&xo, &yo);
-	tileOffsetX = SCREEN_X - xo;
-	tileOffsetY = SCREEN_Y + TILE_HEIGHT / 2 - 1 - yo;
+	gsTileVp._vOffsetX = xo - SCREEN_X;
+	gsTileVp._vOffsetY = yo - (SCREEN_Y + TILE_HEIGHT / 2 - 1);
 
-	TilesInView(&tileColums, &tileRows);
-	int lrow = tileRows - RowsCoveredByPanel();
+	TilesInView(&gsTileVp._vColumns, &gsTileVp._vRows);
+	int lrow = gsTileVp._vRows - RowsCoveredByPanel();
 
 	// Center player tile on screen
-	tileShiftX = 0;
-	tileShiftY = 0;
-	SHIFT_GRID(tileShiftX, tileShiftY, -tileColums / 2, -lrow / 2);
+	gsTileVp._vShiftX = 0;
+	gsTileVp._vShiftY = 0;
+	SHIFT_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, -gsTileVp._vColumns / 2, -lrow / 2);
 
-	tileRows *= 2;
+	gsTileVp._vRows *= 2;
 
 	// Align grid
-	if ((tileColums & 1) == 0) {
-		tileShiftY--; // Shift player row to one that can be centered without pixel offset
+	if ((gsTileVp._vColumns & 1) == 0) {
+		gsTileVp._vShiftY--; // Shift player row to one that can be centered without pixel offset
 		if ((lrow & 1) == 0) {
 			// Offset tile to vertically align the player when both rows and colums are even
-			tileRows++;
-			tileOffsetY -= TILE_HEIGHT / 2;
+			gsTileVp._vRows++;
+			gsTileVp._vOffsetY += TILE_HEIGHT / 2;
 		}
-	} else if (/*(tileColums & 1) &&*/ (lrow & 1)) {
+	} else if (/*(gsTileVp._vColumns & 1) &&*/ (lrow & 1)) {
 		// Offset tile to vertically align the player when both rows and colums are odd
-		SHIFT_GRID(tileShiftX, tileShiftY, 0, -1);
-		tileRows++;
-		tileOffsetY -= TILE_HEIGHT / 2;
+		SHIFT_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, 0, -1);
+		gsTileVp._vRows++;
+		gsTileVp._vOffsetY += TILE_HEIGHT / 2;
 	}
 
 	// Slightly lower the zoomed view
 	if (gbZoomInFlag) {
-		tileOffsetY += TILE_HEIGHT / 4;
+		gsTileVp._vOffsetY -= TILE_HEIGHT / 4;
 		if (yo < TILE_HEIGHT / 4)
-			tileRows++;
+			gsTileVp._vRows++;
 	}
 
-	tileRows++; // Cover lower edge saw tooth, right edge accounted for in scrollrt_draw()
+	gsTileVp._vRows++; // Cover lower edge saw tooth, right edge accounted for in scrollrt_draw()
+}
+
+static void CalcMouseViewport()
+{
+	// Adjust by player offset and tile grid alignment
+	CalcTileOffset(&gsMouseVp._vOffsetX, &gsMouseVp._vOffsetY);
+
+	// Convert to tile grid
+	TilesInView(&gsMouseVp._vColumns, &gsMouseVp._vRows);
+	int lrow = gsMouseVp._vRows - RowsCoveredByPanel();
+
+	// Center player tile on screen
+	gsMouseVp._vShiftX = 0;
+	gsMouseVp._vShiftY = 0;
+	SHIFT_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, -gsMouseVp._vColumns / 2, -lrow / 2);
+
+	// Align grid
+	if ((gsMouseVp._vColumns & 1) == 0) {
+		if ((lrow & 1) == 0) {
+			gsMouseVp._vOffsetY += TILE_HEIGHT / 2;
+		}
+	} else if (/*gsMouseVp._vColumns & 1 &&*/ lrow & 1) {
+		gsMouseVp._vOffsetX -= TILE_WIDTH / 2;
+	} else /*if (gsMouseVp._vColumns & 1 && (lrow & 1) == 0)*/ {
+		gsMouseVp._vShiftY++;
+	}
+
+	if (gbZoomInFlag) {
+		gsMouseVp._vOffsetY -= TILE_HEIGHT / 4;
+	}
+}
+
+void CalcViewportGeometry()
+{
+	CalcTileViewport();
+	CalcMouseViewport();
 }
 
 /**
@@ -1077,14 +1118,14 @@ static void DrawGame()
 	//	gpBufEnd = &gpBuffer[SCREENXY(0, VIEWPORT_HEIGHT / 2)];
 
 	// Adjust by player offset and tile grid alignment
-	sx = ScrollInfo._sxoff + tileOffsetX;
-	sy = ScrollInfo._syoff + tileOffsetY;
+	sx = ScrollInfo._sxoff - gsTileVp._vOffsetX;
+	sy = ScrollInfo._syoff - gsTileVp._vOffsetY;
 
-	columns = tileColums;
-	rows = tileRows;
+	columns = gsTileVp._vColumns;
+	rows = gsTileVp._vRows;
 
-	x = ViewX + tileShiftX;
-	y = ViewY + tileShiftY;
+	x = ViewX + gsTileVp._vShiftX;
+	y = ViewY + gsTileVp._vShiftY;
 
 	// Draw areas moving in and out of the screen
 	switch (ScrollInfo._sdir) {

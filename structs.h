@@ -1375,7 +1375,7 @@ static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align T
 #endif
 
 //////////////////////////////////////////////////
-// gendung
+// scrollrt
 //////////////////////////////////////////////////
 
 typedef struct ScrollStruct {
@@ -1385,6 +1385,19 @@ typedef struct ScrollStruct {
 	int _sdy;
 	int _sdir;
 } ScrollStruct;
+
+typedef struct ViewportStruct {
+	int _vColumns; // number of tiles in one row
+	int _vRows;    // number of tiles in one column
+	int _vOffsetX; // X-offset in a back buffer
+	int _vOffsetY; // Y-offset in a back buffer
+	int _vShiftX; // X-shift in a dPiece
+	int _vShiftY; // Y-shift in a dPiece
+} ViewportStruct;
+
+//////////////////////////////////////////////////
+// gendung
+//////////////////////////////////////////////////
 
 typedef struct THEME_LOC {
 	int x;

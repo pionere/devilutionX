@@ -7,6 +7,18 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/**
+  * Container to hold the cached properties of the mouse-viewport.
+  *
+  * _vColumns: the number of columns on the screen 
+  * _vRows: the number of rows on the screen.
+  * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
+  * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
+  * _vShiftX: the base offset to ViewX.
+  * _vShiftY: the base offset to ViewY.
+*/
+ViewportStruct gsMouseVp;
+
 /** Pixel width of the current cursor image */
 int cursW;
 /** Pixel height of the current cursor image */
@@ -201,7 +213,7 @@ void CheckTownPortal()
 
 void CheckCursMove()
 {
-	int pnum, sx, sy, fx, fy, mx, my, tx, ty, px, py, xx, yy, mi, columns, rows, xo, yo;
+	int pnum, sx, sy, fx, fy, mx, my, tx, ty, px, py, xx, yy, mi;
 	char bv;
 	bool flipflag, flipx, flipy;
 
@@ -217,42 +229,22 @@ void CheckCursMove()
 		sy >>= 1;
 	}
 
-	// Adjust by player offset and tile grid alignment
-	CalcTileOffset(&xo, &yo);
-	sx -= ScrollInfo._sxoff - xo;
-	sy -= ScrollInfo._syoff - yo;
+	sx -= ScrollInfo._sxoff - gsMouseVp._vOffsetX;
+	sy -= ScrollInfo._syoff - gsMouseVp._vOffsetY;
 
 	// Predict the next frame when walking to avoid input jitter
 	if (ScrollInfo._sdir != SDIR_NONE) {
 		fx = myplr._pVar6 / 256; // WALK_XOFF
-		fy = myplr._pVar7 / 256; // WALK_YOFF
 		fx -= (myplr._pVar6 + myplr._pxvel) / 256;
+		fy = myplr._pVar7 / 256; // WALK_YOFF
 		fy -= (myplr._pVar7 + myplr._pyvel) / 256;
 		sx -= fx;
 		sy -= fy;
 	}
 
-	// Convert to tile grid
-	TilesInView(&columns, &rows);
-	int lrow = rows - RowsCoveredByPanel();
-
 	// Center player tile on screen
-	mx = ViewX;
-	my = ViewY;
-	SHIFT_GRID(mx, my, -columns / 2, -lrow / 2);
-
-	// Align grid
-	if ((columns & 1) == 0 && (lrow & 1) == 0) {
-		sy += TILE_HEIGHT / 2;
-	} else if (columns & 1 && lrow & 1) {
-		sx -= TILE_WIDTH / 2;
-	} else if (columns & 1 && (lrow & 1) == 0) {
-		my++;
-	}
-
-	if (gbZoomInFlag) {
-		sy -= TILE_HEIGHT / 4;
-	}
+	mx = ViewX + gsMouseVp._vShiftX;
+	my = ViewY + gsMouseVp._vShiftY;
 
 	tx = sx / TILE_WIDTH;
 	ty = sy / TILE_HEIGHT;
@@ -272,6 +264,9 @@ void CheckCursMove()
 		mx++;
 	}
 
+	flipflag = (flipy && flipx) || ((flipy || flipx) && px < TILE_WIDTH / 2);
+
+	// limit the position to the 'live' dungeon
 	if (mx < DBORDERX)
 		mx = DBORDERX;
 	else if (mx > MAXDUNX - 1 - DBORDERX)
@@ -280,8 +275,6 @@ void CheckCursMove()
 		my = DBORDERY;
 	else if (my > MAXDUNY - 1 - DBORDERY)
 		my = MAXDUNY - 1 - DBORDERY;
-
-	flipflag = (flipy && flipx) || ((flipy || flipx) && px < TILE_WIDTH / 2);
 
 	pcurstemp = pcursmonst;
 	pcursmonst = -1;

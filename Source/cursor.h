@@ -12,6 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern ViewportStruct gsMouseVp;
+
 extern int cursW;
 extern int cursH;
 extern int pcursmonst;

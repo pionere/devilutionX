@@ -34,9 +34,6 @@ extern bool gbCelFoliageActive;
 extern int level_piece_id;
 
 void ClearCursor();
-int RowsCoveredByPanel();
-void CalcTileOffset(int *offsetX, int *offsetY);
-void TilesInView(int *columns, int *rows);
 void CalcViewportGeometry();
 void ClearScreenBuffer();
 #ifdef _DEBUG
