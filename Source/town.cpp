@@ -227,7 +227,7 @@ static BYTE GetOpenWarps()
 /**
  * @brief Initialize all of the levels data
  */
-void T_Pass3()
+static void T_Pass3()
 {
 	int x;
 

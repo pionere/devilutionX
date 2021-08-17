@@ -1520,9 +1520,12 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		quests[Q_FARMER]._qactive = QUEST_DONE;
 		quests[Q_FARMER]._qvar1 = 2 + pnum;
 		quests[Q_FARMER]._qlog = TRUE;
-		if (pnum == mypnum) {
-			// NetSendCmdQuest(Q_FARMER, true);
-			NetSendCmd(false, CMD_OPENHIVE);
+		// open hive
+		if (currLvl._dLevelIdx == DLV_TOWN) {
+			AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0, 0);
+			gbOpenWarps |= (1 << TWARP_NEST);
+			T_HiveOpen();
+			InitTriggers();
 		}
 		return true;
 	}
@@ -1530,9 +1533,12 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 	 && x >= DBORDERX + 25  && x <= DBORDERX + 28 && y >= DBORDERY + 10 && y <= DBORDERY + 14
 	 && quests[Q_GRAVE]._qactive != QUEST_DONE) {
 		quests[Q_GRAVE]._qactive = QUEST_DONE;
-		if (pnum == mypnum) {
-			// NetSendCmdQuest(Q_GRAVE, true);
-			NetSendCmd(false, CMD_OPENCRYPT);
+		// open crypt
+		if (currLvl._dLevelIdx == DLV_TOWN) {
+			PlaySFX(IS_SARC);
+			gbOpenWarps |= (1 << TWARP_CRYPT);
+			T_CryptOpen();
+			InitTriggers();
 		}
 		return true;
 	}
@@ -2448,30 +2454,6 @@ static unsigned On_OPENSPIL(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-#ifdef HELLFIRE
-static unsigned On_OPENHIVE(TCmd *pCmd, int pnum)
-{
-	if (currLvl._dLevelIdx == DLV_TOWN) {
-		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0, 0);
-		gbOpenWarps |= (1 << TWARP_NEST);
-		T_HiveOpen();
-		InitTriggers();
-	}
-	return sizeof(*pCmd);
-}
-
-static unsigned On_OPENCRYPT(TCmd *pCmd, int pnum)
-{
-	if (currLvl._dLevelIdx == DLV_TOWN) {
-		PlaySFX(IS_SARC);
-		gbOpenWarps |= (1 << TWARP_CRYPT);
-		T_CryptOpen();
-		InitTriggers();
-	}
-	return sizeof(*pCmd);
-}
-#endif
-
 unsigned ParseMsg(int pnum, TCmd *pCmd)
 {
 #ifndef NOHOSTING
@@ -2641,12 +2623,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_SYNCQUESTEXT(pCmd, pnum);
 	case CMD_OPENSPIL:
 		return On_OPENSPIL(pCmd, pnum);
-#ifdef HELLFIRE
-	case CMD_OPENHIVE:
-		return On_OPENHIVE(pCmd, pnum);
-	case CMD_OPENCRYPT:
-		return On_OPENCRYPT(pCmd, pnum);
-#endif
 #ifdef _DEBUG
 	case CMD_CHEAT_EXPERIENCE:
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
