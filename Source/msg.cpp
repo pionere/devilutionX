@@ -17,8 +17,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define DELTA_ERROR_FAIL_3		MAX_CHUNKS + 5
 #define DELTA_ERROR_FAIL_4		MAX_CHUNKS + 6
 
-// fields to handle item records
-
 // fields to handle delta-information
 /* The timestamp of the delta download-start. */
 //static Uint32 guDeltaStart;
@@ -2455,6 +2453,7 @@ static unsigned On_OPENHIVE(TCmd *pCmd, int pnum)
 {
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0, 0);
+		gbOpenWarps |= (1 << TWARP_NEST);
 		T_HiveOpen();
 		InitTriggers();
 	}
@@ -2465,6 +2464,7 @@ static unsigned On_OPENCRYPT(TCmd *pCmd, int pnum)
 {
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		PlaySFX(IS_SARC);
+		gbOpenWarps |= (1 << TWARP_CRYPT);
 		T_CryptOpen();
 		InitTriggers();
 	}
