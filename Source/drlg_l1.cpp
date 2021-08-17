@@ -1111,48 +1111,12 @@ static void DRLG_L1MakeMegas()
 		dungeon[i][DMAXY - 1] = 22;
 }
 
-static int L1HWallOk(int i, int j)
-{
-	int x;
-	BYTE bv;
-
-	for (x = 1; dungeon[i + x][j] == 13; x++) {
-		if (dungeon[i + x][j - 1] != 13 || dungeon[i + x][j + 1] != 13 || dflags[i + x][j] != 0)
-			break;
-	}
-
-	if (x != 1) {
-		bv = dungeon[i + x][j];
-		if ((bv >= 3 && bv <= 7)
-		 || (bv >= 16 && bv <= 24 && bv != 22))
-			return x;
-	}
-	return -1;
-}
-
-static int L1VWallOk(int i, int j)
-{
-	int y;
-	BYTE bv;
-
-	for (y = 1; dungeon[i][j + y] == 13; y++) {
-		if (dungeon[i - 1][j + y] != 13 || dungeon[i + 1][j + y] != 13 || dflags[i][j + y] != 0)
-			break;
-	}
-
-	if (y != 1) {
-		bv = dungeon[i][j + y];
-		if ((bv >= 3 && bv <= 7)
-		 || (bv >= 16 && bv <= 24 && bv != 22))
-			return y;
-	}
-	return -1;
-}
-
-static void L1HorizWall(int i, int j, char pn, int dx)
+static void L1HorizWall(int i, int j, int dx)
 {
 	int xx;
-	char wt, dt;
+	BYTE pn, dt, wt;
+	// convert the first tile / select the internal replacement
+	pn = dungeon[i][j] == 6 ? 4 : 2;
 
 	switch (random_(0, 4)) {
 	case 0:
@@ -1161,51 +1125,80 @@ static void L1HorizWall(int i, int j, char pn, int dx)
 		break;
 	case 2:
 		dt = 12;
-		if (pn == 2)
-			pn = 12;
-		if (pn == 4)
-			pn = 10;
+		pn = pn == 4 ? 10 : 12;
 		break;
 	case 3:
 		dt = 36;
-		if (pn == 2)
-			pn = 36;
-		if (pn == 4)
-			pn = 27;
+		pn = pn == 4 ? 27 : 36;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
 
-	if (random_(0, 6) == 5)
-		wt = 12;
-	else
-		wt = 26;
-	if (dt == 12)
-		wt = 12;
-
 	dungeon[i][j] = pn;
-
+	// convert the internal tiles
 	for (xx = 1; xx < dx; xx++) {
 		dungeon[i + xx][j] = dt;
 	}
-
+	// add 'door'
 	xx = RandRange(1, dx - 1);
-
-	if (wt == 12) {
-		dungeon[i + xx][j] = 12;
-	} else {
-		dungeon[i + xx][j] = 2;
+	wt = (dt == 12 || random_(0, 6) == 5) ? 12 : 2;
+	dungeon[i + xx][j] = wt;
+	if (wt != 12) {
 		dflags[i + xx][j] |= DLRG_HDOOR;
 	}
 }
 
-static void L1VertWall(int i, int j, char pn, int dy)
+static constexpr uint32_t GOOD_WALL_ENDS =
+	  (1 << 3)
+	| (1 << 4)
+	| (1 << 5)
+	| (1 << 6)
+	| (1 << 7)
+	| (1 << 16)
+	| (1 << 17)
+	| (1 << 18)
+	| (1 << 19)
+	| (1 << 20)
+	| (1 << 21)
+	| (1 << 23)
+	| (1 << 24);
+static bool L1AddHWall(int x, int y)
+{
+	int i;
+	BYTE bv;
+
+	i = x;
+	while (TRUE) {
+		i++;
+		bv = dungeon[i][y];
+		if (bv != 13)
+			break;
+		if (dungeon[i][y - 1] != 13)
+			break;
+		if (dungeon[i][y + 1] != 13)
+			break;
+		if (dflags[i][y] != 0)
+			break;
+	}
+
+	i -= x;
+	if (i != 1
+	// && ((bv >= 3 && bv <= 7) || (bv >= 16 && bv <= 24 && bv != 22)) {
+	 && (bv < 25 && (GOOD_WALL_ENDS & (1 << bv)))) {
+		L1HorizWall(x, y, i);
+		return true;
+	}
+	return false;
+}
+
+static void L1VertWall(int i, int j, int dy)
 {
 	int yy;
-	char wt, dt;
-
+	BYTE pn, wt, dt;
+	// convert the first tile / select the internal replacement
+	pn = dungeon[i][j] == 7 ? 4 : 1;
 	switch (random_(0, 4)) {
 	case 0:
 	case 1:
@@ -1213,83 +1206,81 @@ static void L1VertWall(int i, int j, char pn, int dy)
 		break;
 	case 2:
 		dt = 11;
-		if (pn == 1)
-			pn = 11;
-		if (pn == 4)
-			pn = 14;
+		pn = pn == 4 ? 14 : 11;
 		break;
 	case 3:
 		dt = 35;
-		if (pn == 1)
-			pn = 35;
-		if (pn == 4)
-			pn = 37;
+		pn = pn == 4 ? 37 : 35;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
 
-	if (random_(0, 6) == 5)
-		wt = 11;
-	else
-		wt = 25;
-	if (dt == 11)
-		wt = 11;
-
 	dungeon[i][j] = pn;
-
+	// convert the internal tiles
 	for (yy = 1; yy < dy; yy++) {
 		dungeon[i][j + yy] = dt;
 	}
-
+	// add 'door'
 	yy = RandRange(1, dy - 1);
-
-	if (wt == 11) {
-		dungeon[i][j + yy] = 11;
-	} else {
-		dungeon[i][j + yy] = 1;
+	wt = (dt == 11 || random_(0, 6) == 5) ? 11 : 1;
+	dungeon[i][j + yy] = wt;
+	if (wt != 11) {
 		dflags[i][j + yy] |= DLRG_VDOOR;
 	}
 }
 
+static void L1AddVWall(int x, int y)
+{
+	int j;
+	BYTE bv;
+
+	j = y;
+	while (TRUE) {
+		j++;
+		bv = dungeon[x][j];
+		if (bv != 13)
+			break;
+		if (dungeon[x - 1][j] != 13)
+			break;
+		if (dungeon[x + 1][j] != 13)
+			break;
+		if (dflags[x][j] != 0)
+			break;
+	}
+
+	j -= y;
+	if (j != 1
+	// && ((bv >= 3 && bv <= 7) || (bv >= 16 && bv <= 24 && bv != 22))) {
+	 && (bv < 25 && (GOOD_WALL_ENDS & (1 << bv)))) {
+		L1VertWall(x, y, j);
+		return; // true;
+	}
+	//return false;
+}
+
 static void L1AddWall()
 {
-	int i, j, x, y;
+	int i, j;
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (dflags[i][j] == 0) {
-				if (dungeon[i][j] == 3) {
-					x = L1HWallOk(i, j);
-					if (x != -1)
-						L1HorizWall(i, j, 2, x);
-				}
-				if (dungeon[i][j] == 3) {
-					y = L1VWallOk(i, j);
-					if (y != -1)
-						L1VertWall(i, j, 1, y);
-				}
-				if (dungeon[i][j] == 6) {
-					x = L1HWallOk(i, j);
-					if (x != -1)
-						L1HorizWall(i, j, 4, x);
-				}
-				if (dungeon[i][j] == 7) {
-					y = L1VWallOk(i, j);
-					if (y != -1)
-						L1VertWall(i, j, 4, y);
-				}
-				if (dungeon[i][j] == 2) {
-					x = L1HWallOk(i, j);
-					if (x != -1)
-						L1HorizWall(i, j, 2, x);
-				}
-				if (dungeon[i][j] == 1) {
-					y = L1VWallOk(i, j);
-					if (y != -1)
-						L1VertWall(i, j, 1, y);
-				}
+			if (dflags[i][j] != 0)
+				continue;
+			switch (dungeon[i][j]) {
+			case 3:
+				if (L1AddHWall(i, j))
+					break;
+				/* fall-through */
+			case 7:
+			case 1:
+				L1AddVWall(i, j);
+				break;
+			case 2:
+			case 6:
+				L1AddHWall(i, j);
+				break;
 			}
 		}
 	}
