@@ -111,7 +111,7 @@ void DrawHelp()
 	BYTE col;
 	const char *s;
 
-	DrawSTextHelp();
+	InitSTextHelp();
 	DrawQTextBack();
 
 	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);

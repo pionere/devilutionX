@@ -64,8 +64,6 @@ static unsigned guFrameCnt;
 static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
-/* data */
-
 /* used in 1.00 debug */
 #ifdef _DEBUG
 const char *const szMonModeAssert[18] = {
@@ -1156,7 +1154,7 @@ static void DrawView()
 	DrawManaFlask();
 
 	if (stextflag != STORE_NONE && !gbQtextflag)
-		DrawSText();
+		DrawStore();
 	if (gbInvflag) {
 		DrawInv();
 	} else if (gbSbookflag) {

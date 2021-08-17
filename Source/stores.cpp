@@ -80,9 +80,9 @@ static int talker;
 /** The current interaction mode(STORE*) */
 char stextflag;
 /** Is the current dialog full size */
-static bool _gbStextsize;
+static bool gbWidePanel;
 /** Does the current panel have a scrollbar */
-static bool _gbStextscrl;
+static bool gbHasScroll;
 /** Scroll position */
 static int stextsidx;
 /** Next scroll position */
@@ -133,8 +133,8 @@ void InitStoreGFX()
 	pSTextSlidCels = LoadFileInMem("Data\\TextSlid.CEL");
 	ClearSText(0, STORE_LINES);
 	stextflag = STORE_NONE;
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 	numpremium = 0;
 	premiumlevel = 1;
 
@@ -189,9 +189,9 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 	BYTE c;
 	char valstr[32];
 
-	sx = (_gbStextsize ? QPANEL_X + 7 : STORE_PNL_X + 7) + x;
+	sx = (gbWidePanel ? QPANEL_X + 7 : STORE_PNL_X + 7) + x;
 	sy = 44 + SCREEN_Y + UI_OFFSET_Y + y * 12 + stextlines[y]._syoff;
-	limit = _gbStextsize ? QPANEL_WIDTH - 7 * 2 : STORE_PNL_WIDTH - 7 * 2;
+	limit = gbWidePanel ? QPANEL_WIDTH - 7 * 2 : STORE_PNL_WIDTH - 7 * 2;
 	if (cjustflag) {
 		width = GetStringWidth(str);
 		if (width < limit) {
@@ -224,7 +224,7 @@ void DrawSLine(int y)
 	width = BUFFER_WIDTH;
 	sxy = SCREENXY(PANEL_LEFT + 26, 25 + UI_OFFSET_Y);
 	dxy = SCREENXY(PANEL_LEFT + 26, y * 12  + 38 + UI_OFFSET_Y);
-	if (_gbStextsize) {
+	if (gbWidePanel) {
 		line = QPANEL_WIDTH - 4; // BUGFIX: should be 587, not 586 (fixed)
 	} else {
 		sxy += QPANEL_WIDTH - STORE_PNL_WIDTH;
@@ -268,10 +268,11 @@ static void DrawSSlider(int y1, int y2)
 	CelDraw(x, (y1 + 1) * 12 + 44 + SCREEN_Y + UI_OFFSET_Y + yd3, pSTextSlidCels, 13, 12);
 }
 
-void DrawSTextHelp()
+void InitSTextHelp()
 {
 	stextsel = -1;
-	_gbStextsize = true;
+	gbWidePanel = true;
+	assert(gbHasScroll == false);
 }
 
 void ClearSText(int s, int e)
@@ -397,8 +398,8 @@ static void AddStoreFrame(const char* title)
 
 static void S_StartSmith()
 {
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Blacksmith's shop", COL_GOLD, false);
 	AddSText(0, 7, true, "Would you like to:", COL_GOLD, false);
@@ -467,16 +468,16 @@ static void S_StartSBuy()
 	for (i = 0; smithitem[i]._itype != ITYPE_NONE; i++)
 		storenumh++;
 
-	_gbStextsize = true;
+	gbWidePanel = true;
 	if (storenumh == 0) {
 		//StartStore(STORE_SMITH);
 		//stextshold = STORE_SMITH;
 		//stextsel = STORE_SMITH_BUY;
 		//return false;
-		_gbStextscrl = false;
+		gbHasScroll = false;
 		msg = "I have no basic item for sale.           Your gold: %d";
 	} else {
-		_gbStextscrl = true;
+		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSBuy();
 
@@ -531,16 +532,16 @@ static void S_StartSPBuy()
 		if (premiumitems[i]._itype != ITYPE_NONE)
 			storenumh++;
 
-	_gbStextsize = true;
+	gbWidePanel = true;
 	if (storenumh == 0) {
 		//StartStore(STORE_SMITH);
 		//stextshold = STORE_SMITH;
 		//stextsel = STORE_SMITH_SPBUY;
 		//return false;
-		_gbStextscrl = false;
+		gbHasScroll = false;
 		msg = "I have no premium item for sale.         Your gold: %d";
 	} else {
-		_gbStextscrl = true;
+		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSPBuy();
 
@@ -634,12 +635,12 @@ static void S_StartSSell()
 			AddStoreSell(pi, -(i + 1));
 #endif
 
-	_gbStextsize = true;
+	gbWidePanel = true;
 	if (storenumh == 0) {
-		_gbStextscrl = false;
+		gbHasScroll = false;
 		msg = "You have nothing I want.                 Your gold: %d";
 	} else {
-		_gbStextscrl = true;
+		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
 
@@ -694,12 +695,12 @@ static void S_StartSRepair()
 		if (SmithRepairOk(pi))
 			AddStoreHoldRepair(pi, i);
 
-	_gbStextsize = true;
+	gbWidePanel = true;
 	if (storenumh == 0) {
-		_gbStextscrl = false;
+		gbHasScroll = false;
 		msg = "You have nothing to repair.              Your gold: %d";
 	} else {
-		_gbStextscrl = true;
+		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
 
@@ -711,8 +712,8 @@ static void S_StartSRepair()
 
 static void S_StartWitch()
 {
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 
 	AddSText(0, 2, true, "Witch's shack", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
@@ -760,8 +761,8 @@ static void S_StartWBuy()
 	for (i = 0; witchitem[i]._itype != ITYPE_NONE; i++)
 		storenumh++;
 
-	_gbStextsize = true;
-	_gbStextscrl = true;
+	gbWidePanel = true;
+	gbHasScroll = true;
 	stextsidx = 0;
 	S_ScrollWBuy();
 
@@ -801,12 +802,12 @@ static void S_StartWSell()
 		if (WitchSellOk(pi))
 			AddStoreSell(pi, -(i + 1));
 
-	_gbStextsize = true;
+	gbWidePanel = true;
 	if (storenumh == 0) {
-		_gbStextscrl = false;
+		gbHasScroll = false;
 		msg = "You have nothing I want.                 Your gold: %d";
 	} else {
-		_gbStextscrl = true;
+		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
 		msg = "Which item is for sale?                  Your gold: %d";
@@ -854,12 +855,12 @@ static void S_StartWRecharge()
 		if (WitchRechargeOk(pi))
 			AddStoreHoldRecharge(pi, i);
 
-	_gbStextsize = true;
+	gbWidePanel = true;
 	if (storenumh == 0) {
-		_gbStextscrl = false;
+		gbHasScroll = false;
 		msg = "You have nothing to recharge.            Your gold: %d";
 	} else {
-		_gbStextscrl = true;
+		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
 
@@ -872,8 +873,8 @@ static void S_StartWRecharge()
 static void S_StartNoMoney()
 {
 	StartStore(stextshold);
-	_gbStextscrl = false;
-	_gbStextsize = true;
+	gbHasScroll = false;
+	gbWidePanel = true;
 	ClearSText(5, STORE_LINES);
 	AddSText(0, 14, true, "You do not have enough gold", COL_WHITE, true);
 }
@@ -881,7 +882,7 @@ static void S_StartNoMoney()
 static void S_StartNoRoom()
 {
 	StartStore(stextshold);
-	_gbStextscrl = false;
+	gbHasScroll = false;
 	ClearSText(5, STORE_LINES);
 	AddSText(0, 14, true, "You do not have enough room in inventory", COL_WHITE, true);
 }
@@ -891,7 +892,7 @@ static void S_StartConfirm()
 	BYTE iclr;
 
 	StartStore(stextshold);
-	_gbStextscrl = false;
+	gbHasScroll = false;
 	ClearSText(5, STORE_LINES);
 	iclr = StoreItemColor(&storeitem);
 	AddSText(20, 8, false, ItemName(&storeitem), iclr, false);
@@ -932,8 +933,8 @@ static void S_StartConfirm()
 
 static void S_StartBoy()
 {
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 	AddSText(0, 2, true, "Wirt the Peg-legged boy", COL_GOLD, false);
 	AddSLine(5);
 	if (boyitem._itype != ITYPE_NONE) {
@@ -953,8 +954,8 @@ static void S_StartBBoy()
 {
 	BYTE iclr;
 
-	_gbStextsize = true;
-	_gbStextscrl = false;
+	gbWidePanel = true;
+	gbHasScroll = false;
 	snprintf(tempstr, sizeof(tempstr), "I have this item for sale:                Your gold: %d", myplr._pGold);
 	AddSText(0, 1, true, tempstr, COL_GOLD, false);
 	AddSLine(3);
@@ -970,8 +971,8 @@ static void S_StartBBoy()
 
 static void S_StartHealer()
 {
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Healer's home", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
@@ -1018,8 +1019,8 @@ static void S_StartHBuy()
 	for (i = 0; healitem[i]._itype != ITYPE_NONE; i++)
 		storenumh++;
 
-	_gbStextsize = true;
-	_gbStextscrl = true;
+	gbWidePanel = true;
+	gbHasScroll = true;
 	stextsidx = 0;
 	S_ScrollHBuy();
 
@@ -1029,8 +1030,8 @@ static void S_StartHBuy()
 
 static void S_StartStory()
 {
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 	AddSText(0, 2, true, "The Town Elder", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_STORY_GOSSIP, true, "Talk to Cain", COL_BLUE, true);
@@ -1079,12 +1080,12 @@ static void S_StartSIdentify()
 		if (IdItemOk(pi))
 			AddStoreHoldId(pi, i);
 
-	_gbStextsize = true;
+	gbWidePanel = true;
 	if (storenumh == 0) {
-		_gbStextscrl = false;
+		gbHasScroll = false;
 		msg = "You have nothing to identify.             Your gold: %d";
 	} else {
-		_gbStextscrl = true;
+		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
 
@@ -1102,8 +1103,8 @@ static void S_StartIdShow()
 	//StartStore(STORE_SIDENTIFY);
 	//ClearSText(5, STORE_LINES);
 
-	//_gbStextsize = true;
-	_gbStextscrl = false;
+	//gbWidePanel = true;
+	gbHasScroll = false;
 
 	iclr = StoreItemColor(&storeitem);
 
@@ -1119,8 +1120,8 @@ static void S_StartTalk()
 {
 	int i, sn, la;
 
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 	snprintf(tempstr, sizeof(tempstr), "Talk to %s", talkname[talker]);
 	AddSText(0, 2, true, tempstr, COL_GOLD, false);
 	AddSLine(5);
@@ -1150,8 +1151,8 @@ static void S_StartTalk()
 
 static void S_StartTavern()
 {
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Rising Sun", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
@@ -1162,8 +1163,8 @@ static void S_StartTavern()
 
 static void S_StartBarMaid()
 {
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 	AddSText(0, 2, true, "Gillian", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_BARMAID_GOSSIP, true, "Talk to Gillian", COL_BLUE, true);
@@ -1173,8 +1174,8 @@ static void S_StartBarMaid()
 
 static void S_StartDrunk()
 {
-	_gbStextsize = false;
-	_gbStextscrl = false;
+	gbWidePanel = false;
+	gbHasScroll = false;
 	AddSText(0, 2, true, "Farnham the Drunk", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_DRUNK_GOSSIP, true, "Talk to Farnham", COL_BLUE, true);
@@ -1276,16 +1277,16 @@ void StartStore(int s)
 	stextflag = s;
 }
 
-void DrawSText()
+void DrawStore()
 {
 	int i;
 
-	if (!_gbStextsize)
-		DrawSTextBack();
-	else
+	if (gbWidePanel)
 		DrawQTextBack();
+	else
+		DrawSTextBack();
 
-	if (_gbStextscrl) {
+	if (gbHasScroll) {
 		switch (stextflag) {
 		case STORE_SBUY:
 			S_ScrollSBuy();
@@ -1319,7 +1320,7 @@ void DrawSText()
 			PrintSString(stextlines[i]._sx, i, stextlines[i]._sjust, stextlines[i]._sstr, stextlines[i]._sclr, stextlines[i]._sval);
 	}
 
-	if (_gbStextscrl)
+	if (gbHasScroll)
 		DrawSSlider(4, 20);
 }
 
@@ -1406,7 +1407,7 @@ void STextUp()
 		return;
 	}
 
-	if (_gbStextscrl && stextsel == stextup) {
+	if (gbHasScroll && stextsel == stextup) {
 		if (stextsidx != 0)
 			stextsidx--;
 		return;
@@ -1426,7 +1427,7 @@ void STextDown()
 		return;
 	}
 
-	if (_gbStextscrl && stextsel == stextdown) {
+	if (gbHasScroll && stextsel == stextdown) {
 		if (stextsidx < stextsmax)
 			stextsidx++;
 		return;
@@ -1442,7 +1443,7 @@ void STextDown()
 void STextPrior()
 {
 	PlaySFX(IS_TITLEMOV);
-	if (stextsel != -1 && _gbStextscrl) {
+	if (stextsel != -1 && gbHasScroll) {
 		if (stextsel == stextup) {
 			stextsidx -= 4;
 			if (stextsidx < 0)
@@ -1456,7 +1457,7 @@ void STextPrior()
 void STextNext()
 {
 	PlaySFX(IS_TITLEMOV);
-	if (stextsel != -1 && _gbStextscrl) {
+	if (stextsel != -1 && gbHasScroll) {
 		if (stextsel == stextdown) {
 			stextsidx += 4;
 			if (stextsidx > stextsmax)
@@ -2363,15 +2364,14 @@ void CheckStoreBtn()
 		//if (currLvl._dType == DTYPE_TOWN)
 			stream_stop();
 	} else if (stextsel != -1 && MouseY >= (32 + UI_OFFSET_Y) && MouseY < (320 + UI_OFFSET_Y)) {
-		if (!_gbStextsize) {
-			if (MouseX < 344 + PANEL_LEFT || MouseX > 616 + PANEL_LEFT)
-				return;
-		} else {
+		if (gbWidePanel) {
 			if (MouseX < 24 + PANEL_LEFT || MouseX > 616 + PANEL_LEFT)
 				return;
-		}
+		} else {
+			if (MouseX < 344 + PANEL_LEFT || MouseX > 616 + PANEL_LEFT)
+				return;		}
 		y = (MouseY - (32 + UI_OFFSET_Y)) / 12;
-		if (_gbStextscrl && MouseX > 600 + PANEL_LEFT) {
+		if (gbHasScroll && MouseX > 600 + PANEL_LEFT) {
 			if (y == 4) {
 				if (stextscrlubtn <= 0) {
 					STextUp();
@@ -2394,13 +2394,13 @@ void CheckStoreBtn()
 			if (y >= 22)
 				y = 22;
 			// allow clicking on multi-line items
-			else if (_gbStextscrl /*&& y < 21*/ && !stextlines[y]._ssel) {
+			else if (gbHasScroll /*&& y < 21*/ && !stextlines[y]._ssel) {
 				y--;
 				if (!stextlines[y]._ssel) {
 					y--;
 				}
 			}
-			//if (stextlines[y]._ssel || (_gbStextscrl && y == STORE_BACK)) {
+			//if (stextlines[y]._ssel || (gbHasScroll && y == STORE_BACK)) {
 			if (stextlines[y]._ssel) {
 				stextsel = y;
 				STextEnter();
