@@ -508,9 +508,9 @@ void CheckCursMove()
 			cursmy = my + 1;
 		}
 		if (pcursmonst != -1) {
-			if (/*pcursmonst < MAX_MINIONS ||*/!towners[pcursmonst]._tSelFlag)
-				pcursmonst = -1;
-			else
+			//if (/*pcursmonst < MAX_MINIONS ||*/!towners[pcursmonst]._tSelFlag)
+			//	pcursmonst = -1;
+			//else
 				return;
 		}
 	}

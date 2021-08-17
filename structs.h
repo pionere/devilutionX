@@ -1348,11 +1348,13 @@ typedef struct TownerStruct {
 	BYTE _tListener; // unused
 	BYTE _tStoreId;
 	int _tStoreTalk;
-	BOOL _tSelFlag;
+	int _tGossipStart;
+	int _tGossipEnd;
+	BOOL _tSelFlag; // unused
 	int _tSeed;
 	const char *_tName;
 #ifdef X86_32bit_COMP
-	int alignment[11];
+	int alignment[9];
 #endif
 } TownerStruct;
 #ifdef X86_32bit_COMP

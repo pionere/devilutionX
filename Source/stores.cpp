@@ -91,10 +91,6 @@ static int stextdown;
 static int stextup;
 /** Remember current interaction mode(STORE*) while displaying a dialog */
 static int stextshold;
-/** Start of possible gossip dialogs for current store */
-static int gossipstart;
-/** End of possible gossip dialogs for current store */
-static int gossipend;
 /** Text lines */
 static STextStruct stextlines[STORE_LINES];
 /** Currently selected text line from stext */
@@ -1478,8 +1474,6 @@ static void S_SmithEnter()
 		stextlhold = STORE_SMITH_GOSSIP;
 		talker = TOWN_SMITH;
 		stextshold = STORE_SMITH;
-		gossipstart = TEXT_GRISWOLD2;
-		gossipend = TEXT_GRISWOLD13;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_SMITH_BUY:
@@ -1823,8 +1817,6 @@ static void S_WitchEnter()
 		stextlhold = STORE_WITCH_GOSSIP;
 		talker = TOWN_WITCH;
 		stextshold = STORE_WITCH;
-		gossipstart = TEXT_ADRIA2;
-		gossipend = TEXT_ADRIA13;
 		StartStore(STORE_GOSSIP);
 		return;
 	case STORE_WITCH_BUY:
@@ -1975,8 +1967,6 @@ static void S_BoyEnter()
 	stextlhold = stextsel;
 	talker = TOWN_PEGBOY;
 	stextshold = STORE_BOY;
-	gossipstart = TEXT_WIRT2;
-	gossipend = TEXT_WIRT12;
 	StartStore(STORE_GOSSIP);
 }
 
@@ -2108,8 +2098,6 @@ static void S_HealerEnter()
 		stextlhold = STORE_HEALER_GOSSIP;
 		talker = TOWN_HEALER;
 		stextshold = STORE_HEALER;
-		gossipstart = TEXT_PEPIN2;
-		gossipend = TEXT_PEPIN11;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_HEALER_HEAL:
@@ -2153,8 +2141,6 @@ static void S_StoryEnter()
 		stextlhold = STORE_STORY_GOSSIP;
 		talker = TOWN_STORY;
 		stextshold = STORE_STORY;
-		gossipstart = TEXT_STORY2;
-		gossipend = TEXT_STORY11;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_STORY_IDENTIFY:
@@ -2214,7 +2200,7 @@ static void S_TalkEnter()
 
 	if (stextsel == sn - 2) {
 		SetRndSeed(towners[talker]._tSeed);
-		tq = RandRange(gossipstart, gossipend);
+		tq = RandRange(towners[talker]._tGossipStart, towners[talker]._tGossipEnd);
 		InitQTextMsg(tq);
 		return;
 	}
@@ -2236,8 +2222,6 @@ static void S_TavernEnter()
 		stextlhold = STORE_TAVERN_GOSSIP;
 		talker = TOWN_TAVERN;
 		stextshold = STORE_TAVERN;
-		gossipstart = TEXT_OGDEN2;
-		gossipend = TEXT_OGDEN10;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_TAVERN_EXIT:
@@ -2256,8 +2240,6 @@ static void S_BarmaidEnter()
 		stextlhold = STORE_BARMAID_GOSSIP;
 		talker = TOWN_BMAID;
 		stextshold = STORE_BARMAID;
-		gossipstart = TEXT_GILLIAN2;
-		gossipend = TEXT_GILLIAN10;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_BARMAID_EXIT:
@@ -2276,8 +2258,6 @@ static void S_DrunkEnter()
 		stextlhold = STORE_DRUNK_GOSSIP;
 		talker = TOWN_DRUNK;
 		stextshold = STORE_DRUNK;
-		gossipstart = TEXT_FARNHAM2;
-		gossipend = TEXT_FARNHAM13;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_DRUNK_EXIT:

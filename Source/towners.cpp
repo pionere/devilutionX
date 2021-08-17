@@ -21,6 +21,7 @@ TownerStruct towners[MAX_TOWNERS];
  * ref: enum plr_class
  */
 const int snSFX[3][NUM_CLASSES] = {
+	// clang-format off
 #ifdef HELLFIRE
 	{ PS_WARR52, PS_ROGUE52, PS_MAGE52, PS_MONK52, PS_ROGUE52, PS_WARR52 },
 	{ PS_WARR49, PS_ROGUE49, PS_MAGE49, PS_MONK49, PS_ROGUE49, PS_WARR49 },
@@ -30,11 +31,12 @@ const int snSFX[3][NUM_CLASSES] = {
 	{ PS_WARR49, PS_ROGUE49, PS_MAGE49 },
 	{ PS_WARR50, PS_ROGUE50, PS_MAGE50 },
 #endif
+	// clang-format on
 };
 
-/* data */
 /** Specifies the animation frame sequence of a given NPC. */
 const char AnimOrder[6][144] = {
+	// clang-format off
 	{ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
 	    5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
@@ -99,7 +101,16 @@ const char AnimOrder[6][144] = {
 	    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 	    1, 2, 1, 19, 18, 19, 1, 2, 1, 2,
 	    3, -1 }
+	// clang-format on
 };
+
+#define TPOS_SMITH		52 + DBORDERX, 53 + DBORDERY
+#define TPOS_TAVERN		45 + DBORDERX, 52 + DBORDERY
+#define TPOS_HEALER		45 + DBORDERX, 69 + DBORDERY
+#define TPOS_COWFARM	51 + DBORDERX, 12 + DBORDERY
+#define TPOS_FARMER		52 + DBORDERX, 6 + DBORDERY
+#define TPOS_GIRL		67 + DBORDERX, 33 + DBORDERY
+
 /** Specifies the start X-coordinates of the cows in Tristram. */
 const int TownCowX[] = { 48 + DBORDERX, 46 + DBORDERX, 49 + DBORDERX };
 /** Specifies the start Y-coordinates of the cows in Tristram. */
@@ -150,26 +161,32 @@ static void InitCowAnim(int tnum, int dir)
 
 	tw->_tAnimData = const_cast<BYTE *>(CelGetFrameStart(pCowCels, dir));
 	tw->_tAnimLen = 12;
+	tw->_tAnimOrder = -1;
 	tw->_tAnimCnt = 0;
 	tw->_tAnimFrameLen = 3;
 	tw->_tAnimFrame = RandRange(1, 11);
+	tw->_tAnimWidth = 128;
+	tw->_tAnimXOffset = (128 - 64) >> 1;
 }
 
-static void InitTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)
+static void InitTownerAnim(int tnum, BYTE* pAnim, int Delay, int numFrames, int ao)
 {
 	TownerStruct *tw;
 
 	tw = &towners[tnum];
 
 	tw->_tAnimData = pAnim;
+	tw->_tAnimFrameLen = Delay;
 	tw->_tAnimLen = numFrames;
+	tw->_tAnimOrder = ao;
 	tw->_tAnimCnt = 0;
 	tw->_tAnimFrameCnt = 0;
-	tw->_tAnimFrameLen = Delay;
 	tw->_tAnimFrame = 1;
+	tw->_tAnimWidth = 96;
+	tw->_tAnimXOffset = (96 - 64) >> 1;
 }
 
-static void InitTownerInfo(int tnum, int w, int type, int store_id, int store_talk, int x, int y, int ao)
+static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 {
 	TownerStruct *tw;
 
@@ -178,17 +195,25 @@ static void InitTownerInfo(int tnum, int w, int type, int store_id, int store_ta
 	monsters[tnum]._mfuty = monsters[tnum]._my = y;
 	tw = &towners[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
+	static_assert(STORE_NONE == 0, "InitTownerTalk skipped by using zfill instead.");
 	// tw->_tListener = MAX_PLRS;
-	tw->_tStoreId = store_id;
-	tw->_tStoreTalk = store_talk;
-	tw->_tSelFlag = TRUE; // TODO: unused constant?
-	tw->_tAnimWidth = w;
-	tw->_tAnimXOffset = (w - 64) >> 1;
+	//tw->_tSelFlag = TRUE;
+	tw->_tName = name;
 	tw->_ttype = type;
 	tw->_tx = x;
 	tw->_ty = y;
-	tw->_tAnimOrder = ao;
 	tw->_tSeed = GetRndSeed();
+}
+
+static void InitTownerTalk(int tnum, int store_id, int store_talk, int gossip_start, int gossip_end)
+{
+	TownerStruct* tw;
+
+	tw = &towners[tnum];
+	tw->_tStoreId = store_id;
+	tw->_tStoreTalk = store_talk;
+	tw->_tGossipStart = gossip_start;
+	tw->_tGossipEnd = gossip_end;
 }
 
 /**
@@ -197,73 +222,72 @@ static void InitTownerInfo(int tnum, int w, int type, int store_id, int store_ta
  */
 static void InitSmith()
 {
-	InitTownerInfo(numtowners, 96, TOWN_SMITH, STORE_SMITH, TEXT_GRISWOLD1, 52 + DBORDERX, 53 + DBORDERY, 0);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Smith\\SmithN.CEL"), 16, 3);
-	towners[numtowners]._tName = "Griswold the Blacksmith";
+	InitTownerInfo(numtowners, "Griswold the Blacksmith", TOWN_SMITH, TPOS_SMITH);
+	InitTownerTalk(numtowners, STORE_SMITH, TEXT_GRISWOLD1, TEXT_GRISWOLD2, TEXT_GRISWOLD13);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Smith\\SmithN.CEL"), 3, 16, 0);
 	numtowners++;
 }
 
 static void InitBarOwner()
 {
-	InitTownerInfo(numtowners, 96, TOWN_TAVERN, STORE_TAVERN, TEXT_OGDEN1, 45 + DBORDERX, 52 + DBORDERY, 3);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TwnF\\TwnFN.CEL"), 16, 3);
-	towners[numtowners]._tName = "Ogden the Tavern owner";
+	InitTownerInfo(numtowners, "Ogden the Tavern owner", TOWN_TAVERN, TPOS_TAVERN);
+	InitTownerTalk(numtowners, STORE_TAVERN, TEXT_OGDEN1, TEXT_OGDEN2, TEXT_OGDEN10);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TwnF\\TwnFN.CEL"), 3, 16, 3);
 	numtowners++;
 }
 
 static void InitTownDead()
 {
-	InitTownerInfo(numtowners, 96, TOWN_DEADGUY, STORE_NONE, TEXT_NONE, 14 + DBORDERX, 22 + DBORDERY, -1);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Butch\\Deadguy.CEL"), 8, 6);
-	towners[numtowners]._tName = "Wounded Townsman";
+	InitTownerInfo(numtowners, "Wounded Townsman", TOWN_DEADGUY, 14 + DBORDERX, 22 + DBORDERY);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Butch\\Deadguy.CEL"), 6, 8, -1);
 	numtowners++;
 }
 
 static void InitWitch()
 {
-	InitTownerInfo(numtowners, 96, TOWN_WITCH, STORE_WITCH, TEXT_ADRIA1, 70 + DBORDERX, 10 + DBORDERY, 5);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\Witch.CEL"), 19, 6);
-	towners[numtowners]._tName = "Adria the Witch";
+	InitTownerInfo(numtowners, "Adria the Witch", TOWN_WITCH, 70 + DBORDERX, 10 + DBORDERY);
+	InitTownerTalk(numtowners, STORE_WITCH, TEXT_ADRIA1, TEXT_ADRIA2, TEXT_ADRIA13);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\Witch.CEL"), 6, 19, 5);
 	numtowners++;
 }
 
 static void InitBarmaid()
 {
-	InitTownerInfo(numtowners, 96, TOWN_BMAID, STORE_BARMAID, TEXT_GILLIAN1, 33 + DBORDERX, 56 + DBORDERY, -1);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\WmnN.CEL"), 18, 6);
-	towners[numtowners]._tName = "Gillian the Barmaid";
+	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BMAID, 33 + DBORDERX, 56 + DBORDERY);
+	InitTownerTalk(numtowners, STORE_BARMAID, TEXT_GILLIAN1, TEXT_GILLIAN2, TEXT_GILLIAN10);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\WmnN.CEL"), 6, 18, -1);
 	numtowners++;
 }
 
 static void InitBoy()
 {
-	InitTownerInfo(numtowners, 96, TOWN_PEGBOY, STORE_BOY, TEXT_WIRT1, 1 + DBORDERX, 43 + DBORDERY, -1);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownBoy\\PegKid1.CEL"), 20, 6);
-	towners[numtowners]._tName = "Wirt the Peg-legged boy";
+	InitTownerInfo(numtowners, "Wirt the Peg-legged boy", TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY);
+	InitTownerTalk(numtowners, STORE_BOY, TEXT_WIRT1, TEXT_WIRT2, TEXT_WIRT12);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownBoy\\PegKid1.CEL"), 6, 20, -1);
 	numtowners++;
 }
 
 static void InitHealer()
 {
-	InitTownerInfo(numtowners, 96, TOWN_HEALER, STORE_HEALER, TEXT_PEPIN1, 45 + DBORDERX, 69 + DBORDERY, 1);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Healer\\Healer.CEL"), 20, 6);
-	towners[numtowners]._tName = "Pepin the Healer";
+	InitTownerInfo(numtowners, "Pepin the Healer", TOWN_HEALER, TPOS_HEALER);
+	InitTownerTalk(numtowners, STORE_HEALER, TEXT_PEPIN1, TEXT_PEPIN2, TEXT_PEPIN11);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Healer\\Healer.CEL"), 6, 20, 1);
 	numtowners++;
 }
 
 static void InitTeller()
 {
-	InitTownerInfo(numtowners, 96, TOWN_STORY, STORE_STORY, TEXT_STORY1, 52 + DBORDERX, 61 + DBORDERY, 2);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Strytell\\Strytell.CEL"), 25, 3);
-	towners[numtowners]._tName = "Cain the Elder";
+	InitTownerInfo(numtowners, "Cain the Elder", TOWN_STORY, 52 + DBORDERX, 61 + DBORDERY);
+	InitTownerTalk(numtowners, STORE_STORY, TEXT_STORY1, TEXT_STORY2, TEXT_STORY11);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Strytell\\Strytell.CEL"), 3, 25, 2);
 	numtowners++;
 }
 
 static void InitDrunk()
 {
-	InitTownerInfo(numtowners, 96, TOWN_DRUNK, STORE_DRUNK, TEXT_FARNHAM1, 61 + DBORDERX, 74 + DBORDERY, 4);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Drunk\\TwnDrunk.CEL"), 18, 3);
-	towners[numtowners]._tName = "Farnham the Drunk";
+	InitTownerInfo(numtowners, "Farnham the Drunk", TOWN_DRUNK, 61 + DBORDERX, 74 + DBORDERY);
+	InitTownerTalk(numtowners, STORE_DRUNK, TEXT_FARNHAM1, TEXT_FARNHAM2, TEXT_FARNHAM13);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Drunk\\TwnDrunk.CEL"), 3, 18, 4);
 	numtowners++;
 }
 
@@ -279,9 +303,8 @@ static void InitCows()
 		x = TownCowX[i];
 		y = TownCowY[i];
 		dir = TownCowDir[i];
-		InitTownerInfo(numtowners, 128, TOWN_COW, STORE_NONE, TEXT_NONE, x, y, -1);
+		InitTownerInfo(numtowners, "Cow", TOWN_COW, x, y);
 		InitCowAnim(numtowners, dir);
-		towners[numtowners]._tName = "Cow";
 
 		xo = x + cowoffx[dir];
 		yo = y + cowoffy[dir];
@@ -302,9 +325,8 @@ static void InitCows()
 #ifdef HELLFIRE
 static void InitFarmer()
 {
-	InitTownerInfo(numtowners, 96, TOWN_FARMER, STORE_NONE, TEXT_NONE, 52 + DBORDERX, 6 + DBORDERY, -1);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Farmer\\Farmrn2.CEL"), 15, 3);
-	towners[numtowners]._tName = "Lester the farmer";
+	InitTownerInfo(numtowners, "Lester the farmer", TOWN_FARMER, TPOS_FARMER);
+	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Farmer\\Farmrn2.CEL"), 3, 15, -1);
 	numtowners++;
 }
 
@@ -312,14 +334,13 @@ static void InitCowFarmer()
 {
 	BYTE *pBuf;
 
-	InitTownerInfo(numtowners, 96, TOWN_COWFARM, STORE_NONE, TEXT_NONE, 51 + DBORDERX, 12 + DBORDERY, -1);
+	InitTownerInfo(numtowners, "Complete Nut", TOWN_COWFARM, TPOS_COWFARM);
 	if (quests[Q_JERSEY]._qactive != QUEST_DONE) {
 		pBuf = LoadFileInMem("Towners\\Farmer\\cfrmrn2.CEL");
 	} else {
 		pBuf = LoadFileInMem("Towners\\Farmer\\mfrmrn2.CEL");
 	}
-	InitTownerAnim(numtowners, pBuf, 15, 3);
-	towners[numtowners]._tName = "Complete Nut";
+	InitTownerAnim(numtowners, pBuf, 3, 15, -1);
 	numtowners++;
 }
 
@@ -327,14 +348,13 @@ static void InitGirl()
 {
 	BYTE *pBuf;
 
-	InitTownerInfo(numtowners, 96, TOWN_GIRL, STORE_NONE, TEXT_NONE, 67 + DBORDERX, 33 + DBORDERY, -1);
+	InitTownerInfo(numtowners, "Celia", TOWN_GIRL, TPOS_GIRL);
 	if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
 		pBuf = LoadFileInMem("Towners\\Girl\\Girlw1.CEL");
 	} else {
 		pBuf = LoadFileInMem("Towners\\Girl\\Girls1.CEL");
 	}
-	InitTownerAnim(numtowners, pBuf, 20, 6);
-	towners[numtowners]._tName = "Celia";
+	InitTownerAnim(numtowners, pBuf, 6, 20, -1);
 	numtowners++;
 }
 #endif
@@ -537,7 +557,7 @@ void TalkToTowner(int tnum)
 				qt = TEXT_BANNER2;
 			} else if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasItem(pnum, IDI_BANNER, &i)) {
 				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_HARCREST, tw->_tx, tw->_ty + 1, false, true);
+				SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, false, true);
 				quests[Q_LTBANNER]._qlog = FALSE;
 				quests[Q_LTBANNER]._qvar1 = 2;
 				qn = Q_LTBANNER;
@@ -573,7 +593,7 @@ void TalkToTowner(int tnum)
 			}
 			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i)) {
 				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1, false, true);
+				SpawnUnique(UITEM_INFRARING, TPOS_SMITH + 1, false, true);
 				quests[Q_ROCK]._qactive = QUEST_DONE;
 				quests[Q_ROCK]._qlog = FALSE;
 				qn = Q_ROCK;
@@ -590,7 +610,7 @@ void TalkToTowner(int tnum)
 				qt = TEXT_ANVIL5;
 			} else if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ANVIL, &i)) {
 				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1, false, true);
+				SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH + 1, false, true);
 				quests[Q_ANVIL]._qactive = QUEST_DONE;
 				quests[Q_ANVIL]._qlog = FALSE;
 				qn = Q_ANVIL;
@@ -657,14 +677,14 @@ void TalkToTowner(int tnum)
 		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
 		 && quests[Q_PWATER]._qvar1 == 2) {
 			quests[Q_PWATER]._qactive = QUEST_DONE;
-			SpawnUnique(UITEM_TRING, tw->_tx, tw->_ty + 1, false, true);
+			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, false, true);
 			qn = Q_PWATER;
 			qt = TEXT_POISON5;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
 		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
 			if (PlrHasItem(pnum, IDI_BRAIN, &i)) {
 				PlrInvItemRemove(pnum, i);
-				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty, false, true);
+				SpawnQuestItemAround(IDI_SPECELIX, TPOS_HEALER + 1, false, true);
 				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
 				quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
 				qn = Q_MUSHROOM;
@@ -736,7 +756,7 @@ void TalkToTowner(int tnum)
 				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
 				qt = TEXT_FARMER1;
-				SpawnRewardItem(IDI_RUNEBOMB, tw->_tx, tw->_ty, false, true);
+				SpawnRewardItem(IDI_RUNEBOMB, TPOS_FARMER, false, true);
 			}
 			break;
 		case QUEST_ACTIVE:
@@ -747,7 +767,7 @@ void TalkToTowner(int tnum)
 				quests[Q_FARMER]._qlog = FALSE;
 				qn = Q_FARMER;
 				qt = TEXT_FARMER4;
-				SpawnRewardItem(IDI_MANA, tw->_tx, tw->_ty, false, true);
+				SpawnRewardItem(IDI_MANA, TPOS_FARMER, false, true);
 			}
 			break;
 		default:
@@ -785,7 +805,7 @@ void TalkToTowner(int tnum)
 				break;
 			} else if (PlrHasItem(pnum, IDI_BROWNSUIT, &i)) {
 				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_BOVINE, tw->_tx + 1, tw->_ty, false, true);
+				SpawnUnique(UITEM_BOVINE, TPOS_COWFARM, false, true);
 				quests[Q_JERSEY]._qactive = QUEST_DONE;
 				qn = Q_JERSEY;
 				qt = TEXT_JERSEY8;
@@ -814,7 +834,7 @@ void TalkToTowner(int tnum)
 				quests[Q_JERSEY]._qlog = TRUE;
 				qn = Q_JERSEY;
 				qt = TEXT_JERSEY4;
-				SpawnRewardItem(IDI_RUNEBOMB, tw->_tx, tw->_ty, false, true);
+				SpawnRewardItem(IDI_RUNEBOMB, TPOS_COWFARM, false, true);
 			}
 			break;
 		case QUEST_DONE:
@@ -831,7 +851,7 @@ void TalkToTowner(int tnum)
 				ii = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
 				SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
 				PlrInvItemRemove(pnum, i);
-				CreateAmulet(ii, tw->_tx, tw->_ty, true, true);
+				CreateAmulet(ii, TPOS_GIRL, true, true);
 				// quests[Q_GIRL]._qlog = FALSE;
 				quests[Q_GIRL]._qactive = QUEST_DONE;
 				qt = TEXT_GIRL4;
