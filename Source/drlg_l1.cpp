@@ -8,20 +8,18 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
-#define BASE_MEGATILE_L1 (22 - 1)
+#define BASE_MEGATILE_L1	(22 - 1)
 
-/** Specifies whether to generate a horizontal room at position 1 in the Cathedral. */
-BOOL HR1;
-/** Specifies whether to generate a horizontal room at position 2 in the Cathedral. */
-BOOL HR2;
-/** Specifies whether to generate a horizontal room at position 3 in the Cathedral. */
-BOOL HR3;
-/** Specifies whether to generate a vertical room at position 1 in the Cathedral. */
-BOOL VR1;
-/** Specifies whether to generate a vertical room at position 2 in the Cathedral. */
-BOOL VR2;
-/** Specifies whether to generate a vertical room at position 3 in the Cathedral. */
-BOOL VR3;
+#define CHAMBER_SIZE		10
+
+/** Specifies whether to generate a vertical or horizontal rooms in the Cathedral. */
+BOOLEAN ChambersVertical;
+/** Specifies whether to generate a room at position 1 in the Cathedral. */
+BOOLEAN ChambersFirst;
+/** Specifies whether to generate a room at position 2 in the Cathedral. */
+BOOLEAN ChambersMiddle;
+/** Specifies whether to generate a room at position 3 in the Cathedral. */
+BOOLEAN ChambersLast;
 
 /** Contains shadows for 2x2 blocks of base tile IDs in the Cathedral. */
 const ShadowStruct L1SPATS[] = {
@@ -945,14 +943,14 @@ static bool L1checkRoom(int x, int y, int width, int height)
 	return true;
 }
 
-static void L1roomGen(int x, int y, int w, int h, int dir)
+static void L1roomGen(int x, int y, int w, int h, bool dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
 	bool ran2;
 
 	dirProb = random_(0, 4);
 
-	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
+	if (dir == (dirProb == 0)) {
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
 			height = RandRange(2, 6) & ~1;
@@ -969,9 +967,9 @@ static void L1roomGen(int x, int y, int w, int h, int dir)
 		if (ran2)
 			L1drawRoom(rxy2, ry, width, height);
 		if (i != 0)
-			L1roomGen(rx, ry, width, height, 1);
+			L1roomGen(rx, ry, width, height, true);
 		if (ran2)
-			L1roomGen(rxy2, ry, width, height, 1);
+			L1roomGen(rxy2, ry, width, height, true);
 	} else {
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
@@ -989,103 +987,90 @@ static void L1roomGen(int x, int y, int w, int h, int dir)
 		if (ran2)
 			L1drawRoom(rx, rxy2, width, height);
 		if (i != 0)
-			L1roomGen(rx, ry, width, height, 0);
+			L1roomGen(rx, ry, width, height, false);
 		if (ran2)
-			L1roomGen(rx, rxy2, width, height, 0);
+			L1roomGen(rx, rxy2, width, height, false);
 	}
 }
 
 static void L1firstRoom()
 {
-	int ys, ye, y;
-	int xs, xe, x;
+	int is, ie, i;
 
-	if (random_(0, 2) == 0) {
+	ChambersVertical = random_(0, 2);
+	ChambersFirst = random_(0, 2);
+	ChambersMiddle = random_(0, 2);
+	ChambersLast = random_(0, 2);
+	// make sure there is at least one chamber + prevent standalone first/last chambers
+	if (!(ChambersFirst & ChambersLast))
+		ChambersMiddle = TRUE;
+	if (ChambersVertical) {
 		// place the main rooms vertically
-		ys = 11; // was 1
-		ye = 29; // was DMAXY - 1;
+		is = CHAMBER_SIZE + 1;
+		ie = 29;
 
-		VR1 = random_(0, 2);
-		VR2 = random_(0, 2);
-		VR3 = random_(0, 2);
-		// make sure there are at least two set
-		if (!(VR1 & VR3))
-			VR2 = TRUE;
 		// draw the selected rooms
-		if (VR1)
-			L1drawRoom(15, 1, 10, 10);
+		if (ChambersFirst)
+			L1drawRoom(15, 1, CHAMBER_SIZE, CHAMBER_SIZE);
 		else
-			ys = 25; // was 18;
+			is = 1 + CHAMBER_SIZE + 4 + CHAMBER_SIZE;
 
-		if (VR2)
-			L1drawRoom(15, 15, 10, 10);
-		if (VR3)
-			L1drawRoom(15, 29, 10, 10);
+		if (ChambersMiddle)
+			L1drawRoom(15, 15, CHAMBER_SIZE, CHAMBER_SIZE);
+		if (ChambersLast)
+			L1drawRoom(15, 29, CHAMBER_SIZE, CHAMBER_SIZE);
 		else
-			ye = 15; // was 22;
+			ie = 15;
 		// draw a hallway between the rooms
-		for (y = ys; y < ye; y++) {
-			dungeon[17][y] = 1;
-			dungeon[18][y] = 1;
-			dungeon[19][y] = 1;
-			dungeon[20][y] = 1;
-			dungeon[21][y] = 1;
-			dungeon[22][y] = 1;
+		for (i = is; i < ie; i++) {
+			dungeon[17][i] = 1;
+			dungeon[18][i] = 1;
+			dungeon[19][i] = 1;
+			dungeon[20][i] = 1;
+			dungeon[21][i] = 1;
+			dungeon[22][i] = 1;
 		}
 		// spread additional rooms starting from the main rooms
-		if (VR1)
-			L1roomGen(15, 1, 10, 10, 0);
-		if (VR2)
-			L1roomGen(15, 15, 10, 10, 0);
-		if (VR3)
-			L1roomGen(15, 29, 10, 10, 0);
+		if (ChambersFirst)
+			L1roomGen(15, 1, CHAMBER_SIZE, CHAMBER_SIZE, false);
+		if (ChambersMiddle)
+			L1roomGen(15, 15, CHAMBER_SIZE, CHAMBER_SIZE, false);
+		if (ChambersLast)
+			L1roomGen(15, 29, CHAMBER_SIZE, CHAMBER_SIZE, false);
 
-		HR3 = FALSE;
-		HR2 = FALSE;
-		HR1 = FALSE;
 	} else {
 		// place the main rooms horizontally
-		xs = 11; // was 1
-		xe = 29; // was DMAXX - 1;
+		is = CHAMBER_SIZE + 1;
+		ie = 29;
 
-		HR1 = random_(0, 2);
-		HR2 = random_(0, 2);
-		HR3 = random_(0, 2);
-		// make sure there are at least two set
-		if (!(HR1 & HR3))
-			HR2 = TRUE;
 		// draw the selected rooms
-		if (HR1)
-			L1drawRoom(1, 15, 10, 10);
+		if (ChambersFirst)
+			L1drawRoom(1, 15, CHAMBER_SIZE, CHAMBER_SIZE);
 		else
-			xs = 25; // was 18;
+			is = 1 + CHAMBER_SIZE + 4 + CHAMBER_SIZE;
 
-		if (HR2)
-			L1drawRoom(15, 15, 10, 10);
-		if (HR3)
-			L1drawRoom(29, 15, 10, 10);
+		if (ChambersMiddle)
+			L1drawRoom(1 + CHAMBER_SIZE + 4, 15, CHAMBER_SIZE, CHAMBER_SIZE);
+		if (ChambersLast)
+			L1drawRoom(1 + CHAMBER_SIZE + 4 + CHAMBER_SIZE + 4, 15, CHAMBER_SIZE, CHAMBER_SIZE);
 		else
-			xe = 15; // was 22;
+			ie = 15;
 		// draw a hallway between the rooms
-		for (x = xs; x < xe; x++) {
-			dungeon[x][17] = 1;
-			dungeon[x][18] = 1;
-			dungeon[x][19] = 1;
-			dungeon[x][20] = 1;
-			dungeon[x][21] = 1;
-			dungeon[x][22] = 1;
+		for (i = is; i < ie; i++) {
+			dungeon[i][17] = 1;
+			dungeon[i][18] = 1;
+			dungeon[i][19] = 1;
+			dungeon[i][20] = 1;
+			dungeon[i][21] = 1;
+			dungeon[i][22] = 1;
 		}
 		// spread additional rooms starting from the main rooms
-		if (HR1)
-			L1roomGen(1, 15, 10, 10, 1);
-		if (HR2)
-			L1roomGen(15, 15, 10, 10, 1);
-		if (HR3)
-			L1roomGen(29, 15, 10, 10, 1);
-
-		VR3 = FALSE;
-		VR2 = FALSE;
-		VR1 = FALSE;
+		if (ChambersFirst)
+			L1roomGen(1, 15, CHAMBER_SIZE, CHAMBER_SIZE, true);
+		if (ChambersMiddle)
+			L1roomGen(15, 15, CHAMBER_SIZE, CHAMBER_SIZE, true);
+		if (ChambersLast)
+			L1roomGen(29, 15, CHAMBER_SIZE, CHAMBER_SIZE, true);
 	}
 }
 
@@ -1310,77 +1295,168 @@ static void L1AddWall()
 	}
 }
 
-static void DRLG_L1GChamber(int sx, int sy, BOOL topflag, BOOL bottomflag, BOOL leftflag, BOOL rightflag)
+static void DRLG_L1GChamber(int sx, int sy)
 {
 	int i, j;
-
-	if (topflag) {
-		dungeon[sx + 2][sy] = 12;
-		dungeon[sx + 3][sy] = 12;
-		dungeon[sx + 4][sy] = 3;
-		dungeon[sx + 7][sy] = 9;
-		dungeon[sx + 8][sy] = 12;
-		dungeon[sx + 9][sy] = 2;
-	}
-	if (bottomflag) {
-		sy += 11;
-		dungeon[sx + 2][sy] = 10;
-		dungeon[sx + 3][sy] = 12;
-		dungeon[sx + 4][sy] = 8;
-		dungeon[sx + 7][sy] = 5;
-		dungeon[sx + 8][sy] = 12;
-		if (dungeon[sx + 9][sy] != 4) {
-			dungeon[sx + 9][sy] = 21;
-		}
-		sy -= 11;
-	}
-	if (leftflag) {
-		dungeon[sx][sy + 2] = 11;
-		dungeon[sx][sy + 3] = 11;
-		dungeon[sx][sy + 4] = 3;
-		dungeon[sx][sy + 7] = 8;
-		dungeon[sx][sy + 8] = 11;
-		dungeon[sx][sy + 9] = 1;
-	}
-	if (rightflag) {
-		sx += 11;
-		dungeon[sx][sy + 2] = 14;
-		dungeon[sx][sy + 3] = 11;
-		dungeon[sx][sy + 4] = 9;
-		dungeon[sx][sy + 7] = 5;
-		dungeon[sx][sy + 8] = 11;
-		if (dungeon[sx][sy + 9] != 4) {
-			dungeon[sx][sy + 9] = 21;
-		}
-		sx -= 11;
-	}
-
-	for (j = 1; j < 11; j++) {
-		for (i = 1; i < 11; i++) {
-			dungeon[i + sx][j + sy] = 13;
+	// set flags for the chamber
+	for (i = 0; i < CHAMBER_SIZE; i++) {
+		for (j = 0; j < CHAMBER_SIZE; j++) {
+			assert(dungeon[i + sx][j + sy] == 13);
 			dflags[i + sx][j + sy] |= DLRG_CHAMBER;
 		}
 	}
-
-	dungeon[sx + 4][sy + 4] = 15;
-	dungeon[sx + 7][sy + 4] = 15;
-	dungeon[sx + 4][sy + 7] = 15;
-	dungeon[sx + 7][sy + 7] = 15;
+	// add the four main pillars of the chamber
+	dungeon[sx + 3][sy + 3] = 15;
+	dungeon[sx + 6][sy + 3] = 15;
+	dungeon[sx + 3][sy + 6] = 15;
+	dungeon[sx + 6][sy + 6] = 15;
 }
 
-static void DRLG_L1GHall(int x1, int y1, int x2, int y2)
+static void DRLG_L1GHallHoriz(int x1, int y1, int x2)
 {
 	int i;
 
-	if (y1 == y2) {
-		for (i = x1; i < x2; i++) {
-			dungeon[i][y1] = 12;
-			dungeon[i][y1 + 3] = 12;
+	i = x1;
+	dungeon[i][y1 - 2] = 14;
+	dungeon[i][y1 - 1] = 11;
+	dungeon[i][y1 + 0] = 9;
+	dungeon[i][y1 + 3] = 5;
+	dungeon[i][y1 + 4] = 11;
+	if (dungeon[i][y1 + 5] != 4) {
+		dungeon[i][y1 + 5] = 21;
+	}
+
+	for (i++; i < x2; i++) {
+		dungeon[i][y1] = 12;
+		dungeon[i][y1 + 3] = 12;
+	}
+
+	dungeon[i][y1 - 2] = 11;
+	dungeon[i][y1 - 1] = 11;
+	dungeon[i][y1 + 0] = 3;
+	dungeon[i][y1 + 3] = 8;
+	dungeon[i][y1 + 4] = 11;
+	dungeon[i][y1 + 5] = 1;
+}
+
+static void DRLG_L1GHallVert(int x1, int y1, int y2)
+{
+	int i;
+
+	i = y1;
+	dungeon[x1 - 2][i] = 10;
+	dungeon[x1 - 1][i] = 12;
+	dungeon[x1 + 0][i] = 8;
+	dungeon[x1 + 3][i] = 5;
+	dungeon[x1 + 4][i] = 12;
+	if (dungeon[x1 + 5][i] != 4) {
+		dungeon[x1 + 5][i] = 21;
+	}
+
+	for (i++; i < y2; i++) {
+		dungeon[x1][i] = 11;
+		dungeon[x1 + 3][i] = 11;
+	}
+
+	dungeon[x1 - 2][i] = 12;
+	dungeon[x1 - 1][i] = 12;
+	dungeon[x1 + 0][i] = 3;
+	dungeon[x1 + 3][i] = 9;
+	dungeon[x1 + 4][i] = 12;
+	dungeon[x1 + 5][i] = 2;
+}
+
+static void DRLG_L1SetRoom(int rx1, int ry1)
+{
+	int rw, rh, i, j;
+	BYTE *sp;
+
+	rw = pSetPiece[0];
+	rh = pSetPiece[2];
+
+	setpc_x = rx1;
+	setpc_y = ry1;
+	setpc_w = rw;
+	setpc_h = rh;
+
+	sp = &pSetPiece[4];
+
+	rw += rx1;
+	rh += ry1;
+	for (j = ry1; j < rh; j++) {
+		for (i = rx1; i < rw; i++) {
+			dungeon[i][j] = *sp != 0 ? *sp : 13;
+			dflags[i][j] |= DLRG_PROTECTED;
+			sp += 2;
+		}
+	}
+}
+
+static void L1FillChambers()
+{
+	int c;
+
+	if (ChambersVertical) {
+		// draw the vertical chambers
+		if (ChambersFirst)
+			DRLG_L1GChamber(15, 1);
+		if (ChambersMiddle)
+			DRLG_L1GChamber(15, 15);
+		if (ChambersLast)
+			DRLG_L1GChamber(15, 29);
+		// add pillars to the hall between the vertical chambers
+		if (ChambersMiddle) {
+			if (ChambersFirst)
+				DRLG_L1GHallVert(18, 11, 14);
+			if (ChambersLast)
+				DRLG_L1GHallVert(18, 25, 28);
+		} else {
+			//assert(ChambersFirst && ChambersLast);
+			DRLG_L1GHallVert(18, 11, 28);
 		}
 	} else {
-		for (i = y1; i < y2; i++) {
-			dungeon[x1][i] = 11;
-			dungeon[x1 + 3][i] = 11;
+		// draw the horizontal chambers
+		if (ChambersFirst)
+			DRLG_L1GChamber(1, 15);
+		if (ChambersMiddle)
+			DRLG_L1GChamber(15, 15);
+		if (ChambersLast)
+			DRLG_L1GChamber(29, 15);
+		// add pillars to the hall between the horizontal chambers
+		if (ChambersMiddle) {
+			if (ChambersFirst)
+				DRLG_L1GHallHoriz(11, 18, 14);
+			if (ChambersLast)
+				DRLG_L1GHallHoriz(25, 18, 28);
+		} else {
+			//assert(ChambersFirst && ChambersLast);
+			DRLG_L1GHallHoriz(11, 18, 28);
+		}
+	}
+
+	if (pSetPiece != NULL) {
+		c = ChambersFirst + ChambersMiddle + ChambersLast;
+		c = random_(0, c);
+		if (ChambersFirst) {
+			if (c == 0)
+				c = 2; // select the first chamber for the set piece
+			else
+				c--;   // 'deselect' the first chamber
+		}
+		if (ChambersMiddle) {
+			if (c == 0)
+				c = 16; // select the middle chamber for the set piece
+			else if (c != 2)
+				c--;   // 'deselect' the middle chamber (only if the first was not selected)
+		}
+		if (ChambersLast) {
+			if (c == 0)
+				c = 30; // select the last chamber for the set piece
+		}
+		if (ChambersVertical) {
+			DRLG_L1SetRoom(16, c);
+		} else {
+			DRLG_L1SetRoom(c, 16);
 		}
 	}
 }
@@ -1605,133 +1681,6 @@ static void DRLG_L1Subs()
 					dungeon[x][y] = i;
 				}
 			}
-		}
-	}
-}
-
-static void DRLG_L1SetRoom(int rx1, int ry1)
-{
-	int rw, rh, i, j;
-	BYTE *sp;
-
-	rw = pSetPiece[0];
-	rh = pSetPiece[2];
-
-	setpc_x = rx1;
-	setpc_y = ry1;
-	setpc_w = rw;
-	setpc_h = rh;
-
-	sp = &pSetPiece[4];
-
-	rw += rx1;
-	rh += ry1;
-	for (j = ry1; j < rh; j++) {
-		for (i = rx1; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : 13;
-			dflags[i][j] |= DLRG_PROTECTED;
-			sp += 2;
-		}
-	}
-}
-
-static void L1FillChambers()
-{
-	int c;
-
-	if (HR1)
-		DRLG_L1GChamber(0, 14, FALSE, FALSE, FALSE, TRUE);
-	if (HR2)
-		DRLG_L1GChamber(14, 14, FALSE, FALSE, HR1, HR3);
-	if (HR3)
-		DRLG_L1GChamber(28, 14, FALSE, FALSE, TRUE, FALSE);
-
-	if (HR1 && HR2)
-		DRLG_L1GHall(12, 18, 14, 18);
-	if (HR2 && HR3)
-		DRLG_L1GHall(26, 18, 28, 18);
-	if (HR1 && !HR2 && HR3)
-		DRLG_L1GHall(12, 18, 28, 18);
-
-	if (VR1)
-		DRLG_L1GChamber(14, 0, FALSE, TRUE, FALSE, FALSE);
-	if (VR2)
-		DRLG_L1GChamber(14, 14, VR1, VR3, FALSE, FALSE);
-	if (VR3)
-		DRLG_L1GChamber(14, 28, TRUE, FALSE, FALSE, FALSE);
-
-	if (VR1 && VR2)
-		DRLG_L1GHall(18, 12, 18, 14);
-	if (VR2 && VR3)
-		DRLG_L1GHall(18, 26, 18, 28);
-	if (VR1 && !VR2 && VR3)
-		DRLG_L1GHall(18, 12, 18, 28);
-
-	if (pSetPiece != NULL) {
-		if (VR1 || VR2 || VR3) {
-			c = 1;
-			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
-				c = 2;
-			if (VR1 && VR2 && !VR3 && random_(0, 2) != 0)
-				c = 0;
-
-			if (VR1 && !VR2 && VR3) {
-				if (random_(0, 2) != 0)
-					c = 0;
-				else
-					c = 2;
-			}
-
-			if (VR1 && VR2 && VR3)
-				c = random_(0, 3);
-
-			switch (c) {
-			case 0:
-				c = 2;
-				break;
-			case 1:
-				c = 16;
-				break;
-			case 2:
-				c = 30;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			DRLG_L1SetRoom(16, c);
-		} else {
-			c = 1;
-			if (!HR1 && HR2 && HR3 && random_(0, 2) != 0)
-				c = 2;
-			if (HR1 && HR2 && !HR3 && random_(0, 2) != 0)
-				c = 0;
-
-			if (HR1 && !HR2 && HR3) {
-				if (random_(0, 2) != 0)
-					c = 0;
-				else
-					c = 2;
-			}
-
-			if (HR1 && HR2 && HR3)
-				c = random_(0, 3);
-
-			switch (c) {
-			case 0:
-				c = 2;
-				break;
-			case 1:
-				c = 16;
-				break;
-			case 2:
-				c = 30;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			DRLG_L1SetRoom(c, 16);
 		}
 	}
 }
