@@ -74,8 +74,8 @@ public:
 
 	//private:
 	Art *m_art;
-	bool m_animated;
 	int m_frame;
+	bool m_animated;
 };
 
 //=============================================================================

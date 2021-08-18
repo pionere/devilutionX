@@ -230,15 +230,6 @@ static void InvDrawSlotBack(int X, int Y, int W, int H)
 	}
 }
 
-static BYTE InvItemColor(ItemStruct *is)
-{
-	if (!is->_iStatFlag)
-		return ICOL_RED;
-	if (is->_iMagical != ITEM_QUALITY_NORMAL)
-		return ICOL_BLUE;
-	return ICOL_YELLOW;
-}
-
 /**
  * @brief Render the inventory panel to the back buffer
  */
