@@ -11,7 +11,6 @@ int provider;
 
 static char selconn_MaxPlayers[21];
 static char selconn_Description[64];
-static char selconn_Gateway[129];
 static bool selconn_ReturnValue = false;
 static bool selconn_EndMenu = false;
 
@@ -101,14 +100,8 @@ static void SelconnLoad()
 	SDL_Rect rect5 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 356), 220, 31 };
 	vecSelConnDlg.push_back(new UiArtText("no gateway needed", rect5, UIS_CENTER | UIS_MED));
 
-	SDL_Rect rect6 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 393), DESCRIPTION_WIDTH, 21 };
-	vecSelConnDlg.push_back(new UiArtText(selconn_Gateway, rect6, UIS_CENTER));
-
 	SDL_Rect rect7 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
 	vecSelConnDlg.push_back(new UiArtText("Select Connection", rect7, UIS_CENTER | UIS_BIG));
-
-	SDL_Rect rect8 = { PANEL_LEFT + 16, (UI_OFFSET_Y + 427), 250, 35 };
-	vecSelConnDlg.push_back(new UiArtTextButton("Change Gateway", NULL, rect8, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD | UIS_HIDDEN));
 
 	vecSelConnDlg.push_back(new UiList(vecConnItems, PANEL_LEFT + 305, (UI_OFFSET_Y + 256), 285, 26, UIS_CENTER | UIS_VCENTER | UIS_GOLD));
 
@@ -134,10 +127,8 @@ static void SelconnSelect(unsigned index)
 {
 	provider = vecConnItems[index]->m_value;
 
-	SelconnFree();
 	SNetInitializeProvider(provider);
 	selconn_EndMenu = true;
-	SelconnLoad();
 }
 
 bool UiSelectProvider(bool bMulti)
