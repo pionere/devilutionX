@@ -43,7 +43,7 @@ enum UiFlags : uint16_t {
 
 class UiItemBase {
 public:
-	UiItemBase(SDL_Rect rect, int flags)
+	UiItemBase(SDL_Rect &rect, int flags)
 	{
 		m_rect = rect;
 		m_iFlags = flags;
@@ -85,7 +85,7 @@ public:
 
 class UiArtText : public UiItemBase {
 public:
-	UiArtText(const char *text, SDL_Rect rect, int flags = 0)
+	UiArtText(const char* text, SDL_Rect &rect, int flags)
 	    : UiItemBase(rect, flags)
 	{
 		m_type = UI_ART_TEXT;
@@ -102,7 +102,7 @@ public:
 
 class UiScrollBar : public UiItemBase {
 public:
-	UiScrollBar(SDL_Rect rect)
+	UiScrollBar(SDL_Rect &rect)
 	    : UiItemBase(rect, 0)
 	{
 		m_type = UI_SCROLLBAR;
@@ -115,7 +115,7 @@ public:
 
 class UiArtTextButton : public UiItemBase {
 public:
-	UiArtTextButton(const char *text, void (*action)(), SDL_Rect rect, int flags = 0)
+	UiArtTextButton(const char* text, void (*action)(), SDL_Rect &rect, int flags)
 	    : UiItemBase(rect, flags)
 	{
 		m_type = UI_ART_TEXT_BUTTON;
@@ -134,7 +134,7 @@ public:
 
 class UiEdit : public UiItemBase {
 public:
-	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect rect)
+	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect &rect)
 	    : UiItemBase(rect, 0)
 	{
 		m_type = UI_EDIT;
@@ -179,7 +179,7 @@ public:
 
 class UiButton : public UiItemBase {
 public:
-	UiButton(Art* art, const char* text, void (*action)(), SDL_Rect rect)
+	UiButton(Art* art, const char* text, void (*action)(), SDL_Rect &rect)
 	    : UiItemBase(rect, 0)
 	{
 		m_type = UI_BUTTON;
@@ -212,10 +212,9 @@ public:
 
 class UiListItem {
 public:
-	UiListItem(const char *text = "", int value = 0)
+	UiListItem(const char* text, int value)
+		: m_text(text), m_value(value)
 	{
-		m_text = text;
-		m_value = value;
 	}
 
 	~UiListItem() = default;
