@@ -129,19 +129,12 @@ public:
 
 class UiScrollBar : public UiItemBase {
 public:
-	UiScrollBar(Art *bg, Art *thumb, Art *arrow, SDL_Rect rect, int flags = 0)
+	UiScrollBar(SDL_Rect rect, int flags = 0)
 	    : UiItemBase(rect, flags)
 	{
 		m_type = UI_SCROLLBAR;
-		m_bg = bg;
-		m_thumb = thumb;
-		m_arrow = arrow;
 	};
 
-	//private:
-	Art *m_bg;
-	Art *m_thumb;
-	Art *m_arrow;
 };
 
 //=============================================================================

@@ -24,7 +24,7 @@ inline SDL_Rect UpArrowRect(const UiScrollBar *sb)
 	Tmp.x = sb->m_rect.x;
 	Tmp.y = sb->m_rect.y;
 	Tmp.w = SCROLLBAR_ARROW_WIDTH;
-	Tmp.h = sb->m_arrow->h();
+	Tmp.h = ArtScrollBarArrow.h();
 
 	return Tmp;
 }
@@ -33,23 +33,23 @@ inline SDL_Rect DownArrowRect(const UiScrollBar *sb)
 {
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x;
-	Tmp.y = sb->m_rect.y + sb->m_rect.h - sb->m_arrow->h();
+	Tmp.y = sb->m_rect.y + sb->m_rect.h - ArtScrollBarArrow.h();
 	Tmp.w = SCROLLBAR_ARROW_WIDTH,
-	Tmp.h = sb->m_arrow->h();
+	Tmp.h = ArtScrollBarArrow.h();
 
 	return Tmp;
 }
 
 inline int BarHeight(const UiScrollBar *sb)
 {
-	return sb->m_rect.h - 2 * sb->m_arrow->h();
+	return sb->m_rect.h - 2 * ArtScrollBarArrow.h();
 }
 
 inline SDL_Rect BarRect(const UiScrollBar *sb)
 {
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x;
-	Tmp.y = sb->m_rect.y + sb->m_arrow->h();
+	Tmp.y = sb->m_rect.y + ArtScrollBarArrow.h();
 	Tmp.w = SCROLLBAR_ARROW_WIDTH,
 	Tmp.h = BarHeight(sb);
 
@@ -59,14 +59,14 @@ inline SDL_Rect BarRect(const UiScrollBar *sb)
 inline SDL_Rect ThumbRect(const UiScrollBar* sb, unsigned selected_index, unsigned maxIndex)
 {
 	const int THUMB_OFFSET_X = 3;
-	const int thumb_max_y = BarHeight(sb) - sb->m_thumb->h();
+	const int thumb_max_y = BarHeight(sb) - ArtScrollBarThumb.h();
 	const int thumb_y = selected_index * thumb_max_y / maxIndex;
 
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x + THUMB_OFFSET_X;
-	Tmp.y = sb->m_rect.y + sb->m_arrow->h() + thumb_y;
+	Tmp.y = sb->m_rect.y + ArtScrollBarArrow.h() + thumb_y;
 	Tmp.w = sb->m_rect.w - THUMB_OFFSET_X;
-	Tmp.h = sb->m_thumb->h();
+	Tmp.h = ArtScrollBarThumb.h();
 
 	return Tmp;
 }
