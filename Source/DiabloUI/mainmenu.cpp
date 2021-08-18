@@ -52,10 +52,11 @@ static void MainmenuLoad(const char *name, void (*fnSound)(const char *file))
 	UiAddBackground(&vecMainMenuDialog);
 	UiAddLogo(&vecMainMenuDialog);
 
-	vecMainMenuDialog.push_back(new UiList(vecMenuItems, PANEL_LEFT + 64, (UI_OFFSET_Y + 192), 510, 43, UIS_HUGE | UIS_GOLD | UIS_CENTER));
+	SDL_Rect rect1 = { PANEL_LEFT + 64, (UI_OFFSET_Y + 192), 510, 43 };
+	vecMainMenuDialog.push_back(new UiList(&vecMenuItems, rect1, UIS_CENTER | UIS_HUGE | UIS_GOLD));
 
-	SDL_Rect rect = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
-	vecMainMenuDialog.push_back(new UiArtText(name, rect, UIS_SMALL));
+	SDL_Rect rect2 = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
+	vecMainMenuDialog.push_back(new UiArtText(name, rect2, UIS_SMALL));
 
 	UiInitList(vecMainMenuDialog, vecMenuItems.size(), NULL, UiMainMenuSelect, MainmenuEsc, NULL, true);
 }

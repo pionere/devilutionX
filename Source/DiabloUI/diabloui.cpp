@@ -691,11 +691,11 @@ static void Render(UiButton* button)
 
 static void Render(const UiList* uiList)
 {
-	for (unsigned i = 0; i < uiList->m_vecItems.size(); i++) {
+	for (unsigned i = 0; i < uiList->m_vecItems->size(); i++) {
 		SDL_Rect rect = uiList->itemRect(i);
 		if (i + ListOffset == SelectedItem)
 			DrawSelector(rect);
-		UiListItem* item = uiList->m_vecItems[i];
+		UiListItem* item = (*uiList->m_vecItems)[i];
 		DrawArtStr(item->m_text, rect, uiList->m_iFlags);
 	}
 }

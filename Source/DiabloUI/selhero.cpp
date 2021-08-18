@@ -283,21 +283,22 @@ static void SelheroListInit()
 	}
 	SelheroUpdateViewportItems();
 
-	vecSelDlgItems.push_back(new UiList(vecSelDlgListItems, PANEL_LEFT + 265, (UI_OFFSET_Y + 256), 320, 26, UIS_CENTER | UIS_MED | UIS_GOLD));
+	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 256), 320, 26 };
+	vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect2 = { PANEL_LEFT + 585, (UI_OFFSET_Y + 244), 25, 178 };
-	UiScrollBar* scrollBar = new UiScrollBar(rect2);
+	SDL_Rect rect3 = { PANEL_LEFT + 585, (UI_OFFSET_Y + 244), 25, 178 };
+	UiScrollBar* scrollBar = new UiScrollBar(rect3);
 	vecSelDlgItems.push_back(scrollBar);
 
-	SDL_Rect rect3 = { PANEL_LEFT + 239, (UI_OFFSET_Y + 429), 120, 35 };
-	vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	SDL_Rect rect4 = { PANEL_LEFT + 239, (UI_OFFSET_Y + 429), 120, 35 };
+	vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect4 = { PANEL_LEFT + 364, (UI_OFFSET_Y + 429), 120, 35 };
-	SELLIST_DIALOG_DELETE_BUTTON = new UiArtTextButton("Delete", &SelheroUiFocusNavigationYesNo, rect4, UIS_CENTER | UIS_BIG | UIS_DISABLED);
+	SDL_Rect rect5 = { PANEL_LEFT + 364, (UI_OFFSET_Y + 429), 120, 35 };
+	SELLIST_DIALOG_DELETE_BUTTON = new UiArtTextButton("Delete", &SelheroUiFocusNavigationYesNo, rect5, UIS_CENTER | UIS_BIG | UIS_DISABLED);
 	vecSelDlgItems.push_back(SELLIST_DIALOG_DELETE_BUTTON);
 
-	SDL_Rect rect5 = { PANEL_LEFT + 489, (UI_OFFSET_Y + 429), 120, 35 };
-	vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect5, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	SDL_Rect rect6 = { PANEL_LEFT + 489, (UI_OFFSET_Y + 429), 120, 35 };
+	vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(vecSelDlgItems, selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo, false);
 	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS);
@@ -366,13 +367,14 @@ static void SelheroListSelect(unsigned index)
 		itemH = 26;
 #endif
 		int itemY = 246 + (176 - vecSelDlgListItems.size() * itemH) / 2;
-		vecSelDlgItems.push_back(new UiList(vecSelDlgListItems, PANEL_LEFT + 264, (UI_OFFSET_Y + itemY), 320, itemH, UIS_CENTER | UIS_MED | UIS_GOLD));
+		SDL_Rect rect2 = { PANEL_LEFT + 264, (UI_OFFSET_Y + itemY), 320, itemH };
+		vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect2 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 429), 140, 35 };
-		vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect2, UIS_CENTER | UIS_BIG | UIS_GOLD));
+		SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 429), 140, 35 };
+		vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-		SDL_Rect rect3 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 429), 140, 35 };
-		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
+		SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 429), 140, 35 };
+		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 		UiInitList(vecSelDlgItems, vecSelDlgListItems.size(), SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
 		memset(&selhero_heroInfo.hiName, 0, sizeof(selhero_heroInfo.hiName));
@@ -388,13 +390,14 @@ static void SelheroListSelect(unsigned index)
 
 		vecSelDlgListItems.push_back(new UiListItem("Load Game", 0));
 		vecSelDlgListItems.push_back(new UiListItem("New Game", 1));
-		vecSelDlgItems.push_back(new UiList(vecSelDlgListItems, PANEL_LEFT + 265, (UI_OFFSET_Y + 285), 320, 33, UIS_CENTER | UIS_MED | UIS_GOLD));
+		SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 285), 320, 33 };
+		vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect2 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 427), 140, 35 };
-		vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect2, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+		SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 427), 140, 35 };
+		vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		SDL_Rect rect3 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 427), 140, 35 };
-		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+		SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 427), 140, 35 };
+		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		UiInitList(vecSelDlgItems, vecSelDlgListItems.size(), SelheroLoadFocus, SelheroLoadSelect, SelheroListInit, NULL, true);
 		snprintf(selhero_title, sizeof(selhero_title), "Single Player Characters");

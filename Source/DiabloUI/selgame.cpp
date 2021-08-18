@@ -184,13 +184,14 @@ static void SelgameSpeedInit()
 	vecSelGameDlgItems.push_back(new UiListItem("Faster", SPEED_FASTER));
 	vecSelGameDlgItems.push_back(new UiListItem("Fastest", SPEED_FASTEST));
 
-	vecSelGameDialog.push_back(new UiList(vecSelGameDlgItems, PANEL_LEFT + 300, (UI_OFFSET_Y + 279), 295, 26, UIS_CENTER | UIS_MED | UIS_GOLD));
+	SDL_Rect rect5 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 279), 295, 26 };
+	vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect5 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
-	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect5, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
+	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect6 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
-	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
+	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(vecSelGameDialog, vecSelGameDlgItems.size(), SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc, NULL, true);
 }
@@ -239,13 +240,14 @@ static void SelgameModeInit()
 #endif
 		vecSelGameDlgItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
-	vecSelGameDialog.push_back(new UiList(vecSelGameDlgItems, PANEL_LEFT + 305, (UI_OFFSET_Y + 255), 285, 26, UIS_CENTER | UIS_MED | UIS_GOLD));
+	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 255), 285, 26 };
+	vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect5 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
-	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect5, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
+	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect6 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
-	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
+	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(vecSelGameDialog, vecSelGameDlgItems.size(), SelgameModeFocus, SelgameModeSelect, SelgameModeEsc);
 }
@@ -387,13 +389,14 @@ static void SelgameModeSelect(unsigned index)
 		vecSelGameDlgItems.push_back(new UiListItem("Nightmare", DIFF_NIGHTMARE));
 		vecSelGameDlgItems.push_back(new UiListItem("Hell", DIFF_HELL));
 
-		vecSelGameDialog.push_back(new UiList(vecSelGameDlgItems, PANEL_LEFT + 300, (UI_OFFSET_Y + 282), 295, 26, UIS_CENTER | UIS_MED | UIS_GOLD));
+		SDL_Rect rect5 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 282), 295, 26 };
+		vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect5 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
-		vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect5, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+		SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
+		vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		SDL_Rect rect6 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
-		vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+		SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
+		vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		UiInitList(vecSelGameDialog, vecSelGameDlgItems.size(), SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc, NULL, true);
 	} break;

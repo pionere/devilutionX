@@ -8,7 +8,6 @@
 #include "DiabloUI/art.h"
 #include "DiabloUI/fonts.h"
 #include "DiabloUI/text_draw.h"
-#include "utils/stubs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -47,18 +46,6 @@ public:
 	UiItemBase(SDL_Rect rect, int flags)
 	{
 		m_rect = rect;
-		m_iFlags = flags;
-	};
-
-	UiItemBase(int x, int y, int item_width, int item_height, int flags)
-	{
-		SDL_Rect tmp;
-		tmp.x = x;
-		tmp.y = y;
-		tmp.w = item_width;
-		tmp.h = item_height;
-
-		m_rect = tmp;
 		m_iFlags = flags;
 	};
 
@@ -268,43 +255,42 @@ public:
 };
 
 class UiList : public UiItemBase {
+private:
+	static SDL_Rect& FormatRect(SDL_Rect &rect, std::vector<UiListItem*>* vItems) {
+		rect.h *= vItems->size();
+		return rect;
+	}
 public:
-	UiList(std::vector<UiListItem *> vItems, int16_t x, int16_t y, uint16_t item_width, uint16_t item_height, int flags = 0)
-	    : UiItemBase(x, y, item_width, item_height * vItems.size(), flags)
+	UiList(std::vector<UiListItem *>* vItems, SDL_Rect &rect, int flags)
+	    : UiItemBase(FormatRect(rect, vItems), flags)
 	{
 		m_type = UI_LIST;
 		m_vecItems = vItems;
-		m_x = x;
-		m_y = y;
-		m_width = item_width;
-		m_height = item_height;
+		m_height = m_rect.h / vItems->size();
 	};
 
 	~UiList() = default;
 
 	SDL_Rect itemRect(int i) const
 	{
-		SDL_Rect tmp;
-		tmp.x = m_x;
-		tmp.y = m_y + m_height * i;
-		tmp.w = m_width;
+		SDL_Rect tmp = m_rect;
+		tmp.y += m_height * i;
 		tmp.h = m_height;
 
 		return tmp;
 	}
 
-	int indexAt(int16_t y) const
+	unsigned indexAt(int y) const
 	{
-		ASSERT(y >= m_rect.y);
-		const unsigned index = (y - m_rect.y) / m_height;
-		ASSERT(index < m_vecItems.size());
+		assert(y >= m_rect.y);
+		unsigned index = (y - m_rect.y) / m_height;
+		assert(index < m_vecItems->size());
 		return index;
 	}
 
 	//private:
-	int16_t m_x, m_y;
-	uint16_t m_width, m_height;
-	std::vector<UiListItem *> m_vecItems;
+	int m_height;
+	std::vector<UiListItem*>* m_vecItems;
 };
 
 DEVILUTION_END_NAMESPACE
