@@ -157,24 +157,10 @@ public:
 
 class UiText : public UiItemBase {
 public:
-	UiText(const char* text, SDL_Color color1, SDL_Rect rect)
-	    : UiItemBase(rect, 0)
+	UiText(const char* text, SDL_Color color, SDL_Rect &rect)
+	    : UiItemBase(rect, 0), m_color(color), m_text(text)
 	{
 		m_type = UI_TEXT;
-		m_color = color1;
-
-		m_text = text;
-	}
-
-	UiText(const char* text, SDL_Rect rect)
-	    : UiItemBase(rect, 0)
-	{
-		m_type = UI_TEXT;
-
-		SDL_Color color1 = { 243, 243, 243, 0 };
-		m_color = color1;
-
-		m_text = text;
 	}
 
 	~UiText() = default;

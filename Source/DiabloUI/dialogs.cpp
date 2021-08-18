@@ -178,8 +178,9 @@ static void Init(const char *text, const char *caption, bool error, const std::v
 		SDL_Rect rect1 = { PANEL_LEFT + 180, (UI_OFFSET_Y + 168), 280, 144 };
 		vecOkDialog.push_back(new UiImage(&dialogArt, 0, rect1, 0));
 
+		SDL_Color color1 = { 243, 243, 243, 0 };
 		SDL_Rect rect2 = { PANEL_LEFT + 200, (UI_OFFSET_Y + 211), 240, 80 };
-		vecOkDialog.push_back(new UiText(text, rect2));
+		vecOkDialog.push_back(new UiText(text, color1, rect2));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect3));
@@ -187,12 +188,13 @@ static void Init(const char *text, const char *caption, bool error, const std::v
 		SDL_Rect rect1 = { PANEL_LEFT + 127, (UI_OFFSET_Y + 100), 385, 280 };
 		vecOkDialog.push_back(new UiImage(&dialogArt, 0, rect1, 0));
 
-		SDL_Color color = { 255, 255, 0, 0 };
+		SDL_Color color1 = { 255, 255, 0, 0 };
 		SDL_Rect rect2 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 110), 345, 20 };
-		vecOkDialog.push_back(new UiText(text, color, rect2));
+		vecOkDialog.push_back(new UiText(text, color1, rect2));
 
+		SDL_Color color2 = { 243, 243, 243, 0 };
 		SDL_Rect rect3 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 141), 345, 190 };
-		vecOkDialog.push_back(new UiText(caption, rect3));
+		vecOkDialog.push_back(new UiText(caption, color2, rect3));
 
 		SDL_Rect rect4 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect4));
