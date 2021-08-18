@@ -16,7 +16,7 @@ static char selgame_Ip[128] = "";
 static char selgame_Port[8] = "";
 static char selgame_Password[16] = "";
 static char selgame_Description[256];
-static int selgame_selectedGame;
+static int selgame_mode;
 static bool selgame_endMenu;
 //int selgame_heroLevel;
 
@@ -28,7 +28,7 @@ static std::vector<UiListItem *> vecSelGameDlgItems;
 static std::vector<UiItemBase *> vecSelGameDialog;
 
 // Forward-declare UI-handlers, used by other handlers.
-static void SelgameGameSelectionSelect(unsigned index);
+static void SelgameModeSelect(unsigned index);
 static void SelgameSpeedSelect(unsigned index);
 static void SelgamePasswordSelect(unsigned index);
 
@@ -425,7 +425,7 @@ static void ShowErrorMsgDialog()
 	LoadBackgroundArt("ui_art\\selgame.pcx");
 }
 
-void SelgameSpeedSelect(unsigned index)
+static void SelgameSpeedSelect(unsigned index)
 {
 	selgame_gameData->bTickRate = vecSelGameDlgItems[index]->m_value;
 #ifdef ADAPTIVE_NETUPDATE
@@ -445,7 +445,7 @@ void SelgameSpeedSelect(unsigned index)
 	SelgamePasswordInit(0);
 }
 
-void SelgamePasswordSelect(unsigned index)
+static void SelgamePasswordSelect(unsigned index)
 {
 	if (selgame_mode == SELGAME_CREATE) {
 		if (SNetCreateGame(selgame_Password, selgame_gameData)) {
