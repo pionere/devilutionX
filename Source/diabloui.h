@@ -9,17 +9,22 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 void UiInitialize();
-void UiTitleDialog();
 void UiDestroy();
 
 bool UiValidPlayerName(const char *name);
-int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo *)), bool(*fncreate)(_uiheroinfo *), void(*fnremove)(_uiheroinfo *), unsigned* saveIdx);
-void UiCreditsDialog();
-int UiMainMenuDialog(const char* name, void(*fnSound)(const char* file));
 
+/* Defined in title.cpp */
+void UiTitleDialog();
+/* Defined in selhero.cpp */
+int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo *)), bool(*fncreate)(_uiheroinfo *), void(*fnremove)(_uiheroinfo *), unsigned* saveIdx);
+/* Defined in credits.cpp */
+void UiCreditsDialog();
+/* Defined in mainmenu.cpp */
+int UiMainMenuDialog(const char* name, void(*fnSound)(const char* file));
+/* Defined in progress.cpp */
 bool UiProgressDialog(const char *msg, int(*fnfunc)());
 
-bool UiSelectProvider(bool bMulti);
+/* Defined in selgame.cpp */
 int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt));
 void UIDisconnectGame(int reason);
 
@@ -29,6 +34,7 @@ extern void FontsCleanup();
 
 /* Defined in selconn.cpp */
 extern int provider;
+bool UiSelectProvider(bool bMulti);
 
 /* Defined in dialogs.h */
 void UiErrorOkDialog(const char *text, const char *caption, bool error = true);
