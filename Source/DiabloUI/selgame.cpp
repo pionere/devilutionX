@@ -206,7 +206,11 @@ static void SelgamePasswordEsc()
 
 static void SelgameModeInit()
 {
+#ifndef NOHOSTING
+	if (provider == SELCONN_LOOPBACK || provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+#else
 	if (provider == SELCONN_LOOPBACK) {
+#endif
 		SelgameModeSelect(SELGAME_CREATE);
 		return;
 	}
@@ -235,10 +239,7 @@ static void SelgameModeInit()
 	vecSelGameDialog.push_back(new UiArtText("Select Action", rect4, UIS_CENTER | UIS_BIG));
 
 	vecSelGameDlgItems.push_back(new UiListItem("Create Game", SELGAME_CREATE));
-#ifndef NOHOSTING
-	if (provider != SELCONN_TCPS && provider != SELCONN_TCPDS)
-#endif
-		vecSelGameDlgItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
+	vecSelGameDlgItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 255), 285, 26 };
 	vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
@@ -331,7 +332,11 @@ static void SelgamePortInit(unsigned index)
 
 static void SelgameDiffEsc()
 {
+#ifndef NOHOSTING
+	if (provider == SELCONN_LOOPBACK || provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+#else
 	if (provider == SELCONN_LOOPBACK) {
+#endif
 		SelgameModeEsc();
 		return;
 	}
@@ -360,8 +365,7 @@ static void SelgameDiffSelect(unsigned index)
 
 static void SelgameModeSelect(unsigned index)
 {
-	assert((index == SELGAME_CREATE && vecSelGameDlgItems.empty())
-		|| index == (unsigned)vecSelGameDlgItems[index]->m_value);
+	assert(index == SELGAME_CREATE || index == (unsigned)vecSelGameDlgItems[index]->m_value);
 
 	selgame_mode = index;
 
