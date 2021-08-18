@@ -725,7 +725,7 @@ static void Render(const UiScrollBar* uiSb)
 
 	// Thumb:
 	if (SelectedItemMax > 0) {
-		const SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax + 1);
+		const SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
 		DrawArt(rect.x, rect.y, uiSb->m_thumb);
 	}
 }
@@ -836,7 +836,7 @@ static bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar*
 	} else if (event.type == SDL_MOUSEBUTTONDOWN) {
 		if (IsInsideRect(event, BarRect(uiSb))) {
 			// Scroll up or down based on thumb position.
-			const SDL_Rect thumbRect = ThumbRect(uiSb, SelectedItem, SelectedItemMax + 1);
+			const SDL_Rect thumbRect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
 			if (event.button.y < thumbRect.y) {
 				UiFocusPageUp();
 			} else if (event.button.y > thumbRect.y + thumbRect.h) {
