@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "DiabloUI/art.h"
+#include "DiabloUI/fonts.h"
 #include "DiabloUI/text_draw.h"
 #include "utils/stubs.h"
 
