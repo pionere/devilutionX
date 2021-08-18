@@ -427,10 +427,10 @@ void UiFocusNavigationYesNo()
 		UiPlaySelectSound();
 }
 
-static bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
+static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 {
 	const SDL_Point point = { event.button.x, event.button.y };
-	return SDL_PointInRect(&point, &rect) == SDL_TRUE;
+	return SDL_PointInRect(&point, &rect);
 }
 
 static void LoadUiGFX()
@@ -673,12 +673,8 @@ static void Render(const UiArtTextButton* uiButton)
 
 static void Render(UiButton* button)
 {
-	int frame;
-	if (button->m_pressed) {
-		frame = UiButton::PRESSED;
-	} else {
-		frame = UiButton::DEFAULT;
-	}
+	int frame = button->m_pressed ? UiButton::PRESSED : UiButton::DEFAULT;
+
 	DrawArt(button->m_rect.x, button->m_rect.y, button->m_art, frame, button->m_rect.w, button->m_rect.h);
 
 	SDL_Rect textRect = button->m_rect;
@@ -693,7 +689,7 @@ static void Render(UiButton* button)
 
 static void Render(const UiList* uiList)
 {
-	for (unsigned i = 0; i < uiList->m_vecItems.size(); ++i) {
+	for (unsigned i = 0; i < uiList->m_vecItems.size(); i++) {
 		SDL_Rect rect = uiList->itemRect(i);
 		const UiListItem *item = uiList->GetItem(i);
 		if (i + ListOffset == SelectedItem)
@@ -746,8 +742,6 @@ static void Render(const UiEdit* uiEdit)
 
 static void RenderItem(UiItemBase* item)
 {
-	if (item->has_flag(UIS_HIDDEN))
-		return;
 	switch (item->m_type) {
 	case UI_TEXT:
 		Render(static_cast<UiText *>(item));
@@ -773,12 +767,15 @@ static void RenderItem(UiItemBase* item)
 	case UI_EDIT:
 		Render(static_cast<UiEdit *>(item));
 		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 }
 
 static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton* uiButton)
 {
-	if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT)
+	if (event.type != SDL_MOUSEBUTTONDOWN)
 		return false;
 	uiButton->m_action();
 	return true;
@@ -786,18 +783,13 @@ static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTex
 
 static bool HandleMouseEventButton(const SDL_Event &event, UiButton* button)
 {
-	if (event.button.button != SDL_BUTTON_LEFT)
-		return false;
-	switch (event.type) {
-	case SDL_MOUSEBUTTONUP:
-		button->m_action();
-		return true;
-	case SDL_MOUSEBUTTONDOWN:
+	if (event.type == SDL_MOUSEBUTTONDOWN)
 		button->m_pressed = true;
-		return true;
-	default:
+	else if (event.type == SDL_MOUSEBUTTONUP)
+		button->m_action();
+	else
 		return false;
-	}
+	return true;
 }
 
 #ifdef USE_SDL1
@@ -806,7 +798,7 @@ Uint32 dbClickTimer;
 
 static bool HandleMouseEventList(const SDL_Event &event, UiList* uiList)
 {
-	if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT)
+	if (event.type != SDL_MOUSEBUTTONDOWN)
 		return false;
 
 	const unsigned index = uiList->indexAt(event.button.y) + ListOffset;
@@ -832,8 +824,6 @@ static bool HandleMouseEventList(const SDL_Event &event, UiList* uiList)
 
 static bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar* uiSb)
 {
-	if (event.button.button != SDL_BUTTON_LEFT)
-		return false;
 	if (event.type == SDL_MOUSEBUTTONUP) {
 		if (scrollBarState.upArrowPressed && IsInsideRect(event, UpArrowRect(uiSb))) {
 			UiFocusUp();
@@ -891,7 +881,8 @@ static void HandleGlobalMouseUpButton(UiButton* button)
 void UiRenderItems(const std::vector<UiItemBase *> &uiItems)
 {
 	for (size_t i = 0; i < uiItems.size(); i++)
-		RenderItem((UiItemBase *)uiItems[i]);
+		if (!(uiItems[i]->has_flag(UIS_HIDDEN))
+			RenderItem(uiItems[i]);
 }
 
 void UiClearItems(std::vector<UiItemBase *> &uiItems)
@@ -914,9 +905,8 @@ void UiClearListItems(std::vector<UiListItem *> &uiItems)
 
 bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &uiItems)
 {
-	if (uiItems.empty()) {
+	if (event->button.button != SDL_BUTTON_LEFT)
 		return false;
-	}
 
 	// In SDL2 mouse events already use logical coordinates.
 #ifdef USE_SDL1
@@ -931,9 +921,9 @@ bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &uiItem
 		}
 	}
 
-	if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT) {
+	if (event->type == SDL_MOUSEBUTTONUP) {
 		scrollBarState.downArrowPressed = scrollBarState.upArrowPressed = false;
-		for (unsigned i = 0; i < uiItems.size(); ++i) {
+		for (unsigned i = 0; i < uiItems.size(); i++) {
 			UiItemBase *item = uiItems[i];
 			if (item->m_type == UI_BUTTON)
 				HandleGlobalMouseUpButton(static_cast<UiButton *>(item));
