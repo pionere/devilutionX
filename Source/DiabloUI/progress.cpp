@@ -57,6 +57,7 @@ static void ProgressFree()
 	SDL_FreeSurface(msgShadow);
 	msgShadow = NULL;
 	UnloadTtfFont();
+	UiClearItems(vecProgress);
 }
 
 static void ProgressRender()
