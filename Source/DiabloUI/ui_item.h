@@ -61,7 +61,7 @@ public:
 		m_iFlags = flags;
 	};
 
-	virtual ~UiItemBase() {};
+	virtual ~UiItemBase() = default;
 
 	//protected:
 	UiType m_type;
@@ -100,7 +100,7 @@ public:
 		m_frame = frame;
 	}
 
-	~UiImage() {};
+	~UiImage() = default;
 
 	//private:
 	Art *m_art;
@@ -119,7 +119,7 @@ public:
 		m_text = text;
 	};
 
-	~UiArtText() {};
+	~UiArtText() = default;
 
 	//private:
 	const char *m_text;
@@ -135,6 +135,7 @@ public:
 		m_type = UI_SCROLLBAR;
 	};
 
+	~UiScrollBar() = default;
 };
 
 //=============================================================================
@@ -148,6 +149,9 @@ public:
 		m_text = text;
 		m_action = action;
 	};
+
+	~UiArtTextButton() = default;
+
 	//private:
 	const char *m_text;
 	void (*m_action)();
@@ -165,6 +169,8 @@ public:
 		m_value = value;
 		m_max_length = max_length;
 	}
+
+	~UiEdit() = default;
 
 	//private:
 	const char *m_hint;
@@ -204,6 +210,8 @@ public:
 		m_text = text;
 	}
 
+	~UiText() = default;
+
 	//private:
 	SDL_Color m_color;
 	SDL_Color m_shadow_color;
@@ -228,6 +236,8 @@ public:
 		m_action = action;
 		m_pressed = false;
 	}
+
+	~UiButton() = default;
 
 	enum FrameKey : uint8_t {
 		DEFAULT,
@@ -256,9 +266,7 @@ public:
 		m_value = value;
 	}
 
-	~UiListItem()
-	{
-	}
+	~UiListItem() = default;
 
 	//private:
 	const char *m_text;
@@ -278,7 +286,7 @@ public:
 		m_height = item_height;
 	};
 
-	~UiList() {};
+	~UiList() = default;
 
 	SDL_Rect itemRect(int i) const
 	{
