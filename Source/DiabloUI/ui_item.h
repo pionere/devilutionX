@@ -43,11 +43,10 @@ enum UiFlags : uint16_t {
 
 class UiItemBase {
 public:
-	UiItemBase(SDL_Rect &rect, int flags)
+	UiItemBase(UiType type, SDL_Rect &rect, int flags)
+		: m_type(type), m_rect(rect), m_iFlags(flags)
 	{
-		m_rect = rect;
-		m_iFlags = flags;
-	};
+	}
 
 	virtual ~UiItemBase() = default;
 
@@ -62,15 +61,13 @@ public:
 class UiImage : public UiItemBase {
 public:
 	UiImage(Art* art, int frame, SDL_Rect &rect, int flags)
-	    : UiItemBase(rect, flags), m_art(art), m_frame(frame), m_animated(false)
+	    : UiItemBase(UI_IMAGE, rect, flags), m_art(art), m_frame(frame), m_animated(false)
 	{
-		m_type = UI_IMAGE;
 	}
 
 	UiImage(Art* art, SDL_Rect &rect)
-	    : UiItemBase(rect, UIS_CENTER), m_art(art), m_frame(0), m_animated(true)
+	    : UiItemBase(UI_IMAGE, rect, UIS_CENTER), m_art(art), m_frame(0), m_animated(true)
 	{
-		m_type = UI_IMAGE;
 	}
 
 	~UiImage() = default;
@@ -86,11 +83,9 @@ public:
 class UiArtText : public UiItemBase {
 public:
 	UiArtText(const char* text, SDL_Rect &rect, int flags)
-	    : UiItemBase(rect, flags)
+	    : UiItemBase(UI_ART_TEXT, rect, flags), m_text(text)
 	{
-		m_type = UI_ART_TEXT;
-		m_text = text;
-	};
+	}
 
 	~UiArtText() = default;
 
@@ -103,10 +98,9 @@ public:
 class UiScrollBar : public UiItemBase {
 public:
 	UiScrollBar(SDL_Rect &rect)
-	    : UiItemBase(rect, 0)
+	    : UiItemBase(UI_SCROLLBAR, rect, 0)
 	{
-		m_type = UI_SCROLLBAR;
-	};
+	}
 
 	~UiScrollBar() = default;
 };
@@ -116,12 +110,9 @@ public:
 class UiArtTextButton : public UiItemBase {
 public:
 	UiArtTextButton(const char* text, void (*action)(), SDL_Rect &rect, int flags)
-	    : UiItemBase(rect, flags)
+	    : UiItemBase(UI_ART_TEXT_BUTTON, rect, flags), m_text(text), m_action(action)
 	{
-		m_type = UI_ART_TEXT_BUTTON;
-		m_text = text;
-		m_action = action;
-	};
+	}
 
 	~UiArtTextButton() = default;
 
@@ -135,9 +126,8 @@ public:
 class UiEdit : public UiItemBase {
 public:
 	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect &rect)
-	    : UiItemBase(rect, 0)
+	    : UiItemBase(UI_EDIT, rect, 0)
 	{
-		m_type = UI_EDIT;
 		m_hint = hint;
 		m_value = value;
 		m_max_length = max_length;
@@ -158,9 +148,8 @@ public:
 class UiText : public UiItemBase {
 public:
 	UiText(const char* text, SDL_Color color, SDL_Rect &rect)
-	    : UiItemBase(rect, 0), m_color(color), m_text(text)
+	    : UiItemBase(UI_TEXT, rect, 0), m_color(color), m_text(text)
 	{
-		m_type = UI_TEXT;
 	}
 
 	~UiText() = default;
@@ -180,9 +169,8 @@ public:
 class UiButton : public UiItemBase {
 public:
 	UiButton(Art* art, const char* text, void (*action)(), SDL_Rect &rect)
-	    : UiItemBase(rect, 0)
+	    : UiItemBase(UI_BUTTON, rect, 0)
 	{
-		m_type = UI_BUTTON;
 		m_art = art;
 		m_text = text;
 		m_action = action;
@@ -232,9 +220,8 @@ private:
 	}
 public:
 	UiList(std::vector<UiListItem *>* vItems, SDL_Rect &rect, int flags)
-	    : UiItemBase(FormatRect(rect, vItems), flags)
+	    : UiItemBase(UI_LIST, FormatRect(rect, vItems), flags)
 	{
-		m_type = UI_LIST;
 		m_vecItems = vItems;
 		m_height = m_rect.h / vItems->size();
 	};
