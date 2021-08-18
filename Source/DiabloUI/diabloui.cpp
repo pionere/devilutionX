@@ -111,9 +111,9 @@ void UiInitScrollBar(UiScrollBar *uiSb, unsigned viewportSize)
 {
 	ListViewportSize = viewportSize;
 	if (ListViewportSize > SelectedItemMax) {
-		uiSb->add_flag(UIS_HIDDEN);
+		uiSb->m_iFlags |= UIS_HIDDEN;
 	} else {
-		uiSb->remove_flag(UIS_HIDDEN);
+		uiSb->m_iFlags &= ~UIS_HIDDEN;
 	}
 }
 
@@ -691,9 +691,9 @@ static void Render(const UiList* uiList)
 {
 	for (unsigned i = 0; i < uiList->m_vecItems.size(); i++) {
 		SDL_Rect rect = uiList->itemRect(i);
-		const UiListItem *item = uiList->GetItem(i);
 		if (i + ListOffset == SelectedItem)
 			DrawSelector(rect);
+		UiListItem* item = uiList->m_vecItems[i];
 		DrawArtStr(item->m_text, rect, uiList->m_iFlags);
 	}
 }
@@ -857,7 +857,7 @@ static bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar*
 
 static bool HandleMouseEvent(const SDL_Event &event, UiItemBase* item)
 {
-	if (item->has_any_flag(UIS_HIDDEN | UIS_DISABLED) || !IsInsideRect(event, item->m_rect))
+	if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
 		return false;
 	switch (item->m_type) {
 	case UI_ART_TEXT_BUTTON:
@@ -881,7 +881,7 @@ static void HandleGlobalMouseUpButton(UiButton* button)
 void UiRenderItems(const std::vector<UiItemBase *> &uiItems)
 {
 	for (size_t i = 0; i < uiItems.size(); i++)
-		if (!(uiItems[i]->has_flag(UIS_HIDDEN))
+		if (!(uiItems[i]->m_iFlags & UIS_HIDDEN))
 			RenderItem(uiItems[i]);
 }
 

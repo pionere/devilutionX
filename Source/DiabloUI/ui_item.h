@@ -63,26 +63,6 @@ public:
 
 	virtual ~UiItemBase() {};
 
-	bool has_flag(UiFlags flag) const
-	{
-		return m_iFlags & flag;
-	}
-
-	bool has_any_flag(int flags) const
-	{
-		return (m_iFlags & flags) != 0;
-	}
-
-	void add_flag(UiFlags flag)
-	{
-		m_iFlags |= flag;
-	}
-
-	void remove_flag(UiFlags flag)
-	{
-		m_iFlags &= ~flag;
-	}
-
 	//protected:
 	UiType m_type;
 	SDL_Rect m_rect;
@@ -324,11 +304,6 @@ public:
 		const unsigned index = (y - m_rect.y) / m_height;
 		ASSERT(index < m_vecItems.size());
 		return index;
-	}
-
-	UiListItem *GetItem(int i) const
-	{
-		return m_vecItems[i];
 	}
 
 	//private:
