@@ -24,20 +24,20 @@ enum UiType : uint8_t {
 
 enum UiFlags : uint16_t {
 	// clang-format off
-	UIS_SMALL       = 1 << 0,
-	UIS_MED         = 1 << 1,
-	UIS_BIG         = 1 << 2,
-	UIS_HUGE        = 1 << 3,
+	UIS_SMALL       = AFT_SMALL << 0,
+	UIS_MED         = AFT_MED << 0,
+	UIS_BIG         = AFT_BIG << 0,
+	UIS_HUGE        = AFT_HUGE << 0,
 	UIS_CENTER      = 1 << 4,
 	UIS_RIGHT       = 1 << 5,
 	UIS_VCENTER     = 1 << 6,
-	UIS_SILVER      = 1 << 7,
-	UIS_GOLD        = 1 << 8,
-	UIS_RED         = 1 << 9,
-	UIS_BLUE        = 1 << 10,
-	UIS_BLACK       = 1 << 11,
+	UIS_SILVER      = AFC_SILVER << 7,
+	UIS_GOLD        = AFC_GOLD << 7,
 	UIS_DISABLED    = 1 << 12,
 	UIS_HIDDEN      = 1 << 13,
+
+	UIS_SIZE = 7 << 0,
+	UIS_COLOR = 1 << 7,
 	// clang-format on
 };
 

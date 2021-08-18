@@ -65,15 +65,8 @@ void DrawTTF(const char *text, const SDL_Rect &rectIn, int flags,
 
 void DrawArtStr(const char *text, const SDL_Rect &rect, int flags, bool drawTextCursor)
 {
-	_artFontTables size = AFT_SMALL;
-	_artFontColors color = flags & UIS_GOLD ? AFC_GOLD : AFC_SILVER;
-
-	if (flags & UIS_MED)
-		size = AFT_MED;
-	else if (flags & UIS_BIG)
-		size = AFT_BIG;
-	else if (flags & UIS_HUGE)
-		size = AFT_HUGE;
+	unsigned size = (flags & UIS_SIZE) >> 0;
+	unsigned color = (flags & UIS_COLOR) >> 7;
 
 	const int x = rect.x + AlignXOffset(flags, rect, GetArtStrWidth(text, size));
 	const int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - ArtFonts[size][color].h()) / 2 : 0);
