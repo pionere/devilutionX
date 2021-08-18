@@ -29,7 +29,7 @@ static int AlignXOffset(int flags, const SDL_Rect &dest, int w)
 }
 
 void DrawTTF(const char *text, const SDL_Rect &rectIn, int flags,
-    const SDL_Color &textColor, const SDL_Color &shadowColor,
+    const SDL_Color textColor, const SDL_Color shadowColor,
     TtfSurfaceCache &renderCache)
 {
 	SDL_Rect rect(rectIn);

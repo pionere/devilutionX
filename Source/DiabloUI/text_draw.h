@@ -23,7 +23,7 @@ struct TtfSurfaceCache {
 };
 
 void DrawTTF(const char *text, const SDL_Rect &rect, int flags,
-    const SDL_Color &text_color, const SDL_Color &shadow_color,
+    const SDL_Color text_color, const SDL_Color shadow_color,
     TtfSurfaceCache &render_cache);
 
 void DrawArtStr(const char *text, const SDL_Rect &rect, int flags, bool drawTextCursor = false);
