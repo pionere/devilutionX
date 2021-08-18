@@ -130,8 +130,8 @@ public:
 
 class UiScrollBar : public UiItemBase {
 public:
-	UiScrollBar(SDL_Rect rect, int flags = 0)
-	    : UiItemBase(rect, flags)
+	UiScrollBar(SDL_Rect rect)
+	    : UiItemBase(rect, 0)
 	{
 		m_type = UI_SCROLLBAR;
 	};
@@ -162,8 +162,8 @@ public:
 
 class UiEdit : public UiItemBase {
 public:
-	UiEdit(const char *hint, char *value, unsigned max_length, SDL_Rect rect, int flags = 0)
-	    : UiItemBase(rect, flags)
+	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect rect)
+	    : UiItemBase(rect, 0)
 	{
 		m_type = UI_EDIT;
 		m_hint = hint;
@@ -185,28 +185,22 @@ public:
 
 class UiText : public UiItemBase {
 public:
-	UiText(const char *text, SDL_Color color1, SDL_Rect rect, int flags = 0)
-	    : UiItemBase(rect, flags)
+	UiText(const char* text, SDL_Color color1, SDL_Rect rect)
+	    : UiItemBase(rect, 0)
 	{
 		m_type = UI_TEXT;
 		m_color = color1;
 
-		SDL_Color color2 = { 0, 0, 0, 0 };
-		m_shadow_color = color2;
-
 		m_text = text;
 	}
 
-	UiText(const char *text, SDL_Rect rect, int flags = 0)
-	    : UiItemBase(rect, flags)
+	UiText(const char* text, SDL_Rect rect)
+	    : UiItemBase(rect, 0)
 	{
 		m_type = UI_TEXT;
 
 		SDL_Color color1 = { 243, 243, 243, 0 };
 		m_color = color1;
-
-		SDL_Color color2 = { 0, 0, 0, 0 };
-		m_shadow_color = color2;
 
 		m_text = text;
 	}
@@ -215,7 +209,6 @@ public:
 
 	//private:
 	SDL_Color m_color;
-	SDL_Color m_shadow_color;
 	const char *m_text;
 
 	// State:
@@ -228,8 +221,8 @@ public:
 
 class UiButton : public UiItemBase {
 public:
-	UiButton(Art *art, const char *text, void (*action)(), SDL_Rect rect, int flags = 0)
-	    : UiItemBase(rect, flags)
+	UiButton(Art* art, const char* text, void (*action)(), SDL_Rect rect)
+	    : UiItemBase(rect, 0)
 	{
 		m_type = UI_BUTTON;
 		m_art = art;

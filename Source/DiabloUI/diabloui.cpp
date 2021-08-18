@@ -639,11 +639,13 @@ void UiPollAndRender()
 
 static void Render(UiText* uiText)
 {
+	SDL_Color color2 = { 0, 0, 0, 0 };
+
 	DrawTTF(uiText->m_text,
 	    uiText->m_rect,
-	    uiText->m_iFlags,
+	    UIS_CENTER,
 	    uiText->m_color,
-	    uiText->m_shadow_color,
+	    color2,
 	    uiText->m_render_cache);
 }
 
@@ -737,7 +739,7 @@ static void Render(const UiEdit* uiEdit)
 	rect.x += 43;
 	rect.y += 1;
 	rect.w -= 86;
-	DrawArtStr(uiEdit->m_value, rect, uiEdit->m_iFlags, /*drawTextCursor=*/true);
+	DrawArtStr(uiEdit->m_value, rect, UIS_MED | UIS_GOLD, /*drawTextCursor=*/true);
 }
 
 static void RenderItem(UiItemBase* item)
