@@ -360,7 +360,8 @@ static void SelgameDiffSelect(unsigned index)
 
 static void SelgameModeSelect(unsigned index)
 {
-	assert(index == (unsigned)vecSelGameDlgItems[index]->m_value);
+	assert((index == SELGAME_CREATE && vecSelGameDlgItems.empty())
+		|| index == (unsigned)vecSelGameDlgItems[index]->m_value);
 
 	selgame_mode = index;
 
