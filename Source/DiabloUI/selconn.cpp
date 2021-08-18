@@ -89,13 +89,13 @@ static void SelconnLoad()
 	vecSelConnDlg.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 218), DESCRIPTION_WIDTH, 21 };
-	vecSelConnDlg.push_back(new UiArtText(selconn_MaxPlayers, rect2));
+	vecSelConnDlg.push_back(new UiArtText(selconn_MaxPlayers, rect2, UIS_SMALL));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 21 };
-	vecSelConnDlg.push_back(new UiArtText("Requirements:", rect3));
+	vecSelConnDlg.push_back(new UiArtText("Requirements:", rect3, UIS_SMALL));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 275), DESCRIPTION_WIDTH, 66 };
-	vecSelConnDlg.push_back(new UiArtText(selconn_Description, rect4));
+	vecSelConnDlg.push_back(new UiArtText(selconn_Description, rect4, UIS_SMALL));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 356), 220, 31 };
 	vecSelConnDlg.push_back(new UiArtText("no gateway needed", rect5, UIS_CENTER | UIS_MED));

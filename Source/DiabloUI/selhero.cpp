@@ -204,29 +204,29 @@ static void SelheroInit()
 	vecSelHeroDialog.push_back(SELHERO_DIALOG_HERO_IMG);
 
 	SDL_Rect rect4 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 323), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Level:", rect4, UIS_RIGHT));
+	vecSelHeroDialog.push_back(new UiArtText("Level:", rect4, UIS_RIGHT | UIS_SMALL));
 	SDL_Rect rect5 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 323), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[0], rect5, UIS_CENTER));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[0], rect5, UIS_CENTER | UIS_SMALL));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 358), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Strength:", rect6, UIS_RIGHT));
+	vecSelHeroDialog.push_back(new UiArtText("Strength:", rect6, UIS_RIGHT | UIS_SMALL));
 	SDL_Rect rect7 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 358), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[1], rect7, UIS_CENTER));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[1], rect7, UIS_CENTER | UIS_SMALL));
 
 	SDL_Rect rect8 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 380), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Magic:", rect8, UIS_RIGHT));
+	vecSelHeroDialog.push_back(new UiArtText("Magic:", rect8, UIS_RIGHT | UIS_SMALL));
 	SDL_Rect rect9 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 380), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[2], rect9, UIS_CENTER));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[2], rect9, UIS_CENTER | UIS_SMALL));
 
 	SDL_Rect rect10 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 401), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Dexterity:", rect10, UIS_RIGHT));
+	vecSelHeroDialog.push_back(new UiArtText("Dexterity:", rect10, UIS_RIGHT | UIS_SMALL));
 	SDL_Rect rect11 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 401), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[3], rect11, UIS_CENTER));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[3], rect11, UIS_CENTER | UIS_SMALL));
 
 	SDL_Rect rect12 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 422), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Vitality:", rect12, UIS_RIGHT));
+	vecSelHeroDialog.push_back(new UiArtText("Vitality:", rect12, UIS_RIGHT | UIS_SMALL));
 	SDL_Rect rect13 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 422), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[4], rect13, UIS_CENTER));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[4], rect13, UIS_CENTER | UIS_SMALL));
 }
 
 static void SelheroListEsc()
@@ -425,7 +425,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 	vecSelDlgItems.push_back(new UiArtText("Enter Name", rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 317), 320, 33 };
-	vecSelDlgItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.hiName, 15, rect2, UIS_MED | UIS_GOLD));
+	vecSelDlgItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName) - 1, rect2, UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 429), 140, 35 };
 	vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));

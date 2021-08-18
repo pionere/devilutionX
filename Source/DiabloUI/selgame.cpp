@@ -174,7 +174,7 @@ static void SelgameSpeedInit()
 	vecSelGameDialog.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 211), 295, 35 };
 	vecSelGameDialog.push_back(new UiArtText("Select Game Speed", rect4, UIS_CENTER | UIS_BIG));
@@ -228,7 +228,7 @@ static void SelgameModeInit()
 	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
 	vecSelGameDialog.push_back(new UiArtText("Select Action", rect4, UIS_CENTER | UIS_BIG));
@@ -279,7 +279,7 @@ static void SelgamePasswordInit(unsigned index)
 	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
 	vecSelGameDialog.push_back(new UiArtText("Enter Password", rect4, UIS_CENTER | UIS_BIG));
@@ -310,7 +310,7 @@ static void SelgamePortInit(unsigned index)
 	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
 	vecSelGameDialog.push_back(new UiArtText("Enter Port", rect4, UIS_CENTER | UIS_BIG));
@@ -376,7 +376,7 @@ static void SelgameModeSelect(unsigned index)
 	vecSelGameDialog.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
 
 	switch (index) {
 	case SELGAME_CREATE: {
