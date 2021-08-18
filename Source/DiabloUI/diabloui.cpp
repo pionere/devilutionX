@@ -671,6 +671,26 @@ static void Render(const UiArtTextButton* uiButton)
 	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
 }
 
+static void Render(UiButton* button)
+{
+	int frame;
+	if (button->m_pressed) {
+		frame = UiButton::PRESSED;
+	} else {
+		frame = UiButton::DEFAULT;
+	}
+	DrawArt(button->m_rect.x, button->m_rect.y, button->m_art, frame, button->m_rect.w, button->m_rect.h);
+
+	SDL_Rect textRect = button->m_rect;
+	if (!button->m_pressed)
+		--textRect.y;
+
+	SDL_Color color1 = { 243, 243, 243, 0 };
+	SDL_Color color2 = { 0, 0, 0, 0 };
+	DrawTTF(button->m_text, textRect, UIS_CENTER,
+	    color1, color2, button->m_render_cache);
+}
+
 static void Render(const UiList* uiList)
 {
 	for (unsigned i = 0; i < uiList->m_vecItems.size(); ++i) {
@@ -742,7 +762,7 @@ static void RenderItem(UiItemBase* item)
 		Render(static_cast<UiArtTextButton *>(item));
 		break;
 	case UI_BUTTON:
-		RenderButton(static_cast<UiButton *>(item));
+		Render(static_cast<UiButton *>(item));
 		break;
 	case UI_LIST:
 		Render(static_cast<UiList *>(item));
@@ -762,6 +782,22 @@ static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTex
 		return false;
 	uiButton->m_action();
 	return true;
+}
+
+static bool HandleMouseEventButton(const SDL_Event &event, UiButton* button)
+{
+	if (event.button.button != SDL_BUTTON_LEFT)
+		return false;
+	switch (event.type) {
+	case SDL_MOUSEBUTTONUP:
+		button->m_action();
+		return true;
+	case SDL_MOUSEBUTTONDOWN:
+		button->m_pressed = true;
+		return true;
+	default:
+		return false;
+	}
 }
 
 #ifdef USE_SDL1
@@ -845,6 +881,11 @@ static bool HandleMouseEvent(const SDL_Event &event, UiItemBase* item)
 	default:
 		return false;
 	}
+}
+
+static void HandleGlobalMouseUpButton(UiButton* button)
+{
+	button->m_pressed = false;
 }
 
 void UiRenderItems(const std::vector<UiItemBase *> &uiItems)

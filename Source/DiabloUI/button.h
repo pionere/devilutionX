@@ -14,8 +14,4 @@ inline void UnloadSmlButtonArt()
 const uint16_t SML_BUTTON_WIDTH = 110;
 const uint16_t SML_BUTTON_HEIGHT = 28;
 
-void RenderButton(UiButton *button);
-bool HandleMouseEventButton(const SDL_Event &event, UiButton *button);
-void HandleGlobalMouseUpButton(UiButton *button);
-
 DEVILUTION_END_NAMESPACE
