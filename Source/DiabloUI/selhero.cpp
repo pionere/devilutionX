@@ -197,9 +197,9 @@ static void SelheroInit()
 
 	SDL_Rect rect2 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 211), 180, 76 };
 #ifdef HELLFIRE
-	SELHERO_DIALOG_HERO_IMG = new UiImage(&ArtHero, 5, rect2);
+	SELHERO_DIALOG_HERO_IMG = new UiImage(&ArtHero, 5, rect2, 0);
 #else
-	SELHERO_DIALOG_HERO_IMG = new UiImage(&ArtHero, NUM_CLASSES, rect2);
+	SELHERO_DIALOG_HERO_IMG = new UiImage(&ArtHero, NUM_CLASSES, rect2, 0);
 #endif
 	vecSelHeroDialog.push_back(SELHERO_DIALOG_HERO_IMG);
 

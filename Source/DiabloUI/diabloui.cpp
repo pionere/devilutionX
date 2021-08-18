@@ -561,18 +561,18 @@ void UiAddBackground(std::vector<UiItemBase *> *vecDialog)
 #ifndef NOWIDESCREEN
 	if (ArtBackgroundWidescreen.surface != NULL) {
 		SDL_Rect rectw = { 0, UI_OFFSET_Y, 0, 0 };
-		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, /*bAnimated=*/false, /*iFrame=*/0, rectw, UIS_CENTER));
+		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, 0, rectw, UIS_CENTER));
 	}
 #endif
 
 	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
-	vecDialog->push_back(new UiImage(&ArtBackground, /*bAnimated=*/false, /*iFrame=*/0, rect, UIS_CENTER));
+	vecDialog->push_back(new UiImage(&ArtBackground, 0, rect, UIS_CENTER));
 }
 
 void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size, int y)
 {
 	SDL_Rect rect = { 0, UI_OFFSET_Y + y, 0, 0 };
-	vecDialog->push_back(new UiImage(&ArtLogos[size], /*bAnimated=*/true, /*iFrame=*/0, rect, UIS_CENTER));
+	vecDialog->push_back(new UiImage(&ArtLogos[size], rect));
 }
 
 void UiFadeIn()

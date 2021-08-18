@@ -61,31 +61,16 @@ public:
 
 class UiImage : public UiItemBase {
 public:
-	UiImage(Art *art, SDL_Rect rect, int flags = 0)
-	    : UiItemBase(rect, flags)
+	UiImage(Art* art, int frame, SDL_Rect &rect, int flags)
+	    : UiItemBase(rect, flags), m_art(art), m_frame(frame), m_animated(false)
 	{
 		m_type = UI_IMAGE;
-		m_art = art;
-		m_animated = false;
-		m_frame = 0;
-	};
+	}
 
-	UiImage(Art *art, bool bAnimated, int iFrame, SDL_Rect rect, int flags)
-	    : UiItemBase(rect, flags)
+	UiImage(Art* art, SDL_Rect &rect)
+	    : UiItemBase(rect, UIS_CENTER), m_art(art), m_frame(0), m_animated(true)
 	{
 		m_type = UI_IMAGE;
-		m_art = art;
-		m_animated = bAnimated;
-		m_frame = iFrame;
-	};
-
-	UiImage(Art *art, int frame, SDL_Rect rect, int flags = 0)
-	    : UiItemBase(rect, flags)
-	{
-		m_type = UI_IMAGE;
-		m_art = art;
-		m_animated = false;
-		m_frame = frame;
 	}
 
 	~UiImage() = default;

@@ -35,9 +35,9 @@ void UiTitleDialog()
 #ifdef HELLFIRE
 	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
 #ifndef NOWIDESCREEN
-	vecTitleScreen.push_back(new UiImage(&ArtBackgroundWidescreen, /*bAnimated=*/true, /*iFrame=*/0, rect, UIS_CENTER));
+	vecTitleScreen.push_back(new UiImage(&ArtBackgroundWidescreen, rect));
 #endif
-	vecTitleScreen.push_back(new UiImage(&ArtBackground, /*bAnimated=*/true, /*iFrame=*/0, rect, UIS_CENTER));
+	vecTitleScreen.push_back(new UiImage(&ArtBackground, rect));
 #else
 	UiAddBackground(&vecTitleScreen);
 	UiAddLogo(&vecTitleScreen, LOGO_BIG, 182);

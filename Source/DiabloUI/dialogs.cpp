@@ -176,7 +176,7 @@ static void Init(const char *text, const char *caption, bool error, const std::v
 
 	if (caption == NULL) {
 		SDL_Rect rect1 = { PANEL_LEFT + 180, (UI_OFFSET_Y + 168), 280, 144 };
-		vecOkDialog.push_back(new UiImage(&dialogArt, rect1));
+		vecOkDialog.push_back(new UiImage(&dialogArt, 0, rect1, 0));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 200, (UI_OFFSET_Y + 211), 240, 80 };
 		vecOkDialog.push_back(new UiText(text, rect2));
@@ -185,7 +185,7 @@ static void Init(const char *text, const char *caption, bool error, const std::v
 		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect3));
 	} else {
 		SDL_Rect rect1 = { PANEL_LEFT + 127, (UI_OFFSET_Y + 100), 385, 280 };
-		vecOkDialog.push_back(new UiImage(&dialogArt, rect1));
+		vecOkDialog.push_back(new UiImage(&dialogArt, 0, rect1, 0));
 
 		SDL_Color color = { 255, 255, 0, 0 };
 		SDL_Rect rect2 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 110), 345, 20 };
