@@ -123,8 +123,7 @@ public:
 		UnloadTtfFont();
 
 		for (unsigned x = 0; x < lines_.size(); x++) {
-			if (lines_[x].m_surface)
-				SDL_FreeSurface(lines_[x].m_surface);
+			SDL_FreeSurface(lines_[x].m_surface);
 		}
 	}
 
