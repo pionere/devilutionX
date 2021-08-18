@@ -3,7 +3,6 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/scrollbar.h"
-#include "DiabloUI/selgame.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selconn.h"
