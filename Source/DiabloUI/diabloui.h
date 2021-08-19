@@ -55,7 +55,6 @@ inline SDL_Surface *DiabloUiSurface()
 void UiFadeIn();
 void UiHandleEvents(SDL_Event *event);
 bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &uiItems);
-int GetCenterOffset(int w, int bw = 0);
 void DrawMouse();
 void LoadBackgroundArt(const char *pszFile, int frames = 1);
 void UiAddBackground(std::vector<UiItemBase *> *vecDialog);

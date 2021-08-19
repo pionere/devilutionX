@@ -516,7 +516,7 @@ bool UiValidPlayerName(const char *name)
 	return true;
 }
 
-int GetCenterOffset(int w, int bw)
+static int GetCenterOffset(int w, int bw)
 {
 	if (bw == 0) {
 		bw = SCREEN_WIDTH;
