@@ -152,7 +152,7 @@ void dx_cleanup()
 	SDL_DestroyWindow(ghMainWnd);
 }
 
-void dx_reinit()
+void ToggleFullscreen()
 {
 #ifdef USE_SDL1
 	ghMainWnd = SDL_SetVideoMode(0, 0, 0, ghMainWnd->flags ^ SDL_FULLSCREEN);
@@ -164,7 +164,7 @@ void dx_reinit()
 	if (!gbFullscreen) {
 		flags = renderer != NULL ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
 	}
-	if (SDL_SetWindowFullscreen(ghMainWnd, flags) != 0) {
+	if (SDL_SetWindowFullscreen(ghMainWnd, flags) < 0) {
 		ErrSdl();
 	}
 #endif

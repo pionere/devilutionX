@@ -882,7 +882,7 @@ static void PressKey(int vkey)
 	}
 
 	if (vkey == DVL_VK_RETURN && GetAsyncKeyState(DVL_VK_MENU)) {
-		dx_reinit();
+		ToggleFullscreen();
 		return;
 	}
 
