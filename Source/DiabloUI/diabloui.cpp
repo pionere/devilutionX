@@ -299,10 +299,9 @@ static void UiFocusNavigation(SDL_Event* event)
 			case SDLK_v:
 				if (SDL_GetModState() & KMOD_CTRL) {
 					char *clipboard = SDL_GetClipboardText();
-					if (clipboard == NULL) {
-						SDL_Log("%s", SDL_GetError());
-					} else {
+					if (clipboard != NULL) {
 						SelheroCatToName(clipboard, UiTextInput, UiTextInputLen);
+						SDL_free(clipboard);
 					}
 				}
 				return;
