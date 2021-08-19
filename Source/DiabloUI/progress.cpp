@@ -3,7 +3,6 @@
 #include "DiabloUI/button.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/fonts.h"
-#include "dx.h"
 #include "utils/display.h"
 
 DEVILUTION_BEGIN_NAMESPACE

@@ -31,14 +31,14 @@ struct CachedLine {
 	{
 		m_index = 0;
 		m_surface = NULL;
-		palette_version = pal_surface_palette_version;
+		palette_version = back_surface_palette_version;
 	}
 
 	CachedLine(unsigned index, SDL_Surface *surface)
 	{
 		m_index = index;
 		m_surface = surface;
-		palette_version = pal_surface_palette_version;
+		palette_version = back_surface_palette_version;
 	}
 
 	unsigned m_index;
@@ -71,7 +71,7 @@ CachedLine PrepareLine(unsigned index)
 		// Set up the target surface to have 3 colors: mask, text, and shadow.
 		surface = SDL_CreateRGBSurfaceWithFormat(0, text->w + ShadowOffsetX, text->h + ShadowOffsetY, 8, SDL_PIXELFORMAT_INDEX8);
 		const SDL_Color maskColor = { 0, 255, 0, 0 }; // Any color different from both shadow and text
-		const SDL_Color &textColor = palette->colors[224];
+		const SDL_Color &textColor = back_palette->colors[224];
 		SDL_Color colors[3] = { maskColor, textColor, shadowColor };
 		if (SDLC_SetSurfaceColors(surface, colors, 0, 3) <= -1)
 			SDL_Log("%s", SDL_GetError());
@@ -182,7 +182,7 @@ void CreditsRenderer::Render()
 			continue;
 
 		// Still fading in: the cached line was drawn with a different fade level.
-		if (line.palette_version != pal_surface_palette_version) {
+		if (line.palette_version != back_surface_palette_version) {
 			SDL_FreeSurface(line.m_surface);
 			line = PrepareLine(line.m_index);
 		}

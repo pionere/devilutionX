@@ -277,9 +277,9 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	smk_first(SVidSMK); // Decode first frame
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		SDL_DestroyTexture(texture);
-		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SVidWidth, SVidHeight);
-		if (texture == NULL) {
+		SDL_DestroyTexture(renderer_texture);
+		renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SVidWidth, SVidHeight);
+		if (renderer_texture == NULL) {
 			ErrSdl();
 		}
 		if (SDL_RenderSetLogicalSize(renderer, SVidWidth, SVidHeight) <= -1) {
@@ -490,9 +490,9 @@ void SVidPlayEnd()
 	memcpy(orig_palette, SVidPreviousPalette, sizeof(orig_palette));
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		SDL_DestroyTexture(texture);
-		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
-		if (texture == NULL) {
+		SDL_DestroyTexture(renderer_texture);
+		renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+		if (renderer_texture == NULL) {
 			ErrSdl();
 		}
 		if (SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT) <= -1) {

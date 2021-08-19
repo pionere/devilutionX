@@ -47,7 +47,7 @@ void LoadArt(const char *pszFile, Art *art, int frames, SDL_Color *pPalette)
 	art->surface = artSurface;
 	art->logical_width = artSurface->w;
 	art->frame_height = height / frames;
-	//art->palette_version = pal_surface_palette_version - 1;
+	//art->palette_version = back_surface_palette_version - 1;
 	ScaleSurfaceToOutput(&art->surface);
 }
 

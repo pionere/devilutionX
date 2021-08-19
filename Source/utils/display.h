@@ -17,12 +17,12 @@ extern bool gbFPSLimit;
 extern int gnRefreshDelay;
 extern SDL_Window *ghMainWnd;
 extern SDL_Renderer *renderer;
-extern SDL_Texture *texture;
+extern SDL_Texture *renderer_texture;
+extern SDL_Surface *renderer_surface;
 
-extern SDL_Palette *palette;
-extern SDL_Surface *pal_surface;
-extern unsigned int pal_surface_palette_version;
-extern SDL_Surface *renderer_texture_surface;
+extern SDL_Palette* back_palette;
+extern SDL_Surface* back_surface;
+extern unsigned int back_surface_palette_version;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);

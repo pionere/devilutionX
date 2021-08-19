@@ -1273,7 +1273,7 @@ void ClearScreenBuffer()
 {
 	lock_buf(3);
 
-	assert(pal_surface != NULL);
+	assert(back_surface != NULL);
 
 	SDL_Rect SrcRect = {
 		SCREEN_X,
@@ -1281,7 +1281,7 @@ void ClearScreenBuffer()
 		SCREEN_WIDTH,
 		SCREEN_HEIGHT,
 	};
-	SDL_FillRect(pal_surface, &SrcRect, 0);
+	SDL_FillRect(back_surface, &SrcRect, 0);
 
 	unlock_buf(3);
 }

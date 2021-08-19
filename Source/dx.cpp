@@ -28,26 +28,26 @@ static CCritSect sgMemCrit;
 
 static void dx_create_back_buffer()
 {
-	pal_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 8, SDL_PIXELFORMAT_INDEX8);
-	if (pal_surface == NULL) {
+	back_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 8, SDL_PIXELFORMAT_INDEX8);
+	if (back_surface == NULL) {
 		ErrSdl();
 	}
 
-	gpBuffer = (BYTE *)pal_surface->pixels;
+	gpBuffer = (BYTE *)back_surface->pixels;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
 	gpBufEnd = (BYTE *)(BUFFER_WIDTH * (SCREEN_HEIGHT + SCREEN_Y));
 
 #ifndef USE_SDL1
-	// In SDL2, `pal_surface` points to the global `palette`.
-	if (SDL_SetSurfacePalette(pal_surface, palette) < 0)
+	// In SDL2, `back_surface` points to the global `back_palette`.
+	if (SDL_SetSurfacePalette(back_surface, back_palette) < 0)
 		ErrSdl();
 #else
-	// In SDL1, `pal_surface` owns its palette and we must update it every
-	// time the global `palette` is changed. No need to do anything here as
-	// the global `palette` doesn't have any colors set yet.
+	// In SDL1, `back_surface` owns its palette and we must update it every
+	// time the global `back_palette` is changed. No need to do anything here as
+	// the global `back_palette` doesn't have any colors set yet.
 #endif
 
-	pal_surface_palette_version = 1;
+	back_surface_palette_version = 1;
 }
 
 static void dx_create_primary_surface()
@@ -57,9 +57,9 @@ static void dx_create_primary_surface()
 		int width, height;
 		SDL_RenderGetLogicalSize(renderer, &width, &height);
 		Uint32 format;
-		if (SDL_QueryTexture(texture, &format, NULL, NULL, NULL) < 0)
+		if (SDL_QueryTexture(renderer_texture, &format, NULL, NULL, NULL) < 0)
 			ErrSdl();
-		renderer_texture_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, SDL_BITSPERPIXEL(format), format);
+		renderer_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, SDL_BITSPERPIXEL(format), format);
 	}
 #endif
 	if (GetOutputSurface() == NULL) {
@@ -86,9 +86,9 @@ static void lock_buf_priv()
 		return;
 	}
 
-	gpBuffer = (BYTE *)pal_surface->pixels;
-	gpBufEnd += (uintptr_t)gpBuffer; // (BYTE *)pal_surface->pixels;
-	// gpBufEnd = gpBuffer + pal_surface->pitch * pal_surface->h;
+	gpBuffer = (BYTE *)back_surface->pixels;
+	gpBufEnd += (uintptr_t)gpBuffer; // (BYTE *)back_surface->pixels;
+	// gpBufEnd = gpBuffer + back_surface->pitch * back_surface->h;
 	_guLockCount++;
 }
 
@@ -136,14 +136,14 @@ void dx_cleanup()
 	gpBuffer = NULL;
 	sgMemCrit.Leave();
 
-	if (pal_surface == NULL)
+	if (back_surface == NULL)
 		return;
-	SDL_FreeSurface(pal_surface);
-	pal_surface = NULL;
-	SDL_FreePalette(palette);
-	SDL_FreeSurface(renderer_texture_surface);
+	SDL_FreeSurface(back_surface);
+	back_surface = NULL;
+	SDL_FreePalette(back_palette);
+	SDL_FreeSurface(renderer_surface);
 #ifndef USE_SDL1
-	SDL_DestroyTexture(texture);
+	SDL_DestroyTexture(renderer_texture);
 	SDL_DestroyRenderer(renderer);
 #endif
 	SDL_DestroyWindow(ghMainWnd);
@@ -171,15 +171,15 @@ void dx_reinit()
 
 void InitPalette()
 {
-	palette = SDL_AllocPalette(256);
-	if (palette == NULL) {
+	back_palette = SDL_AllocPalette(256);
+	if (back_palette == NULL) {
 		ErrSdl();
 	}
 }
 
 void BltFast(const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 {
-	Blit(pal_surface, src_rect, dst_rect);
+	Blit(back_surface, src_rect, dst_rect);
 }
 
 void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
@@ -265,7 +265,7 @@ void RenderPresent()
 
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		if (SDL_UpdateTexture(texture, NULL, surface->pixels, surface->pitch) <= -1) { //pitch is 2560
+		if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) <= -1) { //pitch is 2560
 			ErrSdl();
 		}
 
@@ -277,7 +277,7 @@ void RenderPresent()
 		if (SDL_RenderClear(renderer) <= -1) {
 			ErrSdl();
 		}
-		if (SDL_RenderCopy(renderer, texture, NULL, NULL) <= -1) {
+		if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) <= -1) {
 			ErrSdl();
 		}
 		SDL_RenderPresent(renderer);

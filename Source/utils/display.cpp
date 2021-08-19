@@ -32,17 +32,16 @@ bool gbFPSLimit;
 int gnRefreshDelay;
 SDL_Window *ghMainWnd;
 SDL_Renderer *renderer;
-SDL_Texture *texture;
+SDL_Texture* renderer_texture;
+/** 24-bit renderer texture surface */
+SDL_Surface *renderer_surface = NULL;
 
 /** Currently active palette */
-SDL_Palette *palette;
-unsigned int pal_surface_palette_version = 0;
-
-/** 24-bit renderer texture surface */
-SDL_Surface *renderer_texture_surface = NULL;
+SDL_Palette* back_palette;
+unsigned int back_surface_palette_version = 0;
 
 /** 8-bit surface wrapper around #gpBuffer */
-SDL_Surface *pal_surface;
+SDL_Surface* back_surface;
 
 int screenWidth;
 int screenHeight;
@@ -274,8 +273,8 @@ bool SpawnWindow(const char *lpWindowName)
 			ErrSdl();
 		}
 
-		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
-		if (texture == NULL) {
+		renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+		if (renderer_texture == NULL) {
 			ErrSdl();
 		}
 
@@ -307,7 +306,7 @@ SDL_Surface *GetOutputSurface()
 	return SDL_GetVideoSurface();
 #else
 	if (renderer != NULL)
-		return renderer_texture_surface;
+		return renderer_surface;
 	return SDL_GetWindowSurface(ghMainWnd);
 #endif
 }
