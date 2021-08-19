@@ -35,7 +35,8 @@ static void dx_create_back_buffer()
 
 	gpBuffer = (BYTE *)back_surface->pixels;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
-	gpBufEnd = (BYTE *)(BUFFER_WIDTH * (SCREEN_HEIGHT + SCREEN_Y));
+	//gpBufEnd = (BYTE *)(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
 
 #ifndef USE_SDL1
 	// In SDL2, `back_surface` points to the global `back_palette`.
@@ -88,10 +89,9 @@ static void lock_buf_priv()
 		_guLockCount++;
 		return;
 	}
-
-	gpBuffer = (BYTE *)back_surface->pixels;
-	gpBufEnd += (uintptr_t)gpBuffer; // (BYTE *)back_surface->pixels;
-	// gpBufEnd = gpBuffer + back_surface->pitch * back_surface->h;
+	assert(gpBuffer == back_surface->pixels);
+	//gpBuffer = (BYTE *)back_surface->pixels;
+	//gpBufEnd += (uintptr_t)gpBuffer;
 	_guLockCount++;
 }
 
@@ -112,9 +112,9 @@ static void unlock_buf_priv()
 		app_fatal("draw consistency error");
 #endif
 	_guLockCount--;
-	if (_guLockCount == 0) {
-		gpBufEnd -= (uintptr_t)gpBuffer;
-	}
+	//if (_guLockCount == 0) {
+	//	gpBufEnd -= (uintptr_t)gpBuffer;
+	//}
 	sgMemCrit.Leave();
 }
 
