@@ -525,16 +525,9 @@ int GetCenterOffset(int w, int bw)
 	return (bw - w) / 2;
 }
 
-static void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)])
-{
-	for (int i = 0; i < lengthof(orig_palette); i++) {
-		orig_palette[i] = pPal[i];
-	}
-}
-
 void LoadBackgroundArt(const char *pszFile, int frames)
 {
-	SDL_Color pPal[256];
+	SDL_Color pPal[lengthof(orig_palette)];
 
 	assert(ArtBackground.surface == NULL);
 
@@ -542,7 +535,7 @@ void LoadBackgroundArt(const char *pszFile, int frames)
 	if (ArtBackground.surface == NULL)
 		return;
 
-	LoadPalInMem(pPal);
+	memcpy(orig_palette, pPal, sizeof(pPal));
 	ApplyGamma(logical_palette, orig_palette, 256);
 
 	_gdwFadeTc = 0;
