@@ -208,13 +208,13 @@ static AudioQueue *sVidAudioQueue = new AudioQueue();
 
 HANDLE SVidPlayBegin(const char *filename, int flags)
 {
-	if (flags & (0x10000 | 0x20000000)) {
-		return NULL;
-	}
+	//if (flags & (0x10000 | 0x20000000)) {
+	//	return NULL;
+	//}
 
-	SVidLoop = (flags & 0x40000) != 0;
-	bool enableVideo = !(flags & 0x100000);
-	bool enableAudio = !(flags & 0x1000000);
+	SVidLoop = (flags & MOV_LOOP) != 0; // (flags & 0x40000) != 0;
+	bool enableVideo = true; //!(flags & 0x100000);
+	bool enableAudio = true; //!(flags & 0x1000000);
 	//0x8 // Non-interlaced
 	//0x200, 0x800 // Upscale video
 	//0x80000 // Center horizontally

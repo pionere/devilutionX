@@ -33,7 +33,8 @@ void play_movie(const char *pszMovie, int movieFlags)
 	stream_stop();
 	effects_play_sound("Sfx\\Misc\\blank.wav");
 #endif
-	video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);
+	//video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);
+	video_stream = SVidPlayBegin(pszMovie, movieFlags);
 	MSG Msg;
 	while (video_stream != NULL) {
 		while (PeekMessage(&Msg)) {
