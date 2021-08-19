@@ -42,9 +42,8 @@ void DrawAnimatedArt(Art *art, int screenX, int screenY)
 
 int GetAnimationFrame(int frames, int fps)
 {
-	int frame = (SDL_GetTicks() / fps) % frames;
-
-	return frame > frames ? 0 : frame;
+	//assert(frames > 0 && fps > 0);
+	return (SDL_GetTicks() / fps) % frames;
 }
 
 DEVILUTION_END_NAMESPACE

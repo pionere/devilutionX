@@ -1,7 +1,5 @@
 #pragma once
 
-#include "all.h"
-
 #include <SDL_ttf.h>
 
 #include "DiabloUI/art.h"

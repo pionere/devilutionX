@@ -1,5 +1,7 @@
 #include "fonts.h"
+
 #include "utils/file_util.h"
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

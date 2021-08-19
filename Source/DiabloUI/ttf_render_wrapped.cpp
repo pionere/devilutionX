@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstring>
 #include "utils/sdl_compat.h"
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -163,6 +164,9 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 			break;
 		case TextAlignment_BEGIN:
 			dest.x = 0;
+			break;
+		default:
+			ASSUME_UNREACHABLE
 			break;
 		}
 		SDL_BlitSurface(tmp, NULL, textbuf, &dest);
