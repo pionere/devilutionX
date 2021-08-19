@@ -39,6 +39,9 @@ static void dx_create_back_buffer()
 
 #ifndef USE_SDL1
 	// In SDL2, `back_surface` points to the global `back_palette`.
+	back_palette = SDL_AllocPalette(256);
+	if (back_palette == NULL)
+		ErrSdl();
 	if (SDL_SetSurfacePalette(back_surface, back_palette) < 0)
 		ErrSdl();
 #else
@@ -75,8 +78,8 @@ void dx_init()
 #endif
 
 	dx_create_primary_surface();
-	palette_init();
 	dx_create_back_buffer();
+	palette_init();
 }
 static void lock_buf_priv()
 {
@@ -140,9 +143,9 @@ void dx_cleanup()
 		return;
 	SDL_FreeSurface(back_surface);
 	back_surface = NULL;
+#ifndef USE_SDL1
 	SDL_FreePalette(back_palette);
 	SDL_FreeSurface(renderer_surface);
-#ifndef USE_SDL1
 	SDL_DestroyTexture(renderer_texture);
 	SDL_DestroyRenderer(renderer);
 #endif
@@ -167,14 +170,6 @@ void dx_reinit()
 #endif
 	gbFullscreen = !gbFullscreen;
 	gbRedrawFlags = REDRAW_ALL;
-}
-
-void InitPalette()
-{
-	back_palette = SDL_AllocPalette(256);
-	if (back_palette == NULL) {
-		ErrSdl();
-	}
 }
 
 void BltFast(const SDL_Rect *src_rect, SDL_Rect *dst_rect)

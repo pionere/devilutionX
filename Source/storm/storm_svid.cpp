@@ -307,9 +307,15 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	if (SVidPalette == NULL) {
 		ErrSdl();
 	}
+#ifndef USE_SDL1
+	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) < 0) {
+		ErrSdl();
+	}
+#else
 	if (SDLC_SetSurfaceColors(SVidSurface, SVidPalette) < 0) {
 		ErrSdl();
 	}
+#endif
 
 	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
 	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);

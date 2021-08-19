@@ -20,7 +20,9 @@ bool _gbFadedIn = true;
 
 void palette_update()
 {
+#ifndef USE_SDL1
 	assert(back_palette != NULL);
+#endif
 	if (SDLC_SetSurfaceAndPaletteColors(back_surface, back_palette, system_palette, 0, 256) < 0) {
 		ErrSdl();
 	}
@@ -63,7 +65,6 @@ void palette_init()
 	gbColorCyclingEnabled = getIniBool("Diablo", "Color Cycling", true);
 
 	memcpy(system_palette, orig_palette, sizeof(orig_palette));
-	InitPalette();
 }
 
 void LoadPalette(const char *pszFileName)
