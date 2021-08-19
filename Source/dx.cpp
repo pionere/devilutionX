@@ -235,13 +235,11 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 /**
  * @brief Limit FPS to avoid high CPU load, use when v-sync isn't available
  */
-void LimitFrameRate()
+static void LimitFrameRate()
 {
-	if (!gbFPSLimit)
-		return;
 	static Uint32 frameDeadline;
-	Uint32 tc = SDL_GetTicks() * 1000;
-	Uint32 v = 0;
+	Uint32 v = 0, tc = SDL_GetTicks() * 1000;
+
 	if (frameDeadline > tc) {
 		v = tc % gnRefreshDelay;
 		SDL_Delay(v / 1000 + 1); // ceil
@@ -253,45 +251,41 @@ void RenderPresent()
 {
 	SDL_Surface *surface = GetOutputSurface();
 
-	if (!gbWndActive) {
-		LimitFrameRate();
-		return;
-	}
-
+	if (gbWndActive) {
 #ifndef USE_SDL1
-	if (renderer != NULL) {
-		if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) { //pitch is 2560
-			ErrSdl();
-		}
+		if (renderer != NULL) {
+			if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) { //pitch is 2560
+				ErrSdl();
+			}
 
-		// Clear buffer to avoid artifacts in case the window was resized
-		if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0) { // TODO only do this if window was resized
-			ErrSdl();
-		}
+			// Clear buffer to avoid artifacts in case the window was resized
+			if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0) { // TODO only do this if window was resized
+				ErrSdl();
+			}
 
-		if (SDL_RenderClear(renderer) < 0) {
-			ErrSdl();
-		}
-		if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) < 0) {
-			ErrSdl();
-		}
-		SDL_RenderPresent(renderer);
+			if (SDL_RenderClear(renderer) < 0) {
+				ErrSdl();
+			}
+			if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) < 0) {
+				ErrSdl();
+			}
+			SDL_RenderPresent(renderer);
 
-		if (!gbVsyncEnabled) {
-			LimitFrameRate();
+			if (gbVsyncEnabled)
+				return;
+		} else {
+			if (SDL_UpdateWindowSurface(ghMainWnd) < 0) {
+				ErrSdl();
+			}
 		}
-	} else {
-		if (SDL_UpdateWindowSurface(ghMainWnd) < 0) {
-			ErrSdl();
-		}
-		LimitFrameRate();
-	}
 #else
-	if (SDL_Flip(surface) < 0) {
-		ErrSdl();
-	}
-	LimitFrameRate();
+		if (SDL_Flip(surface) < 0) {
+			ErrSdl();
+		}
 #endif
+	}
+	if (gbFPSLimit)
+		LimitFrameRate();
 }
 
 void PaletteGetEntries(unsigned dwNumEntries, SDL_Color *lpEntries)
