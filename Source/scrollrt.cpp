@@ -238,7 +238,6 @@ static void scrollrt_draw_cursor()
 	mx += SCREEN_X;
 	my++;
 	my += cursH + SCREEN_Y - 1;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_HEIGHT + SCREEN_Y) - cursW - 2];
 
 	frame = pcurs;
 	cCels = pCursCels;
