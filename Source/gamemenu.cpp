@@ -314,7 +314,7 @@ static void gamemenu_speed(bool bActivate)
 	} else {
 		gnTicksRate = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
 	}
-	setIniInt("devilutionx", "game speed", gnTicksRate);
+	setIniInt("devilutionx", "Game Speed", gnTicksRate);
 	gnTickDelay = 1000 / gnTicksRate;
 	gamemenu_get_speed();
 	PlaySFX(IS_TITLEMOV);
