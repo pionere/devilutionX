@@ -466,7 +466,7 @@ void UiInitialize()
 	LoadUiGFX();
 	LoadArtFonts();
 	if (ArtCursor.surface != NULL) {
-		if (SDL_ShowCursor(SDL_DISABLE) <= -1) {
+		if (SDL_ShowCursor(SDL_DISABLE) < 0) {
 			ErrSdl();
 		}
 	}

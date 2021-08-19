@@ -73,22 +73,22 @@ CachedLine PrepareLine(unsigned index)
 		const SDL_Color maskColor = { 0, 255, 0, 0 }; // Any color different from both shadow and text
 		const SDL_Color &textColor = back_palette->colors[224];
 		SDL_Color colors[3] = { maskColor, textColor, shadowColor };
-		if (SDLC_SetSurfaceColors(surface, colors, 0, 3) <= -1)
+		if (SDLC_SetSurfaceColors(surface, colors, 0, 3) < 0)
 			SDL_Log("%s", SDL_GetError());
 		SDLC_SetColorKey(surface, 0);
 
 		// Blit the shadow first:
 		SDL_Rect shadowRect = { ShadowOffsetX, ShadowOffsetY, 0, 0 };
-		if (SDL_BlitSurface(text, NULL, surface, &shadowRect) <= -1)
+		if (SDL_BlitSurface(text, NULL, surface, &shadowRect) < 0)
 			ErrSdl();
 
 		// Change the text surface color and blit again:
 		SDL_Color textColors[2] = { maskColor, textColor };
-		if (SDLC_SetSurfaceColors(text, textColors, 0, 2) <= -1)
+		if (SDLC_SetSurfaceColors(text, textColors, 0, 2) < 0)
 			ErrSdl();
 		SDLC_SetColorKey(text, 0);
 
-		if (SDL_BlitSurface(text, NULL, surface, NULL) <= -1)
+		if (SDL_BlitSurface(text, NULL, surface, NULL) < 0)
 			ErrSdl();
 
 		SDL_Surface *surface_ptr = surface;

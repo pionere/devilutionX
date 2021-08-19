@@ -26,7 +26,7 @@ void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 	ScaleOutputRect(&dstRect);
 
 	if (art->surface->format->BitsPerPixel == 8 && art->palette_version != back_surface_palette_version) {
-		if (SDLC_SetSurfaceColors(art->surface, back_surface->format->palette) <= -1)
+		if (SDLC_SetSurfaceColors(art->surface, back_surface->format->palette) < 0)
 			ErrSdl();
 		art->palette_version = back_surface_palette_version;
 	}

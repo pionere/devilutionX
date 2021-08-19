@@ -282,7 +282,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 		if (renderer_texture == NULL) {
 			ErrSdl();
 		}
-		if (SDL_RenderSetLogicalSize(renderer, SVidWidth, SVidHeight) <= -1) {
+		if (SDL_RenderSetLogicalSize(renderer, SVidWidth, SVidHeight) < 0) {
 			ErrSdl();
 		}
 	}
@@ -307,7 +307,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	if (SVidPalette == NULL) {
 		ErrSdl();
 	}
-	if (SDLC_SetSurfaceColors(SVidSurface, SVidPalette) <= -1) {
+	if (SDLC_SetSurfaceColors(SVidSurface, SVidPalette) < 0) {
 		ErrSdl();
 	}
 
@@ -370,7 +370,7 @@ bool SVidPlayContinue()
 		}
 		memcpy(logical_palette, orig_palette, sizeof(logical_palette));
 
-		if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, 256) <= -1) {
+		if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, 256) < 0) {
 			SDL_Log("%s", SDL_GetError());
 			return false;
 		}
@@ -384,7 +384,7 @@ bool SVidPlayContinue()
 		unsigned long len = smk_get_audio_size(SVidSMK, 0);
 		BYTE *audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
 #if SDL_VERSION_ATLEAST(2, 0, 4)
-		if (SDL_QueueAudio(deviceId, audio, len) <= -1) {
+		if (SDL_QueueAudio(deviceId, audio, len) < 0) {
 			SDL_Log("%s", SDL_GetError());
 			return false;
 		}
@@ -400,7 +400,7 @@ bool SVidPlayContinue()
 
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		if (SDL_BlitSurface(SVidSurface, NULL, GetOutputSurface(), NULL) <= -1) {
+		if (SDL_BlitSurface(SVidSurface, NULL, GetOutputSurface(), NULL) < 0) {
 			SDL_Log("%s", SDL_GetError());
 			return false;
 		}
@@ -432,7 +432,7 @@ bool SVidPlayContinue()
 		if (isIndexedOutputFormat
 		    || outputSurface->w == static_cast<int>(SVidWidth)
 		    || outputSurface->h == static_cast<int>(SVidHeight)) {
-			if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &outputRect) <= -1) {
+			if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &outputRect) < 0) {
 				ErrSdl();
 			}
 		} else {
@@ -443,7 +443,7 @@ bool SVidPlayContinue()
 #else
 			SDL_Surface *tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
 #endif
-			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) <= -1) {
+			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
 				SDL_Log("%s", SDL_GetError());
 				return false;
 			}
@@ -495,7 +495,7 @@ void SVidPlayEnd()
 		if (renderer_texture == NULL) {
 			ErrSdl();
 		}
-		if (SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT) <= -1) {
+		if (SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT) < 0) {
 			ErrSdl();
 		}
 	}

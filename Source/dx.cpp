@@ -265,19 +265,19 @@ void RenderPresent()
 
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) <= -1) { //pitch is 2560
+		if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) { //pitch is 2560
 			ErrSdl();
 		}
 
 		// Clear buffer to avoid artifacts in case the window was resized
-		if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) <= -1) { // TODO only do this if window was resized
+		if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0) { // TODO only do this if window was resized
 			ErrSdl();
 		}
 
-		if (SDL_RenderClear(renderer) <= -1) {
+		if (SDL_RenderClear(renderer) < 0) {
 			ErrSdl();
 		}
-		if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) <= -1) {
+		if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) < 0) {
 			ErrSdl();
 		}
 		SDL_RenderPresent(renderer);
@@ -286,13 +286,13 @@ void RenderPresent()
 			LimitFrameRate();
 		}
 	} else {
-		if (SDL_UpdateWindowSurface(ghMainWnd) <= -1) {
+		if (SDL_UpdateWindowSurface(ghMainWnd) < 0) {
 			ErrSdl();
 		}
 		LimitFrameRate();
 	}
 #else
-	if (SDL_Flip(surface) <= -1) {
+	if (SDL_Flip(surface) < 0) {
 		ErrSdl();
 	}
 	LimitFrameRate();

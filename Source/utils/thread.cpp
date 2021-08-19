@@ -41,24 +41,24 @@ void EndEvent(event_emul &ev)
 
 void SetEvent(event_emul &ev)
 {
-	if (SDL_LockMutex(ev.mutex) <= -1 || SDL_CondSignal(ev.cond) <= -1 || SDL_UnlockMutex(ev.mutex) <= -1) {
+	if (SDL_LockMutex(ev.mutex) < 0 || SDL_CondSignal(ev.cond) < 0 || SDL_UnlockMutex(ev.mutex) < 0) {
 		ErrSdl();
 	}
 }
 
 void ResetEvent(event_emul &ev)
 {
-	if (SDL_LockMutex(ev.mutex) <= -1 || SDL_CondWaitTimeout(ev.cond, ev.mutex, 0) <= -1 || SDL_UnlockMutex(ev.mutex) <= -1) {
+	if (SDL_LockMutex(ev.mutex) < 0 || SDL_CondWaitTimeout(ev.cond, ev.mutex, 0) < 0 || SDL_UnlockMutex(ev.mutex) < 0) {
 		ErrSdl();
 	}
 }
 
 void WaitForEvent(event_emul &ev)
 {
-	if (SDL_LockMutex(ev.mutex) <= -1) {
+	if (SDL_LockMutex(ev.mutex) < 0) {
 		ErrSdl();
 	}
-	if (SDL_CondWait(ev.cond, ev.mutex) <= -1 || SDL_CondSignal(ev.cond) <= -1 || SDL_UnlockMutex(ev.mutex) <= -1) {
+	if (SDL_CondWait(ev.cond, ev.mutex) < 0 || SDL_CondSignal(ev.cond) < 0 || SDL_UnlockMutex(ev.mutex) < 0) {
 		ErrSdl();
 	}
 }

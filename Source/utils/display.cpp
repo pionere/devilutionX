@@ -156,7 +156,7 @@ bool SpawnWindow(const char *lpWindowName)
 
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
-	if (SDL_Init(initFlags) <= -1) {
+	if (SDL_Init(initFlags) < 0) {
 		ErrSdl();
 	}
 
@@ -282,7 +282,7 @@ bool SpawnWindow(const char *lpWindowName)
 			ErrSdl();
 		}
 
-		if (SDL_RenderSetLogicalSize(renderer, width, height) <= -1) {
+		if (SDL_RenderSetLogicalSize(renderer, width, height) < 0) {
 			ErrSdl();
 		}
 #endif
