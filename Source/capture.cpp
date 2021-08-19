@@ -171,7 +171,7 @@ static void RedPalette()
  */
 void CaptureScreen()
 {
-	SDL_Color palette[256];
+	SDL_Color bkp_palette[lengthof(system_palette)];
 	std::string FileName;
 	bool success;
 
@@ -179,7 +179,7 @@ void CaptureScreen()
 	if (out == NULL)
 		return;
 	scrollrt_draw_game();
-	PaletteGetEntries(256, palette);
+	memcpy(bkp_palette, system_palette, sizeof(bkp_palette));
 	RedPalette();
 
 	lock_buf(2);
@@ -188,7 +188,7 @@ void CaptureScreen()
 		success = CapturePix(SCREEN_WIDTH, SCREEN_HEIGHT, BUFFER_WIDTH, &gpBuffer[SCREENXY(0, 0)], out);
 	}
 	if (success) {
-		success = CapturePal(palette, out);
+		success = CapturePal(bkp_palette, out);
 	}
 	unlock_buf(2);
 	out->close();
@@ -200,9 +200,7 @@ void CaptureScreen()
 		SDL_Log("Screenshot saved at %s", FileName.c_str());
 	}
 	SDL_Delay(300);
-	for (int i = 0; i < 256; i++) {
-		system_palette[i] = palette[i];
-	}
+	memcpy(system_palette, bkp_palette, sizeof(bkp_palette));
 	palette_update();
 	gbRedrawFlags = REDRAW_ALL;
 	delete out;

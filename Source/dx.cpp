@@ -288,10 +288,4 @@ void RenderPresent()
 		LimitFrameRate();
 }
 
-void PaletteGetEntries(unsigned dwNumEntries, SDL_Color *lpEntries)
-{
-	for (unsigned i = 0; i < dwNumEntries; i++) {
-		lpEntries[i] = system_palette[i];
-	}
-}
 DEVILUTION_END_NAMESPACE

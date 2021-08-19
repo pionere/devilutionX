@@ -20,7 +20,6 @@ void ToggleFullscreen();
 void BltFast(const SDL_Rect *src_rect, SDL_Rect *dst_rect);
 void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect);
 void RenderPresent();
-void PaletteGetEntries(unsigned dwNumEntries, SDL_Color *lpEntries);
 
 DEVILUTION_END_NAMESPACE
 
