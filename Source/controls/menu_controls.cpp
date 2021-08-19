@@ -82,17 +82,13 @@ MenuAction GetMenuAction(const SDL_Event &event)
 		case SDLK_DOWN:
 			return MenuAction_DOWN;
 		case SDLK_TAB:
-			if (SDL_GetModState() & KMOD_SHIFT)
-				return MenuAction_UP;
-			else
-				return MenuAction_DOWN;
+			return (SDL_GetModState() & KMOD_SHIFT) ? MenuAction_UP : MenuAction_DOWN;
 		case SDLK_PAGEUP:
 			return MenuAction_PAGE_UP;
 		case SDLK_PAGEDOWN:
 			return MenuAction_PAGE_DOWN;
 		case SDLK_RETURN: {
-			const Uint8 *state = SDLC_GetKeyState();
-			if (state[SDLC_KEYSTATE_LALT] == 0 && state[SDLC_KEYSTATE_RALT] == 0) {
+			if (!GetAsyncKeyState(DVL_VK_MENU)) {
 				return MenuAction_SELECT;
 			}
 			break;
