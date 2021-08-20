@@ -2501,32 +2501,32 @@ void CheckStoreBtn()
 		gbQtextflag = false;
 		//if (currLvl._dType == DTYPE_TOWN)
 			stream_stop();
-	} else if (stextsel != -1 && stextflag != STORE_WAIT
-	 && MouseY >= (32 + UI_OFFSET_Y) && MouseY < (320 + UI_OFFSET_Y)) {
+	} else if (stextsel != -1 && stextflag != STORE_WAIT) {
 		if (gbWidePanel) {
-			if (MouseX < 24 + PANEL_LEFT || MouseX > 616 + PANEL_LEFT)
+			if (MouseX < QPANEL_X - SCREEN_X || MouseX > QPANEL_X + QPANEL_WIDTH - SCREEN_X)
 				return;
 		} else {
-			if (MouseX < 344 + PANEL_LEFT || MouseX > 616 + PANEL_LEFT)
+			if (MouseX < STORE_PNL_X - SCREEN_X || MouseX > STORE_PNL_X + STORE_PNL_WIDTH - SCREEN_X)
 				return;
 		}
 		y = (MouseY - (32 + UI_OFFSET_Y)) / 12;
-		if (gbHasScroll && MouseX > 600 + PANEL_LEFT) {
-			if (y == 4) {
+		assert(QPANEL_X + QPANEL_WIDTH == STORE_PNL_X + STORE_PNL_WIDTH);
+		if (MouseX >= STORE_PNL_X + STORE_PNL_WIDTH - 14 - SCREEN_X && gbHasScroll) {
+			if (y == STORE_SCROLL_UP) {
 				stextscrlubtn--;
 				if (stextscrlubtn < 0) {
 					stextscrlubtn = 2;
 					STextUp();
 				}
 			}
-			if (y == 20) {
+			if (y == STORE_SCROLL_DOWN) {
 				stextscrldbtn--;
 				if (stextscrldbtn < 0) {
 					stextscrldbtn = 2;
 					STextDown();
 				}
 			}
-		} else if (y >= 5) {
+		} else if (y >= STORE_LIST_FIRST && y < STORE_LINES) {
 			static_assert(STORE_BACK <= 22, "STORE_BACK does not fit to CheckStoreBtn.");
 			// add some freedom to the back button since it has an offset
 			if (y >= 22)
