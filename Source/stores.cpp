@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_CONFIRM_YES	18
 #define STORE_CONFIRM_NO	20
 
+#define STORE_LIST_FIRST	5
 #define STORE_LIST_FOOTER	21
 #define STORE_SCROLL_UP		4
 #define STORE_SCROLL_DOWN	20
@@ -93,7 +94,7 @@ static int stextsidx;
 /** Next scroll position */
 static int stextdown;
 /** Previous scroll position */
-static int stextup;
+//static int stextup;
 /** Remember current interaction mode(STORE*) while displaying a dialog */
 static int stextshold;
 /** Text lines */
@@ -270,7 +271,7 @@ static void DrawSSlider(/*int y1, int y2*/)
 	}
 	// draw the scroll thumb
 	i = stextsel == STORE_BACK ? stextlhold : stextsel;
-	i = yd3 * (stextsidx + ((i - stextup) >> 2));
+	i = yd3 * (stextsidx + ((i - STORE_LIST_FIRST) >> 2));
 	if (storenumh > 1) {
 		yd3 = i / (storenumh - 1);
 	} else {
@@ -448,11 +449,11 @@ static void S_ScrollSBuy()
 	int l;
 	BYTE iclr;
 
-	ClearSText(5, STORE_LIST_FOOTER);
-	stextup = 5;
+	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	//stextup = STORE_LIST_FIRST;
 
 	is = &smithitem[stextsidx];
-	for (l = 5; l < 20; l += 4) {
+	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StorePrepareItemBuy(is);
 			AddSText(20, l, false, is->_iName, iclr, true);
@@ -505,15 +506,15 @@ static void S_ScrollSPBuy()
 	int idx, l, boughtitems;
 	BYTE iclr;
 
-	ClearSText(5, STORE_LIST_FOOTER);
-	stextup = 5;
+	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	//stextup = STORE_LIST_FIRST;
 
 	boughtitems = stextsidx;
 	for (idx = 0; boughtitems != 0; idx++)
 		if (premiumitems[idx]._itype != ITYPE_NONE)
 			boughtitems--;
 
-	for (l = 5; l < 20 && idx < SMITH_PREMIUM_ITEMS; ) {
+	for (l = STORE_LIST_FIRST; l < 20 && idx < SMITH_PREMIUM_ITEMS; ) {
 		is = &premiumitems[idx];
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StorePrepareItemBuy(is);
@@ -600,11 +601,11 @@ static void S_ScrollSSell()
 	int idx, l;
 	BYTE iclr;
 
-	ClearSText(5, STORE_LIST_FOOTER);
-	stextup = 5;
+	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	//stextup = STORE_LIST_FIRST;
 
 	idx = stextsidx;
-	for (l = 5; l < 20; l += 4) {
+	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
 		is = &storehold[idx];
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StoreItemColor(is);
@@ -742,11 +743,11 @@ static void S_ScrollWBuy()
 	int l;
 	BYTE iclr;
 
-	ClearSText(5, STORE_LIST_FOOTER);
-	stextup = 5;
+	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	//stextup = STORE_LIST_FIRST;
 
 	is = &witchitem[stextsidx];
-	for (l = 5; l < 20; l += 4) {
+	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StorePrepareItemBuy(is);
 			AddSText(20, l, false, is->_iName, iclr, true);
@@ -886,7 +887,7 @@ static void S_StartNoMoney()
 	StartStore(stextshold);
 	gbHasScroll = false;
 	gbWidePanel = true;
-	ClearSText(5, STORE_LINES);
+	ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	AddSText(0, 14, true, "You do not have enough gold", COL_WHITE, true);
 }
 
@@ -894,7 +895,7 @@ static void S_StartNoRoom()
 {
 	StartStore(stextshold);
 	gbHasScroll = false;
-	ClearSText(5, STORE_LINES);
+	ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	AddSText(0, 14, true, "You do not have enough room in inventory", COL_WHITE, true);
 }
 
@@ -911,7 +912,7 @@ static void S_StartConfirm()
 
 	StartStore(stextshold);
 	gbHasScroll = false;
-	ClearSText(5, STORE_LINES);
+	ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	iclr = StoreItemColor(&storeitem);
 	AddSText(20, 8, false, ItemName(&storeitem), iclr, false);
 	AddSTextVal(8, storeitem._iIvalue);
@@ -1010,11 +1011,11 @@ static void S_ScrollHBuy()
 	int l;
 	BYTE iclr;
 
-	ClearSText(5, STORE_LIST_FOOTER);
-	stextup = 5;
+	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	//stextup = STORE_LIST_FIRST;
 
 	is = &healitem[stextsidx];
-	for (l = 5; l < 20; l += 4) {
+	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StorePrepareItemBuy(is);
 			AddSText(20, l, false, is->_iName, iclr, true);
@@ -1122,7 +1123,7 @@ static void S_StartIdShow()
 
 	//assert(stextshold == STORE_SIDENTIFY);
 	//StartStore(STORE_SIDENTIFY);
-	//ClearSText(5, STORE_LINES);
+	//ClearSText(STORE_LIST_FIRST, STORE_LINES);
 
 	//gbWidePanel = true;
 	gbHasScroll = false;
@@ -1429,7 +1430,7 @@ void STextUp()
 		return;
 	}
 
-	if (gbHasScroll && stextsel == stextup) {
+	if (gbHasScroll && stextsel == STORE_LIST_FIRST) {
 		if (stextsidx != 0)
 			stextsidx--;
 		return;
@@ -1466,12 +1467,12 @@ void STextPageUp()
 {
 	PlaySFX(IS_TITLEMOV);
 	if (stextsel != -1 && gbHasScroll) {
-		if (stextsel == stextup) {
+		if (stextsel == STORE_LIST_FIRST) {
 			stextsidx -= 4;
 			if (stextsidx < 0)
 				stextsidx = 0;
 		} else {
-			stextsel = stextup;
+			stextsel = STORE_LIST_FIRST;
 		}
 	}
 }
@@ -1599,7 +1600,7 @@ static void SmithBuyItem()
 
 	SendStoreCmd2(STORE_SBUY);
 
-	idx = stextvhold + ((stextlhold - stextup) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
 	do {
 		copy_pod(smithitem[idx], smithitem[idx + 1]);
 		idx++;
@@ -1631,7 +1632,7 @@ static void S_SBuyEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_SBUY;
-		idx = stextsidx + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		StoreStartBuy(&smithitem[idx], smithitem[idx]._iIvalue);
 	}
 }
@@ -1645,7 +1646,7 @@ static void SmithBuyPItem()
 
 	SendStoreCmd2(STORE_SPBUY);
 
-	idx = stextvhold + ((stextlhold - stextup) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
 	xx = 0;
 	for (i = 0; idx >= 0; i++) {
 		if (premiumitems[i]._itype != ITYPE_NONE) {
@@ -1670,7 +1671,7 @@ static void S_SPBuyEnter()
 		stextshold = STORE_SPBUY;
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
-		xx = stextsidx + ((stextsel - stextup) >> 2);
+		xx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		idx = 0;
 		for (i = 0; xx >= 0; i++) {
 			if (premiumitems[i]._itype != ITYPE_NONE) {
@@ -1873,7 +1874,7 @@ static void StoreSellItem()
 {
 	int i, idx, cost;
 
-	idx = stextvhold + ((stextlhold - stextup) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
 	i = storehidx[idx];
 	if (i >= 0) {
 		i += INVITEM_INV_FIRST;
@@ -1896,7 +1897,7 @@ static void S_SSell()
 	int idx;
 
 	stextlhold = stextsel;
-	idx = stextsidx + ((stextsel - stextup) >> 2);
+	idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 	stextshold = stextflag;
 	stextvhold = stextsidx;
 	copy_pod(storeitem, storehold[idx]);
@@ -1925,7 +1926,7 @@ static void SmithRepairItem()
 {
 	int i, idx;
 
-	idx = stextvhold + ((stextlhold - stextup) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
 
 	i = storehidx[idx];
 	if (i < 0) {
@@ -1948,7 +1949,7 @@ static void S_SRepairEnter()
 		stextshold = STORE_SREPAIR;
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
-		idx = stextsidx + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
@@ -1991,7 +1992,7 @@ static void WitchBuyItem()
 {
 	int idx;
 
-	idx = stextvhold + ((stextlhold - stextup) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
 
 	if (idx < 3)
 		storeitem._iSeed = GetRndSeed();
@@ -2017,7 +2018,7 @@ static void S_WBuyEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_WBUY;
-		idx = stextsidx + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 
 		StoreStartBuy(&witchitem[idx], witchitem[idx]._iIvalue);
 	}
@@ -2040,7 +2041,7 @@ static void WitchRechargeItem()
 {
 	int i, idx;
 
-	idx = stextvhold + ((stextlhold - stextup) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
 
 	i = storehidx[idx];
 	if (i < 0) {
@@ -2062,7 +2063,7 @@ static void S_WRechargeEnter()
 		stextshold = STORE_WRECHARGE;
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
-		idx = stextsidx + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
@@ -2119,7 +2120,7 @@ static void HealerBuyItem()
 	int idx;
 	bool infinite;
 
-	idx = stextvhold + ((stextlhold - stextup) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
 	infinite = idx < (IsMultiGame ? 3 : 2);
 	if (infinite)
 		storeitem._iSeed = GetRndSeed();
@@ -2152,7 +2153,7 @@ static void StoryIdItem()
 {
 	int idx;
 
-	idx = storehidx[((stextlhold - stextup) >> 2) + stextvhold];
+	idx = storehidx[((stextlhold - STORE_LIST_FIRST) >> 2) + stextvhold];
 	if (idx < 0)
 		idx = INVITEM_BODY_FIRST -(idx + 1);
 	else
@@ -2262,7 +2263,7 @@ static void S_HBuyEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_HBUY;
-		idx = stextsidx + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		StoreStartBuy(&healitem[idx], healitem[idx]._iIvalue);
 	}
 }
@@ -2299,7 +2300,7 @@ static void S_SIDEnter()
 		stextshold = STORE_SIDENTIFY;
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
-		idx = stextsidx + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
