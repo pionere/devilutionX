@@ -172,19 +172,6 @@ static void SelheroUpdateViewportItems()
 	}
 }
 
-static void SelheroScrollIntoView(unsigned index)
-{
-	unsigned newOffset = ListOffset;
-	if (index >= ListOffset + MAX_VIEWPORT_ITEMS)
-		newOffset = index - (MAX_VIEWPORT_ITEMS - 1);
-	if (index < ListOffset)
-		newOffset = index;
-	if (newOffset != ListOffset) {
-		ListOffset = newOffset;
-		SelheroUpdateViewportItems();
-	}
-}
-
 static void SelheroInit()
 {
 	LoadBackgroundArt("ui_art\\selhero.pcx");
@@ -239,7 +226,7 @@ static void SelheroListEsc()
 
 static void SelheroListFocus(unsigned index)
 {
-	SelheroScrollIntoView(index);
+	SelheroUpdateViewportItems();
 	int baseFlags = UIS_CENTER | UIS_BIG;
 	if (index < selhero_SaveCount) {
 		memcpy(&selhero_heroInfo, &selhero_heros[index], sizeof(selhero_heroInfo));

@@ -142,12 +142,27 @@ static void UiPlaySelectSound()
 	gfnSoundFunction(IS_TITLSLCT, 1);
 }
 
+static void UiScrollIntoView()
+{
+	unsigned newOffset = ListOffset, index = SelectedItem;
+
+	if (index < ListOffset)
+		newOffset = index;
+	else if (index >= ListOffset + ListViewportSize)
+		newOffset = index - (ListViewportSize - 1);
+	//if (newOffset != ListOffset) {
+		ListOffset = newOffset;
+	//}
+}
+
 static void UiFocus(unsigned itemIndex)
 {
 	if (SelectedItem == itemIndex)
 		return;
 
 	SelectedItem = itemIndex;
+
+	UiScrollIntoView();
 
 	UiPlayMoveSound();
 
