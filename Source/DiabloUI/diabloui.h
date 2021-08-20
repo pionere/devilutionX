@@ -34,7 +34,7 @@ extern Art ArtBackgroundWidescreen;
 extern Art ArtCursor;
 extern Art ArtHero;
 
-extern void (*gfnSoundFunction)(const char *file);
+extern void (*gfnSoundFunction)(int gfx, int rndCnt);
 
 inline SDL_Surface *DiabloUiSurface()
 {
