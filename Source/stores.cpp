@@ -1468,8 +1468,8 @@ void STextDown()
 
 void STextPageUp()
 {
-	PlaySFX(IS_TITLEMOV);
 	if (stextsel != -1 && gbHasScroll) {
+		PlaySFX(IS_TITLEMOV);
 		if (stextsel == STORE_LIST_FIRST) {
 			stextsidx -= 4;
 			if (stextsidx < 0)
@@ -1482,8 +1482,8 @@ void STextPageUp()
 
 void STextPageDown()
 {
-	PlaySFX(IS_TITLEMOV);
 	if (stextsel != -1 && gbHasScroll) {
+		PlaySFX(IS_TITLEMOV);
 		if (stextsel == stextdown) {
 			stextsidx += 4;
 			if (stextsidx > stextsmax)
