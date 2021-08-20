@@ -35,6 +35,8 @@ inline void snd_play_snd(TSnd *pSnd, int lVolume, int lPan) { }
 inline void snd_init() { }
 inline void music_stop() { }
 inline void music_start(int nTrack) { }
+inline void sound_disable_music() { }
+inline void sound_start_music() { }
 inline void sound_set_music_volume(int volume) { }
 inline void sound_set_sound_volume(int volume)  { }
 inline int sound_get_music_volume() { return 0; }
