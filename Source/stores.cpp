@@ -273,14 +273,10 @@ static void DrawSSlider(/*int y1, int y2*/)
 		CelDraw(x, i, pSTextSlidCels, 14, 12);
 	}
 	// draw the scroll thumb
-	i = stextsel == STORE_BACK ? stextlhold : stextsel;
-	i = yd3 * (stextsidx + ((i - STORE_LIST_FIRST) >> 2));
-	if (storenumh > 1) {
-		yd3 = i / (storenumh - 1);
-	} else {
-		yd3 = 0;
+	if (stextsmax != 0) {
+		yd3 = yd3 * stextsidx / stextsmax;
+		CelDraw(x, yd1 + yd3, pSTextSlidCels, 13, 12);
 	}
-	CelDraw(x, yd1 + yd3, pSTextSlidCels, 13, 12);
 }
 
 void InitSTextHelp()
@@ -1470,11 +1466,9 @@ void STextPageUp()
 {
 	if (stextsel != -1 && gbHasScroll) {
 		PlaySFX(IS_TITLEMOV);
-		if (stextsel == STORE_LIST_FIRST) {
-			stextsidx -= 4;
-			if (stextsidx < 0)
-				stextsidx = 0;
-		} else {
+		stextsidx -= 4;
+		if (stextsidx < 0) {
+			stextsidx = 0;
 			stextsel = STORE_LIST_FIRST;
 		}
 	}
@@ -1484,11 +1478,9 @@ void STextPageDown()
 {
 	if (stextsel != -1 && gbHasScroll) {
 		PlaySFX(IS_TITLEMOV);
-		if (stextsel == stextdown) {
-			stextsidx += 4;
-			if (stextsidx > stextsmax)
-				stextsidx = stextsmax;
-		} else {
+		stextsidx += 4;
+		if (stextsidx > stextsmax) {
+			stextsidx = stextsmax;
 			stextsel = stextdown;
 		}
 	}
@@ -2495,7 +2487,7 @@ void STextEnter()
 
 void CheckStoreBtn()
 {
-	int y;
+	int y, ly;
 
 	if (gbQtextflag) {
 		gbQtextflag = false;
@@ -2512,18 +2504,34 @@ void CheckStoreBtn()
 		y = (MouseY - (32 + UI_OFFSET_Y)) / 12;
 		assert(QPANEL_X + QPANEL_WIDTH == STORE_PNL_X + STORE_PNL_WIDTH);
 		if (MouseX >= STORE_PNL_X + STORE_PNL_WIDTH - 14 - SCREEN_X && gbHasScroll) {
-			if (y == STORE_SCROLL_UP) {
-				stextscrlubtn--;
-				if (stextscrlubtn < 0) {
-					stextscrlubtn = 2;
-					STextUp();
-				}
-			}
-			if (y == STORE_SCROLL_DOWN) {
-				stextscrldbtn--;
-				if (stextscrldbtn < 0) {
-					stextscrldbtn = 2;
-					STextDown();
+			if (stextsmax != 0 && y >= STORE_SCROLL_UP && y <= STORE_SCROLL_DOWN) {
+				if (y == STORE_SCROLL_DOWN) {
+					// down arrow
+					stextscrldbtn--;
+					if (stextscrldbtn < 0) {
+						stextscrldbtn = 2;
+						STextDown();
+					}
+				} else if (y == STORE_SCROLL_UP) {
+					// up arrow
+					stextscrlubtn--;
+					if (stextscrlubtn < 0) {
+						stextscrlubtn = 2;
+						STextUp();
+					}
+				} else {
+					// Scroll up or down based on thumb position.
+					y -= STORE_SCROLL_UP;
+					const int scrollmax = (STORE_SCROLL_DOWN - STORE_SCROLL_UP - 2);
+					y--;
+					ly = stextsidx * scrollmax / stextsmax;
+					if (ly != y) {
+						if (ly > y) {
+							STextPageUp();
+						} else {
+							STextPageDown();
+						}
+					}
 				}
 			}
 		} else if (y >= STORE_LIST_FIRST && y < STORE_LINES) {

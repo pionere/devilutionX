@@ -58,13 +58,13 @@ static Uint32 _gdwFadeTc;
 static int _gnFadeValue = 0;
 
 struct ScrollBarState {
-	bool upArrowPressed;
-	bool downArrowPressed;
+	char upPressCounter;
+	char downPressCounter;
 
 	ScrollBarState()
 	{
-		upArrowPressed = false;
-		downArrowPressed = false;
+		upPressCounter = -1;
+		downPressCounter = -1;
 	}
 } scrollBarState;
 
@@ -186,39 +186,39 @@ static void UiFocusDown()
 		UiFocus(0);
 }
 
-// UiFocusPageUp/Down mimics the slightly weird behaviour of actual Diablo.
-
 static void UiFocusPageUp()
 {
-	unsigned pageStart = ListOffset;
-	if (pageStart == 0) {
-		UiFocus(0);
-	} else {
-		unsigned relpos = SelectedItem - pageStart;
-		if (pageStart >= ListViewportSize)
-			pageStart -= ListViewportSize;
-		else
-			pageStart = 0;
-		UiFocus(pageStart);
-		UiFocus(pageStart + relpos);
-	}
+	unsigned newpos;
+
+	if (ListOffset > ListViewportSize)
+		ListOffset -= ListViewportSize;
+	else
+		ListOffset = 0;
+
+	newpos = SelectedItem;
+	if (newpos > ListViewportSize)
+		newpos -= ListViewportSize;
+	else
+		newpos = 0;
+	UiFocus(newpos);
 }
 
 static void UiFocusPageDown()
 {
-	unsigned pageEnd = ListOffset + ListViewportSize;
-	if (pageEnd > SelectedItemMax || pageEnd == 0) {
-		UiFocus(SelectedItemMax);
-	} else {
-		pageEnd--;
-		unsigned relpos = pageEnd - SelectedItem;
-		if (pageEnd + ListViewportSize <= SelectedItemMax)
-			pageEnd += ListViewportSize;
-		else
-			pageEnd = SelectedItemMax;
-		UiFocus(pageEnd);
-		UiFocus(pageEnd - relpos);
+	unsigned newpos, lastPageStart;
+
+	lastPageStart = SelectedItemMax - (ListViewportSize - 1);
+	if ((int)lastPageStart >= 0) {
+		ListOffset += ListViewportSize;
+		if (ListOffset > lastPageStart)
+			ListOffset = lastPageStart;
 	}
+
+	newpos = SelectedItem;
+	newpos += ListViewportSize;
+	if (newpos > SelectedItemMax)
+		newpos = SelectedItemMax;
+	UiFocus(newpos);
 }
 
 static void SelheroCatToName(char *inBuf, char *outBuf, int cnt)
@@ -723,12 +723,12 @@ static void Render(const UiScrollBar* uiSb)
 	// Arrows:
 	{
 		SDL_Rect rect = UpArrowRect(uiSb);
-		int frame = scrollBarState.upArrowPressed ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP;
+		int frame = scrollBarState.upPressCounter != -1 ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP;
 		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame, rect.w);
 	}
 	{
 		SDL_Rect rect = DownArrowRect(uiSb);
-		int frame = scrollBarState.downArrowPressed ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN;
+		int frame = scrollBarState.downPressCounter != -1 ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN;
 		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame, rect.w);
 	}
 
@@ -833,17 +833,25 @@ static bool HandleMouseEventList(const SDL_Event &event, UiList* uiList)
 
 static bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar* uiSb)
 {
-	if (event.type == SDL_MOUSEBUTTONUP) {
-		if (scrollBarState.upArrowPressed && IsInsideRect(event, UpArrowRect(uiSb))) {
-			UiFocusUp();
-			return true;
-		}
-		if (scrollBarState.downArrowPressed && IsInsideRect(event, DownArrowRect(uiSb))) {
-			UiFocusDown();
-			return true;
-		}
-	} else if (event.type == SDL_MOUSEBUTTONDOWN) {
-		if (IsInsideRect(event, BarRect(uiSb))) {
+	if (event.type == SDL_MOUSEBUTTONDOWN) {
+		int y = event.button.y - uiSb->m_rect.y;
+		if (y >= uiSb->m_rect.h - SCROLLBAR_ARROW_HEIGHT) {
+			// down arrow
+			//scrollBarState.downArrowPressed = true;
+			scrollBarState.downPressCounter--;
+			if (scrollBarState.downPressCounter < 0) {
+				scrollBarState.downPressCounter = 2;
+				UiFocusDown();
+			}
+		} else if (y < SCROLLBAR_ARROW_HEIGHT) {
+			// up arrow
+			//scrollBarState.upArrowPressed = true;
+			scrollBarState.upPressCounter--;
+			if (scrollBarState.upPressCounter < 0) {
+				scrollBarState.upPressCounter = 2;
+				UiFocusUp();
+			}
+		} else {
 			// Scroll up or down based on thumb position.
 			const SDL_Rect thumbRect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
 			if (event.button.y < thumbRect.y) {
@@ -851,15 +859,8 @@ static bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar*
 			} else if (event.button.y > thumbRect.y + thumbRect.h) {
 				UiFocusPageDown();
 			}
-			return true;
 		}
-		if (IsInsideRect(event, UpArrowRect(uiSb))) {
-			scrollBarState.upArrowPressed = true;
-			return true;
-		} else if (IsInsideRect(event, DownArrowRect(uiSb))) {
-			scrollBarState.downArrowPressed = true;
-			return true;
-		}
+		return true;
 	}
 	return false;
 }
@@ -931,7 +932,7 @@ bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &uiItem
 	}
 
 	if (event->type == SDL_MOUSEBUTTONUP) {
-		scrollBarState.downArrowPressed = scrollBarState.upArrowPressed = false;
+		scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
 		for (unsigned i = 0; i < uiItems.size(); i++) {
 			UiItemBase *item = uiItems[i];
 			if (item->m_type == UI_BUTTON)
