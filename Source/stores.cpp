@@ -1454,7 +1454,7 @@ void STextDown()
 	} while (!stextlines[stextsel]._ssel);
 }
 
-void STextPrior()
+void STextPageUp()
 {
 	PlaySFX(IS_TITLEMOV);
 	if (stextsel != -1 && gbHasScroll) {
@@ -1468,7 +1468,7 @@ void STextPrior()
 	}
 }
 
-void STextNext()
+void STextPageDown()
 {
 	PlaySFX(IS_TITLEMOV);
 	if (stextsel != -1 && gbHasScroll) {

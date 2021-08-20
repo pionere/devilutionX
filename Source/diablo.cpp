@@ -1045,12 +1045,12 @@ static void PressKey(int vkey)
 		break;
 	case ACT_PGUP:
 		if (stextflag != STORE_NONE) {
-			STextPrior();
+			STextPageUp();
 		}
 		break;
 	case ACT_PGDOWN:
 		if (stextflag != STORE_NONE) {
-			STextNext();
+			STextPageDown();
 		}
 		break;
 	case ACT_RETURN:
