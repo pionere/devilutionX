@@ -164,11 +164,11 @@ static void SelheroUpdateViewportItems()
 	for (unsigned i = 0; i < numViewportHeroes; i++) {
 		const unsigned index = i + ListOffset;
 		vecSelDlgListItems[i]->m_text = selhero_heros[index].hiName;
-		vecSelDlgListItems[i]->m_value = index;
+		//vecSelDlgListItems[i]->m_value = index;
 	}
 	if (numViewportHeroes < MAX_VIEWPORT_ITEMS) {
 		vecSelDlgListItems[numViewportHeroes]->m_text = "New Hero";
-		vecSelDlgListItems[numViewportHeroes]->m_value = selhero_SaveCount;
+		//vecSelDlgListItems[numViewportHeroes]->m_value = selhero_SaveCount;
 	}
 }
 

@@ -82,7 +82,7 @@ void LoadTtfFont()
 
 void UnloadTtfFont()
 {
-	if (font != NULL && TTF_WasInit() != 0)
+	if (font != NULL /*&& TTF_WasInit() != 0*/)
 		TTF_CloseFont(font);
 	font = NULL;
 }

@@ -710,30 +710,31 @@ static void Render(const UiScrollBar* uiSb)
 {
 	// Bar background (tiled):
 	{
-		const int bgYEnd = DownArrowRect(uiSb).y;
+		int bgYEnd = DownArrowRect(uiSb).y;
+		int bgX = uiSb->m_rect.x;
 		int bgY = uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT;
 		while (bgY < bgYEnd) {
 			int drawH = std::min(bgY + SCROLLBAR_BG_HEIGHT, bgYEnd) - bgY;
-			DrawArt(uiSb->m_rect.x, bgY, &ArtScrollBarBackground, 0, SCROLLBAR_BG_WIDTH, drawH);
+			DrawArt(bgX, bgY, &ArtScrollBarBackground, 0, SCROLLBAR_BG_WIDTH, drawH);
 			bgY += SCROLLBAR_BG_HEIGHT;
 		}
 	}
 
 	// Arrows:
 	{
-		const SDL_Rect rect = UpArrowRect(uiSb);
-		const int frame = static_cast<int>(scrollBarState.upArrowPressed ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP);
+		SDL_Rect rect = UpArrowRect(uiSb);
+		int frame = scrollBarState.upArrowPressed ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP;
 		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame, rect.w);
 	}
 	{
-		const SDL_Rect rect = DownArrowRect(uiSb);
-		const int frame = static_cast<int>(scrollBarState.downArrowPressed ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN);
+		SDL_Rect rect = DownArrowRect(uiSb);
+		int frame = scrollBarState.downArrowPressed ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN;
 		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame, rect.w);
 	}
 
 	// Thumb:
 	if (SelectedItemMax > 0) {
-		const SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
+		SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
 		DrawArt(rect.x, rect.y, &ArtScrollBarThumb);
 	}
 }
