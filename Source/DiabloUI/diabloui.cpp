@@ -696,11 +696,11 @@ static void Render(const UiScrollBar* uiSb)
 	// Bar background (tiled):
 	{
 		const int bgYEnd = DownArrowRect(uiSb).y;
-		int bgY = uiSb->m_rect.y + ArtScrollBarArrow.h();
+		int bgY = uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT;
 		while (bgY < bgYEnd) {
-			int drawH = std::min(bgY + ArtScrollBarBackground.h(), bgYEnd) - bgY;
+			int drawH = std::min(bgY + SCROLLBAR_BG_HEIGHT, bgYEnd) - bgY;
 			DrawArt(uiSb->m_rect.x, bgY, &ArtScrollBarBackground, 0, SCROLLBAR_BG_WIDTH, drawH);
-			bgY += drawH;
+			bgY += SCROLLBAR_BG_HEIGHT;
 		}
 	}
 
