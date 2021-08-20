@@ -7,8 +7,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+// required size of the store to accomodate the relevant items
 #define STORAGE_LIMIT		NUM_INV_GRID_ELEM + (MAXBELTITEMS > NUM_INVLOC ? MAXBELTITEMS : NUM_INVLOC)
 
+// line numbers in stores:
 #define STORE_CONFIRM_YES	18
 #define STORE_CONFIRM_NO	20
 
@@ -56,6 +58,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_DRUNK_GOSSIP		12
 #define STORE_DRUNK_EXIT		18
 
+// service prices
 #define STORE_ID_PRICE			100
 #define STORE_BOY_PRICE			50
 
@@ -89,29 +92,29 @@ BYTE stextflag;
 static bool gbWidePanel;
 /** Does the current panel have a scrollbar */
 static bool gbHasScroll;
-/** Scroll position */
+/** The index of the first visible item in the store. */
 static int stextsidx;
-/** Next scroll position */
+/** The line number of the last visible item in the store */
 static int stextdown;
 /** Previous scroll position */
 //static int stextup;
-/** Remember current interaction mode(STORE*) while displaying a dialog */
+/** Remember stextflag while displaying a dialog */
 static int stextshold;
 /** Text lines */
 static STextStruct stextlines[STORE_LINES];
-/** Currently selected text line from stext */
+/** Currently selected text line from stextlines */
 static int stextsel;
-/** Remember currently selected text line from stext while displaying a dialog */
+/** Remember stextsel while displaying a dialog */
 static int stextlhold;
-/** Number of text lines in the current dialog */
+/** The maximum possible value of stextsidx */
 static int stextsmax;
 /** Copies of the players items as presented in the store */
 static ItemStruct storehold[STORAGE_LIMIT];
 /** Map of inventory items being presented in the store */
 static char storehidx[STORAGE_LIMIT];
-/** Current index into storehidx/storehold */
+/** The number of valid entries in storehidx/storehold */
 static int storenumh;
-/** Remember last scroll position */
+/** Remember stextsidx while displaying a dialog */
 static int stextvhold;
 /** Count down for the push state of the scroll up button */
 static char stextscrlubtn;
