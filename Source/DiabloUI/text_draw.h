@@ -14,8 +14,8 @@ struct TtfSurfaceCache {
 
 	~TtfSurfaceCache()
 	{
-		mem_free_dbg(text);
-		mem_free_dbg(shadow);
+		SDL_FreeSurface(text);
+		SDL_FreeSurface(shadow);
 	}
 
 	SDL_Surface *text;
