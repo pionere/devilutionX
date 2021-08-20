@@ -20,7 +20,7 @@ int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo *)), bool(*fncre
 /* Defined in credits.cpp */
 void UiCreditsDialog();
 /* Defined in mainmenu.cpp */
-int UiMainMenuDialog(const char* name, void(*fnSound)(const char* file));
+int UiMainMenuDialog(const char* name, void(*fnSound)(int sfx, int rndCnt));
 /* Defined in progress.cpp */
 bool UiProgressDialog(const char *msg, int(*fnfunc)());
 

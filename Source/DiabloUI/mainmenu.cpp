@@ -1,4 +1,6 @@
+
 #include "all.h"
+
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/selok.h"
 
@@ -32,10 +34,8 @@ void mainmenu_restart_repintro()
 	guAttractTc = SDL_GetTicks() + ATTRACT_TIMEOUT * 1000;
 }
 
-static void MainmenuLoad(const char *name, void (*fnSound)(const char *file))
+static void MainmenuLoad(const char* name)
 {
-	gfnSoundFunction = fnSound;
-
 #ifndef HOSTONLY
 	vecMenuItems.push_back(new UiListItem("Single Player", MAINMENU_SINGLE_PLAYER));
 #endif
@@ -73,9 +73,11 @@ static void MainmenuFree()
 	UiClearListItems(vecMenuItems);
 }
 
-int UiMainMenuDialog(const char* name, void (*fnSound)(const char* file))
+int UiMainMenuDialog(const char* name, void (*fnSound)(int sfx, int rndCnt))
 {
-	MainmenuLoad(name, fnSound);
+	gfnSoundFunction = fnSound;
+
+	MainmenuLoad(name);
 
 	mainmenu_restart_repintro(); // for automatic starts
 

@@ -43,7 +43,7 @@ Art ArtBackground;
 Art ArtCursor;
 Art ArtHero;
 
-void (*gfnSoundFunction)(const char *file);
+void (*gfnSoundFunction)(int gfx, int rndCnt);
 void (*gfnListFocus)(unsigned index);
 void (*gfnListSelect)(unsigned index);
 void (*gfnListEsc)();
@@ -130,16 +130,16 @@ void UiInitList_clear()
 	UiItemsWraps = false;
 }
 
-void UiPlayMoveSound()
+static void UiPlayMoveSound()
 {
-	if (gfnSoundFunction != NULL)
-		gfnSoundFunction("sfx\\items\\titlemov.wav");
+	assert(gfnSoundFunction != NULL);
+	gfnSoundFunction(IS_TITLEMOV, 1);
 }
 
-void UiPlaySelectSound()
+static void UiPlaySelectSound()
 {
-	if (gfnSoundFunction != NULL)
-		gfnSoundFunction("sfx\\items\\titlslct.wav");
+	assert(gfnSoundFunction != NULL);
+	gfnSoundFunction(IS_TITLSLCT, 1);
 }
 
 static void UiFocus(unsigned itemIndex)

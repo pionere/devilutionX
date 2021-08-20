@@ -66,7 +66,7 @@ void mainmenu_loop()
 	mainmenu_refresh_music();
 
 	while (TRUE) {
-		switch (UiMainMenuDialog(gszProductName, effects_play_sound)) {
+		switch (UiMainMenuDialog(gszProductName, PlaySFX)) {
 		case MAINMENU_SINGLE_PLAYER:
 			if (mainmenu_single_player())
 				continue;
