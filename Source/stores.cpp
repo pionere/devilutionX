@@ -13,6 +13,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_CONFIRM_NO	20
 
 #define STORE_LIST_FOOTER	21
+#define STORE_SCROLL_UP		4
+#define STORE_SCROLL_DOWN	20
 #define STORE_BACK			22
 
 #define STORE_SMITH_GOSSIP	10
@@ -247,28 +249,34 @@ void DrawSLine(int y)
 		memcpy(dst, src, line);
 }
 
-static void DrawSSlider(int y1, int y2)
+static void DrawSSlider(/*int y1, int y2*/)
 {
-	int x, yd1, yd2, yd3;
+	const int y1 = STORE_SCROLL_UP, y2 = STORE_SCROLL_DOWN;
+	int x, i, yd1, yd2, yd3;
 
-	x = PANEL_X + 601;
-	yd1 = y1 * 12 + 44 + SCREEN_Y + UI_OFFSET_Y;
-	yd2 = y2 * 12 + 44 + SCREEN_Y + UI_OFFSET_Y;
+	assert(QPANEL_X + QPANEL_WIDTH == STORE_PNL_X + STORE_PNL_WIDTH);
+	x = STORE_PNL_X + STORE_PNL_WIDTH - 14; 
+	yd1 = y1 * 12 + 44 + SCREEN_Y + UI_OFFSET_Y; // top position of the scrollbar
+	yd2 = y2 * 12 + 44 + SCREEN_Y + UI_OFFSET_Y; // bottom position of the scrollbar
+	yd3 = (y2 * 12 - y1 * 12 - 24);              // height of the scrollbar
+	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10, 12);
+	// draw the down arrow
 	CelDraw(x, yd2, pSTextSlidCels, stextscrldbtn != -1 ? 11 : 9, 12);
+	// the the bar
 	yd1 += 12;
-	for (yd3 = yd1; yd3 < yd2; yd3 += 12) {
-		CelDraw(x, yd3, pSTextSlidCels, 14, 12);
+	for (i = yd1; i < yd2; i += 12) {
+		CelDraw(x, i, pSTextSlidCels, 14, 12);
 	}
-	if (stextsel == STORE_BACK)
-		yd3 = stextlhold;
-	else
-		yd3 = stextsel;
-	if (storenumh > 1)
-		yd3 = 1000 * (stextsidx + ((yd3 - stextup) >> 2)) / (storenumh - 1) * (y2 * 12 - y1 * 12 - 24) / 1000;
-	else
+	// draw the scroll thumb
+	i = stextsel == STORE_BACK ? stextlhold : stextsel;
+	i = yd3 * (stextsidx + ((i - stextup) >> 2));
+	if (storenumh > 1) {
+		yd3 = i / (storenumh - 1);
+	} else {
 		yd3 = 0;
-	CelDraw(x, (y1 + 1) * 12 + 44 + SCREEN_Y + UI_OFFSET_Y + yd3, pSTextSlidCels, 13, 12);
+	}
+	CelDraw(x, yd1 + yd3, pSTextSlidCels, 13, 12);
 }
 
 void InitSTextHelp()
@@ -1334,7 +1342,7 @@ void DrawStore()
 	}
 
 	if (gbHasScroll)
-		DrawSSlider(4, 20);
+		DrawSSlider();
 }
 
 void STextESC()
