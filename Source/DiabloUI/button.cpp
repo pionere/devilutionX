@@ -1,9 +1,6 @@
 #include "button.h"
 
-#include "DiabloUI/art_draw.h"
-//#include "DiabloUI/errorart.h"
-#include "DiabloUI/text_draw.h"
-#include "utils/display.h"
+#include "DiabloUI/art.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

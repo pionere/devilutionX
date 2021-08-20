@@ -1,7 +1,8 @@
 #include "art.h"
 
-#include "all.h"
 #include "utils/display.h"
+#include "utils/sdl_compat.h"
+#include "storm/storm.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

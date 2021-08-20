@@ -1,5 +1,7 @@
 #include "selconn.h"
 
+#include "all.h"
+
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_net.h"

@@ -1,12 +1,11 @@
 #include "dialogs.h"
 
+#include "all.h"
 #include "controls/menu_controls.h"
-#include "dx.h"
 #include "DiabloUI/button.h"
 #include "DiabloUI/diabloui.h"
 //#include "DiabloUI/errorart.h"
 #include "DiabloUI/fonts.h"
-#include "utils/display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

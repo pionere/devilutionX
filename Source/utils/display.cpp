@@ -8,6 +8,8 @@
 #include "platform/ctr/display.hpp"
 #endif
 
+#include "all.h"
+
 #include "DiabloUI/diabloui.h"
 #include "control.h"
 #include "controls/controller.h"

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "all.h"
+#include <SDL.h>
+#include "../types.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

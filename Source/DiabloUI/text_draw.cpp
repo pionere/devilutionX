@@ -1,5 +1,7 @@
 #include "text_draw.h"
 
+#include "all.h"
+
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/fonts.h"

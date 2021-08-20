@@ -1,7 +1,10 @@
 #include "art_draw.h"
 
+#include "all.h"
+
 #include "DiabloUI/diabloui.h"
 #include "utils/display.h"
+#include "utils/sdl_compat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

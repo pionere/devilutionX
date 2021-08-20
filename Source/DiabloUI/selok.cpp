@@ -1,5 +1,7 @@
 #include "selok.h"
 
+#include "all.h"
+
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 

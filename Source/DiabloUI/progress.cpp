@@ -1,3 +1,6 @@
+
+#include "all.h"
+
 #include "controls/menu_controls.h"
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/button.h"

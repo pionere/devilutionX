@@ -1,5 +1,8 @@
+
 #include <stdexcept>
 #include "config.h"
+#include "all.h"
+
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/selconn.h"
