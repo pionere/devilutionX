@@ -337,13 +337,28 @@ static void AddSText(int x, int y, bool j, const char *str, BYTE clr, bool sel)
 	ss->_ssel = sel;
 }
 
-static void PrintStoreItem(const ItemStruct *is, int l, BYTE iclr)
+static BYTE StoreItemColor(const ItemStruct* is)
+{
+	if (!is->_iStatFlag)
+		return COL_RED;
+	if (is->_iMagical == ITEM_QUALITY_MAGIC)
+		return COL_BLUE;
+	if (is->_iMagical == ITEM_QUALITY_UNIQUE)
+		return COL_GOLD;
+	return COL_WHITE;
+}
+
+static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 {
 	int cursor;
+	BYTE iclr = StoreItemColor(is);
 	char sstr[128];
+
+	AddSText(20, l, false, ItemName(is), iclr, sel);
 
 	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified)
 		return;
+	l++;
 	cursor = 0;
 	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 		if (is->_iPrePower != IPL_INVALID) {
@@ -425,30 +440,17 @@ static void S_StartSmith()
 	AddSLine(5);
 }
 
-static BYTE StoreItemColor(ItemStruct *is)
-{
-	if (!is->_iStatFlag)
-		return COL_RED;
-	if (is->_iMagical == ITEM_QUALITY_MAGIC)
-		return COL_BLUE;
-	if (is->_iMagical == ITEM_QUALITY_UNIQUE)
-		return COL_GOLD;
-	return COL_WHITE;
-}
-
-static BYTE StorePrepareItemBuy(ItemStruct *is)
+static void StorePrepareItemBuy(ItemStruct *is)
 {
 	ItemStatOk(mypnum, is);
 	if (is->_iMagical != ITEM_QUALITY_NORMAL)
 		is->_iIdentified = TRUE;
-	return StoreItemColor(is);
 }
 
 static void S_ScrollSBuy()
 {
 	ItemStruct *is;
 	int l;
-	BYTE iclr;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
@@ -456,10 +458,9 @@ static void S_ScrollSBuy()
 	is = &smithitem[stextsidx];
 	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
-			iclr = StorePrepareItemBuy(is);
-			AddSText(20, l, false, is->_iName, iclr, true);
+			StorePrepareItemBuy(is);
+			PrintStoreItem(is, l, true);
 			AddSTextVal(l, is->_iIvalue);
-			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
 			is++;
 		}
@@ -505,7 +506,6 @@ static void S_ScrollSPBuy()
 {
 	ItemStruct* is;
 	int idx, l, boughtitems;
-	BYTE iclr;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
@@ -518,10 +518,9 @@ static void S_ScrollSPBuy()
 	for (l = STORE_LIST_FIRST; l < 20 && idx < SMITH_PREMIUM_ITEMS; ) {
 		is = &premiumitems[idx];
 		if (is->_itype != ITYPE_NONE) {
-			iclr = StorePrepareItemBuy(is);
-			AddSText(20, l, false, is->_iName, iclr, true);
+			StorePrepareItemBuy(is);
+			PrintStoreItem(is, l, true);
 			AddSTextVal(l, is->_iIvalue);
-			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
 			l += 4;
 		}
@@ -600,7 +599,6 @@ static void S_ScrollSSell()
 {
 	ItemStruct* is;
 	int idx, l;
-	BYTE iclr;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
@@ -609,10 +607,8 @@ static void S_ScrollSSell()
 	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
 		is = &storehold[idx];
 		if (is->_itype != ITYPE_NONE) {
-			iclr = StoreItemColor(is);
-			AddSText(20, l, false, ItemName(is), iclr, true);
+			PrintStoreItem(is, l, true);
 			AddSTextVal(l, is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified ? is->_iIvalue : is->_ivalue);
-			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
 		}
 		idx++;
@@ -742,7 +738,6 @@ static void S_ScrollWBuy()
 {
 	ItemStruct *is;
 	int l;
-	BYTE iclr;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
@@ -750,10 +745,9 @@ static void S_ScrollWBuy()
 	is = &witchitem[stextsidx];
 	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
-			iclr = StorePrepareItemBuy(is);
-			AddSText(20, l, false, is->_iName, iclr, true);
+			StorePrepareItemBuy(is);
+			PrintStoreItem(is, l, true);
 			AddSTextVal(l, is->_iIvalue);
-			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
 			is++;
 		}
@@ -909,15 +903,11 @@ static void S_StartWait()
 
 static void S_StartConfirm()
 {
-	BYTE iclr;
-
 	StartStore(stextshold);
 	gbHasScroll = false;
 	ClearSText(STORE_LIST_FIRST, STORE_LINES);
-	iclr = StoreItemColor(&storeitem);
-	AddSText(20, 8, false, ItemName(&storeitem), iclr, false);
+	PrintStoreItem(&storeitem, 8, false);
 	AddSTextVal(8, storeitem._iIvalue);
-	PrintStoreItem(&storeitem, 9, iclr);
 
 	switch (stextshold) {
 	case STORE_BBOY:
@@ -975,8 +965,6 @@ static void S_StartBoy()
 
 static void S_StartBBoy()
 {
-	BYTE iclr;
-
 	gbWidePanel = true;
 	gbHasScroll = false;
 	snprintf(tempstr, sizeof(tempstr), "I have this item for sale:                Your gold: %d", myplr._pGold);
@@ -984,10 +972,9 @@ static void S_StartBBoy()
 	AddSLine(3);
 	AddSLine(21);
 
-	iclr = StorePrepareItemBuy(&boyitem);
-	AddSText(20, STORE_BOY_BUY, false, ItemName(&boyitem), iclr, true);
+	StorePrepareItemBuy(&boyitem);
+	PrintStoreItem(&boyitem, STORE_BOY_BUY, true);
 	AddSTextVal(STORE_BOY_BUY, boyitem._iIvalue);
-	PrintStoreItem(&boyitem, 11, iclr);
 	AddSText(0, 22, true, "Leave", COL_WHITE, true);
 	OffsetSTextY(22, 6);
 }
@@ -1010,7 +997,6 @@ static void S_ScrollHBuy()
 {
 	ItemStruct* is;
 	int l;
-	BYTE iclr;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
@@ -1018,10 +1004,9 @@ static void S_ScrollHBuy()
 	is = &healitem[stextsidx];
 	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
-			iclr = StorePrepareItemBuy(is);
-			AddSText(20, l, false, is->_iName, iclr, true);
+			StorePrepareItemBuy(is);
+			PrintStoreItem(is, l, true);
 			AddSTextVal(l, is->_iIvalue);
-			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
 			is++;
 		}
@@ -1120,8 +1105,6 @@ static void S_StartSIdentify()
 
 static void S_StartIdShow()
 {
-	BYTE iclr;
-
 	//assert(stextshold == STORE_SIDENTIFY);
 	//StartStore(STORE_SIDENTIFY);
 	//ClearSText(STORE_LIST_FIRST, STORE_LINES);
@@ -1129,12 +1112,9 @@ static void S_StartIdShow()
 	//gbWidePanel = true;
 	gbHasScroll = false;
 
-	iclr = StoreItemColor(&storeitem);
-
 	AddSLine(3);
 	AddSText(0, 7, true, "This item is:", COL_WHITE, false);
-	AddSText(20, 11, false, ItemName(&storeitem), iclr, false);
-	PrintStoreItem(&storeitem, 12, iclr);
+	PrintStoreItem(&storeitem, 11, false);
 	AddSText(0, 18, true, "Done", COL_WHITE, true);
 	AddSLine(21);
 }
