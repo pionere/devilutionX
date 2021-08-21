@@ -305,13 +305,7 @@ void InitSTextHelp()
 
 static void AddSLine(int y)
 {
-	STextStruct *ss;
-
-	ss = &stextlines[y];
-	ss->_sx = 0;
-	ss->_syoff = 0;
-	ss->_sstr[0] = 0;
-	ss->_sline = true;
+	stextlines[y]._sline = true;
 }
 
 static void AddSTextVal(int y, int val)
@@ -1283,6 +1277,7 @@ void StartStore(int s)
 
 void DrawStore()
 {
+	STextStruct* sts;
 	int i;
 
 	if (gbWidePanel)
@@ -1318,10 +1313,11 @@ void DrawStore()
 	}
 
 	for (i = 0; i < STORE_LINES; i++) {
-		if (stextlines[i]._sline)
+		sts = &stextlines[i];
+		if (sts->_sline)
 			DrawSLine(i);
-		if (stextlines[i]._sstr[0] != '\0')
-			PrintSString(stextlines[i]._sx, i, stextlines[i]._sjust, stextlines[i]._sstr, stextlines[i]._sclr, stextlines[i]._sval);
+		if (sts->_sstr[0] != '\0')
+			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, sts->_sclr, sts->_sval);
 	}
 
 	if (gbHasScroll)
