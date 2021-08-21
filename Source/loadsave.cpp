@@ -458,7 +458,8 @@ static void LoadPlayer(int pnum)
 	/*Skip to Calc
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
-	tbuff += 2; // Alignment
+	tbuff += 1; // _pHasUnidItem
+	tbuff += 1; // Alignment
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam
@@ -1175,7 +1176,8 @@ static void SavePlayer(int pnum)
 	/*Skip to Calc
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
-	tbuff += 2; // Alignment
+	tbuff += 1; // _pHasUnidItem
+	tbuff += 1; // Alignment
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam

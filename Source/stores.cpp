@@ -342,8 +342,10 @@ static void PrintStoreItem(const ItemStruct *is, int l, BYTE iclr)
 	int cursor;
 	char sstr[128];
 
+	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified)
+		return;
 	cursor = 0;
-	if (is->_iIdentified) {
+	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 		if (is->_iPrePower != IPL_INVALID) {
 			PrintItemPower(is->_iPrePower, is);
 			cat_str(sstr, cursor, "%s", tempstr);

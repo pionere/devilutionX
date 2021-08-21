@@ -326,6 +326,7 @@ typedef struct PlayerStruct {
 	int _pGold;
 	BOOLEAN _pInfraFlag;
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
+	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
 	int _pISlMinDam;
 	int _pISlMaxDam;
 	int _pIBlMinDam;

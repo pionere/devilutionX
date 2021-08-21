@@ -461,6 +461,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	int i;
 
+	BOOL idi = TRUE; // items are identified
+
 	int tac = 0;  // armor class
 	int btohit = 0; // bonus chance to hit
 
@@ -519,7 +521,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			cdmod = 0;
 			cdmodp = 0;
 
-			if (pi->_iMagical != ITEM_QUALITY_NORMAL && pi->_iIdentified) {
+			if (pi->_iMagical != ITEM_QUALITY_NORMAL) {
+				idi &= pi->_iIdentified;
 				btohit += pi->_iPLToHit;
 				iflgs |= pi->_iFlags;
 
@@ -602,6 +605,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	plr._pIFlags = iflgs;
 	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
+	plr._pHasUnidItem = !idi;
 	plr._pIGetHit = ghit << 6;
 	plr._pIEnAc = enac;
 	plr._pISplLvlAdd = spllvladd;
@@ -920,11 +924,11 @@ static void CalcItemReqs(int pnum)
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			pi->_iStatFlag = TRUE;
-			if (pi->_iIdentified) {
+			//if (pi->_iIdentified) {
 				sa += pi->_iPLStr;
 				ma += pi->_iPLMag;
 				da += pi->_iPLDex;
-			}
+			//}
 		}
 	}
 	do {
@@ -935,11 +939,11 @@ static void CalcItemReqs(int pnum)
 				if (sa < pi->_iMinStr || ma < pi->_iMinMag || da < pi->_iMinDex) {
 					changeflag = true;
 					pi->_iStatFlag = FALSE;
-					if (pi->_iIdentified) {
+					//if (pi->_iIdentified) {
 						sa -= pi->_iPLStr;
 						ma -= pi->_iPLMag;
 						da -= pi->_iPLDex;
-					}
+					//}
 				}
 			}
 		}
@@ -3315,6 +3319,11 @@ void DrawInvItemDetails()
 	// add separator
 	DrawULine(x);
 	y += 30;
+	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified) {
+		copy_cstr(tempstr, "Not Identified");
+		PrintItemString(x, y);
+		return;
+	}
 	if (is->_iClass == ICLASS_GOLD) {
 		snprintf(tempstr, sizeof(tempstr), "%d gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 		PrintItemString(x, y);
@@ -3343,21 +3352,16 @@ void DrawInvItemDetails()
 		y += 12 * 2;
 	}
 	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-		if (is->_iIdentified) {
-			if (is->_iPrePower != IPL_INVALID) {
-				PrintItemPower(is->_iPrePower, is);
-				PrintItemString(x, y);
-			}
-			if (is->_iSufPower != IPL_INVALID) {
-				PrintItemPower(is->_iSufPower, is);
-				PrintItemString(x, y);
-			}
-			if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
-				DrawUniqueInfo(is, x, y);
-			}
-		} else {
-			copy_cstr(tempstr, "Not Identified");
+		if (is->_iPrePower != IPL_INVALID) {
+			PrintItemPower(is->_iPrePower, is);
 			PrintItemString(x, y);
+		}
+		if (is->_iSufPower != IPL_INVALID) {
+			PrintItemPower(is->_iSufPower, is);
+			PrintItemString(x, y);
+		}
+		if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
+			DrawUniqueInfo(is, x, y);
 		}
 	}
 	PrintItemMiscInfo(is, x, y);
