@@ -527,7 +527,8 @@ static bool GoldAutoPlace(int pnum, ItemStruct *is)
 	}
 }
 
-/*bool WeaponAutoPlace(int pnum, ItemStruct *is, bool saveflag)
+/* commented out because _pmode might be out of sync in multiplayer games
+bool WeaponAutoPlace(int pnum, ItemStruct *is, bool saveflag)
 {
 	if (!is->_iStatFlag || is->_iClass != ICLASS_WEAPON)
 		return false;
@@ -810,9 +811,6 @@ void InvPasteItem(int pnum, BYTE r)
 		return;
 	}
 
-	if (pnum == mypnum)
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[holditem->_iCurs]]);
-
 	cn = CURSOR_HAND;
 	switch (il) {
 	case ILOC_HELM:
@@ -956,13 +954,15 @@ void InvPasteItem(int pnum, BYTE r)
 		ASSUME_UNREACHABLE
 	}
 	CalcPlrInv(pnum, p->_pDunLevel == currLvl._dLevelIdx && !p->_pLvlChanging);
-	if (cn == CURSOR_HAND) {
+	if (cn == CURSOR_HAND)
 		holditem->_itype = ITYPE_NONE;
-		if (pnum == mypnum)
+	if (pnum == mypnum) {
+		PlaySFX(ItemInvSnds[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]]);
+		if (cn == CURSOR_HAND) {
 			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
-	}
-	if (pnum == mypnum)
+		}
 		NewCursor(cn);
+	}
 }
 
 static void CheckBeltPaste()
@@ -1008,7 +1008,7 @@ void InvPasteBeltItem(int pnum, BYTE r)
 
 	CalcPlrScrolls(pnum);
 	if (pnum == mypnum) {
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[is->_iCurs]]);
+		PlaySFX(ItemInvSnds[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]]);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 		if (cn == CURSOR_HAND)
 			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
@@ -1033,15 +1033,12 @@ static void CheckInvCut(bool bShift)
 
 void InvCutItem(int pnum, BYTE r, bool bShift)
 {
-	PlayerStruct* p;
 	ItemStruct* pi;
 	int i, ii;
-
-	p = &plr;
 	// TODO: validate on server side?
-	if (p->_pmode == PM_DEATH)
+	if (plr._pmode == PM_DEATH)
 		return;
-	if (p->_pHoldItem._itype != ITYPE_NONE)
+	if (plr._pHoldItem._itype != ITYPE_NONE)
 		return;
 
 	switch (r) {
@@ -1059,23 +1056,23 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 		static_assert((int)INVITEM_HAND_LEFT == (int)INVLOC_HAND_LEFT, "Switch of CheckInvCut expects matching enum values V.");
 		static_assert((int)INVITEM_HAND_RIGHT == (int)INVLOC_HAND_RIGHT, "Switch of CheckInvCut expects matching enum values VI.");
 		static_assert((int)INVITEM_CHEST == (int)INVLOC_CHEST, "Switch of CheckInvCut expects matching enum values VII.");
-		pi = &p->_pInvBody[r];
+		pi = &plr._pInvBody[r];
 		break;
 	default:
 		static_assert(INVITEM_CHEST + 1 == INVITEM_INV_FIRST, "InvCutItem expects the storage items after the normal items.");
 		static_assert(INVITEM_INV_LAST + 1 == INVITEM_BELT_FIRST, "InvCutItem expects the storage items before the belt items.");
 		if (/*r >= INVITEM_INV_FIRST &&*/ r <= INVITEM_INV_LAST) {
 			ii = r - INVITEM_INV_FIRST;
-			pi = &p->_pInvList[ii];
+			pi = &plr._pInvList[ii];
 			if (pi->_itype == ITYPE_PLACEHOLDER) {
 				ii = pi->_iPHolder;
-				pi = &p->_pInvList[ii];
+				pi = &plr._pInvList[ii];
 			}
 
 			for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-				if (p->_pInvList[i]._itype == ITYPE_PLACEHOLDER
-				 && p->_pInvList[i]._iPHolder == ii) {
-					p->_pInvList[i]._itype = ITYPE_NONE;
+				if (plr._pInvList[i]._itype == ITYPE_PLACEHOLDER
+				 && plr._pInvList[i]._iPHolder == ii) {
+					plr._pInvList[i]._itype = ITYPE_NONE;
 				}
 			}
 			if (bShift && pi->_itype != ITYPE_NONE && AutoPlaceBelt(pnum, pi, true)) {
@@ -1086,7 +1083,7 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 			// TODO: validate on server side?
 			if ((unsigned)r >= MAXBELTITEMS)
 				return;
-			pi = &p->_pSpdList[r];
+			pi = &plr._pSpdList[r];
 			if (bShift && pi->_itype != ITYPE_NONE && AutoPlaceInv(pnum, pi, true)) {
 				//gbRedrawFlags |= REDRAW_SPEED_BAR;
 				pi->_itype = ITYPE_NONE;
@@ -1097,16 +1094,16 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 
 	if (pi->_itype == ITYPE_NONE)
 		return;
-	copy_pod(p->_pHoldItem, *pi);
+	copy_pod(plr._pHoldItem, *pi);
 	pi->_itype = ITYPE_NONE;
-	if (p->_pHoldItem._itype == ITYPE_GOLD)
+	if (plr._pHoldItem._itype == ITYPE_GOLD)
 		CalculateGold(pnum);
 	else
 		CalcPlrInv(pnum, plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
 
 	if (pnum == mypnum) {
 		PlaySFX(IS_IGRAB);
-		NewCursor(p->_pHoldItem._iCurs + CURSOR_FIRSTITEM);
+		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
 		SetCursorPos(MouseX - (cursW >> 1), MouseY - (cursH >> 1));
 	}
 }
