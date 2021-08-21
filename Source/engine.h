@@ -56,8 +56,6 @@ void LoadFileWithMem(const char *pszName, BYTE *p);
 
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
-void trans_rect(int sx, int sy, int width, int height);
-
 void PlayInGameMovie(const char *pszMovie);
 
 inline int RandRange(int minVal, int maxVal)

@@ -35,7 +35,6 @@ extern int level_piece_id;
 
 void ClearCursor();
 void CalcViewportGeometry();
-void ClearScreenBuffer();
 #ifdef _DEBUG
 void ScrollView();
 #endif

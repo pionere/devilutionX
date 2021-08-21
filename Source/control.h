@@ -59,7 +59,6 @@ void DrawInfoStr();
 bool CheckChrBtns();
 void ReleaseChrBtns();
 void DrawDurIcon();
-void RedBack();
 void DrawSpellBook();
 void SelectBookSkill(bool shift, bool altSkill);
 const char *get_pieces_str(int nGold);

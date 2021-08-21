@@ -1761,25 +1761,6 @@ void DrawDurIcon()
 	DrawDurIcon4Item(&inv[INVLOC_HAND_RIGHT], x, 0);
 }
 
-void RedBack()
-{
-	assert(gpBuffer != NULL);
-
-	int w, h;
-	BYTE *dst, *tbl;
-	bool inHell = currLvl._dType == DTYPE_HELL;
-
-	dst = &gpBuffer[SCREENXY(0, 0)];
-	tbl = LightTrns[LIGHTIDX_CORAL];
-	for (h = VIEWPORT_HEIGHT; h > 0; h--, dst += BUFFER_WIDTH - SCREEN_WIDTH) {
-		for (w = SCREEN_WIDTH; w > 0; w--) {
-			if (!inHell || *dst >= 32)
-				*dst = tbl[*dst];
-			dst++;
-		}
-	}
-}
-
 static char GetSBookTrans(int sn)
 {
 	PlayerStruct *p;

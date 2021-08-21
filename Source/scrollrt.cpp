@@ -1265,20 +1265,6 @@ static void DrawView()
 	//}
 }
 
-/**
- * @brief Render the whole screen black
- */
-void ClearScreenBuffer()
-{
-	lock_buf(3);
-
-	assert(back_surface != NULL);
-
-	SDL_FillRect(back_surface, NULL, 0x000000);
-
-	unlock_buf(3);
-}
-
 #ifdef _DEBUG
 /**
  * @brief Scroll the screen when mouse is close to the edge
