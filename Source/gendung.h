@@ -14,7 +14,7 @@ extern "C" {
 
 extern BYTE dungeon[DMAXX][DMAXY];
 extern BYTE pdungeon[DMAXX][DMAXY];
-extern BYTE dflags[DMAXX][DMAXY];
+extern BYTE drlgFlags[DMAXX][DMAXY];
 extern int setpc_x;
 extern int setpc_y;
 extern int setpc_w;

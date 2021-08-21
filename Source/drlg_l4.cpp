@@ -3,7 +3,7 @@
  *
  * Implementation of the hell level generation algorithms.
  *
- * dflags matrix is used as a BOOLEAN matrix to protect the quest room and the quads in HELL4.
+ * drlgFlags matrix is used as a BOOLEAN matrix to protect the quest room and the quads in HELL4.
  */
 #include "all.h"
 
@@ -194,7 +194,7 @@ static void DRLG_L4Shadows()
 static void InitL4Dungeon()
 {
 	memset(dung, 0, sizeof(dung));
-	memset(dflags, 0, sizeof(dflags));
+	memset(drlgFlags, 0, sizeof(drlgFlags));
 
 	//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in InitL4Dungeon.");
 	//memset(dungeon, 30, sizeof(dungeon));
@@ -235,7 +235,7 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : 6;
-			dflags[i][j] = TRUE; //|= DLRG_PROTECTED;
+			drlgFlags[i][j] = TRUE; //|= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}
@@ -347,7 +347,7 @@ static bool L4AddHWall(int x, int y)
 		bv = dungeon[i][y];
 		if (bv != 6)
 			break;
-		if (dflags[i][y])
+		if (drlgFlags[i][y])
 			break;
 		if (dungeon[i][y - 1] != 6)
 			break;
@@ -449,7 +449,7 @@ static void L4AddVWall(int x, int y)
 		bv = dungeon[x][j];
 		if (bv != 6)
 			break;
-		if (dflags[x][j])
+		if (drlgFlags[x][j])
 			break;
 		if (dungeon[x - 1][j] != 6)
 			break;
@@ -474,7 +474,7 @@ static void L4AddWall()
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (dflags[i][j]) {
+			if (drlgFlags[i][j]) {
 				continue;
 			}
 			checkVert = false;
@@ -971,7 +971,7 @@ static void DRLG_L4Subs()
 		for (x = 0; x < DMAXX; x++) {
 			if (random_(0, 3) == 0) {
 				c = L4BTYPES[dungeon[x][y]];
-				if (c != 0 && !dflags[x][y]) {
+				if (c != 0 && !drlgFlags[x][y]) {
 					rv = random_(0, 16);
 					i = -1;
 					while (rv >= 0) {
@@ -991,7 +991,7 @@ static void DRLG_L4Subs()
 	for (y = 0; y < DMAXY; y++) {
 		for (x = 0; x < DMAXX; x++) {
 			if (random_(0, 10) == 0) {
-				if (L4BTYPES[dungeon[x][y]] == 6 && !dflags[x][y]) {
+				if (L4BTYPES[dungeon[x][y]] == 6 && !drlgFlags[x][y]) {
 					dungeon[x][y] = RandRange(95, 97);
 				}
 			}
@@ -1256,10 +1256,10 @@ static void L4firstRoom()
 
 	for (j = y; j < y + 14; j++) {
 		for (i = x; i < x + 14; i++) {
-			dflags[i][j] = TRUE;
-			dflags[DMAXX - 1 - i][j] = TRUE;
-			dflags[i][DMAXY - 1 - j] = TRUE;
-			dflags[DMAXX - 1 - i][DMAXY - 1 - j] = TRUE;
+			drlgFlags[i][j] = TRUE;
+			drlgFlags[DMAXX - 1 - i][j] = TRUE;
+			drlgFlags[i][DMAXY - 1 - j] = TRUE;
+			drlgFlags[DMAXX - 1 - i][DMAXY - 1 - j] = TRUE;
 		}
 	}
 }*/
@@ -1276,7 +1276,7 @@ static void DRLG_L4SetRoom(int rx1, int ry1)
 	for (j = ry1; j < ry2; j++) {
 		for (i = rx1; i < rx2; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : 6;
-			dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
+			drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}
@@ -1947,7 +1947,7 @@ void CreateL4Dungeon(int entry)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				dungeon[i][j] = SwapLE16(*lm);
-				dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
+				drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 6;
 			}

@@ -12,7 +12,7 @@ BYTE dungeon[DMAXX][DMAXY];
 /** Contains a backup of the tile IDs of the map. */
 BYTE pdungeon[DMAXX][DMAXY];
 /** Represents a tile ID map of twice the size, repeating each tile of the original map in blocks of 4. */
-BYTE dflags[DMAXX][DMAXY];
+BYTE drlgFlags[DMAXX][DMAXY];
 /** Specifies the active set level X-coordinate of the map. */
 int setpc_x;
 /** Specifies the active set level Y-coordinate of the map. */
@@ -210,7 +210,7 @@ void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper)
 
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
-			if (dungeon[i][j] == search && dflags[i][j] == 0 && random_(0, 128) < rv) {
+			if (dungeon[i][j] == search && drlgFlags[i][j] == 0 && random_(0, 128) < rv) {
 				dungeon[i][j] = replace;
 			}
 		}
@@ -240,7 +240,7 @@ POS32 DRLG_PlaceMiniSet(const BYTE *miniset)
 				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 					done = false;
 				}
-				if (dflags[xx][yy]) {
+				if (drlgFlags[xx][yy]) {
 					done = false;
 				}
 				ii++;

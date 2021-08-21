@@ -3,7 +3,7 @@
  *
  * Implementation of the catacombs level generation algorithms.
  *
- * dflags matrix is used as a BOOLEAN matrix to protect the quest room.
+ * drlgFlags matrix is used as a BOOLEAN matrix to protect the quest room.
  */
 
 #include "all.h"
@@ -1588,7 +1588,7 @@ static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
 					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 						found = false;
 					}
-					if (dflags[xx][yy]) {
+					if (drlgFlags[xx][yy]) {
 						found = false;
 					}
 					ii++;
@@ -1626,7 +1626,7 @@ static void DRLG_L2Subs()
 
 	for (x = 2; x < DMAXX - 2; x++) {
 		for (y = 2; y < DMAXY - 2; y++) {
-			if (dflags[x][y])
+			if (drlgFlags[x][y])
 				continue;
 			if (random_(0, 4) == 0) {
 				c = L2BTYPES[dungeon[x][y]];
@@ -1695,7 +1695,7 @@ static void DRLG_L2Shadows()
 
 static void DRLG_L2InitDungeon()
 {
-	memset(dflags, 0, sizeof(dflags));
+	memset(drlgFlags, 0, sizeof(drlgFlags));
 
 	static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L2InitDungeon.");
 	memset(pdungeon, 32, sizeof(pdungeon));
@@ -1738,7 +1738,7 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : 3;
-			dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
+			drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}
@@ -2898,7 +2898,7 @@ static void L2LockoutFix()
 	// make sure there is a (single) door on the horizontal walls
 	for (j = 1; j < DMAXY - 1; j++) {
 		for (i = 1; i < DMAXX - 1; i++) {
-			if (dflags[i][j] != 0) {
+			if (drlgFlags[i][j] != 0) {
 				continue;
 			}
 			doorok = dungeon[i][j] == 5;
@@ -2911,13 +2911,13 @@ static void L2LockoutFix()
 						break;
 					}
 					if (dungeon[i][j] == 5) {
-						if (doorok && !dflags[i][j])
+						if (doorok && !drlgFlags[i][j])
 							dungeon[i][j] = 2;
 						doorok = true;
 					} else if (dungeon[i][j] != 2)
 						break;
 				}
-				if (!doorok && !dflags[i - 1][j]) {
+				if (!doorok && !drlgFlags[i - 1][j]) {
 					dungeon[i - 1][j] = 5;
 				}
 			}
@@ -2926,7 +2926,7 @@ static void L2LockoutFix()
 	// make sure there is a (single) door on the vertical walls
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
-			if (dflags[i][j]) {
+			if (drlgFlags[i][j]) {
 				continue;
 			}
 			doorok = dungeon[i][j] == 4;
@@ -2939,13 +2939,13 @@ static void L2LockoutFix()
 						break;
 					}
 					if (dungeon[i][j] == 4) {
-						if (doorok && !dflags[i][j])
+						if (doorok && !drlgFlags[i][j])
 							dungeon[i][j] = 1;
 						doorok = true;
 					} else if (dungeon[i][j] != 1)
 						break;
 				}
-				if (!doorok && !dflags[i][j - 1]) {
+				if (!doorok && !drlgFlags[i][j - 1]) {
 					dungeon[i][j - 1] = 4;
 				}
 			}
@@ -2986,7 +2986,7 @@ static void L2DoorFix2()
 
 	for (i = 1; i < DMAXX - 1; i++) {
 		for (j = 1; j < DMAXY - 1; j++) {
-			if (dungeon[i][j] != 4 || dflags[i][j])
+			if (dungeon[i][j] != 4 || drlgFlags[i][j])
 				continue;
 			if (IsPillar(dungeon[i][j + 1])) {
 				//3, 1, 3,  search
@@ -3268,7 +3268,7 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 	//DRLG_InitTrans();
 	pMap = LoadFileInMem(sFileName);
 
-	memset(dflags, 0, sizeof(dflags));
+	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, 12, sizeof(dungeon));
 
@@ -3282,7 +3282,7 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				dungeon[i][j] = SwapLE16(*lm);
-				dflags[i][j] |= DLRG_PROTECTED;
+				drlgFlags[i][j] |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 3;
 			}
