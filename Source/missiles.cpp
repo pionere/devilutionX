@@ -20,13 +20,12 @@ const int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to Y-offset. */
 const int YDirAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
-void GetDamageAmt(int sn, int *minv, int *maxv)
+void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 {
-	int k, sl, magic, plrlvl, mind, maxd;
+	int k, magic, plrlvl, mind, maxd;
 
 	assert((unsigned)mypnum < MAX_PLRS);
 	assert((unsigned)sn < NUM_SPELLS);
-	sl = GetSpellLevel(mypnum, sn);
 	magic = myplr._pMagic;
 	plrlvl = myplr._pLevel;
 

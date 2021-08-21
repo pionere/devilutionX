@@ -1799,8 +1799,8 @@ static char GetSBookTrans(int sn)
 
 void DrawSpellBook()
 {
-	PlayerStruct* p;
-	int i, sn, mana, lvl, sx, yp, offset, min, max;
+	ItemStruct* pi;
+	int pnum, i, sn, mana, lvl, sx, yp, offset;
 	char st;
 	uint64_t spl;
 
@@ -1812,8 +1812,8 @@ void DrawSpellBook()
 
 	currSkill = SPL_INVALID;
 
-	p = &myplr;
-	spl = p->_pMemSkills | p->_pISpells | p->_pAblSkills;
+	pnum = mypnum;
+	spl = plr._pMemSkills | plr._pISpells | plr._pAblSkills;
 
 	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
 	sx = RIGHT_PANEL_X + SBOOK_CELBORDER;
@@ -1828,14 +1828,16 @@ void DrawSpellBook()
 				currSkill = sn;
 				currSkillType = st;
 			}
+			lvl = GetSpellLevel(pnum, sn);
+			assert(lvl >= 0);
+			mana = 0;
 			switch (st) {
 			case RSPLTYPE_ABILITY:
 				copy_cstr(tempstr, "Skill");
-				mana = 0;
 				break;
 			case RSPLTYPE_CHARGES:
-				snprintf(tempstr, sizeof(tempstr), "Staff (%i charges)", p->_pInvBody[INVLOC_HAND_LEFT]._iCharges);
-				mana = 0;
+				pi = &plr._pInvBody[INVLOC_HAND_LEFT];
+				snprintf(tempstr, sizeof(tempstr), "Charges %d/%d", pi->_iCharges, pi->_iMaxCharges);
 				break;
 			case RSPLTYPE_SPELL:
 			case RSPLTYPE_INVALID:
@@ -1845,13 +1847,14 @@ void DrawSpellBook()
 				} else {
 					copy_cstr(tempstr, "Spell Level 0 - Unusable");
 				}
-				mana = GetManaAmount(mypnum, sn) >> 6;
+				mana = GetManaAmount(pnum, sn) >> 6;
 				break;
 			default:
 				ASSUME_UNREACHABLE
 				break;
 			}
-			GetDamageAmt(sn, &min, &max);
+			int min, max;
+			GetDamageAmt(sn, lvl, &min, &max);
 			offset = mana == 0 && min == -1 ? 5 : 0;
 			PrintString(sx + SBOOK_LINE_TAB, yp - 23 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, spelldata[sn].sNameText, false, COL_WHITE, 1);
 			PrintString(sx + SBOOK_LINE_TAB, yp - 12 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
@@ -1864,13 +1867,13 @@ void DrawSpellBook()
 				PrintString(sx + SBOOK_LINE_TAB, yp - 1, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
 			}
 
-			if ((spelldata[sn].sFlags & p->_pSkillFlags) != spelldata[sn].sFlags)
+			if ((spelldata[sn].sFlags & plr._pSkillFlags) != spelldata[sn].sFlags)
 				st = RSPLTYPE_INVALID;
 			SetSpellTrans(st);
 			DrawSpellCel(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
-			if ((sn == p->_pAltAtkSkill && st == p->_pAltAtkSkillType)
-			 || (sn == p->_pAltMoveSkill && st == p->_pAltMoveSkillType)) {
+			if ((sn == plr._pAltAtkSkill && st == plr._pAltAtkSkillType)
+			 || (sn == plr._pAltMoveSkill && st == plr._pAltMoveSkillType)) {
 				SetSpellTrans(RSPLTYPE_ABILITY);
 				DrawSpellCel(sx, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELWIDTH);
 			}

@@ -18,7 +18,7 @@ extern MissileStruct missile[MAXMISSILES];
 extern int nummissiles;
 extern bool gbMissilePreFlag;
 
-void GetDamageAmt(int sn, int *mind, int *maxd);
+void GetDamageAmt(int sn, int sl, int *mind, int *maxd);
 unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxdam);
 int CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam);
 void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hdam);
