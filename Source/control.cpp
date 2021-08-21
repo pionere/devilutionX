@@ -56,7 +56,7 @@ bool gbDropGoldFlag;
 /** Golddrop background CEL */
 BYTE *pGBoxBuff;
 /** The gold-stack index which is used as a source in Golddrop. */
-int initialDropGoldIndex;
+BYTE initialDropGoldIndex;
 /** The gold-stack size which is used as a source in Golddrop. */
 int initialDropGoldValue;
 /** The current value in Golddrop. */

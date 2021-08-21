@@ -17,7 +17,7 @@ extern int gnManaPer;
 extern bool gbDropGoldFlag;
 extern int dropGoldValue;
 extern int initialDropGoldValue;
-extern int initialDropGoldIndex;
+extern BYTE initialDropGoldIndex;
 extern bool gbChrbtnactive;
 extern BYTE infoclr;
 extern char infostr[256];
