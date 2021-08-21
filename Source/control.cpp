@@ -246,16 +246,15 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 
 	switch (st) {
 	case RSPLTYPE_ABILITY:
-		break;
+		return;
 	case RSPLTYPE_SPELL:
 		if (lvl > 0) {
 			snprintf(tempstr, sizeof(tempstr), "lvl%02d", lvl);
 			t = COL_WHITE;
 		} else {
-			snprintf(tempstr, sizeof(tempstr), "X");
+			copy_cstr(tempstr, "X");
 			t = COL_RED;
 		}
-		PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, true, t, 1);
 		break;
 	case RSPLTYPE_SCROLL:
 		v = 0;
@@ -274,20 +273,21 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 			}
 		}
 		snprintf(tempstr, sizeof(tempstr), "%d", v);
-		PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, true, COL_WHITE, 1);
+		t = COL_WHITE;
 		break;
 	case RSPLTYPE_CHARGES:
 		snprintf(tempstr, sizeof(tempstr), "%d/%d",
 			myplr._pInvBody[INVLOC_HAND_LEFT]._iCharges,
 			myplr._pInvBody[INVLOC_HAND_LEFT]._iMaxCharges);
-		PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, true, COL_WHITE, 1);
+		t = COL_WHITE;
 		break;
 	case RSPLTYPE_INVALID:
-		break;
+		return;
 	default:
 		ASSUME_UNREACHABLE
-		break;
+		return;
 	}
+	PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, true, t, 1);
 }
 
 static void DrawSkillIcon(BYTE spl, BYTE st, BYTE offset)
@@ -386,14 +386,13 @@ static bool MoveToSkill(PlayerStruct* p, int sn, int st)
 
 void DrawSkillList()
 {
-	PlayerStruct *p;
-	int i, j, x, y, /*c,*/ sl, sn, st, lx, ly;
+	int pnum, i, j, x, y, /*c,*/ sl, sn, st, lx, ly;
 	uint64_t mask;
 
 	currSkill = SPL_INVALID;
 	x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
 	y = PANEL_Y - 17;
-	p = &myplr;
+	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
 	static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
@@ -401,19 +400,19 @@ void DrawSkillList()
 	for (i = 0; i < 4; i++) {
 		switch (i) {
 		case RSPLTYPE_ABILITY:
-			mask = p->_pAblSkills;
+			mask = plr._pAblSkills;
 			//c = SPLICONLAST + 3;
 			break;
 		case RSPLTYPE_SPELL:
-			mask = p->_pMemSkills;
+			mask = plr._pMemSkills;
 			//c = SPLICONLAST + 4;
 			break;
 		case RSPLTYPE_SCROLL:
-			mask = p->_pScrlSkills;
+			mask = plr._pScrlSkills;
 			//c = SPLICONLAST + 1;
 			break;
 		case RSPLTYPE_CHARGES:
-			mask = p->_pISpells;
+			mask = plr._pISpells;
 			//c = SPLICONLAST + 2;
 			break;
 		default:
@@ -433,10 +432,10 @@ void DrawSkillList()
 			}
 			st = i;
 			if (i == RSPLTYPE_SPELL) {
-				sl = GetSpellLevel(mypnum, j);
+				sl = GetSpellLevel(pnum, j);
 				st = sl > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 			}
-			if ((spelldata[j].sFlags & p->_pSkillFlags) != spelldata[j].sFlags)
+			if ((spelldata[j].sFlags & plr._pSkillFlags) != spelldata[j].sFlags)
 				st = RSPLTYPE_INVALID;
 			SetSpellTrans(st);
 			DrawSpellCel(x, y, pSpellCels, spelldata[j].sIcon, SPLICONLENGTH);
@@ -464,12 +463,12 @@ void DrawSkillList()
 				DrawSpellIconOverlay(x, y, sn, st, sl);
 
 				DrawSkillIconHotKey(x, y, sn, st, 4,
-					p->_pAtkSkillHotKey, p->_pAtkSkillTypeHotKey,
-					p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey);
+					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
+					plr._pMoveSkillHotKey, plr._pMoveSkillTypeHotKey);
 
 				DrawSkillIconHotKey(x, y, sn, st, SPLICONLENGTH - 18, 
-					p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey,
-					p->_pAltMoveSkillHotKey, p->_pAltMoveSkillTypeHotKey);
+					plr._pAltAtkSkillHotKey, plr._pAltAtkSkillTypeHotKey,
+					plr._pAltMoveSkillHotKey, plr._pAltMoveSkillTypeHotKey);
 			}
 			x -= SPLICONLENGTH;
 			if (x == PANEL_X + 12 - SPLICONLENGTH) {
