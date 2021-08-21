@@ -453,15 +453,16 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	ItemStruct *pi;
 	ItemStruct *wRight, *wLeft;
 
-	int tac = 0;  // armor class
+	BYTE gfx;		// graphics
+	int wt;			// weapon-type
+	bool bf;		// blockflag
+	int av;			// arrow velocity bonus
+	unsigned pdmod;	// player damage mod
 
-	BYTE gfx;    // graphics
-	int wt; // weapon-type
-	bool bf;     // blockflag
 	int i;
 
+	int tac = 0;  // armor class
 	int btohit = 0; // bonus chance to hit
-	int av;			// arrow velocity bonus
 
 	int iflgs = ISPL_NONE; // item_special_effect flags
 
@@ -479,7 +480,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// temporary values to calculate armor class/damage of the current item
 	int cac, cdmod, cdmodp, mindam, maxdam;
-	unsigned pdmod; // player damage mod
 	int ghit = 0;   // increased damage from enemies
 	BYTE manasteal = 0;
 	BYTE lifesteal = 0;
@@ -3316,27 +3316,27 @@ void DrawInvItemDetails()
 	DrawULine(x);
 	y += 30;
 	if (is->_iClass == ICLASS_GOLD) {
-		snprintf(tempstr, sizeof(tempstr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
+		snprintf(tempstr, sizeof(tempstr), "%d gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 		PrintItemString(x, y);
 	} else if (is->_iClass == ICLASS_WEAPON) {
 		if (is->_iMinDam == is->_iMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "Damage: %i", is->_iMinDam);
+			snprintf(tempstr, sizeof(tempstr), "Damage: %d", is->_iMinDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "Damage: %i-%i", is->_iMinDam, is->_iMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "Damage: %d-%d", is->_iMinDam, is->_iMaxDam);
 		PrintItemString(x, y);
 		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
-			snprintf(tempstr, sizeof(tempstr), "Durability: %i/%i", is->_iDurability, is->_iMaxDur);
+			snprintf(tempstr, sizeof(tempstr), "Durability: %d/%d", is->_iDurability, is->_iMaxDur);
 			PrintItemString(x, y);
 		}
 		if (is->_iMaxCharges != 0) {
-			snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
+			snprintf(tempstr, sizeof(tempstr), "Charges: %d/%d", is->_iCharges, is->_iMaxCharges);
 			PrintItemString(x, y);
 		}
 	} else if (is->_iClass == ICLASS_ARMOR) {
-		snprintf(tempstr, sizeof(tempstr), "Armor: %i", is->_iAC);
+		snprintf(tempstr, sizeof(tempstr), "Armor: %d", is->_iAC);
 		PrintItemString(x, y);
 		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
-			snprintf(tempstr, sizeof(tempstr), "Durability: %i/%i", is->_iDurability, is->_iMaxDur);
+			snprintf(tempstr, sizeof(tempstr), "Durability: %d/%d", is->_iDurability, is->_iMaxDur);
 			PrintItemString(x, y);
 		}
 	} else {
