@@ -82,7 +82,7 @@ void InitHelp()
 
 static const char* ReadHelpLine(const char* str)
 {
-	const int limit = QPANEL_WIDTH - 2 * 7;
+	const int limit = LTPANEL_WIDTH - 2 * 7;
 	int w;
 	BYTE c;
 
@@ -111,10 +111,10 @@ void DrawHelp()
 	BYTE col;
 	const char *s;
 
-	DrawQTextBack();
+	DrawTextBox();
 
 	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);
-	DrawSLine(5);
+	DrawTextBoxSLine(LTPANEL_X, 5 * 12 + 14, true);
 
 	s = &gszHelpText[0];
 

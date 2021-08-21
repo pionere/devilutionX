@@ -62,9 +62,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_ID_PRICE			100
 #define STORE_BOY_PRICE			50
 
-BYTE *pSTextBoxCels;
-BYTE *pSTextSlidCels;
-
 /* Temporary item to store the current item while in store. */
 static ItemStruct storeitem;
 /* The item for sale by Wirt. */
@@ -150,12 +147,10 @@ static void ClearSText(int s, int e)
 	}
 }
 
-void InitStoreGFX()
+void InitStoresOnce()
 {
 	int i;
 
-	pSTextBoxCels = LoadFileInMem("Data\\TextBox2.CEL");
-	pSTextSlidCels = LoadFileInMem("Data\\TextSlid.CEL");
 	ClearSText(0, STORE_LINES);
 	stextflag = STORE_NONE;
 	gbWidePanel = false;
@@ -182,7 +177,7 @@ static int StoresLimitedItemLvl()
 	return l;
 }
 
-void InitStores()
+void InitLvlStores()
 {
 	int l;
 
@@ -195,18 +190,6 @@ void InitStores()
 	SpawnPremium(l);
 }
 
-void FreeStoreGFX()
-{
-	MemFreeDbg(pSTextBoxCels);
-	MemFreeDbg(pSTextSlidCels);
-}
-
-static void DrawSTextBack()
-{
-	CelDraw(STORE_PNL_X, 327 + SCREEN_Y + UI_OFFSET_Y, pSTextBoxCels, 1, STORE_PNL_WIDTH);
-	trans_rect(STORE_PNL_X + 3, SCREEN_Y + UI_OFFSET_Y + 28, STORE_PNL_WIDTH - 2 * 3, 297);
-}
-
 void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int val)
 {
 	int sx, sy, px;
@@ -214,9 +197,9 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 	BYTE c;
 	char valstr[32];
 
-	sx = (gbWidePanel ? QPANEL_X + 7 : STORE_PNL_X + 7) + x;
-	sy = 44 + SCREEN_Y + UI_OFFSET_Y + y * 12 + stextlines[y]._syoff;
-	limit = gbWidePanel ? QPANEL_WIDTH - 7 * 2 : STORE_PNL_WIDTH - 7 * 2;
+	sx = (gbWidePanel ? LTPANEL_X + 7 : STORE_PNL_X + 7) + x;
+	sy = LTPANEL_Y + 20 + y * 12 + stextlines[y]._syoff;
+	limit = gbWidePanel ? LTPANEL_WIDTH - 7 * 2 : STPANEL_WIDTH - 7 * 2;
 	if (cjustflag) {
 		width = GetStringWidth(str);
 		if (width < limit) {
@@ -242,40 +225,13 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 	}
 }
 
-void DrawSLine(int y)
-{
-	int sxy, dxy, width, line;
-
-	width = BUFFER_WIDTH;
-	sxy = SCREENXY(PANEL_LEFT + 26, 25 + UI_OFFSET_Y);
-	dxy = SCREENXY(PANEL_LEFT + 26, y * 12  + 38 + UI_OFFSET_Y);
-	if (gbWidePanel) {
-		line = QPANEL_WIDTH - 4; // BUGFIX: should be 587, not 586 (fixed)
-	} else {
-		sxy += QPANEL_WIDTH - STORE_PNL_WIDTH;
-		dxy += QPANEL_WIDTH - STORE_PNL_WIDTH;
-		line = STORE_PNL_WIDTH - 4; // BUGFIX: should be 267, not 266 (fixed)
-	}
-
-	/// ASSERT: assert(gpBuffer != NULL);
-
-	int i;
-	BYTE *src, *dst;
-
-	src = &gpBuffer[sxy];
-	dst = &gpBuffer[dxy];
-
-	for (i = 0; i < 3; i++, src += width, dst += width)
-		memcpy(dst, src, line);
-}
-
 static void DrawSSlider(/*int y1, int y2*/)
 {
 	const int y1 = STORE_SCROLL_UP, y2 = STORE_SCROLL_DOWN;
 	int x, i, yd1, yd2, yd3;
 
-	assert(QPANEL_X + QPANEL_WIDTH == STORE_PNL_X + STORE_PNL_WIDTH);
-	x = STORE_PNL_X + STORE_PNL_WIDTH - 14; 
+	assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
+	x = STORE_PNL_X + STPANEL_WIDTH - 14; 
 	yd1 = y1 * 12 + 44 + SCREEN_Y + UI_OFFSET_Y; // top position of the scrollbar
 	yd2 = y2 * 12 + 44 + SCREEN_Y + UI_OFFSET_Y; // bottom position of the scrollbar
 	yd3 = (y2 * 12 - y1 * 12 - 24);              // height of the scrollbar
@@ -1281,9 +1237,9 @@ void DrawStore()
 	int i;
 
 	if (gbWidePanel)
-		DrawQTextBack();
+		DrawTextBox();
 	else
-		DrawSTextBack();
+		DrawSTextBox(STORE_PNL_X/*, LTPANEL_Y*/);
 
 	if (gbHasScroll) {
 		switch (stextflag) {
@@ -1315,7 +1271,7 @@ void DrawStore()
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		if (sts->_sline)
-			DrawSLine(i);
+			DrawTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
 			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, sts->_sclr, sts->_sval);
 	}
@@ -2474,15 +2430,15 @@ void CheckStoreBtn()
 			stream_stop();
 	} else if (stextsel != -1 && stextflag != STORE_WAIT) {
 		if (gbWidePanel) {
-			if (MouseX < QPANEL_X - SCREEN_X || MouseX > QPANEL_X + QPANEL_WIDTH - SCREEN_X)
+			if (MouseX < LTPANEL_X - SCREEN_X || MouseX > LTPANEL_X + LTPANEL_WIDTH - SCREEN_X)
 				return;
 		} else {
-			if (MouseX < STORE_PNL_X - SCREEN_X || MouseX > STORE_PNL_X + STORE_PNL_WIDTH - SCREEN_X)
+			if (MouseX < STORE_PNL_X - SCREEN_X || MouseX > STORE_PNL_X + STPANEL_WIDTH - SCREEN_X)
 				return;
 		}
 		y = (MouseY - (32 + UI_OFFSET_Y)) / 12;
-		assert(QPANEL_X + QPANEL_WIDTH == STORE_PNL_X + STORE_PNL_WIDTH);
-		if (MouseX >= STORE_PNL_X + STORE_PNL_WIDTH - 14 - SCREEN_X && gbHasScroll) {
+		assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
+		if (MouseX >= STORE_PNL_X + STPANEL_WIDTH - 14 - SCREEN_X && gbHasScroll) {
 			if (stextsmax != 0 && y >= STORE_SCROLL_UP && y <= STORE_SCROLL_DOWN) {
 				if (y == STORE_SCROLL_DOWN) {
 					// down arrow

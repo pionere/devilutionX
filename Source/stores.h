@@ -12,10 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-/** Shop frame graphics */
-extern BYTE *pSTextBoxCels;
-/** Scrollbar graphics */
-extern BYTE *pSTextSlidCels;
 /** Currently active store */
 extern BYTE stextflag;
 
@@ -36,11 +32,9 @@ extern ItemStruct witchitem[WITCH_ITEMS];
 /** Items sold by Pepin */
 extern ItemStruct healitem[HEALER_ITEMS];
 
-void InitStoreGFX();
-void InitStores();
-void FreeStoreGFX();
+void InitStoresOnce();
+void InitLvlStores();
 void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int val = -1);
-void DrawSLine(int y);
 void InitSTextHelp();
 void StartStore(int s);
 void DrawStore();

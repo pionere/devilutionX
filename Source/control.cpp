@@ -22,6 +22,12 @@ BYTE *pFlasks;
 int gnHPPer;
 /** Specifies how much the mana flask is filled (percentage). */
 int gnManaPer;
+/** Graphics for the (transparent) text box */
+BYTE* pTextBoxCels;
+/** Graphics for the (transparent) small text box */
+BYTE* pSTextBoxCels;
+/** Graphics for the scrollbar of text boxes. */
+BYTE* pSTextSlidCels;
 /** Low-Durability images CEL */
 BYTE *pDurIcons;
 
@@ -863,6 +869,10 @@ void InitControlPan()
 	for (i = 0; i < lengthof(_gabChrbtn); i++)
 		_gabChrbtn[i] = false;
 	gbChrbtnactive = false;
+
+	pTextBoxCels = LoadFileInMem("Data\\TextBox.CEL");
+	pSTextBoxCels = LoadFileInMem("Data\\TextBox2.CEL");
+	pSTextSlidCels = LoadFileInMem("Data\\TextSlid.CEL");
 	pDurIcons = LoadFileInMem("Items\\DurIcons.CEL");
 	infostr[0] = '\0';
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
@@ -1102,6 +1112,9 @@ void FreeControlPan()
 	MemFreeDbg(pTalkPnl);
 	MemFreeDbg(pTalkBtns);
 	MemFreeDbg(pChrButtons);
+	MemFreeDbg(pSTextBoxCels);
+	MemFreeDbg(pSTextSlidCels);
+	MemFreeDbg(pTextBoxCels);
 	MemFreeDbg(pDurIcons);
 	MemFreeDbg(pSpellBkCel);
 	MemFreeDbg(pSBkIconCels);
@@ -1710,6 +1723,64 @@ void ReleaseChrBtns()
 			}
 		}
 	}
+}
+
+/**
+ * @brief Draw a large text box with transparent background.
+ *  used as background to quest dialog window and in stores.
+ */
+void DrawTextBox()
+{
+	int x, y;
+
+	x = LTPANEL_X;
+	y = LTPANEL_Y;
+
+	CelDraw(x, y + TPANEL_HEIGHT, pTextBoxCels, 1, LTPANEL_WIDTH);
+	trans_rect(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
+}
+
+/**
+ * @brief Draw a small text box with transparent background.
+ *  used as background to items and in stores.
+ * @param x: the starting x-coordinate of the text box
+ * @param y: the starting y-coordinate of the text box (unused)
+ */
+void DrawSTextBox(int x/*, int y*/)
+{
+	int y = LTPANEL_Y;
+
+	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1, STPANEL_WIDTH);
+	trans_rect(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
+}
+
+/**
+ * @brief Draw a separator line into the text box.
+ *  used with items and in stores.
+ * @param x: the starting x-coordinate of the text box
+ * @param y: the starting y-coordinate of the text box (unused)
+ * @param dy: the distance from the top of the box where the separator should be drawn
+ * @param widePanel: true if large text box is used, false if small text box
+ */
+void DrawTextBoxSLine(int x, /*int y,*/ int dy, bool widePanel)
+{
+	int sxy, dxy, width, length;
+	
+	width = BUFFER_WIDTH;
+	sxy = x + 2 + width * (LTPANEL_Y + 1);
+	dxy = x + 2 + width * (LTPANEL_Y + dy);
+	length = widePanel ? LTPANEL_WIDTH - 4 : STPANEL_WIDTH - 4;
+
+	/// ASSERT: assert(gpBuffer != NULL);
+
+	int i;
+	BYTE *src, *dst;
+
+	src = &gpBuffer[sxy];
+	dst = &gpBuffer[dxy];
+
+	for (i = 0; i < TPANEL_BORDER; i++, src += width, dst += width)
+		memcpy(dst, src, length);
 }
 
 static int DrawDurIcon4Item(ItemStruct *pItem, int x, int c)

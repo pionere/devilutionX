@@ -3084,20 +3084,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	}
 }
 
-static void DrawULine(int x)
-{
-	assert(gpBuffer != NULL);
-
-	int i;
-	BYTE *src, *dst;
-
-	src = &gpBuffer[x - 6 + (SCREEN_Y + 25) * BUFFER_WIDTH];
-	dst = &gpBuffer[x - 6 + (SCREEN_Y + 5 * 12 + 38) * BUFFER_WIDTH];
-
-	for (i = 0; i < 3; i++, src += BUFFER_WIDTH, dst += BUFFER_WIDTH)
-		memcpy(dst, src, 267);
-}
-
 static void PrintItemString(int x, int &y)
 {
 	PrintString(x, y, x + 257, tempstr, true, COL_WHITE, 1);
@@ -3305,19 +3291,23 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 
 void DrawInvItemDetails()
 {
-	ItemStruct* is = PlrItem(mypnum, pcursinvitem);
-	int x = SCREEN_X + (RIGHT_PANEL - 271) / 2 + 8;
-	int y = SCREEN_Y + 44 + 24;
+	ItemStruct* is;
+	int x = SCREEN_X + (RIGHT_PANEL - STPANEL_WIDTH) / 2;
+	int y = LTPANEL_Y;
 
 	// draw the background
-	CelDraw(x - 8, SCREEN_Y + 327, pSTextBoxCels, 1, 271);
-	trans_rect(x - 5, SCREEN_Y + 28, 265, 297);
+	DrawSTextBox(x/*, y*/);
 
+	// add separator
+	DrawTextBoxSLine(x, 74, false);
+
+	x += 8;
+	y += 44;
+
+	is = PlrItem(mypnum, pcursinvitem);
 	// print the name as title
 	PrintItemString(x, y, ItemName(is), ItemColor(is));
 
-	// add separator
-	DrawULine(x);
 	y += 30;
 	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified) {
 		copy_cstr(tempstr, "Not Identified");

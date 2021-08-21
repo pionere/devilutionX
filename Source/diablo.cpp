@@ -1515,8 +1515,8 @@ static WNDPROC InitGameUI()
 	InitInv(); // gfx + values
 	InitGMenu(); // gfx
 	InitQuestGFX(); // gfx + values
-	InitQuestText(); // gfx + values
-	InitStoreGFX(); // gfx + values (some stored in savefiles)
+	InitQuestText(); // values
+	InitStoresOnce(); // values (some stored in savefiles)
 	for (i = 0; i < (IsLocalGame ? 1 : MAX_PLRS); i++)
 		InitPlrGFXMem(i); // gfx
 	InitItemGFX(); // gfx + values (some stored in savefiles)
@@ -1553,8 +1553,6 @@ static void FreeGameUI()
 	FreeInvGFX();
 	FreeGMenu();
 	FreeQuestGFX();
-	FreeQuestText();
-	FreeStoreGFX();
 
 	for (i = 0; i < MAX_PLRS; i++)
 		FreePlayerGFX(i);

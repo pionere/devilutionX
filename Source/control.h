@@ -12,6 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+/** Scrollbar graphics */
+extern BYTE* pSTextSlidCels;
+
 extern int gnHPPer;
 extern int gnManaPer;
 extern bool gbDropGoldFlag;
@@ -58,6 +61,9 @@ void DrawLevelUpIcon();
 void DrawInfoStr();
 bool CheckChrBtns();
 void ReleaseChrBtns();
+void DrawTextBox();
+void DrawSTextBox(int x/*, int y*/);
+void DrawTextBoxSLine(int x, int dy, bool widePanel);
 void DrawDurIcon();
 void DrawSpellBook();
 void SelectBookSkill(bool shift, bool altSkill);

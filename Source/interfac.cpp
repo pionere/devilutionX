@@ -301,7 +301,7 @@ void LoadGameLevel(int lvldir)
 			IncProgress();
 			InitObjectGFX();
 		} else {
-			InitStores();
+			InitLvlStores();
 			IncProgress();
 			IncProgress();
 		}

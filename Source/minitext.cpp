@@ -17,17 +17,9 @@ Uint32 qtextTime;
 bool gbQtextflag;
 /** Vertical speed of the scrolling text in ms/px */
 int scrolltexty;
-/** Graphics for the window border */
-BYTE *pTextBoxCels;
-
-void FreeQuestText()
-{
-	MemFreeDbg(pTextBoxCels);
-}
 
 void InitQuestText()
 {
-	pTextBoxCels = LoadFileInMem("Data\\TextBox.CEL");
 	gbQtextflag = false;
 }
 
@@ -41,7 +33,7 @@ void InitQTextMsg(int m, bool showText)
 		ClearPanels();
 		gbQtextflag = true;
 		qtextptr = tds->txtstr;
-		qtexty = 340 + SCREEN_Y + UI_OFFSET_Y;
+		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;
 		scrolltexty = tds->txtspd;
 		qtextTime = SDL_GetTicks();
 	}
@@ -50,15 +42,6 @@ void InitQTextMsg(int m, bool showText)
 		sfxnr = sgSFXSets[sfxnr][myplr._pClass];
 	}
 	PlaySFX(sfxnr);
-}
-
-/**
- * @brief Draw the quest dialog window decoration and background
- */
-void DrawQTextBack()
-{
-	CelDraw(QPANEL_X, SCREEN_Y + 327 + UI_OFFSET_Y, pTextBoxCels, 1, QPANEL_WIDTH);
-	trans_rect(QPANEL_X + 3, SCREEN_Y + UI_OFFSET_Y + 28, QPANEL_WIDTH - 2 * 3, 297);
 }
 
 void DrawQText()
@@ -70,14 +53,14 @@ void DrawQText()
 	Uint32 currTime;
 	BYTE *pStart, *pEnd;
 
-	DrawQTextBack();
+	DrawTextBox();
 
 	/// ASSERT: assert(gpBuffer != NULL);
 	// TODO: create a function in engine to draw with a given height? (similar to DrawFlask2 in control.cpp)
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (49 + SCREEN_Y + UI_OFFSET_Y)];
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * (LTPANEL_Y + 25)];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (309 + SCREEN_Y + UI_OFFSET_Y)];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (LTPANEL_Y + TPANEL_HEIGHT - 18)];
 
 	str = qtextptr;
 	pnl = NULL;
@@ -99,11 +82,11 @@ void DrawQText()
 			len += mfontkern[c] + 2;
 			if (c == 0) // allow wordwrap on blank glyph
 				endstr = sstr;
-			else if (len >= QPANEL_WIDTH - 2 * 24)
+			else if (len >= LTPANEL_WIDTH - 2 * 24)
 				break;
 		}
 
-		tx = QPANEL_X + 24;
+		tx = LTPANEL_X + 24;
 		while (str < endstr) {
 			c = mfontframe[gbFontTransTbl[(BYTE)*str++]];
 			if (c != 0) {
@@ -115,7 +98,7 @@ void DrawQText()
 			pnl = endstr;
 		}
 		ty += 38;
-		if (ty > 341 + SCREEN_Y + UI_OFFSET_Y) {
+		if (ty > LTPANEL_Y + TPANEL_HEIGHT + 14) {
 			break;
 		}
 	}
@@ -127,7 +110,7 @@ void DrawQText()
 		if (gbGamePaused)
 			continue;
 		qtexty--;
-		if (qtexty <= 49 + SCREEN_Y + UI_OFFSET_Y) {
+		if (qtexty <= LTPANEL_Y + 25) {
 			qtexty += 38;
 			qtextptr = pnl;
 			if (*pnl == '\0') {
