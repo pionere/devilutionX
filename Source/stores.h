@@ -42,7 +42,6 @@ void FreeStoreGFX();
 void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int val = -1);
 void DrawSLine(int y);
 void InitSTextHelp();
-void ClearSText(int s, int e);
 void StartStore(int s);
 void DrawStore();
 void STextESC();

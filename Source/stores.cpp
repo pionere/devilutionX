@@ -134,6 +134,22 @@ const char *const talkname[] = {
 	"Wirt"
 };
 
+static void ClearSText(int s, int e)
+{
+	int i;
+
+	for (i = s; i < e; i++) {
+		stextlines[i]._sx = 0;
+		stextlines[i]._syoff = 0;
+		stextlines[i]._sstr[0] = '\0';
+		stextlines[i]._sjust = false;
+		stextlines[i]._sclr = COL_WHITE;
+		stextlines[i]._sline = false;
+		stextlines[i]._ssel = false;
+		stextlines[i]._sval = -1;
+	}
+}
+
 void InitStoreGFX()
 {
 	int i;
@@ -284,22 +300,6 @@ void InitSTextHelp()
 	stextsel = -1;
 	gbWidePanel = true;
 	assert(gbHasScroll == false);
-}
-
-void ClearSText(int s, int e)
-{
-	int i;
-
-	for (i = s; i < e; i++) {
-		stextlines[i]._sx = 0;
-		stextlines[i]._syoff = 0;
-		stextlines[i]._sstr[0] = 0;
-		stextlines[i]._sjust = false;
-		stextlines[i]._sclr = COL_WHITE;
-		stextlines[i]._sline = false;
-		stextlines[i]._ssel = false;
-		stextlines[i]._sval = -1;
-	}
 }
 
 static void AddSLine(int y)
