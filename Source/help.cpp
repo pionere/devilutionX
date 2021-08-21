@@ -7,8 +7,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int helpFirstLine;
 bool gbHelpflag;
+int helpFirstLine;
 int HelpTop;
 
 const char gszHelpText[] = {
@@ -111,7 +111,6 @@ void DrawHelp()
 	BYTE col;
 	const char *s;
 
-	InitSTextHelp();
 	DrawQTextBack();
 
 	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);
@@ -148,15 +147,18 @@ void DrawHelp()
 			s++;
 		}
 	}
-
+	static_assert(STORE_LINES > 23, "Help text must fit to the store lines.");
 	PrintSString(0, 23, true, "Press ESC to end or the arrow keys to scroll.", COL_GOLD);
 }
 
 void DisplayHelp()
 {
-	helpFirstLine = 0;
 	gbHelpflag = true;
+
+	helpFirstLine = 0;
 	HelpTop = 5000;
+
+	InitSTextHelp();
 }
 
 void HelpScrollUp()

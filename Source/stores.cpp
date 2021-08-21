@@ -299,7 +299,8 @@ void InitSTextHelp()
 {
 	stextsel = -1;
 	gbWidePanel = true;
-	assert(gbHasScroll == false);
+	//assert(gbHasScroll == false); - not necessary since it is not used in PrintSString
+	ClearSText(0, STORE_LINES); // necessary to reset the _syoff values
 }
 
 static void AddSLine(int y)
