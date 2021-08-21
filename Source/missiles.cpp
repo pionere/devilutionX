@@ -20,38 +20,38 @@ const int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to Y-offset. */
 const int YDirAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
-void GetDamageAmt(int sn, int *mind, int *maxd)
+void GetDamageAmt(int sn, int *minv, int *maxv)
 {
-	PlayerStruct *p;
-	int k, sl;
+	int k, sl, magic, plrlvl, mind, maxd;
 
 	assert((unsigned)mypnum < MAX_PLRS);
 	assert((unsigned)sn < NUM_SPELLS);
 	sl = GetSpellLevel(mypnum, sn);
-	p = &myplr;
+	magic = myplr._pMagic;
+	plrlvl = myplr._pLevel;
 
 	switch (sn) {
 	case SPL_FIREBOLT:
-		k = (p->_pMagic >> 3) + sl;
-		*mind = k + 1;
-		*maxd = k + 10;
+		k = (magic >> 3) + sl;
+		mind = k + 1;
+		maxd = k + 10;
 		break;
 #ifdef HELLFIRE
 	case SPL_RUNELIGHT:
 #endif
 	case SPL_LIGHTNING:
-		*mind = 1;
-		*maxd = ((p->_pMagic + (sl << 3)) * (6 + (sl >> 1))) >> 3;
+		mind = 1;
+		maxd = ((magic + (sl << 3)) * (6 + (sl >> 1))) >> 3;
 		break;
 	case SPL_FLASH:
-		*mind = p->_pMagic >> 1;
+		mind = magic >> 1;
 		for (k = 0; k < sl; k++)
-			*mind += *mind >> 3;
+			mind += mind >> 3;
 
-		*mind *= 19;
-		*maxd = *mind << 3;
-		*mind >>= 6;
-		*maxd >>= 6;
+		mind *= 19;
+		maxd = mind << 3;
+		mind >>= 6;
+		maxd >>= 6;
 		break;
 	case SPL_NULL:
 	case SPL_WALK:
@@ -81,95 +81,95 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	case SPL_WHITTLE:
 	case SPL_RUNESTONE:
 #endif
-		*mind = -1;
-		*maxd = -1;
+		mind = -1;
+		maxd = -1;
 		break;
 #ifdef HELLFIRE
 	case SPL_FIRERING:
 #endif
 	case SPL_FIREWALL:
-		*mind = ((p->_pMagic >> 3) + sl + 5) << (-3 + 5);
-		*maxd = ((p->_pMagic >> 3) + sl * 2 + 10) << (-3 + 5);
+		mind = ((magic >> 3) + sl + 5) << (-3 + 5);
+		maxd = ((magic >> 3) + sl * 2 + 10) << (-3 + 5);
 		break;
 	case SPL_FIREBALL:
-		*mind = (p->_pMagic >> 2) + 10;
-		*maxd = *mind + 10;
+		mind = (magic >> 2) + 10;
+		maxd = mind + 10;
 		for (k = 0; k < sl; k++) {
-			*mind += *mind >> 3;
-			*maxd += *maxd >> 3;
+			mind += mind >> 3;
+			maxd += maxd >> 3;
 		}
 		break;
 	case SPL_GUARDIAN:
-		k = (p->_pMagic >> 3) + sl;
-		*mind = k + 1;
-		*maxd = k + 10;
+		k = (magic >> 3) + sl;
+		mind = k + 1;
+		maxd = k + 10;
 		break;
 	case SPL_CHAIN:
-		*mind = 1;
-		*maxd = p->_pMagic;
+		mind = 1;
+		maxd = magic;
 		break;
 #ifdef HELLFIRE
 	case SPL_RUNEWAVE:
 #endif
 	case SPL_WAVE:
-		*mind = ((p->_pMagic >> 3) + sl + 1) * 4;
-		*maxd = ((p->_pMagic >> 3) + 2 * sl + 2) * 4;
+		mind = ((magic >> 3) + sl + 1) * 4;
+		maxd = ((magic >> 3) + 2 * sl + 2) * 4;
 		break;
 #ifdef HELLFIRE
 	case SPL_RUNENOVA:
 #endif
 	case SPL_NOVA:
-		*mind = 1;
-		*maxd = (p->_pMagic >> 1) + (sl << 4);
+		mind = 1;
+		maxd = (magic >> 1) + (sl << 4);
 		break;
 	case SPL_INFERNO:
-		*mind = (p->_pMagic * 20) >> 6;
-		*maxd = ((p->_pMagic + (sl << 4)) * 30) >> 6;
+		mind = (magic * 20) >> 6;
+		maxd = ((magic + (sl << 4)) * 30) >> 6;
 		break;
 	case SPL_GOLEM:
-		*mind = 2 * sl + 8;
-		*maxd = 2 * sl + 16;
+		mind = 2 * sl + 8;
+		maxd = 2 * sl + 16;
 		break;
 	case SPL_ELEMENTAL:
-		*mind = (p->_pMagic >> 3) + 2 * sl + 4;
-		*maxd = (p->_pMagic >> 3) + 4 * sl + 20;
+		mind = (magic >> 3) + 2 * sl + 4;
+		maxd = (magic >> 3) + 4 * sl + 20;
 		for (k = 0; k < sl; k++) {
-			*mind += *mind >> 3;
-			*maxd += *maxd >> 3;
+			mind += mind >> 3;
+			maxd += maxd >> 3;
 		}
 		break;
 	case SPL_CBOLT:
-		*mind = 1;
-		*maxd = (p->_pMagic >> 2) + (sl << 2);
+		mind = 1;
+		maxd = (magic >> 2) + (sl << 2);
 		break;
 	case SPL_HBOLT:
-		*mind = (p->_pMagic >> 2) + sl;
-		*maxd = *mind + 9;
+		mind = (magic >> 2) + sl;
+		maxd = mind + 9;
 		break;
 	case SPL_FLARE:
-		*mind = (p->_pMagic * (sl + 1)) >> 3;
-		*maxd = *mind;
+		mind = (magic * (sl + 1)) >> 3;
+		maxd = mind;
 		break;
 #ifdef HELLFIRE
 	/*case SPL_LIGHTWALL:
-		*mind = 1;
-		*maxd = ((p->_pMagic >> 1) + sl) << (-3 + 5);
+		mind = 1;
+		maxd = ((magic >> 1) + sl) << (-3 + 5);
 		break;
 	case SPL_RUNEWAVE:
 	case SPL_IMMOLAT:
-		*mind = 1 + (p->_pMagic >> 3);
-		*maxd = *mind + 4;
+		mind = 1 + (magic >> 3);
+		maxd = mind + 4;
 		for (k = 0; k < sl; k++) {
-			*mind += *mind >> 3;
-			*maxd += *maxd >> 3;
+			mind += mind >> 3;
+			maxd += maxd >> 3;
 		}
 		break;*/
 	case SPL_RUNEFIRE:
-		*mind = 2 * p->_pLevel + 4;
-		*maxd = *mind + 18;
+		mind = 2 * plrlvl + 4;
+		maxd = mind + 18;
 		for (k = 0; k < sl; k++) {
-			*mind += *mind >> 3;
-			*maxd += *maxd >> 3;
+			mind += mind >> 3;
+			maxd += maxd >> 3;
 		}
 		break;
 #endif
@@ -177,6 +177,9 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		ASSUME_UNREACHABLE
 		break;
 	}
+
+	*minv = mind;
+	*maxv = maxd;
 }
 
 static bool PosOkMissile1(int x, int y)
