@@ -368,18 +368,18 @@ static bool MoveToAtkMoveSkill(int sn, int st, BYTE atk_sn, BYTE atk_st, BYTE mo
 	return sn == SPL_NULL || sn == SPL_INVALID;
 }
 
-static bool MoveToSkill(PlayerStruct* p, int sn, int st)
+static bool MoveToSkill(int pnum, int sn, int st)
 {
 	if (_gbMoveCursor == 0)
 		return false;
 	if (_gbMoveCursor == 1) {
 		return MoveToAtkMoveSkill(sn, st,
-			p->_pAltAtkSkill, p->_pAltAtkSkillType,
-			p->_pAltMoveSkill, p->_pAltMoveSkillType);
+			plr._pAltAtkSkill, plr._pAltAtkSkillType,
+			plr._pAltMoveSkill, plr._pAltMoveSkillType);
 	} else {
 		return MoveToAtkMoveSkill(sn, st,
-			p->_pAtkSkill, p->_pAtkSkillType,
-			p->_pMoveSkill, p->_pMoveSkillType);
+			plr._pAtkSkill, plr._pAtkSkillType,
+			plr._pMoveSkill, plr._pMoveSkillType);
 	}
 }
 #endif
@@ -442,7 +442,7 @@ void DrawSkillList()
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-			if (MoveToSkill(p, j, i)) {
+			if (MoveToSkill(pnum, j, i)) {
 				SetCursorPos(lx + SPLICONLENGTH / 2, ly + SPLICONLENGTH / 2);
 			}
 #endif
