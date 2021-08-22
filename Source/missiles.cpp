@@ -2014,7 +2014,7 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	if (spllvl >= 0) {
 		PlaySfxLoc(LS_SENTINEL, dx, dy);
 		if (misource == mypnum)
-			NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, dx, dy, currLvl._dLevelIdx);
+			NetSendCmdLocBParam1(CMD_ACTIVATEPORTAL, dx, dy, currLvl._dLevelIdx);
 		mis->_miVar1 = P_RANGE - mis->_miAnimLen;
 		// mis->_miVar2 = 0;
 	} else {
@@ -2071,9 +2071,9 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 
 	if (misource == mypnum) {
 		if (plx(misource)._pManaShield == 0)
-			NetSendCmdBParam1(true, CMD_SETSHIELD, spllvl);
+			NetSendCmdBParam1(CMD_SETSHIELD, spllvl);
 		else
-			NetSendCmd(true, CMD_REMSHIELD);
+			NetSendCmd(CMD_REMSHIELD);
 	}
 	return MIRES_DELETE;
 }
@@ -2524,7 +2524,7 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 int AddAbility(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (misource == mypnum)
-		NetSendCmdBParam2(true, CMD_DOABILITY, missile[mi]._miType == MIS_IDENTIFY ? TRUE : FALSE, spllvl);
+		NetSendCmdBParam2(CMD_DOABILITY, missile[mi]._miType == MIS_IDENTIFY ? TRUE : FALSE, spllvl);
 	return MIRES_DELETE;
 }
 
@@ -2797,7 +2797,7 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	MissileStruct *mis;
 
 	if (spllvl == mypnum)
-		NetSendCmd(true, CMD_PLRRESURRECT);
+		NetSendCmd(CMD_PLRRESURRECT);
 
 	mis = &missile[mi];
 	mis->_mix = dx;
@@ -3446,7 +3446,7 @@ void MI_Portal(int mi)
 		p = &myplr;
 		if (p->_px == mis->_mix && p->_py == mis->_miy && /*!p->_pLvlChanging && */p->_pmode == PM_STAND && !mis->_miVar3) {
 			mis->_miVar3 = TRUE;
-			NetSendCmdParam1(true, CMD_TWARP, mis->_miSource);
+			NetSendCmdParam1(CMD_TWARP, mis->_miSource);
 		}
 	}
 

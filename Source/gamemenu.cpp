@@ -159,7 +159,7 @@ static void gamemenu_save_game(bool bActivate)
 
 static void gamemenu_restart_town(bool bActivate)
 {
-	NetSendCmd(true, CMD_RETOWN);
+	NetSendCmd(CMD_RETOWN);
 }
 
 static void gamemenu_sound_music_toggle(/*const char *const *names,*/TMenuItem* menu_item, int volume)

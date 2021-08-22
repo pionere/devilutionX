@@ -4031,7 +4031,7 @@ void MAI_SnotSpil(int mnum)
 		if (!IsMultiGame && effect_is_playing(alltext[TEXT_BANNER12].sfxnr))
 			return;
 		if (mon->_mListener == mypnum || !plx(mon->_mListener)._pActive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {
-			NetSendCmd(true, CMD_OPENSPIL);
+			NetSendCmd(CMD_OPENSPIL);
 		}
 		return;
 	case 4:
@@ -4985,7 +4985,7 @@ void TalktoMonster(int mnum, int pnum)
 		} else if (quests[Q_LTBANNER]._qvar1 == 1) {
 			if (PlrHasStorageItem(pnum, IDI_BANNER, &iv)) {
 				mon->mtalkmsg = TEXT_BANNER12;
-				NetSendCmdParam1(true, CMD_QMONSTER, IDI_BANNER);
+				NetSendCmdParam1(CMD_QMONSTER, IDI_BANNER);
 			}
 		} else if (quests[Q_LTBANNER]._qvar1 == 2) {
 			mon->mtalkmsg = TEXT_BANNER12;
@@ -5021,7 +5021,7 @@ void TalktoMonster(int mnum, int pnum)
 				NetSendCmdQuest(Q_VEIL, true);
 		} else if (quests[Q_VEIL]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_GLDNELIX, &iv)) {
 			mon->mtalkmsg = TEXT_VEIL11;
-			NetSendCmdParam1(true, CMD_QMONSTER, IDI_GLDNELIX);
+			NetSendCmdParam1(CMD_QMONSTER, IDI_GLDNELIX);
 		}
 	} else if (mon->_mAi == AI_ZHAR) {
 		if (quests[Q_ZHAR]._qactive == QUEST_INIT) {

@@ -24,8 +24,7 @@ extern uint32_t guDeltaTurn;
 extern unsigned guSendGameDelta;
 extern unsigned player_state[MAX_PLRS];
 
-void NetSendLoPri(BYTE *pbMsg, BYTE bLen);
-void NetSendHiPri(BYTE *pbMsg, BYTE bLen);
+void NetSendChunk(BYTE* pbMsg, BYTE bLen);
 void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE len);
 void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen);
 void multi_process_msgs();

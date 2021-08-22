@@ -1867,7 +1867,7 @@ static void Obj_Trap(int oi)
 	dir = GetDirection(sx, sy, dx, dy);
 	AddMissile(sx, sy, dx, dy, dir, os->_oVar3, 1, -1, 0, 0, 0); // TRAP_MISTYPE
 
-	NetSendCmdParam1(false, CMD_TRAPDISABLE, oi);
+	NetSendCmdParam1(CMD_TRAPDISABLE, oi);
 }
 
 static void Obj_BCrossDamage(int oi)
@@ -2225,7 +2225,7 @@ static void OperateL1Door(int oi, bool sendmsg)
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
+			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
 #ifdef HELLFIRE
 			sfx = currLvl._dType != DTYPE_CRYPT ? IS_DOOROPEN : IS_CROPEN;
@@ -2253,7 +2253,7 @@ static void OperateL1Door(int oi, bool sendmsg)
 
 	if (CloseDoor(oi)) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
+			NetSendCmdParam1(CMD_DOORCLOSE, oi);
 		SyncL1Doors(oi);
 		RedoPlayerVision();
 	}
@@ -2283,7 +2283,7 @@ static void OperateL2Door(int oi, bool sendmsg)
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
+			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
 			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
 			RedoPlayerVision();
@@ -2300,7 +2300,7 @@ static void OperateL2Door(int oi, bool sendmsg)
 
 	if (CloseDoor(oi)) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
+			NetSendCmdParam1(CMD_DOORCLOSE, oi);
 		SyncL2Doors(oi);
 		RedoPlayerVision();
 	}
@@ -2330,7 +2330,7 @@ static void OperateL3Door(int oi, bool sendmsg)
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
+			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
 			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
 			RedoPlayerVision();
@@ -2347,7 +2347,7 @@ static void OperateL3Door(int oi, bool sendmsg)
 
 	if (CloseDoor(oi)) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
+			NetSendCmdParam1(CMD_DOORCLOSE, oi);
 		SyncL3Doors(oi);
 		RedoPlayerVision();
 	}
@@ -2454,7 +2454,7 @@ static void OperateLever(int oi, bool sendmsg)
 	os->_oAnimFrame++;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
@@ -2541,7 +2541,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {
 			NetSendCmdQuest(Q_SCHAMB, true); // recipient should not matter
-			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 		}
 	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
@@ -2587,7 +2587,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 		}
 		if (sendmsg) {
 			NetSendCmdQuest(qn, true);
-			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 		}
 	}
 }
@@ -2608,7 +2608,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
@@ -2648,7 +2648,7 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
 	SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg, false);
@@ -2676,7 +2676,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
 	SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy, sendmsg, false);
@@ -2696,7 +2696,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	pc = plr._pClass;
 	const int typeCurs[NUM_CLASSES][2] = {
@@ -2728,7 +2728,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	os->_oAnimFrame = disable ? FLAMETRAP_INACTIVE_FRAME : FLAMETRAP_ACTIVE_FRAME;
 
 	if (sendmsg)
-		NetSendCmdParam1(true, disable ? CMD_TRAPCLOSE : CMD_TRAPOPEN, oi);
+		NetSendCmdParam1(disable ? CMD_TRAPCLOSE : CMD_TRAPOPEN, oi);
 	for (i = 0; i < numobjects; i++) {
 		on = &objects[objectactive[i]]; //         FLAMETRAP_ID
 		if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
@@ -2751,7 +2751,7 @@ static void OperateSarc(int oi, bool sendmsg)
 	}
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_SARC, os->_ox, os->_oy);
 
@@ -2782,7 +2782,7 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 			return;
 		if (sendmsg)
 			// assert(pnum == mypnum);
-			NetSendCmdParam1(true, CMD_BLOODPASS, oi);
+			NetSendCmdParam1(CMD_BLOODPASS, oi);
 		return;
 	}
 
@@ -2879,7 +2879,7 @@ static void CloseChest(int oi, bool sendmsg)
 	os->_oRndSeed = GetRndSeed();
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_CHESTCLOSE, oi);
+		NetSendCmdParam1(CMD_CHESTCLOSE, oi);
 }
 
 /** Raise the skill of the given player for the price of 10% of their maximum mana
@@ -3115,7 +3115,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	}
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	SetRndSeed(os->_oRndSeed);
 
@@ -3402,7 +3402,7 @@ static void OperateSkelBook(int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
@@ -3423,7 +3423,7 @@ static void OperateBookCase(int pnum, int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
@@ -3456,7 +3456,7 @@ static void OperateDecap(int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	SetRndSeed(os->_oRndSeed);
 	CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
@@ -3477,7 +3477,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	SetRndSeed(os->_oRndSeed);
 	static_assert(ITYPE_LARMOR + 1 == ITYPE_MARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors I.");
@@ -3527,7 +3527,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		if (deltaload)
 			return;
 		if (sendmsg)
-			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
@@ -3573,7 +3573,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	assert(currLvl._dLevel >= 4); // must have an appropriate item for each type
 	static_assert(ITYPE_SWORD + 1 == ITYPE_AXE, "OperateWeaponRack expects an ordered ITYPE_ for weapons I.");
@@ -3606,7 +3606,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	}
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT && quests[Q_NAKRUL]._qactive != QUEST_DONE) {
 		if (os->_oVar8 != 0) { // STORY_BOOK_NAKRUL_IDX
@@ -3652,7 +3652,7 @@ static void OperateLazStand(int oi, bool sendmsg)
 		return;
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg, false);
 }
@@ -3694,7 +3694,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	}
 
 	if (sendmsg || pnum == -1) // send message if the crux was destroyed by a missile
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(LS_BONESP, os->_ox, os->_oy);
 
@@ -3775,7 +3775,7 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy, DIR_NONE); // BARREL_SKELE
 	}
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 }
 
 void OperateObject(int pnum, int oi, bool TeleFlag)

@@ -105,7 +105,7 @@ void UseCurrentPortal(int p)
 {
 	portalindex = p;
 	if (currLvl._dLevelIdx == DLV_TOWN && portalindex == mypnum) {
-		NetSendCmd(true, CMD_DEACTIVATEPORTAL);
+		NetSendCmd(CMD_DEACTIVATEPORTAL);
 		//DeactivatePortal(portalindex);
 	}
 }

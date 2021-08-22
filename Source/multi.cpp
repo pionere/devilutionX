@@ -14,10 +14,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /* Flag to test if Diablo was beaten while the player loaded its level. */
 bool gbSomebodyWonGameKludge;
-/* Buffer to hold turn-chunks with high priority. */
-static TBuffer sgHiPriBuf;
-/* Buffer to hold turn-chunks with low priority. */
-static TBuffer sgLoPriBuf;
+/* Buffer to hold turn-chunks. */
+static TBuffer sgTurnChunkBuf;
 /* Buffer to hold the received player-info. */
 static PkPlayerStruct netplr[MAX_PLRS];
 /* Current offset in netplr. */
@@ -62,35 +60,40 @@ unsigned player_state[MAX_PLRS];
 
 void multi_init_buffers()
 {
-	sgLoPriBuf.dwDataSize = 0;
-	sgLoPriBuf.bData[0] = 0;
-	sgHiPriBuf.dwDataSize = 0;
-	sgHiPriBuf.bData[0] = 0;
+	sgTurnChunkBuf.dwDataSize = 0;
+	sgTurnChunkBuf.bData[0] = 0;
 }
 
-static void multi_queue_chunk(TBuffer *buf, void *chunk, BYTE size)
+/**
+ * Queues a turn-chunk to broadcast it later.
+ *
+ * @param pbMsg: the content of the turn-chunk
+ * @param bLen: the length of the turn-chunk
+ */
+void NetSendChunk(BYTE* pbMsg, BYTE bLen)
 {
 	BYTE *p;
 
-	if (buf->dwDataSize + size + 2 > sizeof(buf->bData)) {
+	if (sgTurnChunkBuf.dwDataSize + bLen + 1 >= sizeof(sgTurnChunkBuf.bData)) {
+		// TODO: should this be fatal?
 		return;
 	}
 
-	p = &buf->bData[buf->dwDataSize];
-	buf->dwDataSize += size + 1;
-	*p = size;
+	p = &sgTurnChunkBuf.bData[sgTurnChunkBuf.dwDataSize];
+	sgTurnChunkBuf.dwDataSize += bLen + 1;
+	*p = bLen;
 	p++;
-	memcpy(p, chunk, size);
-	p[size] = 0;
+	memcpy(p, pbMsg, bLen);
+	p[bLen] = 0;
 }
 
-static BYTE *multi_add_chunks(TBuffer *pBuf, BYTE *dest, unsigned *size)
+static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 {
 	BYTE *src_ptr;
 	size_t chunk_size;
 
-	if (pBuf->dwDataSize != 0) {
-		src_ptr = &pBuf->bData[0];
+	if (sgTurnChunkBuf.dwDataSize != 0) {
+		src_ptr = &sgTurnChunkBuf.bData[0];
 		while (TRUE) {
 			chunk_size = *src_ptr;
 			if (chunk_size == 0 || chunk_size > *size)
@@ -101,8 +104,8 @@ static BYTE *multi_add_chunks(TBuffer *pBuf, BYTE *dest, unsigned *size)
 			src_ptr += chunk_size;
 			*size -= chunk_size;
 		}
-		pBuf->dwDataSize -= (src_ptr - &pBuf->bData[0]);
-		memcpy(&pBuf->bData[0], src_ptr, pBuf->dwDataSize + 1);
+		sgTurnChunkBuf.dwDataSize -= (src_ptr - &sgTurnChunkBuf.bData[0]);
+		memcpy(&sgTurnChunkBuf.bData[0], src_ptr, sgTurnChunkBuf.dwDataSize + 1);
 	}
 	return dest;
 }
@@ -129,34 +132,11 @@ static void multi_send_turn_packet()
 	TurnPkt pkt;
 
 	size = gdwNormalMsgSize - sizeof(TurnPktHdr);
-	dstEnd = multi_add_chunks(&sgHiPriBuf, &pkt.body[0], &size);
-	dstEnd = multi_add_chunks(&sgLoPriBuf, dstEnd, &size);
+	dstEnd = multi_add_chunks(&pkt.body[0], &size);
 	size = sync_all_monsters(dstEnd, size);
 	len = gdwNormalMsgSize - size;
 	multi_init_pkt_header(pkt.hdr, len);
 	nthread_send_turn((BYTE*)&pkt, len);
-}
-
-/**
- * Broadcast a message with low priority using the queue.
- *
- * @param pbMsg: the content of the message
- * @param bLen: the length of the message
- */
-void NetSendLoPri(BYTE* pbMsg, BYTE bLen)
-{
-	multi_queue_chunk(&sgLoPriBuf, pbMsg, bLen);
-}
-
-/**
- * Broadcast a message with high priority using the queue.
- *
- * @param pbMsg: the content of the message
- * @param bLen: the length of the message
- */
-void NetSendHiPri(BYTE* pbMsg, BYTE bLen)
-{
-	multi_queue_chunk(&sgHiPriBuf, pbMsg, bLen);
 }
 
 /**

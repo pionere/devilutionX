@@ -1704,16 +1704,16 @@ void ReleaseChrBtns()
 			 && MouseY <= ChrBtnsRect[i].y + ChrBtnsRect[i].h) {
 				switch (i) {
 				case 0:
-					NetSendCmd(true, CMD_ADDSTR);
+					NetSendCmd(CMD_ADDSTR);
 					break;
 				case 1:
-					NetSendCmd(true, CMD_ADDMAG);
+					NetSendCmd(CMD_ADDMAG);
 					break;
 				case 2:
-					NetSendCmd(true, CMD_ADDDEX);
+					NetSendCmd(CMD_ADDDEX);
 					break;
 				case 3:
-					NetSendCmd(true, CMD_ADDVIT);
+					NetSendCmd(CMD_ADDVIT);
 					break;
 				default:
 					ASSUME_UNREACHABLE
@@ -2031,7 +2031,7 @@ static void control_remove_gold()
 	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
 	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
 	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using WORD.");
-	NetSendCmdParam2(true, CMD_SPLITPLRGOLD, gi, dropGoldValue);
+	NetSendCmdParam2(CMD_SPLITPLRGOLD, gi, dropGoldValue);
 }
 
 void control_drop_gold(char vkey)
@@ -2201,14 +2201,14 @@ void CheckTeamClick(bool shift)
 			} else if (dy == 1) {
 				// drop/leave
 				if (PlrHasTeam() && (pnum == mypnum || plr._pTeam == mypnum))
-					NetSendCmdBParam1(false, CMD_KICK_PLR, pnum);
+					NetSendCmdBParam1(CMD_KICK_PLR, pnum);
 			} else /*if (dy == 2)*/ {
 				// invite/cancel
 				if (pnum != mypnum && plr._pTeam != myplr._pTeam && myplr._pTeam == mypnum) {
 					if (guTeamInviteSent & (1 << pnum)) {
-						NetSendCmdBParam1(false, CMD_REV_INVITE, pnum);
+						NetSendCmdBParam1(CMD_REV_INVITE, pnum);
 					} else {
-						NetSendCmdBParam1(false, CMD_INVITE, pnum);
+						NetSendCmdBParam1(CMD_INVITE, pnum);
 					}
 					guTeamInviteSent ^= (1 << pnum);
 				}
@@ -2217,10 +2217,10 @@ void CheckTeamClick(bool shift)
 			if (guTeamInviteRec & (1 << pnum)) {
 				if (dx > SBOOK_LINE_TAB && dx < SBOOK_LINE_TAB + TBOOK_BTN_WIDTH) {
 					// accept (invite)
-					NetSendCmdBParam1(false, CMD_ACK_INVITE, pnum);
+					NetSendCmdBParam1(CMD_ACK_INVITE, pnum);
 				} else if (dx > SBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10 && dx < SBOOK_LINE_TAB + 2 * TBOOK_BTN_WIDTH + 10) {
 					// reject (invite)
-					NetSendCmdBParam1(false, CMD_DEC_INVITE, pnum);
+					NetSendCmdBParam1(CMD_DEC_INVITE, pnum);
 				}
 				guTeamInviteRec &= ~(1 << pnum);
 			}

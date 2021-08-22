@@ -1209,7 +1209,7 @@ typedef struct DMegaPkt {
 
 typedef struct TBuffer {
 	unsigned dwDataSize;
-	BYTE bData[4096];
+	BYTE bData[4096 - sizeof(unsigned)];
 } TBuffer;
 
 //////////////////////////////////////////////////

@@ -647,7 +647,7 @@ void TalkToTowner(int tnum)
 				qn = Q_LTBANNER;
 				qt = TEXT_BANNER2;
 			} else if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_BANNER, &i)) {
-				NetSendCmdParam1(true, CMD_QTOWNER, IDI_BANNER);
+				NetSendCmdParam1(CMD_QTOWNER, IDI_BANNER);
 				qt = TEXT_BANNER3;
 			}
 		}
@@ -679,7 +679,7 @@ void TalkToTowner(int tnum)
 				break;
 			}
 			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_ROCK, &i)) {
-				NetSendCmdParam1(true, CMD_QTOWNER, IDI_ROCK);
+				NetSendCmdParam1(CMD_QTOWNER, IDI_ROCK);
 				qt = TEXT_INFRA7;
 				break;
 			}
@@ -692,19 +692,19 @@ void TalkToTowner(int tnum)
 				qn = Q_ANVIL;
 				qt = TEXT_ANVIL5;
 			} else if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_ANVIL, &i)) {
-				NetSendCmdParam1(true, CMD_QTOWNER, IDI_ANVIL);
+				NetSendCmdParam1(CMD_QTOWNER, IDI_ANVIL);
 				qt = TEXT_ANVIL7;
 			}
 		}
 		break;
 	case TOWN_WITCH:
 		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_FUNGALTM, &i)) {
-			NetSendCmdParam1(true, CMD_QTOWNER, IDI_FUNGALTM);
+			NetSendCmdParam1(CMD_QTOWNER, IDI_FUNGALTM);
 			qt = TEXT_MUSH8;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
 			if (quests[Q_MUSHROOM]._qvar1 < QS_MUSHGIVEN) {
 				if (PlrHasStorageItem(pnum, IDI_MUSHROOM, &i)) {
-					NetSendCmdParam1(true, CMD_QTOWNER, IDI_MUSHROOM);
+					NetSendCmdParam1(CMD_QTOWNER, IDI_MUSHROOM);
 					qt = TEXT_MUSH10;
 					break;
 				}
@@ -755,7 +755,7 @@ void TalkToTowner(int tnum)
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
 		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
 			if (PlrHasStorageItem(pnum, IDI_BRAIN, &i)) {
-				NetSendCmdParam1(true, CMD_QTOWNER, IDI_BRAIN);
+				NetSendCmdParam1(CMD_QTOWNER, IDI_BRAIN);
 				qt = TEXT_MUSH4;
 			} else if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
 				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH3;
@@ -768,7 +768,7 @@ void TalkToTowner(int tnum)
 	case TOWN_STORY:
 		if (!IsMultiGame) {
 			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_LAZSTAFF, &i)) {
-				NetSendCmdParam1(true, CMD_QTOWNER, IDI_LAZSTAFF);
+				NetSendCmdParam1(CMD_QTOWNER, IDI_LAZSTAFF);
 				qt = TEXT_VILE1;
 			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
 				quests[Q_BETRAYER]._qvar1 = 8;
@@ -865,11 +865,11 @@ void TalkToTowner(int tnum)
 			break;
 		case QUEST_ACTIVE:
 			if (PlrHasStorageItem(pnum, IDI_GRAYSUIT, &i)) {
-				NetSendCmdParam1(true, CMD_QTOWNER, IDI_GRAYSUIT);
+				NetSendCmdParam1(CMD_QTOWNER, IDI_GRAYSUIT);
 				qt = TEXT_JERSEY7;
 				break;
 			} else if (PlrHasStorageItem(pnum, IDI_BROWNSUIT, &i)) {
-				NetSendCmdParam1(true, CMD_QTOWNER, IDI_BROWNSUIT);
+				NetSendCmdParam1(CMD_QTOWNER, IDI_BROWNSUIT);
 				qt = TEXT_JERSEY8;
 				break;
 			}
@@ -910,7 +910,7 @@ void TalkToTowner(int tnum)
 	case TOWN_GIRL:
 		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
 			if (PlrHasStorageItem(pnum, IDI_THEODORE, &i)) {
-				NetSendCmdParam1(true, CMD_QTOWNER, IDI_THEODORE);
+				NetSendCmdParam1(CMD_QTOWNER, IDI_THEODORE);
 				qt = TEXT_GIRL4;
 			} else if (quests[Q_GIRL]._qvar1 == 0) {
 				if (quests[Q_GIRL]._qvar2++ == 0) {

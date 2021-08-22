@@ -983,7 +983,7 @@ void NetSendCmdSendJoinLevel()
 	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
 	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdAckJoinLevel()
@@ -995,19 +995,17 @@ void NetSendCmdAckJoinLevel()
 	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
 	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 	//dthread_send_delta(pnum, CMD_ACK_JOINLEVEL, &cmd, sizeof(cmd));
 }
 
-void NetSendCmd(bool bHiPri, BYTE bCmd)
+void NetSendCmd(BYTE bCmd)
 {
 	TCmd cmd;
 
 	cmd.bCmd = bCmd;
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdMonstKill(int mnum, int pnum)
@@ -1021,7 +1019,8 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	cmd.mkY = monsters[mnum]._my;
 	cmd.mkDir = monsters[mnum]._mdir;
 	cmd.mkLevel = plr._pDunLevel;
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl)
@@ -1035,23 +1034,22 @@ void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl)
 	cmd._menemy = menemy;
 	cmd._mhitpoints = SwapLE32(hp);
 	cmd._currlevel = cl;
-	NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLoc(bool bHiPri, BYTE bCmd, BYTE x, BYTE y)
+void NetSendCmdLoc(BYTE bCmd, BYTE x, BYTE y)
 {
 	TCmdLoc cmd;
 
 	cmd.bCmd = bCmd;
 	cmd.x = x;
 	cmd.y = y;
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocBParam1(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE bParam1)
+void NetSendCmdLocBParam1(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1)
 {
 	TCmdLocBParam1 cmd;
 
@@ -1059,13 +1057,11 @@ void NetSendCmdLocBParam1(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE bParam1)
 	cmd.x = x;
 	cmd.y = y;
 	cmd.bParam1 = bParam1;
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocParam1(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1)
+void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, WORD wParam1)
 {
 	TCmdLocParam1 cmd;
 
@@ -1073,60 +1069,50 @@ void NetSendCmdLocParam1(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1)
 	cmd.x = x;
 	cmd.y = y;
 	cmd.wParam1 = SwapLE16(wParam1);
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdParam1(bool bHiPri, BYTE bCmd, WORD wParam1)
+void NetSendCmdParam1(BYTE bCmd, WORD wParam1)
 {
 	TCmdParam1 cmd;
 
 	cmd.bCmd = bCmd;
 	cmd.wParam1 = SwapLE16(wParam1);
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdParam2(bool bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2)
+void NetSendCmdParam2(BYTE bCmd, WORD wParam1, WORD wParam2)
 {
 	TCmdParam2 cmd;
 
 	cmd.bCmd = bCmd;
 	cmd.wParam1 = SwapLE16(wParam1);
 	cmd.wParam2 = SwapLE16(wParam2);
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdBParam1(bool bHiPri, BYTE bCmd, BYTE bParam1)
+void NetSendCmdBParam1(BYTE bCmd, BYTE bParam1)
 {
 	TCmdBParam1 cmd;
 
 	cmd.bCmd = bCmd;
 	cmd.bParam1 = bParam1;
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdBParam2(bool bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2)
+void NetSendCmdBParam2(BYTE bCmd, BYTE bParam1, BYTE bParam2)
 {
 	TCmdBParam2 cmd;
 
 	cmd.bCmd = bCmd;
 	cmd.bParam1 = bParam1;
 	cmd.bParam2 = bParam2;
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendShrineCmd(BYTE type, int seed)
@@ -1137,7 +1123,7 @@ void NetSendShrineCmd(BYTE type, int seed)
 	cmd.shType = type;
 	cmd.shSeed = SwapLE32(seed);
 
-	NetSendHiPri((BYTE*)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdQuest(BYTE q, bool extOnly)
@@ -1150,7 +1136,7 @@ void NetSendCmdQuest(BYTE q, bool extOnly)
 	cmd.qlog = quests[q]._qlog;
 	cmd.qvar1 = quests[q]._qvar1;
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdGItem(BYTE bCmd, BYTE ii)
@@ -1166,7 +1152,7 @@ void NetSendCmdGItem(BYTE bCmd, BYTE ii)
 
 	PackPkItem(&cmd.item, is);
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdPutItem(BYTE x, BYTE y)
@@ -1178,7 +1164,7 @@ void NetSendCmdPutItem(BYTE x, BYTE y)
 	cmd.x = x;
 	cmd.y = y;
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdRespawnItem(int ii)
@@ -1194,7 +1180,7 @@ void NetSendCmdRespawnItem(int ii)
 
 	PackPkItem(&cmd.item, is);
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdDelItem(BYTE bLoc)
@@ -1204,7 +1190,7 @@ void NetSendCmdDelItem(BYTE bLoc)
 	cmd.bCmd = CMD_DELPLRITEM;
 	cmd.bParam1 = bLoc;
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdDItem(int ii)
@@ -1220,7 +1206,7 @@ void NetSendCmdDItem(int ii)
 
 	PackPkItem(&cmd.item, is);
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdLocAttack(BYTE x, BYTE y, int skill, int lvl)
@@ -1233,7 +1219,7 @@ void NetSendCmdLocAttack(BYTE x, BYTE y, int skill, int lvl)
 	cmd.laSkill = skill;
 	cmd.laLevel = lvl;
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdLocSkill(BYTE x, BYTE y, int skill, int from, int lvl)
@@ -1247,7 +1233,7 @@ void NetSendCmdLocSkill(BYTE x, BYTE y, int skill, int from, int lvl)
 	cmd.lsFrom = from;
 	cmd.lsLevel = lvl;
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdPlrAttack(int pnum, int skill, int level)
@@ -1259,7 +1245,7 @@ void NetSendCmdPlrAttack(int pnum, int skill, int level)
 	cmd.paSkill = skill;
 	cmd.paLevel = level;
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdPlrSkill(int pnum, int skill, int from, int level)
@@ -1272,7 +1258,7 @@ void NetSendCmdPlrSkill(int pnum, int skill, int from, int level)
 	cmd.psFrom = from;
 	cmd.psLevel = level;
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdPlrDamage(int pnum, unsigned damage)
@@ -1283,7 +1269,7 @@ void NetSendCmdPlrDamage(int pnum, unsigned damage)
 	cmd.pdPnum = pnum;
 	cmd.pdDamage = SwapLE32(damage);
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdMonstAttack(BYTE bCmd, int mnum, int skill, int lvl)
@@ -1295,7 +1281,7 @@ void NetSendCmdMonstAttack(BYTE bCmd, int mnum, int skill, int lvl)
 	cmd.maSkill = skill;
 	cmd.maLevel = lvl;
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdMonstSkill(int mnum, int skill, int from, int level)
@@ -1308,7 +1294,7 @@ void NetSendCmdMonstSkill(int mnum, int skill, int from, int level)
 	cmd.msFrom = from;
 	cmd.msLevel = level;
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdMonstDamage(int mnum, int hitpoints)
@@ -1320,7 +1306,7 @@ void NetSendCmdMonstDamage(int mnum, int hitpoints)
 	cmd.mdMnum = SwapLE16(mnum);
 	cmd.mdHitpoints = SwapLE32(hitpoints);
 
-	NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdString(unsigned int pmask)

@@ -413,7 +413,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	if (atkSkill != SPL_INVALID) {
 		if (atkSkill == SPL_BLOCK) {
 			int dir = GetDirection(myplr._px, myplr._py, cursmx, cursmy);
-			NetSendCmdBParam1(true, CMD_BLOCK, dir);
+			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
 
@@ -475,7 +475,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 	if (pcursmonst != -1) {
 		if (currLvl._dType == DTYPE_TOWN) {
-			NetSendCmdLocParam1(true, CMD_TALKXY, cursmx, cursmy, pcursmonst);
+			NetSendCmdLocParam1(CMD_TALKXY, cursmx, cursmy, pcursmonst);
 			return;
 		}
 		// TODO: extend TALKXY?
@@ -496,7 +496,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	if (pcursobj != OBJ_NONE) {
 		bool bNear = abs(myplr._px - cursmx) < 2 && abs(myplr._py - cursmy) < 2;
 		if (moveSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
-			NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
+			NetSendCmdLocParam1(CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 			return;
 		}
 		//return; // TODO: proceed in case moveSkill != SPL_WALK?
@@ -509,11 +509,11 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	}
 
 	if (pcursitem != ITEM_NONE) {
-		NetSendCmdLocParam1(true, gbInvflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
+		NetSendCmdLocParam1(gbInvflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 		return;
 	}
 
-	NetSendCmdLoc(true, CMD_WALKXY, cursmx, cursmy);
+	NetSendCmdLoc(CMD_WALKXY, cursmx, cursmy);
 }
 
 static void ActionBtnCmd(bool bShift)
@@ -538,22 +538,22 @@ bool TryIconCurs(bool bShift)
 		if (pcursobj != OBJ_NONE) {
 			if (!bShift ||
 			 (abs(myplr._px - cursmx) < 2 && abs(myplr._py - cursmy) < 2)) {
-				NetSendCmdLocParam1(true, CMD_DISARMXY, cursmx, cursmy, pcursobj);
+				NetSendCmdLocParam1(CMD_DISARMXY, cursmx, cursmy, pcursobj);
 				return true;
 			}
 		}
 		break;
 	case CURSOR_OIL:
 		if (pcursinvitem != INVITEM_NONE)
-			NetSendCmdBParam2(true, CMD_DOOIL, gbOilFrom, pcursinvitem);
+			NetSendCmdBParam2(CMD_DOOIL, gbOilFrom, pcursinvitem);
 		break;
 	case CURSOR_TELEKINESIS:
 		if (pcursobj != OBJ_NONE)
-			NetSendCmdParam1(true, CMD_OPOBJT, pcursobj);
+			NetSendCmdParam1(CMD_OPOBJT, pcursobj);
 		if (pcursitem != ITEM_NONE)
 			NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
 		if (pcursmonst != -1 && !MonTalker(pcursmonst))
-			NetSendCmdParam1(true, CMD_KNOCKBACK, pcursmonst);
+			NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
 		break;
 	case CURSOR_RESURRECT:
 		if (pcursplr != PLR_NONE) {
@@ -1187,7 +1187,7 @@ static void PressChar(WPARAM vkey)
 		break;*/
 	case '9':
 		if (debug_mode_key_inverted_v || debug_mode_key_w) {
-			NetSendCmd(true, CMD_CHEAT_EXPERIENCE);
+			NetSendCmd(CMD_CHEAT_EXPERIENCE);
 		}
 		break;
 	case ':':

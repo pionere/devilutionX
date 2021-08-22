@@ -685,7 +685,7 @@ static void CheckInvPaste()
 		 && i <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
 		 && j >= InvRect[r].Y - INV_SLOT_SIZE_PX
 		 && j <= InvRect[r].Y) {
-			NetSendCmdBParam1(true, CMD_PASTEPLRITEM, r);
+			NetSendCmdBParam1(CMD_PASTEPLRITEM, r);
 			break;
 		}
 		if (r == SLOTXY_CHEST_LAST) {
@@ -977,7 +977,7 @@ static void CheckBeltPaste()
 		 && i <= InvRect[r].X + INV_SLOT_SIZE_PX
 		 && j >= SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX
 		 && j <= SCREEN_HEIGHT - InvRect[r].Y) {
-			NetSendCmdBParam1(true, CMD_PASTEPLRBELTITEM, r);
+			NetSendCmdBParam1(CMD_PASTEPLRBELTITEM, r);
 			break;
 		}
 	}
@@ -1028,7 +1028,7 @@ static void CheckInvCut(bool bShift)
 	if (r == INVITEM_NONE)
 		return; // FALSE;
 
-	NetSendCmdBParam2(true, CMD_CUTPLRITEM, r, bShift);
+	NetSendCmdBParam2(CMD_CUTPLRITEM, r, bShift);
 }
 
 void InvCutItem(int pnum, BYTE r, bool bShift)
@@ -1802,7 +1802,7 @@ bool InvUseItem(int cii)
 
 		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvl[sn]]) {
 			plr._pSkillLvl[sn]++;
-			NetSendCmdBParam2(false, CMD_PLRSKILLLVL, sn, plr._pSkillLvl[sn]);
+			NetSendCmdBParam2(CMD_PLRSKILLLVL, sn, plr._pSkillLvl[sn]);
 		}
 		// PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		//CalcPlrSpells(pnum);
@@ -1832,7 +1832,7 @@ bool InvUseItem(int cii)
 		ASSUME_UNREACHABLE
 	}
 
-	NetSendCmdBParam1(true, CMD_USEPLRITEM, cii);
+	NetSendCmdBParam1(CMD_USEPLRITEM, cii);
 	return true;
 }
 

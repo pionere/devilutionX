@@ -1506,7 +1506,7 @@ static void SendStoreCmd1(unsigned idx, BYTE bStoreId, int value)
 	cmd.stLoc = idx;
 	cmd.stValue = SwapLE32(value);
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 static void SendStoreCmd2(BYTE bStoreId)
@@ -1518,7 +1518,7 @@ static void SendStoreCmd2(BYTE bStoreId)
 	PackPkItem(&cmd.item, &storeitem);
 	cmd.stValue = SwapLE32(storeitem._iIvalue);
 
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
 /**

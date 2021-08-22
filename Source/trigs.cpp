@@ -877,7 +877,7 @@ void CheckTriggers()
 			ASSUME_UNREACHABLE;
 			break;
 		}
-		NetSendCmdParam2(true, CMD_NEWLVL, fom, lvl);
+		NetSendCmdParam2(CMD_NEWLVL, fom, lvl);
 		numtrigs = 0; // prevent triggering again
 	}
 }

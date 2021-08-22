@@ -906,7 +906,7 @@ static void AddPlrSkillExp(int pnum, int lvl, unsigned exp)
 			continue;
 		assert(sl <= MAXSPLLEVEL);
 		plr._pSkillLvl[sn] = sl;
-		NetSendCmdBParam2(false, CMD_PLRSKILLLVL, sn, sl);
+		NetSendCmdBParam2(CMD_PLRSKILLLVL, sn, sl);
 	}
 }
 
@@ -961,7 +961,7 @@ void AddPlrExperience(int pnum, int lvl, unsigned exp)
 	while (plr._pExperience >= plr._pNextExper) {
 		assert(plr._pLevel < MAXCHARLEVEL);
 		NextPlrLevel(pnum);
-		NetSendCmdBParam1(false, CMD_PLRLEVEL, plr._pLevel);
+		NetSendCmdBParam1(CMD_PLRLEVEL, plr._pLevel);
 	}
 }
 
@@ -1767,7 +1767,7 @@ void StartPlrKill(int pnum, int dmgtype)
 	}
 
 	if (pnum == mypnum) {
-		NetSendCmdBParam1(true, CMD_PLRDEAD, dmgtype);
+		NetSendCmdBParam1(CMD_PLRDEAD, dmgtype);
 	}
 
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
@@ -3262,7 +3262,7 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 		hp -= plr._pMana;
 		PlrSetMana(pnum, 0);
 		if (pnum == mypnum)
-			NetSendCmd(true, CMD_REMSHIELD);
+			NetSendCmd(CMD_REMSHIELD);
 	}
 	plr._pHPBase -= hp;
 	plr._pHitPoints -= hp;

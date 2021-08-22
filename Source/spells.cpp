@@ -50,7 +50,7 @@ void UseMana(int pnum, int sn, int sf)
 		plr._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr._pSkillActivity[sn], UCHAR_MAX);
 		gbRedrawFlags |= REDRAW_MANA_FLASK;
 	} else if (sf != SPLFROM_ABILITY) {
-		NetSendCmdBParam1(true, CMD_USEPLRITEM, sf);
+		NetSendCmdBParam1(CMD_USEPLRITEM, sf);
 	}
 }
 

@@ -409,7 +409,7 @@ static void Interact()
 {
 	if (currLvl._dType == DTYPE_TOWN) {
 		if (pcursmonst != -1)
-			NetSendCmdLocParam1(true, CMD_TALKXY, towners[pcursmonst]._tx, towners[pcursmonst]._ty, pcursmonst);
+			NetSendCmdLocParam1(CMD_TALKXY, towners[pcursmonst]._tx, towners[pcursmonst]._ty, pcursmonst);
 	} else {
 		int attack = myplr._pAtkSkill;
 		int sl = GetSpellLevel(mypnum, attack);
@@ -859,7 +859,7 @@ static void WalkInDir(AxisDirection dir)
 
 	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE) {
 		if (sgbControllerActive && myplr.walkpath[0] != DIR_NONE && myplr.destAction == ACTION_NONE)
-			NetSendCmdLoc(true, CMD_WALKXY, x, y); // Stop walking
+			NetSendCmdLoc(CMD_WALKXY, x, y); // Stop walking
 		return;
 	}
 
@@ -872,7 +872,7 @@ static void WalkInDir(AxisDirection dir)
 	if (PosOkPlayer(mypnum, dx, dy) && IsPathBlocked(x, y, pdir))
 		return; // Don't start backtrack around obstacles
 
-	NetSendCmdLoc(true, CMD_WALKXY, dx, dy);
+	NetSendCmdLoc(CMD_WALKXY, dx, dy);
 }
 
 static void QuestLogMove(AxisDirection moveDir)
@@ -1283,9 +1283,9 @@ void PerformSecondaryAction()
 		NewCursor(CURSOR_HAND);
 
 	if (pcursitem != ITEM_NONE) {
-		NetSendCmdLocParam1(true, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
+		NetSendCmdLocParam1(CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 	} else if (pcursobj != OBJ_NONE) {
-		NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
+		NetSendCmdLocParam1(CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 	} else if (pcurstrig != -1) {
 		if (pcurstrig >= MAXTRIGGERS + 1) {
 			int mi = pcurstrig - (MAXTRIGGERS + 1);
