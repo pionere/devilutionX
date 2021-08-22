@@ -6,6 +6,7 @@
 #include "all.h"
 #include "plrctrls.h"
 #include "misproc.h"
+#include "engine/render/cl2_render.hpp"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -1245,14 +1246,16 @@ void LoadMissileGFX(BYTE midx)
 {
 	char pszName[256];
 	int i, n;
-	BYTE** mad;
+	BYTE **mad, *tf, *cf;
 	const char *name;
+	const MisFileData* mfd;
 
 	mad = misanimdata[midx];
 	if (mad[0] != NULL)
 		return;
-	n = misfiledata[midx].mfAnimFAmt;
-	name = misfiledata[midx].mfName;
+	mfd = &misfiledata[midx];
+	n = mfd->mfAnimFAmt;
+	name = mfd->mfName;
 	if (n == 1) {
 		snprintf(pszName, sizeof(pszName), "Missiles\\%s.CL2", name);
 		mad[0] = LoadFileInMem(pszName);
@@ -1261,6 +1264,20 @@ void LoadMissileGFX(BYTE midx)
 			snprintf(pszName, sizeof(pszName), "Missiles\\%s%i.CL2", name, i + 1);
 			assert(mad[i] == NULL);
 			mad[i] = LoadFileInMem(pszName);
+		}
+	}
+	if (mfd->mfAnimTrans != NULL) {
+		// TODO: copy paste from monster.cpp (InitMonsterTRN)
+		tf = cf = LoadFileInMem(mfd->mfAnimTrans);
+		for (i = 0; i < 256; i++) {
+			if (*cf == 255) {
+				*cf = 0;
+			}
+			cf++;
+		}
+
+		for (i = 0; i < n; i++) {
+			Cl2ApplyTrans(mad[i], tf, mfd->mfAnimLen[i]);
 		}
 	}
 }

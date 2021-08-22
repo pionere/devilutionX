@@ -419,13 +419,14 @@ static_assert((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align Mis
 typedef struct MisFileData {
 	int mfAnimFAmt;
 	const char *mfName;
+	const char* mfAnimTrans;
 	int mfFlags;
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
 	int mfAnimXOffset;
 #ifdef X86_32bit_COMP
-	int alignment[3];
+	int alignment[2];
 #endif
 } MisFileData;
 #ifdef X86_32bit_COMP
