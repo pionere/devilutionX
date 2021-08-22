@@ -1497,30 +1497,6 @@ static bool StoreAutoPlace(int pnum, bool saveflag)
 		|| AutoPlaceInv(pnum, &storeitem, saveflag);
 }
 
-static void SendStoreCmd1(unsigned idx, BYTE bStoreId, int value)
-{
-	TCmdStore1 cmd;
-
-	cmd.bCmd = CMD_STORE_1;
-	cmd.stCmd = bStoreId;
-	cmd.stLoc = idx;
-	cmd.stValue = SwapLE32(value);
-
-	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
-}
-
-static void SendStoreCmd2(BYTE bStoreId)
-{
-	TCmdStore2 cmd;
-
-	cmd.bCmd = CMD_STORE_2;
-	cmd.stCmd = bStoreId;
-	PackPkItem(&cmd.item, &storeitem);
-	cmd.stValue = SwapLE32(storeitem._iIvalue);
-
-	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
-}
-
 /**
  * @brief Purchases an item from the smith.
  */
