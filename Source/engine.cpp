@@ -220,6 +220,7 @@ void LoadFileWithMem(const char *pszName, BYTE *p)
 	SFileCloseFile(hsFile);
 }
 
+#define LOAD_LE32(b) (SwapLE32(*((DWORD*)(b))))
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 {
 	size_t nDataSize;

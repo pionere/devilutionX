@@ -24,13 +24,14 @@ inline const BYTE *CelGetFrameStart(const BYTE *pCelBuff, int nCel)
 	return &pCelBuff[SwapLE32(pFrameTable[nCel])];
 }
 
-#define LOAD_LE32(b) (((DWORD)(b)[3] << 24) | ((DWORD)(b)[2] << 16) | ((DWORD)(b)[1] << 8) | (DWORD)(b)[0])
 inline const BYTE *CelGetFrame(const BYTE *pCelBuff, int nCel, int *nDataSize)
 {
+	const DWORD* pFrameTable;
 	DWORD nCellStart;
 
-	nCellStart = LOAD_LE32(&pCelBuff[nCel * 4]);
-	*nDataSize = LOAD_LE32(&pCelBuff[(nCel + 1) * 4]) - nCellStart;
+	pFrameTable = (const DWORD *)&pCelBuff[nCel * 4];
+	nCellStart = SwapLE32(pFrameTable[0]);
+	*nDataSize = SwapLE32(pFrameTable[1]) - nCellStart;
 	return &pCelBuff[nCellStart];
 }
 
