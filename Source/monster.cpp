@@ -125,7 +125,7 @@ void (*AiProc[])(int i) = {
 	&MAI_Storm2,
 };
 
-static inline void InitMonsterTRN(const MapMonData *cmon, const MonsterData *mdata)
+static inline void InitMonsterTRN(AnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
 {
 	BYTE *tf, *cf;
 	int i, j;
@@ -133,7 +133,8 @@ static inline void InitMonsterTRN(const MapMonData *cmon, const MonsterData *mda
 
 	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
-	tf = cf = LoadFileInMem(mdata->TransFile);
+	// TODO: this filter should have been done in 'compile time'
+	tf = cf = LoadFileInMem(transFile);
 	for (i = 0; i < 256; i++) {
 		if (*cf == 255) {
 			*cf = 0;
@@ -142,7 +143,7 @@ static inline void InitMonsterTRN(const MapMonData *cmon, const MonsterData *mda
 	}
 
 	for (i = 0; i < NUM_MON_ANIM; i++) {
-		as = &cmon->cmAnims[i];
+		as = &anims[i];
 		if (as->aFrames > 1) {
 			for (j = 0; j < lengthof(as->aData); j++) {
 				Cl2ApplyTrans(as->aData[j], tf, as->aFrames);
@@ -284,42 +285,43 @@ void InitMonsterGFX(int midx)
 	cmon = &mapMonTypes[midx];
 	mtype = cmon->cmType;
 	mdata = &monsterdata[mtype];
+	cmon->cmWidth = mdata->width;
+	cmon->cmXOffset = (mdata->width - 64) >> 1;
+	cmon->cmData = mdata;
 
+	auto &monAnims = cmon->cmAnims;
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
-		cmon->cmAnims[anim].aFrames = mdata->mAnimFrames[anim];
-		cmon->cmAnims[anim].aFrameLen = mdata->mAnimFrameLen[anim];
+		monAnims[anim].aFrames = mdata->mAnimFrames[anim];
+		monAnims[anim].aFrameLen = mdata->mAnimFrameLen[anim];
 		if (mdata->mAnimFrames[anim] > 0) {
 			snprintf(strBuff, sizeof(strBuff), mdata->mGfxFile, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff);
-			cmon->cmAnims[anim].aCelData = celBuf;
+			monAnims[anim].aCelData = celBuf;
 
 			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
-				for (i = 0; i < lengthof(cmon->cmAnims[anim].aData); i++) {
-					cmon->cmAnims[anim].aData[i] = const_cast<BYTE *>(CelGetFrameStart(celBuf, i));
+				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
+					monAnims[anim].aData[i] = const_cast<BYTE *>(CelGetFrameStart(celBuf, i));
 				}
 			} else {
-				for (i = 0; i < lengthof(cmon->cmAnims[anim].aData); i++) {
-					cmon->cmAnims[anim].aData[i] = celBuf;
+				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
+					monAnims[anim].aData[i] = celBuf;
 				}
 			}
 		}
 	}
 
-	cmon->cmWidth = mdata->width;
-	cmon->cmXOffset = (mdata->width - 64) >> 1;
-	cmon->cmData = mdata;
 
 	if (mdata->TransFile != NULL) {
-		InitMonsterTRN(cmon, mdata);
+		InitMonsterTRN(monAnims, mdata->TransFile);
 	}
 
 	// copy walk animation to the stand animation of the golem (except aCelData and alignment)
 	if (mtype == MT_GOLEM) {
-		copy_pod(cmon->cmAnims[MA_STAND].aData, cmon->cmAnims[MA_WALK].aData);
-		cmon->cmAnims[MA_STAND].aFrames = cmon->cmAnims[MA_WALK].aFrames;
-		cmon->cmAnims[MA_STAND].aFrameLen = cmon->cmAnims[MA_WALK].aFrameLen;
+		copy_pod(monAnims[MA_STAND].aData, monAnims[MA_WALK].aData);
+		monAnims[MA_STAND].aFrames = monAnims[MA_WALK].aFrames;
+		monAnims[MA_STAND].aFrameLen = monAnims[MA_WALK].aFrameLen;
 	}
 
 	// load optional missile-gfxs
