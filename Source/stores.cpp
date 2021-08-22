@@ -62,8 +62,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_ID_PRICE			100
 #define STORE_BOY_PRICE			50
 
-/* Temporary item to store the current item while in store. */
-static ItemStruct storeitem;
+/* The current item in store. */
+ItemStruct storeitem;
 /* The item for sale by Wirt. */
 ItemStruct boyitem;
 /* The level of the item by Wirt. */

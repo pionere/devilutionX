@@ -15,6 +15,8 @@ extern "C" {
 /** Currently active store */
 extern BYTE stextflag;
 
+/** Current item in store. */
+extern ItemStruct storeitem;
 /** Current level of the item sold by Wirt */
 extern int boylevel;
 /** Current item sold by Wirt */
