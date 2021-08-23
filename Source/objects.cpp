@@ -158,7 +158,7 @@ void InitObjectGFX()
 	BYTE lvlMask = 1 << currLvl._dDunType; // TODO use dType instead?
 	for (i = 0; i < NUM_OBJECTS; i++) {
 		ods = &AllObjects[i];
-		if ((ods->oload == 1 && (ods->oLvlTypes & lvlMask))
+		if ((ods->oLvlTypes & lvlMask)
 		 || (ods->otheme != THEME_NONE && themeload[ods->otheme])
 		 || (ods->oquest != Q_INVALID && QuestStatus(ods->oquest))) {
 			fileload[ods->ofindex] = true;
@@ -1081,7 +1081,7 @@ void SetMapObjects(BYTE *pMap)
 	//gbInitObjFlag = true;
 
 	for (i = 0; i < NUM_OBJECTS; i++) { // TODO: use dType instead?
-		if (AllObjects[i].oload == 1 && currLvl._dDunType == AllObjects[i].oSetLvlType)
+		if (currLvl._dDunType == AllObjects[i].oSetLvlType)
 			fileload[AllObjects[i].ofindex] = true;
 	}
 

@@ -699,8 +699,7 @@ static_assert((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align Uni
 //////////////////////////////////////////////////
 
 typedef struct ObjectData {
-	char oload;
-	char ofindex;
+	BYTE ofindex;
 	BYTE oLvlTypes;
 	BYTE oSetLvlType;
 	BYTE otheme;
