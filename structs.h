@@ -704,8 +704,8 @@ typedef struct ObjectData {
 	BYTE oSetLvlType;
 	BYTE otheme;
 	BYTE oquest;
-	BOOL oAnimFlag;
-	int oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
+	BOOLEAN oAnimFlag;
+	BYTE oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
 	int oAnimFrameLen; // Tick length of each frame in the current animation
 	int oAnimLen;   // Number of frames in current animation
 	int oAnimWidth;
@@ -716,7 +716,7 @@ typedef struct ObjectData {
 	BYTE oSelFlag;
 	BOOL oTrapFlag;
 #ifdef X86_32bit_COMP
-	int alignment[4];
+	int alignment[6];
 #endif
 } ObjectData;
 

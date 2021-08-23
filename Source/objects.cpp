@@ -888,7 +888,7 @@ static void AddStoryBooks()
 
 static void AddHookedBodies(int freq)
 {
-	int i, j, ii, jj;
+	int i, j, ii, jj, type;
 
 	for (j = 0; j < DMAXY; j++) {
 		jj = DBORDERY + j * 2;
@@ -900,26 +900,28 @@ static void AddHookedBodies(int freq)
 				continue;
 			if (!SkipThemeRoom(i, j))
 				continue;
-			if (dungeon[i][j] == 1 && dungeon[i + 1][j] == 6) {
-				switch (random_(0, 3)) {
-				case 0:
-					AddObject(OBJ_TORTURE1, ii + 1, jj);
-					break;
-				case 1:
-					AddObject(OBJ_TORTURE2, ii + 1, jj);
-					break;
-				case 2:
-					AddObject(OBJ_TORTURE5, ii + 1, jj);
-					break;
-				default:
-					ASSUME_UNREACHABLE
-					break;
+			if (dungeon[i][j] == 1) {
+				if (dungeon[i + 1][j] == 6) {
+					switch (random_(0, 3)) {
+					case 0:
+						type = OBJ_TORTURE1;
+						break;
+					case 1:
+						type = OBJ_TORTURE2;
+						break;
+					case 2:
+						type = OBJ_TORTURE5;
+						break;
+					default:
+						ASSUME_UNREACHABLE
+						break;
+					}
+					AddObject(type, ii + 1, jj);
 				}
-			} else if (dungeon[i][j] == 2 && dungeon[i][j + 1] == 6) {
-				if (random_(0, 2) == 0) {
-					AddObject(OBJ_TORTURE3, ii, jj);
-				} else {
-					AddObject(OBJ_TORTURE4, ii, jj);
+			} else /*if (dungeon[i][j] == 2 &&)*/ {
+				if (dungeon[i][j + 1] == 6) {
+					static_assert((int)OBJ_TORTURE3 + 1 == (int)OBJ_TORTURE4, "AddHookedBodies expects ordered OBJ_TORTURE values.");
+					AddObject(OBJ_TORTURE3 + random_(0, 2), ii, jj);
 				}
 			}
 		}
