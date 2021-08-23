@@ -273,7 +273,7 @@ static void SelheroListInit()
 	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 256), 320, 26 };
 	vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect3 = { PANEL_LEFT + 585, (UI_OFFSET_Y + 244), 25, 178 };
+	SDL_Rect rect3 = { PANEL_LEFT + 586, (UI_OFFSET_Y + 244), SCROLLBAR_BG_WIDTH, 179 };
 	UiScrollBar* scrollBar = new UiScrollBar(rect3);
 	vecSelDlgItems.push_back(scrollBar);
 

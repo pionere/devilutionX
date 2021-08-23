@@ -47,5 +47,9 @@ Missiles\Larrow9.CL2
 Missiles\Magicexp.CL2
 NLevels\L5Data\Nakrul1.DUN
 NLevels\L5Data\Nakrul2.DUN
+Objects\L1Doors.CEL
+Objects\Sarc.CEL
 ui_art\lrpopup.pcx
+ui_art\sb_arrow.pcx
+ui_art\sb_bg.pcx
 ui_art\smbutton.pcx

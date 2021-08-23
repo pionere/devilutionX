@@ -724,12 +724,12 @@ static void Render(const UiScrollBar* uiSb)
 	{
 		SDL_Rect rect = UpArrowRect(uiSb);
 		int frame = scrollBarState.upPressCounter != -1 ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP;
-		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame, rect.w);
+		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame);
 	}
 	{
 		SDL_Rect rect = DownArrowRect(uiSb);
 		int frame = scrollBarState.downPressCounter != -1 ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN;
-		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame, rect.w);
+		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame);
 	}
 
 	// Thumb:

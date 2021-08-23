@@ -6,14 +6,14 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 extern Art ArtScrollBarBackground;
-const int SCROLLBAR_BG_WIDTH = 25; // 28
+const int SCROLLBAR_BG_WIDTH = 24; // 28
 const int SCROLLBAR_BG_HEIGHT = 100;
 extern Art ArtScrollBarThumb;
 const int SCROLLBAR_THUMB_HEIGHT = 19;
 const int SCROLLBAR_THUMB_OFFSET_X = 3;
 
 extern Art ArtScrollBarArrow;
-const int SCROLLBAR_ARROW_WIDTH = 22; // 25
+const int SCROLLBAR_ARROW_WIDTH = 24; // 25
 const int SCROLLBAR_ARROW_HEIGHT = 22;
 
 enum ScrollBarArrowFrame {
