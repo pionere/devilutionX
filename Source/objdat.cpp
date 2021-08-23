@@ -79,13 +79,13 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	OBJ_TNUDEM1, // Q_BUTCHER
-	OBJ_TNUDEM2, // Q_BUTCHER
-	OBJ_TNUDEM3, // Q_BUTCHER
-	OBJ_TNUDEM4, // Q_BUTCHER
-	OBJ_TNUDEW1, // Q_BUTCHER
-	OBJ_TNUDEW2, // Q_BUTCHER
-	OBJ_TNUDEW3, // Q_BUTCHER
+	OBJ_TNUDEM, //1, Q_BUTCHER
+	OBJ_TNUDEM, //2, Q_BUTCHER
+	OBJ_TNUDEM, //3, Q_BUTCHER
+	OBJ_TNUDEM, //4, Q_BUTCHER
+	OBJ_TNUDEW, //1, Q_BUTCHER
+	OBJ_TNUDEW, //2, Q_BUTCHER
+	OBJ_TNUDEW, //3, Q_BUTCHER
 	0, //OBJ_CHEST1,
 	OBJ_CHEST1, // Q_SKELKING
 	0, //OBJ_CHEST1,
@@ -181,13 +181,8 @@ const ObjectData AllObjects[NUM_OBJECTS] = {
 /*OBJ_ANGEL*/	//	{ OFILE_ANGEL,    0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
 /*OBJ_NUDEW2R*/	//	{ OFILE_NUDE2,    0,                                         0,               THEME_NONE,              Q_INVALID,       TRUE,              0,             3,        6,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
 /*OBJ_SWITCHSKL*/	{ OFILE_SWITCH4,  DTM_HELL,                                  0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             0,        0,         96, TRUE,       TRUE,      TRUE,  OBM_UNBREAKABLE,        1, TRUE      },
-/*OBJ_TNUDEM1*/		{ OFILE_TNUDEM,   DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,      FALSE,              1,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
-/*OBJ_TNUDEM2*/		{ OFILE_TNUDEM,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,      FALSE,              1,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
-/*OBJ_TNUDEM3*/		{ OFILE_TNUDEM,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,      FALSE,              3,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
-/*OBJ_TNUDEM4*/		{ OFILE_TNUDEM,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,      FALSE,              4,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
-/*OBJ_TNUDEW1*/		{ OFILE_TNUDEW,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,      FALSE,              1,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
-/*OBJ_TNUDEW2*/		{ OFILE_TNUDEW,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,      FALSE,              2,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
-/*OBJ_TNUDEW3*/		{ OFILE_TNUDEW,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,      FALSE,              3,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
+/*OBJ_TNUDEM*/		{ OFILE_TNUDEM,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,      FALSE,              0,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
+/*OBJ_TNUDEW*/		{ OFILE_TNUDEW,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,      FALSE,              0,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
 /*OBJ_TORTURE1*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,      FALSE,              1,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
 /*OBJ_TORTURE2*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,      FALSE,              2,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },
 /*OBJ_TORTURE3*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,      FALSE,              3,             0,        0,        128, TRUE,       FALSE,     TRUE,  OBM_UNBREAKABLE,        0, FALSE     },

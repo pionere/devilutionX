@@ -769,12 +769,13 @@ static void Theme_Library(int tidx)
  */
 static void Theme_Torture(int tidx)
 {
-	const BYTE tortrnds[4] = { 6, 8, 3, 8 };
+	const BYTE tortrnds[4] = { 6 * 2, 8 * 2, 3 * 2, 8 * 2};
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 	const BYTE tortrnd = tortrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
-	Place_Obj3(tidx, OBJ_TNUDEM2, tortrnd);
+	Place_Obj3(tidx, OBJ_TNUDEM, tortrnd);
+	Place_Obj3(tidx, OBJ_TNUDEW, tortrnd);
 	PlaceThemeMonsts(tidx, monstrnd);
 }
 

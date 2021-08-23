@@ -929,13 +929,8 @@ static void AddHookedBodies(int freq)
 static void AddL4Goodies()
 {
 	AddHookedBodies(6);
-	InitRndLocObj(2, 6, OBJ_TNUDEM1);
-	InitRndLocObj(2, 6, OBJ_TNUDEM2);
-	InitRndLocObj(2, 6, OBJ_TNUDEM3);
-	InitRndLocObj(2, 6, OBJ_TNUDEM4);
-	InitRndLocObj(2, 6, OBJ_TNUDEW1);
-	InitRndLocObj(2, 6, OBJ_TNUDEW2);
-	InitRndLocObj(2, 6, OBJ_TNUDEW3);
+	InitRndLocObj(2 * 4, 6 * 4, OBJ_TNUDEM);
+	InitRndLocObj(2 * 3, 6 * 3, OBJ_TNUDEW);
 	InitRndLocObj(2, 6, OBJ_DECAP);
 	InitRndLocObj(1, 3, OBJ_CAULDRON);
 }
@@ -953,14 +948,14 @@ static void AddLazStand()
 		return;
 	}
 	AddObject(OBJ_LAZSTAND, xp, yp);
-	AddObject(OBJ_TNUDEM2, xp, yp + 2);
+	AddObject(OBJ_TNUDEM, xp, yp + 2);
 	AddObject(OBJ_STORYCANDLE, xp + 1, yp + 2);
-	AddObject(OBJ_TNUDEM3, xp + 2, yp + 2);
-	AddObject(OBJ_TNUDEW1, xp, yp - 2);
+	AddObject(OBJ_TNUDEM, xp + 2, yp + 2);
+	AddObject(OBJ_TNUDEW, xp, yp - 2);
 	AddObject(OBJ_STORYCANDLE, xp + 1, yp - 2);
-	AddObject(OBJ_TNUDEW2, xp + 2, yp - 2);
+	AddObject(OBJ_TNUDEW, xp + 2, yp - 2);
 	AddObject(OBJ_STORYCANDLE, xp - 1, yp - 1);
-	AddObject(OBJ_TNUDEW3, xp - 1, yp);
+	AddObject(OBJ_TNUDEW, xp - 1, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 1, yp + 1);
 }
 
@@ -1442,14 +1437,24 @@ static void AddWeaponRack(int oi)
 	os->_oRndSeed = GetRndSeed();
 }
 
-static void AddTorturedBody(int oi)
+static void AddTorturedMaleBody(int oi)
 {
 	ObjectStruct *os;
 
 	os = &objects[oi];
 	//os->_oRndSeed = GetRndSeed();
 	os->_oAnimFrame = RandRange(1, 4);
-	os->_oPreFlag = TRUE;
+	//os->_oPreFlag = TRUE;
+}
+
+static void AddTorturedFemaleBody(int oi)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	//os->_oRndSeed = GetRndSeed();
+	os->_oAnimFrame = RandRange(1, 3);
+	//os->_oPreFlag = TRUE;
 }
 
 int AddObject(int type, int ox, int oy)
@@ -1583,8 +1588,11 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_WEAPONRACKR:
 		AddWeaponRack(oi);
 		break;
-	case OBJ_TNUDEM2:
-		AddTorturedBody(oi);
+	case OBJ_TNUDEM:
+		AddTorturedMaleBody(oi);
+		break;
+	case OBJ_TNUDEW:
+		AddTorturedFemaleBody(oi);
 		break;
 	}
 	return oi;
