@@ -203,7 +203,7 @@ void PNGFlip(png_image_data &imagedata, bool vertical)
 	}
 }
 
-static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, BYTE *palette, int numcolors, int coloroffset)
+static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, bool clipped, BYTE *palette, int numcolors, int coloroffset)
 {
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
 
@@ -216,6 +216,8 @@ static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, BY
 	}
 
 	int maxsize = HEADER_SIZE;
+	if (clipped)
+		maxsize += numimage * 0x0A;
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
 		maxsize += image_data->height * (2 * image_data->width);
@@ -227,6 +229,12 @@ static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, BY
 	buf[4] = HEADER_SIZE;
 	BYTE *pBuf = &buf[HEADER_SIZE];
 	for (int n = 0; n < numimage; n++) {
+		// add optional {CEL FRAME HEADER}
+		if (clipped) {
+			pBuf[0] = 0x0A;
+			pBuf[1] = 0x00;
+			pBuf += 0x0A;
+		}
 		// convert to cel
 		png_image_data *image_data = &imagedata[n];
 		BYTE *pHead;
@@ -248,7 +256,7 @@ static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, BY
 					alpha = false;
 				} else {
 					// add transparent pixel
-					if (j != 0 && (!alpha || (char)*pHead <= -127)) {
+					if (j != 0 && (!alpha || (char)*pHead == -128)) {
 						pHead = pBuf;
 						pBuf++;
 					}
@@ -691,7 +699,7 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 	fread(&numimage, 4, 1, f);
 
 	int headerSize = 4 + 4 + 4 *numimage;
-	cel_image_data *celdata = (cel_image_data *)malloc(sizeof(cel_image_data) * numimage);
+	cel_image_data *celdata = (cel_image_data *)malloc(sizeof(cel_image_data) * (numimage + 1));
 	DWORD dataSize;
 	for (int i = 0; i <= numimage; i++) {
 		fread(&dataSize, 4, 1, f);
@@ -706,9 +714,14 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 	// prepare celdata info
 	BYTE *src = buf;
 	for (int i = 0; i < numimage; i++) {
-		celdata[i].data = src;
-		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
 		celdata[i].width = nWidth;
+		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
+		// skip optional {CEL FRAME HEADER}
+		if (src[0] == 0x0A && src[1] == 0) {
+			src += 0x0A;
+			celdata[i].dataSize -= 0x0A;
+		}
+		celdata[i].data = src;
 		int pixels = 0;
 		while (src < &celdata[i].data[celdata[i].dataSize]) {
 			char width = *src++;
@@ -883,6 +896,19 @@ bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, B
 	return true;
 }
 
+BYTE* LoadPal(const char* palFile)
+{
+	BYTE* result = (BYTE*)malloc(256 * 3);
+
+	FILE* f = fopen(palFile, "rb");
+
+	fread(result, 1, 256 * 3, f);
+
+	fclose(f);
+
+	return result;
+}
+
 int main()
 {
 	//Cl2PNG("f:\\Farrow1.CL2", 0, 96, "f:\\", &diapal[0][0], 128);
@@ -964,19 +990,28 @@ int main()
 	fclose(f);
 	f = NULL;*/
 
-	//PNG2Cel("f:\\inv.png", "f:\\inv.cel", &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\quest.png", "f:\\quest.cel", &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\char.png", "f:\\char.cel", &diapal[0][0], 128, 128);
+	/*BYTE* pal = LoadPal("f:\\L1_1.PAL");
+	Cel2PNG("f:\\L1Doors.CEL", 0, 64, "f:\\", pal, 256);
+	const char* doors[] = {
+			"f:\\L1Doors_CEL_frame0000.png",
+			"f:\\L1Doors_CEL_frame0001.png",
+			"f:\\L1Doors_CEL_frame0002.png",
+			"f:\\L1Doors_CEL_frame0003.png"};
+	PNG2Cel(doors, 4, "f:\\L1Doors.CEL", true, pal, 256, 0);*/
+
+	//PNG2Cel("f:\\inv.png", "f:\\inv.cel", false, &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\quest.png", "f:\\quest.cel", false, &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\char.png", "f:\\char.cel", false, &diapal[0][0], 128, 128);
 	const char* fsb0[] = { "f:\\SpellBk.png" };
-	PNG2Cel(fsb0, 1, "f:\\SpellBk.CEL", &diapal[0][0], 128, 128);
+	PNG2Cel(fsb0, 1, "f:\\SpellBk.CEL", false, &diapal[0][0], 128, 128);
 
 	const char* fsb1[] = { "f:\\SpellBkB1.png", "f:\\SpellBkB2.png",
 		"f:\\SpellBkB3.png", "f:\\SpellBkB4.png"};
-	PNG2Cel(fsb1, 4, "f:\\SpellBkB__.CEL", &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\SpellBkB1.png", "f:\\SpellBkB1.CEL", &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\SpellBkB2.png", "f:\\SpellBkB2.CEL", &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\SpellBkB3.png", "f:\\SpellBkB3.CEL", &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\SpellBkB4.png", 1, "f:\\SpellBkB4.CEL", &diapal[0][0], 128, 128);
+	PNG2Cel(fsb1, 4, "f:\\SpellBkB__.CEL", false, &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\SpellBkB1.png", "f:\\SpellBkB1.CEL", false, &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\SpellBkB2.png", "f:\\SpellBkB2.CEL", false, &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\SpellBkB3.png", "f:\\SpellBkB3.CEL", false, &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\SpellBkB4.png", 1, "f:\\SpellBkB4.CEL", false, &diapal[0][0], 128, 128);
 
 	Cel2Cel("f:\\SpellBkB1.cel", 2, "f:\\SpellBkB2.cel", "f:\\SpellBkB12.cel");
 	Cel2Cel("f:\\SpellBkB3.cel", 2, "f:\\SpellBkB4.cel", "f:\\SpellBkB34.cel");
