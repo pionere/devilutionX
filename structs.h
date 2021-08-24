@@ -526,29 +526,29 @@ typedef struct MonsterData {
 	const char* mTransFile;
 	const char *mName;
 	BYTE mLevel;
+	BYTE mSelFlag;
 	BYTE mAi;
+	BYTE mInt;
 	int mMinHP;
 	int mMaxHP;
 	int mFlags;
-	BYTE mInt;
 	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
-	BYTE mMagic;
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
 	uint16_t mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
-	BYTE mMagic2;     // unused
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
+	BYTE mMagic;
+	BYTE mMagic2;     // unused
 	BYTE mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE mEvasion;    // evasion: used against magic-projectile
 	BYTE mMonstClass; // unused
 	uint16_t mMagicRes;
 	uint16_t mMagicRes2;
 	uint16_t mTreasure;
-	BYTE mSelFlag;
 	uint16_t mExp;
 #ifdef X86_32bit_COMP
-	int alignment[2];
+	int alignment[3];
 #endif
 } MonsterData;
 #ifdef X86_32bit_COMP
