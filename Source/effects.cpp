@@ -1204,7 +1204,7 @@ void InitMonsterSND(int midx)
 	mdata = &monsterdata[cmon->cmType];
 	mfdata = &monfiledata[mdata->moFileNum];
 	static_assert((int)MS_SPECIAL + 1 == NUM_MON_SFX, "InitMonsterSND requires MS_SPECIAL at the end of the enum.");
-	n = mdata->mSndSpecial ? NUM_MON_SFX : MS_SPECIAL;
+	n = mfdata->moSndSpecial ? NUM_MON_SFX : MS_SPECIAL;
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
 			snprintf(name, sizeof(name), mfdata->moSndFile, MonstSndChar[i], j + 1);

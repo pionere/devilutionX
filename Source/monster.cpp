@@ -289,6 +289,9 @@ void InitMonsterGFX(int midx)
 	mfdata = &monfiledata[mdata->moFileNum];
 	cmon->cmWidth = mfdata->moWidth;
 	cmon->cmXOffset = (mfdata->moWidth - 64) >> 1;
+	cmon->cmSndSpecial = mfdata->moSndSpecial;
+	cmon->cmAFNum = mfdata->moAFNum;
+	cmon->cmAFNum2 = mfdata->moAFNum2;
 	cmon->cmData = mdata;
 
 	auto &monAnims = cmon->cmAnims;
@@ -417,6 +420,8 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mType = cmon->cmType;
 	mon->_mAnimWidth = cmon->cmWidth;
 	mon->_mAnimXOffset = cmon->cmXOffset;
+	mon->_mAFNum = cmon->cmAFNum;
+	mon->_mAFNum2 = cmon->cmAFNum2;
 	mon->mName = cmon->cmData->mName;
 	mon->_mFlags = cmon->cmData->mFlags;
 	mon->mLevel = cmon->cmData->mLevel;
@@ -425,12 +430,10 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mint = cmon->cmData->mInt;
 	mon->_mHit = cmon->cmData->mHit;
 	mon->_mMagic = cmon->cmData->mMagic;
-	mon->_mAFNum = cmon->cmData->mAFNum;
 	mon->_mMinDamage = cmon->cmData->mMinDamage;
 	mon->_mMaxDamage = cmon->cmData->mMaxDamage;
 	mon->_mHit2 = cmon->cmData->mHit2;
 	mon->_mMagic2 = cmon->cmData->mMagic2;
-	mon->_mAFNum2 = cmon->cmData->mAFNum2;
 	mon->_mMinDamage2 = cmon->cmData->mMinDamage2;
 	mon->_mMaxDamage2 = cmon->cmData->mMaxDamage2;
 	mon->_mArmorClass = cmon->cmData->mArmorClass;
@@ -4636,6 +4639,8 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnims = mon->MType->cmAnims;
 	mon->_mAnimWidth = mon->MType->cmWidth;
 	mon->_mAnimXOffset = mon->MType->cmXOffset;
+	mon->_mAFNum = mon->MType->cmAFNum;
+	mon->_mAFNum2 = mon->MType->cmAFNum2;
 	MData = mon->MType->cmData;
 	if (MData == NULL) {
 		dev_fatal("SyncMonsterAnim: Monster %d \"%s\" MData NULL", mon->_mMTidx, mon->mName);

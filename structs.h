@@ -523,7 +523,6 @@ static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align Anim
 
 typedef struct MonsterData {
 	int moFileNum;
-	BOOL mSndSpecial;
 	const char* mTransFile;
 	const char *mName;
 	BYTE mLevel;
@@ -534,12 +533,10 @@ typedef struct MonsterData {
 	BYTE mInt;
 	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE mMagic;
-	BYTE mAFNum;
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
 	uint16_t mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE mMagic2;     // unused
-	BYTE mAFNum2;
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
 	BYTE mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
@@ -551,7 +548,7 @@ typedef struct MonsterData {
 	BYTE mSelFlag;
 	uint16_t mExp;
 #ifdef X86_32bit_COMP
-	int alignment[1];
+	int alignment[2];
 #endif
 } MonsterData;
 #ifdef X86_32bit_COMP
@@ -559,12 +556,15 @@ static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align Mon
 #endif
 
 typedef struct MonFileData {
-	int moWidth;
 	int moImage;
 	const char *moGfxFile;
 	const char *moSndFile;
 	int moAnimFrames[NUM_MON_ANIM];
 	int moAnimFrameLen[NUM_MON_ANIM];
+	BYTE moWidth;
+	BOOLEAN moSndSpecial;
+	BYTE moAFNum;
+	BYTE moAFNum2;
 } MonFileData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align MonFileData to power of 2 for better performance.");
@@ -578,6 +578,9 @@ typedef struct MapMonData {
 	int cmWidth;
 	int cmXOffset;
 	BYTE cmDeadval;
+	BOOLEAN cmSndSpecial;
+	BYTE cmAFNum;
+	BYTE cmAFNum2;
 	const MonsterData *cmData;
 #ifdef X86_32bit_COMP
 	int alignment[10];
