@@ -417,7 +417,6 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mType = cmon->cmType;
 	mon->_mAnimWidth = cmon->cmWidth;
 	mon->_mAnimXOffset = cmon->cmXOffset;
-	mon->MData = cmon->cmData;
 	mon->mName = cmon->cmData->mName;
 	mon->_mFlags = cmon->cmData->mFlags;
 	mon->mLevel = cmon->cmData->mLevel;
@@ -437,6 +436,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mArmorClass = cmon->cmData->mArmorClass;
 	mon->_mEvasion = cmon->cmData->mEvasion;
 	mon->mMagicRes = cmon->cmData->mMagicRes;
+	mon->_mTreasure = cmon->cmData->mTreasure;
 	mon->mExp = cmon->cmData->mExp;
 	mon->_mmaxhp = RandRange(cmon->cmData->mMinHP, cmon->cmData->mMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
@@ -3790,8 +3790,7 @@ void MAI_Rhino(int mnum)
 		if (dist >= 5 && v < 2 * mon->_mint + 43
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
-				//if (mon->MData->mSndSpecial)
-					PlayEffect(mnum, MS_SPECIAL);
+				PlayEffect(mnum, MS_SPECIAL);
 				mon->_mmode = MM_CHARGE;
 				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 			}
@@ -4641,7 +4640,6 @@ void SyncMonsterAnim(int mnum)
 	if (MData == NULL) {
 		dev_fatal("SyncMonsterAnim: Monster %d \"%s\" MData NULL", mon->_mMTidx, mon->mName);
 	}
-	mon->MData = MData;
 	if (mon->_uniqtype != 0)
 		mon->mName = uniqMonData[mon->_uniqtype - 1].mName;
 	else

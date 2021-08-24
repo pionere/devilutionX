@@ -658,17 +658,17 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
 	uint16_t mMagicRes;
+	uint16_t _mTreasure;
 	uint16_t mExp;
 	int mtalkmsg;
 	const char *mName;
 	MapMonData *MType;
-	const MonsterData *MData;
 	int _mType;
 	AnimStruct *_mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
 #ifdef X86_32bit_COMP
-	int alignment[8];
+	int alignment[9];
 #endif
 } MonsterStruct;
 
