@@ -631,7 +631,6 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mVar8; // Value used to measure progress for moving from one tile to another
 	int _mmaxhp;
 	int _mhitpoints;
-	int _mFlags;
 	int _lastx; // the last known X-coordinate of the enemy
 	int _lasty; // the last known Y-coordinate of the enemy
 	int _mRndSeed;
@@ -648,18 +647,19 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mSelFlag;
 	BYTE _mAi;
 	BYTE _mInt;
+	int _mFlags;
 	uint16_t _mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
-	BYTE _mMagic;
-	BYTE _mAFNum;
 	BYTE _mMinDamage;
 	BYTE _mMaxDamage;
 	uint16_t _mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
-	BYTE _mMagic2;     // unused
-	BYTE _mAFNum2;
 	BYTE _mMinDamage2;
 	BYTE _mMaxDamage2;
+	BYTE _mMagic;
+	BYTE _mMagic2;     // unused
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
+	BYTE _mAFNum;
+	BYTE _mAFNum2;
 	uint16_t _mMagicRes;
 	uint16_t _mTreasure;
 	uint16_t _mExp;

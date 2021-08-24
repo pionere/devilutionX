@@ -558,7 +558,6 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->_mVar8);
 	LoadInt(&mon->_mmaxhp);
 	LoadInt(&mon->_mhitpoints);
-	LoadInt(&mon->_mFlags);
 	LoadInt(&mon->_lastx);
 	LoadInt(&mon->_lasty);
 	LoadInt(&mon->_mRndSeed);
@@ -579,20 +578,23 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->_mAi);
 	LoadByte(&mon->_mInt);
 
+	LoadInt(&mon->_mFlags);
+
 	LoadInt16(&mon->_mHit);
-	LoadByte(&mon->_mMagic);
-	LoadByte(&mon->_mAFNum);
 	LoadByte(&mon->_mMinDamage);
 	LoadByte(&mon->_mMaxDamage);
 
 	LoadInt16(&mon->_mHit2);
-	LoadByte(&mon->_mMagic2);
-	LoadByte(&mon->_mAFNum2);
 	LoadByte(&mon->_mMinDamage2);
 	LoadByte(&mon->_mMaxDamage2);
 
+	LoadByte(&mon->_mMagic);
+	LoadByte(&mon->_mMagic2);
 	LoadByte(&mon->_mArmorClass);
 	LoadByte(&mon->_mEvasion);
+
+	LoadByte(&mon->_mAFNum);
+	LoadByte(&mon->_mAFNum2);
 	LoadInt16(&mon->_mMagicRes);
 
 	LoadInt16(&mon->_mTreasure);
@@ -1270,7 +1272,6 @@ static void SaveMonster(int mnum)
 	SaveInt(&mon->_mVar8);
 	SaveInt(&mon->_mmaxhp);
 	SaveInt(&mon->_mhitpoints);
-	SaveInt(&mon->_mFlags);
 	SaveInt(&mon->_lastx);
 	SaveInt(&mon->_lasty);
 	SaveInt(&mon->_mRndSeed);
@@ -1291,20 +1292,23 @@ static void SaveMonster(int mnum)
 	SaveByte(&mon->_mAi);
 	SaveByte(&mon->_mInt);
 
+	SaveInt(&mon->_mFlags);
+
 	SaveInt16(&mon->_mHit);
-	SaveByte(&mon->_mMagic);
-	SaveByte(&mon->_mAFNum);
 	SaveByte(&mon->_mMinDamage);
 	SaveByte(&mon->_mMaxDamage);
 
 	SaveInt16(&mon->_mHit2);
-	SaveByte(&mon->_mMagic2);
-	SaveByte(&mon->_mAFNum2);
 	SaveByte(&mon->_mMinDamage2);
 	SaveByte(&mon->_mMaxDamage2);
 
+	SaveByte(&mon->_mMagic);
+	SaveByte(&mon->_mMagic2);
 	SaveByte(&mon->_mArmorClass);
 	SaveByte(&mon->_mEvasion);
+
+	SaveByte(&mon->_mAFNum);
+	SaveByte(&mon->_mAFNum2);
 	SaveInt16(&mon->_mMagicRes);
 
 	SaveInt16(&mon->_mTreasure);
