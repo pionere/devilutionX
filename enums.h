@@ -2785,7 +2785,7 @@ typedef enum MON_MODE {
 	MM_ATTACK    = 4,
 	MM_GOTHIT    = 5,
 	MM_DEATH     = 6,
-	MM_SATTACK   = 7,
+	MM_SPATTACK  = 7,
 	MM_FADEIN    = 8,
 	MM_FADEOUT   = 9,
 	MM_RATTACK   = 10,

@@ -1427,7 +1427,7 @@ static void MonStartSpAttack(int mnum)
 
 	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 
-	mon->_mmode = MM_SATTACK;
+	mon->_mmode = MM_SPATTACK;
 	AssertFixMonLocation(mnum);
 }
 
@@ -2159,12 +2159,12 @@ static bool MonDoRSpAttack(int mnum)
 	return false;
 }
 
-static bool MonDoSAttack(int mnum)
+static bool MonDoSpAttack(int mnum)
 {
 	MonsterStruct *mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonDoSAttack: Invalid monster %d", mnum);
+		dev_fatal("MonDoSpAttack: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum2)
@@ -2232,7 +2232,7 @@ static bool MonDoHeal(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_NOHEAL) {
 		mon->_mFlags &= ~MFLAG_LOCK_ANIMATION;
-		mon->_mmode = MM_SATTACK;
+		mon->_mmode = MM_SPATTACK;
 		return false;
 	}
 
@@ -2244,7 +2244,7 @@ static bool MonDoHeal(int mnum)
 		} else {
 			mon->_mhitpoints = mon->_mmaxhp;
 			mon->_mFlags &= ~MFLAG_LOCK_ANIMATION;
-			mon->_mmode = MM_SATTACK;
+			mon->_mmode = MM_SPATTACK;
 		}
 	}
 	return false;
@@ -3435,7 +3435,7 @@ void MAI_Garg(int mnum)
 			if (dist < mon->_mint + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 			}
-		} else if (mon->_mmode != MM_SATTACK) {
+		} else if (mon->_mmode != MM_SPATTACK) {
 			if (mon->leaderflag == MLEADER_NONE && mon->_uniqtype == 0) {
 				MonStartSpAttack(mnum);
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
@@ -4317,8 +4317,8 @@ void ProcessMonsters()
 			case MM_DEATH:
 				raflag = MonDoDeath(mnum);
 				break;
-			case MM_SATTACK:
-				raflag = MonDoSAttack(mnum);
+			case MM_SPATTACK:
+				raflag = MonDoSpAttack(mnum);
 				break;
 			case MM_FADEIN:
 				raflag = MonDoFadein(mnum);
@@ -4666,7 +4666,7 @@ void SyncMonsterAnim(int mnum)
 	case MM_DEATH:
 		anim = MA_DEATH;
 		break;
-	case MM_SATTACK:
+	case MM_SPATTACK:
 	case MM_FADEIN:
 	case MM_FADEOUT:
 	case MM_SPSTAND:
@@ -5117,7 +5117,7 @@ bool CheckMonsterHit(int mnum, bool *ret)
 
 	if (mon->_mAi == AI_GARG && mon->_mFlags & MFLAG_GARG_STONE) {
 		mon->_mFlags &= ~(MFLAG_GARG_STONE | MFLAG_LOCK_ANIMATION);
-		// mon->_mmode = MM_SATTACK;
+		// mon->_mmode = MM_SPATTACK;
 		*ret = true;
 		return true;
 	}
