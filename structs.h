@@ -532,7 +532,7 @@ typedef struct MonsterData {
 	int mMaxHP;
 	int mFlags;
 	BYTE mInt;
-	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
+	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE mMagic;
 	BYTE mAFNum;
 	BYTE mMinDamage;
@@ -645,7 +645,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mSelFlag;
 	BYTE _mAi;
 	BYTE _mint;
-	uint16_t _mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
+	uint16_t _mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE _mMagic;
 	BYTE _mAFNum;
 	BYTE _mMinDamage;
