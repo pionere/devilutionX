@@ -2782,7 +2782,7 @@ void MAI_Snake(int mnum)
 	if (dist >= 2) { // STAND_PREV_MODE
 		if (dist < 3 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy) && mon->_mVar1 != MM_CHARGE) {
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
-				PlayEffect(mnum, 0);
+				PlayEffect(mnum, MS_ATTACK);
 				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 				mon->_mmode = MM_CHARGE;
 			}
@@ -3789,7 +3789,7 @@ void MAI_Rhino(int mnum)
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 				//if (mon->MData->mSndSpecial)
-					PlayEffect(mnum, 3);
+					PlayEffect(mnum, MS_SPECIAL);
 				mon->_mmode = MM_CHARGE;
 				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 			}
@@ -4715,7 +4715,7 @@ void MissToMonst(int mi, int x, int y)
 		MonStartFadein(mnum, mon->_mdir, false);
 		return;
 	}*/
-	PlayEffect(mnum, 1);
+	PlayEffect(mnum, MS_GOTHIT);
 	if (mon->_mType == MT_GLOOM)
 		return;
 

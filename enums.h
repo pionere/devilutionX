@@ -1553,7 +1553,7 @@ typedef enum missile_id {
 	NUM_MISTYPES
 } missile_id;
 
-typedef enum missile_graphic_id {
+typedef enum missile_gfx_id {
 	MFILE_ARROWS,
 	MFILE_FIREBA,
 	MFILE_GUARD,
@@ -1619,7 +1619,7 @@ typedef enum missile_graphic_id {
 #endif
 	NUM_MFILE,
 	MFILE_NONE = NUM_MFILE,
-} missile_graphic_id;
+} missile_gfx_id;
 
 typedef enum missile_flags {
 	MIF_AREA    = 1 << 0,
@@ -1841,7 +1841,7 @@ typedef enum _monster_id {
 } _monster_id;
 
 // this enum contains indexes from UniqMonst array for special unique monsters (usually quest related)
-typedef enum {
+typedef enum _uniq_monsterid {
 	UMT_GARBUD    = 0,
 	UMT_SKELKING  = 1,
 	UMT_ZHAR      = 2,

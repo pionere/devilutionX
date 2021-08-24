@@ -128,7 +128,7 @@ const MissileData missiledata[] = {
 /** Data related to each missile graphic ID. */
 const MisFileData misfiledata[NUM_MFILE + 1] = {
 	// clang-format off
-// anim_index      mfAnimFAmt, mfName,      mfAnimTrans,                     mfFlags,               mfAnimFrameLen[16],                                 mfAnimLen[16],                                                      mfAnimWidth, mfAnimXOffset
+//missile_gfx_id   mfAnimFAmt, mfName,      mfAnimTrans,                     mfFlags,               mfAnimFrameLen[16],                                 mfAnimLen[16],                                                      mfAnimWidth, mfAnimXOffset
 /*MFILE_ARROWS*/    {       1, "Arrows",    NULL,                            MAFLAG_LOCK_ANIMATION, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 16,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },          96,           16 },
 /*MFILE_FIREBA*/    {      16, "Fireba",    NULL,                            0,                     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },          96,           16 },
 /*MFILE_GUARD*/     {       3, "Guard",     NULL,                            0,                     { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 15, 14,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },          96,           16 },
