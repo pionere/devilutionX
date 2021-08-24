@@ -226,7 +226,7 @@ static bool FindClosestChain(int sx, int sy, int &dx, int &dy)
 			assert(IN_DUNGEON_AREA(tx, ty));
 			mid = dMonster[tx][ty];
 			if (mid > 0
-			 && (monsters[mid - 1].mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE
+			 && (monsters[mid - 1]._mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE
 			 && monsters[mid - 1]._mhitpoints >= (1 << 6)
 			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
 				dx = tx;
@@ -617,7 +617,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 #endif
 			return false;
 
-	dam = CalcMonsterDam(mon->mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
+	dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
 
@@ -667,10 +667,10 @@ static bool MonsterMHit(int mnum, int mi)
 		if (mis->_miFlags & MIF_AREA) {
 			hper = 40
 				+ (plr._pLevel << 1)
-				- (mon->mLevel << 1);
+				- (mon->_mLevel << 1);
 		} else {
 			hper = 50 + plr._pMagic
-				- (mon->mLevel << 1)
+				- (mon->_mLevel << 1)
 				- mon->_mEvasion
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}
@@ -689,15 +689,15 @@ static bool MonsterMHit(int mnum, int mi)
 		dam = 0;
 		int sldam = plr._pISlMaxDam;
 		if (sldam != 0) {
-			dam += CalcMonsterDam(mon->mMagicRes, MISR_SLASH, plr._pISlMinDam, sldam);
+			dam += CalcMonsterDam(mon->_mMagicRes, MISR_SLASH, plr._pISlMinDam, sldam);
 		}
 		int bldam = plr._pIBlMaxDam;
 		if (bldam != 0) {
-			dam += CalcMonsterDam(mon->mMagicRes, MISR_BLUNT, plr._pIBlMinDam, bldam);
+			dam += CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, plr._pIBlMinDam, bldam);
 		}
 		int pcdam = plr._pIPcMaxDam;
 		if (pcdam != 0) {
-			dam += CalcMonsterDam(mon->mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, pcdam);
+			dam += CalcMonsterDam(mon->_mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, pcdam);
 		}
 		// add modifiers from arrow-type
 		if (mis->_miType == MIS_PBARROW) {
@@ -707,19 +707,19 @@ static bool MonsterMHit(int mnum, int mi)
 		}
 		int fdam = plr._pIFMaxDam;
 		if (fdam != 0) {
-			fdam = CalcMonsterDam(mon->mMagicRes, MISR_FIRE, plr._pIFMinDam, fdam);
+			fdam = CalcMonsterDam(mon->_mMagicRes, MISR_FIRE, plr._pIFMinDam, fdam);
 		}
 		int ldam = plr._pILMaxDam;
 		if (ldam != 0) {
-			ldam = CalcMonsterDam(mon->mMagicRes, MISR_LIGHTNING, plr._pILMinDam, ldam);
+			ldam = CalcMonsterDam(mon->_mMagicRes, MISR_LIGHTNING, plr._pILMinDam, ldam);
 		}
 		int mdam = plr._pIMMaxDam;
 		if (mdam != 0) {
-			mdam = CalcMonsterDam(mon->mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam);
+			mdam = CalcMonsterDam(mon->_mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam);
 		}
 		int adam = plr._pIAMaxDam;
 		if (adam != 0) {
-			adam = CalcMonsterDam(mon->mMagicRes, MISR_ACID, plr._pIAMinDam, adam);
+			adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam);
 		}
 		if ((ldam | fdam | mdam | adam) != 0) {
 			dam += fdam + ldam + mdam + adam;
@@ -733,7 +733,7 @@ static bool MonsterMHit(int mnum, int mi)
 			PlrIncMana(pnum, (dam * plr._pIManaSteal) >> 7);
 		}
 	} else {
-		dam = CalcMonsterDam(mon->mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
+		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		if (dam == 0)
 			return false;
 	}
@@ -866,14 +866,14 @@ static bool PlayerMHit(int pnum, int mi)
 	mon = &monsters[mis->_miSource];
 	if (mis->_miSubType == 0) {
 		hper = 30 + mon->_mHit
-		    + (2 * mon->mLevel)
+		    + (2 * mon->_mLevel)
 			- (2 * plr._pLevel)
 		    - plr._pIAC;
 		hper -= mis->_miDist << 1;
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
 			hper = 40
-				+ (2 * mon->mLevel)
+				+ (2 * mon->_mLevel)
 				- (2 * plr._pLevel);
 		} else {
 			hper = 50 + mon->_mMagic
@@ -894,7 +894,7 @@ static bool PlayerMHit(int pnum, int mi)
 		tmp = plr._pIBlockChance;
 		if (tmp != 0 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
 			// assert(plr._pSkillFlags & SFLAG_BLOCK);
-			tmp = tmp - (mon->mLevel << 1);
+			tmp = tmp - (mon->_mLevel << 1);
 			if (tmp > random_(73, 100)) {
 				tmp = GetDirection(plr._px, plr._py, mon->_mx, mon->_my);
 				PlrStartBlock(pnum, tmp);
@@ -2061,7 +2061,7 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			mis->_miMinDam = dam;
 			mis->_miMaxDam = dam << 3;
 		} else {
-			mis->_miMinDam = mis->_miMaxDam = monsters[misource].mLevel << 1;
+			mis->_miMinDam = mis->_miMaxDam = monsters[misource]._mLevel << 1;
 		}
 	} else {
 		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel << 1;
@@ -2323,7 +2323,7 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
-	mis->_miRange = 5 * (monsters[misource]._mint + 4);
+	mis->_miRange = 5 * (monsters[misource]._mInt + 4);
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	//mis->_miLid = NO_LIGHT;
@@ -2336,7 +2336,7 @@ int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	mis->_miRange = 40 * (monsters[misource]._mint + 1) + random_(50, 15);
+	mis->_miRange = 40 * (monsters[misource]._mInt + 1) + random_(50, 15);
 	mis->_miLightFlag = TRUE;
 	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;

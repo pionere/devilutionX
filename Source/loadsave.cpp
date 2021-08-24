@@ -574,10 +574,10 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->packsize);
 	LoadByte(&mon->falign_CB); // Alignment
 
-	LoadByte(&mon->mLevel);
+	LoadByte(&mon->_mLevel);
 	LoadByte(&mon->_mSelFlag);
 	LoadByte(&mon->_mAi);
-	LoadByte(&mon->_mint);
+	LoadByte(&mon->_mInt);
 
 	LoadInt16(&mon->_mHit);
 	LoadByte(&mon->_mMagic);
@@ -593,16 +593,15 @@ static void LoadMonster(int mnum)
 
 	LoadByte(&mon->_mArmorClass);
 	LoadByte(&mon->_mEvasion);
-	LoadInt16(&mon->mMagicRes);
+	LoadInt16(&mon->_mMagicRes);
 
 	LoadInt16(&mon->_mTreasure);
-	LoadInt16(&mon->mExp);
+	LoadInt16(&mon->_mExp);
 
 	LoadInt(&mon->mtalkmsg);
 
 	// Omit pointer mName;
 	// Omit pointer MType;
-	// Omit pointer MData;
 
 	SyncMonsterAnim(mnum);
 }
@@ -1287,10 +1286,10 @@ static void SaveMonster(int mnum)
 	SaveByte(&mon->packsize);
 	SaveByte(&mon->falign_CB); // Alignment
 
-	SaveByte(&mon->mLevel);
+	SaveByte(&mon->_mLevel);
 	SaveByte(&mon->_mSelFlag);
 	SaveByte(&mon->_mAi);
-	SaveByte(&mon->_mint);
+	SaveByte(&mon->_mInt);
 
 	SaveInt16(&mon->_mHit);
 	SaveByte(&mon->_mMagic);
@@ -1306,16 +1305,15 @@ static void SaveMonster(int mnum)
 
 	SaveByte(&mon->_mArmorClass);
 	SaveByte(&mon->_mEvasion);
-	SaveInt16(&mon->mMagicRes);
+	SaveInt16(&mon->_mMagicRes);
 
 	SaveInt16(&mon->_mTreasure);
-	SaveInt16(&mon->mExp);
+	SaveInt16(&mon->_mExp);
 
 	SaveInt(&mon->mtalkmsg);
 
 	// Omit pointer mName;
 	// Omit pointer MType;
-	// Omit pointer MData;
 }
 
 static void SaveTowner(int tnum)

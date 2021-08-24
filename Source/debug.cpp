@@ -318,10 +318,10 @@ void ValidateData()
 			if (AllLevels[lvl].dMonTypes[j] == MT_INVALID)
 				app_fatal("Useless unique monster %s (%d)", um.mName, i);
 		}
-		if (um.mAi == AI_FALLEN && um.mint > 3)
-			app_fatal("Invalid mInt %d for %s (%d)", um.mint, um.mName, i);
-		if (um.mAi == AI_COUNSLR && um.mint > 5)
-			app_fatal("Invalid mInt %d for %s (%d)", um.mint, um.mName, i);
+		if (um.mAi == AI_FALLEN && um.mInt > 3)
+			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
+		if (um.mAi == AI_COUNSLR && um.mInt > 5)
+			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
 	}
 
 	// items

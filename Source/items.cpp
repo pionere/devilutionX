@@ -2067,10 +2067,10 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 		return;
 
 	if (mon->_uniqtype != 0) {
-		idx = RndUItem(mon->mLevel);
+		idx = RndUItem(mon->_mLevel);
 		onlygood = TRUE;
 	} else if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QS_MUSHGIVEN) {
-		idx = RndItem(mon->mLevel);
+		idx = RndItem(mon->_mLevel);
 		if (idx < 0)
 			return;
 	} else {
@@ -2081,7 +2081,7 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 	}
 
 	ii = itemavail[0];
-	SetupAllItems(ii, idx, GetRndSeed(), mon->mLevel,
+	SetupAllItems(ii, idx, GetRndSeed(), mon->_mLevel,
 		onlygood ? 15 : 1, onlygood, false, false);
 
 	RegisterItem(ii, x, y, sendmsg, false); // TODO: delta?

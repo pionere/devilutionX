@@ -644,10 +644,10 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE leader;
 	BYTE leaderflag;
 	BYTE packsize;
-	BYTE mLevel;
+	BYTE _mLevel;
 	BYTE _mSelFlag;
 	BYTE _mAi;
-	BYTE _mint;
+	BYTE _mInt;
 	uint16_t _mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE _mMagic;
 	BYTE _mAFNum;
@@ -660,9 +660,9 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mMaxDamage2;
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
-	uint16_t mMagicRes;
+	uint16_t _mMagicRes;
 	uint16_t _mTreasure;
-	uint16_t mExp;
+	uint16_t _mExp;
 	int mtalkmsg;
 	const char *mName;
 	MapMonData *MType;
@@ -687,7 +687,7 @@ typedef struct UniqMonData {
 	BYTE muLevel;    // difficulty level of the monster
 	uint16_t mmaxhp;
 	BYTE mAi;
-	BYTE mint;
+	BYTE mInt;
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
 	BYTE mMinDamage2;

@@ -983,8 +983,8 @@ void AddPlrMonstExper(int mnum)
 		}
 	}
 
-	e = mon->mExp / totplrs;
-	AddPlrExperience(mypnum, mon->mLevel, e);
+	e = mon->_mExp / totplrs;
+	AddPlrExperience(mypnum, mon->_mLevel, e);
 }
 
 static bool PlrDirOK(int pnum, int dir)
@@ -2181,13 +2181,13 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	dam = 0;
 	damsl = plr._pISlMaxDam;
 	if (damsl != 0)
-		dam += CalcMonsterDam(mon->mMagicRes, MISR_SLASH, plr._pISlMinDam, damsl);
+		dam += CalcMonsterDam(mon->_mMagicRes, MISR_SLASH, plr._pISlMinDam, damsl);
 	dambl = plr._pIBlMaxDam;
 	if (dambl != 0)
-		dam += CalcMonsterDam(mon->mMagicRes, MISR_BLUNT, plr._pIBlMinDam, dambl);
+		dam += CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, plr._pIBlMinDam, dambl);
 	dampc = plr._pIPcMaxDam;
 	if (dampc != 0)
-		dam += CalcMonsterDam(mon->mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, dampc);
+		dam += CalcMonsterDam(mon->_mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, dampc);
 
 	if (random_(6, 200) < plr._pICritChance) {
 		dam <<= 1;
@@ -2207,16 +2207,16 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 
 	int fdam = plr._pIFMaxDam;
 	if (fdam != 0)
-		fdam = CalcMonsterDam(mon->mMagicRes, MISR_FIRE, plr._pIFMinDam, fdam);
+		fdam = CalcMonsterDam(mon->_mMagicRes, MISR_FIRE, plr._pIFMinDam, fdam);
 	int ldam = plr._pILMaxDam;
 	if (ldam != 0)
-		ldam = CalcMonsterDam(mon->mMagicRes, MISR_LIGHTNING, plr._pILMinDam, ldam);
+		ldam = CalcMonsterDam(mon->_mMagicRes, MISR_LIGHTNING, plr._pILMinDam, ldam);
 	int mdam = plr._pIMMaxDam;
 	if (mdam != 0)
-		mdam = CalcMonsterDam(mon->mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam);
+		mdam = CalcMonsterDam(mon->_mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam);
 	int adam = 0;
 	if (adam != 0)
-		adam = CalcMonsterDam(mon->mMagicRes, MISR_ACID, plr._pIAMinDam, adam);
+		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam);
 
 	if ((fdam | ldam | mdam | adam) != 0) {
 		dam += fdam + ldam + mdam + adam;
