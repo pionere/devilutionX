@@ -273,8 +273,11 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
 		if (md.mAi == AI_COUNSLR && md.mInt > 5)
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
-		if (md.mAnimFrames[MA_WALK] > 24) // required by MonWalkDir
-			app_fatal("Too many(%d) walk-frames for %s (%d).", md.mAnimFrames[MA_WALK], md.mName, i);
+	}
+	for (int i = 0; i < NUM_MOFILE; i++) {
+		const MonFileData& md = monfiledata[i];
+		if (md.moAnimFrames[MA_WALK] > 24) // required by MonWalkDir
+			app_fatal("Too many(%d) walk-frames for %s (%d).", md.moAnimFrames[MA_WALK], md.moGfxFile, i);
 	}
 
 	// umt checks for GetLevelMTypes

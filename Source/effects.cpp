@@ -1193,20 +1193,22 @@ static void stream_update()
 void InitMonsterSND(int midx)
 {
 	char name[MAX_PATH];
-	int i, j;
+	int i, n, j;
 	MapMonData *cmon;
 	const MonsterData *mdata;
+	const MonFileData* mfdata;
 
 	assert(gbSndInited);
 
 	cmon = &mapMonTypes[midx];
 	mdata = &monsterdata[cmon->cmType];
-	for (i = 0; i < NUM_MON_SFX; i++) {
-		if (i != MS_SPECIAL || mdata->mSndSpecial) {
-			for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
-				snprintf(name, sizeof(name), mdata->mSndFile, MonstSndChar[i], j + 1);
-				cmon->cmSnds[i][j] = sound_file_load(name);
-			}
+	mfdata = &monfiledata[mdata->moFileNum];
+	static_assert((int)MS_SPECIAL + 1 == NUM_MON_SFX, "InitMonsterSND requires MS_SPECIAL at the end of the enum.");
+	n = mdata->mSndSpecial ? NUM_MON_SFX : MS_SPECIAL;
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
+			snprintf(name, sizeof(name), mfdata->moSndFile, MonstSndChar[i], j + 1);
+			cmon->cmSnds[i][j] = sound_file_load(name);
 		}
 	}
 }

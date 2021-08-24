@@ -181,7 +181,7 @@ static int AddMonsterType(int type, BOOL scatter)
 		nummtypes++;
 		mapMonTypes[i].cmType = type;
 		mapMonTypes[i].cmPlaceScatter = FALSE;
-		monstimgtot -= monsterdata[type].mImage;
+		monstimgtot -= monfiledata[monsterdata[type].moFileNum].moImage;
 		InitMonsterGFX(i);
 		InitMonsterSND(i);
 	}
@@ -253,7 +253,7 @@ void GetLevelMTypes()
 #endif
 		while (monstimgtot > 0 && nt > 0 && nummtypes < MAX_LVLMTYPES) {
 			for (i = 0; i < nt; ) {
-				if (monsterdata[montypes[i]].mImage > monstimgtot) {
+				if (monfiledata[monsterdata[montypes[i]].moFileNum].moImage > monstimgtot) {
 					montypes[i] = montypes[--nt];
 					continue;
 				}
@@ -278,6 +278,7 @@ void InitMonsterGFX(int midx)
 {
 	MapMonData *cmon;
 	const MonsterData *mdata;
+	const MonFileData* mfdata;
 	int mtype, anim, i;
 	char strBuff[256];
 	BYTE *celBuf;
@@ -285,17 +286,18 @@ void InitMonsterGFX(int midx)
 	cmon = &mapMonTypes[midx];
 	mtype = cmon->cmType;
 	mdata = &monsterdata[mtype];
-	cmon->cmWidth = mdata->width;
-	cmon->cmXOffset = (mdata->width - 64) >> 1;
+	mfdata = &monfiledata[mdata->moFileNum];
+	cmon->cmWidth = mfdata->moWidth;
+	cmon->cmXOffset = (mfdata->moWidth - 64) >> 1;
 	cmon->cmData = mdata;
 
 	auto &monAnims = cmon->cmAnims;
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
-		monAnims[anim].aFrames = mdata->mAnimFrames[anim];
-		monAnims[anim].aFrameLen = mdata->mAnimFrameLen[anim];
-		if (mdata->mAnimFrames[anim] > 0) {
-			snprintf(strBuff, sizeof(strBuff), mdata->mGfxFile, animletter[anim]);
+		monAnims[anim].aFrames = mfdata->moAnimFrames[anim];
+		monAnims[anim].aFrameLen = mfdata->moAnimFrameLen[anim];
+		if (mfdata->moAnimFrames[anim] > 0) {
+			snprintf(strBuff, sizeof(strBuff), mfdata->moGfxFile, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff);
 			monAnims[anim].aCelData = celBuf;

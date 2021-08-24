@@ -522,14 +522,9 @@ static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align Anim
 #endif
 
 typedef struct MonsterData {
-	int width;
-	int mImage;
-	const char *mGfxFile;
-	const char *mSndFile;
+	int moFileNum;
 	BOOL mSndSpecial;
 	const char* mTransFile;
-	int mAnimFrames[NUM_MON_ANIM];
-	int mAnimFrameLen[NUM_MON_ANIM];
 	const char *mName;
 	BYTE mLevel;
 	BYTE mAi;
@@ -556,11 +551,23 @@ typedef struct MonsterData {
 	BYTE mSelFlag;
 	uint16_t mExp;
 #ifdef X86_32bit_COMP
-	int alignment[2];
+	int alignment[1];
 #endif
 } MonsterData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
+#endif
+
+typedef struct MonFileData {
+	int moWidth;
+	int moImage;
+	const char *moGfxFile;
+	const char *moSndFile;
+	int moAnimFrames[NUM_MON_ANIM];
+	int moAnimFrameLen[NUM_MON_ANIM];
+} MonFileData;
+#ifdef X86_32bit_COMP
+static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align MonFileData to power of 2 for better performance.");
 #endif
 
 typedef struct MapMonData {
