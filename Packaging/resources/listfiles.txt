@@ -1322,8 +1322,8 @@ Monsters\SkelAxe\SklAxh1.WAV
 Monsters\SkelAxe\SklAxh2.WAV
 Monsters\SkelAxe\SklAxn.CL2
 Monsters\SkelAxe\SklAxs.CL2
-Monsters\SkelAxe\SklAxs1.WAV
-Monsters\SkelAxe\SklAxs2.WAV
+_Monsters\SkelAxe\SklAxs1.WAV
+_Monsters\SkelAxe\SklAxs2.WAV
 Monsters\SkelAxe\SklAxw.CL2
 _Monsters\SkelAxe\White.TRN
 _Monsters\SkelBow\Black.TRN
@@ -1339,8 +1339,8 @@ Monsters\SkelBow\SklBwh1.WAV
 Monsters\SkelBow\SklBwh2.WAV
 Monsters\SkelBow\SklBwn.CL2
 Monsters\SkelBow\SklBws.CL2
-Monsters\SkelBow\SklBws1.WAV
-Monsters\SkelBow\SklBws2.WAV
+_Monsters\SkelBow\SklBws1.WAV
+_Monsters\SkelBow\SklBws2.WAV
 Monsters\SkelBow\SklBww.CL2
 _Monsters\SkelBow\White.TRN
 Monsters\SkelSd\Black.TRN
@@ -1356,8 +1356,8 @@ Monsters\SkelSd\SklSrh1.WAV
 Monsters\SkelSd\SklSrh2.WAV
 Monsters\SkelSd\SklSrn.CL2
 Monsters\SkelSd\SklSrs.CL2
-Monsters\SkelSd\SklSrs1.WAV
-Monsters\SkelSd\SklSrs2.WAV
+_Monsters\SkelSd\SklSrs1.WAV
+_Monsters\SkelSd\SklSrs2.WAV
 Monsters\SkelSd\SklSrw.CL2
 Monsters\SkelSd\White.TRN
 Monsters\SKing\SKinga.CL2
