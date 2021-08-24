@@ -4686,7 +4686,7 @@ void SyncMonsterAnim(int mnum)
 		break;
 	}
 	mon->_mAnimData = mon->_mAnims[anim].aData[mon->_mdir];
-	mon->_mAnimFrameLen = mon->MData->mAnimFrameLen[anim];
+	mon->_mAnimFrameLen = mon->_mAnims[anim].aFrameLen;
 }
 
 void MissToMonst(int mi, int x, int y)
