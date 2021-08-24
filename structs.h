@@ -526,8 +526,8 @@ typedef struct MonsterData {
 	int mImage;
 	const char *mGfxFile;
 	const char *mSndFile;
-	BOOL snd_special;
-	const char *TransFile;
+	BOOL mSndSpecial;
+	const char* mTransFile;
 	int mAnimFrames[NUM_MON_ANIM];
 	int mAnimFrameLen[NUM_MON_ANIM];
 	const char *mName;

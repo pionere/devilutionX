@@ -1202,7 +1202,7 @@ void InitMonsterSND(int midx)
 	cmon = &mapMonTypes[midx];
 	mdata = &monsterdata[cmon->cmType];
 	for (i = 0; i < NUM_MON_SFX; i++) {
-		if (i != MS_SPECIAL || mdata->snd_special) {
+		if (i != MS_SPECIAL || mdata->mSndSpecial) {
 			for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
 				snprintf(name, sizeof(name), mdata->mSndFile, MonstSndChar[i], j + 1);
 				cmon->cmSnds[i][j] = sound_file_load(name);
