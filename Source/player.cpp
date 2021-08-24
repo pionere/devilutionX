@@ -3249,13 +3249,9 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 {
 	assert(hp >= 0);
 	if (plr._pManaShield != 0) {
-#ifdef HELLFIRE
-		int div = 19 - (std::min((int)plr._pManaShield, 8) << 1);
-#else
-		int div = 3;
-#endif
-		hp -= hp / div;
-		if (plr._pMana >= hp) {
+		static_assert(MAXSPLLEVEL <= 16, "PlrDecHp does not give bonus for high level manashield.");
+		hp -= (hp * (std::min(plr._pManaShield, (BYTE)16))) >> 6;
+		if (plr._pMana > hp) {
 			PlrDecMana(pnum, hp);
 			return false;
 		}
