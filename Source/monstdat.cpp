@@ -193,11 +193,7 @@ const MonFileData monfiledata[NUM_MOFILE] = {
 /*MOFILE_SUCC*/    {  980, "Monsters\\Succ\\Scbs%c.CL2",       "Monsters\\Succ\\Scbs%c%i.WAV",      { 14,  8, 16,  7, 24,  0 }, { 1, 1, 1, 1, 1, 0 }, 128, FALSE,             10,        0 },
 /*MOFILE_MAGE*/    { 2000, "Monsters\\Mage\\Mage%c.CL2",       "Monsters\\Mage\\Mage%c%i.WAV",      { 12,  1, 20,  8, 28, 20 }, { 1, 1, 1, 1, 1, 1 }, 128, FALSE,              8,        0 },
 /*MOFILE_GOLEM*/   {  386, "Monsters\\Golem\\Golem%c.CL2",     "Monsters\\Golem\\Golm%c%i.WAV",     {  0, 16, 12,  0, 12, 20 }, { 1, 1, 1, 1, 1, 1 },  96, FALSE,              7,        0 },
-#ifdef HELLFIRE
-/*MOFILE_DIABLO*/  { 2000, "Monsters\\Diablo\\Diablo%c.CL2",   "Monsters\\Diablo\\Diablo%c%i.WAV",  { 16,  6, 16,  2, 16, 16 }, { 1, 1, 1, 1, 1, 1 }, 160,  TRUE,              4,       11 },
-#else
 /*MOFILE_DIABLO*/  { 2000, "Monsters\\Diablo\\Diablo%c.CL2",   "Monsters\\Diablo\\Diablo%c%i.WAV",  { 16,  6, 16,  6, 16, 16 }, { 1, 1, 1, 1, 1, 1 }, 160,  TRUE,              4,       11 },
-#endif
 /*MOFILE_DARKMAGE*///{ 1060, "Monsters\\DarkMage\\Dmage%c.CL2",  "Monsters\\DarkMage\\Dmag%c%i.WAV",  {  6,  1, 21,  6, 23, 18 }, { 1, 1, 1, 1, 1, 1 }, 128, FALSE,              8,        0 },
 #ifdef HELLFIRE
 /*MOFILE_FORK*/    { 1300, "Monsters\\Fork\\Fork%c.CL2",       "Monsters\\newsfx\\HBoar%c%i.WAV",   { 10, 10, 15,  6, 16,  0 }, { 2, 1, 1, 1, 1, 0 }, 188, FALSE,              7,        0 },
@@ -227,7 +223,7 @@ const MonFileData monfiledata[NUM_MOFILE] = {
 /*MOFILE_BYCLPS*/  {  800, "Monsters\\Byclps\\Byclps%c.CL2",   "Monsters\\newsfx\\Biclop%c%i.WAV",  { 10, 11, 16,  6, 16,  0 }, { 2, 1, 1, 1, 2, 0 }, 180, FALSE,              8,        0 },
 /*MOFILE_FLESH*/   {  800, "Monsters\\Flesh\\Flesh%c.CL2",     "Monsters\\newsfx\\FleshT%c%i.WAV",  { 15, 24, 15,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 }, 164,  TRUE,              8,        0 },
 /*MOFILE_REAPER*/  {  800, "Monsters\\Reaper\\Reap%c.CL2",     "Monsters\\newsfx\\Reaper%c%i.WAV",  { 12, 10, 14,  6, 16,  0 }, { 2, 1, 1, 1, 1, 0 }, 180, FALSE,              8,        0 },
-/*MOFILE_NKR*/     { 1200, "Monsters\\Nkr\\Nkr%c.CL2",         "Monsters\\newsfx\\Nakrul%c%i.WAV",  {  2,  6, 16,  3, 16,  0 }, { 1, 1, 1, 1, 1, 0 }, 226,  TRUE,              7,       10 },
+/*MOFILE_NKR*/     { 1200, "Monsters\\Nkr\\Nkr%c.CL2",         "Monsters\\newsfx\\Nakrul%c%i.WAV",  {  2,  6, 16,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 }, 226,  TRUE,              7,       10 },
 #endif
 	// clang-format on
 };
