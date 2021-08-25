@@ -12,7 +12,7 @@ extern "C" {
 const char *GetBasePath();
 const char *GetPrefPath();
 const char *GetConfigPath();
-const std::string &GetBasePathStr();
+const std::string* GetBasePathStr();
 
 void InitPaths();
 /** Set paths explicitly before calling InitPaths. */

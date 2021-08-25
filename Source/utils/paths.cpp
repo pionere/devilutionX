@@ -68,9 +68,9 @@ const char *GetConfigPath()
 	return configPath.c_str();
 }
 
-const std::string &GetBasePathStr()
+const std::string* GetBasePathStr()
 {
-	return basePath;
+	return &basePath;
 }
 
 void SetBasePath(const char *path)
