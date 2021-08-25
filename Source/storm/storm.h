@@ -161,8 +161,6 @@ void SErrSetLastError(DWORD dwErrCode);
  */
 void SStrCopy(char *dest, const char *src, int max_length);
 
-void SFileSetBasePath(const char *);
-
 void  InitializeMpqCryptography();
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);

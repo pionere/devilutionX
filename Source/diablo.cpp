@@ -264,6 +264,8 @@ static void InitControls()
 
 static void diablo_init()
 {
+	InitPaths();
+
 	init_create_window();
 	_gbWasWindowInit = true;
 

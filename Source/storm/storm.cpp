@@ -26,7 +26,6 @@ extern "C" std::uint32_t GetLastError();
 DEVILUTION_BEGIN_NAMESPACE
 
 static bool directFileAccess = false;
-static std::string *SBasePath = NULL;
 
 radon::File &getIni()
 {
@@ -65,9 +64,10 @@ HANDLE SFileOpenFile(const char* filename)
 	unsigned i;
 	HANDLE result = NULL;
 
-	if (directFileAccess && SBasePath != NULL) {
-		std::string path = *SBasePath + filename;
-		for (i = SBasePath->size(); i < path.size(); ++i)
+	if (directFileAccess) {
+		const std::string &basePath = GetBasePathStr();
+		std::string path = basePath + path;
+		for (i = basePath.size(); i < path.size(); ++i)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
 		SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, &result);
 	}
@@ -277,13 +277,6 @@ void SStrCopy(char *dest, const char *src, int max_length)
 	if (memccpy(dest, src, '\0', max_length) == NULL)
 		dest[max_length - 1] = '\0';
 	//strncpy(dest, src, max_length);
-}
-
-void SFileSetBasePath(const char *path)
-{
-	if (SBasePath == NULL)
-		SBasePath = new std::string;
-	*SBasePath = path;
 }
 
 void SFileEnableDirectAccess(bool enable)

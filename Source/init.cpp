@@ -51,7 +51,6 @@ static HANDLE init_test_access(const char* mpq_name)
 		mpq_abspath += mpq_name;
 		archive = SFileOpenArchive(mpq_abspath.c_str(), MPQ_OPEN_READ_ONLY);
 		if (archive != NULL) {
-			SFileSetBasePath(paths[i]);
 			return archive;
 		}
 	}

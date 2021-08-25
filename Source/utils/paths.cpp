@@ -8,76 +8,87 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static std::string *basePath = NULL;
-static std::string *prefPath = NULL;
-static std::string *configPath = NULL;
+static std::string basePath;
+static std::string prefPath;
+static std::string configPath;
+
+#ifdef _WIN32
+#define SLASH '\\'
+#else
+#define SLASH '/'
+#endif
 
 static void AddTrailingSlash(std::string &path)
 {
-#ifdef _WIN32
-	if (!path.empty() && path.back() != '\\')
-		path += '\\';
-#else
-	if (!path.empty() && path.back() != '/')
-		path += '/';
-#endif
+	if (path.empty())
+		path = " "; // make sure the path is not set during InitPaths
+	else if (path.back() != SLASH)
+		path += SLASH;
 }
 
-static std::string *FromSDL(char *s)
+static void FromSDL(std::string &path, bool base)
 {
-	std::string *result = new std::string(s != NULL ? s : "");
+	char* s;
+
+	if (!path.empty()) {
+		if (path.back() != SLASH)
+			path = ""; // reset path if it was set to empty
+		return;
+	}
+	// the path was not set explicitly -> get it from SDL
+	s = base ? SDL_GetBasePath() : SDL_GetPrefPath("diasurgical", "devilution");
 	if (s != NULL) {
+		path = s;
 		SDL_free(s);
 	} else {
 		SDL_Log("%s", SDL_GetError());
 		SDL_ClearError();
 	}
-	return result;
+}
+
+void InitPaths()
+{
+	FromSDL(basePath, true);
+	FromSDL(prefPath, false);
+	FromSDL(configPath, false);
 }
 
 const char* GetBasePath()
 {
-	if (basePath == NULL)
-		basePath = FromSDL(SDL_GetBasePath());
-	return basePath->c_str();
+	return basePath.c_str();
 }
 
 const char* GetPrefPath()
 {
-	if (prefPath == NULL)
-		prefPath = FromSDL(SDL_GetPrefPath("diasurgical", "devilution"));
-	return prefPath->c_str();
+	return prefPath.c_str();
 }
 
 const char *GetConfigPath()
 {
-	if (configPath == NULL)
-		configPath = FromSDL(SDL_GetPrefPath("diasurgical", "devilution"));
-	return configPath->c_str();
+	return configPath.c_str();
+}
+
+const std::string &GetBasePathStr()
+{
+	return basePath;
 }
 
 void SetBasePath(const char *path)
 {
-	if (basePath == NULL)
-		basePath = new std::string;
-	*basePath = path;
-	AddTrailingSlash(*basePath);
+	basePath = path;
+	AddTrailingSlash(basePath);
 }
 
 void SetPrefPath(const char *path)
 {
-	if (prefPath == NULL)
-		prefPath = new std::string;
-	*prefPath = path;
-	AddTrailingSlash(*prefPath);
+	prefPath = path;
+	AddTrailingSlash(prefPath);
 }
 
 void SetConfigPath(const char *path)
 {
-	if (configPath == NULL)
-		configPath = new std::string;
-	*configPath = path;
-	AddTrailingSlash(*configPath);
+	configPath = path;
+	AddTrailingSlash(configPath);
 }
 
 DEVILUTION_END_NAMESPACE
