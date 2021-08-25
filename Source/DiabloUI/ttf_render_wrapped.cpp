@@ -4,22 +4,21 @@
 #include <cstring>
 #include "utils/sdl_compat.h"
 #include "all.h"
+#include "DiabloUI/ui_item.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-namespace {
-
-SDL_bool CharacterIsDelimiter(char c, const char *delimiters)
+static bool CharacterIsDelimiter(char c)
 {
-	while (*delimiters != '\0') {
-		if (c == *delimiters)
-			return SDL_TRUE;
-		++delimiters;
-	}
-	return SDL_FALSE;
-}
+	const char delimiters[] = " \t\r\n";
+	const char* ptr;
 
-} // namespace
+	for (ptr = delimiters; *ptr != '\0'; ptr++) {
+		if (c == *ptr)
+			return true;
+	}
+	return false;
+}
 
 // Based on SDL 2.0.12 TTF_RenderUTF8_Blended_Wrapped
 SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Color fg, Uint32 wrapLength, const int xAlign)
@@ -35,17 +34,16 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 		return NULL;
 	}
 
-	unsigned numLines = 1;
-	str = NULL;
-	strLines = NULL;
-	if (wrapLength > 0 && *text != '\0') {
-		const char *wrapDelims = " \t\r\n";
+	if (wrapLength <= 0 /*|| *text == '\0'*/) {
+		return TTF_RenderUTF8_Solid(font, text, fg);
+	}
+
+	unsigned numLines = 0;
+	{
 		int w, h;
 		char *spot, *tok, *nextTok, *end;
 		char delim;
 		const unsigned strLen = std::strlen(text);
-
-		numLines = 0;
 
 		str = SDL_stack_alloc(char, strLen + 1);
 		if (str == NULL) {
@@ -53,6 +51,7 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 			return NULL;
 		}
 
+		strLines = NULL;
 		std::memcpy(str, text, strLen + 1);
 		tok = str;
 		end = str + strLen;
@@ -60,6 +59,7 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 			strLines = (char **)SDL_realloc(strLines, (numLines + 1) * sizeof(*strLines));
 			if (strLines == NULL) {
 				TTF_SetError("Out of memory");
+				SDL_stack_free(str);
 				return NULL;
 			}
 			strLines[numLines++] = tok;
@@ -80,11 +80,11 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 			/* Get the longest string that will fit in the desired space */
 			for (;;) {
 				/* Strip trailing whitespace */
-				while (spot > tok && CharacterIsDelimiter(spot[-1], wrapDelims) == SDL_TRUE) {
+				while (spot > tok && CharacterIsDelimiter(spot[-1])) {
 					--spot;
 				}
 				if (spot == tok) {
-					if (CharacterIsDelimiter(*spot, wrapDelims) == SDL_TRUE) {
+					if (CharacterIsDelimiter(*spot)) {
 						*spot = '\0';
 					}
 					break;
@@ -99,7 +99,7 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 				/* Back up and try again... */
 				*spot = delim;
 
-				while (spot > tok && (CharacterIsDelimiter(spot[-1], wrapDelims) == SDL_FALSE)) {
+				while (spot > tok && (!CharacterIsDelimiter(spot[-1]))) {
 					--spot;
 				}
 				if (spot > tok) {
@@ -110,16 +110,10 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 		} while (tok < end);
 	}
 
-	if (strLines == NULL) {
-		SDL_stack_free(str);
-		return TTF_RenderUTF8_Solid(font, text, fg);
-	}
-
 	/* Create the target surface */
 	textbuf = SDL_CreateRGBSurface(SDL_SWSURFACE, (numLines > 1) ? wrapLength : width, height * numLines + (lineSpace * (numLines - 1)), 8, 0, 0, 0, 0);
 	if (textbuf == NULL) {
-		if (strLines != NULL)
-			SDL_free(strLines);
+		SDL_free(strLines);
 		SDL_stack_free(str);
 		return NULL;
 	}
@@ -152,18 +146,18 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 			return NULL;
 		}
 
-		dest.w = static_cast<Uint16>(tmp->w);
-		dest.h = static_cast<Uint16>(tmp->h);
+		dest.w = tmp->w;
+		dest.h = tmp->h;
 
 		switch (xAlign) {
-		case TextAlignment_END:
-			dest.x = textbuf->w - tmp->w;
+		case UIA_LEFT:
+			dest.x = 0;
 			break;
-		case TextAlignment_CENTER:
+		case UIA_CENTER:
 			dest.x = (textbuf->w - tmp->w) / 2;
 			break;
-		case TextAlignment_BEGIN:
-			dest.x = 0;
+		case UIA_RIGHT:
+			dest.x = textbuf->w - tmp->w;
 			break;
 		default:
 			ASSUME_UNREACHABLE

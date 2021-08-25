@@ -24,14 +24,21 @@ enum UiType : uint8_t {
 	UI_EDIT,
 };
 
+enum UiAlignment {
+	UIA_LEFT,
+	UIA_CENTER,
+	UIA_RIGHT,
+};
+
 enum UiFlags : uint16_t {
 	// clang-format off
 	UIS_SMALL       = AFT_SMALL << 0,
 	UIS_MED         = AFT_MED << 0,
 	UIS_BIG         = AFT_BIG << 0,
 	UIS_HUGE        = AFT_HUGE << 0,
-	UIS_CENTER      = 1 << 4,
-	UIS_RIGHT       = 1 << 5,
+	UIS_LEFT        = UIA_LEFT << 4,
+	UIS_CENTER      = UIA_CENTER << 4,
+	UIS_RIGHT       = UIA_RIGHT << 4,
 	UIS_VCENTER     = 1 << 6,
 	UIS_SILVER      = AFC_SILVER << 7,
 	UIS_GOLD        = AFC_GOLD << 7,
@@ -39,6 +46,7 @@ enum UiFlags : uint16_t {
 	UIS_HIDDEN      = 1 << 13,
 
 	UIS_SIZE = 7 << 0,
+	UIS_XALIGN = 3 << 4,
 	UIS_COLOR = 1 << 7,
 	// clang-format on
 };

@@ -12,13 +12,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static TextAlignment XAlignmentFromFlags(int flags)
+static int XAlignmentFromFlags(int flags)
 {
-	if (flags & UIS_CENTER)
-		return TextAlignment_CENTER;
-	if (flags & UIS_RIGHT)
-		return TextAlignment_END;
-	return TextAlignment_BEGIN;
+	return (flags & UIS_XALIGN) >> 4;
 }
 
 static int AlignXOffset(int flags, const SDL_Rect &dest, int w)
@@ -34,34 +30,38 @@ void DrawTTF(const char *text, const SDL_Rect &rectIn, int flags,
     const SDL_Color textColor, const SDL_Color shadowColor,
     TtfSurfaceCache &renderCache)
 {
-	SDL_Rect rect(rectIn);
 	if (font == NULL || text == NULL || *text == '\0')
 		return;
 	const auto xAlign = XAlignmentFromFlags(flags);
-	if (renderCache.text == NULL) {
-		renderCache.text = RenderUTF8_Solid_Wrapped(font, text, textColor, rect.w, xAlign);
-		ScaleSurfaceToOutput(&renderCache.text);
+	SDL_Surface* textSurface = renderCache.text;
+	if (textSurface == NULL) {
+		textSurface = RenderUTF8_Solid_Wrapped(font, text, textColor, rectIn.w, xAlign);
+		if (textSurface == NULL)
+			return;
+		ScaleSurfaceToOutput(&textSurface);
+		renderCache.text = textSurface;
 	}
-	if (renderCache.shadow == NULL) {
-		renderCache.shadow = RenderUTF8_Solid_Wrapped(font, text, shadowColor, rect.w, xAlign);
-		ScaleSurfaceToOutput(&renderCache.shadow);
+	SDL_Surface* shadowSurface = renderCache.shadow;
+	if (shadowSurface == NULL) {
+		shadowSurface = RenderUTF8_Solid_Wrapped(font, text, shadowColor, rectIn.w, xAlign);
+		ScaleSurfaceToOutput(&shadowSurface);
+		renderCache.shadow = shadowSurface;
 	}
-	SDL_Surface *textSurface = renderCache.text;
-	SDL_Surface *shadowSurface = renderCache.shadow;
-	if (textSurface == NULL)
-		return;
 
-	SDL_Rect destRect = rect;
+	SDL_Rect destRect = rectIn;
 	ScaleOutputRect(&destRect);
 	destRect.x += AlignXOffset(flags, destRect, textSurface->w);
 	destRect.y += (flags & UIS_VCENTER) ? (destRect.h - textSurface->h) / 2 : 0;
 
-	SDL_Rect shadowRect = destRect;
-	++shadowRect.x;
-	++shadowRect.y;
-	if (SDL_BlitSurface(shadowSurface, NULL, DiabloUiSurface(), &shadowRect) < 0)
+	++destRect.x;
+	++destRect.y;
+
+	SDL_Surface* uiSurface = DiabloUiSurface();
+	if (SDL_BlitSurface(shadowSurface, NULL, uiSurface, &destRect) < 0)
 		ErrSdl();
-	if (SDL_BlitSurface(textSurface, NULL, DiabloUiSurface(), &destRect) < 0)
+	--destRect.x;
+	--destRect.y;
+	if (SDL_BlitSurface(textSurface, NULL, uiSurface, &destRect) < 0)
 		ErrSdl();
 }
 
