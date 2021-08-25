@@ -186,6 +186,19 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFr
 	tw->_tAnimXOffset = (96 - 64) >> 1;
 }
 
+static void ReInitTownerAnim(int ttype, const char* pAnimFile)
+{
+	int i;
+
+	for (i = 0; i < numtowners; i++) {
+		if (towners[i]._ttype != ttype)
+			continue;
+		MemFreeDbg(towners[i]._tAnimData);
+		towners[i]._tAnimData = LoadFileInMem(pAnimFile);
+		break;
+	}
+}
+
 static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 {
 	TownerStruct *tw;
@@ -367,7 +380,8 @@ void InitTowners()
 #ifdef HELLFIRE
 	if (quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL) {
 		InitCowFarmer();
-	} else if (quests[Q_FARMER]._qactive != QUEST_NOTAVAIL) { // if (quests[Q_FARMER]._qactive != QUEST_DONE || quests[Q_FARMER]._qlog) {
+	}
+	if (quests[Q_FARMER]._qactive != QUEST_NOTAVAIL) { // if (quests[Q_FARMER]._qactive != QUEST_DONE || quests[Q_FARMER]._qlog) {
 		InitFarmer(); // in vanilla hellfire the farmer was gone after the quest is completed, but there is no reason for that
 	}
 	if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
@@ -567,8 +581,10 @@ void SyncTownerQ(int pnum, int idx)
 		if (quests[Q_JERSEY]._qactive != QUEST_ACTIVE)
 			return;
 		quests[Q_JERSEY]._qactive = QUEST_DONE;
-		if (currLvl._dLevelIdx == DLV_TOWN)
+		if (currLvl._dLevelIdx == DLV_TOWN) {
 			SpawnUnique(UITEM_BOVINE, TPOS_COWFARM, pnum == mypnum, false);
+			ReInitTownerAnim(TOWN_COWFARM, "Towners\\Farmer\\mfrmrn2.CEL");
+		}
 		break;
 	case IDI_THEODORE:
 		if (quests[Q_GIRL]._qactive != QUEST_ACTIVE)
@@ -579,6 +595,7 @@ void SyncTownerQ(int pnum, int idx)
 			WORD wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
 			SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
 			CreateAmulet(wCI, TPOS_GIRL, pnum == mypnum, false);
+			ReInitTownerAnim(TOWN_GIRL, "Towners\\Girl\\Girls1.CEL");
 		}
 		break;
 #endif
