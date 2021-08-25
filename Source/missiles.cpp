@@ -4190,13 +4190,4 @@ void SyncMissilesAnim()
 	}
 }
 
-void ClearMissileSpot(int mi)
-{
-	MissileStruct *mis;
-
-	mis = &missile[mi];
-	dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MISSILE;
-	dMissile[mis->_mix][mis->_miy] = 0;
-}
-
 DEVILUTION_END_NAMESPACE
