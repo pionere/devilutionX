@@ -20,7 +20,7 @@ static_assert(FALSE, "GameController is not supported in SDL1.");
 DEVILUTION_BEGIN_NAMESPACE
 
 class GameController {
-	static std::vector<GameController> *const controllers_;
+	static std::vector<GameController> controllers_;
 
 public:
 	static void Add(int joystick_index);
