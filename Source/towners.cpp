@@ -169,13 +169,13 @@ static void InitCowAnim(int tnum, int dir)
 	tw->_tAnimXOffset = (128 - 64) >> 1;
 }
 
-static void InitTownerAnim(int tnum, BYTE* pAnim, int Delay, int numFrames, int ao)
+static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFrames, int ao)
 {
 	TownerStruct *tw;
 
 	tw = &towners[tnum];
 
-	tw->_tAnimData = pAnim;
+	tw->_tAnimData = LoadFileInMem(pAnimFile);
 	tw->_tAnimFrameLen = Delay;
 	tw->_tAnimLen = numFrames;
 	tw->_tAnimOrder = ao;
@@ -224,7 +224,7 @@ static void InitSmith()
 {
 	InitTownerInfo(numtowners, "Griswold the Blacksmith", TOWN_SMITH, TPOS_SMITH);
 	InitTownerTalk(numtowners, STORE_SMITH, TEXT_GRISWOLD1, TEXT_GRISWOLD2, TEXT_GRISWOLD13);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Smith\\SmithN.CEL"), 3, 16, 0);
+	InitTownerAnim(numtowners, "Towners\\Smith\\SmithN.CEL", 3, 16, 0);
 	numtowners++;
 }
 
@@ -232,14 +232,14 @@ static void InitBarOwner()
 {
 	InitTownerInfo(numtowners, "Ogden the Tavern owner", TOWN_TAVERN, TPOS_TAVERN);
 	InitTownerTalk(numtowners, STORE_TAVERN, TEXT_OGDEN1, TEXT_OGDEN2, TEXT_OGDEN10);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TwnF\\TwnFN.CEL"), 3, 16, 3);
+	InitTownerAnim(numtowners, "Towners\\TwnF\\TwnFN.CEL", 3, 16, 3);
 	numtowners++;
 }
 
 static void InitTownDead()
 {
 	InitTownerInfo(numtowners, "Wounded Townsman", TOWN_DEADGUY, 14 + DBORDERX, 22 + DBORDERY);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Butch\\Deadguy.CEL"), 6, 8, -1);
+	InitTownerAnim(numtowners, "Towners\\Butch\\Deadguy.CEL", 6, 8, -1);
 	numtowners++;
 }
 
@@ -247,7 +247,7 @@ static void InitWitch()
 {
 	InitTownerInfo(numtowners, "Adria the Witch", TOWN_WITCH, 70 + DBORDERX, 10 + DBORDERY);
 	InitTownerTalk(numtowners, STORE_WITCH, TEXT_ADRIA1, TEXT_ADRIA2, TEXT_ADRIA13);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\Witch.CEL"), 6, 19, 5);
+	InitTownerAnim(numtowners, "Towners\\TownWmn1\\Witch.CEL", 6, 19, 5);
 	numtowners++;
 }
 
@@ -255,7 +255,7 @@ static void InitBarmaid()
 {
 	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BMAID, 33 + DBORDERX, 56 + DBORDERY);
 	InitTownerTalk(numtowners, STORE_BARMAID, TEXT_GILLIAN1, TEXT_GILLIAN2, TEXT_GILLIAN10);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\WmnN.CEL"), 6, 18, -1);
+	InitTownerAnim(numtowners, "Towners\\TownWmn1\\WmnN.CEL", 6, 18, -1);
 	numtowners++;
 }
 
@@ -263,7 +263,7 @@ static void InitBoy()
 {
 	InitTownerInfo(numtowners, "Wirt the Peg-legged boy", TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY);
 	InitTownerTalk(numtowners, STORE_BOY, TEXT_WIRT1, TEXT_WIRT2, TEXT_WIRT12);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownBoy\\PegKid1.CEL"), 6, 20, -1);
+	InitTownerAnim(numtowners, "Towners\\TownBoy\\PegKid1.CEL", 6, 20, -1);
 	numtowners++;
 }
 
@@ -271,7 +271,7 @@ static void InitHealer()
 {
 	InitTownerInfo(numtowners, "Pepin the Healer", TOWN_HEALER, TPOS_HEALER);
 	InitTownerTalk(numtowners, STORE_HEALER, TEXT_PEPIN1, TEXT_PEPIN2, TEXT_PEPIN11);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Healer\\Healer.CEL"), 6, 20, 1);
+	InitTownerAnim(numtowners, "Towners\\Healer\\Healer.CEL", 6, 20, 1);
 	numtowners++;
 }
 
@@ -279,7 +279,7 @@ static void InitTeller()
 {
 	InitTownerInfo(numtowners, "Cain the Elder", TOWN_STORY, 52 + DBORDERX, 61 + DBORDERY);
 	InitTownerTalk(numtowners, STORE_STORY, TEXT_STORY1, TEXT_STORY2, TEXT_STORY11);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Strytell\\Strytell.CEL"), 3, 25, 2);
+	InitTownerAnim(numtowners, "Towners\\Strytell\\Strytell.CEL", 3, 25, 2);
 	numtowners++;
 }
 
@@ -287,7 +287,7 @@ static void InitDrunk()
 {
 	InitTownerInfo(numtowners, "Farnham the Drunk", TOWN_DRUNK, 61 + DBORDERX, 74 + DBORDERY);
 	InitTownerTalk(numtowners, STORE_DRUNK, TEXT_FARNHAM1, TEXT_FARNHAM2, TEXT_FARNHAM13);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Drunk\\TwnDrunk.CEL"), 3, 18, 4);
+	InitTownerAnim(numtowners, "Towners\\Drunk\\TwnDrunk.CEL", 3, 18, 4);
 	numtowners++;
 }
 
@@ -326,35 +326,27 @@ static void InitCows()
 static void InitFarmer()
 {
 	InitTownerInfo(numtowners, "Lester the farmer", TOWN_FARMER, TPOS_FARMER);
-	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Farmer\\Farmrn2.CEL"), 3, 15, -1);
+	InitTownerAnim(numtowners, "Towners\\Farmer\\Farmrn2.CEL", 3, 15, -1);
 	numtowners++;
 }
 
 static void InitCowFarmer()
 {
-	BYTE *pBuf;
+	const char* pAnimFile;
 
 	InitTownerInfo(numtowners, "Complete Nut", TOWN_COWFARM, TPOS_COWFARM);
-	if (quests[Q_JERSEY]._qactive != QUEST_DONE) {
-		pBuf = LoadFileInMem("Towners\\Farmer\\cfrmrn2.CEL");
-	} else {
-		pBuf = LoadFileInMem("Towners\\Farmer\\mfrmrn2.CEL");
-	}
-	InitTownerAnim(numtowners, pBuf, 3, 15, -1);
+	pAnimFile = quests[Q_JERSEY]._qactive != QUEST_DONE ? "Towners\\Farmer\\cfrmrn2.CEL" : "Towners\\Farmer\\mfrmrn2.CEL";
+	InitTownerAnim(numtowners, pAnimFile, 3, 15, -1);
 	numtowners++;
 }
 
 static void InitGirl()
 {
-	BYTE *pBuf;
+	const char* pAnimFile;
 
 	InitTownerInfo(numtowners, "Celia", TOWN_GIRL, TPOS_GIRL);
-	if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
-		pBuf = LoadFileInMem("Towners\\Girl\\Girlw1.CEL");
-	} else {
-		pBuf = LoadFileInMem("Towners\\Girl\\Girls1.CEL");
-	}
-	InitTownerAnim(numtowners, pBuf, 6, 20, -1);
+	pAnimFile = quests[Q_GIRL]._qactive == QUEST_ACTIVE ? "Towners\\Girl\\Girlw1.CEL" : "Towners\\Girl\\Girls1.CEL";
+	InitTownerAnim(numtowners, pAnimFile, 6, 20, -1);
 	numtowners++;
 }
 #endif
