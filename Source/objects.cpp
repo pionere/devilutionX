@@ -3715,7 +3715,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os = &objects[oi];
-	int mpo;
+	int sfx, mpo;
 	int xp, yp;
 
 	if (os->_oSelFlag == 0)
@@ -3749,12 +3749,13 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 	if (os->_otype == OBJ_BARRELEX) {
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT)
-			PlaySfxLoc(IS_POPPOP3, os->_ox, os->_oy);
+			sfx = IS_POPPOP3;
 		else if (currLvl._dType == DTYPE_NEST)
-			PlaySfxLoc(IS_POPPOP8, os->_ox, os->_oy);
+			sfx = IS_POPPOP8;
 		else
 #endif
-			PlaySfxLoc(IS_BARLFIRE, os->_ox, os->_oy);
+			sfx = IS_BARLFIRE;
+		PlaySfxLoc(sfx, os->_ox, os->_oy);
 		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
 			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
 				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, -1, -1, 0, 0, 0);
@@ -3769,12 +3770,13 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 	} else {
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT)
-			PlaySfxLoc(IS_POPPOP2, os->_ox, os->_oy);
+			sfx = IS_POPPOP2;
 		else if (currLvl._dType == DTYPE_NEST)
-			PlaySfxLoc(IS_POPPOP5, os->_ox, os->_oy);
+			sfx = IS_POPPOP5;
 		else
 #endif
-			PlaySfxLoc(IS_BARREL, os->_ox, os->_oy);
+			sfx = IS_BARREL;
+		PlaySfxLoc(sfx, os->_ox, os->_oy);
 		SetRndSeed(os->_oRndSeed);
 		if (os->_oVar2 <= 1) {    // BARREL_ITEM
 			if (os->_oVar3 == 0)  // BARREL_ITEM_TYPE
