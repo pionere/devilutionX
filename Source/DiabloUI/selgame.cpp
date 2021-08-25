@@ -241,6 +241,8 @@ static void SelgameModeInit()
 	SDL_Rect rect4 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
 	vecSelGameDialog.push_back(new UiArtText("Select Action", rect4, UIS_CENTER | UIS_BIG));
 
+	static_assert(0 == (int)SELGAME_CREATE, "SelgameModeSelect expects the index and its value to match I.");
+	static_assert(1 == (int)SELGAME_JOIN, "SelgameModeSelect expects the index and its value to match II.");
 	vecSelGameDlgItems.push_back(new UiListItem("Create Game", SELGAME_CREATE));
 	vecSelGameDlgItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
@@ -368,8 +370,6 @@ static void SelgameDiffSelect(unsigned index)
 
 static void SelgameModeSelect(unsigned index)
 {
-	assert(index == SELGAME_CREATE || index == (unsigned)vecSelGameDlgItems[index]->m_value);
-
 	selgame_mode = index;
 
 	//gfnHeroInfo(UpdateHeroLevel);
