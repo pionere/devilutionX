@@ -774,7 +774,7 @@ static void LoadLevelData(bool full)
 	if (currLvl._dType != DTYPE_TOWN) {
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
 		if (!full)
-			SetDead();
+			SyncDeadLight();
 	}
 
 	LoadInt(&nummonsters);

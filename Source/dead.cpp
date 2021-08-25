@@ -93,7 +93,7 @@ void AddDead(int mnum)
 	dDead[dx][dy] = (dv & 0x1F) + (dir << 5);
 }
 
-void SetDead()
+void SyncDeadLight()
 {
 	MonsterStruct *mon;
 	int i;

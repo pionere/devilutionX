@@ -17,7 +17,7 @@ extern int stonendx;
 
 void InitDead();
 void AddDead(int mnum);
-void SetDead();
+void SyncDeadLight();
 
 #ifdef __cplusplus
 }
