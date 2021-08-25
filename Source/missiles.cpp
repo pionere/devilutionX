@@ -1979,8 +1979,8 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	MissileStruct *mis;
 	int i, j, tx, ty, pn;
 	const char *cr;
-
-	if (currLvl._dType != DTYPE_TOWN) {
+	// the position of portals in town and recreated portals are fixed
+	if (currLvl._dType != DTYPE_TOWN && spllvl >= 0) {
 		const int RANGE = 6;
 		static_assert(DBORDERX >= RANGE && DBORDERY >= RANGE, "AddTown expects a large enough border.");
 		for (i = 0; i < RANGE; i++) {

@@ -36,7 +36,6 @@ void InitPortals()
 
 void AddWarpMissile(int i, int x, int y)
 {
-	dMissile[x][y] = 0;
 	AddMissile(0, 0, x, y, 0, MIS_TOWN, 0, i, 0, 0, -1);
 }
 
