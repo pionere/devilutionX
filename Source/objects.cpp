@@ -155,7 +155,7 @@ void InitObjectGFX()
 	for (i = 0; i < numthemes; i++)
 		themeload[themes[i].ttype] = true;
 
-	BYTE lvlMask = 1 << currLvl._dDunType; // TODO use dType instead?
+	BYTE lvlMask = 1 << currLvl._dType;
 	for (i = 0; i < NUM_OBJECTS; i++) {
 		ods = &AllObjects[i];
 		if ((ods->oLvlTypes & lvlMask)
@@ -165,18 +165,9 @@ void InitObjectGFX()
 		}
 	}
 
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_NEST)
-		objlist = ObjNestLoadList;
-	else if (currLvl._dType == DTYPE_CRYPT)
-		objlist = ObjCryptLoadList;
-	else
-#endif
-		objlist = ObjMasterLoadList;
-
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		if (fileload[i]) {
-			snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objlist[i]);
+			snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjMasterLoadList[i]);
 			pObjCels[i] = LoadFileInMem(filestr);
 		}
 	}
@@ -339,7 +330,7 @@ static void InitRndLocObj(int min, int max, int objtype)
 	}
 }
 
-static void InitRndSarcs()
+static void InitRndSarcs(int objtype)
 {
 	int i, xp, yp, numobjs;
 
@@ -347,7 +338,7 @@ static void InitRndSarcs()
 	for (i = 0; i < numobjs; i++) {
 		if (!RndLoc3x4(&xp, &yp))
 			break;
-		AddObject(OBJ_SARC, xp, yp);
+		AddObject(objtype, xp, yp);
 	}
 }
 
@@ -402,12 +393,22 @@ static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2,
 
 static void InitRndBarrels()
 {
-	int xp, yp;
-	_object_id o;
+	int i, xp, yp;
+	int o; // type of the object
 	int dir;
 	int t; // number of tries of placing next barrel in current group
 	int c; // number of barrels in current group
-	int i;
+
+	static_assert((int)OBJ_BARREL + 1 == (int)OBJ_BARRELEX, "InitRndBarrels expects ordered BARREL enum I.");
+	o = OBJ_BARREL;
+#ifdef HELLFIRE
+	static_assert((int)OBJ_URN + 1 == (int)OBJ_URNEX, "InitRndBarrels expects ordered BARREL enum II.");
+	static_assert((int)OBJ_POD + 1 == (int)OBJ_PODEX, "InitRndBarrels expects ordered BARREL enum III.");
+	if (currLvl._dType == DTYPE_CRYPT)
+		o = OBJ_URN;
+	else if (currLvl._dType == DTYPE_NEST)
+		o = OBJ_POD;
+#endif
 
 	// generate i number of groups of barrels
 	for (i = RandRange(3, 7); i != 0; i--) {
@@ -415,12 +416,11 @@ static void InitRndBarrels()
 			xp = random_(143, DSIZEX) + DBORDERX;
 			yp = random_(143, DSIZEY) + DBORDERY;
 		} while (!RndLocOk(xp, yp));
-		o = (random_(143, 4) != 0) ? OBJ_BARREL : OBJ_BARRELEX;
-		AddObject(o, xp, yp);
+		AddObject(o + (random_(143, 4) != 0 ? 0 : 1), xp, yp);
 		c = 1;
 		do {
 			for (t = 0; t < 3; t++) {
-				dir = random_(143, 8);
+				dir = random_(143, NUM_DIRS);
 				xp += bxadd[dir];
 				yp += byadd[dir];
 				if (RndLocOk(xp, yp))
@@ -428,8 +428,7 @@ static void InitRndBarrels()
 			}
 			if (t == 3)
 				break;
-			o = (random_(143, 5) != 0) ? OBJ_BARREL : OBJ_BARRELEX;
-			AddObject(o, xp, yp);
+			AddObject(o + (random_(143, 5) != 0 ? 0 : 1), xp, yp);
 			c++;
 		} while (random_(143, c >> 1) == 0);
 	}
@@ -461,9 +460,9 @@ static void AddCryptObjs(int x1, int y1, int x2, int y2)
 		for (i = x1; i < x2; i++) {
 			pn = dPiece[i][j];
 			if (pn == 77)
-				AddObject(OBJ_L1LDOOR, i, j);
+				AddObject(OBJ_L5LDOOR, i, j);
 			if (pn == 80)
-				AddObject(OBJ_L1RDOOR, i, j);
+				AddObject(OBJ_L5RDOOR, i, j);
 		}
 	}
 }
@@ -767,7 +766,7 @@ static void AddHBooks(int bookidx, int ox, int oy)
 	numobjects++;
 	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
 	dObject[ox][oy] = oi + 1;
-	SetupObject(oi, ox, oy, OBJ_STORYBOOK);
+	SetupObject(oi, ox, oy, OBJ_L5BOOK);
 	SetupHBook(oi, bookidx);
 }
 
@@ -779,19 +778,19 @@ static void AddLvl2xBooks(int bookidx)
 		return;
 
 	AddHBooks(bookidx, xp, yp);
-	AddObject(OBJ_STORYCANDLE, xp - 2, yp + 1);
-	AddObject(OBJ_STORYCANDLE, xp - 2, yp);
-	AddObject(OBJ_STORYCANDLE, xp - 1, yp - 1);
-	AddObject(OBJ_STORYCANDLE, xp + 1, yp - 1);
-	AddObject(OBJ_STORYCANDLE, xp + 2, yp);
-	AddObject(OBJ_STORYCANDLE, xp + 2, yp + 1);
+	AddObject(OBJ_L5CANDLE, xp - 2, yp + 1);
+	AddObject(OBJ_L5CANDLE, xp - 2, yp);
+	AddObject(OBJ_L5CANDLE, xp - 1, yp - 1);
+	AddObject(OBJ_L5CANDLE, xp + 1, yp - 1);
+	AddObject(OBJ_L5CANDLE, xp + 2, yp);
+	AddObject(OBJ_L5CANDLE, xp + 2, yp + 1);
 }
 
 static void AddUberLever()
 {
 	int oi;
 
-	oi = AddObject(OBJ_LEVER, 2 * setpc_x + DBORDERX + 7, 2 * setpc_y + DBORDERY + 5);
+	oi = AddObject(OBJ_L5LEVER, 2 * setpc_x + DBORDERX + 7, 2 * setpc_y + DBORDERY + 5);
 	SetObjMapRange(oi, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, 1);
 }
 
@@ -976,7 +975,7 @@ void InitObjects()
 			AddCandles();
 		if (QuestStatus(Q_LTBANNER))
 			AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
-		InitRndSarcs();
+		InitRndSarcs(OBJ_SARC);
 		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		break;
 	case DTYPE_CATACOMBS:
@@ -1044,7 +1043,7 @@ void InitObjects()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		InitRndSarcs();
+		InitRndSarcs(OBJ_L5SARC);
 		AddCryptObjs(0, 0, MAXDUNX, MAXDUNY);
 		break;
 #endif
@@ -1185,6 +1184,10 @@ static void AddL1Door(int oi)
 	// DOOR_BACK_PIECE_CLOSED
 	if (os->_otype == OBJ_L1RDOOR)
 		x--;
+#ifdef HELLFIRE
+	else if (os->_otype == OBJ_L5RDOOR)
+		x--;
+#endif
 	else
 		y--;
 	os->_oVar2 = dPiece[x][y];
@@ -1293,7 +1296,12 @@ static void AddBarrel(int oi)
 	os = &objects[oi];
 	//os->_oVar1 = 0;
 	os->_oRndSeed = GetRndSeed();
-	os->_oVar2 = (os->_otype == OBJ_BARRELEX) ? 0 : random_(149, 10); // BARREL_ITEM
+	//os->_oVar2 = 0;
+	if (os->_otype != OBJ_BARRELEX)
+#ifdef HELLFIRE
+		if (os->_otype != OBJ_URNEX && os->_otype != OBJ_PODEX)
+#endif
+			os->_oVar2 = random_(149, 10); // BARREL_ITEM
 	os->_oVar3 = random_(149, 3);        // BARREL_ITEM_TYPE
 
 	if (os->_oVar2 >= 8)
@@ -1483,6 +1491,9 @@ int AddObject(int type, int ox, int oy)
 		AddObjLight(oi, 5);
 		break;
 	case OBJ_STORYCANDLE:
+#ifdef HELLFIRE
+	case OBJ_L5CANDLE:
+#endif
 		AddObjLight(oi, 3);
 		break;
 	case OBJ_TORCHL:
@@ -1493,6 +1504,10 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
+#ifdef HELLFIRE
+	case OBJ_L5LDOOR:
+	case OBJ_L5RDOOR:
+#endif
 		AddL1Door(oi);
 		break;
 	case OBJ_L2LDOOR:
@@ -1516,6 +1531,9 @@ int AddObject(int type, int ox, int oy)
 		objects[oi]._oVar4 = random_(0, currLvl._dType == DTYPE_CATACOMBS ? 2 : 3); // CHEST_TRAP_TYPE
 		break;
 	case OBJ_SARC:
+#ifdef HELLFIRE
+	case OBJ_L5SARC:
+#endif
 		AddSarc(oi);
 		break;
 	/*case OBJ_FLAMEHOLE:
@@ -1533,6 +1551,12 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
+#ifdef HELLFIRE
+	case OBJ_URN:
+	case OBJ_URNEX:
+	case OBJ_POD:
+	case OBJ_PODEX:
+#endif
 		AddBarrel(oi);
 		break;
 	case OBJ_SHRINEL:
@@ -1580,6 +1604,9 @@ int AddObject(int type, int ox, int oy)
 		AddMagicCircle(oi);
 		break;
 	case OBJ_STORYBOOK:
+#ifdef HELLFIRE
+	case OBJ_L5BOOK:
+#endif
 		AddStoryBook(oi);
 		break;
 	case OBJ_TBCROSS:
@@ -1826,6 +1853,10 @@ static void Obj_Trap(int oi)
 	case OBJ_L2RDOOR:
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
+#ifdef HELLFIRE
+	case OBJ_L5LDOOR:
+	case OBJ_L5RDOOR:
+#endif
 		if (on->_oVar4 != DOOR_CLOSED) {
 			trigArea = baseTrigArea;
 			trigNum = lengthof(baseTrigArea);
@@ -1841,6 +1872,9 @@ static void Obj_Trap(int oi)
 		}
 		break;
 	case OBJ_SARC:
+#ifdef HELLFIRE
+	case OBJ_L5SARC:
+#endif
 		if (on->_oSelFlag == 0) {
 			trigArea = sarcTrigArea;
 			trigNum = lengthof(sarcTrigArea);
@@ -1916,12 +1950,22 @@ void ProcessObjects()
 			Obj_Light(oi, 5);
 			break;
 		case OBJ_STORYCANDLE:
+#ifdef HELLFIRE
+	case OBJ_L5CANDLE:
+#endif
 			Obj_Light(oi, 3);
 			break;*/
 		case OBJ_CRUXM:
 		case OBJ_CRUXR:
 		case OBJ_CRUXL:
 		case OBJ_SARC:
+#ifdef HELLFIRE
+		case OBJ_L5SARC:
+		case OBJ_URN:
+		case OBJ_URNEX:
+		case OBJ_POD:
+		case OBJ_PODEX:
+#endif
 		case OBJ_BARREL:
 		case OBJ_BARRELEX:
 		case OBJ_SHRINEL:
@@ -1934,6 +1978,10 @@ void ProcessObjects()
 		case OBJ_L2RDOOR:
 		case OBJ_L3LDOOR:
 		case OBJ_L3RDOOR:
+#ifdef HELLFIRE
+		case OBJ_L5LDOOR:
+		case OBJ_L5RDOOR:
+#endif
 			Obj_Door(oi);
 			break;
 		/*case OBJ_TORCHL:
@@ -2125,7 +2173,7 @@ static void DoorSet(int dx, int dy, int otype)
 		if (pn == 79)
 			ObjSetMicro(dx, dy, 208);
 		if (pn == 86)
-			ObjSetMicro(dx, dy, otype == OBJ_L1LDOOR ? 232 : 234);
+			ObjSetMicro(dx, dy, otype == OBJ_L5LDOOR ? 232 : 234);
 		if (pn == 91)
 			ObjSetMicro(dx, dy, 215);
 		if (pn == 93)
@@ -2393,6 +2441,12 @@ void MonstCheckDoors(int mx, int my)
 					OperateL1LDoor(mx, my, oi, true);
 				} else if (objects[oi]._otype == OBJ_L1RDOOR) {
 					OperateL1RDoor(mx, my, oi, true);
+#ifdef HELLFIRE
+				} else if (objects[oi]._otype == OBJ_L5LDOOR) {
+					OperateL1LDoor(mx, my, oi, true);
+				} else if (objects[oi]._otype == OBJ_L5RDOOR) {
+					OperateL1RDoor(mx, my, oi, true);
+#endif
 				} else if (objects[oi]._otype == OBJ_L2LDOOR) {
 					OperateL2LDoor(mx, my, oi, true);
 				} else if (objects[oi]._otype == OBJ_L2RDOOR) {
@@ -3714,7 +3768,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os = &objects[oi];
-	int sfx, mpo;
+	int sfx, xotype, mpo;
 	int xp, yp;
 
 	if (os->_oSelFlag == 0)
@@ -3745,7 +3799,15 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	if (os->_otype == OBJ_BARRELEX) {
+	xotype = OBJ_BARRELEX;
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT)
+		xotype = OBJ_URNEX;
+	else if (currLvl._dType == DTYPE_NEST)
+		xotype = OBJ_PODEX;
+#endif
+
+	if (os->_otype == xotype) {
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT)
 			sfx = IS_POPPOP3;
@@ -3761,7 +3823,7 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 				mpo = dObject[xp][yp];
 				if (mpo > 0) {
 					mpo--;
-					if (objects[mpo]._otype == OBJ_BARRELEX && objects[mpo]._oBreak != OBM_BROKEN)
+					if (objects[mpo]._otype == xotype && objects[mpo]._oBreak != OBM_BROKEN)
 						OperateBarrel(true, pnum, mpo, sendmsg);
 				}
 			}
@@ -3796,12 +3858,18 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	sendmsg = (pnum == mypnum);
 	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
+#ifdef HELLFIRE
+	case OBJ_L5LDOOR:
+#endif
 		if (TeleFlag)
 			OperateL1Door(oi, sendmsg);
 		else //if (sendmsg) // pnum == mypnum
 			OperateL1LDoor(plr._px, plr._py, oi, sendmsg);
 		break;
 	case OBJ_L1RDOOR:
+#ifdef HELLFIRE
+	case OBJ_L5RDOOR:
+#endif
 		if (TeleFlag)
 			OperateL1Door(oi, sendmsg);
 		else //if (sendmsg) // pnum == mypnum
@@ -3832,6 +3900,9 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 			OperateL3RDoor(plr._px, plr._py, oi, sendmsg);
 		break;
 	case OBJ_LEVER:
+#ifdef HELLFIRE
+	case OBJ_L5LEVER:
+#endif
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, sendmsg);
 		break;
@@ -3847,6 +3918,9 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateChest(pnum, oi, sendmsg);
 		break;
 	case OBJ_SARC:
+#ifdef HELLFIRE
+	case OBJ_L5SARC:
+#endif
 		OperateSarc(oi, sendmsg);
 		break;
 	//case OBJ_FLAMELVR:
@@ -3866,6 +3940,12 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
+#ifdef HELLFIRE
+	case OBJ_URN:
+	case OBJ_URNEX:
+	case OBJ_POD:
+	case OBJ_PODEX:
+#endif
 		OperateBarrel(false, pnum, oi, sendmsg);
 		break;
 	case OBJ_SHRINEL:
@@ -3899,6 +3979,9 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateFountains(pnum, oi, sendmsg);
 		break;
 	case OBJ_STORYBOOK:
+#ifdef HELLFIRE
+	case OBJ_L5BOOK:
+#endif
 		OperateStoryBook(pnum, oi, sendmsg);
 		break;
 	case OBJ_PEDISTAL:
@@ -3970,6 +4053,10 @@ void SyncOpObject(int pnum, int oi)
 	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
+#ifdef HELLFIRE
+	case OBJ_L5LDOOR:
+	case OBJ_L5RDOOR:
+#endif
 		OperateL1Door(oi, false);
 		break;
 	case OBJ_L2LDOOR:
@@ -3981,6 +4068,9 @@ void SyncOpObject(int pnum, int oi)
 		OperateL3Door(oi, false);
 		break;
 	case OBJ_LEVER:
+#ifdef HELLFIRE
+	case OBJ_L5LEVER:
+#endif
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, false);
 		break;
@@ -3996,6 +4086,9 @@ void SyncOpObject(int pnum, int oi)
 		OperateChest(pnum, oi, false);
 		break;
 	case OBJ_SARC:
+#ifdef HELLFIRE
+	case OBJ_L5SARC:
+#endif
 		OperateSarc(oi, false);
 		break;
 	//case OBJ_FLAMELVR:
@@ -4015,6 +4108,12 @@ void SyncOpObject(int pnum, int oi)
 		break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
+#ifdef HELLFIRE
+	case OBJ_URN:
+	case OBJ_URNEX:
+	case OBJ_POD:
+	case OBJ_PODEX:
+#endif
 		OperateBarrel(true, pnum, oi, false);
 		break;
 	case OBJ_SHRINEL:
@@ -4046,6 +4145,9 @@ void SyncOpObject(int pnum, int oi)
 		OperateFountains(pnum, oi, false);
 		break;
 	case OBJ_STORYBOOK:
+#ifdef HELLFIRE
+	case OBJ_L5BOOK:
+#endif
 		OperateStoryBook(-1, oi, false);
 		break;
 	case OBJ_PEDISTAL:
@@ -4135,12 +4237,16 @@ static void SyncL1Doors(int oi)
 
 		if (os->_otype == OBJ_L1RDOOR)
 			x--;
+#ifdef HELLFIRE
+		else if (os->_otype == OBJ_L5RDOOR)
+			x--;
+#endif
 		else
 			y--;
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT) {
 			if (pn == 86 && dPiece[x][y] == 210)
-				pn = os->_otype == OBJ_L1RDOOR ? 232 : 234;
+				pn = os->_otype == OBJ_L5RDOOR ? 232 : 234;
 		} else
 #endif
 		{
@@ -4153,7 +4259,7 @@ static void SyncL1Doors(int oi)
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
-		if (os->_otype == OBJ_L1LDOOR) {
+		if (os->_otype == OBJ_L5LDOOR) {
 			ObjSetMicro(x, y, 206);
 			dSpecial[x][y] = 1;
 			objects_set_door_piece(x - 1, y);
@@ -4240,6 +4346,10 @@ void SyncObjectAnim(int oi)
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
+#ifdef HELLFIRE
+	case OBJ_L5LDOOR:
+	case OBJ_L5RDOOR:
+#endif
 		SyncL1Doors(oi);
 		break;
 	case OBJ_L2LDOOR:
@@ -4251,6 +4361,9 @@ void SyncObjectAnim(int oi)
 		SyncL3Doors(oi);
 		break;
 	case OBJ_LEVER:
+#ifdef HELLFIRE
+	case OBJ_L5LEVER:
+#endif
 	case OBJ_BOOK2L:
 	case OBJ_SWITCHSKL:
 		SyncLever(oi);
@@ -4273,6 +4386,9 @@ void GetObjectStr(int oi)
 	os = &objects[oi];
 	switch (os->_otype) {
 	case OBJ_LEVER:
+#ifdef HELLFIRE
+	case OBJ_L5LEVER:
+#endif
 	//case OBJ_FLAMELVR:
 		copy_cstr(infostr, "Lever");
 		break;
@@ -4282,6 +4398,10 @@ void GetObjectStr(int oi)
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
+#ifdef HELLFIRE
+	case OBJ_L5LDOOR:
+	case OBJ_L5RDOOR:
+#endif
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
 	case OBJ_L3LDOOR:
@@ -4321,21 +4441,27 @@ void GetObjectStr(int oi)
 		copy_cstr(infostr, "Crucified Skeleton");
 		break;
 	case OBJ_SARC:
+#ifdef HELLFIRE
+	case OBJ_L5SARC:
+#endif
 		copy_cstr(infostr, "Sarcophagus");
 		break;
 	//case OBJ_BOOKSHELF:
 	//	copy_cstr(infostr, "Bookshelf");
 	//	break;
+#ifdef HELLFIRE
+	case OBJ_URN:
+	case OBJ_URNEX:
+		copy_cstr(infostr, "Urn");
+		break;
+	case OBJ_POD:
+	case OBJ_PODEX:
+		copy_cstr(infostr, "Pod");
+		break;
+#endif
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
-#ifdef HELLFIRE
-		if (currLvl._dType == DTYPE_NEST)       // for nest levels
-			copy_cstr(infostr, "Pod");          //Then a barrel is called a pod
-		else if (currLvl._dType == DTYPE_CRYPT) // for crypt levels
-			copy_cstr(infostr, "Urn");          //Then a barrel is called an urn
-		else
-#endif
-			copy_cstr(infostr, "Barrel");
+		copy_cstr(infostr, "Barrel");
 		break;
 	case OBJ_SKELBOOK:
 		copy_cstr(infostr, "Skeleton Tome");
@@ -4388,6 +4514,9 @@ void GetObjectStr(int oi)
 		copy_cstr(infostr, "Steel Tome");
 		break;
 	case OBJ_STORYBOOK:
+#ifdef HELLFIRE
+	case OBJ_L5BOOK:
+#endif
 		copy_cstr(infostr, StoryBookName[os->_oVar3]); // STORY_BOOK_NAME
 		break;
 	case OBJ_WEAPONRACKL:
