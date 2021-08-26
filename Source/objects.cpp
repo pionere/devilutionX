@@ -1831,7 +1831,6 @@ static void Obj_Trap(int oi)
 			trigNum = lengthof(baseTrigArea);
 		}
 		break;
-	case OBJ_LEVER:
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
