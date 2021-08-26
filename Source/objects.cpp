@@ -145,7 +145,6 @@ void InitObjectGFX()
 	bool themeload[NUM_THEMES];
 	bool fileload[NUM_OFILE_TYPES];
 	char filestr[32];
-	const char* const *objlist;
 	int i;
 
 	static_assert(false == 0, "InitObjectGFX fills fileload and themeload with 0 instead of false values.");
@@ -4276,19 +4275,19 @@ static void SyncL2Doors(int oi)
 	os = &objects[oi];
 	x = os->_ox;
 	y = os->_oy;
-	if (os->_otype == OBJ_L2LDOOR) {
-		if (os->_oVar4 == DOOR_CLOSED) {
+	if (os->_oVar4 == DOOR_CLOSED) {
+		if (os->_otype == OBJ_L2LDOOR) {
 			ObjSetMicro(x, y, 538);
 			dSpecial[x][y] = 0;
-		} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
-			ObjSetMicro(x, y, 13);
-			dSpecial[x][y] = 5;
-		}
-	} else { // if (os->_otype == OBJ_L2RDOOR) {
-		if (os->_oVar4 == DOOR_CLOSED) {
+		} else { // if (os->_otype == OBJ_L2RDOOR) {
 			ObjSetMicro(x, y, 540);
 			dSpecial[x][y] = 0;
-		} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
+		}
+	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
+		if (os->_otype == OBJ_L2LDOOR) {
+			ObjSetMicro(x, y, 13);
+			dSpecial[x][y] = 5;
+		} else { // if (os->_otype == OBJ_L2RDOOR) {
 			ObjSetMicro(x, y, 17);
 			dSpecial[x][y] = 6;
 		}
@@ -4303,16 +4302,18 @@ static void SyncL3Doors(int oi)
 	os = &objects[oi];
 	x = os->_ox;
 	y = os->_oy;
-	if (os->_otype == OBJ_L3LDOOR) {
-		if (os->_oVar4 == DOOR_CLOSED)
+	if (os->_oVar4 == DOOR_CLOSED) {
+		if (os->_otype == OBJ_L3LDOOR) {
 			ObjSetMicro(x, y, 531);
-		else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
-			ObjSetMicro(x, y, 538);
-	} else { // if (os->_otype == OBJ_L3RDOOR) {
-		if (os->_oVar4 == DOOR_CLOSED)
+		} else { // if (os->_otype == OBJ_L3RDOOR) {
 			ObjSetMicro(x, y, 534);
-		else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
+		}
+	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
+		if (os->_otype == OBJ_L3LDOOR) {
+			ObjSetMicro(x, y, 538);
+		} else { // if (os->_otype == OBJ_L3RDOOR) {
 			ObjSetMicro(x, y, 541);
+		}
 	}
 }
 
