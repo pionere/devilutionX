@@ -63,10 +63,10 @@ const char *const shrinestrs[NUM_SHRINETYPE] = {
 	"Glimmering",
 	"Tainted",
 	"Glistening",
-#ifdef HELLFIRE
 	"Sparkling",
-	"Solar",
 	"Murphy's",
+#ifdef HELLFIRE
+	"Solar",
 #endif
 };
 /**
