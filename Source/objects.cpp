@@ -24,7 +24,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define VILE_CIRCLE_TARGET_CENTER 4
 
 int trapid;
-BYTE *pObjCels[NUM_OFILE_TYPES] = { 0 };
+BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
 int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
@@ -167,7 +167,7 @@ void InitObjectGFX()
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		if (fileload[i]) {
 			snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[i].ofName);
-			pObjCels[i] = LoadFileInMem(filestr);
+			objanimdata[i] = LoadFileInMem(filestr);
 		}
 	}
 }
@@ -177,7 +177,7 @@ void FreeObjectGFX()
 	int i;
 
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
-		MemFreeDbg(pObjCels[i]);
+		MemFreeDbg(objanimdata[i]);
 	}
 }
 
@@ -666,7 +666,7 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, const Lev
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
 				assert(SwapLE16(*lm) < lengthof(ObjConvTbl) && ObjConvTbl[SwapLE16(*lm)] != 0);
-				assert(pObjCels[objectdata[ObjConvTbl[SwapLE16(*lm)]].ofindex] != NULL);
+				assert(objanimdata[objectdata[ObjConvTbl[SwapLE16(*lm)]].ofindex] != NULL);
 				oi = AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
 				if (lvrRect != NULL)
 					SetObjMapRange(oi, lvrRect->x1, lvrRect->y1, lvrRect->x2, lvrRect->y2, lvrRect->leveridx);
@@ -697,7 +697,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	ods = &objectdata[type];
 	os->_oSelFlag = ods->oSelFlag;
 	os->_oAnimFrame = ods->oAnimBaseFrame;
-	os->_oAnimData = pObjCels[ods->ofindex];
+	os->_oAnimData = objanimdata[ods->ofindex];
 	ofd = &objfiledata[ods->ofindex];
 	os->_oSFX = ofd->oSFX;
 	os->_oSFXCnt = ofd->oSFXCnt;
@@ -1109,7 +1109,7 @@ void SetMapObjects(BYTE *pMap)
 			continue;
 
 		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[i].ofName);
-		pObjCels[i] = LoadFileInMem(filestr);
+		objanimdata[i] = LoadFileInMem(filestr);
 	}
 
 	lm = h;
@@ -4326,7 +4326,7 @@ void SyncObjectAnim(int oi)
 
 	type = objects[oi]._otype;
 	ofidx = objectdata[type].ofindex;
-	objects[oi]._oAnimData = pObjCels[ofidx];
+	objects[oi]._oAnimData = objanimdata[ofidx];
 	objects[oi]._oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
 	switch (type) {
 	case OBJ_L1LDOOR:
