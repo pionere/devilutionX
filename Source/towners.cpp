@@ -186,6 +186,7 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFr
 	tw->_tAnimXOffset = (96 - 64) >> 1;
 }
 
+#ifdef HELLFIRE
 static void ReInitTownerAnim(int ttype, const char* pAnimFile)
 {
 	int i;
@@ -198,6 +199,7 @@ static void ReInitTownerAnim(int ttype, const char* pAnimFile)
 		break;
 	}
 }
+#endif
 
 static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 {
