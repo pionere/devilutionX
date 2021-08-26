@@ -714,21 +714,21 @@ typedef struct ObjectData {
 	BYTE oSetLvlType;
 	BYTE otheme;
 	BYTE oquest;
-	BOOLEAN oAnimFlag;
+	//BOOLEAN oAnimFlag;
 	BYTE oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
-	int oAnimFrameLen; // Tick length of each frame in the current animation
-	int oAnimLen;   // Number of frames in current animation
-	int oAnimWidth;
-	int oSFX;
-	BYTE oSFXCnt;
-	BOOL oSolidFlag;
-	BOOL oMissFlag;
-	BOOL oLightFlag;
-	BYTE oBreak;
+	//int oAnimFrameLen; // Tick length of each frame in the current animation
+	//int oAnimLen;   // Number of frames in current animation
+	//int oAnimWidth;
+	//int oSFX;
+	//BYTE oSFXCnt;
+	//BOOL oSolidFlag;
+	//BOOL oMissFlag;
+	//BOOL oLightFlag;
+	//BYTE oBreak;
 	BYTE oSelFlag;
 	BOOL oTrapFlag;
 #ifdef X86_32bit_COMP
-	int alignment[4];
+	int alignment[1];
 #endif
 } ObjectData;
 
@@ -736,11 +736,34 @@ typedef struct ObjectData {
 static_assert((sizeof(ObjectData) & (sizeof(ObjectData) - 1)) == 0, "Align ObjectData closer to power of 2 for better performance.");
 #endif
 
+typedef struct ObjFileData {
+	const char* ofName;
+	int oSFX;
+	BYTE oSFXCnt;
+	BOOLEAN oAnimFlag;
+	int oAnimFrameLen; // Tick length of each frame in the current animation
+	int oAnimLen;   // Number of frames in current animation
+	int oAnimWidth;
+	BOOLEAN oSolidFlag;
+	BOOLEAN oMissFlag;
+	BOOLEAN oLightFlag;
+	BYTE oBreak;
+#ifdef X86_32bit_COMP
+	int alignment[1];
+#endif
+} ObjFileData;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(ObjFileData) & (sizeof(ObjFileData) - 1)) == 0, "Align ObjFileData closer to power of 2 for better performance.");
+#endif
+
 typedef struct ObjectStruct {
 	int _otype;
 	int _ox;
 	int _oy;
-	BOOL _oAnimFlag;
+	int _oSFX;
+	BYTE _oSFXCnt;
+	BOOLEAN _oAnimFlag;
 	BYTE* _oAnimData;
 	int _oAnimFrameLen; // Tick length of each frame in the current animation
 	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _oAnimFrameLen
@@ -749,9 +772,9 @@ typedef struct ObjectStruct {
 	int _oAnimWidth;
 	int _oAnimXOffset;
 	//BOOL _oDelFlag;
-	BOOL _oSolidFlag;
-	BOOL _oMissFlag;
-	BOOL _oLightFlag;
+	BOOLEAN _oSolidFlag;
+	BOOLEAN _oMissFlag;
+	BOOLEAN _oLightFlag;
 	BYTE _oBreak; // object_break_mode
 	BYTE _oSelFlag; // check
 	BOOLEAN _oTrapFlag;
@@ -768,7 +791,7 @@ typedef struct ObjectStruct {
 	int _oVar7;
 	int _oVar8;
 #ifdef X86_32bit_COMP
-	int alignment[6];
+	int alignment[7];
 #endif
 } ObjectStruct;
 

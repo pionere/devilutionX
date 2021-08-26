@@ -676,7 +676,10 @@ static void LoadObject(int oi, bool full)
 	LoadInt(&os->_otype);
 	LoadInt(&os->_ox);
 	LoadInt(&os->_oy);
-	LoadInt(&os->_oAnimFlag);
+	LoadInt(&os->_oSFX);
+	LoadByte(&os->_oSFXCnt);
+	LoadByte(&os->_oAnimFlag);
+	tbuff += 2; // Alignment
 	tbuff += 4; // Skip pointer _oAnimData
 	tbuff += 4; // Skip _oAnimFrameLen
 	LoadInt(&os->_oAnimCnt);
@@ -684,13 +687,17 @@ static void LoadObject(int oi, bool full)
 	LoadInt(&os->_oAnimFrame);
 	LoadInt(&os->_oAnimWidth);
 	LoadInt(&os->_oAnimXOffset);
-	LoadInt(&os->_oSolidFlag);
-	LoadInt(&os->_oMissFlag);
-	LoadInt(&os->_oLightFlag);
+
+	LoadByte(&os->_oSolidFlag);
+	LoadByte(&os->_oMissFlag);
+	LoadByte(&os->_oLightFlag);
 	LoadByte(&os->_oBreak);
+
 	LoadByte(&os->_oSelFlag);
 	LoadByte(&os->_oTrapFlag);
 	LoadByte(&os->_oDoorFlag);
+	tbuff += 1; // Alignment
+
 	LoadInt(&os->_oPreFlag);
 	LoadInt(&os->_olid);
 	LoadInt(&os->_oRndSeed);
@@ -1388,7 +1395,10 @@ static void SaveObject(int oi)
 	SaveInt(&os->_otype);
 	SaveInt(&os->_ox);
 	SaveInt(&os->_oy);
-	SaveInt(&os->_oAnimFlag);
+	SaveInt(&os->_oSFX);
+	SaveByte(&os->_oSFXCnt);
+	SaveByte(&os->_oAnimFlag);
+	tbuff += 2; // Alignment
 	tbuff += 4; // Skip pointer _oAnimData
 	tbuff += 4; // Skip _oAnimFrameLen
 	SaveInt(&os->_oAnimCnt);
@@ -1396,13 +1406,17 @@ static void SaveObject(int oi)
 	SaveInt(&os->_oAnimFrame);
 	SaveInt(&os->_oAnimWidth);
 	SaveInt(&os->_oAnimXOffset);
-	SaveInt(&os->_oSolidFlag);
-	SaveInt(&os->_oMissFlag);
-	SaveInt(&os->_oLightFlag);
+
+	SaveByte(&os->_oSolidFlag);
+	SaveByte(&os->_oMissFlag);
+	SaveByte(&os->_oLightFlag);
 	SaveByte(&os->_oBreak);
+
 	SaveByte(&os->_oSelFlag);
 	SaveByte(&os->_oTrapFlag);
 	SaveByte(&os->_oDoorFlag);
+	tbuff += 1; // Alignment
+
 	SaveInt(&os->_oPreFlag);
 	SaveInt(&os->_olid);
 	SaveInt(&os->_oRndSeed);

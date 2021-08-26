@@ -156,7 +156,7 @@ void InitObjectGFX()
 
 	BYTE lvlMask = 1 << currLvl._dType;
 	for (i = 0; i < NUM_OBJECTS; i++) {
-		ods = &AllObjects[i];
+		ods = &objectdata[i];
 		if ((ods->oLvlTypes & lvlMask)
 		 || (ods->otheme != THEME_NONE && themeload[ods->otheme])
 		 || (ods->oquest != Q_INVALID && QuestStatus(ods->oquest))) {
@@ -166,7 +166,7 @@ void InitObjectGFX()
 
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		if (fileload[i]) {
-			snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjMasterLoadList[i]);
+			snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[i]);
 			pObjCels[i] = LoadFileInMem(filestr);
 		}
 	}
@@ -540,7 +540,7 @@ static void AddObjTraps()
 				continue;
 
 			oi--;
-			if (!AllObjects[objects[oi]._otype].oTrapFlag)
+			if (!objectdata[objects[oi]._otype].oTrapFlag)
 				continue;
 
 			if (random_(144, 100) >= rndv)
@@ -666,7 +666,7 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, const Lev
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
 				assert(SwapLE16(*lm) < lengthof(ObjConvTbl) && ObjConvTbl[SwapLE16(*lm)] != 0);
-				assert(pObjCels[AllObjects[ObjConvTbl[SwapLE16(*lm)]].ofindex] != NULL);
+				assert(pObjCels[objectdata[ObjConvTbl[SwapLE16(*lm)]].ofindex] != NULL);
 				oi = AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
 				if (lvrRect != NULL)
 					SetObjMapRange(oi, lvrRect->x1, lvrRect->y1, lvrRect->x2, lvrRect->y2, lvrRect->leveridx);
@@ -688,32 +688,34 @@ static void SetupObject(int oi, int x, int y, int type)
 {
 	ObjectStruct *os;
 	const ObjectData *ods;
+	const ObjFileData* ofd;
 
 	os = &objects[oi];
 	os->_ox = x;
 	os->_oy = y;
 	os->_otype = type;
-	ods = &AllObjects[type];
-	os->_oAnimData = pObjCels[ods->ofindex];
-	os->_oAnimFlag = ods->oAnimFlag;
-	os->_oAnimFrameLen = ods->oAnimFrameLen;
-	if (ods->oAnimFlag) {
-		os->_oAnimCnt = random_(146, ods->oAnimFrameLen);
-		os->_oAnimLen = ods->oAnimLen;
-		os->_oAnimFrame = RandRange(1, ods->oAnimLen);
-	} else {
-		os->_oAnimCnt = 0;
-		os->_oAnimLen = ods->oAnimLen;
-		os->_oAnimFrame = ods->oAnimBaseFrame;
-	}
-	os->_oAnimWidth = ods->oAnimWidth;
-	os->_oAnimXOffset = (os->_oAnimWidth - 64) >> 1;
-	os->_oSolidFlag = ods->oSolidFlag;
-	os->_oMissFlag = ods->oMissFlag;
-	os->_oLightFlag = ods->oLightFlag;
-	// os->_oDelFlag = FALSE; - unused
-	os->_oBreak = ods->oBreak;
+	ods = &objectdata[type];
 	os->_oSelFlag = ods->oSelFlag;
+	os->_oAnimFrame = ods->oAnimBaseFrame;
+	os->_oAnimData = pObjCels[ods->ofindex];
+	ofd = &objfiledata[ods->ofindex];
+	os->_oSFX = ofd->oSFX;
+	os->_oSFXCnt = ofd->oSFXCnt;
+	os->_oAnimFlag = ofd->oAnimFlag;
+	os->_oAnimFrameLen = ofd->oAnimFrameLen;
+	os->_oAnimLen = ofd->oAnimLen;
+	//os->_oAnimCnt = 0;
+	if (ofd->oAnimFlag) {
+		os->_oAnimCnt = random_(146, os->_oAnimFrameLen);
+		os->_oAnimFrame = RandRange(1, os->_oAnimLen);
+	}
+	os->_oAnimWidth = ofd->oAnimWidth;
+	os->_oAnimXOffset = (os->_oAnimWidth - 64) >> 1;
+	os->_oSolidFlag = ofd->oSolidFlag;
+	os->_oMissFlag = ofd->oMissFlag;
+	os->_oLightFlag = ofd->oLightFlag;
+	os->_oBreak = ofd->oBreak;
+	// os->_oDelFlag = FALSE; - unused
 	static_assert(FALSE == 0, "SetupObject expects the objects to be zero-filled and skips a few initialization steps.");
 	//os->_oPreFlag = FALSE;
 	//os->_oTrapFlag = FALSE;
@@ -1076,8 +1078,8 @@ void SetMapObjects(BYTE *pMap)
 	//gbInitObjFlag = true;
 
 	for (i = 0; i < NUM_OBJECTS; i++) { // TODO: use dType instead?
-		if (currLvl._dDunType == AllObjects[i].oSetLvlType)
-			fileload[AllObjects[i].ofindex] = true;
+		if (currLvl._dDunType == objectdata[i].oSetLvlType)
+			fileload[objectdata[i].ofindex] = true;
 	}
 
 	lm = (uint16_t *)pMap;
@@ -1096,7 +1098,7 @@ void SetMapObjects(BYTE *pMap)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				assert(SwapLE16(*lm) < lengthof(ObjConvTbl) && ObjConvTbl[SwapLE16(*lm)] != 0);
-				fileload[AllObjects[ObjConvTbl[SwapLE16(*lm)]].ofindex] = true;
+				fileload[objectdata[ObjConvTbl[SwapLE16(*lm)]].ofindex] = true;
 			}
 			lm++;
 		}
@@ -1106,7 +1108,7 @@ void SetMapObjects(BYTE *pMap)
 		if (!fileload[i])
 			continue;
 
-		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjMasterLoadList[i]);
+		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[i]);
 		pObjCels[i] = LoadFileInMem(filestr);
 	}
 
@@ -3181,7 +3183,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 
-	PlaySfxLoc(AllObjects[os->_otype].oSFX, os->_ox, os->_oy, AllObjects[os->_otype].oSFXCnt);
+	PlaySfxLoc(os->_oSFX, os->_ox, os->_oy, os->_oSFXCnt);
 	os->_oAnimFlag = TRUE;
 	//os->_oAnimFrameLen = 1;
 
@@ -3794,7 +3796,8 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	PlaySfxLoc(AllObjects[os->_otype].oSFX, os->_ox, os->_oy);
+	assert(os->_oSFXCnt == 1);
+	PlaySfxLoc(os->_oSFX, os->_ox, os->_oy);
 
 	xotype = OBJ_BARRELEX;
 #ifdef HELLFIRE
@@ -4319,11 +4322,12 @@ static void SyncL3Doors(int oi)
 
 void SyncObjectAnim(int oi)
 {
-	int type;
+	int type, ofidx;
 
 	type = objects[oi]._otype;
-	objects[oi]._oAnimData = pObjCels[AllObjects[type].ofindex];
-	objects[oi]._oAnimFrameLen = AllObjects[type].oAnimFrameLen;
+	ofidx = objectdata[type].ofindex;
+	objects[oi]._oAnimData = pObjCels[ofidx];
+	objects[oi]._oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:

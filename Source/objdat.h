@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 extern const BYTE ObjConvTbl[128];
-extern const ObjectData AllObjects[NUM_OBJECTS];
-extern const char *const ObjMasterLoadList[NUM_OFILE_TYPES];
+extern const ObjectData objectdata[NUM_OBJECTS];
+extern const ObjFileData objfiledata[NUM_OFILE_TYPES];
 
 #ifdef __cplusplus
 }
