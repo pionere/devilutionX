@@ -719,6 +719,8 @@ typedef struct ObjectData {
 	int oAnimFrameLen; // Tick length of each frame in the current animation
 	int oAnimLen;   // Number of frames in current animation
 	int oAnimWidth;
+	int oSFX;
+	BYTE oSFXCnt;
 	BOOL oSolidFlag;
 	BOOL oMissFlag;
 	BOOL oLightFlag;
@@ -726,7 +728,7 @@ typedef struct ObjectData {
 	BYTE oSelFlag;
 	BOOL oTrapFlag;
 #ifdef X86_32bit_COMP
-	int alignment[6];
+	int alignment[4];
 #endif
 } ObjectData;
 

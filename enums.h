@@ -1367,8 +1367,8 @@ typedef enum _sfx_id {
 	PS_NARATR9,
 	PS_NARATR4,
 	TSFX_TRADER1,
-	IS_CROPEN,
 	IS_CRCLOS,
+	IS_CROPEN,
 	SFX_NONE = -1,
 } _sfx_id;
 

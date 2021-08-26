@@ -3157,7 +3157,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	}
 }
 
-static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
+static void OperateShrine(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	int i;
@@ -3182,7 +3182,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 
-	PlaySfxLoc(psfx, os->_ox, os->_oy, psfxCnt);
+	PlaySfxLoc(AllObjects[os->_otype].oSFX, os->_ox, os->_oy, AllObjects[os->_otype].oSFXCnt);
 	os->_oAnimFlag = TRUE;
 	//os->_oAnimFrameLen = 1;
 
@@ -3551,13 +3551,13 @@ static void OperateArmorStand(int oi, bool sendmsg)
 
 static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
 {
-	OperateShrine(pnum, LS_GSHRINE, 1, oi, sendmsg);
+	OperateShrine(pnum, oi, sendmsg);
 	objects[oi]._oAnimFlag = TRUE;
 }
 
 static void OperateCauldron(int pnum, int oi, bool sendmsg)
 {
-	OperateShrine(pnum, LS_CALDRON, 1, oi, sendmsg);
+	OperateShrine(pnum, oi, sendmsg);
 	objects[oi]._oAnimFrame = 3;
 	objects[oi]._oAnimFlag = FALSE;
 }
@@ -3764,7 +3764,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os = &objects[oi];
-	int sfx, xotype, mpo;
+	int xotype, mpo;
 	int xp, yp;
 
 	if (os->_oSelFlag == 0)
@@ -3795,6 +3795,8 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 		return;
 	}
 
+	PlaySfxLoc(AllObjects[os->_otype].oSFX, os->_ox, os->_oy);
+
 	xotype = OBJ_BARRELEX;
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT)
@@ -3804,15 +3806,6 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 #endif
 
 	if (os->_otype == xotype) {
-#ifdef HELLFIRE
-		if (currLvl._dType == DTYPE_CRYPT)
-			sfx = IS_POPPOP3;
-		else if (currLvl._dType == DTYPE_NEST)
-			sfx = IS_POPPOP8;
-		else
-#endif
-			sfx = IS_BARLFIRE;
-		PlaySfxLoc(sfx, os->_ox, os->_oy);
 		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
 			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
 				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, -1, -1, 0, 0, 0);
@@ -3825,15 +3818,6 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 			}
 		}
 	} else {
-#ifdef HELLFIRE
-		if (currLvl._dType == DTYPE_CRYPT)
-			sfx = IS_POPPOP2;
-		else if (currLvl._dType == DTYPE_NEST)
-			sfx = IS_POPPOP5;
-		else
-#endif
-			sfx = IS_BARREL;
-		PlaySfxLoc(sfx, os->_ox, os->_oy);
 		SetRndSeed(os->_oRndSeed);
 		if (os->_oVar2 <= 1) {    // BARREL_ITEM
 			if (os->_oVar3 == 0)  // BARREL_ITEM_TYPE
@@ -3946,7 +3930,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		OperateShrine(pnum, IS_MAGIC, 2, oi, sendmsg);
+		OperateShrine(pnum, oi, sendmsg);
 		break;
 	case OBJ_SKELBOOK:
 	case OBJ_BOOKSTAND:
@@ -4114,7 +4098,7 @@ void SyncOpObject(int pnum, int oi)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		OperateShrine(pnum, IS_MAGIC, 2, oi, false);
+		OperateShrine(pnum, oi, false);
 		break;
 	case OBJ_SKELBOOK:
 	case OBJ_BOOKSTAND:

@@ -1053,8 +1053,8 @@ TSFX sgSFX[] = {
 /*PS_NARATR9*/   { sfx_STREAM,                "Sfx\\Hellfire\\Naratr9.wav",  NULL },
 /*PS_NARATR4*/   { sfx_STREAM,                "Sfx\\Hellfire\\Naratr4.wav",  NULL },
 /*TSFX_TRADER1*/ { sfx_STREAM,                "Sfx\\Hellfire\\TRADER1.wav",  NULL },
-/*IS_CROPEN*/    { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\Cropen.wav",      NULL },
 /*IS_CRCLOS*/    { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\Crclos.wav",      NULL },
+/*IS_CROPEN*/    { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\Cropen.wav",      NULL },
 	// clang-format on
 };
 
