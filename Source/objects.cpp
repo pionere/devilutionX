@@ -3572,14 +3572,11 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 	case OBJ_BLOODFTN:
 		if (deltaload)
 			return;
-		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
-
 		PlrIncHp(pnum, 64);
 		break;
 	case OBJ_PURIFYINGFTN:
 		if (deltaload)
 			return;
-		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
 		PlrIncMana(pnum, 64);
 		break;
@@ -3591,8 +3588,6 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 			return;
 		if (sendmsg)
 			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-
-		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
 		AddMissile(
 		    0,
@@ -3611,15 +3606,16 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		if (deltaload)
 			return;
 
-		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
-
 		PlrIncHp(pnum, 64);
 		if (plr._pMana >= 64)
 			PlrDecMana(pnum, 64);
 		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
-	if (pnum == mypnum)
-		gbRedrawFlags = REDRAW_ALL;
+
+	PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 }
 
 static void OperateWeaponRack(int oi, bool sendmsg)
