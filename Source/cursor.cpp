@@ -45,8 +45,6 @@ int pcurstrig;
 int cursmx;
 /** Current highlighted tile column */
 int cursmy;
-/** Previously highlighted monster */
-int pcurstemp;
 /** Index of current cursor image */
 int pcurs;
 
@@ -176,7 +174,6 @@ void InitLevelCursor()
 	NewCursor(myplr._pHoldItem._itype == ITYPE_NONE ? CURSOR_HAND : myplr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
 	cursmx = ViewX;
 	cursmy = ViewY;
-	pcurstemp = -1;
 	pcursmonst = -1;
 	pcursobj = OBJ_NONE;
 	pcursitem = ITEM_NONE;
@@ -214,6 +211,7 @@ void CheckTownPortal()
 void CheckCursMove()
 {
 	int pnum, sx, sy, fx, fy, mx, my, tx, ty, px, py, xx, yy, mi;
+	int pcurstemp; // Previously highlighted monster
 	char bv;
 	bool flipflag, flipx, flipy;
 
