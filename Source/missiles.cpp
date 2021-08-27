@@ -3044,20 +3044,20 @@ void MI_Firebolt(int mi)
 			xptype = MIS_EXACIDP;
 			break;
 #ifdef HELLFIRE
-		case MIS_LICH:
-			xptype = MIS_EXORA1;
-			break;
 		case MIS_PSYCHORB:
-			xptype = MIS_EXBL2;
+			xptype = MIS_EXPSYCHORB;
 			break;
-		case MIS_NECROMORB:
-			xptype = MIS_EXRED3;
-			break;
-		case MIS_ARCHLICH:
-			xptype = MIS_EXYEL2;
+		case MIS_LICH:
+			xptype = MIS_EXLICH;
 			break;
 		case MIS_BONEDEMON:
-			xptype = MIS_EXBL3;
+			xptype = MIS_EXBONEDEMON;
+			break;
+		case MIS_ARCHLICH:
+			xptype = MIS_EXARCHLICH;
+			break;
+		case MIS_NECROMORB:
+			xptype = MIS_EXNECROMORB;
 			break;
 #endif
 		default:

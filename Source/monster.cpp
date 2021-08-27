@@ -382,27 +382,27 @@ void InitMonsterGFX(int midx)
 #ifdef HELLFIRE
 	case MT_SKLWING:
 	case MT_BONEDEMN:
-		LoadMissileGFX(MFILE_BONEDEMON);
-		LoadMissileGFX(MFILE_EXBL3);
+		LoadMissileGFX(MFILE_MS_ORA_B);
+		LoadMissileGFX(MFILE_EXORA1_B);
 		break;
 	case MT_PSYCHORB:
-		LoadMissileGFX(MFILE_BONEDEMON);
-		LoadMissileGFX(MFILE_EXBL2);
+		LoadMissileGFX(MFILE_MS_ORA);
+		LoadMissileGFX(MFILE_EXORA1);
 		break;
 	case MT_NECRMORB:
-		LoadMissileGFX(MFILE_NECROMORB);
-		LoadMissileGFX(MFILE_EXRED3);
+		LoadMissileGFX(MFILE_MS_REB_B);
+		LoadMissileGFX(MFILE_EXYEL2_B);
 		break;
 	case MT_HORKDMN:
 		LoadMissileGFX(MFILE_SPAWNS);
 		break;
 	case MT_LICH:
-		LoadMissileGFX(MFILE_LICH);
-		LoadMissileGFX(MFILE_EXORA1);
+		LoadMissileGFX(MFILE_MS_ORA_A);
+		LoadMissileGFX(MFILE_EXORA1_A);
 		break;
 	case MT_ARCHLICH:
-		LoadMissileGFX(MFILE_ARCHLICH);
-		LoadMissileGFX(MFILE_EXYEL2);
+		LoadMissileGFX(MFILE_MS_YEB_A);
+		LoadMissileGFX(MFILE_EXYEL2_A);
 		break;
 #endif
 	}
