@@ -1622,22 +1622,28 @@ static unsigned On_DPUTITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static bool CheckPlrSkillUse(int pnum, BYTE sn)
+{
+	if (sn < NUM_SPELLS && (spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+		return true;
+	}
+	msg_errorf("%s using an illegal skill.", plr._pName);
+	return false;
+}
+
 static unsigned On_SATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocAttack *cmd = (TCmdLocAttack *)pCmd;
-	int sn;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
-		sn = cmd->laSkill;
-		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (CheckPlrSkillUse(pnum, cmd->laSkill)) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
+			ClrPlrPath(pnum);
 			plr.destAction = ACTION_ATTACK;
 			plr.destParam1 = cmd->x;
 			plr.destParam2 = cmd->y;
-			plr.destParam3 = sn;           // attack skill
+			plr.destParam3 = cmd->laSkill; // attack skill
 			plr.destParam4 = cmd->laLevel; // attack skill-level
-		} else
-			msg_errorf("%s using an illegal skill.", plr._pName);
+		}
 	}
 
 	return sizeof(*cmd);
@@ -1646,19 +1652,16 @@ static unsigned On_SATTACKXY(TCmd *pCmd, int pnum)
 static unsigned On_RATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocAttack *cmd = (TCmdLocAttack *)pCmd;
-	int sn;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
-		sn = cmd->laSkill;
-		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (CheckPlrSkillUse(pnum, cmd->laSkill)) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
+			ClrPlrPath(pnum);
 			plr.destAction = ACTION_RATTACK;
 			plr.destParam1 = cmd->x;
 			plr.destParam2 = cmd->y;
-			plr.destParam3 = sn;           // attack skill
+			plr.destParam3 = cmd->laSkill; // attack skill
 			plr.destParam4 = cmd->laLevel; // attack skill-level
-		} else
-			msg_errorf("%s using an illegal skill.", plr._pName);
+		}
 	}
 
 	return sizeof(*cmd);
@@ -1667,20 +1670,17 @@ static unsigned On_RATTACKXY(TCmd *pCmd, int pnum)
 static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocSkill *cmd = (TCmdLocSkill *)pCmd;
-	BYTE sn;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
-		sn = cmd->lsSkill;
-		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (CheckPlrSkillUse(pnum, cmd->lsSkill)) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
+			ClrPlrPath(pnum);
 			plr.destAction = ACTION_SPELL;
 			plr.destParam2 = cmd->x;
 			plr.destParam3 = cmd->y;
-			plr.destParam1a = sn;           // spell
+			plr.destParam1a = cmd->lsSkill; // spell
 			plr.destParam1b = cmd->lsFrom;  // invloc
 			plr.destParam1c = cmd->lsLevel; // spllvl
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr._pName);
+		}
 	}
 
 	return sizeof(*cmd);
@@ -1751,22 +1751,20 @@ static unsigned On_OPOBJT(TCmd *pCmd, int pnum)
 static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 {
 	TCmdMonstAttack *cmd = (TCmdMonstAttack *)pCmd;
-	int mnum, x, y, sn;
+	int mnum, x, y;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		mnum = SwapLE16(cmd->maMnum);
-		x = monsters[mnum]._mfutx;
-		y = monsters[mnum]._mfuty;
-		if (abs(plr._px - x) > 1 || abs(plr._py - y) > 1)
-			MakePlrPath(pnum, x, y, false);
-		sn = cmd->maSkill;
-		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (CheckPlrSkillUse(pnum, cmd->maSkill)) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
+			mnum = SwapLE16(cmd->maMnum);
+			x = monsters[mnum]._mfutx;
+			y = monsters[mnum]._mfuty;
+			if (abs(plr._px - x) > 1 || abs(plr._py - y) > 1)
+				MakePlrPath(pnum, x, y, false);
 			plr.destAction = ACTION_ATTACKMON;
 			plr.destParam1 = mnum;
-			plr.destParam2 = sn;           // attack skill
+			plr.destParam2 = cmd->maSkill; // attack skill
 			plr.destParam3 = cmd->maLevel; // attack skill-level
-		} else
-			msg_errorf("%s using an illegal skill.", plr._pName);
+		}
 	}
 
 	return sizeof(*cmd);
@@ -1775,19 +1773,17 @@ static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 static unsigned On_ATTACKPID(TCmd *pCmd, int pnum)
 {
 	TCmdPlrAttack *cmd = (TCmdPlrAttack *)pCmd;
-	int tnum, sn;
+	int tnum;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		tnum = cmd->paPnum;
-		MakePlrPath(pnum, plx(tnum)._pfutx, plx(tnum)._pfuty, false);
-		sn = cmd->paSkill;
-		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (CheckPlrSkillUse(pnum, cmd->paSkill)) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
+			tnum = cmd->paPnum;
+			MakePlrPath(pnum, plx(tnum)._pfutx, plx(tnum)._pfuty, false);
 			plr.destAction = ACTION_ATTACKPLR;
 			plr.destParam1 = tnum;
-			plr.destParam2 = sn;           // attack skill
+			plr.destParam2 = cmd->paSkill; // attack skill
 			plr.destParam3 = cmd->paLevel; // attack skill-level
-		} else
-			msg_errorf("%s using an illegal skill.", plr._pName);
+		}
 	}
 
 	return sizeof(*cmd);
@@ -1796,18 +1792,15 @@ static unsigned On_ATTACKPID(TCmd *pCmd, int pnum)
 static unsigned On_RATTACKID(TCmd *pCmd, int pnum)
 {
 	TCmdMonstAttack *cmd = (TCmdMonstAttack *)pCmd;
-	int sn;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
-		sn = cmd->maSkill;
-		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (CheckPlrSkillUse(pnum, cmd->maSkill)) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
+			ClrPlrPath(pnum);
 			plr.destAction = ACTION_RATTACKMON;
 			plr.destParam1 = SwapLE16(cmd->maMnum);  // target id
-			plr.destParam2 = sn;                     // attack skill
+			plr.destParam2 = cmd->maSkill; // attack skill
 			plr.destParam3 = cmd->maLevel; // attack skill-level
-		} else
-			msg_errorf("%s using an illegal skill.", plr._pName);
+		}
 	}
 
 	return sizeof(*cmd);
@@ -1816,18 +1809,15 @@ static unsigned On_RATTACKID(TCmd *pCmd, int pnum)
 static unsigned On_RATTACKPID(TCmd *pCmd, int pnum)
 {
 	TCmdPlrAttack *cmd = (TCmdPlrAttack *)pCmd;
-	int sn;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
-		sn = cmd->paSkill;
-		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (CheckPlrSkillUse(pnum, cmd->paSkill)) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
+			ClrPlrPath(pnum);
 			plr.destAction = ACTION_RATTACKPLR;
 			plr.destParam1 = cmd->paPnum;  // target id
-			plr.destParam2 = sn;           // attack skill
+			plr.destParam2 = cmd->paSkill; // attack skill
 			plr.destParam3 = cmd->paLevel; // attack skill-level
-		} else
-			msg_errorf("%s using an illegal skill.", plr._pName);
+		}
 	}
 
 	return sizeof(*cmd);
@@ -1836,19 +1826,16 @@ static unsigned On_RATTACKPID(TCmd *pCmd, int pnum)
 static unsigned On_SPELLID(TCmd *pCmd, int pnum)
 {
 	TCmdMonstSkill *cmd = (TCmdMonstSkill *)pCmd;
-	BYTE sn;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
-		sn = cmd->msSkill;
-		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (CheckPlrSkillUse(pnum, cmd->msSkill)) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
+			ClrPlrPath(pnum);
 			plr.destAction = ACTION_SPELLMON;
-			plr.destParam1a = sn;                    // spell
+			plr.destParam1a = cmd->msSkill;          // spell
 			plr.destParam1b = cmd->msFrom;           // invloc
 			plr.destParam1c = cmd->msLevel;          // spllvl
 			plr.destParam2 = SwapLE16(cmd->msMnum);  // mnum
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr._pName);
+		}
 	}
 
 	return sizeof(*cmd);
@@ -1857,19 +1844,16 @@ static unsigned On_SPELLID(TCmd *pCmd, int pnum)
 static unsigned On_SPELLPID(TCmd *pCmd, int pnum)
 {
 	TCmdPlrSkill *cmd = (TCmdPlrSkill *)pCmd;
-	BYTE sn;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
-		sn = cmd->psSkill;
-		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (CheckPlrSkillUse(pnum, cmd->psSkill)) {
+		if (currLvl._dLevelIdx == plr._pDunLevel) {
+			ClrPlrPath(pnum);
 			plr.destAction = ACTION_SPELLPLR;
-			plr.destParam1a = sn;           // spell
+			plr.destParam1a = cmd->psSkill; // spell
 			plr.destParam1b = cmd->psFrom;  // invloc
 			plr.destParam1c = cmd->psLevel; // spllvl
 			plr.destParam2 = cmd->psPnum;   // pnum
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr._pName);
+		}
 	}
 
 	return sizeof(*cmd);
