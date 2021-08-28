@@ -1216,16 +1216,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		delay = 10;
 		idx = TEXT_IM_MUSHROOM;
 	} else if (idx == IDI_ANVIL) {
-		if (quests[Q_ANVIL]._qactive == QUEST_NOTAVAIL)
-			return;
-		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
-			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
-			quests[Q_ANVIL]._qvar1 = 1;
-			if (pnum == mypnum) {
-				NetSendCmdQuest(Q_ANVIL, false); // recipient should not matter
-			}
-		}
-		if (!quests[Q_ANVIL]._qlog)
+		if (quests[Q_ANVIL]._qactive != QUEST_ACTIVE)
 			return;
 		delay = 10;
 		idx =TEXT_IM_ANVIL;
@@ -1235,16 +1226,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		delay = 30;
 		idx = TEXT_IM_GLDNELIX;
 	} else if (idx == IDI_ROCK) {
-		if (quests[Q_ROCK]._qactive == QUEST_NOTAVAIL)
-			return;
-		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
-			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
-			quests[Q_ROCK]._qvar1 = 1;
-			if (pnum == mypnum) {
-				NetSendCmdQuest(Q_ROCK, false); // recipient should not matter
-			}
-		}
-		if (!quests[Q_ROCK]._qlog)
+		if (quests[Q_ROCK]._qactive != QUEST_ACTIVE)
 			return;
 		delay = 10;
 		idx = TEXT_IM_ROCK;
@@ -1256,16 +1238,8 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		idx = TEXT_IM_ARMOFVAL;
 #ifdef HELLFIRE
 	} else if (idx == IDI_MAPOFDOOM) {
-		if (quests[Q_GRAVE]._qactive == QUEST_NOTAVAIL)
+		if (quests[Q_GRAVE]._qactive != QUEST_INIT)
 			return;
-		if (quests[Q_GRAVE]._qactive == QUEST_INIT) {
-			// quests[Q_GRAVE]._qlog = FALSE;
-			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
-			quests[Q_GRAVE]._qvar1 = 1;
-			if (pnum == mypnum) {
-				NetSendCmdQuest(Q_GRAVE, false); // recipient should not matter
-			}
-		}
 		delay = 10;
 		idx = TEXT_IM_MAPOFDOOM;
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {

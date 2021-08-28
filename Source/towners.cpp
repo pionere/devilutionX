@@ -533,7 +533,7 @@ void SyncTownerQ(int pnum, int idx)
 			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, pnum == mypnum, false);
 		break;
 	case IDI_ROCK:
-		if (quests[Q_ROCK]._qactive == QUEST_DONE /*|| quests[Q_ROCK]._qactive == QUEST_NOTAVAIL*/)
+		if (quests[Q_ROCK]._qactive != QUEST_ACTIVE)
 			return;
 		quests[Q_ROCK]._qactive = QUEST_DONE;
 		//quests[Q_ROCK]._qlog = FALSE;
@@ -541,7 +541,7 @@ void SyncTownerQ(int pnum, int idx)
 			SpawnUnique(UITEM_INFRARING, TPOS_SMITH + 1, pnum == mypnum, false);
 		break;
 	case IDI_ANVIL:
-		if (quests[Q_ANVIL]._qactive == QUEST_DONE /*|| quests[Q_ANVIL]._qactive == QUEST_NOTAVAIL*/)
+		if (quests[Q_ANVIL]._qactive != QUEST_ACTIVE)
 			return;
 		quests[Q_ANVIL]._qactive = QUEST_DONE;
 		//quests[Q_ANVIL]._qlog = FALSE;
@@ -680,29 +680,27 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_SMITH:
-		if (IsLvlVisited(DLV_CATACOMBS1) && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_ROCK]._qvar1 <= 1) {
-				quests[Q_ROCK]._qvar1 = 2;
+		if (IsLvlVisited(DLV_CATACOMBS1) /*&& quests[Q_ROCK]._qactive != QUEST_NOTAVAIL*/) {
+			if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 				quests[Q_ROCK]._qactive = QUEST_ACTIVE;
 				quests[Q_ROCK]._qlog = TRUE;
 				qn = Q_ROCK;
 				qt = TEXT_INFRA5;
 				break;
 			}
-			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_ROCK, &i)) {
+			if (quests[Q_ROCK]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ROCK, &i)) {
 				NetSendCmdParam1(CMD_QTOWNER, IDI_ROCK);
 				qt = TEXT_INFRA7;
 				break;
 			}
 		}
-		if (IsLvlVisited(DLV_CAVES2) && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_ANVIL]._qvar1 <= 1) {
-				quests[Q_ANVIL]._qvar1 = 2;
+		if (IsLvlVisited(DLV_CAVES2) /*&& quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL*/) {
+			if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 				quests[Q_ANVIL]._qlog = TRUE;
 				qn = Q_ANVIL;
 				qt = TEXT_ANVIL5;
-			} else if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasStorageItem(pnum, IDI_ANVIL, &i)) {
+			} else if (quests[Q_ANVIL]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ANVIL, &i)) {
 				NetSendCmdParam1(CMD_QTOWNER, IDI_ANVIL);
 				qt = TEXT_ANVIL7;
 			}
@@ -738,7 +736,7 @@ void TalkToTowner(int tnum)
 		break;
 	case TOWN_BMAID:
 #ifdef HELLFIRE
-		if (!IsLvlVisited(DLV_CRYPT1) && PlrHasStorageItem(pnum, IDI_MAPOFDOOM, &i)) {
+		if (PlrHasStorageItem(pnum, IDI_MAPOFDOOM, &i) && quests[Q_GRAVE]._qactive == QUEST_INIT) {
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 			quests[Q_GRAVE]._qlog = TRUE;
 			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
