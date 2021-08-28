@@ -7,14 +7,26 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int qtopline;
-bool gbQuestlog;
-BYTE *pQLogCel;
+#define QPNL_LINE_SPACING	24
+#define QPNL_BORDER			10
+#define QPNL_MAXENTRIES		((SPANEL_HEIGHT - 2 * QPNL_BORDER) / QPNL_LINE_SPACING)
+#define QPNL_LINE_WIDTH		(SPANEL_WIDTH - 2 * QPNL_BORDER)
+#define QPNL_TEXT_HEIGHT	12
+
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
-int qline;
-int qlist[NUM_QUESTS];
-int numqlines;
+/** Quest-log panel CEL */
+BYTE* pQLogCel;
+/** the entries of the quest-log panel (quest_id) */
+BYTE qlist[QPNL_MAXENTRIES];
+/** Specifies whether the quest-log panel is shown. */
+bool gbQuestlog;
+/** the index of the first valid line on the quest-log panel */
+unsigned qtopline;
+/** the number of valid lines on the quest-log panel */
+unsigned numqlines;
+/** the index of the selected line on the quest-log panel */
+unsigned qline;
 BYTE gbTownWarps;
 BYTE gbWaterDone;
 BYTE gbDungMsgs;
@@ -591,14 +603,14 @@ static void PrintQLString(int y, const char *str)
 {
 	int width, sx, sy, px;
 
-	sx = /*x*/0 + 12 + SCREEN_X;
-	sy = y * 24 + 10 + 12 + SCREEN_Y;
+	sx = /*x*/0 + QPNL_BORDER + SCREEN_X;
+	sy = y * QPNL_LINE_SPACING + QPNL_BORDER + QPNL_TEXT_HEIGHT + SCREEN_Y;
 	width = GetStringWidth(str);
-	if (width < 270) {
-		sx += (270 - width) >> 1;
+	if (width < QPNL_LINE_WIDTH) {
+		sx += (QPNL_LINE_WIDTH - width) >> 1;
 	}
 	px = qline == y ? sx : INT_MAX;
-	sx = PrintLimitedString(sx, sy, str, 270, COL_WHITE);
+	sx = PrintLimitedString(sx, sy, str, QPNL_LINE_WIDTH, COL_WHITE);
 	if (px != INT_MAX) {
 		DrawPentSpn2(px - 20, sx + 6, sy + 1);
 	}
@@ -606,13 +618,13 @@ static void PrintQLString(int y, const char *str)
 
 void DrawQuestLog()
 {
-	int i;
+	unsigned i;
 
 	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pQLogCel, 1, SPANEL_WIDTH);
 	for (i = 0; i < numqlines; i++) {
 		PrintQLString(qtopline + i, questlist[qlist[i]]._qlstr);
 	}
-	PrintQLString(11, "Close Quest Log");
+	PrintQLString(QPNL_MAXENTRIES, "Close Quest Log");
 }
 
 void StartQuestlog()
@@ -624,23 +636,19 @@ void StartQuestlog()
 		if (quests[i]._qactive == QUEST_ACTIVE && quests[i]._qlog) {
 			qlist[numqlines] = i;
 			numqlines++;
+			if (numqlines == QPNL_MAXENTRIES)
+				break;
 		}
 	}
-	if (numqlines != 0) {
-		qtopline = 5 - (numqlines >> 1);
-		qline = qtopline;
-	} else {
-		// qtopline = 11;
-		qline = 11;
-	}
+	qline = qtopline = numqlines != 0 ? (QPNL_MAXENTRIES / 2) - (numqlines >> 1) : QPNL_MAXENTRIES;
 }
 
 void QuestlogUp()
 {
 	if (numqlines != 0) {
 		if (qline == qtopline) {
-			qline = 11;
-		} else if (qline == 11) {
+			qline = QPNL_MAXENTRIES;
+		} else if (qline == QPNL_MAXENTRIES) {
 			qline = qtopline + numqlines - 1;
 		} else {
 			qline--;
@@ -652,10 +660,10 @@ void QuestlogUp()
 void QuestlogDown()
 {
 	if (numqlines != 0) {
-		if (qline == 11) {
+		if (qline == QPNL_MAXENTRIES) {
 			qline = qtopline;
 		} else if (qline == qtopline + numqlines - 1) {
-			qline = 11;
+			qline = QPNL_MAXENTRIES;
 		} else {
 			qline++;
 		}
@@ -666,7 +674,7 @@ void QuestlogDown()
 void QuestlogEnter()
 {
 	PlaySFX(IS_TITLSLCT);
-	if (numqlines != 0 && qline != 11)
+	if (/*numqlines != 0 &&*/ qline != QPNL_MAXENTRIES)
 		InitQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
 	gbQuestlog = false;
 }
@@ -675,11 +683,14 @@ void CheckQuestlog()
 {
 	int y;
 
-	y = (MouseY - 10) / 24;
-	if (y == 11 || (y >= qtopline && y < qtopline + numqlines)) {
-		qline = y;
-		QuestlogEnter();
+	y = (MouseY - (QPNL_BORDER + QPNL_TEXT_HEIGHT / 2) + QPNL_LINE_SPACING / 2 + QPNL_LINE_SPACING) / QPNL_LINE_SPACING - 1;
+	if (y != QPNL_MAXENTRIES) {
+		y -= qtopline;
+		if ((unsigned)y >= numqlines)
+			return;
 	}
+	qline = y;
+	QuestlogEnter();
 }
 
 void SetMultiQuest(int qn, int qa, int qlog, int qvar)
