@@ -1490,11 +1490,11 @@ bool TakePlrsMoney(int pnum, int cost)
 	return true;
 }
 
-static bool StoreAutoPlace(int pnum, bool saveflag)
+static bool StoreAutoPlace(int pnum, ItemStruct* is, bool saveflag)
 {
-	return /*WeaponAutoPlace(pnum, &storeitem, saveflag)
-		|| */AutoPlaceBelt(pnum, &storeitem, saveflag)
-		|| AutoPlaceInv(pnum, &storeitem, saveflag);
+	return /*WeaponAutoPlace(pnum, is, saveflag)
+		|| */AutoPlaceBelt(pnum, is, saveflag)
+		|| AutoPlaceInv(pnum, is, saveflag);
 }
 
 /**
@@ -1520,7 +1520,7 @@ static void StoreStartBuy(ItemStruct *is, int price)
 	} else {
 		copy_pod(storeitem, *is);
 		//storeitem._iIvalue = price; // only for boyitem
-		if (StoreAutoPlace(mypnum, false))
+		if (StoreAutoPlace(mypnum, &storeitem, false))
 			StartStore(STORE_CONFIRM);
 		else
 			StartStore(STORE_NOROOM);
@@ -1701,15 +1701,15 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 	case STORE_WBUY:
 	case STORE_BBOY:
 		assert(ii == MAXITEMS);
-		copy_pod(storeitem, items[MAXITEMS]);
-		if (!StoreAutoPlace(pnum, false) || !TakePlrsMoney(pnum, price))
-			return;
+		pi = &items[MAXITEMS];
 		// TODO: validate price?
-		//StorePrepareItemBuy(&storeitem);
-		//ItemStatOk(pnum, &storeitem);
-		if (storeitem._iMagical != ITEM_QUALITY_NORMAL)
-			storeitem._iIdentified = TRUE;
-		StoreAutoPlace(pnum, true);
+		//StorePrepareItemBuy(pi);
+		if (pi->_iMagical != ITEM_QUALITY_NORMAL)
+			pi->_iIdentified = TRUE;
+		ItemStatOk(pnum, pi);
+		if (!StoreAutoPlace(pnum, pi, false) || !TakePlrsMoney(pnum, price))
+			return;
+		StoreAutoPlace(pnum, pi, true);
 		break;
 	case STORE_SSELL:
 		if (!SyncSellItem(pnum, ii, price)) {
