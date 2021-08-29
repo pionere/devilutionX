@@ -1018,7 +1018,7 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	cmd.mkX = monsters[mnum]._mx;
 	cmd.mkY = monsters[mnum]._my;
 	cmd.mkDir = monsters[mnum]._mdir;
-	cmd.mkLevel = plr._pDunLevel;
+	cmd.mkLevel = currLvl._dLevelIdx;
 
 	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }

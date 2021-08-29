@@ -1714,7 +1714,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 
 	CheckQuestKill(mnum, sendmsg);
 	if (sendmsg)
-		NetSendCmdMonstKill(mnum, mpnum);
+		NetSendCmdMonstKill(mnum, (unsigned)mpnum < MAX_PLRS ? mpnum : MAX_PLRS);
 	if (mnum >= MAX_MINIONS) {
 		if ((unsigned)mpnum < MAX_PLRS)
 			mon->_mWhoHit |= 1 << mpnum;
