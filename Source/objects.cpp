@@ -573,8 +573,9 @@ static void AddObjTraps()
 			on = AddObject(on, tx, ty);
 			if (on == -1)
 				return;
-			objects[oi]._oTrapFlag = TRUE;
 			objects[on]._oVar1 = oi; // TRAP_OI_REF
+			objects[oi]._oTrapFlag = TRUE;
+			objects[oi]._oVar5 = on + 1; // TRAP_OI_BACKREF
 		}
 	}
 }
@@ -592,6 +593,7 @@ static void AddChestTraps()
 				if (objects[oi]._otype >= OBJ_CHEST1 && objects[oi]._otype <= OBJ_CHEST3 && !objects[oi]._oTrapFlag && random_(0, 100) < 10) {
 					objects[oi]._otype += OBJ_TCHEST1 - OBJ_CHEST1;
 					objects[oi]._oTrapFlag = TRUE;
+					//objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
 					if (currLvl._dType == DTYPE_CATACOMBS) {
 						r = random_(0, 2);
 					} else {
@@ -1268,6 +1270,7 @@ static void AddTrap(int oi)
 	mt = mt / 6 + 1;
 	mt = random_(148, mt) & 3;
 	os = &objects[oi];
+	os->_oRndSeed = GetRndSeed();
 	// TRAP_MISTYPE
 	static_assert(MIS_ARROW == 0, "AddTrap might have an 'undefined'(0) missile-type, which is expected to be a standard arrow.");
 	// os->_oVar3 = MIS_ARROW;
@@ -1529,6 +1532,7 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_TCHEST3:
 		AddChest(oi);
 		objects[oi]._oTrapFlag = TRUE;
+		//objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
 		objects[oi]._oVar4 = random_(0, currLvl._dType == DTYPE_CATACOMBS ? 2 : 3); // CHEST_TRAP_TYPE
 		break;
 	case OBJ_SARC:
@@ -1906,6 +1910,7 @@ static void Obj_Trap(int oi)
 		}
 	}
 
+	SetRndSeed(os->_oRndSeed);
 	sx = os->_ox;
 	sy = os->_oy;
 	dir = GetDirection(sx, sy, dx, dy);
@@ -2909,24 +2914,27 @@ bool SyncBloodPass(int pnum, int oi)
 void DisarmObject(int pnum, int oi)
 {
 	ObjectStruct *os, *on;
-	int i, trapdisper;
+	int n, trapdisper;
 
 	if (pnum == mypnum)
 		NewCursor(CURSOR_HAND);
 	os = &objects[oi];
-	if (os->_oTrapFlag) {
-		trapdisper = 2 * plr._pDexterity - 8 * currLvl._dLevel;
-		if (random_(154, 100) <= trapdisper) {
-			os->_oTrapFlag = FALSE;
-			for (i = 0; i < numobjects; i++) {
-				on = &objects[objectactive[i]];
-				if ((on->_otype == OBJ_TRAPL || on->_otype == OBJ_TRAPR)
-				 && dObject[on->_oVar1][on->_oVar2] - 1 == oi) {
-					on->_oVar4 = TRAP_INACTIVE;
-				}
-			}
-		}
+	if (!os->_oTrapFlag)
+		return;
+	n = os->_oVar5; // TRAP_OI_BACKREF
+	if (n > 0) {
+		n--;
+		on = &objects[n];
+	} else {
+		on = os;
 	}
+	SetRndSeed(on->_oRndSeed);
+	trapdisper = 2 * plr._pDexterity - 8 * currLvl._dLevel;
+	if (random_(154, 100) > trapdisper)
+		return;
+	os->_oTrapFlag = FALSE;
+	if (os != on)
+		on->_oVar4 = TRAP_INACTIVE;
 }
 
 static void CloseChest(int oi, bool sendmsg)
