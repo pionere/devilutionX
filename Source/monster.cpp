@@ -1713,8 +1713,10 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
 
 	CheckQuestKill(mnum, sendmsg);
-	if (sendmsg)
-		NetSendCmdMonstKill(mnum, (unsigned)mpnum < MAX_PLRS ? mpnum : MAX_PLRS);
+	if (sendmsg) {
+		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonstStartKill uses mnum as pnum, which must fit to BYTE.");
+		NetSendCmdMonstKill(mnum, mpnum);
+	}
 	if (mnum >= MAX_MINIONS) {
 		if ((unsigned)mpnum < MAX_PLRS)
 			mon->_mWhoHit |= 1 << mpnum;

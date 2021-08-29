@@ -599,7 +599,7 @@ void ResyncQuests()
 #endif
 }
 
-static void PrintQLString(int y, const char *str)
+static void PrintQLString(unsigned y, const char *str)
 {
 	int width, sx, sy, px;
 
