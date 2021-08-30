@@ -2393,12 +2393,14 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 
 int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
+	MonsterStruct* mon;
 	int tx, ty, i, j;
 	const char* cr;
 
 	assert((unsigned)misource < MAX_PLRS);
 
-	if (MINION_NR_INACTIVE(misource)) {
+	mon = &monsters[misource];
+	if (MINION_INACTIVE(mon)) {
 		static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddGolem expects a large enough border.");
 		for (i = 0; i < 6; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
@@ -2415,6 +2417,14 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			}
 		}
 		return MIRES_FAIL_DELETE;
+	}
+
+	missile[mi]._miMaxDam = mon->_mhitpoints;
+	missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
+	tx = mon->_mx;
+	ty = mon->_my;
+	for (i = 0; i < lengthof(offset_x); i++) {
+		CheckMissileCol(mi, tx + offset_x[i], ty + offset_y[i], true);
 	}
 
 	MonStartKill(misource, misource);
