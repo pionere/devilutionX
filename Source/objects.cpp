@@ -22,6 +22,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #define VILE_CIRCLE_TARGET_A      1
 #define VILE_CIRCLE_TARGET_B      2
 #define VILE_CIRCLE_TARGET_CENTER 4
+#define NKR_A	5
+#define NKR_B	6
+#define NKR_C	7
 
 int trapid;
 BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
@@ -118,7 +121,7 @@ const char StoryBookName[][28] = {
 	"Tale of the Three",
 	"The Black King",
 #ifdef HELLFIRE
-	"Journal: The Ensorcellment",
+	//"Journal: The Ensorcellment",
 	"Journal: The Meeting",
 	"Journal: The Tirade",
 	"Journal: His Power Grows",
@@ -415,7 +418,7 @@ static void InitRndBarrels()
 			xp = random_(143, DSIZEX) + DBORDERX;
 			yp = random_(143, DSIZEY) + DBORDERY;
 		} while (!RndLocOk(xp, yp));
-		AddObject(o + (random_(143, 4) != 0 ? 0 : 1), xp, yp);
+		AddObject(o + (random_(143, 4) == 0 ? 1 : 0), xp, yp);
 		c = 1;
 		do {
 			for (t = 0; t < 3; t++) {
@@ -427,7 +430,7 @@ static void InitRndBarrels()
 			}
 			if (t == 3)
 				break;
-			AddObject(o + (random_(143, 5) != 0 ? 0 : 1), xp, yp);
+			AddObject(o + (random_(143, 5) == 0 ? 1 : 0), xp, yp);
 			c++;
 		} while (random_(143, c >> 1) == 0);
 	}
@@ -624,9 +627,9 @@ static void AddChestTraps()
 					case 5:
 						mtype = MIS_MANATRAP;
 						break;*/
+#endif
 					default:
 						ASSUME_UNREACHABLE;
-#endif
 					}
 					objects[oi]._oVar4 = r; // CHEST_TRAP_TYPE
 
@@ -739,38 +742,29 @@ static void AddDiabObjs()
 static void SetupHBook(int oi, int bookidx)
 {
 	ObjectStruct *os;
-	int frame;
+	int bookframe = 1;
 
 	os = &objects[oi];
-	os->_oVar1 = 1;
-	frame = 2 * os->_oVar1;
-	os->_oAnimFrame = 5 - frame;
-	os->_oVar4 = os->_oAnimFrame + 1;       // STORY_BOOK_ANIM_FRAME
-	if (bookidx >= 5) {
-		os->_oVar2 = TEXT_BOOKA + bookidx - 5; // STORY_BOOK_MSG
-		os->_oVar3 = 15;                    // STORY_BOOK_NAME
-		os->_oVar8 = bookidx + 1;           // STORY_BOOK_NAKRUL_IDX
+	os->_oVar1 = bookframe;
+	os->_oAnimFrame = 5 - 2 * bookframe;
+	os->_oVar4 = os->_oAnimFrame + 1;       // STORY_BOOK_READ_FRAME
+	if (bookidx >= NKR_A) {
+		os->_oVar2 = TEXT_BOOKA + bookidx - NKR_A; // STORY_BOOK_MSG
+		os->_oVar3 = 14;                    // STORY_BOOK_NAME
+		os->_oVar8 = bookidx;               // STORY_BOOK_NAKRUL_IDX
 	} else {
 		os->_oVar2 = TEXT_BOOK4 + bookidx;  // STORY_BOOK_MSG
-		os->_oVar3 = bookidx + 10;          // STORY_BOOK_NAME
+		os->_oVar3 = bookidx + 9;           // STORY_BOOK_NAME
 		os->_oVar8 = 0;                     // STORY_BOOK_NAKRUL_IDX
 	}
 }
 
 static void AddHBooks(int bookidx, int ox, int oy)
 {
-	int oi;
+	int oi = AddObject(OBJ_L5BOOK, ox, oy);
 
-	if (numobjects >= MAXOBJECTS)
-		return;
-
-	oi = objectavail[0];
-	objectactive[numobjects] = oi;
-	numobjects++;
-	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
-	dObject[ox][oy] = oi + 1;
-	SetupObject(oi, ox, oy, OBJ_L5BOOK);
-	SetupHBook(oi, bookidx);
+	if (oi != -1)
+		SetupHBook(oi, bookidx);
 }
 
 static void AddLvl2xBooks(int bookidx)
@@ -804,22 +798,22 @@ static void AddLvl24Books()
 	AddUberLever();
 	switch (random_(0, 6)) {
 	case 0:
-		books[0] = 5; books[1] = 6; books[2] = 7; books[3] = 0;
+		books[0] = NKR_A; books[1] = NKR_B; books[2] = NKR_C; books[3] = 0;
 		break;
 	case 1:
-		books[0] = 5; books[1] = 7; books[2] = 6; books[3] = 0;
+		books[0] = NKR_A; books[1] = NKR_C; books[2] = NKR_B; books[3] = 0;
 		break;
 	case 2:
-		books[0] = 6; books[1] = 5; books[2] = 7; books[3] = 0;
+		books[0] = NKR_B; books[1] = NKR_A; books[2] = NKR_C; books[3] = 0;
 		break;
 	case 3:
-		books[0] = 6; books[1] = 7; books[2] = 5; books[3] = 0;
+		books[0] = NKR_B; books[1] = NKR_C; books[2] = NKR_A; books[3] = 0;
 		break;
 	case 4:
-		books[0] = 7; books[1] = 6; books[2] = 5; books[3] = 0;
+		books[0] = NKR_C; books[1] = NKR_B; books[2] = NKR_A; books[3] = 0;
 		break;
 	case 5:
-		books[0] = 7; books[1] = 5; books[2] = 6; books[3] = 0;
+		books[0] = NKR_C; books[1] = NKR_A; books[2] = NKR_B; books[3] = 0;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -836,11 +830,11 @@ static int ProgressUberLever(int bookidx, int status)
 		return status;
 
 	switch (bookidx) {
-	case 6:
+	case NKR_A:
 		return 1;
-	case 7:
+	case NKR_B:
 		return status == 1 ? 2 : 0;
-	case 8:
+	case NKR_C:
 		return status == 2 ? 3 : 0;
 	default:
 		ASSUME_UNREACHABLE
@@ -850,18 +844,24 @@ static int ProgressUberLever(int bookidx, int status)
 }
 #endif
 
+static void Alloc2x2Obj(int oi)
+{
+	int ox, oy;
+
+	ox = objects[oi]._ox;
+	oy = objects[oi]._oy;
+	oi = -(oi + 1);
+	dObject[ox][oy - 1] = oi;
+	dObject[ox - 1][oy] = oi;
+	dObject[ox - 1][oy - 1] = oi;
+}
+
 static void AddMushPatch()
 {
-	int oi;
 	int xp, yp;
 
-	if (!RndLoc5x5(&xp, &yp))
-		return;
-	oi = AddObject(OBJ_MUSHPATCH, xp, yp);
-	oi = -(oi + 1);
-	dObject[xp - 1][yp - 1] = oi;
-	dObject[xp][yp - 1] = oi;
-	dObject[xp - 1][yp] = oi;
+	if (RndLoc5x5(&xp, &yp))
+		AddObject(OBJ_MUSHPATCH, xp, yp);
 }
 
 static void AddSlainHero()
@@ -1061,8 +1061,7 @@ void InitObjects()
 	// TODO: use dType instead?
 	if (currLvl._dDunType != DTYPE_HELL && currLvl._dDunType != DTYPE_CAVES)
 		AddObjTraps();
-	// BUGFIX: TODO no traps in CRYPT?
-	if (currLvl._dDunType != DTYPE_CATHEDRAL)
+	if (currLvl._dType != DTYPE_CATHEDRAL)
 		AddChestTraps();
 	//gbInitObjFlag = false;
 }
@@ -1353,18 +1352,6 @@ static void ObjAddRndSeed(int oi)
 	objects[oi]._oRndSeed = GetRndSeed();
 }
 
-static void AddPurifyingFountain(int oi)
-{
-	int ox, oy;
-
-	ox = objects[oi]._ox;
-	oy = objects[oi]._oy;
-	dObject[ox][oy - 1] = -(oi + 1);
-	dObject[ox - 1][oy] = -(oi + 1);
-	dObject[ox - 1][oy - 1] = -(oi + 1);
-	//objects[oi]._oRndSeed = GetRndSeed();
-}
-
 static void AddArmorStand(int oi)
 {
 	ObjectStruct *os;
@@ -1380,18 +1367,6 @@ static void AddCauldronGoatShrine(int oi)
 	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
 	os->_oVar1 = FindValidShrine(SHRINE_THAUMATURGIC); // SHRINE_TYPE
-}
-
-static void AddMurkyFountain(int oi)
-{
-	int ox, oy;
-
-	ox = objects[oi]._ox;
-	oy = objects[oi]._oy;
-	dObject[ox][oy - 1] = -(oi + 1);
-	dObject[ox - 1][oy] = -(oi + 1);
-	dObject[ox - 1][oy - 1] = -(oi + 1);
-	//objects[oi]._oRndSeed = GetRndSeed();
 }
 
 static void AddDecap(int oi)
@@ -1425,22 +1400,20 @@ static void AddMagicCircle(int oi)
 static void AddStoryBook(int oi)
 {
 	ObjectStruct *os;
-	int bookframe;
+	BYTE bookframe, idx;
 
+	static_assert((int)DLV_CATHEDRAL4 == 4, "AddStoryBook converts DLV to index with shift I.");
+	static_assert((int)DLV_CATACOMBS4 == 8, "AddStoryBook converts DLV to index with shift II.");
+	static_assert((int)DLV_CAVES4 == 12, "AddStoryBook converts DLV to index with shift III.");
+	idx = (currLvl._dLevelIdx >> 2) - 1;
 	bookframe = quests[Q_DIABLO]._qvar1;
 
 	os = &objects[oi];
 	os->_oVar1 = bookframe;
-	// STORY_BOOK_MSG
-	if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
-		os->_oVar2 = StoryText[bookframe][0];
-	else if (currLvl._dLevelIdx == DLV_CATACOMBS4)
-		os->_oVar2 = StoryText[bookframe][1];
-	else if (currLvl._dLevelIdx == DLV_CAVES4)
-		os->_oVar2 = StoryText[bookframe][2];
-	os->_oVar3 = (currLvl._dLevelIdx >> 2) + 3 * bookframe - 1; // STORY_BOOK_NAME
+	os->_oVar2 = StoryText[bookframe][idx]; // STORY_BOOK_MSG
+	os->_oVar3 = 3 * bookframe + idx; // STORY_BOOK_NAME
 	os->_oAnimFrame = 5 - 2 * bookframe;
-	os->_oVar4 = os->_oAnimFrame + 1; // STORY_BOOK_ANIM_FRAME
+	os->_oVar4 = os->_oAnimFrame + 1; // STORY_BOOK_READ_FRAME
 }
 
 static void AddWeaponRack(int oi)
@@ -1585,9 +1558,6 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_DECAP:
 		AddDecap(oi);
 		break;
-	case OBJ_PURIFYINGFTN:
-		AddPurifyingFountain(oi);
-		break;
 	case OBJ_ARMORSTAND:
 		AddArmorStand(oi);
 		break;
@@ -1595,8 +1565,10 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_CAULDRON:
 		AddCauldronGoatShrine(oi);
 		break;
+	case OBJ_PURIFYINGFTN:
 	case OBJ_MURKYFTN:
-		AddMurkyFountain(oi);
+	case OBJ_MUSHPATCH:
+		Alloc2x2Obj(oi);
 		break;
 	//case OBJ_TEARFTN:
 	//	ObjAddRndSeed(oi);
@@ -1609,9 +1581,6 @@ int AddObject(int type, int ox, int oy)
 		AddMagicCircle(oi);
 		break;
 	case OBJ_STORYBOOK:
-#ifdef HELLFIRE
-	case OBJ_L5BOOK:
-#endif
 		AddStoryBook(oi);
 		break;
 	case OBJ_TBCROSS:
@@ -1910,7 +1879,7 @@ static void Obj_Trap(int oi)
 		}
 	}
 
-	SetRndSeed(os->_oRndSeed);
+	//SetRndSeed(os->_oRndSeed);
 	sx = os->_ox;
 	sy = os->_oy;
 	dir = GetDirection(sx, sy, dx, dy);
@@ -3661,7 +3630,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	os = &objects[oi];
 	// assert(os->_oSelFlag != 0);
 
-	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_ANIM_FRAME
+	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
 #ifdef HELLFIRE
 		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == 8 && quests[Q_NAKRUL]._qvar1 >= 4) {
