@@ -299,7 +299,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 	PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, true, t, 1);
 }
 
-static void DrawSkillIcon(BYTE spl, BYTE st, BYTE offset)
+static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 {
 	int lvl = 0, y;
 
@@ -307,13 +307,13 @@ static void DrawSkillIcon(BYTE spl, BYTE st, BYTE offset)
 	if (spl == SPL_INVALID) {
 		st = RSPLTYPE_INVALID;
 		spl = SPL_NULL;
-	} else if ((spelldata[spl].sFlags & myplr._pSkillFlags) != spelldata[spl].sFlags)
+	} else if ((spelldata[spl].sFlags & plr._pSkillFlags) != spelldata[spl].sFlags)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
-		lvl = GetSpellLevel(mypnum, spl);
-		if (lvl <= 0 || !CheckSpell(mypnum, spl))
+		lvl = GetSpellLevel(pnum, spl);
+		if (lvl <= 0 || plr._pMana < GetManaAmount(pnum, spl))
 			st = RSPLTYPE_INVALID;
-		else if (myplr._pHasUnidItem)
+		if (plr._pHasUnidItem)
 			lvl = -1; // SPLLVL_UNDEF
 	}
 	SetSpellTrans(st);
@@ -328,27 +328,27 @@ static void DrawSkillIcon(BYTE spl, BYTE st, BYTE offset)
  */
 void DrawSkillIcons()
 {
-	PlayerStruct *p;
+	int pnum;
 	BYTE spl, type;
 
-	p = &myplr;
-	if (p->_pAtkSkill == SPL_INVALID) {
-		spl = p->_pMoveSkill;
-		type = p->_pMoveSkillType;
+	pnum = mypnum;
+	if (plr._pAtkSkill == SPL_INVALID) {
+		spl = plr._pMoveSkill;
+		type = plr._pMoveSkillType;
 	} else {
-		spl = p->_pAtkSkill;
-		type = p->_pAtkSkillType;
+		spl = plr._pAtkSkill;
+		type = plr._pAtkSkillType;
 	}
-	DrawSkillIcon(spl, type, 0);
+	DrawSkillIcon(pnum, spl, type, 0);
 
-	if (p->_pAltAtkSkill == SPL_INVALID) {
-		spl = p->_pAltMoveSkill;
-		type = p->_pAltMoveSkillType;
+	if (plr._pAltAtkSkill == SPL_INVALID) {
+		spl = plr._pAltMoveSkill;
+		type = plr._pAltMoveSkillType;
 	} else {
-		spl = p->_pAltAtkSkill;
-		type = p->_pAltAtkSkillType;
+		spl = plr._pAltAtkSkill;
+		type = plr._pAltAtkSkillType;
 	}
-	DrawSkillIcon(spl, type, SPLICONLENGTH);
+	DrawSkillIcon(pnum, spl, type, SPLICONLENGTH);
 }
 
 static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
