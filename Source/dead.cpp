@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /** unused, this was probably for blood boil/burn */
 //int spurtndx;
 DeadStruct dead[MAXDEAD];
-int stonendx;
+BYTE stonendx;
 
 void InitDead()
 {
@@ -73,10 +73,11 @@ void InitDead()
 	assert(nd <= MAXDEAD);
 }
 
-void AddDead(int mnum)
+void AddDead(int mnum, bool sync)
 {
 	MonsterStruct *mon;
-	int dx, dy, dir, dv;
+	int dx, dy;
+	BYTE dv;
 
 	if (mnum >= MAX_MINIONS)
 		MonUpdateLeader(mnum);
@@ -84,13 +85,14 @@ void AddDead(int mnum)
 	mon = &monsters[mnum];
 	mon->_mDelFlag = TRUE;
 
+	static_assert(MAXDEAD <= 0x1F, "Encoding of dDead requires the maximum number of deads to be low.");
+	dv = mon->_mmode == MM_STONE ? stonendx : (mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval);
+	dv = (dv & 0x1F) + (mon->_mdir << 5);
 	dx = mon->_mx;
 	dy = mon->_my;
-	dv = mon->_mmode == MM_STONE ? stonendx : (mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval);
-	dir = mon->_mdir;
-	dMonster[dx][dy] = 0;
-	static_assert(MAXDEAD <= 0x1F, "Encoding of dDead requires the maximum number of deads to be low.");
-	dDead[dx][dy] = (dv & 0x1F) + (dir << 5);
+	if (!sync)
+		dMonster[dx][dy] = 0;
+	dDead[dx][dy] = dv;
 }
 
 void SyncDeadLight()

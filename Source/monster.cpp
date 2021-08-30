@@ -2383,7 +2383,7 @@ static bool MonDoDeath(int mnum)
 		if (++mon->_mVar1 == 140)      // DIABLO_TICK
 			PrepDoEnding(mon->_mVar2); // DIABLO_SOUND
 	} else if (mon->_mAnimFrame == mon->_mAnimLen) {
-		AddDead(mnum);
+		AddDead(mnum, false);
 	}
 	return false;
 }

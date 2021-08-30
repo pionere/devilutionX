@@ -894,7 +894,7 @@ void DeltaLoadLevel()
 					// SyncDeadLight: inline for better performance
 					if (mon->mlid != NO_LIGHT)
 						ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
-					AddDead(i);
+					AddDead(i, true);
 				} else {
 					decode_enemy(i, mstr->_menemy);
 					dMonster[mon->_mx][mon->_my] = i + 1;

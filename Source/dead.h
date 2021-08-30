@@ -13,10 +13,9 @@ extern "C" {
 #endif
 
 extern DeadStruct dead[MAXDEAD];
-extern int stonendx;
 
 void InitDead();
-void AddDead(int mnum);
+void AddDead(int mnum, bool sync);
 void SyncDeadLight();
 
 #ifdef __cplusplus
