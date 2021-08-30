@@ -516,7 +516,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	NetSendCmdLoc(CMD_WALKXY, cursmx, cursmy);
 }
 
-static void ActionBtnCmd(bool bShift)
+void ActionBtnCmd(bool bShift)
 {
 	assert(pcurs == CURSOR_HAND);
 

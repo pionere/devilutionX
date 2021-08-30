@@ -407,7 +407,7 @@ static void FindTrigger()
 
 static void Interact()
 {
-	if (currLvl._dType == DTYPE_TOWN) {
+	/*if (currLvl._dType == DTYPE_TOWN) {
 		if (pcursmonst != -1)
 			NetSendCmdLocParam1(CMD_TALKXY, towners[pcursmonst]._tx, towners[pcursmonst]._ty, pcursmonst);
 	} else {
@@ -418,7 +418,8 @@ static void Interact()
 			NetSendCmdMonstAttack((melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
 		else if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam)
 			NetSendCmdPlrAttack(pcursplr, attack, sl);
-	}
+	}*/
+	ActionBtnCmd(false);
 }
 
 static void AttrIncBtnSnap(AxisDirection dir)
