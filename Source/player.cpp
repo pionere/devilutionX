@@ -1881,11 +1881,10 @@ void RemovePlrMissiles(int pnum)
 {
 	int i, mi;
 
+	assert(plr._pDunLevel == currLvl._dLevelIdx);
 	static_assert(MAX_MINIONS == MAX_PLRS, "RemovePlrMissiles requires that owner of a monster has the same id as the monster itself.");
-	if (currLvl._dType != DTYPE_TOWN && pnum == mypnum && !(MINION_NR_INACTIVE(pnum))) {
+	if (currLvl._dType != DTYPE_TOWN && !(MINION_NR_INACTIVE(pnum))) {
 		MonStartKill(pnum, pnum);
-		AddDead(pnum);
-		DeleteMonsterList();
 	}
 
 	for (i = 0; i < nummissiles; i++) {
