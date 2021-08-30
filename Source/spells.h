@@ -16,8 +16,6 @@ extern "C" {
 #endif
 
 int GetManaAmount(int pnum, int sn);
-void UseMana(int pnum, int sn, int sf);
-bool HasMana(int pnum, int sn, int sf);
 char SpellSourceInv(int sn);
 char SpellSourceEquipment(int sn);
 int GetSpellLevel(int pnum, int sn);

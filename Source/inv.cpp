@@ -1763,7 +1763,7 @@ bool InvUseItem(int cii)
 			gbTSplFrom = cii;
 			NewCursor(spelldata[sn].scCurs);
 		} else {
-			NetSendCmdLocSkill(cursmx, cursmy, sn, cii, GetSpellLevel(pnum, sn));
+			NetSendCmdLocSkill(cursmx, cursmy, sn, cii);
 		}
 		return true;
 	case IMISC_BOOK:

@@ -412,12 +412,11 @@ static void Interact()
 			NetSendCmdLocParam1(CMD_TALKXY, towners[pcursmonst]._tx, towners[pcursmonst]._ty, pcursmonst);
 	} else {
 		int attack = myplr._pAtkSkill;
-		int sl = GetSpellLevel(mypnum, attack);
 		bool melee = (myplr._pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
-			NetSendCmdMonstAttack((melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
+			NetSendCmdMonstAttack((melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack);
 		else if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam)
-			NetSendCmdPlrAttack(pcursplr, attack, sl);
+			NetSendCmdPlrAttack(pcursplr, attack);
 	}*/
 	ActionBtnCmd(false);
 }

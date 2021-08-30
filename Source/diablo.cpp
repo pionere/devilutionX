@@ -417,8 +417,6 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			return;
 		}
 
-		int askl = GetSpellLevel(mypnum, atkSkill);
-
 		if (spelldata[atkSkill].spCurs != CURSOR_NONE) {
 			NewCursor(spelldata[atkSkill].spCurs);
 			gbTSpell = atkSkill;
@@ -428,36 +426,36 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 		if (bShift) {
 			if (spelldata[atkSkill].sType != STYPE_NONE)
-				NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf, askl);
+				NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
 			else
-				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, askl);
+				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, asf);
 			return;
 		}
 		if (pcursmonst != -1) {
 			if (CanTalkToMonst(pcursmonst)) {
-				NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, SPL_ATTACK, 0);
+				NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, SPL_ATTACK, SPLFROM_ABILITY);
 			} else {
 				if (spelldata[atkSkill].sType != STYPE_NONE)
-					NetSendCmdMonstSkill(pcursmonst, atkSkill, asf, askl);
+					NetSendCmdMonstSkill(pcursmonst, atkSkill, asf);
 				else if (myplr._pSkillFlags & SFLAG_RANGED)
-					NetSendCmdMonstAttack(CMD_RATTACKID, pcursmonst, atkSkill, askl);
+					NetSendCmdMonstAttack(CMD_RATTACKID, pcursmonst, atkSkill, asf);
 				else
-					NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, atkSkill, askl);
+					NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, atkSkill, asf);
 			}
 			return;
 		}
 		if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam) {
 			if (spelldata[atkSkill].sType != STYPE_NONE)
-				NetSendCmdPlrSkill(pcursplr, atkSkill, asf, askl);
+				NetSendCmdPlrSkill(pcursplr, atkSkill, asf);
 			else
-				NetSendCmdPlrAttack(pcursplr, atkSkill, askl);
+				NetSendCmdPlrAttack(pcursplr, atkSkill, asf);
 			return;
 		}
 		if (moveSkill == SPL_INVALID) {
 			if (spelldata[atkSkill].sType != STYPE_NONE)
-				NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf, askl);
+				NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
 			else
-				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, askl);
+				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, asf);
 			return;
 		}
 	} else if (moveSkill == SPL_INVALID) {
@@ -480,7 +478,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 		// TODO: extend TALKXY?
 		if (CanTalkToMonst(pcursmonst)) {
-			NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, SPL_ATTACK, 0);
+			NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, SPL_ATTACK, SPLFROM_ABILITY);
 			return;
 		}
 
@@ -503,8 +501,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	}
 	if (moveSkill != SPL_WALK) {
 		// TODO: check if cursmx/y == _px/y ?
-		int mskl = GetSpellLevel(mypnum, moveSkill);
-		NetSendCmdLocSkill(cursmx, cursmy, moveSkill, msf, mskl);
+		NetSendCmdLocSkill(cursmx, cursmy, moveSkill, msf);
 		return;
 	}
 
@@ -554,28 +551,20 @@ bool TryIconCurs(bool bShift)
 		break;
 	case CURSOR_RESURRECT:
 		if (pcursplr != PLR_NONE) {
-			int sn = gbTSpell;
-			int sf = gbTSplFrom;
-			NetSendCmdLocSkill(players[pcursplr]._px, players[pcursplr]._py, sn, sf, pcursplr);
+			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		}
 		break;
 	case CURSOR_TELEPORT: {
-		int sn = gbTSpell;
-		int sf = gbTSplFrom;
-		int sl = GetSpellLevel(mypnum, sn);
 		if (pcursmonst != -1)
-			NetSendCmdMonstSkill(pcursmonst, sn, sf, sl);
+			NetSendCmdMonstSkill(pcursmonst, gbTSpell, gbTSplFrom);
 		else if (pcursplr != PLR_NONE)
-			NetSendCmdPlrSkill(pcursplr, sn, sf, sl);
+			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		else
-			NetSendCmdLocSkill(cursmx, cursmy, sn, sf, sl);
+			NetSendCmdLocSkill(cursmx, cursmy, gbTSpell, gbTSplFrom);
 	} break;
 	case CURSOR_HEALOTHER:
 		if (pcursplr != PLR_NONE) {
-			int sn = gbTSpell;
-			int sf = gbTSplFrom;
-			int sl = GetSpellLevel(mypnum, sn);
-			NetSendCmdPlrSkill(pcursplr, sn, sf, sl);
+			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		}
 		break;
 	default:

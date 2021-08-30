@@ -200,15 +200,7 @@ typedef struct PlayerStruct {
 	int _pmode;
 	char walkpath[MAX_PATH_LENGTH + 1];
 	int destAction;
-	union {
-		int destParam1;
-		struct {
-			BYTE destParam1a;
-			BYTE destParam1b;
-			BYTE destParam1c;
-			BYTE destParam1d;
-		};
-	};
+	int destParam1;
 	int destParam2;
 	int destParam3;
 	int destParam4;
@@ -957,32 +949,26 @@ typedef struct TCmdLocAttack {
 	BYTE bCmd;
 	BYTE x;
 	BYTE y;
-	BYTE laSkill;
-	BYTE laLevel;
+	CmdSkillUse lau;
 } TCmdLocAttack;
 
 typedef struct TCmdLocSkill {
 	BYTE bCmd;
 	BYTE x;
 	BYTE y;
-	BYTE lsSkill;
-	BYTE lsFrom;
-	BYTE lsLevel;
+	CmdSkillUse lsu;
 } TCmdLocSkill;
 
 typedef struct TCmdPlrAttack {
 	BYTE bCmd;
 	BYTE paPnum;
-	BYTE paSkill;
-	BYTE paLevel;
+	CmdSkillUse pau;
 } TCmdPlrAttack;
 
 typedef struct TCmdPlrSkill {
 	BYTE bCmd;
 	BYTE psPnum;
-	BYTE psSkill;
-	BYTE psFrom;
-	BYTE psLevel;
+	CmdSkillUse psu;
 } TCmdPlrSkill;
 
 typedef struct TCmdPlrDamage {
@@ -994,16 +980,13 @@ typedef struct TCmdPlrDamage {
 typedef struct TCmdMonstAttack {
 	BYTE bCmd;
 	WORD maMnum;
-	BYTE maSkill;
-	BYTE maLevel;
+	CmdSkillUse mau;
 } TCmdMonstAttack;
 
 typedef struct TCmdMonstSkill {
 	BYTE bCmd;
 	WORD msMnum;
-	BYTE msSkill;
-	BYTE msFrom;
-	BYTE msLevel;
+	CmdSkillUse msu;
 } TCmdMonstSkill;
 
 typedef struct TCmdMonstDamage {

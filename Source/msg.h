@@ -44,13 +44,46 @@ void NetSendCmdDelItem(BYTE bLoc);
  * @param from: the source of the skill
  */
 void NetSendCmdItemSkill(int cii, BYTE skill, char from);
-void NetSendCmdLocAttack(BYTE x, BYTE y, int skill, int lvl);
-void NetSendCmdLocSkill(BYTE x, BYTE y, int skill, int from, int lvl);
-void NetSendCmdPlrAttack(int pnum, int skill, int lvl);
-void NetSendCmdPlrSkill(int pnum, int skill, int from, int lvl);
+/** Attack a location with a given skill using from as a source.
+ * @param x: the x coordinate of the target (MAXDUNX)
+ * @param y: the y coordinate of the target (MAXDUNY)
+ * @param skill: the skill to be used
+ * @param from: the source of the skill
+ */
+void NetSendCmdLocAttack(BYTE x, BYTE y, BYTE skill, char from);
+/** Use a spell on a given location using from as a source.
+ * @param x: the x coordinate of the target (MAXDUNX)
+ * @param y: the y coordinate of the target (MAXDUNY)
+ * @param skill: the skill to be used
+ * @param from: the source of the skill
+ */
+void NetSendCmdLocSkill(BYTE x, BYTE y, BYTE skill, char from);
+/** Attack a player with a given skill using from as a source.
+ * @param pnum: the id of the targeted player
+ * @param skill: the skill to be used
+ * @param from: the source of the skill
+ */
+void NetSendCmdPlrAttack(int pnum, BYTE skill, char from);
+/** Use a spell on a player using from as a source.
+ * @param pnum: the id of the targeted player
+ * @param skill: the skill to be used
+ * @param from: the source of the skill
+ */
+void NetSendCmdPlrSkill(int pnum, BYTE skill, char from);
 void NetSendCmdPlrDamage(int pnum, unsigned damage);
-void NetSendCmdMonstAttack(BYTE bCmd, int mnum, int skill, int lvl);
-void NetSendCmdMonstSkill(int mnum, int skill, int from, int lvl);
+/** Attack a monster with a given skill using from as a source.
+ * @param bCmd: the type of the attack
+ * @param mnum: the id of the targeted monster
+ * @param skill: the skill to be used
+ * @param from: the source of the skill
+ */
+void NetSendCmdMonstAttack(BYTE bCmd, int mnum, BYTE skill, char from);
+/** Use a spell on a monster using from as a source.
+ * @param mnum: the id of the targeted monster
+ * @param skill: the skill to be used
+ * @param from: the source of the skill
+ */
+void NetSendCmdMonstSkill(int mnum, BYTE skill, char from);
 void NetSendCmdMonstDamage(int mnum, int hitpoints);
 void NetSendCmdMonstKill(int mnum, int pnum);
 void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl);

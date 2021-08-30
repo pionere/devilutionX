@@ -1541,17 +1541,20 @@ static void StartSpell(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS)
 		dev_fatal("StartSpell: illegal player %d", pnum);
 
-	i = plr.destParam2;
+	i = plr.destParam1;
 	switch (plr.destAction) {
 	case ACTION_SPELL:
 		dx = i;
-		dy = plr.destParam3;
+		dy = plr.destParam2;
 		break;
 	case ACTION_SPELLMON:
 		dx = monsters[i]._mfutx;
 		dy = monsters[i]._mfuty;
 		break;
 	case ACTION_SPELLPLR:
+		// preserve target information for the resurrect spell
+		if (plr.destParam3 == SPL_RESURRECT) // SPELL_NUM
+			plr.destParam4 = i;              // SPELL_LEVEL
 		dx = plx(i)._pfutx;
 		dy = plx(i)._pfuty;
 		break;
@@ -1562,9 +1565,8 @@ static void StartSpell(int pnum)
 
 	plr._pVar1 = dx;                    // SPELL_TARGET_X
 	plr._pVar2 = dy;                    // SPELL_TARGET_Y
-	plr._pVar3 = plr.destParam1a;       // SPELL_NUM : the spell to be cast
-	plr._pVar4 = plr.destParam1c;       // SPELL_LEVEL
-	plr._pVar5 = (char)plr.destParam1b; // SPELL_SOURCE
+	plr._pVar3 = plr.destParam3;        // SPELL_NUM : the spell to be cast
+	plr._pVar4 = plr.destParam4;        // SPELL_LEVEL
 	plr._pVar7 = FALSE;                 // SPELL_ACTION_PROGRESS : 'flag' of cast
 	plr._pVar8 = 0;                     // SPELL_TICK : speed helper
 	plr._pmode = PM_SPELL;
@@ -2387,24 +2389,21 @@ static bool PlrDoAttack(int pnum)
 	if (plr._pVar7 == 1) {
 		plr._pVar7++;
 
-		if (HasMana(pnum, plr._pVar5, SPLFROM_MANA)) { // ATTACK_SKILL
-			UseMana(pnum, plr._pVar5, SPLFROM_MANA);
-			hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL_LEVEL
-				plr._px + offset_x[dir], plr._py + offset_y[dir]);
-			if (plr._pVar5 == SPL_SWIPE) {
-				hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-					plr._px + offset_x[(dir + 1) & 7], plr._py + offset_y[(dir + 1) & 7]);
+		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL_LEVEL
+			plr._px + offset_x[dir], plr._py + offset_y[dir]);
+		if (plr._pVar5 == SPL_SWIPE) {
+			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
+				plr._px + offset_x[(dir + 1) & 7], plr._py + offset_y[(dir + 1) & 7]);
 
-				hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-					plr._px + offset_x[(dir + 7) & 7], plr._py + offset_y[(dir + 7) & 7]);
-			}
+			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
+				plr._px + offset_x[(dir + 7) & 7], plr._py + offset_y[(dir + 7) & 7]);
+		}
 
-			if (hitcnt != 0 && WeaponDur(pnum, 40 - hitcnt * 8)) {
-				//PlrStartStand(pnum, dir);
-				StartStand(pnum, dir);
-				//ClearPlrPVars(pnum);
-				return true;
-			}
+		if (hitcnt != 0 && WeaponDur(pnum, 40 - hitcnt * 8)) {
+			//PlrStartStand(pnum, dir);
+			StartStand(pnum, dir);
+			//ClearPlrPVars(pnum);
+			return true;
 		}
 	}
 
@@ -2441,17 +2440,14 @@ static bool PlrDoRangeAttack(int pnum)
 
 	if (!plr._pVar7) { // RATTACK_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
-		if (HasMana(pnum, plr._pVar5, SPLFROM_MANA) // RATTACK_SKILL
-		 && AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // RATTACK_TARGET_X, RATTACK_TARGET_X
-			 spelldata[plr._pVar5].sMissile, 0, pnum, 0, 0, plr._pVar6)) { // RATTACK_SKILL_LEVEL
-			UseMana(pnum, plr._pVar5, SPLFROM_MANA);
+		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // RATTACK_TARGET_X, RATTACK_TARGET_X
+			 spelldata[plr._pVar5].sMissile, 0, pnum, 0, 0, plr._pVar6); // RATTACK_SKILL_LEVEL
 
-			if (WeaponDur(pnum, 40)) {
-				//PlrStartStand(pnum, plr._pdir);
-				StartStand(pnum, plr._pdir);
-				//ClearPlrPVars(pnum);
-				return true;
-			}
+		if (WeaponDur(pnum, 40)) {
+			//PlrStartStand(pnum, plr._pdir);
+			StartStand(pnum, plr._pdir);
+			//ClearPlrPVars(pnum);
+			return true;
 		}
 	}
 
@@ -2582,11 +2578,8 @@ static bool PlrDoSpell(int pnum)
 	if (!plr._pVar7) { // SPELL_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
 
-		if (HasMana(pnum, plr._pVar3, plr._pVar5) // SPELL_NUM, SPELL_SOURCE
-		 && AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // SPELL_TARGET_X, SPELL_TARGET_Y
-				spelldata[plr._pVar3].sMissile, 0, pnum, 0, 0, plr._pVar4) != -1) { // SPELL_LEVEL
-			UseMana(pnum, plr._pVar3, plr._pVar5); // SPELL_NUM, SPELL_SOURCE
-		}
+		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // SPELL_TARGET_X, SPELL_TARGET_Y
+			spelldata[plr._pVar3].sMissile, 0, pnum, 0, 0, plr._pVar4); // SPELL_NUM, SPELL_LEVEL
 	}
 
 	if (plr._pAnimFrame < plr._pSFrames)
