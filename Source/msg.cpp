@@ -129,6 +129,19 @@ void msg_send_drop_plr(int pnum, int reason)
 	DeltaQueuePacket(pnum, &cmd, sizeof(cmd));
 }
 
+static void msg_mask_monhit(int pnum)
+{
+	int i;
+	BYTE mask;
+
+	static_assert(MAX_PLRS < 8, "msg_mask_monhit uses BYTE mask for pnum.");
+	mask = ~(1 << pnum);
+	for (i = 0; i < MAXMONSTERS; i++)
+		sgLevelDelta->monster[i]._mWhoHit &= mask;
+	for (i = 0; i < MAXMONSTERS; i++)
+		monsters[i]._mWhoHit &= mask;
+}
+
 static int msg_wait_for_delta()
 {
 	// TODO: add timeout using guDeltaStart?
@@ -163,8 +176,10 @@ bool DownloadDeltaInfo()
 	assert(geBufferMsgs == MSG_NORMAL || !success || gbGameDeltaChunks != MAX_CHUNKS);
 	geBufferMsgs = MSG_NORMAL;
 	if (success) {
-		if (gbGameDeltaChunks == MAX_CHUNKS)
+		if (gbGameDeltaChunks == MAX_CHUNKS) {
+			msg_mask_monhit(mypnum);
 			return true;
+		}
 #ifdef _DEVMODE
 		DrawDlg(/*gbGameDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended %d" :*/"Unable to get game data %d", gbGameDeltaChunks);
 #else
@@ -573,7 +588,7 @@ static void delta_kill_monster(const TCmdMonstKill* mon)
 	pD->_mhitpoints = 0;
 }
 
-static void delta_monster_hp(const TCmdMonstDamage* mon)
+static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 {
 	DMonsterStr *pD;
 	BYTE bLevel;
@@ -586,6 +601,8 @@ static void delta_monster_hp(const TCmdMonstDamage* mon)
 
 	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevelDelta[bLevel].monster[SwapLE16(mon->mdMnum)];
+	static_assert(MAX_PLRS < 8, "delta_monster_hp uses BYTE mask for pnum.");
+	pD->_mWhoHit |= 1 << pnum;
 	// In vanilla code the value was discarded if hp was higher than the current one.
 	// That disregards the healing monsters.
 	// Now it is always updated except the monster is already dead.
@@ -617,10 +634,10 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 		if (pD->_mhitpoints != 0) {
 			pD->_mx = pSync->_mx;
 			pD->_my = pSync->_my;
+			pD->_mdir = pSync->_mdir;
 			pD->_menemy = pSync->_menemy;
 			pD->_mactive = pSync->_mactive;
 			pD->_mhitpoints = pSync->_mhitpoints;
-			pD->_mdir = pSync->_mdir;
 		}
 		pbBuf += sizeof(TSyncMonster);
 	}
@@ -900,6 +917,7 @@ void DeltaLoadLevel()
 					dMonster[mon->_mx][mon->_my] = i + 1;
 					MonStartStand(i, mon->_mdir);
 					mon->_msquelch = mstr->_mactive;
+					mon->_mWhoHit = mstr->_mWhoHit;
 				}
 			}
 		}
@@ -1951,7 +1969,7 @@ static unsigned On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdMonstDamage *cmd = (TCmdMonstDamage *)pCmd;
 
-	delta_monster_hp(cmd);
+	delta_monster_hp(cmd, pnum);
 
 	return sizeof(*cmd);
 }
@@ -2244,6 +2262,7 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 			plr._pActive = TRUE;
 			gbActivePlayers++;
 			EventPlrMsg("Player '%s' (level %d) just joined the game", plr._pName, plr._pLevel);
+			msg_mask_monhit(pnum);
 		}
 		plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1) > gbNetUpdateRate ? SwapLE16(cmd->lTimer1) - gbNetUpdateRate : 0;
 		plr._pTimer[PLTR_RAGE] = msg_calc_rage(cmd->lTimer2);

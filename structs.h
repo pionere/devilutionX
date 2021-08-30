@@ -1160,6 +1160,7 @@ typedef struct DMonsterStr {
 	BYTE _menemy;
 	DWORD _mactive;
 	INT _mhitpoints;
+	BYTE _mWhoHit;
 } DMonsterStr;
 
 typedef struct DObjectStr {
