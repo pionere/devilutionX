@@ -1759,9 +1759,9 @@ bool InvUseItem(int cii)
 #endif
 		sn = is->_iSpell;
 		if (spelldata[sn].scCurs != CURSOR_NONE) {
-			NewCursor(spelldata[sn].scCurs);
 			gbTSpell = sn;
 			gbTSplFrom = cii;
+			NewCursor(spelldata[sn].scCurs);
 		} else {
 			NetSendCmdLocSkill(cursmx, cursmy, sn, cii, GetSpellLevel(pnum, sn));
 		}
@@ -1793,7 +1793,8 @@ bool InvUseItem(int cii)
 	case IMISC_OILRESIST:
 	case IMISC_OILCHANCE:
 	case IMISC_OILCLEAN:
-		gbOilFrom = cii;
+		gbTSpell = SPL_OIL;
+		gbTSplFrom = cii;
 		NewCursor(CURSOR_OIL);
 		return true;
 #ifdef HELLFIRE
@@ -1810,49 +1811,29 @@ bool InvUseItem(int cii)
 	return true;
 }
 
-void SyncUseItem(int pnum, int cii)
+bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 {
 	ItemStruct *is;
-	int sn;
 
 	if (plr._pHitPoints < (1 << 6))
-		return;
+		return false;
 
 	if (cii < INVITEM_INV_FIRST) {
 		is = &plr._pInvBody[cii];
-		assert(is->_itype != ITYPE_NONE);
-		// assert(is->_iSpell == sn); TODO validate sn?
-		assert(is->_iStatFlag);
-		assert(is->_iCharges > 0);
+		if (is->_iSpell != sn || is->_itype == ITYPE_NONE || !is->_iStatFlag || is->_iCharges <= 0)
+			return false;
 		is->_iCharges--;
 		CalcPlrStaff(pnum);
-		return;
+		return true;
 	}
 	// TODO: validate on server side?
 	if (cii >= NUM_INVELEM)
-		return;
+		return false;
 
 	is = PlrItem(pnum, cii);
 
-	if (is->_itype == ITYPE_NONE)
-		return;
-
-	if (!AllItemsList[is->_iIdx].iUsable)
-		return;
-
-	if (!is->_iStatFlag)
-		return;
-
-	/* TODO validate packages from internet
-	if (AllLevels[plr._pDunLevel].dType == DTYPE_TOWN
-#ifdef HELLFIRE
-	 && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE)
-#else
-	 && is->_iMiscId == IMISC_SCROLL
-#endif
-		&& (spelldata[is->_iSpell].sFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
-		return;
-	}*/
+	if (is->_itype == ITYPE_NONE || !is->_iStatFlag || !AllItemsList[is->_iIdx].iUsable)
+		return false;
 
 	// use the item
 	SetRndSeed(is->_iSeed);
@@ -1879,12 +1860,18 @@ void SyncUseItem(int pnum, int cii)
 #ifdef HELLFIRE
 	case IMISC_RUNE:
 #endif
+		if (is->_iSpell != sn)
+			return false;
+		sn = SPL_INVALID;
 		break;
 	case IMISC_BOOK:
+		if (sn != SPL_INVALID)
+			return false;
 		sn = is->_iSpell;
 		plr._pMemSkills |= SPELL_MASK(sn);
 		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		// CalcPlrSpells(pnum);
+		sn = SPL_INVALID;
 		break;
 	case IMISC_SPECELIX:
 		RestorePlrHpVit(pnum);
@@ -1893,11 +1880,12 @@ void SyncUseItem(int pnum, int cii)
 		// should not happen under normal circumstances, but safer to just return
 		// to avoid further desync of items
 		// ASSUME_UNREACHABLE
-		return;
+		return false;
 	}
 
 	// consume the item
 	SyncPlrItemRemove(pnum, cii);
+	return sn == SPL_INVALID;
 }
 
 void CalculateGold(int pnum)

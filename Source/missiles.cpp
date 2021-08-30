@@ -2554,10 +2554,8 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	return MIRES_DONE;
 }
 
-int AddAbility(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddOpItem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	if (misource == mypnum)
-		NetSendCmdBParam2(CMD_DOABILITY, missile[mi]._miType == MIS_IDENTIFY ? TRUE : FALSE, spllvl);
 	return MIRES_DELETE;
 }
 

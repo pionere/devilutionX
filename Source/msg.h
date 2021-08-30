@@ -38,6 +38,12 @@ void NetSendCmdPutItem(BYTE x, BYTE y);
 void NetSendCmdRespawnItem(int ii);
 void NetSendCmdDItem(int ii);
 void NetSendCmdDelItem(BYTE bLoc);
+/** Use a spell on an item using from as a source.
+ * @param cii: the index of the item in the inventory
+ * @param skill: the skill to be used
+ * @param from: the source of the skill
+ */
+void NetSendCmdItemSkill(int cii, BYTE skill, char from);
 void NetSendCmdLocAttack(BYTE x, BYTE y, int skill, int lvl);
 void NetSendCmdLocSkill(BYTE x, BYTE y, int skill, int from, int lvl);
 void NetSendCmdPlrAttack(int pnum, int skill, int lvl);

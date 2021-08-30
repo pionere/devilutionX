@@ -881,6 +881,11 @@ typedef struct PkPlayerStruct {
 //////////////////////////////////////////////////
 
 #pragma pack(push, 1)
+typedef struct CmdSkillUse {
+	BYTE skill;
+	char from;
+} CmdSkillUse;
+
 typedef struct TCmd {
 	BYTE bCmd;
 } TCmd;
@@ -941,6 +946,12 @@ typedef struct TCmdBParam2 {
 	BYTE bParam1;
 	BYTE bParam2;
 } TCmdBParam2;
+
+typedef struct TCmdItemOp {
+	BYTE bCmd;
+	BYTE ioIdx;
+	CmdSkillUse iou;
+} TCmdItemOp;
 
 typedef struct TCmdLocAttack {
 	BYTE bCmd;

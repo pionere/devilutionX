@@ -62,7 +62,7 @@ int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddLightNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-int AddAbility(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
+int AddOpItem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);

@@ -1233,6 +1233,18 @@ void NetSendCmdDItem(int ii)
 	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdItemSkill(int cii, BYTE skill, char from)
+{
+	TCmdItemOp cmd;
+
+	cmd.bCmd = CMD_OPERATEITEM;
+	cmd.ioIdx = cii;
+	cmd.iou.skill = skill;
+	cmd.iou.from = from;
+
+	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdLocAttack(BYTE x, BYTE y, int skill, int lvl)
 {
 	TCmdLocAttack cmd;
@@ -1686,20 +1698,28 @@ static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_DOABILITY(TCmd *pCmd, int pnum)
+static unsigned On_OPERATEITEM(TCmd *pCmd, int pnum)
 {
-	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
+	TCmdItemOp* cmd = (TCmdItemOp*)pCmd;
 
-	DoAbility(pnum, cmd->bParam1, cmd->bParam2);
+	// manipulate the item
+#ifdef HELLFIRE
+	if (cmd->iou.skill == SPL_OIL)
+		DoOil(pnum, cmd->iou.from, cmd->ioIdx);
+	else
+#endif
+		DoAbility(pnum, cmd->iou.from, cmd->ioIdx);
 
-	return sizeof(*cmd);
-}
-
-static unsigned On_DOOIL(TCmd *pCmd, int pnum)
-{
-	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
-
-	DoOil(pnum, cmd->bParam1, cmd->bParam2);
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
+		// add cast effect
+		ClrPlrPath(pnum);
+		plr.destAction = ACTION_SPELL;
+		plr.destParam2 = plr._px;
+		plr.destParam3 = plr._py;
+		plr.destParam1a = cmd->iou.skill;  // spell
+		plr.destParam1b = SPLFROM_ABILITY; // invloc
+		plr.destParam1c = 0;               // spllvl (should not matter)
+	}
 
 	return sizeof(*cmd);
 }
@@ -2111,7 +2131,7 @@ static unsigned On_USEPLRITEM(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	// if (pnum != mypnum)
-		SyncUseItem(pnum, cmd->bParam1);
+		SyncUseItem(pnum, cmd->bParam1, SPL_INVALID);
 
 	return sizeof(*cmd);
 }
@@ -2632,10 +2652,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_ADDDEX(pCmd, pnum);
 	case CMD_ADDVIT:
 		return On_ADDVIT(pCmd, pnum);
-	case CMD_DOABILITY:
-		return On_DOABILITY(pCmd, pnum);
-	case CMD_DOOIL:
-		return On_DOOIL(pCmd, pnum);
 	case CMD_SPLITPLRGOLD:
 		return On_SPLITPLRGOLD(pCmd, pnum);
 	case CMD_PASTEPLRITEM:
@@ -2662,6 +2678,8 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_GOTOGETITEM(pCmd, pnum);
 	case CMD_GOTOAGETITEM:
 		return On_GOTOAGETITEM(pCmd, pnum);
+	case CMD_OPERATEITEM:
+		return On_OPERATEITEM(pCmd, pnum);
 	case CMD_OPERATEOBJ:
 		return On_OPERATEOBJ(pCmd, pnum);
 	case CMD_OPOBJT:

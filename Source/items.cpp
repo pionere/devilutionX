@@ -2711,10 +2711,11 @@ static void RemovePlrItem(int pnum, int cii)
 
 /*
  * Do the ability of the player, or identify an item.
- * @param pnum the id of the player
- * @param id whether the item should be identified, or the ability of the player used.
+ * @param pnum: the id of the player
+ * @param from: whether an item should be used to identify some other item, or the ability of the player used.
+ * @param cii: the id of the item on which the ability is used
  */
-void DoAbility(int pnum, BOOL id, int cii)
+void DoAbility(int pnum, char from, BYTE cii)
 {
 	// TODO: validate on server side?
 	if (plr._pmode == PM_DEATH)
@@ -2722,8 +2723,9 @@ void DoAbility(int pnum, BOOL id, int cii)
 	if (cii >= NUM_INVELEM)
 		return;
 	// TODO: add to Abilities table in player.cpp?
-	if (id) {
-		DoIdentify(pnum, cii);
+	if (from != SPLFROM_ABILITY) {
+		if (SyncUseItem(pnum, from, SPL_IDENTIFY))
+			DoIdentify(pnum, cii);
 		return;
 	}
 	switch (plr._pClass) {
@@ -2752,7 +2754,7 @@ void DoAbility(int pnum, BOOL id, int cii)
 	}
 }
 
-void DoOil(int pnum, int from, int cii)
+void DoOil(int pnum, char from, BYTE cii)
 {
 	ItemStruct *pi, *is;
 	int oilType, seed, spell;
@@ -2762,7 +2764,7 @@ void DoOil(int pnum, int from, int cii)
 	// TODO: validate these on server side?
 	if (plr._pmode == PM_DEATH)
 		return;
-	if (from >= NUM_INVELEM || cii >= NUM_INVELEM)
+	if ((BYTE)from >= NUM_INVELEM || cii >= NUM_INVELEM)
 		return;
 	is = PlrItem(pnum, from);
 	if (is->_itype == ITYPE_NONE)

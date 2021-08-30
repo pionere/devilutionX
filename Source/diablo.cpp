@@ -530,8 +530,9 @@ bool TryIconCurs(bool bShift)
 	case CURSOR_IDENTIFY:
 	case CURSOR_REPAIR:
 	case CURSOR_RECHARGE:
+	case CURSOR_OIL:
 		if (pcursinvitem != INVITEM_NONE) {
-			NetSendCmdLocSkill(myplr._px, myplr._py, gbTSpell, gbTSplFrom, pcursinvitem);
+			NetSendCmdItemSkill(pcursinvitem, gbTSpell, gbTSplFrom);
 		}
 		break;
 	case CURSOR_DISARM:
@@ -542,10 +543,6 @@ bool TryIconCurs(bool bShift)
 				return true;
 			}
 		}
-		break;
-	case CURSOR_OIL:
-		if (pcursinvitem != INVITEM_NONE)
-			NetSendCmdBParam2(CMD_DOOIL, gbOilFrom, pcursinvitem);
 		break;
 	case CURSOR_TELEKINESIS:
 		if (pcursobj != OBJ_NONE)
