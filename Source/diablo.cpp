@@ -351,64 +351,62 @@ void FreeLevelMem()
 	FreeTownerGFX();
 }
 
-static BYTE ValidateSkill(BYTE sn, BYTE splType, int *sf)
+static char ValidateSkill(BYTE sn, BYTE splType)
 {
-	PlayerStruct *p;
+	char result;
+	assert(sn != SPL_INVALID);
 
-	p = &myplr;
-	if (sn == SPL_INVALID
-	 || (spelldata[sn].sFlags & p->_pSkillFlags) != spelldata[sn].sFlags) {
+	if ((spelldata[sn].sFlags & myplr._pSkillFlags) != spelldata[sn].sFlags) {
 		// PlaySFX(sgSFXSets[SFXS_PLR_34][p->_pClass]);
-		return 1;
+		return SPLFROM_INVALID_TYPE;
 	}
 
 	switch (splType) {
 	case RSPLTYPE_ABILITY:
 		// assert(spelldata[sn].sManaCost == 0);
-		*sf = SPLFROM_ABILITY;
+		result = SPLFROM_ABILITY;
 		break;
 	case RSPLTYPE_SPELL:
-		if (CheckSpell(mypnum, sn)) {
-			*sf = SPLFROM_MANA;
-		} else {
-			*sf = SPLFROM_INVALID;
-			return 2; // PlaySFX(sgSFXSets[SFXS_PLR_35][p->_pClass]);
-		}
+		if (myplr._pMana < GetManaAmount(mypnum, sn))
+			result = SPLFROM_INVALID_MANA;
+		else if (GetSpellLevel(mypnum, sn) > 0)
+			result = SPLFROM_MANA; // PlaySFX(sgSFXSets[SFXS_PLR_35][p->_pClass]);
+		else
+			result = SPLFROM_INVALID_LEVEL;
 		break;
 	case RSPLTYPE_SCROLL:
-		*sf = SpellSourceInv(sn);
+		result = SpellSourceInv(sn);
 		break;
 	case RSPLTYPE_CHARGES:
-		*sf = SpellSourceEquipment(sn);
+		result = SpellSourceEquipment(sn);
 		break;
 	case RSPLTYPE_INVALID:
-		*sf = SPLFROM_INVALID;
+		result = SPLFROM_INVALID_TYPE;
 		break;
 	default:
+		result = SPLFROM_ABILITY;
 		ASSUME_UNREACHABLE
 		break;
 	}
 
-	return (*sf == SPLFROM_INVALID) ? 1 : 0;
+	return result;
 }
 
 static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BYTE atkSkillType, bool bShift)
 {
-	int merr = 0, aerr;
-	int msf, asf;
+	char msf = 0, asf = 0;
 
 	if (bShift)
 		moveSkill = SPL_INVALID;
 	else if (moveSkill != SPL_INVALID) {
-		merr = ValidateSkill(moveSkill, moveSkillType, &msf);
-		if (merr != 0) {
+		msf = ValidateSkill(moveSkill, moveSkillType);
+		if (SPLFROM_INVALID(msf))
 			moveSkill = SPL_INVALID;
-		}
 	}
 
 	if (atkSkill != SPL_INVALID) {
-		aerr = ValidateSkill(atkSkill, atkSkillType, &asf);
-		if (aerr != 0)
+		asf = ValidateSkill(atkSkill, atkSkillType);
+		if (SPLFROM_INVALID(asf))
 			atkSkill = SPL_INVALID;
 	}
 
@@ -437,7 +435,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 		if (pcursmonst != -1) {
 			if (CanTalkToMonst(pcursmonst)) {
-				NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, atkSkill, askl);
+				NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, SPL_ATTACK, 0);
 			} else {
 				if (spelldata[atkSkill].sType != STYPE_NONE)
 					NetSendCmdMonstSkill(pcursmonst, atkSkill, asf, askl);
@@ -464,7 +462,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 	} else if (moveSkill == SPL_INVALID) {
 		const int *sfx;
-		if (aerr == 2 || merr == 2)
+		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA)
 			sfx = sgSFXSets[SFXS_PLR_35]; // no mana
 		else
 			sfx = sgSFXSets[SFXS_PLR_34]; // nothing to do/not ready

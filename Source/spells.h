@@ -9,6 +9,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #define SPELL_MASK(x)			((uint64_t)1 << (x - 1))
+#define SPLFROM_INVALID(x)		((char)x <= SPLFROM_INVALID_SOURCE)
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,8 +18,8 @@ extern "C" {
 int GetManaAmount(int pnum, int sn);
 void UseMana(int pnum, int sn, int sf);
 bool HasMana(int pnum, int sn, int sf);
-int SpellSourceInv(int sn);
-int SpellSourceEquipment(int sn);
+char SpellSourceInv(int sn);
+char SpellSourceEquipment(int sn);
 int GetSpellLevel(int pnum, int sn);
 bool CheckSpell(int pnum, int sn);
 

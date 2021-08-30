@@ -2889,9 +2889,12 @@ typedef enum spell_type {
 } spell_type;
 
 typedef enum spell_from_type {
-	SPLFROM_INVALID =  0,
-	SPLFROM_ABILITY = -1,
-	SPLFROM_MANA    = -2,
+	SPLFROM_ABILITY        = -1,
+	SPLFROM_MANA           = -2,
+	SPLFROM_INVALID_SOURCE = -3,
+	SPLFROM_INVALID_MANA   = -4,
+	SPLFROM_INVALID_LEVEL  = -5,
+	SPLFROM_INVALID_TYPE   = -6,
 } spell_from_type;
 
 typedef enum cursor_id {
