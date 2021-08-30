@@ -2391,28 +2391,34 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	return MIRES_FAIL_DELETE;
 }
 
-/**
- * Var4: x coordinate of the destination
- * Var5: y coordinate of the destination
- */
 int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis, *tmis;
-	int i;
+	int tx, ty, i, j;
+	const char* cr;
 
 	assert((unsigned)misource < MAX_PLRS);
-	mis = &missile[mi];
-	for (i = 0; i < nummissiles; i++) {
-		tmis = &missile[missileactive[i]];
-		if (tmis->_miType == MIS_GOLEM && tmis != mis && tmis->_miSource == misource) {
-			return MIRES_FAIL_DELETE;
+
+	if (MINION_NR_INACTIVE(misource)) {
+		static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddGolem expects a large enough border.");
+		for (i = 0; i < 6; i++) {
+			cr = &CrawlTable[CrawlNum[i]];
+			for (j = (BYTE)*cr; j > 0; j--) {
+				tx = dx + *++cr;
+				ty = dy + *++cr;
+				assert(IN_DUNGEON_AREA(tx, ty));
+				if (LineClear(sx, sy, tx, ty)) {
+					if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
+						SpawnGolem(misource, tx, ty, spllvl);
+						return MIRES_DELETE;
+					}
+				}
+			}
 		}
+		return MIRES_FAIL_DELETE;
 	}
-	mis->_miVar4 = dx;
-	mis->_miVar5 = dy;
-	if (!(MINION_NR_INACTIVE(misource)) && misource == mypnum)
-		MonStartKill(misource, misource);
-	return MIRES_DONE;
+
+	MonStartKill(misource, misource);
+	return MIRES_DELETE;
 }
 
 /**
@@ -2934,34 +2940,6 @@ static bool Sentfire(int mi, int sx, int sy)
 void MI_Dummy(int mi)
 {
 	return;
-}
-
-void MI_Golem(int mi)
-{
-	MissileStruct *mis;
-	int tx, ty, i, j, src;
-	const char *cr;
-
-	mis = &missile[mi];
-	mis->_miDelFlag = TRUE;
-	src = mis->_miSource;
-	if (MINION_NR_INACTIVE(src)) {
-		static_assert(DBORDERX >= 6 && DBORDERY >= 6, "MI_Golem expects a large enough border.");
-		for (i = 0; i < 6; i++) {
-			cr = &CrawlTable[CrawlNum[i]];
-			for (j = (BYTE)*cr; j > 0; j--) {
-				tx = mis->_miVar4 + *++cr;
-				ty = mis->_miVar5 + *++cr;
-				assert(IN_DUNGEON_AREA(tx, ty));
-				if (LineClear(mis->_misx, mis->_misy, tx, ty)) {
-					if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
-						SpawnGolem(src, tx, ty, mis->_miSpllvl);
-						return;
-					}
-				}
-			}
-		}
-	}
 }
 
 void MI_Arrow(int mi)

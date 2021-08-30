@@ -60,7 +60,7 @@ const MissileData missiledata[] = {
 	//{  MIS_DOOMSERP,      NULL,                       NULL,               FALSE,     1,                                0, MISR_MAGIC,     MFILE_DOOM,      LS_DSERP,    SFX_NONE,    1,        1        },
 	{  MIS_STONE,         &AddStone,                  &MI_Stone,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_SCURIMP,  SFX_NONE,    1,        1        },
 	//{  MIS_INVISIBL,      NULL,                       NULL,               FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_INVISIBL, SFX_NONE,    1,        1        },
-	{  MIS_GOLEM,         &AddGolem,                  &MI_Golem,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_GOLUM,    SFX_NONE,    1,        1        },
+	{  MIS_GOLEM,         &AddGolem,                  &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_GOLUM,    SFX_NONE,    1,        1        },
 	//{  MIS_ETHEREALIZE,   NULL,                       NULL,               TRUE,      1,                                0, MISR_NONE,      MFILE_ETHRSHLD,  LS_ETHEREAL, SFX_NONE,    1,        1        },
 	//{  MIS_BLODBUR,       NULL,                       NULL,               TRUE,      2,                                0, MISR_NONE,      MFILE_BLODBUR,   SFX_NONE,    SFX_NONE,    1,        1        },
 	//{  MIS_EXAPOCA,       &AddApocaExp,               &MI_ApocaExp,       TRUE,      2,                                0, MISR_NONE,      MFILE_NEWEXP,    SFX_NONE,    SFX_NONE,    1,        1        },

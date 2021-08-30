@@ -75,7 +75,6 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void MI_Dummy(int mi);
-void MI_Golem(int mi);
 void MI_Arrow(int mi);
 void MI_AsArrow(int mi);
 void MI_Firebolt(int mi);
