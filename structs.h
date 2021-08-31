@@ -1154,6 +1154,7 @@ typedef struct MsgPkt {
 } MsgPkt;
 
 typedef struct DMonsterStr {
+	BYTE _mCmd;
 	BYTE _mx;
 	BYTE _my;
 	BYTE _mdir;
@@ -1185,9 +1186,9 @@ typedef struct LocalLevel {
 } LocalLevel;
 
 typedef struct DPortal {
+	BYTE level;
 	BYTE x;
 	BYTE y;
-	BYTE level;
 } DPortal;
 
 typedef struct DQuest {

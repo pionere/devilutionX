@@ -217,8 +217,8 @@ static BYTE *DeltaExportLevel(BYTE bLvl)
 	// export items
 	item = sgLevelDelta[bLvl].item;
 	for (i = 0; i < lengthof(sgLevelDelta[bLvl].item); i++, item++) {
-		if (item->bCmd == 0xFF) {
-			*dst = 0xFF;
+		if (item->bCmd == DCMD_INVALID) {
+			*dst = DCMD_INVALID;
 			dst++;
 		} else {
 			copy_pod(*reinterpret_cast<DItemStr *>(dst), *item);
@@ -233,8 +233,8 @@ static BYTE *DeltaExportLevel(BYTE bLvl)
 	// export monsters
 	mon = sgLevelDelta[bLvl].monster;
 	for (i = 0; i < lengthof(sgLevelDelta[bLvl].monster); i++, mon++) {
-		if (mon->_mx == 0xFF) {
-			*dst = 0xFF;
+		if (mon->_mCmd == DCMD_MON_INVALID) {
+			*dst = DCMD_MON_INVALID;
 			dst++;
 		} else {
 			copy_pod(*reinterpret_cast<DMonsterStr *>(dst), *mon);
@@ -262,8 +262,9 @@ static void DeltaImportLevel()
 	// import items
 	item = sgLevelDelta[bLvl].item;
 	for (i = 0; i < MAXITEMS; i++, item++) {
-		if (*src == 0xFF) {
-			memset(item, 0xFF, sizeof(DItemStr));
+		if (*src == DCMD_INVALID) {
+			static_assert((int)DCMD_INVALID == 0, "DeltaImportLevel initializes the items with zero, assuming the invalid command to be zero.");
+			memset(item, 0, sizeof(DItemStr));
 			src++;
 		} else {
 			copy_pod(*item, *reinterpret_cast<DItemStr *>(src));
@@ -279,8 +280,9 @@ static void DeltaImportLevel()
 	// import monsters
 	mon = sgLevelDelta[bLvl].monster;
 	for (i = 0; i < MAXMONSTERS; i++, mon++) {
-		if (*src == 0xFF) {
-			memset(mon, 0xFF, sizeof(DMonsterStr));
+		if (*src == DCMD_MON_INVALID) {
+			static_assert((int)DCMD_MON_INVALID == 0, "DeltaImportLevel initializes the monsters with zero, assuming the invalid command to be zero.");
+			memset(mon, 0, sizeof(DMonsterStr));
 			src++;
 		} else {
 			copy_pod(*mon, *reinterpret_cast<DMonsterStr *>(src));
@@ -298,8 +300,8 @@ static BYTE *DeltaExportJunk()
 	// TODO: add delta_SetMultiQuest instead?
 	mq = sgJunkDelta.jQuests;
 	for (i = 0; i < NUM_QUESTS; i++) {
-		mq->qlog = quests[i]._qlog;
 		mq->qstate = quests[i]._qactive;
+		mq->qlog = quests[i]._qlog;
 		mq->qvar1 = quests[i]._qvar1;
 		mq++;
 	}
@@ -329,7 +331,7 @@ static void DeltaImportJunk()
 	// portals
 	pD = sgJunkDelta.jPortals;
 	for (i = 0; i < MAXPORTAL; i++, pD++) {
-		if (pD->x != 0xFF) {
+		if (pD->level != DLV_TOWN) {
 			ActivatePortal(i, pD->x, pD->y, pD->level);
 		}
 		//else
@@ -338,11 +340,9 @@ static void DeltaImportJunk()
 	// quests
 	mq = sgJunkDelta.jQuests;
 	for (i = 0; i < NUM_QUESTS; i++, mq++) {
-		if (mq->qstate != 0xFF) {
-			quests[i]._qlog = mq->qlog;
-			quests[i]._qactive = mq->qstate;
-			quests[i]._qvar1 = mq->qvar1;
-		}
+		quests[i]._qlog = mq->qlog;
+		quests[i]._qactive = mq->qstate;
+		quests[i]._qvar1 = mq->qvar1;
 	}
 }
 
@@ -563,8 +563,12 @@ void delta_init()
 {
 	_gbJunkDeltaChanged = false;
 	memset(_gbLevelDeltaChanged, 0, sizeof(_gbLevelDeltaChanged));
-	memset(&sgJunkDelta, 0xFF, sizeof(sgJunkDelta));
-	memset(sgLevelDelta, 0xFF, sizeof(sgLevelDelta));
+	static_assert((int)DLV_TOWN == 0, "delta_init initializes the portal levels to zero, assuming none of the portals starts from the town.");
+	memset(&sgJunkDelta, 0, sizeof(sgJunkDelta));
+	static_assert((int)DCMD_INVALID == 0, "delta_init initializes the items with zero, assuming the invalid command to be zero.");
+	static_assert((int)DCMD_MON_INVALID == 0, "delta_init initializes the monsters with zero, assuming the invalid command to be zero.");
+	static_assert((int)CMD_SYNCDATA == 0, "delta_init initializes the objects with zero, assuming none of the valid commands for an object to be zero.");
+	memset(sgLevelDelta, 0, sizeof(sgLevelDelta));
 	memset(sgLocalDelta, 0, sizeof(sgLocalDelta));
 	deltaload = false;
 }
@@ -582,6 +586,9 @@ static void delta_kill_monster(const TCmdMonstKill* mon)
 
 	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevelDelta[bLevel].monster[SwapLE16(mon->mkMnum)];
+	if (pD->_mCmd == DCMD_MON_DEAD)
+		return 0;
+	pD->_mCmd = DCMD_MON_DEAD;
 	pD->_mx = mon->mkX;
 	pD->_my = mon->mkY;
 	pD->_mdir = mon->mkDir;
@@ -606,13 +613,13 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 	// In vanilla code the value was discarded if hp was higher than the current one.
 	// That disregards the healing monsters.
 	// Now it is always updated except the monster is already dead.
-	if (pD->_mhitpoints != 0)
+	//if (pD->_mCmd != DCMD_MON_DEAD)
 		pD->_mhitpoints = mon->mdHitpoints;
 }
 
 static void delta_sync_monster(const TSyncHeader *pHdr)
 {
-	DLevel* pDLvl;
+	DMonsterStr* pDLvlMons;
 	DMonsterStr *pD;
 	WORD wLen;
 	const TSyncMonster* pSync;
@@ -624,14 +631,15 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	// TODO: validate bLevel - assert(pHdr->bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[pHdr->bLevel] = true;
-	pDLvl = &sgLevelDelta[pHdr->bLevel];
+	pDLvlMons = sgLevelDelta[pHdr->bLevel].monster;
 
 	pbBuf = (const BYTE *)&pHdr[1];
 
 	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		pSync = (TSyncMonster *)pbBuf;
-		pD = &pDLvl->monster[pSync->_mndx];
-		if (pD->_mhitpoints != 0) {
+		pD = &pDLvlMons[pSync->_mndx];
+		if (pD->_mCmd != DCMD_MON_DEAD) {
+			pD->_mCmd = DCMD_MON_ACTIVE;
 			pD->_mx = pSync->_mx;
 			pD->_my = pSync->_my;
 			pD->_mdir = pSync->_mdir;
@@ -657,6 +665,7 @@ static void delta_awake_golem(TCmdGolem *pG, int mnum)
 
 	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevelDelta[bLevel].monster[mnum];
+	pD->_mCmd = DCMD_MON_ACTIVE;
 	pD->_mx = pG->_mx;
 	pD->_my = pG->_my;
 	pD->_mactive = SQUELCH_MAX;
@@ -697,7 +706,7 @@ static bool delta_get_item(const TCmdGItem *pI)
 
 	pD = sgLevelDelta[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == 0xFF || pD->item.dwSeed != pI->item.dwSeed || pD->item.wIndx != pI->item.wIndx || pD->item.wCI != pI->item.wCI)
+		if (pD->bCmd == DCMD_INVALID || pD->item.dwSeed != pI->item.dwSeed || pD->item.wIndx != pI->item.wIndx || pD->item.wCI != pI->item.wCI)
 			continue;
 
 		switch (pD->bCmd) {
@@ -709,7 +718,7 @@ static bool delta_get_item(const TCmdGItem *pI)
 			return true;
 		case DCMD_DROPPED:
 			_gbLevelDeltaChanged[bLevel] = true;
-			pD->bCmd = 0xFF;
+			pD->bCmd = DCMD_INVALID;
 			return true;
 		default:
 			ASSUME_UNREACHABLE
@@ -722,7 +731,7 @@ static bool delta_get_item(const TCmdGItem *pI)
 
 	pD = sgLevelDelta[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == 0xFF) {
+		if (pD->bCmd == DCMD_INVALID) {
 			_gbLevelDeltaChanged[bLevel] = true;
 			pD->bCmd = DCMD_TAKEN;
 			pD->x = pI->x;
@@ -746,7 +755,7 @@ static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 
 	pD = sgLevelDelta[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd != 0xFF
+		if (pD->bCmd != DCMD_INVALID
 		 && pD->item.dwSeed == pItem->dwSeed
 		 && pD->item.wIndx == pItem->wIndx
 		 && pD->item.wCI == pItem->wCI) {
@@ -760,13 +769,13 @@ static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 
 	pD = sgLevelDelta[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == 0xFF) {
+		if (pD->bCmd == DCMD_INVALID) {
 			_gbLevelDeltaChanged[bLevel] = true;
 			pD->bCmd = DCMD_DROPPED;
 			pD->x = x;
 			pD->y = y;
 			copy_pod(pD->item, *pItem);
-			return;
+			break;
 		}
 	}
 }
@@ -809,7 +818,7 @@ void DeltaAddItem(int ii)
 	is = &items[ii];
 	pD = sgLevelDelta[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd != 0xFF
+		if (pD->bCmd != DCMD_INVALID
 		 && pD->item.dwSeed == SwapLE32(is->_iSeed)
 		 && pD->item.wIndx == SwapLE16(is->_iIdx)
 		 && pD->item.wCI == SwapLE16(is->_iCreateInfo)) {
@@ -822,13 +831,13 @@ void DeltaAddItem(int ii)
 
 	pD = sgLevelDelta[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == 0xFF) {
+		if (pD->bCmd == DCMD_INVALID) {
 			_gbLevelDeltaChanged[currLvl._dLevelIdx] = true;
 			pD->bCmd = DCMD_SPAWNED;
 			pD->x = is->_ix;
 			pD->y = is->_iy;
 			PackPkItem(&pD->item, is);
-			return;
+			break;
 		}
 	}
 }
@@ -896,7 +905,7 @@ void DeltaLoadLevel()
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		mstr = sgLevelDelta[currLvl._dLevelIdx].monster;
 		for (i = 0; i < nummonsters; i++, mstr++) {
-			if (mstr->_mx != 0xFF) {
+			if (mstr->_mCmd != DCMD_MON_INVALID) {
 				// skip minions and prespawn skeletons
 				if (!MINION_NR_INACTIVE(i))
 					RemoveMonFromMap(i);
@@ -904,20 +913,18 @@ void DeltaLoadLevel()
 				y = mstr->_my;
 				mon = &monsters[i];
 				SetMonsterLoc(mon, x, y);
-				// check if only the position of the monster was modified
-				if (mstr->_mhitpoints != -1)
-					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
-				if (mstr->_mhitpoints == 0) {
+				if (mstr->_mCmd == DCMD_MON_DEAD) {
 					// SyncDeadLight: inline for better performance
 					if (mon->mlid != NO_LIGHT)
 						ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 					AddDead(i, true);
 				} else {
+					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
+					mon->_msquelch = mstr->_mactive;
+					mon->_mWhoHit = mstr->_mWhoHit;
 					decode_enemy(i, mstr->_menemy);
 					dMonster[mon->_mx][mon->_my] = i + 1;
 					MonStartStand(i, mon->_mdir);
-					mon->_msquelch = mstr->_mactive;
-					mon->_mWhoHit = mstr->_mWhoHit;
 				}
 			}
 		}
@@ -927,7 +934,7 @@ void DeltaLoadLevel()
 
 		dstr = sgLevelDelta[currLvl._dLevelIdx].object;
 		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
-			if (dstr->bCmd != 0xFF) {
+			if (dstr->bCmd != DCMD_INVALID) {
 				switch (dstr->bCmd) {
 				case CMD_OPERATEOBJ:
 					SyncOpObject(-1, i);
@@ -1381,8 +1388,8 @@ static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
 
 void delta_close_portal(int pnum)
 {
-	//memset(&sgJunkDelta.portal[pnum], 0xFF, sizeof(sgJunkDelta.portal[pnum]));
-	sgJunkDelta.jPortals[pnum].x = 0xFF;
+	//memset(&sgJunkDelta.portal[pnum], 0, sizeof(sgJunkDelta.portal[pnum]));
+	sgJunkDelta.jPortals[pnum].level = DLV_TOWN;
 	// assert(_gbJunkDeltaChanged == true);
 }
 

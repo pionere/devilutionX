@@ -3111,11 +3111,18 @@ typedef enum _cmd_id {
 } _cmd_id;
 
 // TODO: check the meaning of the values
-typedef enum _dcmd_id {
+typedef enum _dcmd_item {
+	DCMD_INVALID,
 	DCMD_SPAWNED,
 	DCMD_TAKEN,
 	DCMD_DROPPED,
-} _dcmd_id;
+} _dcmd_item;
+
+typedef enum _dcmd_monster {
+	DCMD_MON_INVALID,
+	DCMD_MON_ACTIVE,
+	DCMD_MON_DEAD,
+} _dcmd_monster;
 
 typedef enum _msg_mode {
 	MSG_NORMAL,
