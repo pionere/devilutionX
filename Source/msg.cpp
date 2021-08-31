@@ -573,26 +573,33 @@ void delta_init()
 	deltaload = false;
 }
 
-static void delta_kill_monster(const TCmdMonstKill* mon)
+static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 {
 	DMonsterStr *pD;
-	BYTE bLevel;
+	int mnum;
+	BYTE bLevel, whoHit = 0;
 
-	if (!IsMultiGame)
-		return;
+	if (mon->mkPnum < MAX_PLRS)
+		whoHit |= 1 << mon->mkPnum;
+
+	mnum = SwapLE16(mon->mkMnum);
+	if (!IsMultiGame) {
+		return whoHit | monsters[mnum]._mWhoHit;
+	}
 
 	bLevel = mon->mkLevel;
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[bLevel] = true;
-	pD = &sgLevelDelta[bLevel].monster[SwapLE16(mon->mkMnum)];
+	pD = &sgLevelDelta[bLevel].monster[mnum];
 	if (pD->_mCmd == DCMD_MON_DEAD)
-		return;
+		return 0;
 	pD->_mCmd = DCMD_MON_DEAD;
 	pD->_mx = mon->mkX;
 	pD->_my = mon->mkY;
 	pD->_mdir = mon->mkDir;
 	pD->_mhitpoints = 0;
+	return whoHit | pD->_mWhoHit;
 }
 
 static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
@@ -1036,13 +1043,16 @@ void NetSendCmd(BYTE bCmd)
 void NetSendCmdMonstKill(int mnum, int pnum)
 {
 	TCmdMonstKill cmd;
+	MonsterStruct* mon;
 
 	cmd.bCmd = CMD_MONSTDEATH;
-	cmd.mkMnum = SwapLE16(mnum);
 	cmd.mkPnum = pnum;
-	cmd.mkX = monsters[mnum]._mx;
-	cmd.mkY = monsters[mnum]._my;
-	cmd.mkDir = monsters[mnum]._mdir;
+	cmd.mkMnum = SwapLE16(mnum);
+	mon = &monsters[mnum];
+	cmd.mkExp = SwapLE16(mon->_mExp);
+	cmd.mkX = mon->_mx;
+	cmd.mkY = mon->_my;
+	cmd.mkDir = mon->_mdir;
 	cmd.mkLevel = currLvl._dLevelIdx;
 
 	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
@@ -1955,10 +1965,29 @@ static unsigned On_TWARP(TCmd *pCmd, int pnum)
 static unsigned On_MONSTDEATH(TCmd *pCmd, int pnum)
 {
 	TCmdMonstKill *cmd = (TCmdMonstKill *)pCmd;
+	int i, lvl;
+	unsigned totplrs, xp;
+	BYTE whoHit, mask;
 
 	if (pnum != mypnum && currLvl._dLevelIdx == cmd->mkLevel)
 		MonSyncStartKill(SwapLE16(cmd->mkMnum), cmd->mkX, cmd->mkY, cmd->mkPnum);
-	delta_kill_monster(cmd);
+
+	whoHit = delta_kill_monster(cmd);
+
+	totplrs = 0;
+	mask = whoHit;
+	while (mask != 0) {
+		totplrs += (mask & 1) != 0;
+		mask >>= 1;
+	}
+	if (totplrs != 0) {
+		xp = cmd->mkExp / totplrs;
+		lvl = cmd->mkMonLevel;
+		for (i = 0; i < MAX_PLRS; i++, whoHit >>= 1) {
+			if (whoHit & 1)
+				AddPlrExperience(i, lvl, xp);
+		}
+	}
 
 	return sizeof(*cmd);
 }
@@ -2161,26 +2190,6 @@ static unsigned On_USEPLRITEM(TCmd *pCmd, int pnum)
 
 	// if (pnum != mypnum)
 		SyncUseItem(pnum, cmd->bParam1, SPL_INVALID);
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_PLRLEVEL(TCmd *pCmd, int pnum)
-{
-	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
-
-	if (pnum != mypnum && cmd->bParam1 <= MAXCHARLEVEL)
-		plr._pLevel = cmd->bParam1;
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_PLRSKILLLVL(TCmd *pCmd, int pnum)
-{
-	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
-
-	if (pnum != mypnum && cmd->bParam2 <= MAXSPLLEVEL)
-		plr._pSkillLvl[cmd->bParam1] = cmd->bParam2;
 
 	return sizeof(*cmd);
 }
@@ -2666,10 +2675,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_PLRRESURRECT(pCmd, pnum);
 	case CMD_PLRDAMAGE:
 		return On_PLRDAMAGE(pCmd, pnum);
-	case CMD_PLRLEVEL:
-		return On_PLRLEVEL(pCmd, pnum);
-	case CMD_PLRSKILLLVL:
-		return On_PLRSKILLLVL(pCmd, pnum);
 	case CMD_SETSHIELD:
 		return On_SETSHIELD(pCmd, pnum);
 	case CMD_REMSHIELD:

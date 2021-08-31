@@ -3110,6 +3110,9 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		//	if (pi->_iMagical != ITEM_QUALITY_NORMAL)
 		//		pi->_iIdentified = TRUE; // belt items can't be magical?
 		break;
+	case SHRINE_SPARKLING:
+		AddPlrExperience(pnum, plr._pLevel, 500 * plr._pDunLevel);
+		break;
 	case SHRINE_MURPHYS:
 		SetRndSeed(seed);
 		pi = plr._pInvBody;
@@ -3377,7 +3380,6 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		    0);
 		break;
 	case SHRINE_SPARKLING:
-		AddPlrExperience(pnum, plr._pLevel, 500 * plr._pDunLevel);
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
@@ -3392,6 +3394,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		    0);
 		if (pnum != mypnum)
 			return;
+		NetSendShrineCmd(SHRINE_SPARKLING, 0);
 		InitDiabloMsg(EMSG_SHRINE_SPARKLING);
 		break;
 	case SHRINE_MURPHYS:

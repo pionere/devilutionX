@@ -1767,19 +1767,6 @@ bool InvUseItem(int cii)
 		}
 		return true;
 	case IMISC_BOOK:
-		sn = is->_iSpell;
-		//plr._pMemSkills |= SPELL_MASK(sn);
-		plr._pSkillExp[sn] += SkillExpLvlsTbl[0];
-		if (plr._pSkillExp[sn] > SkillExpLvlsTbl[MAXSPLLEVEL] - 1) {
-			plr._pSkillExp[sn] = SkillExpLvlsTbl[MAXSPLLEVEL] - 1;
-		}
-
-		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvl[sn]]) {
-			plr._pSkillLvl[sn]++;
-			NetSendCmdBParam2(CMD_PLRSKILLLVL, sn, plr._pSkillLvl[sn]);
-		}
-		// PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
-		//CalcPlrSpells(pnum);
 		break;
 	case IMISC_MAPOFDOOM:
 		doom_init();
@@ -1869,6 +1856,14 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 			return false;
 		sn = is->_iSpell;
 		plr._pMemSkills |= SPELL_MASK(sn);
+		plr._pSkillExp[sn] += SkillExpLvlsTbl[0];
+		if (plr._pSkillExp[sn] > SkillExpLvlsTbl[MAXSPLLEVEL] - 1) {
+			plr._pSkillExp[sn] = SkillExpLvlsTbl[MAXSPLLEVEL] - 1;
+		}
+
+		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvl[sn]]) {
+			plr._pSkillLvl[sn]++;
+		}
 		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		// CalcPlrSpells(pnum);
 		sn = SPL_INVALID;

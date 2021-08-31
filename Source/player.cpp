@@ -906,7 +906,6 @@ static void AddPlrSkillExp(int pnum, int lvl, unsigned exp)
 			continue;
 		assert(sl <= MAXSPLLEVEL);
 		plr._pSkillLvl[sn] = sl;
-		NetSendCmdBParam2(CMD_PLRSKILLLVL, sn, sl);
 	}
 }
 
@@ -915,17 +914,19 @@ void AddPlrExperience(int pnum, int lvl, unsigned exp)
 	unsigned expCap;
 	int dLvl;
 
-	if (pnum != mypnum) {
-		return;
-	}
+	//if (pnum != mypnum) {
+	//	return;
+	//}
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("AddPlrExperience: illegal player %d", pnum);
 	}
 
-	if (plr._pHitPoints < (1 << 6)) {
+	//if (plr._pHitPoints < (1 << 6)) {
+	//	return;
+	//}
+	if (plr._pmode == PM_DEATH)
 		return;
-	}
 
 	// Add xp to the used skills
 	AddPlrSkillExp(pnum, lvl, exp);
@@ -961,30 +962,7 @@ void AddPlrExperience(int pnum, int lvl, unsigned exp)
 	while (plr._pExperience >= plr._pNextExper) {
 		assert(plr._pLevel < MAXCHARLEVEL);
 		NextPlrLevel(pnum);
-		NetSendCmdBParam1(CMD_PLRLEVEL, plr._pLevel);
 	}
-}
-
-void AddPlrMonstExper(int mnum)
-{
-	MonsterStruct *mon;
-	unsigned totplrs, i, e;
-	BYTE pmask;
-
-	mon = &monsters[mnum];
-	pmask = mon->_mWhoHit;
-	if (!(pmask & (1 << mypnum)))
-		return;
-
-	totplrs = 0;
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (pmask & (1 << i)) {
-			totplrs++;
-		}
-	}
-
-	e = mon->_mExp / totplrs;
-	AddPlrExperience(mypnum, mon->_mLevel, e);
 }
 
 static bool PlrDirOK(int pnum, int dir)

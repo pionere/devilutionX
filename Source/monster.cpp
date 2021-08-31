@@ -1718,9 +1718,6 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 		NetSendCmdMonstKill(mnum, mpnum);
 	}
 	if (mnum >= MAX_MINIONS) {
-		if ((unsigned)mpnum < MAX_PLRS)
-			mon->_mWhoHit |= 1 << mpnum;
-		AddPlrMonstExper(mnum);
 		SpawnLoot(mnum, sendmsg);
 	}
 
