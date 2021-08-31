@@ -3444,6 +3444,8 @@ void MI_Flash(int mi)
 	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
 	CheckSplashCol(mi);
 	mis = &missile[mi];
+	if (mis->_miSource == -1)
+		CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
