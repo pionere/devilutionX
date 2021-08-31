@@ -1473,13 +1473,17 @@ int AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	return MIRES_DONE;
 }
 
+/**
+ * Var1: light strength
+ */
 int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
 
 	mis = &missile[mi];
-	mis->_miLid = AddLight(sx, sy, 8);
+	//mis->_miLid = AddLight(sx, sy, 8);
+	//mis->_miVar1 = 0;
 	mis->_miRange = mis->_miAnimLen - 1;
 
 	dam = 2 * (plx(misource)._pLevel + random_(60, 10) + random_(60, 10)) + 4;
@@ -1502,7 +1506,7 @@ int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+/*int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int av = 16;
@@ -1524,7 +1528,7 @@ int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
 	return MIRES_DONE;
-}
+}*/
 
 int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -3323,7 +3327,7 @@ void MI_Lightwall(int mi)
 	PutMissile(mi);
 }
 
-void MI_Hiveexp(int mi)
+/*void MI_Hiveexp(int mi)
 {
 	MissileStruct *mis;
 
@@ -3334,7 +3338,7 @@ void MI_Hiveexp(int mi)
 		AddUnLight(mis->_miLid);
 	}
 	PutMissile(mi);
-}
+}*/
 
 #endif
 
@@ -3676,7 +3680,7 @@ void MI_Teleport(int mi)
 	plr._px = plr._pfutx = plr._poldx = px;
 	plr._py = plr._pfuty = plr._poldy = py;
 	//PlrDoTrans(px, py);
-	dPlayer[px][py] = mis->_miSource + 1;
+	dPlayer[px][py] = pnum + 1;
 	ChangeLightXY(plr._plid, px, py);
 	ChangeVisionXY(plr._pvid, px, py);
 	if (pnum == mypnum) {
