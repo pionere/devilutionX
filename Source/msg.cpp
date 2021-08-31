@@ -587,7 +587,7 @@ static void delta_kill_monster(const TCmdMonstKill* mon)
 	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevelDelta[bLevel].monster[SwapLE16(mon->mkMnum)];
 	if (pD->_mCmd == DCMD_MON_DEAD)
-		return 0;
+		return;
 	pD->_mCmd = DCMD_MON_DEAD;
 	pD->_mx = mon->mkX;
 	pD->_my = mon->mkY;
