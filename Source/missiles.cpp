@@ -2090,7 +2090,7 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			mis->_miMinDam = mis->_miMaxDam = monsters[misource]._mLevel << 1;
 		}
 	} else {
-		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel << 1;
+		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel << 4;
 	}
 	//assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]);
 	mis->_miRange = 19;

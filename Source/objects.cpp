@@ -3377,7 +3377,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		    0);
 		break;
 	case SHRINE_SPARKLING:
-		AddPlrExperience(pnum, plr._pLevel, 500 * currLvl._dLevel);
+		AddPlrExperience(pnum, plr._pLevel, 500 * plr._pDunLevel);
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
