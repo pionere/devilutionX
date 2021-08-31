@@ -1528,7 +1528,29 @@ int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	return MIRES_DONE;
+	int tx, ty, j, pn, mitype;
+	const char* cr;
+
+	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
+
+	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddRingC expects a large enough border.");
+	cr = &CrawlTable[CrawlNum[3]];
+	for (j = *cr; j > 0; j--) {
+		tx = sx + *++cr;
+		ty = sy + *++cr;
+		assert(IN_DUNGEON_AREA(tx, ty));
+		pn = dPiece[tx][ty];
+		if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
+			if (LineClear(sx, sy, tx, ty)) {
+				if (nMissileTable[pn])
+					break;
+				else
+					AddMissile(tx, ty, 0, 0, 0, mitype, micaster, misource, 0, 0, spllvl);
+			}
+		}
+	}
+
+	return MIRES_DELETE;
 }
 #endif
 
@@ -2619,53 +2641,70 @@ int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	return MIRES_DELETE;
 }
 
-/**
- * Var1: direction of the wave
- */
 int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
-
 	assert((unsigned)misource < MAX_PLRS);
-	mis = &missile[mi];
-	mis->_miVar1 = GetDirection8(sx, sy, dx, dy);
-	// mis->_miRange = 1;
-	return MIRES_DONE;
-}
+	int sd, nx, ny, dir;
+	int i, j;
 
-int AddLightNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	MissileStruct *mis;
+	sd = GetDirection8(sx, sy, dx, dy);
+	sx += XDirAdd[sd];
+	sy += YDirAdd[sd];
+	if (!nMissileTable[dPiece[sx][sy]]) {
+		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], 0, MIS_FIREWAVE, 0, misource, 0, 0, spllvl);
 
-	mis = &missile[mi];
-	mis->_miMinDam = (1 << 6);
-	if (misource != -1) {
-		mis->_miMaxDam = ((plx(misource)._pMagic >> 1) + (spllvl << 4)) << 6;
-	} else {
-		mis->_miMaxDam = (6 + currLvl._dLevel) << 6;
+		for (i = -2; i <= 2; i += 4) {
+			dir = (sd + i) & 7;
+			nx = sx;
+			ny = sy;
+			for (j = (spllvl >> 1) + 2; j > 0; j--) {
+				nx += XDirAdd[dir];
+				ny += YDirAdd[dir];
+				if (nx <= 0 || nx >= MAXDUNX || ny <= 0 || ny >= MAXDUNY)
+					break;
+				if (nMissileTable[dPiece[nx][ny]])
+					break;
+				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], 0, MIS_FIREWAVE, 0, misource, 0, 0, spllvl);
+			}
+		}
 	}
-	// mis->_miRange = 1;
-	return MIRES_DONE;
+
+	return MIRES_DELETE;
 }
 
-#ifdef HELLFIRE
-int AddFireNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
-	int i, mindam, maxdam;
+	int i, tx, ty, mitype, mindam, maxdam;
+	const char* cr;
 
-	mis = &missile[mi];
-	mindam = 1 + (plx(misource)._pMagic >> 3);
-	maxdam = mindam + 4;
-	for (i = spllvl; i > 0; i--) {
-		mindam += mindam >> 3;
-		maxdam += maxdam >> 3;
+//	if (mis->_miType == MIS_LIGHTNOVAC) {
+		mindam = (1 << 6);
+		if (misource != -1) {
+			maxdam = ((plx(misource)._pMagic >> 1) + (spllvl << 4)) << 6;
+		} else {
+			maxdam = (6 + currLvl._dLevel) << 6;
+		}
+		mitype = MIS_LIGHTBALL;
+//	} else {
+//		mindam = 1 + (plx(misource)._pMagic >> 3);
+//		maxdam = mindam + 4;
+//		for (i = spllvl; i > 0; i--) {
+//			mindam += mindam >> 3;
+//			maxdam += maxdam >> 3;
+//		}
+//		maxdam = mindam = RandRange(mindam, maxdam) << 6;
+//		mitype = MIS_FIREBALL2;
+//	}
+	cr = &CrawlTable[CrawlNum[4]];
+	for (i = *cr; i > 0; i--) {
+		tx = sx + *++cr;
+		ty = sy + *++cr;
+		AddMissile(sx, sy, tx, ty, 0, mitype, micaster, misource, mindam, maxdam, spllvl);
 	}
-	mis->_miMaxDam = mis->_miMinDam = RandRange(mindam, maxdam) << 6;
-	// mis->_miRange = 1;
-	return MIRES_DONE;
+
+	return MIRES_DELETE;
 }
-#endif
+
 int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int pnum;
@@ -3297,69 +3336,7 @@ void MI_Hiveexp(int mi)
 	PutMissile(mi);
 }
 
-void MI_RingC(int mi)
-{
-	MissileStruct *mis;
-	int sx, sy, tx, ty, j, pn, mitype, caster, source, spllvl;
-	const char *cr;
-
-	mis = &missile[mi];
-	mis->_miDelFlag = TRUE;
-	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
-	caster = mis->_miCaster;
-	source = mis->_miSource;
-	spllvl = mis->_miSpllvl;
-	sx = mis->_mix;
-	sy = mis->_miy;
-
-	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "MI_RingC expects a large enough border.");
-	cr = &CrawlTable[CrawlNum[3]];
-	for (j = *cr; j > 0; j--) {
-		tx = sx + *++cr;
-		ty = sy + *++cr;
-		assert(IN_DUNGEON_AREA(tx, ty));
-		pn = dPiece[tx][ty];
-		if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
-			if (LineClear(sx, sy, tx, ty)) {
-				if (nMissileTable[pn])
-					break;
-				else
-					AddMissile(tx, ty, 0, 0, 0, mitype, caster, source, 0, 0, spllvl);
-			}
-		}
-	}
-}
-
 #endif
-
-void MI_NovaC(int mi)
-{
-	MissileStruct *mis;
-	int i, sx, sy, tx, ty, mitype, caster, source, mindam, maxdam, spllvl;
-	const char *cr;
-
-	mis = &missile[mi];
-	mis->_miDelFlag = TRUE;
-//#ifdef HELLFIRE
-//	mitype = mis->_miType == MIS_FIRENOVAC ? MIS_FIREBALL2 : MIS_LIGHTBALL;
-//#else
-	mitype = MIS_LIGHTBALL;
-//#endif
-	caster = mis->_miCaster;
-	source = mis->_miSource;
-	mindam = mis->_miMinDam;
-	maxdam = mis->_miMaxDam;
-	spllvl = mis->_miSpllvl;
-	sx = mis->_mix;
-	sy = mis->_miy;
-
-	cr = &CrawlTable[CrawlNum[4]];
-	for (i = *cr; i > 0; i--) {
-		tx = sx + *++cr;
-		ty = sy + *++cr;
-		AddMissile(sx, sy, tx, ty, 0, mitype, caster, source, mindam, maxdam, spllvl);
-	}
-}
 
 void MI_LightningC(int mi)
 {
@@ -3881,40 +3858,6 @@ void MI_WallC(int mi)
 			mis->_miVar6 += YDirAdd[mis->_miVar4];
 		} else {
 			mis->_miVar7 = TRUE;
-		}
-	}
-}
-
-void MI_FireWaveC(int mi)
-{
-	MissileStruct *mis;
-	int sx, sy, sd, nx, ny, dir;
-	int i, j, pnum;
-
-	mis = &missile[mi];
-	mis->_miDelFlag = TRUE;
-	pnum = mis->_miSource;
-	sx = mis->_mix;
-	sy = mis->_miy;
-	sd = mis->_miVar1;
-	sx += XDirAdd[sd];
-	sy += YDirAdd[sd];
-	if (!nMissileTable[dPiece[sx][sy]]) {
-		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], 0, MIS_FIREWAVE, 0, pnum, 0, 0, mis->_miSpllvl);
-
-		for (i = -2; i <= 2; i += 4) {
-			dir = (sd + i) & 7;
-			nx = sx;
-			ny = sy;
-			for (j = (mis->_miSpllvl >> 1) + 2; j > 0; j--) {
-				nx += XDirAdd[dir];
-				ny += YDirAdd[dir];
-				if (nx <= 0 || nx >= MAXDUNX || ny <= 0 || ny >= MAXDUNY)
-					break;
-				if (nMissileTable[dPiece[nx][ny]])
-					break;
-				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], 0, MIS_FIREWAVE, 0, pnum, 0, 0, mis->_miSpllvl);
-			}
 		}
 	}
 }

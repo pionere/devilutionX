@@ -22,7 +22,6 @@ int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 //int AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-//int AddFireNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 //int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 #endif
@@ -60,7 +59,7 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-int AddLightNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
+int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddOpItem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -88,7 +87,6 @@ void MI_HorkSpawn(int mi);
 void MI_Rune(int mi);
 void MI_Lightwall(int mi);
 void MI_Hiveexp(int mi);
-void MI_RingC(int mi);
 #endif
 void MI_LightningC(int mi);
 void MI_Lightning(int mi);
@@ -107,8 +105,6 @@ void MI_Rhino(int mi);
 //void MI_Fireman(int mi);
 void MI_WallC(int mi);
 void MI_ApocaC(int mi);
-void MI_FireWaveC(int mi);
-void MI_NovaC(int mi);
 void MI_Inferno(int mi);
 void MI_InfernoC(int mi);
 void MI_FireTrap(int mi);
