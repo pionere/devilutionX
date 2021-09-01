@@ -2055,87 +2055,6 @@ static void ObjSetMini(int x, int y, int v)
 	ObjSetMicro(xx + 1, yy + 1, v4);
 }
 
-static void ObjL1Special(int x1, int y1, int x2, int y2)
-{
-	int i, j, pn;
-
-	for (j = y1; j <= y2; ++j) {
-		for (i = x1; i <= x2; ++i) {
-			pn = dPiece[i][j];
-			if (pn == 12)
-				pn = 1;
-			else if (pn == 11)
-				pn = 2;
-			else if (pn == 71)
-				pn = 1;
-			else if (pn == 253)
-				pn = 3;
-			else if (pn == 267)
-				pn = 6;
-			else if (pn == 259)
-				pn = 5;
-			else if (pn == 249)
-				pn = 2;
-			else if (pn == 325)
-				pn = 2;
-			else if (pn == 321)
-				pn = 1;
-			else if (pn == 255)
-				pn = 4;
-			else if (pn == 211)
-				pn = 1;
-			else if (pn == 344)
-				pn = 2;
-			else if (pn == 341)
-				pn = 1;
-			else if (pn == 331)
-				pn = 2;
-			else if (pn == 418)
-				pn = 1;
-			else if (pn == 421)
-				pn = 2;
-			else
-				pn = 0;
-			dSpecial[i][j] = pn;
-		}
-	}
-}
-
-static void ObjL2Special(int x1, int y1, int x2, int y2)
-{
-	int i, j, pn;
-
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
-			dSpecial[i][j] = 0;
-			pn = dPiece[i][j];
-			if (pn == 541)
-				dSpecial[i][j] = 5;
-			if (pn == 178)
-				dSpecial[i][j] = 5;
-			if (pn == 551)
-				dSpecial[i][j] = 5;
-			if (pn == 542)
-				dSpecial[i][j] = 6;
-			if (pn == 553)
-				dSpecial[i][j] = 6;
-		}
-	}
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
-			pn = dPiece[i][j];
-			if (pn == 132) {
-				dSpecial[i][j + 1] = 2;
-				dSpecial[i][j + 2] = 1;
-			}
-			if (pn == 135 || pn == 139) {
-				dSpecial[i + 1][j] = 3;
-				dSpecial[i + 2][j] = 4;
-			}
-		}
-	}
-}
-
 static void DoorSet(int dx, int dy, int otype)
 {
 	int pn;
@@ -2451,10 +2370,10 @@ void ObjChangeMap(int x1, int y1, int x2, int y2)
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
 	if (currLvl._dType == DTYPE_CATHEDRAL) {
-		ObjL1Special(x1, y1, x2, y2);
+		DRLG_InitL1Specials(x1, y1, x2, y2);
 		AddL1Objs(x1, y1, x2, y2);
 	} else if (currLvl._dType == DTYPE_CATACOMBS) {
-		ObjL2Special(x1, y1, x2, y2);
+		DRLG_InitL2Specials(x1, y1, x2, y2);
 		AddL2Objs(x1, y1, x2, y2);
 	}
 }
@@ -2474,9 +2393,9 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
 	if (currLvl._dType == DTYPE_CATHEDRAL) {
-		ObjL1Special(x1, y1, x2, y2);
+		DRLG_InitL1Specials(x1, y1, x2, y2);
 	} else if (currLvl._dType == DTYPE_CATACOMBS) {
-		ObjL2Special(x1, y1, x2, y2);
+		DRLG_InitL2Specials(x1, y1, x2, y2);
 	}
 }
 

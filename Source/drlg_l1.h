@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+void DRLG_InitL1Specials(int x1, int y1, int x2, int y2);
 void LoadL1Dungeon(const char *sFileName, int vx, int vy);
 void LoadPreL1Dungeon(const char *sFileName);
 void CreateL1Dungeon(int entry);

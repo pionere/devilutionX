@@ -779,50 +779,49 @@ static void DRLG_FreeL1SP()
 	MemFreeDbg(pSetPiece);
 }
 
-static void DRLG_InitL1Vals()
+void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 {
-	int i, *dp;
-	BYTE pc, *dsp;
-	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL1Vals.");
-	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL1Vals.");
-	dsp = &dSpecial[0][0];
-	dp = &dPiece[0][0];
-	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
-		if (*dp == 12)
-			pc = 1;
-		else if (*dp == 11)
-			pc = 2;
-		else if (*dp == 71)
-			pc = 1;
-		else if (*dp == 253)
-			pc = 3;
-		else if (*dp == 267)
-			pc = 6;
-		else if (*dp == 259)
-			pc = 5;
-		else if (*dp == 249)
-			pc = 2;
-		else if (*dp == 325)
-			pc = 2;
-		else if (*dp == 321)
-			pc = 1;
-		else if (*dp == 255)
-			pc = 4;
-		else if (*dp == 211)
-			pc = 1;
-		else if (*dp == 344)
-			pc = 2;
-		else if (*dp == 341)
-			pc = 1;
-		else if (*dp == 331)
-			pc = 2;
-		else if (*dp == 418)
-			pc = 1;
-		else if (*dp == 421)
-			pc = 2;
-		else
-			continue;
-		*dsp = pc;
+	int i, j, pn;
+
+	for (i = x1; i <= x2; ++i) {
+		for (j = y1; j <= y2; ++j) {
+			pn = dPiece[i][j];
+			if (pn ==  12)
+				pn = 1;
+			else if (pn == 11)
+				pn = 2;
+			else if (pn == 71)
+				pn = 1;
+			else if (pn == 253)
+				pn = 3;
+			else if (pn == 267)
+				pn = 6;
+			else if (pn == 259)
+				pn = 5;
+			else if (pn == 249)
+				pn = 2;
+			else if (pn == 325)
+				pn = 2;
+			else if (pn == 321)
+				pn = 1;
+			else if (pn == 255)
+				pn = 4;
+			else if (pn == 211)
+				pn = 1;
+			else if (pn == 344)
+				pn = 2;
+			else if (pn == 341)
+				pn = 1;
+			else if (pn == 331)
+				pn = 2;
+			else if (pn == 418)
+				pn = 1;
+			else if (pn == 421)
+				pn = 2;
+			else
+				pn = 0;
+			dSpecial[i][j] = pn;
+		}
 	}
 }
 
@@ -875,7 +874,7 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
 	// assert(currLvl._dType == DTYPE_CATHEDRAL);
-	DRLG_InitL1Vals();
+	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	SetMapMonsters(pMap, 0, 0);
 	SetMapObjects(pMap);
@@ -2209,7 +2208,7 @@ void CreateL1Dungeon(int entry)
 #endif
 	{
 		// assert(currLvl._dType == DTYPE_CATHEDRAL);
-		DRLG_InitL1Vals();
+		DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 	}
 	DRLG_SetPC();
 }

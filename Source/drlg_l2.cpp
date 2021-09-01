@@ -3225,32 +3225,29 @@ static void DRLG_L2(int entry)
 	DRLG_CheckQuests();
 }
 
-static void DRLG_InitL2Vals()
+void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)
 {
-	int i, j, *dp;
-	BYTE pc, *dsp;
+	int i, j, pn;
 
-	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL2Vals.");
-	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL2Vals.");
-	dsp = &dSpecial[0][0];
-	dp = &dPiece[0][0];
-	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
-		if (*dp == 541 || *dp == 178 || *dp == 551)
-			pc = 5;
-		else if (*dp == 542 || *dp == 553)
-			pc = 6;
-		else
-			continue;
-		*dsp = pc;
+	for (j = y1; j <= y2; j++) {
+		for (i = x1; i <= x2; i++) {
+			pn = dPiece[i][j];
+			if (pn == 541 || pn == 178 || pn == 551)
+				pn = 5;
+			else if (pn == 542 || pn == 553)
+				pn = 6;
+			else
+				pn = 0;
+			dSpecial[i][j] = pn;
+		}
 	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
-			if (dPiece[i][j] == 132) {
-				//assert(j < MAXDUNY - 2);
+	for (j = y1; j <= y2; j++) {
+		for (i = x1; i <= x2; i++) {
+			pn = dPiece[i][j];
+			if (pn == 132) {
 				dSpecial[i][j + 1] = 2;
 				dSpecial[i][j + 2] = 1;
-			} else if (dPiece[i][j] == 135 || dPiece[i][j] == 139) {
-				//assert(i < MAXDUNX - 2);
+			} else if (pn == 135 || pn == 139) {
 				dSpecial[i + 1][j] = 3;
 				dSpecial[i + 2][j] = 4;
 			}
@@ -3311,7 +3308,7 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 	DRLG_FloodTVal(3);
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
-	DRLG_InitL2Vals();
+	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	SetMapMonsters(pMap, 0, 0);
 	SetMapObjects(pMap);
@@ -3339,7 +3336,7 @@ void CreateL2Dungeon(int entry)
 	DRLG_L2(entry);
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
 	DRLG_FreeL2SP();
-	DRLG_InitL2Vals();
+	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 	DRLG_SetPC();
 }
 
