@@ -2063,66 +2063,66 @@ static void DoorSet(int dx, int dy, int otype)
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
 		if (pn == 75)
-			ObjSetMicro(dx, dy, 204);
-		if (pn == 79)
-			ObjSetMicro(dx, dy, 208);
-		if (pn == 86)
-			ObjSetMicro(dx, dy, otype == OBJ_L5LDOOR ? 232 : 234);
-		if (pn == 91)
-			ObjSetMicro(dx, dy, 215);
-		if (pn == 93)
-			ObjSetMicro(dx, dy, 218);
-		if (pn == 99)
-			ObjSetMicro(dx, dy, 220);
-		if (pn == 111)
-			ObjSetMicro(dx, dy, 222);
-		if (pn == 113)
-			ObjSetMicro(dx, dy, 224);
-		if (pn == 115)
-			ObjSetMicro(dx, dy, 226);
-		if (pn == 117)
-			ObjSetMicro(dx, dy, 228);
-		if (pn == 119)
-			ObjSetMicro(dx, dy, 230);
-		if (pn == 232)
-			ObjSetMicro(dx, dy, 212);
-		if (pn == 234)
-			ObjSetMicro(dx, dy, 212);
-		return;
-	}
+			pn = 204;
+		else if (pn == 79)
+			pn = 208;
+		else if (pn == 86)
+			pn = otype == OBJ_L5LDOOR ? 232 : 234;
+		else if (pn == 91)
+			pn = 215;
+		else if (pn == 93)
+			pn = 218;
+		else if (pn == 99)
+			pn = 220;
+		else if (pn == 111)
+			pn = 222;
+		else if (pn == 113)
+			pn = 224;
+		else if (pn == 115)
+			pn = 226;
+		else if (pn == 117)
+			pn = 228;
+		else if (pn == 119)
+			pn = 230;
+		else if (pn == 232 || pn == 234)
+			pn = 212;
+		else
+			return;
+	} else
 #endif
-	if (pn == 43)
-		ObjSetMicro(dx, dy, 392);
-	if (pn == 45)
-		ObjSetMicro(dx, dy, 394);
-	if (pn == 50)
-		ObjSetMicro(dx, dy, otype == OBJ_L1LDOOR ? 411 : 412);
-	if (pn == 54)
-		ObjSetMicro(dx, dy, 397);
-	if (pn == 55)
-		ObjSetMicro(dx, dy, 398);
-	if (pn == 61)
-		ObjSetMicro(dx, dy, 399);
-	if (pn == 67)
-		ObjSetMicro(dx, dy, 400);
-	if (pn == 68)
-		ObjSetMicro(dx, dy, 401);
-	if (pn == 69)
-		ObjSetMicro(dx, dy, 403);
-	if (pn == 70)
-		ObjSetMicro(dx, dy, 404);
-	if (pn == 72)
-		ObjSetMicro(dx, dy, 406);
-	if (pn == 212)
-		ObjSetMicro(dx, dy, 407);
-	if (pn == 354)
-		ObjSetMicro(dx, dy, 409);
-	if (pn == 355)
-		ObjSetMicro(dx, dy, 410);
-	if (pn == 411)
-		ObjSetMicro(dx, dy, 396);
-	if (pn == 412)
-		ObjSetMicro(dx, dy, 396);
+		if (pn == 43)
+			pn = 392;
+		else if (pn == 45)
+			pn = 394;
+		else if (pn == 50)
+			pn = otype == OBJ_L1LDOOR ? 411 : 412;
+		else if (pn == 54)
+			pn = 397;
+		else if (pn == 55)
+			pn = 398;
+		else if (pn == 61)
+			pn = 399;
+		else if (pn == 67)
+			pn = 400;
+		else if (pn == 68)
+			pn = 401;
+		else if (pn == 69)
+			pn = 403;
+		else if (pn == 70)
+			pn = 404;
+		else if (pn == 72)
+			pn = 406;
+		else if (pn == 212)
+			pn = 407;
+		else if (pn == 354)
+			pn = 409;
+		else if (pn == 355)
+			pn = 410;
+		else if (pn == 411 || pn == 412)
+			pn = 396;
+		else
+			return;
+	ObjSetMicro(dx, dy, pn);
 }
 
 void RedoPlayerVision()
@@ -2361,8 +2361,8 @@ void ObjChangeMap(int x1, int y1, int x2, int y2)
 
 	for (j = y1; j <= y2; j++) {
 		for (i = x1; i <= x2; i++) {
-			ObjSetMini(i, j, pdungeon[i][j]);
 			dungeon[i][j] = pdungeon[i][j];
+			ObjSetMini(i, j, pdungeon[i][j]);
 		}
 	}
 	x1 = 2 * x1 + DBORDERX;
@@ -2384,8 +2384,8 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 
 	for (j = y1; j <= y2; j++) {
 		for (i = x1; i <= x2; i++) {
-			ObjSetMini(i, j, pdungeon[i][j]);
 			dungeon[i][j] = pdungeon[i][j];
+			ObjSetMini(i, j, pdungeon[i][j]);
 		}
 	}
 	x1 = 2 * x1 + DBORDERX;
