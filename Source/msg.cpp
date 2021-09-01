@@ -1058,6 +1058,7 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	cmd.mkMnum = SwapLE16(mnum);
 	mon = &monsters[mnum];
 	cmd.mkExp = SwapLE16(mon->_mExp);
+	cmd.mkMonLevel = mon->_mLevel;
 	cmd.mkX = mon->_mx;
 	cmd.mkY = mon->_my;
 	cmd.mkDir = mon->_mdir;

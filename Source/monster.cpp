@@ -5065,6 +5065,7 @@ void InitGolemStats(int mnum, int level)
 	mon->_mHit = 4 * level + 40;
 	mon->_mMinDamage = 4 + (level >> 1);
 	mon->_mMaxDamage = 2 * mon->_mMinDamage;
+	mon->_mExp = 0;
 }
 
 void SpawnGolem(int mnum, int x, int y, int level)
