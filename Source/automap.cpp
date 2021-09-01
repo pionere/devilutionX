@@ -98,10 +98,6 @@ void InitLvlAutomap()
 	uint16_t *lm;
 	const char* mapData;
 
-#ifdef _DEBUG
-	memset(automaptype, 0, sizeof(automaptype));
-#endif
-
 	/* commented out because the flags are reset in gendung.cpp anyway
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitAutomap.");
 	pTmp = &dFlags[0][0];
@@ -112,8 +108,10 @@ void InitLvlAutomap()
 
 	mapData = AllLevels[currLvl._dLevelIdx].dAutomapData;
 	_gbAutomapData = mapData != NULL;
-	if (!_gbAutomapData)
+	if (!_gbAutomapData) {
+		memset(automaptype, 0, sizeof(automaptype));
 		return;
+	}
 
 	pAFile = LoadFileInMem(mapData, &dwTiles);
 
