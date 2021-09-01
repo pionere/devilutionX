@@ -307,7 +307,7 @@ static BYTE *DeltaExportJunk()
 	}
 
 	static_assert(sizeof(sgDeltaSendRecvBuf.content) >= sizeof(sgJunkDelta), "Delta-Junk does not fit to the buffer.");
-	// export portals + quests
+	// export portals + quests + golems
 	memcpy(dst, &sgJunkDelta, sizeof(sgJunkDelta));
 	dst += sizeof(sgJunkDelta);
 
@@ -323,7 +323,7 @@ static void DeltaImportJunk()
 
 	_gbJunkDeltaChanged = true;
 
-	// import portals + quests
+	// import portals + quests + golems
 	memcpy(&sgJunkDelta, src, sizeof(sgJunkDelta));
 	//src += sizeof(sgJunkDelta);
 
@@ -667,18 +667,23 @@ static void delta_awake_golem(TCmdGolem *pG, int mnum)
 	if (!IsMultiGame)
 		return;
 
-	bLevel = pG->_currlevel;
+	_gbJunkDeltaChanged = true;
+	sgJunkDelta.jGolems[mnum] = pG->goMonLevel;
+
+	InitGolemStats(mnum, pG->goMonLevel);
+
+	bLevel = pG->goDunLevel;
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevelDelta[bLevel].monster[mnum];
 	pD->_mCmd = DCMD_MON_ACTIVE;
-	pD->_mx = pG->_mx;
-	pD->_my = pG->_my;
+	pD->_mx = pG->goX;
+	pD->_my = pG->goY;
 	pD->_mactive = SQUELCH_MAX;
-	pD->_menemy = pG->_menemy;
-	pD->_mdir = pG->_mdir;
-	pD->_mhitpoints = pG->_mhitpoints;
+	pD->_menemy = pG->goEnemy;
+	pD->_mdir = DIR_S;
+	pD->_mhitpoints = monsters[mnum]._mmaxhp;
 }
 
 static void delta_leave_sync(BYTE bLevel)
@@ -910,6 +915,9 @@ void DeltaLoadLevel()
 
 	deltaload = true;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
+		for (i = 0; i < MAX_MINIONS; i++)
+			InitGolemStats(i, sgJunkDelta.jGolems[i]);
+
 		mstr = sgLevelDelta[currLvl._dLevelIdx].monster;
 		for (i = 0; i < nummonsters; i++, mstr++) {
 			if (mstr->_mCmd != DCMD_MON_INVALID) {
@@ -1058,17 +1066,18 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl)
+void NetSendCmdGolem()
 {
 	TCmdGolem cmd;
+	MonsterStruct* mon;
 
+	mon = &monsters[mypnum];
 	cmd.bCmd = CMD_AWAKEGOLEM;
-	cmd._mx = mx;
-	cmd._my = my;
-	cmd._mdir = dir;
-	cmd._menemy = menemy;
-	cmd._mhitpoints = SwapLE32(hp);
-	cmd._currlevel = cl;
+	cmd.goX = mon->_mx;
+	cmd.goY = mon->_my;
+	cmd.goMonLevel = mon->_mLevel;
+	cmd.goEnemy = encode_enemy(mypnum);
+	cmd.goDunLevel = currLvl._dLevelIdx;
 
 	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }

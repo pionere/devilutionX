@@ -86,7 +86,7 @@ void NetSendCmdMonstAttack(BYTE bCmd, int mnum, BYTE skill, char from);
 void NetSendCmdMonstSkill(int mnum, BYTE skill, char from);
 void NetSendCmdMonstDamage(int mnum, int hitpoints);
 void NetSendCmdMonstKill(int mnum, int pnum);
-void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl);
+void NetSendCmdGolem();
 void NetSendShrineCmd(BYTE type, int seed);
 void NetSendCmdQuest(BYTE q, bool extOnly);
 void SendStoreCmd1(unsigned idx, BYTE bStoreId, int value);

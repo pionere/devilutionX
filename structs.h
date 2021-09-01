@@ -1010,12 +1010,11 @@ typedef struct TCmdMonstKill {
 
 typedef struct TCmdGolem {
 	BYTE bCmd;
-	BYTE _mx;
-	BYTE _my;
-	BYTE _mdir;
-	BYTE _menemy;
-	INT _mhitpoints;
-	BYTE _currlevel;
+	BYTE goMonLevel;
+	BYTE goX;
+	BYTE goY;
+	BYTE goEnemy;
+	BYTE goDunLevel;
 } TCmdGolem;
 
 typedef struct TCmdShrine {
@@ -1202,6 +1201,7 @@ typedef struct DQuest {
 typedef struct DJunk {
 	DPortal jPortals[MAXPORTAL];
 	DQuest jQuests[NUM_QUESTS];
+	BYTE jGolems[MAX_MINIONS];
 } DJunk;
 
 typedef struct DBuffer {

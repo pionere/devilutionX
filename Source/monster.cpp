@@ -5053,6 +5053,20 @@ void TalktoMonster(int mnum, int pnum)
 	}
 }
 
+void InitGolemStats(int mnum, int level)
+{
+	MonsterStruct* mon;
+
+	mon = &monsters[mnum];
+	mon->_mLevel = level;
+	mon->_mmaxhp = 640 * level;
+	mon->_mArmorClass = 25 + level;
+	mon->_mEvasion = 10 + (level >> 1);
+	mon->_mHit = 4 * level + 40;
+	mon->_mMinDamage = 4 + (level >> 1);
+	mon->_mMaxDamage = 2 * mon->_mMinDamage;
+}
+
 void SpawnGolem(int mnum, int x, int y, int level)
 {
 	MonsterStruct *mon;
@@ -5062,29 +5076,15 @@ void SpawnGolem(int mnum, int x, int y, int level)
 		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
 	dMonster[x][y] = mnum + 1;
-	level = level * 2 + (plx(mnum)._pMagic >> 6);
+	InitGolemStats(mnum, level * 2 + (plx(mnum)._pMagic >> 6));
 	mon = &monsters[mnum];
 	SetMonsterLoc(mon, x, y);
-	mon->_mpathcount = 0;
-	mon->_mLevel = level;
-	mon->_mArmorClass = 25 + level;
-	mon->_mEvasion = 10 + (level >> 1);
-	mon->_mmaxhp = 640 * level;
 	mon->_mhitpoints = mon->_mmaxhp;
-	mon->_mHit = 4 * level + 40;
-	mon->_mMinDamage = 4 + (level >> 1);
-	mon->_mMaxDamage = 2 * mon->_mMinDamage;
+	mon->_mpathcount = 0;
 	MonStartSpStand(mnum, DIR_S);
 	MonEnemy(mnum);
-	if (mnum == mypnum) {
-		NetSendCmdGolem(
-		    mon->_mx,
-		    mon->_my,
-		    mon->_mdir,
-		    mon->_menemy,
-		    mon->_mhitpoints,
-		    currLvl._dLevelIdx);
-	}
+	if (mnum == mypnum)
+		NetSendCmdGolem();
 }
 
 bool CanTalkToMonst(int mnum)
