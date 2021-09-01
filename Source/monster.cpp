@@ -5062,17 +5062,19 @@ void SpawnGolem(int mnum, int x, int y, int level)
 		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
 	dMonster[x][y] = mnum + 1;
+	level = level * 2 + (plx(mnum)._pMagic >> 6);
 	mon = &monsters[mnum];
 	SetMonsterLoc(mon, x, y);
 	mon->_mpathcount = 0;
-	mon->_mArmorClass = 25;
-	//mon->_mEvasion = 5;
-	mon->_mmaxhp = 2 * (320 * level + plx(mnum)._pMaxMana / 3);
+	mon->_mLevel = level;
+	mon->_mArmorClass = 25 + level;
+	mon->_mEvasion = 10 + (level >> 1);
+	mon->_mmaxhp = 640 * level;
 	mon->_mhitpoints = mon->_mmaxhp;
-	mon->_mHit = 5 * (level + 8) + 2 * plx(mnum)._pLevel;
-	mon->_mMinDamage = 2 * (level + 4);
-	mon->_mMaxDamage = 2 * (level + 8);
-	MonStartSpStand(mnum, 0);
+	mon->_mHit = 4 * level + 40;
+	mon->_mMinDamage = 4 + (level >> 1);
+	mon->_mMaxDamage = 2 * mon->_mMinDamage;
+	MonStartSpStand(mnum, DIR_S);
 	MonEnemy(mnum);
 	if (mnum == mypnum) {
 		NetSendCmdGolem(
