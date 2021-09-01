@@ -4112,7 +4112,10 @@ static void SyncL1Doors(int oi)
 	y = os->_oy;
 	if (os->_oVar4 == DOOR_CLOSED) {
 		ObjSetMicro(x, y, os->_oVar1); // DOOR_PIECE_CLOSED
-		dSpecial[x][y] = 0;
+#ifdef HELLFIRE
+		if (currLvl._dType != DTYPE_CRYPT)
+#endif
+			dSpecial[x][y] = 0;
 
 		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
 
@@ -4142,12 +4145,12 @@ static void SyncL1Doors(int oi)
 	if (currLvl._dType == DTYPE_CRYPT) {
 		if (os->_otype == OBJ_L5LDOOR) {
 			ObjSetMicro(x, y, 206);
-			dSpecial[x][y] = 1;
+			//dSpecial[x][y] = 1;
 			objects_set_door_piece(x - 1, y);
 			y--;
 		} else {
 			ObjSetMicro(x, y, 209);
-			dSpecial[x][y] = 2;
+			//dSpecial[x][y] = 2;
 			objects_set_door_piece(x, y - 1);
 			x--;
 		}
