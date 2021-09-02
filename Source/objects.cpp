@@ -4129,7 +4129,7 @@ static void SyncL1Doors(int oi)
 			y--;
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT) {
-			if (pn == 86 && dPiece[x][y] == 210)
+			if (pn == 86 && dPiece[x][y] == 212)
 				pn = os->_otype == OBJ_L5RDOOR ? 232 : 234;
 		} else
 #endif
