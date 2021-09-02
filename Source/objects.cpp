@@ -492,9 +492,9 @@ static void AddL3Objs(int x1, int y1, int x2, int y2)
 	for (j = y1; j < y2; j++) {
 		for (i = x1; i < x2; i++) {
 			pn = dPiece[i][j];
-			if (pn == 531)
-				AddObject(OBJ_L3LDOOR, i, j);
 			if (pn == 534)
+				AddObject(OBJ_L3LDOOR, i, j);
+			if (pn == 531)
 				AddObject(OBJ_L3RDOOR, i, j);
 		}
 	}
@@ -2307,7 +2307,7 @@ static void OperateL3Door(int oi, bool sendmsg)
 static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 {
 	// check if (x;y) is the right position
-	if (abs(objects[oi]._ox - x) != 1 || abs(objects[oi]._oy - y) > 1)
+	if (abs(objects[oi]._ox - x) > 1 || abs(objects[oi]._oy - y) != 1)
 		return;
 	OperateL3Door(oi, sendmsg);
 }
@@ -2315,7 +2315,7 @@ static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 {
 	// check if (x;y) is the right position
-	if (abs(objects[oi]._ox - x) > 1 || abs(objects[oi]._oy - y) != 1)
+	if (abs(objects[oi]._ox - x) != 1 || abs(objects[oi]._oy - y) > 1)
 		return;
 	OperateL3Door(oi, sendmsg);
 }
@@ -4209,15 +4209,15 @@ static void SyncL3Doors(int oi)
 	y = os->_oy;
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (os->_otype == OBJ_L3LDOOR) {
-			ObjSetMicro(x, y, 531);
-		} else { // if (os->_otype == OBJ_L3RDOOR) {
 			ObjSetMicro(x, y, 534);
+		} else { // if (os->_otype == OBJ_L3RDOOR) {
+			ObjSetMicro(x, y, 531);
 		}
 	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
 		if (os->_otype == OBJ_L3LDOOR) {
-			ObjSetMicro(x, y, 538);
-		} else { // if (os->_otype == OBJ_L3RDOOR) {
 			ObjSetMicro(x, y, 541);
+		} else { // if (os->_otype == OBJ_L3RDOOR) {
+			ObjSetMicro(x, y, 538);
 		}
 	}
 }
