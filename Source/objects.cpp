@@ -2322,37 +2322,29 @@ static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 
 void MonstCheckDoors(int mx, int my)
 {
-	int i, j, oi;
+	int i, oi, type;
 
-	for (i = -1; i <= 1; i++)
-		for (j = -1; j <= 1; j++) {
-			oi = dObject[mx + i][my + j];
-			if (oi != 0) {
-				oi = oi >= 0 ? oi - 1 : -(oi + 1);
-				if (!objects[oi]._oDoorFlag || objects[oi]._oVar4 != DOOR_CLOSED)
-					continue;
-				if (objects[oi]._otype == OBJ_L1LDOOR) {
-					OperateL1LDoor(mx, my, oi, true);
-				} else if (objects[oi]._otype == OBJ_L1RDOOR) {
-					OperateL1RDoor(mx, my, oi, true);
+	for (i = 0; i < lengthof(offset_x); i++) {
+		oi = dObject[mx + offset_x[i]][my + offset_y[i]];
+		if (oi == 0)
+			continue;
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (!objects[oi]._oDoorFlag || objects[oi]._oVar4 != DOOR_CLOSED)
+			continue;
+		type = objects[oi]._otype;
+		if (type == OBJ_L1LDOOR || type == OBJ_L1RDOOR) {
+			OperateL1Door(oi, true);
 #ifdef HELLFIRE
-				} else if (objects[oi]._otype == OBJ_L5LDOOR) {
-					OperateL1LDoor(mx, my, oi, true);
-				} else if (objects[oi]._otype == OBJ_L5RDOOR) {
-					OperateL1RDoor(mx, my, oi, true);
+		} else if (type == OBJ_L5LDOOR || type == OBJ_L5RDOOR) {
+			OperateL1Door(oi, true);
 #endif
-				} else if (objects[oi]._otype == OBJ_L2LDOOR) {
-					OperateL2LDoor(mx, my, oi, true);
-				} else if (objects[oi]._otype == OBJ_L2RDOOR) {
-					OperateL2RDoor(mx, my, oi, true);
-				} else if (objects[oi]._otype == OBJ_L3LDOOR) {
-					OperateL3LDoor(mx, my, oi, true);
-				} else {
-					//assert(objects[oi]._otype == OBJ_L3RDOOR);
-					OperateL3RDoor(mx, my, oi, true);
-				}
-			}
+		} else if (type == OBJ_L2LDOOR || type == OBJ_L2RDOOR) {
+			OperateL2Door(oi, true);
+		} else {
+			//assert(type == OBJ_L3LDOOR || type == OBJ_L3RDOOR);
+			OperateL3Door(oi, true);
 		}
+	}
 }
 
 void ObjChangeMap(int x1, int y1, int x2, int y2)
