@@ -2021,7 +2021,7 @@ void ObjSetMicro(int dx, int dy, int pn)
 	}
 }
 
-static void objects_set_door_piece(int dx, int dy)
+static void ObjSetDoorBackPiece(int dx, int dy)
 {
 	int pn, blocks;
 	uint16_t *pPiece;
@@ -2055,7 +2055,7 @@ static void ObjSetMini(int x, int y, int v)
 	ObjSetMicro(xx + 1, yy + 1, v4);
 }
 
-static void DoorSet(int dx, int dy, int otype)
+static void ObjSetDoorSidePiece(int dx, int dy, int otype)
 {
 	int pn;
 
@@ -4147,12 +4147,12 @@ static void SyncL1Doors(int oi)
 		if (os->_otype == OBJ_L5LDOOR) {
 			ObjSetMicro(x, y, 206);
 			//dSpecial[x][y] = 1;
-			objects_set_door_piece(x - 1, y);
+			ObjSetDoorBackPiece(x - 1, y);
 			y--;
 		} else {
 			ObjSetMicro(x, y, 209);
 			//dSpecial[x][y] = 2;
-			objects_set_door_piece(x, y - 1);
+			ObjSetDoorBackPiece(x, y - 1);
 			x--;
 		}
 	} else
@@ -4161,16 +4161,16 @@ static void SyncL1Doors(int oi)
 		if (os->_otype == OBJ_L1LDOOR) {
 			ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
 			dSpecial[x][y] = 7;
-			objects_set_door_piece(x - 1, y);
+			ObjSetDoorBackPiece(x - 1, y);
 			y--;
 		} else {
 			ObjSetMicro(x, y, 395);
 			dSpecial[x][y] = 8;
-			objects_set_door_piece(x, y - 1);
+			ObjSetDoorBackPiece(x, y - 1);
 			x--;
 		}
 	}
-	DoorSet(x, y, os->_otype);
+	ObjSetDoorSidePiece(x, y, os->_otype);
 }
 
 static void SyncL2Doors(int oi)
