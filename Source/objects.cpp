@@ -445,6 +445,7 @@ void AddL1Objs(int x1, int y1, int x2, int y2)
 			pn = dPiece[i][j];
 			if (pn == 270)
 				AddObject(OBJ_L1LIGHT, i, j);
+			// these pieces are closed doors which are placed directly
 			if (pn == 44 || pn == 51 || pn == 214)
 				AddObject(OBJ_L1LDOOR, i, j);
 			if (pn == 46 || pn == 56)
@@ -461,6 +462,7 @@ static void AddCryptObjs(int x1, int y1, int x2, int y2)
 	for (j = y1; j < y2; j++) {
 		for (i = x1; i < x2; i++) {
 			pn = dPiece[i][j];
+			// 77 and 80 pieces are closed doors which are placed directly
 			if (pn == 77)
 				AddObject(OBJ_L5LDOOR, i, j);
 			if (pn == 80)
@@ -477,6 +479,9 @@ void AddL2Objs(int x1, int y1, int x2, int y2)
 	for (j = y1; j < y2; j++) {
 		for (i = x1; i < x2; i++) {
 			pn = dPiece[i][j];
+			// 13 and 17 pieces are open doors and closed right away...
+			// 541 and 542 pieces are 'placeholders' for doors
+			// 538 and 540 pieces are closed doors which are not placed directly...
 			if (pn == 13 || pn == 541)
 				AddObject(OBJ_L2LDOOR, i, j);
 			if (pn == 17 || pn == 542)
@@ -492,6 +497,7 @@ static void AddL3Objs(int x1, int y1, int x2, int y2)
 	for (j = y1; j < y2; j++) {
 		for (i = x1; i < x2; i++) {
 			pn = dPiece[i][j];
+			// 531 and 534 pieces are closed doors which are placed directly
 			if (pn == 534)
 				AddObject(OBJ_L3LDOOR, i, j);
 			if (pn == 531)
@@ -1183,7 +1189,7 @@ static void AddL1Door(int oi, bool ldoor)
 	//os->_oMissFlag = FALSE;
 	os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
 	os->_oVar1 = dPiece[x][y];     // DOOR_PIECE_CLOSED
-	// DOOR_BACK_PIECE_CLOSED
+	// DOOR_SIDE_PIECE_CLOSED
 	if (ldoor)
 		y--;
 	else
@@ -4068,7 +4074,7 @@ static void SyncL1Doors(int oi)
 #endif
 			dSpecial[x][y] = 0;
 
-		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
+		pn = os->_oVar2;                 // DOOR_SIDE_PIECE_CLOSED
 
 		if (os->_otype == OBJ_L1RDOOR)
 			x--;
