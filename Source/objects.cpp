@@ -2748,12 +2748,13 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	case 1:
 		break;
 	case 3:
-		ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + setpc_w, setpc_y + 7);
+		ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + 9/*setpc_w*/, setpc_y + 7);
 	case 2:
 		ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
 		break;
 	case 4:
-		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+		//ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+		ObjChangeMap(setpc_x + 2, setpc_y, setpc_x + 6, setpc_y + 7);
 		LoadMapSetObjs("Levels\\L2Data\\Blood2.DUN");
 		os->_oSelFlag = 0;
 		break;
