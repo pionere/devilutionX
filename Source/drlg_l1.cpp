@@ -786,44 +786,46 @@ void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 	for (i = x1; i <= x2; ++i) {
 		for (j = y1; j <= y2; ++j) {
 			pn = dPiece[i][j];
-			if (pn ==  12)
+			if (pn == 12 || pn == 71 || pn == 211 || pn == 321 || pn == 341 || pn == 418)
 				pn = 1;
-			else if (pn == 11)
+			else if (pn == 11 || pn == 249 || pn == 325 || pn == 331 || pn == 344 || pn == 421)
 				pn = 2;
-			else if (pn == 71)
-				pn = 1;
 			else if (pn == 253)
 				pn = 3;
-			else if (pn == 267)
-				pn = 6;
-			else if (pn == 259)
-				pn = 5;
-			else if (pn == 249)
-				pn = 2;
-			else if (pn == 325)
-				pn = 2;
-			else if (pn == 321)
-				pn = 1;
 			else if (pn == 255)
 				pn = 4;
-			else if (pn == 211)
-				pn = 1;
-			else if (pn == 344)
-				pn = 2;
-			else if (pn == 341)
-				pn = 1;
-			else if (pn == 331)
-				pn = 2;
-			else if (pn == 418)
-				pn = 1;
-			else if (pn == 421)
-				pn = 2;
+			else if (pn == 259)
+				pn = 5;
+			else if (pn == 267)
+				pn = 6;
 			else
 				pn = 0;
 			dSpecial[i][j] = pn;
 		}
 	}
 }
+
+#ifdef HELLFIRE
+static void DRLG_InitL5Specials()
+{
+	int i, *dp;
+	BYTE pc, *dsp;
+
+	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL5Vals.");
+	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL5Vals.");
+	dsp = &dSpecial[0][0];
+	dp = &dPiece[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
+		if (*dp == 77)
+			pc = 1;
+		else if (*dp == 80)
+			pc = 2;
+		else
+			continue;
+		*dsp = pc;
+	}
+}
+#endif
 
 static BYTE *LoadL1DungeonData(const char *sFileName)
 {
@@ -836,7 +838,7 @@ static BYTE *LoadL1DungeonData(const char *sFileName)
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
-	memset(dungeon, 22, sizeof(dungeon));
+	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
 
 	lm = (uint16_t *)pMap;
 	rw = SwapLE16(*lm);
@@ -848,7 +850,7 @@ static BYTE *LoadL1DungeonData(const char *sFileName)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				dungeon[i][j] = SwapLE16(*lm);
-				drlgFlags[i][j] |= DLRG_PROTECTED;
+				drlgFlags[i][j] = DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 13;
 			}
@@ -896,7 +898,7 @@ static void InitL1Dungeon()
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 }
 
-static void L1ClearFlags()
+static void L1ClearChamberFlags()
 {
 	int i;
 	BYTE *pTmp;
@@ -1105,9 +1107,9 @@ static void DRLG_L1MakeMegas()
 		}
 	}
 	for (j = 0; j < DMAXY; j++)
-		dungeon[DMAXX - 1][j] = 22;
+		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L1 + 1;
 	for (i = 0; i < DMAXX - 1; i++)
-		dungeon[i][DMAXY - 1] = 22;
+		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L1 + 1;
 }
 
 static void L1HorizWall(int i, int j, int dx)
@@ -2053,7 +2055,7 @@ static void DRLG_L1(int entry)
 		L1FillChambers();
 		L1tileFix();
 		L1AddWall();
-		L1ClearFlags();
+		L1ClearChamberFlags();
 		DRLG_InitTrans();
 		DRLG_FloodTVal(13);
 
@@ -2202,14 +2204,13 @@ void CreateL1Dungeon(int entry)
 	DRLG_FreeL1SP();
 
 #ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT) {
-		DRLG_InitL5Vals();
-	} else
+	if (currLvl._dType == DTYPE_CRYPT)
+		DRLG_InitL5Specials();
+	else
 #endif
-	{
 		// assert(currLvl._dType == DTYPE_CATHEDRAL);
 		DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-	}
+
 	DRLG_SetPC();
 }
 
