@@ -4852,21 +4852,21 @@ bool PosOkMonst2(int mnum, int x, int y)
 
 bool PosOkMonst3(int mnum, int x, int y)
 {
-	bool isdoor;
+	BYTE door;
 	int oi;
 
-	isdoor = false;
+	door = ODT_NONE;
 
 	oi = dObject[x][y];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		isdoor = objects[oi]._oDoorFlag;
-		if (objects[oi]._oSolidFlag && !isdoor) {
+		door = objects[oi]._oDoorFlag;
+		if (objects[oi]._oSolidFlag && door == ODT_NONE) {
 			return false;
 		}
 	}
 
-	if ((nSolidTable[dPiece[x][y]] && !isdoor) || (dPlayer[x][y] | dMonster[x][y]) != 0)
+	if ((nSolidTable[dPiece[x][y]] && door == ODT_NONE) || (dPlayer[x][y] | dMonster[x][y]) != 0)
 		return false;
 
 	return monster_posok(mnum, x, y);

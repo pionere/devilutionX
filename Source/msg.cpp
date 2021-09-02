@@ -1797,6 +1797,7 @@ static unsigned On_OPOBJXY(TCmd *pCmd, int pnum)
 		plr.destParam1 = oi;
 		plr.destParam2 = cmd->x;
 		plr.destParam3 = cmd->y;
+		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_OPOBJXY expects ODT_NONE to be zero.");
 		MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag));
 	}
 
@@ -1813,6 +1814,7 @@ static unsigned On_DISARMXY(TCmd *pCmd, int pnum)
 		plr.destParam1 = oi;
 		plr.destParam2 = cmd->x;
 		plr.destParam3 = cmd->y;
+		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_DISARMXY expects ODT_NONE to be zero.");
 		MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag));
 	}
 

@@ -724,7 +724,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	static_assert(FALSE == 0, "SetupObject expects the objects to be zero-filled and skips a few initialization steps.");
 	//os->_oPreFlag = FALSE;
 	//os->_oTrapFlag = FALSE;
-	//os->_oDoorFlag = FALSE;
+	//os->_oDoorFlag = ODT_NONE;
 }
 
 static void AddDiabObjs()
@@ -1169,7 +1169,7 @@ static void AddChest(int oi)
 }
 
 static void SyncL1Doors(int oi);
-static void AddL1Door(int oi)
+static void AddL1Door(int oi, bool ldoor)
 {
 	ObjectStruct *os;
 	int x, y;
@@ -1181,29 +1181,25 @@ static void AddL1Door(int oi)
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
-	os->_oDoorFlag = TRUE;
+	os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
 	os->_oVar1 = dPiece[x][y];     // DOOR_PIECE_CLOSED
 	// DOOR_BACK_PIECE_CLOSED
-	if (os->_otype == OBJ_L1RDOOR)
-		x--;
-#ifdef HELLFIRE
-	else if (os->_otype == OBJ_L5RDOOR)
-		x--;
-#endif
-	else
+	if (ldoor)
 		y--;
+	else
+		x--;
 	os->_oVar2 = dPiece[x][y];
 	//SyncL1Doors(oi);
 }
 
 static void OpenDoor(int oi);
 static void SyncL2Doors(int oi);
-static void AddL2Door(int oi)
+static void AddL2Door(int oi, bool ldoor)
 {
 	ObjectStruct *os;
 
 	os = &objects[oi];
-	os->_oDoorFlag = TRUE;
+	os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
@@ -1214,12 +1210,12 @@ static void AddL2Door(int oi)
 }
 
 static void SyncL3Doors(int oi);
-static void AddL3Door(int oi)
+static void AddL3Door(int oi, bool ldoor)
 {
 	ObjectStruct *os;
 
 	os = &objects[oi];
-	os->_oDoorFlag = TRUE;
+	os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
@@ -1480,20 +1476,30 @@ int AddObject(int type, int ox, int oy)
 		AddObjLight(oi, 8);
 		break;
 	case OBJ_L1LDOOR:
+		AddL1Door(oi, true);
+		break;
 	case OBJ_L1RDOOR:
+		AddL1Door(oi, false);
+		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
-	case OBJ_L5RDOOR:
-#endif
-		AddL1Door(oi);
+		AddL1Door(oi, true);
 		break;
+	case OBJ_L5RDOOR:
+		AddL1Door(oi, false);
+		break;
+#endif
 	case OBJ_L2LDOOR:
+		AddL2Door(oi, true);
+		break;
 	case OBJ_L2RDOOR:
-		AddL2Door(oi);
+		AddL2Door(oi, false);
 		break;
 	case OBJ_L3LDOOR:
+		AddL3Door(oi, true);
+		break;
 	case OBJ_L3RDOOR:
-		AddL3Door(oi);
+		AddL3Door(oi, false);
 		break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
@@ -2167,6 +2173,25 @@ static bool CloseDoor(int oi)
 	return false;
 }
 
+/*
+ * check if the given player is in the right position to open a door.
+ * @param oi: the index of the door
+ * @param pnum: the index of the player
+ */
+static bool PlrCheckDoor(int oi, int pnum)
+{
+	ObjectStruct* os;
+	int dx, dy;
+
+	os = &objects[oi];
+	dx = abs(os->_ox - plr._px);
+	dy = abs(os->_oy - plr._py);
+	if (os->_oDoorFlag == ODT_LEFT)
+		return dx == 1 && dy <= 1;
+	else // if (os->_oDoorFlag == ODT_RIGHT)
+		return dx <= 1 && dy == 1;
+}
+
 static void OperateL1Door(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
@@ -2210,22 +2235,6 @@ static void OperateL1Door(int oi, bool sendmsg)
 	}
 }
 
-static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
-{
-	// check if (x;y) is the right position
-	if (abs(objects[oi]._ox - x) > 1 || abs(objects[oi]._oy - y) != 1)
-		return;
-	OperateL1Door(oi, sendmsg);
-}
-
-static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
-{
-	// check if (x;y) is the right position
-	if (abs(objects[oi]._ox - x) != 1 || abs(objects[oi]._oy - y) > 1)
-		return;
-	OperateL1Door(oi, sendmsg);
-}
-
 static void OperateL2Door(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
@@ -2255,22 +2264,6 @@ static void OperateL2Door(int oi, bool sendmsg)
 		SyncL2Doors(oi);
 		RedoPlayerVision();
 	}
-}
-
-static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
-{
-	// check if (x;y) is the right position
-	if (abs(objects[oi]._ox - x) > 1 || abs(objects[oi]._oy - y) != 1)
-		return;
-	OperateL2Door(oi, sendmsg);
-}
-
-static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
-{
-	// check if (x;y) is the right position
-	if (abs(objects[oi]._ox - x) != 1 || abs(objects[oi]._oy - y) > 1)
-		return;
-	OperateL2Door(oi, sendmsg);
 }
 
 static void OperateL3Door(int oi, bool sendmsg)
@@ -2304,22 +2297,6 @@ static void OperateL3Door(int oi, bool sendmsg)
 	}
 }
 
-static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
-{
-	// check if (x;y) is the right position
-	if (abs(objects[oi]._ox - x) > 1 || abs(objects[oi]._oy - y) != 1)
-		return;
-	OperateL3Door(oi, sendmsg);
-}
-
-static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
-{
-	// check if (x;y) is the right position
-	if (abs(objects[oi]._ox - x) != 1 || abs(objects[oi]._oy - y) > 1)
-		return;
-	OperateL3Door(oi, sendmsg);
-}
-
 void MonstCheckDoors(int mx, int my)
 {
 	int i, oi, type;
@@ -2329,8 +2306,9 @@ void MonstCheckDoors(int mx, int my)
 		if (oi == 0)
 			continue;
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (!objects[oi]._oDoorFlag || objects[oi]._oVar4 != DOOR_CLOSED)
+		if (objects[oi]._oDoorFlag == ODT_NONE || objects[oi]._oVar4 != DOOR_CLOSED)
 			continue;
+		// assert(CheckDoor(oi, mnum));
 		type = objects[oi]._otype;
 		if (type == OBJ_L1LDOOR || type == OBJ_L1RDOOR) {
 			OperateL1Door(oi, true);
@@ -3732,46 +3710,26 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	sendmsg = (pnum == mypnum);
 	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
+	case OBJ_L1RDOOR:
+		if (TeleFlag || PlrCheckDoor(oi, pnum))
+			OperateL1Door(oi, sendmsg);
+		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
-#endif
-		if (TeleFlag)
-			OperateL1Door(oi, sendmsg);
-		else //if (sendmsg) // pnum == mypnum
-			OperateL1LDoor(plr._px, plr._py, oi, sendmsg);
-		break;
-	case OBJ_L1RDOOR:
-#ifdef HELLFIRE
 	case OBJ_L5RDOOR:
-#endif
-		if (TeleFlag)
+		if (TeleFlag || PlrCheckDoor(oi, pnum))
 			OperateL1Door(oi, sendmsg);
-		else //if (sendmsg) // pnum == mypnum
-			OperateL1RDoor(plr._px, plr._py, oi, sendmsg);
 		break;
+#endif
 	case OBJ_L2LDOOR:
-		if (TeleFlag)
-			OperateL2Door(oi, sendmsg);
-		else //if (sendmsg) // pnum == mypnum
-			OperateL2LDoor(plr._px, plr._py, oi, sendmsg);
-		break;
 	case OBJ_L2RDOOR:
-		if (TeleFlag)
+		if (TeleFlag || PlrCheckDoor(oi, pnum))
 			OperateL2Door(oi, sendmsg);
-		else //if (sendmsg) // pnum == mypnum
-			OperateL2RDoor(plr._px, plr._py, oi, sendmsg);
 		break;
 	case OBJ_L3LDOOR:
-		if (TeleFlag)
-			OperateL3Door(oi, sendmsg);
-		else //if (sendmsg) // pnum == mypnum
-			OperateL3LDoor(plr._px, plr._py, oi, sendmsg);
-		break;
 	case OBJ_L3RDOOR:
-		if (TeleFlag)
+		if (TeleFlag || PlrCheckDoor(oi, pnum))
 			OperateL3Door(oi, sendmsg);
-		else //if (sendmsg) // pnum == mypnum
-			OperateL3RDoor(plr._px, plr._py, oi, sendmsg);
 		break;
 	case OBJ_LEVER:
 #ifdef HELLFIRE

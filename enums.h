@@ -2509,6 +2509,12 @@ typedef enum object_break_mode {
 	OBM_BROKEN
 } object_break_mode;
 
+typedef enum object_door_type {
+	ODT_NONE,
+	ODT_LEFT,
+	ODT_RIGHT,
+} object_door_type;
+
 typedef enum dungeon_type {
 	DTYPE_TOWN,
 	DTYPE_CATHEDRAL,

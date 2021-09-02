@@ -134,7 +134,7 @@ static void FindItemOrObject()
 			oi = oi >= 0 ? oi - 1 : -(oi + 1);
 			if (objects[oi]._oSelFlag == 0)
 				continue;
-			if (xx == 0 && yy == 0 && objects[oi]._oDoorFlag)
+			if (xx == 0 && yy == 0 && objects[oi]._oDoorFlag != ODT_NONE)
 				continue; // Ignore doorway so we don't get stuck behind barrels
 			int newRotations = GetRotaryDistance(mx + xx, my + yy);
 			if (rotations < newRotations)
