@@ -105,11 +105,11 @@ static void FindItemOrObject()
 	// As the player can not stand on the edge fo the map this is safe from OOB
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
-			int i = dItem[mx + xx][my + yy];
-			if (i <= 0)
+			int ii = dItem[mx + xx][my + yy];
+			if (ii <= 0)
 				continue;
-			i--;
-			if (items[i]._itype == ITYPE_NONE || items[i]._iSelFlag == 0)
+			ii--;
+			if (items[ii]._itype == ITYPE_NONE || items[ii]._iSelFlag == 0)
 				continue;
 			int newRotations = GetRotaryDistance(mx + xx, my + yy);
 			if (rotations < newRotations)
@@ -117,7 +117,7 @@ static void FindItemOrObject()
 			if (xx != 0 && yy != 0 && GetDistance(mx + xx, my + yy, 1) == 0)
 				continue;
 			rotations = newRotations;
-			pcursitem = i;
+			pcursitem = ii;
 			cursmx = mx + xx;
 			cursmy = my + yy;
 		}
@@ -128,13 +128,13 @@ static void FindItemOrObject()
 
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
-			int o = dObject[mx + xx][my + yy];
-			if (o == 0)
+			int oi = dObject[mx + xx][my + yy];
+			if (oi == 0)
 				continue;
-			o = o >= 0 ? o - 1 : -(o + 1);
-			if (objects[o]._oSelFlag == 0)
+			oi = oi >= 0 ? oi - 1 : -(oi + 1);
+			if (objects[oi]._oSelFlag == 0)
 				continue;
-			if (xx == 0 && yy == 0 && objects[o]._oDoorFlag)
+			if (xx == 0 && yy == 0 && objects[oi]._oDoorFlag)
 				continue; // Ignore doorway so we don't get stuck behind barrels
 			int newRotations = GetRotaryDistance(mx + xx, my + yy);
 			if (rotations < newRotations)
@@ -142,7 +142,7 @@ static void FindItemOrObject()
 			if (xx != 0 && yy != 0 && GetDistance(mx + xx, my + yy, 1) == 0)
 				continue;
 			rotations = newRotations;
-			pcursobj = o;
+			pcursobj = oi;
 			cursmx = mx + xx;
 			cursmy = my + yy;
 		}
