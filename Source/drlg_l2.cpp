@@ -3265,9 +3265,9 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 	//DRLG_InitTrans();
 	pMap = LoadFileInMem(sFileName);
 
-	memset(drlgFlags, 0, sizeof(drlgFlags));
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2DungeonData.");
-	memset(dungeon, 12, sizeof(dungeon));
+	//memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
+	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
+	memset(dungeon, BASE_MEGATILE_L2 + 1, sizeof(dungeon));
 
 	lm = (uint16_t *)pMap;
 	rw = SwapLE16(*lm);
@@ -3279,7 +3279,7 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				dungeon[i][j] = SwapLE16(*lm);
-				drlgFlags[i][j] |= DLRG_PROTECTED;
+				//drlgFlags[i][j] |= DLRG_PROTECTED; - unused on setmaps
 			} else {
 				dungeon[i][j] = 3;
 			}
@@ -3307,6 +3307,7 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 
 	SetMapMonsters(pMap, 0, 0);
 	SetMapObjects(pMap);
+
 	mem_free_dbg(pMap);
 }
 

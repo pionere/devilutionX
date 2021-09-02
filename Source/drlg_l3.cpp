@@ -2277,12 +2277,15 @@ void CreateL3Dungeon(int entry)
 static BYTE *LoadL3DungeonData(const char *sFileName)
 {
 	int i, j;
-	BYTE *pMap, *pTmp;
+	BYTE* pMap;
 	uint16_t rw, rh, *lm;
 
-	InitL3Dungeon();
-
+	//InitL3Dungeon();
+	//DRLG_InitTrans();
 	pMap = LoadFileInMem(sFileName);
+
+	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
+	memset(dungeon, BASE_MEGATILE_L3 + 1, sizeof(dungeon));
 
 	lm = (uint16_t *)pMap;
 	rw = SwapLE16(*lm);
@@ -2300,11 +2303,7 @@ static BYTE *LoadL3DungeonData(const char *sFileName)
 			lm++;
 		}
 	}
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL3DungeonData.");
-	pTmp = &dungeon[0][0];
-	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
-		if (*pTmp == 0)
-			*pTmp = 8;
+
 	return pMap;
 }
 
@@ -2335,6 +2334,7 @@ void LoadPreL3Dungeon(const char *sFileName)
 	BYTE *pMap = LoadL3DungeonData(sFileName);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
 	mem_free_dbg(pMap);
 }
 
