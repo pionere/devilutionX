@@ -481,28 +481,6 @@ const BYTE L5RNDLFLOOR7[20] = {
  */
 const BYTE L1ConvTbl[16] = { 22, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 16, 13 };
 
-#ifdef HELLFIRE
-static void DRLG_InitL5Vals()
-{
-	int i, *dp;
-	BYTE pc, *dsp;
-
-	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL5Vals.");
-	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL5Vals.");
-	dsp = &dSpecial[0][0];
-	dp = &dPiece[0][0];
-	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
-		if (*dp == 77)
-			pc = 1;
-		else if (*dp == 80)
-			pc = 2;
-		else
-			continue;
-		*dsp = pc;
-	}
-}
-#endif
-
 /*
  * Place doors on the marked places.
  * New dungeon values: 25, 26, 28, 30, 31, 40, 41, 42, 43
@@ -522,50 +500,51 @@ static void DRLG_L1PlaceDoors()
 
 				if (df == DLRG_HDOOR) {
 					if (j != 1 && c == 2)
-						dungeon[i][j] = 26;
+						c = 26;
 					if (j != 1 && c == 7)
-						dungeon[i][j] = 31;
+						c = 31;
 					if (j != 1 && c == 14)
-						dungeon[i][j] = 42;
+						c = 42;
 					if (j != 1 && c == 4)
-						dungeon[i][j] = 43;
+						c = 43;
 					if (i != 1 && c == 1)
-						dungeon[i][j] = 25;
+						c = 25;
 					if (i != 1 && c == 10)
-						dungeon[i][j] = 40;
+						c = 40;
 					if (i != 1 && c == 6)
-						dungeon[i][j] = 30;
+						c = 30;
 				} else if (df == DLRG_VDOOR) {
 					if (i != 1 && c == 1)
-						dungeon[i][j] = 25;
+						c = 25;
 					if (i != 1 && c == 6)
-						dungeon[i][j] = 30;
+						c = 30;
 					if (i != 1 && c == 10)
-						dungeon[i][j] = 40;
+						c = 40;
 					if (i != 1 && c == 4)
-						dungeon[i][j] = 41;
+						c = 41;
 					if (j != 1 && c == 2)
-						dungeon[i][j] = 26;
+						c = 26;
 					if (j != 1 && c == 14)
-						dungeon[i][j] = 42;
+						c = 42;
 					if (j != 1 && c == 7)
-						dungeon[i][j] = 31;
+						c = 31;
 				} else if (df == (DLRG_HDOOR | DLRG_VDOOR)) {
 					if (i != 1 && j != 1 && c == 4)
-						dungeon[i][j] = 28;
+						c = 28;
 					if (i != 1 && c == 10)
-						dungeon[i][j] = 40;
+						c = 40;
 					if (j != 1 && c == 14)
-						dungeon[i][j] = 42;
+						c = 42;
 					if (j != 1 && c == 2)
-						dungeon[i][j] = 26;
+						c = 26;
 					if (i != 1 && c == 1)
-						dungeon[i][j] = 25;
+						c = 25;
 					if (j != 1 && c == 7)
-						dungeon[i][j] = 31;
+						c = 31;
 					if (i != 1 && c == 6)
-						dungeon[i][j] = 30;
+						c = 30;
 				}
+				dungeon[i][j] = c;
 			}
 
 			drlgFlags[i][j] = DLRG_PROTECTED;
