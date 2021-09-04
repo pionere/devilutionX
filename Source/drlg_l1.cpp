@@ -495,42 +495,49 @@ static void DRLG_L1PlaceDoors()
 			df = drlgFlags[i][j];
 			if ((df & ~DLRG_PROTECTED) == 0)
 				continue;
-			if (!(df & DLRG_PROTECTED)) {
+			assert(!(df & DLRG_PROTECTED));
+			//if (!(df & DLRG_PROTECTED)) {
 				c = dungeon[i][j];
 
 				if (df == DLRG_HDOOR) {
-					if (j != 1 && c == 2)
+					assert(c == 2);
+					if (j != 1 /*&& c == 2*/)
 						c = 26;
+					/* commented out because this is not possible with the current implementation
 					if (j != 1 && c == 7)
-						c = 31;
+						c = 31; -- slightly different 26
 					if (j != 1 && c == 14)
-						c = 42;
+						c = 42; -- edge with arch on the other side
 					if (j != 1 && c == 4)
-						c = 43;
+						c = 43; -- edge with wall on the other side
 					if (i != 1 && c == 1)
-						c = 25;
+						c = 25; ?
 					if (i != 1 && c == 10)
-						c = 40;
+						c = 40; ?
 					if (i != 1 && c == 6)
-						c = 30;
-				} else if (df == DLRG_VDOOR) {
-					if (i != 1 && c == 1)
+						c = 30; ? */
+				} else {
+					assert(df == DLRG_VDOOR);
+					assert(c == 1);
+					if (i != 1 /*&& c == 1*/)
 						c = 25;
+					/* commented out because this is not possible with the current implementation
 					if (i != 1 && c == 6)
-						c = 30;
+						c = 30; -- slightly different 25
 					if (i != 1 && c == 10)
-						c = 40;
+						c = 40; -- edge with arch on the other side
 					if (i != 1 && c == 4)
-						c = 41;
+						c = 41; -- edge with wall on the other side
 					if (j != 1 && c == 2)
-						c = 26;
+						c = 26; ?
 					if (j != 1 && c == 14)
-						c = 42;
+						c = 42; ?
 					if (j != 1 && c == 7)
-						c = 31;
-				} else if (df == (DLRG_HDOOR | DLRG_VDOOR)) {
+						c = 31; ? */
+				} /* commented out because this is not possible with the current implementation
+				  else if (df == (DLRG_HDOOR | DLRG_VDOOR)) {
 					if (i != 1 && j != 1 && c == 4)
-						c = 28;
+						c = 28; -- edge with double door
 					if (i != 1 && c == 10)
 						c = 40;
 					if (j != 1 && c == 14)
@@ -543,9 +550,9 @@ static void DRLG_L1PlaceDoors()
 						c = 31;
 					if (i != 1 && c == 6)
 						c = 30;
-				}
+				}*/
 				dungeon[i][j] = c;
-			}
+			//}
 
 			drlgFlags[i][j] = DLRG_PROTECTED;
 		}
@@ -1147,7 +1154,8 @@ static void L1HorizWall(int i, int j, int dx)
 	wt = (dt == 12 || random_(0, 6) == 5) ? 12 : 2;
 	dungeon[i + xx][j] = wt;
 	if (wt != 12) {
-		drlgFlags[i + xx][j] |= DLRG_HDOOR;
+		assert(drlgFlags[i + xx][j] == 0);
+		drlgFlags[i + xx][j] = DLRG_HDOOR;
 	}
 }
 
@@ -1228,7 +1236,8 @@ static void L1VertWall(int i, int j, int dy)
 	wt = (dt == 11 || random_(0, 6) == 5) ? 11 : 1;
 	dungeon[i][j + yy] = wt;
 	if (wt != 11) {
-		drlgFlags[i][j + yy] |= DLRG_VDOOR;
+		assert(drlgFlags[i][j + yy] == 0);
+		drlgFlags[i][j + yy] = DLRG_VDOOR;
 	}
 }
 
