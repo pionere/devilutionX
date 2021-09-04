@@ -1512,8 +1512,10 @@ static void L1tileFix()
 					dungeon[i + 1][j] = 18; // right cover
 				if (v1 == 13 && v2 == 2)
 					dungeon[i + 1][j] = 7;  // right + top cover
-				if (v1 == 6 && v2 == 22)
-					dungeon[i + 1][j] = 24;
+				// impossible case I.
+				//  piece 6 must have been piece 1 and which can not have piece 22 on the right
+				//if (v1 == 6 && v2 == 22)
+				//	dungeon[i + 1][j] = 24;
 			}
 			if (j + 1 < DMAXY) {
 				v2 = dungeon[i][j + 1];
@@ -1534,8 +1536,10 @@ static void L1tileFix()
 				v2 = dungeon[i + 1][j];
 				if (v1 == 13 && v2 == 19)
 					dungeon[i + 1][j] = 21; // bottom cover ++ right cover
-				if (v1 == 13 && v2 == 22)
-					dungeon[i + 1][j] = 20;
+				// impossible case II.
+				//  the first loop converts these to 18
+				//if (v1 == 13 && v2 == 22)
+				//	dungeon[i + 1][j] = 20; // right cover
 				if (v1 == 13 && v2 == 24)
 					dungeon[i + 1][j] = 21; // bottom-left cover ++ right cover
 				if (v1 == 7 && v2 == 22)
@@ -1560,8 +1564,10 @@ static void L1tileFix()
 					dungeon[i + 1][j] = 21;
 				if (v1 == 2 && v2 == 13)
 					dungeon[i + 1][j] = 17;
-				if (v1 == 3 && v2 == 22)
-					dungeon[i + 1][j] = 24;
+				// impossible case III.
+				//  piece 3 is a fix chamber-piece with floor next to it.
+				//if (v1 == 3 && v2 == 22)
+				//	dungeon[i + 1][j] = 24;
 				if (v1 == 21 && v2 == 1)
 					dungeon[i + 1][j] = 6;
 				if (v1 == 4 && v2 == 16)
@@ -1569,8 +1575,10 @@ static void L1tileFix()
 			}
 			if (i != 0) {
 				v2 = dungeon[i - 1][j];
-				if (v1 == 23 && v2 == 22)
-					dungeon[i - 1][j] = 19;
+				// impossible case IV.  (impossible case VI. is depending on this)
+				//  piece 23 is set only if there was piece 2 or 7 on the left side.
+				//if (v1 == 23 && v2 == 22)
+				//	dungeon[i - 1][j] = 19;
 				if (v1 == 19 && v2 == 23)
 					dungeon[i - 1][j] = 21;
 				if (v1 == 6 && v2 == 22)
@@ -1614,10 +1622,14 @@ static void L1tileFix()
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			v1 = dungeon[i][j];
-			if (v1 == 4 && j + 1 < DMAXY && dungeon[i][j + 1] == 2)
-				dungeon[i][j + 1] = 7;
-			if (v1 == 2 && i + 1 < DMAXX && dungeon[i + 1][j] == 19)
-				dungeon[i + 1][j] = 21;
+			// impossible case V.
+			//  piece 2 and 4 are only added from L1ConvTbl and piece 4 can not have piece 2 on the bottom.
+			//if (v1 == 4 && j + 1 < DMAXY && dungeon[i][j + 1] == 2)
+			//	dungeon[i][j + 1] = 7;
+			// impossible case VI. (depends on impossible case IV.)
+			//  piece 19 must have had piece 13 on top and piece is only added from L1ConvTbl
+			//if (v1 == 2 && i + 1 < DMAXX && dungeon[i + 1][j] == 19)
+			//	dungeon[i + 1][j] = 21;
 			if (v1 == 18 && j + 1 < DMAXY && dungeon[i][j + 1] == 22)
 				dungeon[i][j + 1] = 20;
 		}
