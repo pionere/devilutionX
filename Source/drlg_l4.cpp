@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L4 (30 - 1)
 
-BYTE dung[20][20];
+static BYTE dungBlock[20][20];
 
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
@@ -969,28 +969,28 @@ static void DRLG_L4Subs()
 	}
 }
 
-/** Fill dungeon based on the dung matrix. */
+/** Fill dungeon based on the dungBlock matrix. */
 static void L4makeDungeon()
 {
 	int i, j;
 	for (j = 0; j < 20; j++) {
 		for (i = 0; i < 20; i++) {
-			dungeon[i][j] = dung[i][j];
+			dungeon[i][j] = dungBlock[i][j];
 		}
 	}
 	for (j = 0; j < 20; j++) {
 		for (i = 0; i < 20; i++) {
-			dungeon[i][j + 20] = dung[i][19 - j];
+			dungeon[i][j + 20] = dungBlock[i][19 - j];
 		}
 	}
 	for (j = 0; j < 20; j++) {
 		for (i = 0; i < 20; i++) {
-			dungeon[i + 20][j] = dung[19 - i][j];
+			dungeon[i + 20][j] = dungBlock[19 - i][j];
 		}
 	}
 	for (j = 0; j < 20; j++) {
 		for (i = 0; i < 20; i++) {
-			dungeon[i + 20][j + 20] = dung[19 - i][19 - j];
+			dungeon[i + 20][j + 20] = dungBlock[19 - i][19 - j];
 		}
 	}
 }
@@ -1002,12 +1002,12 @@ static void uShape()
 
 	for (j = 19; j >= 0; j--) {
 		for (i = 19; i >= 0; i--) {
-			if (dung[i][j] != 1) {
+			if (dungBlock[i][j] != 1) {
 				hallok[j] = false;
 			} else {
 				// BUGFIX: check that i + 1 < 20 and j + 1 < 20 (fixed)
 				if (i + 1 < 20 && j + 1 < 20
-				    && dung[i][j + 1] == 1 && dung[i + 1][j + 1] == 0) {
+				    && dungBlock[i][j + 1] == 1 && dungBlock[i + 1][j + 1] == 0) {
 					hallok[j] = true;
 				} else {
 					hallok[j] = false;
@@ -1021,12 +1021,12 @@ static void uShape()
 	do {
 		if (hallok[rv]) {
 			for (i = 19; i >= 0; i--) {
-				if (dung[i][rv] == 1) {
+				if (dungBlock[i][rv] == 1) {
 					i = -1;
 					rv = 0;
 				} else {
-					dung[i][rv] = 1;
-					dung[i][rv + 1] = 1;
+					dungBlock[i][rv] = 1;
+					dungBlock[i][rv + 1] = 1;
 				}
 			}
 		} else {
@@ -1039,13 +1039,13 @@ static void uShape()
 
 	for (i = 19; i >= 0; i--) {
 		for (j = 19; j >= 0; j--) {
-			if (dung[i][j] != 1) {
+			if (dungBlock[i][j] != 1) {
 				hallok[i] = false;
 			}
-			if (dung[i][j] == 1) {
+			if (dungBlock[i][j] == 1) {
 				// BUGFIX: check that i + 1 < 20 and j + 1 < 20 (fixed)
 				if (i + 1 < 20 && j + 1 < 20
-				    && dung[i + 1][j] == 1 && dung[i + 1][j + 1] == 0) {
+				    && dungBlock[i + 1][j] == 1 && dungBlock[i + 1][j + 1] == 0) {
 					hallok[i] = true;
 				} else {
 					hallok[i] = false;
@@ -1059,12 +1059,12 @@ static void uShape()
 	do {
 		if (hallok[rv]) {
 			for (j = 19; j >= 0; j--) {
-				if (dung[rv][j] == 1) {
+				if (dungBlock[rv][j] == 1) {
 					j = -1;
 					rv = 0;
 				} else {
-					dung[rv][j] = 1;
-					dung[rv + 1][j] = 1;
+					dungBlock[rv][j] = 1;
+					dungBlock[rv + 1][j] = 1;
 				}
 			}
 		} else {
@@ -1082,8 +1082,8 @@ static int GetArea()
 	BYTE *pTmp;
 
 	rv = 0;
-	static_assert(sizeof(dung) == 20 * 20, "Linear traverse of dung does not work in GetArea.");
-	pTmp = &dung[0][0];
+	static_assert(sizeof(dungBlock) == 20 * 20, "Linear traverse of dungBlock does not work in GetArea.");
+	pTmp = &dungBlock[0][0];
 	for (i = 0; i < 20 * 20; i++, pTmp++) {
 		assert(*pTmp <= 1);
 		rv += *pTmp;
@@ -1100,7 +1100,7 @@ static void L4drawRoom(int x, int y, int width, int height)
 	y2 = y + height;
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
-			dung[i][j] = 1;
+			dungBlock[i][j] = 1;
 		}
 	}
 }
@@ -1119,7 +1119,7 @@ static bool L4checkRoom(int x, int y, int width, int height)
 
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
-			if (dung[i][j] != 0) {
+			if (dungBlock[i][j] != 0) {
 				return false;
 			}
 		}
@@ -1751,10 +1751,10 @@ static void L4FixRim()
 	int i, j;
 
 	for (i = 0; i < 20; i++) {
-		dung[i][0] = 0;
+		dungBlock[i][0] = 0;
 	}
 	for (j = 0; j < 20; j++) {
-		dung[0][j] = 0;
+		dungBlock[0][j] = 0;
 	}
 }
 
@@ -1801,7 +1801,7 @@ static void DRLG_L4(int entry)
 
 	do {
 		do {
-			memset(dung, 0, sizeof(dung));
+			memset(dungBlock, 0, sizeof(dungBlock));
 
 			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
 			//memset(dungeon, 30, sizeof(dungeon));
