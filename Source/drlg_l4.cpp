@@ -191,15 +191,6 @@ static void DRLG_L4Shadows()
 	}
 }
 
-static void InitL4Dungeon()
-{
-	memset(dung, 0, sizeof(dung));
-	memset(drlgFlags, 0, sizeof(drlgFlags));
-
-	//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in InitL4Dungeon.");
-	//memset(dungeon, 30, sizeof(dungeon));
-}
-
 static void DRLG_LoadL4SP()
 {
 	assert(pSetPiece == NULL);
@@ -999,6 +990,7 @@ static void DRLG_L4Subs()
 	}
 }
 
+/** Fill dungeon based on the dung matrix. */
 static void L4makeDungeon()
 {
 	int i, j;
@@ -1830,7 +1822,10 @@ static void DRLG_L4(int entry)
 
 	do {
 		do {
-			InitL4Dungeon();
+			memset(dung, 0, sizeof(dung));
+
+			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
+			//memset(dungeon, 30, sizeof(dungeon));
 			L4firstRoom();
 			L4FixRim();
 		} while (GetArea() < 173);
@@ -1839,6 +1834,7 @@ static void DRLG_L4(int entry)
 		L4makeDungeon();
 		DRLG_L4MakeMegas();
 		L4tileFix();
+		memset(drlgFlags, 0, sizeof(drlgFlags));
 		if (pSetPiece != NULL) {
 			DRLG_L4SetSPRoom(setpc_x, setpc_y);
 		}
@@ -1934,8 +1930,11 @@ void CreateL4Dungeon(int entry)
 	uint16_t rw, rh, *lm;
 
 	//DRLG_InitTrans();
-	InitL4Dungeon();
 	pMap = LoadFileInMem(sFileName);
+
+	//memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
+	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL4DungeonData.");
+	memset(dungeon, BASE_MEGATILE_L4 + 1, sizeof(dungeon));
 
 	lm = (uint16_t *)pMap;
 	rw = SwapLE16(*lm);
@@ -1947,13 +1946,14 @@ void CreateL4Dungeon(int entry)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				dungeon[i][j] = SwapLE16(*lm);
-				drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED;
+				//drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED; - unused on setmaps
 			} else {
 				dungeon[i][j] = 6;
 			}
 			lm++;
 		}
 	}
+
 	return pMap;
 }
 
@@ -1961,23 +1961,26 @@ static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 {
 	BYTE *pMap;
 
-	DRLG_InitTrans();
+	ViewX = vx;
+	ViewY = vy;
 
 	pMap = LoadL4DungeonData(sFileName);
 
-	ViewX = vx;
-	ViewY = vy;
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
+	DRLG_InitTrans();
 	DRLG_Init_Globals();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
 
 	SetMapMonsters(pMap, 0, 0);
 	SetMapObjects(pMap);
+
 	mem_free_dbg(pMap);
 }
 
 static void LoadPreL4Dungeon(char *sFileName)
 {
 	BYTE *pMap = LoadL4DungeonData(sFileName);
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	mem_free_dbg(pMap);
 }*/

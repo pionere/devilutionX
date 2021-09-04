@@ -857,7 +857,8 @@ static BYTE *LoadL1DungeonData(const char *sFileName)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				dungeon[i][j] = SwapLE16(*lm);
-				drlgFlags[i][j] = DLRG_PROTECTED;
+				// no need to protect the fields, DRLG_L1Floor is a harmless floor-replacement
+				//drlgFlags[i][j] = DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 13;
 			}
@@ -897,12 +898,6 @@ void LoadPreL1Dungeon(const char *sFileName)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	mem_free_dbg(pMap);
-}
-
-static void InitL1Dungeon()
-{
-	memset(dungeon, 0, sizeof(dungeon));
-	memset(drlgFlags, 0, sizeof(drlgFlags));
 }
 
 static void L1ClearChamberFlags()
@@ -2054,11 +2049,13 @@ static void DRLG_L1(int entry)
 
 	do {
 		do {
-			InitL1Dungeon();
+			static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L1.");
+			memset(dungeon, 0, sizeof(dungeon));
 			L1firstRoom();
 		} while (L1GetArea() < minarea);
 
 		DRLG_L1MakeMegas();
+		memset(drlgFlags, 0, sizeof(drlgFlags));
 		L1FillChambers();
 		L1tileFix();
 		L1AddWall();

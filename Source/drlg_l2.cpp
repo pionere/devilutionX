@@ -1693,14 +1693,6 @@ static void DRLG_L2Shadows()
 	}
 }
 
-static void DRLG_L2InitDungeon()
-{
-	memset(drlgFlags, 0, sizeof(drlgFlags));
-
-	static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L2InitDungeon.");
-	memset(pdungeon, 32, sizeof(pdungeon));
-}
-
 static void DRLG_LoadL2SP()
 {
 	assert(pSetPiece == NULL);
@@ -3078,13 +3070,15 @@ static void DRLG_L2(int entry)
 
 	do {
 		do {
-			DRLG_L2InitDungeon();
+			static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L2.");
+			memset(pdungeon, 32, sizeof(pdungeon));
 			DRLG_L2CreateDungeon();
 		} while (!DL2_FillVoids());
 
 		DRLG_L2MakeMegas();
 
 		L2TileFix();
+		memset(drlgFlags, 0, sizeof(drlgFlags));
 		if (pSetPiece != NULL) {
 			DRLG_L2SetRoom(setpc_x, setpc_y);
 		}
@@ -3261,7 +3255,6 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 	BYTE* pMap;
 	uint16_t rw, rh, *lm;
 
-	//DRLG_L2InitDungeon();
 	//DRLG_InitTrans();
 	pMap = LoadFileInMem(sFileName);
 

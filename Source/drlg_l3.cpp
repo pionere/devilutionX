@@ -735,12 +735,6 @@ const BYTE L6LPOOL2[] = {
 };
 #endif
 
-static void InitL3Dungeon()
-{
-	memset(dungeon, 0, sizeof(dungeon));
-	memset(drlgFlags, 0, sizeof(drlgFlags));
-}
-
 static void DRLG_LoadL3SP()
 {
 	assert(pSetPiece == NULL);
@@ -2025,7 +2019,8 @@ static void DRLG_L3(int entry)
 	do {
 		do {
 			do {
-				InitL3Dungeon();
+				static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3.");
+				memset(dungeon, 0, sizeof(dungeon));
 				DRLG_L3CreateBlock(RandRange(10, 29), RandRange(10, 29), 0, 4);
 				if (pSetPiece != NULL) {
 					setpc_w = pSetPiece[0];
@@ -2042,6 +2037,7 @@ static void DRLG_L3(int entry)
 				DRLG_L3Edges();
 			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
+			memset(drlgFlags, 0, sizeof(drlgFlags));
 			if (pSetPiece != NULL) {
 				DRLG_L3SetRoom(setpc_x, setpc_y);
 			}
@@ -2280,7 +2276,6 @@ static BYTE *LoadL3DungeonData(const char *sFileName)
 	BYTE* pMap;
 	uint16_t rw, rh, *lm;
 
-	//InitL3Dungeon();
 	//DRLG_InitTrans();
 	pMap = LoadFileInMem(sFileName);
 
