@@ -555,16 +555,16 @@ static void L4tileFix()
 			case 2:
 				if (dungeon[i + 1][j] == 15)
 					dungeon[i + 1][j] = 14;
+				if (dungeon[i + 1][j] == 18)
+					dungeon[i + 1][j] = 25;
 				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 9)
+					dungeon[i + 1][j] = 29;
+				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 30)
+					dungeon[i + 1][j] = 29;
+				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 2)
 					dungeon[i + 1][j] = 29;
 				if (dungeon[i + 1][j] == 30)
 					dungeon[i + 1][j] = 28;
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i + 1][j] = 29;
-				if (dungeon[i + 1][j] == 18)
-					dungeon[i + 1][j] = 25;
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 2)
-					dungeon[i + 1][j] = 29;
 				if (dungeon[i + 1][j] == 28 && dungeon[i + 1][j - 1] == 6)
 					dungeon[i + 1][j] = 23;
 				break;
@@ -575,8 +575,6 @@ static void L4tileFix()
 					dungeon[i + 1][j] = 21;
 				break;
 			case 9:
-				if (dungeon[i + 1][j] == 15)
-					dungeon[i + 1][j] = 14;
 				if (dungeon[i + 1][j] == 15)
 					dungeon[i + 1][j] = 14;
 				break;
@@ -617,20 +615,20 @@ static void L4tileFix()
 					dungeon[i + 1][j] = 23;
 				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 30)
 					dungeon[i + 1][j] = 29;
-				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4;
 				if (dungeon[i + 1][j] == 1)
 					dungeon[i + 1][j] = 16;
+				if (dungeon[i][j + 1] == 3)
+					dungeon[i][j + 1] = 4;
 				break;
 			case 16:
-				if (dungeon[i + 1][j] == 6 && dungeon[i][j + 1] == 30)
+				if (dungeon[i][j + 1] == 30 && dungeon[i + 1][j] == 6)
 					dungeon[i][j + 1] = 27;
 				if (dungeon[i][j + 1] == 30 && dungeon[i + 1][j + 1] == 30)
 					dungeon[i][j + 1] = 27;
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
 				if (dungeon[i][j + 1] == 30)
 					dungeon[i][j + 1] = 18;
+				if (dungeon[i][j + 1] == 2)
+					dungeon[i][j + 1] = 15;
 				break;
 			case 18:
 				if (dungeon[i][j + 1] == 30)
@@ -639,8 +637,6 @@ static void L4tileFix()
 					dungeon[i][j + 1] = 15;
 				if (dungeon[i][j + 1] == 9)
 					dungeon[i][j + 1] = 10;
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
 				break;
 			case 19:
 				if (dungeon[i + 1][j] == 27)
@@ -699,26 +695,26 @@ static void L4tileFix()
 					dungeon[i + 1][j] = 16;
 				if (dungeon[i + 1][j] == 30)
 					dungeon[i + 1][j] = 19;
+				if (dungeon[i + 1][j] == 9)
+					dungeon[i + 1][j] = 11;
 				if (dungeon[i][j + 1] == 9)
+					dungeon[i][j + 1] = 15;
+				if (dungeon[i][j + 1] == 2)
 					dungeon[i][j + 1] = 15;
 				if (dungeon[i][j + 1] == 30)
 					dungeon[i][j + 1] = 18;
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
-				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11;
 				break;
 			case 23:
 				if (dungeon[i][j + 1] == 2)
 					dungeon[i][j + 1] = 15;
 				if (dungeon[i][j + 1] == 9)
 					dungeon[i][j + 1] = 15;
+				if (dungeon[i][j + 1] == 30)
+					dungeon[i][j + 1] = 18;
 				if (dungeon[i + 1][j] == 9)
 					dungeon[i + 1][j] = 11;
 				if (dungeon[i + 1][j] == 1)
 					dungeon[i + 1][j] = 16;
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18;
 				if (dungeon[i + 1][j] == 18 && dungeon[i][j - 1] == 6)
 					dungeon[i + 1][j] = 24;
 				if (dungeon[i + 1][j] == 30)
@@ -737,20 +733,11 @@ static void L4tileFix()
 					dungeon[i][j + 1] = 18;
 				break;
 			case 26:
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16;
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19;
-				break;
 			case 27:
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19;
 				if (dungeon[i + 1][j] == 1)
 					dungeon[i + 1][j] = 16;
 				if (dungeon[i + 1][j] == 30)
 					dungeon[i + 1][j] = 19;
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16;
 				break;
 			case 28:
 				if (dungeon[i][j + 1] == 30)
@@ -777,8 +764,6 @@ static void L4tileFix()
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
 			case 1:
-				if (dungeon[i][j - 1] == 6)
-					dungeon[i][j - 1] = 7;
 				if (dungeon[i][j + 1] == 3)
 					dungeon[i][j + 1] = 4;
 				if (dungeon[i][j + 1] == 6)
@@ -787,6 +772,8 @@ static void L4tileFix()
 					dungeon[i][j + 1] = 12;
 				if (dungeon[i][j + 1] == 16)
 					dungeon[i][j + 1] = 13;
+				if (dungeon[i][j - 1] == 6)
+					dungeon[i][j - 1] = 7;
 				if (dungeon[i][j - 1] == 8)
 					dungeon[i][j - 1] = 9;
 				break;
@@ -821,6 +808,7 @@ static void L4tileFix()
 					dungeon[i + 1][j] = 12;
 				break;
 			case 11:
+			case 14:
 				if (dungeon[i + 1][j] == 3)
 					dungeon[i + 1][j] = 5;
 				if (dungeon[i + 1][j] == 4)
@@ -831,12 +819,6 @@ static void L4tileFix()
 					dungeon[i][j + 1] = 4;
 				if (dungeon[i][j + 1] == 5)
 					dungeon[i][j + 1] = 12;
-				break;
-			case 14:
-				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12;
-				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5;
 				break;
 			case 15:
 				if (dungeon[i + 1][j + 1] == 9 && dungeon[i + 1][j - 1] == 1 && dungeon[i + 2][j] == 16)
@@ -889,15 +871,12 @@ static void L4tileFix()
 			case 10:
 				if (dungeon[i + 1][j] == 4)
 					dungeon[i + 1][j] = 12;
-				if (dungeon[i][j + 1] == 16)
-					dungeon[i][j + 1] = 13;
 				if (dungeon[i + 1][j] == 3 && dungeon[i + 1][j - 1] == 16)
 					dungeon[i + 1][j] = 12;
+				if (dungeon[i][j + 1] == 16)
+					dungeon[i][j + 1] = 13;
 				break;
 			case 11:
-				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12;
-				break;
 			case 13:
 				if (dungeon[i][j + 1] == 5)
 					dungeon[i][j + 1] = 12;
