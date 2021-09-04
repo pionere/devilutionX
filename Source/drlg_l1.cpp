@@ -507,62 +507,70 @@ static void DRLG_InitL5Vals()
  * Place doors on the marked places.
  * New dungeon values: 25, 26, 28, 30, 31, 40, 41, 42, 43
  */
-static void DRLG_L1PlaceDoor(int x, int y)
+static void DRLG_L1PlaceDoors()
 {
-	BYTE df = drlgFlags[x][y];
+	int i, j;
+	BYTE df, c;
 
-	if (!(df & DLRG_PROTECTED)) {
-		BYTE c = dungeon[x][y];
+	for (j = 0; j < DMAXY; j++) {
+		for (i = 0; i < DMAXX; i++) {
+			df = drlgFlags[i][j];
+			if ((df & ~DLRG_PROTECTED) == 0)
+				continue;
+			if (!(df & DLRG_PROTECTED)) {
+				c = dungeon[i][j];
 
-		if (df == DLRG_HDOOR) {
-			if (y != 1 && c == 2)
-				dungeon[x][y] = 26;
-			if (y != 1 && c == 7)
-				dungeon[x][y] = 31;
-			if (y != 1 && c == 14)
-				dungeon[x][y] = 42;
-			if (y != 1 && c == 4)
-				dungeon[x][y] = 43;
-			if (x != 1 && c == 1)
-				dungeon[x][y] = 25;
-			if (x != 1 && c == 10)
-				dungeon[x][y] = 40;
-			if (x != 1 && c == 6)
-				dungeon[x][y] = 30;
-		} else if (df == DLRG_VDOOR) {
-			if (x != 1 && c == 1)
-				dungeon[x][y] = 25;
-			if (x != 1 && c == 6)
-				dungeon[x][y] = 30;
-			if (x != 1 && c == 10)
-				dungeon[x][y] = 40;
-			if (x != 1 && c == 4)
-				dungeon[x][y] = 41;
-			if (y != 1 && c == 2)
-				dungeon[x][y] = 26;
-			if (y != 1 && c == 14)
-				dungeon[x][y] = 42;
-			if (y != 1 && c == 7)
-				dungeon[x][y] = 31;
-		} else if (df == (DLRG_HDOOR | DLRG_VDOOR)) {
-			if (x != 1 && y != 1 && c == 4)
-				dungeon[x][y] = 28;
-			if (x != 1 && c == 10)
-				dungeon[x][y] = 40;
-			if (y != 1 && c == 14)
-				dungeon[x][y] = 42;
-			if (y != 1 && c == 2)
-				dungeon[x][y] = 26;
-			if (x != 1 && c == 1)
-				dungeon[x][y] = 25;
-			if (y != 1 && c == 7)
-				dungeon[x][y] = 31;
-			if (x != 1 && c == 6)
-				dungeon[x][y] = 30;
+				if (df == DLRG_HDOOR) {
+					if (j != 1 && c == 2)
+						dungeon[i][j] = 26;
+					if (j != 1 && c == 7)
+						dungeon[i][j] = 31;
+					if (j != 1 && c == 14)
+						dungeon[i][j] = 42;
+					if (j != 1 && c == 4)
+						dungeon[i][j] = 43;
+					if (i != 1 && c == 1)
+						dungeon[i][j] = 25;
+					if (i != 1 && c == 10)
+						dungeon[i][j] = 40;
+					if (i != 1 && c == 6)
+						dungeon[i][j] = 30;
+				} else if (df == DLRG_VDOOR) {
+					if (i != 1 && c == 1)
+						dungeon[i][j] = 25;
+					if (i != 1 && c == 6)
+						dungeon[i][j] = 30;
+					if (i != 1 && c == 10)
+						dungeon[i][j] = 40;
+					if (i != 1 && c == 4)
+						dungeon[i][j] = 41;
+					if (j != 1 && c == 2)
+						dungeon[i][j] = 26;
+					if (j != 1 && c == 14)
+						dungeon[i][j] = 42;
+					if (j != 1 && c == 7)
+						dungeon[i][j] = 31;
+				} else if (df == (DLRG_HDOOR | DLRG_VDOOR)) {
+					if (i != 1 && j != 1 && c == 4)
+						dungeon[i][j] = 28;
+					if (i != 1 && c == 10)
+						dungeon[i][j] = 40;
+					if (j != 1 && c == 14)
+						dungeon[i][j] = 42;
+					if (j != 1 && c == 2)
+						dungeon[i][j] = 26;
+					if (i != 1 && c == 1)
+						dungeon[i][j] = 25;
+					if (j != 1 && c == 7)
+						dungeon[i][j] = 31;
+					if (i != 1 && c == 6)
+						dungeon[i][j] = 30;
+				}
+			}
+
+			drlgFlags[i][j] = DLRG_PROTECTED;
 		}
 	}
-
-	drlgFlags[x][y] = DLRG_PROTECTED;
 }
 
 #ifdef HELLFIRE
@@ -2073,7 +2081,7 @@ static bool DRLG_L1PlaceMiniSets(mini_set* minisets, int n)
 
 static void DRLG_L1(int entry)
 {
-	int i, j;
+	int i;
 	int minarea;
 	bool doneflag;
 
@@ -2160,12 +2168,7 @@ static void DRLG_L1(int entry)
 	DRLG_L1DirtFix();
 	DRLG_L1CornerFix();
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (drlgFlags[i][j] & ~DLRG_PROTECTED)
-				DRLG_L1PlaceDoor(i, j);
-		}
-	}
+	DRLG_L1PlaceDoors();
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
