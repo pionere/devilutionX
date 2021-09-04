@@ -104,6 +104,7 @@ const BYTE BSTYPES[] = {
 /*
  * Maps tile IDs to their corresponding undecorated tile ID.
  * Values with a single entry are commented out, because pointless to randomize a single option.
+ * Values 25, 79 and 80 are not used at the moment
  * BUGFIX: This array should contain an additional 0 (207 elements) (fixed).
  */
 const BYTE L1BTYPES[] = {
@@ -1671,6 +1672,9 @@ static void DRLG_L1Subs()
 				BYTE c = L1BTYPES[dungeon[x][y]];
 
 				if (c != 0 && drlgFlags[x][y] == 0) {
+					// assert(c != 25);
+					assert(c != 79);
+					assert(c != 80);
 					rv = random_(0, 16);
 					i = -1;
 
@@ -1681,20 +1685,22 @@ static void DRLG_L1Subs()
 							rv--;
 					}
 
+					assert(i != 89);
 					// BUGFIX: Add `&& y > 0` to the if statement. (fixed)
-					if (i == 89 && y > 0) {
+					/*if (i == 89 && y > 0) {
 						if (L1BTYPES[dungeon[x][y - 1]] != 79 || drlgFlags[x][y - 1] != 0)
 							i = 79;
 						else
 							dungeon[x][y - 1] = 90;
-					}
+					}*/
+					assert(i != 91);
 					// BUGFIX: Add `&& x + 1 < DMAXX` to the if statement. (fixed)
-					if (i == 91 && x + 1 < DMAXX) {
+					/*if (i == 91 && x + 1 < DMAXX) {
 						if (L1BTYPES[dungeon[x + 1][y]] != 80 || drlgFlags[x + 1][y] != 0)
 							i = 80;
 						else
 							dungeon[x + 1][y] = 92;
-					}
+					}*/
 					dungeon[x][y] = i;
 				}
 			}
