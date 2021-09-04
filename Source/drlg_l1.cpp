@@ -7,9 +7,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Starting position of the megatiles. */
+/** Starting position of the base megatiles. */
 #define BASE_MEGATILE_L1	(22 - 1)
-
+/** Size of the main chambers in the dungeon. */
 #define CHAMBER_SIZE		10
 /** Shadow type of the base floor(13). */
 #define SF					4
@@ -101,8 +101,11 @@ const BYTE BSTYPES[] = {
 	// clang-format on
 };
 
-// BUGFIX: This array should contain an additional 0 (207 elements) (fixed).
-/** Maps tile IDs to their corresponding undecorated tile ID. */
+/*
+ * Maps tile IDs to their corresponding undecorated tile ID.
+ * Values with a single entry are commented out, because pointless to randomize a single option.
+ * BUGFIX: This array should contain an additional 0 (207 elements) (fixed).
+ */
 const BYTE L1BTYPES[] = {
 	// clang-format off
 	0, 1, 2, 0/*3*/, 0/*4*/, 0/*5*/, 0/*6*/, 0/*7*/, 0/*8*/, 0/*9*/,
@@ -500,6 +503,10 @@ static void DRLG_InitL5Vals()
 }
 #endif
 
+/*
+ * Place doors on the marked places.
+ * New dungeon values: 25, 26, 28, 30, 31, 40, 41, 42, 43
+ */
 static void DRLG_L1PlaceDoor(int x, int y)
 {
 	BYTE df = drlgFlags[x][y];
@@ -1093,6 +1100,10 @@ static int L1GetArea()
 	return rv;
 }
 
+/*
+ * Transform dungeon by replacing values using 2x2 block patterns defined in L1ConvTbl
+ * New dungeon values: 1 2 4 13 16 22
+ */
 static void DRLG_L1MakeMegas()
 {
 	int i, j;
@@ -1263,6 +1274,10 @@ static void L1AddVWall(int x, int y)
 	//return false;
 }
 
+/*
+ * Draw walls between pillars (out of the chambers)
+ * New dungeon values: 27 35 36 37
+ */
 static void L1AddWall()
 {
 	int i, j;
@@ -1386,6 +1401,10 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 	}
 }
 
+/*
+ * Add pillars to the chambers.
+ * New dungeon values: (1 2) 3 5 8 9 10 11 12 14 15 21
+ */
 static void L1FillChambers()
 {
 	int c;
@@ -1455,6 +1474,10 @@ static void L1FillChambers()
 	}
 }
 
+/*
+ * Place special pieces on the border of the dungeon.
+ * New dungeon values: 6 7 17 18 19 20 23 24
+ */
 static void L1tileFix()
 {
 	int i, j;
@@ -1469,22 +1492,22 @@ static void L1tileFix()
 			if (i + 1 < DMAXX) {
 				v2 = dungeon[i + 1][j];
 				if (v1 == 2 && v2 == 22)
-					dungeon[i + 1][j] = 23;
+					dungeon[i + 1][j] = 23; // top-right cover
 				if (v1 == 13 && v2 == 22)
-					dungeon[i + 1][j] = 18;
+					dungeon[i + 1][j] = 18; // right cover
 				if (v1 == 13 && v2 == 2)
-					dungeon[i + 1][j] = 7;
+					dungeon[i + 1][j] = 7;  // right + top cover
 				if (v1 == 6 && v2 == 22)
 					dungeon[i + 1][j] = 24;
 			}
 			if (j + 1 < DMAXY) {
 				v2 = dungeon[i][j + 1];
 				if (v1 == 1 && v2 == 22)
-					dungeon[i][j + 1] = 24;
+					dungeon[i][j + 1] = 24; // bottom-left cover
 				if (v1 == 13 && v2 == 1)
-					dungeon[i][j + 1] = 6;
+					dungeon[i][j + 1] = 6; // bottom + left cover
 				if (v1 == 13 && v2 == 22)
-					dungeon[i][j + 1] = 19;
+					dungeon[i][j + 1] = 19; // bottom cover
 			}
 		}
 	}
@@ -1495,15 +1518,15 @@ static void L1tileFix()
 			if (i + 1 < DMAXX) {
 				v2 = dungeon[i + 1][j];
 				if (v1 == 13 && v2 == 19)
-					dungeon[i + 1][j] = 21;
+					dungeon[i + 1][j] = 21; // bottom cover ++ right cover
 				if (v1 == 13 && v2 == 22)
 					dungeon[i + 1][j] = 20;
 				if (v1 == 13 && v2 == 24)
-					dungeon[i + 1][j] = 21;
+					dungeon[i + 1][j] = 21; // bottom-left cover ++ right cover
 				if (v1 == 7 && v2 == 22)
-					dungeon[i + 1][j] = 23;
+					dungeon[i + 1][j] = 23; // convert right + top cover
 				if (v1 == 7 && v2 == 19)
-					dungeon[i + 1][j] = 21;
+					dungeon[i + 1][j] = 21; // bottom cover ++ right cover
 				if (v1 == 7 && v2 == 1)
 					dungeon[i + 1][j] = 6;
 				if (v1 == 7 && v2 == 24)
@@ -1944,6 +1967,10 @@ static void DRLG_L1TransFix()
 	}*/
 }
 
+/*
+ * 'Close' walls with proper pieces.
+ * New dungeon values: 199 200 202 204 205 / 82 83 85 87 88
+ */
 static void DRLG_L1DirtFix()
 {
 	int i, j;
@@ -1996,16 +2023,31 @@ static void DRLG_L1DirtFix()
 	}
 }
 
+/*
+ * Miniset replacement of corner tiles.
+ * New dungeon values: (8 16)
+ * TODO: use DRLG_PlaceMiniSet instead?
+ */
 static void DRLG_L1CornerFix()
 {
 	int i, j;
 
 	for (j = 1; j < DMAXY - 1; j++) {
 		for (i = 1; i < DMAXX - 1; i++) {
+			// 0,  1, 0,  search
+			//13, 17, 0,
+
+			// 0,  0, 0, replace
+			// 0, 16, 0,
 			if (!(drlgFlags[i][j] & DLRG_PROTECTED) && dungeon[i][j] == 17 && dungeon[i - 1][j] == 13 && dungeon[i][j - 1] == 1) {
 				dungeon[i][j] = 16;
 				drlgFlags[i][j - 1] &= DLRG_PROTECTED;
 			}
+			// 0, 202, 13,  search
+			// 0,   1,  0,
+
+			// 0,   8,  0, replace
+			// 0,   0,  0,
 			if (dungeon[i][j] == 202 && dungeon[i + 1][j] == 13 && dungeon[i][j + 1] == 1) {
 				dungeon[i][j] = 8;
 			}
