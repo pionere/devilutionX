@@ -720,31 +720,45 @@ static void DRLG_L1Shadows()
 		}
 	}
 
-	for (y = 1; y < DMAXY; y++) {
-		for (x = 1; x < DMAXX; x++) {
-			if (dungeon[x - 1][y] == 139 && drlgFlags[x - 1][y] == 0) {
-				tnv3 = dungeon[x][y];
-				if (tnv3 == 29 || tnv3 == 32 || tnv3 == 35 || tnv3 == 37 || tnv3 == 38 || tnv3 == 39)
+	// add shadow of a lattice from the tile on the right
+	for (y = 0; y < DMAXY - 1; y++) {
+		for (x = 0; x < DMAXX - 1; x++) {
+			if (dungeon[x][y] == 139 /*&& drlgFlags[x][y] == 0*/) {
+				assert(drlgFlags[x][y] == 0);
+				tnv3 = dungeon[x + 1][y];
+				assert(tnv3 != 29);
+				assert(tnv3 != 32);
+				assert(tnv3 != 38);
+				assert(tnv3 != 39);
+				if (/*tnv3 == 29 || tnv3 == 32 ||*/ tnv3 == 35 || tnv3 == 37 /*|| tnv3 == 38 || tnv3 == 39*/)
 					tnv3 = 141;
 				else
 					tnv3 = 139;
-				dungeon[x - 1][y] = tnv3;
-			}
-			if (dungeon[x - 1][y] == 149 && drlgFlags[x - 1][y] == 0) {
-				tnv3 = dungeon[x][y];
-				if (tnv3 == 29 || tnv3 == 32 || tnv3 == 35 || tnv3 == 37 || tnv3 == 38 || tnv3 == 39)
+				dungeon[x][y] = tnv3;
+			} else if (dungeon[x][y] == 149 /*&& drlgFlags[x][y] == 0*/) {
+				assert(drlgFlags[x][y] == 0);
+				tnv3 = dungeon[x + 1][y];
+				assert(tnv3 != 29);
+				assert(tnv3 != 32);
+				assert(tnv3 != 38);
+				assert(tnv3 != 39);
+				if (/*tnv3 == 29 || tnv3 == 32 ||*/ tnv3 == 35 || tnv3 == 37 /*|| tnv3 == 38 || tnv3 == 39*/)
 					tnv3 = 153;
 				else
 					tnv3 = 149;
-				dungeon[x - 1][y] = tnv3;
-			}
-			if (dungeon[x - 1][y] == 148 && drlgFlags[x - 1][y] == 0) {
-				tnv3 = dungeon[x][y];
-				if (tnv3 == 29 || tnv3 == 32 || tnv3 == 35 || tnv3 == 37 || tnv3 == 38 || tnv3 == 39)
+				dungeon[x][y] = tnv3;
+			} else if (dungeon[x][y] == 148 /*&& drlgFlags[x][y] == 0*/) {
+				assert(drlgFlags[x][y] == 0);
+				tnv3 = dungeon[x + 1][y];
+				assert(tnv3 != 29);
+				assert(tnv3 != 32);
+				assert(tnv3 != 38);
+				assert(tnv3 != 39);
+				if (/*tnv3 == 29 || tnv3 == 32 ||*/ tnv3 == 35 || tnv3 == 37 /*|| tnv3 == 38 || tnv3 == 39*/)
 					tnv3 = 154;
 				else
 					tnv3 = 148;
-				dungeon[x - 1][y] = tnv3;
+				dungeon[x][y] = tnv3;
 			}
 		}
 	}
