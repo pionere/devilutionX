@@ -501,7 +501,9 @@ static void DRLG_L1PlaceDoors()
 
 				if (df == DLRG_HDOOR) {
 					assert(c == 2);
-					if (j != 1 /*&& c == 2*/)
+					if (j == 1)
+						df = 0;
+					else //if (j != 1 && c == 2)
 						c = 26;
 					/* commented out because this is not possible with the current implementation
 					if (j != 1 && c == 7)
@@ -519,7 +521,9 @@ static void DRLG_L1PlaceDoors()
 				} else {
 					assert(df == DLRG_VDOOR);
 					assert(c == 1);
-					if (i != 1 /*&& c == 1*/)
+					if (i == 1)
+						df = 0;
+					else // if (i != 1 && c == 1)
 						c = 25;
 					/* commented out because this is not possible with the current implementation
 					if (i != 1 && c == 6)
@@ -553,8 +557,8 @@ static void DRLG_L1PlaceDoors()
 				}*/
 				dungeon[i][j] = c;
 			//}
-
-			drlgFlags[i][j] = DLRG_PROTECTED;
+			// TODO: might want to convert DLRG_VDOOR and DLRG_HDOOR to DLRG_PROTECTED
+			drlgFlags[i][j] = df;
 		}
 	}
 }
