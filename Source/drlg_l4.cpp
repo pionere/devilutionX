@@ -10,9 +10,15 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
-#define BASE_MEGATILE_L4 (30 - 1)
+#define BASE_MEGATILE_L4	(30 - 1)
 
-static BYTE dungBlock[20][20];
+static_assert(DMAXX % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even width.");
+#define L4BLOCKX		(DMAXX / 2)
+static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even height.");
+#define L4BLOCKY		(DMAXY / 2)
+static_assert(DQUAD_ROOM_SIZE <= L4BLOCKX, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 I.");
+static_assert(DQUAD_ROOM_SIZE <= L4BLOCKY, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 II.");
+static BYTE dungBlock[L4BLOCKX][L4BLOCKY];
 
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
@@ -973,24 +979,24 @@ static void DRLG_L4Subs()
 static void L4makeDungeon()
 {
 	int i, j;
-	for (j = 0; j < 20; j++) {
-		for (i = 0; i < 20; i++) {
+	for (j = 0; j < L4BLOCKY; j++) {
+		for (i = 0; i < L4BLOCKX; i++) {
 			dungeon[i][j] = dungBlock[i][j];
 		}
 	}
-	for (j = 0; j < 20; j++) {
-		for (i = 0; i < 20; i++) {
-			dungeon[i][j + 20] = dungBlock[i][19 - j];
+	for (j = 0; j < L4BLOCKY; j++) {
+		for (i = 0; i < L4BLOCKX; i++) {
+			dungeon[i][j + L4BLOCKY] = dungBlock[i][L4BLOCKY - 1 - j];
 		}
 	}
-	for (j = 0; j < 20; j++) {
-		for (i = 0; i < 20; i++) {
-			dungeon[i + 20][j] = dungBlock[19 - i][j];
+	for (j = 0; j < L4BLOCKY; j++) {
+		for (i = 0; i < L4BLOCKX; i++) {
+			dungeon[i + L4BLOCKX][j] = dungBlock[L4BLOCKX - 1 - i][j];
 		}
 	}
-	for (j = 0; j < 20; j++) {
-		for (i = 0; i < 20; i++) {
-			dungeon[i + 20][j + 20] = dungBlock[19 - i][19 - j];
+	for (j = 0; j < L4BLOCKY; j++) {
+		for (i = 0; i < L4BLOCKX; i++) {
+			dungeon[i + L4BLOCKX][j + L4BLOCKY] = dungBlock[L4BLOCKX - 1 - i][L4BLOCKY - 1 - j];
 		}
 	}
 }
@@ -998,15 +1004,15 @@ static void L4makeDungeon()
 static void uShape()
 {
 	int j, i, rv;
-	bool hallok[20];
+	bool hallok[std::max(L4BLOCKX, L4BLOCKY)];
 
-	for (j = 19; j >= 0; j--) {
-		for (i = 19; i >= 0; i--) {
+	for (j = L4BLOCKY - 1; j >= 0; j--) {
+		for (i = L4BLOCKX - 1; i >= 0; i--) {
 			if (dungBlock[i][j] != 1) {
 				hallok[j] = false;
 			} else {
-				// BUGFIX: check that i + 1 < 20 and j + 1 < 20 (fixed)
-				if (i + 1 < 20 && j + 1 < 20
+				// BUGFIX: check that i + 1 < L4BLOCKX and j + 1 < L4BLOCKY (fixed)
+				if (i + 1 < L4BLOCKX && j + 1 < L4BLOCKY
 				    && dungBlock[i][j + 1] == 1 && dungBlock[i + 1][j + 1] == 0) {
 					hallok[j] = true;
 				} else {
@@ -1017,10 +1023,10 @@ static void uShape()
 		}
 	}
 
-	rv = RandRange(1, 19);
+	rv = RandRange(1, L4BLOCKY - 1);
 	do {
 		if (hallok[rv]) {
-			for (i = 19; i >= 0; i--) {
+			for (i = L4BLOCKX - 1; i >= 0; i--) {
 				if (dungBlock[i][rv] == 1) {
 					i = -1;
 					rv = 0;
@@ -1031,20 +1037,20 @@ static void uShape()
 			}
 		} else {
 			rv++;
-			if (rv == 20) {
+			if (rv == L4BLOCKY) {
 				rv = 1;
 			}
 		}
 	} while (rv != 0);
 
-	for (i = 19; i >= 0; i--) {
-		for (j = 19; j >= 0; j--) {
+	for (i = L4BLOCKX - 1; i >= 0; i--) {
+		for (j = L4BLOCKY - 1; j >= 0; j--) {
 			if (dungBlock[i][j] != 1) {
 				hallok[i] = false;
 			}
 			if (dungBlock[i][j] == 1) {
-				// BUGFIX: check that i + 1 < 20 and j + 1 < 20 (fixed)
-				if (i + 1 < 20 && j + 1 < 20
+				// BUGFIX: check that i + 1 < L4BLOCKX and j + 1 < L4BLOCKY (fixed)
+				if (i + 1 < L4BLOCKX && j + 1 < L4BLOCKY
 				    && dungBlock[i + 1][j] == 1 && dungBlock[i + 1][j + 1] == 0) {
 					hallok[i] = true;
 				} else {
@@ -1055,10 +1061,10 @@ static void uShape()
 		}
 	}
 
-	rv = RandRange(1, 19);
+	rv = RandRange(1, L4BLOCKX - 1);
 	do {
 		if (hallok[rv]) {
-			for (j = 19; j >= 0; j--) {
+			for (j = L4BLOCKY - 1; j >= 0; j--) {
 				if (dungBlock[rv][j] == 1) {
 					j = -1;
 					rv = 0;
@@ -1069,7 +1075,7 @@ static void uShape()
 			}
 		} else {
 			rv++;
-			if (rv == 20) {
+			if (rv == L4BLOCKX) {
 				rv = 1;
 			}
 		}
@@ -1082,9 +1088,9 @@ static int GetArea()
 	BYTE *pTmp;
 
 	rv = 0;
-	static_assert(sizeof(dungBlock) == 20 * 20, "Linear traverse of dungBlock does not work in GetArea.");
+	static_assert(sizeof(dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in GetArea.");
 	pTmp = &dungBlock[0][0];
-	for (i = 0; i < 20 * 20; i++, pTmp++) {
+	for (i = 0; i < L4BLOCKX * L4BLOCKY; i++, pTmp++) {
 		assert(*pTmp <= 1);
 		rv += *pTmp;
 	}
@@ -1114,7 +1120,7 @@ static bool L4checkRoom(int x, int y, int width, int height)
 
 	x2 = x + width;
 	y2 = y + height;
-	if (x2 > 20 || y2 > 20)
+	if (x2 > L4BLOCKX || y2 > L4BLOCKY)
 		return false;
 
 	for (j = y; j < y2; j++) {
@@ -1193,15 +1199,15 @@ static void L4firstRoom()
 			h = RandRange(2, 6);
 		}
 	} else {
-		w = 14;
-		h = 14;
+		w = DQUAD_ROOM_SIZE;
+		h = DQUAD_ROOM_SIZE;
 	}
 
-	xmax = 19 - w;
+	xmax = L4BLOCKX - 1 - w;
 	xmin = (xmax + 1) >> 1;
 	x = RandRange(xmin, xmax);
 
-	ymax = 19 - h;
+	ymax = L4BLOCKY - 1 - h;
 	ymin = (ymax + 1) >> 1;
 	y = RandRange(ymin, ymax);
 
@@ -1225,8 +1231,8 @@ static void L4firstRoom()
 	x = setpc_x - 1;
 	y = setpc_y - 1;
 
-	for (j = y; j < y + 14; j++) {
-		for (i = x; i < x + 14; i++) {
+	for (j = y; j < y + DQUAD_ROOM_SIZE; j++) {
+		for (i = x; i < x + DQUAD_ROOM_SIZE; i++) {
 			drlgFlags[i][j] = TRUE;
 			drlgFlags[DMAXX - 1 - i][j] = TRUE;
 			drlgFlags[i][DMAXY - 1 - j] = TRUE;
@@ -1750,10 +1756,10 @@ static void L4FixRim()
 {
 	int i, j;
 
-	for (i = 0; i < 20; i++) {
+	for (i = 0; i < L4BLOCKX; i++) {
 		dungBlock[i][0] = 0;
 	}
-	for (j = 0; j < 20; j++) {
+	for (j = 0; j < L4BLOCKY; j++) {
 		dungBlock[0][j] = 0;
 	}
 }
