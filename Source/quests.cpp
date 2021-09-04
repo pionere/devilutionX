@@ -292,9 +292,9 @@ static void DrawSkelKing()
 	// fix transVal on the bottom left corner of the box
 	DRLG_CopyTrans(x, y + 11, x + 1, y + 11);
 	DRLG_CopyTrans(x, y + 12, x + 1, y + 12);
-	// fix transVal at the entrance
-	DRLG_CopyTrans(x + 13, y + 7, x + 12, y + 7);
-	DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
+	// fix transVal at the entrance - commented out because it makes the wall transparent
+	//DRLG_CopyTrans(x + 13, y + 7, x + 12, y + 7);
+	//DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
 	// patch dSolidTable - L1.SOL
 	nSolidTable[299] = true;
 
