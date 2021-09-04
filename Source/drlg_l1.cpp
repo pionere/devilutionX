@@ -312,7 +312,7 @@ const BYTE PWATERIN[] = {
 	 0,   0,   0,   0,   0, 0, // replace
 	 0, 202, 200, 200,  84, 0,
 	 0, 199, 203, 203,  83, 0,
-	 0,  85, 206,  80,  81, 0,
+	 0,  85, 206,  88,  81, 0, // in vanilla tile 80 was used instead of 88
 	 0,   0, 134, 135,   0, 0,
 	 0,   0,   0,   0,   0, 0,
 	// clang-format on
