@@ -557,9 +557,9 @@ static void L4tileFix()
 			case 2:
 				// impossible case
 				//  the first loop converts these to 5
-				if (dungeon[i + 1][j] == 6)
-					dungeon[i + 1][j] = 2;
-				else if (dungeon[i + 1][j] == 9)
+				//if (dungeon[i + 1][j] == 6)
+				//	dungeon[i + 1][j] = 2;
+				if (dungeon[i + 1][j] == 9)
 					dungeon[i + 1][j] = 11; // connect wall with pillar
 				break;
 			case 6:
@@ -647,12 +647,12 @@ static void L4tileFix()
 			case 15:
 				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 2)
 					dungeon[i + 1][j] = 29; // close x + 1 side
+				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 30)
+					dungeon[i + 1][j] = 29; // close x + 1 side
 				if (dungeon[i + 1][j] == 30)
 					dungeon[i + 1][j] = 28; // close x + 1 side
 				if (dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 30 && dungeon[i + 1][j - 1] == 6)
 					dungeon[i + 1][j] = 23;
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i + 1][j] = 29; // close x + 1 side
 				if (dungeon[i + 1][j] == 1)
 					dungeon[i + 1][j] = 16; // connect walls
 				if (dungeon[i][j + 1] == 3)
@@ -717,8 +717,6 @@ static void L4tileFix()
 					dungeon[i][j + 1] = 10; // connect walls
 				if (dungeon[i][j + 1] == 30)
 					dungeon[i][j + 1] = 18; // close x + 1 side
-				if (dungeon[i + 1][j] == 18 && dungeon[i + 2][j] == 30)
-					dungeon[i + 1][j] = 24;
 				if (dungeon[i + 1][j] == 9 && dungeon[i + 1][j + 1] == 1)
 					dungeon[i + 1][j] = 16; // connect walls? why not 11 and why conditional?
 				if (dungeon[i + 1][j] == 27)
@@ -788,10 +786,10 @@ static void L4tileFix()
 			case 29:
 				if (dungeon[i + 1][j] == 1)
 					dungeon[i + 1][j] = 16; // connect walls? why not 13?
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i + 1][j] == 30)
 					dungeon[i + 1][j] = 19; // close y - 1 side
+				if (dungeon[i][j + 1] == 2)
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i][j + 1] == 30)
 					dungeon[i][j + 1] = 18; // close x + 1 side
 				break;
