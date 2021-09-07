@@ -1181,14 +1181,14 @@ static bool L4checkRoom(int x, int y, int width, int height)
 	return true;
 }
 
-static void L4roomGen(int x, int y, int w, int h, int dir)
+static void L4roomGen(int x, int y, int w, int h, bool dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
 	bool ran2;
 
 	dirProb = random_(0, 4);
 
-	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
+	if (dir == (dirProb == 0)) {
 		// try to place a room to the left
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
@@ -1208,10 +1208,10 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 			L4drawRoom(rxy2, ry, width, height);
 		// proceed with the placed a room on the left
 		if (i != 0)
-			L4roomGen(rx, ry, width, height, 1);
+			L4roomGen(rx, ry, width, height, true);
 		// proceed with the placed a room on the right
 		if (ran2)
-			L4roomGen(rxy2, ry, width, height, 1);
+			L4roomGen(rxy2, ry, width, height, true);
 	} else {
 		// try to place a room to the top
 		for (i = 20; i != 0; i--) {
@@ -1232,10 +1232,10 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 			L4drawRoom(rx, rxy2, width, height);
 		// proceed with the placed a room on the top
 		if (i != 0)
-			L4roomGen(rx, ry, width, height, 0);
+			L4roomGen(rx, ry, width, height, false);
 		// proceed with the placed a room on the bottom
 		if (ran2)
-			L4roomGen(rx, rxy2, width, height, 0);
+			L4roomGen(rx, rxy2, width, height, false);
 	}
 }
 
@@ -1280,6 +1280,7 @@ static void L4firstRoom()
 	}
 
 	L4drawRoom(x, y, w, h);
+	static_assert((int)true == 1, "Bool to int conversion in L4firstRoom.");
 	L4roomGen(x, y, w, h, random_(0, 2));
 }
 
