@@ -1279,7 +1279,7 @@ static void L4firstRoom()
 	if (currLvl._dLevelIdx != DLV_HELL4) {
 		if (pSetPiece != NULL) {
 			w = pSetPiece[0] + 4; // TODO: add border to the setmaps
-			h = pSetPiece[0] + 4;
+			h = pSetPiece[0] + 2;
 			if (QuestStatus(Q_WARLORD))
 				w--;
 		} else {
