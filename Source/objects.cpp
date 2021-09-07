@@ -707,6 +707,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	os->_otype = type;
 	ods = &objectdata[type];
 	os->_oSelFlag = ods->oSelFlag;
+	os->_oDoorFlag = ods->oDoorFlag;
 	os->_oAnimFrame = ods->oAnimBaseFrame;
 	os->_oAnimData = objanimdata[ods->ofindex];
 	ofd = &objfiledata[ods->ofindex];
@@ -1174,11 +1175,11 @@ static void AddChest(int oi)
 	os->_oVar2 = random_(147, 8); // CHEST_ITEM_TYPE
 }
 
-static void SyncL1Doors(int oi);
-static void AddL1Door(int oi, bool ldoor)
+static void OpenDoor(int oi);
+static void AddDoor(int oi)
 {
-	ObjectStruct *os;
-	int x, y;
+	ObjectStruct* os;
+	int x, y, bx, by;
 
 	os = &objects[oi];
 	x = os->_ox;
@@ -1187,48 +1188,18 @@ static void AddL1Door(int oi, bool ldoor)
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
-	os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
+	//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
 	os->_oVar1 = dPiece[x][y];     // DOOR_PIECE_CLOSED
 	// DOOR_SIDE_PIECE_CLOSED
-	if (ldoor)
-		y--;
+	bx = x;
+	by = y;
+	if (os->_oDoorFlag == ODT_LEFT)
+		by--;
 	else
-		x--;
-	os->_oVar2 = dPiece[x][y];
-	//SyncL1Doors(oi);
-}
-
-static void OpenDoor(int oi);
-static void SyncL2Doors(int oi);
-static void AddL2Door(int oi, bool ldoor)
-{
-	ObjectStruct *os;
-
-	os = &objects[oi];
-	os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
-	//os->_oPreFlag = FALSE;
-	//os->_oSelFlag = 3;
-	//os->_oMissFlag = FALSE;
-	os->_oVar4 = DOOR_CLOSED;
-	if (dMonster[os->_ox][os->_oy] != 0)
+		bx--;
+	os->_oVar2 = dPiece[bx][by];
+	if (dMonster[x][y] != 0)
 		OpenDoor(oi);
-	SyncL2Doors(oi);
-}
-
-static void SyncL3Doors(int oi);
-static void AddL3Door(int oi, bool ldoor)
-{
-	ObjectStruct *os;
-
-	os = &objects[oi];
-	os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
-	//os->_oPreFlag = FALSE;
-	//os->_oSelFlag = 3;
-	//os->_oMissFlag = FALSE;
-	os->_oVar4 = DOOR_CLOSED;
-	if (dMonster[os->_ox][os->_oy] != 0)
-		OpenDoor(oi);
-	SyncL3Doors(oi);
 }
 
 static void AddSarc(int oi)
@@ -1446,6 +1417,10 @@ static void AddTorturedFemaleBody(int oi)
 	//os->_oPreFlag = TRUE;
 }
 
+static void SyncL1Doors(int oi);
+static void SyncL2Doors(int oi);
+static void SyncL3Doors(int oi);
+static void SyncL5Doors(int oi);
 int AddObject(int type, int ox, int oy)
 {
 	int oi;
@@ -1482,31 +1457,27 @@ int AddObject(int type, int ox, int oy)
 		AddObjLight(oi, 8);
 		break;
 	case OBJ_L1LDOOR:
-		AddL1Door(oi, true);
-		break;
 	case OBJ_L1RDOOR:
-		AddL1Door(oi, false);
+		AddDoor(oi);
+		//SyncL1Doors(oi);
+		break;
+	case OBJ_L2LDOOR:
+	case OBJ_L2RDOOR:
+		AddDoor(oi);
+		SyncL2Doors(oi);
+		break;
+	case OBJ_L3LDOOR:
+	case OBJ_L3RDOOR:
+		AddDoor(oi);
+		SyncL3Doors(oi);
 		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
-		AddL1Door(oi, true);
-		break;
 	case OBJ_L5RDOOR:
-		AddL1Door(oi, false);
+		AddDoor(oi);
+		SyncL5Doors(oi);
 		break;
 #endif
-	case OBJ_L2LDOOR:
-		AddL2Door(oi, true);
-		break;
-	case OBJ_L2RDOOR:
-		AddL2Door(oi, false);
-		break;
-	case OBJ_L3LDOOR:
-		AddL3Door(oi, true);
-		break;
-	case OBJ_L3RDOOR:
-		AddL3Door(oi, false);
-		break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
@@ -2201,7 +2172,6 @@ static bool PlrCheckDoor(int oi, int pnum)
 static void OperateL1Door(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
-	int sfx;
 
 	os = &objects[oi];
 	// open a closed door
@@ -2209,12 +2179,7 @@ static void OperateL1Door(int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
-#ifdef HELLFIRE
-			sfx = currLvl._dType != DTYPE_CRYPT ? IS_DOOROPEN : IS_CROPEN;
-#else
-			sfx = IS_DOOROPEN;
-#endif
-			PlaySfxLoc(sfx, os->_ox, os->_oy);
+			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
 			RedoPlayerVision();
 		}
 		OpenDoor(oi);
@@ -2223,12 +2188,7 @@ static void OperateL1Door(int oi, bool sendmsg)
 	}
 	// try to close the door
 	if (!deltaload) {
-#ifdef HELLFIRE
-		sfx = (currLvl._dType != DTYPE_CRYPT || os->_oVar4 == DOOR_BLOCKED) ? IS_DOORCLOS : IS_CRCLOS;
-#else
-		sfx = IS_DOORCLOS;
-#endif
-		PlaySfxLoc(sfx, os->_ox, os->_oy);
+		PlaySfxLoc(IS_DOORCLOS, os->_ox, os->_oy);
 	}
 	if (os->_oVar4 == DOOR_BLOCKED)
 		return;
@@ -2240,6 +2200,42 @@ static void OperateL1Door(int oi, bool sendmsg)
 		RedoPlayerVision();
 	}
 }
+
+#ifdef HELLFIRE
+static void OperateL5Door(int oi, bool sendmsg)
+{
+	ObjectStruct *os;
+	int sfx;
+
+	os = &objects[oi];
+	// open a closed door
+	if (os->_oVar4 == DOOR_CLOSED) {
+		if (sendmsg)
+			NetSendCmdParam1(CMD_DOOROPEN, oi);
+		if (!deltaload) {
+			PlaySfxLoc(IS_CROPEN, os->_ox, os->_oy);
+			RedoPlayerVision();
+		}
+		OpenDoor(oi);
+		SyncL5Doors(oi);
+		return;
+	}
+	// try to close the door
+	if (!deltaload) {
+		sfx = os->_oVar4 == DOOR_BLOCKED ? IS_DOORCLOS : IS_CRCLOS;
+		PlaySfxLoc(sfx, os->_ox, os->_oy);
+	}
+	if (os->_oVar4 == DOOR_BLOCKED)
+		return;
+
+	if (CloseDoor(oi)) {
+		if (sendmsg)
+			NetSendCmdParam1(CMD_DOORCLOSE, oi);
+		SyncL5Doors(oi);
+		RedoPlayerVision();
+	}
+}
+#endif
 
 static void OperateL2Door(int oi, bool sendmsg)
 {
@@ -2320,7 +2316,7 @@ void MonstCheckDoors(int mx, int my)
 			OperateL1Door(oi, true);
 #ifdef HELLFIRE
 		} else if (type == OBJ_L5LDOOR || type == OBJ_L5RDOOR) {
-			OperateL1Door(oi, true);
+			OperateL5Door(oi, true);
 #endif
 		} else if (type == OBJ_L2LDOOR || type == OBJ_L2RDOOR) {
 			OperateL2Door(oi, true);
@@ -3724,7 +3720,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_L5LDOOR:
 	case OBJ_L5RDOOR:
 		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateL1Door(oi, sendmsg);
+			OperateL5Door(oi, sendmsg);
 		break;
 #endif
 	case OBJ_L2LDOOR:
@@ -4069,114 +4065,108 @@ static void SyncL1Doors(int oi)
 	y = os->_oy;
 	if (os->_oVar4 == DOOR_CLOSED) {
 		ObjSetMicro(x, y, os->_oVar1); // DOOR_PIECE_CLOSED
-#ifdef HELLFIRE
-		if (currLvl._dType != DTYPE_CRYPT)
-#endif
-			dSpecial[x][y] = 0;
-
+		dSpecial[x][y] = 0;
 		pn = os->_oVar2;                 // DOOR_SIDE_PIECE_CLOSED
 
-		if (os->_otype == OBJ_L1RDOOR)
-			x--;
-#ifdef HELLFIRE
-		else if (os->_otype == OBJ_L5RDOOR)
-			x--;
-#endif
-		else
+		if (os->_otype == OBJ_L1LDOOR)
 			y--;
-#ifdef HELLFIRE
-		if (currLvl._dType == DTYPE_CRYPT) {
-			if (pn == 86 && dPiece[x][y] == 212)
-				pn = os->_otype == OBJ_L5RDOOR ? 232 : 234;
-		} else
-#endif
-		{
-			if (pn == 50 && dPiece[x][y] == 396)
-				pn = os->_otype == OBJ_L1RDOOR ? 411 : 412;
-		}
+		else
+			x--;
+		if (pn == 50 && dPiece[x][y] == 396)
+			pn = os->_otype == OBJ_L1LDOOR ? 412 : 411;
 		ObjSetMicro(x, y, pn);
 		return;
 	}
 
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT) {
-		if (os->_otype == OBJ_L5LDOOR) {
-			ObjSetMicro(x, y, 206);
-			//dSpecial[x][y] = 1;
-			ObjSetDoorBackPiece(x - 1, y);
-			y--;
-		} else {
-			ObjSetMicro(x, y, 209);
-			//dSpecial[x][y] = 2;
-			ObjSetDoorBackPiece(x, y - 1);
-			x--;
-		}
-	} else
-#endif
-	{
-		if (os->_otype == OBJ_L1LDOOR) {
-			ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
-			dSpecial[x][y] = 7;
-			ObjSetDoorBackPiece(x - 1, y);
-			y--;
-		} else {
-			ObjSetMicro(x, y, 395);
-			dSpecial[x][y] = 8;
-			ObjSetDoorBackPiece(x, y - 1);
-			x--;
-		}
+	if (os->_otype == OBJ_L1LDOOR) {
+		ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
+		dSpecial[x][y] = 7;
+		ObjSetDoorBackPiece(x - 1, y);
+		y--;
+	} else {
+		ObjSetMicro(x, y, 395);
+		dSpecial[x][y] = 8;
+		ObjSetDoorBackPiece(x, y - 1);
+		x--;
 	}
 	ObjSetDoorSidePiece(x, y, os->_otype);
 }
 
-static void SyncL2Doors(int oi)
+#ifdef HELLFIRE
+static void SyncL5Doors(int oi)
 {
-	ObjectStruct *os;
-	int x, y;
+	ObjectStruct* os;
+	int x, y, pn;
 
 	os = &objects[oi];
+
 	x = os->_ox;
 	y = os->_oy;
 	if (os->_oVar4 == DOOR_CLOSED) {
-		if (os->_otype == OBJ_L2LDOOR) {
-			ObjSetMicro(x, y, 538);
-			dSpecial[x][y] = 0;
-		} else { // if (os->_otype == OBJ_L2RDOOR) {
-			ObjSetMicro(x, y, 540);
-			dSpecial[x][y] = 0;
-		}
-	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
-		if (os->_otype == OBJ_L2LDOOR) {
-			ObjSetMicro(x, y, 13);
-			dSpecial[x][y] = 5;
-		} else { // if (os->_otype == OBJ_L2RDOOR) {
-			ObjSetMicro(x, y, 17);
-			dSpecial[x][y] = 6;
-		}
+		ObjSetMicro(x, y, os->_oVar1); // DOOR_PIECE_CLOSED
+		pn = os->_oVar2;                 // DOOR_SIDE_PIECE_CLOSED
+
+		if (os->_otype == OBJ_L5LDOOR)
+			y--;
+		else
+			x--;
+		if (pn == 86 && dPiece[x][y] == 212)
+			pn = os->_otype == OBJ_L5LDOOR ? 234 : 232;
+		ObjSetMicro(x, y, pn);
+		return;
 	}
+
+	if (os->_otype == OBJ_L5LDOOR) {
+		ObjSetMicro(x, y, 206);
+		//dSpecial[x][y] = 1;
+		ObjSetDoorBackPiece(x - 1, y);
+		y--;
+	} else {
+		ObjSetMicro(x, y, 209);
+		//dSpecial[x][y] = 2;
+		ObjSetDoorBackPiece(x, y - 1);
+		x--;
+	}
+	ObjSetDoorSidePiece(x, y, os->_otype);
+}
+#endif
+
+static void SyncL2Doors(int oi)
+{
+	ObjectStruct *os;
+	int pn, x, y;
+	bool ldoor;
+	BYTE sn;
+
+	os = &objects[oi];
+	ldoor = os->_otype == OBJ_L2LDOOR;
+	if (os->_oVar4 == DOOR_CLOSED) {
+		pn = ldoor ? 538 : 540;
+		sn = 0;
+	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
+		pn = ldoor ? 13 : 17;
+		sn = ldoor ? 5 : 6;
+	}
+	x = os->_ox;
+	y = os->_oy;
+	ObjSetMicro(x, y, pn);
+	dSpecial[x][y] = sn;
 }
 
 static void SyncL3Doors(int oi)
 {
 	ObjectStruct *os;
-	int x, y;
+	int pn;
+	bool ldoor;
 
 	os = &objects[oi];
-	x = os->_ox;
-	y = os->_oy;
+	ldoor = os->_otype == OBJ_L3LDOOR;
 	if (os->_oVar4 == DOOR_CLOSED) {
-		if (os->_otype == OBJ_L3LDOOR) {
-			ObjSetMicro(x, y, 534);
-		} else { // if (os->_otype == OBJ_L3RDOOR) {
-			ObjSetMicro(x, y, 531);
-		}
+		pn = ldoor ? 534 : 531;
 	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
-		if (os->_otype == OBJ_L3LDOOR) {
-			ObjSetMicro(x, y, 541);
-		} else { // if (os->_otype == OBJ_L3RDOOR) {
-			ObjSetMicro(x, y, 538);
-		}
+		pn = ldoor ? 541 : 538;
 	}
+	ObjSetMicro(os->_ox, os->_oy, pn);
 }
 
 void SyncObjectAnim(int oi)
@@ -4190,12 +4180,14 @@ void SyncObjectAnim(int oi)
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
+		SyncL1Doors(oi);
+		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
 	case OBJ_L5RDOOR:
-#endif
-		SyncL1Doors(oi);
+		SyncL5Doors(oi);
 		break;
+#endif
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
 		SyncL2Doors(oi);

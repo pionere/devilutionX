@@ -717,8 +717,9 @@ typedef struct ObjectData {
 	//BOOL oMissFlag;
 	//BOOL oLightFlag;
 	//BYTE oBreak;
+	BYTE oDoorFlag;
 	BYTE oSelFlag;
-	BOOL oTrapFlag;
+	BOOLEAN oTrapFlag;
 #ifdef X86_32bit_COMP
 	int alignment[1];
 #endif
@@ -768,9 +769,9 @@ typedef struct ObjectStruct {
 	BOOLEAN _oMissFlag;
 	BOOLEAN _oLightFlag;
 	BYTE _oBreak; // object_break_mode
+	BYTE _oDoorFlag; // object_door_type
 	BYTE _oSelFlag; // check
 	BOOLEAN _oTrapFlag;
-	BYTE _oDoorFlag; // object_door_type
 	BOOL _oPreFlag;
 	unsigned _olid;
 	int _oRndSeed;
