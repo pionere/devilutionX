@@ -2445,13 +2445,11 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		return MIRES_FAIL_DELETE;
 	}
 
+	missile[mi]._mix = mon->_mx;
+	missile[mi]._miy = mon->_my;
 	missile[mi]._miMaxDam = mon->_mhitpoints;
 	missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
-	tx = mon->_mx;
-	ty = mon->_my;
-	for (i = 0; i < lengthof(offset_x); i++) {
-		CheckMissileCol(mi, tx + offset_x[i], ty + offset_y[i], true);
-	}
+	CheckSplashCol(mi);
 
 	MonStartKill(misource, misource);
 	return MIRES_DELETE;
