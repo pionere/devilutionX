@@ -604,7 +604,9 @@ void DoUnVision(int nXPos, int nYPos, int nRadius)
 	}
 }
 
-static bool LightPos(int x1, int y1, bool doautomap, const char vFlags)
+static bool doautomap;
+static char vFlags;
+static bool LightPos(int x1, int y1)
 {
 	int nTrans;
 
@@ -625,12 +627,13 @@ static bool LightPos(int x1, int y1, bool doautomap, const char vFlags)
 	return true;
 }
 
-void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible)
+void DoVision(int nXPos, int nYPos, int nRadius, bool automap, bool visible)
 {
 	const char* cr;
 	int i, x1, y1, limit;
 	int d, dx, dy, xinc, yinc;
-	const char vFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
+	vFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
+	doautomap = automap;
 
 	assert(IN_DUNGEON_AREA(nXPos, nYPos));
 	if (doautomap) {
@@ -673,7 +676,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible)
 				limit -= 2;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1, doautomap, vFlags));
+			} while (LightPos(x1, y1));
 		} else {
 			// multiply by 2 so we round up
 			dx *= 2;
@@ -689,7 +692,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible)
 				limit -= 2;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1, doautomap, vFlags));
+			} while (LightPos(x1, y1));
 		}
 	}
 }
