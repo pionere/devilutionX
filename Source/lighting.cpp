@@ -608,8 +608,7 @@ static bool doautomap;
 static char vFlags;
 static bool LightPos(int x1, int y1)
 {
-	int nTrans;
-
+	//int nTrans;
 	assert(IN_DUNGEON_AREA(x1, y1));
 	if (doautomap) {
 		if (!(dFlags[x1][y1] & BFLAG_EXPLORED)) {
@@ -618,13 +617,15 @@ static bool LightPos(int x1, int y1)
 		}
 	}
 	dFlags[x1][y1] |= vFlags;
+	return !nBlockTable[dPiece[x1][y1]];
+	/* skip this to not make tiles transparent based on visible tv values. only the tv of the player's tile should matter.
 	if (nBlockTable[dPiece[x1][y1]])
 		return false;
 	nTrans = dTransVal[x1][y1];
 	if (nTrans != 0) {
 		TransList[nTrans] = true;
 	}
-	return true;
+	return true;*/
 }
 
 void DoVision(int nXPos, int nYPos, int nRadius, bool automap, bool visible)
@@ -643,7 +644,10 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool automap, bool visible)
 		}
 	}
 	dFlags[nXPos][nYPos] |= vFlags;
-
+	i = dTransVal[nXPos][nYPos];
+	if (i != 0) {
+		TransList[i] = true;
+	}
 	nRadius = 2 * (nRadius + 1);
 	cr = &CrawlTable[CrawlNum[15]];
 	for (i = (BYTE)*cr; i > 0; i--) {
