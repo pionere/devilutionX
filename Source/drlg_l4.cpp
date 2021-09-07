@@ -1051,19 +1051,15 @@ static void L4makeDungeon()
 static void uShape()
 {
 	int j, i, rv;
-	bool hallok[std::max(L4BLOCKX, L4BLOCKY)];
+	BYTE hallok[std::max(L4BLOCKX, L4BLOCKY)];
 
-	for (j = L4BLOCKY - 1; j >= 0; j--) {
-		for (i = L4BLOCKX - 1; i >= 0; i--) {
-			if (dungBlock[i][j] != 1) {
-				hallok[j] = false;
-			} else {
-				// BUGFIX: check that i + 1 < L4BLOCKX and j + 1 < L4BLOCKY (fixed)
-				if (i + 1 < L4BLOCKX && j + 1 < L4BLOCKY
-				    && dungBlock[i][j + 1] == 1 && dungBlock[i + 1][j + 1] == 0) {
-					hallok[j] = true;
-				} else {
-					hallok[j] = false;
+	memset(hallok, 0, sizeof(hallok));
+	for (j = L4BLOCKY - 2; j >= 0; j--) {
+		for (i = L4BLOCKX - 2; i >= 0; i--) {
+			if (dungBlock[i][j] == 1) {
+				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
+				if (dungBlock[i][j + 1] == 1 && dungBlock[i + 1][j + 1] == 0) {
+					hallok[j] = i;
 				}
 				i = 0;
 			}
@@ -1071,37 +1067,28 @@ static void uShape()
 	}
 
 	rv = RandRange(1, L4BLOCKY - 1);
-	do {
-		if (hallok[rv]) {
-			for (i = L4BLOCKX - 1; i >= 0; i--) {
-				if (dungBlock[i][rv] == 1) {
-					i = -1;
-					rv = 0;
-				} else {
-					dungBlock[i][rv] = 1;
-					dungBlock[i][rv + 1] = 1;
-				}
+	while (TRUE) {
+		if (hallok[rv] != 0) {
+			for (i = L4BLOCKX - 1; i > hallok[rv]; i--) {
+				dungBlock[i][rv] = 1;
+				dungBlock[i][rv + 1] = 1;
 			}
+			break;
 		} else {
 			rv++;
 			if (rv == L4BLOCKY) {
 				rv = 1;
 			}
 		}
-	} while (rv != 0);
+	}
 
-	for (i = L4BLOCKX - 1; i >= 0; i--) {
-		for (j = L4BLOCKY - 1; j >= 0; j--) {
-			if (dungBlock[i][j] != 1) {
-				hallok[i] = false;
-			}
+	memset(hallok, 0, sizeof(hallok));
+	for (i = L4BLOCKX - 2; i >= 0; i--) {
+		for (j = L4BLOCKY - 2; j >= 0; j--) {
 			if (dungBlock[i][j] == 1) {
-				// BUGFIX: check that i + 1 < L4BLOCKX and j + 1 < L4BLOCKY (fixed)
-				if (i + 1 < L4BLOCKX && j + 1 < L4BLOCKY
-				    && dungBlock[i + 1][j] == 1 && dungBlock[i + 1][j + 1] == 0) {
-					hallok[i] = true;
-				} else {
-					hallok[i] = false;
+				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
+				if (dungBlock[i + 1][j] == 1 && dungBlock[i + 1][j + 1] == 0) {
+					hallok[i] = j;
 				}
 				j = 0;
 			}
@@ -1109,24 +1096,20 @@ static void uShape()
 	}
 
 	rv = RandRange(1, L4BLOCKX - 1);
-	do {
-		if (hallok[rv]) {
-			for (j = L4BLOCKY - 1; j >= 0; j--) {
-				if (dungBlock[rv][j] == 1) {
-					j = -1;
-					rv = 0;
-				} else {
-					dungBlock[rv][j] = 1;
-					dungBlock[rv + 1][j] = 1;
-				}
+	while (TRUE) {
+		if (hallok[rv] != 0) {
+			for (j = L4BLOCKY - 1; j > hallok[rv]; j--) {
+				dungBlock[rv][j] = 1;
+				dungBlock[rv + 1][j] = 1;
 			}
+			break;
 		} else {
 			rv++;
 			if (rv == L4BLOCKX) {
 				rv = 1;
 			}
 		}
-	} while (rv != 0);
+	}
 }
 
 static int GetArea()
