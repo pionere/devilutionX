@@ -80,8 +80,8 @@ inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
 
 /* data */
 
-extern const int offset_x[8];
-extern const int offset_y[8];
+extern const int offset_x[NUM_DIRS];
+extern const int offset_y[NUM_DIRS];
 //extern const char walk2dir[9];
 
 #ifdef __cplusplus

@@ -24,7 +24,7 @@ static BYTE dungBlock[L4BLOCKX][L4BLOCKY];
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
  */
-const BYTE L4ConvTbl[16] = { 30, 6, 1, 6, 2, 6, 6, 6, 9, 6, 1, 6, 2, 6, 3, 6 };
+const BYTE L4ConvTbl[16] = { BASE_MEGATILE_L4 + 1, 6, 1, 6, 2, 6, 6, 6, 9, 6, 1, 6, 2, 6, 3, 6 };
 
 /** Miniset: Stairs up. */
 const BYTE L4USTAIRS[] = {
@@ -275,9 +275,9 @@ static void DRLG_L4MakeMegas()
 		}
 	}
 	for (j = 0; j < DMAXY; j++)
-		dungeon[DMAXX - 1][j] = 30;
+		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L4 + 1;
 	for (i = 0; i < DMAXX - 1; i++)
-		dungeon[i][DMAXY - 1] = 30;
+		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L4 + 1;
 }
 
 /*

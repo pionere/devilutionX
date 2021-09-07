@@ -21,7 +21,7 @@ static BYTE _gabLockout[DMAXX][DMAXY];
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
  */
-const BYTE L3ConvTbl[16] = { 8, 11, 3, 10, 1, 9, 12, 12, 6, 13, 4, 13, 2, 14, 5, 7 };
+const BYTE L3ConvTbl[16] = { BASE_MEGATILE_L3 + 1, 11, 3, 10, 1, 9, 12, 12, 6, 13, 4, 13, 2, 14, 5, 7 };
 /** Miniset: Stairs up. */
 const BYTE L3USTAIRS[] = {
 	// clang-format off
@@ -1086,9 +1086,9 @@ static void DRLG_L3MakeMegas()
 		}
 	}
 	for (j = 0; j < DMAXY; j++)
-		dungeon[DMAXX - 1][j] = 8;
+		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L3 + 1;
 	for (i = 0; i < DMAXX - 1; i++)
-		dungeon[i][DMAXY - 1] = 8;
+		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L3 + 1;
 }
 
 static void DRLG_L3FloodTVal()
