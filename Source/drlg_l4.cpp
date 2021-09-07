@@ -527,6 +527,70 @@ static void L4AddWall()
 	}
 }
 
+static void ValidateNWConnection(int i, int j)
+{
+	assert(dungeon[i][j] == 19 || dungeon[i][j] == 21
+	 || dungeon[i][j] == 22 || dungeon[i][j] == 23
+	 || dungeon[i][j] == 26 || dungeon[i][j] == 27
+	 || dungeon[i][j] == 29
+	 || dungeon[i][j] == 2 || dungeon[i][j] == 8
+	 || dungeon[i][j] == 9 || dungeon[i][j] == 10
+	 || dungeon[i][j] == 11 || dungeon[i][j] == 14
+	 || dungeon[i][j] == 15 || dungeon[i][j] == 17);
+}
+
+static void ValidateNEConnection(int i, int j)
+{
+	assert(dungeon[i][j] == 18 || dungeon[i][j] == 21
+	 || dungeon[i][j] == 22 || dungeon[i][j] == 23
+	 || dungeon[i][j] == 25 || dungeon[i][j] == 28
+	 || dungeon[i][j] == 29
+	 || dungeon[i][j] == 1 || dungeon[i][j] == 7
+	 || dungeon[i][j] == 9 || dungeon[i][j] == 10
+	 || dungeon[i][j] == 11 || dungeon[i][j] == 13
+	 || dungeon[i][j] == 16 || dungeon[i][j] == 17);
+}
+
+void EnsureSWConnection(int x, int y)
+{
+	assert(y < DMAXY - 1);
+	y++;
+	if (dungeon[x][y] == 2) {
+		dungeon[x][y] = 14;
+	} else if (dungeon[x][y] == 9) {
+		dungeon[x][y] = 10;
+	} else if (dungeon[x][y] == 11) {
+		dungeon[x][y] = 17;
+	} else if (dungeon[x][y] == 28) {
+		dungeon[x][y] = 25; // new wall type
+	} else if (dungeon[x][y] == 30) {
+		dungeon[x][y] = 24;
+	} else {
+		assert(dungeon[x][y] == 15 || dungeon[x][y] == 17
+			|| dungeon[x][y] == 18 || dungeon[x][y] == 24);
+	}
+}
+
+void EnsureSEConnection(int x, int y)
+{
+	assert(x < DMAXX - 1);
+	x++;
+	if (dungeon[x][y] == 1) {
+		dungeon[x][y] = 13;
+	} else if (dungeon[x][y] == 10) {
+		dungeon[x][y] = 17;
+	} else if (dungeon[x][y] == 9) {
+		dungeon[x][y] = 11;
+	} else if (dungeon[x][y] == 27) {
+		dungeon[x][y] = 26; // new wall type
+	} else if (dungeon[x][y] == 30) {
+		dungeon[x][y] = 24;
+	} else {
+		assert(dungeon[x][y] == 16
+		 || dungeon[x][y] == 19 || dungeon[x][y] == 24);
+	}
+}
+
 /*
  * Place special pieces on the border of the dungeon.
  * New dungeon values: 4 .. 29 except 20
@@ -535,444 +599,231 @@ static void L4tileFix()
 {
 	int i, j;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 2) {
-				if (dungeon[i + 1][j] == 6)
-					dungeon[i + 1][j] = 5; // close walls
-				else if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 13; // connect walls
-			} else if (dungeon[i][j] == 1)
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 14; // connect walls
-		}
-	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
+	// convert tiles based on the tile above and left from them.
+	// Connect, add or cut walls.
+	for (i = DMAXX - 1; i > 0; i--) {
+		for (j = DMAXY - 1; j > 0; j--) {
 			switch (dungeon[i][j]) {
 			case 1:
-				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10; // connect wall with pillar
+				//		[ 6(L2:16, L6:7, L30: 16) ]
+				// [ 2(13) ]  	1
+				if (dungeon[i][j - 1] == 6) {
+					if (dungeon[i - 1][j] == 2 || dungeon[i - 1][j] == 30) {
+						dungeon[i][j] = 16; // connect + cut || new wall (NW) + cut
+					} else {
+						assert(dungeon[i - 1][j] == 6);
+						dungeon[i][j] = 7; // cut
+					}
+				} else {
+					if (dungeon[i - 1][j] == 2) {
+						dungeon[i][j] = 13; // connect
+					}
+				}
 				break;
 			case 2:
-				// impossible case
-				//  the first loop converts these to 5
-				//if (dungeon[i + 1][j] == 6)
-				//	dungeon[i + 1][j] = 2;
-				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11; // connect wall with pillar
+			//													[ 1(14) ]
+			// [ 6(T1:15, T6:8, T30:15), 30(T1:10, T6:11, T30:9) ]	2
+				if (dungeon[i][j - 1] == 1) {
+					if (dungeon[i - 1][j] == 6) {
+						dungeon[i][j] = 15; // connect + cut
+					} else if (dungeon[i - 1][j] == 30) {
+						if (dungeon[i - 1][j - 1] == 6) {
+							dungeon[i][j] = 17; // connect + new wall (SW, NE)
+						} else {
+							assert(dungeon[i - 1][j - 1] == 30);
+							dungeon[i][j] = 10; // cut + connect + new wall (SW)
+						}
+					} else {
+						dungeon[i][j] = 14; // connect
+					}
+				} else if (dungeon[i][j - 1] == 6) {
+					if (dungeon[i - 1][j] == 6) {
+						dungeon[i][j] = 8; // cut
+					} else if (dungeon[i - 1][j] == 30) {
+						dungeon[i][j] = 11; // new wall (SW)
+					}
+				} else {
+					assert(dungeon[i][j - 1] == 30);
+					if (dungeon[i - 1][j] == 6) {
+						dungeon[i][j] = 15; // new wall (NE) + cut
+					} else if (dungeon[i - 1][j] == 30) {
+						if (dungeon[i - 1][j - 1] == 6) {
+							dungeon[i][j] = 17; // new wall (SW, NE)
+						} else {
+							assert(dungeon[i - 1][j - 1] == 30);
+							dungeon[i][j] = 9; // new wall (SW) + cut
+						}
+					}
+				}
 				break;
+			case 3:
 			case 6:
-				if (dungeon[i + 1][j] == 14)
-					dungeon[i + 1][j] = 15; // cut protruding wall chunk to x - 1
-				if (dungeon[i][j + 1] == 13)
-					dungeon[i][j + 1] = 16; // cut protruding wall chunk to y - 1
-				if (dungeon[i][j - 1] == 1)
-					dungeon[i][j - 1] = 1;
+				//				[ 1(4), 9(4) ]
+				// [ 2(5), 9(5) ]	[3, 6 ]
+				if (dungeon[i - 1][j] == 2 || dungeon[i - 1][j] == 9) {
+					if (dungeon[i][j - 1] == 1 || dungeon[i][j - 1] == 9) {
+						dungeon[i][j] = 12; // connect
+					} else {
+						dungeon[i][j] = 5; // connect
+					}
+				} else {
+					if (dungeon[i][j - 1] == 1 || dungeon[i][j - 1] == 9) {
+						dungeon[i][j] = 4; // connect
+					}
+				}
 				break;
 			case 9:
-				if (dungeon[i + 1][j] == 6)
-					dungeon[i + 1][j] = 12; // connect walls. redirect wall, since the room continues to NE (otherwise it would be 2 instead of 6)
+				//			[ 1(10) ]
+				// [ 2(11) ]	9
+				if (dungeon[i - 1][j] == 2) {
+					if (dungeon[i][j - 1] == 1) {
+						dungeon[i][j] = 17; // connect
+					} else {
+						dungeon[i][j] = 11; // connect
+					}
+				} else {
+					if (dungeon[i][j - 1] == 1) {
+						dungeon[i][j] = 10; // connect
+					}
+				}
 				break;
-			case 14:
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 13; // connect walls
+			case 30:
+				//			[ 1(26), 6(19) ]
+				// [ 2(28), 6(18) ]	30
+				if (dungeon[i - 1][j] == 2) {
+					if (dungeon[i][j - 1] == 1) {
+						dungeon[i][j] = 29; // connect + new wall (SW, SE)
+					} else if (dungeon[i][j - 1] == 6) {
+						dungeon[i][j] = 23; // connect + new wall (SW, SE)
+					} else {
+						assert(dungeon[i][j - 1] == 30);
+						dungeon[i][j] = 28; // connect + new wall (SW)
+					}
+				} else if (dungeon[i - 1][j] == 6) {
+					if (dungeon[i][j - 1] == 1) {
+						dungeon[i][j] = 22; // connect + new wall (SW, SE)
+					} else if (dungeon[i][j - 1] == 6) {
+						dungeon[i][j] = 21; // new wall (SW, SE)
+					} else {
+						assert(dungeon[i][j - 1] == 30);
+						dungeon[i][j] = 18; // new wall (SW, NE)
+					}
+				} else {
+					assert(dungeon[i - 1][j] == 30);
+					if (dungeon[i][j - 1] == 1) {
+						dungeon[i][j] = 27; // connect + new wall (SE)
+					} else if (dungeon[i][j - 1] == 6) {
+						dungeon[i][j] = 19; // new wall (NW, SE)
+					} else {
+						assert(dungeon[i][j - 1] == 30);
+					}
+				}
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 		}
 	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
+
+	// apply the same logic to the first row/column
+	for (i = DMAXX - 1; i > 0; i--) {
+		if (dungeon[i][0] == 2) {
+			if (dungeon[i - 1][0] == 30) {
+				dungeon[i][0] = 9; // new wall (SW) + cut
+			}
+		} else if (dungeon[i][0] == 30) {
+			if (dungeon[i - 1][0] == 2) {
+				dungeon[i][0] = 28; // connect + new wall (SW)
+			}
+		} else if (dungeon[i][0] == 9) {
+			if (dungeon[i - 1][0] == 2) {
+				dungeon[i][0] = 11; // connect
+			}
+		}
+	}
+	for (j = DMAXY - 1; j > 0; j--) {
+		if (dungeon[0][j] == 30) {
+			if (dungeon[0][j - 1] == 1) {
+				dungeon[0][j] = 27; // connect + new wall (SE)
+			} else {
+				assert(dungeon[0][j - 1] == 30);
+			}
+		} else if (dungeon[0][j] == 9) {
+			if (dungeon[0][j - 1] == 1) {
+				dungeon[0][j] = 10; // connect
+			}
+		}
+	}
+
+	// connect the new walls
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
 			switch (dungeon[i][j]) {
-			case 1:
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 27; // close y + 1 side
-				if (dungeon[i][j - 1] == 15)
-					dungeon[i][j - 1] = 10; // connect walls
+			case 28: // new wall (SW) 30
+			case 25: // new wall type (SW) 30
+				// check SW (21-SW)
+				EnsureSWConnection(i, j);
 				break;
-			case 2:
-				if (dungeon[i + 1][j] == 15)
-					dungeon[i + 1][j] = 14; // connect walls
-				if (dungeon[i + 1][j] == 18)
-					dungeon[i + 1][j] = 25; // connect walls
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 9)
-					dungeon[i + 1][j] = 29; // start wall to close x + 1 side
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i + 1][j] = 29; // start wall to close x + 1 side
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 2)
-					dungeon[i + 1][j] = 29; // start wall to close x + 1 side
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 28; // close x + 1 side
-				if (dungeon[i + 1][j] == 28 && dungeon[i + 1][j - 1] == 6)
-					dungeon[i + 1][j] = 23; // close x + 1 side and y - 1 side
+			case 29: // new wall (SW, SE) 30
+			case 23: // new wall (SW, SE) 30
+			case 22: // new wall (SW, SE) 30
+			case 21: // new wall (SW, SE) 30
+				// check SW (21-SW)
+				EnsureSWConnection(i, j);
+				// check SE (29-SE)
+				EnsureSEConnection(i, j);
 				break;
-			case 6:
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] != 0) /* check */
-					dungeon[i + 1][j] = 22; // close x + 1 side
-				if (dungeon[i + 1][j] == 30 && dungeon[i + 1][j - 1] == 6)
-					dungeon[i + 1][j] = 21; // close x + 1 side and y - 1 side
+			case 18: // new wall (SW, NE) 30
+				// check SW (21-SW)
+				EnsureSWConnection(i, j);
+				// check NE
+				assert(j > 0);
+				assert(dungeon[i][j - 1] == 18 || dungeon[i][j - 1] == 21
+					|| dungeon[i][j - 1] == 22 || dungeon[i][j - 1] == 23
+					|| dungeon[i][j - 1] == 25 || dungeon[i][j - 1] == 28
+					|| dungeon[i][j - 1] == 29);
 				break;
-			case 9:
-				if (dungeon[i + 1][j] == 15)
-					dungeon[i + 1][j] = 14; // connect walls
+			case 26: // new wall type (SE) 30
+			case 27: // new wall (SE) 30
+				assert(i < DMAXX - 1);
+				if (dungeon[i + 1][j] == 9) {
+					dungeon[i + 1][j] = 11;
+				} else {
+					assert(dungeon[i + 1][j] == 16 || dungeon[i + 1][j] == 19);
+				}
 				break;
-			case 11:
-				if (dungeon[i + 1][j] == 15)
-					dungeon[i + 1][j] = 14; // connect walls
-				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5; // connect wall with pillar
+			case 19: // new wall (NW, SE) 30
+				assert(j > 0);
+				assert(dungeon[i][j - 1] == 6);
+				// check SE (29-SE)
+				EnsureSEConnection(i, j);
+				// check NW
+				assert(i > 0);
+				assert(dungeon[i - 1][j] == 19 || dungeon[i - 1][j] == 21
+				|| dungeon[i - 1][j] == 22 || dungeon[i - 1][j] == 23
+				|| dungeon[i - 1][j] == 26 || dungeon[i - 1][j] == 27
+				|| dungeon[i - 1][j] == 29);
 				break;
-			case 13:
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 27; // close y + 1 side
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
-				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10; // connect walls
+			case 9: // new wall (SW) 2 (or original value)
+			case 10: // new wall (SW) 2 (or converted)
+			case 11: // new wall (SW) 2 (or converted)
+			case 17: // new wall (SW, NE) 2 (or converted) .. TODO: ValidateNEConnection ?
+				//assert(j > 0); -- except for case 9
+				assert(j < DMAXY - 1);
+				if (dungeon[i][j + 1] == 5) {
+					dungeon[i][j + 1] = 12;
+				}
 				break;
-			case 14:
-				if (dungeon[i + 1][j] == 15)
-					dungeon[i + 1][j] = 14; // connect walls
-				if (dungeon[i + 1][j] == 30 && dungeon[i][j + 1] == 6)
-					dungeon[i + 1][j] = 28; // close x + 1 side
-				if (dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 1)
-					dungeon[i + 1][j] = 23; // close x + 1 side and y - 1 side
-				if (dungeon[i + 1][j] == 30 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i + 1][j] = 23; // ?
-				if (dungeon[i + 1][j] == 23 && dungeon[i + 2][j] == 30)
-					dungeon[i + 1][j] = 28;
-				if (dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 30 && dungeon[i + 1][j - 1] == 6)
-					dungeon[i + 1][j] = 23;
+			case 15: // new wall (NE) 2
+				assert(j > 0);
+				ValidateNEConnection(i, j - 1);
 				break;
-			case 15:
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 2)
-					dungeon[i + 1][j] = 29; // close x + 1 side
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i + 1][j] = 29; // close x + 1 side
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 28; // close x + 1 side
-				if (dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 30 && dungeon[i + 1][j - 1] == 6)
-					dungeon[i + 1][j] = 23;
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16; // connect walls
-				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4; // ? start wall ???
-				break;
-			case 16:
-				if (dungeon[i][j + 1] == 30 && dungeon[i + 1][j] == 6)
-					dungeon[i][j + 1] = 27; // close y + 1 side
-				if (dungeon[i][j + 1] == 30 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i][j + 1] = 27; // close y + 1 side ??
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18; // close x + 1 side
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
-				break;
-			case 18:
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18; // close x + 1 side
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
-				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10; // connect walls
-				break;
-			case 19:
-				if (dungeon[i + 1][j] == 27)
-					dungeon[i + 1][j] = 26; // connect walls
-				if (dungeon[i + 1][j] == 18)
-					dungeon[i + 1][j] = 24; // connect walls + fix wall (possible?)
-				if (dungeon[i + 1][j] == 19 && dungeon[i + 1][j - 1] == 30)
-					dungeon[i + 1][j] = 24; // fix wall (possible?)
-				if (dungeon[i + 2][j] == 2 && dungeon[i + 1][j - 1] == 18 && dungeon[i + 1][j + 1] == 1)
-					dungeon[i + 1][j] = 17;
-				if (dungeon[i + 2][j] == 2 && dungeon[i + 1][j - 1] == 22 && dungeon[i + 1][j + 1] == 1)
-					dungeon[i + 1][j] = 17;
-				if (dungeon[i + 2][j] == 2 && dungeon[i + 1][j - 1] == 18 && dungeon[i + 1][j + 1] == 13)
-					dungeon[i + 1][j] = 17;
-				if (dungeon[i + 1][j] == 10)
-					dungeon[i + 1][j] = 17; // connect walls
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19; // close y - 1 side
-				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11; // connect walls
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 13; // connect walls
-				if (dungeon[i + 1][j] == 13 && dungeon[i + 1][j - 1] == 6)
-					dungeon[i + 1][j] = 16; // cut protruding wall? already covered by case 6 with j + 1?
-				break;
-			case 21:
-				if (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 1)
-					dungeon[i + 1][j] = 13; // connect walls? why conditional?
-				if (dungeon[i + 2][j] == 2 && dungeon[i + 1][j - 1] == 18 && dungeon[i + 1][j + 1] == 1)
-					dungeon[i + 1][j] = 17;
-				if (dungeon[i + 1][j + 1] == 1 && dungeon[i + 1][j - 1] == 22 && dungeon[i + 2][j] == 3)
-					dungeon[i + 1][j] = 17;
-				if (dungeon[i + 1][j - 1] == 21)
-					dungeon[i + 1][j] = 24; // close south edge (brave move...)
-				if (dungeon[i + 1][j] == 9 && dungeon[i + 2][j] == 2)
-					dungeon[i + 1][j] = 11; // connect walls? why conditional?
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
-				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10; // connect walls
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18; // close x + 1 side
-				if (dungeon[i + 1][j] == 9 && dungeon[i + 1][j + 1] == 1)
-					dungeon[i + 1][j] = 16; // connect walls? why not 11 and why conditional?
-				if (dungeon[i + 1][j] == 27)
-					dungeon[i + 1][j] = 26; // connect walls
-				if (dungeon[i + 1][j] == 18)
-					dungeon[i + 1][j] = 24; // fix wall
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19; // close y - 1 side
-				break;
-			case 22:
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16; // connect walls? why not 13?
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19; // close y - 1 side
-				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11; // connect walls
-				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 15; // connect walls? why not 10?
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18; // close x + 1 side
-				break;
-			case 23:
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
-				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 15; // connect walls? why not 10?
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18; // close x + 1 side
-				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11; // connect walls
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16; // connect walls? why not 13?
-				if (dungeon[i + 1][j] == 18 && dungeon[i][j - 1] == 6)
-					dungeon[i + 1][j] = 24; // fix wall? why conditional?
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19; // close y - 1 side
-				break;
-			case 24:
-				if (dungeon[i][j - 1] == 30 && dungeon[i][j - 2] == 6)
-					dungeon[i][j - 1] = 21; // close y + 1 side (why not case 6 with j + 1 check?)
-				if (dungeon[i - 1][j] == 30)
-					dungeon[i - 1][j] = 19; // close y - 1 side
-				break;
-			case 25:
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18; // close x + 1 side
-				break;
-			case 26:
-			case 27:
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16; // connect walls? why not 13?
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19; // close y - 1 side
-				break;
-			case 28:
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18; // close x + 1 side
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
-				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 15; // connect walls? why not 10?
-				break;
-			case 29:
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16; // connect walls? why not 13?
-				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19; // close y - 1 side
-				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15; // connect walls? why not 14?
-				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18; // close x + 1 side
+			case 16: // new wall (NW) 1
+				assert(i > 0);
+				ValidateNWConnection(i - 1, j);
 				break;
 			}
-		}
-	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			switch (dungeon[i][j]) {
-			case 1:
-				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4; // connect wall with pillar
-				if (dungeon[i][j + 1] == 6)
-					dungeon[i][j + 1] = 4; // close walls
-				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12; // connect wall with pillar
-				if (dungeon[i][j + 1] == 16)
-					dungeon[i][j + 1] = 13; // close walls
-				if (dungeon[i][j - 1] == 6)
-					dungeon[i][j - 1] = 7; // close walls
-				if (dungeon[i][j - 1] == 8)
-					dungeon[i][j - 1] = 9; // connect walls
-				break;
-			case 2:
-				if (dungeon[i - 1][j] == 6)
-					dungeon[i - 1][j] = 8; // close walls
-				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5; // connect wall with pillar
-				if (dungeon[i + 1][j] == 5 && dungeon[i + 1][j - 1] == 16)
-					dungeon[i + 1][j] = 12; // connect wall with pillar? why not case 16 with j + 1?
-				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12; // connect wall with pillar
-				break;
-			case 6:
-				if (dungeon[i + 1][j] == 15 && dungeon[i + 1][j + 1] == 4)
-					dungeon[i + 1][j] = 10; // connect walls? why not case 4 with j + 1?
-				if (dungeon[i][j + 1] == 13)
-					dungeon[i][j + 1] = 16; // cut protruding wall
-				break;
-			case 9:
-				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4; // connect wall with pillar
-				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5; // connect wall with pillar
-				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12; // connect wall with pillar
-				break;
-			case 10:
-				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4; // connect wall with pillar
-				//if (dungeon[i + 1][j] == 3)
-				//	dungeon[i + 1][j] = 5; // ? connect wall with pillar
-				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12; // connect wall with pillar - repeated in the next loop...
-				break;
-			case 11:
-			case 14:
-				// case 8: == case 14?
-				// case 17: ?
-				// case 11: if (dungeon[i][j + 1] == 3)
-				//	dungeon[i][j + 1] = 4; // ? connect wall with pillar
-				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5; // connect wall with pillar
-				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12; // connect wall with pillar
-				break;
-			case 13:
-			// case 7: ?
-				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4; // connect wall with pillar
-				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12; // connect wall with pillar
-				break;
-			case 15:
-				if (dungeon[i + 1][j + 1] == 9 && dungeon[i + 1][j - 1] == 1 && dungeon[i + 2][j] == 16)
-					dungeon[i + 1][j] = 29;
-				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12; // connect wall with pillar
-				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5; // connect wall with pillar
-				break;
-			case 19:
-				if (dungeon[i + 1][j] == 10)
-					dungeon[i + 1][j] = 17; // connect walls
-				break;
-			case 21:
-				if (dungeon[i][j + 1] == 24 && dungeon[i][j + 2] == 1)
-					dungeon[i][j + 1] = 17; // connect walls + close y - 1 side
-				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11; // connect walls? why not previous loop?
-				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16; // connect walls? why not 13 and previous loop?
-				break;
-			case 25:
-				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10; // connect walls? why not previous loop?
-				break;
-			case 27:
-				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11; // connect walls? why not previous loop?
-				break;
-			case 28:
-				if (dungeon[i][j - 1] == 6 && dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 23; // ??
-				if (dungeon[i + 1][j] == 23 && dungeon[i + 1][j + 1] == 3)
-					dungeon[i + 1][j] = 16;
-				break;
-			}
-		}
-	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			switch (dungeon[i][j]) {
-			case 1:
-				if (dungeon[i][j + 1] == 6)
-					dungeon[i][j + 1] = 4; // close walls again?
-				break;
-			case 9:
-				if (dungeon[i][j + 1] == 16)
-					dungeon[i][j + 1] = 13; // close walls
-				break;
-			case 10:
-				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12; // connect wall with pillar
-				if (dungeon[i + 1][j] == 3 && dungeon[i + 1][j - 1] == 16)
-					dungeon[i + 1][j] = 12; // connect wall with pillar? why conditional (same thing is done unconditionally in the previous loop)
-				if (dungeon[i][j + 1] == 16)
-					dungeon[i][j + 1] = 13; // close walls
-				break;
-			case 11:
-			case 13:
-				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12; // connect wall with pillar
-				break;
-			case 15:
-				if (dungeon[i + 1][j] == 10)
-					dungeon[i + 1][j] = 17; // connect walls
-				if (dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 16)
-					dungeon[i + 1][j] = 23; // connect walls + close y - 1 side
-				break;
-			case 16:
-				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4; // connect wall with pillar
-				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12; // connect wall with pillar
-				break;
-			case 17:
-				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12; // connect wall with pillar
-				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12; // connect wall with pillar
-				break;
-			case 21:
-				if (dungeon[i + 1][j] == 10)
-					dungeon[i + 1][j] = 17; // connect walls
-				if (dungeon[i + 1][j] == 13 && dungeon[i][j + 1] == 10)
-					dungeon[i + 1][j + 1] = 12; // connect walls with pillar (brave move...)
-				break;
-			case 22:
-			//case 23: ?
-			//case 25: ?
-				if (dungeon[i][j + 1] == 11)
-					dungeon[i][j + 1] = 17; // connect walls
-				break;
-			case 28:
-				if (dungeon[i + 1][j] == 23 && dungeon[i + 1][j + 1] == 1 && dungeon[i + 2][j] == 6)
-					dungeon[i + 1][j] = 16; // eliminate dirt, 28 is fixed in the last loop...
-				break;
-			case 29:
-				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10; // connect walls
-				break;
-			}
-		}
-	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 15 && dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 16)
-				dungeon[i + 1][j] = 23; // connect walls after the dirt is eliminated in the previous loop, but why conditional (15)?
-			if (dungeon[i][j] == 21 && dungeon[i + 1][j - 1] == 21 && dungeon[i + 1][j + 1] == 13 && dungeon[i + 2][j] == 2)
-				dungeon[i + 1][j] = 17;
-			if (dungeon[i][j] == 19 && dungeon[i + 1][j] == 15 && dungeon[i + 1][j + 1] == 12)
-				dungeon[i + 1][j] = 17;
 		}
 	}
 }
@@ -1866,6 +1717,7 @@ static void L4FixRim()
  */
 static void DRLG_L4GeneralFix()
 {
+	/* commented out because this is no longer necessary
 	int i, j;
 
 	for (j = 0; j < DMAXY - 1; j++) {
@@ -1879,7 +1731,7 @@ static void DRLG_L4GeneralFix()
 				dungeon[i][j] = 17;
 			}
 		}
-	}
+	}*/
 }
 
 struct mini_set {
