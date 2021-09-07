@@ -270,6 +270,7 @@ static void DRLG_L4MakeMegas()
 			 | (dungeon[i + 1][j] << 1)
 			 | (dungeon[i][j + 1] << 2)
 			 | (dungeon[i + 1][j + 1] << 3);
+			assert(v != 6 && v != 9);
 			dungeon[i][j] = L4ConvTbl[v];
 		}
 	}
@@ -1164,6 +1165,47 @@ static bool L4checkRoom(int x, int y, int width, int height)
 	return true;
 }
 
+/* L4checkVHall and L4checkHHall
+ *  make sure there is at least one empty block between the rooms
+ */
+static bool L4checkVHall(int x, int top, int h)
+{
+	int j = top, bottom;
+
+	//assert((unsigned)x < L4BLOCKX);
+	if (j < 0)
+		return false;
+	bottom = j + h;
+	if (bottom >= L4BLOCKY)
+		return false;
+	while (j < bottom && dungBlock[x][j] == 0)
+		j++;
+	while (j < bottom && dungBlock[x][j] == 1)
+		j++;
+	while (j < bottom && dungBlock[x][j] == 0)
+		j++;
+	return j == bottom;
+}
+
+static bool L4checkHHall(int y, int left, int w)
+{
+	int i = left, right;
+
+	//assert((unsigned)y < L4BLOCKY);
+	if (i < 0)
+		return false;
+	right = i + w;
+	if (right >= L4BLOCKX)
+		return false;
+	while (i < right && dungBlock[i][y] == 0)
+		i++;
+	while (i < right && dungBlock[i][y] == 1)
+		i++;
+	while (i < right && dungBlock[i][y] == 0)
+		i++;
+	return i == right;
+}
+
 static void L4roomGen(int x, int y, int w, int h, bool dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
@@ -1178,7 +1220,8 @@ static void L4roomGen(int x, int y, int w, int h, bool dir)
 			height = RandRange(2, 6) & ~1;
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
-			if (L4checkRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1") (fixed)
+			if (L4checkVHall(x, ry - 1, height + 2)
+			 && L4checkRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1") (fixed)
 				break;
 		}
 
@@ -1186,7 +1229,8 @@ static void L4roomGen(int x, int y, int w, int h, bool dir)
 			L4drawRoom(rx, ry, width, height);
 		// try to place a room to the right
 		rxy2 = x + w;
-		ran2 = L4checkRoom(rxy2, ry - 1, width + 1, height + 2);
+		ran2 = L4checkVHall(rxy2 - 1, ry - 1, height + 2)
+			&& L4checkRoom(rxy2, ry - 1, width + 1, height + 2);
 		if (ran2)
 			L4drawRoom(rxy2, ry, width, height);
 		// proceed with the placed a room on the left
@@ -1202,7 +1246,8 @@ static void L4roomGen(int x, int y, int w, int h, bool dir)
 			height = RandRange(2, 6) & ~1;
 			rx = w / 2 + x - width / 2;
 			ry = y - height;
-			if (L4checkRoom(rx - 1, ry - 1, width + 2, height + 1))
+			if (L4checkHHall(y, rx - 1, width + 2)
+			 && L4checkRoom(rx - 1, ry - 1, width + 2, height + 1))
 				break;
 		}
 
@@ -1210,7 +1255,8 @@ static void L4roomGen(int x, int y, int w, int h, bool dir)
 			L4drawRoom(rx, ry, width, height);
 		// try to place a room to the bottom
 		rxy2 = y + h;
-		ran2 = L4checkRoom(rx - 1, rxy2, width + 2, height + 1);
+		ran2 = L4checkHHall(rxy2 - 1, rx - 1, width + 2)
+			&& L4checkRoom(rx - 1, rxy2, width + 2, height + 1);
 		if (ran2)
 			L4drawRoom(rx, rxy2, width, height);
 		// proceed with the placed a room on the top
