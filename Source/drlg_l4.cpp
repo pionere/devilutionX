@@ -1162,7 +1162,7 @@ static bool L4checkRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
-	if (x <= 0 || y <= 0)
+	if (x < 0 || y < 0)
 		return false;
 
 	x2 = x + width;
@@ -1821,10 +1821,14 @@ static void L4FixRim()
 	int i, j;
 
 	for (i = 0; i < L4BLOCKX; i++) {
-		dungBlock[i][0] = 0;
+		assert(dungBlock[i][0] == 0);
+		assert(dungBlock[i][L4BLOCKX - 1] == 0);
+		// dungBlock[i][0] = 0;
 	}
 	for (j = 0; j < L4BLOCKY; j++) {
-		dungBlock[0][j] = 0;
+		assert(dungBlock[0][j] == 0);
+		assert(dungBlock[L4BLOCKY - 1][j] == 0);
+		// dungBlock[0][j] = 0;
 	}
 }
 
