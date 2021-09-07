@@ -446,9 +446,10 @@ void AddL1Objs(int x1, int y1, int x2, int y2)
 			if (pn == 270)
 				AddObject(OBJ_L1LIGHT, i, j);
 			// these pieces are closed doors which are placed directly
-			if (pn == 44 || pn == 51 || pn == 214)
+			assert(pn != 51 && pn != 56);
+			if (pn == 44 || /*pn == 51 ||*/ pn == 214)
 				AddObject(OBJ_L1LDOOR, i, j);
-			if (pn == 46 || pn == 56)
+			if (pn == 46 /*|| pn == 56*/)
 				AddObject(OBJ_L1RDOOR, i, j);
 		}
 	}
@@ -2049,6 +2050,7 @@ static void ObjSetDoorSidePiece(int dx, int dy, int otype)
 			pn = 204;
 		else if (pn == 79)
 			pn = 208;
+		/* commented out because this is not possible with the current implementation
 		else if (pn == 86)
 			pn = otype == OBJ_L5LDOOR ? 232 : 234;
 		else if (pn == 91)
@@ -2068,7 +2070,7 @@ static void ObjSetDoorSidePiece(int dx, int dy, int otype)
 		else if (pn == 119)
 			pn = 230;
 		else if (pn == 232 || pn == 234)
-			pn = 212;
+			pn = 212;*/
 		else
 			return;
 	} else
@@ -2077,6 +2079,7 @@ static void ObjSetDoorSidePiece(int dx, int dy, int otype)
 			pn = 392;
 		else if (pn == 45)
 			pn = 394;
+		/* commented out because this is not possible with the current implementation
 		else if (pn == 50)
 			pn = otype == OBJ_L1LDOOR ? 411 : 412;
 		else if (pn == 54)
@@ -2095,14 +2098,14 @@ static void ObjSetDoorSidePiece(int dx, int dy, int otype)
 			pn = 404;
 		else if (pn == 72)
 			pn = 406;
-		else if (pn == 212)
-			pn = 407;
 		else if (pn == 354)
 			pn = 409;
 		else if (pn == 355)
 			pn = 410;
 		else if (pn == 411 || pn == 412)
-			pn = 396;
+			pn = 396;*/
+		else if (pn == 212)
+			pn = 407;
 		else
 			return;
 	ObjSetMicro(dx, dy, pn);
@@ -4072,14 +4075,17 @@ static void SyncL1Doors(int oi)
 			y--;
 		else
 			x--;
-		if (pn == 50 && dPiece[x][y] == 396)
-			pn = os->_otype == OBJ_L1LDOOR ? 412 : 411;
+		// commented out because this is not possible with the current implementation
+		//if (pn == 50 && dPiece[x][y] == 396)
+		//	pn = os->_otype == OBJ_L1LDOOR ? 412 : 411;
 		ObjSetMicro(x, y, pn);
 		return;
 	}
 
 	if (os->_otype == OBJ_L1LDOOR) {
-		ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
+		//ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
+		assert(os->_oVar1 != 214);
+		ObjSetMicro(x, y, 393); // DOOR_PIECE_CLOSED
 		dSpecial[x][y] = 7;
 		ObjSetDoorBackPiece(x - 1, y);
 		y--;
@@ -4110,8 +4116,9 @@ static void SyncL5Doors(int oi)
 			y--;
 		else
 			x--;
-		if (pn == 86 && dPiece[x][y] == 212)
-			pn = os->_otype == OBJ_L5LDOOR ? 234 : 232;
+		// commented out because this is not possible with the current implementation
+		//if (pn == 86 && dPiece[x][y] == 212)
+		//	pn = os->_otype == OBJ_L5LDOOR ? 234 : 232;
 		ObjSetMicro(x, y, pn);
 		return;
 	}
