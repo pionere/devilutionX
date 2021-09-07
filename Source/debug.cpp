@@ -273,6 +273,8 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
 		if (md.mAi == AI_COUNSLR && md.mInt > 5)
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
+		if (md.mLevel + HELL_LEVEL_BONUS > CF_LEVEL && (md.mTreasure & 0x4000) == 0)
+			app_fatal("Invalid mLevel %d for %s (%d). Too high in hell to set the level of item-drop.", md.mLevel, md.mName, i);
 	}
 	for (int i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
@@ -299,6 +301,8 @@ void ValidateData()
 
 	for (int i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
 		const UniqMonData& um = uniqMonData[i];
+		if (um.mtype >= NUM_MTYPES)
+			app_fatal("Invalid unique monster type %d for %s (%d)", um.mtype, um.mName, i);
 		int j = 0;
 		int lvl = um.muLevelIdx;
 		if (lvl == 0 && um.mQuestId != Q_INVALID)
@@ -322,6 +326,8 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
 		if (um.mAi == AI_COUNSLR && um.mInt > 5)
 			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
+		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mTreasure & 0x4000) == 0)
+			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
 	}
 
 	// items
