@@ -1283,8 +1283,8 @@ static void L4firstRoom()
 			if (QuestStatus(Q_WARLORD))
 				w--;
 		} else {
-			w = RandRange(2, 6);
-			h = RandRange(2, 6);
+			w = RandRange(2, 6) & ~1;
+			h = RandRange(2, 6) & ~1;
 		}
 	} else {
 		w = DQUAD_ROOM_SIZE;
