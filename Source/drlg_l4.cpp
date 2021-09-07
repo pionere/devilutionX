@@ -1803,16 +1803,14 @@ static void DRLG_L4TransFix()
  */
 static void DRLG_L4Corners()
 {
-	int i, j;
+	int i;
+	BYTE* pTmp;
 
-	for (j = 1; j < DMAXY - 1; j++) {
-		for (i = 1; i < DMAXX - 1; i++) {
-			if (dungeon[i][j] >= 18 && dungeon[i][j] <= 30) {
-				if (dungeon[i + 1][j] < 18 || dungeon[i][j + 1] < 18) {
-					dungeon[i][j] += 98;
-				}
-			}
-		}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4Corners.");
+	pTmp = &dungeon[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
+		if (*pTmp >= 18 && *pTmp < 30)
+			*pTmp += 98;
 	}
 }
 
