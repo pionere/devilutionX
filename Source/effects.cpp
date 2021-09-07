@@ -1369,19 +1369,19 @@ static void priv_sound_init(BYTE bLoadMask)
 			continue;
 		}
 
+#ifdef HELLFIRE
 		if (sgSFX[i].bFlags & sfx_STREAM) {
 			continue;
 		}
+#else
+		if (sgSFX[i].bFlags & (sfx_STREAM | sfx_HELLFIRE)) {
+			continue;
+		}
+#endif
 
 		if (!(sgSFX[i].bFlags & bLoadMask)) {
 			continue;
 		}
-
-#ifndef HELLFIRE
-		if (sgSFX[i].bFlags & sfx_HELLFIRE) {
-			continue;
-		}
-#endif
 
 		sgSFX[i].pSnd = sound_file_load(sgSFX[i].pszName);
 	}
