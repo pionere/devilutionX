@@ -159,7 +159,10 @@ const BYTE L4PENTA2[] = {
 	// clang-format on
 };
 
-/** Maps tile IDs to their corresponding undecorated tile ID. */
+/*
+ * Maps tile IDs to their corresponding undecorated tile ID.
+ * Values with a single entry are commented out, because pointless to randomize a single option.
+ */
 const BYTE L4BTYPES[140] = {
 	0, 1, 2, 0 /*3*/, 4, 5, 6, 7, 0/*8*/, 9,
 	0/*10*/, 0/*11*/, 12, 0/*13*/, 0/*14*/, 15, 16, 0/*17*/, 0, 0,
@@ -177,6 +180,11 @@ const BYTE L4BTYPES[140] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
+/*
+ * Miniset replacement to add shadows.
+ * New dungeon values: 47 48
+ * TODO: use DRLG_PlaceMiniSet instead?
+ */
 static void DRLG_L4Shadows()
 {
 	int x, y;
@@ -187,9 +195,17 @@ static void DRLG_L4Shadows()
 			bv = dungeon[x][y];
 			if (bv != 3 && bv != 4 && bv != 8 && bv != 15)
 				continue;
+			//6, 3/4/8/15,  search
+
+			//47, 0, replace
 			if (dungeon[x - 1][y] == 6) {
 				dungeon[x - 1][y] = 47;
 			}
+			//6,  0, search
+			//0, 3/4/8/15,
+
+			//48, 0, replace
+			// 0, 0,
 			if (dungeon[x - 1][y - 1] == 6) {
 				dungeon[x - 1][y - 1] = 48;
 			}
@@ -238,6 +254,10 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	}
 }
 
+/*
+ * Transform dungeon by replacing values using 2x2 block patterns defined in L1ConvTbl
+ * New dungeon values: 1 2 3 6 9 30
+ */
 static void DRLG_L4MakeMegas()
 {
 	int i, j;
@@ -464,6 +484,11 @@ static void L4AddVWall(int x, int y)
 	//return false;
 }
 
+/*
+ * Draw walls between pillars.
+ * New dungeon values: 2 11 14 17 23 29 56 57 58 59 60
+ *                     1 9 10 13 17 22 29 52 53 54 55 60
+ */
 static void L4AddWall()
 {
 	int i, j;
@@ -501,6 +526,10 @@ static void L4AddWall()
 	}
 }
 
+/*
+ * Place special pieces on the border of the dungeon.
+ * New dungeon values: 4 .. 29 except 20
+ */
 static void L4tileFix()
 {
 	int i, j;
@@ -509,12 +538,12 @@ static void L4tileFix()
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == 2) {
 				if (dungeon[i + 1][j] == 6)
-					dungeon[i + 1][j] = 5;
+					dungeon[i + 1][j] = 5; // close walls
 				else if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 13;
+					dungeon[i + 1][j] = 13; // connect walls
 			} else if (dungeon[i][j] == 1)
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 14;
+					dungeon[i][j + 1] = 14; // connect walls
 		}
 	}
 	for (j = 0; j < DMAXY; j++) {
@@ -522,29 +551,31 @@ static void L4tileFix()
 			switch (dungeon[i][j]) {
 			case 1:
 				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10;
+					dungeon[i][j + 1] = 10; // connect wall with pillar
 				break;
 			case 2:
+				// impossible case
+				//  the first loop converts these to 5
 				if (dungeon[i + 1][j] == 6)
 					dungeon[i + 1][j] = 2;
 				else if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11;
+					dungeon[i + 1][j] = 11; // connect wall with pillar
 				break;
 			case 6:
 				if (dungeon[i + 1][j] == 14)
-					dungeon[i + 1][j] = 15;
+					dungeon[i + 1][j] = 15; // cut protruding wall chunk to x - 1
 				if (dungeon[i][j + 1] == 13)
-					dungeon[i][j + 1] = 16;
+					dungeon[i][j + 1] = 16; // cut protruding wall chunk to y - 1
 				if (dungeon[i][j - 1] == 1)
 					dungeon[i][j - 1] = 1;
 				break;
 			case 9:
 				if (dungeon[i + 1][j] == 6)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect walls. redirect wall, since the room continues to NE (otherwise it would be 2 instead of 6)
 				break;
 			case 14:
 				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 13;
+					dungeon[i + 1][j] = 13; // connect walls
 				break;
 			}
 		}
@@ -554,59 +585,59 @@ static void L4tileFix()
 			switch (dungeon[i][j]) {
 			case 1:
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 27;
+					dungeon[i][j + 1] = 27; // close y + 1 side
 				if (dungeon[i][j - 1] == 15)
-					dungeon[i][j - 1] = 10;
+					dungeon[i][j - 1] = 10; // connect walls
 				break;
 			case 2:
 				if (dungeon[i + 1][j] == 15)
-					dungeon[i + 1][j] = 14;
+					dungeon[i + 1][j] = 14; // connect walls
 				if (dungeon[i + 1][j] == 18)
-					dungeon[i + 1][j] = 25;
+					dungeon[i + 1][j] = 25; // connect walls
 				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 9)
-					dungeon[i + 1][j] = 29;
+					dungeon[i + 1][j] = 29; // start wall to close x + 1 side
 				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i + 1][j] = 29;
+					dungeon[i + 1][j] = 29; // start wall to close x + 1 side
 				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 2)
-					dungeon[i + 1][j] = 29;
+					dungeon[i + 1][j] = 29; // start wall to close x + 1 side
 				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 28;
+					dungeon[i + 1][j] = 28; // close x + 1 side
 				if (dungeon[i + 1][j] == 28 && dungeon[i + 1][j - 1] == 6)
-					dungeon[i + 1][j] = 23;
+					dungeon[i + 1][j] = 23; // close x + 1 side and y - 1 side
 				break;
 			case 6:
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] != 0) /* check */
-					dungeon[i + 1][j] = 22;
+				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] != 0) / * check * /
+					dungeon[i + 1][j] = 22; // close x + 1 side
 				if (dungeon[i + 1][j] == 30 && dungeon[i + 1][j - 1] == 6)
-					dungeon[i + 1][j] = 21;
+					dungeon[i + 1][j] = 21; // close x + 1 side and y - 1 side
 				break;
 			case 9:
 				if (dungeon[i + 1][j] == 15)
-					dungeon[i + 1][j] = 14;
+					dungeon[i + 1][j] = 14; // connect walls
 				break;
 			case 11:
 				if (dungeon[i + 1][j] == 15)
-					dungeon[i + 1][j] = 14;
+					dungeon[i + 1][j] = 14; // connect walls
 				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5;
+					dungeon[i + 1][j] = 5; // connect wall with pillar
 				break;
 			case 13:
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 27;
+					dungeon[i][j + 1] = 27; // close y + 1 side
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10;
+					dungeon[i][j + 1] = 10; // connect walls
 				break;
 			case 14:
 				if (dungeon[i + 1][j] == 15)
-					dungeon[i + 1][j] = 14;
+					dungeon[i + 1][j] = 14; // connect walls
 				if (dungeon[i + 1][j] == 30 && dungeon[i][j + 1] == 6)
-					dungeon[i + 1][j] = 28;
+					dungeon[i + 1][j] = 28; // close x + 1 side
 				if (dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 1)
-					dungeon[i + 1][j] = 23;
+					dungeon[i + 1][j] = 23; // close x + 1 side and y - 1 side
 				if (dungeon[i + 1][j] == 30 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i + 1][j] = 23;
+					dungeon[i + 1][j] = 23; // ?
 				if (dungeon[i + 1][j] == 23 && dungeon[i + 2][j] == 30)
 					dungeon[i + 1][j] = 28;
 				if (dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 30 && dungeon[i + 1][j - 1] == 6)
@@ -614,43 +645,43 @@ static void L4tileFix()
 				break;
 			case 15:
 				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 2)
-					dungeon[i + 1][j] = 29;
+					dungeon[i + 1][j] = 29; // close x + 1 side
 				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 28;
+					dungeon[i + 1][j] = 28; // close x + 1 side
 				if (dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 30 && dungeon[i + 1][j - 1] == 6)
 					dungeon[i + 1][j] = 23;
 				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i + 1][j] = 29;
+					dungeon[i + 1][j] = 29; // close x + 1 side
 				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16;
+					dungeon[i + 1][j] = 16; // connect walls
 				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4;
+					dungeon[i][j + 1] = 4; // ? start wall ???
 				break;
 			case 16:
 				if (dungeon[i][j + 1] == 30 && dungeon[i + 1][j] == 6)
-					dungeon[i][j + 1] = 27;
+					dungeon[i][j + 1] = 27; // close y + 1 side
 				if (dungeon[i][j + 1] == 30 && dungeon[i + 1][j + 1] == 30)
-					dungeon[i][j + 1] = 27;
+					dungeon[i][j + 1] = 27; // close y + 1 side ??
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18;
+					dungeon[i][j + 1] = 18; // close x + 1 side
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				break;
 			case 18:
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18;
+					dungeon[i][j + 1] = 18; // close x + 1 side
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10;
+					dungeon[i][j + 1] = 10; // connect walls
 				break;
 			case 19:
 				if (dungeon[i + 1][j] == 27)
-					dungeon[i + 1][j] = 26;
+					dungeon[i + 1][j] = 26; // connect walls
 				if (dungeon[i + 1][j] == 18)
-					dungeon[i + 1][j] = 24;
+					dungeon[i + 1][j] = 24; // connect walls + fix wall (possible?)
 				if (dungeon[i + 1][j] == 19 && dungeon[i + 1][j - 1] == 30)
-					dungeon[i + 1][j] = 24;
+					dungeon[i + 1][j] = 24; // fix wall (possible?)
 				if (dungeon[i + 2][j] == 2 && dungeon[i + 1][j - 1] == 18 && dungeon[i + 1][j + 1] == 1)
 					dungeon[i + 1][j] = 17;
 				if (dungeon[i + 2][j] == 2 && dungeon[i + 1][j - 1] == 22 && dungeon[i + 1][j + 1] == 1)
@@ -658,110 +689,110 @@ static void L4tileFix()
 				if (dungeon[i + 2][j] == 2 && dungeon[i + 1][j - 1] == 18 && dungeon[i + 1][j + 1] == 13)
 					dungeon[i + 1][j] = 17;
 				if (dungeon[i + 1][j] == 10)
-					dungeon[i + 1][j] = 17;
+					dungeon[i + 1][j] = 17; // connect walls
 				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19;
+					dungeon[i + 1][j] = 19; // close y - 1 side
 				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11;
+					dungeon[i + 1][j] = 11; // connect walls
 				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 13;
+					dungeon[i + 1][j] = 13; // connect walls
 				if (dungeon[i + 1][j] == 13 && dungeon[i + 1][j - 1] == 6)
-					dungeon[i + 1][j] = 16;
+					dungeon[i + 1][j] = 16; // cut protruding wall? already covered by case 6 with j + 1?
 				break;
 			case 21:
 				if (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 1)
-					dungeon[i + 1][j] = 13;
+					dungeon[i + 1][j] = 13; // connect walls? why conditional?
 				if (dungeon[i + 2][j] == 2 && dungeon[i + 1][j - 1] == 18 && dungeon[i + 1][j + 1] == 1)
 					dungeon[i + 1][j] = 17;
 				if (dungeon[i + 1][j + 1] == 1 && dungeon[i + 1][j - 1] == 22 && dungeon[i + 2][j] == 3)
 					dungeon[i + 1][j] = 17;
 				if (dungeon[i + 1][j - 1] == 21)
-					dungeon[i + 1][j] = 24;
+					dungeon[i + 1][j] = 24; // close south edge (brave move...)
 				if (dungeon[i + 1][j] == 9 && dungeon[i + 2][j] == 2)
-					dungeon[i + 1][j] = 11;
+					dungeon[i + 1][j] = 11; // connect walls? why conditional?
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10;
+					dungeon[i][j + 1] = 10; // connect walls
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18;
+					dungeon[i][j + 1] = 18; // close x + 1 side
 				if (dungeon[i + 1][j] == 18 && dungeon[i + 2][j] == 30)
 					dungeon[i + 1][j] = 24;
 				if (dungeon[i + 1][j] == 9 && dungeon[i + 1][j + 1] == 1)
-					dungeon[i + 1][j] = 16;
+					dungeon[i + 1][j] = 16; // connect walls? why not 11 and why conditional?
 				if (dungeon[i + 1][j] == 27)
-					dungeon[i + 1][j] = 26;
+					dungeon[i + 1][j] = 26; // connect walls
 				if (dungeon[i + 1][j] == 18)
-					dungeon[i + 1][j] = 24;
+					dungeon[i + 1][j] = 24; // fix wall
 				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19;
+					dungeon[i + 1][j] = 19; // close y - 1 side
 				break;
 			case 22:
 				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16;
+					dungeon[i + 1][j] = 16; // connect walls? why not 13?
 				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19;
+					dungeon[i + 1][j] = 19; // close y - 1 side
 				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11;
+					dungeon[i + 1][j] = 11; // connect walls
 				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 10?
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18;
+					dungeon[i][j + 1] = 18; // close x + 1 side
 				break;
 			case 23:
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 10?
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18;
+					dungeon[i][j + 1] = 18; // close x + 1 side
 				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11;
+					dungeon[i + 1][j] = 11; // connect walls
 				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16;
+					dungeon[i + 1][j] = 16; // connect walls? why not 13?
 				if (dungeon[i + 1][j] == 18 && dungeon[i][j - 1] == 6)
-					dungeon[i + 1][j] = 24;
+					dungeon[i + 1][j] = 24; // fix wall? why conditional?
 				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19;
+					dungeon[i + 1][j] = 19; // close y - 1 side
 				break;
 			case 24:
 				if (dungeon[i][j - 1] == 30 && dungeon[i][j - 2] == 6)
-					dungeon[i][j - 1] = 21;
+					dungeon[i][j - 1] = 21; // close y + 1 side (why not case 6 with j + 1 check?)
 				if (dungeon[i - 1][j] == 30)
-					dungeon[i - 1][j] = 19;
+					dungeon[i - 1][j] = 19; // close y - 1 side
 				break;
 			case 25:
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18;
+					dungeon[i][j + 1] = 18; // close x + 1 side
 				break;
 			case 26:
 			case 27:
 				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16;
+					dungeon[i + 1][j] = 16; // connect walls? why not 13?
 				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19;
+					dungeon[i + 1][j] = 19; // close y - 1 side
 				break;
 			case 28:
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18;
+					dungeon[i][j + 1] = 18; // close x + 1 side
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 10?
 				break;
 			case 29:
 				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16;
+					dungeon[i + 1][j] = 16; // connect walls? why not 13?
 				if (dungeon[i][j + 1] == 2)
-					dungeon[i][j + 1] = 15;
+					dungeon[i][j + 1] = 15; // connect walls? why not 14?
 				if (dungeon[i + 1][j] == 30)
-					dungeon[i + 1][j] = 19;
+					dungeon[i + 1][j] = 19; // close y - 1 side
 				if (dungeon[i][j + 1] == 30)
-					dungeon[i][j + 1] = 18;
+					dungeon[i][j + 1] = 18; // close x + 1 side
 				break;
 			}
 		}
@@ -771,92 +802,99 @@ static void L4tileFix()
 			switch (dungeon[i][j]) {
 			case 1:
 				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4;
+					dungeon[i][j + 1] = 4; // connect wall with pillar
 				if (dungeon[i][j + 1] == 6)
-					dungeon[i][j + 1] = 4;
+					dungeon[i][j + 1] = 4; // close walls
 				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12;
+					dungeon[i][j + 1] = 12; // connect wall with pillar
 				if (dungeon[i][j + 1] == 16)
-					dungeon[i][j + 1] = 13;
+					dungeon[i][j + 1] = 13; // close walls
 				if (dungeon[i][j - 1] == 6)
-					dungeon[i][j - 1] = 7;
+					dungeon[i][j - 1] = 7; // close walls
 				if (dungeon[i][j - 1] == 8)
-					dungeon[i][j - 1] = 9;
+					dungeon[i][j - 1] = 9; // connect walls
 				break;
 			case 2:
 				if (dungeon[i - 1][j] == 6)
-					dungeon[i - 1][j] = 8;
+					dungeon[i - 1][j] = 8; // close walls
 				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5;
+					dungeon[i + 1][j] = 5; // connect wall with pillar
 				if (dungeon[i + 1][j] == 5 && dungeon[i + 1][j - 1] == 16)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect wall with pillar? why not case 16 with j + 1?
 				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect wall with pillar
 				break;
 			case 6:
 				if (dungeon[i + 1][j] == 15 && dungeon[i + 1][j + 1] == 4)
-					dungeon[i + 1][j] = 10;
+					dungeon[i + 1][j] = 10; // connect walls? why not case 4 with j + 1?
 				if (dungeon[i][j + 1] == 13)
-					dungeon[i][j + 1] = 16;
+					dungeon[i][j + 1] = 16; // cut protruding wall
 				break;
 			case 9:
 				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4;
+					dungeon[i][j + 1] = 4; // connect wall with pillar
 				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5;
+					dungeon[i + 1][j] = 5; // connect wall with pillar
 				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect wall with pillar
 				break;
 			case 10:
 				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4;
+					dungeon[i][j + 1] = 4; // connect wall with pillar
+				//if (dungeon[i + 1][j] == 3)
+				//	dungeon[i + 1][j] = 5; // ? connect wall with pillar
 				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect wall with pillar - repeated in the next loop...
 				break;
 			case 11:
 			case 14:
+				// case 8: == case 14?
+				// case 17: ?
+				// case 11: if (dungeon[i][j + 1] == 3)
+				//	dungeon[i][j + 1] = 4; // ? connect wall with pillar
 				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5;
+					dungeon[i + 1][j] = 5; // connect wall with pillar
 				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect wall with pillar
 				break;
 			case 13:
+			// case 7: ?
 				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4;
+					dungeon[i][j + 1] = 4; // connect wall with pillar
 				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12;
+					dungeon[i][j + 1] = 12; // connect wall with pillar
 				break;
 			case 15:
 				if (dungeon[i + 1][j + 1] == 9 && dungeon[i + 1][j - 1] == 1 && dungeon[i + 2][j] == 16)
 					dungeon[i + 1][j] = 29;
 				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect wall with pillar
 				if (dungeon[i + 1][j] == 3)
-					dungeon[i + 1][j] = 5;
+					dungeon[i + 1][j] = 5; // connect wall with pillar
 				break;
 			case 19:
 				if (dungeon[i + 1][j] == 10)
-					dungeon[i + 1][j] = 17;
+					dungeon[i + 1][j] = 17; // connect walls
 				break;
 			case 21:
 				if (dungeon[i][j + 1] == 24 && dungeon[i][j + 2] == 1)
-					dungeon[i][j + 1] = 17;
+					dungeon[i][j + 1] = 17; // connect walls + close y - 1 side
 				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11;
+					dungeon[i + 1][j] = 11; // connect walls? why not previous loop?
 				if (dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 16;
+					dungeon[i + 1][j] = 16; // connect walls? why not 13 and previous loop?
 				break;
 			case 25:
 				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10;
+					dungeon[i][j + 1] = 10; // connect walls? why not previous loop?
 				break;
 			case 27:
 				if (dungeon[i + 1][j] == 9)
-					dungeon[i + 1][j] = 11;
+					dungeon[i + 1][j] = 11; // connect walls? why not previous loop?
 				break;
 			case 28:
 				if (dungeon[i][j - 1] == 6 && dungeon[i + 1][j] == 1)
-					dungeon[i + 1][j] = 23;
+					dungeon[i + 1][j] = 23; // ??
 				if (dungeon[i + 1][j] == 23 && dungeon[i + 1][j + 1] == 3)
 					dungeon[i + 1][j] = 16;
 				break;
@@ -868,60 +906,62 @@ static void L4tileFix()
 			switch (dungeon[i][j]) {
 			case 1:
 				if (dungeon[i][j + 1] == 6)
-					dungeon[i][j + 1] = 4;
+					dungeon[i][j + 1] = 4; // close walls again?
 				break;
 			case 9:
 				if (dungeon[i][j + 1] == 16)
-					dungeon[i][j + 1] = 13;
+					dungeon[i][j + 1] = 13; // close walls
 				break;
 			case 10:
 				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect wall with pillar
 				if (dungeon[i + 1][j] == 3 && dungeon[i + 1][j - 1] == 16)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect wall with pillar? why conditional (same thing is done unconditionally in the previous loop)
 				if (dungeon[i][j + 1] == 16)
-					dungeon[i][j + 1] = 13;
+					dungeon[i][j + 1] = 13; // close walls
 				break;
 			case 11:
 			case 13:
 				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12;
+					dungeon[i][j + 1] = 12; // connect wall with pillar
 				break;
 			case 15:
 				if (dungeon[i + 1][j] == 10)
-					dungeon[i + 1][j] = 17;
+					dungeon[i + 1][j] = 17; // connect walls
 				if (dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 16)
-					dungeon[i + 1][j] = 23;
+					dungeon[i + 1][j] = 23; // connect walls + close y - 1 side
 				break;
 			case 16:
 				if (dungeon[i][j + 1] == 3)
-					dungeon[i][j + 1] = 4;
+					dungeon[i][j + 1] = 4; // connect wall with pillar
 				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12;
+					dungeon[i][j + 1] = 12; // connect wall with pillar
 				break;
 			case 17:
 				if (dungeon[i + 1][j] == 4)
-					dungeon[i + 1][j] = 12;
+					dungeon[i + 1][j] = 12; // connect wall with pillar
 				if (dungeon[i][j + 1] == 5)
-					dungeon[i][j + 1] = 12;
+					dungeon[i][j + 1] = 12; // connect wall with pillar
 				break;
 			case 21:
 				if (dungeon[i + 1][j] == 10)
-					dungeon[i + 1][j] = 17;
+					dungeon[i + 1][j] = 17; // connect walls
 				if (dungeon[i + 1][j] == 13 && dungeon[i][j + 1] == 10)
-					dungeon[i + 1][j + 1] = 12;
+					dungeon[i + 1][j + 1] = 12; // connect walls with pillar (brave move...)
 				break;
 			case 22:
+			//case 23: ?
+			//case 25: ?
 				if (dungeon[i][j + 1] == 11)
-					dungeon[i][j + 1] = 17;
+					dungeon[i][j + 1] = 17; // connect walls
 				break;
 			case 28:
 				if (dungeon[i + 1][j] == 23 && dungeon[i + 1][j + 1] == 1 && dungeon[i + 2][j] == 6)
-					dungeon[i + 1][j] = 16;
+					dungeon[i + 1][j] = 16; // eliminate dirt, 28 is fixed in the last loop...
 				break;
 			case 29:
 				if (dungeon[i][j + 1] == 9)
-					dungeon[i][j + 1] = 10;
+					dungeon[i][j + 1] = 10; // connect walls
 				break;
 			}
 		}
@@ -929,7 +969,7 @@ static void L4tileFix()
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == 15 && dungeon[i + 1][j] == 28 && dungeon[i + 2][j] == 16)
-				dungeon[i + 1][j] = 23;
+				dungeon[i + 1][j] = 23; // connect walls after the dirt is eliminated in the previous loop, but why conditional (15)?
 			if (dungeon[i][j] == 21 && dungeon[i + 1][j - 1] == 21 && dungeon[i + 1][j + 1] == 13 && dungeon[i + 2][j] == 2)
 				dungeon[i + 1][j] = 17;
 			if (dungeon[i][j] == 19 && dungeon[i + 1][j] == 15 && dungeon[i + 1][j + 1] == 12)
@@ -938,6 +978,10 @@ static void L4tileFix()
 	}
 }
 
+/*
+ * Replace undecorated tiles with matching decorated tiles.
+ * New dungeon values: 51 52 61..70 77..83 95 96 97
+ */
 static void DRLG_L4Subs()
 {
 	int x, y, i, rv;
@@ -1001,6 +1045,9 @@ static void L4makeDungeon()
 	}
 }
 
+/*
+ * Create link between the quarters of the dungeon.
+ */
 static void uShape()
 {
 	int j, i, rv;
@@ -1142,6 +1189,7 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 	dirProb = random_(0, 4);
 
 	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
+		// try to place a room to the left
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
 			height = RandRange(2, 6) & ~1;
@@ -1153,15 +1201,19 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 
 		if (i != 0)
 			L4drawRoom(rx, ry, width, height);
+		// try to place a room to the right
 		rxy2 = x + w;
 		ran2 = L4checkRoom(rxy2, ry - 1, width + 1, height + 2);
 		if (ran2)
 			L4drawRoom(rxy2, ry, width, height);
+		// proceed with the placed a room on the left
 		if (i != 0)
 			L4roomGen(rx, ry, width, height, 1);
+		// proceed with the placed a room on the right
 		if (ran2)
 			L4roomGen(rxy2, ry, width, height, 1);
 	} else {
+		// try to place a room to the top
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
 			height = RandRange(2, 6) & ~1;
@@ -1173,17 +1225,24 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 
 		if (i != 0)
 			L4drawRoom(rx, ry, width, height);
+		// try to place a room to the bottom
 		rxy2 = y + h;
 		ran2 = L4checkRoom(rx - 1, rxy2, width + 2, height + 1);
 		if (ran2)
 			L4drawRoom(rx, rxy2, width, height);
+		// proceed with the placed a room on the top
 		if (i != 0)
 			L4roomGen(rx, ry, width, height, 0);
+		// proceed with the placed a room on the bottom
 		if (ran2)
 			L4roomGen(rx, rxy2, width, height, 0);
 	}
 }
 
+/*
+ * Create dungeon blueprint.
+ * New dungeon (dungBlock) values: 1
+ */
 static void L4firstRoom()
 {
 	int x, y, w, h, xmin, xmax, ymin, ymax;
@@ -1737,6 +1796,10 @@ static void DRLG_L4TransFix()
 	}*/
 }
 
+/*
+ * Replace lava tiles with complete ones to hide rendering glitch of transparent corners.
+ * New dungeon values: 116..128
+ */
 static void DRLG_L4Corners()
 {
 	int i, j;
@@ -1752,6 +1815,7 @@ static void DRLG_L4Corners()
 	}
 }
 
+/* make sure the first row and column of dungBlock are empty. */
 static void L4FixRim()
 {
 	int i, j;
@@ -1764,6 +1828,11 @@ static void L4FixRim()
 	}
 }
 
+/*
+ * Miniset replacement of corner tiles.
+ * New dungeon values: (17)
+ * TODO: use DRLG_PlaceMiniSet instead?
+ */
 static void DRLG_L4GeneralFix()
 {
 	int i, j;
