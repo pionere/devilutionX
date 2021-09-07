@@ -607,7 +607,7 @@ static void L4tileFix()
 					dungeon[i + 1][j] = 23; // close x + 1 side and y - 1 side
 				break;
 			case 6:
-				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] != 0) / * check * /
+				if (dungeon[i + 1][j] == 27 && dungeon[i + 1][j + 1] != 0) /* check */
 					dungeon[i + 1][j] = 22; // close x + 1 side
 				if (dungeon[i + 1][j] == 30 && dungeon[i + 1][j - 1] == 6)
 					dungeon[i + 1][j] = 21; // close x + 1 side and y - 1 side
@@ -1007,6 +1007,7 @@ static void DRLG_L4Subs()
 			}
 		}
 	}
+	// TODO: second round of replacement? why not merge with the first one?
 	for (y = 0; y < DMAXY; y++) {
 		for (x = 0; x < DMAXX; x++) {
 			if (random_(0, 10) == 0) {
@@ -1869,6 +1870,11 @@ static void DRLG_L4GeneralFix()
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
+			//24/122, 2,  search
+			// 5,     0,
+
+			//17, 0, replace
+			// 0, 0,
 			if ((dungeon[i][j] == 24 || dungeon[i][j] == 122) && dungeon[i + 1][j] == 2 && dungeon[i][j + 1] == 5) {
 				dungeon[i][j] = 17;
 			}
