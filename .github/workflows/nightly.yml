@@ -227,25 +227,27 @@ jobs:
           
           Filename | Description
           
+          
+          
           ------------ | -------------
           
-          diablo-nightly-mac.dmg   | Diablo package for Mac
+          [diablo-nightly-mac.dmg](download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for Mac
           
-          diablo-nightly-x64.zip   | Diablo build for Windows x64
+          [diablo-nightly-x64.zip](download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for Windows x64
           
-          diablo-nightly-x86.zip   | Diablo build for Windows x86
+          [diablo-nightly-x86.zip](download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for Windows x86
           
-          hellfire-nightly-mac.dmg | Hellfire package for Mac
+          [hellfire-nightly-mac.dmg](download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for Mac
           
-          hellfire-nightly-x64.zip | Hellfire build for Windows x64
+          [hellfire-nightly-x64.zip](download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for Windows x64
           
-          hellfire-nightly-x86.zip | Hellfire build for Windows x86
+          [hellfire-nightly-x86.zip](download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for Windows x86
           
-          hellone-nightly-x64.zip | Hellfire build for Windows x64<br>- merges the mpq files on the first run (takes a few minutes)
+          [hellone-nightly-x64.zip](download/devilx-nightly/hellone-nightly-x64.zip) | Hellfire build for Windows x64<br>- merges the mpq files on the first run (takes a few minutes)
           
-          hellone-nightly-x86.zip | Minimal Hellfire build for Windows x86<br>- no internet, controller, sound or widescreen support<br>- merges the mpq files on the first run (takes a few minutes)
+          [hellone-nightly-x86.zip](download/devilx-nightly/hellone-nightly-x86.zip) | Minimal Hellfire build for Windows x86<br>- no internet, controller, sound or widescreen support<br>- merges the mpq files on the first run (takes a few minutes)
           
-          hellsrv-nightly-x86.zip | Minimal Hellfire server for Windows x86<br>- no controller, sound or widescreen support<br>- only server functionality
+          [hellsrv-nightly-x86.zip](download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for Windows x86<br>- no controller, sound or widescreen support<br>- only server functionality
         draft: false
         prerelease: true
         files: |
