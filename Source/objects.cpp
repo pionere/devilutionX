@@ -1421,7 +1421,9 @@ static void AddTorturedFemaleBody(int oi)
 static void SyncL1Doors(int oi);
 static void SyncL2Doors(int oi);
 static void SyncL3Doors(int oi);
+#ifdef HELLFIRE
 static void SyncL5Doors(int oi);
+#endif
 int AddObject(int type, int ox, int oy)
 {
 	int oi;
@@ -4083,9 +4085,7 @@ static void SyncL1Doors(int oi)
 	}
 
 	if (os->_otype == OBJ_L1LDOOR) {
-		//ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
-		assert(os->_oVar1 != 214);
-		ObjSetMicro(x, y, 393); // DOOR_PIECE_CLOSED
+		ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
 		dSpecial[x][y] = 7;
 		ObjSetDoorBackPiece(x - 1, y);
 		y--;
