@@ -278,6 +278,7 @@ const BYTE L5DSTAIRS[] = {
 	 0,  0,  0,  0,
 	// clang-format on
 };
+/* same look as L5USTAIRS
 const BYTE L5TWARP[] = {
 	// clang-format off
 	4, 5, // width, height
@@ -294,7 +295,7 @@ const BYTE L5TWARP[] = {
 	66, 67, 68,  0,
 	 0,  0,  0,  0,
 	// clang-format on
-};
+};*/
 #endif
 /** Miniset: candlestick. */
 const BYTE LAMPS[] = {
@@ -2237,7 +2238,7 @@ static void DRLG_L1(int entry)
 #ifdef HELLFIRE
 		} else if (currLvl._dType == DTYPE_CRYPT) {
 			mini_set stairs[2] = {
-				{ currLvl._dLevelIdx != DLV_CRYPT1 ? L5USTAIRS : L5TWARP, entry != ENTRY_PREV },
+				{ /*currLvl._dLevelIdx != DLV_CRYPT1 ?*/ L5USTAIRS /*: L5TWARP*/, entry != ENTRY_PREV },
 				{ currLvl._dLevelIdx != DLV_CRYPT4 ? L5DSTAIRS : NULL, entry == ENTRY_PREV },
 			};
 			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);

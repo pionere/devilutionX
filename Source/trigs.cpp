@@ -57,15 +57,15 @@ BYTE gbTWarpFrom;
 #define L4_PENTA_WARP		(PIECE >= 353 && PIECE <= 384)
 #ifdef HELLFIRE
 /** Specifies the dungeon piece IDs which constitute stairways leading up to town from crypt. */
-#define L5_TOWN_WARP		(PIECE >= 172 && PIECE <= 185 && (PIECE <= 179 || PIECE >= 184))
+//#define L5_TOWN_WARP		(PIECE >= 172 && PIECE <= 185 && (PIECE <= 179 || PIECE >= 184))
 /** Specifies the dungeon piece IDs which constitute stairways leading up from crypt. */
 #define L5_UP_WARP			(PIECE >= 149 && PIECE <= 159 && (PIECE <= 153 || PIECE >= 158))
 /** Specifies the dungeon piece IDs which constitute stairways leading down from crypt. */
 #define L5_DOWN_WARP		(PIECE >= 125 && PIECE <= 126)
 #define L5_DOWN_WARPx(x)	(x >= 125 && x <= 126)
 /** Specifies the dungeon piece IDs which constitute stairways leading up to town from nest. */
-#define L6_TOWN_WARP		(PIECE >= 79 && PIECE <= 80)
-#define L6_TOWN_WARPx(x)	(x >= 79 && x <= 80)
+//#define L6_TOWN_WARP		(PIECE >= 79 && PIECE <= 80)
+//#define L6_TOWN_WARPx(x)	(x >= 79 && x <= 80)
 /** Specifies the dungeon piece IDs which constitute stairways leading up from nest. */
 #define L6_UP_WARP			(PIECE >= 65 && PIECE <= 66)
 #define L6_UP_WARPx(x)		(x >= 65 && x <= 66)
@@ -248,15 +248,15 @@ static void InitL5Triggers()
 	numtrigs = 0;
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
-			if (dPiece[i][j] == 184) {
+			/*if (dPiece[i][j] == 184) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
 				numtrigs++;
-			} else if (dPiece[i][j] == 158) {
+			} else*/ if (dPiece[i][j] == 158) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
+				trigs[numtrigs]._tmsg = currLvl._dLevelIdx == DLV_CRYPT1 ? DVL_DWM_TWARPUP : DVL_DWM_PREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 126) {
 				trigs[numtrigs]._tx = i;
@@ -278,19 +278,19 @@ static void InitL6Triggers()
 			if (dPiece[i][j] == 66) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
+				trigs[numtrigs]._tmsg = currLvl._dLevelIdx == DLV_NEST1 ? DVL_DWM_TWARPUP : DVL_DWM_PREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 63) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 				numtrigs++;
-			} else if (dPiece[i][j] == 80) {
+			} /*else if (dPiece[i][j] == 80) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
 				numtrigs++;
-			}
+			}*/
 		}
 	}
 }
@@ -596,9 +596,15 @@ static int ForceL5Trig()
 	int i;
 
 	if (L5_UP_WARP) {
-		// Up to Crypt level (currLvl._dLevelIdx - 21)
 		for (i = 0; i < numtrigs; i++) {
+			// Up to Crypt level (currLvl._dLevelIdx - 21)
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return i;
+			}
+			// Up to town
+			if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -616,7 +622,7 @@ static int ForceL5Trig()
 			}
 		}
 	}
-	if (currLvl._dLevelIdx == DLV_CRYPT1) {
+	/*if (currLvl._dLevelIdx == DLV_CRYPT1) {
 		if (L5_TOWN_WARP) {
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
@@ -627,7 +633,7 @@ static int ForceL5Trig()
 				}
 			}
 		}
-	}
+	}*/
 	return -1;
 }
 
@@ -637,9 +643,15 @@ static int ForceL6Trig()
 
 	if (L6_UP_WARP
 	 || L6_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
-		// Up to Nest level (currLvl._dLevelIdx - 17)
 		for (i = 0; i < numtrigs; i++) {
+			// Up to Nest level (currLvl._dLevelIdx - 17)
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return i;
+			}
+			// Up to town
+			if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -659,7 +671,7 @@ static int ForceL6Trig()
 		}
 	}
 
-	if (currLvl._dLevelIdx == DLV_NEST1) {
+	/*if (currLvl._dLevelIdx == DLV_NEST1) {
 		if (L6_TOWN_WARP
 		 || L6_TOWN_WARPx(dPiece[cursmx][cursmy + 1]) ) {
 			for (i = 0; i < numtrigs; i++) {
@@ -671,7 +683,7 @@ static int ForceL6Trig()
 				}
 			}
 		}
-	}
+	}*/
 	return -1;
 }
 #endif

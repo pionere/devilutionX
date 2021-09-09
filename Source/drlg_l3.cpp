@@ -118,6 +118,7 @@ const BYTE L3TWARP[] = {
 	  0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
+/* same look as L6USTAIRS
 #ifdef HELLFIRE
 const BYTE L6TWARP[] = {
 	// clang-format off
@@ -132,7 +133,7 @@ const BYTE L6TWARP[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-#endif
+#endif*/
 /** Miniset: Stalagmite white stalactite 1. */
 const BYTE L3TITE1[] = {
 	// clang-format off
@@ -2045,7 +2046,7 @@ static void DRLG_L3(int entry)
 #ifdef HELLFIRE
 			if (currLvl._dType == DTYPE_NEST) {
 				mini_set stairs[2] = {
-					{ currLvl._dLevelIdx != DLV_NEST1 ? L6USTAIRS : L6TWARP, entry != ENTRY_PREV },
+					{ /*currLvl._dLevelIdx != DLV_NEST1 ?*/ L6USTAIRS /*: L6TWARP*/, entry != ENTRY_PREV },
 					{ currLvl._dLevelIdx != DLV_NEST4 ? L6DSTAIRS : NULL, entry == ENTRY_PREV }
 				};
 				doneflag = DRLG_L3PlaceMiniSets(stairs, 2);
