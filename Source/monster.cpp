@@ -1563,13 +1563,13 @@ void MonStartHit(int mnum, int pnum, int dam)
 			mon->_menemy = pnum;
 			mon->_menemyx = plr._pfutx;
 			mon->_menemyy = plr._pfuty;
-			if (mon->_mmode != MM_STONE)
+			if (mon->_mmode != MM_STONE) {
 				mon->_mdir = MonGetDir(mnum);
+				if (mon->_mType == MT_BLINK)
+					MonTeleport(mnum);
+			}
 		}
 		if (mon->_mmode != MM_STONE) {
-			if (mon->_mType == MT_BLINK) {
-				MonTeleport(mnum);
-			}
 			MonStartGetHit(mnum);
 		}
 	}
