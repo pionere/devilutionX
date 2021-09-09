@@ -1576,6 +1576,32 @@ static void L1FillChambers()
 	}
 }
 
+/* possible configurations:
+		[ 1, 13, 4 ]
+	[ 2, 13, 22]  	1		[ 13 ]
+		[ 1, 2, 16, 13, 4, 22 ]
+
+		[ 1, 13, 22 ]
+	[ 2, 13, 4  ]	2		[ 1, 2, 16, 13, 4, 22 ]
+		[ 13 ]
+
+		[ 1, 13, 4 ]
+	[ 2, 13, 4 ]	16		[ 13 ]
+		[ 13 ]
+
+		[ 1, 13, 22 ]
+	[ 2, 13, 22 ]	4		[ 2 16 13 ]
+		[ 1, 16, 13 ]
+
+		[ 1, 13, 22 ]
+	[ 2, 13, 22 ]	22		 [ 1, 4, 22 ]
+		[ 2, 4, 22 ]
+
+		[ 1, 2, 16, 13, 4 ]
+	[ 1, 2, 16, 13, 4 ] 13 	[ 1, 2, 16, 13, 4, 22 ]
+		[ 1, 2, 16, 13, 4, 22 ]
+*/
+
 /*
  * Place special pieces on the border of the dungeon.
  * New dungeon values: 6 7 17 18 19 20 23 24
@@ -1706,6 +1732,21 @@ static void L1TileFix()
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
 			switch (dungeon[i][j]) {
+			case 19: // new wall (NW, SE)
+			case 21: // new wall (SW, SE)
+			case 24: // new wall (SE)
+				assert(i < DMAXX - 1);
+				if (dungeon[i + 1][j] == 1) {
+					dungeon[i + 1][j] = 6; // connect
+				}
+				break;
+			}
+		}
+	}
+#ifdef _DEBUG
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			switch (dungeon[i][j]) {
 			case 18: // new wall (SW, NE)
 				assert(i > 0);
 				// check SW (SW-18)
@@ -1732,9 +1773,7 @@ static void L1TileFix()
 				// check SE (SE-19)
 				assert(i < DMAXX - 1);
 				assert(j > 0);
-				if (dungeon[i + 1][j] == 1) {
-					dungeon[i + 1][j] = 6; // connect
-				} else if (dungeon[i + 1][j] == 22) {
+				if (dungeon[i + 1][j] == 22) {
 					assert(dungeon[i + 1][j - 1] == 18 || dungeon[i + 1][j - 1] == 21);
 				} else {
 					assert(dungeon[i + 1][j] == 4
@@ -1764,9 +1803,7 @@ static void L1TileFix()
 					 || dungeon[i][j + 1] == 23);
 				}
 				// check SE (SE-19)
-				if (dungeon[i + 1][j] == 1) {
-					dungeon[i + 1][j] = 6; // connect
-				} else if (dungeon[i + 1][j] == 22) {
+				if (dungeon[i + 1][j] == 22) {
 					assert(dungeon[i + 1][j - 1] == 18 || dungeon[i + 1][j - 1] == 21);
 				} else {
 					assert(dungeon[i + 1][j] == 4
@@ -1783,16 +1820,13 @@ static void L1TileFix()
 				break;
 			case 24: // new wall (SE)
 				assert(i < DMAXX - 1);
-				if (dungeon[i + 1][j] == 1) {
-					dungeon[i + 1][j] = 6; // connect
-				} else {
-					assert(dungeon[i + 1][j] == 4 || dungeon[i + 1][j] == 6
-					 || dungeon[i + 1][j] == 19);
-				}
+				assert(dungeon[i + 1][j] == 4 || dungeon[i + 1][j] == 6
+				 || dungeon[i + 1][j] == 19);
 				break;
 			}
 		}
 	}
+#endif
 }
 
 #ifdef HELLFIRE
