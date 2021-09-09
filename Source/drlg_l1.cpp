@@ -1414,26 +1414,33 @@ static void DRLG_L1GHallHoriz(int x1, int y1, int x2)
 	int i;
 
 	i = x1;
+	assert(dungeon[i][y1 - 2] == 7);
 	dungeon[i][y1 - 2] = 14;
 	dungeon[i][y1 - 1] = 11;
 	dungeon[i][y1 + 0] = 9;
 	dungeon[i][y1 + 3] = 5;
 	dungeon[i][y1 + 4] = 11;
-	if (dungeon[i][y1 + 5] != 4) {
-		dungeon[i][y1 + 5] = 21;
-	}
+	assert(dungeon[i][y1 + 5] == 4 || dungeon[i][y1 + 5] == 21 || dungeon[i][y1 + 5] == 7);
 
 	for (i++; i < x2; i++) {
 		dungeon[i][y1] = 12;
 		dungeon[i][y1 + 3] = 12;
 	}
 
-	dungeon[i][y1 - 2] = 11;
+	assert(dungeon[i][y1 - 2] == 3 || dungeon[i][y1 - 2] == 17);
+	if (dungeon[i][y1 - 2] == 17)
+		dungeon[i][y1 - 2] = 8;
+	else // if (dungeon[i][y1 - 2] == 3)
+		dungeon[i][y1 - 2] = 11;
 	dungeon[i][y1 - 1] = 11;
 	dungeon[i][y1 + 0] = 3;
 	dungeon[i][y1 + 3] = 8;
 	dungeon[i][y1 + 4] = 11;
-	dungeon[i][y1 + 5] = 1;
+	assert(dungeon[i][y1 + 5] == 6 || dungeon[i][y1 + 5] == 17);
+	if (dungeon[i][y1 + 5] == 17)
+		dungeon[i][y1 + 5] = 3;
+	//else if (dungeon[i][y1 + 5] == 6)
+	//	dungeon[i][y1 + 5] = 1;
 }
 
 static void DRLG_L1GHallVert(int x1, int y1, int y2)
@@ -1441,26 +1448,33 @@ static void DRLG_L1GHallVert(int x1, int y1, int y2)
 	int i;
 
 	i = y1;
+	assert(dungeon[x1 - 2][i] == 6);
 	dungeon[x1 - 2][i] = 10;
 	dungeon[x1 - 1][i] = 12;
 	dungeon[x1 + 0][i] = 8;
 	dungeon[x1 + 3][i] = 5;
 	dungeon[x1 + 4][i] = 12;
-	if (dungeon[x1 + 5][i] != 4) {
-		dungeon[x1 + 5][i] = 21;
-	}
+	assert(dungeon[x1 + 5][i] == 4 || dungeon[x1 + 5][i] == 6 || dungeon[x1 + 5][i] == 21);
 
 	for (i++; i < y2; i++) {
 		dungeon[x1][i] = 11;
 		dungeon[x1 + 3][i] = 11;
 	}
 
-	dungeon[x1 - 2][i] = 12;
+	assert(dungeon[x1 - 2][i] == 3 || dungeon[x1 - 2][i] == 16);
+	if (dungeon[x1 - 2][i] == 16)
+		dungeon[x1 - 2][i] = 9;
+	else //if (dungeon[x1 - 2][i] == 3)
+		dungeon[x1 - 2][i] = 12;
 	dungeon[x1 - 1][i] = 12;
 	dungeon[x1 + 0][i] = 3;
 	dungeon[x1 + 3][i] = 9;
 	dungeon[x1 + 4][i] = 12;
-	dungeon[x1 + 5][i] = 2;
+	assert(dungeon[x1 + 5][i] == 7 || dungeon[x1 + 5][i] == 16);
+	if (dungeon[x1 + 5][i] == 16)
+		dungeon[x1 + 5][i] = 3;
+	else //if (dungeon[x1 + 5][i] == 7)
+		dungeon[x1 + 5][i] = 2;
 }
 
 static void DRLG_L1SetRoom(int rx1, int ry1)
@@ -1569,142 +1583,214 @@ static void L1FillChambers()
 static void L1tileFix()
 {
 	int i, j;
-	BYTE v1, v2;
 
-	// BUGFIX: Bounds checks are required in all loop bodies.
-	// See https://github.com/diasurgical/devilutionX/pull/401
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			v1 = dungeon[i][j];
-			if (i + 1 < DMAXX) {
-				v2 = dungeon[i + 1][j];
-				if (v1 == 2 && v2 == 22)
-					dungeon[i + 1][j] = 23; // top-right cover
-				if (v1 == 13 && v2 == 22)
-					dungeon[i + 1][j] = 18; // right cover
-				if (v1 == 13 && v2 == 2)
-					dungeon[i + 1][j] = 7;  // right + top cover
-				// impossible case I.
-				//  piece 6 must have been piece 1 and which can not have piece 22 on the right
-				//if (v1 == 6 && v2 == 22)
-				//	dungeon[i + 1][j] = 24;
-			}
-			if (j + 1 < DMAXY) {
-				v2 = dungeon[i][j + 1];
-				if (v1 == 1 && v2 == 22)
-					dungeon[i][j + 1] = 24; // bottom-left cover
-				if (v1 == 13 && v2 == 1)
-					dungeon[i][j + 1] = 6; // bottom + left cover
-				if (v1 == 13 && v2 == 22)
-					dungeon[i][j + 1] = 19; // bottom cover
+	// convert tiles based on the tile above and left from them.
+	// Connect, add or cut walls.
+	for (i = DMAXX - 1; i > 0; i--) {
+		for (j = DMAXY - 1; j > 0; j--) {
+			switch (dungeon[i][j]) {
+			case 1:
+			//			[ 13(6) ]
+			// [ 2(6) ]  	1
+			// 2(6) -- the possible values on the top are 1, 4 and 13.
+			//         in case of 1 and 4 the conversion is not necessary.
+			//         in case of 13, the same conversion is triggered.
+				if (/*dungeon[i - 1][j] == 2 ||*/ dungeon[i][j - 1] == 13)
+					dungeon[i][j] = 6; // cut/connect
+				break;
+			case 2:
+			//			[ 1(7) ]
+			// [ 13(7) ]	2
+			// 1(7) -- the possible values on the left are 2, 4 and 13.
+			//         in case of 2 and 4 the conversion is not necessary.
+			//         in case of 13, the same conversion is triggered.
+				if (dungeon[i - 1][j] == 13 /*|| dungeon[i][j - 1] == 1*/) {
+					dungeon[i][j] = 7; // cut/connect
+				}
+				break;
+			case 4:
+				break;
+			case 13:
+			//		[ 1(16) ]
+			// [ 2(17) ] 13
+				if (dungeon[i][j - 1] == 1) {
+					if (dungeon[i - 1][j] == 2) {
+						dungeon[i][j] = 3; // connect
+					} else {
+						dungeon[i][j] = 16; // connect
+					}
+				} else {
+					if (dungeon[i - 1][j] == 2) {
+						dungeon[i][j] = 17; // connect
+					}
+				}
+				break;
+			case 16:
+			//				[ 13(17) ]
+			// [ 2(3), 4(3) ]	16
+				if (dungeon[i - 1][j] == 2 || dungeon[i - 1][j] == 4) {
+					if (dungeon[i][j - 1] == 13) {
+						dungeon[i][j] = 17; // cut + connect
+					} else {
+						dungeon[i][j] = 3; // connect
+					}
+				} else {
+					assert(dungeon[i][j - 1] != 13);
+					//if (dungeon[i][j - 1] == 13) {
+					//	dungeon[i][j] = 13; // cut + cut
+					//}
+				}
+				break;
+			case 22:
+			//			[ 1(24!), 13(19!) ]
+			// [ 2(23!), 13(18!) ]	22
+				if (dungeon[i - 1][j] == 2) {
+					if (dungeon[i][j - 1] == 1 || dungeon[i][j - 1] == 13) {
+						dungeon[i][j] = 21; // new wall (SW, SE)
+					} else {
+						assert(dungeon[i][j - 1] == 22);
+						dungeon[i][j] = 23; // new wall (SW)
+					}
+				} else if (dungeon[i - 1][j] == 13) {
+					if (dungeon[i][j - 1] == 1 || dungeon[i][j - 1] == 13) {
+						dungeon[i][j] = 21; // new wall (SW, SE)
+					} else {
+						assert(dungeon[i][j - 1] == 22);
+						dungeon[i][j] = 18; // new wall (SW, NE)
+					}
+				} else {
+					assert(dungeon[i - 1][j] == 22);
+					if (dungeon[i][j - 1] == 1) {
+						dungeon[i][j] = 24; // new wall (SE)
+					} else if (dungeon[i][j - 1] == 13) {
+						dungeon[i][j] = 19; // new wall (NW, SE)
+					} else {
+						assert(dungeon[i][j - 1] == 22);
+					}
+				}
+				break;
+			default:
+				ASSUME_UNREACHABLE
+				break;
 			}
 		}
 	}
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			v1 = dungeon[i][j];
-			if (i + 1 < DMAXX) {
-				v2 = dungeon[i + 1][j];
-				if (v1 == 13 && v2 == 19)
-					dungeon[i + 1][j] = 21; // bottom cover ++ right cover
-				// impossible case II.
-				//  the first loop converts these to 18
-				//if (v1 == 13 && v2 == 22)
-				//	dungeon[i + 1][j] = 20; // right cover
-				if (v1 == 13 && v2 == 24)
-					dungeon[i + 1][j] = 21; // bottom-left cover ++ right cover
-				if (v1 == 7 && v2 == 22)
-					dungeon[i + 1][j] = 23; // convert right + top cover
-				if (v1 == 7 && v2 == 19)
-					dungeon[i + 1][j] = 21; // bottom cover ++ right cover
-				if (v1 == 7 && v2 == 1)
-					dungeon[i + 1][j] = 6;
-				if (v1 == 7 && v2 == 24)
-					dungeon[i + 1][j] = 21;
-				if (v1 == 7 && v2 == 13)
-					dungeon[i + 1][j] = 17;
-				if (v1 == 19 && v2 == 22)
-					dungeon[i + 1][j] = 20;
-				if (v1 == 19 && v2 == 1)
-					dungeon[i + 1][j] = 6;
-				if (v1 == 2 && v2 == 19)
-					dungeon[i + 1][j] = 21;
-				if (v1 == 2 && v2 == 1)
-					dungeon[i + 1][j] = 6;
-				if (v1 == 2 && v2 == 24)
-					dungeon[i + 1][j] = 21;
-				if (v1 == 2 && v2 == 13)
-					dungeon[i + 1][j] = 17;
-				// impossible case III.
-				//  piece 3 is a fix chamber-piece with floor next to it.
-				//if (v1 == 3 && v2 == 22)
-				//	dungeon[i + 1][j] = 24;
-				if (v1 == 21 && v2 == 1)
-					dungeon[i + 1][j] = 6;
-				if (v1 == 4 && v2 == 16)
-					dungeon[i + 1][j] = 3; //17; -- BUGFIX: 17 does not fit to 4, use 3 instead (fixed)
+	// apply the same logic to the first row/column
+	for (i = DMAXX - 1; i > 0; i--) {
+		if (dungeon[i][0] == 13) {
+			// [ 2(17) ] 13
+			if (dungeon[i - 1][0] == 2) {
+				dungeon[i][0] = 17; // connect
 			}
-			if (i != 0) {
-				v2 = dungeon[i - 1][j];
-				// impossible case IV.  (impossible case VI. is depending on this)
-				//  piece 23 is set only if there was piece 2 or 7 on the left side.
-				//if (v1 == 23 && v2 == 22)
-				//	dungeon[i - 1][j] = 19;
-				if (v1 == 19 && v2 == 23)
-					dungeon[i - 1][j] = 21;
-				if (v1 == 6 && v2 == 22)
-					dungeon[i - 1][j] = 24;
-				if (v1 == 6 && v2 == 23)
-					dungeon[i - 1][j] = 21;
+		} else if (dungeon[i][0] == 22) {
+			// [ 2(23) ]	22
+			if (dungeon[i - 1][0] == 2) {
+				dungeon[i][0] = 23; // new wall (SW)
 			}
-			if (j + 1 < DMAXY) {
-				v2 = dungeon[i][j + 1];
-				if (v1 == 1 && v2 == 2)
-					dungeon[i][j + 1] = 7;
-				if (v1 == 1 && v2 == 13)
-					dungeon[i][j + 1] = 16;
-				if (v1 == 6 && v2 == 18)
-					dungeon[i][j + 1] = 21;
-				if (v1 == 6 && v2 == 2)
-					dungeon[i][j + 1] = 7;
-				if (v1 == 6 && v2 == 22)
-					dungeon[i][j + 1] = 24;
-				if (v1 == 6 && v2 == 13)
-					dungeon[i][j + 1] = 16;
-				if (v1 == 18 && v2 == 2)
-					dungeon[i][j + 1] = 7;
-				if (v1 == 21 && v2 == 2)
-					dungeon[i][j + 1] = 7;
-				if (v1 == 13 && v2 == 16)
-					dungeon[i][j + 1] = 17;
-			}
-			if (j != 0) {
-				v2 = dungeon[i][j - 1];
-				if (v1 == 6 && v2 == 22)
-					dungeon[i][j - 1] = 7;
-				if (v1 == 7 && v2 == 24)
-					dungeon[i][j - 1] = 21;
-				if (v1 == 18 && v2 == 24)
-					dungeon[i][j - 1] = 21;
+		}
+	}
+	for (j = DMAXY - 1; j > 0; j--) {
+		if (dungeon[0][j] == 22) {
+			// [ 1(24) ]
+			//	22
+			if (dungeon[0][j - 1] == 1) {
+				dungeon[0][j] = 24; // new wall (SE)
+			} else {
+				assert(dungeon[0][j - 1] == 22);
 			}
 		}
 	}
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			v1 = dungeon[i][j];
-			// impossible case V.
-			//  piece 2 and 4 are only added from L1ConvTbl and piece 4 can not have piece 2 on the bottom.
-			//if (v1 == 4 && j + 1 < DMAXY && dungeon[i][j + 1] == 2)
-			//	dungeon[i][j + 1] = 7;
-			// impossible case VI. (depends on impossible case IV.)
-			//  piece 19 must have had piece 13 on top and piece is only added from L1ConvTbl
-			//if (v1 == 2 && i + 1 < DMAXX && dungeon[i + 1][j] == 19)
-			//	dungeon[i + 1][j] = 21;
-			if (v1 == 18 && j + 1 < DMAXY && dungeon[i][j + 1] == 22)
-				dungeon[i][j + 1] = 20;
+	// connect the new walls
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			switch (dungeon[i][j]) {
+			case 18: // new wall (SW, NE)
+				assert(i > 0);
+				// check SW (SW-18)
+				assert(j < DMAXY - 1);
+				if (dungeon[i][j + 1] == 22) {
+					assert(dungeon[i - 1][j + 1] == 19 || dungeon[i - 1][j + 1] == 21);
+				} else if (dungeon[i][j + 1] == 2) {
+					assert(dungeon[i - 1][j + 1] == 2
+					 || dungeon[i - 1][j + 1] == 4
+					 || dungeon[i - 1][j + 1] == 7);
+				} else {
+					assert(dungeon[i][j + 1] == 4
+					 || dungeon[i][j + 1] == 7
+					 || dungeon[i][j + 1] == 18
+					 || dungeon[i][j + 1] == 23);
+				}
+				// check NE
+				assert(j > 0);
+				assert(dungeon[i][j - 1] == 18
+					 || dungeon[i][j - 1] == 21
+					 || dungeon[i][j - 1] == 23);
+				break;
+			case 19: // new wall (NW, SE)
+				// check SE (SE-19)
+				assert(i < DMAXX - 1);
+				assert(j > 0);
+				if (dungeon[i + 1][j] == 1) {
+					dungeon[i + 1][j] = 6; // connect
+				} else if (dungeon[i + 1][j] == 22) {
+					assert(dungeon[i + 1][j - 1] == 18 || dungeon[i + 1][j - 1] == 21);
+				} else {
+					assert(dungeon[i + 1][j] == 4
+					 || dungeon[i + 1][j] == 6
+					 || dungeon[i + 1][j] == 24
+					 || dungeon[i + 1][j] == 19);
+				}
+				// check NW
+				assert(i > 0);
+				assert(dungeon[i - 1][j] == 19 || dungeon[i - 1][j] == 21 || dungeon[i - 1][j] == 24);
+				break;
+			case 21: // new wall (SW, SE)
+				// check SW (SW-18)'
+				assert(j < DMAXY - 1);
+				assert(i > 0);
+				if (dungeon[i][j + 1] == 22) {
+					assert(dungeon[i - 1][j + 1] == 19 || dungeon[i - 1][j + 1] == 21);
+				} else if (dungeon[i][j + 1] == 2) {
+					assert(dungeon[i - 1][j + 1] == 2
+					 || dungeon[i - 1][j + 1] == 4
+					 || dungeon[i - 1][j + 1] == 7);
+				} else {
+					assert(dungeon[i][j + 1] == 4
+					 || dungeon[i][j + 1] == 7
+					 || dungeon[i][j + 1] == 18
+					 || dungeon[i][j + 1] == 21
+					 || dungeon[i][j + 1] == 23);
+				}
+				// check SE (SE-19)
+				if (dungeon[i + 1][j] == 1) {
+					dungeon[i + 1][j] = 6; // connect
+				} else if (dungeon[i + 1][j] == 22) {
+					assert(dungeon[i + 1][j - 1] == 18 || dungeon[i + 1][j - 1] == 21);
+				} else {
+					assert(dungeon[i + 1][j] == 4
+					 || dungeon[i + 1][j] == 6
+					 || dungeon[i + 1][j] == 19
+					 || dungeon[i + 1][j] == 24);
+				}
+				break;
+			case 23: // new wall (SW)
+				assert(j < DMAXY - 1);
+				assert(dungeon[i][j + 1] == 4
+				 || dungeon[i][j + 1] == 7
+				 || dungeon[i][j + 1] == 18);
+				break;
+			case 24: // new wall (SE)
+				assert(i < DMAXX - 1);
+				if (dungeon[i + 1][j] == 1) {
+					dungeon[i + 1][j] = 6; // connect
+				} else {
+					assert(dungeon[i + 1][j] == 4 || dungeon[i + 1][j] == 6
+					 || dungeon[i + 1][j] == 19);
+				}
+				break;
+			}
 		}
 	}
 }
@@ -2135,6 +2221,7 @@ static void DRLG_L1DirtFix()
  */
 static void DRLG_L1CornerFix()
 {
+	/* commented out because this is no longer necessary
 	int i, j;
 
 	for (j = 1; j < DMAXY - 1; j++) {
@@ -2157,7 +2244,7 @@ static void DRLG_L1CornerFix()
 				dungeon[i][j] = 8;
 			}
 		}
-	}
+	}*/
 }
 
 struct mini_set {
@@ -2202,9 +2289,9 @@ static void DRLG_L1(int entry)
 		} while (L1GetArea() < minarea);
 
 		DRLG_L1MakeMegas();
+		L1tileFix();
 		memset(drlgFlags, 0, sizeof(drlgFlags));
 		L1FillChambers();
-		L1tileFix();
 		L1AddWall();
 		L1ClearChamberFlags();
 		DRLG_InitTrans();
