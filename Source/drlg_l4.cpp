@@ -592,7 +592,8 @@ void EnsureSEConnection(int x, int y)
 }
 
 /*
- * Place special pieces on the border of the dungeon.
+ * Draw wall around the tiles selected by L4FirstRoom (and L4ConnectBlock).
+ * Assumes the border of dungeon was empty.
  * New dungeon values: 4 .. 29 except 20
  */
 static void L4TileFix()
@@ -871,7 +872,8 @@ static void L4Block2Dungeon()
 }
 
 /*
- * Create link between the quarters of the dungeon.
+ * Create link between the quarters (blocks) of the dungeon.
+ * Assumes the border of dungBlock to be empty.
  */
 static void L4ConnectBlock()
 {
@@ -1093,7 +1095,7 @@ static void L4RoomGen(int x, int y, int w, int h, bool dir)
 }
 
 /*
- * Create dungeon blueprint.
+ * Create dungeon blueprint, but leave the border of dungBlock empty.
  * New dungeon (dungBlock) values: 1
  */
 static void L4FirstRoom()
@@ -1667,23 +1669,6 @@ static void DRLG_L4Corners()
 	}
 }
 
-/* make sure the first row and column of dungBlock are empty. */
-static void L4FixRim()
-{
-	int i, j;
-
-	for (i = 0; i < L4BLOCKX; i++) {
-		assert(dungBlock[i][0] == 0);
-		assert(dungBlock[i][L4BLOCKX - 1] == 0);
-		// dungBlock[i][0] = 0;
-	}
-	for (j = 0; j < L4BLOCKY; j++) {
-		assert(dungBlock[0][j] == 0);
-		assert(dungBlock[L4BLOCKY - 1][j] == 0);
-		// dungBlock[0][j] = 0;
-	}
-}
-
 /*
  * Miniset replacement of corner tiles.
  * New dungeon values: (17)
@@ -1743,7 +1728,6 @@ static void DRLG_L4(int entry)
 			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
 			//memset(dungeon, 30, sizeof(dungeon));
 			L4FirstRoom();
-			L4FixRim();
 		} while (GetArea() < 173);
 		L4ConnectBlock();
 
