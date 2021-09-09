@@ -527,30 +527,6 @@ static void L4AddWall()
 	}
 }
 
-static void ValidateNWConnection(int i, int j)
-{
-	assert(dungeon[i][j] == 19 || dungeon[i][j] == 21
-	 || dungeon[i][j] == 22 || dungeon[i][j] == 23
-	 || dungeon[i][j] == 26 || dungeon[i][j] == 27
-	 || dungeon[i][j] == 29
-	 || dungeon[i][j] == 2 || dungeon[i][j] == 8
-	 || dungeon[i][j] == 9 || dungeon[i][j] == 10
-	 || dungeon[i][j] == 11 || dungeon[i][j] == 14
-	 || dungeon[i][j] == 15 || dungeon[i][j] == 17);
-}
-
-static void ValidateNEConnection(int i, int j)
-{
-	assert(dungeon[i][j] == 18 || dungeon[i][j] == 21
-	 || dungeon[i][j] == 22 || dungeon[i][j] == 23
-	 || dungeon[i][j] == 25 || dungeon[i][j] == 28
-	 || dungeon[i][j] == 29
-	 || dungeon[i][j] == 1 || dungeon[i][j] == 7
-	 || dungeon[i][j] == 9 || dungeon[i][j] == 10
-	 || dungeon[i][j] == 11 || dungeon[i][j] == 13
-	 || dungeon[i][j] == 16 || dungeon[i][j] == 17);
-}
-
 void EnsureSWConnection(int x, int y)
 {
 	assert(y < DMAXY - 1);
@@ -565,10 +541,10 @@ void EnsureSWConnection(int x, int y)
 		dungeon[x][y] = 25; // new wall type
 	} else if (dungeon[x][y] == 30) {
 		dungeon[x][y] = 24;
-	} else {
+	} /*else {
 		assert(dungeon[x][y] == 15 || dungeon[x][y] == 17
 			|| dungeon[x][y] == 18 || dungeon[x][y] == 24);
-	}
+	}*/
 }
 
 void EnsureSEConnection(int x, int y)
@@ -585,11 +561,90 @@ void EnsureSEConnection(int x, int y)
 		dungeon[x][y] = 26; // new wall type
 	} else if (dungeon[x][y] == 30) {
 		dungeon[x][y] = 24;
-	} else {
+	} /*else {
 		assert(dungeon[x][y] == 16
 		 || dungeon[x][y] == 19 || dungeon[x][y] == 24);
-	}
+	}*/
 }
+
+#ifdef _DEBUG
+static void ValidateNWConnection(int x, int y, bool full)
+{
+	assert(x > 0);
+	x--;
+	if (dungeon[x][y] == 19 || dungeon[x][y] == 21
+	 || dungeon[x][y] == 22 || dungeon[x][y] == 23
+	 || dungeon[x][y] == 26 || dungeon[x][y] == 27
+	 || dungeon[x][y] == 29)
+		return;
+	assert(full);
+	assert(dungeon[x][y] == 2 || dungeon[x][y] == 8
+	 || dungeon[x][y] == 9 || dungeon[x][y] == 10
+	 || dungeon[x][y] == 11 || dungeon[x][y] == 14
+	 || dungeon[x][y] == 15 || dungeon[x][y] == 17);
+}
+
+static void ValidateNEConnection(int x, int y, bool full)
+{
+	assert(y > 0);
+	y--;
+	if (dungeon[x][y] == 18 || dungeon[x][y] == 21
+	 || dungeon[x][y] == 22 || dungeon[x][y] == 23
+	 || dungeon[x][y] == 25 || dungeon[x][y] == 28
+	 || dungeon[x][y] == 29)
+		return;
+	assert(full);
+	assert(dungeon[x][y] == 1 || dungeon[x][y] == 7
+	 || dungeon[x][y] == 9 || dungeon[x][y] == 10
+	 || dungeon[x][y] == 11 || dungeon[x][y] == 13
+	 || dungeon[x][y] == 16 || dungeon[x][y] == 17);
+}
+
+static void ValidateSWConnection(int x, int y)
+{
+	assert(y < DMAXY - 1);
+	y++;
+	assert(dungeon[x][y] == 14 || dungeon[x][y] == 10
+		 || dungeon[x][y] == 15 || dungeon[x][y] == 17
+		 || dungeon[x][y] == 18 || dungeon[x][y] == 24
+		 || dungeon[x][y] == 25);
+}
+
+static void ValidateSEConnection(int x, int y)
+{
+	assert(x < DMAXX - 1);
+	x++;
+	assert(dungeon[x][y] == 11 || dungeon[x][y] == 13
+	 || dungeon[x][y] == 16 || dungeon[x][y] == 17
+	 || dungeon[x][y] == 19 || dungeon[x][y] == 24
+	 || dungeon[x][y] == 26);
+}
+/* possible configurations:
+		[ 1, 6, 9 ]
+	[ 2, 6, 30]  	1		[ 6 ]
+		[ 1, 2, 3, 6, 9, 30 ]
+
+		[ 1, 6, 30 ]
+	[ 2, 6, 9 ]	2		[ 1, 2, 3, 6, 9, 30 ]
+		[ 6 ]
+
+		[ 1, 6, 9 ]
+	[ 2, 6, 9 ]	3		[ 6 ]
+		[ 6 ]
+
+		[ 1, 6, 30 ]
+	[ 2, 6, 30 ]	9		[ 2 3 6 ]
+		[ 1, 3, 6 ]
+
+		[ 1, 6, 30 ]
+	[ 2, 6, 30 ]	30		 [ 1, 9, 30 ]
+		[ 2, 9, 30 ]
+
+		[ 1, 2, 3, 6, 9 ]
+	[ 1, 2, 3, 6, 9 ] 6 	[ 1, 2, 3, 6, 9, 30 ]
+		[ 1, 2, 3, 6, 9, 30 ]
+*/
+#endif
 
 /*
  * Draw wall around the tiles selected by L4FirstRoom (and L4ConnectBlock).
@@ -745,62 +800,87 @@ static void L4TileFix()
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
 			switch (dungeon[i][j]) {
+			case 19: // new wall (NW, SE) 30
+				//assert(j > 0);
+				//assert(dungeon[i][j - 1] == 6);
+				// check SE (29-SE)
+				EnsureSEConnection(i, j);
+				break;
+			case 18: // new wall (SW, NE) 30
 			case 28: // new wall (SW) 30
 			case 25: // new wall type (SW) 30
 				// check SW (21-SW)
 				EnsureSWConnection(i, j);
 				break;
-			case 29: // new wall (SW, SE) 30
-			case 23: // new wall (SW, SE) 30
-			case 22: // new wall (SW, SE) 30
 			case 21: // new wall (SW, SE) 30
+			case 22: // new wall (SW, SE) 30
+			case 23: // new wall (SW, SE) 30
+			case 29: // new wall (SW, SE) 30
 				// check SW (21-SW)
 				EnsureSWConnection(i, j);
 				// check SE (29-SE)
 				EnsureSEConnection(i, j);
 				break;
-			case 18: // new wall (SW, NE) 30
-				// check SW (21-SW)
-				EnsureSWConnection(i, j);
-				// check NE
-				assert(j > 0);
-				assert(dungeon[i][j - 1] == 18 || dungeon[i][j - 1] == 21
-					|| dungeon[i][j - 1] == 22 || dungeon[i][j - 1] == 23
-					|| dungeon[i][j - 1] == 25 || dungeon[i][j - 1] == 28
-					|| dungeon[i][j - 1] == 29);
 				break;
 			case 26: // new wall type (SE) 30
 			case 27: // new wall (SE) 30
 				assert(i < DMAXX - 1);
 				if (dungeon[i + 1][j] == 9) {
 					dungeon[i + 1][j] = 11;
-				} else {
-					assert(dungeon[i + 1][j] == 16 || dungeon[i + 1][j] == 19);
 				}
+				break;
+			}
+		}
+	}
+
+#ifdef _DEBUG
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			switch (dungeon[i][j]) {
+			case 28: // new wall (SW) 30
+			case 25: // new wall type (SW) 30
+				// check SW (21-SW)
+				ValidateSWConnection(i, j);
+				break;
+			case 29: // new wall (SW, SE) 30
+			case 23: // new wall (SW, SE) 30
+			case 22: // new wall (SW, SE) 30
+			case 21: // new wall (SW, SE) 30
+				// check SW (21-SW)
+				ValidateSWConnection(i, j);
+				// check SE (29-SE)
+				ValidateSEConnection(i, j);
+				break;
+			case 18: // new wall (SW, NE) 30
+				// check SW (21-SW)
+				ValidateSWConnection(i, j);
+				// check NE
+				ValidateNEConnection(i, j, false);
+				break;
+			case 26: // new wall type (SE) 30
+			case 27: // new wall (SE) 30
+				assert(i < DMAXX - 1);
+				assert(dungeon[i + 1][j] == 11
+				 || dungeon[i + 1][j] == 16 || dungeon[i + 1][j] == 19);
 				break;
 			case 19: // new wall (NW, SE) 30
 				assert(j > 0);
 				assert(dungeon[i][j - 1] == 6);
 				// check SE (29-SE)
-				EnsureSEConnection(i, j);
+				ValidateSEConnection(i, j);
 				// check NW
-				assert(i > 0);
-				assert(dungeon[i - 1][j] == 19 || dungeon[i - 1][j] == 21
-				|| dungeon[i - 1][j] == 22 || dungeon[i - 1][j] == 23
-				|| dungeon[i - 1][j] == 26 || dungeon[i - 1][j] == 27
-				|| dungeon[i - 1][j] == 29);
+				ValidateNWConnection(i, j, false);
 				break;
 			case 15: // new wall (NE) 2
-				assert(j > 0);
-				ValidateNEConnection(i, j - 1);
+				ValidateNEConnection(i, j, true);
 				break;
 			case 16: // new wall (NW) 1
-				assert(i > 0);
-				ValidateNWConnection(i - 1, j);
+				ValidateNWConnection(i, j, true);
 				break;
 			}
 		}
 	}
+#endif
 }
 
 /*
