@@ -1190,20 +1190,20 @@ static void L1HorizWall(int i, int j, int dx)
 	}
 }
 
-static constexpr uint32_t GOOD_WALL_ENDS =
+static constexpr uint32_t GOOD_HWALL_ENDS =
 	  (1 << 3)
 	| (1 << 4)
 	| (1 << 5)
 	| (1 << 6)
-	| (1 << 7)
-	| (1 << 16)
+	//| (1 << 7) -- does not fit the internal pn (2/12/36)
+	//| (1 << 16) -- does not fit the internal pn (2/12/36)
 	| (1 << 17)
 	| (1 << 18)
-	| (1 << 19)
-	| (1 << 20)
+	//| (1 << 19) -- should not happen
+	//| (1 << 20) -- should not happen
 	| (1 << 21)
-	| (1 << 23)
-	| (1 << 24);
+	| (1 << 23);
+	//| (1 << 24); -- should not happen
 static bool L1AddHWall(int x, int y)
 {
 	int i;
@@ -1226,7 +1226,7 @@ static bool L1AddHWall(int x, int y)
 	i -= x;
 	if (i != 1
 	// && ((bv >= 3 && bv <= 7) || (bv >= 16 && bv <= 24 && bv != 22)) {
-	 && (bv < 25 && (GOOD_WALL_ENDS & (1 << bv)))) {
+	 && (bv < 25 && (GOOD_HWALL_ENDS & (1 << bv)))) {
 		L1HorizWall(x, y, i);
 		return true;
 	}
@@ -1272,6 +1272,20 @@ static void L1VertWall(int i, int j, int dy)
 	}
 }
 
+static constexpr uint32_t GOOD_VWALL_ENDS =
+	  (1 << 3)
+	| (1 << 4)
+	| (1 << 5)
+	| (1 << 6)
+	| (1 << 7)
+	| (1 << 16)
+	//| (1 << 17) -- does not fit the internal pn (1/11/35)
+	//| (1 << 18) -- should not happen
+	| (1 << 19)
+	//| (1 << 20) -- should not happen
+	| (1 << 21)
+	//| (1 << 23) -- should not happen
+	| (1 << 24);
 static void L1AddVWall(int x, int y)
 {
 	int j;
@@ -1294,7 +1308,7 @@ static void L1AddVWall(int x, int y)
 	j -= y;
 	if (j != 1
 	// && ((bv >= 3 && bv <= 7) || (bv >= 16 && bv <= 24 && bv != 22))) {
-	 && (bv < 25 && (GOOD_WALL_ENDS & (1 << bv)))) {
+	 && (bv < 25 && (GOOD_VWALL_ENDS & (1 << bv)))) {
 		L1VertWall(x, y, j);
 		return; // true;
 	}
