@@ -1653,7 +1653,7 @@ static void DRLG_L4TransFix()
 }
 
 /*
- * Replace lava tiles with complete ones to hide rendering glitch of transparent corners.
+ * Replace tiles with complete ones to hide rendering glitch of transparent corners.
  * New dungeon values: 116..128
  */
 static void DRLG_L4Corners()
@@ -1664,7 +1664,7 @@ static void DRLG_L4Corners()
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4Corners.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		if (*pTmp >= 18 && *pTmp < 30)
+		if (*pTmp >= 18 && *pTmp < 30 /*&& *pTmp != 20 && *pTmp != 24*/)
 			*pTmp += 98;
 	}
 }

@@ -2820,9 +2820,22 @@ static void DRLG_L2TransFix()
 	}*/
 }
 
-static void L2DirtFix()
+/*
+ * Replace tiles with complete ones to hide rendering glitch of transparent corners.
+ * New dungeon values: 143 144  146 147 148
+ */
+static void DRLG_L2Corners()
 {
-	int i, j;
+	int i;
+	BYTE* pTmp;
+
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L2Corners.");
+	pTmp = &dungeon[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
+		if (*pTmp >= 10 && *pTmp <= 15 && *pTmp != 12)
+			*pTmp += 133;
+	}
+	/*int i, j;
 
 	// check borders out-of-order
 	for (i = 0; i < DMAXX; i++) {
@@ -2867,7 +2880,7 @@ static void L2DirtFix()
 				break;
 			}
 		}
-	}
+	}*/
 }
 
 static void L2LockoutFix()
@@ -3100,7 +3113,7 @@ static void DRLG_L2(int entry)
 
 	L2LockoutFix();
 	L2DoorFix();
-	L2DirtFix();
+	DRLG_L2Corners();
 
 	DRLG_InitTrans();
 	DRLG_FloodTVal(3);

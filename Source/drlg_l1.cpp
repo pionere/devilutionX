@@ -2159,34 +2159,27 @@ static void DRLG_L1TransFix()
 }
 
 /*
- * 'Close' walls with proper pieces.
+ * Replace tiles with complete ones to hide rendering glitch of transparent corners.
  * New dungeon values: 199 200 202 204 205 / 82 83 85 87 88
  */
-static void DRLG_L1DirtFix()
+static void DRLG_L1Corners()
 {
-	int i, j;
-#ifdef HELLFIRE
-	BYTE bv;
+	int i;
+	BYTE dv = 181, *pTmp;
 
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L1Corners.");
+	pTmp = &dungeon[0][0];
+#ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++) {
-				switch (dungeon[i][j]) {
-				case 18: bv = 82; break;
-				case 19: bv = 83; break;
-				case 21: bv = 85; break;
-				case 23: bv = 87; break;
-				case 24: bv = 88; break;
-				default: continue;
-				}
-				dungeon[i][j] = bv;
-			}
-		}
-		return;
+		dv = 64;
 	}
 	// assert(currLvl._dType == DTYPE_CATHEDRAL);
 #endif
-	for (j = 0; j < DMAXY - 1; j++) {
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
+		if (*pTmp >= 18 && *pTmp <= 24 && *pTmp != 22/* && *pTmp != 20*/)
+			*pTmp += dv;
+	}
+	/*for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
 			switch (dungeon[i][j]) {
 			case 18:
@@ -2211,7 +2204,7 @@ static void DRLG_L1DirtFix()
 				break;
 			}
 		}
-	}
+	}*/
 }
 
 /*
@@ -2349,7 +2342,7 @@ static void DRLG_L1(int entry)
 	} while (!doneflag);
 
 	DRLG_L1TransFix();
-	DRLG_L1DirtFix();
+	DRLG_L1Corners();
 	DRLG_L1CornerFix();
 
 	DRLG_L1PlaceDoors();
