@@ -595,7 +595,7 @@ void EnsureSEConnection(int x, int y)
  * Place special pieces on the border of the dungeon.
  * New dungeon values: 4 .. 29 except 20
  */
-static void L4tileFix()
+static void L4TileFix()
 {
 	int i, j;
 
@@ -845,7 +845,7 @@ static void DRLG_L4Subs()
 }
 
 /** Fill dungeon based on the dungBlock matrix. */
-static void L4makeDungeon()
+static void L4Block2Dungeon()
 {
 	int i, j;
 	for (j = 0; j < L4BLOCKY; j++) {
@@ -873,7 +873,7 @@ static void L4makeDungeon()
 /*
  * Create link between the quarters of the dungeon.
  */
-static void uShape()
+static void L4ConnectBlock()
 {
 	int j, i, rv;
 	BYTE hallok[std::max(L4BLOCKX, L4BLOCKY)];
@@ -953,7 +953,7 @@ static int GetArea()
 	return rv;
 }
 
-static void L4drawRoom(int x, int y, int width, int height)
+static void L4DrawRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
@@ -966,7 +966,7 @@ static void L4drawRoom(int x, int y, int width, int height)
 	}
 }
 
-static bool L4checkRoom(int x, int y, int width, int height)
+static bool L4CheckRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
@@ -989,10 +989,10 @@ static bool L4checkRoom(int x, int y, int width, int height)
 	return true;
 }
 
-/* L4checkVHall and L4checkHHall
+/* L4CheckVHall and L4CheckHHall
  *  make sure there is at least one empty block between the rooms
  */
-static bool L4checkVHall(int x, int top, int h)
+static bool L4CheckVHall(int x, int top, int h)
 {
 	int j = top, bottom;
 
@@ -1011,7 +1011,7 @@ static bool L4checkVHall(int x, int top, int h)
 	return j == bottom;
 }
 
-static bool L4checkHHall(int y, int left, int w)
+static bool L4CheckHHall(int y, int left, int w)
 {
 	int i = left, right;
 
@@ -1030,7 +1030,7 @@ static bool L4checkHHall(int y, int left, int w)
 	return i == right;
 }
 
-static void L4roomGen(int x, int y, int w, int h, bool dir)
+static void L4RoomGen(int x, int y, int w, int h, bool dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
 	bool ran2;
@@ -1044,25 +1044,25 @@ static void L4roomGen(int x, int y, int w, int h, bool dir)
 			height = RandRange(2, 6) & ~1;
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
-			if (L4checkVHall(x, ry - 1, height + 2)
-			 && L4checkRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1") (fixed)
+			if (L4CheckVHall(x, ry - 1, height + 2)
+			 && L4CheckRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1") (fixed)
 				break;
 		}
 
 		if (i != 0)
-			L4drawRoom(rx, ry, width, height);
+			L4DrawRoom(rx, ry, width, height);
 		// try to place a room to the right
 		rxy2 = x + w;
-		ran2 = L4checkVHall(rxy2 - 1, ry - 1, height + 2)
-			&& L4checkRoom(rxy2, ry - 1, width + 1, height + 2);
+		ran2 = L4CheckVHall(rxy2 - 1, ry - 1, height + 2)
+			&& L4CheckRoom(rxy2, ry - 1, width + 1, height + 2);
 		if (ran2)
-			L4drawRoom(rxy2, ry, width, height);
+			L4DrawRoom(rxy2, ry, width, height);
 		// proceed with the placed a room on the left
 		if (i != 0)
-			L4roomGen(rx, ry, width, height, true);
+			L4RoomGen(rx, ry, width, height, true);
 		// proceed with the placed a room on the right
 		if (ran2)
-			L4roomGen(rxy2, ry, width, height, true);
+			L4RoomGen(rxy2, ry, width, height, true);
 	} else {
 		// try to place a room to the top
 		for (i = 20; i != 0; i--) {
@@ -1070,25 +1070,25 @@ static void L4roomGen(int x, int y, int w, int h, bool dir)
 			height = RandRange(2, 6) & ~1;
 			rx = w / 2 + x - width / 2;
 			ry = y - height;
-			if (L4checkHHall(y, rx - 1, width + 2)
-			 && L4checkRoom(rx - 1, ry - 1, width + 2, height + 1))
+			if (L4CheckHHall(y, rx - 1, width + 2)
+			 && L4CheckRoom(rx - 1, ry - 1, width + 2, height + 1))
 				break;
 		}
 
 		if (i != 0)
-			L4drawRoom(rx, ry, width, height);
+			L4DrawRoom(rx, ry, width, height);
 		// try to place a room to the bottom
 		rxy2 = y + h;
-		ran2 = L4checkHHall(rxy2 - 1, rx - 1, width + 2)
-			&& L4checkRoom(rx - 1, rxy2, width + 2, height + 1);
+		ran2 = L4CheckHHall(rxy2 - 1, rx - 1, width + 2)
+			&& L4CheckRoom(rx - 1, rxy2, width + 2, height + 1);
 		if (ran2)
-			L4drawRoom(rx, rxy2, width, height);
+			L4DrawRoom(rx, rxy2, width, height);
 		// proceed with the placed a room on the top
 		if (i != 0)
-			L4roomGen(rx, ry, width, height, false);
+			L4RoomGen(rx, ry, width, height, false);
 		// proceed with the placed a room on the bottom
 		if (ran2)
-			L4roomGen(rx, rxy2, width, height, false);
+			L4RoomGen(rx, rxy2, width, height, false);
 	}
 }
 
@@ -1096,7 +1096,7 @@ static void L4roomGen(int x, int y, int w, int h, bool dir)
  * Create dungeon blueprint.
  * New dungeon (dungBlock) values: 1
  */
-static void L4firstRoom()
+static void L4FirstRoom()
 {
 	int x, y, w, h, xmin, xmax, ymin, ymax;
 
@@ -1132,9 +1132,9 @@ static void L4firstRoom()
 		setpc_y = y + 1;
 	}
 
-	L4drawRoom(x, y, w, h);
-	static_assert((int)true == 1, "Bool to int conversion in L4firstRoom.");
-	L4roomGen(x, y, w, h, random_(0, 2));
+	L4DrawRoom(x, y, w, h);
+	static_assert((int)true == 1, "Bool to int conversion in L4FirstRoom.");
+	L4RoomGen(x, y, w, h, random_(0, 2));
 }
 
 /*static void L4SaveQuads()
@@ -1742,14 +1742,14 @@ static void DRLG_L4(int entry)
 
 			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
 			//memset(dungeon, 30, sizeof(dungeon));
-			L4firstRoom();
+			L4FirstRoom();
 			L4FixRim();
 		} while (GetArea() < 173);
-		uShape();
+		L4ConnectBlock();
 
-		L4makeDungeon();
+		L4Block2Dungeon();
 		DRLG_L4MakeMegas();
-		L4tileFix();
+		L4TileFix();
 		memset(drlgFlags, 0, sizeof(drlgFlags));
 		if (pSetPiece != NULL) {
 			DRLG_L4SetSPRoom(setpc_x, setpc_y);
