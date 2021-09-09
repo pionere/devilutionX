@@ -1420,26 +1420,30 @@ static void DRLG_L1GHallHoriz(int x1, int y1, int x2)
 	dungeon[i][y1 + 0] = 9;
 	dungeon[i][y1 + 3] = 5;
 	dungeon[i][y1 + 4] = 11;
-	assert(dungeon[i][y1 + 5] == 4 || dungeon[i][y1 + 5] == 21 || dungeon[i][y1 + 5] == 7);
+	//assert(dungeon[i][y1 + 5] == 4 || dungeon[i][y1 + 5] == 21 || dungeon[i][y1 + 5] == 7);
+	assert(dungeon[i][y1 + 5] == 4 || dungeon[i][y1 + 5] == 21); // 7 is not generated with an empty line between walls
 
 	for (i++; i < x2; i++) {
 		dungeon[i][y1] = 12;
 		dungeon[i][y1 + 3] = 12;
 	}
 
-	assert(dungeon[i][y1 - 2] == 3 || dungeon[i][y1 - 2] == 17);
-	if (dungeon[i][y1 - 2] == 17)
-		dungeon[i][y1 - 2] = 8;
-	else // if (dungeon[i][y1 - 2] == 3)
+	//assert(dungeon[i][y1 - 2] == 3 || dungeon[i][y1 - 2] == 17);
+	assert(dungeon[i][y1 - 2] == 3); // 17 is not generated with an empty line between walls
+
+	//if (dungeon[i][y1 - 2] == 17)
+	//	dungeon[i][y1 - 2] = 8;
+	//else //if (dungeon[i][y1 - 2] == 3)
 		dungeon[i][y1 - 2] = 11;
 	dungeon[i][y1 - 1] = 11;
 	dungeon[i][y1 + 0] = 3;
 	dungeon[i][y1 + 3] = 8;
 	dungeon[i][y1 + 4] = 11;
-	assert(dungeon[i][y1 + 5] == 6 || dungeon[i][y1 + 5] == 17);
-	if (dungeon[i][y1 + 5] == 17)
-		dungeon[i][y1 + 5] = 3;
-	//else if (dungeon[i][y1 + 5] == 6)
+	//assert(dungeon[i][y1 + 5] == 6 || dungeon[i][y1 + 5] == 17);
+	assert(dungeon[i][y1 + 5] == 6); // 17 is not generated with an empty line between walls
+	//if (dungeon[i][y1 + 5] == 17)
+	//	dungeon[i][y1 + 5] = 3;
+	//else if (dungeon[i][y1 + 5] == 6) -- no need to replace
 	//	dungeon[i][y1 + 5] = 1;
 }
 
@@ -1454,26 +1458,29 @@ static void DRLG_L1GHallVert(int x1, int y1, int y2)
 	dungeon[x1 + 0][i] = 8;
 	dungeon[x1 + 3][i] = 5;
 	dungeon[x1 + 4][i] = 12;
-	assert(dungeon[x1 + 5][i] == 4 || dungeon[x1 + 5][i] == 6 || dungeon[x1 + 5][i] == 21);
+	//assert(dungeon[x1 + 5][i] == 4 || dungeon[x1 + 5][i] == 6 || dungeon[x1 + 5][i] == 21);
+	assert(dungeon[x1 + 5][i] == 4 || dungeon[x1 + 5][i] == 21); // 6 is not generated with an empty line between walls
 
 	for (i++; i < y2; i++) {
 		dungeon[x1][i] = 11;
 		dungeon[x1 + 3][i] = 11;
 	}
 
-	assert(dungeon[x1 - 2][i] == 3 || dungeon[x1 - 2][i] == 16);
-	if (dungeon[x1 - 2][i] == 16)
-		dungeon[x1 - 2][i] = 9;
-	else //if (dungeon[x1 - 2][i] == 3)
+	//assert(dungeon[x1 - 2][i] == 3 || dungeon[x1 - 2][i] == 16);
+	assert(dungeon[x1 - 2][i] == 3); // 16 is not generated with an empty line between walls
+	//if (dungeon[x1 - 2][i] == 16)
+	//	dungeon[x1 - 2][i] = 9;
+	//else //if (dungeon[x1 - 2][i] == 3)
 		dungeon[x1 - 2][i] = 12;
 	dungeon[x1 - 1][i] = 12;
 	dungeon[x1 + 0][i] = 3;
 	dungeon[x1 + 3][i] = 9;
 	dungeon[x1 + 4][i] = 12;
-	assert(dungeon[x1 + 5][i] == 7 || dungeon[x1 + 5][i] == 16);
-	if (dungeon[x1 + 5][i] == 16)
-		dungeon[x1 + 5][i] = 3;
-	else //if (dungeon[x1 + 5][i] == 7)
+	//assert(dungeon[x1 + 5][i] == 7 || dungeon[x1 + 5][i] == 16);
+	assert(dungeon[x1 + 5][i] == 7); // 16 is not generated with an empty line between walls
+	//if (dungeon[x1 + 5][i] == 16)
+	//	dungeon[x1 + 5][i] = 3;
+	//else //if (dungeon[x1 + 5][i] == 7)
 		dungeon[x1 + 5][i] = 2;
 }
 
@@ -1577,12 +1584,13 @@ static void L1FillChambers()
 }
 
 /* possible configurations:
+  (cases in brackets are not possible with an empty line between walls)
 		[ 1, 13, 4 ]
 	[ 2, 13, 22]  	1		[ 13 ]
 		[ 1, 2, 16, 13, 4, 22 ]
 
 		[ 1, 13, 22 ]
-	[ 2, 13, 4  ]	2		[ 1, 2, 16, 13, 4, 22 ]
+	[ 2, 13, 4  ]	2		[ 1, 2, 16, (13), 4, 22 ]
 		[ 13 ]
 
 		[ 1, 13, 4 ]
@@ -1590,7 +1598,7 @@ static void L1FillChambers()
 		[ 13 ]
 
 		[ 1, 13, 22 ]
-	[ 2, 13, 22 ]	4		[ 2 16 13 ]
+	[ 2, 13, 22 ]	4		[ 2 16 (13) ]
 		[ 1, 16, 13 ]
 
 		[ 1, 13, 22 ]
@@ -1598,12 +1606,13 @@ static void L1FillChambers()
 		[ 2, 4, 22 ]
 
 		[ 1, 2, 16, 13, 4 ]
-	[ 1, 2, 16, 13, 4 ] 13 	[ 1, 2, 16, 13, 4, 22 ]
+	[ 1, (2), 16, 13, (4) ] 13 	[ 1, 2, 16, 13, 4, 22 ]
 		[ 1, 2, 16, 13, 4, 22 ]
 */
 
 /*
- * Place special pieces on the border of the dungeon.
+ * Draw wall around the tiles selected by L1FirstRoom.
+ * Assumes the border of dungeon was empty.
  * New dungeon values: 6 7 17 18 19 20 23 24
  */
 static void L1TileFix()
@@ -1639,17 +1648,19 @@ static void L1TileFix()
 			case 13:
 			//		[ 1(16) ]
 			// [ 2(17) ] 13
+				// Impossible case ([2 13]) if there is an empty tile between walls.
+				assert(dungeon[i - 1][j] != 2);
 				if (dungeon[i][j - 1] == 1) {
-					if (dungeon[i - 1][j] == 2) {
-						dungeon[i][j] = 3; // connect
-					} else {
+					//if (dungeon[i - 1][j] == 2) {
+					//	dungeon[i][j] = 3; // connect
+					//} else {
 						dungeon[i][j] = 16; // connect
-					}
-				} else {
+					//}
+				} /*else {
 					if (dungeon[i - 1][j] == 2) {
 						dungeon[i][j] = 17; // connect
 					}
-				}
+				}*/
 				break;
 			case 16:
 			//				[ 13(17) ]
@@ -1704,12 +1715,13 @@ static void L1TileFix()
 
 	// apply the same logic to the first row/column
 	for (i = DMAXX - 1; i > 0; i--) {
+		/* Impossible case ([2 13]) if there is an empty tile between walls.
 		if (dungeon[i][0] == 13) {
 			// [ 2(17) ] 13
 			if (dungeon[i - 1][0] == 2) {
 				dungeon[i][0] = 17; // connect
 			}
-		} else if (dungeon[i][0] == 22) {
+		} else*/ if (dungeon[i][0] == 22) {
 			// [ 2(23) ]	22
 			if (dungeon[i - 1][0] == 2) {
 				dungeon[i][0] = 23; // new wall (SW)
@@ -1759,7 +1771,7 @@ static void L1TileFix()
 					 || dungeon[i - 1][j + 1] == 7);
 				} else {
 					assert(dungeon[i][j + 1] == 4
-					 || dungeon[i][j + 1] == 7
+					 || dungeon[i][j + 1] == 7 // should not happen with an empty line between walls
 					 || dungeon[i][j + 1] == 18
 					 || dungeon[i][j + 1] == 23);
 				}
@@ -1815,7 +1827,7 @@ static void L1TileFix()
 			case 23: // new wall (SW)
 				assert(j < DMAXY - 1);
 				assert(dungeon[i][j + 1] == 4
-				 || dungeon[i][j + 1] == 7
+				 || dungeon[i][j + 1] == 7 // should not happen with an empty line between walls
 				 || dungeon[i][j + 1] == 18);
 				break;
 			case 24: // new wall (SE)
