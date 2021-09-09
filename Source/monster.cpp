@@ -543,17 +543,17 @@ void WakeUberDiablo()
 }
 #endif
 
-static void PlaceMonster(int mnum, int mtype, int x, int y)
+static void PlaceMonster(int mnum, int mtidx, int x, int y)
 {
 	int dir;
 
 	dMonster[x][y] = mnum + 1;
 
 	dir = random_(90, NUM_DIRS);
-	InitMonster(mnum, dir, mtype, x, y);
+	InitMonster(mnum, dir, mtidx, x, y);
 }
 
-static void PlaceGroup(int mtype, int num, int leaderf, int leader)
+static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 {
 	int placed, offset, try1, try2;
 	int xp, yp, x1, y1, x2, y2;
@@ -599,7 +599,7 @@ static void PlaceGroup(int mtype, int num, int leaderf, int leader)
 			if ((!MonstPlace(xp, yp)) || random_(0, 2) != 0)
 				continue;
 
-			PlaceMonster(nummonsters, mtype, xp, yp);
+			PlaceMonster(nummonsters, mtidx, xp, yp);
 			if (leaderf & 1) {
 				monsters[nummonsters]._mmaxhp *= 2;
 				monsters[nummonsters]._mhitpoints = monsters[nummonsters]._mmaxhp;
@@ -625,7 +625,7 @@ static void PlaceGroup(int mtype, int num, int leaderf, int leader)
 	}
 }
 
-static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
+static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 {
 	int xp, yp, x, y;
 	int uniqtype;
@@ -810,7 +810,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	nummonsters++;
 
 	if (uniqm->mUnqAttr & 1) {
-		PlaceGroup(miniontype, bosspacksize, uniqm->mUnqAttr, nummonsters - 1);
+		PlaceGroup(miniontidx, bosspacksize, uniqm->mUnqAttr, nummonsters - 1);
 	}
 }
 
@@ -913,9 +913,9 @@ void InitMonsters()
 	int na;
 	int i, j, xx, yy;
 	int numplacemonsters;
-	int mtype;
+	int mtidx;
 	int numscattypes;
-	int scattertypes[NUM_MTYPES];
+	int scatteridx[NUM_MTYPES];
 	const int tdx[4] = { -1, -1,  2,  2 };
 	const int tdy[4] = { -1,  2, -1,  2 };
 
@@ -956,13 +956,13 @@ void InitMonsters()
 		numscattypes = 0;
 		for (i = 0; i < nummtypes; i++) {
 			if (mapMonTypes[i].cmPlaceScatter) {
-				scattertypes[numscattypes] = i;
+				scatteridx[numscattypes] = i;
 				numscattypes++;
 			}
 		}
 		i = currLvl._dLevelIdx;
 		while (nummonsters < totalmonsters) {
-			mtype = scattertypes[random_(95, numscattypes)];
+			mtidx = scatteridx[random_(95, numscattypes)];
 			if (i == DLV_CATHEDRAL1 || random_(95, 2) == 0)
 				na = 1;
 #ifdef HELLFIRE
@@ -973,7 +973,7 @@ void InitMonsters()
 				na = RandRange(2, 3);
 			else
 				na = RandRange(3, 5);
-			PlaceGroup(mtype, na, 0, 0);
+			PlaceGroup(mtidx, na, 0, 0);
 		}
 	}
 	for (i = 0; i < numtrigs; i++) {
@@ -990,7 +990,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 {
 	uint16_t rw, rh, *lm;
 	int i, j;
-	int mtype;
+	int mtidx;
 
 	if (currLvl._dSetLvl) {
 		AddMonsterType(MT_GOLEM, FALSE);
@@ -1017,8 +1017,8 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
 				assert(SwapLE16(*lm) < lengthof(MonstConvTbl) && MonstConvTbl[SwapLE16(*lm)] != 0);
-				mtype = AddMonsterType(MonstConvTbl[SwapLE16(*lm)], FALSE);
-				PlaceMonster(nummonsters++, mtype, i, j);
+				mtidx = AddMonsterType(MonstConvTbl[SwapLE16(*lm)], FALSE);
+				PlaceMonster(nummonsters++, mtidx, i, j);
 			}
 			lm++;
 		}
@@ -1035,13 +1035,13 @@ static void DeleteMonster(int i)
 	monstactive[i] = temp;
 }
 
-int AddMonster(int x, int y, int dir, int mtype, bool InMap)
+int AddMonster(int x, int y, int dir, int mtidx, bool InMap)
 {
 	if (nummonsters < MAXMONSTERS) {
 		int mnum = monstactive[nummonsters++];
 		if (InMap)
 			dMonster[x][y] = mnum + 1;
-		InitMonster(mnum, dir, mtype, x, y);
+		InitMonster(mnum, dir, mtidx, x, y);
 		return mnum;
 	}
 
