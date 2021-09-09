@@ -974,6 +974,7 @@ static void L1roomGen(int x, int y, int w, int h, bool dir)
 	dirProb = random_(0, 4);
 
 	if (dir == (dirProb == 0)) {
+		// try to place a room to the left
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
 			height = RandRange(2, 6) & ~1;
@@ -985,15 +986,19 @@ static void L1roomGen(int x, int y, int w, int h, bool dir)
 
 		if (i != 0)
 			L1drawRoom(rx, ry, width, height);
+		// try to place a room to the right
 		rxy2 = x + w;
 		ran2 = L1checkRoom(rxy2, ry - 1, width + 1, height + 2);
 		if (ran2)
 			L1drawRoom(rxy2, ry, width, height);
+		// proceed with the placed a room on the left
 		if (i != 0)
 			L1roomGen(rx, ry, width, height, true);
+		// proceed with the placed a room on the right
 		if (ran2)
 			L1roomGen(rxy2, ry, width, height, true);
 	} else {
+		// try to place a room to the top
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
 			height = RandRange(2, 6) & ~1;
@@ -1005,17 +1010,24 @@ static void L1roomGen(int x, int y, int w, int h, bool dir)
 
 		if (i != 0)
 			L1drawRoom(rx, ry, width, height);
+		// try to place a room to the bottom
 		rxy2 = y + h;
 		ran2 = L1checkRoom(rx - 1, rxy2, width + 2, height + 1);
 		if (ran2)
 			L1drawRoom(rx, rxy2, width, height);
+		// proceed with the placed a room on the top
 		if (i != 0)
 			L1roomGen(rx, ry, width, height, false);
+		// proceed with the placed a room on the bottom
 		if (ran2)
 			L1roomGen(rx, rxy2, width, height, false);
 	}
 }
 
+/*
+ * Create dungeon blueprint.
+ * New dungeon values: 1
+ */
 static void L1firstRoom()
 {
 	int is, ie, i;
