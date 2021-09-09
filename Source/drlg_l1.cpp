@@ -932,7 +932,7 @@ static void L1ClearChamberFlags()
 		*pTmp &= ~DLRG_CHAMBER;
 }
 
-static void L1drawRoom(int x, int y, int width, int height)
+static void L1DrawRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
@@ -945,7 +945,7 @@ static void L1drawRoom(int x, int y, int width, int height)
 	}
 }
 
-static bool L1checkRoom(int x, int y, int width, int height)
+static bool L1CheckRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
@@ -1008,7 +1008,7 @@ static bool L1CheckHHall(int y, int left, int w)
 	return i == right;
 }
 
-static void L1roomGen(int x, int y, int w, int h, bool dir)
+static void L1RoomGen(int x, int y, int w, int h, bool dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
 	bool ran2;
@@ -1023,24 +1023,24 @@ static void L1roomGen(int x, int y, int w, int h, bool dir)
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
 			if (L1CheckVHall(x, ry - 1, height + 2)
-			 && L1checkRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("height+2" and "width+1") (fixed)
+			 && L1CheckRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("height+2" and "width+1") (fixed)
 				break;
 		}
 
 		if (i != 0)
-			L1drawRoom(rx, ry, width, height);
+			L1DrawRoom(rx, ry, width, height);
 		// try to place a room to the right
 		rxy2 = x + w;
 		ran2 = L1CheckVHall(rxy2 - 1, ry - 1, height + 2)
-			&& L1checkRoom(rxy2, ry - 1, width + 1, height + 2);
+			&& L1CheckRoom(rxy2, ry - 1, width + 1, height + 2);
 		if (ran2)
-			L1drawRoom(rxy2, ry, width, height);
+			L1DrawRoom(rxy2, ry, width, height);
 		// proceed with the placed a room on the left
 		if (i != 0)
-			L1roomGen(rx, ry, width, height, true);
+			L1RoomGen(rx, ry, width, height, true);
 		// proceed with the placed a room on the right
 		if (ran2)
-			L1roomGen(rxy2, ry, width, height, true);
+			L1RoomGen(rxy2, ry, width, height, true);
 	} else {
 		// try to place a room to the top
 		for (i = 20; i != 0; i--) {
@@ -1049,24 +1049,24 @@ static void L1roomGen(int x, int y, int w, int h, bool dir)
 			rx = w / 2 + x - width / 2;
 			ry = y - height;
 			if (L1CheckHHall(y, rx - 1, width + 2)
-			 && L1checkRoom(rx - 1, ry - 1, width + 2, height + 1))
+			 && L1CheckRoom(rx - 1, ry - 1, width + 2, height + 1))
 				break;
 		}
 
 		if (i != 0)
-			L1drawRoom(rx, ry, width, height);
+			L1DrawRoom(rx, ry, width, height);
 		// try to place a room to the bottom
 		rxy2 = y + h;
 		ran2 = L1CheckHHall(rxy2 - 1, rx - 1, width + 2)
-			&& L1checkRoom(rx - 1, rxy2, width + 2, height + 1);
+			&& L1CheckRoom(rx - 1, rxy2, width + 2, height + 1);
 		if (ran2)
-			L1drawRoom(rx, rxy2, width, height);
+			L1DrawRoom(rx, rxy2, width, height);
 		// proceed with the placed a room on the top
 		if (i != 0)
-			L1roomGen(rx, ry, width, height, false);
+			L1RoomGen(rx, ry, width, height, false);
 		// proceed with the placed a room on the bottom
 		if (ran2)
-			L1roomGen(rx, rxy2, width, height, false);
+			L1RoomGen(rx, rxy2, width, height, false);
 	}
 }
 
@@ -1074,7 +1074,7 @@ static void L1roomGen(int x, int y, int w, int h, bool dir)
  * Create dungeon blueprint.
  * New dungeon values: 1
  */
-static void L1firstRoom()
+static void L1FirstRoom()
 {
 	int is, ie, i;
 
@@ -1092,14 +1092,14 @@ static void L1firstRoom()
 
 		// draw the selected rooms
 		if (ChambersFirst)
-			L1drawRoom(15, 1, CHAMBER_SIZE, CHAMBER_SIZE);
+			L1DrawRoom(15, 1, CHAMBER_SIZE, CHAMBER_SIZE);
 		else
 			is = 1 + CHAMBER_SIZE + 4 + CHAMBER_SIZE;
 
 		if (ChambersMiddle)
-			L1drawRoom(15, 15, CHAMBER_SIZE, CHAMBER_SIZE);
+			L1DrawRoom(15, 15, CHAMBER_SIZE, CHAMBER_SIZE);
 		if (ChambersLast)
-			L1drawRoom(15, 29, CHAMBER_SIZE, CHAMBER_SIZE);
+			L1DrawRoom(15, 29, CHAMBER_SIZE, CHAMBER_SIZE);
 		else
 			ie = 15;
 		// draw a hallway between the rooms
@@ -1113,11 +1113,11 @@ static void L1firstRoom()
 		}
 		// spread additional rooms starting from the main rooms
 		if (ChambersFirst)
-			L1roomGen(15, 1, CHAMBER_SIZE, CHAMBER_SIZE, false);
+			L1RoomGen(15, 1, CHAMBER_SIZE, CHAMBER_SIZE, false);
 		if (ChambersMiddle)
-			L1roomGen(15, 15, CHAMBER_SIZE, CHAMBER_SIZE, false);
+			L1RoomGen(15, 15, CHAMBER_SIZE, CHAMBER_SIZE, false);
 		if (ChambersLast)
-			L1roomGen(15, 29, CHAMBER_SIZE, CHAMBER_SIZE, false);
+			L1RoomGen(15, 29, CHAMBER_SIZE, CHAMBER_SIZE, false);
 
 	} else {
 		// place the main rooms horizontally
@@ -1126,14 +1126,14 @@ static void L1firstRoom()
 
 		// draw the selected rooms
 		if (ChambersFirst)
-			L1drawRoom(1, 15, CHAMBER_SIZE, CHAMBER_SIZE);
+			L1DrawRoom(1, 15, CHAMBER_SIZE, CHAMBER_SIZE);
 		else
 			is = 1 + CHAMBER_SIZE + 4 + CHAMBER_SIZE;
 
 		if (ChambersMiddle)
-			L1drawRoom(1 + CHAMBER_SIZE + 4, 15, CHAMBER_SIZE, CHAMBER_SIZE);
+			L1DrawRoom(1 + CHAMBER_SIZE + 4, 15, CHAMBER_SIZE, CHAMBER_SIZE);
 		if (ChambersLast)
-			L1drawRoom(1 + CHAMBER_SIZE + 4 + CHAMBER_SIZE + 4, 15, CHAMBER_SIZE, CHAMBER_SIZE);
+			L1DrawRoom(1 + CHAMBER_SIZE + 4 + CHAMBER_SIZE + 4, 15, CHAMBER_SIZE, CHAMBER_SIZE);
 		else
 			ie = 15;
 		// draw a hallway between the rooms
@@ -1147,11 +1147,11 @@ static void L1firstRoom()
 		}
 		// spread additional rooms starting from the main rooms
 		if (ChambersFirst)
-			L1roomGen(1, 15, CHAMBER_SIZE, CHAMBER_SIZE, true);
+			L1RoomGen(1, 15, CHAMBER_SIZE, CHAMBER_SIZE, true);
 		if (ChambersMiddle)
-			L1roomGen(15, 15, CHAMBER_SIZE, CHAMBER_SIZE, true);
+			L1RoomGen(15, 15, CHAMBER_SIZE, CHAMBER_SIZE, true);
 		if (ChambersLast)
-			L1roomGen(29, 15, CHAMBER_SIZE, CHAMBER_SIZE, true);
+			L1RoomGen(29, 15, CHAMBER_SIZE, CHAMBER_SIZE, true);
 	}
 }
 
@@ -1580,7 +1580,7 @@ static void L1FillChambers()
  * Place special pieces on the border of the dungeon.
  * New dungeon values: 6 7 17 18 19 20 23 24
  */
-static void L1tileFix()
+static void L1TileFix()
 {
 	int i, j;
 
@@ -2285,11 +2285,11 @@ static void DRLG_L1(int entry)
 		do {
 			static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L1.");
 			memset(dungeon, 0, sizeof(dungeon));
-			L1firstRoom();
+			L1FirstRoom();
 		} while (L1GetArea() < minarea);
 
 		DRLG_L1MakeMegas();
-		L1tileFix();
+		L1TileFix();
 		memset(drlgFlags, 0, sizeof(drlgFlags));
 		L1FillChambers();
 		L1AddWall();
