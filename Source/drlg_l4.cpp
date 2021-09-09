@@ -622,37 +622,19 @@ static void L4tileFix()
 				break;
 			case 2:
 			//													[ 1(14) ]
-			// [ 6(T1:15, T6:8, T30:15), 30(T1:10, T6:11, T30:9) ]	2
-				if (dungeon[i][j - 1] == 1) {
-					if (dungeon[i - 1][j] == 6) {
+			// [ 6(T1:15, T6:8, T30:15) ]	2
+				if (dungeon[i - 1][j] == 6) {
+					if (dungeon[i][j - 1] == 1) {
 						dungeon[i][j] = 15; // connect + cut
-					} else if (dungeon[i - 1][j] == 30) {
-						if (dungeon[i - 1][j - 1] == 6) {
-							dungeon[i][j] = 17; // connect + new wall (SW, NE)
-						} else {
-							assert(dungeon[i - 1][j - 1] == 30);
-							dungeon[i][j] = 10; // cut + connect + new wall (SW)
-						}
-					} else {
-						dungeon[i][j] = 14; // connect
-					}
-				} else if (dungeon[i][j - 1] == 6) {
-					if (dungeon[i - 1][j] == 6) {
+					} else if (dungeon[i][j - 1] == 6) {
 						dungeon[i][j] = 8; // cut
-					} else if (dungeon[i - 1][j] == 30) {
-						dungeon[i][j] = 11; // new wall (SW)
+					} else {
+						assert(dungeon[i][j - 1] == 30);
+						dungeon[i][j] = 15; // new wall (NE) + cut
 					}
 				} else {
-					assert(dungeon[i][j - 1] == 30);
-					if (dungeon[i - 1][j] == 6) {
-						dungeon[i][j] = 15; // new wall (NE) + cut
-					} else if (dungeon[i - 1][j] == 30) {
-						if (dungeon[i - 1][j - 1] == 6) {
-							dungeon[i][j] = 17; // new wall (SW, NE)
-						} else {
-							assert(dungeon[i - 1][j - 1] == 30);
-							dungeon[i][j] = 9; // new wall (SW) + cut
-						}
+					if (dungeon[i][j - 1] == 1) {
+						dungeon[i][j] = 14; // connect
 					}
 				}
 				break;
@@ -688,7 +670,7 @@ static void L4tileFix()
 				}
 				break;
 			case 30:
-				//			[ 1(26), 6(19) ]
+				//			[ 1(27), 6(19) ]
 				// [ 2(28), 6(18) ]	30
 				if (dungeon[i - 1][j] == 2) {
 					if (dungeon[i][j - 1] == 1) {
@@ -728,15 +710,13 @@ static void L4tileFix()
 
 	// apply the same logic to the first row/column
 	for (i = DMAXX - 1; i > 0; i--) {
-		if (dungeon[i][0] == 2) {
-			if (dungeon[i - 1][0] == 30) {
-				dungeon[i][0] = 9; // new wall (SW) + cut
-			}
-		} else if (dungeon[i][0] == 30) {
+		if (dungeon[i][0] == 30) {
+			// [ 2(28) ]	30
 			if (dungeon[i - 1][0] == 2) {
 				dungeon[i][0] = 28; // connect + new wall (SW)
 			}
 		} else if (dungeon[i][0] == 9) {
+			// [ 2(11) ]	9
 			if (dungeon[i - 1][0] == 2) {
 				dungeon[i][0] = 11; // connect
 			}
@@ -744,12 +724,16 @@ static void L4tileFix()
 	}
 	for (j = DMAXY - 1; j > 0; j--) {
 		if (dungeon[0][j] == 30) {
+			// [ 1(27) ]
+			//	30
 			if (dungeon[0][j - 1] == 1) {
 				dungeon[0][j] = 27; // connect + new wall (SE)
 			} else {
 				assert(dungeon[0][j - 1] == 30);
 			}
 		} else if (dungeon[0][j] == 9) {
+			// [ 1(10) ]
+			//	9
 			if (dungeon[0][j - 1] == 1) {
 				dungeon[0][j] = 10; // connect
 			}
@@ -804,16 +788,6 @@ static void L4tileFix()
 				|| dungeon[i - 1][j] == 22 || dungeon[i - 1][j] == 23
 				|| dungeon[i - 1][j] == 26 || dungeon[i - 1][j] == 27
 				|| dungeon[i - 1][j] == 29);
-				break;
-			case 9: // new wall (SW) 2 (or original value)
-			case 10: // new wall (SW) 2 (or converted)
-			case 11: // new wall (SW) 2 (or converted)
-			case 17: // new wall (SW, NE) 2 (or converted) .. TODO: ValidateNEConnection ?
-				//assert(j > 0); -- except for case 9
-				assert(j < DMAXY - 1);
-				if (dungeon[i][j + 1] == 5) {
-					dungeon[i][j + 1] = 12;
-				}
 				break;
 			case 15: // new wall (NE) 2
 				assert(j > 0);
