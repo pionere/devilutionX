@@ -1583,7 +1583,7 @@ static void L1tileFix()
 				if (v1 == 21 && v2 == 1)
 					dungeon[i + 1][j] = 6;
 				if (v1 == 4 && v2 == 16)
-					dungeon[i + 1][j] = 17;
+					dungeon[i + 1][j] = 3; //17; -- BUGFIX: 17 does not fit to 4, use 3 instead (fixed)
 			}
 			if (i != 0) {
 				v2 = dungeon[i - 1][j];
