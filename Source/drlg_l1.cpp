@@ -1533,7 +1533,7 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 
 /*
  * Add pillars to the chambers.
- * New dungeon values: (1 2) 3 5 8 9 10 11 12 14 15 21
+ * New dungeon values: [2] (1) 3 5 8 9 10 11 12 14 15
  */
 static void L1FillChambers()
 {
@@ -1634,7 +1634,7 @@ static void L1FillChambers()
 /*
  * Draw wall around the tiles selected by L1FirstRoom.
  * Assumes the border of dungeon was empty.
- * New dungeon values: 6 7 17 18 19 20 23 24
+ * New dungeon values: 6 7 16 17 18 19 23 24
  */
 static void L1TileFix()
 {
