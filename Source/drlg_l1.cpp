@@ -401,9 +401,9 @@ const BYTE L5RNDLFLOOR2[20] = {
 	13, 13, 13,
 	13, 13, 13,
 
-	0,   0, 0, // replace
-	0, 167, 0,
-	0,   0, 0,
+	210,   0, 0, // replace
+	209, 167, 0,
+	  0,   0, 0,
 	// clang-format on
 };
 /** Miniset: Mooring on a stone. */
@@ -566,16 +566,16 @@ static void DRLG_L1PlaceDoors()
 }
 
 #ifdef HELLFIRE
-static void DRLG_L5Crypt_lavafloor()
+static void DRLG_L5Shadows()
 {
 	int i, j;
 
-	for (j = 1; j < DMAXY; j++) {
-		for (i = 1; i < DMAXX; i++) {
+	for (j = DMAXY - 1; j > 0; j--) {
+		for (i = DMAXX - 1; i > 0; i--) {
 			switch (dungeon[i][j]) {
 			case 5:
-			case 116:
-			case 133:
+			//case 116: 5
+			//case 133: 5
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 203;
 				if (dungeon[i - 1][j - 1] == 13)
@@ -585,13 +585,18 @@ static void DRLG_L5Crypt_lavafloor()
 				break;
 			case 7:
 			case 15:
+			case 16:
 			case 17:
-			case 118:
-			case 126:
-			case 128:
-			case 135:
-			case 152:
-			case 160:
+			//case 118: 7
+			//case 126: 15
+			//case 127: 16
+			//case 128: 17
+			//case 135: 7
+			//case 144: 16
+			//case 152: 7
+			//case 160: 15 ?
+			//case 161: 16
+			//case 192: 15 ?
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 206;
 				if (dungeon[i - 1][j - 1] == 13)
@@ -600,24 +605,24 @@ static void DRLG_L5Crypt_lavafloor()
 			case 8:
 			case 11:
 			case 14:
-			case 95:
-			case 119:
-			case 125:
-			case 136:
-			case 142:
-			case 153:
-			case 156:
-			case 159:
-			case 185:
-			case 186:
+			//case 95: 11
+			//case 119: 8
+			//case 125: 14
+			//case 136: 8
+			//case 142: 14
+			//case 153: 8
+			//case 156: 11
+			//case 159: 14
+			//case 185: 11
+			//case 186: 11
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 203;
 				if (dungeon[i - 1][j - 1] == 13)
 					dungeon[i - 1][j - 1] = 204;
 				break;
 			case 9:
-			case 120:
-			case 154:
+			//case 120: 9
+			//case 154: 9
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 206;
 				if (dungeon[i - 1][j - 1] == 13)
@@ -627,62 +632,78 @@ static void DRLG_L5Crypt_lavafloor()
 				break;
 			case 10:
 			case 12:
-			case 121:
-			case 123:
-			case 138:
-			case 155:
+			//case 121: 10
+			//case 123: 12
+			//case 138: 10
+			//case 155: 10
+			//case 187: 12
+			//case 188: 12
 				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 205;
 				break;
-			case 96:
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 208;
-				break;
-			case 122:
-				if (dungeon[i - 1][j] == 13)
+			//case 96: // 12
+			//	if (dungeon[i][j - 1] == 13)
+			//		dungeon[i][j - 1] = 208;
+			//	break;
+			case 122: // 11
+				//if (dungeon[i - 1][j] == 13)
+				if (dungeon[i - 1][j] == 203)
 					dungeon[i - 1][j] = 211;
-				if (dungeon[i - 1][j - 1] == 13)
+				//if (dungeon[i - 1][j - 1] == 13)
+				if (dungeon[i - 1][j - 1] == 204)
 					dungeon[i - 1][j - 1] = 212;
 				break;
-			case 137:
-				if (dungeon[i - 1][j] == 13)
+			case 137: // 9
+				//if (dungeon[i - 1][j] == 13)
+				if (dungeon[i - 1][j] == 206)
 					dungeon[i - 1][j] = 213;
-				if (dungeon[i - 1][j - 1] == 13)
+				//if (dungeon[i - 1][j - 1] == 13)
+				if (dungeon[i - 1][j - 1] == 207)
 					dungeon[i - 1][j - 1] = 214;
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
+				//if (dungeon[i][j - 1] == 13)
+				//	dungeon[i][j - 1] = 205;
 				break;
-			case 139:
-				if (dungeon[i - 1][j] == 13)
+			case 139: // 11
+				//if (dungeon[i - 1][j] == 13)
+				if (dungeon[i - 1][j] == 203)
 					dungeon[i - 1][j] = 215;
-				if (dungeon[i - 1][j - 1] == 13)
+				//if (dungeon[i - 1][j - 1] == 13)
+				if (dungeon[i - 1][j - 1] == 204)
 					dungeon[i - 1][j - 1] = 216;
 				break;
-			case 140:
-			case 157:
-				if (dungeon[i][j - 1] == 13)
+			case 140: // 12
+			case 157: // 12
+				//if (dungeon[i][j - 1] == 13)
+				if (dungeon[i][j - 1] == 205)
 					dungeon[i][j - 1] = 217;
 				break;
-			case 143:
-			case 145:
-				if (dungeon[i - 1][j] == 13)
+			case 143: // 15
+			case 145: // 17
+				//if (dungeon[i - 1][j] == 13)
+				if (dungeon[i - 1][j] == 206)
 					dungeon[i - 1][j] = 213;
-				if (dungeon[i - 1][j - 1] == 13)
+				//if (dungeon[i - 1][j - 1] == 13)
+				if (dungeon[i - 1][j - 1] == 207)
 					dungeon[i - 1][j - 1] = 214;
 				break;
-			case 150:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				if (dungeon[i][j - 1] == 13)
+			case 150: // 5
+				//if (dungeon[i - 1][j] == 13)
+				//	dungeon[i - 1][j] = 203;
+				//if (dungeon[i - 1][j - 1] == 13)
+				//	dungeon[i - 1][j - 1] = 204;
+				//if (dungeon[i][j - 1] == 13)
+				if (dungeon[i][j - 1] == 205)
 					dungeon[i][j - 1] = 217;
 				break;
-			case 162:
-			case 167:
-				if (dungeon[i - 1][j] == 13)
+			//case 162: // 17 -- why?
+			//case 167: // done in DRLG_L5PlaceRndSet using L5RNDLFLOOR2
+			case 160:
+			case 192:
+				//if (dungeon[i - 1][j] == 13)
+				if (dungeon[i - 1][j] == 206)
 					dungeon[i - 1][j] = 209;
-				if (dungeon[i - 1][j - 1] == 13)
+				//if (dungeon[i - 1][j - 1] == 13)
+				if (dungeon[i - 1][j - 1] == 207)
 					dungeon[i - 1][j - 1] = 210;
 				break;
 			}
@@ -2408,13 +2429,12 @@ static void DRLG_L1(int entry)
 		DRLG_L5PlaceRndSet(L5PREVERTWALL, 100);
 		DRLG_L5PlaceRndSet(L5PREHORIZWALL, 100);
 		DRLG_L5PlaceRndSet(L5RNDLFLOOR1, 60);
-		DRLG_L5Crypt_lavafloor();
+		DRLG_L5Shadows();
 		switch (currLvl._dLevelIdx) {
 		case DLV_CRYPT1:
 			DRLG_L5Crypt_pattern2(30);
 			DRLG_L5Crypt_pattern3(15);
 			DRLG_L5Crypt_pattern4(5);
-			DRLG_L5Crypt_lavafloor();
 			DRLG_L5Crypt_pattern7(10);
 			DRLG_L5Crypt_pattern6(5);
 			DRLG_L5Crypt_pattern5(20);
@@ -2426,7 +2446,6 @@ static void DRLG_L1(int entry)
 			DRLG_L5Crypt_pattern2(30);
 			DRLG_L5Crypt_pattern3(20);
 			DRLG_L5Crypt_pattern4(10);
-			DRLG_L5Crypt_lavafloor();
 			break;
 		case DLV_CRYPT3:
 			DRLG_L5Crypt_pattern7(10);
@@ -2435,7 +2454,6 @@ static void DRLG_L1(int entry)
 			DRLG_L5Crypt_pattern2(30);
 			DRLG_L5Crypt_pattern3(20);
 			DRLG_L5Crypt_pattern4(15);
-			DRLG_L5Crypt_lavafloor();
 			break;
 		case DLV_CRYPT4:
 			DRLG_L5Crypt_pattern7(10);
@@ -2444,12 +2462,12 @@ static void DRLG_L1(int entry)
 			DRLG_L5Crypt_pattern2(30);
 			DRLG_L5Crypt_pattern3(20);
 			DRLG_L5Crypt_pattern4(20);
-			DRLG_L5Crypt_lavafloor();
 			break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
+		DRLG_L5Shadows();
 	} else
 #endif
 	{
