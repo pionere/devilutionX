@@ -28,42 +28,102 @@ const ShadowStruct L1SPATS[] = {
 	// clang-format off
 	// strig, s1, s2, s3, nv1, nv2, nv3
 	{      3, SF, 11, 12, 150,   0,   0 },
+#ifdef _DEBUG
+	{      3,  0,  1,  0,   0,   0,   0 }, // shadow is not necessary
+	{      3,  0,  0,  0,   0,   0,   0 }, // shadow is not necessary
+#endif
 	{      5, SF, SF, SF, 152, 140, 139 },
-	{      5, SF,  1, SF, 143, 146, 139 },
-	{      5, SF, SF,  2, 143, 140, 148 },
-	{      5,  0,  1,  2,   0, 146, 148 },
-	{      5, SF, 11, SF, 143, 147, 139 },
-	{      5, SF, SF, 12, 143, 140, 149 },
-	{      5, SF, 11, 12, 150, 147, 149 },
-	{      5, SF,  1, 12, 143, 146, 149 },
-	{      5, SF, 11,  2, 143, 147, 148 },
 	{      7, SF,  0, SF, 144,   0, 142 },
-	{      8, SF,  0, SF, 144,   0, 139 },
+#ifdef _DEBUG
+	{      7, 36,  0, SF,   0,   0,   0 }, // missing shadow for 36
+	{      7,  2,  0, SF,   0,   0,   0 }, // missing shadow for  2
+	{      7, 12,  0, SF,   0,   0,   0 }, // missing shadow for 12
+	{      7, 26,  0, SF,   0,   0,   0 }, // missing shadow for 26
+	{      7,  7,  0, SF,   0,   0,   0 }, // missing shadow for  7
+#endif
 	{      8, SF,  0, 12, 143,   0, 149 },
-	{      8,  0,  0,  2,   0,   0, 148 },
-	{      9, SF, SF, SF, 144, 140, 142 },
-	{      9, SF,  1, SF, 144, 146, 142 },
 	{      9, SF, 11, SF, 151, 147, 142 },
 	{     10,  0, SF,  0,   0, 140,   0 },
-	{     10, SF, SF,  0, 140, 140,   0 },
 	{     10,  0,  1,  0,   0, 146,   0 },
-	{     10, SF, 11,  0, 140, 147,   0 },
-	{     11,  0,  0, SF,   0,   0, 139 },
-	{     11, SF,  0, SF, 139,   0, 139 },
-	{     11,  2,  0, SF, 148,   0, 139 },
-	{     11, 12,  0, SF, 149,   0, 139 },
-	{     11, SF, 11, 12, 139,   0, 149 },
-	{     12,  0, SF,  0,   0, 140,   0 },
-	{     12, SF, SF,  0, 140, 140,   0 },
+#ifdef _DEBUG
+	{     10,  0,  6,  0,   0,   0,   0 }, // missing shadow for  6
+	{     10, SF, 25,  0,   0,   0,   0 }, // missing shadow for 25
+#endif
+	{     10, SF, 11,  0, 139, 147,   0 },
+#ifdef _DEBUG
+	{     10, SF, 35,  0,   0,   0,   0 }, // missing shadow for 35
+#endif
+	{     11,  0,  0,  2,   0,   0, 148 },
+	{     11, SF,  0, SF, 144,   0, 139 },
+	{     11, SF,  5, SF, 139,   0, 139 },
+	{     11, SF, 11, SF, 139,   0, 139 },
+	{     11, SF, 14, SF, 139,   0, 139 },
+	{     11, SF, 35, SF, 141,   0, 139 },
+#ifdef _DEBUG
+	{     11,  7, 11, SF,   0,   0,   0 }, // missing shadow for 7
+	{     11,  7, 35, SF,   0,   0,   0 }, // missing shadow for 7
+	{     11,  7,  1, SF,   0,   0,   0 }, // missing shadow for 7
+	{     11,  0,  0,  7,   0,   0,   0 }, // missing shadow for 7
+#endif
+	{     11,  2, 35, SF, 154,   0, 139 },
+	{     11,  2, 11, SF, 148,   0, 139 },
+	{     11,  2,  1, SF, 148,   0, 139 },
+	{     11, 12,  8, SF, 149,   0, 139 },
 	{     12,  0,  1,  0,   0, 146,   0 },
-	{     12, SF, 11,  0, 140, 147,   0 },
-	{     14,  0,  0, SF,   0,   0, 139 },
-	{     14, SF,  0, SF, 139,   0, 139 },
+	{     12,  0, SF,  0,   0, 140,   0 },
+#ifdef _DEBUG
+	{     12,  0,  6,  0,   0,   0,   0 }, // missing shadow for  6
+	{     14,  7,  0, SF,   0,   0,   0 }, // missing shadow for  7
+	{     14, 26,  0, SF,   0,   0,   0 }, // missing shadow for 26
+	{     14, 36,  0, SF,   0,   0,   0 }, // missing shadow for 36
+#endif
 	{     14,  2,  0, SF, 148,   0, 139 },
 	{     14, 12,  0, SF, 149,   0, 139 },
-	{     14, SF, 11, 12, 139,   0, 149 },
+	{     14, SF,  0, SF, 144,   0, 139 },
+	//{     14, SF,  1, SF, 144,   0, 139 }, covered above
+	//{     14, SF, 25, SF, 144,   0, 139 }, covered above
+	{     14, SF, 11, SF, 139,   0, 139 },
+	{     14, SF, 35, SF, 141,   0, 139 },
 	{     15, SF,  0, SF, 145,   0, 142 },
 	{     16, SF,  0, SF, 144,   0, 142 },
+#ifdef _DEBUG
+	//{     16,  2,  0, SF,   0,   0, 142 }, // missing shadow for  2
+	//{     16,  7,  0, SF,   0,   0, 142 }, // missing shadow for  7
+	//{     16, 12,  0, SF,   0,   0, 142 }, // missing shadow for 12
+	//{     16, 26,  0, SF,   0,   0, 142 }, // missing shadow for 26
+	//{     16, 36,  0, SF,   0,   0, 142 }, // missing shadow for 36
+#endif
+	{     35,  0,  0,  2,   0,   0, 154 },
+	{     35,  2,  0, SF, 148,   0, 141 },
+	{     35,  2, 35, SF, 154,   0, 141 },
+#ifdef _DEBUG
+	{     35, 36,  0, SF,   0,   0,   0 }, // missing shadow for 36
+	{     35, 26,  0, SF,   0,   0,   0 }, // missing shadow for 26
+	{     35,  7,  0, SF,   0,   0,   0 }, // missing shadow for  7
+	{     35,  0,  0,  7,   0,   0,   0 }, // missing shadow for  7
+#endif
+	{     35, 12,  0, SF, 149,   0, 141 },
+	{     35, 12, 35, SF, 153,   0, 141 },
+	{     35, SF,  0, SF, 152,   0, 141 },
+	{     35, SF, 11, SF, 139,   0, 141 },
+	{     35, SF, 35, SF, 141,   0, 141 },
+	{     35, SF, SF, SF, 152, 140, 141 }, // only for tile 37
+	{     36,  0,  1,  0,   0, 146,   0 },
+#ifdef _DEBUG
+	{     36,  0,  6,  0,   0,   0,   0 }, // missing shadow for 6
+	{     36,  0, 25,  0,   0,   0,   0 }, // missing shadow for 25
+#endif
+	{     36,  0, SF,  0,   0, 140,   0 },
+	{     36, SF, 11,  0, 139, 147,   0 },
+	//{     36, SF, 11, SF, 139, 147,   0 }, // covered above
+	//{     36, SF, 11,  2, 139, 147,   0 }, // covered above
+	//{     36, SF, 11, 26, 139, 147,   0 }, // covered above
+	//{     36, SF, 11,  7, 139, 147,   0 }, // covered above
+	{     36, SF, 11, 12, 150, 147,   0 },
+	{     36, SF, 11, 36, 150, 147,   0 },
+#ifdef _DEBUG
+	{     36, SF, 35,  0,   0,   0,   0 }, // missing shadow for 35. 0 not safe
+#endif
 	{    255,  0,  0,  0,   0,   0,   0 }
 	// clang-format on
 };
@@ -79,8 +139,8 @@ const BYTE BSTYPES[] = {
 	// clang-format off
 	0, 1, 2, 3, 0/*4*/, 5, 0/*6*/, 7, 8, 9,
 	10, 11, 12, SF, 14, 15, 16, 0/*17*/, 0, 0,
-	0, 0, 0, 0, 0, 1, 2, 10, 0/*4*/, 5,
-	0/*6*/, 7, 8, 9, 10, 11, 12, 14, 5, 14,
+	0, 0, 0, 0, 0, 25/*1*/, 26/*2*/, 36/*10*/, 0/*4*/, 5,
+	0/*6*/, 7, 8, 9, 10, 35/*11*/, 36/*12*/, 35/*14*/, 5, 14,
 	10, 0/*4*/, 14, 0/*4*/, 5, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -717,7 +777,6 @@ static void DRLG_L1Shadows()
 	const ShadowStruct *ss;
 	int x, y;
 	BYTE sd00, sd10, sd01, sd11;
-	BYTE tnv3;
 
 	for (y = 1; y < DMAXY; y++) {
 		for (x = 1; x < DMAXX; x++) {
@@ -738,49 +797,6 @@ static void DRLG_L1Shadows()
 					if (ss->nv3 != 0 && drlgFlags[x - 1][y] == 0)
 						dungeon[x - 1][y] = ss->nv3;
 				}
-			}
-		}
-	}
-
-	// add shadow of a lattice from the tile on the right
-	for (y = 0; y < DMAXY - 1; y++) {
-		for (x = 0; x < DMAXX - 1; x++) {
-			if (dungeon[x][y] == 139 /*&& drlgFlags[x][y] == 0*/) {
-				assert(drlgFlags[x][y] == 0);
-				tnv3 = dungeon[x + 1][y];
-				assert(tnv3 != 29);
-				assert(tnv3 != 32);
-				assert(tnv3 != 38);
-				assert(tnv3 != 39);
-				if (/*tnv3 == 29 || tnv3 == 32 ||*/ tnv3 == 35 || tnv3 == 37 /*|| tnv3 == 38 || tnv3 == 39*/)
-					tnv3 = 141;
-				else
-					tnv3 = 139;
-				dungeon[x][y] = tnv3;
-			} else if (dungeon[x][y] == 149 /*&& drlgFlags[x][y] == 0*/) {
-				assert(drlgFlags[x][y] == 0);
-				tnv3 = dungeon[x + 1][y];
-				assert(tnv3 != 29);
-				assert(tnv3 != 32);
-				assert(tnv3 != 38);
-				assert(tnv3 != 39);
-				if (/*tnv3 == 29 || tnv3 == 32 ||*/ tnv3 == 35 || tnv3 == 37 /*|| tnv3 == 38 || tnv3 == 39*/)
-					tnv3 = 153;
-				else
-					tnv3 = 149;
-				dungeon[x][y] = tnv3;
-			} else if (dungeon[x][y] == 148 /*&& drlgFlags[x][y] == 0*/) {
-				assert(drlgFlags[x][y] == 0);
-				tnv3 = dungeon[x + 1][y];
-				assert(tnv3 != 29);
-				assert(tnv3 != 32);
-				assert(tnv3 != 38);
-				assert(tnv3 != 39);
-				if (/*tnv3 == 29 || tnv3 == 32 ||*/ tnv3 == 35 || tnv3 == 37 /*|| tnv3 == 38 || tnv3 == 39*/)
-					tnv3 = 154;
-				else
-					tnv3 = 148;
-				dungeon[x][y] = tnv3;
 			}
 		}
 	}
@@ -1464,8 +1480,8 @@ static void DRLG_L1GHallHoriz(int x1, int y1, int x2)
 	assert(dungeon[i][y1 + 5] == 6); // 17 is not generated with an empty line between walls
 	//if (dungeon[i][y1 + 5] == 17)
 	//	dungeon[i][y1 + 5] = 3;
-	//else if (dungeon[i][y1 + 5] == 6) -- no need to replace
-	//	dungeon[i][y1 + 5] = 1;
+	//else if (dungeon[i][y1 + 5] == 6)
+		dungeon[i][y1 + 5] = 1; // use tile 1 instead of 6 if possible for better shadows/decorations
 }
 
 static void DRLG_L1GHallVert(int x1, int y1, int y2)
@@ -1769,7 +1785,10 @@ static void L1TileFix()
 			case 21: // new wall (SW, SE)
 			case 24: // new wall (SE)
 				assert(i < DMAXX - 1);
-				if (dungeon[i + 1][j] == 1) {
+				if (dungeon[i + 1][j] == 1
+				// use tile 1 instead of 6 if possible for better shadows/decorations
+				 && (dungeon[i + 1][j - 1] != 1 && dungeon[i + 1][j - 1] != 4
+					 && dungeon[i + 1][j - 1] != 6)) {
 					dungeon[i + 1][j] = 6; // connect
 				}
 				break;
@@ -1809,8 +1828,10 @@ static void L1TileFix()
 				if (dungeon[i + 1][j] == 22) {
 					assert(dungeon[i + 1][j - 1] == 18 || dungeon[i + 1][j - 1] == 21);
 				} else {
-					assert(dungeon[i + 1][j] == 4
-					 || dungeon[i + 1][j] == 6
+					assert(dungeon[i + 1][j] == 4 || dungeon[i + 1][j] == 6
+					 || (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 1)
+					 || (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 4)
+					 || (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 6)
 					 || dungeon[i + 1][j] == 24
 					 || dungeon[i + 1][j] == 19);
 				}
@@ -1839,8 +1860,10 @@ static void L1TileFix()
 				if (dungeon[i + 1][j] == 22) {
 					assert(dungeon[i + 1][j - 1] == 18 || dungeon[i + 1][j - 1] == 21);
 				} else {
-					assert(dungeon[i + 1][j] == 4
-					 || dungeon[i + 1][j] == 6
+					assert(dungeon[i + 1][j] == 4 || dungeon[i + 1][j] == 6
+					 || (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 1)
+					 || (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 4)
+					 || (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 6)
 					 || dungeon[i + 1][j] == 19
 					 || dungeon[i + 1][j] == 24);
 				}
@@ -1854,6 +1877,9 @@ static void L1TileFix()
 			case 24: // new wall (SE)
 				assert(i < DMAXX - 1);
 				assert(dungeon[i + 1][j] == 4 || dungeon[i + 1][j] == 6
+				 || (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 1)
+				 || (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 4)
+				 || (dungeon[i + 1][j] == 1 && dungeon[i + 1][j - 1] == 6)
 				 || dungeon[i + 1][j] == 19);
 				break;
 			}
