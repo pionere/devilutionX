@@ -164,7 +164,7 @@ const BYTE BSTYPES[] = {
 /*
  * Maps tile IDs to their corresponding undecorated tile ID.
  * Values with a single entry are commented out, because pointless to randomize a single option.
- * Values 25, 79 and 80 are not used at the moment
+ * Values 79 and 80 are not used at the moment
  * BUGFIX: This array should contain an additional 0 (207 elements) (fixed).
  */
 const BYTE L1BTYPES[] = {
@@ -545,7 +545,7 @@ const BYTE L1ConvTbl[16] = { BASE_MEGATILE_L1 + 1, 13, 1, 13, 2, 13, 13, 13, 4, 
 
 /*
  * Place doors on the marked places.
- * New dungeon values: 25, 26, 28, 30, 31, 40, 41, 42, 43
+ * New dungeon values: 25, 26
  */
 static void DRLG_L1PlaceDoors()
 {
