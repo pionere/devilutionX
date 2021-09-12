@@ -26,15 +26,14 @@ void InitDead()
 	cmon = mapMonTypes;
 	for (i = nummtypes; i > 0; i--, cmon++) {
 		if (!mtypes[cmon->cmType]) {
+			mtypes[cmon->cmType] = true;
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 				dead[nd]._deadData[d] = cmon->cmAnims[MA_DEATH].aData[d];
 			dead[nd]._deadFrame = cmon->cmAnims[MA_DEATH].aFrames;
 			dead[nd]._deadWidth = cmon->cmWidth;
 			dead[nd]._deadXOffset = cmon->cmXOffset;
 			dead[nd]._deadtrans = 0;
-			cmon->cmDeadval = nd + 1;
-			mtypes[cmon->cmType] = true;
-			nd++;
+			cmon->cmDeadval = ++nd;
 		}
 	}
 
@@ -53,8 +52,7 @@ void InitDead()
 	dead[nd]._deadWidth = 128;
 	dead[nd]._deadXOffset = 32;
 	dead[nd]._deadtrans = 0;
-	stonendx = nd + 1;
-	nd++;
+	stonendx = ++nd;
 
 	for (i = MAX_MINIONS; i < nummonsters; i++) {
 		mon = &monsters[monstactive[i]];
@@ -65,8 +63,7 @@ void InitDead()
 			dead[nd]._deadWidth = mon->_mAnimWidth;
 			dead[nd]._deadXOffset = mon->_mAnimXOffset;
 			dead[nd]._deadtrans = mon->_uniqtrans;
-			mon->_udeadval = nd + 1;
-			nd++;
+			mon->_udeadval = ++nd;
 		}
 	}
 
