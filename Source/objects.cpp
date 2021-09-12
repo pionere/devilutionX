@@ -2007,20 +2007,6 @@ void ObjSetMicro(int dx, int dy, int pn)
 	}
 }
 
-static void ObjSetDoorBackPiece(int dx, int dy)
-{
-	int pn, blocks;
-	uint16_t *pPiece;
-	MICROS *pMap;
-
-	pn = dPiece[dx][dy] - 1;
-	pMap = &dpiece_defs_map_2[dx][dy];
-	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
-	pPiece = &pLevelPieces[blocks * pn];
-	pMap->mt[0] = SwapLE16(pPiece[8]);
-	pMap->mt[1] = SwapLE16(pPiece[9]);
-}
-
 static void ObjSetMini(int x, int y, int v)
 {
 	int xx, yy;
@@ -2041,13 +2027,13 @@ static void ObjSetMini(int x, int y, int v)
 	ObjSetMicro(xx + 1, yy + 1, v4);
 }
 
-static void ObjSetDoorSidePiece(int dx, int dy, int otype)
+static void ObjSetDoorSidePiece(int dx, int dy/*, int otype*/)
 {
 	int pn;
 
 	pn = dPiece[dx][dy];
 #ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT) {
+	//if (currLvl._dType == DTYPE_CRYPT) {
 		if (pn == 75)
 			pn = 204;
 		else if (pn == 79)
@@ -2075,8 +2061,10 @@ static void ObjSetDoorSidePiece(int dx, int dy, int otype)
 			pn = 212;*/
 		else
 			return;
-	} else
+	//} else
 #endif
+	/* commented out because this does not make a visible difference.
+	   the 'new' content is overwritten when the door is drawn.
 		if (pn == 43)
 			pn = 392;
 		else if (pn == 45)
@@ -2105,11 +2093,11 @@ static void ObjSetDoorSidePiece(int dx, int dy, int otype)
 		else if (pn == 355)
 			pn = 410;
 		else if (pn == 411 || pn == 412)
-			pn = 396;*/
+			pn = 396;* /
 		else if (pn == 212)
 			pn = 407;
 		else
-			return;
+			return;*/
 	ObjSetMicro(dx, dy, pn);
 }
 
@@ -4087,15 +4075,13 @@ static void SyncL1Doors(int oi)
 	if (os->_otype == OBJ_L1LDOOR) {
 		ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
 		dSpecial[x][y] = 7;
-		ObjSetDoorBackPiece(x - 1, y);
 		y--;
 	} else {
 		ObjSetMicro(x, y, 395);
 		dSpecial[x][y] = 8;
-		ObjSetDoorBackPiece(x, y - 1);
 		x--;
 	}
-	ObjSetDoorSidePiece(x, y, os->_otype);
+	//ObjSetDoorSidePiece(x, y/*, os->_otype*/);
 }
 
 #ifdef HELLFIRE
@@ -4126,15 +4112,13 @@ static void SyncL5Doors(int oi)
 	if (os->_otype == OBJ_L5LDOOR) {
 		ObjSetMicro(x, y, 206);
 		//dSpecial[x][y] = 1;
-		ObjSetDoorBackPiece(x - 1, y);
 		y--;
 	} else {
 		ObjSetMicro(x, y, 209);
 		//dSpecial[x][y] = 2;
-		ObjSetDoorBackPiece(x, y - 1);
 		x--;
 	}
-	ObjSetDoorSidePiece(x, y, os->_otype);
+	ObjSetDoorSidePiece(x, y/*, os->_otype*/);
 }
 #endif
 
