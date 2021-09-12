@@ -633,14 +633,25 @@ static void DRLG_L5Shadows()
 	for (j = DMAXY - 1; j > 0; j--) {
 		for (i = DMAXX - 1; i > 0; i--) {
 			switch (dungeon[i][j]) {
+			// -- pointless. placed in the chamber hallway, where one of the
+			//    shadows is always messed up...
+			//case 3:
+			//	if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13) {
+			//		dungeon[i - 1][j] = 206;
+			//		dungeon[i - 1][j - 1] = 207;
+			//	}
+			//	break;
 			case 5:
 			//case 116: 5
 			//case 133: 5
-				if (dungeon[i - 1][j] == 13)
+				//if (dungeon[i - 1][j] == 13)
+				assert(dungeon[i - 1][j] == 13 || dungeon[i - 1][j] == 203 || dungeon[i - 1][j] == 204);
 					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
+				//if (dungeon[i - 1][j - 1] == 13)
+				assert(dungeon[i - 1][j - 1] == 13 || dungeon[i - 1][j - 1] == 204);
 					dungeon[i - 1][j - 1] = 204;
-				if (dungeon[i][j - 1] == 13)
+				//if (dungeon[i][j - 1] == 13)
+				assert(dungeon[i][j - 1] == 13 || dungeon[i][j - 1] == 205);
 					dungeon[i][j - 1] = 205;
 				break;
 			case 7:
@@ -657,15 +668,23 @@ static void DRLG_L5Shadows()
 			//case 160: 15 ?
 			//case 161: 16
 			//case 192: 15 ?
-				if (dungeon[i - 1][j] == 13)
+				if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13) {
 					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
 					dungeon[i - 1][j - 1] = 207;
+				}
 				break;
 			case 8:
+				//assert(dungeon[i - 1][j] == 12); -- or its decorated one
+				//	dungeon[i - 1][j] = 203;
+				//if (dungeon[i - 1][j - 1] == 13)
+				assert(dungeon[i - 1][j - 1] == 13 || dungeon[i - 1][j - 1] == 204);
+					dungeon[i - 1][j - 1] = 204;
+				break;
 			case 11:
+			case 35:
 			case 14:
-			//case 95: 11
+			case 37:
+			case 95: // necessary because of DRLG_L5PlaceRndSet(L5VERTCOL1)
 			//case 119: 8
 			//case 125: 14
 			//case 136: 8
@@ -675,23 +694,27 @@ static void DRLG_L5Shadows()
 			//case 159: 14
 			//case 185: 11
 			//case 186: 11
-				if (dungeon[i - 1][j] == 13)
+				if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13) {
 					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
 					dungeon[i - 1][j - 1] = 204;
+				}
 				break;
 			case 9:
 			//case 120: 9
 			//case 154: 9
-				if (dungeon[i - 1][j] == 13)
+				//if (dungeon[i - 1][j] == 13)
+				assert(dungeon[i - 1][j] == 13 || dungeon[i - 1][j] == 206);
 					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
+				//if (dungeon[i - 1][j - 1] == 13)
+				assert(dungeon[i - 1][j - 1] == 13 || dungeon[i - 1][j - 1] == 207);
 					dungeon[i - 1][j - 1] = 207;
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
+				//assert(dungeon[i][j - 1] == 11); -- or its decorated one
+				//if (dungeon[i][j - 1] == 13)
+				//	dungeon[i][j - 1] = 205;
 				break;
 			case 10:
 			case 12:
+			case 36:
 			//case 121: 10
 			//case 123: 12
 			//case 138: 10
@@ -701,35 +724,33 @@ static void DRLG_L5Shadows()
 				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 205;
 				break;
-			//case 96: // 12
-			//	if (dungeon[i][j - 1] == 13)
-			//		dungeon[i][j - 1] = 208;
-			//	break;
+			case 96: // 12
+			case 188: // 12
+				if (dungeon[i][j - 1] == 13)
+					dungeon[i][j - 1] = 208;
+				break;
 			case 122: // 11
-				//if (dungeon[i - 1][j] == 13)
-				if (dungeon[i - 1][j] == 203)
+				if (dungeon[i - 1][j] == 203 && dungeon[i - 1][j - 1] == 204) {
 					dungeon[i - 1][j] = 211;
-				//if (dungeon[i - 1][j - 1] == 13)
-				if (dungeon[i - 1][j - 1] == 204)
 					dungeon[i - 1][j - 1] = 212;
+				}
 				break;
 			case 137: // 9
 				//if (dungeon[i - 1][j] == 13)
-				if (dungeon[i - 1][j] == 206)
+				//if (dungeon[i - 1][j] == 206)
+				assert(dungeon[i - 1][j] == 206);
 					dungeon[i - 1][j] = 213;
 				//if (dungeon[i - 1][j - 1] == 13)
-				if (dungeon[i - 1][j - 1] == 207)
+				//if (dungeon[i - 1][j - 1] == 207)
+				assert(dungeon[i - 1][j - 1] == 207);
 					dungeon[i - 1][j - 1] = 214;
-				//if (dungeon[i][j - 1] == 13)
-				//	dungeon[i][j - 1] = 205;
+				//assert(dungeon[i][j - 1] == 205);
 				break;
 			case 139: // 11
-				//if (dungeon[i - 1][j] == 13)
-				if (dungeon[i - 1][j] == 203)
+				if (dungeon[i - 1][j] == 203 && dungeon[i - 1][j - 1] == 204) {
 					dungeon[i - 1][j] = 215;
-				//if (dungeon[i - 1][j - 1] == 13)
-				if (dungeon[i - 1][j - 1] == 204)
 					dungeon[i - 1][j - 1] = 216;
+				}
 				break;
 			case 140: // 12
 			case 157: // 12
@@ -738,13 +759,13 @@ static void DRLG_L5Shadows()
 					dungeon[i][j - 1] = 217;
 				break;
 			case 143: // 15
-			case 145: // 17
-				//if (dungeon[i - 1][j] == 13)
-				if (dungeon[i - 1][j] == 206)
+			//case 145: // 17
+				//if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13)
+				if (dungeon[i - 1][j] == 206 /*&& dungeon[i - 1][j - 1] == 207*/) {
+					assert(dungeon[i - 1][j - 1] == 207);
 					dungeon[i - 1][j] = 213;
-				//if (dungeon[i - 1][j - 1] == 13)
-				if (dungeon[i - 1][j - 1] == 207)
 					dungeon[i - 1][j - 1] = 214;
+				}
 				break;
 			case 150: // 5
 				//if (dungeon[i - 1][j] == 13)
@@ -752,19 +773,20 @@ static void DRLG_L5Shadows()
 				//if (dungeon[i - 1][j - 1] == 13)
 				//	dungeon[i - 1][j - 1] = 204;
 				//if (dungeon[i][j - 1] == 13)
-				if (dungeon[i][j - 1] == 205)
+				//if (dungeon[i][j - 1] == 205)
+				assert(dungeon[i][j - 1] == 205);
 					dungeon[i][j - 1] = 217;
 				break;
 			//case 162: // 17 -- why?
 			//case 167: // done in DRLG_L5PlaceRndSet using L5RNDLFLOOR2
-			case 160:
-			case 192:
-				//if (dungeon[i - 1][j] == 13)
-				if (dungeon[i - 1][j] == 206)
+			case 160: // 15
+			case 192: // 15
+				//if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13)
+				if (dungeon[i - 1][j] == 206 /*&& dungeon[i - 1][j - 1] == 207*/) {
+					assert(dungeon[i - 1][j - 1] == 207);
 					dungeon[i - 1][j] = 209;
-				//if (dungeon[i - 1][j - 1] == 13)
-				if (dungeon[i - 1][j - 1] == 207)
 					dungeon[i - 1][j - 1] = 210;
+				}
 				break;
 			}
 		}
