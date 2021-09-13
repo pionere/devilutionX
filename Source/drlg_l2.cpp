@@ -34,23 +34,23 @@ const int Dir_Xadd[5] = { 0, 0, 1, 0, -1 };
 const int Dir_Yadd[5] = { 0, -1, 0, 1, 0 };
 const ShadowStruct L2SPATS[] = {
 	// clang-format off
-	//sh11, 01, 10,  00,   mask11    01    10    00    nv1, nv2, nv3
-	{ { { SF,  0, SF,   6 } }, { 0xFF, 0xFF, 0xFF, 0xFF },  48,   0,  50 },
+	//  sh11, 01, 10,  00,       mask11    01    10    00      nv1, nv2, nv3
+	{ { { SF,  0, SF,   6 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } },  48,   0,  50 },
 #ifdef _DEBUG
-	{ { { SF, SF,  0,   6 } }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0,  2,   6 } }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0,  0,   6 } }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0,  0,   6 } }, { 0xFF, 0x00, 0x00, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ { { SF, SF,  0,   6 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
+	{ { {  0,  0,  2,   6 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
+	{ { {  0,  0,  0,   6 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
+	{ { {  0,  0,  0,   6 } }, { { 0xFF, 0x00, 0x00, 0xFF } },   0,   0,   0 }, // shadow is not necessary
 #endif
-	{ { { SF,  0, SF,   9 } }, { 0xFF, 0x00, 0xFF, 0xFF },  48,   0,  50 },
-	//{ { { SF,  1, SF,   9 } }, { 0xFF, 0xFF, 0xFF, 0xFF },  48,   0,  50 }, // covered by above
+	{ { { SF,  0, SF,   9 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },  48,   0,  50 },
+	//{ { { SF,  1, SF,   9 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } },  48,   0,  50 }, // covered by above
 #ifdef _DEBUG
-	{ { {  0,  0,  2,   9 } }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0,  0,   9 } }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0,  0,   9 } }, { 0xFF, 0x00, 0x00, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ { {  0,  0,  2,   9 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
+	{ { {  0,  0,  0,   9 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
+	{ { {  0,  0,  0,   9 } }, { { 0xFF, 0x00, 0x00, 0xFF } },   0,   0,   0 }, // shadow is not necessary
 #endif
-	{ { {  2,  0, SF,   9 } }, { 0xFF, 0xFF, 0xFF, 0xFF }, 142,   0,  50 },
-	{ { {  0,  0,  0, 255 } }, {    0,    0,    0,    0 },   0,   0,   0 }
+	{ { {  2,  0, SF,   9 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 142,   0,  50 },
+	{ { {  0,  0,  0, 255 } }, { {    0,    0,    0,    0 } },   0,   0,   0 }
 	// clang-format on
 };
 /*
