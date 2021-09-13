@@ -2027,12 +2027,13 @@ static void ObjSetMini(int x, int y, int v)
 	ObjSetMicro(xx + 1, yy + 1, v4);
 }
 
+#ifdef HELLFIRE
 static void ObjSetDoorSidePiece(int dx, int dy/*, int otype*/)
 {
 	int pn;
 
 	pn = dPiece[dx][dy];
-#ifdef HELLFIRE
+//#ifdef HELLFIRE
 	//if (currLvl._dType == DTYPE_CRYPT) {
 		if (pn == 75)
 			pn = 204;
@@ -2062,14 +2063,14 @@ static void ObjSetDoorSidePiece(int dx, int dy/*, int otype*/)
 		else
 			return;
 	//} else
-#endif
+//#endif
 	/* commented out because this does not make a visible difference.
 	   the 'new' content is overwritten when the door is drawn.
 		if (pn == 43)
 			pn = 392;
 		else if (pn == 45)
 			pn = 394;
-		/* commented out because this is not possible with the current implementation
+		/ * commented out because this is not possible with the current implementation
 		else if (pn == 50)
 			pn = otype == OBJ_L1LDOOR ? 411 : 412;
 		else if (pn == 54)
@@ -2100,6 +2101,7 @@ static void ObjSetDoorSidePiece(int dx, int dy/*, int otype*/)
 			return;*/
 	ObjSetMicro(dx, dy, pn);
 }
+#endif
 
 void RedoPlayerVision()
 {
