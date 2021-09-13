@@ -345,6 +345,13 @@ static void DrawSChamber()
 	quests[Q_SCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
 
 	DrawMap("Levels\\L2Data\\Bonestr1.DUN", 3);
+	// 'patch' the map to place shadows
+	// shadow of the external-left column
+	assert(dungeon[setpc_x + 1][setpc_y + 5] == 9);
+	assert(dungeon[setpc_x][setpc_y + 4] == 3);
+	dungeon[setpc_x][setpc_y + 4] = 48;
+	assert(dungeon[setpc_x][setpc_y + 5] == 3);
+	dungeon[setpc_x][setpc_y + 5] = 50;
 }
 
 static void DrawPreMap(const char* name)
@@ -389,6 +396,25 @@ static void DrawBlind()
 static void DrawBlood()
 {
 	DrawMap("Levels\\L2Data\\Blood2.DUN", 3);
+	// 'patch' the map to place shadows
+	// -- do not place to prevent overwriting large decorations, let DRLG_L2Shadows cast the shadow
+	// shadow of the external-left column
+	//assert(dungeon[setpc_x][setpc_y + 8] == 9);
+	//assert(dungeon[setpc_x - 1][setpc_y + 7] ~== 3);
+	//dungeon[setpc_x - 1][setpc_y + 7] = 48;
+	//assert(dungeon[setpc_x - 1][setpc_y + 8] ~== 3);
+	//dungeon[setpc_x - 1][setpc_y + 8] = 50;
+	// shadow of the bottom-left column(s) -- one is missing
+	assert(dungeon[setpc_x + 2][setpc_y + 14] == 9);
+	assert(dungeon[setpc_x + 1][setpc_y + 13] == 3);
+	dungeon[setpc_x + 1][setpc_y + 13] = 48;
+	assert(dungeon[setpc_x + 1][setpc_y + 14] == 3);
+	dungeon[setpc_x + 1][setpc_y + 14] = 50;
+	// shadow of the internal column next to the pedistal
+	assert(dungeon[setpc_x + 5][setpc_y + 7] == 2);
+	dungeon[setpc_x + 5][setpc_y + 7] = 142;
+	assert(dungeon[setpc_x + 5][setpc_y + 8] == 3);
+	dungeon[setpc_x + 5][setpc_y + 8] = 50;
 }
 
 #ifdef HELLFIRE
