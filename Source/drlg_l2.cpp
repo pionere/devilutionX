@@ -78,7 +78,10 @@ const BYTE BSTYPESL2[161] = {
 	0
 	// clang-format on
 };
-/** Maps tile IDs to their corresponding undecorated tile ID. */
+/*
+ * Maps tile IDs to their corresponding undecorated tile ID.
+ * Values with a single entry are commented out, because pointless to randomize a single option.
+ */
 const BYTE L2BTYPES[161] = {
 	// clang-format off
 	0, 1, 2, 3, 0/*4*/, 0/*5*/, 0/*6*/, 0/*7*/, 8, 0/*9*/,
@@ -89,9 +92,9 @@ const BYTE L2BTYPES[161] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
 	1, 0, 0, 2, 2, 2, 0, 0, 0, 1,
-	0, 0, 0, 0, 0, 0, 0, 0, 3, 3,
+	1, 1, 1, 0, 2, 2, 2, 8, 3, 3,
 	3, 3, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 3, 3, 3, 0, 3,
+	0, 0, 0, 0, 0, 3, 3, 3, 0, 3, // 100...
 	0, 3, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1383,7 +1386,7 @@ const BYTE BIG10[] = {
 	// clang-format on
 };
 /** Miniset: Crumbled vertical wall 1. */
-const BYTE RUINS1[] = {
+/*const BYTE RUINS1[] = {
 	// clang-format off
 	1, 1, // width, height
 
@@ -1393,7 +1396,7 @@ const BYTE RUINS1[] = {
 	// clang-format on
 };
 /** Miniset: Crumbled vertical wall 2. */
-const BYTE RUINS2[] = {
+/*const BYTE RUINS2[] = {
 	// clang-format off
 	1, 1, // width, height
 
@@ -1403,7 +1406,7 @@ const BYTE RUINS2[] = {
 	// clang-format on
 };
 /** Miniset: Crumbled vertical wall 3. */
-const BYTE RUINS3[] = {
+/*const BYTE RUINS3[] = {
 	// clang-format off
 	1, 1, // width, height
 
@@ -1413,7 +1416,7 @@ const BYTE RUINS3[] = {
 	// clang-format on
 };
 /** Miniset: Crumbled horizontal wall 1. */
-const BYTE RUINS4[] = {
+/*const BYTE RUINS4[] = {
 	// clang-format off
 	1, 1, // width, height
 
@@ -1423,7 +1426,7 @@ const BYTE RUINS4[] = {
 	// clang-format on
 };
 /** Miniset: Crumbled horizontal wall 2. */
-const BYTE RUINS5[] = {
+/*const BYTE RUINS5[] = {
 	// clang-format off
 	1, 1, // width, height
 
@@ -1433,7 +1436,7 @@ const BYTE RUINS5[] = {
 	// clang-format on
 };
 /** Miniset: Crumbled horizontal wall 3. */
-const BYTE RUINS6[] = {
+/*const BYTE RUINS6[] = {
 	// clang-format off
 	1, 1, // width, height
 
@@ -1443,7 +1446,7 @@ const BYTE RUINS6[] = {
 	// clang-format on
 };
 /** Miniset: Crumbled north pillar. */
-const BYTE RUINS7[] = {
+/*const BYTE RUINS7[] = {
 	// clang-format off
 	1, 1, // width, height
 
@@ -1639,28 +1642,52 @@ static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
 
 static void DRLG_L2Subs()
 {
-	int x, y, i, j, k, rv;
-	BYTE c;
+	int x, y; //, i, j;
+	BYTE c, k;
+	char rv;
+	const unsigned MAX_MATCH = 16;
+	const unsigned NUM_L2TYPES = 112;
+	static_assert(MAX_MATCH <= CHAR_MAX, "MAX_MATCH does not fit to rv(char) in DRLG_L2Subs.");
+	static_assert(NUM_L2TYPES <= UCHAR_MAX, "NUM_L2TYPES does not fit to i(BYTE) in DRLG_L2Subs.");
+#ifdef _DEBUG
+	for (i = sizeof(L2BTYPES) - 1; i >= 0; i--) {
+		if (L2BTYPES[i] != 0) {
+			if (i >= NUM_L2TYPES)
+				app_fatal("Value %d is ignored in L2BTYPES at %d", L2BTYPES[i], i);
+			break;
+		}
+	}
 
-	for (x = 2; x < DMAXX - 2; x++) {
-		for (y = 2; y < DMAXY - 2; y++) {
+	for (i = 0; i < sizeof(L2BTYPES); i++) {
+		c = L2BTYPES[i];
+		if (c == 0)
+			continue;
+		x = 0;
+		for (int j = 0; j < sizeof(L2BTYPES); j++) {
+			if (c == L2BTYPES[j])
+				x++;
+		}
+		if (x > MAX_MATCH)
+			app_fatal("Too many(%d) matching('%d') values in L2BTYPES", x, c);
+	}
+#endif
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
 			if (drlgFlags[x][y])
 				continue;
 			if (random_(0, 4) == 0) {
 				c = L2BTYPES[dungeon[x][y]];
 				if (c != 0) {
-					rv = random_(0, 16);
-					k = -1;
-					while (rv >= 0) {
-						k++;
-						if (k == sizeof(L2BTYPES)) {
+					rv = random_(0, MAX_MATCH);
+					k = 0;
+					while (TRUE) {
+						if (c == L2BTYPES[k] && --rv < 0) {
+							break;
+						}
+						if (++k == NUM_L2TYPES)
 							k = 0;
-						}
-						if (c == L2BTYPES[k]) {
-							rv--;
-						}
 					}
-					for (j = y - 2; j < y + 2; j++) {
+					/*for (j = y - 2; j < y + 2; j++) {
 						for (i = x - 2; i < x + 2; i++) {
 							if (dungeon[i][j] == k) {
 								j = y + 3;
@@ -1668,9 +1695,9 @@ static void DRLG_L2Subs()
 							}
 						}
 					}
-					if (j < y + 3) {
+					if (j < y + 3) {*/
 						dungeon[x][y] = k;
-					}
+					//}
 				}
 			}
 		}
@@ -3261,13 +3288,13 @@ static void DRLG_L2(int entry)
 	DRLG_L2PlaceRndSet(HARCH39, 100);
 	DRLG_L2PlaceRndSet(HARCH40, 100);
 	DRLG_L2PlaceRndSet(CRUSHCOL, 99);
-	DRLG_L2PlaceRndSet(RUINS1, 10);
-	DRLG_L2PlaceRndSet(RUINS2, 10);
-	DRLG_L2PlaceRndSet(RUINS3, 10);
-	DRLG_L2PlaceRndSet(RUINS4, 10);
-	DRLG_L2PlaceRndSet(RUINS5, 10);
-	DRLG_L2PlaceRndSet(RUINS6, 10);
-	DRLG_L2PlaceRndSet(RUINS7, 50);
+	//DRLG_L2PlaceRndSet(RUINS1, 10);
+	//DRLG_L2PlaceRndSet(RUINS2, 10);
+	//DRLG_L2PlaceRndSet(RUINS3, 10);
+	//DRLG_L2PlaceRndSet(RUINS4, 10);
+	//DRLG_L2PlaceRndSet(RUINS5, 10);
+	//DRLG_L2PlaceRndSet(RUINS6, 10);
+	//DRLG_L2PlaceRndSet(RUINS7, 50);
 	DRLG_L2PlaceRndSet(PANCREAS1, 1);
 	DRLG_L2PlaceRndSet(PANCREAS2, 1);
 	DRLG_L2PlaceRndSet(BIG1, 3);
