@@ -16,7 +16,6 @@ void interface_msg_pump();
 void ShowCutscene(unsigned uMsg);
 void LoadGameLevel(int lvldir);
 void EnterLevel(BYTE lvl);
-void FreeLvlGFX();
 
 #ifdef __cplusplus
 }

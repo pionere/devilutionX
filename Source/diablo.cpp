@@ -343,7 +343,7 @@ void FreeLevelMem()
 	stream_stop();
 	music_stop();
 
-	FreeLvlGFX();
+	FreeLvlDungeon();
 	FreeMissiles();
 	FreeMonsters();
 	FreeObjectGFX();

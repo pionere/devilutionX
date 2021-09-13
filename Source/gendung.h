@@ -50,8 +50,9 @@ extern BYTE dSpecial[MAXDUNX][MAXDUNY];
 extern int themeCount;
 extern THEME_LOC themeLoc[MAXTHEMES];
 
+void InitLvlDungeon();
+void FreeLvlDungeon();
 void DRLG_Init_Globals();
-void FillSolidBlockTbls();
 void SetDungeonMicros(int x1, int y1, int x2, int y2);
 void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper);
 POS32 DRLG_PlaceMiniSet(const BYTE *miniset);

@@ -133,21 +133,29 @@ void DRLG_Init_Globals()
 	memset(dLight, c, sizeof(dLight));
 }
 
-void FillSolidBlockTbls()
+void InitLvlDungeon()
 {
 	BYTE bv;
 	size_t i, dwTiles;
 	BYTE *pSBFile, *pTmp;
 
+	const LevelData *lds;
+	assert(pDungeonCels == NULL);
+	lds = &AllLevels[currLvl._dLevelIdx];
+
+	pDungeonCels = LoadFileInMem(lds->dDunCels);
+	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
+	pLevelPieces = (uint16_t *)LoadFileInMem(lds->dLvlPieces);
+	pSpecialCels = LoadFileInMem(lds->dSpecCels);
+
 #ifdef _DEBUG
-	static_assert(false == 0, "FillSolidBlockTbls fills tables with 0 instead of false values.");
+	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
 	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));
 	memset(nTransTable, 0, sizeof(nTransTable));
 	memset(nMissileTable, 0, sizeof(nMissileTable));
 #endif
-
-	pSBFile = LoadFileInMem(AllLevels[currLvl._dLevelIdx].dSolidTable, &dwTiles);
+	pSBFile = LoadFileInMem(lds->dSolidTable, &dwTiles);
 
 	assert(dwTiles <= MAXTILES);
 	pTmp = pSBFile;
@@ -173,6 +181,14 @@ void FillSolidBlockTbls()
 		nSolidTable[130] = true;
 		nSolidTable[132] = true;
 	}
+}
+
+void FreeLvlDungeon()
+{
+	MemFreeDbg(pDungeonCels);
+	MemFreeDbg(pMegaTiles);
+	MemFreeDbg(pLevelPieces);
+	MemFreeDbg(pSpecialCels);
 }
 
 void SetDungeonMicros(int x1, int y1, int x2, int y2)
