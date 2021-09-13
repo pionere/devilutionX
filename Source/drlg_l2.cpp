@@ -13,6 +13,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L2 (12 - 1)
+/** Shadow type of the base floor(3). */
+#define SF					3
 
 /** The number of generated rooms. */
 #define L2_MAXROOMS   32
@@ -32,29 +34,45 @@ const int Dir_Xadd[5] = { 0, 0, 1, 0, -1 };
 const int Dir_Yadd[5] = { 0, -1, 0, 1, 0 };
 const ShadowStruct L2SPATS[] = {
 	// clang-format off
-	// strig, s1, s2, s3, nv1, nv2, nv3
-	{      6,  3,  0,  3,  48,   0,  50 },
-	{      9,  3,  0,  3,  48,   0,  50 },
-	{      0,  0,  0,  0,   0,   0,   0 }
+	//sh11, 01, 10,  00,   mask11    01    10    00    nv1, nv2, nv3
+	{ { SF,  0, SF,   6 }, { 0xFF, 0xFF, 0xFF, 0xFF },  48,   0,  50 },
+#ifdef _DEBUG
+	{ { SF, SF,  0,   6 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0,  2,   6 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0,  0,   6 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0,  0,   6 }, { 0xFF, 0x00, 0x00, 0xFF },   0,   0,   0 }, // shadow is not necessary
+#endif
+	{ { SF,  0, SF,   9 }, { 0xFF, 0x00, 0xFF, 0xFF },  48,   0,  50 },
+	//{ { SF,  1, SF,   9 }, { 0xFF, 0xFF, 0xFF, 0xFF },  48,   0,  50 }, // covered by above
+#ifdef _DEBUG
+	{ {  0,  0,  2,   9 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0,  0,   9 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0,  0,   9 }, { 0xFF, 0x00, 0x00, 0xFF },   0,   0,   0 }, // shadow is not necessary
+#endif
+	{ {  2,  0, SF,   9 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 142,   0,  50 },
+	{ {  0,  0,  0, 255 }, {    0,    0,    0,    0 },   0,   0,   0 }
 	// clang-format on
 };
-/** Maps tile IDs to their corresponding base tile ID. */
+/*
+ * Maps tile IDs to their corresponding shadow types.
+ * SFs, 2s are commented out to prevent overwriting 'hardcoded' shadows, large decorations
+ */
 const BYTE BSTYPESL2[161] = {
 	// clang-format off
-	0, 1, 2, 3, 0, 0, 6, 0, 0, 9,
+	0, 1, 2, SF, 0, 0, 6, 0, 0, 9,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 	1, 2, 2, 1, 1, 1, 1, 1, 1, 2,
 	2, 2, 2, 2, 0, 0, 0, 0, 0, 6,
-	6, 6, 9, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	6, 6, 9, 0, 0, 0/*SF*/, 0/*SF*/, 0/*SF*/, SF, 0/*SF*/,
+	0/*SF*/, 0/*SF*/, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
 	1, 0, 0, 2, 2, 2, 0, 0, 0, 1,
-	1, 1, 1, 6, 2, 2, 2, 0, 3, 3,
-	3, 3, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 1, 1, 2, 2,
-	3, 3, 3, 3, 1, 1, 2, 2, 3, 3,
-	3, 3, 1, 1, 3, 3, 2, 2, 3, 3,
+	1, 1, 1, 6, 2, 2, 2, 0, SF, SF,
+	SF, SF, 0, 0, 0, 0, SF, 0, 0, 0,
+	0, 0, 0, SF, 0, SF, SF, SF, SF, SF, // 100...
+	SF, SF, SF, SF, SF, SF, 1, 1, 2, 2,
+	SF, SF, SF, SF, 1, 1, 2, 2, 0/*SF*/, 0/*SF*/,
+	0/*SF*/, 0/*SF*/, 1, 1, 0/*SF*/, 0/*SF*/, 0/*2*/, 0/*2*/, SF, SF,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0
@@ -1663,28 +1681,25 @@ static void DRLG_L2Shadows()
 {
 	const ShadowStruct *ss;
 	int x, y;
-	BYTE sd00, sd10, sd01, sd11;
+	ShadowPattern sdp;
 
 	for (y = 1; y < DMAXY; y++) {
 		for (x = 1; x < DMAXX; x++) {
-			sd00 = BSTYPESL2[dungeon[x][y]];
-			sd10 = BSTYPESL2[dungeon[x - 1][y]];
-			sd01 = BSTYPESL2[dungeon[x][y - 1]];
-			sd11 = BSTYPESL2[dungeon[x - 1][y - 1]];
-			for (ss = L2SPATS; ss->strig != 0; ss++) {
-				if (ss->strig == sd00) {
-					if ((ss->s1 != 0 && ss->s1 != sd11)
-					 || (ss->s2 != 0 && ss->s2 != sd01)
-					 || (ss->s3 != 0 && ss->s3 != sd10)) {
+			sdp.sh00 = BSTYPESL2[dungeon[x][y]];
+			sdp.sh10 = BSTYPESL2[dungeon[x - 1][y]];
+			sdp.sh01 = BSTYPESL2[dungeon[x][y - 1]];
+			sdp.sh11 = BSTYPESL2[dungeon[x - 1][y - 1]];
+			for (ss = L2SPATS; ss->shPattern.sh00 <= sdp.sh00; ss++) {
+				if (ss->shPattern.sh00 == sdp.sh00) {
+					if ((sdp.asUInt32 & ss->shMask.asUInt32) != ss->shPattern.asUInt32)
 						continue;
-					}
-					if (ss->nv1 != 0) {
+					if (ss->nv1 != 0 && drlgFlags[x - 1][y - 1] == 0) {
 						dungeon[x - 1][y - 1] = ss->nv1;
 					}
-					if (ss->nv2 != 0) {
+					if (ss->nv2 != 0 && drlgFlags[x][y - 1] == 0) {
 						dungeon[x][y - 1] = ss->nv2;
 					}
-					if (ss->nv3 != 0) {
+					if (ss->nv3 != 0 && drlgFlags[x - 1][y] == 0) {
 						dungeon[x - 1][y] = ss->nv3;
 					}
 				}
@@ -1702,6 +1717,48 @@ static void DRLG_LoadL2SP()
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
 	} else if (QuestStatus(Q_SCHAMB)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
+		// 'patch' the map to place shadows
+		// NE-wall
+		assert(pSetPiece[(2 + 1 + 0 * 7) * 2] == 0);
+		pSetPiece[(2 + 1 + 0 * 7) * 2] = 49;
+		assert(pSetPiece[(2 + 2 + 0 * 7) * 2] == 0);
+		pSetPiece[(2 + 2 + 0 * 7) * 2] = 46;
+		assert(pSetPiece[(2 + 3 + 0 * 7) * 2] == 0);
+		pSetPiece[(2 + 3 + 0 * 7) * 2] = 49;
+		assert(pSetPiece[(2 + 4 + 0 * 7) * 2] == 0);
+		pSetPiece[(2 + 4 + 0 * 7) * 2] = 46;
+		// SW-wall
+		assert(pSetPiece[(2 + 1 + 4 * 7) * 2] == 0);
+		pSetPiece[(2 + 1 + 4 * 7) * 2] = 49;
+		assert(pSetPiece[(2 + 2 + 4 * 7) * 2] == 76);
+		pSetPiece[(2 + 2 + 4 * 7) * 2] = 46;
+		assert(pSetPiece[(2 + 3 + 4 * 7) * 2] == 0);
+		pSetPiece[(2 + 3 + 4 * 7) * 2] = 49;
+		assert(pSetPiece[(2 + 4 + 4 * 7) * 2] == 0);
+		pSetPiece[(2 + 4 + 4 * 7) * 2] = 46;
+		// NW-wall
+		assert(pSetPiece[(2 + 0 + 0 * 7) * 2] == 3);
+		pSetPiece[(2 + 0 + 0 * 7) * 2] = 48;
+		assert(pSetPiece[(2 + 0 + 1 * 7) * 2] == 0);
+		pSetPiece[(2 + 0 + 1 * 7) * 2] = 51;
+		assert(pSetPiece[(2 + 0 + 2 * 7) * 2] == 0);
+		pSetPiece[(2 + 0 + 2 * 7) * 2] = 47;
+		assert(pSetPiece[(2 + 0 + 3 * 7) * 2] == 0);
+		pSetPiece[(2 + 0 + 3 * 7) * 2] = 51;
+		assert(pSetPiece[(2 + 0 + 4 * 7) * 2] == 0);
+		pSetPiece[(2 + 0 + 4 * 7) * 2] = 47;
+		assert(pSetPiece[(2 + 0 + 5 * 7) * 2] == 0);
+		pSetPiece[(2 + 0 + 5 * 7) * 2] = 50;
+		// SE-wall
+		assert(pSetPiece[(2 + 4 + 1 * 7) * 2] == 0);
+		pSetPiece[(2 + 4 + 1 * 7) * 2] = 51;
+		assert(pSetPiece[(2 + 4 + 2 * 7) * 2] == 0);
+		pSetPiece[(2 + 4 + 2 * 7) * 2] = 47;
+		assert(pSetPiece[(2 + 4 + 3 * 7) * 2] == 0);
+		pSetPiece[(2 + 4 + 3 * 7) * 2] = 50; // 51;
+		// commented out because there is no matching shadow type
+		//assert(pSetPiece[(2 + 4 + 5 * 7) * 2] == 0);
+		//pSetPiece[(2 + 4 + 5 * 7) * 2] = 47;
 	}
 }
 
@@ -3262,6 +3319,17 @@ void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)
 	}
 }
 
+static void DRLG_L2SetMapFix()
+{
+	// this logic should not be applied to 'proper' set-levels.
+	assert(currLvl._dLevelIdx == SL_BONECHAMB);
+	// 'patch' the map to remove shadows
+	assert(dungeon[12][5] == 141);
+	dungeon[12][5] = 33;
+	assert(dungeon[12][13] == 141);
+	dungeon[12][13] = 84;
+}
+
 static BYTE *LoadL2DungeonData(const char *sFileName)
 {
 	int i, j;
@@ -3305,6 +3373,7 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 
 	pMap = LoadL2DungeonData(sFileName);
 
+	DRLG_L2SetMapFix();
 	DRLG_InitTrans();
 	DRLG_FloodTVal(3);
 	DRLG_Init_Globals();

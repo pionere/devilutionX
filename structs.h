@@ -1450,11 +1450,21 @@ typedef struct MICROS {
 // drlg
 //////////////////////////////////////////////////
 
+typedef struct ShadowPattern {
+	union {
+		struct {
+			BYTE sh11;
+			BYTE sh01;
+			BYTE sh10;
+			BYTE sh00;
+		};
+		uint32_t asUInt32;
+	};
+} ShadowPattern;
+
 typedef struct ShadowStruct {
-	BYTE strig;
-	BYTE s1;
-	BYTE s2;
-	BYTE s3;
+	ShadowPattern shPattern;
+	ShadowPattern shMask;
 	BYTE nv1;
 	BYTE nv2;
 	BYTE nv3;
