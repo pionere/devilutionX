@@ -107,7 +107,6 @@ static void InitCutscene(unsigned int uMsg)
 		LoadPalette("Gendata\\Cutportl.pal");
 		progress_id = 1;
 		break;
-	//case DVL_DWM_LOADGAME:
 	case DVL_DWM_NEWGAME:
 		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL");
 		LoadPalette("Gendata\\Cutstart.pal");
@@ -237,23 +236,8 @@ static void InitPlayers()
 		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pLvlChanging)
 			continue;
 		InitLvlPlayer(pnum);
-		/*if (!plr._pLvlChanging) {
-			if (plr._pHitPoints >= (1 << 6)) {
-				/ *if (!IsMultiGame)
-					dPlayer[plr._px][plr._py] = pnum + 1;
-				else* /
-					SyncInitPlrPos(pnum);
-			} else {
-				dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
-			}
-		}*/
 	}
 }
-
-bool initLvl = false;
-DWORD glSeedTblSet[NUM_LEVELS][64];
-int currSeedIdx;
-extern Sint32 sglGameSeed;
 
 void LoadGameLevel(int lvldir)
 {
@@ -267,11 +251,6 @@ void LoadGameLevel(int lvldir)
 	//	NewCursor(CURSOR_HAND);
 	//}
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-	FILE* f = fopen("f:\\lastmap.txt", "w");
-	snprintf(tempstr, 256, "glSeedTbl[%d] = %d;\n\tglSeedTbl[DLV_HELL3] = %d;", currLvl._dLevelIdx, glSeedTbl[currLvl._dLevelIdx], glSeedTbl[DLV_HELL3]);
-	fputs(tempstr, f);
-	fclose(f);
-
 	IncProgress();
 	InitLightMax();
 	MakeLightTable();
@@ -280,43 +259,24 @@ void LoadGameLevel(int lvldir)
 
 	InitLvlAutomap();
 
-	//if (lvldir != ENTRY_LOAD) {
+	if (lvldir != ENTRY_LOAD) {
 		InitLighting();
 		InitVision();
-	//}
+	}
 
 	InitLevelMonsters();
 	IncProgress();
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
-	currSeedIdx = 0;
-	if (glSeedTblSet[currLvl._dLevelIdx][0] == 0) {
-		glSeedTblSet[currLvl._dLevelIdx][0] = 1;
-		initLvl = true;
-	} else
-		initLvl = false;
-
 	if (!currLvl._dSetLvl) {
 		CreateLevel(lvldir);
 		IncProgress();
 		if (currLvl._dType != DTYPE_TOWN) {
-			if (initLvl)
-				glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] = sglGameSeed;
-			else if (glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] != sglGameSeed)
-				app_fatal("SeedMiss1:%d %d", glSeedTbl[currLvl._dLevelIdx], currLvl._dLevelIdx);
 			SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			GetLevelMTypes();
 			IncProgress();
-			if (initLvl)
-				glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] = sglGameSeed;
-			else if (glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] != sglGameSeed)
-				app_fatal("SeedMiss2:%d %d", glSeedTbl[currLvl._dLevelIdx], currLvl._dLevelIdx);
 			InitThemes();
-			if (initLvl)
-				glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] = sglGameSeed;
-			else if (glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] != sglGameSeed)
-				app_fatal("SeedMiss3:%d %d", glSeedTbl[currLvl._dLevelIdx], currLvl._dLevelIdx);
 			IncProgress();
 			InitObjectGFX();
 		} else {
@@ -335,38 +295,16 @@ void LoadGameLevel(int lvldir)
 
 		IncProgress();
 
-		//if (lvldir != ENTRY_LOAD)
-		//	InitPlayers();
-
-		//PlayDungMsgs();
-		//IncProgress();
-
 		SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
 		if (currLvl._dType != DTYPE_TOWN) {
 			HoldThemeRooms();
 			InitMonsters();
-			if (initLvl)
-				glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] = sglGameSeed;
-			else if (glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] != sglGameSeed)
-				app_fatal("SeedMiss4:%d %d", glSeedTbl[currLvl._dLevelIdx], currLvl._dLevelIdx);
 			IncProgress();
 			if (IsMultiGame || lvldir == ENTRY_LOAD || !IsLvlVisited(currLvl._dLevelIdx)) {
 				InitObjects();
-				if (initLvl)
-					glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] = sglGameSeed;
-				else if (glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] != sglGameSeed)
-					app_fatal("SeedMiss5:%d %d", glSeedTbl[currLvl._dLevelIdx], currLvl._dLevelIdx);
 				InitItems();
-				if (initLvl)
-					glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] = sglGameSeed;
-				else if (glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] != sglGameSeed)
-					app_fatal("SeedMiss6:%d %d", glSeedTbl[currLvl._dLevelIdx], currLvl._dLevelIdx);
 				CreateThemeRooms();
-				if (initLvl)
-					glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] = sglGameSeed;
-				else if (glSeedTblSet[currLvl._dLevelIdx][++currSeedIdx] != sglGameSeed)
-					app_fatal("SeedMiss7:%d %d", glSeedTbl[currLvl._dLevelIdx], currLvl._dLevelIdx);
 			}
 			IncProgress();
 			InitDead();
@@ -392,12 +330,6 @@ void LoadGameLevel(int lvldir)
 			GetPortalLvlPos();
 		IncProgress();
 
-		//if (lvldir != ENTRY_LOAD)
-		//	InitPlayers();
-
-		//PlayDungMsgs();
-
-		//IncProgress();
 		IncProgress();
 
 		InitItems();
@@ -422,8 +354,6 @@ void LoadGameLevel(int lvldir)
 	PlayDungMsgs();
 
 	SetDungeonMicros(0, 0, MAXDUNX, MAXDUNY);
-	//if (currLvl._dLevelIdx != DLV_TOWN)
-		ValidateDungeon();
 
 	IncProgress();
 	IncProgress();
@@ -471,12 +401,9 @@ void ShowCutscene(unsigned uMsg)
 	WNDPROC saveProc;
 
 	gbSomebodyWonGameKludge = false;
-	//plrmsg_delay(true);
 
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
-	gbActionBtnDown = false;
-	gbAltActionBtnDown = false;
 
 	interface_msg_pump();
 	ClearScreenBuffer();
@@ -541,9 +468,6 @@ void ShowCutscene(unsigned uMsg)
 
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
-
-	//NetSendCmdSendJoinLevel();
-	//plrmsg_delay(false);
 
 	if (gbSomebodyWonGameKludge && myplr._pDunLevel == DLV_HELL4) {
 		PrepDoEnding(gbSoundOn);
