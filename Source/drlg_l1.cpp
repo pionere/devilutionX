@@ -26,124 +26,124 @@ BOOLEAN ChambersLast;
 /** Contains shadows for 2x2 blocks of tiles in the Cathedral. */
 const ShadowStruct L1SPATS[] = {
 	// clang-format off
-	//  sh11, 01, 10,  00,         mask11    01    10    00    nv1, nv2, nv3
-	{ { { SF, 11, 12,   3 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 150,   0,   0 },
+	//sh11, 01, 10,  00,   mask11    01    10    00    nv1, nv2, nv3
+	{ { SF, 11, 12,   3 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 150,   0,   0 },
 #ifdef _DEBUG
-	{ { {  0,  1,  0,   3 } }, { { 0x00, 0xFF, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0,  2,   3 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0,  7,   3 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0, 14,   3 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0, 35,   3 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
-	{ { {  0,  0,  0,   3 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  1,  0,   3 }, { 0x00, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0,  2,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0,  7,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0, 14,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0, 35,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
+	{ {  0,  0,  0,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
 #endif
-	{ { { SF, SF, SF,   5 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 152, 140, 139 },
-	{ { { SF,  0, SF,   7 } }, { { 0xFF, 0x00, 0xFF, 0xFF } }, 144,   0, 142 },
+	{ { SF, SF, SF,   5 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152, 140, 139 },
+	{ { SF,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 142 },
 #ifdef _DEBUG
-	{ { { 36,  0, SF,   7 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 36
-	{ { {  2,  0, SF,   7 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for  2
-	{ { { 12,  0, SF,   7 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 12
-	{ { { 26,  0, SF,   7 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 26
-	{ { {  7,  0, SF,   7 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for  7
+	{ { 36,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
+	{ {  2,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  2
+	{ { 12,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 12
+	{ { 26,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
+	{ {  7,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
 #endif
-	{ { { SF, SF, 12,   8 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 143,   0, 149 },
-	{ { { SF, 11, SF,   9 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 151, 147, 142 },
-	{ { {  0, SF,  0,  10 } }, { { 0x00, 0xFF, 0x00, 0xFF } },   0, 140,   0 },
-	{ { {  0,  1,  0,  10 } }, { { 0x00, 0xFF, 0x00, 0xFF } },   0, 146,   0 },
+	{ { SF, SF, 12,   8 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 143,   0, 149 },
+	{ { SF, 11, SF,   9 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 151, 147, 142 },
+	{ {  0, SF,  0,  10 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 140,   0 },
+	{ {  0,  1,  0,  10 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 146,   0 },
 #ifdef _DEBUG
-	{ { {  0,  6,  0,  10 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for  6
-	{ { { SF, 25,  0,  10 } }, { { 0xFF, 0xFF, 0x00, 0xFF } },   0,   0,   0 }, // missing shadow for 25
+	{ {  0,  6,  0,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  6
+	{ { SF, 25,  0,  10 }, { 0xFF, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 25
 #endif
-	{ { { SF, 11,  0,  10 } }, { { 0xFF, 0xFF, 0x00, 0xFF } }, 139, 147,   0 }, // shadow could be better
-	//{ { { SF, 11,  2,  10 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139, 147,   0 }, // covered above
-	//{ { { SF, 11,  7,  10 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139, 147,   0 }, // covered above
-	//{ { { SF, 11, SF,  10 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139, 147,   0 }, // covered above
-	//{ { { SF, 11, 26,  10 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139, 147,   0 }, // covered above
-	{ { { SF, 11, 12,  10 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 143, 147,   0 },
-	{ { { SF, 11, 36,  10 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 143, 147,   0 },
+	{ { SF, 11,  0,  10 }, { 0xFF, 0xFF, 0x00, 0xFF }, 139, 147,   0 }, // shadow could be better
+	//{ { SF, 11,  2,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
+	//{ { SF, 11,  7,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
+	//{ { SF, 11, SF,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
+	//{ { SF, 11, 26,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
+	{ { SF, 11, 12,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 143, 147,   0 },
+	{ { SF, 11, 36,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 143, 147,   0 },
 #ifdef _DEBUG
-	{ { { SF, 35,  0,  10 } }, { { 0xFF, 0xFF, 0x00, 0xFF } },   0,   0,   0 }, // missing shadow for 35
+	{ { SF, 35,  0,  10 }, { 0xFF, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 35
 #endif
-	{ { {  0,  0,  2,  11 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0, 148 },
-	{ { { SF,  0, SF,  11 } }, { { 0xFF, 0x00, 0xFF, 0xFF } }, 144,   0, 139 },
-	{ { { SF,  5, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139,   0, 139 },
-	{ { { SF, 11, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139,   0, 139 },
-	{ { { SF, 14, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139,   0, 139 },
-	{ { { SF, 35, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 141,   0, 139 },
+	{ {  0,  0,  2,  11 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0, 148 },
+	{ { SF,  0, SF,  11 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 139 },
+	{ { SF,  5, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
+	{ { SF, 11, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
+	{ { SF, 14, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
+	{ { SF, 35, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 141,   0, 139 },
 #ifdef _DEBUG
-	{ { {  7, 11, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 7
-	{ { {  7, 35, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 7
-	{ { {  7,  1, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 7
-	{ { {  0,  0,  7,  11 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 7
+	{ {  7, 11, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
+	{ {  7, 35, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
+	{ {  7,  1, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
+	{ {  0,  0,  7,  11 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
 #endif
-	{ { {  2, 35, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 154,   0, 139 },
-	{ { {  2, 11, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 148,   0, 139 },
-	{ { {  2,  1, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 148,   0, 139 },
-	{ { { 12,  8, SF,  11 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 149,   0, 139 },
-	{ { {  0,  1,  0,  12 } }, { { 0x00, 0xFF, 0x00, 0xFF } },   0, 146,   0 },
-	{ { {  0, SF,  0,  12 } }, { { 0x00, 0xFF, 0x00, 0xFF } },   0, 140,   0 },
+	{ {  2, 35, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 154,   0, 139 },
+	{ {  2, 11, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 139 },
+	{ {  2,  1, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 139 },
+	{ { 12,  8, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 139 },
+	{ {  0,  1,  0,  12 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 146,   0 },
+	{ {  0, SF,  0,  12 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 140,   0 },
 #ifdef _DEBUG
-	{ { {  0,  6,  0,  12 } }, { { 0x00, 0xFF, 0x00, 0xFF } },   0,   0,   0 }, // missing shadow for  6
-	{ { {  7,  0, SF,  14 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for  7
-	{ { { 26,  0, SF,  14 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 26
-	{ { { 36,  0, SF,  14 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 36
+	{ {  0,  6,  0,  12 }, { 0x00, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for  6
+	{ {  7,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
+	{ { 26,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
+	{ { 36,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
 #endif
-	{ { {  2,  0, SF,  14 } }, { { 0xFF, 0x00, 0xFF, 0xFF } }, 148,   0, 139 },
-	//{ { {  2,  1, SF,  14 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 148,   0, 139 }, // covered above
-	//{ { {  2,  6, SF,  14 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 148,   0, 139 }, // covered above
-	{ { { 12,  0, SF,  14 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 149,   0, 139 },
-	//{ { { 12,  6, SF,  14 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 149,   0, 139 }, // covered above
-	{ { { SF,  0, SF,  14 } }, { { 0xFF, 0x00, 0xFF, 0xFF } }, 144,   0, 139 },
-	//{ { { SF,  1, SF,  14 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 144,   0, 139 }, covered above
-	//{ { { SF, 25, SF,  14 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 144,   0, 139 }, covered above
-	{ { { SF, 11, SF,  14 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139,   0, 139 },
-	{ { { SF, 35, SF,  14 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 141,   0, 139 },
-	{ { { SF,  0, SF,  15 } }, { { 0xFF, 0x00, 0xFF, 0xFF } }, 145,   0, 142 },
-	{ { { SF,  0, SF,  16 } }, { { 0xFF, 0x00, 0xFF, 0xFF } }, 144,   0, 142 },
+	{ {  2,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF }, 148,   0, 139 },
+	//{ {  2,  1, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 139 }, // covered above
+	//{ {  2,  6, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 139 }, // covered above
+	{ { 12,  0, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 139 },
+	//{ { 12,  6, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 139 }, // covered above
+	{ { SF,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 139 },
+	//{ { SF,  1, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 144,   0, 139 }, covered above
+	//{ { SF, 25, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 144,   0, 139 }, covered above
+	{ { SF, 11, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
+	{ { SF, 35, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 141,   0, 139 },
+	{ { SF,  0, SF,  15 }, { 0xFF, 0x00, 0xFF, 0xFF }, 145,   0, 142 },
+	{ { SF,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 142 },
 #ifdef _DEBUG
-	{ { {  2,  0, SF,  16 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for  2
-	{ { {  7,  0, SF,  16 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for  7
-	{ { { 12,  0, SF,  16 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 12
-	{ { { 26,  0, SF,  16 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 26
-	{ { { 36,  0, SF,  16 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 36
+	{ {  2,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  2
+	{ {  7,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
+	{ { 12,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 12
+	{ { 26,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
+	{ { 36,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
 #endif
-	{ { {  0,  0,  2,  35 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0, 154 },
-	{ { {  2,  0, SF,  35 } }, { { 0xFF, 0x00, 0xFF, 0xFF } }, 148,   0, 141 },
-	//{ { {  2,  1, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 148,   0, 141 }, // covered above
-	//{ { {  2,  6, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 148,   0, 141 }, // covered above
-	{ { {  2, 35, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 154,   0, 141 },
+	{ {  0,  0,  2,  35 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0, 154 },
+	{ {  2,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF }, 148,   0, 141 },
+	//{ {  2,  1, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 141 }, // covered above
+	//{ {  2,  6, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 141 }, // covered above
+	{ {  2, 35, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 154,   0, 141 },
 #ifdef _DEBUG
-	{ { { 36,  0, SF,  35 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 36
-	{ { { 26,  0, SF,  35 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for 26
-	{ { {  7,  0, SF,  35 } }, { { 0xFF, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for  7
-	{ { {  0,  0,  7,  35 } }, { { 0x00, 0x00, 0xFF, 0xFF } },   0,   0,   0 }, // missing shadow for  7
+	{ { 36,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
+	{ { 26,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
+	{ {  7,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
+	{ {  0,  0,  7,  35 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
 #endif
-	{ { { 12,  0, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 149,   0, 141 },
-	//{ { { 12,  6, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 149,   0, 141 }, // covered above
-	{ { { 12, 35, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 153,   0, 141 },
-	{ { { SF,  0, SF,  35 } }, { { 0xFF, 0x00, 0xFF, 0xFF } }, 152,   0, 141 },
-	//{ { { SF,  1, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 152,   0, 141 }, // covered above
-	//{ { { SF,  6, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 152,   0, 141 }, // covered above
-	//{ { { SF, 25, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 152,   0, 141 }, // covered above
-	{ { { SF, 11, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139,   0, 141 },
-	{ { { SF, 35, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 141,   0, 141 },
-	{ { { SF, SF, SF,  35 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 152, 140, 141 }, // only for tile 37
-	{ { {  0,  1,  0,  36 } }, { { 0x00, 0xFF, 0x00, 0xFF } },   0, 146,   0 },
+	{ { 12,  0, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 141 },
+	//{ { 12,  6, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 141 }, // covered above
+	{ { 12, 35, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 153,   0, 141 },
+	{ { SF,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF }, 152,   0, 141 },
+	//{ { SF,  1, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152,   0, 141 }, // covered above
+	//{ { SF,  6, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152,   0, 141 }, // covered above
+	//{ { SF, 25, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152,   0, 141 }, // covered above
+	{ { SF, 11, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 141 },
+	{ { SF, 35, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 141,   0, 141 },
+	{ { SF, SF, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152, 140, 141 }, // only for tile 37
+	{ {  0,  1,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 146,   0 },
 #ifdef _DEBUG
-	{ { {  0,  6,  0,  36 } }, { { 0x00, 0xFF, 0x00, 0xFF } },   0,   0,   0 }, // missing shadow for 6
-	{ { {  0, 25,  0,  36 } }, { { 0x00, 0xFF, 0x00, 0xFF } },   0,   0,   0 }, // missing shadow for 25
+	{ {  0,  6,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 6
+	{ {  0, 25,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 25
 #endif
-	{ { {  0, SF,  0,  36 } }, { { 0x00, 0xFF, 0x00, 0xFF } },   0, 140,   0 },
-	{ { { SF, 11,  0,  36 } }, { { 0xFF, 0xFF, 0x00, 0xFF } }, 139, 147,   0 },
-	//{ { { SF, 11, SF,  36 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139, 147,   0 }, // covered above
-	//{ { { SF, 11,  2,  36 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139, 147,   0 }, // covered above
-	//{ { { SF, 11, 26,  36 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139, 147,   0 }, // covered above
-	//{ { { SF, 11,  7,  36 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 139, 147,   0 }, // covered above
-	{ { { SF, 11, 12,  36 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 150, 147,   0 },
-	{ { { SF, 11, 36,  36 } }, { { 0xFF, 0xFF, 0xFF, 0xFF } }, 150, 147,   0 },
+	{ {  0, SF,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 140,   0 },
+	{ { SF, 11,  0,  36 }, { 0xFF, 0xFF, 0x00, 0xFF }, 139, 147,   0 },
+	//{ { SF, 11, SF,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
+	//{ { SF, 11,  2,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
+	//{ { SF, 11, 26,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
+	//{ { SF, 11,  7,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
+	{ { SF, 11, 12,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 150, 147,   0 },
+	{ { SF, 11, 36,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 150, 147,   0 },
 #ifdef _DEBUG
-	{ { { SF, 35,  0,  36 } }, { { 0xFF, 0xFF, 0x00, 0xFF } },   0,   0,   0 }, // missing shadow for 35
+	{ { SF, 35,  0,  36 }, { 0xFF, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 35
 #endif
-	{ { {  0,  0,  0, 255 } }, { {    0,    0,    0,    0 } },   0,   0,   0 }
+	{ {  0,  0,  0, 255 }, {    0,    0,    0,    0 },   0,   0,   0 }
 	// clang-format on
 };
 
