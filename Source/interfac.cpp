@@ -353,8 +353,6 @@ void LoadGameLevel(int lvldir)
 		InitPlayers();
 	PlayDungMsgs();
 
-	SetDungeonMicros(0, 0, MAXDUNX, MAXDUNY);
-
 	IncProgress();
 	IncProgress();
 	IncProgress();

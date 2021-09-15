@@ -1992,19 +1992,8 @@ void ProcessObjects()
 
 void ObjSetMicro(int dx, int dy, int pn)
 {
-	uint16_t *pPiece;
-	MICROS *pMap;
-	int i, blocks;
-
 	// assert(pn != 0 && pn < MAXTILES);
 	dPiece[dx][dy] = pn;
-	pn--;
-	pMap = &dpiece_defs_map_2[dx][dy];
-	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
-	pPiece = &pLevelPieces[blocks * pn];
-	for (i = 0; i < blocks; i++) {
-		pMap->mt[i] = SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
-	}
 }
 
 static void ObjSetMini(int x, int y, int v)

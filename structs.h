@@ -1443,7 +1443,7 @@ typedef struct THEME_LOC {
 } THEME_LOC;
 
 typedef struct MICROS {
-	WORD mt[16];
+	uint16_t mt[16];
 } MICROS;
 
 //////////////////////////////////////////////////

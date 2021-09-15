@@ -602,8 +602,8 @@ static void drawCell(int x, int y, int sx, int sy)
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &dpiece_defs_map_2[x][y];
 	level_piece_id = dPiece[x][y];
+	pMap = &pMicroPieces[level_piece_id];
 	gbCelTransparencyActive = (nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
 	gbCelFoliageActive = !nSolidTable[level_piece_id];
 
@@ -644,7 +644,7 @@ static void drawFloor(int x, int y, int sx, int sy)
 	gbCelTransparencyActive = false;
 	gbCelFoliageActive = false;
 	light_table_index = dLight[x][y];
-	pMap = &dpiece_defs_map_2[x][y];
+	pMap = &pMicroPieces[dPiece[x][y]];
 
 	levelCelBlock = pMap->mt[0];
 	if (levelCelBlock != 0) {

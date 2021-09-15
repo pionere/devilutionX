@@ -26,7 +26,10 @@ BYTE *pSetPiece = NULL;
 BYTE *pSpecialCels;
 /** Specifies the tile definitions of the active dungeon type; (e.g. levels/l1data/l1.til). */
 BYTE *pMegaTiles;
-uint16_t *pLevelPieces;
+/*
+ * The micros of the dPieces
+ */
+MICROS pMicroPieces[MAXTILES + 1];
 BYTE *pDungeonCels;
 /**
  * The original flags of the dPieces
@@ -58,8 +61,6 @@ BYTE numtrans;
 bool TransList[256];
 /** Contains the piece IDs of each tile on the map. */
 int dPiece[MAXDUNX][MAXDUNY];
-/** Specifies the dungeon piece information for a given coordinate and block number. */
-MICROS dpiece_defs_map_2[MAXDUNX][MAXDUNY];
 /** Specifies the transparency index at each coordinate of the map. */
 BYTE dTransVal[MAXDUNX][MAXDUNY];
 char dLight[MAXDUNX][MAXDUNY];
@@ -135,9 +136,10 @@ void DRLG_Init_Globals()
 
 void InitLvlDungeon()
 {
-	BYTE bv;
+	BYTE bv, blocks;
 	size_t i, dwTiles;
 	BYTE *pSBFile, *pTmp;
+	uint16_t *pLPFile, *pPiece, *pPTmp;
 
 	const LevelData *lds;
 	assert(pDungeonCels == NULL);
@@ -145,8 +147,31 @@ void InitLvlDungeon()
 
 	pDungeonCels = LoadFileInMem(lds->dDunCels);
 	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
-	pLevelPieces = (uint16_t *)LoadFileInMem(lds->dLvlPieces);
 	pSpecialCels = LoadFileInMem(lds->dSpecCels);
+	MicroTileLen = lds->dMicroTileLen;
+
+	pLPFile = (uint16_t *)LoadFileInMem(lds->dLvlPieces, &dwTiles);
+
+	blocks = lds->dBlocks;
+	dwTiles /= (2 * blocks);
+	assert(dwTiles <= MAXTILES);
+
+	for (i = 1; i <= dwTiles; i++) {
+		pPTmp = pMicroPieces[i].mt;
+		pPiece = &pLPFile[blocks * i];
+		for (bv = 0; bv < blocks; bv += 2) {
+			pPiece -= 2;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+			pPTmp[0] = SwapLE16(pPiece[0]);
+			pPTmp[1] = SwapLE16(pPiece[1]);
+#else
+			*((uint32_t*)pPTmp) = *((uint32_t*)pPiece);
+#endif			
+			pPTmp += 2;
+		}
+	}
+
+	mem_free_dbg(pLPFile);
 
 #ifdef _DEBUG
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
@@ -187,35 +212,7 @@ void FreeLvlDungeon()
 {
 	MemFreeDbg(pDungeonCels);
 	MemFreeDbg(pMegaTiles);
-	MemFreeDbg(pLevelPieces);
 	MemFreeDbg(pSpecialCels);
-}
-
-void SetDungeonMicros(int x1, int y1, int x2, int y2)
-{
-	int i, x, y, pn, blocks;
-	uint16_t *pPiece;
-	MICROS *pMap;
-
-	MicroTileLen = AllLevels[currLvl._dLevelIdx].dMicroTileLen;
-	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
-
-	for (y = y1; y < y2; y++) {
-		for (x = x1; x < x2; x++) {
-			pn = dPiece[x][y];
-			pMap = &dpiece_defs_map_2[x][y];
-			assert(pn != 0 && (unsigned)pn < MAXTILES);
-			//if (pn != 0) {
-				pn--;
-				pPiece = &pLevelPieces[blocks * pn];
-				for (i = 0; i < blocks; i++)
-					pMap->mt[i] = SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
-			//} else {
-			//	for (i = 0; i < blocks; i++)
-			//		pMap->mt[i] = 0;
-			//}
-		}
-	}
 }
 
 void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper)
