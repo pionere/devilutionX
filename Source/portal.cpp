@@ -90,7 +90,6 @@ void RemovePortalMissile(int pnum)
 		mi = missileactive[i];
 		mis = &missile[mi];
 		if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
-			dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MISSILE;
 			dMissile[mis->_mix][mis->_miy] = 0;
 
 			AddUnLight(mis->_miLid);

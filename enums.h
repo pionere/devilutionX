@@ -2604,7 +2604,7 @@ typedef enum piece_flag {
 } piece_flag;
 
 typedef enum dflag {
-	BFLAG_MISSILE     = 0x01,
+	BFLAG_MISSILE_PRE = 0x01,
 	BFLAG_VISIBLE     = 0x02,
 	BFLAG_DEAD_PLAYER = 0x04,
 	BFLAG_POPULATED   = 0x08,

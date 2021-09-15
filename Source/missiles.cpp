@@ -14,7 +14,6 @@ int missileactive[MAXMISSILES];
 int missileavail[MAXMISSILES];
 MissileStruct missile[MAXMISSILES];
 int nummissiles;
-bool gbMissilePreFlag;
 
 /** Maps from direction to X-offset. */
 const int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
@@ -430,13 +429,9 @@ static void PutMissile(int mi)
 	y = missile[mi]._miy;
 	assert(IN_DUNGEON_AREA(x, y));
 	if (!missile[mi]._miDelFlag) {
-		dFlags[x][y] |= BFLAG_MISSILE;
-		if (dMissile[x][y] == 0)
-			dMissile[x][y] = mi + 1;
-		else
-			dMissile[x][y] = -1;
+		dMissile[x][y] = dMissile[x][y] == 0 ? mi + 1 : -1;
 		if (missile[mi]._miPreFlag)
-			gbMissilePreFlag = true;
+			dFlags[x][y] |= BFLAG_MISSILE_PRE;
 	}
 }
 
@@ -1328,7 +1323,7 @@ void FreeMissiles2()
 void InitMissiles()
 {
 	int i;
-	BYTE *pTmp;
+	BYTE* pTmp;
 
 	nummissiles = 0;
 	memset(missileactive, 0, sizeof(missileactive));
@@ -1338,7 +1333,7 @@ void InitMissiles()
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitMissiles.");
 	pTmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
-		*pTmp &= ~BFLAG_MISSILE;
+		*pTmp &= ~BFLAG_MISSILE_PRE;
 }
 
 #ifdef HELLFIRE
@@ -4055,12 +4050,9 @@ void ProcessMissiles()
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MISSILE;
+		assert(IN_DUNGEON_AREA(mis->_mix, mis->_miy));
+		dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MISSILE_PRE;
 		dMissile[mis->_mix][mis->_miy] = 0;
-#ifdef HELLFIRE
-		if (mis->_mix < 0 || mis->_mix >= MAXDUNX - 1 || mis->_miy < 0 || mis->_miy >= MAXDUNY - 1)
-			mis->_miDelFlag = TRUE;
-#endif
 	}
 
 	for (i = 0; i < nummissiles; ) {
@@ -4071,8 +4063,6 @@ void ProcessMissiles()
 			i++;
 		}
 	}
-
-	gbMissilePreFlag = false;
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];

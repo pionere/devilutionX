@@ -290,13 +290,13 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
  * @param sy Back buffer coordinate
  * @param pre Is the sprite in the background
  */
-static void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
+static void DrawMissile(int mi, int x, int y, int sx, int sy, BOOL pre)
 {
 	int i;
 	MissileStruct *mis;
 
-	if (dMissile[x][y] != -1) {
-		mis = &missile[dMissile[x][y] - 1];
+	if (mi > 0) {
+		mis = &missile[mi - 1];
 		DrawMissilePrivate(mis, sx, sy, pre);
 		return;
 	}
@@ -313,17 +313,16 @@ static void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
 /**
  * @brief Render a monster sprite
  * @param mnum Id of monster
- * @param x dPiece coordinate
- * @param y dPiece coordinate
+ * @param bFlag flags to draw
  * @param mx Back buffer coordinate
  * @param my Back buffer coordinate
  */
-static void DrawMonster(int mnum, int x, int y, int sx, int sy)
+static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 {
 	MonsterStruct *mon;
 	int mx, my, nCel, nWidth;
 	BYTE trans;
-	BYTE litFlag = dFlags[x][y] & BFLAG_LIT;
+	BYTE litFlag = bFlag & BFLAG_LIT;
 	BYTE *pCelBuff;
 
 	if (!litFlag && !myplr._pInfraFlag)
@@ -382,12 +381,11 @@ static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 /**
  * @brief Render a towner sprite
  * @param mnum Id of towner
- * @param x dPiece coordinate
- * @param y dPiece coordinate
+ * @param bFlag flags to draw
  * @param mx Back buffer coordinate
  * @param my Back buffer coordinate
  */
-static void DrawTowner(int tnum, int x, int y, int sx, int sy)
+static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 {
 	TownerStruct *tw;
 	int tx, nCel, nWidth;
@@ -415,10 +413,10 @@ static void DrawTowner(int tnum, int x, int y, int sx, int sy)
  * @param nCel frame
  * @param nWidth width
  */
-static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
+static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 {
 	int px, py, nCel, nWidth, l;
-	BYTE litFlag = dFlags[x][y] & BFLAG_LIT;
+	BYTE litFlag = bFlag & BFLAG_LIT;
 	BYTE *pCelBuff;
 
 	if (litFlag || myplr._pInfraFlag) {
@@ -497,49 +495,44 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
-			DrawPlayer(pnum, x, y, sx, sy);
+			DrawPlayer(pnum, dFlags[x][y], sx, sy);
 		}
 	}
 }
 
 /**
  * @brief Render an object sprite
+ * @param oi the id of the object
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  * @param ox Back buffer coordinate
  * @param oy Back buffer coordinate
  * @param pre Is the sprite in the background
  */
-static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
+static void DrawObject(int oi, int x, int y, int ox, int oy, BOOL pre)
 {
 	ObjectStruct *os;
 	int sx, sy, xx, yy, nCel, frames;
-	char oi;
+	bool mainTile;
 	BYTE *pCelBuff;
 
-	oi = dObject[x][y];
-	if (oi == 0 || light_table_index >= LIGHTMAX)
+	if (light_table_index >= LIGHTMAX)
 		return;
-
-	if (oi > 0) {
-		oi--;
-		os = &objects[oi];
-		if (os->_oPreFlag != pre)
-			return;
-		sx = ox - os->_oAnimXOffset;
-		sy = oy;
-	} else {
-		oi = -(oi + 1);
-		os = &objects[oi];
-		if (os->_oPreFlag != pre)
-			return;
+	// assert(oi != 0);
+	mainTile = oi >= 0;
+	oi = oi >= 0 ? oi - 1 : -(oi + 1);
+	assert((unsigned)oi < MAXOBJECTS);
+	os = &objects[oi];
+	if (os->_oPreFlag != pre)
+		return;
+	sx = ox - os->_oAnimXOffset;
+	sy = oy;
+	if (!mainTile) {
 		xx = os->_ox - x;
 		yy = os->_oy - y;
-		sx = (xx * (TILE_WIDTH / 2)) + ox - os->_oAnimXOffset - (yy * (TILE_WIDTH / 2));
-		sy = oy + (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
+		sx += (xx * (TILE_WIDTH / 2)) - (yy * (TILE_WIDTH / 2));
+		sy += (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
 	}
-
-	assert((unsigned char)oi < MAXOBJECTS);
 
 	pCelBuff = os->_oAnimData;
 	if (pCelBuff == NULL) {
@@ -563,12 +556,10 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 
 /**
  * @brief Render a cell
- * @param x dPiece coordinate
- * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void drawCell(int x, int y, int sx, int sy)
+static void drawCell(int sx, int sy)
 {
 	BYTE *dst, i;
 	uint16_t levelCelBlock;
@@ -602,10 +593,7 @@ static void drawCell(int x, int y, int sx, int sy)
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	level_piece_id = dPiece[x][y];
 	pMap = &pMicroPieces[level_piece_id];
-	gbCelTransparencyActive = (nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
-	gbCelFoliageActive = !nSolidTable[level_piece_id];
 
 	for ( ; i < limit; i += 2) {
 		levelCelBlock = pMap->mt[i];
@@ -622,12 +610,10 @@ static void drawCell(int x, int y, int sx, int sy)
 
 /**
  * @brief Render a floor tiles
- * @param x dPiece coordinate
- * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void drawFloor(int x, int y, int sx, int sy)
+static void drawFloor(int sx, int sy)
 {
 	BYTE *dst;
 	uint16_t levelCelBlock;
@@ -641,10 +627,7 @@ static void drawFloor(int x, int y, int sx, int sy)
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	gbCelTransparencyActive = false;
-	gbCelFoliageActive = false;
-	light_table_index = dLight[x][y];
-	pMap = &pMicroPieces[dPiece[x][y]];
+	pMap = &pMicroPieces[level_piece_id];
 
 	levelCelBlock = pMap->mt[0];
 	if (levelCelBlock != 0) {
@@ -664,20 +647,15 @@ static void drawFloor(int x, int y, int sx, int sy)
  * @param sy Back buffer coordinate
  * @param pre Is the sprite in the background
  */
-static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
+static void DrawItem(int ii, int sx, int sy, BOOL pre)
 {
-	int nCel, ii, frames;
+	int nCel, frames;
 	ItemStruct *is;
 	BYTE *pCelBuff;
 
-	ii = dItem[x][y];
-	if (ii == 0)
-		return;
+	assert(ii > 0);
 
 	ii--;
-	if ((unsigned)ii >= MAXITEMS) {
-		dev_fatal("Invalid item (%d) to draw.", ii);
-	}
 
 	is = &items[ii];
 	if (is->_iPostDraw == pre)
@@ -702,17 +680,45 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 
 /**
  * @brief Draw a towner or a monster depending on the level
- * @param y dPiece coordinate
- * @param x dPiece coordinate
+ * @param bFlag flags
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawMonsterHelper(int mnum, int x, int y, int sx, int sy)
+static void DrawMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
 {
 	if (currLvl._dType != DTYPE_TOWN)
-		DrawMonster(mnum, x, y, sx, sy);
+		DrawMonster(mnum, bFlag, sx, sy);
 	else
-		DrawTowner(mnum, x, y, sx, sy);
+		DrawTowner(mnum, bFlag, sx, sy);
+}
+
+static void DrawDeadMonster(BYTE bDead, int sx, int sy)
+{
+	BYTE dd;
+	DeadStruct* pDeadGuy;
+	BYTE* pCelBuff;
+	int px, nCel, frames;
+
+	if (light_table_index >= LIGHTMAX)
+		return;
+
+	pDeadGuy = &dead[(bDead & 0x1F) - 1];
+	dd = (bDead >> 5) & 7;
+	px = sx - pDeadGuy->_deadXOffset;
+	pCelBuff = pDeadGuy->_deadData[dd];
+	if (pCelBuff == NULL) {
+		dev_fatal("Dead body(%d) without Data(%d) to draw .", bDead, dd);
+	}
+	frames = SwapLE32(*(uint32_t *)pCelBuff);
+	nCel = pDeadGuy->_deadFrame;
+	if (nCel < 1 || frames > 50 || nCel > frames) {
+		dev_fatal("Unclipped dead: frame %d of %d, deadnum==%d", nCel, frames, bDead);
+	}
+	if (pDeadGuy->_deadtrans != 0) {
+		Cl2DrawLightTbl(px, sy, pCelBuff, nCel, pDeadGuy->_deadWidth, pDeadGuy->_deadtrans);
+	} else {
+		Cl2DrawLight(px, sy, pCelBuff, nCel, pDeadGuy->_deadWidth);
+	}
 }
 
 /**
@@ -724,10 +730,9 @@ static void DrawMonsterHelper(int mnum, int x, int y, int sx, int sy)
  */
 static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 {
-	int px, mpnum, nCel, frames;
-	BYTE bFlag, bDead, bArch, bMap, dd;
-	DeadStruct *pDeadGuy;
-	BYTE *pCelBuff;
+	int mpnum;
+	BYTE bv;
+	uint16_t bFlag;
 
 	assert((unsigned)sx < MAXDUNX);
 	assert((unsigned)sy < MAXDUNY);
@@ -736,89 +741,87 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	//	return;
 	//dRendered[sx][sy] = true;
 
-	light_table_index = dLight[sx][sy];
 	bFlag = dFlags[sx][sy];
-	bDead = dDead[sx][sy];
-	bMap = dTransVal[sx][sy];
+	light_table_index = dLight[sx][sy];
+	level_piece_id = dPiece[sx][sy];
+	gbCelTransparencyActive = (nTransTable[level_piece_id] & TransList[dTransVal[sx][sy]]);
+	gbCelFoliageActive = !nSolidTable[level_piece_id];
 
 	if (bFlag & BFLAG_PLAYERLR) {
 		assert((unsigned)(sy - 1) < MAXDUNY);
 		mpnum = dPlayer[sx][sy - 1];
-		// assert(mpnum < 0);
-		if (mpnum < 0)
-			DrawPlayer(-(mpnum + 1), sx, sy - 1, dx, dy);
+		assert(mpnum < 0);
+		//if (mpnum < 0) {
+			bv = dFlags[sx][sy - 1];
+			DrawPlayer(-(mpnum + 1), bv, dx, dy);
+		//}
 	}
 	if (bFlag & BFLAG_MONSTLR) {
 		assert((unsigned)(sy - 1) < MAXDUNY);
 		mpnum = dMonster[sx][sy - 1];
-		// assert(mpnum < 0);
-		if (mpnum < 0)
-			DrawMonsterHelper(-(mpnum + 1), sx, sy - 1, dx, dy);
+		assert(mpnum < 0);
+		//if (mpnum < 0) {
+			bv = dFlags[sx][sy - 1];
+			DrawMonsterHelper(-(mpnum + 1), bv, dx, dy);
+		//}
 	}
 
-	drawCell(sx, sy, dx, dy);
+	drawCell(dx, dy);
 
 #ifdef _DEBUG
-	if (visiondebug && bFlag & BFLAG_LIT) {
+	if (visiondebug && (bFlag & BFLAG_LIT)) {
 		CelClippedDraw(dx, dy, pSquareCel, 1, 64);
 	}
 #endif
 
-	if (gbMissilePreFlag && (bFlag & BFLAG_MISSILE)) {
-		DrawMissile(sx, sy, dx, dy, TRUE);
+	if (bFlag & BFLAG_MISSILE_PRE) {
+		mpnum = dMissile[sx][sy];
+		assert(mpnum != 0);
+		DrawMissile(mpnum, sx, sy, dx, dy, TRUE);
 	}
 
-	if (light_table_index < LIGHTMAX && bDead != 0) {
-		pDeadGuy = &dead[(bDead & 0x1F) - 1];
-		dd = (bDead >> 5) & 7;
-		px = dx - pDeadGuy->_deadXOffset;
-		pCelBuff = pDeadGuy->_deadData[dd];
-		if (pCelBuff == NULL) {
-			dev_fatal("Dead body(%d) without Data(%d) to draw .", bDead, dd);
-		}
-		frames = SwapLE32(*(uint32_t *)pCelBuff);
-		nCel = pDeadGuy->_deadFrame;
-		if (nCel < 1 || frames > 50 || nCel > frames) {
-			dev_fatal("Unclipped dead: frame %d of %d, deadnum==%d", nCel, frames, bDead);
-		}
-		if (pDeadGuy->_deadtrans != 0) {
-			Cl2DrawLightTbl(px, dy, pCelBuff, nCel, pDeadGuy->_deadWidth, pDeadGuy->_deadtrans);
-		} else {
-			Cl2DrawLight(px, dy, pCelBuff, nCel, pDeadGuy->_deadWidth);
-		}
-	}
-	DrawObject(sx, sy, dx, dy, TRUE);
-	DrawItem(sx, sy, dx, dy, TRUE);
+	bv = dDead[sx][sy];
+	if (bv != 0)
+		DrawDeadMonster(bv, dx, dy);
+	mpnum = dObject[sx][sy];
+	if (mpnum != 0)
+		DrawObject(mpnum, sx, sy, dx, dy, TRUE);
+	bv = dItem[sx][sy];
+	if (bv != 0)
+		DrawItem(bv, dx, dy, TRUE);
 	if (bFlag & BFLAG_DEAD_PLAYER) {
 		DrawDeadPlayer(sx, sy, dx, dy);
 	}
 	mpnum = dPlayer[sx][sy];
-	if (mpnum > 0) {
-		DrawPlayer(mpnum - 1, sx, sy, dx, dy);
-	}
+	if (mpnum > 0)
+		DrawPlayer(mpnum - 1, bFlag, dx, dy);
 	mpnum = dMonster[sx][sy];
-	if (mpnum > 0) {
-		DrawMonsterHelper(mpnum - 1, sx, sy, dx, dy);
-	}
-	if (bFlag & BFLAG_MISSILE)
-		DrawMissile(sx, sy, dx, dy, FALSE);
-	DrawObject(sx, sy, dx, dy, FALSE);
-	DrawItem(sx, sy, dx, dy, FALSE);
+	if (mpnum > 0)
+		DrawMonsterHelper(mpnum - 1, bFlag, dx, dy);
+	mpnum = dMissile[sx][sy];
+	if (mpnum != 0)
+		DrawMissile(mpnum, sx, sy, dx, dy, FALSE);
+	mpnum = dObject[sx][sy];
+	if (mpnum != 0)
+		DrawObject(mpnum, sx, sy, dx, dy, FALSE);
+	bv = dItem[sx][sy];
+	if (bv != 0)
+		DrawItem(bv, dx, dy, FALSE);
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		bArch = dSpecial[sx][sy];
-		if (bArch != 0) {
-			gbCelTransparencyActive = TransList[bMap];
-			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bArch, 64);
+		bv = dSpecial[sx][sy];
+		if (bv != 0) {
+			gbCelTransparencyActive = TransList[dTransVal[sx][sy]];
+			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, 64);
 		}
 	} else {
 		// Tree leaves should always cover player when entering or leaving the tile,
 		// So delay the rendering until after the next row is being drawn.
 		// This could probably have been better solved by sprites in screen space.
-		if (sx > 0 && sy > 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-			bArch = dSpecial[sx - 1][sy - 1];
-			if (bArch != 0) {
-				CelDraw(dx, (dy - TILE_HEIGHT), pSpecialCels, bArch, 64);
+		if (sx > 0 && sy > 0) {
+			bv = dSpecial[sx - 1][sy - 1];
+			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
+				CelDraw(dx, (dy - TILE_HEIGHT), pSpecialCels, bv, 64);
 			}
 		}
 	}
@@ -837,14 +840,19 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 {
 	assert(gpBuffer != NULL);
 
+	gbCelTransparencyActive = false;
+	gbCelFoliageActive = false;
+
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
 			if (IN_DUNGEON_AREA(x, y)) {
 				level_piece_id = dPiece[x][y];
 				assert(level_piece_id != 0);
 				//if (level_piece_id != 0) {
-					if (!nSolidTable[level_piece_id])
-						drawFloor(x, y, sx, sy);
+					if (!nSolidTable[level_piece_id]) {
+						light_table_index = dLight[x][y];
+						drawFloor(sx, sy);
+					}
 				//} else {
 				//	world_draw_black_tile(sx, sy);
 				//}
