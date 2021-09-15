@@ -1394,7 +1394,7 @@ const BYTE BIG10[] = {
 
 	80, // replace
 	// clang-format on
-};
+};*/
 /** Miniset: Crumbled vertical wall 2. */
 /*const BYTE RUINS2[] = {
 	// clang-format off
@@ -1404,7 +1404,7 @@ const BYTE BIG10[] = {
 
 	81, // replace
 	// clang-format on
-};
+};*/
 /** Miniset: Crumbled vertical wall 3. */
 /*const BYTE RUINS3[] = {
 	// clang-format off
@@ -1414,7 +1414,7 @@ const BYTE BIG10[] = {
 
 	82, // replace
 	// clang-format on
-};
+};*/
 /** Miniset: Crumbled horizontal wall 1. */
 /*const BYTE RUINS4[] = {
 	// clang-format off
@@ -1424,7 +1424,7 @@ const BYTE BIG10[] = {
 
 	84, // replace
 	// clang-format on
-};
+};*/
 /** Miniset: Crumbled horizontal wall 2. */
 /*const BYTE RUINS5[] = {
 	// clang-format off
@@ -1434,7 +1434,7 @@ const BYTE BIG10[] = {
 
 	85, // replace
 	// clang-format on
-};
+};*/
 /** Miniset: Crumbled horizontal wall 3. */
 /*const BYTE RUINS6[] = {
 	// clang-format off
@@ -1444,7 +1444,7 @@ const BYTE BIG10[] = {
 
 	86, // replace
 	// clang-format on
-};
+};*/
 /** Miniset: Crumbled north pillar. */
 /*const BYTE RUINS7[] = {
 	// clang-format off
@@ -1454,7 +1454,7 @@ const BYTE BIG10[] = {
 
 	87, // replace
 	// clang-format on
-};
+};*/
 /** Miniset: Bloody gib 1. */
 const BYTE PANCREAS1[] = {
 	// clang-format off
