@@ -110,7 +110,7 @@ TSnd *sound_file_load(const char *path)
 	SFileCloseFile(file);
 	mem_free_dbg(wave_file);
 	if (error != 0) {
-		ErrSdl();
+		sdl_fatal(ERR_SDL_SOUND_FILE);
 	}
 
 	return pSnd;
@@ -167,7 +167,7 @@ void music_start(int nTrack)
 
 			SDL_RWops *musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
 			if (musicRw == NULL) {
-				ErrSdl();
+				sdl_fatal(ERR_SDL_MUSIC_FILE);
 			}
 			_gMusic = Mix_LoadMUSType_RW(musicRw, MUS_NONE, 1);
 			Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * _gnMusicVolume / VOLUME_MIN);

@@ -255,14 +255,14 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, 0);
 			if (deviceId == 0) {
-				ErrSdl();
+				sdl_fatal(ERR_SDL_AUDIO_DEVICE_SDL2);
 			}
 
 			SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
 #else
 			sVidAudioQueue->Subscribe(&audioFormat);
 			if (SDL_OpenAudio(&audioFormat, NULL) != 0) {
-				ErrSdl();
+				sdl_fatal(ERR_SDL_AUDIO_DEVICE_SDL1);
 			}
 			SDL_PauseAudio(0);
 #endif
@@ -280,10 +280,10 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 		SDL_DestroyTexture(renderer_texture);
 		renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SVidWidth, SVidHeight);
 		if (renderer_texture == NULL) {
-			ErrSdl();
+			sdl_fatal(ERR_SDL_VIDEO_TEXTURE);
 		}
 		if (SDL_RenderSetLogicalSize(renderer, SVidWidth, SVidHeight) < 0) {
-			ErrSdl();
+			sdl_fatal(ERR_SDL_VIDEO_SIZE);
 		}
 	}
 #else
@@ -300,20 +300,20 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
 	if (SVidSurface == NULL) {
-		ErrSdl();
+		sdl_fatal(ERR_SDL_VIDEO_CREATE);
 	}
 
 	SVidPalette = SDL_AllocPalette(256);
 	if (SVidPalette == NULL) {
-		ErrSdl();
+		sdl_fatal(ERR_SDL_VIDEO_PALETTE);
 	}
 #ifndef USE_SDL1
 	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) < 0) {
-		ErrSdl();
+		sdl_fatal(ERR_SDL_VIDEO_PALETTE_SET_SDL2);
 	}
 #else
 	if (SDLC_SetSurfaceColors(SVidSurface, SVidPalette) < 0) {
-		ErrSdl();
+		sdl_fatal(ERR_SDL_VIDEO_PALETTE_SET_SDL1);
 	}
 #endif
 
@@ -377,8 +377,7 @@ bool SVidPlayContinue()
 		memcpy(logical_palette, orig_palette, sizeof(logical_palette));
 
 		if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, 256) < 0) {
-			SDL_Log("%s", SDL_GetError());
-			return false;
+			sdl_fatal(ERR_SDL_VIDEO_SURFACE);
 		}
 	}
 
@@ -391,8 +390,7 @@ bool SVidPlayContinue()
 		BYTE *audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 		if (SDL_QueueAudio(deviceId, audio, len) < 0) {
-			SDL_Log("%s", SDL_GetError());
-			return false;
+			sdl_fatal(ERR_SDL_VIDEO_AUDIO);
 		}
 #else
 		sVidAudioQueue->Enqueue(audio, len);
@@ -407,8 +405,7 @@ bool SVidPlayContinue()
 #ifndef USE_SDL1
 	if (renderer != NULL) {
 		if (SDL_BlitSurface(SVidSurface, NULL, GetOutputSurface(), NULL) < 0) {
-			SDL_Log("%s", SDL_GetError());
-			return false;
+			sdl_fatal(ERR_SDL_VIDEO_BLIT_A);
 		}
 	} else
 #endif
@@ -439,7 +436,7 @@ bool SVidPlayContinue()
 		    || outputSurface->w == static_cast<int>(SVidWidth)
 		    || outputSurface->h == static_cast<int>(SVidHeight)) {
 			if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &outputRect) < 0) {
-				ErrSdl();
+				sdl_fatal(ERR_SDL_VIDEO_BLIT_B);
 			}
 		} else {
 			// The source surface is always 8-bit, and the output surface is never 8-bit in this branch.
@@ -450,8 +447,7 @@ bool SVidPlayContinue()
 			SDL_Surface *tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
 #endif
 			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
-				SDL_Log("%s", SDL_GetError());
-				return false;
+				sdl_fatal(ERR_SDL_VIDEO_BLIT_SCALED);
 			}
 			SDL_FreeSurface(tmp);
 		}
@@ -499,10 +495,10 @@ void SVidPlayEnd()
 		SDL_DestroyTexture(renderer_texture);
 		renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 		if (renderer_texture == NULL) {
-			ErrSdl();
+			sdl_fatal(ERR_SDL_VIDEO_PLAY_TEXTURE);
 		}
 		if (SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT) < 0) {
-			ErrSdl();
+			sdl_fatal(ERR_SDL_VIDEO_PLAY_SIZE);
 		}
 	}
 #else

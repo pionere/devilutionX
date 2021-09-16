@@ -30,12 +30,12 @@ void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 
 	if (art->surface->format->BitsPerPixel == 8 && art->palette_version != back_surface_palette_version) {
 		if (SDLC_SetSurfaceColors(art->surface, back_surface->format->palette) < 0)
-			ErrSdl();
+			sdl_fatal(ERR_SDL_ART_COLOR);
 		art->palette_version = back_surface_palette_version;
 	}
 
 	if (SDL_BlitSurface(art->surface, &srcRect, DiabloUiSurface(), &dstRect) < 0)
-		ErrSdl();
+		sdl_fatal(ERR_SDL_ART_BLIT);
 }
 
 void DrawAnimatedArt(Art *art, int screenX, int screenY)

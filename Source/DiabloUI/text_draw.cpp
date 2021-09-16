@@ -58,11 +58,11 @@ void DrawTTF(const char *text, const SDL_Rect &rectIn, int flags,
 
 	SDL_Surface* uiSurface = DiabloUiSurface();
 	if (SDL_BlitSurface(shadowSurface, NULL, uiSurface, &destRect) < 0)
-		ErrSdl();
+		sdl_fatal(ERR_SDL_TDRAW_SHADOW);
 	--destRect.x;
 	--destRect.y;
 	if (SDL_BlitSurface(textSurface, NULL, uiSurface, &destRect) < 0)
-		ErrSdl();
+		sdl_fatal(ERR_SDL_TDRAW_TEXT);
 }
 
 void DrawArtStr(const char *text, const SDL_Rect &rect, int flags, bool drawTextCursor)

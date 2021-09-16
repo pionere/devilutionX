@@ -31,11 +31,6 @@ static void FreeDlg()
 	NetClose();
 }
 
-/**
- * @brief Terminates the game and displays an error message box.
- * @param pszFmt Optional error message.
- * @param ... (see printf)
- */
 void app_fatal(const char *pszFmt, ...)
 {
 	va_list va;
@@ -51,12 +46,7 @@ void app_fatal(const char *pszFmt, ...)
 	diablo_quit(1);
 }
 
-/**
- * @brief Displays a warning message box based on the given formatted error message.
- * @param pszFmt Error message format
- * @param ... Additional parameters for message format
- */
-void DrawDlg(const char *pszFmt, ...)
+void app_warn(const char *pszFmt, ...)
 {
 	char text[256];
 	va_list va;
@@ -79,7 +69,6 @@ void assert_fail(int nLineNo, const char *pszFile, const char *pszFail)
 {
 	app_fatal("assertion failed (%d:%s)\n%s", nLineNo, pszFile, pszFail);
 }
-#endif
 
 /**
  * @brief Terminates the game and displays an error dialog box based on the given dialog_id.
@@ -95,11 +84,12 @@ void ErrDlg(const char *title, const char *error, const char *log_file_path, int
 	UiErrorOkDialog(title, text);
 	app_fatal(NULL);
 }
+#endif
 
 /**
  * @brief Terminates the game with a file not found error dialog.
  */
-void FileErrDlg(const char *error)
+/*void FileErrDlg(const char *error)
 {
 	char text[1024];
 
@@ -121,12 +111,12 @@ void FileErrDlg(const char *error)
 
 	UiErrorOkDialog("Data File Error", text);
 	app_fatal(NULL);
-}
+}*/
 
 /**
  * @brief Terminates the game with an insert CD error dialog.
  */
-void InsertCDDlg()
+/*void InsertCDDlg()
 {
 	char text[1024];
 	snprintf(
@@ -139,6 +129,6 @@ void InsertCDDlg()
 
 	UiErrorOkDialog("Data File Error", text);
 	app_fatal(NULL);
-}
+}*/
 
 DEVILUTION_END_NAMESPACE

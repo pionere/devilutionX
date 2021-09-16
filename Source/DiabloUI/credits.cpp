@@ -59,30 +59,29 @@ CachedLine PrepareLine(unsigned index)
 		SDL_Surface* text = TTF_RenderUTF8_Solid(font, contents, shadowColor);
 
 		// Set up the target surface to have 3 colors: mask, text, and shadow.
-		if (text != NULL)
-			surface = SDL_CreateRGBSurfaceWithFormat(0, text->w + ShadowOffsetX, text->h + ShadowOffsetY, 8, SDL_PIXELFORMAT_INDEX8);
-		else
-			SDL_Log("%s", TTF_GetError());
+		if (text == NULL)
+			ttf_fatal(ERR_SDL_CREDIT_PRE_SURFACE);
+		surface = SDL_CreateRGBSurfaceWithFormat(0, text->w + ShadowOffsetX, text->h + ShadowOffsetY, 8, SDL_PIXELFORMAT_INDEX8);
 		const SDL_Color maskColor = { 0, 255, 0, 0 }; // Any color different from both shadow and text
 		const SDL_Color &textColor = back_palette->colors[224];
 		SDL_Color colors[3] = { maskColor, textColor, shadowColor };
 		if (SDLC_SetSurfaceColors(surface, colors, 0, 3) < 0)
-			SDL_Log("%s", SDL_GetError());
+			sdl_fatal(ERR_SDL_CREDIT_PRE_SHADOW_COLOR);
 		SDLC_SetColorKey(surface, 0);
 
 		// Blit the shadow first:
 		SDL_Rect shadowRect = { ShadowOffsetX, ShadowOffsetY, 0, 0 };
 		if (SDL_BlitSurface(text, NULL, surface, &shadowRect) < 0)
-			ErrSdl();
+			sdl_fatal(ERR_SDL_CREDIT_PRE_SHADOW);
 
 		// Change the text surface color and blit again:
 		SDL_Color textColors[2] = { maskColor, textColor };
 		if (SDLC_SetSurfaceColors(text, textColors, 0, 2) < 0)
-			ErrSdl();
+			sdl_fatal(ERR_SDL_CREDIT_PRE_TEXT_COLOR);
 		SDLC_SetColorKey(text, 0);
 
 		if (SDL_BlitSurface(text, NULL, surface, NULL) < 0)
-			ErrSdl();
+			sdl_fatal(ERR_SDL_CREDIT_PRE_TEXT);
 
 		SDL_Surface *surface_ptr = surface;
 		ScaleSurfaceToOutput(&surface_ptr);
@@ -190,7 +189,7 @@ void CreditsRenderer::Render()
 		dstRect.w = line.m_surface->w;
 		dstRect.h = line.m_surface->h;
 		if (SDL_BlitSurface(line.m_surface, NULL, DiabloUiSurface(), &dstRect) < 0)
-			ErrSdl();
+			sdl_fatal(ERR_SDL_CREDIT_BLIT);
 	}
 	SDL_SetClipRect(DiabloUiSurface(), NULL);
 }

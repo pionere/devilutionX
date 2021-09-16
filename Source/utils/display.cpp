@@ -55,7 +55,7 @@ void SetVideoMode(int width, int height, int bpp, uint32_t flags)
 	SDL_Log("Setting video mode %dx%d bpp=%u flags=0x%08X", width, height, bpp, flags);
 	ghMainWnd = SDL_SetVideoMode(width, height, bpp, flags);
 	if (ghMainWnd == NULL) {
-		ErrSdl();
+		sdl_fatal(ERR_SDL_DISPLAY_MODE_SET);
 	}
 	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
 	SDL_Log("Video mode is now %dx%d bpp=%u flags=0x%08X",
@@ -105,7 +105,7 @@ static void CalculatePreferdWindowSize(int &width, int &height, bool useIntegerS
 #else
 	SDL_DisplayMode mode;
 	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
-		ErrSdl();
+		sdl_fatal(ERR_SDL_DISPLAY_MODE_GET);
 	}
 
 	if (!useIntegerScaling) {
@@ -159,7 +159,7 @@ bool SpawnWindow(const char *lpWindowName)
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
 	if (SDL_Init(initFlags) < 0) {
-		ErrSdl();
+		sdl_fatal(ERR_SDL_INIT);
 	}
 
 #ifndef USE_SDL1
@@ -246,7 +246,7 @@ bool SpawnWindow(const char *lpWindowName)
 	ghMainWnd = SDL_CreateWindow(lpWindowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 #endif
 	if (ghMainWnd == NULL) {
-		ErrSdl();
+		sdl_fatal(ERR_SDL_WINDOW_CREATE);
 	}
 
 	int refreshRate = 60;
@@ -272,20 +272,20 @@ bool SpawnWindow(const char *lpWindowName)
 
 		renderer = SDL_CreateRenderer(ghMainWnd, -1, rendererFlags);
 		if (renderer == NULL) {
-			ErrSdl();
+			sdl_fatal(ERR_SDL_RENDERER_CREATE);
 		}
 
 		renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
 		if (renderer_texture == NULL) {
-			ErrSdl();
+			sdl_fatal(ERR_SDL_RENDERER_TEXTURE);
 		}
 
 		if (integerScalingEnabled && SDL_RenderSetIntegerScale(renderer, SDL_TRUE) < 0) {
-			ErrSdl();
+			sdl_fatal(ERR_SDL_RENDERER_SCALE);
 		}
 
 		if (SDL_RenderSetLogicalSize(renderer, width, height) < 0) {
-			ErrSdl();
+			sdl_fatal(ERR_SDL_RENDERER_SIZE);
 		}
 #endif
 	} else {
@@ -350,7 +350,7 @@ SDL_Surface *CreateScaledSurface(SDL_Surface *src)
 	}
 	if (SDL_SoftStretch((src), NULL, stretched, &stretched_rect) < 0) {
 		SDL_FreeSurface(stretched);
-		ErrSdl();
+		sdl_fatal(ERR_SDL_WINDOW_STRETCH);
 	}
 	return stretched;
 }

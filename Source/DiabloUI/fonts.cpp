@@ -54,8 +54,7 @@ void LoadTtfFont()
 {
 	if (TTF_WasInit() == 0) {
 		if (TTF_Init() == -1) {
-			SDL_Log("TTF_Init: %s", TTF_GetError());
-			diablo_quit(1);
+			ttf_fatal(ERR_SDL_TTF_INIT);
 		}
 		gbWasFontsInit = true;
 	}
@@ -72,8 +71,7 @@ void LoadTtfFont()
 #endif
 	font = TTF_OpenFont(ttfFontPath, 17);
 	if (font == NULL) {
-		SDL_Log("TTF_OpenFont: %s", TTF_GetError());
-		return;
+		ttf_fatal(ERR_SDL_TTF_FONT);
 	}
 
 	TTF_SetFontKerning(font, 0);
