@@ -31,6 +31,10 @@ void nthread_start();
 void nthread_cleanup();
 void nthread_run();
 void nthread_finish();
+/**
+ * @brief Checks if it's time for the logic to advance
+ * @return True if the engine should tick
+ */
 bool nthread_has_50ms_passed();
 
 #ifdef __cplusplus

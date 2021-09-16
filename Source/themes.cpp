@@ -441,9 +441,6 @@ void InitThemes()
 	numthemes = themeCount;
 }
 
-/**
- * @brief HoldThemeRooms marks theme rooms as populated.
- */
 void HoldThemeRooms()
 {
 	int i, xx, yy;
@@ -966,9 +963,6 @@ static void Theme_WeaponRack(int tidx)
 			*pTmp = 1;
 }*/
 
-/**
- * CreateThemeRooms adds thematic elements to rooms.
- */
 void CreateThemeRooms()
 {
 	int i;

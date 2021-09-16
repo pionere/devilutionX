@@ -313,10 +313,6 @@ void nthread_finish()
 	}
 }
 
-/**
- * @brief Checks if it's time for the logic to advance
- * @return True if the engine should tick
- */
 bool nthread_has_50ms_passed()
 {
 	Uint32 currentTickCount;

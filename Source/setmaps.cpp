@@ -144,9 +144,6 @@ static void DRLG_SetMapTrans(const char *sFileName)
 	mem_free_dbg(pMap);
 }
 
-/**
- * @brief Load a 'set' map
- */
 void LoadSetMap()
 {
 	const LevelData *lds = &AllLevels[currLvl._dLevelIdx];

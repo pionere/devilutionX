@@ -150,7 +150,7 @@ static std::ofstream *CaptureFile(std::string *dst_path)
  */
 static void RedPalette()
 {
-	for (int i = 0; i < 255; i++) {
+	for (int i = 0; i < 256; i++) {
 		system_palette[i].g = 0;
 		system_palette[i].b = 0;
 	}
@@ -165,10 +165,6 @@ static void RedPalette()
 	RenderPresent();
 }
 
-/**
- * @brief Save the current screen to a screen??.PCX (00-99) in file if available, then make the screen red for 200ms.
-
- */
 void CaptureScreen()
 {
 	SDL_Color bkp_palette[lengthof(system_palette)];

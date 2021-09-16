@@ -263,10 +263,12 @@ if(ZEROTIER)
 endif()
 
 add_library(smacker STATIC
-  3rdParty/libsmacker/smk_bitstream.c
-  3rdParty/libsmacker/smk_hufftree.c
   3rdParty/libsmacker/smacker.c)
 target_include_directories(smacker PUBLIC 3rdParty/libsmacker)
+
+#if(WIN32)
+#  add_subdirectory(3rdParty/find_steam_game)
+#endif()
 
 add_library(Radon STATIC
   3rdParty/Radon/Radon/source/File.cpp
@@ -443,6 +445,7 @@ if(NINTENDO_SWITCH)
     Source/platform/switch/keyboard.cpp
     Source/platform/switch/docking.cpp
     Source/platform/switch/random.cpp
+    Source/platform/switch/asio/pause.c
     Source/platform/switch/asio/net/if.c
     Source/platform/switch/asio/sys/signal.c)
 endif()
@@ -557,6 +560,10 @@ target_link_libraries(${BIN_TARGET} PRIVATE
   StormLib
   smacker
   Radon)
+
+#if(WIN32)
+#  target_link_libraries(libdevilutionx PUBLIC find_steam_game)
+#endif()
 
 if(NOT NONET)
   target_link_libraries(${BIN_TARGET} PRIVATE sodium)
