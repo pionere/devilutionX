@@ -46,30 +46,23 @@ struct CachedLine {
 	unsigned int palette_version;
 };
 
-SDL_Surface *RenderText(const char *text, SDL_Color color)
-{
-	if (text[0] == '\0')
-		return NULL;
-	SDL_Surface *result = TTF_RenderUTF8_Solid(font, text, color);
-	if (result == NULL)
-		SDL_Log("%s", TTF_GetError());
-	return result;
-}
-
 CachedLine PrepareLine(unsigned index)
 {
 	const char *contents = CREDITS_LINES[index];
 	while (contents[0] == '\t')
 		++contents;
 
-	const SDL_Color shadowColor = { 0, 0, 0, 0 };
-	SDL_Surface *text = RenderText(contents, shadowColor);
-
 	// Precompose shadow and text:
 	SDL_Surface *surface = NULL;
-	if (text != NULL) {
+	if (contents[0] != '\0') {
+		const SDL_Color shadowColor = { 0, 0, 0, 0 };
+		SDL_Surface* text = TTF_RenderUTF8_Solid(font, contents, shadowColor);
+
 		// Set up the target surface to have 3 colors: mask, text, and shadow.
-		surface = SDL_CreateRGBSurfaceWithFormat(0, text->w + ShadowOffsetX, text->h + ShadowOffsetY, 8, SDL_PIXELFORMAT_INDEX8);
+		if (text != NULL)
+			surface = SDL_CreateRGBSurfaceWithFormat(0, text->w + ShadowOffsetX, text->h + ShadowOffsetY, 8, SDL_PIXELFORMAT_INDEX8);
+		else
+			SDL_Log("%s", TTF_GetError());
 		const SDL_Color maskColor = { 0, 255, 0, 0 }; // Any color different from both shadow and text
 		const SDL_Color &textColor = back_palette->colors[224];
 		SDL_Color colors[3] = { maskColor, textColor, shadowColor };
@@ -94,8 +87,8 @@ CachedLine PrepareLine(unsigned index)
 		SDL_Surface *surface_ptr = surface;
 		ScaleSurfaceToOutput(&surface_ptr);
 		surface = surface_ptr;
+		SDL_FreeSurface(text);
 	}
-	SDL_FreeSurface(text);
 	return CachedLine(index, surface);
 }
 
