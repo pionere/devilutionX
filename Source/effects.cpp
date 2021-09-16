@@ -1293,10 +1293,10 @@ void PlayEffect(int mnum, int mode)
 	int sndIdx, lVolume, lPan;
 	TSnd *snd;
 
+	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
 	if (!gbSoundOn || gbLvlLoad != 0)
 		return;
 
-	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
 	mon = &monsters[mnum];
 	snd = mapMonTypes[mon->_mMTidx].cmSnds[mode][sndIdx];
 	if (snd == NULL || snd_playing(snd)) {
