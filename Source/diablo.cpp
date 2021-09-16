@@ -275,8 +275,6 @@ static void diablo_init()
 	UiInitialize();
 	_gbWasUiInit = true;
 
-	ReadOnlyTest();
-
 	diablo_init_screen();
 
 	snd_init();

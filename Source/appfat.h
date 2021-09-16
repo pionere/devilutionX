@@ -22,7 +22,6 @@ void assert_fail(int nLineNo, const char *pszFile, const char *pszFail);
 void ErrDlg(const char *title, const char *error, const char *log_file_path, int log_line_nr);
 //void FileErrDlg(const char *error);
 void InsertCDDlg();
-void DirErrorDlg(const char *error);
 
 #ifdef __cplusplus
 }

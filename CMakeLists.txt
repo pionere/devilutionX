@@ -355,7 +355,6 @@ set(devilutionx_SRCS
   Source/portal.cpp
   Source/questdat.cpp
   Source/quests.cpp
-  Source/restrict.cpp
   Source/scrollrt.cpp
   Source/setmaps.cpp
   Source/sha.cpp

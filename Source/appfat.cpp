@@ -141,17 +141,4 @@ void InsertCDDlg()
 	app_fatal(NULL);
 }
 
-/**
- * @brief Terminates the game with a read-only directory error dialog.
- */
-void DirErrorDlg(const char *error)
-{
-	char text[1024];
-
-	snprintf(text, sizeof(text), "Unable to write to location:\n%s", error);
-
-	UiErrorOkDialog("Read-Only Directory Error", text);
-	app_fatal(NULL);
-}
-
 DEVILUTION_END_NAMESPACE

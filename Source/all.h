@@ -86,7 +86,6 @@
 #include "portal.h"
 #include "questdat.h"
 #include "quests.h"
-#include "restrict.h"
 #include "scrollrt.h"
 #include "setmaps.h"
 #include "sha.h"

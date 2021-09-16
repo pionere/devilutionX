@@ -12,6 +12,7 @@
 #include "all.h"
 #include <config.h>
 #include "utils/paths.h"
+#include "utils/file_util.h"
 #include <SDL.h>
 #include <string>
 #include <fstream>
@@ -136,11 +137,25 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char *f
 }
 #endif
 
+static void ReadOnlyTest()
+{
+	std::string path = GetPrefPath();
+	path += "Diablo1ReadOnlyTest.foo";
+	FILE *f = FileOpen(path.c_str(), "wt");
+	if (f != NULL) {
+		fclose(f);
+		remove(path.c_str());
+	} else {
+		app_fatal("Unable to write to location:\n%s", GetPrefPath());
+	}
+}
+
 void init_archives()
 {
 	init_get_file_info();
 
 	InitializeMpqCryptography();
+	ReadOnlyTest();
 	SFileEnableDirectAccess(getIniBool("devilutionx", "Direct FileAccess", false));
 
 	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
