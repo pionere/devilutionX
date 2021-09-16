@@ -15,6 +15,9 @@
 #include <sys/stat.h>
 #endif
 
+//#if defined(_WIN64) || defined(_WIN32)
+//#include <find_steam_game.h>
+//#endif
 #ifdef __vita__
 // increase default allowed heap size on Vita
 int _newlib_heap_size_user = 100 * 1024 * 1024;
@@ -154,6 +157,13 @@ void init_archives()
 		return;
 
 	HANDLE diabdat_mpqs[NUM_MPQS];
+/*#elif defined(_WIN64) || defined(_WIN32)
+	char gogpath[_FSG_PATH_MAX];
+	fsg_get_gog_game_path(gogpath, "1412601690");
+	if (strlen(gogpath) > 0) {
+		paths.emplace_back(std::string(gogpath) + "/");
+		paths.emplace_back(std::string(gogpath) + "/hellfire/");
+	}*/
 #endif
 	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)

@@ -12,6 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+/**
+ * @brief Load a quest map, the given map is specified via the global setlvlnum
+ */
 void LoadSetMap();
 
 /* rdata */

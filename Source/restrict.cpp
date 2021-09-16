@@ -9,10 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/**
- * @brief Check that we have write access to the game install folder
-
- */
 void ReadOnlyTest()
 {
 	const std::string path = GetPrefPath() + "Diablo1ReadOnlyTest.foo";

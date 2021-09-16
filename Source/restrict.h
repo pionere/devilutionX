@@ -12,6 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+/**
+ * @brief Check that we have write access to the game install folder
+ */
 void ReadOnlyTest();
 
 #ifdef __cplusplus

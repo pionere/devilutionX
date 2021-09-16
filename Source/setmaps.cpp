@@ -136,9 +136,6 @@ static void DRLG_SetMapTrans(const char *sFileName)
 	mem_free_dbg(pLevelMap);
 }
 
-/**
- * @brief Load a quest map, the given map is specified via the global setlvlnum
- */
 void LoadSetMap()
 {
 	switch (setlvlnum) {

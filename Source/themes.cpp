@@ -416,9 +416,6 @@ void InitThemes()
 	}
 }
 
-/**
- * @brief HoldThemeRooms marks theme rooms as populated.
- */
 void HoldThemeRooms()
 {
 	int i, xx, yy;
@@ -973,9 +970,6 @@ static void UpdateL4Trans()
 			*pTmp = 1;
 }
 
-/**
- * CreateThemeRooms adds thematic elements to rooms.
- */
 void CreateThemeRooms()
 {
 	int i;

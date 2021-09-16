@@ -216,10 +216,6 @@ void nthread_ignore_mutex(BOOL bStart)
 	}
 }
 
-/**
- * @brief Checks if it's time for the logic to advance
- * @return True if the engine should tick
- */
 BOOL nthread_has_500ms_passed()
 {
 	DWORD currentTickCount;
