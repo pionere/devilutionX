@@ -313,13 +313,10 @@ SDL_Surface *GetOutputSurface()
 #endif
 }
 
+#ifdef USE_SDL1
 bool OutputRequiresScaling()
 {
-#ifdef USE_SDL1
 	return SCREEN_WIDTH != GetOutputSurface()->w || SCREEN_HEIGHT != GetOutputSurface()->h;
-#else // SDL2, scaling handled by renderer.
-	return false;
-#endif
 }
 
 void ScaleOutputRect(SDL_Rect *rect)
@@ -333,10 +330,7 @@ void ScaleOutputRect(SDL_Rect *rect)
 	rect->h = rect->h * surface->h / SCREEN_HEIGHT;
 }
 
-#ifdef USE_SDL1
-namespace {
-
-SDL_Surface *CreateScaledSurface(SDL_Surface *src)
+static SDL_Surface* CreateScaledSurface(SDL_Surface* src)
 {
 	SDL_Rect stretched_rect = { 0, 0, static_cast<Uint16>(src->w), static_cast<Uint16>(src->h) };
 	ScaleOutputRect(&stretched_rect);
@@ -355,18 +349,14 @@ SDL_Surface *CreateScaledSurface(SDL_Surface *src)
 	return stretched;
 }
 
-} // namespace
-#endif // USE_SDL1
-
 void ScaleSurfaceToOutput(SDL_Surface **surface)
 {
-#ifdef USE_SDL1
 	if (!OutputRequiresScaling())
 		return;
 	SDL_Surface *stretched = CreateScaledSurface(*surface);
 	SDL_FreeSurface((*surface));
 	*surface = stretched;
-#endif
 }
+#endif // USE_SDL1
 
 DEVILUTION_END_NAMESPACE

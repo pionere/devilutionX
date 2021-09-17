@@ -28,6 +28,16 @@ extern unsigned int back_surface_palette_version;
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);
 bool IsFullScreen();
 void SetVideoModeToPrimary(bool fullscreen, int width, int height);
+// Whether the output surface requires software scaling.
+// Always returns false on SDL2.
+bool OutputRequiresScaling();
+// Scales rect if necessary.
+void ScaleOutputRect(SDL_Rect *rect);
+// If the output requires software scaling, replaces the given surface with a scaled one.
+void ScaleSurfaceToOutput(SDL_Surface **surface);
+#else // SDL2, scaling handled by renderer.
+inline void ScaleOutputRect(SDL_Rect *rect) { };
+inline void ScaleSurfaceToOutput(SDL_Surface **surface) { };
 #endif
 
 // Returns:
@@ -35,16 +45,6 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height);
 // SDL2, no upscale: Window surface.
 // SDL2, upscale: Renderer texture surface.
 SDL_Surface *GetOutputSurface();
-
-// Whether the output surface requires software scaling.
-// Always returns false on SDL2.
-bool OutputRequiresScaling();
-
-// Scales rect if necessary.
-void ScaleOutputRect(SDL_Rect *rect);
-
-// If the output requires software scaling, replaces the given surface with a scaled one.
-void ScaleSurfaceToOutput(SDL_Surface **surface);
 
 #ifdef __cplusplus
 }
