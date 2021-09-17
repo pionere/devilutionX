@@ -45,9 +45,9 @@ static int GetRotaryDistance(int x, int y)
 	d1 = myplr._pdir;
 	d2 = GetDirection(myplr._pfutx, myplr._pfuty, x, y);
 
-	d = abs(d1 - d2);
+	d = ((d2 - d1) + NUM_DIRS) & 7;
 	if (d > 4)
-		return 4 - (d % 4);
+		d = NUM_DIRS - d;
 
 	return d;
 }
@@ -780,16 +780,6 @@ static const direction FaceDir[3][3] = {
 	{ DIR_W, DIR_NW, DIR_SW },  // LEFT
 	{ DIR_E, DIR_NE, DIR_SE },  // RIGHT
 };
-static const int Offsets[8][2] = {
-	{ 1, 1 },   // DIR_S
-	{ 0, 1 },   // DIR_SW
-	{ -1, 1 },  // DIR_W
-	{ -1, 0 },  // DIR_NW
-	{ -1, -1 }, // DIR_N
-	{ 0, -1 },  // DIR_NE
-	{ 1, -1 },  // DIR_E
-	{ 1, 0 },   // DIR_SE
-};
 
 /**
  * @brief check if stepping in direction (dir) from x, y is blocked.
@@ -822,14 +812,19 @@ static bool IsPathBlocked(int x, int y, int dir)
 		d1 = DIR_SW;
 		d2 = DIR_NW;
 		break;
-	default:
+	case DIR_SW:
+	case DIR_NW:
+	case DIR_NE:
+	case DIR_SE:
 		return false;
+	default:
+		ASSUME_UNREACHABLE
 	}
 
-	d1x = x + Offsets[d1][0];
-	d1y = y + Offsets[d1][1];
-	d2x = x + Offsets[d2][0];
-	d2y = y + Offsets[d2][1];
+	d1x = x + offset_x[d1];
+	d1y = y + offset_y[d1];
+	d2x = x + offset_x[d2];
+	d2y = y + offset_y[d2];
 
 	if (!nSolidTable[dPiece[d1x][d1y]] && !nSolidTable[dPiece[d2x][d2y]])
 		return false;
@@ -857,15 +852,15 @@ static void WalkInDir(AxisDirection dir)
 	const int x = myplr._pfutx;
 	const int y = myplr._pfuty;
 
-	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE) {
+	const int pdir = FaceDir[dir.x][dir.y];
+	if (pdir == DIR_NONE) {
 		if (sgbControllerActive && myplr.walkpath[0] != DIR_NONE && myplr.destAction == ACTION_NONE)
 			NetSendCmdLoc(CMD_WALKXY, x, y); // Stop walking
 		return;
 	}
 
-	const int pdir = FaceDir[static_cast<unsigned>(dir.x)][static_cast<unsigned>(dir.y)];
-	const int dx = x + Offsets[pdir][0];
-	const int dy = y + Offsets[pdir][1];
+	const int dx = x + offset_x[pdir];
+	const int dy = y + offset_y[pdir];
 	if (CanChangeDirection())
 		myplr._pdir = pdir;
 
@@ -1208,8 +1203,8 @@ static void UpdateSpellTarget()
 	if (myplr._pAltMoveSkill == SPL_TELEPORT)
 		range = 4;
 
-	cursmx = player._pfutx + Offsets[player._pdir][0] * range;
-	cursmy = player._pfuty + Offsets[player._pdir][1] * range;
+	cursmx = player._pfutx + offset_x[player._pdir] * range;
+	cursmy = player._pfuty + offset_y[player._pdir] * range;
 }
 
 /**
