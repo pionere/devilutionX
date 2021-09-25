@@ -2859,7 +2859,6 @@ void ProcessPlayers()
 					break;
 				case PM_WALK:
 				case PM_WALK2:
-				case PM_WALK3:
 					raflag = PlrDoWalk(pnum);
 					break;
 				case PM_ATTACK:
@@ -2993,7 +2992,6 @@ void SyncPlrAnim(int pnum)
 		break;
 	case PM_WALK:
 	case PM_WALK2:
-	case PM_WALK3:
 		anim = p->_pWAnim;
 		aType = PA_WALK;
 		break;

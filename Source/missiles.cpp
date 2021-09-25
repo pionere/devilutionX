@@ -1068,9 +1068,8 @@ static int CheckMonCol(int mnum, int mx, int my)
 
 	mon = &monsters[mnum];
 	mode = mon->_mmode;
-	static_assert(MM_WALK3 - MM_WALK == 2, "CheckMonCol expects ordered MM_WALKs I.");
-	static_assert(MM_WALK + 1 == MM_WALK2, "CheckMonCol expects ordered MM_WALKs II.");
-	if (mode > MM_WALK3 || mode < MM_WALK)
+	static_assert(MM_WALK + 1 == MM_WALK2, "CheckMonCol expects ordered MM_WALKs.");
+	if (mode > MM_WALK2 || mode < MM_WALK)
 		return (negate || mode == MM_STONE) ? mnum : -1;
 	halfOver = mon->_mAnimFrame > (mon->_mAnims[MA_WALK].aFrames >> 1);
 	if (mode == MM_WALK) {
@@ -1078,17 +1077,10 @@ static int CheckMonCol(int mnum, int mx, int my)
 			halfOver = !halfOver;
 		return halfOver ? mnum : -1;
 	}
-	if (mode == MM_WALK2) {
-		if (negate)
-			halfOver = !halfOver;
-		return halfOver ? -1 : mnum;
-	}
-	assert(!negate);
-	if (halfOver) {
-		return (mon->_mfutx == mx && mon->_mfuty == my) ? mnum : -1;
-	} else {
-		return (mon->_mx == mx && mon->_my == my) ? mnum : -1;
-	}
+	// assert(mode == MM_WALK2);
+	if (negate)
+		halfOver = !halfOver;
+	return halfOver ? -1 : mnum;
 }
 
 static int CheckPlrCol(int pnum, int mx, int my)
@@ -1105,9 +1097,8 @@ static int CheckPlrCol(int pnum, int mx, int my)
 		negate = false;
 	}
 	mode = plr._pmode;
-	static_assert(PM_WALK3 - PM_WALK == 2, "CheckPlrCol expects ordered PM_WALKs I.");
-	static_assert(PM_WALK + 1 == PM_WALK2, "CheckPlrCol expects ordered PM_WALKs II.");
-	if (mode > PM_WALK3 || mode < PM_WALK)
+	static_assert(PM_WALK + 1 == PM_WALK2, "CheckPlrCol expects ordered PM_WALKs.");
+	if (mode > PM_WALK2 || mode < PM_WALK)
 		return negate ? pnum : -1;
 	halfOver = plr._pAnimFrame >= (plr._pWFrames >> 1);
 	if (mode == PM_WALK) {
@@ -1115,17 +1106,10 @@ static int CheckPlrCol(int pnum, int mx, int my)
 			halfOver = !halfOver;
 		return halfOver ? pnum : -1;
 	}
-	if (mode == PM_WALK2) {
-		if (negate)
-			halfOver = !halfOver;
-		return halfOver ? -1 : pnum;
-	}
-	assert(!negate);
-	if (halfOver) {
-		return (plr._pfutx == mx && plr._pfuty == my) ? pnum : -1;
-	} else {
-		return (plr._px == mx && plr._py == my) ? pnum : -1;
-	}
+	// assert(mode == PM_WALK2);
+	if (negate)
+		halfOver = !halfOver;
+	return halfOver ? -1 : pnum;
 }
 
 static bool CheckMissileCol(int mi, int mx, int my, bool nodel)

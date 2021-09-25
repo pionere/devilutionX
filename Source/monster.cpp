@@ -32,7 +32,7 @@ int uniquetrans;
 #define MON_LIGHTRAD 3
 
 /** Check if the monster just finished a WALK (STAND_PREV_MODE, STAND_TICK)*/
-#define MON_JUST_WALKED ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3) && mon->_mVar2 == 0)
+#define MON_JUST_WALKED ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2) && mon->_mVar2 == 0)
 
 /** Maps from walking path step to facing direction. */
 //const char walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
@@ -3609,7 +3609,7 @@ void MAI_Golem(int mnum)
 	assert(!MINION_INACTIVE(mon));
 	if (mon->_mmode != MM_STAND) {
 		//assert(mon->_mmode == MM_DEATH || mon->_mmode == MM_SPSTAND
-		// || mon->_mmode == MM_ATTACK || (mon->_mmode >= MM_WALK && mon->_mmode <= MM_WALK3));
+		// || mon->_mmode == MM_ATTACK || mon->_mmode == MM_WALK || mon->_mmode == MM_WALK2);
 		return;
 	}
 
@@ -4260,7 +4260,6 @@ void ProcessMonsters()
 				break;
 			case MM_WALK:
 			case MM_WALK2:
-			case MM_WALK3:
 				raflag = MonDoWalk(mnum);
 				break;
 			case MM_ATTACK:
@@ -4608,7 +4607,6 @@ void SyncMonsterAnim(int mnum)
 	switch (mon->_mmode) {
 	case MM_WALK:
 	case MM_WALK2:
-	case MM_WALK3:
 		anim = MA_WALK;
 		break;
 	case MM_ATTACK:

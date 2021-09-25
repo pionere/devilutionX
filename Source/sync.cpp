@@ -217,7 +217,7 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 	decode_enemy(mnum, symon->_menemy);
 
 	if (abs(mon->_mx - symon->_mx) <= 2 && abs(mon->_my - symon->_my) <= 2) {
-		if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK3) {
+		if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2) {
 			md = GetDirection(mon->_mx, mon->_my, symon->_mx, symon->_my);
 			if (DirOK(mnum, md)) {
 				RemoveMonFromMap(mnum);

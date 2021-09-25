@@ -445,17 +445,8 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	int x, y;
 
 	p = &plr;
-	if (p->_pmode == PM_WALK3) {
-		px = p->_pfutx;
-		py = p->_pfuty;
-		if (p->_pdir == DIR_W)
-			px++;
-		else
-			py++;
-	} else {
-		px = p->_px;
-		py = p->_py;
-	}
+	px = p->_px;
+	py = p->_py;
 	px -= 2 * AutoMapXOfs + ViewX;
 	py -= 2 * AutoMapYOfs + ViewY;
 
