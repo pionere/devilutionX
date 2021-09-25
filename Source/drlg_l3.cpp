@@ -670,7 +670,7 @@ const BYTE L6HORZWALLFIX2[] = {
 	131, 121, 123,
 	// clang-format on
 };
-const BYTE L6SPOOL1[] = {
+const BYTE L6SPOOLBASE[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -685,22 +685,62 @@ const BYTE L6SPOOL1[] = {
 	7,   7,   7, 7,
 	// clang-format on
 };
-const BYTE L6SPOOL2[] = {
-	// clang-format off
-	4, 4, // width, height
+const BYTE L6SPOOL1[] = {
+	// clang-format off +
+	2, 2, // width, height
 
-	7, 7, 7, 7, // search
-	7, 7, 7, 7,
-	7, 7, 7, 7,
-	7, 7, 7, 7,
+	107, 115, // search
+	131, 123,
 
-	7,   7,   7, 7, // replace
-	7,   7, 108, 7,
-	7, 109, 112, 7,
-	7,   7,   7, 7,
+	113, 114, // replace
+	111, 112,
 	// clang-format on
 };
-const BYTE L6LPOOL1[] = {
+const BYTE L6SPOOL2[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	107, 115, // search
+	131, 123,
+
+	113, 115, // replace
+	131, 123,
+	// clang-format on
+};
+const BYTE L6SPOOL3[] = {
+	// clang-format off  +
+	2, 2, // width, height
+
+	107, 115, // search
+	131, 123,
+
+	  7, 108, // replace
+	109, 112,
+	// clang-format on
+};	
+const BYTE L6SPOOL4[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	107, 115, // search
+	131, 123,
+
+	110, 126, // replace
+	  7, 124,
+	// clang-format on
+};
+const BYTE L6SPOOL5[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	107, 115, // search
+	131, 123,
+
+	110, 124, // replace
+	126,   7,
+	// clang-format on
+};
+const BYTE L6VERTLPOOLBASE[] = {
 	// clang-format off
 	4, 5, // width, height
 
@@ -717,21 +757,245 @@ const BYTE L6LPOOL1[] = {
 	7,   7,   7, 7,
 	// clang-format on
 };
-const BYTE L6LPOOL2[] = {
+const BYTE L6VERTLPOOL1[] = {
+	// clang-format off +
+	2, 3, // width, height
+
+	107, 115, // search
+	119, 122,
+	131, 123,
+
+	107, 114, // replace
+	119, 123,
+	111, 110,
+	// clang-format on
+};
+const BYTE L6VERTLPOOL2[] = {
+	// clang-format off +
+	2, 3, // width, height
+
+	107, 115, // search
+	119, 122,
+	131, 123,
+
+	109, 114, // replace
+	113, 112,
+	111, 110,
+	// clang-format on
+};
+const BYTE L6VERTLPOOL3[] = {
+	// clang-format off   +
+	2, 3, // width, height
+
+	107, 115, // search
+	119, 122,
+	131, 123,
+
+	126, 108, // replace
+	  7, 117,
+	109, 112,
+	// clang-format on
+};
+const BYTE L6VERTLPOOL4[] = {
+	// clang-format off  +
+	2, 3, // width, height
+
+	107, 115, // search
+	119, 122,
+	131, 123,
+
+	108,   7, // replace
+	111, 115,
+	109, 123,
+	// clang-format on
+};
+const BYTE L6VERTLPOOL5[] = {
+	// clang-format off  +
+	2, 3, // width, height
+
+	107, 115, // search
+	119, 122,
+	131, 123,
+
+	108,   7, // replace
+	106, 108,
+	111, 112,
+	// clang-format on
+};
+const BYTE L6VERTLPOOL6[] = {
+	// clang-format off   +
+	2, 3, // width, height
+
+	107, 115, // search
+	119, 122,
+	131, 123,
+
+	  7, 108, // replace
+	113, 122,
+	111, 112,
+	// clang-format on
+};
+const BYTE L6VERTLPOOL7[] = {
 	// clang-format off
-	4, 5, // width, height
+	2, 3, // width, height
 
-	7, 7, 7, 7, // search
-	7, 7, 7, 7,
-	7, 7, 7, 7,
-	7, 7, 7, 7,
-	7, 7, 7, 7,
+	107, 115, // search
+	119, 122,
+	131, 123,
 
-	7,   7,   7, 7, // replace
-	7, 126, 108, 7,
-	7,   7, 117, 7,
-	7, 109, 112, 7,
-	7,   7,   7, 7,
+	113, 114, // replace
+	131, 123,
+	  7, 124,
+	// clang-format on
+};
+const BYTE L6HORZLPOOLBASE[] = {
+	// clang-format off
+	5, 4, // width, height
+
+	7, 7, 7, 7, 7, // search
+	7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7,
+
+	7,   7,   7,   7, 7, // replace
+	7, 107, 120, 115, 7,
+	7, 131, 121, 123, 7,
+	7,   7,   7,   7, 7,
+	// clang-format on
+};
+const BYTE L6HORZLPOOL1[] = {
+	// clang-format off
+	3, 2, // width, height
+
+	107, 120, 115, // search
+	131, 121, 123,
+
+	107, 104, 115, // replace
+	111, 116, 123,
+	// clang-format on
+};
+const BYTE L6HORZLPOOL2[] = {
+	// clang-format off
+	3, 2, // width, height
+
+	107, 120, 115, // search
+	131, 121, 123,
+
+	108, 109, 115, // replace
+	111, 116, 112,
+	// clang-format on
+};
+const BYTE L6HORZLPOOL3[] = {
+	// clang-format off
+	3, 2, // width, height
+
+	107, 120, 115, // search
+	131, 121, 123,
+
+	113, 116, 114, // replace
+	111, 104, 123,
+	// clang-format on
+};
+const BYTE L6HORZLPOOL4[] = {
+	// clang-format off
+	3, 2, // width, height
+
+	107, 120, 115, // search
+	131, 121, 123,
+
+	113, 104, 114, // replace
+	111, 104, 112,
+	// clang-format on
+};
+const BYTE L6HORZLPOOL5[] = {
+	// clang-format off
+	3, 2, // width, height
+
+	107, 120, 115, // search
+	131, 121, 123,
+
+	107, 116, 114, // replace
+	131, 104, 112,
+	// clang-format on
+};
+const BYTE L6HORZLPOOL6[] = {
+	// clang-format off
+	3, 2, // width, height
+
+	107, 120, 115, // search
+	131, 121, 123,
+
+	110, 107, 115, // replace
+	109, 121, 123,
+	// clang-format on
+};
+const BYTE L6HORZLPOOL7[] = {
+	// clang-format off
+	3, 2, // width, height
+
+	107, 120, 115, // search
+	131, 121, 123,
+
+	113, 114, 126, // replace
+	111, 123, 110,
+	// clang-format on
+};
+const BYTE L6WALLSPOOL1[] = {
+	// clang-format off +
+	4, 3, // width, height
+
+	0, 10,  0, 0, // search
+	7,  7,  7, 7,
+	7,  7,  7, 7,
+
+	0, 136,   0, 0, // replace
+	0, 111, 110, 0,
+	0,   0,   0, 0,
+	// clang-format on
+};
+const BYTE L6WALLLPOOL1[] = {
+	// clang-format off
+	4, 4, // width, height
+
+	0, 10,  0, 0, // search
+	7,  7,  7, 7,
+	7,  7,  7, 7,
+	7,  7,  7, 7,
+
+	0, 136,   0, 0, // replace
+	0, 105,   0, 0,
+	0, 111, 110, 0,
+	0,   0,   0, 0,
+	// clang-format on
+};
+const BYTE L6WALLSPOOL2[] = {
+	// clang-format off
+	3, 4, // width, height
+
+	0, 7, 7, // search
+	0, 7, 7,
+	9, 7, 7,
+	0, 7, 7,
+
+	  0,   0, 0, // replace
+	  0, 108, 0,
+	135, 112, 0,
+	  0,   0, 0,
+	// clang-format on
+};
+const BYTE L6WALLLPOOL2[] = {
+	// clang-format off
+	4, 4, // width, height
+
+	0, 7, 7, 7, // search
+	0, 7, 7, 7,
+	9, 7, 7, 7,
+	0, 7, 7, 7,
+
+	  0,   0,   0, 0, // replace
+	  0, 109, 115, 0,
+	135, 104, 123, 0, // 103/104
+	  0,   0,   0, 0,
 	// clang-format on
 };
 #endif
@@ -1571,7 +1835,7 @@ static void DRLG_L6PlaceRndPool(const BYTE *miniset, int rndper)
 		}
 	}
 
-	_guLavapools += placed ? 1 : 0;
+	_guLavapools += placed ? 2 : 0;
 }
 #endif
 
@@ -2074,10 +2338,9 @@ static void DRLG_L3(int entry)
 		_guLavapools = 0;
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_NEST) {
-			DRLG_L6PlaceRndPool(L6LPOOL1, 30);
-			DRLG_L6PlaceRndPool(L6LPOOL2, 40);
-			DRLG_L6PlaceRndPool(L6SPOOL1, 50);
-			DRLG_L6PlaceRndPool(L6SPOOL2, 60);
+			DRLG_L6PlaceRndPool(L6VERTLPOOLBASE, 30);
+			DRLG_L6PlaceRndPool(L6HORZLPOOLBASE, 40);
+			DRLG_L6PlaceRndPool(L6SPOOLBASE, 80);
 		} else
 #endif
 		{
@@ -2114,6 +2377,10 @@ static void DRLG_L3(int entry)
 		DRLG_PlaceRndTile(8, 27, 20);
 		/** Miniset: Use random external connection 4. */
 		DRLG_PlaceRndTile(8, 28, 20);
+		DRLG_L3PlaceRndSet(L6WALLLPOOL1, 10);
+		DRLG_L3PlaceRndSet(L6WALLLPOOL2, 10);
+		DRLG_L3PlaceRndSet(L6WALLSPOOL1, 10);
+		DRLG_L3PlaceRndSet(L6WALLSPOOL2, 10);
 		DRLG_L3PlaceRndSet(L6MITE1, 10);
 		DRLG_L3PlaceRndSet(L6MITE2, 15);
 		DRLG_L3PlaceRndSet(L6MITE3, 20);
@@ -2126,6 +2393,25 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(L6MITE10, 60);
 		DRLG_L3PlaceRndSet(L6PATCH1, 50);
 		DRLG_L3PlaceRndSet(L6PATCH2, 90);
+		DRLG_L3PlaceRndSet(L6VERTLPOOL1, 10);
+		DRLG_L3PlaceRndSet(L6VERTLPOOL2, 15);
+		DRLG_L3PlaceRndSet(L6VERTLPOOL3, 15);
+		DRLG_L3PlaceRndSet(L6VERTLPOOL4, 20);
+		DRLG_L3PlaceRndSet(L6VERTLPOOL5, 25);
+		DRLG_L3PlaceRndSet(L6VERTLPOOL6, 30);
+		DRLG_L3PlaceRndSet(L6VERTLPOOL7, 50);
+		DRLG_L3PlaceRndSet(L6HORZLPOOL1, 10);
+		DRLG_L3PlaceRndSet(L6HORZLPOOL2, 15);
+		DRLG_L3PlaceRndSet(L6HORZLPOOL3, 15);
+		DRLG_L3PlaceRndSet(L6HORZLPOOL4, 20);
+		DRLG_L3PlaceRndSet(L6HORZLPOOL5, 25);
+		DRLG_L3PlaceRndSet(L6HORZLPOOL6, 30);
+		DRLG_L3PlaceRndSet(L6HORZLPOOL7, 50);
+		DRLG_L3PlaceRndSet(L6SPOOL1, 15);
+		DRLG_L3PlaceRndSet(L6SPOOL2, 20);
+		DRLG_L3PlaceRndSet(L6SPOOL3, 25);
+		DRLG_L3PlaceRndSet(L6SPOOL4, 30);
+		DRLG_L3PlaceRndSet(L6SPOOL5, 50);
 		/** Miniset: Use random floor tile 1. */
 		DRLG_PlaceRndTile(7, 29, 25);
 		/** Miniset: Use random floor tile 2. */
@@ -2146,7 +2432,7 @@ static void DRLG_L3(int entry)
 		DRLG_PlaceRndTile(9, 37, 25);
 		/** Miniset: Use random horizontal wall tile 1. */
 		DRLG_PlaceRndTile(10, 39, 25);
-		/** Miniset: Use random horizontal wall tile 2. but 40 is a north-corner... */
+		/** Miniset: Use random horizontal wall tile 2. */
 		DRLG_PlaceRndTile(10, 40, 25);
 		/** Miniset: Use random horizontal wall tile 3. */
 		DRLG_PlaceRndTile(10, 41, 25);
@@ -2154,11 +2440,11 @@ static void DRLG_L3(int entry)
 		DRLG_PlaceRndTile(10, 42, 25);
 		/** Miniset: Use random horizontal wall tile 5. */
 		DRLG_PlaceRndTile(10, 43, 25);
-		/** Miniset: Use random vertical wall tile 6. but 45 is a north-corner... */
+		/** Miniset: Use random vertical wall tile 6. */
 		DRLG_PlaceRndTile(9, 45, 25);
 		/** Miniset: Use random vertical wall tile 7. */
 		DRLG_PlaceRndTile(9, 46, 25);
-		/** Miniset: Use random horizontal wall tile 6. but 47 is blocked */
+		/** Miniset: Use random horizontal wall tile 6. */
 		DRLG_PlaceRndTile(10, 47, 25);
 		/** Miniset: Use random horizontal wall tile 7. */
 		DRLG_PlaceRndTile(10, 48, 25);
