@@ -1500,6 +1500,7 @@ const BYTE PANCREAS2[] = {
 	L2_DOOR_BORDER_ROOM = 8,
 };*/
 const BYTE Patterns[][16] = {
+	// clang-format off
 	// bad/obsolete { 0, 7, 0, 0, 1, 0, 0, 3, 0, 2 }, // { 0, 5, 0, 0, 1, 0, 0, 7, 0, 1 },
 	// bad/obsolete { 0, 3, 0, 0, 1, 0, 0, 7, 0, 2 }, // { 0, 7, 0, 0, 1, 0, 0, 5, 0, 1 },
 /* 0*/	{ 0, 7, 0, 0, 1, 0, 0, 7, 0, 2 }, // horizontal wall (on top)
@@ -1590,9 +1591,10 @@ const BYTE Patterns[][16] = {
 	//{ 0, 0, 0, 1, 3, 1, 0, 0, 0, 5 }, // horizontal door
 	//{ 0, 0, 0, 0, 2, 0, 0, 0, 0, 3 }, // room
 	//{ 0, 0, 0, 0, 4, 0, 0, 0, 0, 12 }, // void
+	// clang-format on
 };
 
-static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
+static void DRLG_L2PlaceRndSet(const BYTE* miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
 	bool found;
@@ -1706,7 +1708,7 @@ static void DRLG_L2Subs()
 
 static void DRLG_L2Shadows()
 {
-	const ShadowStruct *ss;
+	const ShadowStruct* ss;
 	int x, y;
 	ShadowPattern sdp;
 
@@ -1746,45 +1748,27 @@ static void DRLG_LoadL2SP()
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
 		// 'patch' the map to place shadows
 		// NE-wall
-		assert(pSetPiece[(2 + 1 + 0 * 7) * 2] == 0);
 		pSetPiece[(2 + 1 + 0 * 7) * 2] = 49;
-		assert(pSetPiece[(2 + 2 + 0 * 7) * 2] == 0);
 		pSetPiece[(2 + 2 + 0 * 7) * 2] = 46;
-		assert(pSetPiece[(2 + 3 + 0 * 7) * 2] == 0);
 		pSetPiece[(2 + 3 + 0 * 7) * 2] = 49;
-		assert(pSetPiece[(2 + 4 + 0 * 7) * 2] == 0);
 		pSetPiece[(2 + 4 + 0 * 7) * 2] = 46;
 		// SW-wall
-		assert(pSetPiece[(2 + 1 + 4 * 7) * 2] == 0);
 		pSetPiece[(2 + 1 + 4 * 7) * 2] = 49;
-		assert(pSetPiece[(2 + 2 + 4 * 7) * 2] == 76);
 		pSetPiece[(2 + 2 + 4 * 7) * 2] = 46;
-		assert(pSetPiece[(2 + 3 + 4 * 7) * 2] == 0);
 		pSetPiece[(2 + 3 + 4 * 7) * 2] = 49;
-		assert(pSetPiece[(2 + 4 + 4 * 7) * 2] == 0);
 		pSetPiece[(2 + 4 + 4 * 7) * 2] = 46;
 		// NW-wall
-		assert(pSetPiece[(2 + 0 + 0 * 7) * 2] == 3);
 		pSetPiece[(2 + 0 + 0 * 7) * 2] = 48;
-		assert(pSetPiece[(2 + 0 + 1 * 7) * 2] == 0);
 		pSetPiece[(2 + 0 + 1 * 7) * 2] = 51;
-		assert(pSetPiece[(2 + 0 + 2 * 7) * 2] == 0);
 		pSetPiece[(2 + 0 + 2 * 7) * 2] = 47;
-		assert(pSetPiece[(2 + 0 + 3 * 7) * 2] == 0);
 		pSetPiece[(2 + 0 + 3 * 7) * 2] = 51;
-		assert(pSetPiece[(2 + 0 + 4 * 7) * 2] == 0);
 		pSetPiece[(2 + 0 + 4 * 7) * 2] = 47;
-		assert(pSetPiece[(2 + 0 + 5 * 7) * 2] == 0);
 		pSetPiece[(2 + 0 + 5 * 7) * 2] = 50;
 		// SE-wall
-		assert(pSetPiece[(2 + 4 + 1 * 7) * 2] == 0);
 		pSetPiece[(2 + 4 + 1 * 7) * 2] = 51;
-		assert(pSetPiece[(2 + 4 + 2 * 7) * 2] == 0);
 		pSetPiece[(2 + 4 + 2 * 7) * 2] = 47;
-		assert(pSetPiece[(2 + 4 + 3 * 7) * 2] == 0);
 		pSetPiece[(2 + 4 + 3 * 7) * 2] = 50; // 51;
 		// commented out because there is no matching shadow type
-		//assert(pSetPiece[(2 + 4 + 5 * 7) * 2] == 0);
 		//pSetPiece[(2 + 4 + 5 * 7) * 2] = 47;
 	}
 }
@@ -1797,7 +1781,7 @@ static void DRLG_FreeL2SP()
 static void DRLG_L2SetRoom(int rx1, int ry1)
 {
 	int rw, rh, i, j;
-	BYTE *sp;
+	BYTE* sp;
 
 	rw = pSetPiece[0];
 	rh = pSetPiece[2];
@@ -2452,7 +2436,7 @@ static void L2TileFix()
 static int DL2_NumNoChar()
 {
 	int i, rv;
-	BYTE *pTmp;
+	BYTE* pTmp;
 
 	rv = 0;
 	static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DL2_NumNoChar.");
@@ -3339,6 +3323,8 @@ void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)
 	for (j = y1; j <= y2; j++) {
 		for (i = x1; i <= x2; i++) {
 			pn = dPiece[i][j];
+			// 132 is L-arch
+			// 135 and 139 are R-arch
 			if (pn == 132) {
 				dSpecial[i][j + 1] = 2;
 				dSpecial[i][j + 2] = 1;
@@ -3355,13 +3341,11 @@ static void DRLG_L2SetMapFix()
 	// this logic should not be applied to 'proper' set-levels.
 	assert(currLvl._dLevelIdx == SL_BONECHAMB);
 	// 'patch' the map to remove shadows
-	assert(dungeon[12][5] == 141);
 	dungeon[12][5] = 33;
-	assert(dungeon[12][13] == 141);
 	dungeon[12][13] = 84;
 }
 
-static BYTE *LoadL2DungeonData(const char *sFileName)
+static BYTE* LoadL2DungeonData(const char* sFileName)
 {
 	int i, j;
 	BYTE* pMap;
@@ -3374,7 +3358,7 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L2 + 1, sizeof(dungeon));
 
-	lm = (uint16_t *)pMap;
+	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);
@@ -3395,9 +3379,9 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 	return pMap;
 }
 
-void LoadL2Dungeon(const char *sFileName, int vx, int vy)
+void LoadL2Dungeon(const char* sFileName, int vx, int vy)
 {
-	BYTE *pMap;
+	BYTE* pMap;
 
 	ViewX = vx;
 	ViewY = vy;
@@ -3417,9 +3401,9 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 	mem_free_dbg(pMap);
 }
 
-void LoadPreL2Dungeon(const char *sFileName)
+void LoadPreL2Dungeon(const char* sFileName)
 {
-	BYTE *pMap = LoadL2DungeonData(sFileName);
+	BYTE* pMap = LoadL2DungeonData(sFileName);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
