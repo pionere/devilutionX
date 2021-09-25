@@ -17,12 +17,11 @@ int sfxdnum;
 const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] = { };
 #else
 /** Specifies the sound file and the playback state of the current sound effect. */
-static TSFX *sgpStreamSFX = NULL;
+static TSFX* sgpStreamSFX = NULL;
 
 /** Maps from monster sfx to monster sound letter. */
 static const char MonstSndChar[NUM_MON_SFX] = { 'a', 'h', 'd', 's' };
 
-/* data */
 /** List of all sounds, except monsters and music */
 TSFX sgSFX[] = {
 	// clang-format off
@@ -1059,6 +1058,7 @@ TSFX sgSFX[] = {
 };
 
 const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
+	// clang-format off
 #ifdef HELLFIRE
 	{ sfx_WARRIOR, sfx_ROGUE, sfx_SORCERER, sfx_MONK, sfx_ROGUE, sfx_WARRIOR },
 	{ PS_WARR1,  PS_ROGUE1,  PS_MAGE1,  PS_MONK1,  PS_ROGUE1,  PS_WARR1  },
@@ -1144,11 +1144,12 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 	{ PS_WARR98, PS_ROGUE98, PS_MAGE98 },
 	{ PS_WARR99, PS_ROGUE99, PS_MAGE99 },
 #endif
+	// clang-format on
 };
 
 bool effect_is_playing(int nSFX)
 {
-	TSFX *sfx = &sgSFX[nSFX];
+	TSFX* sfx = &sgSFX[nSFX];
 
 	if (sfx->bFlags & sfx_STREAM)
 		return sfx == sgpStreamSFX;
@@ -1164,7 +1165,7 @@ void stream_stop()
 	}
 }
 
-static void stream_play(TSFX *pSFX, int lVolume, int lPan)
+static void stream_play(TSFX* pSFX, int lVolume, int lPan)
 {
 	// assert(pSFX != NULL);
 	// assert(pSFX->bFlags & sfx_STREAM);
@@ -1194,8 +1195,8 @@ void InitMonsterSND(int midx)
 {
 	char name[MAX_PATH];
 	int i, n, j;
-	MapMonData *cmon;
-	const MonsterData *mdata;
+	MapMonData* cmon;
+	const MonsterData* mdata;
 	const MonFileData* mfdata;
 
 	assert(gbSndInited);
@@ -1215,9 +1216,9 @@ void InitMonsterSND(int midx)
 
 void FreeMonsterSnd()
 {
-	MapMonData *cmon;
+	MapMonData* cmon;
 	int i, j, k;
-	TSnd *pSnd;
+	TSnd* pSnd;
 
 	cmon = mapMonTypes;
 	for (i = 0; i < nummtypes; i++, cmon++) {
@@ -1233,7 +1234,7 @@ void FreeMonsterSnd()
 	}
 }
 
-static bool calc_snd_position(int x, int y, int *plVolume, int *plPan)
+static bool calc_snd_position(int x, int y, int* plVolume, int* plPan)
 {
 	int pan, volume;
 
@@ -1258,7 +1259,7 @@ static bool calc_snd_position(int x, int y, int *plVolume, int *plPan)
 	return true;
 }
 
-static void PlaySFX_priv(TSFX *pSFX, bool loc, int x, int y)
+static void PlaySFX_priv(TSFX* pSFX, bool loc, int x, int y)
 {
 	int lPan, lVolume;
 
@@ -1289,9 +1290,9 @@ static void PlaySFX_priv(TSFX *pSFX, bool loc, int x, int y)
 
 void PlayEffect(int mnum, int mode)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int sndIdx, lVolume, lPan;
-	TSnd *snd;
+	TSnd* snd;
 
 	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
 	if (!gbSoundOn || gbLvlLoad != 0)
@@ -1318,7 +1319,7 @@ void PlaySFX(int psfx, int rndCnt)
 
 void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
 {
-	TSnd *pSnd;
+	TSnd* pSnd;
 
 	if (rndCnt != 1)
 		psfx += random_(165, rndCnt);
@@ -1407,7 +1408,7 @@ void ui_sound_init()
 	priv_sound_init(sfx_UI);
 }
 
-void effects_play_sound(const char *snd_file)
+void effects_play_sound(const char* snd_file)
 {
 	int i;
 
