@@ -6,7 +6,9 @@ AllowShortFunctionsOnASingleLine: InlineOnly
 AlignConsecutiveMacros: AcrossComments
 AlignEscapedNewlines: Right
 AlignTrailingComments: true
-SpacesInLineCommentPrefix: Minimum: 1 Maximum: -1
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
 PointerAlignment: Left
 ReferenceAlignment: Right
 SpaceAfterCStyleCast: false
