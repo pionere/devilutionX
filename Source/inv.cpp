@@ -13,8 +13,8 @@ BYTE gbTSpell;   // the spell to cast after the target is selected
 char gbTSplFrom; // the source of the spell after the target is selected
 char gbOilFrom;
 
-BYTE *pInvCels;
-BYTE *pBeltCels;
+BYTE* pInvCels;
+BYTE* pBeltCels;
 
 /**
  * Maps from inventory slot to screen position. The inventory slots are
@@ -186,7 +186,7 @@ const BYTE InvSlotTbl[] = {
 	SLOT_BELT,
 	SLOT_BELT,
 	SLOT_BELT,
-	SLOT_BELT 
+	SLOT_BELT
 	// clang-format on
 };
 
@@ -208,7 +208,7 @@ void InitInv()
 
 static void InvDrawSlotBack(int X, int Y, int W, int H)
 {
-	BYTE *dst;
+	BYTE* dst;
 
 	assert(gpBuffer != NULL);
 
@@ -237,7 +237,7 @@ void DrawInv()
 {
 	ItemStruct *is, *pi;
 	int pnum, frame, frame_width, screen_x, screen_y, i;
-	BYTE *cCels;
+	BYTE* cCels;
 
 	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pInvCels, 1, SPANEL_WIDTH);
 
@@ -389,7 +389,7 @@ void DrawInvBelt()
 	ItemStruct *is, *pi;
 	int pnum, i, frame, frame_width, screen_x, screen_y;
 	BYTE fi, ff;
-	BYTE *cCels;
+	BYTE* cCels;
 
 	CelDraw(SCREEN_X + InvRect[SLOTXY_BELT_FIRST].X - 1, SCREEN_Y + SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1, 60);
 
@@ -432,8 +432,8 @@ void DrawInvBelt()
  * @param sy the height of the item
  * @param is the item to place, if NULL the item wont be added to the inventory
  * @return TRUE if the item fits
-*/
-static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct *is)
+ */
+static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct* is)
 {
 	ItemStruct* pi;
 	int i, j, xx, it;
@@ -473,9 +473,9 @@ static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct *is)
 	return done;
 }
 
-static bool GoldAutoPlace(int pnum, ItemStruct *is)
+static bool GoldAutoPlace(int pnum, ItemStruct* is)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	int free, value, done;
 
 	value = is->_ivalue;
@@ -528,12 +528,12 @@ static bool GoldAutoPlace(int pnum, ItemStruct *is)
 }
 
 /* commented out because _pmode might be out of sync in multiplayer games
-bool WeaponAutoPlace(int pnum, ItemStruct *is, bool saveflag)
+bool WeaponAutoPlace(int pnum, ItemStruct* is, bool saveflag)
 {
 	if (!is->_iStatFlag || is->_iClass != ICLASS_WEAPON)
 		return false;
 
-	if (plr._pmode > PM_WALK3)
+	if (plr._pmode > PM_WALK2)
 		return false;
 
 	if ((plr._pgfxnum & 0xF) != ANIM_ID_UNARMED && (plr._pgfxnum & 0xF) != ANIM_ID_UNARMED_SHIELD)
@@ -586,7 +586,7 @@ bool WeaponAutoPlace(int pnum, ItemStruct *is, bool saveflag)
 	return false;
 }*/
 
-bool AutoPlaceBelt(int pnum, ItemStruct *is, bool saveflag)
+bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 {
 	int i;
 
@@ -606,9 +606,9 @@ bool AutoPlaceBelt(int pnum, ItemStruct *is, bool saveflag)
 	return false;
 }
 
-bool AutoPlaceInv(int pnum, ItemStruct *is, bool saveflag)
+bool AutoPlaceInv(int pnum, ItemStruct* is, bool saveflag)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	int i, w, h;
 
 	i = is->_iCurs + CURSOR_FIRSTITEM;
@@ -643,7 +643,7 @@ bool AutoPlaceInv(int pnum, ItemStruct *is, bool saveflag)
 	return false;
 }
 
-static int SwapItem(ItemStruct *a, ItemStruct *b)
+static int SwapItem(ItemStruct* a, ItemStruct* b)
 {
 	ItemStruct h;
 
@@ -699,7 +699,7 @@ static void CheckInvPaste()
 
 void InvPasteItem(int pnum, BYTE r)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	ItemStruct *holditem, *is, *wRight;
 	int sx, sy;
 	int i, j, xx, ii;
@@ -1193,7 +1193,7 @@ void CheckBeltClick(bool bShift)
 	}
 }
 
-static void CheckQuestItem(int pnum, ItemStruct *is)
+static void CheckQuestItem(int pnum, ItemStruct* is)
 {
 	int idx, delay;
 
@@ -1392,7 +1392,7 @@ bool CanPut(int x, int y)
 	return true;
 }
 
-bool FindItemLocation(int sx, int sy, int *dx, int *dy, int rad)
+bool FindItemLocation(int sx, int sy, int* dx, int* dy, int rad)
 {
 	int dir;
 	int xx, yy, i, j, k;
@@ -1469,7 +1469,7 @@ void DropItem()
 void SyncPutItem(int pnum, int x, int y, bool plrAround)
 {
 	int xx, yy, ii;
-	ItemStruct *is;
+	ItemStruct* is;
 
 	// assert(plr._pDunLevel == currLvl._dLevelIdx);
 	if (numitems >= MAXITEMS)
@@ -1552,8 +1552,8 @@ BYTE CheckInvBelt()
 BYTE CheckInvItem()
 {
 	int r;
-	ItemStruct *pi;
-	PlayerStruct *p;
+	ItemStruct* pi;
+	PlayerStruct* p;
 	BYTE rv;
 
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
@@ -1637,7 +1637,7 @@ static void StartGoldDrop()
 
 static void InvAddHp()
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	int hp;
 
 	p = &myplr;
@@ -1663,7 +1663,7 @@ static void InvAddHp()
 
 static void InvAddMana()
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	int mana;
 
 	p = &myplr;
@@ -1688,7 +1688,7 @@ static void InvAddMana()
 bool InvUseItem(int cii)
 {
 	int sn;
-	ItemStruct *is;
+	ItemStruct* is;
 	int pnum = mypnum;
 
 	if (plr._pHitPoints < (1 << 6))
@@ -1800,7 +1800,7 @@ bool InvUseItem(int cii)
 
 bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 {
-	ItemStruct *is;
+	ItemStruct* is;
 
 	if (plr._pHitPoints < (1 << 6))
 		return false;
@@ -1885,7 +1885,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 
 void CalculateGold(int pnum)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	int i, gold;
 
 	gold = 0;
