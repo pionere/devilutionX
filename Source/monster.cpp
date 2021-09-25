@@ -1267,6 +1267,9 @@ static void MonChangeLightOff(int mnum)
 	CondChangeLightOff(mon->mlid, lx, ly);
 }
 
+/**
+ * @brief Starting a move action towards NW, N, NE or W
+ */
 static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
 {
 	MonsterStruct *mon;
@@ -1297,6 +1300,9 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
 	dMonster[mx][my] = -(mnum + 1);
 }
 
+/**
+ * @brief Starting a move action towards SW, S, SE or E
+ */
 static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd)
 {
 	MonsterStruct *mon;
@@ -1324,44 +1330,6 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	dMonster[mx][my] = mnum + 1;
 	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		ChangeLightXY(mon->mlid, mx, my);
-		MonChangeLightOff(mnum);
-	}
-}
-
-static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int mapx, int mapy)
-{
-	MonsterStruct *mon;
-	int mx, my, x, y;
-
-	mon = &monsters[mnum];
-	mon->_mmode = MM_WALK3;
-	mon->_mxvel = xvel;
-	mon->_myvel = yvel;
-	mon->_mxoff = xoff;
-	mon->_myoff = yoff;
-	mon->_mVar6 = xoff << 4; // MWALK_XOFF : _mxoff in a higher range
-	mon->_mVar7 = yoff << 4; // MWALK_YOFF : _myoff in a higher range
-	//mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
-
-	mx = mon->_mx;
-	my = mon->_my;
-
-	mon->_moldx = mx;
-	mon->_moldy = my;
-
-	dMonster[mx][my] = -(mnum + 1);
-	x = mapx + mx;
-	y = mapy + my;
-	mon->_mVar4 = x; // MWALK_FLAG_X : X-position of a tile which should have its BFLAG_MONSTLR flag removed after walking. When starting to walk the game places the monster in the dMonster array -1 in the Y coordinate, and uses BFLAG_MONSTLR to check if it should be using -1 to the Y coordinate when rendering the monster
-	mon->_mVar5 = y; // MWALK_FLAG_Y : Y-position of a tile which should have its BFLAG_MONSTLR flag removed after walking. When starting to walk the game places the monster in the dMonster array -1 in the Y coordinate, and uses BFLAG_MONSTLR to check if it should be using -1 to the Y coordinate when rendering the monster
-	dFlags[x][y] |= BFLAG_MONSTLR;
-	mx += xadd;
-	my += yadd;
-	mon->_mfutx = /*mon->_mVar1 =*/ mx; // the Monster's x-coordinate after the movement
-	mon->_mfuty = /*mon->_mVar2 =*/ my; // the Monster's y-coordinate after the movement
-	dMonster[mx][my] = -(mnum + 1);
-	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
-		//ChangeLightXY(mon->mlid, mon->_mVar4, mon->_mVar5);
 		MonChangeLightOff(mnum);
 	}
 }
@@ -1437,9 +1405,6 @@ void RemoveMonFromMap(int mnum)
 
 	mx = monsters[mnum]._moldx;
 	my = monsters[mnum]._moldy;
-
-	dFlags[mx + 1][my] &= ~BFLAG_MONSTLR;
-	dFlags[mx][my + 1] &= ~BFLAG_MONSTLR;
 
 	m1 = mnum + 1;
 
@@ -1888,7 +1853,7 @@ static bool MonDoWalk(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		switch (mon->_mmode) {
-		case MM_WALK: // Movement towards NW, N, and NE
+		case MM_WALK: // Movement towards NW, N, NE and W
 			dMonster[mon->_mx][mon->_my] = 0;
 			//mon->_mx += mon->_mVar1;
 			//mon->_my += mon->_mVar2;
@@ -1896,18 +1861,9 @@ static bool MonDoWalk(int mnum)
 			mon->_my = mon->_mfuty;
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
 			break;
-		case MM_WALK2: // Movement towards SW, S, and SE
+		case MM_WALK2: // Movement towards SW, S, SE and E
 			//dMonster[mon->_mVar1][mon->_mVar2] = 0;
 			dMonster[mon->_moldx][mon->_moldy] = 0;
-			break;
-		case MM_WALK3: // Movement towards W and E
-			dFlags[mon->_mVar4][mon->_mVar5] &= ~BFLAG_MONSTLR; // MWALK_FLAG_X, MWALK_FLAG_Y
-			dMonster[mon->_mx][mon->_my] = 0;
-			//mon->_mx = mon->_mVar1;
-			//mon->_my = mon->_mVar2;
-			mon->_mx = mon->_mfutx;
-			mon->_my = mon->_mfuty;
-			dMonster[mon->_mx][mon->_my] = mnum + 1;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -2457,19 +2413,19 @@ void MonWalkDir(int mnum, int md)
 		MonStartWalk1(mnum, mwi[1], -mwi[0], 0, -1);
 		break;
 	case DIR_E:
-		MonStartWalk3(mnum, mwi[2], 0, -32, -16, 1, -1, 1, 0);
+		MonStartWalk2(mnum, mwi[2], 0, -TILE_WIDTH, 0, 1, -1);
 		break;
 	case DIR_SE:
-		MonStartWalk2(mnum, mwi[1], mwi[0], -32, -16, 1, 0);
+		MonStartWalk2(mnum, mwi[1], mwi[0], -TILE_WIDTH/2, -TILE_HEIGHT/2, 1, 0);
 		break;
 	case DIR_S:
-		MonStartWalk2(mnum, 0, mwi[1], 0, -32, 1, 1);
+		MonStartWalk2(mnum, 0, mwi[1], 0, -TILE_WIDTH/2, 1, 1);
 		break;
 	case DIR_SW:
-		MonStartWalk2(mnum, -mwi[1], mwi[0], 32, -16, 0, 1);
+		MonStartWalk2(mnum, -mwi[1], mwi[0], TILE_WIDTH/2, -TILE_HEIGHT/2, 0, 1);
 		break;
 	case DIR_W:
-		MonStartWalk3(mnum, -mwi[2], 0, 32, -16, -1, 1, 0, 1);
+		MonStartWalk1(mnum, -mwi[2], 0, -1, 1);
 		break;
 	case DIR_NW:
 		MonStartWalk1(mnum, -mwi[1], -mwi[0], -1, 0);
@@ -4412,10 +4368,10 @@ bool DirOK(int mnum, int mdir)
 	if (!PosOkMonst(mnum, fx, fy))
 		return false;
 	if (mdir == DIR_E) {
-		if (nSolidTable[dPiece[fx][fy + 1]] || dFlags[fx][fy + 1] & BFLAG_MONSTLR)
+		if (nSolidTable[dPiece[fx][fy + 1]])
 			return false;
 	} else if (mdir == DIR_W) {
-		if (nSolidTable[dPiece[fx + 1][fy]] || dFlags[fx + 1][fy] & BFLAG_MONSTLR)
+		if (nSolidTable[dPiece[fx + 1][fy]])
 			return false;
 	} else if (mdir == DIR_N) {
 		if (nSolidTable[dPiece[fx + 1][fy]] || nSolidTable[dPiece[fx][fy + 1]])
@@ -4450,7 +4406,7 @@ bool DirOK(int mnum, int mdir)
 
 bool PosOkMissile(int x, int y)
 {
-	return !nMissileTable[dPiece[x][y]] && !(dFlags[x][y] & BFLAG_MONSTLR);
+	return !nMissileTable[dPiece[x][y]];
 }
 
 bool CheckNoSolid(int x, int y)

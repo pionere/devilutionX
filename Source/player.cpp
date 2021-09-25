@@ -984,11 +984,11 @@ static bool PlrDirOK(int pnum, int dir)
 	}
 
 	if (dir == DIR_E) {
-		return !nSolidTable[dPiece[px][py + 1]] && !(dFlags[px][py + 1] & BFLAG_PLAYERLR);
+		return !nSolidTable[dPiece[px][py + 1]];
 	}
 
 	if (dir == DIR_W) {
-		return !nSolidTable[dPiece[px + 1][py]] && !(dFlags[px + 1][py] & BFLAG_PLAYERLR);
+		return !nSolidTable[dPiece[px + 1][py]];
 	}
 
 	return true;
@@ -1174,7 +1174,7 @@ static void PlrChangeOffset(int pnum)
 }
 
 /**
- * @brief Starting a move action towards NW, N, or NE
+ * @brief Starting a move action towards NW, N, NE or W
  */
 static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
 {
@@ -1200,7 +1200,7 @@ static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
 }
 
 /**
- * @brief Starting a move action towards SW, S, or SE
+ * @brief Starting a move action towards SW, S, SE or E
  */
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
@@ -1234,46 +1234,6 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 		ChangeLightXY(plr._plid, plr._px, plr._py);
 		PlrChangeLightOff(pnum);
 	//}
-}
-
-/**
- * @brief Starting a move action towards W or E
- */
-#if defined(__clang__) || defined(__GNUC__)
-__attribute__((no_sanitize("shift-base")))
-#endif
-static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int mapx, int mapy)
-{
-	int px, py, x, y;
-
-	plr._pmode = PM_WALK3;
-	plr._pxvel = xvel;
-	plr._pyvel = yvel;
-	plr._pxoff = xoff;       // Offset player sprite to align with their previous tile position
-	plr._pyoff = yoff;
-	plr._pVar6 = xoff << 8;  // WALK_XOFF : _pxoff value in a higher range
-	plr._pVar7 = yoff << 8;  // WALK_YOFF : _pyoff value in a higher range
-	//plr._pVar3 = dir;      // Player's direction when ending movement.
-	plr._pVar8 = 0;          // WALK_TICK : speed helper
-
-	px = plr._px;
-	py = plr._py;
-
-	dPlayer[px][py] = -(pnum + 1);
-	x = mapx + px;
-	y = mapy + py;
-	plr._pVar4 = x;  // WALK_FLAG_X : X-position of a tile which should have its BFLAG_PLAYERLR flag removed after walking. When starting to walk the game places the player in the dPlayer array -1 in the Y coordinate, and uses BFLAG_PLAYERLR to check if it should be using -1 to the Y coordinate when rendering the player
-	plr._pVar5 = y;  // WALK_FLAG_Y : Y-position of a tile which should have its BFLAG_PLAYERLR flag removed after walking. When starting to walk the game places the player in the dPlayer array -1 in the Y coordinate, and uses BFLAG_PLAYERLR to check if it should be using -1 to the Y coordinate when rendering the player
-	dFlags[x][y] |= BFLAG_PLAYERLR;
-	px += xadd;
-	py += yadd;
-	plr._pfutx = /*plr._pVar1 =*/ px; // the Player's x-coordinate after the movement
-	plr._pfuty = /*plr._pVar2 =*/ py; // the Player's y-coordinate after the movement
-	dPlayer[px][py] = -(pnum + 1);
-	/*if (plr._plid != NO_LIGHT) {
-		//ChangeLightXY(plr._plid, plr._pVar4, plr._pVar5);
-		PlrChangeLightOff(pnum);
-	}*/
 }
 
 static bool StartWalk(int pnum)
@@ -1314,19 +1274,19 @@ static bool StartWalk(int pnum)
 		StartWalk1(pnum, xvel, -yvel, 0, -1);
 		break;
 	case DIR_E:
-		StartWalk3(pnum, xvel3, 0, -32, -16, 1, -1, 1, 0);
+		StartWalk2(pnum, xvel3, 0, -TILE_WIDTH, 0, 1, -1);
 		break;
 	case DIR_SE:
-		StartWalk2(pnum, xvel, yvel, -32, -16, 1, 0);
+		StartWalk2(pnum, xvel, yvel, -TILE_WIDTH/2, -TILE_HEIGHT/2, 1, 0);
 		break;
 	case DIR_S:
-		StartWalk2(pnum, 0, xvel, 0, -32, 1, 1);
+		StartWalk2(pnum, 0, xvel, 0, -TILE_WIDTH/2, 1, 1);
 		break;
 	case DIR_SW:
-		StartWalk2(pnum, -xvel, yvel, 32, -16, 0, 1);
+		StartWalk2(pnum, -xvel, yvel, TILE_WIDTH/2, -TILE_HEIGHT/2, 0, 1);
 		break;
 	case DIR_W:
-		StartWalk3(pnum, -xvel3, 0, 32, -16, -1, 1, 0, 1);
+		StartWalk1(pnum, -xvel3, 0, -1, 1);
 		break;
 	case DIR_NW:
 		StartWalk1(pnum, -xvel, -yvel, -1, 0);
@@ -1640,9 +1600,6 @@ void RemovePlrFromMap(int pnum)
 	dy = plr._poldy;
 	assert(dx >= DBORDERX && dx < DBORDERX + DSIZEX);
 	assert(dy >= DBORDERY && dy < DBORDERY + DSIZEY);
-
-	dFlags[dx + 1][dy] &= ~BFLAG_PLAYERLR;
-	dFlags[dx][dy + 1] &= ~BFLAG_PLAYERLR;
 
 	pp = pnum + 1;
 	for (x = dx - 1; x <= dx + 1; x++) {
@@ -2028,7 +1985,7 @@ static bool PlrDoWalk(int pnum)
 	}
 
 	switch (plr._pmode) {
-	case PM_WALK: // Movement towards NW, N, and NE
+	case PM_WALK: // Movement towards NW, N, NE and W
 		dPlayer[plr._px][plr._py] = 0;
 		//plr._px = plr._pVar1;
 		//plr._py = plr._pVar2;
@@ -2036,18 +1993,9 @@ static bool PlrDoWalk(int pnum)
 		plr._py = plr._pfuty;
 		dPlayer[plr._px][plr._py] = pnum + 1;
 		break;
-	case PM_WALK2: // Movement towards SW, S, and SE
+	case PM_WALK2: // Movement towards SW, S, SE and E
 		//dPlayer[plr._pVar1][plr._pVar2] = 0;
 		dPlayer[plr._poldx][plr._poldy] = 0;
-		break;
-	case PM_WALK3: // Movement towards W and E
-		dFlags[plr._pVar4][plr._pVar5] &= ~BFLAG_PLAYERLR; // WALK_FLAG_X, WALK_FLAG_Y
-		dPlayer[plr._px][plr._py] = 0;
-		//plr._px = plr._pVar1;
-		//plr._py = plr._pVar2;
-		plr._px = plr._pfutx;
-		plr._py = plr._pfuty;
-		dPlayer[plr._px][plr._py] = pnum + 1;
 		break;
 	default:
 		ASSUME_UNREACHABLE

@@ -459,10 +459,16 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 		if (xoff < 0) {
 			xoff += 8;
 			nXPos--;
+		} else if (xoff >= 8) {
+			xoff -= 8;
+			nXPos++;
 		}
 		if (yoff < 0) {
 			yoff += 8;
 			nYPos--;
+		} else if (yoff >= 8) {
+			yoff -= 8;
+			nYPos++;
 		}
 	}
 

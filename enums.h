@@ -2608,8 +2608,6 @@ typedef enum dflag {
 	BFLAG_VISIBLE     = 0x02,
 	BFLAG_DEAD_PLAYER = 0x04,
 	BFLAG_POPULATED   = 0x08,
-	BFLAG_MONSTLR     = 0x10,
-	BFLAG_PLAYERLR    = 0x20,
 	BFLAG_LIT         = 0x40,
 	BFLAG_EXPLORED    = 0x80,
 } dflag;

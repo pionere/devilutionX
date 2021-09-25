@@ -747,25 +747,6 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	gbCelTransparencyActive = (nTransTable[level_piece_id] & TransList[dTransVal[sx][sy]]);
 	gbCelFoliageActive = !nSolidTable[level_piece_id];
 
-	if (bFlag & BFLAG_PLAYERLR) {
-		assert((unsigned)(sy - 1) < MAXDUNY);
-		mpnum = dPlayer[sx][sy - 1];
-		assert(mpnum < 0);
-		//if (mpnum < 0) {
-			bv = dFlags[sx][sy - 1];
-			DrawPlayer(-(mpnum + 1), bv, dx, dy);
-		//}
-	}
-	if (bFlag & BFLAG_MONSTLR) {
-		assert((unsigned)(sy - 1) < MAXDUNY);
-		mpnum = dMonster[sx][sy - 1];
-		assert(mpnum < 0);
-		//if (mpnum < 0) {
-			bv = dFlags[sx][sy - 1];
-			DrawMonsterHelper(-(mpnum + 1), bv, dx, dy);
-		//}
-	}
-
 	drawCell(dx, dy);
 
 #ifdef _DEBUG
