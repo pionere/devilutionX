@@ -297,6 +297,7 @@ static void DrawSkelKing()
 	//DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
 	// patch dSolidTable - L1.SOL
 	nSolidTable[299] = true;
+	pieceFlags[299] |= PFLAG_BLOCK_PATH;
 
 	quests[Q_SKELKING]._qtx = x + 12;
 	quests[Q_SKELKING]._qty = y + 7;
@@ -347,10 +348,7 @@ static void DrawSChamber()
 	DrawMap("Levels\\L2Data\\Bonestr1.DUN", 3);
 	// 'patch' the map to place shadows
 	// shadow of the external-left column
-	assert(dungeon[setpc_x + 1][setpc_y + 5] == 9);
-	assert(dungeon[setpc_x][setpc_y + 4] == 3);
 	dungeon[setpc_x][setpc_y + 4] = 48;
-	assert(dungeon[setpc_x][setpc_y + 5] == 3);
 	dungeon[setpc_x][setpc_y + 5] = 50;
 }
 
@@ -397,23 +395,14 @@ static void DrawBlood()
 {
 	DrawMap("Levels\\L2Data\\Blood2.DUN", 3);
 	// 'patch' the map to place shadows
-	// -- do not place to prevent overwriting large decorations, let DRLG_L2Shadows cast the shadow
-	// shadow of the external-left column
-	//assert(dungeon[setpc_x][setpc_y + 8] == 9);
-	//assert(dungeon[setpc_x - 1][setpc_y + 7] ~== 3);
+	// shadow of the external-left column -- do not place to prevent overwriting large decorations
 	//dungeon[setpc_x - 1][setpc_y + 7] = 48;
-	//assert(dungeon[setpc_x - 1][setpc_y + 8] ~== 3);
 	//dungeon[setpc_x - 1][setpc_y + 8] = 50;
 	// shadow of the bottom-left column(s) -- one is missing
-	assert(dungeon[setpc_x + 2][setpc_y + 14] == 9);
-	assert(dungeon[setpc_x + 1][setpc_y + 13] == 3);
 	dungeon[setpc_x + 1][setpc_y + 13] = 48;
-	assert(dungeon[setpc_x + 1][setpc_y + 14] == 3);
 	dungeon[setpc_x + 1][setpc_y + 14] = 50;
 	// shadow of the internal column next to the pedistal
-	assert(dungeon[setpc_x + 5][setpc_y + 7] == 2);
 	dungeon[setpc_x + 5][setpc_y + 7] = 142;
-	assert(dungeon[setpc_x + 5][setpc_y + 8] == 3);
 	dungeon[setpc_x + 5][setpc_y + 8] = 50;
 }
 

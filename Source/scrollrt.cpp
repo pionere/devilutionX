@@ -731,8 +731,7 @@ static void DrawDeadMonster(BYTE bDead, int sx, int sy)
 static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 {
 	int mpnum;
-	BYTE bv;
-	uint16_t bFlag;
+	BYTE bv, bFlag;
 
 	assert((unsigned)sx < MAXDUNX);
 	assert((unsigned)sy < MAXDUNY);

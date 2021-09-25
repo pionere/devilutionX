@@ -540,11 +540,7 @@ static void Theme_Barrel(int tidx)
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (random_(0, barrnd) == 0) {
-					if (random_(0, barrnd) == 0) {
-						r = OBJ_BARREL;
-					} else {
-						r = OBJ_BARRELEX;
-					}
+					r = random_(0, barrnd) == 0 ? OBJ_BARREL : OBJ_BARRELEX;
 					AddObject(r, xx, yy);
 				}
 			}

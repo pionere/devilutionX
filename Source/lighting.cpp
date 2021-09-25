@@ -611,7 +611,7 @@ void DoUnVision(int nXPos, int nYPos, int nRadius)
 }
 
 static bool doautomap;
-static char vFlags;
+static BYTE vFlags;
 static bool LightPos(int x1, int y1)
 {
 	//int nTrans;

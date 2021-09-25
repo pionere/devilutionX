@@ -1280,7 +1280,7 @@ static bool StartWalk(int pnum)
 		StartWalk2(pnum, xvel, yvel, -TILE_WIDTH/2, -TILE_HEIGHT/2, 1, 0);
 		break;
 	case DIR_S:
-		StartWalk2(pnum, 0, xvel, 0, -TILE_WIDTH/2, 1, 1);
+		StartWalk2(pnum, 0, xvel, 0, -TILE_HEIGHT, 1, 1);
 		break;
 	case DIR_SW:
 		StartWalk2(pnum, -xvel, yvel, TILE_WIDTH/2, -TILE_HEIGHT/2, 0, 1);

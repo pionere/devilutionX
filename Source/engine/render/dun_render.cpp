@@ -9,15 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-enum {
-	RT_SQUARE,
-	RT_TRANSPARENT,
-	RT_LTRIANGLE,
-	RT_RTRIANGLE,
-	RT_LTRAPEZOID,
-	RT_RTRAPEZOID
-};
-
 /** Specifies the draw masks used to render transparency of the right side of tiles. */
 static uint32_t RightMask[TILE_HEIGHT] = {
 	0xEAAAAAAA, 0xF5555555,

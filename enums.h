@@ -3919,6 +3919,15 @@ typedef enum dlrg_flag {
 	DLRG_PROTECTED = 0x80,
 } dlrg_flag;
 
+typedef enum render_type {
+	RT_SQUARE,
+	RT_TRANSPARENT,
+	RT_LTRIANGLE,
+	RT_RTRIANGLE,
+	RT_LTRAPEZOID,
+	RT_RTRAPEZOID
+} render_type;
+
 typedef enum _arch_draw_type {
 	RADT_NONE,
 	RADT_LEFT,

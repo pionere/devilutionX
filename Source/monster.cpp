@@ -2419,7 +2419,7 @@ void MonWalkDir(int mnum, int md)
 		MonStartWalk2(mnum, mwi[1], mwi[0], -TILE_WIDTH/2, -TILE_HEIGHT/2, 1, 0);
 		break;
 	case DIR_S:
-		MonStartWalk2(mnum, 0, mwi[1], 0, -TILE_WIDTH/2, 1, 1);
+		MonStartWalk2(mnum, 0, mwi[1], 0, -TILE_HEIGHT, 1, 1);
 		break;
 	case DIR_SW:
 		MonStartWalk2(mnum, -mwi[1], mwi[0], TILE_WIDTH/2, -TILE_HEIGHT/2, 0, 1);
