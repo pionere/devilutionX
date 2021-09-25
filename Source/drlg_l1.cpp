@@ -2243,11 +2243,14 @@ static void DRLG_L5Crypt_pattern7(BYTE rndper)
 }
 #endif
 
+/*
+ * Spread transVals further.
+ * - spread transVals on corner tiles to make transparency smoother.
+ */
 static void DRLG_L1TransFix()
 {
-	/* commented out - see the individual entries for more details
 	int xx, yy, i, j;
-	BYTE tv;
+	//BYTE tv;
 
 	yy = DBORDERY;
 
@@ -2256,7 +2259,7 @@ static void DRLG_L1TransFix()
 
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
-			/ commented out because DRLG_FloodTVal makes this unnecessary (spreads to more than just the floor tiles)
+			/* commented out because a simplified version is added below
 			case 18:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
@@ -2283,8 +2286,25 @@ static void DRLG_L1TransFix()
 					DRLG_CopyTrans(xx, yy, xx, yy + 1);
 					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
-				break;/
-			// fix transVals around the stairs - necessary only if DRLG_FloodTVal is run after the placement
+				break;*/
+			// fix transVals of corners
+			case 20:
+			case 22:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 18:
+			case 23:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 19:
+			case 24:
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			/* fix transVals around the stairs - necessary only if DRLG_FloodTVal is run after the placement
 			// - due to id conflict between hellfire and diablo, this does not work on tile 63
 			case 55:
 			case 58:
@@ -2308,12 +2328,12 @@ static void DRLG_L1TransFix()
 				break;
 			case 68:
 				DRLG_CopyTrans(xx, yy + 1, xx, yy);
-				break;
+				break;*/
 			}
 			xx += 2;
 		}
 		yy += 2;
-	}*/
+	}
 }
 
 /*

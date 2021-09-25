@@ -2862,9 +2862,12 @@ static void DRLG_L2CreateDungeon()
 	}
 }
 
+/*
+ * Spread transVals further.
+ * - spread transVals on corner tiles to make the bottom room-tiles visible.
+ */
 static void DRLG_L2TransFix()
 {
-	/* commented out because DRLG_FloodTVal makes this unnecessary (spreads to more than just the floor tiles)
 	int i, j, xx, yy;
 
 	yy = DBORDERY;
@@ -2872,6 +2875,7 @@ static void DRLG_L2TransFix()
 		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
+			// fix transVals of corners
 			case 10:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
@@ -2887,10 +2891,10 @@ static void DRLG_L2TransFix()
 				}
 				break;
 			case 15:
-				if (dungeon[i + 1][j] == 11) {
+				//if (dungeon[i + 1][j] == 11) {
 					DRLG_CopyTrans(xx, yy, xx, yy + 1);
 					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
-				}
+				//}
 				break;
 			case 16:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
@@ -2901,7 +2905,7 @@ static void DRLG_L2TransFix()
 			xx += 2;
 		}
 		yy += 2;
-	}*/
+	}
 }
 
 /*
@@ -3195,13 +3199,13 @@ static void DRLG_L2(int entry)
 		}
 	} while (!doneflag);
 
-	L2LockoutFix();
-	L2DoorFix();
-	DRLG_L2Corners();
-
 	DRLG_InitTrans();
 	DRLG_FloodTVal(3);
 	DRLG_L2TransFix();
+
+	L2LockoutFix();
+	L2DoorFix();
+	DRLG_L2Corners();
 
 	DRLG_PlaceThemeRooms(6, 10, 3, 0, false);
 

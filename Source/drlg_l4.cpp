@@ -1275,6 +1275,11 @@ static void DRLG_LoadDiabQuads(bool preflag)
 	MemFreeDbg(pSetPiece);
 }
 
+/*
+ * Spread transVals further.
+ * - spread transVals on corner tiles to make transparency smoother.
+ * - spread transVals between 'rooms' where the special 'door'-tiles stop the standard spread.
+ */
 static void DRLG_L4TransFix()
 {
 	int i, j, xx, yy;
@@ -1285,8 +1290,8 @@ static void DRLG_L4TransFix()
 		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
-			/* commented out because DRLG_FloodTVal makes this unnecessary (spreads to more than just the floor tiles)
-			case 23:
+			//* commented out because a simplified version is added below
+			/*case 23:
 			case 25:
 			case 28:
 				if (dungeon[i][j - 1] == 18) {
@@ -1309,12 +1314,23 @@ static void DRLG_L4TransFix()
 			case 19:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
-				break;
+				break;*/
+			// fix transVals of corners
 			case 24:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
-				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
-				break;*/
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 18:
+			case 25:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 19:
+			case 26:
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
 			// fix transVals of 'doors'
 			case 52:
 				DRLG_CopyTrans(xx + 1, yy + 1, xx, yy);
