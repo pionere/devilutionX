@@ -598,11 +598,11 @@ static void drawCell(int sx, int sy)
 	for ( ; i < limit; i += 2) {
 		levelCelBlock = pMap->mt[i];
 		if (levelCelBlock != 0) {
-			RenderTile(dst, levelCelBlock, i == 0 ? RADT_LEFT : RADT_NONE);
+			RenderMicro(dst, levelCelBlock, i == 0 ? RADT_LEFT : RADT_NONE);
 		}
 		levelCelBlock = pMap->mt[i + 1];
 		if (levelCelBlock != 0) {
-			RenderTile(dst + TILE_WIDTH / 2, levelCelBlock, i == 0 ? RADT_RIGHT : RADT_NONE);
+			RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, i == 0 ? RADT_RIGHT : RADT_NONE);
 		}
 		dst -= BUFFER_WIDTH * TILE_HEIGHT;
 	}
@@ -631,11 +631,11 @@ static void drawFloor(int sx, int sy)
 
 	levelCelBlock = pMap->mt[0];
 	if (levelCelBlock != 0) {
-		RenderTile(dst, levelCelBlock, RADT_LEFT);
+		RenderMicro(dst, levelCelBlock, RADT_LEFT);
 	}
 	levelCelBlock = pMap->mt[1];
 	if (levelCelBlock != 0) {
-		RenderTile(dst + TILE_WIDTH / 2, levelCelBlock, RADT_RIGHT);
+		RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, RADT_RIGHT);
 	}
 }
 

@@ -30,7 +30,8 @@ BYTE *pMegaTiles;
  * The micros of the dPieces
  */
 MICROS pMicroPieces[MAXTILES + 1];
-BYTE *pDungeonCels;
+/** Micro images CEL */
+BYTE* pMicroCels;
 /**
  * The original flags of the dPieces
  */
@@ -142,15 +143,15 @@ void InitLvlDungeon()
 	uint16_t *pLPFile, *pPiece, *pPTmp;
 
 	const LevelData *lds;
-	assert(pDungeonCels == NULL);
+	assert(pMicroCels == NULL);
 	lds = &AllLevels[currLvl._dLevelIdx];
 
-	pDungeonCels = LoadFileInMem(lds->dDunCels);
+	pMicroCels = LoadFileInMem(lds->dMicroCels);
 	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
 	pSpecialCels = LoadFileInMem(lds->dSpecCels);
 	MicroTileLen = lds->dMicroTileLen;
 
-	pLPFile = (uint16_t *)LoadFileInMem(lds->dLvlPieces, &dwTiles);
+	pLPFile = (uint16_t *)LoadFileInMem(lds->dMiniTiles, &dwTiles);
 
 	blocks = lds->dBlocks;
 	dwTiles /= (2 * blocks);
@@ -209,7 +210,7 @@ void InitLvlDungeon()
 		pieceFlags[761] |= PFLAG_BLOCK_PATH;
 		nSolidTable[945] = true; // make the eastern side of Griswold's house consistent (non-walkable)
 		pieceFlags[945] |= PFLAG_BLOCK_PATH;
-		// patch dLvlPieces - Town.MIN
+		// patch dMiniTiles - Town.MIN
 		// pointless tree micros (re-drawn by dSpecial)
 		pMicroPieces[117].mt[3] = 0;
 		pMicroPieces[117].mt[5] = 0;
@@ -321,7 +322,7 @@ void InitLvlDungeon()
 #endif
 		break;
 	case DTYPE_CATHEDRAL:
-		// patch dLvlPieces - L1.MIN
+		// patch dMiniTiles - L1.MIN
 		// useless black micros
 		pMicroPieces[107].mt[0] = 0;
 		pMicroPieces[107].mt[1] = 0;
@@ -334,7 +335,7 @@ void InitLvlDungeon()
 	case DTYPE_CATACOMBS:
 		break;
 	case DTYPE_CAVES:
-		// patch dLvlPieces - L3.MIN
+		// patch dMiniTiles - L3.MIN
 		// fix bad artifact
 		pMicroPieces[82].mt[4] = 0;
 		break;
@@ -356,7 +357,7 @@ void InitLvlDungeon()
 		pieceFlags[413] &= ~PFLAG_BLOCK_PATH;
 		nSolidTable[416] = false; // make a pool tile walkable III.
 		pieceFlags[416] &= ~PFLAG_BLOCK_PATH;
-		// patch dLvlPieces - L6.MIN
+		// patch dMiniTiles - L6.MIN
 		// useless black micros
 		pMicroPieces[21].mt[0] = 0;
 		pMicroPieces[21].mt[1] = 0;
@@ -368,7 +369,7 @@ void InitLvlDungeon()
 		// patch dSolidTable - L5.SOL
 		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
 		pieceFlags[148] &= ~PFLAG_BLOCK_PATH;
-		// patch dLvlPieces - L5.MIN
+		// patch dMiniTiles - L5.MIN
 		// useless black micros
 		pMicroPieces[130].mt[0] = 0;
 		pMicroPieces[130].mt[1] = 0;
@@ -426,7 +427,7 @@ void InitLvlDungeon()
 
 void FreeLvlDungeon()
 {
-	MemFreeDbg(pDungeonCels);
+	MemFreeDbg(pMicroCels);
 	MemFreeDbg(pMegaTiles);
 	MemFreeDbg(pSpecialCels);
 }

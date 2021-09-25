@@ -180,7 +180,7 @@ inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int li
 __attribute__((no_sanitize("shift-base")))
 #endif
 /**
- * @brief Blit current world CEL to the given buffer
+ * @brief Blit a micro CEL to the given buffer
  * @param pBuff Output buffer
  * @param levelCelBlock block/tile to draw
  *   the current MIN block of the level CEL file, as used during rendering of the level tiles.
@@ -188,18 +188,18 @@ __attribute__((no_sanitize("shift-base")))
  *      frameType := block & 0x7000 >> 12
  * @param adt the type of arches to render.
  */
-void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
+void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 {
 	int i, j, light;
-	char v, tile;
-	BYTE *src, *dst;
+	char v;
+	BYTE *src, *dst, encoding;
 	uint32_t m, *mask, *pFrameTable;
 
 	dst = pBuff;
-	pFrameTable = (uint32_t *)pDungeonCels;
+	pFrameTable = (uint32_t *)pMicroCels;
 
-	src = &pDungeonCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
-	tile = (levelCelBlock & 0x7000) >> 12;
+	src = &pMicroCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
+	encoding = (levelCelBlock & 0x7000) >> 12;
 
 	mask = &SolidMask[TILE_HEIGHT - 1];
 
@@ -207,21 +207,21 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 		if (adt == RADT_NONE) {
 			mask = &WallMask[TILE_HEIGHT - 1];
 		} else if (adt == RADT_LEFT) {
-			if (tile != RT_LTRIANGLE) {
+			if (encoding != MET_LTRIANGLE) {
 				if (pieceFlags[level_piece_id] & PFLAG_TRANS_MASK_LEFT) {
 					mask = &LeftMask[TILE_HEIGHT - 1];
 				}
 			}
 		} else {
 			// assert(adt == RADT_RIGHT);
-			if (tile != RT_RTRIANGLE) {
+			if (encoding != MET_RTRIANGLE) {
 				if (pieceFlags[level_piece_id] & PFLAG_TRANS_MASK_RIGHT) {
 					mask = &RightMask[TILE_HEIGHT - 1];
 				}
 			}
 		}
 	} else if (adt != RADT_NONE && gbCelFoliageActive) {
-		if (tile != RT_TRANSPARENT) {
+		if (encoding != MET_TRANSPARENT) {
 			return;
 		}
 		if (adt == RADT_LEFT) {
@@ -241,15 +241,15 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 	light = light_table_index;
 	static_assert(TILE_HEIGHT - 2 < TILE_WIDTH / 2, "Line with negative or zero width.");
 	static_assert(TILE_WIDTH / 2 <= sizeof(*mask) * CHAR_BIT, "Mask is too small to cover the tile.");
-	switch (tile) {
-	case RT_SQUARE:
+	switch (encoding) {
+	case MET_SQUARE:
 		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			RenderLine(dst, src, TILE_WIDTH / 2, *mask, light);
 			src += TILE_WIDTH / 2;
 			dst += TILE_WIDTH / 2;
 		}
 		break;
-	case RT_TRANSPARENT:
+	case MET_TRANSPARENT:
 		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			m = *mask;
 			static_assert(TILE_WIDTH / 2 <= sizeof(m) * CHAR_BIT, "Undefined left-shift behavior.");
@@ -266,7 +266,7 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 			}
 		}
 		break;
-	case RT_LTRIANGLE:
+	case MET_LTRIANGLE:
 		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			src += i & 2;
 			dst += i;
@@ -282,7 +282,7 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 			dst += TILE_WIDTH / 2 - i;
 		}
 		break;
-	case RT_RTRIANGLE:
+	case MET_RTRIANGLE:
 		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
 			src += TILE_WIDTH / 2 - i;
@@ -298,7 +298,7 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 			dst += i;
 		}
 		break;
-	case RT_LTRAPEZOID:
+	case MET_LTRAPEZOID:
 		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			src += i & 2;
 			dst += i;
@@ -312,7 +312,7 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 			dst += TILE_WIDTH / 2;
 		}
 		break;
-	case RT_RTRAPEZOID:
+	case MET_RTRAPEZOID:
 		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
 			src += TILE_WIDTH / 2 - i;

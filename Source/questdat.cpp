@@ -11,7 +11,7 @@ const LevelData AllLevels[NUM_LEVELS] = {
 	// clang-format off
 					// dLevel, dSetLvl, dType,           dDunType,        dMusic,      dMicroTileLen, dBlocks, dLevelName,
 /*DLV_TOWN*/		{       0, FALSE,   DTYPE_TOWN,      DTYPE_TOWN,      TMUSIC_TOWN,            16,      16, "Tristram",
-					//  dAutomapData,             dSolidTable,                  dDunCels,                      dMegaTiles,                    dLvlPieces,                    dSpecCels,                     dPalName,                        dLoadCels,              dLoadPal,                dSetLvlPreDun,                 dSetLvlDun,                        dSetLvlDunX,   dSetLvlDunY,
+					//  dAutomapData,             dSolidTable,                  dMicroCels,                    dMegaTiles,                    dMiniTiles,                    dSpecCels,                     dPalName,                        dLoadCels,              dLoadPal,                dSetLvlPreDun,                 dSetLvlDun,                        dSetLvlDunX,   dSetLvlDunY,
 #ifdef HELLFIRE
 						NULL,                     "Levels\\TownData\\Town.SOL", "NLevels\\TownData\\Town.CEL", "NLevels\\TownData\\Town.TIL", "NLevels\\TownData\\Town.MIN", "Levels\\TownData\\TownS.CEL", "Levels\\TownData\\Town.pal",    "Gendata\\Cuttt.CEL",   "Gendata\\Cuttt.pal",    NULL,                          NULL,                                        0,             0,
 #else
@@ -120,7 +120,7 @@ const LevelData AllLevels[NUM_LEVELS] = {
 #endif
 					// dLevel, dSetLvl, dType,           dDunType,        dMusic,      dMicroTileLen, dBlocks, dLevelName,
 /*DLV_BUTCHCHAMB*/	{       0, TRUE,    DTYPE_NONE,      DTYPE_NONE,      TMUSIC_TOWN,            16,      16, "",
-					//  dAutomapData,             dSolidTable,                  dDunCels,                      dMegaTiles,                    dLvlPieces,                    dSpecCels,                     dPalName,                        dLoadCels,               dLoadPal,                dSetLvlPreDun,                 dSetLvlDun,                        dSetLvlDunX,   dSetLvlDunY,
+					//  dAutomapData,             dSolidTable,                  dMicroCels,                    dMegaTiles,                    dMiniTiles,                    dSpecCels,                     dPalName,                        dLoadCels,               dLoadPal,                dSetLvlPreDun,                 dSetLvlDun,                        dSetLvlDunX,   dSetLvlDunY,
 						NULL,                     "Levels\\TownData\\Town.SOL", "Levels\\TownData\\Town.CEL",  "Levels\\TownData\\Town.TIL",  "Levels\\TownData\\Town.MIN",  "Levels\\TownData\\TownS.CEL", "",                              "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",   NULL,                          NULL,                                        0,             0,
 					//  dMonTypes,
 						{ MT_INVALID },

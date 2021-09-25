@@ -2603,6 +2603,21 @@ typedef enum piece_flag {
 	PFLAG_TRAP_SOURCE      = 1 << 7,
 } piece_flag;
 
+typedef enum micro_encoding_type {
+	MET_SQUARE,
+	MET_TRANSPARENT,
+	MET_LTRIANGLE,
+	MET_RTRIANGLE,
+	MET_LTRAPEZOID,
+	MET_RTRAPEZOID
+} micro_encoding_type;
+
+typedef enum _arch_draw_type {
+	RADT_NONE,
+	RADT_LEFT,
+	RADT_RIGHT,
+} _arch_draw_type;
+
 typedef enum dflag {
 	BFLAG_MISSILE_PRE = 0x01,
 	BFLAG_VISIBLE     = 0x02,
@@ -3918,21 +3933,6 @@ typedef enum dlrg_flag {
 	DLRG_CHAMBER   = 0x40,
 	DLRG_PROTECTED = 0x80,
 } dlrg_flag;
-
-typedef enum render_type {
-	RT_SQUARE,
-	RT_TRANSPARENT,
-	RT_LTRIANGLE,
-	RT_RTRIANGLE,
-	RT_LTRAPEZOID,
-	RT_RTRAPEZOID
-} render_type;
-
-typedef enum _arch_draw_type {
-	RADT_NONE,
-	RADT_LEFT,
-	RADT_RIGHT,
-} _arch_draw_type;
 
 typedef enum movie_flag {
 	MOV_SKIP       = 1 << 0, // Makes the video unskippable.

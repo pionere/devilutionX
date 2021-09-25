@@ -23,7 +23,7 @@ extern BYTE *pSetPiece;
 extern BYTE *pSpecialCels;
 extern BYTE *pMegaTiles;
 extern MICROS pMicroPieces[MAXTILES + 1];
-extern BYTE *pDungeonCels;
+extern BYTE* pMicroCels;
 extern BYTE pieceFlags[MAXTILES + 1];
 extern bool nBlockTable[MAXTILES + 1];
 extern bool nSolidTable[MAXTILES + 1];
