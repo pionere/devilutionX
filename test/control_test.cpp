@@ -1,26 +1,23 @@
 #include <gtest/gtest.h>
 #include "all.h"
 
-namespace dvl {
-extern int pSplType;
-}
+using namespace dvl;
 
 TEST(Control, SetSpell)
 {
 	dvl::spselflag = true;
-	dvl::pSpell = dvl::SPL_FIREBOLT;
-	dvl::pSplType = dvl::RSPLTYPE_CHARGES;
-	dvl::SetSpell();
-	EXPECT_EQ(dvl::spselflag, false);
-	EXPECT_EQ(dvl::plr[dvl::myplr]._pRSpell, dvl::SPL_FIREBOLT);
-	EXPECT_EQ(dvl::plr[dvl::myplr]._pRSplType, dvl::RSPLTYPE_CHARGES);
-	EXPECT_EQ(dvl::spselflag, false);
+	dvl::currSkill = dvl::SPL_FIREBOLT;
+	dvl::currSkillType = dvl::RSPLTYPE_CHARGES;
+	dvl::SetSkill(false, true);
+	EXPECT_EQ(dvl::plr[dvl::myplr]._pAltAtkSkill, dvl::SPL_FIREBOLT);
+	EXPECT_EQ(dvl::plr[dvl::myplr]._pAltAtkSkillType, dvl::RSPLTYPE_CHARGES);
+	EXPECT_EQ(dvl::gbSkillListFlag, false);
 	//EXPECT_EQ(dvl::gbRedrawFlags, REDRAW_ALL);
 }
 
 TEST(Control, ClearPanel)
 {
-	dvl::pinfoflag = true;
-	dvl::ClearPanel();
-	EXPECT_EQ(dvl::spselflag, false);
+	dvl::gbSkillListFlag = true;
+	dvl::PressEscKey();
+	EXPECT_EQ(dvl::gbSkillListFlag, false);
 }

@@ -1,13 +1,7 @@
 #include <gtest/gtest.h>
 #include "all.h"
 
-namespace dvl {
-extern unsigned AmLine64;
-extern unsigned AmLine32;
-extern unsigned AmLine16;
-extern unsigned AmLine8;
-extern unsigned AmLine4;
-}
+using namespace dvl;
 
 TEST(Automap, InitAutomap)
 {
@@ -23,7 +17,7 @@ TEST(Automap, InitAutomap)
 
 TEST(Automap, StartAutomap)
 {
-	dvl::StartAutomap();
+	dvl::ToggleAutomap();
 	EXPECT_EQ(dvl::AutoMapXOfs, 0);
 	EXPECT_EQ(dvl::AutoMapYOfs, 0);
 	EXPECT_EQ(dvl::automapflag, true);
