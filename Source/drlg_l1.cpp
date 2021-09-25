@@ -261,7 +261,7 @@ const BYTE L5USTAIRS[] = {
 	13, 13, 13, 13,
 
 	 0, 54, 23,  0, // replace
-	 0, 53, 18,  0,
+	 0,  1, 18,  0, // 1 was 53 in vanilla (replaced to reduce the number of tiles + fix bad shadow)
 	55, 56, 57,  0,
 	58, 59, 60,  0,
 	 0,  0,  0,  0
@@ -869,6 +869,9 @@ static void DRLG_LoadL1SP()
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN");
 	} else if (QuestStatus(Q_SKELKING)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN");
+		// patch set-piece to use common tiles - SKngDO.DUN
+		pSetPiece[(2 + 5 + 3 * 7) * 2] = 203;
+		pSetPiece[(2 + 5 + 4 * 7) * 2] = 22;
 	} else if (QuestStatus(Q_BUTCHER)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
 #ifdef HELLFIRE
