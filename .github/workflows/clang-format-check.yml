@@ -17,6 +17,6 @@ jobs:
       uses: jidicula/clang-format-action@v3.4.0
       continue-on-error: true
       with:
-        clang-format-version: '13'
+        clang-format-version: '11'
         check-path: ${{ matrix.path }}
         fallback-style: 'webkit'

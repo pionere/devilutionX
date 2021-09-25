@@ -3,17 +3,18 @@ AlignTrailingComments: true
 AllowShortBlocksOnASingleLine: Always
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: InlineOnly
-AlignConsecutiveMacros: AcrossComments
+#AlignConsecutiveMacros: AcrossComments
+AlignConsecutiveMacros: true
 AlignEscapedNewlines: Right
 AlignTrailingComments: true
-SpacesInLineCommentPrefix:
-  Minimum: 1
-  Maximum: -1
+#SpacesInLineCommentPrefix:
+#  Minimum: 1
+#  Maximum: -1
 PointerAlignment: Left
-ReferenceAlignment: Right
+#ReferenceAlignment: Right
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
-SpaceBeforeCaseColon: false
+#SpaceBeforeCaseColon: false
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeCpp11BracedList: true
 SpaceBeforeParens: ControlStatements
