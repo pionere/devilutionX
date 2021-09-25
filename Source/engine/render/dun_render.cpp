@@ -11,6 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Specifies the draw masks used to render transparency of the right side of tiles. */
 static uint32_t RightMask[TILE_HEIGHT] = {
+	// clang-format off
 	0xEAAAAAAA, 0xF5555555,
 	0xFEAAAAAA, 0xFF555555,
 	0xFFEAAAAA, 0xFFF55555,
@@ -27,9 +28,11 @@ static uint32_t RightMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF
+	// clang-format on
 };
 /** Specifies the draw masks used to render transparency of the left side of tiles. */
 static uint32_t LeftMask[TILE_HEIGHT] = {
+	// clang-format off
 	0xAAAAAAAB, 0x5555555F,
 	0xAAAAAABF, 0x555555FF,
 	0xAAAAABFF, 0x55555FFF,
@@ -46,9 +49,11 @@ static uint32_t LeftMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF
+	// clang-format on
 };
 /** Specifies the draw masks used to render transparency of wall tiles. */
 static uint32_t WallMask[TILE_HEIGHT] = {
+	// clang-format off
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555,
@@ -65,9 +70,11 @@ static uint32_t WallMask[TILE_HEIGHT] = {
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555
+	// clang-format on
 };
 
 static uint32_t SolidMask[TILE_HEIGHT] = {
+	// clang-format off
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
@@ -84,9 +91,11 @@ static uint32_t SolidMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF
+	// clang-format on
 };
 
 static uint32_t RightFoliageMask[TILE_HEIGHT] = {
+	// clang-format off
 	0xFFFFFFFF, 0x3FFFFFFF,
 	0x0FFFFFFF, 0x03FFFFFF,
 	0x00FFFFFF, 0x003FFFFF,
@@ -103,9 +112,11 @@ static uint32_t RightFoliageMask[TILE_HEIGHT] = {
 	0x000FFFFF, 0x003FFFFF,
 	0x00FFFFFF, 0x03FFFFFF,
 	0x0FFFFFFF, 0x3FFFFFFF,
+	// clang-format on
 };
 
 static uint32_t LeftFoliageMask[TILE_HEIGHT] = {
+	// clang-format off
 	0xFFFFFFFF, 0xFFFFFFFC,
 	0xFFFFFFF0, 0xFFFFFFC0,
 	0xFFFFFF00, 0xFFFFFC00,
@@ -122,6 +133,7 @@ static uint32_t LeftFoliageMask[TILE_HEIGHT] = {
 	0xFFFFF000, 0xFFFFFC00,
 	0xFFFFFF00, 0xFFFFFFC0,
 	0xFFFFFFF0, 0xFFFFFFFC,
+	// clang-format on
 };
 
 inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int light)
@@ -196,7 +208,7 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	uint32_t m, *mask, *pFrameTable;
 
 	dst = pBuff;
-	pFrameTable = (uint32_t *)pMicroCels;
+	pFrameTable = (uint32_t*)pMicroCels;
 
 	src = &pMicroCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
 	encoding = levelCelBlock >> 12;
@@ -334,7 +346,7 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 void world_draw_black_tile(int sx, int sy)
 {
 	int i;
-	BYTE *dst;
+	BYTE* dst;
 
 	if (sx < SCREEN_X - (TILE_WIDTH - 4) || sx >= SCREEN_X + SCREEN_WIDTH)
 		return;

@@ -1219,7 +1219,7 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		if (quests[Q_ANVIL]._qactive != QUEST_ACTIVE)
 			return;
 		delay = 10;
-		idx =TEXT_IM_ANVIL;
+		idx = TEXT_IM_ANVIL;
 	} else if (idx == IDI_GLDNELIX) {
 		if (quests[Q_VEIL]._qactive != QUEST_ACTIVE)
 			return;
