@@ -42,13 +42,13 @@ static HANDLE init_test_access(const char* mpq_name)
 {
 	HANDLE archive;
 #if defined(__3DS__)
-	const char *paths[3] = { GetBasePath(), GetPrefPath(), "romfs:/" };
+	const char* paths[3] = { GetBasePath(), GetPrefPath(), "romfs:/" };
 #elif defined(__linux__) && !defined(__ANDROID__)
-	const char *paths[4] = { &GetBasePath(), &GetPrefPath(),
+	const char* paths[4] = { &GetBasePath(), &GetPrefPath(),
 		"/usr/share/diasurgical/devilutionx/",
 		"/usr/local/share/diasurgical/devilutionx/" };
 #else
-	const char *paths[2] = { GetBasePath(), GetPrefPath() };
+	const char* paths[2] = { GetBasePath(), GetPrefPath() };
 #endif
 	std::string mpq_abspath;
 	for (int i = 0; i < lengthof(paths); i++) { 
@@ -91,8 +91,11 @@ static void init_get_file_info()
 }
 
 #ifdef _DEVMODE
-static void CreateMpq(const char* destMpqName, const char* folder, const char *files)
+static void CreateMpq(const char* destMpqName, const char* folder, const char* files)
 {
+	if (FileExists(destMpqName))
+		return;
+
 	std::string basePath = std::string(GetBasePath()) + folder;
 	std::ifstream input(std::string(GetBasePath()) + files);
 
@@ -100,7 +103,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char *f
 	std::string line;
 	while (std::getline(input, line)) {
 		std::string path = basePath + line.c_str();
-		FILE *fp = fopen(path.c_str(), "r");
+		FILE* fp = fopen(path.c_str(), "r");
 		if (fp != NULL) {
 			fclose(fp);
 			entryCount++;
@@ -120,7 +123,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char *f
 	input = std::ifstream(std::string(GetBasePath()) + files);
 	while (std::getline(input, line)) {
 		std::string path = basePath + line.c_str();
-		FILE *fp = fopen(path.c_str(), "rb");
+		FILE* fp = fopen(path.c_str(), "rb");
 		if (fp != NULL) {
 			struct stat st;
 			stat(path.c_str(), &st);
@@ -141,7 +144,7 @@ static void ReadOnlyTest()
 {
 	std::string path = GetPrefPath();
 	path += "Diablo1ReadOnlyTest.foo";
-	FILE *f = FileOpen(path.c_str(), "wt");
+	FILE* f = FileOpen(path.c_str(), "wt");
 	if (f != NULL) {
 		fclose(f);
 		remove(path.c_str());
@@ -237,7 +240,7 @@ void init_archives()
 			HANDLE hFile;
 			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
 				DWORD dwLen = SFileGetFileSize(hFile);
-				BYTE *buf = DiabloAllocPtr(dwLen);
+				BYTE* buf = DiabloAllocPtr(dwLen);
 				if (!SFileReadFile(hFile, buf, dwLen, NULL))
 					app_fatal("Unable to read save file");
 				if (!mpqapi_write_file(line.c_str(), buf, dwLen))

@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 unsigned _guCowMsg;
 int numtowners;
 unsigned _guCowClicks;
-BYTE *pCowCels;
+BYTE* pCowCels;
 TownerStruct towners[MAX_TOWNERS];
 
 /**
@@ -132,7 +132,7 @@ int CowPlaying = -1;
 
 static void CowSFX(int pnum)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	if (CowPlaying != -1 && effect_is_playing(CowPlaying))
 		return;
 
@@ -155,11 +155,11 @@ static void CowSFX(int pnum)
 
 static void InitCowAnim(int tnum, int dir)
 {
-	TownerStruct *tw;
+	TownerStruct* tw;
 
 	tw = &towners[tnum];
 
-	tw->_tAnimData = const_cast<BYTE *>(CelGetFrameStart(pCowCels, dir));
+	tw->_tAnimData = const_cast<BYTE*>(CelGetFrameStart(pCowCels, dir));
 	tw->_tAnimLen = 12;
 	tw->_tAnimOrder = -1;
 	tw->_tAnimCnt = 0;
@@ -171,7 +171,7 @@ static void InitCowAnim(int tnum, int dir)
 
 static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFrames, int ao)
 {
-	TownerStruct *tw;
+	TownerStruct* tw;
 
 	tw = &towners[tnum];
 
@@ -203,7 +203,7 @@ static void ReInitTownerAnim(int ttype, const char* pAnimFile)
 
 static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 {
-	TownerStruct *tw;
+	TownerStruct* tw;
 
 	dMonster[x][y] = tnum + 1;
 	monsters[tnum]._mfutx = monsters[tnum]._mx = x;
@@ -408,9 +408,9 @@ void FreeTownerGFX()
 	MemFreeDbg(pCowCels);
 }
 
-static void TownCtrlMsg(TownerStruct *tw)
+static void TownCtrlMsg(TownerStruct* tw)
 {
-	/*PlayerStruct *p;
+	/*PlayerStruct* p;
 	int dx, dy;
 
 	if (tw->_tListener != MAX_PLRS) {
@@ -426,7 +426,7 @@ static void TownCtrlMsg(TownerStruct *tw)
 
 void ProcessTowners()
 {
-	TownerStruct *tw;
+	TownerStruct* tw;
 	int i, ao;
 
 	tw = towners;
@@ -475,8 +475,7 @@ bool PlrHasStorageItem(int pnum, int item, int* outidx)
 
 	pi = plr._pInvList;
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
-		if (pi->_iIdx == item
-		 && pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER) {
+		if (pi->_iIdx == item && pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER) {
 			*outidx = i;
 			return true;
 		}
@@ -610,7 +609,7 @@ void SyncTownerQ(int pnum, int idx)
 
 void TalkToTowner(int tnum)
 {
-	TownerStruct *tw;
+	TownerStruct* tw;
 	int i, dx, dy, qt, qn, pnum = mypnum;
 
 	tw = &towners[tnum];
@@ -866,7 +865,8 @@ void TalkToTowner(int tnum)
 			switch (quests[Q_JERSEY]._qvar2++) {
 			case 0: qt = TEXT_JERSEY1; break;
 			case 1: qt = TEXT_JERSEY2; break;
-			default: qt = TEXT_JERSEY3;
+			default:
+				qt = TEXT_JERSEY3;
 				quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 				qn = Q_JERSEY;
 				break;
