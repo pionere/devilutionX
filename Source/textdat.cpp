@@ -25,6 +25,7 @@ int TxS(int speed)
 		return ((speed + 1) * 50) / speed;
 }
 const TextData alltext[NUM_TEXTS] = {
+	// clang-format off
 	{ "Ahh, the story of our King, is it? The tragic fall of Leoric was a harsh blow to this land. The people always loved the King, and now they live in mortal fear of him. The question that I keep asking myself is how he could have fallen so far from the Light, as Leoric had always been the holiest of men. Only the vilest powers of Hell could so utterly destroy a man from within...",
 /* TEXT_KING1 */ TRUE, FALSE, TxS(0), TSFX_STORY1 },
 	{ "The village needs your help, good master! Some months ago King Leoric's son, Prince Albrecht, was kidnapped. The King went into a rage and scoured the village for his missing child. With each passing day, Leoric seemed to slip deeper into madness. He sought to blame innocent townsfolk for the boy's disappearance and had them brutally executed. Less than half of us survived his insanity...\n \nThe King's Knights and Priests tried to placate him, but he turned against them and sadly, they were forced to kill him. With his dying breath the King called down a terrible curse upon his former followers. He vowed that they would serve him in darkness forever...\n \nThis is where things take an even darker twist than I thought possible! Our former King has risen from his eternal sleep and now commands a legion of undead minions within the Labyrinth. His body was buried in a tomb three levels beneath the Cathedral. Please, good master, put his soul at ease by destroying his now cursed form...",
@@ -923,6 +924,7 @@ const TextData alltext[NUM_TEXTS] = {
 	{ "Faith is absolute belief in the unseen. The priest Tremain is from a holy order long asleep in this land. He keeps a promise and a charge issued ages ago and sustains a union with realms that even my vision cannot reach. He knows much, but not as much as he believes.",
 	    TRUE, FALSE, TxS(0), TSFX_WITCH48 },
 */
+	// clang-format on
 };
 
 DEVILUTION_END_NAMESPACE

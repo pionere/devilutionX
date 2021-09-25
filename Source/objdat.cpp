@@ -9,6 +9,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Maps from dun_object_id to object_id. */
 const BYTE ObjConvTbl[128] = {
+	// clang-format off
 	0,
 	OBJ_LEVER, // Q_SKELKING
 	OBJ_CRUXM, // Q_SKELKING
@@ -148,6 +149,7 @@ const BYTE ObjConvTbl[128] = {
 //	0, //OBJ_LAZSTAND,
 //	0, //OBJ_BOOKSTAND,
 //	0, //OBJ_BOOKSHELFR,
+	// clang-format on
 };
 
 /** Contains the data related to each object ID. */

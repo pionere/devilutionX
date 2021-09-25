@@ -226,6 +226,7 @@ const MonFileData monfiledata[NUM_MOFILE] = {
  * Map between .DUN file value and monster type enum
  */
 const BYTE MonstConvTbl[128] = {
+	// clang-format off
 	0,
 	0, //MT_NZOMBIE,
 	0, //MT_BZOMBIE,
@@ -386,6 +387,7 @@ const BYTE MonstConvTbl[128] = {
 	MT_INVILORD,
 	MT_LRDSAYTR,
 #endif*/
+	// clang-format on
 };
 
 /** Contains the data related to each unique monster ID. */
