@@ -200,11 +200,48 @@ void InitLvlDungeon()
 
 	mem_free_dbg(pSBFile);
 
-	// patch dSolidTable - L4.SOL
-	if (currLvl._dType == DTYPE_HELL) {
-		nMissileTable[141] = false;
-		nSolidTable[130] = true;
-		nSolidTable[132] = true;
+	switch (currLvl._dType) {
+	case DTYPE_TOWN:
+		// patch dSolidTable - Town.SOL
+		nSolidTable[553] = false; // allow walking on the left side of the pot at Adria
+		pieceFlags[553] &= ~PFLAG_BLOCK_PATH;
+		nSolidTable[761] = true; // make the tile of the southern window of the church non-walkable
+		pieceFlags[761] |= PFLAG_BLOCK_PATH;
+		nSolidTable[945] = true; // make the eastern side of Griswold's house consistent (non-walkable)
+		pieceFlags[945] |= PFLAG_BLOCK_PATH;
+		break;
+	case DTYPE_CATHEDRAL:
+	case DTYPE_CATACOMBS:
+	case DTYPE_CAVES:
+		break;
+	case DTYPE_HELL:
+		// patch dSolidTable - L4.SOL
+		nMissileTable[141] = false; // fix missile-blocking tile of down-stairs.
+		//pieceFlags[141] &= ~PFLAG_BLOCK_MISSILE;
+		nSolidTable[130] = true; // make the inner tiles of the down-stairs non-walkable I.
+		pieceFlags[130] |= PFLAG_BLOCK_PATH;
+		nSolidTable[132] = true; // make the inner tiles of the down-stairs non-walkable II.
+		pieceFlags[132] |= PFLAG_BLOCK_PATH;
+		break;
+#ifdef HELLFIRE
+	case DTYPE_NEST:
+		// patch dSolidTable - L6.SOL
+		nSolidTable[390] = false; // make a pool tile walkable I.
+		pieceFlags[390] &= ~PFLAG_BLOCK_PATH;
+		nSolidTable[413] = false; // make a pool tile walkable II.
+		pieceFlags[413] &= ~PFLAG_BLOCK_PATH;
+		nSolidTable[416] = false; // make a pool tile walkable III.
+		pieceFlags[416] &= ~PFLAG_BLOCK_PATH;
+		break;
+	case DTYPE_CRYPT:
+		// patch dSolidTable - L5.SOL
+		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
+		pieceFlags[148] &= ~PFLAG_BLOCK_PATH;
+		break;
+#endif
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 }
 
