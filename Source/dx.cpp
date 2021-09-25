@@ -145,9 +145,13 @@ void dx_cleanup()
 	back_surface = NULL;
 #ifndef USE_SDL1
 	SDL_FreePalette(back_palette);
-	SDL_FreeSurface(renderer_surface);
-	SDL_DestroyTexture(renderer_texture);
-	SDL_DestroyRenderer(renderer);
+	if (renderer != NULL) {
+		SDL_FreeSurface(renderer_surface);
+		renderer_surface = NULL;
+		SDL_DestroyRenderer(renderer); // destroys renderer_texture as well
+		renderer = NULL;
+		renderer_texture = NULL;
+	}
 #endif
 	SDL_DestroyWindow(ghMainWnd);
 }
