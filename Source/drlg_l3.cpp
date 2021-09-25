@@ -1839,168 +1839,20 @@ static void DRLG_L6PlaceRndPool(const BYTE *miniset, int rndper)
 }
 #endif
 
-static bool WoodVertU(int i, int y)
-{
-	BYTE bv;
-
-	bv = dungeon[i + 1][y];
-	if (bv >= 130 && bv <= 152)
-		return false;
-	bv = dungeon[i - 1][y];
-	if (bv >= 130 && bv <= 152)
-		return false;
-	bv = dungeon[i][y];
-	return bv == 7 || bv == 10 || bv == 126 || bv == 129 || bv == 134 || bv == 136;
-}
-
-static bool WoodVertD(int i, int y)
-{
-	BYTE bv;
-
-	bv = dungeon[i + 1][y];
-	if (bv >= 130 && bv <= 152)
-		return false;
-	bv = dungeon[i - 1][y];
-	if (bv >= 130 && bv <= 152)
-		return false;
-	bv = dungeon[i][y];
-	return bv == 7 || bv == 2 || bv == 134 || bv == 136;
-}
-
-static bool WoodHorizL(int x, int j)
-{
-	BYTE bv;
-
-	bv = dungeon[x][j + 1];
-	if (bv >= 130 && bv <= 152)
-		return false;
-	bv = dungeon[x][j - 1];
-	if (bv >= 130 && bv <= 152)
-		return false;
-	bv = dungeon[x][j];
-	return bv == 7 || bv == 9 || bv == 121 || bv == 124 || bv == 135 || bv == 137;
-}
-
-static bool WoodHorizR(int x, int j)
-{
-	BYTE bv;
-
-	bv = dungeon[x][j + 1];
-	if (bv >= 130 && bv <= 152)
-		return false;
-	bv = dungeon[x][j - 1];
-	if (bv >= 130 && bv <= 152)
-		return false;
-	bv = dungeon[x][j];
-	return bv == 7 || bv == 4 || bv == 135 || bv == 137;
-}
-
-static bool WoodHorzDoor(BYTE bv)
-{
-	return bv >= 130 && bv <= 140 && bv != 135 && bv != 137 && bv != 139;
-	//return bv == 130 || bv == 132 || bv == 133 || bv == 134
-	//	|| bv == 136 || bv == 138 || bv == 140;
-}
-
-static bool WoodVertDoor(BYTE bv)
-{
-	return bv >= 131 && bv < 140 && bv != 134 && bv != 136;
-	//return bv == 131 || bv == 132 || bv == 133 || bv == 135
-	//	|| bv == 137 || bv == 138 || bv == 139;
-}
-
-static void AddFenceDoors()
-{
-	int i, j;
-
-	for (i = 0; i < DMAXX; i++) {
-		for (j = 0; j < DMAXY; j++) {
-			if (dungeon[i][j] >= 130 && dungeon[i][j] <= 140) {
-				//assert(i < DMAXX - 2 || (i == DMAXX - 2 && dungeon[i + 1][j] != 7));
-				//assert(j < DMAXY - 2 || (j == DMAXY - 2 && dungeon[i][j + 1] != 7));
-				if (dungeon[i + 1][j] == 7
-				 && WoodHorzDoor(dungeon[i + 2][j]) && WoodHorzDoor(dungeon[i][j]))
-					dungeon[i + 1][j] = 146;
-				else if (dungeon[i][j + 1] == 7
-				 && WoodVertDoor(dungeon[i][j + 2]) && WoodVertDoor(dungeon[i][j]))
-					dungeon[i][j + 1] = 147;
-			}
-		}
-	}
-	/*for (i = 0; i < DMAXX; i++) {
-		for (j = 0; j < DMAXY; j++) {
-			if (dungeon[i][j] == 7) {
-				if (dungeon[i - 1][j] >= 130 && dungeon[i - 1][j] <= 152
-				 && dungeon[i + 1][j] >= 130 && dungeon[i + 1][j] <= 152) {
-					dungeon[i][j] = 146;
-					continue;
-				}
-				if (dungeon[i][j - 1] >= 130 && dungeon[i][j - 1] <= 152
-				 && dungeon[i][j + 1] >= 130 && dungeon[i][j + 1] <= 152) {
-					dungeon[i][j] = 147;
-					continue;
-				}
-			}
-		}
-	}*/
-}
-
-static void FenceDoorFix()
-{
-	/* commented out because this is no longer necessary
-	int i, j;
-	BYTE bv0, bv1;
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 146) {
-				bv0 = dungeon[i + 1][j];
-				bv1 = dungeon[i - 1][j];
-				if (bv0 > 152 || bv0 < 130 || bv1 > 152 || bv1 < 130) {
-					dungeon[i][j] = 7;
-					continue;
-				}
-
-				if (bv0 != 130 && bv1 != 130
-				 && bv0 != 132 && bv1 != 132
-				 && bv0 != 133 && bv1 != 133
-				 && bv0 != 134 && bv1 != 134
-				 && bv0 != 136 && bv1 != 136
-				 && bv0 != 138 && bv1 != 138
-				 && bv0 != 140 && bv1 != 140) {
-					dungeon[i][j] = 7;
-					continue;
-				}
-			} else if (dungeon[i][j] == 147) {
-				bv0 = dungeon[i][j + 1];
-				bv1 = dungeon[i][j - 1];
-				if (bv0 > 152 || bv0 < 130 || bv1 > 152 || bv1 < 130) {
-					dungeon[i][j] = 7;
-					continue;
-				}
-
-				if (bv0 != 131 && bv1 != 131
-				 && bv0 != 132 && bv1 != 132
-				 && bv0 != 133 && bv1 != 133
-				 && bv0 != 135 && bv1 != 135
-				 && bv0 != 137 && bv1 != 137
-				 && bv0 != 138 && bv1 != 138
-				 && bv0 != 139 && bv1 != 139) {
-					dungeon[i][j] = 7;
-					continue;
-				}
-			}
-		}
-	}*/
-}
-
+/*
+ * Add fences and planks to the dungeon.
+ * New dungeon values: 121, 122, 123, 124, 125, 126, 127, 128, 129, 130,
+ *                     131, 132, 133, 134, 135, 136, 137, 139, 140, 142, 143, 151, 152
+ */
 static void DRLG_L3Wood()
 {
-	int i, j, x, y, rp, x1, y1, x2, y2;
+	int i, j, x, y, x1, y1;
 	BYTE bv;
 
-	for (j = 1; j < DMAXY - 1; j++) {     // BUGFIX: Change '0' to '1' (fixed)
-		for (i = 1; i < DMAXX - 1; i++) { // BUGFIX: Change '0' to '1' (fixed)
+	// add wooden planks to walls
+	for (j = 0; j < DMAXY; j++) {
+		for (i = 0; i < DMAXX; i++) {
+			// horizontal wall
 			if (dungeon[i][j] == 10 && random_(0, 2) != 0) {
 				x = i;
 				do {
@@ -2014,8 +1866,8 @@ static void DRLG_L3Wood()
 					}
 					dungeon[i][j] = 127;
 				}
-			}
-			if (dungeon[i][j] == 9 && random_(0, 2) != 0) {
+			// vertical wall
+			} else if (dungeon[i][j] == 9 && random_(0, 2) != 0) {
 				y = j;
 				do {
 					y++;
@@ -2028,8 +1880,8 @@ static void DRLG_L3Wood()
 					}
 					dungeon[i][j] = 123;
 				}
-			}
-			if (dungeon[i][j] == 11 && dungeon[i + 1][j] == 10 && dungeon[i][j + 1] == 9 && random_(0, 2) != 0) {
+			// NW-corner
+			} else if (dungeon[i][j] == 11 && dungeon[i + 1][j] == 10 && dungeon[i][j + 1] == 9 && random_(0, 2) != 0) {
 				dungeon[i][j] = 125;
 				x = i + 1;
 				do {
@@ -2052,87 +1904,85 @@ static void DRLG_L3Wood()
 			}
 		}
 	}
-
-	for (j = 1; j < DMAXY; j++) {     // BUGFIX: Change '0' to '1' (fixed)
-		for (i = 1; i < DMAXX; i++) { // BUGFIX: Change '0' to '1' (fixed)
-			if (dungeon[i][j] == 7 && SkipThemeRoom(i, j)) {
-				if (random_(0, 2) == 0) {
-					y1 = j;
-					// BUGFIX: Check `y1 >= 0` first (fixed)
-					while (y1 >= 0 && WoodVertU(i, y1)) {
-						y1--;
+	// add fences between walls
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			bv = dungeon[i][j];
+			if ((bv == 2 || bv == 134 || bv == 136) && random_(0, 4) != 0) {
+				y1 = j;
+				while (TRUE) {
+					y1--;
+					bv = dungeon[i][y1];
+					if (bv == 10 || bv == 126 || bv == 129	// other wall reached
+					 || bv == 134 || bv == 136)				// or crossing fence -> done
+						break;
+					if (bv != 7) {
+						bv = 7;		// mismatching tile -> stop
+						break;
 					}
-					y1++;
-					y2 = j;
-					// BUGFIX: Check `y2 < DMAXY` first (fixed)
-					while (y2 < DMAXY && WoodVertD(i, y2)) {
-						y2++;
+					bv = dungeon[i + 1][y1];
+					if (bv == 7) {
+						bv = dungeon[i - 1][y1];
+						if (bv == 7)
+							continue;
 					}
-					y2--;
-					if (y2 - y1 > 1 && dungeon[i][y1] != 7 && dungeon[i][y2] != 7) {
-						rp = RandRange(y1 + 1, y2 - 1);
-						for (y = y1; y <= y2; y++) {
-							if (y == rp) {
-								continue;
-							}
-							bv = dungeon[i][y];
-							if (bv == 7) {
-								bv = random_(0, 2) != 0 ? 135 : 137;
-							} else if (bv == 10) {
-								bv = 131;
-							} else if (bv == 126 || bv == 129) {
-								bv = 133;
-							} else if (bv == 2) {
-								bv = 139;
-							} else {
-								// assert(bv == 134 || bv == 136);
-								bv = 138;
-							}
-							dungeon[i][y] = bv;
-						}
-					}
-				} else {
-					x1 = i;
-					// BUGFIX: Check `x1 >= 0` first (fixed)
-					while (x1 >= 0 && WoodHorizL(x1, j)) {
-						x1--;
-					}
-					x1++;
-					x2 = i;
-					// BUGFIX: Check `x2 < DMAXX` first (fixed)
-					while (x2 < DMAXX && WoodHorizR(x2, j)) {
-						x2++;
-					}
-					x2--;
-					if (x2 - x1 > 1 && dungeon[x1][j] != 7 && dungeon[x2][j] != 7) {
-						rp = RandRange(x1 + 1, x2 - 1);
-						for (x = x1; x <= x2; x++) {
-							if (x == rp) {
-								continue;
-							}
-							bv = dungeon[x][j];
-							if (bv == 7) {
-								bv = random_(0, 2) != 0 ? 134 : 136;
-							} else if (bv == 9) {
-								bv = 130;
-							} else if (bv == 121 || bv == 124) {
-								bv = 132;
-							} else if (bv == 4) {
-								bv = 140;
-							} else {
-								// assert(bv == 135 || bv == 137);
-								bv = 138;
-							}
-							dungeon[x][j] = bv;
-						}
-					}
+					bv = 7;			// too close to other obstacles -> stop
+					break;
 				}
+				if (bv == 7 || j - y1 <= 1)
+					continue;
+				if ((bv == 134 || bv == 136 || dungeon[i][j] != 2)
+				 && (NearThemeRoom(i, j) && NearThemeRoom(i, y1)))
+					continue;		// in a theme room (or between theme rooms) -> skip
+				// replace first/last tile
+				dungeon[i][y1] = bv == 10 ? 131 : (bv == 126 || bv == 129 ? 133 : 151);
+				dungeon[i][j] = dungeon[i][j] == 2 ? 139 : 142;
+				// replace inner tiles
+				for (y = y1 + 1; y < j; y++) {
+					dungeon[i][y] = random_(0, 2) != 0 ? 135 : 137;
+				}
+				// add door
+				dungeon[i][RandRange(y1 + 1, j - 1)] = 147;
+			} else if ((bv == 4 || bv == 135 || bv == 137) && random_(0, 4) != 0) {
+				x1 = i;
+				while (TRUE) {
+					x1--;
+					bv = dungeon[x1][j];
+					if (bv == 9 || bv == 121 || bv == 124	// other wall reached
+					 || bv == 135 || bv == 137) 			// or crossing fence -> done
+						break;
+					if (bv != 7) {
+						bv = 7;
+						break;		// mismatching tile -> stop
+					}
+					bv = dungeon[x1][j + 1];
+					if (bv == 7) {
+						bv = dungeon[x1][j - 1];
+						if (bv == 7)
+							continue;
+					}
+					bv = 7;
+					break;			// too close to other obstacles -> stop
+				}
+
+				if (bv == 7 || i - x1 <= 1)
+					continue;
+
+				if ((bv == 135 || bv == 137 || dungeon[i][j] != 4)
+				 && (NearThemeRoom(i, j) && NearThemeRoom(x1, j)))
+					continue;		// in a theme room (or between theme rooms) -> skip
+				// replace first/last tile
+				dungeon[x1][j] = bv == 9 ? 130 : (bv == 121 || bv == 124 ? 132 : 152);
+				dungeon[i][j] = dungeon[i][j] == 4 ? 140 : 143;
+				// replace inner tiles
+				for (x = x1 + 1; x < i; x++) {
+					dungeon[x][j] = random_(0, 2) != 0 ? 134 : 136;
+				}
+				// add door
+				dungeon[RandRange(x1 + 1, i - 1)][j] = 146;
 			}
 		}
 	}
-
-	AddFenceDoors();
-	FenceDoorFix();
 }
 
 static void DRLG_L3SetRoom(int rx1, int ry1)
