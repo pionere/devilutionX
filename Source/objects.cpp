@@ -908,7 +908,7 @@ static void AddHookedBodies(int freq)
 				continue;
 			if (random_(0, freq) != 0)
 				continue;
-			if (!SkipThemeRoom(i, j))
+			if (NearThemeRoom(i, j))
 				continue;
 			if (dungeon[i][j] == 1) {
 				if (dungeon[i + 1][j] == 6) {

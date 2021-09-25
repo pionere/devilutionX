@@ -555,7 +555,7 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 	if (xmax < minSize || ymax < minSize) {
 		return false;
 	}
-	//if (!SkipThemeRoom(x, y)) {
+	//if (NearThemeRoom(x, y)) {
 	//	return false;
 	//}
 
@@ -754,17 +754,17 @@ void DRLG_HoldThemeRooms()
 	}
 }
 
-bool SkipThemeRoom(int x, int y)
+bool NearThemeRoom(int x, int y)
 {
 	int i;
 
 	for (i = 0; i < themeCount; i++) {
 		if (x >= themeLoc[i].x - 2 && x < themeLoc[i].x + themeLoc[i].width + 2
 		    && y >= themeLoc[i].y - 2 && y < themeLoc[i].y + themeLoc[i].height + 2)
-			return false;
+			return true;
 	}
 
-	return true;
+	return false;
 }
 
 DEVILUTION_END_NAMESPACE
