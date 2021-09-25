@@ -209,10 +209,134 @@ void InitLvlDungeon()
 		pieceFlags[761] |= PFLAG_BLOCK_PATH;
 		nSolidTable[945] = true; // make the eastern side of Griswold's house consistent (non-walkable)
 		pieceFlags[945] |= PFLAG_BLOCK_PATH;
+		// patch dLvlPieces - Town.MIN
+		// pointless tree micros (re-drawn by dSpecial)
+		pMicroPieces[117].mt[3] = 0;
+		pMicroPieces[117].mt[5] = 0;
+		pMicroPieces[128].mt[2] = 0;
+		pMicroPieces[128].mt[4] = 0;
+		pMicroPieces[128].mt[6] = 0;
+		pMicroPieces[129].mt[3] = 0;
+		pMicroPieces[129].mt[5] = 0;
+		pMicroPieces[129].mt[7] = 0;
+		pMicroPieces[130].mt[2] = 0;
+		pMicroPieces[130].mt[4] = 0;
+		pMicroPieces[130].mt[6] = 0;
+		pMicroPieces[156].mt[2] = 0;
+		pMicroPieces[156].mt[3] = 0;
+		pMicroPieces[156].mt[4] = 0;
+		pMicroPieces[156].mt[5] = 0;
+		pMicroPieces[156].mt[6] = 0;
+		pMicroPieces[156].mt[7] = 0;
+		pMicroPieces[156].mt[8] = 0;
+		pMicroPieces[156].mt[9] = 0;
+		pMicroPieces[156].mt[10] = 0;
+		pMicroPieces[156].mt[11] = 0;
+		pMicroPieces[157].mt[3] = 0;
+		pMicroPieces[157].mt[5] = 0;
+		pMicroPieces[157].mt[7] = 0;
+		pMicroPieces[157].mt[9] = 0;
+		pMicroPieces[157].mt[11] = 0;
+		pMicroPieces[158].mt[2] = 0;
+		pMicroPieces[158].mt[4] = 0;
+		pMicroPieces[160].mt[2] = 0;
+		pMicroPieces[160].mt[3] = 0;
+		pMicroPieces[160].mt[4] = 0;
+		pMicroPieces[160].mt[5] = 0;
+		pMicroPieces[160].mt[6] = 0;
+		pMicroPieces[160].mt[7] = 0;
+		pMicroPieces[160].mt[8] = 0;
+		pMicroPieces[160].mt[9] = 0;
+		pMicroPieces[162].mt[2] = 0;
+		pMicroPieces[162].mt[4] = 0;
+		pMicroPieces[162].mt[6] = 0;
+		pMicroPieces[162].mt[8] = 0;
+		pMicroPieces[162].mt[10] = 0;
+		pMicroPieces[212].mt[3] = 0;
+		pMicroPieces[212].mt[4] = 0;
+		pMicroPieces[212].mt[5] = 0;
+		pMicroPieces[212].mt[6] = 0;
+		pMicroPieces[212].mt[7] = 0;
+		pMicroPieces[212].mt[8] = 0;
+		pMicroPieces[212].mt[9] = 0;
+		pMicroPieces[212].mt[10] = 0;
+		pMicroPieces[212].mt[11] = 0;
+		//pMicroPieces[214].mt[4] = 0;
+		//pMicroPieces[214].mt[6] = 0;
+		pMicroPieces[216].mt[2] = 0;
+		pMicroPieces[216].mt[4] = 0;
+		pMicroPieces[216].mt[6] = 0;
+		//pMicroPieces[217].mt[4] = 0;
+		//pMicroPieces[217].mt[6] = 0;
+		//pMicroPieces[217].mt[8] = 0;
+		//pMicroPieces[358].mt[4] = 0;
+		//pMicroPieces[358].mt[5] = 0;
+		//pMicroPieces[358].mt[6] = 0;
+		//pMicroPieces[358].mt[7] = 0;
+		//pMicroPieces[358].mt[8] = 0;
+		//pMicroPieces[358].mt[9] = 0;
+		//pMicroPieces[358].mt[10] = 0;
+		//pMicroPieces[358].mt[11] = 0;
+		//pMicroPieces[358].mt[12] = 0;
+		//pMicroPieces[358].mt[13] = 0;
+		//pMicroPieces[360].mt[4] = 0;
+		//pMicroPieces[360].mt[6] = 0;
+		//pMicroPieces[360].mt[8] = 0;
+		//pMicroPieces[360].mt[10] = 0;
+		// fix bad artifact
+		pMicroPieces[233].mt[6] = 0;
+		// useless black micros
+		pMicroPieces[426].mt[1] = 0;
+		pMicroPieces[427].mt[0] = 0;
+		pMicroPieces[427].mt[1] = 0;
+		pMicroPieces[429].mt[1] = 0;
+		// fix bad artifacts
+		pMicroPieces[828].mt[12] = 0;
+		pMicroPieces[828].mt[13] = 0;
+		pMicroPieces[1018].mt[2] = 0;
+		// useless black micros
+		pMicroPieces[1143].mt[0] = 0;
+		pMicroPieces[1145].mt[0] = 0;
+		pMicroPieces[1145].mt[1] = 0;
+		pMicroPieces[1146].mt[0] = 0;
+		pMicroPieces[1153].mt[0] = 0;
+		pMicroPieces[1155].mt[1] = 0;
+		pMicroPieces[1156].mt[0] = 0;
+		pMicroPieces[1169].mt[1] = 0;
+		pMicroPieces[1170].mt[0] = 0;
+		pMicroPieces[1170].mt[1] = 0;
+		pMicroPieces[1172].mt[1] = 0;
+		pMicroPieces[1176].mt[1] = 0;
+		pMicroPieces[1199].mt[1] = 0;
+		pMicroPieces[1200].mt[0] = 0;
+		pMicroPieces[1200].mt[1] = 0;
+		pMicroPieces[1202].mt[1] = 0;
+		pMicroPieces[1203].mt[1] = 0;
+		pMicroPieces[1205].mt[1] = 0;
+		pMicroPieces[1212].mt[0] = 0;
+		pMicroPieces[1219].mt[0] = 0;
+#ifdef HELLFIRE
+		// fix bad artifact
+		pMicroPieces[1273].mt[7] = 0;
+#endif
 		break;
 	case DTYPE_CATHEDRAL:
+		// patch dLvlPieces - L1.MIN
+		// useless black micros
+		pMicroPieces[107].mt[0] = 0;
+		pMicroPieces[107].mt[1] = 0;
+		pMicroPieces[109].mt[1] = 0;
+		pMicroPieces[137].mt[1] = 0;
+		pMicroPieces[138].mt[0] = 0;
+		pMicroPieces[138].mt[1] = 0;
+		pMicroPieces[140].mt[1] = 0;
+		break;
 	case DTYPE_CATACOMBS:
+		break;
 	case DTYPE_CAVES:
+		// patch dLvlPieces - L3.MIN
+		// fix bad artifact
+		pMicroPieces[82].mt[4] = 0;
 		break;
 	case DTYPE_HELL:
 		// patch dSolidTable - L4.SOL
@@ -232,11 +356,66 @@ void InitLvlDungeon()
 		pieceFlags[413] &= ~PFLAG_BLOCK_PATH;
 		nSolidTable[416] = false; // make a pool tile walkable III.
 		pieceFlags[416] &= ~PFLAG_BLOCK_PATH;
+		// patch dLvlPieces - L6.MIN
+		// useless black micros
+		pMicroPieces[21].mt[0] = 0;
+		pMicroPieces[21].mt[1] = 0;
+		// fix bad artifacts
+		pMicroPieces[132].mt[7] = 0;
+		pMicroPieces[366].mt[1] = 0;
 		break;
 	case DTYPE_CRYPT:
 		// patch dSolidTable - L5.SOL
 		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
 		pieceFlags[148] &= ~PFLAG_BLOCK_PATH;
+		// patch dLvlPieces - L5.MIN
+		// useless black micros
+		pMicroPieces[130].mt[0] = 0;
+		pMicroPieces[130].mt[1] = 0;
+		pMicroPieces[132].mt[1] = 0;
+		pMicroPieces[134].mt[0] = 0;
+		pMicroPieces[134].mt[1] = 0;
+		pMicroPieces[149].mt[0] = 0;
+		pMicroPieces[149].mt[1] = 0;
+		pMicroPieces[149].mt[2] = 0;
+		pMicroPieces[150].mt[0] = 0;
+		pMicroPieces[150].mt[1] = 0;
+		pMicroPieces[150].mt[2] = 0;
+		pMicroPieces[150].mt[4] = 0;
+		pMicroPieces[151].mt[0] = 0;
+		pMicroPieces[151].mt[1] = 0;
+		pMicroPieces[151].mt[3] = 0;
+		pMicroPieces[152].mt[0] = 0;
+		pMicroPieces[152].mt[1] = 0;
+		pMicroPieces[152].mt[3] = 0;
+		pMicroPieces[152].mt[5] = 0;
+		pMicroPieces[153].mt[0] = 0;
+		pMicroPieces[153].mt[1] = 0;
+		// fix bad artifact
+		pMicroPieces[156].mt[2] = 0;
+		// useless black micros
+		pMicroPieces[172].mt[0] = 0;
+		pMicroPieces[172].mt[1] = 0;
+		pMicroPieces[172].mt[2] = 0;
+		pMicroPieces[173].mt[0] = 0;
+		pMicroPieces[173].mt[1] = 0;
+		pMicroPieces[174].mt[0] = 0;
+		pMicroPieces[174].mt[1] = 0;
+		pMicroPieces[174].mt[2] = 0;
+		pMicroPieces[174].mt[4] = 0;
+		pMicroPieces[175].mt[0] = 0;
+		pMicroPieces[175].mt[1] = 0;
+		pMicroPieces[176].mt[0] = 0;
+		pMicroPieces[176].mt[1] = 0;
+		pMicroPieces[176].mt[3] = 0;
+		pMicroPieces[177].mt[0] = 0;
+		pMicroPieces[177].mt[1] = 0;
+		pMicroPieces[177].mt[3] = 0;
+		pMicroPieces[177].mt[5] = 0;
+		pMicroPieces[178].mt[0] = 0;
+		pMicroPieces[178].mt[1] = 0;
+		pMicroPieces[179].mt[0] = 0;
+		pMicroPieces[179].mt[1] = 0;
 		break;
 #endif
 	default:

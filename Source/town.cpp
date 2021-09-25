@@ -325,11 +325,11 @@ void CreateTown(int entry)
 	dsp = &dSpecial[0][0];
 	dp = &dPiece[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
-		if (*dp == 360)
+		/*if (*dp == 360)
 			pc = 1;
 		else if (*dp == 358)
 			pc = 2;
-		else if (*dp == 129)
+		else*/ if (*dp == 129)
 			pc = 6;
 		else if (*dp == 130)
 			pc = 7;
@@ -347,12 +347,12 @@ void CreateTown(int entry)
 			pc = 13;
 		else if (*dp == 160)
 			pc = 14;
-		else if (*dp == 214)
-			pc = 15;
+		//else if (*dp == 214)
+		//	pc = 15;
 		else if (*dp == 212)
 			pc = 16;
-		else if (*dp == 217)
-			pc = 17;
+		//else if (*dp == 217)
+		//	pc = 17;
 		else if (*dp == 216)
 			pc = 18;
 		else
