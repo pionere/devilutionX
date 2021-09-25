@@ -30,8 +30,6 @@ extern ScrollStruct ScrollInfo;
 extern int light_table_index;
 extern bool gbFrameflag;
 extern bool gbCelTransparencyActive;
-extern bool gbCelFoliageActive;
-extern int level_piece_id;
 
 void ClearCursor();
 void CalcViewportGeometry();

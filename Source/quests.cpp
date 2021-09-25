@@ -297,7 +297,6 @@ static void DrawSkelKing()
 	//DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
 	// patch dSolidTable - L1.SOL
 	nSolidTable[299] = true;
-	pieceFlags[299] |= PFLAG_BLOCK_PATH;
 
 	quests[Q_SKELKING]._qtx = x + 12;
 	quests[Q_SKELKING]._qty = y + 7;

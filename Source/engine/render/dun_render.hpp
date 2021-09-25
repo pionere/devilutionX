@@ -14,7 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, _arch_draw_type adt);
+void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType);
 void world_draw_black_tile(int sx, int sy);
 
 #ifdef __cplusplus

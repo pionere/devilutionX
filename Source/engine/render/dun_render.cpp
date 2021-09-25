@@ -185,10 +185,10 @@ __attribute__((no_sanitize("shift-base")))
  * @param levelCelBlock block/tile to draw
  *   the current MIN block of the level CEL file, as used during rendering of the level tiles.
  *      frameNum  := block & 0x0FFF
- *      frameType := block & 0x7000 >> 12
- * @param adt the type of arches to render.
+ *      frameType := block >> 12
+ * @param maskType the type of mask to apply.
  */
-void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
+void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 {
 	int i, j, light;
 	char v;
@@ -199,37 +199,31 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 	pFrameTable = (uint32_t *)pMicroCels;
 
 	src = &pMicroCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
-	encoding = (levelCelBlock & 0x7000) >> 12;
+	encoding = levelCelBlock >> 12;
 
-	mask = &SolidMask[TILE_HEIGHT - 1];
-
-	if (gbCelTransparencyActive) {
-		if (adt == RADT_NONE) {
-			mask = &WallMask[TILE_HEIGHT - 1];
-		} else if (adt == RADT_LEFT) {
-			if (encoding != MET_LTRIANGLE) {
-				if (pieceFlags[level_piece_id] & PFLAG_TRANS_MASK_LEFT) {
-					mask = &LeftMask[TILE_HEIGHT - 1];
-				}
-			}
-		} else {
-			// assert(adt == RADT_RIGHT);
-			if (encoding != MET_RTRIANGLE) {
-				if (pieceFlags[level_piece_id] & PFLAG_TRANS_MASK_RIGHT) {
-					mask = &RightMask[TILE_HEIGHT - 1];
-				}
-			}
-		}
-	} else if (adt != RADT_NONE && gbCelFoliageActive) {
-		if (encoding != MET_TRANSPARENT) {
-			return;
-		}
-		if (adt == RADT_LEFT) {
-			mask = &LeftFoliageMask[TILE_HEIGHT - 1];
-		} else {
-			// assert(adt == RADT_RIGHT);
-			mask = &RightFoliageMask[TILE_HEIGHT - 1];
-		}
+	switch (maskType) {
+	case DMT_NONE:
+		mask = &SolidMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_TWALL:
+		mask = &WallMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_LTFLOOR:
+		mask = &LeftMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_RTFLOOR:
+		mask = &RightMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_LFLOOR:
+		mask = &LeftFoliageMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_RFLOOR:
+		mask = &RightFoliageMask[TILE_HEIGHT - 1];
+		break;
+	default:
+		ASSUME_UNREACHABLE;
+		mask = &SolidMask[TILE_HEIGHT - 1];
+		break; 
 	}
 
 #ifdef _DEBUG

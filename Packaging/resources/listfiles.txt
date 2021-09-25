@@ -154,6 +154,7 @@ Levels\L1Data\L1.CEL
 Levels\L1Data\L1.MIN
 Levels\L1Data\L1.SOL
 Levels\L1Data\L1.TIL
+Levels\L1Data\L1.TMI
 Levels\L1Data\L1_0.PAL
 Levels\L1Data\L1_1.PAL
 Levels\L1Data\L1_2.pal
@@ -184,6 +185,7 @@ Levels\L2Data\L2.CEL
 Levels\L2Data\L2.MIN
 Levels\L2Data\L2.SOL
 Levels\L2Data\L2.TIL
+Levels\L2Data\L2.TMI
 Levels\L2Data\L2_0.PAL
 Levels\L2Data\L2_1.PAL
 Levels\L2Data\L2_2.pal
@@ -199,6 +201,7 @@ Levels\L3Data\L3.CEL
 Levels\L3Data\L3.MIN
 Levels\L3Data\L3.SOL
 Levels\L3Data\L3.TIL
+Levels\L3Data\L3.TMI
 Levels\L3Data\L3_0.PAL
 Levels\L3Data\L3_1.PAL
 Levels\L3Data\L3_2.PAL
@@ -219,6 +222,7 @@ Levels\L4Data\L4.CEL
 Levels\L4Data\L4.MIN
 Levels\L4Data\L4.SOL
 Levels\L4Data\L4.TIL
+Levels\L4Data\L4.TMI
 Levels\L4Data\L4_0.PAL
 Levels\L4Data\L4_1.PAL
 Levels\L4Data\L4_2.PAL
@@ -238,6 +242,7 @@ Levels\TownData\Town.pal
 Levels\TownData\Town.RDUN
 Levels\TownData\Town.SOL
 Levels\TownData\Town.TIL
+Levels\TownData\Town.TMI
 Levels\TownData\TownS.CEL
 Missiles\Acidbf1.CL2
 Missiles\Acidbf10.CL2
@@ -1393,6 +1398,7 @@ NLevels\L5Data\L5.CEL
 NLevels\L5Data\L5.MIN
 NLevels\L5Data\L5.SOL
 NLevels\L5Data\L5.TIL
+NLevels\L5Data\L5.TMI
 NLevels\L5Data\L5Base.PAL
 NLevels\L5Data\L5S.CEL
 NLevels\L5Data\Nakrul1.DUN
@@ -1402,6 +1408,7 @@ NLevels\L6Data\L6.CEL
 NLevels\L6Data\L6.MIN
 NLevels\L6Data\L6.SOL
 NLevels\L6Data\L6.TIL
+NLevels\L6Data\L6.TMI
 NLevels\L6Data\L6Base0.PAL
 NLevels\L6Data\L6Base1.PAL
 NLevels\L6Data\L6Base2.PAL
@@ -1413,6 +1420,7 @@ NLevels\TownData\Town.CEL
 NLevels\TownData\Town.MIN
 _NLevels\TownData\Town.SOL
 NLevels\TownData\Town.TIL
+NLevels\TownData\Town.TMI
 Objects\Altboy.CEL
 Objects\Angel.CEL
 Objects\Armstand.CEL

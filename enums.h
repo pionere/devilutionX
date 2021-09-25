@@ -2603,6 +2603,16 @@ typedef enum piece_flag {
 	PFLAG_TRAP_SOURCE      = 1 << 7,
 } piece_flag;
 
+typedef enum piece_micro_flag {
+	TMIF_WALL_TRANS = 1 << 0,
+	TMIF_LEFT_REDRAW = 1 << 1,
+	TMIF_LEFT_FOLIAGE = 1 << 2,
+	TMIF_LEFT_WALL_TRANS = 1 << 3,
+	TMIF_RIGHT_REDRAW = 1 << 4,
+	TMIF_RIGHT_FOLIAGE = 1 << 5,
+	TMIF_RIGHT_WALL_TRANS = 1 << 6,
+} piece_micro_flag;
+
 typedef enum micro_encoding_type {
 	MET_SQUARE,
 	MET_TRANSPARENT,
@@ -2612,11 +2622,14 @@ typedef enum micro_encoding_type {
 	MET_RTRAPEZOID
 } micro_encoding_type;
 
-typedef enum _arch_draw_type {
-	RADT_NONE,
-	RADT_LEFT,
-	RADT_RIGHT,
-} _arch_draw_type;
+typedef enum _draw_mask_type {
+	DMT_NONE,
+	DMT_TWALL,
+	DMT_LTFLOOR,
+	DMT_RTFLOOR,
+	DMT_LFLOOR,
+	DMT_RFLOOR,
+} _draw_mask_type;
 
 typedef enum dflag {
 	BFLAG_MISSILE_PRE = 0x01,

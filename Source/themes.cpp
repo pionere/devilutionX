@@ -70,7 +70,7 @@ static bool TFit_Shrine(int tidx)
 	numMatches = 0;
 	while (TRUE) {
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			if ((pieceFlags[dPiece[xx][yy - 1]] & PFLAG_TRAP_SOURCE)
+			if (nTrapTable[dPiece[xx][yy - 1]]
 			 // make sure the place is wide enough
 			 && !nSolidTable[dPiece[xx - 1][yy]]
 			 && !nSolidTable[dPiece[xx + 1][yy]]
@@ -87,7 +87,7 @@ static bool TFit_Shrine(int tidx)
 				if (++numMatches == lengthof(matches))
 					break;
 			}
-			if ((pieceFlags[dPiece[xx - 1][yy]] & PFLAG_TRAP_SOURCE)
+			if (nTrapTable[dPiece[xx - 1][yy]]
 			 // make sure the place is wide enough
 			 && !nSolidTable[dPiece[xx][yy - 1]]
 			 && !nSolidTable[dPiece[xx][yy + 1]]

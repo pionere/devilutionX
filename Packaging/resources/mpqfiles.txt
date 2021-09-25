@@ -8,9 +8,14 @@ Data\SpellBk.CEL
 Data\SpellBkB.CEL
 Data\Quest.CEL
 Levels\L1Data\Butcher.DUN
+Levels\L1Data\L1.TMI
+Levels\L2Data\L2.TMI
 Levels\L3Data\Anvil.DUN
-Levels\TownData\Town.SOL
+Levels\L3Data\L3.TMI
+Levels\L4Data\L4.TMI
 Levels\TownData\Town.RDUN
+Levels\TownData\Town.SOL
+Levels\TownData\Town.TMI
 Missiles\Farrow1.CL2
 Missiles\Farrow10.CL2
 Missiles\Farrow11.CL2
@@ -45,8 +50,11 @@ Missiles\Larrow7.CL2
 Missiles\Larrow8.CL2
 Missiles\Larrow9.CL2
 Missiles\Magicexp.CL2
+NLevels\L5Data\L5.TMI
 NLevels\L5Data\Nakrul1.DUN
 NLevels\L5Data\Nakrul2.DUN
+NLevels\L6Data\L6.TMI
+NLevels\TownData\Town.TMI
 Objects\L1Doors.CEL
 Objects\Sarc.CEL
 ui_art\lrpopup.pcx

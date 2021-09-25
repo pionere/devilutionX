@@ -30,12 +30,14 @@ BYTE *pMegaTiles;
  * The micros of the dPieces
  */
 MICROS pMicroPieces[MAXTILES + 1];
-/** Micro images CEL */
+/*
+ * Micro images CEL
+ */
 BYTE* pMicroCels;
 /**
- * The original flags of the dPieces
+ * Flags to control the drawing of dPieces
  */
-BYTE pieceFlags[MAXTILES + 1];
+BYTE microFlags[MAXTILES + 1];
 /**
  * List of light blocking dPieces
  */
@@ -45,9 +47,9 @@ bool nBlockTable[MAXTILES + 1];
  */
 bool nSolidTable[MAXTILES + 1];
 /**
- * List of transparent dPieces
+ * List of trap-source dPieces
  */
-bool nTransTable[MAXTILES + 1];
+bool nTrapTable[MAXTILES + 1];
 /**
  * List of missile blocking dPieces
  */
@@ -150,6 +152,7 @@ void InitLvlDungeon()
 	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
 	pSpecialCels = LoadFileInMem(lds->dSpecCels);
 	MicroTileLen = lds->dMicroTileLen;
+	LoadFileWithMem(lds->dMicroFlags, microFlags);
 
 	pLPFile = (uint16_t *)LoadFileInMem(lds->dMiniTiles, &dwTiles);
 
@@ -178,7 +181,7 @@ void InitLvlDungeon()
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
 	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));
-	memset(nTransTable, 0, sizeof(nTransTable));
+	memset(nTrapTable, 0, sizeof(nTrapTable));
 	memset(nMissileTable, 0, sizeof(nMissileTable));
 #endif
 	pSBFile = LoadFileInMem(lds->dSolidTable, &dwTiles);
@@ -192,11 +195,10 @@ void InitLvlDungeon()
 
 	for (i = 1; i <= dwTiles; i++) {
 		bv = *pTmp++;
-		pieceFlags[i] = bv;
 		nSolidTable[i] = (bv & PFLAG_BLOCK_PATH) != 0;
 		nBlockTable[i] = (bv & PFLAG_BLOCK_LIGHT) != 0;
 		nMissileTable[i] = (bv & PFLAG_BLOCK_MISSILE) != 0;
-		nTransTable[i] = (bv & PFLAG_TRANSPARENT) != 0;
+		nTrapTable[i] = (bv & PFLAG_TRAP_SOURCE) != 0;
 	}
 
 	mem_free_dbg(pSBFile);
@@ -205,11 +207,9 @@ void InitLvlDungeon()
 	case DTYPE_TOWN:
 		// patch dSolidTable - Town.SOL
 		nSolidTable[553] = false; // allow walking on the left side of the pot at Adria
-		pieceFlags[553] &= ~PFLAG_BLOCK_PATH;
 		nSolidTable[761] = true; // make the tile of the southern window of the church non-walkable
-		pieceFlags[761] |= PFLAG_BLOCK_PATH;
 		nSolidTable[945] = true; // make the eastern side of Griswold's house consistent (non-walkable)
-		pieceFlags[945] |= PFLAG_BLOCK_PATH;
+
 		// patch dMiniTiles - Town.MIN
 		// pointless tree micros (re-drawn by dSpecial)
 		pMicroPieces[117].mt[3] = 0;
@@ -342,21 +342,15 @@ void InitLvlDungeon()
 	case DTYPE_HELL:
 		// patch dSolidTable - L4.SOL
 		nMissileTable[141] = false; // fix missile-blocking tile of down-stairs.
-		//pieceFlags[141] &= ~PFLAG_BLOCK_MISSILE;
 		nSolidTable[130] = true; // make the inner tiles of the down-stairs non-walkable I.
-		pieceFlags[130] |= PFLAG_BLOCK_PATH;
 		nSolidTable[132] = true; // make the inner tiles of the down-stairs non-walkable II.
-		pieceFlags[132] |= PFLAG_BLOCK_PATH;
 		break;
 #ifdef HELLFIRE
 	case DTYPE_NEST:
 		// patch dSolidTable - L6.SOL
 		nSolidTable[390] = false; // make a pool tile walkable I.
-		pieceFlags[390] &= ~PFLAG_BLOCK_PATH;
 		nSolidTable[413] = false; // make a pool tile walkable II.
-		pieceFlags[413] &= ~PFLAG_BLOCK_PATH;
 		nSolidTable[416] = false; // make a pool tile walkable III.
-		pieceFlags[416] &= ~PFLAG_BLOCK_PATH;
 		// patch dMiniTiles - L6.MIN
 		// useless black micros
 		pMicroPieces[21].mt[0] = 0;
@@ -368,7 +362,6 @@ void InitLvlDungeon()
 	case DTYPE_CRYPT:
 		// patch dSolidTable - L5.SOL
 		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
-		pieceFlags[148] &= ~PFLAG_BLOCK_PATH;
 		// patch dMiniTiles - L5.MIN
 		// useless black micros
 		pMicroPieces[130].mt[0] = 0;

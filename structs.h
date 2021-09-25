@@ -1269,6 +1269,7 @@ typedef struct LevelData {
 	const char* dLevelName;
 	const char* dAutomapData;
 	const char* dSolidTable;
+	const char* dMicroFlags;
 	const char* dMicroCels;
 	const char* dMegaTiles;
 	const char* dMiniTiles;
@@ -1282,7 +1283,7 @@ typedef struct LevelData {
 	BYTE dSetLvlDunY;
 	BYTE dMonTypes[32];
 #ifdef X86_32bit_COMP
-	int alignment[9];
+	int alignment[8];
 #endif
 } LevelData;
 

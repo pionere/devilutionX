@@ -53,14 +53,6 @@ int sgCursYOld;
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
 bool gbCelTransparencyActive;
-/**
- * Specifies whether foliage (tile has extra content that overlaps previous tile) being rendered.
- */
-bool gbCelFoliageActive;
-/**
- * Specifies the current dungeon piece ID of the level, as used during rendering of the level tiles.
- */
-int level_piece_id;
 void (*DrawPlrProc)(int, int, int, int, int, BYTE *, int, int, int, int);
 /**
  * Buffer to store the cursor image.
@@ -556,16 +548,17 @@ static void DrawObject(int oi, int x, int y, int ox, int oy, BOOL pre)
 
 /**
  * @brief Render a cell
+ * @param pn piece number
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void drawCell(int sx, int sy)
+static void drawCell(int pn, int sx, int sy)
 {
 	BYTE *dst, i;
 	uint16_t levelCelBlock;
 	BYTE limit;
-	MICROS *pMap;
-	int tmp;
+	uint16_t* pMap;
+	int tmp, mask;
 
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
 		return;
@@ -593,29 +586,61 @@ static void drawCell(int sx, int sy)
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[level_piece_id];
+	pMap = &pMicroPieces[pn].mt[i];
+	tmp = microFlags[pn];
+	tmp &= gbCelTransparencyActive ? ~0 : ~(TMIF_LEFT_WALL_TRANS | TMIF_RIGHT_WALL_TRANS | TMIF_WALL_TRANS);
+	if (i == 0) {
+		levelCelBlock = *pMap;
+		if (levelCelBlock != 0 && (tmp & TMIF_LEFT_REDRAW)) {
+			mask = DMT_NONE;
+			if (tmp & TMIF_LEFT_WALL_TRANS) {
+				mask = DMT_LTFLOOR;	// &LeftMask[TILE_HEIGHT - 1];
+			} else if (tmp & TMIF_LEFT_FOLIAGE) {
+				mask = DMT_LFLOOR;	// &LeftFoliageMask[TILE_HEIGHT - 1];
+			}
+			RenderMicro(dst, levelCelBlock, mask);
+		}
+		pMap++;
+		levelCelBlock = *pMap;
+		if (levelCelBlock != 0 && (tmp & TMIF_RIGHT_REDRAW)) {
+			mask = DMT_NONE;
+			if (tmp & TMIF_RIGHT_WALL_TRANS) {
+				mask = DMT_RTFLOOR;	// &RightMask[TILE_HEIGHT - 1];
+			} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+				mask = DMT_RFLOOR;	// &RightFoliageMask[TILE_HEIGHT - 1];
+			}
+			RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, mask);
+		}
+		pMap++;
+		dst -= BUFFER_WIDTH * TILE_HEIGHT;
+		i = 2;
+	}
 
+	mask = (tmp & TMIF_WALL_TRANS) ? DMT_TWALL : DMT_NONE; // &WallMask[TILE_HEIGHT - 1]
 	for ( ; i < limit; i += 2) {
-		levelCelBlock = pMap->mt[i];
+		levelCelBlock = *pMap;
 		if (levelCelBlock != 0) {
-			RenderMicro(dst, levelCelBlock, i == 0 ? RADT_LEFT : RADT_NONE);
+			RenderMicro(dst, levelCelBlock, mask);
 		}
-		levelCelBlock = pMap->mt[i + 1];
+		pMap++;
+		levelCelBlock = *pMap;
 		if (levelCelBlock != 0) {
-			RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, i == 0 ? RADT_RIGHT : RADT_NONE);
+			RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, mask);
 		}
+		pMap++;
 		dst -= BUFFER_WIDTH * TILE_HEIGHT;
 	}
 }
 
 /**
  * @brief Render a floor tiles
+ * @param pn piece number
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void drawFloor(int sx, int sy)
+static void drawFloor(int pn, int sx, int sy)
 {
-	BYTE *dst;
+	BYTE *dst, tmp;
 	uint16_t levelCelBlock;
 	MICROS *pMap;
 
@@ -627,15 +652,16 @@ static void drawFloor(int sx, int sy)
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[level_piece_id];
+	pMap = &pMicroPieces[pn];
+	tmp = microFlags[pn];
 
 	levelCelBlock = pMap->mt[0];
-	if (levelCelBlock != 0) {
-		RenderMicro(dst, levelCelBlock, RADT_LEFT);
+	if (levelCelBlock != 0 && (tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
+		RenderMicro(dst, levelCelBlock, DMT_NONE);
 	}
 	levelCelBlock = pMap->mt[1];
-	if (levelCelBlock != 0) {
-		RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, RADT_RIGHT);
+	if (levelCelBlock != 0 && (tmp & (TMIF_RIGHT_REDRAW | TMIF_RIGHT_FOLIAGE)) != TMIF_RIGHT_REDRAW) {
+		RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, DMT_NONE);
 	}
 }
 
@@ -742,11 +768,10 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 
 	bFlag = dFlags[sx][sy];
 	light_table_index = dLight[sx][sy];
-	level_piece_id = dPiece[sx][sy];
-	gbCelTransparencyActive = (nTransTable[level_piece_id] & TransList[dTransVal[sx][sy]]);
-	gbCelFoliageActive = !nSolidTable[level_piece_id];
+	gbCelTransparencyActive = TransList[dTransVal[sx][sy]];
 
-	drawCell(dx, dy);
+	mpnum = dPiece[sx][sy];
+	drawCell(mpnum, dx, dy);
 
 #ifdef _DEBUG
 	if (visiondebug && (bFlag & BFLAG_LIT)) {
@@ -791,7 +816,6 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	if (currLvl._dType != DTYPE_TOWN) {
 		bv = dSpecial[sx][sy];
 		if (bv != 0) {
-			gbCelTransparencyActive = TransList[dTransVal[sx][sy]];
 			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, 64);
 		}
 	} else {
@@ -818,21 +842,20 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
  */
 static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int columns)
 {
-	assert(gpBuffer != NULL);
+	//int pn;
 
-	gbCelTransparencyActive = false;
-	gbCelFoliageActive = false;
+	assert(gpBuffer != NULL);
 
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
 			if (IN_DUNGEON_AREA(x, y)) {
-				level_piece_id = dPiece[x][y];
-				assert(level_piece_id != 0);
-				//if (level_piece_id != 0) {
-					if (!nSolidTable[level_piece_id]) {
+				//pn = dPiece[x][y];
+				//assert(pn != 0);
+				//if (pn != 0) {
+					//if ((microFlags[pn] & (~(TMIF_WALL_TRANS))) != (TMIF_LEFT_REDRAW | TMIF_RIGHT_REDRAW))
 						light_table_index = dLight[x][y];
-						drawFloor(sx, sy);
-					}
+						drawFloor(dPiece[x][y], sx, sy);
+					//}
 				//} else {
 				//	world_draw_black_tile(sx, sy);
 				//}
