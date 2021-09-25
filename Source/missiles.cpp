@@ -1317,7 +1317,7 @@ void InitMissiles()
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitMissiles.");
 	pTmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
-		*pTmp &= ~BFLAG_MISSILE_PRE;
+		assert((*pTmp & BFLAG_MISSILE_PRE) == 0);
 }
 
 #ifdef HELLFIRE
