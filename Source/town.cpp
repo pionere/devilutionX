@@ -226,14 +226,16 @@ static BYTE GetOpenWarps()
 static void T_Pass3()
 {
 	int x;
-
+#if INT_MAX == INT32_MAX && SDL_BYTEORDER != SDL_BIG_ENDIAN
 	LoadFileWithMem("Levels\\TownData\\Town.RDUN", (BYTE*)&dPiece[0][0]);
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	for (x = 0; x < MAXDUNX; x++) {
-		for (int y = 0; y < MAXDUNY; y++) {
-			dPiece[x][y] = SwapLE32(dPiece[x][y]);
-		}
-	}
+#else
+	uint32_t* pBuf = (uint32_t*)LoadFileInMem("Levels\\TownData\\Town.RDUN");
+	int* dp = &dPiece[0][0];
+	uint32_t* pTmp = pBuf;
+	for (x = 0; x < MAXDUNX * MAXDUNY; x++, dp++, pTmp++)
+		*dp = SwapLE32(*pTmp);
+
+	mem_free_dbg(pBuf);
 #endif
 
 	if (quests[Q_PWATER]._qvar1 != 2) {
