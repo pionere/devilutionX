@@ -1706,6 +1706,29 @@ static void DRLG_L2Subs()
 	}
 }
 
+/*
+ * Replace open doors with either a closed one or a doorway.
+ * New dungeon values: 150 151 156 157
+ */
+static void DRLG_L2DoorSubs()
+{
+	int x, y;
+
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
+			if (drlgFlags[x][y])
+				continue;
+			if (dungeon[x][y] == 4) {
+				// LDOOR
+				dungeon[x][y] = random_(136, 2) ? 150 : 156; // closed door / doorway
+			} else if (dungeon[x][y] == 5) {
+				// HDOOR
+				dungeon[x][y] = random_(136, 2) ? 151 : 157; // closed door / doorway
+			}
+		}
+	}
+}
+
 static void DRLG_L2Shadows()
 {
 	const ShadowStruct* ss;
@@ -1742,6 +1765,9 @@ static void DRLG_LoadL2SP()
 	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_BLIND)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blind1.DUN");
+		// 'patch' the map to place pieces with closed doors
+		pSetPiece[(2 + 4 + 3 * 11) * 2] = 150;
+		pSetPiece[(2 + 6 + 7 * 11) * 2] = 150;
 	} else if (QuestStatus(Q_BLOOD)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
 	} else if (QuestStatus(Q_SCHAMB)) {
@@ -3296,6 +3322,7 @@ static void DRLG_L2(int entry)
 	DRLG_L2PlaceRndSet(BIG9, 20);
 	DRLG_L2PlaceRndSet(BIG10, 20);
 	DRLG_L2Subs();
+	DRLG_L2DoorSubs();
 	DRLG_L2Shadows();
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
@@ -3311,9 +3338,11 @@ void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)
 	for (j = y1; j <= y2; j++) {
 		for (i = x1; i <= x2; i++) {
 			pn = dPiece[i][j];
-			if (pn == 541 || pn == 178 || pn == 551)
+			// 13 and 17 are open doors
+			// 178, 551 and 553 are doorways (TODO: add 541 and 542?)
+			if (pn == 13 || pn == 178 || pn == 551)
 				pn = 5;
-			else if (pn == 542 || pn == 553)
+			else if (pn == 17 || pn == 553)
 				pn = 6;
 			else
 				pn = 0;
@@ -3340,6 +3369,8 @@ static void DRLG_L2SetMapFix()
 {
 	// this logic should not be applied to 'proper' set-levels.
 	assert(currLvl._dLevelIdx == SL_BONECHAMB);
+	// 'patch' the map to place pieces with closed doors
+	dungeon[17][11] = 150;
 	// 'patch' the map to remove shadows
 	dungeon[12][5] = 33;
 	dungeon[12][13] = 84;

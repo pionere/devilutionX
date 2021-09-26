@@ -128,8 +128,11 @@ void InitLvlAutomap()
 	mem_free_dbg(pAFile);
 
 	// patch dAutomapData - L2.AMP
-	if (currLvl._dType == DTYPE_CATACOMBS)
+	if (currLvl._dType == DTYPE_CATACOMBS) {
 		automaptype[42] &= ~MAPFLAG_HORZARCH;
+		automaptype[156] &= ~(MAPFLAG_VERTDOOR | MAPFLAG_TYPE);
+		automaptype[157] &= ~(MAPFLAG_HORZDOOR | MAPFLAG_TYPE);
+	}
 	// patch dAutomapData - L4.AMP
 	if (currLvl._dType == DTYPE_HELL) {
 		automaptype[52] |= MAPFLAG_VERTGRATE;

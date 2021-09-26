@@ -480,12 +480,12 @@ void AddL2Objs(int x1, int y1, int x2, int y2)
 	for (j = y1; j < y2; j++) {
 		for (i = x1; i < x2; i++) {
 			pn = dPiece[i][j];
-			// 13 and 17 pieces are open doors and closed right away...
-			// 541 and 542 pieces are 'placeholders' for doors
-			// 538 and 540 pieces are closed doors which are not placed directly...
-			if (pn == 13 || pn == 541)
+			// 13 and 17 pieces are open doors and not handled at the moment
+			// 541 and 542 are doorways which are no longer handled as doors
+			// 538 and 540 pieces are closed doors
+			if (/*pn == 13 ||*/ pn == 538 /*|| pn == 541*/)
 				AddObject(OBJ_L2LDOOR, i, j);
-			if (pn == 17 || pn == 542)
+			if (/*pn == 17 ||*/ pn == 540 /*|| pn == 542*/)
 				AddObject(OBJ_L2RDOOR, i, j);
 		}
 	}
@@ -1199,8 +1199,6 @@ static void AddDoor(int oi)
 	else
 		bx--;
 	os->_oVar2 = dPiece[bx][by];
-	if (dMonster[x][y] != 0)
-		OpenDoor(oi);
 }
 
 static void AddSarc(int oi)
@@ -1461,26 +1459,16 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
-		AddDoor(oi);
-		//SyncL1Doors(oi);
-		break;
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
-		AddDoor(oi);
-		SyncL2Doors(oi);
-		break;
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
-		AddDoor(oi);
-		SyncL3Doors(oi);
-		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
 	case OBJ_L5RDOOR:
-		AddDoor(oi);
-		SyncL5Doors(oi);
-		break;
 #endif
+		AddDoor(oi);
+		break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
