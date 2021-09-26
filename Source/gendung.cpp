@@ -362,6 +362,24 @@ void InitLvlDungeon()
 	case DTYPE_CRYPT:
 		// patch dSolidTable - L5.SOL
 		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
+		// make collision-checks more reasonable
+		//  - prevent non-crossable floor-tile configurations I.
+		nSolidTable[461] = false;
+		//  - set top right tile of an arch non-walkable (full of lava)
+		//nSolidTable[471] = true;
+		//  - set top right tile of a pillar walkable (just a small obstacle)
+		nSolidTable[481] = false;
+		//  - tile 491 is the same as tile 594 which is not solid
+		//  - prevents non-crossable floor-tile configurations
+		nSolidTable[491] = false;
+		//  - set bottom left tile of a rock non-walkable (rather large obstacle, feet of the hero does not fit)
+		//  - prevents non-crossable floor-tile configurations
+		nSolidTable[523] = true;
+		//  - set the top right tile of a floor mega walkable (similar to 594 which is not solid)
+		nSolidTable[570] = false;
+		//  - prevent non-crossable floor-tile configurations II.
+		nSolidTable[598] = false;
+		nSolidTable[600] = false;
 		// patch dMiniTiles - L5.MIN
 		// useless black micros
 		pMicroPieces[130].mt[0] = 0;
