@@ -833,14 +833,11 @@ static void PlaceUniques()
 	}
 }
 
-static void PlaceQuestMonsters()
+static void PlaceSetMapMonsters()
 {
 	BYTE *setp;
 
 	if (!currLvl._dSetLvl) {
-		if (QuestStatus(Q_BUTCHER)) {
-			PlaceUniqueMonst(UMT_BUTCHER, 0, 0);
-		}
 		if (QuestStatus(Q_LTBANNER)) {
 			setp = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
@@ -891,10 +888,6 @@ static void PlaceQuestMonsters()
 			setp = LoadFileInMem("Levels\\L4Data\\diab4a.DUN");
 			SetMapMonsters(setp, DIAB_QUAD_4X, DIAB_QUAD_4Y);
 			mem_free_dbg(setp);
-#ifdef HELLFIRE
-		} else if (currLvl._dLevelIdx == DLV_CRYPT4) {
-			PlaceUniqueMonst(UMT_NAKRUL, 0, 0);
-#endif
 		}
 	} else if (currLvl._dLevelIdx == SL_SKELKING) {
 		PlaceUniqueMonst(UMT_SKELKING, 0, 0);
@@ -936,8 +929,8 @@ void InitMonsters()
 				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false, false);
 		}
 	}
-	// place the mandatory monsters
-	PlaceQuestMonsters();
+	// place the setmap/setpiece monsters
+	PlaceSetMapMonsters();
 	if (!currLvl._dSetLvl) {
 		// calculate the available space for monsters
 		na = 0;
@@ -951,7 +944,7 @@ void InitMonsters()
 		if (numplacemonsters > MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters)
 			numplacemonsters = MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters;
 		totalmonsters = nummonsters + numplacemonsters;
-		// place the optional monsters
+		// place quest/unique monsters
 		PlaceUniques();
 		numscattypes = 0;
 		for (i = 0; i < nummtypes; i++) {

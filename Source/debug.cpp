@@ -307,6 +307,8 @@ void ValidateData()
 		int lvl = um.muLevelIdx;
 		if (lvl == 0 && um.mQuestId != Q_INVALID)
 			app_fatal("Inconsistent unique monster %s (%d). Has a quest, but no quest-level.", um.mName, i);
+		if (lvl != 0 && um.mQuestId != Q_INVALID && lvl != questlist[um.mQuestId]._qdlvl)
+			app_fatal("Inconsistent unique monster %s (%d). Has a quest, but its level-idx (%d) does not match the quest-level (%d).", um.mName, i, lvl, questlist[um.mQuestId]._qdlvl);
 		if (lvl != 0 && um.mQuestId == Q_INVALID
 		 && (lvl != DLV_HELL4 || (um.mtype != MT_ADVOCATE && um.mtype != MT_RBLACK))
 #ifdef HELLFIRE
