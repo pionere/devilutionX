@@ -1804,6 +1804,9 @@ static void DRLG_FreeL2SP()
 	MemFreeDbg(pSetPiece);
 }
 
+/*
+ * Draw set-room + reserve its tiles.
+ */
 static void DRLG_L2SetRoom(int rx1, int ry1)
 {
 	int rw, rh, i, j;
@@ -1814,8 +1817,8 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 
 	// assert(setpc_x == rx1);
 	// assert(setpc_y == ry1);
-	setpc_w = rw;
-	setpc_h = rh;
+	assert(setpc_w == rw);
+	assert(setpc_h == rh);
 
 	sp = &pSetPiece[4];
 
@@ -1869,10 +1872,10 @@ static void DL2_DrawRoom(int x1, int y1, int x2, int y2)
  * @param nY2 Upper Y boundary of the area to draw into.
  * @param nRDest The room number of the parent room this call was invoked for. negative if empty
  * @param nHDir The direction of the hall from nRDest to this room.
- * @param nH Height of the room - 1, if not zero.
  * @param nW Width of the room - 1, if set
+ * @param nH Height of the room - 1, if not zero.
  */
-static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir, int nH, int nW)
+static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir, int nW, int nH)
 {
 	int nAw, nAh, nRw, nRh, nRx1, nRy1, nRx2, nRy2, nHx1, nHy1, nHx2, nHy2, nRid;
 
@@ -2786,7 +2789,7 @@ next_try:
 
 static void DRLG_L2CreateDungeon()
 {
-	int i, j, k, ForceH, ForceW;
+	int i, j, k, ForceW, ForceH;
 
 	ForceW = 0;
 	ForceH = 0;
@@ -2797,9 +2800,11 @@ static void DRLG_L2CreateDungeon()
 	}
 
 	nRoomCnt = 0;
-	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, -1, HDIR_NONE, ForceH, ForceW);
+	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, -1, HDIR_NONE, ForceW, ForceH);
 
 	if (pSetPiece != NULL) {
+		setpc_w = ForceW - 3;
+		setpc_h = ForceH - 3;
 		setpc_x = RoomList[0].nRoomx1 + 2;
 		setpc_y = RoomList[0].nRoomy1 + 2;
 	}
