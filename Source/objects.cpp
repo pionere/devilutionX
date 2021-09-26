@@ -41,7 +41,7 @@ const int bxadd[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 /** Specifies the Y-coordinate delta between barrels. */
 const int byadd[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
 /** Maps from shrine_id to shrine name. */
-const char *const shrinestrs[NUM_SHRINETYPE] = {
+const char* const shrinestrs[NUM_SHRINETYPE] = {
 	"Hidden",
 	"Gloomy",
 	"Weird",
@@ -144,7 +144,7 @@ const int flickers[1][32] = {
 
 void InitObjectGFX()
 {
-	const ObjectData *ods;
+	const ObjectData* ods;
 	bool themeload[NUM_THEMES];
 	bool fileload[NUM_OFILE_TYPES];
 	char filestr[32];
@@ -200,7 +200,7 @@ static bool RndLocOk(int xp, int yp)
 	return false;
 }
 
-static bool RndLoc3x3(int *x, int *y)
+static bool RndLoc3x3(int* x, int* y)
 {
 	int xp, yp, i, j, tries;
 
@@ -224,7 +224,7 @@ fail:
 	return false;
 }
 
-static bool RndLoc3x4(int *x, int *y)
+static bool RndLoc3x4(int* x, int* y)
 {
 	int xp, yp, i, j, tries;
 
@@ -248,7 +248,7 @@ fail:
 	return false;
 }
 
-static bool RndLoc5x5(int *x, int *y)
+static bool RndLoc5x5(int* x, int* y)
 {
 	int xp, yp, i, j, tries;
 
@@ -272,7 +272,7 @@ fail:
 	return false;
 }
 
-static bool RndLoc7x5(int *x, int *y)
+static bool RndLoc7x5(int* x, int* y)
 {
 	int xp, yp, i, j, tries;
 
@@ -296,7 +296,7 @@ fail:
 	return false;
 }
 
-static bool RndLoc6x7(int *x, int *y)
+static bool RndLoc6x7(int* x, int* y)
 {
 	int xp, yp, i, j, tries;
 
@@ -653,14 +653,14 @@ typedef struct LeverRect {
 	int y2;
 	int leveridx;
 } LeverRect;
-static void LoadMapSetObjects(const char *map, int startx, int starty, const LeverRect *lvrRect)
+static void LoadMapSetObjects(const char* map, int startx, int starty, const LeverRect* lvrRect)
 {
-	BYTE *pMap = LoadFileInMem(map);
+	BYTE* pMap = LoadFileInMem(map);
 	int i, j, oi;
 	uint16_t rw, rh, *lm;
 
 	//gbInitObjFlag = true;
-	lm = (uint16_t *)pMap;
+	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);
@@ -691,15 +691,15 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, const Lev
 	mem_free_dbg(pMap);
 }
 
-static void LoadMapSetObjs(const char *map)
+static void LoadMapSetObjs(const char* map)
 {
 	LoadMapSetObjects(map, 2 * setpc_x, 2 * setpc_y, NULL);
 }
 
 static void SetupObject(int oi, int x, int y, int type)
 {
-	ObjectStruct *os;
-	const ObjectData *ods;
+	ObjectStruct* os;
+	const ObjectData* ods;
 	const ObjFileData* ofd;
 
 	os = &objects[oi];
@@ -749,7 +749,7 @@ static void AddDiabObjs()
 #ifdef HELLFIRE
 static void SetupHBook(int oi, int bookidx)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int bookframe = 1;
 
 	os = &objects[oi];
@@ -1074,7 +1074,7 @@ void InitObjects()
 	//gbInitObjFlag = false;
 }
 
-void SetMapObjects(BYTE *pMap)
+void SetMapObjects(BYTE* pMap)
 {
 	int i, j;
 	uint16_t rw, rh, *lm, *h;
@@ -1091,7 +1091,7 @@ void SetMapObjects(BYTE *pMap)
 			fileload[objectdata[i].ofindex] = true;
 	}
 
-	lm = (uint16_t *)pMap;
+	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);
@@ -1145,7 +1145,7 @@ void SetMapObjects(BYTE *pMap)
 
 void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	// LEVER_EFFECT
@@ -1159,7 +1159,7 @@ void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 
 static void AddChest(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int num;
 
 	os = &objects[oi];
@@ -1203,7 +1203,7 @@ static void AddDoor(int oi)
 
 static void AddSarc(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	dObject[os->_ox][os->_oy - 1] = -(oi + 1);
@@ -1215,7 +1215,7 @@ static void AddSarc(int oi)
 
 /*static void AddFlameTrap(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	os->_oVar1 = trapid; // FLAMETRAP_ID
@@ -1226,7 +1226,7 @@ static void AddSarc(int oi)
 
 static void AddFlameLever(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	os->_oVar1 = trapid; // FLAMETRAP_ID
@@ -1234,7 +1234,7 @@ static void AddFlameLever(int oi)
 
 static void AddTrap(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int mt;
 
 	mt = currLvl._dLevel;
@@ -1254,7 +1254,7 @@ static void AddTrap(int oi)
 
 static void AddObjLight(int oi, int diffr)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	//if (gbInitObjFlag) {
@@ -1266,7 +1266,7 @@ static void AddObjLight(int oi, int diffr)
 
 static void AddBarrel(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	//os->_oVar1 = 0;
@@ -1298,7 +1298,7 @@ static int FindValidShrine(int filter)
 
 static void AddShrine(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	os->_oPreFlag = TRUE;
@@ -1312,7 +1312,7 @@ static void AddShrine(int oi)
 
 static void AddBookcase(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
@@ -1326,7 +1326,7 @@ static void ObjAddRndSeed(int oi)
 
 static void AddArmorStand(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
@@ -1334,7 +1334,7 @@ static void AddArmorStand(int oi)
 
 static void AddCauldronGoatShrine(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
@@ -1343,7 +1343,7 @@ static void AddCauldronGoatShrine(int oi)
 
 static void AddDecap(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
@@ -1360,7 +1360,7 @@ static void AddVileBook(int oi)
 
 static void AddMagicCircle(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	//os->_oRndSeed = GetRndSeed();
@@ -1371,7 +1371,7 @@ static void AddMagicCircle(int oi)
 
 static void AddStoryBook(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	BYTE bookframe, idx;
 
 	static_assert((int)DLV_CATHEDRAL4 == 4, "AddStoryBook converts DLV to index with shift I.");
@@ -1390,7 +1390,7 @@ static void AddStoryBook(int oi)
 
 static void AddWeaponRack(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
@@ -1398,7 +1398,7 @@ static void AddWeaponRack(int oi)
 
 static void AddTorturedMaleBody(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	//os->_oRndSeed = GetRndSeed();
@@ -1577,12 +1577,12 @@ int AddObject(int type, int ox, int oy)
 
 static void Obj_Light(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int ox, oy, dx, dy, pnum, tr;
 	bool turnon;
 
 	const int lr = 8;
-	const int *flicker = flickers[0];
+	const int* flicker = flickers[0];
 
 	os = &objects[oi];
 	ox = os->_ox;
@@ -1619,7 +1619,7 @@ static void Obj_Light(int oi)
 	}
 }
 
-static void GetVileMissPos(int *dx, int *dy)
+static void GetVileMissPos(int* dx, int* dy)
 {
 	int xx, yy, k, j, i;
 
@@ -1643,7 +1643,7 @@ static void GetVileMissPos(int *dx, int *dy)
 
 static void Obj_Circle(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int ox, oy;
 
 	os = &objects[oi];
@@ -1692,7 +1692,7 @@ static void Obj_Circle(int oi)
 
 static void Obj_StopAnim(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oAnimFrame == os->_oAnimLen) {
@@ -1702,7 +1702,7 @@ static void Obj_StopAnim(int oi)
 
 static void Obj_Door(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int dx, dy;
 	bool dok;
 
@@ -1717,7 +1717,7 @@ static void Obj_Door(int oi)
 
 /*static void ActivateTrapLine(int tid)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int i;
 
 	for (i = 0; i < numobjects; i++) {
@@ -1733,7 +1733,7 @@ static void Obj_Door(int oi)
 
 static void Obj_FlameTrap(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int x, y;
 	int i;
 
@@ -1864,7 +1864,7 @@ static void Obj_Trap(int oi)
 
 static void Obj_BCrossDamage(int oi)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	int fire_resist, damage;
 
 	p = &myplr;
@@ -1988,9 +1988,9 @@ static void ObjSetMini(int x, int y, int v)
 {
 	int xx, yy;
 	long v1, v2, v3, v4;
-	uint16_t *MegaTiles;
+	uint16_t* MegaTiles;
 
-	MegaTiles = (uint16_t *)&pMegaTiles[(v - 1) * 8];
+	MegaTiles = (uint16_t*)&pMegaTiles[(v - 1) * 8];
 	v1 = SwapLE16(*(MegaTiles + 0)) + 1;
 	v2 = SwapLE16(*(MegaTiles + 1)) + 1;
 	v3 = SwapLE16(*(MegaTiles + 2)) + 1;
@@ -2093,7 +2093,7 @@ void RedoPlayerVision()
 
 static void OpenDoor(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	os->_oVar4 = DOOR_OPEN;
@@ -2105,7 +2105,7 @@ static void OpenDoor(int oi)
 
 static bool CloseDoor(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int xp, yp;
 
 	os = &objects[oi];
@@ -2143,7 +2143,7 @@ static bool PlrCheckDoor(int oi, int pnum)
 
 static void OperateL1Door(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	// open a closed door
@@ -2176,7 +2176,7 @@ static void OperateL1Door(int oi, bool sendmsg)
 #ifdef HELLFIRE
 static void OperateL5Door(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int sfx;
 
 	os = &objects[oi];
@@ -2211,7 +2211,7 @@ static void OperateL5Door(int oi, bool sendmsg)
 
 static void OperateL2Door(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	// open a closed door
@@ -2242,7 +2242,7 @@ static void OperateL2Door(int oi, bool sendmsg)
 
 static void OperateL3Door(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	// open a closed door
@@ -2453,7 +2453,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 
 static void OperateBookLever(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int qn;
 
 	if (numitems >= MAXITEMS && !deltaload) {
@@ -2495,7 +2495,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 
 static void OperateChest(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int i, mdir;
 
 	os = &objects[oi];
@@ -2534,7 +2534,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 
 static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	if (numitems >= MAXITEMS) {
 		return;
@@ -2557,7 +2557,7 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 
 static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	if (numitems >= MAXITEMS) {
 		return;
@@ -2585,7 +2585,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 
 static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	BYTE pc;
 
 	os = &objects[oi];
@@ -2640,7 +2640,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 
 static void OperateSarc(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oSelFlag == 0)
@@ -2670,7 +2670,7 @@ static void OperateSarc(int oi, bool sendmsg)
  */
 static void OperatePedistal(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int iv;
 
 	os = &objects[oi];
@@ -2772,7 +2772,7 @@ void DisarmObject(int pnum, int oi)
 
 static void CloseChest(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oSelFlag != 0)
@@ -2818,7 +2818,7 @@ static void AddRaiseSkill(int pnum, int sn)
 	}
 }
 
-static void ConvertPotion(ItemStruct *pi)
+static void ConvertPotion(ItemStruct* pi)
 {
 	if (pi->_itype != ITYPE_MISC)
 		return;
@@ -3004,7 +3004,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 
 static void OperateShrine(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int i;
 #ifdef HELLFIRE
 	int xx, yy;
@@ -3272,7 +3272,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		static_assert(MIS_RUNEFIRE + 1 == MIS_RUNELIGHT, "SHRINE_SOLAR expects runes in a given order I.");
 		static_assert(MIS_RUNEFIRE + 2 == MIS_RUNENOVA, "SHRINE_SOLAR expects runes in a given order II.");
 		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEWAVE, "SHRINE_SOLAR expects runes in a given order III.");
-		const char *cr = &CrawlTable[CrawlNum[3]];
+		const char* cr = &CrawlTable[CrawlNum[3]];
 		for (i = (BYTE)*cr; i > 0; i--) {
 			xx = plr._px + *++cr;
 			yy = plr._py + *++cr;
@@ -3298,7 +3298,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 
 static void OperateSkelBook(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oSelFlag == 0)
@@ -3320,7 +3320,7 @@ static void OperateSkelBook(int oi, bool sendmsg)
 
 static void OperateBookCase(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oSelFlag == 0)
@@ -3353,7 +3353,7 @@ static void OperateBookCase(int pnum, int oi, bool sendmsg)
 
 static void OperateDecap(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oSelFlag == 0)
@@ -3372,7 +3372,7 @@ static void OperateDecap(int oi, bool sendmsg)
 
 static void OperateArmorStand(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int itype;
 
 	os = &objects[oi];
@@ -3409,7 +3409,7 @@ static void OperateCauldron(int pnum, int oi, bool sendmsg)
 
 static void OperateFountains(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	// SetRndSeed(os->_oRndSeed);
@@ -3465,7 +3465,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 
 static void OperateWeaponRack(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oSelFlag == 0)
@@ -3492,7 +3492,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
  */
 static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	// assert(os->_oSelFlag != 0);
@@ -3859,12 +3859,14 @@ void SyncOpObject(int pnum, int oi)
 	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
+		OperateL1Door(oi, false);
+		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
 	case OBJ_L5RDOOR:
-#endif
-		OperateL1Door(oi, false);
+		OperateL5Door(oi, false);
 		break;
+#endif
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
 		OperateL2Door(oi, false);
@@ -3983,7 +3985,7 @@ void SyncOpObject(int pnum, int oi)
 
 static void SyncLever(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oSelFlag == 0)
@@ -3992,7 +3994,7 @@ static void SyncLever(int oi)
 
 static void SyncBookLever(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
@@ -4029,7 +4031,7 @@ static void SyncPedistal(int oi)
 
 static void SyncL1Doors(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int x, y, pn;
 
 	os = &objects[oi];
@@ -4104,7 +4106,7 @@ static void SyncL5Doors(int oi)
 
 static void SyncL2Doors(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int pn, x, y;
 	bool ldoor;
 	BYTE sn;
@@ -4126,7 +4128,7 @@ static void SyncL2Doors(int oi)
 
 static void SyncL3Doors(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 	int pn;
 	bool ldoor;
 
@@ -4188,7 +4190,7 @@ void SyncObjectAnim(int oi)
 
 void GetObjectStr(int oi)
 {
-	ObjectStruct *os;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	switch (os->_otype) {
