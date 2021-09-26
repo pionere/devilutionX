@@ -1296,17 +1296,13 @@ static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 0, "Align LevelDa
 //////////////////////////////////////////////////
 
 typedef struct QuestStruct {
-	BYTE _qidx;
 	BYTE _qactive;
-	int _qtx;
-	int _qty;
-	unsigned _qmsg;
 	BYTE _qvar1;
 	BYTE _qvar2;
-	BOOL _qlog;
-#ifdef X86_32bit_COMP
-	int alignment[2];
-#endif
+	BOOLEAN _qlog;
+	unsigned _qmsg;
+	int _qtx;
+	int _qty;
 } QuestStruct;
 
 #ifdef X86_32bit_COMP

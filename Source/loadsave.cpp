@@ -727,16 +727,13 @@ static void LoadQuest(int i)
 {
 	QuestStruct *pQuest = &quests[i];
 
-	LoadByte(&pQuest->_qidx);
 	LoadByte(&pQuest->_qactive);
-	tbuff += 2; // Alignment
+	LoadByte(&pQuest->_qvar1);
+	LoadByte(&pQuest->_qvar2);
+	LoadByte(&pQuest->_qlog);
 	LoadInt(&pQuest->_qtx);
 	LoadInt(&pQuest->_qty);
 	LoadInt(&pQuest->_qmsg);
-	LoadByte(&pQuest->_qvar1);
-	LoadByte(&pQuest->_qvar2);
-	tbuff += 2; // Alignment
-	LoadInt(&pQuest->_qlog);
 }
 
 static void LoadLight(LightListStruct *pLight)
@@ -1434,16 +1431,13 @@ static void SaveQuest(int i)
 {
 	QuestStruct *pQuest = &quests[i];
 
-	SaveByte(&pQuest->_qidx);
 	SaveByte(&pQuest->_qactive);
-	tbuff += 2; // Alignment
+	SaveByte(&pQuest->_qvar1);
+	SaveByte(&pQuest->_qvar2);
+	SaveByte(&pQuest->_qlog);
 	SaveInt(&pQuest->_qtx);
 	SaveInt(&pQuest->_qty);
 	SaveInt(&pQuest->_qmsg);
-	SaveByte(&pQuest->_qvar1);
-	SaveByte(&pQuest->_qvar2);
-	tbuff += 2; // Alignment
-	SaveInt(&pQuest->_qlog);
 }
 
 static void SaveLight(LightListStruct *pLight)
