@@ -512,7 +512,7 @@ const BYTE L5RNDLFLOOR4[20] = {
 	0, 169, 0,
 	0,   0, 0,
 };
-/** Miniset: A stone. TODO: bad collision check on the northern side */
+/** Miniset: A stone. */
 const BYTE L5RNDLFLOOR5[20] = {
 	// clang-format off
 	3, 3, // width, height
@@ -815,7 +815,7 @@ static void DRLG_L5Shadows()
 
 static void DRLG_L1Shadows()
 {
-	const ShadowStruct *ss;
+	const ShadowStruct* ss;
 	int x, y;
 	ShadowPattern sdp;
 
@@ -841,7 +841,7 @@ static void DRLG_L1Shadows()
 	}
 }
 
-static bool DRLG_L1PlaceMiniSet(const BYTE *miniset, bool setview)
+static bool DRLG_L1PlaceMiniSet(const BYTE* miniset, bool setview)
 {
 	POS32 result;
 
@@ -934,10 +934,10 @@ static void DRLG_InitL5Specials()
 }
 #endif
 
-static BYTE *LoadL1DungeonData(const char *sFileName)
+static BYTE* LoadL1DungeonData(const char* sFileName)
 {
 	int i, j;
-	BYTE *pMap;
+	BYTE* pMap;
 	uint16_t rw, rh, *lm;
 
 	//DRLG_InitTrans();
@@ -947,7 +947,7 @@ static BYTE *LoadL1DungeonData(const char *sFileName)
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
 
-	lm = (uint16_t *)pMap;
+	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);
@@ -970,9 +970,9 @@ static BYTE *LoadL1DungeonData(const char *sFileName)
 	return pMap;
 }
 
-void LoadL1Dungeon(const char *sFileName, int vx, int vy)
+void LoadL1Dungeon(const char* sFileName, int vx, int vy)
 {
-	BYTE *pMap;
+	BYTE* pMap;
 
 	ViewX = vx;
 	ViewY = vy;
@@ -991,9 +991,9 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 	mem_free_dbg(pMap);
 }
 
-void LoadPreL1Dungeon(const char *sFileName)
+void LoadPreL1Dungeon(const char* sFileName)
 {
-	BYTE *pMap = LoadL1DungeonData(sFileName);
+	BYTE* pMap = LoadL1DungeonData(sFileName);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
@@ -1003,7 +1003,7 @@ void LoadPreL1Dungeon(const char *sFileName)
 static void L1ClearChamberFlags()
 {
 	int i;
-	BYTE *pTmp;
+	BYTE* pTmp;
 
 	static_assert(sizeof(drlgFlags) == DMAXX * DMAXY, "Linear traverse of drlgFlags does not work in L1ClearFlags.");
 	pTmp = &drlgFlags[0][0];
@@ -1237,7 +1237,7 @@ static void L1FirstRoom()
 static int L1GetArea()
 {
 	int i, rv;
-	BYTE *pTmp;
+	BYTE* pTmp;
 
 	rv = 0;
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in L1GetArea.");
@@ -1566,7 +1566,7 @@ static void DRLG_L1GHallVert(int x1, int y1, int y2)
 static void DRLG_L1SetRoom(int rx1, int ry1)
 {
 	int rw, rh, i, j;
-	BYTE *sp;
+	BYTE* sp;
 
 	rw = pSetPiece[0];
 	rh = pSetPiece[2];
@@ -1931,7 +1931,7 @@ static void L1TileFix()
 }
 
 #ifdef HELLFIRE
-static void DRLG_L5PlaceRndSet(const BYTE *miniset, BYTE rndper)
+static void DRLG_L5PlaceRndSet(const BYTE* miniset, BYTE rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
 	bool found;
