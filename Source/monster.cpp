@@ -653,10 +653,10 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 		break;
 	case UMT_ZHAR:
 		assert(nummonsters == MAX_MINIONS);
-		if (zharlib != -1) {
-			xp = 2 * themeLoc[zharlib].x + DBORDERX + 4;
-			yp = 2 * themeLoc[zharlib].y + DBORDERY + 4;
-		}
+		if (zharlib == -1)
+			return;
+		xp = 2 * themeLoc[zharlib].x + DBORDERX + 4;
+		yp = 2 * themeLoc[zharlib].y + DBORDERY + 4;
 		break;
 	case UMT_SNOTSPIL:
 		xp = 2 * setpc_x + DBORDERX + 8;

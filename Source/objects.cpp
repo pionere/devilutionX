@@ -3318,7 +3318,7 @@ static void OperateSkelBook(int oi, bool sendmsg)
 		random_(161, 5) != 0 ? IMISC_SCROLL : IMISC_BOOK, sendmsg, false);
 }
 
-static void OperateBookCase(int pnum, int oi, bool sendmsg)
+static void OperateBookCase(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
@@ -3336,9 +3336,8 @@ static void OperateBookCase(int pnum, int oi, bool sendmsg)
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_BOOK, sendmsg, false);
-	if (QuestStatus(Q_ZHAR) && quests[Q_ZHAR]._qactive != QUEST_DONE
-	 && dTransVal[monsters[MAX_MINIONS]._mx][monsters[MAX_MINIONS]._my] == dTransVal[plr._px][plr._py]
-	 && monsters[MAX_MINIONS].mtalkmsg == TEXT_ZHAR1) {
+	if (zharlib != -1 && themes[zharlib].ttval == dTransVal[os->_ox][os->_oy]
+	 && quests[Q_ZHAR]._qvar1 <= 1) {
 		assert((monsters[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
 		monsters[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
 		//MonStartStand(MAX_MINIONS, monsters[MAX_MINIONS]._mdir);
@@ -3764,7 +3763,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
-		OperateBookCase(pnum, oi, sendmsg);
+		OperateBookCase(oi, sendmsg);
 		break;
 	case OBJ_DECAP:
 		OperateDecap(oi, sendmsg);
@@ -3934,7 +3933,7 @@ void SyncOpObject(int pnum, int oi)
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
-		OperateBookCase(pnum, oi, false);
+		OperateBookCase(oi, false);
 		break;
 	case OBJ_DECAP:
 		OperateDecap(oi, false);

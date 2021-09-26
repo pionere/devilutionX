@@ -425,10 +425,6 @@ void InitThemes()
 				break;
 			}
 		}
-		if (zharlib == -1) {
-			quests[Q_ZHAR]._qactive = QUEST_NOTAVAIL;
-			// TODO: RemoveMonsterType(UniqMonst[UMT_ZHAR].mtype); ?
-		}
 	}
 	for (i = 0; i < themeCount; i++) {
 		if (themes[i].ttype == THEME_NONE) {
