@@ -129,7 +129,7 @@ static inline void InitMonsterTRN(AnimStruct (&anims)[NUM_MON_ANIM], const char*
 {
 	BYTE *tf, *cf;
 	int i, j;
-	const AnimStruct *as;
+	const AnimStruct* as;
 
 	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
@@ -276,12 +276,12 @@ void GetLevelMTypes()
 
 void InitMonsterGFX(int midx)
 {
-	MapMonData *cmon;
-	const MonsterData *mdata;
+	MapMonData* cmon;
+	const MonsterData* mdata;
 	const MonFileData* mfdata;
 	int mtype, anim, i;
 	char strBuff[256];
-	BYTE *celBuf;
+	BYTE* celBuf;
 
 	cmon = &mapMonTypes[midx];
 	mtype = cmon->cmType;
@@ -307,7 +307,7 @@ void InitMonsterGFX(int midx)
 
 			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
 				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
-					monAnims[anim].aData[i] = const_cast<BYTE *>(CelGetFrameStart(celBuf, i));
+					monAnims[anim].aData[i] = const_cast<BYTE*>(CelGetFrameStart(celBuf, i));
 				}
 			} else {
 				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
@@ -410,7 +410,7 @@ void InitMonsterGFX(int midx)
 
 static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 {
-	MapMonData *cmon = &mapMonTypes[mtidx];
+	MapMonData* cmon = &mapMonTypes[mtidx];
 	MonsterStruct* mon = &monsters[mnum];
 
 	mon->_mMTidx = mtidx;
@@ -528,7 +528,7 @@ static bool MonstPlace(int xp, int yp)
 #ifdef HELLFIRE
 void WakeUberDiablo()
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if (!deltaload)
 		PlayEffect(MAX_MINIONS, MS_DEATH);
@@ -631,8 +631,8 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 	int uniqtype;
 	int count2;
 	char filestr[64];
-	const UniqMonData *uniqm;
-	MonsterStruct *mon;
+	const UniqMonData* uniqm;
+	MonsterStruct* mon;
 	int count;
 
 	if (uniquetrans >= NUM_LIGHT_TRNS) {
@@ -835,7 +835,7 @@ static void PlaceUniques()
 
 static void PlaceSetMapMonsters()
 {
-	BYTE *setp;
+	BYTE* setp;
 
 	if (!currLvl._dSetLvl) {
 		if (QuestStatus(Q_LTBANNER)) {
@@ -902,7 +902,7 @@ static void PlaceSetMapMonsters()
 
 void InitMonsters()
 {
-	TriggerStruct *ts;
+	TriggerStruct* ts;
 	int na;
 	int i, j, xx, yy;
 	int numplacemonsters;
@@ -979,7 +979,7 @@ void InitMonsters()
 	}
 }
 
-void SetMapMonsters(BYTE *pMap, int startx, int starty)
+void SetMapMonsters(BYTE* pMap, int startx, int starty)
 {
 	uint16_t rw, rh, *lm;
 	int i, j;
@@ -990,7 +990,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 		for (i = 0; i < MAX_MINIONS; i++)
 			AddMonster(0, 0, 0, 0, false);
 	}
-	lm = (uint16_t *)pMap;
+	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);
@@ -1079,7 +1079,7 @@ static void MonEnemy(int mnum)
 	int i, tnum;
 	int enemy, dist, best_dist;
 	bool sameroom, bestsameroom;
-	MonsterStruct* mon = &monsters[mnum], *tmon;
+	MonsterStruct *mon = &monsters[mnum], *tmon;
 	const BYTE tv = dTransVal[mon->_mx][mon->_my];
 
 	enemy = 0;
@@ -1174,7 +1174,7 @@ static int MonGetDir(int mnum)
 
 static void FixMonLocation(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
 	mon->_mxoff = 0;
@@ -1185,7 +1185,7 @@ static void FixMonLocation(int mnum)
 
 void AssertFixMonLocation(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
 	assert(mon->_mxoff == 0);
@@ -1198,7 +1198,7 @@ void AssertFixMonLocation(int mnum)
 
 void MonStartStand(int mnum, int md)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
 	NewMonsterAnim(mnum, MA_STAND, md);
@@ -1211,7 +1211,7 @@ void MonStartStand(int mnum, int md)
 
 static void MonStartDelay(int mnum, int len)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if (len <= 0) {
 		return;
@@ -1234,7 +1234,7 @@ static void MonStartDelay(int mnum, int len)
  */
 static void MonStartSpStand(int mnum, int md)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
 	AssertFixMonLocation(mnum);
@@ -1244,7 +1244,7 @@ static void MonStartSpStand(int mnum, int md)
 
 static void MonChangeLightOff(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int lx, ly;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -1265,7 +1265,7 @@ static void MonChangeLightOff(int mnum)
  */
 static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my;
 
 	mon = &monsters[mnum];
@@ -1298,7 +1298,7 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
  */
 static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my;
 
 	mon = &monsters[mnum];
@@ -1330,7 +1330,7 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 static void MonStartAttack(int mnum)
 {
 	int md = MonGetDir(mnum);
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	NewMonsterAnim(mnum, MA_ATTACK, md);
 	AssertFixMonLocation(mnum);
@@ -1341,7 +1341,7 @@ static void MonStartAttack(int mnum)
 static void MonStartRAttack(int mnum, int mitype)
 {
 	int md = MonGetDir(mnum);
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	NewMonsterAnim(mnum, MA_ATTACK, md);
 	AssertFixMonLocation(mnum);
@@ -1359,7 +1359,7 @@ static void MonStartRAttack(int mnum, int mitype)
 static void MonStartRSpAttack(int mnum, int mitype)
 {
 	int md = MonGetDir(mnum);
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
 	AssertFixMonLocation(mnum);
@@ -1433,7 +1433,7 @@ static void MonStartGetHit(int mnum)
 
 static void MonTeleport(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int i, x, y, _mx, _my, rx;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -1465,7 +1465,7 @@ static void MonTeleport(int mnum)
 
 static void MonFallenFear(int x, int y)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int i;
 
 	for (i = 0; i < nummonsters; i++) {
@@ -1500,7 +1500,7 @@ void MonGetKnockback(int mnum)
 
 void MonStartHit(int mnum, int pnum, int dam)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("Invalid monster %d getting hit by player/trap", mnum);
@@ -1535,7 +1535,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 
 static void MonDiabloDeath(int mnum, bool sendmsg)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int i, j;
 	int mx, my;
 
@@ -1572,7 +1572,7 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 
 static void SpawnLoot(int mnum, bool sendmsg)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
 	SetRndSeed(mon->_mRndSeed);
@@ -1624,7 +1624,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 
 static void M2MStartHit(int defm, int offm, int dam)
 {
-	MonsterStruct *dmon;
+	MonsterStruct* dmon;
 
 	if ((unsigned)defm >= MAXMONSTERS) {
 		dev_fatal("Invalid monster %d getting hit by monster", defm);
@@ -1654,7 +1654,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 
 static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonstStartKill: Invalid monster %d", mnum);
@@ -1761,7 +1761,7 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
  */
 static void MonStartFadein(int mnum, int md, bool backwards)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonStartFadein: Invalid monster %d", mnum);
@@ -1783,7 +1783,7 @@ static void MonStartFadein(int mnum, int md, bool backwards)
 
 static void MonStartFadeout(int mnum, int md, bool backwards)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonStartFadeout: Invalid monster %d", mnum);
@@ -1804,7 +1804,7 @@ static void MonStartFadeout(int mnum, int md, bool backwards)
 
 static void MonStartHeal(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonStartHeal: Invalid monster %d", mnum);
@@ -1819,7 +1819,7 @@ static void MonStartHeal(int mnum)
 
 static bool MonDoStand(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoStand: Invalid monster %d", mnum);
@@ -1837,7 +1837,7 @@ static bool MonDoStand(int mnum)
 
 static bool MonDoWalk(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	bool rv;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -1911,7 +1911,7 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 
 static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int tmp, dam, hper, blkper;
 	int newx, newy;
 
@@ -2006,7 +2006,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 
 static bool MonDoAttack(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoAttack: Invalid monster %d", mnum);
@@ -2037,7 +2037,7 @@ static bool MonDoAttack(int mnum)
 
 static bool MonDoRAttack(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoRAttack: Invalid monster %d", mnum);
@@ -2069,7 +2069,7 @@ static bool MonDoRAttack(int mnum)
 
 static bool MonDoRSpAttack(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoRSpAttack: Invalid monster %d", mnum);
@@ -2109,7 +2109,7 @@ static bool MonDoRSpAttack(int mnum)
 
 static bool MonDoSpAttack(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoSpAttack: Invalid monster %d", mnum);
@@ -2128,7 +2128,7 @@ static bool MonDoSpAttack(int mnum)
 
 static bool MonDoFadein(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoFadein: Invalid monster %d", mnum);
@@ -2149,7 +2149,7 @@ static bool MonDoFadein(int mnum)
 
 static bool MonDoFadeout(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoFadeout: Invalid monster %d", mnum);
@@ -2172,7 +2172,7 @@ static bool MonDoFadeout(int mnum)
 
 static bool MonDoHeal(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoHeal: Invalid monster %d", mnum);
@@ -2200,7 +2200,7 @@ static bool MonDoHeal(int mnum)
 
 static bool MonDoTalk(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoTalk: Invalid monster %d", mnum);
@@ -2236,7 +2236,7 @@ static bool MonDoGotHit(int mnum)
 
 void MonUpdateLeader(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int i;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2260,7 +2260,7 @@ void DoEnding()
 
 	music_stop();
 
-	const char *vicSets[NUM_CLASSES] = {
+	const char* vicSets[NUM_CLASSES] = {
 		"gendata\\DiabVic2.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic1.smk"
 #ifdef HELLFIRE
 		, "gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk"
@@ -2314,7 +2314,7 @@ void PrepDoEnding(bool soundOn)
 
 static bool MonDoDeath(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoDeath: Invalid monster %d", mnum);
@@ -2336,7 +2336,7 @@ static bool MonDoDeath(int mnum)
 
 static bool MonDoSpStand(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoSpStand: Invalid monster %d", mnum);
@@ -2355,7 +2355,7 @@ static bool MonDoSpStand(int mnum)
 
 static bool MonDoDelay(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int oFrame;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2376,7 +2376,7 @@ static bool MonDoDelay(int mnum)
 
 static bool MonDoStone(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoStone: Invalid monster %d", mnum);
@@ -2391,7 +2391,7 @@ static bool MonDoStone(int mnum)
 
 void MonWalkDir(int mnum, int md)
 {
-	const int *mwi;
+	const int* mwi;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonWalkDir: Invalid monster %d", mnum);
@@ -2536,9 +2536,7 @@ static bool MonPathWalk(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonPathWalk: Invalid monster %d", mnum);
 	}
-	Check = PosOkMonst3;
-	if (!(monsters[mnum]._mFlags & MFLAG_CAN_OPEN_DOOR))
-		Check = PosOkMonst;
+	Check = (monsters[mnum]._mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
 
 	if (FindPath(Check, mnum, monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy, path) != 0) {
 		//MonCallWalk(mnum, walk2dir[path[0]]);
@@ -2583,7 +2581,7 @@ static bool MonDumbWalk(int mnum, int md)
 	return ok;
 }
 
-static bool MonRoundWalk(int mnum, int md, int *dir)
+static bool MonRoundWalk(int mnum, int md, int* dir)
 {
 	int mdtemp;
 	bool ok;
@@ -2615,7 +2613,7 @@ static bool MonRoundWalk(int mnum, int md, int *dir)
 
 void MAI_Zombie(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2646,7 +2644,7 @@ void MAI_Zombie(int mnum)
 
 void MAI_SkelSd(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2678,7 +2676,7 @@ void MAI_SkelSd(int mnum)
 
 static bool MAI_Path(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	bool clear;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2714,7 +2712,7 @@ static bool MAI_Path(int mnum)
 
 void MAI_Snake(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int fx, fy, mx, my, dist, md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2779,7 +2777,7 @@ void MAI_Snake(int mnum)
 
 void MAI_Bat(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int md, v, mx, my, fx, fy, dist;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2834,7 +2832,7 @@ void MAI_Bat(int mnum)
 
 void MAI_SkelBow(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, v;
 	bool walking;
 
@@ -2869,7 +2867,7 @@ void MAI_SkelBow(int mnum)
 
 void MAI_Fat(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, v;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2897,7 +2895,7 @@ void MAI_Fat(int mnum)
 
 void MAI_Sneak(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, md;
 	int dist, range, v;
 
@@ -2962,7 +2960,7 @@ void MAI_Sneak(int mnum)
 
 /*void MAI_Fireman(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, fx, fy, md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3016,7 +3014,7 @@ void MAI_Sneak(int mnum)
 
 void MAI_Fallen(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int x, y, mx, my, m, rad;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3080,7 +3078,7 @@ void MAI_Fallen(int mnum)
 
 void MAI_Cleaver(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3104,7 +3102,7 @@ void MAI_Cleaver(int mnum)
 
 static void MAI_Round(int mnum, bool special)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int fx, fy;
 	int mx, my, md;
 	int dist, v;
@@ -3164,7 +3162,7 @@ void MAI_GoatMc(int mnum)
 static void MAI_Ranged(int mnum, int mitype, int attackMode)
 {
 	int fx, fy, mx, my, md;
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Ranged: Invalid monster %d", mnum);
@@ -3269,7 +3267,7 @@ void MAI_Scav(int mnum)
 {
 	bool done;
 	int dx, dy, dir, maxhp;
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Scav: Invalid monster %d", mnum);
@@ -3367,7 +3365,7 @@ void MAI_Scav(int mnum)
 
 void MAI_Garg(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, dist;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3418,7 +3416,7 @@ void MAI_Garg(int mnum)
 
 static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my;
 	int fx, fy;
 	int md, dist, v;
@@ -3517,7 +3515,7 @@ void MAI_Diablo(int mnum)
 
 static void MAI_RR2(int mnum, int mitype)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, fx, fy;
 	int dist, v, md;
 
@@ -3641,7 +3639,7 @@ void MAI_Golem(int mnum)
 
 void MAI_SkelKing(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, fx, fy, nx, ny, md, v, dist;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3703,7 +3701,7 @@ void MAI_SkelKing(int mnum)
 
 void MAI_Rhino(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, fx, fy, md, v, dist;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3764,7 +3762,7 @@ void MAI_Rhino(int mnum)
 #ifdef HELLFIRE
 void MAI_Horkdemon(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, fx, fy, md, v, dist;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3822,7 +3820,7 @@ void MAI_Horkdemon(int mnum)
 
 void MAI_Counselor(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, fx, fy, md, v, dist;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3886,7 +3884,7 @@ void MAI_Counselor(int mnum)
 
 void MAI_Garbud(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Garbud: Invalid monster %d", mnum);
@@ -3920,7 +3918,7 @@ void MAI_Garbud(int mnum)
 
 void MAI_Zhar(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Zhar: Invalid monster %d", mnum);
@@ -3954,7 +3952,7 @@ void MAI_Zhar(int mnum)
 
 void MAI_SnotSpil(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_SnotSpil: Invalid monster %d", mnum);
@@ -4005,7 +4003,7 @@ void MAI_SnotSpil(int mnum)
 
 void MAI_Lazarus(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Lazarus: Invalid monster %d", mnum);
@@ -4051,7 +4049,7 @@ void MAI_Lazarus(int mnum)
 
 void MAI_Lazhelp(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Lazhelp: Invalid monster %d", mnum);
@@ -4074,7 +4072,7 @@ void MAI_Lazhelp(int mnum)
 
 void MAI_Lachdanan(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Lachdanan: Invalid monster %d", mnum);
@@ -4103,7 +4101,7 @@ void MAI_Lachdanan(int mnum)
 
 void MAI_Warlord(int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Warlord: Invalid monster %d", mnum);
@@ -4185,7 +4183,7 @@ void ProcessMonsters()
 	int i, mnum, _menemy;
 	bool raflag;
 	BYTE lastSquelch;
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	DeleteMonsterList();
 
@@ -4570,8 +4568,8 @@ bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2,
 
 void SyncMonsterAnim(int mnum)
 {
-	const MonsterData *MData;
-	MonsterStruct *mon;
+	const MonsterData* MData;
+	MonsterStruct* mon;
 	MON_ANIM anim;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -4645,8 +4643,8 @@ void MissToMonst(int mi, int x, int y)
 	int oldx, oldy;
 	int newx, newy;
 	int mnum, tnum;
-	MissileStruct *mis;
-	MonsterStruct *mon;
+	MissileStruct* mis;
+	MonsterStruct* mon;
 
 	if ((unsigned)mi >= MAXMISSILES) {
 		dev_fatal("MissToMonst: Invalid missile %d", mi);
@@ -4914,7 +4912,7 @@ void SyncMonsterQ(int pnum, int idx)
 
 void TalktoMonster(int mnum, int pnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int iv;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -5017,7 +5015,7 @@ void InitGolemStats(int mnum, int level)
 
 void SpawnGolem(int mnum, int x, int y, int level)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	static_assert(MAX_MINIONS == MAX_PLRS, "SpawnGolem requires that owner of a monster has the same id as the monster itself.");
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -5048,9 +5046,9 @@ bool CanTalkToMonst(int mnum)
 		|| monsters[mnum]._mgoal == MGOAL_TALKING;
 }
 
-bool CheckMonsterHit(int mnum, bool *ret)
+bool CheckMonsterHit(int mnum, bool* ret)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("CheckMonsterHit: Invalid monster %d", mnum);
