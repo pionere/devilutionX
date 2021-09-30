@@ -22,7 +22,7 @@ namespace radon
 			while (std::getline(stream, buffer)) {
 				if (buffer[0] == ';' || buffer[0] == '#') continue;
 				if (buffer[0] == '[') {
-					auto endPos = buffer.find("]");
+					auto endPos = buffer.find(']');
 					if (endPos == std::string::npos)
 						continue;
 					nameOfCurrent = buffer.substr(1, endPos - 1);

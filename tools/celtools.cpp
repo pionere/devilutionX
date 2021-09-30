@@ -210,6 +210,8 @@ static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, bo
 	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	for (int n = 0; n < numimage; n++) {
 		if (!ReadPNG(pngnames[n], imagedata[n])) {
+			while (--n >= 0)
+				free(imagedata[n].row_pointers);
 			free(imagedata);
 			return false;
 		}
@@ -293,6 +295,8 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	for (int n = 0; n < numimage; n++) {
 		if (!ReadPNG(pngnames[n], imagedata[n])) {
+			while (--n >= 0)
+				free(imagedata[n].row_pointers);
 			free(imagedata);
 			return false;
 		}
