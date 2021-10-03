@@ -18,7 +18,7 @@ extern BYTE *pPanelText;
 extern BYTE *pMedTextCels;
 
 extern const BYTE sfontframe[128];
-extern const BYTE mfontframe[128];
+extern const BYTE mlfontframe[128];
 extern const BYTE sfontkern[68];
 extern const BYTE mfontkern[56];
 extern const BYTE gbFontTransTbl[256];

@@ -78,7 +78,7 @@ void DrawQText()
 				endstr = sstr + 1;
 				break;
 			}
-			c = mfontframe[gbFontTransTbl[(BYTE)*sstr++]];
+			c = mlfontframe[gbFontTransTbl[(BYTE)*sstr++]];
 			len += mfontkern[c] + 2;
 			if (c == 0) // allow wordwrap on blank glyph
 				endstr = sstr;
@@ -88,7 +88,7 @@ void DrawQText()
 
 		tx = LTPANEL_X + 24;
 		while (str < endstr) {
-			c = mfontframe[gbFontTransTbl[(BYTE)*str++]];
+			c = mlfontframe[gbFontTransTbl[(BYTE)*str++]];
 			if (c != 0) {
 				CelDraw(tx, ty, pMedTextCels, c, 22);
 			}
