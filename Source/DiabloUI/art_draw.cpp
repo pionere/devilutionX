@@ -38,11 +38,6 @@ void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 		sdl_fatal(ERR_SDL_ART_BLIT);
 }
 
-void DrawAnimatedArt(Art *art, int screenX, int screenY)
-{
-	DrawArt(screenX, screenY, art, GetAnimationFrame(art->frames));
-}
-
 int GetAnimationFrame(int frames, int fps)
 {
 	//assert(frames > 0 && fps > 0);

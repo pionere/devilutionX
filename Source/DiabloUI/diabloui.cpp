@@ -668,11 +668,8 @@ static void Render(const UiImage* uiImage)
 		const int xOffset = GetCenterOffset(mArt->logical_width, uiImage->m_rect.w);
 		x += xOffset;
 	}
-	if (uiImage->m_animated) {
-		DrawAnimatedArt(mArt, x, uiImage->m_rect.y);
-	} else {
-		DrawArt(x, uiImage->m_rect.y, mArt, uiImage->m_frame, uiImage->m_rect.w, uiImage->m_rect.h);
-	}
+	int frame = uiImage->m_animated ? GetAnimationFrame(mArt->frames) : uiImage->m_frame;
+	DrawArt(x, uiImage->m_rect.y, mArt, frame, uiImage->m_rect.w, uiImage->m_rect.h);
 }
 
 static void Render(const UiArtTextButton* uiButton)

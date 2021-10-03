@@ -6,9 +6,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-void DrawArt(int screenX, int screenY, Art *art, int nFrame = 0, int srcW = 0, int srcH = 0);
-
-void DrawAnimatedArt(Art *art, int screenX, int screenY);
+void DrawArt(int screenX, int screenY, Art* art, int nFrame = 0, int srcW = 0, int srcH = 0);
 
 int GetAnimationFrame(int frames, int fps = 60);
 
