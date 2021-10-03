@@ -192,7 +192,7 @@ static void Init(const char* caption, char* text, bool error, const std::vector<
 
 		SDL_Rect rect4 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect4));
-	}
+	//}
 }
 
 static void Deinit(const std::vector<UiItemBase *>* renderBehind)
