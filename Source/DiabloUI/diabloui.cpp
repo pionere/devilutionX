@@ -554,9 +554,11 @@ void LoadBackgroundArt(const char* pszFile, int frames)
 	_gdwFadeTc = 0;
 	_gnFadeValue = 0;
 	BlackPalette();
-	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
+	UiClearScreen();
+#ifdef USE_SDL1
 	if (DiabloUiSurface() == back_surface)
 		BltFast(NULL, NULL);
+#endif
 	RenderPresent();
 }
 
@@ -594,8 +596,10 @@ void UiFadeIn()
 		}
 		SetFadeLevel(_gnFadeValue);
 	}
+#ifdef USE_SDL1
 	if (DiabloUiSurface() == back_surface)
 		BltFast(NULL, NULL);
+#endif
 	RenderPresent();
 }
 
@@ -623,6 +627,10 @@ void UiClearScreen()
 
 void UiPollAndRender()
 {
+	UiRenderItems(gUiItems);
+	DrawMouse();
+	UiFadeIn();
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0) {
 		UiFocusNavigation(&event);
@@ -631,9 +639,6 @@ void UiPollAndRender()
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	HandleMenuAction(GetMenuHeldUpDownAction());
 #endif
-	UiRenderItems(gUiItems);
-	DrawMouse();
-	UiFadeIn();
 #ifdef __3DS__
 	// Keyboard blocks until input is finished
 	// so defer until after render and fade-in

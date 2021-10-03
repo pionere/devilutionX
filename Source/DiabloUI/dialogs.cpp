@@ -158,7 +158,6 @@ static void Init(const char* caption, const char* text, bool error, const std::v
 		//}
 		LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
 	}
-	SetFadeLevel(256);
 
 	LoadArt("ui_art\\smbutton.pcx", &SmlButton, 2);
 	LoadTtfFont();
@@ -209,9 +208,18 @@ static void Deinit(const std::vector<UiItemBase *>* renderBehind)
 
 static void DialogLoop(const std::vector<UiItemBase*> &uiItems, const std::vector<UiItemBase*>* renderBehind)
 {
-	SDL_Event event;
+	SetFadeLevel(256);
 	_gbDialogEnd = false;
+
+	SDL_Event event;
 	do {
+		UiClearScreen();
+		if (renderBehind != NULL)
+			UiRenderItems(*renderBehind);
+		UiRenderItems(uiItems);
+		DrawMouse();
+		UiFadeIn();
+
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {
 			case SDL_MOUSEBUTTONDOWN:
@@ -231,13 +239,6 @@ static void DialogLoop(const std::vector<UiItemBase*> &uiItems, const std::vecto
 			}
 			UiHandleEvents(&event);
 		}
-
-		// UiClearScreen();
-		if (renderBehind != NULL)
-			UiRenderItems(*renderBehind);
-		UiRenderItems(uiItems);
-		DrawMouse();
-		UiFadeIn();
 	} while (!_gbDialogEnd);
 }
 

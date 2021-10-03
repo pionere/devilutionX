@@ -64,7 +64,7 @@ static void ProgressFree()
 
 static void ProgressRender()
 {
-	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
+	UiClearScreen();
 	DrawArt(0, 0, &ArtBackground);
 
 	int x = PANEL_LEFT + (PANEL_WIDTH - PRPANEL_WIDTH) / 2;
@@ -102,7 +102,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 		ProgressRender();
 		UiRenderItems(vecProgress);
 		DrawMouse();
-		RenderPresent();
+		UiFadeIn();
 
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {

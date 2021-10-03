@@ -140,7 +140,7 @@ void CreditsRenderer::Render()
 		return;
 	prev_offset_y_ = offsetY;
 
-	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
+	UiClearScreen();
 #ifndef NOWIDESCREEN
 	DrawArt(PANEL_LEFT - 320, UI_OFFSET_Y, &ArtBackgroundWidescreen);
 #endif
