@@ -12,7 +12,7 @@ bool _gbSelokEndMenu;
 std::vector<UiListItem *> vecSelOkDialogItems;
 std::vector<UiItemBase *> vecSelOkDialog;
 
-#define MESSAGE_WIDTH 280
+#define MESSAGE_WIDTH (PANEL_WIDTH - 2 * 60)
 
 static void SelokFree()
 {
@@ -47,13 +47,13 @@ void UiSelOkDialog(const char* title, const char* body)
 	UiAddLogo(&vecSelOkDialog);
 
 	//if (title != NULL) {
-		SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
+		SDL_Rect rect1 = { PANEL_LEFT + 0, (UI_OFFSET_Y + 161), PANEL_WIDTH, 35 };
 		vecSelOkDialog.push_back(new UiArtText(title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-		SDL_Rect rect2 = { PANEL_LEFT + 140, (UI_OFFSET_Y + 210), 560, 168 };
+		SDL_Rect rect2 = { PANEL_LEFT + 60, (UI_OFFSET_Y + 236), MESSAGE_WIDTH, 168 };
 		vecSelOkDialog.push_back(new UiArtText(dialogText, rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 	//} else {
-	//	SDL_Rect rect1 = { PANEL_LEFT + 140, (UI_OFFSET_Y + 197), 560, 168 };
+	//	SDL_Rect rect1 = { PANEL_LEFT + 140, (UI_OFFSET_Y + 197), MESSAGE_WIDTH, 168 };
 	//	vecSelOkDialog.push_back(new UiArtText(dialogText, rect1, UIS_LEFT | UIS_MED | UIS_SILVER));
 	//}
 
@@ -62,7 +62,7 @@ void UiSelOkDialog(const char* title, const char* body)
 	vecSelOkDialog.push_back(new UiList(&vecSelOkDialogItems, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	SStrCopy(dialogText, body, sizeof(dialogText));
-	WordWrapArtStr(dialogText, MESSAGE_WIDTH);
+	WordWrapArtStr(dialogText, MESSAGE_WIDTH, AFT_MED);
 
 	UiInitList(vecSelOkDialog, 0, NULL, SelokSelect, SelokEsc);
 

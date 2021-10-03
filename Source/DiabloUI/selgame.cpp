@@ -105,7 +105,7 @@ static void SelgameModeFocus(unsigned index)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
 static void SelgameDiffFocus(unsigned index)
@@ -127,7 +127,7 @@ static void SelgameDiffFocus(unsigned index)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
 static void SelgameSpeedFocus(unsigned index)
@@ -153,7 +153,7 @@ static void SelgameSpeedFocus(unsigned index)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
 static void SelgameSpeedEsc()

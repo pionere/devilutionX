@@ -13,7 +13,7 @@ static bool _gbYNValue;
 static std::vector<UiListItem *> vecSelYesNoDialogItems;
 static std::vector<UiItemBase *> vecSelYesNoDialog;
 
-#define MESSAGE_WIDTH 280
+#define MESSAGE_WIDTH (PANEL_WIDTH - 130 * 2)
 
 static void SelyesnoFree()
 {
@@ -44,10 +44,10 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	UiAddBackground(&vecSelYesNoDialog);
 	UiAddLogo(&vecSelYesNoDialog);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, (UI_OFFSET_Y + 161), PANEL_WIDTH, 35 };
 	vecSelYesNoDialog.push_back(new UiArtText(title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect2 = { PANEL_LEFT + 120, (UI_OFFSET_Y + 236), MESSAGE_WIDTH, 168 };
+	SDL_Rect rect2 = { PANEL_LEFT + 130, (UI_OFFSET_Y + 236), MESSAGE_WIDTH, 168 };
 	vecSelYesNoDialog.push_back(new UiArtText(selyesno_confirmationMessage, rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 
 	vecSelYesNoDialogItems.push_back(new UiListItem("Yes", 0));
@@ -56,7 +56,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	vecSelYesNoDialog.push_back(new UiList(&vecSelYesNoDialogItems, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	SStrCopy(selyesno_confirmationMessage, body, sizeof(selyesno_confirmationMessage));
-	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH);
+	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH, AFT_MED);
 
 	UiInitList(vecSelYesNoDialog, vecSelYesNoDialogItems.size(), NULL, SelyesnoSelect, SelyesnoEsc, NULL, true);
 

@@ -61,7 +61,7 @@ static void SelconnFocus(unsigned index)
 	}
 
 	snprintf(selconn_MaxPlayers, sizeof(selconn_MaxPlayers), "Players Supported: %d", numplayers);
-	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH);
+	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
 static void SelconnLoad()

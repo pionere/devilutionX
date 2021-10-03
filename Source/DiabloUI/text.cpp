@@ -17,7 +17,7 @@ unsigned GetArtStrWidth(const char *str, unsigned size)
 	return strWidth;
 }
 
-void WordWrapArtStr(char *text, unsigned width)
+void WordWrapArtStr(char* text, unsigned width, unsigned size)
 {
 	const unsigned len = strlen(text);
 	unsigned lineStart = 0;
@@ -32,7 +32,7 @@ void WordWrapArtStr(char *text, unsigned width)
 
 		if (i != len)
 			text[i] = '\0';
-		if (GetArtStrWidth(&text[lineStart], AFT_SMALL) <= width) {
+		if (GetArtStrWidth(&text[lineStart], size) <= width) {
 			if (i != len)
 				text[i] = ' ';
 			continue;
