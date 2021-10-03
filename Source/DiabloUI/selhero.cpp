@@ -180,7 +180,7 @@ static void SelheroInit()
 	LoadScrollBar();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelHeroDialog.push_back(new UiArtText(selhero_title, rect1, UIS_CENTER | UIS_BIG));
+	vecSelHeroDialog.push_back(new UiArtText(selhero_title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 211), 180, 76 };
 #ifdef HELLFIRE
@@ -191,29 +191,29 @@ static void SelheroInit()
 	vecSelHeroDialog.push_back(SELHERO_DIALOG_HERO_IMG);
 
 	SDL_Rect rect4 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 323), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Level:", rect4, UIS_RIGHT | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText("Level:", rect4, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect5 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 323), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[0], rect5, UIS_CENTER | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[0], rect5, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 358), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Strength:", rect6, UIS_RIGHT | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText("Strength:", rect6, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect7 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 358), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[1], rect7, UIS_CENTER | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[1], rect7, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect8 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 380), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Magic:", rect8, UIS_RIGHT | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText("Magic:", rect8, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect9 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 380), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[2], rect9, UIS_CENTER | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[2], rect9, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect10 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 401), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Dexterity:", rect10, UIS_RIGHT | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText("Dexterity:", rect10, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect11 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 401), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[3], rect11, UIS_CENTER | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[3], rect11, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect12 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 422), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Vitality:", rect12, UIS_RIGHT | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText("Vitality:", rect12, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect13 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 422), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[4], rect13, UIS_CENTER | UIS_SMALL));
+	vecSelHeroDialog.push_back(new UiArtText(textStats[4], rect13, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 }
 
 static void SelheroListEsc()
@@ -246,7 +246,7 @@ static void SelheroListFocus(unsigned index)
 	snprintf(textStats[2], sizeof(textStats[2]), "--");
 	snprintf(textStats[3], sizeof(textStats[3]), "--");
 	snprintf(textStats[4], sizeof(textStats[4]), "--");
-	SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_DISABLED;
+	SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_SILVER | UIS_DISABLED;
 	selhero_deleteEnabled = false;
 }
 
@@ -262,7 +262,7 @@ static void SelheroListInit()
 	SelheroFreeDlgItems();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
-	vecSelDlgItems.push_back(new UiArtText("Select Hero", rect1, UIS_CENTER | UIS_BIG));
+	vecSelDlgItems.push_back(new UiArtText("Select Hero", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	unsigned num_viewport_heroes = std::min(selhero_SaveCount + 1, MAX_VIEWPORT_ITEMS);
 	for (unsigned i = 0; i < num_viewport_heroes; i++) {
@@ -281,7 +281,7 @@ static void SelheroListInit()
 	vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 364, (UI_OFFSET_Y + 429), 120, 35 };
-	SELLIST_DIALOG_DELETE_BUTTON = new UiArtTextButton("Delete", &SelheroUiFocusNavigationYesNo, rect5, UIS_CENTER | UIS_BIG | UIS_DISABLED);
+	SELLIST_DIALOG_DELETE_BUTTON = new UiArtTextButton("Delete", &SelheroUiFocusNavigationYesNo, rect5, UIS_CENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
 	vecSelDlgItems.push_back(SELLIST_DIALOG_DELETE_BUTTON);
 
 	SDL_Rect rect6 = { PANEL_LEFT + 489, (UI_OFFSET_Y + 429), 120, 35 };
@@ -340,7 +340,7 @@ static void SelheroListSelect(unsigned index)
 		SelheroFreeDlgItems();
 
 		SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
-		vecSelDlgItems.push_back(new UiArtText("Choose Class", rect1, UIS_CENTER | UIS_BIG));
+		vecSelDlgItems.push_back(new UiArtText("Choose Class", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 		int itemH = 33;
 		vecSelDlgListItems.push_back(new UiListItem("Warrior", PC_WARRIOR));
@@ -373,7 +373,7 @@ static void SelheroListSelect(unsigned index)
 		SelheroFreeDlgItems();
 
 		SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
-		vecSelDlgItems.push_back(new UiArtText("Save File Exists", rect1, UIS_CENTER | UIS_BIG));
+		vecSelDlgItems.push_back(new UiArtText("Save File Exists", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 		vecSelDlgListItems.push_back(new UiListItem("Load Game", 0));
 		vecSelDlgListItems.push_back(new UiListItem("New Game", 1));
@@ -412,7 +412,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 		SStrCopy(selhero_heroInfo.hiName, SelheroGenerateName(selhero_heroInfo.hiClass), sizeof(selhero_heroInfo.hiName));
 #endif
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
-	vecSelDlgItems.push_back(new UiArtText("Enter Name", rect1, UIS_CENTER | UIS_BIG));
+	vecSelDlgItems.push_back(new UiArtText("Enter Name", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 317), 320, 33 };
 	vecSelDlgItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName) - 1, rect2));

@@ -88,25 +88,25 @@ static void SelconnLoad()
 	UiAddLogo(&vecSelConnDlg);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelConnDlg.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG));
+	vecSelConnDlg.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 218), DESCRIPTION_WIDTH, 21 };
-	vecSelConnDlg.push_back(new UiArtText(selconn_MaxPlayers, rect2, UIS_SMALL));
+	vecSelConnDlg.push_back(new UiArtText(selconn_MaxPlayers, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 21 };
-	vecSelConnDlg.push_back(new UiArtText("Requirements:", rect3, UIS_SMALL));
+	vecSelConnDlg.push_back(new UiArtText("Requirements:", rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 275), DESCRIPTION_WIDTH, 66 };
-	vecSelConnDlg.push_back(new UiArtText(selconn_Description, rect4, UIS_SMALL));
+	vecSelConnDlg.push_back(new UiArtText(selconn_Description, rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 356), 220, 31 };
-	vecSelConnDlg.push_back(new UiArtText("no gateway needed", rect5, UIS_CENTER | UIS_MED));
+	vecSelConnDlg.push_back(new UiArtText("no gateway needed", rect5, UIS_CENTER | UIS_MED | UIS_SILVER));
 
 	SDL_Rect rect7 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
-	vecSelConnDlg.push_back(new UiArtText("Select Connection", rect7, UIS_CENTER | UIS_BIG));
+	vecSelConnDlg.push_back(new UiArtText("Select Connection", rect7, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect8 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 256), 285, 26 };
-	vecSelConnDlg.push_back(new UiList(&vecConnItems, rect8, UIS_CENTER | UIS_VCENTER | UIS_GOLD));
+	vecSelConnDlg.push_back(new UiList(&vecConnItems, rect8, UIS_CENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD));
 
 	SDL_Rect rect9 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelConnDlg.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));

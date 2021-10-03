@@ -171,16 +171,16 @@ static void SelgameSpeedInit()
 	UiAddLogo(&vecSelGameDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelGameDialog.push_back(new UiArtText("Create Game", rect1, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText("Create Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 34, (UI_OFFSET_Y + 211), 205, 33 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 211), 295, 35 };
-	vecSelGameDialog.push_back(new UiArtText("Select Game Speed", rect4, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText("Select Game Speed", rect4, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	vecSelGameDlgItems.push_back(new UiListItem("Normal", SPEED_NORMAL));
 	vecSelGameDlgItems.push_back(new UiListItem("Fast", SPEED_FAST));
@@ -230,16 +230,16 @@ static void SelgameModeInit()
 	UiAddLogo(&vecSelGameDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelGameDialog.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 211), 205, 192 };
-	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
+	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
-	vecSelGameDialog.push_back(new UiArtText("Select Action", rect4, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText("Select Action", rect4, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	static_assert(0 == (int)SELGAME_CREATE, "SelgameModeSelect expects the index and its value to match I.");
 	static_assert(1 == (int)SELGAME_JOIN, "SelgameModeSelect expects the index and its value to match II.");
@@ -281,16 +281,16 @@ static void SelgamePasswordInit(unsigned index)
 	UiAddLogo(&vecSelGameDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 211), 205, 192 };
-	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
+	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
-	vecSelGameDialog.push_back(new UiArtText("Enter Password", rect4, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText("Enter Password", rect4, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
 	vecSelGameDialog.push_back(new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password) - 1, rect5));
@@ -312,16 +312,16 @@ static void SelgamePortInit(unsigned index)
 	UiAddLogo(&vecSelGameDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelGameDialog.push_back(new UiArtText("Join Game", rect1, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText("Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 211), 205, 192 };
-	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
+	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
-	vecSelGameDialog.push_back(new UiArtText("Enter Port", rect4, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText("Enter Port", rect4, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
 	vecSelGameDialog.push_back(new UiEdit("Enter Port", selgame_Port, sizeof(selgame_Port) - 1, rect5));
@@ -380,18 +380,18 @@ static void SelgameModeSelect(unsigned index)
 	UiAddLogo(&vecSelGameDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelGameDialog.push_back(new UiArtText(index == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText(index == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 34, (UI_OFFSET_Y + 211), 205, 33 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
-	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_SMALL));
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	switch (index) {
 	case SELGAME_CREATE: {
 		SDL_Rect rect4 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 211), 295, 35 };
-		vecSelGameDialog.push_back(new UiArtText("Select Difficulty", rect4, UIS_CENTER | UIS_BIG));
+		vecSelGameDialog.push_back(new UiArtText("Select Difficulty", rect4, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 		vecSelGameDlgItems.push_back(new UiListItem("Normal", DIFF_NORMAL));
 		vecSelGameDlgItems.push_back(new UiListItem("Nightmare", DIFF_NIGHTMARE));
@@ -410,7 +410,7 @@ static void SelgameModeSelect(unsigned index)
 	} break;
 	case SELGAME_JOIN: {
 		SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
-		vecSelGameDialog.push_back(new UiArtText("Enter Address", rect4, UIS_CENTER | UIS_BIG));
+		vecSelGameDialog.push_back(new UiArtText("Enter Address", rect4, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 		SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
 		vecSelGameDialog.push_back(new UiEdit("Enter Address", selgame_Ip, sizeof(selgame_Ip) - 1, rect5));

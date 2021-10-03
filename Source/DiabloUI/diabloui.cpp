@@ -744,7 +744,7 @@ static void Render(const UiEdit* uiEdit)
 	rect.x += 43;
 	rect.y += 1;
 	rect.w -= 86;
-	DrawArtStr(uiEdit->m_value, rect, UIS_MED | UIS_GOLD, /*drawTextCursor=*/true);
+	DrawArtStr(uiEdit->m_value, rect, UIS_LEFT | UIS_MED | UIS_GOLD, /*drawTextCursor=*/true);
 }
 
 static void RenderItem(UiItemBase* item)

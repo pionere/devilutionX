@@ -56,7 +56,7 @@ static void MainmenuLoad(const char* name)
 	vecMainMenuDialog.push_back(new UiList(&vecMenuItems, rect1, UIS_CENTER | UIS_HUGE | UIS_GOLD));
 
 	SDL_Rect rect2 = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
-	vecMainMenuDialog.push_back(new UiArtText(name, rect2, UIS_SMALL));
+	vecMainMenuDialog.push_back(new UiArtText(name, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	UiInitList(vecMainMenuDialog, vecMenuItems.size(), NULL, UiMainMenuSelect, MainmenuEsc, NULL, true);
 }

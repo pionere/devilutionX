@@ -26,7 +26,7 @@ static void TitleLoad()
 	vecTitleScreen.push_back(new UiImage(&ArtLogoBig, rect1));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 49, (UI_OFFSET_Y + 410), 550, 26 };
-	vecTitleScreen.push_back(new UiArtText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect2, UIS_CENTER | UIS_MED));
+	vecTitleScreen.push_back(new UiArtText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect2, UIS_CENTER | UIS_MED | UIS_SILVER));
 #endif
 }
 
