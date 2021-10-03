@@ -439,7 +439,7 @@ static void SelheroNameSelect(unsigned index)
 		} else {
 			std::vector<UiItemBase*> allItems = vecSelHeroDialog;
 			allItems.insert(allItems.end(), vecSelDlgItems.begin(), vecSelDlgItems.end());
-			UiErrorOkDialog("Unable to create character.", &allItems);
+			UiErrorOkDialog("Error", "Unable to create character.", &allItems);
 		}
 	}
 

@@ -146,7 +146,7 @@ static void DialogActionOK()
 	ApplyGamma(logical_palette, FallbackPalette);
 }*/
 
-static void Init(const char *text, const char *caption, bool error, const std::vector<UiItemBase*>* renderBehind)
+static void Init(const char* caption, char* text, bool error, const std::vector<UiItemBase*>* renderBehind)
 {
 	if (renderBehind == NULL) {
 		//assert(error || (ArtBackground.surface == NULL && ArtCursor.surface == NULL));
@@ -160,20 +160,13 @@ static void Init(const char *text, const char *caption, bool error, const std::v
 		LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
 	}
 	SetFadeLevel(256);
-	if (caption == NULL) {
-		LoadArt(error ? "ui_art\\srpopup.pcx" : "ui_art\\spopup.pcx", &dialogArt);
-	} else {
-		if (error) {
-			// LoadArt(&dialogArt, popupData, 385, 280);
-			LoadArt("ui_art\\lrpopup.pcx", &dialogArt);
-		} else {
-			LoadArt("ui_art\\lpopup.pcx", &dialogArt);
-		}
-	}
+
 	LoadSmlButtonArt();
 	LoadTtfFont();
 
-	if (caption == NULL) {
+	/*if (caption == NULL) {
+		LoadArt(error ? "ui_art\\srpopup.pcx" : "ui_art\\spopup.pcx", &dialogArt);
+
 		SDL_Rect rect1 = { PANEL_LEFT + 180, (UI_OFFSET_Y + 168), 280, 144 };
 		vecOkDialog.push_back(new UiImage(&dialogArt, 0, rect1, 0));
 
@@ -183,7 +176,9 @@ static void Init(const char *text, const char *caption, bool error, const std::v
 
 		SDL_Rect rect3 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect3));
-	} else {
+	} else {*/
+		LoadArt(error ? "ui_art\\lrpopup.pcx" : "ui_art\\lpopup.pcx", &dialogArt);
+
 		SDL_Rect rect1 = { PANEL_LEFT + 127, (UI_OFFSET_Y + 100), 385, 280 };
 		vecOkDialog.push_back(new UiImage(&dialogArt, 0, rect1, 0));
 
@@ -247,11 +242,11 @@ static void DialogLoop(const std::vector<UiItemBase*> &uiItems, const std::vecto
 	} while (!_gbDialogEnd);
 }
 
-static void UiOkDialog(const char* text, const char* caption, bool error, const std::vector<UiItemBase*>* renderBehind)
+static void UiOkDialog(const char* caption, const char* text, bool error, const std::vector<UiItemBase*>* renderBehind)
 {
 	if (gbWndActive && !gbInDialog) {
 		gbInDialog = true;
-		Init(text, caption, error, renderBehind);
+		Init(caption, text, error, renderBehind);
 		if (font != NULL) {
 			DialogLoop(vecOkDialog, renderBehind);
 			Deinit(renderBehind);
@@ -266,24 +261,24 @@ static void UiOkDialog(const char* text, const char* caption, bool error, const 
 		SDL_Log("%s", SDL_GetError());
 	}
 #ifndef RUN_TESTS
-	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, text, caption, NULL) < 0) {
+	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, caption, text, NULL) < 0) {
 		SDL_Log("%s", SDL_GetError());
 #else
 	{
 #endif
-		SDL_Log("%s", text);
 		SDL_Log("%s", caption);
+		SDL_Log("%s", text);
 	}
 }
 
-void UiErrorOkDialog(const char* text, const char* caption, bool error)
+void UiErrorOkDialog(const char* caption, const char* text, bool error)
 {
-	UiOkDialog(text, caption, error, NULL);
+	UiOkDialog(caption, text, error, NULL);
 }
 
-void UiErrorOkDialog(const char* text, const std::vector<UiItemBase*>* renderBehind)
+void UiErrorOkDialog(const char* caption, const char* text, const std::vector<UiItemBase*>* renderBehind)
 {
-	UiOkDialog(text, NULL, true, renderBehind);
+	UiOkDialog(caption, text, true, renderBehind);
 }
 
 DEVILUTION_END_NAMESPACE
