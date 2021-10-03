@@ -359,24 +359,19 @@ static BYTE *SVidApplyVolume(const BYTE *raw, unsigned long rawLen)
 bool SVidPlayContinue()
 {
 	if (smk_palette_updated(SVidSMK)) {
-		SDL_Color colors[256];
-		const unsigned char *paletteData = smk_get_palette(SVidSMK);
+		const BYTE (&paldata)[256][3] = *(BYTE (*)[256][3])smk_get_palette(SVidSMK);
 
 		for (int i = 0; i < 256; i++) {
-			colors[i].r = paletteData[i * 3 + 0];
-			colors[i].g = paletteData[i * 3 + 1];
-			colors[i].b = paletteData[i * 3 + 2];
+			orig_palette[i].r = paldata[i][0];
+			orig_palette[i].g = paldata[i][1];
+			orig_palette[i].b = paldata[i][2];
 #ifndef USE_SDL1
-			colors[i].a = SDL_ALPHA_OPAQUE;
+			orig_palette[i].a = SDL_ALPHA_OPAQUE;
 #endif
-
-			orig_palette[i].r = paletteData[i * 3 + 0];
-			orig_palette[i].g = paletteData[i * 3 + 1];
-			orig_palette[i].b = paletteData[i * 3 + 2];
 		}
-		memcpy(logical_palette, orig_palette, sizeof(logical_palette));
+		ApplyGamma(logical_palette, orig_palette);
 
-		if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, 256) < 0) {
+		if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, orig_palette, 0, 256) < 0) {
 			sdl_fatal(ERR_SDL_VIDEO_SURFACE);
 		}
 	}
