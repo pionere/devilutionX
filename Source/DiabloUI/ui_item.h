@@ -14,7 +14,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 enum UiType : uint8_t {
-	UI_TEXT,
 	UI_ART_TEXT,
 	UI_ART_TEXT_BUTTON,
 	UI_IMAGE,
@@ -153,27 +152,6 @@ public:
 
 //=============================================================================
 
-// Plain text (TTF)
-
-class UiText : public UiItemBase {
-public:
-	UiText(const char* text, SDL_Color color, SDL_Rect &rect)
-	    : UiItemBase(UI_TEXT, rect, 0), m_color(color), m_text(text)
-	{
-	}
-
-	~UiText() = default;
-
-	//private:
-	SDL_Color m_color;
-	const char *m_text;
-
-	// State:
-	TtfSurfaceCache m_render_cache;
-};
-
-//=============================================================================
-
 // A button (uses Diablo sprites)
 
 class UiButton : public UiItemBase {
@@ -201,7 +179,6 @@ public:
 
 	// State
 	bool m_pressed;
-	TtfSurfaceCache m_render_cache;
 };
 
 //=============================================================================

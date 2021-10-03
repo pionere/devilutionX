@@ -1,16 +1,6 @@
 #pragma once
 
-#include <SDL_ttf.h>
-
 #include "DiabloUI/art.h"
-
-#ifndef TTF_FONT_DIR
-#define TTF_FONT_DIR ""
-#endif
-
-#ifndef TTF_FONT_NAME
-#define TTF_FONT_NAME "CharisSILB.ttf"
-#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -26,15 +16,10 @@ enum _artFontColors {
 	AFC_GOLD,
 };
 
-extern TTF_Font *font;
-extern BYTE *FontTables[4];
+extern BYTE* FontTables[4];
 extern Art ArtFonts[4][2];
 
 void LoadArtFonts();
 void UnloadArtFonts();
-
-void LoadTtfFont();
-void UnloadTtfFont();
-void FontsCleanup();
 
 DEVILUTION_END_NAMESPACE

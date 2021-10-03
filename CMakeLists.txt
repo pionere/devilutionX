@@ -207,10 +207,10 @@ endif()
 
 if(ANDROID)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/android-project/3rdParty/SDL2)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/android-project/3rdParty/SDL2_ttf)
+  #add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/android-project/3rdParty/SDL2_ttf)
 elseif(USE_SDL1)
   find_package(SDL REQUIRED)
-  find_package(SDL_ttf REQUIRED)
+  #find_package(SDL_ttf REQUIRED)
   if (NOT NOSOUND)
     find_package(SDL_mixer REQUIRED)
     #set(SDL_MIXER_LIBRARY SDL::SDL_mixer) ?
@@ -238,7 +238,7 @@ else()
     # Can't define an INTERFACE target with ::, so alias instead
     add_library(SDL2::SDL2 ALIAS SDL2_lib)
   endif()
-  find_package(SDL2_ttf REQUIRED)
+  #find_package(SDL2_ttf REQUIRED)
   if (NOT NOSOUND)
     find_package(SDL2_mixer REQUIRED)
     set(SDL_MIXER_LIBRARY SDL2::SDL2_mixer)
@@ -408,7 +408,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/text.cpp
   Source/DiabloUI/text_draw.cpp
   Source/DiabloUI/title.cpp
-  Source/DiabloUI/ttf_render_wrapped.cpp
   Source/dvlnet/abstract_net.cpp
   Source/dvlnet/base.cpp
   Source/dvlnet/cdwrap.cpp
@@ -503,12 +502,12 @@ if (NOT ANDROID)
     ${devilutionx_SRCS}
     Source/devilutionx.exe.manifest
     Packaging/macOS/AppIcon.icns
-    Packaging/resources/CharisSILB.ttf
+    #Packaging/resources/CharisSILB.ttf
     Packaging/windows/devilutionx.rc)
 endif()
 
 # Copy the font, devilutionx.mpq and devilx.mpq to the build directory to it works from the build directory
-file(COPY "Packaging/resources/CharisSILB.ttf" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+#file(COPY "Packaging/resources/CharisSILB.ttf" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "Packaging/resources/devilutionx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "Packaging/resources/devilx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -609,8 +608,8 @@ foreach(
   DEFAULT_HEIGHT
   SCREEN_WIDTH
   SCREEN_HEIGHT
-  TTF_FONT_DIR
-  TTF_FONT_NAME
+  #TTF_FONT_DIR
+  #TTF_FONT_NAME
   SDL1_VIDEO_MODE_BPP
   SDL1_VIDEO_MODE_FLAGS
   SDL1_FORCE_SVID_VIDEO_MODE
@@ -686,14 +685,14 @@ endif()
 
 if(USE_SDL1)
   target_link_libraries(${BIN_TARGET} PRIVATE
-    ${SDL_TTF_LIBRARY}
+    #${SDL_TTF_LIBRARY}
     ${SDL_LIBRARY})
   target_compile_definitions(${BIN_TARGET} PRIVATE USE_SDL1)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
     SDL2::SDL2
-    ${SDL2_MAIN}
-    SDL2::SDL2_ttf)
+    ${SDL2_MAIN})
+    #SDL2::SDL2_ttf)
 endif()
 
 if(NOT NOSOUND)
@@ -793,7 +792,7 @@ endif()
 
 if(APPLE)
   set_source_files_properties("./Packaging/macOS/AppIcon.icns" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-  set_source_files_properties("./Packaging/resources/CharisSILB.ttf" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  #set_source_files_properties("./Packaging/resources/CharisSILB.ttf" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   set(MACOSX_BUNDLE_GUI_IDENTIFIER com.diasurgical.devilutionx)
   set(MACOSX_BUNDLE_COPYRIGHT Unlicense)
   set(MACOSX_BUNDLE_BUNDLE_NAME devilutionx)
@@ -869,7 +868,7 @@ if(VITA)
     FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
     FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
     FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-    FILE Packaging/resources/CharisSILB.ttf CharisSILB.ttf
+    #FILE Packaging/resources/CharisSILB.ttf CharisSILB.ttf
     FILE Packaging/resources/devilutionx.mpq devilutionx.mpq
     FILE Packaging/resources/devilx.mpq devilx.mpq
   )
@@ -885,7 +884,7 @@ if(NINTENDO_3DS)
   set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template.rsf")
   set(APP_ROMFS       "${CMAKE_BINARY_DIR}/romfs")
   set(APP_ROMFS_FILES
-    "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
+    #"${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
     "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
     "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
   if(HELLFIRE)
@@ -940,21 +939,21 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
     )
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
-      DESTINATION "."
-    )
+    #install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
+    #  DESTINATION "."
+    #)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
       DESTINATION "."
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.CharisSILB.txt"
-      DESTINATION "LICENSE"
-    )
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.freetype.txt"
-      DESTINATION "LICENSE"
-    )
+    #install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.CharisSILB.txt"
+    #  DESTINATION "LICENSE"
+    #)
+    #install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.freetype.txt"
+    #  DESTINATION "LICENSE"
+    #)
     if(ZEROTIER)
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.zlib.txt"
         DESTINATION "LICENSE"
@@ -1090,23 +1089,27 @@ if(CPACK)
       DESTINATION "share/icons/hicolor/512x512/apps"
       RENAME "${project_name}-hellfire.png"
     )
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
-      DESTINATION "share/fonts/truetype"
-    )
+    #install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
+    #  DESTINATION "share/fonts/truetype"
+    #)
 
     # -G DEB
-    set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
+    #set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
     if (NOT NOSOUND)
       if(USE_SDL1)
-      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2, libsdl-ttf2.0-0")
+      #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2, libsdl-ttf2.0-0")
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2")
       else()
-      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-mixer-2.0-0, libsdl2-ttf-2.0-0")
+      #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-mixer-2.0-0, libsdl2-ttf-2.0-0")
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-mixer-2.0-0")
       endif()
     else()
       if(USE_SDL1)
-      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-ttf2.0-0")
+      #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-ttf2.0-0")
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian")
       else()
-      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-ttf-2.0-0")
+      #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-ttf-2.0-0")
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0")
       endif()
     endif()
     set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)

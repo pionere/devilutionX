@@ -15,81 +15,13 @@ DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
-const SDL_Rect VIEWPORT = { 0, 114, 640, 251 };
-const int ShadowOffsetX = 2;
-const int ShadowOffsetY = 2;
-const int LINE_H = 22;
+static const SDL_Rect VIEWPORT = { 0, 114, 640, 251 };
+#define LINE_H	22
 
 // The maximum number of visible lines is the number of whole lines
 // (VIEWPORT.h / LINE_H) rounded up, plus one extra line for when
 // a line is leaving the screen while another one is entering.
 #define MAX_VISIBLE_LINES ((VIEWPORT.h - 1) / LINE_H + 2)
-
-struct CachedLine {
-
-	CachedLine()
-	{
-		m_index = 0;
-		m_surface = NULL;
-		palette_version = back_surface_palette_version;
-	}
-
-	CachedLine(unsigned index, SDL_Surface *surface)
-	{
-		m_index = index;
-		m_surface = surface;
-		palette_version = back_surface_palette_version;
-	}
-
-	unsigned m_index;
-	SDL_Surface *m_surface;
-	unsigned int palette_version;
-};
-
-CachedLine PrepareLine(unsigned index)
-{
-	const char *contents = CREDITS_LINES[index];
-	while (contents[0] == '\t')
-		++contents;
-
-	// Precompose shadow and text:
-	SDL_Surface *surface = NULL;
-	if (contents[0] != '\0') {
-		const SDL_Color shadowColor = { 0, 0, 0, 0 };
-		SDL_Surface* text = TTF_RenderUTF8_Solid(font, contents, shadowColor);
-
-		// Set up the target surface to have 3 colors: mask, text, and shadow.
-		if (text == NULL)
-			ttf_fatal(ERR_SDL_CREDIT_PRE_SURFACE);
-		surface = SDL_CreateRGBSurfaceWithFormat(0, text->w + ShadowOffsetX, text->h + ShadowOffsetY, 8, SDL_PIXELFORMAT_INDEX8);
-		const SDL_Color maskColor = { 0, 255, 0, 0 }; // Any color different from both shadow and text
-		const SDL_Color &textColor = back_palette->colors[224];
-		SDL_Color colors[3] = { maskColor, textColor, shadowColor };
-		if (SDLC_SetSurfaceColors(surface, colors, 0, 3) < 0)
-			sdl_fatal(ERR_SDL_CREDIT_PRE_SHADOW_COLOR);
-		SDLC_SetColorKey(surface, 0);
-
-		// Blit the shadow first:
-		SDL_Rect shadowRect = { ShadowOffsetX, ShadowOffsetY, 0, 0 };
-		if (SDL_BlitSurface(text, NULL, surface, &shadowRect) < 0)
-			sdl_fatal(ERR_SDL_CREDIT_PRE_SHADOW);
-
-		// Change the text surface color and blit again:
-		SDL_Color textColors[2] = { maskColor, textColor };
-		if (SDLC_SetSurfaceColors(text, textColors, 0, 2) < 0)
-			sdl_fatal(ERR_SDL_CREDIT_PRE_TEXT_COLOR);
-		SDLC_SetColorKey(text, 0);
-
-		if (SDL_BlitSurface(text, NULL, surface, NULL) < 0)
-			sdl_fatal(ERR_SDL_CREDIT_PRE_TEXT);
-
-		SDL_Surface *surface_ptr = surface;
-		ScaleSurfaceToOutput(&surface_ptr);
-		surface = surface_ptr;
-		SDL_FreeSurface(text);
-	}
-	return CachedLine(index, surface);
-}
 
 class CreditsRenderer {
 
@@ -100,7 +32,6 @@ public:
 		LoadArt("ui_art\\creditsw.pcx", &ArtBackgroundWidescreen);
 #endif
 		LoadBackgroundArt("ui_art\\credits.pcx");
-		LoadTtfFont();
 		ticks_begin_ = SDL_GetTicks();
 		prev_offset_y_ = 0;
 		finished_ = false;
@@ -112,11 +43,6 @@ public:
 		ArtBackgroundWidescreen.Unload();
 #endif
 		ArtBackground.Unload();
-		UnloadTtfFont();
-
-		for (unsigned x = 0; x < lines_.size(); x++) {
-			SDL_FreeSurface(lines_[x].m_surface);
-		}
 	}
 
 	void Render();
@@ -127,7 +53,6 @@ public:
 	}
 
 private:
-	std::vector<CachedLine> lines_;
 	bool finished_;
 	Uint32 ticks_begin_;
 	int prev_offset_y_;
@@ -145,8 +70,6 @@ void CreditsRenderer::Render()
 	DrawArt(PANEL_LEFT - 320, UI_OFFSET_Y, &ArtBackgroundWidescreen);
 #endif
 	DrawArt(PANEL_LEFT, UI_OFFSET_Y, &ArtBackground);
-	if (font == NULL)
-		return;
 
 	const unsigned linesBegin = std::max(offsetY / LINE_H, 0);
 	const unsigned linesEnd = std::min(linesBegin + MAX_VISIBLE_LINES, CREDITS_LINES_SIZE);
@@ -157,9 +80,6 @@ void CreditsRenderer::Render()
 		return;
 	}
 
-	while (linesEnd > lines_.size())
-		lines_.push_back(PrepareLine(lines_.size()));
-
 	SDL_Rect viewport = VIEWPORT;
 	viewport.x += PANEL_LEFT;
 	viewport.y += UI_OFFSET_Y;
@@ -169,28 +89,15 @@ void CreditsRenderer::Render()
 	// We use unscaled coordinates for calculation throughout.
 	int destY = UI_OFFSET_Y + VIEWPORT.y - (offsetY - linesBegin * LINE_H);
 	for (unsigned i = linesBegin; i < linesEnd; ++i, destY += LINE_H) {
-		CachedLine &line = lines_[i];
-		if (line.m_surface == NULL)
-			continue;
-
-		// Still fading in: the cached line was drawn with a different fade level.
-		if (line.palette_version != back_surface_palette_version) {
-			SDL_FreeSurface(line.m_surface);
-			line = PrepareLine(line.m_index);
-		}
-
+		const char* text = CREDITS_LINES[i];
 		int destX = PANEL_LEFT + VIEWPORT.x + 31;
-		int j = 0;
-		while (CREDITS_LINES[line.m_index][j++] == '\t')
+		for ( ; *text == '\t'; text++) {
 			destX += 40;
-
+		}
 		SDL_Rect dstRect = { destX, destY, 0, 0 };
-		ScaleOutputRect(&dstRect);
-		dstRect.w = line.m_surface->w;
-		dstRect.h = line.m_surface->h;
-		if (SDL_BlitSurface(line.m_surface, NULL, DiabloUiSurface(), &dstRect) < 0)
-			sdl_fatal(ERR_SDL_CREDIT_BLIT);
+		DrawArtStr(text, dstRect, UIS_LEFT | UIS_SMALL | UIS_GOLD);
 	}
+
 	SDL_SetClipRect(DiabloUiSurface(), NULL);
 }
 

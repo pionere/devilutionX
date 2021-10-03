@@ -15,6 +15,7 @@ extern "C" {
 extern uint32_t glSeedTbl[NUM_LEVELS];
 extern int MouseX;
 extern int MouseY;
+extern bool gbWasUiInit;
 extern bool gbSndInited;
 extern bool gbRunGame;
 extern bool gbRunGameResult;

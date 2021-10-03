@@ -51,12 +51,10 @@ void dev_fatal(const char *pszFmt, MsgArgs... args) {
 	}
 #else
 #define sdl_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, SDL_GetError())
-#define ttf_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, TTF_GetError())
 #endif // _DEBUG
 #else
 inline void dev_fatal(const char *pszFmt, ...) {}
 #define sdl_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, SDL_GetError())
-#define ttf_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, TTF_GetError())
 #endif // _DEVMODE || _DEBUG
 
 #ifdef __cplusplus

@@ -57,6 +57,11 @@ NLevels\L6Data\L6.TMI
 NLevels\TownData\Town.TMI
 Objects\L1Doors.CEL
 Objects\Sarc.CEL
+ui_art\font16.bin
+ui_art\font16g.pcx
+ui_art\font24.bin
+ui_art\font30.bin
+ui_art\font42.bin
 ui_art\lrpopup.pcx
 ui_art\sb_arrow.pcx
 ui_art\sb_bg.pcx

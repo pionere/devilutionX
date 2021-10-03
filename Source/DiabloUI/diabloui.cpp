@@ -489,7 +489,6 @@ void UiInitialize()
 void UiDestroy()
 {
 	UnloadUiGFX();
-	UnloadTtfFont();
 	UnloadArtFonts();
 	//UiInitList_clear();
 }
@@ -643,18 +642,6 @@ void UiPollAndRender()
 #endif
 }
 
-static void Render(UiText* uiText)
-{
-	SDL_Color color2 = { 0, 0, 0, 0 };
-
-	DrawTTF(uiText->m_text,
-	    uiText->m_rect,
-	    UIS_CENTER,
-	    uiText->m_color,
-	    color2,
-	    uiText->m_render_cache);
-}
-
 static void Render(const UiArtText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
@@ -685,13 +672,9 @@ static void Render(UiButton* button)
 	DrawArt(button->m_rect.x, button->m_rect.y, &SmlButton, frame, button->m_rect.w, button->m_rect.h);
 
 	SDL_Rect textRect = button->m_rect;
-	if (!button->m_pressed)
-		--textRect.y;
-
-	SDL_Color color1 = { 243, 243, 243, 0 };
-	SDL_Color color2 = { 0, 0, 0, 0 };
-	DrawTTF(button->m_text, textRect, UIS_CENTER,
-	    color1, color2, button->m_render_cache);
+	if (button->m_pressed)
+		textRect.y++;
+	DrawArtStr(button->m_text, textRect, UIS_CENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD);
 }
 
 static void Render(const UiList* uiList)
@@ -751,9 +734,6 @@ static void Render(const UiEdit* uiEdit)
 static void RenderItem(UiItemBase* item)
 {
 	switch (item->m_type) {
-	case UI_TEXT:
-		Render(static_cast<UiText *>(item));
-		break;
 	case UI_ART_TEXT:
 		Render(static_cast<UiArtText *>(item));
 		break;

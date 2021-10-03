@@ -28,10 +28,6 @@ bool UiProgressDialog(const char *msg, int(*fnfunc)());
 int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt));
 void UIDisconnectGame(int reason);
 
-/* These are defined in fonts.h */
-extern bool gbWasFontsInit;
-extern void FontsCleanup();
-
 /* Defined in selconn.cpp */
 extern int provider;
 bool UiSelectProvider(bool bMulti);

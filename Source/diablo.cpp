@@ -130,7 +130,7 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 bool _gbWasArchivesInit = false;
 /** To know if surfaces have been initialized or not */
 bool _gbWasWindowInit = false;
-bool _gbWasUiInit = false;
+bool gbWasUiInit = false;
 bool gbSndInited = false;
 
 static void print_help_and_exit()
@@ -273,7 +273,7 @@ static void diablo_init()
 	_gbWasArchivesInit = true;
 
 	UiInitialize();
-	_gbWasUiInit = true;
+	gbWasUiInit = true;
 
 	diablo_init_screen();
 
@@ -307,14 +307,12 @@ static void diablo_deinit()
 	NetClose();
 	if (gbSndInited)
 		effects_cleanup_sfx();
-	if (_gbWasUiInit)
+	if (gbWasUiInit)
 		UiDestroy();
 	if (_gbWasArchivesInit)
 		init_cleanup();
 	if (_gbWasWindowInit)
 		dx_cleanup(); // Cleanup SDL surfaces stuff, so we have to do it before SDL_Quit().
-	if (gbWasFontsInit)
-		FontsCleanup();
 	if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC) != 0)
 		SDL_Quit();
 }

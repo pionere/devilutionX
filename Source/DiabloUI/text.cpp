@@ -2,16 +2,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-unsigned GetArtStrWidth(const char *str, unsigned size)
+unsigned GetArtStrWidth(const char* str, unsigned size)
 {
 	unsigned strWidth = 0;
 
-	for (unsigned i = 0; i < strlen(str); i++) {
-		BYTE w = FontTables[size][*(BYTE *)&str[i] + 2];
-		if (w != 0)
-			strWidth += w;
-		else
-			strWidth += FontTables[size][0];
+	for ( ; *str != '\0'; str++) {
+		BYTE w = FontTables[size][*(BYTE*)str];
+		strWidth += w;
 	}
 
 	return strWidth;
