@@ -67,17 +67,14 @@ void palette_init()
 	memcpy(system_palette, orig_palette, sizeof(orig_palette));
 }
 
-void LoadPalette(const char *pszFileName)
+void LoadPalette(const char* pszFileName)
 {
 	int i;
-	HANDLE pBuf;
 	BYTE PalData[256][3];
 
 	assert(pszFileName != NULL);
 
-	pBuf = SFileOpenFile(pszFileName);
-	SFileReadFile(pBuf, PalData, sizeof(PalData), NULL);
-	SFileCloseFile(pBuf);
+	LoadFileWithMem(pszFileName, &PalData[0][0]);
 
 	for (i = 0; i < 256; i++) {
 		orig_palette[i].r = PalData[i][0];
