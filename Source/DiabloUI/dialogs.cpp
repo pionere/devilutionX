@@ -2,7 +2,6 @@
 
 #include "all.h"
 #include "controls/menu_controls.h"
-#include "DiabloUI/button.h"
 #include "DiabloUI/diabloui.h"
 //#include "DiabloUI/errorart.h"
 #include "DiabloUI/fonts.h"
@@ -161,7 +160,7 @@ static void Init(const char* caption, char* text, bool error, const std::vector<
 	}
 	SetFadeLevel(256);
 
-	LoadSmlButtonArt();
+	LoadArt("ui_art\\smbutton.pcx", &SmlButton, 2);
 	LoadTtfFont();
 
 	/*if (caption == NULL) {
@@ -175,7 +174,7 @@ static void Init(const char* caption, char* text, bool error, const std::vector<
 		vecOkDialog.push_back(new UiText(text, color1, rect2));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
-		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect3));
+		vecOkDialog.push_back(new UiButton("OK", &DialogActionOK, rect3));
 	} else {*/
 		LoadArt(error ? "ui_art\\lrpopup.pcx" : "ui_art\\lpopup.pcx", &dialogArt);
 
@@ -191,7 +190,7 @@ static void Init(const char* caption, char* text, bool error, const std::vector<
 		vecOkDialog.push_back(new UiText(caption, color2, rect3));
 
 		SDL_Rect rect4 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
-		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect4));
+		vecOkDialog.push_back(new UiButton("OK", &DialogActionOK, rect4));
 	//}
 }
 
@@ -202,7 +201,7 @@ static void Deinit(const std::vector<UiItemBase *>* renderBehind)
 		ArtCursor.Unload();
 	}
 	dialogArt.Unload();
-	UnloadSmlButtonArt();
+	SmlButton.Unload();
 	UnloadTtfFont();
 
 	UiClearItems(vecOkDialog);

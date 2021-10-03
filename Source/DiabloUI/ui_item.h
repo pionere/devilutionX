@@ -178,10 +178,9 @@ public:
 
 class UiButton : public UiItemBase {
 public:
-	UiButton(Art* art, const char* text, void (*action)(), SDL_Rect &rect)
+	UiButton(const char* text, void (*action)(), SDL_Rect &rect)
 	    : UiItemBase(UI_BUTTON, rect, 0)
 	{
-		m_art = art;
 		m_text = text;
 		m_action = action;
 		m_pressed = false;
@@ -196,7 +195,6 @@ public:
 	};
 
 	//private:
-	Art *m_art;
 
 	const char *m_text;
 	void (*m_action)();

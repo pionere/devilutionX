@@ -10,7 +10,6 @@
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/text_draw.h"
 #include "DiabloUI/fonts.h"
-#include "DiabloUI/button.h"
 #include "DiabloUI/dialogs.h"
 #include "controls/plrctrls.h"
 
@@ -41,6 +40,7 @@ Art ArtBackgroundWidescreen;
 #endif
 Art ArtBackground;
 Art ArtCursor;
+Art SmlButton;
 Art ArtHero;
 
 void (*gfnSoundFunction)(int gfx, int rndCnt);
@@ -682,7 +682,7 @@ static void Render(UiButton* button)
 {
 	int frame = button->m_pressed ? UiButton::PRESSED : UiButton::DEFAULT;
 
-	DrawArt(button->m_rect.x, button->m_rect.y, button->m_art, frame, button->m_rect.w, button->m_rect.h);
+	DrawArt(button->m_rect.x, button->m_rect.y, &SmlButton, frame, button->m_rect.w, button->m_rect.h);
 
 	SDL_Rect textRect = button->m_rect;
 	if (!button->m_pressed)

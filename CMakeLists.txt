@@ -391,7 +391,6 @@ set(devilutionx_SRCS
   Source/utils/thread.cpp
   Source/DiabloUI/art.cpp
   Source/DiabloUI/art_draw.cpp
-  Source/DiabloUI/button.cpp
   Source/DiabloUI/credits.cpp
   Source/DiabloUI/credits_lines.cpp
   Source/DiabloUI/diabloui.cpp

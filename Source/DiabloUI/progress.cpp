@@ -3,7 +3,6 @@
 
 #include "controls/menu_controls.h"
 #include "DiabloUI/art_draw.h"
-#include "DiabloUI/button.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/fonts.h"
 #include "utils/display.h"
@@ -34,7 +33,7 @@ static void ProgressLoad(const char *msg)
 	LoadArt("ui_art\\spopup.pcx", &ArtPopupSm);
 	LoadArt("ui_art\\prog_bg.pcx", &ArtProgBG);
 	LoadArt("ui_art\\prog_fil.pcx", &ArtProgFil);
-	LoadSmlButtonArt();
+	LoadArt("ui_art\\smbutton.pcx", &SmlButton, 2);
 	LoadTtfFont();
 
 	if (font != NULL) {
@@ -45,7 +44,7 @@ static void ProgressLoad(const char *msg)
 		msgShadow = TTF_RenderUTF8_Solid(font, msg, black);
 	}
 	SDL_Rect rect3 = { PANEL_LEFT + 265, UI_OFFSET_Y + 267, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
-	vecProgress.push_back(new UiButton(&SmlButton, "Cancel", &DialogActionCancel, rect3));
+	vecProgress.push_back(new UiButton("Cancel", &DialogActionCancel, rect3));
 }
 
 static void ProgressFree()
@@ -54,7 +53,7 @@ static void ProgressFree()
 	ArtPopupSm.Unload();
 	ArtProgBG.Unload();
 	ArtProgFil.Unload();
-	UnloadSmlButtonArt();
+	SmlButton.Unload();
 	SDL_FreeSurface(msgSurface);
 	msgSurface = NULL;
 	SDL_FreeSurface(msgShadow);

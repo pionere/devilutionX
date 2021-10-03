@@ -13,6 +13,9 @@ extern unsigned SelectedItem;
 extern unsigned ListOffset;
 extern bool textInputActive;
 
+#define SML_BUTTON_WIDTH	110
+#define SML_BUTTON_HEIGHT	28
+
 typedef enum _artFocus {
 	FOCUS_SMALL,
 	FOCUS_MED,
@@ -33,6 +36,7 @@ extern Art ArtBackgroundWidescreen;
 #endif
 extern Art ArtCursor;
 extern Art ArtHero;
+extern Art SmlButton;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);
 
