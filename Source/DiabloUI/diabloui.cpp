@@ -541,14 +541,11 @@ static int GetCenterOffset(int w, int bw)
 
 void LoadBackgroundArt(const char* pszFile, int frames)
 {
-	SDL_Color pPal[lengthof(orig_palette)];
-
 	assert(ArtBackground.surface == NULL);
 
-	if (!LoadArt(pszFile, &ArtBackground, frames, pPal))
+	if (!LoadArt(pszFile, &ArtBackground, frames, orig_palette))
 		return;
 
-	memcpy(orig_palette, pPal, sizeof(pPal));
 	ApplyGamma(logical_palette, orig_palette);
 
 	_gdwFadeTc = 0;

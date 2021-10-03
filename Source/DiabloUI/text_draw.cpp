@@ -70,22 +70,24 @@ void DrawArtStr(const char *text, const SDL_Rect &rect, int flags, bool drawText
 	unsigned size = (flags & UIS_SIZE) >> 0;
 	unsigned color = (flags & UIS_COLOR) >> 7;
 
+	Art* fontArt = &ArtFonts[size][color];
+
 	const int x = rect.x + AlignXOffset(flags, rect, GetArtStrWidth(text, size));
-	const int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - ArtFonts[size][color].frame_height) / 2 : 0);
+	const int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - fontArt->frame_height) / 2 : 0);
 
 	int sx = x, sy = y;
-	for (unsigned i = 0, n = strlen(text); i < n; i++) {
-		if (text[i] == '\n') {
+	for ( ; *text != '\0'; text++) {
+		if (*text == '\n') {
 			sx = x;
-			sy += ArtFonts[size][color].frame_height;
+			sy += fontArt->frame_height;
 			continue;
 		}
-		BYTE w = FontTables[size][*(BYTE *)&text[i] + 2] != 0 ? FontTables[size][*(BYTE *)&text[i] + 2] : FontTables[size][0];
-		DrawArt(sx, sy, &ArtFonts[size][color], *(BYTE *)&text[i], w);
+		BYTE w = FontTables[size][*(BYTE*)text + 2] != 0 ? FontTables[size][*(BYTE*)text + 2] : FontTables[size][0];
+		DrawArt(sx, sy, fontArt, *(BYTE*)text, w);
 		sx += w;
 	}
 	if (drawTextCursor && GetAnimationFrame(2, 500) != 0) {
-		DrawArt(sx, sy, &ArtFonts[size][color], '|');
+		DrawArt(sx, sy, fontArt, '|');
 	}
 }
 

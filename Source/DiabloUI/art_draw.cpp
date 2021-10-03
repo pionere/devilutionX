@@ -28,7 +28,7 @@ void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 	SDL_Rect dstRect = { screenX, screenY, srcRect.w, srcRect.h };
 	ScaleOutputRect(&dstRect);
 
-	if (art->surface->format->BitsPerPixel == 8 && art->palette_version != back_surface_palette_version) {
+	if (art->palette_version != back_surface_palette_version && art->surface->format->BitsPerPixel == 8) {
 		if (SDLC_SetSurfaceColors(art->surface, back_surface->format->palette) < 0)
 			sdl_fatal(ERR_SDL_ART_COLOR);
 		art->palette_version = back_surface_palette_version;
