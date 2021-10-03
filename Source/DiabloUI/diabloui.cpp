@@ -33,8 +33,10 @@ unsigned SelectedItemMax;
 unsigned ListViewportSize = 1;
 unsigned ListOffset = 0;
 
+#define FOCUS_FRAME_COUNT	8
+
 Art ArtLogoMed;
-Art ArtFocus[3];
+Art ArtFocus[NUM_FOCUS];
 #ifndef NOWIDESCREEN
 Art ArtBackgroundWidescreen;
 #endif
@@ -305,6 +307,10 @@ static void UiFocusNavigation(SDL_Event* event)
 		return;
 	}
 #endif
+	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
+		UiItemMouseEvents(event, gUiItems);
+		return;
+	}
 
 	if (textInputActive) {
 		switch (event->type) {
@@ -357,11 +363,6 @@ static void UiFocusNavigation(SDL_Event* event)
 		default:
 			break;
 		}
-	}
-
-	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-		if (UiItemMouseEvents(event, gUiItems))
-			return;
 	}
 }
 
@@ -453,9 +454,9 @@ static void LoadUiGFX()
 #else
 	LoadMaskedArt("ui_art\\smlogo.pcx", &ArtLogoMed, 15, 250);
 #endif
-	LoadMaskedArt("ui_art\\focus16.pcx", &ArtFocus[FOCUS_SMALL], 8, 250);
-	LoadMaskedArt("ui_art\\focus.pcx", &ArtFocus[FOCUS_MED], 8, 250);
-	LoadMaskedArt("ui_art\\focus42.pcx", &ArtFocus[FOCUS_BIG], 8, 250);
+	LoadMaskedArt("ui_art\\focus16.pcx", &ArtFocus[FOCUS_SMALL], FOCUS_FRAME_COUNT, 250);
+	LoadMaskedArt("ui_art\\focus.pcx", &ArtFocus[FOCUS_MED], FOCUS_FRAME_COUNT, 250);
+	LoadMaskedArt("ui_art\\focus42.pcx", &ArtFocus[FOCUS_BIG], FOCUS_FRAME_COUNT, 250);
 	LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
 #ifdef HELLFIRE
 	LoadArt("ui_art\\heros.pcx", &ArtHero, 6);
@@ -466,12 +467,10 @@ static void LoadUiGFX()
 
 static void UnloadUiGFX()
 {
-	int i;
-
 	ArtLogoMed.Unload();
-
-	for (i = 0; i < lengthof(ArtFocus); i++)
-		ArtFocus[i].Unload();
+	ArtFocus[FOCUS_SMALL].Unload();
+	ArtFocus[FOCUS_MED].Unload();
+	ArtFocus[FOCUS_BIG].Unload();
 	ArtCursor.Unload();
 	ArtHero.Unload();
 }
@@ -609,7 +608,7 @@ static void DrawSelector(const SDL_Rect &rect)
 		size = FOCUS_MED;
 	Art *art = &ArtFocus[size];
 
-	int frame = GetAnimationFrame(art->frames);
+	int frame = GetAnimationFrame(FOCUS_FRAME_COUNT);
 	int y = rect.y + (rect.h - art->frame_height) / 2; // TODO FOCUS_MED appears higher than the box
 
 	DrawArt(rect.x, y, art, frame);
@@ -911,20 +910,20 @@ void UiClearListItems(std::vector<UiListItem *> &uiItems)
 	uiItems.clear();
 }
 
-bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &uiItems)
+void UiItemMouseEvents(SDL_Event* event, const std::vector<UiItemBase*> &uiItems)
 {
 	if (event->button.button != SDL_BUTTON_LEFT)
-		return false;
+		return; // false;
 
 	// In SDL2 mouse events already use logical coordinates.
 #ifdef USE_SDL1
 	OutputToLogical(&event->button.x, &event->button.y);
 #endif
 
-	bool handled = false;
+	//bool handled = false;
 	for (unsigned i = 0; i < uiItems.size(); i++) {
 		if (HandleMouseEvent(*event, uiItems[i])) {
-			handled = true;
+			//handled = true;
 			break;
 		}
 	}
@@ -938,7 +937,7 @@ bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &uiItem
 		}
 	}
 
-	return handled;
+	//return handled;
 }
 
 void DrawMouse()

@@ -20,9 +20,10 @@ typedef enum _artFocus {
 	FOCUS_SMALL,
 	FOCUS_MED,
 	FOCUS_BIG,
+	NUM_FOCUS
 } _artFocus;
 
-extern Art ArtFocus[3];
+extern Art ArtFocus[NUM_FOCUS];
 extern Art ArtBackground;
 #ifndef NOWIDESCREEN
 extern Art ArtBackgroundWidescreen;
@@ -33,7 +34,7 @@ extern Art SmlButton;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);
 
-inline SDL_Surface *DiabloUiSurface()
+inline SDL_Surface* DiabloUiSurface()
 {
 	auto *output_surface = GetOutputSurface();
 
@@ -50,25 +51,25 @@ inline SDL_Surface *DiabloUiSurface()
 }
 
 void UiFadeIn();
-void UiHandleEvents(SDL_Event *event);
-bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &uiItems);
+void UiHandleEvents(SDL_Event* event);
+void UiItemMouseEvents(SDL_Event* event, const std::vector<UiItemBase*> &uiItems);
 void DrawMouse();
-void LoadBackgroundArt(const char *pszFile, int frames = 1);
+void LoadBackgroundArt(const char* pszFile, int frames = 1);
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationYesNo();
-void UiInitList(const std::vector<UiItemBase *> &uiItems, unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL, bool wraps = false);
-void UiInitScrollBar(UiScrollBar *ui_sb, unsigned viewport_size);
+void UiInitList(const std::vector<UiItemBase*> &uiItems, unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL, bool wraps = false);
+void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
 void UiClearScreen();
 void UiPollAndRender();
-void UiRenderItems(const std::vector<UiItemBase *> &uiItems);
-void UiClearItems(std::vector<UiItemBase *> &uiItems);
-void UiClearListItems(std::vector<UiListItem *> &uiItems);
+void UiRenderItems(const std::vector<UiItemBase*> &uiItems);
+void UiClearItems(std::vector<UiItemBase*> &uiItems);
+void UiClearListItems(std::vector<UiListItem*> &uiItems);
 void UiInitList_clear();
 
 void mainmenu_restart_repintro();
-bool UiValidPlayerName(const char *name);
+bool UiValidPlayerName(const char* name);
 
 DEVILUTION_END_NAMESPACE
