@@ -430,7 +430,7 @@ static void SelheroNameSelect(unsigned index)
 {
 	if (!UiValidPlayerName(selhero_heroInfo.hiName)) {
 		ArtBackground.Unload();
-		UiSelOkDialog(selhero_title, "Invalid name. A name cannot contain spaces, reserved characters, or reserved words.\n", false);
+		UiSelOkDialog(selhero_title, "Invalid name. A name cannot contain spaces, reserved characters, or reserved words.");
 		LoadBackgroundArt("ui_art\\selhero.pcx");
 	} else {
 		if (gfnHeroCreate(&selhero_heroInfo)) {

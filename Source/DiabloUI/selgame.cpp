@@ -429,13 +429,6 @@ static void SelgameModeSelect(unsigned index)
 	}
 }
 
-static void ShowErrorMsgDialog()
-{
-	SelgameFree();
-	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", tempstr, false);
-	LoadBackgroundArt("ui_art\\selgame.pcx");
-}
-
 static void SelgameSpeedSelect(unsigned index)
 {
 	selgame_gameData->bTickRate = vecSelGameDlgItems[index]->m_value;
@@ -478,7 +471,9 @@ static void SelgamePasswordSelect(unsigned index)
 	}
 
 	SStrCopy(tempstr, SDL_GetError(), sizeof(tempstr));
-	ShowErrorMsgDialog();
+	ArtBackground.Unload();
+	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", tempstr);
+	LoadBackgroundArt("ui_art\\selgame.pcx");
 	SelgamePasswordInit(0);
 }
 

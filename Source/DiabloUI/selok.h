@@ -4,9 +4,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-void UiSelOkDialog(const char *title, const char *body, bool background);
-void selok_Free();
-void selok_Select(unsigned index);
-void selok_Esc();
+void UiSelOkDialog(const char* title, const char* body);
 
 DEVILUTION_END_NAMESPACE
