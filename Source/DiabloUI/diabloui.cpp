@@ -449,13 +449,13 @@ static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 static void LoadUiGFX()
 {
 #ifdef HELLFIRE
-	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16);
+	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16, 250);
 #else
-	LoadMaskedArt("ui_art\\smlogo.pcx", &ArtLogoMed, 15);
+	LoadMaskedArt("ui_art\\smlogo.pcx", &ArtLogoMed, 15, 250);
 #endif
-	LoadMaskedArt("ui_art\\focus16.pcx", &ArtFocus[FOCUS_SMALL], 8);
-	LoadMaskedArt("ui_art\\focus.pcx", &ArtFocus[FOCUS_MED], 8);
-	LoadMaskedArt("ui_art\\focus42.pcx", &ArtFocus[FOCUS_BIG], 8);
+	LoadMaskedArt("ui_art\\focus16.pcx", &ArtFocus[FOCUS_SMALL], 8, 250);
+	LoadMaskedArt("ui_art\\focus.pcx", &ArtFocus[FOCUS_MED], 8, 250);
+	LoadMaskedArt("ui_art\\focus42.pcx", &ArtFocus[FOCUS_BIG], 8, 250);
 	LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
 #ifdef HELLFIRE
 	LoadArt("ui_art\\heros.pcx", &ArtHero, 6);

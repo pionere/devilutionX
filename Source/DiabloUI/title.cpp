@@ -18,7 +18,7 @@ static void TitleLoad()
 	UiAddBackground(&vecTitleScreen);
 #else
 	LoadBackgroundArt("ui_art\\title.pcx");
-	LoadMaskedArt("ui_art\\logo.pcx", &ArtLogoBig, 15);
+	LoadMaskedArt("ui_art\\logo.pcx", &ArtLogoBig, 15, 250);
 
 	UiAddBackground(&vecTitleScreen);
 

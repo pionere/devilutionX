@@ -20,6 +20,6 @@ struct Art {
 };
 
 bool LoadArt(const char* pszFile, Art* art, int frames = 1, SDL_Color* pPalette = NULL);
-void LoadMaskedArt(const char* pszFile, Art* art, int frames = 1, int mask = 250);
+void LoadMaskedArt(const char* pszFile, Art* art, int frames, int mask);
 
 DEVILUTION_END_NAMESPACE
