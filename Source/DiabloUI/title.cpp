@@ -4,6 +4,9 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static std::vector<UiItemBase *> vecTitleScreen;
+#ifndef HELLFIRE
+Art ArtLogoBig;
+#endif
 
 static void TitleLoad()
 {
@@ -12,40 +15,36 @@ static void TitleLoad()
 #ifndef NOWIDESCREEN
 	LoadArt("ui_art\\hf_titlew.pcx", &ArtBackgroundWidescreen);
 #endif
+	UiAddBackground(&vecTitleScreen);
 #else
 	LoadBackgroundArt("ui_art\\title.pcx");
-	LoadMaskedArt("ui_art\\logo.pcx", &ArtLogos[LOGO_BIG], 15);
+	LoadMaskedArt("ui_art\\logo.pcx", &ArtLogoBig, 15);
+
+	UiAddBackground(&vecTitleScreen);
+
+	SDL_Rect rect1 = { 0, UI_OFFSET_Y + 182, 0, 0 };
+	vecTitleScreen.push_back(new UiImage(&ArtLogoBig, rect1));
+
+	SDL_Rect rect2 = { PANEL_LEFT + 49, (UI_OFFSET_Y + 410), 550, 26 };
+	vecTitleScreen.push_back(new UiArtText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect2, UIS_CENTER | UIS_MED));
 #endif
 }
 
 static void TitleFree()
 {
 	ArtBackground.Unload();
+#ifdef HELLFIRE
 #ifndef NOWIDESCREEN
 	ArtBackgroundWidescreen.Unload();
 #endif
-#ifndef HELLFIRE
-	ArtLogos[LOGO_BIG].Unload();
+#else // HELLFIRE
+	ArtLogoBig.Unload();
 #endif
 	UiClearItems(vecTitleScreen);
 }
 
 void UiTitleDialog()
 {
-#ifdef HELLFIRE
-	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
-#ifndef NOWIDESCREEN
-	vecTitleScreen.push_back(new UiImage(&ArtBackgroundWidescreen, rect));
-#endif
-	vecTitleScreen.push_back(new UiImage(&ArtBackground, rect));
-#else
-	UiAddBackground(&vecTitleScreen);
-	UiAddLogo(&vecTitleScreen, LOGO_BIG, 182);
-
-	SDL_Rect rect = { PANEL_LEFT + 49, (UI_OFFSET_Y + 410), 550, 26 };
-	vecTitleScreen.push_back(new UiArtText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect, UIS_MED | UIS_CENTER));
-#endif
-
 	TitleLoad();
 
 	bool endMenu = false;

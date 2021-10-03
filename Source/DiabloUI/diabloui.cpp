@@ -33,7 +33,7 @@ unsigned SelectedItemMax;
 unsigned ListViewportSize = 1;
 unsigned ListOffset = 0;
 
-Art ArtLogos[3];
+Art ArtLogoMed;
 Art ArtFocus[3];
 #ifndef NOWIDESCREEN
 Art ArtBackgroundWidescreen;
@@ -449,9 +449,9 @@ static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 static void LoadUiGFX()
 {
 #ifdef HELLFIRE
-	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogos[LOGO_MED], 16);
+	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16);
 #else
-	LoadMaskedArt("ui_art\\smlogo.pcx", &ArtLogos[LOGO_MED], 15);
+	LoadMaskedArt("ui_art\\smlogo.pcx", &ArtLogoMed, 15);
 #endif
 	LoadMaskedArt("ui_art\\focus16.pcx", &ArtFocus[FOCUS_SMALL], 8);
 	LoadMaskedArt("ui_art\\focus.pcx", &ArtFocus[FOCUS_MED], 8);
@@ -468,8 +468,8 @@ static void UnloadUiGFX()
 {
 	int i;
 
-	for (i = 0; i < lengthof(ArtLogos); i++)
-		ArtLogos[i].Unload();
+	ArtLogoMed.Unload();
+
 	for (i = 0; i < lengthof(ArtFocus); i++)
 		ArtFocus[i].Unload();
 	ArtCursor.Unload();
@@ -540,7 +540,7 @@ static int GetCenterOffset(int w, int bw)
 	return (bw - w) / 2;
 }
 
-void LoadBackgroundArt(const char *pszFile, int frames)
+void LoadBackgroundArt(const char* pszFile, int frames)
 {
 	SDL_Color pPal[lengthof(orig_palette)];
 
@@ -574,10 +574,10 @@ void UiAddBackground(std::vector<UiItemBase *> *vecDialog)
 	vecDialog->push_back(new UiImage(&ArtBackground, 0, rect, UIS_CENTER));
 }
 
-void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size, int y)
+void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 {
-	SDL_Rect rect = { 0, UI_OFFSET_Y + y, 0, 0 };
-	vecDialog->push_back(new UiImage(&ArtLogos[size], rect));
+	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
+	vecDialog->push_back(new UiImage(&ArtLogoMed, rect));
 }
 
 void UiFadeIn()

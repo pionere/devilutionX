@@ -22,13 +22,6 @@ typedef enum _artFocus {
 	FOCUS_BIG,
 } _artFocus;
 
-typedef enum _artLogo {
-	LOGO_SMALL,
-	LOGO_MED,
-	LOGO_BIG,
-} _artLogo;
-
-extern Art ArtLogos[3];
 extern Art ArtFocus[3];
 extern Art ArtBackground;
 #ifndef NOWIDESCREEN
@@ -61,8 +54,8 @@ void UiHandleEvents(SDL_Event *event);
 bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &uiItems);
 void DrawMouse();
 void LoadBackgroundArt(const char *pszFile, int frames = 1);
-void UiAddBackground(std::vector<UiItemBase *> *vecDialog);
-void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size = LOGO_MED, int y = 0);
+void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
+void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationYesNo();
