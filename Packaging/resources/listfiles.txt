@@ -157,11 +157,9 @@ Levels\L1Data\L1.TIL
 Levels\L1Data\L1.TMI
 Levels\L1Data\L1_0.PAL
 Levels\L1Data\L1_1.PAL
-Levels\L1Data\L1_2.pal
 Levels\L1Data\L1_2.PAL
 Levels\L1Data\L1_3.PAL
 Levels\L1Data\L1_4.PAL
-Levels\L1Data\L1_5.pal
 Levels\L1Data\L1_5.PAL
 Levels\L1Data\L1S.CEL
 Levels\L1Data\Lv1MazeA.DUN
@@ -4287,6 +4285,6 @@ ui_art\selhero.pcx
 ui_art\smbutton.pcx
 ui_art\smlogo.pcx
 ui_art\spopup.pcx
-ui_art\srpopup.pcx
+_ui_art\srpopup.pcx
 ui_art\swmmenu.pcx
 ui_art\title.pcx
