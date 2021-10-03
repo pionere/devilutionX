@@ -546,8 +546,7 @@ void LoadBackgroundArt(const char *pszFile, int frames)
 
 	assert(ArtBackground.surface == NULL);
 
-	LoadArt(pszFile, &ArtBackground, frames, pPal);
-	if (ArtBackground.surface == NULL)
+	if (!LoadArt(pszFile, &ArtBackground, frames, pPal))
 		return;
 
 	memcpy(orig_palette, pPal, sizeof(pPal));

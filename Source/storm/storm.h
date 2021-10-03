@@ -86,29 +86,6 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchS
 
 bool WINAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead, DWORD *read);
 
-/*  SBmpLoadImage @ 323
- *
- *  Load an image from an available archive into a buffer.
- *
- *  pszFileName:  The name of the graphic in an active archive.
- *  pPalette:     An optional buffer that receives the image palette.
- *  pBuffer:      A buffer that receives the image data.
- *  dwBuffersize: The size of the specified image buffer.
- *  pdwWidth:     An optional variable that receives the image width.
- *  pdwHeight:    An optional variable that receives the image height.
- *  pdwBpp:       An optional variable that receives the image bits per pixel.
- *
- *  Returns TRUE if the image was supported and loaded correctly, FALSE otherwise.
- */
-bool SBmpLoadImage(
-    const char *pszFileName,
-    SDL_Color *pPalette,
-    BYTE *pBuffer,
-    size_t dwBuffersize,
-    unsigned *pdwWidth,
-    unsigned *pdwHeight,
-    unsigned *pdwBpp);
-
 bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue);
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize);
 void setIniValue(const char *sectionName, const char *keyName, const char *value);
