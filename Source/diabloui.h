@@ -37,7 +37,7 @@ extern int provider;
 bool UiSelectProvider(bool bMulti);
 
 /* Defined in dialogs.h */
-void UiErrorOkDialog(const char *text, const char *caption, bool error = true);
+void UiErrorOkDialog(const char* caption, const char* text, bool error = true);
 
 DEVILUTION_END_NAMESPACE
 

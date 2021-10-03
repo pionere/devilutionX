@@ -145,7 +145,7 @@ static void DialogActionOK()
 	ApplyGamma(logical_palette, FallbackPalette);
 }*/
 
-static void Init(const char* caption, char* text, bool error, const std::vector<UiItemBase*>* renderBehind)
+static void Init(const char* caption, const char* text, bool error, const std::vector<UiItemBase*>* renderBehind)
 {
 	if (renderBehind == NULL) {
 		//assert(error || (ArtBackground.surface == NULL && ArtCursor.surface == NULL));
