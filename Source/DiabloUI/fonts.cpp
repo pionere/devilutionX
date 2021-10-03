@@ -5,16 +5,11 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-TTF_Font *font = NULL;
-BYTE *FontTables[4];
+TTF_Font* font = NULL;
+BYTE* FontTables[4];
 Art ArtFonts[4][2];
 /** This is so we know ttf has been init when we get to the diablo_deinit() function */
 bool gbWasFontsInit = false;
-
-static void LoadArtFont(const char *pszFile, int size, int color)
-{
-	LoadMaskedArt(pszFile, &ArtFonts[size][color], 256, 32);
-}
 
 void LoadArtFonts()
 {
@@ -22,13 +17,13 @@ void LoadArtFonts()
 	FontTables[AFT_MED] = LoadFileInMem("ui_art\\font24.bin");
 	FontTables[AFT_BIG] = LoadFileInMem("ui_art\\font30.bin");
 	FontTables[AFT_HUGE] = LoadFileInMem("ui_art\\font42.bin");
-	LoadArtFont("ui_art\\font16s.pcx", AFT_SMALL, AFC_SILVER);
-	LoadArtFont("ui_art\\font16g.pcx", AFT_SMALL, AFC_GOLD);
-	LoadArtFont("ui_art\\font24s.pcx", AFT_MED, AFC_SILVER);
-	LoadArtFont("ui_art\\font24g.pcx", AFT_MED, AFC_GOLD);
-	LoadArtFont("ui_art\\font30s.pcx", AFT_BIG, AFC_SILVER);
-	LoadArtFont("ui_art\\font30g.pcx", AFT_BIG, AFC_GOLD);
-	LoadArtFont("ui_art\\font42g.pcx", AFT_HUGE, AFC_GOLD);
+	LoadMaskedArt("ui_art\\font16s.pcx", &ArtFonts[AFT_SMALL][AFC_SILVER], 256, 32);
+	LoadMaskedArt("ui_art\\font16g.pcx", &ArtFonts[AFT_SMALL][AFC_GOLD], 256, 32);
+	LoadMaskedArt("ui_art\\font24s.pcx", &ArtFonts[AFT_MED][AFC_SILVER], 256, 32);
+	LoadMaskedArt("ui_art\\font24g.pcx", &ArtFonts[AFT_MED][AFC_GOLD], 256, 32);
+	LoadMaskedArt("ui_art\\font30s.pcx", &ArtFonts[AFT_BIG][AFC_SILVER], 256, 32);
+	LoadMaskedArt("ui_art\\font30g.pcx", &ArtFonts[AFT_BIG][AFC_GOLD], 256, 32);
+	LoadMaskedArt("ui_art\\font42g.pcx", &ArtFonts[AFT_HUGE][AFC_GOLD], 256, 32);
 }
 
 void UnloadArtFonts()
@@ -40,14 +35,10 @@ void UnloadArtFonts()
 	ArtFonts[AFT_BIG][AFC_SILVER].Unload();
 	ArtFonts[AFT_BIG][AFC_GOLD].Unload();
 	ArtFonts[AFT_HUGE][AFC_GOLD].Unload();
-	mem_free_dbg(FontTables[AFT_SMALL]);
-	FontTables[AFT_SMALL] = NULL;
-	mem_free_dbg(FontTables[AFT_MED]);
-	FontTables[AFT_MED] = NULL;
-	mem_free_dbg(FontTables[AFT_BIG]);
-	FontTables[AFT_BIG] = NULL;
-	mem_free_dbg(FontTables[AFT_HUGE]);
-	FontTables[AFT_HUGE] = NULL;
+	MemFreeDbg(FontTables[AFT_SMALL]);
+	MemFreeDbg(FontTables[AFT_MED]);
+	MemFreeDbg(FontTables[AFT_BIG]);
+	MemFreeDbg(FontTables[AFT_HUGE]);
 }
 
 void LoadTtfFont()
