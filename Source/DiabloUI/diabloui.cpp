@@ -610,10 +610,10 @@ static void DrawSelector(const SDL_Rect &rect)
 	Art *art = &ArtFocus[size];
 
 	int frame = GetAnimationFrame(art->frames);
-	int y = rect.y + (rect.h - art->h()) / 2; // TODO FOCUS_MED appares higher than the box
+	int y = rect.y + (rect.h - art->frame_height) / 2; // TODO FOCUS_MED appears higher than the box
 
 	DrawArt(rect.x, y, art, frame);
-	DrawArt(rect.x + rect.w - art->w(), y, art, frame);
+	DrawArt(rect.x + rect.w - art->logical_width, y, art, frame);
 }
 
 void UiClearScreen()
@@ -661,15 +661,17 @@ static void Render(const UiArtText* uiArtText)
 
 static void Render(const UiImage* uiImage)
 {
+	Art* mArt = uiImage->m_art;
 	int x = uiImage->m_rect.x;
-	if ((uiImage->m_iFlags & UIS_CENTER) && uiImage->m_art != NULL) {
-		const int xOffset = GetCenterOffset(uiImage->m_art->w(), uiImage->m_rect.w);
+
+	if ((uiImage->m_iFlags & UIS_CENTER) && mArt != NULL) {
+		const int xOffset = GetCenterOffset(mArt->logical_width, uiImage->m_rect.w);
 		x += xOffset;
 	}
 	if (uiImage->m_animated) {
-		DrawAnimatedArt(uiImage->m_art, x, uiImage->m_rect.y);
+		DrawAnimatedArt(mArt, x, uiImage->m_rect.y);
 	} else {
-		DrawArt(x, uiImage->m_rect.y, uiImage->m_art, uiImage->m_frame, uiImage->m_rect.w, uiImage->m_rect.h);
+		DrawArt(x, uiImage->m_rect.y, mArt, uiImage->m_frame, uiImage->m_rect.w, uiImage->m_rect.h);
 	}
 }
 

@@ -15,9 +15,9 @@ void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 
 	SDL_Rect srcRect;
 	srcRect.x = 0;
-	srcRect.y = nFrame * art->h();
-	srcRect.w = art->w();
-	srcRect.h = art->h();
+	srcRect.y = nFrame * art->frame_height;
+	srcRect.w = art->logical_width;
+	srcRect.h = art->frame_height;
 
 	ScaleOutputRect(&srcRect);
 

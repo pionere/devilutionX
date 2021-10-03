@@ -71,13 +71,13 @@ void DrawArtStr(const char *text, const SDL_Rect &rect, int flags, bool drawText
 	unsigned color = (flags & UIS_COLOR) >> 7;
 
 	const int x = rect.x + AlignXOffset(flags, rect, GetArtStrWidth(text, size));
-	const int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - ArtFonts[size][color].h()) / 2 : 0);
+	const int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - ArtFonts[size][color].frame_height) / 2 : 0);
 
 	int sx = x, sy = y;
 	for (unsigned i = 0, n = strlen(text); i < n; i++) {
 		if (text[i] == '\n') {
 			sx = x;
-			sy += ArtFonts[size][color].h();
+			sy += ArtFonts[size][color].frame_height;
 			continue;
 		}
 		BYTE w = FontTables[size][*(BYTE *)&text[i] + 2] != 0 ? FontTables[size][*(BYTE *)&text[i] + 2] : FontTables[size][0];
