@@ -550,7 +550,7 @@ void LoadBackgroundArt(const char *pszFile, int frames)
 		return;
 
 	memcpy(orig_palette, pPal, sizeof(pPal));
-	ApplyGamma(logical_palette, orig_palette, 256);
+	ApplyGamma(logical_palette, orig_palette);
 
 	_gdwFadeTc = 0;
 	_gnFadeValue = 0;

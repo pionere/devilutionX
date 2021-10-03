@@ -23,7 +23,7 @@ void palette_init();
 void LoadPalette(const char *pszFileName);
 void LoadRndLvlPal();
 void IncreaseGamma();
-void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n);
+void ApplyGamma(SDL_Color* dst, const SDL_Color* src);
 void DecreaseGamma();
 void UpdateGamma(int gamma);
 int GetGamma();

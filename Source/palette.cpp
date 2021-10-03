@@ -29,19 +29,19 @@ void palette_update()
 	back_surface_palette_version++;
 }
 
-void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n)
+void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
 {
 	int i;
 	double g;
 
 	if (_gnGammaCorrection == 100) {
-		memcpy(dst, src, sizeof(SDL_Color) * n);
+		memcpy(dst, src, sizeof(SDL_Color) * 256);
 		return;
 	}
 
 	g = _gnGammaCorrection / 100.0;
 
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < 256; i++) {
 		dst[i].r = pow(src[i].r / 256.0, g) * 256.0;
 		dst[i].g = pow(src[i].g / 256.0, g) * 256.0;
 		dst[i].b = pow(src[i].b / 256.0, g) * 256.0;
@@ -105,7 +105,7 @@ void IncreaseGamma()
 		_gnGammaCorrection += 5;
 		if (_gnGammaCorrection > 100)
 			_gnGammaCorrection = 100;
-		ApplyGamma(system_palette, logical_palette, 256);
+		ApplyGamma(system_palette, logical_palette);
 		palette_update();
 	}
 }
@@ -116,7 +116,7 @@ void DecreaseGamma()
 		_gnGammaCorrection -= 5;
 		if (_gnGammaCorrection < 30)
 			_gnGammaCorrection = 30;
-		ApplyGamma(system_palette, logical_palette, 256);
+		ApplyGamma(system_palette, logical_palette);
 		palette_update();
 	}
 }
@@ -126,7 +126,7 @@ void UpdateGamma(int gamma)
 	gamma = 130 - gamma;
 	setIniInt("Diablo", "Gamma Correction", gamma);
 	_gnGammaCorrection = gamma;
-	ApplyGamma(system_palette, logical_palette, 256);
+	ApplyGamma(system_palette, logical_palette);
 	palette_update();
 }
 
@@ -156,7 +156,7 @@ void PaletteFadeIn()
 {
 	int i;
 
-	ApplyGamma(logical_palette, orig_palette, 256);
+	ApplyGamma(logical_palette, orig_palette);
 	Uint32 tc = SDL_GetTicks();
 	const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
 	for (i = 0; i < 256; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
@@ -273,7 +273,7 @@ void palette_update_quest_palette(int n)
 	for (i = 32 - n; i >= 0; i--) {
 		logical_palette[i] = orig_palette[i];
 	}
-	ApplyGamma(system_palette, logical_palette, 32);
+	ApplyGamma(system_palette, logical_palette); // 32
 	palette_update();
 }
 

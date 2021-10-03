@@ -143,7 +143,7 @@ static void DialogActionOK()
 		BLANKCOLOR,
 	};
 	// clang-format on
-	ApplyGamma(logical_palette, FallbackPalette, 256);
+	ApplyGamma(logical_palette, FallbackPalette);
 }*/
 
 static void Init(const char *text, const char *caption, bool error, const std::vector<UiItemBase*>* renderBehind)
