@@ -67,11 +67,11 @@ void UiSelOkDialog(const char* title, const char* body)
 	UiInitList(vecSelOkDialog, 0, NULL, SelokSelect, SelokEsc);
 
 	_gbSelokEndMenu = false;
-	while (!_gbSelokEndMenu) {
+	do {
 		UiClearScreen();
 		UiRenderItems(vecSelOkDialog);
 		UiPollAndRender();
-	}
+	} while (!_gbSelokEndMenu);
 
 	SelokFree();
 }

@@ -82,13 +82,13 @@ int UiMainMenuDialog(const char* name, void (*fnSound)(int sfx, int rndCnt))
 	mainmenu_restart_repintro(); // for automatic starts
 
 	_gnMainMenuResult = 0;
-	while (_gnMainMenuResult == 0) {
+	do {
 		UiClearScreen();
 		UiPollAndRender();
 		if (SDL_GetTicks() >= guAttractTc) {
 			_gnMainMenuResult = MAINMENU_ATTRACT_MODE;
 		}
-	}
+	} while (_gnMainMenuResult == 0);
 
 	MainmenuFree();
 	return _gnMainMenuResult;

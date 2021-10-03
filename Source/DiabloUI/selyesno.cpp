@@ -62,11 +62,11 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 
 	// _gbYNValue = true;
 	_gbYNEndMenu = false;
-	while (!_gbYNEndMenu) {
+	do {
 		UiClearScreen();
 		UiRenderItems(vecSelYesNoDialog);
 		UiPollAndRender();
-	}
+	} while (!_gbYNEndMenu);
 
 	SelyesnoFree();
 

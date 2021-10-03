@@ -51,7 +51,7 @@ void UiTitleDialog()
 	Uint32 timeOut = SDL_GetTicks() + 7000;
 
 	SDL_Event event;
-	while (!endMenu && SDL_GetTicks() < timeOut) {
+	do {
 		UiRenderItems(vecTitleScreen);
 		UiFadeIn();
 
@@ -68,7 +68,7 @@ void UiTitleDialog()
 			}
 			UiHandleEvents(&event);
 		}
-	}
+	} while (!endMenu && SDL_GetTicks() < timeOut);
 
 	TitleFree();
 }

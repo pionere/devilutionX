@@ -487,10 +487,10 @@ int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt)
 	SelgameModeInit();
 
 	selgame_endMenu = false;
-	while (!selgame_endMenu) {
+	do {
 		UiClearScreen();
 		UiPollAndRender();
-	}
+	} while (!selgame_endMenu);
 	SelgameFree();
 
 	return selgame_mode;

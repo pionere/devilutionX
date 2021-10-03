@@ -96,10 +96,8 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 	ProgressLoad(msg);
 	SetFadeLevel(256);
 
-	_gnProgress = 0;
-
 	SDL_Event event;
-	while (_gnProgress < 100) {
+	do {
 		_gnProgress = fnfunc();
 		ProgressRender();
 		UiRenderItems(vecProgress);
@@ -133,7 +131,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 			}
 			UiHandleEvents(&event);
 		}
-	}
+	} while (_gnProgress < 100);
 	ProgressFree();
 
 	return _gnProgress == 100;
