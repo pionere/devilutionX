@@ -280,7 +280,7 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 			src += TILE_WIDTH / 2 - i;
 			dst += TILE_WIDTH / 2 - i;
 		}
-		for (i = 2; i != TILE_WIDTH / 2; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+		for (i = 2; i != TILE_HEIGHT; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			src += i & 2;
 			dst += i;
 			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
