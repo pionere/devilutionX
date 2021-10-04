@@ -676,12 +676,6 @@ void NetClose()
 	UIDisconnectGame(gbCineflag ? LEAVE_ENDING : LEAVE_UNKNOWN);
 }
 
-/*void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, char *name_2)
-{
-	if (UiValidPlayerName(name_2))
-		pfile_rename_hero(name_1, name_2);
-}*/
-
 static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 {
 	int i, dlgresult, pnum;

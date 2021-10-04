@@ -147,9 +147,9 @@ static void LoadFallbackPalette()
 	ApplyGamma(logical_palette, FallbackPalette);
 }*/
 
-static void Init(const char* caption, char* text, bool error, const std::vector<UiItemBase*>* renderBehind)
+static void Init(const char* caption, char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
 {
-	if (renderBehind == NULL) {
+	//if (renderBehind == NULL) {
 		//assert(error || (ArtBackground.surface == NULL && ArtCursor.surface == NULL));
 		if (ArtBackground.surface != NULL)
 			ArtBackground.Unload();
@@ -159,7 +159,7 @@ static void Init(const char* caption, char* text, bool error, const std::vector<
 		//	//LoadFallbackPalette();
 		//}
 		LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
-	}
+	//}
 
 	LoadArt("ui_art\\smbutton.pcx", &SmlButton, 2);
 
@@ -193,19 +193,19 @@ static void Init(const char* caption, char* text, bool error, const std::vector<
 	//}
 }
 
-static void Deinit(const std::vector<UiItemBase *>* renderBehind)
+static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 {
-	if (renderBehind == NULL) {
+	//if (renderBehind == NULL) {
 		ArtBackground.Unload();
 		ArtCursor.Unload();
-	}
+	//}
 	dialogArt.Unload();
 	SmlButton.Unload();
 
 	UiClearItems(vecOkDialog);
 }
 
-static void DialogLoop(const std::vector<UiItemBase*> &uiItems, const std::vector<UiItemBase*>* renderBehind)
+static void DialogLoop(const std::vector<UiItemBase*> &uiItems/*, const std::vector<UiItemBase*>* renderBehind*/)
 {
 	SetFadeLevel(256);
 	_gbDialogEnd = false;
@@ -213,8 +213,8 @@ static void DialogLoop(const std::vector<UiItemBase*> &uiItems, const std::vecto
 	SDL_Event event;
 	do {
 		UiClearScreen();
-		if (renderBehind != NULL)
-			UiRenderItems(*renderBehind);
+		//if (renderBehind != NULL)
+		//	UiRenderItems(*renderBehind);
 		UiRenderItems(uiItems);
 		DrawMouse();
 		UiFadeIn();
@@ -241,16 +241,16 @@ static void DialogLoop(const std::vector<UiItemBase*> &uiItems, const std::vecto
 	} while (!_gbDialogEnd);
 }
 
-static void UiOkDialog(const char* caption, const char* text, bool error, const std::vector<UiItemBase*>* renderBehind)
+static void UiOkDialog(const char* caption, const char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
 {
 	char dialogText[256];
 
 	if (gbWndActive && gbWasUiInit && !gbInDialog) {
 		gbInDialog = true;
 		SStrCopy(dialogText, text, sizeof(dialogText));
-		Init(caption, dialogText, error, renderBehind);
-		DialogLoop(vecOkDialog, renderBehind);
-		Deinit(renderBehind);
+		Init(caption, dialogText, error/*, renderBehind*/);
+		DialogLoop(vecOkDialog/*, renderBehind*/);
+		Deinit(/*renderBehind*/);
 		gbInDialog = false;
 		return;
 	}
@@ -271,12 +271,12 @@ static void UiOkDialog(const char* caption, const char* text, bool error, const 
 
 void UiErrorOkDialog(const char* caption, const char* text, bool error)
 {
-	UiOkDialog(caption, text, error, NULL);
+	UiOkDialog(caption, text, error/*, NULL*/);
 }
 
-void UiErrorOkDialog(const char* caption, const char* text, const std::vector<UiItemBase*>* renderBehind)
+/*void UiErrorOkDialog(const char* caption, const char* text, const std::vector<UiItemBase*>* renderBehind)
 {
 	UiOkDialog(caption, text, true, renderBehind);
-}
+}*/
 
 DEVILUTION_END_NAMESPACE

@@ -3224,6 +3224,13 @@ typedef enum conn_type {
 	SELCONN_LOOPBACK, // local
 } conn_type;
 
+typedef enum _create_hero {
+	NEWHERO_DONE,
+	NEWHERO_INVALID_NAME,
+	NEWHERO_HERO_LIMIT,
+	NEWHERO_FAIL,
+} _create_hero;
+
 typedef enum server_type {
 	SRV_BASIC,
 	SRV_DIRECT,

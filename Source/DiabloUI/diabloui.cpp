@@ -493,26 +493,6 @@ void UiDestroy()
 	//UiInitList_clear();
 }
 
-bool UiValidPlayerName(const char* name)
-{
-	//int i;
-	//const BYTE invalidChars[] = ",<>%&\\\"?*#/: ";
-
-	if (name[0] == '\0')
-		return false;
-
-	for (BYTE* letter = (BYTE*)name; *letter != '\0'; letter++) {
-		//for (i = 0; i < lengthof(invalidChars); i++) {
-		//	if (*letter == invalidChars[i])
-		//		return false;
-		//}
-		if (*letter < 0x20 || (*letter > 0x7E && *letter < 0xC0))
-			return false;
-	}
-
-	return true;
-}
-
 static int GetCenterOffset(int w, int bw)
 {
 	if (bw == 0) {

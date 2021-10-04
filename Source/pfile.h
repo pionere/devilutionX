@@ -24,7 +24,7 @@ void pfile_read_hero_from_save();
 void pfile_flush(bool bFree);
 void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *));
 //void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats);
-bool pfile_ui_create_save(_uiheroinfo* heroinfo);
+int pfile_ui_create_save(_uiheroinfo* heroinfo);
 void pfile_ui_delete_save(_uiheroinfo* hero_info);
 bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH]);
 void GetTempLevelName(char (&szTemp)[MAX_PATH]);

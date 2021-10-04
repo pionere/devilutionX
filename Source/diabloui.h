@@ -11,12 +11,10 @@ DEVILUTION_BEGIN_NAMESPACE
 void UiInitialize();
 void UiDestroy();
 
-bool UiValidPlayerName(const char *name);
-
 /* Defined in title.cpp */
 void UiTitleDialog();
 /* Defined in selhero.cpp */
-int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo *)), bool(*fncreate)(_uiheroinfo *), void(*fnremove)(_uiheroinfo *), unsigned* saveIdx);
+int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo*)), int(*fncreate)(_uiheroinfo*), void(*fnremove)(_uiheroinfo*), unsigned* saveIdx);
 /* Defined in credits.cpp */
 void UiCreditsDialog();
 /* Defined in mainmenu.cpp */

@@ -133,12 +133,35 @@ static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo, unsi
 	heroinfo->hiHasSaved = bHasSaveFile;
 }
 
-/*bool pfile_rename_hero(const char *name_1, const char *name_2)
+static bool ValidPlayerName(const char* name)
+{
+	//int i;
+	//const BYTE invalidChars[] = ",<>%&\\\"?*#/: ";
+
+	if (name[0] == '\0')
+		return false;
+
+	for (BYTE* letter = (BYTE*)name; *letter != '\0'; letter++) {
+		//for (i = 0; i < lengthof(invalidChars); i++) {
+		//	if (*letter == invalidChars[i])
+		//		return false;
+		//}
+		if (*letter < 0x20 || (*letter > 0x7E && *letter < 0xC0))
+			return false;
+	}
+
+	return true;
+}
+
+/*bool pfile_rename_hero(const char* name_1, const char* name_2)
 {
 	int i;
 	unsigned save_num;
 	_uiheroinfo uihero;
 	bool found = false;
+
+	if (!ValidPlayerName(name_2))
+		return false;
 
 	SStrCopy(players[i]._pName, name_2, PLR_NAME_LEN);
 	pfile_player2hero(&players[0], &uihero, mySaveIdx, gbValidSaveFile);
@@ -181,12 +204,14 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 	class_stats->dsVitality = VitalityTbl[player_class_nr];
 }*/
 
-bool pfile_ui_create_save(_uiheroinfo* heroinfo)
+int pfile_ui_create_save(_uiheroinfo* heroinfo)
 {
 	unsigned save_num;
 	HANDLE archive;
 	PkPlayerStruct pkplr;
 
+	if (!ValidPlayerName(heroinfo->hiName))
+		return NEWHERO_INVALID_NAME;
 	assert(heroinfo->hiIdx == MAX_CHARACTERS);
 	for (save_num = 0; save_num < MAX_CHARACTERS; save_num++) {
 		archive = pfile_open_save_archive(save_num);
@@ -195,9 +220,9 @@ bool pfile_ui_create_save(_uiheroinfo* heroinfo)
 		SFileCloseArchive(archive);
 	}
 	if (save_num >= MAX_CHARACTERS)
-		return false;
+		return NEWHERO_HERO_LIMIT;
 	if (!pfile_open_save_mpq(save_num))
-		return false;
+		return NEWHERO_FAIL;
 	static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 	heroinfo->hiIdx = save_num;
 	//mpqapi_remove_hash_entries(pfile_get_file_name);
@@ -206,7 +231,7 @@ bool pfile_ui_create_save(_uiheroinfo* heroinfo)
 	pfile_encode_hero(&pkplr);
 	//pfile_player2hero(&players[0], heroinfo, save_num, false);
 	pfile_flush(true);
-	return true;
+	return NEWHERO_DONE;
 }
 
 static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])

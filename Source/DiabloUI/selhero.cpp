@@ -21,7 +21,7 @@ static bool selhero_endMenu;
 static bool selhero_navigateYesNo;
 static bool selhero_deleteEnabled;
 
-static bool(*gfnHeroCreate)(_uiheroinfo *);
+static int(*gfnHeroCreate)(_uiheroinfo *);
 //static void (*gfnHeroStats)(unsigned int, _uidefaultstats *);
 
 static std::vector<UiItemBase *> vecSelHeroDialog;
@@ -428,21 +428,33 @@ static void SelheroClassSelectorSelect(unsigned index)
 
 static void SelheroNameSelect(unsigned index)
 {
-	if (!UiValidPlayerName(selhero_heroInfo.hiName)) {
-		ArtBackground.Unload();
-		UiSelOkDialog(selhero_title, "Invalid name. A name cannot contain spaces, reserved characters, or reserved words.");
-		LoadBackgroundArt("ui_art\\selhero.pcx");
-	} else {
-		if (gfnHeroCreate(&selhero_heroInfo)) {
-			SelheroLoadSelect(1);
-			return;
-		} else {
-			std::vector<UiItemBase*> allItems = vecSelHeroDialog;
-			allItems.insert(allItems.end(), vecSelDlgItems.begin(), vecSelDlgItems.end());
-			UiErrorOkDialog("Error", "Unable to create character.", &allItems);
-		}
+	const char* err;
+	int result = gfnHeroCreate(&selhero_heroInfo);
+
+	switch (result) {
+	case NEWHERO_DONE:
+		SelheroLoadSelect(1);
+		return;
+	case NEWHERO_INVALID_NAME:
+		err = "Invalid name.\nA name cannot contain reserved characters.";
+		break;
+	case NEWHERO_HERO_LIMIT:
+		err = "Hero count limit reached.\nDelete a hero before creating a new one.";
+		break;
+	case NEWHERO_FAIL:
+		//std::vector<UiItemBase*> allItems = vecSelHeroDialog;
+		//allItems.insert(allItems.end(), vecSelDlgItems.begin(), vecSelDlgItems.end());
+		//UiErrorOkDialog("Error", "Unable to create character.", &allItems);
+		err = "Unable to create hero.\nStorage device is full or read-only.";
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 
+	ArtBackground.Unload();
+	UiSelOkDialog(selhero_title, err);
+	LoadBackgroundArt("ui_art\\selhero.pcx");
 	SelheroClassSelectorSelect(0);
 }
 
@@ -453,7 +465,7 @@ static void SelHeroGetHeroInfo(_uiheroinfo *pInfo)
 }
 
 int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
-	bool (*fncreate)(_uiheroinfo *),
+	int (*fncreate)(_uiheroinfo *),
 	void (*fnremove)(_uiheroinfo *),
 	//void (*fnstats)(unsigned int, _uidefaultstats *),
 	unsigned* saveIdx)
