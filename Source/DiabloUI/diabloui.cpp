@@ -493,36 +493,20 @@ void UiDestroy()
 	//UiInitList_clear();
 }
 
-bool UiValidPlayerName(const char *name)
+bool UiValidPlayerName(const char* name)
 {
-	if (strlen(name) == 0)
+	//int i;
+	//const BYTE invalidChars[] = ",<>%&\\\"?*#/: ";
+
+	if (name[0] == '\0')
 		return false;
 
-	if (strpbrk(name, ",<>%&\\\"?*#/:") != NULL || strpbrk(name, " ") != NULL)
-		return false;
-
-	for (BYTE *letter = (BYTE *)name; *letter != '\0'; letter++)
+	for (BYTE* letter = (BYTE*)name; *letter != '\0'; letter++) {
+		//for (i = 0; i < lengthof(invalidChars); i++) {
+		//	if (*letter == invalidChars[i])
+		//		return false;
+		//}
 		if (*letter < 0x20 || (*letter > 0x7E && *letter < 0xC0))
-			return false;
-
-	const char *const bannedNames[] = {
-		"gvdl",
-		"dvou",
-		"tiju",
-		"cjudi",
-		"bttipmf",
-		"ojhhfs",
-		"cmj{{bse",
-		"benjo",
-	};
-
-	char tmpname[PLR_NAME_LEN];
-	SStrCopy(tmpname, name, PLR_NAME_LEN);
-	for (BYTE *letter = (BYTE *)tmpname; *letter != '\0'; letter++)
-		++*letter;
-
-	for (int i = 0; i < lengthof(bannedNames); i++) {
-		if (strstr(tmpname, bannedNames[i]) != NULL)
 			return false;
 	}
 
