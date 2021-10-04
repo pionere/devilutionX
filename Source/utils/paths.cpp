@@ -36,7 +36,7 @@ static void FromSDL(std::string &path, bool base)
 		return;
 	}
 	// the path was not set explicitly -> get it from SDL
-	s = base ? SDL_GetBasePath() : SDL_GetPrefPath("diasurgical", "devilution");
+	s = base ? SDL_GetBasePath() : SDL_GetPrefPath("diasurgical", "devilx");
 	if (s != NULL) {
 		path = s;
 		SDL_free(s);
@@ -63,7 +63,7 @@ const char* GetPrefPath()
 	return prefPath.c_str();
 }
 
-const char *GetConfigPath()
+const char* GetConfigPath()
 {
 	return configPath.c_str();
 }
@@ -73,19 +73,19 @@ const std::string* GetBasePathStr()
 	return &basePath;
 }
 
-void SetBasePath(const char *path)
+void SetBasePath(const char* path)
 {
 	basePath = path;
 	AddTrailingSlash(basePath);
 }
 
-void SetPrefPath(const char *path)
+void SetPrefPath(const char* path)
 {
 	prefPath = path;
 	AddTrailingSlash(prefPath);
 }
 
-void SetConfigPath(const char *path)
+void SetConfigPath(const char* path)
 {
 	configPath = path;
 	AddTrailingSlash(configPath);
