@@ -16,18 +16,18 @@ unsigned GetArtStrWidth(const char* str, unsigned size)
 
 void WordWrapArtStr(char* text, unsigned width, unsigned size)
 {
-	const unsigned len = strlen(text);
-	unsigned lineStart = 0;
-	for (unsigned i = 0; i <= len; i++) {
+	const int len = strlen(text);
+	int lineStart = 0;
+	for (int i = 0; i <= len; i++) {
 		if (text[i] == '\n') {
 			lineStart = i + 1;
 			continue;
 		}
-		if (text[i] != ' ' && i != len) {
+		if (text[i] != ' ' && text[i] != '\0') {
 			continue;
 		}
 
-		if (i != len)
+		//if (i != len)
 			text[i] = '\0';
 		if (GetArtStrWidth(&text[lineStart], size) <= width) {
 			if (i != len)
@@ -35,14 +35,14 @@ void WordWrapArtStr(char* text, unsigned width, unsigned size)
 			continue;
 		}
 
-		unsigned j;
+		int j;
 		for (j = i; j >= lineStart; j--) {
 			if (text[j] == ' ') {
 				break; // Scan for previous space
 			}
 		}
 
-		if (j == lineStart) { // Single word longer than width
+		if (j < lineStart) { // Single word longer than width
 			if (i == len)
 				break;
 			j = i;
