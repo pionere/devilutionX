@@ -58,7 +58,8 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	SStrCopy(selyesno_confirmationMessage, body, sizeof(selyesno_confirmationMessage));
 	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH, AFT_MED);
 
-	UiInitList(vecSelYesNoDialog, vecSelYesNoDialogItems.size(), NULL, SelyesnoSelect, SelyesnoEsc, NULL);
+	//assert(vecSelYesNoDialogItems.size() == 2);
+	UiInitList(vecSelYesNoDialog, 2, NULL, SelyesnoSelect, SelyesnoEsc);
 
 	// _gbYNValue = true;
 	_gbYNEndMenu = false;

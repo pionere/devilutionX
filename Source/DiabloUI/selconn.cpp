@@ -64,21 +64,29 @@ static void SelconnFocus(unsigned index)
 
 static void SelconnLoad()
 {
+	int numOptions = 0;
+
 	LoadBackgroundArt("ui_art\\selconn.pcx");
 #ifndef HOSTONLY
 	vecConnItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
+	numOptions++;
 #ifdef ZEROTIER
 	vecConnItems.push_back(new UiListItem("Zerotier", SELCONN_ZT));
+	numOptions++;
 #endif
 #endif // HOSTONLY
 #ifdef TCPIP
 #ifndef HOSTONLY
 	vecConnItems.push_back(new UiListItem("Client-Server (TCP)", SELCONN_TCP));
+	numOptions++;
 	vecConnItems.push_back(new UiListItem("Client-Server (TCP-D)", SELCONN_TCPD));
+	numOptions++;
 #endif // HOSTONLY
 #ifndef NOHOSTING
 	vecConnItems.push_back(new UiListItem("Server (TCP)", SELCONN_TCPS));
+	numOptions++;
 	vecConnItems.push_back(new UiListItem("Server (TCP-D)", SELCONN_TCPDS));
+	numOptions++;
 #endif // NOHOSTING
 #endif // TCPIP
 
@@ -112,7 +120,8 @@ static void SelconnLoad()
 	SDL_Rect rect10 = { PANEL_LEFT + 454, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelConnDlg.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelConnDlg, vecConnItems.size(), SelconnFocus, SelconnSelect, SelconnEsc);
+	//assert(numOptions == vecConnItems.size());
+	UiInitList(vecSelConnDlg, numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
 }
 
 static void SelconnFree()

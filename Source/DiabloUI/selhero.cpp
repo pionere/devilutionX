@@ -363,7 +363,8 @@ static void SelheroListSelect(unsigned index)
 		SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 429), 140, 35 };
 		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(vecSelDlgItems, vecSelDlgListItems.size(), SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
+		assert(vecSelDlgListItems.size() == NUM_CLASSES);
+		UiInitList(vecSelDlgItems, NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
 		memset(&selhero_heroInfo.hiName, 0, sizeof(selhero_heroInfo.hiName));
 		snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 		return;
@@ -386,7 +387,8 @@ static void SelheroListSelect(unsigned index)
 		SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(vecSelDlgItems, vecSelDlgListItems.size(), SelheroLoadFocus, SelheroLoadSelect, SelheroListInit, NULL, true);
+		//assert(vecSelDlgListItems.size() == 2);
+		UiInitList(vecSelDlgItems, 2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit, NULL, true);
 		snprintf(selhero_title, sizeof(selhero_title), "Single Player Characters");
 		return;
 	}
