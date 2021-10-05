@@ -28,14 +28,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-unsigned SelectedItem = 0;
-unsigned SelectedItemMax;
-unsigned ListViewportSize = 1;
-unsigned ListOffset = 0;
-
 #define FOCUS_FRAME_COUNT	8
 
-Art ArtLogoMed;
+static Art ArtLogoMed;
 Art ArtFocus[NUM_FOCUS];
 #ifndef NOWIDESCREEN
 Art ArtBackgroundWidescreen;
@@ -46,11 +41,15 @@ Art SmlButton;
 Art ArtHero;
 
 void (*gfnSoundFunction)(int gfx, int rndCnt);
-void (*gfnListFocus)(unsigned index);
-void (*gfnListSelect)(unsigned index);
-void (*gfnListEsc)();
-bool (*gfnListYesNo)();
+static void (*gfnListFocus)(unsigned index);
+static void (*gfnListSelect)(unsigned index);
+static void (*gfnListEsc)();
+static bool (*gfnListYesNo)();
 std::vector<UiItemBase*>* gUiItems;
+unsigned SelectedItem;
+static unsigned SelectedItemMax;
+static unsigned ListViewportSize;
+unsigned ListOffset;
 UiEdit* gUiEditField;
 
 static Uint32 _gdwFadeTc;
@@ -507,14 +506,12 @@ void LoadBackgroundArt(const char* pszFile, int frames)
 
 void UiAddBackground(std::vector<UiItemBase *> *vecDialog)
 {
+	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
 #ifndef NOWIDESCREEN
 	if (ArtBackgroundWidescreen.surface != NULL) {
-		SDL_Rect rectw = { 0, UI_OFFSET_Y, 0, 0 };
-		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, 0, rectw, UIS_CENTER));
+		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, 0, rect, UIS_CENTER));
 	}
 #endif
-
-	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
 	vecDialog->push_back(new UiImage(&ArtBackground, 0, rect, UIS_CENTER));
 }
 
@@ -599,7 +596,7 @@ static void Render(const UiImage* uiImage)
 	Art* mArt = uiImage->m_art;
 	int x = uiImage->m_rect.x;
 
-	if ((uiImage->m_iFlags & UIS_CENTER) && mArt != NULL) {
+	if (uiImage->m_iFlags & UIS_CENTER) {
 		const int xOffset = GetCenterOffset(mArt->logical_width, uiImage->m_rect.w);
 		x += xOffset;
 	}

@@ -11,8 +11,8 @@ int provider;
 
 static char selconn_MaxPlayers[21];
 static char selconn_Description[64];
-static bool selconn_ReturnValue = false;
-static bool selconn_EndMenu = false;
+static bool selconn_ReturnValue;
+static bool selconn_EndMenu;
 
 static std::vector<UiListItem *> vecConnItems;
 static std::vector<UiItemBase *> vecSelConnDlg;
