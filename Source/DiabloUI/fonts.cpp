@@ -1,7 +1,7 @@
 #include "fonts.h"
 
 #include "utils/file_util.h"
-#include "all.h"
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

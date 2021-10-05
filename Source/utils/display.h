@@ -24,6 +24,10 @@ extern SDL_Palette* back_palette;
 extern SDL_Surface* back_surface;
 extern unsigned int back_surface_palette_version;
 
+extern int screenWidth;
+extern int screenHeight;
+extern int viewportHeight;
+
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);
 bool IsFullScreen();

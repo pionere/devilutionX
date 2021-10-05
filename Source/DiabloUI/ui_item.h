@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "all.h"
+#include "../types.h"
+#include "../appfat.h"
 
 #include "DiabloUI/art.h"
 #include "DiabloUI/fonts.h"

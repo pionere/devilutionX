@@ -1,6 +1,12 @@
 #include "dialogs.h"
 
-#include "all.h"
+#include "utils/display.h"
+#include "../palette.h"
+#include "../diablo.h"
+#include "../init.h"
+
+#include "storm/storm.h"
+
 #include "controls/menu_controls.h"
 #include "DiabloUI/diabloui.h"
 //#include "DiabloUI/errorart.h"

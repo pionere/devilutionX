@@ -1,5 +1,5 @@
 
-#include "all.h"
+#include "utils/display.h"
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/selok.h"

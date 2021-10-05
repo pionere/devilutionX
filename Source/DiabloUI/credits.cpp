@@ -1,8 +1,7 @@
-#include <memory>
 #include <vector>
+#include <algorithm>
 
 #include "controls/menu_controls.h"
-#include "all.h"
 #include "utils/display.h"
 
 #include "DiabloUI/diabloui.h"

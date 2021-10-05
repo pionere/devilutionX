@@ -1,13 +1,15 @@
 
 #include <stdexcept>
 #include "config.h"
-#include "all.h"
+#include "../engine.h"
+#include "../diablo.h"
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/selconn.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
+#include "storm/storm.h"
 #include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -470,9 +472,10 @@ static void SelgamePasswordSelect(unsigned index)
 		}
 	}
 
-	SStrCopy(tempstr, SDL_GetError(), sizeof(tempstr));
+	char dialogText[256];
+	SStrCopy(dialogText, SDL_GetError(), sizeof(dialogText));
 	ArtBackground.Unload();
-	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", tempstr);
+	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", dialogText);
 	LoadBackgroundArt("ui_art\\selgame.pcx");
 	SelgamePasswordInit(0);
 }
