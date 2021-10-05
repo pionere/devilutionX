@@ -14,9 +14,6 @@ static char selconn_Description[64];
 static bool selconn_ReturnValue;
 static bool selconn_EndMenu;
 
-static std::vector<UiListItem *> vecConnItems;
-static std::vector<UiItemBase *> vecSelConnDlg;
-
 #define DESCRIPTION_WIDTH 205
 
 // Forward-declare UI-handlers, used by other handlers.
@@ -31,7 +28,7 @@ static void SelconnEsc()
 static void SelconnFocus(unsigned index)
 {
 	int numplayers = MAX_PLRS;
-	switch (vecConnItems[index]->m_value) {
+	switch (gUIListItems[index]->m_value) {
 #ifdef TCPIP
 	case SELCONN_TCP:
 	case SELCONN_TCPD:
@@ -68,77 +65,77 @@ static void SelconnLoad()
 
 	LoadBackgroundArt("ui_art\\selconn.pcx");
 #ifndef HOSTONLY
-	vecConnItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
+	gUIListItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
 	numOptions++;
 #ifdef ZEROTIER
-	vecConnItems.push_back(new UiListItem("Zerotier", SELCONN_ZT));
+	gUIListItems.push_back(new UiListItem("Zerotier", SELCONN_ZT));
 	numOptions++;
 #endif
 #endif // HOSTONLY
 #ifdef TCPIP
 #ifndef HOSTONLY
-	vecConnItems.push_back(new UiListItem("Client-Server (TCP)", SELCONN_TCP));
+	gUIListItems.push_back(new UiListItem("Client-Server (TCP)", SELCONN_TCP));
 	numOptions++;
-	vecConnItems.push_back(new UiListItem("Client-Server (TCP-D)", SELCONN_TCPD));
+	gUIListItems.push_back(new UiListItem("Client-Server (TCP-D)", SELCONN_TCPD));
 	numOptions++;
 #endif // HOSTONLY
 #ifndef NOHOSTING
-	vecConnItems.push_back(new UiListItem("Server (TCP)", SELCONN_TCPS));
+	gUIListItems.push_back(new UiListItem("Server (TCP)", SELCONN_TCPS));
 	numOptions++;
-	vecConnItems.push_back(new UiListItem("Server (TCP-D)", SELCONN_TCPDS));
+	gUIListItems.push_back(new UiListItem("Server (TCP-D)", SELCONN_TCPDS));
 	numOptions++;
 #endif // NOHOSTING
 #endif // TCPIP
 
-	UiAddBackground(&vecSelConnDlg);
-	UiAddLogo(&vecSelConnDlg);
+	UiAddBackground(&gUiItems);
+	UiAddLogo(&gUiItems);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelConnDlg.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
+	gUiItems.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 218), DESCRIPTION_WIDTH, 21 };
-	vecSelConnDlg.push_back(new UiArtText(selconn_MaxPlayers, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
+	gUiItems.push_back(new UiArtText(selconn_MaxPlayers, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 21 };
-	vecSelConnDlg.push_back(new UiArtText("Requirements:", rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
+	gUiItems.push_back(new UiArtText("Requirements:", rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 275), DESCRIPTION_WIDTH, 66 };
-	vecSelConnDlg.push_back(new UiArtText(selconn_Description, rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER));
+	gUiItems.push_back(new UiArtText(selconn_Description, rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 356), 220, 31 };
-	vecSelConnDlg.push_back(new UiArtText("no gateway needed", rect5, UIS_CENTER | UIS_MED | UIS_SILVER));
+	gUiItems.push_back(new UiArtText("no gateway needed", rect5, UIS_CENTER | UIS_MED | UIS_SILVER));
 
 	SDL_Rect rect7 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
-	vecSelConnDlg.push_back(new UiArtText("Select Connection", rect7, UIS_CENTER | UIS_BIG | UIS_SILVER));
+	gUiItems.push_back(new UiArtText("Select Connection", rect7, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	//assert(numOptions == vecConnItems.size());
+	//assert(numOptions == gUIListItems.size());
 	SDL_Rect rect8 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 256), 285, 26 * numOptions };
-	vecSelConnDlg.push_back(new UiList(&vecConnItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD));
 
 	SDL_Rect rect9 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
-	vecSelConnDlg.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect10 = { PANEL_LEFT + 454, (UI_OFFSET_Y + 427), 140, 35 };
-	vecSelConnDlg.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	//assert(numOptions == vecConnItems.size());
-	UiInitList(&vecSelConnDlg, numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
+	//assert(numOptions == gUIListItems.size());
+	UiInitList(numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
 }
 
 static void SelconnFree()
 {
 	ArtBackground.Unload();
 
-	UiClearListItems(vecConnItems);
+	UiClearListItems();
 
-	UiClearItems(vecSelConnDlg);
+	UiClearItems(gUiItems);
 
 	//UiInitList_clear();
 }
 
 static void SelconnSelect(unsigned index)
 {
-	provider = vecConnItems[index]->m_value;
+	provider = gUIListItems[index]->m_value;
 
 	SNetInitializeProvider(provider);
 	selconn_EndMenu = true;
@@ -153,7 +150,7 @@ bool UiSelectProvider(bool bMulti)
 	selconn_EndMenu = false;
 
 	if (!selconn_bMulti) {
-		assert(vecConnItems[0]->m_value == SELCONN_LOOPBACK);
+		assert(gUIListItems[0]->m_value == SELCONN_LOOPBACK);
 		SelconnSelect(0);
 	}
 

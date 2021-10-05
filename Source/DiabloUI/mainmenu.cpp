@@ -9,19 +9,16 @@ DEVILUTION_BEGIN_NAMESPACE
 static const int ATTRACT_TIMEOUT = 30; //seconds
 static Uint32 guAttractTc;
 
-static std::vector<UiItemBase *> vecMainMenuDialog;
-static std::vector<UiListItem *> vecMenuItems;
-
 static int _gnMainMenuResult;
 
 static void UiMainMenuSelect(unsigned index)
 {
-	_gnMainMenuResult = vecMenuItems[index]->m_value;
+	_gnMainMenuResult = gUIListItems[index]->m_value;
 }
 
 static void MainmenuEsc()
 {
-	unsigned last = vecMenuItems.size() - 1;
+	unsigned last = gUIListItems.size() - 1;
 	if (SelectedItem == last) {
 		UiMainMenuSelect(last);
 	} else {
@@ -40,30 +37,30 @@ static void MainmenuLoad(const char* name)
 
 #ifndef HOSTONLY
 	numOptions = 5;
-	vecMenuItems.push_back(new UiListItem("Single Player", MAINMENU_SINGLE_PLAYER));
+	gUIListItems.push_back(new UiListItem("Single Player", MAINMENU_SINGLE_PLAYER));
 #endif
-	vecMenuItems.push_back(new UiListItem("Multi Player", MAINMENU_MULTIPLAYER));
-	vecMenuItems.push_back(new UiListItem("Replay Intro", MAINMENU_REPLAY_INTRO));
-	vecMenuItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));
-	vecMenuItems.push_back(new UiListItem("Exit Game", MAINMENU_EXIT_DIABLO));
+	gUIListItems.push_back(new UiListItem("Multi Player", MAINMENU_MULTIPLAYER));
+	gUIListItems.push_back(new UiListItem("Replay Intro", MAINMENU_REPLAY_INTRO));
+	gUIListItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));
+	gUIListItems.push_back(new UiListItem("Exit Game", MAINMENU_EXIT_DIABLO));
 
 #ifndef NOWIDESCREEN
 	LoadArt("ui_art\\mainmenuw.pcx", &ArtBackgroundWidescreen);
 #endif
 	LoadBackgroundArt(MENU_ART);
 
-	UiAddBackground(&vecMainMenuDialog);
-	UiAddLogo(&vecMainMenuDialog);
+	UiAddBackground(&gUiItems);
+	UiAddLogo(&gUiItems);
 
-	//assert(vecMenuItems.size() == numOptions);
+	//assert(gUIListItems.size() == numOptions);
 	SDL_Rect rect1 = { PANEL_LEFT + 64, (UI_OFFSET_Y + 192), 510, 43 * numOptions };
-	vecMainMenuDialog.push_back(new UiList(&vecMenuItems, numOptions, rect1, UIS_CENTER | UIS_HUGE | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_HUGE | UIS_GOLD));
 
 	SDL_Rect rect2 = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
-	vecMainMenuDialog.push_back(new UiArtText(name, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
+	gUiItems.push_back(new UiArtText(name, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	//assert(vecMenuItems.size() == numOptions);
-	UiInitList(&vecMainMenuDialog, numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
+	//assert(gUIListItems.size() == numOptions);
+	UiInitList(numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
 }
 
 static void MainmenuFree()
@@ -73,9 +70,9 @@ static void MainmenuFree()
 #endif
 	ArtBackground.Unload();
 
-	UiClearItems(vecMainMenuDialog);
+	UiClearItems(gUiItems);
 
-	UiClearListItems(vecMenuItems);
+	UiClearListItems();
 
 	//UiInitList_clear();
 }

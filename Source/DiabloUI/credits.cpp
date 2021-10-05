@@ -1,4 +1,3 @@
-#include <vector>
 #include <algorithm>
 
 #include "controls/menu_controls.h"
@@ -31,7 +30,7 @@ public:
 		LoadArt("ui_art\\creditsw.pcx", &ArtBackgroundWidescreen);
 #endif
 		LoadBackgroundArt("ui_art\\credits.pcx");
-		UiAddBackground(&vecCredits);
+		UiAddBackground(&gUiItems);
 		ticks_begin_ = SDL_GetTicks();
 		prev_offset_y_ = 0;
 	}
@@ -42,13 +41,12 @@ public:
 		ArtBackgroundWidescreen.Unload();
 #endif
 		ArtBackground.Unload();
-		UiClearItems(vecCredits);
+		UiClearItems(gUiItems);
 	}
 
 	bool Render();
 
 private:
-	std::vector<UiItemBase*> vecCredits;
 	Uint32 ticks_begin_;
 	int prev_offset_y_;
 };
@@ -61,7 +59,7 @@ bool CreditsRenderer::Render()
 	prev_offset_y_ = offsetY;
 
 	UiClearScreen();
-	UiRenderItems(vecCredits);
+	UiRenderItems(gUiItems);
 
 	const unsigned linesBegin = std::max(offsetY / LINE_H, 0);
 	const unsigned linesEnd = std::min(linesBegin + MAX_VISIBLE_LINES, CREDITS_LINES_SIZE);

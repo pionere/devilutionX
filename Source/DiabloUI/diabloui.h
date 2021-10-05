@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <vector>
 #include <SDL.h>
 
 #include "DiabloUI/art.h"
@@ -29,6 +30,8 @@ extern Art ArtHero;
 extern Art SmlButton;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);
+extern std::vector<UiListItem*> gUIListItems;
+extern std::vector<UiItemBase*> gUiItems;
 extern unsigned SelectedItem;
 extern unsigned ListOffset;
 extern UiEdit* gUiEditField;
@@ -51,7 +54,7 @@ inline SDL_Surface* DiabloUiSurface()
 
 void UiFadeIn();
 void UiHandleEvents(SDL_Event* event);
-void UiItemMouseEvents(SDL_Event* event, const std::vector<UiItemBase*> &uiItems);
+void UiItemMouseEvents(SDL_Event* event);
 void DrawMouse();
 void LoadBackgroundArt(const char* pszFile, int frames = 1);
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
@@ -59,13 +62,13 @@ void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationYesNo();
-void UiInitList(std::vector<UiItemBase*>* uiItems, unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL);
+void UiInitList(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL);
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
 void UiClearScreen();
 void UiPollAndRender();
 void UiRenderItems(const std::vector<UiItemBase*> &uiItems);
 void UiClearItems(std::vector<UiItemBase*> &uiItems);
-void UiClearListItems(std::vector<UiListItem*> &uiItems);
+void UiClearListItems();
 //void UiInitList_clear();
 
 void mainmenu_restart_repintro();

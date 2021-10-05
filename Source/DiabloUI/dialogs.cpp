@@ -18,7 +18,6 @@ DEVILUTION_BEGIN_NAMESPACE
 static Art dialogArt;
 static bool _gbDialogEnd;
 static bool gbInDialog = false;
-static std::vector<UiItemBase *> vecOkDialog;
 
 static void DialogActionOK()
 {
@@ -156,11 +155,13 @@ static void LoadFallbackPalette()
 static void Init(const char* caption, char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
 {
 	//if (renderBehind == NULL) {
+		UiClearListItems();
+		UiClearItems(gUiItems);
 		//assert(error || (ArtBackground.surface == NULL && ArtCursor.surface == NULL));
 		if (ArtBackground.surface != NULL)
 			ArtBackground.Unload();
 		LoadBackgroundArt("ui_art\\black.pcx");
-		UiAddBackground(&vecOkDialog);
+		UiAddBackground(&gUiItems);
 		//if (ArtBackground.surface == NULL) {
 		//	//LoadFallbackPalette();
 		//}
@@ -174,28 +175,28 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		WordWrapArtStr(text, 240, AFT_SMALL);
 
 		SDL_Rect rect1 = { PANEL_LEFT + 180, (UI_OFFSET_Y + 168), 280, 144 };
-		vecOkDialog.push_back(new UiImage(&dialogArt, 0, rect1, 0));
+		gUiItems.push_back(new UiImage(&dialogArt, 0, rect1, 0));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 200, (UI_OFFSET_Y + 211), 240, 80 };
-		vecOkDialog.push_back(new UiArtText(text, rect2, UIS_LEFT | UIS_SMALL | UIS_GOLD));
+		gUiItems.push_back(new UiArtText(text, rect2, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
-		vecOkDialog.push_back(new UiButton("OK", &DialogActionOK, rect3));
+		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect3));
 	} else {*/
 		LoadArt(error ? "ui_art\\lrpopup.pcx" : "ui_art\\lpopup.pcx", &dialogArt);
 		WordWrapArtStr(text, 346, AFT_SMALL);
 
 		SDL_Rect rect1 = { PANEL_LEFT + 127, (UI_OFFSET_Y + 100), 385, 280 };
-		vecOkDialog.push_back(new UiImage(&dialogArt, 0, rect1, 0));
+		gUiItems.push_back(new UiImage(&dialogArt, 0, rect1, 0));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 110), 346, 20 };
-		vecOkDialog.push_back(new UiArtText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
+		gUiItems.push_back(new UiArtText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 141), 346, 190 };
-		vecOkDialog.push_back(new UiArtText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
+		gUiItems.push_back(new UiArtText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
 		SDL_Rect rect4 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
-		vecOkDialog.push_back(new UiButton("OK", &DialogActionOK, rect4));
+		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect4));
 	//}
 }
 
@@ -208,10 +209,10 @@ static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 	dialogArt.Unload();
 	SmlButton.Unload();
 
-	UiClearItems(vecOkDialog);
+	UiClearItems(gUiItems);
 }
 
-static void DialogLoop(const std::vector<UiItemBase*> &uiItems/*, const std::vector<UiItemBase*>* renderBehind*/)
+static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 {
 	SetFadeLevel(256);
 	_gbDialogEnd = false;
@@ -221,7 +222,7 @@ static void DialogLoop(const std::vector<UiItemBase*> &uiItems/*, const std::vec
 		UiClearScreen();
 		//if (renderBehind != NULL)
 		//	UiRenderItems(*renderBehind);
-		UiRenderItems(uiItems);
+		UiRenderItems(gUiItems);
 		DrawMouse();
 		UiFadeIn();
 
@@ -229,7 +230,7 @@ static void DialogLoop(const std::vector<UiItemBase*> &uiItems/*, const std::vec
 			switch (event.type) {
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
-				UiItemMouseEvents(&event, uiItems);
+				UiItemMouseEvents(&event);
 				break;
 			default:
 				switch (GetMenuAction(event)) {
@@ -255,7 +256,7 @@ static void UiOkDialog(const char* caption, const char* text, bool error/*, cons
 		gbInDialog = true;
 		SStrCopy(dialogText, text, sizeof(dialogText));
 		Init(caption, dialogText, error/*, renderBehind*/);
-		DialogLoop(vecOkDialog/*, renderBehind*/);
+		DialogLoop(/*renderBehind*/);
 		Deinit(/*renderBehind*/);
 		gbInDialog = false;
 		return;

@@ -16,7 +16,6 @@ DEVILUTION_BEGIN_NAMESPACE
 static Art ArtPopupSm;
 static Art ArtProgBG;
 static Art ArtProgFil;
-static std::vector<UiItemBase *> vecProgress;
 static int _gnProgress;
 
 static void DialogActionCancel()
@@ -36,9 +35,9 @@ static void ProgressLoad(const char *msg)
 	int y = UI_OFFSET_Y + (480 - PRPANEL_HEIGHT) / 2;
 
 	SDL_Rect rect1 = { x + 50, y + 20, PRPANEL_WIDTH - 100, SML_BUTTON_HEIGHT };
-	vecProgress.push_back(new UiArtText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
+	gUiItems.push_back(new UiArtText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
 	SDL_Rect rect2 = { x + 85, y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
-	vecProgress.push_back(new UiButton("Cancel", &DialogActionCancel, rect2));
+	gUiItems.push_back(new UiButton("Cancel", &DialogActionCancel, rect2));
 }
 
 static void ProgressFree()
@@ -48,7 +47,7 @@ static void ProgressFree()
 	ArtProgBG.Unload();
 	ArtProgFil.Unload();
 	SmlButton.Unload();
-	UiClearItems(vecProgress);
+	UiClearItems(gUiItems);
 }
 
 static void ProgressRender()
@@ -76,7 +75,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 	do {
 		_gnProgress = fnfunc();
 		ProgressRender();
-		UiRenderItems(vecProgress);
+		UiRenderItems(gUiItems);
 		DrawMouse();
 		UiFadeIn();
 
@@ -84,7 +83,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 			switch (event.type) {
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
-				UiItemMouseEvents(&event, vecProgress);
+				UiItemMouseEvents(&event);
 				break;
 #ifndef USE_SDL1
 			case SDLK_KP_ENTER:
