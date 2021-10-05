@@ -389,7 +389,7 @@ static void SelheroListSelect(unsigned index)
 		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(vecSelDlgListItems.size() == 2);
-		UiInitList(&vecSelDlgItems, 2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit, NULL, true);
+		UiInitList(&vecSelDlgItems, 2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit);
 		snprintf(selhero_title, sizeof(selhero_title), "Single Player Characters");
 		return;
 	}

@@ -63,7 +63,7 @@ static void MainmenuLoad(const char* name)
 	vecMainMenuDialog.push_back(new UiArtText(name, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	//assert(vecMenuItems.size() == numOptions);
-	UiInitList(&vecMainMenuDialog, numOptions, NULL, UiMainMenuSelect, MainmenuEsc, NULL, true);
+	UiInitList(&vecMainMenuDialog, numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
 }
 
 static void MainmenuFree()

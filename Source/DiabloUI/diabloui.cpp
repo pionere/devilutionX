@@ -51,7 +51,6 @@ void (*gfnListSelect)(unsigned index);
 void (*gfnListEsc)();
 bool (*gfnListYesNo)();
 std::vector<UiItemBase*>* gUiItems;
-bool UiItemsWraps;
 UiEdit* gUiEditField;
 
 static Uint32 _gdwFadeTc;
@@ -68,7 +67,7 @@ struct ScrollBarState {
 	}
 } scrollBarState;
 
-void UiInitList(std::vector<UiItemBase*>* uiItems, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
+void UiInitList(std::vector<UiItemBase*>* uiItems, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)())
 {
 	SelectedItem = 0;
 	SelectedItemMax = listSize != 0 ? listSize - 1 : 0;
@@ -79,7 +78,6 @@ void UiInitList(std::vector<UiItemBase*>* uiItems, unsigned listSize, void (*fnF
 	gfnListEsc = fnEsc;
 	gfnListYesNo = fnYesNo;
 	gUiItems = uiItems;
-	UiItemsWraps = itemsWraps;
 	if (fnFocus != NULL)
 		fnFocus(0);
 
@@ -124,7 +122,6 @@ void UiInitScrollBar(UiScrollBar *uiSb, unsigned viewportSize)
 	gfnListEsc = NULL;
 	gfnListYesNo = NULL;
 	gUiItems->clear();
-	UiItemsWraps = false;
 }*/
 
 static void UiPlayMoveSound()
@@ -171,16 +168,12 @@ static void UiFocusUp()
 {
 	if (SelectedItem > 0)
 		UiFocus(SelectedItem - 1);
-	else if (UiItemsWraps)
-		UiFocus(SelectedItemMax);
 }
 
 static void UiFocusDown()
 {
 	if (SelectedItem < SelectedItemMax)
 		UiFocus(SelectedItem + 1);
-	else if (UiItemsWraps)
-		UiFocus(0);
 }
 
 static void UiFocusPageUp()

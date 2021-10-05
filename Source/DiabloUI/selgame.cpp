@@ -200,7 +200,7 @@ static void SelgameSpeedInit()
 	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(vecSelGameDlgItems.size() == 4);
-	UiInitList(&vecSelGameDialog, 4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc, NULL, true);
+	UiInitList(&vecSelGameDialog, 4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc);
 }
 
 static void SelgamePasswordEsc()
@@ -412,7 +412,7 @@ static void SelgameModeSelect(unsigned index)
 		vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(vecSelGameDlgItems.size() == 3);
-		UiInitList(&vecSelGameDialog, 3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc, NULL, true);
+		UiInitList(&vecSelGameDialog, 3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc);
 	} break;
 	case SELGAME_JOIN: {
 		SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
