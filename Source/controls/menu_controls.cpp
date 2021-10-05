@@ -96,7 +96,7 @@ MenuAction GetMenuAction(const SDL_Event &event)
 		case SDLK_KP_ENTER:
 			return MenuAction_SELECT;
 		case SDLK_SPACE:
-			if (!textInputActive) {
+			if (gUiEditField == NULL) {
 				return MenuAction_SELECT;
 			}
 			break;

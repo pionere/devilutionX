@@ -9,10 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern unsigned SelectedItem;
-extern unsigned ListOffset;
-extern bool textInputActive;
-
 #define SML_BUTTON_WIDTH	110
 #define SML_BUTTON_HEIGHT	28
 
@@ -33,6 +29,9 @@ extern Art ArtHero;
 extern Art SmlButton;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);
+extern unsigned SelectedItem;
+extern unsigned ListOffset;
+extern UiEdit* gUiEditField;
 
 inline SDL_Surface* DiabloUiSurface()
 {
@@ -70,6 +69,5 @@ void UiClearListItems(std::vector<UiListItem*> &uiItems);
 void UiInitList_clear();
 
 void mainmenu_restart_repintro();
-bool UiValidPlayerName(const char* name);
 
 DEVILUTION_END_NAMESPACE

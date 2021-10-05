@@ -52,9 +52,7 @@ void (*gfnListEsc)();
 bool (*gfnListYesNo)();
 std::vector<UiItemBase *> gUiItems;
 bool UiItemsWraps;
-char *UiTextInput;
-int UiTextInputLen;
-bool textInputActive = true;
+UiEdit* gUiEditField;
 
 static Uint32 _gdwFadeTc;
 static int _gnFadeValue = 0;
@@ -85,26 +83,23 @@ void UiInitList(const std::vector<UiItemBase *> &uiItems, unsigned listSize, voi
 	if (fnFocus != NULL)
 		fnFocus(0);
 
+	gUiEditField = NULL;
 #ifndef __SWITCH__
 	SDL_StopTextInput(); // input is enabled by default
 #endif
-	textInputActive = false;
 	for (unsigned i = 0; i < uiItems.size(); i++) {
 		if (uiItems[i]->m_type == UI_EDIT) {
-			UiEdit *pItemUIEdit = (UiEdit *)uiItems[i];
-			SDL_SetTextInputRect(&uiItems[i]->m_rect);
-			textInputActive = true;
+			gUiEditField = (UiEdit*)uiItems[i];
+			SDL_SetTextInputRect(&gUiEditField->m_rect);
 #ifdef __SWITCH__
-			switch_start_text_input(pItemUIEdit->m_hint, pItemUIEdit->m_value, pItemUIEdit->m_max_length, /*multiline=*/0);
+			switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length, /*multiline=*/0);
 #elif defined(__vita__)
-			vita_start_text_input(pItemUIEdit->m_hint, pItemUIEdit->m_value, pItemUIEdit->m_max_length);
+			vita_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
 #elif defined(__3DS__)
-			ctr_vkbdInput(pItemUIEdit->m_hint, pItemUIEdit->m_value, pItemUIEdit->m_value, pItemUIEdit->m_max_length);
+			ctr_vkbdInput(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_value, gUiEditField->m_max_length);
 #else
 			SDL_StartTextInput();
 #endif
-			UiTextInput = pItemUIEdit->m_value;
-			UiTextInputLen = pItemUIEdit->m_max_length;
 		}
 	}
 }
@@ -223,18 +218,18 @@ static void UiFocusPageDown()
 	UiFocus(newpos);
 }
 
-static void SelheroCatToName(char *inBuf, char *outBuf, int cnt)
+static void UiCatToName(char* inBuf)
 {
 	std::string output = utf8_to_latin1(inBuf);
-	int pos = strlen(outBuf);
-	SStrCopy(&outBuf[pos], output.c_str(), cnt - pos);
+	int pos = strlen(gUiEditField->m_value);
+	SStrCopy(&gUiEditField->m_value[pos], output.c_str(), gUiEditField->m_max_length - pos);
 }
 
 #ifdef __vita__
-static void SelheroSetName(char *inBuf, char *outBuf, int cnt)
+static void UiSetName(char* inBuf)
 {
 	std::string output = utf8_to_latin1(inBuf);
-	strncpy(outBuf, output.c_str(), cnt);
+	strncpy(gUiEditField->m_value, output.c_str(), gUiEditField->m_max_length);
 }
 #endif
 
@@ -312,7 +307,7 @@ static void UiFocusNavigation(SDL_Event* event)
 		return;
 	}
 
-	if (textInputActive) {
+	if (gUiEditField != NULL) {
 		switch (event->type) {
 		case SDL_KEYDOWN: {
 			switch (event->key.keysym.sym) {
@@ -321,7 +316,7 @@ static void UiFocusNavigation(SDL_Event* event)
 				if (SDL_GetModState() & KMOD_CTRL) {
 					char *clipboard = SDL_GetClipboardText();
 					if (clipboard != NULL) {
-						SelheroCatToName(clipboard, UiTextInput, UiTextInputLen);
+						UiCatToName(clipboard);
 						SDL_free(clipboard);
 					}
 				}
@@ -329,9 +324,9 @@ static void UiFocusNavigation(SDL_Event* event)
 #endif
 			case SDLK_BACKSPACE:
 			case SDLK_LEFT: {
-				int nameLen = strlen(UiTextInput);
+				int nameLen = strlen(gUiEditField->m_value);
 				if (nameLen > 0) {
-					UiTextInput[nameLen - 1] = '\0';
+					gUiEditField->m_value[nameLen - 1] = '\0';
 				}
 				return;
 			}
@@ -345,7 +340,7 @@ static void UiFocusNavigation(SDL_Event* event)
 					char utf8[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 					utf8[0] = (char)unicode;
 					utf8[1] = '\0';
-					SelheroCatToName(utf8, UiTextInput, UiTextInputLen);
+					UiCatToName(utf8);
 				}
 			}
 #endif
@@ -354,9 +349,9 @@ static void UiFocusNavigation(SDL_Event* event)
 #ifndef USE_SDL1
 		case SDL_TEXTINPUT:
 #ifdef __vita__
-			SelheroSetName(event->text.text, UiTextInput, UiTextInputLen);
+			UiSetName(event->text.text);
 #else
-			SelheroCatToName(event->text.text, UiTextInput, UiTextInputLen);
+			UiCatToName(event->text.text);
 #endif
 			return;
 #endif
@@ -404,15 +399,14 @@ void UiHandleEvents(SDL_Event *event)
 void UiFocusNavigationSelect()
 {
 	UiPlaySelectSound();
-	if (textInputActive) {
-		if (strlen(UiTextInput) == 0) {
+	if (gUiEditField != NULL) {
+		if (gUiEditField->m_value[0] == '\0') {
 			return;
 		}
+		gUiEditField = NULL;
 #ifndef __SWITCH__
 		SDL_StopTextInput();
 #endif
-		UiTextInput = NULL;
-		UiTextInputLen = 0;
 	}
 	if (gfnListSelect != NULL)
 		gfnListSelect(SelectedItem);
@@ -421,12 +415,11 @@ void UiFocusNavigationSelect()
 void UiFocusNavigationEsc()
 {
 	UiPlaySelectSound();
-	if (textInputActive) {
+	if (gUiEditField != NULL) {
+		gUiEditField = NULL;
 #ifndef __SWITCH__
 		SDL_StopTextInput();
 #endif
-		UiTextInput = NULL;
-		UiTextInputLen = 0;
 	}
 	if (gfnListEsc != NULL)
 		gfnListEsc();
