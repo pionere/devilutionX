@@ -137,10 +137,13 @@ static void SelheroFreeDlgItems()
 static void SelheroFree()
 {
 	ArtBackground.Unload();
+	UnloadScrollBar();
 
 	UiClearItems(vecSelHeroDialog);
 
 	SelheroFreeDlgItems();
+
+	//UiInitList_clear();
 }
 
 static void SelheroSetStats()
@@ -218,8 +221,6 @@ static void SelheroInit()
 
 static void SelheroListEsc()
 {
-	UiInitList_clear();
-
 	selhero_endMenu = true;
 	selhero_result = SELHERO_PREVIOUS;
 }
@@ -287,7 +288,7 @@ static void SelheroListInit()
 	SDL_Rect rect6 = { PANEL_LEFT + 489, (UI_OFFSET_Y + 429), 120, 35 };
 	vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelDlgItems, selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo, false);
+	UiInitList(&vecSelDlgItems, selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo);
 	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS);
 	snprintf(selhero_title, sizeof(selhero_title), "%s Player Characters", selconn_bMulti ? "Multi" : "Single");
 }
@@ -329,7 +330,6 @@ static void SelheroClassSelectorFocus(unsigned index)
 
 static void SelheroLoadSelect(unsigned index)
 {
-	UiInitList_clear();
 	selhero_endMenu = true;
 	selhero_result = index == 0 ? SELHERO_CONTINUE : SELHERO_NEW_DUNGEON;
 }
@@ -364,8 +364,8 @@ static void SelheroListSelect(unsigned index)
 		SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 429), 140, 35 };
 		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-		assert(vecSelDlgListItems.size() == NUM_CLASSES);
-		UiInitList(vecSelDlgItems, NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
+		//assert(vecSelDlgListItems.size() == NUM_CLASSES);
+		UiInitList(&vecSelDlgItems, NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
 		memset(&selhero_heroInfo.hiName, 0, sizeof(selhero_heroInfo.hiName));
 		snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 		return;
@@ -389,7 +389,7 @@ static void SelheroListSelect(unsigned index)
 		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(vecSelDlgListItems.size() == 2);
-		UiInitList(vecSelDlgItems, 2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit, NULL, true);
+		UiInitList(&vecSelDlgItems, 2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit, NULL, true);
 		snprintf(selhero_title, sizeof(selhero_title), "Single Player Characters");
 		return;
 	}
@@ -426,7 +426,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 	SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 429), 140, 35 };
 	vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelDlgItems, 0, NULL, SelheroNameSelect, SelheroNameEsc);
+	UiInitList(&vecSelDlgItems, 0, NULL, SelheroNameSelect, SelheroNameEsc);
 }
 
 static void SelheroNameSelect(unsigned index)
@@ -456,6 +456,8 @@ static void SelheroNameSelect(unsigned index)
 	}
 
 	ArtBackground.Unload();
+	//SelheroFreeDlgItems();
+	//UiInitList_clear();
 	UiSelOkDialog(selhero_title, err);
 	LoadBackgroundArt("ui_art\\selhero.pcx");
 	SelheroClassSelectorSelect(0);
@@ -513,7 +515,6 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 
 	*saveIdx = selhero_heroInfo.hiIdx;
 
-	UnloadScrollBar();
 	return selhero_result;
 }
 

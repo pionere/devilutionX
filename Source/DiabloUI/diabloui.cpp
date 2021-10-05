@@ -50,7 +50,7 @@ void (*gfnListFocus)(unsigned index);
 void (*gfnListSelect)(unsigned index);
 void (*gfnListEsc)();
 bool (*gfnListYesNo)();
-std::vector<UiItemBase *> gUiItems;
+std::vector<UiItemBase*>* gUiItems;
 bool UiItemsWraps;
 UiEdit* gUiEditField;
 
@@ -68,7 +68,7 @@ struct ScrollBarState {
 	}
 } scrollBarState;
 
-void UiInitList(const std::vector<UiItemBase *> &uiItems, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
+void UiInitList(const std::vector<UiItemBase*>* uiItems, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
 {
 	SelectedItem = 0;
 	SelectedItemMax = listSize != 0 ? listSize - 1 : 0;
@@ -87,9 +87,9 @@ void UiInitList(const std::vector<UiItemBase *> &uiItems, unsigned listSize, voi
 #ifndef __SWITCH__
 	SDL_StopTextInput(); // input is enabled by default
 #endif
-	for (unsigned i = 0; i < uiItems.size(); i++) {
-		if (uiItems[i]->m_type == UI_EDIT) {
-			gUiEditField = (UiEdit*)uiItems[i];
+	for (unsigned i = 0; i < uiItems->size(); i++) {
+		if ((*uiItems)[i]->m_type == UI_EDIT) {
+			gUiEditField = (UiEdit*)(*uiItems)[i];
 			SDL_SetTextInputRect(&gUiEditField->m_rect);
 #ifdef __SWITCH__
 			switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length, /*multiline=*/0);
@@ -114,7 +114,7 @@ void UiInitScrollBar(UiScrollBar *uiSb, unsigned viewportSize)
 	}
 }
 
-void UiInitList_clear()
+/*void UiInitList_clear()
 {
 	SelectedItem = 0;
 	SelectedItemMax = 0;
@@ -123,9 +123,9 @@ void UiInitList_clear()
 	gfnListSelect = NULL;
 	gfnListEsc = NULL;
 	gfnListYesNo = NULL;
-	gUiItems.clear();
+	gUiItems->clear();
 	UiItemsWraps = false;
-}
+}*/
 
 static void UiPlayMoveSound()
 {
@@ -303,7 +303,7 @@ static void UiFocusNavigation(SDL_Event* event)
 	}
 #endif
 	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-		UiItemMouseEvents(event, gUiItems);
+		UiItemMouseEvents(event, *gUiItems);
 		return;
 	}
 
@@ -580,7 +580,7 @@ void UiClearScreen()
 
 void UiPollAndRender()
 {
-	UiRenderItems(gUiItems);
+	UiRenderItems(*gUiItems);
 	DrawMouse();
 	UiFadeIn();
 

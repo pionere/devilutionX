@@ -21,6 +21,8 @@ static void SelokFree()
 	UiClearListItems(vecSelOkDialogItems);
 
 	UiClearItems(vecSelOkDialog);
+
+	//UiInitList_clear();
 }
 
 static void SelokSelect(unsigned index)
@@ -64,7 +66,7 @@ void UiSelOkDialog(const char* title, const char* body)
 	SStrCopy(dialogText, body, sizeof(dialogText));
 	WordWrapArtStr(dialogText, MESSAGE_WIDTH, AFT_MED);
 
-	UiInitList(vecSelOkDialog, 0, NULL, SelokSelect, SelokEsc);
+	UiInitList(&vecSelOkDialog, 0, NULL, SelokSelect, SelokEsc);
 
 	_gbSelokEndMenu = false;
 	do {

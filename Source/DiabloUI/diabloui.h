@@ -59,14 +59,14 @@ void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationYesNo();
-void UiInitList(const std::vector<UiItemBase*> &uiItems, unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL, bool wraps = false);
+void UiInitList(std::vector<UiItemBase*>* uiItems, unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL, bool wraps = false);
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
 void UiClearScreen();
 void UiPollAndRender();
 void UiRenderItems(const std::vector<UiItemBase*> &uiItems);
 void UiClearItems(std::vector<UiItemBase*> &uiItems);
 void UiClearListItems(std::vector<UiListItem*> &uiItems);
-void UiInitList_clear();
+//void UiInitList_clear();
 
 void mainmenu_restart_repintro();
 

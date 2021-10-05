@@ -122,7 +122,7 @@ static void SelconnLoad()
 	vecSelConnDlg.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(numOptions == vecConnItems.size());
-	UiInitList(vecSelConnDlg, numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
+	UiInitList(&vecSelConnDlg, numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
 }
 
 static void SelconnFree()
@@ -132,6 +132,8 @@ static void SelconnFree()
 	UiClearListItems(vecConnItems);
 
 	UiClearItems(vecSelConnDlg);
+
+	//UiInitList_clear();
 }
 
 static void SelconnSelect(unsigned index)

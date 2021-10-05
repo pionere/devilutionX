@@ -22,6 +22,8 @@ static void SelyesnoFree()
 	UiClearListItems(vecSelYesNoDialogItems);
 
 	UiClearItems(vecSelYesNoDialog);
+
+	//UiInitList_clear();
 }
 
 static void SelyesnoSelect(unsigned index)
@@ -59,7 +61,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH, AFT_MED);
 
 	//assert(vecSelYesNoDialogItems.size() == 2);
-	UiInitList(vecSelYesNoDialog, 2, NULL, SelyesnoSelect, SelyesnoEsc);
+	UiInitList(&vecSelYesNoDialog, 2, NULL, SelyesnoSelect, SelyesnoEsc);
 
 	// _gbYNValue = true;
 	_gbYNEndMenu = false;

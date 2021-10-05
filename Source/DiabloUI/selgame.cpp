@@ -85,11 +85,12 @@ static void SelgameFree()
 	ArtBackground.Unload();
 
 	SelgameFreeVectors();
+
+	//UiInitList_clear();
 }
 
 static void SelgameModeEsc()
 {
-	UiInitList_clear();
 	selgame_mode = SELGAME_PREVIOUS;
 	selgame_endMenu = true;
 }
@@ -199,7 +200,7 @@ static void SelgameSpeedInit()
 	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(vecSelGameDlgItems.size() == 4);
-	UiInitList(vecSelGameDialog, 4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc, NULL, true);
+	UiInitList(&vecSelGameDialog, 4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc, NULL, true);
 }
 
 static void SelgamePasswordEsc()
@@ -259,7 +260,7 @@ static void SelgameModeInit()
 	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(vecSelGameDlgItems.size() == 2);
-	UiInitList(vecSelGameDialog, 2, SelgameModeFocus, SelgameModeSelect, SelgameModeEsc);
+	UiInitList(&vecSelGameDialog, 2, SelgameModeFocus, SelgameModeSelect, SelgameModeEsc);
 }
 
 /**
@@ -305,7 +306,7 @@ static void SelgamePasswordInit(unsigned index)
 	SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelGameDialog, 0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
+	UiInitList(&vecSelGameDialog, 0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
 }
 
 static void SelgamePortInit(unsigned index)
@@ -336,7 +337,7 @@ static void SelgamePortInit(unsigned index)
 	SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelGameDialog, 0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
+	UiInitList(&vecSelGameDialog, 0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
 }
 
 static void SelgameDiffEsc()
@@ -411,7 +412,7 @@ static void SelgameModeSelect(unsigned index)
 		vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(vecSelGameDlgItems.size() == 3);
-		UiInitList(vecSelGameDialog, 3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc, NULL, true);
+		UiInitList(&vecSelGameDialog, 3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc, NULL, true);
 	} break;
 	case SELGAME_JOIN: {
 		SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
@@ -426,7 +427,7 @@ static void SelgameModeSelect(unsigned index)
 		SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(vecSelGameDialog, 0, NULL, SelgamePortInit, SelgameModeInit);
+		UiInitList(&vecSelGameDialog, 0, NULL, SelgamePortInit, SelgameModeInit);
 	} break;
 	default:
 		ASSUME_UNREACHABLE
@@ -458,7 +459,6 @@ static void SelgamePasswordSelect(unsigned index)
 {
 	if (selgame_mode == SELGAME_CREATE) {
 		if (SNetCreateGame(selgame_Password, selgame_gameData)) {
-			UiInitList_clear();
 			selgame_endMenu = true;
 			return;
 		}
@@ -469,7 +469,6 @@ static void SelgamePasswordSelect(unsigned index)
 		int port;
 		getIniInt("Phone Book", "Entry1Port", &port);
 		if (SNetJoinGame(selgame_Ip, port, selgame_Password)) {
-			UiInitList_clear();
 			selgame_endMenu = true;
 			return;
 		}
@@ -478,6 +477,8 @@ static void SelgamePasswordSelect(unsigned index)
 	char dialogText[256];
 	SStrCopy(dialogText, SDL_GetError(), sizeof(dialogText));
 	ArtBackground.Unload();
+	//SelgameFreeDlgItems();
+	//UiInitList_clear();
 	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", dialogText);
 	LoadBackgroundArt("ui_art\\selgame.pcx");
 	SelgamePasswordInit(0);
