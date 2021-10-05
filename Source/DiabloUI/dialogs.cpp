@@ -168,7 +168,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
 	//}
 
-	LoadArt("ui_art\\smbutton.pcx", &SmlButton, 2);
+	LoadArt("ui_art\\smbutton.pcx", &ArtSmlButton, 2);
 
 	/*if (caption == NULL) {
 		LoadArt(error ? "ui_art\\srpopup.pcx" : "ui_art\\spopup.pcx", &dialogArt);
@@ -207,7 +207,7 @@ static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 		ArtCursor.Unload();
 	//}
 	dialogArt.Unload();
-	SmlButton.Unload();
+	ArtSmlButton.Unload();
 
 	UiClearItems(gUiItems);
 }

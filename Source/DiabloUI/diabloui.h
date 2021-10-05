@@ -27,7 +27,7 @@ extern Art ArtBackgroundWidescreen;
 #endif
 extern Art ArtCursor;
 extern Art ArtHero;
-extern Art SmlButton;
+extern Art ArtSmlButton;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);
 extern std::vector<UiListItem*> gUIListItems;

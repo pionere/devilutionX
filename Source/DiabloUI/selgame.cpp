@@ -70,7 +70,7 @@ static void selgame_remove_event_handlers()
 	SNetUnregisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED);
 }
 
-static void SelgameFreeVectors()
+static void SelgameFreeDlgItems()
 {
 	UiClearListItems();
 
@@ -81,7 +81,7 @@ static void SelgameFree()
 {
 	ArtBackground.Unload();
 
-	SelgameFreeVectors();
+	SelgameFreeDlgItems();
 
 	//UiInitList_clear();
 }
@@ -165,7 +165,7 @@ static void SelgameSpeedInit()
 {
 	// gfnHeroInfo(UpdateHeroLevel);
 
-	SelgameFreeVectors();
+	SelgameFreeDlgItems();
 
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
@@ -225,7 +225,7 @@ static void SelgameModeInit()
 	snprintf(selgame_Port, sizeof(selgame_Port), "%d", port);
 	getIniValue("Phone Book", "Entry1Port", selgame_Port, sizeof(selgame_Port) - 1);
 
-	SelgameFreeVectors();
+	SelgameFreeDlgItems();
 
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
@@ -277,7 +277,7 @@ static void SelgamePasswordInit(unsigned index)
 {
 	memset(&selgame_Password, 0, sizeof(selgame_Password));
 
-	SelgameFreeVectors();
+	SelgameFreeDlgItems();
 
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
@@ -308,7 +308,7 @@ static void SelgamePasswordInit(unsigned index)
 
 static void SelgamePortInit(unsigned index)
 {
-	SelgameFreeVectors();
+	SelgameFreeDlgItems();
 
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
@@ -376,7 +376,7 @@ static void SelgameModeSelect(unsigned index)
 
 	//gfnHeroInfo(UpdateHeroLevel);
 
-	SelgameFreeVectors();
+	SelgameFreeDlgItems();
 
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);

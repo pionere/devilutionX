@@ -29,7 +29,7 @@ static void ProgressLoad(const char *msg)
 	LoadArt("ui_art\\spopup.pcx", &ArtPopupSm);
 	LoadArt("ui_art\\prog_bg.pcx", &ArtProgBG);
 	LoadArt("ui_art\\prog_fil.pcx", &ArtProgFil);
-	LoadArt("ui_art\\smbutton.pcx", &SmlButton, 2);
+	LoadArt("ui_art\\smbutton.pcx", &ArtSmlButton, 2);
 
 	int x = PANEL_LEFT + (PANEL_WIDTH - PRPANEL_WIDTH) / 2;
 	int y = UI_OFFSET_Y + (480 - PRPANEL_HEIGHT) / 2;
@@ -46,7 +46,7 @@ static void ProgressFree()
 	ArtPopupSm.Unload();
 	ArtProgBG.Unload();
 	ArtProgFil.Unload();
-	SmlButton.Unload();
+	ArtSmlButton.Unload();
 	UiClearItems(gUiItems);
 }
 
@@ -63,7 +63,7 @@ static void ProgressRender()
 	if (_gnProgress != 0) {
 		DrawArt(x + (PRPANEL_WIDTH - 227) / 2, y + 52, &ArtProgFil, 0, 227 * _gnProgress / 100);
 	}
-	DrawArt(x + (PRPANEL_WIDTH - SML_BUTTON_WIDTH) / 2, y + 99, &SmlButton, 2, SML_BUTTON_WIDTH);
+	DrawArt(x + (PRPANEL_WIDTH - SML_BUTTON_WIDTH) / 2, y + 99, &ArtSmlButton, 2, SML_BUTTON_WIDTH);
 }
 
 bool UiProgressDialog(const char *msg, int (*fnfunc)())

@@ -37,7 +37,7 @@ Art ArtBackgroundWidescreen;
 #endif
 Art ArtBackground;
 Art ArtCursor;
-Art SmlButton;
+Art ArtSmlButton;
 Art ArtHero;
 
 void (*gfnSoundFunction)(int gfx, int rndCnt);
@@ -613,7 +613,7 @@ static void Render(UiButton* button)
 {
 	int frame = button->m_pressed ? UiButton::PRESSED : UiButton::DEFAULT;
 
-	DrawArt(button->m_rect.x, button->m_rect.y, &SmlButton, frame, button->m_rect.w, button->m_rect.h);
+	DrawArt(button->m_rect.x, button->m_rect.y, &ArtSmlButton, frame, button->m_rect.w, button->m_rect.h);
 
 	SDL_Rect textRect = button->m_rect;
 	if (button->m_pressed)
