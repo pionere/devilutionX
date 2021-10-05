@@ -1,14 +1,14 @@
 
 #include <stdexcept>
 #include "config.h"
-#include "../engine.h"
-#include "../diablo.h"
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/selconn.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
+#include "../engine.h"
+#include "../diablo.h"
 #include "storm/storm.h"
 #include "storm/storm_net.h"
 
