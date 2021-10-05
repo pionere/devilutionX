@@ -32,9 +32,9 @@ public:
 		LoadArt("ui_art\\creditsw.pcx", &ArtBackgroundWidescreen);
 #endif
 		LoadBackgroundArt("ui_art\\credits.pcx");
+		UiAddBackground(&vecCredits);
 		ticks_begin_ = SDL_GetTicks();
 		prev_offset_y_ = 0;
-		finished_ = false;
 	}
 
 	~CreditsRenderer()
@@ -43,41 +43,32 @@ public:
 		ArtBackgroundWidescreen.Unload();
 #endif
 		ArtBackground.Unload();
+		UiClearItems(vecCredits);
 	}
 
-	void Render();
-
-	bool Finished() const
-	{
-		return finished_;
-	}
+	bool Render();
 
 private:
-	bool finished_;
+	std::vector<UiItemBase*> vecCredits;
 	Uint32 ticks_begin_;
 	int prev_offset_y_;
 };
 
-void CreditsRenderer::Render()
+bool CreditsRenderer::Render()
 {
 	const int offsetY = -VIEWPORT.h + (SDL_GetTicks() - ticks_begin_) / 40;
 	if (offsetY == prev_offset_y_)
-		return;
+		return true;
 	prev_offset_y_ = offsetY;
 
 	UiClearScreen();
-#ifndef NOWIDESCREEN
-	DrawArt(PANEL_LEFT - 320, UI_OFFSET_Y, &ArtBackgroundWidescreen);
-#endif
-	DrawArt(PANEL_LEFT, UI_OFFSET_Y, &ArtBackground);
+	UiRenderItems(vecCredits);
 
 	const unsigned linesBegin = std::max(offsetY / LINE_H, 0);
 	const unsigned linesEnd = std::min(linesBegin + MAX_VISIBLE_LINES, CREDITS_LINES_SIZE);
 
 	if (linesBegin >= linesEnd) {
-		if (linesEnd == CREDITS_LINES_SIZE)
-			finished_ = true;
-		return;
+		return linesEnd != CREDITS_LINES_SIZE;
 	}
 
 	SDL_Rect viewport = VIEWPORT;
@@ -99,6 +90,7 @@ void CreditsRenderer::Render()
 	}
 
 	SDL_SetClipRect(DiabloUiSurface(), NULL);
+	return true;
 }
 
 } // namespace
@@ -110,7 +102,8 @@ void UiCreditsDialog()
 
 	SDL_Event event;
 	do {
-		creditsRenderer.Render();
+		if (!creditsRenderer.Render())
+			break;
 		UiFadeIn();
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {
@@ -130,7 +123,7 @@ void UiCreditsDialog()
 			}
 			UiHandleEvents(&event);
 		}
-	} while (!endMenu && !creditsRenderer.Finished());
+	} while (!endMenu);
 }
 
 DEVILUTION_END_NAMESPACE
