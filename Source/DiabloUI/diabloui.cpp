@@ -59,13 +59,8 @@ static int _gnFadeValue = 0;
 struct ScrollBarState {
 	char upPressCounter;
 	char downPressCounter;
-
-	ScrollBarState()
-	{
-		upPressCounter = -1;
-		downPressCounter = -1;
-	}
-} scrollBarState;
+};
+ScrollBarState scrollBarState;
 
 void UiInitList(std::vector<UiItemBase*>* uiItems, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)())
 {
@@ -102,7 +97,7 @@ void UiInitList(std::vector<UiItemBase*>* uiItems, unsigned listSize, void (*fnF
 	}
 }
 
-void UiInitScrollBar(UiScrollBar *uiSb, unsigned viewportSize)
+void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize)
 {
 	ListViewportSize = viewportSize;
 	if (ListViewportSize > SelectedItemMax) {
@@ -110,6 +105,8 @@ void UiInitScrollBar(UiScrollBar *uiSb, unsigned viewportSize)
 	} else {
 		uiSb->m_iFlags &= ~UIS_HIDDEN;
 	}
+	scrollBarState.upPressCounter = -1;
+	scrollBarState.downPressCounter = -1;
 }
 
 /*void UiInitList_clear()
