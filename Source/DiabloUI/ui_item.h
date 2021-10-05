@@ -199,17 +199,12 @@ public:
 };
 
 class UiList : public UiItemBase {
-private:
-	static SDL_Rect& FormatRect(SDL_Rect &rect, std::vector<UiListItem*>* vItems) {
-		rect.h *= vItems->size();
-		return rect;
-	}
 public:
-	UiList(std::vector<UiListItem *>* vItems, SDL_Rect &rect, int flags)
-	    : UiItemBase(UI_LIST, FormatRect(rect, vItems), flags)
+	UiList(std::vector<UiListItem*>* vItems, unsigned numItems, SDL_Rect &rect, int flags)
+	    : UiItemBase(UI_LIST, rect, flags)
 	{
 		m_vecItems = vItems;
-		m_height = m_rect.h / vItems->size();
+		m_height = m_rect.h / numItems;
 	};
 
 	~UiList() = default;

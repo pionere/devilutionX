@@ -189,8 +189,8 @@ static void SelgameSpeedInit()
 	vecSelGameDlgItems.push_back(new UiListItem("Faster", SPEED_FASTER));
 	vecSelGameDlgItems.push_back(new UiListItem("Fastest", SPEED_FASTEST));
 
-	SDL_Rect rect5 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 279), 295, 26 };
-	vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
+	SDL_Rect rect5 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 279), 295, 26 * 4 };
+	vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, 4, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
@@ -249,8 +249,8 @@ static void SelgameModeInit()
 	vecSelGameDlgItems.push_back(new UiListItem("Create Game", SELGAME_CREATE));
 	vecSelGameDlgItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
-	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 255), 285, 26 };
-	vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
+	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 255), 285, 26 * 2 };
+	vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, 2, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
@@ -401,8 +401,8 @@ static void SelgameModeSelect(unsigned index)
 		vecSelGameDlgItems.push_back(new UiListItem("Nightmare", DIFF_NIGHTMARE));
 		vecSelGameDlgItems.push_back(new UiListItem("Hell", DIFF_HELL));
 
-		SDL_Rect rect5 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 282), 295, 26 };
-		vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
+		SDL_Rect rect5 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 282), 295, 26 * 3 };
+		vecSelGameDialog.push_back(new UiList(&vecSelGameDlgItems, 3, rect5, UIS_CENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));

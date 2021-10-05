@@ -270,8 +270,8 @@ static void SelheroListInit()
 	}
 	SelheroUpdateViewportItems();
 
-	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 256), 320, 26 };
-	vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
+	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 256), 320, 26 * (int)num_viewport_heroes };
+	vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, num_viewport_heroes, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 586, (UI_OFFSET_Y + 244), SCROLLBAR_BG_WIDTH, 179 };
 	UiScrollBar* scrollBar = new UiScrollBar(rect3);
@@ -342,7 +342,7 @@ static void SelheroListSelect(unsigned index)
 		SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
 		vecSelDlgItems.push_back(new UiArtText("Choose Class", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-		int itemH = 33;
+		int listH = 33 * NUM_CLASSES;
 		vecSelDlgListItems.push_back(new UiListItem("Warrior", PC_WARRIOR));
 		vecSelDlgListItems.push_back(new UiListItem("Rogue", PC_ROGUE));
 		vecSelDlgListItems.push_back(new UiListItem("Sorcerer", PC_SORCERER));
@@ -351,11 +351,12 @@ static void SelheroListSelect(unsigned index)
 		vecSelDlgListItems.push_back(new UiListItem("Bard", PC_BARD));
 		vecSelDlgListItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
 
-		itemH = 26;
+		listH = 26 * NUM_CLASSES;
 #endif
-		int itemY = 246 + (176 - vecSelDlgListItems.size() * itemH) / 2;
-		SDL_Rect rect2 = { PANEL_LEFT + 264, (UI_OFFSET_Y + itemY), 320, itemH };
-		vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
+		//assert(vecSelDlgListItems.size() == NUM_CLASSES);
+		int itemY = 246 + (176 - listH) / 2;
+		SDL_Rect rect2 = { PANEL_LEFT + 264, (UI_OFFSET_Y + itemY), 320, listH };
+		vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, NUM_CLASSES, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 429), 140, 35 };
 		vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
@@ -378,8 +379,8 @@ static void SelheroListSelect(unsigned index)
 
 		vecSelDlgListItems.push_back(new UiListItem("Load Game", 0));
 		vecSelDlgListItems.push_back(new UiListItem("New Game", 1));
-		SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 285), 320, 33 };
-		vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
+		SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 285), 320, 33 * 2 };
+		vecSelDlgItems.push_back(new UiList(&vecSelDlgListItems, 2, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
