@@ -175,7 +175,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		WordWrapArtStr(text, 240, AFT_SMALL);
 
 		SDL_Rect rect1 = { PANEL_LEFT + 180, (UI_OFFSET_Y + 168), 280, 144 };
-		gUiItems.push_back(new UiImage(&dialogArt, 0, rect1, 0));
+		gUiItems.push_back(new UiImage(&dialogArt, 0, rect1, 0, false));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 200, (UI_OFFSET_Y + 211), 240, 80 };
 		gUiItems.push_back(new UiArtText(text, rect2, UIS_LEFT | UIS_SMALL | UIS_GOLD));
@@ -187,7 +187,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		WordWrapArtStr(text, 346, AFT_SMALL);
 
 		SDL_Rect rect1 = { PANEL_LEFT + 127, (UI_OFFSET_Y + 100), 385, 280 };
-		gUiItems.push_back(new UiImage(&dialogArt, 0, rect1, 0));
+		gUiItems.push_back(new UiImage(&dialogArt, 0, rect1, 0, false));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 110), 346, 20 };
 		gUiItems.push_back(new UiArtText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));

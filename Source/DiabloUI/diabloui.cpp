@@ -477,9 +477,10 @@ void UiDestroy()
 
 static int GetCenterOffset(int w, int bw)
 {
-	if (bw == 0) {
+	//assert(bw == 0);
+	//if (bw == 0) {
 		bw = SCREEN_WIDTH;
-	}
+	//}
 
 	return (bw - w) / 2;
 }
@@ -504,21 +505,21 @@ void LoadBackgroundArt(const char* pszFile, int frames)
 	RenderPresent();
 }
 
-void UiAddBackground(std::vector<UiItemBase *> *vecDialog)
+void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
 {
 	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
 #ifndef NOWIDESCREEN
 	if (ArtBackgroundWidescreen.surface != NULL) {
-		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, 0, rect, UIS_CENTER));
+		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, 0, rect, UIS_CENTER, false));
 	}
 #endif
-	vecDialog->push_back(new UiImage(&ArtBackground, 0, rect, UIS_CENTER));
+	vecDialog->push_back(new UiImage(&ArtBackground, 0, rect, UIS_CENTER, false));
 }
 
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 {
 	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
-	vecDialog->push_back(new UiImage(&ArtLogoMed, rect));
+	vecDialog->push_back(new UiImage(&ArtLogoMed, 0, rect, UIS_CENTER, true));
 }
 
 void UiFadeIn()

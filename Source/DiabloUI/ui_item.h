@@ -70,20 +70,15 @@ public:
 
 class UiImage : public UiItemBase {
 public:
-	UiImage(Art* art, int frame, SDL_Rect &rect, int flags)
-	    : UiItemBase(UI_IMAGE, rect, flags), m_art(art), m_frame(frame), m_animated(false)
-	{
-	}
-
-	UiImage(Art* art, SDL_Rect &rect)
-	    : UiItemBase(UI_IMAGE, rect, UIS_CENTER), m_art(art), m_frame(0), m_animated(true)
+	UiImage(Art* art, int frame, SDL_Rect &rect, int flags, bool animated)
+	    : UiItemBase(UI_IMAGE, rect, flags), m_art(art), m_frame(frame), m_animated(animated)
 	{
 	}
 
 	~UiImage() = default;
 
 	//private:
-	Art *m_art;
+	Art* m_art;
 	int m_frame;
 	bool m_animated;
 };
