@@ -38,6 +38,7 @@ Data\TextSlid.CEL
 _data\healthbox.pcx
 _data\health.pcx
 _data\resistance.pcx
+_data\xpbar.pcx
 Gendata\Cut2.CEL
 Gendata\Cut2.pal
 Gendata\Cut3.CEL
@@ -50,10 +51,10 @@ Gendata\Cutl1d.CEL
 Gendata\Cutl1d.pal
 Gendata\Cutportl.CEL
 Gendata\Cutportl.pal
-Gendata\Cutportlw.pcx
+_Gendata\Cutportlw.pcx
 Gendata\Cutportr.CEL
 Gendata\Cutportr.pal
-Gendata\Cutportrw.pcx
+_Gendata\Cutportrw.pcx
 Gendata\Cutstart.CEL
 Gendata\Cutstart.pal
 Gendata\Cuttt.CEL
@@ -4284,6 +4285,7 @@ ui_art\selgame.pcx
 ui_art\selhero.pcx
 ui_art\smbutton.pcx
 ui_art\smlogo.pcx
+_ui_art\supportw.pcx
 ui_art\spopup.pcx
 _ui_art\srpopup.pcx
 ui_art\swmmenu.pcx

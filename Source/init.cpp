@@ -194,6 +194,8 @@ void init_archives()
 	diabdat_mpqs[MPQ_HF_VOICE] = init_test_access("hfvoice.mpq");
 	diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq");
 	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
+#endif
+#ifndef NOWIDESCREEN
 	diabdat_mpqs[MPQ_DEVILUTIONX] = init_test_access("devilutionx.mpq");
 #endif
 	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq");

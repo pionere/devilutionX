@@ -508,7 +508,9 @@ endif()
 
 # Copy the font, devilutionx.mpq and devilx.mpq to the build directory to it works from the build directory
 #file(COPY "Packaging/resources/CharisSILB.ttf" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "Packaging/resources/devilutionx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+if(NOT NOWIDESCREEN)
+  file(COPY "Packaging/resources/devilutionx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
 file(COPY "Packaging/resources/devilx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Use file GENERATE instead of configure_file because configure_file
@@ -942,9 +944,11 @@ if(CPACK)
     #install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
     #  DESTINATION "."
     #)
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
-      DESTINATION "."
-    )
+    if(NOT NOWIDESCREEN)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
+        DESTINATION "."
+      )
+    endif()
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
@@ -1075,9 +1079,11 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/nix/README.txt"
       DESTINATION "share/diasurgical/${project_name}"
     )
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
-      DESTINATION "share/diasurgical/${project_name}"
-    )
+    if(NOT NOWIDESCREEN)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
+        DESTINATION "share/diasurgical/${project_name}"
+      )
+    endif()
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "share/diasurgical/${project_name}"
     )

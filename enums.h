@@ -3972,8 +3972,10 @@ typedef enum _artfonts {
 
 typedef enum mpq_files {
 	MPQ_DEVILX,
-#ifdef HELLFIRE
+#ifndef NOWIDESCREEN
 	MPQ_DEVILUTIONX,
+#endif
+#ifdef HELLFIRE
 	MPQ_HF_OPT2,
 	MPQ_HF_OPT1,
 	MPQ_HF_VOICE,
