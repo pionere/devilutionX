@@ -152,8 +152,9 @@ static void LoadFallbackPalette()
 	ApplyGamma(logical_palette, FallbackPalette);
 }*/
 
-static void Init(const char* caption, char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
+static bool Init(const char* caption, char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
 {
+	bool deInitBaseObjs = false;
 	//if (renderBehind == NULL) {
 		UiClearListItems();
 		UiClearItems(gUiItems);
@@ -165,7 +166,12 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		//if (ArtBackground.surface == NULL) {
 		//	//LoadFallbackPalette();
 		//}
-		LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
+		// TODO: add flag to check if the user is in-game? (and merge with the ArtBackground.surface != NULL check above)
+		if (ArtCursor.surface == NULL) {
+			LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
+			LoadArtFonts();
+			deInitBaseObjs = true;
+		}
 	//}
 
 	LoadArt("ui_art\\smbutton.pcx", &ArtSmlButton, 2);
@@ -198,13 +204,17 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		SDL_Rect rect4 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect4));
 	//}
+	return deInitBaseObjs;
 }
 
-static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
+static void Deinit(bool baseDeInit/*const std::vector<UiItemBase*>* renderBehind*/)
 {
 	//if (renderBehind == NULL) {
 		ArtBackground.Unload();
-		ArtCursor.Unload();
+		if (baseDeInit) {
+			ArtCursor.Unload();
+			UnloadArtFonts();
+		}
 	//}
 	dialogArt.Unload();
 	ArtSmlButton.Unload();
@@ -251,13 +261,14 @@ static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 static void UiOkDialog(const char* caption, const char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
 {
 	char dialogText[256];
+	bool baseDeInit;
 
 	if (gbWndActive && gbWasUiInit && !gbInDialog) {
 		gbInDialog = true;
 		SStrCopy(dialogText, text, sizeof(dialogText));
-		Init(caption, dialogText, error/*, renderBehind*/);
+		baseDeInit = Init(caption, dialogText, error/*, renderBehind*/);
 		DialogLoop(/*renderBehind*/);
-		Deinit(/*renderBehind*/);
+		Deinit(baseDeInit/*, renderBehind*/);
 		gbInDialog = false;
 		return;
 	}
