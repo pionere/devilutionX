@@ -10,8 +10,8 @@ if(BINARY_RELEASE OR CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 #additional compilation definitions
-set(TTF_FONT_DIR \"\")
+#set(TTF_FONT_DIR \"\")
 
-file(
-  COPY "${DevilutionX_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
-  DESTINATION "${DevilutionX_SOURCE_DIR}/android-project/app/src/main/assets")
+#file(
+#  COPY "${DevilutionX_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
+#  DESTINATION "${DevilutionX_SOURCE_DIR}/android-project/app/src/main/assets")
