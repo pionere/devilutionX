@@ -9,7 +9,7 @@ using namespace dvl;
 
 namespace {
 
-void WriteDummyFile(const char *name, std::uintmax_t size)
+void WriteDummyFile(const char* name, std::uintmax_t size)
 {
 	std::ofstream test_file(name, std::ios::out | std::ios::trunc | std::ios::binary);
 	ASSERT_FALSE(test_file.fail());
@@ -20,9 +20,9 @@ void WriteDummyFile(const char *name, std::uintmax_t size)
 	}
 }
 
-std::string GetTmpPathName(const char *suffix = ".tmp")
+std::string GetTmpPathName(const char* suffix = ".tmp")
 {
-	const auto *current_test = ::testing::UnitTest::GetInstance()->current_test_info();
+	const auto* current_test = ::testing::UnitTest::GetInstance()->current_test_info();
 	std::string result = "Test_";
 	result.append(current_test->test_case_name());
 	result += '_';
