@@ -3415,33 +3415,34 @@ static BYTE* LoadL2DungeonData(const char* sFileName)
 	return pMap;
 }
 
-void LoadL2Dungeon(const char* sFileName, int vx, int vy)
+void LoadL2Dungeon(const LevelData* lds)
 {
 	BYTE* pMap;
 
-	ViewX = vx;
-	ViewY = vy;
+	ViewX = lds->dSetLvlDunX;
+	ViewY = lds->dSetLvlDunY;
 
-	pMap = LoadL2DungeonData(sFileName);
+	// load pre-dungeon
+	pMap = LoadL2DungeonData(lds->dSetLvlPreDun);
+
+	mem_free_dbg(pMap);
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
+	// load dungeon
+	pMap = LoadL2DungeonData(lds->dSetLvlDun);
 
 	DRLG_L2SetMapFix();
+	// TODO: should be done on (loaded from) pre-dungeon...
 	DRLG_InitTrans();
 	DRLG_FloodTVal(3);
+
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
 	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	SetMapMonsters(pMap, 0, 0);
 	SetMapObjects(pMap);
-
-	mem_free_dbg(pMap);
-}
-
-void LoadPreL2Dungeon(const char* sFileName)
-{
-	BYTE* pMap = LoadL2DungeonData(sFileName);
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	mem_free_dbg(pMap);
 }

@@ -1925,10 +1925,8 @@ void CreateL4Dungeon(int entry)
 	BYTE *pMap;
 	uint16_t rw, rh, *lm;
 
-	//DRLG_InitTrans();
 	pMap = LoadFileInMem(sFileName);
 
-	//memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL4DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L4 + 1, sizeof(dungeon));
 
@@ -1953,30 +1951,31 @@ void CreateL4Dungeon(int entry)
 	return pMap;
 }
 
-static void LoadL4Dungeon(char *sFileName, int vx, int vy)
+void LoadL4Dungeon(const LevelData* lds)
 {
-	BYTE *pMap;
+	BYTE* pMap;
 
-	ViewX = vx;
-	ViewY = vy;
+	ViewX = lds->dSetLvlDunX;
+	ViewY = lds->dSetLvlDunY;
 
-	pMap = LoadL4DungeonData(sFileName);
+	// load pre-dungeon
+	pMap = LoadL4DungeonData(lds->dSetLvlPreDun);
 
+	mem_free_dbg(pMap);
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
+	// load dungeon
+	pMap = LoadL4DungeonData(lds->dSetLvlDun);
+
+	// TODO: should be done on (loaded from) pre-dungeon...
 	DRLG_InitTrans();
+
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
 
 	SetMapMonsters(pMap, 0, 0);
 	SetMapObjects(pMap);
-
-	mem_free_dbg(pMap);
-}
-
-static void LoadPreL4Dungeon(char *sFileName)
-{
-	BYTE *pMap = LoadL4DungeonData(sFileName);
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	mem_free_dbg(pMap);
 }*/

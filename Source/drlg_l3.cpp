@@ -2407,19 +2407,18 @@ void CreateL3Dungeon(int entry)
 	DRLG_SetPC();
 }
 
-static BYTE *LoadL3DungeonData(const char *sFileName)
+static BYTE* LoadL3DungeonData(const char* sFileName)
 {
 	int i, j;
 	BYTE* pMap;
 	uint16_t rw, rh, *lm;
 
-	//DRLG_InitTrans();
 	pMap = LoadFileInMem(sFileName);
 
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L3 + 1, sizeof(dungeon));
 
-	lm = (uint16_t *)pMap;
+	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);
@@ -2439,17 +2438,27 @@ static BYTE *LoadL3DungeonData(const char *sFileName)
 	return pMap;
 }
 
-void LoadL3Dungeon(const char *sFileName, int vx, int vy)
+void LoadL3Dungeon(const LevelData* lds)
 {
-	BYTE *pMap;
+	BYTE* pMap;
 
-	ViewX = vx;
-	ViewY = vy;
+	ViewX = lds->dSetLvlDunX;
+	ViewY = lds->dSetLvlDunY;
 
-	pMap = LoadL3DungeonData(sFileName);
+	// load pre-dungeon
+	pMap = LoadL3DungeonData(lds->dSetLvlPreDun);
 
+	mem_free_dbg(pMap);
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
+	// load dungeon
+	pMap = LoadL3DungeonData(lds->dSetLvlDun);
+
+	// TODO: should be done on (loaded from) pre-dungeon...
 	DRLG_InitTrans();
 	DRLG_L3FloodTVal();
+
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
 
@@ -2457,15 +2466,6 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 	SetMapObjects(pMap);
 
 	DRLG_L3LightTiles();
-
-	mem_free_dbg(pMap);
-}
-
-void LoadPreL3Dungeon(const char *sFileName)
-{
-	BYTE *pMap = LoadL3DungeonData(sFileName);
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	mem_free_dbg(pMap);
 }

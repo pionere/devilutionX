@@ -9,6 +9,7 @@ Data\SpellBkB.CEL
 Data\Quest.CEL
 Levels\L1Data\Butcher.DUN
 Levels\L1Data\L1.TMI
+Levels\L1Data\SklKng1.DUN
 Levels\L2Data\L2.TMI
 Levels\L3Data\Anvil.DUN
 Levels\L3Data\L3.TMI

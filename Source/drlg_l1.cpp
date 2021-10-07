@@ -934,16 +934,43 @@ static void DRLG_InitL5Specials()
 }
 #endif
 
+static void SetMapTrans(BYTE* pMap)
+{
+	int i, j;
+	BYTE tv;
+	uint16_t rw, rh, *lm;
+
+	lm = (uint16_t*)pMap;
+	rw = SwapLE16(*lm);
+	lm++;
+	rh = SwapLE16(*lm);
+	lm++;
+	lm += rw * rh; // skip dun
+	rw <<= 1;
+	rh <<= 1;
+	lm += 3 * rw * rh; // skip items?, monsters, objects
+
+	rw += DBORDERX;
+	rh += DBORDERY;
+	for (j = DBORDERY; j < rh; j++) {
+		for (i = DBORDERX; i < rw; i++) {
+			tv = SwapLE16(*lm);
+			dTransVal[i][j] = tv;
+			if (tv >= numtrans)
+				numtrans = tv + 1;
+			lm++;
+		}
+	}
+}
+
 static BYTE* LoadL1DungeonData(const char* sFileName)
 {
 	int i, j;
 	BYTE* pMap;
 	uint16_t rw, rh, *lm;
 
-	//DRLG_InitTrans();
 	pMap = LoadFileInMem(sFileName);
 
-	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
 
@@ -966,36 +993,42 @@ static BYTE* LoadL1DungeonData(const char* sFileName)
 		}
 	}
 
-	DRLG_L1Floor();
 	return pMap;
 }
 
-void LoadL1Dungeon(const char* sFileName, int vx, int vy)
+void LoadL1Dungeon(const LevelData* lds)
 {
 	BYTE* pMap;
 
-	ViewX = vx;
-	ViewY = vy;
+	ViewX = lds->dSetLvlDunX;
+	ViewY = lds->dSetLvlDunY;
 
-	pMap = LoadL1DungeonData(sFileName);
-
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
+	// load pre-dungeon
+	pMap = LoadL1DungeonData(lds->dSetLvlPreDun);
 
 	DRLG_InitTrans();
+	//DRLG_FloodTVal(13);
+	SetMapTrans(pMap);
+
+	mem_free_dbg(pMap);
+
+	memset(drlgFlags, 0, sizeof(drlgFlags));
+	DRLG_L1Floor();
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
+	// load dungeon
+	pMap = LoadL1DungeonData(lds->dSetLvlDun);
+
+	DRLG_L1Floor();
+
 	DRLG_Init_Globals();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
 	// assert(currLvl._dType == DTYPE_CATHEDRAL);
 	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	SetMapMonsters(pMap, 0, 0);
 	SetMapObjects(pMap);
-	mem_free_dbg(pMap);
-}
-
-void LoadPreL1Dungeon(const char* sFileName)
-{
-	BYTE* pMap = LoadL1DungeonData(sFileName);
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	mem_free_dbg(pMap);
 }

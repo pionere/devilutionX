@@ -8,34 +8,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 // BUGFIX: constant data should be const
-const BYTE SkelKingTrans1[] = {
-	DBORDERX + 3, DBORDERY + 31, DBORDERX + 10, DBORDERY + 39,
-	DBORDERX + 10, DBORDERY + 33, DBORDERX + 14, DBORDERY + 37
-};
-
-const BYTE SkelKingTrans2[] = {
-	DBORDERX + 17, DBORDERY + 3, DBORDERX + 31, DBORDERY + 13,
-	DBORDERX + 21, DBORDERY + 13, DBORDERX + 27, DBORDERY + 23
-};
-
-const BYTE SkelKingTrans3[] = {
-	DBORDERX + 11, DBORDERY + 37, DBORDERX + 19, DBORDERY + 45,
-	DBORDERX + 11, DBORDERY + 19, DBORDERX + 18, DBORDERY + 26,
-	DBORDERX + 29, DBORDERY + 19, DBORDERX + 37, DBORDERY + 27,
-	DBORDERX + 29, DBORDERY + 37, DBORDERX + 37, DBORDERY + 45,
-	DBORDERX + 15, DBORDERY + 23, DBORDERX + 33, DBORDERY + 41
-};
-
-const BYTE SkelKingTrans4[] = {
-	DBORDERX + 33, DBORDERY + 29, DBORDERX + 42, DBORDERY + 35,
-	DBORDERX + 41, DBORDERY + 15, DBORDERX + 46, DBORDERY + 21,
-	DBORDERX + 47, DBORDERY + 15, DBORDERX + 53, DBORDERY + 24,
-	DBORDERX + 43, DBORDERY + 25, DBORDERX + 57, DBORDERY + 39,
-	DBORDERX + 47, DBORDERY + 39, DBORDERX + 53, DBORDERY + 49,
-	DBORDERX + 57, DBORDERY + 29, DBORDERX + 62, DBORDERY + 35,
-	DBORDERX + 63, DBORDERY + 27, DBORDERX + 73, DBORDERY + 37
-};
-
 const BYTE SkelChamTrans1[] = {
 	DBORDERX + 27, DBORDERY + 3, DBORDERX + 34, DBORDERY + 10,
 	DBORDERX + 35, DBORDERY + 3, DBORDERX + 43, DBORDERY + 10,
@@ -116,84 +88,52 @@ static void AddVileObjs()
 	SetObjMapRange(ObjIndex(DBORDERX + 79, DBORDERY + 51), ?, ?, ?, ?, ?);
 }*/
 
-static void DRLG_SetMapTrans(const char *sFileName)
-{
-	int i, j;
-	BYTE *pMap;
-	uint16_t rw, rh, *lm;
-
-	pMap = LoadFileInMem(sFileName);
-	lm = (uint16_t *)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
-	lm += rw * rh; // skip dun
-	rw <<= 1;
-	rh <<= 1;
-	lm += 3 * rw * rh; // skip items?, monsters, objects
-
-	rw += DBORDERX;
-	rh += DBORDERY;
-	for (j = DBORDERY; j < rh; j++) {
-		for (i = DBORDERX; i < rw; i++) {
-			dTransVal[i][j] = SwapLE16(*lm);
-			lm++;
-		}
-	}
-	mem_free_dbg(pMap);
-}
-
 void LoadSetMap()
 {
-	const LevelData *lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+
+	switch (lds->dDunType) {
+	case DTYPE_CATHEDRAL:
+		LoadL1Dungeon(lds);
+		// gbInitObjFlag = true;
+		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
+		break;
+	case DTYPE_CATACOMBS:
+		LoadL2Dungeon(lds);
+		// gbInitObjFlag = true;
+		AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
+		break;
+	case DTYPE_CAVES:
+		LoadL3Dungeon(lds);
+		break;
+	//case DTYPE_HELL:
+	//	LoadL4Dungeon(lds);
+	//	break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
 
 	switch (currLvl._dLevelIdx) {
 	case SL_SKELKING:
-		LoadPreL1Dungeon(lds->dSetLvlPreDun);
-		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
-		DRLG_AreaTrans(sizeof(SkelKingTrans1) / 4, &SkelKingTrans1[0]);
-		DRLG_ListTrans(sizeof(SkelKingTrans2) / 4, &SkelKingTrans2[0]);
-		DRLG_AreaTrans(sizeof(SkelKingTrans3) / 4, &SkelKingTrans3[0]);
-		DRLG_ListTrans(sizeof(SkelKingTrans4) / 4, &SkelKingTrans4[0]);
-		// gbInitObjFlag = true;
-		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddSKingObjs();
 		// gbInitObjFlag = false;
 		break;
 	case SL_BONECHAMB:
-		LoadPreL2Dungeon(lds->dSetLvlPreDun);
-		LoadL2Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
+		numtrans = 1;
 		DRLG_ListTrans(sizeof(SkelChamTrans1) / 4, &SkelChamTrans1[0]);
 		DRLG_AreaTrans(sizeof(SkelChamTrans2) / 4, &SkelChamTrans2[0]);
 		DRLG_ListTrans(sizeof(SkelChamTrans3) / 4, &SkelChamTrans3[0]);
-		// gbInitObjFlag = true;
-		AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddSChamObjs();
 		// gbInitObjFlag = false;
 		break;
 	/*case SL_MAZE:
-		LoadPreL1Dungeon(lds->dSetLvlPreDun);
-		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
-		// gbInitObjFlag = true;
-		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
-		// gbInitObjFlag = false;
-		DRLG_SetMapTrans(lds->dSetLvlPreDun);
 		break;*/
 	case SL_POISONWATER:
-		LoadPreL3Dungeon(lds->dSetLvlPreDun);
-		LoadL3Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
-		if (quests[Q_PWATER]._qactive == QUEST_INIT)
-			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 		break;
 	case SL_VILEBETRAYER:
-		LoadPreL1Dungeon(lds->dSetLvlPreDun);
-		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
-		// gbInitObjFlag = true;
-		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddVileObjs();
 		// gbInitObjFlag = false;
-		DRLG_SetMapTrans(lds->dSetLvlPreDun);
 		break;
 	default:
 		ASSUME_UNREACHABLE

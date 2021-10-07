@@ -12,9 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+void LoadL3Dungeon(const LevelData* lds);
 void CreateL3Dungeon(int entry);
-void LoadL3Dungeon(const char *sFileName, int vx, int vy);
-void LoadPreL3Dungeon(const char *sFileName);
 
 #ifdef __cplusplus
 }
