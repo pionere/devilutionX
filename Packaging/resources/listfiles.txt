@@ -51,12 +51,13 @@ Gendata\Cutl1d.CEL
 Gendata\Cutl1d.pal
 Gendata\Cutportl.CEL
 Gendata\Cutportl.pal
-_Gendata\Cutportlw.pcx
+Gendata\Cutportlw.pcx
 Gendata\Cutportr.CEL
 Gendata\Cutportr.pal
 _Gendata\Cutportrw.pcx
 Gendata\Cutstart.CEL
 Gendata\Cutstart.pal
+Gendata\\Cutstartw.pcx
 Gendata\Cuttt.CEL
 Gendata\Cuttt.pal
 gendata\Diabend.smk
