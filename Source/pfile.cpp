@@ -20,8 +20,8 @@ unsigned mySaveIdx;
 bool gbValidSaveFile;
 static Uint32 guNextSaveTc;
 
-static const char *PASSWORD_SINGLE = "xrgyrkj1";
-static const char *PASSWORD_MULTI = "szqnlsk1";
+static const char* PASSWORD_SINGLE = "xrgyrkj1";
+static const char* PASSWORD_MULTI = "szqnlsk1";
 
 #ifdef HELLFIRE
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.hsv"
@@ -43,11 +43,11 @@ static std::string GetSavePath(unsigned save_num)
 	return path;
 }
 
-static bool pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
+static bool pfile_read_hero(HANDLE archive, PkPlayerStruct* pPack)
 {
 	HANDLE file;
 	DWORD dwlen;
-	BYTE *buf;
+	BYTE* buf;
 
 	if (!SFileOpenFileEx(archive, SAVEFILE_HERO, SFILE_OPEN_FROM_MPQ, &file)) {
 		return false;
@@ -73,14 +73,14 @@ static bool pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 	}
 }
 
-static void pfile_encode_hero(const PkPlayerStruct *pPack)
+static void pfile_encode_hero(const PkPlayerStruct* pPack)
 {
-	BYTE *packed;
+	BYTE* packed;
 	DWORD packed_len;
 	const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 	packed_len = codec_get_encoded_len(sizeof(*pPack));
-	packed = (BYTE *)DiabloAllocPtr(packed_len);
+	packed = (BYTE*)DiabloAllocPtr(packed_len);
 	memcpy(packed, pPack, sizeof(*pPack));
 	codec_encode(packed, sizeof(*pPack), packed_len, password);
 	mpqapi_write_file(SAVEFILE_HERO, packed, packed_len);
@@ -196,7 +196,7 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 	}
 }
 
-/*void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats)
+/*void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats* class_stats)
 {
 	class_stats->dsStrength = StrengthTbl[player_class_nr];
 	class_stats->dsMagic = MagicTbl[player_class_nr];
@@ -236,7 +236,7 @@ int pfile_ui_create_save(_uiheroinfo* heroinfo)
 
 static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
 {
-	const char *fmt;
+	const char* fmt;
 
 	static_assert(NUM_LEVELS < 100, "PermSaveNames are too short to fit the number of levels.");
 	if (dwIndex < NUM_STDLVLS)
@@ -253,7 +253,7 @@ static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
 
 static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
 {
-	const char *fmt;
+	const char* fmt;
 
 	static_assert(NUM_LEVELS < 100, "TempSaveNames are too short to fit the number of levels.");
 	if (dwIndex < NUM_STDLVLS)
@@ -370,7 +370,7 @@ void pfile_rename_temp_to_perm()
 	pfile_flush(true);
 }
 
-void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD qwLen)
+void pfile_write_save_file(const char* pszName, BYTE* pbData, DWORD dwLen, DWORD qwLen)
 {
 	{
 		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
@@ -383,7 +383,7 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 	pfile_flush(true);
 }
 
-void pfile_delete_save_file(const char *pszName)
+void pfile_delete_save_file(const char* pszName)
 {
 	if (!pfile_open_archive())
 		app_fatal("Unable to open file archive");
@@ -391,11 +391,11 @@ void pfile_delete_save_file(const char *pszName)
 	pfile_flush(true);
 }
 
-BYTE *pfile_read(const char *pszName)
+BYTE* pfile_read(const char* pszName)
 {
 	DWORD nread, len;
 	HANDLE archive, save;
-	BYTE *buf;
+	BYTE* buf;
 
 	archive = pfile_open_save_archive(mySaveIdx);
 	if (archive == NULL)

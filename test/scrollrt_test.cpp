@@ -58,7 +58,6 @@ TEST(Scrool_rt, calc_tiles_in_view_640_512)
 	EXPECT_EQ(rows, 12);
 }
 
-
 TEST(Scrool_rt, calc_tiles_in_view_768_480_zoom)
 {
 	screenWidth = 768;

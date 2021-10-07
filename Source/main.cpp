@@ -16,16 +16,16 @@
 #include "all.h"
 
 #if !defined(__APPLE__)
-extern "C" const char *__asan_default_options() // NOLINT(bugprone-reserved-identifier, readability-identifier-naming)
+extern "C" const char* __asan_default_options() // NOLINT(bugprone-reserved-identifier, readability-identifier-naming)
 {
 	return "halt_on_error=0";
 }
 #endif
 
 #ifdef __ANDROID__
-int SDL_main(int argc, char **argv)
+int SDL_main(int argc, char** argv)
 #else
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 #endif
 {
 #ifdef RUN_TESTS

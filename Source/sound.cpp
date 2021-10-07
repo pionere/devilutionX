@@ -18,7 +18,7 @@ bool gbMusicOn = false;
 
 #ifndef NOSOUND
 /** Mix_Music entity of the background music */
-Mix_Music *_gMusic;
+Mix_Music* _gMusic;
 
 /** The volume of the sound channel. */
 int _gnSoundVolume;
@@ -27,7 +27,7 @@ int _gnMusicVolume;
 /** Specifies the active background music track id. */
 int _gnMusicTrack = NUM_MUSIC;
 /** Maps from track ID to track name. */
-const char *const sgszMusicTracks[NUM_MUSIC] = {
+const char* const sgszMusicTracks[NUM_MUSIC] = {
 	"Music\\DTowne.wav",
 	"Music\\DLvlA.wav",
 	"Music\\DLvlB.wav",
@@ -40,7 +40,7 @@ const char *const sgszMusicTracks[NUM_MUSIC] = {
 	"Music\\Dintro.wav",
 };
 
-static void snd_get_volume(const char *value_name, int *value)
+static void snd_get_volume(const char* value_name, int* value)
 {
 	int v;
 
@@ -58,7 +58,7 @@ static void snd_get_volume(const char *value_name, int *value)
 	*value = v;
 }
 
-bool snd_playing(TSnd *pSnd)
+bool snd_playing(TSnd* pSnd)
 {
 	if (pSnd == NULL)
 		return false;
@@ -66,7 +66,7 @@ bool snd_playing(TSnd *pSnd)
 	return pSnd->DSB->IsPlaying();
 }
 
-void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
+void snd_play_snd(TSnd* pSnd, int lVolume, int lPan)
 {
 	Uint32 currTc;
 
@@ -88,16 +88,16 @@ void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
 	pSnd->DSB->Play(lVolume, lPan);
 }
 
-TSnd *sound_file_load(const char *path)
+TSnd* sound_file_load(const char* path)
 {
 	HANDLE file;
-	BYTE *wave_file;
-	TSnd *pSnd;
+	BYTE* wave_file;
+	TSnd* pSnd;
 	DWORD dwBytes;
 	int error;
 
 	file = SFileOpenFile(path);
-	pSnd = (TSnd *)DiabloAllocPtr(sizeof(TSnd));
+	pSnd = (TSnd*)DiabloAllocPtr(sizeof(TSnd));
 	memset(pSnd, 0, sizeof(TSnd));
 	pSnd->nextTc = 0;
 
@@ -116,7 +116,7 @@ TSnd *sound_file_load(const char *path)
 	return pSnd;
 }
 
-void sound_file_cleanup(TSnd *sound_file)
+void sound_file_cleanup(TSnd* sound_file)
 {
 	if (sound_file != NULL) {
 		assert(sound_file->DSB != NULL);
@@ -162,10 +162,10 @@ void music_start(int nTrack)
 		HANDLE hMusic = SFileOpenFile(sgszMusicTracks[nTrack]);
 		if (hMusic != NULL) {
 			DWORD bytestoread = SFileGetFileSize(hMusic);
-			BYTE *_gMusicBuffer = DiabloAllocPtr(bytestoread);
+			BYTE* _gMusicBuffer = DiabloAllocPtr(bytestoread);
 			SFileReadFile(hMusic, _gMusicBuffer, bytestoread, NULL);
 
-			SDL_RWops *musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
+			SDL_RWops* musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
 			if (musicRw == NULL) {
 				sdl_fatal(ERR_SDL_MUSIC_FILE);
 			}

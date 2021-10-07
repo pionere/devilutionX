@@ -14,11 +14,11 @@ static int gnCurNodes;
 /** Container for reconstructing the path after the A* search is done. */
 static char reversePathDirs[MAX_PATH_LENGTH];
 /** A linked list of all visited nodes. */
-static PATHNODE *pathVisitedNodes;
+static PATHNODE* pathVisitedNodes;
 /** A stack for recursively update nodes. */
-static PATHNODE *pathUpdateStack[MAXPATHNODES];
+static PATHNODE* pathUpdateStack[MAXPATHNODES];
 /** A linked list of the A* frontier, sorted by distance. */
-static PATHNODE *pathFrontNodes;
+static PATHNODE* pathFrontNodes;
 /** The target location. */
 static int gnTx, gnTy;
 
@@ -41,9 +41,9 @@ char path_directions[9] = { DIR_N, DIR_NE, DIR_E, DIR_NW, DIR_NONE, DIR_SE, DIR_
 /**
  * @brief return a node for (dx,dy) on the frontier, or NULL if not found
  */
-static PATHNODE *PathFrontNodeAt(int dx, int dy)
+static PATHNODE* PathFrontNodeAt(int dx, int dy)
 {
-	PATHNODE *result = pathFrontNodes->NextNode;
+	PATHNODE* result = pathFrontNodes->NextNode;
 
 	while (result != NULL) {
 		if (result->x == dx && result->y == dy)
@@ -56,9 +56,9 @@ static PATHNODE *PathFrontNodeAt(int dx, int dy)
 /**
  * @brief return a node for (dx,dy) if it was visited, or NULL if not found
  */
-static PATHNODE *PathVisitedNodeAt(int dx, int dy)
+static PATHNODE* PathVisitedNodeAt(int dx, int dy)
 {
-	PATHNODE *result = pathVisitedNodes->NextNode;
+	PATHNODE* result = pathVisitedNodes->NextNode;
 
 	while (result != NULL) {
 		if (result->x == dx && result->y == dy)
@@ -71,7 +71,7 @@ static PATHNODE *PathVisitedNodeAt(int dx, int dy)
 /**
  * @brief insert pPath into the frontier (keeping the frontier sorted by total distance)
  */
-static void PathAddNode(PATHNODE *pPath)
+static void PathAddNode(PATHNODE* pPath)
 {
 	PATHNODE *next, *current;
 	BYTE currCost;
@@ -102,10 +102,10 @@ static inline int PathStepCost(int sx, int sy, int dx, int dy)
 /**
  * @brief update all path costs using depth-first search starting at pPath
  */
-static void PathUpdateCosts(PATHNODE *pPath)
+static void PathUpdateCosts(PATHNODE* pPath)
 {
-	PATHNODE *PathOld;
-	PATHNODE *PathAct;
+	PATHNODE* PathOld;
+	PATHNODE* PathAct;
 	int updateStackSize;
 	BYTE i, newWalkCost;
 
@@ -134,9 +134,9 @@ static void PathUpdateCosts(PATHNODE *pPath)
 /**
  * @brief zero one of the preallocated nodes and return a pointer to it, or NULL if none are available
  */
-static PATHNODE *path_new_step()
+static PATHNODE* path_new_step()
 {
-	PATHNODE *new_node;
+	PATHNODE* new_node;
 
 	if (gnCurNodes == MAXPATHNODES)
 		return NULL;
@@ -159,7 +159,7 @@ static int PathRemainingCost(int x, int y)
 	return 2 * (delta_x + delta_y);
 }
 
-static inline void PathAppendChild(PATHNODE *parent, PATHNODE* child)
+static inline void PathAppendChild(PATHNODE* parent, PATHNODE* child)
 {
 	int i;
 
@@ -176,10 +176,10 @@ static inline void PathAppendChild(PATHNODE *parent, PATHNODE* child)
  *
  * @return true if step successfully added, false if we ran out of nodes to use
  */
-static bool path_parent_path(PATHNODE *pPath, int dx, int dy)
+static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 {
 	BYTE nextWalkCost;
-	PATHNODE *dxdy;
+	PATHNODE* dxdy;
 
 	nextWalkCost = pPath->walkCost + PathStepCost(pPath->x, pPath->y, dx, dy);
 
@@ -231,7 +231,7 @@ static bool path_parent_path(PATHNODE *pPath, int dx, int dy)
  *
  * @return FALSE if we ran out of preallocated nodes to use, else TRUE
  */
-static bool path_get_path(bool (*PosOk)(int, int, int), int PosOkArg, PATHNODE *pPath)
+static bool path_get_path(bool (*PosOk)(int, int, int), int PosOkArg, PATHNODE* pPath)
 {
 	int dx, dy;
 	int i;
@@ -254,9 +254,9 @@ static bool path_get_path(bool (*PosOk)(int, int, int), int PosOkArg, PATHNODE *
 /**
  * @brief get the next node on the A* frontier to explore (estimated to be closest to the goal), mark it as visited, and return it
  */
-static PATHNODE *PathPopNode()
+static PATHNODE* PathPopNode()
 {
-	PATHNODE *result;
+	PATHNODE* result;
 
 	result = pathFrontNodes->NextNode;
 	if (result != NULL) {
@@ -273,9 +273,9 @@ static PATHNODE *PathPopNode()
  * path_directions) in path, which must have room for MAX_PATH_LENGTH steps
  * @return the length of the path
  */
-int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, char *path)
+int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, char* path)
 {
-	PATHNODE *currNode;
+	PATHNODE* currNode;
 	int path_length, i;
 
 	// clear all nodes, create root nodes for the visited/frontier linked lists

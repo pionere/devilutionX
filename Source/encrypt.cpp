@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /*DWORD hashtable[5][256];
 
-void Decrypt(DWORD *castBlock, DWORD size, DWORD key)
+void Decrypt(DWORD* castBlock, DWORD size, DWORD key)
 {
 	DWORD seed, i;
 
@@ -26,7 +26,7 @@ void Decrypt(DWORD *castBlock, DWORD size, DWORD key)
 	}
 }
 
-void Encrypt(DWORD *castBlock, DWORD size, DWORD key)
+void Encrypt(DWORD* castBlock, DWORD size, DWORD key)
 {
 	DWORD seed, i, ch;
 
@@ -42,7 +42,7 @@ void Encrypt(DWORD *castBlock, DWORD size, DWORD key)
 	}
 }
 
-DWORD Hash(const char *s, int type)
+DWORD Hash(const char* s, int type)
 {
 	char ch;
 	DWORD seed1, seed2;
@@ -75,12 +75,12 @@ void InitHash()
 	}
 }*/
 
-static unsigned int PkwareBufferRead(char *buf, unsigned int *size, void *param)
+static unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param)
 {
-	TDataInfo *pInfo;
+	TDataInfo* pInfo;
 	DWORD sSize;
 
-	pInfo = (TDataInfo *)param;
+	pInfo = (TDataInfo*)param;
 
 	sSize = pInfo->size - pInfo->srcOffset;
 	if (*size < sSize)
@@ -92,30 +92,30 @@ static unsigned int PkwareBufferRead(char *buf, unsigned int *size, void *param)
 	return sSize;
 }
 
-static void PkwareBufferWrite(char *buf, unsigned int *size, void *param)
+static void PkwareBufferWrite(char* buf, unsigned int* size, void* param)
 {
-	TDataInfo *pInfo;
+	TDataInfo* pInfo;
 
-	pInfo = (TDataInfo *)param;
+	pInfo = (TDataInfo*)param;
 
 	memcpy(pInfo->destData + pInfo->destOffset, buf, *size);
 	pInfo->destOffset += *size;
 }
 
-DWORD PkwareCompress(BYTE *srcData, DWORD size)
+DWORD PkwareCompress(BYTE* srcData, DWORD size)
 {
-	BYTE *destData;
-	char *ptr;
+	BYTE* destData;
+	char* ptr;
 	unsigned int destSize, type, dsize;
 	TDataInfo param;
 
-	ptr = (char *)DiabloAllocPtr(CMP_BUFFER_SIZE);
+	ptr = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
 
 	destSize = 2 * size;
 	if (destSize < 2 * CMP_IMPLODE_DICT_SIZE3)
 		destSize = 2 * CMP_IMPLODE_DICT_SIZE3;
 
-	destData = (BYTE *)DiabloAllocPtr(destSize);
+	destData = (BYTE*)DiabloAllocPtr(destSize);
 
 	param.srcData = srcData;
 	param.srcOffset = 0;
@@ -138,13 +138,13 @@ DWORD PkwareCompress(BYTE *srcData, DWORD size)
 	return size;
 }
 
-void PkwareDecompress(BYTE *pbInBuff, int recv_size, int dwMaxBytes)
+void PkwareDecompress(BYTE* pbInBuff, int recv_size, int dwMaxBytes)
 {
-	char *ptr;
-	BYTE *pbOutBuff;
+	char* ptr;
+	BYTE* pbOutBuff;
 	TDataInfo info;
 
-	ptr = (char *)DiabloAllocPtr(CMP_BUFFER_SIZE);
+	ptr = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
 	pbOutBuff = DiabloAllocPtr(dwMaxBytes);
 
 	info.srcData = pbInBuff;

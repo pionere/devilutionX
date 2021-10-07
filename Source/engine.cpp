@@ -138,12 +138,12 @@ int random_(BYTE idx, int v)
  * @brief Multithreaded safe malloc
  * @param dwBytes Byte size to allocate
  */
-BYTE *DiabloAllocPtr(size_t dwBytes)
+BYTE* DiabloAllocPtr(size_t dwBytes)
 {
-	BYTE *buf;
+	BYTE* buf;
 
 	sgMemCrit.Enter();
-	buf = (BYTE *)malloc(dwBytes);
+	buf = (BYTE*)malloc(dwBytes);
 	sgMemCrit.Leave();
 
 	if (buf == NULL)
@@ -156,7 +156,7 @@ BYTE *DiabloAllocPtr(size_t dwBytes)
  * @brief Multithreaded safe memfree
  * @param p Memory pointer to free
  */
-void mem_free_dbg(void *p)
+void mem_free_dbg(void* p)
 {
 	if (p != NULL) {
 		sgMemCrit.Enter();
@@ -171,10 +171,10 @@ void mem_free_dbg(void *p)
  * @param pdwFileLen Will be set to file size if non-NULL
  * @return Buffer with content of file
  */
-BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen)
+BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen)
 {
 	HANDLE file;
-	BYTE *buf;
+	BYTE* buf;
 	size_t fileLen;
 
 	file = SFileOpenFile(pszName);
@@ -186,7 +186,7 @@ BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen)
 	if (fileLen == 0)
 		app_fatal("Zero length SFILE:\n%s", pszName);
 
-	buf = (BYTE *)DiabloAllocPtr(fileLen);
+	buf = (BYTE*)DiabloAllocPtr(fileLen);
 
 	SFileReadFile(file, buf, fileLen, NULL);
 	SFileCloseFile(file);
@@ -199,7 +199,7 @@ BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen)
  * @param pszName Path of file
  * @param p Target buffer
  */
-void LoadFileWithMem(const char *pszName, BYTE *p)
+void LoadFileWithMem(const char* pszName, BYTE* p)
 {
 	DWORD dwFileLen;
 	HANDLE hsFile;
@@ -226,7 +226,7 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 	size_t nDataSize;
 	DWORD i, nCelA, nCelB, cData, nData;
 	BYTE *cel, *pBuf;
-	DWORD *pHead;
+	DWORD* pHead;
 
 	nDataSize = nDataSizeA + nDataSizeB - 4 * 2;
 	cel = DiabloAllocPtr(nDataSize);
@@ -269,7 +269,7 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
  * @brief Fade to black and play a video
  * @param pszMovie file path of movie
  */
-void PlayInGameMovie(const char *pszMovie)
+void PlayInGameMovie(const char* pszMovie)
 {
 	PaletteFadeOut();
 	play_movie(pszMovie, 0);

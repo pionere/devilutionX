@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-BYTE *pDoomCel = NULL;
+BYTE* pDoomCel = NULL;
 bool gbDoomflag;
 
 #define DOOM_CELSIZE 0x38000
@@ -69,7 +69,7 @@ void doom_init()
 
 	pDoomCel = DiabloAllocPtr(DOOM_CELSIZE);
 	// assert(pDoomCel != NULL);
-#ifndef  HELLFIRE
+#ifndef HELLFIRE
 	doom_quest_time = doom_get_frame_from_time() == 31 ? 31 : 0;
 #endif
 	doom_load_graphics();

@@ -14,8 +14,8 @@ BYTE stonendx;
 
 void InitDead()
 {
-	MonsterStruct *mon;
-	MapMonData *cmon;
+	MonsterStruct* mon;
+	MapMonData* cmon;
 	int i, d, nd;
 	bool mtypes[NUM_MTYPES];
 
@@ -72,7 +72,7 @@ void InitDead()
 
 void AddDead(int mnum, bool sync)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int dx, dy;
 	BYTE dv;
 
@@ -94,7 +94,7 @@ void AddDead(int mnum, bool sync)
 
 void SyncDeadLight()
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int i;
 	int dx, dy;
 
