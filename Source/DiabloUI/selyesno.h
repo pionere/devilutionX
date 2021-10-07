@@ -4,6 +4,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-bool UiSelHeroYesNoDialog(const char *title, const char *body);
+bool UiSelHeroYesNoDialog(const char* title, const char* body);
 
 DEVILUTION_END_NAMESPACE

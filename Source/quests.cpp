@@ -90,8 +90,8 @@ void FreeQuestGFX()
 
 void InitQuests()
 {
-	QuestStruct *qs;
-	const QuestData *qdata;
+	QuestStruct* qs;
+	const QuestData* qdata;
 	int i;
 
 	qs = quests;
@@ -304,11 +304,11 @@ static void DrawSkelKing()
 static void DrawMap(const char* name, int bv)
 {
 	int x, y, i, j, v;
-	BYTE *pMap;
+	BYTE* pMap;
 	uint16_t rw, rh, *lm;
 
 	pMap = LoadFileInMem(name);
-	lm = (uint16_t *)pMap;
+	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);
@@ -353,11 +353,11 @@ static void DrawSChamber()
 static void DrawPreMap(const char* name)
 {
 	int x, y, i, j;
-	BYTE *pMap;
+	BYTE* pMap;
 	uint16_t rw, rh, *lm;
 
 	pMap = LoadFileInMem(name);
-	lm = (uint16_t *)pMap;
+	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);
@@ -622,7 +622,7 @@ void ResyncQuests()
 #endif
 }
 
-static void PrintQLString(unsigned y, const char *str)
+static void PrintQLString(unsigned y, const char* str)
 {
 	int width, sx, sy, px;
 
@@ -718,7 +718,7 @@ void CheckQuestlog()
 
 void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 {
-	QuestStruct *qs;
+	QuestStruct* qs;
 
 	qs = &quests[qn];
 	if (qs->_qactive != QUEST_DONE) {

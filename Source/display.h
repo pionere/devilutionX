@@ -16,12 +16,12 @@ extern int screenWidth;
 extern int screenHeight;
 extern int viewportHeight;
 
-extern SDL_Window *ghMainWnd;
+extern SDL_Window* ghMainWnd;
 extern SDL_Palette* back_palette;
 extern SDL_Surface* back_surface;
 extern unsigned int back_surface_palette_version;
 
-bool SpawnWindow(const char *lpWindowName);
+bool SpawnWindow(const char* lpWindowName);
 
 #ifdef __cplusplus
 }

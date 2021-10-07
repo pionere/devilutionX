@@ -126,7 +126,7 @@ const int PanBtnPos[NUM_PANBTNS][2] = {
 	{   0, 20 + 8 * MENUBTN_HEIGHT }, // teams button
 	// clang-format on
 };
-const char *PanBtnTxt[NUM_PANBTNS] = {
+const char* PanBtnTxt[NUM_PANBTNS] = {
 	// clang-format off
 	"Menu",
 	"Options",
@@ -750,7 +750,7 @@ static void DrawFlask2(int sx, int filled, int emptyCel, int fullCel, int w)
 	empty = CelGetFrame(pFlasks, emptyCel, &dataSize);
 	full = CelGetFrame(pFlasks, fullCel, &dataSize);
 
-	BYTE *dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	BYTE* dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 	for ( ; filled-- != 0; dst -= BUFFER_WIDTH + w) {
 		for (i = w; i != 0; ) {
 			width = *full++;
@@ -1127,7 +1127,7 @@ void FreeControlPan()
 
 void DrawChr()
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	BYTE col;
 	char chrstr[64];
 	int pc, val, mindam, maxdam;
@@ -1447,7 +1447,7 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 
 static void DrawHealthBar(int hp, int maxhp, int x, int y)
 {
-	BYTE *dst;
+	BYTE* dst;
 	const int height = 4, width = 66;
 	int h, dhp, w, dw;
 
@@ -1485,7 +1485,7 @@ static void DrawTrigInfo()
 
 	if (pcurstrig >= MAXTRIGGERS + 1) {
 		// portal
-		MissileStruct *mis = &missile[pcurstrig - (MAXTRIGGERS + 1)];
+		MissileStruct* mis = &missile[pcurstrig - (MAXTRIGGERS + 1)];
 		if (mis->_miType == MIS_TOWN) {
 			copy_cstr(infostr, "Town Portal");
 			snprintf(tempstr, sizeof(tempstr), "(%s)", players[mis->_miSource]._pName);
@@ -1836,7 +1836,7 @@ void DrawDurIcon()
 
 static char GetSBookTrans(int sn)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	char st;
 
 	p = &myplr;
