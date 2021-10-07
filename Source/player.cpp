@@ -1878,7 +1878,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		break;
 	case DVL_DWM_TWARPUP:
 		if (pnum == mypnum) {
-			assert(currLvl._dType > 1);
+			assert(currLvl._dType >= 1);
 			static_assert((int)TWARP_CATHEDRAL == (int)DTYPE_CATHEDRAL - 1, "Dtype to Warp conversion requires matching enums I.");
 			static_assert((int)TWARP_CATACOMB == (int)DTYPE_CATACOMBS - 1, "Dtype to Warp conversion requires matching enums II.");
 			static_assert((int)TWARP_CAVES == (int)DTYPE_CAVES - 1, "Dtype to Warp conversion requires matching enums III.");

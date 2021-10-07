@@ -11,13 +11,13 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Menu button images CEL */
-BYTE *pPanelButtons;
+BYTE* pPanelButtons;
 /** The number of buttons in the menu. */
 int numpanbtns;
 /** Specifies whether the menu-button is pressed. */
 bool gabPanbtn[NUM_PANBTNS];
 /** Flask images CEL */
-BYTE *pFlasks;
+BYTE* pFlasks;
 /** Specifies how much the life flask is filled (percentage). */
 int gnHPPer;
 /** Specifies how much the mana flask is filled (percentage). */
@@ -29,7 +29,7 @@ BYTE* pSTextBoxCels;
 /** Graphics for the scrollbar of text boxes. */
 BYTE* pSTextSlidCels;
 /** Low-Durability images CEL */
-BYTE *pDurIcons;
+BYTE* pDurIcons;
 
 /** Specifies whether the Team-Panel is displayed. */
 bool gbTeamFlag;
@@ -46,9 +46,9 @@ unsigned guTeamMute;
 /** Specifies whether the Chat-Panel is displayed. */
 bool gbTalkflag;
 /** Chat-Panel background CEL */
-BYTE *pTalkPnl;
+BYTE* pTalkPnl;
 /** Chat-Panel button images CEL */
-BYTE *pTalkBtns;
+BYTE* pTalkBtns;
 /** The current message in the Chat-Panel. */
 char sgszTalkMsg[MAX_SEND_STR_LEN];
 /** The cached messages of the Chat-Panel. */
@@ -60,7 +60,7 @@ BYTE sgbTalkSavePos;
 /** Specifies whether the Golddrop is displayed. */
 bool gbDropGoldFlag;
 /** Golddrop background CEL */
-BYTE *pGBoxBuff;
+BYTE* pGBoxBuff;
 /** The gold-stack index which is used as a source in Golddrop. */
 BYTE initialDropGoldIndex;
 /** The gold-stack size which is used as a source in Golddrop. */
@@ -73,9 +73,9 @@ char infostr[256];
 /**Specifies whether the Spell-Book is displayed. */
 bool gbSbookflag;
 /** SpellBook background CEL */
-BYTE *pSpellBkCel;
+BYTE* pSpellBkCel;
 /** SpellBook icons CEL */
-BYTE *pSBkIconCels;
+BYTE* pSBkIconCels;
 /** The current tab in the Spell-Book. */
 unsigned guBooktab;
 /** Specifies whether the Character-Panel is displayed. */
@@ -85,9 +85,9 @@ bool gbLvlUp;
 /** Specifies whether the LevelUp button is pressed. */
 bool gbLvlbtndown;
 /** Char-Panel background CEL */
-BYTE *pChrPanel;
+BYTE* pChrPanel;
 /** Char-Panel button images CEL */
-BYTE *pChrButtons;
+BYTE* pChrButtons;
 /** Specifies whether the button of the given attribute is pressed on Character-Panel. */
 bool _gabChrbtn[NUM_ATTRIBS];
 /** Specifies whether any attribute-button is pressed on Character-Panel. */
@@ -103,7 +103,7 @@ char lastSt = -1;
 /** Specifies whether the Skill-List is displayed. */
 bool gbSkillListFlag;
 /** Skill-List images CEL */
-BYTE *pSpellCels;
+BYTE* pSpellCels;
 /** The 'highlighted' skill in the Skill-List or in the Spell-Book. */
 BYTE currSkill;
 /** The type of the 'highlighted' skill in the Skill-List or in the Spell-Book. */
@@ -152,6 +152,7 @@ const RECT32 ChrBtnsRect[NUM_ATTRIBS] = {
 /** Maps from spellbook page number and position to spell_id. */
 #define NUM_BOOK_ENTRIES 7
 int SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
+	// clang-format off
 	{ SPL_NULL, SPL_SWIPE, SPL_FIREBOLT, SPL_FIREBALL, SPL_FIREWALL, SPL_WAVE, SPL_INFERNO },
 	{ SPL_POINT_BLANK, SPL_FAR_SHOT, SPL_CBOLT, SPL_LIGHTNING, SPL_FLASH, SPL_NOVA, SPL_CHAIN },
 	{ SPL_HBOLT, SPL_FLARE, SPL_ELEMENTAL, SPL_STONE, SPL_TELEKINESIS, SPL_GOLEM, SPL_GUARDIAN },
@@ -159,6 +160,7 @@ int SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
 #ifdef HELLFIRE
 	{ SPL_FIRERING, SPL_RUNEFIRE, SPL_RUNEWAVE, SPL_RUNELIGHT, SPL_RUNENOVA, SPL_INVALID, SPL_INVALID },
 #endif
+	// clang-format on
 };
 /** Maps from player-class to team-icon id. */
 int ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
@@ -175,7 +177,7 @@ int ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
  * @param nCel Index of the cel frame to draw. 0 based.
  * @param w Width of the frame.
  */
-static void DrawSpellCel(int xp, int yp, BYTE *Trans, int nCel, int w)
+static void DrawSpellCel(int xp, int yp, BYTE* Trans, int nCel, int w)
 {
 	CelDrawLight(xp, yp, Trans, nCel, w, SplTransTbl);
 }
@@ -247,7 +249,7 @@ static void SetSpellTrans(char st)
 
 static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	int t, v;
 
 	switch (st) {
@@ -510,7 +512,7 @@ void DrawSkillList()
  */
 void SetSkill(bool shift, bool altSkill)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	BYTE sn;
 	bool moveskill;
 
@@ -600,7 +602,7 @@ static void SetSkillHotKey(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], i
  */
 void SetSkillHotKey(int slot, bool altSkill)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	int sn = currSkill;
 	bool moveskill;
 
@@ -626,7 +628,7 @@ void SetSkillHotKey(int slot, bool altSkill)
 }
 
 static void SelectHotKeySkill(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], int slot,
-	BYTE *destSkill, BYTE *destSkillType)
+	BYTE* destSkill, BYTE* destSkillType)
 {
 	*destSkill = hotKeyGroup[slot];
 	*destSkillType = hotKeyTypeGroup[slot];
@@ -640,7 +642,7 @@ static void SelectHotKeySkill(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4]
  */
 void SelectHotKeySkill(int slot, bool altSkill)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 
 	p = &myplr;
 	if (!altSkill) {
@@ -686,7 +688,7 @@ void SelectHotKeySkill(int slot, bool altSkill)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-/*static void SetFlaskHeight(BYTE *pCelBuff, int min, int max, int sx, int sy)
+/*static void SetFlaskHeight(BYTE* pCelBuff, int min, int max, int sx, int sy)
 {
 	int nSrcOff, nDstOff, w;
 
@@ -715,7 +717,7 @@ void SelectHotKeySkill(int slot, bool altSkill)
  * @param nDstOff Offset of the target buffer where the bytes will start to be copied to.
  * @param h How many lines of the source buffer that will be copied.
  */
-/*static void DrawFlask(BYTE *pCelBuff, int w, int nSrcOff, int nDstOff, int h)
+/*static void DrawFlask(BYTE* pCelBuff, int w, int nSrcOff, int nDstOff, int h)
 {
 	int wdt, hgt;
 	BYTE *src, *dst;
@@ -1312,10 +1314,10 @@ void DrawLevelUpIcon()
 	CelDraw(SCREEN_X + 175, SCREEN_Y + SCREEN_HEIGHT - 24, pChrButtons, gbLvlbtndown ? 3 : 2, CHRBTN_WIDTH);
 }
 
-static int DrawTooltip2(const char *text1, const char* text2, int x, int y, BYTE col)
+static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE col)
 {
 	int width, result = 0;
-	BYTE *dst;
+	BYTE* dst;
 	const int border = 4, height = 26;
 	int w1 = GetStringWidth(text1);
 	int w2 = GetStringWidth(text2);
@@ -1365,7 +1367,7 @@ static int DrawTooltip2(const char *text1, const char* text2, int x, int y, BYTE
  * @param outx the screen x-coordinate of the tile
  * @param outy the screen y-coordinate of the tile
  */
-static void GetMousePos(int x, int y, int *outx, int *outy)
+static void GetMousePos(int x, int y, int* outx, int* outy)
 {
 	int px, py;
 
@@ -1391,14 +1393,14 @@ static void GetMousePos(int x, int y, int *outx, int *outy)
 	*outy = py;
 }
 
-static BYTE DrawItemColor(ItemStruct *is)
+static BYTE DrawItemColor(ItemStruct* is)
 {
 	if (is->_iMagical == ITEM_QUALITY_NORMAL)
 		return COL_WHITE;
 	return is->_iMagical == ITEM_QUALITY_UNIQUE ? COL_GOLD : COL_BLUE;
 }
 
-static void GetItemInfo(ItemStruct *is)
+static void GetItemInfo(ItemStruct* is)
 {
 	infoclr = DrawItemColor(is);
 	if (is->_itype != ITYPE_GOLD) {
@@ -1411,7 +1413,7 @@ static void GetItemInfo(ItemStruct *is)
 static int DrawTooltip(const char* text, int x, int y, BYTE col)
 {
 	int width, result = 0;
-	BYTE *dst;
+	BYTE* dst;
 	const int border = 4, height = 16;
 
 	width = GetStringWidth(text) + 2 * border;
@@ -1506,9 +1508,9 @@ static void DrawTrigInfo()
 			snprintf(infostr, sizeof(infostr), "Down to %s", AllLevels[currLvl._dLevelIdx + 1].dLevelName);
 			break;
 		case DVL_DWM_PREVLVL:
-			if (currLvl._dLevelIdx == 1)
-				copy_cstr(infostr, "Up to town");
-			else
+			//if (currLvl._dLevelIdx == DLV_CATHEDRAL1)
+			//	copy_cstr(infostr, "Up to town");
+			//else
 				snprintf(infostr, sizeof(infostr), "Up to %s", AllLevels[currLvl._dLevelIdx - 1].dLevelName);
 			break;
 		case DVL_DWM_RTNLVL:
@@ -1783,7 +1785,7 @@ void DrawTextBoxSLine(int x, /*int y,*/ int dy, bool widePanel)
 		memcpy(dst, src, length);
 }
 
-static int DrawDurIcon4Item(ItemStruct *pItem, int x, int c)
+static int DrawDurIcon4Item(ItemStruct* pItem, int x, int c)
 {
 	if (pItem->_itype == ITYPE_NONE)
 		return x;
@@ -1820,7 +1822,7 @@ static int DrawDurIcon4Item(ItemStruct *pItem, int x, int c)
 
 void DrawDurIcon()
 {
-	ItemStruct *inv;
+	ItemStruct* inv;
 	int x;
 
 	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92 + 32);
@@ -1992,14 +1994,9 @@ void SelectBookSkill(bool shift, bool altSkill)
 	}
 }
 
-const char *get_pieces_str(int nGold)
+const char* get_pieces_str(int nGold)
 {
-	const char *result;
-
-	result = "piece";
-	if (nGold != 1)
-		result = "pieces";
-	return result;
+	return nGold != 1 ? "pieces" : "piece";
 }
 
 void DrawGoldSplit(int amount)
@@ -2249,7 +2246,7 @@ void CheckTeamClick(bool shift)
 #define TALK_PNL_BORDER		15
 #define TALK_PNL_TOP		(SCREEN_HEIGHT - 48 - TALK_PNL_HEIGHT)
 #define TALK_PNL_LEFT		((SCREEN_WIDTH - TALK_PNL_WIDTH) / 2)
-static char *control_print_talk_msg(char *msg, int *x, int y)
+static char* control_print_talk_msg(char* msg, int* x, int y)
 {
 	int limit = TALK_PNL_WIDTH - 2 * TALK_PNL_BORDER;
 	BYTE c;
@@ -2271,7 +2268,7 @@ static char *control_print_talk_msg(char *msg, int *x, int y)
 void DrawTalkPan()
 {
 	int x, y;
-	char *msg;
+	char* msg;
 
 	assert(gbTalkflag);
 

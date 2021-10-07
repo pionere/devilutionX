@@ -136,7 +136,7 @@ static void InitL1Triggers()
 			if (dPiece[i][j] == 129) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
+				trigs[numtrigs]._tmsg = currLvl._dLevelIdx == DLV_CATHEDRAL1 ? DVL_DWM_TWARPUP : DVL_DWM_PREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 115) {
 				trigs[numtrigs]._tx = i;
@@ -425,9 +425,9 @@ static int ForceL1Trig()
 {
 	int i;
 	if (L1_UP_WARP) {
-		// Up to level (currLvl._dLevelIdx - 1) / Up to town
 		for (i = 0; i < numtrigs; i++) {
-			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
+			if (trigs[i]._tmsg == DVL_DWM_PREVLVL // Up to level (currLvl._dLevelIdx - 1)
+			 || trigs[i]._tmsg == DVL_DWM_TWARPUP) { // // Up to town
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -597,14 +597,8 @@ static int ForceL5Trig()
 
 	if (L5_UP_WARP) {
 		for (i = 0; i < numtrigs; i++) {
-			// Up to Crypt level (currLvl._dLevelIdx - 21)
-			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
-				return i;
-			}
-			// Up to town
-			if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
+			if (trigs[i]._tmsg == DVL_DWM_PREVLVL // Up to Crypt level (currLvl._dLevelIdx - 21)
+			 || trigs[i]._tmsg == DVL_DWM_TWARPUP) { // // Up to town
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -644,14 +638,8 @@ static int ForceL6Trig()
 	if (L6_UP_WARP
 	 || L6_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
 		for (i = 0; i < numtrigs; i++) {
-			// Up to Nest level (currLvl._dLevelIdx - 17)
-			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
-				return i;
-			}
-			// Up to town
-			if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
+			if (trigs[i]._tmsg == DVL_DWM_PREVLVL // Up to Nest level (currLvl._dLevelIdx - 17)
+			 || trigs[i]._tmsg == DVL_DWM_TWARPUP) { // Up to town
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -851,7 +839,7 @@ void CheckTrigForce()
 
 void CheckTriggers()
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	int i, fom, lvl;
 
 	p = &myplr;

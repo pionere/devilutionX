@@ -16,9 +16,9 @@ DEVILUTION_BEGIN_NAMESPACE
 static void T_FillTile(int xx, int yy, int t)
 {
 	long v1, v2, v3, v4;
-	uint16_t *Tiles;
+	uint16_t* Tiles;
 
-	Tiles = ((uint16_t *)&pMegaTiles[t * 8]);
+	Tiles = ((uint16_t*)&pMegaTiles[t * 8]);
 	v1 = SwapLE16(*(Tiles + 0)) + 1;
 	v2 = SwapLE16(*(Tiles + 1)) + 1;
 	v3 = SwapLE16(*(Tiles + 2)) + 1;
@@ -284,11 +284,15 @@ void CreateTown(int entry)
 		//  or Restart in Town - _px/_py is not set
 		ViewX = myplr._px = 65 + DBORDERX;
 		ViewY = myplr._py = 58 + DBORDERY;
-	} else if (entry == ENTRY_PREV) { // Cathedral
+	/*} else if (entry == ENTRY_PREV) { // Cathedral
 		ViewX = 15 + DBORDERX;
-		ViewY = 21 + DBORDERY;
+		ViewY = 21 + DBORDERY;*/
 	} else if (entry == ENTRY_TWARPUP) {
 		switch (gbTWarpFrom) {
+		case TWARP_CATHEDRAL:
+			ViewX = 15 + DBORDERX;
+			ViewY = 21 + DBORDERY;
+			break;
 		case TWARP_CATACOMB:
 			ViewX = 39 + DBORDERX;
 			ViewY = 12 + DBORDERY;
