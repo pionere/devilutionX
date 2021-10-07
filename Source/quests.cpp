@@ -529,6 +529,7 @@ static void ResyncBanner()
 void ResyncQuests()
 {
 	//int i;
+	BYTE lvl = currLvl._dLevelIdx;
 
 	if (QuestStatus(Q_LTBANNER)) {
 		ResyncBanner();
@@ -556,26 +557,29 @@ void ResyncQuests()
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}*/
 	}
+	// do not activate the quest, otherwise the healer won't give a quest-log entry if visited before the level is cleared
+	//if (lvl == SL_POISONWATER && quests[Q_PWATER]._qactive == QUEST_INIT)
+	//	quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 	if (IsMultiGame) {
 		// TODO: eliminate relative level-indices?
 		//if (quests[Q_SKELKING]._qactive == QUEST_INIT
-		//    && currLvl._dLevelIdx >= questlist[Q_SKELKING]._qdlvl - 1
-		//    && currLvl._dLevelIdx <= questlist[Q_SKELKING]._qdlvl + 1) {
+		//    && lvl >= questlist[Q_SKELKING]._qdlvl - 1
+		//    && lvl <= questlist[Q_SKELKING]._qdlvl + 1) {
 		//	quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 		//	NetSendCmdQuest(Q_SKELKING, false); // recipient should not matter
 		//}
 		//if (quests[Q_BUTCHER]._qactive == QUEST_INIT
-		//	&& currLvl._dLevelIdx >= questlist[Q_BUTCHER]._qdlvl - 1
-		//	&& currLvl._dLevelIdx <= questlist[Q_BUTCHER]._qdlvl + 1) {
+		//	&& lvl >= questlist[Q_BUTCHER]._qdlvl - 1
+		//	&& lvl <= questlist[Q_BUTCHER]._qdlvl + 1) {
 		//	quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
 		//	NetSendCmdQuest(Q_BUTCHER, false); // recipient should not matter
 		//}
-		if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl - 1) {
+		if (lvl == questlist[Q_BETRAYER]._qdlvl - 1 && quests[Q_BETRAYER]._qactive == QUEST_INIT) {
 			quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 			NetSendCmdQuest(Q_BETRAYER, false); // recipient should not matter
 		}
 	} else {
-		if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+		if (lvl == SL_VILEBETRAYER) {
 			if (quests[Q_BETRAYER]._qvar1 >= 4)
 				ObjChangeMapResync(1, 11, 20, 18);
 			if (quests[Q_BETRAYER]._qvar1 >= 6)
@@ -585,7 +589,7 @@ void ResyncQuests()
 			//for (i = 0; i < numobjects; i++)
 			//	SyncObjectAnim(objectactive[i]);
 		}
-		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl) {
+		if (lvl == questlist[Q_BETRAYER]._qdlvl) {
 			if (quests[Q_BETRAYER]._qvar1 >= 2) {
 				if (quests[Q_BETRAYER]._qvar1 == 2) {
 					quests[Q_BETRAYER]._qvar1 = 3;
@@ -597,20 +601,20 @@ void ResyncQuests()
 		}
 	}
 #ifdef HELLFIRE
-	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_DEFILER]._qdlvl) {
+	if (quests[Q_DEFILER]._qactive == QUEST_INIT && lvl == questlist[Q_DEFILER]._qdlvl) {
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		quests[Q_DEFILER]._qlog = TRUE;
 		NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
 	}
-	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_NAKRUL]._qdlvl - 1) {
+	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && lvl == questlist[Q_NAKRUL]._qdlvl - 1) {
 	//	quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
 	//	NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 	//}
-	//if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_JERSEY]._qdlvl - 1) {
+	//if (quests[Q_JERSEY]._qactive == QUEST_INIT && lvl == questlist[Q_JERSEY]._qdlvl - 1) {
 	//	quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 	//	NetSendCmdQuest(Q_JERSEY, false); // recipient should not matter
 	//}
-	if (quests[Q_GIRL]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_GIRL]._qdlvl) {
+	if (quests[Q_GIRL]._qactive == QUEST_INIT && lvl == questlist[Q_GIRL]._qdlvl) {
 		quests[Q_GIRL]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(Q_GIRL, false); // recipient should not matter
 		// TODO: send message to reinit the towners?
