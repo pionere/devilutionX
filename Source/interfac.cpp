@@ -4,6 +4,10 @@
  * Implementation of load screens.
  */
 #include "all.h"
+#ifndef NOWIDESCREEN
+#include "DiabloUI/diabloui.h"
+#include "DiabloUI/art_draw.h"
+#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -25,6 +29,9 @@ static BYTE sgbLoadBarCol;
 static void FreeCutscene()
 {
 	MemFreeDbg(sgpBackCel);
+#ifndef NOWIDESCREEN
+	ArtBackgroundWidescreen.Unload();
+#endif
 }
 
 static void InitLvlCutscene(BYTE lvl)
@@ -62,12 +69,18 @@ static void InitCutscene(unsigned int uMsg)
 		InitLvlCutscene(lvl);
 		break;
 	case DVL_DWM_WARPLVL:
+#ifndef NOWIDESCREEN
+		LoadArt("Gendata\\Cutportlw.pcx", &ArtBackgroundWidescreen);
+#endif
 		sgpBackCel = LoadFileInMem("Gendata\\Cutportl.CEL");
 		LoadPalette("Gendata\\Cutportl.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
+#ifndef NOWIDESCREEN
+		LoadArt("Gendata\\Cutstartw.pcx", &ArtBackgroundWidescreen);
+#endif
 		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL");
 		LoadPalette("Gendata\\Cutstart.pal");
 		sgbLoadBarOnTop = FALSE;
@@ -109,6 +122,9 @@ static void DrawProgress()
 static void DrawCutscene()
 {
 	lock_buf(1);
+#ifndef NOWIDESCREEN
+	DrawArt(PANEL_X - (ArtBackgroundWidescreen.logical_width - PANEL_WIDTH) / 2, SCREEN_Y + UI_OFFSET_Y, &ArtBackgroundWidescreen);
+#endif
 	CelDraw(PANEL_X, 480 + SCREEN_Y - 1 + UI_OFFSET_Y, sgpBackCel, 1, 640);
 
 	DrawProgress();
