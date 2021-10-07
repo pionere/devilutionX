@@ -1277,13 +1277,15 @@ typedef struct LevelData {
 	const char* dPalName;
 	const char* dLoadCels;
 	const char* dLoadPal;
+	BOOLEAN dLoadBarOnTop;
+	BYTE dLoadBarColor;
 	const char* dSetLvlPreDun;
 	const char* dSetLvlDun;
 	BYTE dSetLvlDunX;
 	BYTE dSetLvlDunY;
 	BYTE dMonTypes[32];
 #ifdef X86_32bit_COMP
-	int alignment[8];
+	int alignment[7];
 #endif
 } LevelData;
 

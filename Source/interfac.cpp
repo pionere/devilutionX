@@ -7,138 +7,78 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-BYTE *sgpBackCel;
-unsigned sgdwProgress;
-int progress_id;
+/** The starting x-position of the progress bar. */
+#define BAR_POS_X		53
+/** The width of the progress bar. */
+#define BAR_WIDTH		PANEL_WIDTH - BAR_POS_X * 2
 
-/** The color used for the progress bar as an index into the palette. */
-const BYTE BarColor[3] = { 138, 43, 254 };
-/** The screen position of the top left corner of the progress bar. */
-const int BarPos[3][2] = { { 53, 37 }, { 53, 421 }, { 53, 37 } };
-/** The width of the progress bar. PANEL_WIDTH - std::max(BarPos[i][0]) * 2 */
-#define BAR_WIDTH		PANEL_WIDTH - 53 * 2
+/** Cutscene image CEL */
+BYTE* sgpBackCel;
+
+unsigned sgdwProgress;
+
+/** Specifies whether the progress bar is drawn on top or at the bottom of the image. */
+static BOOLEAN sgbLoadBarOnTop;
+/** Color of the progress bar. */
+static BYTE sgbLoadBarCol;
 
 static void FreeCutscene()
 {
 	MemFreeDbg(sgpBackCel);
 }
 
+static void InitLvlCutscene(BYTE lvl)
+{
+	sgbLoadBarOnTop = AllLevels[lvl].dLoadBarOnTop;
+	sgbLoadBarCol = AllLevels[lvl].dLoadBarColor;
+	sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
+	LoadPalette(AllLevels[lvl].dLoadPal);
+}
+
 static void InitCutscene(unsigned int uMsg)
 {
-	int lvl;
+	BYTE lvl;
 	assert(sgpBackCel == NULL);
 
 	switch (uMsg) {
 	case DVL_DWM_NEXTLVL:
 		lvl = currLvl._dLevelIdx;
 		assert(currLvl._dType == AllLevels[lvl].dType);
-		switch (AllLevels[lvl].dType) {
-		case DTYPE_CATHEDRAL:
-			progress_id = 0;
-			break;
-		case DTYPE_CATACOMBS:
-			progress_id = 2;
-			break;
-		case DTYPE_CAVES:
-			progress_id = 1;
-			break;
-		case DTYPE_HELL:
-			lvl = myplr._pDunLevel; // the destination level
-			progress_id = 1;
-			break;
-		case DTYPE_CRYPT:
-		case DTYPE_NEST:
-			progress_id = 1;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-		}
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
-		LoadPalette(AllLevels[lvl].dLoadPal);
+		if (lvl == DLV_HELL3)
+			lvl = DLV_HELL4; // the destination level
+		InitLvlCutscene(lvl);
 		break;
 	case DVL_DWM_PREVLVL:
 		lvl = currLvl._dLevelIdx;
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
-		LoadPalette(AllLevels[lvl].dLoadPal);
+		InitLvlCutscene(lvl);
 		assert(currLvl._dType == AllLevels[lvl].dType);
-		switch (AllLevels[lvl].dType) {
-		case DTYPE_CATHEDRAL:
-			progress_id = 0;
-			break;
-		case DTYPE_CATACOMBS:
-			progress_id = 2;
-			break;
-		case DTYPE_CAVES:
-		case DTYPE_HELL:
-		case DTYPE_CRYPT:
-		case DTYPE_NEST:
-			progress_id = 1;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-		}
 		break;
 	case DVL_DWM_SETLVL:
 		lvl = myplr._pDunLevel; // the destination level
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
-		LoadPalette(AllLevels[lvl].dLoadPal);
-		if (lvl == SL_BONECHAMB) {
-			progress_id = 2;
-		} else if (lvl == SL_VILEBETRAYER) {
-			progress_id = 1;
-		} else {
-			progress_id = 0;
-		}
+		InitLvlCutscene(lvl);
 		break;
 	case DVL_DWM_RTNLVL:
 		lvl = currLvl._dLevelIdx;
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
-		LoadPalette(AllLevels[lvl].dLoadPal);
-		if (lvl == SL_BONECHAMB) {
-			progress_id = 2;
-		} else if (lvl == SL_VILEBETRAYER) {
-			progress_id = 1;
-		} else {
-			progress_id = 0;
-		}
+		InitLvlCutscene(lvl);
 		break;
 	case DVL_DWM_WARPLVL:
 		sgpBackCel = LoadFileInMem("Gendata\\Cutportl.CEL");
 		LoadPalette("Gendata\\Cutportl.pal");
-		progress_id = 1;
+		sgbLoadBarOnTop = FALSE;
+		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
 		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL");
 		LoadPalette("Gendata\\Cutstart.pal");
-		progress_id = 1;
+		sgbLoadBarOnTop = FALSE;
+		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_TWARPDN:
 	case DVL_DWM_TWARPUP:
-	case DVL_DWM_RETOWN: {
+	case DVL_DWM_RETOWN:
 		lvl = myplr._pDunLevel; // the destination level
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
-		LoadPalette(AllLevels[lvl].dLoadPal);
-		switch (AllLevels[lvl].dType) {
-		case DTYPE_TOWN:
-			progress_id = 1;
-			break;
-		case DTYPE_CATHEDRAL:
-			progress_id = 0;
-			break;
-		case DTYPE_CATACOMBS:
-			progress_id = 2;
-			break;
-		case DTYPE_CAVES:
-		case DTYPE_HELL:
-		case DTYPE_CRYPT:
-		case DTYPE_NEST:
-			progress_id = 1;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-	} break;
+		InitLvlCutscene(lvl);
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -150,18 +90,19 @@ static void InitCutscene(unsigned int uMsg)
 static void DrawProgress()
 {
 	BYTE *dst, col;
-	int screen_x, screen_y, cursor, i, j;
+	int screen_x, screen_y;
+	unsigned w, i, j;
 
-	screen_x = BarPos[progress_id][0] + PANEL_X;
-	screen_y = BarPos[progress_id][1] + SCREEN_Y + UI_OFFSET_Y;
-	cursor = screen_x + BUFFER_WIDTH * screen_y;
-	col = BarColor[progress_id];
-	for (i = sgdwProgress; i != 0; i--, cursor++) {
-		dst = &gpBuffer[cursor];
-		for (j = 0; j < 22; j++) {
+	screen_x = PANEL_X + BAR_POS_X;
+	screen_y = SCREEN_Y + UI_OFFSET_Y + (sgbLoadBarOnTop ? 37 : 421);
+	dst = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
+	col = sgbLoadBarCol;
+	w = sgdwProgress;
+	for (j = 0; j < 22; j++) {
+		for (i = 0; i < w; i++, dst++) {
 			*dst = col;
-			dst += BUFFER_WIDTH;
 		}
+		dst += BUFFER_WIDTH - w;
 	}
 }
 
@@ -194,7 +135,7 @@ bool IncProgress()
 	sgdwProgress += 23;
 	if (sgdwProgress > BAR_WIDTH)
 		sgdwProgress = BAR_WIDTH;
-	if (sgpBackCel != NULL)
+	assert(sgpBackCel != NULL);
 		DrawCutscene();
 	return sgdwProgress >= BAR_WIDTH;
 }
