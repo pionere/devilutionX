@@ -135,6 +135,7 @@ static void SelheroFreeDlgItems()
 static void SelheroFree()
 {
 	ArtBackground.Unload();
+	ArtHero.Unload();
 	UnloadScrollBar();
 
 	UiClearItems(vecSelHeroDialog);
@@ -175,10 +176,16 @@ static void SelheroUpdateViewportItems()
 
 static void SelheroInit()
 {
+	LoadScrollBar();
+#ifdef HELLFIRE
+	LoadArt("ui_art\\heros.pcx", &ArtHero, 6);
+#else
+	LoadArt("ui_art\\heros.pcx", &ArtHero, 4);
+#endif
+
 	LoadBackgroundArt("ui_art\\selhero.pcx");
 	UiAddBackground(&vecSelHeroDialog);
 	UiAddLogo(&vecSelHeroDialog);
-	LoadScrollBar();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
 	vecSelHeroDialog.push_back(new UiArtText(selhero_title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));

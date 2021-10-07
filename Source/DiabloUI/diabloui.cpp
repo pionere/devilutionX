@@ -440,11 +440,6 @@ static void LoadUiGFX()
 	LoadMaskedArt("ui_art\\focus.pcx", &ArtFocus[FOCUS_MED], FOCUS_FRAME_COUNT, 250);
 	LoadMaskedArt("ui_art\\focus42.pcx", &ArtFocus[FOCUS_BIG], FOCUS_FRAME_COUNT, 250);
 	LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
-#ifdef HELLFIRE
-	LoadArt("ui_art\\heros.pcx", &ArtHero, 6);
-#else
-	LoadArt("ui_art\\heros.pcx", &ArtHero, 4);
-#endif
 }
 
 static void UnloadUiGFX()
@@ -454,7 +449,6 @@ static void UnloadUiGFX()
 	ArtFocus[FOCUS_MED].Unload();
 	ArtFocus[FOCUS_BIG].Unload();
 	ArtCursor.Unload();
-	ArtHero.Unload();
 }
 
 void UiInitialize()
