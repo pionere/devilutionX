@@ -38,18 +38,22 @@ extern UiEdit* gUiEditField;
 
 inline SDL_Surface* DiabloUiSurface()
 {
-	auto *output_surface = GetOutputSurface();
+// commented out, because:
+//		1. no need to optimize drawing in the menu
+//		2. makes DrawArt unusable in-game
+//
+//	auto *output_surface = GetOutputSurface();
 
-#ifdef USE_SDL1
-	// When using a non double-buffered hardware surface, render the UI
-	// to an off-screen surface first to avoid flickering / tearing.
-	if ((output_surface->flags & SDL_HWSURFACE) != 0
-	    && (output_surface->flags & SDL_DOUBLEBUF) == 0) {
+//#ifdef USE_SDL1
+//	// When using a non double-buffered hardware surface, render the UI
+//	// to an off-screen surface first to avoid flickering / tearing.
+//	if ((output_surface->flags & SDL_HWSURFACE) != 0
+//	    && (output_surface->flags & SDL_DOUBLEBUF) == 0) {
 		return back_surface;
-	}
-#endif
+//	}
+//#endif
 
-	return output_surface;
+//	return output_surface;
 }
 
 void UiFadeIn();
