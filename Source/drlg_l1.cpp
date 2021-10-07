@@ -1012,15 +1012,15 @@ void LoadL1Dungeon(const LevelData* lds)
 
 	mem_free_dbg(pMap);
 
-	memset(drlgFlags, 0, sizeof(drlgFlags));
-	DRLG_L1Floor();
+	//memset(drlgFlags, 0, sizeof(drlgFlags));
+	//DRLG_L1Floor();
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
 	pMap = LoadL1DungeonData(lds->dSetLvlDun);
 
-	DRLG_L1Floor();
+	//DRLG_L1Floor();
 
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
