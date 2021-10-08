@@ -41,7 +41,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - limited offers in stores/wirt
 ### System
 - Lockstep networking
+- Adaptive netupdate
 - Game server (maintains game-delta, but no validation at the moment)
+- Merge .mpq files on demand
+- Widescreen, controller, sound support and encryption of net-messages are optional features
 
 ## DevilutionX 1.2.1
 ### Bugfixes
