@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - added tooltips to show the names, health, etc...
 - added teams. Manage your team by opening the teams panel (default button: 'm')
 - fully configurable primary/secondary actions (one move and/or one action skill can be selected for both actions)
-- fully configurable keyboard/button mapping (see [diablo.ini](https://github.com/pionere/devilutionX/wiki/DevilutionX-diablo.ini-configuration-guide))
+- fully configurable keyboard/button mapping (see diablo.ini)
 - control-click to move between belt and inventory
 ### Gameplay
 - altered abilities (hellfire)
