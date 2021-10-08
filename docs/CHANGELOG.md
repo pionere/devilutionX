@@ -4,6 +4,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## DevilX
+### Bugfixes
+- yes
+### User interface
+- bottom panel is removed
+- added tooltips to show the names, health, etc...
+- added teams. Manage your team by opening the teams panel (default button: 'm')
+- fully configurable primary/secondary actions (one move and/or one action skill can be selected for both actions)
+- fully configurable keyboard/button mapping (see diablo.ini)
+- control-click to move between belt and inventory
+### Gameplay
+- altered abilities (hellfire)
+- caps from hero-attributes removed
+- 4 attribute points are earned per level
+- attribute gain per spent point is class specific
+- barbarians no longer have natural resistance
+- separate resistance against acid
+- added Far Shot/Point Blank/Swipe skills
+- skills/spells have experience counters
+- books give skill experience instead of a whole level
+- rebalanced spells (some spells removed, others damage modified, etc...)
+- manashield is permanent
+- D2-style chain lightning
+- added splash damage to disbanded golems
+- added special effect (trn) to arrows with elemental damage
+- altered damage calculations
+- added faster walk/cast affixes
+- running is no longer supported in town, but teleporting is
+- elixirs removed
+- altered the functions of oils
+- altered the effects of the shrines
+- most of the quests are available in multiplayer games
+- added unique monsters to crypt and nest levels
+- better rewards on higher difficulties
+- limited offers in stores/wirt
+### System
+- Lockstep networking
+- Game server (maintains game-delta, but no validation at the moment)
+
 ## DevilutionX 1.2.1
 ### Bugfixes
 #### Gameplay
