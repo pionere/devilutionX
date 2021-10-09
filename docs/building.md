@@ -1,7 +1,7 @@
 # Building from Source
 
 Note: If you do not use git to manage the source you must provide the version to CMake manually:
-```bash
+```
 cmake .. -DVERSION_NUM=1.0.0 -DVERSION_SUFFIX=FFFFFFF -DCMAKE_BUILD_TYPE=Release
 ```
 
@@ -12,17 +12,26 @@ although we have a fallback if necessary.
 
 ### Installing dependencies on Debian and Ubuntu
 ```
-sudo apt-get install cmake g++ libsdl2-mixer-dev libsdl2-ttf-dev libsodium-dev
+sudo apt-get install git rpm cmake g++ libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev libsodium-dev
 ```
 ### Installing dependencies on Fedora
 ```
-sudo dnf install cmake glibc-devel SDL2-devel SDL2_ttf-devel SDL2_mixer-devel libsodium-devel libasan libubsan
+sudo dnf install cmake git glibc-devel SDL2-devel SDL2_ttf-devel SDL2_mixer-devel libsodium-devel libasan libubsan
 ```
+### Installing dependencies on Alpine Linux
+```
+sudo apk add git cmake g++ sdl2-dev sdl2_mixer-dev sdl2_ttf-dev libsodium-dev
+```
+
 ### Compiling
 ```
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
+// cd build
+// cmake .. -DCMAKE_BUILD_TYPE=Release
+// make -j$(nproc)
+git clone https://github.com/pionere/devilutionx
+cd devilutionx
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(nproc) --target package
 ```
 </details>
 
@@ -31,7 +40,9 @@ make -j$(nproc)
 Make sure you have [Homebrew](https://brew.sh/) installed, then run:
 
 ```
+// brew install cmake sdl2_mixer sdl2_ttf libsodium pkg-config
 brew bundle install
+mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . -j $(sysctl -n hw.physicalcpu)
@@ -99,20 +110,30 @@ sudo apt-get install cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-
 ```
 ### Compiling
 
+```
+sudo apt-get install wget git
+git clone https://github.com/pionere/devilutionx
+cd devilutionx
+```
+
 ### 32-bit
 
 ```
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
+// cd build
+// cmake .. -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
+// make -j$(nproc)
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(nproc) --target package
 ```
 
 ### 64-bit
 
 ```
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.cmake -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
+// cd build
+// cmake .. -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.cmake -DCMAKE_BUILD_TYPE=Release
+// make -j$(nproc)
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(nproc) --target package
 ```
 
 Note: If your `(i686|x86_64)-w64-mingw32` directory is not in `/usr` (e.g. when on Debian), the mingw-prep scripts and the CMake
@@ -347,14 +368,98 @@ You can do this by selecting the DevilutionX icon, then hold right mouse button 
 select Icons -> Information in the top menu.
 </details>
 
+<details><summary><b>32-bit building on 64-bit platforms</b></summary><blockquote>
+
+<details><summary>Linux</summary>
+
+Note that ```pkg-config``` is an optional dependency for finding libsodium,
+although we have a fallback if necessary.
+
+### Installing dependencies on Debian and Ubuntu
+```
+sudo apt-get install git rpm cmake g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-ttf-dev:i386 libsodium-dev libsodium-dev:i386
+```
+
+### Compiling
+```
+// mkdir build
+// cd build
+// linux32 cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake ..
+// linux32 make -j$(nproc)
+git clone https://github.com/pionere/devilutionx
+cd devilutionx
+linux32 cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake
+linux32 cmake --build build -j $(nproc) --target package
+```
+</details>
+
+<details><summary>MacOS</summary>
+### Installing dependencies
+Install [Xcode 9.4.1 and Xcode Command Line tools](https://developer.apple.com/download/more/?=xcode%209.4.1), this is the last version with **32 bits** support.
+
+Note: Be sure that your to select the command line Xcode if you have more then one installed:
+```
+$ sudo xcode-select --switch /Applications/Xcode.app
+```
+Install the build tools using [Homebrew](https://brew.sh/):
+```
+brew install automake autoconf libtool
+```
+Get SDL2, SDL2_mixer, SDL2_ttf and Libsodium:
+```
+./xcode-build.sh --get-libs
+```
+### Compiling
+```
+./xcode-build.sh --build-libs
+./xcode-build.sh --build-project
+./xcode-build.sh --package
+```
+</details>
+
+<details><summary>Windows via MinGW</summary>
+### Installing dependencies on Debian and Ubuntu
+
+Download and place the 32bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php), [SDL2_mixer](https://www.libsdl.org/projects/SDL_mixer/), [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/) and [Libsodium](https://github.com/jedisct1/libsodium/releases) in `/user/i686-w64-mingw32`. This can be done automatically by running `Packaging/windows/mingw-prep.sh`
+
+```
+sudo apt-get install cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 wget git
+```
+### Compiling
+```
+git clone https://github.com/pionere/devilutionx
+cd devilutionx
+Packaging/windows/mingw-prep.sh  
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(nproc) --target package  
+```
+</details>
+
+</details></blockquote>
+
 <details><summary><b>CMake build options</b></summary>
 
 ### General
-- `-DCMAKE_BUILD_TYPE=Release` changed build type to release and optimize for distribution.
+- `-DCMAKE_BUILD_TYPE=Release` change build type to release and optimize for distribution.
 - `-DNONET=ON` disable network support, this also removes the need for the ASIO and Sodium.
 - `-DUSE_SDL1=ON` build for SDL v1 instead of v2, not all features are supported under SDL v1, notably upscaling.
 - `-DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake` generate 32bit builds on 64bit platforms (remember to use the `linux32` command if on Linux).
+- `-DNOSOUND=ON` disable sound support
+- `-DNOWIDESCREEN=ON` disable widescreen support
+- `-DNONET=ON` disable network support
+- `-DADAPTIVE_NETUPDATE=OFF` disable adaptive network
+- `-DNETENCRYPT=OFF` disable encryption of network messages
+- `-DTCPIP=OFF` disable tcp/ip support
+- `-DNOHOSTING=OFF` enable host-only games
+- `-DHOSTONLY=ON` disable support for non host-only games
 - `-DHELLFIRE=ON` build Hellfire version
+- `-DHAS_JOYSTICK=0` disable joystick support
+- `-DHAS_DPAD=0` disable dpad support
+- `-DHAS_GAMECTRL=0` disable game-controller support
+- `-DHAS_TOUCHPAD=0` disable touchpad support
+- `-DSCREEN_WIDTH=640` hardcode screen width to 640 pixel
+- `-DSCREEN_HEIGHT=480` hardcode screen height to 480 pixel
+- `-DMPQONE="hellone.mpq"` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.
 
 ### Debug builds
 - `-DDEBUG=OFF` disable debug mode of the Diablo engine.
