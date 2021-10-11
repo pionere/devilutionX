@@ -210,7 +210,7 @@ public class SDLAudioManager
 
                 // Instantiating AudioTrack can "succeed" without an exception and the track may still be invalid
                 // Ref: https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/media/java/android/media/AudioTrack.java
-                // Ref: http://developer.android.com/reference/android/media/AudioTrack.html#getState()
+                // Ref: https://developer.android.com/reference/android/media/AudioTrack.html#getState()
                 if (mAudioTrack.getState() != AudioTrack.STATE_INITIALIZED) {
                     /* Try again, with safer values */
 

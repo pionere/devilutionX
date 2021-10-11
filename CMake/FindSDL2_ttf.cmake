@@ -13,7 +13,7 @@
 # Copyright Sensics, Inc. 2015.
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at
-# http://www.boost.org/LICENSE_1_0.txt)
+# https://www.boost.org/LICENSE_1_0.txt)
 
 # Set up architectures (for windows) and prefixes (for mingw builds)
 if(WIN32)

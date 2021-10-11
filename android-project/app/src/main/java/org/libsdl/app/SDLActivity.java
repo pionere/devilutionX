@@ -1923,7 +1923,7 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     // Touch events
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        /* Ref: http://developer.android.com/training/gestures/multi.html */
+        /* Ref: https://developer.android.com/training/gestures/multi.html */
         int touchDevId = event.getDeviceId();
         final int pointerCount = event.getPointerCount();
         int action = event.getActionMasked();
@@ -2172,11 +2172,11 @@ class DummyEdit extends View implements View.OnKeyListener {
     //
     @Override
     public boolean onKeyPreIme (int keyCode, KeyEvent event) {
-        // As seen on StackOverflow: http://stackoverflow.com/questions/7634346/keyboard-hide-event
-        // FIXME: Discussion at http://bugzilla.libsdl.org/show_bug.cgi?id=1639
+        // As seen on StackOverflow: https://stackoverflow.com/questions/7634346/keyboard-hide-event-with-back-key
+        // FIXME: Discussion at https://bugzilla.libsdl.org/show_bug.cgi?id=1639
         // FIXME: This is not a 100% effective solution to the problem of detecting if the keyboard is showing or not
         // FIXME: A more effective solution would be to assume our Layout to be RelativeLayout or LinearLayout
-        // FIXME: And determine the keyboard presence doing this: http://stackoverflow.com/questions/2150078/how-to-check-visibility-of-software-keyboard-in-android
+        // FIXME: And determine the keyboard presence doing this: https://stackoverflow.com/questions/2150078/how-to-check-visibility-of-software-keyboard-in-android
         // FIXME: An even more effective way would be if Android provided this out of the box, but where would the fun be in that :)
         if (event.getAction()==KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
             if (SDLActivity.mTextEdit != null && SDLActivity.mTextEdit.getVisibility() == View.VISIBLE) {
@@ -2263,7 +2263,7 @@ class SDLInputConnection extends BaseInputConnection {
 
     @Override
     public boolean deleteSurroundingText(int beforeLength, int afterLength) {
-        // Workaround to capture backspace key. Ref: http://stackoverflow.com/questions/14560344/android-backspace-in-webview-baseinputconnection
+        // Workaround to capture backspace key. Ref: https://stackoverflow.com/questions/14560344/android-backspace-in-webview-baseinputconnection
         // and https://bugzilla.libsdl.org/show_bug.cgi?id=2265
         if (beforeLength > 0 && afterLength == 0) {
             boolean ret = true;
