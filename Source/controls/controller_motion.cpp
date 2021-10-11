@@ -14,9 +14,9 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static void ScaleJoystickAxes(float *x, float *y)
 {
-	//radial and scaled dead-zone
-	//http://www.third-helix.com/2013/04/12/doing-thumbstick-dead-zones-right.html
-	//input values go from -32767.0...+32767.0, output values are from -1.0 to 1.0;
+	// radial and scaled dead-zone
+	// https://web.archive.org/web/20200130014626/www.third-helix.com:80/2013/04/12/doing-thumbstick-dead-zones-right.html
+	// input values go from -32767.0...+32767.0, output values are from -1.0 to 1.0;
 
 	const float DEADZONE = 0.07f;
 	/*if (DEADZONE == 0) {
