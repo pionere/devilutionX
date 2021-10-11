@@ -185,6 +185,7 @@ Make sure to install the `C++ CMake tools for Windows` component for Visual Stud
 </details>
 
 <details><summary>Nintendo Switch</summary>
+
 Run:
 
 ```
@@ -394,6 +395,7 @@ linux32 cmake --build build -j $(nproc) --target package
 </details>
 
 <details><summary>MacOS</summary>
+
 ### Installing dependencies
 Install [Xcode 9.4.1 and Xcode Command Line tools](https://developer.apple.com/download/more/?=xcode%209.4.1), this is the last version with **32 bits** support.
 
@@ -418,6 +420,7 @@ Get SDL2, SDL2_mixer, SDL2_ttf and Libsodium:
 </details>
 
 <details><summary>Windows via MinGW</summary>
+
 ### Installing dependencies on Debian and Ubuntu
 
 Download and place the 32bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php), [SDL2_mixer](https://www.libsdl.org/projects/SDL_mixer/), [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/) and [Libsodium](https://github.com/jedisct1/libsodium/releases) in `/user/i686-w64-mingw32`. This can be done automatically by running `Packaging/windows/mingw-prep.sh`
@@ -435,7 +438,7 @@ cmake --build build -j $(nproc) --target package
 ```
 </details>
 
-</details></blockquote>
+</blockquote></details>
 
 <details><summary><b>CMake build options</b></summary>
 
