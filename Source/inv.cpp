@@ -957,7 +957,7 @@ void InvPasteItem(int pnum, BYTE r)
 	if (cn == CURSOR_HAND)
 		holditem->_itype = ITYPE_NONE;
 	if (pnum == mypnum) {
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]]);
+		PlaySFX(itemfiledata[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]].iiSFX);
 		if (cn == CURSOR_HAND) {
 			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
 		}
@@ -1008,7 +1008,7 @@ void InvPasteBeltItem(int pnum, BYTE r)
 
 	CalcPlrScrolls(pnum);
 	if (pnum == mypnum) {
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]]);
+		PlaySFX(itemfiledata[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]].iiSFX);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 		if (cn == CURSOR_HAND)
 			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
@@ -1741,7 +1741,7 @@ bool InvUseItem(int cii)
 	if (is->_iMiscId == IMISC_BOOK)
 		PlaySFX(IS_RBOOK);
 	else
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[is->_iCurs]]);
+		PlaySFX(itemfiledata[ItemCAnimTbl[is->_iCurs]].iiSFX);
 
 	// use the item
 	switch (is->_iMiscId) {

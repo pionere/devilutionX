@@ -11,231 +11,10 @@ int itemactive[MAXITEMS];
 int itemavail[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct items[MAXITEMS + 1];
-BYTE *itemanims[ITEMTYPES];
+BYTE* itemanims[NUM_IFILE];
 BOOL UniqueItemFlags[NUM_UITEM];
 int numitems;
 
-/** Maps from item_cursor_graphic to in-memory item (drop) type. */
-const BYTE ItemCAnimTbl[NUM_ICURS] = {
-	20, 16, 16, 16,  4,  4,  4, 12, 12, 12,
-	12, 12, 12, 12, 12, 21, 21, 25, 12, 28,
-	28, 28,  0,  0,  0, 32,  0,  0,  0, 24,
-	24, 26,  2, 25, 22, 23, 24, 25, 27, 27,
-	29,  0,  0,  0, 12, 12, 12, 12, 12,  0,
-	 8,  8,  0,  8,  8,  8,  8,  8,  8,  6, // 50 ...
-	 8,  8,  8,  6,  8,  8,  6,  8,  8,  6,
-	 6,  6,  8,  8,  8,  5,  9, 13, 13, 13,
-	 5,  5,  5, 15,  5,  5, 18, 18, 18, 30,
-	 5,  5, 14,  5, 14, 13, 16, 18,  5,  5,
-	 7,  1,  3, 17,  1, 15, 10, 14,  3, 11, // 100 ...
-	 8,  0,  1,  7,  0,  7, 15,  7,  3,  3,
-	 3,  6,  6, 11, 11, 11, 31, 14, 14, 14,
-	 6,  6,  7,  3,  8, 14,  0, 14, 14,  0,
-	33,  1,  1,  1,  1,  1,  7,  7,  7, 14,
-	14, 17, 17, 17,  0, 34,  1,  0,  3, 17, // 150 ...
-	 8,  8,  6,  1,  3,  3, 11,  3,
-#ifdef HELLFIRE
-	                                12, 12,
-	12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
-	12, 12, 12, 12, 12, 12, 12, 35, 39, 36,
-	36, 36, 37, 38, 38, 38, 38, 38, 41, 42,
-	 8,  8,  8, 17,  0,  6,  8, 11, 11,  3, // 200 ...
-	 3,  1,  6,  6,  6,  1,  8,  6, 11,  3,
-	 6,  8,  1,  6,  6, 17, 40
-#endif
-};
-/** Map of item type .cel file names. */
-const char* const ItemLoadList[ITEMTYPES] = {
-	"Armor2",
-	"Axe",
-	"FBttle",
-	"Bow",
-	"GoldFlip",
-	"Helmut",
-	"Mace",
-	"Shield",
-	"SwrdFlip",
-	"Rock",
-	"Cleaver",
-	"Staff",
-	"Ring",
-	"CrownF",
-	"LArmor",
-	"WShield",
-	"Scroll",
-	"FPlateAr",
-	"FBook",
-	"Food",
-	"FBttleBB",
-	"FBttleDY",
-	"FBttleOR",
-	"FBttleBR",
-	"FBttleBL",
-	"FBttleBY",
-	"FBttleWH",
-	"FBttleDB",
-	"FEar",
-	"FBrain",
-	"FMush",
-	"Innsign",
-	"Bldstn",
-	"Fanvil",
-	"FLazStaf",
-#ifdef HELLFIRE
-	"bombs1",
-	"halfps1",
-	"wholeps1",
-	"runes1",
-	"teddys1",
-	"cows1",
-	"donkys1",
-	"mooses1",
-#endif
-};
-/** Maps of item drop animation length. */
-const BYTE ItemAnimLs[ITEMTYPES] = {
-	15,
-	13,
-	16,
-	13,
-	10,
-	13,
-	13,
-	13,
-	13,
-	10,
-	13,
-	13,
-	13,
-	13,
-	13,
-	13,
-	13,
-	13,
-	13,
-	1,
-	16,
-	16,
-	16,
-	16,
-	16,
-	16,
-	16,
-	16,
-	13,
-	12,
-	12,
-	13,
-	13,
-	13,
-	8,
-#ifdef HELLFIRE
-	10,
-	16,
-	16,
-	10,
-	10,
-	15,
-	15,
-	15,
-#endif
-};
-/** Maps of drop sounds effect of dropping the item on ground. */
-const int ItemDropSnds[ITEMTYPES] = {
-	IS_FHARM,
-	IS_FAXE,
-	IS_FPOT,
-	IS_FBOW,
-	IS_GOLD,
-	IS_FCAP,
-	IS_FSWOR,
-	IS_FSHLD,
-	IS_FSWOR,
-	IS_FROCK,
-	IS_FAXE,
-	IS_FSTAF,
-	IS_FRING,
-	IS_FCAP,
-	IS_FLARM,
-	IS_FSHLD,
-	IS_FSCRL,
-	IS_FHARM,
-	IS_FBOOK,
-	IS_FLARM,
-	IS_FPOT,
-	IS_FPOT,
-	IS_FPOT,
-	IS_FPOT,
-	IS_FPOT,
-	IS_FPOT,
-	IS_FPOT,
-	IS_FPOT,
-	IS_FBODY,
-	IS_FBODY,
-	IS_FMUSH,
-	IS_ISIGN,
-	IS_FBLST,
-	IS_FANVL,
-	IS_FSTAF,
-#ifdef HELLFIRE
-	IS_FROCK,
-	IS_FSCRL,
-	IS_FSCRL,
-	IS_FROCK,
-	IS_FMUSH,
-	IS_FHARM,
-	IS_FLARM,
-	IS_FLARM,
-#endif
-};
-/** Maps of drop sounds effect of placing the item in the inventory. */
-const int ItemInvSnds[ITEMTYPES] = {
-	IS_IHARM,
-	IS_IAXE,
-	IS_IPOT,
-	IS_IBOW,
-	IS_GOLD,
-	IS_ICAP,
-	IS_ISWORD,
-	IS_ISHIEL,
-	IS_ISWORD,
-	IS_IROCK,
-	IS_IAXE,
-	IS_ISTAF,
-	IS_IRING,
-	IS_ICAP,
-	IS_ILARM,
-	IS_ISHIEL,
-	IS_ISCROL,
-	IS_IHARM,
-	IS_IBOOK,
-	IS_IHARM,
-	IS_IPOT,
-	IS_IPOT,
-	IS_IPOT,
-	IS_IPOT,
-	IS_IPOT,
-	IS_IPOT,
-	IS_IPOT,
-	IS_IPOT,
-	IS_IBODY,
-	IS_IBODY,
-	IS_IMUSH,
-	IS_ISIGN,
-	IS_IBLST,
-	IS_IANVL,
-	IS_ISTAF,
-#ifdef HELLFIRE
-	IS_IROCK,
-	IS_ISCROL,
-	IS_ISCROL,
-	IS_IROCK,
-	IS_IMUSH,
-	IS_IHARM,
-	IS_ILARM,
-	IS_ILARM,
-#endif
-};
 /** Specifies the current X-coordinate used for validation of items on ground. */
 static int idoppelx = DBORDERX;
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
@@ -328,8 +107,8 @@ void InitItemGFX()
 	int i;
 	char filestr[32];
 
-	for (i = 0; i < ITEMTYPES; i++) {
-		snprintf(filestr, sizeof(filestr), "Items\\%s.CEL", ItemLoadList[i]);
+	for (i = 0; i < NUM_IFILE; i++) {
+		snprintf(filestr, sizeof(filestr), "Items\\%s.CEL", itemfiledata[i].ifName);
 		itemanims[i] = LoadFileInMem(filestr);
 	}
 	memset(UniqueItemFlags, 0, sizeof(UniqueItemFlags));
@@ -1804,7 +1583,7 @@ void SetupItem(int ii)
 	is = &items[ii];
 	it = ItemCAnimTbl[is->_iCurs];
 	is->_iAnimData = itemanims[it];
-	is->_iAnimLen = ItemAnimLs[it];
+	is->_iAnimLen = itemfiledata[it].iAnimLen;
 	is->_iAnimFrameLen = 1;
 	//is->_iAnimWidth = 96;
 	//is->_iAnimXOffset = 16;
@@ -2390,7 +2169,7 @@ void RespawnItem(int ii, bool FlipFlag)
 	is = &items[ii];
 	it = ItemCAnimTbl[is->_iCurs];
 	is->_iAnimData = itemanims[it];
-	is->_iAnimLen = ItemAnimLs[it];
+	is->_iAnimLen = itemfiledata[it].iAnimLen;
 	is->_iAnimFrameLen = 1;
 	//is->_iAnimWidth = 96;
 	//is->_iAnimXOffset = 16;
@@ -2407,7 +2186,7 @@ void RespawnItem(int ii, bool FlipFlag)
 
 	if (is->_iCurs == ICURS_MAGIC_ROCK) {
 		is->_iSelFlag = 1;
-		PlaySfxLoc(ItemDropSnds[ItemCAnimTbl[ICURS_MAGIC_ROCK]], is->_ix, is->_iy);
+		PlaySfxLoc(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].idSFX, is->_ix, is->_iy);
 	} /*else if (is->_iCurs == ICURS_TAVERN_SIGN || is->_iCurs == ICURS_ANVIL_OF_FURY)
 		is->_iSelFlag = 1;*/
 }
@@ -2471,7 +2250,7 @@ void ProcessItems()
 						is->_iAnimFrame = 11;
 				} else {
 					if (is->_iAnimFrame == is->_iAnimLen >> 1)
-						PlaySfxLoc(ItemDropSnds[ItemCAnimTbl[is->_iCurs]], is->_ix, is->_iy);
+						PlaySfxLoc(itemfiledata[ItemCAnimTbl[is->_iCurs]].idSFX, is->_ix, is->_iy);
 
 					if (is->_iAnimFrame >= is->_iAnimLen) {
 						is->_iAnimFrame = is->_iAnimLen;
@@ -2489,7 +2268,7 @@ void FreeItemGFX()
 {
 	int i;
 
-	for (i = 0; i < ITEMTYPES; i++) {
+	for (i = 0; i < NUM_IFILE; i++) {
 		MemFreeDbg(itemanims[i]);
 	}
 }

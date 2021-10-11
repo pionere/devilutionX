@@ -76,6 +76,17 @@ typedef struct UniqItemData {
 static_assert((sizeof(UniqItemData) & (sizeof(UniqItemData) - 1)) == 64, "Align UniqItemData to power of 2 for better performance.");
 #endif
 
+typedef struct ItemFileData {
+	const char* ifName; // Map of item type .cel file names.
+	int idSFX;          // sounds effect of dropping the item on ground.
+	int iiSFX;          // sounds effect of placing the item in the inventory.
+	int iAnimLen;       // item drop animation length
+} ItemFileData;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(ItemFileData) & (sizeof(ItemFileData) - 1)) == 0, "Align ItemFileData to power of 2 for better performance.");
+#endif
+
 typedef struct ItemData {
 	BYTE iRnd;
 	BYTE iMinMLvl;

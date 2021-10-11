@@ -70,11 +70,6 @@ int ItemNoFlippy();
 void CreateSpellBook(int ispell, int x, int y);
 void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
 
-/* data */
-
-extern const BYTE ItemCAnimTbl[NUM_ICURS];
-extern const int ItemInvSnds[ITEMTYPES];
-
 #ifdef __cplusplus
 }
 #endif
