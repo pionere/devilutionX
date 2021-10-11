@@ -2552,7 +2552,7 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-	SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg, false);
+	SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg/*, false*/);
 }
 
 static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
@@ -2580,7 +2580,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-	SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy, sendmsg, false);
+	SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy, sendmsg/*, false*/);
 }
 
 static void OperateSlainHero(int pnum, int oi, bool sendmsg)
@@ -3557,7 +3557,7 @@ static void OperateLazStand(int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg, false);
+	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg/*, false*/);
 }
 
 static void OperateCrux(int pnum, int oi, bool sendmsg)

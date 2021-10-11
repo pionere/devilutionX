@@ -128,7 +128,8 @@ static void AddInitItems()
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl | CF_PREGEN;
 		// assert(gbLvlLoad != 0);
-		SetupItem(ii);
+		// SetupItem(ii);
+		RespawnItem(ii, false);
 
 		GetRandomItemSpace(ii);
 		DeltaAddItem(ii);
@@ -1577,7 +1578,8 @@ static void GetItemBonus(int ii, int minlvl, int maxlvl, bool onlygood, bool all
 
 void SetupItem(int ii)
 {
-	ItemStruct *is;
+	RespawnItem(ii, gbLvlLoad == 0);
+	/*ItemStruct* is;
 	int it;
 
 	is = &items[ii];
@@ -1596,9 +1598,9 @@ void SetupItem(int ii)
 		is->_iSelFlag = 0;
 	} else {
 		is->_iAnimFrame = is->_iAnimLen;
-		is->_iAnimFlag = FALSE;
+		is->_iAnimFlag = is->_iCurs == ICURS_MAGIC_ROCK;
 		is->_iSelFlag = 1;
-	}
+	}*/
 }
 
 static int RndItem(int lvl)
@@ -2011,11 +2013,12 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 	ii = itemavail[0];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
-	SetupItem(ii);
+	// SetupItem(ii);
+	RespawnItem(ii, false);
 	//items[ii]._iPostDraw = TRUE;
-	items[ii]._iSelFlag = 1;
-	items[ii]._iAnimFrame = items[ii]._iAnimLen;
-	items[ii]._iAnimFlag = FALSE;
+	//items[ii]._iSelFlag = 1;
+	//items[ii]._iAnimFrame = items[ii]._iAnimLen;
+	//items[ii]._iAnimFlag = FALSE;
 	// set Seed for the bloodstones, otherwise quick successive pickup and use
 	// will be prevented by the ItemRecord logic
 	items[ii]._iSeed = GetRndSeed();
@@ -2034,15 +2037,15 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 }
 
 /**
- * Place or drop a fixed item starting from the given location.
+ * Drop a fixed item starting from the given location.
  * 
  * @param idx: the index of the item(item_indexes enum)
  * @param x tile-coordinate of the target location
  * @param y tile-coordinate of the target location
  * @param sendmsg whether a message should be sent to register the item
- * @param respawn whether a respawn message should be sent to notify the other players
+// * @param respawn whether a respawn message should be sent to notify the other players
  */
-void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg, bool respawn)
+void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg/*, bool respawn*/)
 {
 	int ii;
 
@@ -2052,14 +2055,16 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg, bool respawn)
 	ii = itemavail[0];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
-	SetupItem(ii);
+	// assert(gbLvlLoad == 0);
+	// SetupItem(ii);
+	RespawnItem(ii, true);
 	//items[ii]._iPostDraw = TRUE;
 	items[ii]._iSeed = GetRndSeed(); // make sure it is unique
 
 	RegisterItem(ii, x, y, sendmsg, false);
-	if (respawn) {
-		NetSendCmdRespawnItem(ii);
-	}
+	//if (respawn) {
+	//	NetSendCmdRespawnItem(ii);
+	//}
 }
 
 /**
@@ -2079,7 +2084,8 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// assert(gbLvlLoad != 0);
-	SetupItem(ii);
+	// SetupItem(ii);
+	RespawnItem(ii, false);
 	//items[ii]._iPostDraw = TRUE;
 	items[ii]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
 	items[ii]._iSeed = GetRndSeed(); // make sure it is unique
@@ -2110,12 +2116,14 @@ void SpawnRock()
 	if (i != numobjects) {
 		i = itemavail[0];
 		SetItemData(i, IDI_ROCK);
-		SetupItem(i);
+		// assert(gbLvlLoad != 0);
+		// SetupItem(i);
+		RespawnItem(i, false);
 		// draw it above the stand
 		items[i]._iSelFlag = 2;
 		items[i]._iPostDraw = TRUE;
 		items[i]._iAnimFrame = 11;
-		items[i]._iAnimFlag = TRUE;
+		//items[i]._iAnimFlag = TRUE;
 		items[i]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
 		items[i]._iSeed = GetRndSeed(); // make sure it is unique
 		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
@@ -2147,7 +2155,9 @@ void SpawnRewardItem(int idx, int x, int y, bool sendmsg, bool respawn)
 	ii = itemavail[0];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
-	SetupItem(ii);
+	// assert(gbLvlLoad == 0);
+	// SetupItem(ii);
+	RespawnItem(ii, true);
 	items[ii]._iSelFlag = 2;
 	//items[ii]._iPostDraw = TRUE;
 	//items[ii]._iAnimFrame = 1;

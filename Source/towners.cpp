@@ -566,7 +566,7 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
 		if (currLvl._dLevelIdx == DLV_TOWN)
-			SpawnQuestItemAround(IDI_SPECELIX, TPOS_HEALER + 1, pnum == mypnum, false);
+			SpawnQuestItemAround(IDI_SPECELIX, TPOS_HEALER + 1, pnum == mypnum/*, false*/);
 		break;
 	case IDI_LAZSTAFF:
 		if (quests[Q_BETRAYER]._qvar1 >= 2 /*|| quests[Q_BETRAYER]._qactive != QUEST_ACTIVE*/)
