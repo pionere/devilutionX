@@ -2111,9 +2111,11 @@ void SpawnRock()
 		i = itemavail[0];
 		SetItemData(i, IDI_ROCK);
 		SetupItem(i);
+		// draw it above the stand
 		items[i]._iSelFlag = 2;
-		items[i]._iPostDraw = TRUE; // draw it above the stand
+		items[i]._iPostDraw = TRUE;
 		items[i]._iAnimFrame = 11;
+		items[i]._iAnimFlag = TRUE;
 		items[i]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
 		items[i]._iSeed = GetRndSeed(); // make sure it is unique
 		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
@@ -2180,14 +2182,14 @@ void RespawnItem(int ii, bool FlipFlag)
 		is->_iSelFlag = 0;
 	} else {
 		is->_iAnimFrame = is->_iAnimLen;
-		is->_iAnimFlag = FALSE;
+		is->_iAnimFlag = is->_iCurs == ICURS_MAGIC_ROCK;
 		is->_iSelFlag = 1;
 	}
 
-	if (is->_iCurs == ICURS_MAGIC_ROCK) {
+	/*if (is->_iCurs == ICURS_MAGIC_ROCK) {
 		is->_iSelFlag = 1;
 		PlaySfxLoc(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].idSFX, is->_ix, is->_iy);
-	} /*else if (is->_iCurs == ICURS_TAVERN_SIGN || is->_iCurs == ICURS_ANVIL_OF_FURY)
+	} else if (is->_iCurs == ICURS_TAVERN_SIGN || is->_iCurs == ICURS_ANVIL_OF_FURY)
 		is->_iSelFlag = 1;*/
 }
 
@@ -2243,12 +2245,7 @@ void ProcessItems()
 			if (is->_iAnimCnt >= is->_iAnimFrameLen) {
 				is->_iAnimCnt = 0;
 				is->_iAnimFrame++;
-				if (is->_iCurs == ICURS_MAGIC_ROCK) {
-					if (is->_iSelFlag == 1 && is->_iAnimFrame == 11)
-						is->_iAnimFrame = 1;
-					if (is->_iSelFlag == 2 && is->_iAnimFrame == 21)
-						is->_iAnimFrame = 11;
-				} else {
+				if (is->_iCurs != ICURS_MAGIC_ROCK) {
 					if (is->_iAnimFrame == is->_iAnimLen >> 1)
 						PlaySfxLoc(itemfiledata[ItemCAnimTbl[is->_iCurs]].idSFX, is->_ix, is->_iy);
 
@@ -2257,6 +2254,18 @@ void ProcessItems()
 						is->_iAnimFlag = FALSE;
 						is->_iSelFlag = 1;
 					}
+				} else {
+					// magic rock is just dropped
+					if (is->_iSelFlag == 0) {
+						is->_iSelFlag = 1;
+						is->_iAnimFrame = 1;
+						PlaySfxLoc(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].idSFX, is->_ix, is->_iy);
+					// magic rock dropped on the floor
+					} else if (is->_iSelFlag == 1 && is->_iAnimFrame == 11)
+						is->_iAnimFrame = 1;
+					// magic rock on stand
+					else if (is->_iSelFlag == 2 && is->_iAnimFrame == 21)
+						is->_iAnimFrame = 11;
 				}
 			}
 		}
