@@ -47,8 +47,6 @@ unsigned guTeamMute;
 bool gbTalkflag;
 /** Chat-Panel background CEL */
 BYTE* pTalkPnl;
-/** Chat-Panel button images CEL */
-BYTE* pTalkBtns;
 /** The current message in the Chat-Panel. */
 char sgszTalkMsg[MAX_SEND_STR_LEN];
 /** The cached messages of the Chat-Panel. */
@@ -860,7 +858,6 @@ void InitControlPan()
 	sgszTalkMsg[0] = '\0';
 	if (!IsLocalGame) {
 		pTalkPnl = LoadFileInMem("CtrlPan\\TalkPnl.CEL");
-		pTalkBtns = LoadFileInMem("CtrlPan\\TalkButt.CEL");
 	}
 	gbLvlbtndown = false;
 	pPanelButtons = LoadFileInMem("CtrlPan\\Menu.CEL");
@@ -1112,7 +1109,6 @@ void FreeControlPan()
 	MemFreeDbg(pSpellCels);
 	MemFreeDbg(pPanelButtons);
 	MemFreeDbg(pTalkPnl);
-	MemFreeDbg(pTalkBtns);
 	MemFreeDbg(pChrButtons);
 	MemFreeDbg(pSTextBoxCels);
 	MemFreeDbg(pSTextSlidCels);
