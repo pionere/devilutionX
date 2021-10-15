@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 int codec_decode(BYTE* pbSrcDst, DWORD size, const char* pszPassword);
-inline DWORD codec_get_encoded_len(DWORD dwSrcBytes);
+DWORD codec_get_encoded_len(DWORD dwSrcBytes);
 void codec_encode(BYTE* pbSrcDst, DWORD size, DWORD encodedSize, const char* pszPassword);
 
 #ifdef __cplusplus

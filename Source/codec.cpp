@@ -93,7 +93,7 @@ error:
 	return 0;
 }
 
-inline DWORD codec_get_encoded_len(DWORD dwSrcBytes)
+DWORD codec_get_encoded_len(DWORD dwSrcBytes)
 {
 	if (dwSrcBytes % SHA1BlockSize != 0)
 		dwSrcBytes += SHA1BlockSize - (dwSrcBytes % SHA1BlockSize);
