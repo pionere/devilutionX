@@ -34,8 +34,8 @@ bool gbSelectProvider;
 bool gbSelectHero;
 /* The last tick before the timeout happened. */
 static int sglTimeoutStart;
-/* The base value to initialize the AI_Seeds of monsters in multi-player games. */
-static uint32_t sgdwGameLoops;
+/* The current iteration of the game logic. */
+uint32_t gdwGameLogicTurn;
 /**
  * Specifies the type of the current game
  * 0: single player game
@@ -173,11 +173,10 @@ void multi_rnd_seeds()
 	int i;
 	uint32_t seed;
 
+	gdwGameLogicTurn++;
 	if (!IsMultiGame)
 		return;
-
-	sgdwGameLoops++;
-	seed = (sgdwGameLoops >> 8) | (sgdwGameLoops << 24); // _rotr(sgdwGameLoops, 8)
+	seed = (gdwGameLogicTurn >> 8) | (gdwGameLogicTurn << 24); // _rotr(gdwGameLogicTurn, 8)
 	SetRndSeed(seed);
 	for (i = 0; i < MAXMONSTERS; i++, seed++)
 		monsters[i]._mAISeed = seed;
@@ -447,7 +446,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
 		//multi_check_left_plrs();
 	}
-	sgdwGameLoops = 4 * turn->nmpTurn * gbNetUpdateRate;
+	gdwGameLogicTurn = turn->nmpTurn * gbNetUpdateRate;
 }
 
 void multi_process_msgs()
@@ -808,7 +807,7 @@ bool NetInit(bool bSinglePlayer)
 		multi_init_buffers();
 		nthread_start(); 
 		dthread_start();
-		sgdwGameLoops = 0;
+		gdwGameLogicTurn = 0;
 		nthread_send_turn();
 #ifndef NOHOSTING
 		if (IsGameSrv) {

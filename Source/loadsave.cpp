@@ -856,6 +856,8 @@ void LoadGame()
 	if (i != SAVE_INITIAL)
 		app_fatal("Invalid save file");
 	// load game-info
+	LoadInt32(&gdwGameLogicTurn);
+	LoadInt32(&sgbSentThisCycle);
 	LoadInt(&i);
 	currLvl._dLevelIdx = i & 0xFF;
 	EnterLevel(i & 0xFF);
@@ -1534,6 +1536,8 @@ void SaveGame()
 	i = SAVE_INITIAL;
 	SaveInt(&i);
 	// save game-info
+	SaveInt32(&gdwGameLogicTurn);
+	SaveInt32(&sgbSentThisCycle);
 	i = (gnDifficulty << 8) | currLvl._dLevelIdx;
 	SaveInt(&i);
 	for (i = 0; i < NUM_LEVELS; i++) {
