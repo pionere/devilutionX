@@ -151,7 +151,8 @@ bool IncProgress()
 	sgdwProgress += 23;
 	if (sgdwProgress > BAR_WIDTH)
 		sgdwProgress = BAR_WIDTH;
-	assert(sgpBackCel != NULL);
+	// do not draw in case of quick-load
+	if (sgpBackCel != NULL)
 		DrawCutscene();
 	return sgdwProgress >= BAR_WIDTH;
 }
