@@ -13,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SAVE_INITIAL 'RETL'
 #endif
 
-BYTE *tbuff;
+BYTE* tbuff;
 
 static bool LoadBool()
 {
@@ -25,7 +25,7 @@ static void SaveBool(BOOL v)
 	*tbuff++ = v != 0;
 }
 
-static void CopyBytes(const void *src, const int n, void *dst)
+static void CopyBytes(const void* src, const int n, void* dst)
 {
 	memcpy(dst, src, n);
 	tbuff += n;
@@ -239,7 +239,7 @@ static void LoadInts(unsigned* dst, unsigned n)
 #endif
 }
 
-static void LoadItemData(ItemStruct *is)
+static void LoadItemData(ItemStruct* is)
 {
 	LoadInt(&is->_iSeed);
 	LoadInt16(&is->_iCreateInfo);
@@ -315,7 +315,7 @@ static void LoadItemData(ItemStruct *is)
 	LoadInt(&is->_iStatFlag);
 }
 
-static void LoadItems(ItemStruct *pItem, const int n)
+static void LoadItems(ItemStruct* pItem, const int n)
 {
 	for (int i = 0; i < n; i++) {
 		LoadItemData(&pItem[i]);
@@ -619,7 +619,7 @@ static void LoadTowner(int tnum)
 
 static void LoadMissile(int mi)
 {
-	MissileStruct *mis = &missile[mi];
+	MissileStruct* mis = &missile[mi];
 
 	LoadInt(&mis->_miType);
 	LoadByte(&mis->_miSubType);
@@ -725,7 +725,7 @@ static void LoadItem(int ii)
 
 static void LoadQuest(int i)
 {
-	QuestStruct *pQuest = &quests[i];
+	QuestStruct* pQuest = &quests[i];
 
 	LoadByte(&pQuest->_qactive);
 	LoadByte(&pQuest->_qvar1);
@@ -736,7 +736,7 @@ static void LoadQuest(int i)
 	LoadInt(&pQuest->_qmsg);
 }
 
-static void LoadLight(LightListStruct *pLight)
+static void LoadLight(LightListStruct* pLight)
 {
 	LoadInt(&pLight->_lx);
 	LoadInt(&pLight->_ly);
@@ -754,7 +754,7 @@ static void LoadLight(LightListStruct *pLight)
 
 static void LoadPortal(int i)
 {
-	PortalStruct *pPortal = &portals[i];
+	PortalStruct* pPortal = &portals[i];
 
 	pPortal->_wopen = LoadBool();
 	tbuff += 3; // Alignment
@@ -963,7 +963,7 @@ void LoadGame()
 	SyncMissilesAnim();
 }
 
-static void SaveItemData(ItemStruct *is)
+static void SaveItemData(ItemStruct* is)
 {
 	SaveInt(&is->_iSeed);
 	SaveInt16(&is->_iCreateInfo);
@@ -1039,7 +1039,7 @@ static void SaveItemData(ItemStruct *is)
 	SaveInt(&is->_iStatFlag);
 }
 
-static void SaveItems(ItemStruct *pItem, const int n)
+static void SaveItems(ItemStruct* pItem, const int n)
 {
 	for (int i = 0; i < n; i++) {
 		SaveItemData(&pItem[i]);
@@ -1337,7 +1337,7 @@ static void SaveTowner(int tnum)
 
 static void SaveMissile(int mi)
 {
-	MissileStruct *mis = &missile[mi];
+	MissileStruct* mis = &missile[mi];
 
 	SaveInt(&mis->_miType);
 	SaveByte(&mis->_miSubType);
@@ -1431,7 +1431,7 @@ static void SaveObject(int oi)
 
 static void SaveQuest(int i)
 {
-	QuestStruct *pQuest = &quests[i];
+	QuestStruct* pQuest = &quests[i];
 
 	SaveByte(&pQuest->_qactive);
 	SaveByte(&pQuest->_qvar1);
@@ -1442,7 +1442,7 @@ static void SaveQuest(int i)
 	SaveInt(&pQuest->_qmsg);
 }
 
-static void SaveLight(LightListStruct *pLight)
+static void SaveLight(LightListStruct* pLight)
 {
 	SaveInt(&pLight->_lx);
 	SaveInt(&pLight->_ly);
@@ -1460,7 +1460,7 @@ static void SaveLight(LightListStruct *pLight)
 
 static void SavePortal(int i)
 {
-	PortalStruct *pPortal = &portals[i];
+	PortalStruct* pPortal = &portals[i];
 
 	SaveBool(pPortal->_wopen);
 	tbuff += 3; // Alignment
@@ -1530,7 +1530,7 @@ void SaveGame()
 	int i;
 
 	DWORD dwLen = codec_get_encoded_len(FILEBUFF);
-	BYTE *fileBuff = DiabloAllocPtr(dwLen);
+	BYTE* fileBuff = DiabloAllocPtr(dwLen);
 	tbuff = fileBuff;
 
 	i = SAVE_INITIAL;
@@ -1625,7 +1625,7 @@ void SaveGame()
 			SaveTowner(i);
 	}
 
-	assert(tbuff - fileBuff <= FILEBUFF);
+	assert(tbuff - fileBuff < FILEBUFF);
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
 	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff, dwLen);
 	mem_free_dbg(fileBuff);
@@ -1650,7 +1650,7 @@ void SaveLevel()
 	SaveLevelData(false);
 
 	GetTempLevelName(szName);
-	assert(tbuff - fileBuff <= FILEBUFF);
+	assert(tbuff - fileBuff < FILEBUFF);
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
 	pfile_write_save_file(szName, fileBuff, tbuff - fileBuff, dwLen);
 	mem_free_dbg(fileBuff);

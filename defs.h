@@ -152,9 +152,8 @@
 
 #define MAX_PATH_LENGTH			23
 
-// 256 kilobytes + 3 bytes (demo leftover) for file magic (262147)
-// final game uses 4-byte magic instead of 3
-#define FILEBUFF				((256 * 1024) + 3)
+// 512 kilobytes - SHA1BlockSize .. (was 256 kb in vanilla which is not safe)
+#define FILEBUFF				((512 * 1024) - SHA1BlockSize)
 
 #define PMSG_COUNT				8
 

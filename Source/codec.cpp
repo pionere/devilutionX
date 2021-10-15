@@ -17,7 +17,7 @@ typedef struct CodecSignature {
 	uint16_t unused;
 } CodecSignature;
 
-static void CodecInitKey(const char *pszPassword)
+static void CodecInitKey(const char* pszPassword)
 {
 	char key[72 + SHA1BlockSize]; // last 64 bytes are the SHA1
 	uint32_t rand_state = 0x7058;
@@ -49,12 +49,12 @@ static void CodecInitKey(const char *pszPassword)
 	memset(key, 0, sizeof(key));
 }
 
-int codec_decode(BYTE *pbSrcDst, DWORD size, const char *pszPassword)
+int codec_decode(BYTE* pbSrcDst, DWORD size, const char* pszPassword)
 {
 	char buf[SHA1BlockSize];
 	char dst[SHA1HashSize];
 	int i;
-	CodecSignature *sig;
+	CodecSignature* sig;
 
 	CodecInitKey(pszPassword);
 	if (size <= sizeof(CodecSignature))
@@ -74,13 +74,13 @@ int codec_decode(BYTE *pbSrcDst, DWORD size, const char *pszPassword)
 	}
 
 	memset(buf, 0, sizeof(buf));
-	sig = (CodecSignature *)pbSrcDst;
+	sig = (CodecSignature*)pbSrcDst;
 	if (sig->error > 0) {
 		goto error;
 	}
 
 	SHA1Result(0, dst);
-	if (sig->checksum != *(uint32_t *)dst) {
+	if (sig->checksum != *(uint32_t*)dst) {
 		memset(dst, 0, sizeof(dst));
 		goto error;
 	}
@@ -93,20 +93,20 @@ error:
 	return 0;
 }
 
-DWORD codec_get_encoded_len(DWORD dwSrcBytes)
+inline DWORD codec_get_encoded_len(DWORD dwSrcBytes)
 {
 	if (dwSrcBytes % SHA1BlockSize != 0)
 		dwSrcBytes += SHA1BlockSize - (dwSrcBytes % SHA1BlockSize);
 	return dwSrcBytes + sizeof(CodecSignature);
 }
 
-void codec_encode(BYTE *pbSrcDst, DWORD size, DWORD encodedSize, const char *pszPassword)
+void codec_encode(BYTE* pbSrcDst, DWORD size, DWORD encodedSize, const char* pszPassword)
 {
 	char buf[SHA1BlockSize];
 	char tmp[SHA1HashSize];
 	char dst[SHA1HashSize];
 	DWORD chunk;
-	CodecSignature *sig;
+	CodecSignature* sig;
 
 	assert(encodedSize == codec_get_encoded_len(size));
 	CodecInitKey(pszPassword);
@@ -129,10 +129,10 @@ void codec_encode(BYTE *pbSrcDst, DWORD size, DWORD encodedSize, const char *psz
 	}
 	memset(buf, 0, sizeof(buf));
 	SHA1Result(0, tmp);
-	sig = (CodecSignature *)pbSrcDst;
+	sig = (CodecSignature*)pbSrcDst;
 	sig->error = 0;
 	sig->unused = 0;
-	sig->checksum = *(uint32_t *)&tmp[0];
+	sig->checksum = *(uint32_t*)&tmp[0];
 	sig->last_chunk_size = chunk;
 	SHA1Clear();
 }
