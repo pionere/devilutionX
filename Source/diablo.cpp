@@ -1439,10 +1439,8 @@ static void game_loop()
 	i = IsMultiGame ? 3 : 1;
 
 	do {
-		// TODO: stop processing the turns if the game is in pause mode? (ProcessInput returns false)
-		//  Currently one last live turn is processed, afterwards the empty turns do not
-		//  cause any trouble, but if the live turn is not processed, it has to be
-		//  saved/discarded if the game is saved/loaded. (SNetGetLiveTurnsInTransit)
+		if (!ProcessInput())
+			break;
 		if (!multi_handle_turn()) {
 			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
 				gnTimeoutCurs = pcurs;
@@ -1457,12 +1455,12 @@ static void game_loop()
 			gnTimeoutCurs = CURSOR_NONE;
 			//gbRedrawFlags = REDRAW_ALL;
 		}
-		if (ProcessInput()) {
+		//if (ProcessInput()) {
 			game_logic();
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 			plrctrls_after_game_logic();
 #endif
-		}
+		//}
 	} while (--i != 0 && gbRunGame && nthread_has_50ms_passed());
 }
 

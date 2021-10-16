@@ -64,6 +64,7 @@ static void gamemenu_update_single()
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
 
 	enable = pcurs == CURSOR_HAND && myplr._pmode != PM_DEATH && !gbDeathflag;
+	// TODO: disable saving if there is a live turn in transit? (SNetGetLiveTurnsInTransit)
 	gmenu_enable(&sgSingleMenu[0], enable);
 }
 
@@ -126,7 +127,7 @@ static void gamemenu_load_game(bool bActivate)
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game();
 	gbDeathflag = false;
-	gbZoomInFlag = false;
+	//gbZoomInFlag = false;
 	LoadGame();
 	ClrDiabloMsg();
 	PaletteFadeOut();
