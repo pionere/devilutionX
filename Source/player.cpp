@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define PLR_WALK_SHIFT 8
+
 int mypnum;
 PlayerStruct players[MAX_PLRS];
 /* Counter to suppress animations in case the current player is changing the level. */
@@ -103,19 +105,6 @@ const BYTE PlrGFXAnimActFrames[NUM_CLASSES][2] = {
 /** Specifies the length of a frame for each animation. */
 const BYTE PlrAnimFrameLens[NUM_PLR_ANIMS] = { 4, 1, 1, 3, 2, 1, 1 };
 
-/** Maps from player class to player velocity. */
-/*const int PWVel[NUM_CLASSES][3] = {
-	// clang-format off
-	{ 2048, 1024, 512 },
-	{ 2048, 1024, 512 },
-	{ 2048, 1024, 512 },
-#ifdef HELLFIRE
-	{ 2048, 1024, 512 },
-	{ 2048, 1024, 512 },
-	{ 2048, 1024, 512 },
-#endif
-	// clang-format on
-};*/
 /** Maps from player_class to starting stat in strength. */
 const int StrengthTbl[NUM_CLASSES] = {
 	// clang-format off
@@ -494,7 +483,7 @@ void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLe
 	plr._pAnimCnt = 0;
 	plr._pAnimFrameLen = frameLen;
 	plr._pAnimWidth = width;
-	plr._pAnimXOffset = (width - 64) >> 1;
+	plr._pAnimXOffset = (width - TILE_WIDTH) >> 1;
 }
 
 /*static void ClearPlrPVars(int pnum)
@@ -1149,14 +1138,14 @@ static void PlrChangeOffset(int pnum)
 		dev_fatal("PlrChangeOffset: illegal player %d", pnum);
 	}
 
-	px = plr._pVar6 >> 8; // WALK_XOFF
-	py = plr._pVar7 >> 8; // WALK_YOFF
+	px = plr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
+	py = plr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
 
 	plr._pVar6 += plr._pxvel;
 	plr._pVar7 += plr._pyvel;
 
-	plr._pxoff = plr._pVar6 >> 8;
-	plr._pyoff = plr._pVar7 >> 8;
+	plr._pxoff = plr._pVar6 >> PLR_WALK_SHIFT;
+	plr._pyoff = plr._pVar7 >> PLR_WALK_SHIFT;
 
 	px -= plr._pxoff;
 	py -= plr._pyoff;
@@ -1214,8 +1203,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	plr._pyvel = yvel;
 	plr._pxoff = xoff;       // Offset player sprite to align with their previous tile position
 	plr._pyoff = yoff;
-	plr._pVar6 = xoff << 8;  // WALK_XOFF : _pxoff value in a higher range
-	plr._pVar7 = yoff << 8;  // WALK_YOFF : _pyoff value in a higher range
+	plr._pVar6 = xoff << PLR_WALK_SHIFT;  // WALK_XOFF : _pxoff value in a higher range
+	plr._pVar7 = yoff << PLR_WALK_SHIFT;  // WALK_YOFF : _pyoff value in a higher range
 	//plr._pVar3 = dir;      // Player's direction when ending movement.
 	plr._pVar8 = 0;          // WALK_TICK : speed helper
 
@@ -1257,15 +1246,13 @@ static bool StartWalk(int pnum)
 
 	SetPlayerOld(pnum);
 
-	//if (currLvl._dLevelIdx != DLV_TOWN) {
-	//	xvel3 = PWVel[plr._pClass][0];
-	//	xvel = PWVel[plr._pClass][1];
-	//	yvel = PWVel[plr._pClass][2];
-	//} else {
-		xvel3 = 2048;
-		xvel = 1024;
-		yvel = 512;
-	//}
+#ifdef _DEBUG
+	for (i = 0; i < NUM_CLASSES; i++)
+		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
+#endif
+	xvel3 = (TILE_WIDTH << PLR_WALK_SHIFT) / PlrGFXAnimLens[PC_WARRIOR][PA_WALK];
+	xvel = xvel3 / 2;
+	yvel = ((TILE_HEIGHT << PLR_WALK_SHIFT) / PlrGFXAnimLens[PC_WARRIOR][PA_WALK]) / 2;
 	switch (dir) {
 	case DIR_N:
 		StartWalk1(pnum, 0, -xvel, -1, -1);

@@ -42,31 +42,108 @@ const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBA
 /* data */
 
 /** Maps from monster walk animation frame num to monster velocity. */
+#define MON_WALK_SHIFT 8
+// MWVel[animLen - 1][2] = (TILE_WIDTH << MON_WALK_SHIFT) / animLen;
+// MWVel[animLen - 1][1] = MWVel[animLen - 1][2] / 2;
+// MWVel[animLen - 1][0] = ((TILE_HEIGHT << MON_WALK_SHIFT) / animLen) / 2;
 const int MWVel[24][3] = {
-	{ 256, 512, 1024 },
-	{ 128, 256, 512 },
-	{ 85, 170, 341 },
-	{ 64, 128, 256 },
-	{ 51, 102, 204 },
-	{ 42, 85, 170 },
-	{ 36, 73, 146 },
-	{ 32, 64, 128 },
-	{ 28, 56, 113 },
-	{ 26, 51, 102 },
-	{ 23, 46, 93 },
-	{ 21, 42, 85 },
-	{ 19, 39, 78 },
-	{ 18, 36, 73 },
-	{ 17, 34, 68 },
-	{ 16, 32, 64 },
-	{ 15, 30, 60 },
-	{ 14, 28, 57 },
-	{ 13, 26, 54 },
-	{ 12, 25, 51 },
-	{ 12, 24, 48 },
-	{ 11, 23, 46 },
-	{ 11, 22, 44 },
-	{ 10, 21, 42 }
+	// clang-format off
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (1 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (1 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 1 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (2 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (2 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 2 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (3 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (3 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 3 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (4 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (4 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 4 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (5 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (5 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 5 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (6 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (6 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 6 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (7 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (7 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 7 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (8 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (8 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 8 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (9 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (9 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 9 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (10 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (10 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 10 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (11 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (11 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 11 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (12 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (12 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 12 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (13 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (13 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 13 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (14 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (14 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 14 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (15 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (15 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 15 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (16 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (16 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 16 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (17 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (17 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 17 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (18 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (18 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 18 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (19 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (19 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 19 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (20 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (20 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 20 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (21 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (21 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 21 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (22 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (22 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 22 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (23 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (23 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 23 },
+
+	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (24 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / (24 * 2),
+	  (TILE_WIDTH << MON_WALK_SHIFT) / 24 },
+	// clang-format on
 };
 /** Maps from monster action to monster animation letter. */
 const char animletter[NUM_MON_ANIM] = { 'n', 'w', 'a', 'h', 'd', 's' };
@@ -288,7 +365,7 @@ void InitMonsterGFX(int midx)
 	mdata = &monsterdata[mtype];
 	mfdata = &monfiledata[mdata->moFileNum];
 	cmon->cmWidth = mfdata->moWidth;
-	cmon->cmXOffset = (mfdata->moWidth - 64) >> 1;
+	cmon->cmXOffset = (mfdata->moWidth - TILE_WIDTH) >> 1;
 	cmon->cmSndSpecial = mfdata->moSndSpecial;
 	cmon->cmAFNum = mfdata->moAFNum;
 	cmon->cmAFNum2 = mfdata->moAFNum2;
@@ -1307,8 +1384,8 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_myvel = yvel;
 	mon->_mxoff = xoff;
 	mon->_myoff = yoff;
-	mon->_mVar6 = xoff << 4; // MWALK_XOFF : _mxoff in a higher range
-	mon->_mVar7 = yoff << 4; // MWALK_YOFF : _myoff in a higher range
+	mon->_mVar6 = xoff << MON_WALK_SHIFT; // MWALK_XOFF : _mxoff in a higher range
+	mon->_mVar7 = yoff << MON_WALK_SHIFT; // MWALK_YOFF : _myoff in a higher range
 	//mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
 
 	mx = mon->_mx;
@@ -1875,8 +1952,8 @@ static bool MonDoWalk(int mnum)
 			//mon->_mVar8++;
 			mon->_mVar6 += mon->_mxvel; // MWALK_XOFF
 			mon->_mVar7 += mon->_myvel; // MWALK_YOFF
-			mon->_mxoff = mon->_mVar6 >> 4;
-			mon->_myoff = mon->_mVar7 >> 4;
+			mon->_mxoff = mon->_mVar6 >> MON_WALK_SHIFT;
+			mon->_myoff = mon->_mVar7 >> MON_WALK_SHIFT;
 			if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 				MonChangeLightOff(mnum);
 		//}
