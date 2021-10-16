@@ -4,6 +4,7 @@
  * Implementation of save game functionality.
  */
 #include "all.h"
+#include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -847,6 +848,8 @@ void LoadGame()
 	int _ViewX, _ViewY;
 
 	FreeLevelMem();
+	// TODO: UIDisconnectGame() ?
+	SNetLeaveGame(LEAVE_UNKNOWN);
 
 	pfile_remove_temp_files();
 	fileBuff = pfile_read(SAVEFILE_GAME);
@@ -961,6 +964,9 @@ void LoadGame()
 	//ProcessVisionList();
 
 	SyncMissilesAnim();
+
+	sgbSentThisCycle--;
+	nthread_send_turn();
 }
 
 static void SaveItemData(ItemStruct* is)
