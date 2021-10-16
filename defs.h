@@ -86,8 +86,7 @@
 #endif
 
 #define MAX_NETMSG_SIZE			512
-
-// #define MAX_PATH				260
+#define NET_DEFAULT_PORT		6112
 #define MAX_SEND_STR_LEN		80
 
 #define MAXDEAD					31
@@ -125,8 +124,6 @@
 #define VOLUME_MIN				-1600
 #define VOLUME_MAX				0
 
-#define NET_DEFAULT_PORT		6112
-
 // todo: enums
 #define HEALER_ITEMS			16
 #define BOY_MAX_VALUE			200000
@@ -152,8 +149,8 @@
 
 #define MAX_PATH_LENGTH			23
 
-// 512 kilobytes - SHA1BlockSize .. (was 256 kb in vanilla which is not safe)
-#define FILEBUFF				((512 * 1024) - SHA1BlockSize)
+// 512 kilobytes .. (was 256 kb in vanilla which is not safe)
+#define FILEBUFF				(512 * 1024)
 
 #define PMSG_COUNT				8
 
@@ -193,15 +190,6 @@
 #endif
 
 #define VIEWPORT_HEIGHT dvl::viewportHeight
-
-// If defined, use 32-bit colors instead of 8-bit [Default -> Undefined]
-//#define RGBMODE
-
-#ifndef RGBMODE
-#define SCREEN_BPP		8
-#else
-#define SCREEN_BPP		32
-#endif
 
 #define TILE_WIDTH		64
 #define TILE_HEIGHT		32

@@ -1534,9 +1534,8 @@ static void SaveLevelData(bool full)
 void SaveGame()
 {
 	int i;
-
-	DWORD dwLen = codec_get_encoded_len(FILEBUFF);
-	BYTE* fileBuff = DiabloAllocPtr(dwLen);
+	DWORD dwLen; // = codec_get_encoded_len(FILEBUFF);
+	BYTE* fileBuff = DiabloAllocPtr(FILEBUFF);
 	tbuff = fileBuff;
 
 	i = SAVE_INITIAL;
@@ -1643,14 +1642,13 @@ void SaveGame()
 void SaveLevel()
 {
 	char szName[MAX_PATH];
-	int dwLen;
+	DWORD dwLen; // = codec_get_encoded_len(FILEBUFF);
 	BYTE* fileBuff;
 
 	if (currLvl._dLevelIdx == DLV_TOWN)
 		glSeedTbl[DLV_TOWN] = GetRndSeed();
 
-	dwLen = codec_get_encoded_len(FILEBUFF);
-	fileBuff = DiabloAllocPtr(dwLen);
+	fileBuff = DiabloAllocPtr(FILEBUFF);
 	tbuff = fileBuff;
 
 	SaveLevelData(false);
