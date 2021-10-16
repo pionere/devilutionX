@@ -26,7 +26,7 @@ void init_create_window();
 void MainWndProc(UINT Msg);
 WNDPROC SetWindowProc(WNDPROC NewProc);
 
-extern char gszProductName[MAX_SEND_STR_LEN];
+extern const char gszProductName[];
 
 #ifdef __cplusplus
 }

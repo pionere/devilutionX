@@ -44,7 +44,6 @@
 #define GAME_ID					((int)'HRTL')
 #define GAME_VERSION			34
 #define HELP_TITLE				"Hellfire Help"
-#define PROGRAM_NAME			"Hellfire Retail"
 #else
 #define LOGO_DATA				"Data\\Diabsmal.CEL"
 #define LOGO_WIDTH				296
@@ -52,7 +51,6 @@
 #define GAME_ID					((int)'DRTL')
 #define GAME_VERSION			42
 #define HELP_TITLE				"Diablo Help"
-#define PROGRAM_NAME			"Diablo Retail"
 #endif
 
 // MAXDUN = DSIZE + 2 * DBORDER

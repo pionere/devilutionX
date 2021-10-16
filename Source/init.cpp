@@ -65,7 +65,7 @@ static HANDLE init_test_access(const char* mpq_name)
 
 /* data */
 
-char gszProductName[MAX_SEND_STR_LEN] = "Diablo v1.09";
+const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
 
 void init_cleanup()
 {
@@ -83,11 +83,6 @@ void init_cleanup()
 		}
 	}
 #endif
-}
-
-static void init_get_file_info()
-{
-	snprintf(gszProductName, sizeof(gszProductName), "%s v%s", PROJECT_NAME, PROJECT_VERSION);
 }
 
 #ifdef _DEVMODE
@@ -155,8 +150,6 @@ static void ReadOnlyTest()
 
 void init_archives()
 {
-	init_get_file_info();
-
 	InitializeMpqCryptography();
 	ReadOnlyTest();
 	SFileEnableDirectAccess(getIniBool("Diablo", "Direct FileAccess", false));
