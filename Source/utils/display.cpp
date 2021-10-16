@@ -28,15 +28,25 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/**
+ * Specfies whether vertical sync is enabled.
+ */
 bool gbVsyncEnabled;
+/**
+ * Specfies whether the FPS limiter is enabled to reduce CPU load.
+ */
 bool gbFPSLimit;
+/**
+ * Specfies whether the FPS counter is shown.
+ */
+bool gbShowFPS;
 /* Screen refresh rate in nanoseconds */
 int gnRefreshDelay;
-SDL_Window *ghMainWnd;
-SDL_Renderer *renderer;
+SDL_Window* ghMainWnd;
+SDL_Renderer* renderer;
 SDL_Texture* renderer_texture;
 /** 24-bit renderer texture surface */
-SDL_Surface *renderer_surface = NULL;
+SDL_Surface* renderer_surface = NULL;
 
 /** Currently active palette */
 SDL_Palette* back_palette;
@@ -69,7 +79,7 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height)
 		flags |= SDL_FULLSCREEN;
 #ifdef __3DS__
 	flags &= ~SDL_FULLSCREEN;
-	bool fitToScreen = getIniBool("devilutionx", "Fit to Screen", true);
+	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
 	flags |= Get3DSScalingFlag(fitToScreen, width, height);
 #endif
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
@@ -133,7 +143,7 @@ static void CalculatePreferdWindowSize(int &width, int &height, bool useIntegerS
 #endif
 }
 
-bool SpawnWindow(const char *lpWindowName)
+bool SpawnWindow(const char* lpWindowName)
 {
 #ifdef __vita__
 	scePowerSetArmClockFrequency(444);
@@ -191,23 +201,23 @@ bool SpawnWindow(const char *lpWindowName)
 
 	int width = DEFAULT_WIDTH;
 	int height = DEFAULT_HEIGHT;
-	getIniInt("devilutionx", "Width", &width);
-	getIniInt("devilutionx", "Height", &height);
-	bool integerScalingEnabled = getIniBool("devilutionx", "Integer Scaling", false);
+	getIniInt("Graphics", "Width", &width);
+	getIniInt("Graphics", "Height", &height);
+	bool integerScalingEnabled = getIniBool("Graphics", "Integer Scaling", false);
 
 #ifndef __vita__
 	if (gbFullscreen)
-		gbFullscreen = getIniBool("devilutionx", "Fullscreen", true);
+		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);
 #endif
 
-	bool grabInput = getIniBool("devilutionx", "Grab Input", false);
+	bool grabInput = getIniBool("Diablo", "Grab Input", false);
 
 #ifdef USE_SDL1
 	bool upscale = false;
 #else
-	bool upscale = getIniBool("devilutionx", "Upscale", true);
+	bool upscale = getIniBool("Graphics", "Upscale", true);
 #endif
-	bool fitToScreen = getIniBool("devilutionx", "Fit to Screen", true);
+	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
 
 	if (upscale && fitToScreen) {
 		CalculatePreferdWindowSize(width, height, integerScalingEnabled);
@@ -233,7 +243,7 @@ bool SpawnWindow(const char *lpWindowName)
 		flags |= SDL_WINDOW_RESIZABLE;
 
 		char scaleQuality[2] = "2";
-		getIniValue("devilutionx", "Scaling Quality", scaleQuality, 2);
+		getIniValue("Graphics", "Scaling Quality", scaleQuality, 2);
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scaleQuality);
 	} else if (gbFullscreen) {
 		flags |= SDL_WINDOW_FULLSCREEN;
@@ -259,13 +269,14 @@ bool SpawnWindow(const char *lpWindowName)
 #endif
 	gnRefreshDelay = 1000000 / refreshRate;
 
-	gbFPSLimit = getIniBool("devilutionx", "FPS Limiter", true);
+	gbFPSLimit = getIniBool("Graphics", "FPS Limiter", true);
+	gbShowFPS = getIniBool("Graphics", "Show FPS", false);
 
 	if (upscale) {
 #ifndef USE_SDL1
 		Uint32 rendererFlags = SDL_RENDERER_ACCELERATED;
 
-		gbVsyncEnabled = getIniBool("devilutionx", "Vertical Sync", true);
+		gbVsyncEnabled = getIniBool("Graphics", "Vertical Sync", true);
 		if (gbVsyncEnabled) {
 			rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
 		}
@@ -302,7 +313,7 @@ bool SpawnWindow(const char *lpWindowName)
 	return ghMainWnd != NULL;
 }
 
-SDL_Surface *GetOutputSurface()
+SDL_Surface* GetOutputSurface()
 {
 #ifdef USE_SDL1
 	return SDL_GetVideoSurface();
@@ -319,11 +330,11 @@ bool OutputRequiresScaling()
 	return SCREEN_WIDTH != GetOutputSurface()->w || SCREEN_HEIGHT != GetOutputSurface()->h;
 }
 
-void ScaleOutputRect(SDL_Rect *rect)
+void ScaleOutputRect(SDL_Rect* rect)
 {
 	if (!OutputRequiresScaling())
 		return;
-	const SDL_Surface *surface = GetOutputSurface();
+	const SDL_Surface* surface = GetOutputSurface();
 	rect->x = rect->x * surface->w / SCREEN_WIDTH;
 	rect->y = rect->y * surface->h / SCREEN_HEIGHT;
 	rect->w = rect->w * surface->w / SCREEN_WIDTH;
@@ -334,7 +345,7 @@ static SDL_Surface* CreateScaledSurface(SDL_Surface* src)
 {
 	SDL_Rect stretched_rect = { 0, 0, static_cast<Uint16>(src->w), static_cast<Uint16>(src->h) };
 	ScaleOutputRect(&stretched_rect);
-	SDL_Surface *stretched = SDL_CreateRGBSurface(
+	SDL_Surface* stretched = SDL_CreateRGBSurface(
 	    SDL_SWSURFACE, stretched_rect.w, stretched_rect.h, src->format->BitsPerPixel,
 	    src->format->Rmask, src->format->Gmask, src->format->Bmask, src->format->Amask);
 	if (SDL_HasColorKey(src)) {
@@ -349,11 +360,11 @@ static SDL_Surface* CreateScaledSurface(SDL_Surface* src)
 	return stretched;
 }
 
-void ScaleSurfaceToOutput(SDL_Surface **surface)
+void ScaleSurfaceToOutput(SDL_Surface** surface)
 {
 	if (!OutputRequiresScaling())
 		return;
-	SDL_Surface *stretched = CreateScaledSurface(*surface);
+	SDL_Surface* stretched = CreateScaledSurface(*surface);
 	SDL_FreeSurface((*surface));
 	*surface = stretched;
 }

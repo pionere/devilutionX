@@ -37,7 +37,7 @@ static bool mainmenu_init_menu(bool bSinglePlayer)
 
 static bool mainmenu_single_player()
 {
-	if (getIniInt("devilutionx", "Game Speed", &gnTicksRate)) {
+	if (getIniInt("Diablo", "Game Speed", &gnTicksRate)) {
 		if (gnTicksRate < SPEED_NORMAL)
 			gnTicksRate = SPEED_NORMAL;
 		else if (gnTicksRate > SPEED_FASTEST)

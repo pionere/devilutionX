@@ -53,7 +53,7 @@ void palette_init()
 {
 	int value;
 
-	if (!getIniInt("Diablo", "Gamma Correction", &value))
+	if (!getIniInt("Graphics", "Gamma Correction", &value))
 		value = 100;
 	if (value < 30) {
 		value = 30;
@@ -62,7 +62,7 @@ void palette_init()
 	}
 	_gnGammaCorrection = value;
 
-	gbColorCyclingEnabled = getIniBool("Diablo", "Color Cycling", true);
+	gbColorCyclingEnabled = getIniBool("Graphics", "Color Cycling", true);
 
 	memcpy(system_palette, orig_palette, sizeof(orig_palette));
 }
@@ -121,7 +121,7 @@ void DecreaseGamma()
 void UpdateGamma(int gamma)
 {
 	gamma = 130 - gamma;
-	setIniInt("Diablo", "Gamma Correction", gamma);
+	setIniInt("Graphics", "Gamma Correction", gamma);
 	_gnGammaCorrection = gamma;
 	ApplyGamma(system_palette, logical_palette);
 	palette_update();

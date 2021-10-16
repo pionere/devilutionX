@@ -4,6 +4,7 @@
  * Implementation of functionality for rendering the dungeons, monsters and calling other render routines.
  */
 #include "all.h"
+#include "utils/display.h"
 #include "plrctrls.h"
 #include "engine/render/cl2_render.hpp"
 #include "engine/render/dun_render.hpp"
@@ -60,10 +61,6 @@ void (*DrawPlrProc)(int, int, int, int, int, BYTE *, int, int, int, int);
 BYTE sgSaveBack[MAX_CURSOR_AREA];
 
 //bool dRendered[MAXDUNX][MAXDUNY];
-/**
- * Specfies whether the FPS counter is shown.
- */
-bool gbFrameflag = false;
 static unsigned guFrameCnt;
 static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
@@ -1360,11 +1357,11 @@ void ScrollView()
 #endif
 
 /**
- * @brief Initialize the FPS meter
+ * @brief Toggle the FPS meter
  */
 /*void EnableFrameCount()
 {
-	gbFrameflag = !gbFrameflag;
+	gbShowFPS = !gbShowFPS;
 	guFpsStartTc = SDL_GetTicks();
 }*/
 
@@ -1523,7 +1520,7 @@ void scrollrt_draw_game()
 	DrawView();
 	scrollrt_draw_cursor();
 
-	if (gbFrameflag)
+	if (gbShowFPS)
 		DrawFPS();
 
 	unlock_buf(0);

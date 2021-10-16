@@ -28,7 +28,6 @@ extern int ViewX;
 extern int ViewY;
 extern ScrollStruct ScrollInfo;
 extern int light_table_index;
-extern bool gbFrameflag;
 extern bool gbCelTransparencyActive;
 
 void ClearCursor();

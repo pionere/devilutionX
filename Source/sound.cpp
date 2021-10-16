@@ -44,7 +44,7 @@ static void snd_get_volume(const char* value_name, int* value)
 {
 	int v;
 
-	if (getIniInt("Diablo", value_name, value)) {
+	if (getIniInt("Audio", value_name, value)) {
 		v = *value;
 		if (v < VOLUME_MIN) {
 			v = VOLUME_MIN;
@@ -200,7 +200,7 @@ void sound_set_music_volume(int volume)
 {
 	_gnMusicVolume = volume;
 	gbMusicOn = volume > VOLUME_MIN;
-	setIniInt("Diablo", "Music Volume", volume);
+	setIniInt("Audio", "Music Volume", volume);
 
 	if (_gMusic != NULL)
 		Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * volume / VOLUME_MIN);
@@ -215,7 +215,7 @@ void sound_set_sound_volume(int volume)
 {
 	_gnSoundVolume = volume;
 	gbSoundOn = volume > VOLUME_MIN;
-	setIniInt("Diablo", "Sound Volume", volume);
+	setIniInt("Audio", "Sound Volume", volume);
 }
 
 #endif // NOT NOSOUND
