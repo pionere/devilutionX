@@ -2197,7 +2197,7 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis = &missile[mi];
 	mis->_miLid = AddLight(sx, sy, 4);
 	//assert(mis->_miAnimLen == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
-	mis->_miAnimFrame = random_(0, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
+	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
 	mis->_miVar1 = 1 + (spllvl >> 1);
 	//if (misource != -1) {
 	//	if (micaster == 0) {
@@ -3146,7 +3146,7 @@ void MI_Firewall(int mi)
 	if (mis->_miRange == mis->_miVar1) {
 		SetMissDir(mi, 1);
 		//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
-		mis->_miAnimFrame = random_(0, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
+		mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 	}
 	if (mis->_miRange == mis->_miAnimLen - 1) {
 		SetMissDir(mi, 0);
@@ -3456,7 +3456,7 @@ void MI_FireWave(int mi)
 	if (mis->_miVar1 == mis->_miAnimLen) {
 		SetMissDir(mi, 1);
 		//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
-		mis->_miAnimFrame = random_(0, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
+		mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 	}
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
