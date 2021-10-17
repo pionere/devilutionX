@@ -543,7 +543,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pIEvasion = plr._pDexterity / 5;
 	plr._pIAC = tac + plr._pIEvasion;
 	plr._pICritChance = 0;
-	btohit += 50 + plr._pLevel;
+	btohit += 50; // + plr._pLevel;
 	if (wt == SFLAG_MELEE) {
 		btohit += 20 + (plr._pDexterity >> 1);
 		plr._pICritChance = plr._pLevel;

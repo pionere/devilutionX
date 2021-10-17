@@ -605,7 +605,13 @@ static bool MonsterTrapHit(int mnum, int mi)
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
-	hper = 90 - mon->_mArmorClass - mis->_miDist;
+	if (mis->_miSubType == 0) {
+		hper = 100 + (2 * currLvl._dLevel)
+		    - mon->_mArmorClass;
+		hper -= mis->_miDist << 1;
+	} else {
+		hper = 40;
+	}
 	if (random_(68, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
@@ -647,6 +653,7 @@ static bool MonsterMHit(int mnum, int mi)
 	mon = &monsters[mnum];
 	mis = &missile[mi];
 	pnum = mis->_miSource;
+	//assert((unsigned)pnum < MAX_PLRS);
 	if (mis->_miSubType == 0) {
 		tmac = mon->_mArmorClass;
 		if (plr._pIEnAc > 0) {
@@ -729,9 +736,9 @@ static bool MonsterMHit(int mnum, int mi)
 		}
 	} else {
 		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
-		if (dam == 0)
-			return false;
 	}
+	if (dam == 0)
+		return false;
 
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
@@ -839,7 +846,8 @@ static bool PlayerTrapHit(int pnum, int mi)
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
-	dam += (!(mis->_miFlags & MIF_DOT)) ? plr._pIGetHit : (plr._pIGetHit >> 6);
+	if (!(mis->_miFlags & MIF_DOT))
+		dam += plr._pIGetHit;
 	if (dam < 64)
 		dam = 64;
 
@@ -901,7 +909,8 @@ static bool PlayerMHit(int pnum, int mi)
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
-	dam += (!(mis->_miFlags & MIF_DOT)) ? plr._pIGetHit : (plr._pIGetHit >> 6);
+	if (!(mis->_miFlags & MIF_DOT))
+		dam += plr._pIGetHit;
 	if (dam < 64)
 		dam = 64;
 
@@ -923,8 +932,8 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	offp = mis->_miSource;
 	if (mis->_miSubType == 0) {
 		hper = plx(offp)._pIHitChance
-		    - (mis->_miDist * mis->_miDist >> 1)
 		    - plr._pIAC;
+		hper -= (mis->_miDist * mis->_miDist >> 1);
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
 			hper = 40
@@ -999,10 +1008,15 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		}
 	} else {
 		dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
-		if (dam == 0)
-			return false;
 		dam >>= 1;
 	}
+
+	if (dam == 0)
+		return false;
+	if (!(mis->_miFlags & MIF_DOT))
+		dam += plr._pIGetHit;
+	if (dam < 64)
+		dam = 64;
 
 	if (offp == mypnum)
 		NetSendCmdPlrDamage(pnum, dam);
@@ -2162,13 +2176,14 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 					range = spllvl + (plx(misource)._pLevel >> 1);
 					// TODO: add support for spell duration modifier
 					//range += (range * plx(misource)._pISplDur) >> 7;
-					if (range > 30)
-						range = 30;
+					//if (range > 30)
+					//	range = 30;
 					range <<= 4;
-					if (range < 30)
-						range = 30;
+					//if (range < 30)
+					//	range = 30;
 
 					mis->_miRange = range;
+					assert(misfiledata[MFILE_GUARD].mfAnimLen[0] <= 16);
 					mis->_miVar1 = range - misfiledata[MFILE_GUARD].mfAnimLen[0];
 					//mis->_miVar2 = 0;
 					mis->_miVar3 = 1;
