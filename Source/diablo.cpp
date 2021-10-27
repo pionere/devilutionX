@@ -710,10 +710,8 @@ static void diablo_pause_game()
 {
 	if (!IsMultiGame) {
 		gbGamePaused = !gbGamePaused;
-		if (gbGamePaused) {
-			sound_stop();
-		}
-		gbRedrawFlags = REDRAW_ALL;
+		sound_pause(gbGamePaused);
+		//gbRedrawFlags = REDRAW_ALL;
 	}
 }
 

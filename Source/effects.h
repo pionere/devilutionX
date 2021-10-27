@@ -29,6 +29,7 @@ void PlayEffect(int mnum, int mode);
 void PlaySFX(int psfx, int rndCnt = 1);
 void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1);
 void sound_stop();
+void sound_pause(bool pause);
 void sound_update();
 void effects_cleanup_sfx();
 void sound_init();
@@ -43,6 +44,7 @@ inline void InitMonsterSND(int midx) { }
 inline void FreeMonsterSnd() { }
 inline void PlayEffect(int mnum, int mode) { PlaySFX(-1, 2); }
 inline void sound_stop() { }
+inline void sound_pause(bool pause) { }
 inline void sound_update() { }
 inline void effects_cleanup_sfx() { }
 inline void sound_init() { }

@@ -44,13 +44,12 @@ static int guCurrItemIdx;
 
 void gmenu_draw_pause()
 {
-	int x;
+	int x, light;
 
-	if (currLvl._dLevelIdx != DLV_TOWN)
-		RedBack();
 	if (!gmenu_is_active()) {
 		x = SCREEN_X + SCREEN_WIDTH / 2 - GetLargeStringWidth("Pause") / 2;
-		PrintLargeString(x, SCREEN_Y + SCREEN_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", 0);
+		light = (SDL_GetTicks() / 256) % 4;
+		PrintLargeString(x, SCREEN_Y + SCREEN_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", light);
 	}
 }
 
@@ -122,7 +121,11 @@ static void gmenu_left_right(bool isRight)
 
 void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 {
-	gbGamePaused = false;
+	if (!IsMultiGame) {
+		gbGamePaused = pItem != NULL;
+		sound_pause(gbGamePaused);
+		//diablo_pause_game();
+	}
 	_gbMouseNavigation = false;
 	gpCurrentMenu = pItem;
 	guCurrentMenuSize = nItems;

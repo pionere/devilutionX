@@ -1338,6 +1338,14 @@ void sound_stop()
 	Mix_HaltChannel(-1);
 }
 
+void sound_pause(bool pause)
+{
+	if (pause)
+		Mix_Pause(-1);
+	else
+		Mix_Resume(-1);
+}
+
 void sound_update()
 {
 	assert(gbSndInited);
