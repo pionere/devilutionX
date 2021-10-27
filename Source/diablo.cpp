@@ -1464,7 +1464,7 @@ static void game_loop()
 
 static void diablo_color_cyc_logic()
 {
-	if (!gbColorCyclingEnabled)
+	if (!gbColorCyclingEnabled || gbGamePaused)
 		return;
 
 	if (currLvl._dType == DTYPE_HELL)
