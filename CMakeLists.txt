@@ -63,7 +63,7 @@ endif()
 if(NOT VERSION_NUM)
   include(CMake/git.cmake)
   get_git_tag(VERSION_NUM)
-  if (NOT "${VERSION_NUM}" STREQUAL "")
+  if(NOT "${VERSION_NUM}" STREQUAL "")
     string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
   endif()
   get_git_commit_hash(GIT_COMMIT_HASH)
@@ -159,7 +159,7 @@ if(WIN32)
   set(ASAN OFF)
   set(UBSAN OFF)
   set(DIST ON)
-  if (_WIN32_WINNT)
+  if(_WIN32_WINNT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
   endif()
 endif()
@@ -213,7 +213,7 @@ if(ANDROID)
 elseif(USE_SDL1)
   find_package(SDL REQUIRED)
   #find_package(SDL_ttf REQUIRED)
-  if (NOT NOSOUND)
+  if(NOT NOSOUND)
     find_package(SDL_mixer REQUIRED)
     #set(SDL_MIXER_LIBRARY SDL::SDL_mixer) ?
   endif()
@@ -241,7 +241,7 @@ else()
     add_library(SDL2::SDL2 ALIAS SDL2_lib)
   endif()
   #find_package(SDL2_ttf REQUIRED)
-  if (NOT NOSOUND)
+  if(NOT NOSOUND)
     find_package(SDL2_mixer REQUIRED)
     set(SDL_MIXER_LIBRARY SDL2::SDL2_mixer)
   endif()
@@ -499,7 +499,7 @@ endif()
 if(HELLFIRE)
   add_definitions(-DHELLFIRE)
 endif()
-if (NOT ANDROID)
+if(NOT ANDROID)
   add_executable(${BIN_TARGET}
     WIN32
     MACOSX_BUNDLE
@@ -714,7 +714,7 @@ if(AMIGA)
   endif()
 endif()
 
-if (VITA)
+if(VITA)
   target_link_libraries(${BIN_TARGET} PRIVATE
         ScePower_stub
         SceNet_stub
@@ -742,7 +742,7 @@ endif()
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
 
-if (GPERF)
+if(GPERF)
   target_link_libraries(${BIN_TARGET} PRIVATE ${GPERFTOOLS_LIBRARIES})
 endif()
 
@@ -1001,8 +1001,8 @@ if(CPACK)
     #    DESTINATION "."
     #  )
     #endif()
-    ##if (SYSTEM_BITS MATCHES x64)
-    #if (${CMAKE_SIZEOF_VOID_P} EQUAL "8")
+    ##if(SYSTEM_BITS MATCHES x64)
+    #if(${CMAKE_SIZEOF_VOID_P} EQUAL "8")
     #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/libfreetype-6.dll"
     #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/freetype_x64-windows/bin/freetype.dll"
     #    DESTINATION "."
@@ -1107,7 +1107,7 @@ if(CPACK)
 
     # -G DEB
     #set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
-    if (NOT NOSOUND)
+    if(NOT NOSOUND)
       if(USE_SDL1)
       #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2, libsdl-ttf2.0-0")
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2")
