@@ -39,6 +39,10 @@ int main(int argc, char** argv)
 #ifdef __3DS__
 	ctr_sys_init();
 #endif
+#ifdef __vita__
+	vita_enable_network();
+	randombytes_vitarandom_init();
+#endif
 #ifdef GPERF_HEAP_MAIN
 	HeapProfilerStart("main");
 #endif

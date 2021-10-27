@@ -451,6 +451,8 @@ endif()
 
 if(VITA)
   list(APPEND devilutionx_SRCS
+    Source/platform/vita/random.cpp
+    Source/platform/vita/network.cpp
     Source/platform/vita/keyboard.cpp)
 endif()
 
@@ -715,6 +717,8 @@ endif()
 if (VITA)
   target_link_libraries(${BIN_TARGET} PRIVATE
         ScePower_stub
+        SceNet_stub
+        SceNetCtl_stub
         freetype
         png
         m
