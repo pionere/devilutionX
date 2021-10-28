@@ -146,9 +146,71 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
+  # Android-builds
+  build3:
+    needs: build0
+    if: ${{ needs.build0.outputs.should_run != 'false' }}
+    name: Nightly-Android
+    strategy:
+      fail-fast: false
+      matrix:
+        #name: [diablo, hellfire]
+        name: [diablo]
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-android.apk'
+          #- name: hellfire
+          #  cmakeargs: '-D HELLFIRE=ON'
+          #  artifact: 'hellfire-nightly-mac.dmg'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install gettext
+      run: sudo apt install -y gettext
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        cache: gradle
+
+    # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
+    # Removing it will cause gradle to fall back on 3.18.1 installed by the Android SDK
+    - name: Create Build Environment
+      run: rm /usr/local/bin/cmake
+
+    - name: Cache CMake build folder
+      uses: actions/cache@v2
+      with:
+        path: android-project/app/.cxx
+        key: android-cmake-${{ github.sha }}
+        restore-keys: android-cmake-
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: cd android-project && ./gradlew assemble
+
+    - name: Upload-Package
+      uses: actions/upload-artifact@v2
+      with:
+        #name: devilutionx-debug.apk
+        #path: android-project/app/build/outputs/apk/debug/app-debug.apk
+        name: ${{ matrix.artifact }}
+        path: android-project/app/build/outputs/apk/release/app-release-unsigned.apk
+
+    - name: Show content of workspace
+      run: find ${{ env.buildDir }}
+      shell: bash
   # Releases
   release:
-    needs: [build0, build1, build2]
+    needs: [build0, build1, build2, build3]
     if: ${{ needs.build0.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
@@ -208,6 +270,13 @@ jobs:
         name: hellfire-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-mac.dmg
 
+    # android builds
+    - name: Download a diablo android artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: diablo-nightly-android.apk
+    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
+
     #- name: Show content of workspace
     #  run: find $RUNNER_WORKSPACE
     #  shell: bash
@@ -231,6 +300,8 @@ jobs:
           
           ------------ | -------------
           
+          [diablo-nightly-android.apk](../../releases/download/devilx-nightly/diablo-nightly-android.apk)   | Diablo package for Android
+          
           [diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for Mac
           
           [diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for Windows x64
@@ -251,6 +322,7 @@ jobs:
         draft: false
         prerelease: true
         files: |
+          ${{github.workspace}}/diablo-nightly-android.apk
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-x86.zip

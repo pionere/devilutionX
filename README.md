@@ -4,10 +4,12 @@
 
 ---
 
+<!--
 [![Downloads](https://img.shields.io/github/downloads/diasurgical/devilutionX/total.svg)](https://github.com/diasurgical/devilutionX/releases)
 [![GitHub Stars](https://img.shields.io/github/stars/diasurgical/devilutionX.svg)](https://github.com/diasurgical/devilutionX/stargazers)
 [![Codecov](https://codecov.io/gh/diasurgical/devilutionX/branch/master/graph/badge.svg)](https://codecov.io/gh/diasurgical/devilutionX)
 [![BCH compliance](https://bettercodehub.com/edge/badge/diasurgical/devilutionX?branch=master)](https://bettercodehub.com/)
+-->
 
 ![Discord Channel](https://avatars3.githubusercontent.com/u/1965106?s=16&v=4) [Discord Chat Channel](https://discord.gg/YQKCAYQ)
 
