@@ -872,6 +872,8 @@ static void DRLG_LoadL1SP()
 		// patch set-piece to use common tiles - SKngDO.DUN
 		pSetPiece[(2 + 5 + 3 * 7) * 2] = 203;
 		pSetPiece[(2 + 5 + 4 * 7) * 2] = 22;
+		// patch set-piece to use common tiles and make the inner tile at the entrance non-walkable - SKngDO.DUN
+		pSetPiece[(2 + 5 + 2 * 7) * 2] = 203;
 	} else if (QuestStatus(Q_BUTCHER)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
 #ifdef HELLFIRE
