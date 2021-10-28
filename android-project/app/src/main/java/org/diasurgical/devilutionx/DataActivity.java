@@ -18,8 +18,8 @@ import java.io.File;
 
 public class DataActivity extends Activity {
 	private String externalDir;
-	private DownloadReceiver mReceiver;
-	private boolean isDownloading = false;
+	//private DownloadReceiver mReceiver;
+	//private boolean isDownloading = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +54,8 @@ public class DataActivity extends Activity {
 	}
 
 	protected void onDestroy() {
-		if (mReceiver != null)
-			unregisterReceiver(mReceiver);
+		//if (mReceiver != null)
+		//	unregisterReceiver(mReceiver);
 
 		super.onDestroy();
 	}
@@ -66,15 +66,15 @@ public class DataActivity extends Activity {
 	private boolean missingGameData() {
 		File fileLower = new File(externalDir + "/diabdat.mpq");
 		File fileUpper = new File(externalDir + "/DIABDAT.MPQ");
-		File spawnFile = new File(externalDir + "/spawn.mpq");
+		//File spawnFile = new File(externalDir + "/spawn.mpq");
 
-		return !fileUpper.exists() && !fileLower.exists() && (!spawnFile.exists() || isDownloading);
+		return !fileUpper.exists() && !fileLower.exists(); // && (!spawnFile.exists() || isDownloading);
 	}
 
 	/**
 	 * Start downloading the shareware
 	 */
-	public void sendDownloadRequest(View view) {
+	/*public void sendDownloadRequest(View view) {
 		String url = "https://github.com/d07RiV/diabloweb/raw/3a5a51e84d5dab3cfd4fef661c46977b091aaa9c/spawn.mpq";
 		String fileName = "spawn.mpq";
 
@@ -97,12 +97,12 @@ public class DataActivity extends Activity {
 
 		Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.download_started), Toast.LENGTH_SHORT);
 		toast.show();
-	}
+	}*/
 
 	/**
 	 * Start game when download finishes
 	 */
-	private class DownloadReceiver extends BroadcastReceiver {
+	/*private class DownloadReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			isDownloading = false;
@@ -122,5 +122,5 @@ public class DataActivity extends Activity {
 			cur.close();
 			findViewById(R.id.download_button).setEnabled(true);
 		}
-	}
+	}*/
 }

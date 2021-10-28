@@ -71,9 +71,9 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	private boolean missingGameData() {
 		File fileLower = new File(externalDir + "/diabdat.mpq");
 		File fileUpper = new File(externalDir + "/DIABDAT.MPQ");
-		File spawnFile = new File(externalDir + "/spawn.mpq");
+		//File spawnFile = new File(externalDir + "/spawn.mpq");
 
-		return !fileUpper.exists() && !fileLower.exists() && !spawnFile.exists();
+		return !fileUpper.exists() && !fileLower.exists(); // && !spawnFile.exists();
 	}
 
 	private boolean copyFile(File src, File dst) {
@@ -146,7 +146,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 
 		migrateFile(new File("/sdcard/diabdat.mpq"));
 		migrateFile(new File("/sdcard/devilutionx/diabdat.mpq"));
-		migrateFile(new File("/sdcard/devilutionx/spawn.mpq"));
+		//migrateFile(new File("/sdcard/devilutionx/spawn.mpq"));
 
 		for (File internalFile : getFilesDir().listFiles()) {
 			migrateFile(internalFile);
