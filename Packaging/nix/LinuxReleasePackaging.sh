@@ -6,4 +6,5 @@ cp ./Packaging/resources/devilx.mpq ./build/package/devilx.mpq
 cp ./build/devilutionx*.deb ./build/package/devilutionx.deb
 cp ./build/devilutionx*.rpm ./build/package/devilutionx.rpm
 cp ./Packaging/nix/README.txt ./build/package/README.txt
+cp ./Packaging/resources/LICENSE.CC-BY.txt ./build/package/LICENSE.CC-BY.txt
 cd ./build/package/ && tar -cavf ../../devilutionx.tar.xz * && cd ../../
