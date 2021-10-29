@@ -195,7 +195,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assemble
+      run: cd android-project && ./gradlew assembleRelease
 
     - name: Upload-Package
       uses: actions/upload-artifact@v2
