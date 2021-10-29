@@ -160,9 +160,9 @@ jobs:
           - name: diablo
             cmakeargs: ''
             artifact: 'diablo-nightly-android.apk'
-          #- name: hellfire
-          #  cmakeargs: '-D HELLFIRE=ON'
-          #  artifact: 'hellfire-nightly-mac.dmg'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-android.apk'
     runs-on: ubuntu-latest
     steps:
     - name: Install gettext
@@ -195,7 +195,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease
+      run: cd android-project && ./gradlew assembleRelease ${{ matrix.cmakeargs }}
 
     - name: Upload-Package
       uses: actions/upload-artifact@v2
@@ -205,9 +205,6 @@ jobs:
         name: ${{ matrix.artifact }}
         path: android-project/app/build/outputs/apk/release/app-release-unsigned.apk
 
-    - name: Show content of workspace
-      run: find ${{ env.buildDir }}
-      shell: bash
   # Releases
   release:
     needs: [build0, build1, build2, build3]
@@ -277,6 +274,12 @@ jobs:
         name: diablo-nightly-android.apk
     - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
 
+    - name: Download a hellfire android artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellfire-nightly-android.apk
+    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
+
     #- name: Show content of workspace
     #  run: find $RUNNER_WORKSPACE
     #  shell: bash
@@ -308,6 +311,8 @@ jobs:
           
           [diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for Windows x86
           
+          [hellfire-nightly-android.apk](../../releases/download/devilx-nightly/hellfire-nightly-android.apk)   | Hellfire package for Android
+          
           [hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for Mac
           
           [hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for Windows x64
@@ -326,6 +331,7 @@ jobs:
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-x86.zip
+          ${{github.workspace}}/hellfire-nightly-android.apk
           ${{github.workspace}}/hellfire-nightly-mac.dmg
           ${{github.workspace}}/hellfire-nightly-x64.zip
           ${{github.workspace}}/hellfire-nightly-x86.zip
