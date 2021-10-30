@@ -1476,7 +1476,7 @@ bool TakePlrsMoney(int pnum, int cost)
 		}
 	}
 	pi = p->_pInvList;
-	for (i = 0; i < NUM_INV_GRID_ELEM && cost > 0; i++) {
+	for (i = 0; i < NUM_INV_GRID_ELEM && cost > 0; i++, pi++) {
 		if (pi->_itype != ITYPE_GOLD)
 			continue;
 		value = pi->_ivalue;
