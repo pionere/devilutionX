@@ -154,8 +154,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
-        name: [diablo]
+        name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: ''
@@ -195,7 +194,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease ${{ matrix.cmakeargs }}
+      run: cd android-project && ./gradlew assembleRelease -Pcmakeargs="${{ matrix.cmakeargs }}"
 
     - name: Upload-Package
       uses: actions/upload-artifact@v2
