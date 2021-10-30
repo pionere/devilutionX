@@ -45,7 +45,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	protected void onStart() {
 		super.onStart();
 
-		if (missingGameData()) {
+		if (DataActivity.missingGameData()) {
 			Intent intent = new Intent(this, DataActivity.class);
 			startActivity(intent);
 			this.finish();
@@ -66,14 +66,6 @@ public class DevilutionXSDLActivity extends SDLActivity {
 				holder.setFixedSize(visibleSpace.width(), visibleSpace.height());
 			}
 		});
-	}
-
-	private boolean missingGameData() {
-		File fileLower = new File(externalDir + "/diabdat.mpq");
-		File fileUpper = new File(externalDir + "/DIABDAT.MPQ");
-		//File spawnFile = new File(externalDir + "/spawn.mpq");
-
-		return !fileUpper.exists() && !fileLower.exists(); // && !spawnFile.exists();
 	}
 
 	private boolean copyFile(File src, File dst) {

@@ -63,7 +63,11 @@ public class DataActivity extends Activity {
 	/**
 	 * Check if the game data is present
 	 */
-	private boolean missingGameData() {
+	/* package */ static boolean missingGameData() {
+		File fileDev = new File(externalDir + "/devilx.mpq");
+		if (!fileDev.exists())
+			return true;
+
 		File fileLower = new File(externalDir + "/diabdat.mpq");
 		File fileUpper = new File(externalDir + "/DIABDAT.MPQ");
 		//File spawnFile = new File(externalDir + "/spawn.mpq");
