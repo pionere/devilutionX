@@ -3,6 +3,7 @@
 ## How To Play:
  - Install VPK
  - Copy diabdat.mpq from your CD or GoG installation (or [extract it from the GoG installer](https://github.com/diasurgical/devilutionX/wiki/Extracting-the-.MPQs-from-the-GoG-installer)) to the `ux0:/data/diasurgical/devilution/`.
+ - To run the Diablo: Hellfire expansion you will need to also copy hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq.
 
 # Building from Source
 
@@ -13,7 +14,7 @@ make
 ```
 
 # Multiplayer
- - Not supported yet
+ - TCP/IP requires the host to expose port 6112.
 
 # Controls
 
