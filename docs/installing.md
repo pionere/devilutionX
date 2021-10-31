@@ -9,15 +9,15 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 <details><summary>Windows</summary>
 
-- Copy the MPQ files to the folder containing the DevilutionX exe (or to the data folder, which is normally `%AppData%\diasurgical\devilution`).
+- Copy the MPQ files to the folder containing the DevilutionX exe (or to the data folder, which is normally `%AppData%\diasurgical\devilx`).
 - Run `devilutionx.exe`
 
 </details>
 
 <details><summary>Linux</summary>
 
-- Copy the MPQ files to the folder containing the DevilutionX executable, or to the data folder. The data folder path may differ depending on distro, version, and security settings, but will normally be `~/.local/share/diasurgical/devilution/`
-- Install [SDL2](https://www.libsdl.org/download-2.0.php), [SDL2_mixer](https://www.libsdl.org/projects/SDL_mixer/) and [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/):
+- Copy the MPQ files to the folder containing the DevilutionX executable (or to the data folder, which may differ depending on distro, version, and security settings, but will normally be `~/.local/share/diasurgical/devilx/`)
+- Install [SDL2](https://www.libsdl.org/download-2.0.php), [SDL2_mixer](https://www.libsdl.org/projects/SDL_mixer/):
  - Ubuntu/Debian/Rasbian `sudo apt install libsdl2-2.0-0 libsdl2-mixer-2.0-0`
  - Fedora `sudo dnf install SDL2 SDL2_mixer`
 - Run `./devilutionx`
@@ -26,7 +26,7 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 <details><summary>MacOS X</summary>
 
-- Copy the MPQ files to the folder containing the DevilutionX application, or to the data folder. The data folder path may differ, but will normally be `~/Library/Application Support/diasurgical/devilution`
+- Copy the MPQ files to the folder containing the DevilutionX application (or to the data folder, which is normally `~/Library/Application Support/diasurgical/devilx`
 - Double-click `devilutionx`
 
 </details>

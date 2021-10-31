@@ -10,7 +10,7 @@ For a full list of changes see our changelog: https://github.com/pionere/devilut
 
 # How To Install:
  - Extract the files in the archive.
- - Install libsdl2 libsdl2-mixer libsdl2-ttf
+ - Install libsdl2 libsdl2-mixer
  - Copy DIABDAT.MPQ from the CD or GOG-installation (or extract it from the GoG installer) to the DevilutionX folder.
 	- To run the Diablo: Hellfire expansion you will need to also copy hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq.
  - Run ./devilutionx
@@ -22,10 +22,10 @@ All games are encrypted and password protected.
 
 # Save Games and configurations
 The configurations and save games are located in:
-~/.local/share/diasurgical/devilution
+~/.local/share/diasurgical/devilx
 
 # Credits
- - See list of contributors https://github.com/diasurgical/devilutionX/graphs/contributors
+ - See list of contributors https://github.com/pionere/devilutionX/graphs/contributors
 
 # Legal
 This software is being released to the Public Domain. No assets of Diablo are being provided. You must own a copy of Diablo and have access to the assets beforehand in order to use this software.

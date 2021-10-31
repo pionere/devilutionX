@@ -3,10 +3,10 @@ DevilutionX is a source port of Diablo and Hellfire that strives to make it simp
 
 # Links
 Discord: https://discord.gg/YQKCAYQ
-GitHub: https://github.com/diasurgical/devilutionX
+GitHub: https://github.com/pionere/devilutionX
 
-Check out the manual for what features are available and how best to take advantage of them: https://github.com/diasurgical/devilutionX/wiki
-For a full list of changes see our changelog: https://github.com/diasurgical/devilutionX/blob/master/docs/CHANGELOG.md
+Check out the manual for what features are available and how best to take advantage of them: https://github.com/pionere/devilutionX/wiki
+For a full list of changes see our changelog: https://github.com/pionere/devilutionX/blob/master/docs/CHANGELOG.md
 
 # How To Install:
  - Extract the files in the zip
@@ -21,10 +21,10 @@ All games are encrypted and password protected.
 
 # Save Games and configurations
 The configurations and save games are located in:
-C:\Users\[username]\AppData\Roaming\diasurgical\devilution
+C:\Users\[username]\AppData\Roaming\diasurgical\devilx
 
 # Credits
- - See list of contributors https://github.com/diasurgical/devilutionX/graphs/contributors
+ - See list of contributors https://github.com/pionere/devilutionX/graphs/contributors
 
 # Legal
 This software is being released to the Public Domain. No assets of Diablo are being provided. You must own a copy of Diablo and have access to the assets beforehand in order to use this software.
