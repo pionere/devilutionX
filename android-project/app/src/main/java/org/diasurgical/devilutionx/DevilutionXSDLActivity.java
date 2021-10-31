@@ -45,7 +45,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	protected void onStart() {
 		super.onStart();
 
-		if (DataActivity.missingGameData()) {
+		if (DataActivity.missingGameData(externalDir)) {
 			Intent intent = new Intent(this, DataActivity.class);
 			startActivity(intent);
 			this.finish();

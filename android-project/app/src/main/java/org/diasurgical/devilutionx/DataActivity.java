@@ -42,7 +42,7 @@ public class DataActivity extends Activity {
 	}
 
 	private void startGame() {
-		if (missingGameData()) {
+		if (missingGameData(externalDir)) {
 			Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.missing_game_data), Toast.LENGTH_SHORT);
 			toast.show();
 			return;
@@ -63,14 +63,14 @@ public class DataActivity extends Activity {
 	/**
 	 * Check if the game data is present
 	 */
-	/* package */ static boolean missingGameData() {
-		File fileDev = new File(externalDir + "/devilx.mpq");
+	/* package */ static boolean missingGameData(String dir) {
+		File fileDev = new File(dir + "/devilx.mpq");
 		if (!fileDev.exists())
 			return true;
 
-		File fileLower = new File(externalDir + "/diabdat.mpq");
-		File fileUpper = new File(externalDir + "/DIABDAT.MPQ");
-		//File spawnFile = new File(externalDir + "/spawn.mpq");
+		File fileLower = new File(dir + "/diabdat.mpq");
+		File fileUpper = new File(dir + "/DIABDAT.MPQ");
+		//File spawnFile = new File(dir + "/spawn.mpq");
 
 		return !fileUpper.exists() && !fileLower.exists(); // && (!spawnFile.exists() || isDownloading);
 	}
