@@ -275,6 +275,14 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
 		if (md.mLevel + HELL_LEVEL_BONUS > CF_LEVEL && (md.mTreasure & 0x4000) == 0)
 			app_fatal("Invalid mLevel %d for %s (%d). Too high in hell to set the level of item-drop.", md.mLevel, md.mName, i);
+
+		uint16_t res = md.mMagicRes;
+		uint16_t resH = md.mMagicRes2;
+		for (int j = 0; j < 8; j++, res >>= 2, resH >>= 2) {
+			if ((res & 3) > (resH & 3)) {
+				app_fatal("Bad mMagicRes2 %d (%d) for %s (%d): worse than mMagicRes %d.", md.mMagicRes2, j, md.mName, i, md.mMagicRes);
+			}
+		}
 	}
 	for (int i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
@@ -330,6 +338,16 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
 		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mTreasure & 0x4000) == 0)
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
+
+#ifdef _DEBUG
+		uint16_t res = monsterdata[um.mtype].mMagicRes;
+		uint16_t resU = um.mMagicRes;
+		for (int j = 0; j < 8; j++, res >>= 2, resU >>= 2) {
+			if ((res & 3) > (resU & 3)) {
+				SDL_Log("Warn: Weak muMagicRes %d (%d) for %s (%d): worse than mMagicRes %d.", um.mMagicRes, j, um.mName, i, monsterdata[um.mtype].mMagicRes);
+			}
+		}
+#endif
 	}
 
 	// items
