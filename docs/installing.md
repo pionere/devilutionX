@@ -1,15 +1,15 @@
 # Installing
 
-First, you will need access to the game MPQ files.
-- First, locate `DIABDAT.MPQ` on your CD or in the GoG installation (or [extract it from the GoG installer](https://github.com/diasurgical/devilutionX/wiki/Extracting-the-.MPQs-from-the-GoG-installer)).
-- For the Diablo: Hellfire expansion you will also need `hellfire.mpq`, `hfmonk.mpq`, `hfmusic.mpq`, `hfvoice.mpq`.
-- Lastly, DevilutionX comes with [`devilutionx.mpq`](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilutionx.mpq) and [`devilx.mpq`](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilx.mpq) which you will also need.
+In order to run the game you need access to these MPQ files:
+- The `DIABDAT.MPQ` on your CD or in the [GoG](https://www.gog.com/game/diablo) installation (you might [extract it from the GoG installer](https://github.com/diasurgical/devilutionX/wiki/Extracting-the-.MPQs-from-the-GoG-installer)).
+- _Diablo: Hellfire_ expansion also needs `hellfire.mpq`, `hfmonk.mpq`, `hfmusic.mpq`, `hfvoice.mpq`.
+- [`devilx.mpq`](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilx.mpq) and [`devilutionx.mpq`](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilutionx.mpq) from [GitHub](https://github.com/pionere/devilutionX/tree/master/Packaging/resources).
 
 Download the latest [DevilutionX release](https://github.com/pionere/devilutionX/releases) for your system (if available) and extract the contents to a location of your choosing, or [build from source](building.md). Then follow the system-specific instructions below.
 
 <details><summary>Windows</summary>
 
-- Copy the MPQ files to the folder containing the DevilutionX exe, or to the data folder. The data folder path may differ, but will normally be `%AppData%\diasurgical\devilution`
+- Copy the MPQ files to the folder containing the DevilutionX exe (or to the data folder, which is normally `%AppData%\diasurgical\devilution`).
 - Run `devilutionx.exe`
 
 </details>
@@ -18,29 +18,9 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 - Copy the MPQ files to the folder containing the DevilutionX executable, or to the data folder. The data folder path may differ depending on distro, version, and security settings, but will normally be `~/.local/share/diasurgical/devilution/`
 - Install [SDL2](https://www.libsdl.org/download-2.0.php), [SDL2_mixer](https://www.libsdl.org/projects/SDL_mixer/) and [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/):
- - Ubuntu/Debian/Rasbian `sudo apt install libsdl2-2.0-0 libsdl2-ttf-2.0-0 libsdl2-mixer-2.0-0`
- - Fedora `sudo dnf install SDL2 SDL2_ttf SDL2_mixer`
+ - Ubuntu/Debian/Rasbian `sudo apt install libsdl2-2.0-0 libsdl2-mixer-2.0-0`
+ - Fedora `sudo dnf install SDL2 SDL2_mixer`
 - Run `./devilutionx`
-
-</details>
-
-<details><summary>Ubuntu PPA</summary>
-
-- Add [DevilutionX stable](https://launchpad.net/~devilutionx/+archive/ubuntu/stable)
-
-```bash
-sudo add-apt-repository ppa:devilutionx/stable
-```
-
-- Install DeviliutionX
-
-```bash
-sudo apt update
-sudo apt install devilutionx
-```
-
-- Copy the MPQ files to `~/.local/share/diasurgical/devilution/`
-- Run DevilutionX or DevilutionX Hellfire from the menu to start the game
 
 </details>
 
@@ -53,7 +33,7 @@ sudo apt install devilutionx
 
 <details><summary>Nintendo Switch</summary>
 
-- Copy `devilutionx.nro` and `CharisSILB.ttf` in into `/switch/devilutionx`
+- Copy `devilutionx.nro` in into `/switch/devilutionx`
 - Copy the MPQ files to `/switch/devilutionx`.
 - Launch `devilutionx.nro` by holding R the installed game. Do not use the album to launch, if you use the album, the homebrew will only have a small amount of memory available, and the touch keyboard won't work. This is true for all homebrew, not just DevilutionX.
 
@@ -72,7 +52,6 @@ sudo apt install devilutionx
 
 - Copy `devilutionx.3dsx` into `sd:/3ds/devilutionx/`.
 - Copy the MPQ files into `sd:/3ds/devilutionx/`.
-- Copy the `CharisSILB.ttf` font file into `sd:/3ds/devilutionx/`.
 - Launch `devilutionx.3dsx` with the [Homebrew Launcher](https://github.com/fincs/new-hbmenu).
     - *Note:* When the Hellfire .mpqs are installed you can still launch regular Diablo by passing `--diablo` to `devilutionx.3dsx`.
 
@@ -80,7 +59,6 @@ sudo apt install devilutionx
 
 - Copy `devilutionx.cia` to your SD card.
 - Copy the MPQ files to `sd:/3ds/devilutionx/`.
-- Copy the `CharisSILB.ttf` font file into `sd:/3ds/devilutionx/`.
 - Install `devilutionx.cia` with a title manager (e.g. [FBI](https://github.com/Steveice10/FBI)).
     - `devilutionx.cia` can be removed after being installed.
 - Launch Diablo from your 3DS Homemenu.
