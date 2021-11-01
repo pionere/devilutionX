@@ -928,10 +928,10 @@ void DeltaLoadLevel()
 				y = mstr->_my;
 				mon = &monsters[i];
 				SetMonsterLoc(mon, x, y);
+				// SyncDeadLight: inline for better performance + apply to moving monsters
+				if (mon->mlid != NO_LIGHT)
+					ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 				if (mstr->_mCmd == DCMD_MON_DEAD) {
-					// SyncDeadLight: inline for better performance
-					if (mon->mlid != NO_LIGHT)
-						ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 					AddDead(i, true);
 				} else {
 					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
