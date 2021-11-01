@@ -8,12 +8,11 @@ Start by downloading [devilutionx-n3ds.zip](https://github.com/diasurgical/devil
 <details><summary>.3dsx installation</summary>
 
 #### Install DevilutionX: Diablo
-1. Extract `devilutionx.3dsx`, `CharisSILB.ttf`, and `devilutionx.mpq` and put them into `sd:/3ds/devilutionx/`.
+1. Extract `devilutionx.3dsx`, and `devilutionx.mpq` and put them into `sd:/3ds/devilutionx/`.
 2. Copy `diabdat.mpq` from your Diablo CD (or GoG install folder) to `sd:/3ds/devilutionx/`.
 
 #### Install DevilutionX: Diablo - Hellfire
 3. Copy `hellfire.mpq` `hfmonk.mpq` `hfmusic.mpq` and `hfvoice.mpq` from your Hellfire CD (or GoG install folder) to `sd:/3ds/devilutionx/`.
-    1. *Note:* When the Hellfire .mpqs are installed you can still launch regular Diablo by passing `--diablo` to `devilutionx.3dsx`.
 
 </details>
 

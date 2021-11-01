@@ -1,4 +1,4 @@
-# devilutionX PS Vita port
+# DevilutionX (Diablo 1) for PS Vita
 
 ## How To Play:
  - Install VPK
