@@ -3000,6 +3000,9 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		}
 		break;
 	}
+
+	CalcPlrInv(pnum, plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
+	gbRedrawFlags = REDRAW_ALL;
 }
 
 static void OperateShrine(int pnum, int oi, bool sendmsg)
@@ -3291,9 +3294,6 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	default:
 		ASSUME_UNREACHABLE
 	}
-
-	CalcPlrInv(pnum, true); // only because of MURPHY...
-	gbRedrawFlags = REDRAW_ALL;
 }
 
 static void OperateSkelBook(int oi, bool sendmsg)
