@@ -917,7 +917,8 @@ void InvPasteItem(int pnum, BYTE r)
 			} else {
 				it--;
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-					if (p->_pInvList[i]._iPHolder == it)
+					if (p->_pInvList[i]._itype == ITYPE_PLACEHOLDER
+					 && p->_pInvList[i]._iPHolder == it)
 						p->_pInvList[i]._itype = ITYPE_NONE;
 				}
 				if (holditem->_itype == ITYPE_GOLD)
