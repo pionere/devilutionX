@@ -1247,7 +1247,7 @@ void DrawChr()
 
 	val = p->_pMagResist;
 	if (val < MAXRESIST) {
-		col = val == 0 ? COL_WHITE : COL_BLUE;
+		col = val >= 0 ? (val == 0 ? COL_WHITE : COL_BLUE) : COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
@@ -1257,7 +1257,7 @@ void DrawChr()
 
 	val = p->_pFireResist;
 	if (val < MAXRESIST) {
-		col = val == 0 ? COL_WHITE : COL_BLUE;
+		col = val >= 0 ? (val == 0 ? COL_WHITE : COL_BLUE) : COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
@@ -1267,7 +1267,7 @@ void DrawChr()
 
 	val = p->_pLghtResist;
 	if (val < MAXRESIST) {
-		col = val == 0 ? COL_WHITE : COL_BLUE;
+		col = val >= 0 ? (val == 0 ? COL_WHITE : COL_BLUE) : COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
@@ -1277,7 +1277,7 @@ void DrawChr()
 
 	val = p->_pAcidResist;
 	if (val < MAXRESIST) {
-		col = val == 0 ? COL_WHITE : COL_BLUE;
+		col = val >= 0 ? (val == 0 ? COL_WHITE : COL_BLUE) : COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;

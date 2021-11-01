@@ -616,8 +616,10 @@ static void SetupLocalPlr()
 	p->_pAltAtkSkillType = RSPLTYPE_INVALID;
 	p->_pAltMoveSkill = SPL_INVALID;
 	p->_pAltMoveSkillType = RSPLTYPE_INVALID;
-	if (!(p->_pSkillFlags & SFLAG_MELEE))
-		p->_pAtkSkill = SPL_RATTACK;
+	//if (!(p->_pSkillFlags & SFLAG_MELEE))
+	//	p->_pAtkSkill = SPL_RATTACK;
+	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
+	CalcPlrInv(mypnum, false);
 
 #ifdef _DEBUG
 	if (debug_mode_key_inverted_v) {

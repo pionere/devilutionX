@@ -255,10 +255,11 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	uint64_t spl = 0; // bitarray for all enabled/active spells
 
-	int fr = 0; // fire resistance
-	int lr = 0; // lightning resistance
-	int mr = 0; // magic resistance
-	int ar = 0; // acid resistance
+	int br = gnDifficulty * -15;
+	int fr = br; // fire resistance
+	int lr = br; // lightning resistance
+	int mr = br; // magic resistance
+	int ar = br; // acid resistance
 
 	// temporary values to calculate armor class/damage of the current item
 	int cac, cdmod, cdmodp, mindam, maxdam;
@@ -1258,17 +1259,17 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 	case IPL_ALLRES:
 		is->_iPLFR += r;
-		if (is->_iPLFR < 0)
-			is->_iPLFR = 0;
+		//if (is->_iPLFR < 0)
+		//	is->_iPLFR = 0;
 		is->_iPLLR += r;
-		if (is->_iPLLR < 0)
-			is->_iPLLR = 0;
+		//if (is->_iPLLR < 0)
+		//	is->_iPLLR = 0;
 		is->_iPLMR += r;
-		if (is->_iPLMR < 0)
-			is->_iPLMR = 0;
+		//if (is->_iPLMR < 0)
+		//	is->_iPLMR = 0;
 		is->_iPLAR += r;
-		if (is->_iPLAR < 0)
-			is->_iPLAR = 0;
+		//if (is->_iPLAR < 0)
+		//	is->_iPLAR = 0;
 		break;
 	case IPL_SPLLVLADD:
 		is->_iSplLvlAdd = r;
@@ -2391,12 +2392,16 @@ static void DoClean(ItemStruct *pi, bool whittle)
 	spell = pi->_iSpell;
 	idx = pi->_iIdx;
 
-	ci = (pi->_iCreateInfo & CF_LEVEL) | CF_CRAFTED;
 	if (whittle) {
 		if (idx == IDI_SORCSTAFF)
 			idx = IDI_DROPSHSTAFF;
 		spell = SPL_NULL;
 	}
+
+	ci = (pi->_iCreateInfo & CF_LEVEL);
+	if (ci > AllItemsList[idx].iMinMLvl)
+		ci--;
+	ci |= CF_CRAFTED;
 
 	while (TRUE) {
 		RecreateItem(seed, idx, ci, 0);
@@ -2684,34 +2689,34 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "armor class: %i", is->_iAC);
 		break;
 	case IPL_FIRERES:
-		if (is->_iPLFR < 75)
+		//if (is->_iPLFR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
-		else
-			copy_cstr(tempstr, "Resist Fire: 75% MAX");
+		//else
+		//	copy_cstr(tempstr, "Resist Fire: 75% MAX");
 		break;
 	case IPL_LIGHTRES:
-		if (is->_iPLLR < 75)
+		//if (is->_iPLLR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Lightning: %+i%%", is->_iPLLR);
-		else
-			copy_cstr(tempstr, "Resist Lightning: 75% MAX");
+		//else
+		//	copy_cstr(tempstr, "Resist Lightning: 75% MAX");
 		break;
 	case IPL_MAGICRES:
-		if (is->_iPLMR < 75)
+		//if (is->_iPLMR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Magic: %+i%%", is->_iPLMR);
-		else
-			copy_cstr(tempstr, "Resist Magic: 75% MAX");
+		//else
+		//	copy_cstr(tempstr, "Resist Magic: 75% MAX");
 		break;
 	case IPL_ACIDRES:
-		if (is->_iPLAR < 75)
+		//if (is->_iPLAR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Acid: %+i%%", is->_iPLAR);
-		else
-			copy_cstr(tempstr, "Resist Acid: 75% MAX");
+		//else
+		//	copy_cstr(tempstr, "Resist Acid: 75% MAX");
 		break;
 	case IPL_ALLRES:
-		if (is->_iPLFR < 75)
+		//if (is->_iPLFR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist All: %+i%%", is->_iPLFR);
-		else
-			copy_cstr(tempstr, "Resist All: 75% MAX");
+		//else
+		//	copy_cstr(tempstr, "Resist All: 75% MAX");
 		break;
 	case IPL_SPLLVLADD:
 		snprintf(tempstr, sizeof(tempstr), "%+i to spell levels", is->_iSplLvlAdd);
@@ -3108,7 +3113,16 @@ void DrawInvItemDetails()
 	// print the name as title
 	PrintItemString(x, y, ItemName(is), ItemColor(is));
 
-	y += 30;
+	// add item-level info
+	if (is->_itype != ITYPE_MISC && is->_itype != ITYPE_GOLD) {
+		snprintf(tempstr, sizeof(tempstr), "(lvl: %d)", is->_iCreateInfo & CF_LEVEL);
+		y -= 6;
+		PrintItemString(x, y);
+		y += 12;
+	} else {
+		y += 30;
+	}
+
 	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified) {
 		copy_cstr(tempstr, "Not Identified");
 		PrintItemString(x, y);
