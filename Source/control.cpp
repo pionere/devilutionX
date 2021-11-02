@@ -1132,15 +1132,15 @@ void DrawChr()
 	pc = p->_pClass;
 
 	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pChrPanel, 1, SPANEL_WIDTH);
-	ADD_PlrStringXY(7, 19, 138, p->_pName, COL_WHITE);
+	ADD_PlrStringXY(5, 19, 144, p->_pName, COL_WHITE);
 
-	ADD_PlrStringXY(155, 19, 286, ClassStrTbl[pc], COL_WHITE);
+	ADD_PlrStringXY(153, 19, 292, ClassStrTbl[pc], COL_WHITE);
 
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pLevel);
 	ADD_PlrStringXY(53, 46, 96, chrstr, COL_WHITE);
 
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pExperience);
-	ADD_PlrStringXY(203, 46, 288, chrstr, COL_WHITE);
+	ADD_PlrStringXY(200, 46, 292, chrstr, COL_WHITE);
 
 	if (p->_pLevel == MAXCHARLEVEL) {
 		copy_cstr(chrstr, "None");
@@ -1149,30 +1149,30 @@ void DrawChr()
 		snprintf(chrstr, sizeof(chrstr), "%i", p->_pNextExper);
 		col = COL_WHITE;
 	}
-	ADD_PlrStringXY(203, 74, 288, chrstr, col);
+	ADD_PlrStringXY(200, 71, 292, chrstr, col);
 
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pGold);
-	ADD_PlrStringXY(202, 118, 287, chrstr, COL_WHITE);
+	ADD_PlrStringXY(221, 97, 292, chrstr, COL_WHITE);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseStr);
-	ADD_PlrStringXY(90, 119, 121, chrstr, col);
+	ADD_PlrStringXY(88, 119, 125, chrstr, col);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseMag);
-	ADD_PlrStringXY(90, 147, 121, chrstr, col);
+	ADD_PlrStringXY(88, 147, 125, chrstr, col);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseDex);
-	ADD_PlrStringXY(90, 175, 121, chrstr, col);
+	ADD_PlrStringXY(88, 175, 125, chrstr, col);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseVit);
-	ADD_PlrStringXY(90, 203, 121, chrstr, col);
+	ADD_PlrStringXY(88, 203, 125, chrstr, col);
 
 	if (p->_pStatPts > 0) {
 		snprintf(chrstr, sizeof(chrstr), "%i", p->_pStatPts);
-		ADD_PlrStringXY(90, 231, 121, chrstr, COL_RED);
+		ADD_PlrStringXY(88, 231, 125, chrstr, COL_RED);
 		CelDraw(ChrBtnsRect[ATTRIB_STR].x + SCREEN_X, ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, _gabChrbtn[ATTRIB_STR] ? 3 : 2, CHRBTN_WIDTH);
 		CelDraw(ChrBtnsRect[ATTRIB_MAG].x + SCREEN_X, ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, _gabChrbtn[ATTRIB_MAG] ? 5 : 4, CHRBTN_WIDTH);
 		CelDraw(ChrBtnsRect[ATTRIB_DEX].x + SCREEN_X, ChrBtnsRect[ATTRIB_DEX].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, _gabChrbtn[ATTRIB_DEX] ? 7 : 6, CHRBTN_WIDTH);
@@ -1190,7 +1190,7 @@ void DrawChr()
 		else if (val < p->_pBaseStr)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i", val);
-		ADD_PlrStringXY(138, 119, 169, chrstr, col);
+		ADD_PlrStringXY(135, 119, 172, chrstr, col);
 
 		val = p->_pMagic;
 		col = COL_WHITE;
@@ -1199,7 +1199,7 @@ void DrawChr()
 		else if (val < p->_pBaseMag)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i", val);
-		ADD_PlrStringXY(138, 147, 169, chrstr, col);
+		ADD_PlrStringXY(135, 147, 172, chrstr, col);
 
 		val = p->_pDexterity;
 		col = COL_WHITE;
@@ -1208,7 +1208,7 @@ void DrawChr()
 		else if (val < p->_pBaseDex)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i", val);
-		ADD_PlrStringXY(138, 175, 169, chrstr, col);
+		ADD_PlrStringXY(135, 175, 172, chrstr, col);
 
 		val = p->_pVitality;
 		col = COL_WHITE;
@@ -1217,11 +1217,14 @@ void DrawChr()
 		else if (val < p->_pBaseVit)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i", val);
-		ADD_PlrStringXY(138, 203, 169, chrstr, col);
+		ADD_PlrStringXY(135, 203, 172, chrstr, col);
 	}
 
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pIAC);
-	ADD_PlrStringXY(245, 149, 288, chrstr, COL_WHITE);
+	snprintf(chrstr, sizeof(chrstr), "%i/%i", p->_pIAC, p->_pIEvasion);
+	PrintString(242 + SCREEN_X, 122 + SCREEN_Y, 291 + SCREEN_X, chrstr, true, COL_WHITE, -1);
+
+	snprintf(chrstr, sizeof(chrstr), "%i/%i", p->_pIBlockChance, p->_pICritChance / 2);
+	PrintString(242 + SCREEN_X, 150 + SCREEN_Y, 291 + SCREEN_X, chrstr, true, COL_WHITE, -1);
 
 	val = p->_pIHitChance;
 	col = COL_WHITE;
@@ -1230,7 +1233,7 @@ void DrawChr()
 	else if (p->_pIBaseHitBonus == IBONUS_NEGATIVE)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%i%%", val);
-	ADD_PlrStringXY(245, 177, 288, chrstr, col);
+	ADD_PlrStringXY(242, 178, 291, chrstr, col);
 
 	col = COL_WHITE;
 	mindam = (p->_pIFMinDam + p->_pILMinDam + p->_pIMMinDam + p->_pIAMinDam) >> 6;
@@ -1240,68 +1243,65 @@ void DrawChr()
 	mindam += (p->_pISlMinDam + p->_pIBlMinDam + p->_pIPcMinDam) >> (6 + 1); // +1 is a temporary(?) adjustment for backwards compatibility
 	maxdam += (p->_pISlMaxDam + p->_pIBlMaxDam + p->_pIPcMaxDam) >> (6 + 1);
 	snprintf(chrstr, sizeof(chrstr), "%i-%i", mindam, maxdam);
-	if (mindam >= 100 || maxdam >= 100)
-		PrintString(241 + SCREEN_X, 205 + SCREEN_Y, 292 + SCREEN_X, chrstr, true, col, -1);
-	else
-		PrintString(245 + SCREEN_X, 205 + SCREEN_Y, 288 + SCREEN_X, chrstr, true, col, 0);
+	PrintString(242 + SCREEN_X, 206 + SCREEN_Y, 291 + SCREEN_X, chrstr, true, col, -1);
 
 	val = p->_pMagResist;
 	if (val < MAXRESIST) {
-		col = val >= 0 ? (val == 0 ? COL_WHITE : COL_BLUE) : COL_RED;
+		col = val >= 0 ? COL_WHITE : COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(190, 254, 233, chrstr, col);
+	ADD_PlrStringXY(185, 254, 234, chrstr, col);
 
 	val = p->_pFireResist;
 	if (val < MAXRESIST) {
-		col = val >= 0 ? (val == 0 ? COL_WHITE : COL_BLUE) : COL_RED;
+		col = val >= 0 ? COL_WHITE : COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(246, 254, 289, chrstr, col);
+	ADD_PlrStringXY(242, 254, 291, chrstr, col);
 
 	val = p->_pLghtResist;
 	if (val < MAXRESIST) {
-		col = val >= 0 ? (val == 0 ? COL_WHITE : COL_BLUE) : COL_RED;
+		col = val >= 0 ? COL_WHITE : COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(190, 289, 233, chrstr, col);
+	ADD_PlrStringXY(185, 289, 234, chrstr, col);
 
 	val = p->_pAcidResist;
 	if (val < MAXRESIST) {
-		col = val >= 0 ? (val == 0 ? COL_WHITE : COL_BLUE) : COL_RED;
+		col = val >= 0 ? COL_WHITE : COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(246, 289, 289, chrstr, col);
+	ADD_PlrStringXY(242, 289, 291, chrstr, col);
 
 	val = p->_pMaxHP;
 	col = val <= p->_pMaxHPBase ? COL_WHITE : COL_BLUE;
 	snprintf(chrstr, sizeof(chrstr), "%i", val >> 6);
-	ADD_PlrStringXY(90, 260, 121, chrstr, col);
+	ADD_PlrStringXY(88, 260, 125, chrstr, col);
 	if (p->_pHitPoints != val)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pHitPoints >> 6);
-	ADD_PlrStringXY(138, 260, 169, chrstr, col);
+	ADD_PlrStringXY(135, 260, 172, chrstr, col);
 
 	val = p->_pMaxMana;
 	col = val <= p->_pMaxManaBase ? COL_WHITE : COL_BLUE;
 	snprintf(chrstr, sizeof(chrstr), "%i", val >> 6);
-	ADD_PlrStringXY(90, 288, 121, chrstr, col);
+	ADD_PlrStringXY(88, 288, 125, chrstr, col);
 	if (p->_pMana != val)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pMana >> 6);
-	ADD_PlrStringXY(138, 288, 169, chrstr, col);
+	ADD_PlrStringXY(135, 288, 172, chrstr, col);
 }
 
 void DrawLevelUpIcon()
