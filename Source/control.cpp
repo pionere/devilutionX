@@ -1221,10 +1221,12 @@ void DrawChr()
 	}
 
 	snprintf(chrstr, sizeof(chrstr), "%i/%i", p->_pIAC, p->_pIEvasion);
-	PrintString(242 + SCREEN_X, 122 + SCREEN_Y, 291 + SCREEN_X, chrstr, true, COL_WHITE, -1);
+	// instead of (242;291) x-limits, (239;294) are used to make sure the values are displayed
+	PrintString(239 + SCREEN_X, 122 + SCREEN_Y, 294 + SCREEN_X, chrstr, true, COL_WHITE, -1);
 
 	snprintf(chrstr, sizeof(chrstr), "%i/%i", p->_pIBlockChance, p->_pICritChance / 2);
-	PrintString(242 + SCREEN_X, 150 + SCREEN_Y, 291 + SCREEN_X, chrstr, true, COL_WHITE, -1);
+	// instead of (242;291) x-limits, (241;292) are used to make sure the values are displayed
+	PrintString(241 + SCREEN_X, 150 + SCREEN_Y, 292 + SCREEN_X, chrstr, true, COL_WHITE, -1);
 
 	val = p->_pIHitChance;
 	col = COL_WHITE;
@@ -1243,7 +1245,8 @@ void DrawChr()
 	mindam += (p->_pISlMinDam + p->_pIBlMinDam + p->_pIPcMinDam) >> (6 + 1); // +1 is a temporary(?) adjustment for backwards compatibility
 	maxdam += (p->_pISlMaxDam + p->_pIBlMaxDam + p->_pIPcMaxDam) >> (6 + 1);
 	snprintf(chrstr, sizeof(chrstr), "%i-%i", mindam, maxdam);
-	PrintString(242 + SCREEN_X, 206 + SCREEN_Y, 291 + SCREEN_X, chrstr, true, col, -1);
+	// instead of (242;291) x-limits, (240;293) are used to make sure the values are displayed
+	PrintString(240 + SCREEN_X, 206 + SCREEN_Y, 293 + SCREEN_X, chrstr, true, col, mindam < 100 ? 0 : -1);
 
 	val = p->_pMagResist;
 	if (val < MAXRESIST) {
