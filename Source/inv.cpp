@@ -1046,17 +1046,25 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 	case INVITEM_RING_LEFT:
 	case INVITEM_RING_RIGHT:
 	case INVITEM_AMULET:
-	case INVITEM_HAND_LEFT:
 	case INVITEM_HAND_RIGHT:
 	case INVITEM_CHEST:
 		static_assert((int)INVITEM_HEAD == (int)INVLOC_HEAD, "Switch of CheckInvCut expects matching enum values I.");
 		static_assert((int)INVITEM_RING_LEFT == (int)INVLOC_RING_LEFT, "Switch of CheckInvCut expects matching enum values II.");
 		static_assert((int)INVITEM_RING_RIGHT == (int)INVLOC_RING_RIGHT, "Switch of CheckInvCut expects matching enum values III.");
 		static_assert((int)INVITEM_AMULET == (int)INVLOC_AMULET, "Switch of CheckInvCut expects matching enum values IV.");
-		static_assert((int)INVITEM_HAND_LEFT == (int)INVLOC_HAND_LEFT, "Switch of CheckInvCut expects matching enum values V.");
 		static_assert((int)INVITEM_HAND_RIGHT == (int)INVLOC_HAND_RIGHT, "Switch of CheckInvCut expects matching enum values VI.");
 		static_assert((int)INVITEM_CHEST == (int)INVLOC_CHEST, "Switch of CheckInvCut expects matching enum values VII.");
 		pi = &plr._pInvBody[r];
+		break;
+	case INVITEM_HAND_LEFT:
+		static_assert((int)INVITEM_HAND_LEFT == (int)INVLOC_HAND_LEFT, "Switch of CheckInvCut expects matching enum values V.");
+		pi = &plr._pInvBody[INVITEM_HAND_RIGHT];
+		if (pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_SHIELD) {
+			// move right hand weapon to left hand
+			SwapItem(pi, &plr._pInvBody[INVITEM_HAND_LEFT]);
+		} else {
+			pi = &plr._pInvBody[INVITEM_HAND_LEFT];
+		}
 		break;
 	default:
 		static_assert(INVITEM_CHEST + 1 == INVITEM_INV_FIRST, "InvCutItem expects the storage items after the normal items.");
@@ -1120,6 +1128,11 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 	if (bLoc < INVITEM_INV_FIRST) {
 		// body item
 		plr._pInvBody[bLoc]._itype = ITYPE_NONE;
+		// move right hand weapon to left hand
+		if (bLoc == INVITEM_HAND_LEFT
+		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_NONE
+		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_SHIELD)
+			SwapItem(&plr._pInvBody[INVITEM_HAND_LEFT], &plr._pInvBody[INVITEM_HAND_RIGHT]);
 		CalcPlrInv(pnum, plr._pmode != PM_DEATH && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
 	} else if (bLoc < INVITEM_BELT_FIRST) {
 		// inv item
