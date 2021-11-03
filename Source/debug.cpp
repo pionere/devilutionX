@@ -363,6 +363,30 @@ void ValidateData()
 			minMediumArmor = ids.iMinMLvl;
 		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor)
 			minHeavyArmor = ids.iMinMLvl;
+		if (ids.iClass == ICLASS_ARMOR) {
+			if (ids.itype != ITYPE_LARMOR && ids.itype != ITYPE_MARMOR
+			 && ids.itype != ITYPE_HARMOR && ids.itype != ITYPE_SHIELD
+			 && ids.itype != ITYPE_HELM)
+				app_fatal("Invalid type (%d) set for %s (%d), which is an armor.", ids.itype, ids.iName, i);
+		} else {
+			if (ids.iMinAC != 0 || ids.iMaxAC != 0)
+				app_fatal("AC set for %s (%d), which is not an armor.", ids.iName, i);
+		}
+		if (ids.iClass == ICLASS_WEAPON) {
+			if (ids.itype != ITYPE_SWORD && ids.itype != ITYPE_AXE
+			 && ids.itype != ITYPE_BOW && ids.itype != ITYPE_MACE
+			 && ids.itype != ITYPE_STAFF)
+				app_fatal("Invalid type (%d) set for %s (%d), which is a weapon.", ids.itype, ids.iName, i);
+			if (ids.iDamType == IDAM_NONE)
+				app_fatal("Damage type not set for %s (%d), which is a weapon.", ids.iName, i);
+			if (ids.iMaxDam == 0)
+				app_fatal("Damage not set for %s (%d), which is a weapon.", ids.iName, i);
+		} else {
+			if (ids.iDamType != IDAM_NONE)
+				app_fatal("Damage type (%d) set for %s (%d), which is not a weapon.", ids.iDamType, ids.iName, i);
+			if (ids.iMinDam != 0 || ids.iMaxDam != 0)
+				app_fatal("Damage set for %s (%d), which is not a weapon.", ids.iName, i);
+		}
 		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu)
 			minAmu = ids.iMinMLvl;
 		//if (ids.itype == ITYPE_STAFF && strlen(ids.iName) > maxStaff)
