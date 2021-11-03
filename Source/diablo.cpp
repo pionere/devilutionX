@@ -426,7 +426,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 		if (pcursmonst != -1) {
 			if (CanTalkToMonst(pcursmonst)) {
-				NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, SPL_ATTACK, SPLFROM_ABILITY);
+				NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, (myplr._pSkillFlags & SFLAG_RANGED) ? SPL_RATTACK : SPL_ATTACK, SPLFROM_ABILITY);
 			} else {
 				if (spelldata[atkSkill].sType != STYPE_NONE)
 					NetSendCmdMonstSkill(pcursmonst, atkSkill, asf);
@@ -471,7 +471,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 		// TODO: extend TALKXY?
 		if (CanTalkToMonst(pcursmonst)) {
-			NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, SPL_ATTACK, SPLFROM_ABILITY);
+			NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, (myplr._pSkillFlags & SFLAG_RANGED) ? SPL_RATTACK : SPL_ATTACK, SPLFROM_ABILITY);
 			return;
 		}
 
