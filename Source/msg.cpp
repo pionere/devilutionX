@@ -1943,14 +1943,15 @@ static unsigned On_KNOCKBACK(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TALKXY(TCmd *pCmd, int pnum)
+static unsigned On_TALKXY(TCmd* pCmd, int pnum)
 {
-	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	int mnum = SwapLE16(cmd->wParam1);
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		MakePlrPath(pnum, cmd->x, cmd->y, false);
+		MakePlrPath(pnum, monsters[mnum]._mx, monsters[mnum]._my, false);
 		plr.destAction = ACTION_TALK;
-		plr.destParam1 = SwapLE16(cmd->wParam1);
+		plr.destParam1 = mnum;
 	}
 
 	return sizeof(*cmd);

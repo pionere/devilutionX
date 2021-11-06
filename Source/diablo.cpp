@@ -426,7 +426,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 		if (pcursmonst != -1) {
 			if (CanTalkToMonst(pcursmonst)) {
-				NetSendCmdLocParam1(CMD_TALKXY, cursmx, cursmy, pcursmonst);
+				NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			} else {
 				if (spelldata[atkSkill].sType != STYPE_NONE)
 					NetSendCmdMonstSkill(pcursmonst, atkSkill, asf);
@@ -466,7 +466,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 	if (pcursmonst != -1) {
 		if (CanTalkToMonst(pcursmonst)) {
-			NetSendCmdLocParam1(CMD_TALKXY, cursmx, cursmy, pcursmonst);
+			NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			return;
 		}
 
