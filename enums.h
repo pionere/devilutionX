@@ -86,7 +86,7 @@ typedef enum unique_base_item {
 } unique_base_item;
 
 typedef enum item_effect_type {
-	IPL_TOHIT ,
+	IPL_TOHIT,
 	IPL_DAMP,
 	IPL_TOHIT_DAMP,
 	IPL_ACP,
@@ -137,7 +137,7 @@ typedef enum item_effect_type {
 	IPL_DRAINLIFE,
 	IPL_INFRAVISION,	/* unused */
 	IPL_SETAC,
-	IPL_AC,
+	IPL_ACMOD,
 	IPL_CRYSTALLINE,
 	IPL_MANATOLIFE,     /* only used in hellfire */
 	IPL_LIFETOMANA,     /* only used in hellfire */

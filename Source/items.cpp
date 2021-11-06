@@ -1242,7 +1242,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_SETAC:
 		is->_iAC = r;
 		break;
-	case IPL_AC:
+	case IPL_ACMOD:
 		is->_iAC += r;
 		break;
 	case IPL_FIRERES:
@@ -2685,7 +2685,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "%+i%% armor", is->_iPLAC);
 		break;
 	case IPL_SETAC:
-	case IPL_AC:
+	case IPL_ACMOD:
 		snprintf(tempstr, sizeof(tempstr), "armor class: %i", is->_iAC);
 		break;
 	case IPL_FIRERES:
