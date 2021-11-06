@@ -1330,10 +1330,6 @@ static bool StartAttack(int pnum)
 		dy = monsters[i]._mfuty;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
 			return false;
-		if (monsters[i].mtalkmsg != TEXT_NONE && monsters[i].mtalkmsg != TEXT_VILE14) {
-			TalktoMonster(i, pnum);
-			return true;
-		}
 		sn = plr.destParam2;
 		sl = plr.destParam3;
 		break;
@@ -1402,10 +1398,6 @@ static void StartRangeAttack(int pnum)
 		sl = plr.destParam4;
 		break;
 	case ACTION_RATTACKMON:
-		if (monsters[i].mtalkmsg != TEXT_NONE && monsters[i].mtalkmsg != TEXT_VILE14) {
-			TalktoMonster(i, pnum);
-			return;
-		}
 		dx = monsters[i]._mfutx;
 		dy = monsters[i]._mfuty;
 		sn = plr.destParam2;
@@ -2646,9 +2638,11 @@ static void CheckNewPath(int pnum)
 			}
 			break;
 		case ACTION_TALK:
-			if (pnum == mypnum) {
-				TalkToTowner(plr.destParam1);
-			}
+			if (currLvl._dLevelIdx == DLV_TOWN) {
+				if (pnum == mypnum)
+					TalkToTowner(plr.destParam1);
+			} else
+				TalktoMonster(plr.destParam1, pnum);
 			break;
 		case ACTION_OPERATETK:
 			i = plr.destParam1;

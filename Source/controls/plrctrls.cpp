@@ -407,14 +407,15 @@ static void FindTrigger()
 
 static void Interact()
 {
-	/*if (currLvl._dType == DTYPE_TOWN) {
-		if (pcursmonst != -1)
-			NetSendCmdLocParam1(CMD_TALKXY, towners[pcursmonst]._tx, towners[pcursmonst]._ty, pcursmonst);
-	} else {
+	/*
+	if (pcursmonst != -1 && CanTalkToMonst(pcursmonst))
+		NetSendCmdLocParam1(CMD_TALKXY, monsters[pcursmonst]._mx, monsters[pcursmonst]._my, pcursmonst);
+
+	if (currLvl._dType != DTYPE_TOWN) {
 		int attack = myplr._pAtkSkill;
 		bool melee = (myplr._pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
-			NetSendCmdMonstAttack((melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack);
+			NetSendCmdMonstAttack(melee ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack);
 		else if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam)
 			NetSendCmdPlrAttack(pcursplr, attack);
 	}*/
