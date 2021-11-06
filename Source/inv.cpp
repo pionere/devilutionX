@@ -1466,7 +1466,7 @@ void DropItem()
 	if (!FindItemLocation(myplr._px, myplr._py, &x, &y, 1))
 		return; // false;
 
-	NetSendCmdPutItem(cursmx, cursmy);
+	NetSendCmdPutItem(x, y);
 	return;// true;
 }
 
