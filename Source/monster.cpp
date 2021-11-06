@@ -3455,10 +3455,14 @@ void MAI_Garg(int mnum)
 			mx = mon->_mx - mon->_menemyx;
 			my = mon->_my - mon->_menemyy;
 			dist = std::max(abs(mx), abs(my));
+			// wake up if the enemy is close
+			static_assert(DBORDERX + DBORDERY > (3 + 2) * 2, "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is always 'far' from (0;0).");
 			if (dist < mon->_mInt + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
+				return;
 			}
-		} else if (mon->_mmode != MM_SPATTACK) {
+		}
+		if (mon->_mmode != MM_SPATTACK) {
 			if (mon->leaderflag == MLEADER_NONE && mon->_uniqtype == 0) {
 				MonStartSpAttack(mnum);
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
