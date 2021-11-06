@@ -1299,7 +1299,7 @@ void InvGetItem(int pnum, int ii)
 
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
-	is->_iCreateInfo &= ~CF_PREGEN;
+	//is->_iCreateInfo &= ~CF_PREGEN;
 	CheckQuestItem(pnum, is);
 	ItemStatOk(pnum, is);
 	copy_pod(plr._pHoldItem, *is);
@@ -1319,7 +1319,7 @@ bool SyncAutoGetItem(int pnum, int ii)
 	is = &items[ii];
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
-	is->_iCreateInfo &= ~CF_PREGEN;
+	//is->_iCreateInfo &= ~CF_PREGEN;
 	CheckQuestItem(pnum, is);
 	ItemStatOk(pnum, is);
 	if (is->_itype == ITYPE_GOLD) {

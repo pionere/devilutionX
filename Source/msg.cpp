@@ -722,14 +722,16 @@ static bool delta_get_item(const TCmdGItem *pI)
 			continue;
 
 		switch (pD->bCmd) {
-		case DCMD_TAKEN:
-			return true;
-		case DCMD_SPAWNED:
+		case DCMD_ITM_TAKEN:
+			return false;
+		case DCMD_ITM_SPAWNED:
 			_gbLevelDeltaChanged[bLevel] = true;
-			pD->bCmd = DCMD_TAKEN;
+			pD->bCmd = DCMD_ITM_TAKEN;
 			return true;
-		case DCMD_DROPPED:
-			_gbLevelDeltaChanged[bLevel] = true;
+		case DCMD_ITM_MOVED:
+			pD->bCmd = DCMD_ITM_TAKEN;
+			return true;
+		case DCMD_ITM_DROPPED:
 			pD->bCmd = DCMD_INVALID;
 			return true;
 		default:
@@ -738,21 +740,7 @@ static bool delta_get_item(const TCmdGItem *pI)
 		}
 	}
 
-	if ((pI->item.wCI & CF_PREGEN) == 0)
-		return false;
-
-	pD = sgLevelDelta[bLevel].item;
-	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == DCMD_INVALID) {
-			_gbLevelDeltaChanged[bLevel] = true;
-			pD->bCmd = DCMD_TAKEN;
-			pD->x = pI->x;
-			pD->y = pI->y;
-			copy_pod(pD->item, pI->item);
-			break;
-		}
-	}
-	return true;
+	return false;
 }
 
 static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
@@ -771,11 +759,14 @@ static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 		 && pD->item.dwSeed == pItem->dwSeed
 		 && pD->item.wIndx == pItem->wIndx
 		 && pD->item.wCI == pItem->wCI) {
-			if (pD->bCmd == DCMD_DROPPED)
-				return;
-			if (pD->bCmd == DCMD_TAKEN)
-				continue; // BUGFIX: should return instead? otherwise the item is duped...
-			app_fatal("Trying to drop a floor item?");
+			if (pD->bCmd == DCMD_ITM_TAKEN) {
+				pD->bCmd = DCMD_ITM_MOVED;
+				pD->x = x;
+				pD->y = y;
+			}
+			//else
+			//	app_fatal("Trying to drop a floor item?");
+			return;
 		}
 	}
 
@@ -783,7 +774,7 @@ static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID) {
 			_gbLevelDeltaChanged[bLevel] = true;
-			pD->bCmd = DCMD_DROPPED;
+			pD->bCmd = DCMD_ITM_DROPPED;
 			pD->x = x;
 			pD->y = y;
 			copy_pod(pD->item, *pItem);
@@ -820,9 +811,9 @@ void PackPkItem(PkItemStruct *dest, const ItemStruct *src)
 
 void DeltaAddItem(int ii)
 {
-	ItemStruct *is;
+	ItemStruct* is;
 	int i;
-	DItemStr *pD;
+	DItemStr* pD;
 
 	if (!IsMultiGame)
 		return;
@@ -834,10 +825,7 @@ void DeltaAddItem(int ii)
 		 && pD->item.dwSeed == SwapLE32(is->_iSeed)
 		 && pD->item.wIndx == SwapLE16(is->_iIdx)
 		 && pD->item.wCI == SwapLE16(is->_iCreateInfo)) {
-			if (pD->bCmd == DCMD_TAKEN || pD->bCmd == DCMD_SPAWNED)
-				return;
-			if (pD->bCmd == DCMD_DROPPED)
-				continue; // BUGFIX: should return instead? otherwise the item is duped...
+			return;
 		}
 	}
 
@@ -845,7 +833,7 @@ void DeltaAddItem(int ii)
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID) {
 			_gbLevelDeltaChanged[currLvl._dLevelIdx] = true;
-			pD->bCmd = DCMD_SPAWNED;
+			pD->bCmd = DCMD_ITM_SPAWNED;
 			pD->x = is->_ix;
 			pD->y = is->_iy;
 			PackPkItem(&pD->item, is);
@@ -981,16 +969,22 @@ void DeltaLoadLevel()
 	}
 
 	// load items last, because they depend on the object state
+	//  I. remove items
 	itm = sgLevelDelta[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
-		if (itm->bCmd == DCMD_TAKEN) {
+		if (itm->bCmd == DCMD_ITM_TAKEN || itm->bCmd == DCMD_ITM_MOVED) {
 			ii = FindGetItem(SwapLE32(itm->item.dwSeed), SwapLE16(itm->item.wIndx), SwapLE16(itm->item.wCI));
 			if (ii != -1) {
 				if (dItem[items[ii]._ix][items[ii]._iy] == ii + 1)
 					dItem[items[ii]._ix][items[ii]._iy] = 0;
 				DeleteItem(ii, i);
 			}
-		} else if (itm->bCmd == DCMD_DROPPED) {
+		}
+	}
+	//  II. place items
+	itm = sgLevelDelta[currLvl._dLevelIdx].item;
+	for (i = 0; i < MAXITEMS; i++, itm++) {
+		if (itm->bCmd == DCMD_ITM_DROPPED || itm->bCmd == DCMD_ITM_MOVED) {
 			UnPackPkItem(&itm->item);
 			x = itm->x;
 			y = itm->y;

@@ -126,7 +126,7 @@ static void AddInitItems()
 		SetRndSeed(seed);
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
-		items[ii]._iCreateInfo = lvl | CF_PREGEN;
+		items[ii]._iCreateInfo = lvl;// | CF_PREGEN;
 		// assert(gbLvlLoad != 0);
 		// SetupItem(ii);
 		RespawnItem(ii, false);
@@ -1765,7 +1765,7 @@ static void ItemRndDur(int ii)
 		items[ii]._iDurability = random_(0, items[ii]._iMaxDur >> 1) + (items[ii]._iMaxDur >> 2) + 1;
 }
 
-static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool onlygood, bool recreate, bool pregen)
+static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool onlygood, bool recreate)
 {
 	int uid;
 
@@ -1774,8 +1774,8 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool on
 	items[ii]._iSeed = iseed;
 	items[ii]._iCreateInfo = lvl;
 
-	if (pregen)
-		items[ii]._iCreateInfo |= CF_PREGEN;
+	//if (pregen)
+	//	items[ii]._iCreateInfo |= CF_PREGEN;
 	if (onlygood)
 		items[ii]._iCreateInfo |= CF_ONLYGOOD;
 
@@ -1820,7 +1820,7 @@ void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn)
 	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
 
 	ii = itemavail[0];
-	SetupAllItems(ii, idx, uid, items_get_currlevel(), 1, false, false, false);
+	SetupAllItems(ii, idx, uid, items_get_currlevel(), 1, false, false);
 
 	RegisterItem(ii, x, y, sendmsg, false);
 	if (respawn) {
@@ -1864,7 +1864,7 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 
 	ii = itemavail[0];
 	SetupAllItems(ii, idx, GetRndSeed(), mon->_mLevel,
-		onlygood ? 15 : 1, onlygood, false, false);
+		onlygood ? 15 : 1, onlygood, false);
 
 	RegisterItem(ii, x, y, sendmsg, false); // TODO: delta?
 }
@@ -1884,7 +1884,7 @@ void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta)
 		idx = RndAllItems(lvl);
 
 	ii = itemavail[0];
-	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, false, delta);
+	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, false);
 
 	RegisterItem(ii, x, y, sendmsg, delta);
 }
@@ -1948,7 +1948,7 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool send
 	else
 		idx = IDI_GOLD;
 	ii = itemavail[0];
-	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, false, delta);
+	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, false);
 
 	RegisterItem(ii, x, y, sendmsg, delta);
 }
@@ -1956,7 +1956,7 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool send
 void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
 {
 	int uper;
-	bool onlygood, recreate, pregen;
+	bool onlygood, recreate;
 
 	if (wIndex == IDI_GOLD) {
 		SetItemData(MAXITEMS, IDI_GOLD);
@@ -1978,7 +1978,6 @@ void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
 				uper = 0;
 				onlygood = false;
 				recreate = false;
-				pregen = false;
 				if (wCI & CF_UPER1)
 					uper = 1;
 				if (wCI & CF_UPER15)
@@ -1987,9 +1986,7 @@ void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
 					onlygood = true;
 				if (wCI & CF_UNIQUE)
 					recreate = true;
-				if (wCI & CF_PREGEN)
-					pregen = true;
-				SetupAllItems(MAXITEMS, wIndex, iseed, wCI & CF_LEVEL, uper, onlygood, recreate, pregen);
+				SetupAllItems(MAXITEMS, wIndex, iseed, wCI & CF_LEVEL, uper, onlygood, recreate);
 			}
 		}
 	}
@@ -2088,7 +2085,7 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	// SetupItem(ii);
 	RespawnItem(ii, false);
 	//items[ii]._iPostDraw = TRUE;
-	items[ii]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
+	items[ii]._iCreateInfo = items_get_currlevel();// | CF_PREGEN;
 	items[ii]._iSeed = GetRndSeed(); // make sure it is unique
 
 	GetRandomItemSpace(areasize, ii);
@@ -2125,7 +2122,7 @@ void SpawnRock()
 		items[i]._iPostDraw = TRUE;
 		items[i]._iAnimFrame = 11;
 		//items[i]._iAnimFlag = TRUE;
-		items[i]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
+		items[i]._iCreateInfo = items_get_currlevel();// | CF_PREGEN;
 		items[i]._iSeed = GetRndSeed(); // make sure it is unique
 		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
 		DeltaAddItem(i);
@@ -3635,7 +3632,7 @@ void CreateSpellBook(int ispell, int x, int y)
 
 	ii = itemavail[0];
 	while (TRUE) {
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true, false, true); // BUGFIX: pregen?
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true, false);
 		assert(items[ii]._iMiscId == IMISC_BOOK);
 		if (items[ii]._iSpell == ispell)
 			break;
@@ -3656,7 +3653,7 @@ void CreateAmulet(WORD wCI, int x, int y, bool sendmsg, bool respawn)
 	ii = itemavail[0];
 	while (TRUE) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true, false, false);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true, false);
 		if (items[ii]._iCurs == ICURS_AMULET)
 			break;
 	}
@@ -3679,7 +3676,7 @@ void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 	ii = itemavail[0];
 	while (TRUE) {
 		idx = RndTypeItems(itype, IMISC_NONE, lvl);
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true, false, true); // BUGFIX: pregen?
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true, false);
 		if (items[ii]._iCurs == icurs)
 			break;
 	}

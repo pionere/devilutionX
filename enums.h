@@ -2737,7 +2737,6 @@ typedef enum icreateinfo_flag {
 	CF_UPER15       = 1 << 12,
 	CF_UPER1        = 1 << 13,
 	CF_UNIQUE       = 1 << 14,
-	CF_PREGEN       = 1 << 15,
 
 	CF_USEFUL = CF_UPER15 | CF_UPER1,
 	CF_TOWN   = 7 << 8,
@@ -3187,12 +3186,12 @@ typedef enum _cmd_id {
 	CMD_DEBUG,
 } _cmd_id;
 
-// TODO: check the meaning of the values
 typedef enum _dcmd_item {
 	DCMD_INVALID,
-	DCMD_SPAWNED,
-	DCMD_TAKEN,
-	DCMD_DROPPED,
+	DCMD_ITM_SPAWNED,
+	DCMD_ITM_TAKEN,
+	DCMD_ITM_MOVED,
+	DCMD_ITM_DROPPED,
 } _dcmd_item;
 
 typedef enum _dcmd_monster {
