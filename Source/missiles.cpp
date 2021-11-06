@@ -1466,17 +1466,12 @@ int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	return MIRES_DONE;
 }*/
 
-/**
- * Var1: light strength
- */
 int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
 
 	mis = &missile[mi];
-	//mis->_miLid = AddLight(sx, sy, 8);
-	//mis->_miVar1 = 0;
 	mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0] - 1;
 
 	dam = 2 * (plx(misource)._pLevel + random_(60, 10) + random_(60, 10)) + 4;
@@ -1823,7 +1818,6 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 /**
  * Var1: animation helper
- * Var2: light strength
  */
 int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -1844,7 +1838,6 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		mis->_miMaxDam = (10 + currLvl._dLevel) << (-3 + 6);
 	}
 	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
-	//mis->_miVar2 = 0;
 	return MIRES_DONE;
 }
 
@@ -1952,9 +1945,6 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	return MIRES_DONE;
 }
 
-/**
- * Var1: light strength
- */
 int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *bmis;
@@ -1974,7 +1964,6 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_mixvel = 0;
 	mis->_miyvel = 0;
 	mis->_miRange = mis->_miAnimLen;
-	//mis->_miVar1 = 0;
 	return MIRES_DONE;
 }
 
@@ -1991,7 +1980,6 @@ static bool CheckIfTrig(int x, int y)
 
 /**
  * Var1: animation
- * Var2: light strength
  * Var3: triggered
  */
 int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -2036,7 +2024,6 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 
 /**
  * Var1: animation
- * Var2: light strength
  * Var3: triggered (only for MIS_TOWN)
  */
 int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -2053,7 +2040,6 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		if (misource == mypnum)
 			NetSendCmdLocBParam1(CMD_ACTIVATEPORTAL, dx, dy, currLvl._dLevelIdx);
 		mis->_miVar1 = P_RANGE - mis->_miAnimLen;
-		// mis->_miVar2 = 0;
 	} else {
 		// a recreated portal (by AddWarpMissile or InitVP*Trigger)
 		mis->_miVar1 = P_RANGE - 1;
@@ -2117,7 +2103,6 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 
 /**
  * Var1: animation
- * Var2: light strength
  * Var3: x coordinate of the missile-light
  * Var4: y coordinate of the missile-light
  */
@@ -2134,7 +2119,6 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miMaxDam = ((magic >> 3) + 2 * spllvl + 2) << 6;
 	mis->_miRange = 255;
 	//mis->_miVar1 = 0;
-	//mis->_miVar2 = 0;
 	//mis->_miVar3 = 0;
 	//mis->_miVar4 = 0;
 	mis->_mix++;
@@ -3158,7 +3142,7 @@ void MI_Acidpud(int mi)
 void MI_Firewall(int mi)
 {
 	MissileStruct *mis;
-	int ExpLight[] = { 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
+	int ExpLight[] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
 
 	mis = &missile[mi];
 	mis->_miRange--;
@@ -3178,14 +3162,14 @@ void MI_Firewall(int mi)
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 	} else if (mis->_miDir == 0) {
-		if (mis->_miVar2 == 0) {
+		if (mis->_miLid == -1) {
 			//assert(mis->_miLid == NO_LIGHT);
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		} else {
-			//assert(mis->_miVar2 < sizeof(ExpLight));
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
+			assert(mis->_miAnimLen < lengthof(ExpLight));
+			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(ExpLight));
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
 		}
-		mis->_miVar2 += mis->_miAnimAdd;
 	}
 	PutMissile(mi);
 }
@@ -3399,7 +3383,7 @@ void MI_Lightning(int mi)
 void MI_Portal(int mi)
 {
 	MissileStruct *mis;
-	int ExpLight[17] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 15 };
+	int ExpLight[17] = { 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 };
 	PlayerStruct *p;
 
 	mis = &missile[mi];
@@ -3413,13 +3397,16 @@ void MI_Portal(int mi)
 	if (mis->_miRange == mis->_miVar1) {
 		SetMissDir(mi, 1);
 		if (currLvl._dType != DLV_TOWN && mis->_miLid == NO_LIGHT)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, 15);
-	} else if (mis->_miDir != 1 && currLvl._dType != DLV_TOWN) {
-		if (mis->_miVar2 == 0)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, 1);
-		else
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
-		mis->_miVar2++;
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[lengthof(ExpLight) - 1]);
+	} else if (mis->_miDir == 0 && currLvl._dType != DLV_TOWN) {
+		if (mis->_miLid == -1)
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
+		else {
+			assert(mis->_miAnimLen < lengthof(ExpLight));
+			assert(misfiledata[MIS_RPORTAL].mfAnimLen[0] < lengthof(ExpLight));
+			assert(misfiledata[MIS_TOWN].mfAnimLen[0] < lengthof(ExpLight));
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
+		}
 	}
 
 	if (mis->_miType == MIS_TOWN) {
@@ -3465,7 +3452,7 @@ void MI_FireWave(int mi)
 {
 	MissileStruct *mis;
 	int range;
-	int ExpLight[14] = { 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
+	int ExpLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
 
 	mis = &missile[mi];
 	mis->_mix--;
@@ -3495,11 +3482,13 @@ void MI_FireWave(int mi)
 			ChangeLight(mis->_miLid, mis->_miVar3, mis->_miVar4, 8);
 		}
 	} else {
-		if (mis->_miVar2 == 0)
+		if (mis->_miLid == -1)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
-		else
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
-		mis->_miVar2++;
+		else {
+			assert(mis->_miAnimLen < lengthof(ExpLight));
+			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(ExpLight));
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
+		}
 	}
 	mis->_mix++;
 	mis->_miy++;
@@ -3619,7 +3608,7 @@ void MI_Chain(int mi)
 void MI_Misexp(int mi)
 {
 	MissileStruct *mis;
-	int ExpLight[] = { 9, 10, 11, 12, 11, 10, 8, 6, 4, 2, 1, 0, 0, 0, 0 };
+	int ExpLight[] = { 9, 9, 10, 11, 12, 11, 10, 8, 6, 4, 2, 1, 0, 0, 0, 0 };
 
 	mis = &missile[mi];
 	mis->_miRange--;
@@ -3627,11 +3616,12 @@ void MI_Misexp(int mi)
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 	} else {
-		if (mis->_miVar1 == 0)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, 9);
-		else
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar1]);
-		mis->_miVar1++;
+		if (mis->_miLid == -1)
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
+		else {
+			assert(mis->_miAnimLen < lengthof(ExpLight));
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
+		}
 		PutMissile(mi);
 	}
 }
