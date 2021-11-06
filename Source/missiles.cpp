@@ -3162,8 +3162,7 @@ void MI_Firewall(int mi)
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 	} else if (mis->_miDir == 0) {
-		if (mis->_miLid == -1) {
-			//assert(mis->_miLid == NO_LIGHT);
+		if (mis->_miLid == NO_LIGHT) {
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		} else {
 			assert(mis->_miAnimLen < lengthof(ExpLight));
@@ -3399,7 +3398,7 @@ void MI_Portal(int mi)
 		if (currLvl._dType != DLV_TOWN && mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[lengthof(ExpLight) - 1]);
 	} else if (mis->_miDir == 0 && currLvl._dType != DLV_TOWN) {
-		if (mis->_miLid == -1)
+		if (mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		else {
 			assert(mis->_miAnimLen < lengthof(ExpLight));
@@ -3482,7 +3481,7 @@ void MI_FireWave(int mi)
 			ChangeLight(mis->_miLid, mis->_miVar3, mis->_miVar4, 8);
 		}
 	} else {
-		if (mis->_miLid == -1)
+		if (mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		else {
 			assert(mis->_miAnimLen < lengthof(ExpLight));
@@ -3616,7 +3615,7 @@ void MI_Misexp(int mi)
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 	} else {
-		if (mis->_miLid == -1)
+		if (mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		else {
 			assert(mis->_miAnimLen < lengthof(ExpLight));
