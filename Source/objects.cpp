@@ -1160,20 +1160,25 @@ void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 static void AddChest(int oi)
 {
 	ObjectStruct* os;
-	int num;
+	int num, rnum, itype;
 
 	os = &objects[oi];
 	if (random_(147, 2) == 0)
 		os->_oAnimFrame += 3;
-	os->_oRndSeed = GetRndSeed();
+	os->_oRndSeed = GetRndSeed(); // CHEST_ITEM_SEED1
 	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3
 	//	|| os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3);
 	num = os->_otype;
 	num = (num >= OBJ_TCHEST1 && num <= OBJ_TCHEST3) ? num - OBJ_TCHEST1 + 1 : num - OBJ_CHEST1 + 1;
+	rnum = random_(147, num + 1); // CHEST_ITEM_SEED2
 	if (!currLvl._dSetLvl)
-		num = random_(147, num + 1);
-	os->_oVar1 = num;             // CHEST_ITEM_NUM
-	os->_oVar2 = random_(147, 8); // CHEST_ITEM_TYPE
+		num = rnum;
+	os->_oVar1 = num;        // CHEST_ITEM_NUM
+	itype = random_(147, 8); // CHEST_ITEM_SEED3
+	if (currLvl._dSetLvl)
+		itype = 8;
+	os->_oVar2 = itype;      // CHEST_ITEM_TYPE
+	//assert(num <= 3); otherwise the seeds are not 'reserved'
 }
 
 static void OpenDoor(int oi);
@@ -2496,7 +2501,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 static void OperateChest(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
-	int i, mdir;
+	int i, k, mdir;
 
 	os = &objects[oi];
 	if (os->_oSelFlag == 0)
@@ -2512,21 +2517,18 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-	SetRndSeed(os->_oRndSeed);
-	if (currLvl._dSetLvl) {
-		for (i = os->_oVar1; i > 0; i--) { // CHEST_ITEM_NUM
-			CreateRndItem(os->_ox, os->_oy, true, sendmsg, false);
-		}
-	} else {
-		for (i = os->_oVar1; i > 0; i--) { // CHEST_ITEM_NUM
-			if (os->_oVar2 != 0)           // CHEST_ITEM_TYPE
-				CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
-			else
-				CreateRndUseful(os->_ox, os->_oy, sendmsg, false);
-		}
+	for (i = os->_oVar1; i > 0; i--) { // CHEST_ITEM_NUM
+		SetRndSeed(os->_oRndSeed);     // CHEST_ITEM_SEEDx
+		for (k = i; k > 1; k--)
+			GetRndSeed();
+		if (os->_oVar2 != 0)           // CHEST_ITEM_TYPE
+			CreateRndItem(os->_ox, os->_oy, os->_oVar2 == 8, sendmsg, false);
+		else
+			CreateRndUseful(os->_ox, os->_oy, sendmsg, false);
 	}
 	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapFlag) {
 		os->_oTrapFlag = FALSE;
+		SetRndSeed(os->_oRndSeed);
 		mdir = GetDirection(os->_ox, os->_oy, plr._px, plr._py);
 		AddMissile(os->_ox, os->_oy, plr._px, plr._py, mdir, os->_oVar4, 1, -1, 0, 0, 0); // CHEST_TRAP_TYPE
 	}
