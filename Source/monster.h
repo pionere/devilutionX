@@ -34,7 +34,6 @@ void WakeUberDiablo();
 void InitMonsters();
 void SetMapMonsters(BYTE *pMap, int startx, int starty);
 int AddMonster(int x, int y, int dir, int mtidx, bool InMap);
-bool MonTalker(int mnum);
 void MonStartStand(int mnum, int md);
 void RemoveMonFromMap(int mnum);
 void MonGetKnockback(int mnum);

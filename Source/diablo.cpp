@@ -539,7 +539,7 @@ bool TryIconCurs(bool bShift)
 			NetSendCmdParam1(CMD_OPOBJT, pcursobj);
 		if (pcursitem != ITEM_NONE)
 			NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
-		if (pcursmonst != -1 && !MonTalker(pcursmonst))
+		if (pcursmonst != -1 && !CanTalkToMonst(pcursmonst))
 			NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
 		break;
 	case CURSOR_RESURRECT:

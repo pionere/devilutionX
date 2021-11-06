@@ -1138,19 +1138,6 @@ static bool MonRanged(int mnum)
 	return ai == AI_SKELBOW || ai == AI_GOATBOW || ai == AI_SUCC || ai == AI_LAZHELP;
 }
 
-bool MonTalker(int mnum)
-{
-	return monsters[mnum].mtalkmsg != TEXT_NONE;
-	/*char ai = monsters[mnum]._mAi;
-	return ai == AI_LAZARUS
-	    || ai == AI_WARLORD
-	    || ai == AI_GARBUD
-	    || ai == AI_ZHAR
-	    || ai == AI_SNOTSPIL
-	    || ai == AI_LACHDAN
-	    || ai == AI_LAZHELP;*/
-}
-
 static void MonEnemy(int mnum)
 {
 	int i, tnum;
@@ -1211,7 +1198,7 @@ static void MonEnemy(int mnum)
 #endif
 			if (MINION_INACTIVE(tmon))
 				continue;
-			if (MonTalker(tnum))
+			if (CanTalkToMonst(tnum))
 				continue;
 			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
 			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
@@ -5119,7 +5106,6 @@ bool CanTalkToMonst(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("CanTalkToMonst: Invalid monster %d", mnum);
 	}
-	// TODO: merge with MonTalker?
 	assert((monsters[mnum]._mgoal != MGOAL_INQUIRING
 		&& monsters[mnum]._mgoal != MGOAL_TALKING)
 		|| monsters[mnum].mtalkmsg != TEXT_NONE);
