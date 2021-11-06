@@ -3607,7 +3607,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 }
 
-static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
+static void OperateBarrel(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os = &objects[oi];
 	int xotype, mpo;
@@ -3615,19 +3615,10 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 
 	if (os->_oSelFlag == 0)
 		return;
-	if (!forcebreak) {
-		if (pnum != mypnum) {
-			if (deltaload)
-				return;
-
-			PlaySfxLoc(IS_IBOW, os->_ox, os->_oy);
-			return;
-		}
-	}
 
 	// os->_oVar1 = 0;
-	os->_oAnimFlag = TRUE;
-	os->_oAnimFrame = 1;
+	//os->_oAnimFlag = TRUE;
+	//os->_oAnimFrame = 1;
 	//os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
@@ -3640,6 +3631,8 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 		//os->_oAnimFrameLen = 1000;
 		return;
 	}
+	os->_oAnimFlag = TRUE;
+	os->_oAnimFrame = 1;
 
 	assert(os->_oSFXCnt == 1);
 	PlaySfxLoc(os->_oSFX, os->_ox, os->_oy);
@@ -3660,7 +3653,7 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 				if (mpo > 0) {
 					mpo--;
 					if (objects[mpo]._otype == xotype && objects[mpo]._oBreak != OBM_BROKEN)
-						OperateBarrel(true, pnum, mpo, sendmsg);
+						OperateBarrel(pnum, mpo, sendmsg);
 				}
 			}
 		}
@@ -3753,7 +3746,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_POD:
 	case OBJ_PODEX:
 #endif
-		OperateBarrel(false, pnum, oi, sendmsg);
+		OperateBarrel(pnum, oi, sendmsg);
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
@@ -3923,7 +3916,7 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_POD:
 	case OBJ_PODEX:
 #endif
-		OperateBarrel(true, pnum, oi, false);
+		OperateBarrel(pnum, oi, false);
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
