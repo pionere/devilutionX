@@ -334,7 +334,7 @@ void EnterLevel(BYTE lvl)
 	currLvl._dDunType = AllLevels[lvl].dDunType;
 	if (gnDifficulty == DIFF_NIGHTMARE)
 		currLvl._dLevel += NIGHTMARE_LEVEL_BONUS;
-	else if (gnDifficulty == DIFF_NIGHTMARE)
+	else if (gnDifficulty == DIFF_HELL)
 		currLvl._dLevel += HELL_LEVEL_BONUS;
 }
 
