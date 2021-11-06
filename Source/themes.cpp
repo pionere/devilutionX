@@ -598,7 +598,6 @@ static void Theme_MonstPit(int tidx)
 		}
 	}
 	CreateRndItem(xx, yy, true, false, true);
-	ItemNoFlippy();
 	PlaceThemeMonsts(tidx, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
@@ -696,10 +695,8 @@ static void Theme_Treasure(int tidx)
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (random_(0, treasrnd) == 0) {
 					CreateTypeItem(xx, yy, false, ITYPE_GOLD, IMISC_NONE, false, true);
-					ItemNoFlippy();
 				} else if (random_(0, treasrnd) == 0) {
 					CreateRndItem(xx, yy, false, false, true);
-					ItemNoFlippy();
 				}
 			}
 		}

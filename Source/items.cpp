@@ -3621,18 +3621,6 @@ void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo)
 	}
 }
 
-int ItemNoFlippy()
-{
-	int ii;
-
-	ii = itemactive[numitems - 1];
-	items[ii]._iAnimFrame = items[ii]._iAnimLen;
-	items[ii]._iAnimFlag = FALSE;
-	items[ii]._iSelFlag = 1;
-
-	return ii;
-}
-
 void CreateSpellBook(int ispell, int x, int y)
 {
 	int ii, idx, lvl;
