@@ -2850,7 +2850,7 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miVar1 = 5;
 	mis->_miVar2 = midir;
 	//mis->_miVar3 = 0;
-	mis->_miVar4 = RandRange(1, 15);
+	mis->_miVar4 = random_(0, 16);
 	if (micaster == 0) {
 		mis->_miMinDam = 1;
 		mis->_miMaxDam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
