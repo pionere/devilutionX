@@ -46,14 +46,13 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 </details>
 
-<details><summary>New Nintendo 3DS</summary>
+<details><summary>Nintendo 3DS</summary>
 
 ### .3dsx installation
 
 - Copy `devilutionx.3dsx` into `sd:/3ds/devilutionx/`.
 - Copy the MPQ files into `sd:/3ds/devilutionx/`.
 - Launch `devilutionx.3dsx` with the [Homebrew Launcher](https://github.com/fincs/new-hbmenu).
-    - *Note:* When the Hellfire .mpqs are installed you can still launch regular Diablo by passing `--diablo` to `devilutionx.3dsx`.
 
 ### .cia installation
 
