@@ -34,7 +34,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 
 		externalDir = getExternalFilesDir(null).getAbsolutePath();
 
-		migrateAppData();
+		migrateSaveGames();
 
 		super.onCreate(savedInstanceState);
 	}
@@ -99,9 +99,9 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	}
 
 	private void migrateFile(File file) {
-		if (!file.exists() || !file.canRead()) {
-			return;
-		}
+		//if (!file.exists() || !file.canRead()) {
+		//	return;
+		//}
 		File newPath = new File(externalDir + "/" + file.getName());
 		if (newPath.exists()) {
 			if (file.canWrite()) {
@@ -110,9 +110,9 @@ public class DevilutionXSDLActivity extends SDLActivity {
 			}
 			return;
 		}
-		if (!new File(newPath.getParent()).canWrite()) {
-			return;
-		}
+		//if (!new File(newPath.getParent()).canWrite()) {
+		//	return;
+		//}
 		if (!file.renameTo(newPath)) {
 			if (copyFile(file, newPath) && file.canWrite()) {
 				//noinspection ResultOfMethodCallIgnored
@@ -121,25 +121,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		}
 	}
 
-	/**
-	 * This can be removed Nov 2021 and Google will no longer permit access to the old folder from that point on
-	 */
-	@SuppressWarnings("deprecation")
-	@SuppressLint("SdCardPath")
-	private void migrateAppData() {
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-			if (PackageManager.PERMISSION_GRANTED != checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-				return;
-			}
-		}
-
-		migrateFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/diabdat.mpq"));
-		migrateFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/DIABDAT.MPQ"));
-
-		migrateFile(new File("/sdcard/diabdat.mpq"));
-		migrateFile(new File("/sdcard/devilutionx/diabdat.mpq"));
-		//migrateFile(new File("/sdcard/devilutionx/spawn.mpq"));
-
+	private void migrateSaveGames() {
 		for (File internalFile : getFilesDir().listFiles()) {
 			migrateFile(internalFile);
 		}
