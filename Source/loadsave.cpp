@@ -256,9 +256,11 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iDamType);
 	LoadByte(&is->_iMinDam);
 	LoadByte(&is->_iMaxDam);
+	LoadByte(&is->_iBaseCrit);
 	LoadByte(&is->_iMinStr);
 	LoadByte(&is->_iMinMag);
 	LoadByte(&is->_iMinDex);
+	tbuff += 3; // Alignment
 	LoadInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
@@ -301,6 +303,9 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iSplLvlAdd);
 	LoadByte(&is->_iManaSteal);
 	LoadByte(&is->_iLifeSteal);
+	LoadByte(&is->_iPLCrit);
+	LoadByte(&is->_iPLEnAc);
+	tbuff += 2; // Alignment
 	LoadInt(&is->_iUid);
 	LoadByte(&is->_iFMinDam);
 	LoadByte(&is->_iFMaxDam);
@@ -310,7 +315,6 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iMMaxDam);
 	LoadByte(&is->_iAMinDam);
 	LoadByte(&is->_iAMaxDam);
-	LoadInt(&is->_iPLEnAc);
 	LoadInt(&is->_iVAdd);
 	LoadInt(&is->_iVMult);
 	LoadInt(&is->_iStatFlag);
@@ -985,9 +989,11 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iDamType);
 	SaveByte(&is->_iMinDam);
 	SaveByte(&is->_iMaxDam);
+	SaveByte(&is->_iBaseCrit);
 	SaveByte(&is->_iMinStr);
 	SaveByte(&is->_iMinMag);
 	SaveByte(&is->_iMinDex);
+	tbuff += 3; // Alignment
 	SaveInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
@@ -1030,6 +1036,9 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iSplLvlAdd);
 	SaveByte(&is->_iManaSteal);
 	SaveByte(&is->_iLifeSteal);
+	SaveByte(&is->_iPLCrit);
+	SaveByte(&is->_iPLEnAc);
+	tbuff += 2; // Alignment
 	SaveInt(&is->_iUid);
 	SaveByte(&is->_iFMinDam);
 	SaveByte(&is->_iFMaxDam);
@@ -1039,7 +1048,6 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iMMaxDam);
 	SaveByte(&is->_iAMinDam);
 	SaveByte(&is->_iAMaxDam);
-	SaveInt(&is->_iPLEnAc);
 	SaveInt(&is->_iVAdd);
 	SaveInt(&is->_iVMult);
 	SaveInt(&is->_iStatFlag);

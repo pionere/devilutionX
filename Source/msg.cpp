@@ -1924,14 +1924,17 @@ static unsigned On_SPELLPID(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_KNOCKBACK(TCmd *pCmd, int pnum)
+static unsigned On_KNOCKBACK(TCmd* pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	int mnum = SwapLE16(cmd->wParam1);
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		// assert(cmd->wParam1 >= MAX_MINIONS); TODO: validate data from internet
-		MonGetKnockback(SwapLE16(cmd->wParam1));
-		MonStartHit(SwapLE16(cmd->wParam1), pnum, 0);
+		// assert(mnum >= MAX_MINIONS); TODO: validate data from internet
+		if ((monsters[mnum]._mmaxhp >> 6) < plr._pMagic) {
+			MonGetKnockback(mnum);
+			MonStartHit(mnum, pnum, 0);
+		}
 	}
 
 	return sizeof(*cmd);

@@ -1994,7 +1994,6 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 
 	hper = 30 + Hit
 		+ (2 * mon->_mLevel)
-		- (2 * plr._pLevel)
 		- plr._pIAC;
 	if (random_(98, 100) >= hper)
 #ifdef _DEBUG

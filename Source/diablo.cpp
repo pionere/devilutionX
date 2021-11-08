@@ -530,12 +530,16 @@ bool TryIconCurs(bool bShift)
 		}
 		break;
 	case CURSOR_TELEKINESIS:
-		if (pcursobj != OBJ_NONE)
-			NetSendCmdParam1(CMD_OPOBJT, pcursobj);
-		if (pcursitem != ITEM_NONE)
-			NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
-		if (pcursmonst != -1 && !CanTalkToMonst(pcursmonst))
-			NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
+		if (pcursobj != OBJ_NONE) {
+			if (LineClear(myplr._px, myplr._py, objects[pcursobj]._ox, objects[pcursobj]._oy))
+				NetSendCmdParam1(CMD_OPOBJT, pcursobj);
+		} else if (pcursitem != ITEM_NONE) {
+			if (LineClear(myplr._px, myplr._py, items[pcursitem]._ix, items[pcursitem]._iy))
+				NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
+		} else if (pcursmonst != -1 && !CanTalkToMonst(pcursmonst)) {
+			if (LineClear(myplr._px, myplr._py, monsters[pcursmonst]._mx, monsters[pcursmonst]._my))
+				NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
+		}
 		break;
 	case CURSOR_RESURRECT:
 		if (pcursplr != PLR_NONE) {

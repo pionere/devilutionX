@@ -701,6 +701,9 @@ static bool MonsterMHit(int mnum, int mi)
 		if (pcdam != 0) {
 			dam += CalcMonsterDam(mon->_mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, pcdam);
 		}
+		if (random_(6, 200) < plr._pICritChance) {
+			dam <<= 1;
+		}
 		// add modifiers from arrow-type
 		if (mis->_miType == MIS_PBARROW) {
 			dam = (dam * (64 + 32 - 16 * mis->_miDist + mis->_miSpllvl)) >> 6;
@@ -816,7 +819,6 @@ static bool PlayerTrapHit(int pnum, int mi)
 	if (mis->_miSubType == 0) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    + (2 * currLvl._dLevel)
-			- (2 * plr._pLevel)
 		    - plr._pIAC;
 		hper -= mis->_miDist << 1;
 	} else {
@@ -870,7 +872,6 @@ static bool PlayerMHit(int pnum, int mi)
 	if (mis->_miSubType == 0) {
 		hper = 30 + mon->_mHit
 		    + (2 * mon->_mLevel)
-			- (2 * plr._pLevel)
 		    - plr._pIAC;
 		hper -= mis->_miDist << 1;
 	} else {
@@ -880,11 +881,9 @@ static bool PlayerMHit(int pnum, int mi)
 				- (2 * plr._pLevel);
 		} else {
 			hper = 50 + mon->_mMagic
-				- (2 * plr._pLevel)
 				- plr._pIEvasion
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}
-
 	}
 
 	if (random_(72, 100) >= hper)
@@ -941,7 +940,6 @@ static bool Plr2PlrMHit(int pnum, int mi)
 				- (2 * plr._pLevel);
 		} else {
 			hper = 50 + plx(offp)._pMagic
-				- (2 * plr._pLevel)
 				- plr._pIEvasion
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}
@@ -974,6 +972,9 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		int pcdam = plx(offp)._pIPcMaxDam;
 		if (pcdam != 0) {
 			dam += CalcPlrDam(pnum, MISR_PUNCTURE, plx(offp)._pIPcMinDam, pcdam);
+		}
+		if (random_(6, 200) < plx(offp)._pICritChance) {
+			dam <<= 1;
 		}
 		// add modifiers from arrow-type
 		if (mis->_miType == MIS_PBARROW) {

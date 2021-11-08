@@ -255,7 +255,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	uint64_t spl = 0; // bitarray for all enabled/active spells
 
-	int br = gnDifficulty * -15;
+	int br = gnDifficulty * -10;
 	int fr = br; // fire resistance
 	int lr = br; // lightning resistance
 	int mr = br; // magic resistance
@@ -272,7 +272,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	int ihp = 0;   // increased HP
 	int imana = 0; // increased mana
 
-	int spllvladd = 0; // increased spell level
+	char spllvladd = 0; // increased spell level
 	int enac = 0;      // enhanced accuracy
 
 	unsigned minsl = 0; // min slash-damage
@@ -290,6 +290,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	unsigned amin = 0;  // min acid damage
 	unsigned amax = 0;  // max acid damage
 
+	unsigned cc = 0; // critical hit chance
+	int btochit = 0; // bonus chance to critical hit
+
 	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
@@ -297,8 +300,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 				spl |= SPELL_MASK(pi->_iSpell);
 			}
 			cac = pi->_iAC;
-			mindam = pi->_iMinDam;
-			maxdam = pi->_iMaxDam;
 			cdmod = 0;
 			cdmodp = 0;
 
@@ -322,6 +323,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 				spllvladd += pi->_iSplLvlAdd;
 				lifesteal += pi->_iLifeSteal;
 				manasteal += pi->_iManaSteal;
+				btochit += pi->_iPLCrit;
 				enac += pi->_iPLEnAc;
 				fmin += pi->_iFMinDam;
 				fmax += pi->_iFMaxDam;
@@ -343,9 +345,12 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			}
 
 			tac += cac;
+			maxdam = pi->_iMaxDam;
 			if (maxdam == 0)
 				continue;
 			cdmodp += 100;
+			cc += pi->_iBaseCrit;
+			mindam = pi->_iMinDam;
 			mindam = mindam * cdmodp + cdmod * 100;
 			maxdam = maxdam * cdmodp + cdmod * 100;
 			switch (pi->_iDamType) {
@@ -539,15 +544,14 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		}
 	}
 
-	// add class bonuses as item bonus
+	// calculate bonuses
+	cc = cc * (btochit + 100) / 50;
 	plr._pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
-	plr._pIEvasion = plr._pDexterity / 5;
+	plr._pIEvasion = plr._pDexterity / 5 + 2 * plr._pLevel;
 	plr._pIAC = tac + plr._pIEvasion;
-	plr._pICritChance = 0;
 	btohit += 50; // + plr._pLevel;
 	if (wt == SFLAG_MELEE) {
 		btohit += 20 + (plr._pDexterity >> 1);
-		plr._pICritChance = plr._pLevel;
 	} else {
 		// assert(wt == SFLAG_RANGED);
 		btohit += plr._pDexterity;
@@ -599,6 +603,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			minpc = minpc * 5 / 8;
 			maxpc = maxpc * 5 / 8;
 		}
+		cc >>= 1;
 	}
 	plr._pISlMinDam = minsl;
 	plr._pISlMaxDam = maxsl;
@@ -606,6 +611,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pIBlMaxDam = maxbl;
 	plr._pIPcMinDam = minpc;
 	plr._pIPcMaxDam = maxpc;
+	plr._pICritChance = cc;
 
 	// calculate block chance
 	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(200, 10 + (std::min(plr._pStrength, plr._pDexterity) >> 1)) : 0;
@@ -775,6 +781,7 @@ void SetItemData(int ii, int idata)
 	is->_iDamType = ids->iDamType;
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
+	is->_iBaseCrit = ids->iBaseCrit;
 	is->_iMinStr = ids->iMinStr;
 	is->_iMinMag = ids->iMinMag;
 	is->_iMinDex = ids->iMinDex;
@@ -1179,7 +1186,7 @@ static void GetStaffSpell(int ii, int lvl)
 	is->_iIvalue += v;
 }
 
-void GetItemAttrs(int ii, int idata, int lvl)
+static void GetItemAttrs(int ii, int idata, int lvl)
 {
 	ItemStruct *is;
 	int rndv;
@@ -1270,6 +1277,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iPLAR += r;
 		//if (is->_iPLAR < 0)
 		//	is->_iPLAR = 0;
+		break;
+	case IPL_CRITP:
+		is->_iPLCrit += r;
 		break;
 	case IPL_SPLLVLADD:
 		is->_iSplLvlAdd = r;
@@ -2714,6 +2724,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 			snprintf(tempstr, sizeof(tempstr), "Resist All: %+i%%", is->_iPLFR);
 		//else
 		//	copy_cstr(tempstr, "Resist All: 75% MAX");
+		break;
+	case IPL_CRITP:
+		snprintf(tempstr, sizeof(tempstr), "%i%% increased crit. chance", is->_iPLCrit);
 		break;
 	case IPL_SPLLVLADD:
 		snprintf(tempstr, sizeof(tempstr), "%+i to spell levels", is->_iSplLvlAdd);

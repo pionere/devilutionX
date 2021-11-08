@@ -2095,7 +2095,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (dampc != 0)
 		dam += CalcMonsterDam(mon->_mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, dampc);
 
-	if (random_(6, 200) < plr._pICritChance) {
+	if (random_(6, sn == SPL_SWIPE ? 800 : 200) < plr._pICritChance) {
 		dam <<= 1;
 	}
 
@@ -2196,7 +2196,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (dampc != 0)
 		dam += CalcPlrDam(pnum, MISR_PUNCTURE, plx(offp)._pIPcMinDam, dampc);
 
-	if (random_(6, 200) < plx(offp)._pICritChance) {
+	if (random_(6, sn == SPL_SWIPE ? 800 : 200) < plx(offp)._pICritChance) {
 		dam <<= 1;
 	}
 

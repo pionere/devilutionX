@@ -101,6 +101,7 @@ typedef struct ItemData {
 	BYTE iDamType;
 	BYTE iMinDam;
 	BYTE iMaxDam;
+	BYTE iBaseCrit;
 	BYTE iMinStr;
 	BYTE iMinMag;
 	BYTE iMinDex;
@@ -110,7 +111,7 @@ typedef struct ItemData {
 	BYTE iDurability;
 	int iValue;
 #ifdef X86_32bit_COMP
-	int alignment[6];
+	int alignment[5];
 #endif
 } ItemData;
 
@@ -136,6 +137,7 @@ typedef struct ItemStruct {
 	BYTE _iDamType;
 	BYTE _iMinDam;
 	BYTE _iMaxDam;
+	BYTE _iBaseCrit;
 	BYTE _iMinStr;
 	BYTE _iMinMag;
 	BYTE _iMinDex;
@@ -181,6 +183,8 @@ typedef struct ItemStruct {
 	char _iSplLvlAdd;
 	BYTE _iManaSteal;
 	BYTE _iLifeSteal;
+	BYTE _iPLCrit;
+	BYTE _iPLEnAc;
 	int _iUid;
 	BYTE _iFMinDam;
 	BYTE _iFMaxDam;
@@ -190,12 +194,11 @@ typedef struct ItemStruct {
 	BYTE _iMMaxDam;
 	BYTE _iAMinDam;
 	BYTE _iAMaxDam;
-	int _iPLEnAc;
 	int _iVAdd;
 	int _iVMult;
 	BOOL _iStatFlag;
 #ifdef X86_32bit_COMP
-	int alignment[6];
+	int alignment[5];
 #endif
 } ItemStruct;
 
