@@ -183,7 +183,7 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFr
 	tw->_tAnimFrameCnt = 0;
 	tw->_tAnimFrame = 1;
 	tw->_tAnimWidth = 96;
-	tw->_tAnimXOffset = (96 - 64) >> 1;
+	tw->_tAnimXOffset = (96 - TILE_WIDTH) >> 1;
 }
 
 #ifdef HELLFIRE

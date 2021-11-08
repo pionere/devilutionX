@@ -536,7 +536,7 @@ bool TryIconCurs(bool bShift)
 		} else if (pcursitem != ITEM_NONE) {
 			if (LineClear(myplr._px, myplr._py, items[pcursitem]._ix, items[pcursitem]._iy))
 				NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
-		} else if (pcursmonst != -1 && !CanTalkToMonst(pcursmonst)) {
+		} else if (pcursmonst != -1) {
 			if (LineClear(myplr._px, myplr._py, monsters[pcursmonst]._mx, monsters[pcursmonst]._my))
 				NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
 		}

@@ -409,7 +409,7 @@ static void Interact()
 {
 	/*
 	if (pcursmonst != -1 && CanTalkToMonst(pcursmonst))
-		NetSendCmdLocParam1(CMD_TALKXY, pcursmonst);
+		NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		int attack = myplr._pAtkSkill;

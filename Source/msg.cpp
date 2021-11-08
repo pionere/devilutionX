@@ -832,7 +832,6 @@ void DeltaAddItem(int ii)
 	pD = sgLevelDelta[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID) {
-			_gbLevelDeltaChanged[currLvl._dLevelIdx] = true;
 			pD->bCmd = DCMD_ITM_SPAWNED;
 			pD->x = is->_ix;
 			pD->y = is->_iy;
@@ -1931,7 +1930,7 @@ static unsigned On_KNOCKBACK(TCmd* pCmd, int pnum)
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		// assert(mnum >= MAX_MINIONS); TODO: validate data from internet
-		if ((monsters[mnum]._mmaxhp >> 6) < plr._pMagic) {
+		if (!CanTalkToMonst(mnum) && (monsters[mnum]._mmaxhp >> 6) < plr._pMagic) {
 			MonGetKnockback(mnum, plr._px, plr._py);
 			MonStartHit(mnum, pnum, 0);
 		}
