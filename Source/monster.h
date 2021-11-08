@@ -36,7 +36,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty);
 int AddMonster(int x, int y, int dir, int mtidx, bool InMap);
 void MonStartStand(int mnum, int md);
 void RemoveMonFromMap(int mnum);
-void MonGetKnockback(int mnum);
+void MonGetKnockback(int mnum, int sx, int sy);
 void MonStartHit(int mnum, int pnum, int dam);
 void MonStartKill(int mnum, int pnum);
 void MonSyncStartKill(int mnum, int x, int y, int pnum);

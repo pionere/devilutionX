@@ -757,7 +757,7 @@ static bool MonsterMHit(int mnum, int mi)
 				if (plr._pIFlags & ISPL_NOHEALMON)
 					mon->_mFlags |= MFLAG_NOHEAL;
 				if (plr._pIFlags & ISPL_KNOCKBACK)
-					MonGetKnockback(mnum);
+					MonGetKnockback(mnum, mis->_misx, mis->_misy);
 			}
 			MonStartHit(mnum, pnum, dam);
 		//}

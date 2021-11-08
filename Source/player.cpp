@@ -2140,7 +2140,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 			mon->_mFlags |= MFLAG_NOHEAL;
 		}
 		if (plr._pIFlags & ISPL_KNOCKBACK) {
-			MonGetKnockback(mnum);
+			MonGetKnockback(mnum, plr._px, plr._py);
 		}
 		MonStartHit(mnum, pnum, dam);
 	}

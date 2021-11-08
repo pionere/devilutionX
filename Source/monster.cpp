@@ -1545,7 +1545,7 @@ static void MonFallenFear(int x, int y)
 	}
 }
 
-void MonGetKnockback(int mnum)
+void MonGetKnockback(int mnum, int sx, int sy)
 {
 	MonsterStruct* mon = &monsters[mnum];
 	int dir;
@@ -1553,7 +1553,7 @@ void MonGetKnockback(int mnum)
 	if (mon->_mmode == MM_DEATH || mon->_mmode == MM_STONE)
 		return;
 	// assert(mnum >= MAX_MINIONS);
-	dir = OPPOSITE(mon->_mdir);
+	dir = GetDirection(sx, sy, mon->_mx, mon->_my);
 	if (DirOK(mnum, dir)) {
 		RemoveMonFromMap(mnum);
 		mon->_moldx += offset_x[dir];
