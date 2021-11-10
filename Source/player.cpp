@@ -2244,9 +2244,9 @@ static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 		return !CanTalkToMonst(mpo) && PlrHitMonst(pnum, sn, sl, mpo);
 	}
 	mpo = dPlayer[dx][dy];
-	if (mpo != 0 && myplr._pTeam != plx(mpo)._pTeam) {
+	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return PlrHitPlr(pnum, sn, sl, mpo);
+		return plr._pTeam != plx(mpo)._pTeam && PlrHitPlr(pnum, sn, sl, mpo);
 	}
 	mpo = dObject[dx][dy];
 	if (mpo != 0) {
