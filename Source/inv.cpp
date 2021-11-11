@@ -308,12 +308,7 @@ void DrawInv()
 
 		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
 
-		if (is->_iLoc == ILOC_TWOHAND) {
-#ifdef HELLFIRE
-			if (plr._pClass != PC_BARBARIAN
-			    || (is->_itype != ITYPE_SWORD && is->_itype != ITYPE_MACE))
-#endif
-			{
+		if (TWOHAND_WIELD(&plr, is)) {
 				screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;
 				screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y;
 				InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
@@ -325,7 +320,6 @@ void DrawInv()
 				if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
 					screen_y -= INV_SLOT_SIZE_PX / 2;
 				CelClippedDrawLightTrans(screen_x, screen_y, cCels, frame, frame_width);
-			}
 		}
 	}
 
@@ -797,7 +791,8 @@ void InvPasteItem(int pnum, BYTE r)
 	} else if (il == holditem->_iLoc) {
 		done = true;
 	} else if (il == ILOC_ONEHAND && holditem->_iLoc == ILOC_TWOHAND) {
-		il = ILOC_TWOHAND;
+		if (TWOHAND_WIELD(p, holditem))
+			il = ILOC_TWOHAND;
 		done = true;
 	}
 
@@ -832,7 +827,7 @@ void InvPasteItem(int pnum, BYTE r)
 					cn = SwapItem(is, holditem);
 				} else {
 					// in the right hand
-					if (/*is->_itype != ITYPE_NONE &&*/ is->_iLoc == ILOC_TWOHAND) {
+					if (/*is->_itype != ITYPE_NONE &&*/ TWOHAND_WIELD(p, is)) {
 						// replace two-handed weapons and place the weapon in the left hand
 						cn = SwapItem(is, holditem);
 					} else if (wRight->_itype != ITYPE_NONE) {
@@ -1604,12 +1599,7 @@ BYTE CheckInvItem()
 		rv = INVITEM_HAND_LEFT;
 		static_assert((int)INVLOC_HAND_LEFT == (int)INVITEM_HAND_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		pi = &p->_pInvBody[rv];
-#ifdef HELLFIRE
-		if (pi->_itype == ITYPE_NONE || pi->_iLoc != ILOC_TWOHAND
-		    || (p->_pClass == PC_BARBARIAN && (pi->_itype == ITYPE_SWORD || pi->_itype == ITYPE_MACE))) {
-#else
-		if (pi->_itype == ITYPE_NONE || pi->_iLoc != ILOC_TWOHAND) {
-#endif
+		if (pi->_itype == ITYPE_NONE || !TWOHAND_WIELD(p, pi)) {
 			rv = INVITEM_HAND_RIGHT;
 			static_assert((int)INVLOC_HAND_RIGHT == (int)INVITEM_HAND_RIGHT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		}
