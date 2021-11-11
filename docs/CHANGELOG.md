@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 4 attribute points are earned per level
 - attribute gain per spent point is class specific
 - barbarians no longer have natural resistance
+- dual-wield for all classes (even 'large' weapons if base-strength is high enough)
+- critical hit chance is based on items
+- block only if standing or actively using the Block skill
 - separate resistance against acid
 - added Far Shot/Point Blank/Swipe skills
 - skills/spells have experience counters
@@ -34,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - running is no longer supported in town, but teleporting is
 - elixirs removed
 - altered the functions of oils
+- added base items: Katar(a), Winged Helm
+- added unique items: Ring of Destruction, Spirit Ward
 - altered the effects of the shrines
 - most of the quests are available in multiplayer games
 - added unique monsters to crypt and nest levels
@@ -45,6 +50,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Game server (maintains game-delta, but no validation at the moment)
 - Merge .mpq files on demand
 - Widescreen, controller, sound support and encryption of net-messages are optional features
+- separate (.TMI) file to control drawing of the tiles
+- added tools to convert PNG to CEL/CL2, PNGs to (TIL,MIN,CEL,SOL,TMI), CEL to CEL (aka. merge)
+- slash/blunt/puncture damage types with corresponding resistances
 
 ## DevilutionX 1.2.1
 ### Bugfixes
