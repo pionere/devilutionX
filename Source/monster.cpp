@@ -2797,8 +2797,6 @@ void MAI_Snake(int mnum)
 		if (dist < 3 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy) && mon->_mVar1 != MM_CHARGE) {
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 				PlayEffect(mnum, MS_ATTACK);
-				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
-				mon->_mmode = MM_CHARGE;
 			}
 		} else if (mon->_mVar1 == MM_DELAY || random_(106, 100) >= 35 - 2 * mon->_mInt) {
 			// calculate the desired direction
@@ -2875,8 +2873,6 @@ void MAI_Bat(int mnum)
 	    && v < 4 * mon->_mInt + 33
 	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
 		if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
-			dMonster[mon->_mx][mon->_my] = -(mnum + 1);
-			mon->_mmode = MM_CHARGE;
 		}
 	} else if (dist >= 2) {
 		if ((mon->_mVar2 > 20 && v < mon->_mInt + 13) // STAND_TICK
@@ -3807,8 +3803,6 @@ void MAI_Rhino(int mnum)
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 				PlayEffect(mnum, MS_SPECIAL);
-				mon->_mmode = MM_CHARGE;
-				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 			}
 		} else if (dist < 2) {
 			if (v < 2 * mon->_mInt + 28) {
@@ -4725,8 +4719,7 @@ void MissToMonst(int mi, int x, int y)
 	dMonster[x][y] = mnum + 1;
 	mon->_mx = x;
 	mon->_my = y;
-	mon->_mdir = mis->_miDir;
-	MonStartStand(mnum, mon->_mdir);
+	MonStartStand(mnum, mis->_miDir);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {
 		MonStartFadein(mnum, mon->_mdir, false);
 		return;

@@ -2218,12 +2218,14 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 
 int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
-	MonsterStruct *mon;
-	AnimStruct *anim;
+	MissileStruct* mis;
+	MonsterStruct* mon;
+	AnimStruct* anim;
 
 	GetMissileVel(mi, sx, sy, dx, dy, 18);
+	dMonster[sx][sy] = -(misource + 1);
 	mon = &monsters[misource];
+	mon->_mmode = MM_CHARGE;
 	anim = &mon->_mAnims[
 		(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
 		(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
@@ -2235,7 +2237,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miAnimLen = anim->aFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
-	mis->_miAnimAdd = 1;
+	//mis->_miAnimAdd = 1;
 	if (mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) {
 		assert(monfiledata[MOFILE_SNAKE].moAFNum == 8);
 		mis->_miAnimFrame = 7;
@@ -2243,7 +2245,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miLightFlag = TRUE;
 	if (mon->_uniqtype != 0) {
 		mis->_miUniqTrans = mon->_uniqtrans;
-		mis->_miLid = mon->mlid;
+		//mis->_miLid = mon->mlid;
 	}
 	// mis->_miRange = 256;
 	//PutMissile(mi);
@@ -3723,7 +3725,7 @@ void MI_ApocaExp(int mi)
 
 void MI_Rhino(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int ax, ay, mix2, miy2, bx, by, mnum;
 
 	mis = &missile[mi];
@@ -3755,6 +3757,8 @@ void MI_Rhino(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
+	ShiftMissilePos(mi);
+	PutMissile(mi);
 	bx = missile[mi]._mix;
 	by = missile[mi]._miy;
 	monsters[mnum]._mfutx = bx;
@@ -3764,10 +3768,8 @@ void MI_Rhino(int mi)
 	monsters[mnum]._moldy = by;
 	monsters[mnum]._my = by;
 	dMonster[bx][by] = -(mnum + 1);
-	if (missile[mi]._miLid != NO_LIGHT)
-		ChangeLightXY(missile[mi]._miLid, bx, by);
-	ShiftMissilePos(mi);
-	PutMissile(mi);
+	if (monsters[mnum].mlid != NO_LIGHT)
+		ChangeLightXY(monsters[mnum].mlid, bx, by);
 }
 
 /*void MI_Fireman(int mi)
