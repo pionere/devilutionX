@@ -240,7 +240,7 @@ const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
 };
 
 /** Maps from facing direction to scroll-direction. */
-const char dir2sdir[8] = { SDIR_S, SDIR_SW, SDIR_W,	SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
+static const char dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W,	SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
 
 static void SetPlayerGPtrs(BYTE *pData, BYTE *(&pAnim)[8])
 {
@@ -1250,9 +1250,9 @@ static bool StartWalk(int pnum)
 	for (i = 0; i < NUM_CLASSES; i++)
 		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
 #endif
-	xvel3 = (TILE_WIDTH << PLR_WALK_SHIFT) / PlrGFXAnimLens[PC_WARRIOR][PA_WALK];
-	xvel = xvel3 / 2;
-	yvel = ((TILE_HEIGHT << PLR_WALK_SHIFT) / PlrGFXAnimLens[PC_WARRIOR][PA_WALK]) / 2;
+	xvel3 = (TILE_WIDTH << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
+	xvel = (TILE_WIDTH << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK] * 2);
+	yvel = (TILE_HEIGHT << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK] * 2);
 	switch (dir) {
 	case DIR_N:
 		StartWalk1(pnum, 0, -xvel, -1, -1);
@@ -2155,13 +2155,13 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		app_fatal("PlrHitPlr: illegal target player %d", pnum);
 	}
 
-	if (plr._pInvincible) {
-		return false;
-	}
-
 	if ((unsigned)offp >= MAX_PLRS) {
 		dev_fatal("PlrHitPlr: illegal attacking player %d", offp);
 	}
+
+	if (plx(offp)._pTeam == plr._pTeam || plr._pInvincible)
+		return false;
+
 	hper = plx(offp)._pIHitChance - plr._pIAC;
 	if (sn == SPL_SWIPE) {
 		hper -= 30 - sl * 2;
@@ -2241,12 +2241,12 @@ static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return !CanTalkToMonst(mpo) && PlrHitMonst(pnum, sn, sl, mpo);
+		return PlrHitMonst(pnum, sn, sl, mpo);
 	}
 	mpo = dPlayer[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return plr._pTeam != plx(mpo)._pTeam && PlrHitPlr(pnum, sn, sl, mpo);
+		return PlrHitPlr(pnum, sn, sl, mpo);
 	}
 	mpo = dObject[dx][dy];
 	if (mpo != 0) {

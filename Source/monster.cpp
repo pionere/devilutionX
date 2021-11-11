@@ -5098,11 +5098,9 @@ bool CanTalkToMonst(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("CanTalkToMonst: Invalid monster %d", mnum);
 	}
-	assert((monsters[mnum]._mgoal != MGOAL_INQUIRING
-		&& monsters[mnum]._mgoal != MGOAL_TALKING)
-		|| monsters[mnum].mtalkmsg != TEXT_NONE);
-	return monsters[mnum]._mgoal == MGOAL_INQUIRING
-		|| monsters[mnum]._mgoal == MGOAL_TALKING;
+	assert((monsters[mnum]._mgoal == MGOAL_INQUIRING
+		|| monsters[mnum]._mgoal == MGOAL_TALKING) == (monsters[mnum].mtalkmsg != TEXT_NONE));
+	return monsters[mnum].mtalkmsg != TEXT_NONE;
 }
 
 bool CheckMonsterHit(int mnum, bool* ret)

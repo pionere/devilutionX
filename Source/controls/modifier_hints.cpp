@@ -120,10 +120,10 @@ void DrawSelectModifierMenu()
 	if (!select_modifier_active)
 		return;
 	if (dpad_hotkeys) {
-		static const CircleMenuHint dPad(/*is_dpad=*/true, /*top=*/"F6", /*right=*/"F8", /*bottom=*/"F7", /*left=*/"F5");
+		static const CircleMenuHint dPad(/*is_dpad=*/true, /*top=*/"W", /*right=*/"R", /*bottom=*/"E", /*left=*/"Q");
 		DrawCircleMenuHint(dPad, PANEL_LEFT + CircleMarginX, PANEL_TOP - CirclesTop);
 	}
-	static const CircleMenuHint spells(/*is_dpad=*/false, "F6", "F8", "F7", "F5");
+	static const CircleMenuHint spells(/*is_dpad=*/false, "W", "R", "E", "Q");
 	DrawCircleMenuHint(spells, PANEL_LEFT + PANEL_WIDTH - spells.Width() - CircleMarginX, PANEL_TOP - CirclesTop);
 }
 

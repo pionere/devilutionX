@@ -407,20 +407,6 @@ void DeleteMissile(int mi, int idx)
 		missileactive[idx] = missileactive[nummissiles];
 }
 
-static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
-{
-	double dxp, dyp, dr;
-
-	dx -= sx;
-	dy -= sy;
-	assert(dx != 0 || dy != 0);
-	dxp = (dx - dy) << 21;
-	dyp = (dy + dx) << 21;
-	dr = sqrt(dxp * dxp + dyp * dyp);
-	missile[mi]._mixvel = (dxp * (v << 16)) / dr;
-	missile[mi]._miyvel = (dyp * (v << 15)) / dr;
-}
-
 static void PutMissile(int mi)
 {
 	int x, y;
@@ -433,6 +419,20 @@ static void PutMissile(int mi)
 		if (missile[mi]._miPreFlag)
 			dFlags[x][y] |= BFLAG_MISSILE_PRE;
 	}
+}
+
+static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
+{
+	double dxp, dyp, dr;
+
+	dx -= sx;
+	dy -= sy;
+	assert(dx != 0 || dy != 0);
+	dxp = (dx - dy) << 21;
+	dyp = (dy + dx) << 21;
+	dr = sqrt(dxp * dxp + dyp * dyp);
+	missile[mi]._mixvel = (dxp * (v << 16)) / dr;
+	missile[mi]._miyvel = (dyp * (v << 15)) / dr;
 }
 
 static void GetMissilePos(int mi)
@@ -920,15 +920,14 @@ static bool PlayerMHit(int pnum, int mi)
 
 static bool Plr2PlrMHit(int pnum, int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int offp, dam, blkper, hper;
-
-	if (plr._pInvincible) {
-		return false;
-	}
 
 	mis = &missile[mi];
 	offp = mis->_miSource;
+	if (plr._pTeam == plx(offp)._pTeam || plr._pInvincible) {
+		return false;
+	}
 	if (mis->_miSubType == 0) {
 		hper = plx(offp)._pIHitChance
 		    - plr._pIAC;
@@ -1052,7 +1051,7 @@ static bool PlrMissHit(int pnum, int mi)
 	if (mis->_miSource != -1) {
 		if (mis->_miCaster == 0) {
 			// player vs. player
-			return plr._pTeam != plx(mis->_miSource)._pTeam && Plr2PlrMHit(pnum, mi);
+			return Plr2PlrMHit(pnum, mi);
 		} else {
 			// monster vs. player
 			return PlayerMHit(pnum, mi);
@@ -1506,9 +1505,9 @@ int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	}
 	assert((unsigned)misource < MAX_PLRS);
 	av += spllvl;
-	if (av > 50) {
-		av = 50;
-	}
+	//if (av > 50) {
+	//	av = 50;
+	//}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis = &missile[mi];
@@ -1704,8 +1703,8 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	if (misource != -1) {
 		if (micaster == 0) {
 			av = 2 * spllvl + 16;
-			if (av > 63)
-				av = 63;
+			//if (av > 63)
+			//	av = 63;
 			if (missile[mi]._miType == MIS_FIREBOLT) {
 				mindam = (plx(misource)._pMagic >> 3) + spllvl + 1;
 				maxdam = mindam + 9;
@@ -1865,8 +1864,8 @@ int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 			maxdam += maxdam >> 3;
 		}
 		i = 2 * spllvl + 16;
-		if (i > 50)
-			i = 50;
+		//if (i > 50)
+		//	i = 50;
 	} else {
 		mindam = monsters[misource]._mMinDamage;
 		maxdam = monsters[misource]._mMaxDamage;

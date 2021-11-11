@@ -529,31 +529,35 @@ bool TryIconCurs(bool bShift)
 			}
 		}
 		break;
-	case CURSOR_TELEKINESIS:
+	case CURSOR_TELEKINESIS: {
+		int px, py;
+
+		px = myplr._px;
+		py = myplr._py;
 		if (pcursobj != OBJ_NONE) {
-			if (LineClear(myplr._px, myplr._py, objects[pcursobj]._ox, objects[pcursobj]._oy))
+			if (LineClear(px, py, objects[pcursobj]._ox, objects[pcursobj]._oy))
 				NetSendCmdParam1(CMD_OPOBJT, pcursobj);
 		} else if (pcursitem != ITEM_NONE) {
-			if (LineClear(myplr._px, myplr._py, items[pcursitem]._ix, items[pcursitem]._iy))
+			if (LineClear(px, py, items[pcursitem]._ix, items[pcursitem]._iy))
 				NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
 		} else if (pcursmonst != -1) {
-			if (LineClear(myplr._px, myplr._py, monsters[pcursmonst]._mx, monsters[pcursmonst]._my))
+			if (LineClear(px, py, monsters[pcursmonst]._mx, monsters[pcursmonst]._my))
 				NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
 		}
-		break;
+	} break;
 	case CURSOR_RESURRECT:
 		if (pcursplr != PLR_NONE) {
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		}
 		break;
-	case CURSOR_TELEPORT: {
+	case CURSOR_TELEPORT:
 		if (pcursmonst != -1)
 			NetSendCmdMonstSkill(pcursmonst, gbTSpell, gbTSplFrom);
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		else
 			NetSendCmdLocSkill(cursmx, cursmy, gbTSpell, gbTSplFrom);
-	} break;
+		break;
 	case CURSOR_HEALOTHER:
 		if (pcursplr != PLR_NONE) {
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
