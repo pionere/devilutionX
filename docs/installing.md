@@ -48,12 +48,6 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 <details><summary>Nintendo 3DS</summary>
 
-### .3dsx installation
-
-- Copy `devilutionx.3dsx` into `sd:/3ds/devilutionx/`.
-- Copy the MPQ files into `sd:/3ds/devilutionx/`.
-- Launch `devilutionx.3dsx` with the [Homebrew Launcher](https://github.com/fincs/new-hbmenu).
-
 ### .cia installation
 
 - Copy `devilutionx.cia` to your SD card.
