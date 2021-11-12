@@ -1,11 +1,12 @@
+#include <3ds.h>
 #include <cstdlib>
 #include <cstdio>
-#include <3ds.h>
-#include "platform/ctr/system.h"
+#include "platform/ctr/cfgu_service.hpp
 #include "platform/ctr/random.hpp"
 #include "platform/ctr/sockets.hpp"
+#include "platform/ctr/system.h"
 
-bool isN3DS;
+bool shouldDisableBacklight;
 
 aptHookCookie cookie;
 
@@ -33,6 +34,8 @@ void aptHookFunc(APT_HookType hookType, void *param)
 
 void ctr_lcd_backlight_on()
 {
+	if (!shouldDisableBacklight)
+		return;
 	gspLcdInit();
 	GSPLCD_PowerOnBacklight(GSPLCD_SCREEN_BOTTOM);
 	gspLcdExit();
@@ -40,6 +43,8 @@ void ctr_lcd_backlight_on()
 
 void ctr_lcd_backlight_off()
 {
+	if (!shouldDisableBacklight)
+		return;
 	gspLcdInit();
 	GSPLCD_PowerOffBacklight(GSPLCD_SCREEN_BOTTOM);
 	gspLcdExit();
@@ -61,6 +66,27 @@ bool ctr_check_dsp()
 	return true;
 }
 
+bool ctr_is_n3ds()
+{
+	bool isN3DS;
+	Result res = APT_CheckNew3DS(&isN3DS);
+	return R_SUCCEEDED(res) && isN3DS;
+}
+
+bool ctr_should_disable_backlight()
+{
+	n3ds::CFGUService cfguService;
+	if (!cfguService.IsInitialized())
+		return false;
+
+	u8 model;
+	Result res = CFGU_GetSystemModel(&model);
+	if (!R_SUCCEEDED(res))
+		return false;
+
+	return model != CFG_MODEL_2DS;
+}
+
 void ctr_sys_init()
 {
 	if (!ctr_check_dsp())
@@ -68,9 +94,10 @@ void ctr_sys_init()
 
 	aptHook(&cookie, aptHookFunc, NULL);
 
-	APT_CheckNew3DS(&isN3DS);
-	if (isN3DS)
+	if (ctr_is_n3ds())
 		osSetSpeedupEnable(true);
+
+	shouldDisableBacklight = ctr_should_disable_backlight();
 
 	ctr_lcd_backlight_off();
 	atexit([]() { ctr_lcd_backlight_on(); });
