@@ -208,10 +208,10 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 	dMonster[x][y] = tnum + 1;
 	monsters[tnum]._mfutx = monsters[tnum]._mx = x;
 	monsters[tnum]._mfuty = monsters[tnum]._my = y;
-	monsters[tnum]._mgoal = MGOAL_TALKING;
+	monsters[tnum].mtalkmsg = TEXT_KING1;
 #ifdef _DEVMODE
 	// TODO: set to prevent assert fail in CanTalkToMonst
-	monsters[tnum].mtalkmsg = TEXT_KING1;
+	monsters[tnum]._mgoal = MGOAL_TALKING;
 #endif // _DEVMODE
 	tw = &towners[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
