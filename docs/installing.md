@@ -48,13 +48,16 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 <details><summary>Nintendo 3DS</summary>
 
-### .cia installation
+Download `devilutionx.cia` from the [latest release](https://github.com/diasurgical/devilutionX/releases/latest) and place it on your SD card.
+This file will be used later to install the game on the 3DS console.
 
-- Copy `devilutionx.cia` to your SD card.
-- Copy the MPQ files to `sd:/3ds/devilutionx/`.
-- Install `devilutionx.cia` with a title manager (e.g. [FBI](https://github.com/Steveice10/FBI)).
-    - `devilutionx.cia` can be removed after being installed.
-- Launch Diablo from your 3DS Homemenu.
+Copy the MPQ files to the `devilutionx` subfolder under the `3ds` folder on your SD card (`/3ds/devilutionx`). The game will read these files from this location.
+
+Put the SD card back into the 3DS console and then power it on.
+Use a title manager such as [FBI](https://github.com/Steveice10/FBI) to install `devilutionx.cia`.
+You will no longer need `devilutionx.cia` after this step, and so it can be removed after the installation.
+
+[Nintendo 3DS manual](/docs/manual/platforms/3ds.md)
 
 </details>
 
