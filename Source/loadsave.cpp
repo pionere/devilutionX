@@ -304,8 +304,7 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iManaSteal);
 	LoadByte(&is->_iLifeSteal);
 	LoadByte(&is->_iPLCrit);
-	LoadByte(&is->_iPLEnAc);
-	tbuff += 2; // Alignment
+	tbuff += 3; // Alignment
 	LoadInt(&is->_iUid);
 	LoadByte(&is->_iFMinDam);
 	LoadByte(&is->_iFMaxDam);
@@ -490,7 +489,6 @@ static void LoadPlayer(int pnum)
 	tbuff += 1; // _pIArrowVelBonus
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
-	tbuff += 4; // _pIEnAc
 	tbuff += 4; // _pIFMinDam
 	tbuff += 4; // _pIFMaxDam
 	tbuff += 4; // _pILMinDam
@@ -1031,8 +1029,7 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iManaSteal);
 	SaveByte(&is->_iLifeSteal);
 	SaveByte(&is->_iPLCrit);
-	SaveByte(&is->_iPLEnAc);
-	tbuff += 2; // Alignment
+	tbuff += 3; // Alignment
 	SaveInt(&is->_iUid);
 	SaveByte(&is->_iFMinDam);
 	SaveByte(&is->_iFMaxDam);
@@ -1218,7 +1215,6 @@ static void SavePlayer(int pnum)
 	tbuff += 1; // _pIArrowVelBonus
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
-	tbuff += 4; // _pIEnAc
 	tbuff += 4; // _pIFMinDam
 	tbuff += 4; // _pIFMaxDam
 	tbuff += 4; // _pILMinDam
