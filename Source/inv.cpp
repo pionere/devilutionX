@@ -948,7 +948,7 @@ void InvPasteItem(int pnum, BYTE r)
 	default:
 		ASSUME_UNREACHABLE
 	}
-	CalcPlrInv(pnum, p->_pDunLevel == currLvl._dLevelIdx && !p->_pLvlChanging);
+	CalcPlrInv(pnum, true);
 	if (cn == CURSOR_HAND)
 		holditem->_itype = ITYPE_NONE;
 	if (pnum == mypnum) {
@@ -1102,7 +1102,7 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 	if (plr._pHoldItem._itype == ITYPE_GOLD)
 		CalculateGold(pnum);
 	else
-		CalcPlrInv(pnum, plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
+		CalcPlrInv(pnum, true);
 
 	if (pnum == mypnum) {
 		PlaySFX(IS_IGRAB);
@@ -1128,7 +1128,7 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_NONE
 		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_SHIELD)
 			SwapItem(&plr._pInvBody[INVITEM_HAND_LEFT], &plr._pInvBody[INVITEM_HAND_RIGHT]);
-		CalcPlrInv(pnum, plr._pmode != PM_DEATH && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
+		CalcPlrInv(pnum, plr._pmode != PM_DEATH);
 	} else if (bLoc < INVITEM_BELT_FIRST) {
 		// inv item
 		bLoc -= INVITEM_INV_FIRST;

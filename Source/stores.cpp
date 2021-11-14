@@ -1750,7 +1750,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		break;
 	}
 
-	CalcPlrInv(pnum, plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
+	CalcPlrInv(pnum, true);
 
 	// pnum != mypnum or the current player was impatient -> done
 	if (nextMode == STORE_NONE)

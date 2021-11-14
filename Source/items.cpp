@@ -530,7 +530,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	if (plr._pgfxnum != gfx) {
 		plr._pgfxnum = gfx;
-		if (Loadgfx) {
+		if (Loadgfx && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging) {
 			plr._pGFXLoad = 0;
 			LoadPlrGFX(pnum, PFILE_STAND);
 			SetPlrAnims(pnum);
@@ -2300,7 +2300,7 @@ static void DoIdentify(int pnum, int cii)
 
 	pi->_iIdentified = TRUE;
 	// assert(plr._pmode != PM_DEATH);
-	CalcPlrInv(pnum, plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
+	CalcPlrInv(pnum, true);
 }
 
 static void RepairItem(ItemStruct *is, int lvl)

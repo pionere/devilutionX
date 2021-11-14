@@ -3326,7 +3326,7 @@ void RestorePlrHpVit(int pnum)
 	// fill hp
 	PlrFillHp(pnum);
 
-	// CalcPlrInv(pnum, true);
+	CalcPlrInv(pnum, true);
 }
 
 DEVILUTION_END_NAMESPACE

@@ -3003,7 +3003,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		break;
 	}
 
-	CalcPlrInv(pnum, plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
+	CalcPlrInv(pnum, true);
 	gbRedrawFlags = REDRAW_ALL;
 }
 
