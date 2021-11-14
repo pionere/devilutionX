@@ -166,7 +166,7 @@ static void InitCowAnim(int tnum, int dir)
 	tw->_tAnimFrameLen = 3;
 	tw->_tAnimFrame = RandRange(1, 11);
 	tw->_tAnimWidth = 128;
-	tw->_tAnimXOffset = (128 - 64) >> 1;
+	tw->_tAnimXOffset = (128 - TILE_WIDTH) >> 1;
 }
 
 static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFrames, int ao)
@@ -209,6 +209,7 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 	monsters[tnum]._mfutx = monsters[tnum]._mx = x;
 	monsters[tnum]._mfuty = monsters[tnum]._my = y;
 	monsters[tnum].mtalkmsg = TEXT_KING1;
+	monsters[tnum]._mhitpoints = 1 << 6;
 #ifdef _DEVMODE
 	// TODO: set to prevent assert fail in CanTalkToMonst
 	monsters[tnum]._mgoal = MGOAL_TALKING;

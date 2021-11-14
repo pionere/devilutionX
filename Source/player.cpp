@@ -2907,9 +2907,9 @@ bool PosOkPlayer(int pnum, int x, int y)
 			if (monsters[mpo - 1]._mhitpoints >= (1 << 6)) {
 				return false;
 			}
-			if (currLvl._dLevelIdx == DLV_TOWN) {
-				return false;
-			}
+			//if (currLvl._dLevelIdx == DLV_TOWN) {
+			//	return false;
+			//}
 		}
 		mpo = dObject[x][y];
 		if (mpo != 0) {
