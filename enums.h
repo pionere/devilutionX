@@ -216,6 +216,7 @@ typedef enum item_cursor_graphic {
 	ICURS_FALCON_GRYPHON              = 68,
 	ICURS_SPIKED_CLUB                 = 70,
 	ICURS_SCIMITAR                    = 72,
+	ICURS_POIGNARD                    = 73,
 	ICURS_FULL_HELM                   = 75,
 	ICURS_MAGIC_ROCK                  = 76,
 	ICURS_HELM_OF_SPIRITS             = 77,
@@ -3518,12 +3519,12 @@ typedef enum _item_indexes {
 	IDI_FULLREJUV  = 0x4D,
 	IDI_BOOK1      = 0x6B,
 	IDI_BOOK4      = 0x6E,
-	IDI_CLUB       = 0x86,
-	IDI_DROPSHSTAFF= 0x92,
+	IDI_CLUB       = 0x87,
+	IDI_DROPSHSTAFF= 0x93,
 #ifdef HELLFIRE
-	NUM_IDI        = 0xA4,
+	NUM_IDI        = 0xA5,
 #else
-	NUM_IDI        = 0x9F,
+	NUM_IDI        = 0xA0,
 #endif
 	IDI_PHOLDER    = 0xFFFE,
 	IDI_NONE       = 0xFFFF

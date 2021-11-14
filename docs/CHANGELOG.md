@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fully configurable keyboard/button mapping (see [diablo.ini](https://github.com/pionere/devilutionX/wiki/DevilutionX-diablo.ini-configuration-guide))
 - control-click to move between belt and inventory
 ### Gameplay
+- SAVE-files are NOT backwards compatible
 - altered abilities (hellfire)
 - caps from hero-attributes removed
 - 4 attribute points are earned per level
@@ -37,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - running is no longer supported in town, but teleporting is
 - elixirs removed
 - altered the functions of oils
-- added base items: Katar(a), Winged Helm
+- added base items: Katar(a), Poingard, Winged Helm
 - added unique items: Ring of Destruction, Spirit Ward
 - altered the effects of the shrines
 - most of the quests are available in multiplayer games

@@ -15,7 +15,6 @@ extern "C" {
 extern int itemactive[MAXITEMS];
 extern int itemavail[MAXITEMS];
 extern ItemStruct items[MAXITEMS + 1];
-extern BOOL UniqueItemFlags[NUM_UITEM];
 extern int numitems;
 
 void InitItemGFX();
