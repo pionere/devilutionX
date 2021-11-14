@@ -1150,7 +1150,8 @@ static void PlrChangeOffset(int pnum)
 	px -= plr._pxoff;
 	py -= plr._pyoff;
 
-	if (pnum == mypnum && ScrollInfo._sdir != SDIR_NONE) {
+	if (pnum == mypnum /*&& ScrollInfo._sdir != SDIR_NONE*/) {
+		assert(ScrollInfo._sdir != SDIR_NONE);
 		ScrollInfo._sxoff += px;
 		ScrollInfo._syoff += py;
 		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
@@ -1290,11 +1291,19 @@ static bool StartWalk(int pnum)
 	NewPlrAnim(pnum, plr._pWAnim, dir, plr._pWFrames, PlrAnimFrameLens[PA_WALK], plr._pWWidth);
 
 	if (pnum == mypnum) {
-		ScrollInfo._sdx = plr._poldx - ViewX;
-		ScrollInfo._sdy = plr._poldy - ViewY;
+		assert(ScrollInfo._sdx == 0);
+		assert(ScrollInfo._sdy == 0);
+		assert(plr._poldx == ViewX);
+		assert(plr._poldy == ViewY);
+		//ScrollInfo._sdx = plr._poldx - ViewX;
+		//ScrollInfo._sdy = plr._poldy - ViewY;
 
-		dir = dir2sdir[dir];
-		if (!gbZoomInFlag) {
+#ifdef _DEBUG
+		for (int i = 0; i < lengthof(dir2sdir); i++)
+			assert(dir2sdir[i] == 1 + OPPOSITE(i));
+#endif
+		dir = 1 + OPPOSITE(dir); // == dir2sdir[dir];
+		/*if (!gbZoomInFlag) {
 			if (abs(ScrollInfo._sdx) >= 3 || abs(ScrollInfo._sdy) >= 3) {
 				ScrollInfo._sdir = SDIR_NONE;
 			} else {
@@ -1302,9 +1311,9 @@ static bool StartWalk(int pnum)
 			}
 		} else if (abs(ScrollInfo._sdx) >= 2 || abs(ScrollInfo._sdy) >= 2) {
 			ScrollInfo._sdir = SDIR_NONE;
-		} else {
+		} else {*/
 			ScrollInfo._sdir = dir;
-		}
+		//}
 	}
 	return true;
 }
