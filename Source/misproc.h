@@ -65,7 +65,7 @@ int AddOpItem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-int AddFireTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
+//int AddFireTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddBarrelExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -107,7 +107,7 @@ void MI_WallC(int mi);
 void MI_ApocaC(int mi);
 void MI_Inferno(int mi);
 void MI_InfernoC(int mi);
-void MI_FireTrap(int mi);
+//void MI_FireTrap(int mi);
 void MI_Cbolt(int mi);
 void MI_Elemental(int mi);
 void MI_EleExp(int mi);

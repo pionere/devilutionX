@@ -81,7 +81,7 @@ const MissileData missiledata[] = {
 	{  MIS_DISARM,        &AddDisarm,                 &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      LS_TRAPDIS,  SFX_NONE,    1,        1        },
 	{  MIS_INFERNOC,      &AddInfernoC,               &MI_InfernoC,       FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_INFERNO,       &AddInferno,                &MI_Inferno,        TRUE,      1, MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_INFERNO,   LS_SPOUTSTR, SFX_NONE,    1,        1        },
-	{  MIS_FIRETRAP,      &AddFireTrap,               &MI_FireTrap,       FALSE,     1,               MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
+	//{  MIS_FIRETRAP,      &AddFireTrap,               &MI_FireTrap,       FALSE,     1,               MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_BARRELEX,      &AddBarrelExp,              &MI_Dummy,          FALSE,     1,                                0, MISR_FIRE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	//{  MIS_FIREMAN,       &AddFireman,                &MI_Fireman,        TRUE,      2,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	//{  MIS_KRULL,         &AddKrull,                  &MI_Krull,          TRUE,      0,                                0, MISR_FIRE,      MFILE_KRULL,     SFX_NONE,    SFX_NONE,    1,        1        },

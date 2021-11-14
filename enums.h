@@ -1561,7 +1561,7 @@ typedef enum missile_id {
 	MIS_DISARM,
 	MIS_INFERNOC,
 	MIS_INFERNO,
-	MIS_FIRETRAP,
+	//MIS_FIRETRAP,
 	MIS_BARRELEX,
 	//MIS_FIREMAN,	// TODO: Check beta
 	//MIS_KRULL,		// TODO: Check beta

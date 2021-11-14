@@ -530,44 +530,30 @@ unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxda
 		break;
 	case MISR_SLASH:
 		mor &= MORS_SLASH_IMMUNE;
-		if (mor == MORS_SLASH_IMMUNE)
-			return 0;
 		resist = mor >> MORS_IDX_SLASH;
 		break;
 	case MISR_BLUNT:
 		mor &= MORS_BLUNT_IMMUNE;
-		if (mor == MORS_BLUNT_IMMUNE)
-			return 0;
 		resist = mor >> MORS_IDX_BLUNT;
 		break;
 	case MISR_PUNCTURE:
 		mor &= MORS_PUNCTURE_IMMUNE;
-		if (mor == MORS_PUNCTURE_IMMUNE)
-			return 0;
 		resist = mor >> MORS_IDX_PUNCTURE;
 		break;
 	case MISR_FIRE:
 		mor &= MORS_FIRE_IMMUNE;
-		if (mor == MORS_FIRE_IMMUNE)
-			return 0;
 		resist = mor >> MORS_IDX_FIRE;
 		break;
 	case MISR_LIGHTNING:
 		mor &= MORS_LIGHTNING_IMMUNE;
-		if (mor == MORS_LIGHTNING_IMMUNE)
-			return 0;
 		resist = mor >> MORS_IDX_LIGHTNING;
 		break;
 	case MISR_MAGIC:
 		mor &= MORS_MAGIC_IMMUNE;
-		if (mor == MORS_MAGIC_IMMUNE)
-			return 0;
 		resist = mor >> MORS_IDX_MAGIC;
 		break;
 	case MISR_ACID:
 		mor &= MORS_ACID_IMMUNE;
-		if (mor == MORS_ACID_IMMUNE)
-			return 0;
 		resist = mor >> MORS_IDX_ACID;
 		break;
 	default:
@@ -587,6 +573,9 @@ unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxda
 		break;
 	case MORT_RESIST:
 		dam >>= penetrates ? 1 : 2;
+		break;
+	case MORT_IMMUNE:
+		dam = 0;
 		break;
 	default: ASSUME_UNREACHABLE;
 	}
@@ -781,7 +770,7 @@ static bool MonsterMHit(int mnum, int mi)
 	return true;
 }
 
-int CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam)
+unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam)
 {
 	int dam;
 	char resist;
@@ -2787,7 +2776,7 @@ int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	return MIRES_DONE;
 }
 
-int AddFireTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+/*int AddFireTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2796,7 +2785,7 @@ int AddFireTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miMaxDam = mis->_miMinDam * 2;
 	mis->_miRange = 9;
 	return MIRES_DONE;
-}
+}*/
 
 int AddBarrelExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -3936,7 +3925,7 @@ void MI_InfernoC(int mi)
 		mis->_miDelFlag = TRUE;
 }
 
-void MI_FireTrap(int mi)
+/*void MI_FireTrap(int mi)
 {
 	MissileStruct *mis;
 
@@ -3944,12 +3933,12 @@ void MI_FireTrap(int mi)
 	CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 
 	mis->_miRange--;
-	if (mis->_miRange == 0)
+	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
 	PutMissileF(mi, BFLAG_HAZARD);
-}
+}*/
 
 void MI_Cbolt(int mi)
 {
