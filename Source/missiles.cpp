@@ -2222,6 +2222,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	AnimStruct* anim;
 
 	GetMissileVel(mi, sx, sy, dx, dy, 18);
+	//assert(dMonster[sx][sy] == misource + 1);
 	dMonster[sx][sy] = -(misource + 1);
 	mon = &monsters[misource];
 	mon->_mmode = MM_CHARGE;
@@ -3737,6 +3738,7 @@ void MI_Rhino(int mi)
 	GetMissilePos(mi);
 	ax = mis->_mix;
 	ay = mis->_miy;
+	//assert(dMonster[ax][ay] == -(mnum + 1));
 	dMonster[ax][ay] = 0;
 	if (monsters[mnum]._mAi == AI_SNAKE) {
 		mis->_mitxoff += 2 * mis->_mixvel;
@@ -3756,19 +3758,21 @@ void MI_Rhino(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	ShiftMissilePos(mi);
-	PutMissile(mi);
-	bx = missile[mi]._mix;
-	by = missile[mi]._miy;
+	bx = mis->_mix;
+	by = mis->_miy;
 	monsters[mnum]._mfutx = bx;
 	monsters[mnum]._moldx = bx;
 	monsters[mnum]._mx = bx;
 	monsters[mnum]._mfuty = by;
 	monsters[mnum]._moldy = by;
 	monsters[mnum]._my = by;
+	//assert(dMonster[bx][by] == 0);
+	//assert(dPlayer[bx][by] == 0);
 	dMonster[bx][by] = -(mnum + 1);
 	if (monsters[mnum].mlid != NO_LIGHT)
 		ChangeLightXY(monsters[mnum].mlid, bx, by);
+	ShiftMissilePos(mi);
+	PutMissile(mi);
 }
 
 /*void MI_Fireman(int mi)
