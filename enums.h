@@ -2688,6 +2688,7 @@ typedef enum dflag {
 	BFLAG_VISIBLE     = 0x02,
 	BFLAG_DEAD_PLAYER = 0x04,
 	BFLAG_POPULATED   = 0x08,
+	BFLAG_HAZARD      = 0x10, // fire hazard flag, used by monsters to avoid tiles
 	BFLAG_LIT         = 0x40,
 	BFLAG_EXPLORED    = 0x80,
 } dflag;

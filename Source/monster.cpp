@@ -2437,6 +2437,13 @@ static bool MonDoDelay(int mnum)
 	return false;
 }
 
+static bool monster_posok(int mnum, int x, int y)
+{
+	if ((dFlags[x][y] & BFLAG_HAZARD) == 0)
+		return true;
+	return mnum < 0 || (monsters[mnum]._mMagicRes & MORS_FIRE_IMMUNE) == MORS_FIRE_IMMUNE;
+}
+
 static bool MonDoStone(int mnum)
 {
 	MonsterStruct* mon;
@@ -4769,7 +4776,7 @@ void MissToMonst(int mi, int x, int y)
 	}
 }
 
-static bool monster_posok(int mnum, int x, int y)
+/*static bool monster_posok(int mnum, int x, int y)
 {
 	MissileStruct* mis;
 	bool ret = true, fire = false;
@@ -4778,32 +4785,32 @@ static bool monster_posok(int mnum, int x, int y)
 	if (mi == 0 || mnum < 0)
 		return true;
 
-/*#ifdef HELLFIRE
-	bool lightning = false;
+//#ifdef HELLFIRE
+//	bool lightning = false;
 
-	if (mi > 0) {
-		if (missile[mi - 1]._miType == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-			fire = true;
-		} else if (missile[mi - 1]._miType == MIS_LIGHTWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-			lightning = true;
-		}
-	} else {
-		for (i = 0; i < nummissiles; i++) {
-			mis = &missile[missileactive[i]];
-			if (mis->_mix == x && mis->_miy == y) {
-				if (mis->_miType == MIS_FIREWALL) {
-					fire = true;
-				} else if (mis->_miType == MIS_LIGHTWALL) {
-					lightning = true;
-				}
-			}
-		}
-	}
-	if (fire && (monsters[mnum]._mMagicRes & MORS_FIRE_IMMUNE) != MORS_FIRE_IMMUNE)
-		ret = false;
-	if (lightning && (monsters[mnum]._mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE)
-		ret = false;
-#else*/
+//	if (mi > 0) {
+//		if (missile[mi - 1]._miType == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
+//			fire = true;
+//		} else if (missile[mi - 1]._miType == MIS_LIGHTWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
+//			lightning = true;
+//		}
+//	} else {
+//		for (i = 0; i < nummissiles; i++) {
+//			mis = &missile[missileactive[i]];
+//			if (mis->_mix == x && mis->_miy == y) {
+//				if (mis->_miType == MIS_FIREWALL) {
+//					fire = true;
+//				} else if (mis->_miType == MIS_LIGHTWALL) {
+//					lightning = true;
+//				}
+//			}
+//		}
+//	}
+//	if (fire && (monsters[mnum]._mMagicRes & MORS_FIRE_IMMUNE) != MORS_FIRE_IMMUNE)
+//		ret = false;
+//	if (lightning && (monsters[mnum]._mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE)
+//		ret = false;
+//#else
 	if (mi > 0) {
 		if (missile[mi - 1]._miType == MIS_FIREWALL) // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 			fire = true;
@@ -4819,7 +4826,7 @@ static bool monster_posok(int mnum, int x, int y)
 		ret = false;
 //#endif
 	return ret;
-}
+}*/
 
 bool PosOkMonst(int mnum, int x, int y)
 {

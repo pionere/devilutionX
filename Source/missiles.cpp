@@ -416,9 +416,24 @@ static void PutMissile(int mi)
 	assert(IN_DUNGEON_AREA(x, y));
 	if (!missile[mi]._miDelFlag) {
 		dMissile[x][y] = dMissile[x][y] == 0 ? mi + 1 : -1;
-		if (missile[mi]._miPreFlag)
-			dFlags[x][y] |= BFLAG_MISSILE_PRE;
+		assert(!missile[mi]._miPreFlag);
+		//if (missile[mi]._miPreFlag)
+		//	dFlags[x][y] |= BFLAG_MISSILE_PRE;
 	}
+}
+
+static void PutMissileF(int mi, BYTE flag)
+{
+	int x, y;
+
+	x = missile[mi]._mix;
+	y = missile[mi]._miy;
+	assert(IN_DUNGEON_AREA(x, y));
+	assert(!missile[mi]._miDelFlag);
+	//if (!missile[mi]._miDelFlag) {
+		dMissile[x][y] = dMissile[x][y] == 0 ? mi + 1 : -1;
+		dFlags[x][y] |= flag;
+	//}
 }
 
 static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
@@ -1326,7 +1341,7 @@ void InitMissiles()
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitMissiles.");
 	pTmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
-		assert((*pTmp & BFLAG_MISSILE_PRE) == 0);
+		assert((*pTmp & (BFLAG_MISSILE_PRE | BFLAG_HAZARD)) == 0);
 }
 
 #ifdef HELLFIRE
@@ -3129,12 +3144,13 @@ void MI_Acidpud(int mi)
 	if (mis->_miRange == 0) {
 		if (mis->_miDir != 0) {
 			mis->_miDelFlag = TRUE;
+			return;
 		} else {
 			SetMissDir(mi, 1);
 			mis->_miRange = misfiledata[MFILE_ACIDPUD].mfAnimLen[1];
 		}
 	}
-	PutMissile(mi);
+	PutMissileF(mi, BFLAG_MISSILE_PRE);
 }
 
 void MI_Firewall(int mi)
@@ -3159,6 +3175,7 @@ void MI_Firewall(int mi)
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
+		return;
 	} else if (mis->_miDir == 0) {
 		if (mis->_miLid == NO_LIGHT) {
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
@@ -3168,7 +3185,7 @@ void MI_Firewall(int mi)
 			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
 		}
 	}
-	PutMissile(mi);
+	PutMissileF(mi, BFLAG_HAZARD);
 }
 
 void MI_Fireball(int mi)
@@ -3441,8 +3458,9 @@ void MI_Flash2(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
+		return;
 	}
-	PutMissile(mi);
+	PutMissileF(mi, BFLAG_MISSILE_PRE);
 }
 
 void MI_FireWave(int mi)
@@ -3928,6 +3946,9 @@ void MI_FireTrap(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
+		return;
+	}
+	PutMissileF(mi, BFLAG_HAZARD);
 }
 
 void MI_Cbolt(int mi)
@@ -4046,7 +4067,7 @@ void ProcessMissiles()
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
 		assert(IN_DUNGEON_AREA(mis->_mix, mis->_miy));
-		dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MISSILE_PRE;
+		dFlags[mis->_mix][mis->_miy] &= ~(BFLAG_MISSILE_PRE | BFLAG_HAZARD);
 		dMissile[mis->_mix][mis->_miy] = 0;
 	}
 
