@@ -2870,10 +2870,10 @@ void MAI_Bat(int mnum)
 	dist = std::max(abs(mx - fx), abs(my - fy));
 	if (mon->_mType == MT_GLOOM
 	    && dist >= 5
+		&& mon->leaderflag == MLEADER_NONE
 	    && v < 4 * mon->_mInt + 33
 	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
-		if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
-		}
+		AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0);
 	} else if (dist >= 2) {
 		if ((mon->_mVar2 > 20 && v < mon->_mInt + 13) // STAND_TICK
 		 || (MON_JUST_WALKED && v < mon->_mInt + 63)) {
@@ -3799,7 +3799,7 @@ void MAI_Rhino(int mnum)
 	}
 		
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (dist >= 5 && v < 2 * mon->_mInt + 43
+		if (dist >= 5 && mon->leaderflag == MLEADER_NONE && v < 2 * mon->_mInt + 43
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 				PlayEffect(mnum, MS_SPECIAL);
