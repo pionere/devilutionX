@@ -3755,7 +3755,8 @@ void MI_Rhino(int mi)
 		mis->_mityoff += mis->_miyvel;
 	}
 	GetMissilePos(mi);
-	if (!PosOkMonst(mnum, mis->_mix, mis->_miy) || (monsters[mnum]._mAi == AI_SNAKE && !PosOkMonst(mnum, mix2, miy2))) {
+	// TODO: add separate PosOkMon function to avoid reuse of PosOkPlayer. (PosOkMonst does not fit, because hazard check should not be done here)
+	if (!PosOkPlayer(-1, mis->_mix, mis->_miy) || (monsters[mnum]._mAi == AI_SNAKE && !PosOkPlayer(-1, mix2, miy2))) {
 		MissToMonst(mi, ax, ay);
 		mis->_miDelFlag = TRUE;
 		return;

@@ -2444,6 +2444,25 @@ static bool monster_posok(int mnum, int x, int y)
 	return mnum < 0 || (monsters[mnum]._mMagicRes & MORS_FIRE_IMMUNE) == MORS_FIRE_IMMUNE;
 }
 
+static bool MonDoCharge(int mnum)
+{
+	MonsterStruct* mon;
+	int dir;
+
+	if ((unsigned)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoCharge: Invalid monster %d", mnum);
+	}
+	mon = &monsters[mnum];
+	dir = mon->_mdir;
+	if (!monster_posok(mnum, mon->_mx + offset_x[dir], mon->_my + offset_y[dir])) {
+		//assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
+		dMonster[mon->_mx][mon->_my] = mnum + 1;
+		MonStartStand(mnum, dir);
+		return true;
+	}
+	return false;
+}
+
 static bool MonDoStone(int mnum)
 {
 	MonsterStruct* mon;
@@ -4352,7 +4371,7 @@ void ProcessMonsters()
 				raflag = MonDoDelay(mnum);
 				break;
 			case MM_CHARGE:
-				raflag = false;
+				raflag = MonDoCharge(mnum);
 				break;
 			case MM_STONE:
 				raflag = MonDoStone(mnum);
@@ -4723,7 +4742,9 @@ void MissToMonst(int mi, int x, int y)
 		dev_fatal("MissToMonst: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
+	//assert(dMonster[x][y] == 0);
 	dMonster[x][y] = mnum + 1;
+	//assert(dPlayer[x][y] == 0);
 	mon->_mx = x;
 	mon->_my = y;
 	MonStartStand(mnum, mis->_miDir);
