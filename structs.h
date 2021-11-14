@@ -332,12 +332,12 @@ typedef struct PlayerStruct {
 	BOOLEAN _pInfraFlag;
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
-	int _pISlMinDam;
-	int _pISlMaxDam;
-	int _pIBlMinDam;
-	int _pIBlMaxDam;
-	int _pIPcMinDam;
-	int _pIPcMaxDam;
+	int _pISlMinDam; // min slash-damage (swords, axes)
+	int _pISlMaxDam; // max slash-damage (swords, axes)
+	int _pIBlMinDam; // min blunt-damage (maces, axes)
+	int _pIBlMaxDam; // max blunt-damage (maces, axes)
+	int _pIPcMinDam; // min puncture-damage (bows, daggers)
+	int _pIPcMaxDam; // max puncture-damage (bows, daggers)
 	int _pIEvasion;
 	int _pIAC;
 	char _pMagResist;
@@ -356,14 +356,14 @@ typedef struct PlayerStruct {
 	char _pIArrowVelBonus; // _pISplCost in vanilla code
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
-	int _pIFMinDam;
-	int _pIFMaxDam;
-	int _pILMinDam;
-	int _pILMaxDam;
-	int _pIMMinDam;
-	int _pIMMaxDam;
-	int _pIAMinDam;
-	int _pIAMaxDam;
+	int _pIFMinDam; // min fire damage (item's added fire damage)
+	int _pIFMaxDam; // max fire damage (item's added fire damage)
+	int _pILMinDam; // min lightning damage (item's added lightning damage)
+	int _pILMaxDam; // max lightning damage (item's added lightning damage)
+	int _pIMMinDam; // min magic damage (item's added magic damage)
+	int _pIMMaxDam; // max magic damage (item's added magic damage)
+	int _pIAMinDam; // min acid damage (item's added acid damage)
+	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE *_pNData;
 	BYTE *_pWData;
 	BYTE *_pAData;
@@ -469,7 +469,7 @@ typedef struct MissileStruct {
 	int _mityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	int _miDir;   // The direction of the missile
 	int _miSpllvl;
-	int _miRange; // Time to live for the missile in game ticks, oncs 0 the missile will be marked for deletion via _miDelFlag
+	int _miRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
 	int _miSource;
 	int _miCaster;
 	int _miMinDam;
@@ -1395,7 +1395,7 @@ typedef struct TownerStruct {
 	int _txvel; // X-velocity during movement (unused)
 	int _tyvel; // Y-velocity during movement (unused)
 	int _tdir;  // Facing of NPC (unused)
-	BYTE *_tAnimData;
+	BYTE* _tAnimData;
 	int _tAnimFrameLen; // Tick length of each frame in the current animation
 	int _tAnimCnt;   // Increases by one each game tick, counting how close we are to _tAnimFrameLen
 	int _tAnimLen;   // Number of frames in current animation
@@ -1403,15 +1403,15 @@ typedef struct TownerStruct {
 	int _tAnimFrameCnt;
 	int _tAnimWidth;
 	int _tAnimXOffset;
-	char _tAnimOrder;
-	BYTE _tListener; // unused
-	BYTE _tStoreId;
+	int _tAnimOrder; // char would suffice
+	//BYTE _tListener; // unused
+	int _tStoreId; // BYTE would suffice
 	int _tStoreTalk;
 	int _tGossipStart;
 	int _tGossipEnd;
-	BOOL _tSelFlag; // unused
+	//BOOL _tSelFlag; // unused
 	int _tSeed;
-	const char *_tName;
+	const char* _tName;
 #ifdef X86_32bit_COMP
 	int alignment[9];
 #endif
