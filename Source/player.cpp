@@ -2050,8 +2050,8 @@ static bool WeaponDur(int pnum, int durrnd)
 static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 {
 	MonsterStruct *mon;
-	bool ret;
-	int hper, tmac, dam, skdam, damsl, dambl, dampc;
+	int hper, dam, skdam, damsl, dambl, dampc;
+	bool tmac, ret;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		app_fatal("PlrHitMonst: illegal monster %d", mnum);
@@ -2063,15 +2063,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 
 	mon = &monsters[mnum];
 
-	tmac = mon->_mArmorClass;
-	if (plr._pIEnAc > 0) {
-		int _pIEnAc = plr._pIEnAc - 1;
-		if (_pIEnAc > 0)
-			tmac >>= _pIEnAc;
-		else
-			tmac -= tmac >> 2;
-	}
-	hper = plr._pIHitChance - tmac;
+	hper = plr._pIHitChance - mon->_mArmorClass;
 	if (sn == SPL_SWIPE) {
 		hper -= 30 - sl * 2;
 	}
@@ -2085,15 +2077,16 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		return ret;
 
 	dam = 0;
+	tmac = (plr._pIFlags & ISPL_PENETRATE_PHYS) != 0;
 	damsl = plr._pISlMaxDam;
 	if (damsl != 0)
-		dam += CalcMonsterDam(mon->_mMagicRes, MISR_SLASH, plr._pISlMinDam, damsl);
+		dam += CalcMonsterDam(mon->_mMagicRes, MISR_SLASH, plr._pISlMinDam, damsl, tmac);
 	dambl = plr._pIBlMaxDam;
 	if (dambl != 0)
-		dam += CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, plr._pIBlMinDam, dambl);
+		dam += CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, plr._pIBlMinDam, dambl, tmac);
 	dampc = plr._pIPcMaxDam;
 	if (dampc != 0)
-		dam += CalcMonsterDam(mon->_mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, dampc);
+		dam += CalcMonsterDam(mon->_mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, dampc, tmac);
 
 	if (random_(6, sn == SPL_SWIPE ? 800 : 200) < plr._pICritChance) {
 		dam <<= 1;
@@ -2113,16 +2106,16 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 
 	int fdam = plr._pIFMaxDam;
 	if (fdam != 0)
-		fdam = CalcMonsterDam(mon->_mMagicRes, MISR_FIRE, plr._pIFMinDam, fdam);
+		fdam = CalcMonsterDam(mon->_mMagicRes, MISR_FIRE, plr._pIFMinDam, fdam, false);
 	int ldam = plr._pILMaxDam;
 	if (ldam != 0)
-		ldam = CalcMonsterDam(mon->_mMagicRes, MISR_LIGHTNING, plr._pILMinDam, ldam);
+		ldam = CalcMonsterDam(mon->_mMagicRes, MISR_LIGHTNING, plr._pILMinDam, ldam, false);
 	int mdam = plr._pIMMaxDam;
 	if (mdam != 0)
-		mdam = CalcMonsterDam(mon->_mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam);
+		mdam = CalcMonsterDam(mon->_mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam, false);
 	int adam = 0;
 	if (adam != 0)
-		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam);
+		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 
 	if ((fdam | ldam | mdam | adam) != 0) {
 		dam += fdam + ldam + mdam + adam;

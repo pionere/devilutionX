@@ -184,7 +184,6 @@ typedef struct ItemStruct {
 	BYTE _iManaSteal;
 	BYTE _iLifeSteal;
 	BYTE _iPLCrit;
-	BYTE _iPLEnAc;
 	int _iUid;
 	BYTE _iFMinDam;
 	BYTE _iFMaxDam;
@@ -357,7 +356,6 @@ typedef struct PlayerStruct {
 	char _pIArrowVelBonus; // _pISplCost in vanilla code
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
-	int _pIEnAc;
 	int _pIFMinDam;
 	int _pIFMaxDam;
 	int _pILMinDam;

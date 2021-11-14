@@ -504,7 +504,7 @@ static void ShiftMissilePos(int mi)
 	}
 }
 
-unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxdam)
+unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates)
 {
 	unsigned dam;
 	BYTE resist;
@@ -565,11 +565,13 @@ unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxda
 	case MORT_NONE:
 		break;
 	case MORT_PROTECTED:
-		dam >>= 1;
-		dam += dam >> 2;
+		if (!penetrates) {
+			dam >>= 1;
+			dam += dam >> 2;
+		}
 		break;
 	case MORT_RESIST:
-		dam >>= 2;
+		dam >>= penetrates ? 1 : 2;
 		break;
 	default: ASSUME_UNREACHABLE;
 	}
@@ -618,7 +620,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 #endif
 			return false;
 
-	dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
+	dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	if (dam == 0)
 		return false;
 
@@ -647,23 +649,15 @@ static bool MonsterMHit(int mnum, int mi)
 {
 	MonsterStruct *mon;
 	MissileStruct *mis;
-	int pnum, tmac, hper, dam;
-	bool ret;
+	int pnum, hper, dam;
+	bool tmac, ret;
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
 	pnum = mis->_miSource;
 	//assert((unsigned)pnum < MAX_PLRS);
 	if (mis->_miSubType == 0) {
-		tmac = mon->_mArmorClass;
-		if (plr._pIEnAc > 0) {
-			int _pIEnAc = plr._pIEnAc - 1;
-			if (_pIEnAc > 0)
-				tmac >>= _pIEnAc;
-			else
-				tmac -= tmac >> 2;
-		}
-		hper = plr._pIHitChance - tmac
+		hper = plr._pIHitChance - mon->_mArmorClass
 		    - (mis->_miDist * mis->_miDist >> 1);
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
@@ -689,17 +683,18 @@ static bool MonsterMHit(int mnum, int mi)
 	if (mis->_miSubType == 0) {
 		// calculcate arrow-damage
 		dam = 0;
+		tmac = (plr._pIFlags & ISPL_PENETRATE_PHYS) != 0;
 		int sldam = plr._pISlMaxDam;
 		if (sldam != 0) {
-			dam += CalcMonsterDam(mon->_mMagicRes, MISR_SLASH, plr._pISlMinDam, sldam);
+			dam += CalcMonsterDam(mon->_mMagicRes, MISR_SLASH, plr._pISlMinDam, sldam, tmac);
 		}
 		int bldam = plr._pIBlMaxDam;
 		if (bldam != 0) {
-			dam += CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, plr._pIBlMinDam, bldam);
+			dam += CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, plr._pIBlMinDam, bldam, tmac);
 		}
 		int pcdam = plr._pIPcMaxDam;
 		if (pcdam != 0) {
-			dam += CalcMonsterDam(mon->_mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, pcdam);
+			dam += CalcMonsterDam(mon->_mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, pcdam, tmac);
 		}
 		if (random_(6, 200) < plr._pICritChance) {
 			dam <<= 1;
@@ -712,19 +707,19 @@ static bool MonsterMHit(int mnum, int mi)
 		}
 		int fdam = plr._pIFMaxDam;
 		if (fdam != 0) {
-			fdam = CalcMonsterDam(mon->_mMagicRes, MISR_FIRE, plr._pIFMinDam, fdam);
+			fdam = CalcMonsterDam(mon->_mMagicRes, MISR_FIRE, plr._pIFMinDam, fdam, false);
 		}
 		int ldam = plr._pILMaxDam;
 		if (ldam != 0) {
-			ldam = CalcMonsterDam(mon->_mMagicRes, MISR_LIGHTNING, plr._pILMinDam, ldam);
+			ldam = CalcMonsterDam(mon->_mMagicRes, MISR_LIGHTNING, plr._pILMinDam, ldam, false);
 		}
 		int mdam = plr._pIMMaxDam;
 		if (mdam != 0) {
-			mdam = CalcMonsterDam(mon->_mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam);
+			mdam = CalcMonsterDam(mon->_mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam, false);
 		}
 		int adam = plr._pIAMaxDam;
 		if (adam != 0) {
-			adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam);
+			adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 		}
 		if ((ldam | fdam | mdam | adam) != 0) {
 			dam += fdam + ldam + mdam + adam;
@@ -738,7 +733,7 @@ static bool MonsterMHit(int mnum, int mi)
 			PlrIncMana(pnum, (dam * plr._pIManaSteal) >> 7);
 		}
 	} else {
-		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
+		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	}
 	if (dam == 0)
 		return false;

@@ -273,7 +273,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	int imana = 0; // increased mana
 
 	char spllvladd = 0; // increased spell level
-	int enac = 0;      // enhanced accuracy
 
 	unsigned minsl = 0; // min slash-damage
 	unsigned maxsl = 0; // max slash-damage
@@ -324,7 +323,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 				lifesteal += pi->_iLifeSteal;
 				manasteal += pi->_iManaSteal;
 				btochit += pi->_iPLCrit;
-				enac += pi->_iPLEnAc;
 				fmin += pi->_iFMinDam;
 				fmax += pi->_iFMaxDam;
 				lmin += pi->_iLMinDam;
@@ -393,7 +391,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
 	plr._pHasUnidItem = !idi;
 	plr._pIGetHit = ghit << 6;
-	plr._pIEnAc = enac;
 	plr._pISplLvlAdd = spllvladd;
 	plr._pILifeSteal = lifesteal;
 	plr._pIManaSteal = manasteal;
@@ -1383,8 +1380,8 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_STEALLIFE:
 		is->_iLifeSteal = r;
 		break;
-	case IPL_TARGAC:
-		is->_iPLEnAc += r;
+	case IPL_PENETRATE_PHYS:
+		is->_iFlags |= ISPL_PENETRATE_PHYS;
 		break;
 	case IPL_FASTATTACK:
 		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like attack-speed modifiers.");
@@ -2821,7 +2818,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_STEALLIFE:
 		snprintf(tempstr, sizeof(tempstr), "hit steals %i%% life", (is->_iLifeSteal * 100) >> 7);
 		break;
-	case IPL_TARGAC:
+	case IPL_PENETRATE_PHYS:
 		copy_cstr(tempstr, "penetrates target's armor");
 		break;
 	case IPL_FASTATTACK:
