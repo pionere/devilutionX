@@ -496,7 +496,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		break;
 	}
 
-#ifdef HELLFIRE
+/*#ifdef HELLFIRE
 	if (plr._pClass == PC_MONK) {
 		if (gfx == ANIM_ID_STAFF) {
 			bf = true;
@@ -505,7 +505,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		 && (wLeft->_itype == ITYPE_NONE || wLeft->_iLoc != ILOC_TWOHAND))
 			bf = true;
 	}
-#endif
+#endif*/
 	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
 		tac += ((plr._pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
 		bf = true;
