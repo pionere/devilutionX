@@ -937,12 +937,6 @@ void LoadGame()
 
 	CopyBytes(tbuff, sizeof(TransList), TransList);
 
-	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
-	for (i = 0; i < NUM_UITEM; i++)
-		UniqueItemFlags[i] = LoadBool();
-	for ( ; i < 128; i++)
-		LoadBool();
-
 	LoadItemData(&boyitem);
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		LoadItemData(&premiumitems[i]);
@@ -1617,12 +1611,6 @@ void SaveGame()
 		SaveLight(&VisionList[visionactive[i]]);
 
 	CopyBytes(TransList, sizeof(TransList), tbuff);
-
-	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
-	for (i = 0; i < NUM_UITEM; i++)
-		SaveBool(UniqueItemFlags[i]);
-	for ( ; i < 128; i++)
-		SaveBool(FALSE);
 
 	SaveItemData(&boyitem);
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
