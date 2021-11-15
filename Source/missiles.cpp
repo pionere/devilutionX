@@ -1250,6 +1250,7 @@ void LoadMissileGFX(BYTE midx)
 	name = mfd->mfName;
 	if (n == 1) {
 		snprintf(pszName, sizeof(pszName), "Missiles\\%s.CL2", name);
+		assert(mad[0] == NULL);
 		mad[0] = LoadFileInMem(pszName);
 	} else {
 		for (i = 0; i < n; i++) {
@@ -1271,6 +1272,7 @@ void LoadMissileGFX(BYTE midx)
 		for (i = 0; i < n; i++) {
 			Cl2ApplyTrans(mad[i], tf, mfd->mfAnimLen[i]);
 		}
+		mem_free_dbg(tf);
 	}
 }
 
