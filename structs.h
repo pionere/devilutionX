@@ -350,7 +350,8 @@ typedef struct PlayerStruct {
 	BYTE _pICritChance; // 200 == 100%
 	BYTE _pIBlockChance;
 	uint64_t _pISpells; // Bitmask of staff spell
-	int _pIFlags;
+	unsigned _pIFlags;
+	unsigned _pIFlags2; // unused at the moment, but removing it causes inconsistency in case of X86_32bit_COMP...
 	int _pIGetHit;
 	char _pISplLvlAdd;
 	char _pIArrowVelBonus; // _pISplCost in vanilla code
@@ -643,10 +644,10 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _uniqtrans;
 	BYTE _udeadval;
 	BYTE mlid;
+	BYTE leader; // the leader of the monster
+	BYTE leaderflag; // the status of the monster's leader
+	BYTE packsize; // the number of 'pack'-monsters close to their leader
 	BYTE falign_CB;
-	BYTE leader;
-	BYTE leaderflag;
-	BYTE packsize;
 	BYTE _mLevel;
 	BYTE _mSelFlag;
 	BYTE _mAi;

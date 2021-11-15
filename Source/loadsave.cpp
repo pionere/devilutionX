@@ -484,6 +484,7 @@ static void LoadPlayer(int pnum)
 
 	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags
+	tbuff += 4; // _pIFlags2
 	tbuff += 4; // _pIGetHit
 	tbuff += 1; // _pISplLvlAdd
 	tbuff += 1; // _pIArrowVelBonus
@@ -1210,6 +1211,7 @@ static void SavePlayer(int pnum)
 
 	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags
+	tbuff += 4; // _pIFlags2
 	tbuff += 4; // _pIGetHit
 	tbuff += 1; // _pISplLvlAdd
 	tbuff += 1; // _pIArrowVelBonus
