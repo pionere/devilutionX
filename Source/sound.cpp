@@ -19,6 +19,8 @@ bool gbMusicOn = false;
 #ifndef NOSOUND
 /** Mix_Music entity of the background music */
 Mix_Music* _gMusic;
+/** Buffer containing the data of the background music. */
+BYTE* _gMusicBuffer;
 
 /** The volume of the sound channel. */
 int _gnSoundVolume;
@@ -151,6 +153,7 @@ void music_stop()
 		Mix_FreeMusic(_gMusic);
 		_gMusic = NULL;
 		_gnMusicTrack = NUM_MUSIC;
+		MemFreeDbg(_gMusicBuffer);
 	}
 }
 
@@ -162,13 +165,15 @@ void music_start(int nTrack)
 		HANDLE hMusic = SFileOpenFile(sgszMusicTracks[nTrack]);
 		if (hMusic != NULL) {
 			DWORD bytestoread = SFileGetFileSize(hMusic);
-			BYTE* _gMusicBuffer = DiabloAllocPtr(bytestoread);
+			assert(_gMusicBuffer == NULL);
+			_gMusicBuffer = DiabloAllocPtr(bytestoread);
 			SFileReadFile(hMusic, _gMusicBuffer, bytestoread, NULL);
 
 			SDL_RWops* musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
 			if (musicRw == NULL) {
 				sdl_fatal(ERR_SDL_MUSIC_FILE);
 			}
+			assert(_gMusic == NULL);
 			_gMusic = Mix_LoadMUSType_RW(musicRw, MUS_NONE, 1);
 			Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * _gnMusicVolume / VOLUME_MIN);
 			Mix_PlayMusic(_gMusic, -1);
