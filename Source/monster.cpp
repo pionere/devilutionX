@@ -28,6 +28,9 @@ int nummtypes;
 /* The next light-index to be used for the trn of a unique monster. */
 int uniquetrans;
 
+/** Maps from facing direction to path-direction. */
+static const char dir2pdir[NUM_DIRS] = { PDIR_S, PDIR_SW, PDIR_W, PDIR_NW, PDIR_N, PDIR_NE, PDIR_E, PDIR_SE };
+
 /** 'leader' of monsters without leaders. */
 static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE field.");
 #define MON_NO_LEADER MAXMONSTERS
@@ -4452,25 +4455,20 @@ bool DirOK(int mnum, int mdir)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("DirOK: Invalid monster %d", mnum);
 	}
-	fx = monsters[mnum]._mx + offset_x[mdir];
-	fy = monsters[mnum]._my + offset_y[mdir];
+
+	x = monsters[mnum]._mx;
+	y = monsters[mnum]._my;
+	if (!PathWalkable(x, y, dir2pdir[mdir]))
+		return false;
+
+	fx = x + offset_x[mdir];
+	fy = y + offset_y[mdir];
 	static_assert(DBORDERX >= 3, "DirOK expects a large enough border I.");
 	static_assert(DBORDERY >= 3, "DirOK expects a large enough border II.");
 	assert(IN_DUNGEON_AREA(fx, fy));
 	if (!PosOkMonst(mnum, fx, fy))
 		return false;
-	if (mdir == DIR_E) {
-		if (nSolidTable[dPiece[fx][fy + 1]])
-			return false;
-	} else if (mdir == DIR_W) {
-		if (nSolidTable[dPiece[fx + 1][fy]])
-			return false;
-	} else if (mdir == DIR_N) {
-		if (nSolidTable[dPiece[fx + 1][fy]] || nSolidTable[dPiece[fx][fy + 1]])
-			return false;
-	} else if (mdir == DIR_S)
-		if (nSolidTable[dPiece[fx - 1][fy]] || nSolidTable[dPiece[fx][fy - 1]])
-			return false;
+
 	if (monsters[mnum].leaderflag == MLEADER_PRESENT) {
 		return abs(fx - monsters[monsters[mnum].leader]._mfutx) < 4
 		    && abs(fy - monsters[monsters[mnum].leader]._mfuty) < 4;
