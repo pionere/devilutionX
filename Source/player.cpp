@@ -2060,8 +2060,9 @@ static bool WeaponDur(int pnum, int durrnd)
 
 static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int hper, dam, skdam, damsl, dambl, dampc;
+	unsigned hitFlags;
 	bool tmac, ret;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2140,13 +2141,14 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);
 	} else {
-		if (plr._pIFlags & ISPL_NOHEALMON) {
+		hitFlags = plr._pIFlags;
+		if (hitFlags & ISPL_NOHEALMON) {
 			mon->_mFlags |= MFLAG_NOHEAL;
 		}
-		if (plr._pIFlags & ISPL_KNOCKBACK) {
+		if (hitFlags & ISPL_KNOCKBACK) {
 			MonGetKnockback(mnum, plr._px, plr._py);
 		}
-		MonStartHit(mnum, pnum, dam);
+		MonStartHit(mnum, pnum, dam, hitFlags);
 	}
 	return true;
 }

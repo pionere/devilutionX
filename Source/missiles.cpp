@@ -607,8 +607,8 @@ void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int ada
 
 static bool MonsterTrapHit(int mnum, int mi)
 {
-	MissileStruct *mis;
-	MonsterStruct *mon;
+	MissileStruct* mis;
+	MonsterStruct* mon;
 	int hper, dam;
 	bool ret;
 
@@ -646,7 +646,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 		/*if (resist) {
 			PlayEffect(mnum, MS_GOTHIT);
 		} else {*/
-			MonStartHit(mnum, -1, dam);
+			MonStartHit(mnum, -1, dam, 0);
 		//}
 	}
 	return true;
@@ -654,9 +654,10 @@ static bool MonsterTrapHit(int mnum, int mi)
 
 static bool MonsterMHit(int mnum, int mi)
 {
-	MonsterStruct *mon;
-	MissileStruct *mis;
+	MonsterStruct* mon;
+	MissileStruct* mis;
 	int pnum, hper, dam;
+	unsigned hitFlags;
 	bool tmac, ret;
 
 	mon = &monsters[mnum];
@@ -755,13 +756,15 @@ static bool MonsterMHit(int mnum, int mi)
 		/*if (resist != MORT_NONE) {
 			PlayEffect(mnum, MS_GOTHIT);
 		} else {*/
+			hitFlags = plr._pIFlags;
 			if (mis->_miSubType == 0) {
-				if (plr._pIFlags & ISPL_NOHEALMON)
+				if (hitFlags & ISPL_NOHEALMON)
 					mon->_mFlags |= MFLAG_NOHEAL;
-				if (plr._pIFlags & ISPL_KNOCKBACK)
+
+				if (hitFlags & ISPL_KNOCKBACK)
 					MonGetKnockback(mnum, mis->_misx, mis->_misy);
 			}
-			MonStartHit(mnum, pnum, dam);
+			MonStartHit(mnum, pnum, dam, hitFlags);
 		//}
 	}
 

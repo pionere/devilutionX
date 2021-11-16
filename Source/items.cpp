@@ -1366,6 +1366,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_KNOCKBACK:
 		is->_iFlags |= ISPL_KNOCKBACK;
 		break;
+	case IPL_STUN:
+		is->_iFlags |= ISPL_STUN;
+		break;
 	case IPL_ALLRESZERO:
 		is->_iFlags |= ISPL_ALLRESZERO;
 		break;
@@ -2796,6 +2799,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_KNOCKBACK:
 		copy_cstr(tempstr, "knocks target back");
+		break;
+	case IPL_STUN:
+		copy_cstr(tempstr, "reduces stun threshold");
 		break;
 	case IPL_ALLRESZERO:
 		copy_cstr(tempstr, "All Resistance equals 0");

@@ -441,6 +441,7 @@ const AffixData PL_Suffix[] = {
 	{  "corruption",    IPL_NOMANA,           0,        0,        5, PLT_ARMO | PLT_SHLD | PLT_MELEE                                 ,     GOE_EVIL, FALSE,    FALSE,    -1000,    -1000,         2 },
 	//{  "thieves",       IPL_ABSHALFTRAP,      0,        0,       11, PLT_ARMO | PLT_SHLD |                                  PLT_MISC,     GOE_ANY,  FALSE,    TRUE,      1500,     1500,         2 },
 	{  "the bear",      IPL_KNOCKBACK,        0,        0,        5,                       PLT_MELEE | PLT_STAFF | PLT_BOW           ,     GOE_ANY,  FALSE,    TRUE,       750,      750,         2 },
+	{  "bashing",       IPL_STUN,             0,        0,       10,                       PLT_MELEE | PLT_STAFF | PLT_BOW           ,     GOE_ANY,  FALSE,    TRUE,      1500,     1500,         2 },
 	{  "the bat",       IPL_STEALMANA,        3,        3,        8,                       PLT_MELEE                                 ,     GOE_ANY,  FALSE,    TRUE,      7500,     7500,         3 },
 	{  "vampires",      IPL_STEALMANA,        5,        5,       19,                       PLT_MELEE                                 ,     GOE_ANY,  FALSE,    TRUE,     15000,    15000,         3 },
 	{  "the leech",     IPL_STEALLIFE,        2,        4,        8,                       PLT_MELEE                                 ,     GOE_ANY,  FALSE,    TRUE,      7500,     7500,         3 },

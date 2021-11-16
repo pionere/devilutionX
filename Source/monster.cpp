@@ -1570,7 +1570,7 @@ void MonGetKnockback(int mnum, int sx, int sy)
 	}
 }
 
-void MonStartHit(int mnum, int pnum, int dam)
+void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags)
 {
 	MonsterStruct* mon;
 
@@ -1587,7 +1587,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 	PlayEffect(mnum, MS_GOTHIT);
 	if (mnum < MAX_MINIONS)
 		return;
-	if ((dam << 2) >= mon->_mmaxhp) {
+	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp) {
 		if ((unsigned)pnum < MAX_PLRS) {
 			mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
 			mon->_menemy = pnum;
@@ -2040,7 +2040,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		if (mon->_mhitpoints < (1 << 6))
 			MonStartKill(mnum, pnum);
 		else
-			MonStartHit(mnum, pnum, tmp);
+			MonStartHit(mnum, pnum, tmp, 0);
 	}
 	dam = RandRange(MinDam, MaxDam) << 6;
 	dam += plr._pIGetHit;
