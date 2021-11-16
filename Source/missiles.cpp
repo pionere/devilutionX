@@ -2261,39 +2261,36 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	return MIRES_DONE;
 }
 
+/**
+ * Var1: x coordinate of the destination
+ * Var2: y coordinate of the destination
+ */
 int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int pnum = misource, chv, aa, range;
-	double dxp, dyp;
+	int pnum = misource, chv, aa;
 
 	dPlayer[sx][sy] = -(pnum + 1);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
+
 	chv = MIS_SHIFTEDVEL(16) / M_SQRT2;
 	aa = 2;
-	dxp = (sx - dx) * (64 / 16);
-	dyp = (sy - dy) * (64 / 16);
 	if (plr._pIFlags & ISPL_FASTESTWALK) {
-		dxp /= 2;
-		dyp /= 2;
 		chv = MIS_SHIFTEDVEL(32) / M_SQRT2;
 		aa = 4;
 	} else if (plr._pIFlags & (ISPL_FASTERWALK | ISPL_FASTWALK)) {
-		dxp = 2 * dxp / 3;
-		dyp = 2 * dyp / 3;
 		chv = MIS_SHIFTEDVEL(24) / M_SQRT2;
 		aa = 3;
 	}
-	range = sqrt(dxp * dxp + dyp * dyp);
-	// add aa to prevent short charges due to rounding errors
-	range += aa;
 	GetMissileVel(mi, sx, sy, dx, dy, chv);
 	plr._pmode = PM_CHARGE;
 	mis = &missile[mi];
 	mis->_miDir = midir;
+	mis->_miVar1 = dx;
+	mis->_miVar2 = dy;
 	mis->_miAnimFlag = TRUE;
 	mis->_miAnimData = plr._pWAnim[midir];
 	mis->_miAnimFrameLen = PlrAnimFrameLens[PA_WALK];
@@ -2305,10 +2302,9 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	if (pnum == mypnum) {
 		assert(ScrollInfo._sdx == 0);
 		assert(ScrollInfo._sdy == 0);
-		ScrollInfo._sdir = 1 + OPPOSITE(midir); // == dir2sdir[midir];
+		ScrollInfo._sdir = 1 + OPPOSITE(midir); // == dir2sdir[midir]
 	}
 	//mis->_miLid = mon->mlid;
-	mis->_miRange = range;
 	//PutMissile(mi);
 	return MIRES_DONE;
 }
@@ -3861,18 +3857,17 @@ void MI_Charge(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (!PosOkPlayer(pnum, mis->_mix, mis->_miy)) {
-		MissToPlr(mi, ax, ay);
-		mis->_miDelFlag = TRUE;
-		return;
-	}
-	mis->_miRange--;
-	if (mis->_miRange == 0) {
-		MissToPlr(mi, mis->_mix, mis->_miy);
+		MissToPlr(mi, ax, ay, true);
 		mis->_miDelFlag = TRUE;
 		return;
 	}
 	bx = mis->_mix;
 	by = mis->_miy;
+	if (bx == mis->_miVar1 && by == mis->_miVar2) {
+		MissToPlr(mi, bx, by, false);
+		mis->_miDelFlag = TRUE;
+		return;
+	}
 	plr._pfutx = bx;
 	plr._poldx = bx;
 	plr._px = bx;

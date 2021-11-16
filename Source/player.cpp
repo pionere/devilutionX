@@ -2909,7 +2909,7 @@ void ClrPlrPath(int pnum)
 	memset(plr.walkpath, DIR_NONE, sizeof(plr.walkpath));
 }
 
-void MissToPlr(int mi, int x, int y)
+void MissToPlr(int mi, int x, int y, bool hit)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
@@ -2928,7 +2928,7 @@ void MissToPlr(int mi, int x, int y)
 	//dPlayer[x][y] = pnum + 1;
 	plr._px = x;
 	plr._py = y;
-	if (mis->_miRange == 0 || plr._pHitPoints < (1 << 6)) {
+	if (!hit || plr._pHitPoints < (1 << 6)) {
 		PlrStartStand(pnum, mis->_miDir);
 		return;
 	}
