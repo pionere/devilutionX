@@ -1561,7 +1561,7 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
  */
 int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int av = MIS_SHIFTEDVEL(32), mtype;
 
 	if (sx == dx && sy == dy) {
@@ -1570,7 +1570,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	}
 	midir = GetDirection16(sx, sy, dx, dy);
 	if (micaster == 0) {
-		av += plx(misource)._pIArrowVelBonus;
+		av += MIS_SHIFTEDVEL((int)plx(misource)._pIArrowVelBonus);
 		//int dam = plx(misource)._pIMaxDam + plx(misource)._pIMinDam;
 		int fdam = plx(misource)._pIFMaxDam;
 		int ldam = plx(misource)._pILMaxDam;
@@ -1624,7 +1624,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 
 int AddArrowC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int numarrows = 1, mitype;
 
 	if (sx == dx && sy == dy) {
