@@ -157,7 +157,7 @@ const int VitalityTbl[NUM_CLASSES] = {
 #endif
 	// clang-format on
 };
-const int Abilities[NUM_CLASSES] = {
+const BYTE Abilities[NUM_CLASSES] = {
 	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE
 #ifdef HELLFIRE
 	, SPL_WHITTLE, SPL_IDENTIFY, SPL_BUCKLE
@@ -239,8 +239,10 @@ const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
 	1082908612,
 };
 
+#ifdef _DEBUG
 /** Maps from facing direction to scroll-direction. */
-static const char dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W,	SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
+static const char dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
+#endif
 
 static void SetPlayerGPtrs(BYTE *pData, BYTE *(&pAnim)[8])
 {
@@ -2377,7 +2379,13 @@ static void ShieldDur(int pnum)
 	pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype == ITYPE_SHIELD) {
 		ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
+//		return;
 	}
+//#ifdef HELLFIRE
+//	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
+//	if (pi->_itype == ITYPE_STAFF)
+//		ReduceItemDur(pi, INVLOC_HAND_LEFT, pnum);
+//#endif
 }
 
 void PlrStartBlock(int pnum, int dir)
