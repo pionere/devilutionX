@@ -7,6 +7,8 @@
 #include "plrctrls.h"
 #include "misproc.h"
 #include "engine/render/cl2_render.hpp"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -2270,22 +2272,24 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
-	chv = MIS_SHIFTEDVEL(8 * sqrt(2));
+	chv = MIS_SHIFTEDVEL(16) / M_SQRT2;
 	aa = 2;
-	dxp = (sx - dx) * 4;
-	dyp = (sy - dy) * 4;
+	dxp = (sx - dx) * (64 / 16);
+	dyp = (sy - dy) * (64 / 16);
 	if (plr._pIFlags & ISPL_FASTESTWALK) {
 		dxp /= 2;
 		dyp /= 2;
-		chv = MIS_SHIFTEDVEL(16 * sqrt(2));
+		chv = MIS_SHIFTEDVEL(32) / M_SQRT2;
 		aa = 4;
 	} else if (plr._pIFlags & (ISPL_FASTERWALK | ISPL_FASTWALK)) {
 		dxp = 2 * dxp / 3;
 		dyp = 2 * dyp / 3;
-		chv = MIS_SHIFTEDVEL(12 * sqrt(2));
+		chv = MIS_SHIFTEDVEL(24) / M_SQRT2;
 		aa = 3;
 	}
-	range = 1 + sqrt(dxp * dxp + dyp * dyp);
+	range = sqrt(dxp * dxp + dyp * dyp);
+	// add aa to prevent short charges due to rounding errors
+	range += aa;
 	GetMissileVel(mi, sx, sy, dx, dy, chv);
 	plr._pmode = PM_CHARGE;
 	mis = &missile[mi];
