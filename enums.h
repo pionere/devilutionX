@@ -1537,6 +1537,7 @@ typedef enum missile_id {
 	//MIS_BONE,		// TODO: Check beta
 	//MIS_METLHIT,	// TODO: Check beta
 	MIS_RHINO,
+	MIS_CHARGE,
 	MIS_TELEPORT,
 	//MIS_FARROW,
 	//MIS_DOOMSERP,
@@ -2928,17 +2929,18 @@ typedef enum MON_SFX {
 } MON_SFX;
 
 typedef enum PLR_MODE {
-	PM_STAND   = 0,
-	PM_WALK    = 1, // Movement towards N, NW, NE or W
-	PM_WALK2   = 2, // Movement towards S, SW, SE or E
-	PM_ATTACK  = 4,
-	PM_RATTACK = 5,
-	PM_BLOCK   = 6,
-	PM_GOTHIT  = 7,
-	PM_DEATH   = 8,
-	PM_SPELL   = 9,
-	PM_NEWLVL  = 10,
-	PM_QUIT    = 11,
+	PM_STAND,
+	PM_WALK, // Movement towards N, NW, NE or W
+	PM_WALK2, // Movement towards S, SW, SE or E
+	PM_CHARGE,
+	PM_ATTACK,
+	PM_RATTACK,
+	PM_BLOCK,
+	PM_GOTHIT,
+	PM_DEATH,
+	PM_SPELL,
+	PM_NEWLVL,
+	PM_QUIT,
 } PLR_MODE;
 
 typedef enum PLR_ANIM {
@@ -3056,6 +3058,7 @@ typedef enum spell_id {
 	SPL_RATTACK,
 	SPL_POINT_BLANK,
 	SPL_FAR_SHOT,
+	SPL_CHARGE,
 	SPL_RAGE,
 	SPL_FIREBOLT,
 	SPL_CBOLT,

@@ -338,6 +338,8 @@ typedef struct PlayerStruct {
 	int _pIBlMaxDam; // max blunt-damage (maces, axes)
 	int _pIPcMinDam; // min puncture-damage (bows, daggers)
 	int _pIPcMaxDam; // max puncture-damage (bows, daggers)
+	int _pIChMinDam; // min charge-damage (shield charge)
+	int _pIChMaxDam; // max charge-damage (shield charge)
 	int _pIEvasion;
 	int _pIAC;
 	char _pMagResist;
@@ -375,7 +377,7 @@ typedef struct PlayerStruct {
 	BYTE *_pDData;
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
-	int alignment[207];
+	int alignment[205];
 #endif
 } PlayerStruct;
 

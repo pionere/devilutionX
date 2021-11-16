@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - critical hit chance is based on items
 - block only if standing or actively using the Block skill
 - separate resistance against acid
-- added Far Shot/Point Blank/Swipe skills
+- added Far Shot/Point Blank/Swipe/Charge skills
 - skills/spells have experience counters
 - books give skill experience instead of a whole level
 - rebalanced spells (some spells removed, others damage modified, etc...)

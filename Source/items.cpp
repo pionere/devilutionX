@@ -501,19 +501,22 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			bf = true;
 	}
 #endif*/
+	maxdam = plr._pMaxHP >> (2 - 1 + 1); // ~1/4 hp - halved by resists, doubled by MissToPlr
 	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
 		tac += ((plr._pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
 		bf = true;
 		gfx++;
+
+		maxdam += wRight->_iAC << (6 + 1 - 1); // 2*AC - halved by resists, doubled by MissToPlr
 	}
+	plr._pIChMinDam = maxdam >> 1;
+	plr._pIChMaxDam = maxdam;
 
 	if (gfx == ANIM_ID_UNARMED || gfx == ANIM_ID_UNARMED_SHIELD) {
 		if (gfx == ANIM_ID_UNARMED_SHIELD) {
-			minbl = 3 << 1;
-			maxbl = 3 << 1;
+			minbl = maxbl = 3 << 1;
 		} else {
-			minbl = 1 << 1;
-			maxbl = 1 << 1;
+			minbl = maxbl = 1 << 1;
 		}
 		minbl += plr._pLevel >> (2 - 1);
 		maxbl += plr._pLevel >> (1 - 1);

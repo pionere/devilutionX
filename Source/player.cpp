@@ -2854,6 +2854,9 @@ void ProcessPlayers()
 				case PM_WALK2:
 					raflag = PlrDoWalk(pnum);
 					break;
+				case PM_CHARGE:
+					raflag = false;
+					break;
 				case PM_ATTACK:
 					raflag = PlrDoAttack(pnum);
 					break;
@@ -2904,6 +2907,117 @@ void ClrPlrPath(int pnum)
 	}
 
 	memset(plr.walkpath, DIR_NONE, sizeof(plr.walkpath));
+}
+
+void MissToPlr(int mi, int x, int y)
+{
+	MissileStruct* mis;
+	MonsterStruct* mon;
+	int pnum, oldx, oldy, mpnum, dist, minbl, maxbl, dam, hper, blkper;
+	unsigned hitFlags;
+	bool ret;
+
+	if ((unsigned)mi >= MAXMISSILES) {
+		dev_fatal("MissToPlr: Invalid missile %d", mi);
+	}
+	mis = &missile[mi];
+	pnum = mis->_miSource;
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("MissToPlr: Invalid player %d", pnum);
+	}
+	//dPlayer[x][y] = pnum + 1;
+	plr._px = x;
+	plr._py = y;
+	if (mis->_miRange == 0 || plr._pHitPoints < (1 << 6)) {
+		PlrStartStand(pnum, mis->_miDir);
+		return;
+	}
+	//if (mis->_miSpllvl < 10)
+		StartPlrHit(pnum, 0, true);
+	//else
+	//	PlaySfxLoc(IS_BHIT, x, y);
+	dist = (int)mis->_miDist - 24;
+	if (dist < 0)
+		return;
+	if (dist > 32)
+		dist = 32;
+	minbl = plr._pIChMinDam;
+	maxbl = plr._pIChMaxDam;
+	if (maxbl != 0) {
+		minbl = ((64 + dist) * minbl) >> 5;
+		maxbl = ((64 + dist) * maxbl) >> 5;
+	}
+
+	oldx = mis->_mix;
+	oldy = mis->_miy;
+	mpnum = dMonster[oldx][oldy];
+	if (mpnum > 0) {
+		mpnum--;
+		//PlrHitMonst(pnum, SPL_CHARGE, mis->_miSpllvl, mpnum);
+		mon = &monsters[mpnum];
+
+		hper = mis->_miSpllvl * 16 - mon->_mArmorClass;
+		if (random_(4, 100) >= hper && mon->_mmode != MM_STONE)
+#ifdef _DEBUG
+			if (!debug_mode_god_mode)
+#endif
+				return;
+
+		if (CheckMonsterHit(mpnum, &ret))
+			return;
+
+		dam = CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, minbl, maxbl, false);
+
+		//if (random_(151, 200) < plr._pICritChance)
+		//	dam <<= 1;
+
+		//if (pnum == mypnum) {
+			mon->_mhitpoints -= dam;
+		//}
+
+		if (mon->_mhitpoints < (1 << 6)) {
+			MonStartKill(mpnum, pnum);
+		} else {
+			hitFlags = plr._pIFlags;
+			if (hitFlags & ISPL_NOHEALMON)
+				mon->_mFlags |= MFLAG_NOHEAL;
+
+			if (hitFlags & ISPL_KNOCKBACK)
+				MonGetKnockback(mpnum, plr._px, plr._py);
+
+			MonStartHit(mpnum, pnum, dam, ISPL_STUN);
+		}
+		return;
+	}
+	mpnum = dPlayer[oldx][oldy];
+	if (mpnum > 0) {
+		mpnum--;
+		//PlrHitPlr(pnum, SPL_CHARGE, mis->_miSpllvl, mpnum);
+		if (plx(mpnum)._pTeam == plr._pTeam || plx(mpnum)._pInvincible)
+			return;
+		hper = mis->_miSpllvl * 16 - plx(mpnum)._pIAC;
+
+		if (random_(4, 100) >= hper)
+			return;
+		blkper = plx(mpnum)._pIBlockChance;
+		if (blkper != 0
+		 && (plx(mpnum)._pmode == PM_STAND || plx(mpnum)._pmode == PM_BLOCK)) {
+			// assert(plr._pSkillFlags & SFLAG_BLOCK);
+			blkper = blkper - (plr._pLevel << 1);
+			if (blkper > random_(5, 100)) {
+				PlrStartBlock(mpnum, GetDirection(plx(mpnum)._px, plx(mpnum)._py, plr._px, plr._py));
+				return;
+			}
+		}
+		dam = CalcPlrDam(mpnum, MISR_BLUNT, minbl, maxbl);
+
+		//if (random_(151, 200) < plr._pICritChance)
+		//	dam <<= 1;
+		if (pnum == mypnum)
+			NetSendCmdPlrDamage(mpnum, dam);
+		StartPlrHit(mpnum, dam, true);
+		return;
+	}
 }
 
 bool PosOkPlayer(int pnum, int x, int y)
@@ -2985,6 +3099,7 @@ void SyncPlrAnim(int pnum)
 		break;
 	case PM_WALK:
 	case PM_WALK2:
+	case PM_CHARGE:
 		anim = p->_pWAnim;
 		aType = PA_WALK;
 		break;

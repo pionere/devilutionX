@@ -523,7 +523,7 @@ void SetSkill(bool shift, bool altSkill)
 	if (sn == SPL_NULL)
 		sn = SPL_INVALID;
 	// TODO: add flag for movement-skills
-	moveskill = sn == SPL_WALK || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
+	moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
 	p = &myplr;
 	if (shift) {
@@ -607,7 +607,7 @@ void SetSkillHotKey(int slot, bool altSkill)
 
 	if (sn != SPL_INVALID) {
 		// TODO: add flag for movement-skills
-		moveskill = sn == SPL_WALK || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
+		moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 		if (sn == SPL_NULL)
 			sn = SPL_INVALID;
 

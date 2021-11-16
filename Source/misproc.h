@@ -46,6 +46,7 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
+int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 //int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -102,6 +103,7 @@ void MI_Teleport(int mi);
 void MI_Stone(int mi);
 void MI_ApocaExp(int mi);
 void MI_Rhino(int mi);
+void MI_Charge(int mi);
 //void MI_Fireman(int mi);
 void MI_WallC(int mi);
 void MI_ApocaC(int mi);

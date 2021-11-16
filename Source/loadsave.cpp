@@ -470,6 +470,8 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // _pIBlMaxDam
 	tbuff += 4; // _pIPcMinDam
 	tbuff += 4; // _pIPcMaxDam
+	tbuff += 4; // _pIChMinDam
+	tbuff += 4; // _pIChMaxDam
 	tbuff += 4; // _pIEvasion
 	tbuff += 4; // _pIAC
 	tbuff += 1; // _pMagResist
@@ -1197,6 +1199,8 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // _pIBlMaxDam
 	tbuff += 4; // _pIPcMinDam
 	tbuff += 4; // _pIPcMaxDam
+	tbuff += 4; // _pIChMinDam
+	tbuff += 4; // _pIChMaxDam
 	tbuff += 4; // _pIEvasion
 	tbuff += 4; // _pIAC
 	tbuff += 1; // _pMagResist

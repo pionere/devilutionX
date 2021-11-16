@@ -10,25 +10,26 @@ DEVILUTION_BEGIN_NAMESPACE
 #ifdef HELLFIRE
 #define ICN_BLK 45
 #define ICN_ATK 48
-#define ICN_SWP 34
+#define ICN_SWP 32
 #define ICN_RTK 48
 #define ICN_RPB 19
-#define ICN_RAS 31
+#define ICN_RAS 25
+#define ICN_CHR 34
 #else
 #define ICN_BLK 19
 #define ICN_ATK 22
-#define ICN_SWP 34
+#define ICN_SWP 32
 #define ICN_RTK 22
 #define ICN_RPB 17
-#define ICN_RAS 31
+#define ICN_RAS 25
+#define ICN_CHR 34
 #endif
 
 /*
 	unused icons :	20 (teleport?)
 					22 - SPL_ETHEREALIZE (only in standard)
-					25 - SPL_APOCA
 					30 - SPL_BONESPIRIT
-					32 (red circle with a star)
+					31 - red skull
 					33 (red burning stair?)
 					// hellfire only
 					51 - SPL_MANA/MAGI
@@ -52,6 +53,7 @@ const SpellData spelldata[NUM_SPELLS] = {
 	{ SPL_RATTACK,       0, STYPE_NONE,      ICN_RTK, "Ranged Attack",      SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,   0, 0,           MIS_ARROWC,        0,        0,         0,         0,         0,          0 },
 	{ SPL_POINT_BLANK,   2, STYPE_NONE,      ICN_RPB, "Point Blank",               4,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,   0, 0,           MIS_PBARROWC,      0,        2,         0,         0,      5000,          0 },
 	{ SPL_FAR_SHOT,      2, STYPE_NONE,      ICN_RAS, "Far Shot",                  8,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,   0, 0,           MIS_ASARROWC,      0,        2,         0,         0,     10000,          0 },
+	{ SPL_CHARGE,        2, STYPE_MAGIC,     ICN_CHR, "Charge",                   10,  SPELL_NA,   SPELL_NA, TRUE,      CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON,                  0, 0,           MIS_CHARGE,        0,        2,         0,         0,     12000,          0 },
 	{ SPL_RAGE,          7, STYPE_MAGIC,     23,      "Rage",                      2,  SPELL_NA,          4, FALSE,     CURSOR_NONE,        CURSOR_NONE,        SFLAG_RAGE,                     0, IS_CAST6,    MIS_RAGE,          2,        2,         0,         0,      1500,        100 },
 	{ SPL_FIREBOLT,      6, STYPE_FIRE,      1,       "Firebolt",                  1,         2,   SPELL_NA, TRUE,      CURSOR_TELEPORT,    CURSOR_NONE,        SFLAG_DUNGEON,                 15, IS_CAST2,    MIS_FIREBOLT,      1,        3,        40,        80,      1000,         50 },
 	{ SPL_CBOLT,         6, STYPE_LIGHTNING, 39,      "Charged Bolt",              1,         2,   SPELL_NA, TRUE,      CURSOR_TELEPORT,    CURSOR_NONE,        SFLAG_DUNGEON,                 25, IS_CAST2,    MIS_CBOLTC,        1,        4,        40,        80,      1000,         50 },

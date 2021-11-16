@@ -55,6 +55,7 @@ const MissileData missiledata[] = {
 	//{  MIS_BONE,          NULL,                       NULL,               TRUE,      2,                                0, MISR_NONE,      MFILE_BONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	//{  MIS_METLHIT,       NULL,                       NULL,               TRUE,      2,                                0, MISR_NONE,      MFILE_METLHIT,   SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_RHINO,         &AddRhino,                  &MI_Rhino,          TRUE,      2,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
+	{  MIS_CHARGE,        &AddCharge,                 &MI_Charge,         TRUE,      1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_TELEPORT,      &AddTeleport,               &MI_Teleport,       FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_ELEMENTL, SFX_NONE,    1,        1        },
 	//{  MIS_FARROW,        NULL,                       NULL,               TRUE,      0,                                0, MISR_FIRE,      MFILE_FARROW,    SFX_NONE,    SFX_NONE,    1,        1        },
 	//{  MIS_DOOMSERP,      NULL,                       NULL,               FALSE,     1,                                0, MISR_MAGIC,     MFILE_DOOM,      LS_DSERP,    SFX_NONE,    1,        1        },

@@ -2259,6 +2259,56 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	return MIRES_DONE;
 }
 
+int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	int pnum = misource, chv, aa, range;
+	double dxp, dyp;
+
+	dPlayer[sx][sy] = -(pnum + 1);
+	if (sx == dx && sy == dy) {
+		dx += XDirAdd[midir];
+		dy += YDirAdd[midir];
+	}
+	chv = MIS_SHIFTEDVEL(8 * sqrt(2));
+	aa = 2;
+	dxp = (sx - dx) * 4;
+	dyp = (sy - dy) * 4;
+	if (plr._pIFlags & ISPL_FASTESTWALK) {
+		dxp /= 2;
+		dyp /= 2;
+		chv = MIS_SHIFTEDVEL(16 * sqrt(2));
+		aa = 4;
+	} else if (plr._pIFlags & (ISPL_FASTERWALK | ISPL_FASTWALK)) {
+		dxp = 2 * dxp / 3;
+		dyp = 2 * dyp / 3;
+		chv = MIS_SHIFTEDVEL(12 * sqrt(2));
+		aa = 3;
+	}
+	range = 1 + sqrt(dxp * dxp + dyp * dyp);
+	GetMissileVel(mi, sx, sy, dx, dy, chv);
+	plr._pmode = PM_CHARGE;
+	mis = &missile[mi];
+	mis->_miDir = midir;
+	mis->_miAnimFlag = TRUE;
+	mis->_miAnimData = plr._pWAnim[midir];
+	mis->_miAnimFrameLen = PlrAnimFrameLens[PA_WALK];
+	mis->_miAnimLen = plr._pWFrames;
+	mis->_miAnimWidth = plr._pWWidth;
+	mis->_miAnimXOffset = (plr._pWWidth - TILE_WIDTH) >> 1;
+	mis->_miAnimAdd = aa;
+	mis->_miLightFlag = TRUE;
+	if (pnum == mypnum) {
+		assert(ScrollInfo._sdx == 0);
+		assert(ScrollInfo._sdy == 0);
+		ScrollInfo._sdir = 1 + OPPOSITE(midir); // == dir2sdir[midir];
+	}
+	//mis->_miLid = mon->mlid;
+	mis->_miRange = range;
+	//PutMissile(mi);
+	return MIRES_DONE;
+}
+
 /**
  * Var1: target found
  * Var2: attempts to find a target
@@ -3783,6 +3833,61 @@ void MI_Rhino(int mi)
 	if (monsters[mnum].mlid != NO_LIGHT)
 		ChangeLightXY(monsters[mnum].mlid, bx, by);
 	ShiftMissilePos(mi);
+	PutMissile(mi);
+}
+
+void MI_Charge(int mi)
+{
+	MissileStruct* mis;
+	int ax, ay, bx, by, pnum;
+
+	mis = &missile[mi];
+	pnum = mis->_miSource;
+	if (plr._pmode != PM_CHARGE) {
+		mis->_miDelFlag = TRUE;
+		return;
+	}
+	mis->_miDist += mis->_miAnimAdd;
+	// restore the real coordinates
+	//GetMissilePos(mi);
+	ax = mis->_mix;
+	ay = mis->_miy;
+	dPlayer[ax][ay] = 0;
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+	if (!PosOkPlayer(pnum, mis->_mix, mis->_miy)) {
+		MissToPlr(mi, ax, ay);
+		mis->_miDelFlag = TRUE;
+		return;
+	}
+	mis->_miRange--;
+	if (mis->_miRange == 0) {
+		MissToPlr(mi, mis->_mix, mis->_miy);
+		mis->_miDelFlag = TRUE;
+		return;
+	}
+	bx = mis->_mix;
+	by = mis->_miy;
+	plr._pfutx = bx;
+	plr._poldx = bx;
+	plr._px = bx;
+	plr._pfuty = by;
+	plr._poldy = by;
+	plr._py = by;
+	dPlayer[bx][by] = -(pnum + 1);
+	ChangeLightXY(plr._plid, bx, by);
+	if (pnum == mypnum /*&& ScrollInfo._sdir != SDIR_NONE*/) {
+		assert(ScrollInfo._sdir != SDIR_NONE);
+		ScrollInfo._sxoff = -mis->_mixoff;
+		ScrollInfo._syoff = -mis->_miyoff;
+		if (ViewX != bx || ViewY != by) {
+			ViewX = bx;
+			ViewY = by;
+			ChangeVisionXY(plr._pvid, bx, by);
+		}
+	}
+	//ShiftMissilePos(mi);
 	PutMissile(mi);
 }
 
