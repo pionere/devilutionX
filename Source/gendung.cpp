@@ -149,7 +149,9 @@ void InitLvlDungeon()
 	lds = &AllLevels[currLvl._dLevelIdx];
 
 	pMicroCels = LoadFileInMem(lds->dMicroCels);
+	assert(pMegaTiles == NULL);
 	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
+	assert(pSpecialCels == NULL);
 	pSpecialCels = LoadFileInMem(lds->dSpecCels);
 	MicroTileLen = lds->dMicroTileLen;
 	LoadFileWithMem(lds->dMicroFlags, microFlags);

@@ -1209,6 +1209,7 @@ void InitMonsterSND(int midx)
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
 			snprintf(name, sizeof(name), mfdata->moSndFile, MonstSndChar[i], j + 1);
+			assert(cmon->cmSnds[i][j] == NULL);
 			cmon->cmSnds[i][j] = sound_file_load(name);
 		}
 	}

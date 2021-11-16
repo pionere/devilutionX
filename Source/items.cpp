@@ -108,6 +108,7 @@ void InitItemGFX()
 
 	for (i = 0; i < NUM_IFILE; i++) {
 		snprintf(filestr, sizeof(filestr), "Items\\%s.CEL", itemfiledata[i].ifName);
+		assert(itemanims[i] == NULL);
 		itemanims[i] = LoadFileInMem(filestr);
 	}
 }

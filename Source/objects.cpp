@@ -170,6 +170,7 @@ void InitObjectGFX()
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		if (fileload[i]) {
 			snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[i].ofName);
+			assert(objanimdata[i] == NULL);
 			objanimdata[i] = LoadFileInMem(filestr);
 		}
 	}
@@ -1118,6 +1119,7 @@ void SetMapObjects(BYTE* pMap)
 			continue;
 
 		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[i].ofName);
+		assert(objanimdata[i] == NULL);
 		objanimdata[i] = LoadFileInMem(filestr);
 	}
 

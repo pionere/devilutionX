@@ -197,7 +197,9 @@ void FreeInvGFX()
 
 void InitInv()
 {
+	assert(pInvCels == NULL);
 	pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL");
+	assert(pBeltCels == NULL);
 	pBeltCels = LoadFileInMem("Data\\Inv\\Belt.CEL");
 	gbInvflag = false;
 	//gbTSpell = SPL_NULL;

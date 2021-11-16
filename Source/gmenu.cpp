@@ -70,8 +70,11 @@ void InitGMenu()
 	guCurrItemIdx = 0;
 	guCurrentMenuSize = 0;
 	_gbMouseNavigation = false;
+	assert(gpLogoCel == NULL);
 	gpLogoCel = LoadFileInMem(LOGO_DATA);
+	assert(gpOptionCel == NULL);
 	gpOptionCel = LoadFileInMem("Data\\option.CEL");
+	assert(gpOptbarCel == NULL);
 	gpOptbarCel = LoadFileInMem("Data\\optbar.CEL");
 }
 

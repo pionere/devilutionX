@@ -2,6 +2,7 @@
 
 #include "utils/file_util.h"
 #include "../engine.h"
+#include "../appfat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -10,9 +11,13 @@ Art ArtFonts[4][2];
 
 void LoadArtFonts()
 {
+	assert(FontTables[AFT_SMALL] == NULL);
 	FontTables[AFT_SMALL] = LoadFileInMem("ui_art\\font16.bin");
+	assert(FontTables[AFT_MED] == NULL);
 	FontTables[AFT_MED] = LoadFileInMem("ui_art\\font24.bin");
+	assert(FontTables[AFT_BIG] == NULL);
 	FontTables[AFT_BIG] = LoadFileInMem("ui_art\\font30.bin");
+	assert(FontTables[AFT_HUGE] == NULL);
 	FontTables[AFT_HUGE] = LoadFileInMem("ui_art\\font42.bin");
 	LoadMaskedArt("ui_art\\font16s.pcx", &ArtFonts[AFT_SMALL][AFC_SILVER], 256, 32);
 	LoadMaskedArt("ui_art\\font16g.pcx", &ArtFonts[AFT_SMALL][AFC_GOLD], 256, 32);

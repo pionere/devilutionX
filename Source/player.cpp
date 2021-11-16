@@ -431,15 +431,23 @@ void InitPlrGFXMem(int pnum)
 		// BLOCK
 		plr_bframe_size = GetPlrGFXSize("BL");
 	}
-
+	assert(plr._pNData == NULL);
 	plr._pNData = DiabloAllocPtr(plr_sframe_size);
+	assert(plr._pWData == NULL);
 	plr._pWData = DiabloAllocPtr(plr_wframe_size);
+	assert(plr._pAData == NULL);
 	plr._pAData = DiabloAllocPtr(plr_aframe_size);
+	assert(plr._pHData == NULL);
 	plr._pHData = DiabloAllocPtr(plr_hframe_size);
+	assert(plr._pLData == NULL);
 	plr._pLData = DiabloAllocPtr(plr_lframe_size);
+	assert(plr._pFData == NULL);
 	plr._pFData = DiabloAllocPtr(plr_fframe_size);
+	assert(plr._pTData == NULL);
 	plr._pTData = DiabloAllocPtr(plr_qframe_size);
+	assert(plr._pDData == NULL);
 	plr._pDData = DiabloAllocPtr(plr_dframe_size);
+	assert(plr._pBData == NULL);
 	plr._pBData = DiabloAllocPtr(plr_bframe_size);
 
 	plr._pGFXLoad = 0;

@@ -843,8 +843,11 @@ void InitControlPan()
 {
 	int i;
 
+	assert(pFlaskCels == NULL);
 	pFlaskCels = LoadFileInMem("CtrlPan\\Flasks.CEL");;
+	assert(pChrPanelCel == NULL);
 	pChrPanelCel = LoadFileInMem("Data\\Char.CEL");
+	assert(pSpellCels == NULL);
 #ifdef HELLFIRE
 	pSpellCels = LoadFileInMem("Data\\SpelIcon.CEL");
 #else
@@ -858,32 +861,41 @@ void InitControlPan()
 	guTeamMute = 0;
 	sgszTalkMsg[0] = '\0';
 	if (!IsLocalGame) {
+		assert(pTalkPnlCel == NULL);
 		pTalkPnlCel = LoadFileInMem("CtrlPan\\TalkPnl.CEL");
 	}
 	gbLvlbtndown = false;
+	assert(pPanelButtonCels == NULL);
 	pPanelButtonCels = LoadFileInMem("CtrlPan\\Menu.CEL");
 	for (i = 0; i < lengthof(gabPanbtn); i++)
 		gabPanbtn[i] = false;
 	numpanbtns = IsLocalGame ? NUM_PANBTNS - 2 : NUM_PANBTNS;
+	assert(pChrButtonCels == NULL);
 	pChrButtonCels = LoadFileInMem("Data\\CharBut.CEL");
 	for (i = 0; i < lengthof(_gabChrbtn); i++)
 		_gabChrbtn[i] = false;
 	gbChrbtnactive = false;
-
+	assert(pTextBoxCels == NULL);
 	pTextBoxCels = LoadFileInMem("Data\\TextBox.CEL");
+	assert(pSTextBoxCels == NULL);
 	pSTextBoxCels = LoadFileInMem("Data\\TextBox2.CEL");
+	assert(pSTextSlidCels == NULL);
 	pSTextSlidCels = LoadFileInMem("Data\\TextSlid.CEL");
+	assert(pDurIconCels == NULL);
 	pDurIconCels = LoadFileInMem("Items\\DurIcons.CEL");
 	infostr[0] = '\0';
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbChrflag = false;
 	gbLvlUp = false;
 	gbSkillListFlag = false;
+	assert(pSpellBkCel == NULL);
 	pSpellBkCel = LoadFileInMem("Data\\SpellBk.CEL");
+	assert(pSBkIconCels == NULL);
 	pSBkIconCels = LoadFileInMem("Data\\SpellI2.CEL");
 	guBooktab = 0;
 	gbSbookflag = false;
 	SpellPages[0][0] = Abilities[myplr._pClass];
+	assert(pGoldDropCel == NULL);
 	pGoldDropCel = LoadFileInMem("CtrlPan\\Golddrop.cel");
 	gbDropGoldFlag = false;
 	dropGoldValue = 0;

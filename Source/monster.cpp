@@ -387,6 +387,7 @@ void InitMonsterGFX(int midx)
 			snprintf(strBuff, sizeof(strBuff), mfdata->moGfxFile, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff);
+			assert(monAnims[anim].aCelData == NULL);
 			monAnims[anim].aCelData = celBuf;
 
 			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {

@@ -69,6 +69,7 @@ void doom_init()
 {
 	if (gbDoomflag)
 		return;
+	assert(pDoomCel == NULL);
 	pDoomCel = DiabloAllocPtr(DOOM_CELSIZE);
 	// assert(pDoomCel != NULL);
 #ifndef HELLFIRE

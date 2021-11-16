@@ -80,6 +80,7 @@ void InitQuestGFX()
 	gbDungMsgs2 = 0;
 	guLvlVisited = 0;
 
+	assert(pQLogCel == NULL);
 	pQLogCel = LoadFileInMem("Data\\Quest.CEL");
 }
 
