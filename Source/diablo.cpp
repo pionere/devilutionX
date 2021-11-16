@@ -1541,6 +1541,8 @@ static void FreeGameUI()
 	FreeDebugGFX();
 #endif
 	FreeLevelMem();
+
+	//doom_close();
 }
 
 static void run_game()

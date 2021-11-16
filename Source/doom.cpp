@@ -7,7 +7,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-BYTE* pDoomCel = NULL;
+/** Cathedral map image CEL */
+BYTE* pDoomCel;
+/** Specifies whether the cathedral map is displayed. */
 bool gbDoomflag;
 
 #define DOOM_CELSIZE 0x38000
@@ -65,8 +67,8 @@ static void doom_load_graphics()
 
 void doom_init()
 {
-	doom_close();
-
+	if (gbDoomflag)
+		return;
 	pDoomCel = DiabloAllocPtr(DOOM_CELSIZE);
 	// assert(pDoomCel != NULL);
 #ifndef HELLFIRE
