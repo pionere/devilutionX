@@ -2970,7 +2970,6 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	mis->_miCaster = micaster;
 	mis->_miSource = misource;
 	mis->_miSpllvl = spllvl;
-	mis->_miDir = midir;
 	mis->_mix = sx;
 	mis->_miy = sy;
 	mis->_misx = sx;
