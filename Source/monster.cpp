@@ -28,6 +28,10 @@ int nummtypes;
 /* The next light-index to be used for the trn of a unique monster. */
 int uniquetrans;
 
+/** 'leader' of monsters without leaders. */
+static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE field.");
+#define MON_NO_LEADER MAXMONSTERS
+
 /** Light radius of unique monsters */
 #define MON_LIGHTRAD 3
 
@@ -544,7 +548,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_udeadval = 0;
 	mon->mlid = NO_LIGHT;
 
-	mon->leader = 0;
+	mon->leader = MON_NO_LEADER;
 	mon->leaderflag = MLEADER_NONE;
 	mon->packsize = 0;
 	mon->falign_CB = 0;
@@ -698,6 +702,7 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 	}
 
 	if (leaderf & 2) {
+		monsters[leader].leaderflag = MLEADER_SELF;
 		monsters[leader].packsize = placed;
 	}
 }
@@ -2297,6 +2302,9 @@ static bool MonDoGotHit(int mnum)
 	return false;
 }
 
+/*
+ * Disconnect monster from its pack/leader.
+ */
 void MonUpdateLeader(int mnum)
 {
 	MonsterStruct* mon;
@@ -2305,15 +2313,23 @@ void MonUpdateLeader(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonUpdateLeader: Invalid monster %d", mnum);
 	}
-	for (i = 0; i < nummonsters; i++) {
-		mon = &monsters[monstactive[i]];
-		if (mon->leaderflag != MLEADER_NONE && mon->leader == mnum)
-			mon->leaderflag = MLEADER_NONE;
-	}
-
-	if (monsters[mnum].leaderflag == MLEADER_PRESENT) {
+	if (monsters[mnum].leaderflag == MLEADER_NONE)
+		return;
+	if (monsters[mnum].leaderflag == MLEADER_SELF) {
+		for (i = 0; i < nummonsters; i++) {
+			mon = &monsters[monstactive[i]];
+			if (/*mon->leaderflag != MLEADER_NONE && */mon->leader == mnum) {
+				mon->leader = MON_NO_LEADER;
+				mon->leaderflag = MLEADER_NONE;
+			}
+		}
+	} else if (monsters[mnum].leaderflag == MLEADER_PRESENT) {
 		monsters[monsters[mnum].leader].packsize--;
 	}
+	monsters[mnum].leader = MON_NO_LEADER;
+	monsters[mnum].leaderflag = MLEADER_NONE;
+	//monsters[mnum].packsize = 0;
+	//monsters[mnum].falign_CB = 0;
 }
 
 void DoEnding()
@@ -2551,7 +2567,7 @@ static void GroupUnity(int mnum)
 	}
 	mon = &monsters[mnum];
 	// check if the leader is still available and update its squelch value + enemy location
-	if (mon->leaderflag != MLEADER_NONE) {
+	if (mon->leader != MON_NO_LEADER) {
 		leader = &monsters[mon->leader];
 		clear = LineClearF(CheckNoSolid, mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
 		if (clear) {
@@ -2574,7 +2590,7 @@ static void GroupUnity(int mnum)
 		}
 	}
 	// update squelch value + enemy location of the pack monsters
-	if (mon->_uniqtype != 0 && uniqMonData[mon->_uniqtype - 1].mUnqAttr & 2) {
+	if (mon->packsize != 0) {
 		for (i = 0; i < nummonsters; i++) {
 			bmon = &monsters[monstactive[i]];
 			if (bmon->leaderflag == MLEADER_PRESENT && bmon->leader == mnum) {
@@ -2896,10 +2912,11 @@ void MAI_Bat(int mnum)
 	dist = std::max(abs(mx - fx), abs(my - fy));
 	if (mon->_mType == MT_GLOOM
 	    && dist >= 5
-		&& mon->leaderflag == MLEADER_NONE
 	    && v < 4 * mon->_mInt + 33
 	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
-		AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0);
+		if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
+			MonUpdateLeader(mnum);
+		}
 	} else if (dist >= 2) {
 		if ((mon->_mVar2 > 20 && v < mon->_mInt + 13) // STAND_TICK
 		 || (MON_JUST_WALKED && v < mon->_mInt + 63)) {
@@ -3361,10 +3378,7 @@ void MAI_Scav(int mnum)
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && mon->_mgoal != MGOAL_HEALING) {
-		if (mon->leaderflag != MLEADER_NONE) {
-			monsters[mon->leader].packsize--;
-			mon->leaderflag = MLEADER_NONE;
-		}
+		MonUpdateLeader(mnum);
 		mon->_mgoal = MGOAL_HEALING;
 		mon->_mgoalvar3 = 10; // HEALING_ROUNDS
 	}
@@ -3471,7 +3485,7 @@ void MAI_Garg(int mnum)
 			}
 		}
 		if (mon->_mmode != MM_SPATTACK) {
-			if (mon->leaderflag == MLEADER_NONE && mon->_uniqtype == 0) {
+			if (mon->leaderflag == MLEADER_NONE) {
 				MonStartSpAttack(mnum);
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 			} else {
@@ -3825,10 +3839,11 @@ void MAI_Rhino(int mnum)
 	}
 		
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (dist >= 5 && mon->leaderflag == MLEADER_NONE && v < 2 * mon->_mInt + 43
+		if (dist >= 5 && v < 2 * mon->_mInt + 43
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 				PlayEffect(mnum, MS_SPECIAL);
+				MonUpdateLeader(mnum);
 			}
 		} else if (dist < 2) {
 			if (v < 2 * mon->_mInt + 28) {
@@ -4460,7 +4475,7 @@ bool DirOK(int mnum, int mdir)
 		return abs(fx - monsters[monsters[mnum].leader]._mfutx) < 4
 		    && abs(fy - monsters[monsters[mnum].leader]._mfuty) < 4;
 	}
-	if (monsters[mnum]._uniqtype == 0 || !(uniqMonData[monsters[mnum]._uniqtype - 1].mUnqAttr & 2))
+	if (monsters[mnum].packsize == 0)
 		return true;
 	mcount = 0;
 	for (x = fx - 3; x <= fx + 3; x++) {

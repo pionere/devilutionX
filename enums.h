@@ -2007,9 +2007,10 @@ typedef enum monster_goal {
 } monster_goal;
 
 typedef enum monster_leaderflag {
-	MLEADER_NONE    = 0,
-	MLEADER_PRESENT = 1,
-	MLEADER_AWAY    = 2,
+	MLEADER_NONE,
+	MLEADER_PRESENT,
+	MLEADER_AWAY,
+	MLEADER_SELF,
 } monster_leaderflag;
 
 typedef enum monster_resistance_type {
