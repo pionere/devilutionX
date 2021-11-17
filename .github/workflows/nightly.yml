@@ -11,7 +11,7 @@ env:
 
 jobs:
   # Check if there was a commit in 24hours
-  build0:
+  build_check:
     runs-on: ubuntu-latest
     name: Check latest commit
     outputs:
@@ -28,9 +28,9 @@ jobs:
         run: test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
 
   # Windows-builds
-  build1:
-    needs: build0
-    if: ${{ needs.build0.outputs.should_run != 'false' }}
+  build_win:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-Win
     runs-on: windows-latest
     strategy:
@@ -105,9 +105,9 @@ jobs:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
   # Mac-builds
-  build2:
-    needs: build0
-    if: ${{ needs.build0.outputs.should_run != 'false' }}
+  build_mac:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-Mac
     strategy:
       fail-fast: false
@@ -147,9 +147,9 @@ jobs:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
   # Android-builds
-  build3:
-    needs: build0
-    if: ${{ needs.build0.outputs.should_run != 'false' }}
+  build_android:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-Android
     strategy:
       fail-fast: false
@@ -206,8 +206,8 @@ jobs:
 
   # Releases
   release:
-    needs: [build0, build1, build2, build3]
-    if: ${{ needs.build0.outputs.should_run != 'false' }}
+    needs: [build_check, build_win, build_mac, build_android]
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
     # x86 builds
