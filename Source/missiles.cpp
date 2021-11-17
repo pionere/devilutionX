@@ -12,7 +12,16 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define MIS_VELO_SHIFT	16
+/*
+ * Similar to walk offsetx/y with PLR/MON_WALK_SHIFT, missile velocity values
+ * are shifted with MIS_*VELO_SHIFT to the higher range for better precision.
+ * if MIS_VELO_SHIFT is set to 0 and MIS_BASE_VELO_SHIFT to 16:
+ *    the result is reduced code size with slightly slower runtime speed.
+ * if MIS_VELO_SHIFT is set to 16, MIS_BASE_VELO_SHIFT to 0:
+ *    the result is increased code size with slightly better runtime speed.
+ */
+#define MIS_VELO_SHIFT	0
+#define MIS_BASE_VELO_SHIFT	16
 #define MIS_SHIFTEDVEL(x) ((x) << MIS_VELO_SHIFT)
 
 int missileactive[MAXMISSILES];
@@ -451,8 +460,8 @@ static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
 	dxp = (dx - dy);
 	dyp = (dy + dx);
 	dr = sqrt(dxp * dxp + dyp * dyp);
-	missile[mi]._mixvel = (dxp * v) / dr;
-	missile[mi]._miyvel = (dyp * v) / dr;
+	missile[mi]._mixvel = (dxp * (v << MIS_BASE_VELO_SHIFT)) / dr;
+	missile[mi]._miyvel = (dyp * (v << MIS_BASE_VELO_SHIFT)) / dr;
 }
 
 static void GetMissilePos(int mi)
@@ -461,8 +470,8 @@ static void GetMissilePos(int mi)
 	int mx, my, dx, dy, lx, ly;
 
 	mis = &missile[mi];
-	mx = mis->_mitxoff >> MIS_VELO_SHIFT;
-	my = mis->_mityoff >> MIS_VELO_SHIFT;
+	mx = mis->_mitxoff >> (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT);
+	my = mis->_mityoff >> (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT);
 
 	dx = mx + my;
 	dy = my - mx;
