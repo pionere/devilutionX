@@ -1333,10 +1333,7 @@ static void ObjAddRndSeed(int oi)
 
 static void AddArmorStand(int oi)
 {
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	os->_oRndSeed = GetRndSeed();
+	objects[oi]._oMissFlag = TRUE;
 }
 
 static void AddCauldronGoatShrine(int oi)
@@ -1397,10 +1394,7 @@ static void AddStoryBook(int oi)
 
 static void AddWeaponRack(int oi)
 {
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	os->_oRndSeed = GetRndSeed();
+	objects[oi]._oMissFlag = TRUE;
 }
 
 static void AddTorturedMaleBody(int oi)
@@ -1526,21 +1520,25 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_BOOKCASER:
 		AddBookcase(oi);
 		break;
-	case OBJ_SKELBOOK:
-	case OBJ_BOOKSTAND:
-	case OBJ_BLOODBOOK:
-	case OBJ_PEDISTAL:
-	case OBJ_SLAINHERO:
-		ObjAddRndSeed(oi);
-		break;
-	//case OBJ_BLOODFTN:
-	//	ObjAddRndSeed(oi);
-	//	break;
 	case OBJ_DECAP:
 		AddDecap(oi);
 		break;
+	case OBJ_BOOKSTAND:
+	case OBJ_SKELBOOK:
+	case OBJ_BLOODBOOK:
+	case OBJ_PEDISTAL:
 	case OBJ_ARMORSTAND:
+	case OBJ_WEAPONRACKL:
+	case OBJ_WEAPONRACKR:
+	case OBJ_SLAINHERO:
+		ObjAddRndSeed(oi);
+		break;
+	case OBJ_ARMORSTANDN:
 		AddArmorStand(oi);
+		break;
+	case OBJ_WEAPONRACKLN:
+	case OBJ_WEAPONRACKRN:
+		AddWeaponRack(oi);
 		break;
 	case OBJ_GOATSHRINE:
 	case OBJ_CAULDRON:
@@ -1567,10 +1565,6 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_TBCROSS:
 		// ObjAddRndSeed(oi);
 		AddObjLight(oi, 10);
-		break;
-	case OBJ_WEAPONRACKL:
-	case OBJ_WEAPONRACKR:
-		AddWeaponRack(oi);
 		break;
 	case OBJ_TNUDEM:
 		AddTorturedMaleBody(oi);
@@ -3383,6 +3377,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 		return;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
+	os->_oMissFlag = TRUE;
 
 	if (deltaload)
 		return;
@@ -3476,6 +3471,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
+	os->_oMissFlag = TRUE;
 	if (deltaload)
 		return;
 
