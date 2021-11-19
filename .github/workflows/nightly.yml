@@ -452,6 +452,36 @@ jobs:
         name: hellfire-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/hellfire-nightly-retrofw.opk
 
+    # release notes
+    - name: Create release notes
+      run: |
+        echo Latest nightly builds           > RELEASE_NOTE.md
+        echo ''                             >> RELEASE_NOTE.md
+        echo '### **Diablo**'               >> RELEASE_NOTE.md
+        echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
+        echo '------------ | -------------' >> RELEASE_NOTE.md
+        echo '[diablo-nightly-android.apk](../../releases/download/devilx-nightly/diablo-nightly-android.apk)   | Diablo package for `Android`' >> RELEASE_NOTE.md
+        echo '[diablo-nightly-lepus.opk](../../releases/download/devilx-nightly/diablo-nightly-lepus.opk)   | Diablo package for `Lepus`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-retrofw.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
+        echo '[diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
+        echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86`'       >> RELEASE_NOTE.md
+        echo ''                             >> RELEASE_NOTE.md
+        echo '### **Diablo: Hellfire**'     >> RELEASE_NOTE.md
+        echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
+        echo '------------ | -------------' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-android.apk](../../releases/download/devilx-nightly/hellfire-nightly-android.apk)   | Hellfire package for `Android`' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-lepus.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepus.opk)   | Hellfire package for `Lepus`'       >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-retrofw.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86`'         >> RELEASE_NOTE.md
+        echo '[hellone-nightly-x64.zip](../../releases/download/devilx-nightly/hellone-nightly-x64.zip) | Hellfire build for `Windows x64`<br>- merges the mpq files on the first run (takes a few minutes)'                                                                   >> RELEASE_NOTE.md
+        echo '[hellone-nightly-x86.zip](../../releases/download/devilx-nightly/hellone-nightly-x86.zip) | Minimal Hellfire build for `Windows x86`<br>- no internet, controller, sound or widescreen support<br>- merges the mpq files on the first run (takes a few minutes)' >> RELEASE_NOTE.md
+        echo '[hellsrv-nightly-x86.zip](../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for `Windows x86`<br>- no controller, sound or widescreen support<br>- only server functionality'                                            >> RELEASE_NOTE.md
+
     #- name: Show content of workspace
     #  run: find $RUNNER_WORKSPACE
     #  shell: bash
@@ -467,57 +497,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: devilx-nightly
-        body: Latest nightly builds
-          
-          
-          
-          "### **Diablo**"
-          
-          _Filename_ | _Description_
-          
-          ------------ | -------------
-          
-          [diablo-nightly-android.apk](../../releases/download/devilx-nightly/diablo-nightly-android.apk)   | Diablo package for `Android`
-          
-          [diablo-nightly-lepus.opk](../../releases/download/devilx-nightly/diablo-nightly-lepus.opk)   | Diablo package for `Lepus`
-          
-          [diablo-nightly-retrofw.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk)   | Diablo package for `RetroFW`
-          
-          [diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`
-          
-          [diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for `Mac`
-          
-          [diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64`
-          
-          [diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86`
-          
-          
-          
-          "### **Diablo: Hellfire**"
-          
-          _Filename_ | _Description_
-          
-          ------------ | -------------
-          
-          [hellfire-nightly-android.apk](../../releases/download/devilx-nightly/hellfire-nightly-android.apk)   | Hellfire package for `Android`
-          
-          [hellfire-nightly-lepus.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepus.opk)   | Hellfire package for `Lepus`
-          
-          [hellfire-nightly-retrofw.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk)   | Hellfire package for `RetroFW`
-          
-          [hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`
-          
-          [hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for `Mac`
-          
-          [hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`
-          
-          [hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86`
-          
-          [hellone-nightly-x64.zip](../../releases/download/devilx-nightly/hellone-nightly-x64.zip) | Hellfire build for `Windows x64`<br>- merges the mpq files on the first run (takes a few minutes)
-          
-          [hellone-nightly-x86.zip](../../releases/download/devilx-nightly/hellone-nightly-x86.zip) | Minimal Hellfire build for `Windows x86`<br>- no internet, controller, sound or widescreen support<br>- merges the mpq files on the first run (takes a few minutes)
-          
-          [hellsrv-nightly-x86.zip](../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for `Windows x86`<br>- no controller, sound or widescreen support<br>- only server functionality
+        body_path: ${{ github.workspace }}/RELEASE_NOTE.md
         draft: false
         prerelease: true
         files: |
