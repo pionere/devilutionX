@@ -3903,7 +3903,7 @@ void MAI_Horkdemon(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (dist >= 3 && v < 2 * mon->_mInt + 43) {
+		if (!IsMultiGame && dist >= 3 && v < 2 * mon->_mInt + 43) {
 			if (PosOkMonst(mnum, mon->_mx + offset_x[mon->_mdir], mon->_my + offset_y[mon->_mdir]) && nummonsters < MAXMONSTERS) {
 				MonStartRSpAttack(mnum, MIS_HORKDMN);
 			}
