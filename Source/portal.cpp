@@ -123,13 +123,18 @@ void GetPortalLvlPos()
 
 bool PosOkPortal(int x, int y)
 {
-	PortalStruct *ps;
 	int i, lvl = currLvl._dLevelIdx;
 
-	ps = portals;
-	for (i = MAXPORTAL; i != 0; i--, ps++) {
-		if (ps->_wopen && ps->level == lvl && (ps->x == x && ps->y == y))
-			return false;
+	for (i = 0; i < MAXPORTAL; i++) {
+		if (!portals[i]._wopen)
+			continue;
+		if (lvl == DLV_TOWN) {
+			if (WarpDropX[i] == x && WarpDropY[i] == y)
+				return false;
+		} else {
+			if (portals[i].x == x && portals[i].y == y)
+				return false;
+		}
 	}
 	return true;
 }
