@@ -616,13 +616,13 @@ static bool LightPos(int x1, int y1)
 {
 	//int nTrans;
 	assert(IN_DUNGEON_AREA(x1, y1));
+	dFlags[x1][y1] |= vFlags;
 	if (doautomap) {
 		if (!(dFlags[x1][y1] & BFLAG_EXPLORED)) {
 			dFlags[x1][y1] |= BFLAG_EXPLORED;
 			SetAutomapView(x1, y1);
 		}
 	}
-	dFlags[x1][y1] |= vFlags;
 	return !nBlockTable[dPiece[x1][y1]];
 	/* skip this to not make tiles transparent based on visible tv values. only the tv of the player's tile should matter.
 	if (nBlockTable[dPiece[x1][y1]])
@@ -634,25 +634,35 @@ static bool LightPos(int x1, int y1)
 	return true;*/
 }
 
-void DoVision(int nXPos, int nYPos, int nRadius, bool automap, bool visible)
+/*
+ * Mark tiles visible/lit/explored starting from nXPos:nYpos using raytracing algorithm.
+ * In case the 'automap' parameter is set, the TransList table is updated as well.
+ *
+ * @param nXPos: the starting x-coordinate
+ * @param nYPos: the starting y-coordinate
+ * @param nRadius: the maximum distance where the tile might be visible/lit
+ * @param automap: whether the tiles are explored (+ TransList updated)
+ * @param lit: whether the tiles are lit
+ */
+void DoVision(int nXPos, int nYPos, int nRadius, bool automap, bool lit)
 {
 	const char* cr;
 	int i, x1, y1, limit;
 	int d, dx, dy, xinc, yinc;
-	vFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
+	vFlags = lit ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
 	doautomap = automap;
 
 	assert(IN_DUNGEON_AREA(nXPos, nYPos));
+	dFlags[nXPos][nYPos] |= vFlags;
 	if (doautomap) {
 		if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) {
 			dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
 			SetAutomapView(nXPos, nYPos);
 		}
-	}
-	dFlags[nXPos][nYPos] |= vFlags;
-	i = dTransVal[nXPos][nYPos];
-	if (i != 0) {
-		TransList[i] = true;
+		i = dTransVal[nXPos][nYPos];
+		if (i != 0) {
+			TransList[i] = true;
+		}
 	}
 	nRadius = 2 * (nRadius + 1);
 	cr = &CrawlTable[CrawlNum[15]];
