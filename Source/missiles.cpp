@@ -2255,11 +2255,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miAnimLen = anim->aFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
-	//mis->_miAnimAdd = 1;
-	if (mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) {
-		assert(monfiledata[MOFILE_SNAKE].moAFNum == 8);
-		mis->_miAnimFrame = 7;
-	}
+	mis->_miAnimAdd = mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE ? 2 : 1;
 	mis->_miLightFlag = TRUE;
 	if (mon->_uniqtype != 0) {
 		mis->_miUniqTrans = mon->_uniqtrans;
@@ -3794,7 +3790,7 @@ void MI_ApocaExp(int mi)
 void MI_Rhino(int mi)
 {
 	MissileStruct* mis;
-	int ax, ay, mix2, miy2, bx, by, mnum;
+	int ax, ay, bx, by, mnum;
 
 	mis = &missile[mi];
 	mnum = mis->_miSource;
@@ -3808,21 +3804,25 @@ void MI_Rhino(int mi)
 	ay = mis->_miy;
 	//assert(dMonster[ax][ay] == -(mnum + 1));
 	dMonster[ax][ay] = 0;
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
 	if (monsters[mnum]._mAi == AI_SNAKE) {
-		mis->_mitxoff += 2 * mis->_mixvel;
-		mis->_mityoff += 2 * mis->_miyvel;
-		GetMissilePos(mi);
-		mix2 = mis->_mix;
-		miy2 = mis->_miy;
-		mis->_mitxoff -= mis->_mixvel;
-		mis->_mityoff -= mis->_miyvel;
-	} else {
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
+		GetMissilePos(mi);
+		// TODO: add separate PosOkMon function to avoid reuse of PosOkPlayer. (PosOkMonst does not fit, because hazard check should not be done here) I.
+		assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);
+		if (mis->_miAnimFrame == 13 || !PosOkPlayer(-1, mis->_mix, mis->_miy)) {
+			MissToMonst(mi, ax, ay);
+			mis->_miDelFlag = TRUE;
+			return;
+		}
+		mis->_mitxoff -= mis->_mixvel;
+		mis->_mityoff -= mis->_miyvel;
 	}
 	GetMissilePos(mi);
-	// TODO: add separate PosOkMon function to avoid reuse of PosOkPlayer. (PosOkMonst does not fit, because hazard check should not be done here)
-	if (!PosOkPlayer(-1, mis->_mix, mis->_miy) || (monsters[mnum]._mAi == AI_SNAKE && !PosOkPlayer(-1, mix2, miy2))) {
+	// TODO: add separate PosOkMon function to avoid reuse of PosOkPlayer. (PosOkMonst does not fit, because hazard check should not be done here) II.
+	if (!PosOkPlayer(-1, mis->_mix, mis->_miy)) {
 		MissToMonst(mi, ax, ay);
 		mis->_miDelFlag = TRUE;
 		return;

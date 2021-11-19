@@ -2840,7 +2840,7 @@ void MAI_Snake(int mnum)
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my -fy));
 	if (dist >= 2) { // STAND_PREV_MODE
-		if (dist < 3 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy) && mon->_mVar1 != MM_CHARGE) {
+		if (dist == 2 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy) && mon->_mVar1 != MM_CHARGE) {
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 				PlayEffect(mnum, MS_ATTACK);
 			}
@@ -4774,6 +4774,7 @@ void MissToMonst(int mi, int x, int y)
 	oldy = mis->_miy;
 	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
 		tnum = dPlayer[oldx][oldy];
+		// TODO: use CheckPlrCol instead?
 		if (tnum > 0) {
 			tnum--;
 			MonTryH2HHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
@@ -4793,6 +4794,7 @@ void MissToMonst(int mi, int x, int y)
 		}
 	} else {
 		tnum = dMonster[oldx][oldy];
+		// TODO: use CheckMonCol instead?
 		if (tnum > 0) {
 			tnum--;
 			MonTryM2MHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
