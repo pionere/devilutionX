@@ -42,7 +42,6 @@ void SyncDoorClose(int oi);
 void SyncTrapDisable(int oi);
 void SyncTrapOpen(int oi);
 void SyncTrapClose(int oi);
-void SyncChestClose(int oi);
 void SyncObjectAnim(int oi);
 void GetObjectStr(int oi);
 #ifdef HELLFIRE

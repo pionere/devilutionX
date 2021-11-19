@@ -956,9 +956,6 @@ void DeltaLoadLevel()
 				case CMD_TRAPCLOSE:
 					SyncTrapClose(i);
 					break;
-				case CMD_CHESTCLOSE:
-					SyncChestClose(i);
-					break;
 				default:
 					ASSUME_UNREACHABLE
 					break;
@@ -2125,17 +2122,6 @@ static unsigned On_OPERATEOBJ(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_CHESTCLOSE(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
-	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
-	//	SyncChestClose(SwapLE16(cmd->wParam1));
-	delta_sync_object(SwapLE16(cmd->wParam1), CMD_CHESTCLOSE, plr._pDunLevel);
-
-	return sizeof(*cmd);
-}
-
 /**
  * Sync Shrine effect with every player
  */
@@ -2738,8 +2724,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_TRAPOPEN(pCmd, pnum);
 	case CMD_TRAPCLOSE:
 		return On_TRAPCLOSE(pCmd, pnum);
-	case CMD_CHESTCLOSE:
-		return On_CHESTCLOSE(pCmd, pnum);
 	case CMD_SHRINE:
 		return On_SHRINE(pCmd, pnum);
 	case CMD_ACTIVATEPORTAL:

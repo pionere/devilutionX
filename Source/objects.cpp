@@ -2768,7 +2768,7 @@ void DisarmObject(int pnum, int oi)
 		on->_oVar4 = TRAP_INACTIVE;
 }
 
-static void CloseChest(int oi, bool sendmsg)
+static void CloseChest(int oi)
 {
 	ObjectStruct* os;
 
@@ -2778,11 +2778,11 @@ static void CloseChest(int oi, bool sendmsg)
 	os->_oSelFlag = 1;
 	os->_oAnimFrame -= 2;
 
-	SetRndSeed(os->_oRndSeed);
+	//SetRndSeed(os->_oRndSeed); -- do NOT set RndSeed, might conflict with the other chests
 	os->_oRndSeed = GetRndSeed();
 
-	if (sendmsg)
-		NetSendCmdParam1(CMD_CHESTCLOSE, oi);
+	//if (sendmsg)
+	//	NetSendCmdParam1(CMD_CHESTCLOSE, oi);
 }
 
 /** Raise the skill of the given player for the price of 10% of their maximum mana
@@ -3091,11 +3091,10 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 			os = &objects[objectactive[i]];
 			if ((os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3)
 			 || (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3)) {
-				CloseChest(objectactive[i], sendmsg);
+				CloseChest(objectactive[i]);
 			}
 		}
-		if (pnum != mypnum)
-			return;
+		assert(pnum == mypnum);
 		InitDiabloMsg(EMSG_SHRINE_THAUMATURGIC);
 		break;
 	case SHRINE_FASCINATING:
@@ -3832,18 +3831,6 @@ void SyncTrapClose(int oi)
 {
 	if (objects[oi]._oAnimFrame == FLAMETRAP_ACTIVE_FRAME)
 		SyncOpObject(-1, oi);
-}
-
-/**
- * Re-Close chest during delta-load.
- * Does NOT work as a standard sync, because it needs to force the new oRndSeed.
- * (to achive this, OperateChest is called).
- */
-void SyncChestClose(int oi)
-{
-	// assert(deltaload);
-	OperateChest(-1, oi, false);
-	CloseChest(oi, false);
 }
 
 void SyncOpObject(int pnum, int oi)
