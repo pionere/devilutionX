@@ -4495,7 +4495,7 @@ bool DirOK(int mnum, int mdir)
 	return mcount == monsters[mnum].packsize;
 }
 
-bool PosOkMissile(int x, int y)
+bool CheckAllowMissile(int x, int y)
 {
 	return !nMissileTable[dPiece[x][y]];
 }
@@ -4587,7 +4587,7 @@ bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
 
 bool LineClear(int x1, int y1, int x2, int y2)
 {
-	return LineClearF(PosOkMissile, x1, y1, x2, y2);
+	return LineClearF(CheckAllowMissile, x1, y1, x2, y2);
 }
 
 /**

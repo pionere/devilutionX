@@ -48,7 +48,7 @@ void DeleteMonsterList();
 void ProcessMonsters();
 void FreeMonsters();
 bool DirOK(int mnum, int mdir);
-bool PosOkMissile(int x, int y);
+bool CheckAllowMissile(int x, int y);
 bool CheckNoSolid(int x, int y);
 bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2);
 bool LineClear(int x1, int y1, int x2, int y2);

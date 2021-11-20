@@ -3927,7 +3927,7 @@ void MI_Charge(int mi)
 	} else {
 		tnum = dMonster[bx][by];
 	}
-	if (!PosOkMissile(bx, by) || (tnum > 0 && !mis->_miVar1)) {
+	if (!CheckAllowMissile(bx, by) || (tnum > 0 && !mis->_miVar1)) {
 		mis->_mixvel *= -1;
 		mis->_miyvel *= -1;
 		mis->_miDir = OPPOSITE(mis->_miDir);
