@@ -38,6 +38,15 @@ static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE
 /** Light radius of unique monsters */
 #define MON_LIGHTRAD 3
 
+/** Maximum distance of the pack-monster from its leader. */
+#define MON_PACK_DISTANCE 3
+
+/** Number of the monsters in packs. */
+#define MON_PACK_SIZE 9
+
+/** Minimum tick delay between steps if the walk is not continuous. */
+#define MON_WALK_DELAY 20
+
 /** Check if the monster just finished a WALK (STAND_PREV_MODE, STAND_TICK)*/
 #define MON_JUST_WALKED ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2) && mon->_mVar2 == 0)
 
@@ -604,8 +613,8 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
  */
 static bool MonstPlace(int xp, int yp)
 {
-	static_assert(DBORDERX >= 3, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border I.");
-	static_assert(DBORDERY >= 3, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border II.");
+	static_assert(DBORDERX >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border I.");
+	static_assert(DBORDERY >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border II.");
 	return (dMonster[xp][yp] | /*dPlayer[xp][yp] |*/ nSolidTable[dPiece[xp][yp]]
 		 | (dFlags[xp][yp] & (BFLAG_VISIBLE | BFLAG_POPULATED))) == 0;
 }
@@ -676,7 +685,7 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 			assert((unsigned)x2 < MAXDUNX);
 			assert((unsigned)y2 < MAXDUNX);
 			if (dTransVal[x2][y2] != dTransVal[x1][y1]
-			 || ((leaderf & 2) && ((abs(x2 - x1) >= 4) || (abs(y2 - y1) >= 4)))) {
+			 || ((leaderf & 2) && ((abs(x2 - x1) > MON_PACK_DISTANCE) || (abs(y2 - y1) > MON_PACK_DISTANCE)))) {
 				continue;
 			}
 			xp = x2;
@@ -798,15 +807,15 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 			xp = random_(91, DSIZEX) + DBORDERX;
 			yp = random_(91, DSIZEY) + DBORDERY;
 			count2 = 0;
-			for (x = xp - 3; x < xp + 3; x++) {
-				for (y = yp - 3; y < yp + 3; y++) {
+			for (x = xp - MON_PACK_DISTANCE; x < xp + MON_PACK_DISTANCE; x++) {
+				for (y = yp - MON_PACK_DISTANCE; y < yp + MON_PACK_DISTANCE; y++) {
 					if (MonstPlace(x, y)) {
 						count2++;
 					}
 				}
 			}
 
-			if (count2 < 9) {
+			if (count2 < MON_PACK_SIZE) {
 				count++;
 				if (count < 1000) {
 					continue;
@@ -912,7 +921,7 @@ static void PlaceUniques()
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
 			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
-				PlaceUniqueMonst(u, mt, 8);
+				PlaceUniqueMonst(u, mt, MON_PACK_SIZE - 1);
 				break;
 			}
 		}
@@ -2576,8 +2585,8 @@ static void GroupUnity(int mnum)
 		clear = LineClearF(CheckNoSolid, mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
 		if (clear) {
 			if (mon->leaderflag == MLEADER_AWAY
-			 && abs(mon->_mx - leader->_mfutx) < 4
-			 && abs(mon->_my - leader->_mfuty) < 4) {
+			 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
+			 && abs(mon->_my - leader->_mfuty) <= MON_PACK_DISTANCE) {
 				leader->packsize++;
 				mon->leaderflag = MLEADER_PRESENT;
 			}
@@ -2922,7 +2931,7 @@ void MAI_Bat(int mnum)
 			MonUpdateLeader(mnum);
 		}
 	} else if (dist >= 2) {
-		if ((mon->_mVar2 > 20 && v < mon->_mInt + 13) // STAND_TICK
+		if ((mon->_mVar2 > MON_WALK_DELAY && v < mon->_mInt + 13) // STAND_TICK
 		 || (MON_JUST_WALKED && v < mon->_mInt + 63)) {
 			MonCallWalk(mnum, md);
 		}
@@ -2957,7 +2966,7 @@ void MAI_SkelBow(int mnum)
 
 	walking = false;
 	if (abs(mx) < 4 && abs(my) < 4) {
-		if ((mon->_mVar2 > 20 && v < 2 * mon->_mInt + 13) // STAND_TICK
+		if ((mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mInt + 13) // STAND_TICK
 		 || (MON_JUST_WALKED && v < 2 * mon->_mInt + 63)) {
 			walking = MonDumbWalk(mnum, OPPOSITE(mon->_mdir));
 		}
@@ -2988,7 +2997,7 @@ void MAI_Fat(int mnum)
 	mx = mon->_mx - mon->_menemyx;
 	my = mon->_my - mon->_menemyy;
 	if (abs(mx) >= 2 || abs(my) >= 2) {
-		if ((mon->_mVar2 > 20 && v < 4 * mon->_mInt + 20) // STAND_TICK
+		if ((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mInt + 20) // STAND_TICK
 		 || (MON_JUST_WALKED && v < 4 * mon->_mInt + 70)) {
 			MonCallWalk(mnum, mon->_mdir);
 		}
@@ -3053,7 +3062,7 @@ void MAI_Sneak(int mnum)
 	} else {
 		if (mon->_mgoal == MGOAL_RETREAT
 		 || (dist >= 2 &&
-			 ((mon->_mVar2 > 20 && v < 4 * mon->_mInt + 14) // STAND_TICK
+			 ((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mInt + 14) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 4 * mon->_mInt + 64)))) {
 			MonCallWalk(mnum, mon->_mdir);
 		}
@@ -3246,7 +3255,7 @@ static void MAI_Round(int mnum, bool special)
 		mon->_mgoal = MGOAL_NORMAL;
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 2) {
-			if ((mon->_mVar2 > 20 && v < 2 * mon->_mInt + 28) // STAND_TICK
+			if ((mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mInt + 28) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 2 * mon->_mInt + 78)) {
 				MonCallWalk(mnum, md);
 			}
