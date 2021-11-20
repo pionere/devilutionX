@@ -329,7 +329,8 @@ jobs:
       shell: bash
       run: Packaging/OpenDingux/build.sh retrofw
       env:
-      - TOOLCHAIN: /opt/mipsel-linux-uclibc
+        #TOOLCHAIN: /opt/mipsel-linux-uclibc
+        TOOLCHAIN: /opt/retrofw-toolchain
 
     - name: Upload-Package
       uses: actions/upload-artifact@v2
