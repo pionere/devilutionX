@@ -365,6 +365,7 @@ void base::SNetLeaveGame(int reason)
 	    plr_self, (leaveinfo_t)reason);
 	send_packet(*pkt);
 
+	message_last.payload.clear();
 	message_queue.clear();
 	for (i = 0; i < MAX_PLRS; i++)
 		turn_queue[i].clear();
