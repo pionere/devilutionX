@@ -683,7 +683,7 @@ void DrawAutomap()
 		if (plr._pDunLevel == myplr._pDunLevel && plr._pActive && !plr._pLvlChanging) {
 			if (plr._pTeam == myplr._pTeam)
 				DrawAutomapPlr(pnum, pnum == mypnum ? COLOR_PLAYER : COLOR_FRIEND);
-			else if ((dFlags[plr._px][plr._py] & BFLAG_LIT) || myplr._pInfraFlag)
+			else if ((dFlags[plr._px][plr._py] & BFLAG_VISIBLE) || myplr._pInfraFlag)
 				DrawAutomapPlr(pnum, COLOR_ENEMY);
 		}
 	}

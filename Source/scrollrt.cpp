@@ -311,10 +311,10 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	MonsterStruct *mon;
 	int mx, my, nCel, nWidth;
 	BYTE trans;
-	BYTE litFlag = bFlag & BFLAG_LIT;
+	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE *pCelBuff;
 
-	if (!litFlag && !myplr._pInfraFlag)
+	if (!visFlag && !myplr._pInfraFlag)
 		return;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -354,7 +354,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	if (mnum == pcursmonst) {
 		Cl2DrawOutline(PAL16_RED + 9, mx, my, pCelBuff, nCel, nWidth);
 	}
-	if (!litFlag || (myplr._pInfraFlag && light_table_index > 8))
+	if (!visFlag || (myplr._pInfraFlag && light_table_index > 8))
 		trans = LIGHTIDX_RED;
 	else if (mon->_mmode == MM_STONE)
 		trans = LIGHTIDX_GRAY;
@@ -405,10 +405,10 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 {
 	int px, py, nCel, nWidth, l;
-	BYTE litFlag = bFlag & BFLAG_LIT;
+	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE *pCelBuff;
 
-	if (litFlag || myplr._pInfraFlag) {
+	if (visFlag || myplr._pInfraFlag) {
 		px = sx + plr._pxoff - plr._pAnimXOffset;
 		py = sy + plr._pyoff;
 		pCelBuff = plr._pAnimData;
@@ -437,7 +437,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == mypnum) {
 			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
-		} else if (!litFlag || (myplr._pInfraFlag && light_table_index > 8)) {
+		} else if (!visFlag || (myplr._pInfraFlag && light_table_index > 8)) {
 			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, LIGHTIDX_RED);
 		} else {
 			l = light_table_index;
@@ -771,7 +771,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	drawCell(mpnum, dx, dy);
 
 #ifdef _DEBUG
-	if (visiondebug && (bFlag & BFLAG_LIT)) {
+	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
 		CelClippedDraw(dx, dy, pSquareCel, 1, 64);
 	}
 #endif

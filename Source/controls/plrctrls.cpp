@@ -186,7 +186,7 @@ static bool CanTargetMonster(int mi)
 
 	const int mx = monst._mx;
 	const int my = monst._my;
-	if (!(dFlags[mx][my] & BFLAG_LIT)) // not visible
+	if (!(dFlags[mx][my] & BFLAG_VISIBLE))
 		return false;
 	if (dMonster[mx][my] == 0)
 		return false;
@@ -319,7 +319,7 @@ static void CheckPlayerNearby()
 		const int mx = players[i]._pfutx;
 		const int my = players[i]._pfuty;
 		if (dPlayer[mx][my] == 0
-		    || !(dFlags[mx][my] & BFLAG_LIT)
+		    || !(dFlags[mx][my] & BFLAG_VISIBLE)
 		    || (players[i]._pHitPoints == 0 && spl != SPL_RESURRECT))
 			continue;
 

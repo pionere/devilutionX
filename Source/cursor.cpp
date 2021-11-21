@@ -324,7 +324,7 @@ void CheckCursMove()
 		 && !(monsters[pcurstemp]._mFlags & MFLAG_HIDDEN)) {
 			if (!flipflag) {
 				mi = dMonster[mx + 2][my + 1];
-				if (mi != 0 && (dFlags[mx + 2][my + 1] & BFLAG_LIT)) {
+				if (mi != 0 && (dFlags[mx + 2][my + 1] & BFLAG_VISIBLE)) {
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
 					if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
 						cursmx = mx + 2; /// BUGFIX: 'mx + 2' (fixed)
@@ -334,7 +334,7 @@ void CheckCursMove()
 				}
 			} else {
 				mi = dMonster[mx + 1][my + 2];
-				if (mi != 0 && (dFlags[mx + 1][my + 2] & BFLAG_LIT)) {
+				if (mi != 0 && (dFlags[mx + 1][my + 2] & BFLAG_VISIBLE)) {
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
 					if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
 						cursmx = mx + 1;
@@ -344,7 +344,7 @@ void CheckCursMove()
 				}
 			}
 			mi = dMonster[mx + 2][my + 2];
-			if (mi != 0 && (dFlags[mx + 2][my + 2] & BFLAG_LIT)) {
+			if (mi != 0 && (dFlags[mx + 2][my + 2] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
 				if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
 					cursmx = mx + 2;
@@ -354,7 +354,7 @@ void CheckCursMove()
 			}
 			if (!flipflag) {
 				mi = dMonster[mx + 1][my];
-				if (mi != 0 && (dFlags[mx + 1][my] & BFLAG_LIT)) {
+				if (mi != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
 					if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
 						cursmx = mx + 1;
@@ -364,7 +364,7 @@ void CheckCursMove()
 				}
 			} else {
 				mi = dMonster[mx][my + 1];
-				if (mi != 0 && (dFlags[mx][my + 1] & BFLAG_LIT)) {
+				if (mi != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
 					if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
 						cursmx = mx;
@@ -374,7 +374,7 @@ void CheckCursMove()
 				}
 			}
 			mi = dMonster[mx][my];
-			if (mi != 0 && (dFlags[mx][my] & BFLAG_LIT)) {
+			if (mi != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
 				if (mi == pcurstemp && monsters[mi]._mSelFlag & 1) {
 					cursmx = mx;
@@ -383,7 +383,7 @@ void CheckCursMove()
 				}
 			}
 			mi = dMonster[mx + 1][my + 1];
-			if (mi != 0 && (dFlags[mx + 1][my + 1] & BFLAG_LIT)) {
+			if (mi != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
 				if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
 					cursmx = mx + 1;
@@ -397,7 +397,7 @@ void CheckCursMove()
 		}
 		if (!flipflag) {
 			mi = dMonster[mx + 2][my + 1];
-			if (mi != 0 && (dFlags[mx + 2][my + 1] & BFLAG_LIT)) {
+			if (mi != 0 && (dFlags[mx + 2][my + 1] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
 				if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
 					cursmx = mx + 2;
@@ -407,7 +407,7 @@ void CheckCursMove()
 			}
 		} else {
 			mi = dMonster[mx + 1][my + 2];
-			if (mi != 0 && (dFlags[mx + 1][my + 2] & BFLAG_LIT)) {
+			if (mi != 0 && (dFlags[mx + 1][my + 2] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
 				if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
 					cursmx = mx + 1;
@@ -417,7 +417,7 @@ void CheckCursMove()
 			}
 		}
 		mi = dMonster[mx + 2][my + 2];
-		if (mi != 0 && (dFlags[mx + 2][my + 2] & BFLAG_LIT)) {
+		if (mi != 0 && (dFlags[mx + 2][my + 2] & BFLAG_VISIBLE)) {
 			mi = mi >= 0 ? mi - 1 : -(mi + 1);
 			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
 				cursmx = mx + 2;
@@ -427,7 +427,7 @@ void CheckCursMove()
 		}
 		if (!flipflag) {
 			mi = dMonster[mx + 1][my];
-			if (mi != 0 && (dFlags[mx + 1][my] & BFLAG_LIT)) {
+			if (mi != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
 				if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
 					cursmx = mx + 1;
@@ -437,7 +437,7 @@ void CheckCursMove()
 			}
 		} else {
 			mi = dMonster[mx][my + 1];
-			if (mi != 0 && (dFlags[mx][my + 1] & BFLAG_LIT)) {
+			if (mi != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
 				if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
 					cursmx = mx;
@@ -447,7 +447,7 @@ void CheckCursMove()
 			}
 		}
 		mi = dMonster[mx][my];
-		if (mi != 0 && (dFlags[mx][my] & BFLAG_LIT)) {
+		if (mi != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
 			mi = mi >= 0 ? mi - 1 : -(mi + 1);
 			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 1) {
 				cursmx = mx;
@@ -456,7 +456,7 @@ void CheckCursMove()
 			}
 		}
 		mi = dMonster[mx + 1][my + 1];
-		if (mi != 0 && (dFlags[mx + 1][my + 1] & BFLAG_LIT)) {
+		if (mi != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
 			mi = mi >= 0 ? mi - 1 : -(mi + 1);
 			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
 				cursmx = mx + 1;
@@ -508,7 +508,7 @@ void CheckCursMove()
 
 	if (!flipflag) {
 		bv = dPlayer[mx + 1][my];
-		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_LIT)) {
+		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
 				cursmx = mx + 1;
@@ -518,7 +518,7 @@ void CheckCursMove()
 		}
 	} else {
 		bv = dPlayer[mx][my + 1];
-		if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_LIT)) {
+		if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
 				cursmx = mx;
@@ -528,7 +528,7 @@ void CheckCursMove()
 		}
 	}
 	bv = dPlayer[mx][my];
-	if (bv != 0 && (dFlags[mx][my] & BFLAG_LIT)) {
+	if (bv != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
 		if (bv != mypnum) {
 			cursmx = mx;
@@ -536,7 +536,7 @@ void CheckCursMove()
 			pcursplr = bv;
 		}
 	}
-	if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_LIT)) == (BFLAG_DEAD_PLAYER | BFLAG_LIT)) {
+	if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
 		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 			if (plr._px == mx && plr._py == my && pnum != mypnum) {
 				cursmx = mx;
@@ -548,7 +548,7 @@ void CheckCursMove()
 	if (pcurs == CURSOR_RESURRECT) {
 		for (xx = -1; xx <= 1; xx++) {
 			for (yy = -1; yy <= 1; yy++) {
-				if ((dFlags[mx + xx][my + yy] & (BFLAG_DEAD_PLAYER | BFLAG_LIT)) == (BFLAG_DEAD_PLAYER | BFLAG_LIT)) {
+				if ((dFlags[mx + xx][my + yy] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
 					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 						if (plr._px == mx + xx && plr._py == my + yy && pnum != mypnum) {
 							cursmx = mx + xx;
@@ -561,7 +561,7 @@ void CheckCursMove()
 		}
 	}
 	bv = dPlayer[mx + 1][my + 1];
-	if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_LIT)) {
+	if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
 		if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
 			cursmx = mx + 1;

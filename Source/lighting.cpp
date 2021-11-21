@@ -605,7 +605,7 @@ void DoUnVision(int nXPos, int nYPos, int nRadius)
 
 	for (i = x1; i < x2; i++) {
 		for (j = y1; j < y2; j++) {
-			dFlags[i][j] &= ~(BFLAG_VISIBLE | BFLAG_LIT);
+			dFlags[i][j] &= ~(BFLAG_ALERT | BFLAG_VISIBLE);
 		}
 	}
 }
@@ -635,21 +635,21 @@ static bool LightPos(int x1, int y1)
 }
 
 /*
- * Mark tiles visible/lit/explored starting from nXPos:nYpos using raytracing algorithm.
+ * Mark tiles alert/visible/explored starting from nXPos:nYpos using raytracing algorithm.
  * In case the 'automap' parameter is set, the TransList table is updated as well.
  *
  * @param nXPos: the starting x-coordinate
  * @param nYPos: the starting y-coordinate
- * @param nRadius: the maximum distance where the tile might be visible/lit
+ * @param nRadius: the maximum distance where the tile might be alert/visible
  * @param automap: whether the tiles are explored (+ TransList updated)
- * @param lit: whether the tiles are lit
+ * @param visible: whether the tiles are visible
  */
-void DoVision(int nXPos, int nYPos, int nRadius, bool automap, bool lit)
+void DoVision(int nXPos, int nYPos, int nRadius, bool automap, bool visible)
 {
 	const char* cr;
 	int i, x1, y1, limit;
 	int d, dx, dy, xinc, yinc;
-	vFlags = lit ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
+	vFlags = visible ? BFLAG_VISIBLE | BFLAG_ALERT : BFLAG_ALERT;
 	doautomap = automap;
 
 	assert(IN_DUNGEON_AREA(nXPos, nYPos));

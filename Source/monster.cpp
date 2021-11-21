@@ -616,7 +616,7 @@ static bool MonstPlace(int xp, int yp)
 	static_assert(DBORDERX >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border I.");
 	static_assert(DBORDERY >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border II.");
 	return (dMonster[xp][yp] | /*dPlayer[xp][yp] |*/ nSolidTable[dPiece[xp][yp]]
-		 | (dFlags[xp][yp] & (BFLAG_VISIBLE | BFLAG_POPULATED))) == 0;
+		 | (dFlags[xp][yp] & (BFLAG_ALERT | BFLAG_POPULATED))) == 0;
 }
 
 #ifdef HELLFIRE
@@ -3023,9 +3023,9 @@ void MAI_Sneak(int mnum)
 	mx = mon->_mx;
 	my = mon->_my;
 	// commented out because dLight is not in-sync in multiplayer games and with the added
-	// BFLAG_VISIBLE check there is not much point to this any more.
+	// BFLAG_ALERT check there is not much point to this any more.
 	// TODO: change MonstPlace to prefer non-lit tiles in case of AI_SNEAK?
-	//if (dLight[mx][my] == LIGHTMAX && (dFlags[mx][my] & BFLAG_VISIBLE) == 0)) {
+	//if (dLight[mx][my] == LIGHTMAX && (dFlags[mx][my] & BFLAG_ALERT) == 0)) {
 	//	return;	
 	//}
 	mx -= mon->_menemyx;
@@ -4014,7 +4014,7 @@ void MAI_Garbud(int mnum)
 
 	mon->_mdir = MonGetDir(mnum);
 	if (mon->_mgoal == MGOAL_TALKING) {
-		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) { // MON_TIMER
+		if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER
 			//if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
 			if (quests[Q_GARBUD]._qvar1 == 4 && (IsMultiGame || !effect_is_playing(USFX_GARBUD4))) {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -4051,7 +4051,7 @@ void MAI_Zhar(int mnum)
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (quests[Q_ZHAR]._qvar1 == 1)
 			mon->_mgoal = MGOAL_INQUIRING;
-		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) { // MON_TIMER - also set in objects.cpp
+		if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER - also set in objects.cpp
 			//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
 			if (quests[Q_ZHAR]._qvar1 == 2 && (IsMultiGame || !effect_is_playing(USFX_ZHAR2))) {
 				// mon->_msquelch = SQUELCH_MAX;
@@ -4087,7 +4087,7 @@ void MAI_SnotSpil(int mnum)
 		return;
 	case 1: // quest just started -> waiting for the banner
 		// switch to new text if the player(s) left
-		if (mon->mtalkmsg == TEXT_BANNER10 && !(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
+		if (mon->mtalkmsg == TEXT_BANNER10 && !(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
 			mon->mtalkmsg = TEXT_BANNER11;
 		if (mon->_mgoal == MGOAL_TALKING)
 			mon->_mgoal = MGOAL_INQUIRING;
@@ -4132,7 +4132,7 @@ void MAI_Lazarus(int mnum)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
-	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VILE13) {
+	if ((dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) && mon->mtalkmsg == TEXT_VILE13) {
 		if (IsMultiGame) {
 			if (mon->_mgoal == MGOAL_INQUIRING) {
 				if (quests[Q_BETRAYER]._qvar1 <= 3) {
@@ -4211,7 +4211,7 @@ void MAI_Lachdanan(int mnum)
 			}
 			return;
 		}
-		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VEIL9) {
+		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) && mon->mtalkmsg == TEXT_VEIL9) {
 			mon->mtalkmsg = TEXT_VEIL10;
 		}
 		mon->_mgoal = MGOAL_INQUIRING;
@@ -4233,7 +4233,7 @@ void MAI_Warlord(int mnum)
 
 	switch (quests[Q_WARLORD]._qvar1) {
 	case 0: // quest not started
-		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
+		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
 			return;
 		quests[Q_WARLORD]._qvar1 = 1;
 		if (mon->_menemy == mypnum || !plx(mon->_menemy)._pActive || plx(mon->_menemy)._pDunLevel != currLvl._dLevelIdx) {
@@ -4337,7 +4337,7 @@ void ProcessMonsters()
 			}
 			mon->_menemyx = plx(_menemy)._pfutx;
 			mon->_menemyy = plx(_menemy)._pfuty;
-			if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
+			if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) {
 				mon->_lastx = mon->_menemyx;
 				mon->_lasty = mon->_menemyy;
 				mon->_msquelch = SQUELCH_MAX;

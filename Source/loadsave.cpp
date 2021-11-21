@@ -1680,7 +1680,7 @@ void LoadLevel()
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in LoadLevel.");
 	tmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, tmp++)
-		*tmp &= ~(BFLAG_MISSILE_PRE | BFLAG_HAZARD | BFLAG_VISIBLE /*| BFLAG_DEAD_PLAYER*/);
+		*tmp &= ~(BFLAG_MISSILE_PRE | BFLAG_HAZARD | BFLAG_ALERT /*| BFLAG_DEAD_PLAYER*/);
 
 	//RedoPlayerLight();
 }

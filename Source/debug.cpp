@@ -43,7 +43,7 @@ void CheckDungeonClear()
 			if (dPlayer[i][j] != 0)
 				app_fatal("Players not cleared");
 
-			dMonsDbg[currLvl._dLevelIdx][i][j] = dFlags[i][j] & BFLAG_VISIBLE;
+			dMonsDbg[currLvl._dLevelIdx][i][j] = dFlags[i][j] & BFLAG_ALERT;
 			dFlagDbg[currLvl._dLevelIdx][i][j] = dFlags[i][j] & BFLAG_POPULATED;
 		}
 	}
