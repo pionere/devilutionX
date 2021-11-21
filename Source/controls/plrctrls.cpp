@@ -540,6 +540,7 @@ static void InvMove(AxisDirection dir)
 				slot -= 1;
 				SELECT_INV_SLOT(slot)
 			}
+			break;
 		case SLOT_BELT: // belt
 			if (slot < SLOTXY_BELT_FIRST + 4)
 				break;
