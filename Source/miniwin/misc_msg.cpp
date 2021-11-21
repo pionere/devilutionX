@@ -56,6 +56,203 @@ static int TranslateSdlKey(SDL_Keysym key)
 {
 	// ref: https://wiki.libsdl.org/SDL_Keycode
 	// ref: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+#ifdef USE_SDL1
+	SDLKey ksc = key.sym;
+	switch (ksc) {
+	case SDLK_BACKSPACE:
+		return DVL_VK_BACK;
+	case SDLK_TAB:	
+		return DVL_VK_TAB;
+	case SDLK_CLEAR:
+		return DVL_VK_OEM_CLEAR;
+	case SDLK_RETURN:
+		return DVL_VK_RETURN;
+	case SDLK_PAUSE:
+		return DVL_VK_PAUSE;
+	case SDLK_ESCAPE:
+		return DVL_VK_ESCAPE;
+	case SDLK_SPACE:
+		return DVL_VK_SPACE;
+	case SDLK_EXCLAIM:
+		return DVL_VK_OEM_10; // remap?
+	case SDLK_QUOTEDBL:
+		return DVL_VK_OEM_18; // remap?
+	case SDLK_HASH:
+		return DVL_VK_OEM_22; // remap?
+	case SDLK_DOLLAR:
+		return DVL_VK_OEM_20; // remap?
+	case SDLK_AMPERSAND:
+		return DVL_VK_OEM_17; // remap?
+	case SDLK_QUOTE:
+		return DVL_VK_OEM_7;
+	case SDLK_LEFTPAREN:
+		return DVL_VK_OEM_21; // remap?
+	case SDLK_RIGHTPAREN:
+		return DVL_VK_OEM_22; // remap?
+	case SDLK_ASTERISK:
+		return DVL_VK_MULTIPLY; // remap?
+	case SDLK_PLUS:
+		return DVL_VK_ADD;
+	case SDLK_COMMA:
+		return DVL_VK_OEM_COMMA;
+	case SDLK_MINUS:
+		return DVL_VK_OEM_MINUS;
+	case SDLK_PERIOD:
+		return DVL_VK_OEM_PERIOD;
+	case SDLK_SLASH:
+		return DVL_VK_OEM_2;
+	case SDLK_0:
+		return DVL_VK_0;
+	case SDLK_1:
+		return DVL_VK_1;
+	case SDLK_2:
+		return DVL_VK_2;
+	case SDLK_3:
+		return DVL_VK_3;
+	case SDLK_4:
+		return DVL_VK_4;
+	case SDLK_5:
+		return DVL_VK_5;
+	case SDLK_6:
+		return DVL_VK_6;
+	case SDLK_7:
+		return DVL_VK_7;
+	case SDLK_8:
+		return DVL_VK_8;
+	case SDLK_9:
+		return DVL_VK_9;
+	case SDLK_COLON:
+		return DVL_VK_OEM_21; // remap?
+	case SDLK_SEMICOLON:
+		return DVL_VK_OEM_1;
+	case SDLK_LESS:
+		return DVL_VK_OEM_15; // remap?
+	case SDLK_EQUALS:
+		return DVL_VK_OEM_PLUS;
+	case SDLK_GREATER:
+		return DVL_VK_OEM_16; // remap?
+	case SDLK_QUESTION:
+		return DVL_VK_OEM_COMMA; // remap?
+	case SDLK_AT:
+		return DVL_VK_OEM_9; // remap?
+	case SDLK_LEFTBRACKET:
+		return DVL_VK_OEM_4;
+	case SDLK_BACKSLASH:
+		return DVL_VK_OEM_5;
+	case SDLK_RIGHTBRACKET:
+		return DVL_VK_OEM_6;
+	case SDLK_CARET:
+		return DVL_VK_OEM_12; // remap?
+	case SDLK_UNDERSCORE:
+		return DVL_VK_SEPARATOR; // remap?
+	case SDLK_BACKQUOTE:
+		return DVL_VK_OEM_3;
+	case SDLK_DELETE:
+		return DVL_VK_DELETE;
+	case SDLK_KP0:
+		return DVL_VK_NUMPAD0;
+	case SDLK_KP1:
+		return DVL_VK_NUMPAD1;
+	case SDLK_KP2:
+		return DVL_VK_NUMPAD2;
+	case SDLK_KP3:
+		return DVL_VK_NUMPAD3;
+	case SDLK_KP4:
+		return DVL_VK_NUMPAD4;
+	case SDLK_KP5:
+		return DVL_VK_NUMPAD5;
+	case SDLK_KP6:
+		return DVL_VK_NUMPAD6;
+	case SDLK_KP7:
+		return DVL_VK_NUMPAD7;
+	case SDLK_KP8:
+		return DVL_VK_NUMPAD8;
+	case SDLK_KP9:
+		return DVL_VK_NUMPAD9;
+	case SDLK_KP_PERIOD:
+		return DVL_VK_DECIMAL;
+	case SDLK_KP_DIVIDE:
+		return DVL_VK_DIVIDE;
+	case SDLK_KP_MULTIPLY:
+		return DVL_VK_MULTIPLY;
+	case SDLK_KP_MINUS:
+		return DVL_VK_SUBTRACT;
+	case SDLK_KP_PLUS:
+		return DVL_VK_ADD;
+	case SDLK_KP_ENTER:
+		return DVL_VK_RETURN;
+	case SDLK_KP_EQUALS:
+		return DVL_VK_OEM_24; // remap?
+	case SDLK_UP:
+		return DVL_VK_UP;
+	case SDLK_DOWN:
+		return DVL_VK_DOWN;
+	case SDLK_RIGHT:
+		return DVL_VK_RIGHT;
+	case SDLK_LEFT:
+		return DVL_VK_LEFT;
+	case SDLK_INSERT:
+		return DVL_VK_INSERT;
+	case SDLK_HOME:
+		return DVL_VK_HOME;
+	case SDLK_END:
+		return DVL_VK_END;
+	case SDLK_PAGEUP:
+		return DVL_VK_PRIOR;
+	case SDLK_PAGEDOWN:
+		return DVL_VK_NEXT;
+	case SDLK_NUMLOCK:
+		return DVL_VK_NUMLOCK;
+	case SDLK_CAPSLOCK:
+		return DVL_VK_CAPITAL;
+	case SDLK_SCROLLOCK:
+		return DVL_VK_SCROLL;
+	case SDLK_RSHIFT:
+		return DVL_VK_RSHIFT;
+	case SDLK_LSHIFT:
+		return DVL_VK_LSHIFT;
+	case SDLK_RCTRL:
+		return DVL_VK_RCONTROL;
+	case SDLK_LCTRL:
+		return DVL_VK_LCONTROL;
+	case SDLK_RALT:
+		return DVL_VK_RMENU;
+	case SDLK_LALT:
+		return DVL_VK_LMENU;
+	case SDLK_RMETA:
+		return DVL_VK_APPS; // remap?
+	case SDLK_LMETA:
+		return DVL_VK_EXECUTE; // remap?
+	case SDLK_LSUPER:
+		return DVL_VK_LWIN;
+	case SDLK_RSUPER:
+		return DVL_VK_RWIN;
+	case SDLK_MODE:
+		return DVL_VK_MODECHANGE; // remap?
+	case SDLK_HELP:
+		return DVL_VK_HELP;
+	case SDLK_PRINT:
+		return DVL_VK_SNAPSHOT;
+	case SDLK_SYSREQ:
+		return DVL_VK_OEM_12; // remap?
+	case SDLK_BREAK:
+		return DVL_VK_OEM_8; // remap?
+	case SDLK_MENU:
+		return DVL_VK_MENU;
+	case SDLK_POWER:
+		return DVL_VK_OEM_12; // remap?
+	case SDLK_EURO:
+		return DVL_VK_OEM_19; // remap?
+	default:
+		if (ksc <= SDLK_z && ksc >= SDLK_a)
+			return DVL_VK_A + (ksc - SDLK_a);
+		if (ksc <= SDLK_F15 && ksc >= SDLK_F1)
+			return DVL_VK_F1 + (ksc - SDLK_F1);
+
+		app_fatal("Unrecognized key-code %d.", ksc);
+		return DVL_VK_NONAME;
+	}
+#else
 	SDL_Scancode ksc = key.scancode;
 	switch (ksc) {
 	case SDL_SCANCODE_1:
@@ -451,6 +648,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 		ASSUME_UNREACHABLE
 		return DVL_VK_NONAME;
 	}
+#endif
 	/*
 	SDL_Keycode sym = key.sym;
 	switch (sym) {

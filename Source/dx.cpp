@@ -245,7 +245,7 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 		sdl_fatal(ERR_SDL_DX_BLIT_SDL2);
 #else
 	if (!OutputRequiresScaling()) {
-		if (SDL_BlitSurface(src, src_rect, dst, dst_rect) < 0)
+		if (SDL_BlitSurface(src, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0)
 			sdl_fatal(ERR_SDL_DX_BLIT_SDL1);
 		return;
 	}
@@ -259,7 +259,7 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 
 	// Same pixel format: We can call BlitScaled directly.
 	if (SDLBackport_PixelFormatFormatEq(src->format, dst->format)) {
-		if (SDL_BlitScaled(src, src_rect, dst, dst_rect) < 0)
+		if (SDL_BlitScaled(src, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0)
 			sdl_fatal(ERR_SDL_DX_BLIT_SCALE);
 		return;
 	}
@@ -284,7 +284,7 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 	// A surface with a non-output pixel format but without a color key needs scaling.
 	// We can convert the format and then call BlitScaled.
 	SDL_Surface *converted = SDL_ConvertSurface(src, dst->format, 0);
-	if (SDL_BlitScaled(converted, src_rect, dst, dst_rect) < 0) {
+	if (SDL_BlitScaled(converted, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0) {
 		SDL_FreeSurface(converted);
 		sdl_fatal(ERR_SDL_DX_BLIT_CONVERTED);
 	}

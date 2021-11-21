@@ -53,26 +53,49 @@ typedef int (SDLCALL * SDL_ThreadFunction) (void *data);
 #define SDL_JoystickID Sint32
 #define SDL_JoystickNameForIndex SDL_JoystickName
 
-inline void SDL_Log(const char *fmt, ...)
+typedef enum SDL_LogPriority
 {
-	va_list ap;
-	va_start(ap, fmt);
-	vprintf(fmt, ap);
-	va_end(ap);
-	puts("");
-}
-//void SDL_Log(const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(1, 2);
-//void SDL_LogVerbose(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-//void SDL_LogDebug(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-//void SDL_LogInfo(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-//void SDL_LogWarn(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-//void SDL_LogError(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-//void SDL_LogCritical(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-//void SDL_LogMessageV(int category, int priority, const char *fmt, va_list ap) DVL_PRINTF_ATTRIBUTE(3, 0);
+    SDL_LOG_PRIORITY_VERBOSE = 1,
+    SDL_LOG_PRIORITY_DEBUG,
+    SDL_LOG_PRIORITY_INFO,
+    SDL_LOG_PRIORITY_WARN,
+    SDL_LOG_PRIORITY_ERROR,
+    SDL_LOG_PRIORITY_CRITICAL,
+    SDL_NUM_LOG_PRIORITIES
+} SDL_LogPriority;
+
+typedef enum SDL_LogCategory {
+    SDL_LOG_CATEGORY_APPLICATION,
+    SDL_LOG_CATEGORY_ERROR,
+    SDL_LOG_CATEGORY_ASSERT,
+    SDL_LOG_CATEGORY_SYSTEM,
+    SDL_LOG_CATEGORY_AUDIO,
+    SDL_LOG_CATEGORY_VIDEO,
+    SDL_LOG_CATEGORY_RENDER,
+    SDL_LOG_CATEGORY_INPUT,
+    SDL_LOG_CATEGORY_TEST,
+} SDL_LogCategory;
+
+void SDL_Log(const char* fmt, ...);
+//{
+//	va_list ap;
+//	va_start(ap, fmt);
+//	vprintf(fmt, ap);
+//	va_end(ap);
+//	puts("");
+//}
+//void SDL_Log(const char* fmt, ...); DVL_PRINTF_ATTRIBUTE(1, 2);
+void SDL_LogVerbose(SDL_LogCategory category, const char* fmt, ...); // DVL_PRINTF_ATTRIBUTE(2, 3);
+void SDL_LogDebug(SDL_LogCategory category, const char* fmt, ...); // DVL_PRINTF_ATTRIBUTE(2, 3);
+void SDL_LogInfo(SDL_LogCategory category, const char* fmt, ...); // DVL_PRINTF_ATTRIBUTE(2, 3);
+void SDL_LogWarn(SDL_LogCategory category, const char* fmt, ...); // DVL_PRINTF_ATTRIBUTE(2, 3);
+void SDL_LogError(SDL_LogCategory category, const char* fmt, ...); // DVL_PRINTF_ATTRIBUTE(2, 3);
+void SDL_LogCritical(SDL_LogCategory category, const char* fmt, ...); // DVL_PRINTF_ATTRIBUTE(2, 3);
+void SDL_LogMessageV(SDL_LogCategory category, SDL_LogPriority priority, const char* fmt, va_list ap); // DVL_PRINTF_ATTRIBUTE(3, 0);
 
 void SDL_LogSetAllPriority(SDL_LogPriority priority);
 void SDL_LogSetPriority(int category, SDL_LogPriority priority);
-SDL_LogPriority SDL_LogGetPriority(int category);
+SDL_LogPriority SDL_LogGetPriority(SDL_LogCategory category);
 
 inline void SDL_StartTextInput()
 {

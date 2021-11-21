@@ -10,19 +10,19 @@ namespace {
 // We use the same names of these structs as the SDL2 implementation:
 // NOLINTNEXTLINE(readability-identifier-naming)
 struct SDL_LogLevel {
-	int category;
-	int priority;
-	SDL_LogLevel *next;
+	SDL_LogCategory category;
+	SDL_LogPriority priority;
+	SDL_LogLevel* next;
 };
 
-SDL_LogLevel *SDL_loglevels;                                             // NOLINT(readability-identifier-naming)
-int SDL_default_priority = DEFAULT_PRIORITY;                 // NOLINT(readability-identifier-naming)
-int SDL_assert_priority = DEFAULT_ASSERT_PRIORITY;           // NOLINT(readability-identifier-naming)
-int SDL_application_priority = DEFAULT_APPLICATION_PRIORITY; // NOLINT(readability-identifier-naming)
-int SDL_test_priority = DEFAULT_TEST_PRIORITY;               // NOLINT(readability-identifier-naming)
+SDL_LogLevel* SDL_loglevels;                                             // NOLINT(readability-identifier-naming)
+SDL_LogPriority SDL_default_priority = DEFAULT_PRIORITY;                 // NOLINT(readability-identifier-naming)
+SDL_LogPriority SDL_assert_priority = DEFAULT_ASSERT_PRIORITY;           // NOLINT(readability-identifier-naming)
+SDL_LogPriority SDL_application_priority = DEFAULT_APPLICATION_PRIORITY; // NOLINT(readability-identifier-naming)
+SDL_LogPriority SDL_test_priority = DEFAULT_TEST_PRIORITY;               // NOLINT(readability-identifier-naming)
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-const char *const SDL_priority_prefixes[SDL_NUM_LOG_PRIORITIES] = {
+const char* const SDL_priority_prefixes[SDL_NUM_LOG_PRIORITIES] = {
 	NULL,
 	"VERBOSE",
 	"DEBUG",
@@ -34,9 +34,9 @@ const char *const SDL_priority_prefixes[SDL_NUM_LOG_PRIORITIES] = {
 
 } // namespace
 
-void SDL_LogSetAllPriority(int priority)
+void SDL_LogSetAllPriority(SDL_LogPriority priority)
 {
-	for (SDL_LogLevel *entry = SDL_loglevels; entry != NULL; entry = entry->next) {
+	for (SDL_LogLevel* entry = SDL_loglevels; entry != NULL; entry = entry->next) {
 		entry->priority = priority;
 	}
 	SDL_default_priority = priority;
@@ -44,9 +44,9 @@ void SDL_LogSetAllPriority(int priority)
 	SDL_application_priority = priority;
 }
 
-void SDL_LogSetPriority(int category, int priority)
+void SDL_LogSetPriority(SDL_LogCategory category, SDL_LogPriority priority)
 {
-	SDL_LogLevel *entry;
+	SDL_LogLevel* entry;
 	for (entry = SDL_loglevels; entry != NULL; entry = entry->next) {
 		if (entry->category == category) {
 			entry->priority = priority;
@@ -63,9 +63,9 @@ void SDL_LogSetPriority(int category, int priority)
 	}
 }
 
-int SDL_LogGetPriority(int category)
+SDL_LogPriority SDL_LogGetPriority(SDL_LogCategory category)
 {
-	for (SDL_LogLevel *entry = SDL_loglevels; entry != NULL; entry = entry->next) {
+	for (SDL_LogLevel* entry = SDL_loglevels; entry != NULL; entry = entry->next) {
 		if (entry->category == category) {
 			return entry->priority;
 		}
@@ -83,7 +83,7 @@ int SDL_LogGetPriority(int category)
 	}
 }
 
-void SDL_Log(const char *fmt, ...)
+void SDL_Log(const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -91,7 +91,7 @@ void SDL_Log(const char *fmt, ...)
 	va_end(ap);
 }
 
-void SDL_LogVerbose(int category, const char *fmt, ...)
+void SDL_LogVerbose(SDL_LogCategory category, const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -99,7 +99,7 @@ void SDL_LogVerbose(int category, const char *fmt, ...)
 	va_end(ap);
 }
 
-void SDL_LogDebug(int category, const char *fmt, ...)
+void SDL_LogDebug(SDL_LogCategory category, const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -107,7 +107,7 @@ void SDL_LogDebug(int category, const char *fmt, ...)
 	va_end(ap);
 }
 
-void SDL_LogInfo(int category, const char *fmt, ...)
+void SDL_LogInfo(SDL_LogCategory category, const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -115,7 +115,7 @@ void SDL_LogInfo(int category, const char *fmt, ...)
 	va_end(ap);
 }
 
-void SDL_LogWarn(int category, const char *fmt, ...)
+void SDL_LogWarn(SDL_LogCategory category, const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -123,7 +123,7 @@ void SDL_LogWarn(int category, const char *fmt, ...)
 	va_end(ap);
 }
 
-void SDL_LogError(int category, const char *fmt, ...)
+void SDL_LogError(SDL_LogCategory category, const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -131,7 +131,7 @@ void SDL_LogError(int category, const char *fmt, ...)
 	va_end(ap);
 }
 
-void SDL_LogCritical(int category, const char *fmt, ...)
+void SDL_LogCritical(SDL_LogCategory category, const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -139,7 +139,7 @@ void SDL_LogCritical(int category, const char *fmt, ...)
 	va_end(ap);
 }
 
-void SDL_LogMessage(int category, int priority, const char *fmt, ...)
+void SDL_LogMessage(SDL_LogCategory category, SDL_LogPriority priority, const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -147,7 +147,7 @@ void SDL_LogMessage(int category, int priority, const char *fmt, ...)
 	va_end(ap);
 }
 
-void SDL_LogMessageV(int category, int priority, const char *fmt, va_list ap)
+void SDL_LogMessageV(SDL_LogCategory category, SDL_LogPriority priority, const char* fmt, va_list ap)
 {
 	/*if (priority < 0 || priority >= SDL_NUM_LOG_PRIORITIES || priority < SDL_LogGetPriority(category))
 		return;
@@ -486,7 +486,7 @@ int SDL_BlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
 
 namespace {
 #if !defined(__QNXNTO__)
-char *readSymLink(const char *path)
+char *readSymLink(const char* path)
 {
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 	char *retval = NULL;
@@ -556,7 +556,7 @@ char *SDL_GetBasePath()
 	}
 #endif
 #if defined(__SOLARIS__)
-	const char *path = getexecname();
+	const char* path = getexecname();
 	if ((path != NULL) && (path[0] == '/')) { /* must be absolute path... */
 		retval = SDL_strdup(path);
 		if (!retval) {
@@ -619,7 +619,7 @@ char *SDL_GetBasePath()
 	return retval;
 }
 
-char *SDL_GetPrefPath(const char *org, const char *app)
+char *SDL_GetPrefPath(const char* org, const char* app)
 {
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 	/*
@@ -629,8 +629,8 @@ char *SDL_GetPrefPath(const char *org, const char *app)
      *
      * https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
      */
-	const char *envr = SDL_getenv("XDG_DATA_HOME");
-	const char *append;
+	const char* envr = SDL_getenv("XDG_DATA_HOME");
+	const char* append;
 	char *retval = NULL;
 	char *ptr = NULL;
 	size_t len = 0;
