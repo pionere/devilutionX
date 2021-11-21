@@ -807,15 +807,15 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 			xp = random_(91, DSIZEX) + DBORDERX;
 			yp = random_(91, DSIZEY) + DBORDERY;
 			count2 = 0;
-			for (x = xp - MON_PACK_DISTANCE; x < xp + MON_PACK_DISTANCE; x++) {
-				for (y = yp - MON_PACK_DISTANCE; y < yp + MON_PACK_DISTANCE; y++) {
+			for (x = xp - MON_PACK_DISTANCE; x <= xp + MON_PACK_DISTANCE; x++) {
+				for (y = yp - MON_PACK_DISTANCE; y <= yp + MON_PACK_DISTANCE; y++) {
 					if (MonstPlace(x, y)) {
 						count2++;
 					}
 				}
 			}
 
-			if (count2 < MON_PACK_SIZE) {
+			if (count2 < 2 * MON_PACK_SIZE) {
 				count++;
 				if (count < 1000) {
 					continue;
