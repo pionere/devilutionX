@@ -44,7 +44,7 @@ static HANDLE init_test_access(const char* mpq_name)
 #if defined(__3DS__)
 	const char* paths[3] = { GetBasePath(), GetPrefPath(), "romfs:/" };
 #elif defined(__linux__) && !defined(__ANDROID__)
-	const char* paths[4] = { &GetBasePath(), &GetPrefPath(),
+	const char* paths[4] = { GetBasePath(), GetPrefPath(),
 		"/usr/share/diasurgical/devilutionx/",
 		"/usr/local/share/diasurgical/devilutionx/" };
 #else
