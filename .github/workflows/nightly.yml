@@ -207,7 +207,7 @@ jobs:
   build_rg350:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
-    name: Nightly-Android
+    name: Nightly-RG350
     strategy:
       fail-fast: false
       matrix:
@@ -250,7 +250,7 @@ jobs:
   build_lepus:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
-    name: Nightly-Android
+    name: Nightly-Lepus
     strategy:
       fail-fast: false
       matrix:
@@ -293,7 +293,7 @@ jobs:
   build_retrofw:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
-    name: Nightly-Android
+    name: Nightly-RetroFW
     strategy:
       fail-fast: false
       matrix:
@@ -312,24 +312,24 @@ jobs:
       with:
         fetch-depth: 0
 
+     #sudo apt install -y curl git smpq &&
+     #curl -L https://github.com/retrofw/buildroot/releases/download/2018.02.11/mipsel-linux-uclibc_x64.tar.gz -o retrofw-toolchain.tar.xz &&
+     #sudo mkdir -p /opt/mipsel-linux-uclibc && sudo chown -R "${USER}:" /opt/mipsel-linux-uclibc &&
+     #tar -C /opt -xvf retrofw-toolchain.tar.xz
     - name: Create Build Environment
       run: >
         sudo apt update &&
-        #sudo apt install -y curl git smpq &&
-        #curl -L https://github.com/retrofw/buildroot/releases/download/2018.02.11/mipsel-linux-uclibc_x64.tar.gz -o retrofw-toolchain.tar.xz &&
-        #sudo mkdir -p /opt/mipsel-linux-uclibc && sudo chown -R "${USER}:" /opt/mipsel-linux-uclibc &&
-        #tar -C /opt -xvf retrofw-toolchain.tar.xz
         sudo apt install -y curl cmake git squashfs-tools gettext &&
         curl -L https://github.com/Poligraf/retrofw_buildroot_gcc11/releases/download/2.3.2/host.tar.gz -o retrofw-toolchain.tar.gz &&
         sudo mkdir -p /opt/retrofw-toolchain && sudo chown -R "${USER}:" /opt/retrofw-toolchain &&
         tar -C /opt/retrofw-toolchain --strip-components=1 -xf retrofw-toolchain.tar.gz &&
         cd /opt/retrofw-toolchain && ./relocate-sdk.sh
+    #TOOLCHAIN: /opt/mipsel-linux-uclibc
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
       run: Packaging/OpenDingux/build.sh retrofw
       env:
-        #TOOLCHAIN: /opt/mipsel-linux-uclibc
         TOOLCHAIN: /opt/retrofw-toolchain
 
     - name: Upload-Package
