@@ -3026,16 +3026,16 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 
 static bool Sentfire(int mi, int sx, int sy)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	mis = &missile[mi];
-	if (LineClear(mis->_mix, mis->_miy, sx, sy)) {
-		if (dMonster[sx][sy] > 0 && monsters[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6) && dMonster[sx][sy] - 1 >= MAX_MINIONS) {
-			AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, 0, mis->_miSpllvl);
-			SetMissDir(mi, 2);
-			mis->_miVar2 = 3;
-			return true;
-		}
+	if (dMonster[sx][sy] - 1 >= MAX_MINIONS
+	 && monsters[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6)
+	 && LineClear(mis->_mix, mis->_miy, sx, sy)) {
+		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, 0, mis->_miSpllvl);
+		SetMissDir(mi, 2);
+		mis->_miVar2 = 3;
+		return true;
 	}
 
 	return false;
