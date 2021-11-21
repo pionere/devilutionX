@@ -544,7 +544,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen);
 	mon->_mmode = MM_STAND;
 	mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
-	mon->_mVar2 = 0;        // STAND_TICK
+	mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
 	mon->_msquelch = 0;
 	mon->_mpathcount = 0;
 	mon->_mWhoHit = 0;
@@ -1907,12 +1907,11 @@ static bool MonDoStand(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoStand: Invalid monster %d", mnum);
 	}
-	mon = &monsters[mnum];
-	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
-
-	if (mon->_mAnimFrame == mon->_mAnimLen)
+	if (((gdwGameLogicTurn + mnum) % 16) == 0)
 		MonEnemy(mnum);
 
+	mon = &monsters[mnum];
+	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
 	mon->_mVar2++; // STAND_TICK
 
 	return false;
@@ -3023,8 +3022,12 @@ void MAI_Sneak(int mnum)
 		return;
 	mx = mon->_mx;
 	my = mon->_my;
-	if (dLight[mx][my] == LIGHTMAX)
-		return;
+	// commented out because dLight is not in-sync in multiplayer games and with the added
+	// BFLAG_VISIBLE check there is not much point to this any more.
+	// TODO: change MonstPlace to prefer non-lit tiles in case of AI_SNEAK?
+	//if (dLight[mx][my] == LIGHTMAX && (dFlags[mx][my] & BFLAG_VISIBLE) == 0)) {
+	//	return;	
+	//}
 	mx -= mon->_menemyx;
 	my -= mon->_menemyy;
 	dist = std::max(abs(mx), abs(my)); // STAND_PREV_MODE
@@ -3146,7 +3149,7 @@ void MAI_Fallen(int mnum)
 		return;
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (mon->_mAnimFrame == mon->_mAnimLen && random_(113, 4) == 0) {
+		if (random_(113, 48) == 0) {
 			MonStartSpStand(mnum, mon->_mdir);
 			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 				rad = mon->_mhitpoints + 2 * mon->_mInt + 2;
