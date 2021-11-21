@@ -658,11 +658,12 @@ static void LoadMissile(int mi)
 	LoadInt(&mis->_mityoff);
 	LoadInt(&mis->_miDir);
 	LoadInt(&mis->_miSpllvl);
-	LoadInt(&mis->_miRange);
 	LoadInt(&mis->_miSource);
 	LoadInt(&mis->_miCaster);
 	LoadInt(&mis->_miMinDam);
 	LoadInt(&mis->_miMaxDam);
+	LoadInt(&mis->_miRndSeed);
+	LoadInt(&mis->_miRange);
 	LoadInt(&mis->_miDist);
 	LoadInt(&mis->_miLid);
 	LoadInt(&mis->_miVar1);
@@ -1380,11 +1381,12 @@ static void SaveMissile(int mi)
 	SaveInt(&mis->_mityoff);
 	SaveInt(&mis->_miDir);
 	SaveInt(&mis->_miSpllvl);
-	SaveInt(&mis->_miRange);
 	SaveInt(&mis->_miSource);
 	SaveInt(&mis->_miCaster);
 	SaveInt(&mis->_miMinDam);
 	SaveInt(&mis->_miMaxDam);
+	SaveInt(&mis->_miRndSeed);
+	SaveInt(&mis->_miRange);
 	SaveInt(&mis->_miDist);
 	SaveInt(&mis->_miLid);
 	SaveInt(&mis->_miVar1);

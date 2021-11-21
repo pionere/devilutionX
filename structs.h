@@ -472,11 +472,12 @@ typedef struct MissileStruct {
 	int _mityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	int _miDir;   // The direction of the missile
 	int _miSpllvl;
-	int _miRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
 	int _miSource;
 	int _miCaster;
 	int _miMinDam;
 	int _miMaxDam;
+	int _miRndSeed;
+	int _miRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
 	int _miDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 	unsigned _miLid;
 	int _miVar1;
@@ -488,7 +489,7 @@ typedef struct MissileStruct {
 	int _miVar7;
 	int _miVar8;
 #ifdef X86_32bit_COMP
-	int alignment[5];
+	int alignment[4];
 #endif
 } MissileStruct;
 

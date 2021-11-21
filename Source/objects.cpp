@@ -1772,9 +1772,11 @@ static void Obj_FlameTrap(int oi)
 	} else {
 		if (os->_oAnimFrame == os->_oAnimLen)
 			os->_oAnimFrame = 11;
-		if (os->_oAnimFrame == 11)
+		if (os->_oAnimFrame == 11) {
+			SetRndSeed(os->_oRndSeed);
 			AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FIRETRAP, -1, -1, 0, 0, 0);
-		else if (os->_oAnimFrame <= 5)
+			os->_oRndSeed = GetRndSeed();
+		} else if (os->_oAnimFrame <= 5)
 			ChangeLightRadius(os->_olid, os->_oAnimFrame);
 	}
 }*/
@@ -1854,7 +1856,7 @@ static void Obj_Trap(int oi)
 		}
 	}
 
-	//SetRndSeed(os->_oRndSeed);
+	SetRndSeed(os->_oRndSeed);
 	sx = os->_ox;
 	sy = os->_oy;
 	dir = GetDirection(sx, sy, dx, dy);
@@ -2428,6 +2430,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
 		if (pnum == mypnum)
 			InitDiabloMsg(EMSG_BONECHAMB);
+		SetRndSeed(os->_oRndSeed);
 		AddMissile(
 		    plr._px,
 		    plr._py,
@@ -3642,6 +3645,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 		xotype = OBJ_PODEX;
 #endif
 
+	SetRndSeed(os->_oRndSeed);
 	if (os->_otype == xotype) {
 		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
 			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
@@ -3655,7 +3659,6 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 			}
 		}
 	} else {
-		SetRndSeed(os->_oRndSeed);
 		if (os->_oVar2 <= 1) {    // BARREL_ITEM
 			if (os->_oVar3 == 0)  // BARREL_ITEM_TYPE
 				CreateRndUseful(os->_ox, os->_oy, sendmsg, false);

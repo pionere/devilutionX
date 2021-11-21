@@ -636,6 +636,8 @@ static bool MonsterTrapHit(int mnum, int mi)
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
+	SetRndSeed(mis->_miRndSeed);
+	mis->_miRndSeed = GetRndSeed();
 	if (mis->_miSubType == 0) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    - mon->_mArmorClass;
@@ -684,6 +686,8 @@ static bool MonsterMHit(int mnum, int mi)
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
+	SetRndSeed(mis->_miRndSeed);
+	mis->_miRndSeed = GetRndSeed();
 	pnum = mis->_miSource;
 	//assert((unsigned)pnum < MAX_PLRS);
 	if (mis->_miSubType == 0) {
@@ -843,6 +847,8 @@ static bool PlayerTrapHit(int pnum, int mi)
 	}
 
 	mis = &missile[mi];
+	SetRndSeed(mis->_miRndSeed);
+	mis->_miRndSeed = GetRndSeed();
 	if (mis->_miSubType == 0) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    + (2 * currLvl._dLevel)
@@ -895,6 +901,8 @@ static bool PlayerMHit(int pnum, int mi)
 		return false;
 	}
 	mis = &missile[mi];
+	SetRndSeed(mis->_miRndSeed);
+	mis->_miRndSeed = GetRndSeed();
 	mon = &monsters[mis->_miSource];
 	if (mis->_miSubType == 0) {
 		hper = 30 + mon->_mHit
@@ -955,6 +963,8 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	if (plr._pTeam == plx(offp)._pTeam || plr._pInvincible) {
 		return false;
 	}
+	SetRndSeed(mis->_miRndSeed);
+	mis->_miRndSeed = GetRndSeed();
 	if (mis->_miSubType == 0) {
 		hper = plx(offp)._pIHitChance
 		    - plr._pIAC;
@@ -2981,6 +2991,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	mis = &missile[mi];
 	memset(mis, 0, sizeof(*mis));
 
+	mis->_miRndSeed = GetRndSeed();
 	mis->_miCaster = micaster;
 	mis->_miSource = misource;
 	mis->_miSpllvl = spllvl;
@@ -3032,7 +3043,9 @@ static bool Sentfire(int mi, int sx, int sy)
 	if (dMonster[sx][sy] - 1 >= MAX_MINIONS
 	 && monsters[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6)
 	 && LineClear(mis->_mix, mis->_miy, sx, sy)) {
+		SetRndSeed(mis->_miRndSeed);
 		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, 0, mis->_miSpllvl);
+		mis->_miRndSeed = GetRndSeed();
 		SetMissDir(mi, 2);
 		mis->_miVar2 = 3;
 		return true;
@@ -3358,6 +3371,7 @@ void MI_Rune(int mi)
 			if ((dMonster[tx][ty] | dPlayer[tx][ty]) != 0) {
 				mis->_miDelFlag = TRUE;
 				AddUnLight(mis->_miLid);
+				SetRndSeed(mis->_miRndSeed);
 				AddMissile(mis->_mix, mis->_miy, tx, ty, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, 0, 0, mis->_miSpllvl);
 				return;
 			}
@@ -3413,6 +3427,7 @@ void MI_LightningC(int mi)
 	assert(IN_DUNGEON_AREA(mx, my));
 	if (!nMissileTable[dPiece[mx][my]]) {
 		if (mx != mis->_miVar1 || my != mis->_miVar2) {
+			SetRndSeed(mis->_miRndSeed);
 			AddMissile(
 			    mx,
 			    my,
@@ -3714,6 +3729,7 @@ void MI_Acidsplat(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
+		SetRndSeed(mis->_miRndSeed);
 		AddMissile(mis->_mix - 1, mis->_miy - 1, 0, 0, mis->_miDir, MIS_ACIDPUD, 1, mis->_miSource, 2, 2, mis->_miSpllvl);
 	} else {
 		PutMissile(mi);
@@ -3965,6 +3981,7 @@ void MI_WallC(int mi)
 //#else
 	mitype = MIS_FIREWALL;
 //#endif
+	SetRndSeed(mis->_miRndSeed);
 	if (!mis->_miVar8) {
 		tx = mis->_miVar1;
 		ty = mis->_miVar2;
@@ -3989,6 +4006,7 @@ void MI_WallC(int mi)
 			mis->_miVar7 = TRUE;
 		}
 	}
+	mis->_miRndSeed = GetRndSeed();
 }
 
 void MI_Inferno(int mi)
@@ -4031,6 +4049,7 @@ void MI_InfernoC(int mi)
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
 		if (!nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
+			SetRndSeed(mis->_miRndSeed);
 			// mis->_miVar3 used by MIS_FLAME !
 			AddMissile(
 			    mis->_mix,
@@ -4042,8 +4061,9 @@ void MI_InfernoC(int mi)
 			    mis->_miCaster,
 			    mis->_miSource,
 			    0,
-				0,
+			    0,
 			    mis->_miSpllvl);
+			mis->_miRndSeed = GetRndSeed();
 		} else {
 			mis->_miRange = 0;
 		}
