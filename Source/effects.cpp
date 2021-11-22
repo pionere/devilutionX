@@ -48,6 +48,8 @@ SFXStruct sgSFX[] = {
 /*IS_POPPOP5*/   { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\PodPop5.wav",     NULL },
 /*IS_POPPOP3*/   { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\UrnPop3.wav",     NULL },
 /*IS_POPPOP2*/   { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\UrnPop2.wav",     NULL },
+/*IS_CRCLOS*/    { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\Crclos.wav",      NULL },
+/*IS_CROPEN*/    { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\Cropen.wav",      NULL },
 /*IS_BHIT*///    { sfx_MISC,                  "Sfx\\Items\\Bhit.wav",        NULL },
 /*IS_BHIT1*///   { sfx_MISC,                  "Sfx\\Items\\Bhit1.wav",       NULL },
 /*IS_CHEST*/     { sfx_MISC,                  "Sfx\\Items\\Chest.wav",       NULL },
@@ -1050,8 +1052,6 @@ SFXStruct sgSFX[] = {
 /*PS_NARATR9*/   { sfx_STREAM,                "Sfx\\Hellfire\\Naratr9.wav",  NULL },
 /*PS_NARATR4*/   { sfx_STREAM,                "Sfx\\Hellfire\\Naratr4.wav",  NULL },
 /*TSFX_TRADER1*///{ sfx_STREAM,                "Sfx\\Hellfire\\TRADER1.wav",  NULL },
-/*IS_CRCLOS*/    { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\Crclos.wav",      NULL },
-/*IS_CROPEN*/    { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\Cropen.wav",      NULL },
 	// clang-format on
 };
 

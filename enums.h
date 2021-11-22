@@ -417,6 +417,8 @@ typedef enum _sfx_id {
 	IS_POPPOP5,
 	IS_POPPOP3,
 	IS_POPPOP2,
+	IS_CRCLOS,
+	IS_CROPEN,
 	//IS_BHIT,
 	//IS_BHIT1,
 	IS_CHEST,
@@ -1419,8 +1421,6 @@ typedef enum _sfx_id {
 	PS_NARATR9,
 	PS_NARATR4,
 	TSFX_TRADER1,
-	IS_CRCLOS,
-	IS_CROPEN,
 	SFX_NONE = -1,
 } _sfx_id;
 
