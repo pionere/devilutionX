@@ -277,7 +277,7 @@ static void diablo_init()
 	snd_init();
 	gbSndInited = true;
 
-	ui_sound_init();
+	InitUiEffects(); // sfx
 
 	InitControls();
 }
@@ -303,7 +303,7 @@ static void diablo_deinit()
 {
 	NetClose();
 	if (gbSndInited)
-		effects_cleanup_sfx();
+		FreeUiEffects();
 	if (gbWasUiInit)
 		UiDestroy();
 	if (_gbWasArchivesInit)
@@ -1498,6 +1498,7 @@ static WNDPROC InitGameUI()
 	for (i = 0; i < (IsLocalGame ? 1 : MAX_PLRS); i++)
 		InitPlrGFXMem(i); // gfx
 	InitItemGFX(); // gfx + values (some stored in savefiles)
+	InitGameEffects(); // sfx
 
 	gbDeathflag = false;
 	gbZoomInFlag = false;
@@ -1535,6 +1536,7 @@ static void FreeGameUI()
 	for (i = 0; i < MAX_PLRS; i++)
 		FreePlayerGFX(i);
 
+	FreeGameEffects();
 	FreeItemGFX();
 	FreeCursorGFX();
 #ifdef _DEBUG

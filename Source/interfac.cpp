@@ -369,8 +369,6 @@ void ShowCutscene(unsigned uMsg)
 	DrawCutscene();
 	PaletteFadeIn();
 	IncProgress();
-	sound_init();
-	IncProgress();
 
 	switch (uMsg) {
 	case DVL_DWM_NEWGAME:

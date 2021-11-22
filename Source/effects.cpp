@@ -1353,14 +1353,14 @@ void sound_update()
 	stream_update();
 }
 
-void effects_cleanup_sfx()
+static void priv_sound_free(BYTE bLoadMask)
 {
 	int i;
 
 	sound_stop();
 
 	for (i = 0; i < lengthof(sgSFX); i++) {
-		if (sgSFX[i].pSnd != NULL) {
+		if (sgSFX[i].pSnd != NULL && (sgSFX[i].bFlags & bLoadMask)) {
 			sound_file_cleanup(sgSFX[i].pSnd);
 			sgSFX[i].pSnd = NULL;
 		}
@@ -1386,7 +1386,7 @@ static void priv_sound_init(BYTE bLoadMask)
 	}
 }
 
-void sound_init()
+void InitGameEffects()
 {
 #ifdef HELLFIRE
 	BYTE mask = sfx_MISC | sfx_HELLFIRE;
@@ -1405,9 +1405,19 @@ void sound_init()
 	priv_sound_init(mask);
 }
 
-void ui_sound_init()
+void InitUiEffects()
 {
 	priv_sound_init(sfx_UI);
+}
+
+void FreeGameEffects()
+{
+	priv_sound_free(~sfx_UI);
+}
+
+void FreeUiEffects()
+{
+	priv_sound_free(sfx_UI);
 }
 
 void effects_play_sound(const char* snd_file)

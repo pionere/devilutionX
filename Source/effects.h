@@ -31,9 +31,10 @@ void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1);
 void sound_stop();
 void sound_pause(bool pause);
 void sound_update();
-void effects_cleanup_sfx();
-void sound_init();
-void ui_sound_init();
+void FreeGameEffects();
+void FreeUiEffects();
+void InitGameEffects();
+void InitUiEffects();
 void effects_play_sound(const char* snd_file);
 #else
 inline bool effect_is_playing(int nSFX) { return false; }
@@ -46,9 +47,10 @@ inline void PlayEffect(int mnum, int mode) { PlaySFX(-1, 2); }
 inline void sound_stop() { }
 inline void sound_pause(bool pause) { }
 inline void sound_update() { }
-inline void effects_cleanup_sfx() { }
-inline void sound_init() { }
-inline void ui_sound_init() { }
+inline void FreeGameEffects() { }
+inline void FreeUiEffects() { }
+inline void InitGameEffects() { }
+inline void InitUiEffects() { }
 inline void effects_play_sound(const char* snd_file) { }
 #endif
 
