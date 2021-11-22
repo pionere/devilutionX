@@ -636,21 +636,21 @@ static bool LightPos(int x1, int y1)
 
 /*
  * Mark tiles alert/visible/explored starting from nXPos:nYpos using raytracing algorithm.
- * In case the 'automap' parameter is set, the TransList table is updated as well.
  *
  * @param nXPos: the starting x-coordinate
  * @param nYPos: the starting y-coordinate
  * @param nRadius: the maximum distance where the tile might be alert/visible
- * @param automap: whether the tiles are explored (+ TransList updated)
- * @param visible: whether the tiles are visible
+ * @param local: whether it is called for the local player
+ *    true: the tiles are marked alert, visible and explored + TransList updated
+ *    false: the tiles are marked alert
  */
-void DoVision(int nXPos, int nYPos, int nRadius, bool automap, bool visible)
+void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 {
 	const char* cr;
 	int i, x1, y1, limit;
 	int d, dx, dy, xinc, yinc;
-	vFlags = visible ? BFLAG_VISIBLE | BFLAG_ALERT : BFLAG_ALERT;
-	doautomap = automap;
+	vFlags = local ? BFLAG_VISIBLE | BFLAG_ALERT : BFLAG_ALERT;
+	doautomap = local;
 
 	assert(IN_DUNGEON_AREA(nXPos, nYPos));
 	dFlags[nXPos][nYPos] |= vFlags;
@@ -1270,7 +1270,7 @@ void ProcessVisionList()
 		}
 		for (i = 0; i < numvision; i++) {
 			vis = &VisionList[visionactive[i]];
-			DoVision(vis->_lx, vis->_ly, vis->_lradius, vis->_lmine, vis->_lmine);
+			DoVision(vis->_lx, vis->_ly, vis->_lradius, vis->_lmine);
 		}
 
 		_gbDovision = false;

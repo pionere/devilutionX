@@ -36,7 +36,7 @@ extern BYTE LightTrns[NUM_LIGHT_TRNS][256];
 
 void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum);
 void DoUnVision(int nXPos, int nYPos, int nRadius);
-void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible);
+void DoVision(int nXPos, int nYPos, int nRadius, bool local);
 void MakeLightTable();
 #ifdef _DEBUG
 void ToggleLighting();

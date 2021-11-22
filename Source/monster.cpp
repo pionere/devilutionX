@@ -1021,7 +1021,7 @@ void InitMonsters()
 		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL
 		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
 			for (j = 0; j < lengthof(tdx); j++)
-				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false, false);
+				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false);
 		}
 	}
 	// place the setmap/setpiece monsters
@@ -1647,7 +1647,7 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	my = mon->_my;
 	PlaySfxLoc(USFX_DIABLOD, mx, my);
 	AddLight(mx, my, 8);
-	DoVision(mx, my, 8, false, true);
+	DoVision(mx, my, 8, true);
 
 	gbProcessPlayers = false;
 	gbSoundOn = false;
