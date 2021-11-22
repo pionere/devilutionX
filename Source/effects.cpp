@@ -1178,13 +1178,13 @@ static void stream_play(SFXStruct* pSFX, int lVolume, int lPan)
 		//if (pSFX->pSnd == NULL)
 		//	pSFX->pSnd = sound_file_load(pSFX->pszName);
 		sgpStreamSFX = pSFX;
-		pSFX->pSnd->DSB->Play(lVolume, lPan, 0);
+		pSFX->pSnd->Play(lVolume, lPan, 0);
 	}
 }
 
 static void stream_update()
 {
-	if (sgpStreamSFX != NULL && !sgpStreamSFX->pSnd->DSB->IsPlaying()) {
+	if (sgpStreamSFX != NULL && !sgpStreamSFX->pSnd->IsPlaying()) {
 		stream_stop();
 	}
 }
@@ -1217,7 +1217,7 @@ void FreeMonsterSnd()
 {
 	MapMonData* cmon;
 	int i, j, k;
-	TSnd* pSnd;
+	SoundSample* pSnd;
 
 	cmon = mapMonTypes;
 	for (i = 0; i < nummtypes; i++, cmon++) {
@@ -1291,7 +1291,7 @@ void PlayEffect(int mnum, int mode)
 {
 	MonsterStruct* mon;
 	int sndIdx, lVolume, lPan;
-	TSnd* snd;
+	SoundSample* snd;
 
 	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
 	if (!gbSoundOn || gbLvlLoad != 0)
@@ -1318,7 +1318,7 @@ void PlaySFX(int psfx, int rndCnt)
 
 void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
 {
-	TSnd* pSnd;
+	SoundSample* pSnd;
 
 	if (rndCnt != 1)
 		psfx += random_(165, rndCnt);

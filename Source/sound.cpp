@@ -60,15 +60,14 @@ static void snd_get_volume(const char* value_name, int* value)
 	*value = v;
 }
 
-bool snd_playing(TSnd* pSnd)
+bool snd_playing(SoundSample* pSnd)
 {
 	if (pSnd == NULL)
 		return false;
-	assert(pSnd->DSB != NULL);
-	return pSnd->DSB->IsPlaying();
+	return pSnd->IsPlaying();
 }
 
-void snd_play_snd(TSnd* pSnd, int lVolume, int lPan)
+void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan)
 {
 	Uint32 currTc;
 
@@ -86,29 +85,26 @@ void snd_play_snd(TSnd* pSnd, int lVolume, int lPan)
 	} else if (lVolume > VOLUME_MAX) {
 		lVolume = VOLUME_MAX;
 	}
-	assert(pSnd->DSB != NULL);
-	pSnd->DSB->Play(lVolume, lPan);
+	pSnd->Play(lVolume, lPan);
 }
 
-TSnd* sound_file_load(const char* path)
+SoundSample* sound_file_load(const char* path)
 {
 	HANDLE file;
 	BYTE* wave_file;
-	TSnd* pSnd;
+	SoundSample* pSnd;
 	DWORD dwBytes;
 	int error;
 
 	file = SFileOpenFile(path);
-	pSnd = (TSnd*)DiabloAllocPtr(sizeof(TSnd));
-	memset(pSnd, 0, sizeof(TSnd));
+	pSnd = new SoundSample();
 	pSnd->nextTc = 0;
 
 	dwBytes = SFileGetFileSize(file);
 	wave_file = DiabloAllocPtr(dwBytes);
 	SFileReadFile(file, wave_file, dwBytes, NULL);
 
-	pSnd->DSB = new SoundSample();
-	error = pSnd->DSB->SetChunk(wave_file, dwBytes);
+	error = pSnd->SetChunk(wave_file, dwBytes);
 	SFileCloseFile(file);
 	mem_free_dbg(wave_file);
 	if (error != 0) {
@@ -118,16 +114,12 @@ TSnd* sound_file_load(const char* path)
 	return pSnd;
 }
 
-void sound_file_cleanup(TSnd* sound_file)
+void sound_file_cleanup(SoundSample* sound_file)
 {
 	if (sound_file != NULL) {
-		assert(sound_file->DSB != NULL);
-		sound_file->DSB->Stop();
-		sound_file->DSB->Release();
-		delete sound_file->DSB;
-		sound_file->DSB = NULL;
-
-		mem_free_dbg(sound_file);
+		sound_file->Stop();
+		sound_file->Release();
+		delete sound_file;
 	}
 }
 

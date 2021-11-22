@@ -16,10 +16,10 @@ extern bool gbMusicOn;
 extern bool gbSoundOn;
 
 #ifndef NOSOUND
-bool snd_playing(TSnd *pSnd);
-void snd_play_snd(TSnd *pSnd, int lVolume, int lPan);
-TSnd *sound_file_load(const char *path);
-void sound_file_cleanup(TSnd *sound_file);
+bool snd_playing(SoundSample* pSnd);
+void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan);
+SoundSample* sound_file_load(const char *path);
+void sound_file_cleanup(SoundSample* sound_file);
 void snd_init();
 void music_stop();
 void music_start(int nTrack);
@@ -30,8 +30,8 @@ void sound_set_music_volume(int volume);
 int sound_get_sound_volume();
 void sound_set_sound_volume(int volume);
 #else
-inline bool snd_playing(TSnd *pSnd) { return false; }
-inline void snd_play_snd(TSnd *pSnd, int lVolume, int lPan) { }
+inline bool snd_playing(SoundSample* pSnd) { return false; }
+inline void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan) { }
 inline void snd_init() { }
 inline void music_stop() { }
 inline void music_start(int nTrack) { }

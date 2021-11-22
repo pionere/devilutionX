@@ -15,6 +15,7 @@ public:
 	void Stop();
 	int SetChunk(BYTE *fileData, DWORD dwBytes);
 
+	Uint32 nextTc;
 private:
 	Mix_Chunk *chunk;
 } SoundSample;

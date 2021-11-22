@@ -501,15 +501,10 @@ static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 128, "Ali
 // effects/sound
 //////////////////////////////////////////////////
 
-typedef struct TSnd {
-	SoundSample *DSB;
-	Uint32 nextTc;
-} TSnd;
-
 typedef struct SFXStruct {
 	BYTE bFlags;
-	const char *pszName;
-	TSnd *pSnd;
+	const char* pszName;
+	SoundSample* pSnd;
 } SFXStruct;
 
 //////////////////////////////////////////////////
@@ -582,7 +577,7 @@ typedef struct MapMonData {
 	int cmType;
 	BOOL cmPlaceScatter;
 	AnimStruct cmAnims[NUM_MON_ANIM];
-	TSnd *cmSnds[NUM_MON_SFX][2];
+	SoundSample* cmSnds[NUM_MON_SFX][2];
 	int cmWidth;
 	int cmXOffset;
 	BYTE cmDeadval;
