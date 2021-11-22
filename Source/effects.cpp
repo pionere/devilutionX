@@ -1378,17 +1378,7 @@ static void priv_sound_init(BYTE bLoadMask)
 			continue;
 		}
 
-#ifdef HELLFIRE
-		if (sgSFX[i].bFlags & sfx_STREAM) {
-			continue;
-		}
-#else
-		if (sgSFX[i].bFlags & (sfx_STREAM | sfx_HELLFIRE)) {
-			continue;
-		}
-#endif
-
-		if (!(sgSFX[i].bFlags & bLoadMask)) {
+		if ((sgSFX[i].bFlags & bLoadMask) != sgSFX[i].bFlags) {
 			continue;
 		}
 
@@ -1398,7 +1388,11 @@ static void priv_sound_init(BYTE bLoadMask)
 
 void sound_init()
 {
+#ifdef HELLFIRE
+	BYTE mask = sfx_MISC | sfx_HELLFIRE;
+#else
 	BYTE mask = sfx_MISC;
+#endif
 	if (IsLocalGame) {
 		mask |= sgSFXSets[SFXS_MASK][myplr._pClass];
 	} else {
