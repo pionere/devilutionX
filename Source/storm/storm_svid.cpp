@@ -70,7 +70,7 @@ void TrySetVideoModeToSVidForSDL1()
 		SDL_Rect **modes = SDL_ListModes(NULL, display->flags);
 
 		// Check is there are any modes available.
-		if (modes == NULL)
+		if (modes == NULL
 		    || modes == reinterpret_cast<SDL_Rect **>(-1)) { // should not happen, since the first try was rejected...
 			return;
 		}
