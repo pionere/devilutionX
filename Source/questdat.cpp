@@ -175,7 +175,7 @@ const QuestData questlist[NUM_QUESTS] = {
 /*Q_DEFILER*/ { DLV_NEST1,      0,               TEXT_DM_NEST,  "The Defiler"              },
 /*Q_TRADER*///{ DLV_NEST3,      0,               TEXT_TRADER,   "Wandering Trader"         },
 /*Q_GRAVE*/   { DLV_CRYPT1,     0,               TEXT_GRAVE7,   "Grave Matters"            },
-/*Q_NAKRUL*/  { DLV_CRYPT4,     0,               TEXT_NAKRUL1,  "Na-Krul"                  },
+/*Q_NAKRUL*/  { DLV_CRYPT4,     0,               TEXT_NONE,     "Na-Krul"                  },
 #endif
 	// clang-format on
 };
