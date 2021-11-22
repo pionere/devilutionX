@@ -270,8 +270,8 @@ SFXStruct sgSFX[] = {
 /*TSFX_SMITH54*/ { sfx_STREAM,                "Sfx\\Towners\\Bsmith54.wav",  NULL },
 /*TSFX_SMITH55*/ { sfx_STREAM,                "Sfx\\Towners\\Bsmith55.wav",  NULL },
 /*TSFX_SMITH56*/ { sfx_STREAM,                "Sfx\\Towners\\Bsmith56.wav",  NULL },
-/*TSFX_COW1*/    { sfx_MISC,                  "Sfx\\Towners\\Cow1.wav",      NULL },
-/*TSFX_COW2*/    { sfx_MISC,                  "Sfx\\Towners\\Cow2.wav",      NULL },
+/*TSFX_COW1*/    { sfx_STREAM,                "Sfx\\Towners\\Cow1.wav",      NULL },
+/*TSFX_COW2*/    { sfx_STREAM,                "Sfx\\Towners\\Cow2.wav",      NULL },
 /*TSFX_COW3*///  { sfx_MISC,                  "Sfx\\Towners\\Cow3.wav",      NULL },
 /*TSFX_COW4*///  { sfx_MISC,                  "Sfx\\Towners\\Cow4.wav",      NULL },
 /*TSFX_COW5*///  { sfx_MISC,                  "Sfx\\Towners\\Cow5.wav",      NULL },
@@ -571,12 +571,12 @@ SFXStruct sgSFX[] = {
 /*PS_MAGE21*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage21.wav",   NULL },
 /*PS_MAGE22*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage22.wav",   NULL },
 /*PS_MAGE23*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage23.wav",   NULL },
-/*PS_MAGE24*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage24.wav",   NULL }, // I can not open this. Yet.
+/*PS_MAGE24*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage24.wav",   NULL }, // I can not open this. Yet.
 /*PS_MAGE25*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage25.wav",   NULL },
 /*PS_MAGE26*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage26.wav",   NULL },
 /*PS_MAGE27*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage27.wav",   NULL }, // I can not cast that here.
 /*PS_MAGE28*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage28.wav",   NULL },
-/*PS_MAGE29*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage29.wav",   NULL },
+/*PS_MAGE29*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage29.wav",   NULL },
 /*PS_MAGE30*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage30.wav",   NULL },
 /*PS_MAGE31*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage31.wav",   NULL },
 /*PS_MAGE32*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage32.wav",   NULL },
@@ -593,11 +593,11 @@ SFXStruct sgSFX[] = {
 /*PS_MAGE43*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage43.wav",   NULL },
 /*PS_MAGE44*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage44.wav",   NULL },
 /*PS_MAGE45*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage45.wav",   NULL },
-/*PS_MAGE46*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage46.wav",   NULL },
+/*PS_MAGE46*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage46.wav",   NULL },
 /*PS_MAGE47*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage47.wav",   NULL },
 /*PS_MAGE48*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage48.wav",   NULL },
-/*PS_MAGE49*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage49.wav",   NULL },
-/*PS_MAGE50*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage50.wav",   NULL },
+/*PS_MAGE49*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage49.wav",   NULL },
+/*PS_MAGE50*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage50.wav",   NULL },
 /*PS_MAGE51*///  { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage51.wav",   NULL },
 /*PS_MAGE52*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage52.wav",   NULL },
 /*PS_MAGE53*///  { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage53.wav",   NULL },
@@ -627,7 +627,7 @@ SFXStruct sgSFX[] = {
 /*PS_MAGE76*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage76.wav",   NULL },
 /*PS_MAGE77*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage77.wav",   NULL },
 /*PS_MAGE78*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage78.wav",   NULL },
-/*PS_MAGE79*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage79.wav",   NULL },
+/*PS_MAGE79*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage79.wav",   NULL },
 /*PS_MAGE80*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage80.wav",   NULL },
 /*PS_MAGE81*///  { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage81.wav",   NULL },
 /*PS_MAGE82*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage82.wav",   NULL },
@@ -674,12 +674,12 @@ SFXStruct sgSFX[] = {
 /*PS_ROGUE21*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue21.wav",     NULL },
 /*PS_ROGUE22*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue22.wav",     NULL },
 /*PS_ROGUE23*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue23.wav",     NULL },
-/*PS_ROGUE24*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue24.wav",     NULL }, // I can't open this. .. Yet.
+/*PS_ROGUE24*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue24.wav",     NULL }, // I can't open this. .. Yet.
 /*PS_ROGUE25*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue25.wav",     NULL },
 /*PS_ROGUE26*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue26.wav",     NULL },
 /*PS_ROGUE27*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue27.wav",     NULL }, // I can't cast that here.
 /*PS_ROGUE28*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue28.wav",     NULL },
-/*PS_ROGUE29*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue29.wav",     NULL }, // That did not do anything.
+/*PS_ROGUE29*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue29.wav",     NULL }, // That did not do anything.
 /*PS_ROGUE30*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue30.wav",     NULL },
 /*PS_ROGUE31*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue31.wav",     NULL },
 /*PS_ROGUE32*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue32.wav",     NULL },
@@ -696,11 +696,11 @@ SFXStruct sgSFX[] = {
 /*PS_ROGUE43*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue43.wav",     NULL },
 /*PS_ROGUE44*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue44.wav",     NULL },
 /*PS_ROGUE45*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue45.wav",     NULL },
-/*PS_ROGUE46*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue46.wav",     NULL }, // Just what I was looking for.
+/*PS_ROGUE46*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue46.wav",     NULL }, // Just what I was looking for.
 /*PS_ROGUE47*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue47.wav",     NULL },
 /*PS_ROGUE48*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue48.wav",     NULL },
-/*PS_ROGUE49*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue49.wav",     NULL }, // I'm not thirsty.
-/*PS_ROGUE50*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue50.wav",     NULL }, // Hey, I'm no milkmaid.
+/*PS_ROGUE49*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue49.wav",     NULL }, // I'm not thirsty.
+/*PS_ROGUE50*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue50.wav",     NULL }, // Hey, I'm no milkmaid.
 /*PS_ROGUE51*/// { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue51.wav",     NULL },
 /*PS_ROGUE52*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue52.wav",     NULL }, // Yep, that's a cow, alright.
 /*PS_ROGUE53*/// { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue53.wav",     NULL },
@@ -730,7 +730,7 @@ SFXStruct sgSFX[] = {
 /*PS_ROGUE76*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue76.wav",     NULL },
 /*PS_ROGUE77*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue77.wav",     NULL },
 /*PS_ROGUE78*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue78.wav",     NULL },
-/*PS_ROGUE79*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue79.wav",     NULL },
+/*PS_ROGUE79*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue79.wav",     NULL },
 /*PS_ROGUE80*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue80.wav",     NULL },
 /*PS_ROGUE81*/// { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue81.wav",     NULL },
 /*PS_ROGUE82*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue82.wav",     NULL },
@@ -783,12 +783,12 @@ SFXStruct sgSFX[] = {
 /*PS_WARR21*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior21.wav",  NULL },
 /*PS_WARR22*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior22.wav",  NULL },
 /*PS_WARR23*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior23.wav",  NULL },
-/*PS_WARR24*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior24.wav",  NULL }, // I can not open this. Yet.
+/*PS_WARR24*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior24.wav",  NULL }, // I can not open this. Yet.
 /*PS_WARR25*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior25.wav",  NULL },
 /*PS_WARR26*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior26.wav",  NULL },
 /*PS_WARR27*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior27.wav",  NULL }, // I can't cast that here.
 /*PS_WARR28*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior28.wav",  NULL },
-/*PS_WARR29*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior29.wav",  NULL },
+/*PS_WARR29*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior29.wav",  NULL },
 /*PS_WARR30*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior30.wav",  NULL },
 /*PS_WARR31*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior31.wav",  NULL },
 /*PS_WARR32*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior32.wav",  NULL },
@@ -805,11 +805,11 @@ SFXStruct sgSFX[] = {
 /*PS_WARR43*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior43.wav",  NULL },
 /*PS_WARR44*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior44.wav",  NULL },
 /*PS_WARR45*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior45.wav",  NULL },
-/*PS_WARR46*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior46.wav",  NULL },
+/*PS_WARR46*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior46.wav",  NULL },
 /*PS_WARR47*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior47.wav",  NULL },
 /*PS_WARR48*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior48.wav",  NULL },
-/*PS_WARR49*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior49.wav",  NULL },
-/*PS_WARR50*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior50.wav",  NULL },
+/*PS_WARR49*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior49.wav",  NULL },
+/*PS_WARR50*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior50.wav",  NULL },
 /*PS_WARR51*///  { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior51.wav",  NULL },
 /*PS_WARR52*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior52.wav",  NULL },
 /*PS_WARR53*///  { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior53.wav",  NULL },
@@ -839,7 +839,7 @@ SFXStruct sgSFX[] = {
 /*PS_WARR76*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior76.wav",  NULL },
 /*PS_WARR77*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior77.wav",  NULL },
 /*PS_WARR78*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior78.wav",  NULL },
-/*PS_WARR79*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior79.wav",  NULL },
+/*PS_WARR79*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior79.wav",  NULL },
 /*PS_WARR80*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior80.wav",  NULL },
 /*PS_WARR81*///  { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior81.wav",  NULL },
 /*PS_WARR82*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior82.wav",  NULL },
@@ -891,12 +891,12 @@ SFXStruct sgSFX[] = {
 /*PS_MONK21*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK22*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK23*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
-/*PS_MONK24*/    { sfx_MONK,                  "Sfx\\Monk\\Monk24.wav",       NULL }, // I can not open this. .. Yet.
+/*PS_MONK24*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk24.wav",       NULL }, // I can not open this. .. Yet.
 /*PS_MONK25*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK26*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK27*/    { sfx_MONK,                  "Sfx\\Monk\\Monk27.wav",       NULL }, // I can not cast that here.
 /*PS_MONK28*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
-/*PS_MONK29*/    { sfx_MONK,                  "Sfx\\Monk\\Monk29.wav",       NULL },
+/*PS_MONK29*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk29.wav",       NULL },
 /*PS_MONK30*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK31*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK32*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
@@ -913,11 +913,11 @@ SFXStruct sgSFX[] = {
 /*PS_MONK43*///  { sfx_MONK,                  "Sfx\\Monk\\Monk43.wav",       NULL },
 /*PS_MONK44*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK45*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
-/*PS_MONK46*/    { sfx_MONK,                  "Sfx\\Monk\\Monk46.wav",       NULL },
+/*PS_MONK46*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk46.wav",       NULL },
 /*PS_MONK47*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK48*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
-/*PS_MONK49*/    { sfx_MONK,                  "Sfx\\Monk\\Monk49.wav",       NULL },
-/*PS_MONK50*/    { sfx_MONK,                  "Sfx\\Monk\\Monk50.wav",       NULL },
+/*PS_MONK49*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk49.wav",       NULL },
+/*PS_MONK50*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk50.wav",       NULL },
 /*PS_MONK51*///  { sfx_STREAM | sfx_MONK,     "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK52*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk52.wav",       NULL },
 /*PS_MONK53*///  { sfx_STREAM | sfx_MONK,     "Sfx\\Misc\\blank.wav",        NULL },
@@ -947,7 +947,7 @@ SFXStruct sgSFX[] = {
 /*PS_MONK76*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK77*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK78*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
-/*PS_MONK79*/    { sfx_MONK,                  "Sfx\\Monk\\Monk79.wav",       NULL },
+/*PS_MONK79*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk79.wav",       NULL },
 /*PS_MONK80*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk80.wav",       NULL },
 /*PS_MONK81*///  { sfx_STREAM | sfx_MONK,     "Sfx\\Misc\\blank.wav",        NULL },
 /*PS_MONK82*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk82.wav",       NULL },
