@@ -506,11 +506,11 @@ typedef struct TSnd {
 	Uint32 nextTc;
 } TSnd;
 
-typedef struct TSFX {
+typedef struct SFXStruct {
 	BYTE bFlags;
 	const char *pszName;
 	TSnd *pSnd;
-} TSFX;
+} SFXStruct;
 
 //////////////////////////////////////////////////
 // monster

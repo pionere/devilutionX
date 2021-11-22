@@ -17,13 +17,13 @@ int sfxdnum;
 const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] = { };
 #else
 /** Specifies the sound file and the playback state of the current sound effect. */
-static TSFX* sgpStreamSFX = NULL;
+static SFXStruct* sgpStreamSFX = NULL;
 
 /** Maps from monster sfx to monster sound letter. */
 static const char MonstSndChar[NUM_MON_SFX] = { 'a', 'h', 'd', 's' };
 
 /** List of all sounds, except monsters and music */
-TSFX sgSFX[] = {
+SFXStruct sgSFX[] = {
 	// clang-format off
 //_sfx_id           bFlags,                   pszName,                       pSnd
 /*PS_WALK1*/     { sfx_MISC,                  "Sfx\\Misc\\Walk1.wav",        NULL },
@@ -1147,7 +1147,7 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 
 bool effect_is_playing(int nSFX)
 {
-	TSFX* sfx = &sgSFX[nSFX];
+	SFXStruct* sfx = &sgSFX[nSFX];
 
 	if (sfx->bFlags & sfx_STREAM)
 		return sfx == sgpStreamSFX;
@@ -1163,7 +1163,7 @@ void stream_stop()
 	}
 }
 
-static void stream_play(TSFX* pSFX, int lVolume, int lPan)
+static void stream_play(SFXStruct* pSFX, int lVolume, int lPan)
 {
 	// assert(pSFX != NULL);
 	// assert(pSFX->bFlags & sfx_STREAM);
@@ -1258,7 +1258,7 @@ static bool calc_snd_position(int x, int y, int* plVolume, int* plPan)
 	return true;
 }
 
-static void PlaySFX_priv(TSFX* pSFX, bool loc, int x, int y)
+static void PlaySFX_priv(SFXStruct* pSFX, bool loc, int x, int y)
 {
 	int lPan, lVolume;
 
