@@ -3396,7 +3396,7 @@ Sfx\Misc\Lning1.wav
 _Sfx\Misc\Ltning.wav
 Sfx\Misc\Lvl16int.wav
 Sfx\Misc\Mshield.wav
-Sfx\Misc\NestXpld.wav
+_Sfx\Misc\NestXpld.wav
 Sfx\Misc\Nova.wav
 _Sfx\Misc\Portal.wav
 Sfx\Misc\Puddle.wav

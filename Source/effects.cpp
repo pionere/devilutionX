@@ -157,7 +157,7 @@ SFXStruct sgSFX[] = {
 /*LS_LNING1*/    { sfx_MISC,                  "Sfx\\Misc\\Lning1.wav",       NULL },
 /*LS_LTNING*///  { sfx_MISC,                  "Sfx\\Misc\\Ltning.wav",       NULL },
 /*LS_MSHIELD*/   { sfx_MISC,                  "Sfx\\Misc\\Mshield.wav",      NULL },
-/*LS_NESTXPLD*/  { sfx_MISC | sfx_HELLFIRE,   "Sfx\\Misc\\NestXpld.wav",     NULL },
+/*LS_NESTXPLD*///{ sfx_MISC | sfx_HELLFIRE,   "Sfx\\Misc\\NestXpld.wav",     NULL },
 /*LS_NOVA*/      { sfx_MISC,                  "Sfx\\Misc\\Nova.wav",         NULL },
 /*LS_PORTAL*///  { sfx_MISC,                  "Sfx\\Misc\\Portal.wav",       NULL },
 /*LS_PUDDLE*/    { sfx_MISC,                  "Sfx\\Misc\\Puddle.wav",       NULL },

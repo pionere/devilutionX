@@ -526,7 +526,7 @@ typedef enum _sfx_id {
 	LS_LNING1,
 	//LS_LTNING,
 	LS_MSHIELD,
-	LS_NESTXPLD,
+	//LS_NESTXPLD,
 	LS_NOVA,
 	//LS_PORTAL,
 	LS_PUDDLE,
