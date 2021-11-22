@@ -588,7 +588,7 @@ const UniqItemData UniqueItemList[NUM_UITEM] = {
 const ItemFileData itemfiledata[NUM_IFILE] = {
 	// clang-format off
 //item_gfx_id        ifName,     idSFX,    iiSFX,     iAnimLen
-/*IFILE_ARMOR2*/   { "Armor2",   IS_FHARM, IS_IHARM,  15 },
+/*IFILE_ARMOR2*/// { "Armor2",   IS_FHARM, IS_IHARM,  15 },
 /*IFILE_AXE*/      { "Axe",      IS_FAXE,  IS_IAXE,   13 },
 /*IFILE_FBTTLE*/   { "FBttle",   IS_FPOT,  IS_IPOT,   16 },
 /*IFILE_BOW*/      { "Bow",      IS_FBOW,  IS_IBOW,   13 },
@@ -607,7 +607,7 @@ const ItemFileData itemfiledata[NUM_IFILE] = {
 /*IFILE_SCROLL*/   { "Scroll",   IS_FSCRL, IS_ISCROL, 13 },
 /*IFILE_FPLATEAR*/ { "FPlateAr", IS_FHARM, IS_IHARM,  13 },
 /*IFILE_FBOOK*/    { "FBook",    IS_FBOOK, IS_IBOOK,  13 },
-/*IFILE_FOOD*/     { "Food",     IS_FLARM, IS_IHARM,   1 },
+/*IFILE_FOOD*///   { "Food",     IS_FLARM, IS_IHARM,   1 },
 /*IFILE_FBTTLEBB*/ { "FBttleBB", IS_FPOT,  IS_IPOT,   16 },
 /*IFILE_FBTTLEDY*/ { "FBttleDY", IS_FPOT,  IS_IPOT,   16 },
 /*IFILE_FBTTLEOR*/ { "FBttleOR", IS_FPOT,  IS_IPOT,   16 },

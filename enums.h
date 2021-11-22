@@ -346,7 +346,7 @@ typedef enum item_cursor_graphic {
 } item_cursor_graphic;
 
 typedef enum item_gfx_id {
-	IFILE_ARMOR2,
+	//IFILE_ARMOR2,
 	IFILE_AXE,
 	IFILE_FBTTLE,
 	IFILE_BOW,
@@ -365,7 +365,7 @@ typedef enum item_gfx_id {
 	IFILE_SCROLL,
 	IFILE_FPLATEAR,
 	IFILE_FBOOK,
-	IFILE_FOOD,
+	//IFILE_FOOD,
 	IFILE_FBTTLEBB,
 	IFILE_FBTTLEDY,
 	IFILE_FBTTLEOR,
