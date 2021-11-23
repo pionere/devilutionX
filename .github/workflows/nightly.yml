@@ -456,7 +456,9 @@ jobs:
     # release notes
     - name: Create release notes
       run: |
-        echo Latest nightly builds           > RELEASE_NOTE.md
+        echo 'Latest nightly builds'         > RELEASE_NOTE.md
+        echo ''                             >> RELEASE_NOTE.md
+        echo 'For the list of changes see [changelog](docs/CHANGELOG.md#DevilX).' >> RELEASE_NOTE.md
         echo ''                             >> RELEASE_NOTE.md
         echo '### **Diablo**'               >> RELEASE_NOTE.md
         echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md

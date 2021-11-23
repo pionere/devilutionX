@@ -89,7 +89,7 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 **Requires RetroFW 2.0+.**
 
-- Copy [devilutionx-retrofw.opk](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-retrofw.opk) to the apps directory.
+- Copy the OPK file to the apps directory.
 - Copy the MPQ files to `~/.local/share/diasurgical/devilution`
 
 `~` is your home directory, `/home/retrofw` by default.
@@ -100,7 +100,7 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 **Requires firmware v1.5+**
 
-- Copy [devilutionx-rg350.opk](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-rg350.opk) to `/media/sdcard/APPS/`.
+- Copy the OPK file to `/media/sdcard/APPS/`.
 - Copy the MPQ files to `/media/home/.local/share/diasurgical/devilution/`
 -
  **NOTE:** You can copy the MPQ files to sdcard instead and create a symlink at the expected location. To do this, SSH into your RG350 and run:

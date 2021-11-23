@@ -27,3 +27,5 @@ Controls:
 - Select + L: left mouse click
 - Select + R: right mouse click
 - Suspend: map
+
+Source: https://github.com/pionere/devilutionX/
