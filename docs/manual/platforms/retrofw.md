@@ -6,16 +6,7 @@ Demo video:
 
 ## Installation
 
-**Requires RetroFW 2.0+.**
-
-1. Copy [devilutionx-retrofw.opk](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-retrofw.opk) to the apps directory.
-2. Copy `diabdat.mpq` from your CD, or GoG install folder to:
-
-   ~~~
-   ~/.local/share/diasurgical/devilution
-   ~~~
-
-`~` is your home directory, `/home/retrofw` by default.
+Installation instructions can be found on the [Installing](/docs/installing.md) page.
 
 ## Controls
 
@@ -51,4 +42,4 @@ Saves are compatible with PC saves from Diablo 1 and DevilutionX.
 ## Resources
 
 * Discord: https://discord.gg/YQKCAYQ
-* GitHub: https://github.com/diasurgical/devilutionX
+* GitHub: https://github.com/pionere/devilutionX

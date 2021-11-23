@@ -1,11 +1,10 @@
 # DevilutionX (Diablo 1) for PS Vita
 
-## How To Play:
- - Install VPK
- - Copy diabdat.mpq from your CD or GoG installation (or [extract it from the GoG installer](https://github.com/diasurgical/devilutionX/wiki/Extracting-the-.MPQs-from-the-GoG-installer)) to the `ux0:/data/diasurgical/devilution/`.
- - To run the Diablo: Hellfire expansion you will need to also copy hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq.
+## Installation
 
-# Building from Source
+Installation instructions can be found on the [Installing](/docs/installing.md) page.
+
+## Building from Source
 
 ```
 cd build
@@ -13,12 +12,10 @@ cmake -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DCMAKE_BUILD
 make
 ```
 
-# Multiplayer
- - TCP/IP requires the host to expose port 6112.
+## Multiplayer
+- TCP/IP requires the host to expose port 6112.
 
-# Controls
-
-## Default
+## Controls
 
 - Left analog or D-Pad: move hero
 - ○: attack nearby enemies, talk to townspeople and merchants, pickup/place items in the inventory, OK while in main menu
@@ -53,3 +50,8 @@ sdl2_controller_mapping=50535669746120436f6e74726f6c6c65,PSVita Controller,y:b0,
 - **switch_potions_and_clicks:** L1/R1 works as left/right mouse clicks by default, and as health/mana potion while holding Select
 - **sdl2_controller_mapping:** allows you to remap controls. It uses https://github.com/gabomdq/SDL_GameControllerDB syntax
 - **enable_second_touchscreen:** enable/disable back touch mapping to L2/R2
+
+## Resources
+
+* Discord: https://discord.gg/YQKCAYQ
+* GitHub: https://github.com/diasurgical/devilutionX

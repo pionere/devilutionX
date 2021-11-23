@@ -18,8 +18,8 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 - Copy the MPQ files to the folder containing the DevilutionX executable (or to the data folder, which may differ depending on distro, version, and security settings, but will normally be `~/.local/share/diasurgical/devilx/`)
 - Install [SDL2](https://www.libsdl.org/download-2.0.php), [SDL2_mixer](https://www.libsdl.org/projects/SDL_mixer/):
- - Ubuntu/Debian/Rasbian `sudo apt install libsdl2-2.0-0 libsdl2-mixer-2.0-0`
- - Fedora `sudo dnf install SDL2 SDL2_mixer`
+  - Ubuntu/Debian/Rasbian `sudo apt install libsdl2-2.0-0 libsdl2-mixer-2.0-0`
+  - Fedora `sudo dnf install SDL2 SDL2_mixer`
 - Run `./devilutionx`
 
 </details>
@@ -33,9 +33,12 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 <details><summary>Nintendo Switch</summary>
 
+- Download and unzip [devilutionx-switch.zip](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-switch.zip).
 - Copy `devilutionx.nro` in into `/switch/devilutionx`
 - Copy the MPQ files to `/switch/devilutionx`.
 - Launch `devilutionx.nro` by holding R the installed game. Do not use the album to launch, if you use the album, the homebrew will only have a small amount of memory available, and the touch keyboard won't work. This is true for all homebrew, not just DevilutionX.
+
+[Nintendo Switch manual](/docs/manual/platforms/switch.md)
 
 </details>
 
@@ -48,7 +51,7 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 <details><summary>Nintendo 3DS</summary>
 
-Download `devilutionx.cia` from the [latest release](https://github.com/diasurgical/devilutionX/releases/latest) and place it on your SD card.
+Download [devilutionx.cia](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-3ds.cia) and place it on your SD card.
 This file will be used later to install the game on the 3DS console.
 
 Copy the MPQ files to the `devilutionx` subfolder under the `3ds` folder on your SD card (`/3ds/devilutionx`). The game will read these files from this location.
@@ -63,8 +66,10 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 <details><summary>Playstation Vita</summary>
 
- - Install devilutionx.vpk
- - Copy the MPQ files to `ux0:/data/diasurgical/devilution/`.
+- Install [devilutionx.vpk](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-vita.vpk)
+- Copy the MPQ files to `ux0:/data/diasurgical/devilution/`.
+
+[Playstation Vita manual](/docs/manual/platforms/vita.md)
 
 </details>
 
@@ -94,6 +99,8 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 `~` is your home directory, `/home/retrofw` by default.
 
+[RetroFW manual](/docs/manual/platforms/retrofw.md)
+
 </details>
 
 <details><summary>RG350</summary>
@@ -102,11 +109,13 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 - Copy the OPK file to `/media/sdcard/APPS/`.
 - Copy the MPQ files to `/media/home/.local/share/diasurgical/devilution/`
--
+
  **NOTE:** You can copy the MPQ files to sdcard instead and create a symlink at the expected location. To do this, SSH into your RG350 and run:
 
  ~~~bash
  ln -sf /media/sdcard/<path_to_MPQ> /media/home/.local/share/diasurgical/devilution/<MPQ>
  ~~~
+
+[RG350 manual](/docs/manual/platforms/rg350.md)
 
 </details>
