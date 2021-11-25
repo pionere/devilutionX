@@ -582,7 +582,7 @@ struct smk_t {
 		unsigned char	channels;
 		unsigned char	bitdepth;
 		unsigned long	rate;
-		long	max_buffer;
+		unsigned long	max_buffer;
 
 		/* compression type
 			0: raw PCM
@@ -638,9 +638,22 @@ static char smk_read_memory(void * buf, const unsigned long size, unsigned char 
 	return 0;
 }
 
+static char smk_read_in_memory(void ** buf, const unsigned long size, unsigned char ** p, unsigned long * p_size)
+{
+	if (size > *p_size) {
+		fprintf(stderr, "libsmacker::smk_read_in_memory(buf,%lu,p,%lu) - ERROR: Short read\n", (unsigned long)size, (unsigned long)*p_size);
+		return -1;
+	}
+	*buf = *p;
+	*p += size;
+	*p_size -= size;
+	return 0;
+}
+
 /* Helper functions to do the reading, plus
 	byteswap from LE to host order */
 /* read n bytes from (source) into ret */
+#ifdef FULL_ORIG
 #define smk_read(ret,n) \
 { \
 	if (m) \
@@ -657,7 +670,30 @@ static char smk_read_memory(void * buf, const unsigned long size, unsigned char 
 		goto error; \
 	} \
 }
-
+#else
+#define smk_read(ret,n) \
+{ \
+	{ \
+		r = (smk_read_memory(ret,n,&fp.ram,&size)); \
+	} \
+	if (r < 0) \
+	{ \
+		fprintf(stderr,"libsmacker::smk_read(...) - Errors encountered on read, bailing out (file: %s, line: %lu)\n", __FILE__, (unsigned long)__LINE__); \
+		goto error; \
+	} \
+}
+#define smk_read_in(ret, n) \
+{ \
+	{ \
+		r = (smk_read_in_memory(&ret,n,&fp.ram,&size)); \
+	} \
+	if (r < 0) \
+	{ \
+		fprintf(stderr,"libsmacker::smk_read(...) - Errors encountered on read, bailing out (file: %s, line: %lu)\n", __FILE__, (unsigned long)__LINE__); \
+		goto error; \
+	} \
+}
+#endif
 /* Calls smk_read, but returns a ul */
 #define smk_read_ul(p) \
 { \
@@ -819,11 +855,14 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	}
 
 	/* That was easy... Now read FrameTypes! */
+#ifdef FULL_ORIG
 	smk_malloc(s->frame_type, (s->f + s->ring_frame));
 
 	for (temp_u = 0; temp_u < (s->f + s->ring_frame); temp_u ++)
 		smk_read(&s->frame_type[temp_u], 1);
-
+#else
+	smk_read_in(s->frame_type, (s->f + s->ring_frame));
+#endif
 	/* HuffmanTrees
 		We know the sizes already: read and assemble into
 		something actually parse-able at run-time */
@@ -854,10 +893,16 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 #endif
 		smk_malloc(s->source.chunk_data, (s->f + s->ring_frame) * sizeof(unsigned char *));
 
+#ifdef FULL_ORIG
 		for (temp_u = 0; temp_u < (s->f + s->ring_frame); temp_u ++) {
 			smk_malloc(s->source.chunk_data[temp_u], s->chunk_size[temp_u]);
 			smk_read(s->source.chunk_data[temp_u], s->chunk_size[temp_u]);
 		}
+#else
+		for (temp_u = 0; temp_u < (s->f + s->ring_frame); temp_u ++) {
+			smk_read_in(s->source.chunk_data[temp_u], s->chunk_size[temp_u]);
+		}
+#endif
 #ifdef FULL
 	} else {
 		/* MODE_STREAM: don't read anything now, just precompute offsets.
@@ -991,7 +1036,9 @@ void smk_close(smk s)
 #ifdef FULL
 	smk_free(s->keyframe);
 #endif
+#ifdef FULL_ORIG
 	smk_free(s->frame_type);
+#endif
 
 #ifdef FULL
 	if (s->mode == SMK_MODE_DISK) {
@@ -1004,8 +1051,10 @@ void smk_close(smk s)
 #endif
 		/* mem-mode */
 		if (s->source.chunk_data != NULL) {
+#ifdef FULL_ORIG
 			for (u = 0; u < (s->f + s->ring_frame); u++)
 				smk_free(s->source.chunk_data[u]);
+#endif
 
 			smk_free(s->source.chunk_data);
 		}
@@ -1713,7 +1762,7 @@ static char smk_render(smk s)
 		}
 
 		/* Read into buffer */
-		if (smk_read_file(buffer, s->chunk_size[s->cur_frame], s->source.file.fp) < 0) {
+		if (smk_read_file(buffer, i/*s->chunk_size[s->cur_frame]*/, s->source.file.fp) < 0) {
 			fprintf(stderr, "libsmacker::smk_render(s) - ERROR: frame %lu (offset %lu): smk_read had errors.\n", s->cur_frame, s->source.file.chunk_offset[s->cur_frame]);
 			goto error;
 		}
