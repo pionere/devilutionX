@@ -1344,21 +1344,32 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_DWM_TWARPDN:
 	case DVL_DWM_TWARPUP:
 	case DVL_DWM_RETOWN:
-		if (IsMultiGame)
-			pfile_write_hero(false);
+	case DVL_DWM_NEWGAME:
 		nthread_run();
-		PaletteFadeOut();
-		sound_stop();
+		if (uMsg != DVL_DWM_NEWGAME) {
+			if (IsMultiGame)
+				pfile_write_hero(false);
+			PaletteFadeOut();
+			sound_stop();
+		}
 		music_stop();
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
 		ShowCutscene(uMsg);
-		gbRedrawFlags = REDRAW_ALL;
-		scrollrt_draw_game();
-		LoadPWaterPalette();
-		if (gbRunGame)
+		if (uMsg == DVL_DWM_NEWGAME) {
+			CalcViewportGeometry();
+			// process remaining packets of delta-load
+			RunDeltaPackets();
+		}
+		InitLevelCursor();
+		if (gbRunGame) {
+			gbRedrawFlags = REDRAW_ALL;
+			scrollrt_draw_game();
+			LoadPWaterPalette();
 			PaletteFadeIn();
-		// process packets arrived during LoadLevel and disable nthread
+			//gbRedrawFlags = REDRAW_ALL;
+		}
+		// process packets arrived during LoadLevel / delta-load and disable nthread
 		nthread_finish();
 		return;
 	}
@@ -1554,20 +1565,7 @@ static void run_game()
 
 	saveProc = InitGameUI();
 
-	nthread_run();
-	music_stop();
-	ShowCutscene(DVL_DWM_NEWGAME);
-	CalcViewportGeometry();
-	InitLevelCursor();
-	// process remaining packets of delta-load
-	RunDeltaPackets();
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
-	LoadPWaterPalette();
-	PaletteFadeIn();
-	gbRedrawFlags = REDRAW_ALL;
-	// process packets arrived during LoadLevel / delta-load and disable nthread
-	nthread_finish();
+	GameWndProc(DVL_DWM_NEWGAME, NULL);
 
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 	unsigned run_game_iteration = 0;
