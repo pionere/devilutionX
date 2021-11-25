@@ -1412,7 +1412,7 @@ void InitUiEffects()
 
 void FreeGameEffects()
 {
-	priv_sound_free(~sfx_UI);
+	priv_sound_free(~(sfx_UI | sfx_STREAM));
 }
 
 void FreeUiEffects()
