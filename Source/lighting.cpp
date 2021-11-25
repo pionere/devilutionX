@@ -1163,11 +1163,6 @@ void ProcessLightList()
 	}
 }
 
-void SavePreLighting()
-{
-	memcpy(dPreLight, dLight, sizeof(dPreLight));
-}
-
 void InitVision()
 {
 	int i;

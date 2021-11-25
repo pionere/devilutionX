@@ -52,7 +52,14 @@ void ChangeLightXYOff(unsigned lnum, int x, int y);
 void CondChangeLightOff(unsigned lnum, int xoff, int yoff);
 void ChangeLight(unsigned lnum, int x, int y, int r);
 void ProcessLightList();
-void SavePreLighting();
+inline void SavePreLighting()
+{
+	memcpy(dPreLight, dLight, sizeof(dPreLight));
+}
+inline void LoadPreLighting()
+{
+	memcpy(dLight, dPreLight, sizeof(dPreLight));
+}
 void InitVision();
 int AddVision(int x, int y, int r, bool mine);
 void AddUnVision(unsigned vnum);

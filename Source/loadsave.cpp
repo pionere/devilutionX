@@ -826,10 +826,11 @@ static void LoadLevelData(bool full)
 
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
-	if (full)
+	if (full) {
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
+	}
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		LoadInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
@@ -1523,10 +1524,11 @@ static void SaveLevelData(bool full)
 		SaveItemData(&items[itemactive[i]]);
 	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
-	if (full)
+	if (full) {
+		CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
+	}
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		SaveInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
@@ -1677,11 +1679,15 @@ void LoadLevel()
 	//ResyncQuests();
 	//SyncPortals();
 
+	// clear flags of the eliminated missiles
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in LoadLevel.");
 	tmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, tmp++)
 		*tmp &= ~(BFLAG_MISSILE_PRE | BFLAG_HAZARD | BFLAG_ALERT /*| BFLAG_DEAD_PLAYER*/);
-
+	// reload light to clear the lights of the eliminated missiles
+	LoadPreLighting();
+	// doLightning is not necessary, because it is going to be triggered
+	// when the player is placed in the dungeon
 	//RedoPlayerLight();
 }
 
