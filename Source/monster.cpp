@@ -831,6 +831,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 	PlaceMonster(nummonsters, uniqtype, xp, yp);
 	mon = &monsters[nummonsters];
 	mon->_uniqtype = uniqindex + 1;
+	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
 #ifdef HELLFIRE
 	if (uniqindex != UMT_HORKDMN)
 #endif

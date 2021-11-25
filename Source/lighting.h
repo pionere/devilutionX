@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #define NO_LIGHT			MAXLIGHTS
+#define MAX_LIGHT_RAD		15
 
 extern BYTE visionactive[MAXVISION];
 extern LightListStruct VisionList[MAXVISION];

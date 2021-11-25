@@ -408,7 +408,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	if (pnum == mypnum)
 		ValidateActionSkills(pnum, RSPLTYPE_CHARGES, spl);
 
-	lrad = std::max(2, std::min(15, lrad));
+	lrad = std::max(2, std::min(MAX_LIGHT_RAD, lrad));
 	if (plr._pLightRad != lrad) {
 		plr._pLightRad = lrad;
 		ChangeLightRadius(plr._plid, lrad);

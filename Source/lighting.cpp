@@ -18,9 +18,9 @@ bool gbDolighting;
 #ifdef _DEBUG
 char lightmax;
 #endif
-BYTE darkness[16][128];
+BYTE darkness[MAX_LIGHT_RAD + 1][128];
 BYTE distance[64][16][16];
-BYTE LightTrns[NUM_LIGHT_TRNS][256];
+BYTE LightTrns[15 + 12][256]; // 15 + 12 == NUM_LIGHT_TRNS
 
 /**
  * CrawlTable specifies X- and Y-coordinate deltas from a missile target coordinate.
@@ -898,7 +898,7 @@ void InitLightGFX()
 	} else
 #endif*/
 	{
-		for (i = 0, k = 8; i < 16; i++, k += 8) {
+		for (i = 0, k = 8; i < MAX_LIGHT_RAD + 1; i++, k += 8) {
 			for (j = 0; j < 128; j++) {
 				if (j >= k) {
 					darkness[i][j] = 15;
