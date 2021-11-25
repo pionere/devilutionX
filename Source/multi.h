@@ -35,11 +35,6 @@ void multi_player_left(int pnum, int reason);
 void multi_disband_team(int pnum);
 bool multi_check_timeout();
 void multi_rnd_seeds();
-/**
- * Reset rnd seeds of multi player games.
- * Necessary because of the high probability of out of sync monsters.
- */
-void multi_mis_seeds();
 void NetClose();
 bool NetInit(bool bSinglePlayer);
 void multi_init_buffers();

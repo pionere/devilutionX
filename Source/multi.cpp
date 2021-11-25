@@ -182,14 +182,6 @@ void multi_rnd_seeds()
 		monsters[i]._mAISeed = seed;
 }
 
-void multi_mis_seeds()
-{
-	if (!IsMultiGame)
-		return;
-
-	SetRndSeed(monsters[0]._mAISeed);
-}
-
 static void multi_parse_turns()
 {
 	int pnum;

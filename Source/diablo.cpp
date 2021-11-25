@@ -1425,7 +1425,6 @@ void game_logic()
 	} else {
 		ProcessTowners();
 	}
-	multi_mis_seeds();
 	ProcessMissiles();
 	ProcessItems();
 	ProcessLightList();
