@@ -78,7 +78,9 @@ char smk_info_video(const smk object, unsigned long * w, unsigned long * h, unsi
 char smk_info_audio(const smk object, unsigned char * track_mask, unsigned char channels[7], unsigned char bitdepth[7], unsigned long audio_rate[7]);
 
 /* ENABLE/DISABLE Switches */
+#ifdef FULL
 char smk_enable_all(smk object, const unsigned char mask);
+#endif
 char smk_enable_video(smk object, const unsigned char enable);
 char smk_enable_audio(smk object, const unsigned char track, const unsigned char enable);
 
@@ -95,8 +97,10 @@ unsigned long smk_get_audio_size(const smk object, const unsigned char track);
 char smk_first(smk object);
 /** advance to next frame and unpack */
 char smk_next(smk object);
+#ifdef FULL
 /** seek to first keyframe before/at N in an smk */
 char smk_seek_keyframe(smk object, unsigned long frame);
+#endif
 
 /** was the pallet updated this frame */
 unsigned char smk_palette_updated(smk s);

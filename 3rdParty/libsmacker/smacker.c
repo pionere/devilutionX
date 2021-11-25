@@ -516,12 +516,13 @@ struct smk_t {
 		Where the data is going to be read from (or be stored),
 		depending on the file mode. */
 	union {
+#ifdef FULL
 		struct {
 			/* on-disk mode */
 			FILE * fp;
 			unsigned long * chunk_offset;
 		} file;
-
+#endif
 		/* in-memory mode: unprocessed chunks */
 		unsigned char ** chunk_data;
 	} source;
@@ -529,8 +530,10 @@ struct smk_t {
 	/* shared array of "chunk sizes"*/
 	unsigned long * chunk_size;
 
+#ifdef FULL
 	/* Holds per-frame flags (i.e. 'keyframe') */
 	unsigned char * keyframe;
+#endif
 	/* Holds per-frame type mask (e.g. 'audio track 3, 2, and palette swap') */
 	unsigned char * frame_type;
 
@@ -545,12 +548,13 @@ struct smk_t {
 		/* video info */
 		unsigned long	w;
 		unsigned long	h;
+#ifdef FULL
 		/* Y scale mode (constants defined in smacker.h)
 			0: unscaled
 			1: doubled
 			2: interlaced */
 		unsigned char	y_scale_mode;
-
+#endif
 		/* version ('2' or '4') */
 		unsigned char	v;
 
@@ -566,8 +570,10 @@ struct smk_t {
 
 	/* audio structure */
 	struct smk_audio_t {
+#ifdef FULL
 		/* set if track exists in file */
 		unsigned char exists;
+#endif
 
 		/* enable/disable switch (per track) */
 		unsigned char enable;
@@ -591,7 +597,9 @@ struct smk_t {
 };
 
 union smk_read_t {
+#ifdef FULL
 	FILE * file;
+#endif
 	unsigned char * ram;
 };
 
@@ -600,6 +608,7 @@ union smk_read_t {
 /* ************************************************************************* */
 /* An fread wrapper: consumes N bytes, or returns -1
 	on failure (when size doesn't match expected) */
+#ifdef FULL
 static char smk_read_file(void * buf, const size_t size, FILE * fp)
 {
 	/* don't bother checking buf or fp, fread does it for us */
@@ -613,7 +622,7 @@ static char smk_read_file(void * buf, const size_t size, FILE * fp)
 
 	return 0;
 }
-
+#endif
 /* A memcpy wrapper: consumes N bytes, or returns -1
 	on failure (when size too low) */
 static char smk_read_memory(void * buf, const unsigned long size, unsigned char ** p, unsigned long * p_size)
@@ -680,11 +689,14 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 
 	/** **/
 	/* safe malloc the structure */
+#ifdef FULL
 	if ((s = calloc(1, sizeof(struct smk_t))) == NULL) {
 		perror("libsmacker::smk_open_generic() - ERROR: failed to malloc() smk structure");
 		return NULL;
 	}
-
+#else
+	smk_malloc(s, sizeof(struct smk_t));
+#endif
 	/* Check for a valid signature */
 	smk_read(buf, 3);
 
@@ -736,6 +748,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	if (temp_u & 0x01)
 		s->ring_frame = 1;
 
+#ifdef FULL
 	if (temp_u & 0x02)
 		s->video.y_scale_mode = SMK_FLAG_Y_DOUBLE;
 
@@ -745,7 +758,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 
 		s->video.y_scale_mode = SMK_FLAG_Y_INTERLACE;
 	}
-
+#endif
 	/* Max buffer size for each audio track - used to pre-allocate buffers */
 	for (temp_l = 0; temp_l < 7; temp_l ++)
 		smk_read_ul(s->audio[temp_l].max_buffer);
@@ -762,8 +775,10 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 		smk_read_ul(temp_u);
 
 		if (temp_u & 0x40000000) {
+#ifdef FULL
 			/* Audio track specifies "exists" flag, malloc structure and copy components. */
 			s->audio[temp_l].exists = 1;
+#endif
 			/* and for all audio tracks */
 			smk_malloc(s->audio[temp_l].buffer, s->audio[temp_l].max_buffer);
 
@@ -772,12 +787,12 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 
 			s->audio[temp_l].bitdepth = ((temp_u & 0x20000000) ? 16 : 8);
 			s->audio[temp_l].channels = ((temp_u & 0x10000000) ? 2 : 1);
-
+#ifdef FULL
 			if (temp_u & 0x0c000000) {
 				fprintf(stderr, "libsmacker::smk_open_generic - Warning: audio track %ld is compressed with Bink (perceptual) Audio Codec: this is currently unsupported by libsmacker\n", temp_l);
 				s->audio[temp_l].compress = 2;
 			}
-
+#endif
 			/* Bits 25 & 24 are unused. */
 			s->audio[temp_l].rate = (temp_u & 0x00FFFFFF);
 		}
@@ -786,16 +801,19 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	/* Skip over Dummy field */
 	smk_read_ul(temp_u);
 	/* FrameSizes and Keyframe marker are stored together. */
+#ifdef FULL
 	smk_malloc(s->keyframe, (s->f + s->ring_frame));
+#endif
 	smk_malloc(s->chunk_size, (s->f + s->ring_frame) * sizeof(unsigned long));
 
 	for (temp_u = 0; temp_u < (s->f + s->ring_frame); temp_u ++) {
 		smk_read_ul(s->chunk_size[temp_u]);
 
+#ifdef FULL
 		/* Set Keyframe */
 		if (s->chunk_size[temp_u] & 0x01)
 			s->keyframe[temp_u] = 1;
-
+#endif
 		/* Bits 1 is used, but the purpose is unknown. */
 		s->chunk_size[temp_u] &= 0xFFFFFFFC;
 	}
@@ -871,10 +889,14 @@ smk smk_open_memory(const unsigned char * buffer, const unsigned long size)
 	smk s = NULL;
 	union smk_read_t fp;
 
+#ifdef FULL
 	if (buffer == NULL) {
 		fputs("libsmacker::smk_open_memory() - ERROR: buffer pointer is NULL\n", stderr);
 		return NULL;
 	}
+#else
+	assert(buffer);
+#endif
 
 	/* set up the read union for Memory mode */
 	fp.ram = (unsigned char *)buffer;
@@ -944,11 +966,14 @@ error:
 void smk_close(smk s)
 {
 	unsigned long u;
-
+#ifdef FULL
 	if (s == NULL) {
 		fputs("libsmacker::smk_close() - ERROR: smk is NULL\n", stderr);
 		return;
 	}
+#else
+	assert(s);
+#endif
 
 	/* free video sub-components */
 	for (u = 0; u < 4; u ++) {
@@ -963,7 +988,9 @@ void smk_close(smk s)
 			smk_free(s->audio[u].buffer);
 	}
 
+#ifdef FULL
 	smk_free(s->keyframe);
+#endif
 	smk_free(s->frame_type);
 
 #ifdef FULL
@@ -993,6 +1020,7 @@ void smk_close(smk s)
 char smk_info_all(const smk object, unsigned long * frame, unsigned long * frame_count, double * usf)
 {
 	/* null check */
+#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_info_all() - ERROR: smk is NULL\n", stderr);
 		return -1;
@@ -1010,16 +1038,25 @@ char smk_info_all(const smk object, unsigned long * frame, unsigned long * frame
 		*frame_count = object->f;
 
 	if (usf)
+#else
+	assert(object);
+	assert(frame == NULL);
+	assert(frame_count == NULL);
+	assert(usf);
+#endif
 		*usf = object->usf;
 
 	return 0;
+#ifdef FULL
 error:
 	return -1;
+#endif
 }
 
 char smk_info_video(const smk object, unsigned long * w, unsigned long * h, unsigned char * y_scale_mode)
 {
 	/* null check */
+#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_info_video() - ERROR: smk is NULL\n", stderr);
 		return -1;
@@ -1029,6 +1066,12 @@ char smk_info_video(const smk object, unsigned long * w, unsigned long * h, unsi
 		fputs("libsmacker::smk_info_all(object,w,h,y_scale_mode) - ERROR: Request for info with all-NULL return references\n", stderr);
 		return -1;
 	}
+#else
+	assert(object);
+	assert(w);
+	assert(h);
+	assert(y_scale_mode == NULL);
+#endif
 
 	if (w)
 		*w = object->video.w;
@@ -1036,8 +1079,10 @@ char smk_info_video(const smk object, unsigned long * w, unsigned long * h, unsi
 	if (h)
 		*h = object->video.h;
 
+#ifdef FULL
 	if (y_scale_mode)
 		*y_scale_mode = object->video.y_scale_mode;
+#endif
 
 	return 0;
 }
@@ -1047,6 +1092,7 @@ char smk_info_audio(const smk object, unsigned char * track_mask, unsigned char 
 	unsigned char i;
 
 	/* null check */
+#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_info_audio() - ERROR: smk is NULL\n", stderr);
 		return -1;
@@ -1066,6 +1112,13 @@ char smk_info_audio(const smk object, unsigned char * track_mask, unsigned char 
 				((object->audio[5].exists) << 5) |
 				((object->audio[6].exists) << 6));
 	}
+#else
+	assert(object);
+	assert(track_mask == NULL);
+	assert(channels);
+	assert(bitdepth);
+	assert(audio_rate);
+#endif
 
 	if (channels) {
 		for (i = 0; i < 7; i ++)
@@ -1086,6 +1139,7 @@ char smk_info_audio(const smk object, unsigned char * track_mask, unsigned char 
 }
 
 /* Enable-disable switches */
+#ifdef FULL
 char smk_enable_all(smk object, const unsigned char mask)
 {
 	unsigned char i;
@@ -1106,14 +1160,18 @@ char smk_enable_all(smk object, const unsigned char mask)
 
 	return 0;
 }
-
+#endif
 char smk_enable_video(smk object, const unsigned char enable)
 {
 	/* null check */
+#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_enable_video() - ERROR: smk is NULL\n", stderr);
 		return -1;
 	}
+#else
+	assert(object);
+#endif
 
 	object->video.enable = enable;
 	return 0;
@@ -1122,10 +1180,14 @@ char smk_enable_video(smk object, const unsigned char enable)
 char smk_enable_audio(smk object, const unsigned char track, const unsigned char enable)
 {
 	/* null check */
+#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_enable_audio() - ERROR: smk is NULL\n", stderr);
 		return -1;
 	}
+#else
+	assert(object);
+#endif
 
 	object->audio[track].enable = enable;
 	return 0;
@@ -1134,40 +1196,56 @@ char smk_enable_audio(smk object, const unsigned char track, const unsigned char
 const unsigned char * smk_get_palette(const smk object)
 {
 	/* null check */
+#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_get_palette() - ERROR: smk is NULL\n", stderr);
 		return NULL;
 	}
+#else
+	assert(object);
+#endif
 
 	return (unsigned char *)object->video.palette;
 }
 const unsigned char * smk_get_video(const smk object)
 {
 	/* null check */
+#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_get_video() - ERROR: smk is NULL\n", stderr);
 		return NULL;
 	}
+#else
+	assert(object);
+#endif
 
 	return object->video.frame;
 }
 const unsigned char * smk_get_audio(const smk object, const unsigned char t)
 {
 	/* null check */
+#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_get_audio() - ERROR: smk is NULL\n", stderr);
 		return NULL;
 	}
+#else
+	assert(object);
+#endif
 
 	return object->audio[t].buffer;
 }
 unsigned long smk_get_audio_size(const smk object, const unsigned char t)
 {
 	/* null check */
+#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_get_audio_size() - ERROR: smk is NULL\n", stderr);
 		return 0;
 	}
+#else
+	assert(object);
+#endif
 
 	return object->audio[t].buffer_size;
 }
@@ -1732,11 +1810,14 @@ error:
 char smk_first(smk s)
 {
 	/* null check */
+#ifdef FULL
 	if (s == NULL) {
 		fputs("libsmacker::smk_first() - ERROR: smk is NULL\n", stderr);
 		return -1;
 	}
-
+#else
+	assert(s);
+#endif
 	s->cur_frame = 0;
 
 	if (smk_render(s) < 0) {
@@ -1753,10 +1834,14 @@ char smk_first(smk s)
 char smk_next(smk s)
 {
 	/* null check */
+#ifdef FULL
 	if (s == NULL) {
 		fputs("libsmacker::smk_next() - ERROR: smk is NULL\n", stderr);
 		return -1;
 	}
+#else
+	assert(s);
+#endif
 
 	if (s->cur_frame + 1 < (s->f + s->ring_frame)) {
 		s->cur_frame ++;
@@ -1788,6 +1873,7 @@ char smk_next(smk s)
 }
 
 /* seek to a keyframe in an smk */
+#ifdef FULL
 char smk_seek_keyframe(smk s, unsigned long f)
 {
 	/* null check */
@@ -1811,7 +1897,7 @@ char smk_seek_keyframe(smk s, unsigned long f)
 
 	return 0;
 }
-
+#endif
 unsigned char smk_palette_updated(smk s)
 {
 	return s->frame_type[s->cur_frame] & 0x01;
