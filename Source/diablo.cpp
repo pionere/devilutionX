@@ -1567,7 +1567,7 @@ static void run_game()
 
 	saveProc = InitGameUI();
 
-	GameWndProc(DVL_DWM_NEWGAME, NULL);
+	GameWndProc(DVL_DWM_NEWGAME, 0);
 
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 	unsigned run_game_iteration = 0;

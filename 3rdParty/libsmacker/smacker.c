@@ -637,8 +637,8 @@ static char smk_read_memory(void * buf, const unsigned long size, unsigned char 
 	*p_size -= size;
 	return 0;
 }
-
-static char smk_read_in_memory(void ** buf, const unsigned long size, unsigned char ** p, unsigned long * p_size)
+#ifndef FULL_ORIG
+static char smk_read_in_memory(unsigned char ** buf, const unsigned long size, unsigned char ** p, unsigned long * p_size)
 {
 	if (size > *p_size) {
 		fprintf(stderr, "libsmacker::smk_read_in_memory(buf,%lu,p,%lu) - ERROR: Short read\n", (unsigned long)size, (unsigned long)*p_size);
@@ -649,11 +649,11 @@ static char smk_read_in_memory(void ** buf, const unsigned long size, unsigned c
 	*p_size -= size;
 	return 0;
 }
-
+#endif
 /* Helper functions to do the reading, plus
 	byteswap from LE to host order */
 /* read n bytes from (source) into ret */
-#ifdef FULL_ORIG
+#ifdef FULL
 #define smk_read(ret,n) \
 { \
 	if (m) \
@@ -682,6 +682,8 @@ static char smk_read_in_memory(void ** buf, const unsigned long size, unsigned c
 		goto error; \
 	} \
 }
+#endif
+#ifndef FULL_ORIG
 #define smk_read_in(ret, n) \
 { \
 	{ \
