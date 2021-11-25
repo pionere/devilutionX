@@ -40,8 +40,10 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local);
 void MakeLightTable();
 #ifdef _DEBUG
 void ToggleLighting();
-#endif
 void InitLightMax();
+#else
+void InitLightGFX();
+#endif
 void InitLighting();
 unsigned AddLight(int x, int y, int r);
 void AddUnLight(unsigned lnum);

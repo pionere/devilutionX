@@ -210,7 +210,6 @@ void LoadGameLevel(int lvldir)
 	//}
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	IncProgress();
-	InitLightMax();
 	MakeLightTable();
 	InitLvlDungeon();
 	IncProgress();

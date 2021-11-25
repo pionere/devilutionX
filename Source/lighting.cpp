@@ -719,12 +719,14 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 
 void MakeLightTable()
 {
-	int i, j, k, l, shade, l1, l2, cnt, rem, div;
-	double fs, fa;
+	int i, j, k, shade, l1, l2, cnt, rem, div;
 	BYTE col, max;
 	BYTE *tbl;
 	BYTE blood[16];
 
+#ifdef _DEBUG
+	InitLightMax();
+#endif
 	const int lights = LIGHTMAX;
 
 	tbl = LightTrns[0];
@@ -840,6 +842,17 @@ void MakeLightTable()
 		tbl += 240;
 #endif
 	}
+#ifdef _DEBUG
+	InitLightGFX();
+#endif
+}
+
+void InitLightGFX()
+{
+	BYTE* tbl;
+	int i, j, k, l;
+	BYTE col;
+	double fs, fa;
 
 	LoadFileWithMem("PlrGFX\\Infra.TRN", LightTrns[LIGHTIDX_RED]);
 	LoadFileWithMem("PlrGFX\\Stone.TRN", LightTrns[LIGHTIDX_GRAY]);
@@ -930,16 +943,14 @@ void ToggleLighting()
 		}
 	}
 }
-#endif
 
 void InitLightMax()
 {
-#ifdef _DEBUG
 	lightmax = 15;
 	if (light4flag)
 		lightmax = 3;
-#endif
 }
+#endif
 
 void InitLighting()
 {

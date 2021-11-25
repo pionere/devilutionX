@@ -1508,6 +1508,9 @@ static WNDPROC InitGameUI()
 	for (i = 0; i < (IsLocalGame ? 1 : MAX_PLRS); i++)
 		InitPlrGFXMem(i); // gfx
 	InitItemGFX(); // gfx + values (some stored in savefiles)
+#ifndef _DEBUG
+	InitLightGFX(); // 'values'
+#endif
 	InitGameEffects(); // sfx
 
 	gbDeathflag = false;
