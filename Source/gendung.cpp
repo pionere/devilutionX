@@ -66,8 +66,10 @@ bool TransList[256];
 int dPiece[MAXDUNX][MAXDUNY];
 /** Specifies the transparency index at each coordinate of the map. */
 BYTE dTransVal[MAXDUNX][MAXDUNY];
-char dLight[MAXDUNX][MAXDUNY];
-char dPreLight[MAXDUNX][MAXDUNY];
+/** Specifies the base darkness levels of each tile on the map. */
+BYTE dPreLight[MAXDUNX][MAXDUNY];
+/** Specifies the current darkness levels of each tile on the map. */
+BYTE dLight[MAXDUNX][MAXDUNY];
 BYTE dFlags[MAXDUNX][MAXDUNY];
 /**
  * Contains the player numbers (players array indices) of the map.
@@ -119,7 +121,7 @@ THEME_LOC themeLoc[MAXTHEMES];
 
 void DRLG_Init_Globals()
 {
-	char c;
+	BYTE c;
 
 	memset(dFlags, 0, sizeof(dFlags));
 	memset(dPlayer, 0, sizeof(dPlayer));
