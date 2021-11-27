@@ -21,14 +21,15 @@ extern BYTE lightactive[MAXLIGHTS];
 extern LightListStruct LightList[MAXLIGHTS];
 extern int numlights;
 extern int numvision;
-#define LIGHTMAX 15
-#define NUM_LIGHT_TRNS	LIGHTMAX + 12
 
-#define LIGHTIDX_RED	LIGHTMAX + 1
-#define LIGHTIDX_GRAY	LIGHTMAX + 2
-#define LIGHTIDX_CORAL	LIGHTMAX + 3
-#define LIGHTIDX_UNIQ	LIGHTMAX + 4
-extern BYTE LightTrns[NUM_LIGHT_TRNS][256];
+#define MAXDARKNESS 15
+#define NUM_COLOR_TRNS	MAXDARKNESS + 12
+
+#define COLOR_TRN_RED	MAXDARKNESS + 1
+#define COLOR_TRN_GRAY	MAXDARKNESS + 2
+#define COLOR_TRN_CORAL	MAXDARKNESS + 3
+#define COLOR_TRN_UNIQ	MAXDARKNESS + 4
+extern BYTE ColorTrns[NUM_COLOR_TRNS][256];
 
 void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum);
 void DoUnVision(int nXPos, int nYPos, int nRadius);

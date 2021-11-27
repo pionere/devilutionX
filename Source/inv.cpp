@@ -314,7 +314,7 @@ void DrawInv()
 				screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;
 				screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y;
 				InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
-				light_table_index = 0;
+				light_trn_index = 0;
 				gbCelTransparencyActive = true;
 
 				if (frame_width == INV_SLOT_SIZE_PX)

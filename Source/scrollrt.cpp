@@ -32,7 +32,7 @@ static ViewportStruct gsTileVp;
 /**
  * Specifies the current light entry.
  */
-int light_table_index;
+int light_trn_index;
 
 /**
  * Cursor-size
@@ -354,10 +354,10 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	if (mnum == pcursmonst) {
 		Cl2DrawOutline(PAL16_RED + 9, mx, my, pCelBuff, nCel, nWidth);
 	}
-	if (!visFlag || (myplr._pInfraFlag && light_table_index > 8))
-		trans = LIGHTIDX_RED;
+	if (!visFlag || (myplr._pInfraFlag && light_trn_index > 8))
+		trans = COLOR_TRN_RED;
 	else if (mon->_mmode == MM_STONE)
-		trans = LIGHTIDX_GRAY;
+		trans = COLOR_TRN_GRAY;
 	else if (mon->_uniqtype != 0)
 		trans = mon->_uniqtrans;
 	else {
@@ -437,14 +437,14 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == mypnum) {
 			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
-		} else if (!visFlag || (myplr._pInfraFlag && light_table_index > 8)) {
-			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, LIGHTIDX_RED);
+		} else if (!visFlag || (myplr._pInfraFlag && light_trn_index > 8)) {
+			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, COLOR_TRN_RED);
 		} else {
-			l = light_table_index;
-			if (light_table_index <= 5)
-				light_table_index = 0;
+			l = light_trn_index;
+			if (light_trn_index <= 5)
+				light_trn_index = 0;
 			else
-				light_table_index -= 5;
+				light_trn_index -= 5;
 			Cl2DrawLight(px, py, pCelBuff, nCel, nWidth);
 			/*if (plr.pManaShield != 0)
 				Cl2DrawLight(
@@ -453,7 +453,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
 				    misfiledata[MFILE_MANASHLD].mfAnimWidth);*/
-			light_table_index = l;
+			light_trn_index = l;
 		}
 	}
 }
@@ -505,7 +505,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy, BOOL pre)
 	bool mainTile;
 	BYTE *pCelBuff;
 
-	if (light_table_index >= LIGHTMAX)
+	if (light_trn_index >= MAXDARKNESS)
 		return;
 	// assert(oi != 0);
 	mainTile = oi >= 0;
@@ -722,7 +722,7 @@ static void DrawDeadMonster(BYTE bDead, int sx, int sy)
 	BYTE* pCelBuff;
 	int px, nCel, frames;
 
-	if (light_table_index >= LIGHTMAX)
+	if (light_trn_index >= MAXDARKNESS)
 		return;
 
 	pDeadGuy = &dead[(bDead & 0x1F) - 1];
@@ -764,7 +764,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	//dRendered[sx][sy] = true;
 
 	bFlag = dFlags[sx][sy];
-	light_table_index = dLight[sx][sy];
+	light_trn_index = dLight[sx][sy];
 	gbCelTransparencyActive = TransList[dTransVal[sx][sy]];
 
 	mpnum = dPiece[sx][sy];
@@ -850,7 +850,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 				//assert(pn != 0);
 				//if (pn != 0) {
 					//if ((microFlags[pn] & (~(TMIF_WALL_TRANS))) != (TMIF_LEFT_REDRAW | TMIF_RIGHT_REDRAW))
-						light_table_index = dLight[x][y];
+						light_trn_index = dLight[x][y];
 						drawFloor(dPiece[x][y], sx, sy);
 					//}
 				//} else {

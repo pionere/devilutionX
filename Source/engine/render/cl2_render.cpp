@@ -372,7 +372,7 @@ void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth,
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
-	tbl = LightTrns[light];
+	tbl = ColorTrns[light];
 
 	Cl2BlitLight(
 	    pDecodeTo,
@@ -403,8 +403,8 @@ void Cl2DrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	if (light_table_index != 0)
-		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, LightTrns[light_table_index]);
+	if (light_trn_index != 0)
+		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light_trn_index]);
 	else
 		Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }

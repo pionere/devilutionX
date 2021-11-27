@@ -199,7 +199,7 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 		tbl = fontColorTableGold;
 		break;
 	/*case COL_BLACK:
-		tbl = LightTrns[LIGHTMAX];
+		tbl = ColorTrns[MAXDARKNESS];
 		break;*/
 	default:
 		ASSUME_UNREACHABLE
@@ -308,8 +308,8 @@ void PrintLargeString(int x, int y, const char* text, int light)
 	BYTE c, *tbl;
 
 	// TODO: uncomment if performance is required
-	//tbl = light == 0 ? NULL : LightTrns[light];
-	tbl = LightTrns[light];
+	//tbl = light == 0 ? NULL : ColorTrns[light];
+	tbl = ColorTrns[light];
 	while (*text != '\0') {
 		c = mlfontframe[gbFontTransTbl[(BYTE)*text++]];
 		if (c != 0) {

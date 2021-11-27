@@ -252,7 +252,7 @@ void InitLevelMonsters()
 
 	nummonsters = 0;
 	nummtypes = 0;
-	uniquetrans = LIGHTIDX_UNIQ;
+	uniquetrans = COLOR_TRN_UNIQ;
 	monstimgtot = 4000;
 	totalmonsters = MAXMONSTERS;
 
@@ -730,7 +730,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 	MonsterStruct* mon;
 	int count;
 
-	if (uniquetrans >= NUM_LIGHT_TRNS) {
+	if (uniquetrans >= NUM_COLOR_TRNS) {
 		return;
 	}
 
@@ -856,7 +856,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 		mon->_mgoal = MGOAL_INQUIRING;
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
-	LoadFileWithMem(filestr, LightTrns[uniquetrans]);
+	LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
 
 	mon->_uniqtrans = uniquetrans++;
 
@@ -3026,7 +3026,7 @@ void MAI_Sneak(int mnum)
 	// commented out because dLight is not in-sync in multiplayer games and with the added
 	// BFLAG_ALERT check there is not much point to this any more.
 	// TODO: change MonstPlace to prefer non-lit tiles in case of AI_SNEAK?
-	//if (dLight[mx][my] == LIGHTMAX && (dFlags[mx][my] & BFLAG_ALERT) == 0)) {
+	//if (dLight[mx][my] == MAXDARKNESS && (dFlags[mx][my] & BFLAG_ALERT) == 0)) {
 	//	return;	
 	//}
 	mx -= mon->_menemyx;

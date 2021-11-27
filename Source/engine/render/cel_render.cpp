@@ -73,7 +73,7 @@ static void CelBlitLight(BYTE *pDecodeTo, const BYTE *pRLEBytes, int nDataSize, 
 	dst = pDecodeTo;
 	//assert(tbl != NULL);
 	//if (tbl == NULL)
-	//	tbl = LightTrns[light_table_index];
+	//	tbl = ColorTrns[light_trn_index];
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
@@ -178,11 +178,11 @@ void CelDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, co
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
 	/*if (tbl == NULL) {
-		if (light_table_index == 0) {
+		if (light_trn_index == 0) {
 			CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 			return;
 		}
-		tbl = LightTrns[light_table_index];
+		tbl = ColorTrns[light_trn_index];
 	}*/
 	CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, tbl);
 }
@@ -207,8 +207,8 @@ void CelClippedDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWi
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	if (light_table_index != 0)
-		CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, LightTrns[light_table_index]);
+	if (light_trn_index != 0)
+		CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light_trn_index]);
 	else
 		CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
@@ -236,7 +236,7 @@ static void CelBlitLightTrans(BYTE *pDecodeTo, const BYTE *pRLEBytes, int nDataS
 	src = pRLEBytes;
 	end = &pRLEBytes[nDataSize];
 	dst = pDecodeTo;
-	tbl = LightTrns[light_table_index];
+	tbl = ColorTrns[light_trn_index];
 	shift = (BYTE)(size_t)dst & 1;
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth, shift = 1 - shift) {
@@ -323,8 +323,8 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE *pCelBuff, int nCel, in
 
 	if (gbCelTransparencyActive)
 		CelBlitLightTrans(pDecodeTo, pRLEBytes, nDataSize, nWidth);
-	else if (light_table_index != 0)
-		CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, LightTrns[light_table_index]);
+	else if (light_trn_index != 0)
+		CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light_trn_index]);
 	else
 		CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
@@ -350,7 +350,7 @@ void CelDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, LightTrns[LIGHTIDX_RED]);
+	CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[COLOR_TRN_RED]);
 }
 
 /**

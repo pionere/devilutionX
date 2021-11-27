@@ -7,17 +7,49 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/* Maximum offset in a tile */
+#define MAX_OFFSET		8
+/* Maximum tile-distance till the precalculated tables are maintained. */
+#define MAX_TILE_DIST	(MAX_LIGHT_RAD + 1)
+/* Maximum light-distance till the precalculated tables are maintained. */
+#define MAX_LIGHT_DIST	(MAX_TILE_DIST * MAX_OFFSET - 1)
+
+/* The list of the indices of the active visions. */
 BYTE visionactive[MAXVISION];
+/* The list of visions/views in the game. */
 LightListStruct VisionList[MAXVISION];
+/* The list of the indices of the active light-sources. */
 BYTE lightactive[MAXLIGHTS];
+/* The list of light-sources in the game. */
 LightListStruct LightList[MAXLIGHTS];
+/* The number of visions/views in the game. */
 int numvision;
+/* The number of light-sources in the game. */
 int numlights;
-bool _gbDovision;
-bool gbDolighting;
-BYTE darkness[MAX_LIGHT_RAD + 1][128];
-BYTE distance[64][16][16];
-BYTE LightTrns[NUM_LIGHT_TRNS][256];
+/* Specifies whether the visions should be re-processed. */
+static bool _gbDovision;
+/* Specifies whether the lights should be re-processed. */
+static bool gbDolighting;
+/*
+ * Precalculated darkness (inverse brightness) levels for each light radius at a given distance.
+ *  darkTable[lr][dist]
+ * unit of dist is 0.125 tile width
+ */
+static BYTE darkTable[MAX_LIGHT_RAD + 1][MAX_LIGHT_DIST + 1];
+/*
+ * Precalculated distances from each offsets to a point in one quadrant.
+ *  distMatrix[offy][offx][dy][dx]
+ */
+static BYTE distMatrix[MAX_OFFSET][MAX_OFFSET][MAX_TILE_DIST][MAX_TILE_DIST];
+/*
+ * In-game color translation tables.
+ * 0-MAXDARKNESS: inverse brightness translations.
+ * MAXDARKNESS+1: RED color translation.
+ * MAXDARKNESS+2: GRAY color translation.
+ * MAXDARKNESS+3: CORAL color translation.
+ * MAXDARKNESS+4.. translations of unique monsters.
+ */
+BYTE ColorTrns[NUM_COLOR_TRNS][256];
 
 /**
  * CrawlTable specifies X- and Y-coordinate deltas from a missile target coordinate.
@@ -438,10 +470,10 @@ static void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int
 
 void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 {
-	int x, y, v, xoff, yoff, mult, radius_block;
+	int x, y, v, xoff, yoff, radius_block;
 	int min_x, max_x, min_y, max_y;
 	int dist_x, dist_y, light_x, light_y, block_x, block_y, temp_x, temp_y;
-	BYTE (&dark)[128] = darkness[nRadius];
+	BYTE (&dark)[128] = darkTable[nRadius];
 
 	xoff = 0;
 	yoff = 0;
@@ -490,11 +522,12 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	min_x = std::min(15, nXPos + 1);
 	min_y = std::min(15, nYPos + 1);
 
-	mult = xoff + 8 * yoff;
+	// Add light to the I. (+;+) quadrant
+	BYTE (&dist0)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < max_y; y++) {
 		for (x = 1; x < max_x; x++) {
-			radius_block = distance[mult][y][x];
-			if (radius_block < 128) {
+			radius_block = dist0[y][x];
+			if (radius_block <= MAX_LIGHT_DIST) {
 				temp_x = nXPos + x;
 				temp_y = nYPos + y;
 				v = dark[radius_block];
@@ -504,11 +537,12 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 		}
 	}
 	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
-	mult = xoff + 8 * yoff;
+	// Add light to the II. (+;-) quadrant
+	BYTE (&dist1)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < max_x; y++) {
 		for (x = 1; x < min_y; x++) {
-			radius_block = distance[mult][y + block_y][x + block_x];
-			if (radius_block < 128) {
+			radius_block = dist1[y + block_y][x + block_x];
+			if (radius_block <= MAX_LIGHT_DIST) {
 				temp_x = nXPos + y;
 				temp_y = nYPos - x;
 				v = dark[radius_block];
@@ -518,11 +552,12 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 		}
 	}
 	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
-	mult = xoff + 8 * yoff;
+	// Add light to the III. (-;-) quadrant
+	BYTE (&dist2)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < min_y; y++) {
 		for (x = 1; x < min_x; x++) {
-			radius_block = distance[mult][y + block_y][x + block_x];
-			if (radius_block < 128) {
+			radius_block = dist2[y + block_y][x + block_x];
+			if (radius_block <= MAX_LIGHT_DIST) {
 				temp_x = nXPos - x;
 				temp_y = nYPos - y;
 				v = dark[radius_block];
@@ -532,11 +567,12 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 		}
 	}
 	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
-	mult = xoff + 8 * yoff;
+	// Add light to the IV. (-;+) quadrant
+	BYTE (&dist3)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < min_x; y++) {
 		for (x = 1; x < max_y; x++) {
-			radius_block = distance[mult][y + block_y][x + block_x];
-			if (radius_block < 128) {
+			radius_block = dist3[y + block_y][x + block_x];
+			if (radius_block <= MAX_LIGHT_DIST) {
 				temp_x = nXPos - y;
 				temp_y = nYPos + x;
 				v = dark[radius_block];
@@ -722,9 +758,10 @@ void MakeLightTable()
 	BYTE blood[16];
 
 
-	tbl = LightTrns[0];
+	tbl = ColorTrns[0];
 	shade = 0;
-	for (i = 0; i < LIGHTMAX; i++) {
+	for (i = 0; i < MAXDARKNESS; i++) {
+		// light trns of the level palette
 		*tbl++ = 0;
 		for (j = 0; j < 8; j++) {
 			col = 16 * j + shade;
@@ -741,6 +778,8 @@ void MakeLightTable()
 				}
 			}
 		}
+		// light trns of the standard palette
+		//  (PAL8_BLUE, PAL8_RED, PAL8_YELLOW, PAL8_ORANGE)
 		for (j = 16; j < 20; j++) {
 			col = 8 * j + (shade >> 1);
 			max = 8 * j + 7;
@@ -754,6 +793,7 @@ void MakeLightTable()
 				}
 			}
 		}
+		//  (PAL16_BEIGE, PAL16_BLUE, PAL16_YELLOW, PAL16_ORANGE, PAL16_RED, PAL16_GRAY)
 		for (j = 10; j < 16; j++) {
 			col = 16 * j + shade;
 			max = 16 * j + 15;
@@ -774,16 +814,16 @@ void MakeLightTable()
 			shade++;
 	}
 
-	// assert(tbl == LightTrns[LIGHTMAX]);
-	tbl = LightTrns[0];
-	memset(LightTrns[LIGHTMAX], 0, 256);
+	// assert(tbl == ColorTrns[MAXDARKNESS]);
+	tbl = ColorTrns[0];
+	memset(ColorTrns[MAXDARKNESS], 0, 256);
 
 	if (currLvl._dType == DTYPE_HELL) {
-		for (i = 0; i < LIGHTMAX; i++) {
-			l1 = LIGHTMAX - i;
+		for (i = 0; i < MAXDARKNESS; i++) {
+			l1 = MAXDARKNESS - i;
 			l2 = l1;
-			div = LIGHTMAX / l1;
-			rem = LIGHTMAX % l1;
+			div = 15 / l1;
+			rem = 15 % l1;
 			cnt = 0;
 			blood[0] = 0;
 			col = 1;
@@ -818,7 +858,7 @@ void MakeLightTable()
 		tbl += 224;
 #ifdef HELLFIRE
 	} else if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
-		for (i = 0; i < LIGHTMAX; i++) {
+		for (i = 0; i < MAXDARKNESS; i++) {
 			*tbl++ = 0;
 			for (j = 1; j < 16; j++)
 				*tbl++ = j;
@@ -839,10 +879,10 @@ void InitLightGFX()
 	BYTE col;
 	double fs, fa;
 
-	LoadFileWithMem("PlrGFX\\Infra.TRN", LightTrns[LIGHTIDX_RED]);
-	LoadFileWithMem("PlrGFX\\Stone.TRN", LightTrns[LIGHTIDX_GRAY]);
+	LoadFileWithMem("PlrGFX\\Infra.TRN", ColorTrns[COLOR_TRN_RED]);
+	LoadFileWithMem("PlrGFX\\Stone.TRN", ColorTrns[COLOR_TRN_GRAY]);
 
-	tbl = LightTrns[LIGHTIDX_CORAL];
+	tbl = ColorTrns[COLOR_TRN_CORAL];
 	for (i = 0; i < 8; i++) {
 		for (col = 226; col < 239; col++) {
 			if (i != 0 || col != 226) {
@@ -877,33 +917,33 @@ void InitLightGFX()
 				k -= i >> 1;
 				if (k < 0)
 					k = 0;
-				darkness[i][128 - j] = k;
+				darkTable[i][128 - j] = k;
 			}
 		}
 	} else
 #endif*/
 	{
-		for (i = 0, k = 8; i < MAX_LIGHT_RAD + 1; i++, k += 8) {
-			for (j = 0; j < 128; j++) {
+		for (i = 0, k = MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
+			for (j = 0; j <= MAX_LIGHT_DIST; j++) {
 				if (j >= k) {
-					darkness[i][j] = 15;
+					darkTable[i][j] = MAXDARKNESS;
 				} else {
-					darkness[i][j] = ((15 * j) + (k >> 1)) / k;
+					darkTable[i][j] = ((MAXDARKNESS * j) + (k >> 1)) / k;
 				}
 			}
 		}
 	}
 
-	for (j = 0; j < 8; j++) {
-		for (i = 0; i < 8; i++) {
-			for (k = 0; k < 16; k++) {
-				fa = (8 * k - i);
+	for (j = 0; j < MAX_OFFSET; j++) {
+		for (i = 0; i < MAX_OFFSET; i++) {
+			for (k = 0; k < MAX_TILE_DIST; k++) {
+				fa = (MAX_OFFSET * k - i);
 				fa *= fa;
-				for (l = 0; l < 16; l++) {
-					fs = (8 * l - j);
+				for (l = 0; l < MAX_TILE_DIST; l++) {
+					fs = (MAX_OFFSET * l - j);
 					fs *= fs;
 					fs = sqrt(fs + fa);
-					distance[j * 8 + i][k][l] = fs;
+					distMatrix[j][i][k][l] = fs;
 				}
 			}
 		}
@@ -913,7 +953,7 @@ void InitLightGFX()
 #ifdef _DEBUG
 void ToggleLighting()
 {
-	int i;
+	int pnum;
 
 	lightflag = !lightflag;
 
@@ -921,9 +961,9 @@ void ToggleLighting()
 		memset(dLight, 0, sizeof(dLight));
 	} else {
 		memcpy(dLight, dPreLight, sizeof(dLight));
-		for (i = 0; i < MAX_PLRS; i++) {
-			if (players[i]._pActive && players[i]._pDunLevel == currLvl._dLevelIdx) {
-				DoLighting(players[i]._px, players[i]._py, players[i]._pLightRad, NO_LIGHT);
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
+				DoLighting(plr._px, plr._py, plr._pLightRad, NO_LIGHT);
 			}
 		}
 	}
@@ -1270,8 +1310,8 @@ void lighting_color_cycling()
 
 	// assert(currLvl._dType == DTYPE_HELL);
 
-	l = 16;
-	tbl = LightTrns[0];
+	l = MAXDARKNESS + 1;
+	tbl = ColorTrns[0];
 
 	for (j = 0; j < l; j++) {
 		tbl++;

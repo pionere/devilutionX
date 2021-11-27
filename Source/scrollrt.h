@@ -27,7 +27,7 @@ extern "C" {
 extern int ViewX;
 extern int ViewY;
 extern ScrollStruct ScrollInfo;
-extern int light_table_index;
+extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
 void ClearCursor();
