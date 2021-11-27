@@ -129,7 +129,7 @@ void DRLG_Init_Globals()
 	memset(dItem, 0, sizeof(dItem));
 	memset(dMissile, 0, sizeof(dMissile));
 	memset(dSpecial, 0, sizeof(dSpecial));
-	c = LIGHTMAX;
+	c = MAXDARKNESS;
 #ifdef _DEBUG
 	if (lightflag)
 		c = 0;

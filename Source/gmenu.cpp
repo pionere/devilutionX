@@ -163,7 +163,7 @@ static void gmenu_draw_menu_item(int i, int y)
 
 	w = gmenu_get_lfont(pItem);
 	x = SCREEN_X + (SCREEN_WIDTH - w) / 2;
-	PrintLargeString(x, y, pItem->pszStr, (pItem->dwFlags & GMENU_ENABLED) ? 0 : LIGHTMAX);
+	PrintLargeString(x, y, pItem->pszStr, (pItem->dwFlags & GMENU_ENABLED) ? 0 : MAXDARKNESS);
 	if (pItem == &gpCurrentMenu[guCurrItemIdx])
 		DrawPentSpn(x - 54, x + 4 + w, y + 1);
 	if (pItem->dwFlags & GMENU_SLIDER) {
