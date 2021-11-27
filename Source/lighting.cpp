@@ -509,19 +509,6 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	dist_x = xoff;
 	dist_y = yoff;
 
-/*#ifdef HELLFIRE
-	if (currLvl._dType != DTYPE_NEST && currLvl._dType != DTYPE_CRYPT)
-		dLight[nXPos][nYPos] = 0;
-	else if (dLight[nXPos][nYPos] > dark[0])
-		dLight[nXPos][nYPos] = dark[0];
-#else
-	if (IN_DUNGEON_AREA(nXPos, nYPos))
-		dLight[nXPos][nYPos] = 0;
-#endif*/
-	assert(IN_DUNGEON_AREA(nXPos, nYPos));
-	assert(dark[0] == 0);
-	dLight[nXPos][nYPos] = 0;
-
 	static_assert(DBORDERX >= 15, "DoLighting expects a large enough border I.");
 	static_assert(DBORDERY >= 15, "DoLighting expects a large enough border II.");
 	assert(15 <= MAXDUNX - nXPos);
@@ -533,8 +520,20 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	assert(15 <= nYPos + 1);
 	min_y = 15; //std::min(15, nYPos + 1);
 
-	// Add light to the I. (+;+) quadrant
 	BYTE (&dist0)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
+	// Add light to (0;0)
+	{
+			radius_block = dist0[0][0];
+			//assert(radius_block <= MAX_LIGHT_DIST);
+			//if (radius_block <= MAX_LIGHT_DIST) {
+				temp_x = nXPos + 0;
+				temp_y = nYPos + 0;
+				v = dark[radius_block];
+				if (v < dLight[temp_x][temp_y])
+					dLight[temp_x][temp_y] = v;
+			//}
+	}
+	// Add light to the I. (+;+) quadrant
 	for (y = 0; y < max_y; y++) {
 		for (x = 1; x < max_x; x++) {
 			radius_block = dist0[y][x];
@@ -945,7 +944,7 @@ void InitLightGFX()
 				if (j >= k) {
 					darkTable[i][j] = MAXDARKNESS;
 				} else {
-					darkTable[i][j] = ((MAXDARKNESS * j) + (k >> 1)) / k;
+					darkTable[i][j] = (MAXDARKNESS * j) / k;
 				}
 			}
 		}
@@ -960,7 +959,8 @@ void InitLightGFX()
 					fs = (MAX_OFFSET * l - j);
 					fs *= fs;
 					fs = sqrt(fs + fa);
-					col = fs;
+					// round to nearest int
+					col = fs + 0.5;
 					// limit to MAX_LIGHT_DIST to reduce the necessary checks in DoLighting
 					static_assert(MAX_LIGHT_DIST <= UCHAR_MAX, "Distance can not be stored in a BYTE.");
 					col = std::min((BYTE)MAX_LIGHT_DIST, col);
