@@ -21,12 +21,7 @@ extern BYTE lightactive[MAXLIGHTS];
 extern LightListStruct LightList[MAXLIGHTS];
 extern int numlights;
 extern int numvision;
-#ifdef _DEBUG
-extern char lightmax;
-#define LIGHTMAX lightmax
-#else
 #define LIGHTMAX 15
-#endif
 #define NUM_LIGHT_TRNS	LIGHTMAX + 12
 
 #define LIGHTIDX_RED	LIGHTMAX + 1
@@ -41,7 +36,6 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local);
 void MakeLightTable();
 #ifdef _DEBUG
 void ToggleLighting();
-void InitLightMax();
 #else
 void InitLightGFX();
 #endif

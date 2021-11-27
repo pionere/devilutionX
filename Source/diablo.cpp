@@ -51,8 +51,7 @@ int DebugMonsters[10];
 BOOL visiondebug;
 /** unused */
 BOOL scrollflag;
-BOOL lightflag;
-BOOL light4flag;
+bool lightflag;
 BOOL leveldebug;
 BOOL monstdebug;
 /** unused */
@@ -1508,9 +1507,7 @@ static WNDPROC InitGameUI()
 	for (i = 0; i < (IsLocalGame ? 1 : MAX_PLRS); i++)
 		InitPlrGFXMem(i); // gfx
 	InitItemGFX(); // gfx + values (some stored in savefiles)
-#ifndef _DEBUG
 	InitLightGFX(); // 'values'
-#endif
 	InitGameEffects(); // sfx
 
 	gbDeathflag = false;

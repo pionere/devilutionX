@@ -15,12 +15,9 @@ int numvision;
 int numlights;
 bool _gbDovision;
 bool gbDolighting;
-#ifdef _DEBUG
-char lightmax;
-#endif
 BYTE darkness[MAX_LIGHT_RAD + 1][128];
 BYTE distance[64][16][16];
-BYTE LightTrns[15 + 12][256]; // 15 + 12 == NUM_LIGHT_TRNS
+BYTE LightTrns[NUM_LIGHT_TRNS][256];
 
 /**
  * CrawlTable specifies X- and Y-coordinate deltas from a missile target coordinate.
@@ -724,14 +721,10 @@ void MakeLightTable()
 	BYTE *tbl;
 	BYTE blood[16];
 
-#ifdef _DEBUG
-	InitLightMax();
-#endif
-	const int lights = LIGHTMAX;
 
 	tbl = LightTrns[0];
 	shade = 0;
-	for (i = 0; i < lights; i++) {
+	for (i = 0; i < LIGHTMAX; i++) {
 		*tbl++ = 0;
 		for (j = 0; j < 8; j++) {
 			col = 16 * j + shade;
@@ -778,24 +771,19 @@ void MakeLightTable()
 				}
 			}
 		}
-#ifdef _DEBUG
-		if (light4flag)
-			shade += 5;
-		else
-#endif
 			shade++;
 	}
 
-	// assert(tbl == LightTrns[lights]);
+	// assert(tbl == LightTrns[LIGHTMAX]);
 	tbl = LightTrns[0];
-	memset(LightTrns[lights], 0, 256);
+	memset(LightTrns[LIGHTMAX], 0, 256);
 
 	if (currLvl._dType == DTYPE_HELL) {
-		for (i = 0; i < lights; i++) {
-			l1 = lights - i;
+		for (i = 0; i < LIGHTMAX; i++) {
+			l1 = LIGHTMAX - i;
 			l2 = l1;
-			div = lights / l1;
-			rem = lights % l1;
+			div = LIGHTMAX / l1;
+			rem = LIGHTMAX % l1;
 			cnt = 0;
 			blood[0] = 0;
 			col = 1;
@@ -830,7 +818,7 @@ void MakeLightTable()
 		tbl += 224;
 #ifdef HELLFIRE
 	} else if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
-		for (i = 0; i < lights; i++) {
+		for (i = 0; i < LIGHTMAX; i++) {
 			*tbl++ = 0;
 			for (j = 1; j < 16; j++)
 				*tbl++ = j;
@@ -842,9 +830,6 @@ void MakeLightTable()
 		tbl += 240;
 #endif
 	}
-#ifdef _DEBUG
-	InitLightGFX();
-#endif
 }
 
 void InitLightGFX()
@@ -930,7 +915,7 @@ void ToggleLighting()
 {
 	int i;
 
-	lightflag ^= TRUE;
+	lightflag = !lightflag;
 
 	if (lightflag) {
 		memset(dLight, 0, sizeof(dLight));
@@ -944,12 +929,6 @@ void ToggleLighting()
 	}
 }
 
-void InitLightMax()
-{
-	lightmax = 15;
-	if (light4flag)
-		lightmax = 3;
-}
 #endif
 
 void InitLighting()
@@ -959,7 +938,7 @@ void InitLighting()
 	numlights = 0;
 	gbDolighting = false;
 #ifdef _DEBUG
-	lightflag = FALSE;
+	lightflag = false;
 #endif
 
 	for (i = 0; i < MAXLIGHTS; i++) {
@@ -1292,10 +1271,6 @@ void lighting_color_cycling()
 	// assert(currLvl._dType == DTYPE_HELL);
 
 	l = 16;
-#ifdef _DEBUG
-	if (light4flag)
-		l = 4;
-#endif
 	tbl = LightTrns[0];
 
 	for (j = 0; j < l; j++) {

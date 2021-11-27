@@ -53,8 +53,7 @@ extern bool gbShowTooltip;
 #ifdef _DEBUG
 extern int DebugMonsters[10];
 extern BOOL visiondebug;
-extern BOOL lightflag;
-extern BOOL light4flag;
+extern bool lightflag;
 extern BOOL leveldebug;
 extern BOOL monstdebug;
 extern int setseed;
