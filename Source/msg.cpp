@@ -1330,17 +1330,6 @@ void NetSendCmdPlrSkill(int pnum, BYTE skill, char from)
 	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdPlrDamage(int pnum, unsigned damage)
-{
-	TCmdPlrDamage cmd;
-
-	cmd.bCmd = CMD_PLRDAMAGE;
-	cmd.pdPnum = pnum;
-	cmd.pdDamage = SwapLE32(damage);
-
-	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
-}
-
 void NetSendCmdMonstAttack(BYTE bCmd, int mnum, BYTE skill, char from)
 {
 	TCmdMonstAttack cmd;
@@ -2037,25 +2026,6 @@ static unsigned On_PLRRESURRECT(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
-{
-	TCmdPlrDamage *cmd = (TCmdPlrDamage *)pCmd;
-
-#ifndef NOHOSTING
-	if (cmd->pdPnum == mypnum && mypnum < MAX_PLRS) {
-#else
-	if (cmd->pdPnum == mypnum) {
-#endif
-		if (currLvl._dType != DTYPE_TOWN && currLvl._dLevelIdx == plr._pDunLevel) {
-			if (!myplr._pInvincible /*&& SwapLE32(cmd->pdDamage) <= 192000*/) {
-				PlrDecHp(mypnum, SwapLE32(cmd->pdDamage), DMGTYPE_PLAYER);
-			}
-		}
-	}
-
-	return sizeof(*cmd);
-}
-
 static unsigned On_DOOROPEN(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
@@ -2668,8 +2638,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_PLRDEAD(pCmd, pnum);
 	case CMD_PLRRESURRECT:
 		return On_PLRRESURRECT(pCmd, pnum);
-	case CMD_PLRDAMAGE:
-		return On_PLRDAMAGE(pCmd, pnum);
 	case CMD_SETSHIELD:
 		return On_SETSHIELD(pCmd, pnum);
 	case CMD_REMSHIELD:

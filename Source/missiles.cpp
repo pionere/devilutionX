@@ -1055,9 +1055,8 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	if (dam < 64)
 		dam = 64;
 
-	if (offp == mypnum)
-		NetSendCmdPlrDamage(pnum, dam);
-	StartPlrHit(pnum, dam, false);
+	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
+		StartPlrHit(pnum, dam, false);
 	return true;
 }
 

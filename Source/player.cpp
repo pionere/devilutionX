@@ -2242,9 +2242,8 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
 	}
 
-	if (offp == mypnum)
-		NetSendCmdPlrDamage(pnum, dam);
-	StartPlrHit(pnum, dam, false);
+	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
+		StartPlrHit(pnum, dam, false);
 	return true;
 }
 
@@ -3021,9 +3020,8 @@ void MissToPlr(int mi, int x, int y, bool hit)
 
 		//if (random_(151, 200) < plr._pICritChance)
 		//	dam <<= 1;
-		if (pnum == mypnum)
-			NetSendCmdPlrDamage(mpnum, dam);
-		StartPlrHit(mpnum, dam, true);
+		if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
+			StartPlrHit(mpnum, dam, true);
 		return;
 	}
 }

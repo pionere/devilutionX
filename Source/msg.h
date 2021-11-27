@@ -70,7 +70,6 @@ void NetSendCmdPlrAttack(int pnum, BYTE skill, char from);
  * @param from: the source of the skill
  */
 void NetSendCmdPlrSkill(int pnum, BYTE skill, char from);
-void NetSendCmdPlrDamage(int pnum, unsigned damage);
 /** Attack a monster with a given skill using from as a source.
  * @param bCmd: the type of the attack
  * @param mnum: the id of the targeted monster

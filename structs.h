@@ -983,12 +983,6 @@ typedef struct TCmdPlrSkill {
 	CmdSkillUse psu;
 } TCmdPlrSkill;
 
-typedef struct TCmdPlrDamage {
-	BYTE bCmd;
-	BYTE pdPnum;
-	DWORD pdDamage;
-} TCmdPlrDamage;
-
 typedef struct TCmdMonstAttack {
 	BYTE bCmd;
 	WORD maMnum;
