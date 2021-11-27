@@ -39,6 +39,8 @@ static BYTE darkTable[MAX_LIGHT_RAD + 1][MAX_LIGHT_DIST + 1];
 /*
  * Precalculated distances from each offsets to a point in one quadrant.
  *  distMatrix[offy][offx][dy][dx]
+ * Note: the distance value is limited to MAX_LIGHT_DIST to reduce the necessary
+ *		checks in DoLighting.
  */
 static BYTE distMatrix[MAX_OFFSET][MAX_OFFSET][MAX_TILE_DIST][MAX_TILE_DIST];
 /*
@@ -470,10 +472,11 @@ static void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int
 
 void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 {
-	int x, y, v, xoff, yoff, radius_block;
+	int x, y, xoff, yoff;
 	int min_x, max_x, min_y, max_y;
 	int dist_x, dist_y, light_x, light_y, block_x, block_y, temp_x, temp_y;
 	BYTE (&dark)[128] = darkTable[nRadius];
+	BYTE v, radius_block;
 
 	xoff = 0;
 	yoff = 0;
@@ -499,6 +502,8 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 			yoff -= 8;
 			nYPos++;
 		}
+		assert((unsigned)xoff < 8);
+		assert((unsigned)yoff < 8);
 	}
 
 	dist_x = xoff;
@@ -517,23 +522,30 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	assert(dark[0] == 0);
 	dLight[nXPos][nYPos] = 0;
 
-	max_x = std::min(15, MAXDUNX - nXPos);
-	max_y = std::min(15, MAXDUNY - nYPos);
-	min_x = std::min(15, nXPos + 1);
-	min_y = std::min(15, nYPos + 1);
+	static_assert(DBORDERX >= 15, "DoLighting expects a large enough border I.");
+	static_assert(DBORDERY >= 15, "DoLighting expects a large enough border II.");
+	assert(15 <= MAXDUNX - nXPos);
+	max_x = 15; //std::min(15, MAXDUNX - nXPos);
+	assert(15 <= MAXDUNY - nYPos);
+	max_y = 15; //std::min(15, MAXDUNY - nYPos);
+	assert(15 <= nXPos + 1);
+	min_x = 15; //std::min(15, nXPos + 1);
+	assert(15 <= nYPos + 1);
+	min_y = 15; //std::min(15, nYPos + 1);
 
 	// Add light to the I. (+;+) quadrant
 	BYTE (&dist0)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < max_y; y++) {
 		for (x = 1; x < max_x; x++) {
 			radius_block = dist0[y][x];
-			if (radius_block <= MAX_LIGHT_DIST) {
+			//assert(radius_block <= MAX_LIGHT_DIST);
+			//if (radius_block <= MAX_LIGHT_DIST) {
 				temp_x = nXPos + x;
 				temp_y = nYPos + y;
 				v = dark[radius_block];
 				if (v < dLight[temp_x][temp_y])
 					dLight[temp_x][temp_y] = v;
-			}
+			//}
 		}
 	}
 	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
@@ -542,13 +554,14 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	for (y = 0; y < max_x; y++) {
 		for (x = 1; x < min_y; x++) {
 			radius_block = dist1[y + block_y][x + block_x];
-			if (radius_block <= MAX_LIGHT_DIST) {
+			//assert(radius_block <= MAX_LIGHT_DIST);
+			//if (radius_block <= MAX_LIGHT_DIST) {
 				temp_x = nXPos + y;
 				temp_y = nYPos - x;
 				v = dark[radius_block];
 				if (v < dLight[temp_x][temp_y])
 					dLight[temp_x][temp_y] = v;
-			}
+			//}
 		}
 	}
 	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
@@ -557,13 +570,14 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	for (y = 0; y < min_y; y++) {
 		for (x = 1; x < min_x; x++) {
 			radius_block = dist2[y + block_y][x + block_x];
-			if (radius_block <= MAX_LIGHT_DIST) {
+			//assert(radius_block <= MAX_LIGHT_DIST);
+			//if (radius_block <= MAX_LIGHT_DIST) {
 				temp_x = nXPos - x;
 				temp_y = nYPos - y;
 				v = dark[radius_block];
 				if (v < dLight[temp_x][temp_y])
 					dLight[temp_x][temp_y] = v;
-			}
+			//}
 		}
 	}
 	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
@@ -572,13 +586,14 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	for (y = 0; y < min_x; y++) {
 		for (x = 1; x < max_y; x++) {
 			radius_block = dist3[y + block_y][x + block_x];
-			if (radius_block <= MAX_LIGHT_DIST) {
+			//assert(radius_block <= MAX_LIGHT_DIST);
+			//if (radius_block <= MAX_LIGHT_DIST) {
 				temp_x = nXPos - y;
 				temp_y = nYPos + x;
 				v = dark[radius_block];
 				if (v < dLight[temp_x][temp_y])
 					dLight[temp_x][temp_y] = v;
-			}
+			//}
 		}
 	}
 }
@@ -752,15 +767,18 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 
 void MakeLightTable()
 {
-	int i, j, k, shade, l1, l2, cnt, rem, div;
+	unsigned i, j, k, shade, l1, l2, cnt, rem, div;
 	BYTE col, max;
 	BYTE *tbl;
 	BYTE blood[16];
 
-
 	tbl = ColorTrns[0];
-	shade = 0;
 	for (i = 0; i < MAXDARKNESS; i++) {
+		static_assert(MAXDARKNESS == 15, "Shade calculation requires MAXDARKNESS to be 15.");
+		// shade calculation is simplified by using a fix MAXDARKNESS value.
+		// otherwise the correct calculation would be as follows:
+		//	shade = (i * 15 + (MAXDARKNESS + 1) / 2) / MAXDARKNESS;
+		shade = i;
 		// light trns of the level palette
 		*tbl++ = 0;
 		for (j = 0; j < 8; j++) {
@@ -811,7 +829,6 @@ void MakeLightTable()
 				}
 			}
 		}
-			shade++;
 	}
 
 	// assert(tbl == ColorTrns[MAXDARKNESS]);
@@ -943,7 +960,11 @@ void InitLightGFX()
 					fs = (MAX_OFFSET * l - j);
 					fs *= fs;
 					fs = sqrt(fs + fa);
-					distMatrix[j][i][k][l] = fs;
+					col = fs;
+					// limit to MAX_LIGHT_DIST to reduce the necessary checks in DoLighting
+					static_assert(MAX_LIGHT_DIST <= UCHAR_MAX, "Distance can not be stored in a BYTE.");
+					col = std::min((BYTE)MAX_LIGHT_DIST, col);
+					distMatrix[j][i][k][l] = col;
 				}
 			}
 		}
