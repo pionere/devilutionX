@@ -2527,10 +2527,10 @@ static void DRLG_L1(int entry)
 			//DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x, setpc_y + 5,
 			//	dTransVal[2 * setpc_x + DBORDERX + 1][2 * setpc_y + DBORDERY + 11]);
 			if (entry == ENTRY_PREV) {
-				ViewX = 2 * setpc_x + DBORDERX + 4;
-				ViewY = 2 * setpc_y + DBORDERY + 12;
+				ViewX = 2 * setpc_x + DBORDERX + 3;
+				ViewY = 2 * setpc_y + DBORDERY + 11;
 			}
-			doneflag = DRLG_L1PlaceMiniSet(L1USTAIRS, entry == ENTRY_MAIN); // was STAIRSUP
+			doneflag = DRLG_L1PlaceMiniSet(L1USTAIRS, entry != ENTRY_PREV); // was STAIRSUP, entry == ENTRY_MAIN
 #ifdef HELLFIRE
 		} else if (currLvl._dType == DTYPE_CRYPT) {
 			mini_set stairs[2] = {
@@ -2541,7 +2541,7 @@ static void DRLG_L1(int entry)
 			if (entry == ENTRY_PREV) {
 				ViewY += 3;
 			} else {
-				ViewY++;
+				ViewY += 2;
 			}
 #endif
 		} else {
