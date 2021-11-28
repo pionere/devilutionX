@@ -224,6 +224,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	HANDLE videoFile = SFileOpenFile(filename);
 
 	DWORD bytestoread = SFileGetFileSize(videoFile);
+	assert(SVidBuffer == NULL);
 	SVidBuffer = DiabloAllocPtr(bytestoread);
 	SFileReadFile(videoFile, SVidBuffer, bytestoread, NULL);
 	SFileCloseFile(videoFile);

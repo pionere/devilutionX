@@ -175,6 +175,7 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFr
 
 	tw = &towners[tnum];
 
+	assert(tw->_tAnimData == NULL);
 	tw->_tAnimData = LoadFileInMem(pAnimFile);
 	tw->_tAnimFrameLen = Delay;
 	tw->_tAnimLen = numFrames;
@@ -316,7 +317,7 @@ static void InitCows()
 {
 	int i, dir;
 	int x, y, xo, yo;
-
+	assert(pCowCels == NULL);
 	pCowCels = LoadFileInMem("Towners\\Animals\\Cow.CEL");
 	static_assert(lengthof(TownCowX) == lengthof(TownCowY), "Mismatching TownCow tables I.");
 	static_assert(lengthof(TownCowX) == lengthof(TownCowDir), "Mismatching TownCow tables II.");

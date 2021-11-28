@@ -48,6 +48,7 @@ void gmenu_draw_pause()
 
 	if (!gmenu_is_active()) {
 		x = SCREEN_X + SCREEN_WIDTH / 2 - GetLargeStringWidth("Pause") / 2;
+		static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
 		light = (SDL_GetTicks() / 256) % 4;
 		PrintLargeString(x, SCREEN_Y + SCREEN_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", light);
 	}

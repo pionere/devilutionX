@@ -129,10 +129,15 @@ void InitText()
 	int i;
 	BYTE pix;
 
+	assert(pPanelText == NULL);
 	pPanelText = LoadFileInMem("CtrlPan\\SmalText.CEL");
+	assert(pMedTextCels == NULL);
 	pMedTextCels = LoadFileInMem("Data\\MedTextS.CEL");
+	assert(BigTGold_cel == NULL);
 	BigTGold_cel = LoadFileInMem("Data\\BigTGold.CEL");
+	assert(PentSpin_cel == NULL);
 	PentSpin_cel = LoadFileInMem("Data\\PentSpin.CEL");
+	assert(pSPentSpn2Cels == NULL);
 	pSPentSpn2Cels = LoadFileInMem("Data\\PentSpn2.CEL");
 
 	for (i = 0; i < lengthof(fontColorTableBlue); i++) {
