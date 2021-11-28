@@ -490,7 +490,7 @@ void LoadBackgroundArt(const char* pszFile, int frames)
 
 	_gdwFadeTc = 0;
 	_gnFadeValue = 0;
-	BlackPalette();
+	SetFadeLevel(0);
 	UiClearScreen();
 //#ifdef USE_SDL1
 //	if (DiabloUiSurface() == back_surface)

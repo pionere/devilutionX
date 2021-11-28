@@ -364,7 +364,7 @@ void ShowCutscene(unsigned uMsg)
 	ClearScreenBuffer();
 	scrollrt_draw_screen(false);
 	InitCutscene(uMsg);
-	BlackPalette();
+	SetFadeLevel(0); // TODO: set _gbFadedIn to false?
 	DrawCutscene();
 	PaletteFadeIn();
 	IncProgress();

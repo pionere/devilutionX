@@ -15,8 +15,8 @@ SDL_Color orig_palette[256];
 int _gnGammaCorrection = 100;
 /** Specifies whether colour cycling is enabled. */
 bool gbColorCyclingEnabled = true;
-/** Specifies whether the palette has max brightness. */
-bool _gbFadedIn = true;
+/** Specifies whether the game-screen is active with max brightness. */
+bool _gbFadedIn = false;
 
 void palette_update()
 {
@@ -63,8 +63,6 @@ void palette_init()
 	_gnGammaCorrection = value;
 
 	gbColorCyclingEnabled = getIniBool("Graphics", "Color Cycling", true);
-
-	memcpy(system_palette, orig_palette, sizeof(orig_palette));
 }
 
 void LoadPalette(const char* pszFileName)
@@ -142,11 +140,6 @@ void SetFadeLevel(unsigned fadeval)
 		system_palette[i].b = (fadeval * logical_palette[i].b) >> 8;
 	}
 	palette_update();
-}
-
-void BlackPalette()
-{
-	SetFadeLevel(0);
 }
 
 void PaletteFadeIn()
