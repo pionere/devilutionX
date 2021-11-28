@@ -2342,8 +2342,8 @@ void MonUpdateLeader(int mnum)
 	}
 	monsters[mnum].leader = MON_NO_LEADER;
 	monsters[mnum].leaderflag = MLEADER_NONE;
-	//monsters[mnum].packsize = 0;
-	//monsters[mnum].falign_CB = 0;
+	monsters[mnum].packsize = 0;
+	monsters[mnum].falign_CB = 0;
 }
 
 void DoEnding()
