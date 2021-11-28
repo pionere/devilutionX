@@ -998,11 +998,15 @@ void * LoadMpqTable(
             // If the table is compressed, decompress it
             if(dwCompressedSize < dwTableSize)
             {
+#ifdef FULL_COMP
                 int cbOutBuffer = (int)dwTableSize;
                 int cbInBuffer = (int)dwCompressedSize;
 
                 if(!SCompDecompress2(pbMpqTable, &cbOutBuffer, pbCompressed, cbInBuffer))
                     nError = GetLastError();
+#else
+				nError = ERROR_FILE_CORRUPT;
+#endif
             }
 
             // Make sure that the table is properly byte-swapped

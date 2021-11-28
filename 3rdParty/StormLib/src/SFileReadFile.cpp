@@ -154,7 +154,7 @@ static int ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DW
                 int cbOutSector = dwBytesInThisSector;
                 int cbInSector = dwRawBytesInThisSector;
                 int nResult = 0;
-
+#ifdef FULL_COMP
                 // Is the file compressed by Blizzard's multiple compression ?
                 if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS) {
                     // Remember the last used compression
@@ -166,9 +166,11 @@ static int ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DW
                     else
                         nResult = SCompDecompress(pbOutSector, &cbOutSector, pbInSector, cbInSector);
                 }
-
                 // Is the file compressed by PKWARE Data Compression Library ?
                 else if (pFileEntry->dwFlags & MPQ_FILE_IMPLODE) {
+#else
+				if (pFileEntry->dwFlags & MPQ_FILE_IMPLODE) {
+#endif
                     nResult = SCompExplode(pbOutSector, &cbOutSector, pbInSector, cbInSector);
                 }
 
@@ -269,7 +271,7 @@ static int ReadMpqFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, L
 
             if (pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE)
                 cbInBuffer = cbInBuffer - sizeof(TPatchInfo);
-
+#ifdef FULL_COMP
             // Is the file compressed by Blizzard's multiple compression ?
             if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS) {
                 // Remember the last used compression
@@ -285,6 +287,9 @@ static int ReadMpqFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, L
             // Is the file compressed by PKWARE Data Compression Library ?
             // Note: Single unit files compressed with IMPLODE are not supported by Blizzard
             else if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
+#else
+			if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
+#endif
                 nResult = SCompExplode(hf->pbFileSector, &cbOutBuffer, pbRawData, cbInBuffer);
 
             nError = (nResult != 0) ? ERROR_SUCCESS : ERROR_FILE_CORRUPT;

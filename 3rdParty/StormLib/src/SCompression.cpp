@@ -749,7 +749,7 @@ int WINAPI SCompExplode(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffe
 /*   SCompCompress                                                           */
 /*                                                                           */
 /*****************************************************************************/
-
+#ifdef FULL_COMP
 // This table contains compress functions which can be applied to
 // uncompressed data. Each bit means the corresponding
 // compression method/function must be applied.
@@ -1150,7 +1150,7 @@ int WINAPI SCompDecompress2(void * pvOutBuffer, int * pcbOutBuffer, void * pvInB
         SetLastError(ERROR_FILE_CORRUPT);
     return nResult;
 }
-
+#endif // FULL_COMP
 #ifdef FULL
 /*****************************************************************************/
 /*                                                                           */

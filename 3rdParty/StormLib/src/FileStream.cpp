@@ -453,7 +453,7 @@ static void BaseFile_Init(TFileStream * pStream)
 
 //-----------------------------------------------------------------------------
 // Local functions - base memory-mapped file support
-
+#ifdef FULL
 #ifdef STORMLIB_WINDOWS
 
 typedef struct _SECTION_BASIC_INFORMATION
@@ -661,10 +661,10 @@ static void BaseMap_Init(TFileStream * pStream)
     // Mapped files are read-only
     pStream->dwFlags |= STREAM_FLAG_READ_ONLY;
 }
-
+#endif // FULL
 //-----------------------------------------------------------------------------
 // Local functions - base HTTP file support
-//#ifdef FULL
+#ifdef FULL
 static const TCHAR * BaseHttp_ExtractServerName(const TCHAR * szFileName, TCHAR * szServerName)
 {
     // Check for HTTP
@@ -901,7 +901,7 @@ static void BaseHttp_Init(TFileStream * pStream)
     // HTTP files are read-only
     pStream->dwFlags |= STREAM_FLAG_READ_ONLY;
 }
-//#endif
+#endif // FULL
 //-----------------------------------------------------------------------------
 // Local functions - base block-based support
 
