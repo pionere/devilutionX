@@ -354,7 +354,7 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		if (cursor != 0)
 			cat_cstr(sstr, cursor, ",  ");
-		cat_cstr(sstr, cursor, "Required:");
+		cat_cstr(sstr, cursor, "Req.:");
 		if (is->_iMinStr != 0)
 			cat_str(sstr, cursor, " %d Str", is->_iMinStr);
 		if (is->_iMinMag != 0)

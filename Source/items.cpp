@@ -3179,7 +3179,7 @@ void DrawInvItemDetails()
 	PrintItemMiscInfo(is, x, y);
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		int cursor = 0;
-		cat_cstr(tempstr, cursor, "Required:");
+		cat_cstr(tempstr, cursor, "Req.:");
 		if (is->_iMinStr != 0)
 			cat_str(tempstr, cursor, " %i Str", is->_iMinStr);
 		if (is->_iMinMag != 0)
