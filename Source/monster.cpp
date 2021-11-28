@@ -1642,7 +1642,7 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 		dMonster[mon->_mx][mon->_my] = j + 1;
 	}
 	mon = &monsters[mnum];
-	mon->_mVar1 = 0;         // DIABLO_TICK
+	mon->_mVar1 = 7 * gnTicksRate; // DIABLO_TICK
 	mon->_mVar2 = gbSoundOn; // DIABLO_SOUND
 	mx = mon->_mx;
 	my = mon->_my;
@@ -2419,7 +2419,7 @@ static bool MonDoDeath(int mnum)
 		if (mon->_my != ViewY)
 			ViewY += mon->_my > ViewY ? 1 : -1;
 
-		if (++mon->_mVar1 == 140)      // DIABLO_TICK
+		if (--mon->_mVar1 == 0) // DIABLO_TICK
 			PrepDoEnding(mon->_mVar2); // DIABLO_SOUND
 	} else if (mon->_mAnimFrame == mon->_mAnimLen) {
 		AddDead(mnum, false);
