@@ -70,7 +70,7 @@ gendata\fprst3.smk
 gendata\Hellfire.smk
 gendata\logo.smk
 gendata\loopdend.smk
-_Items\Armor2.CEL
+Items\Armor2.CEL
 Items\Axe.CEL
 Items\Bldstn.CEL
 Items\bombs1.CEL
