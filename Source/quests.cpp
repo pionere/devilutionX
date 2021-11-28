@@ -180,8 +180,6 @@ int ForceQuests()
 			int dy = cursmy - (trigs[i]._ty - 1);
 			if (abs(dx) <= 1 && abs(dy) <= 1 &&	// select the 3x3 square around (-1;-1)
 				abs(dx - dy) < 2) {				// exclude the top left and bottom right positions
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}

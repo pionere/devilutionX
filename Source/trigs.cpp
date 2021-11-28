@@ -367,16 +367,12 @@ static int ForceTownTrig()
 {
 	if (TOWN_L1_WARP) {
 		// Down to dungeon
-		cursmx = trigs[TWARP_CATHEDRAL]._tx;
-		cursmy = trigs[TWARP_CATHEDRAL]._ty;
 		return TWARP_CATHEDRAL;
 	}
 
 	if (gbOpenWarps & (1 << TWARP_CATACOMB)) {
 		if (TOWN_L2_WARP) {
 			// Down to catacombs
-			cursmx = trigs[TWARP_CATACOMB]._tx;
-			cursmy = trigs[TWARP_CATACOMB]._ty;
 			return TWARP_CATACOMB;
 		}
 	}
@@ -384,8 +380,6 @@ static int ForceTownTrig()
 	if (gbOpenWarps & (1 << TWARP_CAVES)) {
 		if (TOWN_L3_WARP) {
 			//Down to caves
-			cursmx = trigs[TWARP_CAVES]._tx;
-			cursmy = trigs[TWARP_CAVES]._ty;
 			return TWARP_CAVES;
 		}
 	}
@@ -393,8 +387,6 @@ static int ForceTownTrig()
 	if (gbOpenWarps & (1 << TWARP_HELL)) {
 		if (TOWN_L4_WARP) {
 			// Down to hell
-			cursmx = trigs[TWARP_HELL]._tx;
-			cursmy = trigs[TWARP_HELL]._ty;
 			return TWARP_HELL;
 		}
 	}
@@ -403,16 +395,12 @@ static int ForceTownTrig()
 	if (gbOpenWarps & (1 << TWARP_NEST)) {
 		if (TOWN_L5_WARP) {
 			// Down to Hive
-			cursmx = trigs[TWARP_NEST]._tx;
-			cursmy = trigs[TWARP_NEST]._ty;
 			return TWARP_NEST;
 		}
 	}
 	if (gbOpenWarps & (1 << TWARP_CRYPT)) {
 		if (TOWN_L6_WARP) {
 			// Down to Crypt
-			cursmx = trigs[TWARP_CRYPT]._tx;
-			cursmy = trigs[TWARP_CRYPT]._ty;
 			return TWARP_CRYPT;
 		}
 	}
@@ -428,8 +416,6 @@ static int ForceL1Trig()
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL // Up to level (currLvl._dLevelIdx - 1)
 			 || trigs[i]._tmsg == DVL_DWM_TWARPUP) { // // Up to town
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -438,8 +424,6 @@ static int ForceL1Trig()
 		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -455,8 +439,6 @@ static int ForceL2Trig()
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
 				// Up to level (currLvl._dLevelIdx - 1)
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -466,8 +448,6 @@ static int ForceL2Trig()
 		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -478,8 +458,6 @@ static int ForceL2Trig()
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
 					return i;
 				}
 			}
@@ -498,8 +476,6 @@ static int ForceL3Trig()
 		// Up to level (currLvl._dLevelIdx - 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -512,8 +488,6 @@ static int ForceL3Trig()
 		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -525,8 +499,6 @@ static int ForceL3Trig()
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
 					return i;
 				}
 			}
@@ -543,8 +515,6 @@ static int ForceL4Trig()
 		// Up to level (currLvl._dLevelIdx - 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -554,8 +524,6 @@ static int ForceL4Trig()
 		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -566,8 +534,6 @@ static int ForceL4Trig()
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
 					return i;
 				}
 			}
@@ -579,8 +545,6 @@ static int ForceL4Trig()
 			// Down to Diablo
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
 					return i;
 				}
 			}
@@ -599,8 +563,6 @@ static int ForceL5Trig()
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL // Up to Crypt level (currLvl._dLevelIdx - 21)
 			 || trigs[i]._tmsg == DVL_DWM_TWARPUP) { // // Up to town
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -610,8 +572,6 @@ static int ForceL5Trig()
 		// Down to Crypt level (currLvl._dLevelIdx - 19)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -621,8 +581,6 @@ static int ForceL5Trig()
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
 					return i;
 				}
 			}
@@ -640,8 +598,6 @@ static int ForceL6Trig()
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL // Up to Nest level (currLvl._dLevelIdx - 17)
 			 || trigs[i]._tmsg == DVL_DWM_TWARPUP) { // Up to town
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -652,8 +608,6 @@ static int ForceL6Trig()
 		// Down to level (currLvl._dLevelIdx - 15)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
-				cursmx = trigs[i]._tx;
-				cursmy = trigs[i]._ty;
 				return i;
 			}
 		}
@@ -665,8 +619,6 @@ static int ForceL6Trig()
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
 					return i;
 				}
 			}
@@ -696,8 +648,6 @@ static int ForceSKingTrig()
 {
 	if (L1_UP_WARP) {
 		// Back to Level (questlist[Q_SKELKING]._qdlvl)
-		cursmx = trigs[0]._tx;
-		cursmy = trigs[0]._ty;
 		return 0;
 	}
 
@@ -708,8 +658,6 @@ static int ForceSChambTrig()
 {
 	if (L2_DOWN_WARP) {
 		// Back to Level (questlist[Q_SCHAMB]._qdlvl)
-		cursmx = trigs[0]._tx;
-		cursmy = trigs[0]._ty;
 		return 0;
 	}
 
@@ -720,8 +668,6 @@ static int ForcePWaterTrig()
 {
 	if (L3_DOWN_WARP) {
 		// Back to Level (questlist[Q_PWATER]._qdlvl)
-		cursmx = trigs[0]._tx;
-		cursmy = trigs[0]._ty;
 		return 0;
 	}
 
@@ -786,54 +732,64 @@ void InitTriggers()
 
 void CheckTrigForce()
 {
+	int trignum;
+
 	if (!currLvl._dSetLvl) {
 		switch (currLvl._dType) {
 		case DTYPE_TOWN:
-			pcurstrig = ForceTownTrig();
-			return;
+			trignum = ForceTownTrig();
+			break;
 		case DTYPE_CATHEDRAL:
-			pcurstrig = ForceL1Trig();
+			trignum = ForceL1Trig();
 			break;
 		case DTYPE_CATACOMBS:
-			pcurstrig = ForceL2Trig();
+			trignum = ForceL2Trig();
 			break;
 		case DTYPE_CAVES:
-			pcurstrig = ForceL3Trig();
+			trignum = ForceL3Trig();
 			break;
 		case DTYPE_HELL:
-			pcurstrig = ForceL4Trig();
+			trignum = ForceL4Trig();
 			break;
 #ifdef HELLFIRE
 		case DTYPE_CRYPT:
-			pcurstrig = ForceL5Trig();
+			trignum = ForceL5Trig();
 			break;
 		case DTYPE_NEST:
-			pcurstrig = ForceL6Trig();
+			trignum = ForceL6Trig();
 			break;
 #endif
 		default:
 			ASSUME_UNREACHABLE
+			trignum = -1;
 		}
-		if (pcurstrig == -1) {
-			pcurstrig = ForceQuests();
+		if (trignum == -1) {
+			trignum = ForceQuests();
 		}
 	} else {
 		switch (currLvl._dLevelIdx) {
 		case SL_SKELKING:
-			pcurstrig = ForceSKingTrig();
+			trignum = ForceSKingTrig();
 			break;
 		case SL_BONECHAMB:
-			pcurstrig = ForceSChambTrig();
+			trignum = ForceSChambTrig();
 			break;
 		case SL_POISONWATER:
-			pcurstrig = ForcePWaterTrig();
+			trignum = ForcePWaterTrig();
 			break;
 		case SL_VILEBETRAYER:
+			trignum = -1;
 			break;
 		default:
 			ASSUME_UNREACHABLE
+			trignum = -1;
 			break;
 		}
+	}
+	pcurstrig = trignum;
+	if (trignum != -1) {
+		cursmx = trigs[trignum]._tx;
+		cursmy = trigs[trignum]._ty;
 	}
 }
 
