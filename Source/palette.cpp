@@ -142,17 +142,19 @@ void SetFadeLevel(unsigned fadeval)
 	palette_update();
 }
 
-void PaletteFadeIn()
+void PaletteFadeIn(bool instant)
 {
 	int i;
 
 	ApplyGamma(logical_palette, orig_palette);
-	Uint32 tc = SDL_GetTicks();
-	const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
-	for (i = 0; i < 256; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
-		SetFadeLevel(i);
-		BltFast(&SrcRect, NULL);
-		RenderPresent();
+	if (!instant) {
+		Uint32 tc = SDL_GetTicks();
+		const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
+		for (i = 0; i < 256; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
+			SetFadeLevel(i);
+			BltFast(&SrcRect, NULL);
+			RenderPresent();
+		}
 	}
 	SetFadeLevel(256);
 	memcpy(logical_palette, orig_palette, sizeof(orig_palette));

@@ -366,7 +366,7 @@ void ShowCutscene(unsigned uMsg)
 	InitCutscene(uMsg);
 	SetFadeLevel(0); // TODO: set _gbFadedIn to false?
 	DrawCutscene();
-	PaletteFadeIn();
+	PaletteFadeIn(false);
 	IncProgress();
 
 	switch (uMsg) {

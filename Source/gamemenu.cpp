@@ -137,7 +137,7 @@ static void gamemenu_load_game(bool bActivate)
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game();
 	LoadPWaterPalette();
-	PaletteFadeIn();
+	PaletteFadeIn(false);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
 }

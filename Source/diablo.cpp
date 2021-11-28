@@ -1348,7 +1348,9 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		if (uMsg != DVL_DWM_NEWGAME) {
 			if (IsMultiGame)
 				pfile_write_hero(false);
-			PaletteFadeOut();
+			// turned off to have a consistent fade in/out logic + reduces de-sync by 
+			// eliminating the need for special handling in InitLevelChange (player.cpp)
+			//PaletteFadeOut();
 			sound_stop();
 		}
 		music_stop();
@@ -1361,15 +1363,15 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 			RunDeltaPackets();
 		}
 		InitLevelCursor();
+		// process packets arrived during LoadLevel / delta-load and disable nthread
+		nthread_finish();
 		if (gbRunGame) {
 			gbRedrawFlags = REDRAW_ALL;
 			scrollrt_draw_game();
 			LoadPWaterPalette();
-			PaletteFadeIn();
+			PaletteFadeIn(true);
 			//gbRedrawFlags = REDRAW_ALL;
 		}
-		// process packets arrived during LoadLevel / delta-load and disable nthread
-		nthread_finish();
 		return;
 	}
 
