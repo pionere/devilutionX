@@ -3562,10 +3562,28 @@ static void OperateLazStand(int oi, bool sendmsg)
 	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg/*, false*/);
 }
 
+static bool CheckCrux(int lvrIdx)
+{
+	ObjectStruct* on;
+	int i;
+	bool triggered;
+
+	triggered = true;
+	for (i = 0; i < numobjects; i++) {
+		on = &objects[objectactive[i]];
+		if (on->_otype != OBJ_CRUXM && on->_otype != OBJ_CRUXR && on->_otype != OBJ_CRUXL)
+			continue;
+		if (lvrIdx != on->_oVar8 || on->_oBreak == OBM_BROKEN) // LEVER_INDEX
+			continue;
+		triggered = false;
+	}
+
+	return triggered;
+}
+
 static void OperateCrux(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os, *on;
-	int i;
+	ObjectStruct* os;
 	bool triggered;
 
 	os = &objects[oi];
@@ -3579,16 +3597,8 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	os->_oMissFlag = TRUE;
 	os->_oBreak = OBM_BROKEN;
 
-	triggered = true;
-	for (i = 0; i < numobjects; i++) {
-		on = &objects[objectactive[i]];
-		if (on->_otype != OBJ_CRUXM && on->_otype != OBJ_CRUXR && on->_otype != OBJ_CRUXL)
-			continue;
-		if (os->_oVar8 != on->_oVar8 || on->_oBreak == OBM_BROKEN) // LEVER_INDEX
-			continue;
-		triggered = false;
-	}
-	if (triggered) // LEVER_EFFECT
+	triggered = CheckCrux(os->_oVar8); // LEVER_EFFECT
+	if (triggered)
 		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 
 	if (deltaload) {
@@ -3989,6 +3999,15 @@ static void SyncBookLever(int oi)
 	}
 }
 
+static void SyncCrux(int oi)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	if (CheckCrux(os->_oVar8)) // LEVER_EFFECT
+		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+}
+
 static void SyncPedistal(int oi)
 {
 	switch (quests[Q_BLOOD]._qvar1) {
@@ -4158,6 +4177,11 @@ void SyncObjectAnim(int oi)
 	case OBJ_BOOK2L:
 	case OBJ_SWITCHSKL:
 		SyncLever(oi);
+		break;
+	case OBJ_CRUXM:
+	//case OBJ_CRUXR: -- check only one of them
+	//case OBJ_CRUXL:
+		SyncCrux(oi);
 		break;
 	case OBJ_BOOK2R:
 	case OBJ_BLINDBOOK:

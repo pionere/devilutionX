@@ -721,7 +721,6 @@ static void LoadObject(int oi, bool full)
 		// reset dynamic lights
 		os->_olid = -1;
 	}
-	SyncObjectAnim(oi);
 }
 
 static void LoadItem(int ii)
@@ -815,6 +814,9 @@ static void LoadLevelData(bool full)
 			LoadByte(&objectavail[i]);
 		for (i = 0; i < numobjects; i++)
 			LoadObject(objectactive[i], full);
+		// run in a separate loop because objects (e.g. crux) might depend on each other
+		for (i = 0; i < numobjects; i++)
+			SyncObjectAnim(objectactive[i]);
 	}
 	static_assert(MAXITEMS <= UCHAR_MAX, "LoadLevelData handles item-ids as bytes.");
 	for (i = 0; i < MAXITEMS; i++)
