@@ -8,16 +8,17 @@ source Packaging/OpenDingux/targets.sh
 source Packaging/OpenDingux/package-opk.sh
 
 usage() {
-  echo "Usage: build.sh [target]"
+  echo "Usage: build.sh [target] [cmakeargs]"
   usage_target
 }
 
-if ! check_target "$@"; then
+if ! check_target "$1"; then
   usage
   exit 64
 fi
 
 declare -r TARGET="$1"
+declare -r CMAKE_ARGS="$2"
 declare -r BUILD_DIR="build-${TARGET}"
 declare -rA BUILDROOT_REPOS=(
 	[lepus]=https://github.com/OpenDingux/buildroot.git
@@ -79,6 +80,7 @@ cmake_configure() {
 		-DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}/usr/share/buildroot/toolchainfile.cmake" \
 		-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF \
 		-DZEROTIER=OFF \
+		"${CMAKE_ARGS}" \
 		"$@"
 }
 

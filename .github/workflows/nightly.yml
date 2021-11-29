@@ -236,7 +236,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: Packaging/OpenDingux/build.sh rg350
+      run: Packaging/OpenDingux/build.sh rg350 "${{ matrix.cmakeargs }}"
       env:
         TOOLCHAIN: /opt/gcw0-toolchain
 
@@ -279,7 +279,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: Packaging/OpenDingux/build.sh lepus
+      run: Packaging/OpenDingux/build.sh lepus "${{ matrix.cmakeargs }}"
       env:
         TOOLCHAIN: /opt/lepus-toolchain
 
@@ -328,7 +328,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: Packaging/OpenDingux/build.sh retrofw
+      run: Packaging/OpenDingux/build.sh retrofw "${{ matrix.cmakeargs }}"
       env:
         TOOLCHAIN: /opt/retrofw-toolchain
 
