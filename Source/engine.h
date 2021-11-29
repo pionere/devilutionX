@@ -64,7 +64,6 @@ inline int RandRange(int minVal, int maxVal)
 	return minVal + random_(0, maxVal - minVal + 1);
 }
 
-// BUGFIX: TODO DISABLE/ENABLE_WARNING macros are not tested for GNUC/clang
 #if defined(_MSC_VER)
 #define DIAG_PRAGMA(x) __pragma(warning(x))
 #define DISABLE_WARNING(gcc_unused,clang_unused,msvc_errorcode) DIAG_PRAGMA(push) DIAG_PRAGMA(disable:##msvc_errorcode)
@@ -100,9 +99,9 @@ template<DWORD N1, DWORD N2>
 inline void copy_str(char (&dest)[N1], char (&src)[N2])
 {
 	static_assert(N1 >= N2, "String does not fit the destination.");
-	DISABLE_WARNING(gcc_option, deprecated-declarations, 4996)
+	DISABLE_WARNING(no-deprecated-declarations, deprecated-declarations, 4996)
 	strcpy(dest, src);
-	ENABLE_WARNING(gcc_option, deprecated-declarations, 4996)
+	ENABLE_WARNING(no-deprecated-declarations, deprecated-declarations, 4996)
 }
 
 /*

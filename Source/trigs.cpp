@@ -50,7 +50,7 @@ BYTE gbTWarpFrom;
 /** Specifies the dungeon piece IDs which constitute stairways leading up from hell. */
 #define L4_UP_WARP			(PIECE == 82 || (PIECE >= 90 && PIECE <= 97 && PIECE != 91 && PIECE != 93))
 /** Specifies the dungeon piece IDs which constitute stairways leading down from hell. */
-#define L4_DOWN_WARP		(PIECE >= 130 && PIECE <= 133 || PIECE == 120)
+#define L4_DOWN_WARP		((PIECE >= 130 && PIECE <= 133) || PIECE == 120)
 /** Specifies the dungeon piece IDs which constitute stairways leading up to town from hell. */
 #define L4_TOWN_WARP		(PIECE == 421 || (PIECE >= 429 && PIECE <= 436 && PIECE != 430 && PIECE != 432))
 /** Specifies the dungeon piece IDs which constitute stairways leading down to Diablo from hell. */
