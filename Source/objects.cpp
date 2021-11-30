@@ -2402,8 +2402,8 @@ static void OperateLever(int oi, bool sendmsg)
 			return;
 		PlaySfxLoc(IS_CROPEN, os->_ox - 3, os->_oy + 1);
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
-#endif
 	}
+#endif
 	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 }
 
