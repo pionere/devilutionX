@@ -1005,7 +1005,7 @@ void InitObjects()
 			LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
 		}
 		if (QuestStatus(Q_BLOOD)) {
-			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, Q_BLOOD);
+			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD);
 			AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 		}
 		break;
@@ -2346,14 +2346,14 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 	}
 }
 
-static bool CheckSwitchGroup(int lvrIdx)
+static bool CheckLeverGroup(int type, int lvrIdx)
 {
 	ObjectStruct* os;
 	int i;
 
 	for (i = 0; i < numobjects; i++) {
 		os = &objects[objectactive[i]]; 
-		if (os->_otype != OBJ_SWITCHSKL)
+		if (os->_otype != type) // OBJ_SWITCHSKL, OBJ_LEVER, OBJ_BOOK2L or OBJ_L5LEVER
 			continue;
 		if (lvrIdx != os->_oVar8 || os->_oSelFlag == 0) // LEVER_INDEX
 			continue;
@@ -2394,11 +2394,10 @@ static void OperateLever(int oi, bool sendmsg)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
-	if (currLvl._dLevelIdx == DLV_HELL4) {
-		if (!CheckSwitchGroup(os->_oVar8)) // LEVER_INDEX
-			return;
+	if (!CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
+		return;
 #ifdef HELLFIRE
-	} else if (currLvl._dLevelIdx == DLV_CRYPT4 && !deltaload) {
+	if (currLvl._dLevelIdx == DLV_CRYPT4 && !deltaload) {
 		if (quests[Q_NAKRUL]._qactive == QUEST_DONE)
 			return;
 		PlaySfxLoc(IS_CROPEN, os->_ox - 3, os->_oy + 1);
@@ -2476,11 +2475,11 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 			NetSendCmdQuest(Q_SCHAMB, true); // recipient should not matter
 			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 		}
-	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+	} //else if (currLvl._dLevelIdx == SL_VILEBETRAYER) { NULL_LVR_EFFECT
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 		//for (i = 0; i < numobjects; i++)
 		//	SyncObjectAnim(objectactive[i]);
-	}
+	//}
 }
 
 static void OperateBookLever(int pnum, int oi, bool sendmsg)
@@ -2496,7 +2495,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	qn = os->_oVar7;     // LEVER_BOOK_QUEST
 	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
 		os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_ANIM
-		if (qn != Q_BLOOD)
+		//if (qn != Q_BLOOD) NULL_LVR_EFFECT
 			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);    // LEVER_EFFECT
 		if (qn == Q_BLIND) {
 			if (!deltaload)
@@ -3989,11 +3988,8 @@ static void SyncLever(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (os->_oSelFlag != 0)
-		return;
-	if (currLvl._dLevelIdx == DLV_HELL4 && !CheckSwitchGroup(os->_oVar8)) // LEVER_INDEX
-		return;
-	ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+	if (CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
+		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 }
 
 static void SyncBookLever(int oi)
@@ -4186,7 +4182,7 @@ void SyncObjectAnim(int oi)
 #ifdef HELLFIRE
 	case OBJ_L5LEVER:
 #endif
-	case OBJ_BOOK2L:
+	case OBJ_BOOK2L: // TODO: only if currLvl._dLevelIdx == SL_VILEBETRAYER? NULL_LVR_EFFECT
 	case OBJ_SWITCHSKL:
 		SyncLever(oi);
 		break;
