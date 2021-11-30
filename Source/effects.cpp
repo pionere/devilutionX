@@ -1240,19 +1240,18 @@ static bool calc_snd_position(int x, int y, int* plVolume, int* plPan)
 	x -= myplr._px;
 	y -= myplr._py;
 
-	pan = (x - y) * 256;
+	pan = (x - y);
 	*plPan = pan;
 
-	if (abs(pan) > 6400)
+	if (abs(pan) > SFX_DIST_MAX)
 		return false;
 
 	volume = std::max(abs(x), abs(y));
-	volume *= 64;
-	*plVolume = volume;
-
-	if (volume >= VOLUME_MAX - VOLUME_MIN)
+	if (volume >= SFX_DIST_MAX)
 		return false;
-
+	static_assert(((VOLUME_MAX - VOLUME_MIN) % SFX_DIST_MAX) == 0, "Volume calculation in calc_snd_position requires matching VOLUME_MIN/MAX and SFX_DIST_MAX values.");
+	static_assert(((((VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX)) & ((VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX - 1)) == 0, "Volume calculation in calc_snd_position is no longer optimal for performance.");
+	volume *= (VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX;
 	*plVolume = -volume;
 
 	return true;

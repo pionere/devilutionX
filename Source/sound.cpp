@@ -23,9 +23,9 @@ Mix_Music* _gMusic;
 BYTE* _gMusicBuffer;
 
 /** The volume of the sound channel. */
-int _gnSoundVolume;
+static int _gnSoundVolume;
 /** The volume of the music channel. */
-int _gnMusicVolume;
+static int _gnMusicVolume;
 /** Specifies the active background music track id. */
 int _gnMusicTrack = NUM_MUSIC;
 /** Maps from track ID to track name. */
@@ -123,7 +123,21 @@ void sound_file_cleanup(SoundSample* sound_file)
 	}
 }
 
-void snd_init()
+void RestartMixer()
+{
+	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16LSB, MIX_DEFAULT_CHANNELS, 1024) < 0) {
+		SDL_Log("%s", Mix_GetError());
+	}
+	Mix_AllocateChannels(25);
+	Mix_ReserveChannels(1); // reserve one channel for narration (SFileDda*)
+}
+
+static void SetMusicVolume_priv()
+{
+	Mix_VolumeMusic(MIX_MAX_VOLUME * (_gnMusicVolume - VOLUME_MIN) / (VOLUME_MAX - VOLUME_MIN));
+}
+
+void InitSound()
 {
 	snd_get_volume("Sound Volume", &_gnSoundVolume);
 	gbSoundOn = _gnSoundVolume > VOLUME_MIN;
@@ -131,11 +145,7 @@ void snd_init()
 	snd_get_volume("Music Volume", &_gnMusicVolume);
 	gbMusicOn = _gnMusicVolume > VOLUME_MIN;
 
-	if (Mix_OpenAudio(22050, AUDIO_S16LSB, 2, 1024) < 0) {
-		SDL_Log("%s", Mix_GetError());
-	}
-	Mix_AllocateChannels(25);
-	Mix_ReserveChannels(1); // reserve one channel for narration (SFileDda*)
+	RestartMixer();
 }
 
 void music_stop()
@@ -167,7 +177,7 @@ void music_start(int nTrack)
 			}
 			assert(_gMusic == NULL);
 			_gMusic = Mix_LoadMUSType_RW(musicRw, MUS_NONE, 1);
-			Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * _gnMusicVolume / VOLUME_MIN);
+			SetMusicVolume_priv();
 			Mix_PlayMusic(_gMusic, -1);
 
 			_gnMusicTrack = nTrack;
@@ -200,7 +210,7 @@ void sound_set_music_volume(int volume)
 	setIniInt("Audio", "Music Volume", volume);
 
 	if (_gMusic != NULL)
-		Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * volume / VOLUME_MIN);
+		SetMusicVolume_priv();
 }
 
 int sound_get_sound_volume()

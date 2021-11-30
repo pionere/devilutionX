@@ -273,7 +273,7 @@ static void diablo_init()
 
 	diablo_init_screen();
 
-	snd_init();
+	InitSound();
 	gbSndInited = true;
 
 	InitUiEffects(); // sfx
@@ -334,6 +334,7 @@ void FreeLevelMem()
 {
 	stream_stop();
 	music_stop();
+	sound_stop();
 
 	FreeLvlDungeon();
 	FreeMissiles();
@@ -1351,9 +1352,7 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 			// turned off to have a consistent fade in/out logic + reduces de-sync by 
 			// eliminating the need for special handling in InitLevelChange (player.cpp)
 			//PaletteFadeOut();
-			sound_stop();
 		}
-		music_stop();
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
 		ShowCutscene(uMsg);

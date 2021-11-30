@@ -20,7 +20,8 @@ bool snd_playing(SoundSample* pSnd);
 void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan);
 SoundSample* sound_file_load(const char *path);
 void sound_file_cleanup(SoundSample* sound_file);
-void snd_init();
+void InitSound();
+void RestartMixer();
 void music_stop();
 void music_start(int nTrack);
 void sound_disable_music();
@@ -32,7 +33,7 @@ void sound_set_sound_volume(int volume);
 #else
 inline bool snd_playing(SoundSample* pSnd) { return false; }
 inline void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan) { }
-inline void snd_init() { }
+inline void InitSound() { }
 inline void music_stop() { }
 inline void music_start(int nTrack) { }
 inline void sound_disable_music() { }

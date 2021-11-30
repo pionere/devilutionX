@@ -170,6 +170,7 @@ static void gamemenu_sound_music_toggle(/*const char *const *names,*/TMenuItem* 
 	//if (gbSndInited) {
 	//	menu_item->dwFlags |= GMENU_ENABLED | GMENU_SLIDER;
 	//	menu_item->pszStr = *names;
+		static_assert(((VOLUME_MAX - VOLUME_MIN) % 16) == 0, "sfx slider expects a volume range divisible by 16.");
 		gmenu_slider_steps(menu_item, 16 /*(VOLUME_MAX - VOLUME_MIN) / 100*/);
 		gmenu_slider_set(menu_item, VOLUME_MIN, VOLUME_MAX, volume);
 	//	return;

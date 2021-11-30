@@ -107,14 +107,6 @@ static bool HaveAudio()
 }
 #endif // SDL_VERSION_ATLEAST
 
-static void SVidRestartMixer()
-{
-	if (Mix_OpenAudio(22050, AUDIO_S16LSB, 2, 1024) < 0) {
-		SDL_Log("%s", Mix_GetError());
-	}
-	Mix_AllocateChannels(25);
-	Mix_ReserveChannels(1);
-}
 #if !SDL_VERSION_ATLEAST(2, 0, 4)
 struct AudioQueueItem {
 	unsigned char *data;
@@ -171,13 +163,13 @@ private:
 		AudioQueueItem *item;
 		while ((item = Next()) != NULL) {
 			if (static_cast<unsigned long>(out_len) <= item->len) {
-				SDL_MixAudio(out, item->pos, out_len, SDL_MIX_MAXVOLUME);
+				SDL_MixAudio(out, item->pos, out_len, MIX_MAX_VOLUME);
 				item->pos += out_len;
 				item->len -= out_len;
 				return;
 			}
 
-			SDL_MixAudio(out, item->pos, item->len, SDL_MIX_MAXVOLUME);
+			SDL_MixAudio(out, item->pos, item->len, MIX_MAX_VOLUME);
 			out += item->len;
 			out_len -= item->len;
 			Pop();
@@ -204,7 +196,7 @@ private:
 
 static AudioQueue *sVidAudioQueue = new AudioQueue();
 #endif
-#endif // NOSOUND
+#endif // !NOSOUND
 
 HANDLE SVidPlayBegin(const char *filename, int flags)
 {
@@ -242,7 +234,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 		if (depth[0] != 0) {
 			SVidAudioDepth = depth[0];
 			SVidVolume = sound_get_sound_volume() - VOLUME_MIN;
-			SVidVolume /= -VOLUME_MIN;
+			SVidVolume /= (VOLUME_MAX - VOLUME_MIN);
 
 			smk_enable_audio(SVidSMK, 0, true);
 			SDL_AudioSpec audioFormat;
@@ -471,9 +463,9 @@ void SVidPlayEnd()
 		SDL_CloseAudio();
 		sVidAudioQueue->Clear();
 #endif
-		SVidRestartMixer();
+		RestartMixer();
 	}
-#endif // NOSOUND
+#endif // !NOSOUND
 	if (SVidSMK != NULL)
 		smk_close(SVidSMK);
 
