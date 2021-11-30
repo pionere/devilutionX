@@ -2346,10 +2346,42 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 	}
 }
 
+static bool CheckSwitchGroup(int lvrIdx)
+{
+	ObjectStruct* os;
+	int i;
+
+	for (i = 0; i < numobjects; i++) {
+		os = &objects[objectactive[i]]; 
+		if (os->_otype != OBJ_SWITCHSKL)
+			continue;
+		if (lvrIdx != os->_oVar8 || os->_oSelFlag == 0) // LEVER_INDEX
+			continue;
+		return false;
+	}
+	return true;
+}
+
+static bool CheckCrux(int lvrIdx)
+{
+	ObjectStruct* os;
+	int i;
+
+	for (i = 0; i < numobjects; i++) {
+		os = &objects[objectactive[i]];
+		if (os->_otype != OBJ_CRUXM && os->_otype != OBJ_CRUXR && os->_otype != OBJ_CRUXL)
+			continue;
+		if (os->_oVar8 != lvrIdx || os->_oBreak == OBM_BROKEN) // LEVER_INDEX
+			continue;
+		return false;
+	}
+
+	return true;
+}
+
 static void OperateLever(int oi, bool sendmsg)
 {
-	ObjectStruct *os, *on;
-	int i;
+	ObjectStruct* os;
 
 	os = &objects[oi];
 	if (os->_oSelFlag == 0)
@@ -2363,12 +2395,8 @@ static void OperateLever(int oi, bool sendmsg)
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 	if (currLvl._dLevelIdx == DLV_HELL4) {
-		for (i = 0; i < numobjects; i++) {
-			on = &objects[objectactive[i]]; //         LEVER_INDEX
-			if (on->_otype == OBJ_SWITCHSKL && os->_oVar8 == on->_oVar8 && on->_oSelFlag != 0) {
-				return;
-			}
-		}
+		if (!CheckSwitchGroup(os->_oVar8)) // LEVER_INDEX
+			return;
 #ifdef HELLFIRE
 	} else if (currLvl._dLevelIdx == DLV_CRYPT4 && !deltaload) {
 		if (quests[Q_NAKRUL]._qactive == QUEST_DONE)
@@ -3562,25 +3590,6 @@ static void OperateLazStand(int oi, bool sendmsg)
 	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg/*, false*/);
 }
 
-static bool CheckCrux(int lvrIdx)
-{
-	ObjectStruct* on;
-	int i;
-	bool triggered;
-
-	triggered = true;
-	for (i = 0; i < numobjects; i++) {
-		on = &objects[objectactive[i]];
-		if (on->_otype != OBJ_CRUXM && on->_otype != OBJ_CRUXR && on->_otype != OBJ_CRUXL)
-			continue;
-		if (lvrIdx != on->_oVar8 || on->_oBreak == OBM_BROKEN) // LEVER_INDEX
-			continue;
-		triggered = false;
-	}
-
-	return triggered;
-}
-
 static void OperateCrux(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
@@ -3980,8 +3989,11 @@ static void SyncLever(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+	if (os->_oSelFlag != 0)
+		return;
+	if (currLvl._dLevelIdx == DLV_HELL4 && !CheckSwitchGroup(os->_oVar8)) // LEVER_INDEX
+		return;
+	ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 }
 
 static void SyncBookLever(int oi)

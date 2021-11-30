@@ -61,7 +61,7 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	OBJ_SWITCHSKL, // Q_SCHAMB
+	OBJ_SWITCHSKL, // Q_SCHAMB, Q_DIABLO
 	0,
 	0, //OBJ_TRAPL,
 	0, //OBJ_TRAPR,
