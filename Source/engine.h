@@ -99,9 +99,9 @@ template<DWORD N1, DWORD N2>
 inline void copy_str(char (&dest)[N1], char (&src)[N2])
 {
 	static_assert(N1 >= N2, "String does not fit the destination.");
-	DISABLE_WARNING(no-deprecated-declarations, deprecated-declarations, 4996)
+	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	strcpy(dest, src);
-	ENABLE_WARNING(no-deprecated-declarations, deprecated-declarations, 4996)
+	ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 }
 
 /*
