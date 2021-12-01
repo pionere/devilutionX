@@ -3040,12 +3040,15 @@ bool PosOkPlayer(int pnum, int x, int y)
 		}
 		mpo = dMonster[x][y];
 		if (mpo != 0) {
-			if (mpo < 0) {
+			// additional checks commented out because a player (or a charging monster)
+			// should not walk over a dying monster
+			// (AddDead does not check dMonster before reseting its value)
+			//if (mpo < 0) {
+			//	return false;
+			//}
+			//if (monsters[mpo - 1]._mhitpoints >= (1 << 6)) {
 				return false;
-			}
-			if (monsters[mpo - 1]._mhitpoints >= (1 << 6)) {
-				return false;
-			}
+			//}
 			//if (currLvl._dLevelIdx == DLV_TOWN) {
 			//	return false;
 			//}

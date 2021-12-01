@@ -210,7 +210,7 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 	monsters[tnum]._mfutx = monsters[tnum]._mx = x;
 	monsters[tnum]._mfuty = monsters[tnum]._my = y;
 	monsters[tnum].mtalkmsg = TEXT_KING1;
-	monsters[tnum]._mhitpoints = 1 << 6;
+	// monsters[tnum]._mhitpoints = 1 << 6; -- no longer necessary since PosOkPlayer does not check the monster's hp
 #ifdef _DEVMODE
 	// TODO: set to prevent assert fail in CanTalkToMonst
 	monsters[tnum]._mgoal = MGOAL_TALKING;
