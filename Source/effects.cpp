@@ -1172,14 +1172,16 @@ static void stream_play(SFXStruct* pSFX, int lVolume, int lPan)
 		return;
 	stream_stop();
 	lVolume += sound_get_sound_volume();
-	if (lVolume >= VOLUME_MIN) {
+	//if (lVolume >= VOLUME_MIN) { -- don't check, because it might lead to memory leak
+		if (lVolume < VOLUME_MIN)
+			lVolume = VOLUME_MIN;
 		if (lVolume > VOLUME_MAX)
 			lVolume = VOLUME_MAX;
 		//if (pSFX->pSnd == NULL)
 		//	pSFX->pSnd = sound_file_load(pSFX->pszName);
 		sgpStreamSFX = pSFX;
 		pSFX->pSnd->Play(lVolume, lPan, 0);
-	}
+	//}
 }
 
 static void stream_update()
