@@ -182,12 +182,12 @@ static void gamemenu_sound_music_toggle(/*const char *const *names,*/TMenuItem* 
 
 static void gamemenu_get_music()
 {
-	gamemenu_sound_music_toggle(/*music_toggle_names,*/ &sgSettingsMenu[0], sound_get_music_volume());
+	gamemenu_sound_music_toggle(/*music_toggle_names,*/ &sgSettingsMenu[0], gnMusicVolume);
 }
 
 static void gamemenu_get_sound()
 {
-	gamemenu_sound_music_toggle(/*sound_toggle_names,*/ &sgSettingsMenu[1], sound_get_sound_volume());
+	gamemenu_sound_music_toggle(/*sound_toggle_names,*/ &sgSettingsMenu[1], gnSoundVolume);
 }
 
 static void gamemenu_get_gamma()

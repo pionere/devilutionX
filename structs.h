@@ -501,11 +501,33 @@ static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 128, "Ali
 // effects/sound
 //////////////////////////////////////////////////
 
+typedef struct SoundSample final {
+	Uint32 nextTc;
+	struct Mix_Chunk* soundData;
+
+	void Release();
+	bool IsPlaying();
+	bool IsLoaded() {
+		return soundData != NULL;
+	}
+	void Play(int lVolume, int lPan, int channel = -1);
+	void Stop();
+	int SetChunk(BYTE* fileData, DWORD dwBytes);
+	//int TrackLength();
+} SoundSample;
+
 typedef struct SFXStruct {
 	BYTE bFlags;
 	const char* pszName;
-	SoundSample* pSnd;
+	union {
+		struct {
+			Uint32 sh11;
+			void* sh01;
+		};
+		SoundSample pSnd;
+	};
 } SFXStruct;
+static_assert(sizeof(SoundSample) == sizeof(Uint32) + sizeof(void*), "SFXStruct initalization might fail.");
 
 //////////////////////////////////////////////////
 // monster
@@ -577,7 +599,7 @@ typedef struct MapMonData {
 	int cmType;
 	BOOL cmPlaceScatter;
 	AnimStruct cmAnims[NUM_MON_ANIM];
-	SoundSample* cmSnds[NUM_MON_SFX][2];
+	SoundSample cmSnds[NUM_MON_SFX][2];
 	int cmWidth;
 	int cmXOffset;
 	BYTE cmDeadval;
@@ -586,7 +608,7 @@ typedef struct MapMonData {
 	BYTE cmAFNum2;
 	const MonsterData *cmData;
 #ifdef X86_32bit_COMP
-	int alignment[10];
+	int alignment[2];
 #endif
 } MapMonData;
 #ifdef X86_32bit_COMP

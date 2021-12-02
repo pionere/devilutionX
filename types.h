@@ -10,7 +10,6 @@
 #define DEVILUTION_END_NAMESPACE }
 
 #include "miniwin/miniwin.h"
-#include "utils/soundsample.h"
 #include "utils/thread.h"
 
 #include <climits>

@@ -7,6 +7,7 @@
 #include <SDL.h>
 #ifndef NOSOUND
 #include <SDL_mixer.h>
+#include "utils/soundsample.h"
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -15,6 +16,10 @@ DEVILUTION_BEGIN_NAMESPACE
 bool gbSoundOn = false;
 /** Specifies whether music effects are enabled. */
 bool gbMusicOn = false;
+/** The volume of the sound channel. */
+int gnSoundVolume;
+/** The volume of the music channel. */
+int gnMusicVolume;
 
 #ifndef NOSOUND
 /** Mix_Music entity of the background music */
@@ -22,10 +27,6 @@ Mix_Music* _gMusic;
 /** Buffer containing the data of the background music. */
 BYTE* _gMusicBuffer;
 
-/** The volume of the sound channel. */
-static int _gnSoundVolume;
-/** The volume of the music channel. */
-static int _gnMusicVolume;
 /** Specifies the active background music track id. */
 int _gnMusicTrack = NUM_MUSIC;
 /** Maps from track ID to track name. */
@@ -60,19 +61,12 @@ static void snd_get_volume(const char* value_name, int* value)
 	*value = v;
 }
 
-bool snd_playing(SoundSample* pSnd)
-{
-	if (pSnd == NULL)
-		return false;
-	return pSnd->IsPlaying();
-}
-
 void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan)
 {
 	Uint32 currTc;
 
-	assert(pSnd != NULL);
 	assert(gbSoundOn);
+	assert(pSnd != NULL);
 
 	currTc = SDL_GetTicks();
 	if (currTc < pSnd->nextTc)
@@ -88,16 +82,14 @@ void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan)
 	pSnd->Play(lVolume, lPan);
 }
 
-SoundSample* sound_file_load(const char* path)
+void sound_file_load(const char* path, SoundSample* pSnd)
 {
 	HANDLE file;
 	BYTE* wave_file;
-	SoundSample* pSnd;
 	DWORD dwBytes;
 	int error;
 
 	file = SFileOpenFile(path);
-	pSnd = new SoundSample();
 	pSnd->nextTc = 0;
 
 	dwBytes = SFileGetFileSize(file);
@@ -110,22 +102,11 @@ SoundSample* sound_file_load(const char* path)
 	if (error != 0) {
 		sdl_fatal(ERR_SDL_SOUND_FILE);
 	}
-
-	return pSnd;
-}
-
-void sound_file_cleanup(SoundSample* sound_file)
-{
-	if (sound_file != NULL) {
-		sound_file->Stop();
-		sound_file->Release();
-		delete sound_file;
-	}
 }
 
 void RestartMixer()
 {
-	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16LSB, MIX_DEFAULT_CHANNELS, 1024) < 0) {
+	if (Mix_OpenAudio(SND_DEFAULT_FREQUENCY, AUDIO_S16LSB, SND_DEFAULT_CHANNELS, 1024) < 0) {
 		SDL_Log("%s", Mix_GetError());
 	}
 	Mix_AllocateChannels(25);
@@ -134,16 +115,16 @@ void RestartMixer()
 
 static void SetMusicVolume_priv()
 {
-	Mix_VolumeMusic(MIX_MAX_VOLUME * (_gnMusicVolume - VOLUME_MIN) / (VOLUME_MAX - VOLUME_MIN));
+	Mix_VolumeMusic(MIX_MAX_VOLUME * (gnMusicVolume - VOLUME_MIN) / (VOLUME_MAX - VOLUME_MIN));
 }
 
 void InitSound()
 {
-	snd_get_volume("Sound Volume", &_gnSoundVolume);
-	gbSoundOn = _gnSoundVolume > VOLUME_MIN;
+	snd_get_volume("Sound Volume", &gnSoundVolume);
+	gbSoundOn = gnSoundVolume > VOLUME_MIN;
 
-	snd_get_volume("Music Volume", &_gnMusicVolume);
-	gbMusicOn = _gnMusicVolume > VOLUME_MIN;
+	snd_get_volume("Music Volume", &gnMusicVolume);
+	gbMusicOn = gnMusicVolume > VOLUME_MIN;
 
 	RestartMixer();
 }
@@ -198,14 +179,9 @@ void sound_start_music()
 	}
 }
 
-int sound_get_music_volume()
-{
-	return _gnMusicVolume;
-}
-
 void sound_set_music_volume(int volume)
 {
-	_gnMusicVolume = volume;
+	gnMusicVolume = volume;
 	gbMusicOn = volume > VOLUME_MIN;
 	setIniInt("Audio", "Music Volume", volume);
 
@@ -213,14 +189,9 @@ void sound_set_music_volume(int volume)
 		SetMusicVolume_priv();
 }
 
-int sound_get_sound_volume()
-{
-	return _gnSoundVolume;
-}
-
 void sound_set_sound_volume(int volume)
 {
-	_gnSoundVolume = volume;
+	gnSoundVolume = volume;
 	gbSoundOn = volume > VOLUME_MIN;
 	setIniInt("Audio", "Sound Volume", volume);
 }

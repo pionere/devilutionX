@@ -35,7 +35,6 @@ void FreeGameEffects();
 void FreeUiEffects();
 void InitGameEffects();
 void InitUiEffects();
-void effects_play_sound(const char* snd_file);
 #else
 inline bool effect_is_playing(int nSFX) { return false; }
 inline void stream_stop() { }
@@ -51,7 +50,6 @@ inline void FreeGameEffects() { }
 inline void FreeUiEffects() { }
 inline void InitGameEffects() { }
 inline void InitUiEffects() { }
-inline void effects_play_sound(const char* snd_file) { }
 #endif
 
 #ifdef __cplusplus

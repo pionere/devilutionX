@@ -2350,10 +2350,7 @@ void MonUpdateLeader(int mnum)
 
 void DoEnding()
 {
-	bool bMusicOn;
-	int musicVolume;
-
-	music_stop();
+	// music_stop(); -- no need, music is already stopped at this point
 
 	const char* vicSets[NUM_CLASSES] = {
 		"gendata\\DiabVic2.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic1.smk"
@@ -2364,18 +2361,9 @@ void DoEnding()
 	play_movie(vicSets[myplr._pClass], 0);
 	play_movie("gendata\\Diabend.smk", 0);
 
-	bMusicOn = gbMusicOn;
-	gbMusicOn = true;
-
-	musicVolume = sound_get_music_volume();
-	sound_set_music_volume(VOLUME_MAX);
-
-	music_start(TMUSIC_L2);
+	// they tried to play TMUSIC_L2 in vanilla but failed, because
+	// music is stopped/paused in play_movie
 	play_movie("gendata\\loopdend.smk", MOV_SKIP | MOV_LOOP);
-	music_stop();
-
-	sound_set_music_volume(musicVolume);
-	gbMusicOn = bMusicOn;
 }
 
 void PrepDoEnding(bool soundOn)

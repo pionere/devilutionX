@@ -17,7 +17,11 @@ DEVILUTION_BEGIN_NAMESPACE
 
 void SoundSample::Release()
 {
-	Mix_FreeChunk(chunk);
+	if (soundData == NULL)
+		return;
+	Stop();
+	Mix_FreeChunk(soundData);
+	soundData = NULL;
 };
 
 /**
@@ -25,11 +29,11 @@ void SoundSample::Release()
  */
 bool SoundSample::IsPlaying()
 {
-	assert(chunk != NULL);
+	assert(soundData != NULL);
 
 	int channels = Mix_AllocateChannels(-1);
 	for (int i = 0; i < channels; i++) {
-		if (Mix_GetChunk(i) == chunk) {
+		if (Mix_GetChunk(i) == soundData) {
 			return Mix_Playing(i) != 0;
 		}
 	}
@@ -42,9 +46,9 @@ bool SoundSample::IsPlaying()
  */
 void SoundSample::Play(int lVolume, int lPan, int channel)
 {
-	assert(chunk != NULL);
+	assert(soundData != NULL);
 
-	channel = Mix_PlayChannel(channel, chunk, 0);
+	channel = Mix_PlayChannel(channel, soundData, 0);
 	if (channel == -1) {
 		SDL_Log("Too few channels, skipping sound");
 		return;
@@ -74,11 +78,11 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
  */
 void SoundSample::Stop()
 {
-	assert(chunk != NULL);
+	assert(soundData != NULL);
 
 	int channels = Mix_AllocateChannels(-1);
 	for (int i = 0; i < channels; i++) {
-		if (Mix_GetChunk(i) == chunk) {
+		if (Mix_GetChunk(i) == soundData) {
 			Mix_HaltChannel(i);
 			break;
 		}
@@ -91,20 +95,36 @@ void SoundSample::Stop()
  * @param dwBytes Length of buffer
  * @return 0 on success, -1 otherwise
  */
-int SoundSample::SetChunk(BYTE *fileData, DWORD dwBytes)
+int SoundSample::SetChunk(BYTE* fileData, DWORD dwBytes)
 {
-	SDL_RWops *buf1 = SDL_RWFromConstMem(fileData, dwBytes);
-	if (buf1 == NULL) {
+	SDL_RWops* buf = SDL_RWFromConstMem(fileData, dwBytes);
+	if (buf == NULL) {
 		return -1;
 	}
 
-	chunk = Mix_LoadWAV_RW(buf1, 1);
-	if (chunk == NULL) {
+	soundData = Mix_LoadWAV_RW(buf, 1);
+	if (soundData == NULL) {
 		return -1;
 	}
 
 	return 0;
 };
+
+/*int SoundSample::TrackLength()
+{
+	int chans = SND_DEFAULT_CHANNELS;
+	int freq = SND_DEFAULT_FREQUENCY;
+	Uint32 points, frames;
+
+	// bytes / samplesize == sample points
+	points = (soundData->alen / ((AUDIO_S16LSB & 0xFF) / 8));
+
+	// sample points / channels == sample frames
+	frames = (points / chans);
+
+	// (sample frames * 1000) / frequency == play length in ms
+	return (frames * 1000) / freq;
+}*/
 
 DEVILUTION_END_NAMESPACE
 
