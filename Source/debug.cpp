@@ -338,6 +338,8 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
 		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mTreasure & 0x4000) == 0)
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
+		if ((um.mUnqAttr & UMF_LEADER) != 0 && ((um.mUnqAttr & UMF_GROUP) == 0))
+			app_fatal("Unique monster %s (%d) is a leader without group.", um.mName, i);
 
 #ifdef _DEBUG
 		uint16_t res = monsterdata[um.mtype].mMagicRes;

@@ -1846,13 +1846,13 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 		return;
 
 	mon = &monsters[mnum];
-	if ((mon->_mTreasure & 0x8000) != 0 && !IsMultiGame) {
+	if ((mon->_mTreasure & UQ_DROP) != 0 && !IsMultiGame) {
 		// fix drop in single player
 		idx = mon->_mTreasure & 0xFFF;
 		SpawnUnique(idx, x, y, sendmsg, false);
 		return;
 	}
-	if (mon->_mTreasure & 0x4000)
+	if (mon->_mTreasure & NO_DROP)
 		// no drop
 		return;
 

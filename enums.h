@@ -1997,6 +1997,17 @@ typedef enum _monster_flag {
 	MFLAG_NOHEAL          = 0x0800,
 } _monster_flag;
 
+typedef enum _monster_treasure {
+	NO_DROP = 0x4000,
+	UQ_DROP = 0x8000,
+} _monster_treasure;
+
+typedef enum _uniq_monster_flag {
+	UMF_GROUP   = 1 << 0,
+	UMF_LEADER  = 1 << 1,
+	UMF_GANG = UMF_GROUP | UMF_LEADER
+} _uniq_monster_flag;
+
 typedef enum _monster_goal {
 	MGOAL_NORMAL,
 	MGOAL_RETREAT,

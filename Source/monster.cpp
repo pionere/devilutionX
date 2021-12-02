@@ -664,7 +664,7 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 			dMonster[monsters[nummonsters]._mx][monsters[nummonsters]._my] = 0;
 		}
 
-		if (leaderf & 1) {
+		if (leaderf & UMF_GROUP) {
 			x1 = monsters[leader]._mx;
 			y1 = monsters[leader]._my;
 		} else {
@@ -685,7 +685,7 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 			assert((unsigned)x2 < MAXDUNX);
 			assert((unsigned)y2 < MAXDUNX);
 			if (dTransVal[x2][y2] != dTransVal[x1][y1]
-			 || ((leaderf & 2) && ((abs(x2 - x1) > MON_PACK_DISTANCE) || (abs(y2 - y1) > MON_PACK_DISTANCE)))) {
+			 || ((leaderf & UMF_LEADER) && ((abs(x2 - x1) > MON_PACK_DISTANCE) || (abs(y2 - y1) > MON_PACK_DISTANCE)))) {
 				continue;
 			}
 			xp = x2;
@@ -694,12 +694,12 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 				continue;
 
 			PlaceMonster(nummonsters, mtidx, xp, yp);
-			if (leaderf & 1) {
+			if (leaderf & UMF_GROUP) {
 				monsters[nummonsters]._mmaxhp *= 2;
 				monsters[nummonsters]._mhitpoints = monsters[nummonsters]._mmaxhp;
 				monsters[nummonsters]._mInt = monsters[leader]._mInt;
 
-				if (leaderf & 2) {
+				if (leaderf & UMF_LEADER) {
 					monsters[nummonsters].leader = leader;
 					monsters[nummonsters].leaderflag = MLEADER_PRESENT;
 					monsters[nummonsters]._mAi = monsters[leader]._mAi;
@@ -714,7 +714,7 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 		}
 	}
 
-	if (leaderf & 2) {
+	if (leaderf & UMF_LEADER) {
 		monsters[leader].leaderflag = MLEADER_SELF;
 		monsters[leader].packsize = placed;
 	}
@@ -905,7 +905,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 
 	nummonsters++;
 
-	if (uniqm->mUnqAttr & 1) {
+	if (uniqm->mUnqAttr & UMF_GROUP) {
 		PlaceGroup(miniontidx, bosspacksize, uniqm->mUnqAttr, nummonsters - 1);
 	}
 }
