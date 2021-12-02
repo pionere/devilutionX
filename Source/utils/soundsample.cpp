@@ -66,10 +66,10 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 			left = lPan;
 	}
 	Mix_SetPanning(channel, left, right);*/
-	Mix_Volume(channel, MIX_MAX_VOLUME * (lVolume - VOLUME_MIN) / (VOLUME_MAX - VOLUME_MIN));
+	Mix_Volume(channel, MIX_VOLUME(lVolume));
 	//int panned = 255 - 255 * abs(lPan * 256) / 10000;
-	static_assert(((SFX_DIST_MAX + 7) & ((SFX_DIST_MAX + 7) - 1)) == 0, "Adjust ad-hoc panning logic for better performance.");
-	int panned = 255 - 255 * abs(lPan) / (SFX_DIST_MAX + 7);
+	static_assert(((SFX_DIST_MAX + 0) & ((SFX_DIST_MAX + 0) - 1)) == 0, "Adjust ad-hoc panning logic for better performance.");
+	int panned = 255 - 255 * abs(lPan) / (SFX_DIST_MAX + 0);
 	Mix_SetPanning(channel, lPan < 0 ? 255 : panned, lPan < 0 ? panned : 255);
 };
 

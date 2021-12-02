@@ -119,9 +119,9 @@
 // Item indestructible durability
 #define DUR_INDESTRUCTIBLE		255
 
-#define VOLUME_MIN				-1600
-#define VOLUME_MAX				0
-#define SFX_DIST_MAX			25
+#define VOLUME_MIN				0
+#define VOLUME_MAX				2048
+#define SFX_DIST_MAX			16
 
 // todo: enums
 #define HEALER_ITEMS			16

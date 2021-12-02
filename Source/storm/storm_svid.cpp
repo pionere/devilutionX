@@ -7,6 +7,7 @@
 #include <SDL.h>
 #ifndef NOSOUND
 #include <SDL_mixer.h>
+#include "utils/soundsample.h"
 #endif
 #include <smacker.h>
 
@@ -30,8 +31,6 @@ static SDL_Surface *SVidSurface;
 static BYTE *SVidBuffer;
 static unsigned long SVidWidth, SVidHeight;
 static BYTE SVidAudioDepth;
-static double SVidVolume;
-//int SVidVolume;
 
 static bool IsLandscapeFit(unsigned long srcW, unsigned long srcH, unsigned long dstW, unsigned long dstH)
 {
@@ -233,8 +232,6 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 		smk_info_audio(SVidSMK, NULL, channels, depth, rate);
 		if (depth[0] != 0) {
 			SVidAudioDepth = depth[0];
-			SVidVolume = gnSoundVolume - VOLUME_MIN;
-			SVidVolume /= (VOLUME_MAX - VOLUME_MIN);
 
 			smk_enable_audio(SVidSMK, 0, true);
 			SDL_AudioSpec audioFormat;
@@ -330,20 +327,16 @@ static bool SVidLoadNextFrame()
 	return true;
 }
 
-static BYTE *SVidApplyVolume(const BYTE *raw, unsigned long rawLen)
+static BYTE* SVidApplyVolume(const BYTE* raw, unsigned long rawLen)
 {
-	BYTE *scaled = DiabloAllocPtr(rawLen);
+	BYTE* scaled = DiabloAllocPtr(rawLen);
 
-	// TODO: use SDL_MixAudio(Format) instead?
-	//SVidVolume = MIX_MAX_VOLUME - MIX_MAX_VOLUME * sound_get_sound_volume() / VOLUME_MIN;
-	//SDL_MixAudio(scaled, raw, rawLen, SVidVolume);
-	//SDL_MixAudioFormat(scaled, raw, audioFormat, rawLen, SVidVolume);
 	if (SVidAudioDepth == 16) {
 		for (unsigned long i = 0; i < rawLen / 2; i++)
-			((Sint16 *)scaled)[i] = ((Sint16 *)raw)[i] * SVidVolume;
+			((Sint16*)scaled)[i] = ADJUST_VOLUME(((Sint16*)raw)[i], 0, gnSoundVolume);
 	} else {
 		for (unsigned long i = 0; i < rawLen; i++)
-			scaled[i] = raw[i] * SVidVolume;
+			scaled[i] = ADJUST_VOLUME(raw[i], 0, gnSoundVolume);
 	}
 
 	return scaled;

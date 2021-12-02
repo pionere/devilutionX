@@ -68,17 +68,14 @@ void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan)
 	assert(gbSoundOn);
 	assert(pSnd != NULL);
 
+	lVolume = ADJUST_VOLUME(lVolume, VOLUME_MIN, gnSoundVolume);
+	if (lVolume <= VOLUME_MIN)
+		return;
+	assert(lVolume <= VOLUME_MAX);
 	currTc = SDL_GetTicks();
 	if (currTc < pSnd->nextTc)
 		return;
 	pSnd->nextTc = currTc + 80;
-
-	lVolume += gnSoundVolume;
-	if (lVolume < VOLUME_MIN) {
-		lVolume = VOLUME_MIN;
-	} else if (lVolume > VOLUME_MAX) {
-		lVolume = VOLUME_MAX;
-	}
 	pSnd->Play(lVolume, lPan);
 }
 
@@ -111,11 +108,6 @@ void RestartMixer()
 	}
 	Mix_AllocateChannels(25);
 	Mix_ReserveChannels(1); // reserve one channel for narration (SFileDda*)
-}
-
-static void SetMusicVolume_priv()
-{
-	Mix_VolumeMusic(MIX_MAX_VOLUME * (gnMusicVolume - VOLUME_MIN) / (VOLUME_MAX - VOLUME_MIN));
 }
 
 void InitSound()
@@ -158,7 +150,7 @@ void music_start(int nTrack)
 			}
 			assert(_gMusic == NULL);
 			_gMusic = Mix_LoadMUSType_RW(musicRw, MUS_NONE, 1);
-			SetMusicVolume_priv();
+			Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
 			Mix_PlayMusic(_gMusic, -1);
 
 			_gnMusicTrack = nTrack;
@@ -186,7 +178,7 @@ void sound_set_music_volume(int volume)
 	setIniInt("Audio", "Music Volume", volume);
 
 	if (_gMusic != NULL)
-		SetMusicVolume_priv();
+		Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
 }
 
 void sound_set_sound_volume(int volume)

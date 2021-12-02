@@ -1171,12 +1171,12 @@ static void stream_play(SFXStruct* pSFX, int lVolume, int lPan)
 	if (pSFX == sgpStreamSFX)
 		return;
 	stream_stop();
-	lVolume += gnSoundVolume;
+	lVolume = ADJUST_VOLUME(lVolume, VOLUME_MIN, gnSoundVolume);
 	//if (lVolume >= VOLUME_MIN) { -- don't check, because it might lead to memory leak
-		if (lVolume < VOLUME_MIN)
-			lVolume = VOLUME_MIN;
-		if (lVolume > VOLUME_MAX)
-			lVolume = VOLUME_MAX;
+		assert(lVolume >= VOLUME_MIN);
+		assert(lVolume <= VOLUME_MAX);
+		//if (lVolume > VOLUME_MAX)
+		//	lVolume = VOLUME_MAX;
 		//if (!pSFX->pSnd.IsLoaded())
 		//	sound_file_load(pSFX->pszName, &pSFX->pSnd);
 		sgpStreamSFX = pSFX;
