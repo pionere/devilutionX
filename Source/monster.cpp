@@ -905,6 +905,8 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 
 	nummonsters++;
 
+	if (uniqm->mUnqAttr & UMF_NODROP)
+		mon->_mTreasure = NO_DROP;
 	if (uniqm->mUnqAttr & UMF_GROUP) {
 		PlaceGroup(miniontidx, bosspacksize, uniqm->mUnqAttr, nummonsters - 1);
 	}
@@ -4198,25 +4200,25 @@ void MAI_Lachdanan(int mnum)
 		dev_fatal("MAI_Lachdanan: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND)
+	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
 
-	if (mon->_mgoal == MGOAL_TALKING) {
-		if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
-			//if (mon->_mVar8++ >= gnTicksRate * 32) {
-			if (IsMultiGame || !effect_is_playing(USFX_LACH3)) {
-				mon->mtalkmsg = TEXT_NONE;
-				MonStartKill(mnum, -1);
-			}
-			return;
+	if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
+		//if (mon->_mVar8++ >= gnTicksRate * 32) {
+		if (IsMultiGame || !effect_is_playing(USFX_LACH3)) {
+			mon->mtalkmsg = TEXT_NONE;
+			MonStartKill(mnum, -1);
 		}
-		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) && mon->mtalkmsg == TEXT_VEIL9) {
-			mon->mtalkmsg = TEXT_VEIL10;
-		}
-		mon->_mgoal = MGOAL_INQUIRING;
+		return;
 	}
+	if (quests[Q_VEIL]._qactive == QUEST_ACTIVE) {
+		if (mon->mtalkmsg == TEXT_VEIL9 && !(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
+			mon->mtalkmsg = TEXT_VEIL10;
+	}
+	//if (mon->_mgoal == MGOAL_TALKING)
+		mon->_mgoal = MGOAL_INQUIRING;
 }
 
 void MAI_Warlord(int mnum)

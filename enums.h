@@ -2005,6 +2005,7 @@ typedef enum _monster_treasure {
 typedef enum _uniq_monster_flag {
 	UMF_GROUP   = 1 << 0,
 	UMF_LEADER  = 1 << 1,
+	UMF_NODROP  = 1 << 2,
 	UMF_GANG = UMF_GROUP | UMF_LEADER
 } _uniq_monster_flag;
 
