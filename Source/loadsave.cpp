@@ -967,6 +967,7 @@ void LoadGame()
 	//ProcessVisionList();
 
 	SyncMissilesAnim();
+	CalcViewportGeometry();
 
 	sgbSentThisCycle--;
 	nthread_send_turn();

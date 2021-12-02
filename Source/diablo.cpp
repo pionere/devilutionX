@@ -1357,14 +1357,13 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		gbAltActionBtnDown = false;
 		ShowCutscene(uMsg);
 		if (uMsg == DVL_DWM_NEWGAME) {
-			CalcViewportGeometry();
 			// process remaining packets of delta-load
 			RunDeltaPackets();
 		}
-		InitLevelCursor();
 		// process packets arrived during LoadLevel / delta-load and disable nthread
 		nthread_finish();
 		if (gbRunGame) {
+			InitLevelCursor();
 			gbRedrawFlags = REDRAW_ALL;
 			scrollrt_draw_game();
 			LoadPWaterPalette();
@@ -1510,10 +1509,11 @@ static WNDPROC InitGameUI()
 	InitItemGFX(); // gfx + values (some stored in savefiles)
 	InitLightGFX(); // 'values'
 	InitGameEffects(); // sfx
+	InitCursorGFX(); // gfx + values
 
 	gbDeathflag = false;
 	gbZoomInFlag = false;
-	InitCursorGFX(); // gfx + values
+	CalcViewportGeometry();
 	ScrollInfo._sdx = 0;
 	ScrollInfo._sdy = 0;
 	ScrollInfo._sxoff = 0;

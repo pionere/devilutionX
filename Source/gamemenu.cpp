@@ -131,7 +131,6 @@ static void gamemenu_load_game(bool bActivate)
 	LoadGame();
 	ClrDiabloMsg();
 	PaletteFadeOut();
-	CalcViewportGeometry();
 	InitLevelCursor();
 	gbProcessPlayers = true;
 	gbRedrawFlags = REDRAW_ALL;
