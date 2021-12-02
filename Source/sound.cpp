@@ -73,7 +73,7 @@ void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan)
 		return;
 	pSnd->nextTc = currTc + 80;
 
-	lVolume += _gnSoundVolume;
+	lVolume += gnSoundVolume;
 	if (lVolume < VOLUME_MIN) {
 		lVolume = VOLUME_MIN;
 	} else if (lVolume > VOLUME_MAX) {
