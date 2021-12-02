@@ -1699,7 +1699,7 @@ typedef enum missile_add_result {
 	MIRES_FAIL_DELETE,
 } missile_add_result;
 
-typedef enum _mai_id {
+typedef enum _monster_ai {
 	AI_ZOMBIE,
 	AI_FAT,
 	AI_SKELSD,
@@ -1746,13 +1746,13 @@ typedef enum _mai_id {
 	AI_BONEDEMON,
 #endif
 	AI_STORM2,
-} _mai_id;
+} _monster_ai;
 
-typedef enum _mc_id {
+typedef enum _monster_class {
 	MC_UNDEAD = 0,
 	MC_DEMON  = 1,
 	MC_ANIMAL = 2,
-} _mc_id;
+} _monster_class;
 
 typedef enum _monster_id {
 	MT_NZOMBIE,
@@ -1982,7 +1982,7 @@ typedef enum _uniq_monsterid {
 	UMT_NAKRUL    = 12,
 } _uniq_monsterid;
 
-typedef enum monster_flag {
+typedef enum _monster_flag {
 	MFLAG_HIDDEN          = 0x0001,
 	MFLAG_REV_ANIMATION   = 0x0002,
 	MFLAG_LOCK_ANIMATION  = 0x0004,
@@ -1995,9 +1995,9 @@ typedef enum monster_flag {
 	MFLAG_NO_ENEMY        = 0x0200,
 	MFLAG_NOSTONE         = 0x0400,
 	MFLAG_NOHEAL          = 0x0800,
-} monster_flag;
+} _monster_flag;
 
-typedef enum monster_goal {
+typedef enum _monster_goal {
 	MGOAL_NORMAL,
 	MGOAL_RETREAT,
 	MGOAL_HEALING,
@@ -2005,23 +2005,23 @@ typedef enum monster_goal {
 	MGOAL_ATTACK2,
 	MGOAL_INQUIRING,
 	MGOAL_TALKING,
-} monster_goal;
+} _monster_goal;
 
-typedef enum monster_leaderflag {
+typedef enum _monster_leaderflag {
 	MLEADER_NONE,
 	MLEADER_PRESENT,
 	MLEADER_AWAY,
 	MLEADER_SELF,
-} monster_leaderflag;
+} _monster_leaderflag;
 
-typedef enum monster_resistance_type {
+typedef enum _monster_resistance_type {
 	MORT_NONE,
 	MORT_PROTECTED,
 	MORT_RESIST,
 	MORT_IMMUNE,
-} monster_resistance_type;
+} _monster_resistance_type;
 
-typedef enum monster_resistance_idx {
+typedef enum _monster_resistance_idx {
 	MORS_IDX_SLASH     = 0,
 	MORS_IDX_BLUNT     = 2,
 	MORS_IDX_PUNCTURE  = 4,
@@ -2029,9 +2029,9 @@ typedef enum monster_resistance_idx {
 	MORS_IDX_LIGHTNING = 8,
 	MORS_IDX_MAGIC     = 10,
 	MORS_IDX_ACID      = 12,
-} monster_resistance_idx;
+} _monster_resistance_idx;
 
-typedef enum monster_resistance {
+typedef enum _monster_resistance {
 	MORS_SLASH_PROTECTED     = 0x01 << MORS_IDX_SLASH,
 	MORS_SLASH_RESIST        = 0x02 << MORS_IDX_SLASH,
 	MORS_SLASH_IMMUNE        = 0x03 << MORS_IDX_SLASH,
@@ -2053,7 +2053,7 @@ typedef enum monster_resistance {
 	MORS_ACID_PROTECTED      = 0x01 << MORS_IDX_ACID,
 	MORS_ACID_RESIST         = 0x02 << MORS_IDX_ACID,
 	MORS_ACID_IMMUNE         = 0x03 << MORS_IDX_ACID,
-} monster_resistance;
+} _monster_resistance;
 
 typedef enum missile_resistance {
 	MISR_NONE,
