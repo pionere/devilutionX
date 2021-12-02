@@ -527,7 +527,7 @@ typedef struct SFXStruct {
 		SoundSample pSnd;
 	};
 } SFXStruct;
-static_assert(sizeof(SoundSample) == sizeof(Uint32) + sizeof(void*), "SFXStruct initalization might fail.");
+//static_assert(sizeof(SoundSample) == sizeof(Uint32) + sizeof(void*), "SFXStruct initalization might fail.");
 
 //////////////////////////////////////////////////
 // monster
