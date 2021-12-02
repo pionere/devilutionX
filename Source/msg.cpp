@@ -711,7 +711,7 @@ static bool delta_get_item(const TCmdGItem *pI)
 	BYTE bLevel;
 
 	if (!IsMultiGame)
-		return true;
+		return FindGetItem(SwapLE32(pI->item.dwSeed), SwapLE16(pI->item.wIndx), SwapLE16(pI->item.wCI)) != -1;
 
 	bLevel = pI->bLevel;
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
