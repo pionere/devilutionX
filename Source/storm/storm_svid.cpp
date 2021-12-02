@@ -233,7 +233,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 		smk_info_audio(SVidSMK, NULL, channels, depth, rate);
 		if (depth[0] != 0) {
 			SVidAudioDepth = depth[0];
-			SVidVolume = sound_get_sound_volume() - VOLUME_MIN;
+			SVidVolume = gnSoundVolume - VOLUME_MIN;
 			SVidVolume /= (VOLUME_MAX - VOLUME_MIN);
 
 			smk_enable_audio(SVidSMK, 0, true);
