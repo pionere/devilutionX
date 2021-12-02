@@ -915,6 +915,7 @@ void DeltaLoadLevel()
 				y = mstr->_my;
 				mon = &monsters[i];
 				SetMonsterLoc(mon, x, y);
+				mon->_mdir = mstr->_mdir;
 				// SyncDeadLight: inline for better performance + apply to moving monsters
 				if (mon->mlid != NO_LIGHT)
 					ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
