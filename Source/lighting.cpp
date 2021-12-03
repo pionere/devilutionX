@@ -1185,14 +1185,12 @@ void ProcessLightList()
 	if (gbDolighting) {
 		for (i = 0; i < numlights; i++) {
 			lis = &LightList[lightactive[i]];
-			if (lis->_lunflag) {
+			if (lis->_ldel | lis->_lunflag) {
 				DoUnLight(lis->_lunx, lis->_luny, lis->_lunr);
 				lis->_lunflag = false;
 				lis->_lunx = lis->_lx;
 				lis->_luny = lis->_ly;
 				lis->_lunr = lis->_lradius;
-			} else if (lis->_ldel) {
-				DoUnLight(lis->_lx, lis->_ly, lis->_lradius);
 			}
 		}
 		for (i = 0; i < numlights; ) {
