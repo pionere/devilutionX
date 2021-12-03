@@ -1400,6 +1400,7 @@ static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 				missile[mi]._miVar1 = mitype;
 				missile[mi]._miVar2 = mirange;		// trigger range
 				missile[mi]._miRange = 16 + 1584;	// delay + ttl
+				static_assert(MAX_LIGHT_RAD >= 8, "PlaceRune needs at least light-radius of 8.");
 				missile[mi]._miLid = AddLight(tx, ty, 8);
 				return true;
 			}
@@ -1551,6 +1552,7 @@ int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
+	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball2 needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
 	return MIRES_DONE;
@@ -1769,6 +1771,7 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miVar2 = sy;
 	mis->_miMinDam = mindam << 6;
 	mis->_miMaxDam = maxdam << 6;
+	static_assert(MAX_LIGHT_RAD >= 8, "AddFirebolt needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
 	return MIRES_DONE;
@@ -1792,6 +1795,7 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
+	static_assert(MAX_LIGHT_RAD >= 8, "AddMagmaball needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	return MIRES_DONE;
 }
@@ -1914,6 +1918,7 @@ int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
+	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
 	return MIRES_DONE;
@@ -1962,6 +1967,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	int range;
 
 	mis = &missile[mi];
+	static_assert(MAX_LIGHT_RAD >= 4, "AddLightning needs at least light-radius of 4.");
 	mis->_miLid = AddLight(sx, sy, 4);
 	if (midir >= 0) {
 		mis->_mixoff = missile[midir]._mixoff;
@@ -2191,6 +2197,7 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 					mis->_miy = ty;
 					mis->_misx = tx;
 					mis->_misy = ty;
+					static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
 					mis->_miLid = AddLight(tx, ty, 1);
 
 					range = spllvl + (plx(misource)._pLevel >> 1);
@@ -2231,6 +2238,7 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(32));
 
 	mis = &missile[mi];
+	static_assert(MAX_LIGHT_RAD >= 4, "AddChain needs at least light-radius of 4.");
 	mis->_miLid = AddLight(sx, sy, 4);
 	//assert(mis->_miAnimLen == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
@@ -2387,6 +2395,7 @@ int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miRange = 256;
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
+	static_assert(MAX_LIGHT_RAD >= 8, "AddFlare needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	//assert(misource != -1);
 	if (micaster == 0) {
@@ -2629,6 +2638,7 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	//mis->_miVar3 = FALSE;
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
+	static_assert(MAX_LIGHT_RAD >= 8, "AddElemental needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 
 	magic = plx(misource)._pMagic;
@@ -2811,6 +2821,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	int i;
 
 	mis = &missile[mi];
+	static_assert(MAX_LIGHT_RAD >= 1, "AddInferno needs at least light-radius of 1.");
 	mis->_miLid = AddLight(sx, sy, 1);
 	bmis = &missile[midir];
 	mis->_misx = bmis->_misx;
@@ -2913,6 +2924,7 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(8));
 
 	mis = &missile[mi];
+	static_assert(MAX_LIGHT_RAD >= 5, "AddCbolt needs at least light-radius of 5.");
 	mis->_miLid = AddLight(sx, sy, 5);
 	mis->_miVar1 = 5;
 	mis->_miVar2 = midir;
@@ -3228,6 +3240,7 @@ void MI_Acidpud(int mi)
 void MI_Firewall(int mi)
 {
 	MissileStruct *mis;
+	static_assert(MAX_LIGHT_RAD >= 12, "MI_Firewall needs at least light-radius of 12.");
 	int ExpLight[] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
 
 	mis = &missile[mi];
@@ -3471,6 +3484,7 @@ void MI_Lightning(int mi)
 void MI_Portal(int mi)
 {
 	MissileStruct *mis;
+	static_assert(MAX_LIGHT_RAD >= 15, "MI_Portal needs at least light-radius of 15.");
 	int ExpLight[17] = { 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 };
 	PlayerStruct *p;
 
@@ -3541,6 +3555,7 @@ void MI_FireWave(int mi)
 {
 	MissileStruct *mis;
 	int range;
+	static_assert(MAX_LIGHT_RAD >= 12, "MI_FireWave needs at least light-radius of 12.");
 	int ExpLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
 
 	mis = &missile[mi];
@@ -3568,6 +3583,7 @@ void MI_FireWave(int mi)
 		if (mis->_mix != mis->_miVar3 || mis->_miy != mis->_miVar4) {
 			mis->_miVar3 = mis->_mix;
 			mis->_miVar4 = mis->_miy;
+			static_assert(MAX_LIGHT_RAD >= 8, "MI_FireWave needs at least light-radius of 8.");
 			ChangeLight(mis->_miLid, mis->_miVar3, mis->_miVar4, 8);
 		}
 	} else {
@@ -3624,6 +3640,7 @@ void MI_Guardian(int mi)
 
 	mis->_miVar3 += mis->_miAnimAdd;
 
+	static_assert(MAX_LIGHT_RAD >= 15, "MI_Guardian needs at least light-radius of 15.");
 	if (mis->_miVar3 > 15) {
 		mis->_miVar3 = 15;
 	} else if (mis->_miVar3 > 0) {
@@ -3697,6 +3714,7 @@ void MI_Chain(int mi)
 void MI_Misexp(int mi)
 {
 	MissileStruct *mis;
+	static_assert(MAX_LIGHT_RAD >= 12, "MI_Misexp needs at least light-radius of 12.");
 	int ExpLight[] = { 9, 9, 10, 11, 12, 11, 10, 8, 6, 4, 2, 1, 0, 0, 0, 0 };
 
 	mis = &missile[mi];
@@ -4032,6 +4050,7 @@ void MI_Inferno(int mi)
 			assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);
 			k = 24 - k;
 		}
+		static_assert(MAX_LIGHT_RAD >= 12, "MI_Inferno needs at least light-radius of 12.");
 		ChangeLightRadius(mis->_miLid, k);
 		PutMissile(mi);
 	}
@@ -4111,6 +4130,7 @@ void MI_Cbolt(int mi)
 		GetMissilePos(mi);
 		if ((mis->_mix != mis->_misx || mis->_miy != mis->_misy)
 		 && CheckMissileCol(mi, mis->_mix, mis->_miy, false)) {
+			static_assert(MAX_LIGHT_RAD >= 8, "MI_Cbolt needs at least light-radius of 8.");
 			mis->_miVar1 = 8;
 			mis->_miDir = 0;
 			SetMissAnim(mi, MFILE_LGHNING);
@@ -4173,6 +4193,7 @@ void MI_EleExp(int mi)
 {
 	MissileStruct *mis;
 
+	assert(misfiledata[MFILE_BIGEXP].mfAnimLen[0] <= MAX_LIGHT_RAD);
 	mis = &missile[mi];
 	if (mis->_miVar1++ == 0)
 		mis->_miLid = AddLight(mis->_mix, mis->_miy, mis->_miAnimFrame);

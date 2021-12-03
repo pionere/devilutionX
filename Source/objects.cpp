@@ -1581,7 +1581,7 @@ static void Obj_Light(int oi)
 	ObjectStruct* os;
 	int ox, oy, dx, dy, pnum, tr;
 	bool turnon;
-
+	static_assert(MAX_LIGHT_RAD >= 9, "Obj_Light needs at least light-radius of 9.");
 	const int lr = 8;
 	const int* flicker = flickers[0];
 
@@ -1727,6 +1727,7 @@ static void Obj_Door(int oi)
 			os->_oVar4 = FLAMETRAP_FIRE_ACTIVE;
 			os->_oAnimFlag = TRUE;
 			//os->_oAnimFrameLen = 1;
+			static_assert(MAX_LIGHT_RAD >= 1, "ActivateTrapLine needs at least light-radius of 1.");
 			os->_olid = AddLight(os->_ox, os->_oy, 1);
 		}
 	}
@@ -1746,6 +1747,7 @@ static void Obj_FlameTrap(int oi)
 				os->_oVar4 = FLAMETRAP_FIRE_INACTIVE;
 				AddUnLight(os->_olid);
 			} else if (os->_oAnimFrame <= 4) {
+				static_assert(MAX_LIGHT_RAD >= 4, "Obj_FlameTrap needs at least light-radius of 4.");
 				ChangeLightRadius(os->_olid, os->_oAnimFrame);
 			}
 		}
@@ -1776,8 +1778,10 @@ static void Obj_FlameTrap(int oi)
 			SetRndSeed(os->_oRndSeed);
 			AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FIRETRAP, -1, -1, 0, 0, 0);
 			os->_oRndSeed = GetRndSeed();
-		} else if (os->_oAnimFrame <= 5)
+		} else if (os->_oAnimFrame <= 5) {
+			static_assert(MAX_LIGHT_RAD >= 5, "Obj_FlameTrap needs at least light-radius of 5.");
 			ChangeLightRadius(os->_olid, os->_oAnimFrame);
+		}
 	}
 }*/
 

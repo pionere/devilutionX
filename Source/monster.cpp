@@ -1023,6 +1023,7 @@ void InitMonsters()
 		ts = &trigs[i];
 		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL
 		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
+			static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
 			for (j = 0; j < lengthof(tdx); j++)
 				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false);
 		}
@@ -1649,6 +1650,7 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	mx = mon->_mx;
 	my = mon->_my;
 	PlaySfxLoc(USFX_DIABLOD, mx, my);
+	static_assert(MAX_LIGHT_RAD >= 8, "MonDiabloDeath needs at least light-radius of 8.");
 	AddLight(mx, my, 8);
 	DoVision(mx, my, 8, true);
 

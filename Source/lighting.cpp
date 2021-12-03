@@ -509,15 +509,15 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	dist_x = xoff;
 	dist_y = yoff;
 
-	static_assert(DBORDERX >= MAX_LIGHT_RAD, "DoLighting expects a large enough border I.");
-	static_assert(DBORDERY >= MAX_LIGHT_RAD, "DoLighting expects a large enough border II.");
-	//assert(MAX_LIGHT_RAD <= MAXDUNX - nXPos);
+	static_assert(DBORDERX >= MAX_LIGHT_RAD + 1, "DoLighting expects a large enough border I.");
+	static_assert(DBORDERY >= MAX_LIGHT_RAD + 1, "DoLighting expects a large enough border II.");
+	assert(MAX_LIGHT_RAD <= MAXDUNX - nXPos);
 	//max_x = MAX_LIGHT_RAD; //std::min(15, MAXDUNX - nXPos);
-	//assert(MAX_LIGHT_RAD <= MAXDUNY - nYPos);
+	assert(MAX_LIGHT_RAD <= MAXDUNY - nYPos);
 	//max_y = MAX_LIGHT_RAD; //std::min(15, MAXDUNY - nYPos);
-	//assert(MAX_LIGHT_RAD <= nXPos + 1);
+	assert(MAX_LIGHT_RAD <= nXPos + 1);
 	//min_x = MAX_LIGHT_RAD; //std::min(15, nXPos + 1);
-	//assert(MAX_LIGHT_RAD <= nYPos + 1);
+	assert(MAX_LIGHT_RAD <= nYPos + 1);
 	//min_y = MAX_LIGHT_RAD; //std::min(15, nYPos + 1);
 
 	nRadius++;
