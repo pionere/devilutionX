@@ -758,7 +758,7 @@ void MakeLightTable()
 {
 	unsigned i, j, k, shade, l1, l2, cnt, rem, div;
 	BYTE col, max;
-	BYTE *tbl;
+	BYTE* tbl;
 	BYTE blood[16];
 
 	tbl = ColorTrns[0];
@@ -857,11 +857,11 @@ void MakeLightTable()
 			*tbl++ = 1;
 			tbl += 224;
 		}
-		*tbl++ = 0;
+		/**tbl++ = 0;
 		for (j = 0; j < 31; j++) {
 			*tbl++ = 1;
 		}
-		tbl += 224;
+		tbl += 224;*/
 #ifdef HELLFIRE
 	} else if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
 		for (i = 0; i < MAXDARKNESS; i++) {
@@ -870,10 +870,10 @@ void MakeLightTable()
 				*tbl++ = j;
 			tbl += 240;
 		}
-		*tbl++ = 0;
+		/**tbl++ = 0;
 		for (j = 1; j < 16; j++)
 			*tbl++ = 1;
-		tbl += 240;
+		tbl += 240;*/
 #endif
 	}
 }
@@ -1319,7 +1319,7 @@ void lighting_color_cycling()
 
 	// assert(currLvl._dType == DTYPE_HELL);
 
-	l = MAXDARKNESS + 1;
+	l = MAXDARKNESS;// + 1;
 	tbl = ColorTrns[0];
 
 	for (j = 0; j < l; j++) {
