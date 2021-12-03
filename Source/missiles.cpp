@@ -1554,7 +1554,7 @@ int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miVar2 = sy;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball2 needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
-	mis->_miRange = 256;
+	mis->_miRange = 1;
 	return MIRES_DONE;
 }*/
 
@@ -1920,7 +1920,7 @@ int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miVar2 = sy;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
-	mis->_miRange = 256;
+	mis->_miRange = 1;
 	return MIRES_DONE;
 }
 
@@ -3279,50 +3279,41 @@ void MI_Fireball(int mi)
 	int mx, my;
 
 	mis = &missile[mi];
-	mis->_miRange--;
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy)
+		CheckMissileCol(mi, mis->_mix, mis->_miy, false);
+	mx = mis->_mix;
+	my = mis->_miy;
+	if (mis->_miRange == 0) {
+		//CheckMissileCol(mi, mx, my, true);
+		// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
+		CheckSplashCol(mi);
+		if (!TransList[dTransVal[mx][my]]
+		    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] & nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] & nSolidTable[dPiece[mx][my - 1]])))) {
+			mis->_mix++;
+			mis->_miy++;
+			mis->_miyoff -= 32;
+		}
+		if (mis->_miyvel > 0
+		 && ((TransList[dTransVal[mx + 1][my]] & nSolidTable[dPiece[mx + 1][my]])
+		  || (TransList[dTransVal[mx - 1][my]] & nSolidTable[dPiece[mx - 1][my]]))) {
+			mis->_miyoff -= 32;
+		}
+		if (mis->_mixvel > 0
+		 && ((TransList[dTransVal[mx][my + 1]] & nSolidTable[dPiece[mx][my + 1]])
+		  || (TransList[dTransVal[mx][my - 1]] & nSolidTable[dPiece[mx][my - 1]]))) {
+			mis->_mixoff -= 32;
+		}
 
-	if (mis->_miAnimType == MFILE_BIGEXP) {
-		if (mis->_miRange == 0) {
-			mis->_miDelFlag = TRUE;
-			AddUnLight(mis->_miLid);
-		}
-	} else {
-		mis->_mitxoff += mis->_mixvel;
-		mis->_mityoff += mis->_miyvel;
-		GetMissilePos(mi);
-		if (mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-			CheckMissileCol(mi, mis->_mix, mis->_miy, false);
-		mx = mis->_mix;
-		my = mis->_miy;
-		if (mis->_miRange == 0) {
-			ChangeLight(mis->_miLid, mx, my, mis->_miAnimFrame);
-			//CheckMissileCol(mi, mx, my, true);
-			// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
-			CheckSplashCol(mi);
-			if (!TransList[dTransVal[mx][my]]
-			    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] & nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] & nSolidTable[dPiece[mx][my - 1]])))) {
-				mis->_mix++;
-				mis->_miy++;
-				mis->_miyoff -= 32;
-			}
-			if (mis->_miyvel > 0
-			 && ((TransList[dTransVal[mx + 1][my]] & nSolidTable[dPiece[mx + 1][my]])
-			  || (TransList[dTransVal[mx - 1][my]] & nSolidTable[dPiece[mx - 1][my]]))) {
-				mis->_miyoff -= 32;
-			}
-			if (mis->_mixvel > 0
-			 && ((TransList[dTransVal[mx][my + 1]] & nSolidTable[dPiece[mx][my + 1]])
-			  || (TransList[dTransVal[mx][my - 1]] & nSolidTable[dPiece[mx][my - 1]]))) {
-				mis->_mixoff -= 32;
-			}
-			mis->_miDir = 0;
-			SetMissAnim(mi, MFILE_BIGEXP);
-			mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0] - 1;
-		} else if (mx != mis->_miVar1 || my != mis->_miVar2) {
-			mis->_miVar1 = mx;
-			mis->_miVar2 = my;
-			ChangeLightXY(mis->_miLid, mx, my);
-		}
+		AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXELE, 0, 0, 0, 0, 0);
+		mis->_miDelFlag = TRUE;
+		AddUnLight(mis->_miLid);
+	} else if (mx != mis->_miVar1 || my != mis->_miVar2) {
+		mis->_miVar1 = mx;
+		mis->_miVar2 = my;
+		ChangeLightXY(mis->_miLid, mx, my);
 	}
 
 	PutMissile(mi);
