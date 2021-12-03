@@ -2173,7 +2173,6 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 /**
  * Var1: animation
  * Var2: animation
- * Var3: light strength
  */
 int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -2213,7 +2212,6 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 					assert(misfiledata[MFILE_GUARD].mfAnimLen[0] <= 16);
 					mis->_miVar1 = range - misfiledata[MFILE_GUARD].mfAnimLen[0];
 					//mis->_miVar2 = 0;
-					mis->_miVar3 = 1;
 					return MIRES_DONE;
 				}
 			}
@@ -3629,13 +3627,9 @@ void MI_Guardian(int mi)
 		mis->_miAnimAdd = -1;
 	}
 
-	mis->_miVar3 += mis->_miAnimAdd;
-
-	static_assert(MAX_LIGHT_RAD >= 15, "MI_Guardian needs at least light-radius of 15.");
-	if (mis->_miVar3 > 15) {
-		mis->_miVar3 = 15;
-	} else if (mis->_miVar3 > 0) {
-		ChangeLightRadius(mis->_miLid, mis->_miVar3);
+	if (mis->_miDir == 0) {
+		assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);
+		ChangeLightRadius(mis->_miLid, (1 + mis->_miAnimFrame) >> 1);
 	}
 
 	if (mis->_miRange == 0) {
