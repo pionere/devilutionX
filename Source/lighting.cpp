@@ -509,16 +509,19 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	dist_x = xoff;
 	dist_y = yoff;
 
-	static_assert(DBORDERX >= 15, "DoLighting expects a large enough border I.");
-	static_assert(DBORDERY >= 15, "DoLighting expects a large enough border II.");
-	assert(15 <= MAXDUNX - nXPos);
-	max_x = 15; //std::min(15, MAXDUNX - nXPos);
-	assert(15 <= MAXDUNY - nYPos);
-	max_y = 15; //std::min(15, MAXDUNY - nYPos);
-	assert(15 <= nXPos + 1);
-	min_x = 15; //std::min(15, nXPos + 1);
-	assert(15 <= nYPos + 1);
-	min_y = 15; //std::min(15, nYPos + 1);
+	static_assert(DBORDERX >= MAX_LIGHT_RAD, "DoLighting expects a large enough border I.");
+	static_assert(DBORDERY >= MAX_LIGHT_RAD, "DoLighting expects a large enough border II.");
+	//assert(MAX_LIGHT_RAD <= MAXDUNX - nXPos);
+	//max_x = MAX_LIGHT_RAD; //std::min(15, MAXDUNX - nXPos);
+	//assert(MAX_LIGHT_RAD <= MAXDUNY - nYPos);
+	//max_y = MAX_LIGHT_RAD; //std::min(15, MAXDUNY - nYPos);
+	//assert(MAX_LIGHT_RAD <= nXPos + 1);
+	//min_x = MAX_LIGHT_RAD; //std::min(15, nXPos + 1);
+	//assert(MAX_LIGHT_RAD <= nYPos + 1);
+	//min_y = MAX_LIGHT_RAD; //std::min(15, nYPos + 1);
+
+	nRadius++;
+	min_x = min_y = max_x = max_y = std::min(MAX_LIGHT_RAD, nRadius);
 
 	BYTE (&dist0)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	// Add light to (0;0)
@@ -606,19 +609,12 @@ static void DoUnLight(int nXPos, int nYPos, int nRadius)
 	max_y = nYPos + nRadius;
 	min_x = nXPos - nRadius;
 	max_x = nXPos + nRadius;
-
-	if (min_y < 0) {
-		min_y = 0;
-	}
-	if (max_y > MAXDUNY) {
-		max_y = MAXDUNY;
-	}
-	if (min_x < 0) {
-		min_x = 0;
-	}
-	if (max_x > MAXDUNX) {
-		max_x = MAXDUNX;
-	}
+	static_assert(DBORDERY >= MAX_LIGHT_RAD + 1, "DoUnLight skips limit-checks assuming large enough border I.");
+	assert(min_y >= 0);
+	assert(max_y <= MAXDUNY);
+	static_assert(DBORDERX >= MAX_LIGHT_RAD + 1, "DoUnLight skips limit-checks assuming large enough border II.");
+	assert(min_x >= 0);
+	assert(max_x <= MAXDUNX);
 
 	for (y = min_y; y < max_y; y++) {
 		for (x = min_x; x < max_x; x++) {
@@ -637,18 +633,12 @@ void DoUnVision(int nXPos, int nYPos, int nRadius)
 	x1 = nXPos - nRadius;
 	x2 = nXPos + nRadius;
 
-	if (y1 < 0) {
-		y1 = 0;
-	}
-	if (y2 > MAXDUNY) {
-		y2 = MAXDUNY;
-	}
-	if (x1 < 0) {
-		x1 = 0;
-	}
-	if (x2 > MAXDUNX) {
-		x2 = MAXDUNX;
-	}
+	static_assert(DBORDERY >= MAX_LIGHT_RAD + 1, "DoUnVision skips limit-checks assuming large enough border I.");
+	assert(y1 >= 0);
+	assert(y2 <= MAXDUNY);
+	static_assert(DBORDERX >= MAX_LIGHT_RAD + 1, "DoUnVision skips limit-checks assuming large enough border II.");
+	assert(x1 >= 0);
+	assert(x2 <= MAXDUNX);
 
 	for (i = x1; i < x2; i++) {
 		for (j = y1; j < y2; j++) {
