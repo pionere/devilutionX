@@ -326,7 +326,7 @@ static bool SVidLoadNextFrame()
 
 	return true;
 }
-
+#ifndef NOSOUND
 static BYTE* SVidApplyVolume(const BYTE* raw, unsigned long rawLen)
 {
 	BYTE* scaled = DiabloAllocPtr(rawLen);
@@ -341,7 +341,7 @@ static BYTE* SVidApplyVolume(const BYTE* raw, unsigned long rawLen)
 
 	return scaled;
 }
-
+#endif
 bool SVidPlayContinue()
 {
 	if (smk_palette_updated(SVidSMK)) {
