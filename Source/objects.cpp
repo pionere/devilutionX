@@ -1610,7 +1610,7 @@ static void Obj_Light(int oi)
 			os->_olid = AddLight(ox, oy, tr);
 		else {
 			if (LightList[os->_olid]._lradius != tr)
-				ChangeLight(os->_olid, ox, oy, tr);
+				ChangeLightRadius(os->_olid, tr);
 		}
 	} else {
 		if (os->_olid != NO_LIGHT) {

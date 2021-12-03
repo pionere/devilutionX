@@ -3165,7 +3165,7 @@ void MI_Firebolt(int mi)
 		if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
 			mis->_miVar1 = mis->_mix;
 			mis->_miVar2 = mis->_miy;
-			ChangeLight(mis->_miLid, mis->_miVar1, mis->_miVar2, 8);
+			ChangeLightXY(mis->_miLid, mis->_miVar1, mis->_miVar2);
 		}
 	}
 	PutMissile(mi);
@@ -3254,7 +3254,7 @@ void MI_Firewall(int mi)
 		} else {
 			assert(mis->_miAnimLen < lengthof(ExpLight));
 			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(ExpLight));
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
+			ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
 		}
 	}
 	PutMissileF(mi, BFLAG_HAZARD);
@@ -3308,7 +3308,7 @@ void MI_Fireball(int mi)
 		} else if (mx != mis->_miVar1 || my != mis->_miVar2) {
 			mis->_miVar1 = mx;
 			mis->_miVar2 = my;
-			ChangeLight(mis->_miLid, mx, my, 8);
+			ChangeLightXY(mis->_miLid, mx, my);
 		}
 	}
 
@@ -3493,7 +3493,7 @@ void MI_Portal(int mi)
 			assert(mis->_miAnimLen < lengthof(ExpLight));
 			assert(misfiledata[MIS_RPORTAL].mfAnimLen[0] < lengthof(ExpLight));
 			assert(misfiledata[MIS_TOWN].mfAnimLen[0] < lengthof(ExpLight));
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
+			ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
 		}
 	}
 
@@ -3627,7 +3627,7 @@ void MI_Guardian(int mi)
 	if (mis->_miVar3 > 15) {
 		mis->_miVar3 = 15;
 	} else if (mis->_miVar3 > 0) {
-		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar3);
+		ChangeLightRadius(mis->_miLid, mis->_miVar3);
 	}
 
 	if (mis->_miRange == 0) {
@@ -3709,7 +3709,7 @@ void MI_Misexp(int mi)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		else {
 			assert(mis->_miAnimLen < lengthof(ExpLight));
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
+			ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
 		}
 		PutMissile(mi);
 	}
@@ -4032,7 +4032,7 @@ void MI_Inferno(int mi)
 			assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);
 			k = 24 - k;
 		}
-		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, k);
+		ChangeLightRadius(mis->_miLid, k);
 		PutMissile(mi);
 	}
 }
@@ -4155,7 +4155,7 @@ void MI_Elemental(int mi)
 	if (cx != mis->_miVar1 || cy != mis->_miVar2) {
 		mis->_miVar1 = cx;
 		mis->_miVar2 = cy;
-		ChangeLight(mis->_miLid, cx, cy, 8);
+		ChangeLightXY(mis->_miLid, cx, cy);
 	}
 	if (mis->_miRange == 0) {
 		//CheckMissileCol(mi, cx, cy, true);
@@ -4172,15 +4172,12 @@ void MI_Elemental(int mi)
 void MI_EleExp(int mi)
 {
 	MissileStruct *mis;
-	int cx, cy;
 
 	mis = &missile[mi];
-	cx = mis->_mix;
-	cy = mis->_miy;
 	if (mis->_miVar1++ == 0)
-		mis->_miLid = AddLight(cx, cy, mis->_miAnimFrame);
+		mis->_miLid = AddLight(mis->_mix, mis->_miy, mis->_miAnimFrame);
 	else
-		ChangeLight(mis->_miLid, cx, cy, mis->_miAnimFrame);
+		ChangeLightRadius(mis->_miLid, mis->_miAnimFrame);
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
