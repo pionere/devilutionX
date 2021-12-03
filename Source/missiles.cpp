@@ -1985,6 +1985,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miMinDam <<= 3;
 	mis->_miMaxDam <<= 3;
 	assert(mis->_miAnimLen == 8);
+	// assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]);
 	mis->_miAnimFrame = RandRange(1, 8);
 	return MIRES_DONE;
 }
@@ -2005,8 +2006,8 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		mis->_mitxoff = bmis->_mitxoff;
 		mis->_mityoff = bmis->_mityoff;
 	}
-	mis->_mixvel = 0;
-	mis->_miyvel = 0;
+	//mis->_mixvel = 0;
+	//mis->_miyvel = 0;
 	mis->_miRange = mis->_miAnimLen;
 	return MIRES_DONE;
 }
@@ -2647,7 +2648,7 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		maxdam += maxdam >> 3;
 	}
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
-	mis->_miRange = 256;
+	mis->_miRange = 1;
 	return MIRES_DONE;
 }
 
@@ -3335,13 +3336,13 @@ void MI_HorkSpawn(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	CheckMissileCol(mi, mis->_mix, mis->_miy, false);
-	if (mis->_miRange > 0) {
+	if (mis->_miRange != 0) {
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
 
 		PutMissile(mi);
-		return,
+		return;
 	}
 	mis->_miDelFlag = TRUE;
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "MI_HorkSpawn expects a large enough border.");
@@ -3723,6 +3724,7 @@ void MI_Acidsplat(int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
+	assert(mis->_miAnimLen == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]);
 	if (mis->_miRange == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]) {
 		mis->_mix++;
 		mis->_miy++;
@@ -3856,12 +3858,7 @@ void MI_Rhino(int mi)
 	}
 	bx = mis->_mix;
 	by = mis->_miy;
-	monsters[mnum]._mfutx = bx;
-	monsters[mnum]._moldx = bx;
-	monsters[mnum]._mx = bx;
-	monsters[mnum]._mfuty = by;
-	monsters[mnum]._moldy = by;
-	monsters[mnum]._my = by;
+	SetMonsterLoc(&monsters[mnum], bx, by);
 	//assert(dMonster[bx][by] == 0);
 	//assert(dPlayer[bx][by] == 0);
 	dMonster[bx][by] = -(mnum + 1);
@@ -4137,7 +4134,6 @@ void MI_Elemental(int mi)
 	int sd, cx, cy, dx, dy;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
@@ -4147,7 +4143,7 @@ void MI_Elemental(int mi)
 	 && (CheckMissileCol(mi, cx, cy, false) || mis->_miRange != 0)   // did not hit a wall
 	 && !mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) { // destination reached the first time
 		mis->_miVar3 = TRUE;
-		mis->_miRange = 255;
+		mis->_miRange = 1;
 		if (FindClosest(cx, cy, dx, dy)) {
 			sd = GetDirection8(cx, cy, dx, dy);
 		} else {
@@ -4171,7 +4167,7 @@ void MI_Elemental(int mi)
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi);
 
-	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXELE, mis->_miCaster, mis->_miSource, 0, 0, 0);
+	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXELE, 0, 0, 0, 0, 0);
 
 	mis->_miDelFlag = TRUE;
 	AddUnLight(mis->_miLid);
