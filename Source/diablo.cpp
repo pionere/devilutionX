@@ -344,7 +344,6 @@ void FreeLevelMem()
 	FreeObjectGFX();
 	FreeMonsterSnd();
 	FreeTownerGFX();
-	FreeGameEffects();
 }
 
 static char ValidateSkill(BYTE sn, BYTE splType)
@@ -1556,6 +1555,7 @@ static void FreeGameUI()
 	FreeDebugGFX();
 #endif
 	FreeLevelMem();
+	FreeGameEffects();
 
 	//doom_close();
 }
