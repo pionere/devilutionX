@@ -326,6 +326,8 @@ void InitLvlDungeon()
 #endif
 		break;
 	case DTYPE_CATHEDRAL:
+		// patch dSolidTable - L1.SOL
+		nMissileTable[8] = false; // the only column which was blocking missiles
 		// patch dMiniTiles - L1.MIN
 		// useless black micros
 		pMicroPieces[107].mt[0] = 0;
