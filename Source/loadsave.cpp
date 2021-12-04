@@ -965,6 +965,7 @@ void LoadGame()
 	//ProcessLightList();
 	//RedoPlayerVision();
 	//ProcessVisionList();
+	InitGameEffects(); // sfx - necessary because it is class-dependent
 
 	SyncMissilesAnim();
 	CalcViewportGeometry();

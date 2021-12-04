@@ -301,8 +301,10 @@ static void diablo_splash()
 static void diablo_deinit()
 {
 	NetClose();
-	if (gbSndInited)
+	if (gbSndInited) {
+		sound_stop(); // stop click-effect
 		FreeUiEffects();
+	}
 	if (gbWasUiInit)
 		UiDestroy();
 	if (_gbWasArchivesInit)
@@ -342,6 +344,7 @@ void FreeLevelMem()
 	FreeObjectGFX();
 	FreeMonsterSnd();
 	FreeTownerGFX();
+	FreeGameEffects();
 }
 
 static char ValidateSkill(BYTE sn, BYTE splType)
@@ -1547,7 +1550,6 @@ static void FreeGameUI()
 	for (i = 0; i < MAX_PLRS; i++)
 		FreePlayerGFX(i);
 
-	FreeGameEffects();
 	FreeItemGFX();
 	FreeCursorGFX();
 #ifdef _DEBUG

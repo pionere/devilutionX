@@ -87,26 +87,26 @@ void sound_file_load(const char* path, SoundSample* pSnd)
 	int error;
 
 	file = SFileOpenFile(path);
-	pSnd->nextTc = 0;
 
 	dwBytes = SFileGetFileSize(file);
 	wave_file = DiabloAllocPtr(dwBytes);
 	SFileReadFile(file, wave_file, dwBytes, NULL);
-
-	error = pSnd->SetChunk(wave_file, dwBytes);
 	SFileCloseFile(file);
+
+	pSnd->nextTc = 0;
+	pSnd->SetChunk(wave_file, dwBytes);
 	mem_free_dbg(wave_file);
-	if (error != 0) {
-		sdl_fatal(ERR_SDL_SOUND_FILE);
-	}
 }
 
 void RestartMixer()
 {
-	if (Mix_OpenAudio(SND_DEFAULT_FREQUENCY, AUDIO_S16LSB, SND_DEFAULT_CHANNELS, 1024) < 0) {
+	int chans;
+
+	if (Mix_OpenAudio(SND_DEFAULT_FREQUENCY, SND_DEFAULT_FORMAT, SND_DEFAULT_CHANNELS, 1024) < 0) {
 		SDL_Log("%s", Mix_GetError());
 	}
-	Mix_AllocateChannels(25);
+	chans = Mix_AllocateChannels(SND_NUM_CHANNELS);
+	assert(chans == SND_NUM_CHANNELS);
 	Mix_ReserveChannels(1); // reserve one channel for narration (SFileDda*)
 }
 

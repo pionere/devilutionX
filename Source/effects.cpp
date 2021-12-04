@@ -820,12 +820,12 @@ SFXStruct sgSFX[] = {
 /*PS_WARR55*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior55.wav",  { 0, NULL } },
 /*PS_WARR56*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior56.wav",  { 0, NULL } },
 /*PS_WARR57*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior57.wav",  { 0, NULL } },
-/*PS_WARR58*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior58.wav",  { 0, NULL } },
-/*PS_WARR59*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior59.wav",  { 0, NULL } },
-/*PS_WARR60*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior60.wav",  { 0, NULL } },
+/*PS_WARR58*///  { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior58.wav",  { 0, NULL } },
+/*PS_WARR59*///  { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior59.wav",  { 0, NULL } },
+/*PS_WARR60*///  { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior60.wav",  { 0, NULL } },
 /*PS_WARR61*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior61.wav",  { 0, NULL } },
 /*PS_WARR62*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior62.wav",  { 0, NULL } },
-/*PS_WARR63*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior63.wav",  { 0, NULL } },
+/*PS_WARR63*///  { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior63.wav",  { 0, NULL } },
 /*PS_WARR64*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior64.wav",  { 0, NULL } },
 /*PS_WARR65*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior65.wav",  { 0, NULL } },
 /*PS_WARR66*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior66.wav",  { 0, NULL } },
@@ -1158,6 +1158,7 @@ bool effect_is_playing(int nSFX)
 void stream_stop()
 {
 	if (sgpStreamSFX != NULL) {
+		sgpStreamSFX->pSnd.Stop();
 		sgpStreamSFX->pSnd.Release();
 		sgpStreamSFX = NULL;
 	}
