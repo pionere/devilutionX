@@ -293,6 +293,8 @@ void LoadGameLevel(int lvldir)
 	}
 	InitMissiles();
 	SavePreLighting();
+
+	ResyncQuests();
 	if (IsMultiGame)
 		DeltaLoadLevel();
 	else if (lvldir != ENTRY_LOAD && IsLvlVisited(currLvl._dLevelIdx)) {
@@ -302,7 +304,6 @@ void LoadGameLevel(int lvldir)
 	IncProgress();
 
 	InitSync();
-	ResyncQuests();
 	SyncPortals();
 
 	IncProgress();
