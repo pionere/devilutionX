@@ -7,7 +7,6 @@
 #include "utils/display.h"
 #include <SDL.h>
 #if HAS_GAMECTRL == 1
-#include <vector>
 #include "controls/controller.h"
 #endif
 
@@ -135,10 +134,7 @@ void unlock_buf(BYTE idx)
 void dx_cleanup()
 {
 #if HAS_GAMECTRL == 1
-	const std::vector<GameController> & ctrls = GameController::All();
-	while (!ctrls.empty()) {
-		GameController::Remove(ctrls.front().instance_id_);
-	}
+	GameController::ReleaseAll();
 #endif
 #ifndef USE_SDL1
 	if (ghMainWnd != NULL)

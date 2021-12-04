@@ -25,6 +25,7 @@ class GameController {
 public:
 	static void Add(int joystick_index);
 	static void Remove(SDL_JoystickID instance_id);
+	static void ReleaseAll();
 	static GameController *Get(SDL_JoystickID instance_id);
 	static GameController *Get(const SDL_Event &event);
 	static const std::vector<GameController> &All();

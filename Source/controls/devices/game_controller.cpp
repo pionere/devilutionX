@@ -206,6 +206,13 @@ GameController *GameController::Get(const SDL_Event &event)
 	}
 }
 
+void GameController::ReleaseAll()
+{
+	while (!controllers_.empty()) {
+		GameController::Remove(controllers_.front().instance_id_);
+	}
+}
+
 const std::vector<GameController> &GameController::All()
 {
 	return controllers_;
