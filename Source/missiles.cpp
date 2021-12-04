@@ -1209,32 +1209,52 @@ static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 	return hit == 1;
 }
 
+static void CheckSplashColFull(int mi)
+{
+	MissileStruct* mis;
+	int i, mx, my;
+
+	mis = &missile[mi];
+	mx = mis->_mix;
+	my = mis->_miy;
+
+	// monster/player/object hit -> hit everything around
+	for (i = 0; i < lengthof(offset_x); i++) {
+		CheckMissileCol(mi, mx + offset_x[i], my + offset_y[i], true);
+	}
+}
+
 static void CheckSplashCol(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int i, mx, my, lx, ly, tx, ty;
 
 	mis = &missile[mi];
 	mx = mis->_mix;
 	my = mis->_miy;
 	if (!nMissileTable[dPiece[mx][my]]) {
-		// monster/player/object hit -> hit everything around
-		for (i = 0; i < lengthof(offset_x); i++) {
-			CheckMissileCol(mi, mx + offset_x[i], my + offset_y[i], true);
-		}
+		CheckSplashColFull(mi);
 		return;
 	}
-	// wall hit -> limit the explosion area
+
+	// wall hit:
+	//  1. move missile back a bit to indicate the displacement
 	mis->_mitxoff -= mis->_mixvel;
 	mis->_mityoff -= mis->_miyvel;
 	GetMissilePos(mi);
 
+	if (mis->_mixoff > TILE_WIDTH / 2) {
+		mis->_mixoff -= TILE_WIDTH;
+		mis->_mix++;
+		mis->_miy--;
+	}
+	//  2. limit the explosion area
 	lx = mis->_mix;
 	ly = mis->_miy;
 
-	mis->_mitxoff += mis->_mixvel;
-	mis->_mityoff += mis->_miyvel;
-	GetMissilePos(mi);
+	//mis->_mitxoff += mis->_mixvel;
+	//mis->_mityoff += mis->_miyvel;
+	//GetMissilePos(mi);
 
 	// assert(lx != mx || ly != my);
 	for (i = 0; i < lengthof(offset_x); i++) {
@@ -1523,7 +1543,7 @@ int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	// assert(mis->_mix == sx);
 	// assert(mis->_miy == sy);
 	// assert(!nMissileTable[dPiece[sx][sy]]);
-	CheckSplashCol(mi);
+	CheckSplashColFull(mi);
 	return MIRES_DONE;
 }
 
@@ -1905,7 +1925,7 @@ int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 			mindam += mindam >> 3;
 			maxdam += maxdam >> 3;
 		}
-		i = MIS_SHIFTEDVEL(2 * spllvl + 16);
+		i = MIS_SHIFTEDVEL(spllvl + 16);
 		//if (i > MIS_SHIFTEDVEL(50))
 		//	i = MIS_SHIFTEDVEL(50);
 	} else {
@@ -2003,8 +2023,8 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		//mis->_misy = bmis->_miy;
 		mis->_mixoff = bmis->_mixoff;
 		mis->_miyoff = bmis->_miyoff;
-		mis->_mitxoff = bmis->_mitxoff;
-		mis->_mityoff = bmis->_mityoff;
+		//mis->_mitxoff = bmis->_mitxoff;
+		//mis->_mityoff = bmis->_mityoff;
 	}
 	//mis->_mixvel = 0;
 	//mis->_miyvel = 0;
@@ -2521,7 +2541,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	missile[mi]._miy = mon->_my;
 	missile[mi]._miMaxDam = mon->_mhitpoints;
 	missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
-	CheckSplashCol(mi);
+	CheckSplashColFull(mi);
 
 	MonStartKill(misource, misource);
 	return MIRES_DELETE;
@@ -3304,22 +3324,6 @@ void MI_Fireball(int mi)
 	//CheckMissileCol(mi, mx, my, true);
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi);
-	if (!TransList[dTransVal[mx][my]]
-	    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] & nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] & nSolidTable[dPiece[mx][my - 1]])))) {
-		mis->_mix++;
-		mis->_miy++;
-		mis->_miyoff -= 32;
-	}
-	if (mis->_miyvel > 0
-	 && ((TransList[dTransVal[mx + 1][my]] & nSolidTable[dPiece[mx + 1][my]])
-	  || (TransList[dTransVal[mx - 1][my]] & nSolidTable[dPiece[mx - 1][my]]))) {
-		mis->_miyoff -= 32;
-	}
-	if (mis->_mixvel > 0
-	 && ((TransList[dTransVal[mx][my + 1]] & nSolidTable[dPiece[mx][my + 1]])
-	  || (TransList[dTransVal[mx][my - 1]] & nSolidTable[dPiece[mx][my - 1]]))) {
-		mis->_mixoff -= 32;
-	}
 
 	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXELE, 0, 0, 0, 0, 0);
 	mis->_miDelFlag = TRUE;
@@ -3516,7 +3520,7 @@ void MI_Flash(int mi)
 	MissileStruct *mis;
 
 	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
-	CheckSplashCol(mi);
+	CheckSplashColFull(mi);
 	mis = &missile[mi];
 	if (mis->_miSource == -1)
 		CheckMissileCol(mi, mis->_mix, mis->_miy, true);
