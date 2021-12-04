@@ -135,7 +135,7 @@ void unlock_buf(BYTE idx)
 void dx_cleanup()
 {
 #if HAS_GAMECTRL == 1
-	std::vector<GameController> & ctrls = GameController::All();
+	const std::vector<GameController> & ctrls = GameController::All();
 	while (!ctrls.empty()) {
 		GameController::Remove(ctrls.front().instance_id_);
 	}
