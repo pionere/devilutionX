@@ -6,6 +6,7 @@
 #include "all.h"
 #include "utils/display.h"
 #include <SDL.h>
+#include <vector>
 
 #ifdef __3DS__
 #include <3ds.h>
@@ -130,6 +131,12 @@ void unlock_buf(BYTE idx)
 
 void dx_cleanup()
 {
+#if HAS_GAMECTRL == 1
+	std::vector<GameController> & ctrls = GameController::All();
+	while (!ctrls.empty()) {
+		GameController::Remove(ctrls.front().instance_id_);
+	}
+#endif
 #ifndef USE_SDL1
 	if (ghMainWnd != NULL)
 		SDL_HideWindow(ghMainWnd);

@@ -160,6 +160,7 @@ void GameController::Add(int joystickIndex)
 	SDL_Joystick *const sdlJoystick = SDL_GameControllerGetJoystick(result.sdl_game_controller_);
 	result.instance_id_ = SDL_JoystickInstanceID(sdlJoystick);
 	controllers_.push_back(result);
+	sgbControllerActive = true;
 
 	const SDL_JoystickGUID guid = SDL_JoystickGetGUID(sdlJoystick);
 	char *mapping = SDL_GameControllerMappingForGUID(guid);
@@ -174,6 +175,7 @@ void GameController::Remove(SDL_JoystickID instanceId)
 		const GameController &controller = controllers_[i];
 		if (controller.instance_id_ != instanceId)
 			continue;
+		SDL_GameControllerClose(controller.sdl_game_controller_);
 		controllers_.erase(controllers_.begin() + i);
 		sgbControllerActive = !controllers_.empty();
 		return;
