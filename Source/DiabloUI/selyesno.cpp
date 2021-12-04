@@ -64,7 +64,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	_gbYNEndMenu = false;
 	do {
 		UiClearScreen();
-		UiRenderItems(gUiItems);
+		//UiRenderItems(gUiItems);
 		UiPollAndRender();
 	} while (!_gbYNEndMenu);
 
