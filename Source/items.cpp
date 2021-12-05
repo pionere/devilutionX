@@ -1782,8 +1782,6 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool on
 	items[ii]._iSeed = iseed;
 	items[ii]._iCreateInfo = lvl;
 
-	//if (pregen)
-	//	items[ii]._iCreateInfo |= CF_PREGEN;
 	if (onlygood)
 		items[ii]._iCreateInfo |= CF_ONLYGOOD;
 

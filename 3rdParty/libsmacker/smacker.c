@@ -717,7 +717,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	unsigned long temp_u;
 	/* r is used by macros above for return code */
 	char r;
-	unsigned char buf[4] = {'\0'};
+	unsigned char buf[4];// = {'\0'};
 	/* video hufftrees are stored as a large chunk (bitstream)
 		these vars are used to load, then decode them */
 	unsigned char * hufftree_chunk = NULL;
@@ -736,7 +736,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	smk_malloc(s, sizeof(struct smk_t));
 #endif
 	/* Check for a valid signature */
-	smk_read(buf, 3);
+	smk_read(buf, 4);
 
 	if (buf[0] != 'S' || buf[1] != 'M' || buf[2] != 'K') {
 		fprintf(stderr, "libsmacker::smk_open_generic - ERROR: invalid SMKn signature (got: %s)\n", buf);
@@ -744,19 +744,20 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	}
 
 	/* Read .smk file version */
-	smk_read(&s->video.v, 1);
+	//smk_read(buf, 1);
 
-	if (s->video.v != '2' && s->video.v != '4') {
-		fprintf(stderr, "libsmacker::smk_open_generic - Warning: invalid SMK version %c (expected: 2 or 4)\n", s->video.v);
+	if (buf[3] != '2' && buf[3] != '4') {
+		fprintf(stderr, "libsmacker::smk_open_generic - Warning: invalid SMK version %c (expected: 2 or 4)\n", buf[3]);
 
 		/* take a guess */
-		if (s->video.v < '4')
-			s->video.v = '2';
+		if (buf[3] < '4')
+			buf[3] = '2';
 		else
-			s->video.v = '4';
+			buf[3] = '4';
 
-		fprintf(stderr, "\tProcessing will continue as type %c\n", s->video.v);
+		fprintf(stderr, "\tProcessing will continue as type %c\n", buf[3]);
 	}
+	s->video.v = buf[3];
 
 	/* width, height, total num frames */
 	smk_read_ul(s->video.w);
@@ -949,8 +950,11 @@ smk smk_open_memory(const unsigned char * buffer, const unsigned long size)
 	fp.ram = (unsigned char *)buffer;
 
 	if (!(s = smk_open_generic(0, fp, size, SMK_MODE_MEMORY)))
+#ifdef FULL
 		fprintf(stderr, "libsmacker::smk_open_memory(buffer,%lu) - ERROR: Fatal error in smk_open_generic, returning NULL.\n", size);
-
+#else
+		;
+#endif
 	return s;
 }
 
@@ -1872,7 +1876,9 @@ char smk_first(smk s)
 	s->cur_frame = 0;
 
 	if (smk_render(s) < 0) {
+#ifdef FULL
 		fprintf(stderr, "libsmacker::smk_first(s) - Warning: frame %lu: smk_render returned errors.\n", s->cur_frame);
+#endif
 		return -1;
 	}
 
@@ -1898,7 +1904,9 @@ char smk_next(smk s)
 		s->cur_frame ++;
 
 		if (smk_render(s) < 0) {
+#ifdef FULL
 			fprintf(stderr, "libsmacker::smk_next(s) - Warning: frame %lu: smk_render returned errors.\n", s->cur_frame);
+#endif
 			return -1;
 		}
 
@@ -1910,7 +1918,9 @@ char smk_next(smk s)
 		s->cur_frame = 1;
 
 		if (smk_render(s) < 0) {
+#ifdef FULL
 			fprintf(stderr, "libsmacker::smk_next(s) - Warning: frame %lu: smk_render returned errors.\n", s->cur_frame);
+#endif
 			return -1;
 		}
 

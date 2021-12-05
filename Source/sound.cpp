@@ -84,7 +84,6 @@ void sound_file_load(const char* path, SoundSample* pSnd)
 	HANDLE file;
 	BYTE* wave_file;
 	DWORD dwBytes;
-	int error;
 
 	file = SFileOpenFile(path);
 

@@ -147,7 +147,7 @@ BYTE* DiabloAllocPtr(size_t dwBytes)
 	sgMemCrit.Leave();
 
 	if (buf == NULL)
-		app_fatal("System memory exhausted.");
+		app_fatal("Out of memory");
 
 	return buf;
 }

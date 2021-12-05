@@ -8,15 +8,15 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Current y position of text in px */
-int qtexty;
+static int qtexty;
 /** Pointer to the current text being displayed */
-const char *qtextptr;
-/** Time of last rendering of the text */
-Uint32 qtextTime;
+static const char* qtextptr;
+/** Time of next rendering of the text */
+static Uint32 qtextTime;
 /** Specify if the quest dialog window is being shown */
 bool gbQtextflag;
 /** Vertical speed of the scrolling text in ms/px */
-int scrolltexty;
+static int scrolltexty;
 
 void InitQuestText()
 {
@@ -25,7 +25,7 @@ void InitQuestText()
 
 void InitQTextMsg(int m, bool showText)
 {
-	const TextData *tds;
+	const TextData* tds;
 	int sfxnr;
 
 	tds = &alltext[m];
@@ -35,7 +35,7 @@ void InitQTextMsg(int m, bool showText)
 		qtextptr = tds->txtstr;
 		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;
 		scrolltexty = tds->txtspd;
-		qtextTime = SDL_GetTicks();
+		qtextTime = SDL_GetTicks() + scrolltexty;
 	}
 	sfxnr = tds->sfxnr;
 	if (tds->txtsfxset) {
@@ -48,8 +48,7 @@ void DrawQText()
 {
 	int len, tx, ty;
 	BYTE c;
-	const char *pnl;
-	const char *str, *sstr, *endstr;
+	const char *pnl, *str, *sstr, *endstr;
 	Uint32 currTime;
 	BYTE *pStart, *pEnd;
 
@@ -106,7 +105,7 @@ void DrawQText()
 	gpBufStart = pStart;
 	gpBufEnd = pEnd;
 
-	for (currTime = SDL_GetTicks(); qtextTime + scrolltexty < currTime; qtextTime += scrolltexty) {
+	for (currTime = SDL_GetTicks(); qtextTime < currTime; qtextTime += scrolltexty) {
 		if (gbGamePaused)
 			continue;
 		qtexty--;
