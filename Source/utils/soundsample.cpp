@@ -75,7 +75,7 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 	int panned = 255 - 255 * abs(lPan) / (SFX_DIST_MAX + 0);
 	Mix_SetPanning(channel, lPan < 0 ? 255 : panned, lPan < 0 ? panned : 255);
 
-	soundData->allocated |= channel << 8;
+	soundData->allocated = (channel << 8) | 1;
 };
 
 /**
