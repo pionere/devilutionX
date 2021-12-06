@@ -75,6 +75,9 @@ void mainmenu_loop()
 			if (mainmenu_multi_player())
 				continue;
 			break;
+		case MAINMENU_SETTINGS:
+			UiSettingsDialog();
+			continue;
 		case MAINMENU_ATTRACT_MODE:
 		case MAINMENU_REPLAY_INTRO:
 			if (gbWndActive)

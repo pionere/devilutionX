@@ -14,7 +14,7 @@ static void gamemenu_quit_game(bool bActivate);
 static void gamemenu_load_game(bool bActivate);
 static void gamemenu_save_game(bool bActivate);
 static void gamemenu_restart_town(bool bActivate);
-static void gamemenu_settings(bool bActivate);
+//void gamemenu_settings(bool bActivate);
 static void gamemenu_music_volume(bool bActivate);
 static void gamemenu_sound_volume(bool bActivate);
 static void gamemenu_gamma(bool bActivate);
@@ -41,6 +41,7 @@ static TMenuItem sgMultiMenu[] = {
 	{ "Quit Game",       &gamemenu_quit_game,    GMENU_ENABLED, 0, 0 },
 	// clang-format on
 };
+/** Contains the menu items of the settings menu. */
 static TMenuItem sgSettingsMenu[] = {
 	// clang-format off
 	// pszStr,          fnMenu,                 dwFlags, wMenuParam*
@@ -108,8 +109,8 @@ static void gamemenu_new_game(bool bActivate)
 
 	gbDeathflag = false;
 	//scrollrt_draw_screen(true);
-	gbRunGame = false;
 	gamemenu_off();
+	gbRunGame = false;
 }
 
 static void gamemenu_quit_game(bool bActivate)
@@ -200,7 +201,8 @@ static void gamemenu_get_speed()
 {
 	TMenuItem* pItem = &sgSettingsMenu[3];
 
-	if (IsMultiGame) {
+	// speed can not be changed in multi-player mode if not in the main menu
+	if (IsMultiGame && gbRunGame) {
 		pItem->dwFlags = 0; // &= ~(GMENU_ENABLED | GMENU_SLIDER);
 		const char *speed;
 		if (gnTicksRate >= SPEED_FASTEST)
@@ -222,7 +224,7 @@ static void gamemenu_get_speed()
 	gmenu_slider_set(pItem, SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);
 }
 
-static void gamemenu_settings(bool bActivate)
+void gamemenu_settings(bool bActivate)
 {
 	gamemenu_get_music();
 	gamemenu_get_sound();

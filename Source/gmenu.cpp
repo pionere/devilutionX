@@ -125,7 +125,8 @@ static void gmenu_left_right(bool isRight)
 
 void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 {
-	if (!IsMultiGame) {
+	// pause game(+sound) in case of single-player mode if not in the main menu
+	if (!IsMultiGame && gbRunGame) {
 		gbGamePaused = pItem != NULL;
 		sound_pause(gbGamePaused);
 		//diablo_pause_game();
@@ -135,7 +136,9 @@ void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 	guCurrentMenuSize = nItems;
 	guCurrItemIdx = 0;
 	gmUpdateFunc = gmUpdFunc;
-	PlaySFX(IS_TITLEMOV);
+	// play select sfx only in-game
+	if (gbRunGame)
+		PlaySFX(IS_TITLEMOV);
 }
 
 static void gmenu_draw_rectangle(int x, int y, int width, int height)

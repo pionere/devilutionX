@@ -3262,12 +3262,14 @@ typedef enum _music_id {
 } _music_id;
 
 typedef enum _mainmenu_selections {
-	MAINMENU_SINGLE_PLAYER = 1,
+	MAINMENU_SINGLE_PLAYER,
 	MAINMENU_MULTIPLAYER,
+	MAINMENU_SETTINGS,
 	MAINMENU_REPLAY_INTRO,
 	MAINMENU_SHOW_CREDITS,
 	MAINMENU_EXIT_DIABLO,
 	MAINMENU_ATTRACT_MODE,
+	NUM_MAINMENU,
 } _mainmenu_selections;
 
 typedef enum _selhero_selections {

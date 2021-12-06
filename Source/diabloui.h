@@ -15,6 +15,8 @@ void UiDestroy();
 void UiTitleDialog();
 /* Defined in selhero.cpp */
 int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo*)), int(*fncreate)(_uiheroinfo*), void(*fnremove)(_uiheroinfo*), unsigned* saveIdx);
+/* Defined in settingsmenu.cpp */
+void UiSettingsDialog();
 /* Defined in credits.cpp */
 void UiCreditsDialog();
 /* Defined in mainmenu.cpp */

@@ -415,6 +415,7 @@ set(devilutionx_SRCS
   Source/DiabloUI/selhero.cpp
   Source/DiabloUI/selok.cpp
   Source/DiabloUI/selyesno.cpp
+  Source/DiabloUI/settingsmenu.cpp
   Source/DiabloUI/text.cpp
   Source/DiabloUI/text_draw.cpp
   Source/DiabloUI/title.cpp

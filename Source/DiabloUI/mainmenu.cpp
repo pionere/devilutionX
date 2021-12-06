@@ -33,13 +33,14 @@ void mainmenu_restart_repintro()
 
 static void MainmenuLoad(const char* name)
 {
-	int numOptions = 4;
+	int numOptions = 5;
 
 #ifndef HOSTONLY
-	numOptions = 5;
+	numOptions = 6;
 	gUIListItems.push_back(new UiListItem("Single Player", MAINMENU_SINGLE_PLAYER));
 #endif
 	gUIListItems.push_back(new UiListItem("Multi Player", MAINMENU_MULTIPLAYER));
+	gUIListItems.push_back(new UiListItem("Settings", MAINMENU_SETTINGS));
 	gUIListItems.push_back(new UiListItem("Replay Intro", MAINMENU_REPLAY_INTRO));
 	gUIListItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));
 	gUIListItems.push_back(new UiListItem("Exit Game", MAINMENU_EXIT_DIABLO));
@@ -85,14 +86,14 @@ int UiMainMenuDialog(const char* name, void (*fnSound)(int sfx, int rndCnt))
 
 	mainmenu_restart_repintro(); // for automatic starts
 
-	_gnMainMenuResult = 0;
+	_gnMainMenuResult = NUM_MAINMENU;
 	do {
 		UiClearScreen();
 		UiPollAndRender();
 		if (SDL_GetTicks() >= guAttractTc) {
 			_gnMainMenuResult = MAINMENU_ATTRACT_MODE;
 		}
-	} while (_gnMainMenuResult == 0);
+	} while (_gnMainMenuResult == NUM_MAINMENU);
 
 	MainmenuFree();
 	return _gnMainMenuResult;
