@@ -1548,6 +1548,8 @@ void SaveGame()
 	BYTE* fileBuff = DiabloAllocPtr(FILEBUFF);
 	tbuff = fileBuff;
 
+	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 14004 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
+	// initial
 	i = SAVE_INITIAL;
 	SaveInt(&i);
 	// save game-info
@@ -1596,9 +1598,23 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
+	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 196 + 2 * MAXMISSILES
+	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + 2 * MAXITEMS
+	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
+	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 196 + 2 * MAXMISSILES
+	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100) + 2 * MAXITEMS
+	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
+	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);
 
 	// save meta-data III. (modified by LoadGameLevel)
+	constexpr size_t smt = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
+	 + 236 + SMITH_PREMIUM_ITEMS * 236 + (SMITH_ITEMS * 236 + HEALER_ITEMS * 236
+	 + WITCH_ITEMS * 236 + 12 * MAX_TOWNERS);
+	constexpr size_t smd = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
+	 + 236 + SMITH_PREMIUM_ITEMS * 236 /*+ SMITH_ITEMS * 236 + HEALER_ITEMS * 236
+	 + WITCH_ITEMS * 236 + 12 * MAX_TOWNERS*/;
 	//SaveInt(&numtowners);
 	SaveInt(&boylevel);
 	SaveInt(&numpremium);
@@ -1634,7 +1650,12 @@ void SaveGame()
 			SaveTowner(i);
 	}
 
-	assert(tbuff - fileBuff < FILEBUFF - SHA1BlockSize - 8/*sizeof(CodecSignature)*/);
+	constexpr size_t tst = ss + slt + smt;
+	constexpr size_t tsd = ss + sld + smd;
+	constexpr size_t mss = FILEBUFF - SHA1BlockSize - 8/*sizeof(CodecSignature)*/;
+	static_assert(tst < mss, "Town might not fit to the preallocated buffer.");
+	static_assert(tsd < mss, "Dungeon might not fit to the preallocated buffer.");
+	assert(tbuff - fileBuff < mss);
 	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff);
 	mem_free_dbg(fileBuff);
 	gbValidSaveFile = true;
