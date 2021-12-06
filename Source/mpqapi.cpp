@@ -340,9 +340,9 @@ private:
 
 		memset(&fhdr, 0, sizeof(fhdr));
 		fhdr.signature = SwapLE32('\x1AQPM');
-		fhdr.headersize = SwapLE32(32);
+		fhdr.headersize = SwapLE32(MPQ_HEADER_SIZE_V1);
 		fhdr.filesize = SwapLE32(archiveSize);
-		fhdr.version = SwapLE16(0);
+		fhdr.version = SwapLE16(MPQ_FORMAT_VERSION_1);
 		fhdr.sectorsizeid = SwapLE16(3);
 		fhdr.hashoffset = SwapLE32(HashOffset());
 		fhdr.blockoffset = SwapLE32(MPQ_BLOCK_OFFSET);

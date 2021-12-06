@@ -229,7 +229,7 @@ void GetMPQBits(TMPQBits * pBits, unsigned int nBitPosition, unsigned int nBitLe
 {
     pBits->GetBits(nBitPosition, nBitLength, pvBuffer, nResultByteSize);
 }
-#endif
+
 //-----------------------------------------------------------------------------
 // Support for MPQ header
 
@@ -269,7 +269,7 @@ static bool VerifyTableTandemPositions(
     return VerifyTablePosition64(MpqOffset, TableOffset1, TableSize1, FileSize) &&
            VerifyTablePosition64(MpqOffset, TableOffset2, TableSize2, FileSize);
 }
-
+#endif // FULL
 static ULONGLONG DetermineArchiveSize_V1(
     TMPQArchive * ha,
     TMPQHeader * pHeader,
@@ -311,7 +311,7 @@ static ULONGLONG DetermineArchiveSize_V1(
     // Return the returned archive size
     return (EndOfMpq - MpqOffset);
 }
-
+#ifdef FULL
 static ULONGLONG DetermineArchiveSize_V2(
     TMPQHeader * pHeader,
     ULONGLONG MpqOffset,
@@ -380,7 +380,7 @@ static ULONGLONG DetermineArchiveSize_V4(
     // Return the calculated archive size
     return ArchiveSize;
 }
-
+#endif
 ULONGLONG FileOffsetFromMpqOffset(TMPQArchive * ha, ULONGLONG MpqOffset)
 {
     if(ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
@@ -514,7 +514,7 @@ int ConvertMpqHeaderToFormat4(
                 pHeader->BlockTableSize64 = pHeader->dwBlockTableSize * sizeof(TMPQBlock);
             }
             break;
-
+#ifdef FULL
         case MPQ_FORMAT_VERSION_2:
 
             // Check for malformed MPQ header version 1.0
@@ -718,6 +718,14 @@ int ConvertMpqHeaderToFormat4(
             // Calculate the block table position
             BlockTablePos64 = ByteOffset + MAKE_OFFSET64(pHeader->wBlockTablePosHi, pHeader->dwBlockTablePos);
             break;
+#else
+		default:
+			// treat it as malformed MPQ version 1.0
+			pHeader->wFormatVersion = MPQ_FORMAT_VERSION_1;
+			pHeader->dwHeaderSize = MPQ_HEADER_SIZE_V1;
+			ha->dwFlags |= MPQ_FLAG_MALFORMED;
+			goto Label_ArchiveVersion1;
+#endif
     }
 
     // Handle case when block table is placed before the MPQ header
