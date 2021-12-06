@@ -4243,7 +4243,7 @@ ui_art\selhero.pcx
 ui_art\smbutton.pcx
 ui_art\smlogo.pcx
 ui_art\supportw.pcx
-_ui_art\spopup.pcx
+ui_art\spopup.pcx
 _ui_art\srpopup.pcx
 _ui_art\swmmenu.pcx
 ui_art\title.pcx
