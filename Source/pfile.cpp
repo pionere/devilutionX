@@ -369,8 +369,12 @@ void pfile_rename_temp_to_perm()
 	pfile_flush(true);
 }
 
-void pfile_write_save_file(const char* pszName, BYTE* pbData, DWORD dwLen, DWORD qwLen)
+void pfile_write_save_file(const char* pszName, BYTE* pbData, DWORD dwLen)
 {
+	DWORD qwLen;
+
+	qwLen = codec_get_encoded_len(dwLen);
+
 	{
 		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 

@@ -31,9 +31,9 @@ void GetTempLevelName(char (&szTemp)[MAX_PATH]);
 void GetPermLevelName(char (&szPerm)[MAX_PATH]);
 void pfile_remove_temp_files();
 void pfile_rename_temp_to_perm();
-void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD qwLen);
-void pfile_delete_save_file(const char *pszName);
-BYTE *pfile_read(const char *pszName);
+void pfile_write_save_file(const char* pszName, BYTE* pbData, DWORD dwLen);
+void pfile_delete_save_file(const char* pszName);
+BYTE* pfile_read(const char* pszName);
 void pfile_update(bool force_save);
 
 #ifdef __cplusplus

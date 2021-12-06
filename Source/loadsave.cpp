@@ -1545,7 +1545,6 @@ static void SaveLevelData(bool full)
 void SaveGame()
 {
 	int i;
-	DWORD dwLen; // = codec_get_encoded_len(FILEBUFF);
 	BYTE* fileBuff = DiabloAllocPtr(FILEBUFF);
 	tbuff = fileBuff;
 
@@ -1635,9 +1634,8 @@ void SaveGame()
 			SaveTowner(i);
 	}
 
-	assert(tbuff - fileBuff < FILEBUFF);
-	dwLen = codec_get_encoded_len(tbuff - fileBuff);
-	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff, dwLen);
+	assert(tbuff - fileBuff < FILEBUFF - SHA1BlockSize - 8/*sizeof(CodecSignature)*/);
+	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff);
 	mem_free_dbg(fileBuff);
 	gbValidSaveFile = true;
 	pfile_rename_temp_to_perm();
@@ -1647,7 +1645,6 @@ void SaveGame()
 void SaveLevel()
 {
 	char szName[MAX_PATH];
-	DWORD dwLen; // = codec_get_encoded_len(FILEBUFF);
 	BYTE* fileBuff;
 
 	if (currLvl._dLevelIdx == DLV_TOWN)
@@ -1659,9 +1656,8 @@ void SaveLevel()
 	SaveLevelData(false);
 
 	GetTempLevelName(szName);
-	assert(tbuff - fileBuff < FILEBUFF);
-	dwLen = codec_get_encoded_len(tbuff - fileBuff);
-	pfile_write_save_file(szName, fileBuff, tbuff - fileBuff, dwLen);
+	assert(tbuff - fileBuff < FILEBUFF - SHA1BlockSize - 8/*sizeof(CodecSignature)*/);
+	pfile_write_save_file(szName, fileBuff, tbuff - fileBuff);
 	mem_free_dbg(fileBuff);
 }
 
