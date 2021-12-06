@@ -103,7 +103,7 @@ void pfile_flush(bool bFree)
 
 static HANDLE pfile_open_save_archive(unsigned save_num)
 {
-	return SFileOpenArchive(GetSavePath(save_num).c_str(), 0);
+	return SFileOpenArchive(GetSavePath(save_num).c_str(), MPQ_OPEN_READ_ONLY);
 }
 
 void pfile_write_hero(bool bFree)
@@ -320,17 +320,17 @@ void GetTempLevelName(char (&szTemp)[MAX_PATH])
 
 void GetPermLevelName(char (&szPerm)[MAX_PATH])
 {
-	bool has_file;
+	HANDLE archive;
 
-	GetTempLevelName(szPerm);
-	if (!pfile_open_archive())
+	archive = pfile_open_save_archive(mySaveIdx);
+	if (archive == NULL)
 		app_fatal("Unable to open file archive");
 
-	has_file = mpqapi_has_file(szPerm);
-	pfile_flush(true);
-	if (!has_file) {
+	GetTempLevelName(szPerm);
+	if (!SFileOpenFileEx(archive, szPerm, SFILE_OPEN_CHECK_EXISTS, NULL)) {
 		GetPermLevelNames(currLvl._dLevelIdx, szPerm);
 	}
+	SFileCloseArchive(archive);
 }
 
 void pfile_remove_temp_files()

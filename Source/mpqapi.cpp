@@ -105,7 +105,7 @@ public:
 	{
 		return s_ != NULL;
 	}
-
+#ifdef FULL
 	bool seekg(std::streampos pos)
 	{
 		s_->seekg(pos);
@@ -144,7 +144,7 @@ public:
 		PrintError("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
 		return false;
 	}
-
+#endif
 	bool seekp(std::streamoff pos, std::ios::seekdir dir)
 	{
 		s_->seekp(pos, dir);
@@ -157,7 +157,7 @@ public:
 		PrintError("seekp(%" PRIdMAX ", %d)", static_cast<std::intmax_t>(pos), dir);
 		return false;
 	}
-
+#ifdef FULL
 	bool tellg(std::streampos *result)
 	{
 		*result = s_->tellg();
@@ -170,7 +170,7 @@ public:
 		PrintError("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 		return false;
 	}
-
+#endif
 	bool tellp(std::streampos *result)
 	{
 		*result = s_->tellp();
