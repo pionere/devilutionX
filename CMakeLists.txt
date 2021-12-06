@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
 
-if(POLICY CMP0069)
-  cmake_policy(SET CMP0069 NEW)
-endif()
 if(POLICY CMP0092)
   cmake_policy(SET CMP0092 NEW)
 endif()
@@ -12,6 +9,12 @@ endif()
 if(POLICY CMP0111)
   cmake_policy(SET CMP0111 NEW)
 endif()
+
+# Projects added via `add_subdirectory` or `FetchContent` may have a lower
+# `cmake_minimum_required` than we set here. Set policies that we require
+# to their new value so that they still apply.
+set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 include(CMakeDependentOption)
 include(CMake/out_of_tree.cmake)
