@@ -1537,6 +1537,24 @@ static void StartSpell(int pnum)
 	AssertFixPlayerLocation(pnum);
 }
 
+static void StartPickItem(int pnum)
+{
+	int i, x, y;
+
+	if (pnum != mypnum)
+		return;
+	if (pcurs != CURSOR_HAND)
+		return;
+
+	i = plr.destParam1;
+	x = abs(plr._px - items[i]._ix);
+	y = abs(plr._py - items[i]._iy);
+	if (x > 1 || y > 1)
+		return;
+
+	NetSendCmdGItem(plr.destAction == ACTION_PICKUPAITEM ? CMD_AUTOGETITEM : CMD_GETITEM, i);
+}
+
 static void StartTalk(int pnum)
 {
 	int mnum, x, y;
@@ -2595,7 +2613,7 @@ static bool PlrDoNewLvl(int pnum)
 
 static void CheckNewPath(int pnum)
 {
-	int i, x, y;
+	int i;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("CheckNewPath: illegal player %d", pnum);
@@ -2656,24 +2674,8 @@ static void CheckNewPath(int pnum)
 			StartSpell(pnum);
 			break;
 		case ACTION_PICKUPITEM:
-			if (pnum == mypnum) {
-				i = plr.destParam1;
-				x = abs(plr._px - items[i]._ix);
-				y = abs(plr._py - items[i]._iy);
-				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND) {
-					NetSendCmdGItem(CMD_GETITEM, i);
-				}
-			}
-			break;
 		case ACTION_PICKUPAITEM:
-			if (pnum == mypnum) {
-				i = plr.destParam1;
-				x = abs(plr._px - items[i]._ix);
-				y = abs(plr._py - items[i]._iy);
-				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND) {
-					NetSendCmdGItem(CMD_AUTOGETITEM, i);
-				}
-			}
+			StartPickItem(pnum);
 			break;
 		case ACTION_TALK:
 			StartTalk(pnum);
