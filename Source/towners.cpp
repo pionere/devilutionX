@@ -617,14 +617,9 @@ void SyncTownerQ(int pnum, int idx)
 void TalkToTowner(int tnum)
 {
 	TownerStruct* tw;
-	int i, dx, dy, qt, qn, pnum = mypnum;
+	int i, qt, qn, pnum = mypnum;
 
 	tw = &towners[tnum];
-	dx = abs(plr._px - tw->_tx);
-	dy = abs(plr._py - tw->_ty);
-	if (dx >= 2 || dy >= 2)
-		return;
-
 	if (gbQtextflag) {
 		return;
 	}

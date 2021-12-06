@@ -1537,6 +1537,25 @@ static void StartSpell(int pnum)
 	AssertFixPlayerLocation(pnum);
 }
 
+static void StartTalk(int pnum)
+{
+	int mnum, x, y;
+	if ((unsigned)pnum >= MAX_PLRS)
+		dev_fatal("StartTalk: illegal player %d", pnum);
+
+	mnum = plr.destParam1;
+	x = abs(plr._px - monsters[mnum]._mx);
+	y = abs(plr._py - monsters[mnum]._my);
+	if (x > 1 || y > 1)
+		return;
+
+	if (currLvl._dLevelIdx == DLV_TOWN) {
+		if (pnum == mypnum)
+			TalkToTowner(mnum);
+	} else
+		TalktoMonster(mnum, pnum);
+}
+
 /*
  * @brief Find a place for the given player starting from its current location.
  *
@@ -2657,11 +2676,7 @@ static void CheckNewPath(int pnum)
 			}
 			break;
 		case ACTION_TALK:
-			if (currLvl._dLevelIdx == DLV_TOWN) {
-				if (pnum == mypnum)
-					TalkToTowner(plr.destParam1);
-			} else
-				TalktoMonster(plr.destParam1, pnum);
+			StartTalk(pnum);
 			break;
 		case ACTION_OPERATETK:
 			i = plr.destParam1;

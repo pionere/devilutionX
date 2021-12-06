@@ -5032,8 +5032,8 @@ void TalktoMonster(int mnum, int pnum)
 		dev_fatal("TalktoMonster: Invalid player %d", pnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mgoal == MGOAL_TALKING)
-		return; // already talking
+	if (mon->_mgoal != MGOAL_INQUIRING)
+		return; // already talking (or does not want to talk at all)
 	mon->_mmode = MM_TALK;
 	mon->_mListener = pnum;
 	if (mon->_mAi == AI_SNOTSPIL) {
