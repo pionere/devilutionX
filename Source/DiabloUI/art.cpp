@@ -43,7 +43,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 	dataSize = SFileGetFileSize(hFile);
 
 	fileBuffer = DiabloAllocPtr(dataSize);
-	if (dataSize < sizeof(PCXHEADER) || !SFileReadFile(hFile, fileBuffer, dataSize, NULL)) {
+	if (dataSize < sizeof(PCXHEADER) || !SFileReadFile(hFile, fileBuffer, dataSize)) {
 		free(fileBuffer);
 		SFileCloseFile(hFile);
 		SDL_Log("Failed to load image meta");

@@ -188,7 +188,7 @@ BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen)
 
 	buf = (BYTE*)DiabloAllocPtr(fileLen);
 
-	SFileReadFile(file, buf, fileLen, NULL);
+	SFileReadFile(file, buf, fileLen);
 	SFileCloseFile(file);
 
 	return buf;
@@ -216,7 +216,7 @@ void LoadFileWithMem(const char* pszName, BYTE* p)
 		app_fatal("Zero length SFILE:\n%s", pszName);
 	}
 
-	SFileReadFile(hsFile, p, dwFileLen, NULL);
+	SFileReadFile(hsFile, p, dwFileLen);
 	SFileCloseFile(hsFile);
 }
 

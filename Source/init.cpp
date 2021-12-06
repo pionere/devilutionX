@@ -236,7 +236,7 @@ void init_archives()
 			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
 				DWORD dwLen = SFileGetFileSize(hFile);
 				BYTE* buf = DiabloAllocPtr(dwLen);
-				if (!SFileReadFile(hFile, buf, dwLen, NULL))
+				if (!SFileReadFile(hFile, buf, dwLen))
 					app_fatal("Unable to read save file");
 				if (!mpqapi_write_file(line.c_str(), buf, dwLen))
 					app_fatal("Unable to write %s to the MPQ.", line.c_str());

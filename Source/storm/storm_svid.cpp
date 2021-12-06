@@ -217,7 +217,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	DWORD bytestoread = SFileGetFileSize(videoFile);
 	assert(SVidBuffer == NULL);
 	SVidBuffer = DiabloAllocPtr(bytestoread);
-	SFileReadFile(videoFile, SVidBuffer, bytestoread, NULL);
+	SFileReadFile(videoFile, SVidBuffer, bytestoread);
 	SFileCloseFile(videoFile);
 
 	SVidSMK = smk_open_memory(SVidBuffer, bytestoread);

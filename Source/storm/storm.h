@@ -84,7 +84,7 @@ HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
 HANDLE SFileOpenFile(const char* filename);
 bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchScope, HANDLE *phFile);
 
-bool WINAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead, DWORD *read);
+bool WINAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead);
 
 bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue);
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize);

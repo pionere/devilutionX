@@ -629,15 +629,15 @@ static int ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LP
 //-----------------------------------------------------------------------------
 // SFileReadFile
 
-bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWORD pdwRead)
+bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWORD pdwRead*/)
 {
     TMPQFile *hf = IsValidFileHandle(hFile);
     DWORD dwBytesRead = 0;                      // Number of bytes read
     int nError = ERROR_SUCCESS;
 
     // Always zero the result
-    if (pdwRead != NULL)
-        *pdwRead = 0;
+    //if (pdwRead != NULL)
+    //    *pdwRead = 0;
 
     // Check valid parameters
     if (hf == NULL) {
@@ -689,8 +689,8 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWORD
     hf->dwFilePos += dwBytesRead;
 
     // Give the caller the number of bytes read
-    if (pdwRead != NULL)
-        *pdwRead = dwBytesRead;
+    //if (pdwRead != NULL)
+    //   *pdwRead = dwBytesRead;
 
     // If the read operation succeeded, but not full number of bytes was read,
     // set the last error to ERROR_HANDLE_EOF

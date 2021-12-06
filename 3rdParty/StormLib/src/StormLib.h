@@ -1050,7 +1050,7 @@ bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSear
 DWORD  WINAPI SFileGetFileSize(HANDLE hFile);
 DWORD  WINAPI SFileGetFilePointer(HANDLE hFile);
 DWORD  WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
-bool   WINAPI SFileReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, LPDWORD pdwRead);
+bool   WINAPI SFileReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead/*, LPDWORD pdwRead*/);
 void   WINAPI SFileCloseFile(HANDLE hFile);
 
 // Retrieving info about a file in the archive

@@ -57,10 +57,9 @@ static bool pfile_read_hero(HANDLE archive, PkPlayerStruct* pPack)
 
 		dwlen = SFileGetFileSize(file);
 		if (dwlen != 0) {
-			DWORD read;
 			buf = DiabloAllocPtr(dwlen);
-			if (SFileReadFile(file, buf, dwlen, &read)) {
-				read = codec_decode(buf, dwlen, password);
+			if (SFileReadFile(file, buf, dwlen)) {
+				int read = codec_decode(buf, dwlen, password);
 				if (read == sizeof(*pPack)) {
 					memcpy(pPack, buf, sizeof(*pPack));
 					ret = true;
@@ -393,7 +392,7 @@ void pfile_delete_save_file(const char* pszName)
 
 BYTE* pfile_read(const char* pszName)
 {
-	DWORD nread, len;
+	DWORD len;
 	HANDLE archive, save;
 	BYTE* buf;
 
@@ -409,7 +408,7 @@ BYTE* pfile_read(const char* pszName)
 		app_fatal("Invalid save file");
 
 	buf = DiabloAllocPtr(len);
-	if (!SFileReadFile(save, buf, len, &nread))
+	if (!SFileReadFile(save, buf, len))
 		app_fatal("Unable to read save file");
 	SFileCloseFile(save);
 	SFileCloseArchive(archive);

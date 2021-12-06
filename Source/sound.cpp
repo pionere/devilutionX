@@ -89,7 +89,7 @@ void sound_file_load(const char* path, SoundSample* pSnd)
 
 	dwBytes = SFileGetFileSize(file);
 	wave_file = DiabloAllocPtr(dwBytes);
-	SFileReadFile(file, wave_file, dwBytes, NULL);
+	SFileReadFile(file, wave_file, dwBytes);
 	SFileCloseFile(file);
 
 	pSnd->nextTc = 0;
@@ -141,7 +141,7 @@ void music_start(int nTrack)
 			DWORD bytestoread = SFileGetFileSize(hMusic);
 			assert(_gMusicBuffer == NULL);
 			_gMusicBuffer = DiabloAllocPtr(bytestoread);
-			SFileReadFile(hMusic, _gMusicBuffer, bytestoread, NULL);
+			SFileReadFile(hMusic, _gMusicBuffer, bytestoread);
 
 			SDL_RWops* musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
 			if (musicRw == NULL) {
