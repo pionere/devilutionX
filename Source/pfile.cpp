@@ -302,7 +302,7 @@ void pfile_read_hero_from_save()
 
 	archive = pfile_open_save_archive(mySaveIdx);
 	if (archive == NULL)
-		app_fatal("Unable to open save file archive");
+		app_fatal("Unable to open file archive");
 	if (!pfile_read_hero(archive, &pkplr))
 		app_fatal("Unable to read save file");
 
@@ -398,7 +398,7 @@ BYTE* pfile_read(const char* pszName)
 
 	archive = pfile_open_save_archive(mySaveIdx);
 	if (archive == NULL)
-		app_fatal("Unable to open save file archive");
+		app_fatal("Unable to open file archive");
 
 	if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save))
 		app_fatal("Unable to open save file");

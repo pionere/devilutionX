@@ -198,9 +198,10 @@ void init_archives()
 #ifdef MPQONE
 	int i;
 	// first round - read the content and prepare the metadata
-	std::ifstream input("listfiles.txt");
+	std::string listpath = std::string(GetBasePath()) + "listfiles.txt";
+	std::ifstream input(listpath);
 	if (input.fail()) {
-		app_fatal("To create a merged MPQ, place the 'listfiles.txt' in the game folder.");
+		app_fatal("Can not find/access '%s' in the game folder.", "listfiles.txt");
 	}
 	std::string line;
 	int entryCount = 0;
@@ -213,7 +214,6 @@ void init_archives()
 			}
 		}
 	}
-	input.close();
 
 	// calculate the required number of hashes
 	// TODO: use GetNearestPowerOfTwo of StormCommon.h?
@@ -222,7 +222,8 @@ void init_archives()
 		hashCount <<= 1;
 	}
 	// create the mpq file
-	input.open("listfiles.txt");
+	input.clear();                 // clear fail and eof bits
+	input.seekg(0, std::ios::beg); // back to the start!
 	std::string path = std::string(GetBasePath()) + MPQONE;
 	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
 		app_fatal("Unable to open MPQ file %s.", path.c_str());
@@ -237,7 +238,7 @@ void init_archives()
 				DWORD dwLen = SFileGetFileSize(hFile);
 				BYTE* buf = DiabloAllocPtr(dwLen);
 				if (!SFileReadFile(hFile, buf, dwLen))
-					app_fatal("Unable to read save file");
+					app_fatal("Unable to open file archive");
 				if (!mpqapi_write_file(line.c_str(), buf, dwLen))
 					app_fatal("Unable to write %s to the MPQ.", line.c_str());
 				mem_free_dbg(buf);
