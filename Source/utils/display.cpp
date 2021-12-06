@@ -1,5 +1,7 @@
 #include "display.h"
 
+#include <algorithm>
+
 #ifdef __vita__
 #include <psp2/power.h>
 #endif
@@ -106,7 +108,7 @@ static void AdjustToScreenGeometry(int width, int height)
 	}*/
 }
 
-static void CalculatePreferdWindowSize(int &width, int &height, bool useIntegerScaling)
+static void CalculatePreferredWindowSize(int &width, int &height, bool useIntegerScaling)
 {
 #ifdef USE_SDL1
 	const SDL_VideoInfo &best = *SDL_GetVideoInfo();
@@ -118,27 +120,24 @@ static void CalculatePreferdWindowSize(int &width, int &height, bool useIntegerS
 		sdl_fatal(ERR_SDL_DISPLAY_MODE_GET);
 	}
 
-	if (!useIntegerScaling) {
-		float wFactor = (float)mode.w / width;
-		float hFactor = (float)mode.h / height;
+	if (mode.w < mode.h) {
+		std::swap(mode.w, mode.h);
+	}
 
-		if (wFactor > hFactor) {
-			width = mode.w * height / mode.h;
-		} else {
-			height = mode.h * width / mode.w;
-		}
+	if (useIntegerScaling) {
+		int factor = std::min(mode.w / width, mode.h / height);
+		width = mode.w / factor;
+		height = mode.h / factor;
 		return;
 	}
 
-	int wFactor = mode.w / width;
-	int hFactor = mode.h / height;
+	float wFactor = (float)mode.w / width;
+	float hFactor = (float)mode.h / height;
 
 	if (wFactor > hFactor) {
-		width = mode.w / hFactor;
-		height = mode.h / hFactor;
+		width = mode.w * height / mode.h;
 	} else {
-		width = mode.w / wFactor;
-		height = mode.h / wFactor;
+		height = mode.h * width / mode.w;
 	}
 #endif
 }
@@ -220,7 +219,7 @@ bool SpawnWindow(const char* lpWindowName)
 	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
 
 	if (upscale && fitToScreen) {
-		CalculatePreferdWindowSize(width, height, integerScalingEnabled);
+		CalculatePreferredWindowSize(width, height, integerScalingEnabled);
 	}
 	AdjustToScreenGeometry(width, height);
 
