@@ -719,8 +719,8 @@ if(USE_SDL1)
   target_compile_definitions(${BIN_TARGET} PRIVATE USE_SDL1)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
-    SDL2::SDL2
-    ${SDL2_MAIN})
+    ${SDL2_MAIN}
+    SDL2::SDL2)
     #SDL2::SDL2_ttf)
 endif()
 
