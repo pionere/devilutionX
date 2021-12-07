@@ -166,7 +166,6 @@ inline void SDL_GetWindowSize(SDL_Window *window, int *w, int *h)
 
 inline void SDL_DestroyWindow(SDL_Window *window)
 {
-	SDL_FreeSurface(window);
 }
 
 inline void
