@@ -12,8 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-unsigned sync_all_monsters(const BYTE *pbBuf, unsigned dwMaxLen);
-void sync_update(int pnum, const TSyncHeader *pbBuf);
+unsigned sync_all_monsters(const BYTE* pbBuf, unsigned dwMaxLen);
+//void sync_update(int pnum, const TSyncHeader* pbBuf);
 void InitSync();
 
 #ifdef __cplusplus

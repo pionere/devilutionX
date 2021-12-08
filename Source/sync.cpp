@@ -32,19 +32,26 @@ static void sync_init_monsters()
 	}
 }
 
-static void sync_monster_pos(TSyncMonster *symon, int mnum)
+static bool sync_monster_pos(TSyncMonster* symon, int mnum)
 {
-	symon->_mndx = mnum;
-	symon->_mx = monsters[mnum]._mx;
-	symon->_my = monsters[mnum]._my;
-	symon->_mdir = monsters[mnum]._mdir;
-	symon->_menemy = encode_enemy(mnum);
-	symon->_mhitpoints = SDL_SwapLE32(monsters[mnum]._mhitpoints);
-	symon->_mactive = SDL_SwapLE32(monsters[mnum]._msquelch);
+	MonsterStruct* mon = &monsters[mnum];
 
 	static_assert(MAXDUNX + MAXDUNY + 0x1000 < 0xFFFE, "sync_init_monsters expects a dungeon to fit to 16-bit II.");
 	monster_dists[mnum] = 0xFFFE;
-	monster_prio[mnum] = monsters[mnum]._msquelch == 0 ? 0xFFFF : 0xFFFE;
+	monster_prio[mnum] = mon->_msquelch == 0 ? 0xFFFF : 0xFFFE;
+
+	if (mon->_mhitpoints < (1 << 6))
+		return false;
+
+	symon->_mndx = mnum;
+	symon->_mx = mon->_mx;
+	symon->_my = mon->_my;
+	symon->_mdir = mon->_mdir;
+	symon->_menemy = encode_enemy(mnum);
+	symon->_mhitpoints = SDL_SwapLE32(mon->_mhitpoints);
+	symon->_mactive = SDL_SwapLE32(mon->_msquelch);
+
+	return true;
 }
 
 static int sync_closest_monster()
@@ -89,10 +96,10 @@ static int sync_prio_monster()
 	return ndx;
 }
 
-/*static void SyncPlrInv(TSyncHeader *pHdr)
+/*static void SyncPlrInv(TSyncHeader* pHdr)
 {
 	int ii;
-	ItemStruct *is;
+	ItemStruct* is;
 
 	if (numitems > 0) {
 		if (sync_inum >= numitems) {
@@ -148,13 +155,13 @@ static int sync_prio_monster()
 	}
 }*/
 
-unsigned sync_all_monsters(const BYTE *pbBuf, unsigned dwMaxLen)
+unsigned sync_all_monsters(const BYTE* pbBuf, unsigned dwMaxLen)
 {
-	TSyncHeader *pHdr;
+	TSyncHeader* pHdr;
 	int i, idx;
 	WORD wLen;
 
-	if (!IsMultiGame /*|| nummonsters < 1*/) { // nummonsters is always >= MAX_MINIONS
+	if (!IsMultiGame || gbLvlLoad == 10 /*|| nummonsters < 1*/) { // nummonsters is always >= MAX_MINIONS
 		return dwMaxLen;
 	}
 	if (dwMaxLen < sizeof(*pHdr) + sizeof(TSyncMonster)) {
@@ -163,7 +170,7 @@ unsigned sync_all_monsters(const BYTE *pbBuf, unsigned dwMaxLen)
 
 	sync_init_monsters();
 
-	pHdr = (TSyncHeader *)pbBuf;
+	pHdr = (TSyncHeader*)pbBuf;
 	pbBuf += sizeof(*pHdr);
 	dwMaxLen -= sizeof(*pHdr);
 
@@ -179,7 +186,8 @@ unsigned sync_all_monsters(const BYTE *pbBuf, unsigned dwMaxLen)
 			idx = sync_closest_monster();
 		if (idx == -1)
 			break;
-		sync_monster_pos((TSyncMonster *)pbBuf, idx);
+		if (!sync_monster_pos((TSyncMonster *)pbBuf, idx))
+			continue;
 		pbBuf += sizeof(TSyncMonster);
 		wLen += sizeof(TSyncMonster);
 		dwMaxLen -= sizeof(TSyncMonster);
@@ -190,7 +198,7 @@ unsigned sync_all_monsters(const BYTE *pbBuf, unsigned dwMaxLen)
 	return dwMaxLen;
 }
 
-static void sync_monster(int pnum, const TSyncMonster *symon)
+/*static void sync_monster(int pnum, const TSyncMonster *symon)
 {
 	/*MonsterStruct *mon;
 	int mnum, md;
@@ -253,7 +261,7 @@ void sync_update(int pnum, const TSyncHeader *pHdr)
 		pbBuf += sizeof(TSyncMonster);
 	}
 	//assert(wLen == 0);
-}
+}*/
 
 void InitSync()
 {
