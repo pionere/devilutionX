@@ -1358,12 +1358,8 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
 		ShowCutscene(uMsg);
-		if (uMsg == DVL_DWM_NEWGAME) {
-			// process remaining packets of delta-load
-			RunDeltaPackets();
-		}
 		// process packets arrived during LoadLevel / delta-load and disable nthread
-		nthread_finish();
+		nthread_finish(uMsg);
 		if (gbRunGame) {
 			InitLevelCursor();
 			gbRedrawFlags = REDRAW_ALL;
@@ -1540,6 +1536,8 @@ static void FreeGameUI()
 {
 	int i;
 
+	FreeLevelMem();
+
 	FreeControlPan();
 	FreeText();
 	FreeInvGFX();
@@ -1550,12 +1548,11 @@ static void FreeGameUI()
 		FreePlayerGFX(i);
 
 	FreeItemGFX();
+	FreeGameEffects();
 	FreeCursorGFX();
 #ifdef _DEBUG
 	FreeDebugGFX();
 #endif
-	FreeLevelMem();
-	FreeGameEffects();
 
 	//doom_close();
 }
@@ -1595,8 +1592,8 @@ static void run_game()
 	NetClose();
 	if (IsMultiGame)
 		pfile_write_hero(true);
-	else
-		pfile_flush(true);
+	//else
+	//	pfile_flush(true);
 
 	PaletteFadeOut();
 	//NewCursor(CURSOR_NONE);

@@ -30,7 +30,7 @@ int nthread_recv_turns();
 void nthread_start();
 void nthread_cleanup();
 void nthread_run();
-void nthread_finish();
+void nthread_finish(UINT uMsg);
 /**
  * @brief Checks if it's time for the logic to advance
  * @return True if the engine should tick

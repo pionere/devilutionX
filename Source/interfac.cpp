@@ -138,10 +138,10 @@ void interface_msg_pump()
 	MSG Msg;
 
 	while (PeekMessage(&Msg)) {
-		if (Msg.message != DVL_WM_QUIT) {
+		//if (Msg.message != DVL_WM_QUIT) {
 			TranslateMessage(&Msg);
 			DispatchMessage(&Msg);
-		}
+		//}
 	}
 }
 
@@ -310,12 +310,6 @@ void LoadGameLevel(int lvldir)
 	if (lvldir != ENTRY_LOAD)
 		InitPlayers();
 	PlayDungMsgs();
-
-	IncProgress();
-	IncProgress();
-	IncProgress();
-	ProcessLightList();
-	ProcessVisionList();
 
 	guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
 

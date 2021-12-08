@@ -279,8 +279,21 @@ void nthread_run()
 #endif
 }
 
-void nthread_finish()
+void nthread_finish(UINT uMsg)
 {
+	if (uMsg == DVL_DWM_NEWGAME) {
+		if (gbLoadGame/*&& gbValidSaveFile*/) {
+			assert(sghThread == NULL);
+			return;
+		} else {
+			// process remaining packets of delta-load
+			RunDeltaPackets();
+		}
+	}
+
+	ProcessLightList();
+	ProcessVisionList();
+
 #ifndef NONET
 	if (sghThread != NULL) {
 		// for the first pending turn the current player should be considered
