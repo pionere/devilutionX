@@ -72,16 +72,18 @@ static bool pfile_read_hero(HANDLE archive, PkPlayerStruct* pPack)
 	}
 }
 
-static void pfile_encode_hero(const PkPlayerStruct* pPack)
+static void pfile_encode_hero(int pnum)
 {
 	BYTE* packed;
+	PkPlayerStruct pPack;
 	DWORD packed_len;
 	const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
-	packed_len = codec_get_encoded_len(sizeof(*pPack));
+	PackPlayer(&pPack, pnum);
+	packed_len = codec_get_encoded_len(sizeof(pPack));
 	packed = (BYTE*)DiabloAllocPtr(packed_len);
-	memcpy(packed, pPack, sizeof(*pPack));
-	codec_encode(packed, sizeof(*pPack), packed_len, password);
+	memcpy(packed, &pPack, sizeof(pPack));
+	codec_encode(packed, sizeof(pPack), packed_len, password);
 	mpqapi_write_file(SAVEFILE_HERO, packed, packed_len);
 	mem_free_dbg(packed);
 }
@@ -108,11 +110,8 @@ static HANDLE pfile_open_save_archive(unsigned save_num)
 
 void pfile_write_hero(bool bFree)
 {
-	PkPlayerStruct pkplr;
-
 	if (pfile_open_archive()) {
-		PackPlayer(&pkplr, mypnum);
-		pfile_encode_hero(&pkplr);
+		pfile_encode_hero(mypnum);
 		pfile_flush(bFree);
 	}
 }
@@ -207,7 +206,6 @@ int pfile_ui_create_save(_uiheroinfo* heroinfo)
 {
 	unsigned save_num;
 	HANDLE archive;
-	PkPlayerStruct pkplr;
 
 	if (!ValidPlayerName(heroinfo->hiName))
 		return NEWHERO_INVALID_NAME;
@@ -226,8 +224,7 @@ int pfile_ui_create_save(_uiheroinfo* heroinfo)
 	heroinfo->hiIdx = save_num;
 	//mpqapi_remove_hash_entries(pfile_get_file_name);
 	CreatePlayer(*heroinfo);
-	PackPlayer(&pkplr, 0);
-	pfile_encode_hero(&pkplr);
+	pfile_encode_hero(0);
 	//pfile_player2hero(&players[0], heroinfo, save_num, false);
 	pfile_flush(true);
 	return NEWHERO_DONE;

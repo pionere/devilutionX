@@ -339,11 +339,11 @@ private:
 		_FILEHEADER fhdr;
 
 		memset(&fhdr, 0, sizeof(fhdr));
-		fhdr.signature = SwapLE32('\x1AQPM');
+		fhdr.signature = SwapLE32(ID_MPQ);
 		fhdr.headersize = SwapLE32(MPQ_HEADER_SIZE_V1);
 		fhdr.filesize = SwapLE32(archiveSize);
 		fhdr.version = SwapLE16(MPQ_FORMAT_VERSION_1);
-		fhdr.sectorsizeid = SwapLE16(3);
+		fhdr.sectorsizeid = SwapLE16(MPQ_SECTOR_SIZE_SHIFT_V1);
 		fhdr.hashoffset = SwapLE32(HashOffset());
 		fhdr.blockoffset = SwapLE32(MPQ_BLOCK_OFFSET);
 		fhdr.hashcount = SwapLE32(hashCount);
@@ -356,7 +356,7 @@ private:
 	{
 		DWORD blockSize, key;
 
-		key = HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
+		key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
 		blockSize = blockCount * sizeof(_BLOCKENTRY);
 
 		EncryptMpqBlock(sgpBlockTbl, blockSize, key);
@@ -369,7 +369,7 @@ private:
 	{
 		DWORD hashSize, key;
 
-		key = HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
+		key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
 		hashSize = hashCount * sizeof(_HASHENTRY);
 
 		EncryptMpqBlock(sgpHashTbl, hashSize, key);
@@ -397,20 +397,20 @@ static void ByteSwapHdr(_FILEHEADER *hdr)
 static void InitDefaultMpqHeader(Archive *archive, _FILEHEADER *hdr)
 {
 	std::memset(hdr, 0, sizeof(*hdr));
-	hdr->signature = '\x1AQPM';
-	hdr->headersize = 32;
-	hdr->sectorsizeid = 3;
-	hdr->version = 0;
+	hdr->signature = ID_MPQ;
+	hdr->headersize = MPQ_HEADER_SIZE_V1;
+	hdr->sectorsizeid = MPQ_SECTOR_SIZE_SHIFT_V1;
+	hdr->version = MPQ_FORMAT_VERSION_1;
 	archive->archiveSize = archive->HashOffset() + archive->hashCount * sizeof(_HASHENTRY);
 	archive->modified = true;
 }
 
 static bool IsValidMPQHeader(const Archive &archive, _FILEHEADER *hdr)
 {
-	return hdr->signature == '\x1AQPM'
-		&& hdr->headersize == 32
-		&& hdr->version == 0
-		&& hdr->sectorsizeid == 3
+	return hdr->signature == ID_MPQ
+		&& hdr->headersize == MPQ_HEADER_SIZE_V1
+		&& hdr->version == MPQ_FORMAT_VERSION_1
+		&& hdr->sectorsizeid == MPQ_SECTOR_SIZE_SHIFT_V1
 		&& hdr->filesize == archive.archiveSize
 		&& hdr->hashoffset == archive.HashOffset()
 		&& hdr->blockoffset == MPQ_BLOCK_OFFSET
@@ -746,7 +746,7 @@ bool OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 		if (fhdr.blockcount != 0) {
 			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpBlockTbl), blockSize))
 				goto on_error;
-			key = HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
+			key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
 		}
 		hashSize = hashCount * sizeof(_HASHENTRY);
@@ -755,7 +755,7 @@ bool OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 		if (fhdr.hashcount != 0) {
 			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpHashTbl), hashSize))
 				goto on_error;
-			key = HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
+			key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
 		}
 
