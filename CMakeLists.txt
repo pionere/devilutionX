@@ -487,9 +487,9 @@ if(NINTENDO_3DS)
     Source/platform/ctr/asio/net/if.c
     Source/platform/ctr/asio/sys/socket.c
     Source/platform/ctr/asio/sys/uio.c)
-if(HELLFIRE)
-  set(BIN_TARGET hellfire)
-endif()
+  if(HELLFIRE)
+    set(BIN_TARGET hellfire)
+  endif()
   set(BIN_TARGET ${BIN_TARGET}.elf)
 endif()
 
@@ -526,10 +526,10 @@ else()
     WIN32
     MACOSX_BUNDLE
     ${devilutionx_SRCS}
-    Source/devilutionx.exe.manifest
-    Packaging/macOS/AppIcon.icns
+    Packaging/windows/devilutionx.exe.manifest
+    Packaging/windows/devilutionx.rc
+    Packaging/apple/AppIcon.icns)
     #Packaging/resources/CharisSILB.ttf
-    Packaging/windows/devilutionx.rc)
 endif()
 
 # Copy the font, devilutionx.mpq and devilx.mpq to the build directory to it works from the build directory
@@ -821,7 +821,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 if(APPLE)
-  set_source_files_properties("./Packaging/macOS/AppIcon.icns" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  set_source_files_properties("./Packaging/apple/AppIcon.icns" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   #set_source_files_properties("./Packaging/resources/CharisSILB.ttf" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   set(MACOSX_BUNDLE_GUI_IDENTIFIER com.diasurgical.devilutionx)
   set(MACOSX_BUNDLE_COPYRIGHT Unlicense)
@@ -831,8 +831,8 @@ if(APPLE)
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${PROJECT_VERSION}")
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12.0")
-  set_target_properties(${BIN_TARGET} PROPERTIES MACOSX_BUNDLE_ICON_FILE "AppIcon")
-  set_target_properties(${BIN_TARGET} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Packaging/macOS/Info.plist")
+  set_target_properties(${BIN_TARGET} PROPERTIES MACOSX_BUNDLE_ICON_FILE "AppIcon.icns")
+  set_target_properties(${BIN_TARGET} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Packaging/apple/Info.plist")
 
   install (TARGETS ${BIN_TARGET} DESTINATION ./)
 

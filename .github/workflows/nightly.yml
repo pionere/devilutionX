@@ -131,14 +131,14 @@ jobs:
 
     - name: Configure CMake
       shell: bash
-      working-directory: ${{github.workspace}}/build
-      run: cmake .. ${{ matrix.cmakeargs }}
+      working-directory: ${{github.workspace}}
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }}
 
     - name: Build
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}}
       shell: bash
       # Execute the build (-j 2 : with two cores).
-      run: cmake --build . -j 2 --target package
+      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
 
     # Upload the created artifact
     - name: Upload
