@@ -2368,7 +2368,7 @@ void DoEnding()
 	play_movie("gendata\\loopdend.smk", MOV_SKIP | MOV_LOOP);
 }
 
-void PrepDoEnding(bool soundOn)
+static void PrepDoEnding(bool soundOn)
 {
 	int pnum;
 	unsigned killLevel;

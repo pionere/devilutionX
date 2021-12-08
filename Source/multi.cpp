@@ -12,8 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
 
-/* Flag to test if Diablo was beaten while the player loaded its level. */
-bool gbSomebodyWonGameKludge;
 /* Buffer to hold turn-chunks. */
 static TBuffer sgTurnChunkBuf;
 /* Buffer to hold the received player-info. */
@@ -241,7 +239,6 @@ static void multi_deactivate_player(int pnum, int reason)
 			//	break;
 			case LEAVE_ENDING:
 				pszFmt = "Player '%s' killed Diablo and left the game!";
-				gbSomebodyWonGameKludge = true;
 				break;
 			case LEAVE_DROP:
 				pszFmt = "Player '%s' dropped due to timeout";
@@ -644,8 +641,6 @@ static void multi_handle_events(SNetEvent *pEvt)
 	pnum = pEvt->playerid;
 	if (pnum < MAX_PLRS) {
 		sgbPlayerLeftGameTbl[pnum] = LeftReason;
-		if (LeftReason == LEAVE_ENDING)
-			gbSomebodyWonGameKludge = true;
 	} else {
 		assert(pnum == SNPLAYER_MASTER);
 		EventPlrMsg("Server is down");

@@ -42,7 +42,6 @@ void MonStartKill(int mnum, int pnum);
 void MonSyncStartKill(int mnum, int x, int y, int pnum);
 void MonUpdateLeader(int mnum);
 void DoEnding();
-void PrepDoEnding(bool soundOn);
 void MonWalkDir(int mnum, int md);
 void DeleteMonsterList();
 void ProcessMonsters();

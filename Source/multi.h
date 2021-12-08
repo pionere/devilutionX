@@ -14,7 +14,6 @@ extern "C" {
 
 extern const char* szGameName;
 extern const char* szGamePassword;
-extern bool gbSomebodyWonGameKludge;
 extern BYTE gbActivePlayers;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;

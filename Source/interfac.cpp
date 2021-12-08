@@ -356,8 +356,6 @@ void ShowCutscene(unsigned uMsg)
 {
 	WNDPROC saveProc;
 
-	gbSomebodyWonGameKludge = false;
-
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
 
@@ -422,10 +420,6 @@ void ShowCutscene(unsigned uMsg)
 
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
-
-	if (gbSomebodyWonGameKludge && myplr._pDunLevel == DLV_HELL4) {
-		PrepDoEnding(gbSoundOn);
-	}
 }
 
 DEVILUTION_END_NAMESPACE
