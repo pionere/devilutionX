@@ -198,9 +198,9 @@ unsigned sync_all_monsters(const BYTE* pbBuf, unsigned dwMaxLen)
 	return dwMaxLen;
 }
 
-/*static void sync_monster(int pnum, const TSyncMonster *symon)
+/*static void sync_monster(int pnum, const TSyncMonster* symon)
 {
-	/*MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mnum, md;
 	DWORD delta;
 
@@ -242,22 +242,22 @@ unsigned sync_all_monsters(const BYTE* pbBuf, unsigned dwMaxLen)
 		md = GetDirection(symon->_mx, symon->_my, mon->_menemyx, mon->_menemyy);
 		MonStartStand(mnum, md);
 		mon->_msquelch = SQUELCH_MAX;
-	}*/
+	}
 }
 
-void sync_update(int pnum, const TSyncHeader *pHdr)
+void sync_update(int pnum, const TSyncHeader* pHdr)
 {
-	const BYTE *pbBuf;
+	const BYTE* pbBuf;
 	unsigned wLen;
 
-	pbBuf = (const BYTE *)&pHdr[1];
+	pbBuf = (const BYTE*)&pHdr[1];
 
 	//assert(pHdr->bCmd == CMD_SYNCDATA);
 	//assert(currLvl._dLevelIdx == pHdr->bLevel);
 	/// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
 	//assert(geBufferMsgs != MSG_GAME_DELTA && pnum != mypnum);
 	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
-		sync_monster(pnum, (TSyncMonster *)pbBuf);
+		sync_monster(pnum, (TSyncMonster*)pbBuf);
 		pbBuf += sizeof(TSyncMonster);
 	}
 	//assert(wLen == 0);
