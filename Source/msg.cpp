@@ -26,10 +26,8 @@ static TMegaPkt *sgpMegaPkt;
 static TMegaPkt *sgpCurrPkt;
 /* Flag to tell if the delta info is currently processed. */
 bool deltaload;
-
 /* Container to keep the delta info. */
 static DeltaData gsDeltaData;
-
 /* Counter to keep the progress of delta-load
  * 0..NUM_LEVELS     : level data
  * NUM_LEVELS + 1    : junk data (portals/quests)
@@ -614,7 +612,7 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 	// In vanilla code the value was discarded if hp was higher than the current one.
 	// That disregards the healing monsters.
 	// Now it is always updated except the monster is already dead.
-	//if (pD->_mCmd != DCMD_MON_DEAD)
+	//if (pD->_mCmd != DCMD_MON_DEAD && pD->_mCmd != DCMD_MON_DESTROYED)
 		pD->_mhitpoints = mon->mdHitpoints;
 }
 
@@ -659,7 +657,9 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		pSync = (TSyncMonster *)pbBuf;
 		pD = &pDLvlMons[pSync->_mndx];
-		if (pD->_mCmd != DCMD_MON_DEAD) {
+		static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_sync_monster expects ordered DCMD_MON_ enum I.");
+		static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_sync_monster expects ordered DCMD_MON_ enum II.");
+		if (pD->_mCmd < DCMD_MON_DEAD) {
 			pD->_mCmd = DCMD_MON_ACTIVE;
 			pD->_mx = pSync->_mx;
 			pD->_my = pSync->_my;
