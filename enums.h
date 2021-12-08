@@ -3149,6 +3149,7 @@ typedef enum _cmd_id {
 	CMD_TALKXY,
 	CMD_MONSTDEATH,
 	CMD_MONSTDAMAGE,
+	CMD_MONSTCORPSE,
 	CMD_AWAKEGOLEM,
 	CMD_PLRDEAD,
 	CMD_PLRRESURRECT,
@@ -3217,6 +3218,8 @@ typedef enum _dcmd_monster {
 	DCMD_MON_INVALID,
 	DCMD_MON_ACTIVE,
 	DCMD_MON_DEAD,
+	DCMD_MON_DESTROYED,
+	NUM_DCMD_MON
 } _dcmd_monster;
 
 typedef enum _msg_mode {

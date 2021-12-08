@@ -3790,7 +3790,7 @@ void MI_Stone(int mi)
 		if (mon->_mhitpoints >= (1 << 6))
 			mon->_mmode = mis->_miVar1;
 		else
-			AddDead(mis->_miVar2, false);
+			AddDead(mis->_miVar2, DCMD_MON_INVALID);
 		return;
 	}
 

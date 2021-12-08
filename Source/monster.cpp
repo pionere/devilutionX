@@ -2414,7 +2414,7 @@ static bool MonDoDeath(int mnum)
 		if (--mon->_mVar1 == 0) // DIABLO_TICK
 			PrepDoEnding(mon->_mVar2); // DIABLO_SOUND
 	} else if (mon->_mAnimFrame == mon->_mAnimLen) {
-		AddDead(mnum, false);
+		AddDead(mnum, DCMD_MON_INVALID);
 	}
 	return false;
 }
@@ -3402,8 +3402,10 @@ void MAI_Scav(int mnum)
 				mon->_mhitpoints += maxhp >> 3;
 				if (mon->_mhitpoints > maxhp)
 					mon->_mhitpoints = maxhp;
-				if (mon->_mhitpoints == maxhp || mon->_mgoalvar3 <= 0) // HEALING_ROUNDS
+				if (mon->_mhitpoints == maxhp || mon->_mgoalvar3 <= 0) { // HEALING_ROUNDS
+					NetSendCmdLocBParam1(CMD_MONSTCORPSE, mon->_mx, mon->_my, currLvl._dLevelIdx);
 					dDead[mon->_mx][mon->_my] = 0;
+				}
 			}
 			if (mon->_mhitpoints == maxhp) {
 #else

@@ -584,7 +584,9 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 
 	gsDeltaData.ddLevelChanged[bLevel] = true;
 	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
-	if (pD->_mCmd == DCMD_MON_DEAD)
+	static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_kill_monster expects ordered DCMD_MON_ enum I.");
+	static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_kill_monster expects ordered DCMD_MON_ enum II.");
+	if (pD->_mCmd >= DCMD_MON_DEAD)
 		return 0;
 	pD->_mCmd = DCMD_MON_DEAD;
 	pD->_mx = mon->mkX;
@@ -614,6 +616,26 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 	// Now it is always updated except the monster is already dead.
 	//if (pD->_mCmd != DCMD_MON_DEAD)
 		pD->_mhitpoints = mon->mdHitpoints;
+}
+
+static void delta_monster_corpse(const TCmdLocBParam1* pCmd)
+{
+	BYTE bLevel;
+	DMonsterStr* mon;
+	int i;
+
+	if (!IsMultiGame)
+		return;
+
+	bLevel = pCmd->bParam1;
+	//gsDeltaData.ddLevelChanged[bLevel] = true;
+	mon = gsDeltaData.ddLevel[bLevel].monster;
+	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].monster); i++, mon++) {
+		if (mon->_mCmd == DCMD_MON_DEAD
+		 && mon->_mx == pCmd->x && mon->_my == pCmd->y) {
+			mon->_mCmd = DCMD_MON_DESTROYED;
+		}
+	}
 }
 
 static void delta_sync_monster(const TSyncHeader *pHdr)
@@ -911,8 +933,10 @@ void DeltaLoadLevel()
 				// SyncDeadLight: inline for better performance + apply to moving monsters
 				if (mon->mlid != NO_LIGHT)
 					ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
-				if (mstr->_mCmd == DCMD_MON_DEAD) {
-					AddDead(i, true);
+				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
+				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
+				if (mstr->_mCmd >= DCMD_MON_DEAD) {
+					AddDead(i, mstr->_mCmd);
 				} else {
 					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
 					mon->_msquelch = mstr->_mactive;
@@ -1998,6 +2022,15 @@ static unsigned On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static unsigned On_MONSTCORPSE(TCmd *pCmd, int pnum)
+{
+	TCmdLocBParam1* cmd = (TCmdLocBParam1*)pCmd;
+
+	delta_monster_corpse(cmd);
+
+	return sizeof(*cmd);
+}
+
 static unsigned On_PLRDEAD(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
@@ -2625,6 +2658,8 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_MONSTDEATH(pCmd, pnum);
 	case CMD_MONSTDAMAGE:
 		return On_MONSTDAMAGE(pCmd, pnum);
+	case CMD_MONSTCORPSE:
+		return On_MONSTCORPSE(pCmd, pnum);
 	case CMD_AWAKEGOLEM:
 		return On_AWAKEGOLEM(pCmd, pnum);
 	case CMD_PLRDEAD:

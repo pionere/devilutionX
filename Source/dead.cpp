@@ -70,7 +70,14 @@ void InitDead()
 	assert(nd <= MAXDEAD);
 }
 
-void AddDead(int mnum, bool sync)
+/*
+ * Register a dead monster and add its corpse if it is in-game.
+ * monster is in-game if its status is DCMD_MON_INVALID.
+ *
+ * @param mnum: the monster which died
+ * @param bCmd: the status of the monster in delta
+ */
+void AddDead(int mnum, BYTE bCmd)
 {
 	MonsterStruct* mon;
 	int dx, dy;
@@ -82,14 +89,17 @@ void AddDead(int mnum, bool sync)
 	mon = &monsters[mnum];
 	mon->_mDelFlag = TRUE;
 
-	static_assert(MAXDEAD <= 0x1F, "Encoding of dDead requires the maximum number of deads to be low.");
-	dv = mon->_mmode == MM_STONE ? stonendx : (mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval);
-	dv = (dv & 0x1F) + (mon->_mdir << 5);
 	dx = mon->_mx;
 	dy = mon->_my;
-	if (!sync)
+	if (bCmd == DCMD_MON_INVALID) {
 		dMonster[dx][dy] = 0;
-	dDead[dx][dy] = dv;
+	}
+	if (bCmd != DCMD_MON_DESTROYED) {
+		static_assert(MAXDEAD <= 0x1F, "Encoding of dDead requires the maximum number of deads to be low.");
+		dv = mon->_mmode == MM_STONE ? stonendx : (mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval);
+		dv = (dv & 0x1F) + (mon->_mdir << 5);
+		dDead[dx][dy] = dv;
+	}
 }
 
 void SyncDeadLight()
