@@ -1383,6 +1383,20 @@ void NetSendCmdMonstDamage(int mnum, int hitpoints)
 	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdMonstCorpse(int mnum)
+{
+	TCmdLocBParam1 cmd;
+	MonsterStruct* mon;
+
+	mon = &monsters[mnum];
+	cmd.bCmd = CMD_MONSTCORPSE;
+	cmd.bParam1 = currLvl._dLevelIdx;
+	cmd.x = mon->_mx;
+	cmd.y = mon->_my;
+
+	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdString(unsigned int pmask)
 {
 	int dwStrLen;

@@ -83,8 +83,20 @@ void NetSendCmdMonstAttack(BYTE bCmd, int mnum, BYTE skill, char from);
  * @param from: the source of the skill
  */
 void NetSendCmdMonstSkill(int mnum, BYTE skill, char from);
+/** Update monster hp after it was damaged.
+ * @param mnum: the id of the monster
+ * @param hp: the hp of the monster after the damage
+ */
 void NetSendCmdMonstDamage(int mnum, int hitpoints);
+/** Register the death of a monster
+ * @param mnum: the id of the monster
+ * @param pnum: the id of the player who killed it
+ */
 void NetSendCmdMonstKill(int mnum, int pnum);
+/** Destroy corpses at a monster
+ * @param mnum: the id of the monster
+ */
+void NetSendCmdMonstCorpse(int mnum);
 void NetSendCmdGolem();
 void NetSendShrineCmd(BYTE type, int seed);
 void NetSendCmdQuest(BYTE q, bool extOnly);

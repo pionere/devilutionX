@@ -1627,8 +1627,10 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	int mx, my;
 
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
-	if (sendmsg)
+	if (sendmsg) {
 		NetSendCmdQuest(Q_DIABLO, false); // recipient should not matter
+		NetSendCmdMonstCorpse(mnum); // remove the 'corpse' of diablo
+	}
 	for (i = 0; i < nummonsters; i++) {
 		j = monstactive[i];
 		if (j == mnum)
@@ -3403,7 +3405,7 @@ void MAI_Scav(int mnum)
 				if (mon->_mhitpoints > maxhp)
 					mon->_mhitpoints = maxhp;
 				if (mon->_mhitpoints == maxhp || mon->_mgoalvar3 <= 0) { // HEALING_ROUNDS
-					NetSendCmdLocBParam1(CMD_MONSTCORPSE, mon->_mx, mon->_my, currLvl._dLevelIdx);
+					NetSendCmdMonstCorpse(mnum);
 					dDead[mon->_mx][mon->_my] = 0;
 				}
 			}
