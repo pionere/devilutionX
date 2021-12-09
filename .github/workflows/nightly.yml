@@ -146,6 +146,52 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
+  # IOS-builds
+  build_ios:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-IOS
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [diablo, hellfire]
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-ios.ipa'
+          - name: hellfire
+            cmakeargs: '-D HELLFIRE=ON'
+            artifact: 'hellfire-nightly-ios.ipa'
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Configure CMake
+      # Use a bash shell so we can use the same syntax for environment variable
+      # access regardless of the host operating system
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake  -DENABLE_BITCODE=0 -DPLATFORM=OS64 ${{ matrix.cmakeargs }}
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: >
+        cmake --build build -j $(sysctl -n hw.physicalcpu) --config Release &&
+        cd build &&
+        rm -rf Payload devilutionx.ipa &&
+        mkdir Payload &&
+        mv devilutionx.app Payload &&
+        zip -r devilutionx.ipa Payload
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        path: ${{ env.buildDir }}/devilutionx.ipa
+        name: ${{ matrix.artifact }}
   # Android-builds
   build_android:
     needs: build_check
