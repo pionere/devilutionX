@@ -840,10 +840,6 @@ static void LoadLevelData(bool full)
 		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
 		if (full)
 			CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
-		else {
-			memset(dMissile, 0, sizeof(dMissile));
-			assert(nummissiles == 0);
-		}
 	}
 }
 
@@ -1665,8 +1661,8 @@ void SaveLevel()
 {
 	BYTE* fileBuff;
 
-	if (currLvl._dLevelIdx == DLV_TOWN)
-		glSeedTbl[DLV_TOWN] = GetRndSeed();
+	//if (currLvl._dLevelIdx == DLV_TOWN)
+	//	glSeedTbl[DLV_TOWN] = GetRndSeed();
 
 	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
