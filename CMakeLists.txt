@@ -525,6 +525,17 @@ if(HELLFIRE)
 endif()
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
+elseif(APPLE)
+  add_executable(${BIN_TARGET}
+    MACOSX_BUNDLE
+    ${devilutionx_SRCS}
+    Packaging/apple/AppIcon.icns)
+elseif(WIN32)
+  add_executable(${BIN_TARGET}
+    WIN32
+    ${devilutionx_SRCS}
+    Packaging/windows/devilutionx.exe.manifest
+    Packaging/windows/devilutionx.rc)
 else()
   add_executable(${BIN_TARGET}
     WIN32
