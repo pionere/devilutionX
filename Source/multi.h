@@ -39,9 +39,23 @@ bool NetInit(bool bSinglePlayer);
 void multi_init_buffers();
 void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr);
 
+#ifdef NONET
+#define IsLocalGame	true
+#define IsMultiGame	(gbGameMode >= 1)
+#define IsGameSrv	false
+#elif defined(HOSTONLY)
+#define IsLocalGame	false
+#define IsMultiGame	true
+#define IsGameSrv	true
+#elif defined(NOHOSTING)
+#define IsLocalGame	(gbGameMode <= 1)
+#define IsMultiGame	(gbGameMode >= 1)
+#define IsGameSrv	false
+#else
 #define IsLocalGame	(gbGameMode <= 1)
 #define IsMultiGame	(gbGameMode >= 1)
 #define IsGameSrv	(gbGameMode == 3)
+#endif
 
 #ifdef __cplusplus
 }

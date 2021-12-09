@@ -457,7 +457,7 @@ void multi_process_msgs()
 		if (pkt->wLen != SwapLE16(dwMsgSize))
 			continue;
 		dwMsgSize -= sizeof(MsgPktHdr);
-		dwReadSize = ParseMsg(pnum, (TCmd*)(pkt + 1));
+		dwReadSize = ParseMsg(pnum, (TCmd*)&pkt[1]);
 		assert(dwReadSize == dwMsgSize);
 	}
 }
@@ -514,14 +514,18 @@ static int game_server_callback()
 	return gameProgress;
 }
 
-void RunGameServer()
+static void RunGameServer()
 {
 	currLvl._dLevelIdx = NUM_STDLVLS;
 	gbActivePlayers = 0;
 	gameProgress = 0;
 	UiProgressDialog("...Server is running...", game_server_callback);
 }
-#endif
+#else
+static void RunGameServer()
+{
+}
+#endif // !NOHOSTING
 
 /**
  * Send a (possible) large packet to the target player using TCmdPlrInfoHdr without using the queue.
@@ -684,11 +688,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 #endif
 			: (provider == SELCONN_LOOPBACK ? 1 : 2);
 		// select hero
-#ifndef NOHOSTING
 		if (!IsGameSrv && gbSelectHero) {
-#else
-		if (gbSelectHero) {
-#endif
 			dlgresult = UiSelHeroDialog(
 				pfile_ui_set_hero_infos,
 				pfile_ui_create_save,
@@ -708,12 +708,10 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		}
 		gbSelectHero = bSinglePlayer;
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
-#ifndef NOHOSTING
 		if (IsGameSrv) {
 			mypnum = SNPLAYER_MASTER;
 			sgGameInitInfo.bPlayerId = SNPLAYER_MASTER;
 		} else
-#endif
 			pfile_read_hero_from_save();
 
 		if (gbLoadGame) {
@@ -728,12 +726,10 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		//  sets sgGameInitInfo except for bPlayerId, dwSeed (if not joining a game) and dwVersionId
 		dlgresult = UiSelectGame(&sgGameInitInfo, multi_handle_events);
 		if (dlgresult == SELGAME_PREVIOUS) {
-#ifndef NOHOSTING
 			if (IsGameSrv) {
 				gbSelectProvider = true;
 				mypnum = 0;
 			}
-#endif
 			gbSelectHero = true;
 			continue;
 		}
@@ -798,14 +794,11 @@ bool NetInit(bool bSinglePlayer)
 		dthread_start();
 		gdwGameLogicTurn = 0;
 		nthread_send_turn();
-#ifndef NOHOSTING
 		if (IsGameSrv) {
 			RunGameServer();
 			NetClose();
 			continue;
 		}
-#endif // !NOHOSTING
-#ifndef HOSTONLY
 		nthread_run();
 		SetupLocalPlr();
 		if (!gbJoinGame)
@@ -816,7 +809,6 @@ bool NetInit(bool bSinglePlayer)
 			break;
 		}
 		NetClose();
-#endif
 	}
 	assert(mypnum == sgGameInitInfo.bPlayerId);
 	assert(gnTicksRate == sgGameInitInfo.bTickRate);
