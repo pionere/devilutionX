@@ -234,7 +234,7 @@ bool SpawnWindow(const char* lpWindowName)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	atexit(SDL_VideoQuit); // Without this video mode is not restored after fullscreen.
 #else
-	int flags = 0;
+	int flags = SDL_WINDOW_ALLOW_HIGHDPI;
 	if (upscale) {
 		if (gbFullscreen) {
 			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;

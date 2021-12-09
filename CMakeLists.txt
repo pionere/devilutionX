@@ -529,7 +529,8 @@ elseif(APPLE)
   add_executable(${BIN_TARGET}
     MACOSX_BUNDLE
     ${devilutionx_SRCS}
-    Packaging/apple/AppIcon.icns)
+    Packaging/apple/AppIcon.icns
+    Packaging/apple/LaunchScreen.storyboard)
 elseif(WIN32)
   add_executable(${BIN_TARGET}
     WIN32
@@ -847,6 +848,7 @@ if(APPLE)
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${PROJECT_VERSION}")
   if(IOS)
+    set_target_properties(${BIN_TARGET} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "9.0")
   else()
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12.0")
