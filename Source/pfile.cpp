@@ -12,6 +12,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define SAVEFILE_GAME				"game"
+#define SAVEFILE_HERO				"hero"
 #define PFILE_SAVE_MPQ_HASHCOUNT	2048
 #define PFILE_SAVE_MPQ_BLOCKCOUNT	2048
 #define PFILE_SAVE_INTERVAL			60000
@@ -264,7 +266,7 @@ static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
 	return true;
 }
 
-bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
+/*bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
 {
 	if (IsMultiGame) {
 		if (lvl != 0)
@@ -281,7 +283,7 @@ bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
 			return false;
 	}
 	return true;
-}
+}*/
 
 void pfile_ui_delete_save(_uiheroinfo* hero_info)
 {
@@ -310,36 +312,6 @@ void pfile_read_hero_from_save()
 	guNextSaveTc = SDL_GetTicks() + PFILE_SAVE_INTERVAL;
 }
 
-void GetTempLevelName(char (&szTemp)[MAX_PATH])
-{
-	GetTempLevelNames(currLvl._dLevelIdx, szTemp);
-}
-
-void GetPermLevelName(char (&szPerm)[MAX_PATH])
-{
-	HANDLE archive;
-
-	archive = pfile_open_save_archive(mySaveIdx);
-	if (archive == NULL)
-		app_fatal("Unable to open file archive");
-
-	GetTempLevelName(szPerm);
-	if (!SFileOpenFileEx(archive, szPerm, SFILE_OPEN_CHECK_EXISTS, NULL)) {
-		GetPermLevelNames(currLvl._dLevelIdx, szPerm);
-	}
-	SFileCloseArchive(archive);
-}
-
-void pfile_remove_temp_files()
-{
-	if (!IsMultiGame) {
-		if (!pfile_open_archive())
-			app_fatal("Unable to open file archive");
-		mpqapi_remove_hash_entries(GetTempLevelNames);
-		pfile_flush(true);
-	}
-}
-
 void pfile_rename_temp_to_perm()
 {
 	unsigned dwIndex;
@@ -366,9 +338,11 @@ void pfile_rename_temp_to_perm()
 	pfile_flush(true);
 }
 
-void pfile_write_save_file(const char* pszName, BYTE* pbData, DWORD dwLen)
+void pfile_write_save_file(bool full, DWORD dwLen)
 {
 	DWORD qwLen;
+	char pszName[MAX_PATH] = SAVEFILE_GAME;
+	BYTE* pbData = gsDeltaData.ddBuffer;
 
 	qwLen = codec_get_encoded_len(dwLen);
 
@@ -379,37 +353,59 @@ void pfile_write_save_file(const char* pszName, BYTE* pbData, DWORD dwLen)
 	}
 	if (!pfile_open_archive())
 		app_fatal("Unable to open file archive");
+
+	if (!full)
+		GetTempLevelNames(currLvl._dLevelIdx, pszName);
 	mpqapi_write_file(pszName, pbData, qwLen);
 	pfile_flush(true);
 }
 
-void pfile_delete_save_file(const char* pszName)
+void pfile_delete_save_file(bool full)
 {
-	if (!pfile_open_archive())
-		app_fatal("Unable to open file archive");
-	mpqapi_remove_hash_entry(pszName);
-	pfile_flush(true);
+	if (!IsMultiGame) {
+		if (!pfile_open_archive())
+			app_fatal("Unable to open file archive");
+		if (full)
+			mpqapi_remove_hash_entry(SAVEFILE_GAME);
+		else
+			mpqapi_remove_hash_entries(GetTempLevelNames);
+		pfile_flush(true);
+	}
 }
 
-BYTE* pfile_read(const char* pszName)
+void pfile_read_save_file(bool full)
 {
 	DWORD len;
 	HANDLE archive, save;
-	BYTE* buf;
+	char pszName[MAX_PATH] = SAVEFILE_GAME;
+	int source;
 
 	archive = pfile_open_save_archive(mySaveIdx);
 	if (archive == NULL)
 		app_fatal("Unable to open file archive");
 
-	if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save))
+	source = 0;
+nextSource:
+	if (!full) {
+		if (source == 0)
+			GetTempLevelNames(currLvl._dLevelIdx, pszName);
+		else
+			GetPermLevelNames(currLvl._dLevelIdx, pszName);
+	}
+
+	if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save)) {
+		source++;
+		if (source == 1) {
+			goto nextSource;
+		}
 		app_fatal("Unable to open save file");
+	}
 
 	len = SFileGetFileSize(save);
-	if (len == 0)
+	if (len == 0 || len > sizeof(gsDeltaData.ddBuffer))
 		app_fatal("Invalid save file");
 
-	buf = DiabloAllocPtr(len);
-	if (!SFileReadFile(save, buf, len))
+	if (!SFileReadFile(save, gsDeltaData.ddBuffer, len))
 		app_fatal("Unable to read save file");
 	SFileCloseFile(save);
 	SFileCloseArchive(archive);
@@ -417,12 +413,11 @@ BYTE* pfile_read(const char* pszName)
 	{
 		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
-		len = codec_decode(buf, len, password);
+		len = codec_decode(gsDeltaData.ddBuffer, len, password);
 		if (len == 0) {
 			app_fatal("Invalid save file");
 		}
 	}
-	return buf;
 }
 
 void pfile_update(bool force_save)

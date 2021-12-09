@@ -8,9 +8,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SAVEFILE_GAME	"game"
-#define SAVEFILE_HERO	"hero"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -26,14 +23,20 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *));
 //void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats);
 int pfile_ui_create_save(_uiheroinfo* heroinfo);
 void pfile_ui_delete_save(_uiheroinfo* hero_info);
-bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH]);
-void GetTempLevelName(char (&szTemp)[MAX_PATH]);
-void GetPermLevelName(char (&szPerm)[MAX_PATH]);
-void pfile_remove_temp_files();
+//bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH]);
 void pfile_rename_temp_to_perm();
-void pfile_write_save_file(const char* pszName, BYTE* pbData, DWORD dwLen);
-void pfile_delete_save_file(const char* pszName);
-BYTE* pfile_read(const char* pszName);
+/*
+ * Write save file (game or level) from gsDeltaData.ddBuffer
+ */
+void pfile_write_save_file(bool full, DWORD dwLen);
+/*
+ * Delete save file (game or temp-levels)
+ */
+void pfile_delete_save_file(bool full);
+/*
+ * Read save file (game or level) into gsDeltaData.ddBuffer
+ */
+void pfile_read_save_file(bool full);
 void pfile_update(bool force_save);
 
 #ifdef __cplusplus

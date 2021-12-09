@@ -369,7 +369,7 @@ void ShowCutscene(unsigned uMsg)
 			LoadGame();
 		} else {
 			//FreeLevelMem();
-			pfile_remove_temp_files();
+			pfile_delete_save_file(false);
 			LoadGameLevel(ENTRY_MAIN);
 		}
 		IncProgress();

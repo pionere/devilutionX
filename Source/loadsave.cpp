@@ -860,8 +860,9 @@ void LoadGame()
 	// TODO: UIDisconnectGame() ?
 	SNetLeaveGame(LEAVE_UNKNOWN);
 
-	pfile_remove_temp_files();
-	fileBuff = pfile_read(SAVEFILE_GAME);
+	pfile_delete_save_file(false);
+	pfile_read_save_file(true);
+	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
 	LoadInt(&i);
@@ -955,8 +956,6 @@ void LoadGame()
 		for (i = 0; i < MAX_TOWNERS; i++)
 			LoadTowner(i);
 	}
-
-	mem_free_dbg(fileBuff);
 
 	InitAutomapScale();
 	//ResyncQuests();
@@ -1545,7 +1544,7 @@ static void SaveLevelData(bool full)
 void SaveGame()
 {
 	int i;
-	BYTE* fileBuff = DiabloAllocPtr(FILEBUFF);
+	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
 	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 14004 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
@@ -1652,12 +1651,11 @@ void SaveGame()
 
 	constexpr size_t tst = ss + slt + smt;
 	constexpr size_t tsd = ss + sld + smd;
-	constexpr size_t mss = FILEBUFF - SHA1BlockSize - 8/*sizeof(CodecSignature)*/;
+	constexpr size_t mss = sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8/*sizeof(CodecSignature)*/;
 	static_assert(tst < mss, "Town might not fit to the preallocated buffer.");
 	static_assert(tsd < mss, "Dungeon might not fit to the preallocated buffer.");
 	assert(tbuff - fileBuff < mss);
-	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff);
-	mem_free_dbg(fileBuff);
+	pfile_write_save_file(true, tbuff - fileBuff);
 	gbValidSaveFile = true;
 	pfile_rename_temp_to_perm();
 	pfile_write_hero(true);
@@ -1665,36 +1663,30 @@ void SaveGame()
 
 void SaveLevel()
 {
-	char szName[MAX_PATH];
 	BYTE* fileBuff;
 
 	if (currLvl._dLevelIdx == DLV_TOWN)
 		glSeedTbl[DLV_TOWN] = GetRndSeed();
 
-	fileBuff = DiabloAllocPtr(FILEBUFF);
+	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
 	SaveLevelData(false);
 
-	GetTempLevelName(szName);
-	assert(tbuff - fileBuff < FILEBUFF - SHA1BlockSize - 8/*sizeof(CodecSignature)*/);
-	pfile_write_save_file(szName, fileBuff, tbuff - fileBuff);
-	mem_free_dbg(fileBuff);
+	assert(tbuff - fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8/*sizeof(CodecSignature)*/);
+	pfile_write_save_file(false, tbuff - fileBuff);
 }
 
 void LoadLevel()
 {
 	int i;
-	char szName[MAX_PATH];
 	BYTE *fileBuff, *tmp;
 
-	GetPermLevelName(szName);
-	fileBuff = pfile_read(szName);
+	pfile_read_save_file(false);
+	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
 	LoadLevelData(false);
-
-	mem_free_dbg(fileBuff);
 
 	//ResyncQuests();
 	//SyncPortals();

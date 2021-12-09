@@ -2395,7 +2395,7 @@ static void PrepDoEnding(bool soundOn)
 		// save the hero + items
 		pfile_write_hero(true);
 		// delete the game
-		pfile_delete_save_file(SAVEFILE_GAME);
+		pfile_delete_save_file(true);
 	}
 }
 

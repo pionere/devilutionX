@@ -1238,13 +1238,18 @@ typedef struct DBuffer {
 } DBuffer;
 
 typedef struct DeltaData {
-	DJunk ddJunk;					// portals and quests
-	DLevel ddLevel[NUM_LEVELS];		// items/monsters/objects
-	LocalLevel ddLocal[NUM_LEVELS];	// automap
-	DBuffer ddSendRecvBuf;			// Buffer to send/receive delta info
-	unsigned ddSendRecvOffset;		// offset in the buffer
-	bool ddLevelChanged[NUM_LEVELS];
-	bool ddJunkChanged;
+	union {
+		struct {
+			DJunk ddJunk;					// portals and quests
+			DLevel ddLevel[NUM_LEVELS];		// items/monsters/objects
+			LocalLevel ddLocal[NUM_LEVELS];	// automap
+			DBuffer ddSendRecvBuf;			// Buffer to send/receive delta info
+			unsigned ddSendRecvOffset;		// offset in the buffer
+			bool ddLevelChanged[NUM_LEVELS];
+			bool ddJunkChanged;
+		};
+		BYTE ddBuffer[FILEBUFF];
+	};
 } DeltaData;
 
 typedef struct TCmdSendJoinLevel {

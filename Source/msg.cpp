@@ -26,8 +26,8 @@ static TMegaPkt *sgpMegaPkt;
 static TMegaPkt *sgpCurrPkt;
 /* Flag to tell if the delta info is currently processed. */
 bool deltaload;
-/* Container to keep the delta info. */
-static DeltaData gsDeltaData;
+/* Container to keep the delta info (multi) and save file data (single). */
+DeltaData gsDeltaData;
 /* Counter to keep the progress of delta-load
  * 0..NUM_LEVELS     : level data
  * NUM_LEVELS + 1    : junk data (portals/quests)
@@ -1425,8 +1425,10 @@ void delta_close_portal(int pnum)
 
 static void check_update_plr(int pnum)
 {
-	if (IsMultiGame && pnum == mypnum)
+	if (IsMultiGame) {
+		assert(pnum == mypnum);
 		pfile_update(true);
+	}
 }
 
 static void msg_errorf(const char *pszFmt, ...)

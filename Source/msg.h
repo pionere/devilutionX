@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern bool deltaload;
+extern DeltaData gsDeltaData;
 extern _msg_mode geBufferMsgs;
 extern char gbNetMsg[MAX_SEND_STR_LEN];
 

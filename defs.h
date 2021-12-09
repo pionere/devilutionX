@@ -148,8 +148,8 @@
 
 #define MAX_PATH_LENGTH			23
 
-// 512 kilobytes .. (was 256 kb in vanilla which is not safe)
-#define FILEBUFF				(512 * 1024)
+// 272 kilobytes .. (was 256 kb in vanilla which is not safe)
+#define FILEBUFF				(272 * 1024)
 
 #define PMSG_COUNT				8
 
