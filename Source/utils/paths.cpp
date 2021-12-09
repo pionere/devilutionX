@@ -2,6 +2,10 @@
 
 #include <SDL.h>
 
+#ifdef __IPHONEOS__
+#include "platform/ios/ios_paths.h"
+#endif
+
 #ifdef USE_SDL1
 #include "utils/sdl2_to_1_2_backports.h"
 #endif
@@ -36,7 +40,11 @@ static void FromSDL(std::string &path, bool base)
 		return;
 	}
 	// the path was not set explicitly -> get it from SDL
+#ifdef __IPHONEOS__
+	s = base ? SDL_GetBasePath() : IOSGetPrefPath();
+#else
 	s = base ? SDL_GetBasePath() : SDL_GetPrefPath("diasurgical", "devilx");
+#endif
 	if (s != NULL) {
 		path = s;
 		SDL_free(s);
