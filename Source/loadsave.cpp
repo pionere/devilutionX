@@ -871,9 +871,9 @@ void LoadGame()
 	LoadInt32(&gdwGameLogicTurn);
 	LoadInt32(&sgbSentThisCycle);
 	LoadInt(&i);
+	gnDifficulty = (i >> 8) & 0xFF;
 	currLvl._dLevelIdx = i & 0xFF;
 	EnterLevel(i & 0xFF);
-	gnDifficulty = (i >> 8) & 0xFF;
 	for (i = 0; i < NUM_LEVELS; i++) {
 		LoadInt(&glSeedTbl[i]);
 	}
