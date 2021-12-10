@@ -30,7 +30,7 @@ typedef struct RECT32 {
 //////////////////////////////////////////////////
 
 typedef struct AffixData {
-	const char *PLName;
+	const char* PLName;
 	BYTE PLPower;
 	int PLParam1;
 	int PLParam2;
@@ -45,7 +45,7 @@ typedef struct AffixData {
 } AffixData;
 
 typedef struct UniqItemData {
-	const char *UIName;
+	const char* UIName;
 	BYTE UIItemId;
 	BYTE UIMinLvl;
 	int UIValue;
@@ -142,7 +142,7 @@ typedef struct ItemStruct {
 	BYTE _iMinMag;
 	BYTE _iMinDex;
 	BOOL _iAnimFlag;
-	BYTE *_iAnimData;        // PSX name -> ItemFrame
+	BYTE* _iAnimData;        // PSX name -> ItemFrame
 	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
 	unsigned _iAnimLen;      // Number of frames in current animation
@@ -242,7 +242,7 @@ typedef struct PlayerStruct {
 	int _pxvel;   // Pixel X-velocity while walking. Indirectly applied to _pxoff via _pvar6
 	int _pyvel;   // Pixel Y-velocity while walking. Indirectly applied to _pyoff via _pvar7
 	int _pdir;    // Direction faced by player (direction enum)
-	BYTE *_pAnimData;
+	BYTE* _pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
 	int _pAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
 	unsigned _pAnimLen;   // Number of frames in current animation
@@ -299,29 +299,29 @@ typedef struct PlayerStruct {
 	int _pVar7;
 	int _pVar8;
 	int _pGFXLoad;
-	BYTE *_pNAnim[NUM_DIRS]; // Stand animations
+	BYTE* _pNAnim[NUM_DIRS]; // Stand animations
 	unsigned _pNFrames;
 	int _pNWidth;
-	BYTE *_pWAnim[NUM_DIRS]; // Walk animations
+	BYTE* _pWAnim[NUM_DIRS]; // Walk animations
 	unsigned _pWFrames;
 	int _pWWidth;
-	BYTE *_pAAnim[NUM_DIRS]; // Attack animations
+	BYTE* _pAAnim[NUM_DIRS]; // Attack animations
 	unsigned _pAFrames;
 	int _pAWidth;
 	unsigned _pAFNum;
-	BYTE *_pLAnim[NUM_DIRS]; // Lightning spell cast animations
-	BYTE *_pFAnim[NUM_DIRS]; // Fire spell cast animations
-	BYTE *_pTAnim[NUM_DIRS]; // Generic spell cast animations
+	BYTE* _pLAnim[NUM_DIRS]; // Lightning spell cast animations
+	BYTE* _pFAnim[NUM_DIRS]; // Fire spell cast animations
+	BYTE* _pTAnim[NUM_DIRS]; // Generic spell cast animations
 	unsigned _pSFrames;
 	int _pSWidth;
 	unsigned _pSFNum;
-	BYTE *_pHAnim[NUM_DIRS]; // Getting hit animations
+	BYTE* _pHAnim[NUM_DIRS]; // Getting hit animations
 	unsigned _pHFrames;
 	int _pHWidth;
-	BYTE *_pDAnim[NUM_DIRS]; // Death animations
+	BYTE* _pDAnim[NUM_DIRS]; // Death animations
 	unsigned _pDFrames;
 	int _pDWidth;
-	BYTE *_pBAnim[NUM_DIRS]; // Block animations
+	BYTE* _pBAnim[NUM_DIRS]; // Block animations
 	unsigned _pBFrames;
 	int _pBWidth;
 	ItemStruct _pHoldItem;
@@ -367,15 +367,15 @@ typedef struct PlayerStruct {
 	int _pIMMaxDam; // max magic damage (item's added magic damage)
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
-	BYTE *_pNData;
-	BYTE *_pWData;
-	BYTE *_pAData;
-	BYTE *_pLData;
-	BYTE *_pFData;
-	BYTE *_pTData;
-	BYTE *_pHData;
-	BYTE *_pDData;
-	BYTE *_pBData;
+	BYTE* _pNData;
+	BYTE* _pWData;
+	BYTE* _pAData;
+	BYTE* _pLData;
+	BYTE* _pFData;
+	BYTE* _pTData;
+	BYTE* _pHData;
+	BYTE* _pDData;
+	BYTE* _pBData;
 #ifdef X86_32bit_COMP
 	int alignment[205];
 #endif
@@ -390,7 +390,7 @@ static_assert((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align P
 //////////////////////////////////////////////////
 
 typedef struct TextData {
-	const char *txtstr;
+	const char* txtstr;
 	BOOLEAN scrlltxt;
 	BOOLEAN txtsfxset;
 	int txtspd;
@@ -425,7 +425,7 @@ static_assert((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align Mis
 
 typedef struct MisFileData {
 	int mfAnimFAmt;
-	const char *mfName;
+	const char* mfName;
 	const char* mfAnimTrans;
 	int mfFlags;
 	BYTE mfAnimFrameLen[16];
@@ -534,8 +534,8 @@ typedef struct SFXStruct {
 //////////////////////////////////////////////////
 
 typedef struct AnimStruct {
-	BYTE *aCelData;
-	BYTE *aData[NUM_DIRS];
+	BYTE* aCelData;
+	BYTE* aData[NUM_DIRS];
 	int aFrames;
 	int aFrameLen;
 #ifdef X86_32bit_COMP
@@ -549,7 +549,7 @@ static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align Anim
 typedef struct MonsterData {
 	int moFileNum;
 	const char* mTransFile;
-	const char *mName;
+	const char* mName;
 	BYTE mLevel;
 	BYTE mSelFlag;
 	BYTE mAi;
@@ -582,8 +582,8 @@ static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align Mon
 
 typedef struct MonFileData {
 	int moImage;
-	const char *moGfxFile;
-	const char *moSndFile;
+	const char* moGfxFile;
+	const char* moSndFile;
 	int moAnimFrames[NUM_MON_ANIM];
 	int moAnimFrameLen[NUM_MON_ANIM];
 	BYTE moWidth;
@@ -606,7 +606,7 @@ typedef struct MapMonData {
 	BOOLEAN cmSndSpecial;
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
-	const MonsterData *cmData;
+	const MonsterData* cmData;
 #ifdef X86_32bit_COMP
 	int alignment[2];
 #endif
@@ -640,7 +640,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 	BYTE _mListener;        // the player to whom the monster is talking to
-	BYTE *_mAnimData;
+	BYTE* _mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	int _mAnimLen;   // Number of frames in current animation
@@ -689,10 +689,10 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	uint16_t _mTreasure;
 	uint16_t _mExp;
 	int mtalkmsg;
-	const char *mName;
-	MapMonData *MType;
+	const char* mName;
+	MapMonData* MType;
 	int _mType;
-	AnimStruct *_mAnims;
+	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
 #ifdef X86_32bit_COMP
@@ -706,8 +706,8 @@ static_assert((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align
 
 typedef struct UniqMonData {
 	int mtype;
-	const char *mName;
-	const char *mTrnName;
+	const char* mName;
+	const char* mTrnName;
 	BYTE muLevelIdx; // level-index to place the monster
 	BYTE muLevel;    // difficulty level of the monster
 	uint16_t mmaxhp;
@@ -1270,13 +1270,13 @@ typedef struct TCmdAckJoinLevel {
 #pragma pack(pop)
 
 typedef struct TMegaPkt {
-	struct TMegaPkt *pNext;
+	struct TMegaPkt* pNext;
 	unsigned dwSpaceLeft;
-	BYTE data[0x8000 - sizeof(TMegaPkt *) - sizeof(unsigned)];
+	BYTE data[0x8000 - sizeof(TMegaPkt*) - sizeof(unsigned)];
 } TMegaPkt;
 
 typedef struct DMegaPkt {
-	struct DMegaPkt *dmpNext;
+	struct DMegaPkt* dmpNext;
 	int dmpPlr;
 	unsigned dmpLen;
 	BYTE dmpCmd;
@@ -1357,7 +1357,7 @@ typedef struct QuestData {
 	BYTE _qdlvl;
 	BYTE _qslvl;
 	int _qdmsg;
-	const char *_qlstr;
+	const char* _qlstr;
 } QuestData;
 
 //////////////////////////////////////////////////
@@ -1367,7 +1367,7 @@ typedef struct QuestData {
 // TPDEF PTR FCN VOID TMenuFcn
 
 typedef struct TMenuItem {
-	const char *pszStr;
+	const char* pszStr;
 	void (*fnMenu)(bool); /* fix, should have one arg */
 	uint32_t dwFlags;
 	//union {
@@ -1390,7 +1390,7 @@ typedef struct SpellData {
 	BYTE sManaCost;
 	BYTE sType;
 	BYTE sIcon;
-	const char *sNameText;
+	const char* sNameText;
 	char sBookLvl;
 	char sStaffLvl;
 	char sScrollLvl;
@@ -1661,9 +1661,9 @@ typedef struct PATHNODE {
 	BYTE walkCost;
 	int x;
 	int y;
-	struct PATHNODE *Parent;
-	struct PATHNODE *Child[NUM_DIRS];
-	struct PATHNODE *NextNode;
+	struct PATHNODE* Parent;
+	struct PATHNODE* Child[NUM_DIRS];
+	struct PATHNODE* NextNode;
 #ifdef X86_32bit_COMP
 	int alignment[3];
 #endif
@@ -1692,7 +1692,7 @@ typedef struct SHA1Context {
 //////////////////////////////////////////////////
 
 typedef struct TMsgHdr {
-	TMsgHdr *pNext;
+	TMsgHdr* pNext;
 	uint32_t dwTime;
 	//BYTE bLen;
 	// this is actually alignment padding, but the message body is appended to the struct
@@ -1804,9 +1804,9 @@ typedef struct _PcxHeader {
 //////////////////////////////////////////////////
 
 typedef struct TDataInfo {
-	BYTE *srcData;
+	BYTE* srcData;
 	DWORD srcOffset;
-	BYTE *destData;
+	BYTE* destData;
 	DWORD destOffset;
 	DWORD size;
 } TDataInfo;
