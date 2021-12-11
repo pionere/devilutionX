@@ -8,6 +8,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #if INT_MAX == INT32_MAX && INTPTR_MAX == INT32_MAX
 #define X86_32bit_COMP
+#elif INT_MAX == INT32_MAX && INTPTR_MAX == INT64_MAX
+#define X86_64bit_COMP
 #endif
 //////////////////////////////////////////////////
 // control
@@ -69,10 +71,12 @@ typedef struct UniqItemData {
 	int UIParam6b;
 #ifdef X86_32bit_COMP
 	int alignment[3];
+#elif defined(X86_64bit_COMP)
+	int alignment[2];
 #endif
 } UniqItemData;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(UniqItemData) & (sizeof(UniqItemData) - 1)) == 64, "Align UniqItemData to power of 2 for better performance.");
 #endif
 
@@ -81,9 +85,12 @@ typedef struct ItemFileData {
 	int idSFX;          // sounds effect of dropping the item on ground.
 	int iiSFX;          // sounds effect of placing the item in the inventory.
 	int iAnimLen;       // item drop animation length
+#ifdef X86_64bit_COMP
+	int alignment[2];
+#endif
 } ItemFileData;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(ItemFileData) & (sizeof(ItemFileData) - 1)) == 0, "Align ItemFileData to power of 2 for better performance.");
 #endif
 
@@ -112,10 +119,12 @@ typedef struct ItemData {
 	int iValue;
 #ifdef X86_32bit_COMP
 	int alignment[5];
+#elif defined(X86_64bit_COMP)
+	int alignment[2];
 #endif
 } ItemData;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData to power of 2 for better performance.");
 #endif
 
@@ -198,10 +207,12 @@ typedef struct ItemStruct {
 	BOOL _iStatFlag;
 #ifdef X86_32bit_COMP
 	int alignment[5];
+#elif defined(X86_64bit_COMP)
+	int alignment[4];
 #endif
 } ItemStruct;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 0, "Align ItemStruct closer to power of 2 for better performance.");
 #endif
 
@@ -378,10 +389,12 @@ typedef struct PlayerStruct {
 	BYTE* _pBData;
 #ifdef X86_32bit_COMP
 	int alignment[205];
+#elif defined(X86_64bit_COMP)
+	int alignment[118];
 #endif
 } PlayerStruct;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align PlayerStruct closer to power of 2 for better performance.");
 #endif
 
@@ -417,9 +430,12 @@ typedef struct MissileData {
 	int miSFX;
 	BYTE mlSFXCnt;
 	BYTE miSFXCnt;
+#ifdef X86_64bit_COMP
+	int alignment[4];
+#endif
 } MissileData;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align MissileData to power of 2 for better performance.");
 #endif
 
@@ -434,9 +450,11 @@ typedef struct MisFileData {
 	int mfAnimXOffset;
 #ifdef X86_32bit_COMP
 	int alignment[2];
+#elif defined(X86_64bit_COMP)
+	int alignment[14];
 #endif
 } MisFileData;
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
 #endif
 
@@ -490,11 +508,15 @@ typedef struct MissileStruct {
 	int _miVar8;
 #ifdef X86_32bit_COMP
 	int alignment[4];
+#elif defined(X86_64bit_COMP)
+	int alignment[18];
 #endif
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 128, "Align MissileStruct closer to power of 2 for better performance.");
+#elif defined(X86_64bit_COMP)
+static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 0, "Align MissileStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -544,6 +566,8 @@ typedef struct AnimStruct {
 } AnimStruct;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align AnimStruct closer to power of 2 for better performance.");
+#elif defined(X86_64bit_COMP)
+static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 64, "Align AnimStruct closer to power of 2 for better performance.");
 #endif
 
 typedef struct MonsterData {
@@ -576,7 +600,7 @@ typedef struct MonsterData {
 	int alignment[3];
 #endif
 } MonsterData;
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
 #endif
 
@@ -593,6 +617,8 @@ typedef struct MonFileData {
 } MonFileData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align MonFileData to power of 2 for better performance.");
+#elif defined(X86_64bit_COMP)
+static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 64, "Align MonFileData to power of 2 for better performance.");
 #endif
 
 typedef struct MapMonData {
@@ -613,6 +639,8 @@ typedef struct MapMonData {
 } MapMonData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 256, "Align MapMonData closer to power of 2 for better performance.");
+#elif defined(X86_64bit_COMP)
+static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align MapMonData closer to power of 2 for better performance.");
 #endif
 
 typedef struct MonsterStruct { // note: missing field _mAFNum
@@ -697,10 +725,12 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mAnimXOffset;
 #ifdef X86_32bit_COMP
 	int alignment[9];
+#elif defined(X86_64bit_COMP)
+	int alignment[2];
 #endif
 } MonsterStruct;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align MonsterStruct to power of 2 for better performance.");
 #endif
 
@@ -723,9 +753,12 @@ typedef struct UniqMonData {
 	BYTE mUnqAC;
 	BYTE mQuestId;
 	int mtalkmsg;
+#ifdef X86_64bit_COMP
+	int alignment[4];
+#endif
 } UniqMonData;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align UniqMonData to power of 2 for better performance.");
 #endif
 
@@ -753,12 +786,12 @@ typedef struct ObjectData {
 	BYTE oDoorFlag;
 	BYTE oSelFlag;
 	BOOLEAN oTrapFlag;
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 	int alignment[1];
 #endif
 } ObjectData;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(ObjectData) & (sizeof(ObjectData) - 1)) == 0, "Align ObjectData closer to power of 2 for better performance.");
 #endif
 
@@ -779,7 +812,7 @@ typedef struct ObjFileData {
 #endif
 } ObjFileData;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(ObjFileData) & (sizeof(ObjFileData) - 1)) == 0, "Align ObjFileData closer to power of 2 for better performance.");
 #endif
 
@@ -818,10 +851,12 @@ typedef struct ObjectStruct {
 	int _oVar8;
 #ifdef X86_32bit_COMP
 	int alignment[7];
+#elif defined(X86_64bit_COMP)
+	int alignment[4];
 #endif
 } ObjectStruct;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(ObjectStruct) & (sizeof(ObjectStruct) - 1)) == 0, "Align ObjectStruct to power of 2 for better performance.");
 #endif
 
@@ -836,7 +871,7 @@ typedef struct PortalStruct {
 	int level;
 } PortalStruct;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(PortalStruct) & (sizeof(PortalStruct) - 1)) == 0, "Align PortalStruct closer to power of 2 for better performance.");
 #endif
 
@@ -1333,6 +1368,8 @@ typedef struct LevelData {
 
 #ifdef X86_32bit_COMP
 static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 0, "Align LevelData to power of 2 for better performance.");
+#elif defined(X86_64bit_COMP)
+static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 128, "Align LevelData to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -1349,7 +1386,7 @@ typedef struct QuestStruct {
 	int _qty;
 } QuestStruct;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align QuestStruct to power of 2 for better performance.");
 #endif
 
@@ -1407,8 +1444,11 @@ typedef struct SpellData {
 	WORD sStaffMax;
 	int sBookCost;
 	int sStaffCost; // == sScrollCost
+#ifdef X86_64bit_COMP
+	int alignment[6];
+#endif
 } SpellData;
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellData to power of 2 for better performance.");
 #endif
 
@@ -1444,9 +1484,11 @@ typedef struct TownerStruct {
 	const char* _tName;
 #ifdef X86_32bit_COMP
 	int alignment[9];
+#elif defined(X86_64bit_COMP)
+	int alignment[6];
 #endif
 } TownerStruct;
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");
 #endif
 
@@ -1533,7 +1575,7 @@ typedef struct ThemeStruct {
 	BYTE ttval;
 } ThemeStruct;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(ThemeStruct) & (sizeof(ThemeStruct) - 1)) == 0, "Align ThemeStruct to power of 2 for better performance.");
 #endif
 
@@ -1564,7 +1606,7 @@ typedef struct LightListStruct {
 	int _yoff;
 } LightListStruct;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "Align LightListStruct closer to power of 2 for better performance.");
 #endif
 
@@ -1578,10 +1620,15 @@ typedef struct DeadStruct {
 	int _deadWidth;
 	int _deadXOffset;
 	BYTE _deadtrans;
+#ifdef X86_64bit_COMP
+	int alignment[12];
+#endif
 } DeadStruct;
 
 #ifdef X86_32bit_COMP
 static_assert((sizeof(DeadStruct) & (sizeof(DeadStruct) - 1)) == 32, "Align DeadStruct closer to power of 2 for better performance.");
+#elif defined(X86_64bit_COMP)
+static_assert((sizeof(DeadStruct) & (sizeof(DeadStruct) - 1)) == 0, "Align DeadStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -1666,10 +1713,12 @@ typedef struct PATHNODE {
 	struct PATHNODE* NextNode;
 #ifdef X86_32bit_COMP
 	int alignment[3];
+#elif defined(X86_64bit_COMP)
+	int alignment[8];
 #endif
 } PATHNODE;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(PATHNODE) & (sizeof(PATHNODE) - 1)) == 0, "Align PATHNODE closer to power of 2 for better performance.");
 #endif
 
@@ -1760,7 +1809,7 @@ typedef struct STextStruct {
 	int _sval;
 } STextStruct;
 
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align STextStruct closer to power of 2 for better performance.");
 #endif
 
