@@ -38,7 +38,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 install_deps() {
 	#sudo apt install -y cmake libsdl2-ttf-dev libsdl2-mixer-dev
-	sudo apt install -y cmake libsdl2-mixer-dev
+	sudo apt install -y cmake
 }
 
 main() {

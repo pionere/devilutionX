@@ -228,10 +228,6 @@ endif()
 
 if(USE_SDL1)
   find_package(SDL REQUIRED)
-  if(NOT NOSOUND)
-    find_package(SDL_mixer REQUIRED)
-    #set(SDL_MIXER_LIBRARY SDL::SDL_mixer) ?
-  endif()
   include_directories(${SDL_INCLUDE_DIR})
 elseif(DEVILUTIONX_SYSTEM_SDL2)
   find_package(SDL2 REQUIRED)
@@ -255,16 +251,27 @@ elseif(DEVILUTIONX_SYSTEM_SDL2)
     # Can't define an INTERFACE target with ::, so alias instead
     add_library(SDL2::SDL2 ALIAS SDL2_lib)
   endif()
-  if(NOT NOSOUND)
-    find_package(SDL2_mixer REQUIRED)
-    set(SDL_MIXER_LIBRARY SDL2::SDL2_mixer)
-  endif()
 else()
   add_subdirectory(3rdParty/SDL2)
-  if(NOT NOSOUND)
-    add_subdirectory(3rdParty/SDL2_mixer)
-    set(SDL_MIXER_LIBRARY SDL2::SDL2_mixer)
+endif()
+
+if(NOT NOSOUND)
+  add_definitions(-DMUSIC_WAV)
+  add_library(SDL2_mixer STATIC
+    3rdParty/SDL2_mixer/src/effect_position.c
+    3rdParty/SDL2_mixer/src/effects_internal.c
+    3rdParty/SDL2_mixer/src/mixer.c
+    3rdParty/SDL2_mixer/src/music.c
+    3rdParty/SDL2_mixer/src/utils.c
+    3rdParty/SDL2_mixer/src/codecs/music_wav.c)
+  if(USE_SDL1)
+    target_link_libraries(SDL2_mixer PRIVATE ${SDL_LIBRARY})
+  else()
+    target_link_libraries(SDL2_mixer PRIVATE SDL2::SDL2)
   endif()
+  target_include_directories(SDL2_mixer PUBLIC 3rdParty/SDL2_mixer/include)
+
+  set(SDL_MIXER_LIBRARY SDL2_mixer)
 endif()
 
 if(TCPIP)
@@ -1019,9 +1026,6 @@ if(CPACK)
     #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2.dll"
     #  DESTINATION "."
     #)
-    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2_mixer.dll"
-    #  DESTINATION "."
-    #)
     #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/zlib1.dll"
     #  DESTINATION "."
     #)
@@ -1036,20 +1040,12 @@ if(CPACK)
     #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2_x64-windows/bin/SDL2.dll"
     #    DESTINATION "."
     #  )
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_mixer-2.0.4/x86_64-w64-mingw32/bin/SDL2_mixer.dll"
-    #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2-mixer_x64-windows/bin/SDL2_mixer.dll"
-    #    DESTINATION "."
-    #  )
     #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/README-SDL.txt"
     #  #  DESTINATION "LICENSE"
     #  #)
     #else()
     #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/x86_64-w64-mingw32/bin/SDL2.dll"
     #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2_x86-windows/bin/SDL2.dll"
-    #    DESTINATION "."
-    #  )
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_mixer-2.0.4/x86_64-w64-mingw32/bin/SDL2_mixer.dll"
-    #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2-mixer_x86-windows/bin/SDL2_mixer.dll"
     #    DESTINATION "."
     #  )
     #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/README-SDL.txt"
@@ -1103,18 +1099,10 @@ if(CPACK)
 
     # -G DEB
     #set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
-    if(NOT NOSOUND)
-      if(USE_SDL1)
-      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2")
-      else()
-      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-mixer-2.0-0")
-      endif()
-    else()
-      if(USE_SDL1)
+    if(USE_SDL1)
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian")
-      else()
+    else()
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0")
-      endif()
     endif()
     set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 

@@ -1,0 +1,35 @@
+This is a slightly modified version of libsdl-org/SDL_mixer@85a617c38ad5e3dbcd67ae63b3f87f2a7aaaada1
+
+Changes:
+
+* Removed all files not used by DevilutionX.
+* Comment out unnecessary bits with `#ifndef FULL`.
+* Only (u8-bit and s16-bit) WAV formats are supported (WAV_SRC)
+  - silence assumed to be zero (SILENCE)
+* MIX_DEFAULT_FREQUENCY changed from 44100 to 22050
+* Sfx on non-stereo/22050 devices are streamed by SDL (FIX_OUT)
+  - Panning is only for AUDIO_S16LSB with 2-channels
+* meta tags are ignored (META)
+* Fading, expire are not supported (FADING)
+* Volume per chunk is not supported (CHUNK_VOL)
+* music_active is no longer maintained in music.c (MUS_ACTIVE)
+* Channel(chunk) Looping is not supported (LOOP)
+* Seeking of music is not supported (SEEK)
+* Hooks on music-playback are not supported (HOOKS)
+* Large files (not fit to int) are not supported (FILE_INT)
+* encoding of the music (wav) file is not maintained (WAV_ENC)
+* Music is always looped (MUS_LOOP)
+* SDL_MIXER_DISABLE_* are not supported (MIX_DIS)
+* SDL_MIXER_HINT_DEBUG_MUSIC_INTERFACES disabled (HINTS)
+* Only one audio device is allowed at a time (SINGLE)
+* Mix_FreeChunk assumes the chunk is not played (CHUNK_CHECK)
+* Mix_Playing, Mix_Volume assume valid channel-id
+* Mix_LoadMUSType_RW assumes not-null SDL_RWops, autodetection of type is disabled (MUS_CHECK)
+* Mix_LoadWAV_RW assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
+* Effects on channels are internalized -> extra checks disabled (EFF_CHECK)
+* Assumes initialized SDL with SDL_INIT_AUDIO (INIT)
+* SDL1 compatible (USE_SDL1)
+* zero-fill in init_position_args is commented out
+*
+* Mix_Chunk.allocated field is misused to store the last channel in the higher bits (in soundsample.cpp)
+
