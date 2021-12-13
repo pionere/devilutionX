@@ -228,7 +228,6 @@ endif()
 
 if(USE_SDL1)
   find_package(SDL REQUIRED)
-  #find_package(SDL_ttf REQUIRED)
   if(NOT NOSOUND)
     find_package(SDL_mixer REQUIRED)
     #set(SDL_MIXER_LIBRARY SDL::SDL_mixer) ?
@@ -256,14 +255,12 @@ elseif(DEVILUTIONX_SYSTEM_SDL2)
     # Can't define an INTERFACE target with ::, so alias instead
     add_library(SDL2::SDL2 ALIAS SDL2_lib)
   endif()
-  #find_package(SDL2_ttf REQUIRED)
   if(NOT NOSOUND)
     find_package(SDL2_mixer REQUIRED)
     set(SDL_MIXER_LIBRARY SDL2::SDL2_mixer)
   endif()
 else()
   add_subdirectory(3rdParty/SDL2)
-  #add_subdirectory(3rdParty/SDL2_ttf)
   if(NOT NOSOUND)
     add_subdirectory(3rdParty/SDL2_mixer)
     set(SDL_MIXER_LIBRARY SDL2::SDL2_mixer)
@@ -548,11 +545,9 @@ else()
     ${devilutionx_SRCS}
     Packaging/windows/devilutionx.exe.manifest
     Packaging/windows/devilutionx.rc)
-    #Packaging/resources/CharisSILB.ttf
 endif()
 
-# Copy the font, devilutionx.mpq and devilx.mpq to the build directory to it works from the build directory
-#file(COPY "Packaging/resources/CharisSILB.ttf" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+# Copy devilutionx.mpq and devilx.mpq to the build directory to it works from the build directory
 if(NOT NOWIDESCREEN)
   file(COPY "Packaging/resources/devilutionx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
@@ -732,14 +727,12 @@ endif()
 
 if(USE_SDL1)
   target_link_libraries(${BIN_TARGET} PRIVATE
-    #${SDL_TTF_LIBRARY}
     ${SDL_LIBRARY})
   target_compile_definitions(${BIN_TARGET} PRIVATE USE_SDL1)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL2_MAIN}
     SDL2::SDL2)
-    #SDL2::SDL2_ttf)
 endif()
 
 if(NOT NOSOUND)
@@ -841,7 +834,6 @@ endif()
 
 if(APPLE)
   set_source_files_properties("./Packaging/apple/AppIcon.icns" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-  #set_source_files_properties("./Packaging/resources/CharisSILB.ttf" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   set(MACOSX_BUNDLE_GUI_IDENTIFIER com.diasurgical.devilutionx)
   set(MACOSX_BUNDLE_COPYRIGHT Unlicense)
   set(MACOSX_BUNDLE_BUNDLE_NAME devilutionx)
@@ -923,7 +915,6 @@ if(VITA)
     FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
     FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
     FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-    #FILE Packaging/resources/CharisSILB.ttf CharisSILB.ttf
     FILE Packaging/resources/devilutionx.mpq devilutionx.mpq
     FILE Packaging/resources/devilx.mpq devilx.mpq
   )
@@ -939,7 +930,6 @@ if(NINTENDO_3DS)
   set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template.rsf")
   set(APP_ROMFS       "${CMAKE_BINARY_DIR}/romfs")
   set(APP_ROMFS_FILES
-    #"${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
     "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
     "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
   if(HELLFIRE)
@@ -992,9 +982,6 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
     )
-    #install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
-    #  DESTINATION "."
-    #)
     if(NOT NOWIDESCREEN)
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
         DESTINATION "."
@@ -1035,9 +1022,6 @@ if(CPACK)
     #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2_mixer.dll"
     #  DESTINATION "."
     #)
-    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2_ttf.dll"
-    #  DESTINATION "."
-    #)
     #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/zlib1.dll"
     #  DESTINATION "."
     #)
@@ -1048,10 +1032,6 @@ if(CPACK)
     #endif()
     ##if(SYSTEM_BITS MATCHES x64)
     #if(${CMAKE_SIZEOF_VOID_P} EQUAL "8")
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/libfreetype-6.dll"
-    #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/freetype_x64-windows/bin/freetype.dll"
-    #    DESTINATION "."
-    #  )
     #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/x86_64-w64-mingw32/bin/SDL2.dll"
     #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2_x64-windows/bin/SDL2.dll"
     #    DESTINATION "."
@@ -1060,25 +1040,10 @@ if(CPACK)
     #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2-mixer_x64-windows/bin/SDL2_mixer.dll"
     #    DESTINATION "."
     #  )
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/SDL2_ttf.dll"
-    #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2-ttf_x64-windows/bin/SDL2_ttf.dll"
-    #    DESTINATION "."
-    #  )
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/zlib1.dll"
-    #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/zlib_x64-windows/bin/zlib1.dll"
-    #    DESTINATION "."
-    #  )
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/LICENSE.freetype.txt"
-    #  #  DESTINATION "LICENSE"
-    #  #)
     #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/README-SDL.txt"
     #  #  DESTINATION "LICENSE"
     #  #)
     #else()
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/libfreetype-6.dll"
-    #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/freetype_x86-windows/bin/freetype.dll"
-    #    DESTINATION "."
-    #  )
     #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/x86_64-w64-mingw32/bin/SDL2.dll"
     #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2_x86-windows/bin/SDL2.dll"
     #    DESTINATION "."
@@ -1087,17 +1052,6 @@ if(CPACK)
     #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2-mixer_x86-windows/bin/SDL2_mixer.dll"
     #    DESTINATION "."
     #  )
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/SDL2_ttf.dll"
-    #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2-ttf_x86-windows/bin/SDL2_ttf.dll"
-    #    DESTINATION "."
-    #  )
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/zlib1.dll"
-    #  install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/zlib_x86-windows/bin/zlib1.dll"
-    #    DESTINATION "."
-    #  )
-    #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/LICENSE.freetype.txt"
-    #  #  DESTINATION "LICENSE"
-    #  #)
     #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/README-SDL.txt"
     #  #  DESTINATION "LICENSE"
     #  #)
@@ -1146,26 +1100,19 @@ if(CPACK)
       DESTINATION "share/icons/hicolor/512x512/apps"
       RENAME "${project_name}-hellfire.png"
     )
-    #install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
-    #  DESTINATION "share/fonts/truetype"
-    #)
 
     # -G DEB
     #set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
     if(NOT NOSOUND)
       if(USE_SDL1)
-      #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2, libsdl-ttf2.0-0")
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2")
       else()
-      #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-mixer-2.0-0, libsdl2-ttf-2.0-0")
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-mixer-2.0-0")
       endif()
     else()
       if(USE_SDL1)
-      #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-ttf2.0-0")
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian")
       else()
-      #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-ttf-2.0-0")
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0")
       endif()
     endif()

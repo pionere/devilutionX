@@ -35,8 +35,8 @@ fi
 
 wget -q https://www.libsdl.org/release/SDL2-devel-${SDLDEV_VERS}-mingw.tar.gz -OSDL2-devel-${SDLDEV_VERS}-mingw.tar.gz
 tar -xzf SDL2-devel-${SDLDEV_VERS}-mingw.tar.gz
-wget -q https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-${SDLTTF_VERS}-mingw.tar.gz -OSDL2_ttf-devel-${SDLTTF_VERS}-mingw.tar.gz
-tar -xzf SDL2_ttf-devel-${SDLTTF_VERS}-mingw.tar.gz
+#wget -q https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-${SDLTTF_VERS}-mingw.tar.gz -OSDL2_ttf-devel-${SDLTTF_VERS}-mingw.tar.gz
+#tar -xzf SDL2_ttf-devel-${SDLTTF_VERS}-mingw.tar.gz
 wget -q https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-${SDLMIXER_VERS}-mingw.tar.gz -OSDL2_mixer-devel-${SDLMIXER_VERS}-mingw.tar.gz
 tar -xzf SDL2_mixer-devel-${SDLMIXER_VERS}-mingw.tar.gz
 $SUDO cp -r SDL2*/${MINGW_ARCH}/* ${MINGW_PREFIX}

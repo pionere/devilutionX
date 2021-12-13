@@ -1,7 +1,7 @@
 %define debug_package %{nil}
 
 Name:		devilutionx
-Version:	1.1.0
+Version:	1.3.0
 Release:	1%{?dist}
 Summary:	Diablo I engine for modern operating systems
 
@@ -12,8 +12,8 @@ Source1:	devilutionx.desktop
 Source2:	deviltutionx-hellfire.desktop
 
 BuildRequires:	cmake gcc gcc-c++ libstdc++-static glibc desktop-file-utils
-BuildRequires:	glibc-devel SDL2-devel SDL2_ttf-devel SDL2_mixer-devel libsodium-devel libasan
-Requires:	SDL2_ttf SDL2_mixer libsodium
+BuildRequires:	glibc-devel SDL2-devel SDL2_mixer-devel libsodium-devel libasan
+Requires:	SDL2_mixer libsodium
 
 %description
 Diablo I devolved - magic behind the 1996 computer game
@@ -49,7 +49,6 @@ desktop-file-install --remove-category="Qt" --dir=%{buildroot}%{_datadir}/applic
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/applications/%{name}-hellfire.desktop
 
-%{_datadir}/fonts/truetype/CharisSILB.ttf
 %{_datadir}/icons/hicolor/512x512/apps/%{name}.png
 %{_datadir}/icons/hicolor/512x512/apps/%{name}-hellfire.png
 
