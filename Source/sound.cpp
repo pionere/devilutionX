@@ -117,13 +117,20 @@ void InitSound()
 	snd_get_volume("Music Volume", &gnMusicVolume);
 	gbMusicOn = gnMusicVolume > VOLUME_MIN;
 
+	Mix_Init(0);
 	RestartMixer();
+}
+
+void FreeSound()
+{
+	Mix_CloseAudio();
+	Mix_Quit();
 }
 
 void music_stop()
 {
 	if (_gMusic != NULL) {
-		Mix_HaltMusic();
+		//Mix_HaltMusic(); -- no need, Mix_FreeMusic halts the music as well
 		Mix_FreeMusic(_gMusic);
 		_gMusic = NULL;
 		_gnMusicTrack = NUM_MUSIC;

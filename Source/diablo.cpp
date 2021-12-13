@@ -304,15 +304,17 @@ static void diablo_deinit()
 	if (gbSndInited) {
 		sound_stop(); // stop click-effect
 		FreeUiEffects();
+		FreeSound();
 	}
 	if (gbWasUiInit)
 		UiDestroy();
 	if (_gbWasArchivesInit)
 		init_cleanup();
-	if (_gbWasWindowInit)
+	if (_gbWasWindowInit) {
 		dx_cleanup(); // Cleanup SDL surfaces stuff, so we have to do it before SDL_Quit().
-	if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC) != 0)
+	//if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC) != 0)
 		SDL_Quit();
+	}
 }
 
 int DiabloMain(int argc, char **argv)
