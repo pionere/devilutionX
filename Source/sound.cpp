@@ -107,6 +107,7 @@ void RestartMixer()
 	chans = Mix_AllocateChannels(SND_NUM_CHANNELS);
 	assert(chans == SND_NUM_CHANNELS);
 	Mix_ReserveChannels(1); // reserve one channel for narration (SFileDda*)
+	Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
 }
 
 void InitSound()
@@ -130,7 +131,7 @@ void FreeSound()
 void music_stop()
 {
 	if (_gMusic != NULL) {
-		//Mix_HaltMusic(); -- no need, Mix_FreeMusic halts the music as well
+		// Mix_HaltMusic(); -- no need, Mix_FreeMusic halts the music as well
 		Mix_FreeMusic(_gMusic);
 		_gMusic = NULL;
 		_gnMusicTrack = NUM_MUSIC;
@@ -156,7 +157,6 @@ void music_start(int nTrack)
 			}
 			assert(_gMusic == NULL);
 			_gMusic = Mix_LoadMUSType_RW(musicRw, MUS_NONE, 1);
-			Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
 			Mix_PlayMusic(_gMusic, -1);
 
 			_gnMusicTrack = nTrack;
@@ -183,8 +183,7 @@ void sound_set_music_volume(int volume)
 	gbMusicOn = volume > VOLUME_MIN;
 	setIniInt("Audio", "Music Volume", volume);
 
-	if (_gMusic != NULL)
-		Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
+	Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
 }
 
 void sound_set_sound_volume(int volume)
