@@ -151,7 +151,7 @@ void music_start(int nTrack)
 				sdl_fatal(ERR_SDL_MUSIC_FILE);
 			}
 			assert(_gMusic == NULL);
-			_gMusic = Mix_LoadMUSType_RW(musicRw, MUS_NONE, 1);
+			_gMusic = Mix_LoadMUSType_RW(musicRw, MUS_WAV, 1);
 			Mix_PlayMusic(_gMusic, -1);
 
 			_gnMusicTrack = nTrack;
