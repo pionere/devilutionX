@@ -114,6 +114,18 @@ MenuAction GetMenuAction(const SDL_Event &event)
 	}
 #endif
 
+	if (event.type == SDL_MOUSEBUTTONDOWN) {
+		switch (event.button.button) {
+		case SDL_BUTTON_X1:
+#if !SDL_VERSION_ATLEAST(2, 0, 0)
+		case 8:
+#endif
+			return MenuAction_BACK;
+		default:
+			break;
+		}
+	}
+
 	return MenuAction_NONE;
 }
 
