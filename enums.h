@@ -4031,7 +4031,7 @@ typedef enum dlrg_flag {
 } dlrg_flag;
 
 typedef enum movie_flag {
-	MOV_SKIP       = 1 << 0, // Makes the video unskippable.
+	MOV_SKIP       = 1 << 0, // Makes the video skippable by mouse-button or keypress (not just ESC).
 	MOV_LOOP       = 2 << 0, // Playback in loop.
 } movie_flag;
 
@@ -4162,19 +4162,13 @@ typedef enum application_error {
 	ERR_SDL_BACK_PALETTE_CREATE,
 	ERR_SDL_MUSIC_FILE,
 	ERR_SDL_SOUND_FILE,
-	ERR_SDL_VIDEO_PLAY_SIZE,
-	ERR_SDL_VIDEO_PLAY_TEXTURE,
 	ERR_SDL_VIDEO_BLIT_SCALED,
 	ERR_SDL_VIDEO_BLIT_B,
 	ERR_SDL_VIDEO_BLIT_A,
 	ERR_SDL_VIDEO_AUDIO,
 	ERR_SDL_VIDEO_CREATE,
-	ERR_SDL_VIDEO_PALETTE_SET_SDL1,
-	ERR_SDL_VIDEO_PALETTE_SET_SDL2,
 	ERR_SDL_VIDEO_PALETTE,
 	ERR_SDL_VIDEO_SURFACE,
-	ERR_SDL_VIDEO_SIZE,
-	ERR_SDL_VIDEO_TEXTURE,
 	ERR_SDL_AUDIO_DEVICE_SDL1,
 	ERR_SDL_AUDIO_DEVICE_SDL2,
 	ERR_SDL_DISPLAY_MODE_SET,

@@ -1,7 +1,6 @@
 #include "touch.h"
 #if HAS_TOUCHPAD == 1
 #include "utils/display.h"
-#include "display.h"
 #include <math.h>
 
 #ifdef __vita__

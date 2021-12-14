@@ -25,7 +25,6 @@ static double SVidFrameEnd;
 static double SVidFrameLength;
 static bool SVidLoop;
 static smk SVidSMK;
-static SDL_Color SVidPreviousPalette[256];
 static SDL_Palette *SVidPalette;
 static SDL_Surface *SVidSurface;
 static BYTE *SVidBuffer;
@@ -46,7 +45,18 @@ static bool IsSVidVideoMode = false;
 void TrySetVideoModeToSVidForSDL1()
 {
 	const SDL_Surface *display = SDL_GetVideoSurface();
-	IsSVidVideoMode = (display->flags & (SDL_FULLSCREEN | SDL_NOFRAME)) != 0;
+#if defined(SDL1_VIDEO_MODE_SVID_FLAGS)
+	const int flags = SDL1_VIDEO_MODE_SVID_FLAGS;
+#elif defined(SDL1_VIDEO_MODE_FLAGS)
+	const int flags = SDL1_VIDEO_MODE_FLAGS;
+#else
+	const int flags = display->flags;
+#endif
+#ifdef SDL1_FORCE_SVID_VIDEO_MODE
+	IsSVidVideoMode = true;
+#else
+	IsSVidVideoMode = (flags & (SDL_FULLSCREEN | SDL_NOFRAME)) != 0;
+#endif
 	if (!IsSVidVideoMode)
 		return;
 
@@ -61,12 +71,9 @@ void TrySetVideoModeToSVidForSDL1()
 	}
 
 #ifndef SDL1_FORCE_SVID_VIDEO_MODE
-	IsSVidVideoMode = SDL_VideoModeOK(
-	    w, h, /*bpp=*/display->format->BitsPerPixel, display->flags);
-
-	if (!IsSVidVideoMode) {
+	if (!SDL_VideoModeOK(w, h, /*bpp=*/display->format->BitsPerPixel, flags)) {
 		// Get available fullscreen/hardware modes
-		SDL_Rect **modes = SDL_ListModes(NULL, display->flags);
+		SDL_Rect **modes = SDL_ListModes(NULL, flags);
 
 		// Check is there are any modes available.
 		if (modes == NULL
@@ -88,7 +95,7 @@ void TrySetVideoModeToSVidForSDL1()
 	}
 #endif
 
-	SetVideoMode(w, h, display->format->BitsPerPixel, display->flags);
+	SetVideoMode(w, h, display->format->BitsPerPixel, flags);
 }
 #endif
 
@@ -197,6 +204,42 @@ static AudioQueue *sVidAudioQueue = new AudioQueue();
 #endif
 #endif // !NOSOUND
 
+static void UpdatePalette()
+{
+	const BYTE (&paldata)[256][3] = *(BYTE (*)[256][3])smk_get_palette(SVidSMK);
+		
+	SDL_Color* colors = SVidPalette->colors;
+	for (int i = 0; i < 256; i++) {
+		colors[i].r = paldata[i][0];
+		colors[i].g = paldata[i][1];
+		colors[i].b = paldata[i][2];
+#ifndef USE_SDL1
+		colors[i].a = SDL_ALPHA_OPAQUE;
+#endif
+	}
+	ApplyGamma(colors, colors);
+
+#ifdef USE_SDL1
+	const int firstcolor = 0;
+	const int ncolors = 256;
+#if SDL1_VIDEO_MODE_BPP == 8
+	// When the video surface is 8bit, we need to set the output palette as well.
+	SDL_SetColors(SDL_GetVideoSurface(), colors, firstcolor, ncolors);
+#endif
+	// In SDL1, the surface always has its own distinct palette, so we need to
+	// update it as well.
+	if (SDL_SetPalette(SVidSurface, SDL_LOGPAL, colors, firstcolor, ncolors) <= 0)
+		sdl_fatal(ERR_SDL_VIDEO_SURFACE);
+#else // !USE_SDL1
+	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) <= -1) {
+		sdl_fatal(ERR_SDL_VIDEO_SURFACE);
+	}
+#endif
+	//if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, 256) < 0) {
+	//	sdl_fatal(ERR_SDL_VIDEO_SURFACE);
+	//}
+}
+
 HANDLE SVidPlayBegin(const char *filename, int flags)
 {
 	//if (flags & (0x10000 | 0x20000000)) {
@@ -267,19 +310,14 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	smk_first(SVidSMK); // Decode first frame
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		SDL_DestroyTexture(renderer_texture);
-		renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SVidWidth, SVidHeight);
-		if (renderer_texture == NULL) {
-			sdl_fatal(ERR_SDL_VIDEO_TEXTURE);
-		}
-		if (SDL_RenderSetLogicalSize(renderer, SVidWidth, SVidHeight) < 0) {
-			sdl_fatal(ERR_SDL_VIDEO_SIZE);
-		}
+		RecreateDisplay(SVidWidth, SVidHeight);
 	}
 #else
 	TrySetVideoModeToSVidForSDL1();
 #endif
-	memcpy(SVidPreviousPalette, orig_palette, sizeof(SVidPreviousPalette));
+
+	// Set the background to black.
+	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
 
 	// Copy frame to buffer
 	SVidSurface = SDL_CreateRGBSurfaceWithFormatFrom(
@@ -297,18 +335,9 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	if (SVidPalette == NULL) {
 		sdl_fatal(ERR_SDL_VIDEO_PALETTE);
 	}
-#ifndef USE_SDL1
-	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) < 0) {
-		sdl_fatal(ERR_SDL_VIDEO_PALETTE_SET_SDL2);
-	}
-#else
-	if (SDLC_SetSurfaceColors(SVidSurface, SVidPalette) < 0) {
-		sdl_fatal(ERR_SDL_VIDEO_PALETTE_SET_SDL1);
-	}
-#endif
+	UpdatePalette();
 
 	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
-	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
 	return SVidSMK;
 }
 
@@ -345,21 +374,7 @@ static BYTE* SVidApplyVolume(const BYTE* raw, unsigned long rawLen)
 bool SVidPlayContinue()
 {
 	if (smk_palette_updated(SVidSMK)) {
-		const BYTE (&paldata)[256][3] = *(BYTE (*)[256][3])smk_get_palette(SVidSMK);
-
-		for (int i = 0; i < 256; i++) {
-			orig_palette[i].r = paldata[i][0];
-			orig_palette[i].g = paldata[i][1];
-			orig_palette[i].b = paldata[i][2];
-#ifndef USE_SDL1
-			orig_palette[i].a = SDL_ALPHA_OPAQUE;
-#endif
-		}
-		ApplyGamma(logical_palette, orig_palette);
-
-		if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, orig_palette, 0, 256) < 0) {
-			sdl_fatal(ERR_SDL_VIDEO_SURFACE);
-		}
+		UpdatePalette();
 	}
 
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
@@ -470,17 +485,9 @@ void SVidPlayEnd()
 	SDL_FreeSurface(SVidSurface);
 	SVidSurface = NULL;
 
-	memcpy(orig_palette, SVidPreviousPalette, sizeof(orig_palette));
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		SDL_DestroyTexture(renderer_texture);
-		renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
-		if (renderer_texture == NULL) {
-			sdl_fatal(ERR_SDL_VIDEO_PLAY_TEXTURE);
-		}
-		if (SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT) < 0) {
-			sdl_fatal(ERR_SDL_VIDEO_PLAY_SIZE);
-		}
+		RecreateDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 #else
 	if (IsSVidVideoMode) {

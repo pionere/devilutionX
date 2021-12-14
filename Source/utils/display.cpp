@@ -59,7 +59,7 @@ SDL_Surface* back_surface;
 
 int screenWidth;
 int screenHeight;
-int viewportHeight;
+//int viewportHeight;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags)
@@ -101,7 +101,7 @@ static void AdjustToScreenGeometry(int width, int height)
 	screenWidth = width;
 	screenHeight = height;
 
-	viewportHeight = screenHeight;
+	//viewportHeight = screenHeight;
 	/*if (screenWidth <= PANEL_WIDTH) {
 		// Part of the screen is fully obscured by the UI
 		viewportHeight -= PANEL_HEIGHT;
@@ -140,6 +140,21 @@ static void CalculatePreferredWindowSize(int &width, int &height, bool useIntege
 		height = mode.h * width / mode.w;
 	}
 #endif
+}
+
+void RecreateDisplay(int width, int height)
+{
+	if (renderer_texture != NULL)
+		SDL_DestroyTexture(renderer_texture);
+
+	renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+	if (renderer_texture == NULL) {
+		sdl_fatal(ERR_SDL_RENDERER_TEXTURE);
+	}
+
+	if (SDL_RenderSetLogicalSize(renderer, width, height) < 0) {
+		sdl_fatal(ERR_SDL_RENDERER_SIZE);
+	}
 }
 
 bool SpawnWindow(const char* lpWindowName)
@@ -288,18 +303,11 @@ bool SpawnWindow(const char* lpWindowName)
 			sdl_fatal(ERR_SDL_RENDERER_CREATE);
 		}
 
-		renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
-		if (renderer_texture == NULL) {
-			sdl_fatal(ERR_SDL_RENDERER_TEXTURE);
-		}
-
 		if (integerScalingEnabled && SDL_RenderSetIntegerScale(renderer, SDL_TRUE) < 0) {
 			sdl_fatal(ERR_SDL_RENDERER_SCALE);
 		}
 
-		if (SDL_RenderSetLogicalSize(renderer, width, height) < 0) {
-			sdl_fatal(ERR_SDL_RENDERER_SIZE);
-		}
+		RecreateDisplay(width, height);
 #endif
 	} else {
 #ifdef USE_SDL1

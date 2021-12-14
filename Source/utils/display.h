@@ -26,7 +26,7 @@ extern unsigned int back_surface_palette_version;
 
 extern int screenWidth;
 extern int screenHeight;
-extern int viewportHeight;
+//extern int viewportHeight;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);
@@ -40,6 +40,7 @@ void ScaleOutputRect(SDL_Rect *rect);
 // If the output requires software scaling, replaces the given surface with a scaled one.
 void ScaleSurfaceToOutput(SDL_Surface **surface);
 #else // SDL2, scaling handled by renderer.
+void RecreateDisplay(int width, int height);
 inline void ScaleOutputRect(SDL_Rect *rect) { };
 inline void ScaleSurfaceToOutput(SDL_Surface **surface) { };
 #endif

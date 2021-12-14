@@ -188,7 +188,8 @@
 #define SCREEN_HEIGHT	dvl::screenHeight
 #endif
 
-#define VIEWPORT_HEIGHT dvl::viewportHeight
+//#define VIEWPORT_HEIGHT dvl::viewportHeight
+#define VIEWPORT_HEIGHT dvl::screenHeight
 
 #define TILE_WIDTH		64
 #define TILE_HEIGHT		32
