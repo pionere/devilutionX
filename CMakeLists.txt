@@ -559,6 +559,9 @@ if(NOT NOWIDESCREEN)
   file(COPY "Packaging/resources/devilutionx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 file(COPY "Packaging/resources/devilx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+if(AMIGA)
+  file(COPY "Packaging/amiga/devilutionx.info" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
 
 # Use file GENERATE instead of configure_file because configure_file
 # does not support generator expressions.
