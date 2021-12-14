@@ -244,7 +244,11 @@ static void *WAV_CreateFromRW(SDL_RWops *src, int freesrc)
 #else
     SDL_BuildAudioCVT(&music->cvt,
             music->spec.format, music->spec.channels, music->spec.freq,
+#ifdef FULL // FIX_OUT
             music_spec.format, music_spec.channels, music_spec.freq);
+#else
+        MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, MIX_DEFAULT_FREQUENCY);
+#endif
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
     music->freesrc = freesrc;
     return music;

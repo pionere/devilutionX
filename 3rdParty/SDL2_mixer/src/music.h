@@ -18,7 +18,11 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+#ifdef FULL
 #include "SDL_mixer.h"
+#else
+#include "../include/SDL_mixer.h"
+#endif
 
 #ifndef MUSIC_H_
 #define MUSIC_H_
