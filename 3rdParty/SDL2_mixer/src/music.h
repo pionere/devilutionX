@@ -172,8 +172,8 @@ extern void SDLCALL music_mixer(void *udata, Uint8 *stream, int len);
 extern void close_music(void);
 extern void unload_music(void);
 
-extern char *music_cmd;
 #ifdef FULL
+extern char *music_cmd;
 extern SDL_AudioSpec music_spec;
 #endif
 #endif /* MUSIC_H_ */

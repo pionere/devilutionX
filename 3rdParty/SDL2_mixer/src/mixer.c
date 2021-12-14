@@ -335,7 +335,11 @@ mix_channels(void *udata, Uint8 *stream, int len)
             if (mix_channel[i].playing > 0) {
                 int index = 0;
                 int remaining = len;
+#ifdef FULL // LOOP
                 while (mix_channel[i].playing > 0 && index < len) {
+#else
+                while (index < len) {
+#endif
                     remaining = len - index;
 #ifdef FULL // CHUNK_VOL
                     volume = (mix_channel[i].volume*mix_channel[i].chunk->volume) / MIX_MAX_VOLUME;
@@ -367,13 +371,10 @@ mix_channels(void *udata, Uint8 *stream, int len)
                     /* rcg06072001 Alert app if channel is done playing. */
 #ifdef FULL // LOOP
                     if (!mix_channel[i].playing && !mix_channel[i].looping) {
-#else
-                    if (!mix_channel[i].playing) {
-#endif
                         _Mix_channel_done_playing(i);
                     }
                 }
-#ifdef FULL // LOOP
+
                 /* If looping the sample and we are at its end, make sure
                    we will still return a full buffer */
                 while (mix_channel[i].looping && index < len) {
@@ -401,6 +402,12 @@ mix_channels(void *udata, Uint8 *stream, int len)
                     }
                     mix_channel[i].samples = mix_channel[i].chunk->abuf;
                     mix_channel[i].playing = mix_channel[i].chunk->alen;
+                }
+#else
+                    if (!mix_channel[i].playing) {
+                        _Mix_channel_done_playing(i);
+                        break;
+                    }
                 }
 #endif
             }
@@ -497,8 +504,9 @@ int Mix_OpenAudioDevice(int frequency, Uint16 format, int nchannels, int chunksi
         mix_channel[i].paused = 0;
     }
 #endif // FULL - FIX_CHAN
-    Mix_VolumeMusic(SDL_MIX_MAXVOLUME);
-
+#ifdef FULL
+    Mix_VolumeMusic(SDL_MIX_MAXVOLUME); -- pointless, since open_music does this
+#endif
 	_Mix_InitEffects();
 
 #ifdef FULL // WAV_SRC
