@@ -79,24 +79,6 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 };
 
 /**
- * @brief Stop playing the sound on one channel!
- */
-void SoundSample::Stop()
-{
-	assert(soundData != NULL);
-
-	//int channels = Mix_AllocateChannels(-1);
-	int channels = SND_NUM_CHANNELS;
-	for (int i = 0; i < channels; i++) {
-		if (Mix_GetChunk(i) == soundData) {
-			// Mix_UnregisterAllEffects(i);
-			Mix_HaltChannel(i);
-			break;
-		}
-	}
-};
-
-/**
  * @brief This can load WAVE, AIFF, RIFF, OGG, and VOC formats
  * @param fileData Buffer containing file data
  * @param dwBytes Length of buffer

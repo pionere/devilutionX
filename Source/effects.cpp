@@ -1158,7 +1158,7 @@ bool effect_is_playing(int nSFX)
 void stream_stop()
 {
 	if (sgpStreamSFX != NULL) {
-		sgpStreamSFX->pSnd.Stop();
+		Mix_HaltChannel(0);
 		sgpStreamSFX->pSnd.Release();
 		sgpStreamSFX = NULL;
 	}
