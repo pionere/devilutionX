@@ -94,9 +94,14 @@ extern DECLSPEC int SDLCALL Mix_Init(int flags);
 extern DECLSPEC void SDLCALL Mix_Quit(void);
 
 
-/* The default mixer has 8 simultaneous mixing channels */
+/* The mixer has 25 simultaneous mixing channels */
 #ifndef MIX_CHANNELS
-#define MIX_CHANNELS    8
+#define MIX_CHANNELS    25
+#endif
+
+/* The mixer has 1 reserved channel */
+#ifndef MIX_RESERVED_CHANNELS
+#define MIX_RESERVED_CHANNELS    1
 #endif
 
 /* Good default values for a PC soundcard */
@@ -157,7 +162,7 @@ extern DECLSPEC int SDLCALL Mix_OpenAudio(int frequency, Uint16 format, int chan
 
 /* Open the mixer with specific device and certain audio format */
 extern DECLSPEC int SDLCALL Mix_OpenAudioDevice(int frequency, Uint16 format, int channels, int chunksize, const char* device, int allowed_changes);
-
+#ifdef FULL // FIX_CHAN
 /* Dynamically change the number of channels managed by the mixer.
    If decreasing the number of channels, the upper channels are
    stopped.
@@ -167,6 +172,7 @@ extern DECLSPEC int SDLCALL Mix_AllocateChannels(int numchans);
 /* Find out what the actual audio device parameters are.
    This function returns 1 if the audio has been opened, 0 otherwise.
  */
+#endif
 extern DECLSPEC int SDLCALL Mix_QuerySpec(int *frequency,Uint16 *format,int *channels);
 
 /* Load a wave file or a music (.mod .s3m .it .xm) file */

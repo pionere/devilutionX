@@ -51,7 +51,7 @@ typedef struct _Mix_effectinfo
     struct _Mix_effectinfo *next;
 } effect_info;
 
-static struct _Mix_Channel {
+typedef struct _Mix_Channel {
     Mix_Chunk *chunk;
     int playing;
     int paused;
@@ -69,13 +69,22 @@ static struct _Mix_Channel {
     Uint32 ticks_fade;
 #endif
     effect_info *effects;
-} *mix_channel = NULL;
+} _Mix_Channel;
+#ifdef FULL // FIX_CHAN
+static _Mix_Channel *mix_channel = NULL;
+#else
+static _Mix_Channel mix_channel[MIX_CHANNELS] = { 0 };
+#endif
 #ifdef FULL
 static effect_info *posteffects = NULL;
 #endif
+#ifdef FULL // FIX_CHAN
 static int num_channels;
 static int reserved_channels = 0;
-
+#else
+static int num_channels = MIX_CHANNELS;
+static int reserved_channels = MIX_RESERVED_CHANNELS;
+#endif
 
 /* Support for hooking into the mixer callback system */
 static void (SDLCALL *mix_postmix)(void *udata, Uint8 *stream, int len) = NULL;
@@ -465,7 +474,7 @@ int Mix_OpenAudioDevice(int frequency, Uint16 format, int nchannels, int chunksi
 #if 0
     PrintFormat("Audio device", &mixer);
 #endif
-
+#ifdef FULL // FIX_CHAN
     num_channels = MIX_CHANNELS;
     mix_channel = (struct _Mix_Channel *) SDL_malloc(num_channels * sizeof(struct _Mix_Channel));
 
@@ -487,6 +496,7 @@ int Mix_OpenAudioDevice(int frequency, Uint16 format, int nchannels, int chunksi
         mix_channel[i].effects = NULL;
         mix_channel[i].paused = 0;
     }
+#endif // FULL - FIX_CHAN
     Mix_VolumeMusic(SDL_MIX_MAXVOLUME);
 
 	_Mix_InitEffects();
@@ -519,7 +529,7 @@ int Mix_OpenAudio(int frequency, Uint16 format, int nchannels, int chunksize)
     return Mix_OpenAudioDevice(frequency, format, nchannels, chunksize, NULL, 0);
 #endif
 }
-
+#ifdef FULL // FIX_CHAN
 /* Dynamically change the number of channels managed by the mixer.
    If decreasing the number of channels, the upper channels are
    stopped.
@@ -564,7 +574,7 @@ int Mix_AllocateChannels(int numchans)
     Mix_UnlockAudio();
     return(num_channels);
 }
-
+#endif // FULL
 /* Return the actual mixer parameters */
 #ifdef FULL // FIX_OUT
 int Mix_QuerySpec(int *frequency, Uint16 *format, int *channels)
@@ -1007,7 +1017,7 @@ void Mix_ChannelFinished(void (SDLCALL *channel_finished)(int channel))
     Mix_UnlockAudio();
 }
 #endif // FULL
-
+#ifdef FULL // FIX_CHAN
 /* Reserve the first channels (0 -> n-1) for the application, i.e. don't allocate
    them dynamically to the next sample if requested with a -1 value below.
    Returns the number of reserved channels.
@@ -1019,6 +1029,7 @@ int Mix_ReserveChannels(int num)
     reserved_channels = num;
     return num;
 }
+#endif // FULL
 //#ifdef FULL
 static int checkchunkintegral(Mix_Chunk *chunk)
 {
@@ -1396,8 +1407,10 @@ void Mix_CloseAudio(void)
 #else
 			SDL_CloseAudio();
 #endif
+#ifdef FULL // FIX_CHAN
             SDL_free(mix_channel);
             mix_channel = NULL;
+#endif
 #ifdef FULL
             /* rcg06042009 report available decoders at runtime. */
             SDL_free((void *)chunk_decoders);

@@ -99,14 +99,9 @@ void sound_file_load(const char* path, SoundSample* pSnd)
 
 void RestartMixer()
 {
-	int chans;
-
 	if (Mix_OpenAudio(SND_DEFAULT_FREQUENCY, SND_DEFAULT_FORMAT, SND_DEFAULT_CHANNELS, 1024) < 0) {
 		SDL_Log("%s", Mix_GetError());
 	}
-	chans = Mix_AllocateChannels(SND_NUM_CHANNELS);
-	assert(chans == SND_NUM_CHANNELS);
-	Mix_ReserveChannels(1); // reserve one channel for narration (SFileDda*)
 	Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
 }
 
