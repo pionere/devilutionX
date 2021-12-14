@@ -255,7 +255,7 @@ static bool HandleMenuAction(MenuAction menuAction)
 
 static void UiFocusNavigation(SDL_Event* event)
 {
-	switch (event->type) {
+	/*switch (event->type) {
 	case SDL_KEYUP:
 	case SDL_MOUSEBUTTONUP:
 	case SDL_MOUSEMOTION:
@@ -273,10 +273,10 @@ static void UiFocusNavigation(SDL_Event* event)
 	case SDL_CONTROLLERAXISMOTION:
 	case SDL_WINDOWEVENT:
 #endif
-	case SDL_SYSWMEVENT:
+	case SDL_SYSWMEVENT:*/
 		mainmenu_restart_repintro();
-		break;
-	}
+	//	break;
+	//}
 
 	if (HandleMenuAction(GetMenuAction(*event)))
 		return;
