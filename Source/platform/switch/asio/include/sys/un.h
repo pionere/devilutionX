@@ -9,8 +9,8 @@ typedef __sa_family_t sa_family_t;
 #endif
 
 struct sockaddr_un {
-  sa_family_t sun_family;
-  char sun_path[108];
+	sa_family_t sun_family;
+	char sun_path[108];
 };
 
 #endif
