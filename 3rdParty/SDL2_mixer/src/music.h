@@ -18,14 +18,14 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+#ifndef MUSIC_H_
+#define MUSIC_H_
+
 #ifdef FULL
 #include "SDL_mixer.h"
 #else
 #include "../include/SDL_mixer.h"
 #endif
-
-#ifndef MUSIC_H_
-#define MUSIC_H_
 
 /* Supported music APIs, in order of preference */
 
