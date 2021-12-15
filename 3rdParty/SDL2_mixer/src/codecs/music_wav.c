@@ -101,6 +101,7 @@ typedef struct {
 #define WAVE_MONO   1
 #define WAVE_STEREO 2
 
+#pragma pack(push, 1)
 typedef struct {
 /* Not saved in the chunk we read:
     Uint32  chunkID;
@@ -112,7 +113,7 @@ typedef struct {
     Uint32  byterate;       /* Average bytes per second */
     Uint16  blockalign;     /* Bytes per sample block */
     Uint16  bitspersample;      /* One of 8, 12, 16, or 4 for ADPCM */
-} WaveFMT;
+} WaveFMTHeader;
 
 typedef struct {
     Uint16  cbSize;
@@ -126,8 +127,16 @@ typedef struct {
     Uint32 subencoding;
     Uint16 sub_data2;
     Uint16 sub_data3;
+#ifdef FULL
     Uint8  sub_data[8];
+#endif
 } WaveFMTex;
+
+typedef struct {
+    WaveFMTHeader format;
+    WaveFMTex formatEx;
+} _WaveFMT;
+#pragma pack(pop)
 
 typedef struct {
     Uint32 identifier;
@@ -831,35 +840,34 @@ static void WAV_Delete(void *context)
 static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 {
     SDL_AudioSpec *spec = &wave->spec;
-    WaveFMT *format;
-    WaveFMTex *formatEx = NULL;
-    Uint8 *data;
+    _WaveFMT fmt;
     int bits;
-    SDL_bool loaded = SDL_FALSE;
     Uint16 encoding;
 
-    if (chunk_length < sizeof(*format)) {
+    if (chunk_length < sizeof(fmt.format)) {
         Mix_SetError("Wave format chunk too small");
         return SDL_FALSE;
     }
 
-    data = (Uint8 *)SDL_malloc(chunk_length);
-    if (!data) {
-        Mix_SetError("Out of memory");
-        goto done;
+    bits = chunk_length >= sizeof(fmt) ? sizeof(fmt) : sizeof(fmt.format);
+    if (!SDL_RWread(wave->src, &fmt, bits, 1)) {
+        Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
+        return SDL_FALSE;
     }
-    if (!SDL_RWread(wave->src, data, chunk_length, 1)) {
+    chunk_length -= bits;
+    if (chunk_length != 0 && !SDL_RWseek(wave->src, chunk_length, RW_SEEK_CUR)) {
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
         return SDL_FALSE;
     }
 
-    format = (WaveFMT *)data;
-
-    encoding = SDL_SwapLE16(format->encoding);
+    encoding = SDL_SwapLE16(fmt.format.encoding);
 
     if (encoding == EXT_CODE) {
-        formatEx = (WaveFMTex*)(data + sizeof(WaveFMT));
-        encoding = (Uint16)SDL_SwapLE32(formatEx->subencoding);
+        if (bits < sizeof(fmt)) {
+            Mix_SetError("Wave format chunk too small");
+            return SDL_FALSE;
+        }
+        encoding = (Uint16)SDL_SwapLE32(fmt.formatEx.subencoding);
     }
 #ifdef FULL // MUS_ENC
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
@@ -881,7 +889,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
         default:
             /* but NOT this */
             Mix_SetError("Unknown WAVE data format");
-            goto done;
+            return SDL_FALSE;
     }
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
 #else
@@ -890,8 +898,8 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
         return SDL_FALSE;
     }
 #endif // FULL - MUS_ENC
-    spec->freq = (int)SDL_SwapLE32(format->frequency);
-    bits = (int) SDL_SwapLE16(format->bitspersample);
+    spec->freq = (int)SDL_SwapLE32(fmt.format.frequency);
+    bits = (int) SDL_SwapLE16(fmt.format.bitspersample);
     switch (bits) {
         case 8:
             switch(encoding) {
@@ -939,12 +947,12 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
         default:
             unknown_bits:
             Mix_SetError("Unknown PCM format with %d bits", bits);
-            goto done;
+            return SDL_FALSE;
     }
 #ifdef FULL // WAV_ENC
     wave->encoding = encoding;
 #endif
-    spec->channels = (Uint8) SDL_SwapLE16(format->channels);
+    spec->channels = (Uint8) SDL_SwapLE16(fmt.format.channels);
     spec->samples = 4096;       /* Good default buffer size */
     wave->samplesize = spec->channels * (bits / 8);
     /* SDL_CalculateAudioSpec */
@@ -952,11 +960,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
     spec->size *= spec->channels;
     spec->size *= spec->samples;
 
-    loaded = SDL_TRUE;
-
-done:
-    SDL_free(data);
-    return loaded;
+    return SDL_TRUE;
 }
 
 static SDL_bool ParseDATA(WAV_Music *wave, Uint32 chunk_length)
