@@ -1578,11 +1578,12 @@ static void init_position_args(position_args *args)
     SDL_memset(args, '\0', sizeof (position_args));
 #endif
     args->in_use = 0;
-#ifdef FULL
+#ifdef FULL // FIX_OUT
+    static_assert(MIX_MAX_POS_EFFECT <= UCHAR_MAX, "Positional effects use BYTE fields.");
     args->room_angle = 0;
-	args->left_u8 = args->right_u8 = args->distance_u8 = 255;
+    args->left_u8 = args->right_u8 = args->distance_u8 = MIX_MAX_POS_EFFECT;
     args->left_f  = args->right_f  = args->distance_f  = 1.0f;
-	args->left_rear_u8 = args->right_rear_u8 = args->center_u8 = args->lfe_u8 = 255;
+    args->left_rear_u8 = args->right_rear_u8 = args->center_u8 = args->lfe_u8 = MIX_MAX_POS_EFFECT;
     args->left_rear_f = args->right_rear_f = args->center_f = args->lfe_f = 1.0f;
     Mix_QuerySpec(NULL, NULL, (int *) &args->channels);
 #else
@@ -1815,8 +1816,8 @@ static Uint8 speaker_amplitude[6];
 
 static void set_amplitudes(int channels, int angle, int room_angle)
 {
-    int left = 255, right = 255;
-    int left_rear = 255, right_rear = 255, center = 255;
+    int left = MIX_MAX_DISTANCE, right = MIX_MAX_DISTANCE;
+    int left_rear = MIX_MAX_POS_EFFECT, right_rear = MIX_MAX_POS_EFFECT, center = MIX_MAX_POS_EFFECT;
 
     /* our only caller Mix_SetPosition() already makes angle between 0 and 359. */
 
@@ -1833,13 +1834,13 @@ static void set_amplitudes(int channels, int angle, int room_angle)
          *   ...so, we split our angle circle into four quadrants...
          */
         if (angle < 90) {
-            left = 255 - ((int) (255.0f * (((float) angle) / 89.0f)));
+            left = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) angle) / 89.0f)));
         } else if (angle < 180) {
-            left = (int) (255.0f * (((float) (angle - 90)) / 89.0f));
+            left = (int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 90)) / 89.0f));
         } else if (angle < 270) {
-            right = 255 - ((int) (255.0f * (((float) (angle - 180)) / 89.0f)));
+            right = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 180)) / 89.0f)));
         } else {
-            right = (int) (255.0f * (((float) (angle - 270)) / 89.0f));
+            right = (int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 270)) / 89.0f));
         }
     }
 
@@ -1862,56 +1863,56 @@ static void set_amplitudes(int channels, int angle, int room_angle)
          *
          */
         if (angle < 45) {
-            left = ((int) (255.0f * (((float) (180 - angle)) / 179.0f)));
-            left_rear = 255 - ((int) (255.0f * (((float) (angle + 45)) / 89.0f)));
-            right_rear = 255 - ((int) (255.0f * (((float) (90 - angle)) / 179.0f)));
+            left = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (180 - angle)) / 179.0f)));
+            left_rear = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle + 45)) / 89.0f)));
+            right_rear = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (90 - angle)) / 179.0f)));
         } else if (angle < 90) {
-            center = ((int) (255.0f * (((float) (225 - angle)) / 179.0f)));
-            left = ((int) (255.0f * (((float) (180 - angle)) / 179.0f)));
-            left_rear = 255 - ((int) (255.0f * (((float) (135 - angle)) / 89.0f)));
-            right_rear = ((int) (255.0f * (((float) (90 + angle)) / 179.0f)));
+            center = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (225 - angle)) / 179.0f)));
+            left = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (180 - angle)) / 179.0f)));
+            left_rear = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (135 - angle)) / 89.0f)));
+            right_rear = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (90 + angle)) / 179.0f)));
         } else if (angle < 135) {
-            center = ((int) (255.0f * (((float) (225 - angle)) / 179.0f)));
-            left = 255 - ((int) (255.0f * (((float) (angle - 45)) / 89.0f)));
-            right = ((int) (255.0f * (((float) (270 - angle)) / 179.0f)));
-            left_rear = ((int) (255.0f * (((float) (angle)) / 179.0f)));
+            center = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (225 - angle)) / 179.0f)));
+            left = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 45)) / 89.0f)));
+            right = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (270 - angle)) / 179.0f)));
+            left_rear = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle)) / 179.0f)));
         } else if (angle < 180) {
-            center = 255 - ((int) (255.0f * (((float) (angle - 90)) / 89.0f)));
-            left = 255 - ((int) (255.0f * (((float) (225 - angle)) / 89.0f)));
-            right = ((int) (255.0f * (((float) (270 - angle)) / 179.0f)));
-            left_rear = ((int) (255.0f * (((float) (angle)) / 179.0f)));
+            center = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 90)) / 89.0f)));
+            left = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (225 - angle)) / 89.0f)));
+            right = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (270 - angle)) / 179.0f)));
+            left_rear = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle)) / 179.0f)));
         } else if (angle < 225) {
-            center = 255 - ((int) (255.0f * (((float) (270 - angle)) / 89.0f)));
-            left = ((int) (255.0f * (((float) (angle - 90)) / 179.0f)));
-            right = 255 - ((int) (255.0f * (((float) (angle - 135)) / 89.0f)));
-            right_rear = ((int) (255.0f * (((float) (360 - angle)) / 179.0f)));
+            center = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (270 - angle)) / 89.0f)));
+            left = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 90)) / 179.0f)));
+            right = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 135)) / 89.0f)));
+            right_rear = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (360 - angle)) / 179.0f)));
         } else if (angle < 270) {
-            center = ((int) (255.0f * (((float) (angle - 135)) / 179.0f)));
-            left = ((int) (255.0f * (((float) (angle - 90)) / 179.0f)));
-            right = 255 - ((int) (255.0f * (((float) (315 - angle)) / 89.0f)));
-            right_rear = ((int) (255.0f * (((float) (360 - angle)) / 179.0f)));
+            center = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 135)) / 179.0f)));
+            left = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 90)) / 179.0f)));
+            right = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (315 - angle)) / 89.0f)));
+            right_rear = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (360 - angle)) / 179.0f)));
         } else if (angle < 315) {
-            center = ((int) (255.0f * (((float) (angle - 135)) / 179.0f)));
-            right = ((int) (255.0f * (((float) (angle - 180)) / 179.0f)));
-            left_rear = ((int) (255.0f * (((float) (450 - angle)) / 179.0f)));
-            right_rear = 255 - ((int) (255.0f * (((float) (angle - 225)) / 89.0f)));
+            center = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 135)) / 179.0f)));
+            right = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 180)) / 179.0f)));
+            left_rear = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (450 - angle)) / 179.0f)));
+            right_rear = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 225)) / 89.0f)));
         } else {
-            right = ((int) (255.0f * (((float) (angle - 180)) / 179.0f)));
-            left_rear = ((int) (255.0f * (((float) (450 - angle)) / 179.0f)));
-            right_rear = 255 - ((int) (255.0f * (((float) (405 - angle)) / 89.0f)));
+            right = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (angle - 180)) / 179.0f)));
+            left_rear = ((int) (MIX_MAX_POS_EFFECT_F * (((float) (450 - angle)) / 179.0f)));
+            right_rear = MIX_MAX_POS_EFFECT - ((int) (MIX_MAX_POS_EFFECT_F * (((float) (405 - angle)) / 89.0f)));
         }
     }
 
     if (left < 0) left = 0;
-    if (left > 255) left = 255;
+    if (left > MIX_MAX_POS_EFFECT) left = MIX_MAX_POS_EFFECT;
     if (right < 0) right = 0;
-    if (right > 255) right = 255;
+    if (right > MIX_MAX_POS_EFFECT) right = MIX_MAX_POS_EFFECT;
     if (left_rear < 0) left_rear = 0;
-    if (left_rear > 255) left_rear = 255;
+    if (left_rear > MIX_MAX_POS_EFFECT) left_rear = MIX_MAX_POS_EFFECT;
     if (right_rear < 0) right_rear = 0;
-    if (right_rear > 255) right_rear = 255;
+    if (right_rear > MIX_MAX_POS_EFFECT) right_rear = MIX_MAX_POS_EFFECT;
     if (center < 0) center = 0;
-    if (center > 255) center = 255;
+    if (center > MIX_MAX_POS_EFFECT) center = MIX_MAX_POS_EFFECT;
 
     if (room_angle == 90) {
         speaker_amplitude[0] = (Uint8)left_rear;
@@ -1944,7 +1945,7 @@ static void set_amplitudes(int channels, int angle, int room_angle)
         speaker_amplitude[3] = (Uint8)right_rear;
     }
     speaker_amplitude[4] = (Uint8)center;
-    speaker_amplitude[5] = 255;
+    speaker_amplitude[5] = MIX_MAX_POS_EFFECT;
 }
 
 int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance);
@@ -1964,10 +1965,10 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
     if (channels != 2 && channels != 4 && channels != 6)    /* it's a no-op; we call that successful. */
         return(1);
     if (channels > 2) {
-        /* left = right = 255 => angle = 0, to unregister effect as when channels = 2 */
-        /* left = 255 =>  angle = -90;  left = 0 => angle = +89 */
+        /* left = right = MIX_MAX_POS_EFFECT => angle = 0, to unregister effect as when channels = 2 */
+        /* left = MIX_MAX_POS_EFFECT =>  angle = -90;  left = 0 => angle = +89 */
         int angle = 0;
-        if ((left != 255) || (right != 255)) {
+        if ((left != MIX_MAX_POS_EFFECT) || (right != MIX_MAX_POS_EFFECT)) {
             angle = (int)left;
             angle = 127 - angle;
             angle = -angle;
@@ -1991,9 +1992,9 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
 
         /* it's a no-op; unregister the effect, if it's registered. */
 #ifdef FULL // FIX_OUT
-    if ((args->distance_u8 == 255) && (left == 255) && (right == 255)) {
+    if ((args->distance_u8 == MIX_MAX_POS_EFFECT) && (left == MIX_MAX_POS_EFFECT) && (right == MIX_MAX_POS_EFFECT)) {
 #else
-    if ((left == 255) && (right == 255)) {
+    if ((left == MIX_MAX_POS_EFFECT) && (right == MIX_MAX_POS_EFFECT)) {
 #endif
         if (args->in_use) {
             retval = _Mix_UnregisterEffect_locked(channel, f);
@@ -2007,11 +2008,11 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
 #ifdef FULL
     args->left_u8 = left;
 #endif
-    args->left_f = ((float) left) / 255.0f;
+    args->left_f = ((float) left) / MIX_MAX_POS_EFFECT_F;
 #ifdef FULL
     args->right_u8 = right;
 #endif
-    args->right_f = ((float) right) / 255.0f;
+    args->right_f = ((float) right) / MIX_MAX_POS_EFFECT_F;
 #ifdef FULL
     args->room_angle = 0;
 #endif
@@ -2045,10 +2046,10 @@ int Mix_SetDistance(int channel, Uint8 distance)
         return(0);
     }
 
-    distance = 255 - distance;  /* flip it to our scale. */
+    distance = MIX_MAX_POS_EFFECT - distance;  /* flip it to our scale. */
 
     /* it's a no-op; unregister the effect, if it's registered. */
-    if ((distance == 255) && (args->left_u8 == 255) && (args->right_u8 == 255)) {
+    if ((distance == MIX_MAX_POS_EFFECT) && (args->left_u8 == MIX_MAX_POS_EFFECT) && (args->right_u8 == MIX_MAX_POS_EFFECT)) {
         if (args->in_use) {
             retval = _Mix_UnregisterEffect_locked(channel, f);
             Mix_UnlockAudio();
@@ -2060,7 +2061,7 @@ int Mix_SetDistance(int channel, Uint8 distance)
     }
 
     args->distance_u8 = distance;
-    args->distance_f = ((float) distance) / 255.0f;
+    args->distance_f = ((float) distance) / MIX_MAX_POS_EFFECT_F;
     if (!args->in_use) {
         args->in_use = 1;
         retval = _Mix_RegisterEffect_locked(channel, f, _Eff_PositionDone, (void *) args);
@@ -2123,24 +2124,24 @@ int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance)
         else room_angle = 0;
     }
 
-    distance = 255 - distance;  /* flip it to scale Mix_SetDistance() uses. */
+    distance = MIX_MAX_POS_EFFECT - distance;  /* flip it to scale Mix_SetDistance() uses. */
 
     set_amplitudes(channels, angle, room_angle);
 
     args->left_u8 = speaker_amplitude[0];
-    args->left_f = ((float) speaker_amplitude[0]) / 255.0f;
+    args->left_f = ((float) speaker_amplitude[0]) / MIX_MAX_POS_EFFECT_F;
     args->right_u8 = speaker_amplitude[1];
-    args->right_f = ((float) speaker_amplitude[1]) / 255.0f;
+    args->right_f = ((float) speaker_amplitude[1]) / MIX_MAX_POS_EFFECT_F;
     args->left_rear_u8 = speaker_amplitude[2];
-    args->left_rear_f = ((float) speaker_amplitude[2]) / 255.0f;
+    args->left_rear_f = ((float) speaker_amplitude[2]) / MIX_MAX_POS_EFFECT_F;
     args->right_rear_u8 = speaker_amplitude[3];
-    args->right_rear_f = ((float) speaker_amplitude[3]) / 255.0f;
+    args->right_rear_f = ((float) speaker_amplitude[3]) / MIX_MAX_POS_EFFECT_F;
     args->center_u8 = speaker_amplitude[4];
-    args->center_f = ((float) speaker_amplitude[4]) / 255.0f;
+    args->center_f = ((float) speaker_amplitude[4]) / MIX_MAX_POS_EFFECT_F;
     args->lfe_u8 = speaker_amplitude[5];
-    args->lfe_f = ((float) speaker_amplitude[5]) / 255.0f;
+    args->lfe_f = ((float) speaker_amplitude[5]) / MIX_MAX_POS_EFFECT_F;
     args->distance_u8 = distance;
-    args->distance_f = ((float) distance) / 255.0f;
+    args->distance_f = ((float) distance) / MIX_MAX_POS_EFFECT_F;
     args->room_angle = room_angle;
     if (!args->in_use) {
         args->in_use = 1;
