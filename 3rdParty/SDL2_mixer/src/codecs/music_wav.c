@@ -45,11 +45,15 @@ typedef struct {
 #ifdef FULL // FILE_INT
     Sint64 start;
     Sint64 stop;
+#ifdef FULL // MUS_ENC, SEEK
     Sint64 samplesize;
+#endif
 #else
     int start;
     int stop;
+#ifdef FULL // MUS_ENC, SEEK
     int samplesize;
+#endif
 #endif
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     Uint8 *buffer;
@@ -954,7 +958,9 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 #endif
     spec->channels = (Uint8) SDL_SwapLE16(fmt.format.channels);
     spec->samples = 4096;       /* Good default buffer size */
+#ifdef FULL // MUS_ENC, SEEK
     wave->samplesize = spec->channels * (bits / 8);
+#endif
     /* SDL_CalculateAudioSpec */
     spec->size = SDL_AUDIO_BITSIZE(spec->format) / 8;
     spec->size *= spec->channels;
