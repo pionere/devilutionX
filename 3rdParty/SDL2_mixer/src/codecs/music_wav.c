@@ -67,8 +67,10 @@ typedef struct {
 #ifdef FULL // WAV_ENC
     Uint16 encoding;
 #endif
+#ifdef FULL // MUS_ENC
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     int (*decode)(void *music, int length);
+#endif
 #endif
 } WAV_Music;
 
@@ -204,9 +206,11 @@ static void *WAV_CreateFromRW(SDL_RWops *src, int freesrc)
     }
     music->src = src;
     music->volume = MIX_MAX_VOLUME;
+#ifdef FULL // MUS_ENC
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     /* Default decoder is PCM */
     music->decode = fetch_pcm;
+#endif
 #endif
 #ifdef FULL // WAV_ENC
     music->encoding = PCM_CODE;
@@ -416,6 +420,7 @@ static int fetch_float64le(void *context, int length)
     return length / 2;
 }
 #endif // FULL
+#ifdef FULL // MUS_ENC
 /*
     G711 decode tables taken from SDL2 (src/audio/SDL_wave.c)
 */
@@ -523,6 +528,7 @@ static int fetch_alaw(void *context, int length)
     return fetch_xlaw(ALAW_To_PCM16, context, length);
 }
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
+#endif // FULL - MUS_ENC
 /* Play some of a stream previously started with WAV_Play() */
 static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
 {
@@ -547,7 +553,9 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
     SDL_bool looped = SDL_FALSE;
 #endif
     SDL_bool at_end = SDL_FALSE;
+#ifdef FULL // WAV_LOOP
     unsigned i;
+#endif
     int filled, amount, result;
 
     filled = SDL_AudioStreamGet(music->stream, data, bytes);
@@ -583,8 +591,11 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
     if ((stop - pos) < amount) {
         amount = (int)(stop - pos);
     }
-
+#ifdef FULL // MUS_ENC
     amount = music->decode(music, amount);
+#else
+    amount = fetch_pcm(music, amount);
+#endif
     if (amount > 0) {
         result = SDL_AudioStreamPut(music->stream, music->buffer, amount);
         if (result < 0) {
@@ -705,7 +716,7 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
         }
         data = SDL_stack_alloc(Uint8, bytes);
         if (data) {
-            bytes = (int)SDL_RWread(music->src, data, 1, bytes);
+            bytes = (int)SDL_RWread(music->src, data, 1, bytes); // MUS_ENC
             //SDL_MixAudioFormat(stream, data, music_spec.format, bytes, music->volume);
             SDL_MixAudio(stream, data, bytes, music->volume);
             SDL_stack_free(data);
@@ -850,6 +861,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
         formatEx = (WaveFMTex*)(data + sizeof(WaveFMT));
         encoding = (Uint16)SDL_SwapLE32(formatEx->subencoding);
     }
+#ifdef FULL // MUS_ENC
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     /* Decode the audio data format */
     switch (encoding) {
@@ -872,14 +884,22 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
             goto done;
     }
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
+#else
+    if (encoding != PCM_CODE) {
+        Mix_SetError("Unknown WAVE data format");
+        return SDL_FALSE;
+    }
+#endif // FULL - MUS_ENC
     spec->freq = (int)SDL_SwapLE32(format->frequency);
     bits = (int) SDL_SwapLE16(format->bitspersample);
     switch (bits) {
         case 8:
             switch(encoding) {
             case PCM_CODE:  spec->format = AUDIO_U8; break;
+#ifdef FULL // MUS_ENC
             case ALAW_CODE: spec->format = AUDIO_S16; break;
             case uLAW_CODE: spec->format = AUDIO_S16; break;
+#endif
             default: goto unknown_bits;
             }
             break;
