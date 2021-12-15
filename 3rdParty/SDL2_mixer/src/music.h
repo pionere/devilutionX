@@ -77,6 +77,7 @@ extern const char* meta_tags_get(Mix_MusicMetaTags *tags, Mix_MusicMetaTag type)
 
 typedef struct
 {
+#ifdef FULL // WAV_SRC
     const char *tag;
     Mix_MusicAPI api;
     Mix_MusicType type;
@@ -88,15 +89,15 @@ typedef struct
 
     /* Initialize for the audio output */
     int (*Open)(const SDL_AudioSpec *spec);
-
+#endif
     /* Create a music object from an SDL_RWops stream
      * If the function returns NULL, 'src' will be freed if needed by the caller.
      */
     void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
-
+#ifdef FULL // WAV_SRC
     /* Create a music object from a file, if SDL_RWops are not supported */
     void *(*CreateFromFile)(const char *file);
-
+#endif
     /* Set the volume */
     void (*SetVolume)(void *music, int volume);
 #ifdef FULL
@@ -133,9 +134,9 @@ typedef struct
     /* Tell a loop length position (in seconds) */
     double (*LoopLength)(void *music);
 
-	/* Get a meta-tag string if available */
+    /* Get a meta-tag string if available */
     const char* (*GetMetaTag)(void *music, Mix_MusicMetaTag tag_type);
-#endif
+
     /* Pause playing music */
     void (*Pause)(void *music);
 
@@ -144,24 +145,27 @@ typedef struct
 
     /* Stop playing music */
     void (*Stop)(void *music);
-
+#endif
     /* Delete a music object */
     void (*Delete)(void *music);
-
+#ifdef FULL // WAV_SRC
     /* Close the library and clean up */
     void (*Close)(void);
 
     /* Unload the library */
     void (*Unload)(void);
-
+#endif
 } Mix_MusicInterface;
 
-
+#ifdef FULL
 extern int get_num_music_interfaces(void);
 extern Mix_MusicInterface *get_music_interface(int index);
+#endif
+#ifdef FULL // WAV_SRC
 extern Mix_MusicType detect_music_type(SDL_RWops *src);
 extern SDL_bool load_music_type(Mix_MusicType type);
 extern SDL_bool open_music_type(Mix_MusicType type);
+#endif
 #ifdef FULL
 extern SDL_bool has_music(Mix_MusicType type);
 #endif
@@ -170,7 +174,9 @@ extern int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                               int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done));
 extern void SDLCALL music_mixer(void *udata, Uint8 *stream, int len);
 extern void close_music(void);
+#ifdef FULL // WAV_SRC
 extern void unload_music(void);
+#endif
 
 #ifdef FULL
 extern char *music_cmd;

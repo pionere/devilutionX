@@ -67,7 +67,9 @@ static Mix_Music * volatile music_playing = NULL;
 SDL_AudioSpec music_spec;
 #endif
 struct _Mix_Music {
+#ifdef FULL // WAV_SRC
     Mix_MusicInterface *interface;
+#endif
     void *context;
 
     SDL_bool playing;
@@ -162,7 +164,7 @@ static SDL_INLINE const char *get_last_dirsep (const char *p) {
 }
 #endif
 #endif // FULL
-
+#ifdef FULL // WAV_SRC
 /* Interfaces for the various music interfaces, ordered by priority */
 static Mix_MusicInterface *s_music_interfaces[] =
 {
@@ -206,6 +208,7 @@ static Mix_MusicInterface *s_music_interfaces[] =
     &Mix_MusicInterface_NATIVEMIDI,
 #endif
 };
+#endif // FULL - WAV_SRC
 #ifdef FULL
 int get_num_music_interfaces(void)
 {
@@ -358,10 +361,11 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #endif
 #ifdef FULL // WAV_SRC
         if (music_playing->interface->GetAudio) {
+            int left = music_playing->interface->GetAudio(music_playing->context, stream, len);
 #else
         if (1) {
+            int left = Mix_MusicInterface_WAV.GetAudio(music_playing->context, stream, len);
 #endif
-            int left = music_playing->interface->GetAudio(music_playing->context, stream, len);
             if (left != 0) {
                 /* Either an error or finished playing with data left */
                 music_playing->playing = SDL_FALSE;
@@ -386,7 +390,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
         }
     }
 }
-
+#ifdef FULL // WAV_SRC
 /* Load the music interface libraries for a given music type */
 SDL_bool load_music_type(Mix_MusicType type)
 {
@@ -425,12 +429,12 @@ SDL_bool open_music_type(Mix_MusicType type)
     size_t i;
     int opened = 0;
     SDL_bool use_native_midi = SDL_FALSE;
-#ifdef FULL // WAV_SRC
+
     if (!music_spec.format) {
         /* Music isn't opened yet */
         return SDL_FALSE;
     }
-#endif
+
 #ifdef MUSIC_MID_NATIVE
     if (type == MUS_MID && SDL_GetHintBoolean("SDL_NATIVE_MUSIC", SDL_FALSE) && native_midi_detect()) {
         use_native_midi = SDL_TRUE;
@@ -466,7 +470,6 @@ SDL_bool open_music_type(Mix_MusicType type)
         }
         ++opened;
     }
-#ifdef FULL // WAV_SRC
     if (has_music(MUS_MOD)) {
         add_music_decoder("MOD");
         add_chunk_decoder("MOD");
@@ -491,9 +494,9 @@ SDL_bool open_music_type(Mix_MusicType type)
         add_music_decoder("FLAC");
         add_chunk_decoder("FLAC");
     }
-#endif // FULL
     return (opened > 0) ? SDL_TRUE : SDL_FALSE;
 }
+#endif // FULL
 
 /* Initialize the music interfaces with a certain desired audio format */
 void open_music(const SDL_AudioSpec *spec)
@@ -506,13 +509,11 @@ void open_music(const SDL_AudioSpec *spec)
 #ifdef FULL // WAV_SRC
     /* Load the music interfaces that don't have explicit initialization */
     load_music_type(MUS_CMD);
-#endif
     load_music_type(MUS_WAV);
-#ifdef FULL // WAV_SRC
     /* Open all the interfaces that are loaded */
     music_spec = *spec;
-#endif
     open_music_type(MUS_NONE);
+#endif
 
     Mix_VolumeMusic(MIX_MAX_VOLUME);
 #ifdef FULL // FADING
@@ -714,24 +715,32 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
     }
 #endif
     Mix_ClearError();
-
+#ifdef FULL // WAV_SRC
     if (load_music_type(type) && open_music_type(type)) {
         for (i = 0; i < SDL_arraysize(s_music_interfaces); ++i) {
             Mix_MusicInterface *interface = s_music_interfaces[i];
             if (!interface->opened || type != interface->type || !interface->CreateFromRW) {
                 continue;
             }
-
             context = interface->CreateFromRW(src, freesrc);
+#else
+            context = Mix_MusicInterface_WAV.CreateFromRW(src, freesrc);
+#endif
             if (context) {
                 /* Allocate memory for the music structure */
                 Mix_Music *music = (Mix_Music *)SDL_calloc(1, sizeof(Mix_Music));
                 if (music == NULL) {
+#ifdef FULL // WAV_SRC
                     interface->Delete(context);
+#else
+                    Mix_MusicInterface_WAV.Delete(context);
+#endif
                     Mix_SetError("Out of memory");
                     return NULL;
                 }
+#ifdef FULL // WAV_SRC
                 music->interface = interface;
+#endif
                 music->context = context;
 #ifdef FULL // HINTS
                 if (SDL_GetHintBoolean(SDL_MIXER_HINT_DEBUG_MUSIC_INTERFACES, SDL_FALSE)) {
@@ -743,9 +752,10 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 
             /* Reset the stream for the next decoder */
             SDL_RWseek(src, start, RW_SEEK_SET);
+#ifdef FULL // WAV_SRC
         }
     }
-
+#endif
     if (!*Mix_GetError()) {
         Mix_SetError("Unrecognized audio format");
     }
@@ -777,8 +787,11 @@ void Mix_FreeMusic(Mix_Music *music)
             }
         }
         Mix_UnlockAudio();
-
+#ifdef FULL // WAV_SRC
         music->interface->Delete(music->context);
+#else
+        Mix_MusicInterface_WAV.Delete(music->context);
+#endif
         SDL_free(music);
     }
 }
@@ -882,7 +895,11 @@ static int music_internal_play(Mix_Music *music, int play_count, double position
     music_internal_initialize_volume();
 
     /* Set up for playback */
+#ifdef FULL // WAV_SRC
     retval = music->interface->Play(music->context, play_count);
+#else
+    retval = Mix_MusicInterface_WAV.Play(music->context, play_count);
+#endif
 #ifdef FULL
     /* Set the playback position, note any errors if an offset is used */
     if (retval == 0) {
@@ -1158,9 +1175,13 @@ static void music_internal_initialize_volume(void)
 /* Set the music volume */
 static void music_internal_volume(int volume)
 {
+#ifdef FULL // WAV_SRC
     if (music_playing->interface->SetVolume) {
         music_playing->interface->SetVolume(music_playing->context, volume);
     }
+#else
+        Mix_MusicInterface_WAV.SetVolume(music_playing->context, volume);
+#endif
 }
 int Mix_VolumeMusic(int volume)
 {
@@ -1379,7 +1400,7 @@ void close_music(void)
     size_t i;
 
     Mix_HaltMusic();
-
+#ifdef FULL // WAV_SRC
     for (i = 0; i < SDL_arraysize(s_music_interfaces); ++i) {
         Mix_MusicInterface *interface = s_music_interfaces[i];
         if (!interface || !interface->opened) {
@@ -1391,6 +1412,7 @@ void close_music(void)
         }
         interface->opened = SDL_FALSE;
     }
+#endif
 #ifdef FULL // META
     if (soundfont_paths) {
         SDL_free(soundfont_paths);
@@ -1409,7 +1431,7 @@ void close_music(void)
     ms_per_step = 0;
 #endif
 }
-
+#ifdef FULL // WAV_SRC
 /* Unload the music interface libraries */
 void unload_music(void)
 {
@@ -1426,6 +1448,7 @@ void unload_music(void)
         interface->loaded = SDL_FALSE;
     }
 }
+#endif
 #ifdef FULL // META
 int Mix_SetTimidityCfg(const char *path)
 {

@@ -809,7 +809,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
     Uint8 *data;
     int bits;
     SDL_bool loaded = SDL_FALSE;
-	Uint16 encoding;
+    Uint16 encoding;
 
     if (chunk_length < sizeof(*format)) {
         Mix_SetError("Wave format chunk too small");
@@ -821,7 +821,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
         Mix_SetError("Out of memory");
         goto done;
     }
-	if (!SDL_RWread(wave->src, data, chunk_length, 1)) {
+    if (!SDL_RWread(wave->src, data, chunk_length, 1)) {
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
         return SDL_FALSE;
     }
@@ -901,12 +901,12 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
             break;
 #endif
         default:
-			unknown_bits:
+            unknown_bits:
             Mix_SetError("Unknown PCM format with %d bits", bits);
             goto done;
     }
 #ifdef FULL // WAV_ENC
-	wave->encoding = encoding;
+    wave->encoding = encoding;
 #endif
     spec->channels = (Uint8) SDL_SwapLE16(format->channels);
     spec->samples = 4096;       /* Good default buffer size */
@@ -965,7 +965,7 @@ static SDL_bool ParseSMPL(WAV_Music *wave, Uint32 chunk_length)
     }
     if (!SDL_RWread(wave->src, data, chunk_length, 1)) {
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
-		SDL_free(data);
+        SDL_free(data);
         return SDL_FALSE;
     }
     chunk = (SamplerChunk *)data;
@@ -982,7 +982,7 @@ static SDL_bool ParseSMPL(WAV_Music *wave, Uint32 chunk_length)
     SDL_free(data);
     return loaded;
 }
-
+#ifdef FULL // META
 static void read_meta_field(Mix_MusicMetaTags *tags, Mix_MusicMetaTag tag_type, size_t *i, Uint32 chunk_length, Uint8 *data, size_t fieldOffset)
 {
     Uint32 len = 0;
@@ -996,16 +996,12 @@ static void read_meta_field(Mix_MusicMetaTags *tags, Mix_MusicMetaTag tag_type, 
         return; /* Do nothing due to broken lenght */
     }
     *i += fieldOffset;
-#ifdef FULL // META
-	field = (char *)SDL_malloc(len + 1);
+    field = (char *)SDL_malloc(len + 1);
     SDL_memset(field, 0, (len + 1));
     SDL_strlcpy(field, (char *)(data + *i), isID3 ? len - 1 : len);
-#endif
     *i += len;
-#ifdef FULL
     meta_tags_set(tags, tag_type, field);
     SDL_free(field);
-#endif
 }
 
 static SDL_bool ParseLIST(WAV_Music *wave, Uint32 chunk_length)
@@ -1027,7 +1023,6 @@ static SDL_bool ParseLIST(WAV_Music *wave, Uint32 chunk_length)
     if (SDL_strncmp((char *)data, "INFO", 4) == 0) {
         size_t i = 4;
         for (i = 4; i < chunk_length - 4;) {
-#ifdef FULL // META
             if(SDL_strncmp((char *)(data + i), "INAM", 4) == 0) {
                 read_meta_field(&wave->tags, MIX_META_TITLE, &i, chunk_length, data, 4);
                 continue;
@@ -1042,16 +1037,6 @@ static SDL_bool ParseLIST(WAV_Music *wave, Uint32 chunk_length)
                 continue;
             }
             i++;
-#else
-			if(SDL_strncmp((char *)(data + i), "INAM", 4) == 0
-			|| SDL_strncmp((char *)(data + i), "IART", 4) == 0
-			|| SDL_strncmp((char *)(data + i), "IALB", 4) == 0
-			|| SDL_strncmp((char *)(data + i), "BCPR", 4) == 0) {
-	            read_meta_field(NULL, 0, &i, chunk_length, data, 4);
-            } else {
-				i++;
-			}
-#endif
         }
     }
 
@@ -1060,7 +1045,7 @@ static SDL_bool ParseLIST(WAV_Music *wave, Uint32 chunk_length)
 
     return SDL_TRUE;
 }
-
+#endif // FULL
 static SDL_bool LoadWAVMusic(WAV_Music *wave)
 {
     SDL_RWops *src = wave->src;
@@ -1105,10 +1090,12 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave)
             if (!ParseSMPL(wave, chunk_length))
                 return SDL_FALSE;
             break;
+#ifdef FULL // META
         case LIST:
             if (!ParseLIST(wave, chunk_length))
                 return SDL_FALSE;
             break;
+#endif
         default:
             SDL_RWseek(src, chunk_length, RW_SEEK_CUR);
             break;
@@ -1379,6 +1366,7 @@ static SDL_bool LoadAIFFMusic(WAV_Music *wave)
 #endif // FULL
 Mix_MusicInterface Mix_MusicInterface_WAV =
 {
+#ifdef FULL // WAV_SRC
     "WAVE",
     MIX_MUSIC_WAVE,
     MUS_WAV,
@@ -1387,8 +1375,11 @@ Mix_MusicInterface Mix_MusicInterface_WAV =
 
     NULL,   /* Load */
     NULL,   /* Open */
+#endif
     WAV_CreateFromRW,
+#ifdef FULL // WAV_SRC
     NULL,   /* CreateFromFile */
+#endif
     WAV_SetVolume,
 #ifdef FULL
     WAV_GetVolume,
@@ -1407,13 +1398,15 @@ Mix_MusicInterface Mix_MusicInterface_WAV =
     NULL,   /* LoopEnd */
     NULL,   /* LoopLength */
     WAV_GetMetaTag,   /* GetMetaTag */
-#endif
     NULL,   /* Pause */
     NULL,   /* Resume */
     NULL,   /* Stop */
+#endif
     WAV_Delete,
+#ifdef FULL // WAV_SRC
     NULL,   /* Close */
     NULL    /* Unload */
+#endif
 };
 
 #endif /* MUSIC_WAV */
