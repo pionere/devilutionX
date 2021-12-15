@@ -215,7 +215,9 @@ int Mix_Init(int flags)
 
 void Mix_Quit()
 {
+#ifdef FULL // WAV_SRC
     unload_music();
+#endif
 }
 
 static int _Mix_remove_all_effects(int channel, effect_info **e);
@@ -437,7 +439,9 @@ static void PrintFormat(char *title, SDL_AudioSpec *fmt)
 int Mix_OpenAudioDevice(int frequency, Uint16 format, int nchannels, int chunksize,
                         const char* device, int allowed_changes)
 {
+#ifdef FULL // FIX_CHAN
     int i;
+#endif
     SDL_AudioSpec desired;
 #ifdef FULL // INIT, SINGLE
     /* This used to call SDL_OpenAudio(), which initializes the audio
@@ -1433,18 +1437,28 @@ void Mix_CloseAudio(void)
 /* Pause a particular channel (or all) */
 void Mix_Pause(int which)
 {
+#ifdef FULL // FADING
     Uint32 sdl_ticks = SDL_GetTicks();
+#endif
     if (which == -1) {
         int i;
 
         for (i=0; i<num_channels; ++i) {
             if (Mix_Playing(i)) {
+#ifdef FULL // FADING
                 mix_channel[i].paused = sdl_ticks;
+#else
+                mix_channel[i].paused = 1;
+#endif
             }
         }
     } else if (which < num_channels) {
         if (Mix_Playing(which)) {
-            mix_channel[which].paused = sdl_ticks;
+#ifdef FULL // FADING
+                mix_channel[which].paused = sdl_ticks;
+#else
+                mix_channel[which].paused = 1;
+#endif
         }
     }
 }
@@ -1461,7 +1475,7 @@ void Mix_Resume(int which)
 
         for (i=0; i<num_channels; ++i) {
             if (Mix_Playing(i)) {
-#ifdef FULL
+#ifdef FULL // FADING
                 if (mix_channel[i].expire > 0)
                     mix_channel[i].expire += sdl_ticks - mix_channel[i].paused;
 #endif
@@ -1470,7 +1484,7 @@ void Mix_Resume(int which)
         }
     } else if (which < num_channels) {
         if (Mix_Playing(which)) {
-#ifdef FULL
+#ifdef FULL // FADING
             if (mix_channel[which].expire > 0)
                 mix_channel[which].expire += sdl_ticks - mix_channel[which].paused;
 #endif
