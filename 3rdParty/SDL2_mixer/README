@@ -6,6 +6,7 @@ Changes:
 * Comment out unnecessary bits with `#ifndef FULL`.
 * Only (u8-bit and s16-bit) WAV formats are supported (WAV_SRC)
   - silence assumed to be zero (SILENCE)
+  - loops are not supported (WAV_LOOP)
 * MIX_DEFAULT_FREQUENCY changed from 44100 to 22050
 * MIX_CHANNELS changed from 8 to 25 and fixed number of (RESERVED)CHANNELS are used (FIX_CHAN)
 * Sfx on non-stereo/22050 devices are streamed by SDL (FIX_OUT)

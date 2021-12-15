@@ -57,8 +57,10 @@ typedef struct {
 #else
     SDL_AudioCVT cvt;
 #endif
+#ifdef FULL // WAV_LOOP
     unsigned int numloops;
     WAVLoopPoint *loops;
+#endif
 #ifdef FULL
     Mix_MusicMetaTags tags;
 #endif
@@ -270,12 +272,14 @@ static int WAV_GetVolume(void *context)
 static int WAV_Play(void *context, int play_count)
 {
     WAV_Music *music = (WAV_Music *)context;
+#ifdef FULL // WAV_LOOP
     unsigned int i;
     for (i = 0; i < music->numloops; ++i) {
         WAVLoopPoint *loop = &music->loops[i];
         loop->active = SDL_TRUE;
         loop->current_play_count = loop->initial_play_count;
     }
+#endif
 #ifdef FULL // MUS_LOOP
     music->play_count = play_count;
 #endif
@@ -526,16 +530,22 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
     WAV_Music *music = (WAV_Music *)context;
 #ifdef FULL // FILE_INT
     Sint64 pos, stop;
+#ifdef FULL // WAV_LOOP
     WAVLoopPoint *loop;
     Sint64 loop_start; // = music->start;
     Sint64 loop_stop; // = music->stop;
+#endif
 #else
     int pos, stop;
+#ifdef FULL // WAV_LOOP
     WAVLoopPoint *loop;
     int loop_start; // = music->start;
     int loop_stop; // = music->stop;
 #endif
+#endif
+#ifdef FULL // WAV_LOOP
     SDL_bool looped = SDL_FALSE;
+#endif
     SDL_bool at_end = SDL_FALSE;
     unsigned i;
     int filled, amount, result;
@@ -553,6 +563,7 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
 #endif
     pos = SDL_RWtell(music->src);
     stop = music->stop;
+#ifdef FULL // WAV_LOOP
     loop = NULL;
     for (i = 0; i < music->numloops; ++i) {
         loop = &music->loops[i];
@@ -567,7 +578,7 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
         }
         loop = NULL;
     }
-
+#endif
     amount = (int)music->spec.size;
     if ((stop - pos) < amount) {
         amount = (int)(stop - pos);
@@ -583,7 +594,7 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
         /* We might be looping, continue */
         at_end = SDL_TRUE;
     }
-
+#ifdef FULL // WAV_LOOP
     if (loop && SDL_RWtell(music->src) >= stop) {
         if (loop->current_play_count == 1) {
             loop->active = SDL_FALSE;
@@ -597,6 +608,9 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
     }
 
     if (!looped && (at_end || SDL_RWtell(music->src) >= music->stop)) {
+#else
+    if (at_end || SDL_RWtell(music->src) >= music->stop) {
+#endif
 #ifdef FULL // MUS_LOOP
         if (music->play_count == 1) {
             music->play_count = 0;
@@ -780,9 +794,11 @@ static void WAV_Delete(void *context)
     /* Clean up associated data */
     meta_tags_clear(&music->tags);
 #endif
+#ifdef FULL // WAV_LOOP
     if (music->loops) {
         SDL_free(music->loops);
     }
+#endif
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     if (music->stream) {
         SDL_FreeAudioStream(music->stream);
@@ -930,7 +946,7 @@ static SDL_bool ParseDATA(WAV_Music *wave, Uint32 chunk_length)
     SDL_RWseek(wave->src, chunk_length, RW_SEEK_CUR);
     return SDL_TRUE;
 }
-
+#ifdef FULL // WAV_LOOP
 static SDL_bool AddLoopPoint(WAV_Music *wave, Uint32 play_count, Uint32 start, Uint32 stop)
 {
     WAVLoopPoint *loop;
@@ -982,6 +998,7 @@ static SDL_bool ParseSMPL(WAV_Music *wave, Uint32 chunk_length)
     SDL_free(data);
     return loaded;
 }
+#endif
 #ifdef FULL // META
 static void read_meta_field(Mix_MusicMetaTags *tags, Mix_MusicMetaTag tag_type, size_t *i, Uint32 chunk_length, Uint8 *data, size_t fieldOffset)
 {
@@ -1086,10 +1103,12 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave)
             if (!ParseDATA(wave, chunk_length))
                 return SDL_FALSE;
             break;
+#ifdef FULL // WAV_LOOP
         case SMPL:
             if (!ParseSMPL(wave, chunk_length))
                 return SDL_FALSE;
             break;
+#endif
 #ifdef FULL // META
         case LIST:
             if (!ParseLIST(wave, chunk_length))
