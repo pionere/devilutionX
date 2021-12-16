@@ -131,7 +131,7 @@ static void SDLCALL _Eff_PositionDone(int channel, void *udata)
 #else
 void _Mix_DoEffects(int channel, void* buf, int len)
 {
-    pos_args_array[channel].callback(channel, buf, len, &pos_args_array[channel]);
+    pos_args_array[channel].callback(buf, len, &pos_args_array[channel]);
 }
 void _Mix_UnregisterEffects_locked(int channel)
 {
@@ -786,15 +786,24 @@ static void SDLCALL _Eff_position_u16lsb_c6(int chan, void *stream, int len, voi
     }
 }
 #endif // FULL
+#ifdef FULL // FIX_EFF
 static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *udata)
+#else
+static void SDLCALL _Eff_position_s16lsb(void* stream, int len, void* udata)
+#endif
 {
     /* 16 signed bits (lsb) * 2 channels. */
+#ifdef FULL // FIX_OUT
     volatile position_args *args = (volatile position_args *) udata;
+#else
+    const float left = ((position_args*)udata)->left_f;
+    const float right = ((position_args*)udata)->right_f;
+#endif
     Sint16 *ptr = (Sint16 *) stream;
     int i;
-
+#ifdef FULL // FIX_EFF
     (void)chan;
-
+#endif
 #if 0
     if (len % (int)(sizeof(Sint16) * 2)) {
         fprintf(stderr,"Not an even number of frames! len=%d\n", len);
@@ -803,7 +812,7 @@ static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *
 #endif
 
     for (i = 0; i < len; i += sizeof (Sint16) * 2) {
-#ifdef FULL
+#ifdef FULL // FIX_OUT
         Sint16 swapl = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+0))) *
                                     args->left_f) * args->distance_f);
         Sint16 swapr = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+1))) *
@@ -818,9 +827,9 @@ static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *
         }
 #else
         Sint16 swapl = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+0))) *
-                                    args->left_f));
+                                    left));
         Sint16 swapr = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+1))) *
-                                    args->right_f));
+                                    right));
         //if (args->room_angle == 180) {
         //    *(ptr++) = (Sint16) SDL_SwapLE16(swapr);
         //    *(ptr++) = (Sint16) SDL_SwapLE16(swapl);
@@ -832,7 +841,7 @@ static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *
 #endif
     }
 }
-#ifdef FULL
+#ifdef FULL // FIX_OUT
 static void SDLCALL _Eff_position_s16lsb_c4(int chan, void *stream, int len, void *udata)
 {
     /* 16 signed bits (lsb) * 4 channels. */

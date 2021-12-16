@@ -293,7 +293,11 @@ extern DECLSPEC void SDLCALL Mix_ChannelFinished(void (SDLCALL *channel_finished
  *
  * DO NOT EVER call SDL_LockAudio() from your callback function!
  */
+#ifdef FULL // FIX_EFF
 typedef void (SDLCALL *Mix_EffectFunc_t)(int chan, void *stream, int len, void *udata);
+#else
+typedef void (SDLCALL *Mix_EffectFunc_t)(void* stream, int len, void* udata);
+#endif
 #ifdef FULL // EFF_CHECK, FIX_EFF
 /*
  * This is a callback that signifies that a channel has finished all its

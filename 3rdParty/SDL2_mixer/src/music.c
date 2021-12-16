@@ -691,7 +691,9 @@ Mix_Music *Mix_LoadMUS_RW(SDL_RWops *src, int freesrc)
 #endif // FULL
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 {
+#ifdef FULL // WAV_SRC
     size_t i;
+#endif
     void *context;
     Sint64 start;
 #ifdef FULL // MUS_CHECK
@@ -1397,7 +1399,9 @@ int Mix_GetSynchroValue(void)
 /* Uninitialize the music interfaces */
 void close_music(void)
 {
+#ifdef FULL // WAV_SRC
     size_t i;
+#endif
 
     Mix_HaltMusic();
 #ifdef FULL // WAV_SRC
