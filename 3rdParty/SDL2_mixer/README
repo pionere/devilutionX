@@ -30,6 +30,7 @@ Changes:
 * Mix_LoadMUSType_RW assumes not-null SDL_RWops, autodetection of type is disabled (MUS_CHECK)
 * Mix_LoadWAV_RW assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
 * Effects on channels are internalized -> extra checks disabled (EFF_CHECK)
+* Maximum one effect per channel (FIX_EFF)
 * Assumes initialized SDL with SDL_INIT_AUDIO (INIT)
 * SDL1 compatible (USE_SDL1)
 * zero-fill in init_position_args is commented out

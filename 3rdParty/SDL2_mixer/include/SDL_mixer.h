@@ -294,7 +294,7 @@ extern DECLSPEC void SDLCALL Mix_ChannelFinished(void (SDLCALL *channel_finished
  * DO NOT EVER call SDL_LockAudio() from your callback function!
  */
 typedef void (SDLCALL *Mix_EffectFunc_t)(int chan, void *stream, int len, void *udata);
-
+#ifdef FULL // EFF_CHECK, FIX_EFF
 /*
  * This is a callback that signifies that a channel has finished all its
  *  loops and has completed playback. This gets called if the buffer
@@ -380,8 +380,8 @@ extern DECLSPEC int SDLCALL Mix_UnregisterEffect(int channel, Mix_EffectFunc_t f
  */
 extern DECLSPEC int SDLCALL Mix_UnregisterAllEffects(int channel);
 
-
 #define MIX_EFFECTSMAXSPEED  "MIX_EFFECTSMAXSPEED"
+#endif // FULL - EFF_CHECK, FIX_EFF
 
 /*
  * These are the internally-defined mixing effects. They use the same API that

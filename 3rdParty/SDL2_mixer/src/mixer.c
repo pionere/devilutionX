@@ -43,6 +43,7 @@ static SDL_AudioSpec mixer;
 #if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 static SDL_AudioDeviceID audio_device;
 #endif
+#ifdef FULL // FIX_EFF
 typedef struct _Mix_effectinfo
 {
     Mix_EffectFunc_t callback;
@@ -50,7 +51,7 @@ typedef struct _Mix_effectinfo
     void *udata;
     struct _Mix_effectinfo *next;
 } effect_info;
-
+#endif
 typedef struct _Mix_Channel {
     Mix_Chunk *chunk;
     int playing;
@@ -68,7 +69,11 @@ typedef struct _Mix_Channel {
     Uint32 fade_length;
     Uint32 ticks_fade;
 #endif
+#ifdef FULL // FIX_EFF
     effect_info *effects;
+#else
+    int has_effect;
+#endif
 } _Mix_Channel;
 #ifdef FULL // FIX_CHAN
 static _Mix_Channel *mix_channel = NULL;
@@ -219,9 +224,9 @@ void Mix_Quit()
     unload_music();
 #endif
 }
-
+#ifdef FULL // FIX_EFF
 static int _Mix_remove_all_effects(int channel, effect_info **e);
-
+#endif
 /*
  * rcg06122001 Cleanup effect callbacks.
  *  MAKE SURE Mix_LockAudio() is called before this (or you're in the
@@ -237,11 +242,16 @@ static void _Mix_channel_done_playing(int channel)
      * Call internal function directly, to avoid locking audio from
      *   inside audio callback.
      */
+#ifdef FULL // FIX_EFF
     _Mix_remove_all_effects(channel, &mix_channel[channel].effects);
+#else
+    _Mix_UnregisterChanEffect(channel);
+#endif
 }
 
 static void *Mix_DoEffects(int chan, void *snd, int len)
 {
+#ifdef FULL //FIX_EFF
 #ifdef FULL
 	int posteffect = (chan == MIX_CHANNEL_POST);
     effect_info *e = ((posteffect) ? posteffects : mix_channel[chan].effects);
@@ -271,6 +281,18 @@ static void *Mix_DoEffects(int chan, void *snd, int len)
         }
     }
 
+#else
+    void *buf = snd;
+
+    if (mix_channel[chan].has_effect) {
+        buf = SDL_malloc((size_t)len);
+        if (buf != NULL) {
+            SDL_memcpy(buf, snd, (size_t)len);
+
+            _Mix_DoEffects(chan, buf, len);
+        }
+    }
+#endif // FULL - FIX_EFF
     /* be sure to SDL_free() the return value if != snd ... */
     return(buf);
 }
@@ -1402,7 +1424,11 @@ void Mix_CloseAudio(void)
 		{
 #endif
             for (i = 0; i < num_channels; i++) {
+#ifdef FULL // FIX_EFF
                 Mix_UnregisterAllEffects(i);
+#else
+                _Mix_UnregisterChanEffect(i);
+#endif
             }
 #ifdef FULL
             Mix_UnregisterAllEffects(MIX_CHANNEL_POST);
@@ -1595,7 +1621,7 @@ int Mix_GroupNewer(int tag)
  *  Please see effect_*.c for internally-implemented effects, such
  *  as Mix_SetPanning().
  */
-
+#ifdef FULL // FIX_EFF
 /* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
 static int _Mix_register_effect(effect_info **e, Mix_EffectFunc_t f,
                 Mix_EffectDone_t d, void *arg)
@@ -1721,6 +1747,12 @@ int _Mix_RegisterEffect_locked(int channel, Mix_EffectFunc_t f,
 
     return _Mix_register_effect(e, f, d, arg);
 }
+#else
+void _Mix_RegisterChanEffect_locked(int channel)
+{
+    mix_channel[channel].has_effect = 1;
+}
+#endif // FULL - FIX_EFF
 #ifdef FULL
 int Mix_RegisterEffect(int channel, Mix_EffectFunc_t f,
             Mix_EffectDone_t d, void *arg)
@@ -1733,6 +1765,7 @@ int Mix_RegisterEffect(int channel, Mix_EffectFunc_t f,
 }
 #endif
 
+#ifdef FULL // FIX_EFF
 /* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
 int _Mix_UnregisterEffect_locked(int channel, Mix_EffectFunc_t f)
 {
@@ -1753,6 +1786,7 @@ int _Mix_UnregisterEffect_locked(int channel, Mix_EffectFunc_t f)
 
     return _Mix_remove_effect(channel, e, f);
 }
+#endif // FULL - FIX_EFF
 #ifdef FULL
 int Mix_UnregisterEffect(int channel, Mix_EffectFunc_t f)
 {
@@ -1763,6 +1797,7 @@ int Mix_UnregisterEffect(int channel, Mix_EffectFunc_t f)
     return(retval);
 }
 #endif
+#ifdef FULL // FIX_EFF
 /* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
 int _Mix_UnregisterAllEffects_locked(int channel)
 {
@@ -1793,6 +1828,20 @@ int Mix_UnregisterAllEffects(int channel)
     return(retval);
 }
 
+#else
+/* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
+void _Mix_UnregisterChanEffect_locked(int channel)
+{
+    mix_channel[channel].has_effect = 0;
+    _Mix_UnregisterEffects_locked(channel);
+}
+void _Mix_UnregisterChanEffect(int channel)
+{
+    Mix_LockAudio();
+    _Mix_UnregisterChanEffect_locked(channel);
+    Mix_UnlockAudio();
+}
+#endif // FULL - FIX_EFF
 void Mix_LockAudio(void)
 {
 #if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1

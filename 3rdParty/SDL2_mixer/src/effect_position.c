@@ -70,20 +70,29 @@ typedef struct _Eff_positionargs
     volatile Uint8 distance_u8;
     volatile Sint16 room_angle;
 #endif
+#ifdef FULL // FIX_EFF
     volatile int in_use;
+#else
+    volatile Mix_EffectFunc_t callback;
+#endif
 #ifdef FULL
     volatile int channels;
 #endif
 } position_args;
 
+#ifdef FULL // FIX_EFF
 static position_args **pos_args_array = NULL;
 #ifdef FULL // EFF_CHECK
 static position_args *pos_args_global = NULL;
 #endif
 static int position_channels = 0;
+#else
+static position_args pos_args_array[MIX_CHANNELS] = { 0 };
+#endif // FULL - FIX_EFF
 
 void _Eff_PositionDeinit(void)
 {
+#ifdef FULL // FIX_EFF
     int i;
     for (i = 0; i < position_channels; i++) {
         SDL_free(pos_args_array[i]);
@@ -96,9 +105,10 @@ void _Eff_PositionDeinit(void)
 #endif
     SDL_free(pos_args_array);
     pos_args_array = NULL;
+#endif // FULL - FIX_EFF
 }
 
-
+#ifdef FULL // FIX_EFF
 /* This just frees up the callback-specific data. */
 static void SDLCALL _Eff_PositionDone(int channel, void *udata)
 {
@@ -118,6 +128,16 @@ static void SDLCALL _Eff_PositionDone(int channel, void *udata)
         pos_args_array[channel] = NULL;
     }
 }
+#else
+void _Mix_DoEffects(int channel, void* buf, int len)
+{
+    pos_args_array[channel].callback(channel, buf, len, &pos_args_array[channel]);
+}
+void _Mix_UnregisterEffects_locked(int channel)
+{
+    pos_args_array[channel].callback = NULL;
+}
+#endif // FULL - FIX_EFF
 #ifdef FULL // FIX_OUT
 static void SDLCALL _Eff_position_u8(int chan, void *stream, int len, void *udata)
 {
@@ -1577,7 +1597,11 @@ static void init_position_args(position_args *args)
 #ifdef FULL
     SDL_memset(args, '\0', sizeof (position_args));
 #endif
+#ifdef FULL // FIX_EFF
     args->in_use = 0;
+#else
+    args->callback = NULL;
+#endif
 #ifdef FULL // FIX_OUT
     static_assert(MIX_MAX_POS_EFFECT <= UCHAR_MAX, "Positional effects use BYTE fields.");
     args->room_angle = 0;
@@ -1593,6 +1617,7 @@ static void init_position_args(position_args *args)
 
 static position_args *get_position_arg(int channel)
 {
+#ifdef FULL // FIX_EFF
     void *rc;
     int i;
 #ifdef FULL // EFF_CHECK
@@ -1632,6 +1657,10 @@ static position_args *get_position_arg(int channel)
     }
 
     return(pos_args_array[channel]);
+#else
+    init_position_args(&pos_args_array[channel]);
+    return(&pos_args_array[channel]);
+#endif // FULL - FIX_EFF
 }
 
 static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
@@ -1985,6 +2014,7 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
 
     Mix_LockAudio();
     args = get_position_arg(channel);
+#ifdef FULL // FIX_EFF
     if (!args) {
         Mix_UnlockAudio();
         return(0);
@@ -2020,7 +2050,21 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
         args->in_use = 1;
         retval=_Mix_RegisterEffect_locked(channel, f, _Eff_PositionDone, (void*)args);
     }
-
+#else
+    if ((left == MIX_MAX_POS_EFFECT) && (right == MIX_MAX_POS_EFFECT)) {
+        if (args->callback) {
+            args->callback = NULL;
+            _Mix_UnregisterChanEffect_locked(channel);
+        }
+    } else {
+        args->left_f = ((float) left) / MIX_MAX_POS_EFFECT_F;
+        args->right_f = ((float) right) / MIX_MAX_POS_EFFECT_F;
+        if (args->callback == NULL) {
+            _Mix_RegisterChanEffect_locked(channel);
+        }
+        args->callback = f;
+    }
+#endif // FULL - FIX_EFF
     Mix_UnlockAudio();
     return(retval);
 }
