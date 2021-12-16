@@ -37,6 +37,19 @@ void palette_update_hive();
 #endif
 void palette_update_quest_palette(int n);
 
+// Create a palette of SDL_Colors.
+inline void palette_create_sdl_colors(SDL_Color* __restrict colors, BYTE (& __restrict paldata)[256][3])
+{
+	for (int i = 0; i < 256; i++) {
+		colors[i].r = paldata[i][0];
+		colors[i].g = paldata[i][1];
+		colors[i].b = paldata[i][2];
+#ifndef USE_SDL1
+		colors[i].a = SDL_ALPHA_OPAQUE;
+#endif
+	}
+}
+
 #ifdef __cplusplus
 }
 #endif

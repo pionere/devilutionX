@@ -206,17 +206,9 @@ static AudioQueue *sVidAudioQueue = new AudioQueue();
 
 static void UpdatePalette()
 {
-	const BYTE (&paldata)[256][3] = *(BYTE (*)[256][3])smk_get_palette(SVidSMK);
-		
 	SDL_Color* colors = SVidPalette->colors;
-	for (int i = 0; i < 256; i++) {
-		colors[i].r = paldata[i][0];
-		colors[i].g = paldata[i][1];
-		colors[i].b = paldata[i][2];
-#ifndef USE_SDL1
-		colors[i].a = SDL_ALPHA_OPAQUE;
-#endif
-	}
+
+	palette_create_sdl_colors(colors, *(BYTE (*)[256][3])smk_get_palette(SVidSMK));
 	ApplyGamma(colors, colors);
 
 #ifdef USE_SDL1

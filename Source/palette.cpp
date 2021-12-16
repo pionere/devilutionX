@@ -74,14 +74,7 @@ void LoadPalette(const char* pszFileName)
 
 	LoadFileWithMem(pszFileName, &PalData[0][0]);
 
-	for (i = 0; i < 256; i++) {
-		orig_palette[i].r = PalData[i][0];
-		orig_palette[i].g = PalData[i][1];
-		orig_palette[i].b = PalData[i][2];
-#ifndef USE_SDL1
-		orig_palette[i].a = SDL_ALPHA_OPAQUE;
-#endif
-	}
+	palette_create_sdl_colors(orig_palette, PalData);
 }
 
 void LoadRndLvlPal()

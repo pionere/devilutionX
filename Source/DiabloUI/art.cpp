@@ -1,5 +1,7 @@
 #include "art.h"
 
+#include "all.h"
+
 #include "utils/display.h"
 #include "utils/sdl_compat.h"
 #include "storm/storm.h"
@@ -117,15 +119,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 
 	// process the palette at the end of the body
 	if (pPalette != NULL) {
-		BYTE (&paldata)[256][3] = (BYTE (&)[256][3])*(fileBuffer + dataSize - (256 * 3));
-		for (int i = 0; i < 256; i++) {
-			pPalette[i].r = paldata[i][0];
-			pPalette[i].g = paldata[i][1];
-			pPalette[i].b = paldata[i][2];
-#ifndef USE_SDL1
-			pPalette[i].a = SDL_ALPHA_OPAQUE;
-#endif
-		}
+		palette_create_sdl_colors(pPalette, (BYTE (&)[256][3])*(fileBuffer + dataSize - (256 * 3)));
 	}
 
 	free(fileBuffer);
