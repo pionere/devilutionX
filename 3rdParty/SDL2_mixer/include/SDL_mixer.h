@@ -117,8 +117,8 @@ extern DECLSPEC void SDLCALL Mix_Quit(void);
 #endif
 #define MIX_DEFAULT_CHANNELS    2
 #define MIX_MAX_VOLUME          SDL_MIX_MAXVOLUME /* Volume of a chunk */
-#define MIX_MAX_POS_EFFECT      255
-#define MIX_MAX_POS_EFFECT_F    255.0f
+#define MIX_MAX_POS_EFFECT      16
+#define MIX_MAX_POS_EFFECT_F    16.0f
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 #define SDL_AUDIO_BITSIZE(x)    (x & 0xFF)

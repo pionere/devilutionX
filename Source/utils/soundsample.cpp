@@ -59,9 +59,9 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 	/*lVolume = (int)(pow(10.0, lVolume / 2000.0) * MIX_MAX_VOLUME);
 	Mix_Volume(channel, lVolume);
 	int sign = lPan;
-	lPan = (int)(pow(10.0, -abs(lPan) / 2000.0) * 255);
+	lPan = (int)(pow(10.0, -abs(lPan) / 2000.0) * MIX_MAX_POS_EFFECT);
 	Uint8 left, right;
-	left = right = 255;
+	left = right = MIX_MAX_POS_EFFECT;
 	if (lPan != 0) {
 		if (sign < 0)
 			right = lPan;
@@ -70,10 +70,10 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 	}
 	Mix_SetPanning(channel, left, right);*/
 	Mix_Volume(channel, MIX_VOLUME(lVolume));
-	//int panned = 255 - 255 * abs(lPan * 256) / 10000;
+	//int panned = MIX_MAX_POS_EFFECT - MIX_MAX_POS_EFFECT * abs(lPan * 256) / 10000;
 	static_assert(((SFX_DIST_MAX + 0) & ((SFX_DIST_MAX + 0) - 1)) == 0, "Adjust ad-hoc panning logic for better performance.");
-	int panned = 255 - 255 * abs(lPan) / (SFX_DIST_MAX + 0);
-	Mix_SetPanning(channel, lPan < 0 ? 255 : panned, lPan < 0 ? panned : 255);
+	int panned = MIX_MAX_POS_EFFECT - MIX_MAX_POS_EFFECT * abs(lPan) / (SFX_DIST_MAX + 0);
+	Mix_SetPanning(channel, lPan < 0 ? MIX_MAX_POS_EFFECT : panned, lPan < 0 ? panned : MIX_MAX_POS_EFFECT);
 
 	soundData->allocated = (channel << 8) | 1;
 };

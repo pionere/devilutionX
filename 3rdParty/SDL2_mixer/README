@@ -11,6 +11,7 @@ Changes:
   - decoder assumes pcm encoding (MUS_ENC)
 * MIX_DEFAULT_FREQUENCY changed from 44100 to 22050
 * MIX_CHANNELS changed from 8 to 25 and fixed number of (RESERVED)CHANNELS are used (FIX_CHAN)
+* MIX_MAX_POS_EFFECT(_F) changed/defined from 255 to 16
 * Sfx on non-stereo/22050 devices are streamed by SDL (FIX_OUT)
   - Panning is only for AUDIO_S16LSB with 2-channels
 * meta tags are ignored (META)
