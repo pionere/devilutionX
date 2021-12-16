@@ -56,7 +56,7 @@ typedef struct _Eff_positionargs
     volatile float left_f;
     volatile float right_f;
 #ifdef FULL // FIX_OUT
-	volatile Uint8 left_u8;
+    volatile Uint8 left_u8;
     volatile Uint8 right_u8;
     volatile float left_rear_f;
     volatile float right_rear_f;
@@ -112,7 +112,7 @@ static void SDLCALL _Eff_PositionDone(int channel, void *udata)
     }
     else if (pos_args_array[channel] != NULL) {
 #else
-	if (pos_args_array[channel] != NULL) {
+    if (pos_args_array[channel] != NULL) {
 #endif
         SDL_free(pos_args_array[channel]);
         pos_args_array[channel] = NULL;
@@ -784,7 +784,7 @@ static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *
 
     for (i = 0; i < len; i += sizeof (Sint16) * 2) {
 #ifdef FULL
-		Sint16 swapl = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+0))) *
+        Sint16 swapl = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+0))) *
                                     args->left_f) * args->distance_f);
         Sint16 swapr = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+1))) *
                                     args->right_f) * args->distance_f);
@@ -797,7 +797,7 @@ static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *
             *(ptr++) = (Sint16) SDL_SwapLE16(swapr);
         }
 #else
-		Sint16 swapl = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+0))) *
+        Sint16 swapl = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+0))) *
                                     args->left_f));
         Sint16 swapr = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+1))) *
                                     args->right_f));
@@ -1678,7 +1678,7 @@ static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
             }
             break;
 
-		case AUDIO_U16LSB:
+        case AUDIO_U16LSB:
             switch (channels) {
             case 1:
             case 2:
@@ -1811,12 +1811,12 @@ static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
 
     return(f);
 }
-
+#ifdef FULL
 static Uint8 speaker_amplitude[6];
 
 static void set_amplitudes(int channels, int angle, int room_angle)
 {
-    int left = MIX_MAX_DISTANCE, right = MIX_MAX_DISTANCE;
+    int left = MIX_MAX_POS_EFFECT, right = MIX_MAX_POS_EFFECT;
     int left_rear = MIX_MAX_POS_EFFECT, right_rear = MIX_MAX_POS_EFFECT, center = MIX_MAX_POS_EFFECT;
 
     /* our only caller Mix_SetPosition() already makes angle between 0 and 359. */
@@ -1949,12 +1949,12 @@ static void set_amplitudes(int channels, int angle, int room_angle)
 }
 
 int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance);
-
+#endif // FULL
 int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
 {
     Mix_EffectFunc_t f = NULL;
 #ifdef FULL
-	int channels;
+    int channels;
     Uint16 format;
 #endif
     position_args *args = NULL;
@@ -1978,7 +1978,7 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
     }
     f = get_position_effect_func(format, channels);
 #else
-	f = get_position_effect_func(MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS);
+    f = get_position_effect_func(MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS);
 #endif // FULL
     if (f == NULL)
         return(0);
