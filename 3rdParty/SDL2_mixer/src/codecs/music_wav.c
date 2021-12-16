@@ -117,9 +117,10 @@ typedef struct {
     Uint32  byterate;       /* Average bytes per second */
     Uint16  blockalign;     /* Bytes per sample block */
     Uint16  bitspersample;      /* One of 8, 12, 16, or 4 for ADPCM */
-} WaveFMTHeader;
+} WaveFMT;
 
 typedef struct {
+    WaveFMT format;
     Uint16  cbSize;
     union {
         Uint16 validbitspersample; /* bits of precision */
@@ -131,15 +132,11 @@ typedef struct {
     Uint32 subencoding;
     Uint16 sub_data2;
     Uint16 sub_data3;
-#ifdef FULL
+//#ifdef FULL // MUS_ENC
     Uint8  sub_data[8];
-#endif
-} WaveFMTex;
+//#endif
+} WaveFMTEx;
 
-typedef struct {
-    WaveFMTHeader format;
-    WaveFMTex formatEx;
-} _WaveFMT;
 #pragma pack(pop)
 
 typedef struct {
@@ -844,7 +841,8 @@ static void WAV_Delete(void *context)
 static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 {
     SDL_AudioSpec *spec = &wave->spec;
-    _WaveFMT fmt;
+    WaveFMTEx fmt;
+    size_t size;
     int bits;
     Uint16 encoding;
 
@@ -853,12 +851,12 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
         return SDL_FALSE;
     }
 
-    bits = chunk_length >= sizeof(fmt) ? sizeof(fmt) : sizeof(fmt.format);
-    if (!SDL_RWread(wave->src, &fmt, bits, 1)) {
+    size = (chunk_length >= sizeof(fmt)) ? sizeof(fmt) : sizeof(fmt.format);
+    if (!SDL_RWread(wave->src, &fmt, size, 1)) {
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
         return SDL_FALSE;
     }
-    chunk_length -= bits;
+    chunk_length -= size;
     if (chunk_length != 0 && !SDL_RWseek(wave->src, chunk_length, RW_SEEK_CUR)) {
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
         return SDL_FALSE;
@@ -871,7 +869,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
             Mix_SetError("Wave format chunk too small");
             return SDL_FALSE;
         }
-        encoding = (Uint16)SDL_SwapLE32(fmt.formatEx.subencoding);
+        encoding = (Uint16)SDL_SwapLE32(fmt.subencoding);
     }
 #ifdef FULL // MUS_ENC
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
