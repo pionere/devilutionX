@@ -198,7 +198,11 @@ extern DECLSPEC Mix_Chunk * SDLCALL Mix_QuickLoad_RAW(Uint8 *mem, Uint32 len);
 #endif
 /* Free an audio chunk previously loaded */
 extern DECLSPEC void SDLCALL Mix_FreeChunk(Mix_Chunk *chunk);
+#ifdef FULL
 extern DECLSPEC void SDLCALL Mix_FreeMusic(Mix_Music *music);
+#else
+extern DECLSPEC void SDLCALL Mix_FreeMusic();
+#endif
 #ifdef FULL
 /* Get a list of chunk/music decoders that this build of SDL_mixer provides.
    This list can change between builds AND runs of the program, if external
@@ -583,7 +587,11 @@ extern DECLSPEC int SDLCALL Mix_GroupNewer(int tag);
 #define Mix_PlayChannel(channel,chunk,loops) Mix_PlayChannelTimed(channel,chunk,loops,-1)
 /* The same as above, but the sound is played at most 'ticks' milliseconds */
 extern DECLSPEC int SDLCALL Mix_PlayChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ticks);
+#ifdef FULL // FIX_MUS
 extern DECLSPEC int SDLCALL Mix_PlayMusic(Mix_Music *music, int loops);
+#else
+extern DECLSPEC int SDLCALL Mix_PlayMusic(int loops);
+#endif
 #ifdef FULL
 /* Fade in music or a channel over "ms" milliseconds, same semantics as the "Play" functions */
 extern DECLSPEC int SDLCALL Mix_FadeInMusic(Mix_Music *music, int loops, int ms);

@@ -60,12 +60,19 @@
 #ifdef FULL
 char *music_cmd = NULL;
 #endif
+#ifdef FULL // MUS_ACTIVE
 static SDL_bool music_active = SDL_TRUE;
+#endif
 static int music_volume = MIX_MAX_VOLUME;
+#ifdef FULL // FIX_MUS
 static Mix_Music * volatile music_playing = NULL;
+#else
+static SDL_bool volatile music_playing = SDL_FALSE;
+#endif
 #ifdef FULL
 SDL_AudioSpec music_spec;
 #endif
+#ifdef FULL // FIX_MUS
 struct _Mix_Music {
 #ifdef FULL // WAV_SRC
     Mix_MusicInterface *interface;
@@ -80,6 +87,14 @@ struct _Mix_Music {
     char filename[1024];
 #endif
 };
+#else
+struct _Mix_Music {
+    union {
+        WAV_Music asWAV;
+    };
+};
+static Mix_Music theMusic;
+#endif // FULL - FIX_MUS
 #ifdef FULL // FADING
 /* Used to calculate fading steps */
 static int ms_per_step;
@@ -332,9 +347,13 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 {
     (void)udata;
 
+#ifdef FULL // MUS_ACTIVE
     while (music_playing && music_active && len > 0) {
+#else
+    while (music_playing && len > 0) {
+#endif
 #ifdef FULL // FADING
-		/* Handle fading */
+        /* Handle fading */
         if (music_playing->fading != MIX_NO_FADING) {
             if (music_playing->fade_step++ < music_playing->fade_steps) {
                 int volume;
@@ -364,11 +383,19 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
             int left = music_playing->interface->GetAudio(music_playing->context, stream, len);
 #else
         if (1) {
+#ifdef FULL // FIX_MUS
             int left = Mix_MusicInterface_WAV.GetAudio(music_playing->context, stream, len);
-#endif
+#else
+            int left = Mix_MusicInterface_WAV.GetAudio(&theMusic, stream, len);
+#endif // FULL - FIX_MUS
+#endif // FULL - WAV_SRC
             if (left != 0) {
                 /* Either an error or finished playing with data left */
+#ifdef FULL // FIX_MUS
                 music_playing->playing = SDL_FALSE;
+#else
+                music_playing = SDL_FALSE;
+#endif
             }
             if (left > 0) {
                 stream += (len - left);
@@ -726,9 +753,10 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
             }
             context = interface->CreateFromRW(src, freesrc);
 #else
-            context = Mix_MusicInterface_WAV.CreateFromRW(src, freesrc);
+            context = Mix_MusicInterface_WAV.CreateFromRW(src, &theMusic, freesrc);
 #endif
             if (context) {
+#ifdef FULL // FIX_MUS
                 /* Allocate memory for the music structure */
                 Mix_Music *music = (Mix_Music *)SDL_calloc(1, sizeof(Mix_Music));
                 if (music == NULL) {
@@ -750,6 +778,9 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
                 }
 #endif
                 return music;
+#else
+                return context;
+#endif // FULL - FIX_MUS
             }
 
             /* Reset the stream for the next decoder */
@@ -770,6 +801,7 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 }
 
 /* Free a music chunk previously loaded */
+#ifdef FULL // FIX_MUS
 void Mix_FreeMusic(Mix_Music *music)
 {
     if (music) {
@@ -777,7 +809,7 @@ void Mix_FreeMusic(Mix_Music *music)
         Mix_LockAudio();
         if (music == music_playing) {
 #ifdef FULL // FADING
-			/* Wait for any fade out to finish */
+            /* Wait for any fade out to finish */
             while (music->fading == MIX_FADING_OUT) {
                 Mix_UnlockAudio();
                 SDL_Delay(100);
@@ -797,6 +829,33 @@ void Mix_FreeMusic(Mix_Music *music)
         SDL_free(music);
     }
 }
+#else
+void Mix_FreeMusic()
+{
+    // TODO: ensure theMusic is valid?
+    /* Stop the music if it's currently playing */
+    Mix_LockAudio();
+    if (music_playing) {
+#ifdef FULL // FADING
+        /* Wait for any fade out to finish */
+        while (music->fading == MIX_FADING_OUT) {
+            Mix_UnlockAudio();
+            SDL_Delay(100);
+            Mix_LockAudio();
+        }
+#endif
+        if (music_playing) {
+            music_internal_halt();
+        }
+    }
+    Mix_UnlockAudio();
+#ifdef FULL // WAV_SRC
+    music->interface->Delete(theMusic);
+#else
+    Mix_MusicInterface_WAV.Delete(&theMusic);
+#endif
+}
+#endif // FULL - FIX_MUS
 #ifdef FULL
 /* Find out the music format of a mixer music, or the currently playing
    music, if 'music' is NULL.
@@ -885,13 +944,16 @@ static int music_internal_play(Mix_Music *music, int play_count, double position
         return 0;
     }
 #endif
-
+#ifdef FULL // FIX_MUS
     /* Note the music we're playing */
     if (music_playing) {
         music_internal_halt();
     }
     music_playing = music;
     music_playing->playing = SDL_TRUE;
+#else
+    music_playing = SDL_TRUE;
+#endif
 
     /* Set the initial volume */
     music_internal_initialize_volume();
@@ -900,7 +962,11 @@ static int music_internal_play(Mix_Music *music, int play_count, double position
 #ifdef FULL // WAV_SRC
     retval = music->interface->Play(music->context, play_count);
 #else
+#ifdef FULL // FIX_MUS
     retval = Mix_MusicInterface_WAV.Play(music->context, play_count);
+#else
+    retval = Mix_MusicInterface_WAV.Play(&theMusic, play_count);
+#endif
 #endif
 #ifdef FULL
     /* Set the playback position, note any errors if an offset is used */
@@ -917,8 +983,12 @@ static int music_internal_play(Mix_Music *music, int play_count, double position
 #endif
     /* If the setup failed, we're not playing any music anymore */
     if (retval < 0) {
+#ifdef FULL // FIX_MUS
         music->playing = SDL_FALSE;
         music_playing = NULL;
+#else
+        music_playing = SDL_FALSE;
+#endif
     }
     return(retval);
 }
@@ -976,10 +1046,17 @@ int Mix_FadeInMusic(Mix_Music *music, int loops, int ms)
     return Mix_FadeInMusicPos(music, loops, ms, 0.0);
 }
 #endif
+#ifdef FULL // FIX_MUS
 int Mix_PlayMusic(Mix_Music *music, int loops)
 {
     return Mix_FadeInMusicPos(music, loops, 0, 0.0);
 }
+#else
+int Mix_PlayMusic(int loops)
+{
+    return Mix_FadeInMusicPos(&theMusic, loops, 0, 0.0);
+}
+#endif
 #ifdef FULL
 /* Jump to a given order in mod music. */
 int Mix_ModMusicJumpToOrder(int order)
@@ -1182,8 +1259,12 @@ static void music_internal_volume(int volume)
         music_playing->interface->SetVolume(music_playing->context, volume);
     }
 #else
+#ifdef FULL // FIX_MUS
         Mix_MusicInterface_WAV.SetVolume(music_playing->context, volume);
-#endif
+#else
+        Mix_MusicInterface_WAV.SetVolume(&theMusic, volume);
+#endif // FULL - FIX_MUS
+#endif // FULL - WAV_SRC
 }
 int Mix_VolumeMusic(int volume)
 {
@@ -1228,11 +1309,17 @@ static void music_internal_halt(void)
         music_playing->interface->Stop(music_playing->context);
     }
 #endif
+#ifdef FULL // FIX_MUS
     music_playing->playing = SDL_FALSE;
+#else
+    music_playing = SDL_FALSE;
+#endif
 #ifdef FULL // FADING
     music_playing->fading = MIX_NO_FADING;
 #endif
+#ifdef FULL // FIX_MUS
     music_playing = NULL;
+#endif
 }
 int Mix_HaltMusic(void)
 {
@@ -1341,6 +1428,7 @@ int Mix_PausedMusic(void)
 /* Check the status of the music */
 static SDL_bool music_internal_playing(void)
 {
+#ifdef FULL // FIX_MUS
     if (!music_playing) {
         return SDL_FALSE;
     }
@@ -1350,6 +1438,9 @@ static SDL_bool music_internal_playing(void)
     }
 #endif
     return music_playing->playing;
+#else
+    return music_playing;
+#endif // FULL - FIX_MUS
 }
 #ifdef FULL
 int Mix_PlayingMusic(void)

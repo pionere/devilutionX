@@ -18,6 +18,7 @@ Changes:
 * Fading, expire are not supported (FADING)
 * Volume per chunk is not supported (CHUNK_VOL)
 * music_active is no longer maintained in music.c (MUS_ACTIVE)
+* Only one music can be played at a time (FIX_MUS)
 * Channel(chunk) Looping is not supported (LOOP)
 * Seeking of music is not supported (SEEK)
 * Hooks on music-playback are not supported (HOOKS)

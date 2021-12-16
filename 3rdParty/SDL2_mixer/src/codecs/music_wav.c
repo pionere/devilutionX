@@ -25,59 +25,6 @@
 
 #include "music_wav.h"
 
-
-typedef struct {
-    SDL_bool active;
-    Uint32 start;
-    Uint32 stop;
-    Uint32 initial_play_count;
-    Uint32 current_play_count;
-} WAVLoopPoint;
-
-typedef struct {
-    SDL_RWops *src;
-    int freesrc;
-    SDL_AudioSpec spec;
-    int volume;
-#ifdef FULL // MUS_LOOP
-    int play_count;
-#endif
-#ifdef FULL // FILE_INT
-    Sint64 start;
-    Sint64 stop;
-#ifdef FULL // MUS_ENC, SEEK
-    Sint64 samplesize;
-#endif
-#else
-    int start;
-    int stop;
-#ifdef FULL // MUS_ENC, SEEK
-    int samplesize;
-#endif
-#endif
-#if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
-    Uint8 *buffer;
-    SDL_AudioStream *stream;
-#else
-    SDL_AudioCVT cvt;
-#endif
-#ifdef FULL // WAV_LOOP
-    unsigned int numloops;
-    WAVLoopPoint *loops;
-#endif
-#ifdef FULL
-    Mix_MusicMetaTags tags;
-#endif
-#ifdef FULL // WAV_ENC
-    Uint16 encoding;
-#endif
-#ifdef FULL // MUS_ENC
-#if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
-    int (*decode)(void *music, int length);
-#endif
-#endif
-} WAV_Music;
-
 /*
     Taken with permission from SDL_wave.h, part of the SDL library,
     available at: http://www.libsdl.org/
@@ -132,9 +79,9 @@ typedef struct {
     Uint32 subencoding;
     Uint16 sub_data2;
     Uint16 sub_data3;
-//#ifdef FULL // MUS_ENC
+#ifdef FULL // MUS_ENC
     Uint8  sub_data[8];
-//#endif
+#endif
 } WaveFMTEx;
 
 #pragma pack(pop)
@@ -203,17 +150,24 @@ static void WAV_Delete(void *context);
 static int fetch_pcm(void *context, int length);
 
 /* Load a WAV stream from the given RWops object */
+#ifdef FULL // FIX_MUS
 static void *WAV_CreateFromRW(SDL_RWops *src, int freesrc)
+#else
+static void* WAV_CreateFromRW(SDL_RWops* src, void* dst, int freesrc)
+#endif
 {
     WAV_Music *music;
     Uint32 magic;
     SDL_bool loaded = SDL_FALSE;
-
+#ifdef FULL // FIX_MUS
     music = (WAV_Music *)SDL_calloc(1, sizeof(*music));
     if (!music) {
         SDL_OutOfMemory();
         return NULL;
     }
+#else
+    music = (WAV_Music*)dst;
+#endif
     music->src = src;
     music->volume = MIX_MAX_VOLUME;
 #ifdef FULL // MUS_ENC
@@ -828,14 +782,16 @@ static void WAV_Delete(void *context)
         SDL_free(music->buffer);
     }
 #else
-	if (music->cvt.buf != NULL) {
+    if (music->cvt.buf != NULL) {
         SDL_free(music->cvt.buf);
     }
 #endif
     if (music->freesrc) {
         SDL_RWclose(music->src);
     }
+#ifdef FULL // FIX_MUS
     SDL_free(music);
+#endif
 }
 
 static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
