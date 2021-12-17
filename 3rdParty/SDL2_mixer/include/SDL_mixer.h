@@ -19,8 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SDL_MIXER_H_
-#define SDL_MIXER_H_
+#ifndef SDL2_MIXER_H_
+#define SDL2_MIXER_H_
 
 #include "SDL_stdinc.h"
 #include "SDL_rwops.h"
