@@ -21,11 +21,7 @@
 #ifndef MUSIC_H_
 #define MUSIC_H_
 
-#ifdef FULL
 #include "SDL_mixer.h"
-#else
-#include "../include/SDL_mixer.h"
-#endif
 
 /* Supported music APIs, in order of preference */
 

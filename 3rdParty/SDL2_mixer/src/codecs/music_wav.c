@@ -184,7 +184,7 @@ static void* WAV_CreateFromRW(SDL_RWops* src, void* dst, int freesrc)
     if (magic == RIFF || magic == WAVE) {
         loaded = LoadWAVMusic(music);
 #ifdef FULL // WAV_SRC
-	} else if (magic == FORM) {
+    } else if (magic == FORM) {
         loaded = LoadAIFFMusic(music);
 #endif
     } else {
@@ -598,7 +598,7 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
             if (WAV_Play(music, play_count) < 0) {
 #else
         {
-			if (WAV_Play(music, -1) < 0) {
+            if (WAV_Play(music, -1) < 0) {
 #endif
                 return -1;
             }
@@ -666,7 +666,7 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
             worksize = original_len*music->cvt.len_mult;
             music->cvt.buf=(Uint8 *)SDL_malloc(worksize);
             if (music->cvt.buf == NULL) {
-				SDL_OutOfMemory();
+                SDL_OutOfMemory();
                 return -1;
             }
             music->cvt.len = original_len;
@@ -831,7 +831,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
     encoding = SDL_SwapLE16(fmt.format.encoding);
 
     if (encoding == EXT_CODE) {
-        if (bits < sizeof(fmt)) {
+        if (size < sizeof(fmt)) {
             Mix_SetError("Wave format chunk too small");
             return SDL_FALSE;
         }
@@ -1027,7 +1027,7 @@ static SDL_bool ParseLIST(WAV_Music *wave, Uint32 chunk_length)
 
     if (!SDL_RWread(wave->src, data, chunk_length, 1)) {
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
-		SDL_free(data);
+        SDL_free(data);
         return SDL_FALSE;
     }
 
@@ -1403,7 +1403,7 @@ Mix_MusicInterface Mix_MusicInterface_WAV =
 #endif
     WAV_GetAudio,
 #ifdef FULL
-	NULL,       /* Jump */
+    NULL,       /* Jump */
     WAV_Seek,   /* Seek */
     WAV_Tell,   /* Tell */
     WAV_Duration,
