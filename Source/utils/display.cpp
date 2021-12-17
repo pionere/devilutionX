@@ -94,7 +94,22 @@ bool IsFullScreen() {
 	// ifndef USE_SDL1:
 	//   return (SDL_GetWindowFlags(ghMainWnd) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
 }
-#endif
+#else
+void RecreateDisplay(int width, int height)
+{
+	if (renderer_texture != NULL)
+		SDL_DestroyTexture(renderer_texture);
+
+	renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+	if (renderer_texture == NULL) {
+		sdl_fatal(ERR_SDL_RENDERER_TEXTURE);
+	}
+
+	if (SDL_RenderSetLogicalSize(renderer, width, height) < 0) {
+		sdl_fatal(ERR_SDL_RENDERER_SIZE);
+	}
+}
+#endif // USE_SDL1
 
 static void AdjustToScreenGeometry(int width, int height)
 {
@@ -140,21 +155,6 @@ static void CalculatePreferredWindowSize(int &width, int &height, bool useIntege
 		height = mode.h * width / mode.w;
 	}
 #endif
-}
-
-void RecreateDisplay(int width, int height)
-{
-	if (renderer_texture != NULL)
-		SDL_DestroyTexture(renderer_texture);
-
-	renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
-	if (renderer_texture == NULL) {
-		sdl_fatal(ERR_SDL_RENDERER_TEXTURE);
-	}
-
-	if (SDL_RenderSetLogicalSize(renderer, width, height) < 0) {
-		sdl_fatal(ERR_SDL_RENDERER_SIZE);
-	}
 }
 
 bool SpawnWindow(const char* lpWindowName)

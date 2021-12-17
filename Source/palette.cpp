@@ -67,7 +67,6 @@ void palette_init()
 
 void LoadPalette(const char* pszFileName)
 {
-	int i;
 	BYTE PalData[256][3];
 
 	assert(pszFileName != NULL);
