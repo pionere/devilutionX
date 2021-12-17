@@ -73,7 +73,7 @@ typedef struct _Eff_positionargs
 #ifdef FULL // FIX_EFF
     volatile int in_use;
 #else
-    volatile Mix_EffectFunc_t callback;
+    volatile Mix_EffectFunc_ttttt callback;
 #endif
 #ifdef FULL
     volatile int channels;
@@ -1672,9 +1672,9 @@ static position_args *get_position_arg(int channel)
 #endif // FULL - FIX_EFF
 }
 
-static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
+static Mix_EffectFunc_ttttt get_position_effect_func(Uint16 format, int channels)
 {
-    Mix_EffectFunc_t f = NULL;
+    Mix_EffectFunc_ttttt f = NULL;
 
     switch (format) {
 #ifdef FULL // FIX_OUT
@@ -1990,7 +1990,7 @@ int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance);
 #endif // FULL
 int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
 {
-    Mix_EffectFunc_t f = NULL;
+    Mix_EffectFunc_ttttt f = NULL;
 #ifdef FULL
     int channels;
     Uint16 format;
@@ -2081,7 +2081,7 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
 #ifdef FULL
 int Mix_SetDistance(int channel, Uint8 distance)
 {
-    Mix_EffectFunc_t f = NULL;
+    Mix_EffectFunc_ttttt f = NULL;
     Uint16 format;
     position_args *args = NULL;
     int channels;
@@ -2126,7 +2126,7 @@ int Mix_SetDistance(int channel, Uint8 distance)
 
 int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance)
 {
-    Mix_EffectFunc_t f = NULL;
+    Mix_EffectFunc_ttttt f = NULL;
     Uint16 format;
     int channels;
     position_args *args = NULL;

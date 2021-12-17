@@ -46,7 +46,7 @@ static SDL_AudioDeviceID audio_device;
 #ifdef FULL // FIX_EFF
 typedef struct _Mix_effectinfo
 {
-    Mix_EffectFunc_t callback;
+    Mix_EffectFunc_ttttt callback;
     Mix_EffectDone_t done_callback;
     void *udata;
     struct _Mix_effectinfo *next;
@@ -1623,7 +1623,7 @@ int Mix_GroupNewer(int tag)
  */
 #ifdef FULL // FIX_EFF
 /* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
-static int _Mix_register_effect(effect_info **e, Mix_EffectFunc_t f,
+static int _Mix_register_effect(effect_info **e, Mix_EffectFunc_ttttt f,
                 Mix_EffectDone_t d, void *arg)
 {
     effect_info *new_e;
@@ -1668,7 +1668,7 @@ static int _Mix_register_effect(effect_info **e, Mix_EffectFunc_t f,
 
 
 /* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
-static int _Mix_remove_effect(int channel, effect_info **e, Mix_EffectFunc_t f)
+static int _Mix_remove_effect(int channel, effect_info **e, Mix_EffectFunc_ttttt f)
 {
     effect_info *cur;
     effect_info *prev = NULL;
@@ -1727,7 +1727,7 @@ static int _Mix_remove_all_effects(int channel, effect_info **e)
 
 
 /* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
-int _Mix_RegisterEffect_locked(int channel, Mix_EffectFunc_t f,
+int _Mix_RegisterEffect_locked(int channel, Mix_EffectFunc_ttttt f,
             Mix_EffectDone_t d, void *arg)
 {
     effect_info **e = NULL;
@@ -1754,7 +1754,7 @@ void _Mix_RegisterChanEffect_locked(int channel)
 }
 #endif // FULL - FIX_EFF
 #ifdef FULL
-int Mix_RegisterEffect(int channel, Mix_EffectFunc_t f,
+int Mix_RegisterEffect(int channel, Mix_EffectFunc_ttttt f,
             Mix_EffectDone_t d, void *arg)
 {
     int retval;
@@ -1767,7 +1767,7 @@ int Mix_RegisterEffect(int channel, Mix_EffectFunc_t f,
 
 #ifdef FULL // FIX_EFF
 /* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
-int _Mix_UnregisterEffect_locked(int channel, Mix_EffectFunc_t f)
+int _Mix_UnregisterEffect_locked(int channel, Mix_EffectFunc_ttttt f)
 {
     effect_info **e = NULL;
 #ifdef FULL // EFF_CHECK
@@ -1788,7 +1788,7 @@ int _Mix_UnregisterEffect_locked(int channel, Mix_EffectFunc_t f)
 }
 #endif // FULL - FIX_EFF
 #ifdef FULL
-int Mix_UnregisterEffect(int channel, Mix_EffectFunc_t f)
+int Mix_UnregisterEffect(int channel, Mix_EffectFunc_ttttt f)
 {
     int retval;
     Mix_LockAudio();
