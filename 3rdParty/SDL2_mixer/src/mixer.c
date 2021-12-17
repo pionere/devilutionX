@@ -21,7 +21,7 @@
 
 #include "SDL.h"
 
-#include "SDL_mixer.h"
+#include "SDL2_mixer.h"
 #include "mixer.h"
 #include "music.h"
 #ifdef FULL // WAV_SRC
