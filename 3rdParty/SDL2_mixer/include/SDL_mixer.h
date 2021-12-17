@@ -19,8 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SDL2_MIXER_H_
-#define SDL2_MIXER_H_
+//#ifndef SDL2_MIXER_H_
+//#define SDL2_MIXER_H_
 
 #include "SDL_stdinc.h"
 #include "SDL_rwops.h"
@@ -731,6 +731,6 @@ extern DECLSPEC void SDLCALL Mix_CloseAudio(void);
 #endif
 #include "close_code.h"
 
-#endif /* SDL_MIXER_H_ */
+//#endif /* SDL2_MIXER_H_ */
 
 /* vi: set ts=4 sw=4 expandtab: */
