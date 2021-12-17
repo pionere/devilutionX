@@ -141,7 +141,7 @@ static void CalculatePreferredWindowSize(int &width, int &height, bool useIntege
 	}
 #endif
 }
-
+#ifndef USE_SDL1
 void RecreateDisplay(int width, int height)
 {
 	if (renderer_texture != NULL)
@@ -156,7 +156,7 @@ void RecreateDisplay(int width, int height)
 		sdl_fatal(ERR_SDL_RENDERER_SIZE);
 	}
 }
-
+#endif // USE_SDL1
 bool SpawnWindow(const char* lpWindowName)
 {
 #ifdef __vita__
