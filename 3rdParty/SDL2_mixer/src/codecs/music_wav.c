@@ -607,26 +607,33 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
 
     /* We'll get called again in the case where we looped or have more data */
     return 0;
-#else
+#else // SDL_VERSION_ATLEAST(2, 0, 7)
     WAV_Music *music = (WAV_Music *)context;
 #ifdef FULL // FILE_INT
     Sint64 pos, stop;
+#ifdef FULL // WAV_LOOP
     WAVLoopPoint *loop;
     Sint64 loop_start;
     Sint64 loop_stop;
+#endif
 #else
     int pos, stop;
+#ifdef FULL // WAV_LOOP
     WAVLoopPoint *loop;
     int loop_start;
     int loop_stop;
+#endif
 #endif // FULL
+#ifdef FULL // WAV_LOOP
 	SDL_bool looped = SDL_FALSE;
+#endif
     unsigned i;
     int consumed;
     void *stream = data;
 
     pos = SDL_RWtell(music->src);
     stop = music->stop;
+#ifdef FULL // WAV_LOOP
     loop = NULL;
     for (i = 0; i < music->numloops; ++i) {
         loop = &music->loops[i];
@@ -642,7 +649,7 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
         }
         loop = NULL;
     }
-
+#endif
     if (music->cvt.needed) {
         int original_len = (int)((double)bytes/music->cvt.len_ratio); 
         /* Make sure the length is a multiple of the sample size */
@@ -687,7 +694,7 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
         }
         consumed = bytes;
     }
-
+#ifdef FULL // WAV_LOOP
     if (loop && SDL_RWtell(music->src) >= stop) {
         if (loop->current_play_count == 1) {
             loop->active = SDL_FALSE;
@@ -700,6 +707,9 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
         }
     }
     if (!looped && (consumed == 0 || SDL_RWtell(music->src) >= music->stop)) {
+#else
+    if (consumed == 0 || SDL_RWtell(music->src) >= music->stop) {
+#endif // - WAV_LOOP
 #ifdef FULL // MUS_LOOP
 		if (music->play_count == 1) {
             music->play_count = 0;
