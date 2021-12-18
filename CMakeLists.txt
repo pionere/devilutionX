@@ -265,8 +265,10 @@ if(NOT NOSOUND)
   else()
     target_link_libraries(SDL2_mixer PRIVATE SDL2::SDL2)
   endif()
-  target_include_directories(SDL2_mixer PUBLIC 3rdParty/SDL2_mixer/include)
-
+  # include with 'BEFORE' to handle 'smart' environments where SDL(2)_INCLUDE_DIR
+  # contains SDL(2)_mixer...
+  #target_include_directories(SDL2_mixer PUBLIC 3rdParty/SDL2_mixer/include)
+  include_directories(BEFORE PUBLIC 3rdParty/SDL2_mixer/include)
   set(SDL_MIXER_LIBRARY SDL2_mixer)
 endif()
 
