@@ -827,12 +827,11 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
     amount = fetch_pcm(music, amount);
 #endif
     if (amount > 0) {
+        if (music->spec.format == AUDIO_U8) {
+            //Mix_Convert_U8_S16LSB(&music->buffer);
+        }
         if (music->spec.channels == 1) {
             Mix_Convert_Mono2Stereo(&music->buffer);
-        } else {
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-            Mix_Convert_Endiannes(&music->buffer);
-#endif
         }
     } else {
         /* We might be looping, continue */

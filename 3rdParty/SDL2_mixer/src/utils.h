@@ -49,6 +49,7 @@ typedef struct Mix_BuffOps {
 } Mix_BuffOps;
 
 void Mix_Convert_Mono2Stereo(Mix_BuffOps* buf);
+void Mix_Convert_U8_S16LSB(Mix_BuffOps* buf);
 
 #endif /* UTILS_H_ */
 
