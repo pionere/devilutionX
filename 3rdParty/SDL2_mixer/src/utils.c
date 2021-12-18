@@ -140,3 +140,34 @@ Sint64 _Mix_ParseTime(char *time, long samplerate_hz)
     return (result * 60 + val) * samplerate_hz;
 }
 #endif // FULL
+
+#ifndef FULL // SELF_CONV
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+void Mix_Convert_Endiannes(Mix_BuffOps* buf)
+{
+    Uint16* currPos = (Uint16*)buf->currPos;
+    Uint16* endPos = (Uint16*)buf->endPos;
+
+    while (currPos != endPos) {
+        *currPos = SDL_Swap16(*currPos);
+    }
+}
+#endif
+
+void Mix_Convert_Mono2Stereo(Mix_BuffOps* buf)
+{
+    Uint8* __restrict srcPos = (Uint8*)buf->endPos;
+    Uint8* currPos = (Uint8*)buf->currPos;
+
+    Uint8* __restrict dstPos = srcPos + (srcPos - currPos);
+    buf->endPos = dstPos;
+
+    while (srcPos != currPos) {
+        srcPos--;
+        dstPos--;
+        *dstPos = *srcPos;
+        dstPos--;
+        *dstPos = *srcPos;
+    }
+}
+#endif // FULL - SELF_CONV

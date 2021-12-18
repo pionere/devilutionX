@@ -25,6 +25,9 @@
 #else
 #include "../music.h"
 #endif
+#ifndef FULL // SELF_CONV
+#include "../utils.h"
+#endif
 
 typedef struct {
     SDL_bool active;
@@ -55,12 +58,16 @@ typedef struct {
     int samplesize;
 #endif
 #endif
+#ifdef FULL // SELF_CONV
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     Uint8 *buffer;
     SDL_AudioStream *stream;
 #else
     SDL_AudioCVT cvt;
 #endif
+#else
+    Mix_BuffOps buffer;
+#endif // SELF_CONV
 #ifdef FULL // WAV_LOOP
     unsigned int numloops;
     WAVLoopPoint *loops;
