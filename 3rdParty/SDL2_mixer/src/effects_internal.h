@@ -26,7 +26,7 @@
 #error You should not include this file or use these functions.
 #endif
 
-#include "SDL2_mixer.h"
+#include "SDL_mixer.h"
 #ifdef FULL
 extern int _Mix_effects_max_speed;
 extern void *_Eff_volume_table;
@@ -37,9 +37,9 @@ void _Mix_InitEffects(void);
 void _Mix_DeinitEffects(void);
 void _Eff_PositionDeinit(void);
 #ifdef FULL // FIX_EFF
-int _Mix_RegisterEffect_locked(int channel, Mix_EffectFunc_ttttt f,
+int _Mix_RegisterEffect_locked(int channel, Mix_EffectFunc_t f,
                                Mix_EffectDone_t d, void *arg);
-int _Mix_UnregisterEffect_locked(int channel, Mix_EffectFunc_ttttt f);
+int _Mix_UnregisterEffect_locked(int channel, Mix_EffectFunc_t f);
 int _Mix_UnregisterAllEffects_locked(int channel);
 #else
 void _Mix_DoEffects(int channel, void* buf, int len);

@@ -6,7 +6,7 @@
 
 #include <SDL.h>
 #ifndef NOSOUND
-#include <SDL2_mixer.h>
+#include <SDL_mixer.h>
 #include "utils/soundsample.h"
 #endif
 #include <smacker.h>
