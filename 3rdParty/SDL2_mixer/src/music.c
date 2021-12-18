@@ -782,10 +782,9 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
                 return context;
 #endif // FULL - FIX_MUS
             }
-
+#ifdef FULL // WAV_SRC
             /* Reset the stream for the next decoder */
             SDL_RWseek(src, start, RW_SEEK_SET);
-#ifdef FULL // WAV_SRC
         }
     }
 #endif

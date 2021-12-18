@@ -198,6 +198,7 @@ static void* WAV_CreateFromRW(SDL_RWops* src, void* dst, int freesrc)
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     music->buffer = (Uint8*)SDL_malloc(music->spec.size);
     if (!music->buffer) {
+        SDL_OutOfMemory();
         WAV_Delete(music);
         return NULL;
     }
@@ -503,8 +504,8 @@ static int fetch_alaw(void *context, int length)
 {
     return fetch_xlaw(ALAW_To_PCM16, context, length);
 }
-#endif // SDL_VERSION_ATLEAST(2, 0, 7)
 #endif // FULL - MUS_ENC
+#endif // SDL_VERSION_ATLEAST(2, 0, 7) - USE_SDL1
 #else // FULL - SELF_CONV
 static int fetch_pcm(void* context, int length)
 {
@@ -630,7 +631,7 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
 
     /* We'll get called again in the case where we looped or have more data */
     return 0;
-#else
+#else // USE_SDL1
     WAV_Music *music = (WAV_Music *)context;
 #ifdef FULL // FILE_INT
     Sint64 pos, stop;
@@ -929,19 +930,31 @@ static void WAV_Delete(void *context)
 #ifdef FULL // WAV_LOOP
     if (music->loops) {
         SDL_free(music->loops);
+#ifndef FULL // FIX_MUS
+        music->loops = NULL;
+#endif
     }
 #endif
 #ifdef FULL // SELF_CONV
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     if (music->stream) {
         SDL_FreeAudioStream(music->stream);
+#ifndef FULL // FIX_MUS
+        music->stream = NULL;
+#endif
     }
     if (music->buffer) {
         SDL_free(music->buffer);
+#ifndef FULL // FIX_MUS
+        music->buffer = NULL;
+#endif
     }
 #else
     if (music->cvt.buf != NULL) {
         SDL_free(music->cvt.buf);
+#ifndef FULL // FIX_MUS
+        music->cvt.buf = NULL;
+#endif
     }
 #endif
 #else // FULL - SELF_CONV
@@ -954,6 +967,9 @@ static void WAV_Delete(void *context)
 #endif // FULL - SELF_CONV
     if (music->freesrc) {
         SDL_RWclose(music->src);
+#ifndef FULL // FIX_MUS
+        music->freesrc = SDL_FALSE;
+#endif
     }
 #ifdef FULL // FIX_MUS
     SDL_free(music);
