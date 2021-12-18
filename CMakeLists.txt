@@ -28,9 +28,7 @@ option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
 option(PIE "Generate position-independent code" OFF)
-option(DIST "Dynamically link only glibc and SDL2" OFF)
-option(BINARY_RELEASE "Enable options for binary release" OFF)
-option(NIGHTLY_BUILD "Enable options for nightly build" OFF)
+option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
@@ -46,30 +44,16 @@ option(HELLFIRE "Build hellfire version" OFF)
 RELEASE_OPTION(CPACK "Configure CPack")
 
 
-if(BINARY_RELEASE OR CMAKE_BUILD_TYPE STREQUAL "Release")
-  set(BINARY_RELEASE ON)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "")
-  set(DIST ON)
-  set(CPACK ON)
-endif()
-
-if(NIGHTLY_BUILD OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-  set(NIGHTLY_BUILD ON)
-  set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "")
-  set(DIST ON)
-  set(CPACK ON)
-endif()
-
 if(NOT NONET)
   option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
   cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
-                        "DEVILUTIONX_SYSTEM_LIBSODIUM AND NOT DIST" ON)
+                        "DEVILUTIONX_SYSTEM_LIBSODIUM" ON)
 endif()
 
 if (NOT USE_SDL1)
   option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
   cmake_dependent_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" OFF
-                        "DEVILUTIONX_SYSTEM_SDL2 AND NOT DIST" ON)
+                        "DEVILUTIONX_SYSTEM_SDL2" ON)
 endif()
 
 if(NOT VERSION_NUM)
@@ -858,7 +842,7 @@ if(APPLE)
 
   install (TARGETS ${BIN_TARGET} DESTINATION ./)
 
-  if(DIST)
+  if(MACOSX_STANDALONE_APP_BUNDLE)
       install(CODE "
         include(BundleUtilities)
         fixup_bundle(${CMAKE_BINARY_DIR}/${MACOSX_BUNDLE_BUNDLE_NAME}.app \"\" \"\")
