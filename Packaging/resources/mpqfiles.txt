@@ -58,6 +58,7 @@ NLevels\L6Data\L6.TMI
 NLevels\TownData\Town.TMI
 Objects\L1Doors.CEL
 Objects\Sarc.CEL
+Sfx\Misc\Wallloop.wav
 ui_art\font16.bin
 ui_art\font16g.pcx
 ui_art\font24.bin
