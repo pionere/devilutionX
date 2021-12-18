@@ -628,6 +628,7 @@ endif()
 # Defines without value
 foreach(
   def_name
+  USE_SDL1
   NOSOUND
   NOWIDESCREEN
   NONET
@@ -717,6 +718,8 @@ foreach(
   endif()
 endforeach(def_name)
 
+target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
+
 genex_for_option(UBSAN)
 target_compile_options(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined>)
 target_link_libraries(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined>)
@@ -733,7 +736,6 @@ endif()
 if(USE_SDL1)
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL_LIBRARY})
-  target_compile_definitions(${BIN_TARGET} PRIVATE USE_SDL1)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL2_MAIN}
@@ -769,7 +771,7 @@ if(VITA)
         mikmod
         mpg123
   )
-  target_compile_definitions(${BIN_TARGET} PRIVATE VITA)
+  #target_compile_definitions(${BIN_TARGET} PRIVATE VITA)
 endif()
 
 if(NINTENDO_3DS)
@@ -778,8 +780,6 @@ if(NINTENDO_3DS)
   target_link_libraries(${BIN_TARGET} PRIVATE 3ds::ogg 3ds::mikmod 3ds::mad 3ds::freetype 3ds::bzip2 3ds::png)
   target_link_libraries(${BIN_TARGET} PRIVATE 3ds::citro3d 3ds::ctrulib)
 endif()
-
-target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
 
 if(GPERF)
   target_link_libraries(${BIN_TARGET} PRIVATE ${GPERFTOOLS_LIBRARIES})
