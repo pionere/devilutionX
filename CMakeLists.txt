@@ -251,6 +251,8 @@ else()
   add_subdirectory(3rdParty/SDL2)
 endif()
 
+message(STATUS, "SDL_LIBRARY: ${SDL_LIBRARY} SDL_INCLUDE_DIR: ${SDL_INCLUDE_DIR}")
+
 if(NOT NOSOUND)
   add_definitions(-DMUSIC_WAV)
   add_library(SDL2_mixer STATIC
