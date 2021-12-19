@@ -44,10 +44,14 @@ fi
 main() {
 	>&2 echo "Building for target ${TARGET} in ${BUILD_DIR}"
 	set -x
+	echo "set-x"
 	if [[ -n ${BUILDROOT:-} ]]; then
+		echo "-n root"
 		prepare_buildroot
+		echo "before make build"
 		make_buildroot
 	fi
+	echo "before build"
 	build
 	package_opk
 }
