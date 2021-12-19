@@ -306,14 +306,15 @@ int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                        int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done))
 #else
 int music_pcm_getaudio(void *context, void *data, int bytes,
-                       int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done))
+                       int (*GetSome)(void *context, void *data, int bytes))
 #endif
 {
     Uint8 *snd = (Uint8 *)data;
     Uint8 *dst;
     int len = bytes;
+#ifdef FULL // FIX_MUS
     SDL_bool done = SDL_FALSE;
-#ifndef FULL // FIX_MUS
+#else
     int volume = theMusic.volume;
 #endif
 
@@ -322,8 +323,13 @@ int music_pcm_getaudio(void *context, void *data, int bytes,
     } else {
         dst = SDL_stack_alloc(Uint8, (size_t)bytes);
     }
+#ifdef FULL // FIX_MUS
     while (len > 0 && !done) {
         int consumed = GetSome(context, dst, len, &done);
+#else
+    while (len > 0) {
+        int consumed = GetSome(context, dst, len);
+#endif
         if (consumed < 0) {
             break;
         }
@@ -730,15 +736,14 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
     size_t i;
 #endif
     void *context;
-    Sint64 start;
 #ifdef FULL // MUS_CHECK
+    Sint64 start;
     if (!src) {
         Mix_SetError("RWops pointer is NULL");
         return NULL;
     }
-#endif
     start = SDL_RWtell(src);
-#ifdef FULL // MUS_CHECK
+
     /* If the caller wants auto-detection, figure out what kind of file
      * this is. */
     if (type == MUS_NONE) {
@@ -751,8 +756,8 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
         }
     }
 #endif
-    Mix_ClearError();
 #ifdef FULL // WAV_SRC
+    Mix_ClearError();
     if (load_music_type(type) && open_music_type(type)) {
         for (i = 0; i < SDL_arraysize(s_music_interfaces); ++i) {
             Mix_MusicInterface *interface = s_music_interfaces[i];
@@ -787,7 +792,7 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #endif
                 return music;
 #else
-                return context;
+                return &theMusic;
 #endif // FULL - FIX_MUS
             }
 #ifdef FULL // WAV_SRC
@@ -801,8 +806,10 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #endif
     if (freesrc) {
         SDL_RWclose(src);
+#ifdef FULL // MUS_CHECK
     } else {
-        SDL_RWseek(src, start, RW_SEEK_SET);
+        SDL_RWseek(src, start, RW_SEEK_SET); -- pointless if !WAV_SRC
+#endif
     }
     return NULL;
 }
@@ -1292,8 +1299,8 @@ int Mix_VolumeMusic(int volume)
     if (volume < 0) {
         return prev_volume;
     }
-    if (volume > SDL_MIX_MAXVOLUME) {
-        volume = SDL_MIX_MAXVOLUME;
+    if (volume > MIX_MAX_VOLUME) {
+        volume = MIX_MAX_VOLUME;
     }
     music_volume = volume;
 #else

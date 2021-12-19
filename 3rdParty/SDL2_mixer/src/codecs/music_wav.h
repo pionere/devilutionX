@@ -20,6 +20,9 @@
 */
 
 /* This file supports streaming WAV files */
+#ifndef MUSIC_WAV_H_
+#define MUSIC_WAV_H_
+
 #ifdef FULL
 #include "music.h"
 #else
@@ -93,11 +96,13 @@ typedef struct {
 #endif
 #ifdef FULL // MUS_ENC
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
-    int (*decode)(void *music, int length);
+    int (*decode)(struct WAV_Music *music, int length);
 #endif
 #endif
 } WAV_Music;
 
 extern Mix_MusicInterface Mix_MusicInterface_WAV;
+
+#endif /* MUSIC_WAV_H_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

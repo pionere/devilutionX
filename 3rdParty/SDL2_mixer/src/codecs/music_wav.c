@@ -147,7 +147,7 @@ static SDL_bool LoadAIFFMusic(WAV_Music *wave);
 #endif
 static void WAV_Delete(void *context);
 
-static int fetch_pcm(void *context, int length);
+static int fetch_pcm(WAV_Music* music, int length);
 
 /* Load a WAV stream from the given RWops object */
 #ifdef FULL // FIX_MUS
@@ -273,9 +273,8 @@ static int WAV_Play(void *context, int play_count)
 
 #ifdef FULL // SELF_CONV
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
-static int fetch_pcm(void *context, int length)
+static int fetch_pcm(WAV_Music* music, int length)
 {
-    WAV_Music *music = (WAV_Music *)context;
     return (int)SDL_RWread(music->src, music->buffer, 1, (size_t)length);
 }
 #ifdef FULL // WAV_SRC
@@ -297,9 +296,8 @@ static Uint32 PCM_S24_to_S32_LE(Uint8 *x) {
     return (in ^ m) - m;
 }
 
-static int fetch_pcm24be(void *context, int length)
+static int fetch_pcm24be(WAV_Music* music, int length)
 {
-    WAV_Music *music = (WAV_Music *)context;
     int i = 0, o = 0;
     length = (int)SDL_RWread(music->src, music->buffer, 1, (size_t)((length / 4) * 3));
     if (length % music->samplesize != 0) {
@@ -315,9 +313,8 @@ static int fetch_pcm24be(void *context, int length)
     return (length / 3) * 4;
 }
 
-static int fetch_pcm24le(void *context, int length)
+static int fetch_pcm24le(WAV_Music* music, int length)
 {
-    WAV_Music *music = (WAV_Music *)context;
     int i = 0, o = 0;
     length = (int)SDL_RWread(music->src, music->buffer, 1, (size_t)((length / 4) * 3));
     if (length % music->samplesize != 0) {
@@ -354,9 +351,8 @@ Mix_SwapDouble(double x)
 #define Mix_SwapDoubleBE(X)  (X)
 #endif
 
-static int fetch_float64be(void *context, int length)
+static int fetch_float64be(WAV_Music* music, int length)
 {
-    WAV_Music *music = (WAV_Music *)context;
     int i = 0, o = 0;
     length = (int)SDL_RWread(music->src, music->buffer, 1, (size_t)(length));
     if (length % music->samplesize != 0) {
@@ -377,9 +373,8 @@ static int fetch_float64be(void *context, int length)
     return length / 2;
 }
 
-static int fetch_float64le(void *context, int length)
+static int fetch_float64le(WAV_Music* music, int length)
 {
-    WAV_Music *music = (WAV_Music *)context;
     int i = 0, o = 0;
     length = (int)SDL_RWread(music->src, music->buffer, 1, (size_t)(length));
     if (length % music->samplesize != 0) {
@@ -482,9 +477,8 @@ static Sint16 ALAW_To_PCM16(Uint8 a_val)
 #endif
 }
 
-static int fetch_xlaw(Sint16 (*decode_sample)(Uint8), void *context, int length)
+static int fetch_xlaw(Sint16 (*decode_sample)(Uint8), WAV_Music* music, int length)
 {
-    WAV_Music *music = (WAV_Music *)context;
     int i = 0, o = 0;
     length = (int)SDL_RWread(music->src, music->buffer, 1, (size_t)(length / 2));
     if (length % music->samplesize != 0) {
@@ -498,21 +492,20 @@ static int fetch_xlaw(Sint16 (*decode_sample)(Uint8), void *context, int length)
     return length * 2;
 }
 
-static int fetch_ulaw(void *context, int length)
+static int fetch_ulaw(WAV_Music* music, int length)
 {
-    return fetch_xlaw(uLAW_To_PCM16, context, length);
+    return fetch_xlaw(uLAW_To_PCM16, music, length);
 }
 
-static int fetch_alaw(void *context, int length)
+static int fetch_alaw(WAV_Music* music, int length)
 {
-    return fetch_xlaw(ALAW_To_PCM16, context, length);
+    return fetch_xlaw(ALAW_To_PCM16, music, length);
 }
 #endif // FULL - MUS_ENC
 #endif // SDL_VERSION_ATLEAST(2, 0, 7) - USE_SDL1
 #else // FULL - SELF_CONV
-static int fetch_pcm(void* context, int length)
+static int fetch_pcm(WAV_Music* music, int length)
 {
-    WAV_Music* music = (WAV_Music*)context;
     int result = SDL_RWread(music->src, music->buffer.basePos, 1, (size_t)length);
     music->buffer.endPos = (Uint8*)music->buffer.basePos + result;
     return result;
@@ -520,7 +513,11 @@ static int fetch_pcm(void* context, int length)
 #endif // FULL - SELF_CONV
 
 /* Play some of a stream previously started with WAV_Play() */
+#ifdef FULL // FIX_MUS
 static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
+#else
+static int WAV_GetSome(void *context, void *data, int bytes)
+#endif
 {
 #ifdef FULL // SELF_CONV
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
@@ -885,8 +882,8 @@ static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
 
 static int WAV_GetAudio(void *context, void *data, int bytes)
 {
-    WAV_Music *music = (WAV_Music *)context;
 #ifdef FULL // FIX_MUS
+    WAV_Music *music = (WAV_Music *)context;
     return music_pcm_getaudio(context, data, bytes, music->volume, WAV_GetSome);
 #else
     return music_pcm_getaudio(context, data, bytes, WAV_GetSome);

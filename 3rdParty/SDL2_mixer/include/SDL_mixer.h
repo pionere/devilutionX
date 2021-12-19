@@ -121,8 +121,8 @@ extern DECLSPEC void SDLCALL Mix_Quit(void);
 #define MIX_MAX_POS_EFFECT_F    16.0f
 /* Good default buffer size */
 #define MIX_STREAM_SAMPLE_COUNT 4096
-/* Maximum size of the required buffer for a 16bit(2) stereo(2) sample. */
-#define MIX_STREAM_BUFF_SIZE    (MIX_STREAM_SAMPLE_COUNT * 2 * 2)
+/* Maximum size of the required buffer for a sample of a default audio. */
+#define MIX_STREAM_BUFF_SIZE    (MIX_STREAM_SAMPLE_COUNT * (SDL_AUDIO_BITSIZE(MIX_DEFAULT_FORMAT) / 8) * MIX_DEFAULT_CHANNELS)
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 #define SDL_AUDIO_BITSIZE(x)    (x & 0xFF)

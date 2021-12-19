@@ -522,10 +522,10 @@ int Mix_OpenAudioDevice(int frequency, Uint16 format, int nchannels, int chunksi
 #ifdef FULL // LOOP
         mix_channel[i].looping = 0;
 #endif
-        mix_channel[i].volume = SDL_MIX_MAXVOLUME;
+        mix_channel[i].volume = MIX_MAX_VOLUME;
 #ifdef FULL // FADING
-        mix_channel[i].fade_volume = SDL_MIX_MAXVOLUME;
-        mix_channel[i].fade_volume_reset = SDL_MIX_MAXVOLUME;
+        mix_channel[i].fade_volume = MIX_MAX_VOLUME;
+        mix_channel[i].fade_volume_reset = MIX_MAX_VOLUME;
         mix_channel[i].fading = MIX_NO_FADING;
         mix_channel[i].tag = -1;
         mix_channel[i].expire = 0;
@@ -539,7 +539,7 @@ int Mix_OpenAudioDevice(int frequency, Uint16 format, int nchannels, int chunksi
     }
 #endif // FULL - FIX_CHAN
 #ifdef FULL
-    Mix_VolumeMusic(SDL_MIX_MAXVOLUME); -- pointless, since open_music does this
+    Mix_VolumeMusic(MIX_MAX_VOLUME); -- pointless, since open_music does this
 #endif
     _Mix_InitEffects();
 
@@ -1092,7 +1092,7 @@ static int checkchunkintegral(Mix_Chunk *chunk)
     if ((mixer.format & 0xFF) == 16) frame_width = 2;
     frame_width *= mixer.channels;
 #else
-    if ((MIX_DEFAULT_FORMAT & 0xFF) == 16) frame_width = 2;
+    if ((SDL_AUDIO_BITSIZE(MIX_DEFAULT_FORMAT)) == 16) frame_width = 2;
     frame_width *= MIX_DEFAULT_CHANNELS;
 #endif
     while (chunk->alen % frame_width) chunk->alen--;

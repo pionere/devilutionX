@@ -32,7 +32,10 @@ Changes:
 * Only one audio device is allowed at a time (SINGLE)
 * Mix_FreeChunk assumes the chunk is not played (CHUNK_CHECK)
 * Mix_Playing, Mix_Volume assume valid channel-id
-* Mix_LoadMUSType_RW assumes not-null SDL_RWops, autodetection of type is disabled (MUS_CHECK)
+* Mix_LoadMUSType_RW is simplified (MUS_CHECK)
+  - assumes not-null SDL_RWops
+  - SDL_RWops is not reset when load fails
+  - autodetection of type is disabled 
 * Mix_LoadWAV_RW assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
 * Effects on channels are internalized -> extra checks disabled (EFF_CHECK)
 * Maximum one effect per channel (FIX_EFF)
