@@ -18,6 +18,8 @@ Changes:
 * meta tags are ignored (META)
 * Fading, expire are not supported (FADING)
 * Volume per chunk is not supported (CHUNK_VOL)
+* allocated is no longer maintained in mixer.c (CHUNK_ALLOC)
+* Mix_Chunk.lastChan field added to store the last channel assuming the first channel is reserved (CHUNK_LAST_CHAN)
 * music_active is no longer maintained in music.c (MUS_ACTIVE)
 * Only one music can be played at a time (FIX_MUS)
 * Channel(chunk) Looping is not supported (LOOP)
@@ -37,6 +39,4 @@ Changes:
 * Assumes initialized SDL with SDL_INIT_AUDIO (INIT)
 * SDL1 compatible (USE_SDL1)
 * zero-fill in init_position_args is commented out
-*
-* Mix_Chunk.allocated field is misused to store the last channel in the higher bits (in soundsample.cpp)
 

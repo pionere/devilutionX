@@ -38,10 +38,23 @@ typedef struct {
 } WAVLoopPoint;
 
 typedef struct {
+    Uint32 sampleSize;          /**< Data size if MIX_STREAM_SAMPLE_COUNT samples are read. */
+    SDL_AudioFormat format;     /**< Audio data format */
+    Uint8 channels;             /**< Number of channels: 1 mono, 2 stereo */
+    Uint8 freqMpl;              /**< Frequency multiplier of MIX_DEFAULT_FREQUENCY */
+} Mix_AudioSpec;
+
+typedef struct {
     SDL_RWops *src;
     int freesrc;
+#ifdef FULL // SELF_CONV
     SDL_AudioSpec spec;
+#else
+    Mix_AudioSpec spec;
+#endif
+#ifdef FULL // FIX_MUS
     int volume;
+#endif
 #ifdef FULL // MUS_LOOP
     int play_count;
 #endif

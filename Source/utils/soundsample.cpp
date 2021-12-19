@@ -40,7 +40,7 @@ bool SoundSample::IsPlaying()
 	}
 
 	return false;*/
-	int channel = soundData->allocated >> 8;
+	int channel = soundData->lastChannel;
 	return Mix_GetChunk(channel) == soundData && Mix_Playing(channel) != 0;
 };
 
@@ -75,7 +75,7 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 	int panned = MIX_MAX_POS_EFFECT - MIX_MAX_POS_EFFECT * abs(lPan) / (SFX_DIST_MAX + 0);
 	Mix_SetPanning(channel, lPan < 0 ? MIX_MAX_POS_EFFECT : panned, lPan < 0 ? panned : MIX_MAX_POS_EFFECT);
 
-	soundData->allocated = (channel << 8) | 1;
+	soundData->lastChannel = channel;
 };
 
 /**
