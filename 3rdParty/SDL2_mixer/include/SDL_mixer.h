@@ -126,6 +126,7 @@ extern DECLSPEC void SDLCALL Mix_Quit(void);
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 #define SDL_AUDIO_BITSIZE(x)    (x & 0xFF)
+typedef Uint16 SDL_AudioFormat;
 #endif
 
 /* The internal format for an audio chunk */
