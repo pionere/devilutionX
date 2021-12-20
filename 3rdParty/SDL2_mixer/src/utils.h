@@ -41,12 +41,7 @@ extern Sint64 _Mix_ParseTime(char *time, long samplerate_hz);
 
 extern SDL_bool _Mix_IsLoopTag(const char *tag);
 #endif
-
-typedef struct Mix_BuffOps {
-    void* basePos;
-    void* currPos;
-    void* endPos;
-} Mix_BuffOps;
+#include "types_internal.h"
 
 void Mix_Convert_Mono2Stereo(Mix_BuffOps* buf);
 void Mix_Convert_U8_S16LSB(Mix_BuffOps* buf);
