@@ -638,20 +638,6 @@ int Mix_QuerySpec(int *frequency, Uint16 *format, int *channels)
     }
     return(audio_opened);
 }
-#else
-int Mix_QuerySpec(int *frequency, Uint16 *format, int *channels)
-{
-        if (frequency) {
-            *frequency = MIX_DEFAULT_FREQUENCY;
-        }
-        if (format) {
-            *format = MIX_DEFAULT_FORMAT;
-        }
-        if (channels) {
-            *channels = MIX_DEFAULT_CHANNELS;
-        }
-    return 1;
-}
 #endif
 
 #ifdef FULL
@@ -1152,6 +1138,7 @@ int Mix_PlayChannelTimed(int which, Mix_Chunk *chunk, int loops, int ticks)
 
         /* Queue up the audio data for this channel */
         if (which >= 0 && which < num_channels) {
+            chunk->lastChannel = which;
 #ifdef FULL // FADING
             Uint32 sdl_ticks = SDL_GetTicks();
 #endif
@@ -1434,6 +1421,16 @@ int Mix_Playing(int which)
     return(status);
 #else
     return mix_channel[which].playing > 0 ? 1 : 0;
+#endif
+}
+
+int Mix_PlayingChunk(Mix_Chunk* chunk)
+{
+    int channel = chunk->lastChannel;
+#ifdef FULL // LOOP
+    return ((mix_channel[channel].playing > 0 || mix_channel[channel].looping) && mix_channel[channel].chunk == chunk) ? 1 : 0;
+#else
+    return (mix_channel[channel].playing > 0 && mix_channel[channel].chunk == chunk) ? 1 : 0;
 #endif
 }
 

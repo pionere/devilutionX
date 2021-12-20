@@ -185,8 +185,9 @@ extern DECLSPEC int SDLCALL Mix_AllocateChannels(int numchans);
    This function returns 1 if the audio has been opened, 0 otherwise.
  */
 #endif
+#ifdef FULL // FIX_OUT
 extern DECLSPEC int SDLCALL Mix_QuerySpec(int *frequency,Uint16 *format,int *channels);
-
+#endif
 /* Load a wave file or a music (.mod .s3m .it .xm) file */
 #ifdef FULL // FREE_SRC
 extern DECLSPEC Mix_Chunk * SDLCALL Mix_LoadWAV_RW(SDL_RWops *src, int freesrc);
@@ -715,6 +716,7 @@ extern DECLSPEC double SDLCALL Mix_GetMusicLoopLengthTime(Mix_Music *music);
    If the specified channel is -1, check all channels.
 */
 extern DECLSPEC int SDLCALL Mix_Playing(int channel);
+extern DECLSPEC int SDLCALL Mix_PlayingChunk(Mix_Chunk* chunk);
 #ifdef FULL
 extern DECLSPEC int SDLCALL Mix_PlayingMusic(void);
 

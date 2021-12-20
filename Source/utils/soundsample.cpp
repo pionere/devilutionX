@@ -40,8 +40,7 @@ bool SoundSample::IsPlaying()
 	}
 
 	return false;*/
-	int channel = soundData->lastChannel;
-	return Mix_GetChunk(channel) == soundData && Mix_Playing(channel) != 0;
+	return Mix_PlayingChunk(soundData);
 };
 
 /**
@@ -74,8 +73,6 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 	static_assert(((SFX_DIST_MAX + 0) & ((SFX_DIST_MAX + 0) - 1)) == 0, "Adjust ad-hoc panning logic for better performance.");
 	int panned = MIX_MAX_POS_EFFECT - MIX_MAX_POS_EFFECT * abs(lPan) / (SFX_DIST_MAX + 0);
 	Mix_SetPanning(channel, lPan < 0 ? MIX_MAX_POS_EFFECT : panned, lPan < 0 ? panned : MIX_MAX_POS_EFFECT);
-
-	soundData->lastChannel = channel;
 };
 
 /**
