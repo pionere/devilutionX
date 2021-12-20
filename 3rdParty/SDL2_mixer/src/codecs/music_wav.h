@@ -20,10 +20,16 @@
 */
 
 /* This file supports streaming WAV files */
+#ifndef MUSIC_WAV_H_
+#define MUSIC_WAV_H_
+
 #ifdef FULL
 #include "music.h"
 #else
 #include "../music.h"
+#endif
+#ifndef FULL // SELF_CONV
+#include "../utils.h"
 #endif
 
 typedef struct {
@@ -35,10 +41,23 @@ typedef struct {
 } WAVLoopPoint;
 
 typedef struct {
+    Uint32 sampleSize;          /**< Data size if MIX_STREAM_SAMPLE_COUNT samples are read. */
+    SDL_AudioFormat format;     /**< Audio data format */
+    Uint8 channels;             /**< Number of channels: 1 mono, 2 stereo */
+    Uint8 freqMpl;              /**< Frequency multiplier of MIX_DEFAULT_FREQUENCY */
+} Mix_AudioSpec;
+
+typedef struct {
     SDL_RWops *src;
     int freesrc;
+#ifdef FULL // SELF_CONV
     SDL_AudioSpec spec;
+#else
+    Mix_AudioSpec spec;
+#endif
+#ifdef FULL // FIX_MUS
     int volume;
+#endif
 #ifdef FULL // MUS_LOOP
     int play_count;
 #endif
@@ -55,12 +74,16 @@ typedef struct {
     int samplesize;
 #endif
 #endif
+#ifdef FULL // SELF_CONV
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     Uint8 *buffer;
     SDL_AudioStream *stream;
 #else
     SDL_AudioCVT cvt;
 #endif
+#else
+    Mix_BuffOps buffer;
+#endif // SELF_CONV
 #ifdef FULL // WAV_LOOP
     unsigned int numloops;
     WAVLoopPoint *loops;
@@ -73,11 +96,13 @@ typedef struct {
 #endif
 #ifdef FULL // MUS_ENC
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
-    int (*decode)(void *music, int length);
+    int (*decode)(struct WAV_Music *music, int length);
 #endif
 #endif
 } WAV_Music;
 
 extern Mix_MusicInterface Mix_MusicInterface_WAV;
+
+#endif /* MUSIC_WAV_H_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

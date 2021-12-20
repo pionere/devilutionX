@@ -98,8 +98,10 @@ typedef struct
     /* Create a music object from a file, if SDL_RWops are not supported */
     void *(*CreateFromFile)(const char *file);
 #endif
+#ifdef FULL // FIX_MUS
     /* Set the volume */
     void (*SetVolume)(void *music, int volume);
+#endif
 #ifdef FULL
     /* Get the volume */
     int (*GetVolume)(void *music);
@@ -170,8 +172,13 @@ extern SDL_bool open_music_type(Mix_MusicType type);
 extern SDL_bool has_music(Mix_MusicType type);
 #endif
 extern void open_music(const SDL_AudioSpec *spec);
+#ifdef FULL // FIX_MUS
 extern int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                               int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done));
+#else
+extern int music_pcm_getaudio(void *context, void *data, int bytes,
+                              int (*GetSome)(void *context, void *data, int bytes));
+#endif
 extern void SDLCALL music_mixer(void *udata, Uint8 *stream, int len);
 extern void close_music(void);
 #ifdef FULL // WAV_SRC

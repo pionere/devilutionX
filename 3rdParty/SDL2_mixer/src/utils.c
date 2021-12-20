@@ -140,3 +140,22 @@ Sint64 _Mix_ParseTime(char *time, long samplerate_hz)
     return (result * 60 + val) * samplerate_hz;
 }
 #endif // FULL
+
+#ifndef FULL // SELF_CONV
+void Mix_Convert_Mono2Stereo(Mix_BuffOps* buf)
+{
+    Sint16* __restrict srcPos = (Sint16*)buf->endPos;
+    Sint16* currPos = (Sint16*)buf->currPos;
+
+    Sint16* __restrict dstPos = srcPos + (srcPos - currPos);
+    buf->endPos = dstPos;
+
+    while (srcPos != currPos) {
+        srcPos--;
+        dstPos--;
+        *dstPos = *srcPos;
+        dstPos--;
+        *dstPos = *srcPos;
+    }
+}
+#endif // FULL - SELF_CONV

@@ -3295,6 +3295,11 @@ void MI_Firewall(int mi)
 			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(ExpLight));
 			ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
 		}
+	} else if ((gdwGameLogicTurn + mis->_miRndSeed) % 256 == 0 && mis->_miRange > 64) {
+		// add random firewall sfx, but only if the fire last more than ~2s
+		assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);
+		assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);
+		PlaySfxLoc(LS_WALLLOOP, mis->_mix, mis->_miy);
 	}
 	PutMissileF(mi, BFLAG_HAZARD);
 }
@@ -3555,7 +3560,7 @@ void MI_FireWave(int mi)
 	mis = &missile[mi];
 	mis->_mix--;
 	mis->_miy--;
-	mis->_miyoff += 32;
+	mis->_miyoff += TILE_HEIGHT;
 	mis->_miVar1++;
 	if (mis->_miVar1 == misfiledata[MFILE_FIREWAL].mfAnimLen[0]) {
 		SetMissDir(mi, 1);
@@ -3591,7 +3596,7 @@ void MI_FireWave(int mi)
 	}
 	mis->_mix++;
 	mis->_miy++;
-	mis->_miyoff -= 32;
+	mis->_miyoff -= TILE_HEIGHT;
 	PutMissile(mi);
 }
 

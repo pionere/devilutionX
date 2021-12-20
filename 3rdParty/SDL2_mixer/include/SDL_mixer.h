@@ -119,6 +119,10 @@ extern DECLSPEC void SDLCALL Mix_Quit(void);
 #define MIX_MAX_VOLUME          SDL_MIX_MAXVOLUME /* Volume of a chunk */
 #define MIX_MAX_POS_EFFECT      16
 #define MIX_MAX_POS_EFFECT_F    16.0f
+/* Good default buffer size */
+#define MIX_STREAM_SAMPLE_COUNT 4096
+/* Maximum size of the required buffer for a sample of a default audio. */
+#define MIX_STREAM_BUFF_SIZE    (MIX_STREAM_SAMPLE_COUNT * (SDL_AUDIO_BITSIZE(MIX_DEFAULT_FORMAT) / 8) * MIX_DEFAULT_CHANNELS)
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 #define SDL_AUDIO_BITSIZE(x)    (x & 0xFF)
@@ -126,7 +130,12 @@ extern DECLSPEC void SDLCALL Mix_Quit(void);
 
 /* The internal format for an audio chunk */
 typedef struct Mix_Chunk {
+#ifdef FULL // CHUNK_ALLOC
     int allocated;
+#endif
+#ifndef FULL // CHUNK_LAST_CHAN
+    int lastChannel;
+#endif
     Uint8 *abuf;
     Uint32 alen;
 #ifdef FULL // CHUNK_VOL

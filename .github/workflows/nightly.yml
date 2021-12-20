@@ -41,32 +41,32 @@ jobs:
           # x86 builds
           - name: diablo-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_STATIC_LIBSODIUM=ON'
             artifact: 'diablo-nightly-x86.zip'
           - name: hellfire-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D HELLFIRE=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_STATIC_LIBSODIUM=ON -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x86.zip'
           - name: hellone-x86
             packages: 'sdl2:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NONET=ON -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_STATIC_LIBSODIUM=ON -D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NONET=ON -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
             artifact: 'hellone-nightly-x86.zip'
           - name: hellsrv-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D NOHOSTING=OFF -D HOSTONLY=ON -D HELLFIRE=ON -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D NOHOSTING=OFF -D HOSTONLY=ON -D DEVILUTIONX_STATIC_LIBSODIUM=ON -D HELLFIRE=ON -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
             artifact: 'hellsrv-nightly-x86.zip'
           # x64 builds
           - name: diablo
             packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: ''
+            cmakeargs: '-D DEVILUTIONX_STATIC_LIBSODIUM=ON'
             artifact: 'diablo-nightly-x64.zip'
           - name: hellfire
             packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D HELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_STATIC_LIBSODIUM=ON -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x64.zip'
           - name: hellone
             packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D HELLFIRE=ON -D MPQONE="hellone.mpq"'
+            cmakeargs: '-D DEVILUTIONX_STATIC_LIBSODIUM=ON -D HELLFIRE=ON -D MPQONE="hellone.mpq"'
             artifact: 'hellone-nightly-x64.zip'
     steps:
     - uses: actions/checkout@v2
@@ -90,7 +90,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. ${{ matrix.cmakeargs }} -D BINARY_RELEASE="ON" -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+      run: cmake .. ${{ matrix.cmakeargs }} -D CMAKE_BUILD_TYPE="Release" -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       working-directory: ${{ env.buildDir }}

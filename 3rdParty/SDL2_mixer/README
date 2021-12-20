@@ -4,7 +4,8 @@ Changes:
 
 * Removed all files not used by DevilutionX.
 * Comment out unnecessary bits with `#ifndef FULL`.
-* Only (u8-bit and s16-bit) WAV formats are supported (WAV_SRC)
+* Only u8-bit or s16-bit lsb WAV formats are supported (WAV_SRC)
+  - only mono or stereo, 22050Hz, s16-bit lsb music is supported (SELF_CONV)
   - silence assumed to be zero (SILENCE)
   - loops are not supported (WAV_LOOP)
   - encoding of the music (wav) file is not maintained (WAV_ENC)
@@ -17,6 +18,8 @@ Changes:
 * meta tags are ignored (META)
 * Fading, expire are not supported (FADING)
 * Volume per chunk is not supported (CHUNK_VOL)
+* allocated is no longer maintained in mixer.c (CHUNK_ALLOC)
+* Mix_Chunk.lastChan field added to store the last channel assuming the first channel is reserved (CHUNK_LAST_CHAN)
 * music_active is no longer maintained in music.c (MUS_ACTIVE)
 * Only one music can be played at a time (FIX_MUS)
 * Channel(chunk) Looping is not supported (LOOP)
@@ -29,13 +32,14 @@ Changes:
 * Only one audio device is allowed at a time (SINGLE)
 * Mix_FreeChunk assumes the chunk is not played (CHUNK_CHECK)
 * Mix_Playing, Mix_Volume assume valid channel-id
-* Mix_LoadMUSType_RW assumes not-null SDL_RWops, autodetection of type is disabled (MUS_CHECK)
+* Mix_LoadMUSType_RW is simplified (MUS_CHECK)
+  - assumes not-null SDL_RWops
+  - SDL_RWops is not reset when load fails
+  - autodetection of type is disabled 
 * Mix_LoadWAV_RW assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
 * Effects on channels are internalized -> extra checks disabled (EFF_CHECK)
 * Maximum one effect per channel (FIX_EFF)
 * Assumes initialized SDL with SDL_INIT_AUDIO (INIT)
 * SDL1 compatible (USE_SDL1)
 * zero-fill in init_position_args is commented out
-*
-* Mix_Chunk.allocated field is misused to store the last channel in the higher bits (in soundsample.cpp)
 

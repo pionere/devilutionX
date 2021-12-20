@@ -15,7 +15,6 @@
       "configurationType": "Release",
       "buildRoot": "${workspaceRoot}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-DBINARY_RELEASE=ON",
       "inheritEnvironments": [ "msvc_x64" ],
       "intelliSenseMode": "windows-msvc-x64"
     },
@@ -34,7 +33,6 @@
       "configurationType": "Release",
       "buildRoot": "${workspaceRoot}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-DBINARY_RELEASE=ON",
       "inheritEnvironments": [ "msvc_x86" ],
       "intelliSenseMode": "windows-msvc-x86"
     },

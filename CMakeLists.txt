@@ -28,9 +28,7 @@ option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
 option(PIE "Generate position-independent code" OFF)
-option(DIST "Dynamically link only glibc and SDL2" OFF)
-option(BINARY_RELEASE "Enable options for binary release" OFF)
-option(NIGHTLY_BUILD "Enable options for nightly build" OFF)
+option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
@@ -46,30 +44,16 @@ option(HELLFIRE "Build hellfire version" OFF)
 RELEASE_OPTION(CPACK "Configure CPack")
 
 
-if(BINARY_RELEASE OR CMAKE_BUILD_TYPE STREQUAL "Release")
-  set(BINARY_RELEASE ON)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "")
-  set(DIST ON)
-  set(CPACK ON)
-endif()
-
-if(NIGHTLY_BUILD OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-  set(NIGHTLY_BUILD ON)
-  set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "")
-  set(DIST ON)
-  set(CPACK ON)
-endif()
-
 if(NOT NONET)
   option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
   cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
-                        "DEVILUTIONX_SYSTEM_LIBSODIUM AND NOT DIST" ON)
+                        "DEVILUTIONX_SYSTEM_LIBSODIUM" ON)
 endif()
 
 if (NOT USE_SDL1)
   option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
   cmake_dependent_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" OFF
-                        "DEVILUTIONX_SYSTEM_SDL2 AND NOT DIST" ON)
+                        "DEVILUTIONX_SYSTEM_SDL2" ON)
 endif()
 
 if(NOT VERSION_NUM)
@@ -267,8 +251,10 @@ if(NOT NOSOUND)
   else()
     target_link_libraries(SDL2_mixer PRIVATE SDL2::SDL2)
   endif()
+  # include with 'BEFORE' to handle 'smart' environments where SDL(2)_INCLUDE_DIR
+  # contains SDL(2)_mixer...
+  #target_include_directories(SDL2_mixer PUBLIC 3rdParty/SDL2_mixer/include)
   include_directories(BEFORE PUBLIC 3rdParty/SDL2_mixer/include)
-
   set(SDL_MIXER_LIBRARY SDL2_mixer)
 endif()
 
@@ -628,6 +614,7 @@ endif()
 # Defines without value
 foreach(
   def_name
+  USE_SDL1
   NOSOUND
   NOWIDESCREEN
   NONET
@@ -717,6 +704,8 @@ foreach(
   endif()
 endforeach(def_name)
 
+target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
+
 genex_for_option(UBSAN)
 target_compile_options(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined>)
 target_link_libraries(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined>)
@@ -733,7 +722,6 @@ endif()
 if(USE_SDL1)
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL_LIBRARY})
-  target_compile_definitions(${BIN_TARGET} PRIVATE USE_SDL1)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL2_MAIN}
@@ -769,7 +757,7 @@ if(VITA)
         mikmod
         mpg123
   )
-  target_compile_definitions(${BIN_TARGET} PRIVATE VITA)
+  #target_compile_definitions(${BIN_TARGET} PRIVATE VITA)
 endif()
 
 if(NINTENDO_3DS)
@@ -778,8 +766,6 @@ if(NINTENDO_3DS)
   target_link_libraries(${BIN_TARGET} PRIVATE 3ds::ogg 3ds::mikmod 3ds::mad 3ds::freetype 3ds::bzip2 3ds::png)
   target_link_libraries(${BIN_TARGET} PRIVATE 3ds::citro3d 3ds::ctrulib)
 endif()
-
-target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
 
 if(GPERF)
   target_link_libraries(${BIN_TARGET} PRIVATE ${GPERFTOOLS_LIBRARIES})
@@ -858,7 +844,7 @@ if(APPLE)
 
   install (TARGETS ${BIN_TARGET} DESTINATION ./)
 
-  if(DIST)
+  if(MACOSX_STANDALONE_APP_BUNDLE)
       install(CODE "
         include(BundleUtilities)
         fixup_bundle(${CMAKE_BINARY_DIR}/${MACOSX_BUNDLE_BUNDLE_NAME}.app \"\" \"\")
