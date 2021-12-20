@@ -650,7 +650,6 @@ static int WAV_GetSome(void *context, void *data, int bytes)
 #endif // FULL
 #ifdef FULL // WAV_LOOP
     SDL_bool looped = SDL_FALSE;
-#endif
     unsigned i;
 #endif
     int consumed;
