@@ -87,7 +87,7 @@ void SoundSample::SetChunk(BYTE* fileData, DWORD dwBytes)
 {
 	SDL_RWops* buf = SDL_RWFromConstMem(fileData, dwBytes);
 	if (buf != NULL) {
-		soundData = Mix_LoadWAV_RW(buf, 1);
+		soundData = Mix_LoadWAV_RW(buf);
 		if (soundData != NULL)
 			return; // 0;
 	}

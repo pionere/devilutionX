@@ -147,7 +147,7 @@ void music_start(int nTrack)
 			if (musicRw == NULL) {
 				sdl_fatal(ERR_SDL_MUSIC_FILE);
 			}
-			Mix_Music* mMusic = Mix_LoadMUSType_RW(musicRw, MUS_WAV, 1);
+			Mix_Music* mMusic = Mix_LoadMUS_RW(musicRw);
 			if (mMusic == NULL)
 				sdl_fatal(ERR_SDL_MUSIC_FILE);
 			Mix_PlayMusic(-1);

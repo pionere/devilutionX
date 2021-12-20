@@ -806,7 +806,11 @@ static SDL_AudioSpec *Mix_LoadMusic_RW(SDL_RWops *src, int freesrc, SDL_AudioSpe
 }
 #endif // FULL
 /* Load a wave file */
+#ifdef FULL // FREE_SRC
 Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
+#else
+Mix_Chunk* Mix_LoadWAV_RW(SDL_RWops* src)
+#endif
 {
     Uint8 magic[4];
     Mix_Chunk *chunk;
@@ -833,18 +837,20 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
     chunk = (Mix_Chunk *)SDL_malloc(sizeof(Mix_Chunk));
     if (chunk == NULL) {
         SDL_SetError("Out of memory");
-        if (freesrc) {
+#ifdef FULL // FREE_SRC
+        if (freesrc)
+#endif
             SDL_RWclose(src);
-        }
         return(NULL);
     }
 
     /* Find out what kind of audio file this is */
     if (SDL_RWread(src, magic, 1, 4) != 4) {
         SDL_free(chunk);
-        if (freesrc) {
+#ifdef FULL // FREE_SRC
+        if (freesrc)
+#endif
             SDL_RWclose(src);
-        }
         Mix_SetError("Couldn't read first 4 bytes of audio data");
         return NULL;
     }
@@ -852,7 +858,11 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
     SDL_RWseek(src, -4, RW_SEEK_CUR);
 
     if (SDL_memcmp(magic, "WAVE", 4) == 0 || SDL_memcmp(magic, "RIFF", 4) == 0) {
+#ifdef FULL // FREE_SRC
         loaded = SDL_LoadWAV_RW(src, freesrc, &wavespec, (Uint8 **)&chunk->abuf, &chunk->alen);
+#else
+        loaded = SDL_LoadWAV_RW(src, SDL_TRUE, &wavespec, (Uint8 **)&chunk->abuf, &chunk->alen);
+#endif
 #ifdef FULL // WAV_SRC
     } else if (SDL_memcmp(magic, "FORM", 4) == 0) {
         loaded = Mix_LoadAIFF_RW(src, freesrc, &wavespec, (Uint8 **)&chunk->abuf, &chunk->alen);
@@ -863,9 +873,10 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 #else
     } else {
         SDL_SetError("Unsupported format");
-        if (freesrc) {
+#ifdef FULL // FREE_SRC
+        if (freesrc)
+#endif
             SDL_RWclose(src);
-        }
         loaded = NULL;
 #endif
     }

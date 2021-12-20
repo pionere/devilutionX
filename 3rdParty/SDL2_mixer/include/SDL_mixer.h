@@ -188,7 +188,11 @@ extern DECLSPEC int SDLCALL Mix_AllocateChannels(int numchans);
 extern DECLSPEC int SDLCALL Mix_QuerySpec(int *frequency,Uint16 *format,int *channels);
 
 /* Load a wave file or a music (.mod .s3m .it .xm) file */
+#ifdef FULL // FREE_SRC
 extern DECLSPEC Mix_Chunk * SDLCALL Mix_LoadWAV_RW(SDL_RWops *src, int freesrc);
+#else
+extern DECLSPEC Mix_Chunk * SDLCALL Mix_LoadWAV_RW(SDL_RWops* src);
+#endif
 #ifdef FULL
 #define Mix_LoadWAV(file)   Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
 extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS(const char *file);
@@ -198,7 +202,11 @@ extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS(const char *file);
 extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS_RW(SDL_RWops *src, int freesrc);
 #endif
 /* Load a music file from an SDL_RWop object assuming a specific format */
+#ifdef FULL // WAV_SRC, FREE_SRC
 extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc);
+#else
+extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS_RW(SDL_RWops* src);
+#endif // FULL - WAV_SRC, FREE_SRC
 #ifdef FULL
 /* Load a wave file of the mixer format from a memory buffer */
 extern DECLSPEC Mix_Chunk * SDLCALL Mix_QuickLoad_WAV(Uint8 *mem);

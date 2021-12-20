@@ -52,10 +52,10 @@ typedef struct
     /* Create a music object from an SDL_RWops stream
      * If the function returns NULL, 'src' will be freed if needed by the caller.
      */
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, FREE_SRC
     void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
 #else
-    void *(*CreateFromRW)(SDL_RWops* src, void* dst, int freesrc);
+    void *(*CreateFromRW)(SDL_RWops* src, void* dst);
 #endif
 #ifdef FULL // WAV_SRC
     /* Create a music object from a file, if SDL_RWops are not supported */

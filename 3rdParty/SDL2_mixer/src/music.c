@@ -730,7 +730,11 @@ Mix_Music *Mix_LoadMUS_RW(SDL_RWops *src, int freesrc)
     return Mix_LoadMUSType_RW(src, MUS_NONE, freesrc);
 }
 #endif // FULL
+#ifdef FULL // WAV_SRC
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
+#else
+Mix_Music* Mix_LoadAudio_RW(SDL_RWops* src, void* dst)
+#endif
 {
 #ifdef FULL // WAV_SRC
     size_t i;
@@ -766,7 +770,7 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
             }
             context = interface->CreateFromRW(src, freesrc);
 #else
-            context = Mix_MusicInterface_WAV.CreateFromRW(src, &theMusic.asWAV, freesrc);
+            context = Mix_MusicInterface_WAV.CreateFromRW(src, dst);
 #endif
             if (context) {
 #ifdef FULL // FIX_MUS
@@ -804,6 +808,7 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
         Mix_SetError("Unrecognized audio format");
     }
 #endif
+#ifdef FULL // FREE_SRC
     if (freesrc) {
         SDL_RWclose(src);
 #ifdef FULL // MUS_CHECK
@@ -811,7 +816,18 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
         SDL_RWseek(src, start, RW_SEEK_SET); -- pointless if !WAV_SRC
 #endif
     }
+#else // FREE_SRC
+        SDL_RWclose(src);
+#endif
     return NULL;
+}
+#ifdef FULL // WAV_SRC, FREE_SRC
+Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
+#else
+Mix_Music* Mix_LoadMUS_RW(SDL_RWops* src)
+#endif
+{
+    return Mix_LoadAudio_RW(src, &theMusic.asWAV);
 }
 
 /* Free a music chunk previously loaded */
