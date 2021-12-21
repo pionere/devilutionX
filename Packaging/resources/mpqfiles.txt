@@ -51,6 +51,8 @@ Missiles\Larrow7.CL2
 Missiles\Larrow8.CL2
 Missiles\Larrow9.CL2
 Missiles\Magicexp.CL2
+Monsters\Diablo\Diablod1.WAV
+Monsters\Diablo\Diablod2.WAV
 NLevels\L5Data\L5.TMI
 NLevels\L5Data\Nakrul1.DUN
 NLevels\L5Data\Nakrul2.DUN
