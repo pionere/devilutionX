@@ -102,6 +102,9 @@ extern void unload_music(void);
 extern char *music_cmd;
 extern SDL_AudioSpec music_spec;
 #endif
+SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer);
+void Mix_UnloadAudio(Mix_Audio* audio);
+
 #endif /* MUSIC_H_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

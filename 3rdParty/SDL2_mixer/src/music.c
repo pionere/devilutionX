@@ -875,6 +875,15 @@ void Mix_FreeMusic()
     Mix_MusicInterface_WAV.Delete(&theMusic.audio);
 #endif
 }
+void Mix_UnloadAudio(Mix_Audio* audio)
+{
+#ifdef FULL // WAV_SRC
+    music->interface->Delete(theMusic);
+#else
+    Mix_MusicInterface_WAV.Delete(audio);
+#endif
+}
+
 #endif // FULL - FIX_MUS
 #ifdef FULL
 /* Find out the music format of a mixer music, or the currently playing

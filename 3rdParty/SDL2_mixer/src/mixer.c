@@ -30,7 +30,7 @@
 #endif
 #define MIX_INTERNAL_EFFECT__
 #include "effects_internal.h"
-
+#include "types_internal.h"
 
 /* Magic numbers for various audio file formats */
 #define RIFF        0x46464952      /* "RIFF" */
@@ -798,9 +798,11 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 Mix_Chunk* Mix_LoadWAV_RW(SDL_RWops* src)
 #endif
 {
-    Uint8 magic[4];
     Mix_Chunk *chunk;
+#ifdef FULL // MUS_LOAD
+    Uint8 magic[4];
     SDL_AudioSpec wavespec, *loaded;
+#endif
     SDL_AudioCVT wavecvt;
     int samplesize;
 #ifdef FULL // WAV_CHECK
@@ -829,7 +831,7 @@ Mix_Chunk* Mix_LoadWAV_RW(SDL_RWops* src)
             SDL_RWclose(src);
         return(NULL);
     }
-
+#ifdef FULL // MUS_LOAD
     /* Find out what kind of audio file this is */
     if (SDL_RWread(src, magic, 1, 4) != 4) {
         SDL_free(chunk);
@@ -919,6 +921,71 @@ Mix_Chunk* Mix_LoadWAV_RW(SDL_RWops* src)
         chunk->abuf = wavecvt.buf;
         chunk->alen = wavecvt.len_cvt;
     }
+#else // FULL - MUS_LOAD
+    Mix_Audio audio = { 0 };
+    if (!Mix_LoadAudio_RW(src, &audio, NULL)) {
+        SDL_free(chunk);
+        return(NULL);
+    }
+
+    /* Build the audio converter and create conversion buffers */
+    Mix_AudioSpec* wavespec = &audio.asWAV.spec; // WAV_SRC
+    samplesize = (SDL_AUDIO_BITSIZE(wavespec->format) / 8) * wavespec->channels;
+    samplesize = (audio.asWAV.stop - audio.asWAV.start) & ~(samplesize-1);
+#ifdef FULL // FIX_OUT
+    if (wavespec.format != mixer.format ||
+         wavespec.channels != mixer.channels ||
+         wavespec.freqMpl * MIX_DEFAULT_FREQUENCY != mixer.freq) {
+        if (SDL_BuildAudioCVT(&wavecvt,
+                wavespec->format, wavespec->channels, wavespec->freqMpl * MIX_DEFAULT_FREQUENCY,
+                mixer.format, mixer.channels, mixer.freq) < 0) {
+#else
+    if (wavespec->format != MIX_DEFAULT_FORMAT ||
+         wavespec->channels != MIX_DEFAULT_CHANNELS ||
+         wavespec->freqMpl != 1) {
+        if (SDL_BuildAudioCVT(&wavecvt,
+                wavespec->format, wavespec->channels, wavespec->freqMpl * MIX_DEFAULT_FREQUENCY,
+                MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, MIX_DEFAULT_FREQUENCY) < 0) {
+#endif // FIX_OUT
+            goto error;
+        }
+        wavecvt.len = samplesize;
+        wavecvt.buf = (Uint8 *)SDL_calloc(1, wavecvt.len * wavecvt.len_mult);
+        if (wavecvt.buf == NULL) {
+            SDL_OutOfMemory();
+            goto error;
+        }
+        if (SDL_RWseek(src, audio.asWAV.start, RW_SEEK_SET) < 0 ||
+            SDL_RWread(src, wavecvt.buf, 1, wavecvt.len) == 0) {
+            SDL_free(wavecvt.buf);
+            goto error;
+        }
+
+        /* Run the audio converter */
+        if (SDL_ConvertAudio(&wavecvt) < 0) {
+            SDL_free(wavecvt.buf);
+            goto error;
+        }
+        chunk->abuf = wavecvt.buf;
+        chunk->alen = wavecvt.len_cvt;
+    } else {
+        chunk->abuf = (Uint8 *)SDL_malloc(samplesize);
+        if (chunk->abuf == NULL) {
+            SDL_OutOfMemory();
+            goto error;
+        }
+        chunk->alen = samplesize;
+        if (SDL_RWseek(src, audio.asWAV.start, RW_SEEK_SET) < 0 ||
+            SDL_RWread(src, chunk->abuf, 1, samplesize) == 0) {
+            SDL_free(chunk->abuf);
+            goto error;
+        }
+    }
+#ifdef FULL // FREE_SRC
+    if (freesrc)
+#endif
+        SDL_RWclose(src);
+#endif // FULL - MUS_LOAD
 #ifdef FULL // CHUNK_ALLOC
     chunk->allocated = 1;
 #endif
@@ -929,6 +996,12 @@ Mix_Chunk* Mix_LoadWAV_RW(SDL_RWops* src)
     chunk->volume = MIX_MAX_VOLUME;
 #endif
     return(chunk);
+#ifndef FULL // !MUS_LOAD
+error:
+    SDL_free(chunk);
+    Mix_UnloadAudio(&audio);
+    return(NULL);
+#endif
 }
 #ifdef FULL
 /* Load a wave file of the mixer format from a memory buffer */

@@ -37,7 +37,10 @@ Changes:
   - SDL_RWops is not reset when load fails (MUS_CHECK)
   - autodetection of type is disabled (WAV_SRC)
   - SDL_RWops is always freed (FREE_SRC)
-* Mix_LoadWAV_RW assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
+* Mix_LoadWAV_RW is simplified
+  - assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
+  - uses Mix_LoadAudio_RW(previously Mix_LoadMUSType_RW) to load WAV-meta info (MUS_LOAD)
+    WARNING! LoadWAVMusic is incomplete (WORD alignment is not followed, FMT parsing is not flexible, etc...)
 * Effects on channels are internalized -> extra checks disabled (EFF_CHECK)
 * Maximum one effect per channel (FIX_EFF)
 * Assumes initialized SDL with SDL_INIT_AUDIO (INIT)
