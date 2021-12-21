@@ -66,36 +66,14 @@ static SDL_bool music_active = SDL_TRUE;
 #ifdef FULL // FIX_MUS
 static int music_volume = MIX_MAX_VOLUME;
 static Mix_Music * volatile music_playing = NULL;
+#else
+static Mix_Music theMusic = { MIX_MAX_VOLUME, SDL_FALSE };
+static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
 #endif
 #ifdef FULL
 SDL_AudioSpec music_spec;
 #endif
-#ifdef FULL // FIX_MUS
-struct _Mix_Music {
-#ifdef FULL // WAV_SRC
-    Mix_MusicInterface *interface;
-#endif
-    void *context;
 
-    SDL_bool playing;
-#ifdef FULL // FADING
-    Mix_Fading fading;
-    int fade_step;
-    int fade_steps;
-    char filename[1024];
-#endif
-};
-#else
-struct _Mix_Music {
-    int volume;
-    SDL_bool playing;
-    union {
-        WAV_Music asWAV;
-    };
-};
-static Mix_Music theMusic = { MIX_MAX_VOLUME, SDL_FALSE };
-static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
-#endif // FULL - FIX_MUS
 #ifdef FULL // FADING
 /* Used to calculate fading steps */
 static int ms_per_step;
@@ -731,7 +709,7 @@ Mix_Music *Mix_LoadMUS_RW(SDL_RWops *src, int freesrc)
     return Mix_LoadMUSType_RW(src, MUS_NONE, freesrc);
 }
 #endif // FULL
-#ifdef FULL // WAV_SRC
+#ifdef FULL // WAV_SRC, FIX_MUS
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #else
 SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, void* dst, Uint8* buffer)
@@ -829,12 +807,10 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, void* dst, Uint8* buffer)
 #ifdef FULL // WAV_SRC, FREE_SRC, FIX_MUS
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #else
-Mix_Music* Mix_LoadMUS_RW(SDL_RWops* src)
+SDL_bool Mix_LoadMUS_RW(SDL_RWops* src)
 #endif
 {
-    if (Mix_LoadAudio_RW(src, &theMusic.asWAV, musicBuffer))
-        return &theMusic;
-    return NULL;
+    return Mix_LoadAudio_RW(src, &theMusic.asWAV, musicBuffer);
 }
 
 /* Free a music chunk previously loaded */

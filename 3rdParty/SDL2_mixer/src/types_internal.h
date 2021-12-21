@@ -193,6 +193,33 @@ typedef struct {
 #endif
 } WAV_Music;
 
+/* Mixer */
+
+#ifdef FULL // FIX_MUS
+struct _Mix_Music {
+#ifdef FULL // WAV_SRC
+    Mix_MusicInterface *interface;
+#endif
+    void *context;
+
+    SDL_bool playing;
+#ifdef FULL // FADING
+    Mix_Fading fading;
+    int fade_step;
+    int fade_steps;
+    char filename[1024];
+#endif
+};
+#else
+struct _Mix_Music {
+    int volume;
+    SDL_bool playing;
+    union {
+        WAV_Music asWAV;
+    };
+};
+#endif // FULL - FIX_MUS
+
 #endif /* INCLUDE_TYPES_INTERNAL_H_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

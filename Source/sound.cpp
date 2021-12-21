@@ -144,12 +144,9 @@ void music_start(int nTrack)
 			SFileReadFile(hMusic, _gMusicBuffer, bytestoread);
 
 			SDL_RWops* musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
-			if (musicRw == NULL) {
+			if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
 				sdl_fatal(ERR_SDL_MUSIC_FILE);
-			}
-			Mix_Music* mMusic = Mix_LoadMUS_RW(musicRw);
-			if (mMusic == NULL)
-				sdl_fatal(ERR_SDL_MUSIC_FILE);
+
 			Mix_PlayMusic(-1);
 
 			_gnMusicTrack = nTrack;
