@@ -930,8 +930,12 @@ Mix_Chunk* Mix_LoadWAV_RW(SDL_RWops* src)
 
     /* Build the audio converter and create conversion buffers */
     Mix_AudioSpec* wavespec = &audio.asWAV.spec; // WAV_SRC
+#ifdef FULL // SAMPLE_CHECK
     samplesize = (SDL_AUDIO_BITSIZE(wavespec->format) / 8) * wavespec->channels;
     samplesize = (audio.asWAV.stop - audio.asWAV.start) & ~(samplesize-1);
+#else
+    samplesize = audio.asWAV.stop - audio.asWAV.start;
+#endif // FULL - SAMPLE_CHECK
 #ifdef FULL // FIX_OUT
     if (wavespec.format != mixer.format ||
          wavespec.channels != mixer.channels ||
