@@ -94,6 +94,7 @@ struct _Mix_Music {
     };
 };
 static Mix_Music theMusic = { MIX_MAX_VOLUME, SDL_FALSE };
+static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
 #endif // FULL - FIX_MUS
 #ifdef FULL // FADING
 /* Used to calculate fading steps */
@@ -733,7 +734,7 @@ Mix_Music *Mix_LoadMUS_RW(SDL_RWops *src, int freesrc)
 #ifdef FULL // WAV_SRC
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #else
-Mix_Music* Mix_LoadAudio_RW(SDL_RWops* src, void* dst)
+SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, void* dst, Uint8* buffer)
 #endif
 {
 #ifdef FULL // WAV_SRC
@@ -770,7 +771,7 @@ Mix_Music* Mix_LoadAudio_RW(SDL_RWops* src, void* dst)
             }
             context = interface->CreateFromRW(src, freesrc);
 #else
-            context = Mix_MusicInterface_WAV.CreateFromRW(src, dst);
+            context = Mix_MusicInterface_WAV.CreateFromRW(src, dst, buffer);
 #endif
             if (context) {
 #ifdef FULL // FIX_MUS
@@ -796,7 +797,7 @@ Mix_Music* Mix_LoadAudio_RW(SDL_RWops* src, void* dst)
 #endif
                 return music;
 #else
-                return &theMusic;
+                return SDL_TRUE;
 #endif // FULL - FIX_MUS
             }
 #ifdef FULL // WAV_SRC
@@ -819,15 +820,21 @@ Mix_Music* Mix_LoadAudio_RW(SDL_RWops* src, void* dst)
 #else // FREE_SRC
         SDL_RWclose(src);
 #endif
+#ifdef FULL // FIX_MUS
     return NULL;
+#else
+    return SDL_FALSE;
+#endif
 }
-#ifdef FULL // WAV_SRC, FREE_SRC
+#ifdef FULL // WAV_SRC, FREE_SRC, FIX_MUS
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #else
 Mix_Music* Mix_LoadMUS_RW(SDL_RWops* src)
 #endif
 {
-    return Mix_LoadAudio_RW(src, &theMusic.asWAV);
+    if (Mix_LoadAudio_RW(src, &theMusic.asWAV, musicBuffer))
+        return &theMusic;
+    return NULL;
 }
 
 /* Free a music chunk previously loaded */

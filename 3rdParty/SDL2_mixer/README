@@ -21,7 +21,7 @@ Changes:
 * allocated is no longer maintained in mixer.c (CHUNK_ALLOC)
 * Mix_Chunk.lastChan field added to store the last channel assuming the first channel is reserved (CHUNK_LAST_CHAN)
 * music_active is no longer maintained in music.c (MUS_ACTIVE)
-* Only one music can be played at a time (FIX_MUS)
+* Only one music can be played at a time, it uses a static buffer (FIX_MUS)
 * Channel(chunk) Looping is not supported (LOOP)
 * Seeking of music is not supported (SEEK)
 * Hooks on music-playback are not supported (HOOKS)

@@ -55,7 +55,7 @@ typedef struct
 #ifdef FULL // FIX_MUS, FREE_SRC
     void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
 #else
-    void *(*CreateFromRW)(SDL_RWops* src, void* dst);
+    void *(*CreateFromRW)(SDL_RWops* src, void* dst, Uint8* buffer);
 #endif
 #ifdef FULL // WAV_SRC
     /* Create a music object from a file, if SDL_RWops are not supported */

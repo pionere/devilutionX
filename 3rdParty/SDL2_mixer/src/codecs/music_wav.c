@@ -153,7 +153,7 @@ static int fetch_pcm(WAV_Music* wave, int length);
 #ifdef FULL // FIX_MUS, FREE_SRC
 static void *WAV_CreateFromRW(SDL_RWops *src, int freesrc)
 #else
-static void* WAV_CreateFromRW(SDL_RWops* src, void* dst)
+static void* WAV_CreateFromRW(SDL_RWops* src, void* dst, Uint8* buffer)
 #endif
 {
     WAV_Music *wave;
@@ -225,12 +225,7 @@ static void* WAV_CreateFromRW(SDL_RWops* src, void* dst)
 #endif
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
 #else
-    wave->buffer.basePos = (Uint8*)SDL_malloc(MIX_STREAM_BUFF_SIZE);
-    if (wave->buffer.basePos == NULL) {
-        SDL_OutOfMemory();
-        WAV_Delete(wave);
-        return NULL;
-    }
+    wave->buffer.basePos = buffer;
     wave->buffer.currPos = wave->buffer.endPos = wave->buffer.basePos;
 #endif // FULL - SELF_CONV
 #ifdef FULL // FREE_SRC
@@ -822,7 +817,7 @@ static int WAV_GetSome(void *context, void *data, int bytes)
     amount = (int)wave->spec.sampleSize;
     at_end = (stop - pos) <= amount;
     if (at_end) {
-        amount = (int)(stop - pos);
+        amount = (stop - pos);
     }
 #ifdef FULL // MUS_ENC
     amount = wave->decode(wave, amount);
@@ -966,13 +961,6 @@ static void WAV_Delete(void *context)
 #endif
     }
 #endif
-#else // FULL - SELF_CONV
-    if (wave->buffer.basePos != NULL) {
-        SDL_free(wave->buffer.basePos);
-#ifndef FULL // FIX_MUS
-        wave->buffer.basePos = NULL;
-#endif
-    }
 #endif // FULL - SELF_CONV
     if (wave->freesrc) {
         SDL_RWclose(wave->src);
@@ -1136,7 +1124,11 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
     /* Calculate Mix_AudioSpec */
     spec->sampleSize = SDL_AUDIO_BITSIZE(spec->format) / 8;
     spec->sampleSize *= spec->channels;
-    spec->sampleSize *= MIX_STREAM_SAMPLE_COUNT;
+#ifdef FULL // FIX_OUT
+    spec->sampleSize *= MIX_STREAM_BUFF_SIZE / ((SDL_AUDIO_BITSIZE(music_spec.format) / 8) * music_spec.channels);
+#else
+    spec->sampleSize *= MIX_STREAM_BUFF_SIZE / ((SDL_AUDIO_BITSIZE(MIX_DEFAULT_FORMAT) / 8) * MIX_DEFAULT_CHANNELS);
+#endif
 #endif // FULL - SELF_CONV
     return SDL_TRUE;
 }
@@ -1271,7 +1263,9 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave)
     Uint32 chunk_type;
     Uint32 chunk_length;
     SDL_bool found_FMT = SDL_FALSE;
+#ifdef FULL // META, WAV_LOOP
     SDL_bool found_DATA = SDL_FALSE;
+#endif
     /* WAV magic header */
     Uint32 wavelen;
     Uint32 WAVEmagic;
@@ -1301,9 +1295,14 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave)
                 return SDL_FALSE;
             break;
         case DATA:
+#ifdef FULL // META, WAV_LOOP
             found_DATA = SDL_TRUE;
             if (!ParseDATA(wave, chunk_length))
                 return SDL_FALSE;
+#else
+            if (ParseDATA(wave, chunk_length) && found_FMT)
+                return SDL_TRUE;
+#endif
             break;
 #ifdef FULL // WAV_LOOP
         case SMPL:
@@ -1322,7 +1321,7 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave)
             break;
         }
     }
-
+#ifdef FULL // META, WAV_LOOP
     if (!found_FMT) {
         Mix_SetError("Bad WAV file (no FMT chunk)");
         return SDL_FALSE;
@@ -1332,8 +1331,11 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave)
         Mix_SetError("Bad WAV file (no DATA chunk)");
         return SDL_FALSE;
     }
-
     return SDL_TRUE;
+#else
+    Mix_SetError("Unknown WAVE data format");
+    return SDL_FALSE;
+#endif
 }
 
 /* I couldn't get SANE_to_double() to work, so I stole this from libsndfile.
