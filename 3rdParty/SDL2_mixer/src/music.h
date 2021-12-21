@@ -22,6 +22,7 @@
 #define MUSIC_H_
 
 #include "SDL_mixer.h"
+#include "types_internal.h"
 
 /* Supported music APIs, in order of preference */
 
@@ -88,8 +89,8 @@ extern void open_music(const SDL_AudioSpec *spec);
 extern int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                               int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done));
 #else
-extern int music_pcm_getaudio(void *context, void *data, int bytes,
-                              int (*GetSome)(void *context, void *data, int bytes));
+extern int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
+                              int (*GetSome)(Mix_Audio* audio, void* data, int bytes));
 #endif
 extern void SDLCALL music_mixer(void *udata, Uint8 *stream, int len);
 extern void close_music(void);

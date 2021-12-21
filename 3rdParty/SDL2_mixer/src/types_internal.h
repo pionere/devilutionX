@@ -55,7 +55,7 @@ typedef struct
 #ifdef FULL // FIX_MUS, FREE_SRC
     void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
 #else
-    void *(*CreateFromRW)(SDL_RWops* src, void* dst, Uint8* buffer);
+    void *(*CreateFromRW)(SDL_RWops* src, struct Mix_Audio* dst, Uint8* buffer);
 #endif
 #ifdef FULL // WAV_SRC
     /* Create a music object from a file, if SDL_RWops are not supported */
@@ -70,13 +70,13 @@ typedef struct
     int (*GetVolume)(void *music);
 #endif
     /* Start playing music from the beginning with an optional loop count */
-    int (*Play)(void *music, int play_count);
+    int (*Play)(struct Mix_Audio* audio, int play_count);
 #ifdef FULL
     /* Returns SDL_TRUE if music is still playing */
     SDL_bool (*IsPlaying)(void *music);
 #endif
     /* Get music data, returns the number of bytes left */
-    int (*GetAudio)(void *music, void *data, int bytes);
+    int (*GetAudio)(struct Mix_Audio* audio, void *data, int bytes);
 #ifdef FULL
     /* Jump to a given order in mod music */
     int (*Jump)(void *music, int order);
@@ -112,7 +112,7 @@ typedef struct
     void (*Stop)(void *music);
 #endif
     /* Delete a music object */
-    void (*Delete)(void *music);
+    void (*Delete)(struct Mix_Audio* audio);
 #ifdef FULL // WAV_SRC
     /* Close the library and clean up */
     void (*Close)(void);
@@ -188,7 +188,7 @@ typedef struct {
 #endif
 #ifdef FULL // MUS_ENC
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
-    int (*decode)(struct WAV_Music *music, int length);
+    int (*decode)(struct WAV_Music* wave, int length);
 #endif
 #endif
 } WAV_Music;
@@ -211,12 +211,15 @@ struct _Mix_Music {
 #endif
 };
 #else
-struct _Mix_Music {
-    int volume;
-    SDL_bool playing;
+typedef struct Mix_Audio {
     union {
         WAV_Music asWAV;
     };
+} Mix_Audio;
+struct _Mix_Music {
+    int volume;
+    SDL_bool playing;
+    Mix_Audio audio;
 };
 #endif // FULL - FIX_MUS
 

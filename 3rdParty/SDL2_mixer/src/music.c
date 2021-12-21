@@ -73,7 +73,6 @@ static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
 #ifdef FULL
 SDL_AudioSpec music_spec;
 #endif
-
 #ifdef FULL // FADING
 /* Used to calculate fading steps */
 static int ms_per_step;
@@ -284,8 +283,8 @@ void Mix_HookMusicFinished(void (SDLCALL *music_finished)(void))
 int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                        int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done))
 #else
-int music_pcm_getaudio(void *context, void *data, int bytes,
-                       int (*GetSome)(void *context, void *data, int bytes))
+int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
+                       int (*GetSome)(Mix_Audio* audio, void* data, int bytes))
 #endif
 {
     Uint8 *snd = (Uint8 *)data;
@@ -307,7 +306,7 @@ int music_pcm_getaudio(void *context, void *data, int bytes,
         int consumed = GetSome(context, dst, len, &done);
 #else
     while (len > 0) {
-        int consumed = GetSome(context, dst, len);
+        int consumed = GetSome(audio, dst, len);
 #endif
         if (consumed < 0) {
             break;
@@ -379,7 +378,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #ifdef FULL // FIX_MUS
             int left = Mix_MusicInterface_WAV.GetAudio(music_playing->context, stream, len);
 #else
-            int left = Mix_MusicInterface_WAV.GetAudio(&theMusic.asWAV, stream, len);
+            int left = Mix_MusicInterface_WAV.GetAudio(&theMusic.audio, stream, len);
 #endif // FULL - FIX_MUS
 #endif // FULL - WAV_SRC
             if (left != 0) {
@@ -712,7 +711,7 @@ Mix_Music *Mix_LoadMUS_RW(SDL_RWops *src, int freesrc)
 #ifdef FULL // WAV_SRC, FIX_MUS
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #else
-SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, void* dst, Uint8* buffer)
+SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
 #endif
 {
 #ifdef FULL // WAV_SRC
@@ -810,7 +809,7 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 SDL_bool Mix_LoadMUS_RW(SDL_RWops* src)
 #endif
 {
-    return Mix_LoadAudio_RW(src, &theMusic.asWAV, musicBuffer);
+    return Mix_LoadAudio_RW(src, &theMusic.audio, musicBuffer);
 }
 
 /* Free a music chunk previously loaded */
@@ -873,7 +872,7 @@ void Mix_FreeMusic()
 #ifdef FULL // WAV_SRC
     music->interface->Delete(theMusic);
 #else
-    Mix_MusicInterface_WAV.Delete(&theMusic.asWAV);
+    Mix_MusicInterface_WAV.Delete(&theMusic.audio);
 #endif
 }
 #endif // FULL - FIX_MUS
@@ -986,7 +985,7 @@ static int music_internal_play(Mix_Music *music, int play_count, double position
 #ifdef FULL // FIX_MUS
     retval = Mix_MusicInterface_WAV.Play(music->context, play_count);
 #else
-    retval = Mix_MusicInterface_WAV.Play(&theMusic.asWAV, play_count);
+    retval = Mix_MusicInterface_WAV.Play(&theMusic.audio, play_count);
 #endif
 #endif
 #ifdef FULL

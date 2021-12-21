@@ -145,7 +145,7 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave);
 #ifdef FULL // WAV_SRC
 static SDL_bool LoadAIFFMusic(WAV_Music *wave);
 #endif
-static void WAV_Delete(void *context);
+static void WAV_Delete(Mix_Audio* audio);
 
 static int fetch_pcm(WAV_Music* wave, int length);
 
@@ -153,7 +153,7 @@ static int fetch_pcm(WAV_Music* wave, int length);
 #ifdef FULL // FIX_MUS, FREE_SRC
 static void *WAV_CreateFromRW(SDL_RWops *src, int freesrc)
 #else
-static void* WAV_CreateFromRW(SDL_RWops* src, void* dst, Uint8* buffer)
+static void* WAV_CreateFromRW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
 #endif
 {
     WAV_Music *wave;
@@ -166,7 +166,7 @@ static void* WAV_CreateFromRW(SDL_RWops* src, void* dst, Uint8* buffer)
         return NULL;
     }
 #else
-    wave = (WAV_Music*)dst;
+    wave = &dst->asWAV;
 #endif
     wave->src = src;
 #ifdef FULL // FIX_MUS
@@ -193,7 +193,7 @@ static void* WAV_CreateFromRW(SDL_RWops* src, void* dst, Uint8* buffer)
         Mix_SetError("Unknown WAVE data format");
     }
     if (!loaded) {
-        WAV_Delete(wave);
+        WAV_Delete(dst);
         return NULL;
     }
 #ifdef FULL // SELF_CONV
@@ -250,9 +250,9 @@ static int WAV_GetVolume(void *context)
 #endif
 #endif // FULL - FIX_MUS
 /* Start playback of a given WAV stream */
-static int WAV_Play(void *context, int play_count)
+static int WAV_Play(Mix_Audio* audio, int play_count)
 {
-    WAV_Music *wave = (WAV_Music *)context;
+    WAV_Music* wave = &audio->asWAV;
 #ifdef FULL // WAV_LOOP
     unsigned int i;
     for (i = 0; i < wave->numloops; ++i) {
@@ -515,7 +515,7 @@ static int fetch_pcm(WAV_Music* wave, int length)
 #ifdef FULL // FIX_MUS
 static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
 #else
-static int WAV_GetSome(void *context, void *data, int bytes)
+static int WAV_GetSome(Mix_Audio* audio, void *data, int bytes)
 #endif
 {
 #ifdef FULL // SELF_CONV
@@ -753,7 +753,7 @@ static int WAV_GetSome(void *context, void *data, int bytes)
     return consumed;
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
 #else // SELF CONV
-    WAV_Music* wave = (WAV_Music*)context;
+    WAV_Music* wave = &audio->asWAV;
 #ifdef FULL // FILE_INT
     Sint64 pos, stop;
 #ifdef FULL // WAV_LOOP
@@ -867,7 +867,7 @@ static int WAV_GetSome(void *context, void *data, int bytes)
             if (WAV_Play(wave, play_count) < 0) {
 #else
         {
-            if (WAV_Play(wave, -1) < 0) {
+            if (WAV_Play(audio, -1) < 0) {
 #endif
                 return -1;
             }
@@ -878,16 +878,18 @@ static int WAV_GetSome(void *context, void *data, int bytes)
     return 0;
 #endif // SELF_CONV
 }
-
+#ifdef FULL // FIX_MUS
 static int WAV_GetAudio(void *context, void *data, int bytes)
 {
-#ifdef FULL // FIX_MUS
     WAV_Music *wave = (WAV_Music *)context;
     return music_pcm_getaudio(context, data, bytes, wave->volume, WAV_GetSome);
-#else
-    return music_pcm_getaudio(context, data, bytes, WAV_GetSome);
-#endif
 }
+#else
+static int WAV_GetAudio(Mix_Audio* audio, void *data, int bytes)
+{
+    return music_pcm_getaudio(audio, data, bytes, WAV_GetSome);
+}
+#endif
 #ifdef FULL // SEEK
 static int WAV_Seek(void *context, double position)
 {
@@ -924,9 +926,9 @@ static const char* WAV_GetMetaTag(void *context, Mix_MusicMetaTag tag_type)
 }
 #endif // FULL
 /* Close the given WAV stream */
-static void WAV_Delete(void *context)
+static void WAV_Delete(Mix_Audio* audio)
 {
-    WAV_Music *wave = (WAV_Music *)context;
+    WAV_Music* wave = &audio->asWAV;
 #ifdef FULL // META
     /* Clean up associated data */
     meta_tags_clear(&wave->tags);
