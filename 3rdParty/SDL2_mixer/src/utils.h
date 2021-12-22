@@ -43,8 +43,11 @@ extern SDL_bool _Mix_IsLoopTag(const char *tag);
 #endif
 #include "types_internal.h"
 
-void Mix_Convert_Mono2Stereo(Mix_BuffOps* buf);
-void Mix_Convert_U8_S16LSB(Mix_BuffOps* buf);
+#ifndef FULL // SELF_CONV
+extern void (*Mix_Convert_AUDIO16_Mono2Stereo)(Mix_BuffOps* buf);
+//extern void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf);
+void Mix_Utils_Init();
+#endif
 
 #endif /* UTILS_H_ */
 

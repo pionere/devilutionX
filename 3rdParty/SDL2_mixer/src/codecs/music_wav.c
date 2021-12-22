@@ -831,7 +831,7 @@ static int WAV_GetSome(Mix_Audio* audio, void *data, int bytes)
         }
         if (wave->spec.channels == 1) {
             // assert(SDL_AUDIO_BITSIZE(wave->spec.format) == 16);
-            Mix_Convert_Mono2Stereo(&wave->buffer);
+            Mix_Convert_AUDIO16_Mono2Stereo(&wave->buffer);
         }
         // assert(wave->spec.freqMpl == 1);
     } else {

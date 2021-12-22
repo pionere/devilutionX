@@ -30,7 +30,7 @@
 #endif
 #define MIX_INTERNAL_EFFECT__
 #include "effects_internal.h"
-#include "types_internal.h"
+#include "utils.h"
 
 /* Magic numbers for various audio file formats */
 #define RIFF        0x46464952      /* "RIFF" */
@@ -219,6 +219,7 @@ int Mix_Init(int flags)
     if (flags != 0)
         Mix_SetError("Unsupported format");
 #endif // FULL
+    Mix_Utils_Init();
     return result;
 }
 
