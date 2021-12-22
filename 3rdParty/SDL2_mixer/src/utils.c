@@ -299,7 +299,7 @@ void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
 void Mix_Utils_Init()
 {
 #ifdef __SSE2__
-    if (!SDL_HasSSE2()) {
+    if (SDL_HasSSE2()) {
         Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo_SSE2;
     }
 #endif

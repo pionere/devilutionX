@@ -761,14 +761,14 @@ static int WAV_GetSome(Mix_Audio* audio, void *data, int bytes)
     Sint64 loop_start; // = wave->start;
     Sint64 loop_stop; // = wave->stop;
 #endif
-#else
+#else // FILE_INT
     int pos, stop;
 #ifdef FULL // WAV_LOOP
     WAVLoopPoint* loop;
     int loop_start; // = wave->start;
     int loop_stop; // = wave->stop;
 #endif
-#endif
+#endif // FILE_INT
 #ifdef FULL // WAV_LOOP
     SDL_bool looped = SDL_FALSE;
 #endif

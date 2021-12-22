@@ -54,13 +54,13 @@ typedef struct _Mix_effectinfo
 #endif
 typedef struct _Mix_Channel {
     Mix_Chunk *chunk;
-    SDL_bool playing;
+    int playing;
 #ifdef FULL // FADING
     int paused;
 #else
     SDL_bool paused;
 #endif
-    Uint8 *samples;
+    Uint8* playPos;
     int volume;
 #ifdef FULL // FADING, LOOP
     int looping;
@@ -363,13 +363,13 @@ mix_channels(void *udata, Uint8 *stream, int len)
 #endif // FULL
             if (mix_channel[i].playing > 0) {
                 int index = 0;
-                int remaining = len;
 #ifdef FULL // LOOP
+                int remaining = len;
                 while (mix_channel[i].playing > 0 && index < len) {
-#else
-                while (index < len) {
-#endif
                     remaining = len - index;
+#else
+                int remaining = len;
+#endif
 #ifdef FULL // CHUNK_VOL
                     volume = (mix_channel[i].volume*mix_channel[i].chunk->volume) / MIX_MAX_VOLUME;
 #else
@@ -380,7 +380,7 @@ mix_channels(void *udata, Uint8 *stream, int len)
                         mixable = remaining;
                     }
 
-                    mix_input = Mix_DoEffects(i, mix_channel[i].samples, mixable);
+                    mix_input = Mix_DoEffects(i, mix_channel[i].playPos, mixable);
 #ifdef FULL // WAV_SRC
 #if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 #ifdef FULL // FIX_OUT
@@ -394,15 +394,15 @@ mix_channels(void *udata, Uint8 *stream, int len)
 #else // WAV_SRC
                     Mix_MixAudioFormat(&stream[index], mix_input, MIX_DEFAULT_FORMAT, mixable, volume);
 #endif // FULL - WAV_SRC
-                    if (mix_input != mix_channel[i].samples)
+                    if (mix_input != mix_channel[i].playPos)
                         SDL_free(mix_input);
 
-                    mix_channel[i].samples += mixable;
+                    mix_channel[i].playPos += mixable;
                     mix_channel[i].playing -= mixable;
+#ifdef FULL // LOOP
                     index += mixable;
 
                     /* rcg06072001 Alert app if channel is done playing. */
-#ifdef FULL // LOOP
                     if (!mix_channel[i].playing && !mix_channel[i].looping) {
                         _Mix_channel_done_playing(i);
                     }
@@ -425,7 +425,7 @@ mix_channels(void *udata, Uint8 *stream, int len)
                     if (mix_channel[i].looping > 0) {
                         --mix_channel[i].looping;
                     }
-                    mix_channel[i].samples = mix_channel[i].chunk->abuf + remaining;
+                    mix_channel[i].playPos = mix_channel[i].chunk->abuf + remaining;
                     mix_channel[i].playing = mix_channel[i].chunk->alen - remaining;
                     index += remaining;
                 }
@@ -433,15 +433,13 @@ mix_channels(void *udata, Uint8 *stream, int len)
                     if (mix_channel[i].looping > 0) {
                         --mix_channel[i].looping;
                     }
-                    mix_channel[i].samples = mix_channel[i].chunk->abuf;
+                    mix_channel[i].playPos = mix_channel[i].chunk->abuf;
                     mix_channel[i].playing = mix_channel[i].chunk->alen;
                 }
 #else
                     if (!mix_channel[i].playing) {
                         _Mix_channel_done_playing(i);
-                        break;
                     }
-                }
 #endif
             }
         }
@@ -871,7 +869,7 @@ Mix_Chunk* Mix_LoadWAV_RW(SDL_RWops* src)
 #endif
             SDL_RWclose(src);
         loaded = NULL;
-#endif
+#endif // WAV_SRC
     }
     if (!loaded) {
         /* The individual loaders have closed src if needed */
@@ -1224,7 +1222,7 @@ int Mix_PlayChannelTimed(int which, Mix_Chunk *chunk, int loops, int ticks)
 #ifdef FULL // FADING
             Uint32 sdl_ticks = SDL_GetTicks();
 #endif
-            mix_channel[which].samples = chunk->abuf;
+            mix_channel[which].playPos = chunk->abuf;
             mix_channel[which].playing = (int)chunk->alen;
 #ifdef FULL // LOOP
             mix_channel[which].looping = loops;
@@ -1302,7 +1300,7 @@ int Mix_FadeInChannelTimed(int which, Mix_Chunk *chunk, int loops, int ms, int t
         /* Queue up the audio data for this channel */
         if (which >= 0 && which < num_channels) {
             Uint32 sdl_ticks = SDL_GetTicks();
-            mix_channel[which].samples = chunk->abuf;
+            mix_channel[which].playPos = chunk->abuf;
             mix_channel[which].playing = (int)chunk->alen;
             mix_channel[which].looping = loops;
             mix_channel[which].chunk = chunk;
