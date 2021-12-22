@@ -149,6 +149,64 @@ Sint64 _Mix_ParseTime(char *time, long samplerate_hz)
 }
 #endif // FULL
 
+#ifndef FULL // WAV_SRC
+
+/* The volume ranges from 0 - 128 */
+#define ADJUST_VOLUME(s, v) (s = (s*v)/MIX_MAX_VOLUME)
+#define ADJUST_VOLUME_U8(s, v)  (s = (((s-128)*v)/MIX_MAX_VOLUME)+128)
+
+/**
+ * Mix audio buffers. Based on SDL_MixAudioFormat of SDL2/SDL_audio.
+ */
+void Mix_MixAudioFormat(Uint8* dst, const Uint8* src, SDL_AudioFormat format, int len, int volume)
+{
+    if (volume == 0) {
+        return;
+    }
+
+    if (format == AUDIO_U8) {
+        Uint8 src_sample;
+        int dst_sample;
+
+        while (len--) {
+            src_sample = *src;
+            ADJUST_VOLUME_U8(src_sample, volume);
+            dst_sample = *dst + src_sample;
+            dst_sample -= 128;
+            if (dst_sample < 0)
+                dst_sample = 0;
+            else if (dst_sample > SDL_MAX_UINT8)
+                dst_sample = SDL_MAX_UINT8;
+            *dst = dst_sample;
+            ++dst;
+            ++src;
+        }
+    } else {
+    // assert(format == AUDIO_S16LSB);
+        Sint16 src1, src2;
+        int dst_sample;
+        const int max_audioval = SDL_MAX_SINT16;
+        const int min_audioval = SDL_MIN_SINT16;
+
+        len /= 2;
+        while (len--) {
+            src1 = SDL_SwapLE16(*(Sint16*)src);
+            ADJUST_VOLUME(src1, volume);
+            src2 = SDL_SwapLE16(*(Sint16*)dst);
+            src += 2;
+            dst_sample = src1 + src2;
+            if (dst_sample > max_audioval) {
+                dst_sample = max_audioval;
+            } else if (dst_sample < min_audioval) {
+                dst_sample = min_audioval;
+            }
+            *(Sint16*)dst = SDL_SwapLE16(dst_sample);
+            dst += 2;
+        }
+    }
+}
+#endif // FULL - WAV_SRC
+
 #ifndef FULL // SELF_CONV
 #ifdef __AVX__
 void Mix_Converter_AUDIO16_Mono2Stereo_AVX(Mix_BuffOps* buf)

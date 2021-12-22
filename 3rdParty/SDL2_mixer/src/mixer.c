@@ -381,6 +381,7 @@ mix_channels(void *udata, Uint8 *stream, int len)
                     }
 
                     mix_input = Mix_DoEffects(i, mix_channel[i].samples, mixable);
+#ifdef FULL // WAV_SRC
 #if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 #ifdef FULL // FIX_OUT
                     SDL_MixAudioFormat(stream+index,mix_input,mixer.format,mixable,volume);
@@ -389,7 +390,10 @@ mix_channels(void *udata, Uint8 *stream, int len)
 #endif
 #else
                     SDL_MixAudio(stream+index,mix_input,mixable,volume);
-#endif
+#endif // USE_SDL1
+#else // WAV_SRC
+                    Mix_MixAudioFormat(&stream[index], mix_input, MIX_DEFAULT_FORMAT, mixable, volume);
+#endif // FULL - WAV_SRC
                     if (mix_input != mix_channel[i].samples)
                         SDL_free(mix_input);
 
