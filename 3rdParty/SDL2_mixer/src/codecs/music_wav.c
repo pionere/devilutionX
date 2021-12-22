@@ -162,7 +162,7 @@ static void* WAV_CreateFromRW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
 #ifdef FULL // FIX_MUS
     wave = (WAV_Music *)SDL_calloc(1, sizeof(*wave));
     if (wave == NULL) {
-        SDL_OutOfMemory();
+        Mix_OutOfMemory();
         return NULL;
     }
 #else
@@ -200,7 +200,7 @@ static void* WAV_CreateFromRW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
 #if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
     wave->buffer = (Uint8*)SDL_malloc(wave->spec.size);
     if (wave->buffer == NULL) {
-        SDL_OutOfMemory();
+        Mix_OutOfMemory();
         WAV_Delete(wave);
         return NULL;
     }
@@ -689,7 +689,7 @@ static int WAV_GetSome(Mix_Audio* audio, void *data, int bytes)
             worksize = original_len*wave->cvt.len_mult;
             wave->cvt.buf=(Uint8 *)SDL_malloc(worksize);
             if (wave->cvt.buf == NULL) {
-                SDL_OutOfMemory();
+                Mix_OutOfMemory();
                 return -1;
             }
             wave->cvt.len = original_len;
@@ -1148,7 +1148,7 @@ static SDL_bool AddLoopPoint(WAV_Music *wave, Uint32 play_count, Uint32 start, U
     WAVLoopPoint *loop;
     WAVLoopPoint *loops = SDL_realloc(wave->loops, (wave->numloops + 1) * sizeof(*wave->loops));
     if (!loops) {
-        Mix_SetError("Out of memory");
+        Mix_OutOfMemory();
         return SDL_FALSE;
     }
 
@@ -1172,7 +1172,7 @@ static SDL_bool ParseSMPL(WAV_Music *wave, Uint32 chunk_length)
 
     data = (Uint8 *)SDL_malloc(chunk_length);
     if (!data) {
-        Mix_SetError("Out of memory");
+        Mix_OutOfMemory();
         return SDL_FALSE;
     }
     if (!SDL_RWread(wave->src, data, chunk_length, 1)) {
@@ -1223,7 +1223,7 @@ static SDL_bool ParseLIST(WAV_Music *wave, Uint32 chunk_length)
 
     data = (Uint8 *)SDL_malloc(chunk_length);
     if (!data) {
-        Mix_SetError("Out of memory");
+        Mix_OutOfMemory();
         return SDL_FALSE;
     }
 

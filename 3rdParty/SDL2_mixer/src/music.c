@@ -636,7 +636,7 @@ Mix_Music *Mix_LoadMUS(const char *file)
             /* Allocate memory for the music structure */
             Mix_Music *music = (Mix_Music *)SDL_calloc(1, sizeof(Mix_Music));
             if (music == NULL) {
-                Mix_SetError("Out of memory");
+                Mix_OutOfMemory();
                 return NULL;
             }
             music->interface = interface;
@@ -760,7 +760,7 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
 #else
                     Mix_MusicInterface_WAV.Delete(context);
 #endif
-                    Mix_SetError("Out of memory");
+                    Mix_OutOfMemory();
                     return NULL;
                 }
 #ifdef FULL // WAV_SRC
@@ -1027,7 +1027,7 @@ int Mix_FadeInMusicPos(Mix_Music *music, int loops, int ms, double position)
     int retval;
 #ifdef FULL // FADING
     if (ms_per_step == 0) {
-        SDL_SetError("Audio device hasn't been opened");
+        Mix_SetError("Audio device hasn't been opened");
         return(-1);
     }
 #endif
@@ -1392,7 +1392,7 @@ int Mix_FadeOutMusic(int ms)
     int retval = 0;
 
     if (ms_per_step == 0) {
-        SDL_SetError("Audio device hasn't been opened");
+        Mix_SetError("Audio device hasn't been opened");
         return 0;
     }
 
@@ -1515,7 +1515,7 @@ int Mix_SetMusicCMD(const char *command)
         size_t length = SDL_strlen(command) + 1;
         music_cmd = (char *)SDL_malloc(length);
         if (music_cmd == NULL) {
-            return SDL_OutOfMemory();
+            return Mix_OutOfMemory();
         }
         SDL_memcpy(music_cmd, command, length);
     }
