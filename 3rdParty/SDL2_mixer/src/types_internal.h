@@ -273,6 +273,8 @@ typedef struct _Mix_Audio {
     union {
         WAV_Music asWAV;
     };
+    int lastChannel;
+    Uint8* memSrc;
 } _Mix_Audio;
 struct _Mix_Music {
     int volume;
@@ -291,7 +293,7 @@ typedef struct _Mix_effectinfo
 } effect_info;
 #endif
 typedef struct _Mix_Channel {
-    Mix_Chunk *chunk;
+    Mix_Audio* chunk;
     int remaining;
 #ifdef FULL // FADING
     int paused;

@@ -18,6 +18,7 @@ Changes:
   - Panning is only for AUDIO_S16LSB with 2-channels
 * meta tags are ignored (META)
 * Fading, expire are not supported (FADING)
+* Mix_Chunk is an alias for Mix_Audio (CHUNK_ALIAS)
 * Volume per chunk is not supported (CHUNK_VOL)
 * allocated is no longer maintained in mixer.c (CHUNK_ALLOC)
 * Chunk length is not validated in Mix_PlayChannelTimed (CHUNK_LEN)

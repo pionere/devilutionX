@@ -523,9 +523,11 @@ static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 0, "Align
 // effects/sound
 //////////////////////////////////////////////////
 
+typedef struct _Mix_Audio Mix_Audio;
+
 typedef struct SoundSample final {
 	Uint32 nextTc;
-	struct Mix_Chunk* soundData;
+	Mix_Audio* soundData;
 
 	void Release();
 	bool IsPlaying();

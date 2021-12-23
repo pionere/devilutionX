@@ -130,6 +130,7 @@ typedef Uint16 SDL_AudioFormat;
 #endif
 
 /* The internal format for an audio chunk */
+#ifdef FULL // CHUNK_ALIAS
 typedef struct Mix_Chunk {
 #ifdef FULL // CHUNK_ALLOC
     int allocated;
@@ -143,6 +144,9 @@ typedef struct Mix_Chunk {
     Uint8 volume;       /* Per-sample volume, 0-128 */
 #endif
 } Mix_Chunk;
+#else
+typedef struct _Mix_Audio Mix_Audio;
+#endif
 
 /* The different fading types supported */
 typedef enum {
@@ -189,10 +193,10 @@ extern DECLSPEC int SDLCALL Mix_AllocateChannels(int numchans);
 extern DECLSPEC int SDLCALL Mix_QuerySpec(int *frequency,Uint16 *format,int *channels);
 #endif
 /* Load a wave file or a music (.mod .s3m .it .xm) file */
-#ifdef FULL // FREE_SRC
+#ifdef FULL // FREE_SRC, CHUNK_ALIAS
 extern DECLSPEC Mix_Chunk * SDLCALL Mix_LoadWAV_RW(SDL_RWops *src, int freesrc);
 #else
-extern DECLSPEC Mix_Chunk * SDLCALL Mix_LoadWAV_RW(SDL_RWops* src);
+extern DECLSPEC Mix_Audio * SDLCALL Mix_LoadWAV_RW(SDL_RWops* src);
 #endif
 #ifdef FULL
 #define Mix_LoadWAV(file)   Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
@@ -216,7 +220,11 @@ extern DECLSPEC Mix_Chunk * SDLCALL Mix_QuickLoad_WAV(Uint8 *mem);
 extern DECLSPEC Mix_Chunk * SDLCALL Mix_QuickLoad_RAW(Uint8 *mem, Uint32 len);
 #endif
 /* Free an audio chunk previously loaded */
+#ifdef FULL // CHUNK_ALIAS
 extern DECLSPEC void SDLCALL Mix_FreeChunk(Mix_Chunk *chunk);
+#else
+extern DECLSPEC void SDLCALL Mix_FreeChunk(Mix_Audio *chunk);
+#endif
 #ifdef FULL
 extern DECLSPEC void SDLCALL Mix_FreeMusic(Mix_Music *music);
 #else
@@ -605,7 +613,11 @@ extern DECLSPEC int SDLCALL Mix_GroupNewer(int tag);
 */
 #define Mix_PlayChannel(channel,chunk,loops) Mix_PlayChannelTimed(channel,chunk,loops,-1)
 /* The same as above, but the sound is played at most 'ticks' milliseconds */
+#ifdef FULL // CHUNK_ALIAS
 extern DECLSPEC int SDLCALL Mix_PlayChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ticks);
+#else
+extern DECLSPEC int SDLCALL Mix_PlayChannelTimed(int channel, Mix_Audio *chunk, int loops, int ticks);
+#endif
 #ifdef FULL // FIX_MUS
 extern DECLSPEC int SDLCALL Mix_PlayMusic(Mix_Music *music, int loops);
 #else
@@ -716,7 +728,11 @@ extern DECLSPEC double SDLCALL Mix_GetMusicLoopLengthTime(Mix_Music *music);
    If the specified channel is -1, check all channels.
 */
 extern DECLSPEC int SDLCALL Mix_Playing(int channel);
+#ifdef FULL // CHUNK_ALIAS
 extern DECLSPEC int SDLCALL Mix_PlayingChunk(Mix_Chunk* chunk);
+#else
+extern DECLSPEC int SDLCALL Mix_PlayingChunk(Mix_Audio* chunk);
+#endif
 #ifdef FULL
 extern DECLSPEC int SDLCALL Mix_PlayingMusic(void);
 
