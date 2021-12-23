@@ -146,9 +146,9 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave);
 static SDL_bool LoadAIFFMusic(WAV_Music *wave);
 #endif
 static void WAV_Delete(Mix_Audio* audio);
-
+#ifdef FULL // MUS_ENC
 static int fetch_pcm(WAV_Music* wave, int length);
-
+#endif
 /* Load a WAV stream from the given RWops object */
 #ifdef FULL // FIX_MUS, FREE_SRC
 static void *WAV_CreateFromRW(SDL_RWops *src, int freesrc)
