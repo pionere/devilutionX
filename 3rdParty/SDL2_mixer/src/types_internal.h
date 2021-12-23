@@ -90,6 +90,8 @@ typedef struct Mix_BuffOps {
 
 /* Music */
 
+typedef struct _Mix_Audio Mix_Audio;
+
 typedef struct
 {
 #ifdef FULL // WAV_SRC
@@ -111,7 +113,7 @@ typedef struct
 #ifdef FULL // FIX_MUS, FREE_SRC
     void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
 #else
-    void *(*CreateFromRW)(SDL_RWops* src, struct Mix_Audio* dst, Uint8* buffer);
+    void *(*CreateFromRW)(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer);
 #endif
 #ifdef FULL // WAV_SRC
     /* Create a music object from a file, if SDL_RWops are not supported */
@@ -126,13 +128,13 @@ typedef struct
     int (*GetVolume)(void *music);
 #endif
     /* Start playing music from the beginning with an optional loop count */
-    int (*Play)(struct Mix_Audio* audio, int play_count);
+    int (*Play)(Mix_Audio* audio, int play_count);
 #ifdef FULL
     /* Returns SDL_TRUE if music is still playing */
     SDL_bool (*IsPlaying)(void *music);
 #endif
     /* Get music data, returns the number of bytes left */
-    int (*GetAudio)(struct Mix_Audio* audio, void *data, int bytes);
+    int (*GetAudio)(Mix_Audio* audio, void *data, int bytes);
 #ifdef FULL
     /* Jump to a given order in mod music */
     int (*Jump)(void *music, int order);
@@ -168,7 +170,7 @@ typedef struct
     void (*Stop)(void *music);
 #endif
     /* Delete a music object */
-    void (*Delete)(struct Mix_Audio* audio);
+    void (*Delete)(Mix_Audio* audio);
 #ifdef FULL // WAV_SRC
     /* Close the library and clean up */
     void (*Close)(void);
@@ -267,11 +269,11 @@ struct _Mix_Music {
 #endif
 };
 #else
-typedef struct Mix_Audio {
+typedef struct _Mix_Audio {
     union {
         WAV_Music asWAV;
     };
-} Mix_Audio;
+} _Mix_Audio;
 struct _Mix_Music {
     int volume;
     SDL_bool playing;
@@ -290,7 +292,7 @@ typedef struct _Mix_effectinfo
 #endif
 typedef struct _Mix_Channel {
     Mix_Chunk *chunk;
-    int playing;
+    int remaining;
 #ifdef FULL // FADING
     int paused;
 #else
