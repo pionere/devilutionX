@@ -68,7 +68,7 @@ static int music_volume = MIX_MAX_VOLUME;
 static Mix_Music * volatile music_playing = NULL;
 #else
 static Mix_Audio theMusicSrc;
-static _Mix_Channel theMusicChannel = { NULL, 0, SDL_FALSE, NULL, MIX_MAX_VOLUME, SDL_FALSE };
+static _Mix_Channel theMusicChannel = { NULL, 0, SDL_FALSE, NULL, { NULL, NULL, NULL }, MIX_MAX_VOLUME, SDL_FALSE };
 static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
 #endif
 #ifdef FULL
@@ -284,7 +284,7 @@ int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                        int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done))
 #else
 int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
-                       int (*GetSome)(Mix_Audio* audio, void* data, int bytes))
+                       int (*GetSome)(Mix_Audio* audio, Mix_BuffOps* buffer, void* data, int bytes))
 #endif
 {
     Uint8 *snd = (Uint8 *)data;
@@ -306,7 +306,7 @@ int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
         int consumed = GetSome(context, dst, len, &done);
 #else
     while (len > 0) {
-        int consumed = GetSome(audio, dst, len);
+        int consumed = GetSome(audio, &theMusicChannel.buffer, dst, len);
 #endif
         if (consumed < 0) {
             break;
@@ -712,7 +712,7 @@ Mix_Music *Mix_LoadMUS_RW(SDL_RWops *src, int freesrc)
 #ifdef FULL // WAV_SRC, FIX_MUS
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #else
-SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
+SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
 #endif
 {
 #ifdef FULL // WAV_SRC
@@ -749,7 +749,7 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
             }
             context = interface->CreateFromRW(src, freesrc);
 #else
-            context = Mix_MusicInterface_WAV.CreateFromRW(src, dst, buffer);
+            context = Mix_MusicInterface_WAV.CreateFromRW(src, dst);
 #endif
             if (context) {
 #ifdef FULL // FIX_MUS
@@ -810,7 +810,8 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 SDL_bool Mix_LoadMUS_RW(SDL_RWops* src)
 #endif
 {
-    return Mix_LoadAudio_RW(src, &theMusicSrc, musicBuffer);
+    theMusicChannel.buffer.basePos = theMusicChannel.buffer.currPos = theMusicChannel.buffer.endPos = musicBuffer;
+    return Mix_LoadAudio_RW(src, &theMusicSrc);
 }
 
 /* Free a music chunk previously loaded */

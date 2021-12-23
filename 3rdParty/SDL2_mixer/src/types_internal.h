@@ -113,7 +113,7 @@ typedef struct
 #ifdef FULL // FIX_MUS, FREE_SRC
     void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
 #else
-    void *(*CreateFromRW)(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer);
+    void *(*CreateFromRW)(SDL_RWops* src, Mix_Audio* dst);
 #endif
 #ifdef FULL // WAV_SRC
     /* Create a music object from a file, if SDL_RWops are not supported */
@@ -231,8 +231,6 @@ typedef struct {
 #else
     SDL_AudioCVT cvt;
 #endif
-#else
-    Mix_BuffOps buffer;
 #endif // SELF_CONV
 #ifdef FULL // WAV_LOOP
     unsigned int numloops;
@@ -301,6 +299,7 @@ typedef struct _Mix_Channel {
     SDL_bool paused;
 #endif
     Uint8* playPos;
+    Mix_BuffOps buffer;
     int volume;
 #ifdef FULL // FADING, LOOP
     int looping;

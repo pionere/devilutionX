@@ -900,9 +900,9 @@ Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
 #else // FULL - MUS_LOAD
 #ifdef FULL // CHUNK_ALIAS
     Mix_Audio audio = { 0 };
-    if (!Mix_LoadAudio_RW(src, &audio, NULL)) {
+    if (!Mix_LoadAudio_RW(src, &audio)) {
 #else
-    if (!Mix_LoadAudio_RW(src, chunk, NULL)) {
+    if (!Mix_LoadAudio_RW(src, chunk)) {
 #endif
         SDL_free(chunk);
         return(NULL);

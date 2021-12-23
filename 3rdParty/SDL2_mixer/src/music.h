@@ -90,7 +90,7 @@ extern int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                               int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done));
 #else
 extern int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
-                              int (*GetSome)(Mix_Audio* audio, void* data, int bytes));
+                              int (*GetSome)(Mix_Audio* audio, Mix_BuffOps* buffer, void* data, int bytes));
 #endif
 extern void SDLCALL music_mixer(void *udata, Uint8 *stream, int len);
 extern void close_music(void);
@@ -102,7 +102,7 @@ extern void unload_music(void);
 extern char *music_cmd;
 extern SDL_AudioSpec music_spec;
 #endif
-SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer);
+SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst);
 void Mix_UnloadAudio(Mix_Audio* audio);
 
 #endif /* MUSIC_H_ */

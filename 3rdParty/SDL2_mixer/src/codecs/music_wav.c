@@ -153,7 +153,7 @@ static int fetch_pcm(WAV_Music* wave, int length);
 #ifdef FULL // FIX_MUS, FREE_SRC
 static void *WAV_CreateFromRW(SDL_RWops *src, int freesrc)
 #else
-static void* WAV_CreateFromRW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
+static void* WAV_CreateFromRW(SDL_RWops* src, Mix_Audio* dst)
 #endif
 {
     WAV_Music *wave;
@@ -224,9 +224,6 @@ static void* WAV_CreateFromRW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
         MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, MIX_DEFAULT_FREQUENCY);
 #endif
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
-#else
-    wave->buffer.basePos = buffer;
-    wave->buffer.currPos = wave->buffer.endPos = wave->buffer.basePos;
 #endif // FULL - SELF_CONV
 #ifdef FULL // FREE_SRC
     wave->freesrc = freesrc;
@@ -503,10 +500,10 @@ static int fetch_alaw(WAV_Music* wave, int length)
 #endif // FULL - MUS_ENC
 #endif // SDL_VERSION_ATLEAST(2, 0, 7) - USE_SDL1
 #else // FULL - SELF_CONV
-static int fetch_pcm(WAV_Music* wave, int length)
+static int fetch_pcm(WAV_Music* wave, Mix_BuffOps* buffer, int length)
 {
-    int result = SDL_RWread(wave->src, wave->buffer.basePos, 1, (size_t)length);
-    wave->buffer.endPos = (Uint8*)wave->buffer.basePos + result;
+    int result = SDL_RWread(wave->src, buffer->basePos, 1, (size_t)length);
+    buffer->endPos = (Uint8*)buffer->basePos + result;
     return result;
 }
 #endif // FULL - SELF_CONV
@@ -515,7 +512,7 @@ static int fetch_pcm(WAV_Music* wave, int length)
 #ifdef FULL // FIX_MUS
 static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
 #else
-static int WAV_GetSome(Mix_Audio* audio, void *data, int bytes)
+static int WAV_GetSome(Mix_Audio* audio, Mix_BuffOps* buffer, void *data, int bytes)
 #endif
 {
 #ifdef FULL // SELF_CONV
@@ -779,12 +776,12 @@ static int WAV_GetSome(Mix_Audio* audio, void *data, int bytes)
     int filled, amount;
     void* cursor;
 
-    cursor = wave->buffer.currPos;
-    filled = (Uint8*)wave->buffer.endPos - (Uint8*)cursor;
+    cursor = buffer->currPos;
+    filled = (Uint8*)buffer->endPos - (Uint8*)cursor;
     if (filled != 0) {
         if (filled > bytes)
             filled = bytes;
-        wave->buffer.currPos = (Uint8*)cursor + filled;
+        buffer->currPos = (Uint8*)cursor + filled;
         SDL_memcpy(data, cursor, filled);
         return filled;
     }
@@ -822,8 +819,8 @@ static int WAV_GetSome(Mix_Audio* audio, void *data, int bytes)
 #ifdef FULL // MUS_ENC
     amount = wave->decode(wave, amount);
 #else
-    wave->buffer.currPos = wave->buffer.basePos;
-    amount = fetch_pcm(wave, amount);
+    buffer->currPos = buffer->basePos;
+    amount = fetch_pcm(wave, buffer, amount);
 #endif
     if (amount > 0) {
         if (wave->spec.format == AUDIO_U8) {
@@ -831,7 +828,7 @@ static int WAV_GetSome(Mix_Audio* audio, void *data, int bytes)
         }
         if (wave->spec.channels == 1) {
             // assert(SDL_AUDIO_BITSIZE(wave->spec.format) == 16);
-            Mix_Convert_AUDIO16_Mono2Stereo(&wave->buffer);
+            Mix_Convert_AUDIO16_Mono2Stereo(buffer);
         }
         // assert(wave->spec.freqMpl == 1);
     } else {
