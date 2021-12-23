@@ -216,6 +216,7 @@ static void _Mix_channel_done_playing(int channel)
 #else
     _Mix_UnregisterChanEffect(channel);
 #endif
+    mix_channel[channel].chunk = NULL;
 }
 
 static void *Mix_DoEffects(int chan, void *snd, int len)
@@ -325,7 +326,7 @@ mix_channels(void *udata, Uint8 *stream, int len)
                 }
             }
 #endif // FULL
-            if (mix_channel[i].remaining > 0) {
+            if (mix_channel[i].chunk != NULL) {
                 int index = 0;
 #ifdef FULL // LOOP
                 int remaining = len;
@@ -1534,7 +1535,7 @@ int Mix_Playing(int which)
     }
     return(status);
 #else
-    return mix_channel[which].remaining > 0 ? 1 : 0;
+    return mix_channel[which].chunk != NULL ? 1 : 0;
 #endif
 }
 #ifdef FULL // CHUNK_ALIAS
@@ -1547,7 +1548,7 @@ int Mix_PlayingChunk(Mix_Audio* chunk)
 #ifdef FULL // LOOP
     return ((mix_channel[channel].remaining > 0 || mix_channel[channel].looping) && mix_channel[channel].chunk == chunk) ? 1 : 0;
 #else
-    return (mix_channel[channel].remaining > 0 && mix_channel[channel].chunk == chunk) ? 1 : 0;
+    return (/*mix_channel[channel].remaining > 0 &&*/ mix_channel[channel].chunk == chunk) ? 1 : 0;
 #endif
 }
 

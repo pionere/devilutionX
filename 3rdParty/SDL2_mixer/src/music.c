@@ -343,7 +343,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #ifdef FULL // MUS_ACTIVE, FIX_MUS
     while (music_playing && music_active && len > 0) {
 #else
-    while (theMusicChannel.playing && len > 0) {
+    while (theMusicChannel.chunk != NULL && len > 0) {
 #endif
 #ifdef FULL // FADING
         /* Handle fading */
@@ -387,7 +387,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #ifdef FULL // FIX_MUS
                 music_playing->playing = SDL_FALSE;
 #else
-                theMusicChannel.playing = SDL_FALSE;
+                music_internal_halt();
 #endif
             }
             if (left > 0) {
@@ -399,7 +399,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
         } else {
             len = 0;
         }
-
+#ifdef FULL // MUS_LOOP, FADING
         if (!music_internal_playing()) {
             music_internal_halt();
 #ifdef FULL // HOOKS
@@ -408,6 +408,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
             }
 #endif
         }
+#endif // MUS_LOOP, FADING
     }
 }
 #ifdef FULL // WAV_SRC
@@ -851,7 +852,7 @@ void Mix_FreeMusic()
 #ifdef FULL // FIX_MUS
     if (music_playing) {
 #else
-    if (theMusicChannel.playing) {
+    if (theMusicChannel.chunk != NULL) {
 #endif
 #ifdef FULL // FADING
         /* Wait for any fade out to finish */
@@ -860,12 +861,14 @@ void Mix_FreeMusic()
             SDL_Delay(100);
             Mix_LockAudio();
         }
-#endif
 #ifdef FULL // FIX_MUS
         if (music_playing) {
 #else
-        if (theMusicChannel.playing) {
-#endif
+        if (theMusicChannel.chunk != NULL) {
+#endif // FIX_MUS
+#else // FADING
+        {
+#endif // FADING
             music_internal_halt();
         }
     }
@@ -986,7 +989,6 @@ static int music_internal_play()
     music_playing = music;
     music_playing->playing = SDL_TRUE;
 #else
-    theMusicChannel.playing = SDL_TRUE;
     theMusicChannel.chunk = &theMusicSrc;
 #endif
 
@@ -1022,7 +1024,7 @@ static int music_internal_play()
         music->playing = SDL_FALSE;
         music_playing = NULL;
 #else
-        theMusicChannel.playing = SDL_FALSE;
+        theMusicChannel.chunk = NULL;
 #endif
     }
     return(retval);
@@ -1376,7 +1378,6 @@ static void music_internal_halt(void)
 #ifdef FULL // FIX_MUS
     music_playing->playing = SDL_FALSE;
 #else
-    theMusicChannel.playing = SDL_FALSE;
     theMusicChannel.chunk = NULL;
 #endif
 #ifdef FULL // FADING
@@ -1392,7 +1393,7 @@ int Mix_HaltMusic(void)
 #ifdef FULL // FIX_MUS
     if (music_playing) {
 #else
-    if (theMusicChannel.playing) {
+    if (theMusicChannel.chunk != NULL) {
 #endif
         music_internal_halt();
 #ifdef FULL // HOOK
@@ -1508,7 +1509,7 @@ static SDL_bool music_internal_playing(void)
 #endif
     return music_playing->playing;
 #else
-    return theMusicChannel.playing;
+    return theMusicChannel.chunk != NULL ? SDL_TRUE : SDL_FALSE;
 #endif // FULL - FIX_MUS
 }
 #ifdef FULL
