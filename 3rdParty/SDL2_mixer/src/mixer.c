@@ -992,19 +992,19 @@ Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
             goto error;
         }
     }
+#ifdef FULL // FREE_SRC
+    if (freesrc)
+#endif
+        SDL_RWclose(src);
 #ifdef FULL // CHUNK_ALIAS
     chunk->abuf = audioData;
     chunk->alen = audioLength;
 #else
     chunk->memSrc = audioData;
-    // chunk->asWAV.src = ...
-    chunk->asWAV.start = audioData;
-    chunk->asWAV.stop = audioData + audioLength;
+    // chunk->asWAV.src = SDL_RWFromConstMem(audioData, audioLength); CHUNK_RW
+    chunk->asWAV.start = 0;
+    chunk->asWAV.stop = audioLength;
 #endif // CHUNK_ALIAS
-#ifdef FULL // FREE_SRC
-    if (freesrc)
-#endif
-        SDL_RWclose(src);
 #endif // FULL - MUS_LOAD
 #ifdef FULL // CHUNK_ALLOC
     chunk->allocated = 1;
@@ -1018,6 +1018,10 @@ Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
     return(chunk);
 #ifndef FULL // !MUS_LOAD
 error:
+#ifdef FULL // FREE_SRC
+    if (freesrc)
+#endif
+        SDL_RWclose(src);
     SDL_free(chunk);
 #ifdef FULL // CHUNK_ALIAS
     Mix_UnloadAudio(&audio);
@@ -1125,6 +1129,7 @@ void Mix_FreeChunk(Mix_Audio *chunk)
             SDL_free(chunk->abuf);
 #else
             SDL_free(chunk->memSrc);
+            //Mix_UnloadAudio(chunk); CHUNK_RW
 #endif
         }
         SDL_free(chunk);
@@ -1257,7 +1262,7 @@ int Mix_PlayChannelTimed(int which, Mix_Audio *chunk, int loops, int ticks)
             mix_channel[which].remaining = (int)chunk->alen;
 #else
             mix_channel[which].playPos = chunk->memSrc;
-            mix_channel[which].remaining = chunk->asWAV.stop - chunk->asWAV.start;
+            mix_channel[which].remaining = chunk->asWAV.stop /* - chunk->asWAV.start CHUNK_RW */;
 #endif
 #ifdef FULL // LOOP
             mix_channel[which].looping = loops;

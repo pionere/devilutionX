@@ -274,11 +274,6 @@ typedef struct _Mix_Audio {
     int lastChannel;
     Uint8* memSrc;
 } _Mix_Audio;
-struct _Mix_Music {
-    int volume;
-    SDL_bool playing;
-    Mix_Audio audio;
-};
 #endif // FULL - FIX_MUS
 
 #ifdef FULL // FIX_EFF
