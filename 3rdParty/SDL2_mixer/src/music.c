@@ -261,7 +261,6 @@ static void add_music_decoder(const char *decoder)
 /* Local low-level functions prototypes */
 static void music_internal_initialize_volume(void);
 static void music_internal_volume(int volume);
-static int  music_internal_play(Mix_Music *music, int play_count, double position);
 static int  music_internal_position(double position);
 static SDL_bool music_internal_playing(void);
 static void music_internal_halt(void);
