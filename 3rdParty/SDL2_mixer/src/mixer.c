@@ -43,42 +43,6 @@ static SDL_AudioSpec mixer;
 #if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 static SDL_AudioDeviceID audio_device;
 #endif
-#ifdef FULL // FIX_EFF
-typedef struct _Mix_effectinfo
-{
-    Mix_EffectFunc_t callback;
-    Mix_EffectDone_t done_callback;
-    void *udata;
-    struct _Mix_effectinfo *next;
-} effect_info;
-#endif
-typedef struct _Mix_Channel {
-    Mix_Chunk *chunk;
-    int playing;
-#ifdef FULL // FADING
-    int paused;
-#else
-    SDL_bool paused;
-#endif
-    Uint8* playPos;
-    int volume;
-#ifdef FULL // FADING, LOOP
-    int looping;
-    int tag;
-    Uint32 expire;
-    Uint32 start_time;
-    Mix_Fading fading;
-    int fade_volume;
-    int fade_volume_reset;
-    Uint32 fade_length;
-    Uint32 ticks_fade;
-#endif
-#ifdef FULL // FIX_EFF
-    effect_info *effects;
-#else
-    SDL_bool has_effect;
-#endif
-} _Mix_Channel;
 #ifdef FULL // FIX_CHAN
 static _Mix_Channel *mix_channel = NULL;
 #else
