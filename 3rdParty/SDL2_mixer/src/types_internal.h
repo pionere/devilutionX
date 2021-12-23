@@ -24,6 +24,99 @@
 
 #include "SDL_mixer.h"
 
+#if !SDL_VERSION_ATLEAST(2, 0, 0)
+/**
+ * \brief A signed 8-bit integer type.
+ */
+#define SDL_MAX_SINT8   ((Sint8)0x7F)           /* 127 */
+#define SDL_MIN_SINT8   ((Sint8)(~0x7F))        /* -128 */
+typedef int8_t Sint8;
+/**
+ * \brief An unsigned 8-bit integer type.
+ */
+#define SDL_MAX_UINT8   ((Uint8)0xFF)           /* 255 */
+#define SDL_MIN_UINT8   ((Uint8)0x00)           /* 0 */
+typedef uint8_t Uint8;
+/**
+ * \brief A signed 16-bit integer type.
+ */
+#define SDL_MAX_SINT16  ((Sint16)0x7FFF)        /* 32767 */
+#define SDL_MIN_SINT16  ((Sint16)(~0x7FFF))     /* -32768 */
+typedef int16_t Sint16;
+/**
+ * \brief An unsigned 16-bit integer type.
+ */
+#define SDL_MAX_UINT16  ((Uint16)0xFFFF)        /* 65535 */
+#define SDL_MIN_UINT16  ((Uint16)0x0000)        /* 0 */
+typedef uint16_t Uint16;
+/**
+ * \brief A signed 32-bit integer type.
+ */
+#define SDL_MAX_SINT32  ((Sint32)0x7FFFFFFF)    /* 2147483647 */
+#define SDL_MIN_SINT32  ((Sint32)(~0x7FFFFFFF)) /* -2147483648 */
+typedef int32_t Sint32;
+/**
+ * \brief An unsigned 32-bit integer type.
+ */
+#define SDL_MAX_UINT32  ((Uint32)0xFFFFFFFFu)   /* 4294967295 */
+#define SDL_MIN_UINT32  ((Uint32)0x00000000)    /* 0 */
+typedef uint32_t Uint32;
+/**
+ * \brief A signed 64-bit integer type.
+ */
+#define SDL_MAX_SINT64  ((Sint64)0x7FFFFFFFFFFFFFFFll)      /* 9223372036854775807 */
+#define SDL_MIN_SINT64  ((Sint64)(~0x7FFFFFFFFFFFFFFFll))   /* -9223372036854775808 */
+typedef int64_t Sint64;
+/**
+ * \brief An unsigned 64-bit integer type.
+ */
+#define SDL_MAX_UINT64  ((Uint64)0xFFFFFFFFFFFFFFFFull)     /* 18446744073709551615 */
+#define SDL_MIN_UINT64  ((Uint64)(0x0000000000000000ull))   /* 0 */
+typedef uint64_t Uint64;
+#endif // !SDL_VERSION_ATLEAST(2, 0, 0)
+#if !SDL_VERSION_ATLEAST(2, 0, 7)
+/**
+ * \brief A signed 8-bit integer type.
+ */
+#define SDL_MAX_SINT8   ((Sint8)0x7F)           /* 127 */
+#define SDL_MIN_SINT8   ((Sint8)(~0x7F))        /* -128 */
+/**
+ * \brief An unsigned 8-bit integer type.
+ */
+#define SDL_MAX_UINT8   ((Uint8)0xFF)           /* 255 */
+#define SDL_MIN_UINT8   ((Uint8)0x00)           /* 0 */
+/**
+ * \brief A signed 16-bit integer type.
+ */
+#define SDL_MAX_SINT16  ((Sint16)0x7FFF)        /* 32767 */
+#define SDL_MIN_SINT16  ((Sint16)(~0x7FFF))     /* -32768 */
+/**
+ * \brief An unsigned 16-bit integer type.
+ */
+#define SDL_MAX_UINT16  ((Uint16)0xFFFF)        /* 65535 */
+#define SDL_MIN_UINT16  ((Uint16)0x0000)        /* 0 */
+/**
+ * \brief A signed 32-bit integer type.
+ */
+#define SDL_MAX_SINT32  ((Sint32)0x7FFFFFFF)    /* 2147483647 */
+#define SDL_MIN_SINT32  ((Sint32)(~0x7FFFFFFF)) /* -2147483648 */
+ /**
+ * \brief An unsigned 32-bit integer type.
+ */
+#define SDL_MAX_UINT32  ((Uint32)0xFFFFFFFFu)   /* 4294967295 */
+#define SDL_MIN_UINT32  ((Uint32)0x00000000)    /* 0 */
+/**
+ * \brief A signed 64-bit integer type.
+ */
+#define SDL_MAX_SINT64  ((Sint64)0x7FFFFFFFFFFFFFFFll)      /* 9223372036854775807 */
+#define SDL_MIN_SINT64  ((Sint64)(~0x7FFFFFFFFFFFFFFFll))   /* -9223372036854775808 */
+/**
+ * \brief An unsigned 64-bit integer type.
+ */
+#define SDL_MAX_UINT64  ((Uint64)0xFFFFFFFFFFFFFFFFull)     /* 18446744073709551615 */
+#define SDL_MIN_UINT64  ((Uint64)(0x0000000000000000ull))   /* 0 */
+#endif // !SDL_VERSION_ATLEAST(2, 0, 7)
+
 /* Utils */
 
 typedef struct Mix_BuffOps {
@@ -33,6 +126,8 @@ typedef struct Mix_BuffOps {
 } Mix_BuffOps;
 
 /* Music */
+
+typedef struct _Mix_Audio Mix_Audio;
 
 typedef struct
 {
@@ -55,7 +150,7 @@ typedef struct
 #ifdef FULL // FIX_MUS, FREE_SRC
     void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
 #else
-    void *(*CreateFromRW)(SDL_RWops* src, struct Mix_Audio* dst, Uint8* buffer);
+    void *(*CreateFromRW)(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer);
 #endif
 #ifdef FULL // WAV_SRC
     /* Create a music object from a file, if SDL_RWops are not supported */
@@ -70,13 +165,13 @@ typedef struct
     int (*GetVolume)(void *music);
 #endif
     /* Start playing music from the beginning with an optional loop count */
-    int (*Play)(struct Mix_Audio* audio, int play_count);
+    int (*Play)(Mix_Audio* audio, int play_count);
 #ifdef FULL
     /* Returns SDL_TRUE if music is still playing */
     SDL_bool (*IsPlaying)(void *music);
 #endif
     /* Get music data, returns the number of bytes left */
-    int (*GetAudio)(struct Mix_Audio* audio, void *data, int bytes);
+    int (*GetAudio)(Mix_Audio* audio, void *data, int bytes);
 #ifdef FULL
     /* Jump to a given order in mod music */
     int (*Jump)(void *music, int order);
@@ -112,7 +207,7 @@ typedef struct
     void (*Stop)(void *music);
 #endif
     /* Delete a music object */
-    void (*Delete)(struct Mix_Audio* audio);
+    void (*Delete)(Mix_Audio* audio);
 #ifdef FULL // WAV_SRC
     /* Close the library and clean up */
     void (*Close)(void);
@@ -211,11 +306,11 @@ struct _Mix_Music {
 #endif
 };
 #else
-typedef struct Mix_Audio {
+typedef struct _Mix_Audio {
     union {
         WAV_Music asWAV;
     };
-} Mix_Audio;
+} _Mix_Audio;
 struct _Mix_Music {
     int volume;
     SDL_bool playing;

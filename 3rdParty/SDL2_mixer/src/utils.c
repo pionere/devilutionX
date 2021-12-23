@@ -242,7 +242,7 @@ void Mix_Converter_AUDIO16_Mono2Stereo_AVX(Mix_BuffOps* buf)
         *dstPos = *srcPos;
     }
 }
-#endif __AVX__
+#endif // __AVX__
 #ifdef __SSE2__
 void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
 {
