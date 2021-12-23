@@ -22,6 +22,7 @@
 #define MUSIC_H_
 
 #include "SDL_mixer.h"
+#include "types_internal.h"
 
 /* Supported music APIs, in order of preference */
 
@@ -71,94 +72,6 @@ extern const char* meta_tags_get(Mix_MusicMetaTags *tags, Mix_MusicMetaTag type)
 
 /* Music API implementation */
 
-typedef struct
-{
-#ifdef FULL // WAV_SRC
-    const char *tag;
-    Mix_MusicAPI api;
-    Mix_MusicType type;
-    SDL_bool loaded;
-    SDL_bool opened;
-
-    /* Load the library */
-    int (*Load)(void);
-
-    /* Initialize for the audio output */
-    int (*Open)(const SDL_AudioSpec *spec);
-#endif
-    /* Create a music object from an SDL_RWops stream
-     * If the function returns NULL, 'src' will be freed if needed by the caller.
-     */
-#ifdef FULL // FIX_MUS
-    void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
-#else
-    void *(*CreateFromRW)(SDL_RWops* src, void* dst, int freesrc);
-#endif
-#ifdef FULL // WAV_SRC
-    /* Create a music object from a file, if SDL_RWops are not supported */
-    void *(*CreateFromFile)(const char *file);
-#endif
-#ifdef FULL // FIX_MUS
-    /* Set the volume */
-    void (*SetVolume)(void *music, int volume);
-#endif
-#ifdef FULL
-    /* Get the volume */
-    int (*GetVolume)(void *music);
-#endif
-    /* Start playing music from the beginning with an optional loop count */
-    int (*Play)(void *music, int play_count);
-#ifdef FULL
-    /* Returns SDL_TRUE if music is still playing */
-    SDL_bool (*IsPlaying)(void *music);
-#endif
-    /* Get music data, returns the number of bytes left */
-    int (*GetAudio)(void *music, void *data, int bytes);
-#ifdef FULL
-    /* Jump to a given order in mod music */
-    int (*Jump)(void *music, int order);
-
-    /* Seek to a play position (in seconds) */
-    int (*Seek)(void *music, double position);
-
-    /* Tell a play position (in seconds) */
-    double (*Tell)(void *music);
-
-    /* Get Music duration (in seconds) */
-    double (*Duration)(void *music);
-
-    /* Tell a loop start position (in seconds) */
-    double (*LoopStart)(void *music);
-
-    /* Tell a loop end position (in seconds) */
-    double (*LoopEnd)(void *music);
-
-    /* Tell a loop length position (in seconds) */
-    double (*LoopLength)(void *music);
-
-    /* Get a meta-tag string if available */
-    const char* (*GetMetaTag)(void *music, Mix_MusicMetaTag tag_type);
-
-    /* Pause playing music */
-    void (*Pause)(void *music);
-
-    /* Resume playing music */
-    void (*Resume)(void *music);
-
-    /* Stop playing music */
-    void (*Stop)(void *music);
-#endif
-    /* Delete a music object */
-    void (*Delete)(void *music);
-#ifdef FULL // WAV_SRC
-    /* Close the library and clean up */
-    void (*Close)(void);
-
-    /* Unload the library */
-    void (*Unload)(void);
-#endif
-} Mix_MusicInterface;
-
 #ifdef FULL
 extern int get_num_music_interfaces(void);
 extern Mix_MusicInterface *get_music_interface(int index);
@@ -176,8 +89,8 @@ extern void open_music(const SDL_AudioSpec *spec);
 extern int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                               int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done));
 #else
-extern int music_pcm_getaudio(void *context, void *data, int bytes,
-                              int (*GetSome)(void *context, void *data, int bytes));
+extern int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
+                              int (*GetSome)(Mix_Audio* audio, void* data, int bytes));
 #endif
 extern void SDLCALL music_mixer(void *udata, Uint8 *stream, int len);
 extern void close_music(void);
@@ -189,6 +102,9 @@ extern void unload_music(void);
 extern char *music_cmd;
 extern SDL_AudioSpec music_spec;
 #endif
+SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer);
+void Mix_UnloadAudio(Mix_Audio* audio);
+
 #endif /* MUSIC_H_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

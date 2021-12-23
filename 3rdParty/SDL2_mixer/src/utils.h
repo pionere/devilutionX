@@ -41,15 +41,16 @@ extern Sint64 _Mix_ParseTime(char *time, long samplerate_hz);
 
 extern SDL_bool _Mix_IsLoopTag(const char *tag);
 #endif
+#include "types_internal.h"
 
-typedef struct Mix_BuffOps {
-    void* basePos;
-    void* currPos;
-    void* endPos;
-} Mix_BuffOps;
-
-void Mix_Convert_Mono2Stereo(Mix_BuffOps* buf);
-void Mix_Convert_U8_S16LSB(Mix_BuffOps* buf);
+#ifndef FULL // WAV_SRC
+void Mix_MixAudioFormat(Uint8* dst, const Uint8* src, SDL_AudioFormat srcFormat, int len, int volume);
+#endif
+#ifndef FULL // SELF_CONV
+extern void (*Mix_Convert_AUDIO16_Mono2Stereo)(Mix_BuffOps* buf);
+//extern void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf);
+void Mix_Utils_Init();
+#endif
 
 #endif /* UTILS_H_ */
 

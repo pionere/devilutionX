@@ -31,75 +31,7 @@
 #ifndef FULL // SELF_CONV
 #include "../utils.h"
 #endif
-
-typedef struct {
-    SDL_bool active;
-    Uint32 start;
-    Uint32 stop;
-    Uint32 initial_play_count;
-    Uint32 current_play_count;
-} WAVLoopPoint;
-
-typedef struct {
-    Uint32 sampleSize;          /**< Data size if MIX_STREAM_SAMPLE_COUNT samples are read. */
-    SDL_AudioFormat format;     /**< Audio data format */
-    Uint8 channels;             /**< Number of channels: 1 mono, 2 stereo */
-    Uint8 freqMpl;              /**< Frequency multiplier of MIX_DEFAULT_FREQUENCY */
-} Mix_AudioSpec;
-
-typedef struct {
-    SDL_RWops *src;
-    int freesrc;
-#ifdef FULL // SELF_CONV
-    SDL_AudioSpec spec;
-#else
-    Mix_AudioSpec spec;
-#endif
-#ifdef FULL // FIX_MUS
-    int volume;
-#endif
-#ifdef FULL // MUS_LOOP
-    int play_count;
-#endif
-#ifdef FULL // FILE_INT
-    Sint64 start;
-    Sint64 stop;
-#ifdef FULL // MUS_ENC, SEEK
-    Sint64 samplesize;
-#endif
-#else
-    int start;
-    int stop;
-#ifdef FULL // MUS_ENC, SEEK
-    int samplesize;
-#endif
-#endif
-#ifdef FULL // SELF_CONV
-#if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
-    Uint8 *buffer;
-    SDL_AudioStream *stream;
-#else
-    SDL_AudioCVT cvt;
-#endif
-#else
-    Mix_BuffOps buffer;
-#endif // SELF_CONV
-#ifdef FULL // WAV_LOOP
-    unsigned int numloops;
-    WAVLoopPoint *loops;
-#endif
-#ifdef FULL
-    Mix_MusicMetaTags tags;
-#endif
-#ifdef FULL // WAV_ENC
-    Uint16 encoding;
-#endif
-#ifdef FULL // MUS_ENC
-#if SDL_VERSION_ATLEAST(2, 0, 7) // USE_SDL1
-    int (*decode)(struct WAV_Music *music, int length);
-#endif
-#endif
-} WAV_Music;
+#include "../types_internal.h"
 
 extern Mix_MusicInterface Mix_MusicInterface_WAV;
 

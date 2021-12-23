@@ -66,35 +66,13 @@ static SDL_bool music_active = SDL_TRUE;
 #ifdef FULL // FIX_MUS
 static int music_volume = MIX_MAX_VOLUME;
 static Mix_Music * volatile music_playing = NULL;
+#else
+static Mix_Music theMusic = { MIX_MAX_VOLUME, SDL_FALSE };
+static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
 #endif
 #ifdef FULL
 SDL_AudioSpec music_spec;
 #endif
-#ifdef FULL // FIX_MUS
-struct _Mix_Music {
-#ifdef FULL // WAV_SRC
-    Mix_MusicInterface *interface;
-#endif
-    void *context;
-
-    SDL_bool playing;
-#ifdef FULL // FADING
-    Mix_Fading fading;
-    int fade_step;
-    int fade_steps;
-    char filename[1024];
-#endif
-};
-#else
-struct _Mix_Music {
-    int volume;
-    SDL_bool playing;
-    union {
-        WAV_Music asWAV;
-    };
-};
-static Mix_Music theMusic = { MIX_MAX_VOLUME, SDL_FALSE };
-#endif // FULL - FIX_MUS
 #ifdef FULL // FADING
 /* Used to calculate fading steps */
 static int ms_per_step;
@@ -305,8 +283,8 @@ void Mix_HookMusicFinished(void (SDLCALL *music_finished)(void))
 int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                        int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done))
 #else
-int music_pcm_getaudio(void *context, void *data, int bytes,
-                       int (*GetSome)(void *context, void *data, int bytes))
+int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
+                       int (*GetSome)(Mix_Audio* audio, void* data, int bytes))
 #endif
 {
     Uint8 *snd = (Uint8 *)data;
@@ -328,7 +306,7 @@ int music_pcm_getaudio(void *context, void *data, int bytes,
         int consumed = GetSome(context, dst, len, &done);
 #else
     while (len > 0) {
-        int consumed = GetSome(context, dst, len);
+        int consumed = GetSome(audio, dst, len);
 #endif
         if (consumed < 0) {
             break;
@@ -400,7 +378,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #ifdef FULL // FIX_MUS
             int left = Mix_MusicInterface_WAV.GetAudio(music_playing->context, stream, len);
 #else
-            int left = Mix_MusicInterface_WAV.GetAudio(&theMusic.asWAV, stream, len);
+            int left = Mix_MusicInterface_WAV.GetAudio(&theMusic.audio, stream, len);
 #endif // FULL - FIX_MUS
 #endif // FULL - WAV_SRC
             if (left != 0) {
@@ -658,7 +636,7 @@ Mix_Music *Mix_LoadMUS(const char *file)
             /* Allocate memory for the music structure */
             Mix_Music *music = (Mix_Music *)SDL_calloc(1, sizeof(Mix_Music));
             if (music == NULL) {
-                Mix_SetError("Out of memory");
+                Mix_OutOfMemory();
                 return NULL;
             }
             music->interface = interface;
@@ -730,7 +708,11 @@ Mix_Music *Mix_LoadMUS_RW(SDL_RWops *src, int freesrc)
     return Mix_LoadMUSType_RW(src, MUS_NONE, freesrc);
 }
 #endif // FULL
+#ifdef FULL // WAV_SRC, FIX_MUS
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
+#else
+SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer)
+#endif
 {
 #ifdef FULL // WAV_SRC
     size_t i;
@@ -766,7 +748,7 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
             }
             context = interface->CreateFromRW(src, freesrc);
 #else
-            context = Mix_MusicInterface_WAV.CreateFromRW(src, &theMusic.asWAV, freesrc);
+            context = Mix_MusicInterface_WAV.CreateFromRW(src, dst, buffer);
 #endif
             if (context) {
 #ifdef FULL // FIX_MUS
@@ -778,7 +760,7 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #else
                     Mix_MusicInterface_WAV.Delete(context);
 #endif
-                    Mix_SetError("Out of memory");
+                    Mix_OutOfMemory();
                     return NULL;
                 }
 #ifdef FULL // WAV_SRC
@@ -792,7 +774,7 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #endif
                 return music;
 #else
-                return &theMusic;
+                return SDL_TRUE;
 #endif // FULL - FIX_MUS
             }
 #ifdef FULL // WAV_SRC
@@ -804,6 +786,7 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
         Mix_SetError("Unrecognized audio format");
     }
 #endif
+#ifdef FULL // FREE_SRC
     if (freesrc) {
         SDL_RWclose(src);
 #ifdef FULL // MUS_CHECK
@@ -811,7 +794,22 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
         SDL_RWseek(src, start, RW_SEEK_SET); -- pointless if !WAV_SRC
 #endif
     }
+#else // FREE_SRC
+        SDL_RWclose(src);
+#endif
+#ifdef FULL // FIX_MUS
     return NULL;
+#else
+    return SDL_FALSE;
+#endif
+}
+#ifdef FULL // WAV_SRC, FREE_SRC, FIX_MUS
+Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
+#else
+SDL_bool Mix_LoadMUS_RW(SDL_RWops* src)
+#endif
+{
+    return Mix_LoadAudio_RW(src, &theMusic.audio, musicBuffer);
 }
 
 /* Free a music chunk previously loaded */
@@ -874,9 +872,18 @@ void Mix_FreeMusic()
 #ifdef FULL // WAV_SRC
     music->interface->Delete(theMusic);
 #else
-    Mix_MusicInterface_WAV.Delete(&theMusic.asWAV);
+    Mix_MusicInterface_WAV.Delete(&theMusic.audio);
 #endif
 }
+void Mix_UnloadAudio(Mix_Audio* audio)
+{
+#ifdef FULL // WAV_SRC
+    music->interface->Delete(theMusic);
+#else
+    Mix_MusicInterface_WAV.Delete(audio);
+#endif
+}
+
 #endif // FULL - FIX_MUS
 #ifdef FULL
 /* Find out the music format of a mixer music, or the currently playing
@@ -987,7 +994,7 @@ static int music_internal_play(Mix_Music *music, int play_count, double position
 #ifdef FULL // FIX_MUS
     retval = Mix_MusicInterface_WAV.Play(music->context, play_count);
 #else
-    retval = Mix_MusicInterface_WAV.Play(&theMusic.asWAV, play_count);
+    retval = Mix_MusicInterface_WAV.Play(&theMusic.audio, play_count);
 #endif
 #endif
 #ifdef FULL
@@ -1020,7 +1027,7 @@ int Mix_FadeInMusicPos(Mix_Music *music, int loops, int ms, double position)
     int retval;
 #ifdef FULL // FADING
     if (ms_per_step == 0) {
-        SDL_SetError("Audio device hasn't been opened");
+        Mix_SetError("Audio device hasn't been opened");
         return(-1);
     }
 #endif
@@ -1385,7 +1392,7 @@ int Mix_FadeOutMusic(int ms)
     int retval = 0;
 
     if (ms_per_step == 0) {
-        SDL_SetError("Audio device hasn't been opened");
+        Mix_SetError("Audio device hasn't been opened");
         return 0;
     }
 
@@ -1508,7 +1515,7 @@ int Mix_SetMusicCMD(const char *command)
         size_t length = SDL_strlen(command) + 1;
         music_cmd = (char *)SDL_malloc(length);
         if (music_cmd == NULL) {
-            return SDL_OutOfMemory();
+            return Mix_OutOfMemory();
         }
         SDL_memcpy(music_cmd, command, length);
     }

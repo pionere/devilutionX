@@ -436,12 +436,16 @@ int ConvertMpqHeaderToFormat4(
 {
     TMPQHeader * pHeader = (TMPQHeader *)ha->HeaderData;
     ULONGLONG BlockTablePos64 = 0;
+#ifdef FULL
     ULONGLONG HashTablePos64 = 0;
     ULONGLONG BlockTableMask = (ULONGLONG)-1;
     ULONGLONG MaxOffset;
+#endif
     USHORT wFormatVersion = BSWAP_INT16_UNSIGNED(pHeader->wFormatVersion);
+#ifdef FULL
     bool bHashBlockOffsetOK = false;
     bool bHetBetOffsetOK = false;
+#endif
     int nError = ERROR_SUCCESS;
 
     // If version 1.0 is forced, then the format version is forced to be 1.0
@@ -496,7 +500,9 @@ int ConvertMpqHeaderToFormat4(
             // Block table position must be calculated as 32-bit value
             // Note: BOBA protector puts block table before the MPQ header, so it is negative
             BlockTablePos64 = (ULONGLONG)((DWORD)ByteOffset + pHeader->dwBlockTablePos);
+#ifdef FULL
             BlockTableMask = 0xFFFFFFF0;
+#endif
 
             // Determine the archive size on malformed MPQs
             if(ha->dwFlags & MPQ_FLAG_MALFORMED)

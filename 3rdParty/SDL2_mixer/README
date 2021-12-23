@@ -1,11 +1,12 @@
-This is a slightly modified version of libsdl-org/SDL_mixer@c03af41eca79a0b1d127fcac43fbf4499e6e0815
+This is a slightly modified version of libsdl-org/SDL_mixer@2d39bf227e319a128d933aec92d19047dfb800fc
 
 Changes:
 
 * Removed all files not used by DevilutionX.
 * Comment out unnecessary bits with `#ifndef FULL`.
-* Only u8-bit or s16-bit lsb WAV formats are supported (WAV_SRC)
-  - only mono or stereo, 22050Hz, s16-bit lsb music is supported (SELF_CONV)
+* Limited support for formats
+  - Only u8-bit or s16-bit lsb WAV formats are supported (WAV_SRC)
+  - only mono or stereo, 22050Hz or 44100Hz, s16-bit lsb music is supported (SELF_CONV)
   - silence assumed to be zero (SILENCE)
   - loops are not supported (WAV_LOOP)
   - encoding of the music (wav) file is not maintained (WAV_ENC)
@@ -21,7 +22,7 @@ Changes:
 * allocated is no longer maintained in mixer.c (CHUNK_ALLOC)
 * Mix_Chunk.lastChan field added to store the last channel assuming the first channel is reserved (CHUNK_LAST_CHAN)
 * music_active is no longer maintained in music.c (MUS_ACTIVE)
-* Only one music can be played at a time (FIX_MUS)
+* Only one music can be played at a time, it uses a static buffer (FIX_MUS)
 * Channel(chunk) Looping is not supported (LOOP)
 * Seeking of music is not supported (SEEK)
 * Hooks on music-playback are not supported (HOOKS)
@@ -32,11 +33,16 @@ Changes:
 * Only one audio device is allowed at a time (SINGLE)
 * Mix_FreeChunk assumes the chunk is not played (CHUNK_CHECK)
 * Mix_Playing, Mix_Volume assume valid channel-id
-* Mix_LoadMUSType_RW is simplified (MUS_CHECK)
-  - assumes not-null SDL_RWops
-  - SDL_RWops is not reset when load fails
-  - autodetection of type is disabled 
-* Mix_LoadWAV_RW assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
+* Mix_LoadMUSType_RW is simplified
+  - assumes not-null SDL_RWops (MUS_CHECK)
+  - SDL_RWops is not reset when load fails (MUS_CHECK)
+  - autodetection of type is disabled (WAV_SRC)
+  - SDL_RWops is always freed (FREE_SRC)
+* Mix_LoadWAV_RW is simplified
+  - assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
+  - assumes the data-length matches the format (SAMPLE_CHECK)
+  - uses Mix_LoadAudio_RW(previously Mix_LoadMUSType_RW) to load WAV-meta info (MUS_LOAD)
+    WARNING! LoadWAVMusic is incomplete (WORD alignment is not followed, FMT parsing is not flexible, etc...)
 * Effects on channels are internalized -> extra checks disabled (EFF_CHECK)
 * Maximum one effect per channel (FIX_EFF)
 * Assumes initialized SDL with SDL_INIT_AUDIO (INIT)
