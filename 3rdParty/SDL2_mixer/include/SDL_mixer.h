@@ -735,11 +735,11 @@ extern DECLSPEC int SDLCALL Mix_EachSoundFont(int (SDLCALL *function)(const char
 /* Set/Get full path of Timidity config file (e.g. /etc/timidity.cfg) */
 extern DECLSPEC int SDLCALL Mix_SetTimidityCfg(const char *path);
 extern DECLSPEC const char* SDLCALL Mix_GetTimidityCfg(void);
-#endif
 /* Get the Mix_Chunk currently associated with a mixer channel
     Returns NULL if it's an invalid channel, or there's no chunk associated.
 */
 extern DECLSPEC Mix_Chunk * SDLCALL Mix_GetChunk(int channel);
+#endif
 
 /* Close the mixer, halting all playing audio */
 extern DECLSPEC void SDLCALL Mix_CloseAudio(void);

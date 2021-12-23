@@ -878,7 +878,7 @@ void Mix_FreeMusic()
 void Mix_UnloadAudio(Mix_Audio* audio)
 {
 #ifdef FULL // WAV_SRC
-    music->interface->Delete(theMusic);
+    music->interface->Delete(audio);
 #else
     Mix_MusicInterface_WAV.Delete(audio);
 #endif

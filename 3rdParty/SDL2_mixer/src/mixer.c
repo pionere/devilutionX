@@ -1125,7 +1125,7 @@ int Mix_ReserveChannels(int num)
     return num;
 }
 #endif // FULL
-//#ifdef FULL
+#ifdef FULL // CHUNK_LEN
 static int checkchunkintegral(Mix_Chunk *chunk)
 {
     int frame_width = 1;
@@ -1139,7 +1139,7 @@ static int checkchunkintegral(Mix_Chunk *chunk)
     while (chunk->alen % frame_width) chunk->alen--;
     return chunk->alen;
 }
-
+#endif
 /* Play an audio chunk on a specific channel.
    If the specified channel is -1, play on the first free channel.
    'ticks' is the number of milliseconds at most to play the sample, or -1
@@ -1155,11 +1155,12 @@ int Mix_PlayChannelTimed(int which, Mix_Chunk *chunk, int loops, int ticks)
         Mix_SetError("Tried to play a NULL chunk");
         return(-1);
     }
+#ifdef FULL // CHUNK_LEN
     if (!checkchunkintegral(chunk)) {
         Mix_SetError("Tried to play a chunk with a bad frame");
         return(-1);
     }
-
+#endif
     /* Lock the mixer while modifying the playing channels */
     Mix_LockAudio();
     {
@@ -1478,6 +1479,7 @@ int Mix_PlayingChunk(Mix_Chunk* chunk)
 #endif
 }
 
+#ifdef FULL
 /* rcg06072001 Get the chunk associated with a channel. */
 Mix_Chunk *Mix_GetChunk(int channel)
 {
@@ -1489,6 +1491,7 @@ Mix_Chunk *Mix_GetChunk(int channel)
 
     return(retval);
 }
+#endif
 
 /* Close the mixer, halting all playing audio */
 void Mix_CloseAudio(void)

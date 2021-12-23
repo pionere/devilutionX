@@ -20,6 +20,7 @@ Changes:
 * Fading, expire are not supported (FADING)
 * Volume per chunk is not supported (CHUNK_VOL)
 * allocated is no longer maintained in mixer.c (CHUNK_ALLOC)
+* Chunk length is not validated in Mix_PlayChannelTimed (CHUNK_LEN)
 * Mix_Chunk.lastChan field added to store the last channel assuming the first channel is reserved (CHUNK_LAST_CHAN)
 * music_active is no longer maintained in music.c (MUS_ACTIVE)
 * Only one music can be played at a time, it uses a static buffer (FIX_MUS)
