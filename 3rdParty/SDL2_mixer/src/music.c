@@ -315,6 +315,7 @@ int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
         if (volume == MIX_MAX_VOLUME) {
             dst += consumed;
         } else {
+#ifdef FULL // SELF_MIX
 #if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 #ifdef FULL // FIX_OUT
             SDL_MixAudioFormat(snd, dst, music_spec.format, (Uint32)consumed, volume);
@@ -324,6 +325,9 @@ int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
 #else
             SDL_MixAudio(snd, dst, (Uint32)consumed, volume);
 #endif
+#else // SELF_MIX
+            Mix_MixAudioFormat(snd, dst, MIX_DEFAULT_FORMAT, consumed, volume);
+#endif // SELF_MIX
             snd += consumed;
         }
         len -= consumed;
