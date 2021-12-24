@@ -107,16 +107,16 @@ typedef struct
     /* Initialize for the audio output */
     int (*Open)(const SDL_AudioSpec *spec);
 #endif
-    /* Create a music object from an SDL_RWops stream
+    /* Create a music object from an Mix_RWops stream
      * If the function returns NULL, 'src' will be freed if needed by the caller.
      */
 #ifdef FULL // FIX_MUS, FREE_SRC
-    void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
+    void *(*CreateFromRW)(Mix_RWops *src, int freesrc);
 #else
-    void *(*CreateFromRW)(SDL_RWops* src, Mix_Audio* dst);
+    void *(*CreateFromRW)(Mix_RWops* src, Mix_Audio* dst);
 #endif
 #ifdef FULL // WAV_SRC
-    /* Create a music object from a file, if SDL_RWops are not supported */
+    /* Create a music object from a file, if Mix_RWops are not supported */
     void *(*CreateFromFile)(const char *file);
 #endif
 #ifdef FULL // FIX_MUS
@@ -198,7 +198,7 @@ typedef struct {
 } Mix_AudioSpec;
 
 typedef struct {
-    SDL_RWops *src;
+    Mix_RWops *src;
     int freesrc;
 #ifdef FULL // SELF_CONV
     SDL_AudioSpec spec;

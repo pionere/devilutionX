@@ -77,7 +77,7 @@ extern int get_num_music_interfaces(void);
 extern Mix_MusicInterface *get_music_interface(int index);
 #endif
 #ifdef FULL // WAV_SRC
-extern Mix_MusicType detect_music_type(SDL_RWops *src);
+extern Mix_MusicType detect_music_type(Mix_RWops *src);
 extern SDL_bool load_music_type(Mix_MusicType type);
 extern SDL_bool open_music_type(Mix_MusicType type);
 #endif
@@ -102,7 +102,7 @@ extern void unload_music(void);
 extern char *music_cmd;
 extern SDL_AudioSpec music_spec;
 #endif
-SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst);
+SDL_bool Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst);
 void Mix_UnloadAudio(Mix_Audio* audio);
 
 #endif /* MUSIC_H_ */

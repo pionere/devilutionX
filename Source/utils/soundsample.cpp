@@ -82,7 +82,7 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
  */
 void SoundSample::SetChunk(BYTE* fileData, DWORD dwBytes)
 {
-	SDL_RWops* buf = SDL_RWFromConstMem(fileData, dwBytes);
+	Mix_RWops* buf = SDL_RWFromConstMem(fileData, dwBytes);
 	if (buf != NULL) {
 		soundData = Mix_LoadWAV_RW(buf);
 		if (soundData != NULL)

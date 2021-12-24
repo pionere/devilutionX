@@ -577,15 +577,15 @@ SDL_bool has_music(Mix_MusicType type)
 }
 #endif
 #ifdef FULL // MUS_CHECK
-Mix_MusicType detect_music_type(SDL_RWops *src)
+Mix_MusicType detect_music_type(Mix_RWops *src)
 {
     Uint8 magic[12];
 
-    if (SDL_RWread(src, magic, 1, 12) != 12) {
+    if (Mix_RWread(src, magic, 1, 12) != 12) {
         Mix_SetError("Couldn't read first 12 bytes of audio data");
         return MUS_NONE;
     }
-    SDL_RWseek(src, -12, RW_SEEK_CUR);
+    Mix_RWseek(src, -12, RW_SEEK_CUR);
 
     /* WAVE files have the magic four bytes "RIFF"
        AIFF files have the magic 12 bytes "FORM" XXXX "AIFF" */
@@ -596,9 +596,9 @@ Mix_MusicType detect_music_type(SDL_RWops *src)
 #ifdef FULL // WAV_SRC
     /* Ogg Vorbis files have the magic four bytes "OggS" */
     if (SDL_memcmp(magic, "OggS", 4) == 0) {
-        SDL_RWseek(src, 28, RW_SEEK_CUR);
-        SDL_RWread(src, magic, 1, 8);
-        SDL_RWseek(src,-36, RW_SEEK_CUR);
+        Mix_RWseek(src, 28, RW_SEEK_CUR);
+        Mix_RWread(src, magic, 1, 8);
+        Mix_RWseek(src,-36, RW_SEEK_CUR);
         if (SDL_memcmp(magic, "OpusHead", 8) == 0) {
             return MUS_OPUS;
         }
@@ -641,7 +641,7 @@ Mix_Music *Mix_LoadMUS(const char *file)
     void *context;
     char *ext;
     Mix_MusicType type;
-    SDL_RWops *src;
+    Mix_RWops *src;
 
     for (i = 0; i < SDL_arraysize(s_music_interfaces); ++i) {
         Mix_MusicInterface *interface = s_music_interfaces[i];
@@ -722,15 +722,15 @@ Mix_Music *Mix_LoadMUS(const char *file)
     return Mix_LoadMUSType_RW(src, type, SDL_TRUE);
 }
 
-Mix_Music *Mix_LoadMUS_RW(SDL_RWops *src, int freesrc)
+Mix_Music *Mix_LoadMUS_RW(Mix_RWops *src, int freesrc)
 {
     return Mix_LoadMUSType_RW(src, MUS_NONE, freesrc);
 }
 #endif // FULL
 #ifdef FULL // WAV_SRC, FIX_MUS
-Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
+Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 #else
-SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
+SDL_bool Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst)
 #endif
 {
 #ifdef FULL // WAV_SRC
@@ -743,7 +743,7 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
         Mix_SetError("RWops pointer is NULL");
         return NULL;
     }
-    start = SDL_RWtell(src);
+    start = Mix_RWtell(src);
 
     /* If the caller wants auto-detection, figure out what kind of file
      * this is. */
@@ -751,7 +751,7 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
         if ((type = detect_music_type(src)) == MUS_NONE) {
             /* Don't call Mix_SetError() since detect_music_type() does that. */
             if (freesrc) {
-                SDL_RWclose(src);
+                Mix_RWclose(src);
             }
             return NULL;
         }
@@ -798,7 +798,7 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
             }
 #ifdef FULL // WAV_SRC
             /* Reset the stream for the next decoder */
-            SDL_RWseek(src, start, RW_SEEK_SET);
+            Mix_RWseek(src, start, RW_SEEK_SET);
         }
     }
     if (!*Mix_GetError()) {
@@ -807,14 +807,14 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
 #endif
 #ifdef FULL // FREE_SRC
     if (freesrc) {
-        SDL_RWclose(src);
+        Mix_RWclose(src);
 #ifdef FULL // MUS_CHECK
     } else {
-        SDL_RWseek(src, start, RW_SEEK_SET); -- pointless if !WAV_SRC
+        Mix_RWseek(src, start, RW_SEEK_SET); -- pointless if !WAV_SRC
 #endif
     }
 #else // FREE_SRC
-        SDL_RWclose(src);
+        Mix_RWclose(src);
 #endif
 #ifdef FULL // FIX_MUS
     return NULL;
@@ -823,9 +823,9 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
 #endif
 }
 #ifdef FULL // WAV_SRC, FREE_SRC, FIX_MUS
-Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
+Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 #else
-SDL_bool Mix_LoadMUS_RW(SDL_RWops* src)
+SDL_bool Mix_LoadMUS_RW(Mix_RWops* src)
 #endif
 {
     theMusicChannel.buffer.basePos = theMusicChannel.buffer.currPos = theMusicChannel.buffer.endPos = musicBuffer;
@@ -1695,9 +1695,9 @@ const char* Mix_GetSoundFonts(void)
         unsigned i;
 
         for (i = 0; i < SDL_arraysize(s_soundfont_paths); ++i) {
-            SDL_RWops *rwops = SDL_RWFromFile(s_soundfont_paths[i], "rb");
+            Mix_RWops *rwops = SDL_RWFromFile(s_soundfont_paths[i], "rb");
             if (rwops) {
-                SDL_RWclose(rwops);
+                Mix_RWclose(rwops);
                 return s_soundfont_paths[i];
             }
         }

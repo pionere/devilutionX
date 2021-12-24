@@ -616,7 +616,7 @@ typedef struct _MusicFragment
     struct _MusicFragment *next;
 } MusicFragment;
 
-static SDL_AudioSpec *Mix_LoadMusic_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, Uint8 **audio_buf, Uint32 *audio_len)
+static SDL_AudioSpec *Mix_LoadMusic_RW(Mix_RWops *src, int freesrc, SDL_AudioSpec *spec, Uint8 **audio_buf, Uint32 *audio_len)
 {
     int i;
     Mix_MusicType music_type;
@@ -638,7 +638,7 @@ static SDL_AudioSpec *Mix_LoadMusic_RW(SDL_RWops *src, int freesrc, SDL_AudioSpe
     /* Use fragments sized on full audio frame boundaries - this'll do */
     fragment_size = spec->size;
 
-    start = SDL_RWtell(src);
+    start = Mix_RWtell(src);
     for (i = 0; i < get_num_music_interfaces(); ++i) {
         interface = get_music_interface(i);
         if (!interface->opened) {
@@ -666,12 +666,12 @@ static SDL_AudioSpec *Mix_LoadMusic_RW(SDL_RWops *src, int freesrc, SDL_AudioSpe
         }
 
         /* Reset the stream for the next decoder */
-        SDL_RWseek(src, start, RW_SEEK_SET);
+        Mix_RWseek(src, start, RW_SEEK_SET);
     }
 
     if (!music) {
         if (freesrc) {
-            SDL_RWclose(src);
+            Mix_RWclose(src);
         }
         Mix_SetError("Unsupported format");
         return NULL;
@@ -754,16 +754,16 @@ static SDL_AudioSpec *Mix_LoadMusic_RW(SDL_RWops *src, int freesrc, SDL_AudioSpe
     }
 
     if (freesrc) {
-        SDL_RWclose(src);
+        Mix_RWclose(src);
     }
     return spec;
 }
 #endif // FULL
 /* Load a wave file */
 #ifdef FULL // FREE_SRC, CHUNK_ALIAS
-Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
+Mix_Chunk *Mix_LoadWAV_RW(Mix_RWops *src, int freesrc)
 #else
-Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
+Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
 #endif
 {
 #ifdef FULL // CHUNK_ALIAS
@@ -788,7 +788,7 @@ Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
     if (!audio_opened) {
         Mix_SetError("Audio device hasn't been opened");
         if (freesrc) {
-            SDL_RWclose(src);
+            Mix_RWclose(src);
         }
         return(NULL);
     }
@@ -804,22 +804,22 @@ Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
 #ifdef FULL // FREE_SRC
         if (freesrc)
 #endif
-            SDL_RWclose(src);
+            Mix_RWclose(src);
         return(NULL);
     }
 #ifdef FULL // MUS_LOAD
     /* Find out what kind of audio file this is */
-    if (SDL_RWread(src, magic, 1, 4) != 4) {
+    if (Mix_RWread(src, magic, 1, 4) != 4) {
         SDL_free(chunk);
 #ifdef FULL // FREE_SRC
         if (freesrc)
 #endif
-            SDL_RWclose(src);
+            Mix_RWclose(src);
         Mix_SetError("Couldn't read first 4 bytes of audio data");
         return NULL;
     }
     /* Seek backwards for compatibility with older loaders */
-    SDL_RWseek(src, -4, RW_SEEK_CUR);
+    Mix_RWseek(src, -4, RW_SEEK_CUR);
 
     if (SDL_memcmp(magic, "WAVE", 4) == 0 || SDL_memcmp(magic, "RIFF", 4) == 0) {
 #ifdef FULL // FREE_SRC
@@ -840,7 +840,7 @@ Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
 #ifdef FULL // FREE_SRC
         if (freesrc)
 #endif
-            SDL_RWclose(src);
+            Mix_RWclose(src);
         loaded = NULL;
 #endif // WAV_SRC
     }
@@ -960,11 +960,11 @@ Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
             goto error;
         }
 #ifdef FULL // CHUNK_ALIAS
-        if (SDL_RWseek(src, audio.asWAV.start, RW_SEEK_SET) < 0 ||
+        if (Mix_RWseek(src, audio.asWAV.start, RW_SEEK_SET) < 0 ||
 #else
-        if (SDL_RWseek(src, chunk->asWAV.start, RW_SEEK_SET) < 0 ||
+        if (Mix_RWseek(src, chunk->asWAV.start, RW_SEEK_SET) < 0 ||
 #endif
-            SDL_RWread(src, wavecvt.buf, 1, wavecvt.len) == 0) {
+            Mix_RWread(src, wavecvt.buf, 1, wavecvt.len) == 0) {
             SDL_free(wavecvt.buf);
             goto error;
         }
@@ -983,11 +983,11 @@ Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
             goto error;
         }
 #ifdef FULL // CHUNK_ALIAS
-        if (SDL_RWseek(src, audio.asWAV.start, RW_SEEK_SET) < 0 ||
+        if (Mix_RWseek(src, audio.asWAV.start, RW_SEEK_SET) < 0 ||
 #else
-        if (SDL_RWseek(src, chunk->asWAV.start, RW_SEEK_SET) < 0 ||
+        if (Mix_RWseek(src, chunk->asWAV.start, RW_SEEK_SET) < 0 ||
 #endif
-            SDL_RWread(src, audioData, 1, audioLength) == 0) {
+            Mix_RWread(src, audioData, 1, audioLength) == 0) {
             SDL_free(audioData);
             goto error;
         }
@@ -995,7 +995,7 @@ Mix_Audio* Mix_LoadWAV_RW(SDL_RWops* src)
 #ifdef FULL // FREE_SRC
     if (freesrc)
 #endif
-        SDL_RWclose(src);
+        Mix_RWclose(src);
 #ifdef FULL // CHUNK_ALIAS
     chunk->abuf = audioData;
     chunk->alen = audioLength;
@@ -1021,7 +1021,7 @@ error:
 #ifdef FULL // FREE_SRC
     if (freesrc)
 #endif
-        SDL_RWclose(src);
+        Mix_RWclose(src);
     SDL_free(chunk);
 #ifdef FULL // CHUNK_ALIAS
     Mix_UnloadAudio(&audio);
