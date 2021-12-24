@@ -276,6 +276,15 @@ void Mix_HookMusicFinished(void (SDLCALL *music_finished)(void))
     Mix_UnlockAudio();
 }
 #endif
+static void _Mix_Music_done_playing()
+{
+    music_internal_halt();
+#ifdef FULL // HOOKS
+    if (music_finished_hook) {
+        music_finished_hook();
+    }
+#endif
+}
 /* Convenience function to fill audio and mix at the specified volume
    This is called from many music player's GetAudio callback.
  */
@@ -378,10 +387,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
                 music_internal_volume(volume);
             } else {
                 if (music_playing->fading == MIX_FADING_OUT) {
-                    music_internal_halt();
-                    if (music_finished_hook) {
-                        music_finished_hook();
-                    }
+                    _Mix_Music_done_playing();
                     return;
                 }
                 music_playing->fading = MIX_NO_FADING;
@@ -404,7 +410,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #ifdef FULL // FIX_MUS
                 music_playing->playing = SDL_FALSE;
 #else
-                music_internal_halt();
+                _Mix_Music_done_playing();
 #endif
             }
             if (left > 0) {
@@ -418,12 +424,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
         }
 #ifdef FULL // MUS_LOOP, FADING
         if (!music_internal_playing()) {
-            music_internal_halt();
-#ifdef FULL // HOOKS
-            if (music_finished_hook) {
-                music_finished_hook();
-            }
-#endif
+            _Mix_Music_done_playing();
         }
 #endif // MUS_LOOP, FADING
     }
@@ -1413,12 +1414,7 @@ int Mix_HaltMusic(void)
 #else
     if (theMusicChannel.chunk != NULL) {
 #endif
-        music_internal_halt();
-#ifdef FULL // HOOK
-        if (music_finished_hook) {
-            music_finished_hook();
-        }
-#endif
+        _Mix_Music_done_playing();
     }
     Mix_UnlockAudio();
 
