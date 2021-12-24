@@ -1001,7 +1001,7 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
     chunk->alen = audioLength;
 #else
     chunk->memSrc = audioData;
-    // chunk->asWAV.src = SDL_RWFromConstMem(audioData, audioLength); CHUNK_RW
+    // chunk->asWAV.src = Mix_RWFromConstMem(audioData, audioLength); CHUNK_RW
     chunk->asWAV.start = 0;
     chunk->asWAV.stop = audioLength;
 #endif // CHUNK_ALIAS

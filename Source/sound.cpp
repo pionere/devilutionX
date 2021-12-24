@@ -143,7 +143,7 @@ void music_start(int nTrack)
 			_gMusicBuffer = DiabloAllocPtr(bytestoread);
 			SFileReadFile(hMusic, _gMusicBuffer, bytestoread);
 
-			Mix_RWops* musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
+			Mix_RWops* musicRw = Mix_RWFromConstMem(_gMusicBuffer, bytestoread);
 			if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
 				sdl_fatal(ERR_SDL_MUSIC_FILE);
 

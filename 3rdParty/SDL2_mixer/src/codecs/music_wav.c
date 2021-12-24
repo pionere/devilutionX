@@ -182,7 +182,7 @@ static void* WAV_CreateFromRW(Mix_RWops* src, Mix_Audio* dst)
     wave->encoding = PCM_CODE;
 #endif
 
-    magic = SDL_ReadLE32(src);
+    magic = Mix_ReadLE32(src);
     if (magic == RIFF || magic == WAVE) {
         loaded = LoadWAVMusic(wave);
 #ifdef FULL // WAV_SRC
@@ -1292,16 +1292,16 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave)
     meta_tags_init(&wave->tags);
 #endif
     /* Check the magic header */
-    wavelen = SDL_ReadLE32(src);
-    WAVEmagic = SDL_ReadLE32(src);
+    wavelen = Mix_ReadLE32(src);
+    WAVEmagic = Mix_ReadLE32(src);
 
     (void)wavelen;   /* unused */
     (void)WAVEmagic; /* unused */
 
     /* Read the chunks */
     for (; ;) {
-        chunk_type = SDL_ReadLE32(src);
-        chunk_length = SDL_ReadLE32(src);
+        chunk_type = Mix_ReadLE32(src);
+        chunk_length = Mix_ReadLE32(src);
 
         if (chunk_length == 0)
             break;
@@ -1415,8 +1415,8 @@ static SDL_bool LoadAIFFMusic(WAV_Music *wave)
     file_length = Mix_RWsize(src);
 
     /* Check the magic header */
-    chunk_length = SDL_ReadBE32(src);
-    AIFFmagic = SDL_ReadLE32(src);
+    chunk_length = Mix_ReadBE32(src);
+    AIFFmagic = Mix_ReadLE32(src);
     if (AIFFmagic != AIFF && AIFFmagic != AIFC) {
         Mix_SetError("Unrecognized file type (not AIFF or AIFC)");
         return SDL_FALSE;
@@ -1432,8 +1432,8 @@ static SDL_bool LoadAIFFMusic(WAV_Music *wave)
      *       contains compressed sound data?
      */
     do {
-        chunk_type      = SDL_ReadLE32(src);
-        chunk_length    = SDL_ReadBE32(src);
+        chunk_type      = Mix_ReadLE32(src);
+        chunk_length    = Mix_ReadBE32(src);
         next_chunk      = Mix_RWtell(src) + chunk_length;
 
         if (chunk_length % 2) {
@@ -1443,15 +1443,15 @@ static SDL_bool LoadAIFFMusic(WAV_Music *wave)
         switch (chunk_type) {
         case SSND:
             found_SSND = SDL_TRUE;
-            offset = SDL_ReadBE32(src);
-            blocksize = SDL_ReadBE32(src);
+            offset = Mix_ReadBE32(src);
+            blocksize = Mix_ReadBE32(src);
             wave->start = Mix_RWtell(src) + offset;
             (void)blocksize; /* unused */
             break;
 
         case FVER:
             found_FVER = SDL_TRUE;
-            AIFCVersion1 = SDL_ReadBE32(src);
+            AIFCVersion1 = Mix_ReadBE32(src);
             (void)AIFCVersion1; /* unused */
             break;
 
@@ -1480,13 +1480,13 @@ static SDL_bool LoadAIFFMusic(WAV_Music *wave)
             found_COMM = SDL_TRUE;
 
             /* Read the audio data format chunk */
-            channels = SDL_ReadBE16(src);
-            numsamples = SDL_ReadBE32(src);
-            samplesize = SDL_ReadBE16(src);
+            channels = Mix_ReadBE16(src);
+            numsamples = Mix_ReadBE32(src);
+            samplesize = Mix_ReadBE16(src);
             Mix_RWread(src, sane_freq, sizeof(sane_freq), 1);
             frequency = SANE_to_Uint32(sane_freq);
             if (is_AIFC) {
-                compressionType = SDL_ReadLE32(src);
+                compressionType = Mix_ReadLE32(src);
                 /* here must be a "compressionName" which is a padded string */
             }
             break;

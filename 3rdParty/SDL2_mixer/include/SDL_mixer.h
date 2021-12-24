@@ -69,12 +69,17 @@ extern "C" {
     (SDL_MIXER_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
 
 /* We'll use SDL_RW for handling audio-sources */
-#define Mix_RWops       SDL_RWops
-#define Mix_RWread      SDL_RWread
-#define Mix_RWtell      SDL_RWtell
-#define Mix_RWclose     SDL_RWclose
-#define Mix_RWseek      SDL_RWseek
-#define Mix_RWsize      SDL_RWsize
+#define Mix_RWops          SDL_RWops
+#define Mix_RWread         SDL_RWread
+#define Mix_RWtell         SDL_RWtell
+#define Mix_RWclose        SDL_RWclose
+#define Mix_RWseek         SDL_RWseek
+#define Mix_RWsize         SDL_RWsize
+#define Mix_ReadBE16       SDL_ReadBE16
+#define Mix_ReadBE32       SDL_ReadBE32
+#define Mix_ReadLE32       SDL_ReadLE32
+#define Mix_RWFromConstMem SDL_RWFromConstMem
+#define Mix_RWFromFile     SDL_RWFromFile
 
 #ifdef FULL
 /* This function gets the version of the dynamically linked SDL_mixer library.
@@ -208,7 +213,7 @@ extern DECLSPEC Mix_Chunk * SDLCALL Mix_LoadWAV_RW(Mix_RWops *src, int freesrc);
 extern DECLSPEC Mix_Audio * SDLCALL Mix_LoadWAV_RW(Mix_RWops* src);
 #endif
 #ifdef FULL
-#define Mix_LoadWAV(file)   Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
+#define Mix_LoadWAV(file)   Mix_LoadWAV_RW(Mix_RWFromFile(file, "rb"), 1)
 extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS(const char *file);
 
 /* Load a music file from an SDL_RWop object
