@@ -233,6 +233,7 @@ elseif(DEVILUTIONX_SYSTEM_SDL2)
   endif()
 else()
   add_subdirectory(3rdParty/SDL2)
+  set(SDL2_MAIN SDL2::SDL2main)
 endif()
 
 if(NOT NOSOUND)
