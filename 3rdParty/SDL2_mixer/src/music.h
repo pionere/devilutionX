@@ -85,12 +85,12 @@ extern SDL_bool open_music_type(Mix_MusicType type);
 extern SDL_bool has_music(Mix_MusicType type);
 #endif
 extern void open_music(const SDL_AudioSpec *spec);
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, SOME_VOL
 extern int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                               int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done));
 #else
 extern int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
-                              int (*GetSome)(Mix_Audio* audio, Mix_BuffOps* buffer, void* data, int bytes));
+                              int (*GetSome)(Mix_Audio* audio, Mix_BuffOps* buffer, void* data, int bytes, int volume));
 #endif
 extern void SDLCALL music_mixer(void *udata, Uint8 *stream, int len);
 extern void close_music(void);

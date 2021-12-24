@@ -509,10 +509,10 @@ static int fetch_pcm(WAV_Music* wave, Mix_BuffOps* buffer, int length)
 #endif // FULL - SELF_CONV
 
 /* Play some of a stream previously started with WAV_Play() */
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, SOME_VOL
 static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
 #else
-static int WAV_GetSome(Mix_Audio* audio, Mix_BuffOps* buffer, void *data, int bytes)
+static int WAV_GetSome(Mix_Audio* audio, Mix_BuffOps* buffer, void *data, int bytes, int volume)
 #endif
 {
 #ifdef FULL // SELF_CONV
@@ -782,7 +782,27 @@ static int WAV_GetSome(Mix_Audio* audio, Mix_BuffOps* buffer, void *data, int by
         if (filled > bytes)
             filled = bytes;
         buffer->currPos = (Uint8*)cursor + filled;
+#ifdef FULL // SOME_VOL
         SDL_memcpy(data, cursor, filled);
+#else
+        if (volume == MIX_MAX_VOLUME) {
+            SDL_memcpy(data, cursor, filled);
+        } else {
+#ifdef FULL // SELF_MIX
+#if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
+#ifdef FULL // FIX_OUT
+            SDL_MixAudioFormat(snd, dst, music_spec.format, (Uint32)consumed, volume);
+#else
+            SDL_MixAudioFormat(snd, dst, MIX_DEFAULT_FORMAT, (Uint32)consumed, volume);
+#endif
+#else
+            SDL_MixAudio(snd, dst, (Uint32)consumed, volume);
+#endif
+#else // SELF_MIX
+            Mix_MixAudioFormat(data, cursor, MIX_DEFAULT_FORMAT, filled, volume);
+#endif // SELF_MIX
+        }
+#endif // SOME_VOL
         return filled;
     }
 

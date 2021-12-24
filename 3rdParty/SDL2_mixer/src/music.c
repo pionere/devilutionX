@@ -279,39 +279,48 @@ void Mix_HookMusicFinished(void (SDLCALL *music_finished)(void))
 /* Convenience function to fill audio and mix at the specified volume
    This is called from many music player's GetAudio callback.
  */
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, SOME_VOL
 int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                        int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done))
 #else
 int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
-                       int (*GetSome)(Mix_Audio* audio, Mix_BuffOps* buffer, void* data, int bytes))
+                       int (*GetSome)(Mix_Audio* audio, Mix_BuffOps* buffer, void* data, int bytes, int volume))
 #endif
 {
+#ifdef FULL // SOME_VOL
     Uint8 *snd = (Uint8 *)data;
     Uint8 *dst;
+#else
+    Uint8* dst = (Uint8*)data;
+#endif
     int len = bytes;
 #ifdef FULL // FIX_MUS
     SDL_bool done = SDL_FALSE;
 #else
     int volume = theMusicChannel.volume;
 #endif
-
+#ifdef FULL // SOME_VOL
     if (volume == MIX_MAX_VOLUME) {
         dst = snd;
     } else {
         dst = SDL_stack_alloc(Uint8, (size_t)bytes);
     }
+#endif
 #ifdef FULL // FIX_MUS
     while (len > 0 && !done) {
         int consumed = GetSome(context, dst, len, &done);
 #else
     while (len > 0) {
+#ifdef FULL // SOME_VOL
         int consumed = GetSome(audio, &theMusicChannel.buffer, dst, len);
-#endif
+#else
+        int consumed = GetSome(audio, &theMusicChannel.buffer, dst, len, volume);
+#endif // SOME_VOL
+#endif // FIX_MUS
         if (consumed < 0) {
             break;
         }
-
+#ifdef FULL // SOME_VOL
         if (volume == MIX_MAX_VOLUME) {
             dst += consumed;
         } else {
@@ -330,11 +339,16 @@ int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
 #endif // SELF_MIX
             snd += consumed;
         }
+#else // SOME_VOL
+        dst += consumed;
+#endif // SOME_VOL
         len -= consumed;
     }
+#ifdef FULL // SOME_VOL
     if (volume != MIX_MAX_VOLUME) {
         SDL_stack_free(dst);
     }
+#endif
     return len;
 }
 

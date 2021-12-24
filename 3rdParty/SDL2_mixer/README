@@ -48,6 +48,7 @@ Changes:
 * Effects on channels are internalized -> extra checks disabled (EFF_CHECK)
 * Maximum one effect per channel (FIX_EFF)
 * Assumes initialized SDL with SDL_INIT_AUDIO (INIT)
+* volume is applied in GetSome (SOME_VOL)
 * SDL1 compatible (USE_SDL1)
 * zero-fill in init_position_args is commented out
 
