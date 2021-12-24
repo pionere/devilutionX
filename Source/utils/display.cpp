@@ -291,7 +291,7 @@ bool SpawnWindow(const char* lpWindowName)
 
 	if (upscale) {
 #ifndef USE_SDL1
-		Uint32 rendererFlags = SDL_RENDERER_ACCELERATED;
+		Uint32 rendererFlags = 0;
 
 		gbVsyncEnabled = getIniBool("Graphics", "Vertical Sync", true);
 		if (gbVsyncEnabled) {
