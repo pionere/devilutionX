@@ -369,7 +369,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #ifdef FULL // MUS_ACTIVE, FIX_MUS
     while (music_playing && music_active && len > 0) {
 #else
-    while (theMusicChannel.chunk != NULL && len > 0) {
+    while (music_internal_playing() && len > 0) {
 #endif
 #ifdef FULL // FADING
         /* Handle fading */
@@ -393,25 +393,13 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
                 music_playing->fading = MIX_NO_FADING;
             }
         }
-#endif
-#ifdef FULL // WAV_SRC
+#endif // FADING
+#ifdef FULL // WAV_SRC, FIX_MUS
         if (music_playing->interface->GetAudio) {
             int left = music_playing->interface->GetAudio(music_playing->context, stream, len);
-#else
-        if (1) {
-#ifdef FULL // FIX_MUS
-            int left = Mix_MusicInterface_WAV.GetAudio(music_playing->context, stream, len);
-#else
-            int left = Mix_MusicInterface_WAV.GetAudio(theMusicChannel.chunk, stream, len);
-#endif // FULL - FIX_MUS
-#endif // FULL - WAV_SRC
             if (left != 0) {
                 /* Either an error or finished playing with data left */
-#ifdef FULL // FIX_MUS
                 music_playing->playing = SDL_FALSE;
-#else
-                _Mix_Music_done_playing();
-#endif
             }
             if (left > 0) {
                 stream += (len - left);
@@ -422,11 +410,17 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
         } else {
             len = 0;
         }
-#ifdef FULL // MUS_LOOP, FADING
         if (!music_internal_playing()) {
             _Mix_Music_done_playing();
         }
-#endif // MUS_LOOP, FADING
+#else // WAV_SRC, FIX_MUS
+        len = Mix_MusicInterface_WAV.GetAudio(theMusicChannel.chunk, stream, len);
+        if (len != 0) {
+            /* Either an error or finished playing with data left */
+            _Mix_Music_done_playing();
+        }
+        break;
+#endif // WAV_SRC, FIX_MUS
     }
 }
 #ifdef FULL // WAV_SRC
@@ -871,7 +865,7 @@ void Mix_FreeMusic()
 #ifdef FULL // FIX_MUS
     if (music_playing) {
 #else
-    if (theMusicChannel.chunk != NULL) {
+    if (music_internal_playing()) {
 #endif
 #ifdef FULL // FADING
         /* Wait for any fade out to finish */
@@ -883,7 +877,7 @@ void Mix_FreeMusic()
 #ifdef FULL // FIX_MUS
         if (music_playing) {
 #else
-        if (theMusicChannel.chunk != NULL) {
+        if (music_internal_playing()) {
 #endif // FIX_MUS
 #else // FADING
         {
@@ -1039,11 +1033,11 @@ static int music_internal_play()
 #endif
     /* If the setup failed, we're not playing any music anymore */
     if (retval < 0) {
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, WAV_SRC
         music->playing = SDL_FALSE;
         music_playing = NULL;
 #else
-        theMusicChannel.chunk = NULL;
+        music_internal_halt();
 #endif
     }
     return(retval);
@@ -1397,6 +1391,7 @@ static void music_internal_halt(void)
 #ifdef FULL // FIX_MUS
     music_playing->playing = SDL_FALSE;
 #else
+    //theMusicChannel.remaining = 0;
     theMusicChannel.chunk = NULL;
 #endif
 #ifdef FULL // FADING
@@ -1412,7 +1407,7 @@ int Mix_HaltMusic(void)
 #ifdef FULL // FIX_MUS
     if (music_playing) {
 #else
-    if (theMusicChannel.chunk != NULL) {
+    if (music_internal_playing()) {
 #endif
         _Mix_Music_done_playing();
     }
