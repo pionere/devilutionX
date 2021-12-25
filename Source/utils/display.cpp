@@ -42,7 +42,11 @@ bool gbFPSLimit;
  * Specfies whether the FPS counter is shown.
  */
 bool gbShowFPS;
-/* Screen refresh rate in nanoseconds */
+/*
+ * Target (screen-)refresh delay in milliseconds when
+ * VSync is inactive (disabled or not available).
+ * TODO: ensure gnRefreshDelay < gnTickDelay
+ */
 int gnRefreshDelay;
 SDL_Window* ghMainWnd;
 SDL_Renderer* renderer;
@@ -284,7 +288,7 @@ bool SpawnWindow(const char* lpWindowName)
 		refreshRate = mode.refresh_rate;
 	}
 #endif
-	gnRefreshDelay = 1000000 / refreshRate;
+	gnRefreshDelay = 1000 / refreshRate;
 
 	gbFPSLimit = getIniBool("Graphics", "FPS Limiter", true);
 	gbShowFPS = getIniBool("Graphics", "Show FPS", false);

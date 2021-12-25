@@ -304,13 +304,13 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 static void LimitFrameRate()
 {
 	static Uint32 frameDeadline;
-	Uint32 v = 0, tc = SDL_GetTicks() * 1000;
+	Uint32 tc = SDL_GetTicks();
 
 	if (frameDeadline > tc) {
-		v = tc % gnRefreshDelay;
-		SDL_Delay(v / 1000 + 1); // ceil
+		SDL_Delay(frameDeadline - tc);
+		tc = frameDeadline;
 	}
-	frameDeadline = tc + v + gnRefreshDelay;
+	frameDeadline = tc + gnRefreshDelay;
 }
 
 void RenderPresent()
