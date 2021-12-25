@@ -152,7 +152,7 @@ Sint64 _Mix_ParseTime(char *time, long samplerate_hz)
 #ifndef FULL // MEM_OPS
 size_t Mix_RWread(Mix_RWops* src, void* dst, size_t len)
 {
-    if ((Uint8*)src->currPos + len <= src->endPos) {
+    if ((Uint8*)src->currPos + len <= (Uint8*)src->endPos) {
         memcpy(dst, src->currPos, len);
         src->currPos = (Uint8*)src->currPos + len;
         return len;
@@ -201,7 +201,7 @@ Uint32 Mix_ReadLE32(Mix_RWops* src)
 {
     Uint32 result = 0;
 
-    if (src->endPos >= (Uint8*)src->currPos + sizeof(Uint32)) {
+    if ((Uint8*)src->endPos >= (Uint8*)src->currPos + sizeof(Uint32)) {
         result = SDL_SwapLE32(*(Uint32*)src->currPos);
         src->currPos = (Uint8*)src->currPos + sizeof(Uint32);
     }
@@ -214,8 +214,8 @@ Mix_RWops* Mix_RWFromConstMem(const void* mem, size_t size)
     Mix_RWops* rwOps = (Mix_RWops*)malloc(sizeof(Mix_RWops));
 
     if (rwOps != NULL) {
-        rwOps->basePos = mem;
-        rwOps->currPos = mem;
+        rwOps->basePos = (void*)mem;
+        rwOps->currPos = (void*)mem;
         rwOps->endPos = (Uint8*)mem + size;
     }
 
