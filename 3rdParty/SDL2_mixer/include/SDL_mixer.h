@@ -69,6 +69,7 @@ extern "C" {
     (SDL_MIXER_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
 
 /* We'll use SDL_RW for handling audio-sources */
+#ifdef FULL // MEM_OPS
 #define Mix_RWops          SDL_RWops
 #define Mix_RWread         SDL_RWread
 #define Mix_RWtell         SDL_RWtell
@@ -80,6 +81,15 @@ extern "C" {
 #define Mix_ReadLE32       SDL_ReadLE32
 #define Mix_RWFromConstMem SDL_RWFromConstMem
 #define Mix_RWFromFile     SDL_RWFromFile
+#else
+typedef struct Mix_BuffOps Mix_RWops;
+size_t Mix_RWread(Mix_RWops* src, void* dst, size_t len);
+size_t Mix_RWtell(Mix_RWops* src);
+void Mix_RWclose(Mix_RWops* src);
+int Mix_RWseek(Mix_RWops* src, int offset, int whence);
+Uint32 Mix_ReadLE32(Mix_RWops* src);
+Mix_RWops* Mix_RWFromConstMem(const void* mem, size_t size);
+#endif // MEM_OPS
 
 #ifdef FULL
 /* This function gets the version of the dynamically linked SDL_mixer library.

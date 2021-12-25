@@ -80,6 +80,22 @@ typedef uint64_t Uint64;
 #define SDL_MIN_UINT64  ((Uint64)(0x0000000000000000ull))   /* 0 */
 #endif // !SDL_VERSION_ATLEAST(2, 0, 7)
 
+#ifdef _MSC_VER
+#ifdef _DEVMODE
+#define ASSUME_UNREACHABLE assert(0);
+#else
+#define ASSUME_UNREACHABLE __assume(0);
+#endif
+#elif defined(__clang__)
+#define ASSUME_UNREACHABLE __builtin_unreachable();
+#elif defined(__GNUC__)
+#if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 405
+#define ASSUME_UNREACHABLE __builtin_unreachable();
+#else
+#define ASSUME_UNREACHABLE 
+#endif
+#endif
+
 /* Utils */
 
 typedef struct Mix_BuffOps {

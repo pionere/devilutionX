@@ -964,7 +964,11 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
 #else
         if (Mix_RWseek(src, chunk->asWAV.start, RW_SEEK_SET) < 0 ||
 #endif
+#ifdef FULL // MEM_OPS
             Mix_RWread(src, wavecvt.buf, 1, wavecvt.len) == 0) {
+#else
+            Mix_RWread(src, wavecvt.buf, wavecvt.len) == 0) {
+#endif
             SDL_free(wavecvt.buf);
             goto error;
         }
@@ -987,7 +991,11 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
 #else
         if (Mix_RWseek(src, chunk->asWAV.start, RW_SEEK_SET) < 0 ||
 #endif
+#ifdef FULL // MEM_OPS
             Mix_RWread(src, audioData, 1, audioLength) == 0) {
+#else
+            Mix_RWread(src, audioData, audioLength) == 0) {
+#endif
             SDL_free(audioData);
             goto error;
         }

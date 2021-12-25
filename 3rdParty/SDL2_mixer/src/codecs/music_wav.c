@@ -502,7 +502,11 @@ static int fetch_alaw(WAV_Music* wave, int length)
 #else // FULL - SELF_CONV
 static int fetch_pcm(WAV_Music* wave, Mix_BuffOps* buffer, int length)
 {
+#ifdef FULL // MEM_OPS
     int result = Mix_RWread(wave->src, buffer->basePos, 1, (size_t)length);
+#else
+    int result = Mix_RWread(wave->src, buffer->basePos, (size_t)length);
+#endif
     buffer->endPos = (Uint8*)buffer->basePos + result;
     return result;
 }
@@ -1013,7 +1017,11 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
     }
 
     size = (chunk_length >= sizeof(fmt)) ? sizeof(fmt) : sizeof(fmt.format);
+#ifdef FULL // MEM_OPS
     if (!Mix_RWread(wave->src, &fmt, size, 1)) {
+#else
+    if (!Mix_RWread(wave->src, &fmt, size)) {
+#endif
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
         return SDL_FALSE;
     }

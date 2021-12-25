@@ -4,6 +4,7 @@ Changes:
 
 * Removed all files not used by DevilutionX.
 * Comment out unnecessary bits with `#ifndef FULL`.
+* Reading only from memory sources (MEM_OPS)
 * Limited support for formats
   - Only u8-bit or s16-bit lsb WAV formats are supported (WAV_SRC)
   - only mono or stereo, 22050Hz or 44100Hz, s16-bit lsb music is supported (SELF_CONV)

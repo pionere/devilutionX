@@ -149,6 +149,80 @@ Sint64 _Mix_ParseTime(char *time, long samplerate_hz)
 }
 #endif // FULL
 
+#ifndef FULL // MEM_OPS
+size_t Mix_RWread(Mix_RWops* src, void* dst, size_t len)
+{
+    if ((Uint8*)src->currPos + len <= src->endPos) {
+        memcpy(dst, src->currPos, len);
+        src->currPos = (Uint8*)src->currPos + len;
+        return len;
+    }
+    return 0;
+}
+
+size_t Mix_RWtell(Mix_RWops* src)
+{
+    return (size_t)src->currPos - (size_t)src->basePos;
+}
+
+void Mix_RWclose(Mix_RWops* src)
+{
+    SDL_free(src);
+}
+
+int Mix_RWseek(Mix_RWops* src, int offset, int whence)
+{
+    void* newPos;
+
+    switch (whence) {
+    case RW_SEEK_SET:
+        newPos = src->basePos;
+        break;
+    case RW_SEEK_CUR:
+        newPos = src->currPos;
+        break;
+    case RW_SEEK_END:
+        newPos = src->endPos;
+        break;
+    default:
+        ASSUME_UNREACHABLE;
+        break;
+    }
+
+    newPos = (Uint8*)newPos + offset;
+    if (newPos >= src->basePos && newPos <= src->endPos) {
+        src->currPos = newPos;
+        return 1;
+    }
+    return -1;
+}
+
+Uint32 Mix_ReadLE32(Mix_RWops* src)
+{
+    Uint32 result = 0;
+
+    if (src->endPos >= (Uint8*)src->currPos + sizeof(Uint32)) {
+        result = SDL_SwapLE32(*(Uint32*)src->currPos);
+        src->currPos = (Uint8*)src->currPos + sizeof(Uint32);
+    }
+
+    return result;
+}
+
+Mix_RWops* Mix_RWFromConstMem(const void* mem, size_t size)
+{
+    Mix_RWops* rwOps = (Mix_RWops*)malloc(sizeof(Mix_RWops));
+
+    if (rwOps != NULL) {
+        rwOps->basePos = mem;
+        rwOps->currPos = mem;
+        rwOps->endPos = (Uint8*)mem + size;
+    }
+
+    return rwOps;
+}
+#endif // FULL - MEM_OPS
+
 #ifndef FULL // WAV_SRC
 
 /* The volume ranges from 0 - 128 */
