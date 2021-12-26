@@ -262,7 +262,7 @@ static void diablo_init()
 {
 	InitPaths();
 
-	init_create_window();
+	dx_init();
 	_gbWasWindowInit = true;
 
 	init_archives();

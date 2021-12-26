@@ -27,8 +27,6 @@ int _newlib_heap_size_user = 100 * 1024 * 1024;
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** True if the game is the current active window */
-bool gbWndActive;
 /** The current input handler function */
 WNDPROC CurrentWndProc;
 /** A handle to the mpq archives. */
@@ -258,17 +256,6 @@ void init_archives()
 	}
 	diabdat_mpq = init_test_access(MPQONE);
 	assert(diabdat_mpq != NULL);
-#endif
-}
-
-void init_create_window()
-{
-	if (!SpawnWindow(PROJECT_NAME))
-		app_fatal("Unable to create main window");
-	dx_init();
-	gbWndActive = true;
-#ifndef USE_SDL1
-	SDL_DisableScreenSaver();
 #endif
 }
 

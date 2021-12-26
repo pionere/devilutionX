@@ -31,6 +31,10 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /**
+ * Specfies whether the game is the current active window
+ */
+bool gbWndActive;
+/**
  * Specfies whether vertical sync is enabled.
  */
 bool gbVsyncEnabled;
@@ -89,8 +93,6 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height)
 	flags |= Get3DSScalingFlag(fitToScreen, width, height);
 #endif
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
-	if (OutputRequiresScaling())
-		SDL_Log("Using software scaling");
 }
 
 bool IsFullScreen() {
@@ -119,7 +121,10 @@ static void AdjustToScreenGeometry(int width, int height)
 {
 	screenWidth = width;
 	screenHeight = height;
-
+#ifdef USE_SDL1
+	if (OutputRequiresScaling())
+		SDL_Log("Using software scaling");
+#endif
 	//viewportHeight = screenHeight;
 	/*if (screenWidth <= PANEL_WIDTH) {
 		// Part of the screen is fully obscured by the UI
@@ -127,13 +132,9 @@ static void AdjustToScreenGeometry(int width, int height)
 	}*/
 }
 
+#ifndef USE_SDL1
 static void CalculatePreferredWindowSize(int &width, int &height, bool useIntegerScaling)
 {
-#ifdef USE_SDL1
-	const SDL_VideoInfo &best = *SDL_GetVideoInfo();
-	SDL_Log("Best video mode reported as: %dx%d bpp=%d hw_available=%u",
-	    best.current_w, best.current_h, best.vfmt->BitsPerPixel, best.hw_available);
-#else
 	SDL_DisplayMode mode;
 	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
 		sdl_fatal(ERR_SDL_DISPLAY_MODE_GET);
@@ -158,10 +159,10 @@ static void CalculatePreferredWindowSize(int &width, int &height, bool useIntege
 	} else {
 		height = mode.h * width / mode.w;
 	}
-#endif
 }
+#endif
 
-bool SpawnWindow(const char* lpWindowName)
+void SpawnWindow(const char* lpWindowName)
 {
 #ifdef __vita__
 	scePowerSetArmClockFrequency(444);
@@ -234,29 +235,26 @@ bool SpawnWindow(const char* lpWindowName)
 	bool grabInput = getIniBool("Diablo", "Grab Input", false);
 
 #ifdef USE_SDL1
-	bool upscale = false;
-#else
-	bool upscale = getIniBool("Graphics", "Upscale", true);
-#endif
-	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
-
-	if (upscale && fitToScreen) {
-		CalculatePreferredWindowSize(width, height, integerScalingEnabled);
-	}
-	AdjustToScreenGeometry(width, height);
-
-#ifdef USE_SDL1
-	if (upscale) {
-		upscale = false;
-		SDL_Log("upscaling not supported with USE_SDL1");
-	}
 	SDL_WM_SetCaption(lpWindowName, WINDOW_ICON_NAME);
 	SetVideoModeToPrimary(gbFullscreen, width, height);
 	if (grabInput)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	atexit(SDL_VideoQuit); // Without this video mode is not restored after fullscreen.
+	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
+	width = current.current_w;
+	height = current.current_h;
 #else
+	bool upscale = getIniBool("Graphics", "Upscale", true);
+	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
+
+	if (upscale && fitToScreen) {
+		CalculatePreferredWindowSize(width, height, integerScalingEnabled);
+	}
+
 	int flags = SDL_WINDOW_ALLOW_HIGHDPI;
+	if (grabInput) {
+		flags |= SDL_WINDOW_INPUT_GRABBED;
+	}
 	if (upscale) {
 		if (gbFullscreen) {
 			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -270,31 +268,12 @@ bool SpawnWindow(const char* lpWindowName)
 		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 
-	if (grabInput) {
-		flags |= SDL_WINDOW_INPUT_GRABBED;
-	}
-
 	ghMainWnd = SDL_CreateWindow(lpWindowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
-#endif
 	if (ghMainWnd == NULL) {
 		sdl_fatal(ERR_SDL_WINDOW_CREATE);
 	}
 
-	int refreshRate = 60;
-#ifndef USE_SDL1
-	SDL_DisplayMode mode;
-	SDL_GetDisplayMode(0, 0, &mode);
-	if (mode.refresh_rate != 0) {
-		refreshRate = mode.refresh_rate;
-	}
-#endif
-	gnRefreshDelay = 1000 / refreshRate;
-
-	gbFPSLimit = getIniBool("Graphics", "FPS Limiter", true);
-	gbShowFPS = getIniBool("Graphics", "Show FPS", false);
-
 	if (upscale) {
-#ifndef USE_SDL1
 		Uint32 rendererFlags = 0;
 
 		gbVsyncEnabled = getIniBool("Graphics", "Vertical Sync", true);
@@ -312,19 +291,27 @@ bool SpawnWindow(const char* lpWindowName)
 		}
 
 		RecreateDisplay(width, height);
-#endif
 	} else {
-#ifdef USE_SDL1
-		const SDL_VideoInfo &current = *SDL_GetVideoInfo();
-		width = current.current_w;
-		height = current.current_h;
-#else
 		SDL_GetWindowSize(ghMainWnd, &width, &height);
-#endif
-		AdjustToScreenGeometry(width, height);
 	}
+#endif
 
-	return ghMainWnd != NULL;
+	AdjustToScreenGeometry(width, height);
+
+	int refreshRate = 60;
+#ifndef USE_SDL1
+	SDL_DisplayMode mode;
+	// TODO: use SDL_GetCurrentDisplayMode after window is shown?
+	if (SDL_GetDesktopDisplayMode(0, &mode) == 0) {
+		refreshRate = mode.refresh_rate;
+	}
+#endif
+	gnRefreshDelay = 1000 / refreshRate;
+
+	gbFPSLimit = getIniBool("Graphics", "FPS Limiter", true);
+	gbShowFPS = getIniBool("Graphics", "Show FPS", false);
+
+	// return ghMainWnd != NULL;
 }
 
 SDL_Surface* GetOutputSurface()

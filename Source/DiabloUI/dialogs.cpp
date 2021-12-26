@@ -3,7 +3,6 @@
 #include "utils/display.h"
 #include "../palette.h"
 #include "../diablo.h"
-#include "../init.h"
 
 #include "storm/storm.h"
 

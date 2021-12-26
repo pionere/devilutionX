@@ -4,6 +4,7 @@
  * Implementation of functions setting up the graphics pipeline.
  */
 #include "all.h"
+#include <config.h>
 #include "utils/display.h"
 #include <SDL.h>
 #if HAS_GAMECTRL == 1
@@ -76,15 +77,20 @@ static void dx_create_primary_surface()
 
 void dx_init()
 {
+	SpawnWindow(PROJECT_NAME);
 #ifndef USE_SDL1
 	SDL_RaiseWindow(ghMainWnd);
 	SDL_ShowWindow(ghMainWnd);
+	SDL_DisableScreenSaver();
 #endif
 
 	dx_create_primary_surface();
 	dx_create_back_buffer();
 	palette_init();
+
+	gbWndActive = true;
 }
+
 static void lock_buf_priv()
 {
 	sgMemCrit.Enter();
