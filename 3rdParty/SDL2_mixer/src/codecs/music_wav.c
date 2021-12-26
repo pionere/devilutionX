@@ -248,7 +248,7 @@ static int WAV_GetVolume(void *context)
 #endif // FULL - FIX_MUS
 /* Start playback of a given WAV stream */
 #ifdef FULL // MEM_OPS
-static int WAV_Play(Mix_Audio* audio, int play_count)
+static int WAV_Play(Mix_Audio* audio, int loop_count)
 {
     WAV_Music* wave = &audio->asWAV;
 #ifdef FULL // WAV_LOOP
@@ -259,16 +259,14 @@ static int WAV_Play(Mix_Audio* audio, int play_count)
         loop->current_play_count = loop->initial_play_count;
     }
 #endif
-#ifdef FULL // MUS_LOOP
-    wave->play_count = play_count;
-#endif
+    wave->loop_count = loop_count;
     if (Mix_RWseek(wave->src, wave->start, RW_SEEK_SET) == -1) {
         return -1;
     }
     return 0;
 }
 #else // MEM_OPS
-static int WAV_Play(Mix_Channel* channel, int play_count)
+static int WAV_Play(Mix_Channel* channel, int loop_count)
 {
 #ifdef FULL // WAV_LOOP
     WAV_Music* wave = &channel->chunk->asWAV;
@@ -280,9 +278,7 @@ static int WAV_Play(Mix_Channel* channel, int play_count)
         loop->current_play_count = loop->initial_play_count;
     }
 #endif
-#ifdef FULL // MUS_LOOP
-    wave->play_count = play_count;
-#endif
+    channel->loop_count = loop_count;
     if (Mix_RWseek(&channel->playOps, 0, RW_SEEK_SET) == -1) {
         return -1;
     }
@@ -524,17 +520,17 @@ static int fetch_alaw(WAV_Music* wave, int length)
 #endif // SDL_VERSION_ATLEAST(2, 0, 7) - USE_SDL1
 #else // FULL - SELF_CONV
 #ifdef FULL // MEM_OPS
-static int fetch_pcm(WAV_Music* wave, Mix_BuffOps* buffer, int length)
+static int fetch_pcm(WAV_Music* wave, Mix_BuffOps* buffOps, int length)
 {
-    int result = Mix_RWread(wave->src, buffer->basePos, 1, (size_t)length);
-    buffer->endPos = (Uint8*)buffer->basePos + result;
+    int result = Mix_RWread(wave->src, buffOps->basePos, 1, (size_t)length);
+    buffOps->endPos = (Uint8*)buffOps->basePos + result;
     return result;
 }
 #else
-static int fetch_pcm(Mix_RWops* src, Mix_BuffOps* buffer, int length)
+static int fetch_pcm(Mix_RWops* src, Mix_BuffOps* buffOps, int length)
 {
-    int result = Mix_RWread(src, buffer->basePos, (size_t)length);
-    buffer->endPos = (Uint8*)buffer->basePos + result;
+    int result = Mix_RWread(src, buffOps->basePos, (size_t)length);
+    buffOps->endPos = (Uint8*)buffOps->basePos + result;
     return result;
 }
 #endif // MEM_OPS
@@ -578,13 +574,6 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
     if (filled != 0) {
         return filled;
     }
-#ifdef FULL // MUS_LOOP
-    if (!wave->play_count) {
-        /* All done */
-        *done = SDL_TRUE;
-        return 0;
-    }
-#endif
     pos = Mix_RWtell(wave->src);
     stop = wave->stop;
 #ifdef FULL // WAV_LOOP
@@ -639,20 +628,17 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 #else
     if (at_end || Mix_RWtell(wave->src) >= wave->stop) {
 #endif
-#ifdef FULL // MUS_LOOP
-        if (wave->play_count == 1) {
-            wave->play_count = 0;
-            SDL_AudioStreamFlush(wave->stream);
-        } else {
-            int play_count = -1;
-            if (wave->play_count > 0) {
-                play_count = (wave->play_count - 1);
+        int loop_count = wave->loop_count;
+        if (loop_count == 0) {
+            if (amount == 0) {
+                *done = SDL_TRUE;
+                SDL_AudioStreamFlush(wave->stream);
             }
-            if (WAV_Play(wave, play_count) < 0) {
-#else
-        {
-            if (WAV_Play(wave, -1) < 0) {
-#endif
+        } else {
+            if (loop_count > 0) {
+                loop_count = loop_count - 1;
+            }
+            if (WAV_Play(wave, loop_count) < 0) {
                 return -1;
             }
         }
@@ -764,19 +750,16 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 #else // FULL - WAV_LOOP
     if (consumed == 0 || Mix_RWtell(wave->src) >= wave->stop) {
 #endif // FULL - WAV_LOOP
-#ifdef FULL // MUS_LOOP
-        if (wave->play_count == 1) {
-            wave->play_count = 0;
-        } else {
-            int play_count = -1;
-            if (wave->play_count > 0) {
-                play_count = (wave->play_count - 1);
+        int loop_count = wave->loop_count;
+        if (loop_count == 0) {
+            if (consumed == 0) {
+                *done = SDL_TRUE;
             }
-            if (WAV_Play(wave, play_count) < 0) {
-#else // FULL - MUS_LOOP
-        {
-            if (WAV_Play(wave, -1) < 0) {
-#endif // FULL - MUS_LOOP
+        } else {
+            if (loop_count > 0) {
+                loop_count = (loop_count - 1);
+            }
+            if (WAV_Play(wave, loop_count) < 0) {
                 return -1;
             }
         }
@@ -814,14 +797,14 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 #endif
     int filled, amount;
     Uint8* cursor;
-    Mix_BuffOps* buffer = &channel->buffer;
+    Mix_BuffOps* buffOps = &channel->buffOps;
 
-    cursor = (Uint8*)buffer->currPos;
-    filled = (Uint8*)buffer->endPos - cursor;
+    cursor = (Uint8*)buffOps->currPos;
+    filled = (Uint8*)buffOps->endPos - cursor;
     if (filled != 0) {
         if (filled > bytes)
             filled = bytes;
-        buffer->currPos = cursor + filled;
+        buffOps->currPos = cursor + filled;
 #ifdef FULL // SOME_VOL
         SDL_memcpy(data, cursor, filled);
 #else
@@ -849,23 +832,9 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 
 #ifdef FULL // MEM_OPS
     wave = &channel->chunk->asWAV;
-#ifdef FULL // MUS_LOOP
-    if (!wave->play_count) {
-        /* All done */
-        *done = SDL_TRUE;
-        return 0;
-    }
-#endif
     pos = Mix_RWtell(wave->src);
     stop = wave->stop;
 #else
-#ifdef FULL // MUS_LOOP
-    if (!channel->play_count) {
-        /* All done */
-        *done = SDL_TRUE;
-        return 0;
-    }
-#endif
     playOps = &channel->playOps;
     pos = (int)playOps->currPos;
     stop = (int)playOps->endPos;
@@ -899,20 +868,20 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 #ifdef FULL // MUS_ENC
     amount = wave->decode(wave, amount);
 #else
-    buffer->currPos = buffer->basePos;
+    buffOps->currPos = buffOps->basePos;
 #ifdef FULL // MEM_OPS
-    amount = fetch_pcm(wave, buffer, amount);
+    amount = fetch_pcm(wave, buffOps, amount);
 #else
-    amount = fetch_pcm(playOps, buffer, amount);
+    amount = fetch_pcm(playOps, buffOps, amount);
 #endif
 #endif
     if (amount > 0) {
         if (audioSpec->format == AUDIO_U8) {
-            //Mix_Convert_U8_S16LSB(&wave->buffer);
+            //Mix_Convert_U8_S16LSB(buffOps);
         }
         if (audioSpec->channels == 1) {
             // assert(SDL_AUDIO_BITSIZE(wave->spec.format) == 16);
-            Mix_Convert_AUDIO16_Mono2Stereo(buffer);
+            Mix_Convert_AUDIO16_Mono2Stereo(buffOps);
         }
         // assert(audioSpec->freqMpl == 1);
     } else {
@@ -946,23 +915,37 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
     if (at_end/* || pos >= (int)playOps->endPos*/) {
 #endif // MEM_OPS
 #endif // WAV_LOOP
-#ifdef FULL // MUS_LOOP
-        if (wave->play_count == 1) {
-            wave->play_count = 0;
-            SDL_AudioStreamFlush(wave->stream);
-        } else {
-            int play_count = -1;
-            if (wave->play_count > 0) {
-                play_count = (wave->play_count - 1);
+#ifdef FULL // MEM_OPS
+        int loop_count = wave->loop_count;
+        if (loop_count == 0) {
+            if (amount == 0) {
+                /* All done */
+                return -1;
             }
-            if (WAV_Play(wave, play_count) < 0) {
-#else
-        {
-            if (WAV_Play(channel, -1) < 0) {
-#endif
+        } else {
+            if (loop_count > 0) {
+                loop_count = (loop_count - 1);
+            }
+            if (WAV_Play(wave, loop_count) < 0) {
                 return -1;
             }
         }
+#else
+        int loop_count = channel->loop_count;
+        if (loop_count == 0) {
+            if (amount == 0) {
+                /* All done */
+                return -1;
+            }
+        } else {
+            if (loop_count > 0) {
+                loop_count = (loop_count - 1);
+            }
+            if (WAV_Play(channel, loop_count) < 0) {
+                return -1;
+            }
+        }
+#endif // MEM_OPS
     }
 
     /* We'll get called again in the case where we looped or have more data */

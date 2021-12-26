@@ -301,7 +301,7 @@ mix_channels(void *udata, Uint8 *stream, int len)
             if (mix_channel[i].expire > 0 && mix_channel[i].expire < sdl_ticks) {
                 /* Expiration delay for that channel is reached */
                 mix_channel[i].remaining = 0;
-                mix_channel[i].looping = 0;
+                mix_channel[i].loop_count = 0;
                 mix_channel[i].fading = MIX_NO_FADING;
                 mix_channel[i].expire = 0;
                 _Mix_channel_done_playing(i);
@@ -311,7 +311,7 @@ mix_channels(void *udata, Uint8 *stream, int len)
                     Mix_Volume(i, mix_channel[i].fade_volume_reset); /* Restore the volume */
                     if (mix_channel[i].fading == MIX_FADING_OUT) {
                         mix_channel[i].remaining = 0;
-                        mix_channel[i].looping = 0;
+                        mix_channel[i].loop_count = 0;
                         mix_channel[i].expire = 0;
                         _Mix_channel_done_playing(i);
                     }
@@ -382,14 +382,14 @@ mix_channels(void *udata, Uint8 *stream, int len)
                     index += mixable;
 
                     /* rcg06072001 Alert app if channel is done playing. */
-                    if (!mix_channel[i].remaining && !mix_channel[i].looping) {
+                    if (!mix_channel[i].remaining && !mix_channel[i].loop_count) {
                         _Mix_channel_done_playing(i);
                     }
                 }
 
                 /* If looping the sample and we are at its end, make sure
                    we will still return a full buffer */
-                while (mix_channel[i].looping && index < len) {
+                while (mix_channel[i].loop_count && index < len) {
                     int alen = mix_channel[i].chunk->alen;
                     remaining = len - index;
                     if (remaining > alen) {
@@ -401,16 +401,16 @@ mix_channels(void *udata, Uint8 *stream, int len)
                     if (mix_input != mix_channel[i].chunk->abuf)
                         SDL_free(mix_input);
 
-                    if (mix_channel[i].looping > 0) {
-                        --mix_channel[i].looping;
+                    if (mix_channel[i].loop_count > 0) {
+                        --mix_channel[i].loop_count;
                     }
                     mix_channel[i].playPos = mix_channel[i].chunk->abuf + remaining;
                     mix_channel[i].remaining = mix_channel[i].chunk->alen - remaining;
                     index += remaining;
                 }
-                if (! mix_channel[i].remaining && mix_channel[i].looping) {
-                    if (mix_channel[i].looping > 0) {
-                        --mix_channel[i].looping;
+                if (! mix_channel[i].remaining && mix_channel[i].loop_count) {
+                    if (mix_channel[i].loop_count > 0) {
+                        --mix_channel[i].loop_count;
                     }
                     mix_channel[i].playPos = mix_channel[i].chunk->abuf;
                     mix_channel[i].remaining = mix_channel[i].chunk->alen;
@@ -506,7 +506,7 @@ int Mix_OpenAudioDevice(int frequency, Uint16 format, int nchannels, int chunksi
         mix_channel[i].chunk = NULL;
         mix_channel[i].remaining = 0;
 #ifdef FULL // LOOP
-        mix_channel[i].looping = 0;
+        mix_channel[i].loop_count = 0;
 #endif
         mix_channel[i].volume = MIX_MAX_VOLUME;
 #ifdef FULL // FADING
@@ -584,7 +584,7 @@ int Mix_AllocateChannels(int numchans)
             mix_channel[i].chunk = NULL;
             mix_channel[i].remaining = 0;
 #ifdef FULL // LOOP
-            mix_channel[i].looping = 0;
+            mix_channel[i].loop_count = 0;
 #endif
             mix_channel[i].volume = MIX_MAX_VOLUME;
 #ifdef FULL // FADING
@@ -1139,7 +1139,7 @@ void Mix_FreeChunk(Mix_Audio *chunk)
             for (i=0; i<num_channels; ++i) {
                 if (chunk == mix_channel[i].chunk) {
                     mix_channel[i].playing = 0;
-                    mix_channel[i].looping = 0;
+                    mix_channel[i].loop_count = 0;
                 }
             }
         }
@@ -1294,7 +1294,7 @@ int Mix_PlayChannelTimed(int which, Mix_Audio *chunk, int loops, int ticks)
 #endif // MEM_OPS, WAV_SRC
 #endif // CHUNK_ALIAS
 #ifdef FULL // LOOP
-            mix_channel[which].looping = loops;
+            mix_channel[which].loop_count = loops;
 #endif
             mix_channel[which].chunk = chunk;
 #ifdef FULL // FADING
@@ -1371,7 +1371,7 @@ int Mix_FadeInChannelTimed(int which, Mix_Chunk *chunk, int loops, int ms, int t
             Uint32 sdl_ticks = SDL_GetTicks();
             mix_channel[which].playPos = chunk->abuf;
             mix_channel[which].remaining = (int)chunk->alen;
-            mix_channel[which].looping = loops;
+            mix_channel[which].loop_count = loops;
             mix_channel[which].chunk = chunk;
 #ifdef FULL // FADING
             mix_channel[which].paused = 0;
@@ -1457,7 +1457,7 @@ int Mix_HaltChannel(int which)
 #ifdef FULL // MEM_OPS
             mix_channel[which].remaining = 0;
 #ifdef FULL // LOOP
-            mix_channel[which].looping = 0;
+            mix_channel[which].loop_count = 0;
 #endif
 #endif // MEM_OPS
         }
@@ -1557,14 +1557,14 @@ int Mix_Playing(int which)
 
         for (i=0; i<num_channels; ++i) {
             if ((mix_channel[i].remaining > 0) ||
-                mix_channel[i].looping)
+                mix_channel[i].loop_count)
             {
                 ++status;
             }
         }
     } else if (which < num_channels) {
         if ((mix_channel[which].remaining > 0) ||
-             mix_channel[which].looping)
+             mix_channel[which].loop_count)
         {
             ++status;
         }
@@ -1582,7 +1582,7 @@ int Mix_PlayingChunk(Mix_Audio* chunk)
 {
     int channel = chunk->lastChannel;
 #ifdef FULL // LOOP
-    return ((mix_channel[channel].remaining > 0 || mix_channel[channel].looping) && mix_channel[channel].chunk == chunk) ? 1 : 0;
+    return ((mix_channel[channel].remaining > 0 || mix_channel[channel].loop_count) && mix_channel[channel].chunk == chunk) ? 1 : 0;
 #else
     return (/*mix_channel[channel].remaining > 0 &&*/ mix_channel[channel].chunk == chunk) ? 1 : 0;
 #endif

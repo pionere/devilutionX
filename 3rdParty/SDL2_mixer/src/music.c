@@ -69,12 +69,11 @@ static Mix_Music * volatile music_playing = NULL;
 #else
 static Mix_Audio theMusicSrc;
 #ifdef FULL // MEM_OPS
-static _Mix_Channel theMusicChannel = { NULL, 0, SDL_FALSE, NULL, { NULL, NULL, NULL }, MIX_MAX_VOLUME, SDL_FALSE };
+static _Mix_Channel theMusicChannel = { NULL, MIX_MAX_VOLUME };
 #else
-static _Mix_Channel theMusicChannel; // = { NULL, SDL_FALSE, { NULL, NULL, NULL }, { NULL, NULL, NULL }, MIX_MAX_VOLUME, SDL_FALSE };
-#endif
-static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
-#endif
+static _Mix_Channel theMusicChannel;
+#endif // MEM_OPS
+#endif // FIX_MUS
 #ifdef FULL
 SDL_AudioSpec music_spec;
 #endif
@@ -323,7 +322,7 @@ int music_pcm_getaudio(Mix_Channel* channel, void* stream, int bytes,
 #else
     while (len > 0) {
 #ifdef FULL // SOME_VOL
-        int consumed = GetSome(context, &theMusicChannel.buffer, dst, len);
+        int consumed = GetSome(context, &theMusicChannel.buffOps, dst, len);
 #else
         int consumed = GetSome(channel, dst, len);
 #endif // SOME_VOL
@@ -825,7 +824,7 @@ Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 SDL_bool Mix_LoadMUS_RW(Mix_RWops* src)
 #endif
 {
-    theMusicChannel.buffer.basePos = theMusicChannel.buffer.currPos = theMusicChannel.buffer.endPos = musicBuffer;
+    theMusicChannel.buffOps.basePos = theMusicChannel.buffOps.currPos = theMusicChannel.buffOps.endPos = theMusicChannel.buffer;
     if (!Mix_LoadAudio_RW(src, &theMusicSrc))
         return SDL_FALSE;
     Mix_RWFromMem(&theMusicChannel.playOps,
@@ -984,7 +983,7 @@ const char *Mix_GetMusicCopyrightTag(const Mix_Music *music)
 /* Play a music chunk.  Returns 0, or -1 if there was an error.
  */
 #ifdef FULL // FIX_MUS, MUS_LOOP
-static int music_internal_play(Mix_Music *music, int play_count, double position)
+static int music_internal_play(Mix_Music *music, int loop_count, double position)
 #else
 static int music_internal_play()
 #endif
@@ -1017,10 +1016,10 @@ static int music_internal_play()
 
     /* Set up for playback */
 #ifdef FULL // WAV_SRC
-    retval = music->interface->Play(music->context, play_count);
+    retval = music->interface->Play(music->context, loop_count);
 #else
 #ifdef FULL // FIX_MUS, MUS_LOOP
-    retval = Mix_MusicInterface_WAV.Play(music->context, play_count);
+    retval = Mix_MusicInterface_WAV.Play(music->context, loop_count);
 #else
 #ifdef FULL // MEM_OPS
     retval = Mix_MusicInterface_WAV.Play(&theMusicSrc, -1);
@@ -1094,10 +1093,6 @@ int Mix_FadeInMusicPos()
     }
 #endif
 #ifdef FULL // FIX_MUS, MUS_LOOP
-    if (loops == 0) {
-        /* Loop is the number of times to play the audio */
-        loops = 1;
-    }
     retval = music_internal_play(music, loops, position);
 #else
     retval = music_internal_play();

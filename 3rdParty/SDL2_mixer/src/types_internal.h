@@ -146,9 +146,9 @@ typedef struct
 #endif
     /* Start playing music from the beginning with an optional loop count */
 #ifdef FULL // MEM_OPS
-    int (*Play)(Mix_Audio* audio, int play_count);
+    int (*Play)(Mix_Audio* audio, int loop_count);
 #else
-    int (*Play)(Mix_Channel* channel, int play_count);
+    int (*Play)(Mix_Channel* channel, int loop_count);
 #endif
 #ifdef FULL
     /* Returns SDL_TRUE if music is still playing */
@@ -308,6 +308,7 @@ typedef struct _Mix_effectinfo
 #endif
 typedef struct _Mix_Channel {
     Mix_Audio* chunk;
+    int volume;
 #ifdef FULL // FADING
     int paused;
 #else
@@ -319,10 +320,10 @@ typedef struct _Mix_Channel {
 #else
     Mix_RWops playOps;
 #endif // MEM_OPS
-    Mix_BuffOps buffer;
-    int volume;
+    Mix_BuffOps buffOps;
+    Uint8 buffer[MIX_STREAM_BUFF_SIZE];
+    int loop_count;
 #ifdef FULL // FADING, LOOP
-    int looping;
     int tag;
     Uint32 expire;
     Uint32 start_time;
