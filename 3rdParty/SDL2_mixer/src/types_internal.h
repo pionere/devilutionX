@@ -145,7 +145,11 @@ typedef struct
     int (*GetVolume)(void *music);
 #endif
     /* Start playing music from the beginning with an optional loop count */
+#ifdef FULL // MEM_OPS
     int (*Play)(Mix_Audio* audio, int play_count);
+#else
+    int (*Play)(Mix_Channel* channel, int play_count);
+#endif
 #ifdef FULL
     /* Returns SDL_TRUE if music is still playing */
     SDL_bool (*IsPlaying)(void *music);

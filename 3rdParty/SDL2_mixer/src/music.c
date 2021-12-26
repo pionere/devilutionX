@@ -826,7 +826,12 @@ SDL_bool Mix_LoadMUS_RW(Mix_RWops* src)
 #endif
 {
     theMusicChannel.buffer.basePos = theMusicChannel.buffer.currPos = theMusicChannel.buffer.endPos = musicBuffer;
-    return Mix_LoadAudio_RW(src, &theMusicSrc);
+    if (!Mix_LoadAudio_RW(src, &theMusicSrc))
+        return SDL_FALSE;
+    Mix_RWFromMem(&theMusicChannel.playOps,
+        (Uint8*)src->basePos + theMusicSrc.asWAV.start,
+        theMusicSrc.asWAV.stop - theMusicSrc.asWAV.start); // WAV_SRC, MEM_OPS
+    return SDL_TRUE;
 }
 
 /* Free a music chunk previously loaded */
@@ -1017,9 +1022,13 @@ static int music_internal_play()
 #ifdef FULL // FIX_MUS, MUS_LOOP
     retval = Mix_MusicInterface_WAV.Play(music->context, play_count);
 #else
+#ifdef FULL // MEM_OPS
     retval = Mix_MusicInterface_WAV.Play(&theMusicSrc, -1);
-#endif
-#endif
+#else
+    retval = Mix_MusicInterface_WAV.Play(&theMusicChannel, -1);
+#endif // MEM_OPS
+#endif // FIX_MUS, MUS_LOOP
+#endif // WAV_SRC
 #ifdef FULL
     /* Set the playback position, note any errors if an offset is used */
     if (retval == 0) {
