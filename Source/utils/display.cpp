@@ -174,6 +174,9 @@ void SpawnWindow(const char* lpWindowName)
 #if SDL_VERSION_ATLEAST(2, 0, 10)
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 #endif
+#if (__WINRT__ || __ANDROID__ || __IPHONEOS__) && !USE_SDL1
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+#endif
 
 //#ifdef _WIN32
 //	// The default WASAPI backend causes distortions
@@ -190,9 +193,6 @@ void SpawnWindow(const char* lpWindowName)
 #endif
 #if HAS_GAMECTRL == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	initFlags |= SDL_INIT_GAMECONTROLLER;
-#endif
-#ifndef USE_SDL1
-	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
 	if (SDL_Init(initFlags) < 0) {
 		sdl_fatal(ERR_SDL_INIT);
