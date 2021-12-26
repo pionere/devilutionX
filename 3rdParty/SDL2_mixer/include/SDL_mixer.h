@@ -663,7 +663,11 @@ extern DECLSPEC int SDLCALL Mix_Volume(int channel, int volume);
 #ifdef FULL
 extern DECLSPEC int SDLCALL Mix_VolumeChunk(Mix_Chunk *chunk, int volume);
 #endif
+#ifdef FULL
 extern DECLSPEC int SDLCALL Mix_VolumeMusic(int volume);
+#else
+extern DECLSPEC void SDLCALL Mix_VolumeMusic(int volume);
+#endif
 #ifdef FULL
 /* Get the current volume value in the range of 0-128 of a music stream */
 extern DECLSPEC int SDLCALL Mix_GetMusicVolume(Mix_Music *music);

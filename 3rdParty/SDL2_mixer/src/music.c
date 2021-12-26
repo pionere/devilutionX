@@ -1335,6 +1335,7 @@ static void music_internal_volume(int volume)
 #endif
 #endif // FULL - WAV_SRC
 }
+#ifdef FULL
 int Mix_VolumeMusic(int volume)
 {
     int prev_volume;
@@ -1368,6 +1369,24 @@ int Mix_VolumeMusic(int volume)
     Mix_UnlockAudio();
     return(prev_volume);
 }
+#else
+void Mix_VolumeMusic(int volume)
+{
+#ifdef FULL // FIX_MUS
+    if (volume > MIX_MAX_VOLUME) {
+        volume = MIX_MAX_VOLUME;
+    }
+    music_volume = volume;
+    Mix_LockAudio();
+    if (music_playing) {
+        music_internal_volume(music_volume);
+    }
+    Mix_UnlockAudio();
+#else
+    theMusicChannel.volume = volume;
+#endif
+}
+#endif
 #ifdef FULL
 int Mix_GetMusicVolume(Mix_Music *music)
 {
