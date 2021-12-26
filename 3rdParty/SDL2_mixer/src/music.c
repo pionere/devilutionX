@@ -296,21 +296,19 @@ static void _Mix_Music_done_playing()
 int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                        int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done))
 #else
-int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
-                       int (*GetSome)(Mix_Audio* audio, Mix_BuffOps* buffer, void* data, int bytes, int volume))
+int music_pcm_getaudio(Mix_Channel* channel, void* stream, int bytes,
+                       int (*GetSome)(_Mix_Channel* channel, void* stream, int bytes))
 #endif
 {
 #ifdef FULL // SOME_VOL
     Uint8 *snd = (Uint8 *)data;
     Uint8 *dst;
 #else
-    Uint8* dst = (Uint8*)data;
+    Uint8* dst = (Uint8*)stream;
 #endif
     int len = bytes;
 #ifdef FULL // FIX_MUS
     SDL_bool done = SDL_FALSE;
-#else
-    int volume = theMusicChannel.volume;
 #endif
 #ifdef FULL // SOME_VOL
     if (volume == MIX_MAX_VOLUME) {
@@ -325,9 +323,9 @@ int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
 #else
     while (len > 0) {
 #ifdef FULL // SOME_VOL
-        int consumed = GetSome(audio, &theMusicChannel.buffer, dst, len);
+        int consumed = GetSome(context, &theMusicChannel.buffer, dst, len);
 #else
-        int consumed = GetSome(audio, &theMusicChannel.buffer, dst, len, volume);
+        int consumed = GetSome(channel, dst, len);
 #endif // SOME_VOL
 #endif // FIX_MUS
         if (consumed < 0) {
@@ -418,7 +416,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
             _Mix_Music_done_playing();
         }
 #else // WAV_SRC, FIX_MUS
-        len = Mix_MusicInterface_WAV.GetAudio(theMusicChannel.chunk, stream, len);
+        len = Mix_MusicInterface_WAV.GetAudio(&theMusicChannel, stream, len);
         if (len != 0) {
             /* Either an error or finished playing with data left */
             _Mix_Music_done_playing();

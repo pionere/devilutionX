@@ -107,6 +107,7 @@ typedef struct Mix_BuffOps {
 /* Music */
 
 typedef struct _Mix_Audio Mix_Audio;
+typedef struct _Mix_Channel Mix_Channel;
 
 typedef struct
 {
@@ -150,7 +151,7 @@ typedef struct
     SDL_bool (*IsPlaying)(void *music);
 #endif
     /* Get music data, returns the number of bytes left */
-    int (*GetAudio)(Mix_Audio* audio, void *data, int bytes);
+    int (*GetAudio)(Mix_Channel* channel, void* stream, int bytes);
 #ifdef FULL
     /* Jump to a given order in mod music */
     int (*Jump)(void *music, int order);

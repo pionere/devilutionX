@@ -516,7 +516,7 @@ static int fetch_pcm(WAV_Music* wave, Mix_BuffOps* buffer, int length)
 #ifdef FULL // FIX_MUS, SOME_VOL
 static int WAV_GetSome(void *context, void *data, int bytes, SDL_bool *done)
 #else
-static int WAV_GetSome(Mix_Audio* audio, Mix_BuffOps* buffer, void *data, int bytes, int volume)
+static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 #endif
 {
 #ifdef FULL // SELF_CONV
@@ -756,7 +756,8 @@ static int WAV_GetSome(Mix_Audio* audio, Mix_BuffOps* buffer, void *data, int by
     return consumed;
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
 #else // SELF CONV
-    WAV_Music* wave = &audio->asWAV;
+    Mix_Audio* audio;
+    WAV_Music* wave;
 #ifdef FULL // FILE_INT
     Sint64 pos, stop;
 #ifdef FULL // WAV_LOOP
@@ -781,6 +782,7 @@ static int WAV_GetSome(Mix_Audio* audio, Mix_BuffOps* buffer, void *data, int by
 #endif
     int filled, amount;
     void* cursor;
+    Mix_BuffOps* buffer = &channel->buffer;
 
     cursor = buffer->currPos;
     filled = (Uint8*)buffer->endPos - (Uint8*)cursor;
@@ -791,8 +793,9 @@ static int WAV_GetSome(Mix_Audio* audio, Mix_BuffOps* buffer, void *data, int by
 #ifdef FULL // SOME_VOL
         SDL_memcpy(data, cursor, filled);
 #else
+        int volume = channel->volume;
         if (volume == MIX_MAX_VOLUME) {
-            SDL_memcpy(data, cursor, filled);
+            SDL_memcpy(stream, cursor, filled);
         } else {
 #ifdef FULL // SELF_MIX
 #if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
@@ -805,13 +808,15 @@ static int WAV_GetSome(Mix_Audio* audio, Mix_BuffOps* buffer, void *data, int by
             SDL_MixAudio(snd, dst, (Uint32)consumed, volume);
 #endif
 #else // SELF_MIX
-            Mix_MixAudioFormat(data, cursor, MIX_DEFAULT_FORMAT, filled, volume);
+            Mix_MixAudioFormat(stream, cursor, MIX_DEFAULT_FORMAT, filled, volume);
 #endif // SELF_MIX
         }
 #endif // SOME_VOL
         return filled;
     }
 
+    audio = channel->chunk;
+    wave = &audio->asWAV;
 #ifdef FULL // MUS_LOOP
     if (!wave->play_count) {
         /* All done */
@@ -909,9 +914,9 @@ static int WAV_GetAudio(void *context, void *data, int bytes)
     return music_pcm_getaudio(context, data, bytes, wave->volume, WAV_GetSome);
 }
 #else
-static int WAV_GetAudio(Mix_Audio* audio, void *data, int bytes)
+static int WAV_GetAudio(Mix_Channel* channel, void* stream, int bytes)
 {
-    return music_pcm_getaudio(audio, data, bytes, WAV_GetSome);
+    return music_pcm_getaudio(channel, stream, bytes, WAV_GetSome);
 }
 #endif
 #ifdef FULL // SEEK
