@@ -181,18 +181,26 @@ void SpawnWindow(const char* lpWindowName)
 //	SDL_setenv("SDL_AUDIODRIVER", "winmm", /*overwrite=*/false);
 //#endif
 
-	int initFlags = SDL_INIT_VIDEO | SDL_INIT_JOYSTICK;
+	int initFlags = SDL_INIT_VIDEO;
 #ifndef NOSOUND
 	initFlags |= SDL_INIT_AUDIO;
 #endif
-#ifndef USE_SDL1
+#if HAS_JOYSTICK == 1
+	initFlags |= SDL_INIT_JOYSTICK;
+#endif
+#if HAS_GAMECTRL == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	initFlags |= SDL_INIT_GAMECONTROLLER;
-
+#endif
+#ifndef USE_SDL1
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
 	if (SDL_Init(initFlags) < 0) {
 		sdl_fatal(ERR_SDL_INIT);
 	}
+
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	dpad_hotkeys = getIniBool("Controller", "dpad_hotkeys", false);
+	switch_potions_and_clicks = getIniBool("Controller", "switch_potions_and_clicks", false);
 
 #ifndef USE_SDL1
 	char mapping[1024];
@@ -200,10 +208,6 @@ void SpawnWindow(const char* lpWindowName)
 		SDL_GameControllerAddMapping(mapping);
 	}
 #endif
-
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	dpad_hotkeys = getIniBool("Controller", "dpad_hotkeys", false);
-	switch_potions_and_clicks = getIniBool("Controller", "switch_potions_and_clicks", false);
 #endif
 
 #ifdef USE_SDL1
