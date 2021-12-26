@@ -221,6 +221,13 @@ Mix_RWops* Mix_RWFromConstMem(const void* mem, size_t size)
 
     return rwOps;
 }
+
+void Mix_RWFromMem(Mix_RWops* rwOps, const void* mem, size_t size)
+{
+    rwOps->basePos = (void*)mem;
+    rwOps->currPos = (void*)mem;
+    rwOps->endPos = (Uint8*)mem + size;
+}
 #endif // FULL - MEM_OPS
 
 #ifndef FULL // WAV_SRC

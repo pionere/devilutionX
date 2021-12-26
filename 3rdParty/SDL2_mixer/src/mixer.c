@@ -340,12 +340,19 @@ mix_channels(void *udata, Uint8 *stream, int len)
 #else
                     volume = mix_channel[i].volume;
 #endif
+#ifdef FULL // MEM_OPS
                     mixable = mix_channel[i].remaining;
+#else
+                    mixable = (size_t)mix_channel[i].playOps.endPos - (size_t)mix_channel[i].playOps.currPos;
+#endif
                     if (mixable > remaining) {
                         mixable = remaining;
                     }
-
+#ifdef FULL // MEM_OPS
                     mix_input = Mix_DoEffects(i, mix_channel[i].playPos, mixable);
+#else
+                    mix_input = Mix_DoEffects(i, mix_channel[i].playOps.currPos, mixable);
+#endif
 #ifdef FULL // WAV_SRC
 #if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 #ifdef FULL // FIX_OUT
@@ -359,11 +366,18 @@ mix_channels(void *udata, Uint8 *stream, int len)
 #else // WAV_SRC
                     Mix_MixAudioFormat(&stream[index], mix_input, MIX_DEFAULT_FORMAT, mixable, volume);
 #endif // FULL - WAV_SRC
+#ifdef FULL // MEM_OPS
                     if (mix_input != mix_channel[i].playPos)
                         SDL_free(mix_input);
 
                     mix_channel[i].playPos += mixable;
                     mix_channel[i].remaining -= mixable;
+#else
+                    if (mix_input != mix_channel[i].playOps.currPos)
+                        SDL_free(mix_input);
+
+                    mix_channel[i].playOps.currPos = (Uint8*)mix_channel[i].playOps.currPos + mixable;
+#endif // FULL - MEM_OPS
 #ifdef FULL // LOOP
                     index += mixable;
 
@@ -402,7 +416,11 @@ mix_channels(void *udata, Uint8 *stream, int len)
                     mix_channel[i].remaining = mix_channel[i].chunk->alen;
                 }
 #else
+#ifdef FULL // MEM_OPS
                     if (!mix_channel[i].remaining) {
+#else
+                    if (mix_channel[i].playOps.currPos == mix_channel[i].playOps.endPos) {
+#endif
                         _Mix_channel_done_playing(i);
                     }
 #endif
@@ -1137,7 +1155,6 @@ void Mix_FreeChunk(Mix_Audio *chunk)
             SDL_free(chunk->abuf);
 #else
             SDL_free(chunk->memSrc);
-            //Mix_UnloadAudio(chunk); CHUNK_RW
 #endif
         }
         SDL_free(chunk);
@@ -1269,9 +1286,13 @@ int Mix_PlayChannelTimed(int which, Mix_Audio *chunk, int loops, int ticks)
             mix_channel[which].playPos = chunk->abuf;
             mix_channel[which].remaining = (int)chunk->alen;
 #else
+#ifdef FULL // MEM_OPS, WAV_SRC
             mix_channel[which].playPos = chunk->memSrc;
-            mix_channel[which].remaining = chunk->asWAV.stop /* - chunk->asWAV.start CHUNK_RW */;
-#endif
+            mix_channel[which].remaining = chunk->asWAV.stop /* - chunk->asWAV.start*/;
+#else
+            Mix_RWFromMem(&mix_channel[which].playOps, chunk->memSrc, chunk->asWAV.stop/* - chunk->asWAV.start*/);
+#endif // MEM_OPS, WAV_SRC
+#endif // CHUNK_ALIAS
 #ifdef FULL // LOOP
             mix_channel[which].looping = loops;
 #endif
@@ -1433,10 +1454,12 @@ int Mix_HaltChannel(int which)
         Mix_LockAudio();
         if (Mix_Playing(which)) {
             _Mix_channel_done_playing(which);
+#ifdef FULL // MEM_OPS
             mix_channel[which].remaining = 0;
 #ifdef FULL // LOOP
             mix_channel[which].looping = 0;
 #endif
+#endif // MEM_OPS
         }
 #ifdef FULL // FADING
         mix_channel[which].expire = 0;

@@ -68,7 +68,11 @@ static int music_volume = MIX_MAX_VOLUME;
 static Mix_Music * volatile music_playing = NULL;
 #else
 static Mix_Audio theMusicSrc;
+#ifdef FULL // MEM_OPS
 static _Mix_Channel theMusicChannel = { NULL, 0, SDL_FALSE, NULL, { NULL, NULL, NULL }, MIX_MAX_VOLUME, SDL_FALSE };
+#else
+static _Mix_Channel theMusicChannel; // = { NULL, SDL_FALSE, { NULL, NULL, NULL }, { NULL, NULL, NULL }, MIX_MAX_VOLUME, SDL_FALSE };
+#endif
 static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
 #endif
 #ifdef FULL

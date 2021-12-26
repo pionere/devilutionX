@@ -89,6 +89,7 @@ void Mix_RWclose(Mix_RWops* src);
 int Mix_RWseek(Mix_RWops* src, int offset, int whence);
 Uint32 Mix_ReadLE32(Mix_RWops* src);
 Mix_RWops* Mix_RWFromConstMem(const void* mem, size_t size);
+void Mix_RWFromMem(Mix_RWops* dst, const void* mem, size_t size);
 #endif // MEM_OPS
 
 #ifdef FULL

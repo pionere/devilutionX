@@ -303,13 +303,17 @@ typedef struct _Mix_effectinfo
 #endif
 typedef struct _Mix_Channel {
     Mix_Audio* chunk;
-    int remaining;
 #ifdef FULL // FADING
     int paused;
 #else
     SDL_bool paused;
 #endif
+#ifdef FULL // MEM_OPS
+    int remaining;
     Uint8* playPos;
+#else
+    Mix_RWops playOps;
+#endif // MEM_OPS
     Mix_BuffOps buffer;
     int volume;
 #ifdef FULL // FADING, LOOP
