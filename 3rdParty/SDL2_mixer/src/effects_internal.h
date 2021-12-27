@@ -27,6 +27,8 @@
 #endif
 
 #include "SDL_mixer.h"
+#include "types_internal.h"
+
 #ifdef FULL
 extern int _Mix_effects_max_speed;
 extern void *_Eff_volume_table;
@@ -42,15 +44,11 @@ int _Mix_RegisterEffect_locked(int channel, Mix_EffectFunc_t f,
 int _Mix_UnregisterEffect_locked(int channel, Mix_EffectFunc_t f);
 int _Mix_UnregisterAllEffects_locked(int channel);
 #else
-void _Mix_DoEffects(int channel, void* buf, int len);
-// register an active effect on a channel (effect_position -> mixer)
-void _Mix_RegisterChanEffect_locked(int channel);
+void _Mix_DoEffects(Mix_Channel* channel, void* buf, int len);
 // unregister an effect on a channel (effect_position/mixer -> mixer)
 void _Mix_UnregisterChanEffect(int channel);
 // unregister an effect on a channel (effect_position/mixer -> mixer) while locked
 void _Mix_UnregisterChanEffect_locked(int channel);
-// unregister an effect of a channel (mixer -> effect_position)
-void _Mix_UnregisterEffects_locked(int channel);
 #endif
 
 #endif /* _INCLUDE_EFFECTS_INTERNAL_H_ */

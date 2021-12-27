@@ -478,7 +478,11 @@ extern DECLSPEC int SDLCALL Mix_UnregisterAllEffects(int channel);
  *  mode is a no-op, but this call will return successful in that case.
  *  Error messages can be retrieved from Mix_GetError().
  */
+#ifdef FULL
 extern DECLSPEC int SDLCALL Mix_SetPanning(int channel, Uint8 left, Uint8 right);
+#else
+extern DECLSPEC void SDLCALL Mix_SetPanning(int channel, Uint8 left, Uint8 right);
+#endif
 
 #ifdef FULL
 /* Set the position of a channel. (angle) is an integer from 0 to 360, that

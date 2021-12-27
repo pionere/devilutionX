@@ -104,6 +104,35 @@ typedef struct Mix_BuffOps {
     void* endPos;
 } Mix_BuffOps;
 
+/* Effects */
+
+typedef struct _Mix_EffectPosArgs
+{
+    volatile float left_f;
+    volatile float right_f;
+#ifdef FULL // FIX_OUT
+    volatile Uint8 left_u8;
+    volatile Uint8 right_u8;
+    volatile float left_rear_f;
+    volatile float right_rear_f;
+    volatile float center_f;
+    volatile float lfe_f;
+    volatile Uint8 left_rear_u8;
+    volatile Uint8 right_rear_u8;
+    volatile Uint8 center_u8;
+    volatile Uint8 lfe_u8;
+    volatile float distance_f;
+    volatile Uint8 distance_u8;
+    volatile Sint16 room_angle;
+#endif
+#ifdef FULL // FIX_EFF
+    volatile int in_use;
+#endif
+#ifdef FULL
+    volatile int channels;
+#endif
+} _Mix_EffectPosArgs;
+
 /* Music */
 
 typedef struct _Mix_Audio Mix_Audio;
@@ -321,7 +350,6 @@ typedef struct _Mix_Channel {
     Mix_RWops playOps;
 #endif // MEM_OPS
     Mix_BuffOps buffOps;
-    Uint8 buffer[MIX_STREAM_BUFF_SIZE];
     int loop_count;
 #ifdef FULL // FADING, LOOP
     int tag;
@@ -337,6 +365,7 @@ typedef struct _Mix_Channel {
     effect_info *effects;
 #else
     SDL_bool has_effect;
+    _Mix_EffectPosArgs effect;
 #endif
 } _Mix_Channel;
 

@@ -73,6 +73,7 @@ static _Mix_Channel theMusicChannel = { NULL, MIX_MAX_VOLUME };
 #else
 static _Mix_Channel theMusicChannel;
 #endif // MEM_OPS
+static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
 #endif // FIX_MUS
 #ifdef FULL
 SDL_AudioSpec music_spec;
@@ -296,7 +297,7 @@ int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                        int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done))
 #else
 int music_pcm_getaudio(Mix_Channel* channel, void* stream, int bytes,
-                       int (*GetSome)(_Mix_Channel* channel, void* stream, int bytes))
+                       int (*GetSome)(Mix_Channel* channel, void* stream, int bytes))
 #endif
 {
 #ifdef FULL // SOME_VOL
@@ -824,7 +825,7 @@ Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 SDL_bool Mix_LoadMUS_RW(Mix_RWops* src)
 #endif
 {
-    theMusicChannel.buffOps.basePos = theMusicChannel.buffOps.currPos = theMusicChannel.buffOps.endPos = theMusicChannel.buffer;
+    theMusicChannel.buffOps.basePos = theMusicChannel.buffOps.currPos = theMusicChannel.buffOps.endPos = musicBuffer;
     if (!Mix_LoadAudio_RW(src, &theMusicSrc))
         return SDL_FALSE;
     Mix_RWFromMem(&theMusicChannel.playOps,

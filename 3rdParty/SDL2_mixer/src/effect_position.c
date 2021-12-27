@@ -51,43 +51,12 @@
  * Positional effects...panning, distance attenuation, etc.
  */
 
-typedef struct _Eff_positionargs
-{
-    volatile float left_f;
-    volatile float right_f;
-#ifdef FULL // FIX_OUT
-    volatile Uint8 left_u8;
-    volatile Uint8 right_u8;
-    volatile float left_rear_f;
-    volatile float right_rear_f;
-    volatile float center_f;
-    volatile float lfe_f;
-    volatile Uint8 left_rear_u8;
-    volatile Uint8 right_rear_u8;
-    volatile Uint8 center_u8;
-    volatile Uint8 lfe_u8;
-    volatile float distance_f;
-    volatile Uint8 distance_u8;
-    volatile Sint16 room_angle;
-#endif
 #ifdef FULL // FIX_EFF
-    volatile int in_use;
-#else
-    volatile Mix_EffectFunc_t callback;
-#endif
-#ifdef FULL
-    volatile int channels;
-#endif
-} position_args;
-
-#ifdef FULL // FIX_EFF
-static position_args **pos_args_array = NULL;
+static _Mix_EffectPosArgs **pos_args_array = NULL;
 #ifdef FULL // EFF_CHECK
-static position_args *pos_args_global = NULL;
+static _Mix_EffectPosArgs *pos_args_global = NULL;
 #endif
 static int position_channels = 0;
-#else
-static position_args pos_args_array[MIX_CHANNELS] = { 0 };
 #endif // FULL - FIX_EFF
 
 void _Eff_PositionDeinit(void)
@@ -128,23 +97,14 @@ static void SDLCALL _Eff_PositionDone(int channel, void *udata)
         pos_args_array[channel] = NULL;
     }
 }
-#else
-void _Mix_DoEffects(int channel, void* buf, int len)
-{
-    pos_args_array[channel].callback(buf, len, &pos_args_array[channel]);
-}
-void _Mix_UnregisterEffects_locked(int channel)
-{
-    pos_args_array[channel].callback = NULL;
-}
 #endif // FULL - FIX_EFF
 #ifdef FULL // FIX_OUT
 static void SDLCALL _Eff_position_u8(int chan, void *stream, int len, void *udata)
 {
     Uint8 *ptr = (Uint8 *) stream;
-    const float dist_f = ((position_args *)udata)->distance_f;
-    const float left_f = ((position_args *)udata)->left_f;
-    const float right_f = ((position_args *)udata)->right_f;
+    const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
+    const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
+    const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
     int i;
 
     (void)chan;
@@ -160,7 +120,7 @@ static void SDLCALL _Eff_position_u8(int chan, void *stream, int len, void *udat
         len--;
     }
 
-    if (((position_args *)udata)->room_angle == 180)
+    if (((_Mix_EffectPosArgs *)udata)->room_angle == 180)
     for (i = 0; i < len; i += sizeof (Uint8) * 2) {
         /* must adjust the sample so that 0 is the center */
         *ptr = (Uint8) ((Sint8) ((((float) (Sint8) (*ptr - 128))
@@ -183,7 +143,7 @@ static void SDLCALL _Eff_position_u8(int chan, void *stream, int len, void *udat
 
 static void SDLCALL _Eff_position_u8_c4(int chan, void *stream, int len, void *udata)
 {
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Uint8 *ptr = (Uint8 *) stream;
     int i;
 
@@ -268,7 +228,7 @@ static void SDLCALL _Eff_position_u8_c4(int chan, void *stream, int len, void *u
 
 static void SDLCALL _Eff_position_u8_c6(int chan, void *stream, int len, void *udata)
 {
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Uint8 *ptr = (Uint8 *) stream;
     int i;
 
@@ -393,7 +353,7 @@ static void SDLCALL _Eff_position_u8_c6(int chan, void *stream, int len, void *u
  */
 static void SDLCALL _Eff_position_table_u8(int chan, void *stream, int len, void *udata)
 {
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Uint8 *ptr = (Uint8 *) stream;
     Uint32 *p;
     int i;
@@ -445,9 +405,9 @@ static void SDLCALL _Eff_position_table_u8(int chan, void *stream, int len, void
 static void SDLCALL _Eff_position_s8(int chan, void *stream, int len, void *udata)
 {
     Sint8 *ptr = (Sint8 *) stream;
-    const float dist_f = ((position_args *)udata)->distance_f;
-    const float left_f = ((position_args *)udata)->left_f;
-    const float right_f = ((position_args *)udata)->right_f;
+    const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
+    const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
+    const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
     int i;
 
     (void)chan;
@@ -463,7 +423,7 @@ static void SDLCALL _Eff_position_s8(int chan, void *stream, int len, void *udat
         len--;
     }
 
-    if (((position_args *)udata)->room_angle == 180)
+    if (((_Mix_EffectPosArgs *)udata)->room_angle == 180)
     for (i = 0; i < len; i += sizeof (Sint8) * 2) {
         *ptr = (Sint8)((((float) *ptr) * right_f) * dist_f);
         ptr++;
@@ -480,7 +440,7 @@ static void SDLCALL _Eff_position_s8(int chan, void *stream, int len, void *udat
 }
 static void SDLCALL _Eff_position_s8_c4(int chan, void *stream, int len, void *udata)
 {
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint8 *ptr = (Sint8 *) stream;
     int i;
 
@@ -529,7 +489,7 @@ static void SDLCALL _Eff_position_s8_c4(int chan, void *stream, int len, void *u
 
 static void SDLCALL _Eff_position_s8_c6(int chan, void *stream, int len, void *udata)
 {
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint8 *ptr = (Sint8 *) stream;
     int i;
 
@@ -597,7 +557,7 @@ static void SDLCALL _Eff_position_s8_c6(int chan, void *stream, int len, void *u
  */
 static void SDLCALL _Eff_position_table_s8(int chan, void *stream, int len, void *udata)
 {
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint8 *ptr = (Sint8 *) stream;
     Uint32 *p;
     int i;
@@ -647,10 +607,10 @@ static void SDLCALL _Eff_position_table_s8(int chan, void *stream, int len, void
 static void SDLCALL _Eff_position_u16lsb(int chan, void *stream, int len, void *udata)
 {
     Uint16 *ptr = (Uint16 *) stream;
-    const SDL_bool opp = ((position_args *)udata)->room_angle == 180 ? SDL_TRUE : SDL_FALSE;
-    const float dist_f = ((position_args *)udata)->distance_f;
-    const float left_f = ((position_args *)udata)->left_f;
-    const float right_f = ((position_args *)udata)->right_f;
+    const SDL_bool opp = ((_Mix_EffectPosArgs *)udata)->room_angle == 180 ? SDL_TRUE : SDL_FALSE;
+    const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
+    const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
+    const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
     int i;
 
     (void)chan;
@@ -677,7 +637,7 @@ static void SDLCALL _Eff_position_u16lsb(int chan, void *stream, int len, void *
 
 static void SDLCALL _Eff_position_u16lsb_c4(int chan, void *stream, int len, void *udata)
 {
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Uint16 *ptr = (Uint16 *) stream;
     int i;
 
@@ -729,7 +689,7 @@ static void SDLCALL _Eff_position_u16lsb_c4(int chan, void *stream, int len, voi
 
 static void SDLCALL _Eff_position_u16lsb_c6(int chan, void *stream, int len, void *udata)
 {
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Uint16 *ptr = (Uint16 *) stream;
     int i;
 
@@ -802,11 +762,11 @@ static void SDLCALL _Eff_position_s16lsb(void* stream, int len, void* udata)
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16 *ptr = (Sint16 *) stream;
 #ifdef FULL // FIX_OUT
-    const SDL_bool opp = ((position_args *)udata)->room_angle == 180 ? SDL_TRUE : SDL_FALSE;
-    const float dist_f = ((position_args *)udata)->distance_f;
+    const SDL_bool opp = ((_Mix_EffectPosArgs *)udata)->room_angle == 180 ? SDL_TRUE : SDL_FALSE;
+    const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
 #endif
-    const float left_f = ((position_args *)udata)->left_f;
-    const float right_f = ((position_args *)udata)->right_f;
+    const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
+    const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
     int i;
 #ifdef FULL // FIX_EFF
     (void)chan;
@@ -821,9 +781,9 @@ static void SDLCALL _Eff_position_s16lsb(void* stream, int len, void* udata)
     for (i = 0; i < len; i += sizeof (Sint16) * 2) {
 #ifdef FULL // FIX_OUT
         Sint16 swapl = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+0))) *
-                                    args->left_f) * dist_f);
+                                    left_f) * dist_f);
         Sint16 swapr = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+1))) *
-                                    args->right_f) * dist_f);
+                                    right_f) * dist_f);
         if (opp) {
             *(ptr++) = (Sint16) SDL_SwapLE16(swapr);
             *(ptr++) = (Sint16) SDL_SwapLE16(swapl);
@@ -852,7 +812,7 @@ static void SDLCALL _Eff_position_s16lsb(void* stream, int len, void* udata)
 static void SDLCALL _Eff_position_s16lsb_c4(int chan, void *stream, int len, void *udata)
 {
     /* 16 signed bits (lsb) * 4 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint16 *ptr = (Sint16 *) stream;
     int i;
 
@@ -899,7 +859,7 @@ static void SDLCALL _Eff_position_s16lsb_c4(int chan, void *stream, int len, voi
 static void SDLCALL _Eff_position_s16lsb_c6(int chan, void *stream, int len, void *udata)
 {
     /* 16 signed bits (lsb) * 6 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint16 *ptr = (Sint16 *) stream;
     int i;
 
@@ -959,10 +919,10 @@ static void SDLCALL _Eff_position_u16msb(int chan, void *stream, int len, void *
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Uint16 *ptr = (Uint16 *) stream;
-    const SDL_bool opp = ((position_args *)udata)->room_angle == 180 ? SDL_TRUE : SDL_FALSE;
-    const float dist_f = ((position_args *)udata)->distance_f;
-    const float left_f = ((position_args *)udata)->left_f;
-    const float right_f = ((position_args *)udata)->right_f;
+    const SDL_bool opp = ((_Mix_EffectPosArgs *)udata)->room_angle == 180 ? SDL_TRUE : SDL_FALSE;
+    const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
+    const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
+    const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
     int i;
 
     (void)chan;
@@ -990,7 +950,7 @@ static void SDLCALL _Eff_position_u16msb(int chan, void *stream, int len, void *
 static void SDLCALL _Eff_position_u16msb_c4(int chan, void *stream, int len, void *udata)
 {
     /* 16 signed bits (lsb) * 4 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Uint16 *ptr = (Uint16 *) stream;
     int i;
 
@@ -1043,7 +1003,7 @@ static void SDLCALL _Eff_position_u16msb_c4(int chan, void *stream, int len, voi
 static void SDLCALL _Eff_position_u16msb_c6(int chan, void *stream, int len, void *udata)
 {
     /* 16 signed bits (lsb) * 6 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Uint16 *ptr = (Uint16 *) stream;
     int i;
 
@@ -1111,9 +1071,9 @@ static void SDLCALL _Eff_position_s16msb(int chan, void *stream, int len, void *
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16 *ptr = (Sint16 *) stream;
-    const float dist_f = ((position_args *)udata)->distance_f;
-    const float left_f = ((position_args *)udata)->left_f;
-    const float right_f = ((position_args *)udata)->right_f;
+    const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
+    const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
+    const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
     int i;
 
     (void)chan;
@@ -1131,7 +1091,7 @@ static void SDLCALL _Eff_position_s16msb(int chan, void *stream, int len, void *
 static void SDLCALL _Eff_position_s16msb_c4(int chan, void *stream, int len, void *udata)
 {
     /* 16 signed bits (lsb) * 4 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint16 *ptr = (Sint16 *) stream;
     int i;
 
@@ -1178,7 +1138,7 @@ static void SDLCALL _Eff_position_s16msb_c4(int chan, void *stream, int len, voi
 static void SDLCALL _Eff_position_s16msb_c6(int chan, void *stream, int len, void *udata)
 {
     /* 16 signed bits (lsb) * 6 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint16 *ptr = (Sint16 *) stream;
     int i;
 
@@ -1239,10 +1199,10 @@ static void SDLCALL _Eff_position_s32lsb(int chan, void *stream, int len, void *
 {
     /* 32 signed bits (lsb) * 2 channels. */
     Sint32 *ptr = (Sint32 *) stream;
-    const SDL_bool opp = ((position_args *)udata)->room_angle == 180 ? SDL_TRUE : SDL_FALSE;
-    const float dist_f = ((position_args *)udata)->distance_f;
-    const float left_f = ((position_args *)udata)->left_f;
-    const float right_f = ((position_args *)udata)->right_f;
+    const SDL_bool opp = ((_Mix_EffectPosArgs *)udata)->room_angle == 180 ? SDL_TRUE : SDL_FALSE;
+    const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
+    const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
+    const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
     int i;
 
     (void)chan;
@@ -1273,7 +1233,7 @@ static void SDLCALL _Eff_position_s32lsb(int chan, void *stream, int len, void *
 static void SDLCALL _Eff_position_s32lsb_c4(int chan, void *stream, int len, void *udata)
 {
     /* 32 signed bits (lsb) * 4 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint32 *ptr = (Sint32 *) stream;
     int i;
 
@@ -1320,7 +1280,7 @@ static void SDLCALL _Eff_position_s32lsb_c4(int chan, void *stream, int len, voi
 static void SDLCALL _Eff_position_s32lsb_c6(int chan, void *stream, int len, void *udata)
 {
     /* 32 signed bits (lsb) * 6 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint32 *ptr = (Sint32 *) stream;
     int i;
 
@@ -1380,9 +1340,9 @@ static void SDLCALL _Eff_position_s32msb(int chan, void *stream, int len, void *
 {
     /* 32 signed bits (lsb) * 2 channels. */
     Sint32 *ptr = (Sint32 *) stream;
-    const float dist_f = ((position_args *)udata)->distance_f;
-    const float left_f = ((position_args *)udata)->left_f;
-    const float right_f = ((position_args *)udata)->right_f;
+    const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
+    const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
+    const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
     int i;
 
     (void)chan;
@@ -1400,7 +1360,7 @@ static void SDLCALL _Eff_position_s32msb(int chan, void *stream, int len, void *
 static void SDLCALL _Eff_position_s32msb_c4(int chan, void *stream, int len, void *udata)
 {
     /* 32 signed bits (lsb) * 4 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint32 *ptr = (Sint32 *) stream;
     int i;
 
@@ -1447,7 +1407,7 @@ static void SDLCALL _Eff_position_s32msb_c4(int chan, void *stream, int len, voi
 static void SDLCALL _Eff_position_s32msb_c6(int chan, void *stream, int len, void *udata)
 {
     /* 32 signed bits (lsb) * 6 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     Sint32 *ptr = (Sint32 *) stream;
     int i;
 
@@ -1508,9 +1468,9 @@ static void SDLCALL _Eff_position_f32sys(int chan, void *stream, int len, void *
 {
     /* float * 2 channels. */
     float *ptr = (float *) stream;
-    const float dist_f = ((position_args *)udata)->distance_f;
-    const float left_f = ((position_args *)udata)->left_f;
-    const float right_f = ((position_args *)udata)->right_f;
+    const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
+    const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
+    const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
     int i;
 
     (void)chan;
@@ -1526,7 +1486,7 @@ static void SDLCALL _Eff_position_f32sys(int chan, void *stream, int len, void *
 static void SDLCALL _Eff_position_f32sys_c4(int chan, void *stream, int len, void *udata)
 {
     /* float * 4 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     float *ptr = (float *) stream;
     int i;
 
@@ -1569,7 +1529,7 @@ static void SDLCALL _Eff_position_f32sys_c4(int chan, void *stream, int len, voi
 static void SDLCALL _Eff_position_f32sys_c6(int chan, void *stream, int len, void *udata)
 {
     /* float * 6 channels. */
-    volatile position_args *args = (volatile position_args *) udata;
+    volatile _Mix_EffectPosArgs *args = (volatile _Mix_EffectPosArgs *) udata;
     float *ptr = (float *) stream;
     int i;
 
@@ -1620,16 +1580,13 @@ static void SDLCALL _Eff_position_f32sys_c6(int chan, void *stream, int len, voi
     }
 }
 #endif // FULL
-static void init_position_args(position_args *args)
+#ifdef FULL // FIX_EFF
+static void init_position_args(_Mix_EffectPosArgs *args)
 {
 #ifdef FULL
-    SDL_memset(args, '\0', sizeof (position_args));
+    SDL_memset(args, '\0', sizeof (_Mix_EffectPosArgs));
 #endif
-#ifdef FULL // FIX_EFF
     args->in_use = 0;
-#else
-    args->callback = NULL;
-#endif
 #ifdef FULL // FIX_OUT
     static_assert(MIX_MAX_POS_EFFECT <= UCHAR_MAX, "Positional effects use BYTE fields.");
     args->room_angle = 0;
@@ -1643,15 +1600,14 @@ static void init_position_args(position_args *args)
 #endif
 }
 
-static position_args *get_position_arg(int channel)
+static _Mix_EffectPosArgs *get_position_arg(int channel)
 {
-#ifdef FULL // FIX_EFF
     void *rc;
     int i;
 #ifdef FULL // EFF_CHECK
     if (channel < 0) {
         if (pos_args_global == NULL) {
-            pos_args_global = SDL_malloc(sizeof (position_args));
+            pos_args_global = SDL_malloc(sizeof (_Mix_EffectPosArgs));
             if (pos_args_global == NULL) {
                 Mix_OutOfMemory();
                 return(NULL);
@@ -1663,12 +1619,12 @@ static position_args *get_position_arg(int channel)
     }
 #endif
     if (channel >= position_channels) {
-        rc = SDL_realloc(pos_args_array, (size_t)(channel + 1) * sizeof(position_args *));
+        rc = SDL_realloc(pos_args_array, (size_t)(channel + 1) * sizeof(_Mix_EffectPosArgs *));
         if (rc == NULL) {
             Mix_OutOfMemory();
             return(NULL);
         }
-        pos_args_array = (position_args **) rc;
+        pos_args_array = (_Mix_EffectPosArgs **) rc;
         for (i = position_channels; i <= channel; i++) {
             pos_args_array[i] = NULL;
         }
@@ -1676,7 +1632,7 @@ static position_args *get_position_arg(int channel)
     }
 
     if (pos_args_array[channel] == NULL) {
-        pos_args_array[channel] = (position_args *)SDL_malloc(sizeof(position_args));
+        pos_args_array[channel] = (_Mix_EffectPosArgs *)SDL_malloc(sizeof(_Mix_EffectPosArgs));
         if (pos_args_array[channel] == NULL) {
             Mix_OutOfMemory();
             return(NULL);
@@ -1685,10 +1641,6 @@ static position_args *get_position_arg(int channel)
     }
 
     return(pos_args_array[channel]);
-#else
-    init_position_args(&pos_args_array[channel]);
-    return(&pos_args_array[channel]);
-#endif // FULL - FIX_EFF
 }
 
 static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
@@ -1752,7 +1704,7 @@ static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
                 break;
             }
             break;
-#endif // FULL
+#endif // FIX_OUT
         case AUDIO_S16LSB:
             switch (channels) {
             case 1:
@@ -1855,7 +1807,7 @@ static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
             case 6:
                 f = _Eff_position_f32sys_c6;
                 break;
-#endif // FULL
+#endif // FIX_OUT
             default:
                 Mix_SetError("Unsupported audio channels");
                 break;
@@ -1868,6 +1820,15 @@ static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
 
     return(f);
 }
+#else // FIX_EFF
+void _Mix_DoEffects(Mix_Channel* channel, void* buf, int len)
+{
+    static_assert(MIX_DEFAULT_CHANNELS == 2, "_Mix_DoEffects does not pick its function dynamically I.");
+    static_assert(MIX_DEFAULT_FORMAT == AUDIO_S16LSB, "_Mix_DoEffects does not pick its function dynamically II."); // FIX_OUT
+    _Eff_position_s16lsb(buf, len, &channel->effect);
+}
+#endif // FULL - FIX_EFF
+
 #ifdef FULL
 static Uint8 speaker_amplitude[6];
 
@@ -2007,15 +1968,15 @@ static void set_amplitudes(int channels, int angle, int room_angle)
 
 int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance);
 #endif // FULL
-int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
+void Mix_SetPanning(int channel, Uint8 left, Uint8 right)
 {
-    Mix_EffectFunc_t f = NULL;
 #ifdef FULL
+    Mix_EffectFunc_t f = NULL;
     int channels;
     Uint16 format;
 #endif
-    position_args *args = NULL;
-    int retval = 1;
+    _Mix_EffectPosArgs *args = NULL;
+    //int retval = 1;
 
 #ifdef FULL // FIX_OUT
     Mix_QuerySpec(NULL, &format, &channels);
@@ -2034,15 +1995,13 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
         return Mix_SetPosition(channel, angle, 0);
     }
     f = get_position_effect_func(format, channels);
-#else
-    f = get_position_effect_func(MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS);
 #endif // FULL
+#ifdef FULL // FIX_EFF
     if (f == NULL)
         return(0);
 
     Mix_LockAudio();
     args = get_position_arg(channel);
-#ifdef FULL // FIX_EFF
     if (!args) {
         Mix_UnlockAudio();
         return(0);
@@ -2078,23 +2037,19 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
         args->in_use = 1;
         retval=_Mix_RegisterEffect_locked(channel, f, _Eff_PositionDone, (void*)args);
     }
-#else
+#else // FIX_EFF
+    Mix_LockAudio();
     if ((left == MIX_MAX_POS_EFFECT) && (right == MIX_MAX_POS_EFFECT)) {
-        if (args->callback) {
-            args->callback = NULL;
-            _Mix_UnregisterChanEffect_locked(channel);
-        }
+        mix_channel[channel].has_effect = SDL_FALSE;
     } else {
+        mix_channel[channel].has_effect = SDL_TRUE;
+        args = &mix_channel[channel].effect;
         args->left_f = ((float) left) / MIX_MAX_POS_EFFECT_F;
         args->right_f = ((float) right) / MIX_MAX_POS_EFFECT_F;
-        if (args->callback == NULL) {
-            _Mix_RegisterChanEffect_locked(channel);
-        }
-        args->callback = f;
     }
 #endif // FULL - FIX_EFF
     Mix_UnlockAudio();
-    return(retval);
+    //return(retval);
 }
 
 #ifdef FULL
@@ -2102,7 +2057,7 @@ int Mix_SetDistance(int channel, Uint8 distance)
 {
     Mix_EffectFunc_t f = NULL;
     Uint16 format;
-    position_args *args = NULL;
+    _Mix_EffectPosArgs *args = NULL;
     int channels;
     int retval = 1;
 
@@ -2148,7 +2103,7 @@ int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance)
     Mix_EffectFunc_t f = NULL;
     Uint16 format;
     int channels;
-    position_args *args = NULL;
+    _Mix_EffectPosArgs *args = NULL;
     Sint16 room_angle = 0;
     int retval = 1;
 

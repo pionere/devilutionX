@@ -44,9 +44,9 @@ static SDL_AudioSpec mixer;
 static SDL_AudioDeviceID audio_device;
 #endif
 #ifdef FULL // FIX_CHAN
-static _Mix_Channel *mix_channel = NULL;
+_Mix_Channel *mix_channel = NULL;
 #else
-static _Mix_Channel mix_channel[MIX_CHANNELS] = { 0 };
+_Mix_Channel mix_channel[MIX_CHANNELS];
 #endif
 #ifdef FULL
 static effect_info *posteffects = NULL;
@@ -259,7 +259,7 @@ static void *Mix_DoEffects(int chan, void *snd, int len)
         if (buf != NULL) {
             SDL_memcpy(buf, snd, (size_t)len);
 
-            _Mix_DoEffects(chan, buf, len);
+            _Mix_DoEffects(&mix_channel[chan], buf, len);
         }
     }
 #endif // FULL - FIX_EFF
@@ -1022,7 +1022,7 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
     if (freesrc)
 #endif
         Mix_RWclose(src);
-#ifdef FULL // CHUNK_ALIAS
+#ifdef FULL // CHUNK_ALIAS, WAV_SRC
     chunk->abuf = audioData;
     chunk->alen = audioLength;
 #else
@@ -1030,7 +1030,7 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
     // chunk->asWAV.src = Mix_RWFromConstMem(audioData, audioLength); CHUNK_RW
     chunk->asWAV.start = 0;
     chunk->asWAV.stop = audioLength;
-#endif // CHUNK_ALIAS
+#endif // CHUNK_ALIAS, WAV_SRC
 #endif // FULL - MUS_LOAD
 #ifdef FULL // CHUNK_ALLOC
     chunk->allocated = 1;
@@ -1941,11 +1941,6 @@ int _Mix_RegisterEffect_locked(int channel, Mix_EffectFunc_t f,
 
     return _Mix_register_effect(e, f, d, arg);
 }
-#else
-void _Mix_RegisterChanEffect_locked(int channel)
-{
-    mix_channel[channel].has_effect = SDL_TRUE;
-}
 #endif // FULL - FIX_EFF
 #ifdef FULL
 int Mix_RegisterEffect(int channel, Mix_EffectFunc_t f,
@@ -2027,7 +2022,6 @@ int Mix_UnregisterAllEffects(int channel)
 void _Mix_UnregisterChanEffect_locked(int channel)
 {
     mix_channel[channel].has_effect = SDL_FALSE;
-    _Mix_UnregisterEffects_locked(channel);
 }
 void _Mix_UnregisterChanEffect(int channel)
 {
