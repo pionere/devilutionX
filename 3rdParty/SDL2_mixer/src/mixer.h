@@ -35,6 +35,7 @@ extern void Mix_UnlockAudio(void);
 #ifdef FULL
 extern void add_chunk_decoder(const char *decoder);
 #endif
+extern void Mix_CalculateSampleSize(Mix_AudioSpec* spec);
 
 #endif /* MIXER_H_ */
 

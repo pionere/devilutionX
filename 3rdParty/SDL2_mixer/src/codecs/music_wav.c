@@ -24,6 +24,8 @@
 /* This file supports streaming WAV files */
 
 #include "music_wav.h"
+#define MIX_INTERNAL_EFFECT__
+#include "../effects_internal.h"
 
 /*
     Taken with permission from SDL_wave.h, part of the SDL library,
@@ -808,6 +810,9 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 #ifdef FULL // SOME_VOL
         SDL_memcpy(data, cursor, filled);
 #else
+        if (channel->has_effect) {
+            _Mix_DoEffects(channel, cursor, filled);
+        }
         int volume = channel->volume;
         if (volume == MIX_MAX_VOLUME) {
             SDL_memcpy(stream, cursor, filled);
@@ -1201,13 +1206,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
     spec->size *= spec->samples;
 #else
     /* Calculate Mix_AudioSpec */
-    spec->sampleSize = SDL_AUDIO_BITSIZE(spec->format) / 8;
-    spec->sampleSize *= spec->channels;
-#ifdef FULL // FIX_OUT
-    spec->sampleSize *= MIX_STREAM_BUFF_SIZE / ((SDL_AUDIO_BITSIZE(music_spec.format) / 8) * music_spec.channels);
-#else
-    spec->sampleSize *= MIX_STREAM_BUFF_SIZE / ((SDL_AUDIO_BITSIZE(MIX_DEFAULT_FORMAT) / 8) * MIX_DEFAULT_CHANNELS);
-#endif
+    Mix_CalculateSampleSize(spec);
 #endif // FULL - SELF_CONV
     return SDL_TRUE;
 }

@@ -825,12 +825,8 @@ Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 SDL_bool Mix_LoadMUS_RW(Mix_RWops* src)
 #endif
 {
-    theMusicChannel.buffOps.basePos = theMusicChannel.buffOps.currPos = theMusicChannel.buffOps.endPos = musicBuffer;
     if (!Mix_LoadAudio_RW(src, &theMusicSrc))
         return SDL_FALSE;
-    Mix_RWFromMem(&theMusicChannel.playOps,
-        (Uint8*)src->basePos + theMusicSrc.asWAV.start,
-        theMusicSrc.asWAV.stop - theMusicSrc.asWAV.start); // WAV_SRC, MEM_OPS
     return SDL_TRUE;
 }
 
@@ -1009,7 +1005,11 @@ static int music_internal_play()
     music_playing = music;
     music_playing->playing = SDL_TRUE;
 #else
+    Mix_RWFromMem(&theMusicChannel.playOps,
+        (Uint8*)theMusicSrc.asWAV.src->basePos + theMusicSrc.asWAV.start,
+        theMusicSrc.asWAV.stop - theMusicSrc.asWAV.start); // WAV_SRC, MEM_OPS
     theMusicChannel.chunk = &theMusicSrc;
+    theMusicChannel.buffOps.basePos = theMusicChannel.buffOps.currPos = theMusicChannel.buffOps.endPos = musicBuffer;
 #endif
 
     /* Set the initial volume */

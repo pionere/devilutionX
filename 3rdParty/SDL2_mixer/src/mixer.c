@@ -27,7 +27,10 @@
 #ifdef FULL // WAV_SRC
 #include "load_aiff.h"
 #include "load_voc.h"
+#else
+#include "codecs/music_wav.h"
 #endif
+
 #define MIX_INTERNAL_EFFECT__
 #include "effects_internal.h"
 #include "utils.h"
@@ -47,6 +50,7 @@ static SDL_AudioDeviceID audio_device;
 _Mix_Channel *mix_channel = NULL;
 #else
 _Mix_Channel mix_channel[MIX_CHANNELS];
+static Uint8 channelBuffer[MIX_CHANNELS][MIX_STREAM_BUFF_SIZE];
 #endif
 #ifdef FULL
 static effect_info *posteffects = NULL;
@@ -327,6 +331,7 @@ mix_channels(void *udata, Uint8 *stream, int len)
             }
 #endif // FULL
             if (mix_channel[i].chunk != NULL) {
+#ifdef FULL // WAV_SRC
                 int index = 0;
 #ifdef FULL // LOOP
                 int remaining = len;
@@ -424,6 +429,13 @@ mix_channels(void *udata, Uint8 *stream, int len)
                         _Mix_channel_done_playing(i);
                     }
 #endif
+#else // WAV_SRC
+                int left = Mix_MusicInterface_WAV.GetAudio(&mix_channel[i], stream, len);
+                if (left != 0) {
+                    /* Either an error or finished playing */
+                    _Mix_channel_done_playing(i);
+                }
+#endif // WAV_SRC
             }
         }
     }
@@ -607,8 +619,8 @@ int Mix_AllocateChannels(int numchans)
     return(num_channels);
 }
 #endif // FULL
-/* Return the actual mixer parameters */
 #ifdef FULL // FIX_OUT
+/* Return the actual mixer parameters */
 int Mix_QuerySpec(int *frequency, Uint16 *format, int *channels)
 {
     if (audio_opened) {
@@ -625,6 +637,20 @@ int Mix_QuerySpec(int *frequency, Uint16 *format, int *channels)
     return(audio_opened);
 }
 #endif
+/* (Re)Calculate the sample size of an audio with the given spec */
+void Mix_CalculateSampleSize(Mix_AudioSpec* spec)
+{
+    spec->sampleSize = SDL_AUDIO_BITSIZE(spec->format) / 8;
+    spec->sampleSize *= spec->channels;
+#ifdef FULL // FIX_OUT
+    spec->sampleSize *= MIX_STREAM_BUFF_SIZE / ((SDL_AUDIO_BITSIZE(mixer.format) / 8) * mixer.channels);
+#else
+    spec->sampleSize *= MIX_STREAM_BUFF_SIZE / ((SDL_AUDIO_BITSIZE(MIX_DEFAULT_FORMAT) / 8) * MIX_DEFAULT_CHANNELS);
+    // TODO: limit sampleSize in case of 'untrusted' sources
+    //if (spec->sampleSize > MIX_STREAM_BUFF_SIZE)
+    //    spec->sampleSize = MIX_STREAM_BUFF_SIZE;
+#endif
+}
 
 #ifdef FULL
 typedef struct _MusicFragment
@@ -970,6 +996,7 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
 #else
         wavespec->freqMpl = 1;
 #endif // SELF_CONV
+       Mix_CalculateSampleSize(wavespec);
 #endif // CHUNK_ALIAS
         wavecvt.len = audioLength;
         wavecvt.buf = (Uint8 *)SDL_calloc(1, wavecvt.len * wavecvt.len_mult);
@@ -1297,6 +1324,7 @@ int Mix_PlayChannelTimed(int which, Mix_Audio *chunk, int loops, int ticks)
             mix_channel[which].loop_count = loops;
 #endif
             mix_channel[which].chunk = chunk;
+            mix_channel[which].buffOps.basePos = mix_channel[which].buffOps.currPos = mix_channel[which].buffOps.endPos = channelBuffer[which];
 #ifdef FULL // FADING
             mix_channel[which].paused = 0;
             mix_channel[which].fading = MIX_NO_FADING;
