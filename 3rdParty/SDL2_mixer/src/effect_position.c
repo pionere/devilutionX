@@ -1823,8 +1823,9 @@ static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
 #else // FIX_EFF
 void _Mix_DoEffects(Mix_Channel* channel, void* buf, int len)
 {
-    static_assert(MIX_DEFAULT_CHANNELS == 2, "_Mix_DoEffects does not pick its function dynamically I.");
-    static_assert(MIX_DEFAULT_FORMAT == AUDIO_S16LSB, "_Mix_DoEffects does not pick its function dynamically II."); // FIX_OUT
+    // FIX_OUT
+    // assert(MIX_DEFAULT_CHANNELS == 2, "_Mix_DoEffects does not pick its function dynamically I.");
+    // assert(MIX_DEFAULT_FORMAT == AUDIO_S16LSB, "_Mix_DoEffects does not pick its function dynamically II."); // FIX_OUT
     _Eff_position_s16lsb(buf, len, &channel->effect);
 }
 #endif // FULL - FIX_EFF
