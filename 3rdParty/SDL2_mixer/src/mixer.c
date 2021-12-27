@@ -996,7 +996,7 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
 #else
         wavespec->freqMpl = 1;
 #endif // SELF_CONV
-       Mix_CalculateSampleSize(wavespec);
+        Mix_CalculateSampleSize(wavespec);
 #endif // CHUNK_ALIAS
         wavecvt.len = audioLength;
         wavecvt.buf = (Uint8 *)SDL_calloc(1, wavecvt.len * wavecvt.len_mult);
@@ -2046,17 +2046,19 @@ int Mix_UnregisterAllEffects(int channel)
 }
 
 #else
-/* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
-void _Mix_UnregisterChanEffect_locked(int channel)
-{
-    mix_channel[channel].has_effect = SDL_FALSE;
-}
+#ifdef FULL //FIX_CHAN
 void _Mix_UnregisterChanEffect(int channel)
 {
     Mix_LockAudio();
-    _Mix_UnregisterChanEffect_locked(channel);
+    mix_channel[channel].has_effect = SDL_FALSE;
     Mix_UnlockAudio();
 }
+#else
+void _Mix_UnregisterChanEffect(int channel)
+{
+    mix_channel[channel].has_effect = SDL_FALSE;
+}
+#endif // FULL - FIX_CHAN
 #endif // FULL - FIX_EFF
 void Mix_LockAudio(void)
 {

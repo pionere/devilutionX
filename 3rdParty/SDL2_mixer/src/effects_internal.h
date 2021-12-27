@@ -47,8 +47,6 @@ int _Mix_UnregisterAllEffects_locked(int channel);
 void _Mix_DoEffects(Mix_Channel* channel, void* buf, int len);
 // unregister an effect on a channel (effect_position/mixer -> mixer)
 void _Mix_UnregisterChanEffect(int channel);
-// unregister an effect on a channel (effect_position/mixer -> mixer) while locked
-void _Mix_UnregisterChanEffect_locked(int channel);
 #endif
 
 #endif /* _INCLUDE_EFFECTS_INTERNAL_H_ */
