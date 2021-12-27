@@ -275,8 +275,12 @@ static void *Mix_DoEffects(int chan, void *snd, int len)
 static void SDLCALL
 mix_channels(void *udata, Uint8 *stream, int len)
 {
+#ifdef FULL // WAV_SRC
     Uint8 *mix_input;
     int i, mixable, volume = MIX_MAX_VOLUME;
+#else
+    int i;
+#endif
 #ifdef FULL // FADING
     Uint32 sdl_ticks;
 #endif

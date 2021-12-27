@@ -27,6 +27,7 @@
 #include "music.h"
 #else
 #include "../music.h"
+#include "../mixer.h"
 #endif
 #ifndef FULL // SELF_CONV
 #include "../utils.h"
