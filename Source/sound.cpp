@@ -74,7 +74,20 @@ void sound_play(SoundSample* pSnd, int lVolume, int lPan)
 	if (currTc < pSnd->nextTc)
 		return;
 	pSnd->nextTc = currTc + 80;
-	pSnd->Play(lVolume, lPan);
+	pSnd->Play(lVolume, lPan, -1);
+}
+
+void sound_stream(const char* path, SoundSample* pSnd, int lVolume, int lPan)
+{
+	assert(gbSoundOn);
+	assert(pSnd != NULL);
+
+	assert(!pSnd->IsLoaded());
+		sound_file_load(path, pSnd);
+
+	lVolume = ADJUST_VOLUME(lVolume, VOLUME_MIN, gnSoundVolume);
+
+	pSnd->Play(lVolume, lPan, 0);
 }
 
 void sound_file_load(const char* path, SoundSample* pSnd)

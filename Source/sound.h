@@ -19,6 +19,7 @@ extern int gnMusicVolume;
 
 #ifndef NOSOUND
 void sound_play(SoundSample* pSnd, int lVolume, int lPan);
+void sound_stream(const char* path, SoundSample* pSnd, int lVolume, int lPan);
 void sound_file_load(const char *path, SoundSample* pSnd);
 void InitSound();
 void FreeSound();
@@ -31,6 +32,7 @@ void sound_set_music_volume(int volume);
 void sound_set_sound_volume(int volume);
 #else
 inline void sound_play(SoundSample* pSnd, int lVolume, int lPan) { }
+inline void sound_stream(const char* path, SoundSample* pSnd, int lVolume, int lPan) { }
 inline void InitSound() { }
 inline void FreeSound() { }
 inline void music_stop() { }
