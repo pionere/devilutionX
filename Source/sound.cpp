@@ -79,11 +79,19 @@ void sound_play(SoundSample* pSnd, int lVolume, int lPan)
 
 void sound_stream(const char* path, SoundSample* pSnd, int lVolume, int lPan)
 {
+	BYTE* wave_file;
+	size_t dwBytes;
+
 	assert(gbSoundOn);
 	assert(pSnd != NULL);
 
 	assert(!pSnd->IsLoaded());
-		sound_file_load(path, pSnd);
+	{
+		// sound_file_load(path, pSnd);
+		wave_file = LoadFileInMem(path, &dwBytes);
+
+		pSnd->SetChunk(wave_file, dwBytes, true);
+	}
 
 	lVolume = ADJUST_VOLUME(lVolume, VOLUME_MIN, gnSoundVolume);
 
@@ -98,7 +106,7 @@ void sound_file_load(const char* path, SoundSample* pSnd)
 	wave_file = LoadFileInMem(path, &dwBytes);
 
 	pSnd->nextTc = 0;
-	pSnd->SetChunk(wave_file, dwBytes);
+	pSnd->SetChunk(wave_file, dwBytes, false);
 	mem_free_dbg(wave_file);
 }
 

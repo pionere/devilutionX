@@ -79,12 +79,13 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
  * @brief This can load WAVE, AIFF, RIFF, OGG, and VOC formats
  * @param fileData Buffer containing file data
  * @param dwBytes Length of buffer
+ * @param stream whether the sfx is going to be streamed
  */
-void SoundSample::SetChunk(BYTE* fileData, DWORD dwBytes)
+void SoundSample::SetChunk(BYTE* fileData, size_t dwBytes, bool stream)
 {
 	Mix_RWops* buf = Mix_RWFromConstMem(fileData, dwBytes);
 	if (buf != NULL) {
-		soundData = Mix_LoadWAV_RW(buf);
+		soundData = Mix_LoadWAV_RW(buf, stream ? SDL_TRUE : SDL_FALSE);
 		if (soundData != NULL)
 			return; // 0;
 	}

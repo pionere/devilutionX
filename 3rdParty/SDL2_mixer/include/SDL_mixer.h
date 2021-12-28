@@ -221,7 +221,7 @@ extern DECLSPEC int SDLCALL Mix_QuerySpec(int *frequency,Uint16 *format,int *cha
 #ifdef FULL // FREE_SRC, CHUNK_ALIAS
 extern DECLSPEC Mix_Chunk * SDLCALL Mix_LoadWAV_RW(Mix_RWops *src, int freesrc);
 #else
-extern DECLSPEC Mix_Audio * SDLCALL Mix_LoadWAV_RW(Mix_RWops* src);
+extern DECLSPEC Mix_Audio * SDLCALL Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream);
 #endif
 #ifdef FULL
 #define Mix_LoadWAV(file)   Mix_LoadWAV_RW(Mix_RWFromFile(file, "rb"), 1)

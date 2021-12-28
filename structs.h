@@ -535,7 +535,7 @@ typedef struct SoundSample final {
 		return soundData != NULL;
 	}
 	void Play(int lVolume, int lPan, int channel = -1);
-	void SetChunk(BYTE* fileData, DWORD dwBytes);
+	void SetChunk(BYTE* fileData, size_t dwBytes, bool stream);
 	//int TrackLength();
 } SoundSample;
 

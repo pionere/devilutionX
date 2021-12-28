@@ -811,7 +811,7 @@ static SDL_AudioSpec *Mix_LoadMusic_RW(Mix_RWops *src, int freesrc, SDL_AudioSpe
 #ifdef FULL // FREE_SRC, CHUNK_ALIAS
 Mix_Chunk *Mix_LoadWAV_RW(Mix_RWops *src, int freesrc)
 #else
-Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
+Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
 #endif
 {
 #ifdef FULL // CHUNK_ALIAS
@@ -983,9 +983,10 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src)
                 wavespec->format, wavespec->channels, wavespec->freqMpl * MIX_DEFAULT_FREQUENCY,
                 mixer.format, mixer.channels, mixer.freq) < 0) {
 #else // FIX_OUT
-    if (wavespec->format != MIX_DEFAULT_FORMAT ||
-         wavespec->channels != MIX_DEFAULT_CHANNELS ||
-         wavespec->freqMpl != 1) {
+    if (!stream &&
+      (wavespec->format != MIX_DEFAULT_FORMAT ||
+       wavespec->channels != MIX_DEFAULT_CHANNELS ||
+       wavespec->freqMpl != 1)) {
         if (SDL_BuildAudioCVT(&wavecvt,
                 wavespec->format, wavespec->channels, wavespec->freqMpl * MIX_DEFAULT_FREQUENCY,
                 MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, MIX_DEFAULT_FREQUENCY) < 0) {
