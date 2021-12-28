@@ -191,7 +191,7 @@ void SpawnWindow(const char* lpWindowName)
 #if HAS_JOYSTICK == 1
 	initFlags |= SDL_INIT_JOYSTICK;
 #endif
-#if HAS_GAMECTRL == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if !defined(USE_SDL1) && (HAS_GAMECTRL == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1)
 	initFlags |= SDL_INIT_GAMECONTROLLER;
 #endif
 	if (SDL_Init(initFlags) < 0) {
@@ -229,8 +229,6 @@ void SpawnWindow(const char* lpWindowName)
 	int height = DEFAULT_HEIGHT;
 	getIniInt("Graphics", "Width", &width);
 	getIniInt("Graphics", "Height", &height);
-	bool integerScalingEnabled = getIniBool("Graphics", "Integer Scaling", false);
-
 #ifndef __vita__
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);
@@ -248,6 +246,7 @@ void SpawnWindow(const char* lpWindowName)
 	width = current.current_w;
 	height = current.current_h;
 #else
+	bool integerScalingEnabled = getIniBool("Graphics", "Integer Scaling", false);
 	bool upscale = getIniBool("Graphics", "Upscale", true);
 	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
 
