@@ -262,7 +262,7 @@ static int WAV_Play(Mix_Audio* audio, int loop_count)
     }
 #endif
     wave->loop_count = loop_count;
-    if (Mix_RWseek(wave->src, wave->start, RW_SEEK_SET) == -1) {
+    if (Mix_RWseek(wave->src, wave->start, RW_SEEK_SET) < 0) {
         return -1;
     }
     return 0;
@@ -281,7 +281,7 @@ static int WAV_Play(Mix_Channel* channel, int loop_count)
     }
 #endif
     channel->loop_count = loop_count;
-    if (Mix_RWseek(&channel->playOps, 0, RW_SEEK_SET) == -1) {
+    if (Mix_RWseek(&channel->playOps, 0, RW_SEEK_SET) < 0) {
         return -1;
     }
     return 0;
@@ -620,7 +620,7 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
             if (loop->current_play_count > 0) {
                 --loop->current_play_count;
             }
-            if (Mix_RWseek(wave->src, loop_start, RW_SEEK_SET) == -1)
+            if (Mix_RWseek(wave->src, loop_start, RW_SEEK_SET) < 0)
                 return -1;
             looped = SDL_TRUE;
         }
@@ -743,7 +743,7 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
             if (loop->current_play_count > 0) {
                 --loop->current_play_count;
             }
-            if (Mix_RWseek(wave->src, loop_start, RW_SEEK_SET) == -1)
+            if (Mix_RWseek(wave->src, loop_start, RW_SEEK_SET) < 0)
                 return -1;
             looped = SDL_TRUE;
         }
@@ -917,7 +917,7 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
             if (loop->current_play_count > 0) {
                 --loop->current_play_count;
             }
-            if (Mix_RWseek(wave->src, loop_start, RW_SEEK_SET) == -1)
+            if (Mix_RWseek(wave->src, loop_start, RW_SEEK_SET) < 0)
                 return -1;
             looped = SDL_TRUE;
         }
@@ -988,7 +988,7 @@ static int WAV_Seek(void *context, double position)
     Sint64 dest_offset = (Sint64)(position * (double)wave->spec.freq * wave->samplesize);
     Sint64 destpos = wave->start + dest_offset;
     destpos -= dest_offset % sample_size;
-    if (Mix_RWseek(wave->src, destpos, RW_SEEK_SET) == -1)
+    if (Mix_RWseek(wave->src, destpos, RW_SEEK_SET) < 0)
         return -1;
     return 0;
 }
@@ -1092,7 +1092,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
         return SDL_FALSE;
     }
     chunk_length -= size;
-    if (chunk_length != 0 && Mix_RWseek(wave->src, chunk_length, RW_SEEK_CUR) == -1) {
+    if (chunk_length != 0 && Mix_RWseek(wave->src, chunk_length, RW_SEEK_CUR) < 0) {
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
         return SDL_FALSE;
     }
@@ -1226,7 +1226,7 @@ static SDL_bool ParseDATA(WAV_Music *wave, Uint32 chunk_length)
 {
     wave->start = Mix_RWtell(wave->src);
     wave->stop = wave->start + chunk_length;
-    return Mix_RWseek(wave->src, chunk_length, RW_SEEK_CUR) != -1 ? SDL_TRUE : SDL_FALSE;
+    return Mix_RWseek(wave->src, chunk_length, RW_SEEK_CUR) >= 0 ? SDL_TRUE : SDL_FALSE;
 }
 #ifdef FULL // WAV_LOOP
 static SDL_bool AddLoopPoint(WAV_Music *wave, Uint32 play_count, Uint32 start, Uint32 stop)
@@ -1405,7 +1405,7 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave)
             break;
 #endif
         default:
-            if (Mix_RWseek(src, chunk_length, RW_SEEK_CUR) == -1)
+            if (Mix_RWseek(src, chunk_length, RW_SEEK_CUR) < 0)
                 return SDL_FALSE;
             break;
         }
@@ -1565,7 +1565,7 @@ static SDL_bool LoadAIFFMusic(WAV_Music *wave)
             /* Unknown/unsupported chunk: we just skip over */
             break;
         }
-    } while (next_chunk < file_length && Mix_RWseek(src, next_chunk, RW_SEEK_SET) != -1);
+    } while (next_chunk < file_length && Mix_RWseek(src, next_chunk, RW_SEEK_SET) >= 0);
 
     if (!found_SSND) {
         Mix_SetError("Bad AIFF/AIFF-C file (no SSND chunk)");

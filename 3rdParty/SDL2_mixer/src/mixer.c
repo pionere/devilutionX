@@ -1152,6 +1152,27 @@ Mix_Chunk *Mix_QuickLoad_RAW(Uint8 *mem, Uint32 len)
     return(chunk);
 }
 #endif
+
+/* MAKE SURE you hold the audio lock (Mix_LockAudio()) before calling this! */
+static void  Mix_HaltChannel_locked(int which)
+{
+    if (Mix_Playing(which)) {
+        _Mix_channel_done_playing(which);
+#ifdef FULL // MEM_OPS
+        mix_channel[which].remaining = 0;
+#ifdef FULL // LOOP
+        mix_channel[which].loop_count = 0;
+#endif
+#endif // MEM_OPS
+    }
+#ifdef FULL // FADING
+    mix_channel[which].expire = 0;
+    if (mix_channel[which].fading != MIX_NO_FADING) /* Restore volume */
+        mix_channel[which].volume = mix_channel[which].fade_volume_reset;
+    mix_channel[which].fading = MIX_NO_FADING;
+#endif
+}
+
 /* Free an audio chunk previously loaded */
 #ifdef FULL
 void Mix_FreeChunk(Mix_Chunk *chunk)
@@ -1170,8 +1191,7 @@ void Mix_FreeChunk(Mix_Audio *chunk)
         if (mix_channel) {
             for (i=0; i<num_channels; ++i) {
                 if (chunk == mix_channel[i].chunk) {
-                    mix_channel[i].playing = 0;
-                    mix_channel[i].loop_count = 0;
+                    Mix_HaltChannel_locked(i);
                 }
             }
         }
@@ -1479,29 +1499,15 @@ int Mix_HaltChannel(int which)
 {
     int i;
 
+    Mix_LockAudio();
     if (which == -1) {
         for (i=0; i<num_channels; ++i) {
-            Mix_HaltChannel(i);
+            Mix_HaltChannel_locked(i);
         }
     } else if (which < num_channels) {
-        Mix_LockAudio();
-        if (Mix_Playing(which)) {
-            _Mix_channel_done_playing(which);
-#ifdef FULL // MEM_OPS
-            mix_channel[which].remaining = 0;
-#ifdef FULL // LOOP
-            mix_channel[which].loop_count = 0;
-#endif
-#endif // MEM_OPS
-        }
-#ifdef FULL // FADING
-        mix_channel[which].expire = 0;
-        if (mix_channel[which].fading != MIX_NO_FADING) /* Restore volume */
-            mix_channel[which].volume = mix_channel[which].fade_volume_reset;
-        mix_channel[which].fading = MIX_NO_FADING;
-#endif
-        Mix_UnlockAudio();
+        Mix_HaltChannel_locked(which);
     }
+    Mix_UnlockAudio();
     return(0);
 }
 #ifdef FULL
