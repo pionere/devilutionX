@@ -122,6 +122,7 @@
 #define VOLUME_MIN				0
 #define VOLUME_MAX				2048
 #define SFX_DIST_MAX			16
+#define SFX_STREAM_CHANNEL		0
 
 // todo: enums
 #define HEALER_ITEMS			16

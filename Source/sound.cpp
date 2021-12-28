@@ -95,7 +95,7 @@ void sound_stream(const char* path, SoundSample* pSnd, int lVolume, int lPan)
 
 	lVolume = ADJUST_VOLUME(lVolume, VOLUME_MIN, gnSoundVolume);
 
-	pSnd->Play(lVolume, lPan, 0);
+	pSnd->Play(lVolume, lPan, SFX_STREAM_CHANNEL);
 }
 
 void sound_file_load(const char* path, SoundSample* pSnd)
