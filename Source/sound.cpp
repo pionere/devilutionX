@@ -79,16 +79,10 @@ void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan)
 
 void sound_file_load(const char* path, SoundSample* pSnd)
 {
-	HANDLE file;
 	BYTE* wave_file;
-	DWORD dwBytes;
+	size_t dwBytes;
 
-	file = SFileOpenFile(path);
-
-	dwBytes = SFileGetFileSize(file);
-	wave_file = DiabloAllocPtr(dwBytes);
-	SFileReadFile(file, wave_file, dwBytes);
-	SFileCloseFile(file);
+	wave_file = LoadFileInMem(path, &dwBytes);
 
 	pSnd->nextTc = 0;
 	pSnd->SetChunk(wave_file, dwBytes);
@@ -133,25 +127,22 @@ void music_stop()
 
 void music_start(int nTrack)
 {
+	size_t dwBytes;
+
 	assert((unsigned)nTrack < NUM_MUSIC);
 	if (gbMusicOn) {
 		music_stop();
-		HANDLE hMusic = SFileOpenFile(sgszMusicTracks[nTrack]);
-		if (hMusic != NULL) {
-			DWORD bytestoread = SFileGetFileSize(hMusic);
-			assert(_gMusicBuffer == NULL);
-			_gMusicBuffer = DiabloAllocPtr(bytestoread);
-			SFileReadFile(hMusic, _gMusicBuffer, bytestoread);
 
-			Mix_RWops* musicRw = Mix_RWFromConstMem(_gMusicBuffer, bytestoread);
-			if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
-				sdl_fatal(ERR_SDL_MUSIC_FILE);
+		assert(_gMusicBuffer == NULL);
+		_gMusicBuffer = LoadFileInMem(sgszMusicTracks[nTrack], &dwBytes);
 
-			Mix_PlayMusic(-1);
+		Mix_RWops* musicRw = Mix_RWFromConstMem(_gMusicBuffer, dwBytes);
+		if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
+			sdl_fatal(ERR_SDL_MUSIC_FILE);
 
-			_gnMusicTrack = nTrack;
-		}
-		SFileCloseFile(hMusic);
+		Mix_PlayMusic(-1);
+
+		_gnMusicTrack = nTrack;
 	}
 }
 

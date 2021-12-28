@@ -246,17 +246,14 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	//0x80000 // Center horizontally
 	//0x800000 // Edge detection
 	//0x200800 // Clear FB
+	size_t dwBytes;
 
-	HANDLE videoFile = SFileOpenFile(filename);
-
-	DWORD bytestoread = SFileGetFileSize(videoFile);
 	assert(SVidBuffer == NULL);
-	SVidBuffer = DiabloAllocPtr(bytestoread);
-	SFileReadFile(videoFile, SVidBuffer, bytestoread);
-	SFileCloseFile(videoFile);
+	SVidBuffer = LoadFileInMem(filename, &dwBytes);
 
-	SVidSMK = smk_open_memory(SVidBuffer, bytestoread);
+	SVidSMK = smk_open_memory(SVidBuffer, dwBytes);
 	if (SVidSMK == NULL) {
+		MemFreeDbg(SVidBuffer);
 		return NULL;
 	}
 
