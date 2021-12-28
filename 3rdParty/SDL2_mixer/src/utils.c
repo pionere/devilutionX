@@ -26,8 +26,16 @@
 #include <stddef.h>
 
 #ifndef FULL // SELF_CONV
+//void Mix_Converter_AUDIO8_Mono2Stereo(Mix_BuffOps* buf);
+//void (*Mix_Convert_AUDIO8_Mono2Stereo)(Mix_BuffOps* buf) = Mix_Converter_AUDIO8_Mono2Stereo;
 void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf);
 void (*Mix_Convert_AUDIO16_Mono2Stereo)(Mix_BuffOps* buf) = Mix_Converter_AUDIO16_Mono2Stereo;
+void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf);
+void (*Mix_Convert_AUDIO8_Resample_Half)(Mix_BuffOps* buf) = Mix_Converter_AUDIO8_Resample_Half;
+void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf);
+void (*Mix_Convert_AUDIO16_Resample_Half)(Mix_BuffOps* buf) = Mix_Converter_AUDIO16_Resample_Half;
+void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf);
+void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf) = Mix_Converter_U8_S16LSB;
 #endif
 
 #ifdef FULL // META
@@ -302,16 +310,11 @@ void Mix_Converter_AUDIO16_Mono2Stereo_AVX(Mix_BuffOps* buf)
         srcPos -= 16;
         dstPos -= 16;
         __m256i aa = _mm256_loadu_si256(srcPos);
-        __m256i zero = _mm256_setzero_si256();
-        __m256i bb0 = _mm256_unpackhi_epi16(aa, zero);
-        __m256i bb1 = _mm256_slli_si256(bb0, 2);
-        __m256i bb = _mm256_or_si256(bb0, bb1);
+        __m256i bb = _mm256_unpackhi_epi16(aa, aa);
         _mm256_storeu_si256(dstPos, bb);
 
         dstPos -= 16;
-        __m256i cc0 = _mm256_unpacklo_epi16(aa, zero);
-        __m256i cc1 = _mm256_slli_si256(cc0, 2);
-        __m256i cc = _mm256_or_si256(cc0, cc1);
+        __m256i cc = _mm256_unpacklo_epi16(aa, aa);
         _mm256_storeu_si256(dstPos, cc);
     }
 
@@ -337,16 +340,11 @@ void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
         srcPos -= 8;
         dstPos -= 8;
         __m128i aa = _mm_loadu_si128(srcPos);
-        __m128i zero = _mm_setzero_si128();
-        __m128i bb0 = _mm_unpackhi_epi16(aa, zero);
-        __m128i bb1 = _mm_slli_si128(bb0, 2);
-        __m128i bb = _mm_or_si128(bb0, bb1);
+        __m128i bb = _mm_unpackhi_epi16(aa, aa);
         _mm_storeu_si128(dstPos, bb);
 
         dstPos -= 8;
-        __m128i cc0 = _mm_unpacklo_epi16(aa, zero);
-        __m128i cc1 = _mm_slli_si128(cc0, 2);
-        __m128i cc = _mm_or_si128(cc0, cc1);
+        __m128i cc = _mm_unpacklo_epi16(aa, aa);
         _mm_storeu_si128(dstPos, cc);
     }
 
@@ -377,11 +375,129 @@ void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
     }
 }
 
+#ifdef __SSE2__
+void Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
+{
+    Uint8* srcPos = (Uint8*)buf->currPos;
+    Uint8* dstPos = srcPos;
+
+    Uint8* endPos = (Uint8*)buf->endPos;
+
+    endPos = srcPos + (endPos - srcPos) / 2;
+    buf->endPos = endPos;
+
+    while (dstPos <= endPos - 16) {
+        __m128i aa = _mm_loadu_si128((__m128i*)srcPos);
+        __m128i bb = _mm_loadu_si128((__m128i*)&srcPos[16]);
+        //aa = _mm_slli_epi16(aa, 8);
+        aa = _mm_srli_epi16(aa, 8);
+        //bb = _mm_slli_epi16(bb, 8);
+        bb = _mm_srli_epi16(bb, 8);
+        __m128i cc = _mm_packus_epi16(aa, bb);
+        _mm_storeu_si128((__m128i*)dstPos, cc);
+
+        dstPos += 16;
+        srcPos += 32;
+    }
+
+    while (dstPos != endPos) {
+        *dstPos = *srcPos;
+        dstPos++;
+        srcPos += 2;
+    }
+}
+#endif
+
+void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf)
+{
+    Uint8* srcPos = (Uint8*)buf->currPos;
+    Uint8* dstPos = srcPos;
+
+    Uint8* endPos = (Uint8*)buf->endPos;
+
+    endPos = srcPos + (endPos - srcPos) / 2;
+    buf->endPos = endPos;
+
+    while (dstPos != endPos) {
+        *dstPos = *srcPos;
+        dstPos++;
+        srcPos += 2;
+    }
+}
+
+#ifdef __SSE2__
+void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
+{
+    Sint16* srcPos = (Sint16*)buf->currPos;
+    Sint16* dstPos = srcPos;
+
+    Sint16* endPos = (Sint16*)buf->endPos;
+
+    endPos = srcPos + (endPos - srcPos) / 2;
+    buf->endPos = endPos;
+
+    while (dstPos <= endPos - 8) {
+        __m128i aa = _mm_loadu_si128((__m128i*)srcPos);
+        __m128i bb = _mm_loadu_si128((__m128i*)&srcPos[8]);
+
+        aa = _mm_shufflehi_epi16(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+        aa = _mm_shufflelo_epi16(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+        aa = _mm_shuffle_epi32(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+
+        bb = _mm_shufflehi_epi16(bb, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+        bb = _mm_shufflelo_epi16(bb, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+        bb = _mm_shuffle_epi32(bb, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+
+        __m128i cc = _mm_unpacklo_epi64(aa, bb);
+        _mm_storeu_si128((__m128i*)dstPos, cc);
+
+        dstPos += 8;
+        srcPos += 16;
+    }
+}
+#endif
+
+void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf)
+{
+    Sint16* srcPos = (Sint16*)buf->currPos;
+    Sint16* dstPos = srcPos;
+
+    Sint16* endPos = (Sint16*)buf->endPos;
+
+    endPos = srcPos + (endPos - srcPos) / 2;
+    buf->endPos = endPos;
+
+    while (dstPos != endPos) {
+        *dstPos = *srcPos;
+        dstPos++;
+        srcPos += 2;
+    }
+
+}
+
+void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf)
+{
+    Uint8* srcPos = (Uint8*)buf->endPos;
+    Uint8* currPos = (Uint8*)buf->currPos;
+
+    Uint8* dstPos = srcPos + (srcPos - currPos);
+    buf->endPos = dstPos;
+
+    while (srcPos != currPos) {
+        srcPos--;
+        dstPos -= 2;
+        *(Sint16*)dstPos = SDL_SwapLE16((*srcPos - 128) * 32768 / 128);
+    }
+}
+
 void Mix_Utils_Init()
 {
 #ifdef __SSE2__
     if (SDL_HasSSE2()) {
+        //Mix_Convert_AUDIO8_Mono2Stereo = Mix_Converter_AUDIO8_Mono2Stereo_SSE2;
         Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo_SSE2;
+        Mix_Convert_AUDIO8_Resample_Half = Mix_Converter_AUDIO8_Resample_Half_SSE2;
+        Mix_Convert_AUDIO16_Resample_Half = Mix_Converter_AUDIO16_Resample_Half_SSE2;
     }
 #endif
 #if defined(__AVX__) && SDL_VERSION_ATLEAST(2, 0, 2)
