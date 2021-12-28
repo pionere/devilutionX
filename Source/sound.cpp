@@ -59,7 +59,7 @@ static void snd_get_volume(const char* value_name, int* value)
 	*value = v;
 }
 
-void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan)
+void sound_play(SoundSample* pSnd, int lVolume, int lPan)
 {
 	Uint32 currTc;
 

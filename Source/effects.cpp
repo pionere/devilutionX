@@ -1288,7 +1288,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 		return;
 	}
 
-	snd_play_snd(&pSFX->pSnd, lVolume, lPan);
+	sound_play(&pSFX->pSnd, lVolume, lPan);
 }
 
 void PlayEffect(int mnum, int mode)
@@ -1311,7 +1311,7 @@ void PlayEffect(int mnum, int mode)
 	if (!calc_snd_position(mon->_mx, mon->_my, &lVolume, &lPan))
 		return;
 
-	snd_play_snd(snd, lVolume, lPan);
+	sound_play(snd, lVolume, lPan);
 }
 
 void PlaySFX(int psfx, int rndCnt)
