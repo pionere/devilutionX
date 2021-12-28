@@ -31,6 +31,7 @@ option(PIE "Generate position-independent code" OFF)
 option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
+option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
 option(NONET "Disable network support" OFF)
 cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
@@ -615,6 +616,7 @@ foreach(
   def_name
   USE_SDL1
   NOSOUND
+  STREAM_ALL_AUDIO
   NOWIDESCREEN
   NONET
   NETENCRYPT
