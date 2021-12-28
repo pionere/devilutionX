@@ -1178,8 +1178,8 @@ static void stream_play(SFXStruct* pSFX, int lVolume, int lPan)
 		assert(lVolume <= VOLUME_MAX);
 		//if (lVolume > VOLUME_MAX)
 		//	lVolume = VOLUME_MAX;
-		//if (!pSFX->pSnd.IsLoaded())
-		//	sound_file_load(pSFX->pszName, &pSFX->pSnd);
+		assert(!pSFX->pSnd.IsLoaded());
+			sound_file_load(pSFX->pszName, &pSFX->pSnd);
 		sgpStreamSFX = pSFX;
 		pSFX->pSnd.Play(lVolume, lPan, 0);
 	//}
@@ -1212,6 +1212,7 @@ void InitMonsterSND(int midx)
 			snprintf(name, sizeof(name), mfdata->moSndFile, MonstSndChar[i], j + 1);
 			assert(!cmon->cmSnds[i][j].IsLoaded());
 			sound_file_load(name, &cmon->cmSnds[i][j]);
+			assert(cmon->cmSnds[i][j].IsLoaded());
 		}
 	}
 }
@@ -1272,15 +1273,17 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 	}
 
 	pSFX = &sgSFX[psfx];
+	/* not necessary, since non-streamed sfx should be loaded at this time
+	   streams are loaded in stream_play
 	if (!pSFX->pSnd.IsLoaded()) {
 		sound_file_load(pSFX->pszName, &pSFX->pSnd);
 		// assert(pSFX->pSnd.IsLoaded());
-	}
+	}*/
 	if (pSFX->bFlags & sfx_STREAM) {
 		stream_play(pSFX, lVolume, lPan);
 		return;
 	}
-
+	assert(pSFX->pSnd.IsLoaded());
 	if (!(pSFX->bFlags & sfx_MISC) && pSFX->pSnd.IsPlaying()) {
 		return;
 	}
@@ -1300,7 +1303,8 @@ void PlayEffect(int mnum, int mode)
 
 	mon = &monsters[mnum];
 	snd = &mapMonTypes[mon->_mMTidx].cmSnds[mode][sndIdx];
-	if (!snd->IsLoaded() || snd->IsPlaying()) {
+	assert(snd->IsLoaded());
+	if (snd->IsPlaying()) {
 		return;
 	}
 
@@ -1372,9 +1376,8 @@ static void priv_sound_init(BYTE bLoadMask)
 			continue;
 		}
 
-		if (sgSFX[i].pSnd.IsLoaded()) {
-			continue;
-		}
+		assert(!sgSFX[i].pSnd.IsLoaded());
+
 		sound_file_load(sgSFX[i].pszName, &sgSFX[i].pSnd);
 	}
 }
