@@ -91,6 +91,8 @@ void sound_stream(const char* path, SoundSample* pSnd, int lVolume, int lPan)
 		wave_file = LoadFileInMem(path, &dwBytes);
 
 		pSnd->SetChunk(wave_file, dwBytes, true);
+
+		MemFreeDbg(wave_file);
 	}
 
 	lVolume = ADJUST_VOLUME(lVolume, VOLUME_MIN, gnSoundVolume);

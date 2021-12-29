@@ -509,6 +509,7 @@ int Mix_OpenAudioDevice(int frequency, Uint16 format, int nchannels, int chunksi
     if (SDL_OpenAudio(&desired, NULL) != 0) {
         return(-1);
     }
+    mixer = desired;
 #endif
 #if 0
     PrintFormat("Audio device", &mixer);
