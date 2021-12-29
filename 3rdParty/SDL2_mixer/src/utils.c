@@ -482,6 +482,12 @@ void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
         dstPos += 8;
         srcPos += 16;
     }
+
+    while (dstPos != endPos) {
+        *dstPos = *srcPos;
+        dstPos++;
+        srcPos += 2;
+    }
 }
 #endif
 
@@ -500,7 +506,6 @@ void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf)
         dstPos++;
         srcPos += 2;
     }
-
 }
 
 void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf)
@@ -561,7 +566,7 @@ void Mix_BuildAudioCVT(Mix_Audio* audio)
         audio->converters[index] = Mix_Convert_AUDIO16_Mono2Stereo;
         index++;
     }
-    if (index < 2)
+    if (index < SDL_arraysize(audio->converters))
         audio->converters[index] = NULL;
     // assert(audioSpec->freqMpl == 1 || audioSpec->freqMpl == 2);
     // assert(audioSpec->format == AUDIO_U8 || audioSpec->freqMpl == AUDIO_16);
@@ -576,17 +581,14 @@ void Mix_ConvertAudio(Mix_Channel* channel)
 
     if (converters[0] == NULL)
         return;
-
     converters[0](buffOps);
 
     if (converters[1] == NULL)
         return;
-
     converters[1](buffOps);
 
     if (converters[2] == NULL)
         return;
-
     converters[2](buffOps);
 }
 
