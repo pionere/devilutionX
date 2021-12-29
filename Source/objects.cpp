@@ -3313,7 +3313,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 			if (!ItemSpaceOk(xx, yy))
 				continue;
 			if (random_(0, 3) == 0)
-				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, 0, currLvl._dLevel >> 1);
+				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, 0, 0);
 			else
 				CreateTypeItem(xx, yy, false, ITYPE_MISC, IMISC_RUNE, sendmsg, false);
 		}
