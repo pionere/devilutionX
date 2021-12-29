@@ -875,25 +875,7 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 #endif
 #endif
     if (amount > 0) {
-        if (audioSpec->freqMpl == 2) {
-            // assert(audioSpec->channels == 1);
-            if (audioSpec->format == AUDIO_U8) {
-                Mix_Convert_AUDIO8_Resample_Half(buffOps);
-            } else {
-                // assert(audioSpec->format == AUDIO_S16LSB);
-                Mix_Convert_AUDIO16_Resample_Half(buffOps);
-            }
-        }
-        if (audioSpec->format == AUDIO_U8) {
-            Mix_Convert_U8_S16LSB(buffOps);
-        }
-        if (audioSpec->channels == 1) {
-            // assert(SDL_AUDIO_BITSIZE(audioSpec.format) == 16);
-            Mix_Convert_AUDIO16_Mono2Stereo(buffOps);
-        }
-        // assert(audioSpec->freqMpl == 1 || audioSpec->freqMpl == 2);
-        // assert(audioSpec->format == AUDIO_U8 || audioSpec->freqMpl == AUDIO_16);
-        // assert(audioSpec->channels == 1 || audioSpec->channels == 2);
+        Mix_ConvertAudio(channel);
     } else {
         /* We might be looping, continue */
         //at_end = SDL_TRUE;

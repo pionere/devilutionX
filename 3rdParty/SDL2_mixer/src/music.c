@@ -790,6 +790,9 @@ SDL_bool Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst)
 #endif
                 return music;
 #else
+#ifndef FULL // SELF_CONV
+                Mix_BuildAudioCVT(dst);
+#endif
                 return SDL_TRUE;
 #endif // FULL - FIX_MUS
             }
@@ -825,9 +828,7 @@ Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 SDL_bool Mix_LoadMUS_RW(Mix_RWops* src)
 #endif
 {
-    if (!Mix_LoadAudio_RW(src, &theMusicSrc))
-        return SDL_FALSE;
-    return SDL_TRUE;
+    return Mix_LoadAudio_RW(src, &theMusicSrc);
 }
 
 /* Free a music chunk previously loaded */

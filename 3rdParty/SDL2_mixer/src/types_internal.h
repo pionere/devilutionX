@@ -323,6 +323,9 @@ typedef struct _Mix_Audio {
     };
     int lastChannel;
     Uint8* memSrc;
+#ifndef FULL // SELF_CONV
+    void (*converters[3])(Mix_BuffOps* buf);
+#endif
 } _Mix_Audio;
 #endif // FULL - FIX_MUS
 

@@ -47,11 +47,9 @@ extern SDL_bool _Mix_IsLoopTag(const char *tag);
 void Mix_MixAudioFormat(Uint8* dst, const Uint8* src, SDL_AudioFormat srcFormat, int len);
 #endif
 #ifndef FULL // SELF_CONV
-extern void (*Mix_Convert_AUDIO16_Mono2Stereo)(Mix_BuffOps* buf);
-extern void (*Mix_Convert_AUDIO8_Resample_Half)(Mix_BuffOps* buf);
-extern void (*Mix_Convert_AUDIO16_Resample_Half)(Mix_BuffOps* buf);
-extern void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf);
 void Mix_Utils_Init();
+void Mix_BuildAudioCVT(Mix_Audio* audio);
+void Mix_ConvertAudio(Mix_Channel* channel);
 #endif
 
 #endif /* UTILS_H_ */

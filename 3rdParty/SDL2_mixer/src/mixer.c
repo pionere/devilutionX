@@ -1003,6 +1003,7 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
         wavespec->freqMpl = 1;
 #endif // SELF_CONV
         Mix_CalculateSampleSize(wavespec);
+        chunk->converters[0] = NULL;
 #endif // CHUNK_ALIAS
         wavecvt.len = audioLength;
         wavecvt.buf = (Uint8 *)SDL_calloc(1, wavecvt.len * wavecvt.len_mult);

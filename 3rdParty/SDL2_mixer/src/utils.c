@@ -28,14 +28,14 @@
 #ifndef FULL // SELF_CONV
 //void Mix_Converter_AUDIO8_Mono2Stereo(Mix_BuffOps* buf);
 //void (*Mix_Convert_AUDIO8_Mono2Stereo)(Mix_BuffOps* buf) = Mix_Converter_AUDIO8_Mono2Stereo;
-void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf);
-void (*Mix_Convert_AUDIO16_Mono2Stereo)(Mix_BuffOps* buf) = Mix_Converter_AUDIO16_Mono2Stereo;
-void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf);
-void (*Mix_Convert_AUDIO8_Resample_Half)(Mix_BuffOps* buf) = Mix_Converter_AUDIO8_Resample_Half;
-void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf);
-void (*Mix_Convert_AUDIO16_Resample_Half)(Mix_BuffOps* buf) = Mix_Converter_AUDIO16_Resample_Half;
-void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf);
-void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf) = Mix_Converter_U8_S16LSB;
+static void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf);
+static void (*Mix_Convert_AUDIO16_Mono2Stereo)(Mix_BuffOps* buf) = Mix_Converter_AUDIO16_Mono2Stereo;
+static void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf);
+static void (*Mix_Convert_AUDIO8_Resample_Half)(Mix_BuffOps* buf) = Mix_Converter_AUDIO8_Resample_Half;
+static void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf);
+static void (*Mix_Convert_AUDIO16_Resample_Half)(Mix_BuffOps* buf) = Mix_Converter_AUDIO16_Resample_Half;
+static void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf);
+static void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf) = Mix_Converter_U8_S16LSB;
 #endif
 
 #ifdef FULL // META
@@ -502,4 +502,58 @@ void Mix_Utils_Init()
     }
 #endif
 }
+
+void Mix_BuildAudioCVT(Mix_Audio* audio)
+{
+    Mix_AudioSpec* audioSpec = &audio->asWAV.spec; // WAV_SRC
+    int index = 0;
+
+    if (audioSpec->freqMpl == 2) {
+        // assert(audioSpec->channels == 1);
+        if (audioSpec->format == AUDIO_U8) {
+            audio->converters[index] = Mix_Convert_AUDIO8_Resample_Half;
+        } else {
+            // assert(audioSpec->format == AUDIO_S16LSB);
+            audio->converters[index] = Mix_Convert_AUDIO16_Resample_Half;
+        }
+        index++;
+    }
+    if (audioSpec->format == AUDIO_U8) {
+        audio->converters[index] = Mix_Convert_U8_S16LSB;
+        index++;
+    }
+    if (audioSpec->channels == 1) {
+        // assert(SDL_AUDIO_BITSIZE(audioSpec.format) == 16);
+        audio->converters[index] = Mix_Convert_AUDIO16_Mono2Stereo;
+        index++;
+    }
+    if (index < 2)
+        audio->converters[index] = NULL;
+    // assert(audioSpec->freqMpl == 1 || audioSpec->freqMpl == 2);
+    // assert(audioSpec->format == AUDIO_U8 || audioSpec->freqMpl == AUDIO_16);
+    // assert(audioSpec->channels == 1 || audioSpec->channels == 2);
+}
+
+void Mix_ConvertAudio(Mix_Channel* channel)
+{
+    void (**converters)(Mix_BuffOps* buf) = &channel->chunk->converters[0];
+
+    Mix_BuffOps* buffOps = &channel->buffOps;
+
+    if (converters[0] == NULL)
+        return;
+
+    converters[0](buffOps);
+
+    if (converters[1] == NULL)
+        return;
+
+    converters[1](buffOps);
+
+    if (converters[2] == NULL)
+        return;
+
+    converters[2](buffOps);
+}
+
 #endif // FULL - SELF_CONV
