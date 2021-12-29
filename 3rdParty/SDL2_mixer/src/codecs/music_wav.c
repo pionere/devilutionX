@@ -810,7 +810,7 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 #ifdef FULL // SOME_VOL
         SDL_memcpy(data, cursor, filled);
 #else
-        if (_Mix_DoEffects(channel, cursor, filled)) {
+        if (_Mix_DoEffects(cursor, filled, channel)) {
 #ifdef FULL // SELF_MIX
 #if SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
 #ifdef FULL // FIX_OUT
@@ -822,7 +822,11 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
             SDL_MixAudio(snd, dst, (Uint32)consumed, volume);
 #endif
 #else // SELF_MIX
+#ifdef FULL // FIX_OUT
             Mix_MixAudioFormat(stream, cursor, MIX_DEFAULT_FORMAT, filled);
+#else
+            Mix_MixAudioFormat(stream, cursor, filled);
+#endif
 #endif // SELF_MIX
 #endif // SOME_VOL
         }

@@ -36,6 +36,9 @@ static void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf);
 static void (*Mix_Convert_AUDIO16_Resample_Half)(Mix_BuffOps* buf) = Mix_Converter_AUDIO16_Resample_Half;
 static void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf);
 static void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf) = Mix_Converter_U8_S16LSB;
+void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len);
+void (*Mix_MixAudioFormat)(void* dst, const void* src, unsigned len) = Mix_Mixer_AUDIOS16;
+
 #endif
 
 #ifdef FULL // META
@@ -247,50 +250,79 @@ void Mix_RWFromMem(Mix_RWops* rwOps, const void* mem, size_t size)
 /**
  * Mix audio buffers. Based on SDL_MixAudioFormat of SDL2/SDL_audio.
  */
-void Mix_MixAudioFormat(Uint8* dst, const Uint8* src, SDL_AudioFormat format, int len)
+void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len)
 {
-    if (format == AUDIO_U8) {
-        Uint8 src_sample;
-        int dst_sample;
-
-        while (len--) {
-            src_sample = *src;
-            // ADJUST_VOLUME_U8(src_sample, volume);
-            dst_sample = *dst + src_sample;
-            dst_sample -= 128;
-            if (dst_sample < 0)
-                dst_sample = 0;
-            else if (dst_sample > SDL_MAX_UINT8)
-                dst_sample = SDL_MAX_UINT8;
-            *dst = dst_sample;
-            ++dst;
-            ++src;
-        }
-    } else {
     // assert(format == AUDIO_S16LSB);
-        Sint16 src1, src2;
-        int dst_sample;
-        const int max_audioval = SDL_MAX_SINT16;
-        const int min_audioval = SDL_MIN_SINT16;
+    const Sint16* srcPos = (const Sint16*)src;
+    Sint16* currPos = (Sint16*)dst;
 
-        len /= 2;
-        while (len--) {
-            src1 = SDL_SwapLE16(*(Sint16*)src);
-            // ADJUST_VOLUME(src1, volume);
-            src2 = SDL_SwapLE16(*(Sint16*)dst);
-            src += 2;
-            dst_sample = src1 + src2;
-            if (dst_sample > max_audioval) {
-                dst_sample = max_audioval;
-            } else if (dst_sample < min_audioval) {
-                dst_sample = min_audioval;
-            }
-            *(Sint16*)dst = SDL_SwapLE16(dst_sample);
-            dst += 2;
+    Sint16 src1, src2;
+    int dst_sample;
+    const int max_audioval = SDL_MAX_SINT16;
+    const int min_audioval = SDL_MIN_SINT16;
+
+    len /= 2;
+    while (len--) {
+        src1 = SDL_SwapLE16(*srcPos);
+        src2 = SDL_SwapLE16(*currPos);
+        dst_sample = src1 + src2;
+        if (dst_sample > max_audioval) {
+            dst_sample = max_audioval;
+        } else if (dst_sample < min_audioval) {
+            dst_sample = min_audioval;
         }
+        *currPos = SDL_SwapLE16(dst_sample);
+        srcPos++;
+        currPos++;
     }
 }
-#endif // FULL - WAV_SRC
+#ifdef __SSE2__
+void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
+{
+    const Sint16* srcPos = (const Sint16*)src;
+    Sint16* currPos = (Sint16*)dst;
+
+    while (len >= 16) {
+        len -= 16;
+        __m128i aa = _mm_loadu_si128(srcPos);
+        __m128i bb = _mm_loadu_si128(currPos);
+
+        __m128i cc = _mm_adds_epi16(aa, bb);
+        _mm_storeu_si128(currPos, cc);
+
+        currPos += 8;
+        srcPos += 8;
+    }
+
+    if (len != 0) {
+        Mix_Mixer_AUDIOS16(currPos, srcPos, len);
+    }
+}
+#endif // __SSE2__
+#ifdef __AVX__
+void Mix_Mixer_AUDIOS16_AVX(void* dst, const void* src, unsigned len)
+{
+    const Sint16* srcPos = (const Sint16*)src;
+    Sint16* currPos = (Sint16*)dst;
+
+    while (len >= 32) {
+        len -= 32;
+        __m256i aa = _mm256_loadu_si256(srcPos);
+        __m256i bb = _mm256_loadu_si256(currPos);
+
+        __m256i cc = _mm256_adds_epi16(aa, bb);
+        _mm_storeu_si256(currPos, cc);
+
+        currPos += 16;
+        srcPos += 16;
+    }
+
+    if (len != 0) {
+        Mix_Mixer_AUDIOS16(currPos, srcPos, len);
+    }
+}
+#endif // __AVX__
+#endif // FULL - SELF_MIX
 
 #ifndef FULL // SELF_CONV
 #ifdef __AVX__
@@ -494,11 +526,13 @@ void Mix_Utils_Init()
         Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo_SSE2;
         Mix_Convert_AUDIO8_Resample_Half = Mix_Converter_AUDIO8_Resample_Half_SSE2;
         Mix_Convert_AUDIO16_Resample_Half = Mix_Converter_AUDIO16_Resample_Half_SSE2;
+        Mix_MixAudioFormat = Mix_Mixer_AUDIOS16_SSE2;
     }
 #endif
 #if defined(__AVX__) && SDL_VERSION_ATLEAST(2, 0, 2)
     if (SDL_HasAVX()) {
         Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo_AVX;
+        Mix_MixAudioFormat = Mix_Mixer_AUDIOS16_AVX;
     }
 #endif
 }

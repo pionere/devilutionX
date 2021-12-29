@@ -222,7 +222,7 @@ static void _Mix_channel_done_playing(int channel)
 #endif
     mix_channel[channel].chunk = NULL;
 }
-
+#ifdef FULL
 static void *Mix_DoEffects(int chan, void *snd, int len)
 {
 #ifdef FULL //FIX_EFF
@@ -263,14 +263,14 @@ static void *Mix_DoEffects(int chan, void *snd, int len)
         if (buf != NULL) {
             SDL_memcpy(buf, snd, (size_t)len);
 
-            _Mix_DoEffects(&mix_channel[chan], buf, len);
+            _Mix_DoEffects(buf, len, &mix_channel[chan]);
         }
     }
 #endif // FULL - FIX_EFF
     /* be sure to SDL_free() the return value if != snd ... */
     return(buf);
 }
-
+#endif // FULL
 /* Mixing function */
 static void SDLCALL
 mix_channels(void *udata, Uint8 *stream, int len)

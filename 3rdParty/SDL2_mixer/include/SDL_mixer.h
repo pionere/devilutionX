@@ -141,7 +141,8 @@ extern DECLSPEC void SDLCALL Mix_Quit(void);
 #define MIX_DEFAULT_FORMAT  AUDIO_S16MSB
 #endif
 #define MIX_DEFAULT_CHANNELS    2
-#define MIX_MAX_VOLUME          SDL_MIX_MAXVOLUME /* Volume of a chunk */
+/* Volume of a chunk */
+#define MIX_MAX_VOLUME          2048
 #define MIX_MAX_POS_EFFECT      16
 #define MIX_MAX_POS_EFFECT_F    16.0f
 /* Good default buffer size */
@@ -200,9 +201,10 @@ typedef struct _Mix_Music Mix_Music;
 
 /* Open the mixer with a certain audio format */
 extern DECLSPEC int SDLCALL Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize);
-
+#ifdef FULL
 /* Open the mixer with specific device and certain audio format */
 extern DECLSPEC int SDLCALL Mix_OpenAudioDevice(int frequency, Uint16 format, int channels, int chunksize, const char* device, int allowed_changes);
+#endif
 #ifdef FULL // FIX_CHAN
 /* Dynamically change the number of channels managed by the mixer.
    If decreasing the number of channels, the upper channels are

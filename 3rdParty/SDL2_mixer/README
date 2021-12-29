@@ -12,6 +12,7 @@ Changes:
   - loops are not supported (WAV_LOOP)
   - encoding of the music (wav) file is not maintained (WAV_ENC)
   - decoder assumes pcm encoding (MUS_ENC)
+* MIX_MAX_VOLUME changed from SDL_MIX_MAXVOLUME to 2048
 * MIX_DEFAULT_FREQUENCY changed from 44100 to 22050
 * MIX_CHANNELS changed from 8 to 25 and fixed number of (RESERVED)CHANNELS are used (FIX_CHAN)
 * MIX_MAX_POS_EFFECT(_F) changed/defined from 255 to 16
