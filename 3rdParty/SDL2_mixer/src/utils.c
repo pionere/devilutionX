@@ -247,19 +247,15 @@ void Mix_RWFromMem(Mix_RWops* rwOps, const void* mem, size_t size)
 /**
  * Mix audio buffers. Based on SDL_MixAudioFormat of SDL2/SDL_audio.
  */
-void Mix_MixAudioFormat(Uint8* dst, const Uint8* src, SDL_AudioFormat format, int len, int volume)
+void Mix_MixAudioFormat(Uint8* dst, const Uint8* src, SDL_AudioFormat format, int len)
 {
-    if (volume == 0) {
-        return;
-    }
-
     if (format == AUDIO_U8) {
         Uint8 src_sample;
         int dst_sample;
 
         while (len--) {
             src_sample = *src;
-            ADJUST_VOLUME_U8(src_sample, volume);
+            // ADJUST_VOLUME_U8(src_sample, volume);
             dst_sample = *dst + src_sample;
             dst_sample -= 128;
             if (dst_sample < 0)
@@ -280,7 +276,7 @@ void Mix_MixAudioFormat(Uint8* dst, const Uint8* src, SDL_AudioFormat format, in
         len /= 2;
         while (len--) {
             src1 = SDL_SwapLE16(*(Sint16*)src);
-            ADJUST_VOLUME(src1, volume);
+            // ADJUST_VOLUME(src1, volume);
             src2 = SDL_SwapLE16(*(Sint16*)dst);
             src += 2;
             dst_sample = src1 + src2;

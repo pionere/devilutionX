@@ -756,29 +756,35 @@ static void SDLCALL _Eff_position_u16lsb_c6(int chan, void *stream, int len, voi
 #ifdef FULL // FIX_EFF
 static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *udata)
 #else
-static void SDLCALL _Eff_position_s16lsb(void* stream, int len, void* udata)
+static SDL_bool SDLCALL _Eff_position_s16lsb(void* stream, int len, void* udata)
 #endif
 {
     /* 16 signed bits (lsb) * 2 channels. */
-    Sint16 *ptr = (Sint16 *) stream;
+    Sint16* ptr = (Sint16*)stream;
+    Sint16* end = (Sint16*)((Uint8*)stream + len);
 #ifdef FULL // FIX_OUT
     const SDL_bool opp = ((_Mix_EffectPosArgs *)udata)->room_angle == 180 ? SDL_TRUE : SDL_FALSE;
     const float dist_f = ((_Mix_EffectPosArgs *)udata)->distance_f;
 #endif
+#ifdef FULL // FIX_EFF
     const float left_f = ((_Mix_EffectPosArgs *)udata)->left_f;
     const float right_f = ((_Mix_EffectPosArgs *)udata)->right_f;
-    int i;
-#ifdef FULL // FIX_EFF
     (void)chan;
+#else
+    Mix_Channel* channel = (Mix_Channel*)udata;
+    const float left_f = channel->effect.left_f * channel->volume / MIX_MAX_VOLUME;
+    const float right_f = channel->effect.right_f * channel->volume / MIX_MAX_VOLUME;
+    if (left_f < 1.0f / SDL_MAX_SINT16 && right_f < 1.0f / SDL_MAX_SINT16)
+        return SDL_FALSE;
 #endif
 #if 0
-    if (len % (int)(sizeof(Sint16) * 2)) {
-        fprintf(stderr,"Not an even number of frames! len=%d\n", len);
-        return;
+    if ((end - ptr) % (int)(sizeof(Sint16) * 2)) {
+        fprintf(stderr,"Not an even number of frames! len=%d\n", (end - ptr));
+        return SDL_FALSE;
     }
 #endif
 
-    for (i = 0; i < len; i += sizeof (Sint16) * 2) {
+    while (ptr != end) {
 #ifdef FULL // FIX_OUT
         Sint16 swapl = (Sint16) ((((float) (Sint16) SDL_SwapLE16(*(ptr+0))) *
                                     left_f) * dist_f);
@@ -807,7 +813,28 @@ static void SDLCALL _Eff_position_s16lsb(void* stream, int len, void* udata)
         //}
 #endif
     }
+    return SDL_TRUE;
 }
+
+#define ADJUST_VOLUME(s, v) (s = (s*v)/MIX_MAX_VOLUME)
+static SDL_bool _Eff_volume_s16lbs(void* stream, int len, void* udata)
+{
+    /* 16 signed bits (lsb) * 2 channels. */
+    Sint16* ptr = (Sint16*)stream;
+    Sint16* end = (Sint16 *)((Uint8*)stream + len);
+    int vol, volume = ((Mix_Channel*)udata)->volume;
+    if (volume == 0)
+        return SDL_FALSE;
+
+    while (ptr != end) {
+        vol = SDL_SwapLE16(*ptr);
+        ADJUST_VOLUME(vol, volume);
+        *ptr = SDL_SwapLE16(vol);
+        ptr++;
+    }
+    return SDL_TRUE;
+}
+
 #ifdef FULL // FIX_OUT
 static void SDLCALL _Eff_position_s16lsb_c4(int chan, void *stream, int len, void *udata)
 {
@@ -1821,12 +1848,14 @@ static Mix_EffectFunc_t get_position_effect_func(Uint16 format, int channels)
     return(f);
 }
 #else // FIX_EFF
-void _Mix_DoEffects(Mix_Channel* channel, void* buf, int len)
+SDL_bool _Mix_DoEffects(Mix_Channel* channel, void* buf, int len)
 {
     // FIX_OUT
     // assert(MIX_DEFAULT_CHANNELS == 2, "_Mix_DoEffects does not pick its function dynamically I.");
     // assert(MIX_DEFAULT_FORMAT == AUDIO_S16LSB, "_Mix_DoEffects does not pick its function dynamically II."); // FIX_OUT
-    _Eff_position_s16lsb(buf, len, &channel->effect);
+    if (channel->has_effect)
+        return _Eff_position_s16lsb(buf, len, channel);
+    return _Eff_volume_s16lbs(buf, len, channel);
 }
 #endif // FULL - FIX_EFF
 

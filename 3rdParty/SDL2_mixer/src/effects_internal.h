@@ -44,7 +44,7 @@ int _Mix_RegisterEffect_locked(int channel, Mix_EffectFunc_t f,
 int _Mix_UnregisterEffect_locked(int channel, Mix_EffectFunc_t f);
 int _Mix_UnregisterAllEffects_locked(int channel);
 #else
-void _Mix_DoEffects(Mix_Channel* channel, void* buf, int len);
+SDL_bool _Mix_DoEffects(Mix_Channel* channel, void* buf, int len);
 // unregister an effect on a channel (effect_position/mixer -> mixer)
 void _Mix_UnregisterChanEffect(int channel);
 #endif
