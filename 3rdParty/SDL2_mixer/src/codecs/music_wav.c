@@ -941,9 +941,13 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
                 return -1;
             }
         } else {
+#ifdef FULL // MUS_LOOP, LOOP
             if (loop_count > 0) {
                 loop_count = (loop_count - 1);
             }
+#else
+            loop_count = -1;
+#endif
             if (WAV_Play(channel, loop_count) < 0) {
                 return -1;
             }
@@ -1004,7 +1008,9 @@ static const char* WAV_GetMetaTag(void *context, Mix_MusicMetaTag tag_type)
 /* Close the given WAV stream */
 static void WAV_Delete(Mix_Audio* audio)
 {
+#ifdef FULL
     WAV_Music* wave = &audio->asWAV;
+#endif
 #ifdef FULL // META
     /* Clean up associated data */
     meta_tags_clear(&wave->tags);
@@ -1686,8 +1692,8 @@ Mix_MusicInterface Mix_MusicInterface_WAV =
 #ifdef FULL
     WAV_GetVolume,
 #endif
-#endif // FULL - FIX_MUS
     WAV_Play,
+#endif // FULL - FIX_MUS
 #ifdef FULL
     NULL,   /* IsPlaying */
 #endif

@@ -1104,9 +1104,9 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
     chunk->alen = audioLength;
 #else
     chunk->memSrc = audioData;
-    // chunk->asWAV.src = Mix_RWFromConstMem(audioData, audioLength); CHUNK_RW
     chunk->asWAV.start = 0;
     chunk->asWAV.stop = audioLength;
+    Mix_RWFromMem(&chunk->asWAV.src, audioData, audioLength);
 #endif // CHUNK_ALIAS, WAV_SRC
 #endif // FULL - MUS_LOAD
 #ifdef FULL // CHUNK_ALLOC
@@ -1205,6 +1205,7 @@ static void  Mix_HaltChannel_locked(int which)
 {
     if (Mix_Playing(which)) {
         _Mix_channel_done_playing(which);
+        mix_channel[which].paused = SDL_FALSE;
 #ifdef FULL // MEM_OPS
         mix_channel[which].remaining = 0;
 #ifdef FULL // LOOP
@@ -1389,7 +1390,9 @@ int Mix_PlayChannelTimed(int which, Mix_Audio *chunk, int loops, int ticks)
             mix_channel[which].playPos = chunk->memSrc;
             mix_channel[which].remaining = chunk->asWAV.stop /* - chunk->asWAV.start*/;
 #else
-            Mix_RWFromMem(&mix_channel[which].playOps, chunk->memSrc, chunk->asWAV.stop/* - chunk->asWAV.start*/);
+            Mix_RWFromMem(&mix_channel[which].playOps,
+               (Uint8*)chunk->asWAV.src.basePos + chunk->asWAV.start,
+               chunk->asWAV.stop - chunk->asWAV.start); // WAV_SRC, MEM_OPS
 #endif // MEM_OPS, WAV_SRC
 #endif // CHUNK_ALIAS
 #ifdef FULL // LOOP
@@ -1402,8 +1405,6 @@ int Mix_PlayChannelTimed(int which, Mix_Audio *chunk, int loops, int ticks)
             mix_channel[which].fading = MIX_NO_FADING;
             mix_channel[which].start_time = sdl_ticks;
             mix_channel[which].expire = (ticks > 0) ? (sdl_ticks + (Uint32)ticks) : 0;
-#else
-            mix_channel[which].paused = SDL_FALSE;
 #endif
         }
     }

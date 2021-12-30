@@ -1000,23 +1000,24 @@ static int music_internal_play()
         return 0;
     }
 #endif
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, FADING
     /* Note the music we're playing */
     if (music_playing) {
         music_internal_halt();
     }
     music_playing = music;
     music_playing->playing = SDL_TRUE;
+
+    /* Set the initial volume */
+    music_internal_initialize_volume();
 #else
     Mix_RWFromMem(&theMusicChannel.playOps,
         (Uint8*)theMusicSrc.asWAV.src.basePos + theMusicSrc.asWAV.start,
         theMusicSrc.asWAV.stop - theMusicSrc.asWAV.start); // WAV_SRC, MEM_OPS
+    theMusicChannel.loop_count = -1; // MUS_LOOP
     theMusicChannel.chunk = &theMusicSrc;
     theMusicChannel.buffOps.basePos = theMusicChannel.buffOps.currPos = theMusicChannel.buffOps.endPos = musicBuffer;
 #endif
-
-    /* Set the initial volume */
-    music_internal_initialize_volume();
 
     /* Set up for playback */
 #ifdef FULL // WAV_SRC
@@ -1027,8 +1028,6 @@ static int music_internal_play()
 #else
 #ifdef FULL // MEM_OPS
     retval = Mix_MusicInterface_WAV.Play(&theMusicSrc, -1);
-#else
-    retval = Mix_MusicInterface_WAV.Play(&theMusicChannel, -1);
 #endif // MEM_OPS
 #endif // FIX_MUS, MUS_LOOP
 #endif // WAV_SRC

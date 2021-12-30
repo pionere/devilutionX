@@ -824,7 +824,8 @@ static SDL_bool _Eff_volume_s16lbs(void* stream, unsigned len, void* udata)
     int vol, volume = ((Mix_Channel*)udata)->volume;
     if (volume == 0)
         return SDL_FALSE;
-
+    if (volume == MIX_MAX_VOLUME)
+        return SDL_TRUE;
     len /= 2;
     while (len--) {
         vol = SDL_SwapLE16(*ptr);
