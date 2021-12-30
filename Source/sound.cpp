@@ -174,10 +174,14 @@ void music_start(int nTrack)
 
 void sound_disable_music()
 {
+	int lastMusic = _gnMusicTrack;
+
 	music_stop();
+
+	_gnMusicTrack = lastMusic;
 }
 
-void sound_start_music()
+void sound_restart_music()
 {
 	if (_gnMusicTrack != NUM_MUSIC) {
 		music_start(_gnMusicTrack);

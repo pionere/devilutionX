@@ -66,7 +66,7 @@ void play_movie(const char *pszMovie, int movieFlags)
 		}
 	}
 
-	sound_start_music();
+	sound_restart_music();
 
 	gbMoviePlaying = false;
 }
