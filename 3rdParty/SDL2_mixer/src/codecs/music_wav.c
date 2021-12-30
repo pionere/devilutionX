@@ -170,7 +170,12 @@ static void* WAV_CreateFromRW(Mix_RWops* src, Mix_Audio* dst)
 #else
     wave = &dst->asWAV;
 #endif
+#ifdef FULL // SRC_PTR
     wave->src = src;
+#else
+    Mix_RWFromMem(&wave->src, src->basePos, (size_t)src->endPos - (size_t)src->basePos);
+    src = &wave->src;
+#endif // SRC_PTR
 #ifdef FULL // FIX_MUS
     wave->volume = MIX_MAX_VOLUME;
 #endif
@@ -227,11 +232,13 @@ static void* WAV_CreateFromRW(Mix_RWops* src, Mix_Audio* dst)
 #endif
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
 #endif // FULL - SELF_CONV
+#ifdef FULL // SRC_PTR
 #ifdef FULL // FREE_SRC
     wave->freesrc = freesrc;
 #else
     wave->freesrc = SDL_TRUE;
 #endif
+#endif // SRC_PTR
     return wave;
 }
 #ifdef FULL // FIX_MUS
@@ -1033,12 +1040,14 @@ static void WAV_Delete(Mix_Audio* audio)
     }
 #endif
 #endif // FULL - SELF_CONV
+#ifdef FULL // SRC_PTR
     if (wave->freesrc) {
         Mix_RWclose(wave->src);
 #ifndef FULL // FIX_MUS
         wave->freesrc = SDL_FALSE;
 #endif
     }
+#endif // SRC_PTR
 #ifdef FULL // FIX_MUS
     SDL_free(wave);
 #endif
@@ -1066,13 +1075,13 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 #ifdef FULL // MEM_OPS
     if (!Mix_RWread(wave->src, &fmt, size, 1)) {
 #else
-    if (!Mix_RWread(wave->src, &fmt, size)) {
+    if (!Mix_RWread(&wave->src, &fmt, size)) {
 #endif
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
         return SDL_FALSE;
     }
     chunk_length -= size;
-    if (chunk_length != 0 && Mix_RWseek(wave->src, chunk_length, RW_SEEK_CUR) < 0) {
+    if (chunk_length != 0 && Mix_RWseek(&wave->src, chunk_length, RW_SEEK_CUR) < 0) {
         Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
         return SDL_FALSE;
     }
@@ -1204,9 +1213,9 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 
 static SDL_bool ParseDATA(WAV_Music *wave, Uint32 chunk_length)
 {
-    wave->start = Mix_RWtell(wave->src);
+    wave->start = Mix_RWtell(&wave->src);
     wave->stop = wave->start + chunk_length;
-    return Mix_RWseek(wave->src, chunk_length, RW_SEEK_CUR) >= 0 ? SDL_TRUE : SDL_FALSE;
+    return Mix_RWseek(&wave->src, chunk_length, RW_SEEK_CUR) >= 0 ? SDL_TRUE : SDL_FALSE;
 }
 #ifdef FULL // WAV_LOOP
 static SDL_bool AddLoopPoint(WAV_Music *wave, Uint32 play_count, Uint32 start, Uint32 stop)
@@ -1327,7 +1336,7 @@ static SDL_bool ParseLIST(WAV_Music *wave, Uint32 chunk_length)
 #endif // FULL
 static SDL_bool LoadWAVMusic(WAV_Music *wave)
 {
-    Mix_RWops *src = wave->src;
+    Mix_RWops *src = &wave->src;
     Uint32 chunk_type;
     Uint32 chunk_length;
     SDL_bool found_FMT = SDL_FALSE;

@@ -4,7 +4,10 @@ Changes:
 
 * Removed all files not used by DevilutionX.
 * Comment out unnecessary bits with `#ifndef FULL`.
-* Reading only from memory sources (MEM_OPS)
+* Simplified source management
+  - Reading only from memory sources (MEM_OPS)
+  - Mix_RWops are not freed and no need to call RWclose (SRC_PTR)
+  -- SDL_RWops is always freed (FREE_SRC) --
 * Limited support for formats
   - Only u8-bit or s16-bit lsb WAV formats are supported (WAV_SRC)
   - only mono or stereo, 22050Hz or 44100Hz, s16-bit lsb music is supported (SELF_CONV)
@@ -41,7 +44,6 @@ Changes:
   - assumes not-null SDL_RWops (MUS_CHECK)
   - SDL_RWops is not reset when load fails (MUS_CHECK)
   - autodetection of type is disabled (WAV_SRC)
-  - SDL_RWops is always freed (FREE_SRC)
 * Mix_LoadWAV_RW is simplified
   - assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
   - assumes the data-length matches the format (SAMPLE_CHECK)

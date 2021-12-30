@@ -82,13 +82,20 @@ extern "C" {
 #define Mix_RWFromConstMem SDL_RWFromConstMem
 #define Mix_RWFromFile     SDL_RWFromFile
 #else
+typedef struct Mix_BuffOps {
+    void* basePos;
+    void* currPos;
+    void* endPos;
+} Mix_BuffOps;
 typedef struct Mix_BuffOps Mix_RWops;
 size_t Mix_RWread(Mix_RWops* src, void* dst, size_t len);
 size_t Mix_RWtell(Mix_RWops* src);
 void Mix_RWclose(Mix_RWops* src);
 int Mix_RWseek(Mix_RWops* src, int offset, int whence);
 Uint32 Mix_ReadLE32(Mix_RWops* src);
+#ifdef FULL // SRC_PTR
 Mix_RWops* Mix_RWFromConstMem(const void* mem, size_t size);
+#endif
 void Mix_RWFromMem(Mix_RWops* dst, const void* mem, size_t size);
 #endif // MEM_OPS
 

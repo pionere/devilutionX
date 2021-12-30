@@ -219,7 +219,7 @@ Uint32 Mix_ReadLE32(Mix_RWops* src)
 
     return result;
 }
-
+#ifdef FULL // SRC_PTR
 Mix_RWops* Mix_RWFromConstMem(const void* mem, size_t size)
 {
     Mix_RWops* rwOps = (Mix_RWops*)malloc(sizeof(Mix_RWops));
@@ -232,7 +232,7 @@ Mix_RWops* Mix_RWFromConstMem(const void* mem, size_t size)
 
     return rwOps;
 }
-
+#endif
 void Mix_RWFromMem(Mix_RWops* rwOps, const void* mem, size_t size)
 {
     rwOps->basePos = (void*)mem;

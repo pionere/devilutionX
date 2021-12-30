@@ -805,6 +805,7 @@ SDL_bool Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst)
         Mix_SetError("Unrecognized audio format");
     }
 #endif
+#ifdef FULL // SRC_PTR
 #ifdef FULL // FREE_SRC
     if (freesrc) {
         Mix_RWclose(src);
@@ -816,6 +817,7 @@ SDL_bool Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst)
 #else // FREE_SRC
         Mix_RWclose(src);
 #endif
+#endif // SRC_PTR
 #ifdef FULL // FIX_MUS
     return NULL;
 #else
@@ -1007,7 +1009,7 @@ static int music_internal_play()
     music_playing->playing = SDL_TRUE;
 #else
     Mix_RWFromMem(&theMusicChannel.playOps,
-        (Uint8*)theMusicSrc.asWAV.src->basePos + theMusicSrc.asWAV.start,
+        (Uint8*)theMusicSrc.asWAV.src.basePos + theMusicSrc.asWAV.start,
         theMusicSrc.asWAV.stop - theMusicSrc.asWAV.start); // WAV_SRC, MEM_OPS
     theMusicChannel.chunk = &theMusicSrc;
     theMusicChannel.buffOps.basePos = theMusicChannel.buffOps.currPos = theMusicChannel.buffOps.endPos = musicBuffer;

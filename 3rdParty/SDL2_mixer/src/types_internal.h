@@ -96,14 +96,6 @@ typedef uint64_t Uint64;
 #endif
 #endif
 
-/* Utils */
-
-typedef struct Mix_BuffOps {
-    void* basePos;
-    void* currPos;
-    void* endPos;
-} Mix_BuffOps;
-
 /* Effects */
 
 typedef struct _Mix_EffectPosArgs
@@ -248,8 +240,12 @@ typedef struct {
 } Mix_AudioSpec;
 
 typedef struct {
-    Mix_RWops *src;
+#ifdef FULL // SRC_PTR
+    Mix_RWops* src;
     int freesrc;
+#else
+    Mix_RWops src;
+#endif
 #ifdef FULL // SELF_CONV
     SDL_AudioSpec spec;
 #else

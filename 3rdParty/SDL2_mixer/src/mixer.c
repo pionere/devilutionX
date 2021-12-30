@@ -852,10 +852,12 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
 #endif
     if (chunk == NULL) {
         Mix_OutOfMemory();
+#ifdef FULL // SRC_PTR
 #ifdef FULL // FREE_SRC
         if (freesrc)
 #endif
             Mix_RWclose(src);
+#endif // SRC_PTR
         return(NULL);
     }
 #ifdef FULL // MUS_LOAD
@@ -1091,10 +1093,12 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
             goto error;
         }
     }
+#ifdef FULL // SRC_PTR
 #ifdef FULL // FREE_SRC
     if (freesrc)
 #endif
         Mix_RWclose(src);
+#endif // SRC_PTR
 #ifdef FULL // CHUNK_ALIAS, WAV_SRC
     chunk->abuf = audioData;
     chunk->alen = audioLength;
@@ -1117,10 +1121,12 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
     return(chunk);
 #ifndef FULL // !MUS_LOAD
 error:
+#ifdef FULL // SRC_PTR
 #ifdef FULL // FREE_SRC
     if (freesrc)
 #endif
         Mix_RWclose(src);
+#endif
     SDL_free(chunk);
 #ifdef FULL // CHUNK_ALIAS
     Mix_UnloadAudio(&audio);

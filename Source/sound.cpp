@@ -159,8 +159,11 @@ void music_start(int nTrack)
 		assert(_gMusicBuffer == NULL);
 		_gMusicBuffer = LoadFileInMem(sgszMusicTracks[nTrack], &dwBytes);
 
-		Mix_RWops* musicRw = Mix_RWFromConstMem(_gMusicBuffer, dwBytes);
-		if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
+		//Mix_RWops* musicRw = Mix_RWFromConstMem(_gMusicBuffer, dwBytes);
+		Mix_RWops musicRw;
+		Mix_RWFromMem(&musicRw, _gMusicBuffer, dwBytes);
+		//if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
+		if (!Mix_LoadMUS_RW(&musicRw))
 			sdl_fatal(ERR_SDL_MUSIC_FILE);
 
 		Mix_PlayMusic(-1);
