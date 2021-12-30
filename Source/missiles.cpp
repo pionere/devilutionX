@@ -1101,7 +1101,7 @@ static bool PlrMissHit(int pnum, int mi)
 /**
  * Check if the monster is on a given tile.
  */
-static int CheckMonCol(int mnum, int mx, int my)
+static int CheckMonCol(int mnum)
 {
 	MonsterStruct *mon;
 	int mode;
@@ -1133,7 +1133,7 @@ static int CheckMonCol(int mnum, int mx, int my)
 	return halfOver ? -1 : mnum;
 }
 
-static int CheckPlrCol(int pnum, int mx, int my)
+static int CheckPlrCol(int pnum)
 {
 	int mode;
 	bool negate;
@@ -1171,14 +1171,14 @@ static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 
 	mnum = dMonster[mx][my];
 	if (mnum != 0) {
-		mnum = CheckMonCol(mnum, mx, my);
+		mnum = CheckMonCol(mnum);
 		if (mnum != -1 && MonMissHit(mnum, mi))
 			hit = 1;
 	}
 
 	pnum = dPlayer[mx][my];
 	if (pnum != 0) {
-		pnum = CheckPlrCol(pnum, mx, my);
+		pnum = CheckPlrCol(pnum);
 		if (pnum != -1 && PlrMissHit(pnum, mi))
 			hit = 1;
 	}
@@ -1243,14 +1243,16 @@ static void CheckSplashCol(int mi)
 	mis->_mityoff -= mis->_miyvel;
 	GetMissilePos(mi);
 
-	if (mis->_mixoff > TILE_WIDTH / 2) {
+	//  2. limit the explosion area
+	lx = mis->_mix;
+	ly = mis->_miy;
+
+	//  3. alter offset for better visual
+	if (mis->_mixoff >= TILE_WIDTH / 2) {
 		mis->_mixoff -= TILE_WIDTH;
 		mis->_mix++;
 		mis->_miy--;
 	}
-	//  2. limit the explosion area
-	lx = mis->_mix;
-	ly = mis->_miy;
 
 	//mis->_mitxoff += mis->_mixvel;
 	//mis->_mityoff += mis->_miyvel;
