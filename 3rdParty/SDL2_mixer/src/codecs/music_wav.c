@@ -879,7 +879,7 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
 #endif
 #endif
     if (amount > 0) {
-        Mix_ConvertAudio(channel);
+        Mix_ConvertAudio(channel->chunk, buffOps);
     } else {
         /* We might be looping, continue */
         //at_end = SDL_TRUE;

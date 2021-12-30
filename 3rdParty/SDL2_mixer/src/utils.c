@@ -546,6 +546,7 @@ void Mix_BuildAudioCVT(Mix_Audio* audio)
 {
     Mix_AudioSpec* audioSpec = &audio->asWAV.spec; // WAV_SRC
     int index = 0;
+    unsigned mpl = 2;
 
     if (audioSpec->freqMpl == 2) {
         // assert(audioSpec->channels == 1);
@@ -556,28 +557,31 @@ void Mix_BuildAudioCVT(Mix_Audio* audio)
             audio->converters[index] = Mix_Convert_AUDIO16_Resample_Half;
         }
         index++;
+        mpl = 1;
     }
     if (audioSpec->format == AUDIO_U8) {
         audio->converters[index] = Mix_Convert_U8_S16LSB;
         index++;
+        mpl *= 2;
     }
     if (audioSpec->channels == 1) {
         // assert(SDL_AUDIO_BITSIZE(audioSpec.format) == 16);
         audio->converters[index] = Mix_Convert_AUDIO16_Mono2Stereo;
         index++;
+        mpl *= 2;
     }
     if (index < SDL_arraysize(audio->converters))
         audio->converters[index] = NULL;
+    // assert(mpl >= 2 && mpl % 2 == 0);
     // assert(audioSpec->freqMpl == 1 || audioSpec->freqMpl == 2);
     // assert(audioSpec->format == AUDIO_U8 || audioSpec->freqMpl == AUDIO_16);
     // assert(audioSpec->channels == 1 || audioSpec->channels == 2);
+    audio->convMpl = mpl / 2;
 }
 
-void Mix_ConvertAudio(Mix_Channel* channel)
+void Mix_ConvertAudio(Mix_Audio* audio, Mix_BuffOps* buffOps)
 {
-    void (**converters)(Mix_BuffOps* buf) = &channel->chunk->converters[0];
-
-    Mix_BuffOps* buffOps = &channel->buffOps;
+    void (**converters)(Mix_BuffOps* buf) = &audio->converters[0];
 
     if (converters[0] == NULL)
         return;

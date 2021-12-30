@@ -49,7 +49,7 @@ extern void (*Mix_MixAudioFormat)(void* dst, const void* src, unsigned len);
 #ifndef FULL // SELF_CONV
 void Mix_Utils_Init();
 void Mix_BuildAudioCVT(Mix_Audio* audio);
-void Mix_ConvertAudio(Mix_Channel* channel);
+void Mix_ConvertAudio(Mix_Audio* audio, Mix_BuffOps* buffOps);
 #endif
 
 #endif /* UTILS_H_ */

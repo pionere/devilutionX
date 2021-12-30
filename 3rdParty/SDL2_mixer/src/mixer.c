@@ -824,7 +824,9 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
     Uint8 magic[4];
     SDL_AudioSpec wavespec, *loaded;
 #endif
+#ifdef FULL // SELF_CONV
     SDL_AudioCVT wavecvt;
+#endif
     int audioLength;
 #ifdef FULL // WAV_CHECK
     /* rcg06012001 Make sure src is valid */
@@ -976,6 +978,7 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
     Uint8* audioData;
 #endif // FULL - SAMPLE_CHECK
 #endif // CHUNK_ALIAS
+#ifdef FULL // SELF_CONV
 #ifdef FULL // FIX_OUT
     if (wavespec.format != mixer.format ||
          wavespec.channels != mixer.channels ||
@@ -1032,6 +1035,42 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
         }
         audioData = wavecvt.buf;
         audioLength = wavecvt.len_cvt;
+#else // SELF_CONV
+    if (!stream && chunk->converters[0] != NULL) {
+        audioData = (Uint8 *)SDL_malloc(audioLength * chunk->convMpl);
+        if (audioData == NULL) {
+            Mix_OutOfMemory();
+            goto error;
+        }
+#ifdef FULL // CHUNK_ALIAS
+        if (Mix_RWseek(src, audio.asWAV.start, RW_SEEK_SET) < 0 ||
+#else
+        if (Mix_RWseek(src, chunk->asWAV.start, RW_SEEK_SET) < 0 ||
+#endif
+#ifdef FULL // MEM_OPS
+            Mix_RWread(src, audioData, 1, audioLength) == 0) {
+#else
+            Mix_RWread(src, audioData, audioLength) == 0) {
+#endif
+            SDL_free(audioData);
+            goto error;
+        }
+
+        Mix_BuffOps buffOps;
+        buffOps.basePos = buffOps.currPos = audioData;
+        buffOps.endPos = audioData + audioLength;
+
+        Mix_ConvertAudio(chunk, &buffOps);
+
+        chunk->converters[0] = NULL;
+        audioLength = (size_t)buffOps.endPos - (size_t)buffOps.basePos;
+#ifndef FULL // CHUNK_ALIAS
+        wavespec->format = MIX_DEFAULT_FORMAT;
+        wavespec->channels = MIX_DEFAULT_CHANNELS;
+        wavespec->freqMpl = 1;
+        Mix_CalculateSampleSize(wavespec);
+#endif // CHUNK_ALIAS
+#endif // SELF_CONV
     } else {
         audioData = (Uint8 *)SDL_malloc(audioLength);
         if (audioData == NULL) {
