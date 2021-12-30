@@ -1008,9 +1008,7 @@ static const char* WAV_GetMetaTag(void *context, Mix_MusicMetaTag tag_type)
 /* Close the given WAV stream */
 static void WAV_Delete(Mix_Audio* audio)
 {
-#ifdef FULL
     WAV_Music* wave = &audio->asWAV;
-#endif
 #ifdef FULL // META
     /* Clean up associated data */
     meta_tags_clear(&wave->tags);
@@ -1054,6 +1052,9 @@ static void WAV_Delete(Mix_Audio* audio)
 #endif
     }
 #endif // SRC_PTR
+#ifndef FULL // MEM_OPS
+    SDL_free(wave->src.basePos);
+#endif
 #ifdef FULL // FIX_MUS
     SDL_free(wave);
 #endif

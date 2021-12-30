@@ -727,7 +727,7 @@ Mix_Music *Mix_LoadMUS_RW(Mix_RWops *src, int freesrc)
 #ifdef FULL // WAV_SRC, FIX_MUS
 Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 #else
-SDL_bool Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst)
+Mix_Audio* Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst)
 #endif
 {
 #ifdef FULL // WAV_SRC
@@ -793,7 +793,7 @@ SDL_bool Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst)
 #ifndef FULL // SELF_CONV
                 Mix_BuildAudioCVT(dst);
 #endif
-                return SDL_TRUE;
+                return dst;
 #endif // FULL - FIX_MUS
             }
 #ifdef FULL // WAV_SRC
@@ -818,16 +818,12 @@ SDL_bool Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst)
         Mix_RWclose(src);
 #endif
 #endif // SRC_PTR
-#ifdef FULL // FIX_MUS
     return NULL;
-#else
-    return SDL_FALSE;
-#endif
 }
 #ifdef FULL // WAV_SRC, FREE_SRC, FIX_MUS
 Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 #else
-SDL_bool Mix_LoadMUS_RW(Mix_RWops* src)
+Mix_Audio* Mix_LoadMUS_RW(Mix_RWops* src)
 #endif
 {
     return Mix_LoadAudio_RW(src, &theMusicSrc);
@@ -867,13 +863,13 @@ void Mix_FreeMusic()
 {
     // TODO: ensure theMusicSrc is valid?
     /* Stop the music if it's currently playing */
+#ifdef FULL // FADING
     Mix_LockAudio();
 #ifdef FULL // FIX_MUS
     if (music_playing) {
 #else
     if (music_internal_playing()) {
 #endif
-#ifdef FULL // FADING
         /* Wait for any fade out to finish */
         while (music->fading == MIX_FADING_OUT) {
             Mix_UnlockAudio();
@@ -885,18 +881,14 @@ void Mix_FreeMusic()
 #else
         if (music_internal_playing()) {
 #endif // FIX_MUS
-#else // FADING
-        {
-#endif // FADING
             music_internal_halt();
         }
     }
     Mix_UnlockAudio();
-#ifdef FULL // WAV_SRC
-    music->interface->Delete(&theMusicSrc);
-#else
-    Mix_MusicInterface_WAV.Delete(&theMusicSrc);
-#endif
+#else // FADING
+    Mix_HaltMusic();
+#endif // FADING
+    Mix_UnloadAudio(&theMusicSrc);
 }
 void Mix_UnloadAudio(Mix_Audio* audio)
 {

@@ -38,7 +38,7 @@ Changes:
 * SDL_MIXER_DISABLE_* are not supported (MIX_DIS)
 * SDL_MIXER_HINT_DEBUG_MUSIC_INTERFACES disabled (HINTS)
 * Only one audio device is allowed at a time (SINGLE)
-* Mix_FreeChunk assumes the chunk is not played (CHUNK_CHECK)
+* Mix_FreeChunk assumes the chunk is not NULL and not played (CHUNK_CHECK)
 * Mix_Playing, Mix_Volume assume valid channel-id
 * Mix_LoadMUSType_RW is simplified
   - assumes not-null SDL_RWops (MUS_CHECK)

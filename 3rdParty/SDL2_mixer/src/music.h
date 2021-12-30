@@ -102,7 +102,7 @@ extern void unload_music(void);
 extern char *music_cmd;
 extern SDL_AudioSpec music_spec;
 #endif
-SDL_bool Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst);
+Mix_Audio* Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst);
 void Mix_UnloadAudio(Mix_Audio* audio);
 
 #endif /* MUSIC_H_ */

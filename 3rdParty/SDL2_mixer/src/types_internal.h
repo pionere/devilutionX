@@ -316,7 +316,6 @@ typedef struct _Mix_Audio {
         WAV_Music asWAV;
     };
     int lastChannel;
-    Uint8* memSrc;
 #ifndef FULL // SELF_CONV
     void (*converters[3])(Mix_BuffOps* buf);
     int convMpl;

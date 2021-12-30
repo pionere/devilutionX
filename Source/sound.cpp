@@ -23,7 +23,7 @@ int gnMusicVolume;
 
 #ifndef NOSOUND
 /** Buffer containing the data of the background music. */
-BYTE* _gMusicBuffer;
+::Mix_Audio* _gMusic;
 
 /** Specifies the active background music track id. */
 int _gnMusicTrack = NUM_MUSIC;
@@ -140,30 +140,31 @@ void FreeSound()
 
 void music_stop()
 {
-	if (_gMusicBuffer != NULL) {
+	if (_gMusic != NULL) {
 		// Mix_HaltMusic(); -- no need, Mix_FreeMusic halts the music as well
 		Mix_FreeMusic();
 		_gnMusicTrack = NUM_MUSIC;
-		MemFreeDbg(_gMusicBuffer);
+		_gMusic = NULL;
 	}
 }
 
 void music_start(int nTrack)
 {
+	BYTE* musicBuf;
 	size_t dwBytes;
 
 	assert((unsigned)nTrack < NUM_MUSIC);
 	if (gbMusicOn) {
 		music_stop();
 
-		assert(_gMusicBuffer == NULL);
-		_gMusicBuffer = LoadFileInMem(sgszMusicTracks[nTrack], &dwBytes);
+		musicBuf = LoadFileInMem(sgszMusicTracks[nTrack], &dwBytes);
 
 		//Mix_RWops* musicRw = Mix_RWFromConstMem(_gMusicBuffer, dwBytes);
 		Mix_RWops musicRw;
-		Mix_RWFromMem(&musicRw, _gMusicBuffer, dwBytes);
+		Mix_RWFromMem(&musicRw, musicBuf, dwBytes);
 		//if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
-		if (!Mix_LoadMUS_RW(&musicRw))
+		_gMusic = Mix_LoadMUS_RW(&musicRw);
+		if (_gMusic == NULL)
 			sdl_fatal(ERR_SDL_MUSIC_FILE);
 
 		Mix_PlayMusic(-1);

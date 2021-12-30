@@ -244,7 +244,7 @@ extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS_RW(Mix_RWops *src, int freesrc);
 #ifdef FULL // WAV_SRC, FREE_SRC
 extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc);
 #else
-extern DECLSPEC SDL_bool SDLCALL Mix_LoadMUS_RW(Mix_RWops* src);
+extern DECLSPEC Mix_Audio * SDLCALL Mix_LoadMUS_RW(Mix_RWops* src);
 #endif // FULL - WAV_SRC, FREE_SRC
 #ifdef FULL
 /* Load a wave file of the mixer format from a memory buffer */
