@@ -100,8 +100,13 @@ typedef uint64_t Uint64;
 
 typedef struct _Mix_EffectPosArgs
 {
+#ifdef FULL // FIX_EFF
     volatile float left_f;
     volatile float right_f;
+#else
+    Uint8 left_vol;
+    Uint8 right_vol;
+#endif
 #ifdef FULL // FIX_OUT
     volatile Uint8 left_u8;
     volatile Uint8 right_u8;

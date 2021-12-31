@@ -1672,7 +1672,7 @@ static SDL_bool LoadAIFFMusic(WAV_Music *wave)
     return SDL_TRUE;
 }
 #endif // FULL
-Mix_MusicInterface Mix_MusicInterface_WAV =
+const Mix_MusicInterface Mix_MusicInterface_WAV =
 {
 #ifdef FULL // WAV_SRC
     "WAVE",

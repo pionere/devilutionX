@@ -148,8 +148,8 @@ extern DECLSPEC void SDLCALL Mix_Quit(void);
 #define MIX_DEFAULT_FORMAT  AUDIO_S16MSB
 #endif
 #define MIX_DEFAULT_CHANNELS    2
-/* Volume of a chunk */
-#define MIX_MAX_VOLUME          2048
+/* Volume of an audio - MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT must fit to 16-bit */
+#define MIX_MAX_VOLUME          1024
 #define MIX_MAX_POS_EFFECT      16
 #define MIX_MAX_POS_EFFECT_F    16.0f
 /* Good default buffer size */

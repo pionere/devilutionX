@@ -265,7 +265,9 @@ static void add_music_decoder(const char *decoder)
 /* Local low-level functions prototypes */
 static void music_internal_initialize_volume(void);
 static void music_internal_volume(int volume);
+#ifdef FULL
 static int  music_internal_position(double position);
+#endif
 static SDL_bool music_internal_playing(void);
 static void music_internal_halt(void);
 
@@ -1078,7 +1080,9 @@ int Mix_FadeInMusicPos()
     music->fade_steps = ms/ms_per_step;
 #endif
     /* Play the puppy */
+#ifdef FULL // FIX_MUS
     Mix_LockAudio();
+#endif
 #ifdef FULL // FADING
     /* If the current music is fading out, wait for the fade to complete */
     while (music_playing && (music_playing->fading == MIX_FADING_OUT)) {
@@ -1096,7 +1100,9 @@ int Mix_FadeInMusicPos()
     /* Set music as active */
     music_active = (retval == 0);
 #endif
+#ifdef FULL // FIX_MUS
     Mix_UnlockAudio();
+#endif
 
     return(retval);
 }

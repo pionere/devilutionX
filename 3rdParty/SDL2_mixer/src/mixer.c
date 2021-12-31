@@ -1204,7 +1204,6 @@ static void  Mix_HaltChannel_locked(int which)
 {
     if (Mix_Playing(which)) {
         _Mix_channel_done_playing(which);
-        mix_channel[which].paused = SDL_FALSE;
 #ifdef FULL // MEM_OPS
         mix_channel[which].remaining = 0;
 #ifdef FULL // LOOP
@@ -1406,6 +1405,7 @@ int Mix_PlayChannelTimed(int which, Mix_Audio *chunk, int loops, int ticks)
             mix_channel[which].start_time = sdl_ticks;
             mix_channel[which].expire = (ticks > 0) ? (sdl_ticks + (Uint32)ticks) : 0;
 #endif
+            mix_channel[which].paused = SDL_FALSE;
         }
     }
     Mix_UnlockAudio();
@@ -1692,21 +1692,17 @@ Mix_Chunk *Mix_GetChunk(int channel)
 /* Close the mixer, halting all playing audio */
 void Mix_CloseAudio(void)
 {
-    int i;
-
     if (audio_opened) {
 #ifdef FULL // SINGLE
         if (audio_opened == 1) {
 #else
         {
 #endif
-            for (i = 0; i < num_channels; i++) {
 #ifdef FULL // FIX_EFF
+            for (int i = 0; i < num_channels; i++) {
                 Mix_UnregisterAllEffects(i);
-#else
-                _Mix_UnregisterChanEffect(i);
-#endif
             }
+#endif
 #ifdef FULL
             Mix_UnregisterAllEffects(MIX_CHANNEL_POST);
 #endif
@@ -1740,8 +1736,9 @@ void Mix_CloseAudio(void)
 /* Pause a particular channel (or all) */
 void Mix_Pause(int which)
 {
-#ifdef FULL // FADING
+#ifdef FULL // FADING, FIX_CHAN
     Uint32 sdl_ticks = SDL_GetTicks();
+    Mix_LockAudio();
 #endif
     if (which == -1) {
         int i;
@@ -1764,15 +1761,18 @@ void Mix_Pause(int which)
 #endif
         }
     }
+#ifdef FULL // FIX_CHAN
+    Mix_UnlockAudio();
+#endif
 }
 
 /* Resume a paused channel */
 void Mix_Resume(int which)
 {
-#ifdef FULL
+#ifdef FULL // FADING, FIX_CHAN
     Uint32 sdl_ticks = SDL_GetTicks();
-#endif
     Mix_LockAudio();
+#endif
     if (which == -1) {
         int i;
 
@@ -1798,7 +1798,9 @@ void Mix_Resume(int which)
 #endif
         }
     }
+#ifdef FULL // FIX_CHAN
     Mix_UnlockAudio();
+#endif
 }
 #ifdef FULL
 int Mix_Paused(int which)

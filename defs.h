@@ -119,8 +119,9 @@
 // Item indestructible durability
 #define DUR_INDESTRUCTIBLE		255
 
+// sfx constants
 #define VOLUME_MIN				0
-#define VOLUME_MAX				2048
+#define VOLUME_MAX				1024
 #define SFX_DIST_MAX			16
 #define SFX_STREAM_CHANNEL		0
 
