@@ -238,7 +238,6 @@ else()
 endif()
 
 if(NOT NOSOUND)
-  add_definitions(-DMUSIC_WAV)
   add_library(SDL2_mixer STATIC
     3rdParty/SDL2_mixer/src/effect_position.c
     3rdParty/SDL2_mixer/src/effects_internal.c
@@ -246,6 +245,7 @@ if(NOT NOSOUND)
     3rdParty/SDL2_mixer/src/music.c
     3rdParty/SDL2_mixer/src/utils.c
     3rdParty/SDL2_mixer/src/codecs/music_wav.c)
+  target_compile_definitions(SDL2_mixer PRIVATE MUSIC_WAV)
   if(USE_SDL1)
     target_link_libraries(SDL2_mixer PRIVATE ${SDL_LIBRARY})
   else()
@@ -260,6 +260,7 @@ endif()
 
 if(TCPIP)
   add_subdirectory(3rdParty/asio)
+  target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1)
   if(NINTENDO_3DS)
       include(asio_defs)
   elseif(NINTENDO_SWITCH)
@@ -607,10 +608,6 @@ endif()
 genex_for_option(DEBUG)
 target_compile_definitions(${BIN_TARGET} PUBLIC "$<${DEBUG_GENEX}:_DEBUG>")
 
-if(TCPIP)
-  target_compile_definitions(${BIN_TARGET} PRIVATE ASIO_STANDALONE)
-endif()
-
 # Defines without value
 foreach(
   def_name
@@ -714,7 +711,7 @@ target_link_libraries(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined
 if(TSAN)
   target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=thread)
   target_link_libraries(${BIN_TARGET} PUBLIC -fsanitize=thread)
-else()
+elseif(ASAN)
   genex_for_option(ASAN)
   target_compile_options(${BIN_TARGET} PUBLIC "$<${ASAN_GENEX}:-fsanitize=address;-fsanitize-recover=address>")
   target_link_libraries(${BIN_TARGET} PUBLIC "$<${ASAN_GENEX}:-fsanitize=address;-fsanitize-recover=address>")
@@ -815,12 +812,17 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
   # For ARM and other default unsigned char platforms
   target_compile_options(${BIN_TARGET} PRIVATE -fsigned-char)
+
+  # Disable Run-Time Type Information
+  target_compile_options(${BIN_TARGET} PRIVATE -fno-rtti)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   #target_compile_options(${BIN_TARGET} PRIVATE "/W1")
   target_compile_options(${BIN_TARGET} PRIVATE "-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING")
   target_compile_options(${BIN_TARGET} PRIVATE "/Zc:__cplusplus")
+  # Disable Run-Time Type Information
+  string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   target_compile_options(${BIN_TARGET} PRIVATE "/permissive-")
 endif()
 
