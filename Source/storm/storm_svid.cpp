@@ -345,9 +345,10 @@ static bool SVidLoadNextFrame()
 	return true;
 }
 #ifndef NOSOUND
-static BYTE* SVidApplyVolume(const BYTE* raw, unsigned long rawLen)
+static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 {
-	BYTE* scaled = DiabloAllocPtr(rawLen);
+	//BYTE* scaled = DiabloAllocPtr(rawLen);
+	BYTE* scaled = raw;
 
 	if (SVidAudioDepth == 16) {
 		for (unsigned long i = 0; i < rawLen / 2; i++)
@@ -380,7 +381,7 @@ bool SVidPlayContinue()
 #else
 		sVidAudioQueue->Enqueue(audio, len);
 #endif
-		mem_free_dbg(audio);
+		//mem_free_dbg(audio);
 	}
 #endif // NOSOUND
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {

@@ -1276,7 +1276,11 @@ const unsigned char * smk_get_video(const smk object)
 
 	return object->video.frame;
 }
+#ifdef FULL_ORIG
 const unsigned char * smk_get_audio(const smk object, const unsigned char t)
+#else
+unsigned char * smk_get_audio(const smk object, const unsigned char t)
+#endif
 {
 	/* null check */
 #ifdef FULL
