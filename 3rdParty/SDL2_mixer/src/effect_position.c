@@ -743,7 +743,7 @@ static void SDLCALL _Eff_position_u16lsb_c6(int chan, void *stream, int len, voi
 #ifdef FULL // FIX_EFF
 static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *udata)
 #else
-static_assert(SDL_MAX_SINT16 * MIX_MAX_POS_EFFECT * MIX_MAX_VOLUME <= SDL_MAX_SINT32, "Volume might overflow when the effects are calculated.");
+//static_assert(SDL_MAX_SINT16 * MIX_MAX_POS_EFFECT * MIX_MAX_VOLUME <= SDL_MAX_SINT32, "Volume might overflow when the effects are calculated.");
 #define ADJUST_SIDE_VOLUME(s, v) (s = (s*v)/(MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT))
 static SDL_bool SDLCALL _Eff_position_s16lsb(void* stream, unsigned len, void* udata)
 #endif
@@ -828,9 +828,9 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, vo
     if (left == 0 && right == 0)
         return SDL_FALSE;
 
-    static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_SSE2 expects MIX_MAX_VOLUME to be a power of 2.");
-    static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_SSE2 expects MIX_MAX_POS_EFFECT to be a power of 2.");
-    static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_SSE2 expects MIX_MAX_VOLUME to be low.");
+    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_SSE2 expects MIX_MAX_VOLUME to be a power of 2.");
+    //static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_SSE2 expects MIX_MAX_POS_EFFECT to be a power of 2.");
+    //static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_SSE2 expects MIX_MAX_VOLUME to be low.");
     left *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
     right *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
 
@@ -863,9 +863,9 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, voi
     if (left == 0 && right == 0)
         return SDL_FALSE;
 
-    static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be a power of 2.");
-    static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_POS_EFFECT to be a power of 2.");
-    static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be low.");
+    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be a power of 2.");
+    //static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_POS_EFFECT to be a power of 2.");
+    //static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be low.");
     left *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
     right *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
 
@@ -917,8 +917,8 @@ static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
     if (volume == MIX_MAX_VOLUME)
         return SDL_TRUE;
 
-    static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_volume_s16lbs_SSE2 expects MIX_MAX_VOLUME to be a power of 2.");
-    static_assert(MIX_MAX_VOLUME <= (1 << 16), "_Eff_volume_s16lbs_SSE2 expects MIX_MAX_VOLUME to be low.");
+    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_volume_s16lbs_SSE2 expects MIX_MAX_VOLUME to be a power of 2.");
+    //static_assert(MIX_MAX_VOLUME <= (1 << 16), "_Eff_volume_s16lbs_SSE2 expects MIX_MAX_VOLUME to be low.");
     volume *= (1 << 16) / MIX_MAX_VOLUME;
 
     __m128i mm = _mm_set1_epi16(volume);
@@ -953,8 +953,8 @@ static SDL_bool _Eff_volume_s16lbs_AVX(void* stream, unsigned len, void* udata)
     if (volume == MIX_MAX_VOLUME)
         return SDL_TRUE;
 
-    static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_volume_s16lbs_AVX expects MIX_MAX_VOLUME to be a power of 2.");
-    static_assert(MIX_MAX_VOLUME <= (1 << 16), "_Eff_volume_s16lbs_AVX expects MIX_MAX_VOLUME to be low.");
+    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_volume_s16lbs_AVX expects MIX_MAX_VOLUME to be a power of 2.");
+    //static_assert(MIX_MAX_VOLUME <= (1 << 16), "_Eff_volume_s16lbs_AVX expects MIX_MAX_VOLUME to be low.");
     volume *= (1 << 16) / MIX_MAX_VOLUME;
 
     __m256i mm = _mm256_set1_epi16(volume);
