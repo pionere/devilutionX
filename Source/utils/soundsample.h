@@ -8,7 +8,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static_assert(VOLUME_MAX == MIX_MAX_VOLUME, "Set VOLUME_MAX to MIX_MAX_VOLUME for better performance.");
-static_assert(MIX_MAX_VOLUME * SFX_DIST_MAX <= UINT16_MAX, "Volume might overflow when the effects are calculated in SDL_mixer.");
 
 #define SND_DEFAULT_FREQUENCY 22050
 #define SND_DEFAULT_FORMAT AUDIO_S16LSB

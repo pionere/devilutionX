@@ -188,6 +188,9 @@ int Mix_Init(int flags)
         Mix_SetError("Unsupported format");
 #endif // FULL
     Mix_Utils_Init();
+#ifndef FULL // FIX_EFF
+    _Mix_InitEffects();
+#endif
     return result;
 }
 
@@ -544,7 +547,9 @@ int Mix_OpenAudioDevice(int frequency, Uint16 format, int nchannels, int chunksi
 #ifdef FULL
     Mix_VolumeMusic(MIX_MAX_VOLUME); -- pointless, since open_music does this
 #endif
+#ifdef FULL // FIX_EFF
     _Mix_InitEffects();
+#endif
 
 #ifdef FULL // WAV_SRC
     add_chunk_decoder("WAVE");

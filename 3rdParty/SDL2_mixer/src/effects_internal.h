@@ -37,6 +37,7 @@ void *_Eff_build_volume_table_s8(void);
 #endif
 void _Mix_InitEffects(void);
 void _Mix_DeinitEffects(void);
+void _Eff_PositionInit(void);
 void _Eff_PositionDeinit(void);
 #ifdef FULL // FIX_EFF
 int _Mix_RegisterEffect_locked(int channel, Mix_EffectFunc_t f,
