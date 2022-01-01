@@ -45,7 +45,8 @@ bool frame_queue::packet_ready()
 		std::memcpy(&nextsize, &szbuf[0], sizeof(uint32_t));
 		nextsize = SwapLE32(nextsize);
 		if (nextsize == 0)
-			throw frame_queue_exception();
+			// should not happen. Ignore the packet to avoid crash
+			return false; // throw frame_queue_exception();
 	}
 	return current_size >= nextsize;
 }
