@@ -259,17 +259,17 @@ void init_archives()
 #endif
 }
 
-void MainWndProc(UINT Msg)
+/*void MainWndProc(UINT Msg)
 {
 	switch (Msg) {
 	case DVL_WM_PAINT:
 		gbRedrawFlags = REDRAW_ALL;
 		break;
-	case DVL_WM_QUERYENDSESSION:
-		diablo_quit(0);
-		break;
+	//case DVL_WM_QUERYENDSESSION:
+	//	diablo_quit(0);
+	//	break;
 	}
-}
+}*/
 
 WNDPROC SetWindowProc(WNDPROC newWndProc)
 {

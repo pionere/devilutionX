@@ -301,6 +301,7 @@ static void diablo_splash()
 static void diablo_deinit()
 {
 	NetClose();
+	// FreeGameUI(); -- TODO: enable if necessary
 	if (gbSndInited) {
 		sound_stop(); // stop click-effect
 		FreeUiEffects();
@@ -1267,6 +1268,9 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 	//case DVL_WM_SYSKEYDOWN:
 	//case DVL_WM_SYSCOMMAND:
 		return;
+	case DVL_WM_QUIT:
+		diablo_quit(0);
+		return;
 	case DVL_WM_MOUSEMOVE:
 		GetMousePos(wParam);
 		return;
@@ -1286,9 +1290,12 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
 		return;
+	case DVL_WM_PAINT:
+		gbRedrawFlags = REDRAW_ALL;
+		return;
 	}
 
-	MainWndProc(uMsg);
+	// MainWndProc(uMsg);
 }
 
 static void GameWndProc(UINT uMsg, WPARAM wParam)
@@ -1339,7 +1346,10 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_WM_CAPTURECHANGED:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
-		break;
+		return;
+	case DVL_WM_PAINT:
+		gbRedrawFlags = REDRAW_ALL;
+		return;
 	case DVL_DWM_NEXTLVL:
 	case DVL_DWM_PREVLVL:
 	case DVL_DWM_RTNLVL:
@@ -1373,7 +1383,7 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		return;
 	}
 
-	MainWndProc(uMsg);
+	// MainWndProc(uMsg);
 }
 
 static bool ProcessInput()

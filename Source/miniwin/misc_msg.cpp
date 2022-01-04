@@ -1068,7 +1068,8 @@ bool PeekMessage(LPMSG lpMsg)
 			}
 			break;
 		case SDL_WINDOWEVENT_CLOSE:
-			lpMsg->message = DVL_WM_QUERYENDSESSION;
+			// -- no need to handle, wait for the QUIT event
+			// lpMsg->message = DVL_WM_QUERYENDSESSION;
 			break;
 #ifdef _DEBUG
 		default:
