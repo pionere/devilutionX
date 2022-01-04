@@ -331,13 +331,14 @@ void RenderPresent()
 			}
 
 			// Clear buffer to avoid artifacts in case the window was resized
+			/* skip SDL_RenderClear since the whole screen is redrawn anyway
 			if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0) { // TODO only do this if window was resized
 				sdl_fatal(ERR_SDL_DX_DRAW_COLOR);
 			}
 
 			if (SDL_RenderClear(renderer) < 0) {
 				sdl_fatal(ERR_SDL_DX_RENDER_CLEAR);
-			}
+			}*/
 			if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) < 0) {
 				sdl_fatal(ERR_SDL_DX_RENDER_COPY);
 			}
