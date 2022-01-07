@@ -7,7 +7,7 @@
 #include <config.h>
 #include "utils/display.h"
 #include <SDL.h>
-#if HAS_GAMECTRL == 1
+#if HAS_GAMECTRL
 #include "controls/controller.h"
 #endif
 
@@ -139,7 +139,7 @@ void unlock_buf(BYTE idx)
 
 void dx_cleanup()
 {
-#if HAS_GAMECTRL == 1
+#if HAS_GAMECTRL
 	GameController::ReleaseAll();
 #endif
 #ifndef USE_SDL1

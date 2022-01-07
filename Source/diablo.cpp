@@ -228,7 +228,7 @@ static void diablo_init_screen()
 {
 	MouseX = SCREEN_WIDTH / 2;
 	MouseY = SCREEN_HEIGHT / 2;
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (!sgbControllerActive)
 #endif
 		SetCursorPos(MouseX, MouseY);
@@ -1392,7 +1392,7 @@ static bool ProcessInput()
 		return false;
 	}
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	plrctrls_every_frame();
 #endif
 
@@ -1401,11 +1401,11 @@ static bool ProcessInput()
 	}
 
 	if (gnTimeoutCurs == CURSOR_NONE) {
-#if HAS_TOUCHPAD == 1
+#if HAS_TOUCHPAD
 		finish_simulated_mouse_clicks(MouseX, MouseY);
 #endif
 		CheckCursMove();
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		plrctrls_after_check_curs_move();
 #endif
 		Uint32 tick = SDL_GetTicks();
@@ -1477,7 +1477,7 @@ static void game_loop()
 		}
 		//if (ProcessInput()) {
 			game_logic();
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 			plrctrls_after_game_logic();
 #endif
 		//}

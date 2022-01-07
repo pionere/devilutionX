@@ -1,5 +1,5 @@
 #include "touch.h"
-#if HAS_TOUCHPAD == 1
+#if HAS_TOUCHPAD
 #include "utils/display.h"
 #include <math.h>
 

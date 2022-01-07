@@ -1,6 +1,6 @@
 #include "game_controller.h"
 
-#if HAS_GAMECTRL == 1
+#if HAS_GAMECTRL
 #include <cstddef>
 
 #include "controls/controller_motion.h"

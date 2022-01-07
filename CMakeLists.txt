@@ -43,6 +43,11 @@ cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "T
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 RELEASE_OPTION(CPACK "Configure CPack")
+option(HAS_JOYSTICK "Enable joystick support" OFF) #ON)
+option(HAS_DPAD "Enable D-Pad support" OFF) #ON)
+option(HAS_KBCTRL "Enable keyboard controller support" OFF) #ON)
+cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" OFF "NOT USE_SDL1" OFF) #ON - OFF
+cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" OFF "NOT USE_SDL1" OFF) #ON - OFF
 
 
 if(NOT NONET)
@@ -622,6 +627,11 @@ foreach(
   HOSTONLY
   TCPIP
   ZEROTIER
+  HAS_GAMECTRL
+  HAS_DPAD
+  HAS_TOUCHPAD
+  HAS_KBCTRL
+  HAS_JOYSTICK
   PREFILL_PLAYER_NAME
   GPERF
   GPERF_HEAP_MAIN
@@ -645,11 +655,6 @@ foreach(
   SDL1_VIDEO_MODE_FLAGS
   SDL1_VIDEO_MODE_SVID_FLAGS
   SDL1_FORCE_SVID_VIDEO_MODE
-  HAS_GAMECTRL
-  HAS_DPAD
-  HAS_TOUCHPAD
-  HAS_KBCTRL
-  HAS_JOYSTICK
   KBCTRL_BUTTON_DPAD_LEFT
   KBCTRL_BUTTON_DPAD_RIGHT
   KBCTRL_BUTTON_DPAD_UP

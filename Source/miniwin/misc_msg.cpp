@@ -823,7 +823,7 @@ bool PeekMessage(LPMSG lpMsg)
 	lpMsg->message = DVL_WM_NONE;
 	lpMsg->wParam = 0;
 
-#if HAS_TOUCHPAD == 1
+#if HAS_TOUCHPAD
 	handle_touch(&e, MouseX, MouseY);
 #endif
 
@@ -839,7 +839,7 @@ bool PeekMessage(LPMSG lpMsg)
 	}
 #endif
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (e.type == SDL_QUIT) {
 		lpMsg->message = DVL_WM_QUIT;
 		return true;
@@ -943,7 +943,7 @@ bool PeekMessage(LPMSG lpMsg)
 		}
 		return true;
 	}
-#if (HAS_TOUCHPAD == 1 || HAS_DPAD == 1) && !defined(USE_SDL1)
+#if (HAS_TOUCHPAD || HAS_DPAD) && !defined(USE_SDL1)
 	if (e.type < SDL_JOYAXISMOTION || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
 #else
 	if (e.type < SDL_JOYAXISMOTION) {
@@ -951,7 +951,7 @@ bool PeekMessage(LPMSG lpMsg)
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
 			sgbControllerActive = false;
 	}
-#endif // HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
 	switch (e.type) {
 	case SDL_QUIT:

@@ -1,6 +1,6 @@
 #include "joystick.h"
 
-#if HAS_JOYSTICK == 1
+#if HAS_JOYSTICK
 #include <cstddef>
 
 #include "controls/controller_motion.h"

@@ -188,17 +188,17 @@ void SpawnWindow(const char* lpWindowName)
 #ifndef NOSOUND
 	initFlags |= SDL_INIT_AUDIO;
 #endif
-#if HAS_JOYSTICK == 1
+#if HAS_JOYSTICK
 	initFlags |= SDL_INIT_JOYSTICK;
 #endif
-#if !defined(USE_SDL1) && (HAS_GAMECTRL == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1)
+#if !defined(USE_SDL1) && (HAS_GAMECTRL || HAS_KBCTRL || HAS_DPAD)
 	initFlags |= SDL_INIT_GAMECONTROLLER;
 #endif
 	if (SDL_Init(initFlags) < 0) {
 		sdl_fatal(ERR_SDL_INIT);
 	}
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	dpad_hotkeys = getIniBool("Controller", "dpad_hotkeys", false);
 	switch_potions_and_clicks = getIniBool("Controller", "switch_potions_and_clicks", false);
 
@@ -212,13 +212,13 @@ void SpawnWindow(const char* lpWindowName)
 
 #ifdef USE_SDL1
 	SDL_EnableUNICODE(1);
-#if HAS_JOYSTICK == 1
+#if HAS_JOYSTICK
 	// On SDL 1, there are no ADDED/REMOVED events.
 	// Always try to initialize the first joystick.
 	Joystick::Add(0);
 #endif
 #ifdef __SWITCH__
-#if HAS_GAMECTRL == 1
+#if HAS_GAMECTRL
 	// TODO: There is a bug in SDL2 on Switch where it does not report controllers on startup (Jan 1, 2020)
 	GameController::Add(0);
 #endif
