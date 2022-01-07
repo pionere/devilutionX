@@ -43,11 +43,11 @@ cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "T
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 RELEASE_OPTION(CPACK "Configure CPack")
-option(HAS_JOYSTICK "Enable joystick support" OFF) #ON)
-option(HAS_DPAD "Enable D-Pad support" OFF) #ON)
-option(HAS_KBCTRL "Enable keyboard controller support" OFF) #ON)
-cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" OFF "NOT USE_SDL1" OFF) #ON - OFF
-cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" OFF "NOT USE_SDL1" OFF) #ON - OFF
+option(HAS_JOYSTICK "Enable joystick support" ON)
+option(HAS_DPAD "Enable D-Pad support" ON)
+option(HAS_KBCTRL "Enable keyboard controller support" ON)
+cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
+cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
 
 
 if(NOT NONET)
