@@ -772,7 +772,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 
 #ifdef _DEBUG
 	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
-		CelClippedDraw(dx, dy, pSquareCel, 1, 64);
+		CelClippedDraw(dx, dy, pSquareCel, 1, TILE_WIDTH);
 	}
 #endif
 
@@ -813,7 +813,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	if (currLvl._dType != DTYPE_TOWN) {
 		bv = dSpecial[sx][sy];
 		if (bv != 0) {
-			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, 64);
+			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, TILE_WIDTH);
 		}
 	} else {
 		// Tree leaves should always cover player when entering or leaving the tile,
@@ -822,7 +822,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		if (sx > 0 && sy > 0) {
 			bv = dSpecial[sx - 1][sy - 1];
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelDraw(dx, (dy - TILE_HEIGHT), pSpecialCels, bv, 64);
+				CelDraw(dx, (dy - TILE_HEIGHT), pSpecialCels, bv, TILE_WIDTH);
 			}
 		}
 	}
