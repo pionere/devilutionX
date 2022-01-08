@@ -16,6 +16,33 @@ endif()
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+if(NOT VERSION_NUM)
+  include(CMake/git.cmake)
+  get_git_tag(VERSION_NUM)
+  string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
+  if("${VERSION_NUM}" STREQUAL "")
+    set(VERSION_NUM untagged)
+  endif()
+  if(NOT VERSION_SUFFIX)
+    get_git_commit_hash(GIT_COMMIT_HASH)
+    set(VERSION_SUFFIX "$<$<NOT:$<CONFIG:Release>>:-${GIT_COMMIT_HASH}>")
+  endif()
+endif()
+
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+
+if(VERSION_NUM MATCHES untagged)
+  project(DevilutionX
+    LANGUAGES C CXX)
+else()
+  project(DevilutionX
+    VERSION ${VERSION_NUM}
+    LANGUAGES C CXX)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake")
 
 include(CMakeDependentOption)
@@ -127,33 +154,6 @@ if (NOT USE_SDL1)
   option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
   cmake_dependent_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" OFF
                         "DEVILUTIONX_SYSTEM_SDL2" ON)
-endif()
-
-if(NOT VERSION_NUM)
-  include(CMake/git.cmake)
-  get_git_tag(VERSION_NUM)
-  string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
-  if("${VERSION_NUM}" STREQUAL "")
-    set(VERSION_NUM untagged)
-  endif()
-  if(NOT VERSION_SUFFIX)
-    get_git_commit_hash(GIT_COMMIT_HASH)
-    set(VERSION_SUFFIX "$<$<NOT:$<CONFIG:Release>>:-${GIT_COMMIT_HASH}>")
-  endif()
-endif()
-
-find_program(CCACHE_PROGRAM ccache)
-if(CCACHE_PROGRAM)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
-endif()
-
-if(VERSION_NUM MATCHES untagged)
-  project(DevilutionX
-    LANGUAGES C CXX)
-else()
-  project(DevilutionX
-    VERSION ${VERSION_NUM}
-    LANGUAGES C CXX)
 endif()
 
 # Not a genexp because CMake doesn't support it
