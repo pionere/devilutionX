@@ -16,6 +16,47 @@ endif()
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+include(CMakeDependentOption)
+include(CMake/out_of_tree.cmake)
+include(CMake/genex.cmake)
+
+DEBUG_OPTION(ASAN "Enable address sanitizer")
+DEBUG_OPTION(UBSAN "Enable undefined behaviour sanitizer")
+option(TSAN "Enable thread sanitizer (not compatible with ASAN=ON)" OFF)
+DEBUG_OPTION(DEBUG "Enable debug mode in engine")
+option(GPERF "Build with GPerfTools profiler" OFF)
+cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
+option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
+option(PIE "Generate position-independent code" OFF)
+option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
+option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
+option(NOSOUND "Disable sound support" OFF)
+option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
+option(NOWIDESCREEN "Disable widescreen support" OFF)
+option(NONET "Disable network support" OFF)
+cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
+cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
+cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
+cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
+cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
+cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
+option(RUN_TESTS "Build and run tests" OFF)
+option(HELLFIRE "Build hellfire version" OFF)
+RELEASE_OPTION(CPACK "Configure CPack")
+
+
+if(NOT NONET)
+  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
+  cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
+                        "DEVILUTIONX_SYSTEM_LIBSODIUM" ON)
+endif()
+
+if (NOT USE_SDL1)
+  option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
+  cmake_dependent_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" OFF
+                        "DEVILUTIONX_SYSTEM_SDL2" ON)
+endif()
+
 if(NOT VERSION_NUM)
   include(CMake/git.cmake)
   get_git_tag(VERSION_NUM)
@@ -43,11 +84,39 @@ else()
     LANGUAGES C CXX)
 endif()
 
+# Not a genexp because CMake doesn't support it
+# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
+if(NOT DISABLE_LTO)
+  # LTO if supported:
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
+  if(is_ipo_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+  endif()
+endif()
+
+if(TSAN)
+  set(ASAN OFF)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake")
 
-include(CMakeDependentOption)
-include(CMake/out_of_tree.cmake)
-include(CMake/genex.cmake)
+if(GPERF)
+  if(GPERF_HEAP_FIRST_GAME_ITERATION)
+    set(GPERF_HEAP_MAIN ON)
+  endif()
+
+  # Compile with information about file and line numbers for everything
+  # even in non-Debug build types.
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-g2>")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Use the more size-efficient `-gmlt` option on clang.
+    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-gmlt>")
+  endif()
+endif()
 
 if(NINTENDO_SWITCH)
   list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/switch")
@@ -114,75 +183,11 @@ if(IOS)
   include(ios_defs)
 endif()
 
-DEBUG_OPTION(ASAN "Enable address sanitizer")
-DEBUG_OPTION(UBSAN "Enable undefined behaviour sanitizer")
-cmake_dependent_option(TSAN "Enable thread sanitizer" OFF "NOT ASAN" OFF)
-DEBUG_OPTION(DEBUG "Enable debug mode in engine")
-option(GPERF "Build with GPerfTools profiler" OFF)
-cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
-option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
-option(PIE "Generate position-independent code" OFF)
-option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
-option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
-option(NOSOUND "Disable sound support" OFF)
-option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
-option(NOWIDESCREEN "Disable widescreen support" OFF)
-option(NONET "Disable network support" OFF)
-cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
-cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
-cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
-cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
-cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
-cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
-option(RUN_TESTS "Build and run tests" OFF)
-option(HELLFIRE "Build hellfire version" OFF)
-RELEASE_OPTION(CPACK "Configure CPack")
 option(HAS_JOYSTICK "Enable joystick support" ON)
 option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" ON)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
-
-
-if(NOT NONET)
-  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
-  cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
-                        "DEVILUTIONX_SYSTEM_LIBSODIUM" ON)
-endif()
-
-if (NOT USE_SDL1)
-  option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
-  cmake_dependent_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" OFF
-                        "DEVILUTIONX_SYSTEM_SDL2" ON)
-endif()
-
-# Not a genexp because CMake doesn't support it
-# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
-if(NOT DISABLE_LTO)
-  # LTO if supported:
-  include(CheckIPOSupported)
-  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
-  if(is_ipo_supported)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
-  endif()
-endif()
-
-if(GPERF)
-  if(GPERF_HEAP_FIRST_GAME_ITERATION)
-    set(GPERF_HEAP_MAIN ON)
-  endif()
-
-  # Compile with information about file and line numbers for everything
-  # even in non-Debug build types.
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-g2>")
-  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    # Use the more size-efficient `-gmlt` option on clang.
-    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-gmlt>")
-  endif()
-endif()
 
 if(PIE)
   set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
