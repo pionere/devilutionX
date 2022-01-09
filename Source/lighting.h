@@ -37,9 +37,8 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local);
 void MakeLightTable();
 #ifdef _DEBUG
 void ToggleLighting();
-#else
-void InitLightGFX();
 #endif
+void InitLightGFX();
 void InitLighting();
 unsigned AddLight(int x, int y, int r);
 void AddUnLight(unsigned lnum);

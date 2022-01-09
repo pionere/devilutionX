@@ -73,7 +73,7 @@ void StoresCheat()
 
 	numpremium = 0;
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		premiumitem[i]._itype = ITYPE_NONE;
+		premiumitems[i]._itype = ITYPE_NONE;
 
 	SpawnPremium(30);
 
@@ -136,7 +136,7 @@ void SetAllSpellsCheat()
 	SetSpellLevelCheat(SPL_STONE, 1);
 	SetSpellLevelCheat(SPL_CHAIN, 1);
 	SetSpellLevelCheat(SPL_GUARDIAN, 4);
-	SetSpellLevelCheat(SPL_ELEMENT, 3);
+	SetSpellLevelCheat(SPL_ELEMENTAL, 3);
 	SetSpellLevelCheat(SPL_NOVA, 1);
 	SetSpellLevelCheat(SPL_GOLEM, 2);
 	SetSpellLevelCheat(SPL_FLARE, 1);

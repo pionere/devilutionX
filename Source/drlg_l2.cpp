@@ -1652,7 +1652,7 @@ static void DRLG_L2Subs()
 	static_assert(MAX_MATCH <= CHAR_MAX, "MAX_MATCH does not fit to rv(char) in DRLG_L2Subs.");
 	static_assert(NUM_L2TYPES <= UCHAR_MAX, "NUM_L2TYPES does not fit to i(BYTE) in DRLG_L2Subs.");
 #ifdef _DEBUG
-	for (i = sizeof(L2BTYPES) - 1; i >= 0; i--) {
+	for (int i = sizeof(L2BTYPES) - 1; i >= 0; i--) {
 		if (L2BTYPES[i] != 0) {
 			if (i >= NUM_L2TYPES)
 				app_fatal("Value %d is ignored in L2BTYPES at %d", L2BTYPES[i], i);
@@ -1660,7 +1660,7 @@ static void DRLG_L2Subs()
 		}
 	}
 
-	for (i = 0; i < sizeof(L2BTYPES); i++) {
+	for (int i = 0; i < sizeof(L2BTYPES); i++) {
 		c = L2BTYPES[i];
 		if (c == 0)
 			continue;

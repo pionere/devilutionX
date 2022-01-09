@@ -475,12 +475,12 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 #ifdef _DEBUG
 			BYTE *pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
-				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, plr._pName);
+				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
 			int frames = SwapLE32(*(uint32_t *)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
-				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, plr._pName, plr._pdir, nCel, frames);
+				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
