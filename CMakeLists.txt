@@ -16,6 +16,46 @@ endif()
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+if(NOT VERSION_NUM)
+  include(CMake/git.cmake)
+  get_git_tag(VERSION_NUM)
+  string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
+  if("${VERSION_NUM}" STREQUAL "")
+    set(VERSION_NUM untagged)
+  endif()
+  if(NOT VERSION_SUFFIX)
+    get_git_commit_hash(GIT_COMMIT_HASH)
+    set(VERSION_SUFFIX "$<$<NOT:$<CONFIG:Release>>:-${GIT_COMMIT_HASH}>")
+  endif()
+endif()
+
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+
+if(VERSION_NUM MATCHES untagged)
+  project(DevilutionX
+    LANGUAGES C CXX)
+else()
+  project(DevilutionX
+    VERSION ${VERSION_NUM}
+    LANGUAGES C CXX)
+endif()
+
+# Not a genexp because CMake doesn't support it
+# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
+if(NOT DISABLE_LTO)
+  # LTO if supported:
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
+  if(is_ipo_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+  endif()
+endif()
+
 include(CMakeDependentOption)
 include(CMake/out_of_tree.cmake)
 include(CMake/genex.cmake)
@@ -57,45 +97,6 @@ if (NOT USE_SDL1)
                         "DEVILUTIONX_SYSTEM_SDL2" ON)
 endif()
 
-if(NOT VERSION_NUM)
-  include(CMake/git.cmake)
-  get_git_tag(VERSION_NUM)
-  string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
-  if("${VERSION_NUM}" STREQUAL "")
-    set(VERSION_NUM untagged)
-  endif()
-  if(NOT VERSION_SUFFIX)
-    get_git_commit_hash(GIT_COMMIT_HASH)
-    set(VERSION_SUFFIX "$<$<NOT:$<CONFIG:Release>>:-${GIT_COMMIT_HASH}>")
-  endif()
-endif()
-
-find_program(CCACHE_PROGRAM ccache)
-if(CCACHE_PROGRAM)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
-endif()
-
-if(VERSION_NUM MATCHES untagged)
-  project(DevilutionX
-    LANGUAGES C CXX)
-else()
-  project(DevilutionX
-    VERSION ${VERSION_NUM}
-    LANGUAGES C CXX)
-endif()
-
-# Not a genexp because CMake doesn't support it
-# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
-if(NOT DISABLE_LTO)
-  # LTO if supported:
-  include(CheckIPOSupported)
-  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
-  if(is_ipo_supported)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
-  endif()
-endif()
 
 if(TSAN)
   set(ASAN OFF)
