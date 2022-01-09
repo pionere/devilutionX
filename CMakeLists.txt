@@ -62,7 +62,7 @@ include(CMake/genex.cmake)
 
 DEBUG_OPTION(ASAN "Enable address sanitizer")
 DEBUG_OPTION(UBSAN "Enable undefined behaviour sanitizer")
-option(TSAN "Enable thread sanitizer (not compatible with ASAN=ON)" OFF)
+cmake_dependent_option(TSAN "Enable thread sanitizer" OFF "NOT ASAN" OFF)
 DEBUG_OPTION(DEBUG "Enable debug mode in engine")
 option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
@@ -97,27 +97,7 @@ if (NOT USE_SDL1)
                         "DEVILUTIONX_SYSTEM_SDL2" ON)
 endif()
 
-
-if(TSAN)
-  set(ASAN OFF)
-endif()
-
 list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake")
-
-if(GPERF)
-  if(GPERF_HEAP_FIRST_GAME_ITERATION)
-    set(GPERF_HEAP_MAIN ON)
-  endif()
-
-  # Compile with information about file and line numbers for everything
-  # even in non-Debug build types.
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-g2>")
-  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    # Use the more size-efficient `-gmlt` option on clang.
-    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-gmlt>")
-  endif()
-endif()
 
 if(NINTENDO_SWITCH)
   list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/switch")
@@ -581,6 +561,18 @@ endif()
 
 if(GPERF)
   find_package(Gperftools REQUIRED)
+  if(GPERF_HEAP_FIRST_GAME_ITERATION)
+    set(GPERF_HEAP_MAIN ON)
+  endif()
+
+  # Compile with information about file and line numbers for everything
+  # even in non-Debug build types.
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-g2>")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Use the more size-efficient `-gmlt` option on clang.
+    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-gmlt>")
+  endif()
 endif()
 
 target_include_directories(${BIN_TARGET} PRIVATE
@@ -1174,7 +1166,6 @@ foreach(
   CPACK
   MACOSX_STANDALONE_APP_BUNDLE
   GPERF
-  GPERF_HEAP_MAIN
   GPERF_HEAP_FIRST_GAME_ITERATION
 )
   # Get the padding
