@@ -121,7 +121,7 @@ inline void RemoveFile(const char* lpFileName)
 		SDL_Log("Failed to remove file: %s", name.c_str());
 	}*/
 	if (remove(lpFileName) == 0) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 		SDL_Log("Removed file: %s", lpFileName);
 #endif
 	} else {

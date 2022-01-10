@@ -44,7 +44,7 @@ struct check_size : assert_eq<sizeof(T), S>, assert_lte<alignof(T), sizeof(T)> {
 static_assert(check_size<_HASHENTRY, 4 * 4>::value, "sizeof(_HASHENTRY) == 4 * 4 && alignof(_HASHENTRY) <= 4 * 4 not satisfied");
 static_assert(check_size<_BLOCKENTRY, 4 * 4>::value, "sizeof(_BLOCKENTRY) == 4 * 4 && alignof(_BLOCKENTRY) <= 4 * 4 not satisfied");
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 const char *DirToString(std::ios::seekdir dir)
 {
 	switch (dir) {
@@ -86,7 +86,7 @@ public:
 	{
 		s_ = new std::fstream(path, mode);
 		if (!s_->fail()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("Open(\"%s\", %s)", path, OpenModeToString(mode).c_str());
 #endif
 			return true;
@@ -110,7 +110,7 @@ public:
 	{
 		s_->seekg(pos);
 		if (!s_->fail()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
 #endif
 			return true;
@@ -123,7 +123,7 @@ public:
 	{
 		s_->seekg(pos, dir);
 		if (!s_->fail()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
 #endif
 			return true;
@@ -136,7 +136,7 @@ public:
 	{
 		s_->seekp(pos);
 		if (!s_->fail()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
 #endif
 			return true;
@@ -149,7 +149,7 @@ public:
 	{
 		s_->seekp(pos, dir);
 		if (!s_->fail()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
 #endif
 			return true;
@@ -162,7 +162,7 @@ public:
 	{
 		*result = s_->tellg();
 		if (!s_->fail()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 #endif
 			return true;
@@ -175,7 +175,7 @@ public:
 	{
 		*result = s_->tellp();
 		if (!s_->fail()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 #endif
 			return true;
@@ -188,7 +188,7 @@ public:
 	{
 		s_->write(data, size);
 		if (!s_->fail()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
 			return true;
@@ -201,7 +201,7 @@ public:
 	{
 		s_->read(out, size);
 		if (!s_->fail()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
 			return true;
@@ -215,7 +215,7 @@ private:
 	void PrintError(const char *fmt, PrintFArgs... args)
 	{
 		std::string fmt_with_error = fmt;
-#ifdef _DEBUG
+#if DEBUG_MODE
 		fmt_with_error.append(": failed with \"%s\"");
 		const char *error_message = std::strerror(errno);
 		if (error_message == NULL)
@@ -258,14 +258,14 @@ struct Archive {
 	bool OpenArchive(const char *name)
 	{
 		CloseArchive(this->name != name);
-#ifdef _DEBUG
+#if DEBUG_MODE
 		SDL_Log("Opening %s", name);
 #endif
 		exists = FileExists(name);
 		std::ios::openmode mode = std::ios::in | std::ios::out | std::ios::binary;
 		std::uintmax_t size;
 		if (exists) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			if (!GetFileSize(name, &size)) {
 				SDL_Log("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
 				return false;
@@ -299,14 +299,14 @@ struct Archive {
 	void CloseArchive(bool clear_tables)
 	{
 		if (stream.IsOpen()) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			SDL_Log("Closing %s", name.c_str());
 #endif
 
 			bool resize = modified && stream.seekp(0, std::ios::beg) && WriteHeaderAndTables();
 			stream.Close();
 			if (resize && archiveSize != 0) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 				SDL_Log("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), archiveSize);
 #endif
 				ResizeFile(name.c_str(), archiveSize);

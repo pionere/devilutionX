@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 void CheckDungeonClear();
 extern BYTE *pSquareCel;
 

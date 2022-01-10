@@ -77,7 +77,7 @@ endmacro()
 cmake_debug_option(ASAN "Enable address sanitizer")
 cmake_debug_option(UBSAN "Enable undefined behaviour sanitizer")
 cmake_dependent_option(TSAN "Enable thread sanitizer" OFF "NOT ASAN" OFF)
-cmake_debug_option(DEBUG "Enable debug mode in engine")
+cmake_debug_option(DEBUG_MODE "Enable debug mode in engine")
 option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
@@ -618,10 +618,6 @@ if(ZEROTIER)
   target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
 endif()
 
-if(DEBUG)
-  target_compile_definitions(${BIN_TARGET} PUBLIC "_DEBUG")
-endif()
-
 # Defines without value
 foreach(
   def_name
@@ -642,6 +638,7 @@ foreach(
   HAS_KBCTRL
   HAS_JOYSTICK
   PREFILL_PLAYER_NAME
+  DEBUG_MODE
   GPERF
   GPERF_HEAP_MAIN
   GPERF_HEAP_FIRST_GAME_ITERATION
@@ -818,7 +815,7 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-builtin-macro-redefined")
 
   # Note: For Valgrind support.
-  if(DEBUG)
+  if(DEBUG_MODE)
     target_compile_options(${BIN_TARGET} PUBLIC -fno-omit-frame-pointer)
   endif()
 

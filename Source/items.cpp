@@ -911,7 +911,7 @@ void CreatePlrItems(int pnum)
 	pi = &plr._pInvList[0];
 	CreateBaseItem(pi, IDI_GOLD);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_key_w) {
 		SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 		for (int i = 0; i < NUM_INV_GRID_ELEM; i++) {

@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 
 #define DEBUGSEEDS 4096
 int seed_index;
@@ -341,7 +341,7 @@ void ValidateData()
 		if ((um.mUnqAttr & UMF_LEADER) != 0 && ((um.mUnqAttr & UMF_GROUP) == 0))
 			app_fatal("Unique monster %s (%d) is a leader without group.", um.mName, i);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 		uint16_t res = monsterdata[um.mtype].mMagicRes;
 		uint16_t resU = um.mMagicRes;
 		for (int j = 0; j < 8; j++, res >>= 2, resU >>= 2) {

@@ -646,7 +646,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 		hper = 40;
 	}
 	if (random_(68, 100) >= hper && mon->_mmode != MM_STONE)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return false;
@@ -660,7 +660,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	}
 
 	mon->_mhitpoints -= dam;
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_god_mode)
 		mon->_mhitpoints = 0;
 #endif
@@ -706,7 +706,7 @@ static bool MonsterMHit(int mnum, int mi)
 		}
 	}
 	if (random_(69, 100) >= hper && mon->_mmode != MM_STONE)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return false;
@@ -861,7 +861,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	}
 
 	if (random_(72, 100) >= hper)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return false;
@@ -922,7 +922,7 @@ static bool PlayerMHit(int pnum, int mi)
 	}
 
 	if (random_(72, 100) >= hper)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return false;

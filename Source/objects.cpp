@@ -1590,7 +1590,7 @@ static void Obj_Light(int oi)
 	oy = os->_oy;
 	tr = lr + 10;
 	turnon = false;
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (!lightflag)
 #endif
 	{

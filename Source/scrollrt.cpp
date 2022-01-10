@@ -66,7 +66,7 @@ static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
 /* used in 1.00 debug */
-#ifdef _DEBUG
+#if DEBUG_MODE
 const char *const szMonModeAssert[18] = {
 	"standing",
 	"walking (1)",
@@ -335,7 +335,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	}
 
 	nCel = mon->_mAnimFrame;
-#ifdef _DEBUG
+#if DEBUG_MODE
 	int frames = SwapLE32(*(uint32_t *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		const char *szMode = "unknown action";
@@ -416,7 +416,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 		}
 		nCel = plr._pAnimFrame;
-#ifdef _DEBUG
+#if DEBUG_MODE
 		int frames = SwapLE32(*(uint32_t *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char *szMode = "unknown action";
@@ -472,7 +472,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pActive && plr._pHitPoints < (1 << 6) && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			BYTE *pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
 				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
@@ -770,7 +770,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dPiece[sx][sy];
 	drawCell(mpnum, dx, dy);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
 		CelClippedDraw(dx, dy, pSquareCel, 1, TILE_WIDTH);
 	}
@@ -1273,7 +1273,7 @@ static void DrawView()
 	//}
 }
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 /**
  * @brief Scroll the screen when mouse is close to the edge
  */

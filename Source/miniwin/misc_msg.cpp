@@ -775,7 +775,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 			return '0' + (sym - SDLK_0);
 		if (sym >= SDLK_F1 && sym <= SDLK_F12)
 			return DVL_VK_F1 + (sym - SDLK_F1);
-#ifdef _DEBUG
+#if DEBUG_MODE
 		SDL_Log("unknown key: name=%s sym=0x%X scan=%d mod=0x%X", SDL_GetKeyName(sym), sym, key.scancode, key.mod);
 #endif
 		return sym;
@@ -794,7 +794,7 @@ static WPARAM PositionForMouse(Sint32 x, Sint32 y)
 	return ret;
 }*/
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 static bool FalseAvail(const char *name, int value)
 {
 	//SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Unhandled SDL event: %s %d", name, value);
@@ -964,7 +964,7 @@ bool PeekMessage(LPMSG lpMsg)
 		//	return FalseAvail(e.type == SDL_KEYDOWN ? "SDL_KEYDOWN" : "SDL_KEYUP", e.key.keysym.sym);
 		lpMsg->message = e.type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
 		lpMsg->wParam = (WPARAM)key;
-#ifdef _DEBUG
+#if DEBUG_MODE
 //		// HACK: Encode modifier in lParam for TranslateMessage later
 //		lpMsg->lParam = e.key.keysym.mod << 16;
 		lpMsg->wParam |= e.key.keysym.mod << 16;
@@ -1014,7 +1014,7 @@ bool PeekMessage(LPMSG lpMsg)
 			lpMsg->wParam = DVL_VK_RIGHT;
 		}
 		break;
-#ifdef _DEBUG
+#if DEBUG_MODE
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 	case SDL_AUDIODEVICEADDED:
 		return FalseAvail("SDL_AUDIODEVICEADDED", e.adevice.which);
@@ -1025,7 +1025,7 @@ bool PeekMessage(LPMSG lpMsg)
 #endif // SDL_VERSION_ATLEAST(2, 0, 4)
 	case SDL_TEXTEDITING:
 		return FalseAvail("SDL_TEXTEDITING", e.edit.length);
-#endif // _DEBUG
+#endif // DEBUG_MODE
 	case SDL_TEXTINPUT:
 		lpMsg->message = DVL_WM_CHAR;
 		lpMsg->wParam = utf8_to_latin1(e.text.text).c_str()[0];
@@ -1071,18 +1071,18 @@ bool PeekMessage(LPMSG lpMsg)
 			// -- no need to handle, wait for the QUIT event
 			// lpMsg->message = DVL_WM_QUERYENDSESSION;
 			break;
-#ifdef _DEBUG
+#if DEBUG_MODE
 		default:
 			return FalseAvail("SDL_WINDOWEVENT", e.window.event);
-#endif // _DEBUG
+#endif // DEBUG_MODE
 		}
 
 		break;
 #endif // !USE_SDL1
-#ifdef _DEBUG
+#if DEBUG_MODE
 	default:
 		return FalseAvail("unknown", e.type);
-#endif // _DEBUG
+#endif // DEBUG_MODE
 	}
 	return true;
 }
@@ -1098,7 +1098,7 @@ bool PeekMessage(LPMSG lpMsg)
  */
 void TranslateMessage(const MSG* lpMsg)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lpMsg->message == DVL_WM_KEYDOWN) {
 		int key = lpMsg->wParam;
 		//unsigned mod = lpMsg->lParam >> 16;

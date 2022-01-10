@@ -199,7 +199,7 @@ static void InitPlayers()
 
 void LoadGameLevel(int lvldir)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (setseed)
 		glSeedTbl[currLvl._dLevelIdx] = setseed;
 #endif

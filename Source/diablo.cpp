@@ -46,7 +46,7 @@ int gnTimeoutCurs;
 bool gbFullscreen = true;
 static bool _gbSkipIntro = false;
 bool gbShowTooltip = false;
-#ifdef _DEBUG
+#if DEBUG_MODE
 int DebugMonsters[10];
 BOOL visiondebug;
 /** unused */
@@ -142,7 +142,7 @@ static void print_help_and_exit()
 	printf("    %-20s %-30s\n", "--config-dir", "Specify the location of diablo.ini");
 	printf("    %-20s %-30s\n", "-n", "Skip startup videos");
 	printf("    %-20s %-30s\n", "-x", "Run in windowed mode");
-#ifdef _DEBUG
+#if DEBUG_MODE
 	printf("\nDebug options:\n");
 	printf("    %-20s %-30s\n", "-w", "Enable cheats");
 	printf("    %-20s %-30s\n", "-$", "Enable god mode");
@@ -178,7 +178,7 @@ static void diablo_parse_flags(int argc, char **argv)
 			_gbSkipIntro = true;
 		} else if (strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
-#ifdef _DEBUG
+#if DEBUG_MODE
 		} else if (strcasecmp("-^", argv[i]) == 0) {
 			debug_mode_key_inverted_v = TRUE;
 			debug_mode_god_mode = TRUE;
@@ -1108,7 +1108,7 @@ static void PressKey(int vkey)
 		ASSUME_UNREACHABLE
 	}
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (vkey == DVL_VK_F2) {
 	}
 	else if (vkey == DVL_VK_F3) {
@@ -1143,7 +1143,7 @@ static void PressChar(WPARAM vkey)
 		if (control_talk_last_key(vkey))
 			return;
 	}
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (gnTimeoutCurs != CURSOR_NONE || gbDeathflag)
 		return;
 
@@ -1439,7 +1439,7 @@ void game_logic()
 	ProcessLightList();
 	ProcessVisionList();
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_key_inverted_v && GetAsyncKeyState(DVL_VK_SHIFT)) {
 		ScrollView();
 	}
@@ -1530,7 +1530,7 @@ static WNDPROC InitGameUI()
 	ScrollInfo._syoff = 0;
 	ScrollInfo._sdir = SDIR_NONE;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	LoadDebugGFX();
 #endif
 
@@ -1562,7 +1562,7 @@ static void FreeGameUI()
 	FreeItemGFX();
 	FreeGameEffects();
 	FreeCursorGFX();
-#ifdef _DEBUG
+#if DEBUG_MODE
 	FreeDebugGFX();
 #endif
 

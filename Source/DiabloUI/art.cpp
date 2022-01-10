@@ -26,7 +26,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 
 	art->frames = frames;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	assert(pszFileName != NULL);
 	dataSize = strlen(pszFileName);
 	if (dataSize < 4 || strcasecmp(&pszFileName[dataSize - 4], ".pcx") != 0) {
