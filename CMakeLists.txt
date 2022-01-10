@@ -43,19 +43,6 @@ else()
     LANGUAGES C CXX)
 endif()
 
-# Not a genexp because CMake doesn't support it
-# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
-if(NOT DISABLE_LTO)
-  # LTO if supported:
-  include(CheckIPOSupported)
-  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
-  if(is_ipo_supported)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
-  endif()
-endif()
-
 include(CMakeDependentOption)
 include(CMake/out_of_tree.cmake)
 
@@ -184,16 +171,28 @@ option(HAS_KBCTRL "Enable keyboard controller support" ON)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
 
-if(PIE)
-  set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
-endif()
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
+if(PIE)
+  set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+endif()
+
+# Not a genexp because CMake doesn't support it
+# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
+if(NOT DISABLE_LTO)
+  # LTO if supported:
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
+  if(is_ipo_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+  endif()
+endif()
 
 if(NOT NINTENDO_3DS)
   find_package(Threads REQUIRED)
