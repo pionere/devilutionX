@@ -1128,3 +1128,159 @@ if(CPACK)
   set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
   include(CPack)
 endif()
+
+##### Info output #####
+set(LONGESTOPTIONNAME 31)
+
+message(STATUS "")
+message(STATUS "Devilx was configured with the following options:")
+message(STATUS "")
+message(STATUS "Platform: ${CMAKE_SYSTEM}")
+message(STATUS "Target platform: ${TARGET_PLATFORM}")
+message(STATUS "Compiler: ${CMAKE_C_COMPILER} .. (${CMAKE_CXX_COMPILER_ID})")
+message(STATUS "Revision: ${VERSION_NUM}")
+message(STATUS "")
+message(STATUS "Defines:")
+# Defines without value
+foreach(
+  def_name
+  HELLFIRE
+  NOSOUND
+  STREAM_ALL_AUDIO
+  NOWIDESCREEN
+  NONET
+  NETENCRYPT
+  ADAPTIVE_NETUPDATE
+  NOHOSTING
+  HOSTONLY
+  TCPIP
+  ZEROTIER
+  HAS_GAMECTRL
+  HAS_DPAD
+  HAS_TOUCHPAD
+  HAS_KBCTRL
+  HAS_JOYSTICK
+  PREFILL_PLAYER_NAME
+  ASAN
+  UBSAN
+  TSAN
+  DEBUG_MODE
+  RUN_TESTS
+  DISABLE_LTO
+  PIE
+  CPACK
+  MACOSX_STANDALONE_APP_BUNDLE
+  GPERF
+  GPERF_HEAP_FIRST_GAME_ITERATION
+)
+  # Get the padding
+  string(LENGTH ${def_name} _OPTLEN)
+  math(EXPR _PADLEN "(${LONGESTOPTIONNAME} + 1) - ${_OPTLEN}")
+  string(RANDOM LENGTH ${_PADLEN} ALPHABET " " _PADDING)
+  if(${def_name})
+    set(HAVE_${def_name} ON)
+  else()
+    set(HAVE_${def_name} OFF)
+  endif()
+  message(STATUS "  ${def_name}${_PADDING}: ${HAVE_${def_name}}")
+endforeach(def_name)
+# Defines with value
+foreach(
+  def_name
+  DEFAULT_WIDTH
+  DEFAULT_HEIGHT
+  SCREEN_WIDTH
+  SCREEN_HEIGHT
+  #TTF_FONT_DIR
+  #TTF_FONT_NAME
+  SDL1_VIDEO_MODE_BPP
+  SDL1_VIDEO_MODE_FLAGS
+  SDL1_VIDEO_MODE_SVID_FLAGS
+  SDL1_FORCE_SVID_VIDEO_MODE
+  KBCTRL_BUTTON_DPAD_LEFT
+  KBCTRL_BUTTON_DPAD_RIGHT
+  KBCTRL_BUTTON_DPAD_UP
+  KBCTRL_BUTTON_DPAD_DOWN
+  KBCTRL_BUTTON_B
+  KBCTRL_BUTTON_A
+  KBCTRL_BUTTON_Y
+  KBCTRL_BUTTON_X
+  KBCTRL_BUTTON_LEFTSTICK
+  KBCTRL_BUTTON_RIGHTSTICK
+  KBCTRL_BUTTON_RIGHTSHOULDER
+  KBCTRL_BUTTON_LEFTSHOULDER
+  KBCTRL_BUTTON_TRIGGERLEFT
+  KBCTRL_BUTTON_TRIGGERRIGHT
+  KBCTRL_BUTTON_START
+  KBCTRL_BUTTON_BACK
+  KBCTRL_IGNORE_1
+  JOY_AXIS_LEFTX
+  JOY_AXIS_LEFTY
+  JOY_AXIS_RIGHTX
+  JOY_AXIS_RIGHTY
+  JOY_HAT_DPAD_UP_HAT
+  JOY_HAT_DPAD_UP
+  JOY_HAT_DPAD_DOWN_HAT
+  JOY_HAT_DPAD_DOWN
+  JOY_HAT_DPAD_LEFT_HAT
+  JOY_HAT_DPAD_LEFT
+  JOY_HAT_DPAD_RIGHT_HAT
+  JOY_HAT_DPAD_RIGHT
+  JOY_BUTTON_DPAD_LEFT
+  JOY_BUTTON_DPAD_RIGHT
+  JOY_BUTTON_DPAD_UP
+  JOY_BUTTON_DPAD_DOWN
+  JOY_BUTTON_B
+  JOY_BUTTON_A
+  JOY_BUTTON_Y
+  JOY_BUTTON_X
+  JOY_BUTTON_LEFTSTICK
+  JOY_BUTTON_RIGHTSTICK
+  JOY_BUTTON_RIGHTSHOULDER
+  JOY_BUTTON_LEFTSHOULDER
+  JOY_BUTTON_TRIGGERLEFT
+  JOY_BUTTON_TRIGGERRIGHT
+  JOY_BUTTON_START
+  JOY_BUTTON_BACK
+  REMAP_KEYBOARD_KEYS
+)
+  string(LENGTH ${def_name} _OPTLEN)
+  math(EXPR _PADLEN "(${LONGESTOPTIONNAME} + 1) - ${_OPTLEN}")
+  string(RANDOM LENGTH ${_PADLEN} ALPHABET " " _PADDING)
+  if(DEFINED ${def_name})
+    set(VALUEOF_${def_name} ${${def_name}})
+  else()
+    set(VALUEOF_${def_name} "__UNDEFINED__")
+  endif()
+  message(STATUS "  ${def_name}${_PADDING}: ${VALUEOF_${def_name}}")
+endforeach(def_name)
+message(STATUS "")
+message(STATUS " CFLAGS:        ${CMAKE_C_FLAGS}")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+  message(STATUS " CMAKE_C_FLAGS_DEBUG:   ${CMAKE_C_FLAGS_DEBUG}")
+  message(STATUS " CMAKE_CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
+endif()
+message(STATUS "")
+if(USE_SDL1)
+  message(STATUS " Using dynamically linked SDL1.")
+else()
+  if(DEVILUTIONX_SYSTEM_SDL2)
+    message(STATUS " Using system SDL2.")
+  elseif(DEVILUTIONX_STATIC_SDL2)
+    message(STATUS " Using statically linked SDL2.")
+  else()
+    message(STATUS " Using dynamically linked SDL2.")
+  endif()
+endif()
+if(DEVILUTIONX_STATIC_LIBSODIUM)
+  set(_LINK_MODE "statically")
+else()
+  set(_LINK_MODE "dynamically")
+endif()
+if(DEVILUTIONX_SYSTEM_LIBSODIUM)
+  set(_SOURCE "system ")
+else()
+  set(_SOURCE "")
+endif()
+message(STATUS " Using ${_LINK_MODE} linked ${_SOURCE}libsodium.")
+message(STATUS "")
