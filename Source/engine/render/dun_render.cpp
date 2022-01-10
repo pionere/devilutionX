@@ -238,7 +238,7 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 		break; 
 	}
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (GetAsyncKeyState(DVL_VK_MENU)) {
 		mask = &SolidMask[TILE_HEIGHT - 1];
 	}

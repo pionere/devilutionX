@@ -25,7 +25,7 @@ BYTE *gpBufStart;
 /** Lower bound of back buffer. */
 BYTE *gpBufEnd;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 int locktbl[256];
 #endif
 static CCritSect sgMemCrit;
@@ -106,7 +106,7 @@ static void lock_buf_priv()
 
 void lock_buf(BYTE idx)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	++locktbl[idx];
 #endif
 	lock_buf_priv();
@@ -114,7 +114,7 @@ void lock_buf(BYTE idx)
 
 static void unlock_buf_priv()
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (_guLockCount == 0)
 		app_fatal("draw main unlock error");
 	if (gpBuffer == NULL)
@@ -129,7 +129,7 @@ static void unlock_buf_priv()
 
 void unlock_buf(BYTE idx)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (locktbl[idx] == 0)
 		app_fatal("Draw lock underflow: 0x%x", idx);
 	--locktbl[idx];

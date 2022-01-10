@@ -267,7 +267,9 @@ static void diablo_init()
 
 	init_archives();
 	_gbWasArchivesInit = true;
-
+#if DEBUG_MODE
+	ValidateData();
+#endif
 	UiInitialize();
 	gbWasUiInit = true;
 
