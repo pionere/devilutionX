@@ -43,27 +43,28 @@ else()
     LANGUAGES C CXX)
 endif()
 
-# Not a genexp because CMake doesn't support it
-# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
-if(NOT DISABLE_LTO)
-  # LTO if supported:
-  include(CheckIPOSupported)
-  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
-  if(is_ipo_supported)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
-  endif()
-endif()
-
 include(CMakeDependentOption)
 include(CMake/out_of_tree.cmake)
-include(CMake/genex.cmake)
 
-DEBUG_OPTION(ASAN "Enable address sanitizer")
-DEBUG_OPTION(UBSAN "Enable undefined behaviour sanitizer")
+macro(cmake_debug_option NAME DESCRIPTION)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    option(${NAME} ${DESCRIPTION} ON)
+  else()
+    option(${NAME} ${DESCRIPTION} OFF)
+  endif()
+endmacro()
+macro(cmake_release_option NAME DESCRIPTION)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    option(${NAME} ${DESCRIPTION} OFF)
+  else()
+    option(${NAME} ${DESCRIPTION} ON)
+  endif()
+endmacro()
+
+cmake_debug_option(ASAN "Enable address sanitizer")
+cmake_debug_option(UBSAN "Enable undefined behaviour sanitizer")
 cmake_dependent_option(TSAN "Enable thread sanitizer" OFF "NOT ASAN" OFF)
-DEBUG_OPTION(DEBUG "Enable debug mode in engine")
+cmake_debug_option(DEBUG_MODE "Enable debug mode in engine")
 option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
@@ -82,7 +83,7 @@ cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP
 cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
-RELEASE_OPTION(CPACK "Configure CPack")
+option(CPACK "Configure CPack" ON)
 
 
 if(NOT NONET)
@@ -172,6 +173,19 @@ cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" 
 
 if(PIE)
   set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+endif()
+
+# Not a genexp because CMake doesn't support it
+# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
+if(NOT DISABLE_LTO)
+  # LTO if supported:
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
+  if(is_ipo_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+  endif()
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -604,8 +618,9 @@ if(ZEROTIER)
   target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
 endif()
 
-genex_for_option(DEBUG)
-target_compile_definitions(${BIN_TARGET} PUBLIC "$<${DEBUG_GENEX}:_DEBUG>")
+if(DEBUG_MODE)
+  target_compile_definitions(${BIN_TARGET} PUBLIC "_DEBUG")
+endif()
 
 # Defines without value
 foreach(
@@ -703,17 +718,17 @@ endforeach(def_name)
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
 
-genex_for_option(UBSAN)
-target_compile_options(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined>)
-target_link_libraries(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined>)
+if(UBSAN)
+  target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=undefined)
+  target_link_libraries(${BIN_TARGET} PUBLIC -fsanitize=undefined)
+endif()
 
 if(TSAN)
   target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=thread)
   target_link_libraries(${BIN_TARGET} PUBLIC -fsanitize=thread)
 elseif(ASAN)
-  genex_for_option(ASAN)
-  target_compile_options(${BIN_TARGET} PUBLIC "$<${ASAN_GENEX}:-fsanitize=address;-fsanitize-recover=address>")
-  target_link_libraries(${BIN_TARGET} PUBLIC "$<${ASAN_GENEX}:-fsanitize=address;-fsanitize-recover=address>")
+  target_compile_options(${BIN_TARGET} PUBLIC "-fsanitize=address;-fsanitize-recover=address")
+  target_link_libraries(${BIN_TARGET} PUBLIC "-fsanitize=address;-fsanitize-recover=address")
 endif()
 
 if(USE_SDL1)
@@ -803,8 +818,9 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-builtin-macro-redefined")
 
   # Note: For Valgrind support.
-  genex_for_option(DEBUG)
-  target_compile_options(${BIN_TARGET} PUBLIC $<${DEBUG_GENEX}:-fno-omit-frame-pointer>)
+  if(DEBUG_MODE)
+    target_compile_options(${BIN_TARGET} PUBLIC -fno-omit-frame-pointer)
+  endif()
 
   # Warnings for devilutionX
   target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-char-subscripts -Wno-missing-braces)
@@ -855,7 +871,6 @@ if(APPLE)
   endif()
 
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${PROJECT_VERSION}")
-  set(CPACK On)
 endif()
 
 if(NINTENDO_SWITCH)
@@ -1159,7 +1174,7 @@ foreach(
   ASAN
   UBSAN
   TSAN
-  DEBUG
+  DEBUG_MODE
   RUN_TESTS
   DISABLE_LTO
   PIE
