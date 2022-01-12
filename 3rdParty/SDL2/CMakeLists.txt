@@ -34,7 +34,7 @@ set(SDL_LOCALE OFF)
 set(SDL_MISC OFF)
 set(SDL_POWER OFF)
 set(SDL_SENSOR OFF)
-set(SDL_FILE OFF)
+set(SDL_FILE OFF) # requires fork of SDL2 on Mac OSX
 set(SDL_DISKAUDIO OFF)
 set(SDL_DUMMYAUDIO OFF)
 set(SDL_DUMMYVIDEO OFF)
@@ -59,7 +59,7 @@ FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG ae0534ab2b3f866cc94e4f2e371223c4451431f0
+    GIT_TAG 2664f550c7aa20aa28e627f945266b8969e9de69
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
 
