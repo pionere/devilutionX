@@ -29,7 +29,9 @@ static SDL_Palette *SVidPalette;
 static SDL_Surface *SVidSurface;
 static BYTE *SVidBuffer;
 static unsigned long SVidWidth, SVidHeight;
+#ifndef NOSOUND
 static BYTE SVidAudioDepth;
+#endif
 
 static bool IsLandscapeFit(unsigned long srcW, unsigned long srcH, unsigned long dstW, unsigned long dstH)
 {
@@ -240,7 +242,9 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 	SVidLoop = (flags & MOV_LOOP) != 0; // (flags & 0x40000) != 0;
 	bool enableVideo = true; //!(flags & 0x100000);
+#ifndef NOSOUND
 	bool enableAudio = true; //!(flags & 0x1000000);
+#endif
 	//0x8 // Non-interlaced
 	//0x200, 0x800 // Upscale video
 	//0x80000 // Center horizontally
