@@ -4,8 +4,7 @@ name: CMake
 on: [push, pull_request]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  buildDir: '${{ github.workspace }}/build'
 
 jobs:
   build:
@@ -13,37 +12,42 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: macos-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
     
+    # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      run: brew bundle install
+      uses: lukka/run-vcpkg@v6
+      with:
+        setupOnly: true
+        vcpkgGitCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
+    # Now that vcpkg is installed, it is being used to run with the desired arguments.
+    - name: Install Required Packages
+      run: |
+        vcpkg install sdl2:x64-windows libsodium:x64-windows
 
     - name: Configure CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
       shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake ..
-      working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild
+      working-directory: ${{ env.buildDir }}
+      run: cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=ON -D DEVILUTIONX_SYSTEM_SDL2=OFF -D DEVILUTIONX_STATIC_SDL2=OFF -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
+      working-directory: ${{ env.buildDir }}
       shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake --build . -j $(sysctl -n hw.physicalcpu) --target package
-      working-directory: ${{github.workspace}}
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
-    
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
+    # Execute the build (-j 2 : with two cores).
+      run: cmake --build . -j 2 --target package --config Release
+
+    - name: Show content of workspace
+      run: find $RUNNER_WORKSPACE
+      shell: bash
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v2
       with:
-        files: ${{github.workspace}}/build/devilutionx.dmg
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        path: ${{ env.buildDir }}/devilutionx.zip
+        name: diablo-test-x86.zip

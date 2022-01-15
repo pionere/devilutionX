@@ -970,7 +970,7 @@ if(NINTENDO_3DS)
   get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
   add_dependencies(${APP_TARGET_PREFIX}_cia romfs_files)
 endif()
-
+message(STATUS "output: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} lib: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} bin: ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 if(CPACK)
   if(WIN32)
     set(CPACK_PACKAGE_FILE_NAME "devilutionx")
