@@ -35,7 +35,6 @@ set(SDL_LOCALE OFF)
 set(SDL_MISC OFF)
 set(SDL_POWER OFF)
 set(SDL_SENSOR OFF)
-set(SDL_HIDAPI OFF)
 set(SDL_FILE OFF) # requires fork of SDL2 on Mac OSX
 set(SDL_DISKAUDIO OFF)
 set(SDL_DUMMYAUDIO OFF)
@@ -50,6 +49,7 @@ if(NOT HAS_JOYSTICK AND
    NOT HAS_TOUCHPAD)
  set(SDL_JOYSTICK OFF)
  set(SDL_HAPTIC OFF)
+ set(SDL_HIDAPI OFF)
 endif()
 
 include(FetchContent_MakeAvailableExcludeFromAll)
