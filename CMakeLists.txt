@@ -26,6 +26,9 @@ endif()
 if(NXDK)
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/xbox_nxdk")
 endif()
+if(UWP_LIB)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/xboxone")
+endif()
 
 if(NOT VERSION_NUM)
   include(git)
@@ -156,6 +159,10 @@ endif()
 
 if(NXDK)
   include(xbox_nxdk_defs)
+endif()
+
+if(UWP_LIB)
+  include(xboxone_defs)
 endif()
 
 include(CMakeDependentOption)
@@ -662,6 +669,8 @@ endif()
 
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
+elseif(UWP_LIB)
+  add_custom_target(${BIN_TARGET})  # we only need libdevilutionx
 else()
   set(BIN_SOURCES ${devilutionx_SRCS})
   if(APPLE)
@@ -765,6 +774,8 @@ if(CREATE_PATCHER)
 
   if(ANDROID)
     add_library(${DEVIL_PATCHER} SHARED ${devil_patcher_SRCS})
+  elseif(UWP_LIB)
+    add_custom_target(${DEVIL_PATCHER})  # we only need libdevilutionx
   else()
     set(PATCHER_SOURCES ${devil_patcher_SRCS})
     if(APPLE)
@@ -1412,6 +1423,10 @@ if(NXDK)
     )
     add_custom_target(nxdk_xbe_patcher ALL DEPENDS "${patcher_xbe_path}")
   endif()
+endif()
+
+if(UWP_LIB)
+  target_compile_definitions(libdevilutionx PRIVATE __UWP__=1)
 endif()
 
 if(CPACK)

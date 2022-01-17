@@ -242,6 +242,15 @@ static void diablo_deinit()
 	FreeConfig();
 }
 
+#ifdef __UWP__
+void (*onInitialized)() = NULL;
+
+void setOnInitialized(void (*callback)())
+{
+	onInitialized = callback;
+}
+#endif
+
 int DiabloMain(int argc, char** argv)
 {
 	int res = diablo_parse_flags(argc, argv);
@@ -249,6 +258,11 @@ int DiabloMain(int argc, char** argv)
 		return res - 1;
 
 	diablo_init();
+
+#ifdef __UWP__
+	onInitialized();
+#endif
+
 #ifndef HOSTONLY
 	if (_gbSkipIntro || diablo_splash())
 #endif
