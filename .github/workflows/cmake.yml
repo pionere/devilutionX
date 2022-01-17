@@ -4,65 +4,100 @@ name: CMake
 on: [push, pull_request]
 
 env:
+  buildDir: '${{ github.workspace }}/build'
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: macos-13
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: diablo
             cmakeargs: '-DUSE_PATCH=OFF'
-            artifact: 'diablo-push-macp.dmg'
+            artifact: 'diablo-push-xboxone'
           - name: hellfire+patch
             cmakeargs: '-DHELLFIRE=ON'
-            artifact: 'hellfire-push-macp.dmg'
+            artifact: 'hellfire-push-xboxone'
 
     steps:
     - name: Checkout
       uses: actions/checkout@v5
       with:
-        fetch-tags: true
-      #  fetch-depth: 0
+        #fetch-tags: true
+        fetch-depth: 0
 
-    - name: Create Build Environment
-      run: brew bundle install
+    #- name: ccache
+    #  uses: hendrikmuhs/ccache-action@v1.2
 
-    - name: Configure CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
-      shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake ..
-      working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -D DEVILUTIONX_SYSTEM_SDL2=OFF -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-architecture: x64
 
+    - name: Configure git
+      shell: cmd
+      run: |
+        git config --global core.filemode false
+        git config --global core.autocrlf false
+
+    #- name: Install gettext
+    #  run: >
+    #    New-Item -Path . -Name tools-gettext -ItemType Directory -Force &&
+    #    Invoke-WebRequest -Uri "https://github.com/vslavik/gettext-tools-windows/releases/download/v0.22.5/gettext-tools-windows-0.22.5.zip" -OutFile tools-gettext.zip -Resume &&
+    #    Expand-Archive tools-gettext.zip &&
+    #    Remove-Item tools-gettext.zip &&
+    #    Add-Content $env:GITHUB_PATH "$((Get-Item tools-gettext).FullName)\bin"
+
+    #makecert /n CN=devilutionX /r /h 0 /eku "1.3.6.1.5.5.7.3.3,1.3.6.1.4.1.311.10.3.13" /sv devilutionX_Certificate.pvk devilutionX_Certificate.cert
+    #pvk2pfx /pvk devilutionX_Certificate.pvk /spc devilutionX_Certificate.cert /pfx devilutionX_TemporaryKey.pfx
+
+    #cd ${{ github.workspace }}\Packaging\xbox-one
+    #more "C:\Program Files (x86)\Microsoft SDKs\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs\14.0\SDKManifest.xml" -> FrameworkIdentity-Retail
     - name: Build
-      shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake --build . -j $(sysctl -n hw.physicalcpu) --target package
+      shell: cmd
       working-directory: ${{github.workspace}}
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
+      run: |
+        Packaging\xbox-one\build.bat ${{ matrix.cmakeargs }}
 
-    #- name: Release
-    #  uses: softprops/action-gh-release@v1
-    #  if: startsWith(github.ref, 'refs/tags/')
-    #  with:
-    #    files: ${{github.workspace}}/build/devilutionx.dmg
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    # Upload the created artifact
-    - name: Upload
+    #- name: Text patcher
+    #  #if: always()
+    #  shell: cmd
+    #  working-directory: ${{github.workspace}}
+    #  run: |
+    #    more "D:\a\devilutionX/devilutionX/build/uwp-patcher/Release/AppxManifest.xml"
+
+    #- name: Show content of workspace
+    #  if: always()
+    #  run: find $RUNNER_WORKSPACE
+    #  shell: bash
+
+    #- name: Copy artifacts to package directory
+    #  run: >
+    #    New-Item -Path build\uwp-project -Name pkg -ItemType Directory -Force &&
+    #    Get-Childitem -Path build\uwp-project\AppxPackages, build\uwp-project\Release
+    #    -Include Microsoft.VCLibs.x64.*.appx, devilX_*_x64.appx -File -Recurse |
+    #    Copy-Item -Destination build\uwp-project\pkg\
+
+    #build/uwp-project/pkg/
+    - name: Upload-Package
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
-        path: ${{github.workspace}}/build/devilutionx.dmg
         name: ${{ matrix.artifact }}
+        if-no-files-found: error
+        path: ${{ env.buildDir }}/devilutionx.zip
+
+    #- name: Package Release
+    #  if: ${{ github.event_name == 'release' && !env.ACT }}
+    #  working-directory: ${{github.workspace}}/build/uwp-project/pkg/
+    #  run: 7z a -r ../../../devilutionx-xbox-one-series.zip .
+
+    #- name: Update Release
+    #  if: ${{ github.event_name == 'release' && !env.ACT }}
+    #  uses: svenstaro/upload-release-action@v2
+    #  with:
+    #    file: devilutionx-xbox-one-series.zip
+    #    overwrite: true
