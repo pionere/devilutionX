@@ -1,6 +1,5 @@
 #include "tcpd_client.h"
 #ifdef TCPIP
-#include <string>
 #include <SDL.h>
 #include <exception>
 #include <functional>
@@ -157,11 +156,7 @@ void tcpd_client::recv_connect(packet &pkt)
 
 	auto cliCon = tcp_server::make_connection(ioc);
 	asio::error_code err;
-	auto addr = asio::ip::address::from_string(addrstr, err);
-	if (!err) {
-		auto ep = asio::ip::tcp::endpoint(addr, port);
-		cliCon->socket.connect(ep, err);
-	}
+	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc,  err);
 	if (err) {
 		SDL_Log("Failed to connect %s", err.message().c_str());
 		return;
