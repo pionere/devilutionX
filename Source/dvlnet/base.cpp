@@ -43,11 +43,18 @@ void base::recv_accept(packet &pkt)
 	plr_self = pkt.pktJoinAccPlr();
 	if (plr_self >= MAX_PLRS) {
 		// Invalid player id -> ignore
+		SDL_Log("Invalid player id (%d) received from %d.", NULL, 0, plr_self, pkt.pktSrc());
+		plr_self = PLR_BROADCAST;
+		return;
+	}
+	auto &pkt_info = pkt.pktJoinAccInfo();
+	if (GAME_VERSION != SwapLE32(pkt_info.dwVersionId)) {
+		// Invalid game version -> ignore
+		SDL_Log("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, SwapLE32(pkt_info.dwVersionId), pkt.pktSrc(), GAME_VERSION);
 		plr_self = PLR_BROADCAST;
 		return;
 	}
 	connected_table[plr_self] = true;
-	auto &pkt_info = pkt.pktJoinAccInfo();
 #ifdef ZEROTIER
 	// we joined and did not create
 	game_init_info = buffer_t((BYTE*)&pkt_info, (BYTE*)&pkt_info + sizeof(SNetGameData));

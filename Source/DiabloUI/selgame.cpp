@@ -38,14 +38,11 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 {
 	SNetGameData* gameData;
 	unsigned playerId;
-	DWORD versionId;
 
 	assert(pEvt->eventid == EVENT_TYPE_JOIN_ACCEPTED);
 	assert(pEvt->databytes == sizeof(SNetGameData));
 	gameData = (SNetGameData*)pEvt->_eData;
-	versionId = SwapLE32(gameData->dwVersionId);
-	if (versionId != GAME_VERSION)
-		throw std::runtime_error("Mismatching game versions.");
+	assert(gameData->dwVersionId == GAME_VERSION);
 
 	playerId = pEvt->playerid;
 	assert((DWORD)playerId < MAX_PLRS);
