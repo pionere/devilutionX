@@ -1,14 +1,11 @@
 #pragma once
 #ifdef TCPIP
 #include <string>
-#include <memory>
-#include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
 #include <asio/ts/io_context.hpp>
 #include <asio/ts/net.hpp>
 
 #include "packet.h"
-#include "abstract_net.h"
 #include "frame_queue.h"
 
 DEVILUTION_BEGIN_NAMESPACE

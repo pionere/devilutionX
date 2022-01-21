@@ -50,7 +50,7 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	unsigned dwLen;
 
 #ifdef _DEVMODE
-	if (turn_queue.empty())
+	if (turn_queue.size() != 1)
 		ABORT();
 #endif
 	pt = &turn_queue.front();
@@ -105,6 +105,7 @@ void loopback::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 
 void loopback::SNetLeaveGame(int reason)
 {
+	// message_last.clear(); -- not necessary at the moment
 	message_queue.clear();
 	turn_queue.clear();
 }
