@@ -776,7 +776,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 		if (sym >= SDLK_F1 && sym <= SDLK_F12)
 			return DVL_VK_F1 + (sym - SDLK_F1);
 #if DEBUG_MODE
-		SDL_Log("unknown key: name=%s sym=0x%X scan=%d mod=0x%X", SDL_GetKeyName(sym), sym, key.scancode, key.mod);
+		DoLog("unknown key: name=%s sym=0x%X scan=%d mod=0x%X", SDL_GetKeyName(sym), sym, key.scancode, key.mod);
 #endif
 		return sym;
 	}*/
@@ -797,8 +797,7 @@ static WPARAM PositionForMouse(Sint32 x, Sint32 y)
 #if DEBUG_MODE
 static bool FalseAvail(const char *name, int value)
 {
-	//SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Unhandled SDL event: %s %d", name, value);
-	SDL_Log("Unhandled SDL event: %s %d", name, value);
+	DoLog("Unhandled SDL event: %s %d", name, value);
 	return true;
 }
 #endif
@@ -1181,7 +1180,7 @@ void TranslateMessage(const MSG* lpMsg)
 			return;
 
 		if (key >= 32) {
-			SDL_Log("char: %c", key);
+			DoLog("char: %c", key);
 		}
 		// XXX: This does not add extended info to lParam
 		PostMessage(DVL_WM_CHAR, key);

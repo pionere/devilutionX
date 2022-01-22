@@ -346,7 +346,7 @@ void ValidateData()
 		uint16_t resU = um.mMagicRes;
 		for (int j = 0; j < 8; j++, res >>= 2, resU >>= 2) {
 			if ((res & 3) > (resU & 3)) {
-				SDL_Log("Warn: Weak muMagicRes %d (%d) for %s (%d): worse than mMagicRes %d.", um.mMagicRes, j, um.mName, i, monsterdata[um.mtype].mMagicRes);
+				DoLog("Warn: Weak muMagicRes %d (%d) for %s (%d): worse than mMagicRes %d.", um.mMagicRes, j, um.mName, i, monsterdata[um.mtype].mMagicRes);
 			}
 		}
 #endif

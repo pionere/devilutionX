@@ -153,7 +153,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	plr_t i, pnum;
 
 	if (pkt.pktType() != PT_JOIN_REQUEST) {
-		// SDL_Log("Invalid join packet.");
+		// DoLog("Invalid join packet.");
 		return false;
 	}
 	pnum = next_free_conn();
@@ -162,7 +162,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 			break;
 	}
 	if (pnum == MAX_PLRS || i == MAX_PLRS) {
-		// SDL_Log(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
+		// DoLog(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
 		return false;
 	}
 	pending_connections[i] = NULL;
@@ -206,7 +206,7 @@ bool tcp_server::send_packet(packet &pkt)
 				start_send(connections[i], pkt);
 	} else {
 		if (dest >= MAX_PLRS) {
-			// SDL_Log("Invalid destination %d", dest);
+			// DoLog("Invalid destination %d", dest);
 			return false;
 		}
 		if ((dest != src) && connections[dest] != NULL)

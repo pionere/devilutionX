@@ -3,10 +3,6 @@
 #include "all.h"
 
 #include "utils/display.h"
-#include "utils/sdl_compat.h"
-#include "storm/storm.h"
-#include "engine.h"
-#include "debug.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -30,7 +26,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 	assert(pszFileName != NULL);
 	dataSize = strlen(pszFileName);
 	if (dataSize < 4 || strcasecmp(&pszFileName[dataSize - 4], ".pcx") != 0) {
-		SDL_Log("Failed to load image meta");
+		DoLog("Failed to load image meta");
 		return false;
 	}
 #endif
@@ -48,7 +44,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 	if (dataSize < sizeof(PCXHEADER) || !SFileReadFile(hFile, fileBuffer, dataSize)) {
 		free(fileBuffer);
 		SFileCloseFile(hFile);
-		SDL_Log("Failed to load image meta");
+		DoLog("Failed to load image meta");
 		return false;
 	}
 	SFileCloseFile(hFile);

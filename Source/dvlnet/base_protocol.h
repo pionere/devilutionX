@@ -195,7 +195,7 @@ void base_protocol<P>::recv()
 			}
 		}
 	} catch (std::exception &e) {
-		SDL_Log("%s", e.what());
+		DoLog("%s", e.what());
 		return;
 	}
 }

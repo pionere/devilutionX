@@ -87,7 +87,7 @@ public:
 		s_ = new std::fstream(path, mode);
 		if (!s_->fail()) {
 #if DEBUG_MODE
-			SDL_Log("Open(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+			DoLog("Open(\"%s\", %s)", path, OpenModeToString(mode).c_str());
 #endif
 			return true;
 		}
@@ -111,7 +111,7 @@ public:
 		s_->seekg(pos);
 		if (!s_->fail()) {
 #if DEBUG_MODE
-			SDL_Log("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+			DoLog("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
 #endif
 			return true;
 		}
@@ -124,7 +124,7 @@ public:
 		s_->seekg(pos, dir);
 		if (!s_->fail()) {
 #if DEBUG_MODE
-			SDL_Log("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+			DoLog("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
 #endif
 			return true;
 		}
@@ -137,7 +137,7 @@ public:
 		s_->seekp(pos);
 		if (!s_->fail()) {
 #if DEBUG_MODE
-			SDL_Log("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+			DoLog("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
 #endif
 			return true;
 		}
@@ -150,7 +150,7 @@ public:
 		s_->seekp(pos, dir);
 		if (!s_->fail()) {
 #if DEBUG_MODE
-			SDL_Log("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+			DoLog("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
 #endif
 			return true;
 		}
@@ -163,7 +163,7 @@ public:
 		*result = s_->tellg();
 		if (!s_->fail()) {
 #if DEBUG_MODE
-			SDL_Log("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+			DoLog("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 #endif
 			return true;
 		}
@@ -176,7 +176,7 @@ public:
 		*result = s_->tellp();
 		if (!s_->fail()) {
 #if DEBUG_MODE
-			SDL_Log("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+			DoLog("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 #endif
 			return true;
 		}
@@ -189,7 +189,7 @@ public:
 		s_->write(data, size);
 		if (!s_->fail()) {
 #if DEBUG_MODE
-			SDL_Log("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+			DoLog("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
 			return true;
 		}
@@ -202,7 +202,7 @@ public:
 		s_->read(out, size);
 		if (!s_->fail()) {
 #if DEBUG_MODE
-			SDL_Log("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+			DoLog("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
 			return true;
 		}
@@ -220,11 +220,11 @@ private:
 		const char *error_message = std::strerror(errno);
 		if (error_message == NULL)
 			error_message = "";
-		SDL_Log(fmt_with_error.c_str(), args..., error_message);
+		DoLog(fmt_with_error.c_str(), args..., error_message);
 #else
 		fmt_with_error.append(" failed (%d)");
-		//SDL_LogError(fmt_with_error.c_str(), args..., errno);
-		SDL_Log(fmt_with_error.c_str(), args..., errno);
+		//DoLogError(fmt_with_error.c_str(), args..., errno);
+		DoLog(fmt_with_error.c_str(), args..., errno);
 #endif
 	}
 
@@ -259,7 +259,7 @@ struct Archive {
 	{
 		CloseArchive(this->name != name);
 #if DEBUG_MODE
-		SDL_Log("Opening %s", name);
+		DoLog("Opening %s", name);
 #endif
 		exists = FileExists(name);
 		std::ios::openmode mode = std::ios::in | std::ios::out | std::ios::binary;
@@ -267,18 +267,18 @@ struct Archive {
 		if (exists) {
 #if DEBUG_MODE
 			if (!GetFileSize(name, &size)) {
-				SDL_Log("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
+				DoLog("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
 				return false;
 			} else {
-				SDL_Log("GetFileSize(\"%s\") = %" PRIuMAX, name, size);
+				DoLog("GetFileSize(\"%s\") = %" PRIuMAX, name, size);
 			}
 #else
 			if (!GetFileSize(name, &size)) {
-				SDL_Log("GetFileSize(\"%s\") failed. (%d)", name, errno);
+				DoLog("GetFileSize(\"%s\") failed. (%d)", name, errno);
 				return false;
 			}
 			if (size > UINT32_MAX) {
-				SDL_Log("OpenArchive(\"%s\") failed. File too large: %" PRIuMAX, name, size);
+				DoLog("OpenArchive(\"%s\") failed. File too large: %" PRIuMAX, name, size);
 				return false;
 			}
 #endif
@@ -300,14 +300,14 @@ struct Archive {
 	{
 		if (stream.IsOpen()) {
 #if DEBUG_MODE
-			SDL_Log("Closing %s", name.c_str());
+			DoLog("Closing %s", name.c_str());
 #endif
 
 			bool resize = modified && stream.seekp(0, std::ios::beg) && WriteHeaderAndTables();
 			stream.Close();
 			if (resize && archiveSize != 0) {
 #if DEBUG_MODE
-				SDL_Log("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), archiveSize);
+				DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), archiveSize);
 #endif
 				ResizeFile(name.c_str(), archiveSize);
 			}

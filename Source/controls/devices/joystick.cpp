@@ -6,6 +6,7 @@
 #include "controls/controller_motion.h"
 #include "controls/plrctrls.h"
 #include "utils/stubs.h"
+#include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -248,11 +249,11 @@ void Joystick::Add(int deviceIndex)
 	if (SDL_NumJoysticks() <= deviceIndex)
 		return;
 	Joystick result;
-	SDL_Log("Adding joystick %d: %s", deviceIndex,
+	DoLog("Adding joystick %d: %s", deviceIndex,
 	    SDL_JoystickNameForIndex(deviceIndex));
 	result.sdl_joystick_ = SDL_JoystickOpen(deviceIndex);
 	if (result.sdl_joystick_ == NULL) {
-		SDL_Log("%s", SDL_GetError());
+		DoLog("%s", SDL_GetError());
 		SDL_ClearError();
 		return;
 	}
@@ -266,7 +267,7 @@ void Joystick::Add(int deviceIndex)
 void Joystick::Remove(SDL_JoystickID instanceId)
 {
 #ifndef USE_SDL1
-	SDL_Log("Removing joystick (instance id: %d)", instanceId);
+	DoLog("Removing joystick (instance id: %d)", instanceId);
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {
 		const Joystick &joystick = joysticks_[i];
 		if (joystick.instance_id_ != instanceId)
@@ -275,7 +276,7 @@ void Joystick::Remove(SDL_JoystickID instanceId)
 		sgbControllerActive = !joysticks_.empty();
 		return;
 	}
-	SDL_Log("Joystick not found with instance id: %d", instanceId);
+	DoLog("Joystick not found with instance id: %d", instanceId);
 #endif
 }
 

@@ -38,19 +38,19 @@ void n3ds_socExit()
 void n3ds_socInit()
 {
 	if (!waitForWifi()) {
-		SDL_Log("n3ds_socInit: Wifi off");
+		DoLog("n3ds_socInit: Wifi off");
 		return;
 	}
 
 	socBuffer = (u32 *)memalign(SOC_ALIGN, SOC_BUFFERSIZE);
 	if (socBuffer == NULL) {
-		SDL_Log("n3ds_socInit: memalign() failed");
+		DoLog("n3ds_socInit: memalign() failed");
 		return;
 	}
 
 	Result result = socInit(socBuffer, SOC_BUFFERSIZE);
 	if (!R_SUCCEEDED(result)) {
-		SDL_Log("n3ds_socInit: socInit() failed");
+		DoLog("n3ds_socInit: socInit() failed");
 		free(socBuffer);
 		return;
 	}

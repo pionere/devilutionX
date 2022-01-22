@@ -158,7 +158,7 @@ void tcpd_client::recv_connect(packet &pkt)
 	asio::error_code err;
 	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc,  err);
 	if (err) {
-		SDL_Log("Failed to connect %s", err.message().c_str());
+		DoLog("Failed to connect %s", err.message().c_str());
 		return;
 	}
 	cliCon->pnum = pnum;
@@ -244,7 +244,7 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc &con, packet &pkt)
 	plr_t i, pnum;
 	
 	if (pkt.pktType() != PT_JOIN_REQUEST) {
-		// SDL_Log("Invalid join packet.");
+		// DoLog("Invalid join packet.");
 		return false;
 	}
 	pnum = pkt.pktSrc();
@@ -253,7 +253,7 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc &con, packet &pkt)
 			break;
 	}
 	if (pnum >= MAX_PLRS || connections[pnum] != NULL || i == MAX_PLRS) {
-		// SDL_Log(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
+		// DoLog(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
 		return false;
 	}
 	pending_connections[i] = NULL;
