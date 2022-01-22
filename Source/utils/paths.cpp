@@ -52,7 +52,6 @@ static void FromSDL(std::string &path, bool base)
 		SDL_free(s);
 	} else {
 		DoLog("%s", SDL_GetError());
-		SDL_ClearError();
 	}
 }
 
