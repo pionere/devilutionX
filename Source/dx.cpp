@@ -32,7 +32,7 @@ static CCritSect sgMemCrit;
 
 static void dx_create_back_buffer()
 {
-	back_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 8, SDL_PIXELFORMAT_INDEX8);
+	back_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 0, SDL_PIXELFORMAT_INDEX8);
 	if (back_surface == NULL) {
 		sdl_fatal(ERR_SDL_BACK_PALETTE_CREATE);
 	}
@@ -67,7 +67,7 @@ static void dx_create_primary_surface()
 		Uint32 format;
 		if (SDL_QueryTexture(renderer_texture, &format, NULL, NULL, NULL) < 0)
 			sdl_fatal(ERR_SDL_TEXTURE_CREATE);
-		renderer_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, SDL_BITSPERPIXEL(format), format);
+		renderer_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, format);
 	}
 #endif
 	if (GetOutputSurface() == NULL) {
@@ -234,6 +234,7 @@ void trans_rect(int sx, int sy, int width, int height)
 {
 	int row, col;
 	BYTE *pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	// TODO: use SSE2?
 	for (row = 0; row < height; row++) {
 		for (col = 0; col < width; col++) {
 			if (((row ^ col) & 1) == 0)

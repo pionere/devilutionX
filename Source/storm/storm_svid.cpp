@@ -317,7 +317,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	    (unsigned char *)smk_get_video(SVidSMK),
 	    SVidWidth,
 	    SVidHeight,
-	    8,
+	    0,
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
 	if (SVidSurface == NULL) {

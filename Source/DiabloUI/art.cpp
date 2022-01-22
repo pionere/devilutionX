@@ -74,7 +74,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 		format = SDL_PIXELFORMAT_UNKNOWN;
 		break;
 	}*/
-	SDL_Surface* artSurface = SDL_CreateRGBSurfaceWithFormat(SDL_SWSURFACE, width, height, bpp, format);
+	SDL_Surface* artSurface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, format);
 
 	// process the body
 	BYTE byte, *pSrc;
