@@ -29,7 +29,7 @@ static std::atomic_bool zt_joined(false);
 
 static void Callback(struct zts_callback_msg *msg)
 {
-	//printf("callback %i\n", msg->eventCode);
+	//printf("callback %d\n", msg->eventCode);
 	if (msg->eventCode == ZTS_EVENT_NODE_ONLINE) {
 		DoLog("ZeroTier: ZTS_EVENT_NODE_ONLINE, nodeId=%llx\n", (unsigned long long)msg->node->address);
 		zt_node_online = true;

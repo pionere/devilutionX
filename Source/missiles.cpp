@@ -1313,7 +1313,7 @@ void LoadMissileGFX(BYTE midx)
 		mad[0] = LoadFileInMem(pszName);
 	} else {
 		for (i = 0; i < n; i++) {
-			snprintf(pszName, sizeof(pszName), "Missiles\\%s%i.CL2", name, i + 1);
+			snprintf(pszName, sizeof(pszName), "Missiles\\%s%d.CL2", name, i + 1);
 			assert(mad[i] == NULL);
 			mad[i] = LoadFileInMem(pszName);
 		}

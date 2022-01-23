@@ -1118,13 +1118,13 @@ static void PressKey(int vkey)
 			snprintf(
 			    gbNetMsg,
 				sizeof(gbNetMsg),
-			    "IDX = %i  :  Seed = %i  :  CF = %i",
+			    "IDX = %d  :  Seed = %d  :  CF = %d",
 			    items[pcursitem]._iIdx,
 			    items[pcursitem]._iSeed,
 			    items[pcursitem]._iCreateInfo);
 			NetSendCmdString(1 << mypnum);
 		}
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %i", numitems);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %d", numitems);
 		NetSendCmdString(1 << mypnum);
 	}
 	else if (vkey == DVL_VK_F4) {
@@ -1217,15 +1217,15 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'R':
 	case 'r':
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %i", glSeedTbl[currLvl._dLevelIdx]);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
 		NetSendCmdString(1 << mypnum);
 		break;
 	case 'T':
 	case 't':
 		if (debug_mode_key_inverted_v) {
-			snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %i  PY = %i", myplr._px, myplr._py);
+			snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
 			NetSendCmdString(1 << mypnum);
-			snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %i  CY = %i  DP = %i", cursmx, cursmy, dungeon[cursmx][cursmy]);
+			snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", cursmx, cursmy, dungeon[cursmx][cursmy]);
 			NetSendCmdString(1 << mypnum);
 		}
 		break;
