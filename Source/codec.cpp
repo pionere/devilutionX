@@ -42,7 +42,7 @@ static void CodecInitKey(const char* pszPassword)
 		key[i] ^= digest[i % SHA1HashSize];
 	memset(pw, 0, sizeof(pw));
 	memset(digest, 0, sizeof(digest));
-	for (int n = 0; n < 3; ++n) {
+	for (int n = 0; n < SHA1ContextNum; ++n) {
 		SHA1Reset(n);
 		SHA1Calculate(n, &key[sizeof(key) - SHA1BlockSize], NULL);
 	}

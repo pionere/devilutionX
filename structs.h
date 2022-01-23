@@ -1733,7 +1733,9 @@ static_assert((sizeof(PATHNODE) & (sizeof(PATHNODE) - 1)) == 0, "Align PATHNODE 
 
 typedef struct SHA1Context {
 	DWORD state[5];
+#if DEBUG_MODE
 	DWORD count[2];
+#endif
 	char buffer[64];
 } SHA1Context;
 
