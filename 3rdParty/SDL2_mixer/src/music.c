@@ -68,9 +68,13 @@ static int music_volume = MIX_MAX_VOLUME;
 static Mix_Music * volatile music_playing = NULL;
 #else
 static Mix_Audio theMusicSrc;
-static _Mix_Channel theMusicChannel = { NULL, 0, SDL_FALSE, NULL, { NULL, NULL, NULL }, MIX_MAX_VOLUME, SDL_FALSE };
+#ifdef FULL // MEM_OPS
+static _Mix_Channel theMusicChannel = { NULL, MIX_MAX_VOLUME };
+#else
+static _Mix_Channel theMusicChannel;
+#endif // MEM_OPS
 static Uint8 musicBuffer[MIX_STREAM_BUFF_SIZE];
-#endif
+#endif // FIX_MUS
 #ifdef FULL
 SDL_AudioSpec music_spec;
 #endif
@@ -261,7 +265,9 @@ static void add_music_decoder(const char *decoder)
 /* Local low-level functions prototypes */
 static void music_internal_initialize_volume(void);
 static void music_internal_volume(int volume);
+#ifdef FULL
 static int  music_internal_position(double position);
+#endif
 static SDL_bool music_internal_playing(void);
 static void music_internal_halt(void);
 
@@ -276,42 +282,58 @@ void Mix_HookMusicFinished(void (SDLCALL *music_finished)(void))
     Mix_UnlockAudio();
 }
 #endif
+static void _Mix_Music_done_playing()
+{
+    music_internal_halt();
+#ifdef FULL // HOOKS
+    if (music_finished_hook) {
+        music_finished_hook();
+    }
+#endif
+}
 /* Convenience function to fill audio and mix at the specified volume
    This is called from many music player's GetAudio callback.
  */
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, SOME_VOL
 int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                        int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done))
 #else
-int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
-                       int (*GetSome)(Mix_Audio* audio, Mix_BuffOps* buffer, void* data, int bytes))
+int music_pcm_getaudio(Mix_Channel* channel, void* stream, int bytes,
+                       int (*GetSome)(Mix_Channel* channel, void* stream, int bytes))
 #endif
 {
+#ifdef FULL // SOME_VOL
     Uint8 *snd = (Uint8 *)data;
     Uint8 *dst;
+#else
+    Uint8* dst = (Uint8*)stream;
+#endif
     int len = bytes;
 #ifdef FULL // FIX_MUS
     SDL_bool done = SDL_FALSE;
-#else
-    int volume = theMusicChannel.volume;
 #endif
-
+#ifdef FULL // SOME_VOL
     if (volume == MIX_MAX_VOLUME) {
         dst = snd;
     } else {
         dst = SDL_stack_alloc(Uint8, (size_t)bytes);
     }
+#endif
 #ifdef FULL // FIX_MUS
     while (len > 0 && !done) {
         int consumed = GetSome(context, dst, len, &done);
 #else
     while (len > 0) {
-        int consumed = GetSome(audio, &theMusicChannel.buffer, dst, len);
-#endif
+#ifdef FULL // SOME_VOL
+        int consumed = GetSome(context, &theMusicChannel.buffOps, dst, len);
+#else
+        int consumed = GetSome(channel, dst, len);
+#endif // SOME_VOL
+#endif // FIX_MUS
         if (consumed < 0) {
             break;
         }
-
+#ifdef FULL // SOME_VOL
         if (volume == MIX_MAX_VOLUME) {
             dst += consumed;
         } else {
@@ -330,11 +352,16 @@ int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
 #endif // SELF_MIX
             snd += consumed;
         }
+#else // SOME_VOL
+        dst += consumed;
+#endif // SOME_VOL
         len -= consumed;
     }
+#ifdef FULL // SOME_VOL
     if (volume != MIX_MAX_VOLUME) {
         SDL_stack_free(dst);
     }
+#endif
     return len;
 }
 
@@ -346,7 +373,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #ifdef FULL // MUS_ACTIVE, FIX_MUS
     while (music_playing && music_active && len > 0) {
 #else
-    while (theMusicChannel.chunk != NULL && len > 0) {
+    while (music_internal_playing() && len > 0) {
 #endif
 #ifdef FULL // FADING
         /* Handle fading */
@@ -364,34 +391,19 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
                 music_internal_volume(volume);
             } else {
                 if (music_playing->fading == MIX_FADING_OUT) {
-                    music_internal_halt();
-                    if (music_finished_hook) {
-                        music_finished_hook();
-                    }
+                    _Mix_Music_done_playing();
                     return;
                 }
                 music_playing->fading = MIX_NO_FADING;
             }
         }
-#endif
-#ifdef FULL // WAV_SRC
+#endif // FADING
+#ifdef FULL // WAV_SRC, FIX_MUS
         if (music_playing->interface->GetAudio) {
             int left = music_playing->interface->GetAudio(music_playing->context, stream, len);
-#else
-        if (1) {
-#ifdef FULL // FIX_MUS
-            int left = Mix_MusicInterface_WAV.GetAudio(music_playing->context, stream, len);
-#else
-            int left = Mix_MusicInterface_WAV.GetAudio(theMusicChannel.chunk, stream, len);
-#endif // FULL - FIX_MUS
-#endif // FULL - WAV_SRC
             if (left != 0) {
                 /* Either an error or finished playing with data left */
-#ifdef FULL // FIX_MUS
                 music_playing->playing = SDL_FALSE;
-#else
-                music_internal_halt();
-#endif
             }
             if (left > 0) {
                 stream += (len - left);
@@ -402,16 +414,17 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
         } else {
             len = 0;
         }
-#ifdef FULL // MUS_LOOP, FADING
         if (!music_internal_playing()) {
-            music_internal_halt();
-#ifdef FULL // HOOKS
-            if (music_finished_hook) {
-                music_finished_hook();
-            }
-#endif
+            _Mix_Music_done_playing();
         }
-#endif // MUS_LOOP, FADING
+#else // WAV_SRC, FIX_MUS
+        len = Mix_MusicInterface_WAV.GetAudio(&theMusicChannel, stream, len);
+        if (len != 0) {
+            /* Either an error or finished playing with data left */
+            _Mix_Music_done_playing();
+        }
+        break;
+#endif // WAV_SRC, FIX_MUS
     }
 }
 #ifdef FULL // WAV_SRC
@@ -563,15 +576,15 @@ SDL_bool has_music(Mix_MusicType type)
 }
 #endif
 #ifdef FULL // MUS_CHECK
-Mix_MusicType detect_music_type(SDL_RWops *src)
+Mix_MusicType detect_music_type(Mix_RWops *src)
 {
     Uint8 magic[12];
 
-    if (SDL_RWread(src, magic, 1, 12) != 12) {
+    if (Mix_RWread(src, magic, 1, 12) != 12) {
         Mix_SetError("Couldn't read first 12 bytes of audio data");
         return MUS_NONE;
     }
-    SDL_RWseek(src, -12, RW_SEEK_CUR);
+    Mix_RWseek(src, -12, RW_SEEK_CUR);
 
     /* WAVE files have the magic four bytes "RIFF"
        AIFF files have the magic 12 bytes "FORM" XXXX "AIFF" */
@@ -582,9 +595,9 @@ Mix_MusicType detect_music_type(SDL_RWops *src)
 #ifdef FULL // WAV_SRC
     /* Ogg Vorbis files have the magic four bytes "OggS" */
     if (SDL_memcmp(magic, "OggS", 4) == 0) {
-        SDL_RWseek(src, 28, RW_SEEK_CUR);
-        SDL_RWread(src, magic, 1, 8);
-        SDL_RWseek(src,-36, RW_SEEK_CUR);
+        Mix_RWseek(src, 28, RW_SEEK_CUR);
+        Mix_RWread(src, magic, 1, 8);
+        Mix_RWseek(src,-36, RW_SEEK_CUR);
         if (SDL_memcmp(magic, "OpusHead", 8) == 0) {
             return MUS_OPUS;
         }
@@ -627,7 +640,7 @@ Mix_Music *Mix_LoadMUS(const char *file)
     void *context;
     char *ext;
     Mix_MusicType type;
-    SDL_RWops *src;
+    Mix_RWops *src;
 
     for (i = 0; i < SDL_arraysize(s_music_interfaces); ++i) {
         Mix_MusicInterface *interface = s_music_interfaces[i];
@@ -652,7 +665,7 @@ Mix_Music *Mix_LoadMUS(const char *file)
         }
     }
 
-    src = SDL_RWFromFile(file, "rb");
+    src = Mix_RWFromFile(file, "rb");
     if (src == NULL) {
         Mix_SetError("Couldn't open '%s'", file);
         return NULL;
@@ -708,15 +721,15 @@ Mix_Music *Mix_LoadMUS(const char *file)
     return Mix_LoadMUSType_RW(src, type, SDL_TRUE);
 }
 
-Mix_Music *Mix_LoadMUS_RW(SDL_RWops *src, int freesrc)
+Mix_Music *Mix_LoadMUS_RW(Mix_RWops *src, int freesrc)
 {
     return Mix_LoadMUSType_RW(src, MUS_NONE, freesrc);
 }
 #endif // FULL
 #ifdef FULL // WAV_SRC, FIX_MUS
-Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
+Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 #else
-SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
+Mix_Audio* Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst)
 #endif
 {
 #ifdef FULL // WAV_SRC
@@ -729,7 +742,7 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
         Mix_SetError("RWops pointer is NULL");
         return NULL;
     }
-    start = SDL_RWtell(src);
+    start = Mix_RWtell(src);
 
     /* If the caller wants auto-detection, figure out what kind of file
      * this is. */
@@ -737,7 +750,7 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
         if ((type = detect_music_type(src)) == MUS_NONE) {
             /* Don't call Mix_SetError() since detect_music_type() does that. */
             if (freesrc) {
-                SDL_RWclose(src);
+                Mix_RWclose(src);
             }
             return NULL;
         }
@@ -779,42 +792,42 @@ SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst)
 #endif
                 return music;
 #else
-                return SDL_TRUE;
+#ifndef FULL // SELF_CONV
+                Mix_BuildAudioCVT(dst);
+#endif
+                return dst;
 #endif // FULL - FIX_MUS
             }
 #ifdef FULL // WAV_SRC
             /* Reset the stream for the next decoder */
-            SDL_RWseek(src, start, RW_SEEK_SET);
+            Mix_RWseek(src, start, RW_SEEK_SET);
         }
     }
     if (!*Mix_GetError()) {
         Mix_SetError("Unrecognized audio format");
     }
 #endif
+#ifdef FULL // SRC_PTR
 #ifdef FULL // FREE_SRC
     if (freesrc) {
-        SDL_RWclose(src);
+        Mix_RWclose(src);
 #ifdef FULL // MUS_CHECK
     } else {
-        SDL_RWseek(src, start, RW_SEEK_SET); -- pointless if !WAV_SRC
+        Mix_RWseek(src, start, RW_SEEK_SET); -- pointless if !WAV_SRC
 #endif
     }
 #else // FREE_SRC
-        SDL_RWclose(src);
+        Mix_RWclose(src);
 #endif
-#ifdef FULL // FIX_MUS
+#endif // SRC_PTR
     return NULL;
-#else
-    return SDL_FALSE;
-#endif
 }
 #ifdef FULL // WAV_SRC, FREE_SRC, FIX_MUS
-Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
+Mix_Music *Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc)
 #else
-SDL_bool Mix_LoadMUS_RW(SDL_RWops* src)
+Mix_Audio* Mix_LoadMUS_RW(Mix_RWops* src)
 #endif
 {
-    theMusicChannel.buffer.basePos = theMusicChannel.buffer.currPos = theMusicChannel.buffer.endPos = musicBuffer;
     return Mix_LoadAudio_RW(src, &theMusicSrc);
 }
 
@@ -852,13 +865,13 @@ void Mix_FreeMusic()
 {
     // TODO: ensure theMusicSrc is valid?
     /* Stop the music if it's currently playing */
+#ifdef FULL // FADING
     Mix_LockAudio();
 #ifdef FULL // FIX_MUS
     if (music_playing) {
 #else
-    if (theMusicChannel.chunk != NULL) {
+    if (music_internal_playing()) {
 #endif
-#ifdef FULL // FADING
         /* Wait for any fade out to finish */
         while (music->fading == MIX_FADING_OUT) {
             Mix_UnlockAudio();
@@ -868,20 +881,16 @@ void Mix_FreeMusic()
 #ifdef FULL // FIX_MUS
         if (music_playing) {
 #else
-        if (theMusicChannel.chunk != NULL) {
+        if (music_internal_playing()) {
 #endif // FIX_MUS
-#else // FADING
-        {
-#endif // FADING
             music_internal_halt();
         }
     }
     Mix_UnlockAudio();
-#ifdef FULL // WAV_SRC
-    music->interface->Delete(&theMusicSrc);
-#else
-    Mix_MusicInterface_WAV.Delete(&theMusicSrc);
-#endif
+#else // FADING
+    Mix_HaltMusic();
+#endif // FADING
+    Mix_UnloadAudio(&theMusicSrc);
 }
 void Mix_UnloadAudio(Mix_Audio* audio)
 {
@@ -968,7 +977,7 @@ const char *Mix_GetMusicCopyrightTag(const Mix_Music *music)
 /* Play a music chunk.  Returns 0, or -1 if there was an error.
  */
 #ifdef FULL // FIX_MUS, MUS_LOOP
-static int music_internal_play(Mix_Music *music, int play_count, double position)
+static int music_internal_play(Mix_Music *music, int loop_count, double position)
 #else
 static int music_internal_play()
 #endif
@@ -985,30 +994,37 @@ static int music_internal_play()
         return 0;
     }
 #endif
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, FADING
     /* Note the music we're playing */
     if (music_playing) {
         music_internal_halt();
     }
     music_playing = music;
     music_playing->playing = SDL_TRUE;
-#else
-    theMusicChannel.chunk = &theMusicSrc;
-#endif
 
     /* Set the initial volume */
     music_internal_initialize_volume();
+#else
+    Mix_RWFromMem(&theMusicChannel.playOps,
+        (Uint8*)theMusicSrc.asWAV.src.basePos + theMusicSrc.asWAV.start,
+        theMusicSrc.asWAV.stop - theMusicSrc.asWAV.start); // WAV_SRC, MEM_OPS
+    theMusicChannel.loop_count = -1; // MUS_LOOP
+    theMusicChannel.chunk = &theMusicSrc;
+    theMusicChannel.buffOps.basePos = theMusicChannel.buffOps.currPos = theMusicChannel.buffOps.endPos = musicBuffer;
+#endif
 
     /* Set up for playback */
 #ifdef FULL // WAV_SRC
-    retval = music->interface->Play(music->context, play_count);
+    retval = music->interface->Play(music->context, loop_count);
 #else
 #ifdef FULL // FIX_MUS, MUS_LOOP
-    retval = Mix_MusicInterface_WAV.Play(music->context, play_count);
+    retval = Mix_MusicInterface_WAV.Play(music->context, loop_count);
 #else
+#ifdef FULL // MEM_OPS
     retval = Mix_MusicInterface_WAV.Play(&theMusicSrc, -1);
-#endif
-#endif
+#endif // MEM_OPS
+#endif // FIX_MUS, MUS_LOOP
+#endif // WAV_SRC
 #ifdef FULL
     /* Set the playback position, note any errors if an offset is used */
     if (retval == 0) {
@@ -1024,11 +1040,11 @@ static int music_internal_play()
 #endif
     /* If the setup failed, we're not playing any music anymore */
     if (retval < 0) {
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, WAV_SRC
         music->playing = SDL_FALSE;
         music_playing = NULL;
 #else
-        theMusicChannel.chunk = NULL;
+        music_internal_halt();
 #endif
     }
     return(retval);
@@ -1064,7 +1080,9 @@ int Mix_FadeInMusicPos()
     music->fade_steps = ms/ms_per_step;
 #endif
     /* Play the puppy */
+#ifdef FULL // FIX_MUS
     Mix_LockAudio();
+#endif
 #ifdef FULL // FADING
     /* If the current music is fading out, wait for the fade to complete */
     while (music_playing && (music_playing->fading == MIX_FADING_OUT)) {
@@ -1074,10 +1092,6 @@ int Mix_FadeInMusicPos()
     }
 #endif
 #ifdef FULL // FIX_MUS, MUS_LOOP
-    if (loops == 0) {
-        /* Loop is the number of times to play the audio */
-        loops = 1;
-    }
     retval = music_internal_play(music, loops, position);
 #else
     retval = music_internal_play();
@@ -1086,7 +1100,9 @@ int Mix_FadeInMusicPos()
     /* Set music as active */
     music_active = (retval == 0);
 #endif
+#ifdef FULL // FIX_MUS
     Mix_UnlockAudio();
+#endif
 
     return(retval);
 }
@@ -1322,6 +1338,7 @@ static void music_internal_volume(int volume)
 #endif
 #endif // FULL - WAV_SRC
 }
+#ifdef FULL
 int Mix_VolumeMusic(int volume)
 {
     int prev_volume;
@@ -1355,6 +1372,24 @@ int Mix_VolumeMusic(int volume)
     Mix_UnlockAudio();
     return(prev_volume);
 }
+#else
+void Mix_VolumeMusic(int volume)
+{
+#ifdef FULL // FIX_MUS
+    if (volume > MIX_MAX_VOLUME) {
+        volume = MIX_MAX_VOLUME;
+    }
+    music_volume = volume;
+    Mix_LockAudio();
+    if (music_playing) {
+        music_internal_volume(music_volume);
+    }
+    Mix_UnlockAudio();
+#else
+    theMusicChannel.volume = volume;
+#endif
+}
+#endif
 #ifdef FULL
 int Mix_GetMusicVolume(Mix_Music *music)
 {
@@ -1382,6 +1417,7 @@ static void music_internal_halt(void)
 #ifdef FULL // FIX_MUS
     music_playing->playing = SDL_FALSE;
 #else
+    //theMusicChannel.remaining = 0;
     theMusicChannel.chunk = NULL;
 #endif
 #ifdef FULL // FADING
@@ -1397,14 +1433,9 @@ int Mix_HaltMusic(void)
 #ifdef FULL // FIX_MUS
     if (music_playing) {
 #else
-    if (theMusicChannel.chunk != NULL) {
+    if (music_internal_playing()) {
 #endif
-        music_internal_halt();
-#ifdef FULL // HOOK
-        if (music_finished_hook) {
-            music_finished_hook();
-        }
-#endif
+        _Mix_Music_done_playing();
     }
     Mix_UnlockAudio();
 
@@ -1681,9 +1712,9 @@ const char* Mix_GetSoundFonts(void)
         unsigned i;
 
         for (i = 0; i < SDL_arraysize(s_soundfont_paths); ++i) {
-            SDL_RWops *rwops = SDL_RWFromFile(s_soundfont_paths[i], "rb");
+            Mix_RWops *rwops = Mix_RWFromFile(s_soundfont_paths[i], "rb");
             if (rwops) {
-                SDL_RWclose(rwops);
+                Mix_RWclose(rwops);
                 return s_soundfont_paths[i];
             }
         }

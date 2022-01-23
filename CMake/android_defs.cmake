@@ -5,7 +5,6 @@ set(ZEROTIER OFF)
 # Disable all system dependencies.
 # All of these will be fetched via FetchContent and linked statically.
 set(DEVILUTIONX_SYSTEM_SDL2 OFF)
-set(DEVILUTIONX_STATIC_SDL2 OFF)
 set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 
 # Package the assets with the APK.

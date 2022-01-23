@@ -239,7 +239,7 @@ const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
 	1082908612,
 };
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 /** Maps from facing direction to scroll-direction. */
 static const char dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
 #endif
@@ -853,7 +853,7 @@ void NextPlrLevel(int pnum)
 
 	if (pnum == mypnum) {
 		gbLvlUp = true;
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		if (sgbControllerActive)
 			FocusOnCharInfo();
 #endif
@@ -1257,7 +1257,7 @@ static bool StartWalk(int pnum)
 
 	SetPlayerOld(pnum);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	for (i = 0; i < NUM_CLASSES; i++)
 		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
 #endif
@@ -1308,7 +1308,7 @@ static bool StartWalk(int pnum)
 		//ScrollInfo._sdx = plr._poldx - ViewX;
 		//ScrollInfo._sdy = plr._poldy - ViewY;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 		for (int i = 0; i < lengthof(dir2sdir); i++)
 			assert(dir2sdir[i] == 1 + OPPOSITE(i));
 #endif
@@ -2125,7 +2125,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		hper -= 30 - sl * 2;
 	}
 	if (random_(4, 100) >= hper && mon->_mmode != MM_STONE)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return false;
@@ -2982,7 +2982,7 @@ void MissToPlr(int mi, int x, int y, bool hit)
 
 		hper = mis->_miSpllvl * 16 - mon->_mArmorClass;
 		if (random_(4, 100) >= hper && mon->_mmode != MM_STONE)
-#ifdef _DEBUG
+#if DEBUG_MODE
 			if (!debug_mode_god_mode)
 #endif
 				return;

@@ -14,7 +14,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 /** Number of times the current seed has been fetched */
 int SeedCount;
 #endif
@@ -100,7 +100,7 @@ int GetDirection(int x1, int y1, int x2, int y2)
  */
 void SetRndSeed(int32_t s)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	SeedCount = 0;
 #endif
 	sglGameSeed = s;
@@ -112,7 +112,7 @@ void SetRndSeed(int32_t s)
  */
 int32_t GetRndSeed()
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	SeedCount++;
 #endif
 	sglGameSeed = RndMult * static_cast<uint32_t>(sglGameSeed) + RndInc;

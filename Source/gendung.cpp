@@ -132,7 +132,7 @@ void DRLG_Init_Globals()
 	memset(dMissile, 0, sizeof(dMissile));
 	memset(dSpecial, 0, sizeof(dSpecial));
 	c = MAXDARKNESS;
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		c = 0;
 #endif
@@ -181,7 +181,7 @@ void InitLvlDungeon()
 
 	mem_free_dbg(pLPFile);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
 	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));

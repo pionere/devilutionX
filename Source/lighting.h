@@ -35,11 +35,10 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum);
 void DoUnVision(int nXPos, int nYPos, int nRadius);
 void DoVision(int nXPos, int nYPos, int nRadius, bool local);
 void MakeLightTable();
-#ifdef _DEBUG
+#if DEBUG_MODE
 void ToggleLighting();
-#else
-void InitLightGFX();
 #endif
+void InitLightGFX();
 void InitLighting();
 unsigned AddLight(int x, int y, int r);
 void AddUnLight(unsigned lnum);

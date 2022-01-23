@@ -1,6 +1,5 @@
 #include "tcpd_client.h"
 #ifdef TCPIP
-#include <string>
 #include <SDL.h>
 #include <exception>
 #include <functional>
@@ -63,12 +62,7 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 		PLR_MASTER, cookie_self);
 	send_packet(*pkt);
 	for (i = 0; i < NUM_SLEEP; i++) {
-		try {
-			poll();
-		} catch (const std::runtime_error &e) {
-			SDL_SetError("%s", e.what());
-			break;
-		}
+		poll();
 		if (plr_self != PLR_BROADCAST)
 			return true; // join successful
 		SDL_Delay(MS_SLEEP);
@@ -162,13 +156,9 @@ void tcpd_client::recv_connect(packet &pkt)
 
 	auto cliCon = tcp_server::make_connection(ioc);
 	asio::error_code err;
-	auto addr = asio::ip::address::from_string(addrstr, err);
-	if (!err) {
-		auto ep = asio::ip::tcp::endpoint(addr, port);
-		cliCon->socket.connect(ep, err);
-	}
+	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc,  err);
 	if (err) {
-		SDL_Log("Failed to connect %s", err.message().c_str());
+		DoLog("Failed to connect %s", err.message().c_str());
 		return;
 	}
 	cliCon->pnum = pnum;
@@ -254,7 +244,7 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc &con, packet &pkt)
 	plr_t i, pnum;
 	
 	if (pkt.pktType() != PT_JOIN_REQUEST) {
-		// SDL_Log("Invalid join packet.");
+		// DoLog("Invalid join packet.");
 		return false;
 	}
 	pnum = pkt.pktSrc();
@@ -263,7 +253,7 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc &con, packet &pkt)
 			break;
 	}
 	if (pnum >= MAX_PLRS || connections[pnum] != NULL || i == MAX_PLRS) {
-		// SDL_Log(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
+		// DoLog(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
 		return false;
 	}
 	pending_connections[i] = NULL;

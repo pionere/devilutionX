@@ -107,7 +107,7 @@ static BYTE currSkill;
 /** The type of the 'highlighted' skill in the Skill-List or in the Spell-Book. */
 static BYTE currSkillType;
 /** Specifies whether the cursor should be moved to the active skill in the Skill-List. */
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 static BYTE _gbMoveCursor = 0;
 #endif
 
@@ -370,7 +370,7 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
 	}
 }
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 static bool MoveToAtkMoveSkill(int sn, int st, BYTE atk_sn, BYTE atk_st, BYTE move_sn, BYTE move_st)
 {
 	if (atk_sn != SPL_INVALID)
@@ -455,7 +455,7 @@ void DrawSkillList()
 			DrawSpellCel(x, y, pSpellCels, spelldata[j].sIcon, SPLICONLENGTH);
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 			if (MoveToSkill(pnum, j, i)) {
 				SetCursorPos(lx + SPLICONLENGTH / 2, ly + SPLICONLENGTH / 2);
 			}
@@ -498,7 +498,7 @@ void DrawSkillList()
 			}
 		}
 	}
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	_gbMoveCursor = 0;
 #endif
 }
@@ -937,7 +937,7 @@ void DoSkillList(bool altSkill)
 {
 	gbSkillListFlag = true;
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	_gbMoveCursor = 0;
 	if (sgbControllerActive)
 		_gbMoveCursor = altSkill ? 1 : 2;

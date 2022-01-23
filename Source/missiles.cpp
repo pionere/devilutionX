@@ -646,7 +646,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 		hper = 40;
 	}
 	if (random_(68, 100) >= hper && mon->_mmode != MM_STONE)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return false;
@@ -660,7 +660,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	}
 
 	mon->_mhitpoints -= dam;
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_god_mode)
 		mon->_mhitpoints = 0;
 #endif
@@ -706,7 +706,7 @@ static bool MonsterMHit(int mnum, int mi)
 		}
 	}
 	if (random_(69, 100) >= hper && mon->_mmode != MM_STONE)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return false;
@@ -861,7 +861,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	}
 
 	if (random_(72, 100) >= hper)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return false;
@@ -922,7 +922,7 @@ static bool PlayerMHit(int pnum, int mi)
 	}
 
 	if (random_(72, 100) >= hper)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return false;
@@ -1101,7 +1101,7 @@ static bool PlrMissHit(int pnum, int mi)
 /**
  * Check if the monster is on a given tile.
  */
-static int CheckMonCol(int mnum, int mx, int my)
+static int CheckMonCol(int mnum)
 {
 	MonsterStruct *mon;
 	int mode;
@@ -1133,7 +1133,7 @@ static int CheckMonCol(int mnum, int mx, int my)
 	return halfOver ? -1 : mnum;
 }
 
-static int CheckPlrCol(int pnum, int mx, int my)
+static int CheckPlrCol(int pnum)
 {
 	int mode;
 	bool negate;
@@ -1171,14 +1171,14 @@ static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 
 	mnum = dMonster[mx][my];
 	if (mnum != 0) {
-		mnum = CheckMonCol(mnum, mx, my);
+		mnum = CheckMonCol(mnum);
 		if (mnum != -1 && MonMissHit(mnum, mi))
 			hit = 1;
 	}
 
 	pnum = dPlayer[mx][my];
 	if (pnum != 0) {
-		pnum = CheckPlrCol(pnum, mx, my);
+		pnum = CheckPlrCol(pnum);
 		if (pnum != -1 && PlrMissHit(pnum, mi))
 			hit = 1;
 	}
@@ -1243,14 +1243,16 @@ static void CheckSplashCol(int mi)
 	mis->_mityoff -= mis->_miyvel;
 	GetMissilePos(mi);
 
-	if (mis->_mixoff > TILE_WIDTH / 2) {
+	//  2. limit the explosion area
+	lx = mis->_mix;
+	ly = mis->_miy;
+
+	//  3. alter offset for better visual
+	if (mis->_mixoff >= TILE_WIDTH / 2) {
 		mis->_mixoff -= TILE_WIDTH;
 		mis->_mix++;
 		mis->_miy--;
 	}
-	//  2. limit the explosion area
-	lx = mis->_mix;
-	ly = mis->_miy;
 
 	//mis->_mitxoff += mis->_mixvel;
 	//mis->_mityoff += mis->_miyvel;
@@ -1533,9 +1535,14 @@ int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis = &missile[mi];
 	mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0] - 1;
 
-	dam = 2 * (plx(misource)._pLevel + random_(60, 10) + random_(60, 10)) + 4;
-	for (i = spllvl; i > 0; i--) {
-		dam += dam >> 3;
+	if (misource != -1) {
+		assert((unsigned)misource < MAX_PLRS);
+		dam = 2 * (plx(misource)._pLevel + random_(60, 10) + random_(60, 10)) + 4;
+		for (i = spllvl; i > 0; i--) {
+			dam += dam >> 3;
+		}
+	} else {
+		dam = currLvl._dLevel;
 	}
 	dam <<= 6;
 	mis->_miMinDam = mis->_miMaxDam = dam;
@@ -1884,7 +1891,7 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	int magic;
+	int magic, mindam, maxdam;
 
 	mis = &missile[mi];
 	mis->_miRange = 160 * (spllvl + 1);
@@ -1893,12 +1900,14 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		// TODO: add support for spell duration modifier
 		// range += (plx(misource)._pISplDur * range) >> 7;
 		magic = plx(misource)._pMagic;
-		mis->_miMinDam = ((magic >> 3) + spllvl + 5) << (-3 + 6);
-		mis->_miMaxDam = ((magic >> 3) + spllvl * 2 + 10) << (-3 + 6);
+		mindam = (magic >> 3) + spllvl + 5;
+		maxdam = (magic >> 3) + spllvl * 2 + 10;
 	} else {
-		mis->_miMinDam = (5 + currLvl._dLevel) << (-3 + 6);
-		mis->_miMaxDam = (10 + currLvl._dLevel) << (-3 + 6);
+		mindam = 5 + currLvl._dLevel;
+		maxdam = 10 + currLvl._dLevel * 2;
 	}
+	mis->_miMinDam = mindam << (-3 + 6);
+	mis->_miMaxDam = maxdam << (-3 + 6);
 	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 	return MIRES_DONE;
 }
@@ -2173,14 +2182,21 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	int magic;
+	int magic, mindam, maxdam;
 
-	assert((unsigned)misource < MAX_PLRS);
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	mis = &missile[mi];
-	magic = plx(misource)._pMagic;
-	mis->_miMinDam = ((magic >> 3) + spllvl + 1) << 6;
-	mis->_miMaxDam = ((magic >> 3) + 2 * spllvl + 2) << 6;
+	if (misource != -1) {
+		assert((unsigned)misource < MAX_PLRS);
+		magic = plx(misource)._pMagic;
+		mindam = (magic >> 3) + spllvl + 1;
+		maxdam = (magic >> 3) + 2 * spllvl + 2;
+	} else {
+		mindam = currLvl._dLevel + 1;
+		maxdam = 2 * currLvl._dLevel + 2;
+	}
+	mis->_miMinDam = mindam << 6;
+	mis->_miMaxDam = maxdam << 6;
 	mis->_miRange = 255;
 	//mis->_miVar1 = 0;
 	//mis->_miVar3 = 0;
@@ -2821,7 +2837,7 @@ int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 
 	if (misource == mypnum) {
 		NewCursor(CURSOR_DISARM);
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		if (sgbControllerActive) {
 			TryIconCurs(false);
 		}

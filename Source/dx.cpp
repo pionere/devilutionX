@@ -4,9 +4,10 @@
  * Implementation of functions setting up the graphics pipeline.
  */
 #include "all.h"
+#include <config.h>
 #include "utils/display.h"
 #include <SDL.h>
-#if HAS_GAMECTRL == 1
+#if HAS_GAMECTRL
 #include "controls/controller.h"
 #endif
 
@@ -24,14 +25,14 @@ BYTE *gpBufStart;
 /** Lower bound of back buffer. */
 BYTE *gpBufEnd;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 int locktbl[256];
 #endif
 static CCritSect sgMemCrit;
 
 static void dx_create_back_buffer()
 {
-	back_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 8, SDL_PIXELFORMAT_INDEX8);
+	back_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 0, SDL_PIXELFORMAT_INDEX8);
 	if (back_surface == NULL) {
 		sdl_fatal(ERR_SDL_BACK_PALETTE_CREATE);
 	}
@@ -66,7 +67,7 @@ static void dx_create_primary_surface()
 		Uint32 format;
 		if (SDL_QueryTexture(renderer_texture, &format, NULL, NULL, NULL) < 0)
 			sdl_fatal(ERR_SDL_TEXTURE_CREATE);
-		renderer_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, SDL_BITSPERPIXEL(format), format);
+		renderer_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, format);
 	}
 #endif
 	if (GetOutputSurface() == NULL) {
@@ -76,15 +77,20 @@ static void dx_create_primary_surface()
 
 void dx_init()
 {
+	SpawnWindow(PROJECT_NAME);
 #ifndef USE_SDL1
 	SDL_RaiseWindow(ghMainWnd);
 	SDL_ShowWindow(ghMainWnd);
+	SDL_DisableScreenSaver();
 #endif
 
 	dx_create_primary_surface();
 	dx_create_back_buffer();
 	palette_init();
+
+	gbWndActive = true;
 }
+
 static void lock_buf_priv()
 {
 	sgMemCrit.Enter();
@@ -100,7 +106,7 @@ static void lock_buf_priv()
 
 void lock_buf(BYTE idx)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	++locktbl[idx];
 #endif
 	lock_buf_priv();
@@ -108,7 +114,7 @@ void lock_buf(BYTE idx)
 
 static void unlock_buf_priv()
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (_guLockCount == 0)
 		app_fatal("draw main unlock error");
 	if (gpBuffer == NULL)
@@ -123,7 +129,7 @@ static void unlock_buf_priv()
 
 void unlock_buf(BYTE idx)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (locktbl[idx] == 0)
 		app_fatal("Draw lock underflow: 0x%x", idx);
 	--locktbl[idx];
@@ -133,7 +139,7 @@ void unlock_buf(BYTE idx)
 
 void dx_cleanup()
 {
-#if HAS_GAMECTRL == 1
+#if HAS_GAMECTRL
 	GameController::ReleaseAll();
 #endif
 #ifndef USE_SDL1
@@ -228,6 +234,7 @@ void trans_rect(int sx, int sy, int width, int height)
 {
 	int row, col;
 	BYTE *pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	// TODO: use SSE2?
 	for (row = 0; row < height; row++) {
 		for (col = 0; col < width; col++) {
 			if (((row ^ col) & 1) == 0)
@@ -304,13 +311,13 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 static void LimitFrameRate()
 {
 	static Uint32 frameDeadline;
-	Uint32 v = 0, tc = SDL_GetTicks() * 1000;
+	Uint32 tc = SDL_GetTicks();
 
 	if (frameDeadline > tc) {
-		v = tc % gnRefreshDelay;
-		SDL_Delay(v / 1000 + 1); // ceil
+		SDL_Delay(frameDeadline - tc);
+		tc = frameDeadline;
 	}
-	frameDeadline = tc + v + gnRefreshDelay;
+	frameDeadline = tc + gnRefreshDelay;
 }
 
 void RenderPresent()
@@ -325,13 +332,14 @@ void RenderPresent()
 			}
 
 			// Clear buffer to avoid artifacts in case the window was resized
+			/* skip SDL_RenderClear since the whole screen is redrawn anyway
 			if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0) { // TODO only do this if window was resized
 				sdl_fatal(ERR_SDL_DX_DRAW_COLOR);
 			}
 
 			if (SDL_RenderClear(renderer) < 0) {
 				sdl_fatal(ERR_SDL_DX_RENDER_CLEAR);
-			}
+			}*/
 			if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) < 0) {
 				sdl_fatal(ERR_SDL_DX_RENDER_COPY);
 			}

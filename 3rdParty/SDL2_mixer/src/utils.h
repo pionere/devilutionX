@@ -44,12 +44,12 @@ extern SDL_bool _Mix_IsLoopTag(const char *tag);
 #include "types_internal.h"
 
 #ifndef FULL // WAV_SRC
-void Mix_MixAudioFormat(Uint8* dst, const Uint8* src, SDL_AudioFormat srcFormat, int len, int volume);
+extern void (*Mix_MixAudioFormat)(void* dst, const void* src, unsigned len);
 #endif
 #ifndef FULL // SELF_CONV
-extern void (*Mix_Convert_AUDIO16_Mono2Stereo)(Mix_BuffOps* buf);
-//extern void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf);
 void Mix_Utils_Init();
+void Mix_BuildAudioCVT(Mix_Audio* audio);
+void Mix_ConvertAudio(Mix_Audio* audio, Mix_BuffOps* buffOps);
 #endif
 
 #endif /* UTILS_H_ */

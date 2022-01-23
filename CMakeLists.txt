@@ -16,46 +16,6 @@ endif()
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
-include(CMakeDependentOption)
-include(CMake/out_of_tree.cmake)
-include(CMake/genex.cmake)
-
-DEBUG_OPTION(ASAN "Enable address sanitizer")
-DEBUG_OPTION(UBSAN "Enable undefined behaviour sanitizer")
-option(TSAN "Enable thread sanitizer (not compatible with ASAN=ON)" OFF)
-DEBUG_OPTION(DEBUG "Enable debug mode in engine")
-option(GPERF "Build with GPerfTools profiler" OFF)
-cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
-option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
-option(PIE "Generate position-independent code" OFF)
-option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
-option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
-option(NOSOUND "Disable sound support" OFF)
-option(NOWIDESCREEN "Disable widescreen support" OFF)
-option(NONET "Disable network support" OFF)
-cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
-cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
-cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
-cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
-cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
-cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
-option(RUN_TESTS "Build and run tests" OFF)
-option(HELLFIRE "Build hellfire version" OFF)
-RELEASE_OPTION(CPACK "Configure CPack")
-
-
-if(NOT NONET)
-  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
-  cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
-                        "DEVILUTIONX_SYSTEM_LIBSODIUM" ON)
-endif()
-
-if (NOT USE_SDL1)
-  option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
-  cmake_dependent_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" OFF
-                        "DEVILUTIONX_SYSTEM_SDL2" ON)
-endif()
-
 if(NOT VERSION_NUM)
   include(CMake/git.cmake)
   get_git_tag(VERSION_NUM)
@@ -83,39 +43,59 @@ else()
     LANGUAGES C CXX)
 endif()
 
-# Not a genexp because CMake doesn't support it
-# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
-if(NOT DISABLE_LTO)
-  # LTO if supported:
-  include(CheckIPOSupported)
-  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
-  if(is_ipo_supported)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+include(CMakeDependentOption)
+include(CMake/out_of_tree.cmake)
+
+macro(cmake_conditional_option NAME DESCRIPTION)
+  if(${ARGN})
+    option(${NAME} ${DESCRIPTION} ON)
+  else()
+    option(${NAME} ${DESCRIPTION} OFF)
   endif()
+endmacro()
+macro(cmake_debug_option NAME DESCRIPTION)
+  cmake_conditional_option(${NAME} ${DESCRIPTION} CMAKE_BUILD_TYPE STREQUAL "Debug")
+endmacro()
+macro(cmake_release_option NAME DESCRIPTION)
+  cmake_conditional_option(${NAME} ${DESCRIPTION} NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+endmacro()
+
+cmake_debug_option(ASAN "Enable address sanitizer")
+cmake_debug_option(UBSAN "Enable undefined behaviour sanitizer")
+cmake_dependent_option(TSAN "Enable thread sanitizer" OFF "NOT ASAN" OFF)
+cmake_debug_option(DEBUG_MODE "Enable debug mode in engine")
+option(GPERF "Build with GPerfTools profiler" OFF)
+cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
+option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
+option(PIE "Generate position-independent code" OFF)
+option(CPACK "Configure CPack" ON)
+option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
+option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
+option(NOSOUND "Disable sound support" OFF)
+option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
+option(NOWIDESCREEN "Disable widescreen support" OFF)
+option(NONET "Disable network support" OFF)
+cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
+cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
+cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
+cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
+cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
+cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
+option(RUN_TESTS "Build and run tests" OFF)
+option(HELLFIRE "Build hellfire version" OFF)
+
+
+if(NOT NONET)
+  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
+  cmake_conditional_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" NOT ${DEVILUTIONX_SYSTEM_LIBSODIUM})
 endif()
 
-if(TSAN)
-  set(ASAN OFF)
+if(NOT USE_SDL1)
+  option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
+  cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake")
-
-if(GPERF)
-  if(GPERF_HEAP_FIRST_GAME_ITERATION)
-    set(GPERF_HEAP_MAIN ON)
-  endif()
-
-  # Compile with information about file and line numbers for everything
-  # even in non-Debug build types.
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-g2>")
-  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    # Use the more size-efficient `-gmlt` option on clang.
-    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-gmlt>")
-  endif()
-endif()
 
 if(NINTENDO_SWITCH)
   list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/switch")
@@ -182,9 +162,11 @@ if(IOS)
   include(ios_defs)
 endif()
 
-if(PIE)
-  set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
-endif()
+option(HAS_JOYSTICK "Enable joystick support" ON)
+option(HAS_DPAD "Enable D-Pad support" ON)
+option(HAS_KBCTRL "Enable keyboard controller support" ON)
+cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
+cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -192,6 +174,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
+if(PIE)
+  set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+endif()
+
+# Not a genexp because CMake doesn't support it
+# https://gitlab.kitware.com/cmake/cmake/-/issues/20546
+if(NOT DISABLE_LTO)
+  # LTO if supported:
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT is_ipo_supported OUTPUT lto_error)
+  if(is_ipo_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+  endif()
+endif()
 
 if(NOT NINTENDO_3DS)
   find_package(Threads REQUIRED)
@@ -233,10 +231,10 @@ elseif(DEVILUTIONX_SYSTEM_SDL2)
   endif()
 else()
   add_subdirectory(3rdParty/SDL2)
+  set(SDL2_MAIN SDL2::SDL2main)
 endif()
 
 if(NOT NOSOUND)
-  add_definitions(-DMUSIC_WAV)
   add_library(SDL2_mixer STATIC
     3rdParty/SDL2_mixer/src/effect_position.c
     3rdParty/SDL2_mixer/src/effects_internal.c
@@ -244,6 +242,7 @@ if(NOT NOSOUND)
     3rdParty/SDL2_mixer/src/music.c
     3rdParty/SDL2_mixer/src/utils.c
     3rdParty/SDL2_mixer/src/codecs/music_wav.c)
+  target_compile_definitions(SDL2_mixer PRIVATE MUSIC_WAV)
   if(USE_SDL1)
     target_link_libraries(SDL2_mixer PRIVATE ${SDL_LIBRARY})
   else()
@@ -258,6 +257,7 @@ endif()
 
 if(TCPIP)
   add_subdirectory(3rdParty/asio)
+  target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1)
   if(NINTENDO_3DS)
       include(asio_defs)
   elseif(NINTENDO_SWITCH)
@@ -571,6 +571,18 @@ endif()
 
 if(GPERF)
   find_package(Gperftools REQUIRED)
+  if(GPERF_HEAP_FIRST_GAME_ITERATION)
+    set(GPERF_HEAP_MAIN ON)
+  endif()
+
+  # Compile with information about file and line numbers for everything
+  # even in non-Debug build types.
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-g2>")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Use the more size-efficient `-gmlt` option on clang.
+    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-gmlt>")
+  endif()
 endif()
 
 target_include_directories(${BIN_TARGET} PRIVATE
@@ -602,18 +614,12 @@ if(ZEROTIER)
   target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
 endif()
 
-genex_for_option(DEBUG)
-target_compile_definitions(${BIN_TARGET} PUBLIC "$<${DEBUG_GENEX}:_DEBUG>")
-
-if(TCPIP)
-  target_compile_definitions(${BIN_TARGET} PRIVATE ASIO_STANDALONE)
-endif()
-
 # Defines without value
 foreach(
   def_name
   USE_SDL1
   NOSOUND
+  STREAM_ALL_AUDIO
   NOWIDESCREEN
   NONET
   NETENCRYPT
@@ -622,7 +628,13 @@ foreach(
   HOSTONLY
   TCPIP
   ZEROTIER
+  HAS_GAMECTRL
+  HAS_DPAD
+  HAS_TOUCHPAD
+  HAS_KBCTRL
+  HAS_JOYSTICK
   PREFILL_PLAYER_NAME
+  DEBUG_MODE
   GPERF
   GPERF_HEAP_MAIN
   GPERF_HEAP_FIRST_GAME_ITERATION
@@ -645,11 +657,6 @@ foreach(
   SDL1_VIDEO_MODE_FLAGS
   SDL1_VIDEO_MODE_SVID_FLAGS
   SDL1_FORCE_SVID_VIDEO_MODE
-  HAS_GAMECTRL
-  HAS_DPAD
-  HAS_TOUCHPAD
-  HAS_KBCTRL
-  HAS_JOYSTICK
   KBCTRL_BUTTON_DPAD_LEFT
   KBCTRL_BUTTON_DPAD_RIGHT
   KBCTRL_BUTTON_DPAD_UP
@@ -704,17 +711,17 @@ endforeach(def_name)
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
 
-genex_for_option(UBSAN)
-target_compile_options(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined>)
-target_link_libraries(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined>)
+if(UBSAN)
+  target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=undefined)
+  target_link_libraries(${BIN_TARGET} PUBLIC -fsanitize=undefined)
+endif()
 
 if(TSAN)
   target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=thread)
   target_link_libraries(${BIN_TARGET} PUBLIC -fsanitize=thread)
-else()
-  genex_for_option(ASAN)
-  target_compile_options(${BIN_TARGET} PUBLIC "$<${ASAN_GENEX}:-fsanitize=address;-fsanitize-recover=address>")
-  target_link_libraries(${BIN_TARGET} PUBLIC "$<${ASAN_GENEX}:-fsanitize=address;-fsanitize-recover=address>")
+elseif(ASAN)
+  target_compile_options(${BIN_TARGET} PUBLIC "-fsanitize=address;-fsanitize-recover=address")
+  target_link_libraries(${BIN_TARGET} PUBLIC "-fsanitize=address;-fsanitize-recover=address")
 endif()
 
 if(USE_SDL1)
@@ -804,20 +811,26 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-builtin-macro-redefined")
 
   # Note: For Valgrind support.
-  genex_for_option(DEBUG)
-  target_compile_options(${BIN_TARGET} PUBLIC $<${DEBUG_GENEX}:-fno-omit-frame-pointer>)
+  if(DEBUG_MODE)
+    target_compile_options(${BIN_TARGET} PUBLIC -fno-omit-frame-pointer)
+  endif()
 
   # Warnings for devilutionX
   target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-char-subscripts -Wno-missing-braces)
 
   # For ARM and other default unsigned char platforms
   target_compile_options(${BIN_TARGET} PRIVATE -fsigned-char)
+
+  # Disable Run-Time Type Information
+  target_compile_options(${BIN_TARGET} PRIVATE -fno-rtti)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   #target_compile_options(${BIN_TARGET} PRIVATE "/W1")
   target_compile_options(${BIN_TARGET} PRIVATE "-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING")
   target_compile_options(${BIN_TARGET} PRIVATE "/Zc:__cplusplus")
+  # Disable Run-Time Type Information
+  string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   target_compile_options(${BIN_TARGET} PRIVATE "/permissive-")
 endif()
 
@@ -851,7 +864,6 @@ if(APPLE)
   endif()
 
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${PROJECT_VERSION}")
-  set(CPACK On)
 endif()
 
 if(NINTENDO_SWITCH)
@@ -1113,3 +1125,159 @@ if(CPACK)
   set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
   include(CPack)
 endif()
+
+##### Info output #####
+set(LONGESTOPTIONNAME 31)
+
+message(STATUS "")
+message(STATUS "Devilx was configured with the following options:")
+message(STATUS "")
+message(STATUS "Platform: ${CMAKE_SYSTEM}")
+message(STATUS "Target platform: ${TARGET_PLATFORM}")
+message(STATUS "Compiler: ${CMAKE_C_COMPILER} .. (${CMAKE_CXX_COMPILER_ID})")
+message(STATUS "Revision: ${VERSION_NUM}")
+message(STATUS "")
+message(STATUS "Defines:")
+# Defines without value
+foreach(
+  def_name
+  HELLFIRE
+  NOSOUND
+  STREAM_ALL_AUDIO
+  NOWIDESCREEN
+  NONET
+  NETENCRYPT
+  ADAPTIVE_NETUPDATE
+  NOHOSTING
+  HOSTONLY
+  TCPIP
+  ZEROTIER
+  HAS_GAMECTRL
+  HAS_DPAD
+  HAS_TOUCHPAD
+  HAS_KBCTRL
+  HAS_JOYSTICK
+  PREFILL_PLAYER_NAME
+  ASAN
+  UBSAN
+  TSAN
+  DEBUG_MODE
+  RUN_TESTS
+  DISABLE_LTO
+  PIE
+  CPACK
+  MACOSX_STANDALONE_APP_BUNDLE
+  GPERF
+  GPERF_HEAP_FIRST_GAME_ITERATION
+)
+  # Get the padding
+  string(LENGTH ${def_name} _OPTLEN)
+  math(EXPR _PADLEN "(${LONGESTOPTIONNAME} + 1) - ${_OPTLEN}")
+  string(RANDOM LENGTH ${_PADLEN} ALPHABET " " _PADDING)
+  if(${def_name})
+    set(HAVE_${def_name} ON)
+  else()
+    set(HAVE_${def_name} OFF)
+  endif()
+  message(STATUS "  ${def_name}${_PADDING}: ${HAVE_${def_name}}")
+endforeach(def_name)
+# Defines with value
+foreach(
+  def_name
+  DEFAULT_WIDTH
+  DEFAULT_HEIGHT
+  SCREEN_WIDTH
+  SCREEN_HEIGHT
+  #TTF_FONT_DIR
+  #TTF_FONT_NAME
+  SDL1_VIDEO_MODE_BPP
+  SDL1_VIDEO_MODE_FLAGS
+  SDL1_VIDEO_MODE_SVID_FLAGS
+  SDL1_FORCE_SVID_VIDEO_MODE
+  KBCTRL_BUTTON_DPAD_LEFT
+  KBCTRL_BUTTON_DPAD_RIGHT
+  KBCTRL_BUTTON_DPAD_UP
+  KBCTRL_BUTTON_DPAD_DOWN
+  KBCTRL_BUTTON_B
+  KBCTRL_BUTTON_A
+  KBCTRL_BUTTON_Y
+  KBCTRL_BUTTON_X
+  KBCTRL_BUTTON_LEFTSTICK
+  KBCTRL_BUTTON_RIGHTSTICK
+  KBCTRL_BUTTON_RIGHTSHOULDER
+  KBCTRL_BUTTON_LEFTSHOULDER
+  KBCTRL_BUTTON_TRIGGERLEFT
+  KBCTRL_BUTTON_TRIGGERRIGHT
+  KBCTRL_BUTTON_START
+  KBCTRL_BUTTON_BACK
+  KBCTRL_IGNORE_1
+  JOY_AXIS_LEFTX
+  JOY_AXIS_LEFTY
+  JOY_AXIS_RIGHTX
+  JOY_AXIS_RIGHTY
+  JOY_HAT_DPAD_UP_HAT
+  JOY_HAT_DPAD_UP
+  JOY_HAT_DPAD_DOWN_HAT
+  JOY_HAT_DPAD_DOWN
+  JOY_HAT_DPAD_LEFT_HAT
+  JOY_HAT_DPAD_LEFT
+  JOY_HAT_DPAD_RIGHT_HAT
+  JOY_HAT_DPAD_RIGHT
+  JOY_BUTTON_DPAD_LEFT
+  JOY_BUTTON_DPAD_RIGHT
+  JOY_BUTTON_DPAD_UP
+  JOY_BUTTON_DPAD_DOWN
+  JOY_BUTTON_B
+  JOY_BUTTON_A
+  JOY_BUTTON_Y
+  JOY_BUTTON_X
+  JOY_BUTTON_LEFTSTICK
+  JOY_BUTTON_RIGHTSTICK
+  JOY_BUTTON_RIGHTSHOULDER
+  JOY_BUTTON_LEFTSHOULDER
+  JOY_BUTTON_TRIGGERLEFT
+  JOY_BUTTON_TRIGGERRIGHT
+  JOY_BUTTON_START
+  JOY_BUTTON_BACK
+  REMAP_KEYBOARD_KEYS
+)
+  string(LENGTH ${def_name} _OPTLEN)
+  math(EXPR _PADLEN "(${LONGESTOPTIONNAME} + 1) - ${_OPTLEN}")
+  string(RANDOM LENGTH ${_PADLEN} ALPHABET " " _PADDING)
+  if(DEFINED ${def_name})
+    set(VALUEOF_${def_name} ${${def_name}})
+  else()
+    set(VALUEOF_${def_name} "__UNDEFINED__")
+  endif()
+  message(STATUS "  ${def_name}${_PADDING}: ${VALUEOF_${def_name}}")
+endforeach(def_name)
+message(STATUS "")
+message(STATUS " CFLAGS:        ${CMAKE_C_FLAGS}")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+  message(STATUS " CMAKE_C_FLAGS_DEBUG:   ${CMAKE_C_FLAGS_DEBUG}")
+  message(STATUS " CMAKE_CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
+endif()
+message(STATUS "")
+if(USE_SDL1)
+  message(STATUS " Using dynamically linked SDL1.")
+else()
+  if(DEVILUTIONX_SYSTEM_SDL2)
+    message(STATUS " Using system SDL2.")
+  elseif(DEVILUTIONX_STATIC_SDL2)
+    message(STATUS " Using statically linked SDL2.")
+  else()
+    message(STATUS " Using dynamically linked SDL2.")
+  endif()
+endif()
+if(DEVILUTIONX_STATIC_LIBSODIUM)
+  set(_LINK_MODE "statically")
+else()
+  set(_LINK_MODE "dynamically")
+endif()
+if(DEVILUTIONX_SYSTEM_LIBSODIUM)
+  set(_SOURCE "system ")
+else()
+  set(_SOURCE "")
+endif()
+message(STATUS " Using ${_LINK_MODE} linked ${_SOURCE}libsodium.")
+message(STATUS "")

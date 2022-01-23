@@ -58,7 +58,7 @@ void app_warn(const char *pszFmt, ...)
 	UiErrorOkDialog(PROJECT_NAME, text, false);
 }
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 /**
  * @brief Show an error and exit the application.
  * @param nLineNo The line number of the assertion

@@ -50,12 +50,7 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 	    PLR_MASTER, cookie_self);
 	send_packet(*pkt);
 	for (i = 0; i < NUM_SLEEP; i++) {
-		try {
-			poll();
-		} catch (const std::runtime_error &e) {
-			SDL_SetError("%s", e.what());
-			break;
-		}
+		poll();
 		if (plr_self != PLR_BROADCAST)
 			return true; // join successful
 		SDL_Delay(MS_SLEEP);

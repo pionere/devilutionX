@@ -534,8 +534,8 @@ typedef struct SoundSample final {
 	bool IsLoaded() {
 		return soundData != NULL;
 	}
-	void Play(int lVolume, int lPan, int channel = -1);
-	void SetChunk(BYTE* fileData, DWORD dwBytes);
+	void Play(int lVolume, int lPan, int channel);
+	void SetChunk(BYTE* fileData, size_t dwBytes, bool stream);
 	//int TrackLength();
 } SoundSample;
 
@@ -1664,8 +1664,8 @@ typedef struct _uiheroinfo {
 
 #pragma pack(push, 1)
 typedef struct SNetGameData {
-	INT dwSeed;
 	DWORD dwVersionId;
+	INT dwSeed;
 	BYTE bPlayerId; // internal-only!
 	BYTE bDifficulty;
 	BYTE bTickRate;

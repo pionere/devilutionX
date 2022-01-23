@@ -2,11 +2,7 @@
 
 #include "../types.h"
 
-#ifndef HAS_JOYSTICK
-#define HAS_JOYSTICK 0
-#endif
-
-#if HAS_JOYSTICK == 1
+#if HAS_JOYSTICK
 // Joystick mappings for SDL1 and additional buttons on SDL2.
 
 #include <vector>

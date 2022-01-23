@@ -89,7 +89,11 @@ const unsigned char * smk_get_palette(const smk object);
 /** Retrieve video frame, as a buffer of size w*h */
 const unsigned char * smk_get_video(const smk object);
 /** Retrieve decoded audio chunk, track N */
+#ifdef FULL_ORIG
 const unsigned char* smk_get_audio(const smk object, const unsigned char track);
+#else
+unsigned char* smk_get_audio(const smk object, const unsigned char track);
+#endif
 /** Get size of currently pointed decoded audio chunk, track N */
 unsigned long smk_get_audio_size(const smk object, const unsigned char track);
 

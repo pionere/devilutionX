@@ -1433,7 +1433,7 @@ static void check_update_plr(int pnum)
 
 static void msg_errorf(const char *pszFmt, ...)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	static DWORD msg_err_timer;
 	DWORD ticks;
 	char msg[256];
@@ -1699,7 +1699,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 			sl = GetSpellLevel(pnum, sn);
 			static_assert(MAXSPLLEVEL <= CHAR_MAX, "CheckPlrSkillUse uses a char field to store the spell level.");
 			su.from = sl;
-#ifdef _DEBUG
+#if DEBUG_MODE
 			if (debug_mode_key_inverted_v)
 				return true;
 #endif
@@ -2539,7 +2539,7 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 static unsigned On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 {
 	if (plr._pLevel < MAXCHARLEVEL) {
@@ -2778,7 +2778,7 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_BLOODPASS(pCmd, pnum);
 	case CMD_OPENSPIL:
 		return On_OPENSPIL(pCmd, pnum);
-#ifdef _DEBUG
+#if DEBUG_MODE
 	case CMD_CHEAT_EXPERIENCE:
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:

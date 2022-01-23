@@ -67,6 +67,38 @@ extern "C" {
  */
 #define SDL_MIXER_VERSION_ATLEAST(X, Y, Z) \
     (SDL_MIXER_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
+
+/* We'll use SDL_RW for handling audio-sources */
+#ifdef FULL // MEM_OPS
+#define Mix_RWops          SDL_RWops
+#define Mix_RWread         SDL_RWread
+#define Mix_RWtell         SDL_RWtell
+#define Mix_RWclose        SDL_RWclose
+#define Mix_RWseek         SDL_RWseek
+#define Mix_RWsize         SDL_RWsize
+#define Mix_ReadBE16       SDL_ReadBE16
+#define Mix_ReadBE32       SDL_ReadBE32
+#define Mix_ReadLE32       SDL_ReadLE32
+#define Mix_RWFromConstMem SDL_RWFromConstMem
+#define Mix_RWFromFile     SDL_RWFromFile
+#else
+typedef struct Mix_BuffOps {
+    void* basePos;
+    void* currPos;
+    void* endPos;
+} Mix_BuffOps;
+typedef struct Mix_BuffOps Mix_RWops;
+size_t Mix_RWread(Mix_RWops* src, void* dst, size_t len);
+size_t Mix_RWtell(Mix_RWops* src);
+void Mix_RWclose(Mix_RWops* src);
+int Mix_RWseek(Mix_RWops* src, int offset, int whence);
+Uint32 Mix_ReadLE32(Mix_RWops* src);
+#ifdef FULL // SRC_PTR
+Mix_RWops* Mix_RWFromConstMem(const void* mem, size_t size);
+#endif
+void Mix_RWFromMem(Mix_RWops* dst, const void* mem, size_t size);
+#endif // MEM_OPS
+
 #ifdef FULL
 /* This function gets the version of the dynamically linked SDL_mixer library.
    it should NOT be used to fill a version structure, instead you should
@@ -116,7 +148,8 @@ extern DECLSPEC void SDLCALL Mix_Quit(void);
 #define MIX_DEFAULT_FORMAT  AUDIO_S16MSB
 #endif
 #define MIX_DEFAULT_CHANNELS    2
-#define MIX_MAX_VOLUME          SDL_MIX_MAXVOLUME /* Volume of a chunk */
+/* Volume of an audio - MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT must fit to 16-bit */
+#define MIX_MAX_VOLUME          1024
 #define MIX_MAX_POS_EFFECT      16
 #define MIX_MAX_POS_EFFECT_F    16.0f
 /* Good default buffer size */
@@ -175,9 +208,10 @@ typedef struct _Mix_Music Mix_Music;
 
 /* Open the mixer with a certain audio format */
 extern DECLSPEC int SDLCALL Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize);
-
+#ifdef FULL
 /* Open the mixer with specific device and certain audio format */
 extern DECLSPEC int SDLCALL Mix_OpenAudioDevice(int frequency, Uint16 format, int channels, int chunksize, const char* device, int allowed_changes);
+#endif
 #ifdef FULL // FIX_CHAN
 /* Dynamically change the number of channels managed by the mixer.
    If decreasing the number of channels, the upper channels are
@@ -194,23 +228,23 @@ extern DECLSPEC int SDLCALL Mix_QuerySpec(int *frequency,Uint16 *format,int *cha
 #endif
 /* Load a wave file or a music (.mod .s3m .it .xm) file */
 #ifdef FULL // FREE_SRC, CHUNK_ALIAS
-extern DECLSPEC Mix_Chunk * SDLCALL Mix_LoadWAV_RW(SDL_RWops *src, int freesrc);
+extern DECLSPEC Mix_Chunk * SDLCALL Mix_LoadWAV_RW(Mix_RWops *src, int freesrc);
 #else
-extern DECLSPEC Mix_Audio * SDLCALL Mix_LoadWAV_RW(SDL_RWops* src);
+extern DECLSPEC Mix_Audio * SDLCALL Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream);
 #endif
 #ifdef FULL
-#define Mix_LoadWAV(file)   Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
+#define Mix_LoadWAV(file)   Mix_LoadWAV_RW(Mix_RWFromFile(file, "rb"), 1)
 extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS(const char *file);
 
 /* Load a music file from an SDL_RWop object
  * Matt Campbell (matt@campbellhome.dhs.org) April 2000 */
-extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS_RW(SDL_RWops *src, int freesrc);
+extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS_RW(Mix_RWops *src, int freesrc);
 #endif
 /* Load a music file from an SDL_RWop object assuming a specific format */
 #ifdef FULL // WAV_SRC, FREE_SRC
-extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc);
+extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUSType_RW(Mix_RWops *src, Mix_MusicType type, int freesrc);
 #else
-extern DECLSPEC SDL_bool SDLCALL Mix_LoadMUS_RW(SDL_RWops* src);
+extern DECLSPEC Mix_Audio * SDLCALL Mix_LoadMUS_RW(Mix_RWops* src);
 #endif // FULL - WAV_SRC, FREE_SRC
 #ifdef FULL
 /* Load a wave file of the mixer format from a memory buffer */
@@ -301,11 +335,11 @@ extern DECLSPEC void * SDLCALL Mix_GetMusicHookData(void);
  *  before calling your callback.
  */
 extern DECLSPEC void SDLCALL Mix_ChannelFinished(void (SDLCALL *channel_finished)(int channel));
-#endif // FULL
 
 /* Special Effects API by ryan c. gordon. (icculus@icculus.org) */
 
 #define MIX_CHANNEL_POST  (-2)
+#endif // FULL
 
 /* This is the format of a special effect callback:
  *
@@ -453,7 +487,11 @@ extern DECLSPEC int SDLCALL Mix_UnregisterAllEffects(int channel);
  *  mode is a no-op, but this call will return successful in that case.
  *  Error messages can be retrieved from Mix_GetError().
  */
+#ifdef FULL
 extern DECLSPEC int SDLCALL Mix_SetPanning(int channel, Uint8 left, Uint8 right);
+#else
+extern DECLSPEC void SDLCALL Mix_SetPanning(int channel, Uint8 left, Uint8 right);
+#endif
 
 #ifdef FULL
 /* Set the position of a channel. (angle) is an integer from 0 to 360, that
@@ -573,7 +611,6 @@ extern no_parse_DECLSPEC int SDLCALL Mix_SetReverb(int channel, Uint8 echo);
 extern DECLSPEC int SDLCALL Mix_SetReverseStereo(int channel, int flip);
 
 /* end of effects API. --ryan. */
-#endif // FULL
 
 /* Reserve the first channels (0 -> n-1) for the application, i.e. don't allocate
    them dynamically to the next sample if requested with a -1 value below.
@@ -582,7 +619,7 @@ extern DECLSPEC int SDLCALL Mix_SetReverseStereo(int channel, int flip);
 extern DECLSPEC int SDLCALL Mix_ReserveChannels(int num);
 
 /* Channel grouping functions */
-#ifdef FULL
+
 /* Attach a tag to a channel. A tag can be assigned to several mixer
    channels, to form groups of channels.
    If 'tag' is -1, the tag is removed (actually -1 is the tag used to
@@ -604,7 +641,7 @@ extern DECLSPEC int SDLCALL Mix_GroupCount(int tag);
 extern DECLSPEC int SDLCALL Mix_GroupOldest(int tag);
 /* Finds the "most recent" (i.e. last) sample playing in a group of channels */
 extern DECLSPEC int SDLCALL Mix_GroupNewer(int tag);
-#endif
+#endif // FULL
 /* Play an audio chunk on a specific channel.
    If the specified channel is -1, play on the first free channel.
    If 'loops' is greater than zero, loop the sound that many times.
@@ -639,7 +676,11 @@ extern DECLSPEC int SDLCALL Mix_Volume(int channel, int volume);
 #ifdef FULL
 extern DECLSPEC int SDLCALL Mix_VolumeChunk(Mix_Chunk *chunk, int volume);
 #endif
+#ifdef FULL
 extern DECLSPEC int SDLCALL Mix_VolumeMusic(int volume);
+#else
+extern DECLSPEC void SDLCALL Mix_VolumeMusic(int volume);
+#endif
 #ifdef FULL
 /* Get the current volume value in the range of 0-128 of a music stream */
 extern DECLSPEC int SDLCALL Mix_GetMusicVolume(Mix_Music *music);

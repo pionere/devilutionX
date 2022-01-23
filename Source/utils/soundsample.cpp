@@ -10,6 +10,7 @@
 #endif
 #include "../types.h"
 #include "appfat.h"
+#include "log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -52,7 +53,7 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 
 	channel = Mix_PlayChannel(channel, soundData, 0);
 	if (channel == -1) {
-		SDL_Log("Too few channels, skipping sound");
+		DoLog("%s", Mix_GetError());
 		return;
 	}
 	/*lVolume = (int)(pow(10.0, lVolume / 2000.0) * MIX_MAX_VOLUME);
@@ -79,15 +80,22 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
  * @brief This can load WAVE, AIFF, RIFF, OGG, and VOC formats
  * @param fileData Buffer containing file data
  * @param dwBytes Length of buffer
+ * @param stream whether the sfx is going to be streamed
  */
-void SoundSample::SetChunk(BYTE* fileData, DWORD dwBytes)
+void SoundSample::SetChunk(BYTE* fileData, size_t dwBytes, bool stream)
 {
-	SDL_RWops* buf = SDL_RWFromConstMem(fileData, dwBytes);
-	if (buf != NULL) {
-		soundData = Mix_LoadWAV_RW(buf);
+	Mix_RWops buf;
+
+	Mix_RWFromMem(&buf, fileData, dwBytes);
+	//if (buf != NULL) {
+#if STREAM_ALL_AUDIO
+		soundData = Mix_LoadWAV_RW(&buf, SDL_TRUE);
+#else
+		soundData = Mix_LoadWAV_RW(&buf, stream ? SDL_TRUE : SDL_FALSE);
+#endif
 		if (soundData != NULL)
 			return; // 0;
-	}
+	//}
 
 	sdl_fatal(ERR_SDL_SOUND_FILE);
 	//return -1;

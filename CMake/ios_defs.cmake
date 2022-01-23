@@ -1,7 +1,7 @@
 # General build options.
 #set(VIRTUAL_GAMEPAD ON)
 set(ZEROTIER OFF)
-set(NOSOUND ON)
+#set(NOSOUND ON)
 
 # Disable all system dependencies.
 # All of these will be fetched via FetchContent and linked statically.

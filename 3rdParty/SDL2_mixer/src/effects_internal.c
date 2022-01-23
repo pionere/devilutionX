@@ -40,6 +40,7 @@ void _Mix_InitEffects(void)
 #ifdef FULL
     _Mix_effects_max_speed = (SDL_getenv(MIX_EFFECTSMAXSPEED) != NULL);
 #endif
+    _Eff_PositionInit();
 }
 
 void _Mix_DeinitEffects(void)

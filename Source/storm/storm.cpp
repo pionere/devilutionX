@@ -82,7 +82,7 @@ HANDLE SFileOpenFile(const char* filename)
 	}
 #endif
 	if (result == NULL) {
-		SDL_Log("%s: Not found: %s", __FUNCTION__, filename);
+		DoLog("File '%s' not found.", filename);
 	}
 	return result;
 }

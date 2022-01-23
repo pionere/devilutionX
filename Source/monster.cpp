@@ -337,7 +337,7 @@ void GetLevelMTypes()
 			montypes[nt] = mtype;
 		}
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (monstdebug) {
 			for (i = 0; i < debugmonsttypes; i++)
 				AddMonsterType(DebugMonsters[i], TRUE);
@@ -1010,7 +1010,7 @@ void InitMonsters()
 	const int tdx[4] = { -1, -1,  2,  2 };
 	const int tdy[4] = { -1,  2, -1,  2 };
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (IsMultiGame)
 		CheckDungeonClear();
 #endif
@@ -2021,7 +2021,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		+ (2 * mon->_mLevel)
 		- plr._pIAC;
 	if (random_(98, 100) >= hper)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return;

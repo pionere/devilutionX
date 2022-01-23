@@ -29,7 +29,9 @@ static SDL_Palette *SVidPalette;
 static SDL_Surface *SVidSurface;
 static BYTE *SVidBuffer;
 static unsigned long SVidWidth, SVidHeight;
+#ifndef NOSOUND
 static BYTE SVidAudioDepth;
+#endif
 
 static bool IsLandscapeFit(unsigned long srcW, unsigned long srcH, unsigned long dstW, unsigned long dstH)
 {
@@ -240,23 +242,22 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 	SVidLoop = (flags & MOV_LOOP) != 0; // (flags & 0x40000) != 0;
 	bool enableVideo = true; //!(flags & 0x100000);
+#ifndef NOSOUND
 	bool enableAudio = true; //!(flags & 0x1000000);
+#endif
 	//0x8 // Non-interlaced
 	//0x200, 0x800 // Upscale video
 	//0x80000 // Center horizontally
 	//0x800000 // Edge detection
 	//0x200800 // Clear FB
+	size_t dwBytes;
 
-	HANDLE videoFile = SFileOpenFile(filename);
-
-	DWORD bytestoread = SFileGetFileSize(videoFile);
 	assert(SVidBuffer == NULL);
-	SVidBuffer = DiabloAllocPtr(bytestoread);
-	SFileReadFile(videoFile, SVidBuffer, bytestoread);
-	SFileCloseFile(videoFile);
+	SVidBuffer = LoadFileInMem(filename, &dwBytes);
 
-	SVidSMK = smk_open_memory(SVidBuffer, bytestoread);
+	SVidSMK = smk_open_memory(SVidBuffer, dwBytes);
 	if (SVidSMK == NULL) {
+		MemFreeDbg(SVidBuffer);
 		return NULL;
 	}
 
@@ -316,7 +317,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	    (unsigned char *)smk_get_video(SVidSMK),
 	    SVidWidth,
 	    SVidHeight,
-	    8,
+	    0,
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
 	if (SVidSurface == NULL) {
@@ -348,9 +349,10 @@ static bool SVidLoadNextFrame()
 	return true;
 }
 #ifndef NOSOUND
-static BYTE* SVidApplyVolume(const BYTE* raw, unsigned long rawLen)
+static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 {
-	BYTE* scaled = DiabloAllocPtr(rawLen);
+	//BYTE* scaled = DiabloAllocPtr(rawLen);
+	BYTE* scaled = raw;
 
 	if (SVidAudioDepth == 16) {
 		for (unsigned long i = 0; i < rawLen / 2; i++)
@@ -383,7 +385,7 @@ bool SVidPlayContinue()
 #else
 		sVidAudioQueue->Enqueue(audio, len);
 #endif
-		mem_free_dbg(audio);
+		//mem_free_dbg(audio);
 	}
 #endif // NOSOUND
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {

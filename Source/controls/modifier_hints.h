@@ -3,7 +3,7 @@
 #include "../types.h"
 #include "controller.h"
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
 DEVILUTION_BEGIN_NAMESPACE
 

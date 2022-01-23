@@ -775,8 +775,8 @@ static int TranslateSdlKey(SDL_Keysym key)
 			return '0' + (sym - SDLK_0);
 		if (sym >= SDLK_F1 && sym <= SDLK_F12)
 			return DVL_VK_F1 + (sym - SDLK_F1);
-#ifdef _DEBUG
-		SDL_Log("unknown key: name=%s sym=0x%X scan=%d mod=0x%X", SDL_GetKeyName(sym), sym, key.scancode, key.mod);
+#if DEBUG_MODE
+		DoLog("unknown key: name=%s sym=0x%X scan=%d mod=0x%X", SDL_GetKeyName(sym), sym, key.scancode, key.mod);
 #endif
 		return sym;
 	}*/
@@ -794,11 +794,10 @@ static WPARAM PositionForMouse(Sint32 x, Sint32 y)
 	return ret;
 }*/
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 static bool FalseAvail(const char *name, int value)
 {
-	//SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Unhandled SDL event: %s %d", name, value);
-	SDL_Log("Unhandled SDL event: %s %d", name, value);
+	DoLog("Unhandled SDL event: %s %d", name, value);
 	return true;
 }
 #endif
@@ -823,7 +822,7 @@ bool PeekMessage(LPMSG lpMsg)
 	lpMsg->message = DVL_WM_NONE;
 	lpMsg->wParam = 0;
 
-#if HAS_TOUCHPAD == 1
+#if HAS_TOUCHPAD
 	handle_touch(&e, MouseX, MouseY);
 #endif
 
@@ -839,7 +838,7 @@ bool PeekMessage(LPMSG lpMsg)
 	}
 #endif
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (e.type == SDL_QUIT) {
 		lpMsg->message = DVL_WM_QUIT;
 		return true;
@@ -943,7 +942,7 @@ bool PeekMessage(LPMSG lpMsg)
 		}
 		return true;
 	}
-#if (HAS_TOUCHPAD == 1 || HAS_DPAD == 1) && !defined(USE_SDL1)
+#if (HAS_TOUCHPAD || HAS_DPAD) && !defined(USE_SDL1)
 	if (e.type < SDL_JOYAXISMOTION || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
 #else
 	if (e.type < SDL_JOYAXISMOTION) {
@@ -951,7 +950,7 @@ bool PeekMessage(LPMSG lpMsg)
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
 			sgbControllerActive = false;
 	}
-#endif // HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
 	switch (e.type) {
 	case SDL_QUIT:
@@ -964,7 +963,7 @@ bool PeekMessage(LPMSG lpMsg)
 		//	return FalseAvail(e.type == SDL_KEYDOWN ? "SDL_KEYDOWN" : "SDL_KEYUP", e.key.keysym.sym);
 		lpMsg->message = e.type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
 		lpMsg->wParam = (WPARAM)key;
-#ifdef _DEBUG
+#if DEBUG_MODE
 //		// HACK: Encode modifier in lParam for TranslateMessage later
 //		lpMsg->lParam = e.key.keysym.mod << 16;
 		lpMsg->wParam |= e.key.keysym.mod << 16;
@@ -1014,7 +1013,7 @@ bool PeekMessage(LPMSG lpMsg)
 			lpMsg->wParam = DVL_VK_RIGHT;
 		}
 		break;
-#ifdef _DEBUG
+#if DEBUG_MODE
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 	case SDL_AUDIODEVICEADDED:
 		return FalseAvail("SDL_AUDIODEVICEADDED", e.adevice.which);
@@ -1025,7 +1024,7 @@ bool PeekMessage(LPMSG lpMsg)
 #endif // SDL_VERSION_ATLEAST(2, 0, 4)
 	case SDL_TEXTEDITING:
 		return FalseAvail("SDL_TEXTEDITING", e.edit.length);
-#endif // _DEBUG
+#endif // DEBUG_MODE
 	case SDL_TEXTINPUT:
 		lpMsg->message = DVL_WM_CHAR;
 		lpMsg->wParam = utf8_to_latin1(e.text.text).c_str()[0];
@@ -1068,20 +1067,21 @@ bool PeekMessage(LPMSG lpMsg)
 			}
 			break;
 		case SDL_WINDOWEVENT_CLOSE:
-			lpMsg->message = DVL_WM_QUERYENDSESSION;
+			// -- no need to handle, wait for the QUIT event
+			// lpMsg->message = DVL_WM_QUERYENDSESSION;
 			break;
-#ifdef _DEBUG
+#if DEBUG_MODE
 		default:
 			return FalseAvail("SDL_WINDOWEVENT", e.window.event);
-#endif // _DEBUG
+#endif // DEBUG_MODE
 		}
 
 		break;
 #endif // !USE_SDL1
-#ifdef _DEBUG
+#if DEBUG_MODE
 	default:
 		return FalseAvail("unknown", e.type);
-#endif // _DEBUG
+#endif // DEBUG_MODE
 	}
 	return true;
 }
@@ -1097,7 +1097,7 @@ bool PeekMessage(LPMSG lpMsg)
  */
 void TranslateMessage(const MSG* lpMsg)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lpMsg->message == DVL_WM_KEYDOWN) {
 		int key = lpMsg->wParam;
 		//unsigned mod = lpMsg->lParam >> 16;
@@ -1180,7 +1180,7 @@ void TranslateMessage(const MSG* lpMsg)
 			return;
 
 		if (key >= 32) {
-			SDL_Log("char: %c", key);
+			DoLog("char: %c", key);
 		}
 		// XXX: This does not add extended info to lParam
 		PostMessage(DVL_WM_CHAR, key);

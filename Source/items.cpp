@@ -911,10 +911,10 @@ void CreatePlrItems(int pnum)
 	pi = &plr._pInvList[0];
 	CreateBaseItem(pi, IDI_GOLD);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_key_w) {
 		SetGoldItemValue(pi, GOLD_MAX_LIMIT);
-		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
+		for (int i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			if (plr._pInvList[i]._itype == ITYPE_NONE) {
 				GetItemSeed(pi);
 				copy_pod(plr._pInvList[i], *pi);

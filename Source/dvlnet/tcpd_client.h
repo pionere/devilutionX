@@ -1,7 +1,5 @@
 #pragma once
 #ifdef TCPIP
-#include <memory>
-#include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
 #include <asio/ts/io_context.hpp>
 #include <asio/ts/net.hpp>

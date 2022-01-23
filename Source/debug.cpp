@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 
 #define DEBUGSEEDS 4096
 int seed_index;
@@ -73,7 +73,7 @@ void StoresCheat()
 
 	numpremium = 0;
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		premiumitem[i]._itype = ITYPE_NONE;
+		premiumitems[i]._itype = ITYPE_NONE;
 
 	SpawnPremium(30);
 
@@ -136,7 +136,7 @@ void SetAllSpellsCheat()
 	SetSpellLevelCheat(SPL_STONE, 1);
 	SetSpellLevelCheat(SPL_CHAIN, 1);
 	SetSpellLevelCheat(SPL_GUARDIAN, 4);
-	SetSpellLevelCheat(SPL_ELEMENT, 3);
+	SetSpellLevelCheat(SPL_ELEMENTAL, 3);
 	SetSpellLevelCheat(SPL_NOVA, 1);
 	SetSpellLevelCheat(SPL_GOLEM, 2);
 	SetSpellLevelCheat(SPL_FLARE, 1);
@@ -341,12 +341,12 @@ void ValidateData()
 		if ((um.mUnqAttr & UMF_LEADER) != 0 && ((um.mUnqAttr & UMF_GROUP) == 0))
 			app_fatal("Unique monster %s (%d) is a leader without group.", um.mName, i);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 		uint16_t res = monsterdata[um.mtype].mMagicRes;
 		uint16_t resU = um.mMagicRes;
 		for (int j = 0; j < 8; j++, res >>= 2, resU >>= 2) {
 			if ((res & 3) > (resU & 3)) {
-				SDL_Log("Warn: Weak muMagicRes %d (%d) for %s (%d): worse than mMagicRes %d.", um.mMagicRes, j, um.mName, i, monsterdata[um.mtype].mMagicRes);
+				DoLog("Warn: Weak muMagicRes %d (%d) for %s (%d): worse than mMagicRes %d.", um.mMagicRes, j, um.mName, i, monsterdata[um.mtype].mMagicRes);
 			}
 		}
 #endif

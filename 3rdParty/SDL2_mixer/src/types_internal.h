@@ -80,17 +80,60 @@ typedef uint64_t Uint64;
 #define SDL_MIN_UINT64  ((Uint64)(0x0000000000000000ull))   /* 0 */
 #endif // !SDL_VERSION_ATLEAST(2, 0, 7)
 
-/* Utils */
+#ifdef _MSC_VER
+#ifdef _DEVMODE
+#define ASSUME_UNREACHABLE assert(0);
+#else
+#define ASSUME_UNREACHABLE __assume(0);
+#endif
+#elif defined(__clang__)
+#define ASSUME_UNREACHABLE __builtin_unreachable();
+#elif defined(__GNUC__)
+#if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 405
+#define ASSUME_UNREACHABLE __builtin_unreachable();
+#else
+#define ASSUME_UNREACHABLE 
+#endif
+#endif
 
-typedef struct Mix_BuffOps {
-    void* basePos;
-    void* currPos;
-    void* endPos;
-} Mix_BuffOps;
+/* Effects */
+
+typedef struct _Mix_EffectPosArgs
+{
+#ifdef FULL // FIX_EFF
+    volatile float left_f;
+    volatile float right_f;
+#else
+    Uint8 left_vol;
+    Uint8 right_vol;
+#endif
+#ifdef FULL // FIX_OUT
+    volatile Uint8 left_u8;
+    volatile Uint8 right_u8;
+    volatile float left_rear_f;
+    volatile float right_rear_f;
+    volatile float center_f;
+    volatile float lfe_f;
+    volatile Uint8 left_rear_u8;
+    volatile Uint8 right_rear_u8;
+    volatile Uint8 center_u8;
+    volatile Uint8 lfe_u8;
+    volatile float distance_f;
+    volatile Uint8 distance_u8;
+    volatile Sint16 room_angle;
+#endif
+#ifdef FULL // FIX_EFF
+    volatile int in_use;
+#endif
+#ifdef FULL
+    volatile int channels;
+#endif
+} _Mix_EffectPosArgs;
 
 /* Music */
 
 typedef struct _Mix_Audio Mix_Audio;
+typedef struct _Mix_Channel Mix_Channel;
 
 typedef struct
 {
@@ -107,16 +150,16 @@ typedef struct
     /* Initialize for the audio output */
     int (*Open)(const SDL_AudioSpec *spec);
 #endif
-    /* Create a music object from an SDL_RWops stream
+    /* Create a music object from an Mix_RWops stream
      * If the function returns NULL, 'src' will be freed if needed by the caller.
      */
 #ifdef FULL // FIX_MUS, FREE_SRC
-    void *(*CreateFromRW)(SDL_RWops *src, int freesrc);
+    void *(*CreateFromRW)(Mix_RWops *src, int freesrc);
 #else
-    void *(*CreateFromRW)(SDL_RWops* src, Mix_Audio* dst);
+    void *(*CreateFromRW)(Mix_RWops* src, Mix_Audio* dst);
 #endif
 #ifdef FULL // WAV_SRC
-    /* Create a music object from a file, if SDL_RWops are not supported */
+    /* Create a music object from a file, if Mix_RWops are not supported */
     void *(*CreateFromFile)(const char *file);
 #endif
 #ifdef FULL // FIX_MUS
@@ -128,13 +171,15 @@ typedef struct
     int (*GetVolume)(void *music);
 #endif
     /* Start playing music from the beginning with an optional loop count */
-    int (*Play)(Mix_Audio* audio, int play_count);
+#ifdef FULL // MEM_OPS
+    int (*Play)(Mix_Audio* audio, int loop_count);
+#endif
 #ifdef FULL
     /* Returns SDL_TRUE if music is still playing */
     SDL_bool (*IsPlaying)(void *music);
 #endif
     /* Get music data, returns the number of bytes left */
-    int (*GetAudio)(Mix_Audio* audio, void *data, int bytes);
+    int (*GetAudio)(Mix_Channel* channel, void* stream, int bytes);
 #ifdef FULL
     /* Jump to a given order in mod music */
     int (*Jump)(void *music, int order);
@@ -198,8 +243,12 @@ typedef struct {
 } Mix_AudioSpec;
 
 typedef struct {
-    SDL_RWops *src;
+#ifdef FULL // SRC_PTR
+    Mix_RWops* src;
     int freesrc;
+#else
+    Mix_RWops src;
+#endif
 #ifdef FULL // SELF_CONV
     SDL_AudioSpec spec;
 #else
@@ -272,7 +321,10 @@ typedef struct _Mix_Audio {
         WAV_Music asWAV;
     };
     int lastChannel;
-    Uint8* memSrc;
+#ifndef FULL // SELF_CONV
+    void (*converters[3])(Mix_BuffOps* buf);
+    int convMpl;
+#endif
 } _Mix_Audio;
 #endif // FULL - FIX_MUS
 
@@ -287,17 +339,21 @@ typedef struct _Mix_effectinfo
 #endif
 typedef struct _Mix_Channel {
     Mix_Audio* chunk;
-    int remaining;
+    int volume;
 #ifdef FULL // FADING
     int paused;
 #else
     SDL_bool paused;
 #endif
+#ifdef FULL // MEM_OPS
+    int remaining;
     Uint8* playPos;
-    Mix_BuffOps buffer;
-    int volume;
+#else
+    Mix_RWops playOps;
+#endif // MEM_OPS
+    Mix_BuffOps buffOps;
+    int loop_count;
 #ifdef FULL // FADING, LOOP
-    int looping;
     int tag;
     Uint32 expire;
     Uint32 start_time;
@@ -311,6 +367,7 @@ typedef struct _Mix_Channel {
     effect_info *effects;
 #else
     SDL_bool has_effect;
+    _Mix_EffectPosArgs effect;
 #endif
 } _Mix_Channel;
 

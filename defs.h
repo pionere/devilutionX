@@ -3,34 +3,6 @@
  *
  * Global definitions and Macros.
  */
-#ifdef USE_SDL1
-// SDL1 controllers
-#ifndef HAS_JOYSTICK
-#define HAS_JOYSTICK	1
-#endif
-#ifndef HAS_DPAD
-#define HAS_DPAD		1
-#endif
-#define HAS_GAMECTRL	0
-#define HAS_TOUCHPAD	0
-#else
-// SDL2 controllers
-#ifndef HAS_JOYSTICK
-#define HAS_JOYSTICK	1
-#endif
-#ifndef HAS_DPAD
-#define HAS_DPAD		1
-#endif
-#ifndef HAS_GAMECTRL
-#define HAS_GAMECTRL	1
-#endif
-#ifndef HAS_TOUCHPAD
-#define HAS_TOUCHPAD	1
-#endif
-//#ifndef HAS_KBCTRL
-//#define HAS_KBCTRL		1
-//#endif
-#endif
 
 #define DATA_ARCHIVE_MAIN		"diabdat.mpq"
 #define DATA_ARCHIVE_MAIN_ALT	"DIABDAT.MPQ"
@@ -119,9 +91,11 @@
 // Item indestructible durability
 #define DUR_INDESTRUCTIBLE		255
 
+// sfx constants
 #define VOLUME_MIN				0
-#define VOLUME_MAX				2048
+#define VOLUME_MAX				1024
 #define SFX_DIST_MAX			16
+#define SFX_STREAM_CHANNEL		0
 
 // todo: enums
 #define HEALER_ITEMS			16

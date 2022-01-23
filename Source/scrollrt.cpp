@@ -66,7 +66,7 @@ static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
 /* used in 1.00 debug */
-#ifdef _DEBUG
+#if DEBUG_MODE
 const char *const szMonModeAssert[18] = {
 	"standing",
 	"walking (1)",
@@ -176,7 +176,7 @@ static void scrollrt_draw_cursor()
 		return;
 	}
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !gbInvflag && (!gbChrflag || !gbLvlUp))
 		return;
 #endif
@@ -335,7 +335,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	}
 
 	nCel = mon->_mAnimFrame;
-#ifdef _DEBUG
+#if DEBUG_MODE
 	int frames = SwapLE32(*(uint32_t *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		const char *szMode = "unknown action";
@@ -416,7 +416,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 		}
 		nCel = plr._pAnimFrame;
-#ifdef _DEBUG
+#if DEBUG_MODE
 		int frames = SwapLE32(*(uint32_t *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char *szMode = "unknown action";
@@ -472,15 +472,15 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pActive && plr._pHitPoints < (1 << 6) && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			BYTE *pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
-				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, plr._pName);
+				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
 			int frames = SwapLE32(*(uint32_t *)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
-				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, plr._pName, plr._pdir, nCel, frames);
+				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
@@ -770,9 +770,9 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dPiece[sx][sy];
 	drawCell(mpnum, dx, dy);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
-		CelClippedDraw(dx, dy, pSquareCel, 1, 64);
+		CelClippedDraw(dx, dy, pSquareCel, 1, TILE_WIDTH);
 	}
 #endif
 
@@ -813,7 +813,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	if (currLvl._dType != DTYPE_TOWN) {
 		bv = dSpecial[sx][sy];
 		if (bv != 0) {
-			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, 64);
+			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, TILE_WIDTH);
 		}
 	} else {
 		// Tree leaves should always cover player when entering or leaving the tile,
@@ -822,7 +822,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		if (sx > 0 && sy > 0) {
 			bv = dSpecial[sx - 1][sy - 1];
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelDraw(dx, (dy - TILE_HEIGHT), pSpecialCels, bv, 64);
+				CelDraw(dx, (dy - TILE_HEIGHT), pSpecialCels, bv, TILE_WIDTH);
 			}
 		}
 	}
@@ -1256,7 +1256,7 @@ static void DrawView()
 		gmenu_draw_pause();
 	}
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	DrawControllerModifierHints();
 #endif
 	DrawPlrMsg();
@@ -1273,7 +1273,7 @@ static void DrawView()
 	//}
 }
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 /**
  * @brief Scroll the screen when mouse is close to the edge
  */

@@ -10,6 +10,8 @@
 #include "utils/sdl2_to_1_2_backports.h"
 #endif
 
+#include "log.h"
+
 DEVILUTION_BEGIN_NAMESPACE
 
 static std::string basePath;
@@ -49,8 +51,7 @@ static void FromSDL(std::string &path, bool base)
 		path = s;
 		SDL_free(s);
 	} else {
-		SDL_Log("%s", SDL_GetError());
-		SDL_ClearError();
+		DoLog("%s", SDL_GetError());
 	}
 }
 
