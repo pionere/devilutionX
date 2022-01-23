@@ -69,7 +69,6 @@ int codec_decode(BYTE* pbSrcDst, DWORD size, const char* pszPassword)
 			buf[j] ^= dst[j % SHA1HashSize];
 		}
 		SHA1Calculate(0, buf, NULL);
-		memset(dst, 0, sizeof(dst));
 		memcpy(pbSrcDst, buf, SHA1BlockSize);
 	}
 
@@ -81,14 +80,15 @@ int codec_decode(BYTE* pbSrcDst, DWORD size, const char* pszPassword)
 
 	SHA1Result(0, dst);
 	if (sig->checksum != *(uint32_t*)dst) {
-		memset(dst, 0, sizeof(dst));
 		goto error;
 	}
 
 	size += sig->last_chunk_size - SHA1BlockSize;
+	memset(dst, 0, sizeof(dst));
 	SHA1Clear();
 	return size;
 error:
+	memset(dst, 0, sizeof(dst));
 	SHA1Clear();
 	return 0;
 }
@@ -103,7 +103,6 @@ DWORD codec_get_encoded_len(DWORD dwSrcBytes)
 void codec_encode(BYTE* pbSrcDst, DWORD size, DWORD encodedSize, const char* pszPassword)
 {
 	char buf[SHA1BlockSize];
-	char tmp[SHA1HashSize];
 	char dst[SHA1HashSize];
 	DWORD chunk;
 	CodecSignature* sig;
@@ -122,18 +121,18 @@ void codec_encode(BYTE* pbSrcDst, DWORD size, DWORD encodedSize, const char* psz
 		for (int i = 0; i < SHA1BlockSize; i++) {
 			buf[i] ^= dst[i % SHA1HashSize];
 		}
-		memset(dst, 0, sizeof(dst));
 		memcpy(pbSrcDst, buf, SHA1BlockSize);
 		pbSrcDst += SHA1BlockSize;
 		size -= chunk;
 	}
 	memset(buf, 0, sizeof(buf));
-	SHA1Result(0, tmp);
+	SHA1Result(0, dst);
 	sig = (CodecSignature*)pbSrcDst;
 	sig->error = 0;
 	sig->unused = 0;
-	sig->checksum = *(uint32_t*)&tmp[0];
+	sig->checksum = *(uint32_t*)&dst[0];
 	sig->last_chunk_size = chunk;
+	memset(dst, 0, sizeof(dst));
 	SHA1Clear();
 }
 
