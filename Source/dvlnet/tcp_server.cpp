@@ -18,7 +18,7 @@ tcp_server::tcp_server(asio::io_context &ioc, buffer_t info, unsigned srvType)
 	assert(game_init_info.size() == sizeof(SNetGameData));
 }
 
-bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const char* passwd)
+bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const char* passwd, char (&errorText)[256])
 {
 	pktfty.setup_password(passwd);
 	asio::error_code err;
@@ -28,7 +28,7 @@ bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const c
 		connect_acceptor(acceptor, ep, err);
 	}
 	if (err) {
-		SDL_SetError("%s", err.message().c_str());
+		SStrCopy(errorText, err.message().c_str(), lengthof(errorText));
 		close();
 		return false;
 	}

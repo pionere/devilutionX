@@ -14,8 +14,8 @@ namespace net {
 template <class P>
 class base_protocol : public base {
 public:
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
-	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256]);
+	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
 	virtual void SNetLeaveGame(int reason);
 
@@ -117,7 +117,7 @@ void base_protocol<P>::wait_join()
 }
 
 template <class P>
-bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
+bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
 {
 	setup_gameinfo(std::move(info));
 	// join_game
@@ -128,22 +128,27 @@ bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const cha
 	if (wait_network()) {
 		plr_self = 0;
 		connected_table[plr_self] = true;
+		return true;
 	}
-
-	return plr_self != PLR_BROADCAST;
+	snprintf(errorText, 256, "Connection timed out.");
+	return false;
 }
 
 template <class P>
-bool base_protocol<P>::join_game(const char* addrstr, unsigned port, const char* passwd)
+bool base_protocol<P>::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	//addrstr = "fd80:56c2:e21c:0:199:931d:b14:c4d2";
 	plr_self = PLR_BROADCAST;
 	setup_password(passwd);
 	gamename = std::string(addrstr);
-	if (wait_network())
-		if (wait_firstpeer())
-			wait_join();
-	return plr_self != PLR_BROADCAST;
+	if (wait_network() && wait_firstpeer()) {
+		wait_join();
+		if (plr_self != PLR_BROADCAST) {
+			return true;
+		}
+	}
+	snprintf(errorText, 256, "Connection timed out.");
+	return false;
 }
 
 template <class P>

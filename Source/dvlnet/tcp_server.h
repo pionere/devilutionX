@@ -15,7 +15,7 @@ class tcp_server {
 	friend class tcpd_client;
 public:
 	tcp_server(asio::io_context &ioc, buffer_t info, unsigned serverType);
-	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd);
+	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd, char (&errorText)[256]);
 	void close();
 	virtual ~tcp_server() = default;
 

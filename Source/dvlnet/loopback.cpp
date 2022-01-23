@@ -8,12 +8,12 @@ namespace net {
 
 static constexpr plr_t PLR_SINGLE = 0;
 
-bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
+bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
 {
 	return true;
 }
 
-bool loopback::join_game(const char* addrstr, unsigned port, const char* passwd)
+bool loopback::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 #ifdef _DEVMODE
 	ABORT();

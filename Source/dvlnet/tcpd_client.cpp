@@ -14,18 +14,18 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-bool tcpd_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
+bool tcpd_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
 {
 	setup_gameinfo(std::move(info));
 	local_server = new tcp_server(ioc, game_init_info, SRV_DIRECT);
-	if (local_server->setup_server(addrstr, port, passwd)) {
-		return join_game(addrstr, port, passwd);
+	if (local_server->setup_server(addrstr, port, passwd, errorText)) {
+		return join_game(addrstr, port, passwd, errorText);
 	}
 	close();
 	return false;
 }
 
-bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* passwd)
+bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	int i;
 	constexpr int MS_SLEEP = 10;
@@ -39,17 +39,14 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 	// connect to the server
 	asio::error_code err;
 	tcp_server::connect_socket(sock, addrstr, port, ioc, err);
-	if (err) {
-		SDL_SetError("%s", err.message().c_str());
-		close();
-		return false;
+	if (!err) {
+		// setup acceptor for the direct connection to other players
+		const auto &ep = sock.local_endpoint(err);
+		assert(!err);
+		tcp_server::connect_acceptor(acceptor, ep, err);
 	}
-	// setup acceptor for the direct connection to other players
-	const auto &ep = sock.local_endpoint(err);
-	assert(!err);
-	tcp_server::connect_acceptor(acceptor, ep, err);
 	if (err) {
-		SDL_SetError("%s", err.message().c_str());
+		SStrCopy(errorText, err.message().c_str(), lengthof(errorText));
 		close();
 		return false;
 	}
@@ -68,7 +65,7 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 		SDL_Delay(MS_SLEEP);
 	}	
 	if (i == NUM_SLEEP)
-		SDL_SetError("Unable to connect");
+		copy_cstr(errorText, "Unable to connect");
 	close();
 	return false;
 }

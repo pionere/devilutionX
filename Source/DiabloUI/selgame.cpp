@@ -448,8 +448,10 @@ static void SelgameSpeedSelect(unsigned index)
 
 static void SelgamePasswordSelect(unsigned index)
 {
+	char dialogText[256];
+
 	if (selgame_mode == SELGAME_CREATE) {
-		if (SNetCreateGame(selgame_Password, selgame_gameData)) {
+		if (SNetCreateGame(selgame_Password, selgame_gameData, dialogText)) {
 			selgame_endMenu = true;
 			return;
 		}
@@ -459,14 +461,12 @@ static void SelgamePasswordSelect(unsigned index)
 		setIniValue("Phone Book", "Entry1Port", selgame_Port);
 		int port;
 		getIniInt("Phone Book", "Entry1Port", &port);
-		if (SNetJoinGame(selgame_Ip, port, selgame_Password)) {
+		if (SNetJoinGame(selgame_Ip, port, selgame_Password, dialogText)) {
 			selgame_endMenu = true;
 			return;
 		}
 	}
 
-	char dialogText[256];
-	SStrCopy(dialogText, SDL_GetError(), sizeof(dialogText));
 	SelgameFree();
 	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", dialogText);
 	LoadBackgroundArt("ui_art\\selgame.pcx");
