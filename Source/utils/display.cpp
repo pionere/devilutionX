@@ -72,13 +72,13 @@ int screenHeight;
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags)
 {
-	DoLog("Setting video mode %dx%d bpp=%u flags=0x%08X", width, height, bpp, flags);
+	DoLog("Setting video mode %dx%d bpp=%d flags=0x%08X", width, height, bpp, flags);
 	ghMainWnd = SDL_SetVideoMode(width, height, bpp, flags);
 	if (ghMainWnd == NULL) {
 		sdl_fatal(ERR_SDL_DISPLAY_MODE_SET);
 	}
 	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
-	DoLog("Video mode is now %dx%d bpp=%u flags=0x%08X",
+	DoLog("Video mode is now %dx%d bpp=%d flags=0x%08X",
 	    current.current_w, current.current_h, current.vfmt->BitsPerPixel, SDL_GetVideoSurface()->flags);
 }
 
