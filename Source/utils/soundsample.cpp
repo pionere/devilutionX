@@ -53,7 +53,7 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 
 	channel = Mix_PlayChannel(channel, soundData, 0);
 	if (channel == -1) {
-		DoLog("%s", Mix_GetError());
+		DoLog(Mix_GetError());
 		return;
 	}
 	/*lVolume = (int)(pow(10.0, lVolume / 2000.0) * MIX_MAX_VOLUME);

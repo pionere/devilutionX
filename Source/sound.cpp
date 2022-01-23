@@ -115,7 +115,7 @@ void sound_file_load(const char* path, SoundSample* pSnd)
 void RestartMixer()
 {
 	if (Mix_OpenAudio(SND_DEFAULT_FREQUENCY, SND_DEFAULT_FORMAT, SND_DEFAULT_CHANNELS, 1024) < 0) {
-		SDL_Log("%s", Mix_GetError());
+		DoLog(Mix_GetError());
 	}
 	Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
 }

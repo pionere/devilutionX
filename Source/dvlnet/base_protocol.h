@@ -195,7 +195,7 @@ void base_protocol<P>::recv()
 			}
 		}
 	} catch (std::exception &e) {
-		DoLog("%s", e.what());
+		DoLog(e.what());
 		return;
 	}
 }

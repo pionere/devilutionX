@@ -274,16 +274,16 @@ static void UiOkDialog(const char* caption, const char* text, bool error/*, cons
 	}
 
 	if (SDL_ShowCursor(SDL_ENABLE) < 0) {
-		DoLog("%s", SDL_GetError());
+		DoLog(SDL_GetError());
 	}
 #ifndef RUN_TESTS
 	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, caption, text, NULL) < 0) {
-		DoLog("%s", SDL_GetError());
+		DoLog(SDL_GetError());
 #else
 	{
 #endif
-		DoLog("%s", caption);
-		DoLog("%s", text);
+		DoLog(caption);
+		DoLog(text);
 	}
 }
 
