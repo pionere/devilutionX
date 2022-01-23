@@ -1,15 +1,12 @@
 
-#include <stdexcept>
 #include "config.h"
+#include "all.h"
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/selconn.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
-#include "../engine.h"
-#include "../diablo.h"
-#include "storm/storm.h"
 #include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -93,10 +90,10 @@ static void SelgameModeFocus(unsigned index)
 {
 	switch (gUIListItems[index]->m_value) {
 	case SELGAME_CREATE:
-		snprintf(selgame_Description, sizeof(selgame_Description), "Create a new game with a difficulty setting of your choice.");
+		copy_cstr(selgame_Description, "Create a new game with a difficulty setting of your choice.");
 		break;
 	case SELGAME_JOIN:
-		snprintf(selgame_Description, sizeof(selgame_Description), "Enter an IP or a hostname and join a game already in progress.");
+		copy_cstr(selgame_Description, "Enter an IP or a hostname and join a game already in progress.");
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -109,16 +106,16 @@ static void SelgameDiffFocus(unsigned index)
 {
 	switch (gUIListItems[index]->m_value) {
 	case DIFF_NORMAL:
-		snprintf(selgame_Label, sizeof(selgame_Label), "Normal");
-		snprintf(selgame_Description, sizeof(selgame_Description), "Normal Difficulty\nThis is where a starting character should begin the quest to defeat Diablo.");
+		copy_cstr(selgame_Label, "Normal");
+		copy_cstr(selgame_Description, "Normal Difficulty\nThis is where a starting character should begin the quest to defeat Diablo.");
 		break;
 	case DIFF_NIGHTMARE:
-		snprintf(selgame_Label, sizeof(selgame_Label), "Nightmare");
-		snprintf(selgame_Description, sizeof(selgame_Description), "Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge. This is recommended for experienced characters only.");
+		copy_cstr(selgame_Label, "Nightmare");
+		copy_cstr(selgame_Description, "Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge. This is recommended for experienced characters only.");
 		break;
 	case DIFF_HELL:
-		snprintf(selgame_Label, sizeof(selgame_Label), "Hell");
-		snprintf(selgame_Description, sizeof(selgame_Description), "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell. Only the most experienced characters should venture in this realm.");
+		copy_cstr(selgame_Label, "Hell");
+		copy_cstr(selgame_Description, "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell. Only the most experienced characters should venture in this realm.");
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -131,20 +128,20 @@ static void SelgameSpeedFocus(unsigned index)
 {
 	switch (gUIListItems[index]->m_value) {
 	case SPEED_NORMAL:
-		snprintf(selgame_Label, sizeof(selgame_Label), "Normal");
-		snprintf(selgame_Description, sizeof(selgame_Description), "Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo.");
+		copy_cstr(selgame_Label, "Normal");
+		copy_cstr(selgame_Description, "Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo.");
 		break;
 	case SPEED_FAST:
-		snprintf(selgame_Label, sizeof(selgame_Label), "Fast");
-		snprintf(selgame_Description, sizeof(selgame_Description), "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge. This is recommended for experienced characters only.");
+		copy_cstr(selgame_Label, "Fast");
+		copy_cstr(selgame_Description, "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge. This is recommended for experienced characters only.");
 		break;
 	case SPEED_FASTER:
-		snprintf(selgame_Label, sizeof(selgame_Label), "Faster");
-		snprintf(selgame_Description, sizeof(selgame_Description), "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before. Only an experienced champion should try their luck at this speed.");
+		copy_cstr(selgame_Label, "Faster");
+		copy_cstr(selgame_Description, "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before. Only an experienced champion should try their luck at this speed.");
 		break;
 	case SPEED_FASTEST:
-		snprintf(selgame_Label, sizeof(selgame_Label), "Fastest");
-		snprintf(selgame_Description, sizeof(selgame_Description), "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation. Only a true speed demon should enter at this pace.");
+		copy_cstr(selgame_Label, "Fastest");
+		copy_cstr(selgame_Description, "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation. Only a true speed demon should enter at this pace.");
 		break;
 	default:
 		ASSUME_UNREACHABLE
