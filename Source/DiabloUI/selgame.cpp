@@ -17,7 +17,7 @@ static char selgame_Label[32];
 static char selgame_Ip[128] = "";
 static char selgame_Port[8] = "";
 static char selgame_Password[16] = "";
-static char selgame_Description[256];
+static char selgame_Description[128];
 static int selgame_mode;
 static bool selgame_endMenu;
 //int selgame_heroLevel;
@@ -111,11 +111,11 @@ static void SelgameDiffFocus(unsigned index)
 		break;
 	case DIFF_NIGHTMARE:
 		copy_cstr(selgame_Label, "Nightmare");
-		copy_cstr(selgame_Description, "Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge. This is recommended for experienced characters only.");
+		copy_cstr(selgame_Description, "Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge.");
 		break;
 	case DIFF_HELL:
 		copy_cstr(selgame_Label, "Hell");
-		copy_cstr(selgame_Description, "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell. Only the most experienced characters should venture in this realm.");
+		copy_cstr(selgame_Description, "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell.");
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -133,15 +133,15 @@ static void SelgameSpeedFocus(unsigned index)
 		break;
 	case SPEED_FAST:
 		copy_cstr(selgame_Label, "Fast");
-		copy_cstr(selgame_Description, "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge. This is recommended for experienced characters only.");
+		copy_cstr(selgame_Description, "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge.");
 		break;
 	case SPEED_FASTER:
 		copy_cstr(selgame_Label, "Faster");
-		copy_cstr(selgame_Description, "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before. Only an experienced champion should try their luck at this speed.");
+		copy_cstr(selgame_Description, "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before.");
 		break;
 	case SPEED_FASTEST:
 		copy_cstr(selgame_Label, "Fastest");
-		copy_cstr(selgame_Description, "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation. Only a true speed demon should enter at this pace.");
+		copy_cstr(selgame_Description, "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation.");
 		break;
 	default:
 		ASSUME_UNREACHABLE
