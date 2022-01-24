@@ -254,7 +254,7 @@
 
 #undef assert
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 #define assert(exp) (void)((exp) || (assert_fail(__LINE__, __FILE__, #exp), 0))
 #elif defined(_DEVMODE)
 #define assert(exp) (void)((exp) || (app_fatal("Assert fail at %d, %s, %s", __LINE__, __FILE__, #exp), 0))
@@ -278,7 +278,7 @@
 #endif
 #endif
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 #undef ASSUME_UNREACHABLE
 #define ASSUME_UNREACHABLE assert(0);
 #endif
