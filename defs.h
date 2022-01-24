@@ -254,20 +254,14 @@
 
 #undef assert
 
-#if DEBUG_MODE
-#define assert(exp) (void)((exp) || (assert_fail(__LINE__, __FILE__, #exp), 0))
-#elif defined(_DEVMODE)
+#if DEBUG_MODE || DEV_MODE
 #define assert(exp) (void)((exp) || (app_fatal("Assert fail at %d, %s, %s", __LINE__, __FILE__, #exp), 0))
 #else
 #define assert(exp) ((void)0)
 #endif
 
 #ifdef _MSC_VER
-#ifdef _DEVMODE
-#define ASSUME_UNREACHABLE assert(0);
-#else
 #define ASSUME_UNREACHABLE __assume(0);
-#endif
 #elif defined(__clang__)
 #define ASSUME_UNREACHABLE __builtin_unreachable();
 #elif defined(__GNUC__)
@@ -278,7 +272,7 @@
 #endif
 #endif
 
-#if DEBUG_MODE
+#if DEBUG_MODE || DEV_MODE
 #undef ASSUME_UNREACHABLE
 #define ASSUME_UNREACHABLE assert(0);
 #endif

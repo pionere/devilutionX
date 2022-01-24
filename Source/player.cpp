@@ -2738,7 +2738,7 @@ static void CheckNewPath(int pnum)
 	return plr._pmode == PM_DEATH || plr._pmode == PM_QUIT || plr._pmode == PM_NEWLVL;
 }*/
 
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 static void ValidatePlayer()
 {
 	PlayerStruct *p;
@@ -2831,7 +2831,7 @@ void ProcessPlayers()
 		}
 	}
 #endif
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	ValidatePlayer();
 #endif
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {

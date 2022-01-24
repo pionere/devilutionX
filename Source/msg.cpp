@@ -168,7 +168,7 @@ bool DownloadDeltaInfo()
 			msg_mask_monhit(mypnum);
 			return true;
 		}
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 		app_warn(/*gbGameDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended %d" :*/"Unable to get game data %d", gbGameDeltaChunks);
 #else
 		app_warn(/*gbGameDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended" :*/"Unable to get game data");

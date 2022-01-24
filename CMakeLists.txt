@@ -64,6 +64,7 @@ cmake_debug_option(ASAN "Enable address sanitizer")
 cmake_debug_option(UBSAN "Enable undefined behaviour sanitizer")
 cmake_dependent_option(TSAN "Enable thread sanitizer" OFF "NOT ASAN" OFF)
 cmake_debug_option(DEBUG_MODE "Enable debug mode in engine")
+option(DEV_MODE "Enable development mode in engine" OFF)
 option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
@@ -635,6 +636,7 @@ foreach(
   HAS_JOYSTICK
   PREFILL_PLAYER_NAME
   DEBUG_MODE
+  DEV_MODE
   GPERF
   GPERF_HEAP_MAIN
   GPERF_HEAP_FIRST_GAME_ITERATION
@@ -1162,6 +1164,7 @@ foreach(
   UBSAN
   TSAN
   DEBUG_MODE
+  DEV_MODE
   RUN_TESTS
   DISABLE_LTO
   PIE

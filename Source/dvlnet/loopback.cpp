@@ -15,7 +15,7 @@ bool loopback::create_game(const char* addrstr, unsigned port, const char* passw
 
 bool loopback::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	ABORT();
 #endif
 	return false;
@@ -35,7 +35,7 @@ bool loopback::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 
 void loopback::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	if (receiver != SNPLAYER_ALL && receiver != PLR_SINGLE)
 		ABORT();
 #endif
@@ -49,7 +49,7 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	BYTE* data;
 	unsigned dwLen;
 
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	if (turn_queue.size() != 1)
 		ABORT();
 #endif
@@ -82,7 +82,7 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 
 turn_status loopback::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 {
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	if (turn_queue.empty())
 		ABORT();
 #endif
@@ -92,7 +92,7 @@ turn_status loopback::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 
 uint32_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	ABORT();
 #endif
 	return 0;
@@ -112,7 +112,7 @@ void loopback::SNetLeaveGame(int reason)
 
 void loopback::SNetDropPlayer(int playerid)
 {
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	ABORT();
 #endif
 }
@@ -120,7 +120,7 @@ void loopback::SNetDropPlayer(int playerid)
 //#ifdef ADAPTIVE_NETUPDATE
 unsigned loopback::SNetGetTurnsInTransit()
 {
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	if (!turn_queue.empty())
 		ABORT(); // should be empty or should have one entry
 #endif

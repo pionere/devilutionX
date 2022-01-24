@@ -60,17 +60,6 @@ void app_warn(const char *pszFmt, ...)
 
 #if DEBUG_MODE
 /**
- * @brief Show an error and exit the application.
- * @param nLineNo The line number of the assertion
- * @param pszFile File name where the assertion is located
- * @param pszFail Fail message
- */
-void assert_fail(int nLineNo, const char *pszFile, const char *pszFail)
-{
-	app_fatal("assertion failed (%d:%s)\n%s", nLineNo, pszFile, pszFail);
-}
-
-/**
  * @brief Terminates the game and displays an error dialog box based on the given dialog_id.
  */
 void ErrDlg(const char *title, const char *error, const char *log_file_path, int log_line_nr)

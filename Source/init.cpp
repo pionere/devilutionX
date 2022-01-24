@@ -16,7 +16,7 @@
 #include <SDL.h>
 #include <string>
 #include <fstream>
-#ifdef _DEVMODE
+#if DEV_MODE
 #include <sys/stat.h>
 #endif
 
@@ -83,7 +83,7 @@ void init_cleanup()
 #endif
 }
 
-#ifdef _DEVMODE
+#if DEV_MODE
 static void CreateMpq(const char* destMpqName, const char* folder, const char* files)
 {
 	if (FileExists(destMpqName))
