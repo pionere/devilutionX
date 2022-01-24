@@ -18,9 +18,9 @@ void ErrorPlrMsg(const char *pszMsg);
 #endif
 void EventPlrMsg(const char *pszFmt, ...);
 void SendPlrMsg(int pnum, const char *pszStr);
-void ClearPlrMsg();
+void ClearPlrMsg(int pnum);
 void InitPlrMsg();
-void DrawPlrMsg();
+void DrawPlrMsg(bool onTop);
 
 #ifdef __cplusplus
 }

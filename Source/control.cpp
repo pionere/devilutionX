@@ -2390,8 +2390,9 @@ static void control_press_enter()
 		}
 		sgszTalkMsg[0] = '\0';
 		sgbTalkSavePos = sgbNextTalkSave;
+	} else {
+		control_reset_talk();
 	}
-	control_reset_talk();
 }
 
 bool control_talk_last_key(int vkey)

@@ -1207,6 +1207,13 @@ static void DrawView()
 	//}
 	DrawLifeFlask();
 	DrawManaFlask();
+	DrawDurIcon();
+
+	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {
+		DrawInvBelt();
+	//}
+
+	DrawPlrMsg(false);
 
 	if (stextflag != STORE_NONE && !gbQtextflag)
 		DrawStore();
@@ -1217,12 +1224,6 @@ static void DrawView()
 	} else if (gbTeamFlag) {
 		DrawTeamBook();
 	}
-
-	DrawDurIcon();
-
-	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {
-		DrawInvBelt();
-	//}
 
 	if (gbChrflag) {
 		DrawChr();
@@ -1259,7 +1260,7 @@ static void DrawView()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	DrawControllerModifierHints();
 #endif
-	DrawPlrMsg();
+	DrawPlrMsg(true);
 	if (gmenu_is_active())
 		gmenu_draw();
 	if (gbDoomflag) {

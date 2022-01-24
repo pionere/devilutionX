@@ -7,13 +7,19 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define PLRMSG_COUNT        32
+#define PLRMSG_TEXT_BOTTOM  350
+#define PLRMSG_PANEL_BORDER 3
+#define PLRMSG_TEXT_HEIGHT  12
+#define PLRMSG_TEXT_TIMEOUT 10000
+
 static BYTE plr_msg_slot;
-_plrmsg plr_msgs[PMSG_COUNT];
-static Uint32 guDelayStartTc;
+static _plrmsg plr_msgs[PLRMSG_COUNT];
+//static Uint32 guDelayStartTc;
 
 void plrmsg_delay(bool delay)
 {
-	int i;
+	/*int i;
 	_plrmsg *pMsg;
 	Uint32 deltaTc;
 
@@ -24,16 +30,16 @@ void plrmsg_delay(bool delay)
 	}
 	deltaTc -= guDelayStartTc;
 	pMsg = plr_msgs;
-	for (i = 0; i < PMSG_COUNT; i++, pMsg++)
-		pMsg->time += deltaTc;
+	for (i = 0; i < PLRMSG_COUNT; i++, pMsg++)
+		pMsg->time += deltaTc;*/
 }
 
 static _plrmsg* AddPlrMsg(int pnum)
 {
 	_plrmsg* pMsg = &plr_msgs[plr_msg_slot];
 
-	static_assert((PMSG_COUNT & (PMSG_COUNT - 1)) == 0, "Modulo to BitAnd optimization requires a power of 2.");
-	plr_msg_slot = (plr_msg_slot + 1) % PMSG_COUNT;
+	static_assert((PLRMSG_COUNT & (PLRMSG_COUNT - 1)) == 0, "Modulo to BitAnd optimization requires a power of 2.");
+	plr_msg_slot = (unsigned)(plr_msg_slot + 1) % PLRMSG_COUNT;
 	pMsg->player = pnum;
 	pMsg->time = SDL_GetTicks();
 	return pMsg;
@@ -68,14 +74,13 @@ void SendPlrMsg(int pnum, const char *pszStr)
 	snprintf(pMsg->str, sizeof(pMsg->str), "%s: %s", plr._pName, pszStr);
 }
 
-void ClearPlrMsg()
+void ClearPlrMsg(int pnum)
 {
 	int i;
 	_plrmsg *pMsg = plr_msgs;
-	Uint32 currTc = SDL_GetTicks();
 
-	for (i = 0; i < PMSG_COUNT; i++, pMsg++) {
-		if ((int)(currTc - pMsg->time) > 10000)
+	for (i = 0; i < PLRMSG_COUNT; i++, pMsg++) {
+		if (pMsg->player == pnum)
 			pMsg->str[0] = '\0';
 	}
 }
@@ -86,13 +91,21 @@ void InitPlrMsg()
 	plr_msg_slot = 0;
 }
 
-static void PrintPlrMsg(unsigned x, unsigned y, unsigned width, const char *str, BYTE col)
+static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 {
-	BYTE c;
-	int sx, line = 0;
-	unsigned len;
+	BYTE c, col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
+	int sx, line;
+	unsigned len, width = SCREEN_WIDTH - 20;
 	const char *sstr, *endstr;
+	const char *str = pMsg->str;
 
+	line = (unsigned)GetStringWidth(str) >= width ? 2 : 1;
+	line *= PLRMSG_TEXT_HEIGHT;
+	y -= line;
+
+	trans_rect(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER);
+
+	line = 0;
 	while (*str != '\0') {
 		len = 0;
 		sstr = endstr = str;
@@ -118,36 +131,33 @@ static void PrintPlrMsg(unsigned x, unsigned y, unsigned width, const char *str,
 			sx += sfontkern[c] + 1;
 		}
 
-		y += 10;
-		if (++line == 3)
+		y += PLRMSG_TEXT_HEIGHT;
+		if (++line == 2)
 			break;
 	}
+	return y - line * PLRMSG_TEXT_HEIGHT;
 }
 
-void DrawPlrMsg()
+void DrawPlrMsg(bool onTop)
 {
-	int i;
-	unsigned x = 10 + SCREEN_X;
-	unsigned y = 70 + SCREEN_Y;
-	unsigned width = SCREEN_WIDTH - 20;
-	_plrmsg *pMsg;
+	int i, n, idx;
+	unsigned x, y;
+	Uint32 timeout;
 
-	if (gbChrflag | gbQuestlog) {
-		x += SPANEL_WIDTH;
-		width -= SPANEL_WIDTH;
-	}
-	if (gbInvflag | gbSbookflag | gbTeamFlag)
-		width -= SPANEL_WIDTH;
-
-	if (width < 300)
+	if (onTop != gbTalkflag)
 		return;
 
-	pMsg = plr_msgs;
-	for (i = 0; i < PMSG_COUNT; i++) {
-		if (pMsg->str[0] != '\0')
-			PrintPlrMsg(x, y, width, pMsg->str, pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE);
-		pMsg++;
-		y += 35;
+	n = gbTalkflag ? PLRMSG_COUNT : 3;
+	timeout = gbTalkflag ? 0 : SDL_GetTicks() - PLRMSG_TEXT_TIMEOUT;
+	x = 10 + SCREEN_X;
+	y = SCREEN_Y + PLRMSG_TEXT_BOTTOM;
+	for (i = 1; i <= PLRMSG_COUNT; i++) {
+		idx = (unsigned)(plr_msg_slot - i) % PLRMSG_COUNT;
+		if (plr_msgs[idx].str[0] != '\0' && plr_msgs[idx].time >= timeout) {
+			y = PrintPlrMsg(x, y, &plr_msgs[idx]);
+			if (--n == 0 || y <= (SCREEN_Y + 2 * PLRMSG_TEXT_HEIGHT + 2 * PLRMSG_PANEL_BORDER))
+				break;
+		}
 	}
 }
 

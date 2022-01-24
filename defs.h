@@ -125,8 +125,6 @@
 // 272 kilobytes .. (was 256 kb in vanilla which is not safe)
 #define FILEBUFF				(272 * 1024)
 
-#define PMSG_COUNT				8
-
 // Diablo uses a 256 color palette
 // Entry 0-127 (0x00-0x7F) are level specific
 // Entry 128-255 (0x80-0xFF) are global

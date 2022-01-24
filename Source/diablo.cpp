@@ -1448,7 +1448,6 @@ void game_logic()
 #endif
 
 	sound_update();
-	ClearPlrMsg();
 	CheckTriggers();
 	CheckQuests();
 	pfile_update(false);
