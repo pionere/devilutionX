@@ -336,10 +336,13 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 static bool SVidLoadNextFrame()
 {
+	char result;
+
 	SVidFrameEnd += SVidFrameLength;
 
-	if (smk_next(SVidSMK) == SMK_DONE) {
-		if (!SVidLoop) {
+	result = smk_next(SVidSMK);
+	if (result != SMK_MORE/* && result != SMK_LAST*/) {
+		if (result == SMK_ERROR || !SVidLoop) {
 			return false;
 		}
 

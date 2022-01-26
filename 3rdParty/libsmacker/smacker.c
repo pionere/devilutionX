@@ -2016,10 +2016,10 @@ char smk_next(smk s)
 #endif
 			return -1;
 		}
-
+#ifdef FULL
 		if (s->cur_frame + 1 == (s->f + s->ring_frame))
 			return SMK_LAST;
-
+#endif
 		return SMK_MORE;
 	} else if (s->ring_frame) {
 		s->cur_frame = 1;
@@ -2030,10 +2030,10 @@ char smk_next(smk s)
 #endif
 			return -1;
 		}
-
+#ifdef FULL
 		if (s->cur_frame + 1 == (s->f + s->ring_frame))
 			return SMK_LAST;
-
+#endif
 		return SMK_MORE;
 	}
 
