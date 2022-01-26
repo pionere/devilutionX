@@ -712,6 +712,7 @@ foreach(
 endforeach(def_name)
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
+target_compile_definitions(smacker PRIVATE ${def_list})
 
 if(UBSAN)
   target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=undefined)
