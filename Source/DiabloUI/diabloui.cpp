@@ -499,15 +499,17 @@ void LoadBackgroundArt(const char* pszFile, int frames)
 
 	ApplyGamma(logical_palette, orig_palette);
 
+	// help the render loops by setting up an initial fade level
 	_gdwFadeTc = 0;
 	_gnFadeValue = 0;
 	SetFadeLevel(0);
+/* unnecessary, because the render loops are supposed to start with this.
 	UiClearScreen();
 //#ifdef USE_SDL1
 //	if (DiabloUiSurface() == back_surface)
-		BltFast(NULL, NULL);
+		BltFast();
 //#endif
-	RenderPresent();
+	RenderPresent();*/
 }
 
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
@@ -544,7 +546,7 @@ void UiFadeIn()
 	}
 //#ifdef USE_SDL1
 //	if (DiabloUiSurface() == back_surface)
-		BltFast(NULL, NULL);
+		BltFast();
 //#endif
 	RenderPresent();
 }

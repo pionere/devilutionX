@@ -71,7 +71,9 @@ bool CreditsRenderer::Render()
 	SDL_Rect viewport = VIEWPORT;
 	viewport.x += PANEL_LEFT;
 	viewport.y += UI_OFFSET_Y;
-	ScaleOutputRect(&viewport);
+	//ScaleOutputRect(&viewport); -- unnecessary (and wrong) when drawing to back_surface
+	viewport.x += SCREEN_X;
+	viewport.y += SCREEN_Y;
 	SDL_SetClipRect(DiabloUiSurface(), &viewport);
 
 	// We use unscaled coordinates for calculation throughout.

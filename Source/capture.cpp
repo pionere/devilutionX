@@ -155,13 +155,7 @@ static void RedPalette()
 		system_palette[i].b = 0;
 	}
 	palette_update();
-	SDL_Rect SrcRect = {
-		SCREEN_X,
-		SCREEN_Y,
-		SCREEN_WIDTH,
-		SCREEN_HEIGHT,
-	};
-	BltFast(&SrcRect, NULL);
+	BltFast();
 	RenderPresent();
 }
 

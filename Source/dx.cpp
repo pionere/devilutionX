@@ -245,16 +245,11 @@ void trans_rect(int sx, int sy, int width, int height)
 	}
 }
 
-void BltFast(const SDL_Rect *src_rect, SDL_Rect *dst_rect)
+static void Blit(SDL_Surface* src, const SDL_Rect* src_rect, SDL_Rect* dst_rect)
 {
-	Blit(back_surface, src_rect, dst_rect);
-}
-
-void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
-{
-	SDL_Surface *dst = GetOutputSurface();
+	SDL_Surface* dst = GetOutputSurface();
 #ifndef USE_SDL1
-	if (SDL_BlitSurface(src, src_rect, dst, dst_rect) < 0)
+	if (SDL_LowerBlit(src, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0)
 		sdl_fatal(ERR_SDL_DX_BLIT_SDL2);
 #else
 	if (!OutputRequiresScaling()) {
@@ -303,6 +298,23 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 	}
 	SDL_FreeSurface(converted);
 #endif
+}
+
+void BltFast()
+{
+	SDL_Rect src_rect = {
+		SCREEN_X,
+		SCREEN_Y,
+		SCREEN_WIDTH,
+		SCREEN_HEIGHT,
+	};
+	SDL_Rect dst_rect = {
+		0,
+		0,
+		SCREEN_WIDTH,
+		SCREEN_HEIGHT,
+	};
+	Blit(back_surface, &src_rect, &dst_rect);
 }
 
 /**

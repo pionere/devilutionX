@@ -1386,105 +1386,6 @@ static void DrawFPS()
 }
 
 /**
- * @brief Update part of the screen from the back buffer
- * @param dwX Back buffer coordinate
- * @param dwY Back buffer coordinate
- * @param dwWdt Back buffer coordinate
- * @param dwHgt Back buffer coordinate
- */
-/*static void DoBlitScreen(int dwX, int dwY, int dwWdt, int dwHgt)
-{
-	SDL_Rect SrcRect = {
-		dwX + SCREEN_X,
-		dwY + SCREEN_Y,
-		dwWdt,
-		dwHgt,
-	};
-	SDL_Rect DstRect = {
-		dwX,
-		dwY,
-		dwWdt,
-		dwHgt,
-	};
-
-	BltFast(&SrcRect, &DstRect);
-}*/
-static void DoBlitScreen()
-{
-	SDL_Rect SrcRect = {
-		SCREEN_X,
-		SCREEN_Y,
-		SCREEN_WIDTH,
-		SCREEN_HEIGHT,
-	};
-	SDL_Rect DstRect = {
-		0,
-		0,
-		SCREEN_WIDTH,
-		SCREEN_HEIGHT,
-	};
-
-	BltFast(&SrcRect, &DstRect);
-}
-
-/**
- * @brief Check render pipeline and blit individual screen parts
- * @param dwHgt Section of screen to update from top to bottom
- * @param drawFlags Render parts of the screen
- */
-/*static void DrawMain(int dwHgt, int drawFlags)
-{
-	int ysize;
-
-	ysize = dwHgt;
-
-	if (!gbWndActive) {
-		return;
-	}
-
-	assert(ysize >= 0 && ysize <= SCREEN_HEIGHT);
-	//ysize = SCREEN_HEIGHT;
-	if (ysize > 0) {
-		DoBlitScreen(0, 0, SCREEN_WIDTH, ysize);
-	}
-	if (ysize < SCREEN_HEIGHT) {
-		//if (drawFlags & REDRAW_SPEED_BAR) {
-			//DoBlitScreen(PANEL_LEFT + 204, PANEL_TOP + 5, 232, 28);
-			DoBlitScreen(InvRect[SLOTXY_BELT_FIRST].X, SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y - (INV_SLOT_SIZE_PX + 1), 2 * (INV_SLOT_SIZE_PX + 1), 4 * (INV_SLOT_SIZE_PX + 1));
-		//}
-		//if (drawFlags & REDRAW_DESCRIPTION) {
-		//	DoBlitScreen(PANEL_LEFT + 176, PANEL_TOP + 46, 288, 60);
-		//}
-		//if (drawFlags & REDRAW_MANA_FLASK) {
-			DoBlitScreen(PANEL_LEFT + 460, PANEL_TOP, 88, 72);
-		//}
-		//if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
-			DoBlitScreen(SCREEN_WIDTH - SPLICONLENGTH, SCREEN_HEIGHT - SPLICONLENGTH, SPLICONLENGTH, SPLICONLENGTH);
-		//}
-		//if (drawFlags & REDRAW_HP_FLASK) {
-			DoBlitScreen(PANEL_LEFT + 96, PANEL_TOP, 88, 72);
-		//}
-		//if (drawFlags & REDRAW_CTRL_BUTTONS) {
-			//DoBlitScreen(PANEL_LEFT + 8, PANEL_TOP + 5, 72, 119);
-			//DoBlitScreen(PANEL_LEFT + 556, PANEL_TOP + 5, 72, 48);
-			//if (!IsLocalGame) {
-			//	DoBlitScreen(PANEL_LEFT + 84, PANEL_TOP + 91, 36, 32);
-			//	DoBlitScreen(PANEL_LEFT + 524, PANEL_TOP + 91, 36, 32);
-			//}
-			int y = (!gabPanbtn[PANBTN_MAINMENU] && !(drawFlags & REDRAW_CTRL_BUTTONS) ? 1 : numpanbtns) * MENUBTN_HEIGHT;
-			DoBlitScreen(0, SCREEN_HEIGHT - 1 - y, MENUBTN_WIDTH, y);
-		//}
-
-		if (sgCursWdtOld != 0) {
-			DoBlitScreen(sgCursXOld, sgCursYOld, sgCursWdtOld, sgCursHgtOld);
-		}
-		if (sgCursWdt != 0) {
-			DoBlitScreen(sgCursX, sgCursY, sgCursWdt, sgCursHgt);
-		}
-	}
-}*/
-
-/**
  * @brief Redraw screen
  * @param draw_cursor
  */
@@ -1497,7 +1398,7 @@ void scrollrt_draw_screen(bool draw_cursor)
 	}
 
 	if (gbWndActive) {
-		DoBlitScreen();
+		BltFast();
 	}
 
 	if (draw_cursor) {
@@ -1528,7 +1429,7 @@ void scrollrt_draw_game()
 
 	//DrawMain(hgt, gbRedrawFlags);
 	if (gbWndActive) {
-		DoBlitScreen();
+		BltFast();
 	}
 
 	lock_buf(0);
