@@ -1156,12 +1156,12 @@ char smk_info_video(const smk object, unsigned long * w, unsigned long * h, unsi
 	return 0;
 }
 
+#ifdef FULL
 char smk_info_audio(const smk object, unsigned char * track_mask, unsigned char channels[7], unsigned char bitdepth[7], unsigned long audio_rate[7])
 {
 	unsigned char i;
 
 	/* null check */
-#ifdef FULL
 	if (object == NULL) {
 		fputs("libsmacker::smk_info_audio() - ERROR: smk is NULL\n", stderr);
 		return -1;
@@ -1181,13 +1181,6 @@ char smk_info_audio(const smk object, unsigned char * track_mask, unsigned char 
 				((object->audio[5].exists) << 5) |
 				((object->audio[6].exists) << 6));
 	}
-#else
-	assert(object);
-	assert(track_mask == NULL);
-	assert(channels);
-	assert(bitdepth);
-	assert(audio_rate);
-#endif
 
 	if (channels) {
 		for (i = 0; i < 7; i ++)
@@ -1206,6 +1199,14 @@ char smk_info_audio(const smk object, unsigned char * track_mask, unsigned char 
 
 	return 0;
 }
+#else
+void smk_info_audio(const smk object, unsigned char* channels, unsigned char* bitdepth, unsigned long* audio_rate)
+{
+	*channels = object->audio[0].channels;
+	*bitdepth = object->audio[0].bitdepth;
+	*audio_rate = object->audio[0].rate;
+}
+#endif /* FULL */
 
 /* Enable-disable switches */
 #ifdef FULL

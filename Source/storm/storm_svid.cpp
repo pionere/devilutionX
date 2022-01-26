@@ -263,18 +263,18 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 #ifndef NOSOUND
 	if (enableAudio) {
-		unsigned char channels[7], depth[7];
-		unsigned long rate[7];
-		smk_info_audio(SVidSMK, NULL, channels, depth, rate);
-		if (depth[0] != 0) {
-			SVidAudioDepth = depth[0];
+		unsigned char channels, depth;
+		unsigned long rate;
+		smk_info_audio(SVidSMK, &channels, &depth, &rate);
+		if (depth != 0) {
+			SVidAudioDepth = depth;
 
 			smk_enable_audio(SVidSMK, 0, true);
 			SDL_AudioSpec audioFormat;
 			memset(&audioFormat, 0, sizeof(audioFormat));
-			audioFormat.freq = rate[0];
+			audioFormat.freq = rate;
 			audioFormat.format = SVidAudioDepth == 16 ? AUDIO_S16SYS : AUDIO_U8;
-			audioFormat.channels = channels[0];
+			audioFormat.channels = channels;
 
 			Mix_CloseAudio();
 
