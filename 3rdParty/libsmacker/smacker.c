@@ -16,7 +16,25 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
+
+/* logging replacements */
+#ifdef FULL
+#define PrintError(msg)    perror(msg);
+#define LogErrorMsg(msg)   fputs(msg, stderr);
+#define LogError(msg, ...) fprintf(stderr, msg, __VA_ARGS__);
+#else
+#if DEBUG_MODE || DEV_MODE
+#define PrintError(msg)    perror(msg);
+#define LogErrorMsg(msg)   fputs(msg, stderr);
+#define LogError(msg, ...) fprintf(stderr, msg, __VA_ARGS__);
+#else
+#define PrintError(msg)
+#define LogErrorMsg(msg)
+#define LogError(msg, ...)
+#endif
+#endif /* FULL */
 
 /* ************************************************************************* */
 /* BITSTREAM Structure */
@@ -52,7 +70,7 @@ static int smk_bs_read_1(struct smk_bit_t * const bs)
 
 	/* don't die when running out of bits, but signal */
 	if (bs->buffer >= bs->end) {
-		fputs("libsmacker::smk_bs_read_1(): ERROR: bitstream exhausted.\n", stderr);
+		LogErrorMsg("libsmacker::smk_bs_read_1(): ERROR: bitstream exhausted.\n");
 		return -1;
 	}
 
@@ -79,7 +97,7 @@ static int smk_bs_read_8(struct smk_bit_t * const bs)
 
 	/* don't die when running out of bits, but signal */
 	if (bs->buffer + (bs->bit_num > 0) >= bs->end) {
-		fputs("libsmacker::smk_bs_read_8(): ERROR: bitstream exhausted.\n", stderr);
+		LogErrorMsg("libsmacker::smk_bs_read_8(): ERROR: bitstream exhausted.\n");
 		return -1;
 	}
 
@@ -120,13 +138,13 @@ static int _smk_huff8_build_rec(struct smk_huff8_t * const t, struct smk_bit_t *
 
 	/* Make sure we aren't running out of bounds */
 	if (t->size >= 511) {
-		fputs("libsmacker::_smk_huff8_build_rec() - ERROR: size exceeded\n", stderr);
+		LogErrorMsg("libsmacker::_smk_huff8_build_rec() - ERROR: size exceeded\n");
 		return 0;
 	}
 
 	/* Read the next bit */
 	if ((bit = smk_bs_read_1(bs)) < 0) {
-		fputs("libsmacker::_smk_huff8_build_rec() - ERROR: get_bit returned -1\n", stderr);
+		LogErrorMsg("libsmacker::_smk_huff8_build_rec() - ERROR: get_bit returned -1\n");
 		return 0;
 	}
 
@@ -141,7 +159,7 @@ static int _smk_huff8_build_rec(struct smk_huff8_t * const t, struct smk_bit_t *
 
 		/* go build the left branch */
 		if (! _smk_huff8_build_rec(t, bs)) {
-			fputs("libsmacker::_smk_huff8_build_rec() - ERROR: failed to build left sub-tree\n", stderr);
+			LogErrorMsg("libsmacker::_smk_huff8_build_rec() - ERROR: failed to build left sub-tree\n");
 			return 0;
 		}
 
@@ -151,14 +169,14 @@ static int _smk_huff8_build_rec(struct smk_huff8_t * const t, struct smk_bit_t *
 
 		/* continue building the right side */
 		if (! _smk_huff8_build_rec(t, bs)) {
-			fputs("libsmacker::_smk_huff8_build_rec() - ERROR: failed to build right sub-tree\n", stderr);
+			LogErrorMsg("libsmacker::_smk_huff8_build_rec() - ERROR: failed to build right sub-tree\n");
 			return 0;
 		}
 	} else {
 		/* Bit unset signifies a Leaf node. */
 		/* Attempt to read value */
 		if ((value = smk_bs_read_8(bs)) < 0) {
-			fputs("libsmacker::_smk_huff8_build_rec() - ERROR: get_byte returned -1\n", stderr);
+			LogErrorMsg("libsmacker::_smk_huff8_build_rec() - ERROR: get_byte returned -1\n");
 			return 0;
 		}
 
@@ -181,7 +199,7 @@ static int smk_huff8_build(struct smk_huff8_t * const t, struct smk_bit_t * cons
 
 	/* Smacker huff trees begin with a set-bit. */
 	if ((bit = smk_bs_read_1(bs)) < 0) {
-		fputs("libsmacker::smk_huff8_build() - ERROR: initial get_bit returned -1\n", stderr);
+		LogErrorMsg("libsmacker::smk_huff8_build() - ERROR: initial get_bit returned -1\n");
 		return 0;
 	}
 
@@ -192,7 +210,7 @@ static int smk_huff8_build(struct smk_huff8_t * const t, struct smk_bit_t * cons
 	/*  Very small or audio-only files may have no tree. */
 	if (bit) {
 		if (! _smk_huff8_build_rec(t, bs)) {
-			fputs("libsmacker::smk_huff8_build() - ERROR: tree build failed\n", stderr);
+			LogErrorMsg("libsmacker::smk_huff8_build() - ERROR: tree build failed\n");
 			return 0;
 		}
 	} else
@@ -200,13 +218,13 @@ static int smk_huff8_build(struct smk_huff8_t * const t, struct smk_bit_t * cons
 
 	/* huff trees end with an unset-bit */
 	if ((bit = smk_bs_read_1(bs)) < 0) {
-		fputs("libsmacker::smk_huff8_build() - ERROR: final get_bit returned -1\n", stderr);
+		LogErrorMsg("libsmacker::smk_huff8_build() - ERROR: final get_bit returned -1\n");
 		return 0;
 	}
 
 	/* a 0 is expected here, a 1 generally indicates a problem! */
 	if (bit) {
-		fputs("libsmacker::smk_huff8_build() - ERROR: final get_bit returned 1\n", stderr);
+		LogErrorMsg("libsmacker::smk_huff8_build() - ERROR: final get_bit returned 1\n");
 		return 0;
 	}
 
@@ -224,7 +242,7 @@ static int smk_huff8_lookup(const struct smk_huff8_t * const t, struct smk_bit_t
 
 	while (t->tree[index] & SMK_HUFF8_BRANCH) {
 		if ((bit = smk_bs_read_1(bs)) < 0) {
-			fputs("libsmacker::smk_huff8_lookup() - ERROR: get_bit returned -1\n", stderr);
+			LogErrorMsg("libsmacker::smk_huff8_lookup() - ERROR: get_bit returned -1\n");
 			return -1;
 		}
 
@@ -270,13 +288,13 @@ static int _smk_huff16_build_rec(struct smk_huff16_t * const t, struct smk_bit_t
 
 	/* Make sure we aren't running out of bounds */
 	if (t->size >= limit) {
-		fputs("libsmacker::_smk_huff16_build_rec() - ERROR: size exceeded\n", stderr);
+		LogErrorMsg("libsmacker::_smk_huff16_build_rec() - ERROR: size exceeded\n");
 		return 0;
 	}
 
 	/* Read the first bit */
 	if ((bit = smk_bs_read_1(bs)) < 0) {
-		fputs("libsmacker::_smk_huff16_build_rec() - ERROR: get_bit returned -1\n", stderr);
+		LogErrorMsg("libsmacker::_smk_huff16_build_rec() - ERROR: get_bit returned -1\n");
 		return 0;
 	}
 
@@ -287,7 +305,7 @@ static int _smk_huff16_build_rec(struct smk_huff16_t * const t, struct smk_bit_t
 
 		/* go build the left branch */
 		if (! _smk_huff16_build_rec(t, bs, low8, hi8, limit)) {
-			fputs("libsmacker::_smk_huff16_build_rec() - ERROR: failed to build left sub-tree\n", stderr);
+			LogErrorMsg("libsmacker::_smk_huff16_build_rec() - ERROR: failed to build left sub-tree\n");
 			return 0;
 		}
 
@@ -297,14 +315,14 @@ static int _smk_huff16_build_rec(struct smk_huff16_t * const t, struct smk_bit_t
 
 		/* continue building the right side */
 		if (! _smk_huff16_build_rec(t, bs, low8, hi8, limit)) {
-			fputs("libsmacker::_smk_huff16_build_rec() - ERROR: failed to build right sub-tree\n", stderr);
+			LogErrorMsg("libsmacker::_smk_huff16_build_rec() - ERROR: failed to build right sub-tree\n");
 			return 0;
 		}
 	} else {
 		/* Bit unset signifies a Leaf node. */
 		/* Attempt to read LOW value */
 		if ((value = smk_huff8_lookup(low8, bs)) < 0) {
-			fputs("libsmacker::_smk_huff16_build_rec() - ERROR: get LOW value returned -1\n", stderr);
+			LogErrorMsg("libsmacker::_smk_huff16_build_rec() - ERROR: get LOW value returned -1\n");
 			return 0;
 		}
 
@@ -312,7 +330,7 @@ static int _smk_huff16_build_rec(struct smk_huff16_t * const t, struct smk_bit_t
 
 		/* now read HIGH value */
 		if ((value = smk_huff8_lookup(hi8, bs)) < 0) {
-			fputs("libsmacker::_smk_huff16_build_rec() - ERROR: get HIGH value returned -1\n", stderr);
+			LogErrorMsg("libsmacker::_smk_huff16_build_rec() - ERROR: get HIGH value returned -1\n");
 			return 0;
 		}
 
@@ -346,7 +364,7 @@ static int smk_huff16_build(struct smk_huff16_t * const t, struct smk_bit_t * co
 
 	/* Smacker huff trees begin with a set-bit. */
 	if ((bit = smk_bs_read_1(bs)) < 0) {
-		fputs("libsmacker::smk_huff16_build() - ERROR: initial get_bit returned -1\n", stderr);
+		LogErrorMsg("libsmacker::smk_huff16_build() - ERROR: initial get_bit returned -1\n");
 		return 0;
 	}
 
@@ -357,20 +375,20 @@ static int smk_huff16_build(struct smk_huff16_t * const t, struct smk_bit_t * co
 	if (bit) {
 		/* build low-8-bits tree */
 		if (! smk_huff8_build(&low8, bs)) {
-			fputs("libsmacker::smk_huff16_build() - ERROR: failed to build LOW tree\n", stderr);
+			LogErrorMsg("libsmacker::smk_huff16_build() - ERROR: failed to build LOW tree\n");
 			return 0;
 		}
 
 		/* build hi-8-bits tree */
 		if (! smk_huff8_build(&hi8, bs)) {
-			fputs("libsmacker::smk_huff16_build() - ERROR: failed to build HIGH tree\n", stderr);
+			LogErrorMsg("libsmacker::smk_huff16_build() - ERROR: failed to build HIGH tree\n");
 			return 0;
 		}
 
 		/* Init the escape code cache. */
 		for (i = 0; i < 3; i ++) {
 			if ((value = smk_bs_read_8(bs)) < 0) {
-				fprintf(stderr, "libsmacker::smk_huff16_build() - ERROR: get LOW value for cache %d returned -1\n", i);
+				LogError("libsmacker::smk_huff16_build() - ERROR: get LOW value for cache %d returned -1\n", i);
 				return 0;
 			}
 
@@ -378,7 +396,7 @@ static int smk_huff16_build(struct smk_huff16_t * const t, struct smk_bit_t * co
 
 			/* now read HIGH value */
 			if ((value = smk_bs_read_8(bs)) < 0) {
-				fprintf(stderr, "libsmacker::smk_huff16_build() - ERROR: get HIGH value for cache %d returned -1\n", i);
+				LogError("libsmacker::smk_huff16_build() - ERROR: get HIGH value for cache %d returned -1\n", i);
 				return 0;
 			}
 
@@ -387,35 +405,31 @@ static int smk_huff16_build(struct smk_huff16_t * const t, struct smk_bit_t * co
 
 		/* Everything looks OK so far. Time to malloc structure. */
 		if (alloc_size < 12 || alloc_size % 4) {
-			fprintf(stderr, "libsmacker::smk_huff16_build() - ERROR: illegal value %u for alloc_size\n", alloc_size);
+			LogError("libsmacker::smk_huff16_build() - ERROR: illegal value %u for alloc_size\n", alloc_size);
 			return 0;
 		}
 
 		limit = (alloc_size - 12) / 4;
 
 		if ((t->tree = malloc(limit * sizeof(unsigned int))) == NULL) {
-			perror("libsmacker::smk_huff16_build() - ERROR: failed to malloc() huff16 tree");
+			PrintError("libsmacker::smk_huff16_build() - ERROR: failed to malloc() huff16 tree");
 			return 0;
 		}
 
 		/* Finally, call recursive function to retrieve the Bigtree. */
 		if (! _smk_huff16_build_rec(t, bs, &low8, &hi8, limit)) {
-			fputs("libsmacker::smk_huff16_build() - ERROR: failed to build huff16 tree\n", stderr);
-			free(t->tree);
-			t->tree = NULL;
-			return 0;
+			LogErrorMsg("libsmacker::smk_huff16_build() - ERROR: failed to build huff16 tree\n");
+			goto error;
 		}
 
 		/* check that we completely filled the tree */
 		if (limit != t->size) {
-			fputs("libsmacker::smk_huff16_build() - ERROR: failed to completely decode huff16 tree\n", stderr);
-			free(t->tree);
-			t->tree = NULL;
-			return 0;
+			LogErrorMsg("libsmacker::smk_huff16_build() - ERROR: failed to completely decode huff16 tree\n");
+			goto error;
 		}
 	} else {
 		if ((t->tree = malloc(sizeof(unsigned int))) == NULL) {
-			perror("libsmacker::smk_huff16_build() - ERROR: failed to malloc() huff16 tree");
+			PrintError("libsmacker::smk_huff16_build() - ERROR: failed to malloc() huff16 tree");
 			return 0;
 		}
 
@@ -425,21 +439,21 @@ static int smk_huff16_build(struct smk_huff16_t * const t, struct smk_bit_t * co
 
 	/* Check final end tag. */
 	if ((bit = smk_bs_read_1(bs)) < 0) {
-		fputs("libsmacker::smk_huff16_build() - ERROR: final get_bit returned -1\n", stderr);
-		free(t->tree);
-		t->tree = NULL;
-		return 0;
+		LogErrorMsg("libsmacker::smk_huff16_build() - ERROR: final get_bit returned -1\n");
+		goto error;
 	}
 
 	/* a 0 is expected here, a 1 generally indicates a problem! */
 	if (bit) {
-		fputs("libsmacker::smk_huff16_build() - ERROR: final get_bit returned 1\n", stderr);
-		free(t->tree);
-		t->tree = NULL;
-		return 0;
+		LogErrorMsg("libsmacker::smk_huff16_build() - ERROR: final get_bit returned 1\n");
+		goto error;
 	}
 
 	return 1;
+error:
+	free(t->tree);
+	t->tree = NULL;
+	return 0;
 }
 
 /* Look up a 16-bit value from a large huff tree.
@@ -454,7 +468,7 @@ static int smk_huff16_lookup(struct smk_huff16_t * const t, struct smk_bit_t * c
 
 	while (t->tree[index] & SMK_HUFF16_BRANCH) {
 		if ((bit = smk_bs_read_1(bs)) < 0) {
-			fputs("libsmacker::smk_huff16_lookup() - ERROR: get_bit returned -1\n", stderr);
+			LogErrorMsg("libsmacker::smk_huff16_lookup() - ERROR: get_bit returned -1\n");
 			return -1;
 		}
 
@@ -628,7 +642,7 @@ static char smk_read_file(void * buf, const size_t size, FILE * fp)
 static char smk_read_memory(void * buf, const unsigned long size, unsigned char ** p, unsigned long * p_size)
 {
 	if (size > *p_size) {
-		fprintf(stderr, "libsmacker::smk_read_memory(buf,%lu,p,%lu) - ERROR: Short read\n", (unsigned long)size, (unsigned long)*p_size);
+		LogError("libsmacker::smk_read_memory(buf,%lu,p,%lu) - ERROR: Short read\n", (unsigned long)size, (unsigned long)*p_size);
 		return -1;
 	}
 
@@ -641,7 +655,7 @@ static char smk_read_memory(void * buf, const unsigned long size, unsigned char 
 static char smk_read_in_memory(unsigned char ** buf, const unsigned long size, unsigned char ** p, unsigned long * p_size)
 {
 	if (size > *p_size) {
-		fprintf(stderr, "libsmacker::smk_read_in_memory(buf,%lu,p,%lu) - ERROR: Short read\n", (unsigned long)size, (unsigned long)*p_size);
+		LogError("libsmacker::smk_read_in_memory(buf,%lu,p,%lu) - ERROR: Short read\n", (unsigned long)size, (unsigned long)*p_size);
 		return -1;
 	}
 	*buf = *p;
@@ -739,7 +753,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	smk_read(buf, 4);
 
 	if (buf[0] != 'S' || buf[1] != 'M' || buf[2] != 'K') {
-		fprintf(stderr, "libsmacker::smk_open_generic - ERROR: invalid SMKn signature (got: %s)\n", buf);
+		LogError("libsmacker::smk_open_generic - ERROR: invalid SMKn signature (got: %s)\n", buf);
 		goto error;
 	}
 
@@ -747,7 +761,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	//smk_read(buf, 1);
 
 	if (buf[3] != '2' && buf[3] != '4') {
-		fprintf(stderr, "libsmacker::smk_open_generic - Warning: invalid SMK version %c (expected: 2 or 4)\n", buf[3]);
+		LogError("libsmacker::smk_open_generic - Warning: invalid SMK version %c (expected: 2 or 4)\n", buf[3]);
 
 		/* take a guess */
 		if (buf[3] < '4')
@@ -755,7 +769,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 		else
 			buf[3] = '4';
 
-		fprintf(stderr, "\tProcessing will continue as type %c\n", buf[3]);
+		LogError("\tProcessing will continue as type %c\n", buf[3]);
 	}
 	s->video.v = buf[3];
 
@@ -877,7 +891,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	/* create some tables */
 	for (temp_u = 0; temp_u < 4; temp_u ++) {
 		if (! smk_huff16_build(&s->video.tree[temp_u], &bs, s->video.tree_size[temp_u])) {
-			fprintf(stderr, "libsmacker::smk_open_generic - ERROR: failed to create huff16 tree %lu\n", temp_u);
+			LogError("libsmacker::smk_open_generic - ERROR: failed to create huff16 tree %lu\n", temp_u);
 			goto error;
 		}
 	}
@@ -1345,7 +1359,7 @@ static char smk_render_palette(struct smk_video_t * s, unsigned char * p, unsign
 
 			/* check for overflow condition */
 			if (i + count > 256) {
-				fprintf(stderr, "libsmacker::palette_render(s,p,size) - ERROR: overflow, 0x80 attempt to skip %d entries from %d\n", count, i);
+				LogError("libsmacker::palette_render(s,p,size) - ERROR: overflow, 0x80 attempt to skip %d entries from %d\n", count, i);
 				goto error;
 			}
 
@@ -1357,7 +1371,7 @@ static char smk_render_palette(struct smk_video_t * s, unsigned char * p, unsign
 				starting from entry (s),
 				to the next entries of the new palette. */
 			if (size < 2) {
-				fputs("libsmacker::palette_render(s,p,size) - ERROR: 0x40 ran out of bytes for copy\n", stderr);
+				LogErrorMsg("libsmacker::palette_render(s,p,size) - ERROR: 0x40 ran out of bytes for copy\n");
 				goto error;
 			}
 
@@ -1372,7 +1386,7 @@ static char smk_render_palette(struct smk_video_t * s, unsigned char * p, unsign
 
 			/* overflow: see if we write/read beyond 256colors, or overwrite own palette */
 			if (i + count > 256 || src + count > 256) { // condition fixed to prevent artifacts in the final video
-				fprintf(stderr, "libsmacker::palette_render(s,p,size) - ERROR: overflow, 0x40 attempt to copy %d entries from %d to %d\n", count, src, i);
+				LogError("libsmacker::palette_render(s,p,size) - ERROR: overflow, 0x40 attempt to copy %d entries from %d to %d\n", count, src, i);
 				goto error;
 			}
 
@@ -1383,13 +1397,13 @@ static char smk_render_palette(struct smk_video_t * s, unsigned char * p, unsign
 			/* 0x00: Set Color block
 				Direct-set the next 3 bytes for palette index */
 			if (size < 3) {
-				fprintf(stderr, "libsmacker::palette_render - ERROR: 0x3F ran out of bytes for copy, size=%lu\n", size);
+				LogError("libsmacker::palette_render - ERROR: 0x3F ran out of bytes for copy, size=%lu\n", size);
 				goto error;
 			}
 
 			for (count = 0; count < 3; count ++) {
 				if (*p > 0x3F) {
-					fprintf(stderr, "libsmacker::palette_render - ERROR: palette index exceeds 0x3F (entry [%u][%u])\n", i, count);
+					LogError("libsmacker::palette_render - ERROR: palette index exceeds 0x3F (entry [%u][%u])\n", i, count);
 					goto error;
 				}
 
@@ -1403,7 +1417,7 @@ static char smk_render_palette(struct smk_video_t * s, unsigned char * p, unsign
 	}
 
 	if (i < 256) {
-		fprintf(stderr, "libsmacker::palette_render - ERROR: did not completely fill palette (idx=%u)\n", i);
+		LogError("libsmacker::palette_render - ERROR: did not completely fill palette (idx=%u)\n", i);
 		goto error;
 	}
 
@@ -1453,7 +1467,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 
 	while (row < s->h) {
 		if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_TYPE], &bs)) < 0) {
-			fputs("libsmacker::smk_render_video() - ERROR: failed to lookup from TYPE tree.\n", stderr);
+			LogErrorMsg("libsmacker::smk_render_video() - ERROR: failed to lookup from TYPE tree.\n");
 			return -1;
 		}
 
@@ -1481,7 +1495,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 			switch (type) {
 			case 0:
 				if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_MCLR], &bs)) < 0) {
-					fputs("libsmacker::smk_render_video() - ERROR: failed to lookup from MCLR tree.\n", stderr);
+					LogErrorMsg("libsmacker::smk_render_video() - ERROR: failed to lookup from MCLR tree.\n");
 					return -1;
 				}
 
@@ -1489,7 +1503,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 				s2 = (unpack & 0x00FF);
 
 				if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_MMAP], &bs)) < 0) {
-					fputs("libsmacker::smk_render_video() - ERROR: failed to lookup from MMAP tree.\n", stderr);
+					LogErrorMsg("libsmacker::smk_render_video() - ERROR: failed to lookup from MMAP tree.\n");
 					return -1;
 				}
 
@@ -1513,7 +1527,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 			case 1: /* FULL BLOCK */
 				for (k = 0; k < 4; k ++) {
 					if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_FULL], &bs)) < 0) {
-						fputs("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n", stderr);
+						LogErrorMsg("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n");
 						return -1;
 					}
 
@@ -1521,7 +1535,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 					t[skip + 2] = (unpack & 0x00FF);
 
 					if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_FULL], &bs)) < 0) {
-						fputs("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n", stderr);
+						LogErrorMsg("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n");
 						return -1;
 					}
 
@@ -1559,7 +1573,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 			case 4: /* V4 DOUBLE BLOCK */
 				for (k = 0; k < 2; k ++) {
 					if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_FULL], &bs)) < 0) {
-						fputs("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n", stderr);
+						LogErrorMsg("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n");
 						return -1;
 					}
 
@@ -1575,7 +1589,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 			case 5: /* V4 HALF BLOCK */
 				for (k = 0; k < 2; k ++) {
 					if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_FULL], &bs)) < 0) {
-						fputs("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n", stderr);
+						LogErrorMsg("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n");
 						return -1;
 					}
 
@@ -1585,7 +1599,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 					t[skip + s->w + 2] = (unpack & 0x00FF);
 
 					if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_FULL], &bs)) < 0) {
-						fputs("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n", stderr);
+						LogErrorMsg("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n");
 						return -1;
 					}
 
@@ -1614,11 +1628,18 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 /* Decompress audio track i. */
 static char smk_render_audio(struct smk_audio_t * s, unsigned char * p, unsigned long size)
 {
-	unsigned int j, k;
-	unsigned char * t = s->buffer;
 	struct smk_bit_t bs;
 	char bit;
+#ifdef FULL
+	unsigned int j, k;
+	unsigned char * t = s->buffer;
 	short unpack, unpack2;
+#else
+	uint8_t *end_buf, *cur_buf;
+	unsigned offset;
+	uint8_t bitdepth, channels;
+	uint8_t unpack, unpack2;
+#endif
 	/* used for audio decoding */
 	struct smk_huff8_t aud_tree[4];
 	/* null check */
@@ -1628,12 +1649,12 @@ static char smk_render_audio(struct smk_audio_t * s, unsigned char * p, unsigned
 	if (!s->compress) {
 		/* Raw PCM data, update buffer size and perform copy */
 		s->buffer_size = size;
-		memcpy(t, p, size);
+		memcpy(s->buffer, p, size);
 	} else if (s->compress == 1) {
 		/* SMACKER DPCM compression */
 		/* need at least 4 bytes to process */
 		if (size < 4) {
-			fputs("libsmacker::smk_render_audio() - ERROR: need 4 bytes to get unpacked output buffer size.\n", stderr);
+			LogErrorMsg("libsmacker::smk_render_audio() - ERROR: need 4 bytes to get unpacked output buffer size.\n");
 			goto error;
 		}
 
@@ -1648,21 +1669,21 @@ static char smk_render_audio(struct smk_audio_t * s, unsigned char * p, unsigned
 		/*  Set up a bitstream */
 		smk_bs_init(&bs, p, size);
 		bit = smk_bs_read_1(&bs);
-
+#ifdef FULL
 		if (!bit) {
-			fputs("libsmacker::smk_render_audio - ERROR: initial get_bit returned 0\n", stderr);
+			LogErrorMsg("libsmacker::smk_render_audio - ERROR: initial get_bit returned 0\n");
 			goto error;
 		}
 
 		bit = smk_bs_read_1(&bs);
 
 		if (s->channels != (bit == 1 ? 2 : 1))
-			fputs("libsmacker::smk_render - ERROR: mono/stereo mismatch\n", stderr);
+			LogErrorMsg("libsmacker::smk_render - ERROR: mono/stereo mismatch\n");
 
 		bit = smk_bs_read_1(&bs);
 
 		if (s->bitdepth != (bit == 1 ? 16 : 8))
-			fputs("libsmacker::smk_render - ERROR: 8-/16-bit mismatch\n", stderr);
+			LogErrorMsg("libsmacker::smk_render - ERROR: 8-/16-bit mismatch\n");
 
 		/* build the trees */
 		smk_huff8_build(&aud_tree[0], &bs);
@@ -1734,6 +1755,87 @@ static char smk_render_audio(struct smk_audio_t * s, unsigned char * p, unsigned
 				}
 			}
 		}
+#else
+		if (!bit)
+			LogErrorMsg("libsmacker::smk_render_audio - ERROR: initial get_bit returned 0\n");
+
+		bit = smk_bs_read_1(&bs);
+		bitdepth = s->bitdepth;
+		channels = s->channels;
+		if (channels != (bit == 1 ? 2 : 1))
+			LogErrorMsg("libsmacker::smk_render - ERROR: mono/stereo mismatch\n");
+
+		bit = smk_bs_read_1(&bs);
+
+		if (bitdepth != (bit == 1 ? 16 : 8))
+			LogErrorMsg("libsmacker::smk_render - ERROR: 8-/16-bit mismatch\n");
+
+		/* build the trees */
+		smk_huff8_build(&aud_tree[0], &bs);
+
+		if (bitdepth == 16) {
+			smk_huff8_build(&aud_tree[1], &bs);
+		}
+
+		if (channels == 2) {
+			smk_huff8_build(&aud_tree[2], &bs);
+
+			if (bitdepth == 16) {
+				smk_huff8_build(&aud_tree[3], &bs);
+			}
+		}
+
+		cur_buf = s->buffer;
+		/* read initial sound level */
+		offset = 1;
+		if (channels == 2) {
+			offset = 2;
+
+			unpack = smk_bs_read_8(&bs);
+			if (bitdepth == 16) {
+				unpack2 = smk_bs_read_8(&bs);
+				((uint16_t *)cur_buf)[1] = unpack2 | ((uint16_t)unpack << 8);
+			} else
+				((uint8_t *)cur_buf)[1] = unpack;
+		}
+
+		unpack = smk_bs_read_8(&bs);
+		if (bitdepth == 16) {
+			offset *= 2;
+
+			unpack2 = smk_bs_read_8(&bs);
+			((uint16_t *)cur_buf)[0] = unpack2 | ((uint16_t)unpack << 8);
+		} else
+			((uint8_t *)cur_buf)[0] = unpack;
+
+		cur_buf += offset;
+
+		/* All set: let's read some DATA! */
+		end_buf = cur_buf - offset + s->buffer_size;
+		while (cur_buf < end_buf) {
+			unpack = smk_huff8_lookup(&aud_tree[0], &bs);
+			if (bitdepth == 16) {
+				unpack2 = smk_huff8_lookup(&aud_tree[1], &bs);
+				*(int16_t *)cur_buf = (unpack | ((int16_t)unpack2 << 8)) + ((int16_t *)cur_buf)[ - channels];
+				cur_buf += 2;
+			} else {
+				*(uint8_t *)cur_buf = (int8_t)unpack + ((uint8_t *)cur_buf)[ - channels];
+				cur_buf++;
+			}
+
+			if (channels == 2) {
+				unpack = smk_huff8_lookup(&aud_tree[2], &bs);
+				if (bitdepth == 16) {
+					unpack2 = smk_huff8_lookup(&aud_tree[3], &bs);
+					*(int16_t *)cur_buf = (unpack | ((int16_t)unpack2 << 8)) + ((int16_t *)cur_buf)[ - 2];
+					cur_buf += 2;
+				} else {
+					*(uint8_t *)cur_buf = (int8_t)unpack + ((uint8_t *)cur_buf)[ - 2];
+					cur_buf++;
+				}
+			}
+		}
+#endif // FULL
 	}
 
 	return 0;
@@ -1752,7 +1854,7 @@ static char smk_render(smk s)
 
 	/* Retrieve current chunk_size for this frame. */
 	if (!(i = s->chunk_size[s->cur_frame])) {
-		fprintf(stderr, "libsmacker::smk_render(s) - Warning: frame %lu: chunk_size is 0.\n", s->cur_frame);
+		LogError("libsmacker::smk_render(s) - Warning: frame %lu: chunk_size is 0.\n", s->cur_frame);
 		goto error;
 	}
 
@@ -1780,7 +1882,7 @@ static char smk_render(smk s)
 #endif
 		/* Just point buffer at the right place */
 		if (!s->source.chunk_data[s->cur_frame]) {
-			fprintf(stderr, "libsmacker::smk_render(s) - ERROR: frame %lu: memory chunk is a NULL pointer.\n", s->cur_frame);
+			LogError("libsmacker::smk_render(s) - ERROR: frame %lu: memory chunk is a NULL pointer.\n", s->cur_frame);
 			goto error;
 		}
 
@@ -1795,7 +1897,7 @@ static char smk_render(smk s)
 	if (s->frame_type[s->cur_frame] & 0x01) {
 		/* need at least 1 byte to process */
 		if (!i) {
-			fprintf(stderr, "libsmacker::smk_render(s) - ERROR: frame %lu: insufficient data for a palette rec.\n", s->cur_frame);
+			LogError("libsmacker::smk_render(s) - ERROR: frame %lu: insufficient data for a palette rec.\n", s->cur_frame);
 			goto error;
 		}
 
@@ -1816,7 +1918,7 @@ static char smk_render(smk s)
 		if (s->frame_type[s->cur_frame] & (0x02 << track)) {
 			/* need at least 4 byte to process */
 			if (i < 4) {
-				fprintf(stderr, "libsmacker::smk_render(s) - ERROR: frame %lu: insufficient data for audio[%u] rec.\n", s->cur_frame, track);
+				LogError("libsmacker::smk_render(s) - ERROR: frame %lu: insufficient data for audio[%u] rec.\n", s->cur_frame, track);
 				goto error;
 			}
 
@@ -1840,7 +1942,7 @@ static char smk_render(smk s)
 	/* Unpack video chunk */
 	if (s->video.enable) {
 		if (smk_render_video(&(s->video), p, i) < 0) {
-			fprintf(stderr, "libsmacker::smk_render(s) - ERROR: frame %lu: failed to render video.\n", s->cur_frame);
+			LogError("libsmacker::smk_render(s) - ERROR: frame %lu: failed to render video.\n", s->cur_frame);
 			goto error;
 		}
 	}
