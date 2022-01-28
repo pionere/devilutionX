@@ -167,27 +167,28 @@ private:
 
 	void Dequeue(Uint8 *out, int out_len)
 	{
-		SDL_memset(out, 0, sizeof(out[0]) * out_len);
 		AudioQueueItem *item;
 		while ((item = Next()) != NULL) {
 			if (static_cast<unsigned long>(out_len) <= item->len) {
-				SDL_MixAudio(out, item->pos, out_len, MIX_MAX_VOLUME);
+				memcpy(out, item->pos, out_len);
 				item->pos += out_len;
 				item->len -= out_len;
+				if (item->len == 0)
+					Pop();
 				return;
 			}
 
-			SDL_MixAudio(out, item->pos, item->len, MIX_MAX_VOLUME);
+			memcpy(out, item->pos, item->len);
 			out += item->len;
 			out_len -= item->len;
 			Pop();
 		}
+		// fill silence at the end
+		SDL_memset(out, SVidAudioDepth == 16 ? 0 : 0x80, out_len);
 	}
 
 	AudioQueueItem *Next()
 	{
-		while (!queue_.empty() && queue_.front().len == 0)
-			Pop();
 		if (queue_.empty())
 			return NULL;
 		return &queue_.front();
@@ -375,7 +376,7 @@ bool SVidPlayContinue()
 	}
 
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
-		return SVidLoadNextFrame(); // Skip video and audio if the system is to slow
+		return SVidLoadNextFrame(); // Skip video and audio if the system is too slow
 	}
 #ifndef NOSOUND
 	if (HaveAudio()) {
@@ -392,18 +393,18 @@ bool SVidPlayContinue()
 	}
 #endif // NOSOUND
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
-		return SVidLoadNextFrame(); // Skip video if the system is to slow
+		return SVidLoadNextFrame(); // Skip video if the system is too slow
 	}
 
+	SDL_Surface* outputSurface = GetOutputSurface();
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		if (SDL_BlitSurface(SVidSurface, NULL, GetOutputSurface(), NULL) < 0) {
+		if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, NULL) < 0) {
 			sdl_fatal(ERR_SDL_VIDEO_BLIT_A);
 		}
 	} else
 #endif
 	{
-		SDL_Surface *outputSurface = GetOutputSurface();
 #ifdef USE_SDL1
 		const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputSurface->format);
 #else
