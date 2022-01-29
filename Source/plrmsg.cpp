@@ -95,7 +95,7 @@ static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 {
 	BYTE c, col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
 	int sx, line;
-	unsigned len, width = SCREEN_WIDTH - 20;
+	unsigned len, width = PANEL_WIDTH - 20;
 	const char *sstr, *endstr;
 	const char *str = pMsg->str;
 
