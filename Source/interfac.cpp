@@ -123,7 +123,7 @@ static void DrawCutscene()
 {
 	lock_buf(1);
 #ifndef NOWIDESCREEN
-	DrawArt(PANEL_X - (ArtBackgroundWidescreen.logical_width - PANEL_WIDTH) / 2, SCREEN_Y + UI_OFFSET_Y, &ArtBackgroundWidescreen);
+	DrawArt(PANEL_LEFT - (ArtBackgroundWidescreen.logical_width - PANEL_WIDTH) / 2, UI_OFFSET_Y, &ArtBackgroundWidescreen);
 #endif
 	CelDraw(PANEL_X, 480 + SCREEN_Y - 1 + UI_OFFSET_Y, sgpBackCel, 1, 640);
 
