@@ -443,7 +443,7 @@ static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 static void LoadUiGFX()
 {
 #ifdef HELLFIRE
-	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16, 250);
+	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16, 0);
 #else
 	LoadMaskedArt("ui_art\\smlogo.pcx", &ArtLogoMed, 15, 250);
 #endif
