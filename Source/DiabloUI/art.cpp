@@ -42,7 +42,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 
 	fileBuffer = DiabloAllocPtr(dataSize);
 	if (dataSize < sizeof(PCXHEADER) || !SFileReadFile(hFile, fileBuffer, dataSize)) {
-		free(fileBuffer);
+		mem_free_dbg(fileBuffer);
 		SFileCloseFile(hFile);
 		DoLog("Failed to load image meta");
 		return false;
@@ -118,7 +118,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 		palette_create_sdl_colors(pPalette, (BYTE (&)[256][3])*(fileBuffer + dataSize - (256 * 3)));
 	}
 
-	free(fileBuffer);
+	mem_free_dbg(fileBuffer);
 
 	art->surface = artSurface;
 	art->logical_width = artSurface->w;
