@@ -363,7 +363,7 @@ static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 			((Sint16*)scaled)[i] = ADJUST_VOLUME(((Sint16*)raw)[i], 0, gnSoundVolume);
 	} else {
 		for (unsigned long i = 0; i < rawLen; i++)
-			scaled[i] = ADJUST_VOLUME(raw[i], 0, gnSoundVolume);
+			scaled[i] = ADJUST_VOLUME((raw[i] - 128), 0, gnSoundVolume) + 128;
 	}
 
 	return scaled;
