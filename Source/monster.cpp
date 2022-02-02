@@ -1814,10 +1814,6 @@ static void M2MStartKill(int offm, int defm)
 		sendmsg = true;
 
 	MonstStartKill(defm, offm, sendmsg);
-
-#ifdef HELLFIRE
-	MonStartStand(offm, monsters[offm]._mdir);
-#endif
 }
 
 void MonStartKill(int mnum, int pnum)
@@ -2070,9 +2066,6 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	}
 	if (pnum == mypnum) {
 		if (PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
-#ifdef HELLFIRE
-			MonStartStand(mnum, mon->_mdir);
-#endif
 			return;
 		}
 	}
