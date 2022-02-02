@@ -363,13 +363,13 @@ void tcpd_client::send_packet(packet &pkt)
 void tcpd_client::close()
 {
 	int i;
-
+	// close the server
 	if (local_server != NULL) {
 		local_server->close();
 		delete local_server;
 		local_server = NULL;
 	}
-
+	// close the client
 	recv_queue.clear();
 
 	asio::error_code err;
@@ -404,6 +404,8 @@ void tcpd_client::close()
 		}
 	}
 	ioc.poll(err);
+	// prepare the client for possible re-connection
+	ioc.restart();
 }
 
 void tcpd_client::SNetLeaveGame(int reason)

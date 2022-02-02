@@ -112,7 +112,6 @@ void tcp_client::close()
 		delete local_server;
 		local_server = NULL;
 	}
-
 	// close the client
 	recv_queue.clear();
 	asio::error_code err;
@@ -120,6 +119,8 @@ void tcp_client::close()
 	err.clear();
 	sock.close(err);
 	poll();
+	// prepare the client for possible re-connection
+	ioc.restart();
 }
 
 void tcp_client::SNetLeaveGame(int reason)

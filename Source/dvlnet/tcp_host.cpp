@@ -146,11 +146,14 @@ unsigned tcp_host_client::SNetGetTurnsInTransit()
 
 void tcp_host_client::close()
 {
+	// close the server
 	if (local_server != NULL) {
 		local_server->close();
 		delete local_server;
 		local_server = NULL;
 	}
+	// prepare the host for possible re-connection
+	ioc.restart();
 }
 
 void tcp_host_client::SNetLeaveGame(int reason)
