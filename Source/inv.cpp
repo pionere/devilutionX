@@ -1831,6 +1831,8 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	SetRndSeed(is->_iSeed);
 	switch (is->_iMiscId) {
 	case IMISC_HEAL:
+		InvAddHp();
+		break;
 	case IMISC_FULLHEAL:
 		PlrFillHp(pnum);
 		break;
