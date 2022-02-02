@@ -1188,10 +1188,8 @@ static void MonEnemy(int mnum)
 		}
 		for (i = 0; i < MAX_MINIONS; i++) {
 			tmon = &monsters[i];
-#ifdef HELLFIRE
 			if (tmon->_mhitpoints < (1 << 6))
 				continue;
-#endif
 			if (MINION_INACTIVE(tmon))
 				continue;
 			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
@@ -1214,10 +1212,8 @@ static void MonEnemy(int mnum)
 			if (tnum == mnum)
 				continue;
 			tmon = &monsters[tnum];
-#ifdef HELLFIRE
 			if (tmon->_mhitpoints < (1 << 6))
 				continue;
-#endif
 			if (MINION_INACTIVE(tmon))
 				continue;
 			if (CanTalkToMonst(tnum))
