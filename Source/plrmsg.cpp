@@ -74,7 +74,7 @@ void SendPlrMsg(int pnum, const char *pszStr)
 	snprintf(pMsg->str, sizeof(pMsg->str), "%s: %s", plr._pName, pszStr);
 }
 
-void ClearPlrMsg(int pnum)
+/*void ClearPlrMsg(int pnum)
 {
 	int i;
 	_plrmsg *pMsg = plr_msgs;
@@ -83,7 +83,7 @@ void ClearPlrMsg(int pnum)
 		if (pMsg->player == pnum)
 			pMsg->str[0] = '\0';
 	}
-}
+}*/
 
 void InitPlrMsg()
 {

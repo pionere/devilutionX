@@ -226,7 +226,7 @@ static void multi_deactivate_player(int pnum, int reason)
 		DeactivatePortal(pnum);
 		delta_close_portal(pnum);
 		multi_disband_team(pnum);
-		ClearPlrMsg(pnum);
+		// ClearPlrMsg(pnum);
 		if (plr._pDunLevel == currLvl._dLevelIdx) {
 			AddUnLight(plr._plid);
 			AddUnVision(plr._pvid);
