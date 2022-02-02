@@ -802,7 +802,22 @@ extern DECLSPEC Mix_Chunk * SDLCALL Mix_GetChunk(int channel);
 extern DECLSPEC void SDLCALL Mix_CloseAudio(void);
 
 /* We'll use SDL for reporting errors */
+#if !SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
+inline int Mix_SetError(const char* msg, ...)
+{
+	va_list va;
+
+	va_start(va, msg);
+
+	SDL_SetError(msg, va);
+
+	va_end(va);
+
+	return -1;
+}
+#else
 #define Mix_SetError    SDL_SetError
+#endif
 #define Mix_GetError    SDL_GetError
 #define Mix_ClearError  SDL_ClearError
 #define Mix_OutOfMemory SDL_OutOfMemory
