@@ -803,18 +803,7 @@ extern DECLSPEC void SDLCALL Mix_CloseAudio(void);
 
 /* We'll use SDL for reporting errors */
 #if !SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
-inline int Mix_SetError(const char* msg, ...)
-{
-	va_list va;
-
-	va_start(va, msg);
-
-	SDL_SetError(msg, va);
-
-	va_end(va);
-
-	return -1;
-}
+extern DECLSPEC int Mix_SetError(const char* msg, ...);
 #else
 #define Mix_SetError    SDL_SetError
 #endif

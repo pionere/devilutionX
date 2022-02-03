@@ -674,3 +674,18 @@ void Mix_ConvertAudio(Mix_Audio* audio, Mix_BuffOps* buffOps)
 }
 
 #endif // FULL - SELF_CONV
+
+#if !SDL_VERSION_ATLEAST(2, 0, 0) // USE_SDL1
+int Mix_SetError(const char* msg, ...)
+{
+	va_list va;
+
+	va_start(va, msg);
+
+	SDL_SetError(msg, va);
+
+	va_end(va);
+
+	return -1;
+}
+#endif
