@@ -52,7 +52,7 @@ void dev_fatal(const char *pszFmt, MsgArgs... args) {
 #define sdl_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, SDL_GetError())
 #endif // DEBUG_MODE
 #else
-#define dev_fatal(msg, ...)
+#define dev_fatal(msg, ...) do { } while(0);
 #define sdl_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, SDL_GetError())
 #endif // DEBUG_MODE || DEV_MODE
 

@@ -122,8 +122,9 @@ static void AdjustToScreenGeometry(int width, int height)
 	screenWidth = width;
 	screenHeight = height;
 #ifdef USE_SDL1
-	if (OutputRequiresScaling())
+	if (OutputRequiresScaling()) {
 		DoLog("Using software scaling");
+	}
 #endif
 	//viewportHeight = screenHeight;
 	/*if (screenWidth <= PANEL_WIDTH) {
