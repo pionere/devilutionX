@@ -801,7 +801,7 @@ void InitLvlPlayer(int pnum)
 	}*/
 	SyncInitPlrPos(pnum);
 
-	if (plr._pmode == PM_NEWLVL) {
+	//if (plr._pmode == PM_NEWLVL) {
 		PlrStartStand(pnum, DIR_S);
 		// TODO: randomize AnimFrame/AnimCnt for live players?
 		// plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
@@ -819,7 +819,7 @@ void InitLvlPlayer(int pnum)
 			plr._plid = NO_LIGHT;
 		}
 		plr._pvid = AddVision(plr._px, plr._py, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
-	}
+	//}
 
 	/*if (plr._pmode != PM_DEATH)
 		plr._pInvincible = FALSE;
