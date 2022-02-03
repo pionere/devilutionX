@@ -80,24 +80,6 @@ typedef uint64_t Uint64;
 #define SDL_MIN_UINT64  ((Uint64)(0x0000000000000000ull))   /* 0 */
 #endif // !SDL_VERSION_ATLEAST(2, 0, 7)
 
-/* Utils */
-
-#define SDL_MAX_SINT16  ((Sint16)0x7FFF)        /* 32767 */
-#define SDL_MIN_SINT16  ((Sint16)(~0x7FFF))     /* -32768 */
-#define SDL_MAX_UINT16  ((Uint16)0xFFFF)        /* 65535 */
-#define SDL_MIN_UINT16  ((Uint16)0x0000)        /* 0 */
-
-#define SDL_MAX_SINT32  ((Sint32)0x7FFFFFFF)    /* 2147483647 */
-#define SDL_MIN_SINT32  ((Sint32)(~0x7FFFFFFF)) /* -2147483648 */
-#define SDL_MAX_UINT32  ((Uint32)0xFFFFFFFFu)   /* 4294967295 */
-#define SDL_MIN_UINT32  ((Uint32)0x00000000)    /* 0 */
-
-#define SDL_MAX_SINT64  ((Sint64)0x7FFFFFFFFFFFFFFFll)      /* 9223372036854775807 */
-#define SDL_MIN_SINT64  ((Sint64)(~0x7FFFFFFFFFFFFFFFll))   /* -9223372036854775808 */
-#define SDL_MAX_UINT64  ((Uint64)0xFFFFFFFFFFFFFFFFull)     /* 18446744073709551615 */
-#define SDL_MIN_UINT64  ((Uint64)(0x0000000000000000ull))   /* 0 */
-#endif // !SDL_VERSION_ATLEAST(2, 0, 7)
-
 #ifdef _MSC_VER
 #ifdef _DEVMODE
 #define ASSUME_UNREACHABLE assert(0);
@@ -254,13 +236,6 @@ typedef struct {
 } WAVLoopPoint;
 
 typedef struct {
-    Uint32 sampleSize;          /**< Data size if MIX_STREAM_SAMPLE_COUNT samples are read. */
-    SDL_AudioFormat format;     /**< Audio data format */
-    Uint8 channels;             /**< Number of channels: 1 mono, 2 stereo */
-    Uint8 freqMpl;              /**< Frequency multiplier of MIX_DEFAULT_FREQUENCY */
-} Mix_AudioSpec;
-
-typedef struct {
 #ifdef FULL // SRC_PTR
     Mix_RWops* src;
     int freesrc;
@@ -344,6 +319,11 @@ typedef struct _Mix_Audio {
     int convMpl;
 #endif
 } _Mix_Audio;
+//struct _Mix_Music {
+//    int volume;
+//    SDL_bool playing;
+//    Mix_Audio audio;
+//};
 #endif // FULL - FIX_MUS
 
 #ifdef FULL // FIX_EFF
