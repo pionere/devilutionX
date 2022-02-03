@@ -1474,8 +1474,9 @@ static void StartSpell(int pnum)
 	BYTE **anim;
 	const SpellData *sd;
 
-	if ((unsigned)pnum >= MAX_PLRS)
+	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartSpell: illegal player %d", pnum);
+	}
 
 	i = plr.destParam1;
 	switch (plr.destAction) {
@@ -1558,8 +1559,9 @@ static void StartPickItem(int pnum)
 static void StartTalk(int pnum)
 {
 	int mnum, x, y;
-	if ((unsigned)pnum >= MAX_PLRS)
+	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartTalk: illegal player %d", pnum);
+	}
 
 	mnum = plr.destParam1;
 	x = abs(plr._px - monsters[mnum]._mx);
