@@ -9,7 +9,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 /** automap pixel color 8-bit (palette entry) */
 char gbPixelCol;
 /** flip - if y < x */
@@ -39,7 +39,7 @@ void AutomapDrawPixel(int sx, int sy, BYTE col)
 		*dst = col;
 }
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 /**
  * @brief Set the value of a single pixel in the back buffer to that of gbPixelCol, checks bounds
  * @param sx Back buffer coordinate

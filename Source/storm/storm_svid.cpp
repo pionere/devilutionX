@@ -29,7 +29,9 @@ static SDL_Palette *SVidPalette;
 static SDL_Surface *SVidSurface;
 static BYTE *SVidBuffer;
 static unsigned long SVidWidth, SVidHeight;
+#ifndef NOSOUND
 static BYTE SVidAudioDepth;
+#endif
 
 static bool IsLandscapeFit(unsigned long srcW, unsigned long srcH, unsigned long dstW, unsigned long dstH)
 {
@@ -165,27 +167,28 @@ private:
 
 	void Dequeue(Uint8 *out, int out_len)
 	{
-		SDL_memset(out, 0, sizeof(out[0]) * out_len);
 		AudioQueueItem *item;
 		while ((item = Next()) != NULL) {
 			if (static_cast<unsigned long>(out_len) <= item->len) {
-				SDL_MixAudio(out, item->pos, out_len, MIX_MAX_VOLUME);
+				memcpy(out, item->pos, out_len);
 				item->pos += out_len;
 				item->len -= out_len;
+				if (item->len == 0)
+					Pop();
 				return;
 			}
 
-			SDL_MixAudio(out, item->pos, item->len, MIX_MAX_VOLUME);
+			memcpy(out, item->pos, item->len);
 			out += item->len;
 			out_len -= item->len;
 			Pop();
 		}
+		// fill silence at the end
+		SDL_memset(out, SVidAudioDepth == 16 ? 0 : 0x80, out_len);
 	}
 
 	AudioQueueItem *Next()
 	{
-		while (!queue_.empty() && queue_.front().len == 0)
-			Pop();
 		if (queue_.empty())
 			return NULL;
 		return &queue_.front();
@@ -240,40 +243,39 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 	SVidLoop = (flags & MOV_LOOP) != 0; // (flags & 0x40000) != 0;
 	bool enableVideo = true; //!(flags & 0x100000);
+#ifndef NOSOUND
 	bool enableAudio = true; //!(flags & 0x1000000);
+#endif
 	//0x8 // Non-interlaced
 	//0x200, 0x800 // Upscale video
 	//0x80000 // Center horizontally
 	//0x800000 // Edge detection
 	//0x200800 // Clear FB
+	size_t dwBytes;
 
-	HANDLE videoFile = SFileOpenFile(filename);
-
-	DWORD bytestoread = SFileGetFileSize(videoFile);
 	assert(SVidBuffer == NULL);
-	SVidBuffer = DiabloAllocPtr(bytestoread);
-	SFileReadFile(videoFile, SVidBuffer, bytestoread);
-	SFileCloseFile(videoFile);
+	SVidBuffer = LoadFileInMem(filename, &dwBytes);
 
-	SVidSMK = smk_open_memory(SVidBuffer, bytestoread);
+	SVidSMK = smk_open_memory(SVidBuffer, dwBytes);
 	if (SVidSMK == NULL) {
+		MemFreeDbg(SVidBuffer);
 		return NULL;
 	}
 
 #ifndef NOSOUND
 	if (enableAudio) {
-		unsigned char channels[7], depth[7];
-		unsigned long rate[7];
-		smk_info_audio(SVidSMK, NULL, channels, depth, rate);
-		if (depth[0] != 0) {
-			SVidAudioDepth = depth[0];
+		unsigned char channels, depth;
+		unsigned long rate;
+		smk_info_audio(SVidSMK, &channels, &depth, &rate);
+		if (depth != 0) {
+			SVidAudioDepth = depth;
 
 			smk_enable_audio(SVidSMK, 0, true);
 			SDL_AudioSpec audioFormat;
 			memset(&audioFormat, 0, sizeof(audioFormat));
-			audioFormat.freq = rate[0];
+			audioFormat.freq = rate;
 			audioFormat.format = SVidAudioDepth == 16 ? AUDIO_S16SYS : AUDIO_U8;
-			audioFormat.channels = channels[0];
+			audioFormat.channels = channels;
 
 			Mix_CloseAudio();
 
@@ -316,7 +318,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	    (unsigned char *)smk_get_video(SVidSMK),
 	    SVidWidth,
 	    SVidHeight,
-	    8,
+	    0,
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
 	if (SVidSurface == NULL) {
@@ -335,10 +337,13 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 static bool SVidLoadNextFrame()
 {
+	char result;
+
 	SVidFrameEnd += SVidFrameLength;
 
-	if (smk_next(SVidSMK) == SMK_DONE) {
-		if (!SVidLoop) {
+	result = smk_next(SVidSMK);
+	if (result != SMK_MORE/* && result != SMK_LAST*/) {
+		if (result == SMK_ERROR || !SVidLoop) {
 			return false;
 		}
 
@@ -348,16 +353,17 @@ static bool SVidLoadNextFrame()
 	return true;
 }
 #ifndef NOSOUND
-static BYTE* SVidApplyVolume(const BYTE* raw, unsigned long rawLen)
+static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 {
-	BYTE* scaled = DiabloAllocPtr(rawLen);
+	//BYTE* scaled = DiabloAllocPtr(rawLen);
+	BYTE* scaled = raw;
 
 	if (SVidAudioDepth == 16) {
 		for (unsigned long i = 0; i < rawLen / 2; i++)
 			((Sint16*)scaled)[i] = ADJUST_VOLUME(((Sint16*)raw)[i], 0, gnSoundVolume);
 	} else {
 		for (unsigned long i = 0; i < rawLen; i++)
-			scaled[i] = ADJUST_VOLUME(raw[i], 0, gnSoundVolume);
+			scaled[i] = ADJUST_VOLUME((raw[i] - 128), 0, gnSoundVolume) + 128;
 	}
 
 	return scaled;
@@ -370,7 +376,7 @@ bool SVidPlayContinue()
 	}
 
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
-		return SVidLoadNextFrame(); // Skip video and audio if the system is to slow
+		return SVidLoadNextFrame(); // Skip video and audio if the system is too slow
 	}
 #ifndef NOSOUND
 	if (HaveAudio()) {
@@ -383,22 +389,22 @@ bool SVidPlayContinue()
 #else
 		sVidAudioQueue->Enqueue(audio, len);
 #endif
-		mem_free_dbg(audio);
+		//mem_free_dbg(audio);
 	}
 #endif // NOSOUND
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
-		return SVidLoadNextFrame(); // Skip video if the system is to slow
+		return SVidLoadNextFrame(); // Skip video if the system is too slow
 	}
 
+	SDL_Surface* outputSurface = GetOutputSurface();
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		if (SDL_BlitSurface(SVidSurface, NULL, GetOutputSurface(), NULL) < 0) {
+		if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, NULL) < 0) {
 			sdl_fatal(ERR_SDL_VIDEO_BLIT_A);
 		}
 	} else
 #endif
 	{
-		SDL_Surface *outputSurface = GetOutputSurface();
 #ifdef USE_SDL1
 		const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputSurface->format);
 #else

@@ -3,34 +3,6 @@
  *
  * Global definitions and Macros.
  */
-#ifdef USE_SDL1
-// SDL1 controllers
-#ifndef HAS_JOYSTICK
-#define HAS_JOYSTICK	1
-#endif
-#ifndef HAS_DPAD
-#define HAS_DPAD		1
-#endif
-#define HAS_GAMECTRL	0
-#define HAS_TOUCHPAD	0
-#else
-// SDL2 controllers
-#ifndef HAS_JOYSTICK
-#define HAS_JOYSTICK	1
-#endif
-#ifndef HAS_DPAD
-#define HAS_DPAD		1
-#endif
-#ifndef HAS_GAMECTRL
-#define HAS_GAMECTRL	1
-#endif
-#ifndef HAS_TOUCHPAD
-#define HAS_TOUCHPAD	1
-#endif
-//#ifndef HAS_KBCTRL
-//#define HAS_KBCTRL		1
-//#endif
-#endif
 
 #define DATA_ARCHIVE_MAIN		"diabdat.mpq"
 #define DATA_ARCHIVE_MAIN_ALT	"DIABDAT.MPQ"
@@ -119,9 +91,11 @@
 // Item indestructible durability
 #define DUR_INDESTRUCTIBLE		255
 
+// sfx constants
 #define VOLUME_MIN				0
-#define VOLUME_MAX				2048
+#define VOLUME_MAX				1024
 #define SFX_DIST_MAX			16
+#define SFX_STREAM_CHANNEL		0
 
 // todo: enums
 #define HEALER_ITEMS			16
@@ -150,8 +124,6 @@
 
 // 272 kilobytes .. (was 256 kb in vanilla which is not safe)
 #define FILEBUFF				(272 * 1024)
-
-#define PMSG_COUNT				8
 
 // Diablo uses a 256 color palette
 // Entry 0-127 (0x00-0x7F) are level specific
@@ -282,20 +254,14 @@
 
 #undef assert
 
-#ifdef _DEBUG
-#define assert(exp) (void)((exp) || (assert_fail(__LINE__, __FILE__, #exp), 0))
-#elif defined(_DEVMODE)
+#if DEBUG_MODE || DEV_MODE
 #define assert(exp) (void)((exp) || (app_fatal("Assert fail at %d, %s, %s", __LINE__, __FILE__, #exp), 0))
 #else
 #define assert(exp) ((void)0)
 #endif
 
 #ifdef _MSC_VER
-#ifdef _DEVMODE
-#define ASSUME_UNREACHABLE assert(0);
-#else
 #define ASSUME_UNREACHABLE __assume(0);
-#endif
 #elif defined(__clang__)
 #define ASSUME_UNREACHABLE __builtin_unreachable();
 #elif defined(__GNUC__)
@@ -306,7 +272,7 @@
 #endif
 #endif
 
-#ifdef _DEBUG
+#if DEBUG_MODE || DEV_MODE
 #undef ASSUME_UNREACHABLE
 #define ASSUME_UNREACHABLE assert(0);
 #endif

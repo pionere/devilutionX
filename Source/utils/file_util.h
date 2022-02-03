@@ -10,6 +10,8 @@
 #include "utils/sdl2_to_1_2_backports.h"
 #endif
 
+#include "log.h"
+
 #if defined(_WIN64) || defined(_WIN32)
 // Suppress definitions of `min` and `max` macros by <windows.h>:
 #define NOMINMAX 1
@@ -116,16 +118,16 @@ inline void RemoveFile(const char* lpFileName)
 	/*std::string name = lpFileName;
 	std::replace(name.begin(), name.end(), '\\', '/');
 	if (remove(name.c_str()) == 0) {
-		SDL_Log("Removed file: %s", name.c_str());
+		DoLog("Removed file: %s", name.c_str());
 	} else {
-		SDL_Log("Failed to remove file: %s", name.c_str());
+		DoLog("Failed to remove file: %s", name.c_str());
 	}*/
 	if (remove(lpFileName) == 0) {
-#ifdef _DEBUG
-		SDL_Log("Removed file: %s", lpFileName);
+#if DEBUG_MODE
+		DoLog("Removed file: %s", lpFileName);
 #endif
 	} else {
-		SDL_Log("Failed to remove file: %s", lpFileName);
+		DoLog("Failed to remove file: %s", lpFileName);
 	}
 }
 

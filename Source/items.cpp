@@ -911,10 +911,10 @@ void CreatePlrItems(int pnum)
 	pi = &plr._pInvList[0];
 	CreateBaseItem(pi, IDI_GOLD);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_key_w) {
 		SetGoldItemValue(pi, GOLD_MAX_LIMIT);
-		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
+		for (int i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			if (plr._pInvList[i]._itype == ITYPE_NONE) {
 				GetItemSeed(pi);
 				copy_pod(plr._pInvList[i], *pi);
@@ -2673,110 +2673,110 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 {
 	switch (plidx) {
 	case IPL_TOHIT:
-		snprintf(tempstr, sizeof(tempstr), "chance to hit: %+i%%", is->_iPLToHit);
+		snprintf(tempstr, sizeof(tempstr), "chance to hit: %+d%%", is->_iPLToHit);
 		break;
 	case IPL_DAMP:
-		snprintf(tempstr, sizeof(tempstr), "%+i%% damage", is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "%+d%% damage", is->_iPLDam);
 		break;
 	case IPL_TOHIT_DAMP:
-		snprintf(tempstr, sizeof(tempstr), "to hit: %+i%%, %+i%% damage", is->_iPLToHit, is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "to hit: %+d%%, %+d%% damage", is->_iPLToHit, is->_iPLDam);
 		break;
 	case IPL_ACP:
-		snprintf(tempstr, sizeof(tempstr), "%+i%% armor", is->_iPLAC);
+		snprintf(tempstr, sizeof(tempstr), "%+d%% armor", is->_iPLAC);
 		break;
 	case IPL_SETAC:
 	case IPL_ACMOD:
-		snprintf(tempstr, sizeof(tempstr), "armor class: %i", is->_iAC);
+		snprintf(tempstr, sizeof(tempstr), "armor class: %d", is->_iAC);
 		break;
 	case IPL_FIRERES:
 		//if (is->_iPLFR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+d%%", is->_iPLFR);
 		//else
 		//	copy_cstr(tempstr, "Resist Fire: 75% MAX");
 		break;
 	case IPL_LIGHTRES:
 		//if (is->_iPLLR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Lightning: %+i%%", is->_iPLLR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Lightning: %+d%%", is->_iPLLR);
 		//else
 		//	copy_cstr(tempstr, "Resist Lightning: 75% MAX");
 		break;
 	case IPL_MAGICRES:
 		//if (is->_iPLMR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Magic: %+i%%", is->_iPLMR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Magic: %+d%%", is->_iPLMR);
 		//else
 		//	copy_cstr(tempstr, "Resist Magic: 75% MAX");
 		break;
 	case IPL_ACIDRES:
 		//if (is->_iPLAR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Acid: %+i%%", is->_iPLAR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Acid: %+d%%", is->_iPLAR);
 		//else
 		//	copy_cstr(tempstr, "Resist Acid: 75% MAX");
 		break;
 	case IPL_ALLRES:
 		//if (is->_iPLFR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist All: %+i%%", is->_iPLFR);
+			snprintf(tempstr, sizeof(tempstr), "Resist All: %+d%%", is->_iPLFR);
 		//else
 		//	copy_cstr(tempstr, "Resist All: 75% MAX");
 		break;
 	case IPL_CRITP:
-		snprintf(tempstr, sizeof(tempstr), "%i%% increased crit. chance", is->_iPLCrit);
+		snprintf(tempstr, sizeof(tempstr), "%d%% increased crit. chance", is->_iPLCrit);
 		break;
 	case IPL_SPLLVLADD:
-		snprintf(tempstr, sizeof(tempstr), "%+i to spell levels", is->_iSplLvlAdd);
+		snprintf(tempstr, sizeof(tempstr), "%+d to spell levels", is->_iSplLvlAdd);
 		break;
 	case IPL_CHARGES:
 		copy_cstr(tempstr, "Extra charges");
 		break;
 	case IPL_SPELL:
-		snprintf(tempstr, sizeof(tempstr), "%i %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
+		snprintf(tempstr, sizeof(tempstr), "%d %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
 		break;
 	case IPL_FIREDAM:
 		if (is->_iFMinDam != is->_iFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "fire damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "fire damage: %d-%d", is->_iFMinDam, is->_iFMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "fire damage: %i", is->_iFMinDam);
+			snprintf(tempstr, sizeof(tempstr), "fire damage: %d", is->_iFMinDam);
 		break;
 	case IPL_LIGHTDAM:
 		if (is->_iLMinDam != is->_iLMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning damage: %d-%d", is->_iLMinDam, is->_iLMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iLMinDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning damage: %d", is->_iLMinDam);
 		break;
 	case IPL_MAGICDAM:
 		if (is->_iMMinDam != is->_iMMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "magic damage: %i-%i", is->_iMMinDam, is->_iMMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "magic damage: %d-%d", is->_iMMinDam, is->_iMMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "magic damage: %i", is->_iMMinDam);
+			snprintf(tempstr, sizeof(tempstr), "magic damage: %d", is->_iMMinDam);
 		break;
 	case IPL_ACIDDAM:
 		if (is->_iAMinDam != is->_iAMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "acid damage: %i-%i", is->_iAMinDam, is->_iAMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "acid damage: %d-%d", is->_iAMinDam, is->_iAMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "acid damage: %i", is->_iAMinDam);
+			snprintf(tempstr, sizeof(tempstr), "acid damage: %d", is->_iAMinDam);
 		break;
 	case IPL_STR:
-		snprintf(tempstr, sizeof(tempstr), "%+i to strength", is->_iPLStr);
+		snprintf(tempstr, sizeof(tempstr), "%+d to strength", is->_iPLStr);
 		break;
 	case IPL_MAG:
-		snprintf(tempstr, sizeof(tempstr), "%+i to magic", is->_iPLMag);
+		snprintf(tempstr, sizeof(tempstr), "%+d to magic", is->_iPLMag);
 		break;
 	case IPL_DEX:
-		snprintf(tempstr, sizeof(tempstr), "%+i to dexterity", is->_iPLDex);
+		snprintf(tempstr, sizeof(tempstr), "%+d to dexterity", is->_iPLDex);
 		break;
 	case IPL_VIT:
-		snprintf(tempstr, sizeof(tempstr), "%+i to vitality", is->_iPLVit);
+		snprintf(tempstr, sizeof(tempstr), "%+d to vitality", is->_iPLVit);
 		break;
 	case IPL_ATTRIBS:
-		snprintf(tempstr, sizeof(tempstr), "%+i to all attributes", is->_iPLStr);
+		snprintf(tempstr, sizeof(tempstr), "%+d to all attributes", is->_iPLStr);
 		break;
 	case IPL_GETHIT:
-		snprintf(tempstr, sizeof(tempstr), "%+i damage from enemies", is->_iPLGetHit);
+		snprintf(tempstr, sizeof(tempstr), "%+d damage from enemies", is->_iPLGetHit);
 		break;
 	case IPL_LIFE:
-		snprintf(tempstr, sizeof(tempstr), "Hit Points: %+i", is->_iPLHP >> 6);
+		snprintf(tempstr, sizeof(tempstr), "Hit Points: %+d", is->_iPLHP >> 6);
 		break;
 	case IPL_MANA:
-		snprintf(tempstr, sizeof(tempstr), "Mana: %+i", is->_iPLMana >> 6);
+		snprintf(tempstr, sizeof(tempstr), "Mana: %+d", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
 		copy_cstr(tempstr, "high durability");
@@ -2788,7 +2788,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "indestructible");
 		break;
 	case IPL_LIGHT:
-		snprintf(tempstr, sizeof(tempstr), "%+i%% light radius", 10 * is->_iPLLight);
+		snprintf(tempstr, sizeof(tempstr), "%+d%% light radius", 10 * is->_iPLLight);
 		break;
 	case IPL_MULT_ARROWS:
 		copy_cstr(tempstr, "multiple arrows per shot");
@@ -2812,10 +2812,10 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "hit monster doesn't heal");
 		break;
 	case IPL_STEALMANA:
-		snprintf(tempstr, sizeof(tempstr), "hit steals %i%% mana", (is->_iManaSteal * 100) >> 7);
+		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% mana", (is->_iManaSteal * 100) >> 7);
 		break;
 	case IPL_STEALLIFE:
-		snprintf(tempstr, sizeof(tempstr), "hit steals %i%% life", (is->_iLifeSteal * 100) >> 7);
+		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% life", (is->_iLifeSteal * 100) >> 7);
 		break;
 	case IPL_PENETRATE_PHYS:
 		copy_cstr(tempstr, "penetrates target's armor");
@@ -2842,7 +2842,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "fast block");
 		break;
 	case IPL_DAMMOD:
-		snprintf(tempstr, sizeof(tempstr), "adds %i points to damage", is->_iPLDamMod);
+		snprintf(tempstr, sizeof(tempstr), "adds %d points to damage", is->_iPLDamMod);
 		break;
 	case IPL_SETDAM:
 		copy_cstr(tempstr, "unusual item damage");
@@ -2866,7 +2866,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, " ");
 		break;
 	case IPL_CRYSTALLINE:
-		snprintf(tempstr, sizeof(tempstr), "low dur, %+i%% damage", is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "low dur, %+d%% damage", is->_iPLDam);
 		break;
 	case IPL_MANATOLIFE:
 		copy_cstr(tempstr, "50% Mana moved to Health");
@@ -3011,7 +3011,7 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 	case IMISC_UNIQUE:
 		return;
 	case IMISC_EAR:
-		snprintf(tempstr, sizeof(tempstr), "Level : %i", is->_ivalue);
+		snprintf(tempstr, sizeof(tempstr), "Level : %d", is->_ivalue);
 		PrintItemString(x, y);
 		return;
 	case IMISC_SPECELIX:
@@ -3179,11 +3179,11 @@ void DrawInvItemDetails()
 		int cursor = 0;
 		cat_cstr(tempstr, cursor, "Req.:");
 		if (is->_iMinStr != 0)
-			cat_str(tempstr, cursor, " %i Str", is->_iMinStr);
+			cat_str(tempstr, cursor, " %d Str", is->_iMinStr);
 		if (is->_iMinMag != 0)
-			cat_str(tempstr, cursor, " %i Mag", is->_iMinMag);
+			cat_str(tempstr, cursor, " %d Mag", is->_iMinMag);
 		if (is->_iMinDex != 0)
-			cat_str(tempstr, cursor, " %i Dex", is->_iMinDex);
+			cat_str(tempstr, cursor, " %d Dex", is->_iMinDex);
 		PrintItemString(x, y, tempstr, is->_iStatFlag ? COL_WHITE : COL_RED);
 	}
 }

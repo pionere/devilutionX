@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern bool gbWndActive;
 extern bool gbVsyncEnabled;
 extern bool gbFPSLimit;
 extern int gnRefreshDelay;

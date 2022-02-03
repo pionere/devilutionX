@@ -155,13 +155,7 @@ static void RedPalette()
 		system_palette[i].b = 0;
 	}
 	palette_update();
-	SDL_Rect SrcRect = {
-		SCREEN_X,
-		SCREEN_Y,
-		SCREEN_WIDTH,
-		SCREEN_HEIGHT,
-	};
-	BltFast(&SrcRect, NULL);
+	BltFast();
 	RenderPresent();
 }
 
@@ -190,10 +184,10 @@ void CaptureScreen()
 	out->close();
 
 	if (!success) {
-		SDL_Log("Failed to save screenshot at %s", FileName.c_str());
+		DoLog("Failed to save screenshot at %s", FileName.c_str());
 		RemoveFile(FileName.c_str());
 	} else {
-		SDL_Log("Screenshot saved at %s", FileName.c_str());
+		DoLog("Screenshot saved at %s", FileName.c_str());
 	}
 	SDL_Delay(300);
 	memcpy(system_palette, bkp_palette, sizeof(bkp_palette));

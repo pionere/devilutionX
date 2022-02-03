@@ -15,18 +15,18 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-bool tcp_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
+bool tcp_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
 {
 	setup_gameinfo(std::move(info));
 	local_server = new tcp_server(ioc, game_init_info, SRV_BASIC);
-	if (local_server->setup_server(addrstr, port, passwd)) {
-		return join_game(addrstr, port, passwd);
+	if (local_server->setup_server(addrstr, port, passwd, errorText)) {
+		return join_game(addrstr, port, passwd, errorText);
 	}
 	close();
 	return false;
 }
 
-bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passwd)
+bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	int i;
 	constexpr int MS_SLEEP = 10;
@@ -40,7 +40,7 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 	asio::error_code err;
 	tcp_server::connect_socket(sock, addrstr, port, ioc, err);
 	if (err) {
-		SDL_SetError("%s", err.message().c_str());
+		SStrCopy(errorText, err.message().c_str(), lengthof(errorText));
 		close();
 		return false;
 	}
@@ -50,18 +50,13 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 	    PLR_MASTER, cookie_self);
 	send_packet(*pkt);
 	for (i = 0; i < NUM_SLEEP; i++) {
-		try {
-			poll();
-		} catch (const std::runtime_error &e) {
-			SDL_SetError("%s", e.what());
-			break;
-		}
+		poll();
 		if (plr_self != PLR_BROADCAST)
 			return true; // join successful
 		SDL_Delay(MS_SLEEP);
 	}
 	if (i == NUM_SLEEP)
-		SDL_SetError("Unable to connect");
+		copy_cstr(errorText, "Unable to connect");
 	close();
 	return false;
 }
@@ -117,7 +112,6 @@ void tcp_client::close()
 		delete local_server;
 		local_server = NULL;
 	}
-
 	// close the client
 	recv_queue.clear();
 	asio::error_code err;
@@ -125,6 +119,8 @@ void tcp_client::close()
 	err.clear();
 	sock.close(err);
 	poll();
+	// prepare the client for possible re-connection
+	ioc.restart();
 }
 
 void tcp_client::SNetLeaveGame(int reason)

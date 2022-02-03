@@ -168,27 +168,37 @@ of the `(i686|x86_64)-w64-mingw32` directory.
 ### Installing dependencies
 Make sure to install the `C++ CMake tools for Windows` component for Visual Studio.
 
-* **Using vcpkg (recommended)**
-1. Install vcpkg following the instructions from https://github.com/microsoft/vcpkg#quick-start-windows.
+Execute the following commands (via cmd or powershell):
+1. Install [Git for Windows](https://gitforwindows.org/)
 
-   Don't forget to perform _user-wide integration_ step for additional convenience.
-2. Install required dependencies by executing the following command (via cmd or powershell):
+   ```
+   git clone https://github.com/microsoft/vcpkg
+   ```
 
-   For the 64-bit version of the dependencies please run this command:
+2. Setup [vckpg](https://github.com/microsoft/vcpkg#quick-start-windows)
+
+   ```
+   cd vcpkg
+   bootstrap-vcpkg.bat
+   vcpkg integrate install
+   ```
+
+3. Install the required dependencies
+
+   For the 64-bit version:
 
    ```
    vcpkg install sdl2:x64-windows libsodium:x64-windows
    ```
 
-   For the 32-bit version of the dependencies please run this command:
+   For the 32-bit version:
 
    ```
    vcpkg install sdl2:x86-windows libsodium:x86-windows
    ```
 
-* **Manually**
-1. Download and place the MSVC Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [Libsodium](https://github.com/jedisct1/libsodium/releases) in `%USERPROFILE%\AppData\Local\Microsoft\WindowsApps\`.
-2. If dependencies are not found or you wish to place them in other location - configure required path variables in _"Manage Configurations..."_ dialog inside Visual Studio or in _cmake-gui_.
+*Note*
+You can download the libraries manually from [SDL2](https://www.libsdl.org/download-2.0.php) and [Libsodium](https://github.com/jedisct1/libsodium/releases).
 
 ### Compiling
 

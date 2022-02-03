@@ -41,32 +41,32 @@ jobs:
           # x86 builds
           - name: diablo-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-x86.zip'
           - name: hellfire-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D HELLFIRE=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x86.zip'
           - name: hellone-x86
             packages: 'sdl2:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NONET=ON -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NONET=ON -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
             artifact: 'hellone-nightly-x86.zip'
           - name: hellsrv-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D NOHOSTING=OFF -D HOSTONLY=ON -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D HELLFIRE=ON -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D NOHOSTING=OFF -D HOSTONLY=ON -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
             artifact: 'hellsrv-nightly-x86.zip'
           # x64 builds
           - name: diablo
             packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-x64.zip'
           - name: hellfire
             packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D HELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x64.zip'
           - name: hellone
             packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D HELLFIRE=ON -D MPQONE="hellone.mpq"'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON -D MPQONE="hellone.mpq"'
             artifact: 'hellone-nightly-x64.zip'
     steps:
     - uses: actions/checkout@v2
@@ -389,7 +389,7 @@ jobs:
 
   # Releases
   release:
-    needs: [build_check, build_win, build_mac, build_android, build_rg350, build_lepus, build_retrofw]
+    needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
@@ -448,6 +448,19 @@ jobs:
       with:
         name: hellfire-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-mac.dmg
+
+    # iOS builds
+    - name: Download a diablo iOS artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: diablo-nightly-ios.ipa
+    - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/diablo-nightly-ios.ipa
+
+    - name: Download a hellfire iOS artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellfire-nightly-ios.ipa
+    - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/hellfire-nightly-ios.ipa
 
     # android builds
     - name: Download a diablo android artifact
@@ -516,6 +529,7 @@ jobs:
         echo '[diablo-nightly-retrofw.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
+        echo '[diablo-nightly-ios.ipa](../../releases/download/devilx-nightly/diablo-nightly-ios.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86`'       >> RELEASE_NOTE.md
         echo ''                             >> RELEASE_NOTE.md
@@ -527,6 +541,7 @@ jobs:
         echo '[hellfire-nightly-retrofw.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
         echo '[hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-ios.ipa](../../releases/download/devilx-nightly/hellfire-nightly-ios.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
         echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86`'         >> RELEASE_NOTE.md
         echo '[hellone-nightly-x64.zip](../../releases/download/devilx-nightly/hellone-nightly-x64.zip) | Hellfire build for `Windows x64`<br>- merges the mpq files on the first run (takes a few minutes)'                                                                   >> RELEASE_NOTE.md
@@ -557,6 +572,7 @@ jobs:
           ${{github.workspace}}/diablo-nightly-retrofw.opk
           ${{github.workspace}}/diablo-nightly-rg350.opk
           ${{github.workspace}}/diablo-nightly-mac.dmg
+          ${{github.workspace}}/diablo-nightly-ios.ipa
           ${{github.workspace}}/diablo-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-x86.zip
           ${{github.workspace}}/hellfire-nightly-android.apk
@@ -564,6 +580,7 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-retrofw.opk
           ${{github.workspace}}/hellfire-nightly-rg350.opk
           ${{github.workspace}}/hellfire-nightly-mac.dmg
+          ${{github.workspace}}/hellfire-nightly-ios.ipa
           ${{github.workspace}}/hellfire-nightly-x64.zip
           ${{github.workspace}}/hellfire-nightly-x86.zip
           ${{github.workspace}}/hellone-nightly-x64.zip

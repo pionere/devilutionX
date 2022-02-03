@@ -32,7 +32,7 @@ extern bool gbCelTransparencyActive;
 
 void ClearCursor();
 void CalcViewportGeometry();
-#ifdef _DEBUG
+#if DEBUG_MODE
 void ScrollView();
 #endif
 void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);

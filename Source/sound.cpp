@@ -23,7 +23,7 @@ int gnMusicVolume;
 
 #ifndef NOSOUND
 /** Buffer containing the data of the background music. */
-BYTE* _gMusicBuffer;
+::Mix_Audio* _gMusic;
 
 /** Specifies the active background music track id. */
 int _gnMusicTrack = NUM_MUSIC;
@@ -59,7 +59,7 @@ static void snd_get_volume(const char* value_name, int* value)
 	*value = v;
 }
 
-void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan)
+void sound_play(SoundSample* pSnd, int lVolume, int lPan)
 {
 	Uint32 currTc;
 
@@ -74,31 +74,48 @@ void snd_play_snd(SoundSample* pSnd, int lVolume, int lPan)
 	if (currTc < pSnd->nextTc)
 		return;
 	pSnd->nextTc = currTc + 80;
-	pSnd->Play(lVolume, lPan);
+	pSnd->Play(lVolume, lPan, -1);
+}
+
+void sound_stream(const char* path, SoundSample* pSnd, int lVolume, int lPan)
+{
+	BYTE* wave_file;
+	size_t dwBytes;
+
+	assert(gbSoundOn);
+	assert(pSnd != NULL);
+
+	assert(!pSnd->IsLoaded());
+	{
+		// sound_file_load(path, pSnd);
+		wave_file = LoadFileInMem(path, &dwBytes);
+
+		pSnd->SetChunk(wave_file, dwBytes, true);
+
+		mem_free_dbg(wave_file);
+	}
+
+	lVolume = ADJUST_VOLUME(lVolume, VOLUME_MIN, gnSoundVolume);
+
+	pSnd->Play(lVolume, lPan, SFX_STREAM_CHANNEL);
 }
 
 void sound_file_load(const char* path, SoundSample* pSnd)
 {
-	HANDLE file;
 	BYTE* wave_file;
-	DWORD dwBytes;
+	size_t dwBytes;
 
-	file = SFileOpenFile(path);
-
-	dwBytes = SFileGetFileSize(file);
-	wave_file = DiabloAllocPtr(dwBytes);
-	SFileReadFile(file, wave_file, dwBytes);
-	SFileCloseFile(file);
+	wave_file = LoadFileInMem(path, &dwBytes);
 
 	pSnd->nextTc = 0;
-	pSnd->SetChunk(wave_file, dwBytes);
+	pSnd->SetChunk(wave_file, dwBytes, false);
 	mem_free_dbg(wave_file);
 }
 
 void RestartMixer()
 {
 	if (Mix_OpenAudio(SND_DEFAULT_FREQUENCY, SND_DEFAULT_FORMAT, SND_DEFAULT_CHANNELS, 1024) < 0) {
-		SDL_Log("%s", Mix_GetError());
+		DoLog(Mix_GetError());
 	}
 	Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
 }
@@ -123,44 +140,49 @@ void FreeSound()
 
 void music_stop()
 {
-	if (_gMusicBuffer != NULL) {
+	if (_gMusic != NULL) {
 		// Mix_HaltMusic(); -- no need, Mix_FreeMusic halts the music as well
 		Mix_FreeMusic();
 		_gnMusicTrack = NUM_MUSIC;
-		MemFreeDbg(_gMusicBuffer);
+		_gMusic = NULL;
 	}
 }
 
 void music_start(int nTrack)
 {
+	BYTE* musicBuf;
+	size_t dwBytes;
+
 	assert((unsigned)nTrack < NUM_MUSIC);
 	if (gbMusicOn) {
 		music_stop();
-		HANDLE hMusic = SFileOpenFile(sgszMusicTracks[nTrack]);
-		if (hMusic != NULL) {
-			DWORD bytestoread = SFileGetFileSize(hMusic);
-			assert(_gMusicBuffer == NULL);
-			_gMusicBuffer = DiabloAllocPtr(bytestoread);
-			SFileReadFile(hMusic, _gMusicBuffer, bytestoread);
 
-			SDL_RWops* musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
-			if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
-				sdl_fatal(ERR_SDL_MUSIC_FILE);
+		musicBuf = LoadFileInMem(sgszMusicTracks[nTrack], &dwBytes);
 
-			Mix_PlayMusic(-1);
+		//Mix_RWops* musicRw = Mix_RWFromConstMem(_gMusicBuffer, dwBytes);
+		Mix_RWops musicRw;
+		Mix_RWFromMem(&musicRw, musicBuf, dwBytes);
+		//if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
+		_gMusic = Mix_LoadMUS_RW(&musicRw);
+		if (_gMusic == NULL)
+			sdl_fatal(ERR_SDL_MUSIC_FILE);
 
-			_gnMusicTrack = nTrack;
-		}
-		SFileCloseFile(hMusic);
+		Mix_PlayMusic(-1);
+
+		_gnMusicTrack = nTrack;
 	}
 }
 
 void sound_disable_music()
 {
+	int lastMusic = _gnMusicTrack;
+
 	music_stop();
+
+	_gnMusicTrack = lastMusic;
 }
 
-void sound_start_music()
+void sound_restart_music()
 {
 	if (_gnMusicTrack != NUM_MUSIC) {
 		music_start(_gnMusicTrack);

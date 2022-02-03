@@ -27,20 +27,19 @@ void app_fatal(const char *pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
  * @param ... Additional parameters for message format
  */
 void app_warn(const char *pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
-#ifdef _DEBUG
-void assert_fail(int nLineNo, const char *pszFile, const char *pszFail);
+#if DEBUG_MODE
 void ErrDlg(const char *title, const char *error, const char *log_file_path, int log_line_nr);
 #endif
 //void FileErrDlg(const char *error);
 //void InsertCDDlg();
 
-#if defined(_DEVMODE) || defined(_DEBUG)
+#if DEBUG_MODE || DEV_MODE
 /*template <typename... MsgArgs>
 void dev_fatal(const char *pszFmt, MsgArgs... args) {
 	app_fatal(pszFmt, args...);
 }*/
 #define dev_fatal(msg, ...) app_fatal(msg, __VA_ARGS__);
-#ifdef _DEBUG
+#if DEBUG_MODE
 #define sdl_fatal(ec) \
 	if (ec == ec) { \
 		ErrDlg("SDL Error", SDL_GetError(), __FILE__, __LINE__); \
@@ -51,11 +50,11 @@ void dev_fatal(const char *pszFmt, MsgArgs... args) {
 	}
 #else
 #define sdl_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, SDL_GetError())
-#endif // _DEBUG
+#endif // DEBUG_MODE
 #else
-inline void dev_fatal(const char *pszFmt, ...) {}
+#define dev_fatal(msg, ...)
 #define sdl_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, SDL_GetError())
-#endif // _DEVMODE || _DEBUG
+#endif // DEBUG_MODE || DEV_MODE
 
 #ifdef __cplusplus
 }

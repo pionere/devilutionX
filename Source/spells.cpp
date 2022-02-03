@@ -88,7 +88,7 @@ int GetSpellLevel(int pnum, int sn)
 
 bool CheckSpell(int pnum, int sn)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_key_inverted_v)
 		return true;
 #endif

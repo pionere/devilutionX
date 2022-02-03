@@ -9,7 +9,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 MenuAction GetMenuHeldUpDownAction()
 {
 	static AxisDirectionRepeater repeater;
@@ -27,7 +27,7 @@ MenuAction GetMenuHeldUpDownAction()
 
 MenuAction GetMenuAction(const SDL_Event &event)
 {
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(event);
 
 	if (ProcessControllerMotion(event, ctrlEvent)) {
@@ -67,8 +67,8 @@ MenuAction GetMenuAction(const SDL_Event &event)
 	}
 #endif
 
-#if HAS_KBCTRL == 0
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if !HAS_KBCTRL
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (event.type >= SDL_KEYDOWN && event.type < SDL_JOYAXISMOTION)
 		sgbControllerActive = false;
 #endif

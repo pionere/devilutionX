@@ -36,7 +36,7 @@ const ShadowStruct L2SPATS[] = {
 	// clang-format off
 	//sh11, 01, 10,  00,   mask11    01    10    00    nv1, nv2, nv3
 	{ { SF,  0, SF,   6 }, { 0xFF, 0xFF, 0xFF, 0xFF },  48,   0,  50 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ { SF, SF,  0,   6 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
 	{ {  0,  0,  2,   6 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
 	{ {  0,  0,  0,   6 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
@@ -44,7 +44,7 @@ const ShadowStruct L2SPATS[] = {
 #endif
 	{ { SF,  0, SF,   9 }, { 0xFF, 0x00, 0xFF, 0xFF },  48,   0,  50 },
 	//{ { SF,  1, SF,   9 }, { 0xFF, 0xFF, 0xFF, 0xFF },  48,   0,  50 }, // covered by above
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ {  0,  0,  2,   9 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
 	{ {  0,  0,  0,   9 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
 	{ {  0,  0,  0,   9 }, { 0xFF, 0x00, 0x00, 0xFF },   0,   0,   0 }, // shadow is not necessary
@@ -1651,8 +1651,8 @@ static void DRLG_L2Subs()
 	const unsigned NUM_L2TYPES = 112;
 	static_assert(MAX_MATCH <= CHAR_MAX, "MAX_MATCH does not fit to rv(char) in DRLG_L2Subs.");
 	static_assert(NUM_L2TYPES <= UCHAR_MAX, "NUM_L2TYPES does not fit to i(BYTE) in DRLG_L2Subs.");
-#ifdef _DEBUG
-	for (i = sizeof(L2BTYPES) - 1; i >= 0; i--) {
+#if DEBUG_MODE
+	for (int i = sizeof(L2BTYPES) - 1; i >= 0; i--) {
 		if (L2BTYPES[i] != 0) {
 			if (i >= NUM_L2TYPES)
 				app_fatal("Value %d is ignored in L2BTYPES at %d", L2BTYPES[i], i);
@@ -1660,7 +1660,7 @@ static void DRLG_L2Subs()
 		}
 	}
 
-	for (i = 0; i < sizeof(L2BTYPES); i++) {
+	for (int i = 0; i < sizeof(L2BTYPES); i++) {
 		c = L2BTYPES[i];
 		if (c == 0)
 			continue;

@@ -337,7 +337,7 @@ void GetLevelMTypes()
 			montypes[nt] = mtype;
 		}
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (monstdebug) {
 			for (i = 0; i < debugmonsttypes; i++)
 				AddMonsterType(DebugMonsters[i], TRUE);
@@ -1010,7 +1010,7 @@ void InitMonsters()
 	const int tdx[4] = { -1, -1,  2,  2 };
 	const int tdy[4] = { -1,  2, -1,  2 };
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (IsMultiGame)
 		CheckDungeonClear();
 #endif
@@ -1188,10 +1188,8 @@ static void MonEnemy(int mnum)
 		}
 		for (i = 0; i < MAX_MINIONS; i++) {
 			tmon = &monsters[i];
-#ifdef HELLFIRE
 			if (tmon->_mhitpoints < (1 << 6))
 				continue;
-#endif
 			if (MINION_INACTIVE(tmon))
 				continue;
 			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
@@ -1214,10 +1212,8 @@ static void MonEnemy(int mnum)
 			if (tnum == mnum)
 				continue;
 			tmon = &monsters[tnum];
-#ifdef HELLFIRE
 			if (tmon->_mhitpoints < (1 << 6))
 				continue;
-#endif
 			if (MINION_INACTIVE(tmon))
 				continue;
 			if (CanTalkToMonst(tnum))
@@ -1814,10 +1810,6 @@ static void M2MStartKill(int offm, int defm)
 		sendmsg = true;
 
 	MonstStartKill(defm, offm, sendmsg);
-
-#ifdef HELLFIRE
-	MonStartStand(offm, monsters[offm]._mdir);
-#endif
 }
 
 void MonStartKill(int mnum, int pnum)
@@ -2021,7 +2013,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		+ (2 * mon->_mLevel)
 		- plr._pIAC;
 	if (random_(98, 100) >= hper)
-#ifdef _DEBUG
+#if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
 			return;
@@ -2070,9 +2062,6 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	}
 	if (pnum == mypnum) {
 		if (PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
-#ifdef HELLFIRE
-			MonStartStand(mnum, mon->_mdir);
-#endif
 			return;
 		}
 	}

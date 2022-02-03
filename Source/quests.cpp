@@ -109,7 +109,7 @@ void InitQuests()
 
 	SetRndSeed(glSeedTbl[DLV_HELL3]);
 	quests[Q_DIABLO]._qvar1 = random_(0, 3);
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (!allquests) {
 #endif
 		if (random_(0, 2) != 0)
@@ -128,7 +128,7 @@ void InitQuests()
 #ifdef HELLFIRE
 		quests[QuestGroup5[random_(0, lengthof(QuestGroup5))]]._qactive = QUEST_NOTAVAIL;
 #endif
-#ifdef _DEBUG
+#if DEBUG_MODE
 	}
 	if (questdebug != -1)
 		quests[questdebug]._qactive = QUEST_ACTIVE;

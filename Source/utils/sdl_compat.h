@@ -31,10 +31,10 @@
 
 inline const Uint8 *SDLC_GetKeyState()
 {
-#ifndef USE_SDL1
-	return SDL_GetKeyboardState(NULL);
-#else
+#ifdef USE_SDL1
 	return SDL_GetKeyState(NULL);
+#else
+	return SDL_GetKeyboardState(NULL);
 #endif
 }
 
@@ -58,10 +58,17 @@ inline int SDLC_SetSurfaceColors(SDL_Surface *surface, SDL_Color *colors, int fi
 #endif
 }
 
-// Copies the colors into the surface's palette.
+/*
+ * SDL1: Copies the colors into the surface's palette.
+ * SDL2: Sets the surface's palette to the input palette.
+ */
 inline int SDLC_SetSurfaceColors(SDL_Surface *surface, SDL_Palette *palette)
 {
+#ifdef USE_SDL1
 	return SDLC_SetSurfaceColors(surface, palette->colors, 0, palette->ncolors);
+#else
+	return SDL_SetPixelFormatPalette(surface->format, palette);
+#endif
 }
 
 // Sets the palette's colors and:

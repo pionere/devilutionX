@@ -77,7 +77,7 @@ extern int get_num_music_interfaces(void);
 extern Mix_MusicInterface *get_music_interface(int index);
 #endif
 #ifdef FULL // WAV_SRC
-extern Mix_MusicType detect_music_type(SDL_RWops *src);
+extern Mix_MusicType detect_music_type(Mix_RWops *src);
 extern SDL_bool load_music_type(Mix_MusicType type);
 extern SDL_bool open_music_type(Mix_MusicType type);
 #endif
@@ -85,12 +85,12 @@ extern SDL_bool open_music_type(Mix_MusicType type);
 extern SDL_bool has_music(Mix_MusicType type);
 #endif
 extern void open_music(const SDL_AudioSpec *spec);
-#ifdef FULL // FIX_MUS
+#ifdef FULL // FIX_MUS, SOME_VOL
 extern int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                               int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done));
 #else
-extern int music_pcm_getaudio(Mix_Audio* audio, void* data, int bytes,
-                              int (*GetSome)(Mix_Audio* audio, void* data, int bytes));
+extern int music_pcm_getaudio(Mix_Channel* channel, void* stream, int bytes,
+                              int (*GetSome)(Mix_Channel* channel, void* stream, int bytes));
 #endif
 extern void SDLCALL music_mixer(void *udata, Uint8 *stream, int len);
 extern void close_music(void);
@@ -102,7 +102,7 @@ extern void unload_music(void);
 extern char *music_cmd;
 extern SDL_AudioSpec music_spec;
 #endif
-SDL_bool Mix_LoadAudio_RW(SDL_RWops* src, Mix_Audio* dst, Uint8* buffer);
+Mix_Audio* Mix_LoadAudio_RW(Mix_RWops* src, Mix_Audio* dst);
 void Mix_UnloadAudio(Mix_Audio* audio);
 
 #endif /* MUSIC_H_ */

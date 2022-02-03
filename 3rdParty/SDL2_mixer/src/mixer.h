@@ -21,12 +21,21 @@
 #ifndef MIXER_H_
 #define MIXER_H_
 
+#include "types_internal.h"
+
+#ifdef FULL // FIX_CHAN
+extern _Mix_Channel *mix_channel = NULL;
+#else
+extern _Mix_Channel mix_channel[MIX_CHANNELS];
+#endif
+
 /* Locking wrapper functions */
 extern void Mix_LockAudio(void);
 extern void Mix_UnlockAudio(void);
 #ifdef FULL
 extern void add_chunk_decoder(const char *decoder);
 #endif
+extern void Mix_CalculateSampleSize(Mix_AudioSpec* spec);
 
 #endif /* MIXER_H_ */
 

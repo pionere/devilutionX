@@ -1,9 +1,13 @@
-This is a slightly modified version of libsdl-org/SDL_mixer@2d39bf227e319a128d933aec92d19047dfb800fc
+This is a slightly modified version of libsdl-org/SDL_mixer@5d3c84e5dd4c91093255ad5533b8457ecc40684f
 
 Changes:
 
 * Removed all files not used by DevilutionX.
 * Comment out unnecessary bits with `#ifndef FULL`.
+* Simplified source management
+  - Reading only from memory sources (MEM_OPS)
+  - Mix_RWops are not freed and no need to call RWclose (SRC_PTR)
+  -- SDL_RWops is always freed (FREE_SRC) --
 * Limited support for formats
   - Only u8-bit or s16-bit lsb WAV formats are supported (WAV_SRC)
   - only mono or stereo, 22050Hz or 44100Hz, s16-bit lsb music is supported (SELF_CONV)
@@ -11,15 +15,18 @@ Changes:
   - loops are not supported (WAV_LOOP)
   - encoding of the music (wav) file is not maintained (WAV_ENC)
   - decoder assumes pcm encoding (MUS_ENC)
+* MIX_MAX_VOLUME changed from SDL_MIX_MAXVOLUME to 1024 - BEWARE of disabled static_asserts in effect_position.c
 * MIX_DEFAULT_FREQUENCY changed from 44100 to 22050
 * MIX_CHANNELS changed from 8 to 25 and fixed number of (RESERVED)CHANNELS are used (FIX_CHAN)
-* MIX_MAX_POS_EFFECT(_F) changed/defined from 255 to 16
+* MIX_MAX_POS_EFFECT(_F) changed/defined from 255 to 16 - BEWARE of disabled static_asserts in effect_position.c
 * Sfx on non-stereo/22050 devices are streamed by SDL (FIX_OUT)
   - Panning is only for AUDIO_S16LSB with 2-channels
 * meta tags are ignored (META)
 * Fading, expire are not supported (FADING)
+* Mix_Chunk is an alias for Mix_Audio (CHUNK_ALIAS)
 * Volume per chunk is not supported (CHUNK_VOL)
 * allocated is no longer maintained in mixer.c (CHUNK_ALLOC)
+* Chunk length is not validated in Mix_PlayChannelTimed (CHUNK_LEN)
 * Mix_Chunk.lastChan field added to store the last channel assuming the first channel is reserved (CHUNK_LAST_CHAN)
 * music_active is no longer maintained in music.c (MUS_ACTIVE)
 * Only one music can be played at a time, it uses a static buffer (FIX_MUS)
@@ -31,13 +38,12 @@ Changes:
 * SDL_MIXER_DISABLE_* are not supported (MIX_DIS)
 * SDL_MIXER_HINT_DEBUG_MUSIC_INTERFACES disabled (HINTS)
 * Only one audio device is allowed at a time (SINGLE)
-* Mix_FreeChunk assumes the chunk is not played (CHUNK_CHECK)
+* Mix_FreeChunk assumes the chunk is not NULL and not played (CHUNK_CHECK)
 * Mix_Playing, Mix_Volume assume valid channel-id
 * Mix_LoadMUSType_RW is simplified
   - assumes not-null SDL_RWops (MUS_CHECK)
   - SDL_RWops is not reset when load fails (MUS_CHECK)
   - autodetection of type is disabled (WAV_SRC)
-  - SDL_RWops is always freed (FREE_SRC)
 * Mix_LoadWAV_RW is simplified
   - assumes not-null SDL_RWops and initialized audio device (WAV_CHECK)
   - assumes the data-length matches the format (SAMPLE_CHECK)
@@ -46,6 +52,7 @@ Changes:
 * Effects on channels are internalized -> extra checks disabled (EFF_CHECK)
 * Maximum one effect per channel (FIX_EFF)
 * Assumes initialized SDL with SDL_INIT_AUDIO (INIT)
+* volume is applied in GetSome (SOME_VOL)
 * SDL1 compatible (USE_SDL1)
 * zero-fill in init_position_args is commented out
 

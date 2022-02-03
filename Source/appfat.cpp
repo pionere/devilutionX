@@ -58,18 +58,7 @@ void app_warn(const char *pszFmt, ...)
 	UiErrorOkDialog(PROJECT_NAME, text, false);
 }
 
-#ifdef _DEBUG
-/**
- * @brief Show an error and exit the application.
- * @param nLineNo The line number of the assertion
- * @param pszFile File name where the assertion is located
- * @param pszFail Fail message
- */
-void assert_fail(int nLineNo, const char *pszFile, const char *pszFail)
-{
-	app_fatal("assertion failed (%d:%s)\n%s", nLineNo, pszFile, pszFail);
-}
-
+#if DEBUG_MODE
 /**
  * @brief Terminates the game and displays an error dialog box based on the given dialog_id.
  */

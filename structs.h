@@ -523,17 +523,19 @@ static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 0, "Align
 // effects/sound
 //////////////////////////////////////////////////
 
+typedef struct _Mix_Audio Mix_Audio;
+
 typedef struct SoundSample final {
 	Uint32 nextTc;
-	struct Mix_Chunk* soundData;
+	Mix_Audio* soundData;
 
 	void Release();
 	bool IsPlaying();
 	bool IsLoaded() {
 		return soundData != NULL;
 	}
-	void Play(int lVolume, int lPan, int channel = -1);
-	void SetChunk(BYTE* fileData, DWORD dwBytes);
+	void Play(int lVolume, int lPan, int channel);
+	void SetChunk(BYTE* fileData, size_t dwBytes, bool stream);
 	//int TrackLength();
 } SoundSample;
 
@@ -1662,8 +1664,8 @@ typedef struct _uiheroinfo {
 
 #pragma pack(push, 1)
 typedef struct SNetGameData {
-	INT dwSeed;
 	DWORD dwVersionId;
+	INT dwSeed;
 	BYTE bPlayerId; // internal-only!
 	BYTE bDifficulty;
 	BYTE bTickRate;
@@ -1731,7 +1733,9 @@ static_assert((sizeof(PATHNODE) & (sizeof(PATHNODE) - 1)) == 0, "Align PATHNODE 
 
 typedef struct SHA1Context {
 	DWORD state[5];
+#if DEBUG_MODE
 	DWORD count[2];
+#endif
 	char buffer[64];
 } SHA1Context;
 
@@ -1819,7 +1823,7 @@ static_assert((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align STe
 typedef struct _plrmsg {
 	Uint32 time;
 	BYTE player;
-	char str[144];
+	char str[123];
 } _plrmsg;
 
 //////////////////////////////////////////////////

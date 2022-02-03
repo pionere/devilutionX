@@ -18,7 +18,7 @@ tcp_server::tcp_server(asio::io_context &ioc, buffer_t info, unsigned srvType)
 	assert(game_init_info.size() == sizeof(SNetGameData));
 }
 
-bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const char* passwd)
+bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const char* passwd, char (&errorText)[256])
 {
 	pktfty.setup_password(passwd);
 	asio::error_code err;
@@ -28,7 +28,7 @@ bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const c
 		connect_acceptor(acceptor, ep, err);
 	}
 	if (err) {
-		SDL_SetError("%s", err.message().c_str());
+		SStrCopy(errorText, err.message().c_str(), lengthof(errorText));
 		close();
 		return false;
 	}
@@ -153,7 +153,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	plr_t i, pnum;
 
 	if (pkt.pktType() != PT_JOIN_REQUEST) {
-		// SDL_Log("Invalid join packet.");
+		// DoLog("Invalid join packet.");
 		return false;
 	}
 	pnum = next_free_conn();
@@ -162,7 +162,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 			break;
 	}
 	if (pnum == MAX_PLRS || i == MAX_PLRS) {
-		// SDL_Log(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
+		// DoLog(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
 		return false;
 	}
 	pending_connections[i] = NULL;
@@ -206,7 +206,7 @@ bool tcp_server::send_packet(packet &pkt)
 				start_send(connections[i], pkt);
 	} else {
 		if (dest >= MAX_PLRS) {
-			// SDL_Log("Invalid destination %d", dest);
+			// DoLog("Invalid destination %d", dest);
 			return false;
 		}
 		if ((dest != src) && connections[dest] != NULL)

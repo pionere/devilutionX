@@ -7,6 +7,7 @@
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selconn.h"
 #include "controls/plrctrls.h"
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -33,7 +34,7 @@ static void SelheroListSelect(unsigned index);
 static void SelheroClassSelectorSelect(unsigned index);
 static void SelheroNameSelect(unsigned index);
 
-#if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 static const char *SelheroGenerateName(BYTE hero_class)
 {
 	static const char *const kNames[NUM_CLASSES][10] = {
@@ -247,11 +248,11 @@ static void SelheroListFocus(unsigned index)
 #else
 	SELHERO_DIALOG_HERO_IMG->m_frame = NUM_CLASSES;
 #endif
-	snprintf(textStats[0], sizeof(textStats[0]), "--");
-	snprintf(textStats[1], sizeof(textStats[1]), "--");
-	snprintf(textStats[2], sizeof(textStats[2]), "--");
-	snprintf(textStats[3], sizeof(textStats[3]), "--");
-	snprintf(textStats[4], sizeof(textStats[4]), "--");
+	copy_cstr(textStats[0], "--");
+	copy_cstr(textStats[1], "--");
+	copy_cstr(textStats[2], "--");
+	copy_cstr(textStats[3], "--");
+	copy_cstr(textStats[4], "--");
 	SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_SILVER | UIS_DISABLED;
 	selhero_deleteEnabled = false;
 }
@@ -395,7 +396,7 @@ static void SelheroListSelect(unsigned index)
 
 		//assert(gUIListItems.size() == 2);
 		UiInitList(2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit);
-		snprintf(selhero_title, sizeof(selhero_title), "Single Player Characters");
+		copy_cstr(selhero_title, "Single Player Characters");
 		return;
 	}
 
@@ -413,7 +414,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 
 	snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 	memset(selhero_heroInfo.hiName, '\0', sizeof(selhero_heroInfo.hiName));
-#if defined(PREFILL_PLAYER_NAME) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if defined(PREFILL_PLAYER_NAME) || HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #ifndef PREFILL_PLAYER_NAME
 	if (sgbControllerActive)
 #endif

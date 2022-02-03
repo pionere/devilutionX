@@ -5,7 +5,7 @@
  */
 #include "all.h"
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #include "controls/axis_direction.h"
 #include "controls/controller_motion.h"
 #endif
@@ -184,7 +184,7 @@ static void gmenu_draw_menu_item(int i, int y)
 
 static void GameMenuMove()
 {
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	static AxisDirectionRepeater repeater;
 	const AxisDirection move_dir = repeater.Get(GetLeftStickOrDpadDirection());
 	if (move_dir.x != AxisDirectionX_NONE)

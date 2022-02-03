@@ -1,6 +1,6 @@
 #include "game_controls.h"
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #include <cstdint>
 
 #include "controls/controller_motion.h"
@@ -334,7 +334,7 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 	}
 
 #ifndef USE_SDL1
- #if HAS_JOYSTICK == 1 && HAS_GAMECTRL == 1
+ #if HAS_JOYSTICK && HAS_GAMECTRL
 	// Ignore unhandled joystick events where a GameController is open for this joystick.
 	// This is because SDL sends both game controller and joystick events in this case.
 	const Joystick *const joystick = Joystick::Get(event);

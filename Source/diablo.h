@@ -50,7 +50,7 @@ void game_logic();
 
 extern bool gbFullscreen;
 extern bool gbShowTooltip;
-#ifdef _DEBUG
+#if DEBUG_MODE
 extern int DebugMonsters[10];
 extern BOOL visiondebug;
 extern bool lightflag;

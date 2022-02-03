@@ -1,6 +1,6 @@
 #include "controller_motion.h"
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
 #include <cmath>
 
@@ -117,25 +117,25 @@ static void ScaleJoysticks()
 // Updates motion state for mouse and joystick sticks.
 bool ProcessControllerMotion(const SDL_Event &event, ControllerButtonEvent ctrlEvent)
 {
-#if HAS_GAMECTRL == 1
+#if HAS_GAMECTRL
 	GameController *const controller = GameController::Get(event);
 	if (controller != NULL && GameController::ProcessAxisMotion(event)) {
 		ScaleJoysticks();
 		return true;
 	}
 #endif
-#if HAS_JOYSTICK == 1
+#if HAS_JOYSTICK
 	Joystick *const joystick = Joystick::Get(event);
 	if (joystick != NULL && Joystick::ProcessAxisMotion(event)) {
 		ScaleJoysticks();
 		return true;
 	}
 #endif
-#if HAS_KBCTRL == 1
+#if HAS_KBCTRL
 	if (ProcessKbCtrlAxisMotion(event))
 		return true;
 #endif
-#if HAS_DPAD == 1
+#if HAS_DPAD
 	if (SimulateRightStickWithDpad(ctrlEvent))
 		return true;
 #endif

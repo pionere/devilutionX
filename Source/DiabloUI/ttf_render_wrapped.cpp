@@ -2,7 +2,6 @@
 
 #include <cstddef>
 #include <cstring>
-#include "utils/sdl_compat.h"
 #include "all.h"
 #include "DiabloUI/ui_item.h"
 
@@ -139,7 +138,7 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 		}
 		SDL_Surface *tmp = TTF_RenderUTF8_Solid(font, text, fg);
 		if (tmp == NULL) {
-			SDL_Log("%s", TTF_GetError());
+			DoLog(TTF_GetError());
 			SDL_FreeSurface(textbuf);
 			SDL_free(strLines);
 			SDL_stack_free(str);

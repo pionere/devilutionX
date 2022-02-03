@@ -383,7 +383,7 @@ void UiHandleEvents(SDL_Event *event)
 		diablo_quit(0);
 
 #ifndef USE_SDL1
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	HandleControllerAddedOrRemovedEvent(*event);
 #endif
 
@@ -443,7 +443,7 @@ static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 static void LoadUiGFX()
 {
 #ifdef HELLFIRE
-	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16, 250);
+	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16, 0);
 #else
 	LoadMaskedArt("ui_art\\smlogo.pcx", &ArtLogoMed, 15, 250);
 #endif
@@ -499,15 +499,17 @@ void LoadBackgroundArt(const char* pszFile, int frames)
 
 	ApplyGamma(logical_palette, orig_palette);
 
+	// help the render loops by setting up an initial fade level
 	_gdwFadeTc = 0;
 	_gnFadeValue = 0;
 	SetFadeLevel(0);
+/* unnecessary, because the render loops are supposed to start with this.
 	UiClearScreen();
 //#ifdef USE_SDL1
 //	if (DiabloUiSurface() == back_surface)
-		BltFast(NULL, NULL);
+		BltFast();
 //#endif
-	RenderPresent();
+	RenderPresent();*/
 }
 
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
@@ -544,7 +546,7 @@ void UiFadeIn()
 	}
 //#ifdef USE_SDL1
 //	if (DiabloUiSurface() == back_surface)
-		BltFast(NULL, NULL);
+		BltFast();
 //#endif
 	RenderPresent();
 }
@@ -582,7 +584,7 @@ void UiPollAndRender()
 		UiFocusNavigation(&event);
 		UiHandleEvents(&event);
 	}
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	HandleMenuAction(GetMenuHeldUpDownAction());
 #endif
 #ifdef __3DS__
@@ -874,7 +876,7 @@ void UiItemMouseEvents(SDL_Event* event)
 
 void DrawMouse()
 {
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (sgbControllerActive)
 		return;
 #endif

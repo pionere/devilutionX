@@ -2,11 +2,7 @@
 
 #include "../types.h"
 
-#ifndef HAS_TOUCHPAD
-#define HAS_TOUCHPAD 0
-#endif
-
-#if HAS_TOUCHPAD == 1
+#if HAS_TOUCHPAD
 #ifdef USE_SDL1
 static_assert(FALSE, "Touchpad is not supported in SDL1.");
 #endif

@@ -27,7 +27,7 @@ void FreePlayerGFX(int pnum);
 void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLen, int width);
 void SetPlrAnims(int pnum);
 void CreatePlayer(const _uiheroinfo &heroinfo);
-#ifdef _DEBUG
+#if DEBUG_MODE
 void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, unsigned exp);

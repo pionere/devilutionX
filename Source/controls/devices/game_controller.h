@@ -2,11 +2,7 @@
 
 #include "../types.h"
 
-#ifndef HAS_GAMECTRL
-#define HAS_GAMECTRL 0
-#endif
-
-#if HAS_GAMECTRL == 1
+#if HAS_GAMECTRL
 #ifdef USE_SDL1
 static_assert(FALSE, "GameController is not supported in SDL1.");
 #endif

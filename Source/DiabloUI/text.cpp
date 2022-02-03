@@ -1,5 +1,7 @@
 #include "text.h"
 
+#include <string>
+
 DEVILUTION_BEGIN_NAMESPACE
 
 unsigned GetArtStrWidth(const char* str, unsigned size)

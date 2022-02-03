@@ -27,13 +27,14 @@
 #include "music.h"
 #else
 #include "../music.h"
+#include "../mixer.h"
 #endif
 #ifndef FULL // SELF_CONV
 #include "../utils.h"
 #endif
 #include "../types_internal.h"
 
-extern Mix_MusicInterface Mix_MusicInterface_WAV;
+extern const Mix_MusicInterface Mix_MusicInterface_WAV;
 
 #endif /* MUSIC_WAV_H_ */
 

@@ -9,7 +9,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static SHA1Context sgSHA1[3];
+static SHA1Context sgSHA1[SHA1ContextNum];
 
 /**
  * Standard circular left shift, portable version.
@@ -33,8 +33,10 @@ static uint32_t SHA1CircularShiftB(uint32_t bits, uint32_t word)
 
 static void SHA1Init(SHA1Context *context)
 {
+#if DEBUG_MODE
 	context->count[0] = 0;
 	context->count[1] = 0;
+#endif
 	context->state[0] = 0x67452301;
 	context->state[1] = 0xEFCDAB89;
 	context->state[2] = 0x98BADCFE;
@@ -107,13 +109,16 @@ static void SHA1ProcessMessageBlock(SHA1Context *context)
 
 static void SHA1Input(SHA1Context *context, const char *message_array, DWORD len)
 {
-	DWORD i, count;
+	DWORD i;
+#if DEBUG_MODE
+	DWORD count;
 
 	count = context->count[0] + 8 * len;
 	if (count < context->count[0])
 		context->count[1]++;
 
 	context->count[0] = count;
+#endif
 	static_assert(sizeof(context->buffer) == SHA1BlockSize, "SHA1 buffer size is too small.");
 	for (i = len; i >= SHA1BlockSize; i -= SHA1BlockSize) {
 		memcpy(context->buffer, message_array, SHA1BlockSize);
@@ -132,12 +137,11 @@ void SHA1Result(int n, char Message_Digest[SHA1HashSize])
 	DWORD *Message_Digest_Block;
 	int i;
 
+	assert(Message_Digest != NULL);
 	Message_Digest_Block = (DWORD *)Message_Digest;
-	if (Message_Digest_Block != NULL) {
-		for (i = 0; i < lengthof(sgSHA1[n].state); i++) {
-			*Message_Digest_Block = SwapLE32(sgSHA1[n].state[i]);
-			Message_Digest_Block++;
-		}
+	for (i = 0; i < lengthof(sgSHA1[n].state); i++) {
+		*Message_Digest_Block = SwapLE32(sgSHA1[n].state[i]);
+		Message_Digest_Block++;
 	}
 }
 

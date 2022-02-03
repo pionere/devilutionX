@@ -3,11 +3,7 @@
 #include "../types.h"
 
 // Keyboard keys acting like gamepad buttons
-#ifndef HAS_KBCTRL
-#define HAS_KBCTRL 0
-#endif
-
-#if HAS_KBCTRL == 1
+#if HAS_KBCTRL
 #include <SDL.h>
 #include "../controller_buttons.h"
 

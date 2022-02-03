@@ -226,6 +226,7 @@ static void multi_deactivate_player(int pnum, int reason)
 		DeactivatePortal(pnum);
 		delta_close_portal(pnum);
 		multi_disband_team(pnum);
+		// ClearPlrMsg(pnum);
 		if (plr._pDunLevel == currLvl._dLevelIdx) {
 			AddUnLight(plr._plid);
 			AddUnVision(plr._pvid);
@@ -301,7 +302,7 @@ bool multi_check_timeout()
 		sglTimeoutStart = SDL_GetTicks();
 		return false;
 	}
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_key_i) {
 		return false;
 	}
@@ -583,7 +584,7 @@ static void SetupLocalPlr()
 
 	x = 65 + DBORDERX;
 	y = 58 + DBORDERY;
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (!leveldebug || !IsLocalGame) {
 		EnterLevel(DLV_TOWN);
 	}
@@ -614,7 +615,7 @@ static void SetupLocalPlr()
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
 	CalcPlrInv(mypnum, false);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_key_inverted_v) {
 		p->_pMemSkills = SPL_INVALID;
 	} else if (debug_mode_god_mode) {
