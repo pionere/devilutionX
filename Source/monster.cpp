@@ -1781,7 +1781,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 #else
 	if (mon->_mType >= MT_NACID && mon->_mType <= MT_XACID)
 #endif
-		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_ACIDPUD, 1, mnum, mon->_0, 0, 1);
+		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_ACIDPUD, 1, mnum, 0, 0, 1);
 }
 
 static void M2MStartKill(int offm, int defm)
