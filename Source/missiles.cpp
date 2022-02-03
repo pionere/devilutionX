@@ -881,10 +881,11 @@ static bool PlayerTrapHit(int pnum, int mi)
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
-	if (!(mis->_miFlags & MIF_DOT))
+	if (!(mis->_miFlags & MIF_DOT)) {
 		dam += plr._pIGetHit;
-	if (dam < 64)
-		dam = 64;
+		if (dam < 64)
+			dam = 64;
+	}
 
 	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
 		StartPlrHit(pnum, dam, false);
@@ -943,10 +944,11 @@ static bool PlayerMHit(int pnum, int mi)
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
-	if (!(mis->_miFlags & MIF_DOT))
+	if (!(mis->_miFlags & MIF_DOT)) {
 		dam += plr._pIGetHit;
-	if (dam < 64)
-		dam = 64;
+		if (dam < 64)
+			dam = 64;
+	}
 
 	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
 		StartPlrHit(pnum, dam, false);
@@ -1050,10 +1052,11 @@ static bool Plr2PlrMHit(int pnum, int mi)
 
 	if (dam == 0)
 		return false;
-	if (!(mis->_miFlags & MIF_DOT))
+	if (!(mis->_miFlags & MIF_DOT)) {
 		dam += plr._pIGetHit;
-	if (dam < 64)
-		dam = 64;
+		if (dam < 64)
+			dam = 64;
+	}
 
 	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
 		StartPlrHit(pnum, dam, false);
@@ -1974,7 +1977,7 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			maxdam = plx(misource)._pMagic + (spllvl << 3);
 		} else {
 			mindam = monsters[misource]._mMinDamage;
-			maxdam = monsters[misource]._mMaxDamage;
+			maxdam = monsters[misource]._mMaxDamage << 1;
 		}
 	} else {
 		mindam = currLvl._dLevel;
@@ -2468,9 +2471,18 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
+	int dam;
 
 	mis = &missile[mi];
-	mis->_miRange = 40 * (monsters[misource]._mInt + 1) + random_(50, 15);
+	if (spllvl == 0) {
+		// pud from a missile
+		dam = currLvl._dLevel << 2;
+	} else {
+		// pud from a corpse
+		dam = monsters[misource]._mmaxhp >> (1 + 6);
+	}
+	mis->_miMinDam = mis->_miMaxDam = dam;
+	mis->_miRange = 40 * (monsters[misource]._mInt + 1) + random_(50, 16);
 	mis->_miLightFlag = TRUE;
 	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;
@@ -3762,7 +3774,7 @@ void MI_Acidsplat(int mi)
 	}
 	mis->_miDelFlag = TRUE;
 	SetRndSeed(mis->_miRndSeed);
-	AddMissile(mis->_mix - 1, mis->_miy - 1, 0, 0, mis->_miDir, MIS_ACIDPUD, 1, mis->_miSource, 2, 2, mis->_miSpllvl);
+	AddMissile(mis->_mix - 1, mis->_miy - 1, 0, 0, mis->_miDir, MIS_ACIDPUD, 1, mis->_miSource, 0, 0, 0);
 }
 
 void MI_Teleport(int mi)
