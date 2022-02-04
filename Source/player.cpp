@@ -2732,7 +2732,7 @@ static void CheckNewPath(int pnum)
 		dev_fatal("PlrDeathModeOK: illegal player %d", pnum);
 	}
 
-	return plr._pmode == PM_DEATH || plr._pmode == PM_QUIT || plr._pmode == PM_NEWLVL;
+	return plr._pmode == PM_DEATH || plr._pmode == PM_NEWLVL;
 }*/
 
 #if DEBUG_MODE || DEV_MODE
@@ -2898,9 +2898,6 @@ void ProcessPlayers()
 					break;
 				case PM_NEWLVL:
 					raflag = PlrDoNewLvl(pnum);
-					break;
-				case PM_QUIT:
-					raflag = false; // should not happen (at the moment)
 					break;
 				default:
 					ASSUME_UNREACHABLE
@@ -3158,7 +3155,6 @@ void SyncPlrAnim(int pnum)
 		aType = PA_SPELL;
 		break;
 	case PM_NEWLVL:
-	case PM_QUIT:
 		anim = p->_pNAnim;
 		aType = PA_STAND;
 		break;

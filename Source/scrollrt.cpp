@@ -67,7 +67,7 @@ static Uint32 guFpsStartTc;
 
 /* used in 1.00 debug */
 #if DEBUG_MODE
-const char *const szMonModeAssert[18] = {
+const char *const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -88,7 +88,7 @@ const char *const szMonModeAssert[18] = {
 	"talking"
 };
 
-const char *const szPlrModeAssert[12] = {
+const char *const szPlrModeAssert[NUM_PLR_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -99,8 +99,7 @@ const char *const szPlrModeAssert[12] = {
 	"getting hit",
 	"dying",
 	"casting a spell",
-	"changing levels",
-	"quitting"
+	"changing levels"
 };
 #endif
 
@@ -420,7 +419,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		int frames = SwapLE32(*(uint32_t *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char *szMode = "unknown action";
-			if (plr._pmode <= PM_QUIT)
+			if (plr._pmode < lengthof(szPlrModeAssert))
 				szMode = szPlrModeAssert[plr._pmode];
 			dev_fatal(
 				"Drawing player %d \"%s\" %s: facing %d, frame %d of %d",

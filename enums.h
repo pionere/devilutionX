@@ -2919,6 +2919,7 @@ typedef enum MON_MODE {
 	MM_STONE     = 15,
 	MM_HEAL      = 16,
 	MM_TALK      = 17,
+	NUM_MON_MODES
 } MON_MODE;
 
 typedef enum MON_ANIM {
@@ -2951,7 +2952,7 @@ typedef enum PLR_MODE {
 	PM_DEATH,
 	PM_SPELL,
 	PM_NEWLVL,
-	PM_QUIT,
+	NUM_PLR_MODES
 } PLR_MODE;
 
 typedef enum PLR_ANIM {
