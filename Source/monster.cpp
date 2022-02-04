@@ -1653,6 +1653,8 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	DoVision(mx, my, 8, true);
 
 	gbProcessPlayers = false;
+	for (i = 0; i < MAX_PLRS; i++)
+		plx(i)._pInvincible = TRUE;
 	gbSoundOn = false;
 }
 
@@ -2361,7 +2363,6 @@ void DoEnding()
 
 static void PrepDoEnding(bool soundOn)
 {
-	int pnum;
 	unsigned killLevel;
 
 	gbSoundOn = soundOn;
@@ -2373,14 +2374,7 @@ static void PrepDoEnding(bool soundOn)
 	if (killLevel > myplr._pRank)
 		myplr._pRank = killLevel;
 
-	if (IsMultiGame) {
-		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			plr._pmode = PM_QUIT;
-			plr._pInvincible = TRUE;
-			if (plr._pHitPoints < (1 << 6))
-				plr._pHitPoints = (1 << 6);
-		}
-	} else {
+	if (!IsMultiGame) {
 		// save the hero + items
 		pfile_write_hero(true);
 		// delete the game
