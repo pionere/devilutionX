@@ -825,10 +825,7 @@ void ClearPanels()
 static void ClearUI()
 {
 	ClearPanels();
-	if (gbQtextflag && currLvl._dType == DTYPE_TOWN) {
-		gbQtextflag = false;
-		stream_stop();
-	}
+	assert(!gbQtextflag);
 	gbAutomapflag = false;
 	msgdelay = 0;
 	gabPanbtn[PANBTN_MAINMENU] = false;
@@ -1358,6 +1355,10 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_DWM_RETOWN:
 	case DVL_DWM_NEWGAME:
 		nthread_run();
+		if (gbQtextflag) {
+			gbQtextflag = false;
+			stream_stop();
+		}
 		if (uMsg != DVL_DWM_NEWGAME) {
 			if (IsMultiGame)
 				pfile_write_hero(false);

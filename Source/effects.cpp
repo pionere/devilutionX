@@ -1297,6 +1297,7 @@ void PlayEffect(int mnum, int mode)
 	snd = &mapMonTypes[mon->_mMTidx].cmSnds[mode][sndIdx];
 	if (!snd->IsLoaded()) {
 		assert(mode == MS_SPECIAL);
+		assert(!monfiledata[monsterdata[mon->_mType].moFileNum].moSndSpecial);
 		return;
 	}
 	if (snd->IsPlaying()) {

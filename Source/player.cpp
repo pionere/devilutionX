@@ -1087,7 +1087,7 @@ static void StartStand(int pnum, int dir)
 void PlrStartStand(int pnum, int dir)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("PlrStartStand: illegal player %d", pnum);
+		dev_fatal("PlrStartStand: illegal player %d", pnum);
 	}
 	if (plr._pHitPoints >= (1 << 6)) {
 		StartStand(pnum, dir);
@@ -1876,15 +1876,11 @@ static void InitLevelChange(int pnum)
 		AddUnLight(plr._plid);
 		AddUnVision(plr._pvid);
 		RemovePlrMissiles(pnum);
-		if (pnum == mypnum) {
-			if (gbQtextflag) {
-				gbQtextflag = false;
-				stream_stop();
-			}
-			// to show the current player on the last frames before changing the level
-			// RemovePlrFromMap(pnum); should be skipped. This is no longer necessary
-			// because fade-out is turned off.
-		}
+		//if (pnum == mypnum) {
+		//	// to show the current player on the last frames before changing the level
+		//	// RemovePlrFromMap(pnum); should be skipped. This is no longer necessary
+		//	// because fade-out is turned off.
+		//}
 		RemovePlrFromMap(pnum);
 	} else {
 		assert(pnum != mypnum);

@@ -388,6 +388,8 @@ void ValidateData()
 				app_fatal("Damage type (%d) set for %s (%d), which is not a weapon.", ids.iDamType, ids.iName, i);
 			if (ids.iMinDam != 0 || ids.iMaxDam != 0)
 				app_fatal("Damage set for %s (%d), which is not a weapon.", ids.iName, i);
+			if (ids.iBaseCrit != 0)
+				app_fatal("Crit.chance set for %s (%d), which is not a weapon.", ids.iName, i);
 		}
 		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu)
 			minAmu = ids.iMinMLvl;

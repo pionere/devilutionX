@@ -216,10 +216,10 @@ void LoadGameLevel(int lvldir)
 
 	InitLvlAutomap();
 
-	if (lvldir != ENTRY_LOAD) {
+	//if (lvldir != ENTRY_LOAD) {
 		InitLighting();
 		InitVision();
-	}
+	//}
 
 	InitLevelMonsters();
 	IncProgress();
