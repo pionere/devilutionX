@@ -532,17 +532,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		gfx |= ANIM_ID_HEAVY_ARMOR;
 	}
 
-	if (plr._pgfxnum != gfx) {
-		plr._pgfxnum = gfx;
-		if (Loadgfx && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging) {
-			plr._pGFXLoad = 0;
-			LoadPlrGFX(pnum, PFILE_STAND);
-			SetPlrAnims(pnum);
-
-			NewPlrAnim(pnum, plr._pNAnim, plr._pdir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
-		}
-	}
-
 	// calculate bonuses
 	cc = cc * (btochit + 100) / 50;
 	plr._pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
@@ -631,6 +620,17 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		av += (plr._pLevel - 1) >> 3;
 #endif*/
 	plr._pIArrowVelBonus = av;
+
+	if (plr._pgfxnum != gfx) {
+		plr._pgfxnum = gfx;
+		if (Loadgfx && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging) {
+			plr._pGFXLoad = 0;
+			LoadPlrGFX(pnum, PFILE_STAND);
+			SetPlrAnims(pnum);
+
+			NewPlrAnim(pnum, plr._pNAnim, plr._pdir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
+		}
+	}
 
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 }
