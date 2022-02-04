@@ -1693,6 +1693,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 	int sl, ma;
 	BYTE sn = su.skill;
 	char sf = su.from;
+	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
 
 	if (sn != SPL_NULL && sn < NUM_SPELLS && (spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
 		if (sf == SPLFROM_MANA) {
@@ -1715,12 +1716,14 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 				gbRedrawFlags |= REDRAW_MANA_FLASK;
 			}
 			plr._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr._pSkillActivity[sn], UCHAR_MAX);
-			return true;
+		} else if (sf == SPLFROM_ABILITY) {
+			if ((plr._pAblSkills & SPELL_MASK(sn)) == 0)
+				return false;
+		} else {
+			if (!SyncUseItem(pnum, sf, sn))
+				return false;
 		}
-		if (sf == SPLFROM_ABILITY) {
-			return (plr._pAblSkills & SPELL_MASK(sn)) != 0;
-		}
-		return SyncUseItem(pnum, sf, sn);
+		return sameLvl;
 	}
 	msg_errorf("%s using an illegal skill.", plr._pName);
 	return false;
@@ -1730,7 +1733,7 @@ static unsigned On_SATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocAttack *cmd = (TCmdLocAttack *)pCmd;
 
-	if (CheckPlrSkillUse(pnum, cmd->lau) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, cmd->lau)) {
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_ATTACK;
 		plr.destParam1 = cmd->x;
@@ -1746,7 +1749,7 @@ static unsigned On_RATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocAttack *cmd = (TCmdLocAttack *)pCmd;
 
-	if (CheckPlrSkillUse(pnum, cmd->lau) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, cmd->lau)) {
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_RATTACK;
 		plr.destParam1 = cmd->x;
@@ -1762,7 +1765,7 @@ static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocSkill *cmd = (TCmdLocSkill *)pCmd;
 
-	if (CheckPlrSkillUse(pnum, cmd->lsu) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, cmd->lsu)) {
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_SPELL;
 		plr.destParam1 = cmd->x;
@@ -1850,7 +1853,7 @@ static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 	TCmdMonstAttack *cmd = (TCmdMonstAttack *)pCmd;
 	int mnum, x, y;
 
-	if (CheckPlrSkillUse(pnum, cmd->mau) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, cmd->mau)) {
 		mnum = SwapLE16(cmd->maMnum);
 		x = monsters[mnum]._mfutx;
 		y = monsters[mnum]._mfuty;
@@ -1870,7 +1873,7 @@ static unsigned On_ATTACKPID(TCmd *pCmd, int pnum)
 	TCmdPlrAttack *cmd = (TCmdPlrAttack *)pCmd;
 	int tnum;
 
-	if (CheckPlrSkillUse(pnum, cmd->pau) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, cmd->pau)) {
 		tnum = cmd->paPnum;
 		MakePlrPath(pnum, plx(tnum)._pfutx, plx(tnum)._pfuty, false);
 		plr.destAction = ACTION_ATTACKPLR;
@@ -1886,7 +1889,7 @@ static unsigned On_RATTACKID(TCmd *pCmd, int pnum)
 {
 	TCmdMonstAttack *cmd = (TCmdMonstAttack *)pCmd;
 
-	if (CheckPlrSkillUse(pnum, cmd->mau) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, cmd->mau)) {
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_RATTACKMON;
 		plr.destParam1 = SwapLE16(cmd->maMnum);  // target id
@@ -1901,7 +1904,7 @@ static unsigned On_RATTACKPID(TCmd *pCmd, int pnum)
 {
 	TCmdPlrAttack *cmd = (TCmdPlrAttack *)pCmd;
 
-	if (CheckPlrSkillUse(pnum, cmd->pau) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, cmd->pau)) {
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_RATTACKPLR;
 		plr.destParam1 = cmd->paPnum;    // target id
@@ -1916,7 +1919,7 @@ static unsigned On_SPELLID(TCmd *pCmd, int pnum)
 {
 	TCmdMonstSkill *cmd = (TCmdMonstSkill *)pCmd;
 
-	if (CheckPlrSkillUse(pnum, cmd->msu) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, cmd->msu)) {
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_SPELLMON;
 		plr.destParam1 = SwapLE16(cmd->msMnum); // mnum
@@ -1931,7 +1934,7 @@ static unsigned On_SPELLPID(TCmd *pCmd, int pnum)
 {
 	TCmdPlrSkill *cmd = (TCmdPlrSkill *)pCmd;
 
-	if (CheckPlrSkillUse(pnum, cmd->psu) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, cmd->psu)) {
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_SPELLPLR;
 		plr.destParam1 = cmd->psPnum;    // pnum
