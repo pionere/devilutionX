@@ -100,15 +100,6 @@ static void gamemenu_previous(bool bActivate)
 
 static void gamemenu_new_game(bool bActivate)
 {
-	int i;
-
-	for (i = 0; i < MAX_PLRS; i++) {
-		players[i]._pmode = PM_QUIT;
-		players[i]._pInvincible = TRUE;
-	}
-
-	gbDeathflag = false;
-	//scrollrt_draw_screen(true);
 	gamemenu_off();
 	gbRunGame = false;
 }
