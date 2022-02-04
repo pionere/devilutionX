@@ -269,6 +269,7 @@ void nthread_cleanup()
 
 void nthread_run()
 {
+	gbLvlLoad = 10;
 #ifndef NONET
 	if (sghThread != NULL && !_gbRunThread) {
 		_gbRunThread = true;

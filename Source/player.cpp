@@ -1881,7 +1881,6 @@ static void InitLevelChange(int pnum)
 				gbQtextflag = false;
 				stream_stop();
 			}
-			gbLvlLoad = 10;
 			// to show the current player on the last frames before changing the level
 			// RemovePlrFromMap(pnum); should be skipped. This is no longer necessary
 			// because fade-out is turned off.
