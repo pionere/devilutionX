@@ -1283,78 +1283,72 @@ void DrawStore()
 void STextESC()
 {
 	assert(!gbQtextflag);
-	/*if (gbQtextflag) {
-		gbQtextflag = false;
-		//if (currLvl._dType == DTYPE_TOWN)
-			stream_stop();
-	} else {*/
-		switch (stextflag) {
-		case STORE_SMITH:
-		case STORE_WITCH:
-		case STORE_BOY:
-		case STORE_BBOY:
-		case STORE_HEALER:
-		case STORE_STORY:
-		case STORE_TAVERN:
-		case STORE_DRUNK:
-		case STORE_BARMAID:
-			stextflag = STORE_NONE;
-			break;
-		case STORE_GOSSIP:
-			StartStore(stextshold);
-			stextsel = stextlhold;
-			break;
-		case STORE_SBUY:
-			StartStore(STORE_SMITH);
-			stextsel = STORE_SMITH_BUY;
-			break;
-		case STORE_SPBUY:
-			StartStore(STORE_SMITH);
-			stextsel = STORE_SMITH_SPBUY;
-			break;
-		case STORE_SSELL:
-			StartStore(STORE_SMITH);
-			stextsel = STORE_SMITH_SELL;
-			break;
-		case STORE_SREPAIR:
-			StartStore(STORE_SMITH);
-			stextsel = STORE_SMITH_REPAIR;
-			break;
-		case STORE_WBUY:
-			StartStore(STORE_WITCH);
-			stextsel = STORE_WITCH_BUY;
-			break;
-		case STORE_WSELL:
-			StartStore(STORE_WITCH);
-			stextsel = STORE_WITCH_SELL;
-			break;
-		case STORE_WRECHARGE:
-			StartStore(STORE_WITCH);
-			stextsel = STORE_WITCH_RECHARGE;
-			break;
-		case STORE_HBUY:
-			StartStore(STORE_HEALER);
-			stextsel = STORE_HEALER_BUY;
-			break;
-		case STORE_SIDENTIFY:
-			StartStore(STORE_STORY);
-			stextsel = STORE_STORY_IDENTIFY;
-			break;
-		case STORE_IDSHOW:
-			StartStore(STORE_SIDENTIFY);
-			break;
-		case STORE_NOMONEY:
-		case STORE_NOROOM:
-		case STORE_CONFIRM:
-			StartStore(stextshold);
-			stextsel = stextlhold;
-			stextsidx = stextvhold;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-	//}
+	switch (stextflag) {
+	case STORE_SMITH:
+	case STORE_WITCH:
+	case STORE_BOY:
+	case STORE_BBOY:
+	case STORE_HEALER:
+	case STORE_STORY:
+	case STORE_TAVERN:
+	case STORE_DRUNK:
+	case STORE_BARMAID:
+		stextflag = STORE_NONE;
+		break;
+	case STORE_GOSSIP:
+		StartStore(stextshold);
+		stextsel = stextlhold;
+		break;
+	case STORE_SBUY:
+		StartStore(STORE_SMITH);
+		stextsel = STORE_SMITH_BUY;
+		break;
+	case STORE_SPBUY:
+		StartStore(STORE_SMITH);
+		stextsel = STORE_SMITH_SPBUY;
+		break;
+	case STORE_SSELL:
+		StartStore(STORE_SMITH);
+		stextsel = STORE_SMITH_SELL;
+		break;
+	case STORE_SREPAIR:
+		StartStore(STORE_SMITH);
+		stextsel = STORE_SMITH_REPAIR;
+		break;
+	case STORE_WBUY:
+		StartStore(STORE_WITCH);
+		stextsel = STORE_WITCH_BUY;
+		break;
+	case STORE_WSELL:
+		StartStore(STORE_WITCH);
+		stextsel = STORE_WITCH_SELL;
+		break;
+	case STORE_WRECHARGE:
+		StartStore(STORE_WITCH);
+		stextsel = STORE_WITCH_RECHARGE;
+		break;
+	case STORE_HBUY:
+		StartStore(STORE_HEALER);
+		stextsel = STORE_HEALER_BUY;
+		break;
+	case STORE_SIDENTIFY:
+		StartStore(STORE_STORY);
+		stextsel = STORE_STORY_IDENTIFY;
+		break;
+	case STORE_IDSHOW:
+		StartStore(STORE_SIDENTIFY);
+		break;
+	case STORE_NOMONEY:
+	case STORE_NOROOM:
+	case STORE_CONFIRM:
+		StartStore(stextshold);
+		stextsel = stextlhold;
+		stextsidx = stextvhold;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
 }
 
 void STextUp()
@@ -2311,100 +2305,92 @@ static void S_DrunkEnter()
 
 void STextEnter()
 {
-	if (gbQtextflag) {
-		gbQtextflag = false;
-		//if (currLvl._dType == DTYPE_TOWN)
-			stream_stop();
-	} else {
-		switch (stextflag) {
-		case STORE_SMITH:
-			S_SmithEnter();
-			break;
-		case STORE_SPBUY:
-			S_SPBuyEnter();
-			break;
-		case STORE_SBUY:
-			S_SBuyEnter();
-			break;
-		case STORE_SSELL:
-			S_SSellEnter();
-			break;
-		case STORE_SREPAIR:
-			S_SRepairEnter();
-			break;
-		case STORE_WITCH:
-			S_WitchEnter();
-			break;
-		case STORE_WBUY:
-			S_WBuyEnter();
-			break;
-		case STORE_WSELL:
-			S_WSellEnter();
-			break;
-		case STORE_WRECHARGE:
-			S_WRechargeEnter();
-			break;
-		case STORE_NOMONEY:
-		case STORE_NOROOM:
-			StartStore(stextshold);
-			stextsel = stextlhold;
-			stextsidx = stextvhold;
-			break;
-		case STORE_CONFIRM:
-			S_ConfirmEnter();
-			break;
-		case STORE_BOY:
-			S_BoyEnter();
-			break;
-		case STORE_BBOY:
-			S_BBuyEnter();
-			break;
-		case STORE_HEALER:
-			S_HealerEnter();
-			break;
-		case STORE_STORY:
-			S_StoryEnter();
-			break;
-		case STORE_HBUY:
-			S_HBuyEnter();
-			break;
-		case STORE_SIDENTIFY:
-			S_SIDEnter();
-			break;
-		case STORE_GOSSIP:
-			S_TalkEnter();
-			break;
-		case STORE_IDSHOW:
-			StartStore(STORE_SIDENTIFY);
-			break;
-		case STORE_DRUNK:
-			S_DrunkEnter();
-			break;
-		case STORE_TAVERN:
-			S_TavernEnter();
-			break;
-		case STORE_BARMAID:
-			S_BarmaidEnter();
-			break;
-		case STORE_WAIT:
-			return;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-		PlaySFX(IS_TITLSLCT);
+	assert(!gbQtextflag);
+	switch (stextflag) {
+	case STORE_SMITH:
+		S_SmithEnter();
+		break;
+	case STORE_SPBUY:
+		S_SPBuyEnter();
+		break;
+	case STORE_SBUY:
+		S_SBuyEnter();
+		break;
+	case STORE_SSELL:
+		S_SSellEnter();
+		break;
+	case STORE_SREPAIR:
+		S_SRepairEnter();
+		break;
+	case STORE_WITCH:
+		S_WitchEnter();
+		break;
+	case STORE_WBUY:
+		S_WBuyEnter();
+		break;
+	case STORE_WSELL:
+		S_WSellEnter();
+		break;
+	case STORE_WRECHARGE:
+		S_WRechargeEnter();
+		break;
+	case STORE_NOMONEY:
+	case STORE_NOROOM:
+		StartStore(stextshold);
+		stextsel = stextlhold;
+		stextsidx = stextvhold;
+		break;
+	case STORE_CONFIRM:
+		S_ConfirmEnter();
+		break;
+	case STORE_BOY:
+		S_BoyEnter();
+		break;
+	case STORE_BBOY:
+		S_BBuyEnter();
+		break;
+	case STORE_HEALER:
+		S_HealerEnter();
+		break;
+	case STORE_STORY:
+		S_StoryEnter();
+		break;
+	case STORE_HBUY:
+		S_HBuyEnter();
+		break;
+	case STORE_SIDENTIFY:
+		S_SIDEnter();
+		break;
+	case STORE_GOSSIP:
+		S_TalkEnter();
+		break;
+	case STORE_IDSHOW:
+		StartStore(STORE_SIDENTIFY);
+		break;
+	case STORE_DRUNK:
+		S_DrunkEnter();
+		break;
+	case STORE_TAVERN:
+		S_TavernEnter();
+		break;
+	case STORE_BARMAID:
+		S_BarmaidEnter();
+		break;
+	case STORE_WAIT:
+		return;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
+	PlaySFX(IS_TITLSLCT);
 }
 
 void CheckStoreBtn()
 {
 	int y, ly;
 
-	if (gbQtextflag) {
-		gbQtextflag = false;
-		//if (currLvl._dType == DTYPE_TOWN)
-			stream_stop();
-	} else if (stextsel != -1 && stextflag != STORE_WAIT) {
+	assert(!gbQtextflag);
+	if (stextsel != -1 && stextflag != STORE_WAIT) {
 		if (gbWidePanel) {
 			if (MouseX < LTPANEL_X - SCREEN_X || MouseX > LTPANEL_X + LTPANEL_WIDTH - SCREEN_X)
 				return;

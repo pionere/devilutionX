@@ -586,6 +586,7 @@ static void ActionBtnDown(bool bShift)
 	assert(!gbDeathflag);
 	assert(!gbGamePaused);
 	assert(!gbDoomflag);
+	assert(!gbQtextflag);
 
 	if (gbSkillListFlag) {
 		SetSkill(bShift, false);
@@ -608,12 +609,6 @@ static void ActionBtnDown(bool bShift)
 
 	if (TryIconCurs(bShift))
 		return;
-
-	if (gbQtextflag) {
-		gbQtextflag = false;
-		stream_stop();
-		return;
-	}
 
 	if (gbQuestlog && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
 		CheckQuestlog();
@@ -670,6 +665,7 @@ static void AltActionBtnDown(bool bShift)
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	assert(!gbGamePaused);
 	assert(!gbDoomflag);
+	assert(!gbQtextflag);
 
 	if (myplr._pInvincible)
 		return;
@@ -691,12 +687,6 @@ static void AltActionBtnDown(bool bShift)
 
 	if (gbQuestlog) {
 		gbQuestlog = false;
-		return;
-	}
-
-	if (gbQtextflag) {
-		gbQtextflag = false;
-		stream_stop();
 		return;
 	}
 
@@ -901,6 +891,12 @@ static void PressKey(int vkey)
 
 	if (gbDoomflag) {
 		doom_close();
+		return;
+	}
+
+	if (gbQtextflag) {
+		gbQtextflag = false;
+		stream_stop();
 		return;
 	}
 
