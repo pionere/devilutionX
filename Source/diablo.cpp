@@ -663,12 +663,10 @@ static void AltActionBtnDown(bool bShift)
 {
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
+	assert(!gbDeathflag);
 	assert(!gbGamePaused);
 	assert(!gbDoomflag);
 	assert(!gbQtextflag);
-
-	if (myplr._pInvincible)
-		return;
 
 	if (gbSkillListFlag) {
 		SetSkill(bShift, true);

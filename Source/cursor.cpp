@@ -286,7 +286,7 @@ void CheckCursMove()
 	pcurstrig = -1;
 
 	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
-	if (myplr._pInvincible | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
+	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
 		return;
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		cursmx = mx;
