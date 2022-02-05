@@ -2736,17 +2736,17 @@ static void CheckNewPath(int pnum)
 }*/
 
 #if DEBUG_MODE || DEV_MODE
-static void ValidatePlayer()
+static void ValidatePlayer(int pnum)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
 	uint64_t msk;
 	int gt, i;
 
-	if ((unsigned)mypnum >= MAX_PLRS) {
-		dev_fatal("ValidatePlayer: illegal player %d", mypnum);
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("ValidatePlayer: illegal player %d", pnum);
 	}
-	p = &myplr;
+	p = &plr;
 	//if (p->_pLevel > MAXCHARLEVEL)
 	//	p->_pLevel = MAXCHARLEVEL;
 	assert(p->_pLevel <= MAXCHARLEVEL);
@@ -2754,6 +2754,7 @@ static void ValidatePlayer()
 	//	p->_pExperience = p->_pNextExper;
 	assert(p->_pExperience <= p->_pNextExper);
 
+	int numerrors = 0;
 	gt = 0;
 	pi = p->_pInvList;
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
@@ -2762,10 +2763,73 @@ static void ValidatePlayer()
 			//	pi->_ivalue = GOLD_MAX_LIMIT;
 			assert(pi->_ivalue <= GOLD_MAX_LIMIT);
 			gt += pi->_ivalue;
+		} else if (numerrors == 0 && pi->_itype != ITYPE_NONE) {
+			if (pi->_itype == ITYPE_PLACEHOLDER) {
+				int par = pi->_iPHolder;
+				if ((unsigned)par >= NUM_INV_GRID_ELEM) {
+					snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d bad ph of %d", i, pnum);
+					NetSendCmdString(0xFF);
+					numerrors++;
+				} else {
+					ItemStruct* is = &p->_pInvList[par];
+					if (is->_itype == ITYPE_NONE) {
+						snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d null ph of %d", i, pnum);
+						NetSendCmdString(0xFF);
+						numerrors++;
+					} else if (is->_itype == ITYPE_PLACEHOLDER) {
+						snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d ph ph of %d", i, pnum);
+						NetSendCmdString(0xFF);
+						numerrors++;
+					} else {
+						int xx = InvItemWidth[is->_iCurs + CURSOR_FIRSTITEM] / INV_SLOT_SIZE_PX;
+						int yy = InvItemHeight[is->_iCurs + CURSOR_FIRSTITEM] / INV_SLOT_SIZE_PX;
+						int x = i % 10;
+						int y = i / 10;
+						int px = par % 10;
+						int py = par / 10;
+						if (x < px || x >= px + xx) {
+							snprintf(gbNetMsg, sizeof(gbNetMsg), "InvI %d lx %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
+							NetSendCmdString(0xFF);
+							numerrors++;
+						} else if (y > py || y < py - yy) {
+							snprintf(gbNetMsg, sizeof(gbNetMsg), "InvI %d ly %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
+							NetSendCmdString(0xFF);
+							numerrors++;
+						}
+					}
+				}
+			} else {
+				int xx = InvItemWidth[pi->_iCurs + CURSOR_FIRSTITEM] / INV_SLOT_SIZE_PX;
+				int yy = InvItemWidth[pi->_iCurs + CURSOR_FIRSTITEM] / INV_SLOT_SIZE_PX;
+				for (int jj = 0; jj < yy; jj++) {
+					for (int ii = 0; ii < xx; ii++) {
+						if (ii != 0 || jj != 0) {
+							ItemStruct* is = &p->_pInvList[i + ii - jj * 10];
+							if (is->_itype != ITYPE_PLACEHOLDER) {
+								snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d no ph %d %d of %d", i, ii, jj, pnum);
+								NetSendCmdString(0xFF);
+								numerrors++;
+								ii = xx;
+								jj = yy;
+							} else if (is->_iPHolder != i) {
+								snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d bad ph %d %d vs %d of %d", i, ii, jj, is->_iPHolder, pnum);
+								NetSendCmdString(0xFF);
+								numerrors++;
+								ii = xx;
+								jj = yy;
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	//p->_pGold = gt;
-	assert(p->_pGold == gt);
+	if (p->_pGold != gt) {
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "Gold %d vs calcGold %d of %d", p->_pGold, gt, pnum);
+		NetSendCmdString(0xFF);
+	}
+	//assert(p->_pGold == gt);
 
 	msk = 0;
 	for (i = 1; i < NUM_SPELLS; i++) {
@@ -2828,9 +2892,6 @@ void ProcessPlayers()
 		}
 	}
 #endif
-#if DEBUG_MODE || DEV_MODE
-	ValidatePlayer();
-#endif
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel)
 			continue;
@@ -2842,6 +2903,9 @@ void ProcessPlayers()
 			else
 				plr._pInvincible--;
 		}
+#if DEBUG_MODE || DEV_MODE
+		ValidatePlayer(pnum);
+#endif
 		{
 			//CheckCheatStats(pnum);
 
