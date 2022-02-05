@@ -2832,7 +2832,17 @@ void ProcessPlayers()
 	ValidatePlayer();
 #endif
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel && !plr._pLvlChanging) {
+		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel)
+			continue;
+		if (plr._pInvincible && plr._pmode != PM_DEATH) {
+			if (plr._pLvlChanging)
+				continue;
+			if (plr.destAction != ACTION_NONE)
+				plr._pInvincible = 0;
+			else
+				plr._pInvincible--;
+		}
+		{
 			//CheckCheatStats(pnum);
 
 			if (pnum == mypnum) {

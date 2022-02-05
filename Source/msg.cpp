@@ -1470,7 +1470,7 @@ static unsigned On_WALKXY(TCmd *pCmd, int pnum)
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
 		MakePlrPath(pnum, cmd->x, cmd->y, true);
-		plr.destAction = ACTION_NONE;
+		plr.destAction = ACTION_WALK;
 	}
 
 	return sizeof(*cmd);
@@ -2267,8 +2267,8 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 	TCmdSendJoinLevel *cmd = (TCmdSendJoinLevel *)pCmd;
 
 	plr._pLvlChanging = FALSE;
-	if (plr._pmode != PM_DEATH)
-		plr._pInvincible = FALSE;
+	//if (plr._pmode != PM_DEATH)
+		plr._pInvincible = 40;
 	plr._pDunLevel = cmd->lLevel;
 	plr._px = cmd->px;
 	plr._py = cmd->py;

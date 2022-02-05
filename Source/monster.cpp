@@ -1173,7 +1173,8 @@ static void MonEnemy(int mnum)
 	bestsameroom = false;
 	if (mnum >= MAX_MINIONS) {
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel || plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6))
+			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
+				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6)*/)
 				continue;
 			sameroom = tv == dTransVal[plx(i)._px][plx(i)._py];
 			dist = std::max(abs(mon->_mx - plx(i)._px), abs(mon->_my - plx(i)._py));

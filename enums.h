@@ -4005,6 +4005,7 @@ typedef enum shrine_type {
 
 typedef enum action_id {
 	ACTION_NONE,
+	ACTION_WALK,
 	ACTION_ATTACK,
 	ACTION_ATTACKMON,
 	ACTION_ATTACKPLR,
@@ -4021,7 +4022,6 @@ typedef enum action_id {
 	ACTION_PICKUPAITEM, // put item in inventory
 	ACTION_OPERATETK,   // operate via telekinesis
 	ACTION_TALK,
-	ACTION_WALK,        // Automatic walk when using gamepad
 } action_id;
 
 typedef enum dlrg_flag {
