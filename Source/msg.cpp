@@ -1027,6 +1027,8 @@ void NetSendCmdSendJoinLevel()
 	cmd.lLevel = currLvl._dLevelIdx;
 	cmd.px = ViewX;
 	cmd.py = ViewY;
+	cmd.php = SwapLE32(myplr._pHPBase);
+	cmd.pmp = SwapLE32(myplr._pManaBase);
 	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
 	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
 
@@ -2290,6 +2292,8 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 			EventPlrMsg("Player '%s' (level %d) just joined the game", plr._pName, plr._pLevel);
 			msg_mask_monhit(pnum);
 		}
+		plr._pHPBase = SwapLE32(cmd->php);
+		plr._pManaBase = SwapLE32(cmd->pmp);
 		plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1) > gbNetUpdateRate ? SwapLE16(cmd->lTimer1) - gbNetUpdateRate : 0;
 		plr._pTimer[PLTR_RAGE] = msg_calc_rage(cmd->lTimer2);
 		if (currLvl._dLevelIdx == plr._pDunLevel) {

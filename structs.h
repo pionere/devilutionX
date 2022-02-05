@@ -1293,6 +1293,8 @@ typedef struct TCmdSendJoinLevel {
 	BYTE lLevel;
 	BYTE px;
 	BYTE py;
+	INT php;
+	INT pmp;
 	WORD lTimer1;
 	WORD lTimer2;
 } TCmdSendJoinLevel;
