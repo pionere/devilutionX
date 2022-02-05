@@ -1468,7 +1468,6 @@ static unsigned On_WALKXY(TCmd *pCmd, int pnum)
 	TCmdLoc *cmd = (TCmdLoc *)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
 		MakePlrPath(pnum, cmd->x, cmd->y, true);
 		plr.destAction = ACTION_WALK;
 	}
@@ -1853,14 +1852,10 @@ static unsigned On_OPOBJT(TCmd *pCmd, int pnum)
 static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 {
 	TCmdMonstAttack *cmd = (TCmdMonstAttack *)pCmd;
-	int mnum, x, y;
+	int mnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->mau)) {
 		mnum = SwapLE16(cmd->maMnum);
-		x = monsters[mnum]._mfutx;
-		y = monsters[mnum]._mfuty;
-		if (abs(plr._px - x) > 1 || abs(plr._py - y) > 1)
-			MakePlrPath(pnum, x, y, false);
 		plr.destAction = ACTION_ATTACKMON;
 		plr.destParam1 = mnum;
 		plr.destParam2 = cmd->mau.skill; // attack skill
@@ -1877,7 +1872,6 @@ static unsigned On_ATTACKPID(TCmd *pCmd, int pnum)
 
 	if (CheckPlrSkillUse(pnum, cmd->pau)) {
 		tnum = cmd->paPnum;
-		MakePlrPath(pnum, plx(tnum)._pfutx, plx(tnum)._pfuty, false);
 		plr.destAction = ACTION_ATTACKPLR;
 		plr.destParam1 = tnum;
 		plr.destParam2 = cmd->pau.skill; // attack skill

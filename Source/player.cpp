@@ -3160,10 +3160,6 @@ void MakePlrPath(int pnum, int xx, int yy, bool endspace)
 		app_fatal("MakePlrPath: illegal player %d", pnum);
 	}
 
-	if (plr._pfutx == xx && plr._pfuty == yy) {
-		return;
-	}
-
 	path = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, plr.walkpath);
 	if (path == 0) {
 		return;
