@@ -2261,8 +2261,8 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 	TCmdSendJoinLevel *cmd = (TCmdSendJoinLevel *)pCmd;
 
 	plr._pLvlChanging = FALSE;
-	//if (plr._pmode != PM_DEATH)
-		plr._pInvincible = 40;
+	if (plr._pmode != PM_DEATH)
+		plr._pInvincible = FALSE;
 	plr._pDunLevel = cmd->lLevel;
 	plr._px = cmd->px;
 	plr._py = cmd->py;

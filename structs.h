@@ -229,7 +229,7 @@ typedef struct PlayerStruct {
 	int destParam3;
 	int destParam4;
 	BOOLEAN _pActive;
-	BYTE _pInvincible; // Not zero when the player is in a protected state (level-changing/dead/diabloEnd). Might be out of sync if not on the same level as the current player.
+	BOOLEAN _pInvincible;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
 	BYTE _pDunLevel;
 	BYTE _pClass;
