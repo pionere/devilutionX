@@ -11,15 +11,24 @@ DEVILUTION_BEGIN_NAMESPACE
 #define ALIGNMENT(x86, x64) int alignment[x86];
 #define ALIGNMENT32(num) int alignment[num];
 #define ALIGNMENT64(num)
+#define ALIGN { 0 }
+#define ALIGN32 { 0 }
+#define ALIGN64
 #elif INT_MAX == INT32_MAX && INTPTR_MAX == INT64_MAX
 #define X86_64bit_COMP
 #define ALIGNMENT(x86, x64) int alignment[x64];
 #define ALIGNMENT32(num)
 #define ALIGNMENT64(num) int alignment[num];
+#define ALIGN { 0 }
+#define ALIGN32
+#define ALIGN64 { 0 }
 #else
 #define ALIGNMENT(x86, x64)
 #define ALIGNMENT32(num)
 #define ALIGNMENT64(num)
+#define ALIGN
+#define ALIGN32
+#define ALIGN64
 #endif
 //////////////////////////////////////////////////
 // control
