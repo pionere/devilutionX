@@ -8,8 +8,18 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #if INT_MAX == INT32_MAX && INTPTR_MAX == INT32_MAX
 #define X86_32bit_COMP
+#define ALIGNMENT(x86, x64) int alignment[x86];
+#define ALIGNMENT32(num) int alignment[num];
+#define ALIGNMENT64(num)
 #elif INT_MAX == INT32_MAX && INTPTR_MAX == INT64_MAX
 #define X86_64bit_COMP
+#define ALIGNMENT(x86, x64) int alignment[x64];
+#define ALIGNMENT32(num)
+#define ALIGNMENT64(num) int alignment[num];
+#else
+#define ALIGNMENT(x86, x64)
+#define ALIGNMENT32(num)
+#define ALIGNMENT64(num)
 #endif
 //////////////////////////////////////////////////
 // control
@@ -69,11 +79,7 @@ typedef struct UniqItemData {
 	BYTE UIPower6;
 	int UIParam6a;
 	int UIParam6b;
-#ifdef X86_32bit_COMP
-	int alignment[3];
-#elif defined(X86_64bit_COMP)
-	int alignment[2];
-#endif
+	ALIGNMENT(3, 2)
 } UniqItemData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -85,9 +91,7 @@ typedef struct ItemFileData {
 	int idSFX;          // sounds effect of dropping the item on ground.
 	int iiSFX;          // sounds effect of placing the item in the inventory.
 	int iAnimLen;       // item drop animation length
-#ifdef X86_64bit_COMP
-	int alignment[2];
-#endif
+	ALIGNMENT64(2)
 } ItemFileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -117,11 +121,7 @@ typedef struct ItemData {
 	BYTE iMaxAC;
 	BYTE iDurability;
 	int iValue;
-#ifdef X86_32bit_COMP
-	int alignment[5];
-#elif defined(X86_64bit_COMP)
-	int alignment[2];
-#endif
+	ALIGNMENT(5, 2)
 } ItemData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -205,11 +205,7 @@ typedef struct ItemStruct {
 	int _iVAdd;
 	int _iVMult;
 	BOOL _iStatFlag;
-#ifdef X86_32bit_COMP
-	int alignment[5];
-#elif defined(X86_64bit_COMP)
-	int alignment[4];
-#endif
+	ALIGNMENT(5, 4)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -387,11 +383,7 @@ typedef struct PlayerStruct {
 	BYTE* _pHData;
 	BYTE* _pDData;
 	BYTE* _pBData;
-#ifdef X86_32bit_COMP
-	int alignment[205];
-#elif defined(X86_64bit_COMP)
-	int alignment[118];
-#endif
+	ALIGNMENT(205, 118)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -430,9 +422,7 @@ typedef struct MissileData {
 	int miSFX;
 	BYTE mlSFXCnt;
 	BYTE miSFXCnt;
-#ifdef X86_64bit_COMP
-	int alignment[4];
-#endif
+	ALIGNMENT64(4)
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -448,11 +438,7 @@ typedef struct MisFileData {
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
 	int mfAnimXOffset;
-#ifdef X86_32bit_COMP
-	int alignment[2];
-#elif defined(X86_64bit_COMP)
-	int alignment[14];
-#endif
+	ALIGNMENT(2, 14)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
@@ -506,11 +492,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7;
 	int _miVar8;
-#ifdef X86_32bit_COMP
-	int alignment[4];
-#elif defined(X86_64bit_COMP)
-	int alignment[18];
-#endif
+	ALIGNMENT(4, 18)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -561,9 +543,7 @@ typedef struct AnimStruct {
 	BYTE* aData[NUM_DIRS];
 	int aFrames;
 	int aFrameLen;
-#ifdef X86_32bit_COMP
-	int alignment[1];
-#endif
+	ALIGNMENT32(1)
 } AnimStruct;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align AnimStruct closer to power of 2 for better performance.");
@@ -597,9 +577,7 @@ typedef struct MonsterData {
 	uint16_t mMagicRes2;
 	uint16_t mTreasure;
 	uint16_t mExp;
-#ifdef X86_32bit_COMP
-	int alignment[3];
-#endif
+	ALIGNMENT32(3)
 } MonsterData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
@@ -634,9 +612,7 @@ typedef struct MapMonData {
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
 	const MonsterData* cmData;
-#ifdef X86_32bit_COMP
-	int alignment[2];
-#endif
+	ALIGNMENT32(2)
 } MapMonData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 256, "Align MapMonData closer to power of 2 for better performance.");
@@ -724,11 +700,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
-#ifdef X86_32bit_COMP
-	int alignment[9];
-#elif defined(X86_64bit_COMP)
-	int alignment[2];
-#endif
+	ALIGNMENT(9, 2)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -754,9 +726,7 @@ typedef struct UniqMonData {
 	BYTE mUnqAC;
 	BYTE mQuestId;
 	int mtalkmsg;
-#ifdef X86_64bit_COMP
-	int alignment[4];
-#endif
+	ALIGNMENT64(4)
 } UniqMonData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -787,9 +757,7 @@ typedef struct ObjectData {
 	BYTE oDoorFlag;
 	BYTE oSelFlag;
 	BOOLEAN oTrapFlag;
-#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-	int alignment[1];
-#endif
+	ALIGNMENT(1, 1)
 } ObjectData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -808,9 +776,7 @@ typedef struct ObjFileData {
 	BOOLEAN oMissFlag;
 	BOOLEAN oLightFlag;
 	BYTE oBreak;
-#ifdef X86_32bit_COMP
-	int alignment[1];
-#endif
+	ALIGNMENT32(1)
 } ObjFileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -850,11 +816,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-#ifdef X86_32bit_COMP
-	int alignment[7];
-#elif defined(X86_64bit_COMP)
-	int alignment[4];
-#endif
+	ALIGNMENT(7, 4)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1364,9 +1326,7 @@ typedef struct LevelData {
 	BYTE dSetLvlDunX;
 	BYTE dSetLvlDunY;
 	BYTE dMonTypes[32];
-#ifdef X86_32bit_COMP
-	int alignment[7];
-#endif
+	ALIGNMENT32(7)
 } LevelData;
 
 #ifdef X86_32bit_COMP
@@ -1447,9 +1407,7 @@ typedef struct SpellData {
 	WORD sStaffMax;
 	int sBookCost;
 	int sStaffCost; // == sScrollCost
-#ifdef X86_64bit_COMP
-	int alignment[6];
-#endif
+	ALIGNMENT64(6)
 } SpellData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellData to power of 2 for better performance.");
@@ -1485,11 +1443,7 @@ typedef struct TownerStruct {
 	//BOOL _tSelFlag; // unused
 	int _tSeed;
 	const char* _tName;
-#ifdef X86_32bit_COMP
-	int alignment[9];
-#elif defined(X86_64bit_COMP)
-	int alignment[6];
-#endif
+	ALIGNMENT(9, 6)
 } TownerStruct;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");
@@ -1623,9 +1577,7 @@ typedef struct DeadStruct {
 	int _deadWidth;
 	int _deadXOffset;
 	BYTE _deadtrans;
-#ifdef X86_64bit_COMP
-	int alignment[12];
-#endif
+	ALIGNMENT64(12)
 } DeadStruct;
 
 #ifdef X86_32bit_COMP
@@ -1714,11 +1666,7 @@ typedef struct PATHNODE {
 	struct PATHNODE* Parent;
 	struct PATHNODE* Child[NUM_DIRS];
 	struct PATHNODE* NextNode;
-#ifdef X86_32bit_COMP
-	int alignment[3];
-#elif defined(X86_64bit_COMP)
-	int alignment[8];
-#endif
+	ALIGNMENT(3, 8)
 } PATHNODE;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
