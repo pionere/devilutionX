@@ -284,8 +284,8 @@ void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
 
     while (len >= 16) {
         len -= 16;
-        __m128i aa = _mm_loadu_si128(srcPos);
-        __m128i bb = _mm_loadu_si128(currPos);
+        __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
+        __m128i bb = _mm_loadu_si128((const __m128i*)currPos);
 
         __m128i cc = _mm_adds_epi16(aa, bb);
         _mm_storeu_si128(currPos, cc);
@@ -307,8 +307,8 @@ void Mix_Mixer_AUDIOS16_AVX(void* dst, const void* src, unsigned len)
 
     while (len >= 32) {
         len -= 32;
-        __m256i aa = _mm256_loadu_si256(srcPos);
-        __m256i bb = _mm256_loadu_si256(currPos);
+        __m256i aa = _mm256_loadu_si256((const __m256i*)srcPos);
+        __m256i bb = _mm256_loadu_si256((const __m256i*)currPos);
 
         __m256i cc = _mm256_adds_epi16(aa, bb);
         _mm_storeu_si256(currPos, cc);
@@ -337,7 +337,7 @@ void Mix_Converter_AUDIO16_Mono2Stereo_AVX(Mix_BuffOps* buf)
     while (&currPos[16] <= srcPos) {
         srcPos -= 16;
         dstPos -= 16;
-        __m256i aa = _mm256_loadu_si256(srcPos);
+        __m256i aa = _mm256_loadu_si256((const __m256i*)srcPos);
         __m256i bb = _mm256_unpackhi_epi16(aa, aa);
         _mm256_storeu_si256(dstPos, bb);
 
@@ -367,7 +367,7 @@ void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
     while (&currPos[8] <= srcPos) {
         srcPos -= 8;
         dstPos -= 8;
-        __m128i aa = _mm_loadu_si128(srcPos);
+        __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
         __m128i bb = _mm_unpackhi_epi16(aa, aa);
         _mm_storeu_si128(dstPos, bb);
 
@@ -414,8 +414,8 @@ void Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
     buf->endPos = endPos;
 
     while (dstPos <= endPos - 16) {
-        __m128i aa = _mm_loadu_si128((__m128i*)srcPos);
-        __m128i bb = _mm_loadu_si128((__m128i*)&srcPos[16]);
+        __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
+        __m128i bb = _mm_loadu_si128((const __m128i*)&srcPos[16]);
         //aa = _mm_slli_epi16(aa, 8);
         aa = _mm_srli_epi16(aa, 8);
         //bb = _mm_slli_epi16(bb, 8);
@@ -463,8 +463,8 @@ void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
     buf->endPos = endPos;
 
     while (dstPos <= endPos - 8) {
-        __m128i aa = _mm_loadu_si128((__m128i*)srcPos);
-        __m128i bb = _mm_loadu_si128((__m128i*)&srcPos[8]);
+        __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
+        __m128i bb = _mm_loadu_si128((const __m128i*)&srcPos[8]);
 
         aa = _mm_shufflehi_epi16(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
         aa = _mm_shufflelo_epi16(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
@@ -521,7 +521,7 @@ void Mix_Converter_U8_S16LSB_AVX(Mix_BuffOps* buf)
         srcPos -= 32;
         dstPos -= 32;
 
-        __m256i aa = _mm256_loadu_si256((__m256i*)srcPos);
+        __m256i aa = _mm256_loadu_si256((const __m256i*)srcPos);
 
         __m256i bb = _mm256_unpackhi_epi8(aa, zero);// zfill(a[hi], 16)
         bb = _mm256_sub_epi16(bb, sub);				// subtract 128
@@ -560,7 +560,7 @@ void Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
         srcPos -= 16;
         dstPos -= 16;
 
-        __m128i aa = _mm_loadu_si128((__m128i*)srcPos);
+        __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
 
         __m128i bb = _mm_unpackhi_epi8(aa, zero);	// zfill(a[hi], 16)
         bb = _mm_sub_epi16(bb, sub);				// subtract 128
