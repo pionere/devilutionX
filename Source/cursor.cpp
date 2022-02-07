@@ -233,9 +233,9 @@ void CheckCursMove()
 	// Predict the next frame when walking to avoid input jitter
 	if (ScrollInfo._sdir != SDIR_NONE) {
 		fx = myplr._pVar6 / 256; // WALK_XOFF
-		fx -= (myplr._pVar6 + myplr._pxvel) / 256;
+		fx -= (myplr._pVar6 + myplr._pVar4) / 256; // WALK_XOFF + WALK_XVEL
 		fy = myplr._pVar7 / 256; // WALK_YOFF
-		fy -= (myplr._pVar7 + myplr._pyvel) / 256;
+		fy -= (myplr._pVar7 + myplr._pVar5) / 256; // WALK_YOFF + WALK_YVEL
 		sx -= fx;
 		sy -= fy;
 	}

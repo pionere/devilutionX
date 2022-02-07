@@ -255,8 +255,6 @@ typedef struct PlayerStruct {
 	int _poldy;   // Most recent Y-position in dPlayer.
 	int _pxoff;   // Player sprite's pixel X-offset from tile.
 	int _pyoff;   // Player sprite's pixel Y-offset from tile.
-	int _pxvel;   // Pixel X-velocity while walking. Indirectly applied to _pxoff via _pvar6
-	int _pyvel;   // Pixel Y-velocity while walking. Indirectly applied to _pyoff via _pvar7
 	int _pdir;    // Direction faced by player (direction enum)
 	BYTE* _pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
@@ -392,7 +390,7 @@ typedef struct PlayerStruct {
 	BYTE* _pHData;
 	BYTE* _pDData;
 	BYTE* _pBData;
-	ALIGNMENT(205, 118)
+	ALIGNMENT(207, 120)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -647,8 +645,6 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _moldy;             // Most recent Y-position in dMonster.
 	int _mxoff;             // Monster sprite's pixel X-offset from tile.
 	int _myoff;             // Monster sprite's pixel Y-offset from tile.
-	int _mxvel;             // Pixel X-velocity while walking. Applied to _mxoff
-	int _myvel;             // Pixel Y-velocity while walking. Applied to _myoff
 	int _mdir;              // Direction faced by monster (direction enum)
 	int _menemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
 	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
@@ -709,7 +705,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
-	ALIGNMENT(9, 2)
+	ALIGNMENT(11, 4)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1432,8 +1428,6 @@ typedef struct TownerStruct {
 	int _ty;    // Tile Y-position of NPC
 	int _txoff; // Sprite X-offset (unused)
 	int _tyoff; // Sprite Y-offset (unused)
-	int _txvel; // X-velocity during movement (unused)
-	int _tyvel; // Y-velocity during movement (unused)
 	int _tdir;  // Facing of NPC (unused)
 	BYTE* _tAnimData;
 	int _tAnimFrameLen; // Tick length of each frame in the current animation
@@ -1452,7 +1446,7 @@ typedef struct TownerStruct {
 	//BOOL _tSelFlag; // unused
 	int _tSeed;
 	const char* _tName;
-	ALIGNMENT(9, 6)
+	ALIGNMENT(11, 8)
 } TownerStruct;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");

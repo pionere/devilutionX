@@ -358,8 +358,6 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._poldy);
 	LoadInt(&plr._pxoff);
 	LoadInt(&plr._pyoff);
-	LoadInt(&plr._pxvel);
-	LoadInt(&plr._pyvel);
 	LoadInt(&plr._pdir);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
@@ -539,8 +537,6 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->_moldy);
 	LoadInt(&mon->_mxoff);
 	LoadInt(&mon->_myoff);
-	LoadInt(&mon->_mxvel);
-	LoadInt(&mon->_myvel);
 	LoadInt(&mon->_mdir);
 	LoadInt(&mon->_menemy);
 	LoadByte(&mon->_menemyx);
@@ -1087,8 +1083,6 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._poldy);
 	SaveInt(&plr._pxoff);
 	SaveInt(&plr._pyoff);
-	SaveInt(&plr._pxvel);
-	SaveInt(&plr._pyvel);
 	SaveInt(&plr._pdir);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
@@ -1263,8 +1257,6 @@ static void SaveMonster(int mnum)
 	SaveInt(&mon->_moldy);
 	SaveInt(&mon->_mxoff);
 	SaveInt(&mon->_myoff);
-	SaveInt(&mon->_mxvel);
-	SaveInt(&mon->_myvel);
 	SaveInt(&mon->_mdir);
 	SaveInt(&mon->_menemy);
 	SaveByte(&mon->_menemyx);
@@ -1543,7 +1535,7 @@ void SaveGame()
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 14004 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
+	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 13996 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
 	// initial
 	i = SAVE_INITIAL;
 	SaveInt(&i);
@@ -1593,11 +1585,11 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 196 + 2 * MAXMISSILES
+	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 188 + 2 * MAXMISSILES
 	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + 2 * MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 196 + 2 * MAXMISSILES
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 188 + 2 * MAXMISSILES
 	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100) + 2 * MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);

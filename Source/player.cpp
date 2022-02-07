@@ -777,8 +777,6 @@ void InitLvlPlayer(int pnum)
 
 	//plr._pxoff = 0;
 	//plr._pyoff = 0;
-	//plr._pxvel = 0;
-	//plr._pyvel = 0;
 
 	//ClearPlrPVars(pnum);
 
@@ -1151,8 +1149,8 @@ static void PlrChangeOffset(int pnum)
 	px = plr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
 	py = plr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
 
-	plr._pVar6 += plr._pxvel;
-	plr._pVar7 += plr._pyvel;
+	plr._pVar6 += plr._pVar4; // WALK_XOFF <- WALK_XVEL
+	plr._pVar7 += plr._pVar5; // WALK_YOFF <- WALK_YVEL
 
 	plr._pxoff = plr._pVar6 >> PLR_WALK_SHIFT;
 	plr._pyoff = plr._pVar7 >> PLR_WALK_SHIFT;
@@ -1181,8 +1179,8 @@ static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
 	int px, py;
 
 	plr._pmode = PM_WALK;
-	plr._pxvel = xvel;
-	plr._pyvel = yvel;
+	plr._pVar4 = xvel;   // WALK_XVEL : velocity of the player in the X-direction
+	plr._pVar5 = yvel;   // WALK_YVEL : velocity of the player in the Y-direction
 	plr._pxoff = 0;
 	plr._pyoff = 0;
 	//plr._pVar3 = dir; // Player's direction when ending movement.
@@ -1210,8 +1208,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	int px, py;
 
 	plr._pmode = PM_WALK2;
-	plr._pxvel = xvel;
-	plr._pyvel = yvel;
+	plr._pVar4 = xvel;       // WALK_XVEL : velocity of the player in the X-direction
+	plr._pVar5 = yvel;       // WALK_YVEL : velocity of the player in the Y-direction
 	plr._pxoff = xoff;       // Offset player sprite to align with their previous tile position
 	plr._pyoff = yoff;
 	plr._pVar6 = xoff << PLR_WALK_SHIFT;  // WALK_XOFF : _pxoff value in a higher range

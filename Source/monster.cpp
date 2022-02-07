@@ -1353,8 +1353,8 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
 
 	mon = &monsters[mnum];
 	mon->_mmode = MM_WALK;
-	mon->_mxvel = xvel;
-	mon->_myvel = yvel;
+	mon->_mVar4 = xvel;   // WALK_XVEL : velocity of the monster in the X-direction
+	mon->_mVar5 = yvel;   // WALK_YVEL : velocity of the monster in the Y-direction
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
 	//mon->_mVar1 = xadd; // dx after the movement
@@ -1386,8 +1386,8 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 
 	mon = &monsters[mnum];
 	mon->_mmode = MM_WALK2;
-	mon->_mxvel = xvel;
-	mon->_myvel = yvel;
+	mon->_mVar4 = xvel;   // WALK_XVEL : velocity of the monster in the X-direction
+	mon->_mVar5 = yvel;   // WALK_YVEL : velocity of the monster in the Y-direction
 	mon->_mxoff = xoff;
 	mon->_myoff = yoff;
 	mon->_mVar6 = xoff << MON_WALK_SHIFT; // MWALK_XOFF : _mxoff in a higher range
@@ -1957,8 +1957,8 @@ static bool MonDoWalk(int mnum)
 				PlayEffect(mnum, MS_SPECIAL);
 #endif
 			//mon->_mVar8++;
-			mon->_mVar6 += mon->_mxvel; // MWALK_XOFF
-			mon->_mVar7 += mon->_myvel; // MWALK_YOFF
+			mon->_mVar6 += mon->_mVar4; // MWALK_XOFF <- WALK_XVEL
+			mon->_mVar7 += mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
 			mon->_mxoff = mon->_mVar6 >> MON_WALK_SHIFT;
 			mon->_myoff = mon->_mVar7 >> MON_WALK_SHIFT;
 			if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
