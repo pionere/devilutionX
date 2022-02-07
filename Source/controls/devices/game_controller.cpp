@@ -5,7 +5,6 @@
 
 #include "controls/controller_motion.h"
 #include "controls/plrctrls.h"
-#include "utils/stubs.h"
 #include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -108,9 +107,12 @@ SDL_GameControllerButton GameController::ToSdlGameControllerButton(ControllerBut
 		return SDL_CONTROLLER_BUTTON_DPAD_LEFT;
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
-	default:
-		return SDL_CONTROLLER_BUTTON_INVALID;
+	case ControllerButton_AXIS_TRIGGERLEFT:
+	case ControllerButton_AXIS_TRIGGERRIGHT:
+		ASSUME_UNREACHABLE
+		break;
 	}
+	return SDL_CONTROLLER_BUTTON_INVALID;
 }
 
 bool GameController::IsPressed(ControllerButton button) const

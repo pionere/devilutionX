@@ -5,7 +5,6 @@
 
 #include "controls/controller_motion.h"
 #include "controls/plrctrls.h"
-#include "utils/stubs.h"
 #include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -165,7 +164,9 @@ int Joystick::ToSdlJoyButton(ControllerButton button)
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return JOY_BUTTON_DPAD_RIGHT;
 #endif
-	default:
+	case ControllerButton_AXIS_TRIGGERLEFT:
+	case ControllerButton_AXIS_TRIGGERRIGHT:
+		ASSUME_UNREACHABLE;
 		break;
 	}
 	return -1;

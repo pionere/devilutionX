@@ -1,6 +1,5 @@
 #include "diabloui.h"
 
-#include "utils/stubs.h"
 #include "utils/utf8.h"
 #include <string>
 
