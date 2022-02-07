@@ -899,8 +899,7 @@ void LoadGame()
 	LoadInt(&gnReturnLvl);
 	LoadByte(&gbTownWarps);
 	LoadByte(&gbWaterDone);
-	LoadByte(&gbDungMsgs);
-	LoadByte(&gbDungMsgs2);
+	tbuff += 2; // Alignment
 	LoadInt32(&guLvlVisited);
 	// load meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
@@ -1576,8 +1575,7 @@ void SaveGame()
 	SaveInt(&gnReturnLvl);
 	SaveByte(&gbTownWarps);
 	SaveByte(&gbWaterDone);
-	SaveByte(&gbDungMsgs);
-	SaveByte(&gbDungMsgs2);
+	tbuff += 2; // Alignment
 	SaveInt32(&guLvlVisited);
 	// save meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)

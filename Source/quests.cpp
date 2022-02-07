@@ -29,8 +29,6 @@ unsigned numqlines;
 unsigned qline;
 BYTE gbTownWarps;
 BYTE gbWaterDone;
-BYTE gbDungMsgs;
-BYTE gbDungMsgs2;
 static_assert(NUM_LEVELS <= 32, "guLvlVisited can not maintain too many levels.");
 uint32_t guLvlVisited;
 int gnSfxDelay;
@@ -78,8 +76,6 @@ void InitQuestGFX()
 
 	gbTownWarps = 0;
 	gbWaterDone = 0;
-	gbDungMsgs = 0;
-	gbDungMsgs2 = 0;
 	guLvlVisited = 0;
 
 	assert(pQLogCel == NULL);
@@ -734,45 +730,36 @@ void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 void PlayDungMsgs()
 {
 	gnSfxDelay = 0;
-	if (IsMultiGame)
+	if (IsMultiGame || IsLvlVisited(currLvl._dLevelIdx))
 		return;
 
-	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !(gbDungMsgs & DMSG_CATHEDRAL)) {
-		gbDungMsgs |= DMSG_CATHEDRAL;
+	if (currLvl._dLevelIdx == DLV_CATHEDRAL1) {
 		gnSfxDelay = 40;
 		gnSfxNum = TEXT_DM_CATHEDRAL;
-	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !(gbDungMsgs & DMSG_CATACOMBS)) {
-		gbDungMsgs |= DMSG_CATACOMBS;
+	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1) {
 		gnSfxDelay = 40;
 		gnSfxNum = TEXT_DM_CATACOMBS;
-	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !(gbDungMsgs & DMSG_CAVES)) {
-		gbDungMsgs |= DMSG_CAVES;
+	} else if (currLvl._dLevelIdx == DLV_CAVES1) {
 		gnSfxDelay = 40;
 		gnSfxNum = TEXT_DM_CAVES;
-	} else if (currLvl._dLevelIdx == DLV_HELL1 && !(gbDungMsgs & DMSG_HELL)) {
-		gbDungMsgs |= DMSG_HELL;
+	} else if (currLvl._dLevelIdx == DLV_HELL1) {
 		gnSfxDelay = 40;
 		gnSfxNum = TEXT_DM_HELL;
-	} else if (currLvl._dLevelIdx == DLV_HELL4 && !(gbDungMsgs & DMSG_DIABLO)) {
-		gbDungMsgs |= DMSG_DIABLO;
+	} else if (currLvl._dLevelIdx == DLV_HELL4) {
 		gnSfxDelay = 40;
 		gnSfxNum = TEXT_DM_DIABLO;
 #ifdef HELLFIRE
-	} else if (currLvl._dLevelIdx == DLV_NEST1 && !(gbDungMsgs2 & DMSG2_DEFILER)) {
-		gbDungMsgs2 |= DMSG2_DEFILER;
+	} else if (currLvl._dLevelIdx == DLV_NEST1) {
 		gnSfxDelay = 10;
 		gnSfxNum = TEXT_DM_NEST;
-	} else if (currLvl._dLevelIdx == DLV_NEST3 && !(gbDungMsgs2 & DMSG2_DEFILER1)) {
-		gbDungMsgs2 |= DMSG2_DEFILER1;
+	} else if (currLvl._dLevelIdx == DLV_NEST3) {
 		gnSfxDelay = 10;
 		gnSfxNum = TEXT_DM_DEFILER;
-	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !(gbDungMsgs2 & DMSG2_DEFILER2)) {
-		gbDungMsgs2 |= DMSG2_DEFILER2;
+	} else if (currLvl._dLevelIdx == DLV_CRYPT1) {
 		gnSfxDelay = 30;
 		gnSfxNum = TEXT_DM_CRYPT;
 #endif
-	} else if (currLvl._dLevelIdx == SL_SKELKING && !(gbDungMsgs & DMSG_SKING)) {
-		gbDungMsgs |= DMSG_SKING;
+	} else if (currLvl._dLevelIdx == SL_SKELKING) {
 		gnSfxDelay = 30;
 		gnSfxNum = TEXT_DM_SKING;
 	}
