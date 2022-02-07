@@ -79,6 +79,9 @@ ControllerButton GameController::ToControllerButton(const SDL_Event &event)
 SDL_GameControllerButton GameController::ToSdlGameControllerButton(ControllerButton button)
 {
 	switch (button) {
+	case ControllerButton_NONE:
+	case ControllerButton_IGNORE:
+		break;
 	case ControllerButton_BUTTON_A:
 		return SDL_CONTROLLER_BUTTON_A;
 	case ControllerButton_BUTTON_B:
@@ -109,6 +112,9 @@ SDL_GameControllerButton GameController::ToSdlGameControllerButton(ControllerBut
 		return SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
 	case ControllerButton_AXIS_TRIGGERLEFT:
 	case ControllerButton_AXIS_TRIGGERRIGHT:
+		ASSUME_UNREACHABLE
+		break;
+	default:
 		ASSUME_UNREACHABLE
 		break;
 	}

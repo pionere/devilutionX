@@ -108,6 +108,9 @@ ControllerButton Joystick::ToControllerButton(const SDL_Event &event)
 int Joystick::ToSdlJoyButton(ControllerButton button)
 {
 	switch (button) {
+	case ControllerButton_NONE:
+	case ControllerButton_IGNORE:
+		break;
 #ifdef JOY_BUTTON_A
 	case ControllerButton_BUTTON_A:
 		return JOY_BUTTON_A;
@@ -166,7 +169,10 @@ int Joystick::ToSdlJoyButton(ControllerButton button)
 #endif
 	case ControllerButton_AXIS_TRIGGERLEFT:
 	case ControllerButton_AXIS_TRIGGERRIGHT:
-		ASSUME_UNREACHABLE;
+		ASSUME_UNREACHABLE
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	return -1;
