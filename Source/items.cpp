@@ -415,6 +415,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
 	}
 
+	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
+	imana += madd << (6 + 1);
+
 	if (iflgs & ISPL_LIFETOMANA) {
 		ihp -= plr._pMaxHPBase >> 1;
 		imana += plr._pMaxHPBase >> 1;
@@ -422,6 +425,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	if (iflgs & ISPL_MANATOLIFE) {
 		ihp += plr._pMaxManaBase >> 1;
 		imana -= plr._pMaxManaBase >> 1;
+	}
+	if (iflgs & ISPL_NOMANA) {
+		imana = - plr._pManaBase;
 	}
 	if (iflgs & ISPL_ALLRESZERO) {
 		// reset resistances to zero if the respective special effect is active
@@ -446,9 +452,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	if (ar > MAXRESIST)
 		ar = MAXRESIST;
 	plr._pAcidResist = ar;
-
-	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
-	imana += madd << (6 + 1);
 
 	plr._pHitPoints = ihp + plr._pHPBase;
 	plr._pMaxHP = ihp + plr._pMaxHPBase;

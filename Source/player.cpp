@@ -2907,9 +2907,6 @@ void ProcessPlayers()
 				if ((plr._pIFlags & ISPL_DRAINLIFE) && currLvl._dLevelIdx != DLV_TOWN && !plr._pInvincible) {
 					PlrDecHp(pnum, 4, DMGTYPE_NPC);
 				}
-				if ((plr._pIFlags & ISPL_NOMANA) && plr._pMana > 0) {
-					PlrSetMana(pnum, 0);
-				}
 				if (plr._pTimer[PLTR_INFRAVISION] != 0) {
 					plr._pTimer[PLTR_INFRAVISION]--;
 					if (plr._pTimer[PLTR_INFRAVISION] == 0) {
