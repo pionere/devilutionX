@@ -456,10 +456,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pHitPoints = ihp + plr._pHPBase;
 	plr._pMaxHP = ihp + plr._pMaxHPBase;
 
-	if (pnum == mypnum && plr._pHitPoints < (1 << 6)) {
-		PlrSetHp(pnum, 0);
-	}
-
 	plr._pMana = imana + plr._pManaBase;
 	plr._pMaxMana = imana + plr._pMaxManaBase;
 
