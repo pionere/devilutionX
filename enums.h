@@ -4131,6 +4131,21 @@ typedef enum input_key {
 } input_key;
 
 typedef enum application_error {
+	ERR_APP_FRAME_BUFSIZE,
+	ERR_APP_LOOPBACK_JOIN,
+	ERR_APP_LOOPBACK_SENDMSG,
+	ERR_APP_LOOPBACK_QUEUE_SIZE,
+	ERR_APP_LOOPBACK_POLLTURN,
+	ERR_APP_LOOPBACK_LASTTURN,
+	ERR_APP_LOOPBACK_DROPPLR,
+	ERR_APP_LOOPBACK_TRANSIT,
+	ERR_APP_PACKET_ENCRYPT,
+	ERR_APP_PACKET_SETUP,
+	ERR_APP_PACKET_PASSWD,
+	ERR_APP_ZT_RECV,
+} application_error;
+
+typedef enum app_sdl_error {
 	ERR_SDL_ART_COLOR,
 	ERR_SDL_ART_BLIT,
 	ERR_SDL_CREDIT_BLIT,
@@ -4192,7 +4207,7 @@ typedef enum application_error {
 	ERR_SDL_EVENT_WAIT,
 	ERR_SDL_TTF_INIT,
 	ERR_SDL_TTF_FONT,
-} application_error;
+} app_sdl_error;
 
 typedef enum SDL_LogCategory {
     SDL_LOG_CATEGORY_APPLICATION,

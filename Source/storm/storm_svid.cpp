@@ -224,14 +224,14 @@ static void UpdatePalette()
 	// In SDL1, the surface always has its own distinct palette, so we need to
 	// update it as well.
 	if (SDL_SetPalette(SVidSurface, SDL_LOGPAL, colors, firstcolor, ncolors) <= 0)
-		sdl_fatal(ERR_SDL_VIDEO_SURFACE);
+		sdl_error(ERR_SDL_VIDEO_SURFACE);
 #else // !USE_SDL1
 	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) <= -1) {
-		sdl_fatal(ERR_SDL_VIDEO_SURFACE);
+		sdl_error(ERR_SDL_VIDEO_SURFACE);
 	}
 #endif
 	//if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, 256) < 0) {
-	//	sdl_fatal(ERR_SDL_VIDEO_SURFACE);
+	//	sdl_error(ERR_SDL_VIDEO_SURFACE);
 	//}
 }
 
@@ -282,14 +282,14 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, 0);
 			if (deviceId == 0) {
-				sdl_fatal(ERR_SDL_AUDIO_DEVICE_SDL2);
+				sdl_error(ERR_SDL_AUDIO_DEVICE_SDL2);
 			}
 
 			SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
 #else
 			sVidAudioQueue->Subscribe(&audioFormat);
 			if (SDL_OpenAudio(&audioFormat, NULL) != 0) {
-				sdl_fatal(ERR_SDL_AUDIO_DEVICE_SDL1);
+				sdl_error(ERR_SDL_AUDIO_DEVICE_SDL1);
 			}
 			SDL_PauseAudio(0);
 #endif
@@ -322,12 +322,12 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
 	if (SVidSurface == NULL) {
-		sdl_fatal(ERR_SDL_VIDEO_CREATE);
+		sdl_error(ERR_SDL_VIDEO_CREATE);
 	}
 
 	SVidPalette = SDL_AllocPalette(256);
 	if (SVidPalette == NULL) {
-		sdl_fatal(ERR_SDL_VIDEO_PALETTE);
+		sdl_error(ERR_SDL_VIDEO_PALETTE);
 	}
 	UpdatePalette();
 
@@ -384,7 +384,7 @@ bool SVidPlayContinue()
 		BYTE *audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 		if (SDL_QueueAudio(deviceId, audio, len) < 0) {
-			sdl_fatal(ERR_SDL_VIDEO_AUDIO);
+			sdl_error(ERR_SDL_VIDEO_AUDIO);
 		}
 #else
 		sVidAudioQueue->Enqueue(audio, len);
@@ -400,7 +400,7 @@ bool SVidPlayContinue()
 #ifndef USE_SDL1
 	if (renderer != NULL) {
 		if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, NULL) < 0) {
-			sdl_fatal(ERR_SDL_VIDEO_BLIT_A);
+			sdl_error(ERR_SDL_VIDEO_BLIT_A);
 		}
 	} else
 #endif
@@ -430,7 +430,7 @@ bool SVidPlayContinue()
 		    || outputSurface->w == static_cast<int>(SVidWidth)
 		    || outputSurface->h == static_cast<int>(SVidHeight)) {
 			if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &outputRect) < 0) {
-				sdl_fatal(ERR_SDL_VIDEO_BLIT_B);
+				sdl_error(ERR_SDL_VIDEO_BLIT_B);
 			}
 		} else {
 			// The source surface is always 8-bit, and the output surface is never 8-bit in this branch.
@@ -441,7 +441,7 @@ bool SVidPlayContinue()
 			SDL_Surface *tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
 #endif
 			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
-				sdl_fatal(ERR_SDL_VIDEO_BLIT_SCALED);
+				sdl_error(ERR_SDL_VIDEO_BLIT_SCALED);
 			}
 			SDL_FreeSurface(tmp);
 		}

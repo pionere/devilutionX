@@ -75,7 +75,7 @@ void SetVideoMode(int width, int height, int bpp, uint32_t flags)
 	DoLog("Setting video mode %dx%d bpp=%d flags=0x%08X", width, height, bpp, flags);
 	ghMainWnd = SDL_SetVideoMode(width, height, bpp, flags);
 	if (ghMainWnd == NULL) {
-		sdl_fatal(ERR_SDL_DISPLAY_MODE_SET);
+		sdl_error(ERR_SDL_DISPLAY_MODE_SET);
 	}
 	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
 	DoLog("Video mode is now %dx%d bpp=%d flags=0x%08X",
@@ -108,11 +108,11 @@ void RecreateDisplay(int width, int height)
 
 	renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
 	if (renderer_texture == NULL) {
-		sdl_fatal(ERR_SDL_RENDERER_TEXTURE);
+		sdl_error(ERR_SDL_RENDERER_TEXTURE);
 	}
 
 	if (SDL_RenderSetLogicalSize(renderer, width, height) < 0) {
-		sdl_fatal(ERR_SDL_RENDERER_SIZE);
+		sdl_error(ERR_SDL_RENDERER_SIZE);
 	}
 }
 #endif // USE_SDL1
@@ -138,7 +138,7 @@ static void CalculatePreferredWindowSize(int &width, int &height, bool useIntege
 {
 	SDL_DisplayMode mode;
 	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
-		sdl_fatal(ERR_SDL_DISPLAY_MODE_GET);
+		sdl_error(ERR_SDL_DISPLAY_MODE_GET);
 	}
 
 	if (mode.w < mode.h) {
@@ -196,7 +196,7 @@ void SpawnWindow(const char* lpWindowName)
 	initFlags |= SDL_INIT_GAMECONTROLLER;
 #endif
 	if (SDL_Init(initFlags) < 0) {
-		sdl_fatal(ERR_SDL_INIT);
+		sdl_error(ERR_SDL_INIT);
 	}
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -274,7 +274,7 @@ void SpawnWindow(const char* lpWindowName)
 
 	ghMainWnd = SDL_CreateWindow(lpWindowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 	if (ghMainWnd == NULL) {
-		sdl_fatal(ERR_SDL_WINDOW_CREATE);
+		sdl_error(ERR_SDL_WINDOW_CREATE);
 	}
 
 	if (upscale) {
@@ -287,11 +287,11 @@ void SpawnWindow(const char* lpWindowName)
 
 		renderer = SDL_CreateRenderer(ghMainWnd, -1, rendererFlags);
 		if (renderer == NULL) {
-			sdl_fatal(ERR_SDL_RENDERER_CREATE);
+			sdl_error(ERR_SDL_RENDERER_CREATE);
 		}
 
 		if (integerScalingEnabled && SDL_RenderSetIntegerScale(renderer, SDL_TRUE) < 0) {
-			sdl_fatal(ERR_SDL_RENDERER_SCALE);
+			sdl_error(ERR_SDL_RENDERER_SCALE);
 		}
 
 		RecreateDisplay(width, height);
@@ -360,7 +360,7 @@ static SDL_Surface* CreateScaledSurface(SDL_Surface* src)
 	}
 	if (SDL_SoftStretch((src), NULL, stretched, &stretched_rect) < 0) {
 		SDL_FreeSurface(stretched);
-		sdl_fatal(ERR_SDL_WINDOW_STRETCH);
+		sdl_error(ERR_SDL_WINDOW_STRETCH);
 	}
 	return stretched;
 }

@@ -2,7 +2,6 @@
 
 #include <cstring>
 #include <memory>
-#include "utils/stubs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {

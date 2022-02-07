@@ -165,7 +165,7 @@ void music_start(int nTrack)
 		//if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
 		_gMusic = Mix_LoadMUS_RW(&musicRw);
 		if (_gMusic == NULL)
-			sdl_fatal(ERR_SDL_MUSIC_FILE);
+			sdl_error(ERR_SDL_MUSIC_FILE);
 
 		Mix_PlayMusic(-1);
 

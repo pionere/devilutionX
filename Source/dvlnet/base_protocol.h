@@ -266,7 +266,7 @@ void base_protocol<P>::recv_decrypted(packet &pkt, endpoint sender)
 		return;
 	} else if (pkt_plr >= MAX_PLRS) {
 		// normal packets
-		ABORT();
+		app_error(ERR_APP_ZT_RECV);
 	}
 	connected_table[pkt_plr] = true;
 	peers[pkt_plr] = sender;
