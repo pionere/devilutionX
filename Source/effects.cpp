@@ -11,9 +11,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int sfxdelay;
-int sfxdnum;
-
 #ifdef NOSOUND
 const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] = { };
 #else

@@ -1281,8 +1281,8 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		return;
 	}
 	if (pnum == mypnum) {
-		sfxdelay = delay;
-		sfxdnum = idx;
+		gnSfxDelay = delay;
+		gnSfxNum = idx;
 	}
 }
 
@@ -1712,14 +1712,14 @@ bool InvUseItem(int cii)
 		return true;
 	}
 	if (is->_iIdx == IDI_MUSHROOM) {
-		sfxdelay = 10;
-		sfxdnum = TEXT_IM_MUSHROOM;
+		gnSfxDelay = 10;
+		gnSfxNum = TEXT_IM_MUSHROOM;
 		return true;
 	}
 	if (is->_iIdx == IDI_FUNGALTM) {
 		PlaySFX(IS_IBOOK);
-		sfxdelay = 10;
-		sfxdnum = TEXT_IM_FUNGALTM;
+		gnSfxDelay = 10;
+		gnSfxNum = TEXT_IM_FUNGALTM;
 		return true;
 	}
 

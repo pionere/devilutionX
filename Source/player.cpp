@@ -2885,10 +2885,10 @@ void ProcessPlayers()
 		gbLvlLoad--;
 	}
 #ifndef NOSOUND
-	if (sfxdelay > 0) {
-		sfxdelay--;
-		if (sfxdelay == 0) {
-			InitQTextMsg(sfxdnum);
+	if (gnSfxDelay > 0) {
+		gnSfxDelay--;
+		if (gnSfxDelay == 0) {
+			InitQTextMsg(gnSfxNum);
 		}
 	}
 #endif
