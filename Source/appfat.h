@@ -7,6 +7,7 @@
 #define __APPFAT_H__
 
 #include "../types.h"
+#include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -42,20 +43,38 @@ void dev_fatal(const char *pszFmt, MsgArgs... args) {
 #if DEBUG_MODE
 #define app_error(ec) \
 	if (ec == ec) { \
+		DoLog("ABORT(app.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 		app_fatal("App Error %d @ %s:%d", ec, __FILE__, __LINE__); \
 	}
 #define sdl_error(ec) \
 	if (ec == ec) { \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 		app_fatal("SDL Error %d: '%s' @ %s:%d", ec, SDL_GetError(), __FILE__, __LINE__); \
 	}
 #else
-#define app_error(error_code) app_fatal("App Error %d", error_code)
-#define sdl_error(error_code) app_fatal("SDL Error %d", error_code)
+#define app_error(ec) \
+	if (ec == ec) { \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("App Error %d", ec); \
+	}
+#define sdl_error(ec) \
+	if (ec == ec) { \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("SDL Error %d", ec); \
+	}
 #endif // DEBUG_MODE
 #else
 #define dev_fatal(msg, ...) do { } while(0);
-#define app_error(error_code) app_fatal("App Error %d", error_code)
-#define sdl_error(error_code) app_fatal("SDL Error %d", error_code)
+#define app_error(ec) \
+	if (ec == ec) { \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("App Error %d", ec); \
+	}
+#define sdl_error(ec) \
+	if (ec == ec) { \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("SDL Error %d", ec); \
+	}
 #endif // DEBUG_MODE || DEV_MODE
 
 #ifdef __cplusplus

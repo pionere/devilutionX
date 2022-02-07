@@ -38,8 +38,7 @@ void app_fatal(const char *pszFmt, ...)
 	va_start(va, pszFmt);
 	FreeDlg();
 
-	if (pszFmt != NULL)
-		MsgBox(pszFmt, va);
+	MsgBox(pszFmt, va);
 
 	va_end(va);
 
@@ -71,7 +70,7 @@ void ErrDlg(const char *title, const char *error, const char *log_file_path, int
 	snprintf(text, sizeof(text), "%s\n\nThe error occurred at: %s line %d", error, log_file_path, log_line_nr);
 
 	UiErrorOkDialog(title, text);
-	app_fatal(NULL);
+	diablo_quit(1);
 }
 #endif
 
@@ -99,7 +98,7 @@ void ErrDlg(const char *title, const char *error, const char *log_file_path, int
 	    error);
 
 	UiErrorOkDialog("Data File Error", text);
-	app_fatal(NULL);
+	diablo_quit(1);
 }*/
 
 /**
@@ -117,7 +116,7 @@ void ErrDlg(const char *title, const char *error, const char *log_file_path, int
 	    DATA_ARCHIVE_MAIN);
 
 	UiErrorOkDialog("Data File Error", text);
-	app_fatal(NULL);
+	diablo_quit(1);
 }*/
 
 DEVILUTION_END_NAMESPACE
