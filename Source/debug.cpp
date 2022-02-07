@@ -251,7 +251,9 @@ void DumpDungeon()
 	fclose(f1);
 	fclose(f2);
 }
+#endif /* DEBUG_MODE */
 
+#if DEBUG_MODE || DEV_MODE
 void ValidateData()
 {
 	// quests
@@ -462,6 +464,6 @@ void ValidateData()
 		}
 	}
 }
-#endif
+#endif /* DEBUG_MODE || DEV_MODE */
 
 DEVILUTION_END_NAMESPACE
