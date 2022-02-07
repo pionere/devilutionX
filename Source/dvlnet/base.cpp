@@ -97,7 +97,7 @@ void base::recv_disconnect(packet &pkt)
 {
 	plr_t pkt_plr = pkt.pktDisconnectPlr();
 	leaveinfo_t leaveinfo = pkt.pktDisconnectInfo();
-
+	// ignore self-disconnects of hosts
 	if (pkt_plr != plr_self) {
 		if (pkt_plr < MAX_PLRS && connected_table[pkt_plr]) {
 			disconnect_plr(pkt_plr, leaveinfo);
@@ -110,8 +110,6 @@ void base::recv_disconnect(packet &pkt)
 			}
 			disconnect_plr(SNPLAYER_MASTER, leaveinfo);
 		}
-	} else {
-		ABORT(); // we were dropped by the owner?!?
 	}
 }
 
