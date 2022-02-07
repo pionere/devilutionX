@@ -119,16 +119,17 @@ static char stextscrlubtn;
 static char stextscrldbtn;
 
 /** Maps from towner IDs to NPC names. */
-const char *const talkname[] = {
-	"Griswold",
-	"Pepin",
-	"",
-	"Ogden",
-	"Cain",
-	"Farnham",
-	"Adria",
-	"Gillian",
-	"Wirt"
+static const char* const talkname[] = {
+	// clang-format off
+/*TOWN_SMITH*/  "Griswold",
+/*TOWN_HEALER*/ "Pepin",
+/*TOWN_TAVERN*/ "Ogden",
+/*TOWN_STORY*/  "Cain",
+/*TOWN_DRUNK*/  "Farnham",
+/*TOWN_WITCH*/  "Adria",
+/*TOWN_BMAID*/  "Gillian",
+/*TOWN_PEGBOY*/ "Wirt"
+	// clang-format on
 };
 
 static void ClearSText(int s, int e)
