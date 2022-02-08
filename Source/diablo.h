@@ -25,7 +25,7 @@ extern bool gbLoadGame;
 extern bool gbCineflag;
 extern int gbRedrawFlags;
 extern bool gbGamePaused;
-extern bool gbDeathflag;
+extern BYTE gbDeathflag;
 extern bool gbActionBtnDown;
 extern bool gbAltActionBtnDown;
 extern int gnTicksRate;

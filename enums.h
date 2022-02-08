@@ -2941,6 +2941,12 @@ typedef enum MON_SFX {
 	NUM_MON_SFX
 } MON_SFX;
 
+typedef enum MYPLR_DEATH_MODE {
+	MDM_ALIVE,
+	MDM_DYING,
+	MDM_DEAD
+} MYPLR_DEATH_MODE;
+
 typedef enum PLR_MODE {
 	PM_STAND,
 	PM_WALK, // Movement towards N, NW, NE or W

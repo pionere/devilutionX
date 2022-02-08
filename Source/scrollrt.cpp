@@ -1250,7 +1250,7 @@ static void DrawView()
 	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();
 	}
-	if (gbDeathflag) {
+	if (gbDeathflag == MDM_DEAD) {
 		RedBack();
 	} else if (gbGamePaused) {
 		gmenu_draw_pause();

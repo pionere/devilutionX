@@ -826,7 +826,7 @@ void InitLvlPlayer(int pnum)
 		// TODO: BUGFIX: sure?
 		//    - what if we just joined with a dead player?
 		//    - what if the player was killed while entering a portal?
-		//gbDeathflag = false;
+		//gbDeathflag = MDM_ALIVE;
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
 		assert(ScrollInfo._sdir == SDIR_NONE);
@@ -1739,6 +1739,7 @@ void StartPlrKill(int pnum, int dmgtype)
 	}
 
 	if (pnum == mypnum) {
+		gbDeathflag = MDM_DYING;
 		NetSendCmdBParam1(CMD_PLRDEAD, dmgtype);
 	}
 
@@ -1825,7 +1826,7 @@ void SyncPlrResurrect(int pnum)
 		return;
 
 	if (pnum == mypnum) {
-		gbDeathflag = false;
+		gbDeathflag = MDM_ALIVE;
 		gamemenu_off();
 	}
 
@@ -1948,7 +1949,7 @@ void RestartTownLvl(int pnum)
 	CalcPlrInv(pnum, false);
 
 	if (pnum == mypnum) {
-		gbDeathflag = false;
+		gbDeathflag = MDM_ALIVE;
 		gamemenu_off();
 		PostMessage(DVL_DWM_RETOWN, 0);
 	}
@@ -2583,7 +2584,7 @@ static bool PlrDoDeath(int pnum)
 		if (plr._pVar7 > 0) { // DEATH_DELAY
 			// assert(pnum == mypnum);
 			if (--plr._pVar7 == 0) {
-				gbDeathflag = true;
+				gbDeathflag = MDM_DEAD;
 				if (!IsMultiGame) {
 					gamemenu_on();
 				}

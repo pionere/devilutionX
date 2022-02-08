@@ -285,6 +285,7 @@ void CheckCursMove()
 	pcursplr = PLR_NONE;
 	pcurstrig = -1;
 
+	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");	
 	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
 	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
 		return;

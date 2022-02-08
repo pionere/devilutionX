@@ -2368,7 +2368,7 @@ static void PrepDoEnding(bool soundOn)
 
 	gbSoundOn = soundOn;
 	gbRunGame = false;
-	gbDeathflag = false;
+	gbDeathflag = MDM_ALIVE;
 	gbCineflag = true;
 
 	killLevel = gnDifficulty + 1;

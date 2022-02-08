@@ -24,10 +24,11 @@ bool gbZoomInFlag;
 /** Enable updating of player character, set to false once Diablo dies */
 bool gbProcessPlayers;
 bool gbLoadGame;
-bool gbCineflag = false;
+bool gbCineflag;
 int gbRedrawFlags;
 bool gbGamePaused;
-bool gbDeathflag;
+/** Specifies the 'dead' state of the local player (MYPLR_DEATH_MODE). */
+BYTE gbDeathflag = MDM_ALIVE;
 bool gbActionBtnDown;
 bool gbAltActionBtnDown;
 static Uint32 guLastABD, guLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
@@ -583,7 +584,7 @@ static void ActionBtnDown(bool bShift)
 	assert(!gmenu_is_active() || !gmenu_left_mouse(true));
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !control_check_talk_btn());
-	assert(!gbDeathflag);
+	assert(gbDeathflag == MDM_ALIVE);
 	assert(!gbGamePaused);
 	assert(!gbDoomflag);
 	assert(!gbQtextflag);
@@ -663,7 +664,7 @@ static void AltActionBtnDown(bool bShift)
 {
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
-	assert(!gbDeathflag);
+	assert(gbDeathflag == MDM_ALIVE);
 	assert(!gbGamePaused);
 	assert(!gbDoomflag);
 	assert(!gbQtextflag);
@@ -859,7 +860,7 @@ static void PressKey(int vkey)
 	}
 
 	int transKey = WMButtonInputTransTbl[vkey];
-	if (gbDeathflag) {
+	if (gbDeathflag != MDM_ALIVE) {
 		if (vkey == DVL_VK_RETURN) {
 			control_type_message();
 		} else if (vkey == DVL_VK_LBUTTON) {
@@ -1137,7 +1138,7 @@ static void PressChar(WPARAM vkey)
 			return;
 	}
 #if DEBUG_MODE
-	if (gnTimeoutCurs != CURSOR_NONE || gbDeathflag)
+	if (gnTimeoutCurs != CURSOR_NONE || gbDeathflag != MDM_ALIVE)
 		return;
 
 	if (gbGamePaused) {
@@ -1516,7 +1517,7 @@ static WNDPROC InitGameUI()
 	InitGameEffects(); // sfx
 	InitCursorGFX(); // gfx + values
 
-	gbDeathflag = false;
+	gbDeathflag = MDM_ALIVE;
 	gbZoomInFlag = false;
 	CalcViewportGeometry();
 	ScrollInfo._sdx = 0;
