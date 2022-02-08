@@ -546,7 +546,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pIHitChance = btohit;
 
 	// calculate skill flags
-	if (currLvl._dType != DTYPE_TOWN)
+	if (plr._pDunLevel != DLV_TOWN)
 		wt |= SFLAG_DUNGEON;
 	if (bf)
 		wt |= SFLAG_BLOCK;
