@@ -517,7 +517,8 @@ static int game_server_callback()
 
 static void RunGameServer()
 {
-	currLvl._dLevelIdx = NUM_STDLVLS;
+	assert(!gbJoinGame);
+	currLvl._dLevelIdx = DLV_INVALID;
 	gbActivePlayers = 0;
 	gameProgress = 0;
 	UiProgressDialog("...Server is running...", game_server_callback);
