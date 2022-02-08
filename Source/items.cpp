@@ -697,9 +697,8 @@ static void ItemStatOk(ItemStruct* is, int sa, int ma, int da)
 static void CalcItemReqs(int pnum)
 {
 	int i;
-	ItemStruct *pi;
-	bool changeflag;
-	int sa, ma, da;
+	ItemStruct* pi;
+	int sa, ma, da, sc, mc, dc;
 
 	sa = plr._pBaseStr;
 	ma = plr._pBaseMag;
@@ -716,34 +715,37 @@ static void CalcItemReqs(int pnum)
 			//}
 		}
 	}
-	do {
-		changeflag = false;
-		pi = plr._pInvBody;
-		for (i = NUM_INVLOC; i != 0; i--, pi++) {
-			if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
-				if (sa < pi->_iMinStr || ma < pi->_iMinMag || da < pi->_iMinDex) {
-					changeflag = true;
-					pi->_iStatFlag = FALSE;
-					//if (pi->_iIdentified) {
-						sa -= pi->_iPLStr;
-						ma -= pi->_iPLMag;
-						da -= pi->_iPLDex;
-					//}
-				}
-			}
+checkitems:
+	sc = std::max(0, sa);
+	mc = std::max(0, ma);
+	dc = std::max(0, da);
+	pi = plr._pInvBody;
+	for (i = NUM_INVLOC; i != 0; i--, pi++) {
+		if (pi->_itype == ITYPE_NONE)
+			continue;
+		if (sc >= pi->_iMinStr && mc >= pi->_iMinMag && dc >= pi->_iMinDex)
+			continue;
+		if (pi->_iStatFlag) {
+			pi->_iStatFlag = FALSE;
+			//if (pi->_iIdentified) {
+				sa -= pi->_iPLStr;
+				ma -= pi->_iPLMag;
+				da -= pi->_iPLDex;
+			//}
+			goto checkitems;
 		}
-	} while (changeflag);
+	}
 
 	pi = &plr._pHoldItem;
-	ItemStatOk(pi, sa, ma, da);
+	ItemStatOk(pi, sc, mc, dc);
 
 	pi = plr._pInvList;
 	for (i = NUM_INV_GRID_ELEM; i != 0; i--, pi++)
-		ItemStatOk(pi, sa, ma, da);
+		ItemStatOk(pi, sc, mc, dc);
 
 	pi = plr._pSpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++)
-		ItemStatOk(pi, sa, ma, da);
+		ItemStatOk(pi, sc, mc, dc);
 }
 
 void CalcPlrInv(int pnum, bool Loadgfx)
