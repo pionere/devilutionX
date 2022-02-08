@@ -578,18 +578,18 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 	if (wRight->_itype != ITYPE_NONE && wRight->_itype != ITYPE_SHIELD) {
 		// adjust dual-wield damage
-		if (maxsl != 0) {
+		//if (maxsl != 0) {
 			minsl = minsl * 5 / 8;
 			maxsl = maxsl * 5 / 8;
-		}
-		if (maxbl != 0) {
+		//}
+		//if (maxbl != 0) {
 			minbl = minbl * 5 / 8;
 			maxbl = maxbl * 5 / 8;
-		}
-		if (maxpc != 0) {
+		//}
+		//if (maxpc != 0) {
 			minpc = minpc * 5 / 8;
 			maxpc = maxpc * 5 / 8;
-		}
+		//}
 		cc >>= 1;
 	}
 	plr._pISlMinDam = minsl;
@@ -631,7 +631,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		}
 	}
 
-	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
+	if (pnum == mypnum)
+		gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 }
 
 void CalcPlrSpells(int pnum)
