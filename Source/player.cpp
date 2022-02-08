@@ -3403,7 +3403,7 @@ void IncreasePlrStr(int pnum)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	plr._pStrength += v;
+	//plr._pStrength += v;
 	plr._pBaseStr += v;
 
 	CalcPlrInv(pnum, true);
@@ -3430,17 +3430,17 @@ void IncreasePlrMag(int pnum)
 		break;
 	}
 
-	plr._pMagic += v;
+	//plr._pMagic += v;
 	plr._pBaseMag += v;
 
 	ms = v << (6 + 1);
 
 	plr._pMaxManaBase += ms;
-	plr._pMaxMana += ms;
-	if (!(plr._pIFlags & ISPL_NOMANA)) {
+	//plr._pMaxMana += ms;
+	//if (!(plr._pIFlags & ISPL_NOMANA)) {
 		plr._pManaBase += ms;
-		plr._pMana += ms;
-	}
+		//plr._pMana += ms;
+	//}
 
 	CalcPlrInv(pnum, true);
 }
@@ -3466,7 +3466,7 @@ void IncreasePlrDex(int pnum)
 		break;
 	}
 
-	plr._pDexterity += v;
+	//plr._pDexterity += v;
 	plr._pBaseDex += v;
 
 	CalcPlrInv(pnum, true);
@@ -3493,15 +3493,15 @@ void IncreasePlrVit(int pnum)
 		break;
 	}
 
-	plr._pVitality += v;
+	//plr._pVitality += v;
 	plr._pBaseVit += v;
 
 	ms = v << (6 + 1);
 
 	plr._pHPBase += ms;
 	plr._pMaxHPBase += ms;
-	plr._pHitPoints += ms;
-	plr._pMaxHP += ms;
+	//plr._pHitPoints += ms;
+	//plr._pMaxHP += ms;
 
 	CalcPlrInv(pnum, true);
 }
@@ -3522,10 +3522,11 @@ void RestorePlrHpVit(int pnum)
 
 	// restore the lost hp
 	plr._pMaxHPBase += hp;
-	plr._pMaxHP += hp;
+	//plr._pMaxHP += hp;
 
 	// fill hp
-	PlrFillHp(pnum);
+	plr._pHPBase = plr._pMaxHPBase;
+	//PlrFillHp(pnum);
 
 	CalcPlrInv(pnum, true);
 }
