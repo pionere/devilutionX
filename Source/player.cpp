@@ -720,7 +720,7 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 		plr._pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
 
 	if (plr._pClass == PC_SORCERER) {
-		plr._pSkillLvl[SPL_FIREBOLT] = 2;
+		plr._pSkillLvlBase[SPL_FIREBOLT] = 2;
 		plr._pSkillExp[SPL_FIREBOLT] = SkillExpLvlsTbl[1];
 		plr._pMemSkills = SPELL_MASK(SPL_FIREBOLT);
 	}
@@ -868,7 +868,7 @@ static void AddPlrSkillExp(int pnum, int lvl, unsigned exp)
 	// collect the active skills below a level limit
 	lvl += 8;
 	for (i = 0; i < NUM_SPELLS; i++) {
-		if (plr._pSkillActivity[i] != 0 && (4 * plr._pSkillLvl[i]) < lvl) {
+		if (plr._pSkillActivity[i] != 0 && (4 * plr._pSkillLvlBase[i]) < lvl) {
 			skills[n] = i;
 			n++;
 		}
@@ -886,7 +886,7 @@ static void AddPlrSkillExp(int pnum, int lvl, unsigned exp)
 		sn = skills[i];
 		plr._pSkillActivity[sn]--;
 
-		sl = plr._pSkillLvl[sn];
+		sl = plr._pSkillLvlBase[sn];
 		dLvl = lvl - (4 * sl);
 		xp = (exp * dLvl) >> shr; // / (8 * n);
 
@@ -899,10 +899,11 @@ static void AddPlrSkillExp(int pnum, int lvl, unsigned exp)
 		while (xp >= SkillExpLvlsTbl[sl]) {
 			sl++;
 		}
-		if (sl == plr._pSkillLvl[sn])
+		if (sl == plr._pSkillLvlBase[sn])
 			continue;
 		assert(sl <= MAXSPLLEVEL);
-		plr._pSkillLvl[sn] = sl;
+		plr._pSkillLvlBase[sn] = sl;
+		CalcPlrItemVals(pnum, false);
 	}
 }
 
@@ -2833,9 +2834,9 @@ static void ValidatePlayer(int pnum)
 	for (i = 1; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
 			msk |= SPELL_MASK(i);
-			//if (p->_pSkillLvl[i] > MAXSPLLEVEL)
-			//	p->_pSkillLvl[i] = MAXSPLLEVEL;
-			assert(p->_pSkillLvl[i] <= MAXSPLLEVEL);
+			//if (p->_pSkillLvlBase[i] > MAXSPLLEVEL)
+			//	p->_pSkillLvlBase[i] = MAXSPLLEVEL;
+			assert(p->_pSkillLvlBase[i] <= MAXSPLLEVEL);
 		}
 	}
 	//p->_pMemSkills &= msk;

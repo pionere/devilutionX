@@ -61,9 +61,9 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	memcpy(pPack->pAltMoveSkillHotKey, p->_pAltMoveSkillHotKey, sizeof(pPack->pAltMoveSkillHotKey));
 	memcpy(pPack->pAltMoveSkillTypeHotKey, p->_pAltMoveSkillTypeHotKey, sizeof(pPack->pAltMoveSkillTypeHotKey));
 
-	static_assert(sizeof(p->_pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy I.");
-	static_assert(sizeof(pPack->pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy II.");
-	memcpy(pPack->pSkillLvl, p->_pSkillLvl, sizeof(p->_pSkillLvl));
+	static_assert(sizeof(p->_pSkillLvlBase[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy I.");
+	static_assert(sizeof(pPack->pSkillLvlBase[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy II.");
+	memcpy(pPack->pSkillLvlBase, p->_pSkillLvlBase, sizeof(p->_pSkillLvlBase));
 	static_assert(sizeof(p->_pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy III.");
 	static_assert(sizeof(pPack->pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy IV.");
 	memcpy(pPack->pSkillActivity, p->_pSkillActivity, sizeof(p->_pSkillActivity));
@@ -165,9 +165,9 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	memcpy(plr._pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(plr._pAltMoveSkillHotKey));
 	memcpy(plr._pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(plr._pAltMoveSkillTypeHotKey));
 
-	static_assert(sizeof(plr._pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy V.");
-	static_assert(sizeof(pPack->pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VI.");
-	memcpy(plr._pSkillLvl, pPack->pSkillLvl, sizeof(pPack->pSkillLvl));
+	static_assert(sizeof(plr._pSkillLvlBase[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy V.");
+	static_assert(sizeof(pPack->pSkillLvlBase[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VI.");
+	memcpy(plr._pSkillLvlBase, pPack->pSkillLvlBase, sizeof(pPack->pSkillLvlBase));
 	static_assert(sizeof(plr._pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VII.");
 	static_assert(sizeof(pPack->pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VIII.");
 	memcpy(plr._pSkillActivity, pPack->pSkillActivity, sizeof(pPack->pSkillActivity));

@@ -2453,10 +2453,9 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	if (currLvl._dLevelIdx == SL_BONECHAMB) {
 		if (deltaload)
 			return;
-		if (plr._pSkillLvl[SPL_GUARDIAN] == 0) {
-			plr._pSkillLvl[SPL_GUARDIAN] = 1;
+		if (plr._pSkillLvlBase[SPL_GUARDIAN] == 0) {
 			plr._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
-			plr._pMemSkills |= SPELL_MASK(SPL_GUARDIAN);
+			IncreasePlrSkillLvl(pnum, SPL_GUARDIAN);
 		}
 		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
 		if (pnum == mypnum)
@@ -2826,10 +2825,9 @@ static void AddRaiseSkill(int pnum, int sn)
 	int v1, v2;
 	unsigned t;
 	// add/raise the skill
-	plr._pMemSkills |= SPELL_MASK(sn);
-	if (plr._pSkillLvl[sn] < MAXSPLLEVEL) {
-		plr._pSkillExp[sn] = SkillExpLvlsTbl[plr._pSkillLvl[sn]];
-		plr._pSkillLvl[sn]++;
+	if (plr._pSkillLvlBase[sn] < MAXSPLLEVEL) {
+		plr._pSkillExp[sn] = SkillExpLvlsTbl[plr._pSkillLvlBase[sn]];
+		IncreasePlrSkillLvl(pnum, sn);
 	}
 	// reduce maximum mana
 	t = plr._pMaxManaBase / 10;

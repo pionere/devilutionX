@@ -1862,16 +1862,15 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		if (sn != SPL_INVALID)
 			return false;
 		sn = is->_iSpell;
-		plr._pMemSkills |= SPELL_MASK(sn);
+		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		plr._pSkillExp[sn] += SkillExpLvlsTbl[0];
 		if (plr._pSkillExp[sn] > SkillExpLvlsTbl[MAXSPLLEVEL] - 1) {
 			plr._pSkillExp[sn] = SkillExpLvlsTbl[MAXSPLLEVEL] - 1;
 		}
 
-		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvl[sn]]) {
-			plr._pSkillLvl[sn]++;
+		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvlBase[sn]]) {
+			IncreasePlrSkillLvl(pnum, sn);
 		}
-		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		// CalcPlrSpells(pnum);
 		sn = SPL_INVALID;
 		break;

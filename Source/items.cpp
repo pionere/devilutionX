@@ -271,6 +271,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	int ihp = 0;   // increased HP
 	int imana = 0; // increased mana
 
+	int spllvl; // temporary value to calculate spell levels
 	char spllvladd = 0; // increased spell level
 
 	unsigned minsl = 0; // min slash-damage
@@ -390,7 +391,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
 	plr._pHasUnidItem = !idi;
 	plr._pIGetHit = ghit << 6;
-	plr._pISplLvlAdd = spllvladd;
 	plr._pILifeSteal = lifesteal;
 	plr._pIManaSteal = manasteal;
 
@@ -619,6 +619,16 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		av += (plr._pLevel - 1) >> 3;
 #endif*/
 	plr._pIArrowVelBonus = av;
+
+	for (i = 0; i < NUM_SPELLS; i++) {
+		spllvl = 0;
+		if (plr._pMemSkills & SPELL_MASK(i)) {
+			spllvl = plr._pSkillLvlBase[i] + spllvladd;
+			if (spllvl < 0)
+				spllvl = 0;
+		}
+		plr._pSkillLvl[i] = spllvl;
+	}
 
 	if (plr._pgfxnum != gfx) {
 		plr._pgfxnum = gfx;

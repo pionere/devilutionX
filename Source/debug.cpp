@@ -103,18 +103,19 @@ void MaxSpellsCheat()
 {
 	int i;
 
-	for (i = 1; i < NUM_SPELLS; i++) {
+	for (i = 0; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
 			myplr._pMemSkills |= SPELL_MASK(i);
-			myplr._pSkillLvl[i] = 10;
+			myplr._pSkillLvlBase[i] = MAXSPLLEVEL;
 		}
 	}
+	CalcPlrItemVals(mypnum, false);
 }
 
-void SetSpellLevelCheat(char spl, int spllvl)
+static void SetSpellLevelCheat(char spl, int spllvl)
 {
 	myplr._pMemSkills |= SPELL_MASK(spl);
-	myplr._pSkillLvl[spl] = spllvl;
+	myplr._pSkillLvlBase[spl] = spllvl;
 }
 
 void SetAllSpellsCheat()
@@ -141,6 +142,7 @@ void SetAllSpellsCheat()
 	SetSpellLevelCheat(SPL_GOLEM, 2);
 	SetSpellLevelCheat(SPL_FLARE, 1);
 //	SetSpellLevelCheat(SPL_BONESPIRIT, 1);
+	CalcPlrItemVals(mypnum, false);
 }
 
 void PrintDebugPlayer(bool bNextPlayer)

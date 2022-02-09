@@ -311,7 +311,7 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 	} else if ((spelldata[spl].sFlags & plr._pSkillFlags) != spelldata[spl].sFlags)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
-		lvl = GetSpellLevel(pnum, spl);
+		lvl = plr._pSkillLvl[spl];
 		if (lvl <= 0 || plr._pMana < GetManaAmount(pnum, spl))
 			st = RSPLTYPE_INVALID;
 		if (plr._pHasUnidItem)
@@ -444,7 +444,7 @@ void DrawSkillList()
 			}
 			st = i;
 			if (i == RSPLTYPE_SPELL) {
-				sl = GetSpellLevel(pnum, j);
+				sl = plr._pSkillLvl[j];
 				st = sl > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 				if (plr._pHasUnidItem)
 					sl = -1; // SPLLVL_UNDEF
@@ -1905,7 +1905,7 @@ void DrawSpellBook()
 				currSkill = sn;
 				currSkillType = st;
 			}
-			lvl = GetSpellLevel(pnum, sn);
+			lvl = plr._pSkillLvl[sn];
 			assert(lvl >= 0);
 			mana = 0;
 			switch (st) {

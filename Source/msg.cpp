@@ -1691,21 +1691,20 @@ static unsigned On_DPUTITEM(TCmd *pCmd, int pnum)
 
 static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 {
-	int sl, ma;
+	int ma;
 	BYTE sn = su.skill;
 	char sf = su.from;
 	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
 
 	if (sn != SPL_NULL && sn < NUM_SPELLS && (spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
-		sl = GetSpellLevel(pnum, sn);
 		static_assert(MAXSPLLEVEL <= CHAR_MAX, "CheckPlrSkillUse uses a char field to store the spell level.");
-		su.from = sl;
+		su.from = plr._pSkillLvl[sn];
 		if (sf == SPLFROM_MANA) {
 #if DEBUG_MODE
 			if (debug_mode_key_inverted_v)
 				return true;
 #endif
-			if (sl <= 0)
+			if (su.from <= 0)
 				return false;
 			ma = GetManaAmount(pnum, sn);
 			// TODO: enable this for every player
@@ -2552,7 +2551,7 @@ static unsigned On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 
 static unsigned On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
 {
-	plr._pSkillLvl[plr._pAltAtkSkill]++;
+	IncreasePlrSkillLvl(pnum, plr._pAltAtkSkill);
 	return sizeof(*pCmd);
 }
 

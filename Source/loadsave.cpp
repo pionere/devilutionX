@@ -389,7 +389,7 @@ static void LoadPlayer(int pnum)
 	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillHotKey), plr._pAltMoveSkillHotKey);
 	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillTypeHotKey), plr._pAltMoveSkillTypeHotKey);
 
-	CopyBytes(tbuff, lengthof(plr._pSkillLvl), plr._pSkillLvl);
+	CopyBytes(tbuff, lengthof(plr._pSkillLvlBase), plr._pSkillLvlBase);
 	CopyBytes(tbuff, lengthof(plr._pSkillActivity), plr._pSkillActivity);
 	LoadInts(plr._pSkillExp, lengthof(plr._pSkillExp));
 	LoadInt64(&plr._pMemSkills);
@@ -457,6 +457,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // _pMaxHP
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
+	tbuff += 64; // _pSkillLvl
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
@@ -485,7 +486,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // _pIFlags
 	tbuff += 4; // _pIFlags2
 	tbuff += 4; // _pIGetHit
-	tbuff += 1; // _pISplLvlAdd
+	tbuff += 1; // _pAlign_CB
 	tbuff += 1; // _pIArrowVelBonus
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
@@ -1112,7 +1113,7 @@ static void SavePlayer(int pnum)
 	CopyBytes(plr._pAltMoveSkillHotKey, lengthof(plr._pAltMoveSkillHotKey), tbuff);
 	CopyBytes(plr._pAltMoveSkillTypeHotKey, lengthof(plr._pAltMoveSkillTypeHotKey), tbuff);
 
-	CopyBytes(plr._pSkillLvl, lengthof(plr._pSkillLvl), tbuff);
+	CopyBytes(plr._pSkillLvlBase, lengthof(plr._pSkillLvlBase), tbuff);
 	CopyBytes(plr._pSkillActivity, lengthof(plr._pSkillActivity), tbuff);
 	SaveInts(plr._pSkillExp, lengthof(plr._pSkillExp));
 	SaveInt64(&plr._pMemSkills);
@@ -1180,6 +1181,7 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // _pMaxHP
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
+	tbuff += 64; // _pSkillLvl
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
@@ -1208,7 +1210,7 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // _pIFlags
 	tbuff += 4; // _pIFlags2
 	tbuff += 4; // _pIGetHit
-	tbuff += 1; // _pISplLvlAdd
+	tbuff += 1; // _pAlign_CB
 	tbuff += 1; // _pIArrowVelBonus
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal

@@ -370,7 +370,7 @@ static char ValidateSkill(BYTE sn, BYTE splType)
 	case RSPLTYPE_SPELL:
 		if (myplr._pMana < GetManaAmount(mypnum, sn))
 			result = SPLFROM_INVALID_MANA;
-		else if (GetSpellLevel(mypnum, sn) > 0)
+		else if (myplr._pSkillLvl[sn] > 0)
 			result = SPLFROM_MANA; // PlaySFX(sgSFXSets[SFXS_PLR_35][p->_pClass]);
 		else
 			result = SPLFROM_INVALID_LEVEL;

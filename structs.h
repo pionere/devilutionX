@@ -281,7 +281,7 @@ typedef struct PlayerStruct {
 	BYTE _pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
 	BYTE _pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
 	BYTE _pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	BYTE _pSkillLvl[64];
+	BYTE _pSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
 	BYTE _pSkillActivity[64];
 	unsigned _pSkillExp[64];
 	uint64_t _pMemSkills;  // Bitmask of learned skills
@@ -296,14 +296,6 @@ typedef struct PlayerStruct {
 	int _pMaxHPBase; // the maximum hp of the player without items
 	int _pManaBase;    // the mana of the player if they would not wear an item
 	int _pMaxManaBase; // the maximum mana of the player without items
-	int _pStrength;
-	int _pMagic;
-	int _pDexterity;
-	int _pVitality;
-	int _pHitPoints; // the current hp of the player
-	int _pMaxHP;     // the maximum hp of the player
-	int _pMana;        // the current mana of the player
-	int _pMaxMana;     // the maximum mana of the player
 	int _pVar1;
 	int _pVar2;
 	int _pVar3;
@@ -343,6 +335,15 @@ typedef struct PlayerStruct {
 	ItemStruct _pSpdList[MAXBELTITEMS];
 	ItemStruct _pInvList[NUM_INV_GRID_ELEM];
 	int _pGold;
+	int _pStrength;
+	int _pMagic;
+	int _pDexterity;
+	int _pVitality;
+	int _pHitPoints; // the current hp of the player
+	int _pMaxHP;     // the maximum hp of the player
+	int _pMana;      // the current mana of the player
+	int _pMaxMana;   // the maximum mana of the player
+	BYTE _pSkillLvl[64]; // the skill levels of the player
 	BOOLEAN _pInfraFlag;
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
@@ -369,7 +370,7 @@ typedef struct PlayerStruct {
 	unsigned _pIFlags;
 	unsigned _pIFlags2; // unused at the moment, but removing it causes inconsistency in case of X86_32bit_COMP...
 	int _pIGetHit;
-	char _pISplLvlAdd;
+	BYTE _pAlign_CB; // unused alignment
 	char _pIArrowVelBonus; // _pISplCost in vanilla code
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
@@ -390,7 +391,7 @@ typedef struct PlayerStruct {
 	BYTE* _pHData;
 	BYTE* _pDData;
 	BYTE* _pBData;
-	ALIGNMENT(207, 120)
+	ALIGNMENT(191, 104)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -892,7 +893,7 @@ typedef struct PkPlayerStruct {
 	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
 	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
 	BYTE pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	BYTE pSkillLvl[64];
+	BYTE pSkillLvlBase[64];
 	BYTE pSkillActivity[64];
 	DWORD pSkillExp[64];
 	uint64_t pMemSkills;
