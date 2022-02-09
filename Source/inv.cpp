@@ -1640,12 +1640,12 @@ static void StartGoldDrop()
 	dropGoldValue = 0;
 }
 
-static void InvAddHp()
+static void InvAddHp(int pnum)
 {
 	PlayerStruct* p;
 	int hp;
 
-	p = &myplr;
+	p = &plr;
 	hp = p->_pMaxHP >> 8;
 	hp = ((hp >> 1) + random_(39, hp)) << 6;
 	switch (p->_pClass) {
@@ -1663,15 +1663,15 @@ static void InvAddHp()
 	default:
 		ASSUME_UNREACHABLE
 	}
-	PlrIncHp(mypnum, hp);
+	PlrIncHp(pnum, hp);
 }
 
-static void InvAddMana()
+static void InvAddMana(int pnum)
 {
 	PlayerStruct* p;
 	int mana;
 
-	p = &myplr;
+	p = &plr;
 	mana = p->_pMaxMana >> 8;
 	mana = ((mana >> 1) + random_(40, mana)) << 6;
 	switch (p->_pClass) {
@@ -1687,7 +1687,7 @@ static void InvAddMana()
 	default:
 		ASSUME_UNREACHABLE
 	}
-	PlrIncMana(mypnum, mana);
+	PlrIncMana(pnum, mana);
 }
 
 bool InvUseItem(int cii)
@@ -1831,20 +1831,20 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	SetRndSeed(is->_iSeed);
 	switch (is->_iMiscId) {
 	case IMISC_HEAL:
-		InvAddHp();
+		InvAddHp(pnum);
 		break;
 	case IMISC_FULLHEAL:
 		PlrFillHp(pnum);
 		break;
 	case IMISC_MANA:
-		InvAddMana();
+		InvAddMana(pnum);
 		break;
 	case IMISC_FULLMANA:
 		PlrFillMana(pnum);
 		break;
 	case IMISC_REJUV:
-		InvAddHp();
-		InvAddMana();
+		InvAddHp(pnum);
+		InvAddMana(pnum);
 		break;
 	case IMISC_FULLREJUV:
 		PlrFillHp(pnum);
