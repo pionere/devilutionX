@@ -1186,7 +1186,7 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'a':
 		if (debug_mode_key_inverted_v) {
-			myplr._pSkillLvl[myplr._pAltAtkSkill]++;
+			NetSendCmd(CMD_CHEAT_SPELL_LEVEL);
 		}
 		break;
 	case 'D':
