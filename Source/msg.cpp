@@ -1697,10 +1697,10 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
 
 	if (sn != SPL_NULL && sn < NUM_SPELLS && (spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+		sl = GetSpellLevel(pnum, sn);
+		static_assert(MAXSPLLEVEL <= CHAR_MAX, "CheckPlrSkillUse uses a char field to store the spell level.");
+		su.from = sl;
 		if (sf == SPLFROM_MANA) {
-			sl = GetSpellLevel(pnum, sn);
-			static_assert(MAXSPLLEVEL <= CHAR_MAX, "CheckPlrSkillUse uses a char field to store the spell level.");
-			su.from = sl;
 #if DEBUG_MODE
 			if (debug_mode_key_inverted_v)
 				return true;
