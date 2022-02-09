@@ -406,15 +406,6 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pManaBase);
 	LoadInt(&plr._pMaxManaBase);
 
-	LoadInt(&plr._pStrength);
-	LoadInt(&plr._pMagic);
-	LoadInt(&plr._pDexterity);
-	LoadInt(&plr._pVitality);
-	LoadInt(&plr._pHitPoints);
-	LoadInt(&plr._pMaxHP);
-	LoadInt(&plr._pMana);
-	LoadInt(&plr._pMaxMana);
-
 	LoadInt(&plr._pVar1);
 	LoadInt(&plr._pVar2);
 	LoadInt(&plr._pVar3);
@@ -458,6 +449,14 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pGold);
 
 	/*Skip to Calc
+	tbuff += 4; // _pStrength
+	tbuff += 4; // _pMagic
+	tbuff += 4; // _pDexterity
+	tbuff += 4; // _pVitality
+	tbuff += 4; // _pHitPoints
+	tbuff += 4; // _pMaxHP
+	tbuff += 4; // _pMana
+	tbuff += 4; // _pMaxMana
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
@@ -1130,15 +1129,6 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pManaBase);
 	SaveInt(&plr._pMaxManaBase);
 
-	SaveInt(&plr._pStrength);
-	SaveInt(&plr._pMagic);
-	SaveInt(&plr._pDexterity);
-	SaveInt(&plr._pVitality);
-	SaveInt(&plr._pHitPoints);
-	SaveInt(&plr._pMaxHP);
-	SaveInt(&plr._pMana);
-	SaveInt(&plr._pMaxMana);
-
 	SaveInt(&plr._pVar1);
 	SaveInt(&plr._pVar2);
 	SaveInt(&plr._pVar3);
@@ -1182,6 +1172,14 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pGold);
 
 	/*Skip to Calc
+	tbuff += 4; // _pStrength
+	tbuff += 4; // _pMagic
+	tbuff += 4; // _pDexterity
+	tbuff += 4; // _pVitality
+	tbuff += 4; // _pHitPoints
+	tbuff += 4; // _pMaxHP
+	tbuff += 4; // _pMana
+	tbuff += 4; // _pMaxMana
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
@@ -1534,7 +1532,7 @@ void SaveGame()
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 13996 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
+	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 13964 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
 	// initial
 	i = SAVE_INITIAL;
 	SaveInt(&i);
