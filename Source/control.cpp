@@ -999,11 +999,11 @@ bool DoPanBtn()
 			return true;
 		}
 	}
-	if (mx >= SCREEN_WIDTH - (SPLICONLENGTH + 4)
-	 && mx <= SCREEN_WIDTH - 4
-	 && my >= SCREEN_HEIGHT - 2 * (SPLICONLENGTH + 4)
-	 && my <= SCREEN_HEIGHT - 4) {
-		HandleSkillBtn(my < SCREEN_HEIGHT - (SPLICONLENGTH + 4));
+	if (mx >= SCREEN_WIDTH - SPLICONLENGTH
+	 && mx <= SCREEN_WIDTH
+	 && my >= SCREEN_HEIGHT - 2 * SPLICONLENGTH
+	 && my <= SCREEN_HEIGHT) {
+		HandleSkillBtn(my < SCREEN_HEIGHT - SPLICONLENGTH);
 		return true;
 	}
 	if (gbLvlUp && InLvlUpRect())
