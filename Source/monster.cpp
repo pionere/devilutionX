@@ -4674,8 +4674,6 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnims = mon->MType->cmAnims;
 	mon->_mAnimWidth = mon->MType->cmWidth;
 	mon->_mAnimXOffset = mon->MType->cmXOffset;
-	mon->_mAFNum = mon->MType->cmAFNum;
-	mon->_mAFNum2 = mon->MType->cmAFNum2;
 	MData = mon->MType->cmData;
 	if (MData == NULL) {
 		dev_fatal("SyncMonsterAnim: Monster %d \"%s\" MData NULL", mon->_mMTidx, mon->mName);
@@ -4723,6 +4721,7 @@ void SyncMonsterAnim(int mnum)
 	}
 	mon->_mAnimData = mon->_mAnims[anim].aData[mon->_mdir];
 	mon->_mAnimFrameLen = mon->_mAnims[anim].aFrameLen;
+	mon->_mAnimLen = mon->_mAnims[anim].aFrames;
 }
 
 void MissToMonst(int mi, int x, int y)

@@ -547,7 +547,7 @@ static void LoadMonster(int mnum)
 	tbuff += 4; // Skip pointer _mAnimData
 	tbuff += 4; // Skip _mAnimFrameLen
 	LoadInt(&mon->_mAnimCnt);
-	LoadInt(&mon->_mAnimLen);
+	tbuff += 4; // Skip _mAnimLen
 	LoadInt(&mon->_mAnimFrame);
 	LoadInt(&mon->_mDelFlag);
 	LoadInt(&mon->_mVar1);
@@ -1266,7 +1266,7 @@ static void SaveMonster(int mnum)
 	tbuff += 4; // Skip pointer _mAnimData
 	tbuff += 4; // Skip _mAnimFrameLen
 	SaveInt(&mon->_mAnimCnt);
-	SaveInt(&mon->_mAnimLen);
+	tbuff += 4; // Skip _mAnimLen
 	SaveInt(&mon->_mAnimFrame);
 	SaveInt(&mon->_mDelFlag);
 	SaveInt(&mon->_mVar1);
