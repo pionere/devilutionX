@@ -659,7 +659,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BOOL _mDelFlag;
 	int _mVar1;
 	int _mVar2;
-	int _mVar3;
+	int _mVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
 	int _mVar4;
 	int _mVar5;
 	int _mVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number

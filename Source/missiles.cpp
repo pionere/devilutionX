@@ -2507,6 +2507,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 				if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mhitpoints >= (1 << 6)) {
 					mis->_miVar1 = mon->_mmode;
 					mis->_miVar2 = mid;
+					mon->_mVar3 = mon->_mmode;
 					mon->_mmode = MM_STONE;
 					mis->_mix = tx;
 					mis->_miy = ty;

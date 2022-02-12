@@ -4659,6 +4659,7 @@ void SyncMonsterAnim(int mnum)
 {
 	const MonsterData* MData;
 	MonsterStruct* mon;
+	int mode;
 	MON_ANIM anim;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -4684,7 +4685,10 @@ void SyncMonsterAnim(int mnum)
 	else
 		mon->mName = MData->mName;
 
-	switch (mon->_mmode) {
+	mode = mon->_mmode;
+	if (mode == MM_STONE)
+		mode = mon->_mVar3;
+	switch (mode) {
 	case MM_WALK:
 	case MM_WALK2:
 		anim = MA_WALK;
@@ -4709,18 +4713,12 @@ void SyncMonsterAnim(int mnum)
 		break;
 	case MM_STAND:
 	case MM_DELAY:
+	case MM_CHARGE:
 	case MM_TALK:
 		anim = MA_STAND;
 		break;
-	case MM_CHARGE:
-		anim = MA_ATTACK;
-		mon->_mAnimFrame = 1;
-		mon->_mAnimLen = mon->_mAnims[MA_ATTACK].aFrames;
-		break;
 	default:
-		anim = MA_STAND;
-		mon->_mAnimFrame = 1;
-		mon->_mAnimLen = mon->_mAnims[MA_STAND].aFrames;
+		ASSUME_UNREACHABLE
 		break;
 	}
 	mon->_mAnimData = mon->_mAnims[anim].aData[mon->_mdir];
