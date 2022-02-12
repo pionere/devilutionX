@@ -1599,21 +1599,17 @@ void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags)
 	PlayEffect(mnum, MS_GOTHIT);
 	if (mnum < MAX_MINIONS)
 		return;
-	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp) {
+	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp && mon->_mmode != MM_STONE) {
 		if ((unsigned)pnum < MAX_PLRS) {
 			mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
 			mon->_menemy = pnum;
 			mon->_menemyx = plr._pfutx;
 			mon->_menemyy = plr._pfuty;
-			if (mon->_mmode != MM_STONE) {
-				mon->_mdir = MonGetDir(mnum);
-				if (mon->_mType == MT_BLINK)
-					MonTeleport(mnum);
-			}
+			mon->_mdir = MonGetDir(mnum);
+			if (mon->_mType == MT_BLINK)
+				MonTeleport(mnum);
 		}
-		if (mon->_mmode != MM_STONE) {
-			MonStartGetHit(mnum);
-		}
+		MonStartGetHit(mnum);
 	}
 }
 
@@ -1729,15 +1725,13 @@ static void M2MStartHit(int defm, int offm, int dam)
 	PlayEffect(defm, MS_GOTHIT);
 	if (defm < MAX_MINIONS)
 		return;
-	if ((dam << 2) >= dmon->_mmaxhp) {
-		if (dmon->_mmode != MM_STONE) {
-			if (dmon->_mType == MT_BLINK) {
-				MonTeleport(defm);
-			}
-			//if (offm >= 0)
-				dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
-			MonStartGetHit(defm);
+	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
+		if (dmon->_mType == MT_BLINK) {
+			MonTeleport(defm);
 		}
+		//if (offm >= 0)
+			dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
+		MonStartGetHit(defm);
 	}
 }
 
