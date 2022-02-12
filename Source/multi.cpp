@@ -126,13 +126,13 @@ static void multi_init_pkt_header(TurnPktHdr &pktHdr, unsigned len)
 static void multi_send_turn_packet()
 {
 	BYTE *dstEnd;
-	unsigned size, len;
+	unsigned remsize, len;
 	TurnPkt pkt;
 
-	size = gdwNormalMsgSize - sizeof(TurnPktHdr);
-	dstEnd = multi_add_chunks(&pkt.body[0], &size);
-	size = sync_all_monsters(dstEnd, size);
-	len = gdwNormalMsgSize - size;
+	remsize = gdwNormalMsgSize - sizeof(TurnPktHdr);
+	dstEnd = multi_add_chunks(&pkt.body[0], &remsize);
+	dstEnd = sync_all_monsters(dstEnd, remsize);
+	len = (size_t)dstEnd - (size_t)&pkt;
 	multi_init_pkt_header(pkt.hdr, len);
 	nthread_send_turn((BYTE*)&pkt, len);
 }

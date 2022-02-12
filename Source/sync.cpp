@@ -155,30 +155,28 @@ static int sync_prio_monster()
 	}
 }*/
 
-unsigned sync_all_monsters(const BYTE* pbBuf, unsigned dwMaxLen)
+BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 {
 	TSyncHeader* pHdr;
 	int i, idx;
-	WORD wLen;
+	unsigned remsize = size;
+	size_t wLen;
 
 	if (!IsMultiGame || gbLvlLoad == 10 /*|| nummonsters < 1*/) { // nummonsters is always >= MAX_MINIONS
-		return dwMaxLen;
+		return pbBuf;
 	}
-	if (dwMaxLen < sizeof(*pHdr) + sizeof(TSyncMonster)) {
-		return dwMaxLen;
+	if (remsize < sizeof(*pHdr) + sizeof(TSyncMonster)) {
+		return pbBuf;
 	}
+	assert(remsize <= 0xFFFF);
 
 	sync_init_monsters();
 
 	pHdr = (TSyncHeader*)pbBuf;
 	pbBuf += sizeof(*pHdr);
-	dwMaxLen -= sizeof(*pHdr);
+	remsize -= sizeof(*pHdr);
 
-	wLen = 0;
-	//SyncPlrInv(pHdr);
-	assert(dwMaxLen <= 0xffff);
-
-	for (i = 0; i < nummonsters && dwMaxLen >= sizeof(TSyncMonster); i++) {
+	for (i = 0; i < nummonsters && remsize >= sizeof(TSyncMonster); i++) {
 		idx = -1;
 		if (i < 2)
 			idx = sync_prio_monster();
@@ -189,13 +187,17 @@ unsigned sync_all_monsters(const BYTE* pbBuf, unsigned dwMaxLen)
 		if (!sync_monster_pos((TSyncMonster *)pbBuf, idx))
 			continue;
 		pbBuf += sizeof(TSyncMonster);
-		wLen += sizeof(TSyncMonster);
-		dwMaxLen -= sizeof(TSyncMonster);
+		remsize -= sizeof(TSyncMonster);
 	}
+	wLen = (size_t)pbBuf - (size_t)pHdr;
+	if (wLen == sizeof(*pHdr))
+		return (BYTE*)pHdr;
+	//*size = remsize;
+
 	pHdr->bCmd = CMD_SYNCDATA;
 	pHdr->bLevel = currLvl._dLevelIdx;
 	pHdr->wLen = SwapLE16(wLen);
-	return dwMaxLen;
+	return pbBuf;
 }
 
 /*static void sync_monster(int pnum, const TSyncMonster* symon)
