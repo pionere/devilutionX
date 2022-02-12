@@ -50,6 +50,13 @@ static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE
 /** Check if the monster just finished a WALK (STAND_PREV_MODE, STAND_TICK)*/
 #define MON_JUST_WALKED ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2) && mon->_mVar2 == 0)
 
+/** Standard MAI check if the monster has other things to do. */
+#define MON_ACTIVE (mon->_mmode != MM_STAND)
+/**
+ * Standard MAI check if the monster is (not) 'disturbed'.
+ */
+#define MON_RELAXED (mon->_msquelch == 0)
+
 /** Maps from walking path step to facing direction. */
 //const char walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
 /** Maps from monster intelligence factor to missile type. */
@@ -1557,7 +1564,7 @@ static void MonFallenFear(int x, int y)
 		 && abs(x - mon->_mx) < 5
 		 && abs(y - mon->_my) < 5
 		 && mon->_mhitpoints >= (1 << 6)
-		 && mon->_msquelch != 0) { // TODO: use LineClear instead to prevent retreat behind walls?
+		 && !MON_RELAXED) { // TODO: use LineClear instead to prevent retreat behind walls?
 			mon->_mgoal = MGOAL_RETREAT;
 			mon->_mgoalvar1 = 8 - 2 * mon->_mInt; // RETREAT_DISTANCE
 			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
@@ -2711,7 +2718,7 @@ void MAI_Zombie(int mnum)
 		dev_fatal("MAI_Zombie: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (random_(103, 100) < 2 * mon->_mInt + 10) {
@@ -2742,7 +2749,7 @@ void MAI_SkelSd(int mnum)
 		dev_fatal("MAI_SkelSd: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	mx = mon->_mx;
@@ -2774,7 +2781,7 @@ static bool MAI_Path(int mnum)
 		dev_fatal("MAI_Path: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return false;
 	if (mon->_mgoal != MGOAL_NORMAL && mon->_mgoal != MGOAL_MOVE && mon->_mgoal != MGOAL_ATTACK2)
 		return false;
@@ -2811,7 +2818,7 @@ void MAI_Snake(int mnum)
 	}
 	const BYTE pattern[6] = { 1, 1, 0, 7, 7, 0 };
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	mx = mon->_mx;
@@ -2873,7 +2880,7 @@ void MAI_Bat(int mnum)
 		dev_fatal("MAI_Bat: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
@@ -2928,7 +2935,7 @@ void MAI_SkelBow(int mnum)
 		dev_fatal("MAI_SkelBow: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	mx = mon->_mx - mon->_menemyx;
@@ -2962,7 +2969,7 @@ void MAI_Fat(int mnum)
 		dev_fatal("MAI_Fat: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
@@ -2991,7 +2998,7 @@ void MAI_Sneak(int mnum)
 		dev_fatal("MAI_Sneak: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 	mx = mon->_mx;
 	my = mon->_my;
@@ -3059,7 +3066,7 @@ void MAI_Sneak(int mnum)
 		dev_fatal("MAI_Fireman: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	mx = mon->_mx;
@@ -3118,7 +3125,7 @@ void MAI_Fallen(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 	}
 
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
@@ -3177,7 +3184,7 @@ void MAI_Cleaver(int mnum)
 		dev_fatal("MAI_Cleaver: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	mx = mon->_mx;
@@ -3203,7 +3210,7 @@ static void MAI_Round(int mnum, bool special)
 		dev_fatal("MAI_Round: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -3260,7 +3267,7 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 		dev_fatal("MAI_Ranged: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -3365,7 +3372,7 @@ void MAI_Scav(int mnum)
 		dev_fatal("MAI_Scav: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && mon->_mgoal != MGOAL_HEALING) {
 		MonUpdateLeader(mnum);
@@ -3464,7 +3471,7 @@ void MAI_Garg(int mnum)
 	}
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_GARG_STONE) {
-		if (mon->_msquelch != 0) {
+		if (!MON_RELAXED) {
 			MonEnemy(mnum);
 			mx = mon->_mx - mon->_menemyx;
 			my = mon->_my - mon->_menemyy;
@@ -3487,7 +3494,7 @@ void MAI_Garg(int mnum)
 		return;
 	}
 
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1))
@@ -3520,7 +3527,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 		dev_fatal("MAI_RoundRanged: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -3618,7 +3625,7 @@ static void MAI_RR2(int mnum, int mitype)
 		dev_fatal("MAI_RR2: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	fx = mon->_menemyx;
@@ -3693,7 +3700,7 @@ void MAI_Golem(int mnum)
 	}
 	mon = &monsters[mnum];
 	assert(!MINION_INACTIVE(mon));
-	if (mon->_mmode != MM_STAND) {
+	if (MON_ACTIVE) {
 		//assert(mon->_mmode == MM_DEATH || mon->_mmode == MM_SPSTAND
 		// || mon->_mmode == MM_ATTACK || mon->_mmode == MM_WALK || mon->_mmode == MM_WALK2);
 		return;
@@ -3741,7 +3748,7 @@ void MAI_SkelKing(int mnum)
 		dev_fatal("MAI_SkelKing: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -3803,7 +3810,7 @@ void MAI_Rhino(int mnum)
 		dev_fatal("MAI_Rhino: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -3863,7 +3870,7 @@ void MAI_Horkdemon(int mnum)
 		dev_fatal("MAI_Horkdemon: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -3921,7 +3928,7 @@ void MAI_Counselor(int mnum)
 		dev_fatal("MAI_Counselor: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -3984,7 +3991,7 @@ void MAI_Garbud(int mnum)
 		dev_fatal("MAI_Garbud: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND)
+	if (MON_ACTIVE)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
@@ -4018,7 +4025,7 @@ void MAI_Zhar(int mnum)
 		dev_fatal("MAI_Zhar: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND)
+	if (MON_ACTIVE)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
@@ -4052,7 +4059,7 @@ void MAI_SnotSpil(int mnum)
 		dev_fatal("MAI_SnotSpil: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND)
+	if (MON_ACTIVE)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
@@ -4103,7 +4110,7 @@ void MAI_Lazarus(int mnum)
 		dev_fatal("MAI_Lazarus: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND)
+	if (MON_ACTIVE)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
@@ -4149,7 +4156,7 @@ void MAI_Lazhelp(int mnum)
 		dev_fatal("MAI_Lazhelp: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND)
+	if (MON_ACTIVE)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
@@ -4172,7 +4179,7 @@ void MAI_Lachdanan(int mnum)
 		dev_fatal("MAI_Lachdanan: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
@@ -4201,7 +4208,7 @@ void MAI_Warlord(int mnum)
 		dev_fatal("MAI_Warlord: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mmode != MM_STAND)
+	if (MON_ACTIVE)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
