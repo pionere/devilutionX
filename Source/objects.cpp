@@ -865,22 +865,6 @@ static void Alloc2x2Obj(int oi)
 	dObject[ox - 1][oy - 1] = oi;
 }
 
-static void AddMushPatch()
-{
-	int xp, yp;
-
-	if (RndLoc5x5(&xp, &yp))
-		AddObject(OBJ_MUSHPATCH, xp, yp);
-}
-
-static void AddSlainHero()
-{
-	int xp, yp;
-
-	if (RndLoc5x5(&xp, &yp))
-		AddObject(OBJ_SLAINHERO, xp, yp);
-}
-
 static void AddStoryBooks()
 {
 	int xp, yp;
@@ -1011,9 +995,9 @@ void InitObjects()
 		break;
 	case DTYPE_CAVES:
 		if (QuestStatus(Q_MUSHROOM))
-			AddMushPatch();
+			InitRndLocObj5x5(OBJ_MUSHPATCH);
 		if (currLvl._dLevelIdx == DLV_CAVES1 && !IsMultiGame)
-			AddSlainHero();
+			InitRndLocObj5x5(OBJ_SLAINHERO);
 		else if (currLvl._dLevelIdx == DLV_CAVES4)
 			AddStoryBooks();
 #ifdef HELLFIRE
