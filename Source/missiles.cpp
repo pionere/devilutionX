@@ -1270,14 +1270,14 @@ static void CheckSplashCol(int mi)
 	}
 }
 
-static void SetMissAnim(int mi, int animtype)
+static void SyncMissAnim(int mi)
 {
 	MissileStruct *mis;
 	const MisFileData *mfd;
-	int dir;
+	int dir, animtype;
 
 	mis = &missile[mi];
-	mis->_miAnimType = animtype;
+	animtype = mis->_miAnimType;
 	dir = mis->_miDir;
 	mis->_miAnimData = misanimdata[animtype][dir];
 	mfd = &misfiledata[animtype];
@@ -1286,14 +1286,14 @@ static void SetMissAnim(int mi, int animtype)
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
 	mis->_miAnimWidth = mfd->mfAnimWidth;
 	mis->_miAnimXOffset = mfd->mfAnimXOffset;
-	mis->_miAnimCnt = 0;
-	mis->_miAnimFrame = 1;
 }
 
 static void SetMissDir(int mi, int dir)
 {
 	missile[mi]._miDir = dir;
-	SetMissAnim(mi, missile[mi]._miAnimType);
+	missile[mi]._miAnimCnt = 0;
+	missile[mi]._miAnimFrame = 1;
+	SyncMissAnim(mi);
 }
 
 void LoadMissileGFX(BYTE midx)
