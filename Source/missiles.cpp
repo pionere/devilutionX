@@ -1638,22 +1638,14 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		int mdam = plx(misource)._pIMMaxDam;
 		int adam = plx(misource)._pIAMaxDam;
 		if ((ldam | fdam | mdam | adam) != 0) {
+			// TODO: use random?
 			if ((fdam | ldam) >= (mdam | adam)) {
 				mtype = fdam >= ldam ? MFILE_FARROW : MFILE_LARROW;
 			} else {
 				mtype = mdam >= adam ? MFILE_MARROW : MFILE_PARROW;
 			}
-			missile[mi]._miDir = midir;
-			SetMissAnim(mi, mtype);
-			/*dam += fdam + ldam;
-			int gfx = random_(8, dam);
-			if (gfx >= dam - (fdam + ldam)) {
-				if (gfx < dam - ldam) {
-					SetMissAnim(mi, MFILE_FARROW);
-				} else {
-					SetMissAnim(mi, MFILE_LARROW);
-				}
-			}*/
+			missile[mi]._miAnimType = mtype;
+			SetMissDir(mi, midir);
 		}
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
@@ -3829,9 +3821,9 @@ void MI_Stone(int mi)
 
 	if (mon->_mhitpoints < (1 << 6)) {
 		if (mis->_miAnimType != MFILE_SHATTER1) {
-			//mis->_miDir = 0;
 			mis->_miDrawFlag = TRUE;
-			SetMissAnim(mi, MFILE_SHATTER1);
+			mis->_miAnimType = MFILE_SHATTER1;
+			SetMissDir(mi, 0);
 			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] - 1;
 		}
 		PutMissile(mi);
@@ -4151,8 +4143,8 @@ void MI_Cbolt(int mi)
 		 && CheckMissileCol(mi, mis->_mix, mis->_miy, false)) {
 			static_assert(MAX_LIGHT_RAD >= 8, "MI_Cbolt needs at least light-radius of 8.");
 			mis->_miVar1 = 8;
-			mis->_miDir = 0;
-			SetMissAnim(mi, MFILE_LGHNING);
+			mis->_miAnimType = MFILE_LGHNING;
+			SetMissDir(mi, 0);
 			mis->_miRange = misfiledata[MFILE_LGHNING].mfAnimLen[0];
 		}
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar1);
