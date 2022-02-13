@@ -1045,7 +1045,6 @@ typedef struct TCmdGolem {
 	BYTE goMonLevel;
 	BYTE goX;
 	BYTE goY;
-	BYTE goEnemy;
 	BYTE goDunLevel;
 } TCmdGolem;
 
@@ -1155,7 +1154,6 @@ typedef struct TSyncMonster {
 	BYTE _mx;
 	BYTE _my;
 	BYTE _mdir;
-	BYTE _menemy;
 	DWORD _mactive;
 	INT	_mhitpoints;
 } TSyncMonster;
@@ -1191,7 +1189,6 @@ typedef struct DMonsterStr {
 	BYTE _mx;
 	BYTE _my;
 	BYTE _mdir;
-	BYTE _menemy;
 	DWORD _mactive;
 	INT _mhitpoints;
 	BYTE _mWhoHit;

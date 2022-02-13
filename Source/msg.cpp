@@ -664,7 +664,6 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 			pD->_mx = pSync->_mx;
 			pD->_my = pSync->_my;
 			pD->_mdir = pSync->_mdir;
-			pD->_menemy = pSync->_menemy;
 			pD->_mactive = pSync->_mactive;
 			pD->_mhitpoints = pSync->_mhitpoints;
 		}
@@ -695,7 +694,6 @@ static void delta_awake_golem(TCmdGolem *pG, int mnum)
 	pD->_mx = pG->goX;
 	pD->_my = pG->goY;
 	pD->_mactive = SQUELCH_MAX;
-	pD->_menemy = pG->goEnemy;
 	pD->_mdir = DIR_S;
 	pD->_mhitpoints = monsters[mnum]._mmaxhp;
 }
@@ -941,7 +939,6 @@ void DeltaLoadLevel()
 					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
 					mon->_msquelch = mstr->_mactive;
 					mon->_mWhoHit = mstr->_mWhoHit;
-					decode_enemy(i, mstr->_menemy);
 					dMonster[mon->_mx][mon->_my] = i + 1;
 					MonStartStand(i, mon->_mdir);
 				}
@@ -1086,7 +1083,6 @@ void NetSendCmdGolem()
 	cmd.goX = mon->_mx;
 	cmd.goY = mon->_my;
 	cmd.goMonLevel = mon->_mLevel;
-	cmd.goEnemy = encode_enemy(mypnum);
 	cmd.goDunLevel = currLvl._dLevelIdx;
 
 	NetSendChunk((BYTE *)&cmd, sizeof(cmd));

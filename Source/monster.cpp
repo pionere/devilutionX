@@ -5181,28 +5181,4 @@ bool CheckMonsterHit(int mnum, bool* ret)
 	return false;
 }
 
-int encode_enemy(int mnum)
-{
-	if (monsters[mnum]._mFlags & MFLAG_TARGETS_MONSTER)
-		return monsters[mnum]._menemy + MAX_PLRS;
-	else
-		return monsters[mnum]._menemy;
-}
-
-void decode_enemy(int mnum, int enemy)
-{
-	if (enemy < MAX_PLRS) {
-		monsters[mnum]._mFlags &= ~MFLAG_TARGETS_MONSTER;
-		monsters[mnum]._menemy = enemy;
-		monsters[mnum]._menemyx = plx(enemy)._pfutx;
-		monsters[mnum]._menemyy = plx(enemy)._pfuty;
-	} else {
-		monsters[mnum]._mFlags |= MFLAG_TARGETS_MONSTER;
-		enemy -= MAX_PLRS;
-		monsters[mnum]._menemy = enemy;
-		monsters[mnum]._menemyx = monsters[enemy]._mfutx;
-		monsters[mnum]._menemyy = monsters[enemy]._mfuty;
-	}
-}
-
 DEVILUTION_END_NAMESPACE

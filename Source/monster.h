@@ -67,8 +67,6 @@ void InitGolemStats(int mnum, int level);
 void SpawnGolem(int mnum, int x, int y, int level);
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool *ret);
-int encode_enemy(int mnum);
-void decode_enemy(int mnum, int enemy);
 
 inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
 {
