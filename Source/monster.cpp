@@ -2448,7 +2448,6 @@ static bool MonDoSpStand(int mnum)
 static bool MonDoDelay(int mnum)
 {
 	MonsterStruct* mon;
-	int oFrame;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoDelay: Invalid monster %d", mnum);
@@ -2458,9 +2457,8 @@ static bool MonDoDelay(int mnum)
 	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
 
 	if (mon->_mVar2-- == 0) { // DELAY_TICK
-		oFrame = mon->_mAnimFrame;
-		MonStartStand(mnum, mon->_mdir);
-		mon->_mAnimFrame = oFrame;
+		mon->_mmode = MM_STAND;
+		MonEnemy(mnum);
 		return true;
 	}
 
