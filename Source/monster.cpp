@@ -4319,40 +4319,42 @@ void ProcessMonsters()
 				mon->_mhitpoints = mon->_mmaxhp;
 		}
 
-		lastSquelch = mon->_msquelch;
-		_menemy = mon->_menemy;
-		if (mon->_mFlags & MFLAG_TARGETS_MONSTER) {
-			if ((unsigned)_menemy >= MAXMONSTERS) {
-				dev_fatal("Illegal enemy monster %d for monster \"%s\"", _menemy, mon->mName);
-			}
-			mon->_lastx = mon->_menemyx = monsters[_menemy]._mfutx;
-			mon->_lasty = mon->_menemyy = monsters[_menemy]._mfuty;
-			mon->_msquelch = std::max((unsigned)(SQUELCH_MAX - 1), mon->_msquelch);
-		} else {
-			if ((unsigned)_menemy >= MAX_PLRS) {
-				dev_fatal("Illegal enemy player %d for monster \"%s\"", _menemy, mon->mName);
-			}
-			mon->_menemyx = plx(_menemy)._pfutx;
-			mon->_menemyy = plx(_menemy)._pfuty;
-			if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) {
-				mon->_lastx = mon->_menemyx;
-				mon->_lasty = mon->_menemyy;
-				mon->_msquelch = SQUELCH_MAX;
-			} else if (mon->_msquelch != 0) { // && mon->_mType != MT_DIABLO) { /// BUGFIX: change '_mAi' to '_mType' (fixed)
-				mon->_msquelch--;
+		alert = (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) != 0;
+		hasenemy = !(mon->_mFlags & MFLAG_NO_ENEMY);
+		if (alert && !hasenemy) {
+			MonEnemy(mnum);
+			assert(!(mon->_mFlags & MFLAG_NO_ENEMY) || myplr._pInvincible);
+			alert = hasenemy = !(mon->_mFlags & MFLAG_NO_ENEMY);
+		}
+		if (hasenemy) {
+			_menemy = mon->_menemy;
+			if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
+				mon->_menemyx = plx(_menemy)._pfutx;
+				mon->_menemyy = plx(_menemy)._pfuty;
+			} else {
+				mon->_menemyx = monsters[_menemy]._mfutx;
+				mon->_menemyy = monsters[_menemy]._mfuty;
+				alert = true;
 			}
 		}
-
-		if (lastSquelch == 0 && mon->_msquelch != 0) {
-			if (mon->_mType == MT_CLEAVER)
-				PlaySfxLoc(USFX_CLEAVER, mon->_mx, mon->_my);
+		if (alert) {
+			assert(hasenemy);
+			mon->_lastx = mon->_menemyx;
+			mon->_lasty = mon->_menemyy;
+			if (mon->_msquelch == 0) {
+				if (mon->_mType == MT_CLEAVER)
+					PlaySfxLoc(USFX_CLEAVER, mon->_mx, mon->_my);
 #ifdef HELLFIRE
-			else if (mon->_mType == MT_NAKRUL)
-				// quests[Q_NAKRUL]._qvar1 == 4 -> UberRoom was opened by the books
-				PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == 4 ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mx, mon->_my);
-			else if (mon->_mType == MT_DEFILER)
-				PlaySfxLoc(USFX_DEFILER8, mon->_mx, mon->_my);
+				else if (mon->_mType == MT_NAKRUL)
+					// quests[Q_NAKRUL]._qvar1 == 4 -> UberRoom was opened by the books
+					PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == 4 ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mx, mon->_my);
+				else if (mon->_mType == MT_DEFILER)
+					PlaySfxLoc(USFX_DEFILER8, mon->_mx, mon->_my);
 #endif
+			}
+			mon->_msquelch = SQUELCH_MAX;
+		} else if (mon->_msquelch != 0) {
+			mon->_msquelch--;
 		}
 
 		while (TRUE) {
