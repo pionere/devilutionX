@@ -4297,8 +4297,7 @@ void DeleteMonsterList()
 void ProcessMonsters()
 {
 	int i, mnum, _menemy;
-	bool raflag;
-	BYTE lastSquelch;
+	bool alert, hasenemy, raflag;
 	MonsterStruct* mon;
 
 	DeleteMonsterList();
