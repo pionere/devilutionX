@@ -5138,9 +5138,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	mon = &monsters[mnum];
 	SetMonsterLoc(mon, x, y);
 	mon->_mhitpoints = mon->_mmaxhp;
-	mon->_mpathcount = 0;
 	MonStartSpStand(mnum, DIR_S);
-	MonEnemy(mnum);
 	if (mnum == mypnum)
 		NetSendCmdGolem();
 }
