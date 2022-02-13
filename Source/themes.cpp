@@ -827,16 +827,16 @@ static void Theme_ArmorStand(BYTE tv)
  */
 static void Theme_GoatShrine(BYTE tv)
 {
-	int xx, yy;
+	int i, xx, yy;
 
 	if (!TFit_GoatShrine(tv))
 		return;
 	AddObject(OBJ_GOATSHRINE, themex, themey);
-	for (yy = themey - 1; yy <= themey + 1; yy++) {
-		for (xx = themex - 1; xx <= themex + 1; xx++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]] && (xx != themex || yy != themey)) {
-				AddMonster(xx, yy, DIR_SW, themeVar1, true);
-			}
+	for (i = 0; i < lengthof(offset_x); i++) {
+		xx = themex + offset_x[i];
+		yy = themey + offset_y[i];
+		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
+			AddMonster(xx, yy, OPPOSITE(i), themeVar1, true);
 		}
 	}
 }
