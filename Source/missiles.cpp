@@ -1104,14 +1104,15 @@ static bool PlrMissHit(int pnum, int mi)
 /**
  * Check if the monster is on a given tile.
  */
-static int CheckMonCol(int mnum)
+int CheckMonCol(int mnum)
 {
 	MonsterStruct *mon;
 	int mode;
 	bool negate;
 	bool halfOver;
 
-	if (mnum > 0) {
+	if (mnum >= 0) {
+		// assert(mnum != 0);
 		mnum--;
 		negate = true;
 	} else {
@@ -1136,13 +1137,14 @@ static int CheckMonCol(int mnum)
 	return halfOver ? -1 : mnum;
 }
 
-static int CheckPlrCol(int pnum)
+int CheckPlrCol(int pnum)
 {
 	int mode;
 	bool negate;
 	bool halfOver;
 
-	if (pnum > 0) {
+	if (pnum >= 0) {
+		// assert(pnum != 0);
 		pnum--;
 		negate = true;
 	} else {

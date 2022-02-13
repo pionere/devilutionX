@@ -2004,9 +2004,8 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		dev_fatal("MonHitPlr: Invalid player %d", pnum);
 	}
 	mon = &monsters[mnum];
+
 	if (plr._pInvincible)
-		return;
-	if (abs(mon->_mx - plr._px) >= 2 || abs(mon->_my - plr._py) >= 2)
 		return;
 
 	hper = 30 + Hit
@@ -2081,11 +2080,27 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	}
 }
 
-static void MonTryH2HHit(int mnum, int mpnum, int Hit, int MinDam, int MaxDam)
+static void MonTryH2HHit(int mnum, int Hit, int MinDam, int MaxDam)
 {
-	if (!(monsters[mnum]._mFlags & MFLAG_TARGETS_MONSTER)) {
+	MonsterStruct* mon;
+	int mpnum;
+
+	mon = &monsters[mnum];
+	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
+		mpnum = dPlayer[mon->_mx + offset_x[mon->_mdir]][mon->_my + offset_y[mon->_mdir]];
+		if (mpnum == 0)
+			return;
+		mpnum = CheckPlrCol(mpnum);
+		if (mpnum == -1)
+			return;
 		MonHitPlr(mnum, mpnum, Hit, MinDam, MaxDam);
 	} else {
+		mpnum = dMonster[mon->_mx + offset_x[mon->_mdir]][mon->_my + offset_y[mon->_mdir]];
+		if (mpnum == 0)
+			return;
+		mpnum = CheckMonCol(mpnum);
+		if (mpnum == -1)
+			return;
 		MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
 	}
 }
@@ -2099,16 +2114,16 @@ static bool MonDoAttack(int mnum)
 	}
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum) {
-		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
+		MonTryH2HHit(mnum, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
 		if (mon->_mAi != AI_SNAKE)
 			PlayEffect(mnum, MS_ATTACK);
 	} else if (mon->_mAi == AI_MAGMA && mon->_mAnimFrame == 9) {
 		// mon->_mType >= MT_NMAGMA && mon->_mType <= MT_WMAGMA
-		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit + 10, mon->_mMinDamage - 2, mon->_mMaxDamage - 2);
+		MonTryH2HHit(mnum, mon->_mHit + 10, mon->_mMinDamage - 2, mon->_mMaxDamage - 2);
 		PlayEffect(mnum, MS_ATTACK);
 	} else if (mon->_mAi == AI_STORM2 && mon->_mAnimFrame == 13) {
 		// mon->_mType >= MT_STORM && mon->_mType <= MT_MAEL
-		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit - 20, mon->_mMinDamage + 4, mon->_mMaxDamage + 4);
+		MonTryH2HHit(mnum, mon->_mHit - 20, mon->_mMinDamage + 4, mon->_mMaxDamage + 4);
 		PlayEffect(mnum, MS_ATTACK);
 	} else if (mon->_mAi == AI_SNAKE && mon->_mAnimFrame == 1)
 		PlayEffect(mnum, MS_ATTACK);
@@ -2202,7 +2217,7 @@ static bool MonDoSpAttack(int mnum)
 	}
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum2)
-		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit2, mon->_mMinDamage2, mon->_mMaxDamage2);
+		MonTryH2HHit(mnum, mon->_mHit2, mon->_mMinDamage2, mon->_mMaxDamage2);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		MonStartStand(mnum, mon->_mdir);
@@ -3090,7 +3105,7 @@ void MAI_Sneak(int mnum)
 			mx -= fx;
 			my -= fy;
 			if (abs(mx) < 2 && abs(my) < 2) {
-				MonTryH2HHit(mnum, mon->_menemy, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
+				MonTryH2HHit(mnum, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
 				mon->_mgoal = MGOAL_RETREAT;
 				md = OPPOSITE(md);
 			}
