@@ -4987,7 +4987,6 @@ int PreSpawnSkeleton()
 	if (n != -1) {
 		// inactive minions and prespawn skeletons have to be identifiable by DeltaLoadLevel
 		assert(MINION_NR_INACTIVE(n));
-		MonStartStand(n, 0);
 	}
 
 	return n;
