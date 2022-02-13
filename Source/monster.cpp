@@ -1971,12 +1971,12 @@ static bool MonDoWalk(int mnum)
 	return rv;
 }
 
-void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
+static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 {
 	bool ret;
 
 	if ((unsigned)defm >= MAXMONSTERS) {
-		dev_fatal("MonTryM2MHit: Invalid monster %d", defm);
+		dev_fatal("MonHitMon: Invalid monster %d", defm);
 	}
 	if (CheckMonsterHit(defm, &ret))
 		return;
@@ -1994,20 +1994,16 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 	}
 }
 
-static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
+static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 {
 	MonsterStruct* mon;
 	int tmp, dam, hper, blkper;
 	int newx, newy;
 
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonTryH2HHit: Invalid monster %d", mnum);
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("MonHitPlr: Invalid player %d", pnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mFlags & MFLAG_TARGETS_MONSTER) {
-		MonTryM2MHit(mnum, pnum, Hit, MinDam, MaxDam);
-		return;
-	}
 	if (plr._pInvincible)
 		return;
 	if (abs(mon->_mx - plr._px) >= 2 || abs(mon->_my - plr._py) >= 2)
@@ -2082,6 +2078,15 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			dPlayer[newx][newy] = pnum + 1;
 			FixPlayerLocation(pnum);
 		}
+	}
+}
+
+static void MonTryH2HHit(int mnum, int mpnum, int Hit, int MinDam, int MaxDam)
+{
+	if (!(monsters[mnum]._mFlags & MFLAG_TARGETS_MONSTER)) {
+		MonHitPlr(mnum, mpnum, Hit, MinDam, MaxDam);
+	} else {
+		MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
 	}
 }
 
@@ -4769,7 +4774,7 @@ void MissToMonst(int mi, int x, int y)
 		// TODO: use CheckPlrCol instead?
 		if (tnum > 0) {
 			tnum--;
-			MonTryH2HHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
+			MonHitPlr(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
 			if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
 				if (plx(tnum)._pmode != PM_GOTHIT && plx(tnum)._pmode != PM_DEATH)
 					StartPlrHit(tnum, 0, true);
@@ -4789,7 +4794,7 @@ void MissToMonst(int mi, int x, int y)
 		// TODO: use CheckMonCol instead?
 		if (tnum > 0) {
 			tnum--;
-			MonTryM2MHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
+			MonHitMon(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
 			if (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE) {
 				newx = oldx + offset_x[mon->_mdir];
 				newy = oldy + offset_y[mon->_mdir];
