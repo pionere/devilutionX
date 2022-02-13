@@ -3133,17 +3133,12 @@ void MAI_Sneak(int mnum)
 void MAI_Fallen(int mnum)
 {
 	MonsterStruct* mon;
-	int x, y, mx, my, m, rad;
+	int x, y, mx, my, m, rad, amount;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Fallen: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mgoal == MGOAL_ATTACK2) {
-		if (--mon->_mgoalvar1 == 0) // FALLEN_ALARM_TICK
-			mon->_mgoal = MGOAL_NORMAL;
-	}
-
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
@@ -3158,6 +3153,7 @@ void MAI_Fallen(int mnum)
 					mon->_mhitpoints = mon->_mmaxhp;
 			}
 			rad = 2 * mon->_mInt + 4;
+			amount = 3 * mon->_mInt + 9;
 			static_assert(DBORDERX == DBORDERY && DBORDERX >= 10, "MAI_Fallen expects a large enough border.");
 			assert(rad <= DBORDERX);
 			mx = mon->_mx;
@@ -3166,10 +3162,11 @@ void MAI_Fallen(int mnum)
 				for (x = -rad; x <= rad; x++) {
 					m = dMonster[x + mx][y + my];
 					if (m > 0) {
-						m--;
-						if (monsters[m]._mAi == AI_FALLEN) {
-							monsters[m]._mgoal = MGOAL_ATTACK2;
-							monsters[m]._mgoalvar1 = 30 * mon->_mInt + 106; // FALLEN_ALARM_TICK
+						mon = &monsters[m - 1];
+						if (mon->_mAi == AI_FALLEN && !MON_RELAXED) {
+							mon->_msquelch = SQUELCH_MAX;
+							mon->_mgoal = MGOAL_ATTACK2;
+							mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
 						}
 					}
 				}
@@ -3186,10 +3183,13 @@ void MAI_Fallen(int mnum)
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_ATTACK2);
-		if (abs(mon->_mx - mon->_menemyx) < 2 && abs(mon->_my - mon->_menemyy) < 2) {
-			MonStartAttack(mnum);
+		if (--mon->_mgoalvar1 != 0) { // FALLEN_ATTACK_AMOUNT
+			if (abs(mon->_mx - mon->_menemyx) < 2 && abs(mon->_my - mon->_menemyy) < 2)
+				MonStartAttack(mnum);
+			else
+				MonCallWalk(mnum, MonGetDir(mnum));
 		} else {
-			MonCallWalk(mnum, MonGetDir(mnum));
+			mon->_mgoal = MGOAL_NORMAL;
 		}
 	}
 }
