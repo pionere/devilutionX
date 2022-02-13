@@ -3712,7 +3712,7 @@ void MAI_Mega(int mnum)
 
 void MAI_Golem(int mnum)
 {
-	MonsterStruct *mon, *tmon;
+	MonsterStruct* mon;
 	int md, i;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3725,23 +3725,19 @@ void MAI_Golem(int mnum)
 		// || mon->_mmode == MM_ATTACK || mon->_mmode == MM_WALK || mon->_mmode == MM_WALK2);
 		return;
 	}
+	mon->_msquelch = SQUELCH_MAX;
 
 	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER))
 		MonEnemy(mnum);
 
 	if (!(mon->_mFlags & MFLAG_NO_ENEMY)) {
-		mon->_msquelch = SQUELCH_MAX;
-		tmon = &monsters[mon->_menemy];
-
-		if (abs(mon->_mx - tmon->_mfutx) >= 2 || abs(mon->_my - tmon->_mfuty) >= 2) {
+		if (abs(mon->_mx - mon->_menemyx) >= 2 || abs(mon->_my - mon->_menemyy) >= 2) {
 			// assert(mon->_mgoal == MGOAL_NORMAL);
 			mon->_mpathcount = 5; // make sure MonPathWalk is always called
 			if (MAI_Path(mnum)) {
 				return;
 			}
 		} else {
-			mon->_menemyx = tmon->_mx;
-			mon->_menemyy = tmon->_my;
 			MonStartAttack(mnum);
 			return;
 		}
