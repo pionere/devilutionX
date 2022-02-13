@@ -2454,7 +2454,8 @@ static bool MonDoDelay(int mnum)
 		dev_fatal("MonDoDelay: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[MonGetDir(mnum)];
+	mon->_mdir = MonGetDir(mnum);
+	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
 
 	if (mon->_mVar2-- == 0) { // DELAY_TICK
 		oFrame = mon->_mAnimFrame;
