@@ -804,8 +804,8 @@ static void LoadLevelData(bool full)
 		static_assert(MAXOBJECTS <= UCHAR_MAX, "LoadLevelData handles object-ids as bytes.");
 		for (i = 0; i < MAXOBJECTS; i++)
 			LoadByte(&objectactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			LoadByte(&objectavail[i]);
+//		for (i = 0; i < MAXOBJECTS; i++)
+//			LoadByte(&objectavail[i]);
 		for (i = 0; i < numobjects; i++)
 			LoadObject(objectactive[i], full);
 		// run in a separate loop because objects (e.g. crux) might depend on each other
@@ -1494,8 +1494,8 @@ static void SaveLevelData(bool full)
 		}
 		for (i = 0; i < MAXOBJECTS; i++)
 			SaveByte(&objectactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			SaveByte(&objectavail[i]);
+//		for (i = 0; i < MAXOBJECTS; i++)
+//			SaveByte(&objectavail[i]);
 		for (i = 0; i < numobjects; i++)
 			SaveObject(objectactive[i]);
 	}
@@ -1575,12 +1575,12 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 188 + 2 * MAXMISSILES
-	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + /*2 * */ MAXITEMS
+	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 188 + MAXMISSILES
+	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 188 + /*2 * */ MAXMISSILES
-	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100) + /*2 * */ MAXITEMS
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 188 + MAXMISSILES
+	 + MAXMISSILES * 176 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);

@@ -32,7 +32,7 @@ int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
 int leverid;
-int objectavail[MAXOBJECTS];
+//int objectavail[MAXOBJECTS];
 ObjectStruct objects[MAXOBJECTS];
 //bool gbInitObjFlag;
 
@@ -355,14 +355,15 @@ static void InitRndLocObj5x5(int objtype)
 
 static void ClrAllObjects()
 {
-	int i;
-
-	memset(objects, 0, sizeof(objects));
-	memset(objectactive, 0, sizeof(objectactive));
+//	int i;
 
 	numobjects = 0;
-	for (i = 0; i < MAXOBJECTS; i++)
-		objectavail[i] = i;
+
+	memset(objects, 0, sizeof(objects));
+	//memset(objectactive, 0, sizeof(objectactive));
+
+//	for (i = 0; i < MAXOBJECTS; i++)
+//		objectavail[i] = i;
 
 	trapid = 1;
 	leverid = 1;
@@ -1122,8 +1123,9 @@ void SetMapObjects(BYTE* pMap)
 
 /*static void DeleteObject_(int oi, int idx)
 {
-	objectavail[MAXOBJECTS - numobjects] = oi;
+	//objectavail[MAXOBJECTS - numobjects] = oi;
 	dObject[objects[oi]._ox][objects[oi]._oy] = 0;
+	//objectavail[numobjects] = oi;
 	numobjects--;
 	if (numobjects > 0 && idx != numobjects)
 		objectactive[idx] = objectactive[numobjects];
@@ -1414,10 +1416,11 @@ int AddObject(int type, int ox, int oy)
 	if (numobjects >= MAXOBJECTS)
 		return -1;
 
-	oi = objectavail[0];
+//	oi = objectavail[0];
+	oi = numobjects;
 	objectactive[numobjects] = oi;
 	numobjects++;
-	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
+//	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, type);
 	switch (type) {
