@@ -25,7 +25,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define MIS_SHIFTEDVEL(x) ((x) << MIS_VELO_SHIFT)
 
 int missileactive[MAXMISSILES];
-int missileavail[MAXMISSILES];
 MissileStruct missile[MAXMISSILES];
 int nummissiles;
 
@@ -426,10 +425,11 @@ static int GetDirection16(int x1, int y1, int x2, int y2)
 
 void DeleteMissile(int mi, int idx)
 {
-	missileavail[MAXMISSILES - nummissiles] = mi;
 	nummissiles--;
-	if (nummissiles > 0 && idx != nummissiles)
-		missileactive[idx] = missileactive[nummissiles];
+	assert(missileactive[idx] == mi);
+	missileactive[idx] = missileactive[nummissiles];
+	missileactive[nummissiles] = mi;
+
 }
 
 static void PutMissile(int mi)
@@ -1389,9 +1389,10 @@ void InitMissiles()
 	BYTE* pTmp;
 
 	nummissiles = 0;
-	memset(missileactive, 0, sizeof(missileactive));
+
+	//memset(missile, 0, sizeof(missile));
 	for (i = 0; i < MAXMISSILES; i++) {
-		missileavail[i] = i;
+		missileactive[i] = i;
 	}
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitMissiles.");
 	pTmp = &dFlags[0][0];
@@ -3028,17 +3029,10 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	int idx, mi, res;
 
 	idx = nummissiles;
-#ifdef HELLFIRE
-	if (idx >= MAXMISSILES - 1)
-#else
 	if (idx >= MAXMISSILES)
-#endif
 		return -1;
 
-	mi = missileavail[0];
-
-	missileavail[0] = missileavail[MAXMISSILES - idx - 1];
-	missileactive[idx] = mi;
+	mi = missileactive[idx];
 	nummissiles++;
 
 	mis = &missile[mi];
@@ -3077,10 +3071,11 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	res = mds->mAddProc(mi, sx, sy, dx, dy, midir, micaster, misource, spllvl);
 	if (res != MIRES_DONE) {
 		assert(res == MIRES_FAIL_DELETE || res == MIRES_DELETE);
-		missileavail[MAXMISSILES - nummissiles] = mi;
+		// DeleteMissile(mi, idx);
 		nummissiles--;
-		if (/* nummissiles > 0 && */idx != nummissiles)
-			missileactive[idx] = missileactive[nummissiles];
+		assert(missileactive[idx] == mi);
+		missileactive[idx] = missileactive[nummissiles];
+		missileactive[nummissiles] = mi;
 
 		if (res == MIRES_FAIL_DELETE)
 			mi = -1;

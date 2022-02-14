@@ -798,8 +798,6 @@ static void LoadLevelData(bool full)
 			static_assert(MAXMISSILES <= UCHAR_MAX, "LoadLevelData handles missile-ids as bytes.");
 			for (i = 0; i < MAXMISSILES; i++)
 				LoadByte(&missileactive[i]);
-			for (i = 0; i < MAXMISSILES; i++)
-				LoadByte(&missileavail[i]);
 			for (i = 0; i < nummissiles; i++)
 				LoadMissile(missileactive[i]);
 		}
@@ -1491,8 +1489,6 @@ static void SaveLevelData(bool full)
 		if (full) {
 			for (i = 0; i < MAXMISSILES; i++)
 				SaveByte(&missileactive[i]);
-			for (i = 0; i < MAXMISSILES; i++)
-				SaveByte(&missileavail[i]);
 			for (i = 0; i < nummissiles; i++)
 				SaveMissile(missileactive[i]);
 		}
@@ -1583,7 +1579,7 @@ void SaveGame()
 	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + /*2 * */ MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 188 + 2 * MAXMISSILES
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 188 + /*2 * */ MAXMISSILES
 	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100) + /*2 * */ MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);

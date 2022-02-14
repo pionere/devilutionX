@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 extern int missileactive[MAXMISSILES];
-extern int missileavail[MAXMISSILES];
 extern MissileStruct missile[MAXMISSILES];
 extern int nummissiles;
 
