@@ -644,8 +644,7 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	const TSyncMonster* pSync;
 	const BYTE *pbBuf;
 
-	if (!IsMultiGame)
-		return;
+	assert(IsMultiGame);
 
 	// TODO: validate bLevel - assert(pHdr->bLevel < NUM_LEVELS);
 
@@ -653,8 +652,8 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	pDLvlMons = gsDeltaData.ddLevel[pHdr->bLevel].monster;
 
 	pbBuf = (const BYTE *)&pHdr[1];
-
-	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
+	wLen = SwapLE16(pHdr->wLen) - sizeof(TSyncHeader);
+	for ( ; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		pSync = (TSyncMonster *)pbBuf;
 		pD = &pDLvlMons[pSync->_mndx];
 		static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_sync_monster expects ordered DCMD_MON_ enum I.");
