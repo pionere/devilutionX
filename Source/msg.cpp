@@ -1453,7 +1453,7 @@ static unsigned On_SYNCDATA(TCmd *pCmd, int pnum)
 	//	sync_update(pnum, pHdr);
 	delta_sync_monster(pHdr);
 
-	return SwapLE16(pHdr->wLen) + sizeof(*pHdr);
+	return SwapLE16(pHdr->wLen);
 }
 
 static unsigned On_WALKXY(TCmd *pCmd, int pnum)
