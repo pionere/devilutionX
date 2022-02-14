@@ -2517,13 +2517,15 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 					mis->_misx = mis->_mix;
 					mis->_misy = mis->_miy;
 
-					range = spllvl + 6;
+					// range = (sl * 128 - HP + 128) * 2
+					range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
 					// TODO: add support for spell duration modifier
 					//range += (range * plx(misource)._pISplDur) >> 7;
-					if (range > 15)
-						range = 15;
-					range <<= 4;
-
+					range >>= 5;
+					if (range < 15)
+						return MIRES_DELETE;
+					if (range > 239)
+						range = 239;
 					mis->_miRange = range;
 					return MIRES_DONE;
 				}
