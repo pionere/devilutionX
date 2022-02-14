@@ -2216,7 +2216,7 @@ void RespawnItem(int ii, bool FlipFlag)
 		is->_iSelFlag = 1;*/
 }
 
-void DeleteItem(int ii, int i)
+static void DeleteItem(int ii, int i)
 {
 	itemavail[MAXITEMS - numitems] = ii;
 	numitems--;

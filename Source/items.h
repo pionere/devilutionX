@@ -47,7 +47,6 @@ void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg, bool respawn);
 void CreateAmulet(WORD wCI, int x, int y, bool sendmsg, bool respawn);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
-void DeleteItem(int ii, int i);
 void DeleteItems(int ii);
 void ProcessItems();
 void FreeItemGFX();
