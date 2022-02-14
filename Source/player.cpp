@@ -1708,10 +1708,8 @@ static void PlrDeadItem(int pnum, ItemStruct *is)
 	// RespawnDeadItem
 	assert(numitems < MAXITEMS);
 
-	i = itemavail[0];
+	i = itemactive[numitems];
 	dItem[xx][yy] = i + 1;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	itemactive[numitems] = i;
 	numitems++;
 	copy_pod(items[i], *is);
 	is->_itype = ITYPE_NONE;

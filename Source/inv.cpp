@@ -1497,10 +1497,8 @@ void SyncPutItem(int pnum, int x, int y, bool plrAround)
 
 	is = &items[MAXITEMS];
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	dItem[x][y] = ii + 1;
-	itemavail[0] = itemavail[MAXITEMS - (numitems + 1)];
-	itemactive[numitems] = ii;
 	numitems++;
 	copy_pod(items[ii], *is);
 	items[ii]._ix = x;

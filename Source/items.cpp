@@ -8,7 +8,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int itemactive[MAXITEMS];
-int itemavail[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct items[MAXITEMS + 1];
 BYTE* itemanims[NUM_IFILE];
@@ -120,7 +119,8 @@ static void AddInitItems()
 	lvl = items_get_currlevel();
 
 	for (i = RandRange(3, 5); i != 0; i--) {
-		ii = itemavail[0];
+		ii = itemactive[numitems];
+		assert(ii == numitems);
 		seed = GetRndSeed();
 		SetRndSeed(seed);
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
@@ -133,8 +133,6 @@ static void AddInitItems()
 		GetRandomItemSpace(ii);
 		DeltaAddItem(ii);
 
-		itemactive[numitems] = ii;
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		numitems++;
 	}
 }
@@ -145,11 +143,9 @@ void InitItems()
 
 	numitems = 0;
 
-	memset(items, 0, sizeof(items));
-	memset(itemactive, 0, sizeof(itemactive));
-
+	//memset(items, 0, sizeof(items));
 	for (i = 0; i < MAXITEMS; i++) {
-		itemavail[i] = i;
+		itemactive[i] = i;
 	}
 
 	if (!currLvl._dSetLvl) {
@@ -1774,8 +1770,7 @@ static void RegisterItem(int ii, int x, int y, bool sendmsg, bool delta)
 	if (delta)
 		DeltaAddItem(ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	assert(itemactive[numitems] == ii);
 	numitems++;
 }
 
@@ -1837,7 +1832,7 @@ void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn)
 	}
 	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllItems(ii, idx, uid, items_get_currlevel(), 1, false);
 
 	RegisterItem(ii, x, y, sendmsg, false);
@@ -1880,7 +1875,7 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 			NetSendCmdQuest(Q_MUSHROOM, true);
 	}
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllItems(ii, idx, GetRndSeed(), mon->_mLevel,
 		onlygood ? 15 : 1, onlygood);
 
@@ -1901,7 +1896,7 @@ void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta)
 	else
 		idx = RndAllItems(lvl);
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood);
 
 	RegisterItem(ii, x, y, sendmsg, delta);
@@ -1946,7 +1941,7 @@ void CreateRndUseful(int x, int y, bool sendmsg, bool delta)
 
 	lvl = items_get_currlevel();
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllUseful(ii, GetRndSeed(), lvl);
 
 	RegisterItem(ii, x, y, sendmsg, delta);
@@ -1965,7 +1960,7 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool send
 		idx = RndTypeItems(itype, imisc, lvl);
 	else
 		idx = IDI_GOLD;
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood);
 
 	RegisterItem(ii, x, y, sendmsg, delta);
@@ -2023,7 +2018,7 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 	if (numitems >= MAXITEMS)
 		return;
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// SetupItem(ii);
@@ -2044,8 +2039,6 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 	if (delta)
 		DeltaAddItem(ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	numitems++;
 }
 
@@ -2065,7 +2058,7 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg/*, bool respawn*/)
 	if (numitems >= MAXITEMS)
 		return;
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// assert(gbLvlLoad == 0);
@@ -2093,7 +2086,7 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	if (numitems >= MAXITEMS)
 		return;
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// assert(gbLvlLoad != 0);
@@ -2106,8 +2099,6 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	GetRandomItemSpace(areasize, ii);
 	DeltaAddItem(ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	numitems++;
 }
 
@@ -2127,7 +2118,8 @@ void SpawnRock()
 			break;
 	}
 	if (i != numobjects) {
-		i = itemavail[0];
+		i = itemactive[numitems];
+		assert(i == numitems);
 		SetItemData(i, IDI_ROCK);
 		// assert(gbLvlLoad != 0);
 		// SetupItem(i);
@@ -2142,8 +2134,6 @@ void SpawnRock()
 		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
 		DeltaAddItem(i);
 
-		itemactive[numitems] = i;
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		numitems++;
 	}
 }
@@ -2165,7 +2155,7 @@ void SpawnRewardItem(int idx, int x, int y, bool sendmsg, bool respawn)
 	if (numitems >= MAXITEMS)
 		return;
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// assert(gbLvlLoad == 0);
@@ -2216,12 +2206,12 @@ void RespawnItem(int ii, bool FlipFlag)
 		is->_iSelFlag = 1;*/
 }
 
-static void DeleteItem(int ii, int i)
+static void DeleteItem(int ii, int idx)
 {
-	itemavail[MAXITEMS - numitems] = ii;
 	numitems--;
-	if (numitems > 0 && i != numitems)
-		itemactive[i] = itemactive[numitems];
+	assert(itemactive[idx] == ii);
+	itemactive[idx] = itemactive[numitems];
+	itemactive[numitems] = ii;
 }
 
 void DeleteItems(int ii)
@@ -3651,7 +3641,7 @@ void CreateSpellBook(int ispell, int x, int y)
 
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	while (TRUE) {
 		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true);
 		assert(items[ii]._iMiscId == IMISC_BOOK);
@@ -3671,7 +3661,7 @@ void CreateAmulet(WORD wCI, int x, int y, bool sendmsg, bool respawn)
 
 	lvl = wCI & CF_LEVEL; // TODO: make sure there is an amulet which fits?
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	while (TRUE) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
 		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true);
@@ -3694,7 +3684,7 @@ void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 
 	lvl = items_get_currlevel();
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	while (TRUE) {
 		idx = RndTypeItems(itype, IMISC_NONE, lvl);
 		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true);

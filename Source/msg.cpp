@@ -1001,9 +1001,7 @@ void DeltaLoadLevel()
 			if (!CanPut(x, y))
 				FindItemLocation(x, y, &x, &y, DSIZEX / 2);
 
-			ii = itemavail[0];
-			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-			itemactive[numitems] = ii;
+			ii = itemactive[numitems];
 			copy_pod(items[ii], items[MAXITEMS]);
 			items[ii]._ix = x;
 			items[ii]._iy = y;

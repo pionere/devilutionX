@@ -817,8 +817,6 @@ static void LoadLevelData(bool full)
 	static_assert(MAXITEMS <= UCHAR_MAX, "LoadLevelData handles item-ids as bytes.");
 	for (i = 0; i < MAXITEMS; i++)
 		LoadByte(&itemactive[i]);
-	for (i = 0; i < MAXITEMS; i++)
-		LoadByte(&itemavail[i]);
 	for (i = 0; i < numitems; i++)
 		LoadItem(itemactive[i]);
 
@@ -1507,8 +1505,6 @@ static void SaveLevelData(bool full)
 	}
 	for (i = 0; i < MAXITEMS; i++)
 		SaveByte(&itemactive[i]);
-	for (i = 0; i < MAXITEMS; i++)
-		SaveByte(&itemavail[i]);
 	for (i = 0; i < numitems; i++)
 		SaveItemData(&items[itemactive[i]]);
 	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
@@ -1584,11 +1580,11 @@ void SaveGame()
 		SavePortal(i);
 	// save level-data
 	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 188 + 2 * MAXMISSILES
-	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + 2 * MAXITEMS
+	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + /*2 * */ MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
 	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 188 + 2 * MAXMISSILES
-	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100) + 2 * MAXITEMS
+	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100) + /*2 * */ MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);

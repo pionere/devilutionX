@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 extern int itemactive[MAXITEMS];
-extern int itemavail[MAXITEMS];
 extern ItemStruct items[MAXITEMS + 1];
 extern int numitems;
 
