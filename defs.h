@@ -277,6 +277,12 @@
 #define ASSUME_UNREACHABLE assert(0);
 #endif
 
+#if INET_MODE
+#define net_assert(x) assert(x)
+#else
+#define net_assert(x) do { } while(0)
+#endif
+
 #define SwapLE64 SDL_SwapLE64
 #define SwapLE32 SDL_SwapLE32
 #define SwapLE16 SDL_SwapLE16

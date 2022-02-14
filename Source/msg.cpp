@@ -1689,7 +1689,9 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 	char sf = su.from;
 	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
 
-	if (sn != SPL_NULL && sn < NUM_SPELLS && (spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
+
+	if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
 		static_assert(MAXSPLLEVEL <= CHAR_MAX, "CheckPlrSkillUse uses a char field to store the spell level.");
 		su.from = plr._pSkillLvl[sn];
 		if (sf == SPLFROM_MANA) {
@@ -1699,6 +1701,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 #endif
 			if (su.from <= 0)
 				return false;
+			net_assert(plr._pMemSkills & SPELL_MASK(sn));
 			ma = GetManaAmount(pnum, sn);
 			// TODO: enable this for every player
 			if (pnum == mypnum) {
@@ -1710,15 +1713,13 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 			}
 			plr._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr._pSkillActivity[sn], UCHAR_MAX);
 		} else if (sf == SPLFROM_ABILITY) {
-			if ((plr._pAblSkills & SPELL_MASK(sn)) == 0)
-				return false;
+			net_assert(plr._pAblSkills & SPELL_MASK(sn));
 		} else {
 			if (!SyncUseItem(pnum, sf, sn))
 				return false;
 		}
 		return sameLvl;
 	}
-	msg_errorf("%s using an illegal skill.", plr._pName);
 	return false;
 }
 
