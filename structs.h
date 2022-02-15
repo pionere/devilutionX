@@ -651,12 +651,12 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 	BYTE _mListener;        // the player to whom the monster is talking to
+	BOOLEAN _mDelFlag;
 	BYTE* _mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	int _mAnimLen;   // Number of frames in current animation
 	int _mAnimFrame; // Current frame of animation.
-	BOOL _mDelFlag;
 	int _mVar1;
 	int _mVar2;
 	int _mVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
@@ -706,7 +706,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
-	ALIGNMENT(11, 4)
+	ALIGNMENT(12, 5)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

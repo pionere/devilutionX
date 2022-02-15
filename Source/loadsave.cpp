@@ -542,14 +542,13 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->_menemyx);
 	LoadByte(&mon->_menemyy);
 	LoadByte(&mon->_mListener);
-	tbuff += 1; // Alignment
+	LoadByte(&mon->_mDelFlag);
 
 	tbuff += 4; // Skip pointer _mAnimData
 	tbuff += 4; // Skip _mAnimFrameLen
 	LoadInt(&mon->_mAnimCnt);
 	tbuff += 4; // Skip _mAnimLen
 	LoadInt(&mon->_mAnimFrame);
-	LoadInt(&mon->_mDelFlag);
 	LoadInt(&mon->_mVar1);
 	LoadInt(&mon->_mVar2);
 	LoadInt(&mon->_mVar3);
@@ -1257,14 +1256,13 @@ static void SaveMonster(int mnum)
 	SaveByte(&mon->_menemyx);
 	SaveByte(&mon->_menemyy);
 	SaveByte(&mon->_mListener);
-	tbuff += 1; // Alignment
+	SaveByte(&mon->_mDelFlag);
 
 	tbuff += 4; // Skip pointer _mAnimData
 	tbuff += 4; // Skip _mAnimFrameLen
 	SaveInt(&mon->_mAnimCnt);
 	tbuff += 4; // Skip _mAnimLen
 	SaveInt(&mon->_mAnimFrame);
-	SaveInt(&mon->_mDelFlag);
 	SaveInt(&mon->_mVar1);
 	SaveInt(&mon->_mVar2);
 	SaveInt(&mon->_mVar3);
@@ -1575,11 +1573,11 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 188 + MAXMISSILES
+	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 188 + MAXMISSILES
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 176 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
