@@ -2458,6 +2458,7 @@ static bool MonDoDelay(int mnum)
 
 	if (mon->_mVar2-- == 0) { // DELAY_TICK
 		mon->_mmode = MM_STAND;
+		mon->_mVar1 = MM_DELAY; // STAND_PREV_MODE
 		MonEnemy(mnum);
 		return true;
 	}
