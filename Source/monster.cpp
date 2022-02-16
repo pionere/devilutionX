@@ -3857,6 +3857,7 @@ void MAI_Rhino(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 5 && v < 2 * mon->_mInt + 43
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
+			mon->_mdir = md;
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 				PlayEffect(mnum, MS_SPECIAL);
 				MonUpdateLeader(mnum);
@@ -4771,7 +4772,8 @@ void MissToMonst(int mi, int x, int y)
 	//assert(dPlayer[x][y] == 0);
 	mon->_mx = x;
 	mon->_my = y;
-	MonStartStand(mnum, mis->_miDir);
+	assert(mon->_mdir == mis->_miDir);
+	MonStartStand(mnum, mon->_mdir);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {
 		MonStartFadein(mnum, mon->_mdir, false);
 		return;
