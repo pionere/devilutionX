@@ -1663,7 +1663,8 @@ static void Obj_Circle(int oi)
 			gbActionBtnDown = false;
 			gbAltActionBtnDown = false;
 			ClrPlrPath(mypnum);
-			PlrStartStand(mypnum, DIR_NW);
+			myplr._pdir = DIR_NW;
+			PlrStartStand(mypnum);
 		} else {
 			os->_oVar6 = VILE_CIRCLE_TARGET_NONE;
 		}

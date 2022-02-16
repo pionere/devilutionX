@@ -800,7 +800,8 @@ void InitLvlPlayer(int pnum)
 	SyncInitPlrPos(pnum);
 
 	//if (plr._pmode == PM_NEWLVL) {
-		PlrStartStand(pnum, DIR_S);
+		plr._pdir = DIR_S;
+		PlrStartStand(pnum);
 		// TODO: randomize AnimFrame/AnimCnt for live players?
 		// plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
 		// plr._pAnimCnt = random_(2, 3);
@@ -1068,7 +1069,7 @@ void AssertFixPlayerLocation(int pnum)
 	}
 }
 
-static void StartStand(int pnum, int dir)
+static void StartStand(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartStand: illegal player %d", pnum);
@@ -1080,16 +1081,16 @@ static void StartStand(int pnum, int dir)
 		LoadPlrGFX(pnum, PFILE_STAND);
 	}
 
-	NewPlrAnim(pnum, plr._pNAnim, dir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
+	NewPlrAnim(pnum, plr._pNAnim, plr._pdir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
 }
 
-void PlrStartStand(int pnum, int dir)
+void PlrStartStand(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrStartStand: illegal player %d", pnum);
 	}
 	if (plr._pHitPoints >= (1 << 6)) {
-		StartStand(pnum, dir);
+		StartStand(pnum);
 		RemovePlrFromMap(pnum);
 		dPlayer[plr._px][plr._py] = pnum + 1;
 		FixPlayerLocation(pnum);
@@ -1840,7 +1841,7 @@ void SyncPlrResurrect(int pnum)
 
 	if (plr._pDunLevel == currLvl._dLevelIdx) {
 		PlacePlayer(pnum);
-		PlrStartStand(pnum, plr._pdir);
+		PlrStartStand(pnum);
 	} else {
 		plr._pmode = PM_STAND;
 	}
@@ -2035,8 +2036,8 @@ static bool PlrDoWalk(int pnum)
 		//PlrStartWalkStand(pnum);
 		StartWalkStand(pnum);
 	} else {
-		//PlrStartStand(pnum, plr._pdir);
-		StartStand(pnum, plr._pdir);
+		//PlrStartStand(pnum);
+		StartStand(pnum);
 	}
 	FixPlayerLocation(pnum);
 
@@ -2348,8 +2349,8 @@ static bool PlrDoAttack(int pnum)
 		}
 
 		if (hitcnt != 0 && WeaponDur(pnum, 40 - hitcnt * 8)) {
-			//PlrStartStand(pnum, dir);
-			StartStand(pnum, dir);
+			//PlrStartStand(pnum);
+			StartStand(pnum);
 			//ClearPlrPVars(pnum);
 			return true;
 		}
@@ -2358,8 +2359,8 @@ static bool PlrDoAttack(int pnum)
 	if (plr._pAnimFrame < plr._pAFrames)
 		return false;
 
-	//PlrStartStand(pnum, dir);
-	StartStand(pnum, dir);
+	//PlrStartStand(pnum);
+	StartStand(pnum);
 	//ClearPlrPVars(pnum);
 	return true;
 }
@@ -2392,8 +2393,8 @@ static bool PlrDoRangeAttack(int pnum)
 			 spelldata[plr._pVar5].sMissile, 0, pnum, 0, 0, plr._pVar6); // RATTACK_SKILL_LEVEL
 
 		if (WeaponDur(pnum, 40)) {
-			//PlrStartStand(pnum, plr._pdir);
-			StartStand(pnum, plr._pdir);
+			//PlrStartStand(pnum);
+			StartStand(pnum);
 			//ClearPlrPVars(pnum);
 			return true;
 		}
@@ -2402,8 +2403,8 @@ static bool PlrDoRangeAttack(int pnum)
 	if (plr._pAnimFrame < plr._pAFrames)
 		return false;
 
-	//PlrStartStand(pnum, plr._pdir);
-	StartStand(pnum, plr._pdir);
+	//PlrStartStand(pnum);
+	StartStand(pnum);
 	//ClearPlrPVars(pnum);
 	return true;
 }
@@ -2471,8 +2472,8 @@ static bool PlrDoBlock(int pnum)
 				plr._pAnimFrameLen = plr._pVar1;
 				plr._pAnimCnt = 0;
 			} else {
-				//PlrStartStand(pnum, plr._pdir);
-				StartStand(pnum, plr._pdir);
+				//PlrStartStand(pnum);
+				StartStand(pnum);
 				//ClearPlrPVars(pnum);
 				return true;
 			}
@@ -2539,8 +2540,8 @@ static bool PlrDoSpell(int pnum)
 	if (plr._pAnimFrame < plr._pSFrames)
 		return false;
 
-	//PlrStartStand(pnum, plr._pdir);
-	StartStand(pnum, plr._pdir);
+	//PlrStartStand(pnum);
+	StartStand(pnum);
 	//ClearPlrPVars(pnum);
 	return true;
 }
@@ -2563,8 +2564,8 @@ static bool PlrDoGotHit(int pnum)
 
 	if (plr._pAnimFrame < plr._pHFrames)
 		return false;
-	//PlrStartStand(pnum, plr._pdir);
-	StartStand(pnum, plr._pdir);
+	//PlrStartStand(pnum);
+	StartStand(pnum);
 	//ClearPlrPVars(pnum);
 	if (random_(3, 4) != 0) {
 		ArmorDur(pnum);
@@ -2636,8 +2637,8 @@ static void CheckNewPath(int pnum)
 			}
 
 			if (!StartWalk(pnum)) {
-				//PlrStartStand(pnum, plr._pdir);
-				StartStand(pnum, plr._pdir);
+				//PlrStartStand(pnum);
+				StartStand(pnum);
 				plr.destAction = ACTION_NONE;
 			}
 		}
@@ -3007,7 +3008,8 @@ void MissToPlr(int mi, int x, int y, bool hit)
 	plr._px = x;
 	plr._py = y;
 	if (!hit || plr._pHitPoints < (1 << 6)) {
-		PlrStartStand(pnum, mis->_miDir);
+		assert(plr._pdir == mis->_miDir);
+		PlrStartStand(pnum);
 		return;
 	}
 	//if (mis->_miSpllvl < 10)
