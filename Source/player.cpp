@@ -666,26 +666,26 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 	copy_cstr(plr._pName, heroinfo.hiName);
 
 	val = heroinfo.hiStrength;
-	plr._pStrength = val;
+	//plr._pStrength = val;
 	plr._pBaseStr = val;
 
 	val = heroinfo.hiDexterity;
-	plr._pDexterity = val;
+	//plr._pDexterity = val;
 	plr._pBaseDex = val;
 
 	val = heroinfo.hiVitality;
-	plr._pVitality = val;
+	//plr._pVitality = val;
 	plr._pBaseVit = val;
 
 	hp = val << (6 + 1);
-	plr._pHitPoints = plr._pMaxHP = plr._pHPBase = plr._pMaxHPBase = hp;
+	/*plr._pHitPoints = plr._pMaxHP = */plr._pHPBase = plr._pMaxHPBase = hp;
 
 	val = heroinfo.hiMagic;
-	plr._pMagic = val;
+	//plr._pMagic = val;
 	plr._pBaseMag = val;
 
 	mana = val << (6 + 1);
-	plr._pMana = plr._pMaxMana = plr._pManaBase = plr._pMaxManaBase = mana;
+	/*plr._pMana = plr._pMaxMana = */plr._pManaBase = plr._pMaxManaBase = mana;
 
 	//plr._pNextExper = PlrExpLvlsTbl[1];
 	plr._pLightRad = 10;
@@ -789,7 +789,6 @@ void InitLvlPlayer(int pnum)
 		plr._pmode = PM_DEATH;
 		NewPlrAnim(pnum, plr._pDAnim, DIR_S, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
 		plr._pAnimFrame = plr._pAnimLen - 1;
-		plr._pVar8 = 2 * plr._pAnimLen; // DEATH_TICK
 		plr._pVar7 = 0; // DEATH_DELAY
 	}*/
 
@@ -1758,7 +1757,6 @@ void StartPlrKill(int pnum, int dmgtype)
 	plr._pmode = PM_DEATH;
 	plr._pInvincible = TRUE;
 	plr._pVar7 = 0; // DEATH_DELAY
-	plr._pVar8 = 1; // DEATH_TICK
 
 	diablolevel = IsMultiGame && plr._pDunLevel == DLV_HELL4;
 	if (pnum != mypnum && dmgtype == DMGTYPE_NPC && !diablolevel) {
@@ -2580,22 +2578,18 @@ static bool PlrDoDeath(int pnum)
 		dev_fatal("PlrDoDeath: illegal player %d", pnum);
 	}
 
-	if ((unsigned)plr._pVar8 >= 2 * plr._pDFrames) { // DEATH_TICK
-		if (plr._pVar7 > 0) { // DEATH_DELAY
-			// assert(pnum == mypnum);
-			if (--plr._pVar7 == 0) {
+	if (plr._pAnimFrame == plr._pAnimLen) {
+		assert(PlrAnimFrameLens[PA_DEATH] > 1);
+		plr._pAnimCnt = 0;
+		if (plr._pVar7 > 0 && --plr._pVar7 == 0) { // DEATH_DELAY
+			if (pnum == mypnum) {
 				gbDeathflag = MDM_DEAD;
 				if (!IsMultiGame) {
 					gamemenu_on();
 				}
 			}
 		}
-		assert(PlrAnimFrameLens[PA_DEATH] > 1);
-		plr._pAnimCnt = 0;
-		plr._pAnimFrame = plr._pAnimLen;
 		//dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
-	} else {
-		plr._pVar8++; // DEATH_TICK
 	}
 
 	return false;
@@ -3400,7 +3394,7 @@ void IncreasePlrStr(int pnum)
 	int v;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("ModifyPlrStr: illegal player %d", pnum);
+		dev_fatal("IncreasePlrStr: illegal player %d", pnum);
 	}
 	switch (plr._pClass) {
 	case PC_WARRIOR:	v = (((plr._pBaseStr - StrengthTbl[PC_WARRIOR]) % 5) == 2) ? 3 : 2; break;
@@ -3426,7 +3420,7 @@ void IncreasePlrMag(int pnum)
 	int v, ms;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("ModifyPlrMag: illegal player %d", pnum);
+		dev_fatal("IncreasePlrMag: illegal player %d", pnum);
 	}
 	switch (plr._pClass) {
 	case PC_WARRIOR:	v = 1; break;
@@ -3462,7 +3456,7 @@ void IncreasePlrDex(int pnum)
 	int v;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("ModifyPlrDex: illegal player %d", pnum);
+		dev_fatal("IncreasePlrDex: illegal player %d", pnum);
 	}
 	switch (plr._pClass) {
 	case PC_WARRIOR:	v = (((plr._pBaseDex - DexterityTbl[PC_WARRIOR]) % 3) == 1) ? 2 : 1; break;
@@ -3489,7 +3483,7 @@ void IncreasePlrVit(int pnum)
 	int v, ms;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("ModifyPlrVit: illegal player %d", pnum);
+		dev_fatal("IncreasePlrVit: illegal player %d", pnum);
 	}
 	switch (plr._pClass) {
 	case PC_WARRIOR:	v = 2; break;
@@ -3523,7 +3517,7 @@ void RestorePlrHpVit(int pnum)
 	int hp;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("RestorePlrHpVit: illegal player %d", pnum);
+		dev_fatal("RestorePlrHpVit: illegal player %d", pnum);
 	}
 	// base hp
 	hp = plr._pBaseVit << (6 + 1);
