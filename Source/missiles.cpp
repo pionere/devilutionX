@@ -1290,6 +1290,47 @@ static void SyncMissAnim(int mi)
 	mis->_miAnimXOffset = mfd->mfAnimXOffset;
 }
 
+static void SyncRhinoAnim(int mi)
+{
+	MissileStruct* mis;
+	MonsterStruct* mon;
+	AnimStruct* anim;
+
+	mis = &missile[mi];
+	mon = &monsters[mis->_miSource];
+	anim = &mon->_mAnims[
+		(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
+		(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
+	mis->_miAnimData = anim->aData[mis->_miDir];
+	mis->_miAnimFrameLen = anim->aFrameLen;
+	assert(mis->_miAnimFlag == TRUE);
+	mis->_miAnimLen = anim->aFrames;
+	mis->_miAnimWidth = mon->_mAnimWidth;
+	mis->_miAnimXOffset = mon->_mAnimXOffset;
+
+	mis->_miAnimAdd = mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE ? 2 : 1;
+	if (mon->_uniqtype != 0) {
+		mis->_miUniqTrans = mon->_uniqtrans;
+		//mis->_miLid = mon->mlid;
+	}
+}
+
+static void SyncChargeAnim(int mi)
+{
+	MissileStruct* mis;
+	int pnum;
+
+	mis = &missile[mi];
+	pnum = mis->_miSource;
+
+	mis->_miAnimData = plr._pWAnim[mis->_miDir];
+	mis->_miAnimFrameLen = PlrAnimFrameLens[PA_WALK];
+	assert(mis->_miAnimFlag == TRUE);
+	mis->_miAnimLen = plr._pWFrames;
+	mis->_miAnimWidth = plr._pWWidth;
+	mis->_miAnimXOffset = (plr._pWWidth - TILE_WIDTH) >> 1;
+}
+
 static void SetMissDir(int mi, int dir)
 {
 	missile[mi]._miDir = dir;
@@ -2295,31 +2336,15 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	MonsterStruct* mon;
-	AnimStruct* anim;
 
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(18));
 	//assert(dMonster[sx][sy] == misource + 1);
 	dMonster[sx][sy] = -(misource + 1);
-	mon = &monsters[misource];
-	mon->_mmode = MM_CHARGE;
-	anim = &mon->_mAnims[
-		(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
-		(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
+	monsters[misource]._mmode = MM_CHARGE;
 	mis = &missile[mi];
 	mis->_miDir = midir;
-	mis->_miAnimFlag = TRUE;
-	mis->_miAnimData = anim->aData[midir];
-	mis->_miAnimFrameLen = anim->aFrameLen;
-	mis->_miAnimLen = anim->aFrames;
-	mis->_miAnimWidth = mon->_mAnimWidth;
-	mis->_miAnimXOffset = mon->_mAnimXOffset;
-	mis->_miAnimAdd = mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE ? 2 : 1;
 	mis->_miLightFlag = TRUE;
-	if (mon->_uniqtype != 0) {
-		mis->_miUniqTrans = mon->_uniqtrans;
-		//mis->_miLid = mon->mlid;
-	}
+	SyncRhinoAnim(mi);
 	// mis->_miRange = 256;
 	//PutMissile(mi);
 	return MIRES_DONE;
@@ -2355,14 +2380,9 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miDir = midir;
 	mis->_miVar1 = dx;
 	mis->_miVar2 = dy;
-	mis->_miAnimFlag = TRUE;
-	mis->_miAnimData = plr._pWAnim[midir];
-	mis->_miAnimFrameLen = PlrAnimFrameLens[PA_WALK];
-	mis->_miAnimLen = plr._pWFrames;
-	mis->_miAnimWidth = plr._pWWidth;
-	mis->_miAnimXOffset = (plr._pWWidth - TILE_WIDTH) >> 1;
 	mis->_miAnimAdd = aa;
 	mis->_miLightFlag = TRUE;
+	SyncChargeAnim(mi);
 	if (pnum == mypnum) {
 		assert(ScrollInfo._sdx == 0);
 		assert(ScrollInfo._sdy == 0);
@@ -4279,22 +4299,16 @@ void ProcessMissiles()
 
 void SyncMissilesAnim()
 {
-	MonsterStruct *mon;
-	AnimStruct *anim;
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int i;
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		mis->_miAnimData = misanimdata[mis->_miAnimType][mis->_miDir];
-		mis->_miAnimFrameLen = misfiledata[mis->_miAnimType].mfAnimFrameLen[mis->_miDir];
+		SyncMissAnim(missileactive[i]);
 		if (mis->_miType == MIS_RHINO) {
-			mon = &monsters[mis->_miSource];
-			anim = &mon->_mAnims[
-				(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
-				(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
-			mis->_miAnimData = anim->aData[mis->_miDir];
-			mis->_miAnimFrameLen = anim->aFrameLen;
+			SyncRhinoAnim(missileactive[i]);
+		} else if (mis->_miType == MIS_CHARGE) {
+			SyncChargeAnim(missileactive[i]);
 		}
 	}
 }

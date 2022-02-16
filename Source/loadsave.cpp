@@ -627,12 +627,12 @@ static void LoadMissile(int mi)
 	LoadByte(&mis->_miFlags);
 	LoadByte(&mis->_miResist);
 	LoadByte(&mis->_miAnimType);
-	LoadInt(&mis->_miAnimFlag);
+	tbuff += 4; // Skip _miAnimFlag
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
-	LoadInt(&mis->_miAnimLen);
-	LoadInt(&mis->_miAnimWidth);
-	LoadInt(&mis->_miAnimXOffset);
+	tbuff += 4; // Skip _miAnimLen
+	tbuff += 4; // Skip _miAnimWidth
+	tbuff += 4; // Skip _miAnimXOffset
 	LoadInt(&mis->_miAnimCnt);
 	LoadInt(&mis->_miAnimAdd);
 	LoadInt(&mis->_miAnimFrame);
@@ -1339,12 +1339,12 @@ static void SaveMissile(int mi)
 	SaveByte(&mis->_miFlags);
 	SaveByte(&mis->_miResist);
 	SaveByte(&mis->_miAnimType);
-	SaveInt(&mis->_miAnimFlag);
+	tbuff += 4; // Skip _miAnimFlag
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
-	SaveInt(&mis->_miAnimLen);
-	SaveInt(&mis->_miAnimWidth);
-	SaveInt(&mis->_miAnimXOffset);
+	tbuff += 4; // Skip _miAnimLen
+	tbuff += 4; // Skip _miAnimWidth
+	tbuff += 4; // Skip _miAnimXOffset
 	SaveInt(&mis->_miAnimCnt);
 	SaveInt(&mis->_miAnimAdd);
 	SaveInt(&mis->_miAnimFrame);
@@ -1573,11 +1573,11 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 184 + MAXMISSILES
+	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 184 + MAXMISSILES
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 176 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
