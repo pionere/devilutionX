@@ -1286,12 +1286,12 @@ void AssertFixMonLocation(int mnum)
 	assert(mon->_moldy == mon->_my);
 }
 
-void MonStartStand(int mnum, int md)
+static void MonStartStand(int mnum)
 {
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	NewMonsterAnim(mnum, MA_STAND, md);
+	NewMonsterAnim(mnum, MA_STAND, mon->_mdir);
 	FixMonLocation(mnum);
 	mon->_mVar1 = mon->_mmode; // STAND_PREV_MODE : previous mode of the monster
 	mon->_mVar2 = 0;           // STAND_TICK : the time spent on standing
@@ -1950,7 +1950,7 @@ static bool MonDoWalk(int mnum)
 		}
 		if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
-		MonStartStand(mnum, mon->_mdir);
+		MonStartStand(mnum);
 		rv = true;
 	} else {
 		//if (mon->_mAnimCnt == 0) {
@@ -2130,7 +2130,7 @@ static bool MonDoAttack(int mnum)
 		PlayEffect(mnum, MS_ATTACK);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum, mon->_mdir);
+		MonStartStand(mnum);
 		return true;
 	}
 
@@ -2162,7 +2162,7 @@ static bool MonDoRAttack(int mnum)
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum, mon->_mdir);
+		MonStartStand(mnum);
 		return true;
 	}
 
@@ -2202,7 +2202,7 @@ static bool MonDoRSpAttack(int mnum)
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum, mon->_mdir);
+		MonStartStand(mnum);
 		return true;
 	}
 
@@ -2221,7 +2221,7 @@ static bool MonDoSpAttack(int mnum)
 		MonTryH2HHit(mnum, mon->_mHit2, mon->_mMinDamage2, mon->_mMaxDamage2);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum, mon->_mdir);
+		MonStartStand(mnum);
 		return true;
 	}
 
@@ -2245,7 +2245,7 @@ static bool MonDoFadein(int mnum)
 		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 	}
 
-	MonStartStand(mnum, mon->_mdir);
+	MonStartStand(mnum);
 	return true;
 }
 
@@ -2268,7 +2268,7 @@ static bool MonDoFadeout(int mnum)
 		}
 	//}
 
-	MonStartStand(mnum, mon->_mdir);
+	MonStartStand(mnum);
 	return true;
 }
 
@@ -2308,7 +2308,7 @@ static bool MonDoTalk(int mnum)
 		dev_fatal("MonDoTalk: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	MonStartStand(mnum, mon->_mdir);
+	MonStartStand(mnum);
 	mon->_mgoal = MGOAL_TALKING;
 	if (effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
 		return false;
@@ -2330,7 +2330,7 @@ static bool MonDoGotHit(int mnum)
 		dev_fatal("MonDoGotHit: Invalid monster %d", mnum);
 	}
 	if (monsters[mnum]._mAnimFrame == monsters[mnum]._mAnimLen) {
-		MonStartStand(mnum, monsters[mnum]._mdir);
+		MonStartStand(mnum);
 		return true;
 	}
 	return false;
@@ -2439,7 +2439,7 @@ static bool MonDoSpStand(int mnum)
 		PlayEffect(mnum, MS_SPECIAL);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum, mon->_mdir);
+		MonStartStand(mnum);
 		return true;
 	}
 
@@ -2487,7 +2487,7 @@ static bool MonDoCharge(int mnum)
 	if (!monster_posok(mnum, mon->_mx + offset_x[dir], mon->_my + offset_y[dir])) {
 		//assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
-		MonStartStand(mnum, dir);
+		MonStartStand(mnum);
 		return true;
 	}
 	return false;
@@ -3181,7 +3181,8 @@ void MAI_Fallen(int mnum)
 			MonCallWalk(mnum, mon->_mdir);
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
-			MonStartStand(mnum, OPPOSITE(mon->_mdir));
+			mon->_mdir = OPPOSITE(mon->_mdir);
+			MonStartStand(mnum);
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_ATTACK2);
@@ -4773,7 +4774,7 @@ void MissToMonst(int mi, int x, int y)
 	mon->_mx = x;
 	mon->_my = y;
 	assert(mon->_mdir == mis->_miDir);
-	MonStartStand(mnum, mon->_mdir);
+	MonStartStand(mnum);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {
 		MonStartFadein(mnum, mon->_mdir, false);
 		return;
