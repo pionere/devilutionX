@@ -1427,24 +1427,24 @@ static void check_update_plr(int pnum)
 	}
 }
 
+#if DEV_MODE
 static void msg_errorf(const char *pszFmt, ...)
 {
-#if DEBUG_MODE
-	static DWORD msg_err_timer;
-	DWORD ticks;
+	//static DWORD msg_err_timer;
+	//DWORD ticks;
 	char msg[256];
 	va_list va;
 
 	va_start(va, pszFmt);
-	ticks = SDL_GetTicks();
-	if (ticks - msg_err_timer >= 5000) {
-		msg_err_timer = ticks;
+	//ticks = SDL_GetTicks();
+	//if (ticks - msg_err_timer >= 5000) {
+	//	msg_err_timer = ticks;
 		vsnprintf(msg, sizeof(msg), pszFmt, va);
 		ErrorPlrMsg(msg);
-	}
+	//}
 	va_end(va);
-#endif
 }
+#endif
 
 static unsigned On_SYNCDATA(TCmd *pCmd, int pnum)
 {
@@ -2534,6 +2534,365 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+#if DEV_MODE
+static unsigned On_DUMP_MONSTERS(TCmd *pCmd, int pnum)
+{
+	int i, mnum;
+	MonsterStruct* mon;
+
+	for (i = 0; i < nummonsters; i++) {
+		mnum = monstactive[i];
+		mon = &monsters[mnum];
+
+		LogErrorF("D-Mon", "idx:%d mnum:%d "
+	"mo:%d "
+	"sq:%d "
+	"idx:%d "
+	"pc:%d "
+	"wh:%d "
+	"g:%d "
+	"gv1:%d "
+	"gv2:%d "
+	"gv3:%d "
+	"x:%d "
+	"y:%d "
+	"fx:%d "
+	"fy:%d "
+	"ox:%d "
+	"oy:%d "
+	"xf:%d "
+	"yf:%d "
+	"dir:%d "
+	"e:%d "
+	"ex:%d "
+	"ey:%d "
+	"l:%d "
+	"fl:%d "
+	"ac:%d "
+	"al:%d "
+	"af:%d "
+	"df:%d "
+	"v1:%d "
+	"v2:%d "
+	"v3:%d "
+	"v4:%d "
+	"v5:%d "
+	"v6:%d "
+	"v7:%d "
+	"v8:%d "
+	"mhp:%d "
+	"hp:%d "
+	"lx:%d "
+	"ly:%d "
+	"rs:%d "
+	"as:%d "
+	"ut:%d "
+	"tr:%d "
+	"dv:%d "
+	"mlid:%d "
+	"le:%d "
+	"lf:%d "
+	"ps:%d "
+	"CB:%d "
+	"lvl:%d "
+	"sf:%d "
+	"ai:%d "
+	"i:%d "
+	"f:%d "
+	"h:%d "
+	"di:%d "
+	"da:%d "
+	"h2:%d "
+	"di2:%d "
+	"da2:%d "
+	"g1:%d "
+	"g2:%d "
+	"ac:%d "
+	"ev:%d "
+	"af:%d "
+	"af2:%d "
+	"mr:%d "
+	"tr:%d "
+	"xp:%d "
+	"ms:%d "
+	"ty:%d "
+	"w:%d "
+	"xo:%d ",
+			i,
+			mnum,
+			mon->_mmode,
+	mon->_msquelch,
+	mon->_mMTidx,
+	mon->_mpathcount,
+	mon->_mWhoHit,
+	mon->_mgoal,
+	mon->_mgoalvar1,
+	mon->_mgoalvar2,
+	mon->_mgoalvar3,
+	mon->_mx,                // Tile X-position of monster
+	mon->_my,                // Tile Y-position of monster
+	mon->_mfutx,             // Future tile X-position of monster. Set at start of walking animation
+	mon->_mfuty,             // Future tile Y-position of monster. Set at start of walking animation
+	mon->_moldx,             // Most recent X-position in dMonster.
+	mon->_moldy,             // Most recent Y-position in dMonster.
+	mon->_mxoff,             // Monster sprite's pixel X-offset from tile.
+	mon->_myoff,             // Monster sprite's pixel Y-offset from tile.
+	mon->_mdir,              // Direction faced by monster (direction enum)
+	mon->_menemy,            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
+	mon->_menemyx,          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
+	mon->_menemyy,          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+	mon->_mListener,        // the player to whom the monster is talking to
+	mon->_mAnimFrameLen, // Tick length of each frame in the current animation
+	mon->_mAnimCnt,   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
+	mon->_mAnimLen,   // Number of frames in current animation
+	mon->_mAnimFrame, // Current frame of animation.
+	mon->_mDelFlag,
+	mon->_mVar1,
+	mon->_mVar2,
+	mon->_mVar3, // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
+	mon->_mVar4,
+	mon->_mVar5,
+	mon->_mVar6, // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar7, // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar8, // Value used to measure progress for moving from one tile to another
+	mon->_mmaxhp,
+	mon->_mhitpoints,
+	mon->_lastx, // the last known X-coordinate of the enemy
+	mon->_lasty, // the last known Y-coordinate of the enemy
+	mon->_mRndSeed,
+	mon->_mAISeed,
+	mon->_uniqtype,
+	mon->_uniqtrans,
+	mon->_udeadval,
+	mon->mlid,
+	mon->leader, // the leader of the monster
+	mon->leaderflag, // the status of the monster's leader
+	mon->packsize, // the number of 'pack'-monsters close to their leader
+	mon->falign_CB,
+	mon->_mLevel,
+	mon->_mSelFlag,
+	mon->_mAi,
+	mon->_mInt,
+	mon->_mFlags,
+	mon->_mHit, // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	mon->_mMinDamage,
+	mon->_mMaxDamage,
+	mon->_mHit2, // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	mon->_mMinDamage2,
+	mon->_mMaxDamage2,
+	mon->_mMagic,
+	mon->_mMagic2,     // unused
+	mon->_mArmorClass, // AC+evasion: used against physical-hit (melee+projectile)
+	mon->_mEvasion,    // evasion: used against magic-projectile
+	mon->_mAFNum,
+	mon->_mAFNum2,
+	mon->_mMagicRes,
+	mon->_mTreasure,
+	mon->_mExp,
+	mon->mtalkmsg,
+	mon->_mType,
+	mon->_mAnimWidth,
+	mon->_mAnimXOffset);
+	DMonsterStr* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].monster[i];
+	if (mstr->_mCmd != DCMD_MON_INVALID) {
+		LogErrorF("D-Mon", "delta ",
+	"_mCmd:%d "
+	"_mx:%d "
+	"_my:%d "
+	"_mdir:%d "
+	"_mactive:%d "
+	"_mhitpoints:%d "
+	"_mWhoHit:%d ",
+
+	mstr->_mCmd,
+	mstr->_mx,
+	mstr->_my,
+	mstr->_mdir,
+	mstr->_mactive,
+	mstr->_mhitpoints,
+	mstr->_mWhoHit);
+	} else {
+		LogErrorF("D-Mon", "delta _mCmd:0");
+	}
+	}
+
+	return sizeof(*pCmd);
+}
+
+static const int ITEMCHECK_LEN = 4 + 2 + 2 + 1 + 1 + 1 + 1 + 4 + 4;
+static BYTE* SendItem(ItemStruct* is, BYTE* dst)
+{
+	BYTE* dstStart = dst;
+
+	*(BYTE*)dst = is->_itype;
+	dst += sizeof(BYTE);
+
+	*(INT*)dst = is->_iSeed;
+	dst += sizeof(INT);
+	
+	*(WORD*)dst = is->_iIdx;
+	dst += sizeof(WORD);
+	*(WORD*)dst = is->_iCreateInfo;
+	dst += sizeof(WORD);
+
+	*(BYTE*)dst = is->_ix;
+	dst += sizeof(BYTE);
+	*(BYTE*)dst = is->_iy;
+	dst += sizeof(BYTE);
+	*(BOOLEAN*)dst = is->_iIdentified;
+	dst += sizeof(BOOLEAN);
+
+	*(INT*)dst = is->_iCharges;
+	dst += sizeof(INT);
+	//int _iDurability;
+	*(INT*)dst = is->_ivalue;
+	dst += sizeof(INT);
+
+	assert((size_t)dst - (size_t)dstStart == ITEMCHECK_LEN);
+	return dst;
+}
+
+static unsigned On_REQUEST_ITEMCHECK(TCmd* pCmd, int pnum)
+{
+	BYTE items[256];
+	BYTE* buf = items;
+	*buf = CMD_DO_ITEMCHECK;
+
+	for (int i = 0; i < MAX_PLRS; i++) {
+		buf = &items[1];
+		*buf = i;
+		buf++;
+		*buf = 0;
+		buf++;
+
+		buf = SendItem(&plx(i)._pHoldItem, buf);
+		for (int j = 0; j < NUM_INVLOC; j++)
+			buf = SendItem(&plx(i)._pInvBody[j], buf);
+
+		static_assert((NUM_INVLOC + 1) * ITEMCHECK_LEN + 3 <= UCHAR_MAX, "Body items dont fit into a single message.");
+		//const int mm = (NUM_INVLOC + 1) * ITEMCHECK_LEN + 3;
+		NetSendChunk(items, (NUM_INVLOC + 1) * ITEMCHECK_LEN + 3);
+
+		buf = &items[1];
+		buf++;
+		*buf = 1;
+		buf++;
+
+		for (int j = 0; j < MAXBELTITEMS; j++)
+			buf = SendItem(&plx(i)._pSpdList[j], buf);
+
+		static_assert(MAXBELTITEMS * ITEMCHECK_LEN + 3 <= UCHAR_MAX, "Belt items dont fit into a single message");
+		NetSendChunk(items, MAXBELTITEMS * ITEMCHECK_LEN + 3);
+
+		static_assert(NUM_INV_GRID_ELEM == 40, "On_REQUEST_ITEMCHECK works with hardcoded item-grid");
+		for (int k = 0; k < NUM_INV_GRID_ELEM / 10; k++) {
+			buf = &items[1];
+			buf++;
+			*buf = 2 + k;
+			buf++;
+
+			for (int j = k * 10; j < k * 10 + 10; j++)
+				buf = SendItem(&plx(i)._pInvList[j], buf);
+
+			static_assert(10 * ITEMCHECK_LEN + 3 <= UCHAR_MAX, "One line of inventory items dont fit into a single message");
+			NetSendChunk(items, 10 * ITEMCHECK_LEN + 3);
+		}
+	}
+
+	return sizeof(*pCmd);
+}
+
+static BYTE* CheckItem(ItemStruct* is, BYTE* src, int pnum, int loc, int subloc, int sp)
+{
+	BYTE* srcStart = src;
+	bool placeholder, none;
+
+	if (is->_itype != *(BYTE*)src) {
+		msg_errorf("%d received type (%d vs. %d) from %d for item %d:%d:%d", mypnum, is->_itype, *(BYTE*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(BYTE);
+
+	placeholder = is->_itype == ITYPE_PLACEHOLDER;
+	none = is->_itype == ITYPE_NONE;
+
+	if (!none && !placeholder && is->_iSeed != *(INT*)src) {
+		msg_errorf("%d received seed (%d vs. %d) from %d for item %d:%d:%d", mypnum, is->_iSeed, *(INT*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(INT);
+	
+	if (!none && !placeholder && is->_iIdx != *(WORD*)src) {
+		msg_errorf("%d received idx (%d vs. %d) from %d for item %d:%d:%d", mypnum, is->_iIdx, *(WORD*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(WORD);
+	if (!none && !placeholder && is->_iCreateInfo != *(WORD*)src) {
+		msg_errorf("%d received ci (%d vs. %d) from %d for item %d:%d:%d", mypnum, is->_iCreateInfo, *(WORD*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(WORD);
+
+	if (!none && is->_ix != *(BYTE*)src) {
+		msg_errorf("%d received x (%d vs. %d) from %d for item %d:%d:%d", mypnum, is->_ix, *(BYTE*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(BYTE);
+	if (!none && !placeholder && is->_iy != *(BYTE*)src) {
+		msg_errorf("%d received y (%d vs. %d) from %d for item %d:%d:%d", mypnum, is->_iy, *(BYTE*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(BYTE);
+	if (!none && !placeholder && is->_iIdentified != *(BOOLEAN*)src) {
+		msg_errorf("%d received iden (%d vs. %d) from %d for item %d:%d:%d", mypnum, is->_iIdentified, *(BOOLEAN*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(BOOLEAN);
+
+	if (!none && !placeholder && is->_iCharges != *(INT*)src) {
+		msg_errorf("%d received charges (%d vs. %d) from %d for item %d:%d:%d", mypnum, is->_iCharges, *(INT*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(INT);
+	//int _iDurability;
+	if (!none && !placeholder && is->_ivalue != *(INT*)src) {
+		msg_errorf("%d received value (%d vs. %d) from %d for item %d:%d:%d", mypnum, is->_ivalue, *(INT*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(INT);
+
+	assert((size_t)src - (size_t)srcStart == ITEMCHECK_LEN);
+	return src;
+}
+
+static unsigned On_DO_ITEMCHECK(TCmd* pCmd, int pnum)
+{
+	BYTE* src = (BYTE*)pCmd;
+	src++;
+	int i = *src, k;
+	src++;
+	k = *src;
+	src++;
+
+	LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
+
+	switch (k) {
+	case 0: // hold+body items
+		src = CheckItem(&plx(i)._pHoldItem, src, i, 0, -1, pnum);
+		for (int j = 0; j < NUM_INVLOC; j++) {
+			src = CheckItem(&plx(i)._pInvBody[j], src, i, 0, j, pnum);
+		}
+		break;
+	case 1: // belt items
+		for (int j = 0; j < MAXBELTITEMS; j++) {
+			src = CheckItem(&plx(i)._pSpdList[j], src, i, 1, j, pnum);
+		}
+		break;
+	default: // inventory items
+		k = k - 2;
+		for (int j = k * 10; j < k * 10 + 10; j++) {
+			src = CheckItem(&plx(i)._pInvList[j], src, i, k + 2, j, pnum);
+		}
+		break;
+	}
+
+	LogErrorF("Item", "ItemCheck done.");
+	return (size_t)src - (size_t)pCmd;
+}
+
+#endif
+
 #if DEBUG_MODE
 static unsigned On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 {
@@ -2773,6 +3132,14 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_BLOODPASS(pCmd, pnum);
 	case CMD_OPENSPIL:
 		return On_OPENSPIL(pCmd, pnum);
+#if DEV_MODE
+	case CMD_DUMP_MONSTERS:
+		return On_DUMP_MONSTERS(pCmd, pnum);
+	case CMD_REQUEST_ITEMCHECK:
+		return On_REQUEST_ITEMCHECK(pCmd, pnum);
+	case CMD_DO_ITEMCHECK:
+		return On_DO_ITEMCHECK(pCmd, pnum);
+#endif
 #if DEBUG_MODE
 	case CMD_CHEAT_EXPERIENCE:
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);

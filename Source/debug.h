@@ -33,6 +33,10 @@ void NextDebugMonster();
 void ValidateData();
 #endif
 
+#if DEV_MODE
+void LogErrorF(const char* type, const char* msg, ...);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

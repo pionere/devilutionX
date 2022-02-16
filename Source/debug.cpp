@@ -3,6 +3,7 @@
  *
  * Implementation of debug functions.
  */
+#include <chrono>
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -467,5 +468,37 @@ void ValidateData()
 	}
 }
 #endif /* DEBUG_MODE || DEV_MODE */
+
+#if DEV_MODE
+void LogErrorF(const char* type, const char* msg, ...)
+{
+	char tmp[256];
+	//snprintf(tmp, sizeof(tmp), "c:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
+	snprintf(tmp, sizeof(tmp), "c:\\logdebug%d.txt", mypnum);
+	FILE *f0 = fopen(tmp, "a+");
+	if (f0 == NULL)
+		return;
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	using namespace std::chrono;
+	milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+	//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
+	snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+#endif /* DEV_MODE */
 
 DEVILUTION_END_NAMESPACE
