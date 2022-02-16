@@ -362,10 +362,10 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
 	LoadInt(&plr._pAnimCnt);
-	LoadInt(&plr._pAnimLen);
+	tbuff += 4; // Skip _pAnimLen
 	LoadInt(&plr._pAnimFrame);
-	LoadInt(&plr._pAnimWidth);
-	LoadInt(&plr._pAnimXOffset);
+	tbuff += 4; // Skip _pAnimWidth
+	tbuff += 4; // Skip _pAnimXOffset
 	LoadInt(&plr._plid);
 	LoadInt(&plr._pvid);
 
@@ -1081,10 +1081,10 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
 	SaveInt(&plr._pAnimCnt);
-	SaveInt(&plr._pAnimLen);
+	tbuff += 4; // Skip _pAnimLen
 	SaveInt(&plr._pAnimFrame);
-	SaveInt(&plr._pAnimWidth);
-	SaveInt(&plr._pAnimXOffset);
+	tbuff += 4; // Skip _pAnimWidth
+	tbuff += 4; // Skip _pAnimXOffset
 	SaveInt(&plr._plid);
 	SaveInt(&plr._pvid);
 

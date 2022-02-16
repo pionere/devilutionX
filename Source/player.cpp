@@ -3161,7 +3161,6 @@ void MakePlrPath(int pnum, int xx, int yy, bool endspace)
 void SyncPlrAnim(int pnum)
 {
 	PlayerStruct* p;
-	int sType, aType;
 	BYTE** anim;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -3170,55 +3169,67 @@ void SyncPlrAnim(int pnum)
 	p = &plr;
 	switch (p->_pmode) {
 	case PM_STAND:
+	case PM_NEWLVL:
+		p->_pAnimFrameLen = PlrAnimFrameLens[PA_STAND];
+		p->_pAnimLen = p->_pNFrames;
+		p->_pAnimWidth = p->_pNWidth;
+		p->_pAnimXOffset = (p->_pNWidth - TILE_WIDTH) >> 1;
 		anim = p->_pNAnim;
-		aType = PA_STAND;
 		break;
 	case PM_WALK:
 	case PM_WALK2:
-	case PM_CHARGE:
+	case PM_CHARGE: // TODO: this should be PA_SPELL + p->_pTAnim, but does not really matter...
+		p->_pAnimFrameLen = PlrAnimFrameLens[PA_WALK];
+		p->_pAnimLen = p->_pWFrames;
+		p->_pAnimWidth = p->_pWWidth;
+		p->_pAnimXOffset = (p->_pWWidth - TILE_WIDTH) >> 1;
 		anim = p->_pWAnim;
-		aType = PA_WALK;
 		break;
 	case PM_ATTACK:
 	case PM_RATTACK:
+		p->_pAnimFrameLen = PlrAnimFrameLens[PA_ATTACK];
+		p->_pAnimLen = p->_pAFrames;
+		p->_pAnimWidth = p->_pAWidth;
+		p->_pAnimXOffset = (p->_pAWidth - TILE_WIDTH) >> 1;
 		anim = p->_pAAnim;
-		aType = PA_ATTACK;
 		break;
 	case PM_BLOCK:
+		p->_pAnimFrameLen = PlrAnimFrameLens[PA_BLOCK];
+		p->_pAnimLen = p->_pBFrames;
+		p->_pAnimWidth = p->_pBWidth;
+		p->_pAnimXOffset = (p->_pBWidth - TILE_WIDTH) >> 1;
 		anim = p->_pBAnim;
-		aType = PA_BLOCK;
 		break;
 	case PM_GOTHIT:
+		p->_pAnimFrameLen = PlrAnimFrameLens[PA_GOTHIT];
+		p->_pAnimLen = p->_pHFrames;
+		p->_pAnimWidth = p->_pHWidth;
+		p->_pAnimXOffset = (p->_pHWidth - TILE_WIDTH) >> 1;
 		anim = p->_pHAnim;
-		aType = PA_GOTHIT;
 		break;
 	case PM_DEATH:
+		p->_pAnimFrameLen = PlrAnimFrameLens[PA_DEATH];
+		p->_pAnimLen = p->_pDFrames;
+		p->_pAnimWidth = p->_pDWidth;
+		p->_pAnimXOffset = (p->_pDWidth - TILE_WIDTH) >> 1;
 		anim = p->_pDAnim;
-		aType = PA_DEATH;
 		break;
 	case PM_SPELL:
-		//assert(pnum == mypnum);
-		//if (pnum == mypnum)
-			sType = spelldata[p->_pVar3].sType; // SPELL_NUM
-		//else
-		//	sType = STYPE_FIRE;
-		switch (sType) {
+		p->_pAnimFrameLen = PlrAnimFrameLens[PA_SPELL];
+		p->_pAnimLen = p->_pSFrames;
+		p->_pAnimWidth = p->_pSWidth;
+		p->_pAnimXOffset = (p->_pSWidth - TILE_WIDTH) >> 1;
+		switch (spelldata[p->_pVar3].sType) { // SPELL_NUM
 		case STYPE_FIRE:      anim = p->_pFAnim; break;
 		case STYPE_LIGHTNING: anim = p->_pLAnim; break;
 		case STYPE_MAGIC:     anim = p->_pTAnim; break;
-		default: ASSUME_UNREACHABLE;
+		default: ASSUME_UNREACHABLE; anim = p->_pFAnim; break;
 		}
-		aType = PA_SPELL;
-		break;
-	case PM_NEWLVL:
-		anim = p->_pNAnim;
-		aType = PA_STAND;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	p->_pAnimFrameLen = PlrAnimFrameLens[aType];
 	p->_pAnimData = anim[p->_pdir];
 }
 
