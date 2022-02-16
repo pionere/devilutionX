@@ -938,7 +938,9 @@ void DeltaLoadLevel()
 					mon->_msquelch = mstr->_mactive;
 					mon->_mWhoHit = mstr->_mWhoHit;
 					dMonster[mon->_mx][mon->_my] = i + 1;
-					MonStartStand(i, mon->_mdir);
+					// SyncMonsterAnim(mnum);
+					assert(mon->_mmode == MM_STAND);
+					mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
 				}
 			}
 		}
