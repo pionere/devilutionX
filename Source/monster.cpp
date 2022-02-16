@@ -1826,7 +1826,8 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonSyncStartKill: Invalid monster %d", mnum);
 	}
-	if (monsters[mnum]._mmode == MM_DEATH) {
+	if (monsters[mnum]._mmode == MM_DEATH ||
+	(monsters[mnum]._mmode == MM_STONE && monsters[mnum]._mhitpoints == 0)) {
 		return;
 	}
 	if (dMonster[x][y] == 0 || abs(dMonster[x][y]) == mnum + 1) {
