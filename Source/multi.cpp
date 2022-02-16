@@ -619,9 +619,9 @@ static void SetupLocalPlr()
 	if (debug_mode_key_inverted_v) {
 		p->_pMemSkills = SPL_INVALID;
 	} else if (debug_mode_god_mode) {
-		p->_pMemSkills |= SPELL_MASK(SPL_TELEPORT);
-		if (p->_pSkillLvl[SPL_TELEPORT] == 0) {
-			p->_pSkillLvl[SPL_TELEPORT] = 1;
+		if (p->_pSkillLvlBase[SPL_TELEPORT] == 0) {
+			p->_pMemSkills |= SPELL_MASK(SPL_TELEPORT);
+			p->_pSkillLvlBase[SPL_TELEPORT] = 1;
 		}
 	}
 #endif

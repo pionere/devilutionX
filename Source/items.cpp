@@ -618,11 +618,11 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	for (i = 0; i < NUM_SPELLS; i++) {
 		spllvl = 0;
-		if (plr._pMemSkills & SPELL_MASK(i)) {
+		//if (plr._pMemSkills & SPELL_MASK(i)) {
 			spllvl = plr._pSkillLvlBase[i] + spllvladd;
 			if (spllvl < 0)
 				spllvl = 0;
-		}
+		//}
 		plr._pSkillLvl[i] = spllvl;
 	}
 
