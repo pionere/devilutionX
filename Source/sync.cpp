@@ -188,8 +188,8 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 		pbBuf += sizeof(TSyncMonster);
 		remsize -= sizeof(TSyncMonster);
 	}
-	wLen = (size_t)pbBuf - (size_t)pHdr;
-	if (wLen == sizeof(*pHdr))
+	wLen = (size_t)pbBuf - (size_t)&pHdr[1];
+	if (wLen == 0)
 		return (BYTE*)pHdr;
 	//*size = remsize;
 

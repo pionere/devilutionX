@@ -390,14 +390,13 @@ static void multi_process_turn_packet(int pnum, BYTE *pData, int nSize)
 {
 	int nLen;
 
-	while (nSize != 0) {
+	while (nSize > 0) {
 		nLen = ParseCmd(pnum, (TCmd *)pData);
-		if (nLen == 0) {
-			break;
-		}
+		// assert(nLen != 0);
 		pData += nLen;
 		nSize -= nLen;
 	}
+	net_assert(nSize == 0);
 }
 
 void multi_process_turn(SNetTurnPkt* turn)

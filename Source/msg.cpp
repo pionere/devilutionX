@@ -652,8 +652,7 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	pDLvlMons = gsDeltaData.ddLevel[pHdr->bLevel].monster;
 
 	pbBuf = (const BYTE *)&pHdr[1];
-	wLen = SwapLE16(pHdr->wLen) - sizeof(TSyncHeader);
-	for ( ; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
+	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		pSync = (TSyncMonster *)pbBuf;
 		pD = &pDLvlMons[pSync->_mndx];
 		static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_sync_monster expects ordered DCMD_MON_ enum I.");
@@ -1453,7 +1452,7 @@ static unsigned On_SYNCDATA(TCmd *pCmd, int pnum)
 	//	sync_update(pnum, pHdr);
 	delta_sync_monster(pHdr);
 
-	return SwapLE16(pHdr->wLen);
+	return SwapLE16(pHdr->wLen) + sizeof(*pHdr);
 }
 
 static unsigned On_WALKXY(TCmd *pCmd, int pnum)
@@ -2783,7 +2782,7 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 	}
 
 	SNetDropPlayer(pnum);
-	return 0;
+	return MAX_NETMSG_SIZE;
 }
 
 DEVILUTION_END_NAMESPACE
