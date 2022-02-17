@@ -1697,14 +1697,13 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
 
 	if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
-		static_assert(MAXSPLLEVEL <= CHAR_MAX, "CheckPlrSkillUse uses a char field to store the spell level.");
 		su.from = plr._pSkillLvl[sn];
 		if (sf == SPLFROM_MANA) {
 #if DEBUG_MODE
 			if (debug_mode_key_inverted_v)
 				return true;
 #endif
-			if (su.from <= 0)
+			if (su.from == 0)
 				return false;
 			// do not deduct mana if the skill/level matches the set (skill based) action
 			static_assert((int)ACTION_ATTACK + 1 == (int)ACTION_ATTACKMON, "CheckPlrSkillUse expects ordered action-ids I.");
@@ -1715,7 +1714,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 			static_assert((int)ACTION_RATTACKPLR + 1 == (int)ACTION_SPELL, "CheckPlrSkillUse expects ordered action-ids VI.");
 			static_assert((int)ACTION_SPELL + 1 == (int)ACTION_SPELLMON, "CheckPlrSkillUse expects ordered action-ids VII.");
 			static_assert((int)ACTION_SPELLMON + 1 == (int)ACTION_SPELLPLR, "CheckPlrSkillUse expects ordered action-ids VIII.");
-			if (sn == plr.destParam3 && su.from == plr.destParam4 &&
+			if (sn == plr.destParam3 && ((BYTE)su.from) == plr.destParam4 &&
 			 plr.destAction >= ACTION_ATTACK && plr.destAction <= ACTION_SPELLPLR)
 				return sameLvl;
 			net_assert(plr._pMemSkills & SPELL_MASK(sn));
@@ -1750,7 +1749,7 @@ static unsigned On_SATTACKXY(TCmd *pCmd, int pnum)
 		plr.destParam1 = cmd->x;
 		plr.destParam2 = cmd->y;
 		plr.destParam3 = cmd->lau.skill; // attack skill
-		plr.destParam4 = cmd->lau.from;  // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam4 = (BYTE)cmd->lau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1766,7 +1765,7 @@ static unsigned On_RATTACKXY(TCmd *pCmd, int pnum)
 		plr.destParam1 = cmd->x;
 		plr.destParam2 = cmd->y;
 		plr.destParam3 = cmd->lau.skill; // attack skill
-		plr.destParam4 = cmd->lau.from; // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam4 = (BYTE)cmd->lau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1782,7 +1781,7 @@ static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 		plr.destParam1 = cmd->x;
 		plr.destParam2 = cmd->y;
 		plr.destParam3 = cmd->lsu.skill; // spell
-		plr.destParam4 = cmd->lsu.from;  // spllvl (set in CheckPlrSkillUse)
+		plr.destParam4 = (BYTE)cmd->lsu.from; // spllvl (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1869,7 +1868,7 @@ static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 		plr.destAction = ACTION_ATTACKMON;
 		plr.destParam1 = mnum;
 		plr.destParam3 = cmd->mau.skill; // attack skill
-		plr.destParam4 = cmd->mau.from; // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam4 = (BYTE)cmd->mau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1885,7 +1884,7 @@ static unsigned On_ATTACKPID(TCmd *pCmd, int pnum)
 		plr.destAction = ACTION_ATTACKPLR;
 		plr.destParam1 = tnum;
 		plr.destParam3 = cmd->pau.skill; // attack skill
-		plr.destParam4 = cmd->pau.from; // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam4 = (BYTE)cmd->pau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1900,7 +1899,7 @@ static unsigned On_RATTACKID(TCmd *pCmd, int pnum)
 		plr.destAction = ACTION_RATTACKMON;
 		plr.destParam1 = SwapLE16(cmd->maMnum);  // target id
 		plr.destParam3 = cmd->mau.skill; // attack skill
-		plr.destParam4 = cmd->mau.from;  // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam4 = (BYTE)cmd->mau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1915,7 +1914,7 @@ static unsigned On_RATTACKPID(TCmd *pCmd, int pnum)
 		plr.destAction = ACTION_RATTACKPLR;
 		plr.destParam1 = cmd->paPnum;    // target id
 		plr.destParam3 = cmd->pau.skill; // attack skill
-		plr.destParam4 = cmd->pau.from;  // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam4 = (BYTE)cmd->pau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1930,7 +1929,7 @@ static unsigned On_SPELLID(TCmd *pCmd, int pnum)
 		plr.destAction = ACTION_SPELLMON;
 		plr.destParam1 = SwapLE16(cmd->msMnum); // mnum
 		plr.destParam3 = cmd->msu.skill;        // spell
-		plr.destParam4 = cmd->msu.from;         // spllvl (set in CheckPlrSkillUse)
+		plr.destParam4 = (BYTE)cmd->msu.from;   // spllvl (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1945,7 +1944,7 @@ static unsigned On_SPELLPID(TCmd *pCmd, int pnum)
 		plr.destAction = ACTION_SPELLPLR;
 		plr.destParam1 = cmd->psPnum;    // pnum
 		plr.destParam3 = cmd->psu.skill; // spell
-		plr.destParam4 = cmd->psu.from;  // spllvl (set in CheckPlrSkillUse)
+		plr.destParam4 = (BYTE)cmd->psu.from; // spllvl (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
