@@ -187,18 +187,18 @@ void FreeObjectGFX()
 
 /**
  * Check the location if an object can be placed there in the init phase.
- * Must not consider the player's position, since it is already initialized
- * and messes up the pseudo-random generated dungeon.
+ * Must not consider the player's position, since it could change the dungeon
+ * when a player re-enters the dungeon.
  */
 static bool RndLocOk(int xp, int yp)
 {
 	if ((dMonster[xp][yp] | /*dPlayer[xp][yp] |*/ dObject[xp][yp]
 	 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & BFLAG_POPULATED)) != 0)
 		return false;
-	// TODO: use dType instead?
-	if (currLvl._dDunType != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
+	// should be covered by Freeupstairs.
+	//if (currLvl._dDunType != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
 		return true;
-	return false;
+	//return false;
 }
 
 static bool RndLoc3x3(int* x, int* y)
