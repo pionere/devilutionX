@@ -1706,6 +1706,18 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 #endif
 			if (su.from <= 0)
 				return false;
+			// do not deduct mana if the skill/level matches the set (skill based) action
+			static_assert((int)ACTION_ATTACK + 1 == (int)ACTION_ATTACKMON, "CheckPlrSkillUse expects ordered action-ids I.");
+			static_assert((int)ACTION_ATTACKMON + 1 == (int)ACTION_ATTACKPLR, "CheckPlrSkillUse expects ordered action-ids II.");
+			static_assert((int)ACTION_ATTACKPLR + 1 == (int)ACTION_RATTACK, "CheckPlrSkillUse expects ordered action-ids III.");
+			static_assert((int)ACTION_RATTACK + 1 == (int)ACTION_RATTACKMON, "CheckPlrSkillUse expects ordered action-ids IV.");
+			static_assert((int)ACTION_RATTACKMON + 1 == (int)ACTION_RATTACKPLR, "CheckPlrSkillUse expects ordered action-ids V.");
+			static_assert((int)ACTION_RATTACKPLR + 1 == (int)ACTION_SPELL, "CheckPlrSkillUse expects ordered action-ids VI.");
+			static_assert((int)ACTION_SPELL + 1 == (int)ACTION_SPELLMON, "CheckPlrSkillUse expects ordered action-ids VII.");
+			static_assert((int)ACTION_SPELLMON + 1 == (int)ACTION_SPELLPLR, "CheckPlrSkillUse expects ordered action-ids VIII.");
+			if (sn == plr.destParam3 && su.from == plr.destParam4 &&
+			 plr.destAction >= ACTION_ATTACK && plr.destAction <= ACTION_SPELLPLR)
+				return sameLvl;
 			net_assert(plr._pMemSkills & SPELL_MASK(sn));
 			// always grant skill-activity to prevent de-sync
 			// TODO: add checks to prevent abuse?
