@@ -10,7 +10,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /** unused, this was probably for blood boil/burn */
 //int spurtndx;
 DeadStruct dead[MAXDEAD];
-BYTE stonendx;
 
 void InitDead()
 {
@@ -19,10 +18,20 @@ void InitDead()
 	int i, d, nd;
 	bool mtypes[NUM_MTYPES];
 
+	nd = 0;
+	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
+		dead[nd]._deadData[d] = misanimdata[MFILE_SHATTER1][0];
+	dead[nd]._deadFrame = misfiledata[MFILE_SHATTER1].mfAnimLen[0];
+	dead[nd]._deadWidth = misfiledata[MFILE_SHATTER1].mfAnimWidth;
+	dead[nd]._deadXOffset = misfiledata[MFILE_SHATTER1].mfAnimXOffset;
+	dead[nd]._deadtrans = 0;
+	//stonendx = ++nd;
+	++nd;
+	assert(nd == STONENDX);
+
 	static_assert(false == 0, "InitDead fills mtypes with 0 instead of false values.");
 	memset(mtypes, 0, sizeof(mtypes));
 
-	nd = 0;
 	cmon = mapMonTypes;
 	for (i = nummtypes; i > 0; i--, cmon++) {
 		if (!mtypes[cmon->cmType]) {
@@ -46,16 +55,9 @@ void InitDead()
 	spurtndx = nd + 1;
 	nd++;*/
 
-	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
-		dead[nd]._deadData[d] = misanimdata[MFILE_SHATTER1][0];
-	dead[nd]._deadFrame = 12;
-	dead[nd]._deadWidth = 128;
-	dead[nd]._deadXOffset = 32;
-	dead[nd]._deadtrans = 0;
-	stonendx = ++nd;
-
 	for (i = MAX_MINIONS; i < nummonsters; i++) {
-		mon = &monsters[monstactive[i]];
+		assert(monstactive[i] == i);
+		mon = &monsters[i];
 		if (mon->_uniqtype != 0) {
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 				dead[nd]._deadData[d] = mon->_mAnims[MA_DEATH].aData[d];

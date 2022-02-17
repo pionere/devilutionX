@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+#define STONENDX	1
 extern DeadStruct dead[MAXDEAD];
 
 void InitDead();
