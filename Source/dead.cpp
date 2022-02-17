@@ -85,9 +85,6 @@ void AddDead(int mnum, BYTE bCmd)
 	int dx, dy;
 	BYTE dv;
 
-	if (mnum >= MAX_MINIONS)
-		MonUpdateLeader(mnum);
-
 	mon = &monsters[mnum];
 	mon->_mDelFlag = TRUE;
 
@@ -98,7 +95,7 @@ void AddDead(int mnum, BYTE bCmd)
 	}
 	if (bCmd != DCMD_MON_DESTROYED) {
 		static_assert(MAXDEAD <= 0x1F, "Encoding of dDead requires the maximum number of deads to be low.");
-		dv = mon->_mmode == MM_STONE ? stonendx : (mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval);
+		dv = mon->_mmode == MM_STONE ? STONENDX : (mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval);
 		dv = (dv & 0x1F) + (mon->_mdir << 5);
 		dDead[dx][dy] = dv;
 	}
