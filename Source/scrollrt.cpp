@@ -71,7 +71,6 @@ const char *const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
-	"walking (3)",
 	"attacking",
 	"getting hit",
 	"dying",
@@ -92,7 +91,7 @@ const char *const szPlrModeAssert[NUM_PLR_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
-	"walking (3)",
+	"charging",
 	"attacking (melee)",
 	"attacking (ranged)",
 	"blocking",
@@ -422,10 +421,11 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 			if (plr._pmode < lengthof(szPlrModeAssert))
 				szMode = szPlrModeAssert[plr._pmode];
 			dev_fatal(
-				"Drawing player %d \"%s\" %s: facing %d, frame %d of %d",
+				"Drawing player %d \"%s\" %s(%d): facing %d, frame %d of %d",
 				pnum,
 				plr._pName,
 				szMode,
+				plr._pmode,
 				plr._pdir,
 				nCel,
 				frames);

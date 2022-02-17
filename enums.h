@@ -2903,23 +2903,23 @@ typedef enum _speed {
 } _speed;
 
 typedef enum MON_MODE {
-	MM_STAND     = 0,
-	MM_WALK      = 1, // Movement towards N, NW, NE or W
-	MM_WALK2     = 2, // Movement towards S, SW, SE or E
-	MM_ATTACK    = 4,
-	MM_GOTHIT    = 5,
-	MM_DEATH     = 6,
-	MM_SPATTACK  = 7,
-	MM_FADEIN    = 8,
-	MM_FADEOUT   = 9,
-	MM_RATTACK   = 10,
-	MM_SPSTAND   = 11,
-	MM_RSPATTACK = 12,
-	MM_DELAY     = 13,
-	MM_CHARGE    = 14,
-	MM_STONE     = 15,
-	MM_HEAL      = 16,
-	MM_TALK      = 17,
+	MM_STAND,
+	MM_WALK, // Movement towards N, NW, NE or W
+	MM_WALK2, // Movement towards S, SW, SE or E
+	MM_ATTACK,
+	MM_GOTHIT,
+	MM_DEATH,
+	MM_SPATTACK,
+	MM_FADEIN,
+	MM_FADEOUT,
+	MM_RATTACK,
+	MM_SPSTAND,
+	MM_RSPATTACK,
+	MM_DELAY,
+	MM_CHARGE,
+	MM_STONE,
+	MM_HEAL,
+	MM_TALK,
 	NUM_MON_MODES
 } MON_MODE;
 
