@@ -389,7 +389,6 @@ void InitMonsterGFX(int midx)
 	mfdata = &monfiledata[mdata->moFileNum];
 	cmon->cmWidth = mfdata->moWidth;
 	cmon->cmXOffset = (mfdata->moWidth - TILE_WIDTH) >> 1;
-	cmon->cmSndSpecial = mfdata->moSndSpecial;
 	cmon->cmAFNum = mfdata->moAFNum;
 	cmon->cmAFNum2 = mfdata->moAFNum2;
 	cmon->cmData = mdata;

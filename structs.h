@@ -616,7 +616,6 @@ typedef struct MapMonData {
 	int cmWidth;
 	int cmXOffset;
 	BYTE cmDeadval;
-	BOOLEAN cmSndSpecial;
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
 	const MonsterData* cmData;
