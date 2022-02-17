@@ -3404,7 +3404,7 @@ void MAI_Scav(int mnum)
 	}
 	if (mon->_mgoal == MGOAL_HEALING && mon->_mgoalvar3 != 0) {
 		mon->_mgoalvar3--; // HEALING_ROUNDS
-		if (dDead[mon->_mx][mon->_my] != 0) {
+		if (dDead[mon->_mx][mon->_my] != 0 && dDead[mon->_mx][mon->_my] != STONENDX) {
 			MonStartSpAttack(mnum);
 			maxhp = mon->_mmaxhp;
 			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
@@ -3440,6 +3440,7 @@ void MAI_Scav(int mnum)
 							// BUGFIX: incorrect check of offset against limits of the dungeon (fixed)
 							//assert(IN_DUNGEON_AREA(mon->_mx + dx, mon->_mx + dy));
 							done = dDead[mon->_mx + dx][mon->_my + dy] != 0
+							    && dDead[mon->_mx + dx][mon->_my + dy] != STONENDX
 							    && LineClearF(
 							           CheckNoSolid,
 							           mon->_mx,
@@ -3456,6 +3457,7 @@ void MAI_Scav(int mnum)
 							// BUGFIX: incorrect check of offset against limits of the dungeon (fixed)
 							//assert(IN_DUNGEON_AREA(mon->_mx + dx, mon->_mx + dy));
 							done = dDead[mon->_mx + dx][mon->_my + dy] != 0
+							    && dDead[mon->_mx + dx][mon->_my + dy] != STONENDX
 							    && LineClearF(
 							           CheckNoSolid,
 							           mon->_mx,

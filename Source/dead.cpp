@@ -94,9 +94,14 @@ void AddDead(int mnum, BYTE bCmd)
 		dMonster[dx][dy] = 0;
 	}
 	if (bCmd != DCMD_MON_DESTROYED) {
-		static_assert(MAXDEAD <= 0x1F, "Encoding of dDead requires the maximum number of deads to be low.");
-		dv = mon->_mmode == MM_STONE ? STONENDX : (mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval);
-		dv = (dv & 0x1F) + (mon->_mdir << 5);
+		static_assert(MAXDEAD < (1 << 5), "Encoding of dDead requires the maximum number of deads to be low.");
+		if (mon->_mmode != MM_STONE && mon->_mType != MT_GOLEM) {
+			dv = mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval;
+			dv |= (mon->_mdir << 5);
+		} else {
+			dv = STONENDX;
+		}
+		// assert(dv < MAXDEAD);
 		dDead[dx][dy] = dv;
 	}
 }
