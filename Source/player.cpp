@@ -1348,16 +1348,16 @@ static bool StartAttack(int pnum)
 		dy = monsters[i]._mfuty;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
 			return false;
-		sn = plr.destParam2;
-		sl = plr.destParam3;
+		sn = plr.destParam3;
+		sl = plr.destParam4;
 		break;
 	case ACTION_ATTACKPLR:
 		dx = plx(i)._pfutx;
 		dy = plx(i)._pfuty;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
 			return false;
-		sn = plr.destParam2;
-		sl = plr.destParam3;
+		sn = plr.destParam3;
+		sl = plr.destParam4;
 		break;
 	case ACTION_OPERATE:
 	case ACTION_DISARM:
@@ -1412,25 +1412,21 @@ static void StartRangeAttack(int pnum)
 	case ACTION_RATTACK:
 		dx = i;
 		dy = plr.destParam2;
-		sn = plr.destParam3;
-		sl = plr.destParam4;
 		break;
 	case ACTION_RATTACKMON:
 		dx = monsters[i]._mfutx;
 		dy = monsters[i]._mfuty;
-		sn = plr.destParam2;
-		sl = plr.destParam3;
 		break;
 	case ACTION_RATTACKPLR:
 		dx = plx(i)._pfutx;
 		dy = plx(i)._pfuty;
-		sn = plr.destParam2;
-		sl = plr.destParam3;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
+	sn = plr.destParam3;
+	sl = plr.destParam4;
 
 	plr._pVar1 = dx;    // RATTACK_TARGET_X
 	plr._pVar2 = dy;    // RATTACK_TARGET_Y

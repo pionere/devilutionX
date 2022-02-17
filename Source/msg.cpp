@@ -1856,8 +1856,8 @@ static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 		mnum = SwapLE16(cmd->maMnum);
 		plr.destAction = ACTION_ATTACKMON;
 		plr.destParam1 = mnum;
-		plr.destParam2 = cmd->mau.skill; // attack skill
-		plr.destParam3 = cmd->mau.from; // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam3 = cmd->mau.skill; // attack skill
+		plr.destParam4 = cmd->mau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1872,8 +1872,8 @@ static unsigned On_ATTACKPID(TCmd *pCmd, int pnum)
 		tnum = cmd->paPnum;
 		plr.destAction = ACTION_ATTACKPLR;
 		plr.destParam1 = tnum;
-		plr.destParam2 = cmd->pau.skill; // attack skill
-		plr.destParam3 = cmd->pau.from; // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam3 = cmd->pau.skill; // attack skill
+		plr.destParam4 = cmd->pau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1887,8 +1887,8 @@ static unsigned On_RATTACKID(TCmd *pCmd, int pnum)
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_RATTACKMON;
 		plr.destParam1 = SwapLE16(cmd->maMnum);  // target id
-		plr.destParam2 = cmd->mau.skill; // attack skill
-		plr.destParam3 = cmd->mau.from;  // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam3 = cmd->mau.skill; // attack skill
+		plr.destParam4 = cmd->mau.from;  // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -1902,8 +1902,8 @@ static unsigned On_RATTACKPID(TCmd *pCmd, int pnum)
 		ClrPlrPath(pnum);
 		plr.destAction = ACTION_RATTACKPLR;
 		plr.destParam1 = cmd->paPnum;    // target id
-		plr.destParam2 = cmd->pau.skill; // attack skill
-		plr.destParam3 = cmd->pau.from;  // attack skill-level (set in CheckPlrSkillUse)
+		plr.destParam3 = cmd->pau.skill; // attack skill
+		plr.destParam4 = cmd->pau.from;  // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);

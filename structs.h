@@ -231,8 +231,8 @@ typedef struct PlayerStruct {
 	int destAction;
 	int destParam1;
 	int destParam2;
-	int destParam3;
-	int destParam4;
+	int destParam3;	// the skill to be used in case of skill based actions
+	int destParam4; // the level of the skill to be used in case of skill based actions
 	BOOLEAN _pActive;
 	BOOLEAN _pInvincible;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
