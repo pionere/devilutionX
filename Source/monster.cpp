@@ -263,7 +263,7 @@ void InitLevelMonsters()
 	monstimgtot = 4000;
 	totalmonsters = MAXMONSTERS;
 
-	memset(monsters, 0, sizeof(monsters));
+	//memset(monsters, 0, sizeof(monsters));
 
 	for (i = 0; i < MAXMONSTERS; i++) {
 		monstactive[i] = i;
@@ -516,6 +516,8 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mMTidx = mtidx;
 	mon->_mdir = dir;
 	SetMonsterLoc(mon, x, y);
+	mon->_mxoff = 0;
+	mon->_myoff = 0;
 	mon->MType = cmon;
 	mon->_mType = cmon->cmType;
 	mon->_mAnimWidth = cmon->cmWidth;
@@ -551,14 +553,26 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mmode = MM_STAND;
 	mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
 	mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
+	//mon->_mVar3 = 0;	-- should be set before use
+	//mon->_mVar4 = 0;
+	//mon->_mVar5 = 0;
+	//mon->_mVar6 = 0;
+	//mon->_mVar7 = 0;
+	//mon->_mVar8 = 0;
 	mon->_msquelch = 0;
 	mon->_mpathcount = 0;
 	mon->_mWhoHit = 0;
 	mon->_mgoal = MGOAL_NORMAL;
-	mon->_mgoalvar1 = 0;
-	mon->_mgoalvar2 = 0;
-	mon->_mgoalvar3 = 0;
+	//mon->_mgoalvar1 = 0;	-- should be set before use
+	//mon->_mgoalvar2 = 0;
+	//mon->_mgoalvar3 = 0;
+	//mon->_menemy = 0;	-- should be set before use
+	mon->_menemyx = 0;
+	mon->_menemyy = 0;
+	mon->_mListener = 0;
 	mon->_mDelFlag = FALSE;
+	//mon->_lastx = 0;	-- should be set before use
+	//mon->_lasty = 0;
 	mon->_mAISeed = mon->_mRndSeed = GetRndSeed();
 	mon->mtalkmsg = TEXT_NONE;
 
