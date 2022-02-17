@@ -1759,7 +1759,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	mon->_mx = mon->_mfutx = mon->_moldx;
 	mon->_my = mon->_mfuty = mon->_moldy;
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
-
+	dDead[mon->_mx][mon->_my] = 0;
 	CheckQuestKill(mnum, sendmsg);
 	if (sendmsg) {
 		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonstStartKill uses mnum as pnum, which must fit to BYTE.");

@@ -563,6 +563,26 @@ void delta_init()
 	deltaload = false;
 }
 
+static void delta_monster_corpse(const TCmdLocBParam1* pCmd)
+{
+	BYTE bLevel;
+	DMonsterStr* mon;
+	int i;
+
+	if (!IsMultiGame)
+		return;
+
+	bLevel = pCmd->bParam1;
+	//gsDeltaData.ddLevelChanged[bLevel] = true;
+	mon = gsDeltaData.ddLevel[bLevel].monster;
+	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].monster); i++, mon++) {
+		if (mon->_mCmd == DCMD_MON_DEAD
+		 && mon->_mx == pCmd->x && mon->_my == pCmd->y) {
+			mon->_mCmd = DCMD_MON_DESTROYED;
+		}
+	}
+}
+
 static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 {
 	DMonsterStr *pD;
@@ -577,7 +597,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 		return whoHit | monsters[mnum]._mWhoHit;
 	}
 
-	bLevel = mon->mkLevel;
+	bLevel = mon->mkParam1.bParam1;
 	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
 
 	gsDeltaData.ddLevelChanged[bLevel] = true;
@@ -586,9 +606,10 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_kill_monster expects ordered DCMD_MON_ enum II.");
 	if (pD->_mCmd >= DCMD_MON_DEAD)
 		return 0;
-	pD->_mCmd = DCMD_MON_DEAD;
-	pD->_mx = mon->mkX;
-	pD->_my = mon->mkY;
+	delta_monster_corpse(&mon->mkParam1);
+	pD->_mCmd = (mon->mkMode != MM_STONE && mnum >= MAX_MINIONS/*mon->_mType != MT_GOLEM*/) ? DCMD_MON_DEAD : DCMD_MON_DESTROYED;
+	pD->_mx = mon->mkParam1.x;
+	pD->_my = mon->mkParam1.y;
 	pD->_mdir = mon->mkDir;
 	pD->_mhitpoints = 0;
 	return whoHit | pD->_mWhoHit;
@@ -614,26 +635,6 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 	// Now it is always updated except the monster is already dead.
 	//if (pD->_mCmd != DCMD_MON_DEAD && pD->_mCmd != DCMD_MON_DESTROYED)
 		pD->_mhitpoints = mon->mdHitpoints;
-}
-
-static void delta_monster_corpse(const TCmdLocBParam1* pCmd)
-{
-	BYTE bLevel;
-	DMonsterStr* mon;
-	int i;
-
-	if (!IsMultiGame)
-		return;
-
-	bLevel = pCmd->bParam1;
-	//gsDeltaData.ddLevelChanged[bLevel] = true;
-	mon = gsDeltaData.ddLevel[bLevel].monster;
-	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].monster); i++, mon++) {
-		if (mon->_mCmd == DCMD_MON_DEAD
-		 && mon->_mx == pCmd->x && mon->_my == pCmd->y) {
-			mon->_mCmd = DCMD_MON_DESTROYED;
-		}
-	}
 }
 
 static void delta_sync_monster(const TSyncHeader *pHdr)
@@ -1059,16 +1060,17 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	TCmdMonstKill cmd;
 	MonsterStruct* mon;
 
-	cmd.bCmd = CMD_MONSTDEATH;
+	cmd.mkParam1.bCmd = CMD_MONSTDEATH;
 	cmd.mkPnum = pnum;
 	cmd.mkMnum = SwapLE16(mnum);
 	mon = &monsters[mnum];
 	cmd.mkExp = SwapLE16(mon->_mExp);
 	cmd.mkMonLevel = mon->_mLevel;
-	cmd.mkX = mon->_mx;
-	cmd.mkY = mon->_my;
+	cmd.mkParam1.x = mon->_mx;
+	cmd.mkParam1.y = mon->_my;
 	cmd.mkDir = mon->_mdir;
-	cmd.mkLevel = currLvl._dLevelIdx;
+	cmd.mkMode = mon->_mmode;
+	cmd.mkParam1.bParam1 = currLvl._dLevelIdx;
 
 	NetSendChunk((BYTE *)&cmd, sizeof(cmd));
 }
@@ -1992,8 +1994,8 @@ static unsigned On_MONSTDEATH(TCmd *pCmd, int pnum)
 	unsigned totplrs, xp;
 	BYTE whoHit, mask;
 
-	if (pnum != mypnum && currLvl._dLevelIdx == cmd->mkLevel)
-		MonSyncStartKill(SwapLE16(cmd->mkMnum), cmd->mkX, cmd->mkY, cmd->mkPnum);
+	if (pnum != mypnum && currLvl._dLevelIdx == cmd->mkParam1.bParam1)
+		MonSyncStartKill(SwapLE16(cmd->mkMnum), cmd->mkParam1.x, cmd->mkParam1.y, cmd->mkPnum);
 
 	whoHit = delta_kill_monster(cmd);
 

@@ -1029,15 +1029,13 @@ typedef struct TCmdMonstDamage {
 } TCmdMonstDamage;
 
 typedef struct TCmdMonstKill {
-	BYTE bCmd;
+	TCmdLocBParam1 mkParam1;
 	BYTE mkPnum;
 	WORD mkMnum;
 	WORD mkExp;
 	BYTE mkMonLevel;
-	BYTE mkX;
-	BYTE mkY;
 	BYTE mkDir;
-	BYTE mkLevel;
+	BYTE mkMode;
 } TCmdMonstKill;
 
 typedef struct TCmdGolem {
