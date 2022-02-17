@@ -932,6 +932,8 @@ void DeltaLoadLevel()
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
 				if (mstr->_mCmd >= DCMD_MON_DEAD) {
+					//if (i >= MAX_MINIONS)
+						MonUpdateLeader(i);
 					AddDead(i, mstr->_mCmd);
 				} else {
 					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);

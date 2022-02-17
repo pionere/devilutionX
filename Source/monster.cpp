@@ -1766,6 +1766,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 		NetSendCmdMonstKill(mnum, mpnum);
 	}
 	if (mnum >= MAX_MINIONS) {
+		MonUpdateLeader(mnum);
 		SpawnLoot(mnum, sendmsg);
 	}
 
