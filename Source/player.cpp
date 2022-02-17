@@ -3357,7 +3357,7 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 	if (plr._pManaShield != 0) {
 		static_assert(MAXSPLLEVEL <= 16, "PlrDecHp does not give bonus for high level manashield.");
 		hp -= (hp * (std::min(plr._pManaShield, (BYTE)16))) >> 6;
-		if (plr._pMana > hp) {
+		if (plr._pMana >= hp) {
 			PlrDecMana(pnum, hp);
 			return false;
 		}
@@ -3385,8 +3385,11 @@ void PlrDecMana(int pnum, int mana)
 
 	plr._pMana -= mana;
 	plr._pManaBase -= mana;
-	if (pnum == mypnum)
+	if (pnum == mypnum) {
+		if (plr._pMana <= 0 && plr._pManaShield != 0)
+			NetSendCmd(CMD_REMSHIELD);
 		gbRedrawFlags |= REDRAW_MANA_FLASK;
+	}
 }
 
 void IncreasePlrStr(int pnum)

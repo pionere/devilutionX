@@ -1715,9 +1715,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 			if (pnum == mypnum) {
 				if (plr._pMana < ma)
 					return false;
-				plr._pMana -= ma;
-				plr._pManaBase -= ma;
-				gbRedrawFlags |= REDRAW_MANA_FLASK;
+				PlrDecMana(pnum, ma);
 			}
 		} else if (sf == SPLFROM_ABILITY) {
 			net_assert(plr._pAblSkills & SPELL_MASK(sn));
