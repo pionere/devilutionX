@@ -1707,7 +1707,10 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 			if (su.from <= 0)
 				return false;
 			net_assert(plr._pMemSkills & SPELL_MASK(sn));
+			// always grant skill-activity to prevent de-sync
+			// TODO: add checks to prevent abuse?
 			ma = GetManaAmount(pnum, sn);
+			plr._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr._pSkillActivity[sn], UCHAR_MAX);
 			// TODO: enable this for every player
 			if (pnum == mypnum) {
 				if (plr._pMana < ma)
@@ -1716,7 +1719,6 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 				plr._pManaBase -= ma;
 				gbRedrawFlags |= REDRAW_MANA_FLASK;
 			}
-			plr._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr._pSkillActivity[sn], UCHAR_MAX);
 		} else if (sf == SPLFROM_ABILITY) {
 			net_assert(plr._pAblSkills & SPELL_MASK(sn));
 		} else {
