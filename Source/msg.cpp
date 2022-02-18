@@ -1731,6 +1731,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 		} else if (sf == SPLFROM_ABILITY) {
 			net_assert(plr._pAblSkills & SPELL_MASK(sn));
 		} else {
+			net_assert((BYTE)sf < NUM_INVELEM);
 			if (!SyncUseItem(pnum, sf, sn))
 				return false;
 		}
@@ -1792,6 +1793,8 @@ static unsigned On_OPERATEITEM(TCmd *pCmd, int pnum)
 	TCmdItemOp* cmd = (TCmdItemOp*)pCmd;
 
 	// manipulate the item
+	net_assert(cmd->iou.from == SPLFROM_ABILITY || (BYTE)cmd->iou.from < NUM_INVELEM);
+	net_assert(cmd->ioIdx < NUM_INVELEM);
 #ifdef HELLFIRE
 	if (cmd->iou.skill == SPL_OIL)
 		DoOil(pnum, cmd->iou.from, cmd->ioIdx);
@@ -2203,6 +2206,7 @@ static unsigned On_USEPLRITEM(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
+	net_assert(cmd->bParam1 < NUM_INVELEM);
 	// if (pnum != mypnum)
 		SyncUseItem(pnum, cmd->bParam1, SPL_INVALID);
 

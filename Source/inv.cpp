@@ -1805,7 +1805,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 {
 	ItemStruct* is;
 
-	if (plr._pHitPoints < (1 << 6))
+	if (plr._pmode == PM_DEATH)	// FIXME: not in exact sync! (see DoAbility and FIXME below)
 		return false;
 
 	if (cii < INVITEM_INV_FIRST) {
@@ -1816,9 +1816,8 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		CalcPlrStaff(pnum);
 		return true;
 	}
-	// TODO: validate on server side?
-	if (cii >= NUM_INVELEM)
-		return false;
+
+	assert(cii < NUM_INVELEM);
 
 	is = PlrItem(pnum, cii);
 
@@ -1881,7 +1880,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		// ASSUME_UNREACHABLE
 		return false;
 	}
-
+	// FIXME: ensure a dead player remains dead
 	// consume the item
 	SyncPlrItemRemove(pnum, cii);
 	return sn == SPL_INVALID;

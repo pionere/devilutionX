@@ -2478,6 +2478,7 @@ static void DoBuckle(int pnum, int cii)
 			pi = &plr._pInvBody[INVITEM_HAND_LEFT];
 		}
 		BuckleItem(pi);
+		// FIXME: ensure a dead player remains dead
 		CalcPlrInv(pnum, true);
 	}
 }
@@ -2522,11 +2523,11 @@ static void RemovePlrItem(int pnum, int cii)
  */
 void DoAbility(int pnum, char from, BYTE cii)
 {
-	// TODO: validate on server side?
-	if (plr._pmode == PM_DEATH)
+	if (plr._pmode == PM_DEATH)	// FIXME: not in exact sync! (see SyncUseItem and DoBuckle)
 		return;
-	if (cii >= NUM_INVELEM)
-		return;
+
+	assert(cii < NUM_INVELEM);
+
 	// TODO: add to Abilities table in player.cpp?
 	if (from != SPLFROM_ABILITY) {
 		if (SyncUseItem(pnum, from, SPL_IDENTIFY))
