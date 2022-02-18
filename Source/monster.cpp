@@ -5153,12 +5153,10 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
-	dMonster[x][y] = mnum + 1;
 	InitGolemStats(mnum, level * 2 + (plx(mnum)._pMagic >> 6));
 	mon = &monsters[mnum];
-	SetMonsterLoc(mon, x, y);
 	mon->_mhitpoints = mon->_mmaxhp;
-	MonStartSpStand(mnum, DIR_S);
+	ActivateSpawn(mnum, x, y, DIR_S);
 	if (mnum == mypnum)
 		NetSendCmdGolem();
 }
