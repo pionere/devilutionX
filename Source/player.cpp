@@ -769,7 +769,7 @@ void InitLvlPlayer(int pnum)
 	} else {
 		plr._pSkillFlags	&= ~SFLAG_DUNGEON;
 		if (plr._pHitPoints < (1 << 6))
-			PlrSetHp(pnum, 64);
+			PlrSetHp(pnum, (1 << 6));
 	}
 
 	InitPlayerGFX(pnum); // for the local player this is necessary only if switching from or to town
@@ -994,7 +994,7 @@ static bool PlrDirOK(int pnum, int dir)
 static void StartPlrKill(int pnum, int dmgtype)
 {
 	if (currLvl._dType == DTYPE_TOWN) {
-		PlrSetHp(pnum, 64);
+		PlrSetHp(pnum, (1 << 6));
 		return;
 	}
 
@@ -1936,7 +1936,7 @@ void RestartTownLvl(int pnum)
 	plr._pTimer[PLTR_INFRAVISION] = 0;
 	plr._pTimer[PLTR_RAGE] = 0;
 
-	PlrSetHp(pnum, 64);
+	PlrSetHp(pnum, (1 << 6));
 	PlrSetMana(pnum, 0);
 
 	CalcPlrInv(pnum, false);
