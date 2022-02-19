@@ -408,6 +408,36 @@ void ValidateData()
 			if (InvItemHeight[ids.iCurs + CURSOR_FIRSTITEM] != INV_SLOT_SIZE_PX)
 				app_fatal("Belt item %s (%d) is too tall.", ids.iName, i);
 		}
+		if (ids.iUsable) {
+			switch (ids.iMiscId) {
+			case IMISC_HEAL:
+			case IMISC_FULLHEAL:
+			case IMISC_MANA:
+			case IMISC_FULLMANA:
+			case IMISC_REJUV:
+			case IMISC_FULLREJUV:
+			case IMISC_SCROLL:
+#ifdef HELLFIRE
+			case IMISC_RUNE:
+#endif
+			case IMISC_BOOK:
+			case IMISC_SPECELIX:
+			case IMISC_MAPOFDOOM:
+			case IMISC_NOTE:
+			case IMISC_OILQLTY:
+			case IMISC_OILZEN:
+			case IMISC_OILSTR:
+			case IMISC_OILDEX:
+			case IMISC_OILVIT:
+			case IMISC_OILMAG:
+			case IMISC_OILRESIST:
+			case IMISC_OILCHANCE:
+			case IMISC_OILCLEAN:
+				break;
+			default:
+				app_fatal("Usable item %s (%d) with miscId %d is not handled by SyncUseItem.", ids.iName, i, ids.iMiscId);
+			}
+		}
 	}
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);

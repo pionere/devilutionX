@@ -1856,8 +1856,6 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		sn = SPL_INVALID;
 		break;
 	case IMISC_BOOK:
-		if (sn != SPL_INVALID)
-			return false;
 		sn = is->_iSpell;
 		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		plr._pSkillExp[sn] += SkillExpLvlsTbl[0];
@@ -1874,11 +1872,21 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	case IMISC_SPECELIX:
 		RestorePlrHpVit(pnum);
 		break;
-	default:
-		// should not happen under normal circumstances, but safer to just return
-		// to avoid further desync of items
-		// ASSUME_UNREACHABLE
+	case IMISC_MAPOFDOOM:
+	case IMISC_NOTE:
+	case IMISC_OILQLTY:
+	case IMISC_OILZEN:
+	case IMISC_OILSTR:
+	case IMISC_OILDEX:
+	case IMISC_OILVIT:
+	case IMISC_OILMAG:
+	case IMISC_OILRESIST:
+	case IMISC_OILCHANCE:
+	case IMISC_OILCLEAN:
+		// should not happen, only if the player is reckless...
 		return false;
+	default:
+		ASSUME_UNREACHABLE
 	}
 	// FIXME: ensure a dead player remains dead
 	// consume the item
