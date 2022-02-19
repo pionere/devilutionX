@@ -1661,7 +1661,6 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	}
 	mon = &monsters[mnum];
 	mon->_mVar1 = 7 * gnTicksRate; // DIABLO_TICK
-	mon->_mVar2 = gbSoundOn; // DIABLO_SOUND
 	mx = mon->_mx;
 	my = mon->_my;
 	PlaySfxLoc(USFX_DIABLOD, mx, my);
@@ -1672,7 +1671,6 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	gbProcessPlayers = false;
 	for (i = 0; i < MAX_PLRS; i++)
 		plx(i)._pInvincible = TRUE;
-	gbSoundOn = false;
 }
 
 static void SpawnLoot(int mnum, bool sendmsg)
@@ -2398,11 +2396,10 @@ void DoEnding()
 	play_movie("gendata\\loopdend.smk", MOV_SKIP | MOV_LOOP);
 }
 
-static void PrepDoEnding(bool soundOn)
+static void PrepDoEnding()
 {
 	unsigned killLevel;
 
-	gbSoundOn = soundOn;
 	gbRunGame = false;
 	gbDeathflag = MDM_ALIVE;
 	gbCineflag = true;
@@ -2434,7 +2431,7 @@ static bool MonDoDeath(int mnum)
 			ViewY += mon->_my > ViewY ? 1 : -1;
 
 		if (--mon->_mVar1 == 0) // DIABLO_TICK
-			PrepDoEnding(mon->_mVar2); // DIABLO_SOUND
+			PrepDoEnding();
 	} else if (mon->_mAnimFrame == mon->_mAnimLen) {
 		AddDead(mnum, DCMD_MON_INVALID);
 	}
