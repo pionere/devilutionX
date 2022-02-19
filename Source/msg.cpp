@@ -2072,7 +2072,7 @@ static unsigned On_PLRDEAD(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (pnum != mypnum)
-		StartPlrKill(pnum, cmd->bParam1);
+		SyncPlrKill(pnum, cmd->bParam1);
 	else
 		check_update_plr(pnum);
 

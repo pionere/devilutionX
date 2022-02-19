@@ -991,14 +991,14 @@ static bool PlrDirOK(int pnum, int dir)
 	return true;
 }
 
-static void SyncPlrKill(int pnum, int dmgtype)
+static void StartPlrKill(int pnum, int dmgtype)
 {
 	if (currLvl._dType == DTYPE_TOWN) {
 		PlrSetHp(pnum, 64);
 		return;
 	}
 
-	StartPlrKill(pnum, dmgtype);
+	SyncPlrKill(pnum, dmgtype);
 }
 
 /*void PlrClrTrans(int x, int y)
@@ -1093,7 +1093,7 @@ void PlrStartStand(int pnum)
 		dPlayer[plr._px][plr._py] = pnum + 1;
 		FixPlayerLocation(pnum);
 	} else {
-		SyncPlrKill(pnum, DMGTYPE_UNKNOWN);
+		StartPlrKill(pnum, DMGTYPE_UNKNOWN);
 	}
 }
 
@@ -1649,7 +1649,7 @@ void StartPlrHit(int pnum, int dam, bool forcehit)
 	}
 
 	if (plr._pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
+		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -1717,7 +1717,7 @@ static void PlrDeadItem(int pnum, ItemStruct *is)
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
-void StartPlrKill(int pnum, int dmgtype)
+void SyncPlrKill(int pnum, int dmgtype)
 {
 	bool diablolevel;
 	int i;
@@ -1725,7 +1725,7 @@ void StartPlrKill(int pnum, int dmgtype)
 	ItemStruct *pi;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("StartPlrKill: illegal player %d", pnum);
+		app_fatal("SyncPlrKill: illegal player %d", pnum);
 	}
 
 	if (plr._pmode == PM_DEATH) {
@@ -2429,7 +2429,7 @@ void PlrStartBlock(int pnum, int dir)
 	}
 
 	if (plr._pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
+		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -2603,7 +2603,7 @@ static void CheckNewPath(int pnum)
 		dev_fatal("CheckNewPath: illegal player %d", pnum);
 	}
 	if (plr._pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
+		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -2891,7 +2891,7 @@ void ProcessPlayers()
 			if (pnum == mypnum) {
 				//if (!PlrDeathModeOK(pnum) && plr._pHitPoints < (1 << 6)) {
 				if (plr._pHitPoints < (1 << 6) && !plr._pInvincible) {
-					SyncPlrKill(pnum, DMGTYPE_UNKNOWN);
+					StartPlrKill(pnum, DMGTYPE_UNKNOWN);
 				}
 				if ((plr._pIFlags & ISPL_DRAINLIFE) && currLvl._dLevelIdx != DLV_TOWN && !plr._pInvincible) {
 					PlrDecHp(pnum, 4, DMGTYPE_NPC);
@@ -3364,7 +3364,7 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 	plr._pHPBase -= hp;
 	plr._pHitPoints -= hp;
 	if (plr._pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, dmgtype);
+		StartPlrKill(pnum, dmgtype);
 		return true;
 	}
 	if (pnum == mypnum)

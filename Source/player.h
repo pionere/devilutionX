@@ -40,7 +40,7 @@ void PlrStartStand(int pnum);
 void PlrStartBlock(int pnum, int dir);
 void RemovePlrFromMap(int pnum);
 void StartPlrHit(int pnum, int dam, bool forcehit);
-void StartPlrKill(int pnum, int dmgtype);
+void SyncPlrKill(int pnum, int dmgtype);
 void SyncPlrResurrect(int pnum);
 void RemovePlrMissiles(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
