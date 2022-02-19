@@ -923,8 +923,7 @@ void AddPlrExperience(int pnum, int lvl, unsigned exp)
 	//if (plr._pHitPoints < (1 << 6)) {
 	//	return;
 	//}
-	if (plr._pmode == PM_DEATH)
-		return;
+	// assert(plr._pmode != PM_DEATH);
 
 	// Add xp to the used skills
 	AddPlrSkillExp(pnum, lvl, exp);

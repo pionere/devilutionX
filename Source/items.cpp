@@ -2523,8 +2523,7 @@ static void RemovePlrItem(int pnum, int cii)
  */
 void DoAbility(int pnum, char from, BYTE cii)
 {
-	if (plr._pmode == PM_DEATH)	// FIXME: not in exact sync! (see SyncUseItem and DoBuckle)
-		return;
+	// assert(plr._pmode != PM_DEATH);
 
 	assert(cii < NUM_INVELEM);
 
@@ -2567,9 +2566,7 @@ void DoOil(int pnum, char from, BYTE cii)
 	WORD idx, ci;
 	BYTE targetPowerFrom, targetPowerTo;
 
-	// TODO: validate these on server side?
-	if (plr._pmode == PM_DEATH)
-		return;
+	// assert(plr._pmode != PM_DEATH);
 	if ((BYTE)from >= NUM_INVELEM || cii >= NUM_INVELEM)
 		return;
 	is = PlrItem(pnum, from);

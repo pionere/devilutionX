@@ -5017,9 +5017,8 @@ void SyncMonsterQ(int pnum, int idx)
 {
 	int i;
 
-	// TODO: validate on server side?
-	if (plr._pmode == PM_DEATH)
-		return;
+	// assert(plr._pmode != PM_DEATH);
+
 	if (!PlrHasStorageItem(pnum, idx, &i))
 		return;
 

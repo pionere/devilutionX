@@ -701,9 +701,10 @@ void InvPasteItem(int pnum, BYTE r)
 	bool done;
 	int il, cn, it, iv, ig, gt;
 
+	// assert(plr._pmode != PM_DEATH);
+
 	p = &plr;
-	if (p->_pmode == PM_DEATH)
-		return;
+
 	holditem = &p->_pHoldItem;
 	if (holditem->_itype == ITYPE_NONE)
 		return;
@@ -985,8 +986,7 @@ void InvPasteBeltItem(int pnum, BYTE r)
 	ItemStruct *holditem, *is;
 	int cn;
 
-	if (plr._pmode == PM_DEATH)
-		return;
+	// assert(plr._pmode != PM_DEATH);
 
 	holditem = &plr._pHoldItem;
 
@@ -1032,9 +1032,9 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 {
 	ItemStruct* pi;
 	int i, ii;
-	// TODO: validate on server side?
-	if (plr._pmode == PM_DEATH)
-		return;
+
+	// assert(plr._pmode != PM_DEATH);
+
 	if (plr._pHoldItem._itype != ITYPE_NONE)
 		return;
 
@@ -1805,8 +1805,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 {
 	ItemStruct* is;
 
-	if (plr._pmode == PM_DEATH)	// FIXME: not in exact sync! (see DoAbility and FIXME below)
-		return false;
+	// assert(plr._pmode != PM_DEATH);
 
 	if (cii < INVITEM_INV_FIRST) {
 		is = &plr._pInvBody[cii];

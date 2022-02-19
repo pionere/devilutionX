@@ -522,10 +522,9 @@ void SyncTownerQ(int pnum, int idx)
 {
 	int i;
 
-	//if (plr._pmode == PM_DEATH)
-	//	return;
-	//if (plr._pDunLevel != DLV_TOWN)
-	//	return;
+	// assert(plr._pmode != PM_DEATH);
+	// assert(plr._pDunLevel == DLV_TOWN);
+
 	if (!PlrHasStorageItem(pnum, idx, &i))
 		return;
 

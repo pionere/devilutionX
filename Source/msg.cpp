@@ -1696,7 +1696,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 
 	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
 
-	if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (plr._pmode != PM_DEATH && (spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
 		su.from = plr._pSkillLvl[sn];
 		if (sf == SPLFROM_MANA) {
 #if DEBUG_MODE
@@ -1788,9 +1788,12 @@ static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_OPERATEITEM(TCmd *pCmd, int pnum)
+static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 {
 	TCmdItemOp* cmd = (TCmdItemOp*)pCmd;
+
+	if (plr._pmode == PM_DEATH) // FIXME: not in exact sync! (see SyncUseItem and DoBuckle)
+		return sizeof(*cmd);
 
 	// manipulate the item
 	net_assert(cmd->iou.from == SPLFROM_ABILITY || (BYTE)cmd->iou.from < NUM_INVELEM);
@@ -1992,11 +1995,12 @@ static unsigned On_NEWLVL(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TWARP(TCmd *pCmd, int pnum)
+static unsigned On_TWARP(TCmd* pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	StartTWarp(pnum, SwapLE16(cmd->wParam1));
+	if (plr._pmode != PM_DEATH)
+		StartTWarp(pnum, SwapLE16(cmd->wParam1));
 
 	return sizeof(*cmd);
 }
@@ -2023,7 +2027,7 @@ static unsigned On_MONSTDEATH(TCmd *pCmd, int pnum)
 		xp = cmd->mkExp / totplrs;
 		lvl = cmd->mkMonLevel;
 		for (i = 0; i < MAX_PLRS; i++, whoHit >>= 1) {
-			if (whoHit & 1)
+			if ((whoHit & 1) && plx(i)._pmode != PM_DEATH)
 				AddPlrExperience(i, lvl, xp);
 		}
 	}
@@ -2148,11 +2152,12 @@ static unsigned On_OPERATEOBJ(TCmd *pCmd, int pnum)
 /**
  * Sync Shrine effect with every player
  */
-static unsigned On_SHRINE(TCmd *pCmd, int pnum)
+static unsigned On_SHRINE(TCmd* pCmd, int pnum)
 {
 	TCmdShrine* cmd = (TCmdShrine*)pCmd;
 
-	SyncShrineCmd(pnum, cmd->shType, SwapLE32(cmd->shSeed));
+	if (plr._pmode != PM_DEATH)
+		SyncShrineCmd(pnum, cmd->shType, SwapLE32(cmd->shSeed));
 
 	return sizeof(*cmd);
 }
@@ -2166,29 +2171,32 @@ static unsigned On_SPLITPLRGOLD(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_PASTEPLRITEM(TCmd *pCmd, int pnum)
+static unsigned On_PASTEPLRITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
 
-	InvPasteItem(pnum, cmd->bParam1);
+	if (plr._pmode != PM_DEATH)
+		InvPasteItem(pnum, cmd->bParam1);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_PASTEPLRBELTITEM(TCmd *pCmd, int pnum)
+static unsigned On_PASTEPLRBELTITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
 
-	InvPasteBeltItem(pnum, cmd->bParam1);
+	if (plr._pmode != PM_DEATH)
+		InvPasteBeltItem(pnum, cmd->bParam1);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_CUTPLRITEM(TCmd *pCmd, int pnum)
+static unsigned On_CUTPLRITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
 
-	InvCutItem(pnum, cmd->bParam1, cmd->bParam2);
+	if (plr._pmode != PM_DEATH)
+		InvCutItem(pnum, cmd->bParam1, cmd->bParam2);
 
 	return sizeof(*cmd);
 }
@@ -2206,8 +2214,7 @@ static unsigned On_USEPLRITEM(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
-	net_assert(cmd->bParam1 < NUM_INVELEM);
-	// if (pnum != mypnum)
+	if (plr._pmode != PM_DEATH)	// FIXME: not in exact sync! (see DoAbility and FIXME in SyncUseItem)
 		SyncUseItem(pnum, cmd->bParam1, SPL_INVALID);
 
 	return sizeof(*cmd);
@@ -2487,6 +2494,8 @@ static unsigned On_STORE_1(TCmd* pCmd, int pnum)
 {
 	TCmdStore1* cmd = (TCmdStore1*)pCmd;
 
+	net_assert(plr._pmode != PM_DEATH);
+
 	SyncStoreCmd(pnum, cmd->stCmd, cmd->stLoc, SwapLE32(cmd->stValue));
 
 	return sizeof(*cmd);
@@ -2499,6 +2508,8 @@ static unsigned On_STORE_2(TCmd* pCmd, int pnum)
 {
 	TCmdStore2* cmd = (TCmdStore2*)pCmd;
 
+	net_assert(plr._pmode != PM_DEATH);
+
 	UnPackPkItem(&cmd->item);
 	SyncStoreCmd(pnum, cmd->stCmd, MAXITEMS, SwapLE32(cmd->stValue));
 
@@ -2510,6 +2521,9 @@ static unsigned On_QTOWNER(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 
+	net_assert(plr._pmode != PM_DEATH);
+	net_assert(plr._pDunLevel == DLV_TOWN);
+
 	SyncTownerQ(pnum, SwapLE16(cmd->wParam1));
 
 	return sizeof(*cmd);
@@ -2520,7 +2534,8 @@ static unsigned On_QMONSTER(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 
-	SyncMonsterQ(pnum, SwapLE16(cmd->wParam1));
+	if (plr._pmode != PM_DEATH)
+		SyncMonsterQ(pnum, SwapLE16(cmd->wParam1));
 
 	return sizeof(*cmd);
 }
