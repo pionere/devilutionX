@@ -1258,14 +1258,12 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasStorageItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasStorageItem(pnum, IDI_NOTE3, &nn))) {
-			if (pnum == mypnum) {
-				static_assert((int)IDI_NOTE1 + 1 == (int)IDI_NOTE2, "CheckQuestItem requires an ordered IDI_NOTE enum I.");
-				static_assert((int)IDI_NOTE2 + 1 == (int)IDI_NOTE3, "CheckQuestItem requires an ordered IDI_NOTE enum II.");
-				for (i = IDI_NOTE1; i <= IDI_NOTE3; i++) {
-					if (idx != i) {
-						PlrHasStorageItem(pnum, i, &nn);
-						SyncPlrStorageRemove(pnum, nn);
-					}
+			static_assert((int)IDI_NOTE1 + 1 == (int)IDI_NOTE2, "CheckQuestItem requires an ordered IDI_NOTE enum I.");
+			static_assert((int)IDI_NOTE2 + 1 == (int)IDI_NOTE3, "CheckQuestItem requires an ordered IDI_NOTE enum II.");
+			for (i = IDI_NOTE1; i <= IDI_NOTE3; i++) {
+				if (idx != i) {
+					PlrHasStorageItem(pnum, i, &nn);
+					SyncPlrStorageRemove(pnum, nn);
 				}
 			}
 			SetItemData(MAXITEMS, IDI_FULLNOTE);
