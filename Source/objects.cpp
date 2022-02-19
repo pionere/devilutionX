@@ -2931,6 +2931,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		PlrFillMana(pnum);
 		break;
 	case SHRINE_ELDRITCH:
+		SetRndSeed(seed);
 		pi = plr._pInvList;
 		for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++)
 			ConvertPotion(pi);

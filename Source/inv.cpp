@@ -468,6 +468,18 @@ static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct* is)
 	return done;
 }
 
+/*
+ * Create a new item-seed based on seed of the item and the current turn-id
+ */
+static int GetNewItemSeed(ItemStruct* is)
+{
+	int seed = (gdwGameLogicTurn >> 8) | (gdwGameLogicTurn << 24);
+
+	seed ^= is->_iSeed;
+	SetRndSeed(seed);
+	return GetRndSeed();
+}
+
 static bool GoldAutoPlace(int pnum, ItemStruct* is)
 {
 	ItemStruct* pi;
@@ -501,7 +513,7 @@ static bool GoldAutoPlace(int pnum, ItemStruct* is)
 				done |= 2;
 			} else {
 				SetGoldItemValue(pi, GOLD_MAX_LIMIT);
-				GetItemSeed(is);
+				is->_iSeed = GetNewItemSeed(pi);
 				done |= 1;
 			}
 		}
@@ -1258,8 +1270,9 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 			}
 			SetItemData(MAXITEMS, IDI_FULLNOTE);
 			SetupItem(MAXITEMS);
+			idx = is->_iSeed;	// preserve seed of the last item
 			copy_pod(*is, items[MAXITEMS]);
-			GetItemSeed(is);
+			is->_iSeed= idx;
 			delay = 10;
 			idx = TEXT_IM_FULLNOTE;
 		} else {
@@ -1499,9 +1512,9 @@ void SyncPutItem(int pnum, int x, int y, bool plrAround)
 void SyncSplitGold(int pnum, int cii, int value)
 {
 	ItemStruct* pi;
-	int val;
+	int seed, val;
 
-	// assert(cii >= NUM_INV_GRID_ELEM);
+	// assert(cii < NUM_INV_GRID_ELEM);
 
 	pi = &plr._pInvList[cii];
 	if (pi->_itype != ITYPE_GOLD)
@@ -1510,14 +1523,17 @@ void SyncSplitGold(int pnum, int cii, int value)
 		return;
 	val = pi->_ivalue - value;
 	if (val > 0) {
+		seed = GetNewItemSeed(pi);
 		SetGoldItemValue(pi, val);
 	} else {
+		seed = pi->_iSeed; // preserve the original seed
 		value += val;
 		SyncPlrStorageRemove(pnum, cii);
 	}
 	plr._pGold -= value;
 	pi = &plr._pHoldItem;
 	CreateBaseItem(pi, IDI_GOLD);
+	pi->_iSeed = seed;
 	pi->_iStatFlag = TRUE;
 	SetGoldItemValue(pi, value);
 	if (pnum == mypnum)
