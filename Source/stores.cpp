@@ -1677,6 +1677,8 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 	ItemStruct* pi;
 	BYTE lastshold, nextMode = STORE_NONE;
 
+	// assert(plr._pDunLevel == DLV_TOWN);
+
 	if (pnum == mypnum && stextflag != STORE_NONE) {
 		if (stextflag == STORE_WAIT) {
 			nextMode = stextshold;
@@ -1686,8 +1688,6 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		stextflag = STORE_NONE;
 	}
 
-	//if (plr._pDunLevel != DLV_TOWN)
-	//	return;
 	lastshold = cmd;
 	switch (lastshold) {
 	case STORE_HBUY:
