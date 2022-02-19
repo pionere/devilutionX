@@ -713,9 +713,6 @@ void InvPasteItem(int pnum, BYTE r)
 	sx = InvItemWidth[i] / INV_SLOT_SIZE_PX;
 	sy = InvItemHeight[i] / INV_SLOT_SIZE_PX;
 
-	// TODO: validate on server side?
-	if (r >= SLOTXY_BELT_FIRST)
-		return;
 	switch (InvSlotTbl[r]) {
 	case SLOT_HEAD:
 		il = ILOC_HELM;
@@ -987,17 +984,13 @@ void InvPasteBeltItem(int pnum, BYTE r)
 	int cn;
 
 	// assert(plr._pmode != PM_DEATH);
+	// assert(r < MAXBELTITEMS);
 
 	holditem = &plr._pHoldItem;
 
 	if (holditem->_iLoc != ILOC_BELT || holditem->_itype == ITYPE_NONE)
 		return;
 	
-	r -= SLOTXY_BELT_FIRST;
-	// TODO: validate on server side?
-	if ((unsigned)r >= MAXBELTITEMS)
-		return;
-
 	is = &plr._pSpdList[r];
 	cn = SwapItem(is, holditem);
 	if (holditem->_itype == ITYPE_NONE)
@@ -1085,9 +1078,7 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 			}
 		} else { // r >= INVITEM_BELT_FIRST
 			r = r - INVITEM_BELT_FIRST;
-			// TODO: validate on server side?
-			if ((unsigned)r >= MAXBELTITEMS)
-				return;
+			// assert(r < MAXBELTITEMS);
 			pi = &plr._pSpdList[r];
 			if (bShift && pi->_itype != ITYPE_NONE && AutoPlaceInv(pnum, pi, true)) {
 				//gbRedrawFlags |= REDRAW_SPEED_BAR;
@@ -1138,9 +1129,7 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 	} else {
 		// belt item
 		bLoc -= INVITEM_BELT_FIRST;
-		// TODO: validate on server side?
-		if ((unsigned)bLoc >= MAXBELTITEMS)
-			return;
+		// assert(bLoc < MAXBELTITEMS);
 		plr._pSpdList[bLoc]._itype = ITYPE_NONE;
 		CalcPlrScrolls(pnum);
 	}
@@ -1512,9 +1501,8 @@ void SyncSplitGold(int pnum, int cii, int value)
 	ItemStruct* pi;
 	int val;
 
-	// TODO: validate on server side?
-	if (cii >= NUM_INV_GRID_ELEM)
-		return;
+	// assert(cii >= NUM_INV_GRID_ELEM);
+
 	pi = &plr._pInvList[cii];
 	if (pi->_itype != ITYPE_GOLD)
 		return;
@@ -1806,6 +1794,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	ItemStruct* is;
 
 	// assert(plr._pmode != PM_DEATH);
+	// assert(cii < NUM_INVELEM);
 
 	if (cii < INVITEM_INV_FIRST) {
 		is = &plr._pInvBody[cii];
@@ -1815,8 +1804,6 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		CalcPlrStaff(pnum);
 		return true;
 	}
-
-	assert(cii < NUM_INVELEM);
 
 	is = PlrItem(pnum, cii);
 

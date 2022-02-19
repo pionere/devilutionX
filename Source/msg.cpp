@@ -1796,8 +1796,10 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 		return sizeof(*cmd);
 
 	// manipulate the item
-	net_assert(cmd->iou.from == SPLFROM_ABILITY || (BYTE)cmd->iou.from < NUM_INVELEM);
+	net_assert((BYTE)cmd->iou.from < NUM_INVELEM ||
+		(cmd->iou.from == SPLFROM_ABILITY && cmd->iou.skill != SPL_OIL));
 	net_assert(cmd->ioIdx < NUM_INVELEM);
+
 #ifdef HELLFIRE
 	if (cmd->iou.skill == SPL_OIL)
 		DoOil(pnum, cmd->iou.from, cmd->ioIdx);
@@ -2168,8 +2170,11 @@ static unsigned On_SHRINE(TCmd* pCmd, int pnum)
 static unsigned On_SPLITPLRGOLD(TCmd* pCmd, int pnum)
 {
 	TCmdParam2* cmd = (TCmdParam2*)pCmd;
+	WORD r = SwapLE16(cmd->wParam1);
 
-	SyncSplitGold(pnum, SwapLE16(cmd->wParam1), SwapLE16(cmd->wParam2));
+	net_assert(r < NUM_INV_GRID_ELEM);
+
+	SyncSplitGold(pnum, r, SwapLE16(cmd->wParam2));
 
 	return sizeof(*cmd);
 }
@@ -2177,9 +2182,12 @@ static unsigned On_SPLITPLRGOLD(TCmd* pCmd, int pnum)
 static unsigned On_PASTEPLRITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	BYTE r = cmd->bParam1;
+
+	net_assert(r < SLOTXY_BELT_FIRST);
 
 	if (plr._pmode != PM_DEATH)
-		InvPasteItem(pnum, cmd->bParam1);
+		InvPasteItem(pnum, r);
 
 	return sizeof(*cmd);
 }
@@ -2187,9 +2195,13 @@ static unsigned On_PASTEPLRITEM(TCmd* pCmd, int pnum)
 static unsigned On_PASTEPLRBELTITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	BYTE r = cmd->bParam1;
+
+	r -= SLOTXY_BELT_FIRST;
+	net_assert(r < MAXBELTITEMS);
 
 	if (plr._pmode != PM_DEATH)
-		InvPasteBeltItem(pnum, cmd->bParam1);
+		InvPasteBeltItem(pnum, r);
 
 	return sizeof(*cmd);
 }
@@ -2197,28 +2209,37 @@ static unsigned On_PASTEPLRBELTITEM(TCmd* pCmd, int pnum)
 static unsigned On_CUTPLRITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+	BYTE r = cmd->bParam1;
+
+	net_assert(r < NUM_INVELEM);
 
 	if (plr._pmode != PM_DEATH)
-		InvCutItem(pnum, cmd->bParam1, cmd->bParam2);
+		InvCutItem(pnum, r, cmd->bParam2);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_DELPLRITEM(TCmd *pCmd, int pnum)
+static unsigned On_DELPLRITEM(TCmd* pCmd, int pnum)
 {
-	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	BYTE r = cmd->bParam1;
 
-	SyncPlrItemRemove(pnum, cmd->bParam1);
+	net_assert(r < NUM_INVELEM);
+
+	SyncPlrItemRemove(pnum, r);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_USEPLRITEM(TCmd *pCmd, int pnum)
+static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
 {
-	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	BYTE r = cmd->bParam1;
+
+	net_assert(r < NUM_INVELEM);
 
 	if (plr._pmode != PM_DEATH)	// FIXME: not in exact sync! (see DoAbility and FIXME in SyncUseItem)
-		SyncUseItem(pnum, cmd->bParam1, SPL_INVALID);
+		SyncUseItem(pnum, r, SPL_INVALID);
 
 	return sizeof(*cmd);
 }
@@ -2496,10 +2517,13 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 static unsigned On_STORE_1(TCmd* pCmd, int pnum)
 {
 	TCmdStore1* cmd = (TCmdStore1*)pCmd;
+	BYTE c = cmd->stCmd, r = cmd->stLoc;
 
 	net_assert(plr._pmode != PM_DEATH);
+	net_assert(c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_BOY);
+	net_assert(r < NUM_INVELEM);
 
-	SyncStoreCmd(pnum, cmd->stCmd, cmd->stLoc, SwapLE32(cmd->stValue));
+	SyncStoreCmd(pnum, c, r, SwapLE32(cmd->stValue));
 
 	return sizeof(*cmd);
 }
@@ -2510,11 +2534,13 @@ static unsigned On_STORE_1(TCmd* pCmd, int pnum)
 static unsigned On_STORE_2(TCmd* pCmd, int pnum)
 {
 	TCmdStore2* cmd = (TCmdStore2*)pCmd;
+	BYTE c = cmd->stCmd;
 
 	net_assert(plr._pmode != PM_DEATH);
+	net_assert(c == STORE_HBUY || c == STORE_SBUY || c == STORE_SPBUY || c == STORE_WBUY || c == STORE_BBOY);
 
 	UnPackPkItem(&cmd->item);
-	SyncStoreCmd(pnum, cmd->stCmd, MAXITEMS, SwapLE32(cmd->stValue));
+	SyncStoreCmd(pnum, c, MAXITEMS, SwapLE32(cmd->stValue));
 
 	return sizeof(*cmd);
 }

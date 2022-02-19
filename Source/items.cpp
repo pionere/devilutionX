@@ -2525,7 +2525,7 @@ void DoAbility(int pnum, char from, BYTE cii)
 {
 	// assert(plr._pmode != PM_DEATH);
 
-	assert(cii < NUM_INVELEM);
+	// assert(cii < NUM_INVELEM);
 
 	// TODO: add to Abilities table in player.cpp?
 	if (from != SPLFROM_ABILITY) {
@@ -2567,8 +2567,9 @@ void DoOil(int pnum, char from, BYTE cii)
 	BYTE targetPowerFrom, targetPowerTo;
 
 	// assert(plr._pmode != PM_DEATH);
-	if ((BYTE)from >= NUM_INVELEM || cii >= NUM_INVELEM)
-		return;
+	// assert(cii < NUM_INVELEM);
+	// assert((BYTE)from < NUM_INVELEM);
+
 	is = PlrItem(pnum, from);
 	if (is->_itype == ITYPE_NONE)
 		return;

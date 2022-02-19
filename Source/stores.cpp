@@ -1632,8 +1632,8 @@ static bool SyncSellItem(int pnum, int cii, int cost)
 	ItemStruct* pi;
 	int i, val;
 
-	if (cii >= NUM_INVELEM)
-		return false;
+	// assert(cii < NUM_INVELEM);
+
 	pi = PlrItem(pnum, cii);
 	if (pi->_itype == ITYPE_NONE)
 		return false;
@@ -1695,7 +1695,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 	case STORE_SPBUY:
 	case STORE_WBUY:
 	case STORE_BBOY:
-		assert(ii == MAXITEMS);
+		// assert(ii == MAXITEMS);
 		pi = &items[MAXITEMS];
 		// TODO: validate price?
 		//StorePrepareItemBuy(pi);
