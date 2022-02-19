@@ -1997,10 +1997,13 @@ static unsigned On_NEWLVL(TCmd *pCmd, int pnum)
 
 static unsigned On_TWARP(TCmd* pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	BYTE idx = cmd->bParam1;
+
+	net_assert(idx < MAX_PLRS);
 
 	if (plr._pmode != PM_DEATH)
-		StartTWarp(pnum, SwapLE16(cmd->wParam1));
+		StartTWarp(pnum, idx);
 
 	return sizeof(*cmd);
 }
