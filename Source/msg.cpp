@@ -166,6 +166,11 @@ bool DownloadDeltaInfo()
 	if (success) {
 		if (gbGameDeltaChunks == MAX_CHUNKS) {
 			msg_mask_monhit(mypnum);
+			// process messages queued during delta-load
+			//geBufferMsgs = MSG_RUN_DELTA;
+			DeltaProcessMegaPkts();
+			//geBufferMsgs = MSG_NORMAL;
+			DeltaFreeMegaPkts();
 			return true;
 		}
 #if DEBUG_MODE || DEV_MODE
@@ -176,17 +181,6 @@ bool DownloadDeltaInfo()
 	}
 	DeltaFreeMegaPkts();
 	return false;
-}
-
-void RunDeltaPackets()
-{
-	//if (IsLocalGame)
-	//	return;
-
-	//geBufferMsgs = MSG_RUN_DELTA;
-	DeltaProcessMegaPkts();
-	//geBufferMsgs = MSG_NORMAL;
-	DeltaFreeMegaPkts();
 }
 
 static BYTE* DeltaExportLevel(BYTE bLevel)

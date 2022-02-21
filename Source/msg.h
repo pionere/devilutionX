@@ -19,7 +19,6 @@ extern char gbNetMsg[MAX_SEND_STR_LEN];
 
 void msg_send_drop_plr(int pnum, int reason);
 bool DownloadDeltaInfo();
-void RunDeltaPackets();
 void DeltaExportData(int pnum, uint32_t turn);
 void delta_init();
 void DeltaAddItem(int ii);

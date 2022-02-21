@@ -286,9 +286,6 @@ void nthread_finish(UINT uMsg)
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
 			assert(sghThread == NULL);
 			return;
-		} else {
-			// process remaining packets of delta-load
-			RunDeltaPackets();
 		}
 	}
 
