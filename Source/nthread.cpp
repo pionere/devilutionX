@@ -52,7 +52,7 @@ restart:
 	turn++;
 	// commented out to raise the possible up-time of a game
 	// minor hickup might occur around overflow, but ignore it for the moment
-	//if (turn >= 0x7FFFFFFF)
+	//if (turn >= (UINT32_MAX / gbNetUpdateRate))
 	//	turn &= 0xFFFF;
 //#ifdef ADAPTIVE_NETUPDATE
 #ifndef NONET
@@ -224,6 +224,7 @@ static int SDLCALL nthread_handler(void* data)
 #endif
 void nthread_start()
 {
+	assert(geBufferMsgs == MSG_NORMAL);
 	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
 	_gbTickInSync = true;
 	sgbSentThisCycle = 0;
@@ -243,6 +244,7 @@ void nthread_start()
 		_gbRunThread = false;
 		sgThreadMutex.Enter();
 		_gbThreadLive = true;
+		assert(sghThread == NULL);
 		sghThread = CreateThread(nthread_handler);
 		assert(sghThread != NULL);
 	}
@@ -287,6 +289,8 @@ void nthread_finish(UINT uMsg)
 	if (uMsg == DVL_DWM_NEWGAME) {
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
 			assert(sghThread == NULL);
+			assert(geBufferMsgs == MSG_NORMAL);
+			assert(sgbPacketCountdown == 1);
 			return;
 		}
 	}
