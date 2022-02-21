@@ -21,7 +21,7 @@ static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 /* Specifies whether the player joins an existing game. */
 static bool gbJoinGame;
 /* A table in which the leaving players are registered with the reason for the leaving. (LEAVE_) */
-static int sgbPlayerLeftGameTbl[MAX_PLRS];
+static BYTE sgbPlayerLeftGameTbl[MAX_PLRS];
 /* The number of active players in the game. */
 BYTE gbActivePlayers;
 /* Mask of pnum values who requested game delta. */
@@ -217,7 +217,7 @@ void multi_disband_team(int team)
 	}
 }
 
-static void multi_deactivate_player(int pnum, int reason)
+void multi_deactivate_player(int pnum, int reason)
 {
 	const char *pszFmt;
 
@@ -271,13 +271,6 @@ static void multi_check_left_plrs()
 			sgbPlayerLeftGameTbl[i] = LEAVE_NONE;
 		}
 	}
-}
-
-void multi_player_left(int pnum, int reason)
-{
-	//assert(reason != LEAVE_NONE);
-	sgbPlayerLeftGameTbl[pnum] = reason;
-	multi_check_left_plrs();
 }
 
 static void multi_drop_players()

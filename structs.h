@@ -1109,7 +1109,7 @@ typedef struct TCmdString {
 
 typedef struct TFakeDropPlr {
 	BYTE bCmd;
-	DWORD dwReason;
+	BYTE bReason;
 } TFakeDropPlr;
 
 typedef struct TSyncHeader {

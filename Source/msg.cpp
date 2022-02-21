@@ -79,15 +79,9 @@ static void DeltaProcessMegaPkts()
 		while (data != dataEnd) {
 			pnum = *data;
 			data++;
-			if (*data == FAKE_NMSG_DROPID) {
-				TFakeDropPlr* cmd = (TFakeDropPlr*)data;
-				multi_player_left(pnum, cmd->dwReason);
-				pktSize = sizeof(*cmd);
-			} else {
-				pktSize = ParseMsg(pnum, (TCmd*)data);
-				if (pktSize == 0)
-					break;
-			}
+			pktSize = ParseMsg(pnum, (TCmd*)data);
+			if (pktSize == 0)
+				break;
 			data += pktSize;
 		}
 	}
@@ -107,12 +101,13 @@ static void DeltaQueuePacket(int pnum, const void* packet, unsigned dwSize)
 	sgpCurrPkt->dwSpaceLeft -= dwSize + 1;
 }
 
-void msg_send_drop_plr(int pnum, int reason)
+void msg_send_drop_plr(int pnum, BYTE reason)
 {
 	TFakeDropPlr cmd;
 
-	cmd.bCmd = FAKE_NMSG_DROPID;
-	cmd.dwReason = reason;
+	cmd.bCmd = NMSG_PLRDROP;
+	cmd.bReason = reason;
+	// FIXME: timestamp?
 
 	DeltaQueuePacket(pnum, &cmd, sizeof(cmd));
 }
@@ -2259,6 +2254,15 @@ static unsigned On_SEND_PLRINFO(TCmd* pCmd, int pnum)
 	return cmd->wBytes + sizeof(*cmd);
 }
 
+static unsigned ON_PLRDROP(TCmd* pCmd, int pnum)
+{
+	TFakeDropPlr* cmd = (TFakeDropPlr*)pCmd;
+
+	multi_deactivate_player(pnum, cmd->bReason);
+
+	return sizeof(*cmd);
+}
+
 static unsigned On_ACK_PLRINFO(TCmd* pCmd, int pnum)
 {
 	return On_SEND_PLRINFO(pCmd, pnum);
@@ -3046,6 +3050,8 @@ unsigned ParseMsg(int pnum, TCmd* pCmd)
 		return On_DLEVEL(pCmd, pnum);
 	case NMSG_STRING:
 		return On_STRING(pCmd, pnum);
+	case NMSG_PLRDROP:
+		return ON_PLRDROP(pCmd, pnum);
 	}
 
 	SNetDropPlayer(pnum);

@@ -3135,7 +3135,7 @@ typedef enum _msg_id {
 	NMSG_DLEVEL_PLR,
 	NMSG_DLEVEL_END,
 	NMSG_STRING,
-	FAKE_NMSG_DROPID,
+	NMSG_PLRDROP, // internal use only (supposedly)
 } _msg_id;
 
 typedef enum _cmd_id {

@@ -17,7 +17,7 @@ extern DeltaData gsDeltaData;
 extern _msg_mode geBufferMsgs;
 extern char gbNetMsg[MAX_SEND_STR_LEN];
 
-void msg_send_drop_plr(int pnum, int reason);
+void msg_send_drop_plr(int pnum, BYTE reason);
 bool DownloadDeltaInfo();
 void DeltaExportData(int pnum, uint32_t turn);
 void delta_init();
