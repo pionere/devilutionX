@@ -219,7 +219,7 @@ void multi_disband_team(int team)
 
 void multi_deactivate_player(int pnum, int reason)
 {
-	const char *pszFmt;
+	const char* pszFmt;
 
 	if (plr._pActive) {
 		RemovePortalMissile(pnum);
@@ -227,12 +227,7 @@ void multi_deactivate_player(int pnum, int reason)
 		delta_close_portal(pnum);
 		multi_disband_team(pnum);
 		// ClearPlrMsg(pnum);
-		if (plr._pDunLevel == currLvl._dLevelIdx) {
-			AddUnLight(plr._plid);
-			AddUnVision(plr._pvid);
-			RemovePlrFromMap(pnum);
-			RemovePlrMissiles(pnum);
-		}
+		RemoveLvlPlayer(pnum);
 		if (reason != LEAVE_NONE) {
 			pszFmt = "Player '%s' left the game";
 			switch (reason) {
@@ -783,7 +778,7 @@ bool NetInit(bool bSinglePlayer)
 		delta_init();
 		InitPlrMsg();
 		multi_init_buffers();
-		nthread_start(); 
+		nthread_start();
 		dthread_start();
 		gdwGameLogicTurn = 0;
 		nthread_send_turn();

@@ -833,6 +833,21 @@ void InitLvlPlayer(int pnum)
 	}*/
 }
 
+void RemoveLvlPlayer(int pnum)
+{
+	if (plr._pDunLevel == currLvl._dLevelIdx) {
+		AddUnLight(plr._plid);
+		AddUnVision(plr._pvid);
+		//if (pnum == mypnum) {
+		//	// to show the current player on the last frames before changing the level
+		//	// RemovePlrFromMap(pnum); should be skipped. This is no longer necessary
+		//	// because fade-out is turned off.
+		//}
+		RemovePlrFromMap(pnum);
+		RemovePlrMissiles(pnum);
+	}
+}
+
 void NextPlrLevel(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -1862,20 +1877,9 @@ void RemovePlrMissiles(int pnum)
 
 static void InitLevelChange(int pnum)
 {
+	RemoveLvlPlayer(pnum);
+
 	ClrPlrPath(pnum);
-	if (plr._pDunLevel == currLvl._dLevelIdx) {
-		AddUnLight(plr._plid);
-		AddUnVision(plr._pvid);
-		RemovePlrMissiles(pnum);
-		//if (pnum == mypnum) {
-		//	// to show the current player on the last frames before changing the level
-		//	// RemovePlrFromMap(pnum); should be skipped. This is no longer necessary
-		//	// because fade-out is turned off.
-		//}
-		RemovePlrFromMap(pnum);
-	} else {
-		assert(pnum != mypnum);
-	}
 	plr.destAction = ACTION_NONE;
 	plr._pLvlChanging = TRUE;
 	plr._pmode = PM_NEWLVL;
