@@ -24,7 +24,7 @@ void delta_init();
 void DeltaAddItem(int ii);
 void DeltaSaveLevel();
 void DeltaLoadLevel();
-void NetSendCmdSendJoinLevel();
+void NetSendCmdJoinLevel();
 void NetSendCmd(BYTE bCmd);
 void NetSendCmdLoc(BYTE bCmd, BYTE x, BYTE y);
 void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, WORD wParam1);

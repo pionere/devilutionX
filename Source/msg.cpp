@@ -1006,11 +1006,11 @@ void DeltaLoadLevel()
 	deltaload = false;
 }
 
-void NetSendCmdSendJoinLevel()
+void NetSendCmdJoinLevel()
 {
-	TCmdSendJoinLevel cmd;
+	TCmdJoinLevel cmd;
 
-	cmd.bCmd = CMD_SEND_JOINLEVEL;
+	cmd.bCmd = CMD_JOINLEVEL;
 	cmd.lLevel = currLvl._dLevelIdx;
 	cmd.px = ViewX;
 	cmd.py = ViewY;
@@ -2299,9 +2299,9 @@ static unsigned On_ACK_JOINLEVEL(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_SEND_JOINLEVEL(TCmd* pCmd, int pnum)
+static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 {
-	TCmdSendJoinLevel* cmd = (TCmdSendJoinLevel*)pCmd;
+	TCmdJoinLevel* cmd = (TCmdJoinLevel*)pCmd;
 
 	plr._pLvlChanging = FALSE;
 	if (plr._pmode != PM_DEATH)
@@ -3177,8 +3177,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_RETOWN(pCmd, pnum);
 	case CMD_ACK_JOINLEVEL:
 		return On_ACK_JOINLEVEL(pCmd, pnum);
-	case CMD_SEND_JOINLEVEL:
-		return On_SEND_JOINLEVEL(pCmd, pnum);
+	case CMD_JOINLEVEL:
+		return On_JOINLEVEL(pCmd, pnum);
 	case CMD_INVITE:
 		return On_INVITE(pCmd, pnum);
 	case CMD_ACK_INVITE:

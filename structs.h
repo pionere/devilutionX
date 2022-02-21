@@ -1250,7 +1250,7 @@ typedef struct DeltaData {
 	};
 } DeltaData;
 
-typedef struct TCmdSendJoinLevel {
+typedef struct TCmdJoinLevel {
 	BYTE bCmd;
 	BYTE lLevel;
 	BYTE px;
@@ -1259,7 +1259,7 @@ typedef struct TCmdSendJoinLevel {
 	INT pmp;
 	WORD lTimer1;
 	WORD lTimer2;
-} TCmdSendJoinLevel;
+} TCmdJoinLevel;
 
 typedef struct TCmdAckJoinLevel {
 	BYTE bCmd;

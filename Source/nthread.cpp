@@ -320,7 +320,7 @@ void nthread_finish(UINT uMsg)
 	}
 #endif
 	if (myplr._pmode == PM_NEWLVL) { // skip in case the game is loaded
-		NetSendCmdSendJoinLevel();
+		NetSendCmdJoinLevel();
 	}
 }
 
