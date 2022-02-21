@@ -80,8 +80,8 @@ static void DeltaProcessMegaPkts()
 			pnum = *data;
 			data++;
 			pktSize = ParseMsg(pnum, (TCmd*)data);
-			if (pktSize == 0)
-				break;
+			// only known drop/send_plrinfo msgs are in the queue
+			assert(pktSize != 0);
 			data += pktSize;
 		}
 	}
