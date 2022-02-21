@@ -50,8 +50,10 @@ restart:
 #endif
 	SNetSendTurn(SwapLE32(turn), data, len);
 	turn++;
-	if (turn >= 0x7FFFFFFF)
-		turn &= 0xFFFF;
+	// commented out to raise the possible up-time of a game
+	// minor hickup might occur around overflow, but ignore it for the moment
+	//if (turn >= 0x7FFFFFFF)
+	//	turn &= 0xFFFF;
 //#ifdef ADAPTIVE_NETUPDATE
 #ifndef NONET
 	if (gbEmptyTurns != 0 && SNetGetTurnsInTransit() <= gbEmptyTurns) {
