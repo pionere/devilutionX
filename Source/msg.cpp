@@ -2242,7 +2242,7 @@ static unsigned On_SEND_GAME_DELTA(TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static unsigned On_SEND_PLRINFO(TCmd* pCmd, int pnum)
+static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
 {
 	TCmdPlrInfoHdr* cmd = (TCmdPlrInfoHdr*)pCmd;
 
@@ -2261,11 +2261,6 @@ static unsigned ON_PLRDROP(TCmd* pCmd, int pnum)
 	multi_deactivate_player(pnum, cmd->bReason);
 
 	return sizeof(*cmd);
-}
-
-static unsigned On_ACK_PLRINFO(TCmd* pCmd, int pnum)
-{
-	return On_SEND_PLRINFO(pCmd, pnum);
 }
 
 static int16_t msg_calc_rage(WORD rage)
@@ -3038,10 +3033,8 @@ unsigned ParseMsg(int pnum, TCmd* pCmd)
 	switch (pCmd->bCmd) {
 	case NMSG_SEND_GAME_DELTA:
 		return On_SEND_GAME_DELTA(pCmd, pnum);
-	case NMSG_ACK_PLRINFO:
-		return On_ACK_PLRINFO(pCmd, pnum);
-	case NMSG_SEND_PLRINFO:
-		return On_SEND_PLRINFO(pCmd, pnum);
+	case NMSG_PLRINFO:
+		return On_PLRINFO(pCmd, pnum);
 	case NMSG_DLEVEL_DATA:
 	case NMSG_DLEVEL_SEP:
 	case NMSG_DLEVEL_JUNK:

@@ -791,7 +791,7 @@ bool NetInit(bool bSinglePlayer)
 		SetupLocalPlr();
 		if (!gbJoinGame)
 			break;
-		multi_send_plrinfo_msg(SNPLAYER_ALL, NMSG_SEND_PLRINFO);
+		multi_send_plrinfo_msg(SNPLAYER_ALL, NMSG_PLRINFO);
 		if (DownloadDeltaInfo()) {
 			//nthread_finish(); - do not, because it would send a join-level message
 			break;
@@ -814,12 +814,6 @@ void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
 		// invalid data -> drop
 		return;
-	}
-	if (sgwPackPlrOffsetTbl[pnum] == 0 && piHdr->bCmd != NMSG_ACK_PLRINFO) {
-#ifndef NOHOSTING
-		if (mypnum < MAX_PLRS)
-#endif
-			multi_send_plrinfo_msg(pnum, NMSG_ACK_PLRINFO);
 	}
 
 	if (piHdr->wBytes == 0)
