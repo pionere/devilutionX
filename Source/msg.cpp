@@ -229,6 +229,8 @@ static void DeltaImportLevel()
 	int i;
 	BYTE *src, bLvl;
 
+	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= (sizeof(DLevel) + 1), "DLevel does not fit to the buffer.");
+
 	src = gsDeltaData.ddSendRecvBuf.content;
 	// level-index
 	bLvl = *src;
@@ -327,7 +329,7 @@ static BYTE* DeltaExportPlr(int pnum)
 {
 	BYTE* dst = gsDeltaData.ddSendRecvBuf.content;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(PkPlayerStruct) + 1, "Delta-Plr does not fit to the buffer.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= (sizeof(PkPlayerStruct) + 1), "Delta-Plr does not fit to the buffer.");
 
 	// player-index
 	*dst = pnum;
@@ -549,7 +551,7 @@ void delta_init()
 	//memset(gsDeltaData.ddLocal, 0, sizeof(gsDeltaData.ddLocal));
 	//gsDeltaData.ddSendRecvOffset = 0;
 	memset(&gsDeltaData, 0, sizeof(gsDeltaData));
-	deltaload = false;
+	assert(!deltaload);
 }
 
 static void delta_monster_corpse(const TCmdLocBParam1* pCmd)
@@ -1410,6 +1412,7 @@ void NetSendCmdString(unsigned int pmask)
 	int dwStrLen;
 	TCmdString cmd;
 
+	static_assert((sizeof(gbNetMsg) + 2) <= (sizeof(MsgPkt) - sizeof(MsgPktHdr)), "String message does not fit in MsgPkt.");
 	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = NMSG_STRING;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
@@ -2334,11 +2337,12 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 				return sizeof(*cmd);
 			}
 			// TODO: validate data from internet
-			//assert(plr._pTeam == pnum);
-			//assert(plr._pManaShield == 0);
-			//assert(cmd->lLevel == DLV_TOWN);
-			//assert(cmd->lTimer1 == 0);
-			//assert(cmd->lTimer2 == 0);
+			net_assert(plr._pTeam == pnum);
+			net_assert(plr._pManaShield == 0);
+			net_assert(plr._pLevel >= 1);
+			net_assert(cmd->lLevel == DLV_TOWN);
+			net_assert(cmd->lTimer1 == 0);
+			net_assert(cmd->lTimer2 == 0);
 			plr._pActive = TRUE;
 			gbActivePlayers++;
 			EventPlrMsg("Player '%s' (level %d) just joined the game", plr._pName, plr._pLevel);
