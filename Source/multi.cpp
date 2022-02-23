@@ -129,7 +129,7 @@ static void multi_send_turn_packet()
 	unsigned remsize, len;
 	TurnPkt pkt;
 
-	remsize = gdwNormalMsgSize - sizeof(TurnPktHdr);
+	remsize = NET_NORMAL_MSG_SIZE - sizeof(TurnPktHdr);
 	dstEnd = multi_add_chunks(&pkt.body[0], &remsize);
 	dstEnd = sync_all_monsters(dstEnd, remsize);
 	len = (size_t)dstEnd - (size_t)&pkt;
@@ -541,7 +541,7 @@ void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE *pbSrc, unsigned dwLe
 		p = (TCmdPlrInfoHdr*)pkt.body;
 		p->bCmd = bCmd;
 		p->wOffset = SwapLE16(dwOffset);
-		dwBody = gdwLargestMsgSize - sizeof(pkt.hdr) - sizeof(*p);
+		dwBody = NET_LARGE_MSG_SIZE - sizeof(pkt.hdr) - sizeof(*p);
 		if (dwLen < dwBody) {
 			dwBody = dwLen;
 		}

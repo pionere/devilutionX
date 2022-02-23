@@ -334,7 +334,7 @@ unsigned base::SNetGetTurnsInTransit()
 {
 	//caps->size = 0;                  // unused
 	caps->flags = 0;                 // unused
-	caps->maxmessagesize = MAX_NETMSG_SIZE; // the largest message to send during delta-load
+	caps->maxmessagesize = NET_LARGE_MSG_SIZE; // the largest message to send during delta-load
 	caps->maxqueuesize = 0;          // unused
 	caps->maxplayers = MAX_PLRS;     // unused (part of SNetGameData)
 	caps->bytessec = 1000000;        // estimated speed of the connection (to determine if wait is necessary during delta load)

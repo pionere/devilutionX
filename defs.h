@@ -55,7 +55,10 @@
 #define MAXTRIGGERS				5
 #endif
 
-#define MAX_NETMSG_SIZE			512
+// the maximum size of normal (cmd) message
+#define NET_NORMAL_MSG_SIZE		512
+// the maximum size of a large (nmsg) message
+#define NET_LARGE_MSG_SIZE		512
 #define NET_DEFAULT_PORT		6112
 #define MAX_SEND_STR_LEN		80
 

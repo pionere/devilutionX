@@ -3241,7 +3241,7 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 	}
 
 	SNetDropPlayer(pnum);
-	return MAX_NETMSG_SIZE;
+	return NET_NORMAL_MSG_SIZE;
 }
 
 DEVILUTION_END_NAMESPACE
