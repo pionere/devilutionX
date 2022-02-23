@@ -120,10 +120,12 @@ void loopback::SNetDropPlayer(int playerid)
 unsigned loopback::SNetGetTurnsInTransit()
 {
 #if DEBUG_MODE || DEV_MODE
-	if (!turn_queue.empty())
-		app_error(ERR_APP_LOOPBACK_TRANSIT); // should be empty or should have one entry
+	// should be empty or should have one entry
+	if (turn_queue.size() > 1) {
+		app_error(ERR_APP_LOOPBACK_TRANSIT);
+	}
 #endif
-	return 0; // turn_queue.size();
+	return turn_queue.size();
 }
 //#endif
 
