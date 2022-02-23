@@ -740,6 +740,23 @@ static bool delta_get_item(const TCmdGItem* pI)
 		}
 	}
 
+	if (pI->fromFloor) {
+		net_assert(!IsLvlVisited(bLevel));
+		// level was not visited by the current player
+		// assume it is floor item spawned on the ground
+		gsDeltaData.ddLevelChanged[bLevel] = true;
+		pD = gsDeltaData.ddLevel[bLevel].item;
+		for (i = 0; i < MAXITEMS; i++, pD++) {
+			if (pD->bCmd == DCMD_INVALID) {
+				pD->bCmd = DCMD_ITM_TAKEN;
+				pD->x = pI->x;
+				pD->y = pI->y;
+				copy_pod(pD->item, pI->item);
+				return true;
+			}
+		}
+	}
+
 	return false;
 }
 
@@ -819,6 +836,7 @@ void DeltaAddItem(int ii)
 		return;
 
 	is = &items[ii];
+	is->_iFloorFlag = TRUE;
 	pD = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != DCMD_INVALID
@@ -1214,6 +1232,7 @@ void NetSendCmdGItem(BYTE bCmd, BYTE ii)
 	is = &items[ii];
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
+	cmd.fromFloor = is->_iFloorFlag;
 
 	PackPkItem(&cmd.item, is);
 
@@ -1534,6 +1553,7 @@ static unsigned On_GETITEM(TCmd* pCmd, int pnum)
 		} else {
 			UnPackPkItem(&cmd->item);
 			copy_pod(plr._pHoldItem, items[MAXITEMS]);
+			// assert(!plr._pHoldItem._iFloorFlag);
 		}
 	}
 

@@ -159,6 +159,7 @@ typedef struct ItemStruct {
 	BYTE _iMinStr;
 	BYTE _iMinMag;
 	BYTE _iMinDex;
+	BOOLEAN _iFloorFlag;
 	BOOLEAN _iAnimFlag;
 	BYTE* _iAnimData;        // PSX name -> ItemFrame
 	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
@@ -1064,6 +1065,7 @@ typedef struct TCmdGItem {
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
+	BOOLEAN fromFloor;
 	PkItemStruct item;
 } TCmdGItem;
 
