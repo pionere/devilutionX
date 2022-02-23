@@ -212,8 +212,9 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	// TODO: add to pPack? (_pInvincible, _pmode)
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;
-	plr._plid = -1;
-	plr._pvid = -1;
+	// commented out, because these should not matter
+	//plr._plid = NO_LIGHT;
+	//plr._pvid = NO_VISION;
 
 	// verify the data
 	//  make sure the name is NULL terminated
