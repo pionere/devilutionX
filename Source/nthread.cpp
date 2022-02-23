@@ -10,8 +10,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
-const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
-const unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
 
 /* The id of the next turn. */
 uint32_t sgbSentThisCycle;
@@ -238,8 +236,6 @@ void nthread_start()
 	if (gbNetUpdateRate == 1 && !IsLocalGame)
 		gbEmptyTurns = 1;
 #endif
-	static_assert(sizeof(TurnPkt) <= gdwNormalMsgSize, "TurnPkt does not fit in a message.");
-	static_assert(sizeof(MsgPkt) <= gdwNormalMsgSize, "MsgPkt does not fit in a message.");
 	if (!IsLocalGame) {
 		_gbRunThread = false;
 		sgThreadMutex.Enter();
