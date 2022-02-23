@@ -160,7 +160,7 @@ typedef struct ItemStruct {
 	BYTE _iMinMag;
 	BYTE _iMinDex;
 	BOOLEAN _iFloorFlag;
-	BOOLEAN _iAnimFlag;
+	BOOL _iAnimFlag; // could be BOOLEAN, but convertig it causes inconsistency in case of X86_32bit_COMP...
 	BYTE* _iAnimData;        // PSX name -> ItemFrame
 	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
@@ -215,7 +215,7 @@ typedef struct ItemStruct {
 	int _iVAdd;
 	int _iVMult;
 	BOOL _iStatFlag;
-	ALIGNMENT(6, 5)
+	ALIGNMENT(5, 4)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

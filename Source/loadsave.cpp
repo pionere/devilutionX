@@ -261,8 +261,8 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iMinMag);
 	LoadByte(&is->_iMinDex);
 	LoadByte(&is->_iFloorFlag);
-	LoadByte(&is->_iAnimFlag);
-	tbuff += 1; // Alignment
+	tbuff += 2; // Alignment
+	LoadInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
 	LoadInt(&is->_iAnimCnt);
@@ -980,8 +980,8 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iMinMag);
 	SaveByte(&is->_iMinDex);
 	SaveByte(&is->_iFloorFlag);
-	SaveByte(&is->_iAnimFlag);
-	tbuff += 1; // Alignment
+	tbuff += 2; // Alignment
+	SaveInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
 	SaveInt(&is->_iAnimCnt);
@@ -1577,11 +1577,11 @@ void SaveGame()
 	// save level-data
 	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
-	 + MAXITEMS * 232 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
+	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
 	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 176 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
-	 + MAXITEMS * 232 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
+	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);
 
