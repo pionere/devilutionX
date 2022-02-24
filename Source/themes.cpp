@@ -575,6 +575,12 @@ static void Theme_MonstPit(BYTE tv)
 	PlaceThemeMonsts(tv, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
+static void AddSkelMonster(int x, int y)
+{
+	assert(PosOkMonst(-1, x, y));
+	AddMonster(x, y, random_(11, NUM_DIRS), mapSkelTypes[random_(136, numSkelTypes)], true);
+}
+
 /**
  * Theme_SkelRoom initializes the skeleton room theme.
  *
@@ -582,7 +588,7 @@ static void Theme_MonstPit(BYTE tv)
  */
 static void Theme_SkelRoom(BYTE tv)
 {
-	int xx, yy, i;
+	int xx, yy;
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	char monstrnd;
 
@@ -597,47 +603,40 @@ static void Theme_SkelRoom(BYTE tv)
 	AddObject(OBJ_SKFIRE, xx, yy);
 
 	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy - 1, DIR_NONE);
+		AddSkelMonster(xx - 1, yy - 1);
 	} else {
 		AddObject(OBJ_BANNERL, xx - 1, yy - 1);
 	}
 
-	i = PreSpawnSkeleton();
-	SpawnSkeleton(i, xx, yy - 1, DIR_NONE);
+	AddSkelMonster(xx, yy - 1);
 
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy - 1, DIR_NONE);
+		AddSkelMonster(xx + 1, yy - 1);
 	} else {
 		AddObject(OBJ_BANNERR, xx + 1, yy - 1);
 	}
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy, DIR_NONE);
+		AddSkelMonster(xx - 1, yy);
 	} else {
 		AddObject(OBJ_BANNERM, xx - 1, yy);
 	}
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy, DIR_NONE);
+		AddSkelMonster(xx + 1, yy);
 	} else {
 		AddObject(OBJ_BANNERM, xx + 1, yy);
 	}
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy + 1, DIR_NONE);
+		AddSkelMonster(xx - 1, yy + 1);
 	} else {
 		AddObject(OBJ_BANNERR, xx - 1, yy + 1);
 	}
 
-	i = PreSpawnSkeleton();
-	SpawnSkeleton(i, xx, yy + 1, DIR_NONE);
+	AddSkelMonster(xx, yy + 1);
 
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy + 1, DIR_NONE);
+		AddSkelMonster(xx + 1, yy + 1);
 	} else {
 		AddObject(OBJ_BANNERL, xx + 1, yy + 1);
 	}
