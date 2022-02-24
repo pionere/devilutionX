@@ -221,7 +221,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	//  make sure the name is NULL terminated
 	plr._pName[sizeof(plr._pName) - 1] = '\0';
 	net_assert(plr._pClass < NUM_CLASSES);
-	net_assert(plr._pLevel <= MAXCHARLEVEL);
+	net_assert(plr._pLevel >= 1 && plr._pLevel <= MAXCHARLEVEL);
 	net_assert(plr._pTeam < MAX_PLRS);
 	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
 	net_assert(pi->_itype != ITYPE_PLACEHOLDER &&

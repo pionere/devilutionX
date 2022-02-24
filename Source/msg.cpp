@@ -2259,7 +2259,9 @@ static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
 
 static unsigned On_SEND_GAME_DELTA(TCmd* pCmd, int pnum)
 {
-	if (pnum != mypnum && pnum < MAX_PLRS)
+	net_assert((unsigned)pnum < MAX_PLRS);
+
+	if (pnum != mypnum)
 		guSendGameDelta |= 1 << pnum;
 
 	return sizeof(*pCmd);
@@ -2268,6 +2270,8 @@ static unsigned On_SEND_GAME_DELTA(TCmd* pCmd, int pnum)
 static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
 {
 	TCmdPlrInfoHdr* cmd = (TCmdPlrInfoHdr*)pCmd;
+
+	net_assert((unsigned)pnum < MAX_PLRS);
 
 	if (geBufferMsgs == MSG_GAME_DELTA || geBufferMsgs == MSG_REQUEST_GAME_DELTA)
 		DeltaQueuePacket(pnum, cmd, cmd->wBytes + sizeof(*cmd));
@@ -2280,6 +2284,8 @@ static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
 static unsigned ON_PLRDROP(TCmd* pCmd, int pnum)
 {
 	TFakeDropPlr* cmd = (TFakeDropPlr*)pCmd;
+
+	net_assert((unsigned)pnum < MAX_PLRS);
 
 	multi_deactivate_player(pnum, cmd->bReason);
 
@@ -2339,7 +2345,6 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 			// TODO: validate data from internet
 			net_assert(plr._pTeam == pnum);
 			net_assert(plr._pManaShield == 0);
-			net_assert(plr._pLevel >= 1);
 			net_assert(cmd->lLevel == DLV_TOWN);
 			net_assert(cmd->lTimer1 == 0);
 			net_assert(cmd->lTimer2 == 0);
@@ -3047,11 +3052,12 @@ static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 
 unsigned ParseMsg(int pnum, TCmd* pCmd)
 {
-#ifndef NOHOSTING
+	net_assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
+//#ifndef NOHOSTING
 	if ((unsigned)pnum >= MAX_PLRS && pnum != SNPLAYER_MASTER) {
-#else
-	if ((unsigned)pnum >= MAX_PLRS) {
-#endif
+//#else
+//	if ((unsigned)pnum >= MAX_PLRS) {
+//#endif
 		dev_fatal("ParseMsg: illegal player %d", pnum);
 	}
 	switch (pCmd->bCmd) {
@@ -3077,6 +3083,7 @@ unsigned ParseMsg(int pnum, TCmd* pCmd)
 
 unsigned ParseCmd(int pnum, TCmd* pCmd)
 {
+	net_assert((unsigned)pnum < MAX_PLRS);
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("ParseCmd: illegal player %d", pnum);
 	}

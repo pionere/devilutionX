@@ -268,7 +268,7 @@ static void multi_check_left_plrs()
 	}
 }
 
-static void multi_drop_players()
+/*static void multi_drop_players()
 {
 	int i;
 
@@ -278,12 +278,12 @@ static void multi_drop_players()
 			SNetDropPlayer(i);
 		}
 	}
-}
+}*/
 
 bool multi_check_timeout()
 {
-	int i, nTicks, nState, nLowestActive, nLowestPlayer;
-	BYTE activePlrs, inActivePlrs;
+	int nTicks; //i, nState, nLowestActive, nLowestPlayer;
+	//BYTE activePlrs, inActivePlrs;
 
 	if (!_gbTimeout) {
 		_gbTimeout = true;
@@ -301,9 +301,10 @@ bool multi_check_timeout()
 		gbRunGame = false;
 		return true;
 	}
-	if (nTicks < 5000) {
+	// commented out because a client should not be authorized to drop players
+	//if (nTicks < 5000) {
 		return false;
-	}
+	/*}
 
 	nLowestActive = -1;
 	nLowestPlayer = -1;
@@ -336,7 +337,7 @@ bool multi_check_timeout()
 	} else if (nLowestActive == mypnum) {
 		multi_drop_players();
 	}
-	return true;
+	return true;*/
 }
 
 /**
@@ -505,6 +506,7 @@ static int game_server_callback()
 static void RunGameServer()
 {
 	assert(!gbJoinGame);
+	assert(mypnum == SNPLAYER_MASTER);
 	currLvl._dLevelIdx = DLV_INVALID;
 	gbActivePlayers = 0;
 	gameProgress = 0;
@@ -808,16 +810,15 @@ bool NetInit(bool bSinglePlayer)
 
 void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 {
-	if ((unsigned)pnum >= MAX_PLRS)
-		return;
+	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
 	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
 		// invalid data -> drop
 		return;
 	}
 
-	if (piHdr->wBytes == 0)
-		return; // 'invalid' data -> skip to prevent reactivation of a player
+	//if (piHdr->wBytes == 0)
+	//	return; // 'invalid' data -> skip to prevent reactivation of a player
 	memcpy((char *)&netplr[pnum] + piHdr->wOffset, &piHdr[1], piHdr->wBytes); /* todo: cast? */
 	sgwPackPlrOffsetTbl[pnum] += piHdr->wBytes;
 	if (sgwPackPlrOffsetTbl[pnum] != sizeof(*netplr)) {

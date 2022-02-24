@@ -94,26 +94,30 @@ void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 
 void base::recv_disconnect(packet &pkt)
 {
+	plr_t pkt_src = pkt.pktSrc();
 	plr_t pkt_plr = pkt.pktDisconnectPlr();
 	leaveinfo_t leaveinfo = pkt.pktDisconnectInfo();
-	// ignore self-disconnects of hosts
-	if (pkt_plr != plr_self) {
-		if (pkt_plr < MAX_PLRS && connected_table[pkt_plr]) {
-			disconnect_plr(pkt_plr, leaveinfo);
-		} else if (pkt_plr == PLR_MASTER) {
-			// server down
-			for (pkt_plr = 0; pkt_plr < MAX_PLRS; pkt_plr++) {
-				if (pkt_plr != plr_self && connected_table[pkt_plr]) {
-					disconnect_plr(pkt_plr, leaveinfo);
-				}
+
+	//if (pkt_plr == plr_self)
+	//	return; // ignore self-disconnects of hosts
+	if (pkt_plr != pkt_src && pkt_src != PLR_MASTER)
+		return; // ignore other players attempt to disconnect each other/server
+	if (pkt_plr < MAX_PLRS && connected_table[pkt_plr]) {
+		disconnect_plr(pkt_plr, leaveinfo);
+	} else if (pkt_plr == PLR_MASTER) {
+		// server down
+		for (pkt_plr = 0; pkt_plr < MAX_PLRS; pkt_plr++) {
+			if (pkt_plr != plr_self && connected_table[pkt_plr]) {
+				disconnect_plr(pkt_plr, leaveinfo);
 			}
-			disconnect_plr(SNPLAYER_MASTER, leaveinfo);
 		}
+		disconnect_plr(SNPLAYER_MASTER, leaveinfo);
 	}
 }
 
 void base::recv_local(packet &pkt)
 {
+	// FIXME: the server could still impersonate a player...
 	plr_t pkt_plr = pkt.pktSrc();
 	if (pkt_plr < MAX_PLRS) {
 		connected_table[pkt_plr] = true;
@@ -123,10 +127,8 @@ void base::recv_local(packet &pkt)
 		message_queue.emplace_back(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd()));
 		break;
 	case PT_TURN:
-		// TODO: validate pkt_plr if the server can not be trusted?
-		//if (pkt_plr < MAX_PLRS) {
-			turn_queue[pkt_plr].emplace_back(pkt.pktTurn(), buffer_t(pkt.pktTurnBegin(), pkt.pktTurnEnd()));
-		//}
+		net_assert(pkt_plr < MAX_PLRS);
+		turn_queue[pkt_plr].emplace_back(pkt.pktTurn(), buffer_t(pkt.pktTurnBegin(), pkt.pktTurnEnd()));
 		break;
 	case PT_JOIN_ACCEPT:
 		recv_accept(pkt);
