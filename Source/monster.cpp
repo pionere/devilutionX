@@ -25,6 +25,17 @@ MonsterStruct monsters[MAXMONSTERS];
 MapMonData mapMonTypes[MAX_LVLMTYPES];
 /* The number of monster types on the current level. */
 int nummtypes;
+
+static_assert(MAX_LVLMTYPES <= UCHAR_MAX, "Monster-type indices are stored in a BYTE fields.");
+/* The number of skeleton-monster types on the current level. */
+BYTE numSkelTypes;
+/* The number of goat-monster types on the current level. */
+BYTE numGoatTypes;
+/* Skeleton-monster types on the current level. */
+BYTE mapSkelTypes[MAX_LVLMTYPES];
+/* Goat-monster types on the current level. */
+BYTE mapGoatTypes[MAX_LVLMTYPES];
+
 /* The next light-index to be used for the trn of a unique monster. */
 int uniquetrans;
 
@@ -259,6 +270,8 @@ void InitLevelMonsters()
 
 	nummonsters = 0;
 	nummtypes = 0;
+	numSkelTypes = 0;
+	numGoatTypes = 0;
 	uniquetrans = COLOR_TRN_UNIQ;
 	monstimgtot = 4000;
 	totalmonsters = MAXMONSTERS;
@@ -270,6 +283,19 @@ void InitLevelMonsters()
 	}
 }
 
+static bool IsSkel(int mt)
+{
+	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
+	    || (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
+	    || (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
+}
+
+static bool IsGoat(int mt)
+{
+	return (mt >= MT_NGOATMC && mt <= MT_GGOATMC)
+	    || (mt >= MT_NGOATBW && mt <= MT_GGOATBW);
+}
+
 static int AddMonsterType(int type, BOOL scatter)
 {
 	int i;
@@ -279,6 +305,14 @@ static int AddMonsterType(int type, BOOL scatter)
 
 	if (i == nummtypes) {
 		nummtypes++;
+		if (IsGoat(type)) {
+			mapGoatTypes[numGoatTypes] = i;
+			numGoatTypes++;
+		}
+		if (IsSkel(type)) {
+			mapSkelTypes[numSkelTypes] = i;
+			numSkelTypes++;
+		}
 		mapMonTypes[i].cmType = type;
 		mapMonTypes[i].cmPlaceScatter = FALSE;
 		monstimgtot -= monfiledata[monsterdata[type].moFileNum].moImage;
@@ -1026,7 +1060,7 @@ void InitMonsters()
 	int numplacemonsters;
 	int mtidx;
 	int numscattypes;
-	int scatteridx[NUM_MTYPES];
+	int scatteridx[MAX_LVLMTYPES];
 	const int tdx[4] = { -1, -1,  2,  2 };
 	const int tdy[4] = { -1,  2, -1,  2 };
 
@@ -2557,19 +2591,6 @@ void MonWalkDir(int mnum, int md)
 		ASSUME_UNREACHABLE
 		break;
 	}
-}
-
-bool IsSkel(int mt)
-{
-	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
-	    || (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
-	    || (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
-}
-
-bool IsGoat(int mt)
-{
-	return (mt >= MT_NGOATMC && mt <= MT_GGOATMC)
-	    || (mt >= MT_NGOATBW && mt <= MT_GGOATBW);
 }
 
 static void MonSpawnSkel(int x, int y, int dir)
@@ -4986,21 +5007,12 @@ void SpawnSkeleton(int mnum, int x, int y, int dir)
 
 int PreSpawnSkeleton()
 {
-	int i, n;
-	int types[MAX_LVLMTYPES];
-
-	n = 0;
-	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(mapMonTypes[i].cmType)) {
-			types[n] = i;
-			n++;
-		}
-	}
+	int n = numSkelTypes;
 
 	if (n == 0)
 		return -1;
 
-	n = types[random_(136, n)];
+	n = mapSkelTypes[random_(136, n)];
 	n = AddMonster(0, 0, 0, n, false);
 	if (n != -1) {
 		// inactive minions and prespawn skeletons have to be identifiable by DeltaLoadLevel

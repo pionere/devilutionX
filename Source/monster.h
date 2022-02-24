@@ -24,6 +24,13 @@ extern int nummonsters;
 extern MonsterStruct monsters[MAXMONSTERS];
 extern MapMonData mapMonTypes[MAX_LVLMTYPES];
 extern int nummtypes;
+extern BYTE numSkelTypes;
+/* The number of goat-monster types on the current level. */
+extern BYTE numGoatTypes;
+/* Skeleton-monster types on the current level. */
+extern BYTE mapSkelTypes[MAX_LVLMTYPES];
+/* Goat-monster types on the current level. */
+extern BYTE mapGoatTypes[MAX_LVLMTYPES];
 
 void InitLevelMonsters();
 void GetLevelMTypes();
@@ -56,8 +63,6 @@ void MissToMonst(int mnum, int x, int y);
 bool PosOkMonst(int mnum, int x, int y);
 bool PosOkMonst2(int mnum, int x, int y);
 bool PosOkMonst3(int mnum, int x, int y);
-bool IsSkel(int mt);
-bool IsGoat(int mt);
 void SpawnSkeleton(int mnum, int x, int y, int dir);
 int PreSpawnSkeleton();
 void SyncMonsterQ(int pnum, int idx);

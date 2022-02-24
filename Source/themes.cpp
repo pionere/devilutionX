@@ -166,30 +166,12 @@ static bool TFit_Obj5(BYTE tv)
 
 static bool TFit_SkelRoom(BYTE tv)
 {
-	int i;
-
-	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(mapMonTypes[i].cmType)) {
-			// themeVar1 = i;
-			return TFit_Obj5(tv);
-		}
-	}
-
-	return false;
+	return numSkelTypes != 0 && TFit_Obj5(tv);
 }
 
 static bool TFit_GoatShrine(BYTE tv)
 {
-	int i;
-
-	for (i = 0; i < nummtypes; i++) {
-		if (IsGoat(mapMonTypes[i].cmType)) {
-			themeVar1 = i;
-			return TFit_Obj5(tv);
-		}
-	}
-
-	return false;
+	return numGoatTypes != 0 && TFit_Obj5(tv);
 }
 
 static bool CheckThemeObj3(int x, int y, BYTE tv, int rndfrq)
@@ -505,7 +487,7 @@ static void PlaceThemeMonsts(BYTE tv, int rndfrq)
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
 				if (random_(0, rndfrq) == 0) {
-					AddMonster(xx, yy, random_(0, 8), mtype, true);
+					AddMonster(xx, yy, random_(0, NUM_DIRS), mtype, true);
 				}
 			}
 		}
@@ -604,7 +586,9 @@ static void Theme_SkelRoom(BYTE tv)
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	char monstrnd;
 
-	if (!TFit_SkelRoom(tv))
+	// assert(numSkelTypes != 0);
+	//if (!TFit_SkelRoom(tv))
+	if (!TFit_Obj5(tv))
 		return;
 
 	xx = themex;
@@ -836,7 +820,7 @@ static void Theme_GoatShrine(BYTE tv)
 		xx = themex + offset_x[i];
 		yy = themey + offset_y[i];
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			AddMonster(xx, yy, OPPOSITE(i), themeVar1, true);
+			AddMonster(xx, yy, OPPOSITE(i), mapGoatTypes[0], true);
 		}
 	}
 }
