@@ -37,7 +37,7 @@ BYTE mapSkelTypes[MAX_LVLMTYPES];
 BYTE mapGoatTypes[MAX_LVLMTYPES];
 
 /* The next light-index to be used for the trn of a unique monster. */
-int uniquetrans;
+BYTE uniquetrans;
 
 /** Maps from facing direction to path-direction. */
 static const char dir2pdir[NUM_DIRS] = { PDIR_S, PDIR_SW, PDIR_W, PDIR_NW, PDIR_N, PDIR_NE, PDIR_E, PDIR_SE };
@@ -783,7 +783,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 	const UniqMonData* uniqm;
 	MonsterStruct* mon;
 	int count;
-
+	static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
 	if (uniquetrans >= NUM_COLOR_TRNS) {
 		return;
 	}
