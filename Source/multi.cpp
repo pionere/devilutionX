@@ -32,6 +32,8 @@ bool gbSelectProvider;
 bool gbSelectHero;
 /* The last tick before the timeout happened. */
 static int sglTimeoutStart;
+/* The last processed game turn. gdwGameLogicTurn / gbNetUpdateRate if there is no overflow. */
+uint32_t gdwLastGameTurn;
 /* The current iteration of the game logic. */
 uint32_t gdwGameLogicTurn;
 /**
@@ -125,7 +127,7 @@ static void multi_init_pkt_header(TurnPktHdr &pktHdr, unsigned len)
 
 static void multi_send_turn_packet()
 {
-	BYTE *dstEnd;
+	BYTE* dstEnd;
 	unsigned remsize, len;
 	TurnPkt pkt;
 
@@ -424,6 +426,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
 		//multi_check_left_plrs();
 	}
+	gdwLastGameTurn = turn->nmpTurn;
 	gdwGameLogicTurn = turn->nmpTurn * gbNetUpdateRate;
 }
 
@@ -471,6 +474,7 @@ static int game_server_callback()
 	case TS_ACTIVE:
 		multi_parse_turns();
 		multi_process_msgs();
+		gdwGameLogicTurn += gbNetUpdateRate;
 		gameProgress++;
 		active = false;
 		for (i = 0; i < MAX_PLRS; i++) {
@@ -782,6 +786,7 @@ bool NetInit(bool bSinglePlayer)
 		multi_init_buffers();
 		nthread_start();
 		dthread_start();
+		gdwLastGameTurn = 0;
 		gdwGameLogicTurn = 0;
 		nthread_send_turn();
 		if (IsGameSrv) {

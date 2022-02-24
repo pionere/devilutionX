@@ -21,6 +21,7 @@ extern BYTE gbGameMode;
 extern BYTE gbDeltaSender;
 extern uint32_t guDeltaTurn;
 extern unsigned guSendGameDelta;
+extern uint32_t gdwLastGameTurn;
 extern uint32_t gdwGameLogicTurn;
 extern unsigned player_state[MAX_PLRS];
 

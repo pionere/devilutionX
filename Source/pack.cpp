@@ -126,11 +126,16 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 	}
 }
 
-void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
+void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 {
+#if INET_MODE
 	int i, j;
 	ItemStruct *pi, *is;
-	PkItemStruct *pki;
+#else
+	int i;
+	ItemStruct* pi;
+#endif
+	PkItemStruct* pki;
 
 	// TODO: validate data from the internet
 	SetPlayerLoc(&plr, pPack->px, pPack->py);

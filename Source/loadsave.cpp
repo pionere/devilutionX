@@ -858,6 +858,8 @@ void LoadGame()
 		app_fatal("Invalid save file");
 	// load game-info
 	LoadInt32(&gdwGameLogicTurn);
+	// assert(gbNetUpdateRate == 1);
+	gdwLastGameTurn = gdwGameLogicTurn;
 	LoadInt32(&sgbSentThisCycle);
 	LoadInt(&i);
 	gnDifficulty = (i >> 8) & 0xFF;
@@ -1532,6 +1534,8 @@ void SaveGame()
 	SaveInt(&i);
 	// save game-info
 	SaveInt32(&gdwGameLogicTurn);
+	assert(gdwLastGameTurn == gdwGameLogicTurn ||
+		((gdwLastGameTurn + 1) == gdwGameLogicTurn && gbNetUpdateRate == 1));
 	SaveInt32(&sgbSentThisCycle);
 	i = (gnDifficulty << 8) | currLvl._dLevelIdx;
 	SaveInt(&i);

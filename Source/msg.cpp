@@ -161,6 +161,8 @@ bool DownloadDeltaInfo()
 	if (success) {
 		if (gbGameDeltaChunks == MAX_CHUNKS) {
 			msg_mask_monhit(mypnum);
+			gdwLastGameTurn = guDeltaTurn - 1;
+			gdwGameLogicTurn = guDeltaTurn * gbNetUpdateRate;
 			// process messages queued during delta-load
 			//geBufferMsgs = MSG_RUN_DELTA;
 			DeltaProcessMegaPkts();
@@ -414,7 +416,9 @@ void DeltaExportData(int pnum, uint32_t turn)
 	dstEnd = gsDeltaData.ddSendRecvBuf.content;
 	*dstEnd = numChunks;
 	dstEnd++;
-	*(uint32_t*)dstEnd = SDL_SwapLE32(turn);
+	*(uint32_t*)dstEnd = SDL_SwapLE32(gdwLastGameTurn + 1);
+	assert(turn == gdwLastGameTurn + 1);
+	assert(turn * gbNetUpdateRate == gdwGameLogicTurn);
 	dthread_send_delta(pnum, NMSG_DLEVEL_END, &gsDeltaData.ddSendRecvBuf, sizeof(gsDeltaData.ddSendRecvBuf.compressed) + sizeof(BYTE) + sizeof(uint32_t));
 }
 
@@ -440,7 +444,7 @@ static void DeltaImportEnd(TCmdPlrInfoHdr* cmd)
 	DBuffer* buf;
 	BYTE* data;
 
-	// stop nthread from processing the the normal messages
+	// stop nthread from processing the delta messages
 	geBufferMsgs = MSG_NORMAL;
 
 	assert(cmd->wBytes == SwapLE16(sizeof(gsDeltaData.ddSendRecvBuf.compressed) + sizeof(BYTE) + sizeof(uint32_t)));
