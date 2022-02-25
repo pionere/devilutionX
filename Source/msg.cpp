@@ -412,14 +412,13 @@ void DeltaExportData(int pnum, uint32_t turn)
 	}
 
 	// current number of chunks sent + turn-id + end
-	gsDeltaData.ddSendRecvBuf.compressed = FALSE;
-	dstEnd = gsDeltaData.ddSendRecvBuf.content;
-	*dstEnd = numChunks;
-	dstEnd++;
-	*(uint32_t*)dstEnd = SDL_SwapLE32(gdwLastGameTurn + 1);
+	DeltaDataEnd deltaEnd;
+	deltaEnd.compressed = FALSE;
+	deltaEnd.numChunks = numChunks;
+	deltaEnd.turn = SDL_SwapLE32(gdwLastGameTurn + 1);
 	assert(turn == gdwLastGameTurn + 1);
 	assert(turn * gbNetUpdateRate == gdwGameLogicTurn);
-	dthread_send_delta(pnum, NMSG_DLEVEL_END, &gsDeltaData.ddSendRecvBuf, sizeof(gsDeltaData.ddSendRecvBuf.compressed) + sizeof(BYTE) + sizeof(uint32_t));
+	dthread_send_delta(pnum, NMSG_DLEVEL_END, &deltaEnd, sizeof(deltaEnd));
 }
 
 static void DeltaImportData()
@@ -441,23 +440,20 @@ static void DeltaImportData()
 
 static void DeltaImportEnd(TCmdPlrInfoHdr* cmd)
 {
-	DBuffer* buf;
-	BYTE* data;
+	DeltaDataEnd* buf;
 
 	// stop nthread from processing the delta messages
 	geBufferMsgs = MSG_NORMAL;
 
-	assert(cmd->wBytes == SwapLE16(sizeof(gsDeltaData.ddSendRecvBuf.compressed) + sizeof(BYTE) + sizeof(uint32_t)));
-	buf = (DBuffer*)&cmd[1];
-	assert(!buf->compressed);
-	data = buf->content;
-	if (gbGameDeltaChunks != *data) {
+	net_assert(SwapLE16(cmd->wBytes) == sizeof(DeltaDataEnd));
+	buf = (DeltaDataEnd*)&cmd[1];
+	net_assert(!buf->compressed);
+	if (gbGameDeltaChunks != buf->numChunks) {
 		// not all chunks arrived -> quit
 		gbGameDeltaChunks = DELTA_ERROR_FAIL_3;
 		return;
 	}
-	data++;
-	guDeltaTurn = SDL_SwapLE32(*(uint32_t*)data);
+	guDeltaTurn = SDL_SwapLE32(buf->turn);
 	gbGameDeltaChunks = MAX_CHUNKS - 1;
 }
 

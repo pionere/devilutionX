@@ -1239,6 +1239,12 @@ typedef struct DBuffer {
 	BYTE content[sizeof(DLevel) + 1];
 } DBuffer;
 
+typedef struct DeltaDataEnd {
+	BOOLEAN compressed;
+	BYTE numChunks;
+	DWORD turn;
+} DeltaDataEnd;
+
 typedef struct DeltaData {
 	union {
 		struct {
