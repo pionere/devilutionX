@@ -276,6 +276,7 @@ void InitLevelMonsters()
 	monstimgtot = 4000;
 	totalmonsters = MAXMONSTERS;
 
+	// simplify InitSync if this line is uncommented
 	//memset(monsters, 0, sizeof(monsters));
 
 	for (i = 0; i < MAXMONSTERS; i++) {
