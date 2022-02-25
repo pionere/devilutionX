@@ -568,6 +568,8 @@ static void delta_monster_corpse(const TCmdLocBParam1* pCmd)
 		return;
 
 	bLevel = pCmd->bParam1;
+	net_assert(bLevel < NUM_LEVELS);
+	// commented out, because _mCmd must be already set at this point
 	//gsDeltaData.ddLevelChanged[bLevel] = true;
 	mon = gsDeltaData.ddLevel[bLevel].monster;
 	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].monster); i++, mon++) {
@@ -593,7 +595,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	}
 
 	bLevel = mon->mkParam1.bParam1;
-	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
+	net_assert(bLevel < NUM_LEVELS);
 
 	gsDeltaData.ddLevelChanged[bLevel] = true;
 	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
@@ -620,9 +622,9 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 		return;
 
 	bLevel = mon->mdLevel;
-	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
-
-	gsDeltaData.ddLevelChanged[bLevel] = true;
+	net_assert(bLevel < NUM_LEVELS);
+	// commented out, because these changes are ineffective unless _mCmd is already set
+	//gsDeltaData.ddLevelChanged[bLevel] = true;
 	pD = &gsDeltaData.ddLevel[bLevel].monster[SwapLE16(mon->mdMnum)];
 	static_assert(MAX_PLRS < 8, "delta_monster_hp uses BYTE mask for pnum.");
 	pD->_mWhoHit |= 1 << pnum;
@@ -643,7 +645,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 
 	assert(IsMultiGame);
 
-	// TODO: validate bLevel - assert(pHdr->bLevel < NUM_LEVELS);
+	net_assert(pHdr->bLevel < NUM_LEVELS);
 
 	gsDeltaData.ddLevelChanged[pHdr->bLevel] = true;
 	pDLvlMons = gsDeltaData.ddLevel[pHdr->bLevel].monster;
@@ -682,7 +684,7 @@ static void delta_awake_golem(TCmdGolem* pG, int mnum)
 	InitGolemStats(mnum, pG->goMonLevel);
 
 	bLevel = pG->goDunLevel;
-	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
+	net_assert(bLevel < NUM_LEVELS);
 
 	gsDeltaData.ddLevelChanged[bLevel] = true;
 	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
@@ -709,7 +711,7 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 {
 	if (!IsMultiGame)
 		return;
-
+	net_assert(bLevel < NUM_LEVELS);
 	gsDeltaData.ddLevelChanged[bLevel] = true;
 	gsDeltaData.ddLevel[bLevel].object[oi].bCmd = bCmd;
 }
@@ -724,7 +726,7 @@ static bool delta_get_item(const TCmdGItem* pI)
 		return FindGetItem(SwapLE32(pI->item.dwSeed), SwapLE16(pI->item.wIndx), SwapLE16(pI->item.wCI)) != -1;
 
 	bLevel = pI->bLevel;
-	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
+	net_assert(bLevel < NUM_LEVELS);
 
 	pD = gsDeltaData.ddLevel[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
@@ -778,8 +780,10 @@ static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 	if (!IsMultiGame)
 		return;
 
-	// TODO: validate bLevel - assert(bLevel < NUM_LEVELS);
-
+	net_assert(bLevel < NUM_LEVELS);
+	// set out of loop to reduce the number of locals
+	// this might not change the level if there were MAXITEMS number of floor-items
+	gsDeltaData.ddLevelChanged[bLevel] = true;
 	pD = gsDeltaData.ddLevel[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != DCMD_INVALID
@@ -800,7 +804,6 @@ static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 	pD = gsDeltaData.ddLevel[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID) {
-			gsDeltaData.ddLevelChanged[bLevel] = true;
 			pD->bCmd = DCMD_ITM_DROPPED;
 			pD->x = x;
 			pD->y = y;
@@ -1440,6 +1443,7 @@ void NetSendCmdString(unsigned int pmask)
 
 static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
 {
+	net_assert(bLevel < NUM_LEVELS);
 	gsDeltaData.ddJunkChanged = true;
 	gsDeltaData.ddJunk.jPortals[pnum].x = x;
 	gsDeltaData.ddJunk.jPortals[pnum].y = y;
@@ -2349,6 +2353,7 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 	plr._pLvlChanging = FALSE;
 	if (plr._pmode != PM_DEATH)
 		plr._pInvincible = FALSE;
+	net_assert(cmd->lLevel < NUM_LEVELS);
 	plr._pDunLevel = cmd->lLevel;
 	plr._px = cmd->px;
 	plr._py = cmd->py;
