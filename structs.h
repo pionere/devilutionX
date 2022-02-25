@@ -1153,6 +1153,7 @@ typedef struct TSyncMonster {
 	BYTE _mx;
 	BYTE _my;
 	BYTE _mdir;
+	BYTE _mleaderflag;
 	DWORD _mactive;
 	INT	_mhitpoints;
 } TSyncMonster;
@@ -1188,9 +1189,10 @@ typedef struct DMonsterStr {
 	BYTE _mx;
 	BYTE _my;
 	BYTE _mdir;
+	BYTE _mleaderflag;
+	BYTE _mWhoHit;
 	DWORD _mactive;
 	INT _mhitpoints;
-	BYTE _mWhoHit;
 } DMonsterStr;
 
 typedef struct DObjectStr {

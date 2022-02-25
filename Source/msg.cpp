@@ -606,6 +606,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	pD->_mx = mon->mkParam1.x;
 	pD->_my = mon->mkParam1.y;
 	pD->_mdir = mon->mkDir;
+	pD->_mleaderflag = MLEADER_NONE;
 	pD->_mhitpoints = 0;
 	return whoHit | pD->_mWhoHit;
 }
@@ -658,6 +659,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 			pD->_mx = pSync->_mx;
 			pD->_my = pSync->_my;
 			pD->_mdir = pSync->_mdir;
+			pD->_mleaderflag = pSync->_mleaderflag;
 			pD->_mactive = pSync->_mactive;
 			pD->_mhitpoints = pSync->_mhitpoints;
 		}
@@ -688,7 +690,9 @@ static void delta_awake_golem(TCmdGolem* pG, int mnum)
 	pD->_mx = pG->goX;
 	pD->_my = pG->goY;
 	pD->_mactive = SQUELCH_MAX;
-	pD->_mdir = DIR_S;
+	// pD->_mdir = DIR_S; -- should not matter
+	static_assert(MLEADER_NONE == 0, "delta_awake_golem expects _mleaderflag to be set by zerofill.");
+	// pD->_mleaderflag = MLEADER_NONE;
 	pD->_mhitpoints = monsters[mnum]._mmaxhp;
 }
 
@@ -912,6 +916,18 @@ void UnPackPkItem(const PkItemStruct* src)
 	}
 }
 
+static void UpdateLeader(int mnum, BYTE prevFlag, BYTE newFlag)
+{
+	if (prevFlag == newFlag)
+		return;
+	if (newFlag == MLEADER_NONE) {
+		MonUpdateLeader(mnum);
+		return;
+	}
+	assert(prevFlag == MLEADER_PRESENT && newFlag == MLEADER_AWAY);
+	monsters[monsters[mnum].leader].packsize--;
+}
+
 void DeltaLoadLevel()
 {
 	DMonsterStr* mstr;
@@ -940,14 +956,13 @@ void DeltaLoadLevel()
 				mon = &monsters[i];
 				SetMonsterLoc(mon, x, y);
 				mon->_mdir = mstr->_mdir;
+				UpdateLeader(i, mon->leaderflag, mstr->_mleaderflag);
 				// SyncDeadLight: inline for better performance + apply to moving monsters
 				if (mon->mlid != NO_LIGHT)
 					ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
 				if (mstr->_mCmd >= DCMD_MON_DEAD) {
-					//if (i >= MAX_MINIONS)
-						MonUpdateLeader(i);
 					AddDead(i, mstr->_mCmd);
 				} else {
 					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);

@@ -45,6 +45,7 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 			symon->_mx = mon->_mx;
 			symon->_my = mon->_my;
 			symon->_mdir = mon->_mdir;
+			symon->_mleaderflag = mon->leaderflag;
 			symon->_mhitpoints = SDL_SwapLE32(mon->_mhitpoints);
 			symon->_mactive = SDL_SwapLE32(mon->_msquelch);
 
