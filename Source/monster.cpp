@@ -3277,7 +3277,7 @@ static void MAI_Round(int mnum, bool special)
 	fx = mon->_menemyx;
 	dist = std::max(abs(mx - fx), abs(my - fy));
 	v = random_(114, 100);
-	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]*/) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 4 && random_(115, 4) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
@@ -3585,7 +3585,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my - fy));
 	//v = random_(121, 10000);
-	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]*/) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(122, 4 << lessmissiles) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
@@ -3688,7 +3688,7 @@ static void MAI_RR2(int mnum, int mitype)
 		MonstCheckDoors(mx, my);
 	md = GetDirection(mx, my, mon->_lastx, mon->_lasty);
 	v = random_(121, 100);
-	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mx][my] == dTransVal[fx][fy]) {
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mx][my] == dTransVal[fx][fy]*/) {
 		if (mon->_mgoal == MGOAL_MOVE || dist >= 3) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
@@ -3810,7 +3810,7 @@ void MAI_SkelKing(int mnum)
 			mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 			mon->_mgoalvar2 = random_(128, 2); // MOVE_TURN_DIRECTION
 		}
-		if ((mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
+		if ((mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) /*|| dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]*/) {
 			mon->_mgoal = MGOAL_NORMAL;
 		} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
 			MonStartDelay(mnum, RandRange(10, 19));
@@ -3864,7 +3864,7 @@ void MAI_Rhino(int mnum)
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my - fy));
-	if (dist < 2) {
+	if (dist < 2 || mon->_msquelch != SQUELCH_MAX) {
 		mon->_mgoal = MGOAL_NORMAL;
 	} else if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
 		if (mon->_mgoal != MGOAL_MOVE) {
@@ -3872,7 +3872,7 @@ void MAI_Rhino(int mnum)
 			mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 			mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
 		}
-		if (mon->_mgoalvar1++ >= 2 * dist || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
+		if (mon->_mgoalvar1++ >= 2 * dist /*|| dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]*/) {
 			mon->_mgoal = MGOAL_NORMAL;
 		} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
 			MonStartDelay(mnum, RandRange(10, 19));
@@ -3925,7 +3925,7 @@ void MAI_Horkdemon(int mnum)
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my - fy));
-	if (dist < 2) {
+	if (dist < 2 || mon->_msquelch != SQUELCH_MAX) {
 		mon->_mgoal = MGOAL_NORMAL;
 	} else if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
 		if (mon->_mgoal != MGOAL_MOVE) {
@@ -3933,7 +3933,7 @@ void MAI_Horkdemon(int mnum)
 			mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 			mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
 		}
-		if (mon->_mgoalvar1++ >= 2 * dist || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
+		if (mon->_mgoalvar1++ >= 2 * dist /*|| dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]*/) {
 			mon->_mgoal = MGOAL_NORMAL;
 		} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
 			MonStartDelay(mnum, RandRange(10, 19));
@@ -4013,7 +4013,7 @@ void MAI_Counselor(int mnum)
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_MOVE);
-		if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]
+		if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]*/
 		 && (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !DirOK(mnum, md)))) { // MOVE_DISTANCE
 			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 		} else {
