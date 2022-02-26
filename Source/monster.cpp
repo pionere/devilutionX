@@ -3554,7 +3554,8 @@ void MAI_Garg(int mnum)
 		if (dist >= mon->_mInt + 2) {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartHeal(mnum);
-		} else if (!MonCallWalk(mnum, OPPOSITE(MonGetDir(mnum)))) {
+		} else if (mon->_mhitpoints == mon->_mmaxhp ||
+		 !MonCallWalk(mnum, GetDirection(0, 0, mx, my))) {
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 	}
