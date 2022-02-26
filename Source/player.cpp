@@ -1770,6 +1770,7 @@ void SyncPlrKill(int pnum, int dmgtype)
 
 	diablolevel = IsMultiGame && plr._pDunLevel == DLV_HELL4;
 	if (pnum != mypnum && dmgtype == DMGTYPE_NPC && !diablolevel) {
+		plr._pHoldItem._itype = ITYPE_NONE;
 		for (i = 0; i < NUM_INVLOC; i++) {
 			plr._pInvBody[i]._itype = ITYPE_NONE;
 		}
@@ -1784,11 +1785,6 @@ void SyncPlrKill(int pnum, int dmgtype)
 
 		if (pnum == mypnum) {
 			plr._pVar7 = 30; // DEATH_DELAY
-
-			if (pcurs >= CURSOR_FIRSTITEM) {
-				PlrDeadItem(pnum, &plr._pHoldItem);
-				NewCursor(CURSOR_HAND);
-			}
 
 			if (dmgtype == DMGTYPE_PLAYER) {
 				CreateBaseItem(&ear, IDI_EAR);
@@ -1812,6 +1808,11 @@ void SyncPlrKill(int pnum, int dmgtype)
 				plr._pExperience -= (plr._pExperience - PlrExpLvlsTbl[plr._pLevel - 1]) >> 2;
 
 				if (!diablolevel) {
+					PlrDeadItem(pnum, &plr._pHoldItem);
+					if (plr._pHoldItem._itype == ITYPE_NONE && pcurs >= CURSOR_FIRSTITEM) {
+						NewCursor(CURSOR_HAND);
+					}
+
 					pi = &plr._pInvBody[0];
 					for (i = NUM_INVLOC; i != 0; i--, pi++) {
 						PlrDeadItem(pnum, pi);
