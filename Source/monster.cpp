@@ -3419,9 +3419,9 @@ void MAI_Torchant(int mnum)
 
 void MAI_Scav(int mnum)
 {
-	bool done;
-	int dx, dy, dir, maxhp;
 	MonsterStruct* mon;
+	int i, j, tx, ty, maxhp, tmp;
+	const char* cr;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Scav: Invalid monster %d", mnum);
@@ -3432,85 +3432,73 @@ void MAI_Scav(int mnum)
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && mon->_mgoal != MGOAL_HEALING) {
 		MonUpdateLeader(mnum);
 		mon->_mgoal = MGOAL_HEALING;
+		mon->_mgoalvar1 = 0; // HEALING_LOCATION_X
+		//mon->_mgoalvar2 = 0;
 		mon->_mgoalvar3 = 10; // HEALING_ROUNDS
 	}
-	if (mon->_mgoal == MGOAL_HEALING && mon->_mgoalvar3 != 0) {
-		mon->_mgoalvar3--; // HEALING_ROUNDS
-		if (dDead[mon->_mx][mon->_my] != 0 && dDead[mon->_mx][mon->_my] != STONENDX) {
-			MonStartSpAttack(mnum);
-			maxhp = mon->_mmaxhp;
-			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
+	if (mon->_mgoal == MGOAL_HEALING) {
+		if (mon->_mgoalvar3 != 0) {
+			mon->_mgoalvar3--; // HEALING_ROUNDS
+			if (dDead[mon->_mx][mon->_my] != 0 && dDead[mon->_mx][mon->_my] != STONENDX) {
+				MonStartSpAttack(mnum);
+				maxhp = mon->_mmaxhp;
+				if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 #ifdef HELLFIRE
-				mon->_mhitpoints += maxhp >> 3;
-				if (mon->_mhitpoints > maxhp)
-					mon->_mhitpoints = maxhp;
-				if (mon->_mhitpoints == maxhp || mon->_mgoalvar3 <= 0) { // HEALING_ROUNDS
-					NetSendCmdMonstCorpse(mnum);
-					dDead[mon->_mx][mon->_my] = 0;
-				}
-			}
-			if (mon->_mhitpoints == maxhp) {
+					mon->_mhitpoints += maxhp >> 3;
+					if (mon->_mhitpoints > maxhp)
+						mon->_mhitpoints = maxhp;
+					if (mon->_mhitpoints == maxhp || mon->_mgoalvar3 <= 0) { // HEALING_ROUNDS
+						NetSendCmdMonstCorpse(mnum);
+						dDead[mon->_mx][mon->_my] = 0;
+					}
 #else
-				mon->_mhitpoints += 1 << 6;
-				if (mon->_mhitpoints > maxhp)
-					mon->_mhitpoints = maxhp;
-			}
-			if (mon->_mhitpoints >= (maxhp >> 1) + (maxhp >> 2)) {
+					mon->_mhitpoints += 1 << 6;
+					if (mon->_mhitpoints > maxhp)
+						mon->_mhitpoints = maxhp;
+					if (mon->_mhitpoints >= (maxhp >> 1) + (maxhp >> 2))
+						mon->_mgoal = MGOAL_NORMAL;
 #endif
-				mon->_mgoal = MGOAL_NORMAL;
-				mon->_mgoalvar1 = 0;
-				mon->_mgoalvar2 = 0;
-			}
-		} else {
-			if (mon->_mgoalvar1 == 0) { // HEALING_LOCATION_X
-				done = false;
-				static_assert(DBORDERX >= 4, "MAI_Scav expects a large enough border I.");
-				static_assert(DBORDERY >= 4, "MAI_Scav expects a large enough border II.");
-				if (random_(120, 2) != 0) {
-					for (dy = -4; dy <= 4 && !done; dy++) {
-						for (dx = -4; dx <= 4 && !done; dx++) {
-							// BUGFIX: incorrect check of offset against limits of the dungeon (fixed)
-							//assert(IN_DUNGEON_AREA(mon->_mx + dx, mon->_mx + dy));
-							done = dDead[mon->_mx + dx][mon->_my + dy] != 0
-							    && dDead[mon->_mx + dx][mon->_my + dy] != STONENDX
-							    && LineClearF(
-							           CheckNoSolid,
-							           mon->_mx,
-							           mon->_my,
-							           mon->_mx + dx,
-							           mon->_my + dy);
+				}
+			} else {
+				if (mon->_mgoalvar1 == 0) { // HEALING_LOCATION_X
+					static_assert(DBORDERX >= 4, "MAI_Scav expects a large enough border I.");
+					static_assert(DBORDERY >= 4, "MAI_Scav expects a large enough border II.");
+					static_assert(MAXDUNX < UCHAR_MAX, "MAI_Scav stores dungeon coordinates in BYTE field I.");
+					static_assert(MAXDUNY < UCHAR_MAX, "MAI_Scav stores dungeon coordinates in BYTE field II.");
+					assert(CrawlTable[CrawlNum[4]] == 32);
+					BYTE corpseLocs[32 * 2];
+					tmp = 0;
+					for (i = 1; i <= 4; i++) {
+						cr = &CrawlTable[CrawlNum[i]];
+						for (j = (BYTE)*cr; j > 0; j--) {
+							tx = mon->_mx + *++cr;
+							ty = mon->_my + *++cr;
+							if (dDead[tx][ty] != 0 && dDead[tx][ty] != STONENDX
+							 && LineClearF(CheckNoSolid, mon->_mx, mon->_my, tx, ty)) {
+								corpseLocs[tmp] = tx;
+								tmp++;
+								corpseLocs[tmp] = ty;
+								tmp++;
+							}
+						}
+						if (tmp != 0) {
+							tmp = random_(0, tmp);
+							tmp &= ~1;
+							mon->_mgoalvar1 = corpseLocs[tmp];     // HEALING_LOCATION_X
+							mon->_mgoalvar2 = corpseLocs[tmp + 1]; // HEALING_LOCATION_Y
+							break;
 						}
 					}
-					dx--;
-					dy--;
-				} else {
-					for (dy = 4; dy >= -4 && !done; dy--) {
-						for (dx = 4; dx >= -4 && !done; dx--) {
-							// BUGFIX: incorrect check of offset against limits of the dungeon (fixed)
-							//assert(IN_DUNGEON_AREA(mon->_mx + dx, mon->_mx + dy));
-							done = dDead[mon->_mx + dx][mon->_my + dy] != 0
-							    && dDead[mon->_mx + dx][mon->_my + dy] != STONENDX
-							    && LineClearF(
-							           CheckNoSolid,
-							           mon->_mx,
-							           mon->_my,
-							           mon->_mx + dx,
-							           mon->_my + dy);
-						}
-					}
-					dx++;
-					dy++;
 				}
-				if (done) {
-					mon->_mgoalvar1 = mon->_mx + dx; // HEALING_LOCATION_X
-					mon->_mgoalvar2 = mon->_my + dy; // HEALING_LOCATION_Y
+				if (mon->_mgoalvar1 != 0) {
+					//                                  HEALING_LOCATION_X, HEALING_LOCATION_Y
+					tmp = GetDirection(mon->_mx, mon->_my, mon->_mgoalvar1, mon->_mgoalvar2);
+					MonCallWalk(mnum, tmp);
 				}
 			}
-			if (mon->_mgoalvar1 != 0) {
-				//                                  HEALING_LOCATION_X, HEALING_LOCATION_Y
-				dir = GetDirection(mon->_mx, mon->_my, mon->_mgoalvar1, mon->_mgoalvar2);
-				MonCallWalk(mnum, dir);
-			}
+		}
+		if (mon->_mhitpoints == mon->_mmaxhp) {
+			mon->_mgoal = MGOAL_NORMAL;
 		}
 	}
 
