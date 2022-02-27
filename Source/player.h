@@ -24,7 +24,6 @@ void LoadPlrGFX(int pnum, unsigned gfxflag);
 void InitPlayerGFX(int pnum);
 void InitPlrGFXMem(int pnum);
 void FreePlayerGFX(int pnum);
-void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLen, int width);
 void SetPlrAnims(int pnum);
 void CreatePlayer(const _uiheroinfo &heroinfo);
 #if DEBUG_MODE

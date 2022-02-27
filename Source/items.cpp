@@ -630,10 +630,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		plr._pgfxnum = gfx;
 		if (Loadgfx && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging) {
 			plr._pGFXLoad = 0;
-			LoadPlrGFX(pnum, PFILE_STAND);
 			SetPlrAnims(pnum);
 
-			NewPlrAnim(pnum, plr._pNAnim, plr._pdir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
+			PlrStartStand(pnum);
 		}
 	}
 

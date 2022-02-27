@@ -481,7 +481,7 @@ void FreePlayerGFX(int pnum)
  * @param frameLen the length of a single animation frame
  * @param width Width of sprite
 */
-void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLen, int width) //, int numSkippedFrames /*= 0*/, bool processAnimationPending /*= false*/, int stopDistributingAfterFrame /*= 0*/)
+static void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLen, int width) //, int numSkippedFrames /*= 0*/, bool processAnimationPending /*= false*/, int stopDistributingAfterFrame /*= 0*/)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("NewPlrAnim: illegal player %d", pnum);
@@ -2046,22 +2046,20 @@ static bool PlrDoWalk(int pnum)
 	return true;
 }
 
-static bool ReduceItemDur(ItemStruct* pi, BYTE iLoc, int pnum)
+static void ReduceItemDur(ItemStruct* pi, BYTE iLoc, int pnum)
 {
 	if (pi->_iDurability == DUR_INDESTRUCTIBLE)
-		return false;
+		return;
 
 	pi->_iDurability--;
 	if (pi->_iDurability != 0)
-		return false;
-	pi->_itype = ITYPE_NONE;
+		return;
+	pi->_iDurability = 1;
 	if (pnum == mypnum)
 		NetSendCmdDelItem(iLoc);
-	CalcPlrInv(pnum, true);
-	return true;
 }
 
-static bool WeaponDur(int pnum, int durrnd)
+static void WeaponDur(int pnum, int durrnd)
 {
 	ItemStruct* pi;
 
@@ -2070,30 +2068,31 @@ static bool WeaponDur(int pnum, int durrnd)
 	}
 
 	if (random_(3, durrnd) != 0) {
-		return false;
+		return;
 	}
 
 	// check dual-wield
 	pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && random_(3, 2) != 0) {
-		return ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
+		ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
+		return;
 	}
 
 	// check weapon in left hand
 	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE) {
 		assert(pi->_iClass == ICLASS_WEAPON);
-		return ReduceItemDur(pi, INVLOC_HAND_LEFT, pnum);
+		ReduceItemDur(pi, INVLOC_HAND_LEFT, pnum);
+		return;
 	}
 
 	// check shield in right hand if left hand is empty
 	pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype != ITYPE_NONE) {
 		assert(pi->_itype == ITYPE_SHIELD);
-		return ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
+		ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
+		return;
 	}
-
-	return false;
 }
 
 static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
@@ -2346,11 +2345,8 @@ static bool PlrDoAttack(int pnum)
 				plr._px + offset_x[(dir + 7) & 7], plr._py + offset_y[(dir + 7) & 7]);
 		}
 
-		if (hitcnt != 0 && WeaponDur(pnum, 40 - hitcnt * 8)) {
-			//PlrStartStand(pnum);
-			StartStand(pnum);
-			//ClearPlrPVars(pnum);
-			return true;
+		if (hitcnt != 0) {
+			WeaponDur(pnum, 40 - hitcnt * 8);
 		}
 	}
 
@@ -2390,12 +2386,7 @@ static bool PlrDoRangeAttack(int pnum)
 		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // RATTACK_TARGET_X, RATTACK_TARGET_X
 			 spelldata[plr._pVar5].sMissile, 0, pnum, 0, 0, plr._pVar6); // RATTACK_SKILL_LEVEL
 
-		if (WeaponDur(pnum, 40)) {
-			//PlrStartStand(pnum);
-			StartStand(pnum);
-			//ClearPlrPVars(pnum);
-			return true;
-		}
+		WeaponDur(pnum, 40);
 	}
 
 	if (plr._pAnimFrame < plr._pAFrames)
