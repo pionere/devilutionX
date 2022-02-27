@@ -1206,7 +1206,7 @@ void CheckBeltClick(bool bShift)
 
 static void CheckQuestItem(int pnum, ItemStruct* is)
 {
-	int idx, delay;
+	int idx, x, y, delay;
 
 	idx = is->_iIdx;
 	if (idx == IDI_OPTAMULET) {
@@ -1267,10 +1267,15 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 				}
 			}
 			SetItemData(MAXITEMS, IDI_FULLNOTE);
-			SetupItem(MAXITEMS);
-			idx = is->_iSeed;	// preserve seed of the last item
+			RespawnItem(MAXITEMS, false);
+			// preserve seed and location of the last item
+			idx = is->_iSeed;
+			x = is->_ix;
+			y = is->_iy;
 			copy_pod(*is, items[MAXITEMS]);
-			is->_iSeed= idx;
+			is->_iSeed = idx;
+			is->_ix = x;
+			is->_iy = y;
 			delay = 10;
 			idx = TEXT_IM_FULLNOTE;
 		} else {
