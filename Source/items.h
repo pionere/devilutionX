@@ -63,7 +63,7 @@ void SpawnWitch(int lvl);
 void SpawnBoy(int lvl);
 void SpawnHealer(int lvl);
 void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo);
-void CreateSpellBook(int ispell, int x, int y);
+void CreateSpellBook(int ispell, int x, int y, bool sendmsg);
 void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
 
 #ifdef __cplusplus

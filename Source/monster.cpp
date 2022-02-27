@@ -5084,7 +5084,7 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
 		} else if (mon->mtalkmsg == TEXT_GARBUD2) {
 			SetRndSeed(mon->_mRndSeed);
-			SpawnItem(mnum, plr._px, plr._py, true);
+			SpawnItem(mnum, plr._px, plr._py, pnum == mypnum);
 		} //else if (mon->mtalkmsg == TEXT_GARBUD4)
 		//	mon->_mVar8 = 0; // init MON_TIMER
 		quests[Q_GARBUD]._qvar1++;
@@ -5117,7 +5117,7 @@ void TalktoMonster(int mnum, int pnum)
 			else if (plr._pClass == PC_SORCERER)
 				iv = SPL_LIGHTNING;
 			SetRndSeed(mon->_mRndSeed);
-			CreateSpellBook(iv, plr._px, plr._py);
+			CreateSpellBook(iv, plr._px, plr._py, pnum == mypnum);
 		} else if (quests[Q_ZHAR]._qvar1 == 1) {
 			mon->mtalkmsg = TEXT_ZHAR2;
 			//mon->_mVar8 = 0; // init MON_TIMER

@@ -3627,7 +3627,7 @@ void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo)
 	}
 }
 
-void CreateSpellBook(int ispell, int x, int y)
+void CreateSpellBook(int ispell, int x, int y, bool sendmsg)
 {
 	int ii, idx, lvl;
 
@@ -3646,7 +3646,7 @@ void CreateSpellBook(int ispell, int x, int y)
 		if (items[ii]._iSpell == ispell)
 			break;
 	}
-	RegisterItem(ii, x, y, true, false); // TODO: sendmsg/delta?
+	RegisterItem(ii, x, y, sendmsg, false);
 }
 
 #ifdef HELLFIRE
