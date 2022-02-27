@@ -1206,7 +1206,7 @@ void CheckBeltClick(bool bShift)
 
 static void CheckQuestItem(int pnum, ItemStruct* is)
 {
-	int idx, x, y, delay;
+	int idx, delay;
 
 	idx = is->_iIdx;
 	if (idx == IDI_OPTAMULET) {
@@ -1254,7 +1254,7 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		delay = 10;
 		idx = TEXT_IM_MAPOFDOOM;
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
-		int nn, i;
+		int nn, i, x, y;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasStorageItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasStorageItem(pnum, IDI_NOTE3, &nn))) {
