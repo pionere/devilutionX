@@ -1681,18 +1681,18 @@ static unsigned On_PUTITEM(TCmd* pCmd, int pnum)
 #endif
 		PkItemStruct pkItem;
 		PackPkItem(&pkItem, pi);
-		delta_put_item(&pkItem, cmd->bLevel, x, y);
-
-		if (currLvl._dLevelIdx == cmd->bLevel) {
-			copy_pod(items[MAXITEMS], *pi);
-			pi->_itype = ITYPE_NONE;
-			SyncPutItem(pnum, x, y, true);
-			if (pnum == mypnum) {
-				check_update_plr(pnum);
-				NewCursor(CURSOR_HAND);
+		if (delta_put_item(&pkItem, cmd->bLevel, x, y)) {
+			if (currLvl._dLevelIdx == cmd->bLevel) {
+				copy_pod(items[MAXITEMS], *pi);
+				pi->_itype = ITYPE_NONE;
+				SyncPutItem(pnum, x, y, true);
+				if (pnum == mypnum) {
+					check_update_plr(pnum);
+					NewCursor(CURSOR_HAND);
+				}
+			} else {
+				pi->_itype = ITYPE_NONE;
 			}
-		} else {
-			pi->_itype = ITYPE_NONE;
 		}
 	}
 
