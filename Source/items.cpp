@@ -26,7 +26,8 @@ static void SetItemLoc(int ii, int x, int y)
 {
 	items[ii]._ix = x;
 	items[ii]._iy = y;
-	dItem[x][y] = ii + 1;
+	if (ii != MAXITEMS)
+		dItem[x][y] = ii + 1;
 }
 
 /**
@@ -91,7 +92,7 @@ static void PlaceNote()
 	static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "PlaceNote requires ordered DLV_CRYPT indices I.");
 	static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "PlaceNote requires ordered DLV_CRYPT indices II.");
 	id = IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1);
-	CreateQuestItemAt(id, x, y, false, true);
+	CreateQuestItemAt(id, x, y, ICM_DELTA);
 }
 #endif
 
@@ -127,7 +128,6 @@ static void PlaceInitItems()
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl;// | CF_PREGEN;
 		// assert(gbLvlLoad != 0);
-		// SetupItem(ii);
 		RespawnItem(ii, false);
 
 		GetRandomItemSpace(ii);
@@ -152,7 +152,7 @@ void InitItems()
 		if (QuestStatus(Q_ROCK))
 			PlaceRock();
 		if (QuestStatus(Q_ANVIL))
-			CreateQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11, false, true);
+			CreateQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11, ICM_DELTA);
 		if (currLvl._dLevelIdx == questlist[Q_VEIL]._qdlvl + 1 && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
 			PlaceQuestItemInArea(IDI_GLDNELIX, 5);
 		if (QuestStatus(Q_MUSHROOM))
@@ -1596,33 +1596,6 @@ static void GetItemBonus(int ii, int minlvl, int maxlvl, bool onlygood, bool all
 	GetItemPower(ii, minlvl, maxlvl, flgs, onlygood);
 }
 
-void SetupItem(int ii)
-{
-	RespawnItem(ii, gbLvlLoad == 0);
-	/*ItemStruct* is;
-	int it;
-
-	is = &items[ii];
-	it = ItemCAnimTbl[is->_iCurs];
-	is->_iAnimData = itemanims[it];
-	is->_iAnimLen = itemfiledata[it].iAnimLen;
-	is->_iAnimFrameLen = 1;
-	//is->_iAnimWidth = 96;
-	//is->_iAnimXOffset = 16;
-	is->_iIdentified = FALSE;
-	is->_iPostDraw = FALSE;
-
-	if (gbLvlLoad == 0) {
-		is->_iAnimFrame = 1;
-		is->_iAnimFlag = TRUE;
-		is->_iSelFlag = 0;
-	} else {
-		is->_iAnimFrame = is->_iAnimLen;
-		is->_iAnimFlag = is->_iCurs == ICURS_MAGIC_ROCK;
-		is->_iSelFlag = 1;
-	}*/
-}
-
 static int RndItem(int lvl)
 {
 	int i, ri;
@@ -1760,19 +1733,6 @@ static void GetUniqueItem(int ii, int uid)
 	items[ii]._iCreateInfo |= CF_UNIQUE;
 }
 
-static void RegisterItem(int ii, int x, int y, bool sendmsg, bool delta)
-{
-	GetSuperItemSpace(x, y, ii);
-
-	if (sendmsg)
-		NetSendCmdDItem(ii);
-	if (delta)
-		DeltaAddItem(ii);
-
-	assert(itemactive[numitems] == ii);
-	numitems++;
-}
-
 static void ItemRndDur(int ii)
 {
 	if (items[ii]._iDurability != 0 && items[ii]._iDurability != DUR_INDESTRUCTIBLE)
@@ -1815,15 +1775,11 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool on
 		assert(items[ii]._iLoc != ILOC_UNEQUIPABLE);
 		GetUniqueItem(ii, iseed);
 	}
-	SetupItem(ii);
 }
 
-void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn)
+void SpawnUnique(int uid, int x, int y, int mode)
 {
-	int ii, idx;
-
-	if (numitems >= MAXITEMS)
-		return;
+	int idx;
 
 	idx = 0;
 	while (AllItemsList[idx].iItemId != UniqueItemList[uid].UIItemId) {
@@ -1831,29 +1787,24 @@ void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn)
 	}
 	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
 
-	ii = itemactive[numitems];
-	SetupAllItems(ii, idx, uid, items_get_currlevel(), 1, false);
-
-	RegisterItem(ii, x, y, sendmsg, false);
-	if (respawn) {
-		NetSendCmdRespawnItem(ii);
-	}
+	SetupAllItems(MAXITEMS, idx, uid, items_get_currlevel(), 1, false);
+	GetSuperItemSpace(x, y, MAXITEMS);
+	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnUnique expects ordered ICM_ values.");
+	if (mode >= ICM_SEND)
+		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
 }
 
 void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 {
 	MonsterStruct* mon;
-	int ii, idx;
+	int idx;
 	bool onlygood = false;
-
-	if (numitems >= MAXITEMS)
-		return;
 
 	mon = &monsters[mnum];
 	if ((mon->_mTreasure & UQ_DROP) != 0 && !IsMultiGame) {
 		// fix drop in single player
 		idx = mon->_mTreasure & 0xFFF;
-		SpawnUnique(idx, x, y, sendmsg, false);
+		SpawnUnique(idx, x, y, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	}
 	if (mon->_mTreasure & NO_DROP)
@@ -1874,19 +1825,16 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 			NetSendCmdQuest(Q_MUSHROOM, true);
 	}
 
-	ii = itemactive[numitems];
-	SetupAllItems(ii, idx, GetRndSeed(), mon->_mLevel,
+	SetupAllItems(MAXITEMS, idx, GetRndSeed(), mon->_mLevel,
 		onlygood ? 15 : 1, onlygood);
-
-	RegisterItem(ii, x, y, sendmsg, false); // TODO: delta?
+	GetSuperItemSpace(x, y, MAXITEMS);
+	if (sendmsg)
+		NetSendCmdSpawnItem(true);
 }
 
-void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta)
+void CreateRndItem(int x, int y, bool onlygood, int mode)
 {
 	int idx, ii, lvl;
-
-	if (numitems >= MAXITEMS)
-		return;
 
 	lvl = items_get_currlevel();
 
@@ -1895,10 +1843,27 @@ void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta)
 	else
 		idx = RndAllItems(lvl);
 
-	ii = itemactive[numitems];
+	if (mode != ICM_DELTA) {
+		ii = MAXITEMS;
+	} else {
+		if (numitems >= MAXITEMS)
+			return; // should never be the case
+		ii = itemactive[numitems];
+		numitems++;
+	}
 	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood);
 
-	RegisterItem(ii, x, y, sendmsg, delta);
+	GetSuperItemSpace(x, y, ii);
+
+	if (mode != ICM_DELTA) {
+		if (mode >= ICM_SEND) {
+			// assert(mode == ICM_SEND_FLIP);
+			NetSendCmdSpawnItem(true);
+		}
+	} else {
+		RespawnItem(ii, false);
+		DeltaAddItem(ii);
+	}
 }
 
 static void SetupAllUseful(int ii, int iseed, int lvl)
@@ -1926,32 +1891,25 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 	}
 
 	SetItemData(ii, idx);
-	SetupItem(ii);
 	items[ii]._iSeed = iseed;
 	items[ii]._iCreateInfo = lvl | CF_USEFUL;
 }
 
-void SpawnRndUseful(int x, int y, bool sendmsg, bool delta)
+void SpawnRndUseful(int x, int y, bool sendmsg)
 {
-	int ii, lvl;
-
-	if (numitems >= MAXITEMS)
-		return;
+	int lvl;
 
 	lvl = items_get_currlevel();
 
-	ii = itemactive[numitems];
-	SetupAllUseful(ii, GetRndSeed(), lvl);
-
-	RegisterItem(ii, x, y, sendmsg, delta);
+	SetupAllUseful(MAXITEMS, GetRndSeed(), lvl);
+	GetSuperItemSpace(x, y, MAXITEMS);
+	if (sendmsg)
+		NetSendCmdSpawnItem(true);
 }
 
-void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool sendmsg, bool delta)
+void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, int mode)
 {
 	int idx, ii, lvl;
-
-	if (numitems >= MAXITEMS)
-		return;
 
 	lvl = items_get_currlevel();
 
@@ -1959,10 +1917,27 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool send
 		idx = RndTypeItems(itype, imisc, lvl);
 	else
 		idx = IDI_GOLD;
-	ii = itemactive[numitems];
+	if (mode != ICM_DELTA) {
+		ii = MAXITEMS;
+	} else {
+		if (numitems >= MAXITEMS)
+			return; // should never be the case
+		ii = itemactive[numitems];
+		numitems++;
+	}
 	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood);
 
-	RegisterItem(ii, x, y, sendmsg, delta);
+	GetSuperItemSpace(x, y, ii);
+
+	if (mode != ICM_DELTA) {
+		static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "CreateTypeItem expects ordered ICM_ values.");
+		if (mode >= ICM_SEND) {
+			NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
+		}
+	} else {
+		RespawnItem(ii, false);
+		DeltaAddItem(ii);
+	}
 }
 
 void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
@@ -2007,68 +1982,72 @@ void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
  * @param idx: the index of the item(item_indexes enum)
  * @param x tile-coordinate of the target location
  * @param y tile-coordinate of the target location
- * @param sendmsg whether a message should be sent to register the item
- * @param delta whether the item should be added to the delta directly
+ * @param mode icreate_mode except for ICM_SEND_FLIP
  */
-void CreateQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
+void CreateQuestItemAt(int idx, int x, int y, int mode)
 {
 	int ii;
 
-	if (numitems >= MAXITEMS)
-		return;
-
-	ii = itemactive[numitems];
-	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
+	if (mode != ICM_DELTA) {
+		ii = MAXITEMS;
+	} else {
+		if (numitems >= MAXITEMS)
+			return; // should never be the case
+		ii = itemactive[numitems];
+		numitems++;
+	}
 	SetItemData(ii, idx);
-	// SetupItem(ii);
-	RespawnItem(ii, false);
-	//items[ii]._iPostDraw = TRUE;
-	//items[ii]._iSelFlag = 1;
-	//items[ii]._iAnimFrame = items[ii]._iAnimLen;
-	//items[ii]._iAnimFlag = FALSE;
+	items[ii]._iCreateInfo = items_get_currlevel();
 	// set Seed for the bloodstones, otherwise quick successive pickup and use
 	// will be prevented by the ItemRecord logic
 	items[ii]._iSeed = GetRndSeed();
 
-	// TODO: use RegisterItem(ii, x, y, sendmsg, delta); ?
 	SetItemLoc(ii, x, y);
 
-	if (sendmsg)
-		NetSendCmdDItem(ii);
-	if (delta)
+	if (mode != ICM_DELTA) {
+		static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "CreateQuestItemAt expects ordered ICM_ values.");
+		if (mode >= ICM_SEND)
+			NetSendCmdSpawnItem(/*mode == ICM_SEND ? false : true*/false);
+	} else {
+		RespawnItem(ii, false);
 		DeltaAddItem(ii);
-
-	numitems++;
+	}
 }
 
 /**
- * Drop a fixed item starting from the given location.
+ * Spawn a fixed item around the given location.
  * 
  * @param idx: the index of the item(item_indexes enum)
  * @param x tile-coordinate of the target location
  * @param y tile-coordinate of the target location
- * @param sendmsg whether a message should be sent to register the item
-// * @param respawn whether a respawn message should be sent to notify the other players
+ * @param mode icreate_mode (ICM_SEND_FLIP or ICM_DUMMY)
  */
-void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg/*, bool respawn*/)
+void SpawnQuestItemAt(int idx, int x, int y, int mode)
 {
 	int ii;
 
-	if (numitems >= MAXITEMS)
-		return;
-
-	ii = itemactive[numitems];
-	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
+	//if (mode != ICM_DELTA) {
+		ii = MAXITEMS;
+	//} else {
+	//	if (numitems >= MAXITEMS)
+	//		return; // should never be the case
+	//	ii = itemactive[numitems];
+	//	numitems++;
+	//}
 	SetItemData(ii, idx);
-	// assert(gbLvlLoad == 0);
-	// SetupItem(ii);
-	RespawnItem(ii, true);
-	//items[ii]._iPostDraw = TRUE;
-	items[ii]._iSeed = GetRndSeed(); // make sure it is unique
+	items[ii]._iCreateInfo = items_get_currlevel();
+	items[ii]._iSeed = GetRndSeed();
 
-	RegisterItem(ii, x, y, sendmsg, false);
-	//if (respawn) {
-	//	NetSendCmdRespawnItem(ii);
+	GetSuperItemSpace(x, y, ii);
+
+	//if (mode != ICM_DELTA) {
+		static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnQuestItemAt expects ordered ICM_ values.");
+		if (mode >= ICM_SEND)
+	//		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
+			NetSendCmdSpawnItem(/*mode == ICM_SEND ? false :*/ true);
+	//} else {
+	//	RespawnItem(ii, false);
+	//	DeltaAddItem(ii);
 	//}
 }
 
@@ -2083,13 +2062,13 @@ void PlaceQuestItemInArea(int idx, int areasize)
 	int ii;
 
 	if (numitems >= MAXITEMS)
-		return;
+		return; // should never be the case
 
 	ii = itemactive[numitems];
+	numitems++;
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// assert(gbLvlLoad != 0);
-	// SetupItem(ii);
 	RespawnItem(ii, false);
 	//items[ii]._iPostDraw = TRUE;
 	items[ii]._iCreateInfo = items_get_currlevel();// | CF_PREGEN;
@@ -2097,8 +2076,6 @@ void PlaceQuestItemInArea(int idx, int areasize)
 
 	GetRandomItemSpace(areasize, ii);
 	DeltaAddItem(ii);
-
-	numitems++;
 }
 
 /**
@@ -2109,7 +2086,7 @@ void PlaceRock()
 	int i, oi;
 
 	if (numitems >= MAXITEMS)
-		return;
+		return; // should never be the case
 
 	for (i = 0; i < numobjects; i++) {
 		oi = objectactive[i];
@@ -2119,61 +2096,23 @@ void PlaceRock()
 	if (i != numobjects) {
 		i = itemactive[numitems];
 		assert(i == numitems);
-		SetItemData(i, IDI_ROCK);
+		CreateQuestItemAt(IDI_ROCK, objects[oi]._ox, objects[oi]._oy, ICM_DELTA);
+//		SetItemData(i, IDI_ROCK);
 		// assert(gbLvlLoad != 0);
-		// SetupItem(i);
-		RespawnItem(i, false);
+//		RespawnItem(i, false);
 		// draw it above the stand
 		items[i]._iSelFlag = 2;
 		items[i]._iPostDraw = TRUE;
 		items[i]._iAnimFrame = 11;
 		//items[i]._iAnimFlag = TRUE;
-		items[i]._iCreateInfo = items_get_currlevel();// | CF_PREGEN;
-		items[i]._iSeed = GetRndSeed(); // make sure it is unique
-		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
-		DeltaAddItem(i);
+//		items[i]._iCreateInfo = items_get_currlevel();// | CF_PREGEN;
+//		items[i]._iSeed = GetRndSeed(); // make sure it is unique
+//		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
+//		DeltaAddItem(i);
 
-		numitems++;
+//		numitems++;
 	}
 }
-
-#ifdef HELLFIRE
-/**
- * Drop a fixed item starting from the given location.
- * 
- * @param idx: the index of the item(item_indexes enum)
- * @param x tile-coordinate of the target location
- * @param y tile-coordinate of the target location
- * @param sendmsg whether a message should be sent to register the item
- * @param respawn whether a respawn message should be sent to notify the other players
- */
-void SpawnRewardItem(int idx, int x, int y, bool sendmsg, bool respawn)
-{
-	int ii;
-
-	if (numitems >= MAXITEMS)
-		return;
-
-	ii = itemactive[numitems];
-	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
-	SetItemData(ii, idx);
-	// assert(gbLvlLoad == 0);
-	// SetupItem(ii);
-	RespawnItem(ii, true);
-	items[ii]._iSelFlag = 2;
-	//items[ii]._iPostDraw = TRUE;
-	//items[ii]._iAnimFrame = 1;
-	//items[ii]._iAnimFlag = TRUE;
-	//items[ii]._iIdentified = TRUE;
-	items[ii]._iCreateInfo = items_get_currlevel(); // add level info to THEODORE
-	items[ii]._iSeed = GetRndSeed(); // make sure it is unique
-
-	RegisterItem(ii, x, y, sendmsg, false);
-	if (respawn) {
-		NetSendCmdRespawnItem(ii);
-	}
-}
-#endif
 
 void RespawnItem(int ii, bool FlipFlag)
 {
@@ -3629,64 +3568,58 @@ void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo)
 
 void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 {
-	int ii, idx, lvl;
-
-	if (numitems >= MAXITEMS)
-		return;
+	int idx, lvl;
 
 	lvl = spelldata[ispell].sBookLvl;
 	assert(lvl != SPELL_NA);
 
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 
-	ii = itemactive[numitems];
 	while (TRUE) {
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true);
-		assert(items[ii]._iMiscId == IMISC_BOOK);
-		if (items[ii]._iSpell == ispell)
+		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, 1, true);
+		assert(items[MAXITEMS]._iMiscId == IMISC_BOOK);
+		if (items[MAXITEMS]._iSpell == ispell)
 			break;
 	}
-	RegisterItem(ii, x, y, sendmsg, false);
+	GetSuperItemSpace(x, y, MAXITEMS);
+	if (sendmsg)
+		NetSendCmdSpawnItem(true);
 }
 
 #ifdef HELLFIRE
 void SpawnAmulet(WORD wCI, int x, int y, bool sendmsg)
 {
-	int ii, lvl, idx;
-
-	if (numitems >= MAXITEMS)
-		return;
+	int lvl, idx;
 
 	lvl = wCI & CF_LEVEL; // TODO: make sure there is an amulet which fits?
 
-	ii = itemactive[numitems];
 	while (TRUE) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true);
-		if (items[ii]._iCurs == ICURS_AMULET)
+		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, 1, true);
+		if (items[MAXITEMS]._iCurs == ICURS_AMULET)
 			break;
 	}
-	RegisterItem(ii, x, y, sendmsg, false);
+	GetSuperItemSpace(x, y, MAXITEMS);
+	if (sendmsg)
+		NetSendCmdSpawnItem(true);
 }
 #endif
 
 void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 {
-	int ii, idx, lvl;
-
-	if (numitems >= MAXITEMS)
-		return;
+	int idx, lvl;
 
 	lvl = items_get_currlevel();
 
-	ii = itemactive[numitems];
 	while (TRUE) {
 		idx = RndTypeItems(itype, IMISC_NONE, lvl);
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true);
-		if (items[ii]._iCurs == icurs)
+		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, 1, true);
+		if (items[MAXITEMS]._iCurs == icurs)
 			break;
 	}
-	RegisterItem(ii, x, y, sendmsg, false);
+	GetSuperItemSpace(x, y, MAXITEMS);
+	if (sendmsg)
+		NetSendCmdSpawnItem(true);
 }
 
 DEVILUTION_END_NAMESPACE

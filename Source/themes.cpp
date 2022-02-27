@@ -571,7 +571,7 @@ static void Theme_MonstPit(BYTE tv)
 			}
 		}
 	}
-	CreateRndItem(xx, yy, true, false, true);
+	CreateRndItem(xx, yy, true, ICM_DELTA);
 	PlaceThemeMonsts(tv, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
@@ -668,9 +668,9 @@ static void Theme_Treasure(BYTE tv)
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (random_(0, treasrnd) == 0) {
-					CreateTypeItem(xx, yy, false, ITYPE_GOLD, IMISC_NONE, false, true);
+					CreateTypeItem(xx, yy, false, ITYPE_GOLD, IMISC_NONE, ICM_DELTA);
 				} else if (random_(0, treasrnd) == 0) {
-					CreateRndItem(xx, yy, false, false, true);
+					CreateRndItem(xx, yy, false, ICM_DELTA);
 				}
 			}
 		}

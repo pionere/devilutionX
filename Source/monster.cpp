@@ -1716,11 +1716,9 @@ static void SpawnLoot(int mnum, bool sendmsg)
 	SetRndSeed(mon->_mRndSeed);
 	switch (mon->_uniqtype - 1) {
 	case UMT_GARBUD:
-		if (QuestStatus(Q_GARBUD)) {
-			CreateTypeItem(mon->_mx + 1, mon->_my + 1, true, ITYPE_MACE, IMISC_NONE, sendmsg, false);
-			return;
-		}
-		break;
+		assert(QuestStatus(Q_GARBUD));
+		CreateTypeItem(mon->_mx, mon->_my, true, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		return;
 	case UMT_LAZARUS:
 		//if (effect_is_playing(USFX_LAZ1))
 			stream_stop();
@@ -1728,7 +1726,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
 		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
-			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my, sendmsg, false);
+			SpawnQuestItemAt(IDI_THEODORE, mon->_mx, mon->_my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
 		}/*else {
 			SpawnAmulet(mon->_mx, mon->_my, sendmsg);
@@ -1741,7 +1739,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		quests[Q_DEFILER]._qactive = QUEST_DONE;
 		if (sendmsg)
 			NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
-		SpawnRewardItem(IDI_MAPOFDOOM, mon->_mx, mon->_my, sendmsg, false);
+		SpawnQuestItemAt(IDI_MAPOFDOOM, mon->_mx, mon->_my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_NAKRUL:
 		//if (effect_is_playing(USFX_NAKRUL4) || effect_is_playing(USFX_NAKRUL5) || effect_is_playing(USFX_NAKRUL6))
@@ -5030,8 +5028,8 @@ void SyncMonsterQ(int pnum, int idx)
 		if (quests[Q_VEIL]._qactive != QUEST_ACTIVE)
 			return;
 		quests[Q_VEIL]._qactive = QUEST_DONE;
-		if (currLvl._dLevelIdx == questlist[Q_VEIL]._qdlvl)
-			SpawnUnique(UITEM_STEELVEIL, plr._px, plr._py, pnum == mypnum, false);
+		if (pnum == mypnum)
+			SpawnUnique(UITEM_STEELVEIL, plr._px, plr._py, ICM_SEND_FLIP);
 		break;
 	default:
 		return;

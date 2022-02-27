@@ -30,19 +30,17 @@ void SetGoldItemValue(ItemStruct *is, int value);
 void CreatePlrItems(int pnum);
 bool ItemSpaceOk(int x, int y);
 void SetItemData(int ii, int idata);
-void SetupItem(int ii);
-void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn);
+void SpawnUnique(int uid, int x, int y, int mode);
 void SpawnMonItem(int mnum, int x, int y, bool sendmsg);
-void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta);
-void SpawnRndUseful(int x, int y, bool sendmsg, bool delta);
-void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool sendmsg, bool delta);
+void CreateRndItem(int x, int y, bool onlygood, int mode);
+void SpawnRndUseful(int x, int y, bool sendmsg);
+void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, int mode);
 void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue);
 void PlaceQuestItemInArea(int idx, int areasize);
-void CreateQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta);
-void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg/*, bool respawn*/);
+void CreateQuestItemAt(int idx, int x, int y, int mode);
+void SpawnQuestItemAt(int idx, int x, int y, int mode);
 void PlaceRock();
 #ifdef HELLFIRE
-void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg, bool respawn);
 void SpawnAmulet(WORD wCI, int x, int y, bool sendmsg);
 #endif
 void RespawnItem(int ii, bool FlipFlag);

@@ -1477,13 +1477,11 @@ void DropItem()
 /**
  * Place an item around the given position.
  *
- * @param pnum the id of the player who places the item / initiated the item placement
+ * @param pnum the id of the player who places the item (might not be valid)
  * @param x tile coordinate to place the item
  * @param y tile coordinate to place the item
- * @param plrAround true: the item should be placed around the player
- *                 false: the item should be placed around x:y
  */
-void SyncPutItem(int pnum, int x, int y, bool plrAround)
+void SyncPutItem(int pnum, int x, int y, bool flipFlag)
 {
 	int xx, yy, ii;
 	ItemStruct* is;
@@ -1492,7 +1490,7 @@ void SyncPutItem(int pnum, int x, int y, bool plrAround)
 	if (numitems >= MAXITEMS)
 		return; // -1;
 
-	if (plrAround) {
+	if ((unsigned)pnum < MAX_PLRS) {
 		xx = plr._px;
 		yy = plr._py;
 	} else {
@@ -1510,7 +1508,7 @@ void SyncPutItem(int pnum, int x, int y, bool plrAround)
 	copy_pod(items[ii], *is);
 	items[ii]._ix = x;
 	items[ii]._iy = y;
-	RespawnItem(ii, true);
+	RespawnItem(ii, flipFlag);
 	//return ii;
 }
 

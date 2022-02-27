@@ -1081,6 +1081,7 @@ typedef struct TCmdRPItem {
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
+	BOOLEAN bFlipFlag;
 	PkItemStruct item;
 } TCmdRPItem;
 

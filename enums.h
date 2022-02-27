@@ -2762,6 +2762,13 @@ typedef enum icreateinfo_flag {
 	CF_TOWN   = 7 << 8,
 } icreateinfo_flag;
 
+typedef enum icreate_mode {
+	ICM_DELTA,    // floor item, generated with the level
+	ICM_DUMMY,    // spawn item, discarded
+	ICM_SEND,     // spawn item on the floor, sent to (other) players
+	ICM_SEND_FLIP // spawn item, sent to (other) players
+} icreate_mode;
+
 typedef enum dungeon_message {
 	DMSG_CATHEDRAL = 1 << 0,
 	DMSG_CATACOMBS = 1 << 1,
@@ -3172,9 +3179,9 @@ typedef enum _cmd_id {
 	CMD_CUTPLRITEM,
 	CMD_DELPLRITEM,
 	CMD_USEPLRITEM,
-	CMD_DPUTITEM,
 	CMD_PUTITEM,
 	CMD_RESPAWNITEM,
+	CMD_SPAWNITEM,
 	CMD_GETITEM,
 	CMD_AUTOGETITEM,
 	CMD_GOTOGETITEM,

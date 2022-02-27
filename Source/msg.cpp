@@ -768,13 +768,13 @@ static bool delta_get_item(const TCmdGItem* pI)
 	return false;
 }
 
-static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
+static bool delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 {
 	int i;
 	DItemStr* pD;
 
 	if (!IsMultiGame)
-		return;
+		return true;
 
 	net_assert(bLevel < NUM_LEVELS);
 	// set out of loop to reduce the number of locals
@@ -793,7 +793,7 @@ static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 			}
 			//else
 			//	app_fatal("Trying to drop a floor item?");
-			return;
+			return true;
 		}
 	}
 
@@ -804,9 +804,11 @@ static void delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 			pD->x = x;
 			pD->y = y;
 			copy_pod(pD->item, *pItem);
-			break;
+			return true;
 		}
 	}
+
+	return false;
 }
 
 void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
@@ -1287,28 +1289,29 @@ void NetSendCmdRespawnItem(int ii)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdSpawnItem(bool flipFlag)
+{
+	ItemStruct* is;
+	TCmdRPItem cmd;
+
+	is = &items[MAXITEMS];
+	cmd.bCmd = CMD_SPAWNITEM;
+	cmd.x = is->_ix;
+	cmd.y = is->_iy;
+	cmd.bLevel = currLvl._dLevelIdx;
+	cmd.bFlipFlag = flipFlag;
+
+	PackPkItem(&cmd.item, is);
+
+	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdDelItem(BYTE bLoc)
 {
 	TCmdBParam1 cmd;
 
 	cmd.bCmd = CMD_DELPLRITEM;
 	cmd.bParam1 = bLoc;
-
-	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
-}
-
-void NetSendCmdDItem(int ii)
-{
-	ItemStruct* is;
-	TCmdRPItem cmd;
-
-	is = &items[ii];
-	cmd.bCmd = CMD_DPUTITEM;
-	cmd.x = is->_ix;
-	cmd.y = is->_iy;
-	cmd.bLevel = currLvl._dLevelIdx;
-
-	PackPkItem(&cmd.item, is);
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -1667,7 +1670,7 @@ static unsigned On_PUTITEM(TCmd* pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 #ifdef HELLFIRE
-		if (plr._pDunLevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, pi->_iIdx)) {
+		if (cmd->bLevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, pi->_iIdx)) {
 			pi->_itype = ITYPE_NONE;
 			if (pnum == mypnum) {
 				check_update_plr(pnum);
@@ -1702,18 +1705,22 @@ static unsigned On_RESPAWNITEM(TCmd* pCmd, int pnum)
 
 	if (currLvl._dLevelIdx == cmd->bLevel && pnum != mypnum) {
 		UnPackPkItem(&cmd->item);
-		SyncPutItem(pnum, cmd->x, cmd->y, false);
+		SyncPutItem(-1, cmd->x, cmd->y, true);
 	}
 	delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_DPUTITEM(TCmd* pCmd, int pnum)
+static unsigned On_SPAWNITEM(TCmd* pCmd, int pnum)
 {
 	TCmdRPItem* cmd = (TCmdRPItem*)pCmd;
 
-	delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y);
+	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) &&
+		currLvl._dLevelIdx == cmd->bLevel) {
+		UnPackPkItem(&cmd->item);
+		SyncPutItem(-1, cmd->x, cmd->y, cmd->bFlipFlag);
+	}
 
 	return sizeof(*cmd);
 }
@@ -3177,12 +3184,12 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_DELPLRITEM(pCmd, pnum);
 	case CMD_USEPLRITEM:
 		return On_USEPLRITEM(pCmd, pnum);
-	case CMD_DPUTITEM:
-		return On_DPUTITEM(pCmd, pnum);
 	case CMD_PUTITEM:
 		return On_PUTITEM(pCmd, pnum);
 	case CMD_RESPAWNITEM:
 		return On_RESPAWNITEM(pCmd, pnum);
+	case CMD_SPAWNITEM:
+		return On_SPAWNITEM(pCmd, pnum);
 	case CMD_GETITEM:
 		return On_GETITEM(pCmd, pnum);
 	case CMD_AUTOGETITEM:
