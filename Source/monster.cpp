@@ -1731,7 +1731,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my, sendmsg, false);
 			return;
 		}/*else {
-			CreateAmulet(mon->_mx, mon->_my, sendmsg, false);
+			CreateAmulet(mon->_mx, mon->_my, sendmsg);
 		}*/
 		break;
 	case UMT_DEFILER:

@@ -3650,7 +3650,7 @@ void CreateSpellBook(int ispell, int x, int y, bool sendmsg)
 }
 
 #ifdef HELLFIRE
-void CreateAmulet(WORD wCI, int x, int y, bool sendmsg, bool respawn)
+void CreateAmulet(WORD wCI, int x, int y, bool sendmsg)
 {
 	int ii, lvl, idx;
 
@@ -3667,9 +3667,6 @@ void CreateAmulet(WORD wCI, int x, int y, bool sendmsg, bool respawn)
 			break;
 	}
 	RegisterItem(ii, x, y, sendmsg, false);
-	if (respawn) {
-		NetSendCmdRespawnItem(ii);
-	}
 }
 #endif
 

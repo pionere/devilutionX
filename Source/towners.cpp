@@ -601,7 +601,7 @@ void SyncTownerQ(int pnum, int idx)
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			WORD wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
 			SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
-			CreateAmulet(wCI, TPOS_GIRL, pnum == mypnum, false);
+			CreateAmulet(wCI, TPOS_GIRL, pnum == mypnum);
 			ReInitTownerAnim(TOWN_GIRL, "Towners\\Girl\\Girls1.CEL");
 		}
 		break;
