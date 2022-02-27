@@ -1731,7 +1731,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my, sendmsg, false);
 			return;
 		}/*else {
-			CreateAmulet(mon->_mx, mon->_my, sendmsg);
+			SpawnAmulet(mon->_mx, mon->_my, sendmsg);
 		}*/
 		break;
 	case UMT_DEFILER:
@@ -1750,14 +1750,14 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		quests[Q_NAKRUL]._qvar1 = 5; // set to higher than 4 so innocent monters are not 'woke'
 		if (sendmsg)
 			NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
-		/*CreateMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
-		CreateMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, sendmsg);
-		CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);*/
-		SpawnItem(mnum, mon->_mx, mon->_my, sendmsg); // double reward
+		/*SpawnMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
+		SpawnMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, sendmsg);
+		SpawnMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);*/
+		SpawnMonItem(mnum, mon->_mx, mon->_my, sendmsg); // double reward
 		break;
 #endif
 	}
-	SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
+	SpawnMonItem(mnum, mon->_mx, mon->_my, sendmsg);
 }
 
 static void M2MStartHit(int defm, int offm, int dam)
@@ -5084,7 +5084,7 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
 		} else if (mon->mtalkmsg == TEXT_GARBUD2) {
 			SetRndSeed(mon->_mRndSeed);
-			SpawnItem(mnum, plr._px, plr._py, pnum == mypnum);
+			SpawnMonItem(mnum, plr._px, plr._py, pnum == mypnum);
 		} //else if (mon->mtalkmsg == TEXT_GARBUD4)
 		//	mon->_mVar8 = 0; // init MON_TIMER
 		quests[Q_GARBUD]._qvar1++;
@@ -5117,7 +5117,7 @@ void TalktoMonster(int mnum, int pnum)
 			else if (plr._pClass == PC_SORCERER)
 				iv = SPL_LIGHTNING;
 			SetRndSeed(mon->_mRndSeed);
-			CreateSpellBook(iv, plr._px, plr._py, pnum == mypnum);
+			SpawnSpellBook(iv, plr._px, plr._py, pnum == mypnum);
 		} else if (quests[Q_ZHAR]._qvar1 == 1) {
 			mon->mtalkmsg = TEXT_ZHAR2;
 			//mon->_mVar8 = 0; // init MON_TIMER

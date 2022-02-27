@@ -2506,7 +2506,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 		quests[qn]._qlog = TRUE;
 		if (qn == Q_BLOOD) {
 			SetRndSeed(os->_oRndSeed);
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, sendmsg, false);
+			CreateQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, sendmsg, false);
 		}
 		if (sendmsg) {
 			NetSendCmdQuest(qn, true);
@@ -2541,7 +2541,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		if (os->_oVar2 != 0)           // CHEST_ITEM_TYPE
 			CreateRndItem(os->_ox, os->_oy, os->_oVar2 == 8, sendmsg, false);
 		else
-			CreateRndUseful(os->_ox, os->_oy, sendmsg, false);
+			SpawnRndUseful(os->_ox, os->_oy, sendmsg, false);
 	}
 	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapFlag) {
 		os->_oTrapFlag = FALSE;
@@ -2630,7 +2630,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 #endif
 	};
 	SetRndSeed(os->_oRndSeed);
-	CreateMagicItem(typeCurs[pc][0], typeCurs[pc][1], os->_ox, os->_oy, sendmsg);
+	SpawnMagicItem(typeCurs[pc][0], typeCurs[pc][1], os->_ox, os->_oy, sendmsg);
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr._px, plr._py);
 }
 
@@ -2733,11 +2733,11 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 		break; // should not really happen
 	case 2:
 		SetRndSeed(os->_oRndSeed);
-		SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
+		CreateQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
 		break;
 	case 3:
 		SetRndSeed(os->_oRndSeed + 1);
-		SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
+		CreateQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
 		break;
 	case 4:
 		// SetRndSeed(os->_oRndSeed + 2);
@@ -3670,7 +3670,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 	} else {
 		if (os->_oVar2 <= 1) {    // BARREL_ITEM
 			if (os->_oVar3 == 0)  // BARREL_ITEM_TYPE
-				CreateRndUseful(os->_ox, os->_oy, sendmsg, false);
+				SpawnRndUseful(os->_ox, os->_oy, sendmsg, false);
 			else
 				CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
 		} else if (os->_oVar2 >= 8)

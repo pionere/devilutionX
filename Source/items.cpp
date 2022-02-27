@@ -78,7 +78,7 @@ fail:
 }
 
 #ifdef HELLFIRE
-static void SpawnNote()
+static void PlaceNote()
 {
 	int x, y, id;
 
@@ -86,12 +86,12 @@ static void SpawnNote()
 		x = random_(12, DSIZEX) + DBORDERX;
 		y = random_(12, DSIZEY) + DBORDERY;
 	} while (!RandomItemPlace(x, y));
-	static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "SpawnNote requires ordered IDI_NOTE indices I.");
-	static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "SpawnNote requires ordered IDI_NOTE indices II.");
-	static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "SpawnNote requires ordered DLV_CRYPT indices I.");
-	static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "SpawnNote requires ordered DLV_CRYPT indices II.");
+	static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "PlaceNote requires ordered IDI_NOTE indices I.");
+	static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "PlaceNote requires ordered IDI_NOTE indices II.");
+	static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "PlaceNote requires ordered DLV_CRYPT indices I.");
+	static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "PlaceNote requires ordered DLV_CRYPT indices II.");
 	id = IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1);
-	SpawnQuestItemAt(id, x, y, false, true);
+	CreateQuestItemAt(id, x, y, false, true);
 }
 #endif
 
@@ -112,7 +112,7 @@ void InitItemGFX()
 	}
 }
 
-static void AddInitItems()
+static void PlaceInitItems()
 {
 	int ii, i, lvl, seed;
 
@@ -150,27 +150,27 @@ void InitItems()
 
 	if (!currLvl._dSetLvl) {
 		if (QuestStatus(Q_ROCK))
-			SpawnRock();
+			PlaceRock();
 		if (QuestStatus(Q_ANVIL))
-			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11, false, true);
+			CreateQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11, false, true);
 		if (currLvl._dLevelIdx == questlist[Q_VEIL]._qdlvl + 1 && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
-			SpawnQuestItemInArea(IDI_GLDNELIX, 5);
+			PlaceQuestItemInArea(IDI_GLDNELIX, 5);
 		if (QuestStatus(Q_MUSHROOM))
-			SpawnQuestItemInArea(IDI_FUNGALTM, 5);
+			PlaceQuestItemInArea(IDI_FUNGALTM, 5);
 #ifdef HELLFIRE
 		if (quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL) {
 			if (currLvl._dLevelIdx == DLV_NEST4)
-				SpawnQuestItemInArea(IDI_BROWNSUIT, 3);
+				PlaceQuestItemInArea(IDI_BROWNSUIT, 3);
 			else if (currLvl._dLevelIdx == DLV_NEST3)
-				SpawnQuestItemInArea(IDI_GRAYSUIT, 3);
+				PlaceQuestItemInArea(IDI_GRAYSUIT, 3);
 		}
 #endif
 		// TODO: eliminate level range-check?
 		if (currLvl._dLevelIdx > 0 && currLvl._dLevelIdx < 16)
-			AddInitItems();
+			PlaceInitItems();
 #ifdef HELLFIRE
 		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3)
-			SpawnNote();
+			PlaceNote();
 #endif
 	}
 }
@@ -1840,7 +1840,7 @@ void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn)
 	}
 }
 
-void SpawnItem(int mnum, int x, int y, bool sendmsg)
+void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 {
 	MonsterStruct* mon;
 	int ii, idx;
@@ -1931,7 +1931,7 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 	items[ii]._iCreateInfo = lvl | CF_USEFUL;
 }
 
-void CreateRndUseful(int x, int y, bool sendmsg, bool delta)
+void SpawnRndUseful(int x, int y, bool sendmsg, bool delta)
 {
 	int ii, lvl;
 
@@ -2010,7 +2010,7 @@ void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
  * @param sendmsg whether a message should be sent to register the item
  * @param delta whether the item should be added to the delta directly
  */
-void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
+void CreateQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 {
 	int ii;
 
@@ -2078,7 +2078,7 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg/*, bool respawn*/)
  * @param idx: the index of the item(item_indexes enum)
  * @param areasize: the require size of the space (will be lowered if no matching place is found)
  */
-void SpawnQuestItemInArea(int idx, int areasize)
+void PlaceQuestItemInArea(int idx, int areasize)
 {
 	int ii;
 
@@ -2104,7 +2104,7 @@ void SpawnQuestItemInArea(int idx, int areasize)
 /**
  * Place a rock(item) on a stand (OBJ_STAND).
  */
-void SpawnRock()
+void PlaceRock()
 {
 	int i, oi;
 
@@ -3627,7 +3627,7 @@ void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo)
 	}
 }
 
-void CreateSpellBook(int ispell, int x, int y, bool sendmsg)
+void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 {
 	int ii, idx, lvl;
 
@@ -3650,7 +3650,7 @@ void CreateSpellBook(int ispell, int x, int y, bool sendmsg)
 }
 
 #ifdef HELLFIRE
-void CreateAmulet(WORD wCI, int x, int y, bool sendmsg)
+void SpawnAmulet(WORD wCI, int x, int y, bool sendmsg)
 {
 	int ii, lvl, idx;
 
@@ -3670,7 +3670,7 @@ void CreateAmulet(WORD wCI, int x, int y, bool sendmsg)
 }
 #endif
 
-void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
+void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 {
 	int ii, idx, lvl;
 
