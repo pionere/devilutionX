@@ -167,27 +167,28 @@ private:
 
 	void Dequeue(Uint8 *out, int out_len)
 	{
-		SDL_memset(out, 0, sizeof(out[0]) * out_len);
 		AudioQueueItem *item;
 		while ((item = Next()) != NULL) {
 			if (static_cast<unsigned long>(out_len) <= item->len) {
-				SDL_MixAudio(out, item->pos, out_len, MIX_MAX_VOLUME);
+				memcpy(out, item->pos, out_len);
 				item->pos += out_len;
 				item->len -= out_len;
+				if (item->len == 0)
+					Pop();
 				return;
 			}
 
-			SDL_MixAudio(out, item->pos, item->len, MIX_MAX_VOLUME);
+			memcpy(out, item->pos, item->len);
 			out += item->len;
 			out_len -= item->len;
 			Pop();
 		}
+		// fill silence at the end
+		SDL_memset(out, SVidAudioDepth == 16 ? 0 : 0x80, out_len);
 	}
 
 	AudioQueueItem *Next()
 	{
-		while (!queue_.empty() && queue_.front().len == 0)
-			Pop();
 		if (queue_.empty())
 			return NULL;
 		return &queue_.front();
@@ -223,14 +224,14 @@ static void UpdatePalette()
 	// In SDL1, the surface always has its own distinct palette, so we need to
 	// update it as well.
 	if (SDL_SetPalette(SVidSurface, SDL_LOGPAL, colors, firstcolor, ncolors) <= 0)
-		sdl_fatal(ERR_SDL_VIDEO_SURFACE);
+		sdl_error(ERR_SDL_VIDEO_SURFACE);
 #else // !USE_SDL1
 	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) <= -1) {
-		sdl_fatal(ERR_SDL_VIDEO_SURFACE);
+		sdl_error(ERR_SDL_VIDEO_SURFACE);
 	}
 #endif
 	//if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, 256) < 0) {
-	//	sdl_fatal(ERR_SDL_VIDEO_SURFACE);
+	//	sdl_error(ERR_SDL_VIDEO_SURFACE);
 	//}
 }
 
@@ -263,32 +264,32 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 #ifndef NOSOUND
 	if (enableAudio) {
-		unsigned char channels[7], depth[7];
-		unsigned long rate[7];
-		smk_info_audio(SVidSMK, NULL, channels, depth, rate);
-		if (depth[0] != 0) {
-			SVidAudioDepth = depth[0];
+		unsigned char channels, depth;
+		unsigned long rate;
+		smk_info_audio(SVidSMK, &channels, &depth, &rate);
+		if (depth != 0) {
+			SVidAudioDepth = depth;
 
 			smk_enable_audio(SVidSMK, 0, true);
 			SDL_AudioSpec audioFormat;
 			memset(&audioFormat, 0, sizeof(audioFormat));
-			audioFormat.freq = rate[0];
+			audioFormat.freq = rate;
 			audioFormat.format = SVidAudioDepth == 16 ? AUDIO_S16SYS : AUDIO_U8;
-			audioFormat.channels = channels[0];
+			audioFormat.channels = channels;
 
 			Mix_CloseAudio();
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, 0);
 			if (deviceId == 0) {
-				sdl_fatal(ERR_SDL_AUDIO_DEVICE_SDL2);
+				sdl_error(ERR_SDL_AUDIO_DEVICE_SDL2);
 			}
 
 			SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
 #else
 			sVidAudioQueue->Subscribe(&audioFormat);
 			if (SDL_OpenAudio(&audioFormat, NULL) != 0) {
-				sdl_fatal(ERR_SDL_AUDIO_DEVICE_SDL1);
+				sdl_error(ERR_SDL_AUDIO_DEVICE_SDL1);
 			}
 			SDL_PauseAudio(0);
 #endif
@@ -317,16 +318,16 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	    (unsigned char *)smk_get_video(SVidSMK),
 	    SVidWidth,
 	    SVidHeight,
-	    8,
+	    0,
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
 	if (SVidSurface == NULL) {
-		sdl_fatal(ERR_SDL_VIDEO_CREATE);
+		sdl_error(ERR_SDL_VIDEO_CREATE);
 	}
 
 	SVidPalette = SDL_AllocPalette(256);
 	if (SVidPalette == NULL) {
-		sdl_fatal(ERR_SDL_VIDEO_PALETTE);
+		sdl_error(ERR_SDL_VIDEO_PALETTE);
 	}
 	UpdatePalette();
 
@@ -336,10 +337,13 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 static bool SVidLoadNextFrame()
 {
+	char result;
+
 	SVidFrameEnd += SVidFrameLength;
 
-	if (smk_next(SVidSMK) == SMK_DONE) {
-		if (!SVidLoop) {
+	result = smk_next(SVidSMK);
+	if (result != SMK_MORE/* && result != SMK_LAST*/) {
+		if (result == SMK_ERROR || !SVidLoop) {
 			return false;
 		}
 
@@ -359,7 +363,7 @@ static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 			((Sint16*)scaled)[i] = ADJUST_VOLUME(((Sint16*)raw)[i], 0, gnSoundVolume);
 	} else {
 		for (unsigned long i = 0; i < rawLen; i++)
-			scaled[i] = ADJUST_VOLUME(raw[i], 0, gnSoundVolume);
+			scaled[i] = ADJUST_VOLUME((raw[i] - 128), 0, gnSoundVolume) + 128;
 	}
 
 	return scaled;
@@ -372,7 +376,7 @@ bool SVidPlayContinue()
 	}
 
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
-		return SVidLoadNextFrame(); // Skip video and audio if the system is to slow
+		return SVidLoadNextFrame(); // Skip video and audio if the system is too slow
 	}
 #ifndef NOSOUND
 	if (HaveAudio()) {
@@ -380,7 +384,7 @@ bool SVidPlayContinue()
 		BYTE *audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 		if (SDL_QueueAudio(deviceId, audio, len) < 0) {
-			sdl_fatal(ERR_SDL_VIDEO_AUDIO);
+			sdl_error(ERR_SDL_VIDEO_AUDIO);
 		}
 #else
 		sVidAudioQueue->Enqueue(audio, len);
@@ -389,18 +393,18 @@ bool SVidPlayContinue()
 	}
 #endif // NOSOUND
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
-		return SVidLoadNextFrame(); // Skip video if the system is to slow
+		return SVidLoadNextFrame(); // Skip video if the system is too slow
 	}
 
+	SDL_Surface* outputSurface = GetOutputSurface();
 #ifndef USE_SDL1
 	if (renderer != NULL) {
-		if (SDL_BlitSurface(SVidSurface, NULL, GetOutputSurface(), NULL) < 0) {
-			sdl_fatal(ERR_SDL_VIDEO_BLIT_A);
+		if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, NULL) < 0) {
+			sdl_error(ERR_SDL_VIDEO_BLIT_A);
 		}
 	} else
 #endif
 	{
-		SDL_Surface *outputSurface = GetOutputSurface();
 #ifdef USE_SDL1
 		const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputSurface->format);
 #else
@@ -426,7 +430,7 @@ bool SVidPlayContinue()
 		    || outputSurface->w == static_cast<int>(SVidWidth)
 		    || outputSurface->h == static_cast<int>(SVidHeight)) {
 			if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &outputRect) < 0) {
-				sdl_fatal(ERR_SDL_VIDEO_BLIT_B);
+				sdl_error(ERR_SDL_VIDEO_BLIT_B);
 			}
 		} else {
 			// The source surface is always 8-bit, and the output surface is never 8-bit in this branch.
@@ -437,7 +441,7 @@ bool SVidPlayContinue()
 			SDL_Surface *tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
 #endif
 			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
-				sdl_fatal(ERR_SDL_VIDEO_BLIT_SCALED);
+				sdl_error(ERR_SDL_VIDEO_BLIT_SCALED);
 			}
 			SDL_FreeSurface(tmp);
 		}

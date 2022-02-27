@@ -11,9 +11,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int sfxdelay;
-int sfxdnum;
-
 #ifdef NOSOUND
 const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] = { };
 #else
@@ -1295,7 +1292,11 @@ void PlayEffect(int mnum, int mode)
 
 	mon = &monsters[mnum];
 	snd = &mapMonTypes[mon->_mMTidx].cmSnds[mode][sndIdx];
-	assert(snd->IsLoaded());
+	if (!snd->IsLoaded()) {
+		assert(mode == MS_SPECIAL);
+		assert(!monfiledata[monsterdata[mon->_mType].moFileNum].moSndSpecial);
+		return;
+	}
 	if (snd->IsPlaying()) {
 		return;
 	}

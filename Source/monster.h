@@ -24,6 +24,13 @@ extern int nummonsters;
 extern MonsterStruct monsters[MAXMONSTERS];
 extern MapMonData mapMonTypes[MAX_LVLMTYPES];
 extern int nummtypes;
+extern BYTE numSkelTypes;
+/* The number of goat-monster types on the current level. */
+extern BYTE numGoatTypes;
+/* Skeleton-monster types on the current level. */
+extern BYTE mapSkelTypes[MAX_LVLMTYPES];
+/* Goat-monster types on the current level. */
+extern BYTE mapGoatTypes[MAX_LVLMTYPES];
 
 void InitLevelMonsters();
 void GetLevelMTypes();
@@ -34,7 +41,6 @@ void WakeUberDiablo();
 void InitMonsters();
 void SetMapMonsters(BYTE *pMap, int startx, int starty);
 int AddMonster(int x, int y, int dir, int mtidx, bool InMap);
-void MonStartStand(int mnum, int md);
 void RemoveMonFromMap(int mnum);
 void MonGetKnockback(int mnum, int sx, int sy);
 void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags);
@@ -57,8 +63,6 @@ void MissToMonst(int mnum, int x, int y);
 bool PosOkMonst(int mnum, int x, int y);
 bool PosOkMonst2(int mnum, int x, int y);
 bool PosOkMonst3(int mnum, int x, int y);
-bool IsSkel(int mt);
-bool IsGoat(int mt);
 void SpawnSkeleton(int mnum, int x, int y, int dir);
 int PreSpawnSkeleton();
 void SyncMonsterQ(int pnum, int idx);
@@ -67,8 +71,6 @@ void InitGolemStats(int mnum, int level);
 void SpawnGolem(int mnum, int x, int y, int level);
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool *ret);
-int encode_enemy(int mnum);
-void decode_enemy(int mnum, int enemy);
 
 inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
 {

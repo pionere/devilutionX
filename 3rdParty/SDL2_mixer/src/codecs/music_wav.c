@@ -286,8 +286,8 @@ static int WAV_Play(Mix_Channel* channel, int loop_count)
         loop->active = SDL_TRUE;
         loop->current_play_count = loop->initial_play_count;
     }
-#endif
     channel->loop_count = loop_count;
+#endif
     if (Mix_RWseek(&channel->playOps, 0, RW_SEEK_SET) < 0) {
         return -1;
     }
@@ -945,12 +945,8 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
             if (loop_count > 0) {
                 loop_count = (loop_count - 1);
             }
-#else
-            loop_count = -1;
 #endif
-            if (WAV_Play(channel, loop_count) < 0) {
-                return -1;
-            }
+            return WAV_Play(channel, loop_count);
         }
 #endif // MEM_OPS
     }
@@ -1060,7 +1056,7 @@ static void WAV_Delete(Mix_Audio* audio)
 #endif
 }
 
-static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
+static int ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 {
 #ifdef FULL // SELF_CONV
     SDL_AudioSpec *spec = &wave->spec;
@@ -1070,12 +1066,10 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 #endif
     WaveFMTEx fmt;
     size_t size;
-    int bits;
-    Uint16 encoding;
+    Uint16 bits, encoding;
 
     if (chunk_length < sizeof(fmt.format)) {
-        Mix_SetError("Wave format chunk too small");
-        return SDL_FALSE;
+        return Mix_SetError("Wave format chunk too small");
     }
 
     size = (chunk_length >= sizeof(fmt)) ? sizeof(fmt) : sizeof(fmt.format);
@@ -1084,21 +1078,18 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 #else
     if (!Mix_RWread(&wave->src, &fmt, size)) {
 #endif
-        Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
-        return SDL_FALSE;
+        return Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
     }
     chunk_length -= size;
     if (chunk_length != 0 && Mix_RWseek(&wave->src, chunk_length, RW_SEEK_CUR) < 0) {
-        Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
-        return SDL_FALSE;
+        return Mix_SetError("Couldn't read %d bytes from WAV file", chunk_length);
     }
 
     encoding = SDL_SwapLE16(fmt.format.encoding);
 
     if (encoding == EXT_CODE) {
         if (size < sizeof(fmt)) {
-            Mix_SetError("Wave format chunk too small");
-            return SDL_FALSE;
+            return Mix_SetError("Wave format chunk too small");
         }
         encoding = (Uint16)SDL_SwapLE32(fmt.subencoding);
     }
@@ -1127,8 +1118,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 #endif // SDL_VERSION_ATLEAST(2, 0, 7)
 #else
     if (encoding != PCM_CODE) {
-        Mix_SetError("Unknown WAVE data format");
-        return SDL_FALSE;
+        return Mix_SetError("Unknown WAVE data format");
     }
 #endif // FULL - MUS_ENC
 #ifdef FULL // SELF_CONV
@@ -1140,27 +1130,32 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
     } else if (freq == 2 * MIX_DEFAULT_FREQUENCY) {
         spec->freqMpl = 2;
     } else {
-        Mix_SetError("Unknown WAVE data format");
-        return SDL_FALSE;
+        return Mix_SetError("Unknown WAVE data format");
     }
 #endif // FULL - SELF_CONV
-    bits = (int) SDL_SwapLE16(fmt.format.bitspersample);
+    bits = SDL_SwapLE16(fmt.format.bitspersample);
     switch (bits) {
         case 8:
+#ifdef FULL // MUS_ENC
             switch(encoding) {
             case PCM_CODE:  spec->format = AUDIO_U8; break;
-#ifdef FULL // MUS_ENC
             case ALAW_CODE: spec->format = AUDIO_S16; break;
             case uLAW_CODE: spec->format = AUDIO_S16; break;
-#endif
             default: goto unknown_bits;
             }
+#else
+            spec->format = AUDIO_U8;
+#endif
             break;
         case 16:
+#ifdef FULL // MUS_ENC
             switch(encoding) {
             case PCM_CODE: spec->format = AUDIO_S16; break;
             default: goto unknown_bits;
             }
+#else
+            spec->format = AUDIO_S16;
+#endif
             break;
 #ifdef FULL // WAV_SRC
         case 24:
@@ -1190,13 +1185,12 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
             break;
 #endif // FULL - WAV_SRC
         default:
-            unknown_bits:
 #ifdef FULL // WAV_SRC, MUS_ENC
-            Mix_SetError("Unknown PCM format with %d bits", bits);
+            unknown_bits:
+            return Mix_SetError("Unknown PCM format with %d bits", bits);
 #else
-            Mix_SetError("Unknown WAVE data format");
+            return Mix_SetError("Unknown WAVE data format");
 #endif
-            return SDL_FALSE;
     }
 #ifdef FULL // WAV_ENC
     wave->encoding = encoding;
@@ -1215,7 +1209,7 @@ static SDL_bool ParseFMT(WAV_Music *wave, Uint32 chunk_length)
     /* Calculate Mix_AudioSpec */
     Mix_CalculateSampleSize(spec);
 #endif // FULL - SELF_CONV
-    return SDL_TRUE;
+    return 0;
 }
 
 static SDL_bool ParseDATA(WAV_Music *wave, Uint32 chunk_length)
@@ -1375,7 +1369,7 @@ static SDL_bool LoadWAVMusic(WAV_Music *wave)
         {
         case FMT:
             found_FMT = SDL_TRUE;
-            if (!ParseFMT(wave, chunk_length))
+            if (ParseFMT(wave, chunk_length) < 0)
                 return SDL_FALSE;
             break;
         case DATA:

@@ -350,6 +350,10 @@ void InitLvlDungeon()
 		nMissileTable[141] = false; // fix missile-blocking tile of down-stairs.
 		nSolidTable[130] = true; // make the inner tiles of the down-stairs non-walkable I.
 		nSolidTable[132] = true; // make the inner tiles of the down-stairs non-walkable II.
+		// fix all-blocking tile on the diablo-level
+		nSolidTable[211] = false;
+		nMissileTable[211] = false;
+		nBlockTable[211] = false;
 		break;
 #ifdef HELLFIRE
 	case DTYPE_NEST:

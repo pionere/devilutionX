@@ -8,7 +8,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int itemactive[MAXITEMS];
-int itemavail[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct items[MAXITEMS + 1];
 BYTE* itemanims[NUM_IFILE];
@@ -120,7 +119,8 @@ static void AddInitItems()
 	lvl = items_get_currlevel();
 
 	for (i = RandRange(3, 5); i != 0; i--) {
-		ii = itemavail[0];
+		ii = itemactive[numitems];
+		assert(ii == numitems);
 		seed = GetRndSeed();
 		SetRndSeed(seed);
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
@@ -133,8 +133,6 @@ static void AddInitItems()
 		GetRandomItemSpace(ii);
 		DeltaAddItem(ii);
 
-		itemactive[numitems] = ii;
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		numitems++;
 	}
 }
@@ -145,11 +143,9 @@ void InitItems()
 
 	numitems = 0;
 
-	memset(items, 0, sizeof(items));
-	memset(itemactive, 0, sizeof(itemactive));
-
+	//memset(items, 0, sizeof(items));
 	for (i = 0; i < MAXITEMS; i++) {
-		itemavail[i] = i;
+		itemactive[i] = i;
 	}
 
 	if (!currLvl._dSetLvl) {
@@ -271,6 +267,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	int ihp = 0;   // increased HP
 	int imana = 0; // increased mana
 
+	int spllvl; // temporary value to calculate spell levels
 	char spllvladd = 0; // increased spell level
 
 	unsigned minsl = 0; // min slash-damage
@@ -390,7 +387,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
 	plr._pHasUnidItem = !idi;
 	plr._pIGetHit = ghit << 6;
-	plr._pISplLvlAdd = spllvladd;
 	plr._pILifeSteal = lifesteal;
 	plr._pIManaSteal = manasteal;
 
@@ -415,6 +411,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
 	}
 
+	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
+	imana += madd << (6 + 1);
+
 	if (iflgs & ISPL_LIFETOMANA) {
 		ihp -= plr._pMaxHPBase >> 1;
 		imana += plr._pMaxHPBase >> 1;
@@ -422,6 +421,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	if (iflgs & ISPL_MANATOLIFE) {
 		ihp += plr._pMaxManaBase >> 1;
 		imana -= plr._pMaxManaBase >> 1;
+	}
+	if (iflgs & ISPL_NOMANA) {
+		imana = - plr._pManaBase;
 	}
 	if (iflgs & ISPL_ALLRESZERO) {
 		// reset resistances to zero if the respective special effect is active
@@ -447,15 +449,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		ar = MAXRESIST;
 	plr._pAcidResist = ar;
 
-	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
-	imana += madd << (6 + 1);
-
 	plr._pHitPoints = ihp + plr._pHPBase;
 	plr._pMaxHP = ihp + plr._pMaxHPBase;
-
-	if (pnum == mypnum && plr._pHitPoints < (1 << 6)) {
-		PlrSetHp(pnum, 0);
-	}
 
 	plr._pMana = imana + plr._pManaBase;
 	plr._pMaxMana = imana + plr._pMaxManaBase;
@@ -532,17 +527,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		gfx |= ANIM_ID_HEAVY_ARMOR;
 	}
 
-	if (plr._pgfxnum != gfx) {
-		plr._pgfxnum = gfx;
-		if (Loadgfx && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging) {
-			plr._pGFXLoad = 0;
-			LoadPlrGFX(pnum, PFILE_STAND);
-			SetPlrAnims(pnum);
-
-			NewPlrAnim(pnum, plr._pNAnim, plr._pdir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
-		}
-	}
-
 	// calculate bonuses
 	cc = cc * (btochit + 100) / 50;
 	plr._pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
@@ -558,7 +542,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pIHitChance = btohit;
 
 	// calculate skill flags
-	if (currLvl._dType != DTYPE_TOWN)
+	if (plr._pDunLevel != DLV_TOWN)
 		wt |= SFLAG_DUNGEON;
 	if (bf)
 		wt |= SFLAG_BLOCK;
@@ -590,18 +574,18 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 	if (wRight->_itype != ITYPE_NONE && wRight->_itype != ITYPE_SHIELD) {
 		// adjust dual-wield damage
-		if (maxsl != 0) {
+		//if (maxsl != 0) {
 			minsl = minsl * 5 / 8;
 			maxsl = maxsl * 5 / 8;
-		}
-		if (maxbl != 0) {
+		//}
+		//if (maxbl != 0) {
 			minbl = minbl * 5 / 8;
 			maxbl = maxbl * 5 / 8;
-		}
-		if (maxpc != 0) {
+		//}
+		//if (maxpc != 0) {
 			minpc = minpc * 5 / 8;
 			maxpc = maxpc * 5 / 8;
-		}
+		//}
 		cc >>= 1;
 	}
 	plr._pISlMinDam = minsl;
@@ -632,7 +616,29 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 #endif*/
 	plr._pIArrowVelBonus = av;
 
-	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
+	for (i = 0; i < NUM_SPELLS; i++) {
+		spllvl = 0;
+		//if (plr._pMemSkills & SPELL_MASK(i)) {
+			spllvl = plr._pSkillLvlBase[i] + spllvladd;
+			if (spllvl < 0)
+				spllvl = 0;
+		//}
+		plr._pSkillLvl[i] = spllvl;
+	}
+
+	if (plr._pgfxnum != gfx) {
+		plr._pgfxnum = gfx;
+		if (Loadgfx && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging) {
+			plr._pGFXLoad = 0;
+			LoadPlrGFX(pnum, PFILE_STAND);
+			SetPlrAnims(pnum);
+
+			NewPlrAnim(pnum, plr._pNAnim, plr._pdir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
+		}
+	}
+
+	if (pnum == mypnum)
+		gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 }
 
 void CalcPlrSpells(int pnum)
@@ -698,9 +704,8 @@ static void ItemStatOk(ItemStruct* is, int sa, int ma, int da)
 static void CalcItemReqs(int pnum)
 {
 	int i;
-	ItemStruct *pi;
-	bool changeflag;
-	int sa, ma, da;
+	ItemStruct* pi;
+	int sa, ma, da, sc, mc, dc;
 
 	sa = plr._pBaseStr;
 	ma = plr._pBaseMag;
@@ -717,34 +722,37 @@ static void CalcItemReqs(int pnum)
 			//}
 		}
 	}
-	do {
-		changeflag = false;
-		pi = plr._pInvBody;
-		for (i = NUM_INVLOC; i != 0; i--, pi++) {
-			if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
-				if (sa < pi->_iMinStr || ma < pi->_iMinMag || da < pi->_iMinDex) {
-					changeflag = true;
-					pi->_iStatFlag = FALSE;
-					//if (pi->_iIdentified) {
-						sa -= pi->_iPLStr;
-						ma -= pi->_iPLMag;
-						da -= pi->_iPLDex;
-					//}
-				}
-			}
+checkitems:
+	sc = std::max(0, sa);
+	mc = std::max(0, ma);
+	dc = std::max(0, da);
+	pi = plr._pInvBody;
+	for (i = NUM_INVLOC; i != 0; i--, pi++) {
+		if (pi->_itype == ITYPE_NONE)
+			continue;
+		if (sc >= pi->_iMinStr && mc >= pi->_iMinMag && dc >= pi->_iMinDex)
+			continue;
+		if (pi->_iStatFlag) {
+			pi->_iStatFlag = FALSE;
+			//if (pi->_iIdentified) {
+				sa -= pi->_iPLStr;
+				ma -= pi->_iPLMag;
+				da -= pi->_iPLDex;
+			//}
+			goto checkitems;
 		}
-	} while (changeflag);
+	}
 
 	pi = &plr._pHoldItem;
-	ItemStatOk(pi, sa, ma, da);
+	ItemStatOk(pi, sc, mc, dc);
 
 	pi = plr._pInvList;
 	for (i = NUM_INV_GRID_ELEM; i != 0; i--, pi++)
-		ItemStatOk(pi, sa, ma, da);
+		ItemStatOk(pi, sc, mc, dc);
 
 	pi = plr._pSpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++)
-		ItemStatOk(pi, sa, ma, da);
+		ItemStatOk(pi, sc, mc, dc);
 }
 
 void CalcPlrInv(int pnum, bool Loadgfx)
@@ -1762,8 +1770,7 @@ static void RegisterItem(int ii, int x, int y, bool sendmsg, bool delta)
 	if (delta)
 		DeltaAddItem(ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	assert(itemactive[numitems] == ii);
 	numitems++;
 }
 
@@ -1825,7 +1832,7 @@ void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn)
 	}
 	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllItems(ii, idx, uid, items_get_currlevel(), 1, false);
 
 	RegisterItem(ii, x, y, sendmsg, false);
@@ -1868,7 +1875,7 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 			NetSendCmdQuest(Q_MUSHROOM, true);
 	}
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllItems(ii, idx, GetRndSeed(), mon->_mLevel,
 		onlygood ? 15 : 1, onlygood);
 
@@ -1889,7 +1896,7 @@ void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta)
 	else
 		idx = RndAllItems(lvl);
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood);
 
 	RegisterItem(ii, x, y, sendmsg, delta);
@@ -1934,7 +1941,7 @@ void CreateRndUseful(int x, int y, bool sendmsg, bool delta)
 
 	lvl = items_get_currlevel();
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllUseful(ii, GetRndSeed(), lvl);
 
 	RegisterItem(ii, x, y, sendmsg, delta);
@@ -1953,7 +1960,7 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool send
 		idx = RndTypeItems(itype, imisc, lvl);
 	else
 		idx = IDI_GOLD;
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood);
 
 	RegisterItem(ii, x, y, sendmsg, delta);
@@ -2011,7 +2018,7 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 	if (numitems >= MAXITEMS)
 		return;
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// SetupItem(ii);
@@ -2032,8 +2039,6 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 	if (delta)
 		DeltaAddItem(ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	numitems++;
 }
 
@@ -2053,7 +2058,7 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg/*, bool respawn*/)
 	if (numitems >= MAXITEMS)
 		return;
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// assert(gbLvlLoad == 0);
@@ -2081,7 +2086,7 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	if (numitems >= MAXITEMS)
 		return;
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// assert(gbLvlLoad != 0);
@@ -2094,8 +2099,6 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	GetRandomItemSpace(areasize, ii);
 	DeltaAddItem(ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	numitems++;
 }
 
@@ -2115,7 +2118,8 @@ void SpawnRock()
 			break;
 	}
 	if (i != numobjects) {
-		i = itemavail[0];
+		i = itemactive[numitems];
+		assert(i == numitems);
 		SetItemData(i, IDI_ROCK);
 		// assert(gbLvlLoad != 0);
 		// SetupItem(i);
@@ -2130,8 +2134,6 @@ void SpawnRock()
 		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
 		DeltaAddItem(i);
 
-		itemactive[numitems] = i;
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		numitems++;
 	}
 }
@@ -2153,7 +2155,7 @@ void SpawnRewardItem(int idx, int x, int y, bool sendmsg, bool respawn)
 	if (numitems >= MAXITEMS)
 		return;
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	// assert(gbLvlLoad == 0);
@@ -2204,12 +2206,12 @@ void RespawnItem(int ii, bool FlipFlag)
 		is->_iSelFlag = 1;*/
 }
 
-void DeleteItem(int ii, int i)
+static void DeleteItem(int ii, int idx)
 {
-	itemavail[MAXITEMS - numitems] = ii;
 	numitems--;
-	if (numitems > 0 && i != numitems)
-		itemactive[i] = itemactive[numitems];
+	assert(itemactive[idx] == ii);
+	itemactive[idx] = itemactive[numitems];
+	itemactive[numitems] = ii;
 }
 
 void DeleteItems(int ii)
@@ -2476,6 +2478,7 @@ static void DoBuckle(int pnum, int cii)
 			pi = &plr._pInvBody[INVITEM_HAND_LEFT];
 		}
 		BuckleItem(pi);
+		// FIXME: ensure a dead player remains dead
 		CalcPlrInv(pnum, true);
 	}
 }
@@ -2520,11 +2523,10 @@ static void RemovePlrItem(int pnum, int cii)
  */
 void DoAbility(int pnum, char from, BYTE cii)
 {
-	// TODO: validate on server side?
-	if (plr._pmode == PM_DEATH)
-		return;
-	if (cii >= NUM_INVELEM)
-		return;
+	// assert(plr._pmode != PM_DEATH);
+
+	// assert(cii < NUM_INVELEM);
+
 	// TODO: add to Abilities table in player.cpp?
 	if (from != SPLFROM_ABILITY) {
 		if (SyncUseItem(pnum, from, SPL_IDENTIFY))
@@ -2564,11 +2566,10 @@ void DoOil(int pnum, char from, BYTE cii)
 	WORD idx, ci;
 	BYTE targetPowerFrom, targetPowerTo;
 
-	// TODO: validate these on server side?
-	if (plr._pmode == PM_DEATH)
-		return;
-	if ((BYTE)from >= NUM_INVELEM || cii >= NUM_INVELEM)
-		return;
+	// assert(plr._pmode != PM_DEATH);
+	// assert(cii < NUM_INVELEM);
+	// assert((BYTE)from < NUM_INVELEM);
+
 	is = PlrItem(pnum, from);
 	if (is->_itype == ITYPE_NONE)
 		return;
@@ -2673,110 +2674,110 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 {
 	switch (plidx) {
 	case IPL_TOHIT:
-		snprintf(tempstr, sizeof(tempstr), "chance to hit: %+i%%", is->_iPLToHit);
+		snprintf(tempstr, sizeof(tempstr), "chance to hit: %+d%%", is->_iPLToHit);
 		break;
 	case IPL_DAMP:
-		snprintf(tempstr, sizeof(tempstr), "%+i%% damage", is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "%+d%% damage", is->_iPLDam);
 		break;
 	case IPL_TOHIT_DAMP:
-		snprintf(tempstr, sizeof(tempstr), "to hit: %+i%%, %+i%% damage", is->_iPLToHit, is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "to hit: %+d%%, %+d%% damage", is->_iPLToHit, is->_iPLDam);
 		break;
 	case IPL_ACP:
-		snprintf(tempstr, sizeof(tempstr), "%+i%% armor", is->_iPLAC);
+		snprintf(tempstr, sizeof(tempstr), "%+d%% armor", is->_iPLAC);
 		break;
 	case IPL_SETAC:
 	case IPL_ACMOD:
-		snprintf(tempstr, sizeof(tempstr), "armor class: %i", is->_iAC);
+		snprintf(tempstr, sizeof(tempstr), "armor class: %d", is->_iAC);
 		break;
 	case IPL_FIRERES:
 		//if (is->_iPLFR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+d%%", is->_iPLFR);
 		//else
 		//	copy_cstr(tempstr, "Resist Fire: 75% MAX");
 		break;
 	case IPL_LIGHTRES:
 		//if (is->_iPLLR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Lightning: %+i%%", is->_iPLLR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Lightning: %+d%%", is->_iPLLR);
 		//else
 		//	copy_cstr(tempstr, "Resist Lightning: 75% MAX");
 		break;
 	case IPL_MAGICRES:
 		//if (is->_iPLMR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Magic: %+i%%", is->_iPLMR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Magic: %+d%%", is->_iPLMR);
 		//else
 		//	copy_cstr(tempstr, "Resist Magic: 75% MAX");
 		break;
 	case IPL_ACIDRES:
 		//if (is->_iPLAR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Acid: %+i%%", is->_iPLAR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Acid: %+d%%", is->_iPLAR);
 		//else
 		//	copy_cstr(tempstr, "Resist Acid: 75% MAX");
 		break;
 	case IPL_ALLRES:
 		//if (is->_iPLFR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist All: %+i%%", is->_iPLFR);
+			snprintf(tempstr, sizeof(tempstr), "Resist All: %+d%%", is->_iPLFR);
 		//else
 		//	copy_cstr(tempstr, "Resist All: 75% MAX");
 		break;
 	case IPL_CRITP:
-		snprintf(tempstr, sizeof(tempstr), "%i%% increased crit. chance", is->_iPLCrit);
+		snprintf(tempstr, sizeof(tempstr), "%d%% increased crit. chance", is->_iPLCrit);
 		break;
 	case IPL_SPLLVLADD:
-		snprintf(tempstr, sizeof(tempstr), "%+i to spell levels", is->_iSplLvlAdd);
+		snprintf(tempstr, sizeof(tempstr), "%+d to spell levels", is->_iSplLvlAdd);
 		break;
 	case IPL_CHARGES:
 		copy_cstr(tempstr, "Extra charges");
 		break;
 	case IPL_SPELL:
-		snprintf(tempstr, sizeof(tempstr), "%i %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
+		snprintf(tempstr, sizeof(tempstr), "%d %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
 		break;
 	case IPL_FIREDAM:
 		if (is->_iFMinDam != is->_iFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "fire damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "fire damage: %d-%d", is->_iFMinDam, is->_iFMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "fire damage: %i", is->_iFMinDam);
+			snprintf(tempstr, sizeof(tempstr), "fire damage: %d", is->_iFMinDam);
 		break;
 	case IPL_LIGHTDAM:
 		if (is->_iLMinDam != is->_iLMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning damage: %d-%d", is->_iLMinDam, is->_iLMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iLMinDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning damage: %d", is->_iLMinDam);
 		break;
 	case IPL_MAGICDAM:
 		if (is->_iMMinDam != is->_iMMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "magic damage: %i-%i", is->_iMMinDam, is->_iMMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "magic damage: %d-%d", is->_iMMinDam, is->_iMMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "magic damage: %i", is->_iMMinDam);
+			snprintf(tempstr, sizeof(tempstr), "magic damage: %d", is->_iMMinDam);
 		break;
 	case IPL_ACIDDAM:
 		if (is->_iAMinDam != is->_iAMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "acid damage: %i-%i", is->_iAMinDam, is->_iAMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "acid damage: %d-%d", is->_iAMinDam, is->_iAMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "acid damage: %i", is->_iAMinDam);
+			snprintf(tempstr, sizeof(tempstr), "acid damage: %d", is->_iAMinDam);
 		break;
 	case IPL_STR:
-		snprintf(tempstr, sizeof(tempstr), "%+i to strength", is->_iPLStr);
+		snprintf(tempstr, sizeof(tempstr), "%+d to strength", is->_iPLStr);
 		break;
 	case IPL_MAG:
-		snprintf(tempstr, sizeof(tempstr), "%+i to magic", is->_iPLMag);
+		snprintf(tempstr, sizeof(tempstr), "%+d to magic", is->_iPLMag);
 		break;
 	case IPL_DEX:
-		snprintf(tempstr, sizeof(tempstr), "%+i to dexterity", is->_iPLDex);
+		snprintf(tempstr, sizeof(tempstr), "%+d to dexterity", is->_iPLDex);
 		break;
 	case IPL_VIT:
-		snprintf(tempstr, sizeof(tempstr), "%+i to vitality", is->_iPLVit);
+		snprintf(tempstr, sizeof(tempstr), "%+d to vitality", is->_iPLVit);
 		break;
 	case IPL_ATTRIBS:
-		snprintf(tempstr, sizeof(tempstr), "%+i to all attributes", is->_iPLStr);
+		snprintf(tempstr, sizeof(tempstr), "%+d to all attributes", is->_iPLStr);
 		break;
 	case IPL_GETHIT:
-		snprintf(tempstr, sizeof(tempstr), "%+i damage from enemies", is->_iPLGetHit);
+		snprintf(tempstr, sizeof(tempstr), "%+d damage from enemies", is->_iPLGetHit);
 		break;
 	case IPL_LIFE:
-		snprintf(tempstr, sizeof(tempstr), "Hit Points: %+i", is->_iPLHP >> 6);
+		snprintf(tempstr, sizeof(tempstr), "Hit Points: %+d", is->_iPLHP >> 6);
 		break;
 	case IPL_MANA:
-		snprintf(tempstr, sizeof(tempstr), "Mana: %+i", is->_iPLMana >> 6);
+		snprintf(tempstr, sizeof(tempstr), "Mana: %+d", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
 		copy_cstr(tempstr, "high durability");
@@ -2788,7 +2789,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "indestructible");
 		break;
 	case IPL_LIGHT:
-		snprintf(tempstr, sizeof(tempstr), "%+i%% light radius", 10 * is->_iPLLight);
+		snprintf(tempstr, sizeof(tempstr), "%+d%% light radius", 10 * is->_iPLLight);
 		break;
 	case IPL_MULT_ARROWS:
 		copy_cstr(tempstr, "multiple arrows per shot");
@@ -2812,10 +2813,10 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "hit monster doesn't heal");
 		break;
 	case IPL_STEALMANA:
-		snprintf(tempstr, sizeof(tempstr), "hit steals %i%% mana", (is->_iManaSteal * 100) >> 7);
+		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% mana", (is->_iManaSteal * 100) >> 7);
 		break;
 	case IPL_STEALLIFE:
-		snprintf(tempstr, sizeof(tempstr), "hit steals %i%% life", (is->_iLifeSteal * 100) >> 7);
+		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% life", (is->_iLifeSteal * 100) >> 7);
 		break;
 	case IPL_PENETRATE_PHYS:
 		copy_cstr(tempstr, "penetrates target's armor");
@@ -2842,7 +2843,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "fast block");
 		break;
 	case IPL_DAMMOD:
-		snprintf(tempstr, sizeof(tempstr), "adds %i points to damage", is->_iPLDamMod);
+		snprintf(tempstr, sizeof(tempstr), "adds %d points to damage", is->_iPLDamMod);
 		break;
 	case IPL_SETDAM:
 		copy_cstr(tempstr, "unusual item damage");
@@ -2866,7 +2867,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, " ");
 		break;
 	case IPL_CRYSTALLINE:
-		snprintf(tempstr, sizeof(tempstr), "low dur, %+i%% damage", is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "low dur, %+d%% damage", is->_iPLDam);
 		break;
 	case IPL_MANATOLIFE:
 		copy_cstr(tempstr, "50% Mana moved to Health");
@@ -3011,7 +3012,7 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 	case IMISC_UNIQUE:
 		return;
 	case IMISC_EAR:
-		snprintf(tempstr, sizeof(tempstr), "Level : %i", is->_ivalue);
+		snprintf(tempstr, sizeof(tempstr), "Level : %d", is->_ivalue);
 		PrintItemString(x, y);
 		return;
 	case IMISC_SPECELIX:
@@ -3179,11 +3180,11 @@ void DrawInvItemDetails()
 		int cursor = 0;
 		cat_cstr(tempstr, cursor, "Req.:");
 		if (is->_iMinStr != 0)
-			cat_str(tempstr, cursor, " %i Str", is->_iMinStr);
+			cat_str(tempstr, cursor, " %d Str", is->_iMinStr);
 		if (is->_iMinMag != 0)
-			cat_str(tempstr, cursor, " %i Mag", is->_iMinMag);
+			cat_str(tempstr, cursor, " %d Mag", is->_iMinMag);
 		if (is->_iMinDex != 0)
-			cat_str(tempstr, cursor, " %i Dex", is->_iMinDex);
+			cat_str(tempstr, cursor, " %d Dex", is->_iMinDex);
 		PrintItemString(x, y, tempstr, is->_iStatFlag ? COL_WHITE : COL_RED);
 	}
 }
@@ -3639,7 +3640,7 @@ void CreateSpellBook(int ispell, int x, int y)
 
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	while (TRUE) {
 		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true);
 		assert(items[ii]._iMiscId == IMISC_BOOK);
@@ -3659,7 +3660,7 @@ void CreateAmulet(WORD wCI, int x, int y, bool sendmsg, bool respawn)
 
 	lvl = wCI & CF_LEVEL; // TODO: make sure there is an amulet which fits?
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	while (TRUE) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
 		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true);
@@ -3682,7 +3683,7 @@ void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 
 	lvl = items_get_currlevel();
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	while (TRUE) {
 		idx = RndTypeItems(itype, IMISC_NONE, lvl);
 		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true);

@@ -9,7 +9,6 @@
 #include "Radon.hpp"
 
 #include "utils/paths.h"
-#include "utils/stubs.h"
 
 // Include Windows headers for Get/SetLastError.
 #if defined(_WIN32)
@@ -82,7 +81,7 @@ HANDLE SFileOpenFile(const char* filename)
 	}
 #endif
 	if (result == NULL) {
-		SDL_Log("%s: Not found: %s", __FUNCTION__, filename);
+		DoLog("File '%s' not found.", filename);
 	}
 	return result;
 }

@@ -233,9 +233,9 @@ void CheckCursMove()
 	// Predict the next frame when walking to avoid input jitter
 	if (ScrollInfo._sdir != SDIR_NONE) {
 		fx = myplr._pVar6 / 256; // WALK_XOFF
-		fx -= (myplr._pVar6 + myplr._pxvel) / 256;
+		fx -= (myplr._pVar6 + myplr._pVar4) / 256; // WALK_XOFF + WALK_XVEL
 		fy = myplr._pVar7 / 256; // WALK_YOFF
-		fy -= (myplr._pVar7 + myplr._pyvel) / 256;
+		fy -= (myplr._pVar7 + myplr._pVar5) / 256; // WALK_YOFF + WALK_YVEL
 		sx -= fx;
 		sy -= fy;
 	}
@@ -285,9 +285,9 @@ void CheckCursMove()
 	pcursplr = PLR_NONE;
 	pcurstrig = -1;
 
-	if (myplr._pInvincible | gbDoomflag | gbSkillListFlag | gbQtextflag)
-		return;
-	if (stextflag != STORE_NONE)
+	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");	
+	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
+	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
 		return;
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		cursmx = mx;

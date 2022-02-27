@@ -27,7 +27,7 @@ struct CCritSect {
 	{
 		m_critsect = SDL_CreateMutex();
 		if (m_critsect == NULL) {
-			app_fatal("Failed to create mutex. (%s)", SDL_GetError());
+			sdl_error(ERR_SDL_MUTEX_CREATE);
 		}
 	}
 	~CCritSect()
@@ -37,13 +37,13 @@ struct CCritSect {
 	void Enter()
 	{
 		if (SDL_LockMutex(m_critsect) < 0) {
-			app_fatal("Failed to lock mutex. (%s)", SDL_GetError());
+			sdl_error(ERR_SDL_MUTEX_LOCK);
 		}
 	}
 	void Leave()
 	{
 		if (SDL_UnlockMutex(m_critsect) < 0) {
-			app_fatal("Failed to unlock mutex. (%s)", SDL_GetError());
+			sdl_error(ERR_SDL_MUTEX_UNLOCK);
 		}
 	}
 };

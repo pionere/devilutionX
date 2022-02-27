@@ -1267,6 +1267,8 @@ static void CtrlUseInvItem()
 
 void PerformSecondaryAction()
 {
+	int dx, dy;
+
 	if (gbInvflag) {
 		CtrlUseInvItem();
 		return;
@@ -1285,14 +1287,16 @@ void PerformSecondaryAction()
 		NetSendCmdLocParam1(CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 	} else if (pcurstrig != -1) {
 		if (pcurstrig >= MAXTRIGGERS + 1) {
+			// portal
 			int mi = pcurstrig - (MAXTRIGGERS + 1);
-			MakePlrPath(mypnum, missile[mi]._mix, missile[mi]._miy, true);
-		} else if (pcurstrig >= 0) {
-			MakePlrPath(mypnum, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, true);
+			dx = missile[mi]._mix;
+			dy = missile[mi]._miy;
 		} else {
-			int qn = -2 - pcurstrig;
-			MakePlrPath(mypnum, quests[qn]._qtx, quests[qn]._qty, true);
+			// standard trigger
+			dx = trigs[pcurstrig]._tx;
+			dy = trigs[pcurstrig]._ty;
 		}
+		MakePlrPath(mypnum, dx, dy, true);
 		myplr.destAction = ACTION_WALK;
 	}
 }

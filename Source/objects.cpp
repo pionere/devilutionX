@@ -32,7 +32,7 @@ int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
 int leverid;
-int objectavail[MAXOBJECTS];
+//int objectavail[MAXOBJECTS];
 ObjectStruct objects[MAXOBJECTS];
 //bool gbInitObjFlag;
 
@@ -187,18 +187,18 @@ void FreeObjectGFX()
 
 /**
  * Check the location if an object can be placed there in the init phase.
- * Must not consider the player's position, since it is already initialized
- * and messes up the pseudo-random generated dungeon.
+ * Must not consider the player's position, since it could change the dungeon
+ * when a player re-enters the dungeon.
  */
 static bool RndLocOk(int xp, int yp)
 {
 	if ((dMonster[xp][yp] | /*dPlayer[xp][yp] |*/ dObject[xp][yp]
 	 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & BFLAG_POPULATED)) != 0)
 		return false;
-	// TODO: use dType instead?
-	if (currLvl._dDunType != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
+	// should be covered by Freeupstairs.
+	//if (currLvl._dDunType != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
 		return true;
-	return false;
+	//return false;
 }
 
 static bool RndLoc3x3(int* x, int* y)
@@ -355,14 +355,15 @@ static void InitRndLocObj5x5(int objtype)
 
 static void ClrAllObjects()
 {
-	int i;
-
-	memset(objects, 0, sizeof(objects));
-	memset(objectactive, 0, sizeof(objectactive));
+//	int i;
 
 	numobjects = 0;
-	for (i = 0; i < MAXOBJECTS; i++)
-		objectavail[i] = i;
+
+	memset(objects, 0, sizeof(objects));
+	//memset(objectactive, 0, sizeof(objectactive));
+
+//	for (i = 0; i < MAXOBJECTS; i++)
+//		objectavail[i] = i;
 
 	trapid = 1;
 	leverid = 1;
@@ -865,22 +866,6 @@ static void Alloc2x2Obj(int oi)
 	dObject[ox - 1][oy - 1] = oi;
 }
 
-static void AddMushPatch()
-{
-	int xp, yp;
-
-	if (RndLoc5x5(&xp, &yp))
-		AddObject(OBJ_MUSHPATCH, xp, yp);
-}
-
-static void AddSlainHero()
-{
-	int xp, yp;
-
-	if (RndLoc5x5(&xp, &yp))
-		AddObject(OBJ_SLAINHERO, xp, yp);
-}
-
 static void AddStoryBooks()
 {
 	int xp, yp;
@@ -1011,9 +996,9 @@ void InitObjects()
 		break;
 	case DTYPE_CAVES:
 		if (QuestStatus(Q_MUSHROOM))
-			AddMushPatch();
+			InitRndLocObj5x5(OBJ_MUSHPATCH);
 		if (currLvl._dLevelIdx == DLV_CAVES1 && !IsMultiGame)
-			AddSlainHero();
+			InitRndLocObj5x5(OBJ_SLAINHERO);
 		else if (currLvl._dLevelIdx == DLV_CAVES4)
 			AddStoryBooks();
 #ifdef HELLFIRE
@@ -1138,8 +1123,9 @@ void SetMapObjects(BYTE* pMap)
 
 /*static void DeleteObject_(int oi, int idx)
 {
-	objectavail[MAXOBJECTS - numobjects] = oi;
+	//objectavail[MAXOBJECTS - numobjects] = oi;
 	dObject[objects[oi]._ox][objects[oi]._oy] = 0;
+	//objectavail[numobjects] = oi;
 	numobjects--;
 	if (numobjects > 0 && idx != numobjects)
 		objectactive[idx] = objectactive[numobjects];
@@ -1430,10 +1416,11 @@ int AddObject(int type, int ox, int oy)
 	if (numobjects >= MAXOBJECTS)
 		return -1;
 
-	oi = objectavail[0];
+//	oi = objectavail[0];
+	oi = numobjects;
 	objectactive[numobjects] = oi;
 	numobjects++;
-	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
+//	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, type);
 	switch (type) {
@@ -1676,7 +1663,8 @@ static void Obj_Circle(int oi)
 			gbActionBtnDown = false;
 			gbAltActionBtnDown = false;
 			ClrPlrPath(mypnum);
-			PlrStartStand(mypnum, DIR_NW);
+			myplr._pdir = DIR_NW;
+			PlrStartStand(mypnum);
 		} else {
 			os->_oVar6 = VILE_CIRCLE_TARGET_NONE;
 		}
@@ -2453,10 +2441,9 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	if (currLvl._dLevelIdx == SL_BONECHAMB) {
 		if (deltaload)
 			return;
-		if (plr._pSkillLvl[SPL_GUARDIAN] == 0) {
-			plr._pSkillLvl[SPL_GUARDIAN] = 1;
+		if (plr._pSkillLvlBase[SPL_GUARDIAN] == 0) {
 			plr._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
-			plr._pMemSkills |= SPELL_MASK(SPL_GUARDIAN);
+			IncreasePlrSkillLvl(pnum, SPL_GUARDIAN);
 		}
 		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
 		if (pnum == mypnum)
@@ -2826,10 +2813,9 @@ static void AddRaiseSkill(int pnum, int sn)
 	int v1, v2;
 	unsigned t;
 	// add/raise the skill
-	plr._pMemSkills |= SPELL_MASK(sn);
-	if (plr._pSkillLvl[sn] < MAXSPLLEVEL) {
-		plr._pSkillExp[sn] = SkillExpLvlsTbl[plr._pSkillLvl[sn]];
-		plr._pSkillLvl[sn]++;
+	if (plr._pSkillLvlBase[sn] < MAXSPLLEVEL) {
+		plr._pSkillExp[sn] = SkillExpLvlsTbl[plr._pSkillLvlBase[sn]];
+		IncreasePlrSkillLvl(pnum, sn);
 	}
 	// reduce maximum mana
 	t = plr._pMaxManaBase / 10;
@@ -2945,6 +2931,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		PlrFillMana(pnum);
 		break;
 	case SHRINE_ELDRITCH:
+		SetRndSeed(seed);
 		pi = plr._pInvList;
 		for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++)
 			ConvertPotion(pi);
@@ -3371,7 +3358,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 	 && quests[Q_ZHAR]._qvar1 <= 1) {
 		assert((monsters[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
 		monsters[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
-		//MonStartStand(MAX_MINIONS, monsters[MAX_MINIONS]._mdir);
+		//MonStartStand(MAX_MINIONS);
 		//monsters[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
 		monsters[MAX_MINIONS]._mmode = MM_TALK;
 		//monsters[MAX_MINIONS]._mVar8 = 0; // MON_TIMER

@@ -3,10 +3,6 @@
 #include "all.h"
 
 #include "utils/display.h"
-#include "utils/sdl_compat.h"
-#include "storm/storm.h"
-#include "engine.h"
-#include "debug.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -30,7 +26,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 	assert(pszFileName != NULL);
 	dataSize = strlen(pszFileName);
 	if (dataSize < 4 || strcasecmp(&pszFileName[dataSize - 4], ".pcx") != 0) {
-		SDL_Log("Failed to load image meta");
+		DoLog("Failed to load image meta");
 		return false;
 	}
 #endif
@@ -46,9 +42,9 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 
 	fileBuffer = DiabloAllocPtr(dataSize);
 	if (dataSize < sizeof(PCXHEADER) || !SFileReadFile(hFile, fileBuffer, dataSize)) {
-		free(fileBuffer);
+		mem_free_dbg(fileBuffer);
 		SFileCloseFile(hFile);
-		SDL_Log("Failed to load image meta");
+		DoLog("Failed to load image meta");
 		return false;
 	}
 	SFileCloseFile(hFile);
@@ -78,7 +74,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 		format = SDL_PIXELFORMAT_UNKNOWN;
 		break;
 	}*/
-	SDL_Surface* artSurface = SDL_CreateRGBSurfaceWithFormat(SDL_SWSURFACE, width, height, bpp, format);
+	SDL_Surface* artSurface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, format);
 
 	// process the body
 	BYTE byte, *pSrc;
@@ -122,7 +118,7 @@ bool LoadArt(const char* pszFileName, Art* art, int frames, SDL_Color* pPalette)
 		palette_create_sdl_colors(pPalette, (BYTE (&)[256][3])*(fileBuffer + dataSize - (256 * 3)));
 	}
 
-	free(fileBuffer);
+	mem_free_dbg(fileBuffer);
 
 	art->surface = artSurface;
 	art->logical_width = artSurface->w;

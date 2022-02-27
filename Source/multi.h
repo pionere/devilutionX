@@ -21,6 +21,7 @@ extern BYTE gbGameMode;
 extern BYTE gbDeltaSender;
 extern uint32_t guDeltaTurn;
 extern unsigned guSendGameDelta;
+extern uint32_t gdwLastGameTurn;
 extern uint32_t gdwGameLogicTurn;
 extern unsigned player_state[MAX_PLRS];
 
@@ -30,7 +31,7 @@ void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLe
 void multi_process_msgs();
 bool multi_handle_turn();
 void multi_process_turn(SNetTurnPkt *turn);
-void multi_player_left(int pnum, int reason);
+void multi_deactivate_player(int pnum, int reason);
 void multi_disband_team(int pnum);
 bool multi_check_timeout();
 void multi_rnd_seeds();

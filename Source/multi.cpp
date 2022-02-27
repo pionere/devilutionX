@@ -21,7 +21,7 @@ static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 /* Specifies whether the player joins an existing game. */
 static bool gbJoinGame;
 /* A table in which the leaving players are registered with the reason for the leaving. (LEAVE_) */
-static int sgbPlayerLeftGameTbl[MAX_PLRS];
+static BYTE sgbPlayerLeftGameTbl[MAX_PLRS];
 /* The number of active players in the game. */
 BYTE gbActivePlayers;
 /* Mask of pnum values who requested game delta. */
@@ -32,6 +32,8 @@ bool gbSelectProvider;
 bool gbSelectHero;
 /* The last tick before the timeout happened. */
 static int sglTimeoutStart;
+/* The last processed game turn. gdwGameLogicTurn / gbNetUpdateRate if there is no overflow. */
+uint32_t gdwLastGameTurn;
 /* The current iteration of the game logic. */
 uint32_t gdwGameLogicTurn;
 /**
@@ -125,14 +127,14 @@ static void multi_init_pkt_header(TurnPktHdr &pktHdr, unsigned len)
 
 static void multi_send_turn_packet()
 {
-	BYTE *dstEnd;
-	unsigned size, len;
+	BYTE* dstEnd;
+	unsigned remsize, len;
 	TurnPkt pkt;
 
-	size = gdwNormalMsgSize - sizeof(TurnPktHdr);
-	dstEnd = multi_add_chunks(&pkt.body[0], &size);
-	size = sync_all_monsters(dstEnd, size);
-	len = gdwNormalMsgSize - size;
+	remsize = NET_NORMAL_MSG_SIZE - sizeof(TurnPktHdr);
+	dstEnd = multi_add_chunks(&pkt.body[0], &remsize);
+	dstEnd = sync_all_monsters(dstEnd, remsize);
+	len = (size_t)dstEnd - (size_t)&pkt;
 	multi_init_pkt_header(pkt.hdr, len);
 	nthread_send_turn((BYTE*)&pkt, len);
 }
@@ -217,21 +219,17 @@ void multi_disband_team(int team)
 	}
 }
 
-static void multi_deactivate_player(int pnum, int reason)
+void multi_deactivate_player(int pnum, int reason)
 {
-	const char *pszFmt;
+	const char* pszFmt;
 
 	if (plr._pActive) {
 		RemovePortalMissile(pnum);
 		DeactivatePortal(pnum);
 		delta_close_portal(pnum);
 		multi_disband_team(pnum);
-		if (plr._pDunLevel == currLvl._dLevelIdx) {
-			AddUnLight(plr._plid);
-			AddUnVision(plr._pvid);
-			RemovePlrFromMap(pnum);
-			RemovePlrMissiles(pnum);
-		}
+		// ClearPlrMsg(pnum);
+		RemoveLvlPlayer(pnum);
 		if (reason != LEAVE_NONE) {
 			pszFmt = "Player '%s' left the game";
 			switch (reason) {
@@ -272,14 +270,7 @@ static void multi_check_left_plrs()
 	}
 }
 
-void multi_player_left(int pnum, int reason)
-{
-	//assert(reason != LEAVE_NONE);
-	sgbPlayerLeftGameTbl[pnum] = reason;
-	multi_check_left_plrs();
-}
-
-static void multi_drop_players()
+/*static void multi_drop_players()
 {
 	int i;
 
@@ -289,12 +280,12 @@ static void multi_drop_players()
 			SNetDropPlayer(i);
 		}
 	}
-}
+}*/
 
 bool multi_check_timeout()
 {
-	int i, nTicks, nState, nLowestActive, nLowestPlayer;
-	BYTE activePlrs, inActivePlrs;
+	int nTicks; //i, nState, nLowestActive, nLowestPlayer;
+	//BYTE activePlrs, inActivePlrs;
 
 	if (!_gbTimeout) {
 		_gbTimeout = true;
@@ -312,9 +303,10 @@ bool multi_check_timeout()
 		gbRunGame = false;
 		return true;
 	}
-	if (nTicks < 5000) {
+	// commented out because a client should not be authorized to drop players
+	//if (nTicks < 5000) {
 		return false;
-	}
+	/*}
 
 	nLowestActive = -1;
 	nLowestPlayer = -1;
@@ -347,7 +339,7 @@ bool multi_check_timeout()
 	} else if (nLowestActive == mypnum) {
 		multi_drop_players();
 	}
-	return true;
+	return true;*/
 }
 
 /**
@@ -389,14 +381,13 @@ static void multi_process_turn_packet(int pnum, BYTE *pData, int nSize)
 {
 	int nLen;
 
-	while (nSize != 0) {
+	while (nSize > 0) {
 		nLen = ParseCmd(pnum, (TCmd *)pData);
-		if (nLen == 0) {
-			break;
-		}
+		// assert(nLen != 0);
 		pData += nLen;
 		nSize -= nLen;
 	}
+	net_assert(nSize == 0);
 }
 
 void multi_process_turn(SNetTurnPkt* turn)
@@ -435,6 +426,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
 		//multi_check_left_plrs();
 	}
+	gdwLastGameTurn = turn->nmpTurn;
 	gdwGameLogicTurn = turn->nmpTurn * gbNetUpdateRate;
 }
 
@@ -482,6 +474,7 @@ static int game_server_callback()
 	case TS_ACTIVE:
 		multi_parse_turns();
 		multi_process_msgs();
+		gdwGameLogicTurn += gbNetUpdateRate;
 		gameProgress++;
 		active = false;
 		for (i = 0; i < MAX_PLRS; i++) {
@@ -516,7 +509,9 @@ static int game_server_callback()
 
 static void RunGameServer()
 {
-	currLvl._dLevelIdx = NUM_STDLVLS;
+	assert(!gbJoinGame);
+	assert(mypnum == SNPLAYER_MASTER);
+	currLvl._dLevelIdx = DLV_INVALID;
 	gbActivePlayers = 0;
 	gameProgress = 0;
 	UiProgressDialog("...Server is running...", game_server_callback);
@@ -552,7 +547,7 @@ void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE *pbSrc, unsigned dwLe
 		p = (TCmdPlrInfoHdr*)pkt.body;
 		p->bCmd = bCmd;
 		p->wOffset = SwapLE16(dwOffset);
-		dwBody = gdwLargestMsgSize - sizeof(pkt.hdr) - sizeof(*p);
+		dwBody = NET_LARGE_MSG_SIZE - sizeof(pkt.hdr) - sizeof(*p);
 		if (dwLen < dwBody) {
 			dwBody = dwLen;
 		}
@@ -618,9 +613,9 @@ static void SetupLocalPlr()
 	if (debug_mode_key_inverted_v) {
 		p->_pMemSkills = SPL_INVALID;
 	} else if (debug_mode_god_mode) {
-		p->_pMemSkills |= SPELL_MASK(SPL_TELEPORT);
-		if (p->_pSkillLvl[SPL_TELEPORT] == 0) {
-			p->_pSkillLvl[SPL_TELEPORT] = 1;
+		if (p->_pSkillLvlBase[SPL_TELEPORT] == 0) {
+			p->_pMemSkills |= SPELL_MASK(SPL_TELEPORT);
+			p->_pSkillLvlBase[SPL_TELEPORT] = 1;
 		}
 	}
 #endif
@@ -629,7 +624,6 @@ static void SetupLocalPlr()
 	//p->_pInvincible = TRUE; - does not matter in town
 	p->_pmode = PM_NEWLVL;
 
-	gbLvlLoad = 10;
 	gbActivePlayers = 1;
 	p->_pActive = TRUE;
 }
@@ -790,8 +784,9 @@ bool NetInit(bool bSinglePlayer)
 		delta_init();
 		InitPlrMsg();
 		multi_init_buffers();
-		nthread_start(); 
+		nthread_start();
 		dthread_start();
+		gdwLastGameTurn = 0;
 		gdwGameLogicTurn = 0;
 		nthread_send_turn();
 		if (IsGameSrv) {
@@ -803,7 +798,7 @@ bool NetInit(bool bSinglePlayer)
 		SetupLocalPlr();
 		if (!gbJoinGame)
 			break;
-		multi_send_plrinfo_msg(SNPLAYER_ALL, NMSG_SEND_PLRINFO);
+		multi_send_plrinfo_msg(SNPLAYER_ALL, NMSG_PLRINFO);
 		if (DownloadDeltaInfo()) {
 			//nthread_finish(); - do not, because it would send a join-level message
 			break;
@@ -820,22 +815,15 @@ bool NetInit(bool bSinglePlayer)
 
 void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 {
-	if ((unsigned)pnum >= MAX_PLRS)
-		return;
+	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
 	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
 		// invalid data -> drop
 		return;
 	}
-	if (sgwPackPlrOffsetTbl[pnum] == 0 && piHdr->bCmd != NMSG_ACK_PLRINFO) {
-#ifndef NOHOSTING
-		if (mypnum < MAX_PLRS)
-#endif
-			multi_send_plrinfo_msg(pnum, NMSG_ACK_PLRINFO);
-	}
 
-	if (piHdr->wBytes == 0)
-		return; // 'invalid' data -> skip to prevent reactivation of a player
+	//if (piHdr->wBytes == 0)
+	//	return; // 'invalid' data -> skip to prevent reactivation of a player
 	memcpy((char *)&netplr[pnum] + piHdr->wOffset, &piHdr[1], piHdr->wBytes); /* todo: cast? */
 	sgwPackPlrOffsetTbl[pnum] += piHdr->wBytes;
 	if (sgwPackPlrOffsetTbl[pnum] != sizeof(*netplr)) {

@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+#define SHA1ContextNum 3
 #define SHA1HashSize 20
 #define SHA1BlockSize 64
 

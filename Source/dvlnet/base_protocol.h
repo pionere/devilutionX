@@ -1,7 +1,6 @@
 #pragma once
 #ifdef ZEROTIER
 #include <string>
-#include <set>
 #include <map>
 #include <memory>
 
@@ -15,8 +14,8 @@ namespace net {
 template <class P>
 class base_protocol : public base {
 public:
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
-	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256]);
+	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
 	virtual void SNetLeaveGame(int reason);
 
@@ -42,7 +41,6 @@ private:
 	void recv();
 	void handle_join_request(packet &pkt, endpoint sender);
 	void recv_decrypted(packet &pkt, endpoint sender);
-	void recv_ingame(packet &pkt, endpoint sender);
 
 	bool wait_network();
 	bool wait_firstpeer();
@@ -64,11 +62,11 @@ bool base_protocol<P>::wait_network()
 {
 	// wait for ZeroTier for 5 seconds
 	for (auto i = 0; i < 500; ++i) {
-		if (proto.network_online())
-			break;
 		SDL_Delay(10);
+		if (proto.network_online())
+			return true;
 	}
-	return proto.network_online();
+	return false;
 }
 
 template <class P>
@@ -119,7 +117,7 @@ void base_protocol<P>::wait_join()
 }
 
 template <class P>
-bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
+bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
 {
 	setup_gameinfo(std::move(info));
 	// join_game
@@ -130,22 +128,27 @@ bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const cha
 	if (wait_network()) {
 		plr_self = 0;
 		connected_table[plr_self] = true;
+		return true;
 	}
-
-	return plr_self != PLR_BROADCAST;
+	snprintf(errorText, 256, "Connection timed out.");
+	return false;
 }
 
 template <class P>
-bool base_protocol<P>::join_game(const char* addrstr, unsigned port, const char* passwd)
+bool base_protocol<P>::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	//addrstr = "fd80:56c2:e21c:0:199:931d:b14:c4d2";
 	plr_self = PLR_BROADCAST;
 	setup_password(passwd);
 	gamename = std::string(addrstr);
-	if (wait_network())
-		if (wait_firstpeer())
-			wait_join();
-	return plr_self != PLR_BROADCAST;
+	if (wait_network() && wait_firstpeer()) {
+		wait_join();
+		if (plr_self != PLR_BROADCAST) {
+			return true;
+		}
+	}
+	snprintf(errorText, 256, "Connection timed out.");
+	return false;
 }
 
 template <class P>
@@ -197,7 +200,7 @@ void base_protocol<P>::recv()
 			}
 		}
 	} catch (std::exception &e) {
-		SDL_Log("%s", e.what());
+		DoLog(e.what());
 		return;
 	}
 }
@@ -231,22 +234,14 @@ void base_protocol<P>::handle_join_request(packet &pkt, endpoint sender)
 template <class P>
 void base_protocol<P>::recv_decrypted(packet &pkt, endpoint sender)
 {
-	if (pkt.pktSrc() == PLR_BROADCAST && pkt.pktDest() == PLR_MASTER && pkt.pktType() == PT_INFO_REPLY) {
-		std::string pname(pkt.pktInfoReplyNameBegin(), pkt.pktInfoReplyNameEnd());
-		game_list[pname] = sender;
-		return;
-	}
-	recv_ingame(pkt, sender);
-}
-
-template <class P>
-void base_protocol<P>::recv_ingame(packet &pkt, endpoint sender)
-{
 	plr_t pkt_plr = pkt.pktSrc();
 
 	if (pkt_plr == PLR_BROADCAST && pkt.pktDest() == PLR_MASTER) {
 		packet_type pkt_type = pkt.pktType();
-		if (pkt_type == PT_JOIN_REQUEST) {
+		if (pkt_type == PT_INFO_REPLY) {
+			std::string pname(pkt.pktInfoReplyNameBegin(), pkt.pktInfoReplyNameEnd());
+			game_list[pname] = sender;
+		} else if (pkt_type == PT_JOIN_REQUEST) {
 			handle_join_request(pkt, sender);
 		} else if (pkt_type == PT_INFO_REQUEST) {
 			if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
@@ -271,7 +266,7 @@ void base_protocol<P>::recv_ingame(packet &pkt, endpoint sender)
 		return;
 	} else if (pkt_plr >= MAX_PLRS) {
 		// normal packets
-		ABORT();
+		app_error(ERR_APP_ZT_RECV);
 	}
 	connected_table[pkt_plr] = true;
 	peers[pkt_plr] = sender;

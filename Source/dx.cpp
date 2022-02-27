@@ -32,9 +32,9 @@ static CCritSect sgMemCrit;
 
 static void dx_create_back_buffer()
 {
-	back_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 8, SDL_PIXELFORMAT_INDEX8);
+	back_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 0, SDL_PIXELFORMAT_INDEX8);
 	if (back_surface == NULL) {
-		sdl_fatal(ERR_SDL_BACK_PALETTE_CREATE);
+		sdl_error(ERR_SDL_BACK_PALETTE_CREATE);
 	}
 
 	gpBuffer = (BYTE *)back_surface->pixels;
@@ -46,9 +46,9 @@ static void dx_create_back_buffer()
 	// In SDL2, `back_surface` points to the global `back_palette`.
 	back_palette = SDL_AllocPalette(256);
 	if (back_palette == NULL)
-		sdl_fatal(ERR_SDL_BACK_PALETTE_ALLOC);
+		sdl_error(ERR_SDL_BACK_PALETTE_ALLOC);
 	if (SDL_SetSurfacePalette(back_surface, back_palette) < 0)
-		sdl_fatal(ERR_SDL_BACK_PALETTE_SET);
+		sdl_error(ERR_SDL_BACK_PALETTE_SET);
 #else
 	// In SDL1, `back_surface` owns its palette and we must update it every
 	// time the global `back_palette` is changed. No need to do anything here as
@@ -66,12 +66,12 @@ static void dx_create_primary_surface()
 		SDL_RenderGetLogicalSize(renderer, &width, &height);
 		Uint32 format;
 		if (SDL_QueryTexture(renderer_texture, &format, NULL, NULL, NULL) < 0)
-			sdl_fatal(ERR_SDL_TEXTURE_CREATE);
-		renderer_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, SDL_BITSPERPIXEL(format), format);
+			sdl_error(ERR_SDL_TEXTURE_CREATE);
+		renderer_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, format);
 	}
 #endif
 	if (GetOutputSurface() == NULL) {
-		sdl_fatal(ERR_SDL_SURFACE_CHECK);
+		sdl_error(ERR_SDL_SURFACE_CHECK);
 	}
 }
 
@@ -173,7 +173,7 @@ void ToggleFullscreen()
 #ifdef USE_SDL1
 	ghMainWnd = SDL_SetVideoMode(0, 0, 0, ghMainWnd->flags ^ SDL_FULLSCREEN);
 	if (ghMainWnd == NULL) {
-		sdl_fatal(ERR_SDL_FULLSCREEN_SDL1);
+		sdl_error(ERR_SDL_FULLSCREEN_SDL1);
 	}
 #else
 	Uint32 flags = 0;
@@ -181,7 +181,7 @@ void ToggleFullscreen()
 		flags = renderer != NULL ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
 	}
 	if (SDL_SetWindowFullscreen(ghMainWnd, flags) < 0) {
-		sdl_fatal(ERR_SDL_FULLSCREEN_SDL2);
+		sdl_error(ERR_SDL_FULLSCREEN_SDL2);
 	}
 #endif
 	gbFullscreen = !gbFullscreen;
@@ -234,6 +234,7 @@ void trans_rect(int sx, int sy, int width, int height)
 {
 	int row, col;
 	BYTE *pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	// TODO: use SSE2?
 	for (row = 0; row < height; row++) {
 		for (col = 0; col < width; col++) {
 			if (((row ^ col) & 1) == 0)
@@ -244,21 +245,16 @@ void trans_rect(int sx, int sy, int width, int height)
 	}
 }
 
-void BltFast(const SDL_Rect *src_rect, SDL_Rect *dst_rect)
+static void Blit(SDL_Surface* src, const SDL_Rect* src_rect, SDL_Rect* dst_rect)
 {
-	Blit(back_surface, src_rect, dst_rect);
-}
-
-void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
-{
-	SDL_Surface *dst = GetOutputSurface();
+	SDL_Surface* dst = GetOutputSurface();
 #ifndef USE_SDL1
-	if (SDL_BlitSurface(src, src_rect, dst, dst_rect) < 0)
-		sdl_fatal(ERR_SDL_DX_BLIT_SDL2);
+	if (SDL_LowerBlit(src, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0)
+		sdl_error(ERR_SDL_DX_BLIT_SDL2);
 #else
 	if (!OutputRequiresScaling()) {
 		if (SDL_BlitSurface(src, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0)
-			sdl_fatal(ERR_SDL_DX_BLIT_SDL1);
+			sdl_error(ERR_SDL_DX_BLIT_SDL1);
 		return;
 	}
 
@@ -272,7 +268,7 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 	// Same pixel format: We can call BlitScaled directly.
 	if (SDLBackport_PixelFormatFormatEq(src->format, dst->format)) {
 		if (SDL_BlitScaled(src, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0)
-			sdl_fatal(ERR_SDL_DX_BLIT_SCALE);
+			sdl_error(ERR_SDL_DX_BLIT_SCALE);
 		return;
 	}
 
@@ -287,7 +283,7 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 		if (SDL_SoftStretch(src, src_rect, stretched, &stretched_rect) < 0
 		    || SDL_BlitSurface(stretched, &stretched_rect, dst, dst_rect) < 0) {
 			SDL_FreeSurface(stretched);
-			sdl_fatal(ERR_SDL_DX_BLIT_STRETCH);
+			sdl_error(ERR_SDL_DX_BLIT_STRETCH);
 		}
 		SDL_FreeSurface(stretched);
 		return;
@@ -298,10 +294,27 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 	SDL_Surface *converted = SDL_ConvertSurface(src, dst->format, 0);
 	if (SDL_BlitScaled(converted, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0) {
 		SDL_FreeSurface(converted);
-		sdl_fatal(ERR_SDL_DX_BLIT_CONVERTED);
+		sdl_error(ERR_SDL_DX_BLIT_CONVERTED);
 	}
 	SDL_FreeSurface(converted);
 #endif
+}
+
+void BltFast()
+{
+	SDL_Rect src_rect = {
+		SCREEN_X,
+		SCREEN_Y,
+		SCREEN_WIDTH,
+		SCREEN_HEIGHT,
+	};
+	SDL_Rect dst_rect = {
+		0,
+		0,
+		SCREEN_WIDTH,
+		SCREEN_HEIGHT,
+	};
+	Blit(back_surface, &src_rect, &dst_rect);
 }
 
 /**
@@ -327,20 +340,20 @@ void RenderPresent()
 #ifndef USE_SDL1
 		if (renderer != NULL) {
 			if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) { //pitch is 2560
-				sdl_fatal(ERR_SDL_DX_UPDATE_TEXTURE);
+				sdl_error(ERR_SDL_DX_UPDATE_TEXTURE);
 			}
 
 			// Clear buffer to avoid artifacts in case the window was resized
 			/* skip SDL_RenderClear since the whole screen is redrawn anyway
 			if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0) { // TODO only do this if window was resized
-				sdl_fatal(ERR_SDL_DX_DRAW_COLOR);
+				sdl_error(ERR_SDL_DX_DRAW_COLOR);
 			}
 
 			if (SDL_RenderClear(renderer) < 0) {
-				sdl_fatal(ERR_SDL_DX_RENDER_CLEAR);
+				sdl_error(ERR_SDL_DX_RENDER_CLEAR);
 			}*/
 			if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) < 0) {
-				sdl_fatal(ERR_SDL_DX_RENDER_COPY);
+				sdl_error(ERR_SDL_DX_RENDER_COPY);
 			}
 			SDL_RenderPresent(renderer);
 
@@ -348,12 +361,12 @@ void RenderPresent()
 				return;
 		} else {
 			if (SDL_UpdateWindowSurface(ghMainWnd) < 0) {
-				sdl_fatal(ERR_SDL_DX_RENDER_SURFACE);
+				sdl_error(ERR_SDL_DX_RENDER_SURFACE);
 			}
 		}
 #else
 		if (SDL_Flip(surface) < 0) {
-			sdl_fatal(ERR_SDL_DX_FLIP);
+			sdl_error(ERR_SDL_DX_FLIP);
 		}
 #endif
 	}

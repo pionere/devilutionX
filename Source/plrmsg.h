@@ -13,14 +13,14 @@ extern "C" {
 #endif
 
 void plrmsg_delay(bool delay);
-#if DEBUG_MODE
+#if DEV_MODE
 void ErrorPlrMsg(const char *pszMsg);
 #endif
 void EventPlrMsg(const char *pszFmt, ...);
 void SendPlrMsg(int pnum, const char *pszStr);
-void ClearPlrMsg();
+//void ClearPlrMsg(int pnum);
 void InitPlrMsg();
-void DrawPlrMsg();
+void DrawPlrMsg(bool onTop);
 
 #ifdef __cplusplus
 }

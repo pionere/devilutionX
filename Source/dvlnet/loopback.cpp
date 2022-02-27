@@ -1,6 +1,5 @@
 #include "loopback.h"
 
-#include "utils/stubs.h"
 #include "packet.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -8,15 +7,15 @@ namespace net {
 
 static constexpr plr_t PLR_SINGLE = 0;
 
-bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
+bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
 {
 	return true;
 }
 
-bool loopback::join_game(const char* addrstr, unsigned port, const char* passwd)
+bool loopback::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
-#ifdef _DEVMODE
-	ABORT();
+#if DEBUG_MODE || DEV_MODE
+	app_error(ERR_APP_LOOPBACK_JOIN);
 #endif
 	return false;
 }
@@ -35,9 +34,9 @@ bool loopback::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 
 void loopback::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	if (receiver != SNPLAYER_ALL && receiver != PLR_SINGLE)
-		ABORT();
+		app_error(ERR_APP_LOOPBACK_SENDMSG);
 #endif
 	message_queue.emplace_back(data, data + size);
 }
@@ -49,9 +48,9 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	BYTE* data;
 	unsigned dwLen;
 
-#ifdef _DEVMODE
-	if (turn_queue.empty())
-		ABORT();
+#if DEBUG_MODE || DEV_MODE
+	if (turn_queue.size() != 1)
+		app_error(ERR_APP_LOOPBACK_QUEUE_SIZE);
 #endif
 	pt = &turn_queue.front();
 	//      pnum           size
@@ -82,9 +81,9 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 
 turn_status loopback::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 {
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	if (turn_queue.empty())
-		ABORT();
+		app_error(ERR_APP_LOOPBACK_POLLTURN);
 #endif
 	status[PLR_SINGLE] = PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
 	return TS_ACTIVE; // or TS_LIVE
@@ -92,8 +91,8 @@ turn_status loopback::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 
 uint32_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
-#ifdef _DEVMODE
-	ABORT();
+#if DEBUG_MODE || DEV_MODE
+	app_error(ERR_APP_LOOPBACK_LASTTURN);
 #endif
 	return 0;
 }
@@ -105,25 +104,28 @@ void loopback::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 
 void loopback::SNetLeaveGame(int reason)
 {
+	// message_last.clear(); -- not necessary at the moment
 	message_queue.clear();
 	turn_queue.clear();
 }
 
 void loopback::SNetDropPlayer(int playerid)
 {
-#ifdef _DEVMODE
-	ABORT();
+#if DEBUG_MODE || DEV_MODE
+	app_error(ERR_APP_LOOPBACK_DROPPLR);
 #endif
 }
 
 //#ifdef ADAPTIVE_NETUPDATE
 unsigned loopback::SNetGetTurnsInTransit()
 {
-#ifdef _DEVMODE
-	if (!turn_queue.empty())
-		ABORT(); // should be empty or should have one entry
+#if DEBUG_MODE || DEV_MODE
+	// should be empty or should have one entry
+	if (turn_queue.size() > 1) {
+		app_error(ERR_APP_LOOPBACK_TRANSIT);
+	}
 #endif
-	return 0; // turn_queue.size();
+	return turn_queue.size();
 }
 //#endif
 

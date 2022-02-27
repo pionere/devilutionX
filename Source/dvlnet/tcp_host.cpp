@@ -25,11 +25,11 @@ tcp_host_client::tcp_host_client(int srvType)
 	serverType = srvType;
 }
 
-bool tcp_host_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
+bool tcp_host_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
 {
 	setup_gameinfo(std::move(info));
 	local_server = new tcp_host_server(this, ioc, game_init_info, serverType);
-	if (local_server->setup_server(addrstr, port, passwd)) {
+	if (local_server->setup_server(addrstr, port, passwd, errorText)) {
 		plr_self = PLR_MASTER;
 		setup_password(passwd);
 		memset(connected_table, 0, sizeof(connected_table));
@@ -39,7 +39,7 @@ bool tcp_host_client::create_game(const char* addrstr, unsigned port, const char
 	return false;
 }
 
-bool tcp_host_client::join_game(const char* addrstr, unsigned port, const char* passwd)
+bool tcp_host_client::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	assert(0);
 	return false;
@@ -146,11 +146,14 @@ unsigned tcp_host_client::SNetGetTurnsInTransit()
 
 void tcp_host_client::close()
 {
+	// close the server
 	if (local_server != NULL) {
 		local_server->close();
 		delete local_server;
 		local_server = NULL;
 	}
+	// prepare the host for possible re-connection
+	ioc.restart();
 }
 
 void tcp_host_client::SNetLeaveGame(int reason)

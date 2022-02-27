@@ -61,9 +61,9 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	memcpy(pPack->pAltMoveSkillHotKey, p->_pAltMoveSkillHotKey, sizeof(pPack->pAltMoveSkillHotKey));
 	memcpy(pPack->pAltMoveSkillTypeHotKey, p->_pAltMoveSkillTypeHotKey, sizeof(pPack->pAltMoveSkillTypeHotKey));
 
-	static_assert(sizeof(p->_pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy I.");
-	static_assert(sizeof(pPack->pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy II.");
-	memcpy(pPack->pSkillLvl, p->_pSkillLvl, sizeof(p->_pSkillLvl));
+	static_assert(sizeof(p->_pSkillLvlBase[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy I.");
+	static_assert(sizeof(pPack->pSkillLvlBase[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy II.");
+	memcpy(pPack->pSkillLvlBase, p->_pSkillLvlBase, sizeof(p->_pSkillLvlBase));
 	static_assert(sizeof(p->_pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy III.");
 	static_assert(sizeof(pPack->pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy IV.");
 	memcpy(pPack->pSkillActivity, p->_pSkillActivity, sizeof(p->_pSkillActivity));
@@ -126,11 +126,16 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 	}
 }
 
-void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
+void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 {
+#if INET_MODE
 	int i, j;
 	ItemStruct *pi, *is;
-	PkItemStruct *pki;
+#else
+	int i;
+	ItemStruct* pi;
+#endif
+	PkItemStruct* pki;
 
 	// TODO: validate data from the internet
 	SetPlayerLoc(&plr, pPack->px, pPack->py);
@@ -165,9 +170,9 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	memcpy(plr._pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(plr._pAltMoveSkillHotKey));
 	memcpy(plr._pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(plr._pAltMoveSkillTypeHotKey));
 
-	static_assert(sizeof(plr._pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy V.");
-	static_assert(sizeof(pPack->pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VI.");
-	memcpy(plr._pSkillLvl, pPack->pSkillLvl, sizeof(pPack->pSkillLvl));
+	static_assert(sizeof(plr._pSkillLvlBase[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy V.");
+	static_assert(sizeof(pPack->pSkillLvlBase[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VI.");
+	memcpy(plr._pSkillLvlBase, pPack->pSkillLvlBase, sizeof(pPack->pSkillLvlBase));
 	static_assert(sizeof(plr._pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VII.");
 	static_assert(sizeof(pPack->pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VIII.");
 	memcpy(plr._pSkillActivity, pPack->pSkillActivity, sizeof(pPack->pSkillActivity));
@@ -212,47 +217,46 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	// TODO: add to pPack? (_pInvincible, _pmode)
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;
-	plr._plid = -1;
-	plr._pvid = -1;
+	// commented out, because these should not matter
+	//plr._plid = NO_LIGHT;
+	//plr._pvid = NO_VISION;
 
+#if INET_MODE
 	// verify the data
 	//  make sure the name is NULL terminated
 	plr._pName[sizeof(plr._pName) - 1] = '\0';
-	if (plr._pClass >= NUM_CLASSES)
-		plr._pClass = PC_WARRIOR;	// reset invalid class
-	if (plr._pLevel > MAXCHARLEVEL)
-		plr._pLevel = MAXCHARLEVEL;	// reduce invalid level
-	if (plr._pTeam >= MAX_PLRS)
-		plr._pTeam = pnum;			// overwrite invalid team
+	net_assert(plr._pClass < NUM_CLASSES);
+	net_assert(plr._pLevel >= 1 && plr._pLevel <= MAXCHARLEVEL);
+	net_assert(plr._pTeam < MAX_PLRS);
 	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
-	if (pi->_iClass != ICLASS_WEAPON || pi->_itype == ITYPE_PLACEHOLDER)
-		pi->_itype = ITYPE_NONE;    // remove invalid weapon in left hand
+	net_assert(pi->_itype != ITYPE_PLACEHOLDER &&
+		(pi->_itype == ITYPE_NONE || pi->_iClass == ICLASS_WEAPON));
 	if (pi->_itype == ITYPE_NONE) {
 		pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
-		if (pi->_itype != ITYPE_SHIELD)
-			pi->_itype = ITYPE_NONE; // remove invalid weapon/item in right hand
+		net_assert(pi->_itype = ITYPE_NONE || pi->_itype == ITYPE_SHIELD);
 	}
 	// TODO: check if the items conform to the wielding rules?
 	// TODO: check placeholders
 	// verify the gold-seeds TODO check gold values?
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		pi = &plr._pInvList[i];
-		if (pi->_iIdx == IDI_GOLD
-		 && pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER) {
+		if (pi->_iIdx == IDI_GOLD &&
+		 pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER) {
 			//if (pi->_ivalue > GOLD_MAX_LIMIT)
 			//	pi->_ivalue = GOLD_MAX_LIMIT;
 			for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
 				if (i == j)
 					continue;
 				is = &plr._pInvList[j];
-				if (is->_iIdx == IDI_GOLD && is->_iSeed == pi->_iSeed
-				 && is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER) {
-					pi->_iSeed = GetRndSeed();
-					j = -1;
+				if (is->_iIdx == IDI_GOLD &&
+				 is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER) {
+					net_assert(is->_iSeed != pi->_iSeed);
 				}
 			}
 		}
 	}
+#endif /* INET_MODE */
+
 	// recalculate the cached fields
 	InitPlayer(pnum);
 	CalcPlrInv(pnum, false);

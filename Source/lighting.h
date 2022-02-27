@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #define NO_LIGHT			MAXLIGHTS
+#define NO_VISION			MAXVISION
 #define MAX_LIGHT_RAD		15
 
 extern BYTE visionactive[MAXVISION];

@@ -24,6 +24,7 @@
 #endif
 
 #include "utils/sdl_compat.h"
+#include "utils/log.h"
 
 #include "../types.h"
 

@@ -231,8 +231,9 @@ inline bool SDL_HasColorKey(SDL_Surface *surface)
 #define SDL_PIXELFORMAT_INDEX8 1
 #define SDL_PIXELFORMAT_RGB888 2
 #define SDL_PIXELFORMAT_RGBA8888 3
+#define SDL_BITSPERPIXEL(X) (((X) >> 8) & 0xFF)
 
-inline void SDLBackport_PixelformatToMask(int pixelformat, Uint32 *flags, Uint32 *rmask,
+inline void SDLBackport_PixelformatToMask(int pixelformat, Uint32 *rmask,
     Uint32 *gmask,
     Uint32 *bmask,
     Uint32 *amask)
@@ -289,17 +290,20 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
     Uint32 format)
 {
 	Uint32 rmask, gmask, bmask, amask;
-	SDLBackport_PixelformatToMask(format, &flags, &rmask, &gmask, &bmask, &amask);
-	return SDL_CreateRGBSurface(flags, width, height, depth, rmask, gmask, bmask, amask);
+	depth = SDL_BITSPERPIXEL(format);
+	SDLBackport_PixelformatToMask(format, &rmask, &gmask, &bmask, &amask);
+	return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, depth, rmask, gmask, bmask, amask);
 }
 
 inline SDL_Surface *
-SDL_CreateRGBSurfaceWithFormatFrom(void *pixels, Uint32 flags, int width, int height, int depth,
-    Uint32 format)
+SDL_CreateRGBSurfaceWithFormatFrom(void *pixels,
+                         int width, int height, int depth, int pitch,
+                         Uint32 format)
 {
 	Uint32 rmask, gmask, bmask, amask;
-	SDLBackport_PixelformatToMask(format, &flags, &rmask, &gmask, &bmask, &amask);
-	return SDL_CreateRGBSurfaceFrom(pixels, flags, width, height, depth, rmask, gmask, bmask, amask);
+	depth = SDL_BITSPERPIXEL(format);
+	SDLBackport_PixelformatToMask(format, &rmask, &gmask, &bmask, &amask);
+	return SDL_CreateRGBSurfaceFrom(pixels, width, height, depth, pitch, rmask, gmask, bmask, amask);
 }
 
 //= BlitScaled backport from SDL 2.0.9.

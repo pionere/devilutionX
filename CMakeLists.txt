@@ -64,6 +64,7 @@ cmake_debug_option(ASAN "Enable address sanitizer")
 cmake_debug_option(UBSAN "Enable undefined behaviour sanitizer")
 cmake_dependent_option(TSAN "Enable thread sanitizer" OFF "NOT ASAN" OFF)
 cmake_debug_option(DEBUG_MODE "Enable debug mode in engine")
+option(DEV_MODE "Enable development mode in engine" OFF)
 option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
@@ -75,6 +76,7 @@ option(NOSOUND "Disable sound support" OFF)
 option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
 option(NONET "Disable network support" OFF)
+cmake_dependent_option(INET_MODE "Enable validation of network messages" OFF "NOT NONET" OFF)
 cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
 cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
 cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
@@ -622,6 +624,7 @@ foreach(
   STREAM_ALL_AUDIO
   NOWIDESCREEN
   NONET
+  INET_MODE
   NETENCRYPT
   ADAPTIVE_NETUPDATE
   NOHOSTING
@@ -635,6 +638,7 @@ foreach(
   HAS_JOYSTICK
   PREFILL_PLAYER_NAME
   DEBUG_MODE
+  DEV_MODE
   GPERF
   GPERF_HEAP_MAIN
   GPERF_HEAP_FIRST_GAME_ITERATION
@@ -710,6 +714,7 @@ foreach(
 endforeach(def_name)
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
+target_compile_definitions(smacker PRIVATE ${def_list})
 
 if(UBSAN)
   target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=undefined)
@@ -1146,6 +1151,7 @@ foreach(
   STREAM_ALL_AUDIO
   NOWIDESCREEN
   NONET
+  INET_MODE
   NETENCRYPT
   ADAPTIVE_NETUPDATE
   NOHOSTING
@@ -1162,6 +1168,7 @@ foreach(
   UBSAN
   TSAN
   DEBUG_MODE
+  DEV_MODE
   RUN_TESTS
   DISABLE_LTO
   PIE

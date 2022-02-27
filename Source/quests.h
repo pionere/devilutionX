@@ -18,9 +18,9 @@ extern int gnReturnLvlY;
 extern int gnReturnLvl;
 extern BYTE gbTownWarps;
 extern BYTE gbWaterDone;
-extern BYTE gbDungMsgs;
-extern BYTE gbDungMsgs2;
 extern uint32_t guLvlVisited;
+extern int gnSfxDelay;
+extern int gnSfxNum;
 extern QuestStruct quests[NUM_QUESTS];
 
 #define LEVEL_MASK(x)			((uint32_t)1 << (x))

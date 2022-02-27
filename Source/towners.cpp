@@ -211,10 +211,10 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 	monsters[tnum]._mfuty = monsters[tnum]._my = y;
 	monsters[tnum].mtalkmsg = TEXT_KING1;
 	// monsters[tnum]._mhitpoints = 1 << 6; -- no longer necessary since PosOkPlayer does not check the monster's hp
-#ifdef _DEVMODE
+#if DEBUG_MODE || DEV_MODE
 	// TODO: set to prevent assert fail in CanTalkToMonst
 	monsters[tnum]._mgoal = MGOAL_TALKING;
-#endif // _DEVMODE
+#endif // DEBUG_MODE || DEV_MODE
 	tw = &towners[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
 	static_assert(STORE_NONE == 0, "InitTownerTalk skipped by using zfill instead.");
@@ -522,10 +522,9 @@ void SyncTownerQ(int pnum, int idx)
 {
 	int i;
 
-	//if (plr._pmode == PM_DEATH)
-	//	return;
-	//if (plr._pDunLevel != DLV_TOWN)
-	//	return;
+	// assert(plr._pmode != PM_DEATH);
+	// assert(plr._pDunLevel == DLV_TOWN);
+
 	if (!PlrHasStorageItem(pnum, idx, &i))
 		return;
 

@@ -8,7 +8,7 @@ int SDL_ShowSimpleMessageBox(Uint32 flags,
     SDL_Surface *window)
 {
 	if (SDL_ShowCursor(SDL_DISABLE) < 0)
-		SDL_Log("%s", SDL_GetError());
+		DoLog(SDL_GetError());
 
 	bool init = !gspHasGpuRight();
 

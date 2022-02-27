@@ -21,6 +21,7 @@ else()
   set(SDL_SHARED ON)
   set(SDL_STATIC OFF)
 endif()
+# Temporary workaround for MSVC builds
 if(MSVC)
   set(SDL_LIBC ON)
 endif()
@@ -47,8 +48,8 @@ if(NOT HAS_JOYSTICK AND
    NOT HAS_KBCTRL AND
    NOT HAS_TOUCHPAD)
  set(SDL_JOYSTICK OFF)
- set(SDL_HIDAPI OFF)
  set(SDL_HAPTIC OFF)
+ set(SDL_HIDAPI OFF)
 endif()
 
 include(FetchContent_MakeAvailableExcludeFromAll)
@@ -59,7 +60,7 @@ FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG 2664f550c7aa20aa28e627f945266b8969e9de69
+    GIT_TAG 9e90098180427e37ba98d346d0498262cd944eac
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
 

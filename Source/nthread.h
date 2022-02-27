@@ -18,8 +18,6 @@ extern BYTE gbEmptyTurns;
 #endif
 extern const unsigned gdwDeltaBytesSec;
 extern uint32_t sgbSentThisCycle;
-extern const unsigned gdwLargestMsgSize;
-extern const unsigned gdwNormalMsgSize;
 
 /*
  * Send a new turn to the other players.

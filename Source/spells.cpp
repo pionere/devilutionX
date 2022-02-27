@@ -17,7 +17,7 @@ int GetManaAmount(int pnum, int sn)
 		ma += 2 * plr._pLevel;
 	}
 
-	sl = plr._pSkillLvl[sn] + plr._pISplLvlAdd - 1;
+	sl = plr._pSkillLvl[sn] - 1;
 	if (sl < 0)
 		sl = 0;
 	adj = sl * spelldata[sn].sManaAdj;
@@ -76,16 +76,6 @@ char SpellSourceEquipment(int sn)
 	return SPLFROM_INVALID_SOURCE;
 }
 
-int GetSpellLevel(int pnum, int sn)
-{
-	int result;
-
-	result = plr._pISplLvlAdd + plr._pSkillLvl[sn];
-	if (result < 0)
-		result = 0;
-	return result;
-}
-
 bool CheckSpell(int pnum, int sn)
 {
 #if DEBUG_MODE
@@ -93,7 +83,7 @@ bool CheckSpell(int pnum, int sn)
 		return true;
 #endif
 
-	return GetSpellLevel(pnum, sn) > 0 && plr._pMana >= GetManaAmount(pnum, sn);
+	return plr._pSkillLvl[sn] > 0 && plr._pMana >= GetManaAmount(pnum, sn);
 }
 
 DEVILUTION_END_NAMESPACE

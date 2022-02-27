@@ -3,6 +3,7 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_net.h"
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -36,13 +37,13 @@ static void SelconnFocus(unsigned index)
 	case SELCONN_TCPS:
 	case SELCONN_TCPDS:
 #endif
-		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to a TCP-compatible network.");
+		copy_cstr(selconn_Description, "All computers must be connected to a TCP-compatible network.");
 		//numplayers = MAX_PLRS;
 		break;
 #endif
 #ifdef ZEROTIER
 	case SELCONN_ZT:
-		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to the internet.");
+		copy_cstr(selconn_Description, "All computers must be connected to the internet.");
 		//numplayers = MAX_PLRS;
 		break;
 #endif

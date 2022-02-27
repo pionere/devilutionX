@@ -75,7 +75,11 @@ void smk_close(smk object);
 /* GET FILE INFO OPERATIONS */
 char smk_info_all(const smk object, unsigned long * frame, unsigned long * frame_count, double * usf);
 char smk_info_video(const smk object, unsigned long * w, unsigned long * h, unsigned char * y_scale_mode);
+#ifdef FULL
 char smk_info_audio(const smk object, unsigned char * track_mask, unsigned char channels[7], unsigned char bitdepth[7], unsigned long audio_rate[7]);
+#else
+void smk_info_audio(const smk object, unsigned char * channels, unsigned char * bitdepth, unsigned long * audio_rate);
+#endif
 
 /* ENABLE/DISABLE Switches */
 #ifdef FULL

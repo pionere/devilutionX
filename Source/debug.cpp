@@ -3,6 +3,7 @@
  *
  * Implementation of debug functions.
  */
+#include <chrono>
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -103,18 +104,19 @@ void MaxSpellsCheat()
 {
 	int i;
 
-	for (i = 1; i < NUM_SPELLS; i++) {
+	for (i = 0; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
 			myplr._pMemSkills |= SPELL_MASK(i);
-			myplr._pSkillLvl[i] = 10;
+			myplr._pSkillLvlBase[i] = MAXSPLLEVEL;
 		}
 	}
+	CalcPlrItemVals(mypnum, false);
 }
 
-void SetSpellLevelCheat(char spl, int spllvl)
+static void SetSpellLevelCheat(char spl, int spllvl)
 {
 	myplr._pMemSkills |= SPELL_MASK(spl);
-	myplr._pSkillLvl[spl] = spllvl;
+	myplr._pSkillLvlBase[spl] = spllvl;
 }
 
 void SetAllSpellsCheat()
@@ -141,6 +143,7 @@ void SetAllSpellsCheat()
 	SetSpellLevelCheat(SPL_GOLEM, 2);
 	SetSpellLevelCheat(SPL_FLARE, 1);
 //	SetSpellLevelCheat(SPL_BONESPIRIT, 1);
+	CalcPlrItemVals(mypnum, false);
 }
 
 void PrintDebugPlayer(bool bNextPlayer)
@@ -148,26 +151,26 @@ void PrintDebugPlayer(bool bNextPlayer)
 	if (bNextPlayer)
 		dbgplr = ((BYTE)dbgplr + 1) & 3;
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Plr %i : Active = %i", dbgplr, players[dbgplr]._pActive);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Plr %d : Active = %d", dbgplr, players[dbgplr]._pActive);
 	NetSendCmdString(1 << mypnum);
 
 	if (players[dbgplr]._pActive) {
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Plr %i is %s", dbgplr, players[dbgplr]._pName);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Plr %d is %s", dbgplr, players[dbgplr]._pName);
 		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Lvl = %i : Change = %i", players[dbgplr]._pDunLevel, players[dbgplr]._pLvlChanging);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Lvl = %d : Change = %d", players[dbgplr]._pDunLevel, players[dbgplr]._pLvlChanging);
 		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %i, y = %i : fx = %i, fy = %i", players[dbgplr]._px, players[dbgplr]._py, players[dbgplr]._pfutx, players[dbgplr]._pfuty);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %d, y = %d : fx = %d, fy = %d", players[dbgplr]._px, players[dbgplr]._py, players[dbgplr]._pfutx, players[dbgplr]._pfuty);
 		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %i : daction = %i : walk[0] = %i", players[dbgplr]._pmode, players[dbgplr].destAction, players[dbgplr].walkpath[0]);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %d : daction = %d : walk[0] = %d", players[dbgplr]._pmode, players[dbgplr].destAction, players[dbgplr].walkpath[0]);
 		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  inv = %i : hp = %i", players[dbgplr]._pInvincible, players[dbgplr]._pHitPoints);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  inv = %d : hp = %d", players[dbgplr]._pInvincible, players[dbgplr]._pHitPoints);
 		NetSendCmdString(1 << mypnum);
 	}
 }
 
 void PrintDebugQuest()
 {
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Quest %i :  Active = %i, Var1 = %i", dbgqst, quests[dbgqst]._qactive, quests[dbgqst]._qvar1);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Quest %d :  Active = %d, Var1 = %d", dbgqst, quests[dbgqst]._qactive, quests[dbgqst]._qvar1);
 	NetSendCmdString(1 << mypnum);
 
 	dbgqst++;
@@ -180,13 +183,13 @@ void PrintDebugMonster(int m)
 	bool bActive;
 	int i;
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %i = %s", m, monsters[m].mName);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %d = %s", m, monsters[m].mName);
 	NetSendCmdString(1 << mypnum);
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "X = %i, Y = %i", monsters[m]._mx, monsters[m]._my);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "X = %d, Y = %d", monsters[m]._mx, monsters[m]._my);
 	NetSendCmdString(1 << mypnum);
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Enemy = %i, HP = %i", monsters[m]._menemy, monsters[m]._mhitpoints);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Enemy = %d, HP = %d", monsters[m]._menemy, monsters[m]._mhitpoints);
 	NetSendCmdString(1 << mypnum);
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Mode = %i, Var1 = %i", monsters[m]._mmode, monsters[m]._mVar1);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Mode = %d, Var1 = %d", monsters[m]._mmode, monsters[m]._mVar1);
 	NetSendCmdString(1 << mypnum);
 
 	bActive = false;
@@ -196,7 +199,7 @@ void PrintDebugMonster(int m)
 			bActive = true;
 	}
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Active List = %i, Squelch = %i", bActive, monsters[m]._msquelch);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Active List = %d, Squelch = %d", bActive, monsters[m]._msquelch);
 	NetSendCmdString(1 << mypnum);
 }
 
@@ -224,7 +227,7 @@ void NextDebugMonster()
 	if (dbgmon == MAXMONSTERS)
 		dbgmon = 0;
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Current debug monster = %i", dbgmon);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Current debug monster = %d", dbgmon);
 	NetSendCmdString(1 << mypnum);
 }
 
@@ -251,7 +254,9 @@ void DumpDungeon()
 	fclose(f1);
 	fclose(f2);
 }
+#endif /* DEBUG_MODE */
 
+#if DEBUG_MODE || DEV_MODE
 void ValidateData()
 {
 	// quests
@@ -346,7 +351,7 @@ void ValidateData()
 		uint16_t resU = um.mMagicRes;
 		for (int j = 0; j < 8; j++, res >>= 2, resU >>= 2) {
 			if ((res & 3) > (resU & 3)) {
-				SDL_Log("Warn: Weak muMagicRes %d (%d) for %s (%d): worse than mMagicRes %d.", um.mMagicRes, j, um.mName, i, monsterdata[um.mtype].mMagicRes);
+				DoLog("Warn: Weak muMagicRes %d (%d) for %s (%d): worse than mMagicRes %d.", um.mMagicRes, j, um.mName, i, monsterdata[um.mtype].mMagicRes);
 			}
 		}
 #endif
@@ -388,6 +393,8 @@ void ValidateData()
 				app_fatal("Damage type (%d) set for %s (%d), which is not a weapon.", ids.iDamType, ids.iName, i);
 			if (ids.iMinDam != 0 || ids.iMaxDam != 0)
 				app_fatal("Damage set for %s (%d), which is not a weapon.", ids.iName, i);
+			if (ids.iBaseCrit != 0)
+				app_fatal("Crit.chance set for %s (%d), which is not a weapon.", ids.iName, i);
 		}
 		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu)
 			minAmu = ids.iMinMLvl;
@@ -400,6 +407,36 @@ void ValidateData()
 				app_fatal("Belt item %s (%d) is too wide.", ids.iName, i);
 			if (InvItemHeight[ids.iCurs + CURSOR_FIRSTITEM] != INV_SLOT_SIZE_PX)
 				app_fatal("Belt item %s (%d) is too tall.", ids.iName, i);
+		}
+		if (ids.iUsable) {
+			switch (ids.iMiscId) {
+			case IMISC_HEAL:
+			case IMISC_FULLHEAL:
+			case IMISC_MANA:
+			case IMISC_FULLMANA:
+			case IMISC_REJUV:
+			case IMISC_FULLREJUV:
+			case IMISC_SCROLL:
+#ifdef HELLFIRE
+			case IMISC_RUNE:
+#endif
+			case IMISC_BOOK:
+			case IMISC_SPECELIX:
+			case IMISC_MAPOFDOOM:
+			case IMISC_NOTE:
+			case IMISC_OILQLTY:
+			case IMISC_OILZEN:
+			case IMISC_OILSTR:
+			case IMISC_OILDEX:
+			case IMISC_OILVIT:
+			case IMISC_OILMAG:
+			case IMISC_OILRESIST:
+			case IMISC_OILCHANCE:
+			case IMISC_OILCLEAN:
+				break;
+			default:
+				app_fatal("Usable item %s (%d) with miscId %d is not handled by SyncUseItem.", ids.iName, i, ids.iMiscId);
+			}
 		}
 	}
 	if (minLightArmor > 1)
@@ -460,6 +497,38 @@ void ValidateData()
 		}
 	}
 }
-#endif
+#endif /* DEBUG_MODE || DEV_MODE */
+
+#if DEV_MODE
+void LogErrorF(const char* type, const char* msg, ...)
+{
+	char tmp[256];
+	//snprintf(tmp, sizeof(tmp), "c:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
+	snprintf(tmp, sizeof(tmp), "c:\\logdebug%d.txt", mypnum);
+	FILE *f0 = fopen(tmp, "a+");
+	if (f0 == NULL)
+		return;
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	using namespace std::chrono;
+	milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+	//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
+	snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+#endif /* DEV_MODE */
 
 DEVILUTION_END_NAMESPACE

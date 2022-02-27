@@ -1,7 +1,5 @@
 #pragma once
 #ifndef NOHOSTING
-#include <memory>
-#include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
 #include <asio/ts/io_context.hpp>
 #include <asio/ts/net.hpp>
@@ -28,8 +26,8 @@ class tcp_host_client : public base {
 public:
 	tcp_host_client(int srvType);
 
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
-	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256]);
+	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
 	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
 	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);

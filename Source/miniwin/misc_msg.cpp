@@ -12,7 +12,6 @@
 #include "controls/touch.h"
 #include "utils/display.h"
 #include "utils/sdl_compat.h"
-#include "utils/stubs.h"
 
 #ifdef __SWITCH__
 #include "platform/switch/docking.h"
@@ -776,7 +775,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 		if (sym >= SDLK_F1 && sym <= SDLK_F12)
 			return DVL_VK_F1 + (sym - SDLK_F1);
 #if DEBUG_MODE
-		SDL_Log("unknown key: name=%s sym=0x%X scan=%d mod=0x%X", SDL_GetKeyName(sym), sym, key.scancode, key.mod);
+		DoLog("unknown key: name=%s sym=0x%X scan=%d mod=0x%X", SDL_GetKeyName(sym), sym, key.scancode, key.mod);
 #endif
 		return sym;
 	}*/
@@ -797,8 +796,7 @@ static WPARAM PositionForMouse(Sint32 x, Sint32 y)
 #if DEBUG_MODE
 static bool FalseAvail(const char *name, int value)
 {
-	//SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Unhandled SDL event: %s %d", name, value);
-	SDL_Log("Unhandled SDL event: %s %d", name, value);
+	DoLog("Unhandled SDL event: %s %d", name, value);
 	return true;
 }
 #endif
@@ -1026,10 +1024,14 @@ bool PeekMessage(LPMSG lpMsg)
 	case SDL_TEXTEDITING:
 		return FalseAvail("SDL_TEXTEDITING", e.edit.length);
 #endif // DEBUG_MODE
-	case SDL_TEXTINPUT:
+	case SDL_TEXTINPUT: {
+		uint32_t inputChar;
+		int err;
+		//lpMsg->wParam = utf8_to_latin1(e.text.text).c_str()[0];
+		utf8_decode((unsigned char*)&e.text.text[0], &inputChar, &err);
+		lpMsg->wParam = err ? '?' : inputChar;
 		lpMsg->message = DVL_WM_CHAR;
-		lpMsg->wParam = utf8_to_latin1(e.text.text).c_str()[0];
-		break;
+	} break;
 	case SDL_WINDOWEVENT:
 		switch (e.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:
@@ -1181,7 +1183,7 @@ void TranslateMessage(const MSG* lpMsg)
 			return;
 
 		if (key >= 32) {
-			SDL_Log("char: %c", key);
+			DoLog("char: %c", key);
 		}
 		// XXX: This does not add extended info to lParam
 		PostMessage(DVL_WM_CHAR, key);

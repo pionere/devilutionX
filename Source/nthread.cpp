@@ -10,8 +10,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
-const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
-const unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
 
 /* The id of the next turn. */
 uint32_t sgbSentThisCycle;
@@ -50,8 +48,10 @@ restart:
 #endif
 	SNetSendTurn(SwapLE32(turn), data, len);
 	turn++;
-	if (turn >= 0x7FFFFFFF)
-		turn &= 0xFFFF;
+	// commented out to raise the possible up-time of a game
+	// minor hickup might occur around overflow, but ignore it for the moment
+	//if (turn >= (UINT32_MAX / gbNetUpdateRate))
+	//	turn &= 0xFFFF;
 //#ifdef ADAPTIVE_NETUPDATE
 #ifndef NONET
 	if (gbEmptyTurns != 0 && SNetGetTurnsInTransit() <= gbEmptyTurns) {
@@ -222,6 +222,7 @@ static int SDLCALL nthread_handler(void* data)
 #endif
 void nthread_start()
 {
+	assert(geBufferMsgs == MSG_NORMAL);
 	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
 	_gbTickInSync = true;
 	sgbSentThisCycle = 0;
@@ -235,12 +236,11 @@ void nthread_start()
 	if (gbNetUpdateRate == 1 && !IsLocalGame)
 		gbEmptyTurns = 1;
 #endif
-	static_assert(sizeof(TurnPkt) <= gdwNormalMsgSize, "TurnPkt does not fit in a message.");
-	static_assert(sizeof(MsgPkt) <= gdwNormalMsgSize, "MsgPkt does not fit in a message.");
 	if (!IsLocalGame) {
 		_gbRunThread = false;
 		sgThreadMutex.Enter();
 		_gbThreadLive = true;
+		assert(sghThread == NULL);
 		sghThread = CreateThread(nthread_handler);
 		assert(sghThread != NULL);
 	}
@@ -269,6 +269,7 @@ void nthread_cleanup()
 
 void nthread_run()
 {
+	gbLvlLoad = 10;
 #ifndef NONET
 	if (sghThread != NULL && !_gbRunThread) {
 		_gbRunThread = true;
@@ -284,10 +285,9 @@ void nthread_finish(UINT uMsg)
 	if (uMsg == DVL_DWM_NEWGAME) {
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
 			assert(sghThread == NULL);
+			assert(geBufferMsgs == MSG_NORMAL);
+			assert(sgbPacketCountdown == 1);
 			return;
-		} else {
-			// process remaining packets of delta-load
-			RunDeltaPackets();
 		}
 	}
 
@@ -322,7 +322,7 @@ void nthread_finish(UINT uMsg)
 	}
 #endif
 	if (myplr._pmode == PM_NEWLVL) { // skip in case the game is loaded
-		NetSendCmdSendJoinLevel();
+		NetSendCmdJoinLevel();
 	}
 }
 

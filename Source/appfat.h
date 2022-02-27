@@ -7,6 +7,7 @@
 #define __APPFAT_H__
 
 #include "../types.h"
+#include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -27,35 +28,54 @@ void app_fatal(const char *pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
  * @param ... Additional parameters for message format
  */
 void app_warn(const char *pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
-#ifdef DEBUG_MODE
-void assert_fail(int nLineNo, const char *pszFile, const char *pszFail);
+#if DEBUG_MODE
 void ErrDlg(const char *title, const char *error, const char *log_file_path, int log_line_nr);
 #endif
 //void FileErrDlg(const char *error);
 //void InsertCDDlg();
 
-#if _DEVMODE || DEBUG_MODE
+#if DEBUG_MODE || DEV_MODE
 /*template <typename... MsgArgs>
 void dev_fatal(const char *pszFmt, MsgArgs... args) {
 	app_fatal(pszFmt, args...);
 }*/
 #define dev_fatal(msg, ...) app_fatal(msg, __VA_ARGS__);
 #if DEBUG_MODE
-#define sdl_fatal(ec) \
+#define app_error(ec) \
 	if (ec == ec) { \
-		ErrDlg("SDL Error", SDL_GetError(), __FILE__, __LINE__); \
+		DoLog("ABORT(app.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("App Error %d @ %s:%d", ec, __FILE__, __LINE__); \
 	}
-#define ttf_fatal(ec) \
+#define sdl_error(ec) \
 	if (ec == ec) { \
-		ErrDlg("SDL Error", TTF_GetError(), __FILE__, __LINE__); \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("SDL Error %d: '%s' @ %s:%d", ec, SDL_GetError(), __FILE__, __LINE__); \
 	}
 #else
-#define sdl_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, SDL_GetError())
+#define app_error(ec) \
+	if (ec == ec) { \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("App Error %d", ec); \
+	}
+#define sdl_error(ec) \
+	if (ec == ec) { \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("SDL Error %d", ec); \
+	}
 #endif // DEBUG_MODE
 #else
-inline void dev_fatal(const char *pszFmt, ...) {}
-#define sdl_fatal(error_code) app_fatal("SDL Error %d:%s", error_code, SDL_GetError())
-#endif // _DEVMODE || DEBUG_MODE
+#define dev_fatal(msg, ...) do { } while(0);
+#define app_error(ec) \
+	if (ec == ec) { \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("App Error %d", ec); \
+	}
+#define sdl_error(ec) \
+	if (ec == ec) { \
+		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("SDL Error %d", ec); \
+	}
+#endif // DEBUG_MODE || DEV_MODE
 
 #ifdef __cplusplus
 }

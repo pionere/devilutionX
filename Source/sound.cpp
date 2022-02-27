@@ -115,7 +115,7 @@ void sound_file_load(const char* path, SoundSample* pSnd)
 void RestartMixer()
 {
 	if (Mix_OpenAudio(SND_DEFAULT_FREQUENCY, SND_DEFAULT_FORMAT, SND_DEFAULT_CHANNELS, 1024) < 0) {
-		SDL_Log("%s", Mix_GetError());
+		DoLog(Mix_GetError());
 	}
 	Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));
 }
@@ -165,7 +165,7 @@ void music_start(int nTrack)
 		//if (musicRw == NULL || !Mix_LoadMUS_RW(musicRw))
 		_gMusic = Mix_LoadMUS_RW(&musicRw);
 		if (_gMusic == NULL)
-			sdl_fatal(ERR_SDL_MUSIC_FILE);
+			sdl_error(ERR_SDL_MUSIC_FILE);
 
 		Mix_PlayMusic(-1);
 
