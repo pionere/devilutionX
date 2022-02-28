@@ -523,7 +523,7 @@ void SyncTownerQ(int pnum, int idx)
 	int i;
 
 	// assert(plr._pmode != PM_DEATH);
-	// assert(plr._pDunLevel == DLV_TOWN);
+	net_assert(plr._pDunLevel == DLV_TOWN);
 
 	if (!PlrHasStorageItem(pnum, idx, &i))
 		return;
@@ -600,9 +600,11 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_GIRL]._qactive = QUEST_DONE;
 		// quests[Q_GIRL]._qlog = FALSE;
 		if (currLvl._dLevelIdx == DLV_TOWN) {
-			WORD wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
-			SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
-			SpawnAmulet(wCI, TPOS_GIRL, pnum == mypnum);
+			if (pnum == mypnum) {
+				WORD wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
+				SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
+				SpawnAmulet(wCI, TPOS_GIRL/*, true*/);
+			}
 			ReInitTownerAnim(TOWN_GIRL, "Towners\\Girl\\Girls1.CEL");
 		}
 		break;

@@ -3593,7 +3593,7 @@ void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 }
 
 #ifdef HELLFIRE
-void SpawnAmulet(WORD wCI, int x, int y, bool sendmsg)
+void SpawnAmulet(WORD wCI, int x, int y/*, bool sendmsg*/)
 {
 	int lvl, idx;
 
@@ -3606,7 +3606,7 @@ void SpawnAmulet(WORD wCI, int x, int y, bool sendmsg)
 			break;
 	}
 	GetSuperItemSpace(x, y, MAXITEMS);
-	if (sendmsg)
+	//if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
 #endif

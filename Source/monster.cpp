@@ -1728,9 +1728,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
 			SpawnQuestItemAt(IDI_THEODORE, mon->_mx, mon->_my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
-		}/*else {
-			SpawnAmulet(mon->_mx, mon->_my, sendmsg);
-		}*/
+		}
 		break;
 	case UMT_DEFILER:
 		//if (effect_is_playing(USFX_DEFILER8))
