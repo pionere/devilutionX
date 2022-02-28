@@ -13,8 +13,11 @@ ItemStruct items[MAXITEMS + 1];
 BYTE* itemanims[NUM_IFILE];
 int numitems;
 
+#if DEV_MODE
 /** Specifies the current X-coordinate used for validation of items on ground. */
 static int idoppelx = DBORDERX;
+#endif
+
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
 const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 	// clang-format off
@@ -2170,18 +2173,18 @@ static void ItemDoppel()
 	int i;
 	ItemStruct *is;
 
-	if (IsMultiGame) {
-		for (i = DBORDERY; i < DSIZEY + DBORDERY; i++) {
-			if (dItem[idoppelx][i] != 0) {
-				is = &items[dItem[idoppelx][i] - 1];
-				if (is->_ix != idoppelx || is->_iy != i)
-					dItem[idoppelx][i] = 0;
-			}
+#if DEV_MODE
+	for (i = DBORDERY; i < DSIZEY + DBORDERY; i++) {
+		if (dItem[idoppelx][i] != 0) {
+			is = &items[dItem[idoppelx][i] - 1];
+			if (is->_ix != idoppelx || is->_iy != i)
+				dev_fatal("Item %s of type %d is at the wrong place %d:%d vs %d:%d", is->_iName, is->_itype, is->_ix, is->_iy, idoppelx, i);
 		}
-		idoppelx++;
-		if (idoppelx == DSIZEX + DBORDERX)
-			idoppelx = DBORDERX;
 	}
+	idoppelx++;
+	if (idoppelx == DSIZEX + DBORDERX)
+		idoppelx = DBORDERX;
+#endif
 }
 
 void ProcessItems()
