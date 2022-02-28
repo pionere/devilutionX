@@ -3241,8 +3241,8 @@ typedef enum _dcmd_monster {
 
 typedef enum _msg_mode {
 	MSG_NORMAL,
-	MSG_REQUEST_GAME_DELTA,
-	MSG_GAME_DELTA,
+	MSG_GAME_DELTA_WAIT, // wait for game delta information
+	MSG_GAME_DELTA_LOAD, // download game delta
 	//MSG_RUN_DELTA,
 	MSG_INITIAL_PENDINGTURN,
 } _msg_mode;

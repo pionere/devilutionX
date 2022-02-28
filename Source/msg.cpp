@@ -151,7 +151,7 @@ bool DownloadDeltaInfo()
 	gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
 	assert(gsDeltaData.ddSendRecvOffset == 0);
 	// trigger delta-download in nthread
-	geBufferMsgs = MSG_REQUEST_GAME_DELTA;
+	geBufferMsgs = MSG_GAME_DELTA_WAIT;
 	//guDeltaStart = SDL_GetTicks();
 	success = UiProgressDialog("Waiting for game data...", msg_wait_for_delta);
 	assert(geBufferMsgs == MSG_NORMAL || !success || gbGameDeltaChunks != MAX_CHUNKS);
@@ -459,7 +459,7 @@ static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 {
 	TCmdPlrInfoHdr* cmd = (TCmdPlrInfoHdr*)pCmd;
 
-	if (geBufferMsgs != MSG_GAME_DELTA)
+	if (geBufferMsgs != MSG_GAME_DELTA_LOAD)
 		goto done; // the player is already active -> drop the packet
 
 	if (gsDeltaData.ddDeltaSender != pnum) {
@@ -2297,7 +2297,7 @@ static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
 
 	net_assert((unsigned)pnum < MAX_PLRS);
 
-	if (geBufferMsgs == MSG_GAME_DELTA || geBufferMsgs == MSG_REQUEST_GAME_DELTA)
+	if (geBufferMsgs == MSG_GAME_DELTA_LOAD || geBufferMsgs == MSG_GAME_DELTA_WAIT)
 		DeltaQueuePacket(pnum, cmd, cmd->wBytes + sizeof(*cmd));
 	else if (pnum != mypnum)
 		multi_recv_plrinfo_msg(pnum, cmd);
@@ -2438,7 +2438,7 @@ static unsigned On_STRING(TCmd* pCmd, int pnum)
 {
 	TCmdString* cmd = (TCmdString*)pCmd;
 
-	//if (geBufferMsgs != MSG_GAME_DELTA && geBufferMsgs != MSG_REQUEST_GAME_DELTA) {
+	//if (geBufferMsgs != MSG_GAME_DELTA_LOAD && geBufferMsgs != MSG_GAME_DELTA_WAIT) {
 		if (pnum < MAX_PLRS) {
 			if (!(guTeamMute & (1 << pnum))) {
 				SendPlrMsg(pnum, cmd->str);
@@ -3112,7 +3112,7 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("ParseCmd: illegal player %d", pnum);
 	}
-	assert(geBufferMsgs != MSG_GAME_DELTA && geBufferMsgs != MSG_REQUEST_GAME_DELTA);
+	assert(geBufferMsgs != MSG_GAME_DELTA_LOAD && geBufferMsgs != MSG_GAME_DELTA_WAIT);
 	switch (pCmd->bCmd) {
 	case CMD_SYNCDATA:
 		return On_SYNCDATA(pCmd, pnum);

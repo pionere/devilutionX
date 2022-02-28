@@ -258,7 +258,7 @@ static void multi_check_left_plrs()
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (sgbPlayerLeftGameTbl[i] != LEAVE_NONE) {
-			if (geBufferMsgs == MSG_GAME_DELTA)
+			if (geBufferMsgs == MSG_GAME_DELTA_LOAD)
 				msg_send_drop_plr(i, sgbPlayerLeftGameTbl[i]);
 			else
 				multi_deactivate_player(i, sgbPlayerLeftGameTbl[i]);
