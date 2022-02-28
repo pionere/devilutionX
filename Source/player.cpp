@@ -66,16 +66,17 @@ const char *const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
 #endif
 };
 
-/* data */
-
-/** Specifies the X-coordinate delta from the player start location in Tristram. */
+/*
+ * Specifies the X and Y offsets to the start location in Tristram for each player.
+ */
 const int plrxoff[MAX_PLRS] = { 0, 2, 0, 2 }; //, 1, 0, 1, 2, 1 };
-/** Specifies the Y-coordinate delta from the player start location in Tristram. */
 const int plryoff[MAX_PLRS] = { 0, 2, 2, 0 }; //, 1, 1, 0, 1, 2 };
-/** Specifies the X-coordinate delta from a player, used for instanced when casting resurrect. */
-const int plrxoff2[9] = { 0, 1, 0, 1, 2, 0, 1, 2, 2 };
-/** Specifies the Y-coordinate delta from a player, used for instanced when casting resurrect. */
-const int plryoff2[9] = { 0, 0, 1, 1, 0, 2, 2, 1, 2 };
+/*
+ * Specifies the X and Y offsets to try when a player is entering the level or resurrected.
+ * The base position is the location of the portal or the body of the dead player.
+ */
+const int plrxoff2[9] = { 0, 1, 1, 0, -1, 0, -1, 1, -1 };
+const int plryoff2[9] = { 0, 1, 0, 1, -1, -1, 0, -1, 1 };
 /** Specifies the number of frames of each animation for each player class. */
 const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
 	// clang-format off
@@ -1602,11 +1603,11 @@ static bool PlacePlayer(int pnum)
 	if (i == lengthof(plrxoff2)) {
 		done = false;
 
-		for (i = 1; i < 50 && !done; i++) {
-			for (y = -i; y <= i && !done; y++) {
+		for (i = 2; i < 50 && !done; i++) {
+			for (y = i; y <= -i && !done; y--) {
 				ny = plr._py + y;
 
-				for (x = -i; x <= i && !done; x++) {
+				for (x = i; x <= -i && !done; x--) {
 					nx = plr._px + x;
 
 					if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {

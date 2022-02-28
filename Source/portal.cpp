@@ -117,8 +117,6 @@ void GetPortalLvlPos()
 		ViewX = portals[portalindex].x;
 		ViewY = portals[portalindex].y;
 	}
-	ViewX++;
-	ViewY++;
 }
 
 bool PosOkPortal(int x, int y)
