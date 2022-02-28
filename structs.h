@@ -1252,10 +1252,13 @@ typedef struct DeltaData {
 			DJunk ddJunk;					// portals and quests
 			DLevel ddLevel[NUM_LEVELS];		// items/monsters/objects
 			LocalLevel ddLocal[NUM_LEVELS];	// automap
-			DBuffer ddSendRecvBuf;			// Buffer to send/receive delta info
-			unsigned ddSendRecvOffset;		// offset in the buffer
 			bool ddLevelChanged[NUM_LEVELS];
 			bool ddJunkChanged;
+
+			DBuffer ddSendRecvBuf;     // Buffer to send/receive delta info
+			unsigned ddSendRecvOffset; // offset in the buffer
+			BYTE ddDeltaSender;        // the pnum of the delta-sender
+			BYTE ddRecvLastCmd;        // type of the last received delta-chunk (NMSG_DLEVEL_)
 		};
 		BYTE ddBuffer[FILEBUFF];
 	};

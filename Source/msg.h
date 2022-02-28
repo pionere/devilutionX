@@ -18,11 +18,16 @@ extern _msg_mode geBufferMsgs;
 extern char gbNetMsg[MAX_SEND_STR_LEN];
 
 void msg_send_drop_plr(int pnum, BYTE reason);
+// download game-delta
 bool DownloadDeltaInfo();
+// send game-delta
 void DeltaExportData(int pnum, uint32_t turn);
 void delta_init();
+// add items which are part of the dungeon to the game-delta
 void DeltaAddItem(int ii);
+// save automap to game-delta
 void DeltaSaveLevel();
+// load level info from game-delta
 void DeltaLoadLevel();
 void NetSendCmdJoinLevel();
 void NetSendCmd(BYTE bCmd);

@@ -46,8 +46,6 @@ uint32_t gdwGameLogicTurn;
 BYTE gbGameMode;
 /* Specifies whether there is a timeout at the moment. */
 static bool _gbTimeout;
-/* Specifies the pnum of the delta-sender. */
-BYTE gbDeltaSender;
 /* Turn-id when the delta was loaded. */
 uint32_t guDeltaTurn;
 static bool _gbNetInited;
@@ -646,8 +644,8 @@ static void multi_handle_events(SNetEvent *pEvt)
 
 	dthread_remove_player(pnum);
 
-	if (gbDeltaSender == pnum)
-		gbDeltaSender = SNPLAYER_ALL;
+	if (gsDeltaData.gbDeltaSender == pnum)
+		gsDeltaData.gbDeltaSender = SNPLAYER_ALL;
 }
 
 void NetClose()

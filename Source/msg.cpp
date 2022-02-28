@@ -36,8 +36,6 @@ DeltaData gsDeltaData;
  * MAX_CHUNKS        : download success
  */
 static BYTE gbGameDeltaChunks;
-/* the type of the last delta-load message. (NMSG_DLEVEL_*) */
-static BYTE _gbGameDeltaCmd;
 /* the current messaging mode. (MSG_*) */
 _msg_mode geBufferMsgs = MSG_NORMAL;
 /* Buffer holding the character message to send over to other players */
@@ -149,8 +147,8 @@ bool DownloadDeltaInfo()
 	DeltaAllocMegaPkt();
 	guDeltaTurn = 0;
 	gbGameDeltaChunks = 0;
-	_gbGameDeltaCmd = NMSG_DLEVEL_END;
-	gbDeltaSender = SNPLAYER_ALL;
+	gsDeltaData.ddRecvLastCmd = NMSG_DLEVEL_END;
+	gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
 	assert(gsDeltaData.ddSendRecvOffset == 0);
 	// trigger delta-download in nthread
 	geBufferMsgs = MSG_REQUEST_GAME_DELTA;
@@ -428,12 +426,12 @@ static void DeltaImportData()
 
 	gbGameDeltaChunks++;
 
-	if (_gbGameDeltaCmd == NMSG_DLEVEL_DATA) {
+	if (gsDeltaData.ddRecvLastCmd == NMSG_DLEVEL_DATA) {
 		DeltaImportLevel();
-	} else if (_gbGameDeltaCmd == NMSG_DLEVEL_JUNK) {
+	} else if (gsDeltaData.ddRecvLastCmd == NMSG_DLEVEL_JUNK) {
 		DeltaImportJunk();
 	} else {
-		assert(_gbGameDeltaCmd == NMSG_DLEVEL_PLR);
+		assert(gsDeltaData.ddRecvLastCmd == NMSG_DLEVEL_PLR);
 		DeltaImportPlr();
 	}
 }
@@ -464,8 +462,8 @@ static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 	if (geBufferMsgs != MSG_GAME_DELTA)
 		goto done; // the player is already active -> drop the packet
 
-	if (gbDeltaSender != pnum) {
-		if (gbDeltaSender != SNPLAYER_ALL) {
+	if (gsDeltaData.ddDeltaSender != pnum) {
+		if (gsDeltaData.ddDeltaSender != SNPLAYER_ALL) {
 			// delta is already on its way from a different player -> drop the packet
 			goto done;
 		}
@@ -480,8 +478,8 @@ static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 		}
 		if (cmd->bCmd == NMSG_DLEVEL_END) {
 			// nothing received till now -> empty delta
-			gbDeltaSender = pnum;
-			// _gbGameDeltaCmd = NMSG_DLEVEL_END;
+			gsDeltaData.ddDeltaSender = pnum;
+			// gsDeltaData.ddRecvLastCmd = NMSG_DLEVEL_END;
 			DeltaImportEnd(cmd);
 			goto done;
 		}
@@ -494,31 +492,31 @@ static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 			goto done;
 		}*/
 		// start receiving
-		gbDeltaSender = pnum;
-		_gbGameDeltaCmd = cmd->bCmd;
+		gsDeltaData.ddDeltaSender = pnum;
+		gsDeltaData.ddRecvLastCmd = cmd->bCmd;
 		// gsDeltaData.ddSendRecvOffset = 0;
 	} else {
 		// a packet from a previous sender
-		if (_gbGameDeltaCmd != cmd->bCmd) {
+		if (gsDeltaData.ddRecvLastCmd != cmd->bCmd) {
 			// process previous package
-			if (_gbGameDeltaCmd != NMSG_DLEVEL_SEP && _gbGameDeltaCmd != NMSG_DLEVEL_END)
+			if (gsDeltaData.ddRecvLastCmd != NMSG_DLEVEL_SEP && gsDeltaData.ddRecvLastCmd != NMSG_DLEVEL_END)
 				DeltaImportData();
-			_gbGameDeltaCmd = cmd->bCmd;
-			if (_gbGameDeltaCmd == NMSG_DLEVEL_END) {
+			gsDeltaData.ddRecvLastCmd = cmd->bCmd;
+			if (gsDeltaData.ddRecvLastCmd == NMSG_DLEVEL_END) {
 				// final package -> done
 				DeltaImportEnd(cmd);
 				goto done;
-			} else if (_gbGameDeltaCmd == NMSG_DLEVEL_SEP) {
+			} else if (gsDeltaData.ddRecvLastCmd == NMSG_DLEVEL_SEP) {
 				// separator package -> wait for next
 				goto done;
 			} else {
 				// start receiving a new package
-				assert(_gbGameDeltaCmd == NMSG_DLEVEL_DATA || _gbGameDeltaCmd == NMSG_DLEVEL_JUNK || _gbGameDeltaCmd == NMSG_DLEVEL_PLR);
+				assert(gsDeltaData.ddRecvLastCmd == NMSG_DLEVEL_DATA || gsDeltaData.ddRecvLastCmd == NMSG_DLEVEL_JUNK || gsDeltaData.ddRecvLastCmd == NMSG_DLEVEL_PLR);
 				gsDeltaData.ddSendRecvOffset = 0;
 			}
 		} else {
 			// continue previous package
-			if (_gbGameDeltaCmd != NMSG_DLEVEL_DATA && _gbGameDeltaCmd != NMSG_DLEVEL_JUNK && _gbGameDeltaCmd != NMSG_DLEVEL_PLR) {
+			if (gsDeltaData.ddRecvLastCmd != NMSG_DLEVEL_DATA && gsDeltaData.ddRecvLastCmd != NMSG_DLEVEL_JUNK && gsDeltaData.ddRecvLastCmd != NMSG_DLEVEL_PLR) {
 				// lost or duplicated package -> drop the connection and quit
 				gbGameDeltaChunks = DELTA_ERROR_FAIL_1;
 				goto done;

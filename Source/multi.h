@@ -18,7 +18,6 @@ extern BYTE gbActivePlayers;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
 extern BYTE gbGameMode;
-extern BYTE gbDeltaSender;
 extern uint32_t guDeltaTurn;
 extern unsigned guSendGameDelta;
 extern uint32_t gdwLastGameTurn;
