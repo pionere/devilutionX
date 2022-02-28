@@ -1267,7 +1267,6 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 				}
 			}
 			SetItemData(MAXITEMS, IDI_FULLNOTE);
-			RespawnItem(MAXITEMS, false);
 			// preserve seed and location of the last item
 			idx = is->_iSeed;
 			x = is->_ix;
