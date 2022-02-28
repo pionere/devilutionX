@@ -67,12 +67,6 @@ void IncreasePlrDex(int pnum);
 void IncreasePlrVit(int pnum);
 void RestorePlrHpVit(int pnum);
 
-inline void SetPlayerOld(int pnum)
-{
-	plr._poldx = plr._px;
-	plr._poldy = plr._py;
-}
-
 // Set each location to the input location.
 // Oldx/y could be set to an invalid value so RemovePlrFromMap could check if the player was placed on the map earlier,
 //  but it is not worth it at the moment.

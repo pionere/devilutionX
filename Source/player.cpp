@@ -1192,9 +1192,13 @@ static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
 	plr._pVar7 = 0;      // WALK_YOFF : _pyoff value in a higher range
 	plr._pVar8 = 0;      // WALK_TICK : speed helper
 
-	px = xadd + plr._px;
-	py = yadd + plr._py;
+	px = plr._px;
+	py = plr._py;
+	plr._poldx = px;
+	plr._poldy = py;
 
+	px += xadd;
+	py += yadd;
 	plr._pfutx = /*plr._pVar1 =*/ px; // the Player's x-coordinate after the movement
 	plr._pfuty = /*plr._pVar2 =*/ py; // the Player's y-coordinate after the movement
 
@@ -1225,8 +1229,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	py = plr._py;
 
 	dPlayer[px][py] = -(pnum + 1);
-	//plr._pVar1 = px;  // the starting x-coordinate of the player
-	//plr._pVar2 = py;  // the starting y-coordinate of the player
+	/*plr._pVar1 =*/ plr._poldx = px;  // the starting x-coordinate of the player
+	/*plr._pVar2 =*/ plr._poldy = py;  // the starting y-coordinate of the player
 	px += xadd;
 	py += yadd;
 	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
@@ -1256,8 +1260,6 @@ static bool StartWalk(int pnum)
 	if (!PlrDirOK(pnum, dir)) {
 		return false;
 	}
-
-	SetPlayerOld(pnum);
 
 #if DEBUG_MODE
 	for (i = 0; i < NUM_CLASSES; i++)
