@@ -395,6 +395,9 @@ bool nthread_process_pending_delta_turns(bool pre)
  */
 void nthread_finish(UINT uMsg)
 {
+	uint32_t lastGameTurn;
+	unsigned tmp;
+
 	if (uMsg == DVL_DWM_NEWGAME) {
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
 			assert(sghThread == NULL);
@@ -440,7 +443,7 @@ void nthread_finish(UINT uMsg)
 	//gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
 	//gsDeltaData.ddSendRecvOffset = 0;
 	assert((gdwLastGameTurn * gbNetUpdateRate) == gdwGameLogicTurn);
-	uint32_t lastGameTurn = gdwLastGameTurn;
+	lastGameTurn = gdwLastGameTurn;
 	while (geBufferMsgs == MSG_LVL_DELTA_WAIT) {
 		if (!nthread_level_turn())
 			goto done;
@@ -457,7 +460,7 @@ void nthread_finish(UINT uMsg)
 		(gdwLastGameTurn >= guDeltaTurn && guDeltaTurn > lastGameTurn));	// TODO: overflow hickup
 	gdwLastGameTurn = lastGameTurn;
 	gdwGameLogicTurn = lastGameTurn * gbNetUpdateRate;
-	unsigned tmp = guSendLevelData; // preserve this mask, requests of the pending turns are supposed to be handled
+	tmp = guSendLevelData; // preserve this mask, requests of the pending turns are supposed to be handled
 	// phase 9 end
 	if (geBufferMsgs != MSG_LVL_DELTA_WAIT) {
 		// phase 10a
