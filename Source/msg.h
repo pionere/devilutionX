@@ -17,6 +17,10 @@ extern DeltaData gsDeltaData;
 extern _msg_mode geBufferMsgs;
 extern char gbNetMsg[MAX_SEND_STR_LEN];
 
+// send level-delta
+void LevelDeltaExport(uint32_t turn);
+// load level info from level-delta
+void LevelDeltaLoad();
 void msg_send_drop_plr(int pnum, BYTE reason);
 // download game-delta
 bool DownloadDeltaInfo();

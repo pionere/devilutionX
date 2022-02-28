@@ -1859,22 +1859,24 @@ static void Obj_Trap(int oi)
 
 static void Obj_BCrossDamage(int oi)
 {
-	PlayerStruct* p;
-	int fire_resist, damage;
+	int ox, oy, pnum, fire_resist, damage;
 
-	p = &myplr;
-	if (p->_pInvincible)
-		return;
-	if (p->_px != objects[oi]._ox || p->_py != objects[oi]._oy - 1)
-		return;
+	ox = objects[oi]._ox;
+	oy = objects[oi]._oy - 1;
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pInvincible)
+			continue;
+		if (plr._px != ox || plr._py != oy)
+			continue;
 
-	damage = 4 + (currLvl._dLevel >> 2);
-	fire_resist = p->_pFireResist;
-	if (fire_resist > 0)
-		damage -= fire_resist * damage / 100;
+		damage = 4 + (currLvl._dLevel >> 2);
+		fire_resist = plr._pFireResist;
+		if (fire_resist > 0)
+			damage -= fire_resist * damage / 100;
 
-	if (!PlrDecHp(mypnum, damage, DMGTYPE_NPC))
-		PlaySfxLoc(sgSFXSets[SFXS_PLR_68][p->_pClass], p->_px, p->_py);
+		if (!PlrDecHp(pnum, damage, DMGTYPE_NPC))
+			PlaySfxLoc(sgSFXSets[SFXS_PLR_68][plr._pClass], ox, oy + 1);
+	}
 }
 
 void ProcessObjects()

@@ -20,6 +20,9 @@ extern bool gbSelectHero;
 extern BYTE gbGameMode;
 extern uint32_t guDeltaTurn;
 extern unsigned guSendGameDelta;
+extern unsigned guSendLevelData;
+extern unsigned guReceivedLevelDelta;
+extern uint32_t guRequestLevelData[MAX_PLRS];
 extern uint32_t gdwLastGameTurn;
 extern uint32_t gdwGameLogicTurn;
 extern unsigned player_state[MAX_PLRS];
@@ -29,6 +32,8 @@ void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE len);
 void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen);
 void multi_process_msgs();
 bool multi_handle_turn();
+void multi_send_turn_packet();
+void multi_pre_process_turn(SNetTurnPkt* turn);
 void multi_process_turn(SNetTurnPkt *turn);
 void multi_deactivate_player(int pnum, int reason);
 void multi_disband_team(int pnum);
@@ -36,7 +41,6 @@ bool multi_check_timeout();
 void multi_rnd_seeds();
 void NetClose();
 bool NetInit(bool bSinglePlayer);
-void multi_init_buffers();
 void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr);
 
 #ifdef NONET

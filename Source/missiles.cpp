@@ -887,7 +887,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 			dam = 64;
 	}
 
-	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
+	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC))
 		StartPlrHit(pnum, dam, false);
 	return true;
 }
@@ -950,7 +950,7 @@ static bool PlayerMHit(int pnum, int mi)
 			dam = 64;
 	}
 
-	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
+	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC))
 		StartPlrHit(pnum, dam, false);
 	return true;
 }
@@ -1058,7 +1058,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 			dam = 64;
 	}
 
-	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
+	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
 		StartPlrHit(pnum, dam, false);
 	return true;
 }

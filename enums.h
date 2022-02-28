@@ -2966,7 +2966,8 @@ typedef enum PLR_MODE {
 	PM_DEATH,
 	PM_SPELL,
 	PM_NEWLVL,
-	NUM_PLR_MODES
+	NUM_PLR_MODES,
+	PM_INVALID = 0xFF
 } PLR_MODE;
 
 typedef enum PLR_ANIM {
@@ -3140,6 +3141,8 @@ typedef enum _msg_id {
 	NMSG_DLEVEL_JUNK,
 	NMSG_DLEVEL_PLR,
 	NMSG_DLEVEL_END,
+	NMSG_LVL_DELTA,
+	NMSG_LVL_DELTA_END,
 	NMSG_STRING,
 	NMSG_PLRDROP, // internal use only (supposedly)
 } _msg_id;
@@ -3200,7 +3203,6 @@ typedef enum _cmd_id {
 	CMD_NEWLVL,
 	CMD_TWARP,
 	CMD_RETOWN,
-	CMD_ACK_JOINLEVEL,
 	CMD_JOINLEVEL,
 	CMD_INVITE,
 	CMD_ACK_INVITE,
@@ -3244,7 +3246,9 @@ typedef enum _msg_mode {
 	MSG_GAME_DELTA_WAIT, // wait for game delta information
 	MSG_GAME_DELTA_LOAD, // download game delta
 	//MSG_RUN_DELTA,
-	MSG_INITIAL_PENDINGTURN,
+	MSG_LVL_DELTA_WAIT, // wait for level delta information
+	MSG_LVL_DELTA_PROC, // process turns till the timestamp of the level delta info
+	MSG_LVL_DELTA_SKIP_JOIN // skip most of the JOINLEVEL message of the level-delta timestamp (level delta is supposed to contain this)
 } _msg_mode;
 
 typedef enum _talker_id {

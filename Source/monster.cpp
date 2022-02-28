@@ -2103,10 +2103,8 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		if (mon->_mhitpoints > mon->_mmaxhp)
 			mon->_mhitpoints = mon->_mmaxhp;
 	}
-	if (pnum == mypnum) {
-		if (PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
-			return;
-		}
+	if (PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
+		return;
 	}
 	StartPlrHit(pnum, dam, false);
 	if (mon->_mFlags & MFLAG_KNOCKBACK) {

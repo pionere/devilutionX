@@ -758,7 +758,7 @@ void InitPlayer(int pnum)
 /*
  * Initialize players on the current level.
  */
-void InitLvlPlayer(int pnum)
+void InitLvlPlayer(int pnum, bool entering)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("InitLvlPlayer: illegal player %d", pnum);
@@ -768,69 +768,57 @@ void InitLvlPlayer(int pnum)
 		plr._pSkillFlags	|= SFLAG_DUNGEON;
 	} else {
 		plr._pSkillFlags	&= ~SFLAG_DUNGEON;
-		if (plr._pHitPoints < (1 << 6))
-			PlrSetHp(pnum, (1 << 6));
 	}
+
+	CalcPlrItemVals(pnum, false);
+	if (currLvl._dType == DTYPE_TOWN && plr._pHitPoints < (1 << 6))
+		PlrSetHp(pnum, (1 << 6));
 
 	InitPlayerGFX(pnum); // for the local player this is necessary only if switching from or to town
 	SetPlrAnims(pnum);
 
-	//plr._pxoff = 0;
-	//plr._pyoff = 0;
+	if (entering) {
+		SyncInitPlrPos(pnum);
 
-	//ClearPlrPVars(pnum);
-
-	/*if (plr._pHitPoints >= (1 << 6)) {
-		plr._pmode = PM_STAND;
-		NewPlrAnim(pnum, plr._pNAnim, DIR_S, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
-		plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
-		plr._pAnimCnt = random_(2, 3);
-	} else {
-		plr._pmode = PM_DEATH;
-		NewPlrAnim(pnum, plr._pDAnim, DIR_S, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
-		plr._pAnimFrame = plr._pAnimLen - 1;
-		plr._pVar7 = 0; // DEATH_DELAY
-	}*/
-
-	/*if (pnum == mypnum) {
-		plr._px = ViewX;
-		plr._py = ViewY;
-	}*/
-	SyncInitPlrPos(pnum);
-
-	//if (plr._pmode == PM_NEWLVL) {
 		plr._pdir = DIR_S;
 		PlrStartStand(pnum);
 		// TODO: randomize AnimFrame/AnimCnt for live players?
 		// plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
 		// plr._pAnimCnt = random_(2, 3);
 
-		//plr._pfutx = plr._px;
-		//plr._pfuty = plr._py;
-
 		plr.walkpath[0] = DIR_NONE;
 		plr.destAction = ACTION_NONE;
-
+	} else {
 		if (pnum == mypnum) {
-			plr._plid = AddLight(plr._px, plr._py, plr._pLightRad);
-		} else {
-			plr._plid = NO_LIGHT;
+			assert(plr._pfutx == plr._poldx);
+			assert(plr._poldx == plr._px);
+			assert(plr._pfuty == plr._poldy);
+			assert(plr._poldy == plr._py);
+			assert(plr._pxoff == 0);
+			assert(plr._pyoff == 0);
+			FixPlayerLocation(pnum);
 		}
-		plr._pvid = AddVision(plr._px, plr._py, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
-	//}
-
-	/*if (plr._pmode != PM_DEATH)
-		plr._pInvincible = FALSE;
+		if (plr._pmode != PM_DEATH) {
+			dPlayer[plr._px][plr._py] = pnum + 1;
+			if (plr._pmode == PM_WALK2) {
+				dPlayer[plr._poldx][plr._poldy] = -(pnum + 1);
+			} else if (plr._pmode == PM_WALK) {
+				dPlayer[plr._pfutx][plr._pfuty] = -(pnum + 1);
+			} else if (plr._pmode == PM_CHARGE) {
+				dPlayer[plr._px][plr._py] = -(pnum + 1);
+			}
+		} else {
+			dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
+		}
+		SyncPlrAnim(pnum);
+	}
 
 	if (pnum == mypnum) {
-		// TODO: BUGFIX: sure?
-		//    - what if we just joined with a dead player?
-		//    - what if the player was killed while entering a portal?
-		//gbDeathflag = MDM_ALIVE;
-		assert(ScrollInfo._sxoff == 0);
-		assert(ScrollInfo._syoff == 0);
-		assert(ScrollInfo._sdir == SDIR_NONE);
-	}*/
+		plr._plid = AddLight(plr._px, plr._py, plr._pLightRad);
+	} else {
+		plr._plid = NO_LIGHT;
+	}
+	plr._pvid = AddVision(plr._px, plr._py, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
 }
 
 void RemoveLvlPlayer(int pnum)
@@ -2271,7 +2259,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
 	}
 
-	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
+	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
 		StartPlrHit(pnum, dam, false);
 	return true;
 }
@@ -2876,27 +2864,33 @@ void ProcessPlayers()
 	}
 #endif
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pLvlChanging)
+		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel)
 			continue;
 #if DEBUG_MODE || DEV_MODE
 		ValidatePlayer(pnum);
 #endif
+		if (plr._pInvincible && plr._pmode != PM_DEATH) {
+			if (plr._pLvlChanging)
+				continue;
+			if (plr.destAction != ACTION_NONE)
+				plr._pInvincible = 0;
+			else
+				plr._pInvincible--;
+		}
 		{
 			//CheckCheatStats(pnum);
 
-			if (pnum == mypnum) {
-				//if (!PlrDeathModeOK(pnum) && plr._pHitPoints < (1 << 6)) {
-				if (plr._pHitPoints < (1 << 6) && !plr._pInvincible) {
-					StartPlrKill(pnum, DMGTYPE_UNKNOWN);
-				}
-				if ((plr._pIFlags & ISPL_DRAINLIFE) && currLvl._dLevelIdx != DLV_TOWN && !plr._pInvincible) {
-					PlrDecHp(pnum, 4, DMGTYPE_NPC);
-				}
-				if (plr._pTimer[PLTR_INFRAVISION] != 0) {
-					plr._pTimer[PLTR_INFRAVISION]--;
-					if (plr._pTimer[PLTR_INFRAVISION] == 0) {
-						CalcPlrItemVals(pnum, false); // last parameter should not matter
-					}
+			//if (!PlrDeathModeOK(pnum) && plr._pHitPoints < (1 << 6)) {
+			if (plr._pHitPoints < (1 << 6) && !plr._pInvincible) {
+				StartPlrKill(pnum, DMGTYPE_UNKNOWN);
+			}
+			if ((plr._pIFlags & ISPL_DRAINLIFE) && currLvl._dLevelIdx != DLV_TOWN && !plr._pInvincible) {
+				PlrDecHp(pnum, 4, DMGTYPE_NPC);
+			}
+			if (plr._pTimer[PLTR_INFRAVISION] != 0) {
+				plr._pTimer[PLTR_INFRAVISION]--;
+				if (plr._pTimer[PLTR_INFRAVISION] == 0) {
+					CalcPlrItemVals(pnum, false); // last parameter should not matter
 				}
 			}
 
@@ -3078,7 +3072,7 @@ void MissToPlr(int mi, int x, int y, bool hit)
 
 		//if (random_(151, 200) < plr._pICritChance)
 		//	dam <<= 1;
-		if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
+		if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
 			StartPlrHit(mpnum, dam, true);
 		return;
 	}

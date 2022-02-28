@@ -186,17 +186,6 @@ static void CreateLevel(int lvldir)
 	LoadRndLvlPal();
 }
 
-static void InitPlayers()
-{
-	int pnum;
-
-	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pLvlChanging)
-			continue;
-		InitLvlPlayer(pnum);
-	}
-}
-
 void LoadGameLevel(int lvldir)
 {
 #if DEBUG_MODE
@@ -269,7 +258,6 @@ void LoadGameLevel(int lvldir)
 			InitTowners();
 			IncProgress();
 			InitItems();
-			IncProgress();
 		}
 	} else {
 		LoadSetMap();
@@ -294,21 +282,17 @@ void LoadGameLevel(int lvldir)
 	InitMissiles();
 	SavePreLighting();
 
-	ResyncQuests();
-	if (IsMultiGame)
-		DeltaLoadLevel();
-	else if (lvldir != ENTRY_LOAD && IsLvlVisited(currLvl._dLevelIdx)) {
-		LoadLevel();
+	IncProgress();
+
+	if (!IsMultiGame) {
+		ResyncQuests();
+		if (lvldir != ENTRY_LOAD && IsLvlVisited(currLvl._dLevelIdx)) {
+			LoadLevel();
+		}
+		//SyncPortals();
 	}
 
-	IncProgress();
-
 	InitSync();
-	SyncPortals();
-
-	IncProgress();
-	if (lvldir != ENTRY_LOAD)
-		InitPlayers();
 	PlayDungMsgs();
 
 	guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);

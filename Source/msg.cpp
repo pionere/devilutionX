@@ -956,6 +956,9 @@ void DeltaLoadLevel()
 				SetMonsterLoc(mon, x, y);
 				mon->_mdir = mstr->_mdir;
 				UpdateLeader(i, mon->leaderflag, mstr->_mleaderflag);
+				// set hitpoints for dead monsters as well to ensure sync in multiplayer
+				// games even on the first game_logic run
+				mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
 				// SyncDeadLight: inline for better performance + apply to moving monsters
 				if (mon->mlid != NO_LIGHT)
 					ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
@@ -964,7 +967,6 @@ void DeltaLoadLevel()
 				if (mstr->_mCmd >= DCMD_MON_DEAD) {
 					AddDead(i, mstr->_mCmd);
 				} else {
-					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
 					mon->_msquelch = mstr->_mactive;
 					mon->_mWhoHit = mstr->_mWhoHit;
 					dMonster[mon->_mx][mon->_my] = i + 1;
@@ -1047,9 +1049,11 @@ void DeltaLoadLevel()
 void NetSendCmdJoinLevel()
 {
 	TCmdJoinLevel cmd;
+	int i;
+	ItemStruct* is;
 
 	cmd.bCmd = CMD_JOINLEVEL;
-	cmd.lLevel = currLvl._dLevelIdx;
+	cmd.lLevel = myplr._pDunLevel;
 	cmd.px = ViewX;
 	cmd.py = ViewY;
 	cmd.php = SwapLE32(myplr._pHPBase);
@@ -1057,20 +1061,587 @@ void NetSendCmdJoinLevel()
 	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
 	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
 
+	for (i = 0; i < NUM_INVELEM; i++) {
+		is = PlrItem(mypnum, i);
+		cmd.itemsDur[i] = is->_iDurability;
+	}
+	cmd.itemsDur[NUM_INVELEM] = myplr._pHoldItem._iDurability;
+
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdAckJoinLevel()
+void LevelDeltaExport(uint32_t turn)
 {
-	TCmdAckJoinLevel cmd;
+	LDLevel* lvlData;
 
-	cmd.bCmd = CMD_ACK_JOINLEVEL;
-	cmd.lManashield = myplr._pManaShield;
-	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
-	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
+	int pnum, mnum, i, mi;
+	ItemStruct* is;
+	MonsterStruct* mon;
+	MissileStruct* mis;
+	bool validDelta, completeDelta;
+	BYTE* dst;
+	unsigned recipients = 0;
 
-	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
-	//dthread_send_delta(pnum, CMD_ACK_JOINLEVEL, &cmd, sizeof(cmd));
+	validDelta = currLvl._dLevelIdx != DLV_INVALID;
+	completeDelta = false;
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!(guSendLevelData & (1 << pnum)) || // pnum did not request a level-delta
+//		  (guReceivedLevelDelta & (1 << pnum)) ||  // got an (empty) level delta from pnum
+		  (!validDelta && !myplr._pLvlChanging && // both players are 'actively' loading
+		   plr._pDunLevel == myplr._pDunLevel &&  // the same level ->
+			(guRequestLevelData[pnum] > guRequestLevelData[mypnum] || (guRequestLevelData[pnum] == guRequestLevelData[mypnum] && pnum > mypnum)))) { // ignore lower priority requests 	TODO: overflow hickup
+			; // skip
+		} else {
+			guSendLevelData &= ~(1 << pnum);
+			completeDelta |= pnum != mypnum && plr._pDunLevel == myplr._pDunLevel;
+			recipients |= (1 << pnum);
+		}
+	}
+	completeDelta &= validDelta;
+	// send detailed level delta only if available and appropriate
+	if (completeDelta) {
+		// can not be done during lvl-delta load, otherwise a separate buffer should be used
+		assert(geBufferMsgs != MSG_LVL_DELTA_WAIT && geBufferMsgs != MSG_LVL_DELTA_PROC);
+		lvlData = (LDLevel*)&gsDeltaData.ddSendRecvBuf.content[0];
+
+		static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs I.");
+		lvlData->ldNumMonsters = nummonsters;
+
+		for (i = 0; i < MAXMONSTERS; i++) {
+			lvlData->ldMonstActive[i] = monstactive[i];
+		}
+		static_assert(MAXMISSILES <= UCHAR_MAX, "Missile indices are transferred as BYTEs I.");
+		for (i = 0; i < MAXMISSILES; i++) {
+			lvlData->ldMissActive[i] = missileactive[i];
+		}
+
+		dst = &lvlData->ldContent[0];
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			TSyncLvlPlayer* __restrict tplr = (TSyncLvlPlayer*)dst;
+			if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging) {
+				tplr->spMode = PM_INVALID;
+				dst++;
+				continue;
+			}
+
+			tplr->spMode = plr._pmode;
+			static_assert(sizeof(plr.walkpath[0]) == 1, "LevelDeltaExport exports walkpath as a bytestream.");
+			memcpy(tplr->spWalkpath, plr.walkpath, MAX_PATH_LENGTH + 1);
+			assert(&tplr->spWalkpath[MAX_PATH_LENGTH] == &tplr->spManaShield);
+			tplr->spManaShield = plr._pManaShield;
+			tplr->spInvincible = plr._pInvincible;
+			tplr->spDestAction = plr.destAction;
+			tplr->spDestParam1 = SwapLE32(plr.destParam1);
+			tplr->spDestParam2 = SwapLE32(plr.destParam2);
+			tplr->spDestParam3 = SwapLE32(plr.destParam3);
+			tplr->spDestParam4 = SwapLE32(plr.destParam4);
+			tplr->spTimer[PLTR_INFRAVISION] = SwapLE16(plr._pTimer[PLTR_INFRAVISION]);
+			tplr->spTimer[PLTR_RAGE] = SwapLE16(plr._pTimer[PLTR_RAGE]);
+			tplr->spx = plr._px;
+			tplr->spy = plr._py;
+			tplr->spfutx = plr._pfutx;
+			tplr->spfuty = plr._pfuty;
+			tplr->spoldx = plr._poldx;
+			tplr->spoldy = plr._poldy;
+//	INT spxoff;   // Player sprite's pixel X-offset from tile.
+//	INT spyoff;   // Player sprite's pixel Y-offset from tile.
+			tplr->spdir = plr._pdir;
+			tplr->spAnimFrame = plr._pAnimFrame;
+			tplr->spAnimCnt = plr._pAnimCnt;
+			tplr->spHPBase = SwapLE32(plr._pHPBase);
+			tplr->spManaBase = SwapLE32(plr._pManaBase);
+			tplr->spVar1 = SwapLE32(plr._pVar1);
+			tplr->spVar2 = SwapLE32(plr._pVar2);
+			tplr->spVar3 = SwapLE32(plr._pVar3);
+			tplr->spVar4 = SwapLE32(plr._pVar4);
+			tplr->spVar5 = SwapLE32(plr._pVar5);
+			tplr->spVar6 = SwapLE32(plr._pVar6);
+			tplr->spVar7 = SwapLE32(plr._pVar7);
+			tplr->spVar8 = SwapLE32(plr._pVar8);
+			tplr->bItemsDur = 0;
+			dst += sizeof(TSyncLvlPlayer);
+
+			// sync durabilities
+			for (i = 0; i <= NUM_INVELEM; i++) {
+				if (i == NUM_INVELEM)
+					is = &plr._pHoldItem;
+				else
+					is = PlrItem(pnum, i);
+				static_assert((int)ITYPE_SWORD + 1 == (int)ITYPE_AXE, "LevelDeltaExport expects ordered ITYPE enum I.");
+				static_assert((int)ITYPE_AXE + 1 == (int)ITYPE_BOW, "LevelDeltaExport expects ordered ITYPE enum II.");
+				static_assert((int)ITYPE_BOW + 1 == (int)ITYPE_MACE, "LevelDeltaExport expects ordered ITYPE enum III.");
+				static_assert((int)ITYPE_MACE + 1 == (int)ITYPE_STAFF, "LevelDeltaExport expects ordered ITYPE enum IV.");
+				static_assert((int)ITYPE_STAFF + 1 == (int)ITYPE_SHIELD, "LevelDeltaExport expects ordered ITYPE enum V.");
+				static_assert((int)ITYPE_SHIELD + 1 == (int)ITYPE_HELM, "LevelDeltaExport expects ordered ITYPE enum VI.");
+				static_assert((int)ITYPE_HELM + 1 == (int)ITYPE_LARMOR, "LevelDeltaExport expects ordered ITYPE enum VII.");
+				static_assert((int)ITYPE_LARMOR + 1 == (int)ITYPE_MARMOR, "LevelDeltaExport expects ordered ITYPE enum VIII.");
+				static_assert((int)ITYPE_MARMOR + 1 == (int)ITYPE_HARMOR, "LevelDeltaExport expects ordered ITYPE enum IX.");
+				if (is->_itype >= ITYPE_SWORD && is->_itype <= ITYPE_HARMOR) {
+					*dst = i;
+					dst++;
+					*dst = is->_iDurability;
+					dst++;
+					tplr->bItemsDur++;
+				}
+			}
+		}
+
+		for (i = 0; i < nummonsters; i++) {
+			mnum = monstactive[i];
+			mon = &monsters[mnum];
+			if (mnum < MAX_MINIONS && MINION_INACTIVE(mon))
+				continue;
+			if (mon->_msquelch == 0) {
+				continue;	// assume it is the same as in delta
+			}
+			TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)dst;
+			tmon->smMnum = mnum;
+			tmon->smMode = mon->_mmode;
+			tmon->smSquelch = mon->_msquelch;
+			tmon->smPathcount = mon->_mpathcount;
+			tmon->smWhoHit = mon->_mWhoHit;
+			tmon->smGoal = mon->_mgoal;
+			tmon->smGoalvar1 = mon->_mgoalvar1;
+			tmon->smGoalvar2 = mon->_mgoalvar2;
+			tmon->smGoalvar3 = mon->_mgoalvar3;
+			tmon->smx = mon->_mx;                // Tile X-position of monster
+			tmon->smy = mon->_my;                // Tile Y-position of monster
+			tmon->smfutx = mon->_mfutx;             // Future tile X-position of monster. Set at start of walking animation
+			tmon->smfuty = mon->_mfuty;             // Future tile Y-position of monster. Set at start of walking animation
+			tmon->smoldx = mon->_moldx;             // Most recent X-position in dMonster.
+			tmon->smoldy = mon->_moldy;             // Most recent Y-position in dMonster.
+//	tmon->_mxoff;             // Monster sprite's pixel X-offset from tile.
+//	tmon->_myoff;             // Monster sprite's pixel Y-offset from tile.
+			tmon->smdir = mon->_mdir;              // Direction faced by monster (direction enum)
+			tmon->smEnemy = mon->_menemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
+			tmon->smEnemyx = mon->_menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
+			tmon->smEnemyy = mon->_menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+			tmon->smListener = mon->_mListener;        // the player to whom the monster is talking to
+			tmon->smAnimCnt = mon->_mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
+			tmon->smAnimFrame = mon->_mAnimFrame; // Current frame of animation.
+			// assert(!mon->_mDelFlag || mon->_mmode == MM_STONE);
+			tmon->smDelFlag = mon->_mDelFlag;
+			tmon->smVar1 = mon->_mVar1;
+			tmon->smVar2 = mon->_mVar2;
+			tmon->smVar3 = mon->_mVar3;
+			tmon->smVar4 = mon->_mVar4;
+			tmon->smVar5 = mon->_mVar5;
+			tmon->smVar6 = mon->_mVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+			tmon->smVar7 = mon->_mVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+			tmon->smVar8 = mon->_mVar8; // Value used to measure progress for moving from one tile to another
+			tmon->smHitpoints = mon->_mhitpoints;
+			tmon->smLastx = mon->_lastx; // the last known X-coordinate of the enemy
+			tmon->smLasty = mon->_lasty; // the last known Y-coordinate of the enemy
+			//tmon->smLeader = mon->leader; // the leader of the monster
+			tmon->smLeaderflag = mon->leaderflag; // the status of the monster's leader
+			//tmon->smPacksize = mon->packsize; // the number of 'pack'-monsters close to their leader
+	//BYTE falign_CB;
+			tmon->smFlags = mon->_mFlags;
+			tmon->smTalkmsg = mon->mtalkmsg;
+
+			dst += sizeof(TSyncLvlMonster);
+		}
+
+		for (i = 0; i < nummissiles; i++) {
+			mi = missileactive[i];
+			mis = &missile[mi];
+
+			//assert(!mis->_miDelFlag);
+			TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)dst;
+			tmis->smiMi = mi + MAXMONSTERS;
+			tmis->smiType = mis->_miType;   // Type of projectile (MIS_*)
+			//BYTE _miSubType; // Sub-Type of projectile 
+			tmis->smiAnimType = mis->_miAnimType;
+			//BOOL _miAnimFlag;
+			tmis->smiAnimCnt = mis->_miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
+			tmis->smiAnimAdd = mis->_miAnimAdd;
+			tmis->smiAnimFrame = mis->_miAnimFrame; // Current frame of animation.
+			tmis->smiDrawFlag = mis->_miDrawFlag;
+			tmis->smiLightFlag = mis->_miLightFlag;
+			tmis->smiPreFlag = mis->_miPreFlag;
+			tmis->smiUniqTrans = mis->_miUniqTrans;
+			tmis->smisx = mis->_misx;    // Initial tile X-position for missile
+			tmis->smisy = mis->_misy;    // Initial tile Y-position for missile
+			tmis->smix = mis->_mix;     // Tile X-position of the missile
+			tmis->smiy = mis->_miy;     // Tile Y-position of the missile
+			tmis->smixoff = mis->_mixoff;  // Sprite pixel X-offset for the missile
+			tmis->smiyoff = mis->_miyoff;  // Sprite pixel Y-offset for the missile
+			tmis->smixvel = mis->_mixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
+			tmis->smiyvel = mis->_miyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
+			tmis->smitxoff = mis->_mitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+			tmis->smityoff = mis->_mityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+			tmis->smiDir = mis->_miDir;   // The direction of the missile
+			tmis->smiSpllvl = mis->_miSpllvl; // int?
+			tmis->smiSource = mis->_miSource; // int?
+			tmis->smiCaster = mis->_miCaster; // int?
+			tmis->smiMinDam = mis->_miMinDam;
+			tmis->smiMaxDam = mis->_miMaxDam;
+			tmis->smiRndSeed = mis->_miRndSeed;
+			tmis->smiRange = mis->_miRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+			tmis->smiDist = mis->_miDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
+			tmis->smiLidRadius = mis->_miLid == NO_LIGHT ? 0 : LightList[mis->_miLid]._lradius;
+			tmis->smiVar1 = mis->_miVar1;
+			tmis->smiVar2 = mis->_miVar2;
+			tmis->smiVar3 = mis->_miVar3;
+			tmis->smiVar4 = mis->_miVar4;
+			tmis->smiVar5 = mis->_miVar5;
+			tmis->smiVar6 = mis->_miVar6;
+			tmis->smiVar7 = mis->_miVar7;
+			tmis->smiVar8 = mis->_miVar8;
+
+			dst += sizeof(TSyncLvlMissile);
+		}
+
+		lvlData->wLen = SwapLE16((size_t)dst - (size_t)&lvlData->ldContent[0]);
+		DWORD size = /*Level*/DeltaCompressData(dst);
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (recipients & (1 << pnum)) {
+				dthread_send_delta(pnum, NMSG_LVL_DELTA, &gsDeltaData.ddSendRecvBuf, size);
+			}
+		}
+	}
+	// current number of chunks sent + level + turn-id + end
+	LevelDeltaEnd deltaEnd;
+	deltaEnd.compressed = FALSE;
+	deltaEnd.numChunks = completeDelta ? 1 : 0;
+	deltaEnd.level = currLvl._dLevelIdx;
+	deltaEnd.turn = SDL_SwapLE32(gdwLastGameTurn + 1);
+	assert(turn == gdwLastGameTurn + 1);
+	for (pnum = 0; pnum < MAX_PLRS; pnum++, recipients >>= 1) {
+		if (recipients & 1) {
+			dthread_send_delta(pnum, NMSG_LVL_DELTA_END, &deltaEnd, sizeof(deltaEnd));
+		}
+	}
+}
+
+void LevelDeltaLoad()
+{
+	int pnum, i, mnum, mi;
+	ItemStruct* is;
+	MonsterStruct* mon;
+	MissileStruct* mis;
+	const MissileData* mds;
+	BYTE* src;
+	WORD wLen;
+	LDLevel* lvlData;
+
+	geBufferMsgs = MSG_NORMAL;
+	assert(currLvl._dLevelIdx == DLV_INVALID);
+	currLvl._dLevelIdx = myplr._pDunLevel;
+
+	// assert(IsMultiGame);
+	ResyncQuests();
+	DeltaLoadLevel();
+	//SyncPortals();
+	// reset squelch set from delta, the message should contain more up-to-date info
+	for (mnum = MAX_MINIONS; mnum < MAXMONSTERS; mnum++) {
+		monsters[mnum]._msquelch = 0;
+	}
+	// remove monsters which are already dead
+	DeleteMonsterList();
+
+	lvlData = (LDLevel*)&gsDeltaData.ddSendRecvBuf.content[0];
+	static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs II.");
+	assert(nummonsters <= lvlData->ldNumMonsters);
+	nummonsters = lvlData->ldNumMonsters;
+	net_assert(nummonsters <= MAXMONSTERS);
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		net_assert(lvlData->ldMonstActive[mnum] < MAXMONSTERS);
+		monstactive[mnum] = lvlData->ldMonstActive[mnum];
+	}
+
+	static_assert(MAXMISSILES <= UCHAR_MAX, "Missile indices are transferred as BYTEs II.");
+	for (mi = 0; mi < MAXMISSILES; mi++) {
+		net_assert(lvlData->ldMissActive[mi] < MAXMISSILES);
+		missileactive[mi] = lvlData->ldMissActive[mi];
+	}
+
+	src = &lvlData->ldContent[0];
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		TSyncLvlPlayer* __restrict tplr = (TSyncLvlPlayer*)src;
+		if (tplr->spMode == PM_INVALID) {
+			src++;
+			continue;
+		}
+		//RemovePlrFromMap(pnum);
+		if (dPlayer[plr._px][plr._py] == pnum + 1)
+			dPlayer[plr._px][plr._py] = 0;
+		net_assert(tplr->spMode < NUM_PLR_MODES);
+		plr._pmode = tplr->spMode;
+		static_assert(sizeof(tplr->spWalkpath[0]) == 1, "LevelDeltaLoad imports walkpath as a bytestream.");
+		memcpy(plr.walkpath, tplr->spWalkpath, MAX_PATH_LENGTH);
+		plr._pManaShield = tplr->spManaShield;
+		plr._pInvincible = tplr->spInvincible;
+		plr.destAction = tplr->spDestAction;
+		plr.destParam1 = SwapLE32(tplr->spDestParam1);
+		plr.destParam2 = SwapLE32(tplr->spDestParam2);
+		plr.destParam3 = SwapLE32(tplr->spDestParam3);
+		plr.destParam4 = SwapLE32(tplr->spDestParam4);
+		plr._pTimer[PLTR_INFRAVISION] = SwapLE16(tplr->spTimer[PLTR_INFRAVISION]);
+		plr._pTimer[PLTR_RAGE] = SwapLE16(tplr->spTimer[PLTR_RAGE]);
+		plr._px = tplr->spx;
+		plr._py = tplr->spy;
+		plr._pfutx = tplr->spfutx;
+		plr._pfuty = tplr->spfuty;
+		plr._poldx = tplr->spoldx;
+		plr._poldy = tplr->spoldy;
+//	INT spxoff;   // Player sprite's pixel X-offset from tile.
+//	INT spyoff;   // Player sprite's pixel Y-offset from tile.
+		plr._pxoff = plr._pyoff = 0; // no need to sync these values as they are recalculated when used
+		plr._pdir = tplr->spdir;
+		plr._pAnimFrame = tplr->spAnimFrame;
+		plr._pAnimCnt = tplr->spAnimCnt;
+		plr._pHPBase = SwapLE32(tplr->spHPBase);
+		plr._pManaBase = SwapLE32(tplr->spManaBase);
+		plr._pVar1 = SwapLE32(tplr->spVar1);
+		plr._pVar2 = SwapLE32(tplr->spVar2);
+		plr._pVar3 = SwapLE32(tplr->spVar3);
+		plr._pVar4 = SwapLE32(tplr->spVar4);
+		plr._pVar5 = SwapLE32(tplr->spVar5);
+		plr._pVar6 = SwapLE32(tplr->spVar6);
+		plr._pVar7 = SwapLE32(tplr->spVar7);
+		plr._pVar8 = SwapLE32(tplr->spVar8);
+
+		src += sizeof(TSyncLvlPlayer);
+
+		// sync durabilities
+		for (i = tplr->bItemsDur; i > 0; i--) {
+			if (*src == NUM_INVELEM)
+				is = &plr._pHoldItem;
+			else
+				is = PlrItem(pnum, *src);
+			src++;
+			is->_iDurability = *src;
+			src++;
+		}
+
+		InitLvlPlayer(pnum, false);
+	}
+
+	wLen = SwapLE16(lvlData->wLen);
+	wLen -= ((size_t)src - size_t(&lvlData->ldContent[0]));
+	for ( ; wLen >= sizeof(TSyncLvlMonster); wLen -= sizeof(TSyncLvlMonster)) {
+		TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)src;
+		mnum = tmon->smMnum;
+		if (mnum >= MAXMONSTERS)
+			break;
+
+		mon = &monsters[mnum];
+		//RemoveMonFromMap(mnum);
+		if (dMonster[mon->_mx][mon->_my] == mnum + 1)
+			dMonster[mon->_mx][mon->_my] = 0;
+
+		UpdateLeader(mnum, mon->leaderflag, tmon->smLeaderflag);
+
+		mon->_mmode = tmon->smMode;
+		mon->_msquelch = tmon->smSquelch;
+		mon->_mpathcount = tmon->smPathcount;
+		mon->_mWhoHit = tmon->smWhoHit;
+		mon->_mgoal = tmon->smGoal;
+		mon->_mgoalvar1 = tmon->smGoalvar1;
+		mon->_mgoalvar2 = tmon->smGoalvar2;
+		mon->_mgoalvar3 = tmon->smGoalvar3;
+		mon->_mx = tmon->smx;                // Tile X-position of monster
+		mon->_my = tmon->smy;                // Tile Y-position of monster
+		mon->_mfutx = tmon->smfutx;             // Future tile X-position of monster. Set at start of walking animation
+		mon->_mfuty = tmon->smfuty;             // Future tile Y-position of monster. Set at start of walking animation
+		mon->_moldx = tmon->smoldx;             // Most recent X-position in dMonster.
+		mon->_moldy = tmon->smoldy;             // Most recent Y-position in dMonster.
+//	tmon->_mxoff;             // Monster sprite's pixel X-offset from tile.
+//	tmon->_myoff;             // Monster sprite's pixel Y-offset from tile.
+		mon->_mxoff = mon->_myoff = 0; // no need to sync these values as they are recalculated when used
+		mon->_mdir = tmon->smdir;              // Direction faced by monster (direction enum)
+		mon->_menemy = tmon->smEnemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
+		mon->_menemyx = tmon->smEnemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
+		mon->_menemyy = tmon->smEnemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+		mon->_mListener = tmon->smListener;        // the player to whom the monster is talking to
+		mon->_mDelFlag = tmon->smDelFlag;
+		mon->_mAnimCnt = tmon->smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
+		mon->_mAnimFrame = tmon->smAnimFrame; // Current frame of animation.
+		mon->_mVar1 = tmon->smVar1;
+		mon->_mVar2 = tmon->smVar2;
+		mon->_mVar3 = tmon->smVar3;
+		mon->_mVar4 = tmon->smVar4;
+		mon->_mVar5 = tmon->smVar5;
+		mon->_mVar6 = tmon->smVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+		mon->_mVar7 = tmon->smVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+		mon->_mVar8 = tmon->smVar8; // Value used to measure progress for moving from one tile to another
+		mon->_mhitpoints = tmon->smHitpoints;
+		mon->_lastx = tmon->smLastx; // the last known X-coordinate of the enemy
+		mon->_lasty = tmon->smLasty; // the last known Y-coordinate of the enemy
+//BYTE leader; // the leader of the monster
+		//mon->leaderflag = tmon->smLeaderflag; // the status of the monster's leader
+//BYTE packsize; // the number of 'pack'-monsters close to their leader
+//BYTE falign_CB;
+		mon->_mFlags = tmon->smFlags;
+		mon->mtalkmsg = tmon->smTalkmsg;
+		// move the light of the monster
+		if (mon->mlid != NO_LIGHT)
+			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
+		// place the monster
+		dMonster[mon->_mx][mon->_my] = mnum + 1;
+		if (mon->_mmode == MM_WALK2) {
+			dMonster[mon->_moldx][mon->_moldy] = -(mnum + 1);
+		} else if (mon->_mmode == MM_WALK) {
+			dMonster[mon->_mfutx][mon->_mfuty] = -(mnum + 1);
+		} else if (mon->_mmode == MM_CHARGE) {
+			dMonster[mon->_mx][mon->_my] = -(mnum + 1);
+		}
+		// ensure dead bodies are not placed prematurely
+		if (mon->_mmode == MM_DEATH || (mon->_mmode == MM_STONE && mon->_mhitpoints == 0))
+			dDead[mon->_mx][mon->_my] = 0;
+		SyncMonsterAnim(mnum);
+		src += sizeof(TSyncLvlMonster);
+	}
+	assert(nummissiles == 0);
+	for ( ; wLen >= sizeof(TSyncLvlMissile); wLen -= sizeof(TSyncLvlMissile)) {
+		TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)src;
+		net_assert(tmis->smiMi >= MAXMONSTERS);
+		mi = tmis->smiMi - MAXMONSTERS;
+		net_assert((unsigned)mi < MAXMISSILES);
+		assert(missileactive[nummissiles] == mi);
+		nummissiles++;
+		net_assert(nummissiles <= MAXMISSILES);
+		mis = &missile[mi];
+		memset(mis, 0, sizeof(*mis));
+
+		mis->_miType = tmis->smiType;   // Type of projectile (MIS_*)
+		//BYTE _miSubType; // Sub-Type of projectile 
+		mis->_miAnimType = tmis->smiAnimType;
+		//BOOL _miAnimFlag;
+		mis->_miAnimCnt = tmis->smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
+		mis->_miAnimAdd = tmis->smiAnimAdd;
+		mis->_miAnimFrame = tmis->smiAnimFrame; // Current frame of animation.
+		mis->_miDrawFlag = tmis->smiDrawFlag;	// could be calculated
+		mis->_miLightFlag = tmis->smiLightFlag;	// could be calculated
+		mis->_miPreFlag = tmis->smiPreFlag;	// could be calculated
+		mis->_miUniqTrans = tmis->smiUniqTrans;
+		mis->_misx = tmis->smisx;    // Initial tile X-position for missile
+		mis->_misy = tmis->smisy;    // Initial tile Y-position for missile
+		mis->_mix = tmis->smix;     // Tile X-position of the missile
+		mis->_miy = tmis->smiy;     // Tile Y-position of the missile
+		mis->_mixoff = tmis->smixoff;  // Sprite pixel X-offset for the missile
+		mis->_miyoff = tmis->smiyoff;  // Sprite pixel Y-offset for the missile
+		mis->_mixvel = tmis->smixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
+		mis->_miyvel = tmis->smiyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
+		mis->_mitxoff = tmis->smitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+		mis->_mityoff = tmis->smityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+		mis->_miDir = tmis->smiDir;   // The direction of the missile
+		mis->_miSpllvl = tmis->smiSpllvl; // int?
+		mis->_miSource = tmis->smiSource; // int?
+		mis->_miCaster = tmis->smiCaster; // int?
+		mis->_miMinDam = tmis->smiMinDam;
+		mis->_miMaxDam = tmis->smiMaxDam;
+		mis->_miRndSeed = tmis->smiRndSeed;
+		mis->_miRange = tmis->smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+		mis->_miDist = tmis->smiDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
+		mis->_miVar1 = tmis->smiVar1;
+		mis->_miVar2 = tmis->smiVar2;
+		mis->_miVar3 = tmis->smiVar3;
+		mis->_miVar4 = tmis->smiVar4;
+		mis->_miVar5 = tmis->smiVar5;
+		mis->_miVar6 = tmis->smiVar6;
+		mis->_miVar7 = tmis->smiVar7;
+		mis->_miVar8 = tmis->smiVar8;
+
+		if (tmis->smiLidRadius != 0) {
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, tmis->smiLidRadius);
+		} else {
+			mis->_miLid = NO_LIGHT;
+		}
+		mds = &missiledata[mis->_miType];
+		mis->_miSubType = mds->mType;
+		mis->_miFlags = mds->mdFlags;
+		mis->_miResist = mds->mResist;
+
+		// PutMissile(mi); - unnecessary, since it is just a gfx
+		// PutMissileF(mi, BFLAG_HAZARD)
+		if (mis->_miType == MIS_FIREWALL) {
+			dMissile[mis->_mix][mis->_miy] = /*dMissile[mis->_mix][mis->_miy] == 0 ? mi + 1 :*/ -1;
+			dFlags[mis->_mix][mis->_miy] |= BFLAG_HAZARD;
+		}
+		// PutMissileF(mi, BFLAG_MISSILE_PRE) - unnecessary, since it is just a gfx
+		//if (mis->_miType == MIS_FLASH2 || mis->_miType == MIS_ACIDPUD) {
+		//	dMissile[mis->_mix][mis->_miy] = /*dMissile[mis->_mix][mis->_miy] == 0 ? mi + 1 :*/ -1;
+		//	dFlags[mis->_mix][mis->_miy] |= BFLAG_MISSILE_PRE;
+		//}
+		src += sizeof(TSyncLvlMissile);
+	}
+	SyncMissilesAnim();
+
+	net_assert(wLen == 0);
+
+	//ProcessLightList();
+	ProcessVisionList();
+}
+
+static void LevelDeltaImportEnd(TCmdPlrInfoHdr* cmd, int pnum)
+{
+	LevelDeltaEnd* buf;
+
+	guReceivedLevelDelta |= 1 << pnum;
+
+	net_assert(SwapLE16(cmd->wBytes) == sizeof(LevelDeltaEnd));
+	buf = (LevelDeltaEnd*)&cmd[1];
+	net_assert(!buf->compressed);
+	if (buf->numChunks == 0)
+		return; // empty delta -> not done yet
+	net_assert(buf->level == myplr._pDunLevel);
+
+	if (gsDeltaData.ddRecvLastCmd == NMSG_LVL_DELTA_END) {
+		//gbGameDeltaChunks = DELTA_ERROR_FAIL_1;
+		guReceivedLevelDelta &= ~(1 << pnum);
+		return; // lost or duplicated package -> ignore and expect a timeout
+	}
+
+	// decompress level data
+	//assert(gsDeltaData.ddRecvLastCmd == NMSG_LVL_DELTA);
+	if (gsDeltaData.ddSendRecvBuf.compressed)
+		PkwareDecompress((BYTE*)&gsDeltaData.ddSendRecvBuf.content, gsDeltaData.ddSendRecvOffset, sizeof(gsDeltaData.ddSendRecvBuf.content));
+
+	guDeltaTurn = SDL_SwapLE32(buf->turn);
+	//gbGameDeltaChunks = MAX_CHUNKS - 1;
+	// switch to delta-processing mode
+	geBufferMsgs = MSG_LVL_DELTA_PROC;
+}
+
+static unsigned On_LVL_DELTA(TCmd* pCmd, int pnum)
+{
+	TCmdPlrInfoHdr* cmd = (TCmdPlrInfoHdr*)pCmd;
+
+	if (geBufferMsgs != MSG_LVL_DELTA_WAIT)
+		goto done; // the player is already active -> drop the packet
+
+	if (cmd->bCmd == NMSG_LVL_DELTA_END) {
+		// final package -> done
+		LevelDeltaImportEnd(cmd, pnum);
+		goto done;
+	} else {
+		if (gsDeltaData.ddRecvLastCmd != cmd->bCmd) {
+			if (cmd->bCmd != NMSG_LVL_DELTA) {
+				// invalid data type -> drop the packet
+				goto done;
+			}
+			gsDeltaData.ddRecvLastCmd = cmd->bCmd;
+			// start receiving a new package
+			gsDeltaData.ddSendRecvOffset = 0;
+			gsDeltaData.ddDeltaSender = pnum;
+		} else if (gsDeltaData.ddDeltaSender != pnum) {
+			// delta is already on its way from a different player -> drop the packet
+			goto done;
+		}
+	}
+
+	if (cmd->wOffset != gsDeltaData.ddSendRecvOffset) {
+		// lost or duplicated package -> drop the connection and quit
+		//gbGameDeltaChunks = DELTA_ERROR_FAIL_2;
+		goto done;
+	}
+
+	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
+	gsDeltaData.ddSendRecvOffset += cmd->wBytes;
+done:
+	return cmd->wBytes + sizeof(*cmd);
 }
 
 void NetSendCmd(BYTE bCmd)
@@ -1758,8 +2329,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 			// TODO: add checks to prevent abuse?
 			ma = GetManaAmount(pnum, sn);
 			plr._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr._pSkillActivity[sn], UCHAR_MAX);
-			// TODO: enable this for every player
-			if (pnum == mypnum) {
+			if (sameLvl) {
 				if (plr._pMana < ma)
 					return false;
 				PlrDecMana(pnum, ma);
@@ -2316,52 +2886,36 @@ static unsigned ON_PLRDROP(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static int16_t msg_calc_rage(WORD rage)
-{
-	int16_t result = SwapLE16(rage), delay;
-
-	if (result != 0) {
-		delay = gbNetUpdateRate;
-		if (result < 0) {
-			result += delay;
-			if (result >= 0)
-				result = 0;
-		} else {
-			result -= delay;
-			if (result <= 0)
-				result = -(RAGE_COOLDOWN_TICK + result);
-		}
-	}
-	return result;
-}
-
-static unsigned On_ACK_JOINLEVEL(TCmd* pCmd, int pnum)
-{
-	TCmdAckJoinLevel* cmd = (TCmdAckJoinLevel*)pCmd;
-
-	plr._pManaShield = cmd->lManashield;
-	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1) > gbNetUpdateRate ? SwapLE16(cmd->lTimer1) - gbNetUpdateRate : 0;
-	plr._pTimer[PLTR_RAGE] = msg_calc_rage(cmd->lTimer2);
-	CalcPlrItemVals(pnum, false); // last parameter should not matter
-
-	return sizeof(*cmd);
-}
-
 static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 {
 	TCmdJoinLevel* cmd = (TCmdJoinLevel*)pCmd;
+	int i;
+	ItemStruct* is;
 
-	plr._pLvlChanging = FALSE;
-	if (plr._pmode != PM_DEATH)
-		plr._pInvincible = FALSE;
-	net_assert(cmd->lLevel < NUM_LEVELS);
-	plr._pDunLevel = cmd->lLevel;
-	plr._px = cmd->px;
-	plr._py = cmd->py;
-	if (pnum == mypnum) {
-		InitLvlPlayer(pnum);
-	} else {
+	// reqister request only if not processing level-delta
+	//if (geBufferMsgs != MSG_LVL_DELTA_PROC) { -- does not cover all cases...
+		guSendLevelData |= (1 << pnum);
+		guRequestLevelData[pnum] = gdwLastGameTurn;
+	//}
+	// should not be the case if priority is respected
+	assert(geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel); // net_
+	if (geBufferMsgs != MSG_LVL_DELTA_WAIT &&
+	 (geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel)) {
+		plr._pLvlChanging = FALSE;
+		//if (plr._pmode != PM_DEATH)
+			plr._pInvincible = 40;
+		net_assert(cmd->lLevel < NUM_LEVELS);
+		plr._pDunLevel = cmd->lLevel;
+		plr._px = cmd->px;
+		plr._py = cmd->py;
+	}
+
+	if (pnum != mypnum) {
 		if (!plr._pActive) {
+			if (geBufferMsgs == MSG_LVL_DELTA_PROC) {
+				// joined and left while waiting for level-delta
+				return sizeof(*cmd);
+			}
 			if (plr._pName[0] == '\0') {
 				// plrinfo_msg did not arrive -> drop the player
 				SNetDropPlayer(pnum);
@@ -2378,14 +2932,23 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 			EventPlrMsg("Player '%s' (level %d) just joined the game", plr._pName, plr._pLevel);
 			msg_mask_monhit(pnum);
 		}
-		plr._pHPBase = SwapLE32(cmd->php);
-		plr._pManaBase = SwapLE32(cmd->pmp);
-		plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1) > gbNetUpdateRate ? SwapLE16(cmd->lTimer1) - gbNetUpdateRate : 0;
-		plr._pTimer[PLTR_RAGE] = msg_calc_rage(cmd->lTimer2);
-		if (currLvl._dLevelIdx == plr._pDunLevel) {
-			InitLvlPlayer(pnum);
-			CalcPlrItemVals(pnum, false); // last parameter should not matter
-			NetSendCmdAckJoinLevel();
+		if (currLvl._dLevelIdx == plr._pDunLevel /*&& geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN*/) {
+			// should not be the case if priority is respected
+			net_assert(geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN);
+			assert(geBufferMsgs == MSG_NORMAL);
+			plr._pHPBase = SwapLE32(cmd->php);
+			plr._pManaBase = SwapLE32(cmd->pmp);
+			plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1);
+			plr._pTimer[PLTR_RAGE] = SwapLE16(cmd->lTimer2);
+			
+			for (i = 0; i < NUM_INVELEM; i++) {
+				is = PlrItem(pnum, i);
+				is->_iDurability = cmd->itemsDur[i];
+			}
+			plr._pHoldItem._iDurability = cmd->itemsDur[NUM_INVELEM];
+
+			InitLvlPlayer(pnum, true);
+			ProcessVisionList();
 		}
 	}
 
@@ -2640,7 +3203,7 @@ static unsigned On_SYNCQUESTEXT(TCmd* pCmd, int pnum)
 {
 	TCmdQuest* cmd = (TCmdQuest*)pCmd;
 
-	if (currLvl._dLevelIdx != plr._pDunLevel || geBufferMsgs == MSG_INITIAL_PENDINGTURN)
+	if (currLvl._dLevelIdx != plr._pDunLevel)
 		SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
 	gsDeltaData.ddJunkChanged = true;
 
@@ -3096,6 +3659,9 @@ unsigned ParseMsg(int pnum, TCmd* pCmd)
 	case NMSG_DLEVEL_PLR:
 	case NMSG_DLEVEL_END:
 		return On_DLEVEL(pCmd, pnum);
+	case NMSG_LVL_DELTA:
+	case NMSG_LVL_DELTA_END:
+		return On_LVL_DELTA(pCmd, pnum);
 	case NMSG_STRING:
 		return On_STRING(pCmd, pnum);
 	case NMSG_PLRDROP:
@@ -3224,8 +3790,6 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_TWARP(pCmd, pnum);
 	case CMD_RETOWN:
 		return On_RETOWN(pCmd, pnum);
-	case CMD_ACK_JOINLEVEL:
-		return On_ACK_JOINLEVEL(pCmd, pnum);
 	case CMD_JOINLEVEL:
 		return On_JOINLEVEL(pCmd, pnum);
 	case CMD_INVITE:

@@ -31,7 +31,7 @@ void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, unsigned exp);
 void InitPlayer(int pnum);
-void InitLvlPlayer(int pnum);
+void InitLvlPlayer(int pnum, bool entering);
 void RemoveLvlPlayer(int pnum);
 //void PlrClrTrans(int x, int y);
 //void PlrDoTrans(int x, int y);
