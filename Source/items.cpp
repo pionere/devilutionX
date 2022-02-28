@@ -706,6 +706,7 @@ static void ItemStatOk(ItemStruct* is, int sa, int ma, int da)
 static void CalcItemReqs(int pnum)
 {
 	int i;
+	bool changeflag;
 	ItemStruct* pi;
 	int sa, ma, da, sc, mc, dc;
 
@@ -724,26 +725,28 @@ static void CalcItemReqs(int pnum)
 			//}
 		}
 	}
-checkitems:
-	sc = std::max(0, sa);
-	mc = std::max(0, ma);
-	dc = std::max(0, da);
-	pi = plr._pInvBody;
-	for (i = NUM_INVLOC; i != 0; i--, pi++) {
-		if (pi->_itype == ITYPE_NONE)
-			continue;
-		if (sc >= pi->_iMinStr && mc >= pi->_iMinMag && dc >= pi->_iMinDex)
-			continue;
-		if (pi->_iStatFlag) {
-			pi->_iStatFlag = FALSE;
-			//if (pi->_iIdentified) {
-				sa -= pi->_iPLStr;
-				ma -= pi->_iPLMag;
-				da -= pi->_iPLDex;
-			//}
-			goto checkitems;
+	do {
+		changeflag = false;
+		sc = std::max(0, sa);
+		mc = std::max(0, ma);
+		dc = std::max(0, da);
+		pi = plr._pInvBody;
+		for (i = NUM_INVLOC; i != 0; i--, pi++) {
+			if (pi->_itype == ITYPE_NONE)
+				continue;
+			if (sc >= pi->_iMinStr && mc >= pi->_iMinMag && dc >= pi->_iMinDex)
+				continue;
+			if (pi->_iStatFlag) {
+				pi->_iStatFlag = FALSE;
+				changeflag = true;
+				//if (pi->_iIdentified) {
+					sa -= pi->_iPLStr;
+					ma -= pi->_iPLMag;
+					da -= pi->_iPLDex;
+				//}
+			}
 		}
-	}
+	} while (changeflag);
 
 	pi = &plr._pHoldItem;
 	ItemStatOk(pi, sc, mc, dc);
@@ -2170,10 +2173,10 @@ void DeleteItems(int ii)
 
 static void ItemDoppel()
 {
-	int i;
-	ItemStruct *is;
-
 #if DEV_MODE
+	int i;
+	ItemStruct* is;
+
 	for (i = DBORDERY; i < DSIZEY + DBORDERY; i++) {
 		if (dItem[idoppelx][i] != 0) {
 			is = &items[dItem[idoppelx][i] - 1];
