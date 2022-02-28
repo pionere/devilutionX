@@ -644,8 +644,8 @@ static void multi_handle_events(SNetEvent *pEvt)
 
 	dthread_remove_player(pnum);
 
-	if (gsDeltaData.gbDeltaSender == pnum)
-		gsDeltaData.gbDeltaSender = SNPLAYER_ALL;
+	if (gsDeltaData.ddDeltaSender == pnum)
+		gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
 }
 
 void NetClose()
