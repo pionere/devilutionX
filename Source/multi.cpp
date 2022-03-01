@@ -431,7 +431,8 @@ void multi_process_turn(SNetTurnPkt* turn)
 			continue;
 		if (pkt->wLen != SwapLE16(dwMsgSize))
 			continue;
-		if (currLvl._dLevelIdx != plr._pDunLevel) {
+		if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
+		 currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
 			plr._pHitPoints = SwapLE32(pkt->php);
 			//plr._pMaxHP = SwapLE32(pkt->pmhp);
