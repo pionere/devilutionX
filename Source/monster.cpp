@@ -659,6 +659,8 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 		}
 	}
 	mon->_mhitpoints = mon->_mmaxhp;
+
+	mon->_mFlags |= MFLAG_NO_ENEMY;
 }
 
 /**
@@ -1344,7 +1346,7 @@ static void MonStartStand(int mnum)
 	mon->_mVar1 = mon->_mmode; // STAND_PREV_MODE : previous mode of the monster
 	mon->_mVar2 = 0;           // STAND_TICK : the time spent on standing
 	mon->_mmode = MM_STAND;
-	MonEnemy(mnum);
+	//MonEnemy(mnum);
 }
 
 static void MonStartDelay(int mnum, int len)
@@ -1965,8 +1967,8 @@ static bool MonDoStand(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoStand: Invalid monster %d", mnum);
 	}
-	if (((gdwGameLogicTurn + mnum) % 16) == 0)
-		MonEnemy(mnum);
+	//if (((gdwGameLogicTurn + mnum) % 16) == 0)
+	//	MonEnemy(mnum);
 
 	mon = &monsters[mnum];
 	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
@@ -2511,7 +2513,7 @@ static bool MonDoDelay(int mnum)
 	if (mon->_mVar2-- == 0) { // DELAY_TICK
 		mon->_mmode = MM_STAND;
 		mon->_mVar1 = MM_DELAY; // STAND_PREV_MODE
-		MonEnemy(mnum);
+		//MonEnemy(mnum);
 		return true;
 	}
 
@@ -2618,6 +2620,9 @@ static void GroupUnity(int mnum)
 		dev_fatal("GroupUnity: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
+	// track/update enemy if still active
+	if (mon->_msquelch != 0)
+		MonEnemy(mnum);
 	// check if the leader is still available and update its squelch value + enemy location
 	if (mon->leader != MON_NO_LEADER) {
 		leader = &monsters[mon->leader];
@@ -3540,7 +3545,7 @@ void MAI_Garg(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_GARG_STONE) {
 		if (!MON_RELAXED) {
-			MonEnemy(mnum);
+			//MonEnemy(mnum);
 			mx = mon->_mx - mon->_menemyx;
 			my = mon->_my - mon->_menemyy;
 			dist = std::max(abs(mx), abs(my));
@@ -4417,6 +4422,9 @@ void ProcessMonsters()
 			mon->_msquelch = SQUELCH_MAX;
 		} else if (mon->_msquelch != 0 && mon->_mhitpoints == mon->_mmaxhp) {
 			mon->_msquelch--;
+			if (mon->_msquelch == 0) {
+				mon->_mFlags |= MFLAG_NO_ENEMY;
+			}
 		}
 
 		while (TRUE) {
