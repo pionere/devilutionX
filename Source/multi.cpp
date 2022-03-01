@@ -192,12 +192,15 @@ static void multi_parse_turns()
 	// TODO: use pre-allocated space?
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
 
-	if (!gbJoinGame && guSendGameDelta != 0) {
-		for (pnum = 0; pnum < MAX_PLRS; pnum++, guSendGameDelta >>= 1) {
-			if (guSendGameDelta & 1) {
-				DeltaExportData(pnum, turn->nmpTurn);
+	if (guSendGameDelta != 0) {
+		if (!gbJoinGame) {
+			for (pnum = 0; pnum < MAX_PLRS; pnum++, guSendGameDelta >>= 1) {
+				if (guSendGameDelta & 1) {
+					DeltaExportData(pnum, turn->nmpTurn);
+				}
 			}
 		}
+		guSendGameDelta = 0;
 	}
 
 	if (guSendLevelData != 0) {
