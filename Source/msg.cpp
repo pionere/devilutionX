@@ -747,9 +747,6 @@ static bool delta_get_item(const TCmdGItem* pI)
 	}
 
 	if (pI->fromFloor) {
-		net_assert(!IsLvlVisited(bLevel));
-		// level was not visited by the current player
-		// assume it is floor item spawned on the ground
 		gsDeltaData.ddLevelChanged[bLevel] = true;
 		pD = gsDeltaData.ddLevel[bLevel].item;
 		for (i = 0; i < MAXITEMS; i++, pD++) {
@@ -838,15 +835,16 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 void DeltaAddItem(int ii)
 {
 	ItemStruct* is;
-	int i;
-	DItemStr* pD;
+	// commented out to have a complete sync with other players
+	//int i;
+	//DItemStr* pD;
 
-	if (!IsMultiGame)
-		return;
+	//if (!IsMultiGame)
+	//	return;
 
 	is = &items[ii];
 	is->_iFloorFlag = TRUE;
-	pD = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
+	/*pD = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != DCMD_INVALID
 		 && pD->item.dwSeed == SwapLE32(is->_iSeed)
@@ -865,7 +863,7 @@ void DeltaAddItem(int ii)
 			PackPkItem(&pD->item, is);
 			break;
 		}
-	}
+	}*/
 }
 
 void DeltaSaveLevel()
