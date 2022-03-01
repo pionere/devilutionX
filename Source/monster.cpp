@@ -4423,6 +4423,19 @@ void ProcessMonsters()
 		} else if (mon->_msquelch != 0 && mon->_mhitpoints == mon->_mmaxhp) {
 			mon->_msquelch--;
 			if (mon->_msquelch == 0) {
+				// reset monster state to ensure sync in multiplayer games
+				if (mon->_mmode == MM_DELAY)
+					mon->_mmode = MM_STAND;
+				if (mon->_mAi == AI_GARG) {
+					mon->_mFlags |= MFLAG_GARG_STONE;
+					assert(mon->_mmode == MM_STAND || mon->_mmode == MM_SPATTACK);
+				} else {
+					assert(mon->_mmode == MM_STAND);
+				}
+				mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
+				mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
+				mon->_mpathcount = 0;
+				assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_INQUIRING || mon->_mgoal == MGOAL_TALKING);
 				mon->_mFlags |= MFLAG_NO_ENEMY;
 			}
 		}
