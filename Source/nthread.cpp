@@ -16,7 +16,7 @@ uint32_t sgbSentThisCycle;
 Uint32 guNextTick;
 /* The number of game-logic cycles between turns. */
 BYTE gbNetUpdateRate;
-#ifndef NONET
+#if !NONET
 /* The number of extra turns to be queued to ensure fluent gameplay. */
 BYTE gbEmptyTurns;
 #ifdef ADAPTIVE_NETUPDATE
@@ -29,9 +29,9 @@ static SDL_Thread* sghThread = NULL;
 static CCritSect sgThreadMutex;
 /* Data mutex of the thread to control access to sgTurnQueue. */
 static CCritSect sgDataMutex;
+#endif // NONET
 /* Queued turns while loading a level, or delta-info. */
 static std::deque<SNetTurnPkt*> sgTurnQueue;
-#endif // NONET
 /* Counter to keep track of the network-update(turn) progress. */
 static BYTE sgbPacketCountdown;
 static bool _gbTickInSync;
@@ -43,7 +43,7 @@ void nthread_send_turn(BYTE *data, unsigned len)
 	uint32_t turn = sgbSentThisCycle;
 // enabled for everyone to allow connection with adaptive hosts
 //#ifdef ADAPTIVE_NETUPDATE
-#ifndef NONET
+#if !NONET
 restart:
 #endif
 	SNetSendTurn(SwapLE32(turn), data, len);
@@ -53,7 +53,7 @@ restart:
 	//if (turn >= (UINT32_MAX / gbNetUpdateRate))
 	//	turn &= 0xFFFF;
 //#ifdef ADAPTIVE_NETUPDATE
-#ifndef NONET
+#if !NONET
 	if (gbEmptyTurns != 0 && SNetGetTurnsInTransit() <= gbEmptyTurns) {
 		len = 0;
 		goto restart;
@@ -111,7 +111,7 @@ int nthread_recv_turns()
 		return TS_ACTIVE;
 	}
 }
-#ifndef NONET
+#if !NONET
 static void nthread_parse_turns()
 {
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
@@ -216,7 +216,7 @@ void nthread_start()
 	_gbTickInSync = true;
 	sgbSentThisCycle = 0;
 	sgbPacketCountdown = 1;
-#ifndef NONET
+#if !NONET
 	gbEmptyTurns = 0;
 #ifdef ADAPTIVE_NETUPDATE
 	gbNetUpdateWeight = 0;
@@ -238,7 +238,7 @@ void nthread_start()
 
 void nthread_cleanup()
 {
-#ifndef NONET
+#if !NONET
 	SNetTurnPkt* tmp;
 
 	_gbThreadLive = false;
@@ -248,18 +248,18 @@ void nthread_cleanup()
 		SDL_WaitThread(sghThread, NULL);
 		sghThread = NULL;
 	}
+#endif
 	while (!sgTurnQueue.empty()) {
 		tmp = sgTurnQueue.front();
 		sgTurnQueue.pop_front();
 		MemFreeDbg(tmp);
 	}
-#endif
 }
 
 void nthread_run()
 {
 	gbLvlLoad = 10;
-#ifndef NONET
+#if !NONET
 	if (sghThread != NULL && !_gbRunThread) {
 		_gbRunThread = true;
 		sgThreadMutex.Leave();
@@ -310,6 +310,7 @@ bool nthread_level_turn()
 			}
 			continue;
 		}
+#if !NONET
 		case TS_TIMEOUT:
 			if (gbEmptyTurns < 50) {
 				SDL_Delay(1);
@@ -321,6 +322,7 @@ bool nthread_level_turn()
 			app_warn("Unable to join level.");
 			gbRunGame = false;
 			break;
+#endif
 		default:
 			ASSUME_UNREACHABLE
 			break;
@@ -412,7 +414,7 @@ void nthread_finish(UINT uMsg)
 	//  so the localized messages are considered external
 	assert(currLvl._dLevelIdx == myplr._pDunLevel);
 	currLvl._dLevelIdx = DLV_INVALID;
-#ifndef NONET
+#if !NONET
 	// process messages arrived during level-load
 	if (sghThread != NULL) {
 		nthread_process_pending_turns();
@@ -425,7 +427,7 @@ void nthread_finish(UINT uMsg)
 	}
 #endif
 	// phase 6 end
-	// phase 7 begin - clear queued outgoing messages
+	// phase 7 begin - clear queued outgoing messages (e.g. CMD_DEACTIVATEPORTAL)
 	for (int i = SNetGetTurnsInTransit(); i > 0; i--) {
 		if (!nthread_level_turn())
 			goto done;

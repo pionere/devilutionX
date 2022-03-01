@@ -116,7 +116,6 @@ void loopback::SNetDropPlayer(int playerid)
 #endif
 }
 
-//#ifdef ADAPTIVE_NETUPDATE
 unsigned loopback::SNetGetTurnsInTransit()
 {
 #if DEBUG_MODE || DEV_MODE
@@ -127,7 +126,6 @@ unsigned loopback::SNetGetTurnsInTransit()
 #endif
 	return turn_queue.size();
 }
-//#endif
 
 void loopback::make_default_gamename(char (&gamename)[128])
 {

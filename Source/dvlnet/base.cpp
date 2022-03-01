@@ -325,12 +325,10 @@ uint32_t base::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 	return minturn;
 }
 
-//#ifdef ADAPTIVE_NETUPDATE
 unsigned base::SNetGetTurnsInTransit()
 {
 	return turn_queue[plr_self].size();
 }
-//#endif
 
 /*void base::SNetGetProviderCaps(struct _SNETCAPS *caps)
 {

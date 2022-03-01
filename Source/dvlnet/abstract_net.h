@@ -66,9 +66,7 @@ public:
 	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size) = 0;
 	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) = 0;
 	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) = 0;
-//#ifdef ADAPTIVE_NETUPDATE
 	virtual unsigned SNetGetTurnsInTransit() = 0;
-//#endif
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) = 0;
 	virtual void SNetUnregisterEventHandler(int evtype) = 0;
 	virtual void SNetLeaveGame(int reason) = 0;
