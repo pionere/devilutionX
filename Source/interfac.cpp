@@ -331,6 +331,15 @@ void ShowCutscene(unsigned uMsg)
 {
 	WNDPROC saveProc;
 
+	nthread_run();
+	if (uMsg != DVL_DWM_NEWGAME) {
+		if (IsMultiGame)
+			pfile_write_hero(false);
+		// turned off to have a consistent fade in/out logic + reduces de-sync by 
+		// eliminating the need for special handling in InitLevelChange (player.cpp)
+		//PaletteFadeOut();
+	}
+
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
 
@@ -395,6 +404,9 @@ void ShowCutscene(unsigned uMsg)
 
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
+
+	// process packets arrived during LoadLevel / delta-load and disable nthread
+	nthread_finish(uMsg);
 }
 
 DEVILUTION_END_NAMESPACE

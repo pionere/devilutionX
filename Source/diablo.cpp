@@ -1353,23 +1353,13 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_DWM_TWARPUP:
 	case DVL_DWM_RETOWN:
 	case DVL_DWM_NEWGAME:
-		nthread_run();
+		gbActionBtnDown = false;
+		gbAltActionBtnDown = false;
 		if (gbQtextflag) {
 			gbQtextflag = false;
 			stream_stop();
 		}
-		if (uMsg != DVL_DWM_NEWGAME) {
-			if (IsMultiGame)
-				pfile_write_hero(false);
-			// turned off to have a consistent fade in/out logic + reduces de-sync by 
-			// eliminating the need for special handling in InitLevelChange (player.cpp)
-			//PaletteFadeOut();
-		}
-		gbActionBtnDown = false;
-		gbAltActionBtnDown = false;
 		ShowCutscene(uMsg);
-		// process packets arrived during LoadLevel / delta-load and disable nthread
-		nthread_finish(uMsg);
 		if (gbRunGame) {
 			InitLevelCursor();
 			gbRedrawFlags = REDRAW_ALL;
