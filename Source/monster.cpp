@@ -1788,7 +1788,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 			dmon->_menemy = offm;
 			dmon->_menemyx = monsters[offm]._mfutx;
 			dmon->_menemyy = monsters[offm]._mfuty;
-			dmon->_mdir = MonGetDir(mnum);
+			dmon->_mdir = MonGetDir(offm);
 			if (dmon->_mType == MT_BLINK)
 				MonTeleport(defm);
 		//}
