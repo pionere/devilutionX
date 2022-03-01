@@ -3697,10 +3697,11 @@ static void MAI_RR2(int mnum, int mitype)
 	mx = mon->_mx;
 	my = mon->_my;
 	dist = std::max(abs(mx - fx), abs(my - fy));
-	if (dist >= 5) {
+	/*if (dist >= 5) {
+		mon->_mgoal = MGOAL_NORMAL;
 		MAI_SkelSd(mnum);
 		return;
-	}
+	}*/
 
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mx, my);
@@ -3723,7 +3724,7 @@ static void MAI_RR2(int mnum, int mitype)
 	} else
 		mon->_mgoal = MGOAL_NORMAL;
 	if (mon->_mgoal == MGOAL_NORMAL) { // MOVE_POSITIONED
-		if (((dist >= 3 && v < 5 * (mon->_mInt + 2)) || v < 5 * (mon->_mInt + 1) || mon->_mgoalvar3) && LineClear(mon->_mx, mon->_my, fx, fy)) {
+		if (dist < 5 && ((dist >= 3 && v < 5 * (mon->_mInt + 2)) || v < 5 * (mon->_mInt + 1) || mon->_mgoalvar3) && LineClear(mon->_mx, mon->_my, fx, fy)) {
 			MonStartRSpAttack(mnum, mitype);
 			return;
 		}
