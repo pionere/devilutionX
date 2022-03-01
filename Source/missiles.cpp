@@ -795,7 +795,7 @@ static bool MonsterMHit(int mnum, int mi)
 	}
 
 	if (mon->_msquelch != SQUELCH_MAX) {
-		mon->_msquelch = SQUELCH_MAX;
+		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 		mon->_lastx = plr._px;
 		mon->_lasty = plr._py;
 	}
@@ -2960,11 +2960,12 @@ int AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 {
 	int i = 3;
 
-	if (misource != -1) {
-		if (micaster == 0) {
+	// checks commented out, because spllvl is zero if the caster is not a player
+	//if (misource != -1) {
+	//	if (micaster == 0) {
 			i += (spllvl >> 1);
-		}
-	}
+	//	}
+	//}
 
 	while (i-- != 0) {
 		AddMissile(sx, sy, dx, dy, midir, MIS_CBOLT, micaster, misource, 0, 0, spllvl);
@@ -3910,7 +3911,7 @@ void MI_Rhino(int mi)
 	//assert(dMonster[bx][by] == 0);
 	//assert(dPlayer[bx][by] == 0);
 	dMonster[bx][by] = -(mnum + 1);
-	monsters[mnum]._msquelch = SQUELCH_MAX; // ensure it is exported with level-delta
+	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	if (monsters[mnum].mlid != NO_LIGHT)
 		ChangeLightXY(monsters[mnum].mlid, bx, by);
 	ShiftMissilePos(mi);

@@ -40,7 +40,7 @@ BYTE mapGoatTypes[MAX_LVLMTYPES];
 BYTE uniquetrans;
 
 /** Maps from facing direction to path-direction. */
-static const char dir2pdir[NUM_DIRS] = { PDIR_S, PDIR_SW, PDIR_W, PDIR_NW, PDIR_N, PDIR_NE, PDIR_E, PDIR_SE };
+static const BYTE dir2pdir[NUM_DIRS] = { PDIR_S, PDIR_SW, PDIR_W, PDIR_NW, PDIR_N, PDIR_NE, PDIR_E, PDIR_SE };
 
 /** 'leader' of monsters without leaders. */
 static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE field.");
@@ -1617,7 +1617,7 @@ static void MonFallenFear(int x, int y)
 			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
 			static_assert((8 - 2 * 0) * 12 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with retreat goal.");
-			mon->_msquelch = SQUELCH_MAX; // ensure it is exported with level-delta
+			mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 			mon->_mgoal = MGOAL_RETREAT;
 			mon->_mgoalvar1 = 8 - 2 * mon->_mInt; // RETREAT_DISTANCE
 			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
@@ -1800,7 +1800,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	RemoveMonFromMap(mnum);
 
 	mon = &monsters[mnum];
-	mon->_msquelch = SQUELCH_MAX;	// ensure it is exported with level-delta
+	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	mon->_mhitpoints = 0;
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
@@ -2883,8 +2883,8 @@ void MAI_Snake(int mnum)
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my -fy));
 	if (dist >= 2) { // STAND_PREV_MODE
-		if (dist == 2 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy) && mon->_mVar1 != MM_CHARGE) {
-			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
+		if (dist == 2 && LineClearF1(PosOkMonst, mnum, mx, my, fx, fy) && mon->_mVar1 != MM_CHARGE) {
+			if (AddMissile(mx, my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 				PlayEffect(mnum, MS_ATTACK);
 			}
 		} else if (mon->_mVar1 == MM_DELAY || random_(106, 100) >= 35 - 2 * mon->_mInt) {
@@ -2960,8 +2960,8 @@ void MAI_Bat(int mnum)
 	if (mon->_mType == MT_GLOOM
 	    && dist >= 5
 	    && v < 4 * mon->_mInt + 33
-	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
-		if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
+	    && LineClearF1(PosOkMonst, mnum, mx, my, fx, fy)) {
+		if (AddMissile(mx, my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 			MonUpdateLeader(mnum);
 		}
 	} else if (dist >= 2) {
@@ -3064,12 +3064,12 @@ void MAI_Sneak(int mnum)
 	//}
 	mx -= mon->_menemyx;
 	my -= mon->_menemyy;
-	dist = std::max(abs(mx), abs(my)); // STAND_PREV_MODE
+	dist = std::max(abs(mx), abs(my));
 
 	md = MonGetDir(mnum);
 	range = 7 - mon->_mInt;
 	if (mon->_mgoal != MGOAL_RETREAT) {
-		if (mon->_mVar1 == MM_GOTHIT) {
+		if (mon->_mVar1 == MM_GOTHIT) { // STAND_PREV_MODE
 			mon->_mgoal = MGOAL_RETREAT;
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
@@ -3186,10 +3186,7 @@ void MAI_Fallen(int mnum)
 			MonStartSpStand(mnum, mon->_mdir);
 			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 				rad = mon->_mhitpoints + 2 * mon->_mInt + 2;
-				if (mon->_mmaxhp >= rad)
-					mon->_mhitpoints = rad;
-				else
-					mon->_mhitpoints = mon->_mmaxhp;
+				mon->_mhitpoints = std::min(mon->_mmaxhp, rad);
 			}
 			rad = 2 * mon->_mInt + 4;
 #if DEBUG
@@ -3208,7 +3205,7 @@ void MAI_Fallen(int mnum)
 					if (m > 0) {
 						mon = &monsters[m - 1];
 						if (mon->_mAi == AI_FALLEN && !MON_RELAXED) {
-							mon->_msquelch = SQUELCH_MAX; // ensure it is exported with level-delta
+							mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 							mon->_mgoal = MGOAL_ATTACK2;
 							mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
 						}
@@ -3738,7 +3735,6 @@ static void MAI_RR2(int mnum, int mitype)
 			}
 		} else {
 			if (v < 10 * (mon->_mInt + 4)) {
-				mon->_mdir = md;
 				if (random_(124, 2) != 0)
 					MonStartAttack(mnum);
 				else
@@ -4996,7 +4992,7 @@ static void ActivateSpawn(int mnum, int x, int y, int dir)
 	dMonster[x][y] = mnum + 1;
 	SetMonsterLoc(&monsters[mnum], x, y);
 	MonStartSpStand(mnum, dir);
-	monsters[mnum]._msquelch = SQUELCH_MAX; // ensure it is exported with level-delta
+	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 }
 
 void SpawnSkeleton(int mnum, int x, int y, int dir)
