@@ -1595,7 +1595,7 @@ static void MonTeleport(int mnum)
 			dMonster[x][y] = mnum + 1;
 			mon->_moldx = x;
 			mon->_moldy = y;
-			mon->_mdir = MonGetDir(mnum);
+			mon->_mdir = OPPOSITE(rx);
 			return;
 		}
 	}
