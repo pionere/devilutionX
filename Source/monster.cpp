@@ -66,7 +66,7 @@ static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE
 /**
  * Standard MAI check if the monster is (not) 'disturbed'.
  */
-#define MON_RELAXED (mon->_msquelch == 0)
+#define MON_RELAXED (mon->_msquelch < SQUELCH_LOW)
 
 /** Maps from walking path step to facing direction. */
 //const char walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
@@ -1613,6 +1613,11 @@ static void MonFallenFear(int x, int y)
 		 && abs(y - mon->_my) < 5
 		 && mon->_mhitpoints >= (1 << 6)
 		 && !MON_RELAXED) { // TODO: use LineClear instead to prevent retreat behind walls?
+#if DEBUG
+			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
+#endif
+			static_assert((8 - 2 * 0) * 12 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with retreat goal.");
+			mon->_msquelch = SQUELCH_MAX; // ensure it is exported with level-delta
 			mon->_mgoal = MGOAL_RETREAT;
 			mon->_mgoalvar1 = 8 - 2 * mon->_mInt; // RETREAT_DISTANCE
 			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
@@ -1795,6 +1800,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	RemoveMonFromMap(mnum);
 
 	mon = &monsters[mnum];
+	mon->_msquelch = SQUELCH_MAX;	// ensure it is exported with level-delta
 	mon->_mhitpoints = 0;
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
@@ -2357,7 +2363,7 @@ static bool MonDoTalk(int mnum)
 	if (mon->_uniqtype - 1 == UMT_LAZARUS) {
 		if (IsMultiGame) {
 			quests[Q_BETRAYER]._qvar1 = 6;
-			mon->_msquelch = SQUELCH_MAX;
+			//mon->_msquelch = SQUELCH_MAX;
 			mon->mtalkmsg = TEXT_NONE;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
@@ -3065,6 +3071,10 @@ void MAI_Sneak(int mnum)
 	if (mon->_mgoal != MGOAL_RETREAT) {
 		if (mon->_mVar1 == MM_GOTHIT) {
 			mon->_mgoal = MGOAL_RETREAT;
+#if DEBUG
+			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
+#endif
+			static_assert(12 * 9 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Sneak might relax with retreat goal.");
 			mon->_mgoalvar1 = 9; // RETREAT_DISTANCE
 		}
 	} else {
@@ -3182,6 +3192,11 @@ void MAI_Fallen(int mnum)
 					mon->_mhitpoints = mon->_mmaxhp;
 			}
 			rad = 2 * mon->_mInt + 4;
+#if DEBUG
+			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (3 * 3 + 9) < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_ATTACK].aFrames * mon->_mAnims[MA_ATTACK].aFrameLen * (3 * 3 + 9) < SQUELCH_MAX - SQUELCH_LOW);
+#endif
+			static_assert((3 * 3 + 9) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
 			amount = 3 * mon->_mInt + 9;
 			static_assert(DBORDERX == DBORDERY && DBORDERX >= 10, "MAI_Fallen expects a large enough border.");
 			assert(rad <= DBORDERX);
@@ -3193,7 +3208,7 @@ void MAI_Fallen(int mnum)
 					if (m > 0) {
 						mon = &monsters[m - 1];
 						if (mon->_mAi == AI_FALLEN && !MON_RELAXED) {
-							mon->_msquelch = SQUELCH_MAX;
+							mon->_msquelch = SQUELCH_MAX; // ensure it is exported with level-delta
 							mon->_mgoal = MGOAL_ATTACK2;
 							mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
 						}
@@ -3214,10 +3229,16 @@ void MAI_Fallen(int mnum)
 	} else {
 		assert(mon->_mgoal == MGOAL_ATTACK2);
 		if (--mon->_mgoalvar1 != 0) { // FALLEN_ATTACK_AMOUNT
-			if (abs(mon->_mx - mon->_menemyx) < 2 && abs(mon->_my - mon->_menemyy) < 2)
+			if (abs(mon->_mx - mon->_menemyx) < 2 && abs(mon->_my - mon->_menemyy) < 2) {
 				MonStartAttack(mnum);
-			else
-				MonCallWalk(mnum, MonGetDir(mnum));
+			} else {
+				if (!MonCallWalk(mnum, MonGetDir(mnum))) {
+					// prevent isolated fallens from burnout
+					m = 12 - 1; // mon->_mAnims[MA_WALK].aFrameLen * mon->_mAnims[MA_WALK].aFrames - 1;
+					if (mon->_msquelch > (unsigned)m)
+						mon->_msquelch -= m;
+				}
+			}
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
 		}
@@ -3428,7 +3449,13 @@ void MAI_Scav(int mnum)
 		mon->_mgoal = MGOAL_HEALING;
 		mon->_mgoalvar1 = 0; // HEALING_LOCATION_X
 		//mon->_mgoalvar2 = 0;
-		mon->_mgoalvar3 = 10; // HEALING_ROUNDS
+#if DEBUG
+		assert(mon->_mAnims[MA_SPECIAL].aFrames * mon->_mAnims[MA_SPECIAL].aFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
+		assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
+		assert(24 * 9 < SQUELCH_MAX - SQUELCH_LOW); // max delay of MAI_SkelSd
+#endif
+		static_assert(24 * 9 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Scav might relax with healing goal.");
+		mon->_mgoalvar3 = 9; // HEALING_ROUNDS
 	}
 	if (mon->_mgoal == MGOAL_HEALING) {
 		if (mon->_mgoalvar3 != 0) {
@@ -3982,6 +4009,11 @@ void MAI_Counselor(int mnum)
 			if (v < 5 * (mon->_mInt + 10) && LineClear(mon->_mx, mon->_my, fx, fy)) {
 				MonStartRAttack(mnum, counsmiss[mon->_mInt]);
 			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
+#if DEBUG
+				assert(mon->_mAnims[MA_SPECIAL].aFrames * mon->_mAnims[MA_SPECIAL].aFrameLen * 2 + 
+					mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW);
+#endif
+				static_assert(2 * 20 + (6 + 4) * 1 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with move goal.");
 				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 6 + random_(0, std::min(dist, 4)); // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(125, 2);               // MOVE_TURN_DIRECTION
@@ -3992,6 +4024,11 @@ void MAI_Counselor(int mnum)
 			if (mon->_mVar1 == MM_FADEIN)
 				v >>= 1;
 			if (mon->_mVar1 != MM_FADEIN && mon->_mhitpoints < (mon->_mmaxhp >> 1)) {
+#if DEBUG
+				assert(mon->_mAnims[MA_SPECIAL].aFrames * mon->_mAnims[MA_SPECIAL].aFrameLen * 2 + 
+					mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * 5 < SQUELCH_MAX - SQUELCH_LOW);
+#endif
+				static_assert(2 * 20 + 5 * 1 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with retreat goal.");
 				mon->_mgoal = MGOAL_RETREAT;
 				mon->_mgoalvar1 = 5; // RETREAT_DISTANCE
 				MonStartFadeout(mnum, md, false);
@@ -4376,7 +4413,7 @@ void ProcessMonsters()
 #endif
 			}
 			mon->_msquelch = SQUELCH_MAX;
-		} else if (mon->_msquelch != 0) {
+		} else if (mon->_msquelch != 0 && mon->_mhitpoints == mon->_mmaxhp) {
 			mon->_msquelch--;
 		}
 
@@ -4959,6 +4996,7 @@ static void ActivateSpawn(int mnum, int x, int y, int dir)
 	dMonster[x][y] = mnum + 1;
 	SetMonsterLoc(&monsters[mnum], x, y);
 	MonStartSpStand(mnum, dir);
+	monsters[mnum]._msquelch = SQUELCH_MAX; // ensure it is exported with level-delta
 }
 
 void SpawnSkeleton(int mnum, int x, int y, int dir)

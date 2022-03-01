@@ -8,7 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SQUELCH_MAX					UCHAR_MAX
+// Ticks necessary to finish the current action and add the result to the delta
+// ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_NORMAL_MSG_SIZE / sizeof(TSyncMonster)))
+#define SQUELCH_LOW					127
+#define SQUELCH_MAX					(SQUELCH_LOW + 240)
 #define MINION_INACTIVE(x)			((x->_mx | x->_my) == 0)
 #define MINION_NR_INACTIVE(x)		((monsters[x]._mx | monsters[x]._my) == 0)
 #define OPPOSITE(x)					(((x) + 4) & 7)

@@ -794,7 +794,7 @@ static bool MonsterMHit(int mnum, int mi)
 		//}
 	}
 
-	if (mon->_msquelch == 0) {
+	if (mon->_msquelch != SQUELCH_MAX) {
 		mon->_msquelch = SQUELCH_MAX;
 		mon->_lastx = plr._px;
 		mon->_lasty = plr._py;
@@ -3826,6 +3826,7 @@ void MI_Stone(int mi)
 
 	mis = &missile[mi];
 	mon = &monsters[mis->_miVar2];
+	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	// assert(mon->_mmode == MM_STONE);
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
@@ -3909,6 +3910,7 @@ void MI_Rhino(int mi)
 	//assert(dMonster[bx][by] == 0);
 	//assert(dPlayer[bx][by] == 0);
 	dMonster[bx][by] = -(mnum + 1);
+	monsters[mnum]._msquelch = SQUELCH_MAX; // ensure it is exported with level-delta
 	if (monsters[mnum].mlid != NO_LIGHT)
 		ChangeLightXY(monsters[mnum].mlid, bx, by);
 	ShiftMissilePos(mi);
