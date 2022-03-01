@@ -298,9 +298,6 @@ void LoadGameLevel(int lvldir)
 	guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
 
 	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
-
-	while (!IncProgress())
-		;
 }
 
 void EnterLevel(BYTE lvl)
@@ -356,7 +353,6 @@ void ShowCutscene(unsigned uMsg)
 			pfile_delete_save_file(false);
 			LoadGameLevel(ENTRY_MAIN);
 		}
-		IncProgress();
 		break;
 	case DVL_DWM_NEXTLVL:
 		assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
@@ -390,7 +386,8 @@ void ShowCutscene(unsigned uMsg)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	IncProgress();
+	while (!IncProgress())
+		;
 	assert(ghMainWnd != NULL);
 
 	PaletteFadeOut();
