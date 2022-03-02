@@ -1695,31 +1695,28 @@ void SyncPlrKill(int pnum, int dmgtype)
 		NetSendCmdBParam1(CMD_PLRDEAD, dmgtype);
 	}
 
-	if (plr._pgfxnum != ANIM_ID_UNARMED) {
-		plr._pgfxnum = ANIM_ID_UNARMED;
-		plr._pGFXLoad = 0;
-		SetPlrAnims(pnum);
-	}
-
-	if (!(plr._pGFXLoad & PFILE_DEATH)) {
-		LoadPlrGFX(pnum, PFILE_DEATH);
-	}
-
-	NewPlrAnim(pnum, plr._pDAnim, plr._pdir, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
-
 	plr._pmode = PM_DEATH;
 	plr._pInvincible = TRUE;
-	plr._pVar7 = 0; // DEATH_DELAY
 
 	if (plr._pDunLevel == currLvl._dLevelIdx) {
+		if (plr._pgfxnum != ANIM_ID_UNARMED) {
+			plr._pgfxnum = ANIM_ID_UNARMED;
+			plr._pGFXLoad = 0;
+			SetPlrAnims(pnum);
+		}
+
+		if (!(plr._pGFXLoad & PFILE_DEATH)) {
+			LoadPlrGFX(pnum, PFILE_DEATH);
+		}
+
+		NewPlrAnim(pnum, plr._pDAnim, plr._pdir, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
+
 		RemovePlrFromMap(pnum);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
 		dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 		FixPlayerLocation(pnum);
 
-		if (pnum == mypnum) {
-			plr._pVar7 = 30; // DEATH_DELAY
-		}
+		plr._pVar7 = pnum == mypnum ? 32 : 0; // DEATH_DELAY
 	}
 	PlrSetHp(pnum, 0);
 }
