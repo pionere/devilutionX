@@ -82,7 +82,7 @@ void MI_Lightball(int mi);
 //void MI_Krull(int mi);
 void MI_Acidpud(int mi);
 void MI_Firewall(int mi);
-void MI_Fireball(int mi);
+//void MI_Fireball(int mi);
 #ifdef HELLFIRE
 void MI_HorkSpawn(int mi);
 void MI_Rune(int mi);
