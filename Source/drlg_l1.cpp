@@ -891,7 +891,7 @@ static void DRLG_FreeL1SP()
 void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
-
+	// add special arches
 	for (i = x1; i <= x2; ++i) {
 		for (j = y1; j <= y2; ++j) {
 			pn = dPiece[i][j];
@@ -910,6 +910,19 @@ void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 			else
 				pn = 0;
 			dSpecial[i][j] = pn;
+		}
+	}
+	// add rims to stone doors
+	for (i = x1; i <= x2; i++) {
+		for (j = y1; j <= y2; j++) {
+			pn = dPiece[i][j];
+			// 417 is stone L-door
+			// 420 is stone R-door -- unused at the moment
+			if (pn == 417) {
+				dSpecial[i][j + 1] = 7;
+			} else if (pn == 420) {
+				dSpecial[i + 1][j] = 8;
+			}
 		}
 	}
 }
