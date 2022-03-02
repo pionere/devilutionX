@@ -238,9 +238,8 @@ void nthread_start()
 
 void nthread_cleanup()
 {
-#if !NONET
 	SNetTurnPkt* tmp;
-
+#if !NONET
 	_gbThreadLive = false;
 	if (sghThread != NULL && SDL_GetThreadID(sghThread) != SDL_GetThreadID(NULL)) {
 		if (!_gbRunThread)
