@@ -424,6 +424,7 @@ void nthread_finish(UINT uMsg)
 
 		nthread_process_pending_turns();
 	}
+	IncProgress();
 #endif
 	// phase 6 end
 	// phase 7 begin - clear queued outgoing messages (e.g. CMD_DEACTIVATEPORTAL)
@@ -431,6 +432,7 @@ void nthread_finish(UINT uMsg)
 		if (!nthread_level_turn())
 			goto done;
 	}
+	IncProgress();
 	// phase 7 end
 	// phase 8
 	NetSendCmdJoinLevel();
@@ -457,6 +459,7 @@ void nthread_finish(UINT uMsg)
 			break;
 		}
 	}
+	IncProgress();
 	assert(geBufferMsgs == MSG_LVL_DELTA_WAIT ||
 		(gdwLastGameTurn >= guDeltaTurn && guDeltaTurn > lastGameTurn));	// TODO: overflow hickup
 	gdwLastGameTurn = lastGameTurn;

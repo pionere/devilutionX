@@ -145,16 +145,16 @@ void interface_msg_pump()
 	}
 }
 
-bool IncProgress()
+void IncProgress()
 {
 	interface_msg_pump();
-	sgdwProgress += 23;
+	sgdwProgress += 30;
 	if (sgdwProgress > BAR_WIDTH)
 		sgdwProgress = BAR_WIDTH;
 	// do not draw in case of quick-load
 	if (sgpBackCel != NULL)
 		DrawCutscene();
-	return sgdwProgress >= BAR_WIDTH;
+	//return sgdwProgress >= BAR_WIDTH;
 }
 
 /**
@@ -221,13 +221,11 @@ void LoadGameLevel(int lvldir)
 		if (currLvl._dType != DTYPE_TOWN) {
 			SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			GetLevelMTypes();
-			IncProgress();
 			InitThemes();
 			IncProgress();
 			InitObjectGFX();
 		} else {
 			InitLvlStores();
-			IncProgress();
 			IncProgress();
 		}
 		IncProgress();
@@ -238,8 +236,6 @@ void LoadGameLevel(int lvldir)
 			GetReturnLvlPos();
 		if (lvldir == ENTRY_WARPLVL)
 			GetPortalLvlPos();
-
-		IncProgress();
 
 		SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
@@ -258,6 +254,7 @@ void LoadGameLevel(int lvldir)
 			InitTowners();
 			IncProgress();
 			InitItems();
+			IncProgress();
 		}
 	} else {
 		LoadSetMap();
@@ -273,11 +270,9 @@ void LoadGameLevel(int lvldir)
 
 		if (lvldir == ENTRY_WARPLVL)
 			GetPortalLvlPos();
-		IncProgress();
-
-		IncProgress();
 
 		InitItems();
+		IncProgress();
 	}
 	InitMissiles();
 	SavePreLighting();
@@ -291,7 +286,7 @@ void LoadGameLevel(int lvldir)
 		}
 		//SyncPortals();
 	}
-
+	IncProgress();
 	InitSync();
 	PlayDungMsgs();
 
@@ -355,6 +350,7 @@ void ShowCutscene(unsigned uMsg)
 	switch (uMsg) {
 	case DVL_DWM_NEWGAME:
 		IncProgress();
+		IncProgress();
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
 			LoadGame();
 		} else {
@@ -395,18 +391,20 @@ void ShowCutscene(unsigned uMsg)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	while (!IncProgress())
-		;
-	assert(ghMainWnd != NULL);
-
-	PaletteFadeOut();
-	FreeCutscene();
-
-	saveProc = SetWindowProc(saveProc);
-	assert(saveProc == DisableInputWndProc);
-
+	IncProgress();
 	// process packets arrived during LoadLevel / delta-load and disable nthread
 	nthread_finish(uMsg);
+
+	if (IsLocalGame) { // do not block other players
+		sgdwProgress = BAR_WIDTH;
+		IncProgress();
+		PaletteFadeOut();
+	}
+	FreeCutscene();
+
+	assert(ghMainWnd != NULL);
+	saveProc = SetWindowProc(saveProc);
+	assert(saveProc == DisableInputWndProc);
 }
 
 DEVILUTION_END_NAMESPACE
