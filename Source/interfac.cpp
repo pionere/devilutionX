@@ -395,9 +395,6 @@ void ShowCutscene(unsigned uMsg)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	// process packets arrived during LoadLevel / delta-load and disable nthread
-	nthread_finish(uMsg);
-
 	while (!IncProgress())
 		;
 	assert(ghMainWnd != NULL);
@@ -407,6 +404,9 @@ void ShowCutscene(unsigned uMsg)
 
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
+
+	// process packets arrived during LoadLevel / delta-load and disable nthread
+	nthread_finish(uMsg);
 }
 
 DEVILUTION_END_NAMESPACE
