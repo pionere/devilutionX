@@ -1677,59 +1677,11 @@ void StartPlrHit(int pnum, int dam, bool forcehit)
 	FixPlayerLocation(pnum);
 }
 
-static void PlrDeadItem(int pnum, ItemStruct *is)
-{
-	int dir, x, y, i, xx, yy;
-
-	if (is->_itype == ITYPE_NONE || numitems >= MAXITEMS)
-		return;
-
-	dir = plr._pdir;
-	x = plr._px;
-	y = plr._py;
-
-	static_assert(lengthof(offset_x) == lengthof(offset_y), "Mismatching offset tables.");
-	static_assert(lengthof(offset_x) == 8, "Offset table is expected to be an omnidirectional table.");
-	for (i = 0; i < lengthof(offset_x); i++) {
-		xx = x + offset_x[dir];
-		yy = y + offset_y[dir];
-		if (CanPut(xx, yy)) {
-			break;
-		}
-		dir = (dir + 1) & 7;
-	}
-
-	if (i == lengthof(offset_x)) {
-		if (!FindItemLocation(x, y, &x, &y, DSIZEX / 2))
-			return;
-		xx = x;
-		yy = y;
-	}
-
-	// RespawnDeadItem
-	assert(numitems < MAXITEMS);
-
-	i = itemactive[numitems];
-	dItem[xx][yy] = i + 1;
-	numitems++;
-	copy_pod(items[i], *is);
-	is->_itype = ITYPE_NONE;
-	items[i]._ix = xx;
-	items[i]._iy = yy;
-	RespawnItem(i, true);
-	NetSendCmdRespawnItem(i);
-}
-
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
 void SyncPlrKill(int pnum, int dmgtype)
 {
-	bool diablolevel;
-	int i;
-	ItemStruct ear;
-	ItemStruct *pi;
-
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("SyncPlrKill: illegal player %d", pnum);
 	}
@@ -1759,18 +1711,6 @@ void SyncPlrKill(int pnum, int dmgtype)
 	plr._pInvincible = TRUE;
 	plr._pVar7 = 0; // DEATH_DELAY
 
-	if (dmgtype == DMGTYPE_NPC)
-		plr._pExperience -= (plr._pExperience - PlrExpLvlsTbl[plr._pLevel - 1]) >> 2;
-
-	diablolevel = IsMultiGame && plr._pDunLevel == DLV_HELL4;
-	if (pnum != mypnum && dmgtype == DMGTYPE_NPC && !diablolevel) {
-		plr._pHoldItem._itype = ITYPE_NONE;
-		for (i = 0; i < NUM_INVLOC; i++) {
-			plr._pInvBody[i]._itype = ITYPE_NONE;
-		}
-		CalcPlrInv(pnum, false);
-	}
-
 	if (plr._pDunLevel == currLvl._dLevelIdx) {
 		RemovePlrFromMap(pnum);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
@@ -1779,40 +1719,6 @@ void SyncPlrKill(int pnum, int dmgtype)
 
 		if (pnum == mypnum) {
 			plr._pVar7 = 30; // DEATH_DELAY
-
-			if (dmgtype == DMGTYPE_PLAYER) {
-				CreateBaseItem(&ear, IDI_EAR);
-				snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", plr._pName);
-				const int earSets[NUM_CLASSES] = {
-						ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCERER
-#ifdef HELLFIRE
-						, ICURS_EAR_SORCERER, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR
-#endif
-				};
-				ear._iCurs = earSets[plr._pClass];
-
-				ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iName[7]);
-				ear._iSeed = SwapLE32(*(DWORD *)&ear._iName[9]);
-				ear._ivalue = plr._pLevel;
-
-				if (FindGetItem(ear._iSeed, IDI_EAR, ear._iCreateInfo) == -1) {
-					PlrDeadItem(pnum, &ear);
-				}
-			} else if (dmgtype == DMGTYPE_NPC) {
-				if (!diablolevel) {
-					PlrDeadItem(pnum, &plr._pHoldItem);
-					if (plr._pHoldItem._itype == ITYPE_NONE && pcurs >= CURSOR_FIRSTITEM) {
-						NewCursor(CURSOR_HAND);
-					}
-
-					pi = &plr._pInvBody[0];
-					for (i = NUM_INVLOC; i != 0; i--, pi++) {
-						PlrDeadItem(pnum, pi);
-					}
-
-					CalcPlrInv(pnum, false);
-				}
-			}
 		}
 	}
 	PlrSetHp(pnum, 0);
@@ -1821,7 +1727,7 @@ void SyncPlrKill(int pnum, int dmgtype)
 void SyncPlrResurrect(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("SyncPlrKill: illegal player %d", pnum);
+		dev_fatal("SyncPlrResurrect: illegal player %d", pnum);
 	}
 
 	if (plr._pHitPoints >= (1 << 6))

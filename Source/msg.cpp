@@ -1847,22 +1847,6 @@ void NetSendCmdPutItem(BYTE x, BYTE y)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdRespawnItem(int ii)
-{
-	ItemStruct* is;
-	TCmdRPItem cmd;
-
-	is = &items[ii];
-	cmd.bCmd = CMD_RESPAWNITEM;
-	cmd.x = is->_ix;
-	cmd.y = is->_iy;
-	cmd.bLevel = currLvl._dLevelIdx;
-
-	PackPkItem(&cmd.item, is);
-
-	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
-}
-
 void NetSendCmdSpawnItem(bool flipFlag)
 {
 	ItemStruct* is;
@@ -2284,19 +2268,6 @@ static unsigned On_PUTITEM(TCmd* pCmd, int pnum)
 			}
 		}
 	}
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_RESPAWNITEM(TCmd* pCmd, int pnum)
-{
-	TCmdRPItem* cmd = (TCmdRPItem*)pCmd;
-
-	if (currLvl._dLevelIdx == cmd->bLevel && pnum != mypnum) {
-		UnPackPkItem(&cmd->item);
-		SyncPutItem(-1, cmd->x, cmd->y, true);
-	}
-	delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y);
 
 	return sizeof(*cmd);
 }
@@ -2735,13 +2706,71 @@ static unsigned On_MONSTCORPSE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static bool PlrDeadItem(int pnum, ItemStruct* pi, int dir)
+{
+	int x, y;
+
+	if (pi->_itype == ITYPE_NONE)
+		return true;
+
+	PkItemStruct pkItem;
+
+	PackPkItem(&pkItem, pi);
+	x = plr._px + offset_x[dir];
+	y = plr._py + offset_y[dir];
+	if (!delta_put_item(&pkItem, plr._pDunLevel, x, y))
+		return false;
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
+		UnPackPkItem(&pkItem);
+		SyncPutItem(pnum, x, y, true);
+	}
+	pi->_itype = ITYPE_NONE;
+	return true;
+}
+
 static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	int i, dmgtype = cmd->bParam1;
+	bool diablolevel = IsMultiGame && plr._pDunLevel == DLV_HELL4;
 
-	if (pnum != mypnum)
-		SyncPlrKill(pnum, cmd->bParam1);
-	else
+	if (dmgtype == DMGTYPE_NPC)
+		plr._pExperience -= (plr._pExperience - PlrExpLvlsTbl[plr._pLevel - 1]) >> 2;
+
+	if (dmgtype == DMGTYPE_NPC && !diablolevel) {
+		if (PlrDeadItem(pnum, &plr._pHoldItem, NUM_DIRS - 1)) {
+			if (pnum == mypnum && pcurs >= CURSOR_FIRSTITEM)
+				NewCursor(CURSOR_HAND);
+			static_assert(NUM_INVLOC < NUM_DIRS, "PlrDeadItem uses inv loc as direction offset.");
+			for (i = 0; i < NUM_INVLOC; i++) {
+				if (!PlrDeadItem(pnum, &plr._pInvBody[i], i))
+					break;
+			}
+			CalcPlrInv(pnum, false);
+			PlrSetHp(pnum, 0);
+		}
+	} else if (dmgtype == DMGTYPE_PLAYER) {
+		ItemStruct ear;
+		CreateBaseItem(&ear, IDI_EAR);
+		snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", plr._pName);
+		const int earSets[NUM_CLASSES] = {
+				ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCERER
+#ifdef HELLFIRE
+				, ICURS_EAR_SORCERER, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR
+#endif
+		};
+		ear._iCurs = earSets[plr._pClass];
+
+		ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iName[7]);
+		ear._iSeed = SwapLE32(*(DWORD *)&ear._iName[9]);
+		ear._ivalue = plr._pLevel;
+
+		PlrDeadItem(pnum, &ear, DIR_S);
+	}
+
+	SyncPlrKill(pnum, dmgtype);
+
+	if (pnum == mypnum)
 		check_update_plr(pnum);
 
 	return sizeof(*cmd);
@@ -3812,8 +3841,6 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_USEPLRITEM(pCmd, pnum);
 	case CMD_PUTITEM:
 		return On_PUTITEM(pCmd, pnum);
-	case CMD_RESPAWNITEM:
-		return On_RESPAWNITEM(pCmd, pnum);
 	case CMD_SPAWNITEM:
 		return On_SPAWNITEM(pCmd, pnum);
 	case CMD_GETITEM:
