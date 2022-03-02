@@ -833,6 +833,7 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 		dest->bMDur = src->_iName[15];
 		dest->bCh = src->_iName[16];
 		dest->bMCh = src->_iName[17];
+		static_assert(MAXCHARLEVEL < (1 << 6), "PackPkItem stores the player level of ears in 6 bits.");
 		dest->wValue = SwapLE16(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
 		dest->dwBuff = SwapLE32(*(DWORD*)&src->_iName[19]);
 	}
@@ -2760,9 +2761,8 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 #endif
 		};
 		ear._iCurs = earSets[plr._pClass];
-
-		ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iName[7]);
-		ear._iSeed = SwapLE32(*(DWORD *)&ear._iName[9]);
+		//ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iName[7]);
+		//ear._iSeed = SwapLE32(*(DWORD *)&ear._iName[9]);
 		ear._ivalue = plr._pLevel;
 
 		PlrDeadItem(pnum, &ear, DIR_S);
