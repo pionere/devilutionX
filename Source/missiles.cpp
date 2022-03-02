@@ -2598,12 +2598,12 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
  */
 int AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	mis = &missile[mi];
 	assert(mis->_miAnimType == MFILE_FIREPLAR);
 	mis->_miRange = misfiledata[MFILE_FIREPLAR].mfAnimLen[0];
-	mis->_miMinDam = mis->_miMaxDam = 40 << 6; // assert(misource == DIABLO);
+	mis->_miMinDam = mis->_miMaxDam = 40 << (6 + gnDifficulty); // assert(misource == DIABLO);
 	//mis->_miVar1 = FALSE;
 	return MIRES_DONE;
 }
@@ -3169,7 +3169,7 @@ void MI_AsArrow(int mi)
 
 void MI_Firebolt(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	//int omx, omy;
 	int xptype;
 
@@ -3240,6 +3240,7 @@ void MI_Firebolt(int mi)
 		ASSUME_UNREACHABLE
 		break;
 	}
+	SetRndSeed(mis->_miRndSeed); // used by MIS_EXACIDP
 	AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, xptype, mis->_miCaster, mis->_miSource, 0, 0, 0);
 
 	mis->_miDelFlag = TRUE;
@@ -3439,9 +3440,9 @@ void MI_Rune(int mi)
 	PutMissile(mi);
 }
 
-void MI_Lightwall(int mi)
+/*void MI_Lightwall(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int range;
 
 	mis = &missile[mi];
@@ -3454,7 +3455,7 @@ void MI_Lightwall(int mi)
 		return;
 	}
 	mis->_miDelFlag = TRUE;
-}
+}*/
 
 #endif
 
