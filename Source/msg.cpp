@@ -529,7 +529,7 @@ static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 		gbGameDeltaChunks = DELTA_ERROR_FAIL_2;
 		goto done;
 	}
-
+	net_assert((gsDeltaData.ddSendRecvOffset + cmd->wBytes) <= sizeof(gsDeltaData.ddSendRecvBuf));
 	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
 	gsDeltaData.ddSendRecvOffset += cmd->wBytes;
 done:
@@ -590,6 +590,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 
 	bLevel = mon->mkParam1.bParam1;
 	net_assert(bLevel < NUM_LEVELS);
+	net_assert(mnum < MAXMONSTERS);
 
 	gsDeltaData.ddLevelChanged[bLevel] = true;
 	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
@@ -617,6 +618,8 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 
 	bLevel = mon->mdLevel;
 	net_assert(bLevel < NUM_LEVELS);
+	net_assert(SwapLE16(mon->mdMnum) < MAXMONSTERS);
+
 	// commented out, because these changes are ineffective unless _mCmd is already set
 	//gsDeltaData.ddLevelChanged[bLevel] = true;
 	pD = &gsDeltaData.ddLevel[bLevel].monster[SwapLE16(mon->mdMnum)];
@@ -661,7 +664,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 		}
 		pbBuf += sizeof(TSyncMonster);
 	}
-	assert(wLen == 0);
+	net_assert(wLen == 0);
 }
 
 static void delta_awake_golem(TCmdGolem* pG, int mnum)
@@ -705,7 +708,10 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 {
 	if (!IsMultiGame)
 		return;
+
 	net_assert(bLevel < NUM_LEVELS);
+	net_assert(oi < MAXOBJECTS);
+
 	gsDeltaData.ddLevelChanged[bLevel] = true;
 	gsDeltaData.ddLevel[bLevel].object[oi].bCmd = bCmd;
 }
@@ -1100,6 +1106,7 @@ void LevelDeltaExport(uint32_t turn)
 	if (completeDelta) {
 		// can not be done during lvl-delta load, otherwise a separate buffer should be used
 		assert(geBufferMsgs != MSG_LVL_DELTA_WAIT && geBufferMsgs != MSG_LVL_DELTA_PROC);
+		static_assert(sizeof(LDLevel) <= sizeof(gsDeltaData.ddSendRecvBuf.content), "Level-Delta does not fit to the buffer.");
 		lvlData = (LDLevel*)&gsDeltaData.ddSendRecvBuf.content[0];
 
 		static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs I.");
@@ -1497,7 +1504,7 @@ void LevelDeltaLoad()
 		net_assert(tmis->smiMi >= MAXMONSTERS);
 		mi = tmis->smiMi - MAXMONSTERS;
 		net_assert((unsigned)mi < MAXMISSILES);
-		assert(missileactive[nummissiles] == mi);
+		net_assert(missileactive[nummissiles] == mi);
 		nummissiles++;
 		net_assert(nummissiles <= MAXMISSILES);
 		mis = &missile[mi];
@@ -1635,7 +1642,7 @@ static unsigned On_LVL_DELTA(TCmd* pCmd, int pnum)
 		//gbGameDeltaChunks = DELTA_ERROR_FAIL_2;
 		goto done;
 	}
-
+	net_assert((gsDeltaData.ddSendRecvOffset + cmd->wBytes) <= sizeof(gsDeltaData.ddSendRecvBuf));
 	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
 	gsDeltaData.ddSendRecvOffset += cmd->wBytes;
 done:
@@ -2104,11 +2111,16 @@ static unsigned On_ADDVIT(TCmd* pCmd, int pnum)
 static unsigned On_BLOCK(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	int dir;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ClrPlrPath(pnum);
+		dir = cmd->bParam1;
+
+		net_assert(dir < NUM_DIRS);
+
 		plr.destAction = ACTION_BLOCK;
-		plr.destParam1 = cmd->bParam1; // direction
+		plr.destParam1 = dir;
 	}
 	return sizeof(*cmd);
 }
@@ -2116,11 +2128,16 @@ static unsigned On_BLOCK(TCmd* pCmd, int pnum)
 static unsigned On_GOTOGETITEM(TCmd* pCmd, int pnum)
 {
 	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
+	int ii;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
+		ii = SwapLE16(cmd->wParam1);
+
+		net_assert(ii < MAXITEMS);
+
 		plr.destAction = ACTION_PICKUPITEM;
-		plr.destParam1 = SwapLE16(cmd->wParam1);
+		plr.destParam1 = ii;
 	}
 
 	return sizeof(*cmd);
@@ -2155,11 +2172,16 @@ static unsigned On_GETITEM(TCmd* pCmd, int pnum)
 static unsigned On_GOTOAGETITEM(TCmd* pCmd, int pnum)
 {
 	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
+	int ii;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
+		ii = SwapLE16(cmd->wParam1);
+
+		net_assert(ii < MAXITEMS);
+
 		plr.destAction = ACTION_PICKUPAITEM;
-		plr.destParam1 = SwapLE16(cmd->wParam1);
+		plr.destParam1 = ii;
 	}
 
 	return sizeof(*cmd);
@@ -2284,7 +2306,7 @@ static unsigned On_SPAWNITEM(TCmd* pCmd, int pnum)
 	TCmdRPItem* cmd = (TCmdRPItem*)pCmd;
 
 	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) &&
-		currLvl._dLevelIdx == cmd->bLevel) {
+	 currLvl._dLevelIdx == cmd->bLevel) {
 		UnPackPkItem(&cmd->item);
 		SyncPutItem(-1, cmd->x, cmd->y, cmd->bFlipFlag);
 	}
@@ -2427,9 +2449,13 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 {
 	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
+	int oi;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		int oi = SwapLE16(cmd->wParam1);
+		oi = SwapLE16(cmd->wParam1);
+
+		net_assert(oi < MAXOBJECTS);
+
 		plr.destAction = ACTION_OPERATE;
 		plr.destParam1 = oi;
 		plr.destParam2 = cmd->x;
@@ -2444,9 +2470,13 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 {
 	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
+	int oi;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		int oi = SwapLE16(cmd->wParam1);
+		oi = SwapLE16(cmd->wParam1);
+
+		net_assert(oi < MAXOBJECTS);
+
 		plr.destAction = ACTION_DISARM;
 		plr.destParam1 = oi;
 		plr.destParam2 = cmd->x;
@@ -2461,10 +2491,15 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 static unsigned On_OPOBJT(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	int oi;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
+		oi = SwapLE16(cmd->wParam1);
+
+		net_assert(oi < MAXOBJECTS);
+
 		plr.destAction = ACTION_OPERATETK;
-		plr.destParam1 = SwapLE16(cmd->wParam1);
+		plr.destParam1 = oi;
 	}
 
 	return sizeof(*cmd);
@@ -2477,6 +2512,9 @@ static unsigned On_ATTACKID(TCmd* pCmd, int pnum)
 
 	if (CheckPlrSkillUse(pnum, cmd->mau)) {
 		mnum = SwapLE16(cmd->maMnum);
+
+		net_assert(mnum < MAXMONSTERS);
+
 		plr.destAction = ACTION_ATTACKMON;
 		plr.destParam1 = mnum;
 		plr.destParam3 = cmd->mau.skill; // attack skill
@@ -2493,6 +2531,9 @@ static unsigned On_ATTACKPID(TCmd* pCmd, int pnum)
 
 	if (CheckPlrSkillUse(pnum, cmd->pau)) {
 		tnum = cmd->paPnum;
+
+		net_assert(tnum < MAX_PLRS);
+
 		plr.destAction = ACTION_ATTACKPLR;
 		plr.destParam1 = tnum;
 		plr.destParam3 = cmd->pau.skill; // attack skill
@@ -2505,11 +2546,16 @@ static unsigned On_ATTACKPID(TCmd* pCmd, int pnum)
 static unsigned On_RATTACKID(TCmd* pCmd, int pnum)
 {
 	TCmdMonstAttack* cmd = (TCmdMonstAttack*)pCmd;
+	int mnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->mau)) {
 		ClrPlrPath(pnum);
+		mnum = SwapLE16(cmd->maMnum);
+
+		net_assert(mnum < MAXMONSTERS);
+
 		plr.destAction = ACTION_RATTACKMON;
-		plr.destParam1 = SwapLE16(cmd->maMnum);  // target id
+		plr.destParam1 = mnum;  // target id
 		plr.destParam3 = cmd->mau.skill; // attack skill
 		plr.destParam4 = (BYTE)cmd->mau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
@@ -2520,11 +2566,16 @@ static unsigned On_RATTACKID(TCmd* pCmd, int pnum)
 static unsigned On_RATTACKPID(TCmd* pCmd, int pnum)
 {
 	TCmdPlrAttack* cmd = (TCmdPlrAttack*)pCmd;
+	int tnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->pau)) {
 		ClrPlrPath(pnum);
+		tnum = cmd->paPnum;
+
+		net_assert(tnum < MAX_PLRS);
+
 		plr.destAction = ACTION_RATTACKPLR;
-		plr.destParam1 = cmd->paPnum;    // target id
+		plr.destParam1 = tnum;    // target id
 		plr.destParam3 = cmd->pau.skill; // attack skill
 		plr.destParam4 = (BYTE)cmd->pau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
@@ -2535,11 +2586,16 @@ static unsigned On_RATTACKPID(TCmd* pCmd, int pnum)
 static unsigned On_SPELLID(TCmd* pCmd, int pnum)
 {
 	TCmdMonstSkill* cmd = (TCmdMonstSkill*)pCmd;
+	int mnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->msu)) {
 		ClrPlrPath(pnum);
+		mnum = SwapLE16(cmd->msMnum);
+
+		net_assert(mnum < MAXMONSTERS);
+
 		plr.destAction = ACTION_SPELLMON;
-		plr.destParam1 = SwapLE16(cmd->msMnum); // mnum
+		plr.destParam1 = mnum;
 		plr.destParam3 = cmd->msu.skill;        // spell
 		plr.destParam4 = (BYTE)cmd->msu.from;   // spllvl (set in CheckPlrSkillUse)
 	}
@@ -2550,11 +2606,16 @@ static unsigned On_SPELLID(TCmd* pCmd, int pnum)
 static unsigned On_SPELLPID(TCmd* pCmd, int pnum)
 {
 	TCmdPlrSkill* cmd = (TCmdPlrSkill*)pCmd;
+	int tnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->psu)) {
 		ClrPlrPath(pnum);
+		tnum = cmd->psPnum;
+
+		net_assert(tnum < MAX_PLRS);
+
 		plr.destAction = ACTION_SPELLPLR;
-		plr.destParam1 = cmd->psPnum;    // pnum
+		plr.destParam1 = tnum;
 		plr.destParam3 = cmd->psu.skill; // spell
 		plr.destParam4 = (BYTE)cmd->psu.from; // spllvl (set in CheckPlrSkillUse)
 	}
@@ -2567,8 +2628,9 @@ static unsigned On_KNOCKBACK(TCmd* pCmd, int pnum)
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 	int mnum = SwapLE16(cmd->wParam1);
 
+	net_assert(mnum < MAXMONSTERS && mnum >= MAX_MINIONS);
+
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		// assert(mnum >= MAX_MINIONS); TODO: validate data from internet
 		if (!CanTalkToMonst(mnum) && (monsters[mnum]._mmaxhp >> 6) < plr._pMagic) {
 			MonGetKnockback(mnum, plr._px, plr._py);
 			MonStartHit(mnum, pnum, 0, 0);
@@ -2582,6 +2644,8 @@ static unsigned On_TALKXY(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 	int mnum = SwapLE16(cmd->wParam1);
+
+	net_assert(mnum < MAXMONSTERS);
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		MakePlrPath(pnum, monsters[mnum]._mx, monsters[mnum]._my, false);

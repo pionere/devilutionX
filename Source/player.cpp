@@ -276,7 +276,7 @@ void LoadPlrGFX(int pnum, unsigned gfxflag)
 	unsigned i, mask;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("LoadPlrGFX: illegal player %d", pnum);
+		dev_fatal("LoadPlrGFX: illegal player %d", pnum);
 	}
 
 	GetPlrGFXCells(plr._pClass, &szCel, &cs);
@@ -349,7 +349,7 @@ void InitPlayerGFX(int pnum)
 {
 	unsigned gfxflag;
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("InitPlayerGFX: illegal player %d", pnum);
+		dev_fatal("InitPlayerGFX: illegal player %d", pnum);
 	}
 	plr._pGFXLoad = 0;
 	if (plr._pHitPoints < (1 << 6)) {
@@ -407,7 +407,7 @@ static unsigned GetPlrGFXSize(const char *szCel)
 void InitPlrGFXMem(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("InitPlrGFXMem: illegal player %d", pnum);
+		dev_fatal("InitPlrGFXMem: illegal player %d", pnum);
 	}
 
 	if (!_gbPlrGfxSizeLoaded) {
@@ -457,7 +457,7 @@ void InitPlrGFXMem(int pnum)
 void FreePlayerGFX(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("FreePlayerGFX: illegal player %d", pnum);
+		dev_fatal("FreePlayerGFX: illegal player %d", pnum);
 	}
 
 	MemFreeDbg(plr._pNData);
@@ -485,7 +485,7 @@ void FreePlayerGFX(int pnum)
 static void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLen, int width) //, int numSkippedFrames /*= 0*/, bool processAnimationPending /*= false*/, int stopDistributingAfterFrame /*= 0*/)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("NewPlrAnim: illegal player %d", pnum);
+		dev_fatal("NewPlrAnim: illegal player %d", pnum);
 	}
 	plr._pdir = dir;
 	plr._pAnimData = anims[dir];
@@ -517,7 +517,7 @@ void SetPlrAnims(int pnum)
 	int pc, gn;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("SetPlrAnims: illegal player %d", pnum);
+		dev_fatal("SetPlrAnims: illegal player %d", pnum);
 	}
 	plr._pNWidth = 96;
 	plr._pWWidth = 96;
@@ -840,7 +840,7 @@ void RemoveLvlPlayer(int pnum)
 void NextPlrLevel(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("NextPlrLevel: illegal player %d", pnum);
+		dev_fatal("NextPlrLevel: illegal player %d", pnum);
 	}
 	plr._pLevel++;
 
@@ -1036,7 +1036,7 @@ void PlrDoTrans(int x, int y)
 void FixPlayerLocation(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("FixPlayerLocation: illegal player %d", pnum);
+		dev_fatal("FixPlayerLocation: illegal player %d", pnum);
 	}
 	plr._pfutx = plr._poldx = plr._px;
 	plr._pfuty = plr._poldy = plr._py;
@@ -1051,10 +1051,10 @@ void FixPlayerLocation(int pnum)
 	}
 }
 
-void AssertFixPlayerLocation(int pnum)
+static void AssertFixPlayerLocation(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("FixPlayerLocation: illegal player %d", pnum);
+		dev_fatal("FixPlayerLocation: illegal player %d", pnum);
 	}
 	assert(plr._pfutx == plr._px);
 	assert(plr._poldx == plr._px);
@@ -1630,7 +1630,7 @@ void RemovePlrFromMap(int pnum)
 	int pp, dx, dy, y, x;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("RemovePlrFromMap: illegal player %d", pnum);
+		dev_fatal("RemovePlrFromMap: illegal player %d", pnum);
 	}
 
 	dx = plr._poldx;
@@ -1651,7 +1651,7 @@ void RemovePlrFromMap(int pnum)
 void StartPlrHit(int pnum, int dam, bool forcehit)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("StartPlrHit: illegal player %d", pnum);
+		dev_fatal("StartPlrHit: illegal player %d", pnum);
 	}
 
 	if (plr._pHitPoints < (1 << 6)) {
@@ -1731,7 +1731,7 @@ void SyncPlrKill(int pnum, int dmgtype)
 	ItemStruct *pi;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("SyncPlrKill: illegal player %d", pnum);
+		dev_fatal("SyncPlrKill: illegal player %d", pnum);
 	}
 
 	if (plr._pmode == PM_DEATH) {
@@ -1819,8 +1819,9 @@ void SyncPlrKill(int pnum, int dmgtype)
 
 void SyncPlrResurrect(int pnum)
 {
-	if ((unsigned)pnum >= MAX_PLRS)
-		return;
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("SyncPlrKill: illegal player %d", pnum);
+	}
 
 	if (plr._pHitPoints >= (1 << 6))
 		return;
@@ -1911,9 +1912,10 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		}
 		break;
 	default:
-		app_fatal("StartNewLvl %d", fom);
-		break;
+		net_assert(0);
+		ASSUME_UNREACHABLE
 	}
+	net_assert(lvl < NUM_LEVELS);
 	plr._pDunLevel = lvl;
 	if (pnum == mypnum) {
 		PostMessage(fom, 0);
@@ -2094,7 +2096,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	bool tmac, ret;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		app_fatal("PlrHitMonst: illegal monster %d", mnum);
+		dev_fatal("PlrHitMonst: illegal monster %d", mnum);
 	}
 
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -2186,7 +2188,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	int hper, blkper, dam, damsl, dambl, dampc;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("PlrHitPlr: illegal target player %d", pnum);
+		dev_fatal("PlrHitPlr: illegal target player %d", pnum);
 	}
 
 	if ((unsigned)offp >= MAX_PLRS) {
@@ -2964,7 +2966,7 @@ void ProcessPlayers()
 void ClrPlrPath(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("ClrPlrPath: illegal player %d", pnum);
+		dev_fatal("ClrPlrPath: illegal player %d", pnum);
 	}
 
 	memset(plr.walkpath, DIR_NONE, sizeof(plr.walkpath));
@@ -3127,7 +3129,7 @@ void MakePlrPath(int pnum, int xx, int yy, bool endspace)
 	int path;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		app_fatal("MakePlrPath: illegal player %d", pnum);
+		dev_fatal("MakePlrPath: illegal player %d", pnum);
 	}
 
 	path = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, plr.walkpath);
