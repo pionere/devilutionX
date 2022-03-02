@@ -1759,6 +1759,9 @@ void SyncPlrKill(int pnum, int dmgtype)
 	plr._pInvincible = TRUE;
 	plr._pVar7 = 0; // DEATH_DELAY
 
+	if (dmgtype == DMGTYPE_NPC)
+		plr._pExperience -= (plr._pExperience - PlrExpLvlsTbl[plr._pLevel - 1]) >> 2;
+
 	diablolevel = IsMultiGame && plr._pDunLevel == DLV_HELL4;
 	if (pnum != mypnum && dmgtype == DMGTYPE_NPC && !diablolevel) {
 		plr._pHoldItem._itype = ITYPE_NONE;
@@ -1796,8 +1799,6 @@ void SyncPlrKill(int pnum, int dmgtype)
 					PlrDeadItem(pnum, &ear);
 				}
 			} else if (dmgtype == DMGTYPE_NPC) {
-				plr._pExperience -= (plr._pExperience - PlrExpLvlsTbl[plr._pLevel - 1]) >> 2;
-
 				if (!diablolevel) {
 					PlrDeadItem(pnum, &plr._pHoldItem);
 					if (plr._pHoldItem._itype == ITYPE_NONE && pcurs >= CURSOR_FIRSTITEM) {
