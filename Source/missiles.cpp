@@ -3371,7 +3371,7 @@ void MI_Fireball(int mi)
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi);
 
-	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXELE, 0, 0, 0, 0, 0);
+	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXFBALL, 0, 0, 0, 0, 0);
 	mis->_miDelFlag = TRUE;
 	AddUnLight(mis->_miLid);
 }
@@ -4217,24 +4217,24 @@ void MI_Elemental(int mi)
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi);
 
-	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXELE, 0, 0, 0, 0, 0);
+	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXFBALL, 0, 0, 0, 0, 0);
 
 	mis->_miDelFlag = TRUE;
 	AddUnLight(mis->_miLid);
 }
 
-void MI_EleExp(int mi)
+void MI_FireExp(int mi)
 {
-	MissileStruct *mis;
-
+	MissileStruct* mis;
 	assert(misfiledata[MFILE_BIGEXP].mfAnimLen[0] <= MAX_LIGHT_RAD);
+
 	mis = &missile[mi];
-	if (mis->_miVar1++ == 0)
-		mis->_miLid = AddLight(mis->_mix, mis->_miy, mis->_miAnimFrame);
-	else
-		ChangeLightRadius(mis->_miLid, mis->_miAnimFrame);
 	mis->_miRange--;
 	if (mis->_miRange != 0) {
+		if (mis->_miLid == NO_LIGHT)
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, mis->_miAnimFrame);
+		else
+			ChangeLightRadius(mis->_miLid, mis->_miAnimFrame);
 		PutMissile(mi);
 		return;
 	}

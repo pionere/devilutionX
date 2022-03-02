@@ -89,7 +89,7 @@ const MissileData missiledata[] = {
 	{  MIS_CBOLTC,        &AddCboltC,                 &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_CBOLT,         &AddCbolt,                  &MI_Cbolt,          TRUE,      1,                                0, MISR_LIGHTNING, MFILE_MINILTNG,  LS_CBOLT,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_ELEMENTAL,     &AddElemental,              &MI_Elemental,      TRUE,      1,                                0, MISR_FIRE,      MFILE_FIRERUN,   LS_ELEMENTL, SFX_NONE,    1,        1, ALIGN64 },
-	{  MIS_EXELE,         &AddMisexp,                 &MI_EleExp,         TRUE,      1,                                0, MISR_NONE,      MFILE_BIGEXP,    SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
+	{  MIS_EXFBALL,       &AddMisexp,                 &MI_FireExp,        TRUE,      1,                                0, MISR_NONE,      MFILE_BIGEXP,    SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	//{  MIS_BONESPIRIT,    &AddBoneSpirit,             &MI_Bonespirit,     TRUE,      1,                                0, MISR_MAGIC,     MFILE_SKLBALL,   LS_BONESP,   LS_BSIMPCT,  1,        1, ALIGN64 },
 	{  MIS_APOCAC2,       &AddApocaC2,                &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_EXAPOCA2,      &AddApocaExp,               &MI_ApocaExp,       TRUE,      2,                                0, MISR_NONE,      MFILE_FIREPLAR,  SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
