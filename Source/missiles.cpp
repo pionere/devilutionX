@@ -4250,7 +4250,7 @@ void MI_Elemental(int mi)
 	AddUnLight(mis->_miLid);
 }
 
-void MI_FireExp(int mi)
+/*void MI_FireExp(int mi)
 {
 	MissileStruct* mis;
 	assert(misfiledata[MFILE_BIGEXP].mfAnimLen[0] <= MAX_LIGHT_RAD);
@@ -4267,7 +4267,7 @@ void MI_FireExp(int mi)
 	}
 	mis->_miDelFlag = TRUE;
 	AddUnLight(mis->_miLid);
-}
+}*/
 
 void MI_Resurrect(int mi)
 {

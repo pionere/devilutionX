@@ -112,7 +112,7 @@ void MI_InfernoC(int mi);
 //void MI_FireTrap(int mi);
 void MI_Cbolt(int mi);
 void MI_Elemental(int mi);
-void MI_FireExp(int mi);
+//void MI_FireExp(int mi);
 void MI_Resurrect(int mi);
 
 #ifdef __cplusplus
