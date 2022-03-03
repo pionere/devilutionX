@@ -1744,18 +1744,17 @@ void SyncPlrResurrect(int pnum)
 
 	ClrPlrPath(pnum);
 	plr.destAction = ACTION_NONE;
+	plr._pmode = PM_STAND;
 	plr._pInvincible = FALSE;
 
 	PlrSetHp(pnum, std::min(10 << 6, plr._pMaxHPBase));
 	PlrSetMana(pnum, 0);
 
-	CalcPlrInv(pnum, true);
+	CalcPlrInv(pnum, false);
 
 	if (plr._pDunLevel == currLvl._dLevelIdx) {
 		PlacePlayer(pnum);
 		PlrStartStand(pnum);
-	} else {
-		plr._pmode = PM_STAND;
 	}
 }
 
