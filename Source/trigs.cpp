@@ -360,7 +360,7 @@ void InitVPReturnTrigger(bool recreate)
 	trigs[0]._ty = DBORDERX + 16;
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 
-	AddMissile(0, 0, DBORDERX + 19, DBORDERY + 16, 0, MIS_RPORTAL, 0, 0, 0, 0, recreate ? -1 : 0);
+	AddMissile(0, 0, DBORDERX + 19, DBORDERY + 16, 0, MIS_RPORTAL, 0, -1, 0, 0, recreate ? -1 : 0);
 }
 
 static int ForceTownTrig()
