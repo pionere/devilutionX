@@ -36,7 +36,7 @@ void InitPortals()
 
 void AddWarpMissile(int i, int x, int y)
 {
-	AddMissile(0, 0, x, y, 0, MIS_TOWN, 0, i, 0, 0, -1);
+	AddMissile(0, 0, x, y, 0, MIS_TOWN, MST_NA, i, 0, 0, -1);
 }
 
 void SyncPortals()

@@ -1605,6 +1605,13 @@ typedef enum missile_id {
 	NUM_MISTYPES
 } missile_id;
 
+typedef enum missile_source_type {
+	MST_PLAYER,  // player
+	MST_MONSTER, // monster
+	MST_OBJECT,  // trap or object
+	MST_NA = 0,  // does not matter
+} missile_source_type;
+
 typedef enum missile_gfx_id {
 	MFILE_ARROWS,
 	MFILE_FIREBA,

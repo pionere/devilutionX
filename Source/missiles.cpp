@@ -616,13 +616,13 @@ void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int ada
 	} else {
 		mtype = mdam >= adam ? MIS_EXMAGIC : MIS_EXACID;
 	}
-	AddMissile(dx, dy, -1, 0, 0, mtype, 0, 0, 0, 0, 0);
+	AddMissile(dx, dy, -1, 0, 0, mtype, MST_NA, 0, 0, 0, 0);
 	/*int gfx = random_(8, dam);
 	if (gfx >= dam - (fdam + ldam)) {
 		if (gfx < dam - ldam) {
-			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPFEXP, 0, 0, 0, 0);
+			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPFEXP, MST_NA, 0, 0, 0);
 		} else {
-			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPLEXP, 0, 0, 0, 0);
+			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPLEXP, MST_NA, 0, 0, 0);
 		}
 	}*/
 }
@@ -1069,7 +1069,7 @@ static bool MonMissHit(int mnum, int mi)
 
 	mis = &missile[mi];
 	if (mis->_miSource != -1) {
-		if (mis->_miCaster == 0) {
+		if (mis->_miCaster == MST_PLAYER) {
 			// player vs. monster
 			return MonsterMHit(mnum, mi);
 		} else {
@@ -1088,7 +1088,7 @@ static bool PlrMissHit(int pnum, int mi)
 
 	mis = &missile[mi];
 	if (mis->_miSource != -1) {
-		if (mis->_miCaster == 0) {
+		if (mis->_miCaster == MST_PLAYER) {
 			// player vs. player
 			return Plr2PlrMHit(pnum, mi);
 		} else {
@@ -2056,10 +2056,10 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	}
 	if (midir < 0 || misource == -1)
 		range = 8;
-	else if (micaster == 1)
-		range = 10;
-	else
+	else if (micaster == MST_PLAYER)
 		range = (spllvl >> 1) + 6;
+	else
+		range = 10;
 	mis->_miRange = range;
 	mis->_miMinDam <<= 3;
 	mis->_miMaxDam <<= 3;
@@ -2804,7 +2804,7 @@ int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	sx += XDirAdd[sd];
 	sy += YDirAdd[sd];
 	if (!nMissileTable[dPiece[sx][sy]]) {
-		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], 0, MIS_FIREWAVE, 0, misource, 0, 0, spllvl);
+		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], 0, MIS_FIREWAVE, MST_PLAYER, misource, 0, 0, spllvl);
 
 		for (i = -2; i <= 2; i += 4) {
 			dir = (sd + i) & 7;
@@ -2817,7 +2817,7 @@ int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 					break;
 				if (nMissileTable[dPiece[nx][ny]])
 					break;
-				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], 0, MIS_FIREWAVE, 0, misource, 0, 0, spllvl);
+				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], 0, MIS_FIREWAVE, MST_PLAYER, misource, 0, 0, spllvl);
 			}
 		}
 	}
@@ -3050,7 +3050,7 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx
 		 && LineClear(sx, sy, plr._pfutx, plr._pfuty)) {
-			AddMissile(plr._pfutx, plr._pfuty, 0, 0, 0, MIS_EXAPOCA2, micaster, misource, 0, 0, 0);
+			AddMissile(plr._pfutx, plr._pfuty, 0, 0, 0, MIS_EXAPOCA2, MST_MONSTER, misource, 0, 0, 0);
 		}
 	}
 	return MIRES_DELETE;
@@ -3122,11 +3122,12 @@ static bool Sentfire(int mi, int sx, int sy)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
+	assert(mis->_miCaster == MST_PLAYER);
 	if (dMonster[sx][sy] - 1 >= MAX_MINIONS
 	 && monsters[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6)
 	 && LineClear(mis->_mix, mis->_miy, sx, sy)) {
 		SetRndSeed(mis->_miRndSeed);
-		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, 0, mis->_miSpllvl);
+		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, 0, 0, mis->_miSpllvl);
 		mis->_miRndSeed = GetRndSeed();
 		SetMissDir(mi, 2);
 		mis->_miVar2 = 3;
@@ -3388,7 +3389,7 @@ void MI_Firewall(int mi)
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi);
 
-	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXFBALL, 0, 0, 0, 0, 0);
+	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0, 0, 0);
 	mis->_miDelFlag = TRUE;
 	AddUnLight(mis->_miLid);
 }*/
@@ -3802,7 +3803,7 @@ void MI_Acidsplat(int mi)
 	}
 	mis->_miDelFlag = TRUE;
 	SetRndSeed(mis->_miRndSeed);
-	AddMissile(mis->_mix - 1, mis->_miy - 1, 0, 0, mis->_miDir, MIS_ACIDPUD, 1, mis->_miSource, 0, 0, 0);
+	AddMissile(mis->_mix - 1, mis->_miy - 1, 0, 0, mis->_miDir, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0, 0, 0);
 }
 
 void MI_Teleport(int mi)
@@ -4234,7 +4235,7 @@ void MI_Elemental(int mi)
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi);
 
-	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXFBALL, 0, 0, 0, 0, 0);
+	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0, 0, 0);
 
 	mis->_miDelFlag = TRUE;
 	AddUnLight(mis->_miLid);

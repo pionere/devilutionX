@@ -2287,7 +2287,7 @@ static bool PlrDoRangeAttack(int pnum)
 	if (!plr._pVar7) { // RATTACK_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
 		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // RATTACK_TARGET_X, RATTACK_TARGET_X
-			 spelldata[plr._pVar5].sMissile, 0, pnum, 0, 0, plr._pVar6); // RATTACK_SKILL_LEVEL
+			 spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, 0, 0, plr._pVar6); // RATTACK_SKILL_LEVEL
 
 		WeaponDur(pnum, 40);
 	}
@@ -2426,7 +2426,7 @@ static bool PlrDoSpell(int pnum)
 		plr._pVar7 = TRUE;
 
 		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // SPELL_TARGET_X, SPELL_TARGET_Y
-			spelldata[plr._pVar3].sMissile, 0, pnum, 0, 0, plr._pVar4); // SPELL_NUM, SPELL_LEVEL
+			spelldata[plr._pVar3].sMissile, MST_PLAYER, pnum, 0, 0, plr._pVar4); // SPELL_NUM, SPELL_LEVEL
 	}
 
 	if (plr._pAnimFrame < plr._pSFrames)
