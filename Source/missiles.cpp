@@ -1664,7 +1664,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		dy += YDirAdd[midir];
 	}
 	midir = GetDirection16(sx, sy, dx, dy);
-	if (micaster == 0) {
+	if (micaster == MST_PLAYER) {
 		av += MIS_SHIFTEDVEL((int)plx(misource)._pIArrowVelBonus);
 		//int dam = plx(misource)._pIMaxDam + plx(misource)._pIMinDam;
 		int fdam = plx(misource)._pIFMaxDam;
@@ -1687,7 +1687,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miAnimFrame = midir + 1; // only for normal arrows
 	mis->_miRange = 255;
 	if (misource != -1) {
-		if (micaster == 0) {
+		if (micaster == MST_PLAYER) {
 			// mis->_miMinDam = plx(misource)._pIPcMinDam;
 			// mis->_miMaxDam = plx(misource)._pIPcMaxDam;
 			if (mis->_miType == MIS_PBARROW)
@@ -1718,7 +1718,7 @@ int AddArrowC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
-	if (micaster == 0 && plx(misource)._pIFlags & ISPL_MULT_ARROWS) {
+	if (micaster == MST_PLAYER && plx(misource)._pIFlags & ISPL_MULT_ARROWS) {
 		numarrows = 3;
 		// PlaySfxLoc(IS_STING1, sx, sy);
 	}
@@ -1756,7 +1756,7 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 
 	assert((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddRndTeleport expects a large enough border.");
-	if (micaster == 0 || (dx == 0 && dy == 0)) {
+	if (micaster == MST_PLAYER || (dx == 0 && dy == 0)) {
 		nTries = 0;
 		do {
 			nTries++;
@@ -1798,7 +1798,7 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	}
 	mis = &missile[mi];
 	if (misource != -1) {
-		if (micaster == 0) {
+		if (micaster == MST_PLAYER) {
 			switch (mis->_miType) {
 			case MIS_FIREBOLT:
 				av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
@@ -1977,7 +1977,7 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	}
 	mis = &missile[mi];
 	//assert(misource != -1);
-	if (micaster == 0) {
+	if (micaster == MST_PLAYER) {
 		mindam = (plx(misource)._pMagic >> 2) + 10;
 		maxdam = mindam + 10;
 		for (i = spllvl; i > 0; i--) {
@@ -2019,7 +2019,7 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(32));
 
 	if (misource != -1) {
-		if (micaster == 0) {
+		if (micaster == MST_PLAYER) {
 			mindam = 1;
 			maxdam = plx(misource)._pMagic + (spllvl << 3);
 		} else {
@@ -2182,7 +2182,7 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 
 	mis = &missile[mi];
 	if (misource != -1) {
-		if (micaster == 0) {
+		if (micaster == MST_PLAYER) {
 			dam = plx(misource)._pMagic >> 1;
 			for (i = spllvl; i > 0; i--) {
 				dam += dam >> 3;
@@ -2329,7 +2329,7 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
 	mis->_miVar1 = 1 + (spllvl >> 1);
 	//if (misource != -1) {
-	//	if (micaster == 0) {
+	//	if (micaster == MST_PLAYER) {
 			mis->_miMinDam = 1 << 6;
 			mis->_miMaxDam = plx(misource)._pMagic << 6;
 	//	} else {
@@ -2462,7 +2462,7 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFlare needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	//assert(misource != -1);
-	if (micaster == 0) {
+	if (micaster == MST_PLAYER) {
 		if (!plx(misource)._pInvincible)
 			PlrDecHp(misource, 320, DMGTYPE_NPC);
 		mis->_miMinDam = mis->_miMaxDam = (plx(misource)._pMagic * (spllvl + 1)) << (-3 + 6);
@@ -2912,7 +2912,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	}
 	mis->_miRange = mis->_miVar2 + 20;
 	//assert(misource != -1);
-	if (micaster == 0) {
+	if (micaster == MST_PLAYER) {
 		mis->_miMinDam = plx(misource)._pMagic;
 		mis->_miMaxDam = mis->_miMinDam + (spllvl << 4);
 	} else {
@@ -2973,7 +2973,7 @@ int AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 
 	// checks commented out, because spllvl is zero if the caster is not a player
 	//if (misource != -1) {
-	//	if (micaster == 0) {
+	//	if (micaster == MST_PLAYER) {
 			i += (spllvl >> 1);
 	//	}
 	//}
@@ -3007,7 +3007,7 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miVar2 = midir;
 	//mis->_miVar3 = 0;
 	mis->_miVar4 = random_(0, 16);
-	if (micaster == 0) {
+	if (micaster == MST_PLAYER) {
 		mis->_miMinDam = 1;
 		mis->_miMaxDam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
 	} else {
