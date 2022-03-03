@@ -1442,16 +1442,6 @@ void InitMissiles()
 }
 
 #ifdef HELLFIRE
-int AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	int i, j;
-
-	for (i = sx; i <= dx; i++)
-		for (j = sy; j <= dy; j++)
-			AddMissile(i, j, 0, 0, 0, MIS_HIVEEXP, micaster, misource, 0, 0, 0);
-	return MIRES_DELETE;
-}
-
 static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 {
 	int i, j, tx, ty;

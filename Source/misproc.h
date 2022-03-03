@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 #ifdef HELLFIRE
-int AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);

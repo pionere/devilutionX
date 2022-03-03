@@ -110,7 +110,6 @@ const MissileData missiledata[] = {
 	{  MIS_RUNESTONE,     &AddStoneRune,              &MI_Rune,           TRUE,      1,                                0, MISR_NONE,      MFILE_RGLOWS1,   SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_HIVEEXP,       &AddHiveexp,                &MI_Misexp,         TRUE,      1,                                0, MISR_FIRE,      MFILE_BIGEXP,    LS_FLAMWAVE, SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_HORKDMN,       &AddHorkSpawn,              &MI_HorkSpawn,      TRUE,      2,                                0, MISR_NONE,      MFILE_SPAWNS,    SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
-	{  MIS_HIVEEXPC,      &AddHiveexpC,               &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_PSYCHORB,      &AddFirebolt,               &MI_Firebolt,       TRUE,      1,                                0, MISR_MAGIC,     MFILE_MS_ORA,    SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_LICH,          &AddFirebolt,               &MI_Firebolt,       TRUE,      1,                                0, MISR_MAGIC,     MFILE_MS_ORA_A,  SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_BONEDEMON,     &AddFirebolt,               &MI_Firebolt,       TRUE,      1,                                0, MISR_MAGIC,     MFILE_MS_ORA_B,  SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },

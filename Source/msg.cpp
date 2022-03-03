@@ -2201,6 +2201,8 @@ static unsigned On_AUTOGETITEM(TCmd* pCmd, int pnum)
 #ifdef HELLFIRE
 static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 {
+	int i, j, sx, sy, dx, dy;
+
 	if (iidx == IDI_RUNEBOMB
 	 && x >= DBORDERX + 69 && x <= DBORDERX + 72 && y >= DBORDERY + 51 && y <= DBORDERY + 54
 	 && quests[Q_FARMER]._qactive != QUEST_DONE) {
@@ -2209,7 +2211,12 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		quests[Q_FARMER]._qlog = TRUE;
 		// open hive
 		if (currLvl._dLevelIdx == DLV_TOWN) {
-			AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0, 0);
+			sx = 70 + DBORDERX; sy = 52 + DBORDERY;
+			dx = 71 + DBORDERX; dy = 53 + DBORDERY;
+			PlaySfxLoc(LS_FLAMWAVE, sx, sy);
+			for (i = sx; i <= dx; i++)
+				for (j = sy; j <= dy; j++)
+					AddMissile(i, j, -1, 0, 0, MIS_EXFBALL, MST_NA, 0, 0, 0, 0);
 			gbOpenWarps |= (1 << TWARP_NEST);
 			T_HiveOpen();
 			InitTriggers();
