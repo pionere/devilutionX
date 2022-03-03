@@ -1133,7 +1133,7 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_NONE
 		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_SHIELD)
 			SwapItem(&plr._pInvBody[INVITEM_HAND_LEFT], &plr._pInvBody[INVITEM_HAND_RIGHT]);
-		CalcPlrInv(pnum, plr._pmode != PM_DEATH);
+		CalcPlrInv(pnum, true/*plr._pmode != PM_DEATH*/);
 	} else if (bLoc < INVITEM_BELT_FIRST) {
 		// inv item
 		bLoc -= INVITEM_INV_FIRST;

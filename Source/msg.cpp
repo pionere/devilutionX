@@ -2742,13 +2742,13 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 		if (PlrDeadItem(pnum, &plr._pHoldItem, NUM_DIRS - 1)) {
 			if (pnum == mypnum && pcurs >= CURSOR_FIRSTITEM)
 				NewCursor(CURSOR_HAND);
-			static_assert(NUM_INVLOC < NUM_DIRS, "PlrDeadItem uses inv loc as direction offset.");
+			static_assert((int)NUM_INVLOC < (int)NUM_DIRS, "PlrDeadItem uses inv loc as direction offset.");
 			for (i = 0; i < NUM_INVLOC; i++) {
 				if (!PlrDeadItem(pnum, &plr._pInvBody[i], i))
 					break;
 			}
 			CalcPlrInv(pnum, false);
-			PlrSetHp(pnum, 0);
+			//PlrSetHp(pnum, 0);
 		}
 	} else if (dmgtype == DMGTYPE_PLAYER) {
 		ItemStruct ear;
