@@ -1475,7 +1475,7 @@ static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (PlaceRune(mi, dx, dy, MIS_HIVEEXP, 0))
+		if (PlaceRune(mi, dx, dy, MIS_FIREEXP, 0))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -1564,9 +1564,9 @@ int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	return MIRES_DONE;
 }*/
 
-int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int i, dam;
 
 	mis = &missile[mi];
