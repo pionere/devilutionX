@@ -1800,28 +1800,50 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int av, mindam, maxdam;
+	int av, i, mindam, maxdam;
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
+	mis = &missile[mi];
 	if (misource != -1) {
 		if (micaster == 0) {
-			av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
-			//if (av > MIS_SHIFTEDVEL(63))
-			//	av = MIS_SHIFTEDVEL(63);
-			if (missile[mi]._miType == MIS_FIREBOLT) {
+			switch (mis->_miType) {
+			case MIS_FIREBOLT:
+				av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
 				mindam = (plx(misource)._pMagic >> 3) + spllvl + 1;
 				maxdam = mindam + 9;
-			} else {
-				//assert(missile[mi]._miType == MIS_HBOLT);
+				break;
+			case MIS_FIREBALL:
+				av = MIS_SHIFTEDVEL(spllvl + 16);
+				mindam = (plx(misource)._pMagic >> 2) + 10;
+				maxdam = mindam + 10;
+				for (i = spllvl; i > 0; i--) {
+					mindam += mindam >> 3;
+					maxdam += maxdam >> 3;
+				}
+				break;
+			case MIS_HBOLT:
+				av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
 				mindam = (plx(misource)._pMagic >> 2) + spllvl;
 				maxdam = mindam + 9;
+				break;
+			case MIS_FLARE:
+				av = MIS_SHIFTEDVEL(16);
+				if (!plx(misource)._pInvincible)
+					PlrDecHp(misource, 50 << 6, DMGTYPE_NPC);
+				mindam = maxdam = (plx(misource)._pMagic * (spllvl + 1)) >> 3;
+				break;
+			default:
+				ASSUME_UNREACHABLE
+				break;
 			}
+			//if (av > MIS_SHIFTEDVEL(63))
+			//	av = MIS_SHIFTEDVEL(63);
 		} else {
 			//assert(misource >= MAX_MINIONS);
-			av = MIS_SHIFTEDVEL(26);
+			av = MIS_SHIFTEDVEL(mis->_miType == MIS_FIREBOLT ? 26 : 16);
 			mindam = monsters[misource]._mMinDamage;
 			maxdam = monsters[misource]._mMaxDamage;
 		}
@@ -1830,13 +1852,12 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		mindam = currLvl._dLevel;
 		maxdam = mindam + 2 * mindam - 1;
 	}
+	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
 	GetMissileVel(mi, sx, sy, dx, dy, av);
-	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
-	mis = &missile[mi];
+	if (misfiledata[mis->_miAnimType].mfAnimFAmt == 16)
+		SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
-	mis->_miMinDam = mindam << 6;
-	mis->_miMaxDam = maxdam << 6;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFirebolt needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 255;
@@ -1955,7 +1976,7 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+/*int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
 	int i, mindam, maxdam;
@@ -1990,7 +2011,7 @@ int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 255;
 	return MIRES_DONE;
-}
+}*/
 
 /**
  * Var1: x coordinate of the missile
@@ -2430,7 +2451,7 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+/*int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
 
@@ -2460,7 +2481,7 @@ int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	}
 	return MIRES_DONE;
-}
+}*/
 
 /**
  * Var1: x coordinate of the missile-light
