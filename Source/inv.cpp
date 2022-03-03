@@ -1892,7 +1892,6 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	default:
 		ASSUME_UNREACHABLE
 	}
-	// FIXME: ensure a dead player remains dead
 	// consume the item
 	SyncPlrItemRemove(pnum, cii);
 	return sn == SPL_INVALID;

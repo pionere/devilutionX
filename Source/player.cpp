@@ -799,7 +799,7 @@ void InitLvlPlayer(int pnum, bool entering)
 			assert(plr._pyoff == 0);
 			FixPlayerLocation(pnum);
 		}
-		if (plr._pmode != PM_DEATH) {
+		if (plr._pmode != PM_DEATH && plr._pmode != PM_DYING) {
 			dPlayer[plr._px][plr._py] = pnum + 1;
 			if (plr._pmode == PM_WALK2) {
 				dPlayer[plr._poldx][plr._poldy] = -(pnum + 1);
@@ -1002,7 +1002,38 @@ static void StartPlrKill(int pnum, int dmgtype)
 		return;
 	}
 
-	SyncPlrKill(pnum, dmgtype);
+	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
+		return;
+
+	plr._pmode = PM_DYING;
+	plr._pInvincible = TRUE;
+
+	if (pnum == mypnum) {
+		gbDeathflag = MDM_DYING;
+		NetSendCmdBParam1(CMD_PLRDEAD, dmgtype);
+	}
+
+	if (plr._pDunLevel == currLvl._dLevelIdx) {
+		if (plr._pgfxnum != ANIM_ID_UNARMED) {
+			plr._pgfxnum = ANIM_ID_UNARMED;
+			plr._pGFXLoad = 0;
+			SetPlrAnims(pnum);
+		}
+
+		if (!(plr._pGFXLoad & PFILE_DEATH)) {
+			LoadPlrGFX(pnum, PFILE_DEATH);
+		}
+
+		NewPlrAnim(pnum, plr._pDAnim, plr._pdir, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
+
+		RemovePlrFromMap(pnum);
+		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
+		dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
+		FixPlayerLocation(pnum);
+
+		plr._pVar7 = pnum == mypnum ? 32 : 0; // DEATH_DELAY
+	}
+	PlrSetHp(pnum, 0);
 }
 
 /*void PlrClrTrans(int x, int y)
@@ -1690,35 +1721,11 @@ void SyncPlrKill(int pnum, int dmgtype)
 		return;
 	}
 
-	if (pnum == mypnum) {
-		gbDeathflag = MDM_DYING;
-		NetSendCmdBParam1(CMD_PLRDEAD, dmgtype);
+	if (plr._pmode != PM_DYING) {
+		StartPlrKill(pnum, dmgtype);
 	}
 
 	plr._pmode = PM_DEATH;
-	plr._pInvincible = TRUE;
-
-	if (plr._pDunLevel == currLvl._dLevelIdx) {
-		if (plr._pgfxnum != ANIM_ID_UNARMED) {
-			plr._pgfxnum = ANIM_ID_UNARMED;
-			plr._pGFXLoad = 0;
-			SetPlrAnims(pnum);
-		}
-
-		if (!(plr._pGFXLoad & PFILE_DEATH)) {
-			LoadPlrGFX(pnum, PFILE_DEATH);
-		}
-
-		NewPlrAnim(pnum, plr._pDAnim, plr._pdir, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
-
-		RemovePlrFromMap(pnum);
-		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
-		dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
-		FixPlayerLocation(pnum);
-
-		plr._pVar7 = pnum == mypnum ? 32 : 0; // DEATH_DELAY
-	}
-	PlrSetHp(pnum, 0);
 }
 
 void SyncPlrResurrect(int pnum)
@@ -2602,19 +2609,6 @@ static void CheckNewPath(int pnum)
 	}
 }
 
-/*static bool PlrDeathModeOK(int pnum)
-{
-	if (pnum != mypnum) {
-		return true;
-	}
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrDeathModeOK: illegal player %d", pnum);
-	}
-
-	return plr._pmode == PM_DEATH || plr._pmode == PM_NEWLVL;
-}*/
-
 #if DEBUG_MODE || DEV_MODE
 static void ValidatePlayer(int pnum)
 {
@@ -2778,7 +2772,7 @@ void ProcessPlayers()
 #if DEBUG_MODE || DEV_MODE
 		ValidatePlayer(pnum);
 #endif
-		if (plr._pInvincible && plr._pmode != PM_DEATH) {
+		if (plr._pInvincible && plr._pmode != PM_DEATH && plr._pmode != PM_DYING) {
 			if (plr._pLvlChanging)
 				continue;
 			if (plr.destAction != ACTION_NONE)
@@ -2789,7 +2783,6 @@ void ProcessPlayers()
 		{
 			//CheckCheatStats(pnum);
 
-			//if (!PlrDeathModeOK(pnum) && plr._pHitPoints < (1 << 6)) {
 			if (plr._pHitPoints < (1 << 6) && !plr._pInvincible) {
 				StartPlrKill(pnum, DMGTYPE_UNKNOWN);
 			}
@@ -2842,6 +2835,7 @@ void ProcessPlayers()
 				case PM_GOTHIT:
 					raflag = PlrDoGotHit(pnum);
 					break;
+				case PM_DYING:
 				case PM_DEATH:
 					raflag = PlrDoDeath(pnum);
 					break;
@@ -3097,6 +3091,7 @@ void SyncPlrAnim(int pnum)
 		p->_pAnimXOffset = (p->_pHWidth - TILE_WIDTH) >> 1;
 		anim = p->_pHAnim;
 		break;
+	case PM_DYING:
 	case PM_DEATH:
 		p->_pAnimFrameLen = PlrAnimFrameLens[PA_DEATH];
 		p->_pAnimLen = p->_pDFrames;

@@ -629,7 +629,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		plr._pSkillLvl[i] = spllvl;
 	}
 
-	if (plr._pmode == PM_DEATH) {
+	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING) {
 		PlrSetHp(pnum, 0);
 		gfx = ANIM_ID_UNARMED;
 	}

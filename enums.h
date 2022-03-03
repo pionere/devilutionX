@@ -2963,8 +2963,9 @@ typedef enum PLR_MODE {
 	PM_RATTACK,
 	PM_BLOCK,
 	PM_GOTHIT,
-	PM_DEATH,
 	PM_SPELL,
+	PM_DYING, // pre-death mode which might be out of sync
+	PM_DEATH, // death mode which is in sync with external players
 	PM_NEWLVL,
 	NUM_PLR_MODES,
 	PM_INVALID = 0xFF

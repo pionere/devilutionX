@@ -2390,7 +2390,7 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 {
 	TCmdItemOp* cmd = (TCmdItemOp*)pCmd;
 
-	if (plr._pmode == PM_DEATH) // FIXME: not in exact sync! (see SyncUseItem and DoBuckle)
+	if (plr._pmode == PM_DEATH)
 		return sizeof(*cmd);
 
 	// manipulate the item
@@ -2936,7 +2936,7 @@ static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
 
 	net_assert(r < NUM_INVELEM);
 
-	if (plr._pmode != PM_DEATH)	// FIXME: not in exact sync! (see DoAbility and FIXME in SyncUseItem)
+	if (plr._pmode != PM_DEATH)
 		SyncUseItem(pnum, r, SPL_INVALID);
 
 	return sizeof(*cmd);
@@ -3221,7 +3221,7 @@ static unsigned On_STORE_1(TCmd* pCmd, int pnum)
 	TCmdStore1* cmd = (TCmdStore1*)pCmd;
 	BYTE c = cmd->stCmd, r = cmd->stLoc;
 
-	net_assert(plr._pmode != PM_DEATH);
+	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 	net_assert(plr._pDunLevel == DLV_TOWN);
 	net_assert(c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_BOY);
 	net_assert(r < NUM_INVELEM);
@@ -3239,7 +3239,7 @@ static unsigned On_STORE_2(TCmd* pCmd, int pnum)
 	TCmdStore2* cmd = (TCmdStore2*)pCmd;
 	BYTE c = cmd->stCmd;
 
-	net_assert(plr._pmode != PM_DEATH);
+	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 	net_assert(plr._pDunLevel == DLV_TOWN);
 	net_assert(c == STORE_HBUY || c == STORE_SBUY || c == STORE_SPBUY || c == STORE_WBUY || c == STORE_BBOY);
 
@@ -3254,7 +3254,7 @@ static unsigned On_QTOWNER(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 
-	net_assert(plr._pmode != PM_DEATH);
+	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 	net_assert(plr._pDunLevel == DLV_TOWN);
 
 	SyncTownerQ(pnum, SwapLE16(cmd->wParam1));
