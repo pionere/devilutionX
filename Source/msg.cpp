@@ -2604,6 +2604,7 @@ static unsigned On_KNOCKBACK(TCmd* pCmd, int pnum)
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		if (!CanTalkToMonst(mnum) && (monsters[mnum]._mmaxhp >> 6) < plr._pMagic) {
+			monsters[mnum]._msquelch = SQUELCH_MAX;
 			MonGetKnockback(mnum, plr._px, plr._py);
 			MonStartHit(mnum, pnum, 0, 0);
 		}
