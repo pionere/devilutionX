@@ -819,7 +819,9 @@ void InitLvlPlayer(int pnum, bool entering)
 	} else {
 		plr._plid = NO_LIGHT;
 	}
-	plr._pvid = AddVision(plr._px, plr._py, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
+	plr._pvid = AddVision(plr._pmode == PM_WALK2 ? plr._poldx : plr._px,
+		plr._pmode == PM_WALK2 ? plr._poldy : plr._py,
+		std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
 }
 
 void RemoveLvlPlayer(int pnum)
