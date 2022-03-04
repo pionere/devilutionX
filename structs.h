@@ -420,7 +420,7 @@ typedef struct TextData {
 
 typedef struct MissileData {
 	BYTE mName;
-	int (*mAddProc)(int, int, int, int, int, int, char, int, int);
+	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
 	void (*mProc)(int);
 	BOOL mDraw;
 	BYTE mType;
