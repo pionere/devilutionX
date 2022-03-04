@@ -22,7 +22,7 @@ unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam);
 int CheckMonCol(int _mnum_);
 int CheckPlrCol(int _pnum_);
 void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hdam);
-int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micaster, int misource, int mindam, int maxdam, int spllvl);
+int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int mindam, int maxdam, int spllvl);
 void DeleteMissile(int mi, int idx);
 void LoadMissileGFX(BYTE midx);
 void InitMissileGFX();
