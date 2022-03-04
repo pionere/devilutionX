@@ -3496,7 +3496,7 @@ void MI_LightningC(int mi)
 			mis->_miVar2 = my;
 		}
 	} else {
-		if (mis->_miSource != -1 || mx != mis->_misx || my != mis->_misy)
+		if (mis->_miCaster != MST_OBJECT || mx != mis->_misx || my != mis->_misy)
 			mis->_miRange = 0;
 	}
 	if (mis->_miRange == 0) {
@@ -3570,7 +3570,7 @@ void MI_Flash(int mi)
 	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
 	CheckSplashColFull(mi);
 	mis = &missile[mi];
-	if (mis->_miSource == -1)
+	if (mis->_miCaster == MST_OBJECT)
 		CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 	mis->_miRange--;
 	if (mis->_miRange != 0) {
