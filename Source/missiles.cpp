@@ -2997,7 +2997,7 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		mis->_miMinDam = 1;
 		mis->_miMaxDam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
 	} else {
-		mis->_miMinDam = mis->_miMaxDam = 15 << 6;
+		mis->_miMinDam = mis->_miMaxDam = 15 << (6 + gnDifficulty);
 	}
 	mis->_miRange = 255;
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_MINILTNG].mfAnimLen[0]);
