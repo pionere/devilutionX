@@ -1681,28 +1681,28 @@ void RemovePlrFromMap(int pnum)
 	}
 }
 
-void StartPlrHit(int pnum, int dam, bool forcehit)
+void StartPlrHit(int pnum, int dam, bool forcehit, int dir)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartPlrHit: illegal player %d", pnum);
 	}
 
-	if (plr._pHitPoints < (1 << 6)) {
-		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
+	assert(plr._pHitPoints >= (1 << 6));
+
+	if (!forcehit && plr._pManaShield != 0)
 		return;
-	}
 
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
 
-	if (!forcehit) {
-		if (plr._pManaShield != 0 || (dam << 2) < plr._pMaxHP)
-			return;
-	}
+	if (!forcehit && (dam << 2) < plr._pMaxHP)
+		return;
+
+	dir = dir == DIR_NONE ? plr._pdir : OPPOSITE(dir);
 
 	if (!(plr._pGFXLoad & PFILE_HIT)) {
 		LoadPlrGFX(pnum, PFILE_HIT);
 	}
-	NewPlrAnim(pnum, plr._pHAnim, plr._pdir, plr._pHFrames, PlrAnimFrameLens[PA_GOTHIT], plr._pHWidth);
+	NewPlrAnim(pnum, plr._pHAnim, dir, plr._pHFrames, PlrAnimFrameLens[PA_GOTHIT], plr._pHWidth);
 
 	plr._pmode = PM_GOTHIT;
 	RemovePlrFromMap(pnum);
@@ -2177,7 +2177,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
-		StartPlrHit(pnum, dam, false);
+		StartPlrHit(pnum, dam, false, plx(offp)._pdir);
 	return true;
 }
 
@@ -2898,7 +2898,7 @@ void MissToPlr(int mi, int x, int y, bool hit)
 		return;
 	}
 	//if (mis->_miSpllvl < 10)
-		StartPlrHit(pnum, 0, true);
+		StartPlrHit(pnum, 0, true, OPPOSITE(plr._pdir));
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
 	dist = (int)mis->_miDist - 24;
@@ -2979,7 +2979,7 @@ void MissToPlr(int mi, int x, int y, bool hit)
 		//if (random_(151, 200) < plr._pICritChance)
 		//	dam <<= 1;
 		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER))
-			StartPlrHit(mpnum, dam, true);
+			StartPlrHit(mpnum, dam, true, plr._pdir);
 		return;
 	}
 }

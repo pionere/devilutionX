@@ -881,14 +881,17 @@ static bool PlayerTrapHit(int pnum, int mi)
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
+
+	tmp = DIR_NONE;
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam += plr._pIGetHit;
 		if (dam < 64)
 			dam = 64;
+		tmp = GetDirection(mis->_misx, mis->_misy, plr._px, plr._py);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC))
-		StartPlrHit(pnum, dam, false);
+		StartPlrHit(pnum, dam, false, tmp);
 	return true;
 }
 
@@ -944,21 +947,23 @@ static bool PlayerMHit(int pnum, int mi)
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
+	tmp = DIR_NONE;
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam += plr._pIGetHit;
 		if (dam < 64)
 			dam = 64;
+		tmp = GetDirection(mis->_misx, mis->_misy, plr._px, plr._py);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC))
-		StartPlrHit(pnum, dam, false);
+		StartPlrHit(pnum, dam, false, tmp);
 	return true;
 }
 
 static bool Plr2PlrMHit(int pnum, int mi)
 {
 	MissileStruct* mis;
-	int offp, dam, blkper, hper;
+	int offp, dam, tmp, hper;
 
 	mis = &missile[mi];
 	offp = mis->_miSource;
@@ -986,12 +991,13 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		return false;
 
 	if (!(mis->_miFlags & MIF_NOBLOCK)) {
-		blkper = plr._pIBlockChance;
-		if (blkper != 0 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
+		tmp = plr._pIBlockChance;
+		if (tmp != 0 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
 			// assert(plr._pSkillFlags & SFLAG_BLOCK);
-			blkper = blkper - (plx(offp)._pLevel << 1);
-			if (blkper > random_(73, 100)) {
-				PlrStartBlock(pnum, GetDirection(plr._px, plr._py, plx(offp)._px, plx(offp)._py));
+			tmp = tmp - (plx(offp)._pLevel << 1);
+			if (tmp > random_(73, 100)) {
+				tmp = GetDirection(plr._px, plr._py, plx(offp)._px, plx(offp)._py);
+				PlrStartBlock(pnum, tmp);
 				return true;
 			}
 		}
@@ -1052,14 +1058,17 @@ static bool Plr2PlrMHit(int pnum, int mi)
 
 	if (dam == 0)
 		return false;
+
+	tmp = DIR_NONE;
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam += plr._pIGetHit;
 		if (dam < 64)
 			dam = 64;
+		tmp = GetDirection(mis->_misx, mis->_misy, plr._px, plr._py);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
-		StartPlrHit(pnum, dam, false);
+		StartPlrHit(pnum, dam, false, tmp);
 	return true;
 }
 
@@ -2582,8 +2591,8 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		return MIRES_FAIL_DELETE;
 	}
 
-	missile[mi]._mix = mon->_mx;
-	missile[mi]._miy = mon->_my;
+	missile[mi]._misx = missile[mi]._mix = mon->_mx;
+	missile[mi]._misy = missile[mi]._miy = mon->_my;
 	missile[mi]._miMaxDam = mon->_mhitpoints;
 	missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
 	CheckSplashColFull(mi);

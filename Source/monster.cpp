@@ -2119,10 +2119,10 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 		return;
 	}
-	StartPlrHit(pnum, dam, false);
+	StartPlrHit(pnum, dam, false, mon->_mdir);
 	if (mon->_mFlags & MFLAG_KNOCKBACK) {
 		if (plr._pmode != PM_GOTHIT)
-			StartPlrHit(pnum, 0, true);
+			StartPlrHit(pnum, 0, true, mon->_mdir);
 		newx = plr._px + offset_x[mon->_mdir];
 		newy = plr._py + offset_y[mon->_mdir];
 		if (PosOkPlayer(pnum, newx, newy)) {
@@ -4875,7 +4875,7 @@ void MissToMonst(int mi, int x, int y)
 			MonHitPlr(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
 			if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
 				if (plx(tnum)._pmode != PM_GOTHIT/*&& plx(tnum)._pmode != PM_DEATH && plx(tnum)._pmode != PM_DYING*/)
-					StartPlrHit(tnum, 0, true);
+					StartPlrHit(tnum, 0, true, mon->_mdir);
 				newx = oldx + offset_x[mon->_mdir];
 				newy = oldy + offset_y[mon->_mdir];
 				if (PosOkPlayer(tnum, newx, newy)) {
