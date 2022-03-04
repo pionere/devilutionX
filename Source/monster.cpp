@@ -4864,45 +4864,45 @@ void MissToMonst(int mi, int x, int y)
 
 	oldx = mis->_mix;
 	oldy = mis->_miy;
-		tnum = dPlayer[oldx][oldy];
-		// TODO: use CheckPlrCol instead?
-		if (tnum > 0) {
-			tnum--;
-			MonHitPlr(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
-			if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
-				if (plx(tnum)._pmode != PM_GOTHIT/*&& plx(tnum)._pmode != PM_DEATH && plx(tnum)._pmode != PM_DYING*/)
-					StartPlrHit(tnum, 0, true, mon->_mdir);
-				newx = oldx + offset_x[mon->_mdir];
-				newy = oldy + offset_y[mon->_mdir];
-				if (PosOkPlayer(tnum, newx, newy)) {
-					plx(tnum)._px = newx;
-					plx(tnum)._py = newy;
-					RemovePlrFromMap(tnum);
-					dPlayer[newx][newy] = tnum + 1;
-					FixPlayerLocation(tnum);
-				}
+	tnum = dPlayer[oldx][oldy];
+	// TODO: use CheckPlrCol instead?
+	if (tnum > 0) {
+		tnum--;
+		MonHitPlr(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
+		if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
+			if (plx(tnum)._pmode != PM_GOTHIT/*&& plx(tnum)._pmode != PM_DEATH && plx(tnum)._pmode != PM_DYING*/)
+				StartPlrHit(tnum, 0, true, mon->_mdir);
+			newx = oldx + offset_x[mon->_mdir];
+			newy = oldy + offset_y[mon->_mdir];
+			if (PosOkPlayer(tnum, newx, newy)) {
+				plx(tnum)._px = newx;
+				plx(tnum)._py = newy;
+				RemovePlrFromMap(tnum);
+				dPlayer[newx][newy] = tnum + 1;
+				FixPlayerLocation(tnum);
 			}
+		}
+		return;
+	}
+	tnum = dMonster[oldx][oldy];
+	// TODO: use CheckMonCol instead?
+	if (tnum > 0) {
+		tnum--;
+		if (tnum >= MAX_MINIONS)
 			return;
-		}
-		tnum = dMonster[oldx][oldy];
-		// TODO: use CheckMonCol instead?
-		if (tnum > 0) {
-			tnum--;
-			if (tnum >= MAX_MINIONS)
-				return;
-			MonHitMon(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
-			if (tnum == dMonster[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
-				newx = oldx + offset_x[mon->_mdir];
-				newy = oldy + offset_y[mon->_mdir];
-				if (PosOkMonst(tnum, newx, newy)) {
-					monsters[tnum]._mx = newx;
-					monsters[tnum]._my = newy;
-					RemoveMonFromMap(tnum);
-					dMonster[newx][newy] = tnum + 1;
-					FixMonLocation(tnum);
-				}
+		MonHitMon(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
+		if (tnum == dMonster[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
+			newx = oldx + offset_x[mon->_mdir];
+			newy = oldy + offset_y[mon->_mdir];
+			if (PosOkMonst(tnum, newx, newy)) {
+				monsters[tnum]._mx = newx;
+				monsters[tnum]._my = newy;
+				RemoveMonFromMap(tnum);
+				dMonster[newx][newy] = tnum + 1;
+				FixMonLocation(tnum);
 			}
 		}
+	}
 }
 
 /*static bool monster_posok(int mnum, int x, int y)
