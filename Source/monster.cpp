@@ -4891,7 +4891,7 @@ void MissToMonst(int mi, int x, int y)
 			if (tnum >= MAX_MINIONS)
 				return;
 			MonHitMon(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
-			if (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE) {
+			if (tnum == dMonster[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
 				newx = oldx + offset_x[mon->_mdir];
 				newy = oldy + offset_y[mon->_mdir];
 				if (PosOkMonst(tnum, newx, newy)) {
