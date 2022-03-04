@@ -19,6 +19,9 @@ bool PathWalkable(int sx, int sy, int pdir);
 
 extern const char pathxdir[8];
 extern const char pathydir[8];
+/** Maps from facing direction to path-direction. */
+extern const BYTE dir2pdir[NUM_DIRS];
+
 #ifdef __cplusplus
 }
 #endif

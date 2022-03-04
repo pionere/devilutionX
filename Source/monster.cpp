@@ -39,9 +39,6 @@ BYTE mapGoatTypes[MAX_LVLMTYPES];
 /* The next light-index to be used for the trn of a unique monster. */
 BYTE uniquetrans;
 
-/** Maps from facing direction to path-direction. */
-static const BYTE dir2pdir[NUM_DIRS] = { PDIR_S, PDIR_SW, PDIR_W, PDIR_NW, PDIR_N, PDIR_NE, PDIR_E, PDIR_SE };
-
 /** 'leader' of monsters without leaders. */
 static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE field.");
 #define MON_NO_LEADER MAXMONSTERS
