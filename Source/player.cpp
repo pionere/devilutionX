@@ -1734,7 +1734,7 @@ void SyncPlrResurrect(int pnum)
 		dev_fatal("SyncPlrResurrect: illegal player %d", pnum);
 	}
 
-	if (plr._pHitPoints >= (1 << 6))
+	if (plr._pmode != PM_DEATH)
 		return;
 
 	if (pnum == mypnum) {
