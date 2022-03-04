@@ -872,7 +872,8 @@ static bool PlayerTrapHit(int pnum, int mi)
 			// assert(plr._pSkillFlags & SFLAG_BLOCK);
 			tmp = tmp - (currLvl._dLevel << 1);
 			if (tmp > random_(73, 100)) {
-				PlrStartBlock(pnum, plr._pdir);
+				tmp = GetDirection(plr._px, plr._py, mis->_misx, mis->_misy);
+				PlrStartBlock(pnum, tmp);
 				return true;
 			}
 		}
@@ -937,7 +938,7 @@ static bool PlayerMHit(int pnum, int mi)
 			// assert(plr._pSkillFlags & SFLAG_BLOCK);
 			tmp = tmp - (mon->_mLevel << 1);
 			if (tmp > random_(73, 100)) {
-				tmp = GetDirection(plr._px, plr._py, mon->_mx, mon->_my);
+				tmp = GetDirection(plr._px, plr._py, mis->_misx, mis->_misy);
 				PlrStartBlock(pnum, tmp);
 				return true;
 			}
@@ -996,7 +997,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 			// assert(plr._pSkillFlags & SFLAG_BLOCK);
 			tmp = tmp - (plx(offp)._pLevel << 1);
 			if (tmp > random_(73, 100)) {
-				tmp = GetDirection(plr._px, plr._py, plx(offp)._px, plx(offp)._py);
+				tmp = GetDirection(plr._px, plr._py, mis->_misx, mis->_misy);
 				PlrStartBlock(pnum, tmp);
 				return true;
 			}
