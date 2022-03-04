@@ -2080,7 +2080,7 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		// assert(plr._pSkillFlags & SFLAG_BLOCK);
 		blkper = blkper - (mon->_mLevel << 1);
 		if (blkper > random_(98, 100)) {
-			PlrStartBlock(pnum, GetDirection(plr._px, plr._py, mon->_mx, mon->_my));
+			PlrStartBlock(pnum, OPPOSITE(mon->_mdir));
 			return;
 		}
 	}

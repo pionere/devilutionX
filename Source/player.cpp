@@ -2128,7 +2128,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		// assert(plr._pSkillFlags & SFLAG_BLOCK);
 		blkper = blkper - (plx(offp)._pLevel << 1);
 		if (blkper > random_(5, 100)) {
-			PlrStartBlock(pnum, GetDirection(plr._px, plr._py, plx(offp)._px, plx(offp)._py));
+			PlrStartBlock(pnum, OPPOSITE(plx(offp)._pdir));
 			return true;
 		}
 	}
@@ -2970,7 +2970,7 @@ void MissToPlr(int mi, int x, int y, bool hit)
 			// assert(plr._pSkillFlags & SFLAG_BLOCK);
 			blkper = blkper - (plr._pLevel << 1);
 			if (blkper > random_(5, 100)) {
-				PlrStartBlock(mpnum, GetDirection(plx(mpnum)._px, plx(mpnum)._py, plr._px, plr._py));
+				PlrStartBlock(mpnum, OPPOSITE(plr._pdir));
 				return;
 			}
 		}
