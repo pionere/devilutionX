@@ -2052,7 +2052,6 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 {
 	MonsterStruct* mon;
 	int tmp, dam, hper, blkper;
-	int newx, newy;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("MonHitPlr: Invalid player %d", pnum);
@@ -2118,19 +2117,7 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	}
 	StartPlrHit(pnum, dam, false, mon->_mdir);
 	if (mon->_mFlags & MFLAG_KNOCKBACK) {
-		if (plr._pmode != PM_GOTHIT)
-			StartPlrHit(pnum, 0, true, mon->_mdir);
-		if (!PathWalkable(plr._px, plr._py, dir2pdir[mon->_mdir]))
-			return;
-		newx = plr._px + offset_x[mon->_mdir];
-		newy = plr._py + offset_y[mon->_mdir];
-		if (PosOkPlayer(pnum, newx, newy)) {
-			plr._px = newx;
-			plr._py = newy;
-			RemovePlrFromMap(pnum);
-			dPlayer[newx][newy] = pnum + 1;
-			FixPlayerLocation(pnum);
-		}
+		KnockbackPlr(pnum, mon->_mdir);
 	}
 }
 
@@ -4872,19 +4859,7 @@ void MissToMonst(int mi, int x, int y)
 		tnum--;
 		MonHitPlr(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
-			if (plx(tnum)._pmode != PM_GOTHIT/*&& plx(tnum)._pmode != PM_DEATH && plx(tnum)._pmode != PM_DYING*/)
-				StartPlrHit(tnum, 0, true, mon->_mdir);
-			if (!PathWalkable(oldx, oldy, dir2pdir[mon->_mdir]))
-				return;
-			newx = oldx + offset_x[mon->_mdir];
-			newy = oldy + offset_y[mon->_mdir];
-			if (PosOkPlayer(tnum, newx, newy)) {
-				plx(tnum)._px = newx;
-				plx(tnum)._py = newy;
-				RemovePlrFromMap(tnum);
-				dPlayer[newx][newy] = tnum + 1;
-				FixPlayerLocation(tnum);
-			}
+			KnockbackPlr(tnum, mon->_mdir);
 		}
 		return;
 	}

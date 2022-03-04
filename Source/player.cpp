@@ -2440,6 +2440,35 @@ static bool PlrDoSpell(int pnum)
 	return true;
 }
 
+void KnockbackPlr(int pnum, int dir)
+{
+	int oldx, oldy, newx, newy;
+
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("PlrKnockback: illegal player %d", pnum);
+	}
+
+	assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
+
+	if (plr._pmode != PM_GOTHIT)
+		StartPlrHit(pnum, 0, true, dir);
+
+	oldx = plr._px;
+	oldy = plr._py;
+	if (!PathWalkable(oldx, oldy, dir2pdir[dir]))
+		return;
+
+	newx = oldx + offset_x[dir];
+	newy = oldy + offset_y[dir];
+	if (PosOkPlayer(pnum, newx, newy)) {
+		plr._px = newx;
+		plr._py = newy;
+		RemovePlrFromMap(pnum);
+		dPlayer[newx][newy] = pnum + 1;
+		FixPlayerLocation(pnum);
+	}
+}
+
 static bool PlrDoGotHit(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {

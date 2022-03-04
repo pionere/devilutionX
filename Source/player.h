@@ -38,6 +38,7 @@ void RemoveLvlPlayer(int pnum);
 void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum);
 void PlrStartBlock(int pnum, int dir);
+void KnockbackPlr(int pnum, int dir);
 void RemovePlrFromMap(int pnum);
 void StartPlrHit(int pnum, int dam, bool forcehit, int dir);
 void SyncPlrKill(int pnum, int dmgtype);
