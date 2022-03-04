@@ -2978,7 +2978,7 @@ void MissToPlr(int mi, int x, int y, bool hit)
 
 		//if (random_(151, 200) < plr._pICritChance)
 		//	dam <<= 1;
-		if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
+		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER))
 			StartPlrHit(mpnum, dam, true);
 		return;
 	}
