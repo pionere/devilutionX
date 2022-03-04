@@ -1068,14 +1068,12 @@ static bool MonMissHit(int mnum, int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	if (mis->_miSource != -1) {
-		if (mis->_miCaster == MST_PLAYER) {
-			// player vs. monster
-			return MonsterMHit(mnum, mi);
-		} else {
-			// monster vs. golem
-			return mnum < MAX_MINIONS && MonsterTrapHit(mnum, mi);
-		}
+	if (mis->_miCaster == MST_PLAYER) {
+		// player vs. monster
+		return MonsterMHit(mnum, mi);
+	} else if (mis->_miCaster == MST_MONSTER) {
+		// monster vs. golem
+		return mnum < MAX_MINIONS && MonsterTrapHit(mnum, mi);
 	} else {
 		// trap vs. monster
 		return MonsterTrapHit(mnum, mi);
@@ -1087,14 +1085,12 @@ static bool PlrMissHit(int pnum, int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	if (mis->_miSource != -1) {
-		if (mis->_miCaster == MST_PLAYER) {
-			// player vs. player
-			return Plr2PlrMHit(pnum, mi);
-		} else {
-			// monster vs. player
-			return PlayerMHit(pnum, mi);
-		}
+	if (mis->_miCaster == MST_PLAYER) {
+		// player vs. player
+		return Plr2PlrMHit(pnum, mi);
+	} else if (mis->_miCaster == MST_MONSTER) {
+		// monster vs. player
+		return PlayerMHit(pnum, mi);
 	} else {
 		// trap vs. player
 		return PlayerTrapHit(pnum, mi);
@@ -1686,22 +1682,20 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis = &missile[mi];
 	mis->_miAnimFrame = midir + 1; // only for normal arrows
 	mis->_miRange = 255;
-	if (misource != -1) {
-		if (micaster == MST_PLAYER) {
-			// mis->_miMinDam = plx(misource)._pIPcMinDam;
-			// mis->_miMaxDam = plx(misource)._pIPcMaxDam;
-			if (mis->_miType == MIS_PBARROW)
-				mis->_miRange = 1 + 4;
-			else if (mis->_miType == MIS_ASARROW) {
-				if (!LineClear(sx, sy, dx, dy))
-					return MIRES_FAIL_DELETE;
-				mis->_miVar1 = dx;
-				mis->_miVar2 = dy;
-			}
-		} else {
-			mis->_miMinDam = monsters[misource]._mMinDamage << 6;
-			mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
+	if (micaster == MST_PLAYER) {
+		// mis->_miMinDam = plx(misource)._pIPcMinDam;
+		// mis->_miMaxDam = plx(misource)._pIPcMaxDam;
+		if (mis->_miType == MIS_PBARROW)
+			mis->_miRange = 1 + 4;
+		else if (mis->_miType == MIS_ASARROW) {
+			if (!LineClear(sx, sy, dx, dy))
+				return MIRES_FAIL_DELETE;
+			mis->_miVar1 = dx;
+			mis->_miVar2 = dy;
 		}
+	} else if (micaster == MST_MONSTER) {
+		mis->_miMinDam = monsters[misource]._mMinDamage << 6;
+		mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	} else {
 		mis->_miMinDam = currLvl._dLevel << 6;
 		mis->_miMaxDam = currLvl._dLevel << (1 + 6);
@@ -1797,46 +1791,44 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		dy += YDirAdd[midir];
 	}
 	mis = &missile[mi];
-	if (misource != -1) {
-		if (micaster == MST_PLAYER) {
-			switch (mis->_miType) {
-			case MIS_FIREBOLT:
-				av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
-				mindam = (plx(misource)._pMagic >> 3) + spllvl + 1;
-				maxdam = mindam + 9;
-				break;
-			case MIS_FIREBALL:
-				av = MIS_SHIFTEDVEL(spllvl + 16);
-				mindam = (plx(misource)._pMagic >> 2) + 10;
-				maxdam = mindam + 10;
-				for (i = spllvl; i > 0; i--) {
-					mindam += mindam >> 3;
-					maxdam += maxdam >> 3;
-				}
-				break;
-			case MIS_HBOLT:
-				av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
-				mindam = (plx(misource)._pMagic >> 2) + spllvl;
-				maxdam = mindam + 9;
-				break;
-			case MIS_FLARE:
-				av = MIS_SHIFTEDVEL(16);
-				if (!plx(misource)._pInvincible)
-					PlrDecHp(misource, 50 << 6, DMGTYPE_NPC);
-				mindam = maxdam = (plx(misource)._pMagic * (spllvl + 1)) >> 3;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
+	if (micaster == MST_PLAYER) {
+		switch (mis->_miType) {
+		case MIS_FIREBOLT:
+			av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
+			mindam = (plx(misource)._pMagic >> 3) + spllvl + 1;
+			maxdam = mindam + 9;
+			break;
+		case MIS_FIREBALL:
+			av = MIS_SHIFTEDVEL(spllvl + 16);
+			mindam = (plx(misource)._pMagic >> 2) + 10;
+			maxdam = mindam + 10;
+			for (i = spllvl; i > 0; i--) {
+				mindam += mindam >> 3;
+				maxdam += maxdam >> 3;
 			}
-			//if (av > MIS_SHIFTEDVEL(63))
-			//	av = MIS_SHIFTEDVEL(63);
-		} else {
-			//assert(misource >= MAX_MINIONS);
-			av = MIS_SHIFTEDVEL(mis->_miType == MIS_FIREBOLT ? 26 : 16);
-			mindam = monsters[misource]._mMinDamage;
-			maxdam = monsters[misource]._mMaxDamage;
+			break;
+		case MIS_HBOLT:
+			av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
+			mindam = (plx(misource)._pMagic >> 2) + spllvl;
+			maxdam = mindam + 9;
+			break;
+		case MIS_FLARE:
+			av = MIS_SHIFTEDVEL(16);
+			if (!plx(misource)._pInvincible)
+				PlrDecHp(misource, 50 << 6, DMGTYPE_NPC);
+			mindam = maxdam = (plx(misource)._pMagic * (spllvl + 1)) >> 3;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
+		//if (av > MIS_SHIFTEDVEL(63))
+		//	av = MIS_SHIFTEDVEL(63);
+	} else if (micaster == MST_MONSTER) {
+		//assert(misource >= MAX_MINIONS);
+		av = MIS_SHIFTEDVEL(mis->_miType == MIS_FIREBOLT ? 26 : 16);
+		mindam = monsters[misource]._mMinDamage;
+		maxdam = monsters[misource]._mMaxDamage;
 	} else {
 		av = MIS_SHIFTEDVEL(16);
 		mindam = currLvl._dLevel;
@@ -2018,14 +2010,12 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(32));
 
-	if (misource != -1) {
-		if (micaster == MST_PLAYER) {
-			mindam = 1;
-			maxdam = plx(misource)._pMagic + (spllvl << 3);
-		} else {
-			mindam = monsters[misource]._mMinDamage;
-			maxdam = monsters[misource]._mMaxDamage << 1;
-		}
+	if (micaster == MST_PLAYER) {
+		mindam = 1;
+		maxdam = plx(misource)._pMagic + (spllvl << 3);
+	} else if (micaster == MST_MONSTER) {
+		mindam = monsters[misource]._mMinDamage;
+		maxdam = monsters[misource]._mMaxDamage << 1;
 	} else {
 		mindam = currLvl._dLevel;
 		maxdam = mindam + currLvl._dLevel;
@@ -2054,7 +2044,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		mis->_mitxoff = missile[midir]._mitxoff;
 		mis->_mityoff = missile[midir]._mityoff;
 	}
-	if (midir < 0 || misource == -1)
+	if (midir < 0 || micaster == MST_OBJECT)
 		range = 8;
 	else if (micaster == MST_PLAYER)
 		range = (spllvl >> 1) + 6;
@@ -2181,17 +2171,15 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	AddMissile(sx, sy, 0, 0, 0, MIS_FLASH2, micaster, misource, 0, 0, spllvl);
 
 	mis = &missile[mi];
-	if (misource != -1) {
-		if (micaster == MST_PLAYER) {
-			dam = plx(misource)._pMagic >> 1;
-			for (i = spllvl; i > 0; i--) {
-				dam += dam >> 3;
-			}
-			mis->_miMinDam = dam;
-			mis->_miMaxDam = dam << 3;
-		} else {
-			mis->_miMinDam = mis->_miMaxDam = monsters[misource]._mLevel << 1;
+	if (micaster == MST_PLAYER) {
+		dam = plx(misource)._pMagic >> 1;
+		for (i = spllvl; i > 0; i--) {
+			dam += dam >> 3;
 		}
+		mis->_miMinDam = dam;
+		mis->_miMaxDam = dam << 3;
+	} else if (micaster == MST_MONSTER) {
+		mis->_miMinDam = mis->_miMaxDam = monsters[misource]._mLevel << 1;
 	} else {
 		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel << 4;
 	}
@@ -2328,14 +2316,12 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	//assert(mis->_miAnimLen == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
 	mis->_miVar1 = 1 + (spllvl >> 1);
-	//if (misource != -1) {
-	//	if (micaster == MST_PLAYER) {
-			mis->_miMinDam = 1 << 6;
-			mis->_miMaxDam = plx(misource)._pMagic << 6;
-	//	} else {
-	//		mindam = 1 << 6;
-	//		maxdam = monsters[misource].mMaxDamage << 6;
-	//	}
+	//if (micaster == MST_PLAYER) {
+		mis->_miMinDam = 1 << 6;
+		mis->_miMaxDam = plx(misource)._pMagic << 6;
+	//} else if (micaster == MST_MONSTER) {
+	//	mindam = 1 << 6;
+	//	maxdam = monsters[misource].mMaxDamage << 6;
 	//} else {
 	//	mindam = 1 << 6;
 	//	maxdam = currLvl._dLevel << (1 + 6);
