@@ -2943,12 +2943,12 @@ int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 
 int AddBarrelExp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	mis = &missile[mi];
-	mis->_miMinDam = 8 << 6;
-	mis->_miMaxDam = 16 << 6;
-	
+	mis->_miMinDam = 8 << (6 + gnDifficulty);
+	mis->_miMaxDam = 16 << (6 + gnDifficulty);
+
 	CheckMissileCol(mi, sx, sy, true);
 	return MIRES_DELETE;
 }
