@@ -4853,6 +4853,8 @@ void MissToMonst(int mi, int x, int y)
 	//assert(dPlayer[x][y] == 0);
 	mon->_mx = x;
 	mon->_my = y;
+	// assert(!(mon->_mFlags & MFLAG_HIDDEN));
+	ChangeLightXYOff(mon->mlid, x, y);
 	assert(mon->_mdir == mis->_miDir);
 	MonStartStand(mnum);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {

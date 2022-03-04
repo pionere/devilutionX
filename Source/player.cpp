@@ -2890,6 +2890,8 @@ void MissToPlr(int mi, int x, int y, bool hit)
 	//dPlayer[x][y] = pnum + 1;
 	plr._px = x;
 	plr._py = y;
+	ChangeLightXYOff(plr._plid, x, y);
+	ChangeVisionXY(plr._pvid, x, y);
 	if (!hit || plr._pHitPoints < (1 << 6)) {
 		assert(plr._pdir == mis->_miDir);
 		PlrStartStand(pnum);

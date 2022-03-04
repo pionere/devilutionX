@@ -1305,6 +1305,7 @@ static void SyncRhinoAnim(int mi)
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
 
 	mis->_miAnimAdd = mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE ? 2 : 1;
+	mis->_miLid = mon->mlid;
 	if (mon->_uniqtype != 0) {
 		mis->_miUniqTrans = mon->_uniqtrans;
 		//mis->_miLid = mon->mlid;
@@ -1325,6 +1326,7 @@ static void SyncChargeAnim(int mi)
 	mis->_miAnimLen = plr._pWFrames;
 	mis->_miAnimWidth = plr._pWWidth;
 	mis->_miAnimXOffset = (plr._pWWidth - TILE_WIDTH) >> 1;
+	mis->_miLid = plr._plid;
 }
 
 static void SetMissDir(int mi, int dir)
@@ -3916,8 +3918,8 @@ void MI_Rhino(int mi)
 	//assert(dPlayer[bx][by] == 0);
 	dMonster[bx][by] = -(mnum + 1);
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
-	if (monsters[mnum].mlid != NO_LIGHT)
-		ChangeLightXY(monsters[mnum].mlid, bx, by);
+	// assert(monsters[mnum].mlid == mis->_miLid);
+	ChangeLightXY(monsters[mnum].mlid, bx, by);
 	ShiftMissilePos(mi);
 	PutMissile(mi);
 }
@@ -3954,14 +3956,13 @@ void MI_Charge(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	plr._pfutx = bx;
-	plr._poldx = bx;
-	plr._px = bx;
-	plr._pfuty = by;
-	plr._poldy = by;
-	plr._py = by;
 	dPlayer[bx][by] = -(pnum + 1);
-	ChangeLightXY(plr._plid, bx, by);
+	if (ax != bx || ay != by) {
+		SetPlayerLoc(&plr, bx, by);
+		// assert(plr._plid == mis->_miLid);
+		ChangeLightXY(plr._plid, bx, by);
+		ChangeVisionXY(plr._pvid, bx, by);
+	}
 	if (pnum == mypnum /*&& ScrollInfo._sdir != SDIR_NONE*/) {
 		assert(ScrollInfo._sdir != SDIR_NONE);
 		ScrollInfo._sxoff = -mis->_mixoff;
@@ -3969,7 +3970,6 @@ void MI_Charge(int mi)
 		if (ViewX != bx || ViewY != by) {
 			ViewX = bx;
 			ViewY = by;
-			ChangeVisionXY(plr._pvid, bx, by);
 		}
 	}
 	//ShiftMissilePos(mi);
