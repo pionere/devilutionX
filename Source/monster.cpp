@@ -4864,7 +4864,6 @@ void MissToMonst(int mi, int x, int y)
 
 	oldx = mis->_mix;
 	oldy = mis->_miy;
-	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
 		tnum = dPlayer[oldx][oldy];
 		// TODO: use CheckPlrCol instead?
 		if (tnum > 0) {
@@ -4883,12 +4882,14 @@ void MissToMonst(int mi, int x, int y)
 					FixPlayerLocation(tnum);
 				}
 			}
+			return;
 		}
-	} else {
 		tnum = dMonster[oldx][oldy];
 		// TODO: use CheckMonCol instead?
 		if (tnum > 0) {
 			tnum--;
+			if (tnum >= MAX_MINIONS)
+				return;
 			MonHitMon(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
 			if (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE) {
 				newx = oldx + offset_x[mon->_mdir];
@@ -4902,7 +4903,6 @@ void MissToMonst(int mi, int x, int y)
 				}
 			}
 		}
-	}
 }
 
 /*static bool monster_posok(int mnum, int x, int y)
