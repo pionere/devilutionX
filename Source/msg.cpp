@@ -909,6 +909,10 @@ void UnPackPkItem(const PkItemStruct* src)
 			SwapLE16(src->wIndx),
 			SwapLE16(src->wCI),
 			SwapLE16(src->wValue));
+		net_assert(items[MAXITEMS]._iMaxDur >= src->bMDur);
+		net_assert(items[MAXITEMS]._iMaxCharges >= src->bMCh);
+		net_assert(src->bDur <= src->bMDur);
+		net_assert(src->bCh <= src->bMCh);
 		items[MAXITEMS]._iIdentified = src->bId;
 		items[MAXITEMS]._iDurability = src->bDur;
 		items[MAXITEMS]._iMaxDur = src->bMDur;
