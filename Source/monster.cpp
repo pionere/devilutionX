@@ -1555,16 +1555,14 @@ static void MonStartGetHit(int mnum)
 	if (mon->_mmode == MM_DEATH)
 		return;
 
+	RemoveMonFromMap(mnum);
+	FixMonLocation(mnum);
+
 	NewMonsterAnim(mnum, MA_GOTHIT, mon->_mdir);
 
 	mon->_mmode = MM_GOTHIT;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mx = mon->_mfutx = mon->_moldx;
-	mon->_my = mon->_mfuty = mon->_moldy;
 	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
-	RemoveMonFromMap(mnum);
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
 }
 
@@ -1592,8 +1590,8 @@ static void MonTeleport(int mnum)
 			RemoveMonFromMap(mnum);
 			//assert(dMonster[mon->_mx][mon->_my] == 0);
 			dMonster[x][y] = mnum + 1;
-			mon->_moldx = x;
-			mon->_moldy = y;
+			mon->_mx = x;
+			mon->_my = y;
 			mon->_mdir = OPPOSITE(rx);
 			return;
 		}
@@ -1635,8 +1633,8 @@ void MonGetKnockback(int mnum, int sx, int sy)
 	dir = GetDirection(sx, sy, mon->_mx, mon->_my);
 	if (DirOK(mnum, dir)) {
 		RemoveMonFromMap(mnum);
-		mon->_moldx += offset_x[dir];
-		mon->_moldy += offset_y[dir];
+		mon->_mx += offset_x[dir];
+		mon->_my += offset_y[dir];
 		MonStartGetHit(mnum);
 	}
 }
