@@ -737,6 +737,55 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 	//SetRndSeed(0);
 }
 
+/*
+ * @brief Find a place for the given player starting from its current location.
+ *
+ * TODO: In the original code it was possible to auto-townwarp after resurrection.
+ *       The new solution prevents this, but in some cases it could be useful
+ *       (in some cases it is annoying).
+ *
+ * @return TRUE if the player had to be displaced.
+ */
+static bool PlacePlayer(int pnum)
+{
+	int i, nx, ny, x, y;
+	bool done;
+
+	for (i = 0; i < lengthof(plrxoff2); i++) {
+		nx = plr._px + plrxoff2[i];
+		ny = plr._py + plryoff2[i];
+
+		if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
+			break;
+		}
+	}
+
+	if (i == 0)
+		return false;
+
+	if (i == lengthof(plrxoff2)) {
+		done = false;
+
+		for (i = 2; i < 50 && !done; i++) {
+			for (y = i; y <= -i && !done; y--) {
+				ny = plr._py + y;
+
+				for (x = i; x <= -i && !done; x--) {
+					nx = plr._px + x;
+
+					if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
+						done = true;
+					}
+				}
+			}
+		}
+	}
+
+	plr._px = nx;
+	plr._py = ny;
+	return true;
+}
+
 static void SyncInitPlrPos(int pnum)
 {
 	assert(plr._pDunLevel == currLvl._dLevelIdx);
@@ -1618,55 +1667,6 @@ static void StartTalk(int pnum)
 			TalkToTowner(mnum);
 	} else
 		TalktoMonster(mnum, pnum);
-}
-
-/*
- * @brief Find a place for the given player starting from its current location.
- *
- * TODO: In the original code it was possible to auto-townwarp after resurrection.
- *       The new solution prevents this, but in some cases it could be useful
- *       (in some cases it is annoying).
- *
- * @return TRUE if the player had to be displaced.
- */
-static bool PlacePlayer(int pnum)
-{
-	int i, nx, ny, x, y;
-	bool done;
-
-	for (i = 0; i < lengthof(plrxoff2); i++) {
-		nx = plr._px + plrxoff2[i];
-		ny = plr._py + plryoff2[i];
-
-		if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
-			break;
-		}
-	}
-
-	if (i == 0)
-		return false;
-
-	if (i == lengthof(plrxoff2)) {
-		done = false;
-
-		for (i = 2; i < 50 && !done; i++) {
-			for (y = i; y <= -i && !done; y--) {
-				ny = plr._py + y;
-
-				for (x = i; x <= -i && !done; x--) {
-					nx = plr._px + x;
-
-					if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
-						done = true;
-					}
-				}
-			}
-		}
-	}
-
-	plr._px = nx;
-	plr._py = ny;
-	return true;
 }
 
 void RemovePlrFromMap(int pnum)
