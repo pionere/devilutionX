@@ -4202,7 +4202,7 @@ void MAI_Lazarus(int mnum)
 				quests[Q_BETRAYER]._qvar1 = 5;
 			} else if (mon->_mgoal == MGOAL_TALKING &&
 				(!effect_is_playing(USFX_LAZ1) || myplr._px != LAZ_CIRCLE_X || myplr._py != LAZ_CIRCLE_Y)) {
-				ObjChangeMapResync(1, 18, 20, 24);
+				ObjChangeMapResync(7, 20, 11, 22);
 				RedoPlayerVision();
 				//mon->_msquelch = SQUELCH_MAX;
 				mon->mtalkmsg = TEXT_NONE;

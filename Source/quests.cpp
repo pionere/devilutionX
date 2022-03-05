@@ -578,9 +578,9 @@ void ResyncQuests()
 	} else {
 		if (lvl == SL_VILEBETRAYER) {
 			if (quests[Q_BETRAYER]._qvar1 >= 4)
-				ObjChangeMapResync(1, 11, 20, 18);
+				ObjChangeMapResync(7, 11, 13, 18);
 			if (quests[Q_BETRAYER]._qvar1 >= 6)
-				ObjChangeMapResync(1, 18, 20, 24);
+				ObjChangeMapResync(7, 20, 11, 22);
 			if (quests[Q_BETRAYER]._qvar1 >= 7)
 				InitVPReturnTrigger(true);
 			//for (i = 0; i < numobjects; i++)

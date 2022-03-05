@@ -1640,7 +1640,8 @@ static void Obj_Circle(int oi)
 			os->_oAnimFrame = 4;
 		}
 		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
-			ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+			// ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+			ObjChangeMapResync(7, 11, 13, 18);
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
 				quests[Q_BETRAYER]._qvar1 = 4;
 			int dx = 0, dy = 0;
