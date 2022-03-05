@@ -18,10 +18,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define FLAMETRAP_FIRE_INACTIVE  0
 #define FLAMETRAP_ACTIVE_FRAME   1
 #define FLAMETRAP_INACTIVE_FRAME 2
-#define VILE_CIRCLE_TARGET_NONE   0
-#define VILE_CIRCLE_TARGET_A      1
-#define VILE_CIRCLE_TARGET_B      2
-#define VILE_CIRCLE_TARGET_CENTER 4
 #define NKR_A	5
 #define NKR_B	6
 #define NKR_C	7
@@ -1355,8 +1351,7 @@ static void AddMagicCircle(int oi)
 	os = &objects[oi];
 	//os->_oRndSeed = GetRndSeed();
 	os->_oPreFlag = TRUE;
-	os->_oVar6 = VILE_CIRCLE_TARGET_NONE;
-	os->_oVar5 = 1; // VILE_CIRCLE_PROGRESS
+	//os->_oVar5 = 0; // VILE_CIRCLE_PROGRESS
 }
 
 static void AddStoryBook(int oi)
@@ -1637,19 +1632,14 @@ static void Obj_Circle(int oi)
 	os = &objects[oi];
 	ox = os->_ox;
 	oy = os->_oy;
-	if (myplr._px == ox && myplr._py == oy) {
+	if (myplr._pmode == PM_STAND && myplr._px == ox && myplr._py == oy) {
 		if (os->_otype == OBJ_MCIRCLE1)
 			os->_oAnimFrame = 2;
 		else {
 			//assert(os->_otype == OBJ_MCIRCLE2);
 			os->_oAnimFrame = 4;
 		}
-		if (ox == DBORDERX + 29 && oy == DBORDERY + 31) {
-			os->_oVar6 = VILE_CIRCLE_TARGET_B;
-		} else if (ox == DBORDERX + 10 && oy == DBORDERY + 30) {
-			os->_oVar6 = VILE_CIRCLE_TARGET_A;
-		} else if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 3) { // VILE_CIRCLE_PROGRESS
-			os->_oVar6 = VILE_CIRCLE_TARGET_CENTER;
+		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
 			ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
 				quests[Q_BETRAYER]._qvar1 = 4;
@@ -1664,9 +1654,7 @@ static void Obj_Circle(int oi)
 			gbAltActionBtnDown = false;
 			ClrPlrPath(mypnum);
 			myplr._pdir = DIR_NW;
-			PlrStartStand(mypnum);
-		} else {
-			os->_oVar6 = VILE_CIRCLE_TARGET_NONE;
+			myplr.destAction = ACTION_NONE;
 		}
 	} else {
 		if (os->_otype == OBJ_MCIRCLE1)
@@ -1675,7 +1663,6 @@ static void Obj_Circle(int oi)
 			//assert(os->_otype == OBJ_MCIRCLE2);
 			os->_oAnimFrame = 3;
 		}
-		os->_oVar6 = VILE_CIRCLE_TARGET_NONE;
 	}
 }
 
@@ -2403,10 +2390,8 @@ static void OperateLever(int oi, bool sendmsg)
 
 static void OperateVileBook(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os, *on;
-	int i;
+	ObjectStruct* os;
 	int dx, dy;
-	bool missile_added;
 
 	assert(currLvl._dSetLvl);
 
@@ -2414,28 +2399,20 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	if (os->_oSelFlag == 0)
 		return;
 	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		missile_added = false;
-		for (i = 0; i < numobjects; i++) {
-			on = &objects[objectactive[i]];
-			if (on->_otype != OBJ_MCIRCLE2)
-				continue;
-			if (on->_oVar6 == VILE_CIRCLE_TARGET_A) {
-				dx = DBORDERX + 11;
-				dy = DBORDERY + 13;
-			} else if (on->_oVar6 == VILE_CIRCLE_TARGET_B) {
-				dx = DBORDERX + 27;
-				dy = DBORDERY + 13;
-			} else {
-				continue;
-			}
-			on->_oVar6 = VILE_CIRCLE_TARGET_CENTER;
-			objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
-			GetVileMissPos(&dx, &dy);
-			AddMissile(plr._px, plr._py, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0, 0, 0);
-			missile_added = true;
-		}
-		if (!missile_added)
+		// assert(plr._pmode == PM_STAND);
+		if (plr._px != os->_ox || plr._py != os->_oy + 1)
 			return;
+		if (os->_ox == DBORDERX + 10) {
+			dx = DBORDERX + 11;
+			dy = DBORDERY + 13;
+		} else {
+			assert(os->_ox == DBORDERX + 29);
+			dx = DBORDERX + 27;
+			dy = DBORDERY + 13;
+		}
+		GetVileMissPos(&dx, &dy);
+		AddMissile(plr._px, plr._py, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0, 0, 0);
+		objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 	}
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
