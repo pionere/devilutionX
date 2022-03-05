@@ -132,8 +132,6 @@ void InitQuests()
 		quests[questdebug]._qactive = QUEST_ACTIVE;
 #endif
 
-	if (IsMultiGame)
-		quests[Q_BETRAYER]._qvar1 = 2;
 	if (quests[Q_PWATER]._qactive == QUEST_NOTAVAIL)
 		quests[Q_PWATER]._qvar1 = 2;
 }

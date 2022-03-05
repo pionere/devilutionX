@@ -2353,14 +2353,6 @@ static bool MonDoTalk(int mnum)
 	if (effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
 		return false;
 	InitQTextMsg(mon->mtalkmsg, !IsMultiGame /*mon->_mListener == mypnum*/); // MON_TIMER
-	if (mon->_uniqtype - 1 == UMT_LAZARUS) {
-		if (IsMultiGame) {
-			quests[Q_BETRAYER]._qvar1 = 6;
-			//mon->_msquelch = SQUELCH_MAX;
-			mon->mtalkmsg = TEXT_NONE;
-			mon->_mgoal = MGOAL_NORMAL;
-		}
-	}
 	return false;
 }
 
@@ -4183,38 +4175,46 @@ void MAI_Lazarus(int mnum)
 		return;
 
 	mon->_mdir = MonGetDir(mnum);
-	if ((dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) && mon->mtalkmsg == TEXT_VILE13) {
-		if (IsMultiGame) {
-			if (mon->_mgoal == MGOAL_INQUIRING) {
-				if (quests[Q_BETRAYER]._qvar1 <= 3) {
-					mon->_mmode = MM_TALK;
-					mon->_mListener = mypnum;
-				} else {
-					mon->mtalkmsg = TEXT_NONE;
-					mon->_mgoal = MGOAL_NORMAL;
-				}
-			}
-		} else {
-			if (mon->_mgoal == MGOAL_INQUIRING && myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y) {
-				PlayInGameMovie("gendata\\fprst3.smk");
+	if (IsMultiGame) {
+		if (mon->_mgoal == MGOAL_INQUIRING) {
+			if (quests[Q_BETRAYER]._qvar1 <= 3) {
+				assert(mon->mtalkmsg == TEXT_VILE13);
+				if (mon->_msquelch != SQUELCH_MAX)
+					return;
 				mon->_mmode = MM_TALK;
-				mon->_mListener = mypnum;
-				quests[Q_BETRAYER]._qvar1 = 5;
-			} else if (mon->_mgoal == MGOAL_TALKING &&
-				(!effect_is_playing(USFX_LAZ1) || myplr._px != LAZ_CIRCLE_X || myplr._py != LAZ_CIRCLE_Y)) {
-				ObjChangeMapResync(7, 20, 11, 22);
-				RedoPlayerVision();
-				//mon->_msquelch = SQUELCH_MAX;
+				// mon->_mListener = mypnum;
+				quests[Q_BETRAYER]._qvar1 = 6;
+				NetSendCmdQuest(Q_BETRAYER, true);
+			} else {
 				mon->mtalkmsg = TEXT_NONE;
 				mon->_mgoal = MGOAL_NORMAL;
-				quests[Q_BETRAYER]._qvar1 = 6;
 			}
+		} else if (mon->_mgoal == MGOAL_TALKING) {
+			mon->mtalkmsg = TEXT_NONE;
+			mon->_mgoal = MGOAL_NORMAL;
+		}
+	} else {
+		if (mon->_mgoal == MGOAL_INQUIRING) {
+			if (mon->_msquelch != SQUELCH_MAX)
+				return;
+			// assert(quests[Q_BETRAYER]._qvar1 < 5);
+			// assert(myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y);
+			PlayInGameMovie("gendata\\fprst3.smk");
+			mon->_mmode = MM_TALK;
+			// mon->_mListener = mypnum;
+		} else if (mon->_mgoal == MGOAL_TALKING) {
+			if (effect_is_playing(USFX_LAZ1) && myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y)
+				return;
+			ObjChangeMapResync(7, 20, 11, 22);
+			RedoPlayerVision();
+			// mon->_msquelch = SQUELCH_MAX;
+			mon->mtalkmsg = TEXT_NONE;
+			mon->_mgoal = MGOAL_NORMAL;
+			quests[Q_BETRAYER]._qvar1 = 6;
 		}
 	}
 
-	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT || mon->_mgoal == MGOAL_MOVE) {
-		MAI_Counselor(mnum);
-	}
+	MAI_Counselor(mnum);
 }
 
 void MAI_Lazhelp(int mnum)

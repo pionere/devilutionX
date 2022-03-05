@@ -1655,6 +1655,7 @@ static void Obj_Circle(int oi)
 			gbAltActionBtnDown = false;
 			ClrPlrPath(mypnum);
 			myplr._pdir = DIR_NW;
+			myplr._pAnimData = myplr._pNAnim[DIR_NW];
 			myplr.destAction = ACTION_NONE;
 		}
 	} else {
