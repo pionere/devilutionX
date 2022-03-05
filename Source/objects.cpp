@@ -2082,7 +2082,7 @@ void RedoPlayerVision()
 	int pnum;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel) {
+		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel && !plr._pLvlChanging) {
 			ChangeVisionXY(plr._pvid, plr._px, plr._py);
 		}
 	}
