@@ -1609,21 +1609,21 @@ static void Obj_Light(int oi)
 
 static void GetVileMissPos(int* dx, int* dy)
 {
-	int xx, yy, k, j, i;
+	int xx, yy, j, i;
+	const char* cr;
 
 	i = dObject[*dx][*dy] - 1;
 	assert(objects[i]._otype == OBJ_MCIRCLE1 || objects[i]._otype == OBJ_MCIRCLE2);
 
-	for (k = 0; k < 50; k++) {
-		for (j = -k; j <= k; j++) {
-			yy = j + *dy;
-			for (i = -k; i <= k; i++) {
-				xx = i + *dx;
-				if (PosOkPlayer(mypnum, xx, yy)) {
-					*dx = xx;
-					*dy = yy;
-					return;
-				}
+	for (i = 0; i < 10; i++) {
+		cr = &CrawlTable[CrawlNum[i]];
+		for (j = *cr; j > 0; j--) {
+			xx = *dx + *++cr;
+			yy = *dy + *++cr;
+			if (PosOkPlayer(mypnum, xx, yy)) {
+				*dx = xx;
+				*dy = yy;
+				return;
 			}
 		}
 	}
