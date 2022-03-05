@@ -1800,14 +1800,11 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	}
 	// fix the location of the monster before spawning loot or sending a message
 	RemoveMonFromMap(mnum);
+	FixMonLocation(mnum);
 
 	mon = &monsters[mnum];
 	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	mon->_mhitpoints = 0;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mx = mon->_mfutx = mon->_moldx;
-	mon->_my = mon->_mfuty = mon->_moldy;
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
 	dDead[mon->_mx][mon->_my] = 0;
 	CheckQuestKill(mnum, sendmsg);
