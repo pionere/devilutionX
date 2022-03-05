@@ -1034,6 +1034,12 @@ void LoadL1Dungeon(const LevelData* lds)
 
 	// load dungeon
 	pMap = LoadL1DungeonData(lds->dSetLvlDun);
+	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+		// patch set-piece to fix empty tile - Vile2.DUN
+		// assert(pMap[(2 + 16 + 8 * 17) * 2] == 0);
+		// assert(dungeon[8][16] == 13);
+		dungeon[8][16] = 203;
+	}
 
 	//DRLG_L1Floor();
 
