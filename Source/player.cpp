@@ -737,6 +737,17 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
 	//SetRndSeed(0);
 }
 
+static void SyncInitPlrPos(int pnum)
+{
+	assert(plr._pDunLevel == currLvl._dLevelIdx);
+
+	if (PlacePlayer(pnum)) {
+		RemovePlrFromMap(pnum);
+		FixPlayerLocation(pnum);
+	}
+	dPlayer[plr._px][plr._py] = pnum + 1;
+}
+
 /*
  * Initialize player fields at startup(unpack).
  *  - calculate derived values
@@ -3148,17 +3159,6 @@ void SyncPlrAnim(int pnum)
 		break;
 	}
 	p->_pAnimData = anim[p->_pdir];
-}
-
-void SyncInitPlrPos(int pnum)
-{
-	assert(plr._pDunLevel == currLvl._dLevelIdx);
-
-	if (PlacePlayer(pnum)) {
-		RemovePlrFromMap(pnum);
-		FixPlayerLocation(pnum);
-	}
-	dPlayer[plr._px][plr._py] = pnum + 1;
 }
 
 /*void CheckStats(int pnum)
