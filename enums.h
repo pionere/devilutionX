@@ -4168,7 +4168,6 @@ typedef enum application_error {
 	ERR_APP_PACKET_ENCRYPT,
 	ERR_APP_PACKET_SETUP,
 	ERR_APP_PACKET_PASSWD,
-	ERR_APP_ZT_RECV,
 } application_error;
 
 typedef enum app_sdl_error {
