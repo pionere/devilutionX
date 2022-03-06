@@ -45,12 +45,11 @@ const BYTE SkelChamTrans3[] = {
 
 static int ObjIndex(int x, int y)
 {
-	int i, oi;
+	int oi = dObject[x][y];
 
-	for (i = 0; i < numobjects; i++) {
-		oi = objectactive[i];
-		if (objects[oi]._ox == x && objects[oi]._oy == y)
-			return oi;
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		return oi;
 	}
 	app_fatal("ObjIndex: Active object not found at (%d,%d)", x, y);
 	return -1;
