@@ -59,6 +59,7 @@ inline void LoadPreLighting()
 	memcpy(dLight, dPreLight, sizeof(dPreLight));
 }
 void InitVision();
+void RedoLightAndVision();
 int AddVision(int x, int y, int r, bool mine);
 void AddUnVision(unsigned vnum);
 void ChangeVisionRadius(unsigned vnum, int r);

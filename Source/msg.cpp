@@ -3739,7 +3739,7 @@ static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 	//if (QuestStatus(Q_LTBANNER))
 	if (currLvl._dLevelIdx == questlist[Q_LTBANNER]._qdlvl) {
 		ResyncBanner();
-		RedoPlayerVision();
+		//RedoLightAndVision();
 	}
 	return sizeof(*pCmd);
 }

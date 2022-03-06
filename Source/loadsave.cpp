@@ -949,9 +949,8 @@ void LoadGame()
 	InitAutomapScale();
 	//ResyncQuests();
 
-	//RedoPlayerLight();
+	//RedoLightAndVision();
 	//ProcessLightList();
-	//RedoPlayerVision();
 	//ProcessVisionList();
 
 	SyncMissilesAnim();

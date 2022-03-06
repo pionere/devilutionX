@@ -2066,17 +2066,6 @@ static void ObjSetDoorSidePiece(int dx, int dy/*, int otype*/)
 }
 #endif
 
-void RedoPlayerVision()
-{
-	int pnum;
-
-	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel && !plr._pLvlChanging) {
-			ChangeVisionXY(plr._pvid, plr._px, plr._py);
-		}
-	}
-}
-
 static void OpenDoor(int oi)
 {
 	ObjectStruct* os;
@@ -2138,10 +2127,10 @@ static void OperateL1Door(int oi, bool sendmsg)
 			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
 			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
-			RedoPlayerVision();
 		}
 		OpenDoor(oi);
 		SyncL1Doors(oi);
+		RedoLightAndVision();
 		return;
 	}
 	// try to close the door
@@ -2155,7 +2144,7 @@ static void OperateL1Door(int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOORCLOSE, oi);
 		SyncL1Doors(oi);
-		RedoPlayerVision();
+		RedoLightAndVision();
 	}
 }
 
@@ -2172,10 +2161,10 @@ static void OperateL5Door(int oi, bool sendmsg)
 			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
 			PlaySfxLoc(IS_CROPEN, os->_ox, os->_oy);
-			RedoPlayerVision();
 		}
 		OpenDoor(oi);
 		SyncL5Doors(oi);
+		RedoLightAndVision();
 		return;
 	}
 	// try to close the door
@@ -2190,7 +2179,7 @@ static void OperateL5Door(int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOORCLOSE, oi);
 		SyncL5Doors(oi);
-		RedoPlayerVision();
+		RedoLightAndVision();
 	}
 }
 #endif
@@ -2206,10 +2195,10 @@ static void OperateL2Door(int oi, bool sendmsg)
 			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
 			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
-			RedoPlayerVision();
 		}
 		OpenDoor(oi);
 		SyncL2Doors(oi);
+		RedoLightAndVision();
 		return;
 	}
 	// try to close the door
@@ -2222,7 +2211,7 @@ static void OperateL2Door(int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOORCLOSE, oi);
 		SyncL2Doors(oi);
-		RedoPlayerVision();
+		RedoLightAndVision();
 	}
 }
 
@@ -2237,10 +2226,10 @@ static void OperateL3Door(int oi, bool sendmsg)
 			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
 			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
-			RedoPlayerVision();
 		}
 		OpenDoor(oi);
 		SyncL3Doors(oi);
+		RedoLightAndVision();
 		return;
 	}
 	// try to close the door
@@ -2253,7 +2242,7 @@ static void OperateL3Door(int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOORCLOSE, oi);
 		SyncL3Doors(oi);
-		RedoPlayerVision();
+		RedoLightAndVision();
 	}
 }
 
@@ -2306,6 +2295,7 @@ static void ObjChangeMap(int x1, int y1, int x2, int y2)
 		DRLG_InitL2Specials(x1, y1, x2, y2);
 		AddL2Objs(x1, y1, x2, y2);
 	}
+	RedoLightAndVision();
 }
 
 void ObjChangeMapResync(int x1, int y1, int x2, int y2)
@@ -2327,6 +2317,7 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 	} else if (currLvl._dType == DTYPE_CATACOMBS) {
 		DRLG_InitL2Specials(x1, y1, x2, y2);
 	}
+	RedoLightAndVision();
 }
 
 static bool CheckLeverGroup(int type, int lvrIdx)
