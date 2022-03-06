@@ -1964,7 +1964,7 @@ void ProcessObjects()
 	}*/
 }
 
-void ObjSetMicro(int dx, int dy, int pn)
+static void ObjSetMicro(int dx, int dy, int pn)
 {
 	// assert(pn != 0 && pn < MAXTILES);
 	dPiece[dx][dy] = pn;
@@ -2062,7 +2062,7 @@ static void ObjSetDoorSidePiece(int dx, int dy/*, int otype*/)
 			pn = 407;
 		else
 			return;*/
-	ObjSetMicro(dx, dy, pn);
+	dPiece[dx][dy] = pn;
 }
 #endif
 
@@ -4021,9 +4021,9 @@ static void SyncL1Doors(int oi)
 	x = os->_ox;
 	y = os->_oy;
 	if (os->_oVar4 == DOOR_CLOSED) {
-		ObjSetMicro(x, y, os->_oVar1); // DOOR_PIECE_CLOSED
+		dPiece[x][y] = os->_oVar1; // DOOR_PIECE_CLOSED
 		dSpecial[x][y] = 0;
-		pn = os->_oVar2;                 // DOOR_SIDE_PIECE_CLOSED
+		pn = os->_oVar2;           // DOOR_SIDE_PIECE_CLOSED
 
 		if (os->_otype == OBJ_L1LDOOR)
 			y--;
@@ -4032,16 +4032,16 @@ static void SyncL1Doors(int oi)
 		// commented out because this is not possible with the current implementation
 		//if (pn == 50 && dPiece[x][y] == 396)
 		//	pn = os->_otype == OBJ_L1LDOOR ? 412 : 411;
-		ObjSetMicro(x, y, pn);
+		dPiece[x][y] = pn;
 		return;
 	}
 
 	if (os->_otype == OBJ_L1LDOOR) {
-		ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
+		dPiece[x][y] = os->_oVar1 == 214 ? 408 : 393; // DOOR_PIECE_CLOSED
 		dSpecial[x][y] = 7;
 		y--;
 	} else {
-		ObjSetMicro(x, y, 395);
+		dPiece[x][y] = 395;
 		dSpecial[x][y] = 8;
 		x--;
 	}
@@ -4059,8 +4059,8 @@ static void SyncL5Doors(int oi)
 	x = os->_ox;
 	y = os->_oy;
 	if (os->_oVar4 == DOOR_CLOSED) {
-		ObjSetMicro(x, y, os->_oVar1); // DOOR_PIECE_CLOSED
-		pn = os->_oVar2;                 // DOOR_SIDE_PIECE_CLOSED
+		dPiece[x][y] = os->_oVar1; // DOOR_PIECE_CLOSED
+		pn = os->_oVar2;           // DOOR_SIDE_PIECE_CLOSED
 
 		if (os->_otype == OBJ_L5LDOOR)
 			y--;
@@ -4069,16 +4069,16 @@ static void SyncL5Doors(int oi)
 		// commented out because this is not possible with the current implementation
 		//if (pn == 86 && dPiece[x][y] == 212)
 		//	pn = os->_otype == OBJ_L5LDOOR ? 234 : 232;
-		ObjSetMicro(x, y, pn);
+		dPiece[x][y] = pn;
 		return;
 	}
 
 	if (os->_otype == OBJ_L5LDOOR) {
-		ObjSetMicro(x, y, 206);
+		dPiece[x][y] = 206;
 		//dSpecial[x][y] = 1;
 		y--;
 	} else {
-		ObjSetMicro(x, y, 209);
+		dPiece[x][y] = 209;
 		//dSpecial[x][y] = 2;
 		x--;
 	}
@@ -4104,7 +4104,7 @@ static void SyncL2Doors(int oi)
 	}
 	x = os->_ox;
 	y = os->_oy;
-	ObjSetMicro(x, y, pn);
+	dPiece[x][y] = pn;
 	dSpecial[x][y] = sn;
 }
 
@@ -4121,7 +4121,7 @@ static void SyncL3Doors(int oi)
 	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
 		pn = ldoor ? 541 : 538;
 	}
-	ObjSetMicro(os->_ox, os->_oy, pn);
+	dPiece[os->_ox][os->_oy] = pn;
 }
 
 void SyncObjectAnim(int oi)
