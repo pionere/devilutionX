@@ -2958,6 +2958,8 @@ void MissToPlr(int mi, int x, int y, bool hit)
 	mpnum = dMonster[oldx][oldy];
 	if (mpnum > 0) {
 		mpnum--;
+		if (mpnum < MAX_MINIONS)
+			return;
 		//PlrHitMonst(pnum, SPL_CHARGE, mis->_miSpllvl, mpnum);
 		mon = &monsters[mpnum];
 
