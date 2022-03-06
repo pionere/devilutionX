@@ -1733,7 +1733,6 @@ void ReleaseChrBtns()
 					ASSUME_UNREACHABLE
 					break;
 				}
-				myplr._pStatPts--;
 			}
 		}
 	}

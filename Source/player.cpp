@@ -3322,6 +3322,9 @@ void IncreasePlrStr(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("IncreasePlrStr: illegal player %d", pnum);
 	}
+	if (plr._pStatPts <= 0)
+		return;
+	plr._pStatPts--;
 	switch (plr._pClass) {
 	case PC_WARRIOR:	v = (((plr._pBaseStr - StrengthTbl[PC_WARRIOR]) % 5) == 2) ? 3 : 2; break;
 	case PC_ROGUE:		v = 1; break;
@@ -3348,6 +3351,9 @@ void IncreasePlrMag(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("IncreasePlrMag: illegal player %d", pnum);
 	}
+	if (plr._pStatPts <= 0)
+		return;
+	plr._pStatPts--;
 	switch (plr._pClass) {
 	case PC_WARRIOR:	v = 1; break;
 	case PC_ROGUE:		v = 2; break;
@@ -3384,6 +3390,9 @@ void IncreasePlrDex(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("IncreasePlrDex: illegal player %d", pnum);
 	}
+	if (plr._pStatPts <= 0)
+		return;
+	plr._pStatPts--;
 	switch (plr._pClass) {
 	case PC_WARRIOR:	v = (((plr._pBaseDex - DexterityTbl[PC_WARRIOR]) % 3) == 1) ? 2 : 1; break;
 	case PC_ROGUE:		v = 3; break;
@@ -3411,6 +3420,9 @@ void IncreasePlrVit(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("IncreasePlrVit: illegal player %d", pnum);
 	}
+	if (plr._pStatPts <= 0)
+		return;
+	plr._pStatPts--;
 	switch (plr._pClass) {
 	case PC_WARRIOR:	v = 2; break;
 	case PC_ROGUE:		v = 1; break;
