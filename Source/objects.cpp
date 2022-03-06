@@ -2656,6 +2656,32 @@ static void OperateSarc(int oi, bool sendmsg)
 		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy, DIR_NONE);
 }
 
+static void SyncPedistal(/*int oi*/)
+{
+	switch (quests[Q_BLOOD]._qvar1) {
+	case 0:
+	case 1:
+		break;
+	case 3:
+		ObjChangeMapResync(setpc_x + 6, setpc_y + 3, setpc_x + 9/*setpc_w*/, setpc_y + 7);
+		/* fall-through */
+	case 2:
+		ObjChangeMapResync(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
+		break;
+	case 4:
+		//ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+		ObjChangeMapResync(setpc_x /*+ 2*/, setpc_y, setpc_x + 9/*6*/, setpc_y + 8);
+		LoadPreLighting();
+		LoadMapSetObjs("Levels\\L2Data\\Blood2.DUN");
+		SavePreLighting();
+		//RedoLightAndVision();
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+}
+
 /**
  * Handle the using the pedistal of Q_BLOOD-quest.
  */
@@ -2679,24 +2705,9 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	}
 
 	os->_oAnimFrame = quests[Q_BLOOD]._qvar1;
-	switch (quests[Q_BLOOD]._qvar1) {
-	case 1:
-		break;
-	case 3:
-		ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + 9/*setpc_w*/, setpc_y + 7);
-	case 2:
-		ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
-		break;
-	case 4:
-		//ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
-		ObjChangeMap(setpc_x /*+ 2*/, setpc_y, setpc_x + 9/*6*/, setpc_y + 8);
-		LoadMapSetObjs("Levels\\L2Data\\Blood2.DUN");
+	if (quests[Q_BLOOD]._qvar1 == 4)
 		os->_oSelFlag = 0;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	SyncPedistal();
 
 	if (deltaload)
 		return;
@@ -3980,28 +3991,6 @@ static void SyncCrux(int oi)
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 }
 
-static void SyncPedistal(int oi)
-{
-	switch (quests[Q_BLOOD]._qvar1) {
-	case 0:
-	case 1:
-		break;
-	case 3:
-		ObjChangeMapResync(setpc_x + 6, setpc_y + 3, setpc_x + 9/*setpc_w*/, setpc_y + 7);
-	case 2:
-		ObjChangeMapResync(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
-		break;
-	case 4:
-		//ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
-		ObjChangeMapResync(setpc_x, setpc_y, setpc_x + 9, setpc_y + 8);
-		LoadMapSetObjs("Levels\\L2Data\\Blood2.DUN");
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-}
-
 static void SyncL1Doors(int oi)
 {
 	ObjectStruct* os;
@@ -4161,7 +4150,7 @@ void SyncObjectAnim(int oi)
 		SyncBookLever(oi);
 		break;
 	case OBJ_PEDISTAL:
-		SyncPedistal(oi);
+		SyncPedistal(/*oi*/);
 		break;
 	}
 }
