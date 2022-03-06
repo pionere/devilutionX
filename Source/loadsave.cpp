@@ -573,7 +573,7 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->leader);
 	LoadByte(&mon->leaderflag);
 	LoadByte(&mon->packsize);
-	LoadByte(&mon->falign_CB); // Alignment
+	LoadByte(&mon->_mvid);
 
 	LoadByte(&mon->_mLevel);
 	LoadByte(&mon->_mSelFlag);
@@ -1290,7 +1290,7 @@ static void SaveMonster(int mnum)
 	SaveByte(&mon->leader);
 	SaveByte(&mon->leaderflag);
 	SaveByte(&mon->packsize);
-	SaveByte(&mon->falign_CB); // Alignment
+	SaveByte(&mon->_mvid);
 
 	SaveByte(&mon->_mLevel);
 	SaveByte(&mon->_mSelFlag);

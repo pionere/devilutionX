@@ -1500,6 +1500,8 @@ void LevelDeltaLoad()
 		// ensure dead bodies are not placed prematurely
 		if (mon->_mmode == MM_DEATH || (mon->_mmode == MM_STONE && mon->_mhitpoints == 0))
 			dDead[mon->_mx][mon->_my] = 0;
+		if (mnum < MAX_MINIONS)
+			mon->_mvid = AddVision(mon->_mx, mon->_my, PLR_MIN_VISRAD, false);
 		SyncMonsterAnim(mnum);
 		src += sizeof(TSyncLvlMonster);
 	}

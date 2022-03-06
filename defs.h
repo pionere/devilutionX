@@ -74,7 +74,7 @@
 #define MAXPORTAL				MAX_PLRS
 #define MAXTHEMES				50
 #define MAXTILES				2047
-#define MAXVISION				MAX_PLRS
+#define MAXVISION				(MAX_PLRS + MAX_MINIONS)
 #define MDMAXX					40
 #define MDMAXY					40
 #define MAXCHARLEVEL			50

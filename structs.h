@@ -678,7 +678,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE leader; // the leader of the monster
 	BYTE leaderflag; // the status of the monster's leader
 	BYTE packsize; // the number of 'pack'-monsters close to their leader
-	BYTE falign_CB;
+	BYTE _mvid; // vision id of the monster (for minions only)
 	BYTE _mLevel;
 	BYTE _mSelFlag;
 	BYTE _mAi;

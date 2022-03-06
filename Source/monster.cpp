@@ -616,7 +616,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->leader = MON_NO_LEADER;
 	mon->leaderflag = MLEADER_NONE;
 	mon->packsize = 0;
-	mon->falign_CB = 0;
+	mon->_mvid = NO_VISION;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
 		mon->_mmaxhp = 2 * mon->_mmaxhp + (100 << 6);
@@ -1815,6 +1815,8 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	if (mnum >= MAX_MINIONS) {
 		MonUpdateLeader(mnum);
 		SpawnLoot(mnum, sendmsg);
+	} else {
+		AddUnVision(mon->_mvid);
 	}
 
 	if (mon->_mType == MT_DIABLO)
@@ -1998,6 +2000,8 @@ static bool MonDoWalk(int mnum)
 		}
 		if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
+		if (mon->_mvid != NO_VISION)
+			ChangeVisionXY(mon->_mvid, mon->_mx, mon->_my);
 		MonStartStand(mnum);
 		rv = true;
 	} else {
@@ -2390,7 +2394,8 @@ void MonUpdateLeader(int mnum)
 	monsters[mnum].leader = MON_NO_LEADER;
 	monsters[mnum].leaderflag = MLEADER_NONE;
 	monsters[mnum].packsize = 0;
-	monsters[mnum].falign_CB = 0;
+	// assert(monsters[mnum]._mvid == NO_VISION);
+	monsters[mnum]._mvid = NO_VISION;
 }
 
 void DoEnding()
@@ -4873,6 +4878,7 @@ void MissToMonst(int mi, int x, int y)
 			if (PosOkMonst(tnum, newx, newy)) {
 				monsters[tnum]._mx = newx;
 				monsters[tnum]._my = newy;
+				ChangeVisionXY(monsters[tnum]._mvid, newx, newy);
 				RemoveMonFromMap(tnum);
 				dMonster[newx][newy] = tnum + 1;
 				FixMonLocation(tnum);
@@ -5186,6 +5192,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	InitGolemStats(mnum, level * 2 + (plx(mnum)._pMagic >> 6));
 	mon = &monsters[mnum];
 	mon->_mhitpoints = mon->_mmaxhp;
+	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
 	ActivateSpawn(mnum, x, y, DIR_S);
 	if (mnum == mypnum)
 		NetSendCmdGolem();

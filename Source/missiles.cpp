@@ -3928,6 +3928,7 @@ void MI_Rhino(int mi)
 	//assert(dPlayer[bx][by] == 0);
 	dMonster[bx][by] = -(mnum + 1);
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
+	// assert(monsters[mnum]._mvid == NO_VISION);
 	// assert(monsters[mnum].mlid == mis->_miLid);
 	ChangeLightXY(monsters[mnum].mlid, bx, by);
 	ShiftMissilePos(mi);
