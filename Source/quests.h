@@ -37,6 +37,7 @@ void DRLG_CheckQuests();
 void SetReturnLvlPos();
 void GetReturnLvlPos();
 void LoadPWaterPalette();
+void ResyncBanner();
 void ResyncQuests();
 void DrawQuestLog();
 void StartQuestlog();

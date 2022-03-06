@@ -502,7 +502,7 @@ void LoadPWaterPalette()
 	//	LoadPalette("Levels\\L3Data\\L3pfoul.pal");
 }
 
-static void ResyncBanner()
+void ResyncBanner()
 {
 	if (quests[Q_LTBANNER]._qvar1 != 4) {
 		// open the entrance of the setmap -> TODO: add these to Banner2.DUN ?

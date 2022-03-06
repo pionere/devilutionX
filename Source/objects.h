@@ -30,7 +30,6 @@ void ProcessObjects();
 void ObjSetMicro(int dx, int dy, int pn);
 void RedoPlayerVision();
 void MonstCheckDoors(int mx, int my);
-void ObjChangeMap(int x1, int y1, int x2, int y2);
 void ObjChangeMapResync(int x1, int y1, int x2, int y2);
 void DisarmObject(int pnum, int oi);
 void OperateObject(int pnum, int oi, bool TeleFlag);

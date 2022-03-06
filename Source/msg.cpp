@@ -3731,13 +3731,14 @@ static unsigned On_BLOODPASS(TCmd* pCmd, int pnum)
 
 static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 {
+	net_assert(quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL);
+
 	quests[Q_LTBANNER]._qactive = QUEST_DONE;
 	quests[Q_LTBANNER]._qvar1 = 4;
 
+	//if (QuestStatus(Q_LTBANNER))
 	if (currLvl._dLevelIdx == questlist[Q_LTBANNER]._qdlvl) {
-		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
-		BYTE tv = dTransVal[2 * setpc_x + 1 + DBORDERX][2 * (setpc_y + 6) + 1 + DBORDERY];
-		DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x + setpc_w - 1, setpc_y + setpc_h - 1, tv);
+		ResyncBanner();
 		RedoPlayerVision();
 	}
 	return sizeof(*pCmd);
