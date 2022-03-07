@@ -1996,8 +1996,8 @@ static bool MonDoWalk(int mnum)
 			ChangeLightXYOff(mon->mlid, mx, my);
 		if (mon->_mvid != NO_VISION)
 			ChangeVisionXY(mon->_mvid, mx, my);
-		mon->_moldx = mx;
-		mon->_moldy = my;
+		mon->_mx = mx;
+		mon->_my = my;
 		FixMonLocation(mnum);
 		dMonster[mx][my] = mnum + 1;
 		MonStartStand(mnum);
