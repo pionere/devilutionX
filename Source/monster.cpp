@@ -1636,18 +1636,36 @@ static void MonFallenFear(int x, int y)
 void MonGetKnockback(int mnum, int sx, int sy)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int dir;
+	int oldx, oldy, newx, newy, dir;
 
-	if (mon->_mmode == MM_DEATH || mon->_mmode == MM_STONE)
-		return;
-	// assert(mnum >= MAX_MINIONS);
-	dir = GetDirection(sx, sy, mon->_mx, mon->_my);
-	if (DirOK(mnum, dir)) {
-		RemoveMonFromMap(mnum);
-		mon->_mx += offset_x[dir];
-		mon->_my += offset_y[dir];
-		MonStartGetHit(mnum);
+	if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2) {
+		if (mon->_mmode == MM_DEATH || mon->_mmode == MM_STONE)
+			return;
+		oldx = mon->_mx;
+		oldy = mon->_my;
+	} else {
+		if (mon->_mAnimFrame > (mon->_mAnims[MA_WALK].aFrames >> 1)) {
+			oldx = mon->_mfutx;
+			oldy = mon->_mfuty;
+		} else {
+			oldx = mon->_moldx;
+			oldy = mon->_moldy;
+		}
 	}
+
+	dir = GetDirection(sx, sy, oldx, oldy);
+	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
+		newx = oldx + offset_x[dir];
+		newy = oldy + offset_y[dir];
+		if (PosOkMonster(mnum, newx, newy)) {
+			mon->_mx = newx;
+			mon->_my = newy;
+			MonPlace(mnum);
+		}
+	}
+
+	if (mnum >= MAX_MINIONS)
+		MonStartGetHit(mnum);
 }
 
 void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags)
@@ -4879,16 +4897,7 @@ void MissToMonst(int mi)
 			return;
 		MonHitMon(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (tnum == dMonster[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
-			if (!PathWalkable(oldx, oldy, dir2pdir[mon->_mdir]))
-				return;
-			newx = oldx + offset_x[mon->_mdir];
-			newy = oldy + offset_y[mon->_mdir];
-			if (PosOkMonst(tnum, newx, newy)) {
-				RemoveMonFromMap(tnum);
-				monsters[tnum]._mx = newx;
-				monsters[tnum]._my = newy;
-				MonPlace(tnum);
-			}
+			MonGetKnockback(tnum, mis->_misx, mis->_misy);
 		}
 	}
 }
