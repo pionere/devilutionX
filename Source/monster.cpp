@@ -1660,6 +1660,7 @@ void MonGetKnockback(int mnum, int sx, int sy)
 		if (PosOkMonster(mnum, newx, newy)) {
 			mon->_mx = newx;
 			mon->_my = newy;
+			RemoveMonFromMap(mnum);
 			MonPlace(mnum);
 		}
 	}
