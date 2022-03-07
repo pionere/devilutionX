@@ -3954,23 +3954,23 @@ void MI_Charge(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (!PosOkPlayer(pnum, mis->_mix, mis->_miy)) {
-		MissToPlr(mi, ax, ay, true);
+		MissToPlr(mi, true);
 		mis->_miDelFlag = TRUE;
 		return;
 	}
 	bx = mis->_mix;
 	by = mis->_miy;
-	if (bx == mis->_miVar1 && by == mis->_miVar2) {
-		MissToPlr(mi, bx, by, false);
-		mis->_miDelFlag = TRUE;
-		return;
-	}
 	dPlayer[bx][by] = -(pnum + 1);
 	if (ax != bx || ay != by) {
 		SetPlayerLoc(&plr, bx, by);
 		// assert(plr._plid == mis->_miLid);
 		ChangeLightXY(plr._plid, bx, by);
 		ChangeVisionXY(plr._pvid, bx, by);
+		if (bx == mis->_miVar1 && by == mis->_miVar2) {
+			MissToPlr(mi, false);
+			mis->_miDelFlag = TRUE;
+			return;
+		}
 	}
 	if (pnum == mypnum /*&& ScrollInfo._sdir != SDIR_NONE*/) {
 		assert(ScrollInfo._sdir != SDIR_NONE);

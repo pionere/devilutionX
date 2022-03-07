@@ -851,9 +851,9 @@ void InitLvlPlayer(int pnum, bool entering)
 		plr.destAction = ACTION_NONE;
 	} else {
 		if (pnum == mypnum) {
-			assert(plr._pfutx == plr._poldx);
+			assert(plr._pfutx == plr._px);
 			assert(plr._poldx == plr._px);
-			assert(plr._pfuty == plr._poldy);
+			assert(plr._pfuty == plr._py);
 			assert(plr._poldy == plr._py);
 			assert(plr._pxoff == 0);
 			assert(plr._pyoff == 0);
@@ -2911,7 +2911,7 @@ void ClrPlrPath(int pnum)
 	memset(plr.walkpath, DIR_NONE, sizeof(plr.walkpath));
 }
 
-void MissToPlr(int mi, int x, int y, bool hit)
+void MissToPlr(int mi, bool hit)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
@@ -2927,11 +2927,18 @@ void MissToPlr(int mi, int x, int y, bool hit)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("MissToPlr: Invalid player %d", pnum);
 	}
-	//dPlayer[x][y] = pnum + 1;
-	plr._px = x;
-	plr._py = y;
-	ChangeLightXYOff(plr._plid, x, y);
-	ChangeVisionXY(plr._pvid, x, y);
+	//dPlayer[plr._px][plr._py] = pnum + 1;
+	/*assert(plr._pfutx == plr._px);
+	assert(plr._poldx == plr._px);
+	assert(plr._pfuty == plr._py);
+	assert(plr._poldy == plr._py);
+	assert(plr._pxoff == 0);
+	assert(plr._pyoff == 0);
+	if (pnum == mypnum)
+		FixPlayerLocation(pnum);*/
+	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
+	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
+	ChangeLightOff(plr._plid, 0, 0);
 	if (!hit || plr._pHitPoints < (1 << 6)) {
 		assert(plr._pdir == mis->_miDir);
 		PlrStartStand(pnum);
