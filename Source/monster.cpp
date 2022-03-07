@@ -4945,6 +4945,29 @@ void MissToMonst(int mi)
 	return ret;
 }*/
 
+bool PosOkMonster(int mnum, int x, int y)
+{
+	int mpo;
+
+	if ((nSolidTable[dPiece[x][y]] | dPlayer[x][y]) != 0)
+		return false;
+
+	mpo = dMonster[x][y];
+	if (mpo != 0) {
+		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+		return mpo == mnum;
+	}
+
+	mpo = dObject[x][y];
+	if (mpo != 0) {
+		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+		if (objects[mpo]._oSolidFlag)
+			return false;
+	}
+
+	return true;
+}
+
 bool PosOkMonst(int mnum, int x, int y)
 {
 	int oi;

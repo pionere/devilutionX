@@ -63,8 +63,13 @@ bool LineClear(int x1, int y1, int x2, int y2);
 bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2);
 void SyncMonsterAnim(int mnum);
 void MissToMonst(int mnum);
+/* Check if the monster can be displaced to the given position. (unwillingly) */
+bool PosOkMonster(int mnum, int x, int y);
+/* Check if the monster can be placed to the given position. (willingly) */
 bool PosOkMonst(int mnum, int x, int y);
+/* Check if the monster could walk on the given position. (ignoring players/monsters) */
 bool PosOkMonst2(int mnum, int x, int y);
+/* Check if the monster could walk on the given position. (ignoring doors) */
 bool PosOkMonst3(int mnum, int x, int y);
 void SpawnSkeleton(int mnum, int x, int y, int dir);
 int PreSpawnSkeleton();

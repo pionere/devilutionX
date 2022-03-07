@@ -3902,9 +3902,8 @@ void MI_Rhino(int mi)
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
-		// TODO: add separate PosOkMon function to avoid reuse of PosOkPlayer. (PosOkMonst does not fit, because hazard check should not be done here) I.
 		assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);
-		if (mis->_miAnimFrame == 13 || !PosOkPlayer(-1, mis->_mix, mis->_miy)) {
+		if (mis->_miAnimFrame == 13 || !PosOkMonster(-1, mis->_mix, mis->_miy)) {
 			MissToMonst(mi);
 			mis->_miDelFlag = TRUE;
 			return;
@@ -3913,8 +3912,7 @@ void MI_Rhino(int mi)
 		mis->_mityoff -= mis->_miyvel;
 	}
 	GetMissilePos(mi);
-	// TODO: add separate PosOkMon function to avoid reuse of PosOkPlayer. (PosOkMonst does not fit, because hazard check should not be done here) II.
-	if (!PosOkPlayer(-1, mis->_mix, mis->_miy)) {
+	if (!PosOkMonster(-1, mis->_mix, mis->_miy)) {
 		MissToMonst(mi);
 		mis->_miDelFlag = TRUE;
 		return;
@@ -3953,7 +3951,7 @@ void MI_Charge(int mi)
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	if (!PosOkPlayer(pnum, mis->_mix, mis->_miy)) {
+	if (!PosOkPlayer(-1, mis->_mix, mis->_miy)) {
 		MissToPlr(mi, true);
 		mis->_miDelFlag = TRUE;
 		return;
