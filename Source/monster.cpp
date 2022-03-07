@@ -1548,6 +1548,20 @@ void RemoveMonFromMap(int mnum)
 	}
 }
 
+static void MonPlace(int mnum)
+{
+	MonsterStruct* mon;
+
+	FixMonLocation(mnum);
+
+	mon = &monsters[mnum];
+	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
+		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
+	if (mon->_mvid != NO_VISION)
+		ChangeVisionXY(mon->_mvid, mon->_mx, mon->_my);
+	dMonster[mon->_mx][mon->_my] = mnum + 1;
+}
+
 static void MonStartGetHit(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
@@ -1556,14 +1570,11 @@ static void MonStartGetHit(int mnum)
 		return;
 
 	RemoveMonFromMap(mnum);
-	FixMonLocation(mnum);
+	MonPlace(mnum);
 
 	NewMonsterAnim(mnum, MA_GOTHIT, mon->_mdir);
 
 	mon->_mmode = MM_GOTHIT;
-	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
-	dMonster[mon->_mx][mon->_my] = mnum + 1;
 }
 
 static void MonTeleport(int mnum)
@@ -1693,8 +1704,7 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 		NewMonsterAnim(j, MA_DEATH, mon->_mdir);
 		mon->_mmode = MM_DEATH;
 		RemoveMonFromMap(j);
-		FixMonLocation(j);
-		dMonster[mon->_mx][mon->_my] = j + 1;
+		MonPlace(j);
 	}
 	mon = &monsters[mnum];
 	mon->_mVar1 = 7 * gnTicksRate; // DIABLO_TICK
@@ -1807,12 +1817,11 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	}
 	// fix the location of the monster before spawning loot or sending a message
 	RemoveMonFromMap(mnum);
-	FixMonLocation(mnum);
+	MonPlace(mnum);
 
 	mon = &monsters[mnum];
 	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	mon->_mhitpoints = 0;
-	dMonster[mon->_mx][mon->_my] = mnum + 1;
 	dDead[mon->_mx][mon->_my] = 0;
 	CheckQuestKill(mnum, sendmsg);
 	if (sendmsg) {
@@ -1990,16 +1999,9 @@ static bool MonDoWalk(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		dMonster[mon->_moldx][mon->_moldy] = 0;
-		mx = mon->_mfutx;
-		my = mon->_mfuty;
-		if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXYOff(mon->mlid, mx, my);
-		if (mon->_mvid != NO_VISION)
-			ChangeVisionXY(mon->_mvid, mx, my);
-		mon->_mx = mx;
-		mon->_my = my;
-		FixMonLocation(mnum);
-		dMonster[mx][my] = mnum + 1;
+		mon->_mx = mon->_mfutx;
+		mon->_my = mon->_mfuty;
+		MonPlace(mnum);
 		MonStartStand(mnum);
 		rv = true;
 	} else {
@@ -4882,12 +4884,10 @@ void MissToMonst(int mi)
 			newx = oldx + offset_x[mon->_mdir];
 			newy = oldy + offset_y[mon->_mdir];
 			if (PosOkMonst(tnum, newx, newy)) {
+				RemoveMonFromMap(tnum);
 				monsters[tnum]._mx = newx;
 				monsters[tnum]._my = newy;
-				ChangeVisionXY(monsters[tnum]._mvid, newx, newy);
-				RemoveMonFromMap(tnum);
-				dMonster[newx][newy] = tnum + 1;
-				FixMonLocation(tnum);
+				MonPlace(tnum);
 			}
 		}
 	}
