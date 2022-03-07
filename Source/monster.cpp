@@ -1598,9 +1598,9 @@ static void MonTeleport(int mnum)
 		y = _my + offset_y[rx];
 		assert(IN_DUNGEON_AREA(x, y));
 		if (x != mon->_mx && y != mon->_my && PosOkMonst(mnum, x, y)) {
-			RemoveMonFromMap(mnum);
+			//RemoveMonFromMap(mnum);
 			//assert(dMonster[mon->_mx][mon->_my] == 0);
-			dMonster[x][y] = mnum + 1;
+			//dMonster[x][y] = mnum + 1;
 			mon->_mx = x;
 			mon->_my = y;
 			mon->_mdir = OPPOSITE(rx);
