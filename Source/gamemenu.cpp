@@ -64,7 +64,7 @@ static void gamemenu_update_single()
 
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
 
-	enable = pcurs == CURSOR_HAND && gbDeathflag == MDM_ALIVE;
+	enable = /*pcurs == CURSOR_HAND &&*/ gbDeathflag == MDM_ALIVE;
 	// TODO: disable saving if there is a live turn in transit? (SNetGetLiveTurnsInTransit)
 	gmenu_enable(&sgSingleMenu[0], enable);
 }
@@ -136,15 +136,15 @@ static void gamemenu_load_game(bool bActivate)
 static void gamemenu_save_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
-	NewCursor(CURSOR_NONE);
 	gamemenu_off();
+	// NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_SAVING);
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game();
 	SaveGame();
 	ClrDiabloMsg();
+	// InitLevelCursor();
 	gbRedrawFlags = REDRAW_ALL;
-	NewCursor(CURSOR_HAND);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
 }
