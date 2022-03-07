@@ -28,7 +28,7 @@ void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v);
 int AddObject(int type, int ox, int oy);
 void ProcessObjects();
 void MonstCheckDoors(int mx, int my);
-void ObjChangeMapResync(int x1, int y1, int x2, int y2);
+void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/);
 void DisarmObject(int pnum, int oi);
 void OperateObject(int pnum, int oi, bool TeleFlag);
 bool SyncBloodPass(int pnum, int oi);

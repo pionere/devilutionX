@@ -4205,7 +4205,7 @@ void MAI_Lazarus(int mnum)
 		} else if (mon->_mgoal == MGOAL_TALKING) {
 			if (effect_is_playing(USFX_LAZ1) && myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y)
 				return;
-			ObjChangeMapResync(7, 20, 11, 22);
+			ObjChangeMap(7, 20, 11, 22/*, false*/);
 			//RedoLightAndVision();
 			// mon->_msquelch = SQUELCH_MAX;
 			mon->mtalkmsg = TEXT_NONE;

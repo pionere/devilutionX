@@ -1640,8 +1640,8 @@ static void Obj_Circle(int oi)
 			os->_oAnimFrame = 4;
 		}
 		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
-			// ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
-			ObjChangeMapResync(7, 11, 13, 18);
+			// ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, true*/); // LEVER_EFFECT
+			ObjChangeMap(7, 11, 13, 18/*, true*/);
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
 				quests[Q_BETRAYER]._qvar1 = 4;
 			int dx = 0, dy = 0;
@@ -2274,7 +2274,7 @@ void MonstCheckDoors(int mx, int my)
 	}
 }
 
-static void ObjChangeMap(int x1, int y1, int x2, int y2)
+void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 {
 	int i, j;
 
@@ -2290,32 +2290,12 @@ static void ObjChangeMap(int x1, int y1, int x2, int y2)
 	y2 = 2 * y2 + DBORDERY + 1;
 	if (currLvl._dType == DTYPE_CATHEDRAL) {
 		DRLG_InitL1Specials(x1, y1, x2, y2);
-		AddL1Objs(x1, y1, x2, y2);
+		//if (hasNewObjPiece)
+			AddL1Objs(x1, y1, x2, y2);
 	} else if (currLvl._dType == DTYPE_CATACOMBS) {
 		DRLG_InitL2Specials(x1, y1, x2, y2);
-		AddL2Objs(x1, y1, x2, y2);
-	}
-	RedoLightAndVision();
-}
-
-void ObjChangeMapResync(int x1, int y1, int x2, int y2)
-{
-	int i, j;
-
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
-			dungeon[i][j] = pdungeon[i][j];
-			ObjSetMini(i, j, pdungeon[i][j]);
-		}
-	}
-	x1 = 2 * x1 + DBORDERX;
-	y1 = 2 * y1 + DBORDERY;
-	x2 = 2 * x2 + DBORDERX + 1;
-	y2 = 2 * y2 + DBORDERY + 1;
-	if (currLvl._dType == DTYPE_CATHEDRAL) {
-		DRLG_InitL1Specials(x1, y1, x2, y2);
-	} else if (currLvl._dType == DTYPE_CATACOMBS) {
-		DRLG_InitL2Specials(x1, y1, x2, y2);
+		//if (hasNewObjPiece)
+			AddL2Objs(x1, y1, x2, y2);
 	}
 	RedoLightAndVision();
 }
@@ -2378,7 +2358,7 @@ static void OperateLever(int oi, bool sendmsg)
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
 	}
 #endif
-	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
 
 static void OperateVileBook(int pnum, int oi, bool sendmsg)
@@ -2439,7 +2419,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 		}
 	} //else if (currLvl._dLevelIdx == SL_VILEBETRAYER) { NULL_LVR_EFFECT
-		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 		//for (i = 0; i < numobjects; i++)
 		//	SyncObjectAnim(objectactive[i]);
 	//}
@@ -2459,7 +2439,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
 		os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_ANIM
 		//if (qn != Q_BLOOD) NULL_LVR_EFFECT
-			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);    // LEVER_EFFECT
+			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, qn == Q_BLIND*/);    // LEVER_EFFECT
 		if (qn == Q_BLIND) {
 			if (!deltaload)
 				SpawnUnique(UITEM_OPTAMULET, 2 * os->_oVar1 + DBORDERX + 5, 2 * os->_oVar2 + DBORDERY + 5, sendmsg ? ICM_SEND : ICM_DUMMY);
@@ -2663,14 +2643,14 @@ static void SyncPedistal(/*int oi*/)
 	case 1:
 		break;
 	case 3:
-		ObjChangeMapResync(setpc_x + 6, setpc_y + 3, setpc_x + 9/*setpc_w*/, setpc_y + 7);
+		ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + 9/*setpc_w*/, setpc_y + 7/*, false*/);
 		/* fall-through */
 	case 2:
-		ObjChangeMapResync(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
+		ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7/*, false*/);
 		break;
 	case 4:
-		//ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
-		ObjChangeMapResync(setpc_x /*+ 2*/, setpc_y, setpc_x + 9/*6*/, setpc_y + 8);
+		//ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
+		ObjChangeMap(setpc_x /*+ 2*/, setpc_y, setpc_x + 9/*6*/, setpc_y + 8/*, false*/);
 		LoadPreLighting();
 		LoadMapSetObjs("Levels\\L2Data\\Blood2.DUN");
 		SavePreLighting();
@@ -3582,7 +3562,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 
 	triggered = CheckCrux(os->_oVar8); // LEVER_EFFECT
 	if (triggered)
-		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
+		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/);
 
 	if (deltaload) {
 		os->_oAnimFrame = os->_oAnimLen;
@@ -3964,7 +3944,7 @@ static void SyncLever(int oi)
 
 	os = &objects[oi];
 	if (CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
-		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
 
 static void SyncBookLever(int oi)
@@ -3973,7 +3953,7 @@ static void SyncBookLever(int oi)
 
 	os = &objects[oi];
 	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
-		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, os->_otype == OBJ_BLINDBOOK*/); // LEVER_EFFECT
 		//if (os->_otype == OBJ_BLINDBOOK) {
 			//int tv = dTransVal[2 * os->_oVar1 + DBORDERX + 1][2 * os->_oVar2 + DBORDERY + 1];
 			//DRLG_MRectTrans(os->_oVar1 + 2, os->_oVar2 + 2, os->_oVar1 + 4, os->_oVar2 + 4, tv); // LEVER_EFFECT
@@ -3988,7 +3968,7 @@ static void SyncCrux(int oi)
 
 	os = &objects[oi];
 	if (CheckCrux(os->_oVar8)) // LEVER_EFFECT
-		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
 
 static void SyncL1Doors(int oi)
@@ -4325,7 +4305,7 @@ void GetObjectStr(int oi)
 #ifdef HELLFIRE
 void OpenUberRoom()
 {
-	ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+	ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
 }
 #endif
 
