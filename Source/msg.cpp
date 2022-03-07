@@ -1487,7 +1487,7 @@ void LevelDeltaLoad()
 		mon->mtalkmsg = tmon->smTalkmsg;
 		// move the light of the monster
 		if (mon->mlid != NO_LIGHT)
-			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
+			ChangeLightXY(mon->mlid, mon->_moldx, mon->_moldy);
 		// place the monster
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
 		if (mon->_mmode == MM_WALK2) {
@@ -1500,8 +1500,8 @@ void LevelDeltaLoad()
 		// ensure dead bodies are not placed prematurely
 		if (mon->_mmode == MM_DEATH || (mon->_mmode == MM_STONE && mon->_mhitpoints == 0))
 			dDead[mon->_mx][mon->_my] = 0;
-		if (mnum < MAX_MINIONS)
-			mon->_mvid = AddVision(mon->_mx, mon->_my, PLR_MIN_VISRAD, false);
+		else if (mnum < MAX_MINIONS)
+			mon->_mvid = AddVision(mon->_moldx, mon->_moldy, PLR_MIN_VISRAD, false);
 		SyncMonsterAnim(mnum);
 		src += sizeof(TSyncLvlMonster);
 	}
