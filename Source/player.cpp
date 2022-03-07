@@ -3024,13 +3024,6 @@ bool PosOkPlayer(int pnum, int x, int y)
 	int mpo;
 
 	if (IN_DUNGEON_AREA(x, y) && /*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]]) {
-		mpo = dPlayer[x][y];
-		if (mpo != 0) {
-			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-			if (mpo != pnum && plx(mpo)._pHitPoints >= (1 << 6)) {
-				return false;
-			}
-		}
 		mpo = dMonster[x][y];
 		if (mpo != 0) {
 			// additional checks commented out because a player (or a charging monster)
@@ -3052,6 +3045,12 @@ bool PosOkPlayer(int pnum, int x, int y)
 			if (objects[mpo]._oSolidFlag) {
 				return false;
 			}
+		}
+		mpo = dPlayer[x][y];
+		if (mpo != 0) {
+			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+			// check commented out because a player should not walk over a dying player (looks bad)
+			return mpo == pnum/*|| plx(mpo)._pHitPoints < (1 << 6)*/;
 		}
 
 		return true;
