@@ -1339,7 +1339,7 @@ static void MonStartStand(int mnum)
 
 	mon = &monsters[mnum];
 	NewMonsterAnim(mnum, MA_STAND, mon->_mdir);
-	FixMonLocation(mnum);
+	//FixMonLocation(mnum);
 	mon->_mVar1 = mon->_mmode; // STAND_PREV_MODE : previous mode of the monster
 	mon->_mVar2 = 0;           // STAND_TICK : the time spent on standing
 	mon->_mmode = MM_STAND;
@@ -1998,6 +1998,7 @@ static bool MonDoWalk(int mnum)
 			ChangeVisionXY(mon->_mvid, mx, my);
 		mon->_moldx = mx;
 		mon->_moldy = my;
+		FixMonLocation(mnum);
 		dMonster[mx][my] = mnum + 1;
 		MonStartStand(mnum);
 		rv = true;
@@ -2166,6 +2167,7 @@ static bool MonDoAttack(int mnum)
 		PlayEffect(mnum, MS_ATTACK);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
+		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2198,6 +2200,7 @@ static bool MonDoRAttack(int mnum)
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
+		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2238,6 +2241,7 @@ static bool MonDoRSpAttack(int mnum)
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
+		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2257,6 +2261,7 @@ static bool MonDoSpAttack(int mnum)
 		MonTryH2HHit(mnum, mon->_mHit2, mon->_mMinDamage2, mon->_mMaxDamage2);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
+		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2280,7 +2285,7 @@ static bool MonDoFadein(int mnum)
 		ChangeLightRadius(mon->mlid, MON_LIGHTRAD);
 		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 	}
-
+	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
 	return true;
 }
@@ -2303,7 +2308,7 @@ static bool MonDoFadeout(int mnum)
 			ChangeLightRadius(mon->mlid, 0);
 		}
 	//}
-
+	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
 	return true;
 }
@@ -2344,6 +2349,7 @@ static bool MonDoTalk(int mnum)
 		dev_fatal("MonDoTalk: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
+	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
 	mon->_mgoal = MGOAL_TALKING;
 	if (effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
@@ -2358,6 +2364,7 @@ static bool MonDoGotHit(int mnum)
 		dev_fatal("MonDoGotHit: Invalid monster %d", mnum);
 	}
 	if (monsters[mnum]._mAnimFrame == monsters[mnum]._mAnimLen) {
+		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2467,6 +2474,7 @@ static bool MonDoSpStand(int mnum)
 		PlayEffect(mnum, MS_SPECIAL);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
+		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2515,6 +2523,7 @@ static bool MonDoCharge(int mnum)
 	if (!monster_posok(mnum, mon->_mx + offset_x[dir], mon->_my + offset_y[dir])) {
 		//assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
+		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -3206,6 +3215,7 @@ void MAI_Fallen(int mnum)
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
 			mon->_mdir = OPPOSITE(mon->_mdir);
+			AssertFixMonLocation(mnum);
 			MonStartStand(mnum);
 		}
 	} else {
