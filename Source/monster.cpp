@@ -4824,7 +4824,7 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnimLen = mon->_mAnims[anim].aFrames;
 }
 
-void MissToMonst(int mi, int x, int y)
+void MissToMonst(int mi)
 {
 	int oldx, oldy;
 	int newx, newy;
@@ -4840,14 +4840,13 @@ void MissToMonst(int mi, int x, int y)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MissToMonst: Invalid monster %d", mnum);
 	}
+	AssertFixMonLocation(mnum);
 	mon = &monsters[mnum];
-	//assert(dMonster[x][y] == 0);
-	dMonster[x][y] = mnum + 1;
-	//assert(dPlayer[x][y] == 0);
-	mon->_mx = x;
-	mon->_my = y;
+	// assert(dMonster[mon->_mx][mon->_my] == 0);
+	dMonster[mon->_mx][mon->_my] = mnum + 1;
+	// assert(dPlayer[mon->_mx][mon->_my] == 0);
 	// assert(!(mon->_mFlags & MFLAG_HIDDEN));
-	ChangeLightXYOff(mon->mlid, x, y);
+	ChangeLightOff(mon->mlid, 0, 0);
 	assert(mon->_mdir == mis->_miDir);
 	MonStartStand(mnum);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {

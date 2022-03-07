@@ -62,7 +62,7 @@ bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2);
 bool LineClear(int x1, int y1, int x2, int y2);
 bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2);
 void SyncMonsterAnim(int mnum);
-void MissToMonst(int mnum, int x, int y);
+void MissToMonst(int mnum);
 bool PosOkMonst(int mnum, int x, int y);
 bool PosOkMonst2(int mnum, int x, int y);
 bool PosOkMonst3(int mnum, int x, int y);

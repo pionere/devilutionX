@@ -3884,7 +3884,7 @@ void MI_ApocaExp(int mi)
 void MI_Rhino(int mi)
 {
 	MissileStruct* mis;
-	int ax, ay, bx, by, mnum;
+	int bx, by, mnum;
 
 	mis = &missile[mi];
 	mnum = mis->_miSource;
@@ -3894,10 +3894,8 @@ void MI_Rhino(int mi)
 	}
 	// restore the real coordinates
 	GetMissilePos(mi);
-	ax = mis->_mix;
-	ay = mis->_miy;
-	//assert(dMonster[ax][ay] == -(mnum + 1));
-	dMonster[ax][ay] = 0;
+	//assert(dMonster[mis->_mix][mis->_miy] == -(mnum + 1));
+	dMonster[mis->_mix][mis->_miy] = 0;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	if (monsters[mnum]._mAi == AI_SNAKE) {
@@ -3907,7 +3905,7 @@ void MI_Rhino(int mi)
 		// TODO: add separate PosOkMon function to avoid reuse of PosOkPlayer. (PosOkMonst does not fit, because hazard check should not be done here) I.
 		assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);
 		if (mis->_miAnimFrame == 13 || !PosOkPlayer(-1, mis->_mix, mis->_miy)) {
-			MissToMonst(mi, ax, ay);
+			MissToMonst(mi);
 			mis->_miDelFlag = TRUE;
 			return;
 		}
@@ -3917,7 +3915,7 @@ void MI_Rhino(int mi)
 	GetMissilePos(mi);
 	// TODO: add separate PosOkMon function to avoid reuse of PosOkPlayer. (PosOkMonst does not fit, because hazard check should not be done here) II.
 	if (!PosOkPlayer(-1, mis->_mix, mis->_miy)) {
-		MissToMonst(mi, ax, ay);
+		MissToMonst(mi);
 		mis->_miDelFlag = TRUE;
 		return;
 	}
