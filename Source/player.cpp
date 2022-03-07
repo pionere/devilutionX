@@ -748,8 +748,8 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
  */
 static bool PlacePlayer(int pnum)
 {
-	int i, nx, ny, x, y;
-	bool done;
+	int i, j, nx, ny;
+	const char* cr;
 
 	for (i = 0; i < lengthof(plrxoff2); i++) {
 		nx = plr._px + plrxoff2[i];
@@ -764,18 +764,15 @@ static bool PlacePlayer(int pnum)
 		return false;
 
 	if (i == lengthof(plrxoff2)) {
-		done = false;
-
-		for (i = 2; i < 50 && !done; i++) {
-			for (y = i; y <= -i && !done; y--) {
-				ny = plr._py + y;
-
-				for (x = i; x <= -i && !done; x--) {
-					nx = plr._px + x;
-
-					if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
-						done = true;
-					}
+		static_assert(DBORDERX >= 16 && DBORDERY >= 16, "PlacePlayer expects a large enough border.");
+		for (i = 2; i < 16; i++) {
+			cr = &CrawlTable[CrawlNum[i]];
+			for (j = (BYTE)*cr; j > 0; j--) {
+				nx = plr._px + *++cr;
+				ny = plr._py + *++cr;
+				if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
+					i = 16;
+					j = 0;
 				}
 			}
 		}
