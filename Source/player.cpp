@@ -1287,8 +1287,8 @@ static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
 
 	px = plr._px;
 	py = plr._py;
-	plr._poldx = px;
-	plr._poldy = py;
+	assert(plr._poldx == px);
+	assert(plr._poldy == py);
 
 	px += xadd;
 	py += yadd;
@@ -1320,10 +1320,9 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 
 	px = plr._px;
 	py = plr._py;
-
+	assert(plr._poldx == px);
+	assert(plr._poldy == py);
 	dPlayer[px][py] = -(pnum + 1);
-	/*plr._pVar1 =*/ plr._poldx = px;  // the starting x-coordinate of the player
-	/*plr._pVar2 =*/ plr._poldy = py;  // the starting y-coordinate of the player
 	px += xadd;
 	py += yadd;
 	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
@@ -1904,6 +1903,8 @@ static inline void PlrStepAnim(int pnum)
 
 static bool PlrDoWalk(int pnum)
 {
+	int px, py;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoWalk: illegal player %d", pnum);
 	}
@@ -1928,23 +1929,16 @@ static bool PlrDoWalk(int pnum)
 		return false;
 	}
 
-	switch (plr._pmode) {
-	case PM_WALK: // Movement towards NW, N, NE and W
-		dPlayer[plr._px][plr._py] = 0;
-		//plr._px = plr._pVar1;
-		//plr._py = plr._pVar2;
-		plr._px = plr._pfutx;
-		plr._py = plr._pfuty;
-		dPlayer[plr._px][plr._py] = pnum + 1;
-		break;
-	case PM_WALK2: // Movement towards SW, S, SE and E
-		//dPlayer[plr._pVar1][plr._pVar2] = 0;
-		dPlayer[plr._poldx][plr._poldy] = 0;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	dPlayer[plr._poldx][plr._poldy] = 0;
+	px = plr._pfutx;
+	py = plr._pfuty;
+
+	ChangeLightXYOff(plr._plid, px, py);
+	ChangeVisionXY(plr._pvid, px, py);
+	plr._px = px;
+	plr._py = py;
+	FixPlayerLocation(pnum);
+	dPlayer[px][py] = pnum + 1;
 
 	if (plr.walkpath[0] != DIR_NONE) {
 		//PlrStartWalkStand(pnum);
@@ -1953,12 +1947,9 @@ static bool PlrDoWalk(int pnum)
 		//PlrStartStand(pnum);
 		StartStand(pnum);
 	}
-	FixPlayerLocation(pnum);
 
 	//ClearPlrPVars(pnum);
 
-	ChangeLightXYOff(plr._plid, plr._px, plr._py);
-	ChangeVisionXY(plr._pvid, plr._px, plr._py);
 	return true;
 }
 
