@@ -1419,8 +1419,8 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
 
 	mx = mon->_mx;
 	my = mon->_my;
-	mon->_moldx = mx;
-	mon->_moldy = my;
+	assert(mon->_moldx == mx);
+	assert(mon->_moldy == my);
 
 	mx += xadd;
 	my += yadd;
@@ -1450,9 +1450,9 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 
 	mx = mon->_mx;
 	my = mon->_my;
+	assert(mon->_moldx == mx);
+	assert(mon->_moldy == my);
 	dMonster[mx][my] = -(mnum + 1);
-	/*mon->_mVar1 =*/ mon->_moldx = mx; // the starting x-coordinate of the monster
-	/*mon->_mVar2 =*/ mon->_moldy = my; // the starting y-coordinate of the monster
 	mx += xadd;
 	my += yadd;
 	mon->_mx = mon->_mfutx = mx;
@@ -1981,6 +1981,7 @@ static bool MonDoStand(int mnum)
 static bool MonDoWalk(int mnum)
 {
 	MonsterStruct* mon;
+	int mx, my;
 	bool rv;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -1988,27 +1989,16 @@ static bool MonDoWalk(int mnum)
 	}
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		switch (mon->_mmode) {
-		case MM_WALK: // Movement towards NW, N, NE and W
-			dMonster[mon->_mx][mon->_my] = 0;
-			//mon->_mx += mon->_mVar1;
-			//mon->_my += mon->_mVar2;
-			mon->_mx = mon->_mfutx;
-			mon->_my = mon->_mfuty;
-			dMonster[mon->_mx][mon->_my] = mnum + 1;
-			break;
-		case MM_WALK2: // Movement towards SW, S, SE and E
-			//dMonster[mon->_mVar1][mon->_mVar2] = 0;
-			dMonster[mon->_moldx][mon->_moldy] = 0;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
+		dMonster[mon->_moldx][mon->_moldy] = 0;
+		mx = mon->_mfutx;
+		my = mon->_mfuty;
 		if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
+			ChangeLightXYOff(mon->mlid, mx, my);
 		if (mon->_mvid != NO_VISION)
-			ChangeVisionXY(mon->_mvid, mon->_mx, mon->_my);
+			ChangeVisionXY(mon->_mvid, mx, my);
+		mon->_moldx = mx;
+		mon->_moldy = my;
+		dMonster[mx][my] = mnum + 1;
 		MonStartStand(mnum);
 		rv = true;
 	} else {
