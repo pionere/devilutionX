@@ -1705,9 +1705,16 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	AddLight(mx, my, 8);
 	DoVision(mx, my, 8, true);
 
-	gbProcessPlayers = false;
-	for (i = 0; i < MAX_PLRS; i++)
-		plx(i)._pInvincible = TRUE;
+	// assert(currLvl._dLevelIdx == DLV_HELL4);
+	for (i = 0; i < MAX_PLRS; i++) {
+		// ensure the players are not processed and not sending level-delta
+		// might produce a slight inconsistent state in case a player enters the level
+		// while the diablo is still dying. TODO: find a better solution for hosted games?
+		if (plx(i)._pActive && plx(i)._pDunLevel == DLV_HELL4) {
+			plx(i)._pLvlChanging = TRUE;
+			plx(i)._pInvincible = TRUE;
+		}
+	}
 }
 
 static void SpawnLoot(int mnum, bool sendmsg)

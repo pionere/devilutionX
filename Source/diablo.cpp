@@ -21,8 +21,6 @@ int MouseY;
 bool gbRunGame;
 bool gbRunGameResult;
 bool gbZoomInFlag;
-/** Enable updating of player character, set to false once Diablo dies */
-bool gbProcessPlayers;
 bool gbLoadGame;
 bool gbCineflag;
 int gbRedrawFlags;
@@ -1413,9 +1411,7 @@ static bool ProcessInput()
 void game_logic()
 {
 	multi_rnd_seeds();
-	if (gbProcessPlayers) {
-		ProcessPlayers();
-	}
+	ProcessPlayers();
 	if (currLvl._dType != DTYPE_TOWN) {
 		ProcessMonsters();
 		ProcessObjects();
@@ -1524,7 +1520,6 @@ static WNDPROC InitGameUI()
 	gbActionBtnDown = false;
 	gbAltActionBtnDown = false;
 	gbRunGame = true;
-	gbProcessPlayers = true;
 	gbRunGameResult = true;
 
 	return SetWindowProc(GameWndProc);
