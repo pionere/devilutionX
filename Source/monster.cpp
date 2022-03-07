@@ -2009,7 +2009,6 @@ static bool MonDoStand(int mnum)
 static bool MonDoWalk(int mnum)
 {
 	MonsterStruct* mon;
-	int mx, my;
 	bool rv;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -4848,7 +4847,6 @@ void SyncMonsterAnim(int mnum)
 void MissToMonst(int mi)
 {
 	int oldx, oldy;
-	int newx, newy;
 	int mnum, tnum;
 	MissileStruct* mis;
 	MonsterStruct* mon;
