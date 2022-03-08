@@ -3480,7 +3480,6 @@ void MI_LightningC(int mi)
 	int mx, my;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
@@ -3507,9 +3506,10 @@ void MI_LightningC(int mi)
 			    mis->_miMaxDam,
 			    mis->_miSpllvl);
 		} else {
-			mis->_miRange = 0;
+			mis->_miRange = 1;
 		}
 	}
+	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 	}
