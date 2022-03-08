@@ -291,6 +291,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	unsigned cc = 0; // critical hit chance
 	int btochit = 0; // bonus chance to critical hit
 
+	Loadgfx &= plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging;
+
 	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
@@ -410,8 +412,10 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	lrad = std::max(2, std::min(MAX_LIGHT_RAD, lrad));
 	if (plr._pLightRad != lrad) {
 		plr._pLightRad = lrad;
-		ChangeLightRadius(plr._plid, lrad);
-		ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
+		if (Loadgfx) {
+			ChangeLightRadius(plr._plid, lrad);
+			ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
+		}
 	}
 
 	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
@@ -635,7 +639,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 	if (plr._pgfxnum != gfx) {
 		plr._pgfxnum = gfx;
-		if (Loadgfx && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging) {
+		if (Loadgfx) {
 			plr._pGFXLoad = 0;
 			SetPlrAnims(pnum);
 
