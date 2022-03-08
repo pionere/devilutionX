@@ -1650,7 +1650,7 @@ static void Obj_Circle(int oi)
 				dx = LAZ_CIRCLE_X; dy = LAZ_CIRCLE_Y;
 			//	GetVileMissPos(&dx, &dy);
 			//}
-			AddMissile(ox, oy, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0, 0, 0);
+			AddMissile(ox, oy, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
 			gbActionBtnDown = false;
 			gbAltActionBtnDown = false;
 			ClrPlrPath(mypnum);
@@ -1753,7 +1753,7 @@ static void Obj_FlameTrap(int oi)
 			os->_oAnimFrame = 11;
 		if (os->_oAnimFrame == 11) {
 			SetRndSeed(os->_oRndSeed);
-			AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FIRETRAP, MST_OBJECT, -1, 0, 0, 0);
+			AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FIRETRAP, MST_OBJECT, -1, 0);
 			os->_oRndSeed = GetRndSeed();
 		} else if (os->_oAnimFrame <= 5) {
 			static_assert(MAX_LIGHT_RAD >= 5, "Obj_FlameTrap needs at least light-radius of 5.");
@@ -1841,7 +1841,7 @@ static void Obj_Trap(int oi)
 	sx = os->_ox;
 	sy = os->_oy;
 	dir = GetDirection(sx, sy, dx, dy);
-	AddMissile(sx, sy, dx, dy, dir, os->_oVar3, MST_OBJECT, -1, 0, 0, 0); // TRAP_MISTYPE
+	AddMissile(sx, sy, dx, dy, dir, os->_oVar3, MST_OBJECT, -1, 0); // TRAP_MISTYPE
 
 	NetSendCmdParam1(CMD_TRAPDISABLE, oi);
 }
@@ -2384,7 +2384,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 			dy = DBORDERY + 13;
 		}
 		GetVileMissPos(&dx, &dy);
-		AddMissile(plr._px, plr._py, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0, 0, 0);
+		AddMissile(plr._px, plr._py, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 		objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 	}
 	os->_oSelFlag = 0;
@@ -2401,18 +2401,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		if (pnum == mypnum)
 			InitDiabloMsg(EMSG_BONECHAMB);
 		SetRndSeed(os->_oRndSeed);
-		AddMissile(
-		    plr._px,
-		    plr._py,
-		    os->_ox - 2,
-		    os->_oy - 4,
-		    plr._pdir,
-		    MIS_GUARDIAN,
-		    MST_PLAYER,
-		    pnum,
-		    0,
-		    0,
-		    0);
+		AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, plr._pdir, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {
 			NetSendCmdQuest(Q_SCHAMB, true); // recipient should not matter
@@ -2499,7 +2488,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		os->_oTrapFlag = FALSE;
 		SetRndSeed(os->_oRndSeed);
 		mdir = GetDirection(os->_ox, os->_oy, plr._px, plr._py);
-		AddMissile(os->_ox, os->_oy, plr._px, plr._py, mdir, os->_oVar4, MST_OBJECT, -1, 0, 0, 0); // CHEST_TRAP_TYPE
+		AddMissile(os->_ox, os->_oy, plr._px, plr._py, mdir, os->_oVar4, MST_OBJECT, -1, 0); // CHEST_TRAP_TYPE
 	}
 }
 
@@ -3041,18 +3030,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_RELIGIOUS);
 		break;
 	case SHRINE_MAGICAL:
-		AddMissile(
-		    0,
-		    0,
-		    0,
-		    0,
-		    0,
-		    MIS_MANASHIELD,
-		    MST_NA,
-		    pnum,
-		    0,
-		    0,
-		    (1 + currLvl._dLevel) >> 1);
+		AddMissile(0, 0, 0, 0, 0, MIS_MANASHIELD, MST_NA, pnum, (1 + currLvl._dLevel) >> 1);
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_MAGICAL);
@@ -3093,18 +3071,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_SHIMMERING);
 		break;
 	case SHRINE_CRYPTIC:
-		AddMissile(
-		    os->_ox,
-		    os->_oy,
-		    0,
-		    0,
-		    0,
-		    MIS_LIGHTNOVAC,
-		    MST_OBJECT,
-		    -1,
-		    0,
-		    0,
-		    0);
+		AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_LIGHTNOVAC, MST_OBJECT, -1, 0);
 		if (pnum != mypnum)
 			return;
 		NetSendShrineCmd(SHRINE_CRYPTIC, 0);
@@ -3155,7 +3122,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_DIVINE);
 		break;
 	case SHRINE_HOLY:
-		AddMissile(plr._px, plr._py, 0, 0, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0, 0, 0);
+		AddMissile(plr._px, plr._py, 0, 0, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_HOLY);
@@ -3193,18 +3160,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		break;
 	case SHRINE_TAINTED:
 		if (MINION_NR_INACTIVE(mypnum)) {
-			AddMissile(
-				myplr._px,
-				myplr._py,
-				myplr._px,
-				myplr._py,
-				0,
-				MIS_GOLEM,
-				MST_PLAYER,
-				mypnum,
-				0,
-				0,
-				currLvl._dLevel >> 1);
+			AddMissile(myplr._px, myplr._py, myplr._px, myplr._py, 0, MIS_GOLEM, MST_PLAYER, mypnum, currLvl._dLevel >> 1);
 		}
 		//if (pnum != mypnum)
 		//	return;
@@ -3214,32 +3170,10 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_GLISTENING);
-		AddMissile(
-		    os->_ox,
-		    os->_oy,
-		    plr._px,
-		    plr._py,
-		    plr._pdir,
-		    MIS_TOWN,
-		    MST_NA,
-		    pnum,
-		    0,
-		    0,
-		    0);
+		AddMissile(os->_ox, os->_oy, plr._px, plr._py, plr._pdir, MIS_TOWN, MST_NA, pnum, 0);
 		break;
 	case SHRINE_SPARKLING:
-		AddMissile(
-		    os->_ox,
-		    os->_oy,
-		    0,
-		    0,
-		    0,
-		    MIS_FLASH,
-		    MST_OBJECT,
-		    -1,
-		    0,
-		    0,
-		    0);
+		AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FLASH, MST_OBJECT, -1, 0);
 		if (pnum != mypnum)
 			return;
 		NetSendShrineCmd(SHRINE_SPARKLING, 0);
@@ -3264,7 +3198,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 			if (!ItemSpaceOk(xx, yy))
 				continue;
 			if (random_(0, 3) == 0)
-				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0, 0, 0);
+				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
 			else
 				CreateTypeItem(xx, yy, false, ITYPE_MISC, IMISC_RUNE, mode);
 		}
@@ -3416,18 +3350,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-		AddMissile(
-		    0,
-		    0,
-		    0,
-		    0,
-		    0,
-		    MIS_INFRA,
-		    MST_NA,
-		    pnum,
-		    0,
-		    0,
-		    currLvl._dLevel >> 1);
+		AddMissile(0, 0, 0, 0, 0, MIS_INFRA, MST_NA, pnum, currLvl._dLevel >> 1);
 		break;
 	case OBJ_TEARFTN:
 		if (deltaload)
@@ -3622,7 +3545,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 	if (os->_otype == xotype) {
 		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
 			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
-				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, MST_OBJECT, -1, 0, 0, 0);
+				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, MST_OBJECT, -1, 0);
 				mpo = dObject[xp][yp];
 				if (mpo > 0) {
 					mpo--;

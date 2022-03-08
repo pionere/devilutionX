@@ -1870,7 +1870,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 #else
 	if (mon->_mType >= MT_NACID && mon->_mType <= MT_XACID)
 #endif
-		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_ACIDPUD, MST_MONSTER, mnum, 0, 0, 1);
+		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_ACIDPUD, MST_MONSTER, mnum, 1);
 }
 
 static void M2MStartKill(int offm, int defm)
@@ -2213,8 +2213,6 @@ static bool MonDoRAttack(int mnum)
 		    mon->_mVar1, // RATTACK_SKILL
 		    MST_MONSTER,
 		    mnum,
-		    0,
-		    0,
 		    0);
 		PlayEffect(mnum, MS_ATTACK);
 	}
@@ -2246,8 +2244,6 @@ static bool MonDoRSpAttack(int mnum)
 		    mon->_mVar1, // SPATTACK_SKILL
 		    MST_MONSTER,
 		    mnum,
-		    0,
-		    0,
 		    0);
 		PlayEffect(mnum, MS_SPECIAL);
 	}
@@ -2898,7 +2894,7 @@ void MAI_Snake(int mnum)
 	dist = std::max(abs(mx - fx), abs(my -fy));
 	if (dist >= 2) { // STAND_PREV_MODE
 		if (dist == 2 && LineClearF1(PosOkMonst, mnum, mx, my, fx, fy) && mon->_mVar1 != MM_CHARGE) {
-			if (AddMissile(mx, my, fx, fy, md, MIS_RHINO, MST_MONSTER, mnum, 0, 0, 0) != -1) {
+			if (AddMissile(mx, my, fx, fy, md, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayEffect(mnum, MS_ATTACK);
 			}
 		} else if (mon->_mVar1 == MM_DELAY || random_(106, 100) >= 35 - 2 * mon->_mInt) {
@@ -2975,7 +2971,7 @@ void MAI_Bat(int mnum)
 	    && dist >= 5
 	    && v < 4 * mon->_mInt + 33
 	    && LineClearF1(PosOkMonst, mnum, mx, my, fx, fy)) {
-		if (AddMissile(mx, my, fx, fy, md, MIS_RHINO, MST_MONSTER, mnum, 0, 0, 0) != -1) {
+		if (AddMissile(mx, my, fx, fy, md, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 			MonUpdateLeader(mnum);
 		}
 	} else if (dist >= 2) {
@@ -2988,7 +2984,7 @@ void MAI_Bat(int mnum)
 		mon->_mgoal = MGOAL_RETREAT;
 		mon->_mgoalvar1 = 0; // RETREAT_FINISHED
 		if (mon->_mType == MT_FAMILIAR) {
-			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, MST_MONSTER, mnum, 0, 0, -1);
+			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, MST_MONSTER, mnum, -1);
 		}
 	}
 }
@@ -3149,7 +3145,7 @@ void MAI_Sneak(int mnum)
 	mon->_mdir = md;
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (LineClear(mx, my, fx, fy)
-		    && AddMissile(mx, my, fx, fy, md, MIS_FIREMAN, MST_MONSTER, mnum, 0, 0, 0) != -1) {
+		    && AddMissile(mx, my, fx, fy, md, MIS_FIREMAN, MST_MONSTER, mnum, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
 			mon->_mgoal = MGOAL_ATTACK2;
 			//mon->_mgoalvar1 = 0; // FIREMAN_ACTION_PROGRESS
@@ -3916,7 +3912,7 @@ void MAI_Rhino(int mnum)
 		if (dist >= 5 && v < 2 * mon->_mInt + 43
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
 			mon->_mdir = md;
-			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, MST_MONSTER, mnum, 0, 0, 0) != -1) {
+			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayEffect(mnum, MS_SPECIAL);
 				MonUpdateLeader(mnum);
 			}
