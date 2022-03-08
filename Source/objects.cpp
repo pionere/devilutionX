@@ -602,42 +602,6 @@ static void AddChestTraps()
 					objects[oi]._otype += OBJ_TCHEST1 - OBJ_CHEST1;
 					objects[oi]._oTrapFlag = TRUE;
 					//objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
-					if (currLvl._dType == DTYPE_CATACOMBS) {
-						r = random_(0, 2);
-					} else {
-#ifdef HELLFIRE
-						r = random_(0, 4);
-#else
-						r = random_(0, 3);
-#endif
-					}
-
-					switch (r) {
-					case 0:
-						r = MIS_ARROW;
-						break;
-					case 1:
-						r = MIS_FIREBOLT;
-						break;
-					case 2:
-						r = MIS_LIGHTNOVAC;
-						break;
-#ifdef HELLFIRE
-					case 3:
-						r = MIS_FIRERING;
-						break;
-					/*case 4:
-						mtype = MIS_STEALPOTS;
-						break;
-					case 5:
-						mtype = MIS_MANATRAP;
-						break;*/
-#endif
-					default:
-						ASSUME_UNREACHABLE;
-					}
-					objects[oi]._oVar4 = r; // CHEST_TRAP_TYPE
-
 				}
 			}
 		}
@@ -1463,7 +1427,6 @@ int AddObject(int type, int ox, int oy)
 		AddChest(oi);
 		objects[oi]._oTrapFlag = TRUE;
 		//objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
-		objects[oi]._oVar4 = random_(0, currLvl._dType == DTYPE_CATACOMBS ? 2 : 3); // CHEST_TRAP_TYPE
 		break;
 	case OBJ_SARC:
 #ifdef HELLFIRE
@@ -2454,7 +2417,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 static void OperateChest(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
-	int i, k, mdir;
+	int i, k, mtype, mdir;
 
 	os = &objects[oi];
 	if (os->_oSelFlag == 0)
@@ -2482,8 +2445,37 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapFlag) {
 		os->_oTrapFlag = FALSE;
 		SetRndSeed(os->_oRndSeed);
+		if (currLvl._dType == DTYPE_CATACOMBS) {
+			mtype = 2;
+		} else {
+#ifdef HELLFIRE
+			mtype = 4;
+#else
+			mtype = 3;
+#endif
+		}
+		mtype = random_(0, mtype);
+		switch (mtype) {
+		case 0:
+			mtype = MIS_ARROW;
+			break;
+		case 1:
+			mtype = MIS_FIREBOLT;
+			break;
+		case 2:
+			mtype = MIS_LIGHTNOVAC;
+			break;
+#ifdef HELLFIRE
+		case 3:
+			mtype = MIS_FIRERING;
+			break;
+#endif
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
 		mdir = GetDirection(os->_ox, os->_oy, plr._px, plr._py);
-		AddMissile(os->_ox, os->_oy, plr._px, plr._py, mdir, os->_oVar4, MST_OBJECT, -1, 0); // CHEST_TRAP_TYPE
+		AddMissile(os->_ox, os->_oy, plr._px, plr._py, mdir, mtype, MST_OBJECT, -1, 0);
 	}
 }
 
