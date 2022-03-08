@@ -2456,8 +2456,12 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 {
 	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
 	int oi;
+	CmdSkillUse su;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
+	su.from = SPLFROM_ABILITY;
+	su.skill = SPL_DISARM;
+
+	if (CheckPlrSkillUse(pnum, su) && currLvl._dLevelIdx == plr._pDunLevel) {
 		oi = SwapLE16(cmd->wParam1);
 
 		net_assert(oi < MAXOBJECTS);
