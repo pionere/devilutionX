@@ -2542,6 +2542,7 @@ static void CheckNewPath(int pnum)
 
 	if (plr.walkpath[0] != DIR_NONE) {
 		if (plr._pmode == PM_STAND) {
+			/* commented out because this should not happen
 			if (pnum == mypnum) {
 				if (plr.destAction == ACTION_ATTACKMON || plr.destAction == ACTION_ATTACKPLR) {
 					if (StartAttack(pnum)) {
@@ -2550,7 +2551,7 @@ static void CheckNewPath(int pnum)
 						return;
 					}
 				}
-			}
+			}*/
 
 			if (!StartWalk(pnum)) {
 				//PlrStartStand(pnum);
