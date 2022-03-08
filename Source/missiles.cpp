@@ -1919,22 +1919,27 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	return MIRES_FAIL_DELETE;
 }
 
-/*
- * Remark: expects damage to be shifted!
- */
 int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
+	int mindam, maxdam;
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
+
+	mindam = 1;
+	if (misource != -1) {
+		maxdam = (plx(misource)._pMagic >> 1) + (spllvl << 4);
+	} else {
+		maxdam = 6 + currLvl._dLevel;
+	}
 	mis = &missile[mi];
 	mis->_miRange = 255;
-	mis->_miMinDam >>= 2; // * 16 / 64
-	mis->_miMaxDam >>= 2; // * 16 / 64
+	mis->_miMinDam = mindam << (6 - 2); // * 16 / 64
+	mis->_miMaxDam = maxdam << (6 - 2); // * 16 / 64
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
 	return MIRES_DONE;
 }
@@ -2827,32 +2832,14 @@ int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 
 int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	int i, tx, ty, mitype, mindam, maxdam;
+	int i, tx, ty;
 	const char* cr;
 
-//	if (mis->_miType == MIS_LIGHTNOVAC) {
-		mindam = (1 << 6);
-		if (misource != -1) {
-			maxdam = ((plx(misource)._pMagic >> 1) + (spllvl << 4)) << 6;
-		} else {
-			maxdam = (6 + currLvl._dLevel) << 6;
-		}
-		mitype = MIS_LIGHTBALL;
-//	} else {
-//		mindam = 1 + (plx(misource)._pMagic >> 3);
-//		maxdam = mindam + 4;
-//		for (i = spllvl; i > 0; i--) {
-//			mindam += mindam >> 3;
-//			maxdam += maxdam >> 3;
-//		}
-//		maxdam = mindam = RandRange(mindam, maxdam) << 6;
-//		mitype = MIS_FIREBALL2;
-//	}
 	cr = &CrawlTable[CrawlNum[4]];
 	for (i = *cr; i > 0; i--) {
 		tx = sx + *++cr;
 		ty = sy + *++cr;
-		AddMissile(sx, sy, tx, ty, 0, mitype, micaster, misource, mindam, maxdam, spllvl);
+		AddMissile(sx, sy, tx, ty, 0, MIS_LIGHTBALL, micaster, misource, 0, 0, spllvl);
 	}
 
 	return MIRES_DELETE;
