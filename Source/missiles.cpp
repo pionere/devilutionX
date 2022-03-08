@@ -2014,7 +2014,6 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int mindam, maxdam;
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -2022,20 +2021,7 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(32));
 
-	if (micaster == MST_PLAYER) {
-		mindam = 1;
-		maxdam = plx(misource)._pMagic + (spllvl << 3);
-	} else if (micaster == MST_MONSTER) {
-		mindam = monsters[misource]._mMinDamage;
-		maxdam = monsters[misource]._mMaxDamage << 1;
-	} else {
-		mindam = currLvl._dLevel;
-		maxdam = mindam + currLvl._dLevel;
-	}
-
 	mis = &missile[mi];
-	mis->_miMinDam = mindam;
-	mis->_miMaxDam = maxdam;
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
 	mis->_miRange = 255;
@@ -2044,8 +2030,8 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 
 int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
-	int range;
+	MissileStruct* mis;
+	int mindam, maxdam, range;
 
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 4, "AddLightning needs at least light-radius of 4.");
@@ -2056,15 +2042,31 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		mis->_mitxoff = missile[midir]._mitxoff;
 		mis->_mityoff = missile[midir]._mityoff;
 	}
-	if (midir < 0 || micaster == MST_OBJECT)
-		range = 8;
-	else if (micaster == MST_PLAYER)
+	if (micaster == MST_PLAYER) {
+		mindam = 1;
+		maxdam = plx(misource)._pMagic + (spllvl << 3);
 		range = (spllvl >> 1) + 6;
-	else
-		range = 10;
+	} else if (micaster == MST_MONSTER) {
+		if (spllvl == 0) {
+			// standard lightning from a monster
+			mindam = monsters[misource]._mMinDamage;
+			maxdam = monsters[misource]._mMaxDamage << 1;
+			range = 10;
+		} else {
+			// lightning from a retreating MT_FAMILIAR
+			mindam = 1;
+			maxdam = monsters[misource]._mLevel;
+			range = 8;
+		}
+	} else {
+		mindam = currLvl._dLevel;
+		maxdam = mindam + currLvl._dLevel;
+		range = 8;
+	}
+
 	mis->_miRange = range;
-	mis->_miMinDam <<= 3;
-	mis->_miMaxDam <<= 3;
+	mis->_miMinDam = mindam << (6 - 3);
+	mis->_miMaxDam = maxdam << (6 - 3);
 	assert(mis->_miAnimLen == 8);
 	// assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]);
 	mis->_miAnimFrame = RandRange(1, 8);
@@ -3502,8 +3504,8 @@ void MI_LightningC(int mi)
 			    mis->_miType == MIS_LIGHTNINGC ? MIS_LIGHTNING : MIS_LIGHTNING2,
 			    mis->_miCaster,
 			    mis->_miSource,
-			    mis->_miMinDam,
-			    mis->_miMaxDam,
+			    0,
+			    0,
 			    mis->_miSpllvl);
 			// mis->_miRndSeed = GetRndSeed();
 		} else {
