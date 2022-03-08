@@ -28,8 +28,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 
 	memset(pPack, 0, sizeof(*pPack));
 	p = &plr;
-	pPack->px = p->_px;
-	pPack->py = p->_py;
+	//pPack->px = p->_px;
+	//pPack->py = p->_py;
 	copy_str(pPack->pName, p->_pName);
 	pPack->pLvlChanging = p->_pLvlChanging;
 	pPack->pDunLevel = p->_pDunLevel;
@@ -38,10 +38,10 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pRank = p->_pRank;
 	pPack->pTeam = p->_pTeam;
 	pPack->pStatPts = SwapLE16(p->_pStatPts);
-	pPack->pLightRad = p->_pLightRad;
-	pPack->pManaShield = p->_pManaShield;
-	pPack->pTimer[PLTR_INFRAVISION] = SwapLE16(p->_pTimer[PLTR_INFRAVISION]);
-	pPack->pTimer[PLTR_RAGE] = SwapLE16(p->_pTimer[PLTR_RAGE]);
+	//pPack->pLightRad = p->_pLightRad;
+	//pPack->pManaShield = p->_pManaShield;
+	//pPack->pTimer[PLTR_INFRAVISION] = SwapLE16(p->_pTimer[PLTR_INFRAVISION]);
+	//pPack->pTimer[PLTR_RAGE] = SwapLE16(p->_pTimer[PLTR_RAGE]);
 	pPack->pExperience = SwapLE32(p->_pExperience);
 	pPack->pBaseStr = SwapLE16(p->_pBaseStr);
 	pPack->pBaseMag = SwapLE16(p->_pBaseMag);
@@ -138,7 +138,7 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	PkItemStruct* pki;
 
 	// TODO: validate data from the internet
-	SetPlayerLoc(&plr, pPack->px, pPack->py);
+	//SetPlayerLoc(&plr, pPack->px, pPack->py);
 	copy_cstr(plr._pName, pPack->pName);
 	plr._pLvlChanging = pPack->pLvlChanging;
 	plr._pDunLevel = pPack->pDunLevel;
@@ -147,10 +147,10 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	plr._pRank = pPack->pRank;
 	plr._pTeam = pPack->pTeam;
 	plr._pStatPts = SwapLE16(pPack->pStatPts);
-	plr._pLightRad = pPack->pLightRad;
-	plr._pManaShield = pPack->pManaShield;
-	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
-	plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
+	//plr._pLightRad = pPack->pLightRad;
+	//plr._pManaShield = pPack->pManaShield;
+	//plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
+	//plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
 	plr._pExperience = SwapLE32(pPack->pExperience);
 	plr._pBaseStr = SwapLE16(pPack->pBaseStr);
 	plr._pBaseMag = SwapLE16(pPack->pBaseMag);
@@ -212,9 +212,9 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	}
 
 	// reset fields which are used even by non-local players, but not part of pPack
+	// TODO: move these to SetupLocalPlr
 	ClrPlrPath(pnum);
 	plr.destAction = ACTION_NONE;
-	// TODO: add to pPack? (_pInvincible, _pmode)
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;
 	// commented out, because these should not matter

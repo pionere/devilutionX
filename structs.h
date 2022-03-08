@@ -863,8 +863,8 @@ typedef struct PkItemStruct {
 } PkItemStruct;
 
 typedef struct PkPlayerStruct {
-	BYTE px;
-	BYTE py;
+	//BYTE px;
+	//BYTE py;
 	char pName[PLR_NAME_LEN];
 	BOOLEAN pLvlChanging;
 	BYTE pDunLevel;
@@ -873,9 +873,9 @@ typedef struct PkPlayerStruct {
 	BYTE pRank;
 	BYTE pTeam;
 	WORD pStatPts;
-	BYTE pLightRad;
-	BYTE pManaShield;
-	WORD pTimer[NUM_PLRTIMERS];
+	//BYTE pLightRad;
+	//BYTE pManaShield;
+	//WORD pTimer[NUM_PLRTIMERS];
 	DWORD pExperience;
 	WORD pBaseStr;
 	WORD pBaseMag;
