@@ -1644,13 +1644,8 @@ static void Obj_Circle(int oi)
 			ObjChangeMap(7, 11, 13, 18/*, true*/);
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
 				quests[Q_BETRAYER]._qvar1 = 4;
-			int dx = 0, dy = 0;
-			//if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 			assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
-				dx = LAZ_CIRCLE_X; dy = LAZ_CIRCLE_Y;
-			//	GetVileMissPos(&dx, &dy);
-			//}
-			AddMissile(ox, oy, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
+			AddMissile(0, 0, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
 			gbActionBtnDown = false;
 			gbAltActionBtnDown = false;
 			ClrPlrPath(mypnum);
@@ -2384,7 +2379,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 			dy = DBORDERY + 13;
 		}
 		GetVileMissPos(&dx, &dy);
-		AddMissile(plr._px, plr._py, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+		AddMissile(0, 0, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 		objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 	}
 	os->_oSelFlag = 0;
@@ -2401,7 +2396,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		if (pnum == mypnum)
 			InitDiabloMsg(EMSG_BONECHAMB);
 		SetRndSeed(os->_oRndSeed);
-		AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, plr._pdir, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
+		AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {
 			NetSendCmdQuest(Q_SCHAMB, true); // recipient should not matter
@@ -3170,7 +3165,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_GLISTENING);
-		AddMissile(os->_ox, os->_oy, plr._px, plr._py, plr._pdir, MIS_TOWN, MST_NA, pnum, 0);
+		AddMissile(0, 0, plr._px, plr._py, 0, MIS_TOWN, MST_NA, pnum, 0);
 		break;
 	case SHRINE_SPARKLING:
 		AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FLASH, MST_OBJECT, -1, 0);
