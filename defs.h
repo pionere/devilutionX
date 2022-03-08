@@ -69,6 +69,7 @@
 #define MAXLIGHTS				32
 #define MAXMISSILES				125
 #define MAXMONSTERS				200
+#define MON_NONE				0xFF
 #define MAXOBJECTS				127
 #define OBJ_NONE				0xFF
 #define MAXPORTAL				MAX_PLRS

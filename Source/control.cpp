@@ -1622,7 +1622,7 @@ void DrawInfoStr()
 		y = os->_oy - 1;
 		GetMousePos(x, y, &xx, &yy);
 		DrawTooltip(infostr, xx, yy, infoclr);
-	} else if (pcursmonst != -1) {
+	} else if (pcursmonst != MON_NONE) {
 		MonsterStruct* mon = &monsters[pcursmonst];
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
@@ -1632,7 +1632,7 @@ void DrawInfoStr()
 			if (mon->_uniqtype != 0) {
 				col = COL_GOLD;
 			}
-		} else if (pcursitem == ITEM_NONE) {
+		} else {
 			strcpy(infostr, towners[pcursmonst]._tName);
 		}
 		GetMousePos(x, y, &xx, &yy);

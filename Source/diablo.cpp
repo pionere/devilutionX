@@ -430,7 +430,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, asf);
 			return;
 		}
-		if (pcursmonst != -1) {
+		if (pcursmonst != MON_NONE) {
 			if (CanTalkToMonst(pcursmonst)) {
 				NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			} else {
@@ -470,7 +470,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	// assert(moveSkill != SPL_INVALID);
 	// assert(spelldata[atkSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
-	if (pcursmonst != -1) {
+	if (pcursmonst != MON_NONE) {
 		if (CanTalkToMonst(pcursmonst)) {
 			NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			return;
@@ -546,7 +546,7 @@ bool TryIconCurs(bool bShift)
 		} else if (pcursitem != ITEM_NONE) {
 			if (LineClear(px, py, items[pcursitem]._ix, items[pcursitem]._iy))
 				NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
-		} else if (pcursmonst != -1) {
+		} else if (pcursmonst != MON_NONE) {
 			if (LineClear(px, py, monsters[pcursmonst]._mx, monsters[pcursmonst]._my))
 				NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
 		}
@@ -557,7 +557,7 @@ bool TryIconCurs(bool bShift)
 		}
 		break;
 	case CURSOR_TELEPORT:
-		if (pcursmonst != -1)
+		if (pcursmonst != MON_NONE)
 			NetSendCmdMonstSkill(pcursmonst, gbTSpell, gbTSplFrom);
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
