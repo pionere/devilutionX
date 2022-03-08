@@ -811,6 +811,8 @@ void InitPlayer(int pnum)
 	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
 	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
 		| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
+
+	plr.walkpath[MAX_PATH_LENGTH] = DIR_NONE;
 }
 
 /*
@@ -844,7 +846,7 @@ void InitLvlPlayer(int pnum, bool entering)
 		// plr._pAnimFrame = RandRange(1, plr._pNFrames - 1);
 		// plr._pAnimCnt = random_(2, 3);
 
-		plr.walkpath[0] = DIR_NONE;
+		ClrPlrPath(pnum);
 		plr.destAction = ACTION_NONE;
 	} else {
 		if (pnum == mypnum) {
@@ -2894,8 +2896,8 @@ void ClrPlrPath(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("ClrPlrPath: illegal player %d", pnum);
 	}
-
-	memset(plr.walkpath, DIR_NONE, sizeof(plr.walkpath));
+	plr.walkpath[0] = DIR_NONE;
+	//memset(plr.walkpath, DIR_NONE, sizeof(plr.walkpath));
 }
 
 void MissToPlr(int mi, bool hit)
