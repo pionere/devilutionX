@@ -3489,8 +3489,10 @@ void MI_LightningC(int mi)
 	mx = mis->_mix;
 	my = mis->_miy;
 	assert(IN_DUNGEON_AREA(mx, my));
-	if (!nMissileTable[dPiece[mx][my]]) {
-		if (mx != mis->_miVar1 || my != mis->_miVar2) {
+	if (mx != mis->_miVar1 || my != mis->_miVar2) {
+		mis->_miVar1 = mx;
+		mis->_miVar2 = my;
+		if (!nMissileTable[dPiece[mx][my]]) {
 			SetRndSeed(mis->_miRndSeed);
 			AddMissile(
 			    mx,
@@ -3501,15 +3503,12 @@ void MI_LightningC(int mi)
 			    mis->_miType == MIS_LIGHTNINGC ? MIS_LIGHTNING : MIS_LIGHTNING2,
 			    mis->_miCaster,
 			    mis->_miSource,
-				mis->_miMinDam,
+			    mis->_miMinDam,
 			    mis->_miMaxDam,
 			    mis->_miSpllvl);
-			mis->_miVar1 = mx;
-			mis->_miVar2 = my;
-		}
-	} else {
-		if (mis->_miCaster != MST_OBJECT || mx != mis->_misx || my != mis->_misy)
+		} else {
 			mis->_miRange = 0;
+		}
 	}
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
