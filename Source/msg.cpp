@@ -2670,9 +2670,9 @@ static unsigned On_TALKXY(TCmd* pCmd, int pnum)
 
 static unsigned On_NEWLVL(TCmd* pCmd, int pnum)
 {
-	TCmdParam2* cmd = (TCmdParam2*)pCmd;
+	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
 
-	StartNewLvl(pnum, SwapLE16(cmd->wParam1), SwapLE16(cmd->wParam2));
+	StartNewLvl(pnum, cmd->bParam1, cmd->bParam2);
 
 	return sizeof(*cmd);
 }
