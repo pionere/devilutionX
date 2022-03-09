@@ -1746,13 +1746,13 @@ void NetSendCmdParam1(BYTE bCmd, WORD wParam1)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdParam2(BYTE bCmd, WORD wParam1, WORD wParam2)
+void NetSendCmdParamBW(BYTE bCmd, BYTE bParam1, WORD wParam2)
 {
-	TCmdParam2 cmd;
+	TCmdParamBW cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.wParam1 = SwapLE16(wParam1);
-	cmd.wParam2 = SwapLE16(wParam2);
+	cmd.byteParam = bParam1;
+	cmd.wordParam = SwapLE16(wParam2);
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -2906,13 +2906,13 @@ static unsigned On_SHRINE(TCmd* pCmd, int pnum)
 
 static unsigned On_SPLITPLRGOLD(TCmd* pCmd, int pnum)
 {
-	TCmdParam2* cmd = (TCmdParam2*)pCmd;
-	WORD r = SwapLE16(cmd->wParam1);
+	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
+	BYTE r = cmd->byteParam;
 
 	net_assert(r < NUM_INV_GRID_ELEM);
 
 	// if (plr._pmode != PM_DEATH)
-		SyncSplitGold(pnum, r, SwapLE16(cmd->wParam2));
+		SyncSplitGold(pnum, r, SwapLE16(cmd->wordParam));
 
 	return sizeof(*cmd);
 }

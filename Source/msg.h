@@ -39,7 +39,7 @@ void NetSendCmdLoc(BYTE bCmd, BYTE x, BYTE y);
 void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, WORD wParam1);
 void NetSendCmdLocBParam1(BYTE bCmd, BYTE x, BYTE y, BYTE wParam1);
 void NetSendCmdParam1(BYTE bCmd, WORD wParam1);
-void NetSendCmdParam2(BYTE bCmd, WORD wParam1, WORD wParam2);
+void NetSendCmdParamBW(BYTE bCmd, BYTE bParam1, WORD wParam2);
 void NetSendCmdBParam1(BYTE bCmd, BYTE bParam1);
 void NetSendCmdBParam2(BYTE bCmd, BYTE bParam1, BYTE bParam2);
 void NetSendCmdGItem(BYTE bCmd, BYTE ii);

@@ -953,11 +953,11 @@ typedef struct TCmdParam1 {
 	WORD wParam1;
 } TCmdParam1;
 
-typedef struct TCmdParam2 {
+typedef struct TCmdParamBW {
 	BYTE bCmd;
-	WORD wParam1;
-	WORD wParam2;
-} TCmdParam2;
+	BYTE byteParam;
+	WORD wordParam;
+} TCmdParamBW;
 
 typedef struct TCmdParam3 {
 	BYTE bCmd;
