@@ -1454,20 +1454,15 @@ static bool StartAttack(int pnum)
 		sl = plr.destParam4;
 		break;
 	case ACTION_OPERATE:
-	case ACTION_DISARM:
 		dx = plr.destParam2;
 		dy = plr.destParam3;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
 			return false;
 		assert(abs(dObject[dx][dy]) == i + 1);
 		if (objects[i]._oBreak != OBM_BREAKABLE) {
-			if (plr.destAction == ACTION_DISARM)
-				DisarmObject(pnum, i);
 			OperateObject(pnum, i, false);
 			return true;
 		}
-		if (plr.destAction == ACTION_DISARM && pnum == mypnum)
-			NewCursor(CURSOR_HAND);
 		sn = SPL_ATTACK;
 		sl = 0;
 		break;
@@ -2572,7 +2567,6 @@ static void CheckNewPath(int pnum)
 		case ACTION_WALK:
 			break;
 		case ACTION_OPERATE:
-		case ACTION_DISARM:
 		case ACTION_ATTACK:
 		case ACTION_ATTACKMON:
 		case ACTION_ATTACKPLR:
@@ -2616,8 +2610,7 @@ static void CheckNewPath(int pnum)
 		if (plr.destAction == ACTION_ATTACK
 		 || plr.destAction == ACTION_ATTACKMON
 		 || plr.destAction == ACTION_ATTACKPLR
-		 || plr.destAction == ACTION_OPERATE
-		 || plr.destAction == ACTION_DISARM) {
+		 || plr.destAction == ACTION_OPERATE) {
 			StartAttack(pnum);
 			plr.destAction = ACTION_NONE;
 		}

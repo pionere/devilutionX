@@ -66,6 +66,13 @@ void NetSendCmdLocAttack(BYTE x, BYTE y, BYTE skill, char from);
  * @param from: the source of the skill
  */
 void NetSendCmdLocSkill(BYTE x, BYTE y, BYTE skill, char from);
+/** Use a disarm on a given location using from as a source.
+ * @param x: the x coordinate of the target (MAXDUNX)
+ * @param y: the y coordinate of the target (MAXDUNY)
+ * @param oi: the index of the target (MAXOBJECTS)
+ * @param from: the source of the skill
+ */
+void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, char from);
 /** Attack a player with a given skill using from as a source.
  * @param pnum: the id of the targeted player
  * @param skill: the skill to be used

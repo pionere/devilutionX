@@ -527,11 +527,11 @@ bool TryIconCurs(bool bShift)
 		}
 		break;
 	case CURSOR_DISARM:
-		if (pcursobj != OBJ_NONE) {
+		if (pcursobj != OBJ_NONE && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
 			if (!bShift ||
 			 (abs(myplr._px - cursmx) < 2 && abs(myplr._py - cursmy) < 2)) {
-				NetSendCmdLocParam1(CMD_DISARMXY, cursmx, cursmy, pcursobj);
-				return true;
+				// assert(gbTSpell == SPL_DISARM);
+				NetSendCmdLocDisarm(cursmx, cursmy, pcursobj, gbTSplFrom);
 			}
 		}
 		break;

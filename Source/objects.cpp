@@ -2706,8 +2706,6 @@ void DisarmObject(int pnum, int oi)
 	ObjectStruct *os, *on;
 	int n;
 
-	if (pnum == mypnum)
-		NewCursor(CURSOR_HAND);
 	os = &objects[oi];
 	if (os->_oTrapChance == 0)
 		return;

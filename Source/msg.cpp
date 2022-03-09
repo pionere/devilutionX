@@ -1920,6 +1920,19 @@ void NetSendCmdLocSkill(BYTE x, BYTE y, BYTE skill, char from)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, char from)
+{
+	TCmdLocDisarm cmd;
+
+	cmd.bCmd = CMD_DISARMXY;
+	cmd.x = x;
+	cmd.y = y;
+	cmd.oi = oi;
+	cmd.from = from;
+
+	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdPlrAttack(int pnum, BYTE skill, char from)
 {
 	TCmdPlrAttack cmd;
@@ -2456,27 +2469,29 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 
 static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 {
-	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
+	TCmdLocDisarm* cmd = (TCmdLocDisarm*)pCmd;
 	int oi;
 	CmdSkillUse su;
 
-	su.from = SPLFROM_ABILITY;
+	su.from = cmd->from;
 	su.skill = SPL_DISARM;
 
 	if (CheckPlrSkillUse(pnum, su) && currLvl._dLevelIdx == plr._pDunLevel) {
-		oi = SwapLE16(cmd->wParam1);
+		oi = cmd->oi;
 
 		net_assert(oi < MAXOBJECTS);
+		net_assert(objects[oi]._oBreak == OBM_UNBREAKABLE);
 		net_assert(cmd->x < MAXDUNX);
 		net_assert(cmd->y < MAXDUNY);
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_DISARMXY expects ODT_NONE to be zero.");
 		if (MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag))) {
-			plr.destAction = ACTION_DISARM;
-			plr.destParam1 = oi;
-			plr.destParam2 = cmd->x;
-			plr.destParam3 = cmd->y;
+			plr.destAction = ACTION_SPELL;
+			plr.destParam1 = cmd->x;
+			plr.destParam2 = cmd->y;
+			plr.destParam3 = SPL_DISARM; // spell
+			plr.destParam4 = oi;         // fake spllvl
 		}
 	}
 

@@ -997,6 +997,14 @@ typedef struct TCmdLocSkill {
 	CmdSkillUse lsu;
 } TCmdLocSkill;
 
+typedef struct TCmdLocDisarm {
+	BYTE bCmd;
+	BYTE x;
+	BYTE y;
+	BYTE oi;
+	char from;
+} TCmdLocDisarm;
+
 typedef struct TCmdPlrAttack {
 	BYTE bCmd;
 	BYTE paPnum;

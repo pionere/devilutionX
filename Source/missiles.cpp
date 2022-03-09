@@ -2861,16 +2861,16 @@ int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 
 int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	assert((unsigned)misource < MAX_PLRS);
+	int oi = spllvl;
+	int pnum = misource;
 
-	if (misource == mypnum) {
-		NewCursor(CURSOR_DISARM);
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		if (sgbControllerActive) {
-			TryIconCurs(false);
-		}
-#endif
-	}
+	// assert((unsigned)pnum < MAX_PLRS);
+	// assert((unsigned)oi < MAXOBJECTS);
+	// assert(objects[oi]._oBreak == OBM_UNBREAKABLE);
+	// assert(abs(plr._px - dx) <= 1 && abs(plr._py - dy) <= 1);
+	// assert(abs(dObject[dx][dy]) == oi + 1);
+	DisarmObject(pnum, oi);
+	OperateObject(pnum, oi, false);
 	return MIRES_DELETE;
 }
 
