@@ -3041,7 +3041,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 			LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)) {
 			monsters[target]._msquelch = SQUELCH_MAX;
 			MonGetKnockback(target, plr._px, plr._py);
-			MonStartHit(target, pnum, 0, 0, DIR_NONE);
+			MonStartHit(target, pnum, 0, 0);
 		}
 		break;
 	case MTT_OBJECT:
