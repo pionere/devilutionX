@@ -1713,17 +1713,21 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	}
 	for (i = 0; i < nummonsters; i++) {
 		j = monstactive[i];
-		if (j == mnum)
-			continue;
+		// commented out because this is a pointless complexity
+		//if (j == mnum)
+		//	continue;
 		if (j < MAX_MINIONS && MINION_NR_INACTIVE(j))
 			continue;
+		RemoveMonFromMap(j);
+		MonPlace(j);
 		mon = &monsters[j];
 		//if (mon->_msquelch == 0)
 		//	continue;
-		NewMonsterAnim(j, MA_DEATH, mon->_mdir);
-		mon->_mmode = MM_DEATH;
-		RemoveMonFromMap(j);
-		MonPlace(j);
+		mon->_mhitpoints = 0;
+		if (mon->_mmode != MM_STONE) {
+			NewMonsterAnim(j, MA_DEATH, mon->_mdir);
+			mon->_mmode = MM_DEATH;
+		}
 	}
 	mon = &monsters[mnum];
 	mon->_mVar1 = 7 * gnTicksRate; // DIABLO_TICK
