@@ -536,19 +536,13 @@ bool TryIconCurs(bool bShift)
 		}
 		break;
 	case CURSOR_TELEKINESIS: {
-		int px, py;
-
-		px = myplr._px;
-		py = myplr._py;
+		// assert(gbTSpell == SPL_TELEKINESIS);
 		if (pcursobj != OBJ_NONE) {
-			if (LineClear(px, py, objects[pcursobj]._ox, objects[pcursobj]._oy))
-				NetSendCmdParam1(CMD_OPOBJT, pcursobj);
+			NetSendCmdParamBW(CMD_TELEKINOID, gbTSplFrom, pcursobj);
 		} else if (pcursitem != ITEM_NONE) {
-			if (LineClear(px, py, items[pcursitem]._ix, items[pcursitem]._iy))
-				NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
+			NetSendCmdLocBParam2(CMD_TELEKINXY, items[pcursitem]._ix, items[pcursitem]._iy, gbTSplFrom, pcursitem);
 		} else if (pcursmonst != MON_NONE) {
-			if (LineClear(px, py, monsters[pcursmonst]._mx, monsters[pcursmonst]._my))
-				NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
+			NetSendCmdParamBW(CMD_TELEKINID, gbTSplFrom, pcursmonst);
 		}
 	} break;
 	case CURSOR_TELEPORT:

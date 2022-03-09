@@ -2589,10 +2589,6 @@ static void CheckNewPath(int pnum)
 		case ACTION_PICKUPAITEM:
 			StartPickItem(pnum);
 			break;
-		case ACTION_OPERATETK:
-			i = plr.destParam1;
-			OperateObject(pnum, i, true);
-			break;
 		case ACTION_TALK:
 			StartTalk(pnum);
 			break;

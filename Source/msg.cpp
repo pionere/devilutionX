@@ -1724,6 +1724,19 @@ void NetSendCmdLocBParam1(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdLocBParam2(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2)
+{
+	TCmdLocBParam2 cmd;
+
+	cmd.bCmd = bCmd;
+	cmd.x = x;
+	cmd.y = y;
+	cmd.bParam1 = bParam1;
+	cmd.bParam2 = bParam2;
+
+	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, WORD wParam1)
 {
 	TCmdLocParam1 cmd;
@@ -2498,23 +2511,6 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_OPOBJT(TCmd* pCmd, int pnum)
-{
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
-	int oi;
-
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		oi = SwapLE16(cmd->wParam1);
-
-		net_assert(oi < MAXOBJECTS);
-
-		plr.destAction = ACTION_OPERATETK;
-		plr.destParam1 = oi;
-	}
-
-	return sizeof(*cmd);
-}
-
 static unsigned On_ATTACKID(TCmd* pCmd, int pnum)
 {
 	TCmdMonstAttack* cmd = (TCmdMonstAttack*)pCmd;
@@ -2628,24 +2624,6 @@ static unsigned On_SPELLPID(TCmd* pCmd, int pnum)
 		plr.destParam1 = tnum;
 		plr.destParam3 = cmd->psu.skill; // spell
 		plr.destParam4 = (BYTE)cmd->psu.from; // spllvl (set in CheckPlrSkillUse)
-	}
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_KNOCKBACK(TCmd* pCmd, int pnum)
-{
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
-	int mnum = SwapLE16(cmd->wParam1);
-
-	net_assert(mnum < MAXMONSTERS && mnum >= MAX_MINIONS);
-
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		if (!CanTalkToMonst(mnum) && (monsters[mnum]._mmaxhp >> 6) < plr._pMagic) {
-			monsters[mnum]._msquelch = SQUELCH_MAX;
-			MonGetKnockback(mnum, plr._px, plr._py);
-			MonStartHit(mnum, pnum, 0, 0);
-		}
 	}
 
 	return sizeof(*cmd);
@@ -3083,6 +3061,57 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 			ProcessVisionList();
 		}
 	}
+
+	return sizeof(*cmd);
+}
+
+static void DoTelekinesis(int pnum, int x, int y, char from, int id)
+{
+	CmdSkillUse su;
+
+	su.from = from;
+	su.skill = SPL_TELEKINESIS;
+
+	if (CheckPlrSkillUse(pnum, su) && currLvl._dLevelIdx == plr._pDunLevel) {
+		ClrPlrPath(pnum);
+
+		plr.destAction = ACTION_SPELL;
+		plr.destParam1 = x;
+		plr.destParam2 = y;
+		plr.destParam3 = SPL_TELEKINESIS; // spell
+		plr.destParam4 = id;              // fake spllvl
+	}
+}
+
+static unsigned On_TELEKINXY(TCmd* pCmd, int pnum)
+{
+	TCmdLocBParam2* cmd = (TCmdLocBParam2*)pCmd;
+
+	DoTelekinesis(pnum, cmd->x, cmd->y, cmd->bParam1, (MTT_ITEM << 16) | cmd->bParam2);
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_TELEKINID(TCmd* pCmd, int pnum)
+{
+	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
+	int mnum = cmd->wordParam;
+
+	net_assert(mnum < MAXMONSTERS && mnum >= MAX_MINIONS);
+
+	DoTelekinesis(pnum, monsters[mnum]._mx, monsters[mnum]._my, cmd->byteParam, (MTT_MONSTER << 16) | mnum);
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_TELEKINOID(TCmd* pCmd, int pnum)
+{
+	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
+	int oi = cmd->wordParam;
+
+	net_assert(oi < MAXOBJECTS);
+
+	DoTelekinesis(pnum, objects[oi]._ox, objects[oi]._oy, cmd->byteParam, (MTT_OBJECT << 16) | oi);
 
 	return sizeof(*cmd);
 }
@@ -3841,8 +3870,6 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_SPELLPID(pCmd, pnum);
 	case CMD_BLOCK:
 		return On_BLOCK(pCmd, pnum);
-	case CMD_KNOCKBACK:
-		return On_KNOCKBACK(pCmd, pnum);
 	case CMD_TALKXY:
 		return On_TALKXY(pCmd, pnum);
 	case CMD_MONSTDEATH:
@@ -3897,8 +3924,6 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_OPERATEITEM(pCmd, pnum);
 	case CMD_OPERATEOBJ:
 		return On_OPERATEOBJ(pCmd, pnum);
-	case CMD_OPOBJT:
-		return On_OPOBJT(pCmd, pnum);
 	case CMD_DOOROPEN:
 		return On_DOOROPEN(pCmd, pnum);
 	case CMD_DOORCLOSE:
@@ -3911,6 +3936,12 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_TRAPCLOSE(pCmd, pnum);
 	case CMD_SHRINE:
 		return On_SHRINE(pCmd, pnum);
+	case CMD_TELEKINXY:
+		return On_TELEKINXY(pCmd, pnum);
+	case CMD_TELEKINID:
+		return On_TELEKINID(pCmd, pnum);
+	case CMD_TELEKINOID:
+		return On_TELEKINOID(pCmd, pnum);
 	case CMD_ACTIVATEPORTAL:
 		return On_ACTIVATEPORTAL(pCmd, pnum);
 	case CMD_DEACTIVATEPORTAL:

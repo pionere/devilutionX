@@ -3023,10 +3023,36 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 
 int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	assert((unsigned)misource < MAX_PLRS);
+	int pnum = misource;
+	int target = spllvl & 0xFFFF;
+	int type = spllvl >> 16;
+	// assert((unsigned)pnum < MAX_PLRS);
 
-	if (misource == mypnum)
-		NewCursor(CURSOR_TELEKINESIS);
+	switch (type) {
+	case MTT_ITEM:
+		// assert(target < MAXITEMS);
+		if (pnum == mypnum && dx == items[target]._ix && dy == items[target]._iy &&
+			LineClear(plr._px, plr._py, items[target]._ix, items[target]._iy))
+			NetSendCmdGItem(CMD_AUTOGETITEM, target);
+		break;
+	case MTT_MONSTER:
+		// assert(target < MAXMONSTERS);
+		if (!CanTalkToMonst(target) && (monsters[target]._mmaxhp >> 6) < plr._pMagic &&
+			LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)) {
+			monsters[target]._msquelch = SQUELCH_MAX;
+			MonGetKnockback(target, plr._px, plr._py);
+			MonStartHit(target, pnum, 0, 0, DIR_NONE);
+		}
+		break;
+	case MTT_OBJECT:
+		// assert(target < MAXOBJECTS);
+		if (LineClear(plr._px, plr._py, objects[target]._ox, objects[target]._oy))
+			OperateObject(pnum, target, true);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
 	return MIRES_DELETE;
 }
 

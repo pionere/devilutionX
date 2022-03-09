@@ -1612,6 +1612,12 @@ typedef enum missile_source_type {
 	MST_NA = 0,  // does not matter
 } missile_source_type;
 
+typedef enum missile_telekinesis_type {
+	MTT_ITEM,
+	MTT_MONSTER,
+	MTT_OBJECT,
+} missile_telekinesis_type;
+
 typedef enum missile_gfx_id {
 	MFILE_ARROWS,
 	MFILE_FIREBA,
@@ -3169,7 +3175,6 @@ typedef enum _cmd_id {
 	CMD_SPELLID,
 	CMD_SPELLPID,
 	CMD_BLOCK,
-	CMD_KNOCKBACK,
 	CMD_TALKXY,
 	CMD_MONSTDEATH,
 	CMD_MONSTDAMAGE,
@@ -3197,13 +3202,15 @@ typedef enum _cmd_id {
 	CMD_GOTOAGETITEM,
 	CMD_OPERATEITEM,
 	CMD_OPERATEOBJ,
-	CMD_OPOBJT,
 	CMD_DOOROPEN,
 	CMD_DOORCLOSE,
 	CMD_TRAPDISABLE,
 	CMD_TRAPOPEN,
 	CMD_TRAPCLOSE,
 	CMD_SHRINE,
+	CMD_TELEKINXY,
+	CMD_TELEKINID,
+	CMD_TELEKINOID,
 	CMD_ACTIVATEPORTAL,
 	CMD_DEACTIVATEPORTAL,
 	CMD_NEWLVL,
@@ -4045,7 +4052,6 @@ typedef enum action_id {
 	ACTION_BLOCK,
 	ACTION_PICKUPITEM,  // put item in hand (inventory screen open)
 	ACTION_PICKUPAITEM, // put item in inventory
-	ACTION_OPERATETK,   // operate via telekinesis
 	ACTION_TALK,
 } action_id;
 
