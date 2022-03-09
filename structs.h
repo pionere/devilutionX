@@ -1411,6 +1411,7 @@ typedef struct TCmdJoinLevel {
 	INT pmp;
 	WORD lTimer1;
 	WORD lTimer2;
+	BYTE pManaShield; // TODO: remove this and from TSyncLvlPlayer and add to PkPlayerStruct?
 	BYTE itemsDur[NUM_INVELEM + 1];
 } TCmdJoinLevel;
 #pragma pack(pop)

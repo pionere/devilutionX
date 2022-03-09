@@ -1069,6 +1069,7 @@ void NetSendCmdJoinLevel()
 	cmd.pmp = SwapLE32(myplr._pManaBase);
 	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
 	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
+	cmd.pManaShield = myplr._pManaShield;
 
 	for (i = 0; i < NUM_INVELEM; i++) {
 		is = PlrItem(mypnum, i);
@@ -3032,7 +3033,7 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 			}
 			// TODO: validate data from internet
 			net_assert(plr._pTeam == pnum);
-			net_assert(plr._pManaShield == 0);
+			net_assert(cmd->pManaShield == 0);
 			net_assert(cmd->lLevel == DLV_TOWN);
 			net_assert(cmd->lTimer1 == 0);
 			net_assert(cmd->lTimer2 == 0);
@@ -3049,7 +3050,8 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 			plr._pManaBase = SwapLE32(cmd->pmp);
 			plr._pTimer[PLTR_INFRAVISION] = SwapLE16(cmd->lTimer1);
 			plr._pTimer[PLTR_RAGE] = SwapLE16(cmd->lTimer2);
-			
+			plr._pManaShield = cmd->pManaShield;
+
 			for (i = 0; i < NUM_INVELEM; i++) {
 				is = PlrItem(pnum, i);
 				is->_iDurability = cmd->itemsDur[i];
@@ -3453,7 +3455,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->leader, // the leader of the monster
 	mon->leaderflag, // the status of the monster's leader
 	mon->packsize, // the number of 'pack'-monsters close to their leader
-	mon->falign_CB,
+	mon->_mvid,
 	mon->_mLevel,
 	mon->_mSelFlag,
 	mon->_mAi,
