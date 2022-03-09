@@ -810,7 +810,7 @@ typedef struct ObjectStruct {
 	BYTE _oBreak; // object_break_mode
 	BYTE _oDoorFlag; // object_door_type
 	BYTE _oSelFlag; // check
-	BOOLEAN _oTrapFlag;
+	BYTE _oTrapChance;
 	BOOL _oPreFlag;
 	unsigned _olid;
 	int _oRndSeed;

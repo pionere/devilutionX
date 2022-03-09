@@ -698,7 +698,7 @@ static void LoadObject(int oi, bool full)
 
 	LoadByte(&os->_oDoorFlag);
 	LoadByte(&os->_oSelFlag);
-	LoadByte(&os->_oTrapFlag);
+	LoadByte(&os->_oTrapChance);
 	tbuff += 1; // Alignment
 
 	LoadInt(&os->_oPreFlag);
@@ -1412,7 +1412,7 @@ static void SaveObject(int oi)
 
 	SaveByte(&os->_oDoorFlag);
 	SaveByte(&os->_oSelFlag);
-	SaveByte(&os->_oTrapFlag);
+	SaveByte(&os->_oTrapChance);
 	tbuff += 1; // Alignment
 
 	SaveInt(&os->_oPreFlag);

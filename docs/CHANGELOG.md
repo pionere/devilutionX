@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 4 attribute points are earned per level
 - attribute gain per spent point is class specific
 - barbarians no longer have natural resistance
+- traps are revealed based on base dexterity even for non-rogue classes
 - dual-wield for all classes (even 'large' weapons if base-strength is high enough)
 - critical hit chance is based on items
 - block only if standing or actively using the Block skill

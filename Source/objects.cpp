@@ -582,7 +582,7 @@ static void AddObjTraps()
 			if (on == -1)
 				return;
 			objects[on]._oVar1 = oi; // TRAP_OI_REF
-			objects[oi]._oTrapFlag = TRUE;
+			objects[oi]._oTrapChance = RandRange(1, 64);
 			objects[oi]._oVar5 = on + 1; // TRAP_OI_BACKREF
 		}
 	}
@@ -590,7 +590,7 @@ static void AddObjTraps()
 
 static void AddChestTraps()
 {
-	int i, j, r;
+	int i, j;
 	char oi;
 
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
@@ -598,9 +598,9 @@ static void AddChestTraps()
 			oi = dObject[i][j];
 			if (oi > 0) {
 				oi--;
-				if (objects[oi]._otype >= OBJ_CHEST1 && objects[oi]._otype <= OBJ_CHEST3 && !objects[oi]._oTrapFlag && random_(0, 100) < 10) {
+				if (objects[oi]._otype >= OBJ_CHEST1 && objects[oi]._otype <= OBJ_CHEST3 && objects[oi]._oTrapChance == 0 && random_(0, 100) < 10) {
 					objects[oi]._otype += OBJ_TCHEST1 - OBJ_CHEST1;
-					objects[oi]._oTrapFlag = TRUE;
+					objects[oi]._oTrapChance = RandRange(1, 64);
 					//objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
 				}
 			}
@@ -693,7 +693,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	// os->_oDelFlag = FALSE; - unused
 	static_assert(FALSE == 0, "SetupObject expects the objects to be zero-filled and skips a few initialization steps.");
 	//os->_oPreFlag = FALSE;
-	//os->_oTrapFlag = FALSE;
+	//os->_oTrapChance = 0;
 	//os->_oDoorFlag = ODT_NONE;
 }
 
@@ -1425,7 +1425,7 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_TCHEST2:
 	case OBJ_TCHEST3:
 		AddChest(oi);
-		objects[oi]._oTrapFlag = TRUE;
+		objects[oi]._oTrapChance = RandRange(1, 64);
 		//objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
 		break;
 	case OBJ_SARC:
@@ -1778,7 +1778,7 @@ static void Obj_Trap(int oi)
 		return;
 
 	os->_oVar4 = TRAP_INACTIVE;
-	on->_oTrapFlag = FALSE;
+	on->_oTrapChance = 0;
 
 	sx = on->_ox;
 	sy = on->_oy;
@@ -2442,8 +2442,8 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		else
 			SpawnRndUseful(os->_ox, os->_oy, sendmsg);
 	}
-	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapFlag) {
-		os->_oTrapFlag = FALSE;
+	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapChance != 0) {
+		os->_oTrapChance = 0;
 		SetRndSeed(os->_oRndSeed);
 		if (currLvl._dType == DTYPE_CATACOMBS) {
 			mtype = 2;
@@ -2704,12 +2704,12 @@ bool SyncBloodPass(int pnum, int oi)
 void DisarmObject(int pnum, int oi)
 {
 	ObjectStruct *os, *on;
-	int n, trapdisper;
+	int n;
 
 	if (pnum == mypnum)
 		NewCursor(CURSOR_HAND);
 	os = &objects[oi];
-	if (!os->_oTrapFlag)
+	if (os->_oTrapChance == 0)
 		return;
 	n = os->_oVar5; // TRAP_OI_BACKREF
 	if (n > 0) {
@@ -2718,11 +2718,10 @@ void DisarmObject(int pnum, int oi)
 	} else {
 		on = os;
 	}
-	SetRndSeed(on->_oRndSeed);
-	trapdisper = 2 * plr._pDexterity - 8 * currLvl._dLevel;
-	if (random_(154, 100) > trapdisper)
+	if ((4 * currLvl._dLevel + os->_oTrapChance) > plr._pDexterity)
 		return;
-	os->_oTrapFlag = FALSE;
+
+	os->_oTrapChance = 0;
 	if (os != on)
 		on->_oVar4 = TRAP_INACTIVE;
 }
@@ -4203,12 +4202,10 @@ void GetObjectStr(int oi)
 		break;
 	}
 	infoclr = COL_WHITE;
-	if (myplr._pClass == PC_ROGUE) {
-		if (os->_oTrapFlag) {
-			snprintf(tempstr, sizeof(tempstr), "Trapped %s", infostr);
-			copy_str(infostr, tempstr);
-			infoclr = COL_RED;
-		}
+	if (os->_oTrapChance != 0 && (3 * currLvl._dLevel + os->_oTrapChance) < myplr._pBaseDex) { // TRAP_CHANCE
+		snprintf(tempstr, sizeof(tempstr), "Trapped %s", infostr);
+		copy_str(infostr, tempstr);
+		infoclr = COL_RED;
 	}
 }
 
