@@ -1459,8 +1459,7 @@ static bool StartAttack(int pnum)
 		dy = plr.destParam3;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
 			return false;
-		if (abs(dObject[dx][dy]) != i + 1) // this should always be false, but never trust the internet
-			return false;
+		assert(abs(dObject[dx][dy]) == i + 1);
 		if (objects[i]._oBreak != OBM_BREAKABLE) {
 			if (plr.destAction == ACTION_DISARM)
 				DisarmObject(pnum, i);

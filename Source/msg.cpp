@@ -2441,6 +2441,9 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 		oi = SwapLE16(cmd->wParam1);
 
 		net_assert(oi < MAXOBJECTS);
+		net_assert(cmd->x < MAXDUNX);
+		net_assert(cmd->y < MAXDUNY);
+		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
 		plr.destAction = ACTION_OPERATE;
 		plr.destParam1 = oi;
@@ -2466,6 +2469,9 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 		oi = SwapLE16(cmd->wParam1);
 
 		net_assert(oi < MAXOBJECTS);
+		net_assert(cmd->x < MAXDUNX);
+		net_assert(cmd->y < MAXDUNY);
+		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
 		plr.destAction = ACTION_DISARM;
 		plr.destParam1 = oi;
