@@ -59,7 +59,7 @@ void ProcessPlayers();
 void ClrPlrPath(int pnum);
 void MissToPlr(int mi, bool hit);
 bool PosOkPlayer(int pnum, int x, int y);
-void MakePlrPath(int pnum, int xx, int yy, bool endspace);
+bool MakePlrPath(int pnum, int xx, int yy, bool endspace);
 void SyncPlrAnim(int pnum);
 void IncreasePlrStr(int pnum);
 void IncreasePlrMag(int pnum);

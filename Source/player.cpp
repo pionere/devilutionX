@@ -3061,17 +3061,19 @@ bool PosOkPlayer(int pnum, int x, int y)
 	return false;
 }
 
-void MakePlrPath(int pnum, int xx, int yy, bool endspace)
+bool MakePlrPath(int pnum, int xx, int yy, bool endspace)
 {
-	int path;
+	int sx, sy, path;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("MakePlrPath: illegal player %d", pnum);
 	}
 
-	path = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, plr.walkpath);
+	sx = plr._pfutx;
+	sy = plr._pfuty;
+	path = FindPath(PosOkPlayer, pnum, sx, sy, xx, yy, plr.walkpath);
 	if (path == 0) {
-		return;
+		return sx == xx && sy == yy;
 	}
 
 	if (!endspace) {
@@ -3079,6 +3081,7 @@ void MakePlrPath(int pnum, int xx, int yy, bool endspace)
 	}
 
 	plr.walkpath[path] = DIR_NONE;
+	return true;
 }
 
 void SyncPlrAnim(int pnum)

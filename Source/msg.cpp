@@ -2064,8 +2064,7 @@ static unsigned On_WALKXY(TCmd* pCmd, int pnum)
 {
 	TCmdLoc* cmd = (TCmdLoc*)pCmd;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		MakePlrPath(pnum, cmd->x, cmd->y, true);
+	if (currLvl._dLevelIdx == plr._pDunLevel && MakePlrPath(pnum, cmd->x, cmd->y, true)) {
 		plr.destAction = ACTION_WALK;
 	}
 
@@ -2122,8 +2121,7 @@ static unsigned On_GOTOGETITEM(TCmd* pCmd, int pnum)
 	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
 	int ii;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		MakePlrPath(pnum, cmd->x, cmd->y, false);
+	if (currLvl._dLevelIdx == plr._pDunLevel && MakePlrPath(pnum, cmd->x, cmd->y, false)) {
 		ii = SwapLE16(cmd->wParam1);
 
 		net_assert(ii < MAXITEMS);
@@ -2166,8 +2164,7 @@ static unsigned On_GOTOAGETITEM(TCmd* pCmd, int pnum)
 	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
 	int ii;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		MakePlrPath(pnum, cmd->x, cmd->y, false);
+	if (currLvl._dLevelIdx == plr._pDunLevel && MakePlrPath(pnum, cmd->x, cmd->y, false)) {
 		ii = SwapLE16(cmd->wParam1);
 
 		net_assert(ii < MAXITEMS);
@@ -2445,12 +2442,13 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 		net_assert(cmd->y < MAXDUNY);
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
-		plr.destAction = ACTION_OPERATE;
-		plr.destParam1 = oi;
-		plr.destParam2 = cmd->x;
-		plr.destParam3 = cmd->y;
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_OPOBJXY expects ODT_NONE to be zero.");
-		MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag));
+		if (MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag))) {
+			plr.destAction = ACTION_OPERATE;
+			plr.destParam1 = oi;
+			plr.destParam2 = cmd->x;
+			plr.destParam3 = cmd->y;
+		}
 	}
 
 	return sizeof(*cmd);
@@ -2473,12 +2471,13 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 		net_assert(cmd->y < MAXDUNY);
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
-		plr.destAction = ACTION_DISARM;
-		plr.destParam1 = oi;
-		plr.destParam2 = cmd->x;
-		plr.destParam3 = cmd->y;
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_DISARMXY expects ODT_NONE to be zero.");
-		MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag));
+		if (MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag))) {
+			plr.destAction = ACTION_DISARM;
+			plr.destParam1 = oi;
+			plr.destParam2 = cmd->x;
+			plr.destParam3 = cmd->y;
+		}
 	}
 
 	return sizeof(*cmd);
@@ -2645,9 +2644,10 @@ static unsigned On_TALKXY(TCmd* pCmd, int pnum)
 	net_assert(mnum < MAXMONSTERS);
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		MakePlrPath(pnum, monsters[mnum]._mx, monsters[mnum]._my, false);
-		plr.destAction = ACTION_TALK;
-		plr.destParam1 = mnum;
+		if (MakePlrPath(pnum, monsters[mnum]._mx, monsters[mnum]._my, false)) {
+			plr.destAction = ACTION_TALK;
+			plr.destParam1 = mnum;
+		}
 	}
 
 	return sizeof(*cmd);
