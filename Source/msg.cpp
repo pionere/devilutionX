@@ -2767,6 +2767,7 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 			}
 			CalcPlrInv(pnum, false);
 			//PlrSetHp(pnum, 0);
+			//PlrSetMana(pnum, 0);
 		}
 	} else if (dmgtype == DMGTYPE_PLAYER) {
 		ItemStruct ear;
