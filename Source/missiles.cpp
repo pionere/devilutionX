@@ -2879,26 +2879,22 @@ int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
  */
 int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
-	MissileStruct *bmis;
-	int i;
+	MissileStruct* mis;
+	MissileStruct* bmis;
 
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 1, "AddInferno needs at least light-radius of 1.");
-	mis->_miLid = AddLight(sx, sy, 1);
 	bmis = &missile[midir];
 	mis->_misx = bmis->_misx;
 	mis->_misy = bmis->_misy;
 	mis->_mixoff = bmis->_mixoff;
 	mis->_miyoff = bmis->_miyoff;
-	mis->_mitxoff = bmis->_mitxoff;
-	mis->_mityoff = bmis->_mityoff;
-	//mis->_miVar2 = 0;
-	for (i = bmis->_miVar3; i > 0; i--) {
-		mis->_miVar2 += 5;
-	}
-	mis->_miRange = mis->_miVar2 + 20;
-	//assert(misource != -1);
+	// mis->_mitxoff = bmis->_mitxoff;
+	// mis->_mityoff = bmis->_mityoff;
+	// assert(bmis->_miVar3 < 3);
+	mis->_miVar2 = bmis->_miVar3 * 4;
+	mis->_miRange = misfiledata[MFILE_INFERNO].mfAnimLen[0];
+	// assert(misource != -1);
 	if (micaster == MST_PLAYER) {
 		mis->_miMinDam = plx(misource)._pMagic;
 		mis->_miMaxDam = mis->_miMinDam + (spllvl << 4);
@@ -4082,10 +4078,15 @@ void MI_WallC(int mi)
 
 void MI_Inferno(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int k;
 
 	mis = &missile[mi];
+	mis->_miAnimFlag = mis->_miVar2 == 0;
+	if (!mis->_miAnimFlag) {
+		mis->_miVar2--;
+		return;
+	}
 	mis->_miRange--;
 	k = mis->_miRange;
 	if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
@@ -4095,19 +4096,17 @@ void MI_Inferno(int mi)
 		AddUnLight(mis->_miLid);
 		return;
 	}
-	mis->_miVar2--;
-	if (mis->_miVar2 <= 0) {
-		if (mis->_miVar2 == 0)
-			mis->_miAnimFrame = misfiledata[MFILE_INFERNO].mfAnimLen[0];
-		k = mis->_miAnimFrame;
-		if (k > 11) {
-			assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);
-			k = 24 - k;
-		}
-		static_assert(MAX_LIGHT_RAD >= 12, "MI_Inferno needs at least light-radius of 12.");
-		ChangeLightRadius(mis->_miLid, k);
-		PutMissile(mi);
+	k = mis->_miAnimFrame;
+	if (k > 11) {
+		assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);
+		k = 24 - k;
 	}
+	static_assert(MAX_LIGHT_RAD >= 12, "MI_Inferno needs at least light-radius of 12.");
+	if (mis->_miLid == NO_LIGHT)
+		mis->_miLid = AddLight(mis->_mix, mis->_miy, k);
+	else
+		ChangeLightRadius(mis->_miLid, k);
+	PutMissile(mi);
 }
 
 void MI_InfernoC(int mi)
@@ -4122,7 +4121,7 @@ void MI_InfernoC(int mi)
 	if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
 		if (!nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
 			// SetRndSeed(mis->_miRndSeed);
-			// mis->_miVar3 used by MIS_FLAME !
+			// mis->_miVar3 used by MIS_INFERNO !
 			AddMissile(
 			    mis->_mix,
 			    mis->_miy,
