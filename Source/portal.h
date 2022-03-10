@@ -21,9 +21,8 @@ void SyncPortals();
 void AddInTownPortal(int i);
 void ActivatePortal(int i, int x, int y, int lvl);
 void DeactivatePortal(int i);
-bool PortalOnLevel(int i);
-void RemovePortalMissile(int id);
-void UseCurrentPortal(int p);
+void RemovePortalMissile(int i);
+void UseCurrentPortal(int i);
 void GetPortalLvlPos();
 bool PosOkPortal(int x, int y);
 

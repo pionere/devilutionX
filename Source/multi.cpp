@@ -242,9 +242,7 @@ void multi_deactivate_player(int pnum, int reason)
 	const char* pszFmt;
 
 	if (plr._pActive) {
-		RemovePortalMissile(pnum);
 		DeactivatePortal(pnum);
-		delta_close_portal(pnum);
 		multi_disband_team(pnum);
 		// ClearPlrMsg(pnum);
 		RemoveLvlPlayer(pnum);

@@ -2032,19 +2032,19 @@ void NetSendCmdString(unsigned int pmask)
 	multi_send_direct_msg(pmask, (BYTE*)&cmd, dwStrLen + 2);
 }
 
-static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
+void delta_open_portal(int i, BYTE x, BYTE y, BYTE bLevel)
 {
 	net_assert(bLevel < NUM_LEVELS);
 	gsDeltaData.ddJunkChanged = true;
-	gsDeltaData.ddJunk.jPortals[pnum].x = x;
-	gsDeltaData.ddJunk.jPortals[pnum].y = y;
-	gsDeltaData.ddJunk.jPortals[pnum].level = bLevel;
+	gsDeltaData.ddJunk.jPortals[i].x = x;
+	gsDeltaData.ddJunk.jPortals[i].y = y;
+	gsDeltaData.ddJunk.jPortals[i].level = bLevel;
 }
 
-void delta_close_portal(int pnum)
+void delta_close_portal(int i)
 {
-	//memset(&gsDeltaData.ddJunk.portal[pnum], 0, sizeof(gsDeltaData.ddJunk.portal[pnum]));
-	gsDeltaData.ddJunk.jPortals[pnum].level = DLV_TOWN;
+	//memset(&gsDeltaData.ddJunk.portal[i], 0, sizeof(gsDeltaData.ddJunk.portal[i]));
+	gsDeltaData.ddJunk.jPortals[i].level = DLV_TOWN;
 	// assert(gsDeltaData.ddJunkChanged == true);
 }
 
@@ -3121,35 +3121,17 @@ static unsigned On_ACTIVATEPORTAL(TCmd* pCmd, int pnum)
 {
 	TCmdLocBParam1* cmd = (TCmdLocBParam1*)pCmd;
 
+	net_assert(cmd->bParam1 != DLV_TOWN);
+
+	static_assert(MAXPORTAL == MAX_PLRS, "On_ACTIVATEPORTAL uses pnum as portal-id.");
+	if (currLvl._dLevelIdx == DLV_TOWN)
+		AddInTownPortal(pnum);
+	else if (currLvl._dLevelIdx != cmd->bParam1)
+		RemovePortalMissile(pnum);
+
 	ActivatePortal(pnum, cmd->x, cmd->y, cmd->bParam1);
-	if (pnum != mypnum) {
-		if (currLvl._dLevelIdx == DLV_TOWN)
-			AddInTownPortal(pnum);
-		else if (currLvl._dLevelIdx == cmd->bParam1) {
-			int i;
-			for (i = 0; i < nummissiles; i++) {
-				MissileStruct* mis = &missile[missileactive[i]];
-				if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
-					break;
-				}
-			}
-			if (i == nummissiles)
-				AddWarpMissile(pnum, cmd->x, cmd->y);
-		}
-	}
-	delta_open_portal(pnum, cmd->x, cmd->y, cmd->bParam1);
 
 	return sizeof(*cmd);
-}
-
-static unsigned On_DEACTIVATEPORTAL(TCmd* pCmd, int pnum)
-{
-	if (PortalOnLevel(pnum))
-		RemovePortalMissile(pnum);
-	DeactivatePortal(pnum);
-	delta_close_portal(pnum);
-
-	return sizeof(*pCmd);
 }
 
 static unsigned On_RETOWN(TCmd* pCmd, int pnum)
@@ -3945,8 +3927,6 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_TELEKINOID(pCmd, pnum);
 	case CMD_ACTIVATEPORTAL:
 		return On_ACTIVATEPORTAL(pCmd, pnum);
-	case CMD_DEACTIVATEPORTAL:
-		return On_DEACTIVATEPORTAL(pCmd, pnum);
 	case CMD_NEWLVL:
 		return On_NEWLVL(pCmd, pnum);
 	case CMD_TWARP:

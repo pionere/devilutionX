@@ -827,7 +827,7 @@ void CheckTriggers()
 			lvl = trigs[i]._tlvl;
 			break;
 		case DVL_DWM_TWARPUP:
-			lvl = 0;
+			lvl = DLV_TOWN;
 			break;
 		default:
 			ASSUME_UNREACHABLE;
