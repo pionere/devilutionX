@@ -4913,7 +4913,7 @@ void MissToMonst(int mi)
 //#ifdef HELLFIRE
 //	bool lightning = false;
 
-//	if (mi > 0) {
+//	if (mi != MIS_MULTI) {
 //		if (missile[mi - 1]._miType == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 //			fire = true;
 //		} else if (missile[mi - 1]._miType == MIS_LIGHTWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
@@ -4936,7 +4936,7 @@ void MissToMonst(int mi)
 //	if (lightning && (monsters[mnum]._mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE)
 //		ret = false;
 //#else
-	if (mi > 0) {
+	if (mi != MIS_MULTI) {
 		if (missile[mi - 1]._miType == MIS_FIREWALL) // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 			fire = true;
 	} else {

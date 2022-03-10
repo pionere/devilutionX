@@ -1570,12 +1570,12 @@ void LevelDeltaLoad()
 		// PutMissile(mi); - unnecessary, since it is just a gfx
 		// PutMissileF(mi, BFLAG_HAZARD)
 		if (mis->_miType == MIS_FIREWALL) {
-			dMissile[mis->_mix][mis->_miy] = /*dMissile[mis->_mix][mis->_miy] == 0 ? mi + 1 :*/ -1;
+			dMissile[mis->_mix][mis->_miy] = /*dMissile[mis->_mix][mis->_miy] == 0 ? mi + 1 :*/ MIS_MULTI;
 			dFlags[mis->_mix][mis->_miy] |= BFLAG_HAZARD;
 		}
 		// PutMissileF(mi, BFLAG_MISSILE_PRE) - unnecessary, since it is just a gfx
 		//if (mis->_miType == MIS_FLASH2 || mis->_miType == MIS_ACIDPUD) {
-		//	dMissile[mis->_mix][mis->_miy] = /*dMissile[mis->_mix][mis->_miy] == 0 ? mi + 1 :*/ -1;
+		//	dMissile[mis->_mix][mis->_miy] = /*dMissile[mis->_mix][mis->_miy] == 0 ? mi + 1 :*/ MIS_MULTI;
 		//	dFlags[mis->_mix][mis->_miy] |= BFLAG_MISSILE_PRE;
 		//}
 		src += sizeof(TSyncLvlMissile);

@@ -68,6 +68,7 @@
 #define MAXBELTITEMS			8
 #define MAXLIGHTS				32
 #define MAXMISSILES				125
+#define MIS_MULTI				0xFF
 #define MAXMONSTERS				200
 #define MON_NONE				0xFF
 #define MAXOBJECTS				127

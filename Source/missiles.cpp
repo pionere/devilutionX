@@ -440,7 +440,7 @@ static void PutMissile(int mi)
 	y = missile[mi]._miy;
 	assert(IN_DUNGEON_AREA(x, y));
 	if (!missile[mi]._miDelFlag) {
-		dMissile[x][y] = dMissile[x][y] == 0 ? mi + 1 : -1;
+		dMissile[x][y] = dMissile[x][y] == 0 ? mi + 1 : MIS_MULTI;
 		assert(!missile[mi]._miPreFlag);
 		//if (missile[mi]._miPreFlag)
 		//	dFlags[x][y] |= BFLAG_MISSILE_PRE;
@@ -456,7 +456,7 @@ static void PutMissileF(int mi, BYTE flag)
 	assert(IN_DUNGEON_AREA(x, y));
 	assert(!missile[mi]._miDelFlag);
 	//if (!missile[mi]._miDelFlag) {
-		dMissile[x][y] = dMissile[x][y] == 0 ? mi + 1 : -1;
+		dMissile[x][y] = dMissile[x][y] == 0 ? mi + 1 : MIS_MULTI;
 		dFlags[x][y] |= flag;
 	//}
 }

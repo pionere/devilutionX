@@ -106,9 +106,11 @@ BYTE dItem[MAXDUNX][MAXDUNY];
 /**
  * Contains the missile numbers (missiles array indices) of the map.
  *   mi + 1 : the missile is on the given location.
- *     -1   : more than one missile on the given location.
+ * MIS_MULTI: more than one missile on the given location.
  */
-char dMissile[MAXDUNX][MAXDUNY];
+static_assert(MAXMISSILES < UCHAR_MAX, "Index of a missile might not fit to dMissile.");
+static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMissile reserves one entry.");
+BYTE dMissile[MAXDUNX][MAXDUNY];
 /**
  * Contains the arch frame numbers of the map from the special tileset
  * (e.g. "levels/l1data/l1s.cel"). Note, the special tileset of Tristram (i.e.
