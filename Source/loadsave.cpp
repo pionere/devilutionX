@@ -1233,10 +1233,19 @@ static void SavePlayer(int pnum)
 	// Omit pointer alignment
 }
 
-static void SaveMonster(int mnum)
+static void SaveMonster(int mnum, bool full)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
+	if (!full) {
+		// reset charging monsters, because the missiles are not saved
+		if (mon->_mmode == MM_CHARGE) {
+			mon->_mmode = MM_STAND;
+			// TODO: set mVar1 and mVar2?
+			// mon->_mVar1 = MM_CHARGE; // STAND_PREV_MODE
+			// mon->_mVar2 = ...;
+		}
+	}
 	SaveInt(&mon->_mmode);
 	SaveInt(&mon->_msquelch);
 	SaveByte(&mon->_mMTidx);
@@ -1486,7 +1495,7 @@ static void SaveLevelData(bool full)
 		for (i = 0; i < MAXMONSTERS; i++)
 			SaveInt(&monstactive[i]);
 		for (i = 0; i < nummonsters; i++)
-			SaveMonster(monstactive[i]);
+			SaveMonster(monstactive[i], full);
 		if (full) {
 			for (i = 0; i < MAXMISSILES; i++)
 				SaveByte(&missileactive[i]);
