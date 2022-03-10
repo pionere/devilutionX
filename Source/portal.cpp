@@ -26,17 +26,17 @@ void InitPortals()
 	}
 }
 
-/*void SetPortalStats(int i, bool o, int x, int y, int lvl)
+/*void SetPortalStats(int pidx, bool o, int x, int y, int lvl)
 {
-	portals[i]._wopen = o;
-	portals[i].x = x;
-	portals[i].y = y;
-	portals[i].level = lvl;
+	portals[pidx]._wopen = o;
+	portals[pidx].x = x;
+	portals[pidx].y = y;
+	portals[pidx].level = lvl;
 }*/
 
-void AddWarpMissile(int i, int x, int y)
+void AddWarpMissile(int pidx, int x, int y)
 {
-	AddMissile(0, 0, x, y, 0, MIS_TOWN, MST_NA, i, -1);
+	AddMissile(0, 0, x, y, 0, MIS_TOWN, MST_NA, pidx, -1);
 }
 
 void SyncPortals()
@@ -56,57 +56,56 @@ void SyncPortals()
 	}
 }
 
-void AddInTownPortal(int i)
+void AddInTownPortal(int pidx)
 {
-	AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
+	AddWarpMissile(pidx, WarpDropX[pidx], WarpDropY[pidx]);
 }
 
-void ActivatePortal(int i, int x, int y, int lvl)
+void ActivatePortal(int pidx, int x, int y, int lvl)
 {
-	// TODO: check data from internet
 	assert(lvl != DLV_TOWN);
-	portals[i]._wopen = true;
-	portals[i].x = x;
-	portals[i].y = y;
-	portals[i].level = lvl;
+	portals[pidx]._wopen = true;
+	portals[pidx].x = x;
+	portals[pidx].y = y;
+	portals[pidx].level = lvl;
 
-	delta_open_portal(i, x, y, lvl);
+	delta_open_portal(pidx, x, y, lvl);
 }
 
-static bool PortalOnLevel(int i)
+static bool PortalOnLevel(int pidx)
 {
-	return portals[i].level == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
+	return portals[pidx].level == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
 }
 
-void RemovePortalMissile(int i)
+void RemovePortalMissile(int pidx)
 {
 	MissileStruct* mis;
 	int i;
 
-	if (!PortalOnLevel(i))
+	if (!PortalOnLevel(pidx))
 		return;
 
 	static_assert(MAXPORTAL == MAX_PLRS, "RemovePortalMissile finds portal-missiles by portal-id.");
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_TOWN && mis->_miSource == i) {
+		if (mis->_miType == MIS_TOWN && mis->_miSource == pidx) {
 			mis->_miDelFlag = TRUE;
 			AddUnLight(mis->_miLid);
 		}
 	}
 }
 
-void DeactivatePortal(int i)
+void DeactivatePortal(int pidx)
 {
-	portals[i]._wopen = false;
+	portals[pidx]._wopen = false;
 
-	RemovePortalMissile(i);
-	delta_close_portal(i);
+	RemovePortalMissile(pidx);
+	delta_close_portal(pidx);
 }
 
-void UseCurrentPortal(int i)
+void UseCurrentPortal(int pidx)
 {
-	portalindex = i;
+	portalindex = pidx;
 }
 
 void GetPortalLvlPos()
