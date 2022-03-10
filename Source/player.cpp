@@ -1070,6 +1070,10 @@ static void StartPlrKill(int pnum, int dmgtype)
 	plr._pmode = PM_DYING;
 	plr._pInvincible = TRUE;
 
+	plr._pManaShield = 0;
+	plr._pTimer[PLTR_INFRAVISION] = 0;
+	plr._pTimer[PLTR_RAGE] = 0;
+
 	if (pnum == mypnum) {
 		gbDeathflag = MDM_DYING;
 		NetSendCmdBParam1(CMD_PLRDEAD, dmgtype);
@@ -1826,9 +1830,6 @@ void RestartTownLvl(int pnum)
 	InitLevelChange(pnum);
 
 	plr._pDunLevel = DLV_TOWN;
-	plr._pManaShield = 0; // should not be necessary
-	plr._pTimer[PLTR_INFRAVISION] = 0;
-	plr._pTimer[PLTR_RAGE] = 0;
 
 	PlrSetHp(pnum, (1 << 6));
 
