@@ -43,7 +43,6 @@ void RemovePlrFromMap(int pnum);
 void StartPlrHit(int pnum, int dam, bool forcehit, int dir);
 void SyncPlrKill(int pnum, int dmgtype);
 void SyncPlrResurrect(int pnum);
-void RemovePlrMissiles(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
 void RestartTownLvl(int pnum);
 void StartTWarp(int pnum, int pidx);

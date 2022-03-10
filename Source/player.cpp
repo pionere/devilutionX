@@ -892,7 +892,10 @@ void RemoveLvlPlayer(int pnum)
 		//	// because fade-out is turned off.
 		//}
 		RemovePlrFromMap(pnum);
-		RemovePlrMissiles(pnum);
+		static_assert(MAX_MINIONS == MAX_PLRS, "RemoveLvlPlayer requires that owner of a monster has the same id as the monster itself.");
+		if (currLvl._dLevelIdx != DLV_TOWN && !(MINION_NR_INACTIVE(pnum))) {
+			MonStartKill(pnum, pnum);
+		}
 	}
 }
 
@@ -1758,15 +1761,6 @@ void SyncPlrResurrect(int pnum)
 	if (plr._pDunLevel == currLvl._dLevelIdx) {
 		PlacePlayer(pnum);
 		PlrStartStand(pnum);
-	}
-}
-
-void RemovePlrMissiles(int pnum)
-{
-	assert(plr._pDunLevel == currLvl._dLevelIdx);
-	static_assert(MAX_MINIONS == MAX_PLRS, "RemovePlrMissiles requires that owner of a monster has the same id as the monster itself.");
-	if (currLvl._dType != DTYPE_TOWN && !(MINION_NR_INACTIVE(pnum))) {
-		MonStartKill(pnum, pnum);
 	}
 }
 
