@@ -1238,8 +1238,10 @@ static void SaveMonster(int mnum, bool full)
 	MonsterStruct* mon = &monsters[mnum];
 
 	if (!full) {
-		// reset charging monsters, because the missiles are not saved
-		if (mon->_mmode == MM_CHARGE) {
+		// reset charging and stoned monsters, because the missiles are not saved
+		if (mon->_mmode == MM_STONE) {
+			mon->_mmode = mon->_mVar3;
+		} else if (mon->_mmode == MM_CHARGE) {
 			mon->_mmode = MM_STAND;
 			// TODO: set mVar1 and mVar2?
 			// mon->_mVar1 = MM_CHARGE; // STAND_PREV_MODE

@@ -1763,21 +1763,10 @@ void SyncPlrResurrect(int pnum)
 
 void RemovePlrMissiles(int pnum)
 {
-	int i, mi;
-
 	assert(plr._pDunLevel == currLvl._dLevelIdx);
 	static_assert(MAX_MINIONS == MAX_PLRS, "RemovePlrMissiles requires that owner of a monster has the same id as the monster itself.");
 	if (currLvl._dType != DTYPE_TOWN && !(MINION_NR_INACTIVE(pnum))) {
 		MonStartKill(pnum, pnum);
-	}
-
-	for (i = 0; i < nummissiles; i++) {
-		mi = missileactive[i];
-		if (missile[mi]._miSource == pnum && missile[mi]._miType == MIS_STONE) {
-			monsters[missile[mi]._miVar2]._mmode = missile[mi]._miVar1;
-			DeleteMissile(mi, i);
-			i--;
-		}
 	}
 }
 
@@ -2520,8 +2509,6 @@ static bool PlrDoNewLvl(int pnum)
 
 static void CheckNewPath(int pnum)
 {
-	int i;
-
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("CheckNewPath: illegal player %d", pnum);
 	}
