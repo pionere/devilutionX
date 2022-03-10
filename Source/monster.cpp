@@ -1503,7 +1503,6 @@ static void MonStartRSpAttack(int mnum, int mitype)
 	mon = &monsters[mnum];
 	mon->_mmode = MM_RSPATTACK;
 	mon->_mVar1 = mitype; // SPATTACK_SKILL
-	mon->_mVar2 = 0;      // SPATTACK_ANIM : counter to enable/disable MFLAG_LOCK_ANIMATION for certain monsters
 }
 
 /*
@@ -2238,25 +2237,27 @@ static bool MonDoRSpAttack(int mnum)
 		dev_fatal("MonDoRSpAttack: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mAnimFrame == mon->_mAFNum2 && mon->_mAnimCnt == 0) {
-		AddMissile(
-		    mon->_mx,
-		    mon->_my,
-		    mon->_menemyx,
-		    mon->_menemyy,
-		    mon->_mdir,
-		    mon->_mVar1, // SPATTACK_SKILL
-		    MST_MONSTER,
-		    mnum,
-		    0);
-		PlayEffect(mnum, MS_SPECIAL);
-	}
+	if (mon->_mAnimFrame == mon->_mAFNum2) {
+		if (mon->_mAnimCnt == 0) {
+			AddMissile(
+				mon->_mx,
+				mon->_my,
+				mon->_menemyx,
+				mon->_menemyy,
+				mon->_mdir,
+				mon->_mVar1, // SPATTACK_SKILL
+				MST_MONSTER,
+				mnum,
+				0);
+			PlayEffect(mnum, MS_SPECIAL);
+		}
 
-	if (mon->_mAi == AI_MEGA && mon->_mAnimFrame == 3) {
-		if (mon->_mVar2++ == 0) { // SPATTACK_ANIM
-			mon->_mFlags |= MFLAG_LOCK_ANIMATION;
-		} else if (mon->_mVar2 == 15) {
-			mon->_mFlags &= ~MFLAG_LOCK_ANIMATION;
+		if (mon->_mAi == AI_MEGA) {
+			if (mon->_mAnimCnt++ == 0) {
+				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
+			} else if (mon->_mAnimCnt == 15) {
+				mon->_mFlags &= ~MFLAG_LOCK_ANIMATION;
+			}
 		}
 	}
 
