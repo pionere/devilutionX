@@ -2330,7 +2330,7 @@ static void DoRecharge(int pnum, int cii)
 	int r;
 
 	if (pi->_itype == ITYPE_STAFF && pi->_iSpell != SPL_NULL) {
-		r = spelldata[pi->_iSpell].sBookLvl;
+		r = spelldata[pi->_iSpell].sStaffLvl;
 		//r = random_(38, plr._pLevel / r) + 1;
 		r = plr._pLevel / r + 1;
 		RechargeItem(pi, r);
