@@ -1387,7 +1387,21 @@ void LevelDeltaLoad()
 			src++;
 			continue;
 		}
+		if (pnum == mypnum) {
+			net_assert(tplr->spMode == PM_STAND ||
+				((tplr->spMode == PM_DEATH || tplr->spMode == PM_DYING) && plr._pHitPoints < (1 << 6)));
+			net_assert(tplr->spWalkpath[0] == DIR_NONE);
+			net_assert(tplr->spDestAction == ACTION_NONE);
+			net_assert(tplr->spInvincible == (40 - gbNetUpdateRate));
+			net_assert(plr._pTimer[PLTR_INFRAVISION] == SwapLE16(tplr->spTimer[PLTR_INFRAVISION]));
+			net_assert(plr._pTimer[PLTR_RAGE] == SwapLE16(tplr->spTimer[PLTR_RAGE]));
+			net_assert(plr._pManaShield == tplr->spManaShield);
+			net_assert(plr._pHPBase == SwapLE32(tplr->spHPBase) || (plr._pHitPoints < (1 << 6) && currLvl._dLevelIdx == DLV_TOWN));
+			net_assert(plr._pManaBase == SwapLE32(tplr->spManaBase));
+		}
 		//RemovePlrFromMap(pnum);
+		net_assert((unsigned)plr._px < MAXDUNX);
+		net_assert((unsigned)plr._py < MAXDUNY);
 		if (dPlayer[plr._px][plr._py] == pnum + 1)
 			dPlayer[plr._px][plr._py] = 0;
 		net_assert(tplr->spMode < NUM_PLR_MODES);
@@ -1445,6 +1459,19 @@ void LevelDeltaLoad()
 			is->_iDurability = *src;
 			src++;
 		}
+		// validate data
+		for (i = 0; i < MAX_PATH_LENGTH; i++) {
+			if (plr.walkpath[i] == DIR_NONE)
+				break;
+			net_assert(plr.walkpath[i] < NUM_DIRS);
+		}
+		net_assert(plr._pdir < NUM_DIRS);
+		// net_assert((unsigned)plr._px < MAXDUNX);
+		// net_assert((unsigned)plr._py < MAXDUNY);
+		net_assert((unsigned)plr._pfutx < MAXDUNX);
+		net_assert((unsigned)plr._pfuty < MAXDUNY);
+		net_assert((unsigned)plr._poldx < MAXDUNX);
+		net_assert((unsigned)plr._poldy < MAXDUNY);
 
 		InitLvlPlayer(pnum, false);
 	}
@@ -1603,6 +1630,118 @@ void LevelDeltaLoad()
 	SyncMissilesAnim();
 
 	net_assert(wLen == 0);
+
+	// validate data
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging)
+			continue;
+		net_assert(PosOkPlayer(pnum, plr._px, plr._py));
+		if (plr._pmode == PM_WALK) {
+			net_assert(plr._px == plr._poldx);
+			net_assert(plr._py == plr._poldy);
+			net_assert(abs(plr._pfutx - plr._px) <= 1);
+			net_assert(abs(plr._pfuty - plr._py) <= 1);
+			net_assert(PosOkPlayer(pnum, plr._pfutx, plr._pfuty));
+			// FIXME: validate velocity/offset
+		} else if (plr._pmode == PM_WALK2) {
+			net_assert(plr._px == plr._pfutx);
+			net_assert(plr._py == plr._pfuty);
+			net_assert(abs(plr._poldx - plr._px) <= 1);
+			net_assert(abs(plr._poldy - plr._py) <= 1);
+			net_assert(PosOkPlayer(pnum, plr._poldx, plr._poldy));
+			// FIXME: validate velocity/offset
+		} else {
+			net_assert(plr._px == plr._pfutx);
+			net_assert(plr._py == plr._pfuty);
+			net_assert(plr._px == plr._poldx);
+			net_assert(plr._py == plr._poldy);
+			switch (plr._pmode) {
+			case PM_ATTACK:
+				net_assert(plr._pVar5 < NUM_SPELLS); // ATTACK_SKILL
+				net_assert(plr._pVar6 >= 0); // ATTACK_SKILL_LEVEL
+				break;
+			case PM_RATTACK:
+				net_assert(plr._pVar5 < NUM_SPELLS); // RATTACK_SKILL
+				net_assert(plr._pVar6 >= 0); // RATTACK_SKILL_LEVEL
+				break;
+			case PM_SPELL:
+				net_assert(plr._pVar1 >= DBORDERX && plr._pVar1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
+				net_assert(plr._pVar2 >= DBORDERY && plr._pVar2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
+				net_assert(plr._pVar3 < NUM_SPELLS); // SPELL_NUM
+				net_assert(plr._pVar4 >= 0); // SPELL_LEVEL
+				break;
+			}
+		}
+		switch (plr.destAction) {
+		case ACTION_NONE:
+		case ACTION_WALK:
+			break;
+		case ACTION_OPERATE:
+			net_assert(plr.destParam1 < MAXOBJECTS);
+			net_assert(plr.destParam2 < MAXDUNX);
+			net_assert(plr.destParam3 < MAXDUNY);
+			net_assert(abs(dObject[plr.destParam2][plr.destParam3]) == plr.destParam1 + 1);
+			break;
+		case ACTION_BLOCK:
+			net_assert(plr.destParam1 < NUM_DIRS);
+			break;
+		case ACTION_ATTACKMON:
+		case ACTION_RATTACKMON:
+		case ACTION_SPELLMON:
+			net_assert(plr.destParam1 < MAXMONSTERS);
+			net_assert(plr.destParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
+			net_assert(plr.destParam4 >= 0); // ATTACK_SKILL_LEVEL, SPELL_LEVEL
+			break;
+		case ACTION_ATTACK:
+		case ACTION_RATTACK:
+			net_assert(plr.destParam3 < NUM_SPELLS); // ATTACK_SKILL
+			net_assert(plr.destParam4 >= 0); // ATTACK_SKILL_LEVEL
+			break;
+		case ACTION_ATTACKPLR:
+		case ACTION_RATTACKPLR:
+		case ACTION_SPELLPLR:
+			net_assert(plr.destParam1 < MAX_PLRS);
+			net_assert(plr.destParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
+			net_assert(plr.destParam4 >= 0); // ATTACK_SKILL_LEVEL, SPELL_LEVEL
+			break;
+		case ACTION_SPELL:
+			net_assert(plr.destParam1 >= DBORDERX && plr.destParam1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
+			net_assert(plr.destParam2 >= DBORDERY && plr.destParam2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
+			net_assert(plr.destParam3 < NUM_SPELLS); // SPELL_NUM
+			net_assert(plr.destParam4 >= 0); // SPELL_LEVEL
+			if (plr.destParam3 == SPL_DISARM)
+				net_assert(plr.destParam4 < MAXOBJECTS); // fake SPELL_LEVEL
+			if (plr.destParam3 == SPL_RESURRECT)
+				net_assert(plr.destParam4 < MAX_PLRS); // fake SPELL_LEVEL
+			if (plr.destParam3 == SPL_TELEKINESIS) {
+				switch (plr.destParam4 >> 16) {
+				case MTT_ITEM:
+					net_assert((plr.destParam4 & 0xFFFF) < MAXITEMS);
+					break;
+				case MTT_MONSTER:
+					net_assert((plr.destParam4 & 0xFFFF) < MAXMONSTERS);
+					break;
+				case MTT_OBJECT:
+					net_assert((plr.destParam4 & 0xFFFF) < MAXOBJECTS);
+					break;
+				default:
+					net_assert(0);
+					break;
+				}
+			}
+			break;
+		case ACTION_PICKUPITEM:  // put item in hand (inventory screen open)
+		case ACTION_PICKUPAITEM: // put item in inventory
+			net_assert(plr.destParam1 < MAXITEMS);
+			break;
+		case ACTION_TALK:
+			net_assert(plr.destParam1 < MAXMONSTERS);
+			break;
+		default:
+			net_assert(0);
+		}
+		net_assert(plr._pAnimFrame <= plr._pAnimLen);
+	}
 
 	//ProcessLightList();
 	ProcessVisionList();
