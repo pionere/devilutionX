@@ -1099,8 +1099,9 @@ static void StartPlrKill(int pnum, int dmgtype)
 
 		plr._pVar7 = pnum == mypnum ? 32 : 0; // DEATH_DELAY
 	}
-	PlrSetHp(pnum, 0);
-	PlrSetMana(pnum, 0);
+	CalcPlrInv(pnum, false);
+	//PlrSetHp(pnum, 0);
+	//PlrSetMana(pnum, 0);
 }
 
 /*void PlrClrTrans(int x, int y)
@@ -1758,7 +1759,7 @@ void SyncPlrResurrect(int pnum)
 	plr._pmode = PM_STAND;
 	plr._pInvincible = FALSE;
 
-	PlrSetHp(pnum, std::min(10 << 6, plr._pMaxHPBase));
+	PlrSetHp(pnum, std::min(10 << 6, plr._pMaxHP));
 
 	CalcPlrInv(pnum, false);
 
@@ -1833,7 +1834,7 @@ void RestartTownLvl(int pnum)
 
 	PlrSetHp(pnum, (1 << 6));
 
-	CalcPlrInv(pnum, false);
+	// CalcPlrInv(pnum, false); -- no need to calc, InitLvlPlayer should take care about it
 
 	if (pnum == mypnum) {
 		gbDeathflag = MDM_ALIVE;
