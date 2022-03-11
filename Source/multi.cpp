@@ -116,17 +116,17 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 
 static void multi_init_pkt_header(TurnPktHdr &pktHdr, unsigned len)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 
 	pktHdr.wLen = SwapLE16(len);
-	pktHdr.wCheck = PKT_HDR_CHECK;
+	// pktHdr.wCheck = PKT_HDR_CHECK;
 	p = &myplr;
 	pktHdr.px = p->_px;
 	pktHdr.py = p->_py;
 	pktHdr.php = SwapLE32(p->_pHitPoints);
-	//pktHdr.pmhp = SwapLE32(p->_pMaxHP);
+	// pktHdr.pmhp = SwapLE32(p->_pMaxHP);
 	pktHdr.pmp = SwapLE32(p->_pMana);
-	//pktHdr.pmmp = SwapLE32(p->_pMaxMana);
+	// pktHdr.pmmp = SwapLE32(p->_pMaxMana);
 }
 
 void multi_send_turn_packet()
@@ -158,7 +158,7 @@ void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE bLen)
 	memcpy(&pkt.body[0], src, len);
 	len += sizeof(pkt.hdr);
 	pkt.hdr.wLen = SwapLE16(len);
-	pkt.hdr.wCheck = PKT_HDR_CHECK;
+	// pkt.hdr.wCheck = PKT_HDR_CHECK;
 	static_assert(sizeof(pmask) * CHAR_BIT > MAX_PLRS, "Sending packets with unsigned int mask does not work.");
 	if (pmask == SNPLAYER_ALL) {
 		static_assert(SNPLAYER_ALL >= (1 << MAX_PLRS), "SNPLAYER_ALL does not work with pnum masks.");
@@ -427,8 +427,8 @@ void multi_process_turn(SNetTurnPkt* turn)
 		if (dwMsgSize < sizeof(TurnPktHdr))
 			continue;
 		// assert((unsigned)pnum < MAX_PLRS);
-		if (pkt->wCheck != PKT_HDR_CHECK)
-			continue;
+		//if (pkt->wCheck != PKT_HDR_CHECK)
+		//	continue;
 		if (pkt->wLen != SwapLE16(dwMsgSize))
 			continue;
 		if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
@@ -466,8 +466,8 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		if (dwMsgSize <= sizeof(TurnPktHdr))
 			continue;
 		// assert((unsigned)pnum < MAX_PLRS);
-		if (pkt->wCheck != PKT_HDR_CHECK)
-			continue;
+		//if (pkt->wCheck != PKT_HDR_CHECK)
+		//	continue;
 		if (pkt->wLen != SwapLE16(dwMsgSize))
 			continue;
 		TCmd* cmd = (TCmd*)(pkt + 1);
@@ -493,8 +493,8 @@ void multi_process_msgs()
 		if (dwMsgSize < sizeof(MsgPktHdr))
 			continue;
 		// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
-		if (pkt->wCheck != PKT_HDR_CHECK)
-			continue;
+		//if (pkt->wCheck != PKT_HDR_CHECK)
+		//	continue;
 		if (pkt->wLen != SwapLE16(dwMsgSize))
 			continue;
 		dwMsgSize -= sizeof(MsgPktHdr);
@@ -579,17 +579,17 @@ static void RunGameServer()
  * @param pbSrc: the content of the message
  * @param dwLen: the length of the message
  */
-void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE *pbSrc, unsigned dwLen)
+void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen)
 {
 	unsigned dwOffset, dwBody, dwMsg;
 	MsgPkt pkt;
-	TCmdPlrInfoHdr *p;
+	TCmdPlrInfoHdr* p;
 
 	/// ASSERT: assert(pnum != mypnum);
 	/// ASSERT: assert(pbSrc != NULL);
 	/// ASSERT: assert(dwLen <= 0x0ffff);
 
-	pkt.hdr.wCheck = PKT_HDR_CHECK;
+	// pkt.hdr.wCheck = PKT_HDR_CHECK;
 	dwOffset = 0;
 
 	while (dwLen != 0) {

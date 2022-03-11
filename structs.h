@@ -1297,7 +1297,7 @@ typedef struct TurnPktHdr {
 	//INT pmmp;
 	BYTE px;
 	BYTE py;
-	WORD wCheck;
+	// WORD wCheck;
 	WORD wLen;
 } TurnPktHdr;
 
@@ -1307,7 +1307,7 @@ typedef struct TurnPkt {
 } TurnPkt;
 
 typedef struct MsgPktHdr {
-	WORD wCheck;
+	// WORD wCheck;
 	WORD wLen;
 } MsgPktHdr;
 
