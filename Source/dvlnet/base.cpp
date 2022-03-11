@@ -66,17 +66,6 @@ void base::recv_accept(packet &pkt)
 	run_event_handler(ev);
 }
 
-void base::clear_msg(plr_t pnum)
-{
-	turn_queue[pnum].clear();
-	message_queue.erase(std::remove_if(message_queue.begin(),
-	                        message_queue.end(),
-	                        [&](SNetMessage &msg) {
-		                        return msg.sender == pnum;
-	                        }),
-	    message_queue.end());
-}
-
 void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 {
 	SNetEvent ev;
@@ -87,9 +76,15 @@ void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 	run_event_handler(ev);
 	if (pnum < MAX_PLRS) {
 		connected_table[pnum] = false;
+		turn_queue[pnum].clear();
 		disconnect_net(pnum);
-		clear_msg(pnum);
 	}
+	message_queue.erase(std::remove_if(message_queue.begin(),
+	                        message_queue.end(),
+	                        [&](SNetMessage &msg) {
+		                        return msg.sender == pnum;
+	                        }),
+	    message_queue.end());
 }
 
 void base::recv_disconnect(packet &pkt)

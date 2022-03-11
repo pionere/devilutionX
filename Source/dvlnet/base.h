@@ -55,7 +55,6 @@ private:
 	void recv_accept(packet &pkt);
 	void recv_disconnect(packet &pkt);
 	void run_event_handler(SNetEvent &ev);
-	void clear_msg(plr_t pnum);
 	void disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo);
 };
 
