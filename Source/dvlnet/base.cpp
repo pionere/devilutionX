@@ -119,6 +119,7 @@ void base::recv_local(packet &pkt)
 	}
 	switch (pkt.pktType()) {
 	case PT_MESSAGE:
+		net_assert(pkt_plr < MAX_PLRS || pkt_plr == SNPLAYER_MASTER);
 		message_queue.emplace_back(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd()));
 		break;
 	case PT_TURN:

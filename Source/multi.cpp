@@ -410,7 +410,7 @@ static void multi_process_turn_packet(int pnum, BYTE *pData, int nSize)
 
 void multi_process_turn(SNetTurnPkt* turn)
 {
-	TurnPktHdr *pkt;
+	TurnPktHdr* pkt;
 	unsigned dwMsgSize;
 	int pnum;
 	BYTE *data, *dataEnd;
@@ -426,8 +426,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 		data += dwMsgSize;
 		if (dwMsgSize < sizeof(TurnPktHdr))
 			continue;
-		if ((unsigned)pnum >= MAX_PLRS)
-			continue;
+		// assert((unsigned)pnum < MAX_PLRS);
 		if (pkt->wCheck != PKT_HDR_CHECK)
 			continue;
 		if (pkt->wLen != SwapLE16(dwMsgSize))
@@ -466,8 +465,7 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		data += dwMsgSize;
 		if (dwMsgSize <= sizeof(TurnPktHdr))
 			continue;
-		if ((unsigned)pnum >= MAX_PLRS)
-			continue;
+		// assert((unsigned)pnum < MAX_PLRS);
 		if (pkt->wCheck != PKT_HDR_CHECK)
 			continue;
 		if (pkt->wLen != SwapLE16(dwMsgSize))
@@ -494,8 +492,7 @@ void multi_process_msgs()
 		multi_check_left_plrs();
 		if (dwMsgSize < sizeof(MsgPktHdr))
 			continue;
-		//if ((unsigned)pnum >= MAX_PLRS)
-		//	continue;
+		// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
 		if (pkt->wCheck != PKT_HDR_CHECK)
 			continue;
 		if (pkt->wLen != SwapLE16(dwMsgSize))

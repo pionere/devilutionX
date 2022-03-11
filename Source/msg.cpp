@@ -3944,7 +3944,6 @@ static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 
 unsigned ParseMsg(int pnum, TCmd* pCmd)
 {
-	net_assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
 //#ifndef NOHOSTING
 	if ((unsigned)pnum >= MAX_PLRS && pnum != SNPLAYER_MASTER) {
 //#else
@@ -3978,7 +3977,6 @@ unsigned ParseMsg(int pnum, TCmd* pCmd)
 
 unsigned ParseCmd(int pnum, TCmd* pCmd)
 {
-	net_assert((unsigned)pnum < MAX_PLRS);
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("ParseCmd: illegal player %d", pnum);
 	}
