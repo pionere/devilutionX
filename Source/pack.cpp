@@ -109,9 +109,9 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
  * Note: last slot of items[MAXITEMS] used as temporary buffer
  * find real name reference below, possibly [sizeof(items)/sizeof(ItemStruct)]
  * @param pis The source packed item
- * @param is The distination item
+ * @param is The destination item
  */
-static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
+static void UnPackItem(const PkItemStruct* pis, ItemStruct* is)
 {
 	uint16_t idx = SwapLE16(pis->wIndx);
 
@@ -120,6 +120,8 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 	} else if (idx == IDI_PHOLDER) {
 		is->_itype = ITYPE_PLACEHOLDER;
 		is->_iPHolder = SwapLE32(pis->dwBuff);
+		// TODO: check the referenced item?
+		net_assert((unsigned)is->_iPHolder < NUM_INV_GRID_ELEM);
 	} else {
 		UnPackPkItem(pis);
 		copy_pod(*is, items[MAXITEMS]);
@@ -128,13 +130,8 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 
 void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 {
-#if INET_MODE
-	int i, j;
-	ItemStruct *pi, *is;
-#else
 	int i;
 	ItemStruct* pi;
-#endif
 	PkItemStruct* pki;
 
 	// TODO: validate data from the internet
@@ -233,28 +230,9 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 		(pi->_itype == ITYPE_NONE || pi->_iClass == ICLASS_WEAPON));
 	if (pi->_itype == ITYPE_NONE) {
 		pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
-		net_assert(pi->_itype = ITYPE_NONE || pi->_itype == ITYPE_SHIELD);
+		net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD);
 	}
 	// TODO: check if the items conform to the wielding rules?
-	// TODO: check placeholders
-	// verify the gold-seeds TODO check gold values?
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		pi = &plr._pInvList[i];
-		if (pi->_iIdx == IDI_GOLD &&
-		 pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER) {
-			//if (pi->_ivalue > GOLD_MAX_LIMIT)
-			//	pi->_ivalue = GOLD_MAX_LIMIT;
-			for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-				if (i == j)
-					continue;
-				is = &plr._pInvList[j];
-				if (is->_iIdx == IDI_GOLD &&
-				 is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER) {
-					net_assert(is->_iSeed != pi->_iSeed);
-				}
-			}
-		}
-	}
 #endif /* INET_MODE */
 
 	// recalculate the cached fields

@@ -912,10 +912,14 @@ void UnPackPkItem(const PkItemStruct* src)
 			SwapLE16(src->wIndx),
 			SwapLE16(src->wCI),
 			SwapLE16(src->wValue));
-		net_assert(items[MAXITEMS]._iMaxDur >= src->bMDur);
+		net_assert(idx != IDI_GOLD || SwapLE16(src->wValue) < GOLD_MAX_LIMIT);
 		net_assert(items[MAXITEMS]._iMaxCharges >= src->bMCh);
-		net_assert(src->bDur <= src->bMDur);
 		net_assert(src->bCh <= src->bMCh);
+		net_assert(items[MAXITEMS]._iMaxDur >= src->bMDur);
+		net_assert(src->bDur <= src->bMDur);
+		if (items[MAXITEMS]._iClass == ICLASS_ARMOR || items[MAXITEMS]._iClass == ICLASS_WEAPON) {
+			net_assert(src->bDur != 0);
+		}
 		items[MAXITEMS]._iIdentified = src->bId;
 		items[MAXITEMS]._iDurability = src->bDur;
 		items[MAXITEMS]._iMaxDur = src->bMDur;
@@ -1430,7 +1434,14 @@ void LevelDeltaLoad()
 				is = &plr._pHoldItem;
 			else
 				is = PlrItem(pnum, *src);
+			net_assert(is->_itype >= ITYPE_SWORD && is->_itype <= ITYPE_HARMOR);
 			src++;
+			if (pnum == mypnum) {
+				net_assert(is->_iDurability == *src);
+			} else {
+				net_assert(is->_iMaxDur >= *src);
+				net_assert(*src != 0);
+			}
 			is->_iDurability = *src;
 			src++;
 		}
