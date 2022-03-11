@@ -280,10 +280,9 @@ void CreateTown(int entry)
 	DRLG_Init_Globals();
 
 	if (entry == ENTRY_MAIN) {
-		// New game - set by SetupLocalPlr in multi.cpp
-		//  or Restart in Town - _px/_py is not set
-		ViewX = myplr._px = 65 + DBORDERX;
-		ViewY = myplr._py = 58 + DBORDERY;
+		// New game or Restart in Town
+		ViewX = 65 + DBORDERX + plrxoff[mypnum];
+		ViewY = 58 + DBORDERY + plryoff[mypnum];
 	/*} else if (entry == ENTRY_PREV) { // Cathedral
 		ViewX = 15 + DBORDERX;
 		ViewY = 21 + DBORDERY;*/

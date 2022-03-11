@@ -623,10 +623,7 @@ static void multi_send_plrinfo_msg(int pnum, BYTE cmd)
 static void SetupLocalPlr()
 {
 	PlayerStruct *p;
-	int x, y;
 
-	x = 65 + DBORDERX;
-	y = 58 + DBORDERY;
 #if DEBUG_MODE
 	if (!leveldebug || !IsLocalGame) {
 		EnterLevel(DLV_TOWN);
@@ -634,10 +631,7 @@ static void SetupLocalPlr()
 #else
 	EnterLevel(DLV_TOWN);
 #endif
-	x += plrxoff[mypnum];
-	y += plryoff[mypnum];
 	p = &myplr;
-	SetPlayerLoc(p, x, y);
 	assert(currLvl._dLevelIdx == DLV_TOWN);
 	p->_pDunLevel = DLV_TOWN;
 	p->_pTeam = mypnum;

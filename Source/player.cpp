@@ -744,9 +744,8 @@ void CreatePlayer(const _uiheroinfo &heroinfo)
  *       The new solution prevents this, but in some cases it could be useful
  *       (in some cases it is annoying).
  *
- * @return TRUE if the player had to be displaced.
  */
-static bool PlacePlayer(int pnum)
+static void PlacePlayer(int pnum)
 {
 	int i, j, nx, ny;
 	const char* cr;
@@ -761,7 +760,7 @@ static bool PlacePlayer(int pnum)
 	}
 
 	if (i == 0)
-		return false;
+		return;
 
 	if (i == lengthof(plrxoff2)) {
 		static_assert(DBORDERX >= 16 && DBORDERY >= 16, "PlacePlayer expects a large enough border.");
@@ -780,18 +779,6 @@ static bool PlacePlayer(int pnum)
 
 	plr._px = nx;
 	plr._py = ny;
-	return true;
-}
-
-static void SyncInitPlrPos(int pnum)
-{
-	assert(plr._pDunLevel == currLvl._dLevelIdx);
-
-	if (PlacePlayer(pnum)) {
-		RemovePlrFromMap(pnum);
-		FixPlayerLocation(pnum);
-	}
-	dPlayer[plr._px][plr._py] = pnum + 1;
 }
 
 /*
@@ -838,7 +825,10 @@ void InitLvlPlayer(int pnum, bool entering)
 	SetPlrAnims(pnum);
 
 	if (entering) {
-		SyncInitPlrPos(pnum);
+		PlacePlayer(pnum);
+		// RemovePlrFromMap(pnum);
+		FixPlayerLocation(pnum);
+		// dPlayer[plr._px][plr._py] = pnum + 1;
 
 		plr._pdir = DIR_S;
 		PlrStartStand(pnum);
