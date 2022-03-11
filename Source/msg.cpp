@@ -112,13 +112,16 @@ void msg_send_drop_plr(int pnum, BYTE reason)
 
 static void msg_mask_monhit(int pnum)
 {
-	int i;
+	int i, j;
 	BYTE mask;
 
 	static_assert(MAX_PLRS < 8, "msg_mask_monhit uses BYTE mask for pnum.");
 	mask = ~(1 << pnum);
-	for (i = 0; i < MAXMONSTERS; i++)
-		gsDeltaData.ddLevel->monster[i]._mWhoHit &= mask;
+	for (i = 0; i < NUM_LEVELS; i++) {
+		for (j = 0; j < MAXMONSTERS; j++) {
+			gsDeltaData.ddLevel[i].monster[j]._mWhoHit &= mask;
+		}
+	}
 	for (i = 0; i < MAXMONSTERS; i++)
 		monsters[i]._mWhoHit &= mask;
 }
