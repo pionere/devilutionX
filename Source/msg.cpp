@@ -606,7 +606,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	pD->_mx = mon->mkParam1.x;
 	pD->_my = mon->mkParam1.y;
 	pD->_mdir = mon->mkDir;
-	pD->_mleaderflag = MLEADER_NONE;
+	pD->_mleaderflag = MLEADER_NONE; // TODO: reset leaderflag of the minions if the info is available
 	pD->_mhitpoints = 0;
 	return whoHit | pD->_mWhoHit;
 }
@@ -935,7 +935,13 @@ static void UpdateLeader(int mnum, BYTE prevFlag, BYTE newFlag)
 		MonUpdateLeader(mnum);
 		return;
 	}
+	if (prevFlag == MLEADER_NONE) {
+		// leaderflag out-of-sync because minions might be away when the leader dies
+		assert(newFlag != MLEADER_SELF);
+		return;
+	}
 	assert(prevFlag == MLEADER_PRESENT && newFlag == MLEADER_AWAY);
+	monsters[mnum].leaderflag = newFlag;
 	monsters[monsters[mnum].leader].packsize--;
 }
 
