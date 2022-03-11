@@ -912,7 +912,7 @@ void UnPackPkItem(const PkItemStruct* src)
 			SwapLE16(src->wIndx),
 			SwapLE16(src->wCI),
 			SwapLE16(src->wValue));
-		net_assert(idx != IDI_GOLD || SwapLE16(src->wValue) < GOLD_MAX_LIMIT);
+		net_assert(idx != IDI_GOLD || SwapLE16(src->wValue) <= GOLD_MAX_LIMIT);
 		net_assert(items[MAXITEMS]._iMaxCharges >= src->bMCh);
 		net_assert(src->bCh <= src->bMCh);
 		net_assert(items[MAXITEMS]._iMaxDur >= src->bMDur);
