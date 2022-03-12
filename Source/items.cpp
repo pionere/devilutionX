@@ -21,7 +21,7 @@ static int idoppelx = DBORDERX;
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
 const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 	// clang-format off
-	-1, -1,  0,  0,  0,  0,  1,  1
+	-1, -1, -1,  0,  0,  0,  1,  1
 	// clang-format on
 };
 
@@ -3288,8 +3288,8 @@ void SpawnPremium(unsigned lvl)
 		copy_pod(premiumitems[2], premiumitems[5]);
 		SpawnOnePremium(3, premiumlevel + premiumlvladd[3]);
 		copy_pod(premiumitems[4], premiumitems[6]);
-		SpawnOnePremium(5, premiumlevel + premiumlvladd[5]);
-		copy_pod(premiumitems[6], premiumitems[7]);
+		copy_pod(premiumitems[5], premiumitems[7]);
+		SpawnOnePremium(6, premiumlevel + premiumlvladd[6]);
 		SpawnOnePremium(7, premiumlevel + premiumlvladd[7]);
 	}
 }
