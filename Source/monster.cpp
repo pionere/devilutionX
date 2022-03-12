@@ -2777,11 +2777,10 @@ void MAI_Zombie(int mnum)
 				if (random_(104, 100) < 2 * mon->_mInt + 20) {
 					md = random_(104, NUM_DIRS);
 				}
-				MonDumbWalk(mnum, md);
 			} else {
 				md = MonGetDir(mnum);
-				MonCallWalk(mnum, md);
 			}
+			MonCallWalk(mnum, md);
 		} else {
 			MonStartAttack(mnum);
 		}
