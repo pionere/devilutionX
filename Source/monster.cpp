@@ -2670,24 +2670,24 @@ static bool MonCallWalk(int mnum, int md)
 	bool ok;
 
 	// try desired direction
-	ok = DirOK(mnum, md);
+	ok = MonDirOK(mnum, md);
 	if (!ok) {
 		mdtemp = md;
 		// Randomly go left or right
 		if (random_(101, 2) != 0)
-			ok = (md = (mdtemp - 1) & 7, DirOK(mnum, md))
-			  || (md = (mdtemp + 1) & 7, DirOK(mnum, md));
+			ok = (md = (mdtemp - 1) & 7, MonDirOK(mnum, md))
+			  || (md = (mdtemp + 1) & 7, MonDirOK(mnum, md));
 		else
-			ok = (md = (mdtemp + 1) & 7, DirOK(mnum, md))
-			  || (md = (mdtemp - 1) & 7, DirOK(mnum, md));
+			ok = (md = (mdtemp + 1) & 7, MonDirOK(mnum, md))
+			  || (md = (mdtemp - 1) & 7, MonDirOK(mnum, md));
 		if (!ok) {
 			// Randomly go further left or right
 			if (random_(102, 2) != 0)
-				ok = (md = (mdtemp + 2) & 7, DirOK(mnum, md))
-				 || (md = (mdtemp - 2) & 7, DirOK(mnum, md));
+				ok = (md = (mdtemp + 2) & 7, MonDirOK(mnum, md))
+				 || (md = (mdtemp - 2) & 7, MonDirOK(mnum, md));
 			else
-				ok = (md = (mdtemp - 2) & 7, DirOK(mnum, md))
-				 || (md = (mdtemp + 2) & 7, DirOK(mnum, md));
+				ok = (md = (mdtemp - 2) & 7, MonDirOK(mnum, md))
+				 || (md = (mdtemp + 2) & 7, MonDirOK(mnum, md));
 		}
 	}
 	if (ok)
@@ -2720,7 +2720,7 @@ static bool MonDumbWalk(int mnum, int md)
 {
 	bool ok;
 
-	ok = DirOK(mnum, md);
+	ok = MonDirOK(mnum, md);
 	if (ok)
 		MonWalkDir(mnum, md);
 
@@ -2737,15 +2737,15 @@ static bool MonRoundWalk(int mnum, int md, int* dir)
 	else
 		md = (md + 2) & 7;
 
-	ok = DirOK(mnum, md);
+	ok = MonDirOK(mnum, md);
 	mdtemp = md;
 	if (!ok) {
 		if (*dir) {
-			ok = (md = (mdtemp + 1) & 7, DirOK(mnum, md))
-			  || (md = (mdtemp + 2) & 7, DirOK(mnum, md));
+			ok = (md = (mdtemp + 1) & 7, MonDirOK(mnum, md))
+			  || (md = (mdtemp + 2) & 7, MonDirOK(mnum, md));
 		} else {
-			ok = (md = (mdtemp - 1) & 7, DirOK(mnum, md))
-			  || (md = (mdtemp - 2) & 7, DirOK(mnum, md));
+			ok = (md = (mdtemp - 1) & 7, MonDirOK(mnum, md))
+			  || (md = (mdtemp - 2) & 7, MonDirOK(mnum, md));
 		}
 	}
 	if (ok) {
@@ -3293,7 +3293,7 @@ static void MAI_Round(int mnum, bool special)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(116, 2); // MOVE_TURN_DIRECTION
 			}
-			if (mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) {
+			if (mon->_mgoalvar1++ >= 2 * dist && MonDirOK(mnum, md)) {
 				mon->_mgoal = MGOAL_NORMAL;
 			} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
 				MonStartDelay(mnum, RandRange(10, 19));
@@ -3612,7 +3612,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 				mon->_mgoalvar1 = 4 + RandRange(2, dist); // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2);        // MOVE_TURN_DIRECTION
 			}
-			/*if ((--mon->_mgoalvar1 <= 4 && DirOK(mnum, md)) || mon->_mgoalvar1 == 0) {
+			/*if ((--mon->_mgoalvar1 <= 4 && MonDirOK(mnum, md)) || mon->_mgoalvar1 == 0) {
 				mon->_mgoal = MGOAL_NORMAL;
 			} else if (v < ((6 * (mon->_mInt + 1)) >> lessmissiles)
 			    && (LineClear(mon->_mx, mon->_my, fx, fy))) {
@@ -3620,7 +3620,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 			} else {
 				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			}*/
-			if (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !DirOK(mnum, md))) { // MOVE_DISTANCE
+			if (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !MonDirOK(mnum, md))) { // MOVE_DISTANCE
 				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3717,7 +3717,7 @@ static void MAI_RR2(int mnum, int mitype)
 				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
 			}
 			mon->_mgoalvar3 = TRUE;                // MOVE_POSITIONED
-			if (mon->_mgoalvar1++ < 2 * dist || !DirOK(mnum, md)) {
+			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, md)) {
 				if (v < 5 * (mon->_mInt + 16))
 					MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else
@@ -3793,7 +3793,7 @@ void MAI_Golem(int mnum)
 	if (!MonCallWalk(mnum, md)) {
 		for (i = 0; i < NUM_DIRS; i++) {
 			md = (md + 1) & 7;
-			if (DirOK(mnum, md)) {
+			if (MonDirOK(mnum, md)) {
 				MonWalkDir(mnum, md);
 				break;
 			}
@@ -3830,7 +3830,7 @@ void MAI_SkelKing(int mnum)
 			mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 			mon->_mgoalvar2 = random_(128, 2); // MOVE_TURN_DIRECTION
 		}
-		if ((mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) /*|| dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]*/) {
+		if ((mon->_mgoalvar1++ >= 2 * dist && MonDirOK(mnum, md)) /*|| dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]*/) {
 			mon->_mgoal = MGOAL_NORMAL;
 		} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
 			MonStartDelay(mnum, RandRange(10, 19));
@@ -4046,7 +4046,7 @@ void MAI_Counselor(int mnum)
 	} else {
 		assert(mon->_mgoal == MGOAL_MOVE);
 		if (dist >= 2 /*&& mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]*/
-		 && (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !DirOK(mnum, md)))) { // MOVE_DISTANCE
+		 && (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !MonDirOK(mnum, md)))) { // MOVE_DISTANCE
 			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
@@ -4542,7 +4542,7 @@ void FreeMonsters()
 	FreeMissiles2();
 }
 
-bool DirOK(int mnum, int mdir)
+bool MonDirOK(int mnum, int mdir)
 {
 	int fx, fy;
 	int x, y;

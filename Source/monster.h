@@ -55,7 +55,7 @@ void MonWalkDir(int mnum, int md);
 void DeleteMonsterList();
 void ProcessMonsters();
 void FreeMonsters();
-bool DirOK(int mnum, int mdir);
+bool MonDirOK(int mnum, int mdir);
 bool CheckAllowMissile(int x, int y);
 bool CheckNoSolid(int x, int y);
 bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2);
