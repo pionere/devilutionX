@@ -77,8 +77,6 @@ inline void SetPlayerLoc(PlayerStruct* p, int x, int y)
 
 /* data */
 
-extern const int plrxoff[MAX_PLRS];
-extern const int plryoff[MAX_PLRS];
 extern const BYTE PlrAnimFrameLens[NUM_PLR_ANIMS];
 extern const int StrengthTbl[NUM_CLASSES];
 extern const int MagicTbl[NUM_CLASSES];

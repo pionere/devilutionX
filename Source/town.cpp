@@ -281,8 +281,8 @@ void CreateTown(int entry)
 
 	if (entry == ENTRY_MAIN) {
 		// New game or Restart in Town
-		ViewX = 65 + DBORDERX + plrxoff[mypnum];
-		ViewY = 58 + DBORDERY + plryoff[mypnum];
+		ViewX = 65 + DBORDERX;
+		ViewY = 58 + DBORDERY;
 	/*} else if (entry == ENTRY_PREV) { // Cathedral
 		ViewX = 15 + DBORDERX;
 		ViewY = 21 + DBORDERY;*/

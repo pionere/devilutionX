@@ -67,11 +67,6 @@ const char *const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
 };
 
 /*
- * Specifies the X and Y offsets to the start location in Tristram for each player.
- */
-const int plrxoff[MAX_PLRS] = { 0, 2, 0, 2 }; //, 1, 0, 1, 2, 1 };
-const int plryoff[MAX_PLRS] = { 0, 2, 2, 0 }; //, 1, 1, 0, 1, 2 };
-/*
  * Specifies the X and Y offsets to try when a player is entering the level or resurrected.
  * The base position is the location of the portal or the body of the dead player.
  */
