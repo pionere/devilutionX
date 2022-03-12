@@ -2671,9 +2671,11 @@ static bool MonCallWalk(int mnum, int md)
 	int mdtemp;
 	bool ok;
 
+	// try desired direction
 	ok = DirOK(mnum, md);
 	if (!ok) {
 		mdtemp = md;
+		// Randomly go left or right
 		if (random_(101, 2) != 0)
 			ok = (md = (mdtemp - 1) & 7, DirOK(mnum, md))
 			  || (md = (mdtemp + 1) & 7, DirOK(mnum, md));
@@ -2681,6 +2683,7 @@ static bool MonCallWalk(int mnum, int md)
 			ok = (md = (mdtemp + 1) & 7, DirOK(mnum, md))
 			  || (md = (mdtemp - 1) & 7, DirOK(mnum, md));
 		if (!ok) {
+			// Randomly go further left or right
 			if (random_(102, 2) != 0)
 				ok = (md = (mdtemp + 2) & 7, DirOK(mnum, md))
 				 || (md = (mdtemp - 2) & 7, DirOK(mnum, md));
@@ -2707,34 +2710,10 @@ static bool MonPathWalk(int mnum)
 
 	if (FindPath(Check, mnum, monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy, path) != 0) {
 		//MonCallWalk(mnum, walk2dir[path[0]]);
-		MonCallWalk(mnum, path[0]);
-		return true;
+		return MonCallWalk(mnum, path[0]);
 	}
 
 	return false;
-}
-
-static void MonCallWalk2(int mnum, int md)
-{
-	bool ok;
-	int mdtemp;
-
-	ok = DirOK(mnum, md);       // Can we continue in the same direction
-	if (!ok) {
-		mdtemp = md;
-		if (random_(101, 2) != 0) { // Randomly go left or right
-			ok = (md = (mdtemp - 1) & 7, DirOK(mnum, md))
-			 || (md = (mdtemp + 1) & 7, DirOK(mnum, md));
-		} else {
-			ok = (md = (mdtemp + 1) & 7, DirOK(mnum, md))
-			 || (md = (mdtemp - 1) & 7, DirOK(mnum, md));
-		}
-	}
-
-	if (ok)
-		MonWalkDir(mnum, md);
-
-	//return ok;
 }
 
 static bool MonDumbWalk(int mnum, int md)
@@ -2926,7 +2905,7 @@ void MAI_Snake(int mnum)
 				mon->_mgoalvar2 = (mon->_mgoalvar2 + md) & 7;
 			}
 			if (!MonDumbWalk(mnum, mon->_mgoalvar2))
-				MonCallWalk2(mnum, mon->_mdir);
+				MonCallWalk(mnum, mon->_mdir);
 		} else {
 			MonStartDelay(mnum, RandRange(15, 24) - mon->_mInt);
 		}
