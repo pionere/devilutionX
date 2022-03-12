@@ -3460,7 +3460,7 @@ void MAI_Scav(int mnum)
 					mon->_mhitpoints += maxhp >> 3;
 					if (mon->_mhitpoints > maxhp)
 						mon->_mhitpoints = maxhp;
-					if (mon->_mhitpoints == maxhp || mon->_mgoalvar3 <= 0) { // HEALING_ROUNDS
+					if (mon->_mhitpoints == maxhp || mon->_mgoalvar3 == 0) { // HEALING_ROUNDS
 						NetSendCmdMonstCorpse(mnum);
 						dDead[mon->_mx][mon->_my] = 0;
 					}
@@ -3506,7 +3506,8 @@ void MAI_Scav(int mnum)
 				if (mon->_mgoalvar1 != 0) {
 					//                                  HEALING_LOCATION_X, HEALING_LOCATION_Y
 					tmp = GetDirection(mon->_mx, mon->_my, mon->_mgoalvar1, mon->_mgoalvar2);
-					MonCallWalk(mnum, tmp);
+					if (!MonCallWalk(mnum, tmp))
+						mon->_mgoalvar3 = 0; // reset HEALING_ROUNDS to prevent back-and-forth with MAI_SkelSd
 				}
 			}
 		}
