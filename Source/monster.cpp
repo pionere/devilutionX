@@ -2694,6 +2694,8 @@ static bool MonCallWalk(int mnum, int md)
 	}
 	if (ok)
 		MonWalkDir(mnum, md);
+	else
+		MonEnemy(mnum); // prevent from stucking with an inaccessible enemy
 	return ok;
 }
 
@@ -3004,6 +3006,8 @@ void MAI_SkelBow(int mnum)
 		if (v < 2 * mon->_mInt + 3) {
 			if (LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy))
 				MonStartRAttack(mnum, MIS_ARROWC);
+			else
+				MonEnemy(mnum); // prevent from stucking with an inaccessible enemy
 		}
 	}
 }
@@ -3352,6 +3356,8 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 					MonStartRSpAttack(mnum, mitype);
 				else
 					MonStartRAttack(mnum, mitype);
+			} else {
+				MonEnemy(mnum); // prevent from stucking with an inaccessible enemy
 			}
 		}
 	} else {
