@@ -1342,7 +1342,9 @@ typedef struct DLevel {
 	DItemStr item[MAXITEMS];
 	DObjectStr object[MAXOBJECTS];
 	DMonsterStr monster[MAXMONSTERS];
+//	BYTE alignment[0x2000 - (sizeof(DItemStr) * MAXITEMS + sizeof(DObjectStr) * MAXOBJECTS + sizeof(DMonsterStr) * MAXMONSTERS)];
 } DLevel;
+//static_assert((sizeof(DLevel) & (sizeof(DLevel) - 1)) == 0, "Align DLevel closer to power of 2 for better performance.");
 
 typedef struct LocalLevel {
 	BOOLEAN automapsv[DMAXX][DMAXY];
@@ -1546,9 +1548,9 @@ typedef struct SpellData {
 	BYTE sType;
 	BYTE sIcon;
 	const char* sNameText;
-	char sBookLvl;
-	char sStaffLvl;
-	char sScrollLvl;
+	BYTE sBookLvl;
+	BYTE sStaffLvl;
+	BYTE sScrollLvl;
 	BOOLEAN sTargeted;
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells

@@ -12,13 +12,13 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#define SPELL_NA		-1
+#define SPELL_NA		0
 /* Minimum level requirement of a book. */
-#define BOOK_MIN		 1
+#define BOOK_MIN		1
 /* Minimum level requirement of a staff. */
-#define STAFF_MIN		 2
+#define STAFF_MIN		2
 /* Minimum level requirement of a scroll. */
-#define SCRL_MIN		 1
+#define SCRL_MIN		1
 /* The cooldown period of the rage skill. */
 #define RAGE_COOLDOWN_TICK		1200
 
