@@ -71,7 +71,7 @@ ItemStruct storeitem;
 /* The item for sale by Wirt. */
 ItemStruct boyitem;
 /* The level of the item by Wirt. */
-int boylevel;
+unsigned boylevel;
 /* The standard items for sale by the smith. */
 ItemStruct smithitem[SMITH_ITEMS];
 /* The premium items for sale by the smith. */

@@ -1777,7 +1777,7 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, int uper, bo
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
 		 || items[ii]._itype == ITYPE_AMULET
-		 || random_(32, 100) <= 10 || random_(33, 100) <= lvl) {
+		 || random_(32, 100) <= 10 || (unsigned)random_(33, 100) <= lvl) {
 			uid = CheckUnique(ii, lvl, uper);
 			if (uid < 0) {
 				GetItemBonus(ii, lvl >> 1, lvl, onlygood, true);
@@ -3284,7 +3284,7 @@ void SpawnPremium(unsigned lvl)
 		}
 		numpremium = SMITH_PREMIUM_ITEMS;
 	}
-	while (premiumlevel < lvl) {
+	while ((unsigned)premiumlevel < lvl) {
 		premiumlevel++;
 		copy_pod(premiumitems[0], premiumitems[3]);
 		copy_pod(premiumitems[1], premiumitems[4]);
@@ -3397,6 +3397,7 @@ void SpawnBoy(unsigned lvl)
 	int seed;
 
 	if (boylevel < (lvl >> 1) || boyitem._itype == ITYPE_NONE) {
+		boylevel = lvl >> 1;
 		do {
 			seed = GetRndSeed();
 			SetRndSeed(seed);
@@ -3406,7 +3407,6 @@ void SpawnBoy(unsigned lvl)
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_BOY;
 		copy_pod(boyitem, items[0]);
-		boylevel = lvl >> 1;
 	}
 }
 
