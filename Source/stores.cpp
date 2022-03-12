@@ -166,7 +166,7 @@ void InitStoresOnce()
 	boylevel = 0;
 }
 
-static int StoresLimitedItemLvl()
+static unsigned StoresLimitedItemLvl()
 {
 	int l = myplr._pLevel;
 
@@ -180,7 +180,7 @@ static int StoresLimitedItemLvl()
 
 void InitLvlStores()
 {
-	int l;
+	unsigned l;
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx] * SDL_GetTicks());
 	l = StoresLimitedItemLvl();

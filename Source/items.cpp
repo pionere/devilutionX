@@ -99,7 +99,7 @@ static void PlaceNote()
 }
 #endif
 
-static inline int items_get_currlevel()
+static inline unsigned items_get_currlevel()
 {
 	return currLvl._dLevel;
 }
@@ -118,7 +118,8 @@ void InitItemGFX()
 
 static void PlaceInitItems()
 {
-	int ii, i, lvl, seed;
+	int ii, i, seed;
+	unsigned lvl;
 
 	lvl = items_get_currlevel();
 
@@ -1095,10 +1096,10 @@ static void CalcItemValue(int ii)
 	is->_iIvalue = v;
 }
 
-static void GetBookSpell(int ii, int lvl)
+static void GetBookSpell(int ii, unsigned lvl)
 {
-	const SpellData *sd;
-	ItemStruct *is;
+	const SpellData* sd;
+	ItemStruct* is;
 	int rv, bs;
 
 	rv = random_(14, NUM_SPELLS);
@@ -1133,10 +1134,10 @@ static void GetBookSpell(int ii, int lvl)
 		is->_iCurs = ICURS_BOOK_GRAY;
 }
 
-static void GetScrollSpell(int ii, int lvl)
+static void GetScrollSpell(int ii, unsigned lvl)
 {
-	const SpellData *sd;
-	ItemStruct *is;
+	const SpellData* sd;
+	ItemStruct* is;
 	int rv, bs;
 
 	rv = random_(14, NUM_SPELLS);
@@ -1165,10 +1166,10 @@ static void GetScrollSpell(int ii, int lvl)
 	is->_iIvalue += sd->sStaffCost;
 }
 
-static void GetStaffSpell(int ii, int lvl)
+static void GetStaffSpell(int ii, unsigned lvl)
 {
-	const SpellData *sd;
-	ItemStruct *is;
+	const SpellData* sd;
+	ItemStruct* is;
 	int rv, v, bs;
 	char istr[32];
 
@@ -1207,9 +1208,9 @@ static void GetStaffSpell(int ii, int lvl)
 	is->_iIvalue += v;
 }
 
-static void GetItemAttrs(int ii, int idata, int lvl)
+static void GetItemAttrs(int ii, int idata, unsigned lvl)
 {
-	ItemStruct *is;
+	ItemStruct* is;
 	int rndv;
 
 	SetItemData(ii, idata);
@@ -1476,7 +1477,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	}
 }
 
-static void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, bool onlygood)
+static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, bool onlygood)
 {
 	int pre, post, nl;
 	const AffixData *pres, *sufs;
@@ -1556,7 +1557,7 @@ static void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, bool onlygood
 		CalcItemValue(ii);
 }
 
-static void GetItemBonus(int ii, int minlvl, int maxlvl, bool onlygood, bool allowspells)
+static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood, bool allowspells)
 {
 	int flgs;
 
@@ -1611,7 +1612,7 @@ static void GetItemBonus(int ii, int minlvl, int maxlvl, bool onlygood, bool all
 	GetItemPower(ii, minlvl, maxlvl, flgs, onlygood);
 }
 
-static int RndItem(int lvl)
+static int RndItem(unsigned lvl)
 {
 	int i, ri;
 	int ril[NUM_IDI * 2];
@@ -1637,7 +1638,7 @@ static int RndItem(int lvl)
 	return ril[random_(24, ri)];
 }
 
-static int RndUItem(int lvl)
+static int RndUItem(unsigned lvl)
 {
 	int i, ri;
 	int ril[NUM_IDI];
@@ -1655,7 +1656,7 @@ static int RndUItem(int lvl)
 	return ril[random_(25, ri)];
 }
 
-static int RndAllItems(int lvl)
+static int RndAllItems(unsigned lvl)
 {
 	int i, ri;
 	int ril[NUM_IDI];
@@ -1674,7 +1675,7 @@ static int RndAllItems(int lvl)
 	return ril[random_(26, ri)];
 }
 
-static int RndTypeItems(int itype, int imid, int lvl)
+static int RndTypeItems(int itype, int imid, unsigned lvl)
 {
 	int i, ri;
 	int ril[NUM_IDI];
@@ -1692,7 +1693,7 @@ static int RndTypeItems(int itype, int imid, int lvl)
 	return ril[random_(27, ri)];
 }
 
-static int CheckUnique(int ii, int lvl, int uper)
+static int CheckUnique(int ii, unsigned lvl, int uper)
 {
 	int i, ui;
 	BYTE uok[NUM_UITEM];
@@ -1754,7 +1755,7 @@ static void ItemRndDur(int ii)
 		items[ii]._iDurability = random_(0, items[ii]._iMaxDur >> 1) + (items[ii]._iMaxDur >> 2) + 1;
 }
 
-static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool onlygood)
+static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, int uper, bool onlygood)
 {
 	int uid;
 
@@ -1849,7 +1850,8 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 
 void CreateRndItem(int x, int y, bool onlygood, int mode)
 {
-	int idx, ii, lvl;
+	int idx, ii;
+	unsigned lvl;
 
 	lvl = items_get_currlevel();
 
@@ -1881,7 +1883,7 @@ void CreateRndItem(int x, int y, bool onlygood, int mode)
 	}
 }
 
-static void SetupAllUseful(int ii, int iseed, int lvl)
+static void SetupAllUseful(int ii, int iseed, unsigned lvl)
 {
 	int idx;
 
@@ -1912,7 +1914,7 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 
 void SpawnRndUseful(int x, int y, bool sendmsg)
 {
-	int lvl;
+	unsigned lvl;
 
 	lvl = items_get_currlevel();
 
@@ -1924,7 +1926,8 @@ void SpawnRndUseful(int x, int y, bool sendmsg)
 
 void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, int mode)
 {
-	int idx, ii, lvl;
+	int idx, ii;
+	unsigned lvl;
 
 	lvl = items_get_currlevel();
 
@@ -3157,7 +3160,7 @@ static bool SmithItemOk(int i)
 	 && AllItemsList[i].itype != ITYPE_AMULET;
 }
 
-static int RndSmithItem(int lvl)
+static int RndSmithItem(unsigned lvl)
 {
 	int i, ri;
 	int ril[NUM_IDI * 2];
@@ -3209,7 +3212,7 @@ static void SortSmith()
 	}
 }
 
-void SpawnSmith(int lvl)
+void SpawnSmith(unsigned lvl)
 {
 	int i, iCnt, seed;
 
@@ -3230,7 +3233,7 @@ void SpawnSmith(int lvl)
 	SortSmith();
 }
 
-static int RndPremiumItem(int minlvl, int maxlvl)
+static int RndPremiumItem(unsigned minlvl, unsigned maxlvl)
 {
 	int i, ri;
 	int ril[NUM_IDI];
@@ -3248,7 +3251,7 @@ static int RndPremiumItem(int minlvl, int maxlvl)
 	return ril[random_(50, ri)];
 }
 
-static void SpawnOnePremium(int i, int plvl)
+static void SpawnOnePremium(int i, unsigned plvl)
 {
 	int seed;
 
@@ -3267,7 +3270,7 @@ static void SpawnOnePremium(int i, int plvl)
 	copy_pod(premiumitems[i], items[0]);
 }
 
-void SpawnPremium(int lvl)
+void SpawnPremium(unsigned lvl)
 {
 	int i;
 
@@ -3302,7 +3305,7 @@ static bool WitchItemOk(int i)
 	   || AllItemsList[i].iMiscId == IMISC_FULLREJUV));
 }
 
-static int RndWitchItem(int lvl)
+static int RndWitchItem(unsigned lvl)
 {
 	int i, ri;
 	int ril[NUM_IDI];
@@ -3341,7 +3344,7 @@ static void SortWitch()
 	}
 }
 
-void SpawnWitch(int lvl)
+void SpawnWitch(unsigned lvl)
 {
 	int i, iCnt;
 	int seed;
@@ -3370,7 +3373,7 @@ void SpawnWitch(int lvl)
 	SortWitch();
 }
 
-static int RndBoyItem(int lvl)
+static int RndBoyItem(unsigned lvl)
 {
 	int i, ri;
 	int ril[NUM_IDI];
@@ -3386,7 +3389,7 @@ static int RndBoyItem(int lvl)
 	return ril[random_(49, ri)];
 }
 
-void SpawnBoy(int lvl)
+void SpawnBoy(unsigned lvl)
 {
 	int seed;
 
@@ -3411,7 +3414,7 @@ static bool HealerItemOk(int i)
 		|| AllItemsList[i].iMiscId == IMISC_SCROLL;
 }
 
-static int RndHealerItem(int lvl)
+static int RndHealerItem(unsigned lvl)
 {
 	int i, ri;
 	int ril[NUM_IDI];
@@ -3450,7 +3453,7 @@ static void SortHealer()
 	}
 }
 
-void SpawnHealer(int lvl)
+void SpawnHealer(unsigned lvl)
 {
 	int i, iCnt, srnd, seed;
 
@@ -3482,7 +3485,7 @@ void SpawnHealer(int lvl)
 	SortHealer();
 }
 
-static void RecreateSmithItem(int ii, int iseed, int idx, int lvl)
+static void RecreateSmithItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
@@ -3491,7 +3494,7 @@ static void RecreateSmithItem(int ii, int iseed, int idx, int lvl)
 	//items[ii]._iCreateInfo = lvl | CF_SMITH;
 }
 
-static void RecreatePremiumItem(int ii, int iseed, int idx, int lvl)
+static void RecreatePremiumItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndPremiumItem(lvl >> 2, lvl), lvl);
@@ -3501,7 +3504,7 @@ static void RecreatePremiumItem(int ii, int iseed, int idx, int lvl)
 	//items[ii]._iCreateInfo = lvl | CF_SMITHPREMIUM;
 }
 
-static void RecreateBoyItem(int ii, int iseed, int idx, int lvl)
+static void RecreateBoyItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndBoyItem(lvl), lvl);
@@ -3511,7 +3514,7 @@ static void RecreateBoyItem(int ii, int iseed, int idx, int lvl)
 	//items[ii]._iCreateInfo = lvl | CF_BOY;
 }
 
-static void RecreateWitchItem(int ii, int iseed, int idx, int lvl)
+static void RecreateWitchItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
 		GetItemAttrs(ii, idx, lvl);
@@ -3526,7 +3529,7 @@ static void RecreateWitchItem(int ii, int iseed, int idx, int lvl)
 	//items[ii]._iCreateInfo = lvl | CF_WITCH;
 }
 
-static void RecreateHealerItem(int ii, int iseed, int idx, int lvl)
+static void RecreateHealerItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	if (idx == IDI_HEAL || idx == IDI_FULLHEAL || idx == IDI_RESURRECT) {
 		GetItemAttrs(ii, idx, lvl);
@@ -3539,7 +3542,7 @@ static void RecreateHealerItem(int ii, int iseed, int idx, int lvl)
 	//items[ii]._iCreateInfo = lvl | CF_HEALER;
 }
 
-static void RecreateCraftedItem(int ii, int iseed, int idx, int lvl)
+static void RecreateCraftedItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, idx, lvl);
@@ -3552,7 +3555,8 @@ static void RecreateCraftedItem(int ii, int iseed, int idx, int lvl)
 
 void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo)
 {
-	int loc, lvl;
+	int loc;
+	unsigned lvl;
 
 	loc = (icreateinfo & CF_TOWN) >> 8;
 	lvl = icreateinfo & CF_LEVEL;
@@ -3583,7 +3587,8 @@ void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo)
 
 void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 {
-	int idx, lvl;
+	int idx;
+	unsigned lvl;
 
 	lvl = spelldata[ispell].sBookLvl;
 	assert(lvl != SPELL_NA);
@@ -3604,7 +3609,8 @@ void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 #ifdef HELLFIRE
 void SpawnAmulet(WORD wCI, int x, int y/*, bool sendmsg*/)
 {
-	int lvl, idx;
+	int idx;
+	unsigned lvl;
 
 	lvl = wCI & CF_LEVEL; // TODO: make sure there is an amulet which fits?
 
@@ -3622,7 +3628,8 @@ void SpawnAmulet(WORD wCI, int x, int y/*, bool sendmsg*/)
 
 void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 {
-	int idx, lvl;
+	int idx;
+	unsigned lvl;
 
 	lvl = items_get_currlevel();
 
