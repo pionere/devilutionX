@@ -2935,12 +2935,13 @@ void MAI_Bat(int mnum)
 	if (mon->_mgoal == MGOAL_RETREAT) {
 		if (mon->_mgoalvar1 == 0) { // RETREAT_FINISHED
 			mon->_mgoalvar1++;
-			MonCallWalk(mnum, OPPOSITE(md));
+			md = OPPOSITE(md);
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
-			//MonCallWalk(mnum, random_(108, 2) != 0 ? left[md] : right[md]);
-			MonCallWalk(mnum, (md + 2 * random_(108, 2) - 1) & 7);
+			// md = random_(108, 2) != 0 ? left[md] : right[md];
+			md = (md + 2 * random_(108, 2) - 1) & 7;
 		}
+		MonCallWalk(mnum, md);
 		return;
 	}
 
