@@ -62,6 +62,10 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_ID_PRICE			100
 #define STORE_BOY_PRICE			50
 
+// level limits of the premium items by the smith
+#define STORE_PITEM_MINLVL		6
+#define STORE_PITEM_MAXLVL		32
+
 /* The current item in store. */
 ItemStruct storeitem;
 /* The item for sale by Wirt. */
@@ -157,7 +161,7 @@ void InitStoresOnce()
 	gbWidePanel = false;
 	gbHasScroll = false;
 	numpremium = 0;
-	premiumlevel = 1;
+	premiumlevel = STORE_PITEM_MINLVL;
 	// assert((premiumlevel + premiumlvladd[0]) >= 0);
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
@@ -172,10 +176,10 @@ static unsigned StoresLimitedItemLvl()
 	int l = myplr._pLevel;
 
 	l += 2;
-	if (l < 6)
-		l = 6;
-	if (l > 32)
-		l = 32;
+	if (l < STORE_PITEM_MINLVL)
+		l = STORE_PITEM_MINLVL;
+	if (l > STORE_PITEM_MAXLVL)
+		l = STORE_PITEM_MAXLVL;
 	return l;
 }
 
