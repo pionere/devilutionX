@@ -1350,9 +1350,7 @@ static void MonStartDelay(int mnum, int len)
 {
 	MonsterStruct* mon;
 
-	if (len <= 0) {
-		return;
-	}
+	// assert(len > 0);
 
 	mon = &monsters[mnum];
 	mon->_mVar2 = len;      // DELAY_TICK : length of the delay
@@ -3345,7 +3343,9 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 		mx = mon->_mx - fx;
 		my = mon->_my - fy;
 		if (mon->_mVar1 == attackMode) { // STAND_PREV_MODE
-			MonStartDelay(mnum, random_(118, 20));
+			md = random_(118, 20);
+			if (md != 0)
+				MonStartDelay(mnum, md);
 		} else if (abs(mx) < 4 && abs(my) < 4) {
 			if (random_(119, 100) < 10 * (mon->_mInt + 7))
 				MonCallWalk(mnum, OPPOSITE(mon->_mdir));
