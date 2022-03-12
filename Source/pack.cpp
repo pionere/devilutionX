@@ -224,15 +224,52 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	plr._pName[sizeof(plr._pName) - 1] = '\0';
 	net_assert(plr._pClass < NUM_CLASSES);
 	net_assert(plr._pLevel >= 1 && plr._pLevel <= MAXCHARLEVEL);
+	net_assert(plr._pExperience < PlrExpLvlsTbl[plr._pLevel]);
+	net_assert(plr._pDunLevel < NUM_LEVELS);
 	net_assert(plr._pTeam < MAX_PLRS);
+	net_assert((plr._pMemSkills & ~(SPELL_MASK(NUM_SPELLS) - 1)) == 0);	
+	for (i = 0; i < NUM_SPELLS; i++) {
+		if (plr._pMemSkills & SPELL_MASK(i))
+			net_assert(spelldata[i].sBookLvl != SPELL_NA);
+	}
+	// check if the items conform to the wielding rules
+	for (i = 0; i < MAXBELTITEMS; i++) {
+		// - no placeholder in belt
+		pi = &plr._pSpdList[i];
+		net_assert(pi->_itype != ITYPE_PLACEHOLDER);
+		// - only belt items in belt
+		net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_BELT);
+	}
+	// - no placeholder on body
+	for (i = 0; i < NUM_INVLOC; i++)
+		net_assert(plr._pInvBody[i]._itype != ITYPE_PLACEHOLDER);
+	// - allow only helm on head
+	pi = &plr._pInvBody[INVLOC_HEAD];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_HELM);
+	// - allow only armor on chest
+	pi = &plr._pInvBody[INVLOC_CHEST];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_ARMOR);
+	// - allow only amulet on neck
+	pi = &plr._pInvBody[INVLOC_AMULET];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_AMULET);
+	// - allow only ring on hand
+	pi = &plr._pInvBody[INVLOC_RING_LEFT];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_RING);
+	pi = &plr._pInvBody[INVLOC_RING_RIGHT];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_RING);
+	// - allow only weapon in left hand
 	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
-	net_assert(pi->_itype != ITYPE_PLACEHOLDER &&
-		(pi->_itype == ITYPE_NONE || pi->_iClass == ICLASS_WEAPON));
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iClass == ICLASS_WEAPON);
 	if (pi->_itype == ITYPE_NONE) {
+		// - allow only shield in right hand when left hand is empty
 		pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 		net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD);
+	} else {
+		// - right hand must be empty when wielding a two handed weapon
+		if (pi->_iLoc == ILOC_TWOHAND && TWOHAND_WIELD(&plr, pi)) {
+			net_assert(plr._pInvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE);
+		}
 	}
-	// TODO: check if the items conform to the wielding rules?
 #endif /* INET_MODE */
 
 	// recalculate the cached fields
