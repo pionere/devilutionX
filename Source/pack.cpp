@@ -265,9 +265,14 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 		pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 		net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD);
 	} else {
-		// - right hand must be empty when wielding a two handed weapon
-		if (pi->_iLoc == ILOC_TWOHAND && TWOHAND_WIELD(&plr, pi)) {
+		if (TWOHAND_WIELD(&plr, pi)) {
+			// - right hand must be empty when wielding a two handed weapon
 			net_assert(plr._pInvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE);
+		} else {
+			// - allow only shield or one handed weapon in right hand with weapon in the left hand
+			pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
+			net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD ||
+			 (pi->_iClass == ICLASS_WEAPON && !TWOHAND_WIELD(&plr, pi)));
 		}
 	}
 #endif /* INET_MODE */
