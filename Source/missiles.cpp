@@ -2900,8 +2900,8 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 		mindam = plx(misource)._pMagic;
 		maxdam = mindam + (spllvl << 4);
 	} else {
-		mindam = monsters[misource]._mMinDamage << 1;
-		maxdam = monsters[misource]._mMaxDamage << 1;
+		mindam = monsters[misource]._mMinDamage;
+		maxdam = monsters[misource]._mMaxDamage;
 	}
 	mis->_miMinDam = mindam << (6 - 4);
 	mis->_miMinDam = maxdam << (6 - 4);
