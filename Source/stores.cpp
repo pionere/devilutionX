@@ -152,25 +152,6 @@ static void ClearSText(int s, int e)
 	}
 }
 
-void InitStoresOnce()
-{
-	int i;
-
-	ClearSText(0, STORE_LINES);
-	stextflag = STORE_NONE;
-	gbWidePanel = false;
-	gbHasScroll = false;
-	numpremium = 0;
-	premiumlevel = STORE_PITEM_MINLVL;
-	// assert((premiumlevel + premiumlvladd[0]) >= 0);
-
-	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		premiumitems[i]._itype = ITYPE_NONE;
-
-	boyitem._itype = ITYPE_NONE;
-	boylevel = 0;
-}
-
 static unsigned StoresLimitedItemLvl()
 {
 	int l = myplr._pLevel;
@@ -181,6 +162,25 @@ static unsigned StoresLimitedItemLvl()
 	if (l > STORE_PITEM_MAXLVL)
 		l = STORE_PITEM_MAXLVL;
 	return l;
+}
+
+void InitStoresOnce()
+{
+	int i;
+
+	ClearSText(0, STORE_LINES);
+	stextflag = STORE_NONE;
+	gbWidePanel = false;
+	gbHasScroll = false;
+	numpremium = 0;
+	premiumlevel = StoresLimitedItemLvl();
+	// assert((premiumlevel + premiumlvladd[0]) >= 0);
+
+	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
+		premiumitems[i]._itype = ITYPE_NONE;
+
+	boyitem._itype = ITYPE_NONE;
+	boylevel = 0;
 }
 
 void InitLvlStores()

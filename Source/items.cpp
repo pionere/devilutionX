@@ -3275,9 +3275,9 @@ void SpawnPremium(unsigned lvl)
 	int i;
 
 	if (numpremium < SMITH_PREMIUM_ITEMS) {
-		i = lvl - (premiumlvladd[lengthof(premiumlvladd) - 1] - premiumlvladd[0]);
-		if (premiumlevel < i)
-			premiumlevel = i;
+		//i = lvl - (premiumlvladd[lengthof(premiumlvladd) - 1] - premiumlvladd[0]);
+		//if (premiumlevel < i)
+		//	premiumlevel = i;
 		for (i = 0; i < SMITH_PREMIUM_ITEMS; i++) {
 			if (premiumitems[i]._itype == ITYPE_NONE)
 				SpawnOnePremium(i, premiumlevel + premiumlvladd[i]);
