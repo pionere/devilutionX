@@ -2881,6 +2881,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 {
 	MissileStruct* mis;
 	MissileStruct* bmis;
+	int mindam, maxdam;
 
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 1, "AddInferno needs at least light-radius of 1.");
@@ -2896,12 +2897,14 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	mis->_miRange = misfiledata[MFILE_INFERNO].mfAnimLen[0];
 	// assert(misource != -1);
 	if (micaster == MST_PLAYER) {
-		mis->_miMinDam = plx(misource)._pMagic;
-		mis->_miMaxDam = mis->_miMinDam + (spllvl << 4);
+		mindam = plx(misource)._pMagic;
+		maxdam = mindam + (spllvl << 4);
 	} else {
-		mis->_miMinDam = monsters[misource]._mMinDamage << 1;
-		mis->_miMaxDam = monsters[misource]._mMaxDamage << 1;
+		mindam = monsters[misource]._mMinDamage << 1;
+		maxdam = monsters[misource]._mMaxDamage << 1;
 	}
+	mis->_miMinDam = mindam << (6 - 4);
+	mis->_miMinDam = maxdam << (6 - 4);
 	return MIRES_DONE;
 }
 
