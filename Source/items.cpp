@@ -130,7 +130,7 @@ static void PlaceInitItems()
 		SetRndSeed(seed);
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
-		items[ii]._iCreateInfo = lvl;// | CF_PREGEN;
+		items[ii]._iCreateInfo = lvl; // | CF_PREGEN;
 		// assert(gbLvlLoad != 0);
 		RespawnItem(ii, false);
 
@@ -1746,7 +1746,7 @@ static void GetUniqueItem(int ii, int uid)
 
 	items[ii]._iUid = uid;
 	items[ii]._iMagical = ITEM_QUALITY_UNIQUE;
-	items[ii]._iCreateInfo |= CF_UNIQUE;
+	// items[ii]._iCreateInfo |= CF_UNIQUE;
 }
 
 static void ItemRndDur(int ii)
@@ -1769,11 +1769,11 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, int uper, bo
 
 	if (uper == 15)
 		items[ii]._iCreateInfo |= CF_UPER15;
-	else if (uper == 1)
-		items[ii]._iCreateInfo |= CF_UPER1;
+	//else if (uper == 1)
+	//	items[ii]._iCreateInfo |= CF_UPER1;
 
 	if (items[ii]._iMiscId != IMISC_UNIQUE) {
-		if (onlygood || uper == 15
+		if (onlygood // || uper == 15
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
 		 || items[ii]._itype == ITYPE_AMULET
@@ -1909,7 +1909,7 @@ static void SetupAllUseful(int ii, int iseed, unsigned lvl)
 
 	SetItemData(ii, idx);
 	items[ii]._iSeed = iseed;
-	items[ii]._iCreateInfo = lvl | CF_USEFUL;
+	items[ii]._iCreateInfo = lvl; // | CF_USEFUL;
 }
 
 void SpawnRndUseful(int x, int y, bool sendmsg)
@@ -1965,33 +1965,37 @@ void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
 
 	if (wIndex == IDI_GOLD) {
 		SetItemData(MAXITEMS, IDI_GOLD);
-		items[MAXITEMS]._iSeed = iseed;
-		items[MAXITEMS]._iCreateInfo = wCI;
+		//items[MAXITEMS]._iSeed = iseed;
+		//items[MAXITEMS]._iCreateInfo = wCI;
 		SetGoldItemValue(&items[MAXITEMS], ivalue);
 	} else {
-		if (wCI == 0) {
+		if ((wCI & ~CF_LEVEL) == 0) {
 			SetItemData(MAXITEMS, wIndex);
-			items[MAXITEMS]._iSeed = iseed;
+			//items[MAXITEMS]._iSeed = iseed;
+			//items[MAXITEMS]._iCreateInfo = wCI;
 		} else {
 			if (wCI & CF_TOWN) {
 				RecreateTownItem(MAXITEMS, iseed, wIndex, wCI);
-				items[MAXITEMS]._iSeed = iseed;
-				items[MAXITEMS]._iCreateInfo = wCI;
-			} else if ((wCI & CF_USEFUL) == CF_USEFUL) {
-				SetupAllUseful(MAXITEMS, iseed, wCI & CF_LEVEL);
+			//	items[MAXITEMS]._iSeed = iseed;
+			//	items[MAXITEMS]._iCreateInfo = wCI;
+			//} else if ((wCI & CF_USEFUL) == CF_USEFUL) {
+			//	SetupAllUseful(MAXITEMS, iseed, wCI & CF_LEVEL);
 			} else {
-				uper = 0;
+				//uper = 0;
 				onlygood = false;
-				if (wCI & CF_UPER1)
-					uper = 1;
-				if (wCI & CF_UPER15)
-					uper = 15;
+				//if (wCI & CF_UPER1)
+				//	uper = 1;
+				//if (wCI & CF_UPER15)
+				//	uper = 15;
+				uper = (wCI & CF_UPER15) ? 15 : 1;
 				if (wCI & CF_ONLYGOOD)
 					onlygood = true;
 				SetupAllItems(MAXITEMS, wIndex, iseed, wCI & CF_LEVEL, uper, onlygood);
 			}
 		}
 	}
+	items[MAXITEMS]._iSeed = iseed;
+	items[MAXITEMS]._iCreateInfo = wCI;
 }
 
 /**
