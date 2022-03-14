@@ -4426,9 +4426,12 @@ void ProcessMonsters()
 				// reset monster state to ensure sync in multiplayer games
 				if (mon->_mmode == MM_DELAY)
 					mon->_mmode = MM_STAND;
-				if (mon->_mAi == AI_GARG) {
+				if (monsterdata[mon->_mType].mFlags & MFLAG_GARG_STONE) {
 					mon->_mFlags |= MFLAG_GARG_STONE;
 					assert(mon->_mmode == MM_STAND || mon->_mmode == MM_SPATTACK);
+				} else if (monsterdata[mon->_mType].mFlags & MFLAG_HIDDEN) {
+					mon->_mFlags |= MFLAG_HIDDEN;
+					assert(mon->_mmode == MM_STAND);
 				} else {
 					assert(mon->_mmode == MM_STAND);
 				}
