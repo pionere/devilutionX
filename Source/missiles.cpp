@@ -3793,6 +3793,28 @@ void MI_Misexp(int mi)
 	AddUnLight(mis->_miLid);
 }
 
+void MI_MiniExp(int mi)
+{
+	MissileStruct* mis;
+	static_assert(MAX_LIGHT_RAD >= 8, "MI_MiniExp needs at least light-radius of 8.");
+	int ExpLight[] = { 6, 6, 7, 8, 6, 4, 2, 1, 0, 0, 0 };
+
+	mis = &missile[mi];
+	mis->_miRange--;
+	if (mis->_miRange != 0) {
+		if (mis->_miLid == NO_LIGHT)
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
+		else {
+			assert(mis->_miAnimLen < lengthof(ExpLight));
+			ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
+		}
+		PutMissile(mi);
+		return;
+	}
+	mis->_miDelFlag = TRUE;
+	AddUnLight(mis->_miLid);
+}
+
 void MI_Acidsplat(int mi)
 {
 	MissileStruct *mis;

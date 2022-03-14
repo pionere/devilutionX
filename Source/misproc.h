@@ -97,6 +97,7 @@ void MI_FireWave(int mi);
 void MI_Guardian(int mi);
 void MI_Chain(int mi);
 void MI_Misexp(int mi);
+void MI_MiniExp(int mi);
 void MI_Acidsplat(int mi);
 void MI_Teleport(int mi);
 void MI_Stone(int mi);
