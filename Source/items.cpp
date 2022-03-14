@@ -1769,8 +1769,10 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, int uper, bo
 
 	if (uper == 15)
 		items[ii]._iCreateInfo |= CF_UPER15;
-	//else if (uper == 1)
-	//	items[ii]._iCreateInfo |= CF_UPER1;
+	else  {
+		assert(uper == 1);
+		items[ii]._iCreateInfo |= CF_UPER1;
+	}
 
 	if (items[ii]._iMiscId != IMISC_UNIQUE) {
 		if (onlygood // || uper == 15
