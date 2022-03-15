@@ -619,7 +619,7 @@ typedef struct MapMonData {
 	BYTE cmDeadval;
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
-	ALIGNMENT32(3)
+	ALIGNMENT(3, 2)
 } MapMonData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 256, "Align MapMonData closer to power of 2 for better performance.");
