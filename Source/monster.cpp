@@ -409,7 +409,6 @@ void GetLevelMTypes()
 void InitMonsterGFX(int midx)
 {
 	MapMonData* cmon;
-	const MonsterData* mdata;
 	const MonFileData* mfdata;
 	int mtype, anim, i;
 	char strBuff[256];
@@ -417,13 +416,11 @@ void InitMonsterGFX(int midx)
 
 	cmon = &mapMonTypes[midx];
 	mtype = cmon->cmType;
-	mdata = &monsterdata[mtype];
-	mfdata = &monfiledata[mdata->moFileNum];
+	mfdata = &monfiledata[monsterdata[mtype].moFileNum];
 	cmon->cmWidth = mfdata->moWidth;
 	cmon->cmXOffset = (mfdata->moWidth - TILE_WIDTH) >> 1;
 	cmon->cmAFNum = mfdata->moAFNum;
 	cmon->cmAFNum2 = mfdata->moAFNum2;
-	cmon->cmData = mdata;
 
 	auto &monAnims = cmon->cmAnims;
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
@@ -450,8 +447,8 @@ void InitMonsterGFX(int midx)
 	}
 
 
-	if (mdata->mTransFile != NULL) {
-		InitMonsterTRN(monAnims, mdata->mTransFile);
+	if (monsterdata[mtype].mTransFile != NULL) {
+		InitMonsterTRN(monAnims, monsterdata[mtype].mTransFile);
 	}
 
 	// copy walk animation to the stand animation of the golem (except aCelData and alignment)
@@ -544,6 +541,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 {
 	MapMonData* cmon = &mapMonTypes[mtidx];
 	MonsterStruct* mon = &monsters[mnum];
+	const MonsterData* mdata;
 
 	mon->_mMTidx = mtidx;
 	mon->_mdir = dir;
@@ -556,26 +554,27 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mAnimXOffset = cmon->cmXOffset;
 	mon->_mAFNum = cmon->cmAFNum;
 	mon->_mAFNum2 = cmon->cmAFNum2;
-	mon->mName = cmon->cmData->mName;
-	mon->_mLevel = cmon->cmData->mLevel;
-	mon->_mSelFlag = cmon->cmData->mSelFlag;
-	mon->_mAi = cmon->cmData->mAi;
-	mon->_mInt = cmon->cmData->mInt;
-	mon->_mFlags = cmon->cmData->mFlags;
-	mon->_mHit = cmon->cmData->mHit;
-	mon->_mMinDamage = cmon->cmData->mMinDamage;
-	mon->_mMaxDamage = cmon->cmData->mMaxDamage;
-	mon->_mHit2 = cmon->cmData->mHit2;
-	mon->_mMinDamage2 = cmon->cmData->mMinDamage2;
-	mon->_mMaxDamage2 = cmon->cmData->mMaxDamage2;
-	mon->_mMagic = cmon->cmData->mMagic;
-	mon->_mMagic2 = cmon->cmData->mMagic2;
-	mon->_mArmorClass = cmon->cmData->mArmorClass;
-	mon->_mEvasion = cmon->cmData->mEvasion;
-	mon->_mMagicRes = cmon->cmData->mMagicRes;
-	mon->_mTreasure = cmon->cmData->mTreasure;
-	mon->_mExp = cmon->cmData->mExp;
-	mon->_mmaxhp = RandRange(cmon->cmData->mMinHP, cmon->cmData->mMaxHP) << 6;
+	mdata = &monsterdata[cmon->cmType];
+	mon->mName = mdata->mName;
+	mon->_mLevel = mdata->mLevel;
+	mon->_mSelFlag = mdata->mSelFlag;
+	mon->_mAi = mdata->mAi;
+	mon->_mInt = mdata->mInt;
+	mon->_mFlags = mdata->mFlags;
+	mon->_mHit = mdata->mHit;
+	mon->_mMinDamage = mdata->mMinDamage;
+	mon->_mMaxDamage = mdata->mMaxDamage;
+	mon->_mHit2 = mdata->mHit2;
+	mon->_mMinDamage2 = mdata->mMinDamage2;
+	mon->_mMaxDamage2 = mdata->mMaxDamage2;
+	mon->_mMagic = mdata->mMagic;
+	mon->_mMagic2 = mdata->mMagic2;
+	mon->_mArmorClass = mdata->mArmorClass;
+	mon->_mEvasion = mdata->mEvasion;
+	mon->_mMagicRes = mdata->mMagicRes;
+	mon->_mTreasure = mdata->mTreasure;
+	mon->_mExp = mdata->mExp;
+	mon->_mmaxhp = RandRange(mdata->mMinHP, mdata->mMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].aFrameLen;
@@ -646,7 +645,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
 		mon->_mArmorClass += HELL_AC_BONUS;
 		mon->_mEvasion += HELL_EVASION_BONUS;
-		mon->_mMagicRes = cmon->cmData->mMagicRes2;
+		mon->_mMagicRes = monsterdata[mon->_mType].mMagicRes2;
 	}
 
 	if (!IsMultiGame) {
@@ -4767,7 +4766,6 @@ bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2,
 
 void SyncMonsterAnim(int mnum)
 {
-	const MonsterData* MData;
 	MonsterStruct* mon;
 	int mode;
 	MON_ANIM anim;
@@ -4784,14 +4782,10 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnims = mon->MType->cmAnims;
 	mon->_mAnimWidth = mon->MType->cmWidth;
 	mon->_mAnimXOffset = mon->MType->cmXOffset;
-	MData = mon->MType->cmData;
-	if (MData == NULL) {
-		dev_fatal("SyncMonsterAnim: Monster %d \"%s\" MData NULL", mon->_mMTidx, mon->mName);
-	}
 	if (mon->_uniqtype != 0)
 		mon->mName = uniqMonData[mon->_uniqtype - 1].mName;
 	else
-		mon->mName = MData->mName;
+		mon->mName = monsterdata[mon->_mType].mName;
 
 	mode = mon->_mmode;
 	if (mode == MM_STONE)
