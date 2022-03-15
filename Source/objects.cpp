@@ -2438,7 +2438,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		for (k = i; k > 1; k--)
 			GetRndSeed();
 		if (os->_oVar2 != 0)           // CHEST_ITEM_TYPE
-			CreateRndItem(os->_ox, os->_oy, os->_oVar2 == 8, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			CreateRndItem(os->_ox, os->_oy, os->_oVar2 == 8 ? CFDQ_GOOD : CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		else
 			SpawnRndUseful(os->_ox, os->_oy, sendmsg);
 	}
@@ -2607,7 +2607,7 @@ static void OperateSarc(int oi, bool sendmsg)
 	//os->_oAnimFrameLen = 3;
 	SetRndSeed(os->_oRndSeed);
 	if (os->_oVar1 <= 2) // SARC_ITEM
-		CreateRndItem(os->_ox, os->_oy, false, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		CreateRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 	if (os->_oVar1 >= 8) // SARC_SKELE
 		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy, DIR_NONE);
 }
@@ -3094,11 +3094,11 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	case SHRINE_DIVINE:
 		mode = sendmsg ? ICM_SEND_FLIP : ICM_DUMMY;
 		if (currLvl._dLevelIdx <= DLV_CATHEDRAL3) {
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLMANA, mode);
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLHEAL, mode);
+			CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLMANA, mode);
+			CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLHEAL, mode);
 		} else {
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLREJUV, mode);
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLREJUV, mode);
+			CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
+			CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
 		}
 		if (pnum != mypnum)
 			return;
@@ -3184,7 +3184,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 			if (random_(0, 3) == 0)
 				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
 			else
-				CreateTypeItem(xx, yy, false, ITYPE_MISC, IMISC_RUNE, mode);
+				CreateTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_MISC, IMISC_RUNE, mode);
 		}
 		if (pnum != mypnum)
 			return;
@@ -3214,7 +3214,7 @@ static void OperateSkelBook(int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
-	CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC,
+	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC,
 		random_(161, 5) != 0 ? IMISC_SCROLL : IMISC_BOOK, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
@@ -3235,7 +3235,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
-	CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_BOOK, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_BOOK, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 	if (zharlib != -1 && themes[zharlib].ttval == dTransVal[os->_ox][os->_oy]
 	 && quests[Q_ZHAR]._qvar1 <= 1) {
 		assert((monsters[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
@@ -3266,7 +3266,7 @@ static void OperateDecap(int oi, bool sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	SetRndSeed(os->_oRndSeed);
-	CreateRndItem(os->_ox, os->_oy, false, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	CreateRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 static void OperateArmorStand(int oi, bool sendmsg)
@@ -3291,7 +3291,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	static_assert(ITYPE_LARMOR + 1 == ITYPE_MARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors I.");
 	static_assert(ITYPE_MARMOR + 1 == ITYPE_HARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors II.");
 	itype = ITYPE_LARMOR + random_(0, currLvl._dLevel >= 24 ? 3 : (currLvl._dLevel >= 10 ? 2 : 1));
-	CreateTypeItem(os->_ox, os->_oy, true, itype, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, itype, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
@@ -3374,7 +3374,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	static_assert(ITYPE_AXE + 1 == ITYPE_BOW, "OperateWeaponRack expects an ordered ITYPE_ for weapons II.");
 	static_assert(ITYPE_BOW + 1 == ITYPE_MACE, "OperateWeaponRack expects an ordered ITYPE_ for weapons III.");
 	SetRndSeed(os->_oRndSeed);
-	CreateTypeItem(os->_ox, os->_oy, true, ITYPE_SWORD + random_(0, 4),	IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, ITYPE_SWORD + random_(0, 4),	IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 /**
@@ -3543,7 +3543,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 			if (os->_oVar3 == 0)  // BARREL_ITEM_TYPE
 				SpawnRndUseful(os->_ox, os->_oy, sendmsg);
 			else
-				CreateRndItem(os->_ox, os->_oy, false, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+				CreateRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		} else if (os->_oVar2 >= 8)
 			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy, DIR_NONE); // BARREL_SKELE
 	}

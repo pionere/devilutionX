@@ -1693,13 +1693,13 @@ static int RndTypeItems(int itype, int imid, unsigned lvl)
 	return ril[random_(27, ri)];
 }
 
-static int CheckUnique(int ii, unsigned lvl, int uper)
+static int CheckUnique(int ii, unsigned lvl, unsigned quality)
 {
 	int i, ui;
 	BYTE uok[NUM_UITEM];
 	BYTE uid;
 
-	if (random_(28, 100) > uper)
+	if (random_(28, 100) > (quality == CFDQ_UNIQUE ? 15 : 1))
 		return -1;
 
 	static_assert(NUM_UITEM <= UCHAR_MAX, "Unique index must fit to a BYTE in CheckUnique.");
@@ -1755,7 +1755,7 @@ static void ItemRndDur(int ii)
 		items[ii]._iDurability = random_(0, items[ii]._iMaxDur >> 1) + (items[ii]._iMaxDur >> 2) + 1;
 }
 
-static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, int uper, bool onlygood)
+static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned quality)
 {
 	int uid;
 
@@ -1764,25 +1764,17 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, int uper, bo
 	items[ii]._iSeed = iseed;
 	items[ii]._iCreateInfo = lvl;
 
-	if (onlygood)
-		items[ii]._iCreateInfo |= CF_ONLYGOOD;
-
-	if (uper == 15)
-		items[ii]._iCreateInfo |= CF_UPER15;
-	else  {
-		assert(uper == 1);
-		items[ii]._iCreateInfo |= CF_UPER1;
-	}
+	items[ii]._iCreateInfo |= quality << 11;
 
 	if (items[ii]._iMiscId != IMISC_UNIQUE) {
-		if (onlygood // || uper == 15
+		if (quality >= CFDQ_GOOD
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
 		 || items[ii]._itype == ITYPE_AMULET
 		 || random_(32, 100) <= 10 || (unsigned)random_(33, 100) <= lvl) {
-			uid = CheckUnique(ii, lvl, uper);
+			uid = CheckUnique(ii, lvl, quality);
 			if (uid < 0) {
-				GetItemBonus(ii, lvl >> 1, lvl, onlygood, true);
+				GetItemBonus(ii, lvl >> 1, lvl, quality >= CFDQ_GOOD, true);
 			} else {
 				GetUniqueItem(ii, uid);
 			}
@@ -1805,7 +1797,7 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	}
 	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
 
-	SetupAllItems(MAXITEMS, idx, uid, items_get_currlevel(), 1, false);
+	SetupAllItems(MAXITEMS, idx, uid, items_get_currlevel(), CFDQ_NORMAL);
 	GetSuperItemSpace(x, y, MAXITEMS);
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnUnique expects ordered ICM_ values.");
 	if (mode >= ICM_SEND)
@@ -1816,7 +1808,7 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 {
 	MonsterStruct* mon;
 	int idx;
-	bool onlygood = false;
+	unsigned quality = CFDQ_NORMAL;
 
 	mon = &monsters[mnum];
 	if ((mon->_mTreasure & UQ_DROP) != 0 && !IsMultiGame) {
@@ -1831,7 +1823,7 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 
 	if (mon->_uniqtype != 0) {
 		idx = RndUItem(mon->_mLevel);
-		onlygood = TRUE;
+		quality = CFDQ_UNIQUE;
 	} else if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QS_MUSHGIVEN) {
 		idx = RndItem(mon->_mLevel);
 		if (idx < 0)
@@ -1843,21 +1835,20 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 			NetSendCmdQuest(Q_MUSHROOM, true);
 	}
 
-	SetupAllItems(MAXITEMS, idx, GetRndSeed(), mon->_mLevel,
-		onlygood ? 15 : 1, onlygood);
+	SetupAllItems(MAXITEMS, idx, GetRndSeed(), mon->_mLevel, quality);
 	GetSuperItemSpace(x, y, MAXITEMS);
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
 
-void CreateRndItem(int x, int y, bool onlygood, int mode)
+void CreateRndItem(int x, int y, unsigned quality, int mode)
 {
 	int idx, ii;
 	unsigned lvl;
 
 	lvl = items_get_currlevel();
 
-	if (onlygood)
+	if (quality == CFDQ_GOOD)
 		idx = RndUItem(lvl);
 	else
 		idx = RndAllItems(lvl);
@@ -1870,7 +1861,7 @@ void CreateRndItem(int x, int y, bool onlygood, int mode)
 		ii = itemactive[numitems];
 		numitems++;
 	}
-	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood);
+	SetupAllItems(ii, idx, GetRndSeed(), lvl, quality);
 
 	GetSuperItemSpace(x, y, ii);
 
@@ -1926,7 +1917,7 @@ void SpawnRndUseful(int x, int y, bool sendmsg)
 		NetSendCmdSpawnItem(true);
 }
 
-void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, int mode)
+void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mode)
 {
 	int idx, ii;
 	unsigned lvl;
@@ -1945,7 +1936,7 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, int mode)
 		ii = itemactive[numitems];
 		numitems++;
 	}
-	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood);
+	SetupAllItems(ii, idx, GetRndSeed(), lvl, quality);
 
 	GetSuperItemSpace(x, y, ii);
 
@@ -1962,9 +1953,6 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, int mode)
 
 void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
 {
-	int uper;
-	bool onlygood;
-
 	if (wIndex == IDI_GOLD) {
 		SetItemData(MAXITEMS, IDI_GOLD);
 		//items[MAXITEMS]._iSeed = iseed;
@@ -1983,16 +1971,7 @@ void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
 			//} else if ((wCI & CF_USEFUL) == CF_USEFUL) {
 			//	SetupAllUseful(MAXITEMS, iseed, wCI & CF_LEVEL);
 			} else {
-				//uper = 0;
-				onlygood = false;
-				//if (wCI & CF_UPER1)
-				//	uper = 1;
-				//if (wCI & CF_UPER15)
-				//	uper = 15;
-				uper = (wCI & CF_UPER15) ? 15 : 1;
-				if (wCI & CF_ONLYGOOD)
-					onlygood = true;
-				SetupAllItems(MAXITEMS, wIndex, iseed, wCI & CF_LEVEL, uper, onlygood);
+				SetupAllItems(MAXITEMS, wIndex, iseed, wCI & CF_LEVEL, (wCI & CF_DROP_QUALITY) >> 11); //, onlygood);
 			}
 		}
 	}
@@ -2609,7 +2588,7 @@ void DoOil(int pnum, char from, BYTE cii)
 	}
 
 	idx = pi->_iIdx;
-	ci = (pi->_iCreateInfo & CF_LEVEL) | CF_CRAFTED | CF_ONLYGOOD;
+	ci = (pi->_iCreateInfo & CF_LEVEL) | CF_CRAFTED;
 	spell = pi->_iSpell;
 	seed = pi->_iSeed;
 
@@ -3269,7 +3248,7 @@ static void SpawnOnePremium(int i, unsigned plvl)
 		seed = GetRndSeed();
 		SetRndSeed(seed);
 		GetItemAttrs(0, RndPremiumItem(plvl >> 2, plvl), plvl);
-		GetItemBonus(0, plvl >> 1, plvl, TRUE, FALSE);
+		GetItemBonus(0, plvl >> 1, plvl, true, false);
 	} while (items[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	items[0]._iSeed = seed;
 	items[0]._iCreateInfo = plvl | CF_SMITHPREMIUM;
@@ -3369,7 +3348,7 @@ void SpawnWitch(unsigned lvl)
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndWitchItem(lvl), lvl);
 			if (random_(51, 100) <= 5 || items[0]._itype == ITYPE_STAFF)
-				GetItemBonus(0, lvl, lvl << 1, TRUE, TRUE);
+				GetItemBonus(0, lvl, lvl << 1, true, true);
 		} while (items[0]._iIvalue > WITCH_MAX_VALUE);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_WITCH;
@@ -3408,7 +3387,7 @@ void SpawnBoy(unsigned lvl)
 			seed = GetRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndBoyItem(lvl), lvl);
-			GetItemBonus(0, lvl, lvl << 1, TRUE, TRUE);
+			GetItemBonus(0, lvl, lvl << 1, true, true);
 		} while (items[0]._iIvalue > BOY_MAX_VALUE);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_BOY;
@@ -3507,7 +3486,7 @@ static void RecreatePremiumItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndPremiumItem(lvl >> 2, lvl), lvl);
-	GetItemBonus(ii, lvl >> 1, lvl, TRUE, FALSE);
+	GetItemBonus(ii, lvl >> 1, lvl, true, false);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_SMITHPREMIUM;
@@ -3517,7 +3496,7 @@ static void RecreateBoyItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndBoyItem(lvl), lvl);
-	GetItemBonus(ii, lvl, lvl << 1, TRUE, TRUE);
+	GetItemBonus(ii, lvl, lvl << 1, true, true);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_BOY;
@@ -3531,7 +3510,7 @@ static void RecreateWitchItem(int ii, int iseed, int idx, unsigned lvl)
 		SetRndSeed(iseed);
 		GetItemAttrs(ii, RndWitchItem(lvl), lvl);
 		if (random_(51, 100) <= 5 || items[ii]._itype == ITYPE_STAFF)
-			GetItemBonus(ii, lvl, lvl << 1, TRUE, TRUE);
+			GetItemBonus(ii, lvl, lvl << 1, true, true);
 	}
 
 	//items[ii]._iSeed = iseed;
@@ -3556,7 +3535,7 @@ static void RecreateCraftedItem(int ii, int iseed, int idx, unsigned lvl)
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, idx, lvl);
 	if (random_(51, 2) != 0)
-		GetItemBonus(ii, 0, lvl != 0 ? lvl : 1, TRUE, TRUE);
+		GetItemBonus(ii, 0, lvl != 0 ? lvl : 1, true, true);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_CRAFTED;
@@ -3605,7 +3584,7 @@ void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 
 	while (TRUE) {
-		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, 1, true);
+		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, CFDQ_NORMAL);
 		assert(items[MAXITEMS]._iMiscId == IMISC_BOOK);
 		if (items[MAXITEMS]._iSpell == ispell)
 			break;
@@ -3625,7 +3604,7 @@ void SpawnAmulet(WORD wCI, int x, int y/*, bool sendmsg*/)
 
 	while (TRUE) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
-		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, 1, true);
+		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, CFDQ_GOOD);
 		if (items[MAXITEMS]._iCurs == ICURS_AMULET)
 			break;
 	}
@@ -3644,7 +3623,7 @@ void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 
 	while (TRUE) {
 		idx = RndTypeItems(itype, IMISC_NONE, lvl);
-		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, 1, true);
+		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, CFDQ_GOOD);
 		if (items[MAXITEMS]._iCurs == icurs)
 			break;
 	}

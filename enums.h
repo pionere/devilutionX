@@ -2739,14 +2739,12 @@ typedef enum goodorevil {
 /*
  First 8 bits store level
  9-10th bit stores info if item is from a specific source (griswold, wirt, adria, pepin and user crafted) 
- 11th bit stores onlygood flag
- 12th bit stores uper15 flag - uper means unique percent, this flag is true for unique monsters and loot from them has 15% to become unique
- 13th bit stores uper1 flag - this is loot from normal monsters/objects, which has 1% to become unique
+ 11-12th bit stores the drop quality (normal, good or unique)
 
  CF_TOWN is combining all source flags and indicates if item has been bought from a NPC or created via crafting
  */
 typedef enum icreateinfo_loc {
-	CFL_DUNGEON,
+	CFL_NONE,
 	CFL_SMITH,
 	CFL_SMITHPREMIUM,
 	CFL_BOY,
@@ -2754,6 +2752,12 @@ typedef enum icreateinfo_loc {
 	CFL_HEALER,
 	CFL_CRAFTED,
 } icreateinfo_loc;
+typedef enum icreateinfo_drop_quality {
+	CFDQ_NONE,
+	CFDQ_NORMAL,
+	CFDQ_GOOD,
+	CFDQ_UNIQUE,
+} icreateinfo_drop_quality;
 typedef enum icreateinfo_flag {
 	CF_LEVEL        = (1 << 8) - 1,
 	CF_SMITH        = CFL_SMITH << 8,
@@ -2762,11 +2766,12 @@ typedef enum icreateinfo_flag {
 	CF_WITCH        = CFL_WITCH << 8,
 	CF_HEALER       = CFL_HEALER << 8,
 	CF_CRAFTED      = CFL_CRAFTED << 8,
-	CF_ONLYGOOD     = 1 << 11,
-	CF_UPER15       = 1 << 12,
-	CF_UPER1        = 1 << 13,
+	CF_DROP_NORMAL  = CFDQ_NORMAL << 11,
+	CF_DROP_GOOD    = CFDQ_GOOD << 11,
+	CF_DROP_UNIQUE  = CFDQ_UNIQUE << 11,
 
-	CF_TOWN   = 7 << 8,
+	CF_TOWN         = 7 << 8,
+	CF_DROP_QUALITY = 3 << 11,
 } icreateinfo_flag;
 
 typedef enum icreate_mode {

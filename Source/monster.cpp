@@ -1755,7 +1755,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 	switch (mon->_uniqtype - 1) {
 	case UMT_GARBUD:
 		assert(QuestStatus(Q_GARBUD));
-		CreateTypeItem(mon->_mx, mon->_my, true, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		CreateTypeItem(mon->_mx, mon->_my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_LAZARUS:
 		//if (effect_is_playing(USFX_LAZ1))
