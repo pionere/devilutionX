@@ -4432,13 +4432,14 @@ void ProcessMonsters()
 					mon->_mFlags |= MFLAG_HIDDEN;
 					assert(mon->_mmode == MM_STAND);
 				} else {
+					mon->_mFlags &= ~(MFLAG_HIDDEN | MFLAG_GARG_STONE);
 					assert(mon->_mmode == MM_STAND);
 				}
+				mon->_mFlags |= MFLAG_NO_ENEMY;
 				mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
 				mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
 				mon->_mpathcount = 0;
 				assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_INQUIRING || mon->_mgoal == MGOAL_TALKING);
-				mon->_mFlags |= MFLAG_NO_ENEMY;
 			}
 		}
 
