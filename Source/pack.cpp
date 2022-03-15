@@ -28,8 +28,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 
 	memset(pPack, 0, sizeof(*pPack));
 	p = &plr;
-	pPack->px = p->_px;
-	pPack->py = p->_py;
+	//pPack->px = p->_px;
+	//pPack->py = p->_py;
 	copy_str(pPack->pName, p->_pName);
 	pPack->pLvlChanging = p->_pLvlChanging;
 	pPack->pDunLevel = p->_pDunLevel;
@@ -38,10 +38,10 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pRank = p->_pRank;
 	pPack->pTeam = p->_pTeam;
 	pPack->pStatPts = SwapLE16(p->_pStatPts);
-	pPack->pLightRad = p->_pLightRad;
-	pPack->pManaShield = p->_pManaShield;
-	pPack->pTimer[PLTR_INFRAVISION] = SwapLE16(p->_pTimer[PLTR_INFRAVISION]);
-	pPack->pTimer[PLTR_RAGE] = SwapLE16(p->_pTimer[PLTR_RAGE]);
+	//pPack->pLightRad = p->_pLightRad;
+	//pPack->pManaShield = p->_pManaShield;
+	//pPack->pTimer[PLTR_INFRAVISION] = SwapLE16(p->_pTimer[PLTR_INFRAVISION]);
+	//pPack->pTimer[PLTR_RAGE] = SwapLE16(p->_pTimer[PLTR_RAGE]);
 	pPack->pExperience = SwapLE32(p->_pExperience);
 	pPack->pBaseStr = SwapLE16(p->_pBaseStr);
 	pPack->pBaseMag = SwapLE16(p->_pBaseMag);
@@ -109,9 +109,9 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
  * Note: last slot of items[MAXITEMS] used as temporary buffer
  * find real name reference below, possibly [sizeof(items)/sizeof(ItemStruct)]
  * @param pis The source packed item
- * @param is The distination item
+ * @param is The destination item
  */
-static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
+static void UnPackItem(const PkItemStruct* pis, ItemStruct* is)
 {
 	uint16_t idx = SwapLE16(pis->wIndx);
 
@@ -120,6 +120,8 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 	} else if (idx == IDI_PHOLDER) {
 		is->_itype = ITYPE_PLACEHOLDER;
 		is->_iPHolder = SwapLE32(pis->dwBuff);
+		// TODO: check the referenced item?
+		net_assert((unsigned)is->_iPHolder < NUM_INV_GRID_ELEM);
 	} else {
 		UnPackPkItem(pis);
 		copy_pod(*is, items[MAXITEMS]);
@@ -128,17 +130,12 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 
 void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 {
-#if INET_MODE
-	int i, j;
-	ItemStruct *pi, *is;
-#else
 	int i;
 	ItemStruct* pi;
-#endif
 	PkItemStruct* pki;
 
 	// TODO: validate data from the internet
-	SetPlayerLoc(&plr, pPack->px, pPack->py);
+	//SetPlayerLoc(&plr, pPack->px, pPack->py);
 	copy_cstr(plr._pName, pPack->pName);
 	plr._pLvlChanging = pPack->pLvlChanging;
 	plr._pDunLevel = pPack->pDunLevel;
@@ -147,10 +144,10 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	plr._pRank = pPack->pRank;
 	plr._pTeam = pPack->pTeam;
 	plr._pStatPts = SwapLE16(pPack->pStatPts);
-	plr._pLightRad = pPack->pLightRad;
-	plr._pManaShield = pPack->pManaShield;
-	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
-	plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
+	//plr._pLightRad = pPack->pLightRad;
+	//plr._pManaShield = pPack->pManaShield;
+	//plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
+	//plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
 	plr._pExperience = SwapLE32(pPack->pExperience);
 	plr._pBaseStr = SwapLE16(pPack->pBaseStr);
 	plr._pBaseMag = SwapLE16(pPack->pBaseMag);
@@ -212,9 +209,9 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	}
 
 	// reset fields which are used even by non-local players, but not part of pPack
+	// TODO: move these to SetupLocalPlr
 	ClrPlrPath(pnum);
 	plr.destAction = ACTION_NONE;
-	// TODO: add to pPack? (_pInvincible, _pmode)
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;
 	// commented out, because these should not matter
@@ -227,32 +224,55 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	plr._pName[sizeof(plr._pName) - 1] = '\0';
 	net_assert(plr._pClass < NUM_CLASSES);
 	net_assert(plr._pLevel >= 1 && plr._pLevel <= MAXCHARLEVEL);
+	net_assert(plr._pExperience < PlrExpLvlsTbl[plr._pLevel]);
+	net_assert(plr._pDunLevel < NUM_LEVELS);
 	net_assert(plr._pTeam < MAX_PLRS);
-	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
-	net_assert(pi->_itype != ITYPE_PLACEHOLDER &&
-		(pi->_itype == ITYPE_NONE || pi->_iClass == ICLASS_WEAPON));
-	if (pi->_itype == ITYPE_NONE) {
-		pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
-		net_assert(pi->_itype = ITYPE_NONE || pi->_itype == ITYPE_SHIELD);
+	net_assert((plr._pMemSkills & ~(SPELL_MASK(NUM_SPELLS) - 1)) == 0);	
+	for (i = 0; i < NUM_SPELLS; i++) {
+		if (plr._pMemSkills & SPELL_MASK(i))
+			net_assert(spelldata[i].sBookLvl != SPELL_NA);
 	}
-	// TODO: check if the items conform to the wielding rules?
-	// TODO: check placeholders
-	// verify the gold-seeds TODO check gold values?
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		pi = &plr._pInvList[i];
-		if (pi->_iIdx == IDI_GOLD &&
-		 pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_PLACEHOLDER) {
-			//if (pi->_ivalue > GOLD_MAX_LIMIT)
-			//	pi->_ivalue = GOLD_MAX_LIMIT;
-			for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-				if (i == j)
-					continue;
-				is = &plr._pInvList[j];
-				if (is->_iIdx == IDI_GOLD &&
-				 is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER) {
-					net_assert(is->_iSeed != pi->_iSeed);
-				}
-			}
+	// check if the items conform to the wielding rules
+	for (i = 0; i < MAXBELTITEMS; i++) {
+		// - no placeholder in belt
+		pi = &plr._pSpdList[i];
+		net_assert(pi->_itype != ITYPE_PLACEHOLDER);
+		// - only belt items in belt
+		net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_BELT);
+	}
+	// - no placeholder on body
+	for (i = 0; i < NUM_INVLOC; i++)
+		net_assert(plr._pInvBody[i]._itype != ITYPE_PLACEHOLDER);
+	// - allow only helm on head
+	pi = &plr._pInvBody[INVLOC_HEAD];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_HELM);
+	// - allow only armor on chest
+	pi = &plr._pInvBody[INVLOC_CHEST];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_ARMOR);
+	// - allow only amulet on neck
+	pi = &plr._pInvBody[INVLOC_AMULET];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_AMULET);
+	// - allow only ring on hand
+	pi = &plr._pInvBody[INVLOC_RING_LEFT];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_RING);
+	pi = &plr._pInvBody[INVLOC_RING_RIGHT];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iLoc == ILOC_RING);
+	// - allow only weapon in left hand
+	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
+	net_assert(pi->_itype == ITYPE_NONE || pi->_iClass == ICLASS_WEAPON);
+	if (pi->_itype == ITYPE_NONE) {
+		// - allow only shield in right hand when left hand is empty
+		pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
+		net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD);
+	} else {
+		if (TWOHAND_WIELD(&plr, pi)) {
+			// - right hand must be empty when wielding a two handed weapon
+			net_assert(plr._pInvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE);
+		} else {
+			// - allow only shield or one handed weapon in right hand with weapon in the left hand
+			pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
+			net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD ||
+			 (pi->_iClass == ICLASS_WEAPON && !TWOHAND_WIELD(&plr, pi)));
 		}
 	}
 #endif /* INET_MODE */

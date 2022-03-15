@@ -282,7 +282,7 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy, BOOL pre)
 	int i;
 	MissileStruct *mis;
 
-	if (mi > 0) {
+	if (mi != MIS_MULTI) {
 		mis = &missile[mi - 1];
 		DrawMissilePrivate(mis, sx, sy, pre);
 		return;

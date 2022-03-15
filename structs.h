@@ -235,7 +235,7 @@ typedef struct PlayerStruct {
 	int destParam3;	// the skill to be used in case of skill based actions
 	int destParam4; // the level of the skill to be used in case of skill based actions
 	BOOLEAN _pActive;
-	BOOLEAN _pInvincible;
+	BYTE _pInvincible;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
 	BYTE _pDunLevel;
 	BYTE _pClass;
@@ -420,7 +420,7 @@ typedef struct TextData {
 
 typedef struct MissileData {
 	BYTE mName;
-	int (*mAddProc)(int, int, int, int, int, int, char, int, int);
+	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
 	void (*mProc)(int);
 	BOOL mDraw;
 	BYTE mType;
@@ -619,8 +619,7 @@ typedef struct MapMonData {
 	BYTE cmDeadval;
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
-	const MonsterData* cmData;
-	ALIGNMENT32(2)
+	ALIGNMENT(3, 1)
 } MapMonData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 256, "Align MapMonData closer to power of 2 for better performance.");
@@ -678,7 +677,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE leader; // the leader of the monster
 	BYTE leaderflag; // the status of the monster's leader
 	BYTE packsize; // the number of 'pack'-monsters close to their leader
-	BYTE falign_CB;
+	BYTE _mvid; // vision id of the monster (for minions only)
 	BYTE _mLevel;
 	BYTE _mSelFlag;
 	BYTE _mAi;
@@ -810,7 +809,7 @@ typedef struct ObjectStruct {
 	BYTE _oBreak; // object_break_mode
 	BYTE _oDoorFlag; // object_door_type
 	BYTE _oSelFlag; // check
-	BOOLEAN _oTrapFlag;
+	BYTE _oTrapChance;
 	BOOL _oPreFlag;
 	unsigned _olid;
 	int _oRndSeed;
@@ -863,8 +862,8 @@ typedef struct PkItemStruct {
 } PkItemStruct;
 
 typedef struct PkPlayerStruct {
-	BYTE px;
-	BYTE py;
+	//BYTE px;
+	//BYTE py;
 	char pName[PLR_NAME_LEN];
 	BOOLEAN pLvlChanging;
 	BYTE pDunLevel;
@@ -873,9 +872,9 @@ typedef struct PkPlayerStruct {
 	BYTE pRank;
 	BYTE pTeam;
 	WORD pStatPts;
-	BYTE pLightRad;
-	BYTE pManaShield;
-	WORD pTimer[NUM_PLRTIMERS];
+	//BYTE pLightRad;
+	//BYTE pManaShield;
+	//WORD pTimer[NUM_PLRTIMERS];
 	DWORD pExperience;
 	WORD pBaseStr;
 	WORD pBaseMag;
@@ -953,11 +952,11 @@ typedef struct TCmdParam1 {
 	WORD wParam1;
 } TCmdParam1;
 
-typedef struct TCmdParam2 {
+typedef struct TCmdParamBW {
 	BYTE bCmd;
-	WORD wParam1;
-	WORD wParam2;
-} TCmdParam2;
+	BYTE byteParam;
+	WORD wordParam;
+} TCmdParamBW;
 
 typedef struct TCmdParam3 {
 	BYTE bCmd;
@@ -996,6 +995,14 @@ typedef struct TCmdLocSkill {
 	BYTE y;
 	CmdSkillUse lsu;
 } TCmdLocSkill;
+
+typedef struct TCmdLocDisarm {
+	BYTE bCmd;
+	BYTE x;
+	BYTE y;
+	BYTE oi;
+	char from;
+} TCmdLocDisarm;
 
 typedef struct TCmdPlrAttack {
 	BYTE bCmd;
@@ -1081,6 +1088,7 @@ typedef struct TCmdRPItem {
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
+	BOOLEAN bFlipFlag;
 	PkItemStruct item;
 } TCmdRPItem;
 
@@ -1158,6 +1166,129 @@ typedef struct TSyncMonster {
 	INT	_mhitpoints;
 } TSyncMonster;
 
+typedef struct TSyncLvlPlayer {
+	BYTE spMode;
+	BYTE spWalkpath[MAX_PATH_LENGTH];
+	BYTE spManaShield;
+	BYTE spInvincible;
+	BYTE spDestAction;
+	INT spDestParam1;
+	INT spDestParam2;
+	INT spDestParam3;
+	INT spDestParam4;
+	int16_t spTimer[NUM_PLRTIMERS];
+	BYTE spx;      // Tile X-position of player
+	BYTE spy;      // Tile Y-position of player
+	BYTE spfutx;   // Future tile X-position of player. Set at start of walking animation
+	BYTE spfuty;   // Future tile Y-position of player. Set at start of walking animation
+	BYTE spoldx;   // Most recent X-position in dPlayer.
+	BYTE spoldy;   // Most recent Y-position in dPlayer.
+//	INT spxoff;   // Player sprite's pixel X-offset from tile.
+//	INT spyoff;   // Player sprite's pixel Y-offset from tile.
+	BYTE spdir;    // Direction faced by player (direction enum)
+	BYTE spAnimFrame; // Current frame of animation.
+	BYTE spAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
+	INT spHPBase;
+	INT spManaBase;
+	INT spVar1;
+	INT spVar2;
+	INT spVar3;
+	INT spVar4;
+	INT spVar5;
+	INT spVar6;
+	INT spVar7;
+	INT spVar8;
+	BYTE bItemsDur;	// number of item-durabilites
+} TSyncLvlPlayer;
+
+typedef struct TSyncLvlMonster {
+	WORD smMnum;
+	BYTE smMode; /* MON_MODE */
+	DWORD smSquelch;
+	//BYTE _mMTidx;
+	BYTE smPathcount;
+	BYTE smWhoHit;
+	BYTE smGoal;
+	INT smGoalvar1;
+	INT smGoalvar2;
+	INT smGoalvar3;
+	BYTE smx;                // Tile X-position of monster
+	BYTE smy;                // Tile Y-position of monster
+	BYTE smfutx;             // Future tile X-position of monster. Set at start of walking animation
+	BYTE smfuty;             // Future tile Y-position of monster. Set at start of walking animation
+	BYTE smoldx;             // Most recent X-position in dMonster.
+	BYTE smoldy;             // Most recent Y-position in dMonster.
+//	INT _mxoff;             // Monster sprite's pixel X-offset from tile.
+//	INT _myoff;             // Monster sprite's pixel Y-offset from tile.
+	BYTE smdir;              // Direction faced by monster (direction enum)
+	INT smEnemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
+	BYTE smEnemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
+	BYTE smEnemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+	BYTE smListener;        // the player to whom the monster is talking to
+	BOOLEAN smDelFlag;
+	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
+	BYTE smAnimFrame; // Current frame of animation.
+	INT smVar1;
+	INT smVar2;
+	INT smVar3;
+	INT smVar4;
+	INT smVar5;
+	INT smVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	INT smVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	INT smVar8; // Value used to measure progress for moving from one tile to another
+	INT smHitpoints;
+	BYTE smLastx; // the last known X-coordinate of the enemy
+	BYTE smLasty; // the last known Y-coordinate of the enemy
+	//BYTE smLeader; // the leader of the monster
+	BYTE smLeaderflag; // the status of the monster's leader
+	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
+	//BYTE falign_CB;
+	INT smFlags;
+	INT smTalkmsg;
+} TSyncLvlMonster;
+
+typedef struct TSyncLvlMissile {
+	WORD smiMi;
+	BYTE smiType;   // Type of projectile (MIS_*)
+	BYTE smiAnimType;
+	//BOOL _miAnimFlag;
+	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
+	char smiAnimAdd;
+	BYTE smiAnimFrame; // Current frame of animation.
+	BOOLEAN smiDrawFlag;
+	BOOLEAN smiLightFlag;
+	BOOLEAN smiPreFlag;
+	BYTE smiUniqTrans;
+	BYTE smisx;    // Initial tile X-position for missile
+	BYTE smisy;    // Initial tile Y-position for missile
+	BYTE smix;     // Tile X-position of the missile
+	BYTE smiy;     // Tile Y-position of the missile
+	INT smixoff;  // Sprite pixel X-offset for the missile
+	INT smiyoff;  // Sprite pixel Y-offset for the missile
+	INT smixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
+	INT smiyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
+	INT smitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	INT smityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	BYTE smiDir;   // The direction of the missile
+	int smiSpllvl;
+	int smiSource;
+	int smiCaster;
+	INT smiMinDam;
+	INT smiMaxDam;
+	INT smiRndSeed;
+	INT smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+	INT smiDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
+	BYTE smiLidRadius;
+	INT smiVar1;
+	INT smiVar2;
+	INT smiVar3;
+	INT smiVar4;
+	INT smiVar5;
+	INT smiVar6;
+	INT smiVar7;
+	INT smiVar8;
+} TSyncLvlMissile;
+
 typedef struct TurnPktHdr {
 	INT php;
 	//INT pmhp;
@@ -1165,7 +1296,7 @@ typedef struct TurnPktHdr {
 	//INT pmmp;
 	BYTE px;
 	BYTE py;
-	WORD wCheck;
+	// WORD wCheck;
 	WORD wLen;
 } TurnPktHdr;
 
@@ -1175,7 +1306,7 @@ typedef struct TurnPkt {
 } TurnPkt;
 
 typedef struct MsgPktHdr {
-	WORD wCheck;
+	// WORD wCheck;
 	WORD wLen;
 } MsgPktHdr;
 
@@ -1234,9 +1365,17 @@ typedef struct DJunk {
 	BYTE jGolems[MAX_MINIONS];
 } DJunk;
 
+typedef struct LDLevel {
+	BYTE ldNumMonsters;
+	BYTE ldMonstActive[MAXMONSTERS];
+	BYTE ldMissActive[MAXMISSILES];
+	WORD wLen; // length of ldContent
+	BYTE ldContent[MAX_PLRS * sizeof(TSyncLvlPlayer) + MAXMONSTERS * sizeof(TSyncLvlMonster) + MAXMISSILES * sizeof(TSyncLvlMissile)];
+} LDLevel;
+
 typedef struct DBuffer {
 	BOOLEAN compressed;
-	BYTE content[sizeof(DLevel) + 1];
+	BYTE content[0x7FFF];
 } DBuffer;
 
 typedef struct DeltaDataEnd {
@@ -1245,16 +1384,26 @@ typedef struct DeltaDataEnd {
 	DWORD turn;
 } DeltaDataEnd;
 
+typedef struct LevelDeltaEnd {
+	BOOLEAN compressed;
+	BYTE numChunks;
+	BYTE level;
+	DWORD turn;
+} LevelDeltaEnd;
+
 typedef struct DeltaData {
 	union {
 		struct {
 			DJunk ddJunk;					// portals and quests
 			DLevel ddLevel[NUM_LEVELS];		// items/monsters/objects
 			LocalLevel ddLocal[NUM_LEVELS];	// automap
-			DBuffer ddSendRecvBuf;			// Buffer to send/receive delta info
-			unsigned ddSendRecvOffset;		// offset in the buffer
 			bool ddLevelChanged[NUM_LEVELS];
 			bool ddJunkChanged;
+
+			DBuffer ddSendRecvBuf;     // Buffer to send/receive delta info
+			unsigned ddSendRecvOffset; // offset in the buffer
+			BYTE ddDeltaSender;        // the pnum of the delta-sender
+			BYTE ddRecvLastCmd;        // type of the last received delta-chunk (NMSG_DLEVEL_ or NMSG_LVL_DELTA_)
 		};
 		BYTE ddBuffer[FILEBUFF];
 	};
@@ -1269,14 +1418,9 @@ typedef struct TCmdJoinLevel {
 	INT pmp;
 	WORD lTimer1;
 	WORD lTimer2;
+	BYTE pManaShield; // TODO: remove this and from TSyncLvlPlayer and add to PkPlayerStruct?
+	BYTE itemsDur[NUM_INVELEM + 1];
 } TCmdJoinLevel;
-
-typedef struct TCmdAckJoinLevel {
-	BYTE bCmd;
-	BYTE lManashield;
-	WORD lTimer1;
-	WORD lTimer2;
-} TCmdAckJoinLevel;
 #pragma pack(pop)
 
 typedef struct TMegaPkt {
@@ -1401,9 +1545,9 @@ typedef struct SpellData {
 	BYTE sType;
 	BYTE sIcon;
 	const char* sNameText;
-	char sBookLvl;
-	char sStaffLvl;
-	char sScrollLvl;
+	BYTE sBookLvl;
+	BYTE sStaffLvl;
+	BYTE sScrollLvl;
 	BOOLEAN sTargeted;
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells

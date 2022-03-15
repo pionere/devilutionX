@@ -26,6 +26,9 @@ static int gnTx, gnTy;
 //                     PDIR_N   W   E   S  NW  NE  SE  SW
 const char pathxdir[8] = { -1, -1,  1,  1, -1,  0,  1,  0 };
 const char pathydir[8] = { -1,  1, -1,  1,  0, -1,  0,  1 };
+/** Maps from facing direction to path-direction. */
+const BYTE dir2pdir[NUM_DIRS] = { PDIR_S, PDIR_SW, PDIR_W, PDIR_NW, PDIR_N, PDIR_NE, PDIR_E, PDIR_SE };
+
 /**
  * each step direction is assigned a number like this:
  *       dx

@@ -21,8 +21,6 @@ int MouseY;
 bool gbRunGame;
 bool gbRunGameResult;
 bool gbZoomInFlag;
-/** Enable updating of player character, set to false once Diablo dies */
-bool gbProcessPlayers;
 bool gbLoadGame;
 bool gbCineflag;
 int gbRedrawFlags;
@@ -432,7 +430,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, asf);
 			return;
 		}
-		if (pcursmonst != -1) {
+		if (pcursmonst != MON_NONE) {
 			if (CanTalkToMonst(pcursmonst)) {
 				NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			} else {
@@ -472,7 +470,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	// assert(moveSkill != SPL_INVALID);
 	// assert(spelldata[atkSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
-	if (pcursmonst != -1) {
+	if (pcursmonst != MON_NONE) {
 		if (CanTalkToMonst(pcursmonst)) {
 			NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			return;
@@ -529,37 +527,26 @@ bool TryIconCurs(bool bShift)
 		}
 		break;
 	case CURSOR_DISARM:
-		if (pcursobj != OBJ_NONE) {
+		if (pcursobj != OBJ_NONE && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
 			if (!bShift ||
 			 (abs(myplr._px - cursmx) < 2 && abs(myplr._py - cursmy) < 2)) {
-				NetSendCmdLocParam1(CMD_DISARMXY, cursmx, cursmy, pcursobj);
-				return true;
+				// assert(gbTSpell == SPL_DISARM);
+				NetSendCmdLocDisarm(cursmx, cursmy, pcursobj, gbTSplFrom);
 			}
 		}
 		break;
 	case CURSOR_TELEKINESIS: {
-		int px, py;
-
-		px = myplr._px;
-		py = myplr._py;
+		// assert(gbTSpell == SPL_TELEKINESIS);
 		if (pcursobj != OBJ_NONE) {
-			if (LineClear(px, py, objects[pcursobj]._ox, objects[pcursobj]._oy))
-				NetSendCmdParam1(CMD_OPOBJT, pcursobj);
+			NetSendCmdParamBW(CMD_TELEKINOID, gbTSplFrom, pcursobj);
 		} else if (pcursitem != ITEM_NONE) {
-			if (LineClear(px, py, items[pcursitem]._ix, items[pcursitem]._iy))
-				NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
-		} else if (pcursmonst != -1) {
-			if (LineClear(px, py, monsters[pcursmonst]._mx, monsters[pcursmonst]._my))
-				NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
+			NetSendCmdLocBParam2(CMD_TELEKINXY, items[pcursitem]._ix, items[pcursitem]._iy, gbTSplFrom, pcursitem);
+		} else if (pcursmonst != MON_NONE) {
+			NetSendCmdParamBW(CMD_TELEKINID, gbTSplFrom, pcursmonst);
 		}
 	} break;
-	case CURSOR_RESURRECT:
-		if (pcursplr != PLR_NONE) {
-			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
-		}
-		break;
 	case CURSOR_TELEPORT:
-		if (pcursmonst != -1)
+		if (pcursmonst != MON_NONE)
 			NetSendCmdMonstSkill(pcursmonst, gbTSpell, gbTSplFrom);
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
@@ -567,6 +554,7 @@ bool TryIconCurs(bool bShift)
 			NetSendCmdLocSkill(cursmx, cursmy, gbTSpell, gbTSplFrom);
 		break;
 	case CURSOR_HEALOTHER:
+	case CURSOR_RESURRECT:
 		if (pcursplr != PLR_NONE) {
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		}
@@ -1353,23 +1341,13 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_DWM_TWARPUP:
 	case DVL_DWM_RETOWN:
 	case DVL_DWM_NEWGAME:
-		nthread_run();
+		gbActionBtnDown = false;
+		gbAltActionBtnDown = false;
 		if (gbQtextflag) {
 			gbQtextflag = false;
 			stream_stop();
 		}
-		if (uMsg != DVL_DWM_NEWGAME) {
-			if (IsMultiGame)
-				pfile_write_hero(false);
-			// turned off to have a consistent fade in/out logic + reduces de-sync by 
-			// eliminating the need for special handling in InitLevelChange (player.cpp)
-			//PaletteFadeOut();
-		}
-		gbActionBtnDown = false;
-		gbAltActionBtnDown = false;
 		ShowCutscene(uMsg);
-		// process packets arrived during LoadLevel / delta-load and disable nthread
-		nthread_finish(uMsg);
 		if (gbRunGame) {
 			InitLevelCursor();
 			gbRedrawFlags = REDRAW_ALL;
@@ -1423,9 +1401,7 @@ static bool ProcessInput()
 void game_logic()
 {
 	multi_rnd_seeds();
-	if (gbProcessPlayers) {
-		ProcessPlayers();
-	}
+	ProcessPlayers();
 	if (currLvl._dType != DTYPE_TOWN) {
 		ProcessMonsters();
 		ProcessObjects();
@@ -1534,7 +1510,6 @@ static WNDPROC InitGameUI()
 	gbActionBtnDown = false;
 	gbAltActionBtnDown = false;
 	gbRunGame = true;
-	gbProcessPlayers = true;
 	gbRunGameResult = true;
 
 	return SetWindowProc(GameWndProc);

@@ -8,7 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SQUELCH_MAX					UCHAR_MAX
+// Ticks necessary to finish the current action and add the result to the delta
+// ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_NORMAL_MSG_SIZE / sizeof(TSyncMonster)))
+#define SQUELCH_LOW					127
+#define SQUELCH_MAX					(SQUELCH_LOW + 240)
 #define MINION_INACTIVE(x)			((x->_mx | x->_my) == 0)
 #define MINION_NR_INACTIVE(x)		((monsters[x]._mx | monsters[x]._my) == 0)
 #define OPPOSITE(x)					(((x) + 4) & 7)
@@ -52,16 +55,21 @@ void MonWalkDir(int mnum, int md);
 void DeleteMonsterList();
 void ProcessMonsters();
 void FreeMonsters();
-bool DirOK(int mnum, int mdir);
+bool MonDirOK(int mnum, int mdir);
 bool CheckAllowMissile(int x, int y);
 bool CheckNoSolid(int x, int y);
 bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2);
 bool LineClear(int x1, int y1, int x2, int y2);
 bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2);
 void SyncMonsterAnim(int mnum);
-void MissToMonst(int mnum, int x, int y);
+void MissToMonst(int mnum);
+/* Check if the monster can be displaced to the given position. (unwillingly) */
+bool PosOkMonster(int mnum, int x, int y);
+/* Check if the monster can be placed to the given position. (willingly) */
 bool PosOkMonst(int mnum, int x, int y);
+/* Check if the monster could walk on the given position. (ignoring players/monsters) */
 bool PosOkMonst2(int mnum, int x, int y);
+/* Check if the monster could walk on the given position. (ignoring doors) */
 bool PosOkMonst3(int mnum, int x, int y);
 void SpawnSkeleton(int mnum, int x, int y, int dir);
 int PreSpawnSkeleton();

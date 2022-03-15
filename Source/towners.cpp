@@ -523,7 +523,7 @@ void SyncTownerQ(int pnum, int idx)
 	int i;
 
 	// assert(plr._pmode != PM_DEATH);
-	// assert(plr._pDunLevel == DLV_TOWN);
+	net_assert(plr._pDunLevel == DLV_TOWN);
 
 	if (!PlrHasStorageItem(pnum, idx, &i))
 		return;
@@ -534,24 +534,24 @@ void SyncTownerQ(int pnum, int idx)
 			return;
 		quests[Q_LTBANNER]._qlog = FALSE;
 		quests[Q_LTBANNER]._qvar1 = 2;
-		if (currLvl._dLevelIdx == DLV_TOWN)
-			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, pnum == mypnum, false);
+		if (pnum == mypnum)
+			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, ICM_SEND_FLIP);
 		break;
 	case IDI_ROCK:
 		if (quests[Q_ROCK]._qactive != QUEST_ACTIVE)
 			return;
 		quests[Q_ROCK]._qactive = QUEST_DONE;
 		//quests[Q_ROCK]._qlog = FALSE;
-		if (currLvl._dLevelIdx == DLV_TOWN)
-			SpawnUnique(UITEM_INFRARING, TPOS_SMITH + 1, pnum == mypnum, false);
+		if (pnum == mypnum)
+			SpawnUnique(UITEM_INFRARING, TPOS_SMITH + 1, ICM_SEND_FLIP);
 		break;
 	case IDI_ANVIL:
 		if (quests[Q_ANVIL]._qactive != QUEST_ACTIVE)
 			return;
 		quests[Q_ANVIL]._qactive = QUEST_DONE;
 		//quests[Q_ANVIL]._qlog = FALSE;
-		if (currLvl._dLevelIdx == DLV_TOWN)
-			SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH + 1, pnum == mypnum, false);
+		if (pnum == mypnum)
+			SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH + 1, ICM_SEND_FLIP);
 		break;
 	case IDI_FUNGALTM:
 		if (quests[Q_MUSHROOM]._qactive != QUEST_INIT)
@@ -571,8 +571,8 @@ void SyncTownerQ(int pnum, int idx)
 			return;
 		quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
-		if (currLvl._dLevelIdx == DLV_TOWN)
-			SpawnQuestItemAround(IDI_SPECELIX, TPOS_HEALER + 1, pnum == mypnum/*, false*/);
+		if (pnum == mypnum)
+			SpawnQuestItemAt(IDI_SPECELIX, TPOS_HEALER + 1, ICM_SEND_FLIP);
 		break;
 	case IDI_LAZSTAFF:
 		if (quests[Q_BETRAYER]._qvar1 >= 2 /*|| quests[Q_BETRAYER]._qactive != QUEST_ACTIVE*/)
@@ -589,7 +589,8 @@ void SyncTownerQ(int pnum, int idx)
 			return;
 		quests[Q_JERSEY]._qactive = QUEST_DONE;
 		if (currLvl._dLevelIdx == DLV_TOWN) {
-			SpawnUnique(UITEM_BOVINE, TPOS_COWFARM, pnum == mypnum, false);
+			if (pnum == mypnum)
+				SpawnUnique(UITEM_BOVINE, TPOS_COWFARM, ICM_SEND_FLIP);
 			ReInitTownerAnim(TOWN_COWFARM, "Towners\\Farmer\\mfrmrn2.CEL");
 		}
 		break;
@@ -599,9 +600,11 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_GIRL]._qactive = QUEST_DONE;
 		// quests[Q_GIRL]._qlog = FALSE;
 		if (currLvl._dLevelIdx == DLV_TOWN) {
-			WORD wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
-			SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
-			CreateAmulet(wCI, TPOS_GIRL, pnum == mypnum, false);
+			if (pnum == mypnum) {
+				WORD wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
+				SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
+				SpawnAmulet(wCI, TPOS_GIRL/*, true*/);
+			}
 			ReInitTownerAnim(TOWN_GIRL, "Towners\\Girl\\Girls1.CEL");
 		}
 		break;
@@ -758,7 +761,7 @@ void TalkToTowner(int tnum)
 		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
 		 && quests[Q_PWATER]._qvar1 == 2) {
 			quests[Q_PWATER]._qactive = QUEST_DONE;
-			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, false, true);
+			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, ICM_SEND_FLIP);
 			qn = Q_PWATER;
 			qt = TEXT_POISON5;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
@@ -830,7 +833,7 @@ void TalkToTowner(int tnum)
 				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
 				qt = TEXT_FARMER1;
-				SpawnRewardItem(IDI_RUNEBOMB, TPOS_FARMER, false, true);
+				SpawnQuestItemAt(IDI_RUNEBOMB, TPOS_FARMER, ICM_SEND_FLIP);
 			}
 			break;
 		case QUEST_ACTIVE:
@@ -841,7 +844,7 @@ void TalkToTowner(int tnum)
 				quests[Q_FARMER]._qlog = FALSE;
 				qn = Q_FARMER;
 				qt = TEXT_FARMER4;
-				SpawnRewardItem(IDI_MANA, TPOS_FARMER, false, true);
+				SpawnQuestItemAt(IDI_MANA, TPOS_FARMER, ICM_SEND_FLIP);
 			}
 			break;
 		default:
@@ -906,7 +909,7 @@ void TalkToTowner(int tnum)
 				quests[Q_JERSEY]._qlog = TRUE;
 				qn = Q_JERSEY;
 				qt = TEXT_JERSEY4;
-				SpawnRewardItem(IDI_RUNEBOMB, TPOS_COWFARM, false, true);
+				SpawnQuestItemAt(IDI_RUNEBOMB, TPOS_COWFARM, ICM_SEND_FLIP);
 			}
 			break;
 		case QUEST_DONE:

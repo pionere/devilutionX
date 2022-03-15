@@ -408,6 +408,8 @@ void ValidateData()
 			if (InvItemHeight[ids.iCurs + CURSOR_FIRSTITEM] != INV_SLOT_SIZE_PX)
 				app_fatal("Belt item %s (%d) is too tall.", ids.iName, i);
 		}
+		if (ids.iDurability * 3 >= DUR_INDESTRUCTIBLE)
+			app_fatal("Item %s (%d) has too high durability.", ids.iName, i);
 		if (ids.iUsable) {
 			switch (ids.iMiscId) {
 			case IMISC_HEAL:

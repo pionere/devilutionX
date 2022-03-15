@@ -63,8 +63,8 @@ static void gamemenu_update_single()
 	bool enable;
 
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
-
-	enable = pcurs == CURSOR_HAND && gbDeathflag == MDM_ALIVE;
+	// disable saving in case the player died, the player is changing the level, or diablo is dead
+	enable = /*pcurs == CURSOR_HAND &&*/ gbDeathflag == MDM_ALIVE && !myplr._pLvlChanging;
 	// TODO: disable saving if there is a live turn in transit? (SNetGetLiveTurnsInTransit)
 	gmenu_enable(&sgSingleMenu[0], enable);
 }
@@ -119,12 +119,11 @@ static void gamemenu_load_game(bool bActivate)
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game();
 	gbDeathflag = MDM_ALIVE;
-	//gbZoomInFlag = false;
+	// gbZoomInFlag = false;
 	LoadGame();
 	ClrDiabloMsg();
 	PaletteFadeOut();
 	InitLevelCursor();
-	gbProcessPlayers = true;
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game();
 	LoadPWaterPalette();
@@ -136,15 +135,15 @@ static void gamemenu_load_game(bool bActivate)
 static void gamemenu_save_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
-	NewCursor(CURSOR_NONE);
 	gamemenu_off();
+	// NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_SAVING);
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game();
 	SaveGame();
 	ClrDiabloMsg();
+	// InitLevelCursor();
 	gbRedrawFlags = REDRAW_ALL;
-	NewCursor(CURSOR_HAND);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
 }

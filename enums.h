@@ -1500,6 +1500,7 @@ typedef enum missile_id {
 	MIS_PBARROWC,
 	MIS_ASARROWC,
 	MIS_FIREBOLT,
+	MIS_FIREBALL,
 	MIS_HBOLT,
 	MIS_FLARE,
 	MIS_SNOWWICH,
@@ -1521,7 +1522,6 @@ typedef enum missile_id {
 	MIS_GUARDIAN,
 	MIS_RNDTELEPORT,
 	MIS_LIGHTBALL,
-	MIS_FIREBALL,
 	MIS_LIGHTNINGC,
 	MIS_LIGHTNING,
 	MIS_LIGHTNINGC2,
@@ -1570,7 +1570,7 @@ typedef enum missile_id {
 	MIS_CBOLTC,
 	MIS_CBOLT,
 	MIS_ELEMENTAL,
-	MIS_EXELE,
+	MIS_EXFBALL,
 	//MIS_BONESPIRIT,
 	MIS_APOCAC2,
 	MIS_EXAPOCA2,
@@ -1589,9 +1589,8 @@ typedef enum missile_id {
 	MIS_RUNENOVA,
 	MIS_RUNEWAVE,
 	MIS_RUNESTONE,
-	MIS_HIVEEXP,
+	MIS_FIREEXP,
 	MIS_HORKDMN,
-	MIS_HIVEEXPC,
 	MIS_PSYCHORB,
 	MIS_LICH,
 	MIS_BONEDEMON,
@@ -1605,6 +1604,19 @@ typedef enum missile_id {
 #endif
 	NUM_MISTYPES
 } missile_id;
+
+typedef enum missile_source_type {
+	MST_PLAYER,  // player
+	MST_MONSTER, // monster
+	MST_OBJECT,  // trap or object
+	MST_NA = 0,  // does not matter
+} missile_source_type;
+
+typedef enum missile_telekinesis_type {
+	MTT_ITEM,
+	MTT_MONSTER,
+	MTT_OBJECT,
+} missile_telekinesis_type;
 
 typedef enum missile_gfx_id {
 	MFILE_ARROWS,
@@ -2729,11 +2741,8 @@ typedef enum goodorevil {
  9-10th bit stores info if item is from a specific source (griswold, wirt, adria, pepin and user crafted) 
  11th bit stores onlygood flag
  12th bit stores uper15 flag - uper means unique percent, this flag is true for unique monsters and loot from them has 15% to become unique
- 13th bit stores uper1 flag - this is loot from normal monsters, which has 1% to become unique
- 14th bit stores info if item is unique
- 15th bit stores pregen flag
+ 13th bit stores uper1 flag - this is loot from normal monsters/objects, which has 1% to become unique
 
- combining CF_UPER15 and CF_UPER1 flags (CF_USEFUL) is used to mark potions and town portal scrolls created on the ground
  CF_TOWN is combining all source flags and indicates if item has been bought from a NPC or created via crafting
  */
 typedef enum icreateinfo_loc {
@@ -2756,11 +2765,16 @@ typedef enum icreateinfo_flag {
 	CF_ONLYGOOD     = 1 << 11,
 	CF_UPER15       = 1 << 12,
 	CF_UPER1        = 1 << 13,
-	CF_UNIQUE       = 1 << 14,
 
-	CF_USEFUL = CF_UPER15 | CF_UPER1,
 	CF_TOWN   = 7 << 8,
 } icreateinfo_flag;
+
+typedef enum icreate_mode {
+	ICM_DELTA,    // floor item, generated with the level
+	ICM_DUMMY,    // spawn item, discarded
+	ICM_SEND,     // spawn item on the floor, sent to (other) players
+	ICM_SEND_FLIP // spawn item, sent to (other) players
+} icreate_mode;
 
 typedef enum dungeon_message {
 	DMSG_CATHEDRAL = 1 << 0,
@@ -2956,10 +2970,12 @@ typedef enum PLR_MODE {
 	PM_RATTACK,
 	PM_BLOCK,
 	PM_GOTHIT,
-	PM_DEATH,
 	PM_SPELL,
+	PM_DYING, // pre-death mode which might be out of sync
+	PM_DEATH, // death mode which is in sync with external players
 	PM_NEWLVL,
-	NUM_PLR_MODES
+	NUM_PLR_MODES,
+	PM_INVALID = 0xFF
 } PLR_MODE;
 
 typedef enum PLR_ANIM {
@@ -3005,9 +3021,9 @@ typedef enum cursor_id {
 	CURSOR_DISARM,
 	CURSOR_OIL,
 	CURSOR_TELEKINESIS,
-	CURSOR_RESURRECT,
 	CURSOR_TELEPORT,
 	CURSOR_HEALOTHER,
+	CURSOR_RESURRECT,
 	CURSOR_HOURGLASS,
 	CURSOR_FIRSTITEM,
 } cursor_id;
@@ -3133,6 +3149,8 @@ typedef enum _msg_id {
 	NMSG_DLEVEL_JUNK,
 	NMSG_DLEVEL_PLR,
 	NMSG_DLEVEL_END,
+	NMSG_LVL_DELTA,
+	NMSG_LVL_DELTA_END,
 	NMSG_STRING,
 	NMSG_PLRDROP, // internal use only (supposedly)
 } _msg_id;
@@ -3152,7 +3170,6 @@ typedef enum _cmd_id {
 	CMD_SPELLID,
 	CMD_SPELLPID,
 	CMD_BLOCK,
-	CMD_KNOCKBACK,
 	CMD_TALKXY,
 	CMD_MONSTDEATH,
 	CMD_MONSTDAMAGE,
@@ -3172,28 +3189,27 @@ typedef enum _cmd_id {
 	CMD_CUTPLRITEM,
 	CMD_DELPLRITEM,
 	CMD_USEPLRITEM,
-	CMD_DPUTITEM,
 	CMD_PUTITEM,
-	CMD_RESPAWNITEM,
+	CMD_SPAWNITEM,
 	CMD_GETITEM,
 	CMD_AUTOGETITEM,
 	CMD_GOTOGETITEM,
 	CMD_GOTOAGETITEM,
 	CMD_OPERATEITEM,
 	CMD_OPERATEOBJ,
-	CMD_OPOBJT,
 	CMD_DOOROPEN,
 	CMD_DOORCLOSE,
 	CMD_TRAPDISABLE,
 	CMD_TRAPOPEN,
 	CMD_TRAPCLOSE,
 	CMD_SHRINE,
+	CMD_TELEKINXY,
+	CMD_TELEKINID,
+	CMD_TELEKINOID,
 	CMD_ACTIVATEPORTAL,
-	CMD_DEACTIVATEPORTAL,
 	CMD_NEWLVL,
 	CMD_TWARP,
 	CMD_RETOWN,
-	CMD_ACK_JOINLEVEL,
 	CMD_JOINLEVEL,
 	CMD_INVITE,
 	CMD_ACK_INVITE,
@@ -3234,10 +3250,12 @@ typedef enum _dcmd_monster {
 
 typedef enum _msg_mode {
 	MSG_NORMAL,
-	MSG_REQUEST_GAME_DELTA,
-	MSG_GAME_DELTA,
+	MSG_GAME_DELTA_WAIT, // wait for game delta information
+	MSG_GAME_DELTA_LOAD, // download game delta
 	//MSG_RUN_DELTA,
-	MSG_INITIAL_PENDINGTURN,
+	MSG_LVL_DELTA_WAIT, // wait for level delta information
+	MSG_LVL_DELTA_PROC, // process turns till the timestamp of the level delta info
+	MSG_LVL_DELTA_SKIP_JOIN // skip most of the JOINLEVEL message of the level-delta timestamp (level delta is supposed to contain this)
 } _msg_mode;
 
 typedef enum _talker_id {
@@ -4016,7 +4034,6 @@ typedef enum action_id {
 	ACTION_NONE,
 	ACTION_WALK,
 	ACTION_OPERATE,
-	ACTION_DISARM,
 	ACTION_ATTACK,
 	ACTION_ATTACKMON,
 	ACTION_ATTACKPLR,
@@ -4029,7 +4046,6 @@ typedef enum action_id {
 	ACTION_BLOCK,
 	ACTION_PICKUPITEM,  // put item in hand (inventory screen open)
 	ACTION_PICKUPAITEM, // put item in inventory
-	ACTION_OPERATETK,   // operate via telekinesis
 	ACTION_TALK,
 } action_id;
 
@@ -4151,7 +4167,7 @@ typedef enum application_error {
 	ERR_APP_PACKET_ENCRYPT,
 	ERR_APP_PACKET_SETUP,
 	ERR_APP_PACKET_PASSWD,
-	ERR_APP_ZT_RECV,
+	ERR_APP_SETMAP,
 } application_error;
 
 typedef enum app_sdl_error {

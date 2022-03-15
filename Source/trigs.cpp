@@ -350,7 +350,7 @@ void InitVPEntryTrigger(bool recreate)
 	trigs[i]._tlvl = questlist[Q_BETRAYER]._qslvl;
 	numtrigs = i + 1;
 
-	AddMissile(0, 0, quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, MIS_RPORTAL, 0, -1, 0, 0, recreate ? -1 : 0);
+	AddMissile(0, 0, quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
 }
 
 void InitVPReturnTrigger(bool recreate)
@@ -360,7 +360,7 @@ void InitVPReturnTrigger(bool recreate)
 	trigs[0]._ty = DBORDERX + 16;
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 
-	AddMissile(0, 0, DBORDERX + 19, DBORDERY + 16, 0, MIS_RPORTAL, 0, 0, 0, 0, recreate ? -1 : 0);
+	AddMissile(0, 0, DBORDERX + 19, DBORDERY + 16, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
 }
 
 static int ForceTownTrig()
@@ -827,13 +827,16 @@ void CheckTriggers()
 			lvl = trigs[i]._tlvl;
 			break;
 		case DVL_DWM_TWARPUP:
-			lvl = 0;
+			lvl = DLV_TOWN;
 			break;
 		default:
 			ASSUME_UNREACHABLE;
 			break;
 		}
-		NetSendCmdParam2(CMD_NEWLVL, fom, lvl);
+		static_assert((int)DVL_DWM_TWARPUP < UCHAR_MAX, "CheckTriggers sends DVL_DWM_* value in BYTE field I.");
+		static_assert((int)DVL_DWM_NEXTLVL < UCHAR_MAX, "CheckTriggers sends DVL_DWM_* value in BYTE field II.");
+		static_assert((int)NUM_LEVELS < UCHAR_MAX, "CheckTriggers sends level index in BYTE field.");
+		NetSendCmdBParam2(CMD_NEWLVL, fom, lvl);
 		numtrigs = 0; // prevent triggering again
 	}
 }

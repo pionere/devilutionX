@@ -1133,7 +1133,7 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_NONE
 		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_SHIELD)
 			SwapItem(&plr._pInvBody[INVITEM_HAND_LEFT], &plr._pInvBody[INVITEM_HAND_RIGHT]);
-		CalcPlrInv(pnum, plr._pmode != PM_DEATH);
+		CalcPlrInv(pnum, true/*plr._pmode != PM_DEATH*/);
 	} else if (bLoc < INVITEM_BELT_FIRST) {
 		// inv item
 		bLoc -= INVITEM_INV_FIRST;
@@ -1254,7 +1254,7 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		delay = 10;
 		idx = TEXT_IM_MAPOFDOOM;
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
-		int nn, i;
+		int nn, i, x, y;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasStorageItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasStorageItem(pnum, IDI_NOTE3, &nn))) {
@@ -1267,10 +1267,14 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 				}
 			}
 			SetItemData(MAXITEMS, IDI_FULLNOTE);
-			SetupItem(MAXITEMS);
-			idx = is->_iSeed;	// preserve seed of the last item
+			// preserve seed and location of the last item
+			idx = is->_iSeed;
+			x = is->_ix;
+			y = is->_iy;
 			copy_pod(*is, items[MAXITEMS]);
-			is->_iSeed= idx;
+			is->_iSeed = idx;
+			is->_ix = x;
+			is->_iy = y;
 			delay = 10;
 			idx = TEXT_IM_FULLNOTE;
 		} else {
@@ -1472,13 +1476,11 @@ void DropItem()
 /**
  * Place an item around the given position.
  *
- * @param pnum the id of the player who places the item / initiated the item placement
+ * @param pnum the id of the player who places the item (might not be valid)
  * @param x tile coordinate to place the item
  * @param y tile coordinate to place the item
- * @param plrAround true: the item should be placed around the player
- *                 false: the item should be placed around x:y
  */
-void SyncPutItem(int pnum, int x, int y, bool plrAround)
+void SyncPutItem(int pnum, int x, int y, bool flipFlag)
 {
 	int xx, yy, ii;
 	ItemStruct* is;
@@ -1487,7 +1489,7 @@ void SyncPutItem(int pnum, int x, int y, bool plrAround)
 	if (numitems >= MAXITEMS)
 		return; // -1;
 
-	if (plrAround) {
+	if ((unsigned)pnum < MAX_PLRS) {
 		xx = plr._px;
 		yy = plr._py;
 	} else {
@@ -1505,7 +1507,7 @@ void SyncPutItem(int pnum, int x, int y, bool plrAround)
 	copy_pod(items[ii], *is);
 	items[ii]._ix = x;
 	items[ii]._iy = y;
-	RespawnItem(ii, true);
+	RespawnItem(ii, flipFlag);
 	//return ii;
 }
 
@@ -1890,7 +1892,6 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	default:
 		ASSUME_UNREACHABLE
 	}
-	// FIXME: ensure a dead player remains dead
 	// consume the item
 	SyncPlrItemRemove(pnum, cii);
 	return sn == SPL_INVALID;

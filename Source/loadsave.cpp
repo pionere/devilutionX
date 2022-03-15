@@ -573,7 +573,7 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->leader);
 	LoadByte(&mon->leaderflag);
 	LoadByte(&mon->packsize);
-	LoadByte(&mon->falign_CB); // Alignment
+	LoadByte(&mon->_mvid);
 
 	LoadByte(&mon->_mLevel);
 	LoadByte(&mon->_mSelFlag);
@@ -698,7 +698,7 @@ static void LoadObject(int oi, bool full)
 
 	LoadByte(&os->_oDoorFlag);
 	LoadByte(&os->_oSelFlag);
-	LoadByte(&os->_oTrapFlag);
+	LoadByte(&os->_oTrapChance);
 	tbuff += 1; // Alignment
 
 	LoadInt(&os->_oPreFlag);
@@ -949,9 +949,8 @@ void LoadGame()
 	InitAutomapScale();
 	//ResyncQuests();
 
-	//RedoPlayerLight();
+	//RedoLightAndVision();
 	//ProcessLightList();
-	//RedoPlayerVision();
 	//ProcessVisionList();
 
 	SyncMissilesAnim();
@@ -1234,10 +1233,21 @@ static void SavePlayer(int pnum)
 	// Omit pointer alignment
 }
 
-static void SaveMonster(int mnum)
+static void SaveMonster(int mnum, bool full)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
+	if (!full) {
+		// reset charging and stoned monsters, because the missiles are not saved
+		if (mon->_mmode == MM_STONE) {
+			mon->_mmode = mon->_mVar3;
+		} else if (mon->_mmode == MM_CHARGE) {
+			mon->_mmode = MM_STAND;
+			// TODO: set mVar1 and mVar2?
+			// mon->_mVar1 = MM_CHARGE; // STAND_PREV_MODE
+			// mon->_mVar2 = ...;
+		}
+	}
 	SaveInt(&mon->_mmode);
 	SaveInt(&mon->_msquelch);
 	SaveByte(&mon->_mMTidx);
@@ -1290,7 +1300,7 @@ static void SaveMonster(int mnum)
 	SaveByte(&mon->leader);
 	SaveByte(&mon->leaderflag);
 	SaveByte(&mon->packsize);
-	SaveByte(&mon->falign_CB); // Alignment
+	SaveByte(&mon->_mvid);
 
 	SaveByte(&mon->_mLevel);
 	SaveByte(&mon->_mSelFlag);
@@ -1413,7 +1423,7 @@ static void SaveObject(int oi)
 
 	SaveByte(&os->_oDoorFlag);
 	SaveByte(&os->_oSelFlag);
-	SaveByte(&os->_oTrapFlag);
+	SaveByte(&os->_oTrapChance);
 	tbuff += 1; // Alignment
 
 	SaveInt(&os->_oPreFlag);
@@ -1487,7 +1497,7 @@ static void SaveLevelData(bool full)
 		for (i = 0; i < MAXMONSTERS; i++)
 			SaveInt(&monstactive[i]);
 		for (i = 0; i < nummonsters; i++)
-			SaveMonster(monstactive[i]);
+			SaveMonster(monstactive[i], full);
 		if (full) {
 			for (i = 0; i < MAXMISSILES; i++)
 				SaveByte(&missileactive[i]);

@@ -18,7 +18,7 @@ extern BYTE stextflag;
 /** Current item in store. */
 extern ItemStruct storeitem;
 /** Current level of the item sold by Wirt */
-extern int boylevel;
+extern unsigned boylevel;
 /** Current item sold by Wirt */
 extern ItemStruct boyitem;
 /** Normal-Items sold by Griswold */

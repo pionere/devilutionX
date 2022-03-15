@@ -62,12 +62,16 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_ID_PRICE			100
 #define STORE_BOY_PRICE			50
 
+// level limits of the premium items by the smith
+#define STORE_PITEM_MINLVL		6
+#define STORE_PITEM_MAXLVL		32
+
 /* The current item in store. */
 ItemStruct storeitem;
 /* The item for sale by Wirt. */
 ItemStruct boyitem;
 /* The level of the item by Wirt. */
-int boylevel;
+unsigned boylevel;
 /* The standard items for sale by the smith. */
 ItemStruct smithitem[SMITH_ITEMS];
 /* The premium items for sale by the smith. */
@@ -148,6 +152,18 @@ static void ClearSText(int s, int e)
 	}
 }
 
+static unsigned StoresLimitedItemLvl()
+{
+	int l = myplr._pLevel;
+
+	l += 2;
+	if (l < STORE_PITEM_MINLVL)
+		l = STORE_PITEM_MINLVL;
+	if (l > STORE_PITEM_MAXLVL)
+		l = STORE_PITEM_MAXLVL;
+	return l;
+}
+
 void InitStoresOnce()
 {
 	int i;
@@ -157,7 +173,8 @@ void InitStoresOnce()
 	gbWidePanel = false;
 	gbHasScroll = false;
 	numpremium = 0;
-	premiumlevel = 1;
+	premiumlevel = StoresLimitedItemLvl();
+	// assert((premiumlevel + premiumlvladd[0]) >= 0);
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		premiumitems[i]._itype = ITYPE_NONE;
@@ -166,21 +183,9 @@ void InitStoresOnce()
 	boylevel = 0;
 }
 
-static int StoresLimitedItemLvl()
-{
-	int l = myplr._pLevel;
-
-	l += 2;
-	if (l < 6)
-		l = 6;
-	if (l > 32)
-		l = 32;
-	return l;
-}
-
 void InitLvlStores()
 {
-	int l;
+	unsigned l;
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx] * SDL_GetTicks());
 	l = StoresLimitedItemLvl();

@@ -1622,7 +1622,7 @@ void DrawInfoStr()
 		y = os->_oy - 1;
 		GetMousePos(x, y, &xx, &yy);
 		DrawTooltip(infostr, xx, yy, infoclr);
-	} else if (pcursmonst != -1) {
+	} else if (pcursmonst != MON_NONE) {
 		MonsterStruct* mon = &monsters[pcursmonst];
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
@@ -1632,7 +1632,7 @@ void DrawInfoStr()
 			if (mon->_uniqtype != 0) {
 				col = COL_GOLD;
 			}
-		} else if (pcursitem == ITEM_NONE) {
+		} else {
 			strcpy(infostr, towners[pcursmonst]._tName);
 		}
 		GetMousePos(x, y, &xx, &yy);
@@ -1733,7 +1733,6 @@ void ReleaseChrBtns()
 					ASSUME_UNREACHABLE
 					break;
 				}
-				myplr._pStatPts--;
 			}
 		}
 	}
@@ -2038,9 +2037,10 @@ static void control_remove_gold()
 	int gi;
 
 	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
+	static_assert((int)INVITEM_INV_LAST - (int)INVITEM_INV_FIRST < UCHAR_MAX, "control_remove_gold sends inv item index in BYTE field.");
 	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
 	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using WORD.");
-	NetSendCmdParam2(CMD_SPLITPLRGOLD, gi, dropGoldValue);
+	NetSendCmdParamBW(CMD_SPLITPLRGOLD, gi, dropGoldValue);
 }
 
 void control_drop_gold(char vkey)

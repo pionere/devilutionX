@@ -132,8 +132,6 @@ void InitQuests()
 		quests[questdebug]._qactive = QUEST_ACTIVE;
 #endif
 
-	if (IsMultiGame)
-		quests[Q_BETRAYER]._qvar1 = 2;
 	if (quests[Q_PWATER]._qactive == QUEST_NOTAVAIL)
 		quests[Q_PWATER]._qvar1 = 2;
 }
@@ -504,18 +502,18 @@ void LoadPWaterPalette()
 	//	LoadPalette("Levels\\L3Data\\L3pfoul.pal");
 }
 
-static void ResyncBanner()
+void ResyncBanner()
 {
 	if (quests[Q_LTBANNER]._qvar1 != 4) {
 		// open the entrance of the setmap -> TODO: add these to Banner2.DUN ?
-		ObjChangeMapResync(
+		ObjChangeMap(
 		    setpc_w + setpc_x - 2,
 		    setpc_h + setpc_y - 2,
 		    setpc_w + setpc_x + 1,
-		    setpc_h + setpc_y + 1);
+		    setpc_h + setpc_y + 1/*, false*/);
 		// TODO: add the opening of the entrance to Banner2.DUN?
 	} else {
-		ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
 		//for (i = 0; i < numobjects; i++)
 		//	SyncObjectAnim(objectactive[i]);
 		BYTE tv = dTransVal[2 * setpc_x + 1 + DBORDERX][2 * (setpc_y + 6) + 1 + DBORDERY];
@@ -531,24 +529,24 @@ void ResyncQuests()
 	if (QuestStatus(Q_LTBANNER)) {
 		ResyncBanner();
 		/*if (quests[Q_LTBANNER]._qvar1 == 1)
-			ObjChangeMapResync(
+			ObjChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
 			    setpc_w + setpc_x + 1,
-			    setpc_h + setpc_y + 1);
+			    setpc_h + setpc_y + 1, false);
 		if (quests[Q_LTBANNER]._qvar1 == 2) {
-			ObjChangeMapResync(
+			ObjChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
 			    setpc_w + setpc_x + 1,
-			    setpc_h + setpc_y + 1);
-			ObjChangeMapResync(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 2, (setpc_h >> 1) + setpc_y - 2);
+			    setpc_h + setpc_y + 1, false);
+			ObjChangeMap(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 2, (setpc_h >> 1) + setpc_y - 2, false);
 			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
 		if (quests[Q_LTBANNER]._qvar1 == 3) {
-			ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1);
+			ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1, false);
 			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
@@ -578,9 +576,9 @@ void ResyncQuests()
 	} else {
 		if (lvl == SL_VILEBETRAYER) {
 			if (quests[Q_BETRAYER]._qvar1 >= 4)
-				ObjChangeMapResync(1, 11, 20, 18);
+				ObjChangeMap(7, 11, 13, 18/*, true*/);
 			if (quests[Q_BETRAYER]._qvar1 >= 6)
-				ObjChangeMapResync(1, 18, 20, 24);
+				ObjChangeMap(7, 20, 11, 22/*, false*/);
 			if (quests[Q_BETRAYER]._qvar1 >= 7)
 				InitVPReturnTrigger(true);
 			//for (i = 0; i < numobjects; i++)
