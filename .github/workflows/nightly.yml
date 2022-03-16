@@ -211,7 +211,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install gettext
-      run: sudo apt update && sudo apt install -y gettext
+      run: sudo apt-get update && sudo apt-get install -y gettext
 
     - name: Checkout
       uses: actions/checkout@v2
@@ -275,8 +275,8 @@ jobs:
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-gcw0-toolchain.2021-10-22.tar.xz -o gcw0-toolchain.tar.xz &&
     - name: Create Build Environment
       run: >
-        sudo apt update &&
-        sudo apt install -y curl cmake git squashfs-tools &&
+        sudo apt-get update &&
+        sudo apt-get install -y curl cmake git squashfs-tools &&
         curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-gcw0-toolchain.2021-03-10.tar.xz -o gcw0-toolchain.tar.xz &&
         sudo mkdir -p /opt/gcw0-toolchain && sudo chown -R "${USER}:" /opt/gcw0-toolchain &&
         tar -C /opt -xf gcw0-toolchain.tar.xz
@@ -319,8 +319,8 @@ jobs:
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-lepus-toolchain.2021-10-22.tar.xz -o lepus-toolchain.tar.xz &&
     - name: Create Build Environment
       run: >
-        sudo apt update &&
-        sudo apt install -y curl cmake git squashfs-tools &&
+        sudo apt-get update &&
+        sudo apt-get install -y curl cmake git squashfs-tools &&
         curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-lepus-toolchain.2021-03-11.tar.xz -o lepus-toolchain.tar.xz &&
         sudo mkdir -p /opt/lepus-toolchain && sudo chown -R "${USER}:" /opt/lepus-toolchain &&
         tar -C /opt -xf lepus-toolchain.tar.xz
@@ -360,14 +360,14 @@ jobs:
       with:
         fetch-depth: 0
 
-     #sudo apt install -y curl git smpq &&
+     #sudo apt-get install -y curl git smpq &&
      #curl -L https://github.com/retrofw/buildroot/releases/download/2018.02.11/mipsel-linux-uclibc_x64.tar.gz -o retrofw-toolchain.tar.xz &&
      #sudo mkdir -p /opt/mipsel-linux-uclibc && sudo chown -R "${USER}:" /opt/mipsel-linux-uclibc &&
      #tar -C /opt -xvf retrofw-toolchain.tar.xz
     - name: Create Build Environment
       run: >
-        sudo apt update &&
-        sudo apt install -y curl cmake git squashfs-tools gettext &&
+        sudo apt-get update &&
+        sudo apt-get install -y curl cmake git squashfs-tools gettext &&
         curl -L https://github.com/Poligraf/retrofw_buildroot_gcc11/releases/download/2.3.2/host.tar.gz -o retrofw-toolchain.tar.gz &&
         sudo mkdir -p /opt/retrofw-toolchain && sudo chown -R "${USER}:" /opt/retrofw-toolchain &&
         tar -C /opt/retrofw-toolchain --strip-components=1 -xf retrofw-toolchain.tar.gz &&
