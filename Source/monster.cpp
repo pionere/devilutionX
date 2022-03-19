@@ -2053,8 +2053,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		return;
 
 	hper = hper + (monsters[offm]._mLevel << 1) - (monsters[defm]._mLevel << 1);
-	int hit = monsters[defm]._mmode == MM_STONE ? 0 : random_(4, 100);
-	if (hit < hper) {
+	if (CheckHit(hper) || monsters[defm]._mmode == MM_STONE) {
 		int dam = RandRange(mind, maxd) << 6;
 		monsters[defm]._mhitpoints -= dam;
 		if (monsters[defm]._mhitpoints < (1 << 6)) {
@@ -2081,7 +2080,7 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	hper = 30 + Hit
 		+ (2 * mon->_mLevel)
 		- plr._pIAC;
-	if (random_(98, 100) >= hper)
+	if (!CheckHit(hper))
 #if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif

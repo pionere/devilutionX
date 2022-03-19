@@ -645,7 +645,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	} else {
 		hper = 40;
 	}
-	if (random_(68, 100) >= hper && mon->_mmode != MM_STONE)
+	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
 #if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
@@ -705,7 +705,7 @@ static bool MonsterMHit(int mnum, int mi)
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}
 	}
-	if (random_(69, 100) >= hper && mon->_mmode != MM_STONE)
+	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
 #if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
@@ -860,7 +860,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 			- (2 * plr._pLevel);
 	}
 
-	if (random_(72, 100) >= hper)
+	if (!CheckHit(hper))
 #if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
@@ -926,7 +926,7 @@ static bool PlayerMHit(int pnum, int mi)
 		}
 	}
 
-	if (random_(72, 100) >= hper)
+	if (!CheckHit(hper))
 #if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
@@ -988,7 +988,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}
 	}
-	if (random_(69, 100) >= hper)
+	if (!CheckHit(hper))
 		return false;
 
 	if (!(mis->_miFlags & MIF_NOBLOCK)) {

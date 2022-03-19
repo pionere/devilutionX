@@ -32,6 +32,16 @@ void InitMissiles();
 void ProcessMissiles();
 void SyncMissilesAnim();
 
+inline bool CheckHit(int hitper)
+{
+	if (hitper > 75) {
+		hitper = 75 + ((hitper - 75) >> 2);
+	} else if (hitper < 25) {
+		hitper = 25 + ((hitper - 25) >> 2);
+	}
+	return random_(0, 100) < hitper; 
+}
+
 #ifdef __cplusplus
 }
 #endif

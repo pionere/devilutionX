@@ -1987,7 +1987,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (sn == SPL_SWIPE) {
 		hper -= 30 - sl * 2;
 	}
-	if (random_(4, 100) >= hper && mon->_mmode != MM_STONE)
+	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
 #if DEBUG_MODE
 		if (!debug_mode_god_mode)
 #endif
@@ -2081,11 +2081,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		hper -= 30 - sl * 2;
 	}
 
-	if (hper < 5)
-		hper = 5;
-	if (hper > 95)
-		hper = 95;
-	if (random_(4, 100) >= hper)
+	if (!CheckHit(hper))
 		return false;
 
 	blkper = plr._pIBlockChance;
@@ -2919,7 +2915,7 @@ void MissToPlr(int mi, bool hit)
 		mon = &monsters[mpnum];
 
 		hper = mis->_miSpllvl * 16 - mon->_mArmorClass;
-		if (random_(4, 100) >= hper && mon->_mmode != MM_STONE)
+		if (!CheckHit(hper) && mon->_mmode != MM_STONE)
 #if DEBUG_MODE
 			if (!debug_mode_god_mode)
 #endif
@@ -2959,7 +2955,7 @@ void MissToPlr(int mi, bool hit)
 			return;
 		hper = mis->_miSpllvl * 16 - plx(mpnum)._pIAC;
 
-		if (random_(4, 100) >= hper)
+		if (!CheckHit(hper))
 			return;
 		blkper = plx(mpnum)._pIBlockChance;
 		if (blkper != 0
