@@ -2989,23 +2989,21 @@ void MAI_SkelBow(int mnum)
 	my = mon->_my - mon->_menemyy;
 
 	mon->_mdir = MonGetDir(mnum);
-	v = random_(110, 100);
 
 	walking = false;
 	if (abs(mx) < 4 && abs(my) < 4) {
-		if ((mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mInt + 13) // STAND_TICK
-		 || (MON_JUST_WALKED && v < 2 * mon->_mInt + 63)) {
+		v = random_(110, 100);
+		if (v < (70 + 8 * mon->_mInt)) {
 			walking = MonDumbWalk(mnum, OPPOSITE(mon->_mdir));
 		}
 	}
 
 	if (!walking) {
-		if (v < 2 * mon->_mInt + 3) {
-			if (LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy))
-				MonStartRAttack(mnum, MIS_ARROWC);
-			else
-				MonEnemy(mnum); // prevent from stucking with an inaccessible enemy
-		}
+		// STAND_PREV_MODE
+		if (mon->_mVar1 == MM_DELAY && LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy))
+			MonStartRAttack(mnum, MIS_ARROWC);
+		else
+			MonStartDelay(mnum, RandRange(20, 24) - 4 * mon->_mInt);
 	}
 }
 
@@ -3341,22 +3339,20 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 		fy = mon->_menemyy;
 		mx = mon->_mx - fx;
 		my = mon->_my - fy;
-		if (mon->_mVar1 == attackMode) { // STAND_PREV_MODE
-			md = random_(118, 20);
-			if (md != 0)
-				MonStartDelay(mnum, md);
-		} else if (abs(mx) < 4 && abs(my) < 4) {
-			if (random_(119, 100) < 10 * (mon->_mInt + 7))
-				MonCallWalk(mnum, OPPOSITE(mon->_mdir));
+		bool walking = false;
+		if (abs(mx) < 4 && abs(my) < 4) {
+			if (random_(119, 100) < (76 + 8 * mon->_mInt))
+				walking = MonCallWalk(mnum, OPPOSITE(mon->_mdir));
 		}
-		if (mon->_mmode == MM_STAND) {
-			if (LineClear(mon->_mx, mon->_my, fx, fy)) {
+		if (!walking) {
+			md = random_(118, 20); // STAND_PREV_MODE
+			if ((mon->_mVar1 == MM_DELAY || md == 0) && LineClear(mon->_mx, mon->_my, fx, fy)) {
 				if (attackMode == MM_RSPATTACK)
 					MonStartRSpAttack(mnum, mitype);
 				else
 					MonStartRAttack(mnum, mitype);
 			} else {
-				MonEnemy(mnum); // prevent from stucking with an inaccessible enemy
+				MonStartDelay(mnum, md + 1);
 			}
 		}
 	} else {
