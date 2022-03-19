@@ -2709,19 +2709,18 @@ void DisarmObject(int pnum, int oi)
 	os = &objects[oi];
 	if (os->_oTrapChance == 0)
 		return;
-	n = os->_oVar5; // TRAP_OI_BACKREF
-	if (n > 0) {
-		n--;
-		on = &objects[n];
-	} else {
-		on = os;
-	}
 	if ((4 * currLvl._dLevel + os->_oTrapChance) > plr._pDexterity)
 		return;
 
 	os->_oTrapChance = 0;
-	if (os != on)
+	n = os->_oVar5; // TRAP_OI_BACKREF
+	if (n > 0) {
+		n--;
+		on = &objects[n];
 		on->_oVar4 = TRAP_INACTIVE;
+		if (pnum == mypnum)
+			NetSendCmdParam1(CMD_TRAPDISABLE, n);
+	}
 }
 
 static void CloseChest(int oi)
