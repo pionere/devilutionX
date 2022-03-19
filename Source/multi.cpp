@@ -429,7 +429,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (pkt->wLen != SwapLE16(dwMsgSize))
+		if (SwapLE16(pkt->wLen) != dwMsgSize)
 			continue;
 		if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
 		 currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
@@ -468,7 +468,7 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (pkt->wLen != SwapLE16(dwMsgSize))
+		if (SwapLE16(pkt->wLen) != dwMsgSize)
 			continue;
 		TCmd* cmd = (TCmd*)(pkt + 1);
 		if (cmd->bCmd == CMD_JOINLEVEL) {
@@ -495,7 +495,7 @@ void multi_process_msgs()
 		// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (pkt->wLen != SwapLE16(dwMsgSize))
+		if (SwapLE16(pkt->wLen) != dwMsgSize)
 			continue;
 		dwMsgSize -= sizeof(MsgPktHdr);
 		dwReadSize = ParseMsg(pnum, (TCmd*)&pkt[1]);
