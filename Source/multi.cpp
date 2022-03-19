@@ -437,7 +437,8 @@ void multi_process_turn(SNetTurnPkt* turn)
 			plr._pHitPoints = SwapLE32(pkt->php);
 			//plr._pMaxHP = SwapLE32(pkt->pmhp);
 			plr._pMana = SwapLE32(pkt->pmp);
-			SetPlayerLoc(&plr, pkt->px, pkt->py);
+			plr._px = pkt->px;
+			plr._py = pkt->py;
 		}
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
 		//multi_check_left_plrs();
