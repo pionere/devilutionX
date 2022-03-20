@@ -2,7 +2,6 @@
 
 #include <cstring>
 #include <memory>
-#include "utils/stubs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -67,17 +66,6 @@ void base::recv_accept(packet &pkt)
 	run_event_handler(ev);
 }
 
-void base::clear_msg(plr_t pnum)
-{
-	turn_queue[pnum].clear();
-	message_queue.erase(std::remove_if(message_queue.begin(),
-	                        message_queue.end(),
-	                        [&](SNetMessage &msg) {
-		                        return msg.sender == pnum;
-	                        }),
-	    message_queue.end());
-}
-
 void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 {
 	SNetEvent ev;
@@ -88,48 +76,55 @@ void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 	run_event_handler(ev);
 	if (pnum < MAX_PLRS) {
 		connected_table[pnum] = false;
+		turn_queue[pnum].clear();
 		disconnect_net(pnum);
-		clear_msg(pnum);
 	}
+	message_queue.erase(std::remove_if(message_queue.begin(),
+	                        message_queue.end(),
+	                        [&](SNetMessage &msg) {
+		                        return msg.sender == pnum;
+	                        }),
+	    message_queue.end());
 }
 
 void base::recv_disconnect(packet &pkt)
 {
+	plr_t pkt_src = pkt.pktSrc();
 	plr_t pkt_plr = pkt.pktDisconnectPlr();
 	leaveinfo_t leaveinfo = pkt.pktDisconnectInfo();
 
-	if (pkt_plr != plr_self) {
-		if (pkt_plr < MAX_PLRS && connected_table[pkt_plr]) {
-			disconnect_plr(pkt_plr, leaveinfo);
-		} else if (pkt_plr == PLR_MASTER) {
-			// server down
-			for (pkt_plr = 0; pkt_plr < MAX_PLRS; pkt_plr++) {
-				if (pkt_plr != plr_self && connected_table[pkt_plr]) {
-					disconnect_plr(pkt_plr, leaveinfo);
-				}
+	//if (pkt_plr == plr_self)
+	//	return; // ignore self-disconnects of hosts
+	if (pkt_plr != pkt_src && pkt_src != PLR_MASTER)
+		return; // ignore other players attempt to disconnect each other/server
+	if (pkt_plr < MAX_PLRS && connected_table[pkt_plr]) {
+		disconnect_plr(pkt_plr, leaveinfo);
+	} else if (pkt_plr == PLR_MASTER) {
+		// server down
+		for (pkt_plr = 0; pkt_plr < MAX_PLRS; pkt_plr++) {
+			if (pkt_plr != plr_self && connected_table[pkt_plr]) {
+				disconnect_plr(pkt_plr, leaveinfo);
 			}
-			disconnect_plr(SNPLAYER_MASTER, leaveinfo);
 		}
-	} else {
-		ABORT(); // we were dropped by the owner?!?
+		disconnect_plr(SNPLAYER_MASTER, leaveinfo);
 	}
 }
 
 void base::recv_local(packet &pkt)
 {
+	// FIXME: the server could still impersonate a player...
 	plr_t pkt_plr = pkt.pktSrc();
 	if (pkt_plr < MAX_PLRS) {
 		connected_table[pkt_plr] = true;
 	}
 	switch (pkt.pktType()) {
 	case PT_MESSAGE:
+		net_assert(pkt_plr < MAX_PLRS || pkt_plr == SNPLAYER_MASTER);
 		message_queue.emplace_back(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd()));
 		break;
 	case PT_TURN:
-		// TODO: validate pkt_plr if the server can not be trusted?
-		//if (pkt_plr < MAX_PLRS) {
-			turn_queue[pkt_plr].emplace_back(pkt.pktTurn(), buffer_t(pkt.pktTurnBegin(), pkt.pktTurnEnd()));
-		//}
+		net_assert(pkt_plr < MAX_PLRS);
+		turn_queue[pkt_plr].emplace_back(pkt.pktTurn(), buffer_t(pkt.pktTurnBegin(), pkt.pktTurnEnd()));
 		break;
 	case PT_JOIN_ACCEPT:
 		recv_accept(pkt);
@@ -326,18 +321,16 @@ uint32_t base::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 	return minturn;
 }
 
-//#ifdef ADAPTIVE_NETUPDATE
 unsigned base::SNetGetTurnsInTransit()
 {
 	return turn_queue[plr_self].size();
 }
-//#endif
 
 /*void base::SNetGetProviderCaps(struct _SNETCAPS *caps)
 {
 	//caps->size = 0;                  // unused
 	caps->flags = 0;                 // unused
-	caps->maxmessagesize = MAX_NETMSG_SIZE; // the largest message to send during delta-load
+	caps->maxmessagesize = NET_LARGE_MSG_SIZE; // the largest message to send during delta-load
 	caps->maxqueuesize = 0;          // unused
 	caps->maxplayers = MAX_PLRS;     // unused (part of SNetGameData)
 	caps->bytessec = 1000000;        // estimated speed of the connection (to determine if wait is necessary during delta load)

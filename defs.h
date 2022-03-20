@@ -55,7 +55,10 @@
 #define MAXTRIGGERS				5
 #endif
 
-#define MAX_NETMSG_SIZE			512
+// the maximum size of normal (cmd) message
+#define NET_NORMAL_MSG_SIZE		512
+// the maximum size of a large (nmsg) message
+#define NET_LARGE_MSG_SIZE		512
 #define NET_DEFAULT_PORT		6112
 #define MAX_SEND_STR_LEN		80
 
@@ -65,13 +68,15 @@
 #define MAXBELTITEMS			8
 #define MAXLIGHTS				32
 #define MAXMISSILES				125
+#define MIS_MULTI				0xFF
 #define MAXMONSTERS				200
+#define MON_NONE				0xFF
 #define MAXOBJECTS				127
 #define OBJ_NONE				0xFF
 #define MAXPORTAL				MAX_PLRS
 #define MAXTHEMES				50
 #define MAXTILES				2047
-#define MAXVISION				MAX_PLRS
+#define MAXVISION				(MAX_PLRS + MAX_MINIONS)
 #define MDMAXX					40
 #define MDMAXY					40
 #define MAXCHARLEVEL			50
@@ -275,6 +280,12 @@
 #if DEBUG_MODE || DEV_MODE
 #undef ASSUME_UNREACHABLE
 #define ASSUME_UNREACHABLE assert(0);
+#endif
+
+#if INET_MODE
+#define net_assert(x) assert(x)
+#else
+#define net_assert(x) do { } while(0)
 #endif
 
 #define SwapLE64 SDL_SwapLE64

@@ -9,7 +9,6 @@
 #include "Radon.hpp"
 
 #include "utils/paths.h"
-#include "utils/stubs.h"
 
 // Include Windows headers for Get/SetLastError.
 #if defined(_WIN32)

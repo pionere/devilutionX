@@ -33,9 +33,7 @@ public:
 	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
 	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
-#ifdef ADAPTIVE_NETUPDATE
 	virtual unsigned SNetGetTurnsInTransit();
-#endif
 	virtual void SNetLeaveGame(int reason);
 
 	virtual ~tcp_host_client() = default;

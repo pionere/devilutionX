@@ -30,14 +30,14 @@ void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 
 	if (art->palette_version != back_surface_palette_version) {
 		if (SDLC_SetSurfaceColors(art->surface, back_surface->format->palette) < 0)
-			sdl_fatal(ERR_SDL_ART_COLOR);
+			sdl_error(ERR_SDL_ART_COLOR);
 		art->palette_version = back_surface_palette_version;
 	}
 
 	dstRect.x += SCREEN_X;
 	dstRect.y += SCREEN_Y;
 	if (SDL_BlitSurface(art->surface, &srcRect, DiabloUiSurface(), &dstRect) < 0)
-		sdl_fatal(ERR_SDL_ART_BLIT);
+		sdl_error(ERR_SDL_ART_BLIT);
 }
 
 int GetAnimationFrame(int frames, int fps)

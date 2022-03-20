@@ -3,6 +3,7 @@
  *
  * Implementation of debug functions.
  */
+#include <chrono>
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -103,18 +104,19 @@ void MaxSpellsCheat()
 {
 	int i;
 
-	for (i = 1; i < NUM_SPELLS; i++) {
+	for (i = 0; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
 			myplr._pMemSkills |= SPELL_MASK(i);
-			myplr._pSkillLvl[i] = 10;
+			myplr._pSkillLvlBase[i] = MAXSPLLEVEL;
 		}
 	}
+	CalcPlrItemVals(mypnum, false);
 }
 
-void SetSpellLevelCheat(char spl, int spllvl)
+static void SetSpellLevelCheat(char spl, int spllvl)
 {
 	myplr._pMemSkills |= SPELL_MASK(spl);
-	myplr._pSkillLvl[spl] = spllvl;
+	myplr._pSkillLvlBase[spl] = spllvl;
 }
 
 void SetAllSpellsCheat()
@@ -141,6 +143,7 @@ void SetAllSpellsCheat()
 	SetSpellLevelCheat(SPL_GOLEM, 2);
 	SetSpellLevelCheat(SPL_FLARE, 1);
 //	SetSpellLevelCheat(SPL_BONESPIRIT, 1);
+	CalcPlrItemVals(mypnum, false);
 }
 
 void PrintDebugPlayer(bool bNextPlayer)
@@ -251,7 +254,9 @@ void DumpDungeon()
 	fclose(f1);
 	fclose(f2);
 }
+#endif /* DEBUG_MODE */
 
+#if DEBUG_MODE || DEV_MODE
 void ValidateData()
 {
 	// quests
@@ -388,6 +393,8 @@ void ValidateData()
 				app_fatal("Damage type (%d) set for %s (%d), which is not a weapon.", ids.iDamType, ids.iName, i);
 			if (ids.iMinDam != 0 || ids.iMaxDam != 0)
 				app_fatal("Damage set for %s (%d), which is not a weapon.", ids.iName, i);
+			if (ids.iBaseCrit != 0)
+				app_fatal("Crit.chance set for %s (%d), which is not a weapon.", ids.iName, i);
 		}
 		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu)
 			minAmu = ids.iMinMLvl;
@@ -400,6 +407,38 @@ void ValidateData()
 				app_fatal("Belt item %s (%d) is too wide.", ids.iName, i);
 			if (InvItemHeight[ids.iCurs + CURSOR_FIRSTITEM] != INV_SLOT_SIZE_PX)
 				app_fatal("Belt item %s (%d) is too tall.", ids.iName, i);
+		}
+		if (ids.iDurability * 3 >= DUR_INDESTRUCTIBLE)
+			app_fatal("Item %s (%d) has too high durability.", ids.iName, i);
+		if (ids.iUsable) {
+			switch (ids.iMiscId) {
+			case IMISC_HEAL:
+			case IMISC_FULLHEAL:
+			case IMISC_MANA:
+			case IMISC_FULLMANA:
+			case IMISC_REJUV:
+			case IMISC_FULLREJUV:
+			case IMISC_SCROLL:
+#ifdef HELLFIRE
+			case IMISC_RUNE:
+#endif
+			case IMISC_BOOK:
+			case IMISC_SPECELIX:
+			case IMISC_MAPOFDOOM:
+			case IMISC_NOTE:
+			case IMISC_OILQLTY:
+			case IMISC_OILZEN:
+			case IMISC_OILSTR:
+			case IMISC_OILDEX:
+			case IMISC_OILVIT:
+			case IMISC_OILMAG:
+			case IMISC_OILRESIST:
+			case IMISC_OILCHANCE:
+			case IMISC_OILCLEAN:
+				break;
+			default:
+				app_fatal("Usable item %s (%d) with miscId %d is not handled by SyncUseItem.", ids.iName, i, ids.iMiscId);
+			}
 		}
 	}
 	if (minLightArmor > 1)
@@ -460,6 +499,38 @@ void ValidateData()
 		}
 	}
 }
-#endif
+#endif /* DEBUG_MODE || DEV_MODE */
+
+#if DEV_MODE
+void LogErrorF(const char* type, const char* msg, ...)
+{
+	char tmp[256];
+	//snprintf(tmp, sizeof(tmp), "c:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
+	snprintf(tmp, sizeof(tmp), "c:\\logdebug%d.txt", mypnum);
+	FILE *f0 = fopen(tmp, "a+");
+	if (f0 == NULL)
+		return;
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	using namespace std::chrono;
+	milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+	//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
+	snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+#endif /* DEV_MODE */
 
 DEVILUTION_END_NAMESPACE

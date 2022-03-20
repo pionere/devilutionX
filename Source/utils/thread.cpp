@@ -14,7 +14,7 @@ SDL_Thread* CreateThread(SDL_ThreadFunction handler)
 	SDL_Thread *ret = SDL_CreateThread(handler, NULL, NULL);
 #endif
 	if (ret == NULL) {
-		sdl_fatal(ERR_SDL_THREAD_CREATE);
+		sdl_error(ERR_SDL_THREAD_CREATE);
 	}
 	return ret;
 }
@@ -23,11 +23,11 @@ void StartEvent(event_emul &ev)
 {
 	ev.mutex = SDL_CreateMutex();
 	if (ev.mutex == NULL) {
-		sdl_fatal(ERR_SDL_MUTEX_CREATE);
+		sdl_error(ERR_SDL_MUTEX_CREATE);
 	}
 	ev.cond = SDL_CreateCond();
 	if (ev.cond == NULL) {
-		sdl_fatal(ERR_SDL_COND_CREATE);
+		sdl_error(ERR_SDL_COND_CREATE);
 	}
 }
 
@@ -42,24 +42,24 @@ void EndEvent(event_emul &ev)
 void SetEvent(event_emul &ev)
 {
 	if (SDL_LockMutex(ev.mutex) < 0 || SDL_CondSignal(ev.cond) < 0 || SDL_UnlockMutex(ev.mutex) < 0) {
-		sdl_fatal(ERR_SDL_EVENT_SET);
+		sdl_error(ERR_SDL_EVENT_SET);
 	}
 }
 
 void ResetEvent(event_emul &ev)
 {
 	if (SDL_LockMutex(ev.mutex) < 0 || SDL_CondWaitTimeout(ev.cond, ev.mutex, 0) < 0 || SDL_UnlockMutex(ev.mutex) < 0) {
-		sdl_fatal(ERR_SDL_EVENT_RESET);
+		sdl_error(ERR_SDL_EVENT_RESET);
 	}
 }
 
 void WaitForEvent(event_emul &ev)
 {
 	if (SDL_LockMutex(ev.mutex) < 0) {
-		sdl_fatal(ERR_SDL_EVENT_LOCK);
+		sdl_error(ERR_SDL_EVENT_LOCK);
 	}
 	if (SDL_CondWait(ev.cond, ev.mutex) < 0 || SDL_CondSignal(ev.cond) < 0 || SDL_UnlockMutex(ev.mutex) < 0) {
-		sdl_fatal(ERR_SDL_EVENT_WAIT);
+		sdl_error(ERR_SDL_EVENT_WAIT);
 	}
 }
 

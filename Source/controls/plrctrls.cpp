@@ -204,14 +204,14 @@ static void FindRangedTarget()
 		if (!CanTargetMonster(mnum))
 			continue;
 		const bool newCanTalk = CanTalkToMonst(mnum);
-		if (pcursmonst != -1 && !canTalk && newCanTalk)
+		if (pcursmonst != MON_NONE && !canTalk && newCanTalk)
 			continue;
 		const MonsterStruct &mon = monsters[mnum];
 		const int mx = mon._mfutx;
 		const int my = mon._mfuty;
 		const int newDdistance = GetDistanceRanged(mx, my);
 		const int newRotations = GetRotaryDistance(mx, my);
-		if (pcursmonst != -1 && canTalk == newCanTalk) {
+		if (pcursmonst != MON_NONE && canTalk == newCanTalk) {
 			if (distance < newDdistance)
 				continue;
 			if (distance == newDdistance && rotations < newRotations)
@@ -264,10 +264,10 @@ static void FindMeleeTarget()
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
 					if (CanTargetMonster(mi)) {
 						const bool newCanTalk = CanTalkToMonst(mi);
-						if (pcursmonst != -1 && !canTalk && newCanTalk)
+						if (pcursmonst != MON_NONE && !canTalk && newCanTalk)
 							continue;
 						const int newRotations = GetRotaryDistance(dx, dy);
-						if (pcursmonst != -1 && canTalk == newCanTalk && rotations < newRotations)
+						if (pcursmonst != MON_NONE && canTalk == newCanTalk && rotations < newRotations)
 							continue;
 						rotations = newRotations;
 						canTalk = newCanTalk;
@@ -304,7 +304,7 @@ static void CheckPlayerNearby()
 	int rotations = 0;
 	int distance = 0;
 
-	if (pcursmonst != -1)
+	if (pcursmonst != MON_NONE)
 		return;
 
 	int spl = myplr._pAltAtkSkill;
@@ -398,7 +398,7 @@ static void FindTrigger()
 		}
 	}
 
-	if (pcursmonst != -1 || pcursplr != PLR_NONE || cursmx == -1 || cursmy == -1)
+	if (pcursmonst != MON_NONE || pcursplr != PLR_NONE || cursmx == -1 || cursmy == -1)
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
@@ -408,13 +408,13 @@ static void FindTrigger()
 static void Interact()
 {
 	/*
-	if (pcursmonst != -1 && CanTalkToMonst(pcursmonst))
+	if (pcursmonst != MON_NONE && CanTalkToMonst(pcursmonst))
 		NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		int attack = myplr._pAtkSkill;
 		bool melee = (myplr._pSkillFlags & SFLAG_MELEE) != 0;
-		if (pcursmonst != -1)
+		if (pcursmonst != MON_NONE)
 			NetSendCmdMonstAttack(melee ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack);
 		else if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam)
 			NetSendCmdPlrAttack(pcursplr, attack);
@@ -1081,7 +1081,7 @@ void plrctrls_after_check_curs_move()
 	if (sgbControllerActive) {
 		// Clear focuse set by cursor
 		pcursplr = PLR_NONE;
-		pcursmonst = -1;
+		pcursmonst = MON_NONE;
 		pcursitem = ITEM_NONE;
 		pcursobj = OBJ_NONE;
 		pcurstrig = -1;
@@ -1183,12 +1183,12 @@ static bool SpellHasActorTarget()
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
 		return false;
 
-	if (spl == SPL_FIREWALL && pcursmonst != -1) {
+	if (spl == SPL_FIREWALL && pcursmonst != MON_NONE) {
 		cursmx = monsters[pcursmonst]._mx;
 		cursmy = monsters[pcursmonst]._my;
 	}
 
-	return pcursplr != PLR_NONE || pcursmonst != -1;
+	return pcursplr != PLR_NONE || pcursmonst != MON_NONE;
 }
 
 static void UpdateSpellTarget()
@@ -1197,7 +1197,7 @@ static void UpdateSpellTarget()
 		return;
 
 	pcursplr = PLR_NONE;
-	pcursmonst = -1;
+	pcursmonst = MON_NONE;
 
 	const PlayerStruct &player = myplr;
 
@@ -1267,6 +1267,8 @@ static void CtrlUseInvItem()
 
 void PerformSecondaryAction()
 {
+	int dx, dy;
+
 	if (gbInvflag) {
 		CtrlUseInvItem();
 		return;
@@ -1285,14 +1287,16 @@ void PerformSecondaryAction()
 		NetSendCmdLocParam1(CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 	} else if (pcurstrig != -1) {
 		if (pcurstrig >= MAXTRIGGERS + 1) {
+			// portal
 			int mi = pcurstrig - (MAXTRIGGERS + 1);
-			MakePlrPath(mypnum, missile[mi]._mix, missile[mi]._miy, true);
-		} else if (pcurstrig >= 0) {
-			MakePlrPath(mypnum, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, true);
+			dx = missile[mi]._mix;
+			dy = missile[mi]._miy;
 		} else {
-			int qn = -2 - pcurstrig;
-			MakePlrPath(mypnum, quests[qn]._qtx, quests[qn]._qty, true);
+			// standard trigger
+			dx = trigs[pcurstrig]._tx;
+			dy = trigs[pcurstrig]._ty;
 		}
+		MakePlrPath(mypnum, dx, dy, true);
 		myplr.destAction = ACTION_WALK;
 	}
 }

@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 extern int itemactive[MAXITEMS];
-extern int itemavail[MAXITEMS];
 extern ItemStruct items[MAXITEMS + 1];
 extern int numitems;
 
@@ -31,23 +30,20 @@ void SetGoldItemValue(ItemStruct *is, int value);
 void CreatePlrItems(int pnum);
 bool ItemSpaceOk(int x, int y);
 void SetItemData(int ii, int idata);
-void SetupItem(int ii);
-void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn);
-void SpawnItem(int mnum, int x, int y, bool sendmsg);
-void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta);
-void CreateRndUseful(int x, int y, bool sendmsg, bool delta);
-void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool sendmsg, bool delta);
+void SpawnUnique(int uid, int x, int y, int mode);
+void SpawnMonItem(int mnum, int x, int y, bool sendmsg);
+void CreateRndItem(int x, int y, unsigned quality, int mode);
+void SpawnRndUseful(int x, int y, bool sendmsg);
+void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mode);
 void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue);
-void SpawnQuestItemInArea(int idx, int areasize);
-void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta);
-void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg/*, bool respawn*/);
-void SpawnRock();
+void PlaceQuestItemInArea(int idx, int areasize);
+void CreateQuestItemAt(int idx, int x, int y, int mode);
+void SpawnQuestItemAt(int idx, int x, int y, int mode);
+void PlaceRock();
 #ifdef HELLFIRE
-void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg, bool respawn);
-void CreateAmulet(WORD wCI, int x, int y, bool sendmsg, bool respawn);
+void SpawnAmulet(WORD wCI, int x, int y/*, bool sendmsg*/);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
-void DeleteItem(int ii, int i);
 void DeleteItems(int ii);
 void ProcessItems();
 void FreeItemGFX();
@@ -59,14 +55,14 @@ const char *ItemName(const ItemStruct* is);
 void PrintItemPower(BYTE plidx, const ItemStruct *is);
 void DrawUniqueInfo();
 void DrawInvItemDetails();
-void SpawnSmith(int lvl);
-void SpawnPremium(int lvl);
-void SpawnWitch(int lvl);
-void SpawnBoy(int lvl);
-void SpawnHealer(int lvl);
+void SpawnSmith(unsigned lvl);
+void SpawnPremium(unsigned lvl);
+void SpawnWitch(unsigned lvl);
+void SpawnBoy(unsigned lvl);
+void SpawnHealer(unsigned lvl);
 void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo);
-void CreateSpellBook(int ispell, int x, int y);
-void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
+void SpawnSpellBook(int ispell, int x, int y, bool sendmsg);
+void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
 
 #ifdef __cplusplus
 }

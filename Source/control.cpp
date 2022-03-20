@@ -311,7 +311,7 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 	} else if ((spelldata[spl].sFlags & plr._pSkillFlags) != spelldata[spl].sFlags)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
-		lvl = GetSpellLevel(pnum, spl);
+		lvl = plr._pSkillLvl[spl];
 		if (lvl <= 0 || plr._pMana < GetManaAmount(pnum, spl))
 			st = RSPLTYPE_INVALID;
 		if (plr._pHasUnidItem)
@@ -444,7 +444,7 @@ void DrawSkillList()
 			}
 			st = i;
 			if (i == RSPLTYPE_SPELL) {
-				sl = GetSpellLevel(pnum, j);
+				sl = plr._pSkillLvl[j];
 				st = sl > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 				if (plr._pHasUnidItem)
 					sl = -1; // SPLLVL_UNDEF
@@ -999,11 +999,11 @@ bool DoPanBtn()
 			return true;
 		}
 	}
-	if (mx >= SCREEN_WIDTH - (SPLICONLENGTH + 4)
-	 && mx <= SCREEN_WIDTH - 4
-	 && my >= SCREEN_HEIGHT - 2 * (SPLICONLENGTH + 4)
-	 && my <= SCREEN_HEIGHT - 4) {
-		HandleSkillBtn(my < SCREEN_HEIGHT - (SPLICONLENGTH + 4));
+	if (mx >= SCREEN_WIDTH - SPLICONLENGTH
+	 && mx <= SCREEN_WIDTH
+	 && my >= SCREEN_HEIGHT - 2 * SPLICONLENGTH
+	 && my <= SCREEN_HEIGHT) {
+		HandleSkillBtn(my < SCREEN_HEIGHT - SPLICONLENGTH);
 		return true;
 	}
 	if (gbLvlUp && InLvlUpRect())
@@ -1622,7 +1622,7 @@ void DrawInfoStr()
 		y = os->_oy - 1;
 		GetMousePos(x, y, &xx, &yy);
 		DrawTooltip(infostr, xx, yy, infoclr);
-	} else if (pcursmonst != -1) {
+	} else if (pcursmonst != MON_NONE) {
 		MonsterStruct* mon = &monsters[pcursmonst];
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
@@ -1632,7 +1632,7 @@ void DrawInfoStr()
 			if (mon->_uniqtype != 0) {
 				col = COL_GOLD;
 			}
-		} else if (pcursitem == ITEM_NONE) {
+		} else {
 			strcpy(infostr, towners[pcursmonst]._tName);
 		}
 		GetMousePos(x, y, &xx, &yy);
@@ -1733,7 +1733,6 @@ void ReleaseChrBtns()
 					ASSUME_UNREACHABLE
 					break;
 				}
-				myplr._pStatPts--;
 			}
 		}
 	}
@@ -1905,7 +1904,7 @@ void DrawSpellBook()
 				currSkill = sn;
 				currSkillType = st;
 			}
-			lvl = GetSpellLevel(pnum, sn);
+			lvl = plr._pSkillLvl[sn];
 			assert(lvl >= 0);
 			mana = 0;
 			switch (st) {
@@ -2038,9 +2037,10 @@ static void control_remove_gold()
 	int gi;
 
 	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
+	static_assert((int)INVITEM_INV_LAST - (int)INVITEM_INV_FIRST < UCHAR_MAX, "control_remove_gold sends inv item index in BYTE field.");
 	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
 	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using WORD.");
-	NetSendCmdParam2(CMD_SPLITPLRGOLD, gi, dropGoldValue);
+	NetSendCmdParamBW(CMD_SPLITPLRGOLD, gi, dropGoldValue);
 }
 
 void control_drop_gold(char vkey)

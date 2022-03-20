@@ -78,7 +78,28 @@ std::string OpenModeToString(std::ios::openmode mode)
 		result.resize(result.size() - 3);
 	return result;
 }
-#endif
+
+template <typename... PrintFArgs>
+void PrintError(const char *fmt, PrintFArgs... args)
+{
+	std::string fmt_with_error = fmt;
+	fmt_with_error.append(": failed with \"%s\"");
+	const char *error_message = std::strerror(errno);
+	if (error_message == NULL)
+		error_message = "";
+	DoLog(fmt_with_error.c_str(), args..., error_message);
+}
+#else
+#define PrintError(fmt, ...)   do { } while(0);
+/*template <typename... PrintFArgs>
+void PrintError(const char *fmt, PrintFArgs... args)
+{
+	std::string fmt_with_error = fmt;
+	fmt_with_error.append(" failed (%d)");
+	//DoLogError(fmt_with_error.c_str(), args..., errno);
+	DoLog(fmt_with_error.c_str(), args..., errno);
+}*/
+#endif /* DEBUG_MODE */
 
 struct FStreamWrapper {
 public:
@@ -211,22 +232,6 @@ public:
 	}
 
 private:
-	template <typename... PrintFArgs>
-	void PrintError(const char *fmt, PrintFArgs... args)
-	{
-		std::string fmt_with_error = fmt;
-#if DEBUG_MODE
-		fmt_with_error.append(": failed with \"%s\"");
-		const char *error_message = std::strerror(errno);
-		if (error_message == NULL)
-			error_message = "";
-		DoLog(fmt_with_error.c_str(), args..., error_message);
-#else
-		fmt_with_error.append(" failed (%d)");
-		//DoLogError(fmt_with_error.c_str(), args..., errno);
-		DoLog(fmt_with_error.c_str(), args..., errno);
-#endif
-	}
 
 	std::fstream *s_;
 };

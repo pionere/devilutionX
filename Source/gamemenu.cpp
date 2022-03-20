@@ -63,15 +63,15 @@ static void gamemenu_update_single()
 	bool enable;
 
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
-
-	enable = pcurs == CURSOR_HAND && myplr._pmode != PM_DEATH && !gbDeathflag;
+	// disable saving in case the player died, the player is changing the level, or diablo is dead
+	enable = /*pcurs == CURSOR_HAND &&*/ gbDeathflag == MDM_ALIVE && !myplr._pLvlChanging;
 	// TODO: disable saving if there is a live turn in transit? (SNetGetLiveTurnsInTransit)
 	gmenu_enable(&sgSingleMenu[0], enable);
 }
 
 static void gamemenu_update_multi()
 {
-	gmenu_enable(&sgMultiMenu[2], gbDeathflag);
+	gmenu_enable(&sgMultiMenu[2], gbDeathflag == MDM_DEAD);
 }
 
 static void gamemenu_update_settings()
@@ -100,15 +100,6 @@ static void gamemenu_previous(bool bActivate)
 
 static void gamemenu_new_game(bool bActivate)
 {
-	int i;
-
-	for (i = 0; i < MAX_PLRS; i++) {
-		players[i]._pmode = PM_QUIT;
-		players[i]._pInvincible = TRUE;
-	}
-
-	gbDeathflag = false;
-	//scrollrt_draw_screen(true);
 	gamemenu_off();
 	gbRunGame = false;
 }
@@ -127,13 +118,12 @@ static void gamemenu_load_game(bool bActivate)
 	InitDiabloMsg(EMSG_LOADING);
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game();
-	gbDeathflag = false;
-	//gbZoomInFlag = false;
+	gbDeathflag = MDM_ALIVE;
+	// gbZoomInFlag = false;
 	LoadGame();
 	ClrDiabloMsg();
 	PaletteFadeOut();
 	InitLevelCursor();
-	gbProcessPlayers = true;
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game();
 	LoadPWaterPalette();
@@ -145,15 +135,15 @@ static void gamemenu_load_game(bool bActivate)
 static void gamemenu_save_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
-	NewCursor(CURSOR_NONE);
 	gamemenu_off();
+	// NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_SAVING);
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game();
 	SaveGame();
 	ClrDiabloMsg();
+	// InitLevelCursor();
 	gbRedrawFlags = REDRAW_ALL;
-	NewCursor(CURSOR_HAND);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
 }

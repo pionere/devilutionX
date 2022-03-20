@@ -44,7 +44,7 @@ int FindGetItem(int iseed, WORD wIndex, WORD wCI);
 bool CanPut(int x, int y);
 bool FindItemLocation(int sx, int sy, int *dx, int *dy, int rad);
 void DropItem();
-void SyncPutItem(int pnum, int x, int y, bool plrAround);
+void SyncPutItem(int pnum, int x, int y, bool flipFlag);
 void SyncSplitGold(int pnum, int cii, int value);
 BYTE CheckInvItem();
 BYTE CheckInvBelt();

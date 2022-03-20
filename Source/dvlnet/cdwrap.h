@@ -28,9 +28,7 @@ public:
 	virtual void SNetSendTurn(uint32_t turn, const BYTE *data, unsigned size);
 	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
-//#ifdef ADAPTIVE_NETUPDATE
 	unsigned SNetGetTurnsInTransit();
-//#endif
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
 	virtual void SNetUnregisterEventHandler(int evtype);
 	virtual void SNetLeaveGame(int reason);
@@ -136,13 +134,11 @@ void cdwrap<T>::SNetDropPlayer(int playerid)
 	dvlnet_wrap->SNetDropPlayer(playerid);
 }
 
-//#ifdef ADAPTIVE_NETUPDATE
 template <class T>
 unsigned cdwrap<T>::SNetGetTurnsInTransit()
 {
 	return dvlnet_wrap->SNetGetTurnsInTransit();
 }
-//#endif
 
 template <class T>
 void cdwrap<T>::make_default_gamename(char (&gamename)[128])

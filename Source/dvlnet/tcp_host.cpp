@@ -136,13 +136,11 @@ uint32_t tcp_host_client::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 	return 0;
 }
 
-#ifdef ADAPTIVE_NETUPDATE
 unsigned tcp_host_client::SNetGetTurnsInTransit()
 {
 	assert(0);
 	return 0;
 }
-#endif
 
 void tcp_host_client::close()
 {

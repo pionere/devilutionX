@@ -29,10 +29,10 @@ unsigned numqlines;
 unsigned qline;
 BYTE gbTownWarps;
 BYTE gbWaterDone;
-BYTE gbDungMsgs;
-BYTE gbDungMsgs2;
 static_assert(NUM_LEVELS <= 32, "guLvlVisited can not maintain too many levels.");
 uint32_t guLvlVisited;
+int gnSfxDelay;
+int gnSfxNum;
 int gnReturnLvlX;
 int gnReturnLvlY;
 int gnReturnLvl;
@@ -42,32 +42,32 @@ int gnReturnLvl;
  * Ogden's Sign and Gharbad the Weak, which ensures that exactly
  * two of these three quests appear in any game.
  */
-const int QuestGroup1[3] = { Q_BUTCHER, Q_LTBANNER, Q_GARBUD };
+static const int QuestGroup1[3] = { Q_BUTCHER, Q_LTBANNER, Q_GARBUD };
 /**
  * A quest group containing the three quests Halls of the Blind,
  * the Magic Rock and Valor, which ensures that exactly two of
  * these three quests appear in any game.
  */
-const int QuestGroup2[3] = { Q_BLIND, Q_ROCK, Q_BLOOD };
+static const int QuestGroup2[3] = { Q_BLIND, Q_ROCK, Q_BLOOD };
 /**
  * A quest group containing the three quests Black Mushroom,
  * Zhar the Mad and Anvil of Fury, which ensures that exactly
  * two of these three quests appear in any game.
  */
-const int QuestGroup3[3] = { Q_MUSHROOM, Q_ZHAR, Q_ANVIL };
+static const int QuestGroup3[3] = { Q_MUSHROOM, Q_ZHAR, Q_ANVIL };
 /**
  * A quest group containing the two quests Lachdanan and Warlord
  * of Blood, which ensures that exactly one of these two quests
  * appears in any game.
  */
-const int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
+static const int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
 #ifdef HELLFIRE
 /**
  * A quest group containing the two quests CowFarmer and Farmer,
  * which ensures that exactly one of these two quests
  * appears in any game.
  */
-const int QuestGroup5[2] = { Q_JERSEY, Q_FARMER };
+static const int QuestGroup5[2] = { Q_JERSEY, Q_FARMER };
 #endif
 
 void InitQuestGFX()
@@ -76,8 +76,6 @@ void InitQuestGFX()
 
 	gbTownWarps = 0;
 	gbWaterDone = 0;
-	gbDungMsgs = 0;
-	gbDungMsgs2 = 0;
 	guLvlVisited = 0;
 
 	assert(pQLogCel == NULL);
@@ -134,8 +132,6 @@ void InitQuests()
 		quests[questdebug]._qactive = QUEST_ACTIVE;
 #endif
 
-	if (IsMultiGame)
-		quests[Q_BETRAYER]._qvar1 = 2;
 	if (quests[Q_PWATER]._qactive == QUEST_NOTAVAIL)
 		quests[Q_PWATER]._qvar1 = 2;
 }
@@ -205,20 +201,20 @@ void CheckQuestKill(int mnum, bool sendmsg)
 	switch (monsters[mnum]._uniqtype - 1) {
 	case UMT_GARBUD: //"Gharbad the Weak"
 		quests[Q_GARBUD]._qactive = QUEST_DONE;
-		sfxdelay = 30;
-		sfxdnum = TEXT_QM_GARBUD;
+		gnSfxDelay = 30;
+		gnSfxNum = TEXT_QM_GARBUD;
 		qn = Q_GARBUD;
 		break;
 	case UMT_SKELKING:
 		quests[Q_SKELKING]._qactive = QUEST_DONE;
-		sfxdelay = 30;
-		sfxdnum = TEXT_QM_SKING;
+		gnSfxDelay = 30;
+		gnSfxNum = TEXT_QM_SKING;
 		qn = Q_SKELKING;
 		break;
 	case UMT_ZHAR: //"Zhar the Mad"
 		quests[Q_ZHAR]._qactive = QUEST_DONE;
-		sfxdelay = 30;
-		sfxdnum = TEXT_QM_ZHAR;
+		gnSfxDelay = 30;
+		gnSfxNum = TEXT_QM_ZHAR;
 		qn = Q_ZHAR;
 		break;
 	case UMT_LAZARUS: //"Arch-Bishop Lazarus" - multi
@@ -237,20 +233,20 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
 			InitVPReturnTrigger(false);
 		}
-		sfxdelay = 30;
-		sfxdnum = TEXT_QM_LAZARUS;
+		gnSfxDelay = 30;
+		gnSfxNum = TEXT_QM_LAZARUS;
 		qn = Q_BETRAYER;
 		break;
 	case UMT_WARLORD: //"Warlord of Blood"
 		quests[Q_WARLORD]._qactive = QUEST_DONE;
-		sfxdelay = 30;
-		sfxdnum = TEXT_QM_WARLORD;
+		gnSfxDelay = 30;
+		gnSfxNum = TEXT_QM_WARLORD;
 		qn = Q_WARLORD;
 		break;
 	case UMT_BUTCHER:
 		quests[Q_BUTCHER]._qactive = QUEST_DONE;
-		sfxdelay = 30;
-		sfxdnum = TEXT_QM_BUTCHER;
+		gnSfxDelay = 30;
+		gnSfxNum = TEXT_QM_BUTCHER;
 		qn = Q_BUTCHER;
 		break;
 #ifdef HELLFIRE
@@ -506,18 +502,18 @@ void LoadPWaterPalette()
 	//	LoadPalette("Levels\\L3Data\\L3pfoul.pal");
 }
 
-static void ResyncBanner()
+void ResyncBanner()
 {
 	if (quests[Q_LTBANNER]._qvar1 != 4) {
 		// open the entrance of the setmap -> TODO: add these to Banner2.DUN ?
-		ObjChangeMapResync(
+		ObjChangeMap(
 		    setpc_w + setpc_x - 2,
 		    setpc_h + setpc_y - 2,
 		    setpc_w + setpc_x + 1,
-		    setpc_h + setpc_y + 1);
+		    setpc_h + setpc_y + 1/*, false*/);
 		// TODO: add the opening of the entrance to Banner2.DUN?
 	} else {
-		ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
 		//for (i = 0; i < numobjects; i++)
 		//	SyncObjectAnim(objectactive[i]);
 		BYTE tv = dTransVal[2 * setpc_x + 1 + DBORDERX][2 * (setpc_y + 6) + 1 + DBORDERY];
@@ -533,24 +529,24 @@ void ResyncQuests()
 	if (QuestStatus(Q_LTBANNER)) {
 		ResyncBanner();
 		/*if (quests[Q_LTBANNER]._qvar1 == 1)
-			ObjChangeMapResync(
+			ObjChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
 			    setpc_w + setpc_x + 1,
-			    setpc_h + setpc_y + 1);
+			    setpc_h + setpc_y + 1, false);
 		if (quests[Q_LTBANNER]._qvar1 == 2) {
-			ObjChangeMapResync(
+			ObjChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
 			    setpc_w + setpc_x + 1,
-			    setpc_h + setpc_y + 1);
-			ObjChangeMapResync(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 2, (setpc_h >> 1) + setpc_y - 2);
+			    setpc_h + setpc_y + 1, false);
+			ObjChangeMap(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 2, (setpc_h >> 1) + setpc_y - 2, false);
 			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
 		if (quests[Q_LTBANNER]._qvar1 == 3) {
-			ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1);
+			ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1, false);
 			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
@@ -580,9 +576,9 @@ void ResyncQuests()
 	} else {
 		if (lvl == SL_VILEBETRAYER) {
 			if (quests[Q_BETRAYER]._qvar1 >= 4)
-				ObjChangeMapResync(1, 11, 20, 18);
+				ObjChangeMap(7, 11, 13, 18/*, true*/);
 			if (quests[Q_BETRAYER]._qvar1 >= 6)
-				ObjChangeMapResync(1, 18, 20, 24);
+				ObjChangeMap(7, 20, 11, 22/*, false*/);
 			if (quests[Q_BETRAYER]._qvar1 >= 7)
 				InitVPReturnTrigger(true);
 			//for (i = 0; i < numobjects; i++)
@@ -731,48 +727,39 @@ void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 
 void PlayDungMsgs()
 {
-	sfxdelay = 0;
-	if (IsMultiGame)
+	gnSfxDelay = 0;
+	if (IsMultiGame || IsLvlVisited(currLvl._dLevelIdx))
 		return;
 
-	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !(gbDungMsgs & DMSG_CATHEDRAL)) {
-		gbDungMsgs |= DMSG_CATHEDRAL;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_CATHEDRAL;
-	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !(gbDungMsgs & DMSG_CATACOMBS)) {
-		gbDungMsgs |= DMSG_CATACOMBS;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_CATACOMBS;
-	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !(gbDungMsgs & DMSG_CAVES)) {
-		gbDungMsgs |= DMSG_CAVES;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_CAVES;
-	} else if (currLvl._dLevelIdx == DLV_HELL1 && !(gbDungMsgs & DMSG_HELL)) {
-		gbDungMsgs |= DMSG_HELL;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_HELL;
-	} else if (currLvl._dLevelIdx == DLV_HELL4 && !(gbDungMsgs & DMSG_DIABLO)) {
-		gbDungMsgs |= DMSG_DIABLO;
-		sfxdelay = 40;
-		sfxdnum = TEXT_DM_DIABLO;
+	if (currLvl._dLevelIdx == DLV_CATHEDRAL1) {
+		gnSfxDelay = 40;
+		gnSfxNum = TEXT_DM_CATHEDRAL;
+	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1) {
+		gnSfxDelay = 40;
+		gnSfxNum = TEXT_DM_CATACOMBS;
+	} else if (currLvl._dLevelIdx == DLV_CAVES1) {
+		gnSfxDelay = 40;
+		gnSfxNum = TEXT_DM_CAVES;
+	} else if (currLvl._dLevelIdx == DLV_HELL1) {
+		gnSfxDelay = 40;
+		gnSfxNum = TEXT_DM_HELL;
+	} else if (currLvl._dLevelIdx == DLV_HELL4) {
+		gnSfxDelay = 40;
+		gnSfxNum = TEXT_DM_DIABLO;
 #ifdef HELLFIRE
-	} else if (currLvl._dLevelIdx == DLV_NEST1 && !(gbDungMsgs2 & DMSG2_DEFILER)) {
-		gbDungMsgs2 |= DMSG2_DEFILER;
-		sfxdelay = 10;
-		sfxdnum = TEXT_DM_NEST;
-	} else if (currLvl._dLevelIdx == DLV_NEST3 && !(gbDungMsgs2 & DMSG2_DEFILER1)) {
-		gbDungMsgs2 |= DMSG2_DEFILER1;
-		sfxdelay = 10;
-		sfxdnum = TEXT_DM_DEFILER;
-	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !(gbDungMsgs2 & DMSG2_DEFILER2)) {
-		gbDungMsgs2 |= DMSG2_DEFILER2;
-		sfxdelay = 30;
-		sfxdnum = TEXT_DM_CRYPT;
+	} else if (currLvl._dLevelIdx == DLV_NEST1) {
+		gnSfxDelay = 10;
+		gnSfxNum = TEXT_DM_NEST;
+	} else if (currLvl._dLevelIdx == DLV_NEST3) {
+		gnSfxDelay = 10;
+		gnSfxNum = TEXT_DM_DEFILER;
+	} else if (currLvl._dLevelIdx == DLV_CRYPT1) {
+		gnSfxDelay = 30;
+		gnSfxNum = TEXT_DM_CRYPT;
 #endif
-	} else if (currLvl._dLevelIdx == SL_SKELKING && !(gbDungMsgs & DMSG_SKING)) {
-		gbDungMsgs |= DMSG_SKING;
-		sfxdelay = 30;
-		sfxdnum = TEXT_DM_SKING;
+	} else if (currLvl._dLevelIdx == SL_SKELKING) {
+		gnSfxDelay = 30;
+		gnSfxNum = TEXT_DM_SKING;
 	}
 }
 

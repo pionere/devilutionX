@@ -24,7 +24,7 @@ void palette_update()
 	assert(back_palette != NULL);
 #endif
 	if (SDLC_SetSurfaceAndPaletteColors(back_surface, back_palette, system_palette, 0, 256) < 0) {
-		sdl_fatal(ERR_SDL_PALETTE_UPDATE);
+		sdl_error(ERR_SDL_PALETTE_UPDATE);
 	}
 	back_surface_palette_version++;
 }

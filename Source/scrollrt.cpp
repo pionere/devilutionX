@@ -67,11 +67,10 @@ static Uint32 guFpsStartTc;
 
 /* used in 1.00 debug */
 #if DEBUG_MODE
-const char *const szMonModeAssert[18] = {
+const char *const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
-	"walking (3)",
 	"attacking",
 	"getting hit",
 	"dying",
@@ -88,19 +87,18 @@ const char *const szMonModeAssert[18] = {
 	"talking"
 };
 
-const char *const szPlrModeAssert[12] = {
+const char *const szPlrModeAssert[NUM_PLR_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
-	"walking (3)",
+	"charging",
 	"attacking (melee)",
 	"attacking (ranged)",
 	"blocking",
 	"getting hit",
 	"dying",
 	"casting a spell",
-	"changing levels",
-	"quitting"
+	"changing levels"
 };
 #endif
 
@@ -284,7 +282,7 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy, BOOL pre)
 	int i;
 	MissileStruct *mis;
 
-	if (mi > 0) {
+	if (mi != MIS_MULTI) {
 		mis = &missile[mi - 1];
 		DrawMissilePrivate(mis, sx, sy, pre);
 		return;
@@ -420,13 +418,14 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		int frames = SwapLE32(*(uint32_t *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char *szMode = "unknown action";
-			if (plr._pmode <= PM_QUIT)
+			if (plr._pmode < lengthof(szPlrModeAssert))
 				szMode = szPlrModeAssert[plr._pmode];
 			dev_fatal(
-				"Drawing player %d \"%s\" %s: facing %d, frame %d of %d",
+				"Drawing player %d \"%s\" %s(%d): facing %d, frame %d of %d",
 				pnum,
 				plr._pName,
 				szMode,
+				plr._pmode,
 				plr._pdir,
 				nCel,
 				frames);
@@ -1251,7 +1250,7 @@ static void DrawView()
 	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();
 	}
-	if (gbDeathflag) {
+	if (gbDeathflag == MDM_DEAD) {
 		RedBack();
 	} else if (gbGamePaused) {
 		gmenu_draw_pause();

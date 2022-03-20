@@ -468,6 +468,18 @@ static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct* is)
 	return done;
 }
 
+/*
+ * Create a new item-seed based on seed of the item and the current turn-id
+ */
+static int GetNewItemSeed(ItemStruct* is)
+{
+	int seed = (gdwGameLogicTurn >> 8) | (gdwGameLogicTurn << 24);
+
+	seed ^= is->_iSeed;
+	SetRndSeed(seed);
+	return GetRndSeed();
+}
+
 static bool GoldAutoPlace(int pnum, ItemStruct* is)
 {
 	ItemStruct* pi;
@@ -501,7 +513,7 @@ static bool GoldAutoPlace(int pnum, ItemStruct* is)
 				done |= 2;
 			} else {
 				SetGoldItemValue(pi, GOLD_MAX_LIMIT);
-				GetItemSeed(is);
+				is->_iSeed = GetNewItemSeed(pi);
 				done |= 1;
 			}
 		}
@@ -701,9 +713,10 @@ void InvPasteItem(int pnum, BYTE r)
 	bool done;
 	int il, cn, it, iv, ig, gt;
 
+	// assert(plr._pmode != PM_DEATH);
+
 	p = &plr;
-	if (p->_pmode == PM_DEATH)
-		return;
+
 	holditem = &p->_pHoldItem;
 	if (holditem->_itype == ITYPE_NONE)
 		return;
@@ -712,9 +725,6 @@ void InvPasteItem(int pnum, BYTE r)
 	sx = InvItemWidth[i] / INV_SLOT_SIZE_PX;
 	sy = InvItemHeight[i] / INV_SLOT_SIZE_PX;
 
-	// TODO: validate on server side?
-	if (r >= SLOTXY_BELT_FIRST)
-		return;
 	switch (InvSlotTbl[r]) {
 	case SLOT_HEAD:
 		il = ILOC_HELM;
@@ -985,19 +995,14 @@ void InvPasteBeltItem(int pnum, BYTE r)
 	ItemStruct *holditem, *is;
 	int cn;
 
-	if (plr._pmode == PM_DEATH)
-		return;
+	// assert(plr._pmode != PM_DEATH);
+	// assert(r < MAXBELTITEMS);
 
 	holditem = &plr._pHoldItem;
 
 	if (holditem->_iLoc != ILOC_BELT || holditem->_itype == ITYPE_NONE)
 		return;
 	
-	r -= SLOTXY_BELT_FIRST;
-	// TODO: validate on server side?
-	if ((unsigned)r >= MAXBELTITEMS)
-		return;
-
 	is = &plr._pSpdList[r];
 	cn = SwapItem(is, holditem);
 	if (holditem->_itype == ITYPE_NONE)
@@ -1032,9 +1037,9 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 {
 	ItemStruct* pi;
 	int i, ii;
-	// TODO: validate on server side?
-	if (plr._pmode == PM_DEATH)
-		return;
+
+	// assert(plr._pmode != PM_DEATH);
+
 	if (plr._pHoldItem._itype != ITYPE_NONE)
 		return;
 
@@ -1085,9 +1090,7 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 			}
 		} else { // r >= INVITEM_BELT_FIRST
 			r = r - INVITEM_BELT_FIRST;
-			// TODO: validate on server side?
-			if ((unsigned)r >= MAXBELTITEMS)
-				return;
+			// assert(r < MAXBELTITEMS);
 			pi = &plr._pSpdList[r];
 			if (bShift && pi->_itype != ITYPE_NONE && AutoPlaceInv(pnum, pi, true)) {
 				//gbRedrawFlags |= REDRAW_SPEED_BAR;
@@ -1130,7 +1133,7 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_NONE
 		 && plr._pInvBody[INVITEM_HAND_RIGHT]._itype != ITYPE_SHIELD)
 			SwapItem(&plr._pInvBody[INVITEM_HAND_LEFT], &plr._pInvBody[INVITEM_HAND_RIGHT]);
-		CalcPlrInv(pnum, plr._pmode != PM_DEATH);
+		CalcPlrInv(pnum, true/*plr._pmode != PM_DEATH*/);
 	} else if (bLoc < INVITEM_BELT_FIRST) {
 		// inv item
 		bLoc -= INVITEM_INV_FIRST;
@@ -1138,9 +1141,7 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 	} else {
 		// belt item
 		bLoc -= INVITEM_BELT_FIRST;
-		// TODO: validate on server side?
-		if ((unsigned)bLoc >= MAXBELTITEMS)
-			return;
+		// assert(bLoc < MAXBELTITEMS);
 		plr._pSpdList[bLoc]._itype = ITYPE_NONE;
 		CalcPlrScrolls(pnum);
 	}
@@ -1253,24 +1254,27 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		delay = 10;
 		idx = TEXT_IM_MAPOFDOOM;
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
-		int nn, i;
+		int nn, i, x, y;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasStorageItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasStorageItem(pnum, IDI_NOTE3, &nn))) {
-			if (pnum == mypnum) {
-				static_assert((int)IDI_NOTE1 + 1 == (int)IDI_NOTE2, "CheckQuestItem requires an ordered IDI_NOTE enum I.");
-				static_assert((int)IDI_NOTE2 + 1 == (int)IDI_NOTE3, "CheckQuestItem requires an ordered IDI_NOTE enum II.");
-				for (i = IDI_NOTE1; i <= IDI_NOTE3; i++) {
-					if (idx != i) {
-						PlrHasStorageItem(pnum, i, &nn);
-						SyncPlrStorageRemove(pnum, nn);
-					}
+			static_assert((int)IDI_NOTE1 + 1 == (int)IDI_NOTE2, "CheckQuestItem requires an ordered IDI_NOTE enum I.");
+			static_assert((int)IDI_NOTE2 + 1 == (int)IDI_NOTE3, "CheckQuestItem requires an ordered IDI_NOTE enum II.");
+			for (i = IDI_NOTE1; i <= IDI_NOTE3; i++) {
+				if (idx != i) {
+					PlrHasStorageItem(pnum, i, &nn);
+					SyncPlrStorageRemove(pnum, nn);
 				}
 			}
 			SetItemData(MAXITEMS, IDI_FULLNOTE);
-			SetupItem(MAXITEMS);
+			// preserve seed and location of the last item
+			idx = is->_iSeed;
+			x = is->_ix;
+			y = is->_iy;
 			copy_pod(*is, items[MAXITEMS]);
-			GetItemSeed(is);
+			is->_iSeed = idx;
+			is->_ix = x;
+			is->_iy = y;
 			delay = 10;
 			idx = TEXT_IM_FULLNOTE;
 		} else {
@@ -1281,8 +1285,8 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		return;
 	}
 	if (pnum == mypnum) {
-		sfxdelay = delay;
-		sfxdnum = idx;
+		gnSfxDelay = delay;
+		gnSfxNum = idx;
 	}
 }
 
@@ -1297,6 +1301,7 @@ void InvGetItem(int pnum, int ii)
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
 	//is->_iCreateInfo &= ~CF_PREGEN;
+	is->_iFloorFlag = FALSE;
 	CheckQuestItem(pnum, is);
 	ItemStatOk(pnum, is);
 	copy_pod(plr._pHoldItem, *is);
@@ -1317,6 +1322,7 @@ bool SyncAutoGetItem(int pnum, int ii)
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
 	//is->_iCreateInfo &= ~CF_PREGEN;
+	is->_iFloorFlag = FALSE;
 	CheckQuestItem(pnum, is);
 	ItemStatOk(pnum, is);
 	if (is->_itype == ITYPE_GOLD) {
@@ -1470,13 +1476,11 @@ void DropItem()
 /**
  * Place an item around the given position.
  *
- * @param pnum the id of the player who places the item / initiated the item placement
+ * @param pnum the id of the player who places the item (might not be valid)
  * @param x tile coordinate to place the item
  * @param y tile coordinate to place the item
- * @param plrAround true: the item should be placed around the player
- *                 false: the item should be placed around x:y
  */
-void SyncPutItem(int pnum, int x, int y, bool plrAround)
+void SyncPutItem(int pnum, int x, int y, bool flipFlag)
 {
 	int xx, yy, ii;
 	ItemStruct* is;
@@ -1485,7 +1489,7 @@ void SyncPutItem(int pnum, int x, int y, bool plrAround)
 	if (numitems >= MAXITEMS)
 		return; // -1;
 
-	if (plrAround) {
+	if ((unsigned)pnum < MAX_PLRS) {
 		xx = plr._px;
 		yy = plr._py;
 	} else {
@@ -1497,26 +1501,23 @@ void SyncPutItem(int pnum, int x, int y, bool plrAround)
 
 	is = &items[MAXITEMS];
 
-	ii = itemavail[0];
+	ii = itemactive[numitems];
 	dItem[x][y] = ii + 1;
-	itemavail[0] = itemavail[MAXITEMS - (numitems + 1)];
-	itemactive[numitems] = ii;
 	numitems++;
 	copy_pod(items[ii], *is);
 	items[ii]._ix = x;
 	items[ii]._iy = y;
-	RespawnItem(ii, true);
+	RespawnItem(ii, flipFlag);
 	//return ii;
 }
 
 void SyncSplitGold(int pnum, int cii, int value)
 {
 	ItemStruct* pi;
-	int val;
+	int seed, val;
 
-	// TODO: validate on server side?
-	if (cii >= NUM_INV_GRID_ELEM)
-		return;
+	// assert(cii < NUM_INV_GRID_ELEM);
+
 	pi = &plr._pInvList[cii];
 	if (pi->_itype != ITYPE_GOLD)
 		return;
@@ -1524,14 +1525,17 @@ void SyncSplitGold(int pnum, int cii, int value)
 		return;
 	val = pi->_ivalue - value;
 	if (val > 0) {
+		seed = GetNewItemSeed(pi);
 		SetGoldItemValue(pi, val);
 	} else {
+		seed = pi->_iSeed; // preserve the original seed
 		value += val;
 		SyncPlrStorageRemove(pnum, cii);
 	}
 	plr._pGold -= value;
 	pi = &plr._pHoldItem;
 	CreateBaseItem(pi, IDI_GOLD);
+	pi->_iSeed = seed;
 	pi->_iStatFlag = TRUE;
 	SetGoldItemValue(pi, value);
 	if (pnum == mypnum)
@@ -1640,12 +1644,12 @@ static void StartGoldDrop()
 	dropGoldValue = 0;
 }
 
-static void InvAddHp()
+static void InvAddHp(int pnum)
 {
 	PlayerStruct* p;
 	int hp;
 
-	p = &myplr;
+	p = &plr;
 	hp = p->_pMaxHP >> 8;
 	hp = ((hp >> 1) + random_(39, hp)) << 6;
 	switch (p->_pClass) {
@@ -1663,15 +1667,15 @@ static void InvAddHp()
 	default:
 		ASSUME_UNREACHABLE
 	}
-	PlrIncHp(mypnum, hp);
+	PlrIncHp(pnum, hp);
 }
 
-static void InvAddMana()
+static void InvAddMana(int pnum)
 {
 	PlayerStruct* p;
 	int mana;
 
-	p = &myplr;
+	p = &plr;
 	mana = p->_pMaxMana >> 8;
 	mana = ((mana >> 1) + random_(40, mana)) << 6;
 	switch (p->_pClass) {
@@ -1687,7 +1691,7 @@ static void InvAddMana()
 	default:
 		ASSUME_UNREACHABLE
 	}
-	PlrIncMana(mypnum, mana);
+	PlrIncMana(pnum, mana);
 }
 
 bool InvUseItem(int cii)
@@ -1712,14 +1716,14 @@ bool InvUseItem(int cii)
 		return true;
 	}
 	if (is->_iIdx == IDI_MUSHROOM) {
-		sfxdelay = 10;
-		sfxdnum = TEXT_IM_MUSHROOM;
+		gnSfxDelay = 10;
+		gnSfxNum = TEXT_IM_MUSHROOM;
 		return true;
 	}
 	if (is->_iIdx == IDI_FUNGALTM) {
 		PlaySFX(IS_IBOOK);
-		sfxdelay = 10;
-		sfxdnum = TEXT_IM_FUNGALTM;
+		gnSfxDelay = 10;
+		gnSfxNum = TEXT_IM_FUNGALTM;
 		return true;
 	}
 
@@ -1807,8 +1811,8 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 {
 	ItemStruct* is;
 
-	if (plr._pHitPoints < (1 << 6))
-		return false;
+	// assert(plr._pmode != PM_DEATH);
+	// assert(cii < NUM_INVELEM);
 
 	if (cii < INVITEM_INV_FIRST) {
 		is = &plr._pInvBody[cii];
@@ -1818,9 +1822,6 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		CalcPlrStaff(pnum);
 		return true;
 	}
-	// TODO: validate on server side?
-	if (cii >= NUM_INVELEM)
-		return false;
 
 	is = PlrItem(pnum, cii);
 
@@ -1831,20 +1832,20 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	SetRndSeed(is->_iSeed);
 	switch (is->_iMiscId) {
 	case IMISC_HEAL:
-		InvAddHp();
+		InvAddHp(pnum);
 		break;
 	case IMISC_FULLHEAL:
 		PlrFillHp(pnum);
 		break;
 	case IMISC_MANA:
-		InvAddMana();
+		InvAddMana(pnum);
 		break;
 	case IMISC_FULLMANA:
 		PlrFillMana(pnum);
 		break;
 	case IMISC_REJUV:
-		InvAddHp();
-		InvAddMana();
+		InvAddHp(pnum);
+		InvAddMana(pnum);
 		break;
 	case IMISC_FULLREJUV:
 		PlrFillHp(pnum);
@@ -1859,32 +1860,38 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		sn = SPL_INVALID;
 		break;
 	case IMISC_BOOK:
-		if (sn != SPL_INVALID)
-			return false;
 		sn = is->_iSpell;
-		plr._pMemSkills |= SPELL_MASK(sn);
+		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		plr._pSkillExp[sn] += SkillExpLvlsTbl[0];
 		if (plr._pSkillExp[sn] > SkillExpLvlsTbl[MAXSPLLEVEL] - 1) {
 			plr._pSkillExp[sn] = SkillExpLvlsTbl[MAXSPLLEVEL] - 1;
 		}
 
-		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvl[sn]]) {
-			plr._pSkillLvl[sn]++;
+		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvlBase[sn]]) {
+			IncreasePlrSkillLvl(pnum, sn);
 		}
-		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		// CalcPlrSpells(pnum);
 		sn = SPL_INVALID;
 		break;
 	case IMISC_SPECELIX:
 		RestorePlrHpVit(pnum);
 		break;
-	default:
-		// should not happen under normal circumstances, but safer to just return
-		// to avoid further desync of items
-		// ASSUME_UNREACHABLE
+	case IMISC_MAPOFDOOM:
+	case IMISC_NOTE:
+	case IMISC_OILQLTY:
+	case IMISC_OILZEN:
+	case IMISC_OILSTR:
+	case IMISC_OILDEX:
+	case IMISC_OILVIT:
+	case IMISC_OILMAG:
+	case IMISC_OILRESIST:
+	case IMISC_OILCHANCE:
+	case IMISC_OILCLEAN:
+		// should not happen, only if the player is reckless...
 		return false;
+	default:
+		ASSUME_UNREACHABLE
 	}
-
 	// consume the item
 	SyncPlrItemRemove(pnum, cii);
 	return sn == SPL_INVALID;

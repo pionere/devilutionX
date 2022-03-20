@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #define NO_LIGHT			MAXLIGHTS
+#define NO_VISION			MAXVISION
 #define MAX_LIGHT_RAD		15
 
 extern BYTE visionactive[MAXVISION];
@@ -58,6 +59,7 @@ inline void LoadPreLighting()
 	memcpy(dLight, dPreLight, sizeof(dPreLight));
 }
 void InitVision();
+void RedoLightAndVision();
 int AddVision(int x, int y, int r, bool mine);
 void AddUnVision(unsigned vnum);
 void ChangeVisionRadius(unsigned vnum, int r);

@@ -45,7 +45,7 @@ static _plrmsg* AddPlrMsg(int pnum)
 	return pMsg;
 }
 
-#if DEBUG_MODE
+#if DEV_MODE
 void ErrorPlrMsg(const char *pszMsg)
 {
 	_plrmsg* pMsg;

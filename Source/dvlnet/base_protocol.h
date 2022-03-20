@@ -50,11 +50,10 @@ private:
 template <class P>
 plr_t base_protocol<P>::get_master()
 {
-	plr_t ret = plr_self;
 	for (plr_t i = 0; i < MAX_PLRS; ++i)
 		if (peers[i])
-			ret = std::min(ret, i);
-	return ret;
+			return i;
+	return plr_self;
 }
 
 template <class P>
@@ -265,14 +264,16 @@ void base_protocol<P>::recv_decrypted(packet &pkt, endpoint sender)
 			memcpy(peers[pkt_plr].addr.data(), addr.data(), 16);
 		return;
 	} else if (pkt_plr >= MAX_PLRS) {
-		// normal packets
-		ABORT();
+		return; // drop packet with invalid source
+	} else if (peers[pkt_plr] != sender) {
+		if (peers[pkt_plr])
+			return; // drop packet with mismatching sender/source
+		peers[pkt_plr] = sender;
 	}
 	connected_table[pkt_plr] = true;
-	peers[pkt_plr] = sender;
 	pkt_plr = pkt.pktDest();
 	if (pkt_plr != plr_self && pkt_plr != PLR_BROADCAST)
-		return; //packet not for us, drop
+		return; // packet not for us, drop
 	recv_local(pkt);
 }
 

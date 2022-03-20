@@ -7,82 +7,82 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 typedef enum item_quality {
-	ITEM_QUALITY_NORMAL = 0,
-	ITEM_QUALITY_MAGIC  = 1,
-	ITEM_QUALITY_UNIQUE = 2,
+	ITEM_QUALITY_NORMAL,
+	ITEM_QUALITY_MAGIC,
+	ITEM_QUALITY_UNIQUE,
 } item_quality;
 
 typedef enum unique_base_item {
-	UITYPE_NONE        = 0x0,
-	UITYPE_SHORTBOW    = 0x1,
-	UITYPE_LONGBOW     = 0x2,
-	UITYPE_HUNTBOW     = 0x3,
-	UITYPE_COMPBOW     = 0x4,
-	UITYPE_WARBOW      = 0x5,
-	UITYPE_BATTLEBOW   = 0x6,
-	UITYPE_DAGGER      = 0x7,
-	UITYPE_FALCHION    = 0x8,
-	UITYPE_CLAYMORE    = 0x9,
-	UITYPE_BROADSWR    = 0xA,
-	UITYPE_SABRE       = 0xB,
-	UITYPE_SCIMITAR    = 0xC,
-	UITYPE_LONGSWR     = 0xD,
-	UITYPE_BASTARDSWR  = 0xE,
-	UITYPE_TWOHANDSWR  = 0xF,
-	UITYPE_GREATSWR    = 0x10,
-	UITYPE_CLEAVER     = 0x11,
-	UITYPE_LARGEAXE    = 0x12,
-	UITYPE_BROADAXE    = 0x13,
-	UITYPE_SMALLAXE    = 0x14,
-	UITYPE_BATTLEAXE   = 0x15,
-	UITYPE_GREATAXE    = 0x16,
-	UITYPE_MACE        = 0x17,
-	UITYPE_MORNSTAR    = 0x18,
-	UITYPE_SPIKCLUB    = 0x19,
-	UITYPE_MAUL        = 0x1A,
-	UITYPE_WARHAMMER   = 0x1B,
-	UITYPE_FLAIL       = 0x1C,
-	UITYPE_LONGSTAFF   = 0x1D,
-	UITYPE_SHORTSTAFF  = 0x1E,
-	UITYPE_COMPSTAFF   = 0x1F,
-	UITYPE_QUARSTAFF   = 0x20,
-	UITYPE_WARSTAFF    = 0x21,
-	UITYPE_SKULLCAP    = 0x22,
-	UITYPE_HELM        = 0x23,
-	UITYPE_GREATHELM   = 0x24,
-	UITYPE_CROWN       = 0x25,
-	UITYPE_38          = 0x26,	// unused
-	UITYPE_RAGS        = 0x27,
-	UITYPE_STUDARMOR   = 0x28,
-	UITYPE_CLOAK       = 0x29,
-	UITYPE_ROBE        = 0x2A,
-	UITYPE_CHAINMAIL   = 0x2B,
-	UITYPE_LEATHARMOR  = 0x2C,
-	UITYPE_BREASTPLATE = 0x2D,
-	UITYPE_CAPE        = 0x2E,
-	UITYPE_PLATEMAIL   = 0x2F,
-	UITYPE_FULLPLATE   = 0x30,
-	UITYPE_BUCKLER     = 0x31,
-	UITYPE_SMALLSHIELD = 0x32,
-	UITYPE_LARGESHIELD = 0x33,
-	UITYPE_KITESHIELD  = 0x34,
-	UITYPE_GOTHSHIELD  = 0x35,
-	UITYPE_RING        = 0x36,
-	UITYPE_TOWERSHIELD = 0x37,
-	UITYPE_AMULET      = 0x38,
-	UITYPE_SKCROWN     = 0x39,
-	UITYPE_INFRARING   = 0x3A,
-	UITYPE_OPTAMULET   = 0x3B,
-	UITYPE_TRING       = 0x3C,
-	UITYPE_HARCREST    = 0x3D,
-	UITYPE_MAPOFDOOM   = 0x3E,	// 'unused'
-	UITYPE_ELIXIR      = 0x3F,	// 'unused'
-	UITYPE_ARMOFVAL    = 0x40,
-	UITYPE_STEELVEIL   = 0x41,
-	UITYPE_GRISWOLD    = 0x42,
-	UITYPE_LGTFORGE    = 0x43,	// 'unused'
-	UITYPE_LAZSTAFF    = 0x44,	// 'unused'
-	UITYPE_BOVINE      = 0x45,  // hellfire-only
+	UITYPE_NONE,
+	UITYPE_SHORTBOW,
+	UITYPE_LONGBOW,
+	UITYPE_HUNTBOW,
+	UITYPE_COMPBOW,
+	UITYPE_WARBOW,
+	UITYPE_BATTLEBOW,
+	UITYPE_DAGGER,
+	UITYPE_FALCHION,
+	UITYPE_CLAYMORE,
+	UITYPE_BROADSWR,
+	UITYPE_SABRE,
+	UITYPE_SCIMITAR,
+	UITYPE_LONGSWR,
+	UITYPE_BASTARDSWR,
+	UITYPE_TWOHANDSWR,
+	UITYPE_GREATSWR,
+	UITYPE_CLEAVER,
+	UITYPE_LARGEAXE,
+	UITYPE_BROADAXE,
+	UITYPE_SMALLAXE,
+	UITYPE_BATTLEAXE,
+	UITYPE_GREATAXE,
+	UITYPE_MACE,
+	UITYPE_MORNSTAR,
+	UITYPE_SPIKCLUB,
+	UITYPE_MAUL,
+	UITYPE_WARHAMMER,
+	UITYPE_FLAIL,
+	UITYPE_LONGSTAFF,
+	UITYPE_SHORTSTAFF,
+	UITYPE_COMPSTAFF,
+	UITYPE_QUARSTAFF,
+	UITYPE_WARSTAFF,
+	UITYPE_SKULLCAP,
+	UITYPE_HELM,
+	UITYPE_GREATHELM,
+	UITYPE_CROWN,
+	UITYPE_38, // unused
+	UITYPE_RAGS,
+	UITYPE_STUDARMOR,
+	UITYPE_CLOAK,
+	UITYPE_ROBE,
+	UITYPE_CHAINMAIL,
+	UITYPE_LEATHARMOR,
+	UITYPE_BREASTPLATE,
+	UITYPE_CAPE,
+	UITYPE_PLATEMAIL,
+	UITYPE_FULLPLATE,
+	UITYPE_BUCKLER,
+	UITYPE_SMALLSHIELD,
+	UITYPE_LARGESHIELD,
+	UITYPE_KITESHIELD,
+	UITYPE_GOTHSHIELD,
+	UITYPE_RING,
+	UITYPE_TOWERSHIELD,
+	UITYPE_AMULET,
+	UITYPE_SKCROWN,
+	UITYPE_INFRARING,
+	UITYPE_OPTAMULET,
+	UITYPE_TRING,
+	UITYPE_HARCREST,
+	UITYPE_MAPOFDOOM, // 'unused'
+	UITYPE_ELIXIR, // 'unused'
+	UITYPE_ARMOFVAL,
+	UITYPE_STEELVEIL,
+	UITYPE_GRISWOLD,
+	UITYPE_LGTFORGE, // 'unused'
+	UITYPE_LAZSTAFF, // 'unused'
+	UITYPE_BOVINE, // hellfire-only
 } unique_base_item;
 
 typedef enum item_effect_type {
@@ -1500,6 +1500,7 @@ typedef enum missile_id {
 	MIS_PBARROWC,
 	MIS_ASARROWC,
 	MIS_FIREBOLT,
+	MIS_FIREBALL,
 	MIS_HBOLT,
 	MIS_FLARE,
 	MIS_SNOWWICH,
@@ -1521,7 +1522,6 @@ typedef enum missile_id {
 	MIS_GUARDIAN,
 	MIS_RNDTELEPORT,
 	MIS_LIGHTBALL,
-	MIS_FIREBALL,
 	MIS_LIGHTNINGC,
 	MIS_LIGHTNING,
 	MIS_LIGHTNINGC2,
@@ -1570,7 +1570,7 @@ typedef enum missile_id {
 	MIS_CBOLTC,
 	MIS_CBOLT,
 	MIS_ELEMENTAL,
-	MIS_EXELE,
+	MIS_EXFBALL,
 	//MIS_BONESPIRIT,
 	MIS_APOCAC2,
 	MIS_EXAPOCA2,
@@ -1589,9 +1589,8 @@ typedef enum missile_id {
 	MIS_RUNENOVA,
 	MIS_RUNEWAVE,
 	MIS_RUNESTONE,
-	MIS_HIVEEXP,
+	MIS_FIREEXP,
 	MIS_HORKDMN,
-	MIS_HIVEEXPC,
 	MIS_PSYCHORB,
 	MIS_LICH,
 	MIS_BONEDEMON,
@@ -1605,6 +1604,19 @@ typedef enum missile_id {
 #endif
 	NUM_MISTYPES
 } missile_id;
+
+typedef enum missile_source_type {
+	MST_PLAYER,  // player
+	MST_MONSTER, // monster
+	MST_OBJECT,  // trap or object
+	MST_NA = 0,  // does not matter
+} missile_source_type;
+
+typedef enum missile_telekinesis_type {
+	MTT_ITEM,
+	MTT_MONSTER,
+	MTT_OBJECT,
+} missile_telekinesis_type;
 
 typedef enum missile_gfx_id {
 	MFILE_ARROWS,
@@ -1749,9 +1761,9 @@ typedef enum _monster_ai {
 } _monster_ai;
 
 typedef enum _monster_class {
-	MC_UNDEAD = 0,
-	MC_DEMON  = 1,
-	MC_ANIMAL = 2,
+	MC_UNDEAD,
+	MC_DEMON,
+	MC_ANIMAL,
 } _monster_class;
 
 typedef enum _monster_id {
@@ -1966,20 +1978,20 @@ typedef enum _monster_gfx_id {
 
 // this enum contains indexes from UniqMonst array for special unique monsters (usually quest related)
 typedef enum _uniq_monsterid {
-	UMT_GARBUD    = 0,
-	UMT_SKELKING  = 1,
-	UMT_ZHAR      = 2,
-	UMT_SNOTSPIL  = 3,
-	UMT_LAZARUS   = 4,
-	UMT_RED_VEX   = 5,
-	UMT_BLACKJADE = 6,
-	UMT_LACHDAN   = 7,
-	UMT_WARLORD   = 8,
-	UMT_BUTCHER   = 9,
+	UMT_GARBUD,
+	UMT_SKELKING,
+	UMT_ZHAR,
+	UMT_SNOTSPIL,
+	UMT_LAZARUS,
+	UMT_RED_VEX,
+	UMT_BLACKJADE,
+	UMT_LACHDAN,
+	UMT_WARLORD,
+	UMT_BUTCHER,
 	// hellfire only
-	UMT_HORKDMN   = 10,
-	UMT_DEFILER   = 11,
-	UMT_NAKRUL    = 12,
+	UMT_HORKDMN,
+	UMT_DEFILER,
+	UMT_NAKRUL,
 } _uniq_monsterid;
 
 typedef enum _monster_flag {
@@ -2656,7 +2668,8 @@ typedef enum _setlevels {
 	SL_POISONWATER,
 	SL_VILEBETRAYER,
 	NUM_SETLVLS = SL_VILEBETRAYER - NUM_STDLVLS + 1,
-	NUM_LEVELS = NUM_STDLVLS + NUM_SETLVLS
+	NUM_LEVELS = NUM_STDLVLS + NUM_SETLVLS,
+	DLV_INVALID = NUM_LEVELS
 } _setlevels;
 
 typedef enum piece_flag {
@@ -2726,17 +2739,12 @@ typedef enum goodorevil {
 /*
  First 8 bits store level
  9-10th bit stores info if item is from a specific source (griswold, wirt, adria, pepin and user crafted) 
- 11th bit stores onlygood flag
- 12th bit stores uper15 flag - uper means unique percent, this flag is true for unique monsters and loot from them has 15% to become unique
- 13th bit stores uper1 flag - this is loot from normal monsters, which has 1% to become unique
- 14th bit stores info if item is unique
- 15th bit stores pregen flag
+ 11-12th bit stores the drop quality (normal, good or unique)
 
- combining CF_UPER15 and CF_UPER1 flags (CF_USEFUL) is used to mark potions and town portal scrolls created on the ground
  CF_TOWN is combining all source flags and indicates if item has been bought from a NPC or created via crafting
  */
 typedef enum icreateinfo_loc {
-	CFL_DUNGEON,
+	CFL_NONE,
 	CFL_SMITH,
 	CFL_SMITHPREMIUM,
 	CFL_BOY,
@@ -2744,6 +2752,12 @@ typedef enum icreateinfo_loc {
 	CFL_HEALER,
 	CFL_CRAFTED,
 } icreateinfo_loc;
+typedef enum icreateinfo_drop_quality {
+	CFDQ_NONE,
+	CFDQ_NORMAL,
+	CFDQ_GOOD,
+	CFDQ_UNIQUE,
+} icreateinfo_drop_quality;
 typedef enum icreateinfo_flag {
 	CF_LEVEL        = (1 << 8) - 1,
 	CF_SMITH        = CFL_SMITH << 8,
@@ -2752,14 +2766,20 @@ typedef enum icreateinfo_flag {
 	CF_WITCH        = CFL_WITCH << 8,
 	CF_HEALER       = CFL_HEALER << 8,
 	CF_CRAFTED      = CFL_CRAFTED << 8,
-	CF_ONLYGOOD     = 1 << 11,
-	CF_UPER15       = 1 << 12,
-	CF_UPER1        = 1 << 13,
-	CF_UNIQUE       = 1 << 14,
+	CF_DROP_NORMAL  = CFDQ_NORMAL << 11,
+	CF_DROP_GOOD    = CFDQ_GOOD << 11,
+	CF_DROP_UNIQUE  = CFDQ_UNIQUE << 11,
 
-	CF_USEFUL = CF_UPER15 | CF_UPER1,
-	CF_TOWN   = 7 << 8,
+	CF_TOWN         = 7 << 8,
+	CF_DROP_QUALITY = 3 << 11,
 } icreateinfo_flag;
+
+typedef enum icreate_mode {
+	ICM_DELTA,    // floor item, generated with the level
+	ICM_DUMMY,    // spawn item, discarded
+	ICM_SEND,     // spawn item on the floor, sent to (other) players
+	ICM_SEND_FLIP // spawn item, sent to (other) players
+} icreate_mode;
 
 typedef enum dungeon_message {
 	DMSG_CATHEDRAL = 1 << 0,
@@ -2902,32 +2922,33 @@ typedef enum _speed {
 } _speed;
 
 typedef enum MON_MODE {
-	MM_STAND     = 0,
-	MM_WALK      = 1, // Movement towards N, NW, NE or W
-	MM_WALK2     = 2, // Movement towards S, SW, SE or E
-	MM_ATTACK    = 4,
-	MM_GOTHIT    = 5,
-	MM_DEATH     = 6,
-	MM_SPATTACK  = 7,
-	MM_FADEIN    = 8,
-	MM_FADEOUT   = 9,
-	MM_RATTACK   = 10,
-	MM_SPSTAND   = 11,
-	MM_RSPATTACK = 12,
-	MM_DELAY     = 13,
-	MM_CHARGE    = 14,
-	MM_STONE     = 15,
-	MM_HEAL      = 16,
-	MM_TALK      = 17,
+	MM_STAND,
+	MM_WALK, // Movement towards N, NW, NE or W
+	MM_WALK2, // Movement towards S, SW, SE or E
+	MM_ATTACK,
+	MM_GOTHIT,
+	MM_DEATH,
+	MM_SPATTACK,
+	MM_FADEIN,
+	MM_FADEOUT,
+	MM_RATTACK,
+	MM_SPSTAND,
+	MM_RSPATTACK,
+	MM_DELAY,
+	MM_CHARGE,
+	MM_STONE,
+	MM_HEAL,
+	MM_TALK,
+	NUM_MON_MODES
 } MON_MODE;
 
 typedef enum MON_ANIM {
-	MA_STAND   = 0,
-	MA_WALK    = 1,
-	MA_ATTACK  = 2,
-	MA_GOTHIT  = 3,
-	MA_DEATH   = 4,
-	MA_SPECIAL = 5,
+	MA_STAND,
+	MA_WALK,
+	MA_ATTACK,
+	MA_GOTHIT,
+	MA_DEATH,
+	MA_SPECIAL,
 	NUM_MON_ANIM
 } MON_ANIM;
 
@@ -2939,6 +2960,12 @@ typedef enum MON_SFX {
 	NUM_MON_SFX
 } MON_SFX;
 
+typedef enum MYPLR_DEATH_MODE {
+	MDM_ALIVE,
+	MDM_DYING,
+	MDM_DEAD
+} MYPLR_DEATH_MODE;
+
 typedef enum PLR_MODE {
 	PM_STAND,
 	PM_WALK, // Movement towards N, NW, NE or W
@@ -2948,10 +2975,12 @@ typedef enum PLR_MODE {
 	PM_RATTACK,
 	PM_BLOCK,
 	PM_GOTHIT,
-	PM_DEATH,
 	PM_SPELL,
+	PM_DYING, // pre-death mode which might be out of sync
+	PM_DEATH, // death mode which is in sync with external players
 	PM_NEWLVL,
-	PM_QUIT,
+	NUM_PLR_MODES,
+	PM_INVALID = 0xFF
 } PLR_MODE;
 
 typedef enum PLR_ANIM {
@@ -2972,11 +3001,11 @@ typedef enum PLR_EAR {
 } PLR_EAR;
 
 typedef enum spell_type {
-	RSPLTYPE_ABILITY = 0x0,
-	RSPLTYPE_SPELL   = 0x1,
-	RSPLTYPE_SCROLL  = 0x2,
-	RSPLTYPE_CHARGES = 0x3,
-	RSPLTYPE_INVALID = 0x4,
+	RSPLTYPE_ABILITY,
+	RSPLTYPE_SPELL,
+	RSPLTYPE_SCROLL,
+	RSPLTYPE_CHARGES,
+	RSPLTYPE_INVALID,
 } spell_type;
 
 typedef enum spell_from_type {
@@ -2989,19 +3018,19 @@ typedef enum spell_from_type {
 } spell_from_type;
 
 typedef enum cursor_id {
-	CURSOR_NONE        = 0x0,
-	CURSOR_HAND        = 0x1,
-	CURSOR_IDENTIFY    = 0x2,
-	CURSOR_REPAIR      = 0x3,
-	CURSOR_RECHARGE    = 0x4,
-	CURSOR_DISARM      = 0x5,
-	CURSOR_OIL         = 0x6,
-	CURSOR_TELEKINESIS = 0x7,
-	CURSOR_RESURRECT   = 0x8,
-	CURSOR_TELEPORT    = 0x9,
-	CURSOR_HEALOTHER   = 0xA,
-	CURSOR_HOURGLASS   = 0xB,
-	CURSOR_FIRSTITEM   = 0xC,
+	CURSOR_NONE,
+	CURSOR_HAND,
+	CURSOR_IDENTIFY,
+	CURSOR_REPAIR,
+	CURSOR_RECHARGE,
+	CURSOR_DISARM,
+	CURSOR_OIL,
+	CURSOR_TELEKINESIS,
+	CURSOR_TELEPORT,
+	CURSOR_HEALOTHER,
+	CURSOR_RESURRECT,
+	CURSOR_HOURGLASS,
+	CURSOR_FIRSTITEM,
 } cursor_id;
 
 typedef enum direction {
@@ -3018,15 +3047,15 @@ typedef enum direction {
 } direction;
 
 typedef enum _scroll_direction {
-	SDIR_NONE = 0x0,
-	SDIR_N    = 0x1,
-	SDIR_NE   = 0x2,
-	SDIR_E    = 0x3,
-	SDIR_SE   = 0x4,
-	SDIR_S    = 0x5,
-	SDIR_SW   = 0x6,
-	SDIR_W    = 0x7,
-	SDIR_NW   = 0x8,
+	SDIR_NONE,
+	SDIR_N,
+	SDIR_NE,
+	SDIR_E,
+	SDIR_SE,
+	SDIR_S,
+	SDIR_SW,
+	SDIR_W,
+	SDIR_NW,
 } _scroll_direction;
 
 typedef enum _path_direction {
@@ -3041,14 +3070,14 @@ typedef enum _path_direction {
 } _path_direction;
 
 typedef enum lvl_entry {
-	ENTRY_MAIN    = 0,
-	ENTRY_PREV    = 1,
-	ENTRY_SETLVL  = 2,
-	ENTRY_RTNLVL  = 3,
-	ENTRY_LOAD    = 4,
-	ENTRY_WARPLVL = 5,
-	ENTRY_TWARPDN = 6,
-	ENTRY_TWARPUP = 7,
+	ENTRY_MAIN,
+	ENTRY_PREV,
+	ENTRY_SETLVL,
+	ENTRY_RTNLVL,
+	ENTRY_LOAD,
+	ENTRY_WARPLVL,
+	ENTRY_TWARPDN,
+	ENTRY_TWARPUP,
 } lvl_entry;
 
 /*typedef enum game_info {
@@ -3119,15 +3148,16 @@ typedef enum spell_id {
 
 typedef enum _msg_id {
 	NMSG_SEND_GAME_DELTA,
-	NMSG_ACK_PLRINFO,
-	NMSG_SEND_PLRINFO,
+	NMSG_PLRINFO,
 	NMSG_DLEVEL_DATA,
 	NMSG_DLEVEL_SEP,
 	NMSG_DLEVEL_JUNK,
 	NMSG_DLEVEL_PLR,
 	NMSG_DLEVEL_END,
+	NMSG_LVL_DELTA,
+	NMSG_LVL_DELTA_END,
 	NMSG_STRING,
-	FAKE_NMSG_DROPID,
+	NMSG_PLRDROP, // internal use only (supposedly)
 } _msg_id;
 
 typedef enum _cmd_id {
@@ -3145,7 +3175,6 @@ typedef enum _cmd_id {
 	CMD_SPELLID,
 	CMD_SPELLPID,
 	CMD_BLOCK,
-	CMD_KNOCKBACK,
 	CMD_TALKXY,
 	CMD_MONSTDEATH,
 	CMD_MONSTDAMAGE,
@@ -3165,29 +3194,28 @@ typedef enum _cmd_id {
 	CMD_CUTPLRITEM,
 	CMD_DELPLRITEM,
 	CMD_USEPLRITEM,
-	CMD_DPUTITEM,
 	CMD_PUTITEM,
-	CMD_RESPAWNITEM,
+	CMD_SPAWNITEM,
 	CMD_GETITEM,
 	CMD_AUTOGETITEM,
 	CMD_GOTOGETITEM,
 	CMD_GOTOAGETITEM,
 	CMD_OPERATEITEM,
 	CMD_OPERATEOBJ,
-	CMD_OPOBJT,
 	CMD_DOOROPEN,
 	CMD_DOORCLOSE,
 	CMD_TRAPDISABLE,
 	CMD_TRAPOPEN,
 	CMD_TRAPCLOSE,
 	CMD_SHRINE,
+	CMD_TELEKINXY,
+	CMD_TELEKINID,
+	CMD_TELEKINOID,
 	CMD_ACTIVATEPORTAL,
-	CMD_DEACTIVATEPORTAL,
 	CMD_NEWLVL,
 	CMD_TWARP,
 	CMD_RETOWN,
-	CMD_ACK_JOINLEVEL,
-	CMD_SEND_JOINLEVEL,
+	CMD_JOINLEVEL,
 	CMD_INVITE,
 	CMD_ACK_INVITE,
 	CMD_DEC_INVITE,
@@ -3201,9 +3229,12 @@ typedef enum _cmd_id {
 	CMD_SYNCQUESTEXT,
 	CMD_BLOODPASS,
 	CMD_OPENSPIL,
-	CMD_CHEAT_EXPERIENCE,
-	CMD_CHEAT_SPELL_LEVEL,
-	CMD_DEBUG,
+	CMD_DUMP_MONSTERS,     // DEV_MODE
+	CMD_REQUEST_ITEMCHECK, // DEV_MODE
+	CMD_DO_ITEMCHECK,      // DEV_MODE
+	CMD_CHEAT_EXPERIENCE,  // DEBUG_MODE
+	CMD_CHEAT_SPELL_LEVEL, // DEBUG_MODE
+	CMD_DEBUG,             // DEBUG_MODE
 } _cmd_id;
 
 typedef enum _dcmd_item {
@@ -3224,10 +3255,12 @@ typedef enum _dcmd_monster {
 
 typedef enum _msg_mode {
 	MSG_NORMAL,
-	MSG_REQUEST_GAME_DELTA,
-	MSG_GAME_DELTA,
+	MSG_GAME_DELTA_WAIT, // wait for game delta information
+	MSG_GAME_DELTA_LOAD, // download game delta
 	//MSG_RUN_DELTA,
-	MSG_INITIAL_PENDINGTURN,
+	MSG_LVL_DELTA_WAIT, // wait for level delta information
+	MSG_LVL_DELTA_PROC, // process turns till the timestamp of the level delta info
+	MSG_LVL_DELTA_SKIP_JOIN // skip most of the JOINLEVEL message of the level-delta timestamp (level delta is supposed to contain this)
 } _msg_mode;
 
 typedef enum _talker_id {
@@ -3550,11 +3583,11 @@ typedef enum _item_indexes {
 } _item_indexes;
 
 typedef enum _item_damage_type {
-	IDAM_NONE       = 0x00,
-	IDAM_SLASH      = 0x01,
-	IDAM_BLUNT      = 0x02,
-	IDAM_SB_MIX     = 0x03,
-	IDAM_PUNCTURE   = 0x04,
+	IDAM_NONE,
+	IDAM_SLASH,
+	IDAM_BLUNT,
+	IDAM_SB_MIX,
+	IDAM_PUNCTURE,
 } _item_damage_type;
 
 typedef enum quest_id {
@@ -3589,48 +3622,48 @@ typedef enum quest_id {
 } quest_id;
 
 typedef enum quest_state {
-	QUEST_NOTAVAIL = 0, // quest did not spawn this game
-	QUEST_INIT     = 1, // quest has spawned, waiting to trigger
-	QUEST_ACTIVE   = 2, // quest is currently in progress
-	QUEST_DONE     = 3  // quest log closed and finished
+	QUEST_NOTAVAIL, // did not spawn this game
+	QUEST_INIT,     // has spawned, waiting to trigger
+	QUEST_ACTIVE,   // currently in progress
+	QUEST_DONE      // quest log closed and finished
 } quest_state;
 
 typedef enum quest_mush_state {
-	QS_INIT         = 0,
-	QS_TOMESPAWNED  = 1,
-	QS_TOMEGIVEN    = 2,
-	QS_MUSHSPAWNED  = 3,
-	QS_MUSHPICKED   = 4,
-	QS_MUSHGIVEN    = 5,
-	QS_BRAINSPAWNED = 6,
-	QS_BRAINGIVEN   = 7,
+	QS_INIT,
+	QS_TOMESPAWNED,
+	QS_TOMEGIVEN,
+	QS_MUSHSPAWNED,
+	QS_MUSHPICKED,
+	QS_MUSHGIVEN,
+	QS_BRAINSPAWNED,
+	QS_BRAINGIVEN,
 } quest_mush_state;
 
 typedef enum talk_id {
-	STORE_NONE      = 0x0,
-	STORE_SMITH     = 0x1,
-	STORE_SBUY      = 0x2,
-	STORE_SSELL     = 0x3,
-	STORE_SREPAIR   = 0x4,
-	STORE_WITCH     = 0x5,
-	STORE_WBUY      = 0x6,
-	STORE_WSELL     = 0x7,
-	STORE_WRECHARGE = 0x8,
-	STORE_NOMONEY   = 0x9,
-	STORE_NOROOM    = 0xA,
-	STORE_CONFIRM   = 0xB,
-	STORE_BOY       = 0xC,
-	STORE_BBOY      = 0xD,
-	STORE_HEALER    = 0xE,
-	STORE_STORY     = 0xF,
-	STORE_HBUY      = 0x10,
-	STORE_SIDENTIFY = 0x11,
-	STORE_SPBUY     = 0x12,
-	STORE_GOSSIP    = 0x13,
-	STORE_IDSHOW    = 0x14,
-	STORE_TAVERN    = 0x15,
-	STORE_DRUNK     = 0x16,
-	STORE_BARMAID   = 0x17,
+	STORE_NONE,
+	STORE_SMITH,
+	STORE_SBUY,
+	STORE_SSELL,
+	STORE_SREPAIR,
+	STORE_WITCH,
+	STORE_WBUY,
+	STORE_WSELL,
+	STORE_WRECHARGE,
+	STORE_NOMONEY,
+	STORE_NOROOM,
+	STORE_CONFIRM,
+	STORE_BOY,
+	STORE_BBOY,
+	STORE_HEALER,
+	STORE_STORY,
+	STORE_HBUY,
+	STORE_SIDENTIFY,
+	STORE_SPBUY,
+	STORE_GOSSIP,
+	STORE_IDSHOW,
+	STORE_TAVERN,
+	STORE_DRUNK,
+	STORE_BARMAID,
 	STORE_WAIT,
 } talk_id;
 
@@ -3757,13 +3790,13 @@ typedef enum _unique_items {
 } _unique_items;
 
 typedef enum plr_class {
-	PC_WARRIOR   = 0x0,
-	PC_ROGUE     = 0x1,
-	PC_SORCERER  = 0x2,
+	PC_WARRIOR,
+	PC_ROGUE,
+	PC_SORCERER,
 #ifdef HELLFIRE
-	PC_MONK      = 0x3,
-	PC_BARD      = 0x4,
-	PC_BARBARIAN = 0x5,
+	PC_MONK,
+	PC_BARD,
+	PC_BARBARIAN,
 #endif
 	NUM_CLASSES
 } plr_class;
@@ -3789,18 +3822,18 @@ typedef enum player_skill_flags {
 } player_skill_flags;
 
 typedef enum item_class {
-	ICLASS_NONE   = 0,
-	ICLASS_WEAPON = 1,
-	ICLASS_ARMOR  = 2,
-	ICLASS_MISC   = 3,
-	ICLASS_GOLD   = 4,
-	ICLASS_QUEST  = 5,
+	ICLASS_NONE,
+	ICLASS_WEAPON,
+	ICLASS_ARMOR,
+	ICLASS_MISC,
+	ICLASS_GOLD,
+	ICLASS_QUEST,
 } item_class;
 
 typedef enum item_drop_rate {
-	IDROP_NEVER   = 0,
-	IDROP_REGULAR = 1,
-	IDROP_DOUBLE  = 2,
+	IDROP_NEVER,
+	IDROP_REGULAR,
+	IDROP_DOUBLE,
 } item_drop_rate;
 
 typedef enum item_base_bonus {
@@ -3940,15 +3973,15 @@ typedef enum player_timer {
 } player_timer;
 
 typedef enum anim_weapon_id {
-	ANIM_ID_UNARMED        = 0x00,
-	ANIM_ID_UNARMED_SHIELD = 0x01,
-	ANIM_ID_SWORD          = 0x02,
-	ANIM_ID_SWORD_SHIELD   = 0x03,
-	ANIM_ID_BOW            = 0x04,
-	ANIM_ID_AXE            = 0x05,
-	ANIM_ID_MACE           = 0x06,
-	ANIM_ID_MACE_SHIELD    = 0x07,
-	ANIM_ID_STAFF          = 0x08
+	ANIM_ID_UNARMED,
+	ANIM_ID_UNARMED_SHIELD,
+	ANIM_ID_SWORD,
+	ANIM_ID_SWORD_SHIELD,
+	ANIM_ID_BOW,
+	ANIM_ID_AXE,
+	ANIM_ID_MACE,
+	ANIM_ID_MACE_SHIELD,
+	ANIM_ID_STAFF,
 } anim_weapon_id;
 
 typedef enum anim_armor_id {
@@ -3958,9 +3991,9 @@ typedef enum anim_armor_id {
 } anim_armor_id;
 
 typedef enum shrine_gametype {
-	SHRINETYPE_ANY    = 0,
-	SHRINETYPE_SINGLE = 1,
-	SHRINETYPE_MULTI  = 2,
+	SHRINETYPE_ANY,
+	SHRINETYPE_SINGLE,
+	SHRINETYPE_MULTI,
 } shrine_gametype;
 
 typedef enum shrine_type {
@@ -4004,11 +4037,11 @@ typedef enum shrine_type {
 
 typedef enum action_id {
 	ACTION_NONE,
+	ACTION_WALK,
+	ACTION_OPERATE,
 	ACTION_ATTACK,
 	ACTION_ATTACKMON,
 	ACTION_ATTACKPLR,
-	ACTION_OPERATE,
-	ACTION_DISARM,
 	ACTION_RATTACK,
 	ACTION_RATTACKMON,
 	ACTION_RATTACKPLR,
@@ -4018,9 +4051,7 @@ typedef enum action_id {
 	ACTION_BLOCK,
 	ACTION_PICKUPITEM,  // put item in hand (inventory screen open)
 	ACTION_PICKUPAITEM, // put item in inventory
-	ACTION_OPERATETK,   // operate via telekinesis
 	ACTION_TALK,
-	ACTION_WALK,        // Automatic walk when using gamepad
 } action_id;
 
 typedef enum dlrg_flag {
@@ -4036,14 +4067,14 @@ typedef enum movie_flag {
 } movie_flag;
 
 typedef enum _artfonts {
-	AF_SMALL     = 0,
-	AF_SMALLGRAY = 1,
-	AF_MED       = 2,
-	AF_MEDGRAY   = 3,
-	AF_BIG       = 4,
-	AF_BIGGRAY   = 5,
-	AF_HUGE      = 6,
-	AF_HUGEGRAY  = 7,
+	AF_SMALL,
+	AF_SMALLGRAY,
+	AF_MED,
+	AF_MEDGRAY,
+	AF_BIG,
+	AF_BIGGRAY,
+	AF_HUGE,
+	AF_HUGEGRAY,
 } _artfonts;
 
 typedef enum mpq_files {
@@ -4130,6 +4161,21 @@ typedef enum input_key {
 } input_key;
 
 typedef enum application_error {
+	ERR_APP_FRAME_BUFSIZE,
+	ERR_APP_LOOPBACK_JOIN,
+	ERR_APP_LOOPBACK_SENDMSG,
+	ERR_APP_LOOPBACK_QUEUE_SIZE,
+	ERR_APP_LOOPBACK_POLLTURN,
+	ERR_APP_LOOPBACK_LASTTURN,
+	ERR_APP_LOOPBACK_DROPPLR,
+	ERR_APP_LOOPBACK_TRANSIT,
+	ERR_APP_PACKET_ENCRYPT,
+	ERR_APP_PACKET_SETUP,
+	ERR_APP_PACKET_PASSWD,
+	ERR_APP_SETMAP,
+} application_error;
+
+typedef enum app_sdl_error {
 	ERR_SDL_ART_COLOR,
 	ERR_SDL_ART_BLIT,
 	ERR_SDL_CREDIT_BLIT,
@@ -4191,7 +4237,7 @@ typedef enum application_error {
 	ERR_SDL_EVENT_WAIT,
 	ERR_SDL_TTF_INIT,
 	ERR_SDL_TTF_FONT,
-} application_error;
+} app_sdl_error;
 
 typedef enum SDL_LogCategory {
     SDL_LOG_CATEGORY_APPLICATION,

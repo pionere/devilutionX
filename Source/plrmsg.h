@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 void plrmsg_delay(bool delay);
-#if DEBUG_MODE
+#if DEV_MODE
 void ErrorPlrMsg(const char *pszMsg);
 #endif
 void EventPlrMsg(const char *pszFmt, ...);

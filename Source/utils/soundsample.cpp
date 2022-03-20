@@ -97,7 +97,7 @@ void SoundSample::SetChunk(BYTE* fileData, size_t dwBytes, bool stream)
 			return; // 0;
 	//}
 
-	sdl_fatal(ERR_SDL_SOUND_FILE);
+	sdl_error(ERR_SDL_SOUND_FILE);
 	//return -1;
 };
 

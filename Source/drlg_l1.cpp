@@ -891,7 +891,7 @@ static void DRLG_FreeL1SP()
 void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
-
+	// add special arches
 	for (i = x1; i <= x2; ++i) {
 		for (j = y1; j <= y2; ++j) {
 			pn = dPiece[i][j];
@@ -910,6 +910,19 @@ void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 			else
 				pn = 0;
 			dSpecial[i][j] = pn;
+		}
+	}
+	// add rims to stone doors
+	for (i = x1; i <= x2; i++) {
+		for (j = y1; j <= y2; j++) {
+			pn = dPiece[i][j];
+			// 417 is stone L-door
+			// 420 is stone R-door -- unused at the moment
+			if (pn == 417) {
+				dSpecial[i][j + 1] = 7;
+			} else if (pn == 420) {
+				dSpecial[i + 1][j] = 8;
+			}
 		}
 	}
 }
@@ -1021,6 +1034,21 @@ void LoadL1Dungeon(const LevelData* lds)
 
 	// load dungeon
 	pMap = LoadL1DungeonData(lds->dSetLvlDun);
+	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+		// patch set-piece to fix empty tiles - Vile2.DUN
+		// assert(pMap[(2 + 8 + 16 * 21) * 2] == 0);
+		// assert(dungeon[8][16] == 13);
+		dungeon[8][16] = 203;
+		// assert(pMap[(2 + 12 + 22 * 21) * 2] == 0);
+		// assert(dungeon[12][22] == 13);
+		dungeon[12][22] = 203;
+		// assert(pMap[(2 + 13 + 22 * 21) * 2] == 0);
+		// assert(dungeon[13][22] == 13);
+		dungeon[13][22] = 203;
+		// assert(pMap[(2 + 14 + 22 * 21) * 2] == 0);
+		// assert(dungeon[14][22] == 13);
+		dungeon[14][22] = 203;
+	}
 
 	//DRLG_L1Floor();
 

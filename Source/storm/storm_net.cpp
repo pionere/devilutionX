@@ -167,13 +167,11 @@ bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePas
 	return dvlnet_inst->join_game(pszGameName, port, pszGamePassword, errorText);
 }
 
-//#ifdef ADAPTIVE_NETUPDATE
-#ifndef NONET
 unsigned SNetGetTurnsInTransit()
 {
 	return dvlnet_inst->SNetGetTurnsInTransit();
 }
-#endif
+
 #ifdef ZEROTIER
 void SNetSendInfoRequest()
 {

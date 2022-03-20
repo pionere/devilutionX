@@ -18,8 +18,14 @@ extern "C" {
 int GetManaAmount(int pnum, int sn);
 char SpellSourceInv(int sn);
 char SpellSourceEquipment(int sn);
-int GetSpellLevel(int pnum, int sn);
 bool CheckSpell(int pnum, int sn);
+
+inline void IncreasePlrSkillLvl(int pnum, int sn)
+{
+	plr._pMemSkills |= SPELL_MASK(sn);
+	plr._pSkillLvlBase[sn]++;
+	CalcPlrItemVals(pnum, false);
+}
 
 #ifdef __cplusplus
 }

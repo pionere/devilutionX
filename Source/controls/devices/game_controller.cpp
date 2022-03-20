@@ -5,7 +5,6 @@
 
 #include "controls/controller_motion.h"
 #include "controls/plrctrls.h"
-#include "utils/stubs.h"
 #include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -79,9 +78,10 @@ ControllerButton GameController::ToControllerButton(const SDL_Event &event)
 
 SDL_GameControllerButton GameController::ToSdlGameControllerButton(ControllerButton button)
 {
-	if (button == ControllerButton_AXIS_TRIGGERLEFT || button == ControllerButton_AXIS_TRIGGERRIGHT)
-		UNIMPLEMENTED();
 	switch (button) {
+	case ControllerButton_NONE:
+	case ControllerButton_IGNORE:
+		break;
 	case ControllerButton_BUTTON_A:
 		return SDL_CONTROLLER_BUTTON_A;
 	case ControllerButton_BUTTON_B:
@@ -110,9 +110,15 @@ SDL_GameControllerButton GameController::ToSdlGameControllerButton(ControllerBut
 		return SDL_CONTROLLER_BUTTON_DPAD_LEFT;
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+	case ControllerButton_AXIS_TRIGGERLEFT:
+	case ControllerButton_AXIS_TRIGGERRIGHT:
+		ASSUME_UNREACHABLE
+		break;
 	default:
-		return SDL_CONTROLLER_BUTTON_INVALID;
+		ASSUME_UNREACHABLE
+		break;
 	}
+	return SDL_CONTROLLER_BUTTON_INVALID;
 }
 
 bool GameController::IsPressed(ControllerButton button) const

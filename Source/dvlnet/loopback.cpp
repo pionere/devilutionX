@@ -1,6 +1,5 @@
 #include "loopback.h"
 
-#include "utils/stubs.h"
 #include "packet.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -16,7 +15,7 @@ bool loopback::create_game(const char* addrstr, unsigned port, const char* passw
 bool loopback::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 #if DEBUG_MODE || DEV_MODE
-	ABORT();
+	app_error(ERR_APP_LOOPBACK_JOIN);
 #endif
 	return false;
 }
@@ -37,7 +36,7 @@ void loopback::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
 #if DEBUG_MODE || DEV_MODE
 	if (receiver != SNPLAYER_ALL && receiver != PLR_SINGLE)
-		ABORT();
+		app_error(ERR_APP_LOOPBACK_SENDMSG);
 #endif
 	message_queue.emplace_back(data, data + size);
 }
@@ -51,7 +50,7 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 
 #if DEBUG_MODE || DEV_MODE
 	if (turn_queue.size() != 1)
-		ABORT();
+		app_error(ERR_APP_LOOPBACK_QUEUE_SIZE);
 #endif
 	pt = &turn_queue.front();
 	//      pnum           size
@@ -84,7 +83,7 @@ turn_status loopback::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 {
 #if DEBUG_MODE || DEV_MODE
 	if (turn_queue.empty())
-		ABORT();
+		app_error(ERR_APP_LOOPBACK_POLLTURN);
 #endif
 	status[PLR_SINGLE] = PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
 	return TS_ACTIVE; // or TS_LIVE
@@ -93,7 +92,7 @@ turn_status loopback::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 uint32_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
 #if DEBUG_MODE || DEV_MODE
-	ABORT();
+	app_error(ERR_APP_LOOPBACK_LASTTURN);
 #endif
 	return 0;
 }
@@ -113,20 +112,20 @@ void loopback::SNetLeaveGame(int reason)
 void loopback::SNetDropPlayer(int playerid)
 {
 #if DEBUG_MODE || DEV_MODE
-	ABORT();
+	app_error(ERR_APP_LOOPBACK_DROPPLR);
 #endif
 }
 
-//#ifdef ADAPTIVE_NETUPDATE
 unsigned loopback::SNetGetTurnsInTransit()
 {
 #if DEBUG_MODE || DEV_MODE
-	if (!turn_queue.empty())
-		ABORT(); // should be empty or should have one entry
+	// should be empty or should have one entry
+	if (turn_queue.size() > 1) {
+		app_error(ERR_APP_LOOPBACK_TRANSIT);
+	}
 #endif
-	return 0; // turn_queue.size();
+	return turn_queue.size();
 }
-//#endif
 
 void loopback::make_default_gamename(char (&gamename)[128])
 {

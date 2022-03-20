@@ -260,7 +260,8 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iMinStr);
 	LoadByte(&is->_iMinMag);
 	LoadByte(&is->_iMinDex);
-	tbuff += 3; // Alignment
+	LoadByte(&is->_iFloorFlag);
+	tbuff += 2; // Alignment
 	LoadInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
@@ -358,16 +359,14 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._poldy);
 	LoadInt(&plr._pxoff);
 	LoadInt(&plr._pyoff);
-	LoadInt(&plr._pxvel);
-	LoadInt(&plr._pyvel);
 	LoadInt(&plr._pdir);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
 	LoadInt(&plr._pAnimCnt);
-	LoadInt(&plr._pAnimLen);
+	tbuff += 4; // Skip _pAnimLen
 	LoadInt(&plr._pAnimFrame);
-	LoadInt(&plr._pAnimWidth);
-	LoadInt(&plr._pAnimXOffset);
+	tbuff += 4; // Skip _pAnimWidth
+	tbuff += 4; // Skip _pAnimXOffset
 	LoadInt(&plr._plid);
 	LoadInt(&plr._pvid);
 
@@ -391,7 +390,7 @@ static void LoadPlayer(int pnum)
 	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillHotKey), plr._pAltMoveSkillHotKey);
 	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillTypeHotKey), plr._pAltMoveSkillTypeHotKey);
 
-	CopyBytes(tbuff, lengthof(plr._pSkillLvl), plr._pSkillLvl);
+	CopyBytes(tbuff, lengthof(plr._pSkillLvlBase), plr._pSkillLvlBase);
 	CopyBytes(tbuff, lengthof(plr._pSkillActivity), plr._pSkillActivity);
 	LoadInts(plr._pSkillExp, lengthof(plr._pSkillExp));
 	LoadInt64(&plr._pMemSkills);
@@ -407,15 +406,6 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pMaxHPBase);
 	LoadInt(&plr._pManaBase);
 	LoadInt(&plr._pMaxManaBase);
-
-	LoadInt(&plr._pStrength);
-	LoadInt(&plr._pMagic);
-	LoadInt(&plr._pDexterity);
-	LoadInt(&plr._pVitality);
-	LoadInt(&plr._pHitPoints);
-	LoadInt(&plr._pMaxHP);
-	LoadInt(&plr._pMana);
-	LoadInt(&plr._pMaxMana);
 
 	LoadInt(&plr._pVar1);
 	LoadInt(&plr._pVar2);
@@ -460,6 +450,15 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pGold);
 
 	/*Skip to Calc
+	tbuff += 4; // _pStrength
+	tbuff += 4; // _pMagic
+	tbuff += 4; // _pDexterity
+	tbuff += 4; // _pVitality
+	tbuff += 4; // _pHitPoints
+	tbuff += 4; // _pMaxHP
+	tbuff += 4; // _pMana
+	tbuff += 4; // _pMaxMana
+	tbuff += 64; // _pSkillLvl
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
@@ -488,7 +487,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // _pIFlags
 	tbuff += 4; // _pIFlags2
 	tbuff += 4; // _pIGetHit
-	tbuff += 1; // _pISplLvlAdd
+	tbuff += 1; // _pAlign_CB
 	tbuff += 1; // _pIArrowVelBonus
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
@@ -539,21 +538,18 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->_moldy);
 	LoadInt(&mon->_mxoff);
 	LoadInt(&mon->_myoff);
-	LoadInt(&mon->_mxvel);
-	LoadInt(&mon->_myvel);
 	LoadInt(&mon->_mdir);
 	LoadInt(&mon->_menemy);
 	LoadByte(&mon->_menemyx);
 	LoadByte(&mon->_menemyy);
 	LoadByte(&mon->_mListener);
-	tbuff += 1; // Alignment
+	LoadByte(&mon->_mDelFlag);
 
 	tbuff += 4; // Skip pointer _mAnimData
 	tbuff += 4; // Skip _mAnimFrameLen
 	LoadInt(&mon->_mAnimCnt);
-	LoadInt(&mon->_mAnimLen);
+	tbuff += 4; // Skip _mAnimLen
 	LoadInt(&mon->_mAnimFrame);
-	LoadInt(&mon->_mDelFlag);
 	LoadInt(&mon->_mVar1);
 	LoadInt(&mon->_mVar2);
 	LoadInt(&mon->_mVar3);
@@ -577,7 +573,7 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->leader);
 	LoadByte(&mon->leaderflag);
 	LoadByte(&mon->packsize);
-	LoadByte(&mon->falign_CB); // Alignment
+	LoadByte(&mon->_mvid);
 
 	LoadByte(&mon->_mLevel);
 	LoadByte(&mon->_mSelFlag);
@@ -632,12 +628,12 @@ static void LoadMissile(int mi)
 	LoadByte(&mis->_miFlags);
 	LoadByte(&mis->_miResist);
 	LoadByte(&mis->_miAnimType);
-	LoadInt(&mis->_miAnimFlag);
+	tbuff += 4; // Skip _miAnimFlag
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
-	LoadInt(&mis->_miAnimLen);
-	LoadInt(&mis->_miAnimWidth);
-	LoadInt(&mis->_miAnimXOffset);
+	tbuff += 4; // Skip _miAnimLen
+	tbuff += 4; // Skip _miAnimWidth
+	tbuff += 4; // Skip _miAnimXOffset
 	LoadInt(&mis->_miAnimCnt);
 	LoadInt(&mis->_miAnimAdd);
 	LoadInt(&mis->_miAnimFrame);
@@ -702,7 +698,7 @@ static void LoadObject(int oi, bool full)
 
 	LoadByte(&os->_oDoorFlag);
 	LoadByte(&os->_oSelFlag);
-	LoadByte(&os->_oTrapFlag);
+	LoadByte(&os->_oTrapChance);
 	tbuff += 1; // Alignment
 
 	LoadInt(&os->_oPreFlag);
@@ -802,16 +798,14 @@ static void LoadLevelData(bool full)
 			static_assert(MAXMISSILES <= UCHAR_MAX, "LoadLevelData handles missile-ids as bytes.");
 			for (i = 0; i < MAXMISSILES; i++)
 				LoadByte(&missileactive[i]);
-			for (i = 0; i < MAXMISSILES; i++)
-				LoadByte(&missileavail[i]);
 			for (i = 0; i < nummissiles; i++)
 				LoadMissile(missileactive[i]);
 		}
 		static_assert(MAXOBJECTS <= UCHAR_MAX, "LoadLevelData handles object-ids as bytes.");
 		for (i = 0; i < MAXOBJECTS; i++)
 			LoadByte(&objectactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			LoadByte(&objectavail[i]);
+//		for (i = 0; i < MAXOBJECTS; i++)
+//			LoadByte(&objectavail[i]);
 		for (i = 0; i < numobjects; i++)
 			LoadObject(objectactive[i], full);
 		// run in a separate loop because objects (e.g. crux) might depend on each other
@@ -821,8 +815,6 @@ static void LoadLevelData(bool full)
 	static_assert(MAXITEMS <= UCHAR_MAX, "LoadLevelData handles item-ids as bytes.");
 	for (i = 0; i < MAXITEMS; i++)
 		LoadByte(&itemactive[i]);
-	for (i = 0; i < MAXITEMS; i++)
-		LoadByte(&itemavail[i]);
 	for (i = 0; i < numitems; i++)
 		LoadItem(itemactive[i]);
 
@@ -866,6 +858,8 @@ void LoadGame()
 		app_fatal("Invalid save file");
 	// load game-info
 	LoadInt32(&gdwGameLogicTurn);
+	// assert(gbNetUpdateRate == 1);
+	gdwLastGameTurn = gdwGameLogicTurn;
 	LoadInt32(&sgbSentThisCycle);
 	LoadInt(&i);
 	gnDifficulty = (i >> 8) & 0xFF;
@@ -903,8 +897,7 @@ void LoadGame()
 	LoadInt(&gnReturnLvl);
 	LoadByte(&gbTownWarps);
 	LoadByte(&gbWaterDone);
-	LoadByte(&gbDungMsgs);
-	LoadByte(&gbDungMsgs2);
+	tbuff += 2; // Alignment
 	LoadInt32(&guLvlVisited);
 	// load meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
@@ -956,9 +949,8 @@ void LoadGame()
 	InitAutomapScale();
 	//ResyncQuests();
 
-	//RedoPlayerLight();
+	//RedoLightAndVision();
 	//ProcessLightList();
-	//RedoPlayerVision();
 	//ProcessVisionList();
 
 	SyncMissilesAnim();
@@ -988,7 +980,8 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iMinStr);
 	SaveByte(&is->_iMinMag);
 	SaveByte(&is->_iMinDex);
-	tbuff += 3; // Alignment
+	SaveByte(&is->_iFloorFlag);
+	tbuff += 2; // Alignment
 	SaveInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
@@ -1087,16 +1080,14 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._poldy);
 	SaveInt(&plr._pxoff);
 	SaveInt(&plr._pyoff);
-	SaveInt(&plr._pxvel);
-	SaveInt(&plr._pyvel);
 	SaveInt(&plr._pdir);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
 	SaveInt(&plr._pAnimCnt);
-	SaveInt(&plr._pAnimLen);
+	tbuff += 4; // Skip _pAnimLen
 	SaveInt(&plr._pAnimFrame);
-	SaveInt(&plr._pAnimWidth);
-	SaveInt(&plr._pAnimXOffset);
+	tbuff += 4; // Skip _pAnimWidth
+	tbuff += 4; // Skip _pAnimXOffset
 	SaveInt(&plr._plid);
 	SaveInt(&plr._pvid);
 
@@ -1120,7 +1111,7 @@ static void SavePlayer(int pnum)
 	CopyBytes(plr._pAltMoveSkillHotKey, lengthof(plr._pAltMoveSkillHotKey), tbuff);
 	CopyBytes(plr._pAltMoveSkillTypeHotKey, lengthof(plr._pAltMoveSkillTypeHotKey), tbuff);
 
-	CopyBytes(plr._pSkillLvl, lengthof(plr._pSkillLvl), tbuff);
+	CopyBytes(plr._pSkillLvlBase, lengthof(plr._pSkillLvlBase), tbuff);
 	CopyBytes(plr._pSkillActivity, lengthof(plr._pSkillActivity), tbuff);
 	SaveInts(plr._pSkillExp, lengthof(plr._pSkillExp));
 	SaveInt64(&plr._pMemSkills);
@@ -1136,15 +1127,6 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pMaxHPBase);
 	SaveInt(&plr._pManaBase);
 	SaveInt(&plr._pMaxManaBase);
-
-	SaveInt(&plr._pStrength);
-	SaveInt(&plr._pMagic);
-	SaveInt(&plr._pDexterity);
-	SaveInt(&plr._pVitality);
-	SaveInt(&plr._pHitPoints);
-	SaveInt(&plr._pMaxHP);
-	SaveInt(&plr._pMana);
-	SaveInt(&plr._pMaxMana);
 
 	SaveInt(&plr._pVar1);
 	SaveInt(&plr._pVar2);
@@ -1189,6 +1171,15 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pGold);
 
 	/*Skip to Calc
+	tbuff += 4; // _pStrength
+	tbuff += 4; // _pMagic
+	tbuff += 4; // _pDexterity
+	tbuff += 4; // _pVitality
+	tbuff += 4; // _pHitPoints
+	tbuff += 4; // _pMaxHP
+	tbuff += 4; // _pMana
+	tbuff += 4; // _pMaxMana
+	tbuff += 64; // _pSkillLvl
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
@@ -1217,7 +1208,7 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // _pIFlags
 	tbuff += 4; // _pIFlags2
 	tbuff += 4; // _pIGetHit
-	tbuff += 1; // _pISplLvlAdd
+	tbuff += 1; // _pAlign_CB
 	tbuff += 1; // _pIArrowVelBonus
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
@@ -1242,10 +1233,21 @@ static void SavePlayer(int pnum)
 	// Omit pointer alignment
 }
 
-static void SaveMonster(int mnum)
+static void SaveMonster(int mnum, bool full)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
+	if (!full) {
+		// reset charging and stoned monsters, because the missiles are not saved
+		if (mon->_mmode == MM_STONE) {
+			mon->_mmode = mon->_mVar3;
+		} else if (mon->_mmode == MM_CHARGE) {
+			mon->_mmode = MM_STAND;
+			// TODO: set mVar1 and mVar2?
+			// mon->_mVar1 = MM_CHARGE; // STAND_PREV_MODE
+			// mon->_mVar2 = ...;
+		}
+	}
 	SaveInt(&mon->_mmode);
 	SaveInt(&mon->_msquelch);
 	SaveByte(&mon->_mMTidx);
@@ -1263,21 +1265,18 @@ static void SaveMonster(int mnum)
 	SaveInt(&mon->_moldy);
 	SaveInt(&mon->_mxoff);
 	SaveInt(&mon->_myoff);
-	SaveInt(&mon->_mxvel);
-	SaveInt(&mon->_myvel);
 	SaveInt(&mon->_mdir);
 	SaveInt(&mon->_menemy);
 	SaveByte(&mon->_menemyx);
 	SaveByte(&mon->_menemyy);
 	SaveByte(&mon->_mListener);
-	tbuff += 1; // Alignment
+	SaveByte(&mon->_mDelFlag);
 
 	tbuff += 4; // Skip pointer _mAnimData
 	tbuff += 4; // Skip _mAnimFrameLen
 	SaveInt(&mon->_mAnimCnt);
-	SaveInt(&mon->_mAnimLen);
+	tbuff += 4; // Skip _mAnimLen
 	SaveInt(&mon->_mAnimFrame);
-	SaveInt(&mon->_mDelFlag);
 	SaveInt(&mon->_mVar1);
 	SaveInt(&mon->_mVar2);
 	SaveInt(&mon->_mVar3);
@@ -1301,7 +1300,7 @@ static void SaveMonster(int mnum)
 	SaveByte(&mon->leader);
 	SaveByte(&mon->leaderflag);
 	SaveByte(&mon->packsize);
-	SaveByte(&mon->falign_CB); // Alignment
+	SaveByte(&mon->_mvid);
 
 	SaveByte(&mon->_mLevel);
 	SaveByte(&mon->_mSelFlag);
@@ -1354,12 +1353,12 @@ static void SaveMissile(int mi)
 	SaveByte(&mis->_miFlags);
 	SaveByte(&mis->_miResist);
 	SaveByte(&mis->_miAnimType);
-	SaveInt(&mis->_miAnimFlag);
+	tbuff += 4; // Skip _miAnimFlag
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
-	SaveInt(&mis->_miAnimLen);
-	SaveInt(&mis->_miAnimWidth);
-	SaveInt(&mis->_miAnimXOffset);
+	tbuff += 4; // Skip _miAnimLen
+	tbuff += 4; // Skip _miAnimWidth
+	tbuff += 4; // Skip _miAnimXOffset
 	SaveInt(&mis->_miAnimCnt);
 	SaveInt(&mis->_miAnimAdd);
 	SaveInt(&mis->_miAnimFrame);
@@ -1424,7 +1423,7 @@ static void SaveObject(int oi)
 
 	SaveByte(&os->_oDoorFlag);
 	SaveByte(&os->_oSelFlag);
-	SaveByte(&os->_oTrapFlag);
+	SaveByte(&os->_oTrapChance);
 	tbuff += 1; // Alignment
 
 	SaveInt(&os->_oPreFlag);
@@ -1498,26 +1497,22 @@ static void SaveLevelData(bool full)
 		for (i = 0; i < MAXMONSTERS; i++)
 			SaveInt(&monstactive[i]);
 		for (i = 0; i < nummonsters; i++)
-			SaveMonster(monstactive[i]);
+			SaveMonster(monstactive[i], full);
 		if (full) {
 			for (i = 0; i < MAXMISSILES; i++)
 				SaveByte(&missileactive[i]);
-			for (i = 0; i < MAXMISSILES; i++)
-				SaveByte(&missileavail[i]);
 			for (i = 0; i < nummissiles; i++)
 				SaveMissile(missileactive[i]);
 		}
 		for (i = 0; i < MAXOBJECTS; i++)
 			SaveByte(&objectactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			SaveByte(&objectavail[i]);
+//		for (i = 0; i < MAXOBJECTS; i++)
+//			SaveByte(&objectavail[i]);
 		for (i = 0; i < numobjects; i++)
 			SaveObject(objectactive[i]);
 	}
 	for (i = 0; i < MAXITEMS; i++)
 		SaveByte(&itemactive[i]);
-	for (i = 0; i < MAXITEMS; i++)
-		SaveByte(&itemavail[i]);
 	for (i = 0; i < numitems; i++)
 		SaveItemData(&items[itemactive[i]]);
 	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
@@ -1543,12 +1538,14 @@ void SaveGame()
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 14004 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
+	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 13964 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
 	// initial
 	i = SAVE_INITIAL;
 	SaveInt(&i);
 	// save game-info
 	SaveInt32(&gdwGameLogicTurn);
+	assert(gdwLastGameTurn == gdwGameLogicTurn ||
+		((gdwLastGameTurn + 1) == gdwGameLogicTurn && gbNetUpdateRate == 1));
 	SaveInt32(&sgbSentThisCycle);
 	i = (gnDifficulty << 8) | currLvl._dLevelIdx;
 	SaveInt(&i);
@@ -1584,8 +1581,7 @@ void SaveGame()
 	SaveInt(&gnReturnLvl);
 	SaveByte(&gbTownWarps);
 	SaveByte(&gbWaterDone);
-	SaveByte(&gbDungMsgs);
-	SaveByte(&gbDungMsgs2);
+	tbuff += 2; // Alignment
 	SaveInt32(&guLvlVisited);
 	// save meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
@@ -1593,12 +1589,12 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 4 + MAXMONSTERS * 196 + 2 * MAXMISSILES
-	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + 2 * MAXITEMS
+	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
+	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 4 + MAXMONSTERS * 196 + 2 * MAXMISSILES
-	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100) + 2 * MAXITEMS
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
+	 + MAXMISSILES * 176 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);

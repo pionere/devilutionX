@@ -840,7 +840,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, vo
 
     while (len >= 16) {
         len -= 16;
-        __m128i aa = _mm_loadu_si128(ptr);
+        __m128i aa = _mm_loadu_si128((const __m128i*)ptr);
         __m128i bb = _mm_mulhi_epi16(aa, mm);
         _mm_storeu_si128(ptr, bb);
         ptr += 8;
@@ -875,7 +875,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, voi
 
     while (len >= 32) {
         len -= 32;
-        __m256i aa = _mm256_loadu_si256(ptr);
+        __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
         __m256i bb = _mm256_mulhi_epi16(aa, mm);
         _mm_storeu_si256(ptr, bb);
         ptr += 16;
@@ -925,7 +925,7 @@ static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
 
     while (len >= 16) {
         len -= 16;
-        __m128i aa = _mm_loadu_si128(ptr);
+        __m128i aa = _mm_loadu_si128((const __m128i*)ptr);
         __m128i bb = _mm_mulhi_epi16(aa, mm);
         _mm_storeu_si128(ptr, bb);
         ptr += 8;
@@ -961,7 +961,7 @@ static SDL_bool _Eff_volume_s16lbs_AVX(void* stream, unsigned len, void* udata)
 
     while (len >= 32) {
         len -= 32;
-        __m256i aa = _mm256_loadu_si256(ptr);
+        __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
         __m256i bb = _mm256_mulhi_epi16(aa, mm);
         _mm_storeu_si256(ptr, bb);
         ptr += 16;

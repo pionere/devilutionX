@@ -1216,6 +1216,15 @@ void InitVision()
 	memset(TransList, 0, sizeof(TransList));
 }
 
+void RedoLightAndVision()
+{
+	//if (deltaload)
+	//	return;
+
+	gbDolighting = true;
+	_gbDovision = true;
+}
+
 int AddVision(int x, int y, int r, bool mine)
 {
 	LightListStruct *vis;

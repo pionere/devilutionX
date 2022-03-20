@@ -76,6 +76,7 @@ option(NOSOUND "Disable sound support" OFF)
 option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
 option(NONET "Disable network support" OFF)
+cmake_dependent_option(INET_MODE "Enable validation of network messages" OFF "NOT NONET" OFF)
 cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
 cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
 cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
@@ -625,6 +626,7 @@ foreach(
   STREAM_ALL_AUDIO
   NOWIDESCREEN
   NONET
+  INET_MODE
   NETENCRYPT
   ADAPTIVE_NETUPDATE
   NOHOSTING
@@ -1151,6 +1153,7 @@ foreach(
   STREAM_ALL_AUDIO
   NOWIDESCREEN
   NONET
+  INET_MODE
   NETENCRYPT
   ADAPTIVE_NETUPDATE
   NOHOSTING

@@ -17,9 +17,7 @@ public:
 	void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
 	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
-//#ifdef ADAPTIVE_NETUPDATE
 	unsigned SNetGetTurnsInTransit();
-//#endif
 	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) { };
 	void SNetUnregisterEventHandler(int evtype) { };
 	void SNetLeaveGame(int reason);

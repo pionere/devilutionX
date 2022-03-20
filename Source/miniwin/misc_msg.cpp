@@ -12,7 +12,6 @@
 #include "controls/touch.h"
 #include "utils/display.h"
 #include "utils/sdl_compat.h"
-#include "utils/stubs.h"
 
 #ifdef __SWITCH__
 #include "platform/switch/docking.h"

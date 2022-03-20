@@ -24,7 +24,7 @@ int cursW;
 /** Pixel height of the current cursor image */
 int cursH;
 /** Current highlighted monster */
-int pcursmonst = -1;
+int pcursmonst = MON_NONE;
 /** Cursor images CEL */
 BYTE *pCursCels;
 
@@ -174,7 +174,7 @@ void InitLevelCursor()
 	NewCursor(myplr._pHoldItem._itype == ITYPE_NONE ? CURSOR_HAND : myplr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
 	cursmx = ViewX;
 	cursmy = ViewY;
-	pcursmonst = -1;
+	pcursmonst = MON_NONE;
 	pcursobj = OBJ_NONE;
 	pcursitem = ITEM_NONE;
 	pcursplr = PLR_NONE;
@@ -233,9 +233,9 @@ void CheckCursMove()
 	// Predict the next frame when walking to avoid input jitter
 	if (ScrollInfo._sdir != SDIR_NONE) {
 		fx = myplr._pVar6 / 256; // WALK_XOFF
-		fx -= (myplr._pVar6 + myplr._pxvel) / 256;
+		fx -= (myplr._pVar6 + myplr._pVar4) / 256; // WALK_XOFF + WALK_XVEL
 		fy = myplr._pVar7 / 256; // WALK_YOFF
-		fy -= (myplr._pVar7 + myplr._pyvel) / 256;
+		fy -= (myplr._pVar7 + myplr._pVar5) / 256; // WALK_YOFF + WALK_YVEL
 		sx -= fx;
 		sy -= fy;
 	}
@@ -275,7 +275,7 @@ void CheckCursMove()
 		my = MAXDUNY - 1 - DBORDERY;
 
 	pcurstemp = pcursmonst;
-	pcursmonst = -1;
+	pcursmonst = MON_NONE;
 	pcursobj = OBJ_NONE;
 	pcursitem = ITEM_NONE;
 	//if (pcursinvitem != INVITEM_NONE) {
@@ -285,9 +285,9 @@ void CheckCursMove()
 	pcursplr = PLR_NONE;
 	pcurstrig = -1;
 
-	if (myplr._pInvincible | gbDoomflag | gbSkillListFlag | gbQtextflag)
-		return;
-	if (stextflag != STORE_NONE)
+	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");	
+	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
+	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
 		return;
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		cursmx = mx;
@@ -319,7 +319,7 @@ void CheckCursMove()
 
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "Borders are too small to skip the OOB checks.");
 	if (currLvl._dType != DTYPE_TOWN) {
-		if (pcurstemp != -1 /*&& pcurstemp >= MAX_MINIONS*/
+		if (pcurstemp != MON_NONE /*&& pcurstemp >= MAX_MINIONS*/
 		 && monsters[pcurstemp]._mhitpoints >= (1 << 6)
 		 && !(monsters[pcurstemp]._mFlags & MFLAG_HIDDEN)) {
 			if (!flipflag) {
@@ -391,7 +391,7 @@ void CheckCursMove()
 					pcursmonst = mi;
 				}
 			}
-			if (pcursmonst != -1) {
+			if (pcursmonst != MON_NONE) {
 				return;
 			}
 		}
@@ -464,9 +464,9 @@ void CheckCursMove()
 				pcursmonst = mi;
 			}
 		}
-		if (pcursmonst != -1) {
+		if (pcursmonst != MON_NONE) {
 			if (pcursmonst < MAX_MINIONS || monsters[pcursmonst]._mFlags & MFLAG_HIDDEN)
-				pcursmonst = -1;
+				pcursmonst = MON_NONE;
 			else
 				return;
 		}
@@ -498,9 +498,9 @@ void CheckCursMove()
 			cursmx = mx + 1;
 			cursmy = my + 1;
 		}
-		if (pcursmonst != -1) {
+		if (pcursmonst != MON_NONE) {
 			//if (/*pcursmonst < MAX_MINIONS ||*/!towners[pcursmonst]._tSelFlag)
-			//	pcursmonst = -1;
+			//	pcursmonst = MON_NONE;
 			//else
 				return;
 		}

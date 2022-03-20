@@ -5,7 +5,6 @@
 
 #include "controls/controller_motion.h"
 #include "controls/plrctrls.h"
-#include "utils/stubs.h"
 #include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -108,9 +107,10 @@ ControllerButton Joystick::ToControllerButton(const SDL_Event &event)
 
 int Joystick::ToSdlJoyButton(ControllerButton button)
 {
-	if (button == ControllerButton_AXIS_TRIGGERLEFT || button == ControllerButton_AXIS_TRIGGERRIGHT)
-		UNIMPLEMENTED();
 	switch (button) {
+	case ControllerButton_NONE:
+	case ControllerButton_IGNORE:
+		break;
 #ifdef JOY_BUTTON_A
 	case ControllerButton_BUTTON_A:
 		return JOY_BUTTON_A;
@@ -167,7 +167,12 @@ int Joystick::ToSdlJoyButton(ControllerButton button)
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return JOY_BUTTON_DPAD_RIGHT;
 #endif
+	case ControllerButton_AXIS_TRIGGERLEFT:
+	case ControllerButton_AXIS_TRIGGERRIGHT:
+		ASSUME_UNREACHABLE
+		break;
 	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	return -1;

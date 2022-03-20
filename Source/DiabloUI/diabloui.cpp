@@ -1,6 +1,5 @@
 #include "diabloui.h"
 
-#include "utils/stubs.h"
 #include "utils/utf8.h"
 #include <string>
 
@@ -468,7 +467,7 @@ void UiInitialize()
 	LoadArtFonts();
 	if (ArtCursor.surface != NULL) {
 		if (SDL_ShowCursor(SDL_DISABLE) < 0) {
-			sdl_fatal(ERR_SDL_UI_CURSOR_DISABLE);
+			sdl_error(ERR_SDL_UI_CURSOR_DISABLE);
 		}
 	}
 }

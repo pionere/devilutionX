@@ -166,30 +166,12 @@ static bool TFit_Obj5(BYTE tv)
 
 static bool TFit_SkelRoom(BYTE tv)
 {
-	int i;
-
-	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(mapMonTypes[i].cmType)) {
-			// themeVar1 = i;
-			return TFit_Obj5(tv);
-		}
-	}
-
-	return false;
+	return numSkelTypes != 0 && TFit_Obj5(tv);
 }
 
 static bool TFit_GoatShrine(BYTE tv)
 {
-	int i;
-
-	for (i = 0; i < nummtypes; i++) {
-		if (IsGoat(mapMonTypes[i].cmType)) {
-			themeVar1 = i;
-			return TFit_Obj5(tv);
-		}
-	}
-
-	return false;
+	return numGoatTypes != 0 && TFit_Obj5(tv);
 }
 
 static bool CheckThemeObj3(int x, int y, BYTE tv, int rndfrq)
@@ -505,7 +487,7 @@ static void PlaceThemeMonsts(BYTE tv, int rndfrq)
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
 				if (random_(0, rndfrq) == 0) {
-					AddMonster(xx, yy, random_(0, 8), mtype, true);
+					AddMonster(xx, yy, random_(0, NUM_DIRS), mtype, true);
 				}
 			}
 		}
@@ -589,8 +571,14 @@ static void Theme_MonstPit(BYTE tv)
 			}
 		}
 	}
-	CreateRndItem(xx, yy, true, false, true);
+	CreateRndItem(xx, yy, CFDQ_GOOD, ICM_DELTA);
 	PlaceThemeMonsts(tv, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
+}
+
+static void AddSkelMonster(int x, int y)
+{
+	assert(PosOkMonst(-1, x, y));
+	AddMonster(x, y, random_(11, NUM_DIRS), mapSkelTypes[random_(136, numSkelTypes)], true);
 }
 
 /**
@@ -600,11 +588,13 @@ static void Theme_MonstPit(BYTE tv)
  */
 static void Theme_SkelRoom(BYTE tv)
 {
-	int xx, yy, i;
+	int xx, yy;
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	char monstrnd;
 
-	if (!TFit_SkelRoom(tv))
+	// assert(numSkelTypes != 0);
+	//if (!TFit_SkelRoom(tv))
+	if (!TFit_Obj5(tv))
 		return;
 
 	xx = themex;
@@ -613,47 +603,40 @@ static void Theme_SkelRoom(BYTE tv)
 	AddObject(OBJ_SKFIRE, xx, yy);
 
 	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy - 1, DIR_NONE);
+		AddSkelMonster(xx - 1, yy - 1);
 	} else {
 		AddObject(OBJ_BANNERL, xx - 1, yy - 1);
 	}
 
-	i = PreSpawnSkeleton();
-	SpawnSkeleton(i, xx, yy - 1, DIR_NONE);
+	AddSkelMonster(xx, yy - 1);
 
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy - 1, DIR_NONE);
+		AddSkelMonster(xx + 1, yy - 1);
 	} else {
 		AddObject(OBJ_BANNERR, xx + 1, yy - 1);
 	}
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy, DIR_NONE);
+		AddSkelMonster(xx - 1, yy);
 	} else {
 		AddObject(OBJ_BANNERM, xx - 1, yy);
 	}
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy, DIR_NONE);
+		AddSkelMonster(xx + 1, yy);
 	} else {
 		AddObject(OBJ_BANNERM, xx + 1, yy);
 	}
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy + 1, DIR_NONE);
+		AddSkelMonster(xx - 1, yy + 1);
 	} else {
 		AddObject(OBJ_BANNERR, xx - 1, yy + 1);
 	}
 
-	i = PreSpawnSkeleton();
-	SpawnSkeleton(i, xx, yy + 1, DIR_NONE);
+	AddSkelMonster(xx, yy + 1);
 
 	if (random_(0, monstrnd) != 0) {
-		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy + 1, DIR_NONE);
+		AddSkelMonster(xx + 1, yy + 1);
 	} else {
 		AddObject(OBJ_BANNERL, xx + 1, yy + 1);
 	}
@@ -685,9 +668,9 @@ static void Theme_Treasure(BYTE tv)
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (random_(0, treasrnd) == 0) {
-					CreateTypeItem(xx, yy, false, ITYPE_GOLD, IMISC_NONE, false, true);
+					CreateTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_GOLD, IMISC_NONE, ICM_DELTA);
 				} else if (random_(0, treasrnd) == 0) {
-					CreateRndItem(xx, yy, false, false, true);
+					CreateRndItem(xx, yy, CFDQ_NORMAL, ICM_DELTA);
 				}
 			}
 		}
@@ -827,16 +810,16 @@ static void Theme_ArmorStand(BYTE tv)
  */
 static void Theme_GoatShrine(BYTE tv)
 {
-	int xx, yy;
+	int i, xx, yy;
 
 	if (!TFit_GoatShrine(tv))
 		return;
 	AddObject(OBJ_GOATSHRINE, themex, themey);
-	for (yy = themey - 1; yy <= themey + 1; yy++) {
-		for (xx = themex - 1; xx <= themex + 1; xx++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]] && (xx != themex || yy != themey)) {
-				AddMonster(xx, yy, DIR_SW, themeVar1, true);
-			}
+	for (i = 0; i < lengthof(offset_x); i++) {
+		xx = themex + offset_x[i];
+		yy = themey + offset_y[i];
+		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
+			AddMonster(xx, yy, OPPOSITE(i), mapGoatTypes[0], true);
 		}
 	}
 }
