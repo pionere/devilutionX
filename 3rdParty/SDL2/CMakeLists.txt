@@ -64,6 +64,12 @@ endif()
 
 include(FetchContent_MakeAvailableExcludeFromAll)
 include(FetchContent)
+if(IOS)
+FetchContent_Declare(SDL2
+    GIT_REPOSITORY https://github.com/pionere/SDL.git
+    GIT_TAG 6d5592a2018990235471d15de65245348710eade
+)
+else()
 FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.0.18.tar.gz
     #URL_HASH MD5=647e2890385e5f13b9aeee2e27fa26e7
@@ -72,6 +78,7 @@ FetchContent_Declare(SDL2
     GIT_REPOSITORY https://github.com/pionere/SDL.git
     GIT_TAG 82867af6dee997fd34c744e28db0fb2a7000524a
 )
+endif()
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
 
 if(TARGET SDL2::SDL2-static)
