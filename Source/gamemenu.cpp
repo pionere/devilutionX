@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 // Forward-declare menu handlers, used by the global menu structs below.
 static void gamemenu_previous(bool bActivate);
 static void gamemenu_new_game(bool bActivate);
-static void gamemenu_quit_game(bool bActivate);
+static void gamemenu_exit_game(bool bActivate);
 static void gamemenu_load_game(bool bActivate);
 static void gamemenu_save_game(bool bActivate);
 static void gamemenu_restart_town(bool bActivate);
@@ -28,7 +28,7 @@ static TMenuItem sgSingleMenu[] = {
 	{ "Settings",  &gamemenu_settings,  GMENU_ENABLED, 0, 0 },
 	{ "New Game",  &gamemenu_new_game,  GMENU_ENABLED, 0, 0 },
 	{ "Load Game", &gamemenu_load_game, GMENU_ENABLED, 0, 0 },
-	{ "Quit Game", &gamemenu_quit_game, GMENU_ENABLED, 0, 0 },
+	{ "Exit Game", &gamemenu_exit_game, GMENU_ENABLED, 0, 0 },
 	// clang-format on
 };
 /** Contains the game menu items of the multi player menu. */
@@ -38,7 +38,7 @@ static TMenuItem sgMultiMenu[] = {
 	{ "Settings",        &gamemenu_settings,     GMENU_ENABLED, 0, 0 },
 	{ "New Game",        &gamemenu_new_game,     GMENU_ENABLED, 0, 0 },
 	{ "Restart In Town", &gamemenu_restart_town, GMENU_ENABLED, 0, 0 },
-	{ "Quit Game",       &gamemenu_quit_game,    GMENU_ENABLED, 0, 0 },
+	{ "Exit Game",       &gamemenu_exit_game,    GMENU_ENABLED, 0, 0 },
 	// clang-format on
 };
 /** Contains the menu items of the settings menu. */
@@ -104,7 +104,7 @@ static void gamemenu_new_game(bool bActivate)
 	gbRunGame = false;
 }
 
-static void gamemenu_quit_game(bool bActivate)
+static void gamemenu_exit_game(bool bActivate)
 {
 	gamemenu_new_game(bActivate);
 	gbRunGameResult = false;
