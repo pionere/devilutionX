@@ -35,6 +35,10 @@ jobs:
       shell: bash
       run: Packaging/ps4/build.sh
 
+    - name: Show content of workspace
+      run: find $RUNNER_WORKSPACE
+      shell: bash
+
     - name: Upload-Package
       uses: actions/upload-artifact@v2
       with:
