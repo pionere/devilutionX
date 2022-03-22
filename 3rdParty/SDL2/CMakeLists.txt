@@ -42,8 +42,11 @@ set(SDL_BLIT_A OFF) # requires fork of SDL2
 set(SDL_BLIT_N OFF) # requires fork of SDL2
 set(SDL_BLIT_N_RGB565 OFF) # requires fork of SDL2
 set(SDL_BLIT_AUTO OFF) # requires fork of SDL2
+set(SDL_BLIT_SLOW OFF) # requires fork of SDL2
 set(SDL_RLE_ACCEL OFF) # requires fork of SDL2
+set(SDL_BLIT_TRANSFORM OFF) # requires fork of SDL2
 set(SDL_YUV_FORMAT OFF) # requires fork of SDL2
+#set(SDL_RENDER_SW OFF) # requires fork of SDL2
 if(NOSOUND)
   set(SDL_AUDIO OFF)
 endif()
@@ -76,7 +79,7 @@ FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG 82867af6dee997fd34c744e28db0fb2a7000524a
+    GIT_TAG 2fba183c6ddf2396792b32b1bb39cec8a43da0ca
 )
 endif()
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
