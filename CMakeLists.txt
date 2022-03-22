@@ -156,6 +156,10 @@ if(NINTENDO_3DS)
   include(n3ds_defs)
 endif()
 
+if(PS4)
+  include(ps4_defs)
+endif()
+
 if(ANDROID)
   include(android_defs)
 endif()
