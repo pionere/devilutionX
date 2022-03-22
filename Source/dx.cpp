@@ -2,6 +2,25 @@
  * @file dx.cpp
  *
  * Implementation of functions setting up the graphics pipeline.
+ *
+ * game_logic -- DrawView --> back_surface (INDEX8, SCREEN + BORDER)
+ *
+ * SDL2 - upscale:
+ *   back_surface     -- Blit --> renderer_surface ( ?, SCREEN)
+ *
+ *   renderer_surface -- RenderPresent/SDL_UpdateTexture --> renderer_texture ( ?, SCREEN)
+ *
+ *   renderer_texture -- RenderPresent/SDL_RenderCopy --> renderer ( ?, SCREEN)
+ *
+ * SDL2 - standard:
+ *   back_surface     -- Blit --> window_surface
+ *
+ *   window_surface   -- RenderPresent/SDL_UpdateWindowSurface --> window
+ *
+ * SDL1:
+ *   back_surface     -- Blit --> video_surface
+ *
+ *   video_surface    -- RenderPresent/SDL_Flip --> window
  */
 #include "all.h"
 #include <config.h>
@@ -334,12 +353,12 @@ static void LimitFrameRate()
 
 void RenderPresent()
 {
-	SDL_Surface *surface = GetOutputSurface();
+	SDL_Surface* surface = GetOutputSurface();
 
 	if (gbWndActive) {
 #ifndef USE_SDL1
 		if (renderer != NULL) {
-			if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) { //pitch is 2560
+			if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) {
 				sdl_error(ERR_SDL_DX_UPDATE_TEXTURE);
 			}
 

@@ -41,7 +41,7 @@ set(SDL_BLIT_0 OFF) # requires fork of SDL2
 set(SDL_BLIT_A OFF) # requires fork of SDL2
 set(SDL_BLIT_N OFF) # requires fork of SDL2
 set(SDL_BLIT_N_RGB565 OFF) # requires fork of SDL2
-#set(SDL_BLIT_AUTO OFF) # requires fork of SDL2
+set(SDL_BLIT_AUTO OFF) # requires fork of SDL2
 set(SDL_RLE_ACCEL OFF) # requires fork of SDL2
 set(SDL_YUV_FORMAT OFF) # requires fork of SDL2
 if(NOSOUND)

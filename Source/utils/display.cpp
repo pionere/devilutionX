@@ -106,7 +106,7 @@ void RecreateDisplay(int width, int height)
 	if (renderer_texture != NULL)
 		SDL_DestroyTexture(renderer_texture);
 
-	renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+	renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING, width, height);
 	if (renderer_texture == NULL) {
 		sdl_error(ERR_SDL_RENDERER_TEXTURE);
 	}
