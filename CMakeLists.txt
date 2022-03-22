@@ -934,9 +934,14 @@ if(PS4)
   #add_custom_command(
   #  TARGET devilutionx_mpq POST_BUILD
   #  COMMAND ${CMAKE_COMMAND} -E copy ${DEVILUTIONX_MPQ} "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
+  if(NOT PROJECT_VERSION)
+    set(PROJECT_VERSION "1.0")
+  else()
+    message(STATUS "My project version '${PROJECT_VERSION}'")
+  endif()
   add_self(${BIN_TARGET})
   add_pkg(${BIN_TARGET} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
-    "DVLX00001" "DevilutionX" "v${PROJECT_VERSION}")
+    "DVLX00001" "DevilutionX" "${PROJECT_VERSION}")
 endif()
 
 if(NINTENDO_3DS)
