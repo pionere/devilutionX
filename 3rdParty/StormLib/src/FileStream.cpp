@@ -45,7 +45,13 @@ void SetLastError(DWORD dwErrCode)
 {
     nLastError = dwErrCode;
 }
+#if __ps4__
+typedef off_t off64_t;
+typedef stat stat64;
+#define lseek64 lseek
+#define ftruncate64 ftruncate
 #endif
+#endif /* !STORMLIB_WINDOWS */
 
 #ifdef FULL
 static DWORD StringToInt(const char * szString)
