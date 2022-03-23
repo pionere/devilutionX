@@ -952,7 +952,7 @@ if(PS4)
     "DVLX00001" "DevilutionX" "${PROJECT_VERSION}")
   #get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
   #add_dependencies(${APP_TARGET_PREFIX}_pkg mpq_files)
-  add_dependencies("${BIN_TARGET}.pkg" mpq_files)
+  add_dependencies(${BIN_TARGET} mpq_files)
 endif()
 
 if(NINTENDO_3DS)
