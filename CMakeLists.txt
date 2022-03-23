@@ -946,6 +946,8 @@ if(PS4)
   add_self(${BIN_TARGET})
   add_pkg(${BIN_TARGET} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
     "DVLX00001" "DevilutionX" "${PROJECT_VERSION}")
+  get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
+  add_dependencies(${APP_TARGET_PREFIX}_pkg mpq_files)
 endif()
 
 if(NINTENDO_3DS)
