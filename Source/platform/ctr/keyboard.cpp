@@ -45,10 +45,10 @@ void ctr_vkbdFlush()
 
 		if (button == SWKBD_BUTTON_CONFIRM) {
 			strncpy(event.outText, mybuf, event.maxLength);
-			continue;
+			//continue;
 		}
 
-		strncpy(event.outText, event.inText, event.maxLength);
+		//strncpy(event.outText, event.inText, event.maxLength);
 	}
 
 	eventCount = 0;
