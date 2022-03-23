@@ -14,4 +14,4 @@ cmake -S. -B"$BUILD_DIR" \
       "${CMAKE_ARGS}"
 
 cmake --build "$BUILD_DIR" -j $(getconf _NPROCESSORS_ONLN)
-mv "$BUILD_DIR/IV0001-DVLX00001_00-*.pkg" "$BUILD_DIR/devilutionx.pkg"
+mv "$BUILD_DIR"/IV0001-DVLX00001_00-*.pkg "$BUILD_DIR"/devilutionx.pkg
