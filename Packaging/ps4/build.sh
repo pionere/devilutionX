@@ -8,6 +8,8 @@ SCRIPTDIR="$(dirname "${SCRIPTDIR}")"
 
 echo "Scriptdir: ${SCRIPTDIR}, Args: ${CMAKE_ARGS}"
 
+cat "/opt/pacbrew/ps4/openorbis/cmake/ps4.cmake"
+
 cmake -S "${SCRIPTDIR}/../../" \
       -B build-ps4 \
       -DCMAKE_BUILD_TYPE=Release \

@@ -934,20 +934,12 @@ if(PS4)
   #add_custom_command(
   #  TARGET devilutionx_mpq POST_BUILD
   #  COMMAND ${CMAKE_COMMAND} -E copy ${DEVILUTIONX_MPQ} "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
-  #set(APP_MPQ_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
-  #if(NOT NOWIDESCREEN)
-  #  set(APP_MPQ_FILES ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq")
-  #endif()
-  #add_custom_target(mpq_files
-  #  COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
-  add_custom_command(
-    TARGET devilx_mpq POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq" "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
+  set(APP_MPQ_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
   if(NOT NOWIDESCREEN)
-    add_custom_command(
-      TARGET devilutionx_mpq POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq" "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
+    set(APP_MPQ_FILES ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq")
   endif()
+  add_custom_target(mpq_files
+    COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
   if(NOT PROJECT_VERSION)
     set(PROJECT_VERSION "1.0")
   endif()
