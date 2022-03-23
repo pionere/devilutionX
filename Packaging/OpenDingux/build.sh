@@ -92,7 +92,7 @@ strip_bin() {
 }
 
 build_debug() {
-	cmake_configure -DCMAKE_BUILD_TYPE=Debug -DASAN=OFF -DUBSAN=OFF -DCMAKE_CXX_FLAGS_DEBUG="-g -fno-omit-frame-pointer"
+	cmake_configure -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS_DEBUG="-g -fno-omit-frame-pointer"
 	cmake_build
 }
 

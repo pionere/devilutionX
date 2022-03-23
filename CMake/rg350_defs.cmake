@@ -1,5 +1,11 @@
+# Disable sanitizers. They're not supported out-of-the-box.
+set(ASAN OFF)
+set(UBSAN OFF)
+
+# General build options.
 set(USE_SDL1 ON)
-set(ZEROTIER OFF)
+#set(ZEROTIER OFF)
+# Disable system dependencies.
 set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 
 set(SDL1_VIDEO_MODE_BPP 8)

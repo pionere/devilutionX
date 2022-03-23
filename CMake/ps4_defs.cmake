@@ -1,12 +1,15 @@
-#set(DISCORD_INTEGRATION OFF)
-set(BUILD_TESTING OFF)
+# Disable sanitizers. They're not supported out-of-the-box.
 set(ASAN OFF)
 set(UBSAN OFF)
-SET(DISABLE_LTO ON)
+
+# General build options.
+set(DISABLE_LTO ON)
 set(NONET ON)
 set(ADAPTIVE_NETUPDATE OFF)
 set(NETENCRYPT OFF)
 set(TCPIP OFF)
+#set(DISCORD_INTEGRATION OFF)
+#set(BUILD_TESTING OFF)
 #set(NOEXIT ON)
 #set(BUILD_ASSETS_MPQ ON)
 
