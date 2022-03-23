@@ -938,8 +938,11 @@ if(PS4)
   if(NOT NOWIDESCREEN)
     set(APP_MPQ_FILES ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq")
   endif()
-  add_custom_target(mpq_files
-    COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
+  #add_custom_target(mpq_files
+  #  COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
+  install(FILES APP_MPQ_FILES
+    DESTINATION "${PROJECT_SOURCE_DIR}/Packaging/ps4"
+  )
   if(NOT PROJECT_VERSION)
     set(PROJECT_VERSION "1.0")
   endif()
