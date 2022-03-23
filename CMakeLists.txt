@@ -156,6 +156,10 @@ if(NINTENDO_3DS)
   include(n3ds_defs)
 endif()
 
+if(PS4)
+  include(ps4_defs)
+endif()
+
 if(ANDROID)
   include(android_defs)
 endif()
@@ -924,6 +928,23 @@ if(VITA)
     FILE Packaging/resources/devilutionx.mpq devilutionx.mpq
     FILE Packaging/resources/devilx.mpq devilx.mpq
   )
+endif()
+
+if(PS4)
+  set(APP_MPQ_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
+  if(NOT NOWIDESCREEN)
+    set(APP_MPQ_FILES ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq")
+  endif()
+  add_custom_target(mpq_files
+    COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
+  if(NOT PROJECT_VERSION)
+    set(PROJECT_VERSION "1.0")
+  endif()
+  add_self(${BIN_TARGET})
+  add_pkg(${BIN_TARGET} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
+    "DVLX00001" "DevilutionX" "${PROJECT_VERSION}")
+  get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
+  add_dependencies(${APP_TARGET_PREFIX}_pkg mpq_files)
 endif()
 
 if(NINTENDO_3DS)

@@ -301,6 +301,19 @@ make
 </details>
 
 
+<details><summary>PlayStation 4</summary>
+
+### Installing dependencies
+Install [PacBrew openorbis SDK](https://github.com/PacBrew/pacbrew-packages)
+
+### Compiling
+```console
+devilutionX$ ./Packaging/ps4/build.sh
+```
+[PlayStation 4 manual](docs/manual/platforms/ps4.md)
+</details>
+
+
 <details><summary>Haiku</summary>
 
 ### Installing dependencies on 32 bit Haiku
