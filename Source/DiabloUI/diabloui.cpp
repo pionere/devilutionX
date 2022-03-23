@@ -83,7 +83,7 @@ void UiInitList(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSel
 			gUiEditField = (UiEdit*)gUiItems[i];
 			SDL_SetTextInputRect(&gUiEditField->m_rect);
 #ifdef __SWITCH__
-			switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length, /*multiline=*/0);
+			switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
 #elif defined(__vita__)
 			vita_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
 #elif defined(__3DS__)
