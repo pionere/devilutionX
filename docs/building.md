@@ -239,7 +239,7 @@ DEVKITPRO=<path to devkit> Packaging/switch/build.sh
 
 The nro-file will be generated in the build folder. Test with an emulator (RyuJinx) or real hardware.
 
-[Nintendo Switch manual](docs/manual/platforms/switch.md)
+[Nintendo Switch manual](/docs/manual/platforms/switch.md)
 </details>
 
 <details><summary>Android</summary>
@@ -297,7 +297,7 @@ cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 make
 ```
-[PlayStation Vita manual](docs/manual/platforms/vita.md)
+[PlayStation Vita manual](/docs/manual/platforms/vita.md)
 </details>
 
 
@@ -310,7 +310,7 @@ Install [PacBrew openorbis SDK](https://github.com/PacBrew/pacbrew-packages)
 ```console
 devilutionX$ ./Packaging/ps4/build.sh
 ```
-[PlayStation 4 manual](docs/manual/platforms/ps4.md)
+[PlayStation 4 manual](/docs/manual/platforms/ps4.md)
 </details>
 
 
@@ -366,9 +366,9 @@ This prepares and uses the buildroot at `$HOME/buildroot-$PLATFORM-devilutionx`.
 
 End-user manuals are available here:
 
-* [RetroFW manual](docs/manual/platforms/retrofw.md)
-* [RG-350 manual](docs/manual/platforms/rg350.md)
-* [GKD350h manual](docs/manual/platforms/gkd350h.md)
+* [RetroFW manual](/docs/manual/platforms/retrofw.md)
+* [RG-350 manual](/docs/manual/platforms/rg350.md)
+* [GKD350h manual](/docs/manual/platforms/gkd350h.md)
 
 </details>
 
