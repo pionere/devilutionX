@@ -1,4 +1,5 @@
 # DevilutionX (Diablo 1) for Nintendo Switch
+DevilutionX is a source port of Diablo and Hellfire that strives to make it simple to run the game while providing engine improvements, bugfixes, and some optional quality of life features.
 
 ## Installation
 
