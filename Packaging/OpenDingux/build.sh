@@ -77,6 +77,7 @@ make_buildroot() {
 cmake_configure() {
 	cmake -S. -B"$BUILD_DIR" \
 		"-DTARGET_PLATFORM=$TARGET" \
+		-DCMAKE_VERBOSE_MAKEFILE=ON \
 		-DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}/usr/share/buildroot/toolchainfile.cmake" \
 		"${CMAKE_ARGS}" \
 		"$@"
