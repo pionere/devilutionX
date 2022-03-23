@@ -33,7 +33,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: Packaging/ps4/build.sh
+      run: Packaging/ps4/build.sh -DHELLFIRE=ON
 
     - name: Show content of workspace
       run: find $RUNNER_WORKSPACE
