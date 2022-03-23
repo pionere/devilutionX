@@ -934,7 +934,8 @@ if(PS4)
   #add_custom_command(
   #  TARGET devilutionx_mpq POST_BUILD
   #  COMMAND ${CMAKE_COMMAND} -E copy ${DEVILUTIONX_MPQ} "${PROJECT_SOURCE_DIR}/Packaging/ps4/")
-  set(APP_MPQ_FOLDER  "${CMAKE_BINARY_DIR}/mpqs")
+  #set(APP_MPQ_FOLDER  "${CMAKE_BINARY_DIR}/mpqs")
+  set(APP_MPQ_FOLDER  "${PROJECT_SOURCE_DIR}/Packaging/ps4")
   set(APP_MPQ_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
   if(NOT NOWIDESCREEN)
     set(APP_MPQ_FILES ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq")
