@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
 
-declare -r CMAKE_ARGS="$1"
-
 set -e
-SCRIPTDIR="${BASH_SOURCE[0]}"
-SCRIPTDIR="$(dirname "${SCRIPTDIR}")"
 
-echo "Scriptdir: ${SCRIPTDIR}, Args: ${CMAKE_ARGS}"
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 
-cat "/opt/pacbrew/ps4/openorbis/cmake/ps4.cmake"
+declare -r CMAKE_ARGS="$1"
+declare -r BUILD_DIR="build-ps4"
 
-cmake -S "${SCRIPTDIR}/../../" \
-      -B build-ps4 \
+cmake -S. -B"$BUILD_DIR" \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_VERBOSE_MAKEFILE=ON \
       -DCMAKE_TOOLCHAIN_FILE="/opt/pacbrew/ps4/openorbis/cmake/ps4.cmake" \
       "${CMAKE_ARGS}"
 
-cmake --build build-ps4 -j $(getconf _NPROCESSORS_ONLN)
-mv build-ps4/IV0001-DVLX00001_00-*.pkg build-ps4/devilutionx.pkg
+cmake --build "$BUILD_DIR" -j $(getconf _NPROCESSORS_ONLN)
+mv "$BUILD_DIR"/IV0001-DVLX00001_00-*.pkg "$BUILD_DIR"/devilutionx.pkg
