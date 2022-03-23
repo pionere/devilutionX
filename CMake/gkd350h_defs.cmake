@@ -1,4 +1,6 @@
 set(USE_SDL1 ON)
+set(ZEROTIER OFF)
+set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 
 # Do not warn about unknown attributes, such as [[nodiscard]].
 # As this build uses an older compiler, there are lots of them.

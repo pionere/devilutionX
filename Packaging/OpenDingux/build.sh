@@ -78,8 +78,6 @@ cmake_configure() {
 	cmake -S. -B"$BUILD_DIR" \
 		"-DTARGET_PLATFORM=$TARGET" \
 		-DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}/usr/share/buildroot/toolchainfile.cmake" \
-		-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF \
-		-DZEROTIER=OFF \
 		"${CMAKE_ARGS}" \
 		"$@"
 }
