@@ -530,9 +530,6 @@ if(RUN_TESTS)
     test/stores_test.cpp)
 endif()
 
-if(HELLFIRE)
-  add_definitions(-DHELLFIRE)
-endif()
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
 elseif(APPLE)
@@ -642,6 +639,7 @@ endif()
 foreach(
   def_name
   USE_SDL1
+  HELLFIRE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
