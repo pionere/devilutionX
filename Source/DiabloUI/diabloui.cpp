@@ -1,6 +1,5 @@
 #include "diabloui.h"
 
-#include "utils/stubs.h"
 #include "utils/utf8.h"
 #include <string>
 
@@ -84,7 +83,7 @@ void UiInitList(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSel
 			gUiEditField = (UiEdit*)gUiItems[i];
 			SDL_SetTextInputRect(&gUiEditField->m_rect);
 #ifdef __SWITCH__
-			switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length, /*multiline=*/0);
+			switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
 #elif defined(__vita__)
 			vita_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
 #elif defined(__3DS__)
@@ -443,7 +442,7 @@ static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 static void LoadUiGFX()
 {
 #ifdef HELLFIRE
-	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16, 250);
+	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16, 0);
 #else
 	LoadMaskedArt("ui_art\\smlogo.pcx", &ArtLogoMed, 15, 250);
 #endif
@@ -468,7 +467,7 @@ void UiInitialize()
 	LoadArtFonts();
 	if (ArtCursor.surface != NULL) {
 		if (SDL_ShowCursor(SDL_DISABLE) < 0) {
-			sdl_fatal(ERR_SDL_UI_CURSOR_DISABLE);
+			sdl_error(ERR_SDL_UI_CURSOR_DISABLE);
 		}
 	}
 }
@@ -499,15 +498,17 @@ void LoadBackgroundArt(const char* pszFile, int frames)
 
 	ApplyGamma(logical_palette, orig_palette);
 
+	// help the render loops by setting up an initial fade level
 	_gdwFadeTc = 0;
 	_gnFadeValue = 0;
 	SetFadeLevel(0);
+/* unnecessary, because the render loops are supposed to start with this.
 	UiClearScreen();
 //#ifdef USE_SDL1
 //	if (DiabloUiSurface() == back_surface)
-		BltFast(NULL, NULL);
+		BltFast();
 //#endif
-	RenderPresent();
+	RenderPresent();*/
 }
 
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
@@ -544,7 +545,7 @@ void UiFadeIn()
 	}
 //#ifdef USE_SDL1
 //	if (DiabloUiSurface() == back_surface)
-		BltFast(NULL, NULL);
+		BltFast();
 //#endif
 	RenderPresent();
 }

@@ -1,14 +1,11 @@
 #pragma once
 #ifdef TCPIP
 #include <string>
-#include <memory>
-#include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
 #include <asio/ts/io_context.hpp>
 #include <asio/ts/net.hpp>
 
 #include "packet.h"
-#include "abstract_net.h"
 #include "frame_queue.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -18,7 +15,7 @@ class tcp_server {
 	friend class tcpd_client;
 public:
 	tcp_server(asio::io_context &ioc, buffer_t info, unsigned serverType);
-	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd);
+	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd, char (&errorText)[256]);
 	void close();
 	virtual ~tcp_server() = default;
 

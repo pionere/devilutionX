@@ -14,6 +14,7 @@ extern "C" {
 
 void interface_msg_pump();
 void ShowCutscene(unsigned uMsg);
+void IncProgress();
 void LoadGameLevel(int lvldir);
 void EnterLevel(BYTE lvl);
 

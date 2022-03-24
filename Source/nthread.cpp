@@ -10,15 +10,13 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
-const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
-const unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
 
 /* The id of the next turn. */
 uint32_t sgbSentThisCycle;
 Uint32 guNextTick;
 /* The number of game-logic cycles between turns. */
 BYTE gbNetUpdateRate;
-#ifndef NONET
+#if !NONET
 /* The number of extra turns to be queued to ensure fluent gameplay. */
 BYTE gbEmptyTurns;
 #ifdef ADAPTIVE_NETUPDATE
@@ -31,9 +29,9 @@ static SDL_Thread* sghThread = NULL;
 static CCritSect sgThreadMutex;
 /* Data mutex of the thread to control access to sgTurnQueue. */
 static CCritSect sgDataMutex;
+#endif // NONET
 /* Queued turns while loading a level, or delta-info. */
 static std::deque<SNetTurnPkt*> sgTurnQueue;
-#endif // NONET
 /* Counter to keep track of the network-update(turn) progress. */
 static BYTE sgbPacketCountdown;
 static bool _gbTickInSync;
@@ -45,15 +43,17 @@ void nthread_send_turn(BYTE *data, unsigned len)
 	uint32_t turn = sgbSentThisCycle;
 // enabled for everyone to allow connection with adaptive hosts
 //#ifdef ADAPTIVE_NETUPDATE
-#ifndef NONET
+#if !NONET
 restart:
 #endif
 	SNetSendTurn(SwapLE32(turn), data, len);
 	turn++;
-	if (turn >= 0x7FFFFFFF)
-		turn &= 0xFFFF;
+	// commented out to raise the possible up-time of a game
+	// minor hickup might occur around overflow, but ignore it for the moment
+	//if (turn >= (UINT32_MAX / gbNetUpdateRate))
+	//	turn &= 0xFFFF;
 //#ifdef ADAPTIVE_NETUPDATE
-#ifndef NONET
+#if !NONET
 	if (gbEmptyTurns != 0 && SNetGetTurnsInTransit() <= gbEmptyTurns) {
 		len = 0;
 		goto restart;
@@ -111,7 +111,7 @@ int nthread_recv_turns()
 		return TS_ACTIVE;
 	}
 }
-#ifndef NONET
+#if !NONET
 static void nthread_parse_turns()
 {
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
@@ -124,7 +124,6 @@ static void nthread_parse_turns()
 static void nthread_process_pending_turns()
 {
 	SNetTurnPkt* turn;
-	int i;
 
 	while (gbRunGame) {
 		sgDataMutex.Enter();
@@ -146,17 +145,7 @@ static void nthread_process_pending_turns()
 		multi_process_turn(turn);
 		MemFreeDbg(turn);
 		multi_process_msgs();
-		for (i = gbNetUpdateRate; i > 0; i--) {
-			game_logic();
-			++gbLvlLoad;
-		}
-		// remove the generated NetCmds
-		// there should be only a few obsolete ones (e.g. monster hit by a trap)
-		multi_init_buffers();
-
-		// reset geBufferMsgs to normal
-		assert(geBufferMsgs == MSG_NORMAL || geBufferMsgs == MSG_INITIAL_PENDINGTURN);
-		geBufferMsgs = MSG_NORMAL;
+		gdwGameLogicTurn += gbNetUpdateRate;
 	}
 }
 
@@ -170,19 +159,19 @@ static int SDLCALL nthread_handler(void* data)
 			sgThreadMutex.Leave();
 			break;
 		}
-		if (geBufferMsgs == MSG_GAME_DELTA) {
+		if (geBufferMsgs == MSG_GAME_DELTA_LOAD) {
 			multi_process_msgs();
-			if (geBufferMsgs != MSG_GAME_DELTA) {
+			if (geBufferMsgs != MSG_GAME_DELTA_LOAD) {
 				// delta-download finished -> jump to 'present'
 				// necessary in case the current player is the only player on a hosted server
 				sgbSentThisCycle = sgbSentThisCycle >= guDeltaTurn ? sgbSentThisCycle : guDeltaTurn;
 			} else
 				sgbSentThisCycle = 0;
-		} else if (geBufferMsgs == MSG_REQUEST_GAME_DELTA) {
+		} else if (geBufferMsgs == MSG_GAME_DELTA_WAIT) {
 			sgbSentThisCycle = 0;
 			// wait a few turns to stabilize the turn-id
 			if (sgTurnQueue.size() * gbNetUpdateRate * gnTickDelay > 500) {
-				geBufferMsgs = MSG_GAME_DELTA;
+				geBufferMsgs = MSG_GAME_DELTA_LOAD;
 				
 				TCmd cmd;
 				cmd.bCmd = NMSG_SEND_GAME_DELTA;
@@ -222,11 +211,12 @@ static int SDLCALL nthread_handler(void* data)
 #endif
 void nthread_start()
 {
+	assert(geBufferMsgs == MSG_NORMAL);
 	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
 	_gbTickInSync = true;
 	sgbSentThisCycle = 0;
 	sgbPacketCountdown = 1;
-#ifndef NONET
+#if !NONET
 	gbEmptyTurns = 0;
 #ifdef ADAPTIVE_NETUPDATE
 	gbNetUpdateWeight = 0;
@@ -235,12 +225,11 @@ void nthread_start()
 	if (gbNetUpdateRate == 1 && !IsLocalGame)
 		gbEmptyTurns = 1;
 #endif
-	static_assert(sizeof(TurnPkt) <= gdwNormalMsgSize, "TurnPkt does not fit in a message.");
-	static_assert(sizeof(MsgPkt) <= gdwNormalMsgSize, "MsgPkt does not fit in a message.");
 	if (!IsLocalGame) {
 		_gbRunThread = false;
 		sgThreadMutex.Enter();
 		_gbThreadLive = true;
+		assert(sghThread == NULL);
 		sghThread = CreateThread(nthread_handler);
 		assert(sghThread != NULL);
 	}
@@ -249,9 +238,8 @@ void nthread_start()
 
 void nthread_cleanup()
 {
-#ifndef NONET
 	SNetTurnPkt* tmp;
-
+#if !NONET
 	_gbThreadLive = false;
 	if (sghThread != NULL && SDL_GetThreadID(sghThread) != SDL_GetThreadID(NULL)) {
 		if (!_gbRunThread)
@@ -259,17 +247,18 @@ void nthread_cleanup()
 		SDL_WaitThread(sghThread, NULL);
 		sghThread = NULL;
 	}
+#endif
 	while (!sgTurnQueue.empty()) {
 		tmp = sgTurnQueue.front();
 		sgTurnQueue.pop_front();
 		MemFreeDbg(tmp);
 	}
-#endif
 }
 
 void nthread_run()
 {
-#ifndef NONET
+	gbLvlLoad = 10;
+#if !NONET
 	if (sghThread != NULL && !_gbRunThread) {
 		_gbRunThread = true;
 		sgThreadMutex.Leave();
@@ -279,27 +268,154 @@ void nthread_run()
 #endif
 }
 
-void nthread_finish(UINT uMsg)
+bool nthread_level_turn()
 {
-	if (uMsg == DVL_DWM_NEWGAME) {
-		if (gbLoadGame/*&& gbValidSaveFile*/) {
-			assert(sghThread == NULL);
-			return;
+	bool result = false;
+
+	while (true) {
+		switch (nthread_recv_turns()) {
+		case TS_ACTIVE: {
+			SNetTurnPkt* turn = SNetReceiveTurn(player_state);
+			if (guSendLevelData != 0) {
+				if (IsLocalGame) {
+					guSendLevelData = 0;
+					assert(mypnum == 0);
+					guReceivedLevelDelta = 1;
+				} else {
+					assert(mypnum < MAX_PLRS);
+					LevelDeltaExport(turn->nmpTurn);
+				}
+			}
+			if (geBufferMsgs == MSG_NORMAL) {
+				multi_process_turn(turn);
+				MemFreeDbg(turn);
+			} else {
+				assert(geBufferMsgs == MSG_LVL_DELTA_WAIT);
+				multi_pre_process_turn(turn);
+				sgTurnQueue.push_back(turn);
+			}
+
+			multi_process_msgs();
+#ifdef ADAPTIVE_NETUPDATE
+			if (SNetGetTurnsInTransit() <= gbEmptyTurns)
+#endif
+				multi_send_turn_packet();
+			result = true;
+		} break;
+		case TS_LIVE: {
+			int delta = guNextTick - SDL_GetTicks();
+			if (delta > 0) {
+				SDL_Delay(delta);
+			}
+			continue;
+		}
+#if !NONET
+		case TS_TIMEOUT:
+			if (gbEmptyTurns < 50) {
+				SDL_Delay(1);
+				continue;
+			}
+			// sync took too much time -> disconnect
+			/* fall-through */
+		case TS_DESYNC:
+			app_warn("Unable to join level.");
+			gbRunGame = false;
+			break;
+#endif
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+		break;
+	}
+
+	return result;
+}
+
+bool nthread_process_pending_delta_turns(bool pre)
+{
+	SNetTurnPkt* turn;
+	int i;
+
+	while (gbRunGame) {
+		//sgDataMutex.Enter();
+		if (sgTurnQueue.empty()) {
+			//sgDataMutex.Leave();
+			break;
+		}
+
+		turn = sgTurnQueue.front();
+		if (pre && turn->nmpTurn >= guDeltaTurn) {
+			break;
+		}
+		sgTurnQueue.pop_front();
+		//sgDataMutex.Leave();
+
+		multi_process_turn(turn);
+		MemFreeDbg(turn);
+		multi_process_msgs();
+		if (!pre) {
+			assert(geBufferMsgs == MSG_NORMAL || geBufferMsgs == MSG_LVL_DELTA_SKIP_JOIN);
+			geBufferMsgs = MSG_NORMAL;
+			for (i = gbNetUpdateRate; i > 0; i--) {
+				++gbLvlLoad;
+				game_logic();
+			}
 		} else {
-			// process remaining packets of delta-load
-			RunDeltaPackets();
+			gdwGameLogicTurn += gbNetUpdateRate;
 		}
 	}
 
-	ProcessLightList();
-	ProcessVisionList();
+	return gbRunGame;
+}
 
-#ifndef NONET
+/*
+                         lvl    out  reply  proc. proc. proc.  proc.  valid       turns  
+ phase		       idx dun  cmd   reqs  dlvl  join  other  msgs/d delta  inc. timed queued  mode
+ 0. send plrinfo        +  +     -      -   -     -     -      -      -       -     +     +     [normal]
+ 1. wait delta          +  +     0      -   -     -     -      -      -       -     +     +     wait-delta
+ 2. req. delta(t)       +  +     0      -   -     -     -      -      -       -     +     +     wait->load-delta
+ 3. store delta(t)      +  +     0      -   -     -     -      t/-    -       x     +     +     load-delta
+ 4. pend. drop/plrinfo  +  +     -      -   -     -     -      -      -       -     +     +     [normal]
+-----
+ 5. load level          +  +     0      -   -     -     -      -      -       -     +     +     [normal]
+ 6. (skip) pend. turns EXT +     -      -   -     +*    +      m/+    -       +     -     -     normal
+ 7. clear out          EXT +    [+]   -/+   -     +*    +      m/+    +       +     +     -     normal
+ 8. send lvljoin&wait  EXT +   join     -   -     -     -      -      +       -     ?     -     wait-lvldelta
+ 9. wait lvldelta      EXT +    [+]   -/+   +     +*    -      m/+    -       +     +     +     wait->proc-lvldelta
+10. (proc) pend. turns EXT +     -      -   -     +**   +      m/+    -      -+     -     -     proc-lvldelta
+11. load lvldelta       +  +     -      -   -     -     -      -      -       -     ?     -     [proc-lvldelta]
+12. act. turns          +  +     -      -   -     +     +      m/+    -       +     -     -     skip/normal
+13. act. game           +  +    [+]   +/+   -     +     +      m/+    +       +     +     -     normal
+                               [dlvl]
+                              [delta]
+
+*: activate players, register join to reply with dlvl without init
+**: init lvl players (if active) without activate/join registration
+
+ */
+void nthread_finish(UINT uMsg)
+{
+	uint32_t lastGameTurn;
+	unsigned tmp;
+
+	if (uMsg == DVL_DWM_NEWGAME) {
+		if (gbLoadGame/*&& gbValidSaveFile*/) {
+			assert(sghThread == NULL);
+			assert(geBufferMsgs == MSG_NORMAL);
+			assert(sgbPacketCountdown == 1);
+			return;
+		}
+	}
+	// phase 5 done
+	// phase 6 begin
+	// set current level to an invalid level
+	//  so the localized messages are considered external
+	assert(currLvl._dLevelIdx == myplr._pDunLevel);
+	currLvl._dLevelIdx = DLV_INVALID;
+#if !NONET
+	// process messages arrived during level-load
 	if (sghThread != NULL) {
-		// for the first pending turn the current player should be considered
-		//  as 'external' in On_SYNCQUESTEXT
-		geBufferMsgs = MSG_INITIAL_PENDINGTURN;
-
 		nthread_process_pending_turns();
 
 		// 'pause' the nthread
@@ -307,23 +423,91 @@ void nthread_finish(UINT uMsg)
 		_gbRunThread = false;
 
 		nthread_process_pending_turns();
-
-		// skip till next turn
-		if (_gbTickInSync) {
-			guNextTick += (gbNetUpdateRate - sgbPacketCountdown) * gnTickDelay;
-		}
-		sgbPacketCountdown = 1; //gbNetUpdateRate;
-		// reset DeltaTurn to prevent turn-skips in case of turn_id-overflow
-		guDeltaTurn = 0;
-		// reset geBufferMsgs to normal in case there was no pending turn
-		geBufferMsgs = MSG_NORMAL;
-
-		plrmsg_delay(false);
 	}
+	IncProgress();
 #endif
-	if (myplr._pmode == PM_NEWLVL) { // skip in case the game is loaded
-		NetSendCmdSendJoinLevel();
+	// phase 6 end
+	// phase 7 begin - clear queued outgoing messages (e.g. CMD_DEACTIVATEPORTAL)
+	for (int i = SNetGetTurnsInTransit(); i > 0; i--) {
+		if (!nthread_level_turn())
+			goto done;
 	}
+	IncProgress();
+	// phase 7 end
+	// phase 8
+	NetSendCmdJoinLevel();
+	// phase 9 begin - wait for join level replies
+	//   process only joinlevel commands and deltalevel/leave messages
+	assert(guReceivedLevelDelta == 0);
+	geBufferMsgs = MSG_LVL_DELTA_WAIT;
+	// TODO: delta_init_level_data ?
+	//memset(gsDeltaData.ddRecvLastCmd, NMSG_LVL_DELTA_END, sizeof(gsDeltaData.ddRecvLastCmd));
+	gsDeltaData.ddRecvLastCmd = NMSG_LVL_DELTA_END;
+	//gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
+	//gsDeltaData.ddSendRecvOffset = 0;
+	assert((gdwLastGameTurn * gbNetUpdateRate) == gdwGameLogicTurn);
+	lastGameTurn = gdwLastGameTurn;
+	while (geBufferMsgs == MSG_LVL_DELTA_WAIT) {
+		if (!nthread_level_turn())
+			goto done;
+		unsigned allPlayers = 0;
+		for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (plr._pActive)
+				allPlayers |= 1 << pnum;
+		}
+		if (allPlayers == guReceivedLevelDelta) {
+			break;
+		}
+	}
+	IncProgress();
+	assert(geBufferMsgs == MSG_LVL_DELTA_WAIT ||
+		(gdwLastGameTurn >= guDeltaTurn && guDeltaTurn > lastGameTurn));	// TODO: overflow hickup
+	gdwLastGameTurn = lastGameTurn;
+	gdwGameLogicTurn = lastGameTurn * gbNetUpdateRate;
+	tmp = guSendLevelData; // preserve this mask, requests of the pending turns are supposed to be handled
+	// phase 9 end
+	if (geBufferMsgs != MSG_LVL_DELTA_WAIT) {
+		// phase 10a
+		assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
+		nthread_process_pending_delta_turns(true);
+		// phase 11
+		LevelDeltaLoad();
+		assert(geBufferMsgs == MSG_NORMAL);
+		assert(currLvl._dLevelIdx == myplr._pDunLevel);
+		// phase 12
+		// assert(geBufferMsgs == MSG_NORMAL);
+		geBufferMsgs = MSG_LVL_DELTA_SKIP_JOIN;
+		nthread_process_pending_delta_turns(false);
+	} else {
+		// phase 10b
+		geBufferMsgs = MSG_NORMAL;
+		guDeltaTurn = UINT32_MAX;
+		nthread_process_pending_delta_turns(true);
+
+		// phase 11-12b
+		assert(currLvl._dLevelIdx == DLV_INVALID);
+		currLvl._dLevelIdx = myplr._pDunLevel;
+		if (IsMultiGame) {
+			ResyncQuests();
+			DeltaLoadLevel();
+		}
+		SyncPortals();
+		InitLvlPlayer(mypnum, true);
+	}
+	guSendLevelData &= tmp;
+done:
+	// skip till next turn
+	if (_gbTickInSync) {
+		guNextTick += (gbNetUpdateRate - sgbPacketCountdown) * gnTickDelay;
+	}
+	sgbPacketCountdown = 1; //gbNetUpdateRate;
+	// reset DeltaTurn to prevent turn-skips in case of turn_id-overflow
+	guDeltaTurn = 0;
+	// reset mask of received level-deltas
+	guReceivedLevelDelta = 0;
+	// reset geBufferMsgs to normal
+	geBufferMsgs = MSG_NORMAL;
+	plrmsg_delay(false);
 }
 
 bool nthread_has_50ms_passed()

@@ -24,7 +24,7 @@ void palette_update()
 	assert(back_palette != NULL);
 #endif
 	if (SDLC_SetSurfaceAndPaletteColors(back_surface, back_palette, system_palette, 0, 256) < 0) {
-		sdl_fatal(ERR_SDL_PALETTE_UPDATE);
+		sdl_error(ERR_SDL_PALETTE_UPDATE);
 	}
 	back_surface_palette_version++;
 }
@@ -141,10 +141,9 @@ void PaletteFadeIn(bool instant)
 	ApplyGamma(logical_palette, orig_palette);
 	if (!instant) {
 		Uint32 tc = SDL_GetTicks();
-		const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
 		for (i = 0; i < 256; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
 			SetFadeLevel(i);
-			BltFast(&SrcRect, NULL);
+			BltFast();
 			RenderPresent();
 		}
 	}
@@ -159,10 +158,9 @@ void PaletteFadeOut()
 
 	if (_gbFadedIn) {
 		Uint32 tc = SDL_GetTicks();
-		const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
 		for (i = 256; i > 0; i = 256 - ((SDL_GetTicks() - tc) >> 0)) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
 			SetFadeLevel(i);
-			BltFast(&SrcRect, NULL);
+			BltFast();
 			RenderPresent();
 		}
 		SetFadeLevel(0);

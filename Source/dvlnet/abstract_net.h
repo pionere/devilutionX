@@ -58,17 +58,15 @@ public:
 
 class abstract_net {
 public:
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info) = 0;
-	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd) = 0;
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256]) = 0;
+	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) = 0;
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) = 0;
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size) = 0;
 	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) = 0;
 	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size) = 0;
 	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) = 0;
 	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) = 0;
-//#ifdef ADAPTIVE_NETUPDATE
 	virtual unsigned SNetGetTurnsInTransit() = 0;
-//#endif
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) = 0;
 	virtual void SNetUnregisterEventHandler(int evtype) = 0;
 	virtual void SNetLeaveGame(int reason) = 0;

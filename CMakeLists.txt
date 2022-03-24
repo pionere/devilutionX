@@ -46,35 +46,37 @@ endif()
 include(CMakeDependentOption)
 include(CMake/out_of_tree.cmake)
 
-macro(cmake_debug_option NAME DESCRIPTION)
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+macro(cmake_conditional_option NAME DESCRIPTION)
+  if(${ARGN})
     option(${NAME} ${DESCRIPTION} ON)
   else()
     option(${NAME} ${DESCRIPTION} OFF)
   endif()
 endmacro()
+macro(cmake_debug_option NAME DESCRIPTION)
+  cmake_conditional_option(${NAME} ${DESCRIPTION} CMAKE_BUILD_TYPE STREQUAL "Debug")
+endmacro()
 macro(cmake_release_option NAME DESCRIPTION)
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    option(${NAME} ${DESCRIPTION} OFF)
-  else()
-    option(${NAME} ${DESCRIPTION} ON)
-  endif()
+  cmake_conditional_option(${NAME} ${DESCRIPTION} NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 endmacro()
 
 cmake_debug_option(ASAN "Enable address sanitizer")
 cmake_debug_option(UBSAN "Enable undefined behaviour sanitizer")
 cmake_dependent_option(TSAN "Enable thread sanitizer" OFF "NOT ASAN" OFF)
 cmake_debug_option(DEBUG_MODE "Enable debug mode in engine")
+option(DEV_MODE "Enable development mode in engine" OFF)
 option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
 option(PIE "Generate position-independent code" OFF)
+option(CPACK "Configure CPack" ON)
 option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
 option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
 option(NONET "Disable network support" OFF)
+cmake_dependent_option(INET_MODE "Enable validation of network messages" OFF "NOT NONET" OFF)
 cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
 cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
 cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
@@ -83,19 +85,16 @@ cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP
 cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
-option(CPACK "Configure CPack" ON)
 
 
 if(NOT NONET)
   option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
-  cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
-                        "DEVILUTIONX_SYSTEM_LIBSODIUM" ON)
+  cmake_conditional_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" NOT ${DEVILUTIONX_SYSTEM_LIBSODIUM})
 endif()
 
-if (NOT USE_SDL1)
+if(NOT USE_SDL1)
   option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
-  cmake_dependent_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" OFF
-                        "DEVILUTIONX_SYSTEM_SDL2" ON)
+  cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake")
@@ -157,6 +156,10 @@ if(NINTENDO_3DS)
   include(n3ds_defs)
 endif()
 
+if(PS4)
+  include(ps4_defs)
+endif()
+
 if(ANDROID)
   include(android_defs)
 endif()
@@ -171,6 +174,12 @@ option(HAS_KBCTRL "Enable keyboard controller support" ON)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
+set(CMAKE_THREAD_PREFER_PTHREAD ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 if(PIE)
   set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 endif()
@@ -188,15 +197,12 @@ if(NOT DISABLE_LTO)
   endif()
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
-set(CMAKE_THREAD_PREFER_PTHREAD ON)
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-
 if(NOT NINTENDO_3DS)
   find_package(Threads REQUIRED)
+endif()
+if(AMIGA)
+  find_package(Freetype REQUIRED)
+  find_package(ZLIB REQUIRED)
 endif()
 
 if(NOT NONET)
@@ -618,10 +624,6 @@ if(ZEROTIER)
   target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
 endif()
 
-if(DEBUG_MODE)
-  target_compile_definitions(${BIN_TARGET} PUBLIC "_DEBUG")
-endif()
-
 # Defines without value
 foreach(
   def_name
@@ -630,6 +632,7 @@ foreach(
   STREAM_ALL_AUDIO
   NOWIDESCREEN
   NONET
+  INET_MODE
   NETENCRYPT
   ADAPTIVE_NETUPDATE
   NOHOSTING
@@ -642,6 +645,8 @@ foreach(
   HAS_KBCTRL
   HAS_JOYSTICK
   PREFILL_PLAYER_NAME
+  DEBUG_MODE
+  DEV_MODE
   GPERF
   GPERF_HEAP_MAIN
   GPERF_HEAP_FIRST_GAME_ITERATION
@@ -717,6 +722,7 @@ foreach(
 endforeach(def_name)
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
+target_compile_definitions(smacker PRIVATE ${def_list})
 
 if(UBSAN)
   target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=undefined)
@@ -926,6 +932,25 @@ if(VITA)
     FILE Packaging/resources/devilutionx.mpq devilutionx.mpq
     FILE Packaging/resources/devilx.mpq devilx.mpq
   )
+endif()
+
+if(PS4)
+  set(APP_MPQ_FOLDER  "${PROJECT_SOURCE_DIR}/Packaging/ps4")
+  set(APP_MPQ_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
+  if(NOT NOWIDESCREEN)
+    set(APP_MPQ_FILES ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq")
+  endif()
+  add_custom_target(mpq_files
+    COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} ${APP_MPQ_FOLDER})
+  if(NOT PROJECT_VERSION)
+    set(PROJECT_VERSION "1.0")
+  endif()
+  add_self(${BIN_TARGET})
+  add_pkg(${BIN_TARGET} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
+    "DVLX00001" "DevilutionX" "${PROJECT_VERSION}")
+  #get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
+  #add_dependencies(${APP_TARGET_PREFIX}_pkg mpq_files)
+  add_dependencies(${BIN_TARGET} mpq_files)
 endif()
 
 if(NINTENDO_3DS)
@@ -1141,7 +1166,6 @@ message(STATUS "Devilx was configured with the following options:")
 message(STATUS "")
 message(STATUS "Platform: ${CMAKE_SYSTEM}")
 message(STATUS "Target platform: ${TARGET_PLATFORM}")
-message(STATUS "64-bit:   ${ARCH_64}")
 message(STATUS "Compiler: ${CMAKE_C_COMPILER} .. (${CMAKE_CXX_COMPILER_ID})")
 message(STATUS "Revision: ${VERSION_NUM}")
 message(STATUS "")
@@ -1150,15 +1174,11 @@ message(STATUS "Defines:")
 foreach(
   def_name
   HELLFIRE
-  USE_SDL1
-  DEVILUTIONX_SYSTEM_SDL2
-  DEVILUTIONX_STATIC_SDL2
-  DEVILUTIONX_SYSTEM_LIBSODIUM
-  DEVILUTIONX_STATIC_LIBSODIUM
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
   NONET
+  INET_MODE
   NETENCRYPT
   ADAPTIVE_NETUPDATE
   NOHOSTING
@@ -1175,6 +1195,7 @@ foreach(
   UBSAN
   TSAN
   DEBUG_MODE
+  DEV_MODE
   RUN_TESTS
   DISABLE_LTO
   PIE
@@ -1265,19 +1286,32 @@ foreach(
   message(STATUS "  ${def_name}${_PADDING}: ${VALUEOF_${def_name}}")
 endforeach(def_name)
 message(STATUS "")
+message(STATUS " CFLAGS:        ${CMAKE_C_FLAGS}")
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-  message(STATUS "")
   message(STATUS " CMAKE_C_FLAGS_DEBUG:   ${CMAKE_C_FLAGS_DEBUG}")
   message(STATUS " CMAKE_CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
 endif()
 message(STATUS "")
-message(STATUS " CFLAGS:        ${CMAKE_C_FLAGS}")
-message(STATUS " EXTRA_CFLAGS:  ${EXTRA_CFLAGS}")
-message(STATUS " EXTRA_LDFLAGS: ${EXTRA_LDFLAGS}")
-message(STATUS " EXTRA_LIBS:    ${EXTRA_LIBS}")
-#message(STATUS "")
-#message(STATUS " Build Static Library: ${SDL_STATIC}")
-#if(SDL_STATIC)
-#    message(STATUS " Build Static Library with Position Independent Code: ${SDL_STATIC_PIC}")
-#endif()
+if(USE_SDL1)
+  message(STATUS " Using dynamically linked SDL1.")
+else()
+  if(DEVILUTIONX_SYSTEM_SDL2)
+    message(STATUS " Using system SDL2.")
+  elseif(DEVILUTIONX_STATIC_SDL2)
+    message(STATUS " Using statically linked SDL2.")
+  else()
+    message(STATUS " Using dynamically linked SDL2.")
+  endif()
+endif()
+if(DEVILUTIONX_STATIC_LIBSODIUM)
+  set(_LINK_MODE "statically")
+else()
+  set(_LINK_MODE "dynamically")
+endif()
+if(DEVILUTIONX_SYSTEM_LIBSODIUM)
+  set(_SOURCE "system ")
+else()
+  set(_SOURCE "")
+endif()
+message(STATUS " Using ${_LINK_MODE} linked ${_SOURCE}libsodium.")
 message(STATUS "")

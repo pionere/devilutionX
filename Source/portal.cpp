@@ -26,17 +26,17 @@ void InitPortals()
 	}
 }
 
-/*void SetPortalStats(int i, bool o, int x, int y, int lvl)
+/*void SetPortalStats(int pidx, bool o, int x, int y, int lvl)
 {
-	portals[i]._wopen = o;
-	portals[i].x = x;
-	portals[i].y = y;
-	portals[i].level = lvl;
+	portals[pidx]._wopen = o;
+	portals[pidx].x = x;
+	portals[pidx].y = y;
+	portals[pidx].level = lvl;
 }*/
 
-void AddWarpMissile(int i, int x, int y)
+void AddWarpMissile(int pidx, int x, int y)
 {
-	AddMissile(0, 0, x, y, 0, MIS_TOWN, 0, i, 0, 0, -1);
+	AddMissile(0, 0, x, y, 0, MIS_TOWN, MST_NA, pidx, -1);
 }
 
 void SyncPortals()
@@ -56,56 +56,56 @@ void SyncPortals()
 	}
 }
 
-void AddInTownPortal(int i)
+void AddInTownPortal(int pidx)
 {
-	AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
+	AddWarpMissile(pidx, WarpDropX[pidx], WarpDropY[pidx]);
 }
 
-void ActivatePortal(int i, int x, int y, int lvl)
+void ActivatePortal(int pidx, int x, int y, int lvl)
 {
-	// TODO: check data from internet
 	assert(lvl != DLV_TOWN);
-	portals[i]._wopen = true;
-	portals[i].x = x;
-	portals[i].y = y;
-	portals[i].level = lvl;
+	portals[pidx]._wopen = true;
+	portals[pidx].x = x;
+	portals[pidx].y = y;
+	portals[pidx].level = lvl;
+
+	delta_open_portal(pidx, x, y, lvl);
 }
 
-void DeactivatePortal(int i)
+static bool PortalOnLevel(int pidx)
 {
-	portals[i]._wopen = false;
+	return portals[pidx].level == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
 }
 
-bool PortalOnLevel(int i)
+void RemovePortalMissile(int pidx)
 {
-	return portals[i].level == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
-}
+	MissileStruct* mis;
+	int i;
 
-void RemovePortalMissile(int pnum)
-{
-	MissileStruct *mis;
-	int i, mi;
+	if (!PortalOnLevel(pidx))
+		return;
 
+	static_assert(MAXPORTAL == MAX_PLRS, "RemovePortalMissile finds portal-missiles by portal-id.");
 	for (i = 0; i < nummissiles; i++) {
-		mi = missileactive[i];
-		mis = &missile[mi];
-		if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
-			dMissile[mis->_mix][mis->_miy] = 0;
-
+		mis = &missile[missileactive[i]];
+		if (mis->_miType == MIS_TOWN && mis->_miSource == pidx) {
+			mis->_miDelFlag = TRUE;
 			AddUnLight(mis->_miLid);
-
-			DeleteMissile(mi, i);
 		}
 	}
 }
 
-void UseCurrentPortal(int p)
+void DeactivatePortal(int pidx)
 {
-	portalindex = p;
-	if (currLvl._dLevelIdx == DLV_TOWN && portalindex == mypnum) {
-		NetSendCmd(CMD_DEACTIVATEPORTAL);
-		//DeactivatePortal(portalindex);
-	}
+	portals[pidx]._wopen = false;
+
+	RemovePortalMissile(pidx);
+	delta_close_portal(pidx);
+}
+
+void UseCurrentPortal(int pidx)
+{
+	portalindex = pidx;
 }
 
 void GetPortalLvlPos()
@@ -117,8 +117,6 @@ void GetPortalLvlPos()
 		ViewX = portals[portalindex].x;
 		ViewY = portals[portalindex].y;
 	}
-	ViewX++;
-	ViewY++;
 }
 
 bool PosOkPortal(int x, int y)

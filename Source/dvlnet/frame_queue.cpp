@@ -1,7 +1,6 @@
 #include "frame_queue.h"
 
 #include <cstring>
-#include "utils/stubs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -64,7 +63,7 @@ buffer_t frame_queue::make_frame(buffer_t packetbuf)
 {
 	buffer_t ret;
 	if (packetbuf.size() > MAX_FRAME_SIZE)
-		ABORT();
+		app_error(ERR_APP_FRAME_BUFSIZE);
 	uint32_t size = SwapLE32(packetbuf.size());
 	ret.insert(ret.end(), packet_factory::begin(size), packet_factory::end(size));
 	ret.insert(ret.end(), packetbuf.begin(), packetbuf.end());

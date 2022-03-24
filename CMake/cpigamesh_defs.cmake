@@ -1,12 +1,18 @@
-set(NONET ON)
-set(PREFILL_PLAYER_NAME ON)
-set(HAS_KBCTRL 1)
-set(BINARY_RELEASE ON)
-set(LTO ON)
-set(DIST ON)
-set(DEBUG OFF)
+# Disable sanitizers. They're not supported out-of-the-box.
 set(ASAN OFF)
 set(UBSAN OFF)
+
+# General build options.
+set(NONET ON)
+set(ADAPTIVE_NETUPDATE OFF)
+set(NETENCRYPT OFF)
+set(TCPIP OFF)
+#set(BINARY_RELEASE ON)
+#set(LTO ON)
+
+set(PREFILL_PLAYER_NAME ON)
+
+set(HAS_KBCTRL 1)
 set(KBCTRL_BUTTON_DPAD_LEFT SDLK_LEFT)
 set(KBCTRL_BUTTON_DPAD_RIGHT SDLK_RIGHT)
 set(KBCTRL_BUTTON_DPAD_UP SDLK_UP)

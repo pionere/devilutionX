@@ -1,6 +1,5 @@
 #include "tcpd_client.h"
 #ifdef TCPIP
-#include <string>
 #include <SDL.h>
 #include <exception>
 #include <functional>
@@ -15,18 +14,18 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-bool tcpd_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
+bool tcpd_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
 {
 	setup_gameinfo(std::move(info));
 	local_server = new tcp_server(ioc, game_init_info, SRV_DIRECT);
-	if (local_server->setup_server(addrstr, port, passwd)) {
-		return join_game(addrstr, port, passwd);
+	if (local_server->setup_server(addrstr, port, passwd, errorText)) {
+		return join_game(addrstr, port, passwd, errorText);
 	}
 	close();
 	return false;
 }
 
-bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* passwd)
+bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	int i;
 	constexpr int MS_SLEEP = 10;
@@ -40,17 +39,14 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 	// connect to the server
 	asio::error_code err;
 	tcp_server::connect_socket(sock, addrstr, port, ioc, err);
-	if (err) {
-		SDL_SetError("%s", err.message().c_str());
-		close();
-		return false;
+	if (!err) {
+		// setup acceptor for the direct connection to other players
+		const auto &ep = sock.local_endpoint(err);
+		assert(!err);
+		tcp_server::connect_acceptor(acceptor, ep, err);
 	}
-	// setup acceptor for the direct connection to other players
-	const auto &ep = sock.local_endpoint(err);
-	assert(!err);
-	tcp_server::connect_acceptor(acceptor, ep, err);
 	if (err) {
-		SDL_SetError("%s", err.message().c_str());
+		SStrCopy(errorText, err.message().c_str(), lengthof(errorText));
 		close();
 		return false;
 	}
@@ -63,18 +59,13 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 		PLR_MASTER, cookie_self);
 	send_packet(*pkt);
 	for (i = 0; i < NUM_SLEEP; i++) {
-		try {
-			poll();
-		} catch (const std::runtime_error &e) {
-			SDL_SetError("%s", e.what());
-			break;
-		}
+		poll();
 		if (plr_self != PLR_BROADCAST)
 			return true; // join successful
 		SDL_Delay(MS_SLEEP);
 	}	
 	if (i == NUM_SLEEP)
-		SDL_SetError("Unable to connect");
+		copy_cstr(errorText, "Unable to connect");
 	close();
 	return false;
 }
@@ -162,13 +153,9 @@ void tcpd_client::recv_connect(packet &pkt)
 
 	auto cliCon = tcp_server::make_connection(ioc);
 	asio::error_code err;
-	auto addr = asio::ip::address::from_string(addrstr, err);
-	if (!err) {
-		auto ep = asio::ip::tcp::endpoint(addr, port);
-		cliCon->socket.connect(ep, err);
-	}
+	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc,  err);
 	if (err) {
-		SDL_Log("Failed to connect %s", err.message().c_str());
+		DoLog("Failed to connect %s", err.message().c_str());
 		return;
 	}
 	cliCon->pnum = pnum;
@@ -254,7 +241,7 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc &con, packet &pkt)
 	plr_t i, pnum;
 	
 	if (pkt.pktType() != PT_JOIN_REQUEST) {
-		// SDL_Log("Invalid join packet.");
+		// DoLog("Invalid join packet.");
 		return false;
 	}
 	pnum = pkt.pktSrc();
@@ -263,7 +250,7 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc &con, packet &pkt)
 			break;
 	}
 	if (pnum >= MAX_PLRS || connections[pnum] != NULL || i == MAX_PLRS) {
-		// SDL_Log(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
+		// DoLog(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
 		return false;
 	}
 	pending_connections[i] = NULL;
@@ -376,13 +363,13 @@ void tcpd_client::send_packet(packet &pkt)
 void tcpd_client::close()
 {
 	int i;
-
+	// close the server
 	if (local_server != NULL) {
 		local_server->close();
 		delete local_server;
 		local_server = NULL;
 	}
-
+	// close the client
 	recv_queue.clear();
 
 	asio::error_code err;
@@ -417,6 +404,8 @@ void tcpd_client::close()
 		}
 	}
 	ioc.poll(err);
+	// prepare the client for possible re-connection
+	ioc.restart();
 }
 
 void tcpd_client::SNetLeaveGame(int reason)

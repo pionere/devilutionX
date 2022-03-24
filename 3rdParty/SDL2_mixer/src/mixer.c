@@ -185,7 +185,7 @@ int Mix_Init(int flags)
     }
 #else
     if (flags != 0)
-        Mix_SetError("Unsupported format");
+        return Mix_SetError("Unsupported format");
 #endif // FULL
     Mix_Utils_Init();
 #ifndef FULL // FIX_EFF
@@ -1352,8 +1352,7 @@ int Mix_PlayChannelTimed(int which, Mix_Audio *chunk, int loops, int ticks)
 
     /* Don't play null pointers :-) */
     if (chunk == NULL) {
-        Mix_SetError("Tried to play a NULL chunk");
-        return(-1);
+        return Mix_SetError("Tried to play a NULL chunk");
     }
 #ifdef FULL // CHUNK_LEN
     if (!checkchunkintegral(chunk)) {

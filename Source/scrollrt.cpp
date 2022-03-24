@@ -66,12 +66,11 @@ static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
 /* used in 1.00 debug */
-#ifdef _DEBUG
-const char *const szMonModeAssert[18] = {
+#if DEBUG_MODE
+const char *const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
-	"walking (3)",
 	"attacking",
 	"getting hit",
 	"dying",
@@ -88,19 +87,18 @@ const char *const szMonModeAssert[18] = {
 	"talking"
 };
 
-const char *const szPlrModeAssert[12] = {
+const char *const szPlrModeAssert[NUM_PLR_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
-	"walking (3)",
+	"charging",
 	"attacking (melee)",
 	"attacking (ranged)",
 	"blocking",
 	"getting hit",
 	"dying",
 	"casting a spell",
-	"changing levels",
-	"quitting"
+	"changing levels"
 };
 #endif
 
@@ -284,7 +282,7 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy, BOOL pre)
 	int i;
 	MissileStruct *mis;
 
-	if (mi > 0) {
+	if (mi != MIS_MULTI) {
 		mis = &missile[mi - 1];
 		DrawMissilePrivate(mis, sx, sy, pre);
 		return;
@@ -335,7 +333,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	}
 
 	nCel = mon->_mAnimFrame;
-#ifdef _DEBUG
+#if DEBUG_MODE
 	int frames = SwapLE32(*(uint32_t *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		const char *szMode = "unknown action";
@@ -416,17 +414,18 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 		}
 		nCel = plr._pAnimFrame;
-#ifdef _DEBUG
+#if DEBUG_MODE
 		int frames = SwapLE32(*(uint32_t *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char *szMode = "unknown action";
-			if (plr._pmode <= PM_QUIT)
+			if (plr._pmode < lengthof(szPlrModeAssert))
 				szMode = szPlrModeAssert[plr._pmode];
 			dev_fatal(
-				"Drawing player %d \"%s\" %s: facing %d, frame %d of %d",
+				"Drawing player %d \"%s\" %s(%d): facing %d, frame %d of %d",
 				pnum,
 				plr._pName,
 				szMode,
+				plr._pmode,
 				plr._pdir,
 				nCel,
 				frames);
@@ -472,15 +471,15 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pActive && plr._pHitPoints < (1 << 6) && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
-#ifdef _DEBUG
+#if DEBUG_MODE
 			BYTE *pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
-				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, plr._pName);
+				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
 			int frames = SwapLE32(*(uint32_t *)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
-				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, plr._pName, plr._pdir, nCel, frames);
+				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
@@ -770,7 +769,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dPiece[sx][sy];
 	drawCell(mpnum, dx, dy);
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
 		CelClippedDraw(dx, dy, pSquareCel, 1, TILE_WIDTH);
 	}
@@ -1207,6 +1206,13 @@ static void DrawView()
 	//}
 	DrawLifeFlask();
 	DrawManaFlask();
+	DrawDurIcon();
+
+	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {
+		DrawInvBelt();
+	//}
+
+	DrawPlrMsg(false);
 
 	if (stextflag != STORE_NONE && !gbQtextflag)
 		DrawStore();
@@ -1217,12 +1223,6 @@ static void DrawView()
 	} else if (gbTeamFlag) {
 		DrawTeamBook();
 	}
-
-	DrawDurIcon();
-
-	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {
-		DrawInvBelt();
-	//}
 
 	if (gbChrflag) {
 		DrawChr();
@@ -1250,7 +1250,7 @@ static void DrawView()
 	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();
 	}
-	if (gbDeathflag) {
+	if (gbDeathflag == MDM_DEAD) {
 		RedBack();
 	} else if (gbGamePaused) {
 		gmenu_draw_pause();
@@ -1259,7 +1259,7 @@ static void DrawView()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	DrawControllerModifierHints();
 #endif
-	DrawPlrMsg();
+	DrawPlrMsg(true);
 	if (gmenu_is_active())
 		gmenu_draw();
 	if (gbDoomflag) {
@@ -1273,7 +1273,7 @@ static void DrawView()
 	//}
 }
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 /**
  * @brief Scroll the screen when mouse is close to the edge
  */
@@ -1385,105 +1385,6 @@ static void DrawFPS()
 }
 
 /**
- * @brief Update part of the screen from the back buffer
- * @param dwX Back buffer coordinate
- * @param dwY Back buffer coordinate
- * @param dwWdt Back buffer coordinate
- * @param dwHgt Back buffer coordinate
- */
-/*static void DoBlitScreen(int dwX, int dwY, int dwWdt, int dwHgt)
-{
-	SDL_Rect SrcRect = {
-		dwX + SCREEN_X,
-		dwY + SCREEN_Y,
-		dwWdt,
-		dwHgt,
-	};
-	SDL_Rect DstRect = {
-		dwX,
-		dwY,
-		dwWdt,
-		dwHgt,
-	};
-
-	BltFast(&SrcRect, &DstRect);
-}*/
-static void DoBlitScreen()
-{
-	SDL_Rect SrcRect = {
-		SCREEN_X,
-		SCREEN_Y,
-		SCREEN_WIDTH,
-		SCREEN_HEIGHT,
-	};
-	SDL_Rect DstRect = {
-		0,
-		0,
-		SCREEN_WIDTH,
-		SCREEN_HEIGHT,
-	};
-
-	BltFast(&SrcRect, &DstRect);
-}
-
-/**
- * @brief Check render pipeline and blit individual screen parts
- * @param dwHgt Section of screen to update from top to bottom
- * @param drawFlags Render parts of the screen
- */
-/*static void DrawMain(int dwHgt, int drawFlags)
-{
-	int ysize;
-
-	ysize = dwHgt;
-
-	if (!gbWndActive) {
-		return;
-	}
-
-	assert(ysize >= 0 && ysize <= SCREEN_HEIGHT);
-	//ysize = SCREEN_HEIGHT;
-	if (ysize > 0) {
-		DoBlitScreen(0, 0, SCREEN_WIDTH, ysize);
-	}
-	if (ysize < SCREEN_HEIGHT) {
-		//if (drawFlags & REDRAW_SPEED_BAR) {
-			//DoBlitScreen(PANEL_LEFT + 204, PANEL_TOP + 5, 232, 28);
-			DoBlitScreen(InvRect[SLOTXY_BELT_FIRST].X, SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y - (INV_SLOT_SIZE_PX + 1), 2 * (INV_SLOT_SIZE_PX + 1), 4 * (INV_SLOT_SIZE_PX + 1));
-		//}
-		//if (drawFlags & REDRAW_DESCRIPTION) {
-		//	DoBlitScreen(PANEL_LEFT + 176, PANEL_TOP + 46, 288, 60);
-		//}
-		//if (drawFlags & REDRAW_MANA_FLASK) {
-			DoBlitScreen(PANEL_LEFT + 460, PANEL_TOP, 88, 72);
-		//}
-		//if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
-			DoBlitScreen(SCREEN_WIDTH - SPLICONLENGTH, SCREEN_HEIGHT - SPLICONLENGTH, SPLICONLENGTH, SPLICONLENGTH);
-		//}
-		//if (drawFlags & REDRAW_HP_FLASK) {
-			DoBlitScreen(PANEL_LEFT + 96, PANEL_TOP, 88, 72);
-		//}
-		//if (drawFlags & REDRAW_CTRL_BUTTONS) {
-			//DoBlitScreen(PANEL_LEFT + 8, PANEL_TOP + 5, 72, 119);
-			//DoBlitScreen(PANEL_LEFT + 556, PANEL_TOP + 5, 72, 48);
-			//if (!IsLocalGame) {
-			//	DoBlitScreen(PANEL_LEFT + 84, PANEL_TOP + 91, 36, 32);
-			//	DoBlitScreen(PANEL_LEFT + 524, PANEL_TOP + 91, 36, 32);
-			//}
-			int y = (!gabPanbtn[PANBTN_MAINMENU] && !(drawFlags & REDRAW_CTRL_BUTTONS) ? 1 : numpanbtns) * MENUBTN_HEIGHT;
-			DoBlitScreen(0, SCREEN_HEIGHT - 1 - y, MENUBTN_WIDTH, y);
-		//}
-
-		if (sgCursWdtOld != 0) {
-			DoBlitScreen(sgCursXOld, sgCursYOld, sgCursWdtOld, sgCursHgtOld);
-		}
-		if (sgCursWdt != 0) {
-			DoBlitScreen(sgCursX, sgCursY, sgCursWdt, sgCursHgt);
-		}
-	}
-}*/
-
-/**
  * @brief Redraw screen
  * @param draw_cursor
  */
@@ -1496,7 +1397,7 @@ void scrollrt_draw_screen(bool draw_cursor)
 	}
 
 	if (gbWndActive) {
-		DoBlitScreen();
+		BltFast();
 	}
 
 	if (draw_cursor) {
@@ -1527,7 +1428,7 @@ void scrollrt_draw_game()
 
 	//DrawMain(hgt, gbRedrawFlags);
 	if (gbWndActive) {
-		DoBlitScreen();
+		BltFast();
 	}
 
 	lock_buf(0);

@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 void CheckDungeonClear();
 extern BYTE *pSquareCel;
 
@@ -27,7 +27,14 @@ void PrintDebugPlayer(bool bNextPlayer);
 void PrintDebugQuest();
 void GetDebugMonster();
 void NextDebugMonster();
+#endif
+
+#if DEBUG_MODE || DEV_MODE
 void ValidateData();
+#endif
+
+#if DEV_MODE
+void LogErrorF(const char* type, const char* msg, ...);
 #endif
 
 #ifdef __cplusplus

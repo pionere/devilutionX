@@ -20,17 +20,15 @@ private:
 	void reset();
 
 public:
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
-	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256]);
+	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned int size);
 	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
 	virtual void SNetSendTurn(uint32_t turn, const BYTE *data, unsigned size);
 	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
-//#ifdef ADAPTIVE_NETUPDATE
 	unsigned SNetGetTurnsInTransit();
-//#endif
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
 	virtual void SNetUnregisterEventHandler(int evtype);
 	virtual void SNetLeaveGame(int reason);
@@ -59,17 +57,17 @@ void cdwrap<T>::reset()
 }
 
 template <class T>
-bool cdwrap<T>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
+bool cdwrap<T>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
 {
 	reset();
-	return dvlnet_wrap->create_game(addrstr, port, passwd, std::move(info));
+	return dvlnet_wrap->create_game(addrstr, port, passwd, std::move(info), errorText);
 }
 
 template <class T>
-bool cdwrap<T>::join_game(const char* addrstr, unsigned port, const char* passwd)
+bool cdwrap<T>::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	reset();
-	return dvlnet_wrap->join_game(addrstr, port, passwd);
+	return dvlnet_wrap->join_game(addrstr, port, passwd, errorText);
 }
 
 template <class T>
@@ -136,13 +134,11 @@ void cdwrap<T>::SNetDropPlayer(int playerid)
 	dvlnet_wrap->SNetDropPlayer(playerid);
 }
 
-//#ifdef ADAPTIVE_NETUPDATE
 template <class T>
 unsigned cdwrap<T>::SNetGetTurnsInTransit()
 {
 	return dvlnet_wrap->SNetGetTurnsInTransit();
 }
-//#endif
 
 template <class T>
 void cdwrap<T>::make_default_gamename(char (&gamename)[128])

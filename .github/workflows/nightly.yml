@@ -41,32 +41,32 @@ jobs:
           # x86 builds
           - name: diablo-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-x86.zip'
           - name: hellfire-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=ON -D HELLFIRE=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x86.zip'
           - name: hellone-x86
             packages: 'sdl2:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=ON -D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NONET=ON -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NONET=ON -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
             artifact: 'hellone-nightly-x86.zip'
           - name: hellsrv-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D NOHOSTING=OFF -D HOSTONLY=ON -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=ON -D HELLFIRE=ON -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D NOHOSTING=OFF -D HOSTONLY=ON -D INET_MODE=ON -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
             artifact: 'hellsrv-nightly-x86.zip'
           # x64 builds
           - name: diablo
             packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-x64.zip'
           - name: hellfire
             packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=ON -D HELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x64.zip'
           - name: hellone
             packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=ON -D HELLFIRE=ON -D MPQONE="hellone.mpq"'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON -D MPQONE="hellone.mpq"'
             artifact: 'hellone-nightly-x64.zip'
     steps:
     - uses: actions/checkout@v2
@@ -75,10 +75,10 @@ jobs:
     
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      uses: lukka/run-vcpkg@v6
+      uses: lukka/run-vcpkg@v10.1
       with:
         setupOnly: true
-        vcpkgGitCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
+        vcpkgGitCommitId: 'b86c0c35b88e2bf3557ff49dc831689c2f085090'
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     - name: Install Required Packages
       run: |
@@ -211,7 +211,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install gettext
-      run: sudo apt update && sudo apt install -y gettext
+      run: sudo apt-get update && sudo apt-get install -y gettext
 
     - name: Checkout
       uses: actions/checkout@v2
@@ -275,8 +275,8 @@ jobs:
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-gcw0-toolchain.2021-10-22.tar.xz -o gcw0-toolchain.tar.xz &&
     - name: Create Build Environment
       run: >
-        sudo apt update &&
-        sudo apt install -y curl cmake git squashfs-tools &&
+        sudo apt-get update &&
+        sudo apt-get install -y curl cmake git squashfs-tools &&
         curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-gcw0-toolchain.2021-03-10.tar.xz -o gcw0-toolchain.tar.xz &&
         sudo mkdir -p /opt/gcw0-toolchain && sudo chown -R "${USER}:" /opt/gcw0-toolchain &&
         tar -C /opt -xf gcw0-toolchain.tar.xz
@@ -319,8 +319,8 @@ jobs:
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-lepus-toolchain.2021-10-22.tar.xz -o lepus-toolchain.tar.xz &&
     - name: Create Build Environment
       run: >
-        sudo apt update &&
-        sudo apt install -y curl cmake git squashfs-tools &&
+        sudo apt-get update &&
+        sudo apt-get install -y curl cmake git squashfs-tools &&
         curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-lepus-toolchain.2021-03-11.tar.xz -o lepus-toolchain.tar.xz &&
         sudo mkdir -p /opt/lepus-toolchain && sudo chown -R "${USER}:" /opt/lepus-toolchain &&
         tar -C /opt -xf lepus-toolchain.tar.xz
@@ -360,14 +360,14 @@ jobs:
       with:
         fetch-depth: 0
 
-     #sudo apt install -y curl git smpq &&
+     #sudo apt-get install -y curl git smpq &&
      #curl -L https://github.com/retrofw/buildroot/releases/download/2018.02.11/mipsel-linux-uclibc_x64.tar.gz -o retrofw-toolchain.tar.xz &&
      #sudo mkdir -p /opt/mipsel-linux-uclibc && sudo chown -R "${USER}:" /opt/mipsel-linux-uclibc &&
      #tar -C /opt -xvf retrofw-toolchain.tar.xz
     - name: Create Build Environment
       run: >
-        sudo apt update &&
-        sudo apt install -y curl cmake git squashfs-tools gettext &&
+        sudo apt-get update &&
+        sudo apt-get install -y curl cmake git squashfs-tools gettext &&
         curl -L https://github.com/Poligraf/retrofw_buildroot_gcc11/releases/download/2.3.2/host.tar.gz -o retrofw-toolchain.tar.gz &&
         sudo mkdir -p /opt/retrofw-toolchain && sudo chown -R "${USER}:" /opt/retrofw-toolchain &&
         tar -C /opt/retrofw-toolchain --strip-components=1 -xf retrofw-toolchain.tar.gz &&
@@ -387,9 +387,51 @@ jobs:
         name: ${{ matrix.artifact }}
         path: build-retrofw/devilutionx-retrofw.opk
 
+  build_ps4:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-PS4
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [diablo, hellfire]
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-ps4.pkg'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-ps4.pkg'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: >
+        sudo apt update &&
+        sudo apt install -y wget cmake git gettext &&
+        wget https://github.com/PacBrew/pacbrew-pacman/releases/download/pacbrew-release-1.0/pacbrew-pacman-1.0.deb &&
+        sudo dpkg -i pacbrew-pacman-1.0.deb && sudo pacbrew-pacman -Sy &&
+        sudo pacbrew-pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs &&
+        echo "#include <endian.h>" | sudo tee /opt/pacbrew/ps4/openorbis/include/sys/endian.h
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: Packaging/ps4/build.sh "${{ matrix.cmakeargs }}"
+
+    - name: Upload-Package
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.artifact }}
+        path: build-ps4/devilutionx.pkg
+
   # Releases
   release:
-    needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw]
+    needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
@@ -514,6 +556,19 @@ jobs:
         name: hellfire-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/hellfire-nightly-retrofw.opk
 
+    # ps4 builds
+    - name: Download a diablo ps4 artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: diablo-nightly-ps4.pkg
+    - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/diablo-nightly-ps4.pkg
+
+    - name: Download a hellfire ps4 artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellfire-nightly-ps4.pkg
+    - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4.pkg
+
     # release notes
     - name: Create release notes
       run: |
@@ -528,6 +583,7 @@ jobs:
         echo '[diablo-nightly-lepus.opk](../../releases/download/devilx-nightly/diablo-nightly-lepus.opk)   | Diablo package for `Lepus`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-retrofw.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-ps4.pkg](../../releases/download/devilx-nightly/diablo-nightly-ps4.pkg)   | Diablo package for `PS4`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-ios.ipa](../../releases/download/devilx-nightly/diablo-nightly-ios.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
@@ -540,6 +596,7 @@ jobs:
         echo '[hellfire-nightly-lepus.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepus.opk)   | Hellfire package for `Lepus`'       >> RELEASE_NOTE.md
         echo '[hellfire-nightly-retrofw.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-ps4.pkg](../../releases/download/devilx-nightly/hellfire-nightly-ps4.pkg)   | Hellfire package for `PS4`'             >> RELEASE_NOTE.md
         echo '[hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-ios.ipa](../../releases/download/devilx-nightly/hellfire-nightly-ios.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
@@ -571,6 +628,7 @@ jobs:
           ${{github.workspace}}/diablo-nightly-lepus.opk
           ${{github.workspace}}/diablo-nightly-retrofw.opk
           ${{github.workspace}}/diablo-nightly-rg350.opk
+          ${{github.workspace}}/diablo-nightly-ps4.pkg
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-ios.ipa
           ${{github.workspace}}/diablo-nightly-x64.zip
@@ -579,6 +637,7 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-lepus.opk
           ${{github.workspace}}/hellfire-nightly-retrofw.opk
           ${{github.workspace}}/hellfire-nightly-rg350.opk
+          ${{github.workspace}}/hellfire-nightly-ps4.pkg
           ${{github.workspace}}/hellfire-nightly-mac.dmg
           ${{github.workspace}}/hellfire-nightly-ios.ipa
           ${{github.workspace}}/hellfire-nightly-x64.zip

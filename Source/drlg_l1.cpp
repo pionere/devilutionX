@@ -28,7 +28,7 @@ const ShadowStruct L1SPATS[] = {
 	// clang-format off
 	//sh11, 01, 10,  00,   mask11    01    10    00    nv1, nv2, nv3
 	{ { SF, 11, 12,   3 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 150,   0,   0 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ {  0,  1,  0,   3 }, { 0x00, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
 	{ {  0,  0,  2,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
 	{ {  0,  0,  7,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
@@ -38,7 +38,7 @@ const ShadowStruct L1SPATS[] = {
 #endif
 	{ { SF, SF, SF,   5 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152, 140, 139 },
 	{ { SF,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 142 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ { 36,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
 	{ {  2,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  2
 	{ { 12,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 12
@@ -49,7 +49,7 @@ const ShadowStruct L1SPATS[] = {
 	{ { SF, 11, SF,   9 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 151, 147, 142 },
 	{ {  0, SF,  0,  10 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 140,   0 },
 	{ {  0,  1,  0,  10 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 146,   0 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ {  0,  6,  0,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  6
 	{ { SF, 25,  0,  10 }, { 0xFF, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 25
 #endif
@@ -60,7 +60,7 @@ const ShadowStruct L1SPATS[] = {
 	//{ { SF, 11, 26,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
 	{ { SF, 11, 12,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 143, 147,   0 },
 	{ { SF, 11, 36,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 143, 147,   0 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ { SF, 35,  0,  10 }, { 0xFF, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 35
 #endif
 	{ {  0,  0,  2,  11 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0, 148 },
@@ -69,7 +69,7 @@ const ShadowStruct L1SPATS[] = {
 	{ { SF, 11, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
 	{ { SF, 14, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
 	{ { SF, 35, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 141,   0, 139 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ {  7, 11, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
 	{ {  7, 35, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
 	{ {  7,  1, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
@@ -81,7 +81,7 @@ const ShadowStruct L1SPATS[] = {
 	{ { 12,  8, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 139 },
 	{ {  0,  1,  0,  12 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 146,   0 },
 	{ {  0, SF,  0,  12 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 140,   0 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ {  0,  6,  0,  12 }, { 0x00, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for  6
 	{ {  7,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
 	{ { 26,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
@@ -99,7 +99,7 @@ const ShadowStruct L1SPATS[] = {
 	{ { SF, 35, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 141,   0, 139 },
 	{ { SF,  0, SF,  15 }, { 0xFF, 0x00, 0xFF, 0xFF }, 145,   0, 142 },
 	{ { SF,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 142 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ {  2,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  2
 	{ {  7,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
 	{ { 12,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 12
@@ -111,7 +111,7 @@ const ShadowStruct L1SPATS[] = {
 	//{ {  2,  1, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 141 }, // covered above
 	//{ {  2,  6, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 141 }, // covered above
 	{ {  2, 35, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 154,   0, 141 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ { 36,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
 	{ { 26,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
 	{ {  7,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
@@ -128,7 +128,7 @@ const ShadowStruct L1SPATS[] = {
 	{ { SF, 35, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 141,   0, 141 },
 	{ { SF, SF, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152, 140, 141 }, // only for tile 37
 	{ {  0,  1,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 146,   0 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ {  0,  6,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 6
 	{ {  0, 25,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 25
 #endif
@@ -140,7 +140,7 @@ const ShadowStruct L1SPATS[] = {
 	//{ { SF, 11,  7,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
 	{ { SF, 11, 12,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 150, 147,   0 },
 	{ { SF, 11, 36,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 150, 147,   0 },
-#ifdef _DEBUG
+#if DEBUG_MODE
 	{ { SF, 35,  0,  36 }, { 0xFF, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 35
 #endif
 	{ {  0,  0,  0, 255 }, {    0,    0,    0,    0 },   0,   0,   0 }
@@ -891,7 +891,7 @@ static void DRLG_FreeL1SP()
 void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
-
+	// add special arches
 	for (i = x1; i <= x2; ++i) {
 		for (j = y1; j <= y2; ++j) {
 			pn = dPiece[i][j];
@@ -910,6 +910,19 @@ void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 			else
 				pn = 0;
 			dSpecial[i][j] = pn;
+		}
+	}
+	// add rims to stone doors
+	for (i = x1; i <= x2; i++) {
+		for (j = y1; j <= y2; j++) {
+			pn = dPiece[i][j];
+			// 417 is stone L-door
+			// 420 is stone R-door -- unused at the moment
+			if (pn == 417) {
+				dSpecial[i][j + 1] = 7;
+			} else if (pn == 420) {
+				dSpecial[i + 1][j] = 8;
+			}
 		}
 	}
 }
@@ -1021,6 +1034,21 @@ void LoadL1Dungeon(const LevelData* lds)
 
 	// load dungeon
 	pMap = LoadL1DungeonData(lds->dSetLvlDun);
+	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+		// patch set-piece to fix empty tiles - Vile2.DUN
+		// assert(pMap[(2 + 8 + 16 * 21) * 2] == 0);
+		// assert(dungeon[8][16] == 13);
+		dungeon[8][16] = 203;
+		// assert(pMap[(2 + 12 + 22 * 21) * 2] == 0);
+		// assert(dungeon[12][22] == 13);
+		dungeon[12][22] = 203;
+		// assert(pMap[(2 + 13 + 22 * 21) * 2] == 0);
+		// assert(dungeon[13][22] == 13);
+		dungeon[13][22] = 203;
+		// assert(pMap[(2 + 14 + 22 * 21) * 2] == 0);
+		// assert(dungeon[14][22] == 13);
+		dungeon[14][22] = 203;
+	}
 
 	//DRLG_L1Floor();
 
@@ -1872,7 +1900,7 @@ static void L1TileFix()
 			}
 		}
 	}
-#ifdef _DEBUG
+#if DEBUG_MODE
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
 			switch (dungeon[i][j]) {
@@ -2026,7 +2054,7 @@ static void DRLG_L1Subs()
 	const unsigned NUM_L1TYPES = 139;
 	static_assert(MAX_MATCH <= CHAR_MAX, "MAX_MATCH does not fit to rv(char) in DRLG_L1Subs.");
 	static_assert(NUM_L1TYPES <= UCHAR_MAX, "NUM_L1TYPES does not fit to i(BYTE) in DRLG_L1Subs.");
-#ifdef _DEBUG
+#if DEBUG_MODE
 	for (i = sizeof(L1BTYPES) - 1; i >= 0; i--) {
 		if (L1BTYPES[i] != 0) {
 			if (i >= NUM_L1TYPES)

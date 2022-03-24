@@ -5,7 +5,7 @@
 
 #include "controls/controller_motion.h"
 #include "controls/plrctrls.h"
-#include "utils/stubs.h"
+#include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -107,9 +107,10 @@ ControllerButton Joystick::ToControllerButton(const SDL_Event &event)
 
 int Joystick::ToSdlJoyButton(ControllerButton button)
 {
-	if (button == ControllerButton_AXIS_TRIGGERLEFT || button == ControllerButton_AXIS_TRIGGERRIGHT)
-		UNIMPLEMENTED();
 	switch (button) {
+	case ControllerButton_NONE:
+	case ControllerButton_IGNORE:
+		break;
 #ifdef JOY_BUTTON_A
 	case ControllerButton_BUTTON_A:
 		return JOY_BUTTON_A;
@@ -166,7 +167,12 @@ int Joystick::ToSdlJoyButton(ControllerButton button)
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return JOY_BUTTON_DPAD_RIGHT;
 #endif
+	case ControllerButton_AXIS_TRIGGERLEFT:
+	case ControllerButton_AXIS_TRIGGERRIGHT:
+		ASSUME_UNREACHABLE
+		break;
 	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	return -1;
@@ -248,12 +254,11 @@ void Joystick::Add(int deviceIndex)
 	if (SDL_NumJoysticks() <= deviceIndex)
 		return;
 	Joystick result;
-	SDL_Log("Adding joystick %d: %s", deviceIndex,
+	DoLog("Adding joystick %d: %s", deviceIndex,
 	    SDL_JoystickNameForIndex(deviceIndex));
 	result.sdl_joystick_ = SDL_JoystickOpen(deviceIndex);
 	if (result.sdl_joystick_ == NULL) {
-		SDL_Log("%s", SDL_GetError());
-		SDL_ClearError();
+		DoLog(SDL_GetError());
 		return;
 	}
 #ifndef USE_SDL1
@@ -266,7 +271,7 @@ void Joystick::Add(int deviceIndex)
 void Joystick::Remove(SDL_JoystickID instanceId)
 {
 #ifndef USE_SDL1
-	SDL_Log("Removing joystick (instance id: %d)", instanceId);
+	DoLog("Removing joystick (instance id: %d)", instanceId);
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {
 		const Joystick &joystick = joysticks_[i];
 		if (joystick.instance_id_ != instanceId)
@@ -275,7 +280,7 @@ void Joystick::Remove(SDL_JoystickID instanceId)
 		sgbControllerActive = !joysticks_.empty();
 		return;
 	}
-	SDL_Log("Joystick not found with instance id: %d", instanceId);
+	DoLog("Joystick not found with instance id: %d", instanceId);
 #endif
 }
 

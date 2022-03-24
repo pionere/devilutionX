@@ -961,7 +961,7 @@ void InitLightGFX()
 	}
 }
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 void ToggleLighting()
 {
 	int pnum;
@@ -988,7 +988,7 @@ void InitLighting()
 
 	numlights = 0;
 	gbDolighting = false;
-#ifdef _DEBUG
+#if DEBUG_MODE
 	lightflag = false;
 #endif
 
@@ -1002,7 +1002,7 @@ unsigned AddLight(int x, int y, int r)
 	LightListStruct *lis;
 	int lnum;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		return NO_LIGHT;
 #endif
@@ -1027,7 +1027,7 @@ unsigned AddLight(int x, int y, int r)
 
 void AddUnLight(unsigned lnum)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		return;
 #endif
@@ -1042,7 +1042,7 @@ void ChangeLightRadius(unsigned lnum, int r)
 {
 	LightListStruct *lis;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		return;
 #endif
@@ -1059,7 +1059,7 @@ void ChangeLightXY(unsigned lnum, int x, int y)
 {
 	LightListStruct *lis;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		return;
 #endif
@@ -1077,7 +1077,7 @@ void ChangeLightOff(unsigned lnum, int xoff, int yoff)
 {
 	LightListStruct *lis;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		return;
 #endif
@@ -1098,7 +1098,7 @@ void ChangeLightXYOff(unsigned lnum, int x, int y)
 {
 	LightListStruct *lis;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		return;
 #endif
@@ -1120,7 +1120,7 @@ void CondChangeLightOff(unsigned lnum, int xoff, int yoff)
 	int lx, ly;
 	int offx, offy;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		return;
 #endif
@@ -1146,7 +1146,7 @@ void ChangeLight(unsigned lnum, int x, int y, int r)
 {
 	LightListStruct *lis;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		return;
 #endif
@@ -1167,7 +1167,7 @@ void ProcessLightList()
 	int i, j;
 	BYTE temp;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (lightflag)
 		return;
 #endif
@@ -1214,6 +1214,15 @@ void InitVision()
 	}
 	static_assert(false == 0, "InitVision fills TransList with 0 instead of false values.");
 	memset(TransList, 0, sizeof(TransList));
+}
+
+void RedoLightAndVision()
+{
+	//if (deltaload)
+	//	return;
+
+	gbDolighting = true;
+	_gbDovision = true;
 }
 
 int AddVision(int x, int y, int r, bool mine)

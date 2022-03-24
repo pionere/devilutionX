@@ -20,8 +20,7 @@ void ToggleFullscreen();
 void ClearScreenBuffer();
 void RedBack();
 void trans_rect(int sx, int sy, int width, int height);
-void BltFast(const SDL_Rect *src_rect, SDL_Rect *dst_rect);
-void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect);
+void BltFast();
 void RenderPresent();
 
 DEVILUTION_END_NAMESPACE

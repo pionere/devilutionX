@@ -10,6 +10,7 @@
 #endif
 #include "../types.h"
 #include "appfat.h"
+#include "log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -52,7 +53,7 @@ void SoundSample::Play(int lVolume, int lPan, int channel)
 
 	channel = Mix_PlayChannel(channel, soundData, 0);
 	if (channel == -1) {
-		SDL_Log("Too few channels, skipping sound");
+		DoLog(Mix_GetError());
 		return;
 	}
 	/*lVolume = (int)(pow(10.0, lVolume / 2000.0) * MIX_MAX_VOLUME);
@@ -96,7 +97,7 @@ void SoundSample::SetChunk(BYTE* fileData, size_t dwBytes, bool stream)
 			return; // 0;
 	//}
 
-	sdl_fatal(ERR_SDL_SOUND_FILE);
+	sdl_error(ERR_SDL_SOUND_FILE);
 	//return -1;
 };
 

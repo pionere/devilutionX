@@ -1,6 +1,7 @@
 #include "dialogs.h"
 
 #include "utils/display.h"
+#include "utils/log.h"
 #include "../palette.h"
 #include "../diablo.h"
 
@@ -273,16 +274,16 @@ static void UiOkDialog(const char* caption, const char* text, bool error/*, cons
 	}
 
 	if (SDL_ShowCursor(SDL_ENABLE) < 0) {
-		SDL_Log("%s", SDL_GetError());
+		DoLog(SDL_GetError());
 	}
 #ifndef RUN_TESTS
 	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, caption, text, NULL) < 0) {
-		SDL_Log("%s", SDL_GetError());
+		DoLog(SDL_GetError());
 #else
 	{
 #endif
-		SDL_Log("%s", caption);
-		SDL_Log("%s", text);
+		DoLog(caption);
+		DoLog(text);
 	}
 }
 

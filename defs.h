@@ -55,7 +55,10 @@
 #define MAXTRIGGERS				5
 #endif
 
-#define MAX_NETMSG_SIZE			512
+// the maximum size of normal (cmd) message
+#define NET_NORMAL_MSG_SIZE		512
+// the maximum size of a large (nmsg) message
+#define NET_LARGE_MSG_SIZE		512
 #define NET_DEFAULT_PORT		6112
 #define MAX_SEND_STR_LEN		80
 
@@ -65,13 +68,15 @@
 #define MAXBELTITEMS			8
 #define MAXLIGHTS				32
 #define MAXMISSILES				125
+#define MIS_MULTI				0xFF
 #define MAXMONSTERS				200
+#define MON_NONE				0xFF
 #define MAXOBJECTS				127
 #define OBJ_NONE				0xFF
 #define MAXPORTAL				MAX_PLRS
 #define MAXTHEMES				50
 #define MAXTILES				2047
-#define MAXVISION				MAX_PLRS
+#define MAXVISION				(MAX_PLRS + MAX_MINIONS)
 #define MDMAXX					40
 #define MDMAXY					40
 #define MAXCHARLEVEL			50
@@ -124,8 +129,6 @@
 
 // 272 kilobytes .. (was 256 kb in vanilla which is not safe)
 #define FILEBUFF				(272 * 1024)
-
-#define PMSG_COUNT				8
 
 // Diablo uses a 256 color palette
 // Entry 0-127 (0x00-0x7F) are level specific
@@ -256,20 +259,14 @@
 
 #undef assert
 
-#ifdef _DEBUG
-#define assert(exp) (void)((exp) || (assert_fail(__LINE__, __FILE__, #exp), 0))
-#elif defined(_DEVMODE)
+#if DEBUG_MODE || DEV_MODE
 #define assert(exp) (void)((exp) || (app_fatal("Assert fail at %d, %s, %s", __LINE__, __FILE__, #exp), 0))
 #else
 #define assert(exp) ((void)0)
 #endif
 
 #ifdef _MSC_VER
-#ifdef _DEVMODE
-#define ASSUME_UNREACHABLE assert(0);
-#else
 #define ASSUME_UNREACHABLE __assume(0);
-#endif
 #elif defined(__clang__)
 #define ASSUME_UNREACHABLE __builtin_unreachable();
 #elif defined(__GNUC__)
@@ -280,9 +277,15 @@
 #endif
 #endif
 
-#ifdef _DEBUG
+#if DEBUG_MODE || DEV_MODE
 #undef ASSUME_UNREACHABLE
 #define ASSUME_UNREACHABLE assert(0);
+#endif
+
+#if INET_MODE
+#define net_assert(x) assert(x)
+#else
+#define net_assert(x) do { } while(0)
 #endif
 
 #define SwapLE64 SDL_SwapLE64

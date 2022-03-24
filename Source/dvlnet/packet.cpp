@@ -1,7 +1,5 @@
 #include "packet.h"
 
-#include "utils/stubs.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
@@ -53,7 +51,7 @@ void packet_out::encrypt()
 			lenCleartext,
 			encrypted_buffer.data(),
 			key.data))
-		ABORT();
+		app_error(ERR_APP_PACKET_ENCRYPT);
 #endif
 }
 
@@ -61,7 +59,7 @@ void packet_factory::setup_password(const char* passwd)
 {
 #ifdef NETENCRYPT
 	if (sodium_init() < 0)
-		ABORT();
+		app_error(ERR_APP_PACKET_SETUP);
 	std::string pw = std::string(passwd);
 	pw.resize(std::min<size_t>(pw.size(), crypto_pwhash_argon2id_PASSWD_MAX));
 	pw.resize(std::max<size_t>(pw.size(), crypto_pwhash_argon2id_PASSWD_MIN), 0);
@@ -73,7 +71,7 @@ void packet_factory::setup_password(const char* passwd)
 	        3 * crypto_pwhash_argon2id_OPSLIMIT_MIN,
 	        2 * crypto_pwhash_argon2id_MEMLIMIT_MIN,
 	        crypto_pwhash_ALG_ARGON2ID13))
-		ABORT();
+		app_error(ERR_APP_PACKET_PASSWD);
 #endif
 }
 

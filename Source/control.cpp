@@ -311,7 +311,7 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 	} else if ((spelldata[spl].sFlags & plr._pSkillFlags) != spelldata[spl].sFlags)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
-		lvl = GetSpellLevel(pnum, spl);
+		lvl = plr._pSkillLvl[spl];
 		if (lvl <= 0 || plr._pMana < GetManaAmount(pnum, spl))
 			st = RSPLTYPE_INVALID;
 		if (plr._pHasUnidItem)
@@ -444,7 +444,7 @@ void DrawSkillList()
 			}
 			st = i;
 			if (i == RSPLTYPE_SPELL) {
-				sl = GetSpellLevel(pnum, j);
+				sl = plr._pSkillLvl[j];
 				st = sl > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 				if (plr._pHasUnidItem)
 					sl = -1; // SPLLVL_UNDEF
@@ -999,11 +999,11 @@ bool DoPanBtn()
 			return true;
 		}
 	}
-	if (mx >= SCREEN_WIDTH - (SPLICONLENGTH + 4)
-	 && mx <= SCREEN_WIDTH - 4
-	 && my >= SCREEN_HEIGHT - 2 * (SPLICONLENGTH + 4)
-	 && my <= SCREEN_HEIGHT - 4) {
-		HandleSkillBtn(my < SCREEN_HEIGHT - (SPLICONLENGTH + 4));
+	if (mx >= SCREEN_WIDTH - SPLICONLENGTH
+	 && mx <= SCREEN_WIDTH
+	 && my >= SCREEN_HEIGHT - 2 * SPLICONLENGTH
+	 && my <= SCREEN_HEIGHT) {
+		HandleSkillBtn(my < SCREEN_HEIGHT - SPLICONLENGTH);
 		return true;
 	}
 	if (gbLvlUp && InLvlUpRect())
@@ -1149,42 +1149,42 @@ void DrawChr()
 
 	ADD_PlrStringXY(153, 19, 292, ClassStrTbl[pc], COL_WHITE);
 
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pLevel);
+	snprintf(chrstr, sizeof(chrstr), "%d", p->_pLevel);
 	ADD_PlrStringXY(53, 46, 96, chrstr, COL_WHITE);
 
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pExperience);
+	snprintf(chrstr, sizeof(chrstr), "%d", p->_pExperience);
 	ADD_PlrStringXY(200, 46, 292, chrstr, COL_WHITE);
 
 	if (p->_pLevel == MAXCHARLEVEL) {
 		copy_cstr(chrstr, "None");
 		col = COL_GOLD;
 	} else {
-		snprintf(chrstr, sizeof(chrstr), "%i", p->_pNextExper);
+		snprintf(chrstr, sizeof(chrstr), "%d", p->_pNextExper);
 		col = COL_WHITE;
 	}
 	ADD_PlrStringXY(200, 71, 292, chrstr, col);
 
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pGold);
+	snprintf(chrstr, sizeof(chrstr), "%d", p->_pGold);
 	ADD_PlrStringXY(221, 97, 292, chrstr, COL_WHITE);
 
 	col = COL_WHITE;
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseStr);
+	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseStr);
 	ADD_PlrStringXY(88, 119, 125, chrstr, col);
 
 	col = COL_WHITE;
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseMag);
+	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseMag);
 	ADD_PlrStringXY(88, 147, 125, chrstr, col);
 
 	col = COL_WHITE;
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseDex);
+	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseDex);
 	ADD_PlrStringXY(88, 175, 125, chrstr, col);
 
 	col = COL_WHITE;
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseVit);
+	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseVit);
 	ADD_PlrStringXY(88, 203, 125, chrstr, col);
 
 	if (p->_pStatPts > 0) {
-		snprintf(chrstr, sizeof(chrstr), "%i", p->_pStatPts);
+		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
 		ADD_PlrStringXY(88, 231, 125, chrstr, COL_RED);
 		CelDraw(ChrBtnsRect[ATTRIB_STR].x + SCREEN_X, ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_STR] ? 3 : 2, CHRBTN_WIDTH);
 		CelDraw(ChrBtnsRect[ATTRIB_MAG].x + SCREEN_X, ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_MAG] ? 5 : 4, CHRBTN_WIDTH);
@@ -1202,7 +1202,7 @@ void DrawChr()
 			col = COL_BLUE;
 		else if (val < p->_pBaseStr)
 			col = COL_RED;
-		snprintf(chrstr, sizeof(chrstr), "%i", val);
+		snprintf(chrstr, sizeof(chrstr), "%d", val);
 		ADD_PlrStringXY(135, 119, 172, chrstr, col);
 
 		val = p->_pMagic;
@@ -1211,7 +1211,7 @@ void DrawChr()
 			col = COL_BLUE;
 		else if (val < p->_pBaseMag)
 			col = COL_RED;
-		snprintf(chrstr, sizeof(chrstr), "%i", val);
+		snprintf(chrstr, sizeof(chrstr), "%d", val);
 		ADD_PlrStringXY(135, 147, 172, chrstr, col);
 
 		val = p->_pDexterity;
@@ -1220,7 +1220,7 @@ void DrawChr()
 			col = COL_BLUE;
 		else if (val < p->_pBaseDex)
 			col = COL_RED;
-		snprintf(chrstr, sizeof(chrstr), "%i", val);
+		snprintf(chrstr, sizeof(chrstr), "%d", val);
 		ADD_PlrStringXY(135, 175, 172, chrstr, col);
 
 		val = p->_pVitality;
@@ -1229,15 +1229,15 @@ void DrawChr()
 			col = COL_BLUE;
 		else if (val < p->_pBaseVit)
 			col = COL_RED;
-		snprintf(chrstr, sizeof(chrstr), "%i", val);
+		snprintf(chrstr, sizeof(chrstr), "%d", val);
 		ADD_PlrStringXY(135, 203, 172, chrstr, col);
 	}
 
-	snprintf(chrstr, sizeof(chrstr), "%i/%i", p->_pIAC, p->_pIEvasion);
+	snprintf(chrstr, sizeof(chrstr), "%d/%d", p->_pIAC, p->_pIEvasion);
 	// instead of (242;291) x-limits, (239;294) are used to make sure the values are displayed
 	PrintString(239 + SCREEN_X, 122 + SCREEN_Y, 294 + SCREEN_X, chrstr, true, COL_WHITE, -1);
 
-	snprintf(chrstr, sizeof(chrstr), "%i/%i", p->_pIBlockChance, p->_pICritChance / 2);
+	snprintf(chrstr, sizeof(chrstr), "%d/%d", p->_pIBlockChance, p->_pICritChance / 2);
 	// instead of (242;291) x-limits, (241;292) are used to make sure the values are displayed
 	PrintString(241 + SCREEN_X, 150 + SCREEN_Y, 292 + SCREEN_X, chrstr, true, COL_WHITE, -1);
 
@@ -1247,7 +1247,7 @@ void DrawChr()
 		col = COL_BLUE;
 	else if (p->_pIBaseHitBonus == IBONUS_NEGATIVE)
 		col = COL_RED;
-	snprintf(chrstr, sizeof(chrstr), "%i%%", val);
+	snprintf(chrstr, sizeof(chrstr), "%d%%", val);
 	ADD_PlrStringXY(242, 178, 291, chrstr, col);
 
 	col = COL_WHITE;
@@ -1257,14 +1257,14 @@ void DrawChr()
 		col = COL_BLUE;
 	mindam += (p->_pISlMinDam + p->_pIBlMinDam + p->_pIPcMinDam) >> (6 + 1); // +1 is a temporary(?) adjustment for backwards compatibility
 	maxdam += (p->_pISlMaxDam + p->_pIBlMaxDam + p->_pIPcMaxDam) >> (6 + 1);
-	snprintf(chrstr, sizeof(chrstr), "%i-%i", mindam, maxdam);
+	snprintf(chrstr, sizeof(chrstr), "%d-%d", mindam, maxdam);
 	// instead of (242;291) x-limits, (240;293) are used to make sure the values are displayed
 	PrintString(240 + SCREEN_X, 206 + SCREEN_Y, 293 + SCREEN_X, chrstr, true, col, mindam < 100 ? 0 : -1);
 
 	val = p->_pMagResist;
 	if (val < MAXRESIST) {
 		col = val >= 0 ? COL_WHITE : COL_RED;
-		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
+		snprintf(chrstr, sizeof(chrstr), "%d%%", val);
 	} else {
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
@@ -1274,7 +1274,7 @@ void DrawChr()
 	val = p->_pFireResist;
 	if (val < MAXRESIST) {
 		col = val >= 0 ? COL_WHITE : COL_RED;
-		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
+		snprintf(chrstr, sizeof(chrstr), "%d%%", val);
 	} else {
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
@@ -1284,7 +1284,7 @@ void DrawChr()
 	val = p->_pLghtResist;
 	if (val < MAXRESIST) {
 		col = val >= 0 ? COL_WHITE : COL_RED;
-		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
+		snprintf(chrstr, sizeof(chrstr), "%d%%", val);
 	} else {
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
@@ -1294,7 +1294,7 @@ void DrawChr()
 	val = p->_pAcidResist;
 	if (val < MAXRESIST) {
 		col = val >= 0 ? COL_WHITE : COL_RED;
-		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
+		snprintf(chrstr, sizeof(chrstr), "%d%%", val);
 	} else {
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
@@ -1303,20 +1303,20 @@ void DrawChr()
 
 	val = p->_pMaxHP;
 	col = val <= p->_pMaxHPBase ? COL_WHITE : COL_BLUE;
-	snprintf(chrstr, sizeof(chrstr), "%i", val >> 6);
+	snprintf(chrstr, sizeof(chrstr), "%d", val >> 6);
 	ADD_PlrStringXY(88, 260, 125, chrstr, col);
 	if (p->_pHitPoints != val)
 		col = COL_RED;
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pHitPoints >> 6);
+	snprintf(chrstr, sizeof(chrstr), "%d", p->_pHitPoints >> 6);
 	ADD_PlrStringXY(135, 260, 172, chrstr, col);
 
 	val = p->_pMaxMana;
 	col = val <= p->_pMaxManaBase ? COL_WHITE : COL_BLUE;
-	snprintf(chrstr, sizeof(chrstr), "%i", val >> 6);
+	snprintf(chrstr, sizeof(chrstr), "%d", val >> 6);
 	ADD_PlrStringXY(88, 288, 125, chrstr, col);
 	if (p->_pMana != val)
 		col = COL_RED;
-	snprintf(chrstr, sizeof(chrstr), "%i", p->_pMana >> 6);
+	snprintf(chrstr, sizeof(chrstr), "%d", p->_pMana >> 6);
 	ADD_PlrStringXY(135, 288, 172, chrstr, col);
 }
 
@@ -1418,7 +1418,7 @@ static void GetItemInfo(ItemStruct* is)
 	if (is->_itype != ITYPE_GOLD) {
 		copy_str(infostr, is->_iName);
 	} else {
-		snprintf(infostr, sizeof(infostr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
+		snprintf(infostr, sizeof(infostr), "%d gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 	}
 }
 
@@ -1622,7 +1622,7 @@ void DrawInfoStr()
 		y = os->_oy - 1;
 		GetMousePos(x, y, &xx, &yy);
 		DrawTooltip(infostr, xx, yy, infoclr);
-	} else if (pcursmonst != -1) {
+	} else if (pcursmonst != MON_NONE) {
 		MonsterStruct* mon = &monsters[pcursmonst];
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
@@ -1632,7 +1632,7 @@ void DrawInfoStr()
 			if (mon->_uniqtype != 0) {
 				col = COL_GOLD;
 			}
-		} else if (pcursitem == ITEM_NONE) {
+		} else {
 			strcpy(infostr, towners[pcursmonst]._tName);
 		}
 		GetMousePos(x, y, &xx, &yy);
@@ -1643,7 +1643,7 @@ void DrawInfoStr()
 		x = p->_px - 2;
 		y = p->_py - 2;
 		GetMousePos(x, y, &xx, &yy);
-		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%i)" : "%s(%i)*", ClassStrTbl[p->_pClass], p->_pLevel);
+		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%d)" : "%s(%d)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		xx += DrawTooltip2(p->_pName, infostr, xx, yy, COL_GOLD);
 		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, xx, yy + 10);
 	} else if (gbSkillListFlag) {
@@ -1733,7 +1733,6 @@ void ReleaseChrBtns()
 					ASSUME_UNREACHABLE
 					break;
 				}
-				myplr._pStatPts--;
 			}
 		}
 	}
@@ -1905,7 +1904,7 @@ void DrawSpellBook()
 				currSkill = sn;
 				currSkillType = st;
 			}
-			lvl = GetSpellLevel(pnum, sn);
+			lvl = plr._pSkillLvl[sn];
 			assert(lvl >= 0);
 			mana = 0;
 			switch (st) {
@@ -1929,7 +1928,7 @@ void DrawSpellBook()
 					break;
 				}
 				if (lvl > 0) {
-					snprintf(tempstr, sizeof(tempstr), "Spell Level %i", lvl);
+					snprintf(tempstr, sizeof(tempstr), "Spell Level %d", lvl);
 				} else {
 					copy_cstr(tempstr, "Spell Level 0 - Unusable");
 				}
@@ -1950,9 +1949,9 @@ void DrawSpellBook()
 
 			if (offset == 0) {
 				if (mana != 0)
-					cat_str(tempstr, offset, "Mana: %i  ", mana);
+					cat_str(tempstr, offset, "Mana: %d  ", mana);
 				if (min != -1)
-					cat_str(tempstr, offset, "Dam: %i-%i", min, max);
+					cat_str(tempstr, offset, "Dam: %d-%d", min, max);
 				PrintString(sx + SBOOK_LINE_TAB, yp - 1, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
 			}
 
@@ -2017,13 +2016,13 @@ void DrawGoldSplit(int amount)
 
 	screen_x = 0;
 	CelDraw(351 + SCREEN_X, 178 + SCREEN_Y, pGoldDropCel, 1, 261);
-	snprintf(tempstr, sizeof(tempstr), "You have %u gold", initialDropGoldValue);
+	snprintf(tempstr, sizeof(tempstr), "You have %d gold", initialDropGoldValue);
 	ADD_PlrStringXY(366, 87, 600, tempstr, COL_GOLD);
 	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(initialDropGoldValue));
 	ADD_PlrStringXY(366, 103, 600, tempstr, COL_GOLD);
 	ADD_PlrStringXY(366, 121, 600, "you want to remove?", COL_GOLD);
 	if (amount > 0) {
-		snprintf(tempstr, sizeof(tempstr), "%u", amount);
+		snprintf(tempstr, sizeof(tempstr), "%d", amount);
 		PrintGameStr(388, 140, tempstr, COL_WHITE);
 		screen_x += GetStringWidth(tempstr);
 		screen_x += 452;
@@ -2038,9 +2037,10 @@ static void control_remove_gold()
 	int gi;
 
 	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
+	static_assert((int)INVITEM_INV_LAST - (int)INVITEM_INV_FIRST < UCHAR_MAX, "control_remove_gold sends inv item index in BYTE field.");
 	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
 	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using WORD.");
-	NetSendCmdParam2(CMD_SPLITPLRGOLD, gi, dropGoldValue);
+	NetSendCmdParamBW(CMD_SPLITPLRGOLD, gi, dropGoldValue);
 }
 
 void control_drop_gold(char vkey)
@@ -2390,8 +2390,9 @@ static void control_press_enter()
 		}
 		sgszTalkMsg[0] = '\0';
 		sgbTalkSavePos = sgbNextTalkSave;
+	} else {
+		control_reset_talk();
 	}
-	control_reset_talk();
 }
 
 bool control_talk_last_key(int vkey)

@@ -44,7 +44,7 @@ extern int dMonster[MAXDUNX][MAXDUNY];
 extern BYTE dDead[MAXDUNX][MAXDUNY];
 extern char dObject[MAXDUNX][MAXDUNY];
 extern BYTE dItem[MAXDUNX][MAXDUNY];
-extern char dMissile[MAXDUNX][MAXDUNY];
+extern BYTE dMissile[MAXDUNX][MAXDUNY];
 extern BYTE dSpecial[MAXDUNX][MAXDUNY];
 extern int themeCount;
 extern THEME_LOC themeLoc[MAXTHEMES];

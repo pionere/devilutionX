@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData);
+bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData, char (&errorText)[256]);
 
 /*  SNetDropPlayer @ 106
  *
@@ -30,7 +30,7 @@ void SNetDropPlayer(int playerid);
  */
 void SNetGetGameInfo(const char **name, const char **password);
 
-bool SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword);
+bool SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword, char (&errorText)[256]);
 
 /*  SNetLeaveGame @ 119
  *
@@ -56,8 +56,6 @@ void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
 SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
 turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
-//#ifdef ADAPTIVE_NETUPDATE
-#ifndef NONET
 /*  SNetGetTurnsInTransit @ 115
  *
  *  Retrieves the number of turns that have been sent over the network but not processed yet.
@@ -65,7 +63,6 @@ uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
  *  @return the number of turns
  */
 unsigned SNetGetTurnsInTransit();
-#endif
 
 typedef void (*SEVTHANDLER)(SNetEvent* );
 

@@ -567,7 +567,7 @@ void EnsureSEConnection(int x, int y)
 	}*/
 }
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 static void ValidateNWConnection(int x, int y, bool full)
 {
 	assert(x > 0);
@@ -833,7 +833,7 @@ static void L4TileFix()
 		}
 	}
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
 			switch (dungeon[i][j]) {

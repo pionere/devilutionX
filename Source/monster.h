@@ -8,7 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SQUELCH_MAX					UCHAR_MAX
+// Ticks necessary to finish the current action and add the result to the delta
+// ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_NORMAL_MSG_SIZE / sizeof(TSyncMonster)))
+#define SQUELCH_LOW					127
+#define SQUELCH_MAX					(SQUELCH_LOW + 240)
 #define MINION_INACTIVE(x)			((x->_mx | x->_my) == 0)
 #define MINION_NR_INACTIVE(x)		((monsters[x]._mx | monsters[x]._my) == 0)
 #define OPPOSITE(x)					(((x) + 4) & 7)
@@ -24,6 +27,13 @@ extern int nummonsters;
 extern MonsterStruct monsters[MAXMONSTERS];
 extern MapMonData mapMonTypes[MAX_LVLMTYPES];
 extern int nummtypes;
+extern BYTE numSkelTypes;
+/* The number of goat-monster types on the current level. */
+extern BYTE numGoatTypes;
+/* Skeleton-monster types on the current level. */
+extern BYTE mapSkelTypes[MAX_LVLMTYPES];
+/* Goat-monster types on the current level. */
+extern BYTE mapGoatTypes[MAX_LVLMTYPES];
 
 void InitLevelMonsters();
 void GetLevelMTypes();
@@ -34,7 +44,6 @@ void WakeUberDiablo();
 void InitMonsters();
 void SetMapMonsters(BYTE *pMap, int startx, int starty);
 int AddMonster(int x, int y, int dir, int mtidx, bool InMap);
-void MonStartStand(int mnum, int md);
 void RemoveMonFromMap(int mnum);
 void MonGetKnockback(int mnum, int sx, int sy);
 void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags);
@@ -46,19 +55,22 @@ void MonWalkDir(int mnum, int md);
 void DeleteMonsterList();
 void ProcessMonsters();
 void FreeMonsters();
-bool DirOK(int mnum, int mdir);
+bool MonDirOK(int mnum, int mdir);
 bool CheckAllowMissile(int x, int y);
 bool CheckNoSolid(int x, int y);
 bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2);
 bool LineClear(int x1, int y1, int x2, int y2);
 bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2);
 void SyncMonsterAnim(int mnum);
-void MissToMonst(int mnum, int x, int y);
+void MissToMonst(int mnum);
+/* Check if the monster can be displaced to the given position. (unwillingly) */
+bool PosOkMonster(int mnum, int x, int y);
+/* Check if the monster can be placed to the given position. (willingly) */
 bool PosOkMonst(int mnum, int x, int y);
+/* Check if the monster could walk on the given position. (ignoring players/monsters) */
 bool PosOkMonst2(int mnum, int x, int y);
+/* Check if the monster could walk on the given position. (ignoring doors) */
 bool PosOkMonst3(int mnum, int x, int y);
-bool IsSkel(int mt);
-bool IsGoat(int mt);
 void SpawnSkeleton(int mnum, int x, int y, int dir);
 int PreSpawnSkeleton();
 void SyncMonsterQ(int pnum, int idx);
@@ -67,8 +79,6 @@ void InitGolemStats(int mnum, int level);
 void SpawnGolem(int mnum, int x, int y, int level);
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool *ret);
-int encode_enemy(int mnum);
-void decode_enemy(int mnum, int enemy);
 
 inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
 {

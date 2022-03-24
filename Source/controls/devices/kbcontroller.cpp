@@ -4,7 +4,6 @@
 
 #include "controls/controller_motion.h"
 #include "utils/sdl_compat.h"
-#include "utils/stubs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

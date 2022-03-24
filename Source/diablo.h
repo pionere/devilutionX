@@ -20,12 +20,11 @@ extern bool gbSndInited;
 extern bool gbRunGame;
 extern bool gbRunGameResult;
 extern bool gbZoomInFlag;
-extern bool gbProcessPlayers;
 extern bool gbLoadGame;
 extern bool gbCineflag;
 extern int gbRedrawFlags;
 extern bool gbGamePaused;
-extern bool gbDeathflag;
+extern BYTE gbDeathflag;
 extern bool gbActionBtnDown;
 extern bool gbAltActionBtnDown;
 extern int gnTicksRate;
@@ -50,7 +49,7 @@ void game_logic();
 
 extern bool gbFullscreen;
 extern bool gbShowTooltip;
-#ifdef _DEBUG
+#if DEBUG_MODE
 extern int DebugMonsters[10];
 extern BOOL visiondebug;
 extern bool lightflag;

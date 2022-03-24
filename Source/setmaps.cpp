@@ -45,14 +45,17 @@ const BYTE SkelChamTrans3[] = {
 
 static int ObjIndex(int x, int y)
 {
-	int i, oi;
+	int oi = dObject[x][y];
 
-	for (i = 0; i < numobjects; i++) {
-		oi = objectactive[i];
-		if (objects[oi]._ox == x && objects[oi]._oy == y)
-			return oi;
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		return oi;
 	}
+#if DEBUG_MODE
 	app_fatal("ObjIndex: Active object not found at (%d,%d)", x, y);
+#else
+	app_error(ERR_APP_SETMAP);
+#endif
 	return -1;
 }
 
@@ -76,7 +79,7 @@ static void AddVileObjs()
 {
 	SetObjMapRange(ObjIndex(DBORDERX + 10, DBORDERY + 29), 3, 4, 8, 10, 1);
 	SetObjMapRange(ObjIndex(DBORDERX + 29, DBORDERY + 30), 11, 4, 16, 10, 2);
-	SetObjMapRange(ObjIndex(DBORDERX + 19, DBORDERY + 20), 7, 11, 13, 18, 3);
+	//SetObjMapRange(ObjIndex(DBORDERX + 19, DBORDERY + 20), 7, 11, 13, 18, 3);
 }
 
 /*static void AddMazeObjs()

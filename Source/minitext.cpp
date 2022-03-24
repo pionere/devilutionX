@@ -18,11 +18,6 @@ bool gbQtextflag;
 /** Vertical speed of the scrolling text in ms/px */
 static int scrolltexty;
 
-void InitQuestText()
-{
-	gbQtextflag = false;
-}
-
 void InitQTextMsg(int m, bool showText)
 {
 	const TextData* tds;

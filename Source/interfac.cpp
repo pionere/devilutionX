@@ -123,7 +123,7 @@ static void DrawCutscene()
 {
 	lock_buf(1);
 #ifndef NOWIDESCREEN
-	DrawArt(PANEL_X - (ArtBackgroundWidescreen.logical_width - PANEL_WIDTH) / 2, SCREEN_Y + UI_OFFSET_Y, &ArtBackgroundWidescreen);
+	DrawArt(PANEL_LEFT - (ArtBackgroundWidescreen.logical_width - PANEL_WIDTH) / 2, UI_OFFSET_Y, &ArtBackgroundWidescreen);
 #endif
 	CelDraw(PANEL_X, 480 + SCREEN_Y - 1 + UI_OFFSET_Y, sgpBackCel, 1, 640);
 
@@ -145,16 +145,16 @@ void interface_msg_pump()
 	}
 }
 
-bool IncProgress()
+void IncProgress()
 {
 	interface_msg_pump();
-	sgdwProgress += 23;
+	sgdwProgress += 30;
 	if (sgdwProgress > BAR_WIDTH)
 		sgdwProgress = BAR_WIDTH;
 	// do not draw in case of quick-load
 	if (sgpBackCel != NULL)
 		DrawCutscene();
-	return sgdwProgress >= BAR_WIDTH;
+	//return sgdwProgress >= BAR_WIDTH;
 }
 
 /**
@@ -186,20 +186,9 @@ static void CreateLevel(int lvldir)
 	LoadRndLvlPal();
 }
 
-static void InitPlayers()
-{
-	int pnum;
-
-	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pLvlChanging)
-			continue;
-		InitLvlPlayer(pnum);
-	}
-}
-
 void LoadGameLevel(int lvldir)
 {
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (setseed)
 		glSeedTbl[currLvl._dLevelIdx] = setseed;
 #endif
@@ -216,10 +205,10 @@ void LoadGameLevel(int lvldir)
 
 	InitLvlAutomap();
 
-	if (lvldir != ENTRY_LOAD) {
+	//if (lvldir != ENTRY_LOAD) {
 		InitLighting();
 		InitVision();
-	}
+	//}
 
 	InitLevelMonsters();
 	IncProgress();
@@ -232,13 +221,11 @@ void LoadGameLevel(int lvldir)
 		if (currLvl._dType != DTYPE_TOWN) {
 			SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			GetLevelMTypes();
-			IncProgress();
 			InitThemes();
 			IncProgress();
 			InitObjectGFX();
 		} else {
 			InitLvlStores();
-			IncProgress();
 			IncProgress();
 		}
 		IncProgress();
@@ -249,8 +236,6 @@ void LoadGameLevel(int lvldir)
 			GetReturnLvlPos();
 		if (lvldir == ENTRY_WARPLVL)
 			GetPortalLvlPos();
-
-		IncProgress();
 
 		SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
@@ -285,38 +270,29 @@ void LoadGameLevel(int lvldir)
 
 		if (lvldir == ENTRY_WARPLVL)
 			GetPortalLvlPos();
-		IncProgress();
-
-		IncProgress();
 
 		InitItems();
+		IncProgress();
 	}
 	InitMissiles();
 	SavePreLighting();
 
-	ResyncQuests();
-	if (IsMultiGame)
-		DeltaLoadLevel();
-	else if (lvldir != ENTRY_LOAD && IsLvlVisited(currLvl._dLevelIdx)) {
-		LoadLevel();
+	IncProgress();
+
+	if (!IsMultiGame) {
+		ResyncQuests();
+		if (lvldir != ENTRY_LOAD && IsLvlVisited(currLvl._dLevelIdx)) {
+			LoadLevel();
+		}
+		//SyncPortals();
 	}
-
 	IncProgress();
-
 	InitSync();
-	SyncPortals();
-
-	IncProgress();
-	if (lvldir != ENTRY_LOAD)
-		InitPlayers();
 	PlayDungMsgs();
 
 	guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
 
 	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
-
-	while (!IncProgress())
-		;
 }
 
 void EnterLevel(BYTE lvl)
@@ -350,6 +326,15 @@ void ShowCutscene(unsigned uMsg)
 {
 	WNDPROC saveProc;
 
+	nthread_run();
+	if (uMsg != DVL_DWM_NEWGAME) {
+		if (IsMultiGame)
+			pfile_write_hero(false);
+		// turned off to have a consistent fade in/out logic + reduces de-sync by 
+		// eliminating the need for special handling in InitLevelChange (player.cpp)
+		//PaletteFadeOut();
+	}
+
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
 
@@ -365,6 +350,7 @@ void ShowCutscene(unsigned uMsg)
 	switch (uMsg) {
 	case DVL_DWM_NEWGAME:
 		IncProgress();
+		IncProgress();
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
 			LoadGame();
 		} else {
@@ -372,7 +358,6 @@ void ShowCutscene(unsigned uMsg)
 			pfile_delete_save_file(false);
 			LoadGameLevel(ENTRY_MAIN);
 		}
-		IncProgress();
 		break;
 	case DVL_DWM_NEXTLVL:
 		assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
@@ -407,11 +392,17 @@ void ShowCutscene(unsigned uMsg)
 		break;
 	}
 	IncProgress();
-	assert(ghMainWnd != NULL);
+	// process packets arrived during LoadLevel / delta-load and disable nthread
+	nthread_finish(uMsg);
 
-	PaletteFadeOut();
+	if (IsLocalGame) { // do not block other players
+		sgdwProgress = BAR_WIDTH;
+		IncProgress();
+		PaletteFadeOut();
+	}
 	FreeCutscene();
 
+	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
 }

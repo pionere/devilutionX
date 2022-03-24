@@ -21,13 +21,12 @@ int MouseY;
 bool gbRunGame;
 bool gbRunGameResult;
 bool gbZoomInFlag;
-/** Enable updating of player character, set to false once Diablo dies */
-bool gbProcessPlayers;
 bool gbLoadGame;
-bool gbCineflag = false;
+bool gbCineflag;
 int gbRedrawFlags;
 bool gbGamePaused;
-bool gbDeathflag;
+/** Specifies the 'dead' state of the local player (MYPLR_DEATH_MODE). */
+BYTE gbDeathflag = MDM_ALIVE;
 bool gbActionBtnDown;
 bool gbAltActionBtnDown;
 static Uint32 guLastABD, guLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
@@ -46,7 +45,7 @@ int gnTimeoutCurs;
 bool gbFullscreen = true;
 static bool _gbSkipIntro = false;
 bool gbShowTooltip = false;
-#ifdef _DEBUG
+#if DEBUG_MODE
 int DebugMonsters[10];
 BOOL visiondebug;
 /** unused */
@@ -142,7 +141,7 @@ static void print_help_and_exit()
 	printf("    %-20s %-30s\n", "--config-dir", "Specify the location of diablo.ini");
 	printf("    %-20s %-30s\n", "-n", "Skip startup videos");
 	printf("    %-20s %-30s\n", "-x", "Run in windowed mode");
-#ifdef _DEBUG
+#if DEBUG_MODE
 	printf("\nDebug options:\n");
 	printf("    %-20s %-30s\n", "-w", "Enable cheats");
 	printf("    %-20s %-30s\n", "-$", "Enable god mode");
@@ -178,7 +177,7 @@ static void diablo_parse_flags(int argc, char **argv)
 			_gbSkipIntro = true;
 		} else if (strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
-#ifdef _DEBUG
+#if DEBUG_MODE
 		} else if (strcasecmp("-^", argv[i]) == 0) {
 			debug_mode_key_inverted_v = TRUE;
 			debug_mode_god_mode = TRUE;
@@ -267,7 +266,9 @@ static void diablo_init()
 
 	init_archives();
 	_gbWasArchivesInit = true;
-
+#if DEBUG_MODE || DEV_MODE
+	ValidateData();
+#endif
 	UiInitialize();
 	gbWasUiInit = true;
 
@@ -367,7 +368,7 @@ static char ValidateSkill(BYTE sn, BYTE splType)
 	case RSPLTYPE_SPELL:
 		if (myplr._pMana < GetManaAmount(mypnum, sn))
 			result = SPLFROM_INVALID_MANA;
-		else if (GetSpellLevel(mypnum, sn) > 0)
+		else if (myplr._pSkillLvl[sn] > 0)
 			result = SPLFROM_MANA; // PlaySFX(sgSFXSets[SFXS_PLR_35][p->_pClass]);
 		else
 			result = SPLFROM_INVALID_LEVEL;
@@ -429,7 +430,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, asf);
 			return;
 		}
-		if (pcursmonst != -1) {
+		if (pcursmonst != MON_NONE) {
 			if (CanTalkToMonst(pcursmonst)) {
 				NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			} else {
@@ -469,7 +470,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	// assert(moveSkill != SPL_INVALID);
 	// assert(spelldata[atkSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
-	if (pcursmonst != -1) {
+	if (pcursmonst != MON_NONE) {
 		if (CanTalkToMonst(pcursmonst)) {
 			NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			return;
@@ -526,37 +527,26 @@ bool TryIconCurs(bool bShift)
 		}
 		break;
 	case CURSOR_DISARM:
-		if (pcursobj != OBJ_NONE) {
+		if (pcursobj != OBJ_NONE && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
 			if (!bShift ||
 			 (abs(myplr._px - cursmx) < 2 && abs(myplr._py - cursmy) < 2)) {
-				NetSendCmdLocParam1(CMD_DISARMXY, cursmx, cursmy, pcursobj);
-				return true;
+				// assert(gbTSpell == SPL_DISARM);
+				NetSendCmdLocDisarm(cursmx, cursmy, pcursobj, gbTSplFrom);
 			}
 		}
 		break;
 	case CURSOR_TELEKINESIS: {
-		int px, py;
-
-		px = myplr._px;
-		py = myplr._py;
+		// assert(gbTSpell == SPL_TELEKINESIS);
 		if (pcursobj != OBJ_NONE) {
-			if (LineClear(px, py, objects[pcursobj]._ox, objects[pcursobj]._oy))
-				NetSendCmdParam1(CMD_OPOBJT, pcursobj);
+			NetSendCmdParamBW(CMD_TELEKINOID, gbTSplFrom, pcursobj);
 		} else if (pcursitem != ITEM_NONE) {
-			if (LineClear(px, py, items[pcursitem]._ix, items[pcursitem]._iy))
-				NetSendCmdGItem(CMD_AUTOGETITEM, pcursitem);
-		} else if (pcursmonst != -1) {
-			if (LineClear(px, py, monsters[pcursmonst]._mx, monsters[pcursmonst]._my))
-				NetSendCmdParam1(CMD_KNOCKBACK, pcursmonst);
+			NetSendCmdLocBParam2(CMD_TELEKINXY, items[pcursitem]._ix, items[pcursitem]._iy, gbTSplFrom, pcursitem);
+		} else if (pcursmonst != MON_NONE) {
+			NetSendCmdParamBW(CMD_TELEKINID, gbTSplFrom, pcursmonst);
 		}
 	} break;
-	case CURSOR_RESURRECT:
-		if (pcursplr != PLR_NONE) {
-			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
-		}
-		break;
 	case CURSOR_TELEPORT:
-		if (pcursmonst != -1)
+		if (pcursmonst != MON_NONE)
 			NetSendCmdMonstSkill(pcursmonst, gbTSpell, gbTSplFrom);
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
@@ -564,6 +554,7 @@ bool TryIconCurs(bool bShift)
 			NetSendCmdLocSkill(cursmx, cursmy, gbTSpell, gbTSplFrom);
 		break;
 	case CURSOR_HEALOTHER:
+	case CURSOR_RESURRECT:
 		if (pcursplr != PLR_NONE) {
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		}
@@ -581,9 +572,10 @@ static void ActionBtnDown(bool bShift)
 	assert(!gmenu_is_active() || !gmenu_left_mouse(true));
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !control_check_talk_btn());
-	assert(!gbDeathflag);
+	assert(gbDeathflag == MDM_ALIVE);
 	assert(!gbGamePaused);
 	assert(!gbDoomflag);
+	assert(!gbQtextflag);
 
 	if (gbSkillListFlag) {
 		SetSkill(bShift, false);
@@ -606,12 +598,6 @@ static void ActionBtnDown(bool bShift)
 
 	if (TryIconCurs(bShift))
 		return;
-
-	if (gbQtextflag) {
-		gbQtextflag = false;
-		stream_stop();
-		return;
-	}
 
 	if (gbQuestlog && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
 		CheckQuestlog();
@@ -666,11 +652,10 @@ static void AltActionBtnDown(bool bShift)
 {
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
+	assert(gbDeathflag == MDM_ALIVE);
 	assert(!gbGamePaused);
 	assert(!gbDoomflag);
-
-	if (myplr._pInvincible)
-		return;
+	assert(!gbQtextflag);
 
 	if (gbSkillListFlag) {
 		SetSkill(bShift, true);
@@ -689,12 +674,6 @@ static void AltActionBtnDown(bool bShift)
 
 	if (gbQuestlog) {
 		gbQuestlog = false;
-		return;
-	}
-
-	if (gbQtextflag) {
-		gbQtextflag = false;
-		stream_stop();
 		return;
 	}
 
@@ -833,10 +812,7 @@ void ClearPanels()
 static void ClearUI()
 {
 	ClearPanels();
-	if (gbQtextflag && currLvl._dType == DTYPE_TOWN) {
-		gbQtextflag = false;
-		stream_stop();
-	}
+	assert(!gbQtextflag);
 	gbAutomapflag = false;
 	msgdelay = 0;
 	gabPanbtn[PANBTN_MAINMENU] = false;
@@ -872,7 +848,7 @@ static void PressKey(int vkey)
 	}
 
 	int transKey = WMButtonInputTransTbl[vkey];
-	if (gbDeathflag) {
+	if (gbDeathflag != MDM_ALIVE) {
 		if (vkey == DVL_VK_RETURN) {
 			control_type_message();
 		} else if (vkey == DVL_VK_LBUTTON) {
@@ -899,6 +875,12 @@ static void PressKey(int vkey)
 
 	if (gbDoomflag) {
 		doom_close();
+		return;
+	}
+
+	if (gbQtextflag) {
+		gbQtextflag = false;
+		stream_stop();
 		return;
 	}
 
@@ -1108,7 +1090,7 @@ static void PressKey(int vkey)
 		ASSUME_UNREACHABLE
 	}
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (vkey == DVL_VK_F2) {
 	}
 	else if (vkey == DVL_VK_F3) {
@@ -1116,13 +1098,13 @@ static void PressKey(int vkey)
 			snprintf(
 			    gbNetMsg,
 				sizeof(gbNetMsg),
-			    "IDX = %i  :  Seed = %i  :  CF = %i",
+			    "IDX = %d  :  Seed = %d  :  CF = %d",
 			    items[pcursitem]._iIdx,
 			    items[pcursitem]._iSeed,
 			    items[pcursitem]._iCreateInfo);
 			NetSendCmdString(1 << mypnum);
 		}
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %i", numitems);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %d", numitems);
 		NetSendCmdString(1 << mypnum);
 	}
 	else if (vkey == DVL_VK_F4) {
@@ -1143,8 +1125,8 @@ static void PressChar(WPARAM vkey)
 		if (control_talk_last_key(vkey))
 			return;
 	}
-#ifdef _DEBUG
-	if (gnTimeoutCurs != CURSOR_NONE || gbDeathflag)
+#if DEBUG_MODE
+	if (gnTimeoutCurs != CURSOR_NONE || gbDeathflag != MDM_ALIVE)
 		return;
 
 	if (gbGamePaused) {
@@ -1192,7 +1174,7 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'a':
 		if (debug_mode_key_inverted_v) {
-			myplr._pSkillLvl[myplr._pAltAtkSkill]++;
+			NetSendCmd(CMD_CHEAT_SPELL_LEVEL);
 		}
 		break;
 	case 'D':
@@ -1215,15 +1197,15 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'R':
 	case 'r':
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %i", glSeedTbl[currLvl._dLevelIdx]);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
 		NetSendCmdString(1 << mypnum);
 		break;
 	case 'T':
 	case 't':
 		if (debug_mode_key_inverted_v) {
-			snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %i  PY = %i", myplr._px, myplr._py);
+			snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
 			NetSendCmdString(1 << mypnum);
-			snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %i  CY = %i  DP = %i", cursmx, cursmy, dungeon[cursmx][cursmy]);
+			snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", cursmx, cursmy, dungeon[cursmx][cursmy]);
 			NetSendCmdString(1 << mypnum);
 		}
 		break;
@@ -1359,19 +1341,13 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_DWM_TWARPUP:
 	case DVL_DWM_RETOWN:
 	case DVL_DWM_NEWGAME:
-		nthread_run();
-		if (uMsg != DVL_DWM_NEWGAME) {
-			if (IsMultiGame)
-				pfile_write_hero(false);
-			// turned off to have a consistent fade in/out logic + reduces de-sync by 
-			// eliminating the need for special handling in InitLevelChange (player.cpp)
-			//PaletteFadeOut();
-		}
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
+		if (gbQtextflag) {
+			gbQtextflag = false;
+			stream_stop();
+		}
 		ShowCutscene(uMsg);
-		// process packets arrived during LoadLevel / delta-load and disable nthread
-		nthread_finish(uMsg);
 		if (gbRunGame) {
 			InitLevelCursor();
 			gbRedrawFlags = REDRAW_ALL;
@@ -1425,9 +1401,7 @@ static bool ProcessInput()
 void game_logic()
 {
 	multi_rnd_seeds();
-	if (gbProcessPlayers) {
-		ProcessPlayers();
-	}
+	ProcessPlayers();
 	if (currLvl._dType != DTYPE_TOWN) {
 		ProcessMonsters();
 		ProcessObjects();
@@ -1439,14 +1413,13 @@ void game_logic()
 	ProcessLightList();
 	ProcessVisionList();
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	if (debug_mode_key_inverted_v && GetAsyncKeyState(DVL_VK_SHIFT)) {
 		ScrollView();
 	}
 #endif
 
 	sound_update();
-	ClearPlrMsg();
 	CheckTriggers();
 	CheckQuests();
 	pfile_update(false);
@@ -1512,7 +1485,6 @@ static WNDPROC InitGameUI()
 	InitInv(); // gfx + values
 	InitGMenu(); // gfx
 	InitQuestGFX(); // gfx + values
-	InitQuestText(); // values
 	InitStoresOnce(); // values (some stored in savefiles)
 	for (i = 0; i < (IsLocalGame ? 1 : MAX_PLRS); i++)
 		InitPlrGFXMem(i); // gfx
@@ -1521,7 +1493,7 @@ static WNDPROC InitGameUI()
 	InitGameEffects(); // sfx
 	InitCursorGFX(); // gfx + values
 
-	gbDeathflag = false;
+	gbDeathflag = MDM_ALIVE;
 	gbZoomInFlag = false;
 	CalcViewportGeometry();
 	ScrollInfo._sdx = 0;
@@ -1530,7 +1502,7 @@ static WNDPROC InitGameUI()
 	ScrollInfo._syoff = 0;
 	ScrollInfo._sdir = SDIR_NONE;
 
-#ifdef _DEBUG
+#if DEBUG_MODE
 	LoadDebugGFX();
 #endif
 
@@ -1538,7 +1510,6 @@ static WNDPROC InitGameUI()
 	gbActionBtnDown = false;
 	gbAltActionBtnDown = false;
 	gbRunGame = true;
-	gbProcessPlayers = true;
 	gbRunGameResult = true;
 
 	return SetWindowProc(GameWndProc);
@@ -1562,7 +1533,7 @@ static void FreeGameUI()
 	FreeItemGFX();
 	FreeGameEffects();
 	FreeCursorGFX();
-#ifdef _DEBUG
+#if DEBUG_MODE
 	FreeDebugGFX();
 #endif
 

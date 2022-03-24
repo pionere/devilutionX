@@ -1,15 +1,13 @@
 #include "storm_net.h"
 
-#include <memory>
 #ifdef ZEROTIER
 #include <mutex>
 #include <thread>
 #include <utility>
 #endif
 
-#include "all.h"
-#include "utils/stubs.h"
 #include "dvlnet/abstract_net.h"
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -132,7 +130,7 @@ void SNetInitializeProvider(unsigned provider)
 /**
  * @brief Called by engine for single, called by ui for multi
  */
-bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData)
+bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData, char (&errorText)[256])
 {
 	bool result;
 
@@ -153,12 +151,12 @@ bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData)
 	int port = NET_DEFAULT_PORT;
 	getIniInt("Network", "Port", &port);
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
-	result = dvlnet_inst->create_game(gpszGameName, port, pszGamePassword, std::move(game_init_info));
+	result = dvlnet_inst->create_game(gpszGameName, port, pszGamePassword, std::move(game_init_info), errorText);
 	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", gpszGameName, port);
 	return result;
 }
 
-bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePassword)
+bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePassword, char (&errorText)[256])
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -166,16 +164,14 @@ bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePas
 	// assert(pszGameName != NULL && pszGamePassword != NULL);
 	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", pszGameName, port);
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
-	return dvlnet_inst->join_game(pszGameName, port, pszGamePassword);
+	return dvlnet_inst->join_game(pszGameName, port, pszGamePassword, errorText);
 }
 
-//#ifdef ADAPTIVE_NETUPDATE
-#ifndef NONET
 unsigned SNetGetTurnsInTransit()
 {
 	return dvlnet_inst->SNetGetTurnsInTransit();
 }
-#endif
+
 #ifdef ZEROTIER
 void SNetSendInfoRequest()
 {
