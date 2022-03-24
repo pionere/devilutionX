@@ -17,6 +17,9 @@ set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+if(NINTENDO_3DS)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/ctr")
+endif()
 
 if(NOT VERSION_NUM)
   include(git)
@@ -153,7 +156,11 @@ cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP
 cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
-
+option(HAS_JOYSTICK "Enable joystick support" ON)
+option(HAS_DPAD "Enable D-Pad support" ON)
+option(HAS_KBCTRL "Enable keyboard controller support" ON)
+cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
+cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
 
 if(NOT NONET)
   option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
@@ -164,12 +171,6 @@ if(NOT USE_SDL1)
   option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
   cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
-
-option(HAS_JOYSTICK "Enable joystick support" ON)
-option(HAS_DPAD "Enable D-Pad support" ON)
-option(HAS_KBCTRL "Enable keyboard controller support" ON)
-cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
-cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -196,7 +197,6 @@ endif()
 
 find_package(Threads REQUIRED)
 if(NINTENDO_3DS)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/ctr")
   find_package(CITRO3D REQUIRED)
   find_package(FREETYPE REQUIRED)
   find_package(BZIP2 REQUIRED)
@@ -999,7 +999,7 @@ if(NINTENDO_3DS)
     COMMAND ${CMAKE_COMMAND} -E copy ${APP_ROMFS_FILES} ${APP_ROMFS}
     DEPENDS romfs_directory)
 
-  include(ctr/Tools3DS)
+  include(Tools3DS)
   add_cia_target(${BIN_TARGET} ${APP_RSF} ${APP_BANNER} ${APP_AUDIO})
 
   get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
