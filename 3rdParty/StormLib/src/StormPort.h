@@ -354,7 +354,7 @@
 #endif // !STORMLIB_WINDOWS
 
 // 64-bit calls are supplied by "normal" calls on Mac
-#if defined(STORMLIB_MAC)
+#if defined(STORMLIB_MAC) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__PS4__)
   #define stat64  stat
   #define fstat64 fstat
   #define lseek64 lseek
