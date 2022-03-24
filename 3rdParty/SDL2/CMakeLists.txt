@@ -79,7 +79,7 @@ FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG da76c8a18f6a1e9138e5ff67ed65dc375e4636f7
+    GIT_TAG eb88603f00d3f748d071a436fcd3560f20f95579
 )
 endif()
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
