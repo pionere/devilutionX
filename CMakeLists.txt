@@ -19,7 +19,7 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 if(NOT VERSION_NUM)
-  include(git.cmake)
+  include(git)
   get_git_tag(VERSION_NUM)
   string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
   if("${VERSION_NUM}" STREQUAL "")
@@ -46,7 +46,7 @@ else()
 endif()
 
 include(CMakeDependentOption)
-include(out_of_tree.cmake)
+include(out_of_tree)
 
 macro(cmake_conditional_option NAME DESCRIPTION)
   if(${ARGN})
