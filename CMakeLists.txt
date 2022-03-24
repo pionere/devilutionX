@@ -16,8 +16,10 @@ endif()
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+
 if(NOT VERSION_NUM)
-  include(CMake/git.cmake)
+  include(git.cmake)
   get_git_tag(VERSION_NUM)
   string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
   if("${VERSION_NUM}" STREQUAL "")
@@ -44,7 +46,7 @@ else()
 endif()
 
 include(CMakeDependentOption)
-include(CMake/out_of_tree.cmake)
+include(out_of_tree.cmake)
 
 macro(cmake_conditional_option NAME DESCRIPTION)
   if(${ARGN})
@@ -96,8 +98,6 @@ if(NOT USE_SDL1)
   option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
   cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
-
-list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake")
 
 if(NINTENDO_SWITCH)
   include(switch_defs)
