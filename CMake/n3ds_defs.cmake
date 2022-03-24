@@ -5,11 +5,8 @@ set(UBSAN OFF)
 # General build options.
 set(USE_SDL1 ON)
 #set(ZEROTIER OFF)
-
 # Disable system dependencies.
 set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
-
-set(PREFILL_PLAYER_NAME ON)
 
 # additional compilation definitions
 add_definitions(-D__3DS__)
@@ -22,6 +19,8 @@ set(SDL1_VIDEO_MODE_BPP 8)
 
 set(DEFAULT_WIDTH 800)
 set(DEFAULT_HEIGHT 480)
+
+set(PREFILL_PLAYER_NAME ON)
 
 # SDL Joystick axis mapping (circle-pad/C-stick)
 set(JOY_AXIS_LEFTX 0)

@@ -12,11 +12,12 @@ set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 # As this build uses an older compiler, there are lots of them.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
 
+# SDL video mode parameters
+set(SDL1_VIDEO_MODE_BPP 16)
+
 # GKD350h IPU scaler is broken at the moment
 set(DEFAULT_WIDTH 320)
 set(DEFAULT_HEIGHT 240)
-
-set(SDL1_VIDEO_MODE_BPP 16)
 
 set(PREFILL_PLAYER_NAME ON)
 

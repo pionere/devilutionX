@@ -5,8 +5,7 @@ set(UBSAN OFF)
 # General build options.
 #set(VIRTUAL_GAMEPAD ON)
 #set(ZEROTIER OFF)
-
-# Disable all system dependencies.
+# Disable system dependencies.
 # All of these will be fetched via FetchContent and linked statically.
 set(DEVILUTIONX_SYSTEM_SDL2 OFF)
 set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
@@ -20,5 +19,5 @@ if(BINARY_RELEASE OR CMAKE_BUILD_TYPE STREQUAL "Release")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto=full")
 endif()
 
-#additional compilation definitions
+# Additional compilation definitions
 #set(TTF_FONT_DIR \"\")

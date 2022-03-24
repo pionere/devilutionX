@@ -4,7 +4,6 @@ set(UBSAN OFF)
 
 # General build options.
 #set(ZEROTIER OFF)
-
 # Disable system dependencies.
 set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 
