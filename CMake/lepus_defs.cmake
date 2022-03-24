@@ -1,6 +1,14 @@
-set(ZEROTIER OFF)
-set(USE_SDL1 ON)
+# Disable sanitizers. They're not supported out-of-the-box.
+set(ASAN OFF)
+set(UBSAN OFF)
 
+# General build options.
+set(USE_SDL1 ON)
+#set(ZEROTIER OFF)
+# Disable system dependencies.
+set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
+
+# SDL video mode parameters
 set(SDL1_VIDEO_MODE_BPP 8)
 set(SDL1_VIDEO_MODE_FLAGS SDL_YUV444|SDL_HWSURFACE|SDL_TRIPLEBUF)
 set(SDL1_FORCE_SVID_VIDEO_MODE ON)

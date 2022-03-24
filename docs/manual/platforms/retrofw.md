@@ -29,15 +29,11 @@ Installation instructions can be found on the [Installing](/docs/installing.md) 
 - Select + R: right mouse click
 - Suspend: map
 
----
-
-Game saves and `diablo.ini` are located at:
-
+## Save Games and configurations
+The configurations (`diablo.ini`) and save games are located in:
 ~~~
 ~/.local/share/diasurgical/devilution
 ~~~
-
-Saves are compatible with PC saves from Diablo 1 and DevilutionX.
 
 ## Resources
 

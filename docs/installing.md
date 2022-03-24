@@ -111,6 +111,16 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 </details>
 
+<details><summary>Playstation 4</summary>
+
+**Requires Playstation 4 capable of running homebrew**
+
+- Install the devilutionX PS4 pkg
+- Copy the MPQ files (e.g., via ftp) to `/user/data/diasurgical/devilution/`
+
+[PS4 manual](/docs/manual/platforms/ps4.md)
+
+</details>
 <details><summary>ClockworkPi GameShell</summary>
 
 - Copy the `__init__.py` to a newly created folder under /home/cpi/apps/Menu and run it from the menu. The folder then symbolizes the devilutionX icon.

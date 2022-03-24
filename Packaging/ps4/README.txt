@@ -1,22 +1,34 @@
-# DevilutionX (Diablo 1) for Windows
+# DevilutionX (Diablo 1) for PS4
 DevilutionX is a source port of Diablo and Hellfire that strives to make it simple to run the game while providing engine improvements, bugfixes, and some optional quality of life features.
 
 ## Installation
 
-1. Extract the files in the zip
-2. Copy DIABDAT.MPQ from the CD or GOG-installation (or extract it from the GoG installer) to the DevilutionX folder.
+1. Install the devilutionX PS4 pkg
+2. Copy (e.g., via ftp) `diabdat.mpq` from your CD (or GoG install folder) to `/user/data/diasurgical/devilution/`.
  - To run the Diablo: Hellfire expansion you will need to also copy hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq.
 
 ## Usage
 
-Run devilutionx.exe
+Launch the game
 
 ## Multiplayer
- - TCP/IP requires the host to expose port 6112.
+ - Not supported
 
-## Save Games and configurations
-The configurations (`diablo.ini`) and save games are located in:
-C:\Users\[username]\AppData\Roaming\diasurgical\devilx
+## Controls
+- D-pad: move hero
+- ○: attack nearby enemies, talk to townspeople and merchants, pickup/place
+     items in the inventory, OK while in main menu
+- ×: select spell, back while in menus
+- △: pickup items, open nearby chests and doors, use item in the inventory
+- □: cast spell, delete character while in main menu
+- L1: use health item from belt
+- R1: use mana potion from belt
+- L2: toggle character sheet
+- R2: toggle inventory
+- Left stick: move hero
+- Right stick: move cursor
+- L3: toggle auto map
+- R3: click with cursor
 
 ## Credits
  - See list of contributors https://github.com/pionere/devilutionX/graphs/contributors

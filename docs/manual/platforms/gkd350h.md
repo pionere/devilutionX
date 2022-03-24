@@ -29,8 +29,6 @@ Installation instructions can be found on the [Installing](/docs/installing.md) 
 * There is nothing to map mouse emulation to in this version because of this but it isn't necessary to play the game. Unfortunately, this also means that you can't move the automap.
 * This version looks uglier than on RG350 because it uses software scaling because the IPU on the GKD350h doesn't work.
 
-Saves are compatible with PC saves from Diablo 1 and DevilutionX.
-
 ## Resources
 
 * Discord: https://discord.gg/YQKCAYQ

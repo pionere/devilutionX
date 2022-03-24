@@ -16,8 +16,10 @@ endif()
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+
 if(NOT VERSION_NUM)
-  include(CMake/git.cmake)
+  include(git)
   get_git_tag(VERSION_NUM)
   string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
   if("${VERSION_NUM}" STREQUAL "")
@@ -43,8 +45,74 @@ else()
     LANGUAGES C CXX)
 endif()
 
+if(NINTENDO_SWITCH)
+  include(switch_defs)
+endif()
+
+if(VITA)
+  include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+  include(vita_defs)
+endif()
+
+set(TARGET_PLATFORM host CACHE STRING "Target platform")
+set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host retrofw rg350 gkd350h cpigamesh)
+if(TARGET_PLATFORM STREQUAL "lepus")
+  include(lepus_defs)
+elseif(TARGET_PLATFORM STREQUAL "retrofw")
+  include(retrofw_defs)
+elseif(TARGET_PLATFORM STREQUAL "rg350")
+  include(rg350_defs)
+elseif(TARGET_PLATFORM STREQUAL "gkd350h")
+  include(gkd350h_defs)
+elseif(TARGET_PLATFORM STREQUAL "cpigamesh")
+  include(cpigamesh_defs)
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
+  if(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
+    add_definitions(-D_NETBSD_SOURCE)
+  else()
+    add_definitions(-D_BSD_SOURCE)
+    set(UBSAN OFF)
+  endif()
+  set(ASAN OFF)
+endif()
+
+if(WIN32)
+  set(ASAN OFF)
+  set(UBSAN OFF)
+  if(_WIN32_WINNT)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
+  endif()
+endif()
+
+if(HAIKU)
+  set(ASAN OFF)
+  set(UBSAN OFF)
+endif()
+
+if(AMIGA)
+  include(amiga_defs)
+endif()
+
+if(NINTENDO_3DS)
+  include(n3ds_defs)
+endif()
+
+if(PS4)
+  include(ps4_defs)
+endif()
+
+if(ANDROID)
+  include(android_defs)
+endif()
+
+if(IOS)
+  include(ios_defs)
+endif()
+
 include(CMakeDependentOption)
-include(CMake/out_of_tree.cmake)
+include(out_of_tree)
 
 macro(cmake_conditional_option NAME DESCRIPTION)
   if(${ARGN})
@@ -97,76 +165,6 @@ if(NOT USE_SDL1)
   cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake")
-
-if(NINTENDO_SWITCH)
-  list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/switch")
-  include(switch_defs)
-endif()
-
-if(VITA)
-  include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
-  include(vita_defs)
-endif()
-
-set(TARGET_PLATFORM host CACHE STRING "Target platform")
-set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host retrofw rg350 gkd350h cpigamesh)
-if(TARGET_PLATFORM STREQUAL "lepus")
-  include(lepus_defs)
-elseif(TARGET_PLATFORM STREQUAL "retrofw")
-  include(retrofw_defs)
-elseif(TARGET_PLATFORM STREQUAL "rg350")
-  include(rg350_defs)
-elseif(TARGET_PLATFORM STREQUAL "gkd350h")
-  include(gkd350h_defs)
-elseif(TARGET_PLATFORM STREQUAL "cpigamesh")
-  include(cpigamesh_defs)
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
-  if(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
-    add_definitions(-D_NETBSD_SOURCE)
-  else()
-    add_definitions(-D_BSD_SOURCE)
-    set(UBSAN OFF)
-  endif()
-  set(ASAN OFF)
-endif()
-
-if(WIN32)
-  set(ASAN OFF)
-  set(UBSAN OFF)
-  if(_WIN32_WINNT)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
-  endif()
-endif()
-
-if(HAIKU)
-  set(ASAN OFF)
-  set(UBSAN OFF)
-endif()
-
-if(AMIGA)
-  include(amiga_defs)
-endif()
-
-if(NINTENDO_3DS)
-  list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/ctr")
-  include(n3ds_defs)
-endif()
-
-if(PS4)
-  include(ps4_defs)
-endif()
-
-if(ANDROID)
-  include(android_defs)
-endif()
-
-if(IOS)
-  include(ios_defs)
-endif()
-
 option(HAS_JOYSTICK "Enable joystick support" ON)
 option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" ON)
@@ -196,8 +194,21 @@ if(NOT DISABLE_LTO)
   endif()
 endif()
 
-if(NOT NINTENDO_3DS)
-  find_package(Threads REQUIRED)
+find_package(Threads REQUIRED)
+if(NINTENDO_3DS)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/ctr")
+  find_package(CITRO3D REQUIRED)
+  find_package(FREETYPE REQUIRED)
+  find_package(BZIP2 REQUIRED)
+  find_package(Tremor REQUIRED)
+  find_package(OGG REQUIRED)
+  find_package(MIKMOD REQUIRED)
+  find_package(MAD REQUIRED)
+  find_package(PNG REQUIRED)
+endif()
+if(AMIGA)
+  find_package(Freetype REQUIRED)
+  find_package(ZLIB REQUIRED)
 endif()
 
 if(NOT NONET)
@@ -264,9 +275,14 @@ if(TCPIP)
   add_subdirectory(3rdParty/asio)
   target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1)
   if(NINTENDO_3DS)
-      include(asio_defs)
+    target_compile_definitions(asio INTERFACE ASIO_DISABLE_THREADS=ON ASIO_HAS_UNISTD_H=ON)
+    # Missing headers and declarations provided by DevilutionX
+    target_include_directories(asio BEFORE INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Source/platform/ctr/asio/include)
   elseif(NINTENDO_SWITCH)
-    include(asio_defs)
+    # Enables a number of header file definitions required by ASIO
+    target_compile_definitions(asio INTERFACE _DEFAULT_SOURCE=ON)
+    # Missing headers and declarations provided by DevilutionX
+    target_include_directories(asio BEFORE INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Source/platform/switch/asio/include)
   endif()
 endif()
 
@@ -511,9 +527,6 @@ if(RUN_TESTS)
     test/stores_test.cpp)
 endif()
 
-if(HELLFIRE)
-  add_definitions(-DHELLFIRE)
-endif()
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
 elseif(APPLE)
@@ -594,10 +607,7 @@ target_include_directories(${BIN_TARGET} PRIVATE
   Source
   ${CMAKE_CURRENT_BINARY_DIR})
 
-if(NOT NINTENDO_3DS)
-  target_link_libraries(${BIN_TARGET} PUBLIC
-  Threads::Threads)
-endif()
+target_link_libraries(${BIN_TARGET} PUBLIC Threads::Threads)
 
 target_link_libraries(${BIN_TARGET} PRIVATE
   PKWare
@@ -623,6 +633,7 @@ endif()
 foreach(
   def_name
   USE_SDL1
+  HELLFIRE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
@@ -939,13 +950,12 @@ if(PS4)
   if(NOT NOWIDESCREEN)
     set(APP_MPQ_FILES ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq")
   endif()
-  add_custom_target(mpq_folder
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_MPQ_FOLDER})
+  #add_custom_target(mpq_folder
+  #  COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_MPQ_FOLDER})
   add_custom_target(mpq_files
-    COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} ${APP_MPQ_FOLDER}
-    DEPENDS mpq_folder)
+    COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} ${APP_MPQ_FOLDER})
   if(NOT PROJECT_VERSION)
-    set(PROJECT_VERSION "1.0")
+    set(PROJECT_VERSION "01.00")
   endif()
   add_self(${BIN_TARGET})
   add_pkg(${BIN_TARGET} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
@@ -995,7 +1005,7 @@ if(NINTENDO_3DS)
     COMMAND ${CMAKE_COMMAND} -E copy ${APP_ROMFS_FILES} ${APP_ROMFS}
     DEPENDS romfs_directory)
 
-  include(Tools3DS)
+  include(ctr/Tools3DS)
   add_cia_target(${BIN_TARGET} ${APP_RSF} ${APP_BANNER} ${APP_AUDIO})
 
   get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
