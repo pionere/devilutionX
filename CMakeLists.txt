@@ -133,6 +133,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
   set(ASAN OFF)
   add_definitions(-DO_LARGEFILE=0 -Dstat64=stat -Dlstat64=lstat -Dlseek64=lseek -Doff64_t=off_t -Dfstat64=fstat -Dftruncate64=ftruncate)
 endif()
+if(PS4)
+  add_definitions(-DO_LARGEFILE=0 -Dstat64=stat -Dlstat64=lstat -Dlseek64=lseek -Doff64_t=off_t -Dfstat64=fstat -Dftruncate64=ftruncate)
+endif()
 
 if(WIN32)
   set(ASAN OFF)
@@ -948,7 +951,7 @@ if(PS4)
   add_custom_target(mpq_files
     COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} ${APP_MPQ_FOLDER})
   if(NOT PROJECT_VERSION)
-    set(PROJECT_VERSION "1.0")
+    set(PROJECT_VERSION "01.00")
   endif()
   add_self(${BIN_TARGET})
   add_pkg(${BIN_TARGET} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
