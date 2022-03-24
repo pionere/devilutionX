@@ -150,7 +150,6 @@ if(AMIGA)
 endif()
 
 if(NINTENDO_3DS)
-  list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/ctr")
   include(n3ds_defs)
 endif()
 
@@ -1000,7 +999,7 @@ if(NINTENDO_3DS)
     COMMAND ${CMAKE_COMMAND} -E copy ${APP_ROMFS_FILES} ${APP_ROMFS}
     DEPENDS romfs_directory)
 
-  include(Tools3DS)
+  include(ctr/Tools3DS)
   add_cia_target(${BIN_TARGET} ${APP_RSF} ${APP_BANNER} ${APP_AUDIO})
 
   get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
