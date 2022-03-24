@@ -195,9 +195,7 @@ if(NOT DISABLE_LTO)
   endif()
 endif()
 
-if(NOT NINTENDO_3DS)
-  find_package(Threads REQUIRED)
-endif()
+find_package(Threads REQUIRED)
 if(NINTENDO_3DS)
   list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/ctr/modules")
   find_package(CITRO3D REQUIRED)
@@ -610,10 +608,7 @@ target_include_directories(${BIN_TARGET} PRIVATE
   Source
   ${CMAKE_CURRENT_BINARY_DIR})
 
-if(NOT NINTENDO_3DS)
-  target_link_libraries(${BIN_TARGET} PUBLIC
-  Threads::Threads)
-endif()
+target_link_libraries(${BIN_TARGET} PUBLIC Threads::Threads)
 
 target_link_libraries(${BIN_TARGET} PRIVATE
   PKWare
