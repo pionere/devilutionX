@@ -196,7 +196,7 @@ endif()
 
 find_package(Threads REQUIRED)
 if(NINTENDO_3DS)
-  list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/ctr")
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/ctr")
   find_package(CITRO3D REQUIRED)
   find_package(FREETYPE REQUIRED)
   find_package(BZIP2 REQUIRED)
@@ -277,12 +277,12 @@ if(TCPIP)
   if(NINTENDO_3DS)
     target_compile_definitions(asio INTERFACE ASIO_DISABLE_THREADS=ON ASIO_HAS_UNISTD_H=ON)
     # Missing headers and declarations provided by DevilutionX
-    target_include_directories(asio BEFORE INTERFACE ${DevilutionX_SOURCE_DIR}/Source/platform/ctr/asio/include)
+    target_include_directories(asio BEFORE INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Source/platform/ctr/asio/include)
   elseif(NINTENDO_SWITCH)
     # Enables a number of header file definitions required by ASIO
     target_compile_definitions(asio INTERFACE _DEFAULT_SOURCE=ON)
     # Missing headers and declarations provided by DevilutionX
-    target_include_directories(asio BEFORE INTERFACE ${DevilutionX_SOURCE_DIR}/Source/platform/switch/asio/include)
+    target_include_directories(asio BEFORE INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Source/platform/switch/asio/include)
   endif()
 endif()
 
