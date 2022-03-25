@@ -681,12 +681,12 @@ void CalcPlrScrolls(int pnum)
 
 	pi = plr._pInvList;
 	for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++) {
-		if (pi->_itype == ITYPE_MISC && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
+		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iStatFlag)
 			plr._pScrlSkills |= SPELL_MASK(pi->_iSpell);
 	}
 	pi = plr._pSpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-		if (pi->_itype == ITYPE_MISC && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
+		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iStatFlag)
 			plr._pScrlSkills |= SPELL_MASK(pi->_iSpell);
 	}
 

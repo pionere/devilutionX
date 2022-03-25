@@ -287,7 +287,7 @@ typedef struct PlayerStruct {
 	unsigned _pSkillExp[64];
 	uint64_t _pMemSkills;  // Bitmask of learned skills
 	uint64_t _pAblSkills;  // Bitmask of abilities
-	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls
+	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls or runes
 	char _pName[PLR_NAME_LEN];
 	WORD _pBaseStr;
 	WORD _pBaseMag;

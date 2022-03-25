@@ -43,7 +43,7 @@ char SpellSourceInv(int sn)
 	static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_INV_LAST < (int)SPLFROM_ABILITY, "SpellSourceInv expects the INV indices to be distinct from SPLFROM_ABILITY.");
 	pi = myplr._pInvList;
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
-		if (pi->_itype == ITYPE_MISC && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn)
+		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn)
 			return INVITEM_INV_FIRST + i;
 	}
 	static_assert(!SPLFROM_INVALID(INVITEM_BELT_FIRST), "SpellSourceInv expects the BELT indices to be distinct from SPLFROM_INVALID I.");
@@ -52,7 +52,7 @@ char SpellSourceInv(int sn)
 	static_assert((int)INVITEM_BELT_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_BELT_LAST < (int)SPLFROM_ABILITY, "SpellSourceInv expects the BELT indices to be distinct from SPLFROM_ABILITY.");
 	pi = myplr._pSpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-		if (pi->_itype == ITYPE_MISC && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn)
+		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn)
 			return INVITEM_BELT_FIRST + i;
 	}
 

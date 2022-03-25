@@ -269,13 +269,13 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 		v = 0;
 		pi = myplr._pInvList;
 		for (t = NUM_INV_GRID_ELEM; t > 0; t--, pi++) {
-			if (pi->_itype == ITYPE_MISC && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn) {
+			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn) {
 				v++;
 			}
 		}
 		pi = myplr._pSpdList;
 		for (t = MAXBELTITEMS; t > 0; t--, pi++) {
-			if (pi->_itype == ITYPE_MISC && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn) {
+			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn) {
 				v++;
 			}
 		}
@@ -1656,7 +1656,7 @@ void DrawInfoStr()
 			fmt = "%s Spell";
 			break;
 		case RSPLTYPE_SCROLL:
-			fmt = "Scroll of %s";
+			fmt = spelldata[currSkill].sScrollLvl != SPELL_NA ? "Scroll of %s" : "Rune of %s";
 			break;
 		case RSPLTYPE_CHARGES:
 			fmt = "Staff of %s";
@@ -1913,7 +1913,11 @@ void DrawSpellBook()
 				// lvl = -1; // SPLLVL_UNDEF
 				break;
 			case RSPLTYPE_SCROLL:
-				copy_cstr(tempstr, "Scroll");
+				if (spelldata[sn].sScrollLvl != SPELL_NA) {
+					copy_cstr(tempstr, "Scroll");
+				} else {
+					copy_cstr(tempstr, "Rune");
+				}
 				break;
 			case RSPLTYPE_CHARGES:
 				pi = &plr._pInvBody[INVLOC_HAND_LEFT];
