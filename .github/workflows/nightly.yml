@@ -411,8 +411,8 @@ jobs:
 
     - name: Create Build Environment
       run: >
-        sudo apt update &&
-        sudo apt install -y wget cmake git gettext &&
+        sudo apt-get update &&
+        sudo apt-get install -y wget cmake git gettext &&
         wget https://github.com/PacBrew/pacbrew-pacman/releases/download/pacbrew-release-1.0/pacbrew-pacman-1.0.deb &&
         sudo dpkg -i pacbrew-pacman-1.0.deb && sudo pacbrew-pacman -Sy &&
         sudo pacbrew-pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs &&
@@ -427,7 +427,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.artifact }}
-        path: build-ps4/devilutionx.pkg
+        path: build-ps4/devilutionx-ps4.pkg
 
   # Releases
   release:
