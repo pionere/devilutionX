@@ -58,7 +58,7 @@ if(VITA)
 endif()
 
 set(TARGET_PLATFORM host CACHE STRING "Target platform")
-set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host retrofw rg350 gkd350h cpigamesh)
+set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh)
 if(TARGET_PLATFORM STREQUAL "lepus")
   include(lepus_defs)
 elseif(TARGET_PLATFORM STREQUAL "retrofw")
