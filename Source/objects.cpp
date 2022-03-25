@@ -1202,7 +1202,7 @@ static void AddTrap(int oi)
 		os->_oVar3 = MIS_FIREBOLT;
 	else if (mt == 2)
 		os->_oVar3 = MIS_LIGHTNINGC;
-	os->_oVar4 = TRAP_ACTIVE;
+	os->_oVar4 = TRAP_ACTIVE; // TRAP_LIVE
 }
 
 static void AddObjLight(int oi, int diffr)
@@ -1731,7 +1731,7 @@ static void Obj_Trap(int oi)
 	int sx, sy, dx, dy, x, y;
 
 	os = &objects[oi];
-	if (os->_oVar4 != TRAP_ACTIVE)
+	if (os->_oVar4 != TRAP_ACTIVE) // TRAP_LIVE
 		return;
 
 	trigNum = 0;
@@ -1777,7 +1777,7 @@ static void Obj_Trap(int oi)
 	if (trigNum == 0)
 		return;
 
-	os->_oVar4 = TRAP_INACTIVE;
+	os->_oVar4 = TRAP_INACTIVE; // TRAP_LIVE
 	on->_oTrapChance = 0;
 
 	sx = on->_ox;
@@ -2717,7 +2717,7 @@ void DisarmObject(int pnum, int oi)
 	if (n > 0) {
 		n--;
 		on = &objects[n];
-		on->_oVar4 = TRAP_INACTIVE;
+		on->_oVar4 = TRAP_INACTIVE; // TRAP_LIVE
 		if (pnum == mypnum)
 			NetSendCmdParam1(CMD_TRAPDISABLE, n);
 	}
@@ -3701,7 +3701,8 @@ void SyncDoorClose(int oi)
 
 void SyncTrapDisable(int oi)
 {
-	objects[oi]._oVar4 = TRAP_INACTIVE;
+	objects[oi]._oVar4 = TRAP_INACTIVE; // TRAP_LIVE
+	objects[objects[oi]._oVar1]._oTrapChance = 0; // TRAP_OI_REF
 }
 
 void SyncTrapOpen(int oi)
