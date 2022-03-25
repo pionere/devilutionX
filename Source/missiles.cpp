@@ -1453,7 +1453,13 @@ void InitMissiles()
 static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 {
 	int i, j, tx, ty;
-	const char *cr;
+	const char* cr;
+	MissileStruct* mis;
+
+	mis = &missile[mi];
+	mis->_miVar1 = mitype;
+	mis->_miVar2 = mirange;		// trigger range
+	mis->_miRange = 16 + 1584;	// delay + ttl
 
 	for (i = 0; i < 10; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -1462,13 +1468,10 @@ static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkMissile(tx, ty)) {
-				missile[mi]._mix = tx;
-				missile[mi]._miy = ty;
-				missile[mi]._miVar1 = mitype;
-				missile[mi]._miVar2 = mirange;		// trigger range
-				missile[mi]._miRange = 16 + 1584;	// delay + ttl
+				mis->_mix = tx;
+				mis->_miy = ty;
 				static_assert(MAX_LIGHT_RAD >= 8, "PlaceRune needs at least light-radius of 8.");
-				missile[mi]._miLid = AddLight(tx, ty, 8);
+				mis->_miLid = AddLight(tx, ty, 8);
 				return true;
 			}
 		}
