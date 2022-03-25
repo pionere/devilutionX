@@ -1853,6 +1853,8 @@ static char GetSBookTrans(int sn)
 		st = RSPLTYPE_ABILITY;
 	} else if (p->_pISpells & SPELL_MASK(sn)) {
 		st = RSPLTYPE_CHARGES;
+	} else if (p->_pScrlSkills & SPELL_MASK(sn)) {
+		st = RSPLTYPE_SCROLL;
 	} else if (CheckSpell(mypnum, sn)) {
 		st = RSPLTYPE_SPELL;
 	} else {
@@ -1887,7 +1889,7 @@ void DrawSpellBook()
 	currSkill = SPL_INVALID;
 
 	pnum = mypnum;
-	spl = plr._pMemSkills | plr._pISpells | plr._pAblSkills;
+	spl = plr._pMemSkills | plr._pISpells | plr._pAblSkills | plr._pScrlSkills;
 
 	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
 	sx = RIGHT_PANEL_X + SBOOK_CELBORDER;
@@ -1903,11 +1905,15 @@ void DrawSpellBook()
 				currSkillType = st;
 			}
 			lvl = plr._pSkillLvl[sn];
-			assert(lvl >= 0);
+			// assert(lvl >= 0);
 			mana = 0;
 			switch (st) {
 			case RSPLTYPE_ABILITY:
 				copy_cstr(tempstr, "Skill");
+				// lvl = -1; // SPLLVL_UNDEF
+				break;
+			case RSPLTYPE_SCROLL:
+				copy_cstr(tempstr, "Scroll");
 				break;
 			case RSPLTYPE_CHARGES:
 				pi = &plr._pInvBody[INVLOC_HAND_LEFT];
