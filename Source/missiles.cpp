@@ -1459,6 +1459,8 @@ static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 	mis = &missile[mi];
 	mis->_miVar1 = mitype;
 	mis->_miVar2 = mirange;		// trigger range
+	if (mis->_miCaster == MST_PLAYER)
+		mis->_miSpllvl += plx(mis->_miSource)._pDexterity >> 4;
 	mis->_miRange = 16 + 1584;	// delay + ttl
 
 	for (i = 0; i < 10; i++) {
