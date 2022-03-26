@@ -1123,8 +1123,9 @@ static void GetBookSpell(int ii, unsigned lvl)
 	sd = &spelldata[bs];
 	strcat(is->_iName, sd->sNameText);
 	is->_iMinMag = sd->sMinInt;
-	is->_ivalue += sd->sBookCost;
-	is->_iIvalue += sd->sBookCost;
+	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
+	is->_ivalue = sd->sBookCost;
+	is->_iIvalue = sd->sBookCost;
 	switch (sd->sType) {
 	case STYPE_FIRE:
 		bs = ICURS_BOOK_RED;
@@ -1171,8 +1172,9 @@ static void GetScrollSpell(int ii, unsigned lvl)
 	sd = &spelldata[bs];
 	strcat(is->_iName, sd->sNameText);
 	is->_iMinMag = sd->sMinInt > 20 ? sd->sMinInt - 20 : 0;
-	is->_ivalue += sd->sStaffCost;
-	is->_iIvalue += sd->sStaffCost;
+	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
+	is->_ivalue = sd->sStaffCost;
+	is->_iIvalue = sd->sStaffCost;
 }
 
 static void GetStaffSpell(int ii, unsigned lvl)
