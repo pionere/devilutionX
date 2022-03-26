@@ -457,6 +457,7 @@ void ValidateData()
 	}*/
 
 	// spells
+	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false;
 	for (int i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
 		if (i != sd.sName)
@@ -470,6 +471,7 @@ void ValidateData()
 				app_fatal("Invalid sBookCost %d for %s (%d:%d)", sd.sBookCost, sd.sNameText, i, sd.sName);
 			if (strlen(sd.sNameText) > 32 - (strlen("Book of ") + 1))
 				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+			hasBookSpell = true;
 		}
 		if (sd.sStaffLvl != SPELL_NA) {
 			if (sd.sStaffLvl < STAFF_MIN)
@@ -479,6 +481,7 @@ void ValidateData()
 			//if (strlen(sd.sNameText) > 32 - (maxStaff + 4 + 1))
 			if (strlen(sd.sNameText) > 32 - (strlen("Staff of ") + 1))
 				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+			hasStaffSpell = true;
 		}
 		if (sd.sScrollLvl != SPELL_NA) {
 			if (sd.sScrollLvl < SCRL_MIN)
@@ -487,8 +490,15 @@ void ValidateData()
 				app_fatal("Invalid sStaffCost %d for %s (%d:%d)", sd.sStaffCost, sd.sNameText, i, sd.sName);
 			if (strlen(sd.sNameText) > 32 - (strlen("Scroll of ") + 1))
 				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+			hasScrollSpell = true;
 		}
 	}
+	if (!hasBookSpell)
+		app_fatal("No book spell for GetBookSpell.");
+	if (!hasStaffSpell)
+		app_fatal("No staff spell for GetStaffSpell.");
+	if (!hasScrollSpell)
+		app_fatal("No scroll spell for GetScrollSpell.");
 
 	// missiles
 	for (int i = 0; i < NUM_MISTYPES; i++) {

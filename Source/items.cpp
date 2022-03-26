@@ -1099,25 +1099,25 @@ static void GetBookSpell(int ii, unsigned lvl)
 {
 	const SpellData* sd;
 	ItemStruct* is;
-	int rv, bs;
-
-	rv = random_(14, NUM_SPELLS);
+	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetBookSpell stores spell-ids in BYTEs.");
+	BYTE ss[NUM_SPELLS];
+	int bs, ns;
 
 	if (lvl < BOOK_MIN)
 		lvl = BOOK_MIN;
 
-	bs = 0;
-	while (TRUE) {
+	ns = 0;
+	for (bs = 0; bs < NUM_SPELLS; bs++) {
 		if (spelldata[bs].sBookLvl != SPELL_NA && lvl >= spelldata[bs].sBookLvl
 		 && (IsMultiGame
 			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
-			if (rv == 0)
-				break;
-			rv--;
+			ss[ns] = bs;
+			ns++;
 		}
-		if (++bs == NUM_SPELLS)
-			bs = 0;
 	}
+	// assert(ns > 0);
+	bs = ss[random_(14, ns)];
+
 	is = &items[ii];
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
@@ -1147,25 +1147,25 @@ static void GetScrollSpell(int ii, unsigned lvl)
 {
 	const SpellData* sd;
 	ItemStruct* is;
-	int rv, bs;
-
-	rv = random_(14, NUM_SPELLS);
+	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetScrollSpell stores spell-ids in BYTEs.");
+	BYTE ss[NUM_SPELLS];
+	int bs, ns;
 
 	if (lvl < SCRL_MIN)
 		lvl = SCRL_MIN;
 
-	bs = 0;
-	while (TRUE) {
+	ns = 0;
+	for (bs = 0; bs < NUM_SPELLS; bs++) {
 		if (spelldata[bs].sScrollLvl != SPELL_NA && lvl >= spelldata[bs].sScrollLvl
 		 && (IsMultiGame
 			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
-			if (rv == 0)
-				break;
-			rv--;
+			ss[ns] = bs;
+			ns++;
 		}
-		if (++bs == NUM_SPELLS)
-			bs = 0;
 	}
+	// assert(ns > 0);
+	bs = ss[random_(14, ns)];
+
 	is = &items[ii];
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
@@ -1179,26 +1179,25 @@ static void GetStaffSpell(int ii, unsigned lvl)
 {
 	const SpellData* sd;
 	ItemStruct* is;
-	int rv, v, bs;
-	char istr[32];
-
-	rv = random_(18, NUM_SPELLS);
+	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetStaffSpell stores spell-ids in BYTEs.");
+	BYTE ss[NUM_SPELLS];
+	int bs, ns, v;
 
 	if (lvl < STAFF_MIN)
 		lvl = STAFF_MIN;
 
-	bs = 0;
-	while (TRUE) {
+	ns = 0;
+	for (bs = 0; bs < NUM_SPELLS; bs++) {
 		if (spelldata[bs].sStaffLvl != SPELL_NA && lvl >= spelldata[bs].sStaffLvl
 		 && (IsMultiGame
 			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
-			if (rv == 0)
-				break;
-			rv--;
+			ss[ns] = bs;
+			ns++;
 		}
-		if (++bs == NUM_SPELLS)
-			bs = 0;
 	}
+	// assert(ns > 0);
+	bs = ss[random_(18, ns)];
+
 	is = &items[ii];
 	sd = &spelldata[bs];
 	static_assert(sizeof(istr) == sizeof(is->_iName), "Mismatching _iName and local string sizes in GetStaffSpell.");
