@@ -1814,18 +1814,20 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	// assert(plr._pmode != PM_DEATH);
 	// assert(cii < NUM_INVELEM);
 
+	is = PlrItem(pnum, cii);
+
+	if (is->_itype == ITYPE_NONE || !is->_iStatFlag)
+		return false;
+
 	if (cii < INVITEM_INV_FIRST) {
-		is = &plr._pInvBody[cii];
-		if (is->_iSpell != sn || is->_itype == ITYPE_NONE || !is->_iStatFlag || is->_iCharges <= 0)
+		if (is->_iSpell != sn || is->_iCharges <= 0)
 			return false;
 		is->_iCharges--;
 		CalcPlrStaff(pnum);
 		return true;
 	}
 
-	is = PlrItem(pnum, cii);
-
-	if (is->_itype == ITYPE_NONE || !is->_iStatFlag || !AllItemsList[is->_iIdx].iUsable)
+	if (!AllItemsList[is->_iIdx].iUsable)
 		return false;
 
 	// use the item
