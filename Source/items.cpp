@@ -1200,11 +1200,9 @@ static void GetStaffSpell(int ii, unsigned lvl)
 
 	is = &items[ii];
 	sd = &spelldata[bs];
-	static_assert(sizeof(istr) == sizeof(is->_iName), "Mismatching _iName and local string sizes in GetStaffSpell.");
-	if ((unsigned)snprintf(istr, sizeof(istr), "%s of %s", is->_iName, sd->sNameText) >= sizeof(istr))
-	//if (GetStringWidth(istr) < 125)
-		snprintf(istr, sizeof(istr), "Staff of %s", sd->sNameText);
-	copy_str(is->_iName, istr);
+
+	if ((unsigned)snprintf(is->_iName, sizeof(is->_iName), "%s of %s", is->_iName, sd->sNameText) >= sizeof(is->_iName))
+		snprintf(is->_iName, sizeof(is->_iName), "Staff of %s", sd->sNameText);
 
 	is->_iSpell = bs;
 	is->_iCharges = RandRange(sd->sStaffMin, sd->sStaffMax);
