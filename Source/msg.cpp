@@ -906,7 +906,9 @@ void UnPackPkItem(const PkItemStruct* src)
 {
 	uint16_t idx = SwapLE16(src->wIndx);
 
+	net_assert(idx < NUM_IDI);
 	if (idx != IDI_EAR) {
+		net_assert(((SwapLE16(src->wCI) & CF_TOWN) >> 8) <= CFL_CRAFTED);
 		RecreateItem(
 			SwapLE32(src->dwSeed),
 			SwapLE16(src->wIndx),
