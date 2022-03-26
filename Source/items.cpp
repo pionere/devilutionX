@@ -1773,7 +1773,7 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 		 || random_(32, 100) <= 10 || (unsigned)random_(33, 100) <= lvl) {
 			uid = CheckUnique(ii, lvl, quality);
 			if (uid < 0) {
-				GetItemBonus(ii, lvl >> 1, lvl, quality >= CFDQ_GOOD, true);
+				GetItemBonus(ii, lvl >> 2, lvl, quality >= CFDQ_GOOD, true);
 			} else {
 				GetUniqueItem(ii, uid);
 			}
@@ -3217,15 +3217,16 @@ void SpawnSmith(unsigned lvl)
 	SortSmith();
 }
 
-static int RndPremiumItem(unsigned minlvl, unsigned maxlvl)
+static int RndPremiumItem(unsigned lvl)
 {
 	int i, ri;
 	int ril[NUM_IDI];
+	unsigned minlvl = lvl >> 2;
 
 	ri = 0;
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i)) {
-			if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= maxlvl) {
+			if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= lvl) {
 				ril[ri] = i;
 				ri++;
 			}
@@ -3235,22 +3236,22 @@ static int RndPremiumItem(unsigned minlvl, unsigned maxlvl)
 	return ril[random_(50, ri)];
 }
 
-static void SpawnOnePremium(int i, unsigned plvl)
+static void SpawnOnePremium(int i, unsigned lvl)
 {
 	int seed;
 
-	if (plvl > 30)
-		plvl = 30;
-	if (plvl < 1)
-		plvl = 1;
+	/*if (lvl > 30)
+		lvl = 30;
+	if (lvl < 1)
+		lvl = 1;*/
 	do {
 		seed = GetRndSeed();
 		SetRndSeed(seed);
-		GetItemAttrs(0, RndPremiumItem(plvl >> 2, plvl), plvl);
-		GetItemBonus(0, plvl >> 1, plvl, true, false);
+		GetItemAttrs(0, RndPremiumItem(lvl), lvl);
+		GetItemBonus(0, lvl >> 1, lvl, true, false);
 	} while (items[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	items[0]._iSeed = seed;
-	items[0]._iCreateInfo = plvl | CF_SMITHPREMIUM;
+	items[0]._iCreateInfo = lvl | CF_SMITHPREMIUM;
 	copy_pod(premiumitems[i], items[0]);
 }
 
@@ -3347,7 +3348,7 @@ void SpawnWitch(unsigned lvl)
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndWitchItem(lvl), lvl);
 			if (random_(51, 100) <= 5 || items[0]._itype == ITYPE_STAFF)
-				GetItemBonus(0, lvl, lvl << 1, true, true);
+				GetItemBonus(0, lvl >> 1, lvl, true, true);
 		} while (items[0]._iIvalue > WITCH_MAX_VALUE);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_WITCH;
@@ -3484,7 +3485,7 @@ static void RecreateSmithItem(int ii, int iseed, int idx, unsigned lvl)
 static void RecreatePremiumItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
-	GetItemAttrs(ii, RndPremiumItem(lvl >> 2, lvl), lvl);
+	GetItemAttrs(ii, RndPremiumItem(lvl), lvl);
 	GetItemBonus(ii, lvl >> 1, lvl, true, false);
 
 	//items[ii]._iSeed = iseed;
@@ -3509,7 +3510,7 @@ static void RecreateWitchItem(int ii, int iseed, int idx, unsigned lvl)
 		SetRndSeed(iseed);
 		GetItemAttrs(ii, RndWitchItem(lvl), lvl);
 		if (random_(51, 100) <= 5 || items[ii]._itype == ITYPE_STAFF)
-			GetItemBonus(ii, lvl, lvl << 1, true, true);
+			GetItemBonus(ii, lvl >> 1, lvl, true, true);
 	}
 
 	//items[ii]._iSeed = iseed;

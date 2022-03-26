@@ -174,7 +174,7 @@ void InitStoresOnce()
 	gbHasScroll = false;
 	numpremium = 0;
 	premiumlevel = StoresLimitedItemLvl();
-	// assert((premiumlevel + premiumlvladd[0]) >= 0);
+	// assert((premiumlevel + premiumlvladd[0]) >= 1);
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		premiumitems[i]._itype = ITYPE_NONE;
