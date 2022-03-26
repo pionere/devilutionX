@@ -1656,7 +1656,7 @@ void DrawInfoStr()
 			fmt = "%s Spell";
 			break;
 		case RSPLTYPE_SCROLL:
-			fmt = spelldata[currSkill].sScrollLvl != SPELL_NA ? "Scroll of %s" : "Rune of %s";
+			fmt = SPELL_RUNE(currSkill) ? "Rune of %s" : "Scroll of %s";
 			break;
 		case RSPLTYPE_CHARGES:
 			fmt = "Staff of %s";
@@ -1913,10 +1913,10 @@ void DrawSpellBook()
 				// lvl = -1; // SPLLVL_UNDEF
 				break;
 			case RSPLTYPE_SCROLL:
-				if (spelldata[sn].sScrollLvl != SPELL_NA) {
-					copy_cstr(tempstr, "Scroll");
-				} else {
+				if (SPELL_RUNE(sn)) {
 					copy_cstr(tempstr, "Rune");
+				} else {
+					copy_cstr(tempstr, "Scroll");
 				}
 				break;
 			case RSPLTYPE_CHARGES:
