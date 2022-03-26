@@ -1749,8 +1749,8 @@ static void GetUniqueItem(int ii, int uid)
 
 	items[ii]._iIvalue = ui->UIValue;
 
-	if (items[ii]._iMiscId == IMISC_UNIQUE)
-		items[ii]._iSeed = uid;
+	// if (items[ii]._iMiscId == IMISC_UNIQUE)
+	//	assert(items[ii]._iSeed == uid);
 
 	items[ii]._iUid = uid;
 	items[ii]._iMagical = ITEM_QUALITY_UNIQUE;
@@ -1785,9 +1785,10 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 				GetItemBonus(ii, lvl >> 2, lvl, quality >= CFDQ_GOOD, true);
 			} else {
 				GetUniqueItem(ii, uid);
+				return;
 			}
 		}
-		if (items[ii]._iMagical != ITEM_QUALITY_UNIQUE)
+		// if (items[ii]._iMagical != ITEM_QUALITY_UNIQUE)
 			ItemRndDur(ii);
 	} else {
 		assert(items[ii]._iLoc != ILOC_UNEQUIPABLE);
