@@ -364,12 +364,14 @@ void ValidateData()
 		const ItemData& ids = AllItemsList[i];
 		if (strlen(ids.iName) > 32 - 1)
 			app_fatal("Too long name for %s (%d)", ids.iName, i);
-		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor)
+		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor && ids.iRnd != IDROP_NEVER)
 			minLightArmor = ids.iMinMLvl;
-		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor)
+		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor && ids.iRnd != IDROP_NEVER)
 			minMediumArmor = ids.iMinMLvl;
-		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor)
+		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor && ids.iRnd != IDROP_NEVER)
 			minHeavyArmor = ids.iMinMLvl;
+		if (ids.iMinMLvl == 0 && ids.itype != ITYPE_MISC && ids.itype != ITYPE_GOLD && ids.iMiscId != IMISC_UNIQUE)
+			app_fatal("iMinMLvl field is not set for %s (%d).", ids.iName, i);
 		if (ids.iClass == ICLASS_ARMOR) {
 			if (ids.itype != ITYPE_LARMOR && ids.itype != ITYPE_MARMOR
 			 && ids.itype != ITYPE_HARMOR && ids.itype != ITYPE_SHIELD
@@ -396,7 +398,7 @@ void ValidateData()
 			if (ids.iBaseCrit != 0)
 				app_fatal("Crit.chance set for %s (%d), which is not a weapon.", ids.iName, i);
 		}
-		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu)
+		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu && ids.iRnd != IDROP_NEVER)
 			minAmu = ids.iMinMLvl;
 		//if (ids.itype == ITYPE_STAFF && strlen(ids.iName) > maxStaff)
 		//	maxStaff = strlen(ids.iName);
