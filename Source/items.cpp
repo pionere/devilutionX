@@ -1125,12 +1125,22 @@ static void GetBookSpell(int ii, unsigned lvl)
 	is->_iMinMag = sd->sMinInt;
 	is->_ivalue += sd->sBookCost;
 	is->_iIvalue += sd->sBookCost;
-	if (sd->sType == STYPE_FIRE)
-		is->_iCurs = ICURS_BOOK_RED;
-	else if (sd->sType == STYPE_LIGHTNING)
-		is->_iCurs = ICURS_BOOK_BLUE;
-	else // if (sd->sType == STYPE_MAGIC)
-		is->_iCurs = ICURS_BOOK_GRAY;
+	switch (sd->sType) {
+	case STYPE_FIRE:
+		bs = ICURS_BOOK_RED;
+		break;
+	case STYPE_LIGHTNING:
+		bs = ICURS_BOOK_BLUE;
+		break;
+	case STYPE_MAGIC:
+	case STYPE_NONE:
+		bs = ICURS_BOOK_GRAY;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	is->_iCurs = bs;
 }
 
 static void GetScrollSpell(int ii, unsigned lvl)

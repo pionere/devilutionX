@@ -462,6 +462,8 @@ void ValidateData()
 		if (i != sd.sName)
 			app_fatal("Invalid sName %d for %s (%d:%d)", sd.sName, sd.sNameText, i, sd.sName);
 		if (sd.sBookLvl != SPELL_NA) {
+			if (sd.sType != STYPE_NONE && sd.sType != STYPE_FIRE && sd.sType != STYPE_MAGIC && sd.sType != STYPE_LIGHTNING)
+				app_fatal("Invalid sType %d for %s (%d:%d)", sd.sType, sd.sNameText, i, sd.sName);
 			if (sd.sBookLvl < BOOK_MIN)
 				app_fatal("Invalid sBookLvl %d for %s (%d:%d)", sd.sBookLvl, sd.sNameText, i, sd.sName);
 			if (sd.sBookCost <= 0)
