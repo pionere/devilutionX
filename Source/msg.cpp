@@ -884,20 +884,21 @@ void DeltaSaveLevel()
 
 static void UnPackEar(const PkItemStruct* src)
 {
-	*(WORD*)&tempstr[0] = SwapLE16(src->wCI);
-	*(DWORD*)&tempstr[2] = SwapLE32(src->dwSeed);
-	tempstr[6] = src->bId;
-	tempstr[7] = src->bDur;
-	tempstr[8] = src->bMDur;
-	tempstr[9] = src->bCh;
-	tempstr[10] = src->bMCh;
-	tempstr[11] = SwapLE16(src->wValue) >> 8;
-	*(DWORD*)&tempstr[12] = SwapLE32(src->dwBuff);
-	tempstr[16] = '\0';
+	static_assert(sizeof(items[MAXITEMS]._iName) >= sizeof("Ear of ") + 16, "UnPackEar might write too much data to _iName.");
+	char* cursor = &items[MAXITEMS]._iName[sizeof("Ear of ") - 1];
+
+	*(WORD*)&cursor[0] = SwapLE16(src->wCI);
+	*(DWORD*)&cursor[2] = SwapLE32(src->dwSeed);
+	cursor[6] = src->bId;
+	cursor[7] = src->bDur;
+	cursor[8] = src->bMDur;
+	cursor[9] = src->bCh;
+	cursor[10] = src->bMCh;
+	cursor[11] = SwapLE16(src->wValue) >> 8;
+	*(DWORD*)&cursor[12] = SwapLE32(src->dwBuff);
+	cursor[16] = '\0';
 	items[MAXITEMS]._iCurs = ((SwapLE16(src->wValue) >> 6) & 3) + ICURS_EAR_SORCERER;
 	items[MAXITEMS]._ivalue = SwapLE16(src->wValue) & 0x3F;
-
-	snprintf(items[MAXITEMS]._iName, sizeof(items[MAXITEMS]._iName), "Ear of %s", tempstr);
 	items[MAXITEMS]._iCreateInfo = SwapLE16(*(WORD*)&items[MAXITEMS]._iName[7]);
 	items[MAXITEMS]._iSeed = SwapLE32(*(DWORD*)&items[MAXITEMS]._iName[9]);
 }
