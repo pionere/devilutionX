@@ -2175,6 +2175,7 @@ void DrawTeamBook()
 		}
 
 		// icon
+		SetSpellTrans(plr._pDunLevel == DLV_TOWN ? RSPLTYPE_ABILITY : (plr._pmode == PM_DEATH ? RSPLTYPE_INVALID : RSPLTYPE_SPELL));
 		DrawSpellCel(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SBOOK_CELWIDTH);
 
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
