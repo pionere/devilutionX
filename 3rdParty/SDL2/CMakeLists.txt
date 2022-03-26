@@ -64,10 +64,6 @@ if(NOT DEBUG_MODE)
   set(SDL_LOGGING OFF) # requires fork of SDL2
   set(SDL_VERBOSE_ERROR OFF) # requires fork of SDL2
 endif()
-# Turn off tests on Android, because the test-setup is not compatible with gradle 7.1.2
-if(ANDROID)
-  set(SDL_TEST OFF)
-endif()
 
 include(FetchContent_MakeAvailableExcludeFromAll)
 include(FetchContent)
