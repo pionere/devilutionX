@@ -3511,14 +3511,14 @@ static void RecreateBoyItem(int ii, int iseed, int idx, unsigned lvl)
 
 static void RecreateWitchItem(int ii, int iseed, int idx, unsigned lvl)
 {
-	if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
-		GetItemAttrs(ii, idx, lvl);
-	} else {
+	/*if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
+		SetItemData(ii, idx);
+	} else {*/
 		SetRndSeed(iseed);
 		GetItemAttrs(ii, RndWitchItem(lvl), lvl);
 		if (random_(51, 100) <= 5 || items[ii]._itype == ITYPE_STAFF)
 			GetItemBonus(ii, lvl >> 1, lvl, true, true);
-	}
+	//}
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_WITCH;
@@ -3526,12 +3526,12 @@ static void RecreateWitchItem(int ii, int iseed, int idx, unsigned lvl)
 
 static void RecreateHealerItem(int ii, int iseed, int idx, unsigned lvl)
 {
-	if (idx == IDI_HEAL || idx == IDI_FULLHEAL || idx == IDI_RESURRECT) {
-		GetItemAttrs(ii, idx, lvl);
-	} else {
+	/*if (idx == IDI_HEAL || idx == IDI_FULLHEAL || idx == IDI_RESURRECT) {
+		SetItemData(ii, idx);
+	} else {*/
 		SetRndSeed(iseed);
 		GetItemAttrs(ii, RndHealerItem(lvl), lvl);
-	}
+	//}
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_HEALER;
