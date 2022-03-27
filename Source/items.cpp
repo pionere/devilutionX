@@ -1620,32 +1620,6 @@ static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood
 	GetItemPower(ii, minlvl, maxlvl, flgs, onlygood);
 }
 
-static int RndItem(unsigned lvl)
-{
-	int i, ri;
-	int ril[NUM_IDI * 2];
-
-	if (random_(24, 100) > 40)
-		return -1;
-
-	if (random_(24, 100) > 25)
-		return IDI_GOLD;
-
-	ri = 0;
-	for (i = 0; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl)
-			continue;
-		ril[ri] = i;
-		ri++;
-		if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
-			ril[ri] = i;
-			ri++;
-		}
-	}
-	assert(ri != 0);
-	return ril[random_(24, ri)];
-}
-
 static int RndUItem(unsigned lvl)
 {
 	int i, ri;
@@ -1668,7 +1642,7 @@ static int RndUItem(unsigned lvl)
 static int RndAllItems(unsigned lvl)
 {
 	int i, ri;
-	int ril[NUM_IDI];
+	int ril[NUM_IDI * 2];
 
 	if (random_(26, 100) > 25)
 		return IDI_GOLD;
@@ -1679,9 +1653,21 @@ static int RndAllItems(unsigned lvl)
 			continue;
 		ril[ri] = i;
 		ri++;
+		if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
+			ril[ri] = i;
+			ri++;
+		}
 	}
 	assert(ri != 0);
 	return ril[random_(26, ri)];
+}
+
+static int RndItem(unsigned lvl)
+{
+	if (random_(24, 100) > 40)
+		return -1;
+
+	return RndAllItems(lvl);
 }
 
 static int RndTypeItems(int itype, int imid, unsigned lvl)
@@ -3232,7 +3218,7 @@ void SpawnSmith(unsigned lvl)
 static int RndPremiumItem(unsigned lvl)
 {
 	int i, ri;
-	int ril[NUM_IDI];
+	int ril[NUM_IDI * 2];
 	unsigned minlvl = lvl >> 2;
 
 	ri = 0;
@@ -3242,6 +3228,10 @@ static int RndPremiumItem(unsigned lvl)
 			if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= lvl) {
 				ril[ri] = i;
 				ri++;
+				if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
+					ril[ri] = i;
+					ri++;
+				}
 			}
 		}
 	}
@@ -3375,23 +3365,6 @@ void SpawnWitch(unsigned lvl)
 	SortWitch();
 }
 
-static int RndBoyItem(unsigned lvl)
-{
-	int i, ri;
-	int ril[NUM_IDI];
-
-	ri = 0;
-	static_assert(IDI_GOLD == 0, "RndBoyItem skips the first entry of AllItemsList.");
-	for (i = 1; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
-			ril[ri] = i;
-			ri++;
-		}
-	}
-
-	return ril[random_(49, ri)];
-}
-
 void SpawnBoy(unsigned lvl)
 {
 	int seed;
@@ -3401,7 +3374,7 @@ void SpawnBoy(unsigned lvl)
 		do {
 			seed = GetRndSeed();
 			SetRndSeed(seed);
-			GetItemAttrs(0, RndBoyItem(lvl), lvl);
+			GetItemAttrs(0, RndSmithItem(lvl), lvl);
 			GetItemBonus(0, lvl, lvl << 1, true, true);
 		} while (items[0]._iIvalue > BOY_MAX_VALUE);
 		items[0]._iSeed = seed;
@@ -3511,7 +3484,7 @@ static void RecreatePremiumItem(int ii, int iseed, int idx, unsigned lvl)
 static void RecreateBoyItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
-	GetItemAttrs(ii, RndBoyItem(lvl), lvl);
+	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
 	GetItemBonus(ii, lvl, lvl << 1, true, true);
 
 	//items[ii]._iSeed = iseed;
