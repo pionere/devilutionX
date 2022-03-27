@@ -91,13 +91,8 @@ static bool _gabChrbtn[NUM_ATTRIBS];
 /** Specifies whether any attribute-button is pressed on Character-Panel. */
 bool gbChrbtnactive;
 
-static BYTE SplTransTbl[256];
-static_assert(RSPLTYPE_CHARGES != -1, "Cached value of spellTrans must not be -1.");
-static_assert(RSPLTYPE_SCROLL != -1, "Cached value of spellTrans must not be -1.");
-static_assert(RSPLTYPE_ABILITY != -1, "Cached value of spellTrans must not be -1.");
-static_assert(RSPLTYPE_SPELL != -1, "Cached value of spellTrans must not be -1.");
-static_assert(RSPLTYPE_INVALID != -1, "Cached value of spellTrans must not be -1.");
-static char lastSt = -1;
+/** Color translations for the skill icons. */
+static BYTE SkillTrns[NUM_RSPLTYPES][256];
 /** Specifies whether the Skill-List is displayed. */
 bool gbSkillListFlag;
 /** Skill-List images CEL */
@@ -167,20 +162,7 @@ static BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 #endif
 };
 
-/**
- * Draw spell cell onto the back buffer.
- * @param xp Back buffer coordinate
- * @param yp Back buffer coordinate
- * @param Trans Pointer to the cel buffer.
- * @param nCel Index of the cel frame to draw. 0 based.
- * @param w Width of the frame.
- */
-static void DrawSpellCel(int xp, int yp, BYTE* Trans, int nCel, int w)
-{
-	CelDrawLight(xp, yp, Trans, nCel, w, SplTransTbl);
-}
-
-static void SetSpellTrans(char st)
+/*static void SetSpellTrans(char st)
 {
 	int i;
 
@@ -188,16 +170,16 @@ static void SetSpellTrans(char st)
 		return;
 	lastSt = st;
 
-	if (st == RSPLTYPE_ABILITY) {
-		for (i = 0; i < 128; i++)
-			SplTransTbl[i] = i;
-	}
-	for (i = 128; i < 256; i++)
-		SplTransTbl[i] = i;
-	SplTransTbl[255] = 0;
-
 	switch (st) {
 	case RSPLTYPE_ABILITY:
+		SplTransTbl[PAL8_YELLOW] = PAL8_YELLOW + 1;
+		SplTransTbl[PAL8_YELLOW + 1] = PAL8_YELLOW + 1;
+		SplTransTbl[PAL8_YELLOW + 2] = PAL8_YELLOW + 2;
+		for (i = 0; i < 16; i++) {
+			SplTransTbl[PAL16_BEIGE + i] = PAL16_BEIGE + i;
+			SplTransTbl[PAL16_YELLOW + i] = PAL16_YELLOW + i;
+			SplTransTbl[PAL16_ORANGE + i] = PAL16_ORANGE + i;
+		}
 		break;
 	case RSPLTYPE_SPELL:
 		SplTransTbl[PAL8_YELLOW] = PAL16_BLUE + 1;
@@ -214,6 +196,7 @@ static void SetSpellTrans(char st)
 		SplTransTbl[PAL8_YELLOW + 1] = PAL16_BEIGE + 3;
 		SplTransTbl[PAL8_YELLOW + 2] = PAL16_BEIGE + 5;
 		for (i = PAL16_BEIGE; i < PAL16_BEIGE + 16; i++) {
+			SplTransTbl[i] = i;
 			SplTransTbl[PAL16_YELLOW - PAL16_BEIGE + i] = i;
 			SplTransTbl[PAL16_ORANGE - PAL16_BEIGE + i] = i;
 		}
@@ -225,6 +208,7 @@ static void SetSpellTrans(char st)
 		for (i = PAL16_ORANGE; i < PAL16_ORANGE + 16; i++) {
 			SplTransTbl[PAL16_BEIGE - PAL16_ORANGE + i] = i;
 			SplTransTbl[PAL16_YELLOW - PAL16_ORANGE + i] = i;
+			SplTransTbl[i] = i;
 		}
 		break;
 	case RSPLTYPE_INVALID:
@@ -244,7 +228,7 @@ static void SetSpellTrans(char st)
 		ASSUME_UNREACHABLE
 		break;
 	}
-}
+}*/
 
 static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 {
@@ -315,10 +299,9 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 		if (plr._pHasUnidItem)
 			lvl = -1; // SPLLVL_UNDEF
 	}
-	SetSpellTrans(st);
 	y = SCREEN_Y + SCREEN_HEIGHT - 1 - offset;
-	DrawSpellCel(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, y, pSpellCels,
-		spelldata[spl].sIcon, SPLICONLENGTH);
+	CelDrawLight(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, y, pSpellCels,
+		spelldata[spl].sIcon, SPLICONLENGTH, SkillTrns[st]);
 	DrawSpellIconOverlay(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, y, spl, st, lvl);
 }
 
@@ -449,8 +432,7 @@ void DrawSkillList()
 			}
 			if ((spelldata[j].sFlags & plr._pSkillFlags) != spelldata[j].sFlags)
 				st = RSPLTYPE_INVALID;
-			SetSpellTrans(st);
-			DrawSpellCel(x, y, pSpellCels, spelldata[j].sIcon, SPLICONLENGTH);
+			CelDrawLight(x, y, pSpellCels, spelldata[j].sIcon, SPLICONLENGTH, SkillTrns[st]);
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -459,8 +441,8 @@ void DrawSkillList()
 			}
 #endif
 			if (MouseX >= lx && MouseX < lx + SPLICONLENGTH && MouseY >= ly && MouseY < ly + SPLICONLENGTH) {
-				//DrawSpellCel(x, y, pSpellCels, c, SPLICONLENGTH);
-				DrawSpellCel(x, y, pSpellCels, SPLICONLAST, SPLICONLENGTH);
+				//CelDrawLight(x, y, pSpellCels, c, SPLICONLENGTH, SkillTrns[st]);
+				CelDrawLight(x, y, pSpellCels, SPLICONLAST, SPLICONLENGTH, SkillTrns[st]);
 
 				currSkill = j;
 				if (j == SPL_NULL) {
@@ -851,7 +833,16 @@ void InitControlPan()
 #else
 	pSpellCels = LoadFileInMem("CtrlPan\\SpelIcon.CEL");
 #endif
-	SetSpellTrans(RSPLTYPE_ABILITY);
+	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
+		for (j = 0; j < 256; j++)
+			SplTransTbl[j] = j;
+		SplTransTbl[255] = 0;
+	}*/
+	LoadFileWithMem("PlrGFX\\SNone.TRN", SkillTrns[RSPLTYPE_ABILITY]);
+	LoadFileWithMem("PlrGFX\\SBlue.TRN", SkillTrns[RSPLTYPE_SPELL]);
+	LoadFileWithMem("PlrGFX\\SRed.TRN", SkillTrns[RSPLTYPE_SCROLL]);
+	LoadFileWithMem("PlrGFX\\SOrange.TRN", SkillTrns[RSPLTYPE_CHARGES]);
+	LoadFileWithMem("PlrGFX\\SGray.TRN", SkillTrns[RSPLTYPE_INVALID]);
 	gbTalkflag = false;
 	gbTeamFlag = false;
 	guTeamInviteRec = 0;
@@ -1965,13 +1956,11 @@ void DrawSpellBook()
 
 			if ((spelldata[sn].sFlags & plr._pSkillFlags) != spelldata[sn].sFlags)
 				st = RSPLTYPE_INVALID;
-			SetSpellTrans(st);
-			DrawSpellCel(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH);
+			CelDrawLight(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH, SkillTrns[st]);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
 			if ((sn == plr._pAltAtkSkill && st == plr._pAltAtkSkillType)
 			 || (sn == plr._pAltMoveSkill && st == plr._pAltMoveSkillType)) {
-				SetSpellTrans(RSPLTYPE_ABILITY);
-				DrawSpellCel(sx, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELWIDTH);
+				CelDrawLight(sx, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELWIDTH, SkillTrns[RSPLTYPE_ABILITY]);
 			}
 		}
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
@@ -2123,6 +2112,7 @@ void DrawTeamBook()
 {
 	int i, pnum, sx, yp;
 	bool hasTeam;
+	BYTE st;
 
 	// back panel
 	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1, SPANEL_WIDTH);
@@ -2175,8 +2165,8 @@ void DrawTeamBook()
 		}
 
 		// icon
-		SetSpellTrans(plr._pDunLevel == DLV_TOWN ? RSPLTYPE_ABILITY : (plr._pmode == PM_DEATH ? RSPLTYPE_INVALID : RSPLTYPE_SPELL));
-		DrawSpellCel(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SBOOK_CELWIDTH);
+		st = plr._pDunLevel == DLV_TOWN ? RSPLTYPE_ABILITY : (plr._pmode == PM_DEATH ? RSPLTYPE_INVALID : RSPLTYPE_SPELL);
+		CelDrawLight(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SBOOK_CELWIDTH, SkillTrns[st]);
 
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}

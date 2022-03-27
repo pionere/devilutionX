@@ -3006,6 +3006,7 @@ typedef enum spell_type {
 	RSPLTYPE_SCROLL,
 	RSPLTYPE_CHARGES,
 	RSPLTYPE_INVALID,
+	NUM_RSPLTYPES
 } spell_type;
 
 typedef enum spell_from_type {

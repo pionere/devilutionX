@@ -61,6 +61,11 @@ NLevels\TownData\Town.TMI
 Objects\L1Doors.CEL
 Objects\Sarc.CEL
 PlrGFX\Coral.TRN
+PlrGFX\SBlue.TRN
+PlrGFX\SGray.TRN
+PlrGFX\SNone.TRN
+PlrGFX\SOrange.TRN
+PlrGFX\SRed.TRN
 Sfx\Misc\Wallloop.wav
 ui_art\font16.bin
 ui_art\font16g.pcx
