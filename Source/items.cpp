@@ -1662,14 +1662,6 @@ static int RndAllItems(unsigned lvl)
 	return ril[random_(26, ri)];
 }
 
-static int RndItem(unsigned lvl)
-{
-	if (random_(24, 100) > 40)
-		return -1;
-
-	return RndAllItems(lvl);
-}
-
 static int RndTypeItems(int itype, int imid, unsigned lvl)
 {
 	int i, ri;
@@ -1821,9 +1813,9 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 		idx = RndUItem(mon->_mLevel);
 		quality = CFDQ_UNIQUE;
 	} else if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QS_MUSHGIVEN) {
-		idx = RndItem(mon->_mLevel);
-		if (idx < 0)
+		if (random_(24, 100) > 40)
 			return;
+		idx = RndAllItems(mon->_mLevel);
 	} else {
 		idx = IDI_BRAIN;
 		quests[Q_MUSHROOM]._qvar1 = QS_BRAINSPAWNED;
@@ -3149,13 +3141,13 @@ static int RndSmithItem(unsigned lvl)
 	ri = 0;
 	static_assert(IDI_GOLD == 0, "RndSmithItem skips the first entry of AllItemsList.");
 	for (i = 1; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+		if (AllItemsList[i].iRnd == IDROP_NEVER || !SmithItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
+			continue;
+		ril[ri] = i;
+		ri++;
+		if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
 			ril[ri] = i;
 			ri++;
-			if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
-				ril[ri] = i;
-				ri++;
-			}
 		}
 	}
 
@@ -3224,15 +3216,14 @@ static int RndPremiumItem(unsigned lvl)
 	ri = 0;
 	static_assert(IDI_GOLD == 0, "RndPremiumItem skips the first entry of AllItemsList.");
 	for (i = 1; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i)) {
-			if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= lvl) {
-				ril[ri] = i;
-				ri++;
-				if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
-					ril[ri] = i;
-					ri++;
-				}
-			}
+		if (AllItemsList[i].iRnd == IDROP_NEVER || !SmithItemOk(i) || ) {
+		 AllItemsList[i].iMinMLvl < minlvl || AllItemsList[i].iMinMLvl > lvl)
+			continue;
+		ril[ri] = i;
+		ri++;
+		if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
+			ril[ri] = i;
+			ri++;
 		}
 	}
 
@@ -3304,10 +3295,10 @@ static int RndWitchItem(unsigned lvl)
 	ri = 0;
 	static_assert(IDI_GOLD == 0, "RndWitchItem skips the first entry of AllItemsList.");
 	for (i = 1; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd != IDROP_NEVER && WitchItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
-			ril[ri] = i;
-			ri++;
-		}
+		if (AllItemsList[i].iRnd == IDROP_NEVER || !WitchItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
+			continue;
+		ril[ri] = i;
+		ri++;
 	}
 
 	return ril[random_(51, ri)];
@@ -3398,10 +3389,10 @@ static int RndHealerItem(unsigned lvl)
 	ri = 0;
 	static_assert(IDI_GOLD == 0, "RndHealerItem skips the first entry of AllItemsList.");
 	for (i = 1; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd != IDROP_NEVER && HealerItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
-			ril[ri] = i;
-			ri++;
-		}
+		if (AllItemsList[i].iRnd == IDROP_NEVER || !HealerItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
+			continue;
+		ril[ri] = i;
+		ri++;
 	}
 
 	return ril[random_(50, ri)];
