@@ -1545,9 +1545,9 @@ typedef struct SpellData {
 	BYTE sType;
 	BYTE sIcon;
 	const char* sNameText;
-	BYTE sBookLvl;
-	BYTE sStaffLvl;
-	BYTE sScrollLvl;
+	BYTE sBookLvl;   // minimum level for books
+	BYTE sStaffLvl;  // minimum level for staves
+	BYTE sScrollLvl; // minimum level for scrolls/runes
 	BOOLEAN sTargeted;
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells
@@ -1560,7 +1560,7 @@ typedef struct SpellData {
 	WORD sStaffMin;
 	WORD sStaffMax;
 	int sBookCost;
-	int sStaffCost; // == sScrollCost
+	int sStaffCost; // == sScrollCost == sRuneCost
 	ALIGNMENT64(6)
 } SpellData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

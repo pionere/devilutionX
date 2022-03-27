@@ -1156,7 +1156,8 @@ static void GetScrollSpell(int ii, unsigned lvl)
 		lvl = SCRL_MIN;
 
 	ns = 0;
-	for (bs = 0; bs < NUM_SPELLS; bs++) {
+	static_assert((int)SPL_RUNE_LAST + 1 == (int)NUM_SPELLS, "GetScrollSpell skips spells at the end of the enum.");
+	for (bs = 0; bs < SPL_RUNE_FIRST; bs++) {
 		if (spelldata[bs].sScrollLvl != SPELL_NA && lvl >= spelldata[bs].sScrollLvl
 		 && (IsMultiGame
 			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
@@ -1175,6 +1176,55 @@ static void GetScrollSpell(int ii, unsigned lvl)
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
 	is->_iIvalue = sd->sStaffCost;
+}
+
+static void GetRuneSpell(int ii, unsigned lvl)
+{
+	const SpellData* sd;
+	ItemStruct* is;
+	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetRuneSpell stores spell-ids in BYTEs.");
+	BYTE ss[SPL_RUNE_LAST - SPL_RUNE_FIRST + 1];
+	int bs, ns;
+
+	if (lvl < RUNE_MIN)
+		lvl = RUNE_MIN;
+
+	ns = 0;
+	for (bs = SPL_RUNE_FIRST; bs <= SPL_RUNE_LAST; bs++) {
+		if (/*spelldata[bs].sScrollLvl != SPELL_NA &&*/ lvl >= spelldata[bs].sScrollLvl
+		 /*&& (IsMultiGame
+			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))*/) {
+			ss[ns] = bs;
+			ns++;
+		}
+	}
+	// assert(ns > 0);
+	bs = ss[random_(14, ns)];
+
+	is = &items[ii];
+	is->_iSpell = bs;
+	sd = &spelldata[bs];
+	strcat(is->_iName, sd->sNameText);
+	is->_iMinMag = sd->sMinInt;
+	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
+	is->_ivalue = sd->sStaffCost;
+	is->_iIvalue = sd->sStaffCost;
+	switch (sd->sType) {
+	case STYPE_FIRE:
+		bs = ICURS_RUNE_OF_FIRE;
+		break;
+	case STYPE_LIGHTNING:
+		bs = ICURS_RUNE_OF_LIGHTNING;
+		break;
+	case STYPE_MAGIC:
+	// case STYPE_NONE:
+		bs = ICURS_RUNE_OF_STONE;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	is->_iCurs = bs;
 }
 
 static void GetStaffSpell(int ii, unsigned lvl)
@@ -1228,6 +1278,8 @@ static void GetItemAttrs(int ii, int idata, unsigned lvl)
 		GetBookSpell(ii, lvl);
 	else if (is->_iMiscId == IMISC_SCROLL)
 		GetScrollSpell(ii, lvl);
+	else if (is->_iMiscId == IMISC_RUNE)
+		GetRuneSpell(ii, lvl);
 	else if (is->_itype == ITYPE_GOLD) {
 		lvl = items_get_currlevel();
 		rndv = RandRange(2 * lvl, 8 * lvl);

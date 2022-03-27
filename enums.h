@@ -3144,7 +3144,9 @@ typedef enum spell_id {
 	SPL_RUNESTONE,
 #endif
 	NUM_SPELLS,
-	SPL_INVALID = NUM_SPELLS
+	SPL_INVALID = NUM_SPELLS,
+	SPL_RUNE_FIRST = SPL_RUNEFIRE,
+	SPL_RUNE_LAST = SPL_RUNESTONE
 } spell_id;
 
 typedef enum _msg_id {
