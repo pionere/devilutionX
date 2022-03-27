@@ -880,15 +880,16 @@ void MakeLightTable()
 
 void InitLightGFX()
 {
-	BYTE* tbl;
+	//BYTE* tbl;
 	int i, j, k, l;
 	BYTE col;
 	double fs, fa;
 
 	LoadFileWithMem("PlrGFX\\Infra.TRN", ColorTrns[COLOR_TRN_RED]);
 	LoadFileWithMem("PlrGFX\\Stone.TRN", ColorTrns[COLOR_TRN_GRAY]);
+	LoadFileWithMem("PlrGFX\\Coral.TRN", ColorTrns[COLOR_TRN_CORAL]);
 
-	tbl = ColorTrns[COLOR_TRN_CORAL];
+	/*tbl = ColorTrns[COLOR_TRN_CORAL];
 	for (i = 0; i < 8; i++) {
 		for (col = 226; col < 239; col++) {
 			if (i != 0 || col != 226) {
@@ -913,7 +914,7 @@ void InitLightGFX()
 			*tbl++ = col;
 		}
 		*tbl++ = 0;
-	}
+	}*/
 
 /*#ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
