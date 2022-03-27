@@ -372,6 +372,8 @@ void ValidateData()
 			minHeavyArmor = ids.iMinMLvl;
 		if (ids.iMinMLvl == 0 && ids.itype != ITYPE_MISC && ids.itype != ITYPE_GOLD && ids.iMiscId != IMISC_UNIQUE)
 			app_fatal("iMinMLvl field is not set for %s (%d).", ids.iName, i);
+		if (ids.iMiscId == IMISC_UNIQUE && ids.iRnd != IDROP_NEVER)
+			app_fatal("Fix unique item %s (%d) should not be part of the loot.", ids.iName, i);
 		if (ids.iClass == ICLASS_ARMOR) {
 			if (ids.itype != ITYPE_LARMOR && ids.itype != ITYPE_MARMOR
 			 && ids.itype != ITYPE_HARMOR && ids.itype != ITYPE_SHIELD
