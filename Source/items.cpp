@@ -1712,10 +1712,10 @@ static int CheckUnique(int ii, unsigned lvl, unsigned quality)
 
 	static_assert(NUM_UITEM <= UCHAR_MAX, "Unique index must fit to a BYTE in CheckUnique.");
 
-	uid = AllItemsList[items[ii]._iIdx].iItemId;
+	uid = AllItemsList[items[ii]._iIdx].iUniqType;
 	ui = 0;
 	for (i = 0; i < NUM_UITEM; i++) {
-		if (UniqueItemList[i].UIItemId == uid
+		if (UniqueItemList[i].UIUniqType == uid
 		 && lvl >= UniqueItemList[i].UIMinLvl) {
 			uok[ui] = i;
 			ui++;
@@ -1801,7 +1801,7 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	int idx;
 
 	idx = 0;
-	while (AllItemsList[idx].iItemId != UniqueItemList[uid].UIItemId) {
+	while (AllItemsList[idx].iUniqType != UniqueItemList[uid].UIUniqType) {
 		idx++;
 	}
 	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);

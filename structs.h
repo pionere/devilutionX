@@ -67,7 +67,7 @@ typedef struct AffixData {
 
 typedef struct UniqItemData {
 	const char* UIName;
-	BYTE UIItemId;
+	BYTE UIUniqType;
 	BYTE UIMinLvl;
 	int UIValue;
 	BYTE UIPower1;
@@ -110,7 +110,7 @@ static_assert((sizeof(ItemFileData) & (sizeof(ItemFileData) - 1)) == 0, "Align I
 typedef struct ItemData {
 	BYTE iRnd;
 	BYTE iMinMLvl;
-	BYTE iItemId; // unique_base_item
+	BYTE iUniqType; // unique_base_item
 	const char* iName;
 	int iCurs; // item_cursor_graphic
 	int itype; // item_type
