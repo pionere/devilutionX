@@ -3207,29 +3207,6 @@ void SpawnSmith(unsigned lvl)
 	SortSmith();
 }
 
-static int RndPremiumItem(unsigned lvl)
-{
-	int i, ri;
-	int ril[NUM_IDI * 2];
-	unsigned minlvl = lvl >> 2;
-
-	ri = 0;
-	static_assert(IDI_GOLD == 0, "RndPremiumItem skips the first entry of AllItemsList.");
-	for (i = 1; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER || !SmithItemOk(i) || ) {
-		 AllItemsList[i].iMinMLvl < minlvl || AllItemsList[i].iMinMLvl > lvl)
-			continue;
-		ril[ri] = i;
-		ri++;
-		if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
-			ril[ri] = i;
-			ri++;
-		}
-	}
-
-	return ril[random_(50, ri)];
-}
-
 static void SpawnOnePremium(int i, unsigned lvl)
 {
 	int seed;
@@ -3241,7 +3218,7 @@ static void SpawnOnePremium(int i, unsigned lvl)
 	do {
 		seed = GetRndSeed();
 		SetRndSeed(seed);
-		GetItemAttrs(0, RndPremiumItem(lvl), lvl);
+		GetItemAttrs(0, RndSmithItem(lvl), lvl);
 		GetItemBonus(0, lvl >> 1, lvl, true, false);
 	} while (items[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	items[0]._iSeed = seed;
@@ -3465,7 +3442,7 @@ static void RecreateSmithItem(int ii, int iseed, int idx, unsigned lvl)
 static void RecreatePremiumItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
-	GetItemAttrs(ii, RndPremiumItem(lvl), lvl);
+	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
 	GetItemBonus(ii, lvl >> 1, lvl, true, false);
 
 	//items[ii]._iSeed = iseed;
