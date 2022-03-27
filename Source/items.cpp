@@ -1652,9 +1652,10 @@ static int RndUItem(unsigned lvl)
 	int ril[NUM_IDI];
 
 	ri = 0;
-	for (i = 0; i < NUM_IDI; i++) {
+	static_assert(IDI_GOLD == 0, "RndUItem skips the first entry of AllItemsList.");
+	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl
-		 || AllItemsList[i].itype == ITYPE_GOLD
+		 // || AllItemsList[i].itype == ITYPE_GOLD
 		 || (AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK))
 			continue;
 		ril[ri] = i;
@@ -3160,6 +3161,7 @@ static int RndSmithItem(unsigned lvl)
 	int ril[NUM_IDI * 2];
 
 	ri = 0;
+	static_assert(IDI_GOLD == 0, "RndSmithItem skips the first entry of AllItemsList.");
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
 			ril[ri] = i;
@@ -3234,6 +3236,7 @@ static int RndPremiumItem(unsigned lvl)
 	unsigned minlvl = lvl >> 2;
 
 	ri = 0;
+	static_assert(IDI_GOLD == 0, "RndPremiumItem skips the first entry of AllItemsList.");
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i)) {
 			if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= lvl) {
@@ -3309,6 +3312,7 @@ static int RndWitchItem(unsigned lvl)
 	int ril[NUM_IDI];
 
 	ri = 0;
+	static_assert(IDI_GOLD == 0, "RndWitchItem skips the first entry of AllItemsList.");
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && WitchItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
 			ril[ri] = i;
@@ -3377,6 +3381,7 @@ static int RndBoyItem(unsigned lvl)
 	int ril[NUM_IDI];
 
 	ri = 0;
+	static_assert(IDI_GOLD == 0, "RndBoyItem skips the first entry of AllItemsList.");
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
 			ril[ri] = i;
@@ -3418,6 +3423,7 @@ static int RndHealerItem(unsigned lvl)
 	int ril[NUM_IDI];
 
 	ri = 0;
+	static_assert(IDI_GOLD == 0, "RndHealerItem skips the first entry of AllItemsList.");
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && HealerItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
 			ril[ri] = i;
