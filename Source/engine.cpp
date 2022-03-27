@@ -130,8 +130,8 @@ int random_(BYTE idx, int v)
 	if (v <= 0)
 		return 0;
 	if (v < 0xFFFF)
-		return (GetRndSeed() >> 16) % v;
-	return GetRndSeed() % v;
+		return (((unsigned)GetRndSeed()) >> 16) % v;
+	return ((unsigned)GetRndSeed()) % v;
 }
 
 /**

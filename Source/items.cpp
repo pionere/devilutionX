@@ -1704,7 +1704,7 @@ static int RndAllItems(unsigned lvl)
 	int i, ri;
 	int ril[NUM_IDI * 2];
 
-	if (random_(26, 100) > 25)
+	if (random_(26, 128) > 32)
 		return IDI_GOLD;
 
 	ri = 0;
@@ -1818,7 +1818,7 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
 		 || items[ii]._itype == ITYPE_AMULET
-		 || random_(32, 100) <= 10 || (unsigned)random_(33, 100) <= lvl) {
+		 || random_(32, 128) < 14 || (unsigned)random_(33, 100) <= lvl) {
 			uid = CheckUnique(ii, lvl, quality);
 			if (uid < 0) {
 				GetItemBonus(ii, lvl >> 2, lvl, quality >= CFDQ_GOOD, true);
@@ -1873,7 +1873,7 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 		idx = RndUItem(mon->_mLevel);
 		quality = CFDQ_UNIQUE;
 	} else if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QS_MUSHGIVEN) {
-		if (random_(24, 100) > 40)
+		if (random_(24, 128) > 51)
 			return;
 		idx = RndAllItems(mon->_mLevel);
 	} else {
