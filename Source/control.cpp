@@ -90,9 +90,12 @@ static BYTE* pChrButtonCels;
 static bool _gabChrbtn[NUM_ATTRIBS];
 /** Specifies whether any attribute-button is pressed on Character-Panel. */
 bool gbChrbtnactive;
-
 /** Color translations for the skill icons. */
+#ifdef HELLFIRE
+static BYTE SkillTrns[NUM_RSPLTYPES + 1][256];
+#else
 static BYTE SkillTrns[NUM_RSPLTYPES][256];
+#endif
 /** Specifies whether the Skill-List is displayed. */
 bool gbSkillListFlag;
 /** Skill-List images CEL */
@@ -161,6 +164,16 @@ static BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 	41, 9, 38,
 #endif
 };
+
+static BYTE GetSpellTrans(BYTE st, BYTE sn)
+{
+#ifdef HELLFIRE
+	if (st != RSPLTYPE_SCROLL) return st;
+	return SPELL_RUNE(sn) ? NUM_RSPLTYPES : RSPLTYPE_SCROLL;
+#else
+	return st;
+#endif
+}
 
 /*static void SetSpellTrans(char st)
 {
@@ -301,7 +314,7 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 	}
 	y = SCREEN_Y + SCREEN_HEIGHT - 1 - offset;
 	CelDrawLight(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, y, pSpellCels,
-		spelldata[spl].sIcon, SPLICONLENGTH, SkillTrns[st]);
+		spelldata[spl].sIcon, SPLICONLENGTH, SkillTrns[GetSpellTrans(st, spl)]);
 	DrawSpellIconOverlay(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, y, spl, st, lvl);
 }
 
@@ -432,6 +445,8 @@ void DrawSkillList()
 			}
 			if ((spelldata[j].sFlags & plr._pSkillFlags) != spelldata[j].sFlags)
 				st = RSPLTYPE_INVALID;
+			else
+				st = GetSpellTrans(st, j);
 			CelDrawLight(x, y, pSpellCels, spelldata[j].sIcon, SPLICONLENGTH, SkillTrns[st]);
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
@@ -843,6 +858,9 @@ void InitControlPan()
 	LoadFileWithMem("PlrGFX\\SRed.TRN", SkillTrns[RSPLTYPE_SCROLL]);
 	LoadFileWithMem("PlrGFX\\SOrange.TRN", SkillTrns[RSPLTYPE_CHARGES]);
 	LoadFileWithMem("PlrGFX\\SGray.TRN", SkillTrns[RSPLTYPE_INVALID]);
+#ifdef HELLFIRE
+	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[NUM_RSPLTYPES]);
+#endif
 	gbTalkflag = false;
 	gbTeamFlag = false;
 	guTeamInviteRec = 0;
@@ -1834,10 +1852,10 @@ void DrawDurIcon()
 	DrawDurIcon4Item(&inv[INVLOC_HAND_RIGHT], x, 0);
 }
 
-static char GetSBookTrans(int sn)
+static BYTE GetSBookTrans(int sn)
 {
 	PlayerStruct* p;
-	char st;
+	BYTE st;
 
 	p = &myplr;
 	if (p->_pAblSkills & SPELL_MASK(sn)) { /// BUGFIX: missing (uint64_t) (fixed)
@@ -1868,7 +1886,7 @@ void DrawSpellBook()
 {
 	ItemStruct* pi;
 	int pnum, i, sn, mana, lvl, sx, yp, offset;
-	char st;
+	BYTE st;
 	uint64_t spl;
 
 	// back panel
@@ -1956,7 +1974,7 @@ void DrawSpellBook()
 
 			if ((spelldata[sn].sFlags & plr._pSkillFlags) != spelldata[sn].sFlags)
 				st = RSPLTYPE_INVALID;
-			CelDrawLight(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH, SkillTrns[st]);
+			CelDrawLight(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH, SkillTrns[GetSpellTrans(st, sn)]);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
 			if ((sn == plr._pAltAtkSkill && st == plr._pAltAtkSkillType)
 			 || (sn == plr._pAltMoveSkill && st == plr._pAltMoveSkillType)) {
