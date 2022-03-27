@@ -1149,15 +1149,19 @@ static void GetScrollSpell(int ii, unsigned lvl)
 	const SpellData* sd;
 	ItemStruct* is;
 	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetScrollSpell stores spell-ids in BYTEs.");
+#ifdef HELLFIRE
+	static_assert((int)SPL_RUNE_LAST + 1 == (int)NUM_SPELLS, "GetScrollSpell skips spells at the end of the enum.");
+	BYTE ss[SPL_RUNE_FIRST];
+#else
 	BYTE ss[NUM_SPELLS];
+#endif
 	int bs, ns;
 
 	if (lvl < SCRL_MIN)
 		lvl = SCRL_MIN;
 
 	ns = 0;
-	static_assert((int)SPL_RUNE_LAST + 1 == (int)NUM_SPELLS, "GetScrollSpell skips spells at the end of the enum.");
-	for (bs = 0; bs < SPL_RUNE_FIRST; bs++) {
+	for (bs = 0; bs < lengthof(ss); bs++) {
 		if (spelldata[bs].sScrollLvl != SPELL_NA && lvl >= spelldata[bs].sScrollLvl
 		 && (IsMultiGame
 			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
@@ -1178,6 +1182,7 @@ static void GetScrollSpell(int ii, unsigned lvl)
 	is->_iIvalue = sd->sStaffCost;
 }
 
+#ifdef HELLFIRE
 static void GetRuneSpell(int ii, unsigned lvl)
 {
 	const SpellData* sd;
@@ -1226,6 +1231,7 @@ static void GetRuneSpell(int ii, unsigned lvl)
 	}
 	is->_iCurs = bs;
 }
+#endif
 
 static void GetStaffSpell(int ii, unsigned lvl)
 {
@@ -1278,8 +1284,10 @@ static void GetItemAttrs(int ii, int idata, unsigned lvl)
 		GetBookSpell(ii, lvl);
 	else if (is->_iMiscId == IMISC_SCROLL)
 		GetScrollSpell(ii, lvl);
+#ifdef HELLFIRE
 	else if (is->_iMiscId == IMISC_RUNE)
 		GetRuneSpell(ii, lvl);
+#endif
 	else if (is->_itype == ITYPE_GOLD) {
 		lvl = items_get_currlevel();
 		rndv = RandRange(2 * lvl, 8 * lvl);
