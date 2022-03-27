@@ -3361,7 +3361,7 @@ void SpawnWitch(unsigned lvl)
 			seed = GetRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndWitchItem(lvl), lvl);
-			if (random_(51, 100) <= 5 || items[0]._itype == ITYPE_STAFF)
+			// if (random_(51, 100) <= 5 || items[0]._itype == ITYPE_STAFF)
 				GetItemBonus(0, lvl >> 1, lvl, true, true);
 		} while (items[0]._iIvalue > WITCH_MAX_VALUE);
 		items[0]._iSeed = seed;
@@ -3525,7 +3525,7 @@ static void RecreateWitchItem(int ii, int iseed, int idx, unsigned lvl)
 	} else {*/
 		SetRndSeed(iseed);
 		GetItemAttrs(ii, RndWitchItem(lvl), lvl);
-		if (random_(51, 100) <= 5 || items[ii]._itype == ITYPE_STAFF)
+		// if (random_(51, 100) <= 5 || items[ii]._itype == ITYPE_STAFF)
 			GetItemBonus(ii, lvl >> 1, lvl, true, true);
 	//}
 
