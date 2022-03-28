@@ -3576,14 +3576,14 @@ typedef enum _item_indexes {
 	IDI_FULLMANA   = 0x4B,
 	IDI_REJUV      = 0x4C,
 	IDI_FULLREJUV  = 0x4D,
-	IDI_BOOK1      = 0x6B,
-	IDI_BOOK4      = 0x6E,
-	IDI_CLUB       = 0x87,
-	IDI_DROPSHSTAFF= 0x93,
+	IDI_BOOK1      = 0x5E,
+	IDI_BOOK4      = 0x61,
+	IDI_CLUB       = 0x7A,
+	IDI_DROPSHSTAFF= 0x86,
 #ifdef HELLFIRE
-	NUM_IDI        = 0xA5,
+	NUM_IDI        = 0x9A,
 #else
-	NUM_IDI        = 0xA0,
+	NUM_IDI        = 0x93,
 #endif
 	IDI_PHOLDER    = 0xFFFE,
 	IDI_NONE       = 0xFFFF
