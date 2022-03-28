@@ -1683,11 +1683,10 @@ static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood
 static int RndUItem(unsigned lvl)
 {
 	int i, ri;
-	int ril[NUM_IDI];
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
 
 	ri = 0;
-	static_assert(IDI_GOLD == 0, "RndUItem skips the first entry of AllItemsList.");
-	for (i = 1; i < NUM_IDI; i++) {
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl
 		 // || AllItemsList[i].itype == ITYPE_GOLD
 		 || (AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK))
@@ -1702,14 +1701,13 @@ static int RndUItem(unsigned lvl)
 static int RndAllItems(unsigned lvl)
 {
 	int i, ri;
-	int ril[NUM_IDI * 2];
+	int ril[(NUM_IDI - IDI_RNDDROP_FIRST) * 2];
 
 	if (random_(26, 128) > 32)
 		return IDI_GOLD;
 
 	ri = 0;
-	static_assert(IDI_GOLD == 0, "RndAllItems skips the first entry of AllItemsList.");
-	for (i = 1; i < NUM_IDI; i++) {
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl)
 			continue;
 		ril[ri] = i;
@@ -1726,13 +1724,12 @@ static int RndAllItems(unsigned lvl)
 static int RndTypeItems(int itype, int imid, unsigned lvl)
 {
 	int i, ri;
-	int ril[NUM_IDI];
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
 
 	// assert(itype != ITYPE_GOLD);
 
 	ri = 0;
-	static_assert(IDI_GOLD == 0, "RndTypeItems skips the first entry of AllItemsList.");
-	for (i = 1; i < NUM_IDI; i++) {
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl
 		 || AllItemsList[i].itype != itype
 		 || (/*imid != IMISC_INVALID &&*/ AllItemsList[i].iMiscId != imid))
@@ -3200,11 +3197,10 @@ static bool SmithItemOk(int i)
 static int RndSmithItem(unsigned lvl)
 {
 	int i, ri;
-	int ril[NUM_IDI * 2];
+	int ril[(NUM_IDI - IDI_RNDDROP_FIRST) * 2];
 
 	ri = 0;
-	static_assert(IDI_GOLD == 0, "RndSmithItem skips the first entry of AllItemsList.");
-	for (i = 1; i < NUM_IDI; i++) {
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || !SmithItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
 			continue;
 		ril[ri] = i;
@@ -3331,11 +3327,10 @@ static bool WitchItemOk(int i)
 static int RndWitchItem(unsigned lvl)
 {
 	int i, ri;
-	int ril[NUM_IDI];
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
 
 	ri = 0;
-	static_assert(IDI_GOLD == 0, "RndWitchItem skips the first entry of AllItemsList.");
-	for (i = 1; i < NUM_IDI; i++) {
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || !WitchItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
 			continue;
 		ril[ri] = i;
@@ -3425,11 +3420,10 @@ static bool HealerItemOk(int i)
 static int RndHealerItem(unsigned lvl)
 {
 	int i, ri;
-	int ril[NUM_IDI];
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
 
 	ri = 0;
-	static_assert(IDI_GOLD == 0, "RndHealerItem skips the first entry of AllItemsList.");
-	for (i = 1; i < NUM_IDI; i++) {
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || !HealerItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
 			continue;
 		ril[ri] = i;

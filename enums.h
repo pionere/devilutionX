@@ -3568,6 +3568,8 @@ typedef enum _item_indexes {
 	IDI_FULLNOTE,
 	IDI_BROWNSUIT,
 	IDI_GRAYSUIT,
+	IDI_CAP,
+	IDI_RNDDROP_FIRST = IDI_CAP,
 	IDI_HEAL       = 0x48,
 	IDI_FULLHEAL   = 0x49,
 	IDI_MANA       = 0x4A,

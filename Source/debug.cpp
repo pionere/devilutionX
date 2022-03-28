@@ -364,6 +364,8 @@ void ValidateData()
 		const ItemData& ids = AllItemsList[i];
 		if (strlen(ids.iName) > 32 - 1)
 			app_fatal("Too long name for %s (%d)", ids.iName, i);
+		if (i < IDI_RNDDROP_FIRST && ids.iRnd != IDROP_NEVER)
+			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
 		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor && ids.iRnd != IDROP_NEVER)
 			minLightArmor = ids.iMinMLvl;
 		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor && ids.iRnd != IDROP_NEVER)
