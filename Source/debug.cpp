@@ -480,13 +480,20 @@ void ValidateData()
 		app_fatal("No heavy armor for OperateArmorStand. Current minimum is level %d", minHeavyArmor);
 	if (uniqMonData[UMT_HORKDMN].muLevel < minAmu)
 		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, uniqMonData[UMT_HORKDMN].muLevel);
-	/*for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
-
+	rnddrops = 0;
+	for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+		rnddrops += pres->PLDouble ? 2 : 1;
 	}
+	if (rnddrops > ITEM_RNDAFFIX_MAX)
+		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
+	rnddrops = 0;
 	for (const AffixData *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
-
-	}*/
-
+		if (pres->PLDouble)
+			app_fatal("Invalid PLDouble set for %s", pres->PLName);
+		rnddrops++;
+	}
+	if (rnddrops > ITEM_RNDAFFIX_MAX)
+		app_fatal("Too many suffix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
 	// spells
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
 	for (int i = 0; i < NUM_SPELLS; i++) {

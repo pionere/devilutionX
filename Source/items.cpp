@@ -1076,25 +1076,6 @@ static void GetSuperItemSpace(int x, int y, int ii)
 	}
 }*/
 
-static void CalcItemValue(int ii)
-{
-	ItemStruct *is;
-	int v;
-
-	is = &items[ii];
-	v = is->_iVMult;
-	if (v >= 0) {
-		v *= is->_ivalue;
-	} else {
-		v = is->_ivalue / -v;
-	}
-	v += is->_iVAdd;
-	if (v <= 0) {
-		v = 1;
-	}
-	is->_iIvalue = v;
-}
-
 static void GetBookSpell(int ii, unsigned lvl)
 {
 	const SpellData* sd;
@@ -1547,24 +1528,25 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 
 static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, bool onlygood)
 {
-	int pre, post, nl;
+	int nl, v;
 	const AffixData *pres, *sufs;
-	const AffixData *l[256];
-	BYTE goe;
+	const AffixData *l[ITEM_RNDAFFIX_MAX];
+	BYTE pre, post, goe;
 
-	pre = random_(23, 4);
-	post = random_(23, 3);
+	// assert(items[ii]._iMagical == ITEM_QUALITY_NORMAL);
+
+	pre = random_(23, 4);  // 25% chance for prefix
+	post = random_(23, 3); // 66% chance for suffix
 	if (pre != 0 && post == 0) {
+		// neither prefix, nor suffix are selected -> choose one
 		if (random_(23, 2) != 0)
 			post = 1;
 		else
 			pre = 0;
 	}
-	pres = NULL;
-	sufs = NULL;
 	goe = GOE_ANY;
 	if (!onlygood && random_(0, 3) != 0)
-		onlygood = TRUE;
+		onlygood = true;
 	if (pre == 0) {
 		nl = 0;
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
@@ -1579,10 +1561,10 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 				}
 			}
 		}
-		pres = NULL;
 		if (nl != 0) {
 			pres = l[random_(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
+			items[ii]._iPrePower = pres->PLPower;
 			SaveItemPower(
 			    ii,
 			    pres->PLPower,
@@ -1591,7 +1573,6 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 			    pres->PLMinVal,
 			    pres->PLMaxVal,
 			    pres->PLMultVal);
-			items[ii]._iPrePower = pres->PLPower;
 			goe = pres->PLGOE;
 		}
 	}
@@ -1606,10 +1587,10 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 				nl++;
 			}
 		}
-		sufs = NULL;
 		if (nl != 0) {
 			sufs = l[random_(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
+			items[ii]._iSufPower = sufs->PLPower;
 			SaveItemPower(
 			    ii,
 			    sufs->PLPower,
@@ -1618,11 +1599,22 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 			    sufs->PLMinVal,
 			    sufs->PLMaxVal,
 			    sufs->PLMultVal);
-			items[ii]._iSufPower = sufs->PLPower;
 		}
 	}
-	if (pres != NULL || sufs != NULL)
-		CalcItemValue(ii);
+	// prefix or suffix added -> recalculate the value of the item
+	if (items[ii]._iMagical == ITEM_QUALITY_MAGIC) {
+		v = items[ii]._iVMult;
+		if (v >= 0) {
+			v *= items[ii]._ivalue;
+		} else {
+			v = items[ii]._ivalue / -v;
+		}
+		v += items[ii]._iVAdd;
+		if (v <= 0) {
+			v = 1;
+		}
+		items[ii]._iIvalue = v;
+	}
 }
 
 static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood, bool allowspells)
