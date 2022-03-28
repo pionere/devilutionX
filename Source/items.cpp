@@ -1708,7 +1708,8 @@ static int RndAllItems(unsigned lvl)
 		return IDI_GOLD;
 
 	ri = 0;
-	for (i = 0; i < NUM_IDI; i++) {
+	static_assert(IDI_GOLD == 0, "RndAllItems skips the first entry of AllItemsList.");
+	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl)
 			continue;
 		ril[ri] = i;
@@ -1727,8 +1728,11 @@ static int RndTypeItems(int itype, int imid, unsigned lvl)
 	int i, ri;
 	int ril[NUM_IDI];
 
+	// assert(itype != ITYPE_GOLD);
+
 	ri = 0;
-	for (i = 0; i < NUM_IDI; i++) {
+	static_assert(IDI_GOLD == 0, "RndTypeItems skips the first entry of AllItemsList.");
+	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl
 		 || AllItemsList[i].itype != itype
 		 || (/*imid != IMISC_INVALID &&*/ AllItemsList[i].iMiscId != imid))
