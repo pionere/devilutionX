@@ -360,21 +360,23 @@ void ValidateData()
 	// items
 	int minAmu, minLightArmor, minMediumArmor, minHeavyArmor; //, maxStaff = 0;
 	minAmu = minLightArmor = minMediumArmor = minHeavyArmor = MAXCHARLEVEL;
+	int rnddrops = 0;
 	for (int i = 0; i < NUM_IDI; i++) {
 		const ItemData& ids = AllItemsList[i];
 		if (strlen(ids.iName) > 32 - 1)
 			app_fatal("Too long name for %s (%d)", ids.iName, i);
-		if (i < IDI_RNDDROP_FIRST && ids.iRnd != IDROP_NEVER)
+		rnddrops += ids.iRnd;
+		if (i < IDI_RNDDROP_FIRST && ids.iRnd != 0)
 			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
-		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor && ids.iRnd != IDROP_NEVER)
+		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor && ids.iRnd != 0)
 			minLightArmor = ids.iMinMLvl;
-		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor && ids.iRnd != IDROP_NEVER)
+		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor && ids.iRnd != 0)
 			minMediumArmor = ids.iMinMLvl;
-		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor && ids.iRnd != IDROP_NEVER)
+		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor && ids.iRnd != 0)
 			minHeavyArmor = ids.iMinMLvl;
 		if (ids.iMinMLvl == 0 && ids.itype != ITYPE_MISC && ids.itype != ITYPE_GOLD && ids.iMiscId != IMISC_UNIQUE)
 			app_fatal("iMinMLvl field is not set for %s (%d).", ids.iName, i);
-		if (ids.iMiscId == IMISC_UNIQUE && ids.iRnd != IDROP_NEVER)
+		if (ids.iMiscId == IMISC_UNIQUE && ids.iRnd != 0)
 			app_fatal("Fix unique item %s (%d) should not be part of the loot.", ids.iName, i);
 		if (ids.iClass == ICLASS_ARMOR) {
 			if (ids.itype != ITYPE_LARMOR && ids.itype != ITYPE_MARMOR
@@ -402,7 +404,7 @@ void ValidateData()
 			if (ids.iBaseCrit != 0)
 				app_fatal("Crit.chance set for %s (%d), which is not a weapon.", ids.iName, i);
 		}
-		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu && ids.iRnd != IDROP_NEVER)
+		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu && ids.iRnd != 0)
 			minAmu = ids.iMinMLvl;
 		//if (ids.itype == ITYPE_STAFF && strlen(ids.iName) > maxStaff)
 		//	maxStaff = strlen(ids.iName);
@@ -447,6 +449,8 @@ void ValidateData()
 			}
 		}
 	}
+	if (rnddrops > ITEM_RNDDROP_MAX)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, ITEM_RNDDROP_MAX);
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
 	if (minMediumArmor > 10)

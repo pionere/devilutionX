@@ -1682,17 +1682,19 @@ static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood
 
 static int RndUItem(unsigned lvl)
 {
-	int i, ri;
-	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+	int i, j, ri;
+	int ril[ITEM_RNDDROP_MAX];
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl
+		if (lvl < AllItemsList[i].iMinMLvl
 		 // || AllItemsList[i].itype == ITYPE_GOLD
 		 || (AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK))
 			continue;
-		ril[ri] = i;
-		ri++;
+		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+			ril[ri] = i;
+			ri++;
+		}
 	}
 	assert(ri != 0);
 	return ril[random_(25, ri)];
@@ -1700,19 +1702,17 @@ static int RndUItem(unsigned lvl)
 
 static int RndAllItems(unsigned lvl)
 {
-	int i, ri;
-	int ril[(NUM_IDI - IDI_RNDDROP_FIRST) * 2];
+	int i, j, ri;
+	int ril[ITEM_RNDDROP_MAX];
 
 	if (random_(26, 128) > 32)
 		return IDI_GOLD;
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl)
+		if (lvl < AllItemsList[i].iMinMLvl)
 			continue;
-		ril[ri] = i;
-		ri++;
-		if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
+		for (j = AllItemsList[i].iRnd; j > 0; j--) {
 			ril[ri] = i;
 			ri++;
 		}
@@ -1723,19 +1723,21 @@ static int RndAllItems(unsigned lvl)
 
 static int RndTypeItems(int itype, int imid, unsigned lvl)
 {
-	int i, ri;
-	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+	int i, j, ri;
+	int ril[ITEM_RNDDROP_MAX];
 
 	// assert(itype != ITYPE_GOLD);
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl
+		if (lvl < AllItemsList[i].iMinMLvl
 		 || AllItemsList[i].itype != itype
 		 || (/*imid != IMISC_INVALID &&*/ AllItemsList[i].iMiscId != imid))
 			continue;
-		ril[ri] = i;
-		ri++;
+		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+			ril[ri] = i;
+			ri++;
+		}
 	}
 	assert(ri != 0);
 	return ril[random_(27, ri)];
@@ -3196,16 +3198,14 @@ static bool SmithItemOk(int i)
 
 static int RndSmithItem(unsigned lvl)
 {
-	int i, ri;
-	int ril[(NUM_IDI - IDI_RNDDROP_FIRST) * 2];
+	int i, j, ri;
+	int ril[ITEM_RNDDROP_MAX];
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER || !SmithItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
+		if (!SmithItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
 			continue;
-		ril[ri] = i;
-		ri++;
-		if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
+		for (j = AllItemsList[i].iRnd; j > 0; j--) {
 			ril[ri] = i;
 			ri++;
 		}
@@ -3326,15 +3326,17 @@ static bool WitchItemOk(int i)
 
 static int RndWitchItem(unsigned lvl)
 {
-	int i, ri;
-	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+	int i, j, ri;
+	int ril[ITEM_RNDDROP_MAX];
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER || !WitchItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
+		if (!WitchItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
 			continue;
-		ril[ri] = i;
-		ri++;
+		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+			ril[ri] = i;
+			ri++;
+		}
 	}
 
 	return ril[random_(51, ri)];
@@ -3419,15 +3421,17 @@ static bool HealerItemOk(int i)
 
 static int RndHealerItem(unsigned lvl)
 {
-	int i, ri;
-	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+	int i, j, ri;
+	int ril[ITEM_RNDDROP_MAX];
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER || !HealerItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
+		if (!HealerItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
 			continue;
-		ril[ri] = i;
-		ri++;
+		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+			ril[ri] = i;
+			ri++;
+		}
 	}
 
 	return ril[random_(50, ri)];

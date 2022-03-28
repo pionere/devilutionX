@@ -3837,12 +3837,6 @@ typedef enum item_class {
 	ICLASS_QUEST,
 } item_class;
 
-typedef enum item_drop_rate {
-	IDROP_NEVER,
-	IDROP_REGULAR,
-	IDROP_DOUBLE,
-} item_drop_rate;
-
 typedef enum item_base_bonus {
 	IBONUS_NONE,
 	IBONUS_POSITIVE,

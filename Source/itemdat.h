@@ -10,6 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define ITEM_ANIM_WIDTH		96
 #define ITEM_ANIM_XOFFSET	16
+#define ITEM_RNDDROP_MAX	160
 
 #ifdef __cplusplus
 extern "C" {
