@@ -97,7 +97,7 @@ typedef enum item_effect_type {
 	IPL_ALLRES,
 	IPL_CRITP,
 	IPL_SPLDUR,			/* only used in beta */
-	IPL_SPLLVLADD,
+	IPL_SKILLLEVELS,
 	IPL_CHARGES,
 	IPL_FIREDAM,
 	IPL_LIGHTDAM,
