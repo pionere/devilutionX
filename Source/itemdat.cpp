@@ -427,7 +427,7 @@ const AffixData PL_Suffix[] = {
 /*many*/          { IPL_DUR,            100,      100,        3,                                               PLT_BOW           ,     FALSE,    TRUE,       750,      750,         2 },
 /*plenty*/        { IPL_DUR,            200,      200,        7,                                               PLT_BOW           ,     FALSE,    TRUE,      1500,     1500,         3 },
 /*thorns*/        { IPL_THORNS,           1,        3,        1, PLT_ARMO | PLT_SHLD                                             ,     FALSE,    TRUE,       500,      500,         2 },
-/*corruption*/    { IPL_NOMANA,           0,        0,        5, PLT_ARMO | PLT_SHLD | PLT_MELEE                                 ,     FALSE,    FALSE,    -1000,    -1000,         2 },
+/*corruption*/    { IPL_NOMANA,           0,        0,        5, PLT_ARMO | PLT_SHLD | PLT_MELEE                                 ,     FALSE,    FALSE,    -1000,    -1000,        -1 },
 /*thieves*///     { IPL_ABSHALFTRAP,      0,        0,       11, PLT_ARMO | PLT_SHLD |                                   PLT_MISC,     FALSE,    TRUE,      1500,     1500,         2 },
 /*the bear*/      { IPL_KNOCKBACK,        0,        0,        5,                       PLT_MELEE | PLT_STAFF | PLT_BOW           ,     FALSE,    TRUE,       750,      750,         2 },
 /*bashing*/       { IPL_STUN,             0,        0,       10,                       PLT_MELEE | PLT_STAFF | PLT_BOW           ,     FALSE,    TRUE,      1500,     1500,         2 },
