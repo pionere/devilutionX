@@ -42,7 +42,8 @@ const Uint32 RndMult = 0x015A4E35;
  */
 int GetDirection(int x1, int y1, int x2, int y2)
 {
-	/*int mx, my;
+#if UNOPTIMIZED_DIRECTION
+	int mx, my;
 	int md;
 
 	mx = x2 - x1;
@@ -77,8 +78,8 @@ int GetDirection(int x1, int y1, int x2, int y2)
 			md = DIR_NW;
 	}
 
-	return md;*/
-	// The implementation of above with fewer branches
+	return md;
+#else
 	int dx = x2 - x1;
 	int dy = y2 - y1;
 	unsigned adx = abs(dx);
@@ -92,6 +93,7 @@ int GetDirection(int x1, int y1, int x2, int y2)
 	//dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 0 : 1)];
 	dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 1 : 0)];
 	return dir & 7;
+#endif
 }
 
 /**
