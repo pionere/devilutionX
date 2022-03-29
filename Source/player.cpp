@@ -1586,7 +1586,7 @@ static void StartSpell(int pnum)
 	plr._pmode = PM_SPELL;
 
 	sd = &spelldata[plr._pVar3]; // SPELL_NUM
-	if (sd->sTargeted)
+	if (sd->sSkillFlags & SDFLAG_TARGETED)
 		plr._pdir = GetDirection(plr._px, plr._py, dx, dy);
 	switch (sd->sType) {
 	case STYPE_FIRE:

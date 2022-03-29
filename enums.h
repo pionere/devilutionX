@@ -2828,13 +2828,6 @@ typedef enum diablo_message {
 	NUM_EMSGS
 } diablo_message;
 
-typedef enum magic_type {
-	STYPE_FIRE,
-	STYPE_LIGHTNING,
-	STYPE_MAGIC,
-	STYPE_NONE
-} magic_type;
-
 typedef enum theme_id {
 	THEME_BARREL,
 	THEME_SHRINE,
@@ -3809,6 +3802,17 @@ typedef enum plr_class {
 	WALK_S    = 0x7,
 	WALK_W    = 0x8,
 } _walk_path;*/
+
+typedef enum magic_type {
+	STYPE_FIRE,
+	STYPE_LIGHTNING,
+	STYPE_MAGIC,
+	STYPE_NONE
+} magic_type;
+
+typedef enum skill_data_flags {
+	SDFLAG_TARGETED = 1 << 7,
+} skill_data_flags;
 
 typedef enum player_skill_flags {
 	SFLAG_ANY     = 0,

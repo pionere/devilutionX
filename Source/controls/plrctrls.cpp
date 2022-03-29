@@ -168,7 +168,7 @@ static bool HasRangedSpell()
 	return spl != SPL_INVALID
 	    && spl != SPL_TOWN
 	    && spl != SPL_TELEPORT
-	    && spelldata[spl].sTargeted
+	    && (spelldata[spl].sSkillFlags & SDFLAG_TARGETED)
 	    && (spelldata[spl].sUseFlags & myplr._pSkillFlags) != 0;
 }
 
@@ -1258,7 +1258,7 @@ static void CtrlUseInvItem()
 
 	is = PlrItem(mypnum, pcursinvitem);
 
-	if (is->_iMiscId == IMISC_SCROLL && spelldata[is->_iSpell].sTargeted) {
+	if (is->_iMiscId == IMISC_SCROLL && (spelldata[is->_iSpell].sSkillFlags & SDFLAG_TARGETED)) {
 		return;
 	}
 

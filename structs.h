@@ -1546,7 +1546,7 @@ typedef struct SpellData {
 	BYTE sBookLvl;   // minimum level for books
 	BYTE sStaffLvl;  // minimum level for staves
 	BYTE sScrollLvl; // minimum level for scrolls/runes
-	BOOLEAN sTargeted;
+	BYTE sSkillFlags; // flags (SDFLAG*) of the skill
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells
 	BYTE sUseFlags; // the required flags(SFLAG*) to use the skill
