@@ -1674,6 +1674,7 @@ static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood
 
 static int RndUItem(unsigned lvl)
 {
+#if UNOPTIMIZED_RNDITEMS
 	int i, j, ri;
 	int ril[ITEM_RNDDROP_MAX];
 
@@ -1690,10 +1691,31 @@ static int RndUItem(unsigned lvl)
 	}
 	assert(ri != 0);
 	return ril[random_(25, ri)];
+#else
+	int i, ri;
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
+		ril[i - IDI_RNDDROP_FIRST] = (lvl < AllItemsList[i].iMinMLvl ||
+			(AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK)) ? 0 : AllItemsList[i].iRnd;
+	}
+	ri = 0;
+	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
+		ri += ril[i];
+	assert(ri != 0);
+	ri = random_(25, ri);
+	for (i = 0; ; i++) {
+		ri -= ril[i];
+		if (ri < 0)
+			break;
+	}
+	return i + IDI_RNDDROP_FIRST;
+#endif
 }
 
 static int RndAllItems(unsigned lvl)
 {
+#if UNOPTIMIZED_RNDITEMS
 	int i, j, ri;
 	int ril[ITEM_RNDDROP_MAX];
 
@@ -1711,10 +1733,33 @@ static int RndAllItems(unsigned lvl)
 	}
 	assert(ri != 0);
 	return ril[random_(26, ri)];
+#else
+	int i, ri;
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+
+	if (random_(26, 128) > 32)
+		return IDI_GOLD;
+
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
+		ril[i - IDI_RNDDROP_FIRST] = lvl < AllItemsList[i].iMinMLvl ? 0 : AllItemsList[i].iRnd;
+	}
+	ri = 0;
+	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
+		ri += ril[i];
+	assert(ri != 0);
+	ri = random_(26, ri);
+	for (i = 0; ; i++) {
+		ri -= ril[i];
+		if (ri < 0)
+			break;
+	}
+	return i + IDI_RNDDROP_FIRST;
+#endif
 }
 
 static int RndTypeItems(int itype, int imid, unsigned lvl)
 {
+#if UNOPTIMIZED_RNDITEMS
 	int i, j, ri;
 	int ril[ITEM_RNDDROP_MAX];
 
@@ -1733,6 +1778,29 @@ static int RndTypeItems(int itype, int imid, unsigned lvl)
 	}
 	assert(ri != 0);
 	return ril[random_(27, ri)];
+#else
+	int i, ri;
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+
+	// assert(itype != ITYPE_GOLD);
+
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
+		ril[i - IDI_RNDDROP_FIRST] = (lvl < AllItemsList[i].iMinMLvl ||
+			AllItemsList[i].itype != itype ||
+			(/*imid != IMISC_INVALID &&*/ AllItemsList[i].iMiscId != imid)) ? 0 : AllItemsList[i].iRnd;
+	}
+	ri = 0;
+	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
+		ri += ril[i];
+	assert(ri != 0);
+	ri = random_(27, ri);
+	for (i = 0; ; i++) {
+		ri -= ril[i];
+		if (ri < 0)
+			break;
+	}
+	return i + IDI_RNDDROP_FIRST;
+#endif
 }
 
 static int CheckUnique(int ii, unsigned lvl, unsigned quality)
@@ -3190,6 +3258,7 @@ static bool SmithItemOk(int i)
 
 static int RndSmithItem(unsigned lvl)
 {
+#if UNOPTIMIZED_RNDITEMS
 	int i, j, ri;
 	int ril[ITEM_RNDDROP_MAX];
 
@@ -3204,6 +3273,25 @@ static int RndSmithItem(unsigned lvl)
 	}
 
 	return ril[random_(50, ri)];
+#else
+	int i, ri;
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
+		ril[i - IDI_RNDDROP_FIRST] = (!SmithItemOk(i) || lvl < AllItemsList[i].iMinMLvl) ? 0 : AllItemsList[i].iRnd;
+	}
+	ri = 0;
+	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
+		ri += ril[i];
+	assert(ri != 0);
+	ri = random_(50, ri);
+	for (i = 0; ; i++) {
+		ri -= ril[i];
+		if (ri < 0)
+			break;
+	}
+	return i + IDI_RNDDROP_FIRST;
+#endif
 }
 
 static void BubbleSwapItem(ItemStruct *a, ItemStruct *b)
@@ -3318,6 +3406,7 @@ static bool WitchItemOk(int i)
 
 static int RndWitchItem(unsigned lvl)
 {
+#if UNOPTIMIZED_RNDITEMS
 	int i, j, ri;
 	int ril[ITEM_RNDDROP_MAX];
 
@@ -3332,6 +3421,25 @@ static int RndWitchItem(unsigned lvl)
 	}
 
 	return ril[random_(51, ri)];
+#else
+	int i, ri;
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
+		ril[i - IDI_RNDDROP_FIRST] = (!WitchItemOk(i) || lvl < AllItemsList[i].iMinMLvl) ? 0 : AllItemsList[i].iRnd;
+	}
+	ri = 0;
+	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
+		ri += ril[i];
+	assert(ri != 0);
+	ri = random_(51, ri);
+	for (i = 0; ; i++) {
+		ri -= ril[i];
+		if (ri < 0)
+			break;
+	}
+	return i + IDI_RNDDROP_FIRST;
+#endif
 }
 
 static void SortWitch()
@@ -3413,6 +3521,7 @@ static bool HealerItemOk(int i)
 
 static int RndHealerItem(unsigned lvl)
 {
+#if UNOPTIMIZED_RNDITEMS
 	int i, j, ri;
 	int ril[ITEM_RNDDROP_MAX];
 
@@ -3427,6 +3536,25 @@ static int RndHealerItem(unsigned lvl)
 	}
 
 	return ril[random_(50, ri)];
+#else
+	int i, ri;
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
+		ril[i - IDI_RNDDROP_FIRST] = (!HealerItemOk(i) || lvl < AllItemsList[i].iMinMLvl) ? 0 : AllItemsList[i].iRnd;
+	}
+	ri = 0;
+	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
+		ri += ril[i];
+	assert(ri != 0);
+	ri = random_(50, ri);
+	for (i = 0; ; i++) {
+		ri -= ril[i];
+		if (ri < 0)
+			break;
+	}
+	return i + IDI_RNDDROP_FIRST;
+#endif
 }
 
 static void SortHealer()

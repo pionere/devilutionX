@@ -470,8 +470,10 @@ void ValidateData()
 			}
 		}
 	}
+#if UNOPTIMIZED_RNDITEMS
 	if (rnddrops > ITEM_RNDDROP_MAX)
 		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, ITEM_RNDDROP_MAX);
+#endif
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
 	if (minMediumArmor > 10)
