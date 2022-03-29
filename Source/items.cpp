@@ -1531,27 +1531,23 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 	int nl, v;
 	const AffixData *pres, *sufs;
 	const AffixData *l[ITEM_RNDAFFIX_MAX];
-	BYTE pre, post;
+	BYTE affix;
+	BOOLEAN good;
 
 	// assert(items[ii]._iMagical == ITEM_QUALITY_NORMAL);
 
-	pre = random_(23, 4);  // 25% chance for prefix
-	post = random_(23, 3); // 66% chance for suffix
-	if (pre != 0 && post == 0) {
-		// neither prefix, nor suffix are selected -> choose one
-		if (random_(23, 2) != 0)
-			post = 1;
-		else
-			pre = 0;
-	}
-	if (!onlygood && random_(0, 3) != 0)
-		onlygood = true;
-	if (pre == 0) {
+	// select affixes (3: both, 2: prefix, 1: suffix)
+	v = random_(23, 128);
+	affix = v < 21 ? 3 : (v < 48 ? 2 : 1);
+	static_assert(TRUE > FALSE, "GetItemPower assumes TRUE is greater than FALSE.");
+	good = (onlygood || random_(0, 3) != 0) ? TRUE : FALSE;
+	if (affix >= 2) {
 		nl = 0;
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if ((flgs & pres->PLIType)
 			 && pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl
-			 && (!onlygood || pres->PLOk)) {
+			// && (!onlygood || pres->PLOk)) {
+			 && (good <= pres->PLOk)) {
 				l[nl] = pres;
 				nl++;
 				if (pres->PLDouble) {
@@ -1574,12 +1570,13 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 			    pres->PLMultVal);
 		}
 	}
-	if (post != 0) {
+	if (affix & 1) {
 		nl = 0;
 		for (sufs = PL_Suffix; sufs->PLPower != IPL_INVALID; sufs++) {
 			if ((sufs->PLIType & flgs)
 			    && sufs->PLMinLvl >= minlvl && sufs->PLMinLvl <= maxlvl
-			    && (!onlygood || sufs->PLOk)) {
+			   // && (!onlygood || sufs->PLOk)) {
+			    && (good <= sufs->PLOk)) {
 				l[nl] = sufs;
 				nl++;
 			}
