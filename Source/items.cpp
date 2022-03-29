@@ -1304,18 +1304,18 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	is->_iVMult += multval;
 	switch (power) {
 	case IPL_TOHIT:
-		is->_iPLToHit += r;
+		is->_iPLToHit = r;
 		break;
 	case IPL_DAMP:
-		is->_iPLDam += r;
+		is->_iPLDam = r;
 		break;
 	case IPL_TOHIT_DAMP:
-		is->_iPLDam += r;
+		is->_iPLDam = r;
 		r = RandRange(param1 >> 2, param2 >> 2);
-		is->_iPLToHit += r;
+		is->_iPLToHit = r;
 		break;
 	case IPL_ACP:
-		is->_iPLAC += r;
+		is->_iPLAC = r;
 		break;
 	case IPL_SETAC:
 		is->_iAC = r;
@@ -1324,33 +1324,33 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iAC += r;
 		break;
 	case IPL_FIRERES:
-		is->_iPLFR += r;
+		is->_iPLFR = r;
 		break;
 	case IPL_LIGHTRES:
-		is->_iPLLR += r;
+		is->_iPLLR = r;
 		break;
 	case IPL_MAGICRES:
-		is->_iPLMR += r;
+		is->_iPLMR = r;
 		break;
 	case IPL_ACIDRES:
-		is->_iPLAR += r;
+		is->_iPLAR = r;
 		break;
 	case IPL_ALLRES:
-		is->_iPLFR += r;
+		is->_iPLFR = r;
 		//if (is->_iPLFR < 0)
 		//	is->_iPLFR = 0;
-		is->_iPLLR += r;
+		is->_iPLLR = r;
 		//if (is->_iPLLR < 0)
 		//	is->_iPLLR = 0;
-		is->_iPLMR += r;
+		is->_iPLMR = r;
 		//if (is->_iPLMR < 0)
 		//	is->_iPLMR = 0;
-		is->_iPLAR += r;
+		is->_iPLAR = r;
 		//if (is->_iPLAR < 0)
 		//	is->_iPLAR = 0;
 		break;
 	case IPL_CRITP:
-		is->_iPLCrit += r;
+		is->_iPLCrit = r;
 		break;
 	case IPL_SKILLLEVELS:
 		is->_iPLSkillLevels = r;
@@ -1382,31 +1382,31 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iPLAMaxDam = param2;
 		break;
 	case IPL_STR:
-		is->_iPLStr += r;
+		is->_iPLStr = r;
 		break;
 	case IPL_MAG:
-		is->_iPLMag += r;
+		is->_iPLMag = r;
 		break;
 	case IPL_DEX:
-		is->_iPLDex += r;
+		is->_iPLDex = r;
 		break;
 	case IPL_VIT:
-		is->_iPLVit += r;
+		is->_iPLVit = r;
 		break;
 	case IPL_ATTRIBS:
-		is->_iPLStr += r;
-		is->_iPLMag += r;
-		is->_iPLDex += r;
-		is->_iPLVit += r;
+		is->_iPLStr = r;
+		is->_iPLMag = r;
+		is->_iPLDex = r;
+		is->_iPLVit = r;
 		break;
 	case IPL_GETHIT:
-		is->_iPLGetHit -= r;
+		is->_iPLGetHit = -r;
 		break;
 	case IPL_LIFE:
-		is->_iPLHP += r << 6;
+		is->_iPLHP = r << 6;
 		break;
 	case IPL_MANA:
-		is->_iPLMana += r << 6;
+		is->_iPLMana = r << 6;
 		break;
 	case IPL_DUR:
 		r2 = r * is->_iMaxDur / 100;
@@ -1414,7 +1414,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iDurability += r2;
 		break;
 	case IPL_CRYSTALLINE:
-		is->_iPLDam += r * 2;
+		is->_iPLDam = r * 2;
 		// no break
 	case IPL_DUR_CURSE:
 		is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
@@ -1425,7 +1425,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iMaxDur = DUR_INDESTRUCTIBLE;
 		break;
 	case IPL_LIGHT:
-		is->_iPLLight += param1;
+		is->_iPLLight = param1;
 		break;
 	case IPL_MULT_ARROWS:
 		is->_iFlags |= ISPL_MULT_ARROWS;
@@ -1479,7 +1479,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iFlags |= ISPL_FASTBLOCK;
 		break;
 	case IPL_DAMMOD:
-		is->_iPLDamMod += r;
+		is->_iPLDamMod = r;
 		break;
 	case IPL_SETDAM:
 		is->_iMinDam = param1;

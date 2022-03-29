@@ -489,14 +489,152 @@ void ValidateData()
 	if (rnddrops > ITEM_RNDAFFIX_MAX)
 		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
 	rnddrops = 0;
-	const AffixData* pres = PL_Suffix;
-	for (int i = 0; pres->PLPower != IPL_INVALID; pres++, i++) {
-		if (pres->PLDouble)
-			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+	const AffixData* sufs = PL_Suffix;
+	for (int i = 0; sufs->PLPower != IPL_INVALID; sufs++, i++) {
+		if (sufs->PLDouble)
+			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
 		rnddrops++;
+		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+			if ((sufs->PLIType & pres->PLIType) == 0)
+				continue;
+			if (sufs->PLPower == pres->PLPower) {
+				app_fatal("Same power is set as prefix and suffix at the same time: suffix(%d. power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			}
+			if (pres->PLPower == IPL_ATTRIBS &&
+				(sufs->PLPower == IPL_STR || sufs->PLPower == IPL_MAG || sufs->PLPower == IPL_DEX || sufs->PLPower == IPL_VIT)) {
+				app_fatal("IPL_ATTRIBS and IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT might be set for the same item.");
+			}
+			if (sufs->PLPower == IPL_ATTRIBS &&
+				(pres->PLPower == IPL_STR || pres->PLPower == IPL_MAG || pres->PLPower == IPL_DEX || pres->PLPower == IPL_VIT)) {
+				app_fatal("IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT and IPL_ATTRIBS might be set for the same item.");
+			}
+			if (pres->PLPower == IPL_ALLRES &&
+				(sufs->PLPower == IPL_FIRERES || sufs->PLPower == IPL_LIGHTRES || sufs->PLPower == IPL_MAGICRES || sufs->PLPower == IPL_ACIDRES)) {
+				app_fatal("IPL_ALLRES and IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES might be set for the same item.");
+			}
+			if (sufs->PLPower == IPL_ALLRES &&
+				(pres->PLPower == IPL_FIRERES || pres->PLPower == IPL_LIGHTRES || pres->PLPower == IPL_MAGICRES || pres->PLPower == IPL_ACIDRES)) {
+				app_fatal("IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES and IPL_ALLRES might be set for the same item.");
+			}
+			if (sufs->PLPower == IPL_TOHIT && pres->PLPower == IPL_TOHIT_DAMP) {
+				app_fatal("IPL_TOHIT_DAMP and IPL_TOHIT might be set for the same item.");
+			}
+			if (pres->PLPower == IPL_TOHIT && sufs->PLPower == IPL_TOHIT_DAMP) {
+				app_fatal("IPL_TOHIT and IPL_TOHIT_DAMP might be set for the same item.");
+			}
+			if ((pres->PLPower == IPL_DAMP || pres->PLPower == IPL_TOHIT_DAMP || pres->PLPower == IPL_CRYSTALLINE) &&
+				(sufs->PLPower == IPL_DAMP || sufs->PLPower == IPL_TOHIT_DAMP || sufs->PLPower == IPL_CRYSTALLINE)) {
+				app_fatal("IPL_DAMP/IPL_TOHIT_DAMP/IPL_CRYSTALLINE might be set for the same item.");
+			}
+		}
 	}
 	if (rnddrops > ITEM_RNDAFFIX_MAX)
 		app_fatal("Too many suffix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
+	// unique items
+	for (int i = 0; i < NUM_UITEM; i++) {
+		const UniqItemData& ui = UniqueItemList[i];
+		if (ui.UIPower1 == IPL_INVALID)
+			app_fatal("Unique item '%s' %d does not have any affix", ui.UIName, i);
+		//if (ui.UIPower1 != IPL_INVALID) {
+			if (ui.UIPower1 == ui.UIPower2) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs2.", ui.UIName, i);
+			}
+			if (ui.UIPower1 == ui.UIPower3) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs3.", ui.UIName, i);
+			}
+			if (ui.UIPower1 == ui.UIPower4) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs4.", ui.UIName, i);
+			}
+			if (ui.UIPower1 == ui.UIPower5) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs5.", ui.UIName, i);
+			}
+			if (ui.UIPower1 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs6.", ui.UIName, i);
+			}
+		//}
+		if (ui.UIPower2 != IPL_INVALID) {
+			if (ui.UIPower2 == ui.UIPower3) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs3.", ui.UIName, i);
+			}
+			if (ui.UIPower2 == ui.UIPower4) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs4.", ui.UIName, i);
+			}
+			if (ui.UIPower2 == ui.UIPower5) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs5.", ui.UIName, i);
+			}
+			if (ui.UIPower2 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs6.", ui.UIName, i);
+			}
+		} else {
+			if (ui.UIPower3 != IPL_INVALID || ui.UIPower4 != IPL_INVALID || ui.UIPower5 != IPL_INVALID || ui.UIPower6 != IPL_INVALID)
+				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower2 is IPL_INVALID.", ui.UIName, i);
+		}
+		if (ui.UIPower3 != IPL_INVALID) {
+			if (ui.UIPower3 == ui.UIPower4) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 3vs4.", ui.UIName, i);
+			}
+			if (ui.UIPower3 == ui.UIPower5) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 3vs5.", ui.UIName, i);
+			}
+			if (ui.UIPower3 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 3vs6.", ui.UIName, i);
+			}
+		} else {
+			if (ui.UIPower4 != IPL_INVALID || ui.UIPower5 != IPL_INVALID || ui.UIPower6 != IPL_INVALID)
+				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower3 is IPL_INVALID.", ui.UIName, i);
+		}
+		if (ui.UIPower4 != IPL_INVALID) {
+			if (ui.UIPower4 == ui.UIPower5) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 4vs5.", ui.UIName, i);
+			}
+			if (ui.UIPower4 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 4vs6.", ui.UIName, i);
+			}
+		} else {
+			if (ui.UIPower5 != IPL_INVALID || ui.UIPower6 != IPL_INVALID)
+				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower4 is IPL_INVALID.", ui.UIName, i);
+		}
+		if (ui.UIPower5 != IPL_INVALID) {
+			if (ui.UIPower5 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 5vs6.", ui.UIName, i);
+			}
+		} else {
+			if (ui.UIPower6 != IPL_INVALID)
+				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower5 is IPL_INVALID.", ui.UIName, i);
+		}
+		if (ui.UIPower1 == IPL_ATTRIBS || ui.UIPower2 == IPL_ATTRIBS || ui.UIPower3 == IPL_ATTRIBS || ui.UIPower4 == IPL_ATTRIBS || ui.UIPower5 == IPL_ATTRIBS || ui.UIPower6 == IPL_ATTRIBS) {
+			if ((ui.UIPower1 == IPL_STR || ui.UIPower2 == IPL_STR || ui.UIPower3 == IPL_STR || ui.UIPower4 == IPL_STR || ui.UIPower5 == IPL_STR || ui.UIPower6 == IPL_STR) ||
+			    (ui.UIPower1 == IPL_MAG || ui.UIPower2 == IPL_MAG || ui.UIPower3 == IPL_MAG || ui.UIPower4 == IPL_MAG || ui.UIPower5 == IPL_MAG || ui.UIPower6 == IPL_MAG) ||
+			    (ui.UIPower1 == IPL_DEX || ui.UIPower2 == IPL_DEX || ui.UIPower3 == IPL_DEX || ui.UIPower4 == IPL_DEX || ui.UIPower5 == IPL_DEX || ui.UIPower6 == IPL_DEX) ||
+				(ui.UIPower1 == IPL_VIT || ui.UIPower2 == IPL_VIT || ui.UIPower3 == IPL_VIT || ui.UIPower4 == IPL_VIT || ui.UIPower5 == IPL_VIT || ui.UIPower6 == IPL_VIT)) {
+				app_fatal("SaveItemPower does not support IPL_ATTRIBS and IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_ALLRES || ui.UIPower2 == IPL_ALLRES || ui.UIPower3 == IPL_ALLRES || ui.UIPower4 == IPL_ALLRES || ui.UIPower5 == IPL_ALLRES || ui.UIPower6 == IPL_ALLRES) {
+			if ((ui.UIPower1 == IPL_FIRERES || ui.UIPower2 == IPL_FIRERES || ui.UIPower3 == IPL_FIRERES || ui.UIPower4 == IPL_FIRERES || ui.UIPower5 == IPL_FIRERES || ui.UIPower6 == IPL_FIRERES) ||
+			    (ui.UIPower1 == IPL_LIGHTRES || ui.UIPower2 == IPL_LIGHTRES || ui.UIPower3 == IPL_LIGHTRES || ui.UIPower4 == IPL_LIGHTRES || ui.UIPower5 == IPL_LIGHTRES || ui.UIPower6 == IPL_LIGHTRES) ||
+			    (ui.UIPower1 == IPL_MAGICRES || ui.UIPower2 == IPL_MAGICRES || ui.UIPower3 == IPL_MAGICRES || ui.UIPower4 == IPL_MAGICRES || ui.UIPower5 == IPL_MAGICRES || ui.UIPower6 == IPL_MAGICRES) ||
+				(ui.UIPower1 == IPL_ACIDRES || ui.UIPower2 == IPL_ACIDRES || ui.UIPower3 == IPL_ACIDRES || ui.UIPower4 == IPL_ACIDRES || ui.UIPower5 == IPL_ACIDRES || ui.UIPower6 == IPL_ACIDRES)) {
+				app_fatal("SaveItemPower does not support IPL_ALLRES and IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_TOHIT || ui.UIPower2 == IPL_TOHIT || ui.UIPower3 == IPL_TOHIT || ui.UIPower4 == IPL_TOHIT || ui.UIPower5 == IPL_TOHIT || ui.UIPower6 == IPL_TOHIT) {
+			if (ui.UIPower1 == IPL_TOHIT_DAMP || ui.UIPower2 == IPL_TOHIT_DAMP || ui.UIPower3 == IPL_TOHIT_DAMP || ui.UIPower4 == IPL_TOHIT_DAMP || ui.UIPower5 == IPL_TOHIT_DAMP || ui.UIPower6 == IPL_TOHIT_DAMP) {
+				app_fatal("SaveItemPower does not support IPL_TOHIT and IPL_TOHIT_DAMP modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_DAMP || ui.UIPower2 == IPL_DAMP || ui.UIPower3 == IPL_DAMP || ui.UIPower4 == IPL_DAMP || ui.UIPower5 == IPL_DAMP || ui.UIPower6 == IPL_DAMP) {
+			if ((ui.UIPower1 == IPL_TOHIT_DAMP || ui.UIPower2 == IPL_TOHIT_DAMP || ui.UIPower3 == IPL_TOHIT_DAMP || ui.UIPower4 == IPL_TOHIT_DAMP || ui.UIPower5 == IPL_TOHIT_DAMP || ui.UIPower6 == IPL_TOHIT_DAMP) ||
+			    (ui.UIPower1 == IPL_CRYSTALLINE || ui.UIPower2 == IPL_CRYSTALLINE || ui.UIPower3 == IPL_CRYSTALLINE || ui.UIPower4 == IPL_CRYSTALLINE || ui.UIPower5 == IPL_CRYSTALLINE || ui.UIPower6 == IPL_CRYSTALLINE)) {
+				app_fatal("SaveItemPower does not support IPL_DAMP and IPL_TOHIT_DAMP/IPL_CRYSTALLINE modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_TOHIT_DAMP || ui.UIPower2 == IPL_TOHIT_DAMP || ui.UIPower3 == IPL_TOHIT_DAMP || ui.UIPower4 == IPL_TOHIT_DAMP || ui.UIPower5 == IPL_TOHIT_DAMP || ui.UIPower6 == IPL_TOHIT_DAMP) {
+			if (ui.UIPower1 == IPL_CRYSTALLINE || ui.UIPower2 == IPL_CRYSTALLINE || ui.UIPower3 == IPL_CRYSTALLINE || ui.UIPower4 == IPL_CRYSTALLINE || ui.UIPower5 == IPL_CRYSTALLINE || ui.UIPower6 == IPL_CRYSTALLINE) {
+				app_fatal("SaveItemPower does not support IPL_TOHIT_DAMP and IPL_CRYSTALLINE modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+	}
 	// spells
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
 	for (int i = 0; i < NUM_SPELLS; i++) {
