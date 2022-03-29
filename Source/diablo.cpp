@@ -355,7 +355,7 @@ static char ValidateSkill(BYTE sn, BYTE splType)
 	char result;
 	assert(sn != SPL_INVALID);
 
-	if ((spelldata[sn].sFlags & myplr._pSkillFlags) != spelldata[sn].sFlags) {
+	if ((spelldata[sn].sUseFlags & myplr._pSkillFlags) != spelldata[sn].sUseFlags) {
 		// PlaySFX(sgSFXSets[SFXS_PLR_34][p->_pClass]);
 		return SPLFROM_INVALID_TYPE;
 	}

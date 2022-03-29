@@ -303,7 +303,7 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 	if (spl == SPL_INVALID) {
 		st = RSPLTYPE_INVALID;
 		spl = SPL_NULL;
-	} else if ((spelldata[spl].sFlags & plr._pSkillFlags) != spelldata[spl].sFlags)
+	} else if ((spelldata[spl].sUseFlags & plr._pSkillFlags) != spelldata[spl].sUseFlags)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
 		lvl = plr._pSkillLvl[spl];
@@ -443,7 +443,7 @@ void DrawSkillList()
 				if (plr._pHasUnidItem)
 					sl = -1; // SPLLVL_UNDEF
 			}
-			if ((spelldata[j].sFlags & plr._pSkillFlags) != spelldata[j].sFlags)
+			if ((spelldata[j].sUseFlags & plr._pSkillFlags) != spelldata[j].sUseFlags)
 				st = RSPLTYPE_INVALID;
 			else
 				st = GetSpellTrans(st, j);
@@ -1972,7 +1972,7 @@ void DrawSpellBook()
 				PrintString(sx + SBOOK_LINE_TAB, yp - 1, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
 			}
 
-			if ((spelldata[sn].sFlags & plr._pSkillFlags) != spelldata[sn].sFlags)
+			if ((spelldata[sn].sUseFlags & plr._pSkillFlags) != spelldata[sn].sUseFlags)
 				st = RSPLTYPE_INVALID;
 			CelDrawLight(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH, SkillTrns[GetSpellTrans(st, sn)]);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?

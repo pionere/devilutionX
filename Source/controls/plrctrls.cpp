@@ -169,7 +169,7 @@ static bool HasRangedSpell()
 	    && spl != SPL_TOWN
 	    && spl != SPL_TELEPORT
 	    && spelldata[spl].sTargeted
-	    && (spelldata[spl].sFlags & myplr._pSkillFlags) != 0;
+	    && (spelldata[spl].sUseFlags & myplr._pSkillFlags) != 0;
 }
 
 static bool CanTargetMonster(int mi)

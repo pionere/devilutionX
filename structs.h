@@ -1549,7 +1549,7 @@ typedef struct SpellData {
 	BOOLEAN sTargeted;
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells
-	BYTE sFlags; // the required flags(SFLAG*) to use the skill
+	BYTE sUseFlags; // the required flags(SFLAG*) to use the skill
 	BYTE sMinInt;
 	BYTE sSFX;
 	BYTE sMissile;

@@ -2494,7 +2494,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 
 	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
 
-	if (plr._pmode != PM_DEATH && (spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+	if (plr._pmode != PM_DEATH && (spelldata[sn].sUseFlags & plr._pSkillFlags) == spelldata[sn].sUseFlags) {
 		su.from = plr._pSkillLvl[sn];
 		if (sf == SPLFROM_MANA) {
 #if DEBUG_MODE

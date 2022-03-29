@@ -1742,7 +1742,7 @@ bool InvUseItem(int cii)
 #else
 	 && is->_iMiscId == IMISC_SCROLL
 #endif
-		&& (spelldata[is->_iSpell].sFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
+		&& (spelldata[is->_iSpell].sUseFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
 		return true;
 	}
 

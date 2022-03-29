@@ -44,7 +44,7 @@ DEVILUTION_BEGIN_NAMESPACE
  */
 const SpellData spelldata[NUM_SPELLS] = {
 	// clang-format off
-	// sName,    sManaCost, sType,           sIcon,   sNameText,            sBookLvl, sStaffLvl, sScrollLvl, sTargeted, scCurs,             spCurs,             sFlags,                   sMinInt, sSFX,        sMissile,   sManaAdj, sMinMana, sStaffMin, sStaffMax, sBookCost, sStaffCost
+	// sName,    sManaCost, sType,           sIcon,   sNameText,            sBookLvl, sStaffLvl, sScrollLvl, sTargeted, scCurs,             spCurs,             sUseFlags,                sMinInt, sSFX,        sMissile,   sManaAdj, sMinMana, sStaffMin, sStaffMax, sBookCost, sStaffCost
 	{ SPL_NULL,          0, 0,               27,      NULL,                 SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        SFLAG_MELEE | SFLAG_RANGED,     0, 0,           0,                 0,        0,         0,         0,         0,          0, ALIGN64 },
 	{ SPL_WALK,          0, STYPE_NONE,      28,      "Walk",               SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        SFLAG_ANY,                      0, 0,           0,                 0,        0,         0,         0,         0,          0, ALIGN64 },
 	{ SPL_BLOCK,         0, STYPE_NONE,      ICN_BLK, "Block",              SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_BLOCK,    0, 0,           0,                 0,        0,         0,         0,         0,          0, ALIGN64 },
