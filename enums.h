@@ -2728,15 +2728,6 @@ typedef enum placeflag {
 } placeflag;
 
 /*
-Looks like someone treated hex values as binary, so 0x10 came after 0x01, that's why we have 1 and 16, they did the same thing with affix_item_type
-*/
-typedef enum goodorevil {
-	GOE_ANY  = 0x00,
-	GOE_EVIL = 0x01,
-	GOE_GOOD = 0x10,
-} goodorevil;
-
-/*
  First 8 bits store level
  9-10th bit stores info if item is from a specific source (griswold, wirt, adria, pepin and user crafted) 
  11-12th bit stores the drop quality (normal, good or unique)

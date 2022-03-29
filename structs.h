@@ -56,7 +56,6 @@ typedef struct AffixData {
 	int PLParam2;
 	BYTE PLMinLvl;
 	int PLIType;
-	BYTE PLGOE;
 	BOOL PLDouble;
 	BOOL PLOk;
 	int PLMinVal;

@@ -1531,7 +1531,7 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 	int nl, v;
 	const AffixData *pres, *sufs;
 	const AffixData *l[ITEM_RNDAFFIX_MAX];
-	BYTE pre, post, goe;
+	BYTE pre, post;
 
 	// assert(items[ii]._iMagical == ITEM_QUALITY_NORMAL);
 
@@ -1544,7 +1544,6 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 		else
 			pre = 0;
 	}
-	goe = GOE_ANY;
 	if (!onlygood && random_(0, 3) != 0)
 		onlygood = true;
 	if (pre == 0) {
@@ -1573,7 +1572,6 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 			    pres->PLMinVal,
 			    pres->PLMaxVal,
 			    pres->PLMultVal);
-			goe = pres->PLGOE;
 		}
 	}
 	if (post != 0) {
@@ -1581,7 +1579,6 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 		for (sufs = PL_Suffix; sufs->PLPower != IPL_INVALID; sufs++) {
 			if ((sufs->PLIType & flgs)
 			    && sufs->PLMinLvl >= minlvl && sufs->PLMinLvl <= maxlvl
-			    && (goe | sufs->PLGOE) != (GOE_GOOD | GOE_EVIL)
 			    && (!onlygood || sufs->PLOk)) {
 				l[nl] = sufs;
 				nl++;
