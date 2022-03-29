@@ -51,7 +51,6 @@ typedef struct RECT32 {
 //////////////////////////////////////////////////
 
 typedef struct AffixData {
-	const char* PLName;
 	BYTE PLPower;
 	int PLParam1;
 	int PLParam2;

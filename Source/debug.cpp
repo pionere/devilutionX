@@ -489,9 +489,10 @@ void ValidateData()
 	if (rnddrops > ITEM_RNDAFFIX_MAX)
 		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
 	rnddrops = 0;
-	for (const AffixData *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
+	const AffixData* pres = PL_Suffix;
+	for (int i = 0; pres->PLPower != IPL_INVALID; pres++, i++) {
 		if (pres->PLDouble)
-			app_fatal("Invalid PLDouble set for %s", pres->PLName);
+			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
 		rnddrops++;
 	}
 	if (rnddrops > ITEM_RNDAFFIX_MAX)
