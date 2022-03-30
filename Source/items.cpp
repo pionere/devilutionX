@@ -390,7 +390,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pVitality = std::max(0, vadd + plr._pBaseVit);
 
 	plr._pIFlags = iflgs;
-	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
+	plr._pInfraFlag = /*(iflgs & ISPL_INFRAVISION) != 0 ||*/ plr._pTimer[PLTR_INFRAVISION] > 0;
 	plr._pHasUnidItem = !idi;
 	plr._pIGetHit = ghit << 6;
 	plr._pILifeSteal = lifesteal;
@@ -1495,9 +1495,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_DRAINLIFE:
 		is->_iFlags |= ISPL_DRAINLIFE;
 		break;
-	case IPL_INFRAVISION:
-		is->_iFlags |= ISPL_INFRAVISION;
-		break;
+	//case IPL_INFRAVISION:
+	//	is->_iFlags |= ISPL_INFRAVISION;
+	//	break;
 	case IPL_NOMINSTR:
 		is->_iMinStr = 0;
 		break;
@@ -2906,9 +2906,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_NOMINSTR:
 		copy_cstr(tempstr, "no strength requirement");
 		break;
-	case IPL_INFRAVISION:
-		copy_cstr(tempstr, "see with infravision");
-		break;
+	//case IPL_INFRAVISION:
+	//	copy_cstr(tempstr, "see with infravision");
+	//	break;
 	case IPL_INVCURS:
 		copy_cstr(tempstr, " ");
 		break;
