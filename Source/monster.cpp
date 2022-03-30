@@ -2111,14 +2111,14 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			}
 		}
 	}
-	if (plr._pIFlags & ISPL_THORNS) {
+	/*if (plr._pIFlags & ISPL_THORNS) {
 		tmp = RandRange(1, 3) << 6;
 		mon->_mhitpoints -= tmp;
 		if (mon->_mhitpoints < (1 << 6))
 			MonStartKill(mnum, pnum);
 		else
 			MonStartHit(mnum, pnum, tmp, 0);
-	}
+	}*/
 	dam = RandRange(MinDam, MaxDam) << 6;
 	dam += plr._pIGetHit;
 	if (dam < 64)

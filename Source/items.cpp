@@ -1433,9 +1433,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_INVCURS:
 		is->_iCurs = param1;
 		break;
-	case IPL_THORNS:
-		is->_iFlags |= ISPL_THORNS;
-		break;
+	//case IPL_THORNS:
+	//	is->_iFlags |= ISPL_THORNS;
+	//	break;
 	case IPL_NOMANA:
 		is->_iFlags |= ISPL_NOMANA;
 		break;
@@ -2840,9 +2840,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_MULT_ARROWS:
 		copy_cstr(tempstr, "multiple arrows per shot");
 		break;
-	case IPL_THORNS:
-		copy_cstr(tempstr, "attacker takes 1-3 damage");
-		break;
+	//case IPL_THORNS:
+	//	copy_cstr(tempstr, "attacker takes 1-3 damage");
+	//	break;
 	case IPL_NOMANA:
 		copy_cstr(tempstr, "user loses all mana");
 		break;

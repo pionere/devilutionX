@@ -117,7 +117,7 @@ typedef enum item_effect_type {
 	IPL_LIGHT,
 	IPL_MULT_ARROWS,	/* only used in hellfire */
 	IPL_INVCURS,
-	IPL_THORNS,
+	//IPL_THORNS,
 	IPL_NOMANA,
 	IPL_KNOCKBACK,
 	IPL_STUN,
@@ -3858,7 +3858,7 @@ typedef enum item_special_effect {
 	ISPL_DRAINLIFE      = 0x00008000,
 	ISPL_KNOCKBACK      = 0x00010000,
 	//ISPL_NOHEALMON      = 0x00020000,
-	ISPL_THORNS         = 0x00040000,
+	//ISPL_THORNS         = 0x00040000,
 	//ISPL_INFRAVISION    = 0x00080000,
 	ISPL_ALLRESZERO     = 0x00100000,
 	ISPL_LIFETOMANA     = 0x00200000,
