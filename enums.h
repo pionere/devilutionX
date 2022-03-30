@@ -96,7 +96,7 @@ typedef enum item_effect_type {
 	IPL_ACIDRES,
 	IPL_ALLRES,
 	IPL_CRITP,
-	IPL_SPLDUR,			/* only used in beta */
+	IPL_SKILLLVL,
 	IPL_SKILLLEVELS,
 	IPL_CHARGES,
 	IPL_FIREDAM,
@@ -3755,6 +3755,7 @@ typedef enum _unique_items {
 	UITEM_CONSTRICT,
 	UITEM_ENGAGERING,
 	UITEM_DESTRING,
+	UITEM_RAINBOWRING,
 #ifdef HELLFIRE
 	UITEM_GKNUCKLE,
 	UITEM_MERCURING,

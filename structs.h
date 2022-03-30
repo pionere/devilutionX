@@ -198,6 +198,8 @@ typedef struct ItemStruct {
 	int _iPLGetHit;
 	char _iPLLight;
 	char _iPLSkillLevels;
+	BYTE _iPLSkill;
+	char _iPLSkillLvl;
 	BYTE _iPLManaSteal;
 	BYTE _iPLLifeSteal;
 	BYTE _iPLCrit;

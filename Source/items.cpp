@@ -273,6 +273,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	int skillLvl; // temporary value to calculate skill levels
 	char skillLvlAdds = 0; // increased skill level
+	BYTE skillLvlMods[NUM_SPELLS] = { 0 };
 
 	unsigned minsl = 0; // min slash-damage
 	unsigned maxsl = 0; // max slash-damage
@@ -322,6 +323,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 				ihp += pi->_iPLHP;
 				imana += pi->_iPLMana;
 				skillLvlAdds += pi->_iPLSkillLevels;
+				pi->_iPLSkill;
+				skillLvlMods[pi->_iPLSkill] += pi->_iPLSkillLvl;
 				lifesteal += pi->_iPLLifeSteal;
 				manasteal += pi->_iPLManaSteal;
 				btochit += pi->_iPLCrit;
@@ -624,10 +627,11 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 #endif*/
 	plr._pIArrowVelBonus = av;
 
-	for (i = 0; i < NUM_SPELLS; i++) {
+	static_assert(SPL_NULL == 0, "CalcPlrItemVals expects SPL_NULL == 0.");
+	for (i = 1; i < NUM_SPELLS; i++) {
 		skillLvl = 0;
 		//if (plr._pMemSkills & SPELL_MASK(i)) {
-			skillLvl = plr._pSkillLvlBase[i] + skillLvlAdds;
+			skillLvl = plr._pSkillLvlBase[i] + skillLvlAdds + skillLvlMods[i];
 			if (skillLvl < 0)
 				skillLvl = 0;
 		//}
@@ -821,6 +825,8 @@ void SetItemData(int ii, int idata)
 	is->_iSufPower = IPL_INVALID;
 	static_assert(ITEM_QUALITY_NORMAL == 0, "Zero-fill expects ITEM_QUALITY_NORMAL == 0.");
 	//is->_iMagical = ITEM_QUALITY_NORMAL;
+	static_assert(SPL_NULL == 0, "Zero-fill expects SPL_NULL == 0.");
+	//is->_iPLSkill = SPL_NULL;
 }
 
 void SetItemSData(ItemStruct *is, int idata)
@@ -1253,6 +1259,24 @@ static void GetStaffSpell(int ii, unsigned lvl)
 	is->_iIvalue += v;
 }
 
+static int GetItemSpell()
+{
+	int ns, bs;
+	BYTE ss[NUM_SPELLS];
+
+	ns = 0;
+	for (bs = 0; bs < NUM_SPELLS; bs++) {
+		if (spelldata[bs].sManaCost != 0 // TODO: use sSkillFlags ?
+		 && (IsMultiGame
+			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+			ss[ns] = bs;
+			ns++;
+		}
+	}
+	// assert(ns > 0);
+	return ss[random_(19, ns)];
+}
+
 static void GetItemAttrs(int ii, int idata, unsigned lvl)
 {
 	ItemStruct* is;
@@ -1351,6 +1375,10 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 	case IPL_CRITP:
 		is->_iPLCrit = r;
+		break;
+	case IPL_SKILLLVL:
+		is->_iPLSkillLvl = r;
+		is->_iPLSkill = GetItemSpell();
 		break;
 	case IPL_SKILLLEVELS:
 		is->_iPLSkillLevels = r;
@@ -2765,6 +2793,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_CRITP:
 		snprintf(tempstr, sizeof(tempstr), "%d%% increased crit. chance", is->_iPLCrit);
+		break;
+	case IPL_SKILLLVL:
+		snprintf(tempstr, sizeof(tempstr), "%+d to %s", is->_iPLSkillLvl, spelldata[is->_iPLSkill].sNameText);
 		break;
 	case IPL_SKILLLEVELS:
 		snprintf(tempstr, sizeof(tempstr), "%+d to skill levels", is->_iPLSkillLevels);

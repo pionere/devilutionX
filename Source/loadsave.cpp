@@ -302,10 +302,12 @@ static void LoadItemData(ItemStruct* is)
 	LoadInt(&is->_iPLGetHit);
 	LoadByte(&is->_iPLLight);
 	LoadByte(&is->_iPLSkillLevels);
+	LoadByte(&is->_iPLSkill);
+	LoadByte(&is->_iPLSkillLvl);
 	LoadByte(&is->_iPLManaSteal);
 	LoadByte(&is->_iPLLifeSteal);
 	LoadByte(&is->_iPLCrit);
-	tbuff += 3; // Alignment
+	tbuff += 1; // Alignment
 	LoadInt(&is->_iUid);
 	LoadByte(&is->_iPLFMinDam);
 	LoadByte(&is->_iPLFMaxDam);
@@ -1022,10 +1024,12 @@ static void SaveItemData(ItemStruct* is)
 	SaveInt(&is->_iPLGetHit);
 	SaveByte(&is->_iPLLight);
 	SaveByte(&is->_iPLSkillLevels);
+	SaveByte(&is->_iPLSkill);
+	SaveByte(&is->_iPLSkillLvl);
 	SaveByte(&is->_iPLManaSteal);
 	SaveByte(&is->_iPLLifeSteal);
 	SaveByte(&is->_iPLCrit);
-	tbuff += 3; // Alignment
+	tbuff += 1; // Alignment
 	SaveInt(&is->_iUid);
 	SaveByte(&is->_iPLFMinDam);
 	SaveByte(&is->_iPLFMaxDam);
