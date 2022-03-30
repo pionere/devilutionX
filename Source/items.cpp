@@ -396,7 +396,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pILifeSteal = lifesteal;
 	plr._pIManaSteal = manasteal;
 
-	pdmod = (1 << 9) + (8 * plr._pMagic);
+	pdmod = (1 << 9) + (32 * plr._pMagic);
 	plr._pIFMinDam = fmin * pdmod >> (-6 + 9);
 	plr._pIFMaxDam = fmax * pdmod >> (-6 + 9);
 	plr._pILMinDam = lmin * pdmod >> (-6 + 9);

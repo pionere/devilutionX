@@ -101,8 +101,8 @@ typedef enum item_effect_type {
 	IPL_CHARGES,
 	IPL_FIREDAM,
 	IPL_LIGHTDAM,
-	IPL_MAGICDAM, // unused
-	IPL_ACIDDAM,  // unused
+	IPL_MAGICDAM,
+	IPL_ACIDDAM,
 	IPL_STR,
 	IPL_MAG,
 	IPL_DEX,
