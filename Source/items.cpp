@@ -1425,7 +1425,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iMaxDur = DUR_INDESTRUCTIBLE;
 		break;
 	case IPL_LIGHT:
-		is->_iPLLight = param1;
+		is->_iPLLight = r;
 		break;
 	case IPL_MULT_ARROWS:
 		is->_iFlags |= ISPL_MULT_ARROWS;
@@ -1465,15 +1465,15 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers I.");
 		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers II.");
 		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers III.");
-		if ((unsigned)(param1 - 1) < 4)
-			is->_iFlags |= ISPL_QUICKATTACK << (param1 - 1);
+		// assert((unsigned)(r - 1) < 4);
+			is->_iFlags |= ISPL_QUICKATTACK << (r - 1);
 		break;
 	case IPL_FASTRECOVER:
 		static_assert((ISPL_FASTRECOVER & (ISPL_FASTRECOVER - 1)) == 0, "Optimized SaveItemPower depends simple flag-like hit-recovery modifiers.");
 		static_assert(ISPL_FASTRECOVER == ISPL_FASTERRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers I.");
 		static_assert(ISPL_FASTERRECOVER == ISPL_FASTESTRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers II.");
-		if ((unsigned)(param1 - 1) < 3)
-			is->_iFlags |= ISPL_FASTRECOVER << (param1 - 1);
+		// assert((unsigned)(r - 1) < 3);
+			is->_iFlags |= ISPL_FASTRECOVER << (r - 1);
 		break;
 	case IPL_FASTBLOCK:
 		is->_iFlags |= ISPL_FASTBLOCK;
@@ -1511,15 +1511,15 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		static_assert((ISPL_FASTCAST & (ISPL_FASTCAST - 1)) == 0, "Optimized SaveItemPower depends simple flag-like cast-speed modifiers.");
 		static_assert(ISPL_FASTCAST == ISPL_FASTERCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers I.");
 		static_assert(ISPL_FASTERCAST == ISPL_FASTESTCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers II.");
-		if ((unsigned)(param1 - 1) < 3)
-			is->_iFlags |= ISPL_FASTCAST << (param1 - 1);
+		// assert((unsigned)(r - 1) < 3);
+			is->_iFlags |= ISPL_FASTCAST << (r - 1);
 		break;
 	case IPL_FASTWALK:
 		static_assert((ISPL_FASTWALK & (ISPL_FASTWALK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like walk-speed modifiers.");
 		static_assert(ISPL_FASTWALK == ISPL_FASTERWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers I.");
 		static_assert(ISPL_FASTERWALK == ISPL_FASTESTWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers II.");
-		if ((unsigned)(param1 - 1) < 3)
-			is->_iFlags |= ISPL_FASTWALK << (param1 - 1);
+		// assert((unsigned)(r - 1) < 3);
+			is->_iFlags |= ISPL_FASTWALK << (r - 1);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -2874,7 +2874,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 			copy_cstr(tempstr, "faster attack");
 		else if (is->_iFlags & ISPL_FASTATTACK)
 			copy_cstr(tempstr, "fast attack");
-		else if (is->_iFlags & ISPL_QUICKATTACK)
+		else // if (is->_iFlags & ISPL_QUICKATTACK)
 			copy_cstr(tempstr, "quick attack");
 		break;
 	case IPL_FASTRECOVER:
@@ -2882,7 +2882,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 			copy_cstr(tempstr, "fastest hit recovery");
 		else if (is->_iFlags & ISPL_FASTERRECOVER)
 			copy_cstr(tempstr, "faster hit recovery");
-		else if (is->_iFlags & ISPL_FASTRECOVER)
+		else // if (is->_iFlags & ISPL_FASTRECOVER)
 			copy_cstr(tempstr, "fast hit recovery");
 		break;
 	case IPL_FASTBLOCK:
@@ -2926,7 +2926,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 			copy_cstr(tempstr, "fastest cast");
 		else if (is->_iFlags & ISPL_FASTERCAST)
 			copy_cstr(tempstr, "faster cast");
-		else if (is->_iFlags & ISPL_FASTCAST)
+		else // if (is->_iFlags & ISPL_FASTCAST)
 			copy_cstr(tempstr, "fast cast");
 		break;
 	case IPL_FASTWALK:
@@ -2934,7 +2934,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 			copy_cstr(tempstr, "fastest walk");
 		else if (is->_iFlags & ISPL_FASTERWALK)
 			copy_cstr(tempstr, "faster walk");
-		else if (is->_iFlags & ISPL_FASTWALK)
+		else // if (is->_iFlags & ISPL_FASTWALK)
 			copy_cstr(tempstr, "fast walk");
 		break;
 	default:
