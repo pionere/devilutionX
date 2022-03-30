@@ -2050,9 +2050,9 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		MonStartKill(mnum, pnum);
 	} else {
 		hitFlags = plr._pIFlags;
-		if (hitFlags & ISPL_NOHEALMON) {
-			mon->_mFlags |= MFLAG_NOHEAL;
-		}
+		//if (hitFlags & ISPL_NOHEALMON) {
+		//	mon->_mFlags |= MFLAG_NOHEAL;
+		//}
 		if (hitFlags & ISPL_KNOCKBACK) {
 			MonGetKnockback(mnum, plr._px, plr._py);
 		}
@@ -2937,8 +2937,8 @@ void MissToPlr(int mi, bool hit)
 			MonStartKill(mpnum, pnum);
 		} else {
 			hitFlags = plr._pIFlags;
-			if (hitFlags & ISPL_NOHEALMON)
-				mon->_mFlags |= MFLAG_NOHEAL;
+			//if (hitFlags & ISPL_NOHEALMON)
+			//	mon->_mFlags |= MFLAG_NOHEAL;
 
 			if (hitFlags & ISPL_KNOCKBACK)
 				MonGetKnockback(mpnum, plr._px, plr._py);

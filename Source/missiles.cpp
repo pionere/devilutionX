@@ -791,8 +791,8 @@ static bool MonsterMHit(int mnum, int mi)
 		} else {*/
 			hitFlags = plr._pIFlags;
 			if (mis->_miSubType == 0) {
-				if (hitFlags & ISPL_NOHEALMON)
-					mon->_mFlags |= MFLAG_NOHEAL;
+				//if (hitFlags & ISPL_NOHEALMON)
+				//	mon->_mFlags |= MFLAG_NOHEAL;
 
 				if (hitFlags & ISPL_KNOCKBACK)
 					MonGetKnockback(mnum, mis->_misx, mis->_misy);

@@ -121,7 +121,7 @@ typedef enum item_effect_type {
 	IPL_NOMANA,
 	IPL_KNOCKBACK,
 	IPL_STUN,
-	IPL_NOHEALMON,		/* unused */
+	//IPL_NOHEALMON,
 	IPL_STEALMANA,
 	IPL_STEALLIFE,
 	IPL_PENETRATE_PHYS,
@@ -3857,7 +3857,7 @@ typedef enum item_special_effect {
 	ISPL_MULT_ARROWS    = 0x00004000,
 	ISPL_DRAINLIFE      = 0x00008000,
 	ISPL_KNOCKBACK      = 0x00010000,
-	ISPL_NOHEALMON      = 0x00020000, /* unused */ 
+	//ISPL_NOHEALMON      = 0x00020000,
 	ISPL_THORNS         = 0x00040000,
 	ISPL_INFRAVISION    = 0x00080000, /* unused */ 
 	ISPL_ALLRESZERO     = 0x00100000,

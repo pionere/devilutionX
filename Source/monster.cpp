@@ -2338,11 +2338,11 @@ static bool MonDoHeal(int mnum)
 		dev_fatal("MonDoHeal: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mFlags & MFLAG_NOHEAL) {
+	/*if (mon->_mFlags & MFLAG_NOHEAL) {
 		mon->_mFlags &= ~MFLAG_LOCK_ANIMATION;
 		mon->_mmode = MM_SPATTACK;
 		return false;
-	}
+	}*/
 
 	if (mon->_mAnimFrame == 1) {
 		mon->_mFlags &= ~MFLAG_REV_ANIMATION;
@@ -3176,10 +3176,10 @@ void MAI_Fallen(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (random_(113, 48) == 0) {
 			MonStartSpStand(mnum, mon->_mdir);
-			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
+			//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 				rad = mon->_mhitpoints + 2 * mon->_mInt + 2;
 				mon->_mhitpoints = std::min(mon->_mmaxhp, rad);
-			}
+			//}
 			rad = 2 * mon->_mInt + 4;
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (3 * 3 + 9) < SQUELCH_MAX - SQUELCH_LOW);
@@ -3455,7 +3455,7 @@ void MAI_Scav(int mnum)
 			if (dDead[mon->_mx][mon->_my] != 0 && dDead[mon->_mx][mon->_my] != STONENDX) {
 				MonStartSpAttack(mnum);
 				maxhp = mon->_mmaxhp;
-				if (!(mon->_mFlags & MFLAG_NOHEAL)) {
+				//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 #ifdef HELLFIRE
 					mon->_mhitpoints += maxhp >> 3;
 					if (mon->_mhitpoints > maxhp)
@@ -3471,7 +3471,7 @@ void MAI_Scav(int mnum)
 					if (mon->_mhitpoints >= (maxhp >> 1) + (maxhp >> 2))
 						mon->_mgoal = MGOAL_NORMAL;
 #endif
-				}
+				//}
 			} else {
 				if (mon->_mgoalvar1 == 0) { // HEALING_LOCATION_X
 					static_assert(DBORDERX >= 4, "MAI_Scav expects a large enough border I.");
@@ -3558,7 +3558,7 @@ void MAI_Garg(int mnum)
 
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1))
 #ifndef HELLFIRE
-		if (!(mon->_mFlags & MFLAG_NOHEAL))
+//		if (!(mon->_mFlags & MFLAG_NOHEAL))
 #endif
 			mon->_mgoal = MGOAL_RETREAT;
 	if (mon->_mgoal == MGOAL_RETREAT) {
@@ -4374,7 +4374,7 @@ void ProcessMonsters()
 			SetRndSeed(mon->_mAISeed);
 			mon->_mAISeed = GetRndSeed();
 		}
-		if (mon->_mhitpoints < mon->_mmaxhp && mon->_mhitpoints >= (1 << 6) && !(mon->_mFlags & MFLAG_NOHEAL)) {
+		if (mon->_mhitpoints < mon->_mmaxhp && mon->_mhitpoints >= (1 << 6) /*&& !(mon->_mFlags & MFLAG_NOHEAL)*/) {
 			mon->_mhitpoints += (mon->_mLevel + 1) >> 1;
 			if (mon->_mhitpoints > mon->_mmaxhp)
 				mon->_mhitpoints = mon->_mmaxhp;

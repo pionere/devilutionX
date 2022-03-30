@@ -1448,9 +1448,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_ALLRESZERO:
 		is->_iFlags |= ISPL_ALLRESZERO;
 		break;
-	case IPL_NOHEALMON:
-		is->_iFlags |= ISPL_NOHEALMON;
-		break;
+	//case IPL_NOHEALMON:
+	//	is->_iFlags |= ISPL_NOHEALMON;
+	//	break;
 	case IPL_STEALMANA:
 		is->_iPLManaSteal = r;
 		break;
@@ -2855,9 +2855,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_ALLRESZERO:
 		copy_cstr(tempstr, "All Resistance equals 0");
 		break;
-	case IPL_NOHEALMON:
-		copy_cstr(tempstr, "hit monster doesn't heal");
-		break;
+	//case IPL_NOHEALMON:
+	//	copy_cstr(tempstr, "hit monster doesn't heal");
+	//	break;
 	case IPL_STEALMANA:
 		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% mana", (is->_iPLManaSteal * 100) >> 7);
 		break;
