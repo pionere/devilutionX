@@ -323,7 +323,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 				ihp += pi->_iPLHP;
 				imana += pi->_iPLMana;
 				skillLvlAdds += pi->_iPLSkillLevels;
-				pi->_iPLSkill;
 				skillLvlMods[pi->_iPLSkill] += pi->_iPLSkillLvl;
 				lifesteal += pi->_iPLLifeSteal;
 				manasteal += pi->_iPLManaSteal;
