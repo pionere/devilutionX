@@ -1661,8 +1661,6 @@ static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood
 		return;
 	}
 
-	if (minlvl > 25)
-		minlvl = 25;
 	GetItemPower(ii, minlvl, maxlvl, flgs, onlygood);
 }
 
@@ -3498,7 +3496,7 @@ void SpawnBoy(unsigned lvl)
 			seed = GetRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndSmithItem(lvl), lvl);
-			GetItemBonus(0, lvl, lvl << 1, true, true);
+			GetItemBonus(0, lvl >> 1, lvl << 1, true, true);
 		} while (items[0]._iIvalue > BOY_MAX_VALUE);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_BOY;
@@ -3629,7 +3627,7 @@ static void RecreateBoyItem(int ii, int iseed, int idx, unsigned lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
-	GetItemBonus(ii, lvl, lvl << 1, true, true);
+	GetItemBonus(ii, lvl >> 1, lvl << 1, true, true);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_BOY;
