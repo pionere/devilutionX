@@ -1901,7 +1901,7 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
 		 || items[ii]._itype == ITYPE_AMULET
-		 || random_(32, 128) < 14 || (unsigned)random_(33, 100) <= lvl) {
+		 || random_(32, 128) < 14 || (unsigned)random_(33, 128) <= lvl) {
 			uid = CheckUnique(ii, lvl, quality);
 			if (uid < 0) {
 				GetItemBonus(ii, lvl >> 2, lvl, quality >= CFDQ_GOOD, true);
