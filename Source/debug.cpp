@@ -572,6 +572,46 @@ void ValidateData()
 	}
 	if (rnddrops > ITEM_RNDAFFIX_MAX)
 		app_fatal("Too many suffix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
+
+#if 0
+	for (i = 1; i < MAXCHARLEVEL; i++) {
+		int a = 0, b = 0, c = 0, w = 0;
+		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+			if (pres->PLMinLvl > i) {
+				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
+					c++;
+				continue;
+			}
+			if (pres->PLMinLvl >= (i >> 1) && pres->PLOk) {
+				a++;
+				c++;
+			}
+			if (pres->PLMinLvl >= (i >> 2)) {
+				b++;
+				if (!pres->PLOk)
+					w++;
+			}
+		}
+		int as = 0, bs = 0, cs = 0, ws = 0;
+		for (const AffixData *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
+			if (pres->PLMinLvl > i) {
+				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
+					cs++;
+				continue;
+			}
+			if (pres->PLMinLvl >= (i >> 1) && pres->PLOk) {
+				as++;
+				cs++;
+			}
+			if (pres->PLMinLvl >= (i >> 2)) {
+				bs++;
+				if (!pres->PLOk)
+					ws++;
+			}
+		}
+		LogErrorF("ITEMAFF", "Affix for lvl%2d: shop(%d:%d) loot(%d:%d/%d:%d) boy(%d:%d)", i, a, as, b, bs, w, ws, c, cs);
+	}
+#endif
 	// unique items
 	for (i = 0; i < NUM_UITEM; i++) {
 		const UniqItemData& ui = UniqueItemList[i];
