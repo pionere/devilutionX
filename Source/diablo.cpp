@@ -346,7 +346,6 @@ void FreeLevelMem()
 	FreeMissiles();
 	FreeMonsters();
 	FreeObjectGFX();
-	FreeMonsterSnd();
 	FreeTownerGFX();
 }
 

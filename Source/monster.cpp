@@ -4538,6 +4538,7 @@ void FreeMonsters()
 	}
 
 	FreeMissiles2();
+	FreeMonsterSnd();
 }
 
 bool MonDirOK(int mnum, int mdir)
