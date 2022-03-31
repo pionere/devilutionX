@@ -4863,7 +4863,7 @@ void MissToMonst(int mi)
 	// TODO: use CheckPlrCol instead?
 	if (tnum > 0) {
 		tnum--;
-		MonHitPlr(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
+		MonHitPlr(mnum, tnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
 			KnockbackPlr(tnum, mon->_mdir);
 		}
@@ -4875,7 +4875,7 @@ void MissToMonst(int mi)
 		tnum--;
 		if (tnum >= MAX_MINIONS)
 			return;
-		MonHitMon(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
+		MonHitMon(mnum, tnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (tnum == dMonster[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
 			MonGetKnockback(tnum, mis->_misx, mis->_misy);
 		}
