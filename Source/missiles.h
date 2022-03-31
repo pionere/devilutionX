@@ -25,8 +25,8 @@ void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hda
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl);
 void DeleteMissile(int mi, int idx);
 void LoadMissileGFX(BYTE midx);
-void InitMissileGFX();
-void FreeMissileGFX();
+void InitGameMissileGFX();
+void FreeGameMissileGFX();
 void FreeMonMissileGFX();
 void InitMissiles();
 void ProcessMissiles();

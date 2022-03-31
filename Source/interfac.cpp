@@ -229,7 +229,6 @@ void LoadGameLevel(int lvldir)
 			IncProgress();
 		}
 		IncProgress();
-		InitMissileGFX();
 		IncProgress();
 
 		if (lvldir == ENTRY_RTNLVL)
@@ -263,7 +262,6 @@ void LoadGameLevel(int lvldir)
 		IncProgress();
 		InitMonsters();
 		IncProgress();
-		InitMissileGFX();
 		IncProgress();
 		InitDead();
 		IncProgress();

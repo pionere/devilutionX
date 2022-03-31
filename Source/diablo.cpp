@@ -343,7 +343,6 @@ void FreeLevelMem()
 	sound_stop();
 
 	FreeLvlDungeon();
-	FreeMissileGFX();
 	FreeMonsters();
 	FreeObjectGFX();
 	FreeTownerGFX();
@@ -1488,6 +1487,7 @@ static WNDPROC InitGameUI()
 	for (i = 0; i < (IsLocalGame ? 1 : MAX_PLRS); i++)
 		InitPlrGFXMem(i); // gfx
 	InitItemGFX(); // gfx + values (some stored in savefiles)
+	InitGameMissileGFX(); // gfx
 	InitLightGFX(); // 'values'
 	InitGameEffects(); // sfx
 	InitCursorGFX(); // gfx + values
@@ -1530,6 +1530,7 @@ static void FreeGameUI()
 		FreePlayerGFX(i);
 
 	FreeItemGFX();
+	FreeGameMissileGFX();
 	FreeGameEffects();
 	FreeCursorGFX();
 #if DEBUG_MODE

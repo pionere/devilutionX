@@ -1396,7 +1396,7 @@ void LoadMissileGFX(BYTE midx)
 	}
 }
 
-void InitMissileGFX()
+void InitGameMissileGFX()
 {
 	int i;
 
@@ -1419,7 +1419,7 @@ static void FreeMissileGFX(int midx, int n)
 	}
 }
 
-void FreeMissileGFX()
+void FreeGameMissileGFX()
 {
 	int i;
 
