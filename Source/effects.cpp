@@ -1181,7 +1181,7 @@ static void stream_update()
 	}
 }
 
-void InitMonsterSND(int midx)
+void InitMonsterSFX(int midx)
 {
 	char name[MAX_PATH];
 	int i, n, j;
@@ -1206,7 +1206,7 @@ void InitMonsterSND(int midx)
 	}
 }
 
-void FreeMonsterSnd()
+void FreeMonsterSFX()
 {
 	MapMonData* cmon;
 	int i, j, k;

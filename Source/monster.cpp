@@ -315,7 +315,7 @@ static int AddMonsterType(int type, BOOL scatter)
 		mapMonTypes[i].cmPlaceScatter = FALSE;
 		monstimgtot -= monfiledata[monsterdata[type].moFileNum].moImage;
 		InitMonsterGFX(i);
-		InitMonsterSND(i);
+		InitMonsterSFX(i);
 	}
 
 	mapMonTypes[i].cmPlaceScatter |= scatter;
@@ -4537,8 +4537,8 @@ void FreeMonsters()
 		}
 	}
 
-	FreeMissiles2();
-	FreeMonsterSnd();
+	FreeMonMissileGFX();
+	FreeMonsterSFX();
 }
 
 bool MonDirOK(int mnum, int mdir)

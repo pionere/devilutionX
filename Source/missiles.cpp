@@ -1419,7 +1419,7 @@ static void FreeMissileGFX(int midx, int n)
 	}
 }
 
-void FreeMissiles()
+void FreeMissileGFX()
 {
 	int i;
 
@@ -1429,7 +1429,7 @@ void FreeMissiles()
 	}
 }
 
-void FreeMissiles2()
+void FreeMonMissileGFX()
 {
 	int i;
 

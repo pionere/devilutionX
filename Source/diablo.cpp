@@ -343,7 +343,7 @@ void FreeLevelMem()
 	sound_stop();
 
 	FreeLvlDungeon();
-	FreeMissiles();
+	FreeMissileGFX();
 	FreeMonsters();
 	FreeObjectGFX();
 	FreeTownerGFX();

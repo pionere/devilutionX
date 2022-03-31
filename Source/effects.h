@@ -21,8 +21,8 @@ extern const int sgSFXSets[NUM_SFXSets][NUM_CLASSES];
 #ifndef NOSOUND
 bool effect_is_playing(int nSFX);
 void stream_stop();
-void InitMonsterSND(int midx);
-void FreeMonsterSnd();
+void InitMonsterSFX(int midx);
+void FreeMonsterSFX();
 void PlayEffect(int mnum, int mode);
 void PlaySFX(int psfx, int rndCnt = 1);
 void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1);
