@@ -277,7 +277,7 @@ static void diablo_init()
 	InitSound();
 	gbSndInited = true;
 
-	InitUiEffects(); // sfx
+	InitUiSFX(); // sfx
 
 	InitControls();
 }
@@ -305,7 +305,7 @@ static void diablo_deinit()
 	// FreeGameUI(); -- TODO: enable if necessary
 	if (gbSndInited) {
 		sound_stop(); // stop click-effect
-		FreeUiEffects();
+		FreeUiSFX();
 		FreeSound();
 	}
 	if (gbWasUiInit)
@@ -1489,7 +1489,7 @@ static WNDPROC InitGameUI()
 	InitItemGFX(); // gfx + values (some stored in savefiles)
 	InitGameMissileGFX(); // gfx
 	InitLightGFX(); // 'values'
-	InitGameEffects(); // sfx
+	InitGameSFX(); // sfx
 	InitCursorGFX(); // gfx + values
 
 	gbDeathflag = MDM_ALIVE;
@@ -1531,7 +1531,7 @@ static void FreeGameUI()
 
 	FreeItemGFX();
 	FreeGameMissileGFX();
-	FreeGameEffects();
+	FreeGameSFX();
 	FreeCursorGFX();
 #if DEBUG_MODE
 	FreeDebugGFX();

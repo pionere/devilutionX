@@ -1375,7 +1375,7 @@ static void priv_sound_init(BYTE bLoadMask)
 	}
 }
 
-void InitGameEffects()
+void InitGameSFX()
 {
 #ifdef HELLFIRE
 	BYTE mask = sfx_MISC | sfx_HELLFIRE;
@@ -1394,17 +1394,17 @@ void InitGameEffects()
 	priv_sound_init(mask);
 }
 
-void InitUiEffects()
+void InitUiSFX()
 {
 	priv_sound_init(sfx_UI);
 }
 
-void FreeGameEffects()
+void FreeGameSFX()
 {
 	priv_sound_free(~(sfx_UI | sfx_STREAM));
 }
 
-void FreeUiEffects()
+void FreeUiSFX()
 {
 	priv_sound_free(sfx_UI);
 }
