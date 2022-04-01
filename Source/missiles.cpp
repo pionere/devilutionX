@@ -1593,7 +1593,7 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	int i, dam;
 
 	mis = &missile[mi];
-	mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0] - 1;
+	mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0];
 
 	if (misource != -1) {
 		assert((unsigned)misource < MAX_PLRS);
