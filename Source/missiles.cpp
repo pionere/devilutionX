@@ -2062,6 +2062,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		mis->_mitxoff = missile[midir]._mitxoff;
 		mis->_mityoff = missile[midir]._mityoff;
 	}
+	range = 8;
 	if (micaster == MST_PLAYER) {
 		mindam = 1;
 		maxdam = plx(misource)._pMagic + (spllvl << 3);
@@ -2071,17 +2072,14 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 			// standard lightning from a monster
 			mindam = monsters[misource]._mMinDamage;
 			maxdam = monsters[misource]._mMaxDamage << 1;
-			range = 10;
 		} else {
 			// lightning from a retreating MT_FAMILIAR
 			mindam = 1;
 			maxdam = monsters[misource]._mLevel;
-			range = 8;
 		}
 	} else {
 		mindam = currLvl._dLevel;
 		maxdam = mindam + currLvl._dLevel;
-		range = 8;
 	}
 
 	mis->_miRange = range;
