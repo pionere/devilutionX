@@ -2124,7 +2124,6 @@ static bool CheckIfTrig(int x, int y)
 }
 
 /**
- * Var1: animation
  * Var3: triggered
  */
 int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
@@ -2167,26 +2166,23 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 }
 
 /**
- * Var1: animation
  * Var3: triggered (only for MIS_TOWN)
  */
 int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
-	constexpr int P_RANGE = 100;
+	MissileStruct* mis;
 
 	mis = &missile[mi];
 	mis->_mix = mis->_misx = dx;
 	mis->_miy = mis->_misy = dy;
-	mis->_miRange = P_RANGE;
+	mis->_miRange = 1;
+	mis->_miLid = AddLight(dx, dy, spllvl >= 0 ? 1 : 15);
 	if (spllvl >= 0) {
 		PlaySfxLoc(LS_SENTINEL, dx, dy);
 		if (misource == mypnum)
 			NetSendCmdLocBParam1(CMD_ACTIVATEPORTAL, dx, dy, currLvl._dLevelIdx);
-		mis->_miVar1 = P_RANGE - mis->_miAnimLen;
 	} else {
 		// a recreated portal (by AddWarpMissile or InitVP*Trigger)
-		mis->_miVar1 = P_RANGE - 1;
 		// make sure the portal is in its final form even on the first frame
 		SetMissDir(mi, 1);
 		PutMissile(mi);
@@ -3538,10 +3534,10 @@ void MI_Lightning(int mi)
 
 void MI_Portal(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	static_assert(MAX_LIGHT_RAD >= 15, "MI_Portal needs at least light-radius of 15.");
 	int ExpLight[17] = { 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 };
-	PlayerStruct *p;
+	PlayerStruct* p;
 
 	mis = &missile[mi];
 	if (mis->_miRange == 0) {
@@ -3549,20 +3545,15 @@ void MI_Portal(int mi)
 		AddUnLight(mis->_miLid);
 		return;
 	}
-	if (mis->_miRange > 1)
-		mis->_miRange--;
-	if (mis->_miRange == mis->_miVar1) {
-		SetMissDir(mi, 1);
-		if (currLvl._dType != DLV_TOWN && mis->_miLid == NO_LIGHT)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[lengthof(ExpLight) - 1]);
-	} else if (mis->_miDir == 0 && currLvl._dType != DLV_TOWN) {
-		if (mis->_miLid == NO_LIGHT)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
-		else {
-			assert(mis->_miAnimLen < lengthof(ExpLight));
-			assert(misfiledata[MIS_RPORTAL].mfAnimLen[0] < lengthof(ExpLight));
-			assert(misfiledata[MIS_TOWN].mfAnimLen[0] < lengthof(ExpLight));
-			ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
+	if (mis->_miDir == 0) {
+		assert(mis->_miAnimLen < lengthof(ExpLight));
+		assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < lengthof(ExpLight));
+		assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < lengthof(ExpLight));
+		ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
+		assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]);
+		if (mis->_miAnimFrame == misfiledata[MFILE_PORTAL].mfAnimLen[0] /*&&
+			mis->_miAnimCnt == misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] - 1*/) {
+			SetMissDir(mi, 1);
 		}
 	}
 
