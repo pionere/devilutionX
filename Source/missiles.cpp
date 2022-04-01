@@ -4269,25 +4269,6 @@ void MI_Elemental(int mi)
 	AddUnLight(mis->_miLid);
 }
 
-/*void MI_FireExp(int mi)
-{
-	MissileStruct* mis;
-	assert(misfiledata[MFILE_BIGEXP].mfAnimLen[0] <= MAX_LIGHT_RAD);
-
-	mis = &missile[mi];
-	mis->_miRange--;
-	if (mis->_miRange != 0) {
-		if (mis->_miLid == NO_LIGHT)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, mis->_miAnimFrame);
-		else
-			ChangeLightRadius(mis->_miLid, mis->_miAnimFrame);
-		PutMissile(mi);
-		return;
-	}
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
-}*/
-
 void MI_Resurrect(int mi)
 {
 	missile[mi]._miRange--;
