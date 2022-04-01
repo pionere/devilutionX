@@ -3612,7 +3612,7 @@ void MI_FireWave(int mi)
 	MissileStruct* mis;
 	int range;
 	static_assert(MAX_LIGHT_RAD >= 12, "MI_FireWave needs at least light-radius of 12.");
-	int ExpLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
+	int ExpLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 8, 9, 9 };
 
 	mis = &missile[mi];
 	mis->_mix--;
