@@ -3130,6 +3130,8 @@ static bool Sentfire(int mi, int sx, int sy)
 		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
 		// mis->_miRndSeed = GetRndSeed();
 		SetMissDir(mi, 2);
+		mis->_miAnimFrame = misfiledata[MFILE_GUARD].mfAnimLen[2];
+		mis->_miAnimAdd = -1;
 		return true;
 	}
 
@@ -3706,10 +3708,11 @@ void MI_Guardian(int mi)
 		break;
 	case 2:
 		// start stand after fire
-		if (mis->_miAnimFrame == misfiledata[MFILE_GUARD].mfAnimLen[2] /*&&
+		if (mis->_miAnimFrame == 1 /*&&
 			mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[2] - 1*/) {
 			SetMissDir(mi, 1);
 			mis->_miAnimFrame = 2; // skip check frame to add delay between attacks
+			mis->_miAnimAdd = 1;
 		}
 		break;
 	default:
