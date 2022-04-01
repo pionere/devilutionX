@@ -2244,7 +2244,6 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 }
 
 /**
- * Var1: animation
  * Var3: x coordinate of the missile-light
  * Var4: y coordinate of the missile-light
  */
@@ -2267,7 +2266,6 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis->_miMinDam = mindam << 6;
 	mis->_miMaxDam = maxdam << 6;
 	mis->_miRange = 255;
-	//mis->_miVar1 = 0;
 	//mis->_miVar3 = 0;
 	//mis->_miVar4 = 0;
 	mis->_mix++;
@@ -3611,7 +3609,7 @@ void MI_Flash2(int mi)
 
 void MI_FireWave(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int range;
 	static_assert(MAX_LIGHT_RAD >= 12, "MI_FireWave needs at least light-radius of 12.");
 	int ExpLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
@@ -3620,12 +3618,6 @@ void MI_FireWave(int mi)
 	mis->_mix--;
 	mis->_miy--;
 	mis->_miyoff += TILE_HEIGHT;
-	mis->_miVar1++;
-	if (mis->_miVar1 == misfiledata[MFILE_FIREWAL].mfAnimLen[0]) {
-		SetMissDir(mi, 1);
-		//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
-		mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
-	}
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
@@ -3651,6 +3643,12 @@ void MI_FireWave(int mi)
 			assert(mis->_miAnimLen < lengthof(ExpLight));
 			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(ExpLight));
 			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
+		}
+		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0] /*&&
+			mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] - 1*/) {
+			SetMissDir(mi, 1);
+			//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
+			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 		}
 	}
 	mis->_mix++;
