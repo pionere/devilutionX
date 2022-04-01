@@ -3341,7 +3341,7 @@ void MI_Firewall(int mi)
 		}
 		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0] &&
 			// mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] &&
-			mis->_miAnimCnt != -1) {
+			mis->_miAnimAdd >= 0) {
 			// start 'stand' after spawn
 			SetMissDir(mi, 1);
 			//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
@@ -3665,12 +3665,12 @@ void MI_Guardian(int mi)
 
 		if (mis->_miAnimFrame == misfiledata[MFILE_GUARD].mfAnimLen[0] &&
 			// mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1 &&
-			mis->_miAnimAdd != -1) {
+			mis->_miAnimAdd >= 0) {
 			// start stand after spawn
 			SetMissDir(mi, 1);
 		} else if (mis->_miAnimFrame == 1 &&
 			// mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1 &&
-			mis->_miAnimAdd == -1) {
+			mis->_miAnimAdd < 0) {
 			// done after collapse
 			mis->_miDelFlag = TRUE;
 			AddUnLight(mis->_miLid);
