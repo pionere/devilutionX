@@ -2813,7 +2813,7 @@ int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 			for (j = (spllvl >> 1) + 2; j > 0; j--) {
 				nx += XDirAdd[dir];
 				ny += YDirAdd[dir];
-				if (nx <= 0 || nx >= MAXDUNX || ny <= 0 || ny >= MAXDUNY)
+				if (!IN_DUNGEON_AREA(nx, ny))
 					break;
 				if (nMissileTable[dPiece[nx][ny]])
 					break;
