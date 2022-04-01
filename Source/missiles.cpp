@@ -2276,15 +2276,11 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	return MIRES_DONE;
 }
 
-/**
- * Var1: animation
- * Var2: animation
- */
 int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int i, j, tx, ty, range;
-	const char *cr;
+	int i, j, tx, ty;
+	const char* cr;
 
 	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -2304,20 +2300,7 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 					mis->_misy = ty;
 					static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
 					mis->_miLid = AddLight(tx, ty, 1);
-
-					range = spllvl + (plx(misource)._pLevel >> 1);
-					// TODO: add support for spell duration modifier
-					//range += (range * plx(misource)._pISplDur) >> 7;
-					//if (range > 30)
-					//	range = 30;
-					range <<= 4;
-					//if (range < 30)
-					//	range = 30;
-
-					mis->_miRange = range;
-					assert(misfiledata[MFILE_GUARD].mfAnimLen[0] <= 16);
-					mis->_miVar1 = range - misfiledata[MFILE_GUARD].mfAnimLen[0];
-					//mis->_miVar2 = 0;
+					mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
 					return MIRES_DONE;
 				}
 			}
@@ -3152,7 +3135,6 @@ static bool Sentfire(int mi, int sx, int sy)
 		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
 		// mis->_miRndSeed = GetRndSeed();
 		SetMissDir(mi, 2);
-		mis->_miVar2 = 3;
 		return true;
 	}
 
@@ -3679,52 +3661,67 @@ void MI_FireWave(int mi)
 
 void MI_Guardian(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int i, j, tx, ty;
 	bool ex;
-	const char *cr;
+	const char* cr;
 
 	mis = &missile[mi];
-	mis->_miRange--;
-
-	if (mis->_miVar2 > 0) {
-		mis->_miVar2--;
-	}
-	if (mis->_miRange == mis->_miVar1 || (mis->_miDir == 2 && mis->_miVar2 == 0)) {
-		SetMissDir(mi, 1);
-	}
-
-	if (!(mis->_miRange % 16)) {
-		ex = false;
-		for (i = 6; i >= 0 && !ex; i--) {
-			cr = &CrawlTable[CrawlNum[i]];
-			for (j = *cr; j > 0; j--) {
-				tx = mis->_mix + *++cr;
-				ty = mis->_miy + *++cr;
-				ex = Sentfire(mi, tx, ty);
-				if (ex)
-					break;
-			}
-		}
-	}
-
-	if (mis->_miRange == misfiledata[MFILE_GUARD].mfAnimLen[0] - 1) {
-		SetMissDir(mi, 0);
-		mis->_miAnimFrame = misfiledata[MFILE_GUARD].mfAnimLen[0];
-		mis->_miAnimAdd = -1;
-	}
-
-	if (mis->_miDir == 0) {
+	switch (mis->_miDir) {
+	case 0: // collapse/spawn
 		assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);
 		ChangeLightRadius(mis->_miLid, (1 + mis->_miAnimFrame) >> 1);
-	}
 
-	if (mis->_miRange != 0) {
-		PutMissile(mi);
-		return;
+		if (mis->_miAnimFrame == misfiledata[MFILE_GUARD].mfAnimLen[0] &&
+			// mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1 &&
+			mis->_miAnimAdd != -1) {
+			// start stand after spawn
+			SetMissDir(mi, 1);
+		} else if (mis->_miAnimFrame == 1 &&
+			// mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1 &&
+			mis->_miAnimAdd == -1) {
+			// done after collapse
+			mis->_miDelFlag = TRUE;
+			AddUnLight(mis->_miLid);
+			return;
+		}
+		break;
+	case 1: // active
+		if (mis->_miAnimFrame == 2 /*&& mis->_miAnimCnt == 0*/) {
+			// check for an enemy
+			if (--mis->_miRange != 0) {
+				ex = false;
+				for (i = 6; i >= 0 && !ex; i--) {
+					cr = &CrawlTable[CrawlNum[i]];
+					for (j = *cr; j > 0; j--) {
+						tx = mis->_mix + *++cr;
+						ty = mis->_miy + *++cr;
+						ex = Sentfire(mi, tx, ty);
+						if (ex)
+							break;
+					}
+				}
+			} else {
+				// start collapse
+				SetMissDir(mi, 0);
+				mis->_miAnimFrame = misfiledata[MFILE_GUARD].mfAnimLen[0];
+				mis->_miAnimAdd = -1;
+			}
+		}
+		break;
+	case 2:
+		// start stand after fire
+		if (mis->_miAnimFrame == misfiledata[MFILE_GUARD].mfAnimLen[2] /*&&
+			mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[2] - 1*/) {
+			SetMissDir(mi, 1);
+			mis->_miAnimFrame = 2; // skip check frame to add delay between attacks
+		}
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
+	PutMissile(mi);
 }
 
 void MI_Chain(int mi)
