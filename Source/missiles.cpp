@@ -1687,6 +1687,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		dy += YDirAdd[midir];
 	}
 	midir = GetDirection16(sx, sy, dx, dy);
+	mtype = MFILE_ARROWS;
 	if (micaster == MST_PLAYER) {
 		av += MIS_SHIFTEDVEL((int)plx(misource)._pIArrowVelBonus);
 		//int dam = plx(misource)._pIMaxDam + plx(misource)._pIMinDam;
@@ -1701,13 +1702,16 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			} else {
 				mtype = mdam >= adam ? MFILE_MARROW : MFILE_PARROW;
 			}
-			missile[mi]._miAnimType = mtype;
-			SetMissDir(mi, midir);
 		}
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
 	mis = &missile[mi];
-	mis->_miAnimFrame = midir + 1; // only for normal arrows
+	if (mtype == MFILE_ARROWS) {
+		mis->_miAnimFrame = midir + 1;
+	} else {
+		mis->_miAnimType = mtype;
+		SetMissDir(mi, midir);
+	}
 	mis->_miRange = 255;
 	if (micaster == MST_PLAYER) {
 		// mis->_miMinDam = plx(misource)._pIPcMinDam;
