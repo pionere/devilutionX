@@ -1304,7 +1304,7 @@ void LevelDeltaExport(uint32_t turn)
 			tmis->smiMinDam = mis->_miMinDam;
 			tmis->smiMaxDam = mis->_miMaxDam;
 			tmis->smiRndSeed = mis->_miRndSeed;
-			tmis->smiRange = mis->_miRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+			tmis->smiRange = mis->_miRange;
 			tmis->smiDist = mis->_miDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 			tmis->smiLidRadius = mis->_miLid == NO_LIGHT ? 0 : LightList[mis->_miLid]._lradius;
 			tmis->smiVar1 = mis->_miVar1;
@@ -1596,7 +1596,7 @@ void LevelDeltaLoad()
 		mis->_miMinDam = tmis->smiMinDam;
 		mis->_miMaxDam = tmis->smiMaxDam;
 		mis->_miRndSeed = tmis->smiRndSeed;
-		mis->_miRange = tmis->smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+		mis->_miRange = tmis->smiRange;
 		mis->_miDist = tmis->smiDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 		mis->_miVar1 = tmis->smiVar1;
 		mis->_miVar2 = tmis->smiVar2;

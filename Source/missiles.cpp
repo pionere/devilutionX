@@ -1222,7 +1222,7 @@ static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 
 	if (!nodel) {
 		mis = &missile[mi];
-		mis->_miRange = 0;
+		mis->_miRange = -1;
 		mds = &missiledata[mis->_miType];
 		if (mds->miSFX != SFX_NONE)
 			PlaySfxLoc(mds->miSFX, mis->_mix, mis->_miy, mds->miSFXCnt);
@@ -1352,7 +1352,7 @@ static void SyncChargeAnim(int mi)
 static void SetMissDir(int mi, int dir)
 {
 	missile[mi]._miDir = dir;
-	missile[mi]._miAnimCnt = 0;
+	missile[mi]._miAnimCnt = -1;
 	missile[mi]._miAnimFrame = 1;
 	SyncMissAnim(mi);
 }
@@ -1563,7 +1563,7 @@ int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 {
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(8));
 	// missile[mi]._miMinDam = missile[mi]._miMaxDam = 0;
-	missile[mi]._miRange = 9;
+	missile[mi]._miRange = 9 - 1;
 	missile[mi]._miVar1 = midir;
 	//PutMissile(mi);
 	return MIRES_DONE;
@@ -1717,7 +1717,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		// mis->_miMinDam = plx(misource)._pIPcMinDam;
 		// mis->_miMaxDam = plx(misource)._pIPcMaxDam;
 		if (mis->_miType == MIS_PBARROW)
-			mis->_miRange = 1 + 4;
+			mis->_miRange = 4;
 		else if (mis->_miType == MIS_ASARROW) {
 			if (!LineClear(sx, sy, dx, dy))
 				return MIRES_FAIL_DELETE;
@@ -1801,7 +1801,7 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 	}
 
 	mis = &missile[mi];
-	mis->_miRange = 2;
+	mis->_miRange = 1;
 	mis->_mix = dx;
 	mis->_miy = dy;
 	dPlayer[dx][dy] = -(misource + 1);
@@ -1930,7 +1930,7 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 				mis->_misx = tx;
 				mis->_misy = ty;
 				dPlayer[tx][ty] = -(misource + 1);
-				mis->_miRange = 2;
+				mis->_miRange = 1;
 				return MIRES_DONE;
 			}
 		}
@@ -1956,7 +1956,7 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		maxdam = 6 + currLvl._dLevel;
 	}
 	mis = &missile[mi];
-	mis->_miRange = 4 * TILE_WIDTH / 16;
+	mis->_miRange = 3 * TILE_WIDTH / 16 + 2; // 4 normal tiles
 	mis->_miMinDam = mindam << (6 - 2); // * 16 / 64
 	mis->_miMaxDam = maxdam << (6 - 2); // * 16 / 64
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
@@ -2062,11 +2062,11 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		mis->_mitxoff = missile[midir]._mitxoff;
 		mis->_mityoff = missile[midir]._mityoff;
 	}
-	range = 8;
+	range = 8 - 1;
 	if (micaster == MST_PLAYER) {
 		mindam = 1;
 		maxdam = plx(misource)._pMagic + (spllvl << 3);
-		range = (spllvl >> 1) + 6;
+		range = (spllvl >> 1) + 6 - 1;
 	} else if (micaster == MST_MONSTER) {
 		if (spllvl == 0) {
 			// standard lightning from a monster
@@ -2160,7 +2160,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
 		if (mis->_miType == MIS_TOWN && mis->_miSource == misource)
-			mis->_miRange = 0;
+			mis->_miRange = -1;
 	}
 	// setup the new portal
 	return AddPortal(mi, 0, 0, tx, ty, 0, 0, misource, spllvl);
@@ -2720,7 +2720,7 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		maxdam += maxdam >> 3;
 	}
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
-	mis->_miRange = 1;
+	mis->_miRange = 0;
 	return MIRES_DONE;
 }
 
@@ -2765,7 +2765,7 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 					mis->_miVar6 = ty;
 					mis->_miVar7 = FALSE;
 					mis->_miVar8 = FALSE;
-					mis->_miRange = 1 + (spllvl >> 1);
+					mis->_miRange = (spllvl >> 1);
 					return MIRES_DONE;
 				}
 			}
@@ -2927,7 +2927,7 @@ int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis = &missile[mi];
 	mis->_miMinDam = (2 + currLvl._dLevel) << (6 - 2);
 	mis->_miMaxDam = mis->_miMinDam * 2;
-	mis->_miRange = 9;
+	mis->_miRange = 8;
 	return MIRES_DONE;
 }*/
 
@@ -3146,7 +3146,6 @@ void MI_Arrow(int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	mis->_miDist++;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
@@ -3154,7 +3153,8 @@ void MI_Arrow(int mi)
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
 		CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 	}
-	if (mis->_miRange != 0) {
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
@@ -3185,7 +3185,6 @@ void MI_Firebolt(int mi)
 	int xptype;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	//omx = mis->_mitxoff;
 	//omy = mis->_mityoff;
 	mis->_mitxoff += mis->_mixvel;
@@ -3194,7 +3193,8 @@ void MI_Firebolt(int mi)
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
 		CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 	}
-	if (mis->_miRange != 0) {
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
 		if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
 			mis->_miVar1 = mis->_mix;
 			mis->_miVar2 = mis->_miy;
@@ -3269,7 +3269,6 @@ void MI_Lightball(int mi)
 	int range;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
@@ -3278,7 +3277,8 @@ void MI_Lightball(int mi)
 		if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 			mis->_miRange = range;
 	}
-	if (mis->_miRange != 0) {
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
@@ -3290,12 +3290,12 @@ void MI_Lightball(int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	CheckMissileCol(mi, mis->_mix, mis->_miy, false);
-	if (mis->_miRange != 0) {
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
@@ -3309,7 +3309,7 @@ void MI_Acidpud(int mi)
 	mis = &missile[mi];
 	CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 	mis->_miRange--;
-	if (mis->_miRange == 0) {
+	if (mis->_miRange < 0) {
 		if (mis->_miDir != 0) {
 			mis->_miDelFlag = TRUE;
 			return;
@@ -3328,7 +3328,7 @@ void MI_Firewall(int mi)
 	mis = &missile[mi];
 	CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 	mis->_miRange--;
-	if (mis->_miRange == 0) {
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 		return;
@@ -3380,7 +3380,7 @@ void MI_Firewall(int mi)
 		CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 	mx = mis->_mix;
 	my = mis->_miy;
-	if (mis->_miRange != 0) {
+	if (mis->_miRange >= 0) {
 		if (mx != mis->_miVar1 || my != mis->_miVar2) {
 			mis->_miVar1 = mx;
 			mis->_miVar2 = my;
@@ -3406,9 +3406,9 @@ void MI_HorkSpawn(int mi)
 	const char *cr;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	CheckMissileCol(mi, mis->_mix, mis->_miy, false);
-	if (mis->_miRange != 0) {
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
@@ -3440,7 +3440,8 @@ void MI_Rune(int mi)
 	const char *cr;
 
 	mis = &missile[mi];
-	if (--mis->_miRange == 0) {
+	mis->_miRange--;
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
@@ -3467,11 +3468,11 @@ void MI_Rune(int mi)
 	int range;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	range = mis->_miRange;
 	if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 		mis->_miRange = range;
-	if (mis->_miRange != 0) {
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
@@ -3511,11 +3512,11 @@ void MI_LightningC(int mi)
 			    mis->_miSpllvl);
 			// mis->_miRndSeed = GetRndSeed();
 		} else {
-			mis->_miRange = 1;
+			mis->_miRange = 0;
 		}
 	}
 	mis->_miRange--;
-	if (mis->_miRange == 0) {
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 	}
 }
@@ -3526,11 +3527,11 @@ void MI_Lightning(int mi)
 	int range;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	range = mis->_miRange;
 	if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 		mis->_miRange = range;
-	if (mis->_miRange != 0) {
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
@@ -3546,7 +3547,7 @@ void MI_Portal(int mi)
 	PlayerStruct* p;
 
 	mis = &missile[mi];
-	if (mis->_miRange == 0) {
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 		return;
@@ -3576,32 +3577,32 @@ void MI_Portal(int mi)
 
 void MI_Flash(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
-	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
-	CheckSplashColFull(mi);
 	mis = &missile[mi];
-	if (mis->_miCaster == MST_OBJECT)
-		CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 	mis->_miRange--;
-	if (mis->_miRange != 0) {
-		PutMissile(mi);
+	if (mis->_miRange < 0) {
+		mis->_miDelFlag = TRUE;
 		return;
 	}
-	mis->_miDelFlag = TRUE;
+	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
+	CheckSplashColFull(mi);
+	if (mis->_miCaster == MST_OBJECT)
+		CheckMissileCol(mi, mis->_mix, mis->_miy, true);
+	PutMissile(mi);
 }
 
 void MI_Flash2(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miRange != 0) {
-		PutMissileF(mi, BFLAG_MISSILE_PRE);
+	if (mis->_miRange < 0) {
+		mis->_miDelFlag = TRUE;
 		return;
 	}
-	mis->_miDelFlag = TRUE;
+	PutMissileF(mi, BFLAG_MISSILE_PRE);
 }
 
 void MI_FireWave(int mi)
@@ -3619,7 +3620,7 @@ void MI_FireWave(int mi)
 	range = mis->_miRange;
 	if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 		mis->_miRange = range;
-	if (mis->_miRange == 0) {
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 		return;
@@ -3680,9 +3681,10 @@ void MI_Guardian(int mi)
 		}
 		break;
 	case 1: // active
-		if (mis->_miAnimFrame == 2 /*&& mis->_miAnimCnt == 0*/) {
+		if (mis->_miAnimFrame == 1 /*&& mis->_miAnimCnt == 0*/) {
 			// check for an enemy
-			if (--mis->_miRange != 0) {
+			mis->_miRange--;
+			if (mis->_miRange >= 0) {
 				ex = false;
 				for (i = 6; i >= 0 && !ex; i--) {
 					cr = &CrawlTable[CrawlNum[i]];
@@ -3723,7 +3725,6 @@ void MI_Chain(int mi)
 	int mx, my, sd, dx, dy;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
@@ -3765,7 +3766,8 @@ void MI_Chain(int mi)
 			mis->_miRange = 0;
 		}
 	}
-	if (mis->_miRange != 0) {
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
@@ -3781,7 +3783,7 @@ void MI_Misexp(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miRange != 0) {
+	if (mis->_miRange >= 0) {
 		if (mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		else {
@@ -3803,7 +3805,7 @@ void MI_MiniExp(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miRange != 0) {
+	if (mis->_miRange >= 0) {
 		if (mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		else {
@@ -3829,7 +3831,7 @@ void MI_Acidsplat(int mi)
 		mis->_miyoff -= 32;
 	}
 	mis->_miRange--;
-	if (mis->_miRange != 0) {
+	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
@@ -3845,11 +3847,11 @@ void MI_Teleport(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miRange == 0) {
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	assert(mis->_miRange == 1);
+	assert(mis->_miRange == 0);
 	pnum = mis->_miSource;
 	px = plr._px;
 	py = plr._py;
@@ -3880,7 +3882,7 @@ void MI_Stone(int mi)
 	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	// assert(mon->_mmode == MM_STONE);
 	mis->_miRange--;
-	if (mis->_miRange == 0) {
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 		if (mon->_mhitpoints >= (1 << 6))
 			mon->_mmode = mis->_miVar1;
@@ -3906,8 +3908,10 @@ void MI_ApocaExp(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miRange == 0)
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
+		return;
+	}
 	if (!mis->_miVar1) {
 		if (CheckMissileCol(mi, mis->_mix, mis->_miy, true))
 			mis->_miVar1 = TRUE;
@@ -4067,7 +4071,7 @@ void MI_WallC(int mi)
 	mis = &missile[mi];
 	mis->_miDist++;
 	mis->_miRange--;
-	if (mis->_miRange == 0) {
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 	}
 //#ifdef HELLFIRE
@@ -4114,11 +4118,11 @@ void MI_Inferno(int mi)
 		mis->_miVar2--;
 		return;
 	}
-	mis->_miRange--;
 	k = mis->_miRange;
 	if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 		mis->_miRange = k;
-	if (mis->_miRange == 0) {
+	mis->_miRange--;
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 		return;
@@ -4141,7 +4145,6 @@ void MI_InfernoC(int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
@@ -4167,7 +4170,8 @@ void MI_InfernoC(int mi)
 		mis->_miVar2 = mis->_miy;
 		mis->_miVar3++;
 	}
-	if (mis->_miRange == 0 || mis->_miVar3 == 3)
+	mis->_miRange--;
+	if (mis->_miRange < 0 || mis->_miVar3 == 3)
 		mis->_miDelFlag = TRUE;
 }
 
@@ -4179,7 +4183,7 @@ void MI_InfernoC(int mi)
 	CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 
 	mis->_miRange--;
-	if (mis->_miRange == 0) {
+	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
@@ -4193,7 +4197,6 @@ void MI_Cbolt(int mi)
 	int bpath[16] = { -1, 0, 1, -1, 0, 1, -1, -1, 0, 0, 1, 1, 0, 1, -1, 0 };
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	if (mis->_miAnimType != MFILE_LGHNING) {
 		if (mis->_miVar3 == 0) {
 			md = (mis->_miVar2 + bpath[mis->_miVar4]) & 7;
@@ -4216,7 +4219,8 @@ void MI_Cbolt(int mi)
 		}
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar1);
 	}
-	if (mis->_miRange != 0) {
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
@@ -4236,10 +4240,10 @@ void MI_Elemental(int mi)
 	cx = mis->_mix;
 	cy = mis->_miy;
 	if ((cx != mis->_misx || cy != mis->_misy)                       // not on the starting position
-	 && (CheckMissileCol(mi, cx, cy, false) || mis->_miRange != 0)   // did not hit a wall
+	 && (CheckMissileCol(mi, cx, cy, false) || mis->_miRange >= 0)   // did not hit a wall
 	 && !mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) { // destination reached the first time
 		mis->_miVar3 = TRUE;
-		mis->_miRange = 1;
+		mis->_miRange = 0;
 		if (FindClosest(cx, cy, dx, dy)) {
 			sd = GetDirection8(cx, cy, dx, dy);
 		} else {
@@ -4255,7 +4259,7 @@ void MI_Elemental(int mi)
 		mis->_miVar2 = cy;
 		ChangeLightXY(mis->_miLid, cx, cy);
 	}
-	if (mis->_miRange != 0) {
+	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
@@ -4272,7 +4276,7 @@ void MI_Elemental(int mi)
 void MI_Resurrect(int mi)
 {
 	missile[mi]._miRange--;
-	if (missile[mi]._miRange != 0) {
+	if (missile[mi]._miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}

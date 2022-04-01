@@ -490,7 +490,7 @@ typedef struct MissileStruct {
 	int _miMinDam;
 	int _miMaxDam;
 	int _miRndSeed;
-	int _miRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+	int _miRange;
 	int _miDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 	unsigned _miLid;
 	int _miVar1;
