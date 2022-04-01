@@ -38,8 +38,8 @@ inline bool effect_is_playing(int nSFX) { return false; }
 inline void stream_stop() { }
 inline void PlaySFX(int psfx, int rndCnt = 1) { if (rndCnt != 1) random_(165, rndCnt); }
 inline void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1) { PlaySFX(-1, rndCnt); }
-inline void InitMonsterSND(int midx) { }
-inline void FreeMonsterSnd() { }
+inline void InitMonsterSFX(int midx) { }
+inline void FreeMonsterSFX() { }
 inline void PlayEffect(int mnum, int mode) { PlaySFX(-1, 2); }
 inline void sound_stop() { }
 inline void sound_pause(bool pause) { }
