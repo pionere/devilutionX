@@ -33,6 +33,9 @@ const int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to Y-offset. */
 const int YDirAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
+static_assert(MAX_LIGHT_RAD >= 9, "FireWallLight needs at least light-radius of 9.");
+static const int FireWallLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 8, 9, 9 };
+
 void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 {
 	int k, magic, plrlvl, mind, maxd;
@@ -3319,8 +3322,6 @@ void MI_Acidpud(int mi)
 void MI_Firewall(int mi)
 {
 	MissileStruct* mis;
-	static_assert(MAX_LIGHT_RAD >= 12, "MI_Firewall needs at least light-radius of 12.");
-	int ExpLight[] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
 
 	mis = &missile[mi];
 	CheckMissileCol(mi, mis->_mix, mis->_miy, true);
@@ -3332,11 +3333,11 @@ void MI_Firewall(int mi)
 	}
 	if (mis->_miDir == 0) {
 		if (mis->_miLid == NO_LIGHT) {
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, FireWallLight[0]);
 		} else {
-			assert(mis->_miAnimLen < lengthof(ExpLight));
-			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(ExpLight));
-			ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
+			assert(mis->_miAnimLen < lengthof(FireWallLight));
+			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(FireWallLight));
+			ChangeLightRadius(mis->_miLid, FireWallLight[mis->_miAnimFrame]);
 		}
 		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0] &&
 			// mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] &&
@@ -3605,8 +3606,6 @@ void MI_FireWave(int mi)
 {
 	MissileStruct* mis;
 	int range;
-	static_assert(MAX_LIGHT_RAD >= 12, "MI_FireWave needs at least light-radius of 12.");
-	int ExpLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 8, 9, 9 };
 
 	mis = &missile[mi];
 	mis->_mix--;
@@ -3632,11 +3631,11 @@ void MI_FireWave(int mi)
 		}
 	} else {
 		if (mis->_miLid == NO_LIGHT)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, FireWallLight[0]);
 		else {
-			assert(mis->_miAnimLen < lengthof(ExpLight));
-			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(ExpLight));
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miAnimFrame]);
+			assert(mis->_miAnimLen < lengthof(FireWallLight));
+			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(FireWallLight));
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, FireWallLight[mis->_miAnimFrame]);
 		}
 		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0] /*&&
 			mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] - 1*/) {
