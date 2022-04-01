@@ -2215,7 +2215,7 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel << 4;
 	}
 	//assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]);
-	mis->_miRange = 19;
+	mis->_miRange = misfiledata[MFILE_BLUEXFR].mfAnimLen[0];
 	return MIRES_DONE;
 }
 
@@ -2225,7 +2225,7 @@ int AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 
 	mis = &missile[mi];
 	//assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXBK].mfAnimLen[0]);
-	mis->_miRange = 19;
+	mis->_miRange = misfiledata[MFILE_BLUEXBK].mfAnimLen[0];
 	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;
 }
