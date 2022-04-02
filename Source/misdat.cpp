@@ -38,7 +38,7 @@ const MissileData missiledata[] = {
 	{  MIS_EXSNOWWICH,    &AddMisexp,                 &MI_Misexp,         TRUE,      2,                                0, MISR_NONE,      MFILE_SCBSEXPB,  SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_EXHLSPWN,      &AddMisexp,                 &MI_Misexp,         TRUE,      2,                                0, MISR_NONE,      MFILE_SCBSEXPD,  SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_EXSOLBRNR,     &AddMisexp,                 &MI_Misexp,         TRUE,      2,                                0, MISR_NONE,      MFILE_SCBSEXPC,  SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
-	{  MIS_GUARDIAN,      &AddGuardian,               &MI_Guardian,       TRUE,      1,                                0, MISR_NONE,      MFILE_GUARD,     LS_GUARD,    SFX_NONE/*LS_GUARDLAN*/, 1,        1, ALIGN64 },
+	{  MIS_GUARDIAN,      &AddGuardian,               &MI_Guardian,       TRUE,      1,                                0, MISR_NONE,      MFILE_GUARD,     LS_GUARD,    SFX_NONE,    1,        1, ALIGN64 }, // miSFX was LS_GUARDLAN
 	{  MIS_RNDTELEPORT,   &AddRndTeleport,            &MI_Teleport,       FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_TELEPORT, SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_LIGHTBALL,     &AddLightball,              &MI_Lightball,      TRUE,      1,                          MIF_DOT, MISR_LIGHTNING, MFILE_LGHNING,   LS_LNING1,   LS_ELECIMP1, 1,        1, ALIGN64 },
 	{  MIS_LIGHTNINGC,    &AddLightningC,             &MI_LightningC,     FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
@@ -47,7 +47,7 @@ const MissileData missiledata[] = {
 	{  MIS_LIGHTNING2,    &AddLightning,              &MI_Lightning,      TRUE,      1,            MIF_NOBLOCK | MIF_DOT, MISR_LIGHTNING, MFILE_THINLGHT,  SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_TOWN,          &AddTown,                   &MI_Portal,         TRUE,      1,                                0, MISR_NONE,      MFILE_PORTAL,    SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_RPORTAL,       &AddPortal,                 &MI_Portal,         TRUE,      2,                                0, MISR_NONE,      MFILE_RPORTAL,   SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
-	{  MIS_FLASH,         &AddFlash,                  &MI_Flash,          TRUE,      1, MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_MAGIC,     MFILE_BLUEXFR,   LS_NOVA,     LS_ELECIMP1, 1,        1, ALIGN64 },
+	{  MIS_FLASH,         &AddFlash,                  &MI_Flash,          TRUE,      1, MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_MAGIC,     MFILE_BLUEXFR,   LS_NOVA,     SFX_NONE,    1,        1, ALIGN64 }, // miSFX was LS_ELECIMP1
 	{  MIS_FLASH2,        &AddFlash2,                 &MI_Flash2,         TRUE,      1,                                0, MISR_NONE,      MFILE_BLUEXBK,   SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_MANASHIELD,    &AddManashield,             &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_MSHIELD,  SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_CHAIN,         &AddChain,                  &MI_Chain,          TRUE,      1,                      MIF_NOBLOCK, MISR_LIGHTNING, MFILE_LGHNING,   LS_LNING1,   LS_ELECIMP1, 1,        1, ALIGN64 },
@@ -66,7 +66,7 @@ const MissileData missiledata[] = {
 	//{  MIS_BLODBUR,       NULL,                       NULL,               TRUE,      2,                                0, MISR_NONE,      MFILE_BLODBUR,   SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	//{  MIS_EXAPOCA,       &AddApocaExp,               &MI_ApocaExp,       TRUE,      2,                                0, MISR_NONE,      MFILE_NEWEXP,    SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_FIREWALLC,     &AddWallC,                  &MI_WallC,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
-	{  MIS_FIREWALL,      &AddFirewall,               &MI_Firewall,       TRUE,      1, MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_FIREWAL,   LS_WALLLOOP, LS_FIRIMP2,  1,        1, ALIGN64 },
+	{  MIS_FIREWALL,      &AddFirewall,               &MI_Firewall,       TRUE,      1, MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_FIREWAL,   LS_WALLLOOP, SFX_NONE,    1,        1, ALIGN64 }, // miSFX was LS_FIRIMP2
 	{  MIS_INFRA,         &AddInfra,                  &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_INFRAVIS, SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_FIREWAVEC,     &AddFireWaveC,              &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_FLAMWAVE, SFX_NONE,    1,        1, ALIGN64 },
 	{  MIS_FIREWAVE,      &AddFireWave,               &MI_FireWave,       TRUE,      1,               MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_FIREWAL,   SFX_NONE,    SFX_NONE,    1,        1, ALIGN64 },
