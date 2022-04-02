@@ -3707,12 +3707,14 @@ void MI_Guardian(int mi)
 		}
 		break;
 	case 2:
-		// start stand after fire
+		// start stand after fire, or collapse if this was the last shot
 		if (mis->_miAnimFrame == 1 /*&&
 			mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[2] - 1*/) {
-			SetMissDir(mi, 1);
-			mis->_miAnimFrame = 2; // skip check frame to add delay between attacks
-			mis->_miAnimAdd = 1;
+			ex = mis->_miRange != 0;
+			SetMissDir(mi, ex ? 1 : 0);
+			// skip check frame to add delay between attacks
+			mis->_miAnimFrame = ex ? 2 : misfiledata[MFILE_GUARD].mfAnimLen[0];
+			mis->_miAnimAdd = ex ? 1 : -1;
 		}
 		break;
 	default:
