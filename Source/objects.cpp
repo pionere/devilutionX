@@ -355,7 +355,7 @@ static void ClrAllObjects()
 
 	numobjects = 0;
 
-	memset(objects, 0, sizeof(objects));
+	//memset(objects, 0, sizeof(objects));
 	//memset(objectactive, 0, sizeof(objectactive));
 
 //	for (i = 0; i < MAXOBJECTS; i++)
@@ -601,7 +601,7 @@ static void AddChestTraps()
 				if (objects[oi]._otype >= OBJ_CHEST1 && objects[oi]._otype <= OBJ_CHEST3 && objects[oi]._oTrapChance == 0 && random_(0, 100) < 10) {
 					objects[oi]._otype += OBJ_TCHEST1 - OBJ_CHEST1;
 					objects[oi]._oTrapChance = RandRange(1, 64);
-					//objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
+					objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
 				}
 			}
 		}
@@ -691,10 +691,8 @@ static void SetupObject(int oi, int x, int y, int type)
 	os->_oLightFlag = ofd->oLightFlag;
 	os->_oBreak = ofd->oBreak;
 	// os->_oDelFlag = FALSE; - unused
-	static_assert(FALSE == 0, "SetupObject expects the objects to be zero-filled and skips a few initialization steps.");
-	//os->_oPreFlag = FALSE;
-	//os->_oTrapChance = 0;
-	//os->_oDoorFlag = ODT_NONE;
+	os->_oPreFlag = FALSE;
+	os->_oTrapChance = 0;
 }
 
 static void AddDiabObjs()
@@ -715,7 +713,7 @@ static void SetupHBook(int oi, int bookidx)
 	int bookframe = 1;
 
 	os = &objects[oi];
-	os->_oVar1 = bookframe;
+	// os->_oVar1 = bookframe;
 	os->_oAnimFrame = 5 - 2 * bookframe;
 	os->_oVar4 = os->_oAnimFrame + 1;       // STORY_BOOK_READ_FRAME
 	if (bookidx >= NKR_A) {
@@ -1196,8 +1194,7 @@ static void AddTrap(int oi)
 	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
 	// TRAP_MISTYPE
-	static_assert(MIS_ARROW == 0, "AddTrap might have an 'undefined'(0) missile-type, which is expected to be a standard arrow.");
-	// os->_oVar3 = MIS_ARROW;
+	os->_oVar3 = MIS_ARROW;
 	if (mt == 1)
 		os->_oVar3 = MIS_FIREBOLT;
 	else if (mt == 2)
@@ -1222,16 +1219,9 @@ static void AddBarrel(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oVar1 = 0;
 	os->_oRndSeed = GetRndSeed();
-	//os->_oVar2 = 0;
-	if (os->_otype != OBJ_BARRELEX)
-#ifdef HELLFIRE
-		if (os->_otype != OBJ_URNEX && os->_otype != OBJ_PODEX)
-#endif
-			os->_oVar2 = random_(149, 10); // BARREL_ITEM
-	os->_oVar3 = random_(149, 3);        // BARREL_ITEM_TYPE
-
+	os->_oVar3 = random_(149, 3);  // BARREL_ITEM_TYPE
+	os->_oVar2 = random_(149, 10); // BARREL_ITEM
 	if (os->_oVar2 >= 8)
 		os->_oVar4 = PreSpawnSkeleton(); // BARREL_SKELE
 }
@@ -1315,7 +1305,7 @@ static void AddMagicCircle(int oi)
 	os = &objects[oi];
 	//os->_oRndSeed = GetRndSeed();
 	os->_oPreFlag = TRUE;
-	//os->_oVar5 = 0; // VILE_CIRCLE_PROGRESS
+	os->_oVar5 = 0; // VILE_CIRCLE_PROGRESS
 }
 
 static void AddStoryBook(int oi)
@@ -1330,7 +1320,7 @@ static void AddStoryBook(int oi)
 	bookframe = quests[Q_DIABLO]._qvar1;
 
 	os = &objects[oi];
-	os->_oVar1 = bookframe;
+	// os->_oVar1 = bookframe;
 	os->_oVar2 = StoryText[bookframe][idx]; // STORY_BOOK_MSG
 	os->_oVar3 = 3 * bookframe + idx; // STORY_BOOK_NAME
 	os->_oAnimFrame = 5 - 2 * bookframe;
@@ -1426,7 +1416,7 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_TCHEST3:
 		AddChest(oi);
 		objects[oi]._oTrapChance = RandRange(1, 64);
-		//objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
+		objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
 		break;
 	case OBJ_SARC:
 #ifdef HELLFIRE
@@ -1448,12 +1438,9 @@ int AddObject(int type, int ox, int oy)
 		AddTrap(oi);
 		break;
 	case OBJ_BARREL:
-	case OBJ_BARRELEX:
 #ifdef HELLFIRE
 	case OBJ_URN:
-	case OBJ_URNEX:
 	case OBJ_POD:
-	case OBJ_PODEX:
 #endif
 		AddBarrel(oi);
 		break;
@@ -1468,6 +1455,11 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_DECAP:
 		AddDecap(oi);
 		break;
+	case OBJ_BARRELEX:
+#ifdef HELLFIRE
+	case OBJ_URNEX:
+	case OBJ_PODEX:
+#endif
 	case OBJ_BOOKSTAND:
 	case OBJ_SKELBOOK:
 	case OBJ_BLOODBOOK:
