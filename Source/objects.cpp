@@ -349,7 +349,7 @@ static void InitRndLocObj5x5(int objtype)
 		AddObject(objtype, xp, yp);
 }
 
-static void ClrAllObjects()
+void InitLevelObjects()
 {
 //	int i;
 
@@ -917,8 +917,6 @@ static void AddLazStand()
 
 void InitObjects()
 {
-	ClrAllObjects();
-
 	//gbInitObjFlag = true;
 	switch (currLvl._dType) {
 	case DTYPE_CATHEDRAL:
@@ -1025,7 +1023,6 @@ void SetMapObjects(BYTE* pMap)
 	bool fileload[NUM_OFILE_TYPES];
 	char filestr[32];
 
-	ClrAllObjects();
 	static_assert(false == 0, "SetMapObjects fills fileload with 0 instead of false values.");
 	memset(fileload, 0, sizeof(fileload));
 	//gbInitObjFlag = true;
