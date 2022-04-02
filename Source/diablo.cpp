@@ -839,12 +839,12 @@ static void PressKey(int vkey)
 	if (gnTimeoutCurs != CURSOR_NONE) {
 		return;
 	}
-
+#if !__IPHONEOS__ && !__ANDROID__
 	if (vkey == DVL_VK_RETURN && GetAsyncKeyState(DVL_VK_MENU)) {
 		ToggleFullscreen();
 		return;
 	}
-
+#endif
 	int transKey = WMButtonInputTransTbl[vkey];
 	if (gbDeathflag != MDM_ALIVE) {
 		if (vkey == DVL_VK_RETURN) {
