@@ -3302,6 +3302,7 @@ static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
 static void OperateCauldron(int pnum, int oi, bool sendmsg)
 {
 	OperateShrine(pnum, oi, sendmsg);
+	// restore state
 	objects[oi]._oAnimFrame = 3;
 	objects[oi]._oAnimFlag = FALSE;
 }
@@ -3460,8 +3461,8 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 		return;
 	os->_oSelFlag = 0;
 	os->_oAnimFlag = TRUE;
-	os->_oAnimFrame = 1;
-	//os->_oAnimFrameLen = 1;
+	// os->_oAnimFrame = 1;
+	// os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 	os->_oBreak = OBM_BROKEN;
@@ -3472,8 +3473,8 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 
 	if (deltaload) {
 		os->_oAnimFrame = os->_oAnimLen;
-		//os->_oAnimCnt = 0;
-		//os->_oAnimFrameLen = 1000;
+		// os->_oAnimCnt = 0;
+		// os->_oAnimFrameLen = 1000;
 		return;
 	}
 
@@ -3496,9 +3497,9 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 		return;
 
 	// os->_oVar1 = 0;
-	//os->_oAnimFlag = TRUE;
-	//os->_oAnimFrame = 1;
-	//os->_oAnimFrameLen = 1;
+	// os->_oAnimFlag = TRUE;
+	// os->_oAnimFrame = 1;
+	// os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
 	os->_oBreak = OBM_BROKEN;
@@ -3506,12 +3507,12 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 	os->_oPreFlag = TRUE;
 	if (deltaload) {
 		os->_oAnimFrame = os->_oAnimLen;
-		//os->_oAnimCnt = 0;
-		//os->_oAnimFrameLen = 1000;
+		// os->_oAnimCnt = 0;
+		// os->_oAnimFrameLen = 1000;
 		return;
 	}
 	os->_oAnimFlag = TRUE;
-	os->_oAnimFrame = 1;
+	// os->_oAnimFrame = 1;
 
 	assert(os->_oSFXCnt == 1);
 	PlaySfxLoc(os->_oSFX, os->_ox, os->_oy);
