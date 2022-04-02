@@ -1400,12 +1400,11 @@ void game_logic()
 {
 	multi_rnd_seeds();
 	ProcessPlayers();
-	if (currLvl._dType != DTYPE_TOWN) {
-		ProcessMonsters();
-		ProcessObjects();
-	} else {
+	ProcessMonsters();
+	if (currLvl._dType == DTYPE_TOWN) {
 		ProcessTowners();
 	}
+	ProcessObjects();
 	ProcessMissiles();
 	ProcessItems();
 	ProcessLightList();
