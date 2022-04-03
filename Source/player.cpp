@@ -1868,20 +1868,25 @@ static inline void PlrStepAnim(int pnum)
 static bool PlrDoWalk(int pnum)
 {
 	int px, py;
+	bool skipAnim;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoWalk: illegal player %d", pnum);
 	}
 
 	plr._pVar8++; // WALK_TICK
-	if (plr._pIFlags & ISPL_FASTESTWALK) {
-		PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTERWALK) {
-		if ((plr._pVar8 & 1) == 1)
+	if (plr._pIFlags & (ISPL_FASTESTWALK | ISPL_FASTERWALK | ISPL_FASTWALK)) {
+		if (plr._pIFlags & ISPL_FASTESTWALK) {
+			skipAnim = true;
+		} else if (plr._pIFlags & ISPL_FASTERWALK) {
+			skipAnim = (plr._pVar8 & 1) == 1;
+		} else { // if (plr._pIFlags & ISPL_FASTWALK) {
+			skipAnim = (plr._pVar8 & 3) == 2;
+		}
+		if (skipAnim) {
 			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTWALK) {
-		if ((plr._pVar8 & 3) == 2)
-			PlrStepAnim(pnum);
+			PlrChangeOffset(pnum);
+		}
 	}
 
 	if ((plr._pAnimFrame & 3) == 3) {
