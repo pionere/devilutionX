@@ -532,21 +532,20 @@ static void AddL2Torches()
 
 static void AddObjTraps()
 {
-	int i, j, oi, tx, ty, on;
-	int rndv;
+	int i, j, tx, ty, on, rndv;
+	char oi;
 
 	rndv = 10 + (currLvl._dLevel >> 1);
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			oi = dObject[i][j];
-			if (oi <= 0)
-				continue;
-
 			oi--;
+			if (oi < 0)
+				continue;
 			if (!objectdata[objects[oi]._otype].oTrapFlag)
 				continue;
 
-			if (random_(144, 100) >= rndv)
+			if (random_(144, 128) >= rndv)
 				continue;
 			if (random_(144, 2) == 0) {
 				tx = i - 1;
