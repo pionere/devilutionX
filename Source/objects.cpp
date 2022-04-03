@@ -505,18 +505,13 @@ static void AddL3Objs(int x1, int y1, int x2, int y2)
 	}
 }
 
-static bool TorchLocOk(int xp, int yp)
-{
-	return (dFlags[xp][yp] & BFLAG_POPULATED) == 0;
-}
-
 static void AddL2Torches()
 {
 	int i, j, pn;
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
-			if (!TorchLocOk(i, j))
+			if (dFlags[i][j] & BFLAG_POPULATED)
 				continue;
 
 			pn = dPiece[i][j];
