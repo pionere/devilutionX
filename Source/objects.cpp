@@ -515,10 +515,10 @@ static void AddL2Torches()
 				continue;
 
 			pn = dPiece[i][j];
-			if (pn == 1 && random_(145, 3) == 0)
+			if (pn == 1 && random_(145, 4) == 0)
 				AddObject(OBJ_TORCHL2, i, j);
 
-			if (pn == 5 && random_(145, 3) == 0)
+			if (pn == 5 && random_(145, 4) == 0)
 				AddObject(OBJ_TORCHR2, i, j);
 
 			if (pn == 37 && random_(145, 10) == 0 && dObject[i - 1][j] == 0)
