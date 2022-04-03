@@ -576,6 +576,8 @@ static void AddObjTraps()
 			}
 			if (dFlags[tx][ty] & BFLAG_POPULATED)
 				continue;
+			if (dObject[tx][ty] != 0)
+				continue;
 			if (!nTrapTable[dPiece[tx][ty]])
 				continue;
 			on = AddObject(on, tx, ty);
