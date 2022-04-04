@@ -471,10 +471,12 @@ void nthread_finish(UINT uMsg)
 	// phase 9 end
 #if !NONET
 	if (geBufferMsgs != MSG_LVL_DELTA_WAIT) {
-		// phase 10a
+		// phase 10a - level-delta received
 		assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
-		nthread_process_pending_delta_turns(true);
-		// phase 11
+		if (!nthread_process_pending_delta_turns(true))
+			goto done;
+		// phase 11 - load received level-delta
+		assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
 		LevelDeltaLoad();
 		assert(geBufferMsgs == MSG_NORMAL);
 		assert(currLvl._dLevelIdx == myplr._pDunLevel);
@@ -490,8 +492,8 @@ void nthread_finish(UINT uMsg)
 		// phase 10b
 		geBufferMsgs = MSG_NORMAL;
 		guDeltaTurn = UINT32_MAX;
-		nthread_process_pending_delta_turns(true);
-
+		if (!nthread_process_pending_delta_turns(true))
+			goto done;
 		// phase 11-12b
 		assert(currLvl._dLevelIdx == DLV_INVALID);
 		currLvl._dLevelIdx = myplr._pDunLevel;
