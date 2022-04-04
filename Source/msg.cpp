@@ -3699,7 +3699,511 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static const int ITEMCHECK_LEN = 4 + 2 + 2 + 1 + 1 + 1 + 1 + 4 + 4;
+static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
+{
+	BYTE plrdata[256];
+	BYTE* buf = plrdata;
+	*buf = CMD_DO_PLRCHECK;
+
+	for (int i = 0; i < MAX_PLRS; i++) {
+		if (!plx(i)._pActive)
+			continue;
+		// basic attributes
+		buf = &plrdata[1];
+		*buf = i;
+		buf++;
+
+		*buf = 0; // chunk-index
+		buf++;
+
+		*buf = plx(i)._pmode;
+		buf++;
+
+		//memcpy(buf, plx(i).walkpath, MAX_PATH_LENGTH + 1);
+		//buf += MAX_PATH_LENGTH + 1;
+
+		*buf = plx(i).destAction;
+		buf++;
+
+		*(INT*)buf = plx(i).destParam1;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i).destParam2;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i).destParam3;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i).destParam4;
+		buf += sizeof(INT);
+
+		*buf = plx(i)._pInvincible;
+		buf++;
+		*buf = plx(i)._pLvlChanging;
+		buf++;
+		*buf = plx(i)._pDunLevel;
+		buf++;
+	//BYTE _pClass;
+		*buf = plx(i)._pLevel;
+		buf++;
+	//BYTE _pRank;
+		*buf = plx(i)._pTeam;
+		buf++;
+		*(WORD*)buf = plx(i)._pStatPts;
+		buf += sizeof(WORD);
+	//BYTE _pLightRad;
+		*buf = plx(i)._pManaShield;
+		buf++;
+
+		*(WORD*)buf = plx(i)._pStatPts;
+		buf += sizeof(WORD);
+
+		//memcpy(buf, plx(i)._pTimer, sizeof(plx(i)._pTimer));
+		//buf += sizeof(plx(i)._pTimer);
+
+		*(INT*)buf = plx(i)._pExperience;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pNextExper;
+		buf += sizeof(INT);
+
+		*buf = plx(i)._px;
+		buf++;
+		*buf = plx(i)._py;
+		buf++;
+		*buf = plx(i)._pfutx;
+		buf++;
+		*buf = plx(i)._pfuty;
+		buf++;
+		*buf = plx(i)._poldx;
+		buf++;
+		*buf = plx(i)._poldy;
+		buf++;
+	//int _pxoff;   // Player sprite's pixel X-offset from tile.
+	//int _pyoff;   // Player sprite's pixel Y-offset from tile.
+		*buf = plx(i)._pdir;
+		buf++;
+	//int _pAnimFrameLen; // Tick length of each frame in the current animation
+	//int _pAnimCnt;
+	//unsigned _pAnimLen;   // Number of frames in current animation
+	//int _pAnimFrame;
+	//int _pAnimWidth;
+	//int _pAnimXOffset;
+	//unsigned _plid;
+	//unsigned _pvid;
+	// char _pName[PLR_NAME_LEN];
+		*(WORD*)buf = plx(i)._pBaseStr;
+		buf += sizeof(WORD);
+		*(WORD*)buf = plx(i)._pBaseMag;
+		buf += sizeof(WORD);
+		*(WORD*)buf = plx(i)._pBaseDex;
+		buf += sizeof(WORD);
+		*(WORD*)buf = plx(i)._pBaseVit;
+		buf += sizeof(WORD);
+
+		*(INT*)buf = plx(i)._pHPBase;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pMaxHPBase;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pManaBase;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pMaxManaBase;
+		buf += sizeof(INT);
+
+		*(INT*)buf = plx(i)._pVar1;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pVar2;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pVar3;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pVar4;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pVar5;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pVar6;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pVar7;
+		buf += sizeof(INT);
+		*(INT*)buf = plx(i)._pVar8;
+		buf += sizeof(INT);
+
+		*(INT*)buf = plx(i)._pGold;
+		buf += sizeof(INT);
+	//int _pStrength;
+	//int _pMagic;
+	//int _pDexterity;
+	//int _pVitality;
+		*(INT*)buf = plx(i)._pHitPoints;
+		buf += sizeof(INT);
+	//int _pMaxHP;     // the maximum hp of the player
+		*(INT*)buf = plx(i)._pMana;
+		buf += sizeof(INT);
+	//int _pMaxMana;   // the maximum mana of the player
+
+		// LogErrorF("PLRD", "Player base-data %d", (size_t)buf - (size_t)plrdata);
+		
+		assert((size_t)buf - (size_t)plrdata == 114);
+		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+
+		// skill attributes I.
+		buf = &plrdata[1];
+		*buf = i;
+		buf++;
+
+		*buf = 1; // chunk-index
+		buf++;
+
+		memcpy(buf, plx(i)._pSkillLvl, sizeof(plx(i)._pSkillLvl));
+		buf += sizeof(plx(i)._pSkillLvl);
+		memcpy(buf, plx(i)._pSkillLvlBase, sizeof(plx(i)._pSkillLvlBase));
+		buf += sizeof(plx(i)._pSkillLvlBase);
+		memcpy(buf, plx(i)._pSkillActivity, sizeof(plx(i)._pSkillActivity));
+		buf += sizeof(plx(i)._pSkillActivity);
+
+		*(uint64_t*)buf = plx(i)._pMemSkills;
+		buf += sizeof(uint64_t);
+		*(uint64_t*)buf = plx(i)._pAblSkills;
+		buf += sizeof(uint64_t);
+		*(uint64_t*)buf = plx(i)._pScrlSkills;
+		buf += sizeof(uint64_t);
+
+		//LogErrorF("PLRD", "Player skill-data I. %d", (size_t)buf - (size_t)plrdata);
+		assert((size_t)buf - (size_t)plrdata == 219);
+		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+
+		// skill attributes II.
+		buf = &plrdata[1];
+		*buf = i;
+		buf++;
+
+		*buf = 2; // chunk-index
+		buf++;
+
+		memcpy(buf, plx(i)._pSkillExp, sizeof(plx(i)._pSkillExp) / 2);
+		buf += sizeof(plx(i)._pSkillExp) / 2;
+
+		// LogErrorF("PLRD", "Player skill-data II. %d", (size_t)buf - (size_t)plrdata);
+		assert((size_t)buf - (size_t)plrdata == 131);
+		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+
+		// skill attributes III.
+		buf = &plrdata[1];
+		*buf = i;
+		buf++;
+
+		*buf = 3; // chunk-index
+		buf++;
+
+		memcpy(buf, &plx(i)._pSkillExp[32], sizeof(plx(i)._pSkillExp) / 2);
+		buf += sizeof(plx(i)._pSkillExp) / 2;
+
+		//LogErrorF("PLRD", "Player skill-data III. %d", (size_t)buf - (size_t)plrdata);
+		assert((size_t)buf - (size_t)plrdata == 131);
+		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+	/*unsigned _pNFrames;
+	int _pNWidth;
+	unsigned _pWFrames;
+	int _pWWidth;
+	unsigned _pAFrames;
+	int _pAWidth;
+	unsigned _pAFNum;
+	unsigned _pSFrames;
+	int _pSWidth;
+	unsigned _pSFNum;
+	unsigned _pHFrames;
+	int _pHWidth;
+	unsigned _pDFrames;
+	int _pDWidth;
+	unsigned _pBFrames;
+	int _pBWidth;*/
+	/*BOOLEAN _pInfraFlag;
+	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
+	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
+	int _pISlMinDam; // min slash-damage (swords, axes)
+	int _pISlMaxDam; // max slash-damage (swords, axes)
+	int _pIBlMinDam; // min blunt-damage (maces, axes)
+	int _pIBlMaxDam; // max blunt-damage (maces, axes)
+	int _pIPcMinDam; // min puncture-damage (bows, daggers)
+	int _pIPcMaxDam; // max puncture-damage (bows, daggers)
+	int _pIChMinDam; // min charge-damage (shield charge)
+	int _pIChMaxDam; // max charge-damage (shield charge)
+	int _pIEvasion;
+	int _pIAC;
+	char _pMagResist;
+	char _pFireResist;
+	char _pLghtResist;
+	char _pAcidResist;
+	int _pIHitChance;
+	BYTE _pSkillFlags;    // Bitmask of allowed skill-types (SFLAG_*)
+	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
+	BYTE _pICritChance; // 200 == 100%
+	BYTE _pIBlockChance;
+	uint64_t _pISpells; // Bitmask of staff spell
+	unsigned _pIFlags;
+	unsigned _pIFlags2; // unused at the moment, but removing it causes inconsistency in case of X86_32bit_COMP...
+	int _pIGetHit;
+	BYTE _pAlign_CB; // unused alignment
+	char _pIArrowVelBonus; // _pISplCost in vanilla code
+	BYTE _pILifeSteal;
+	BYTE _pIManaSteal;
+	int _pIFMinDam; // min fire damage (item's added fire damage)
+	int _pIFMaxDam; // max fire damage (item's added fire damage)
+	int _pILMinDam; // min lightning damage (item's added lightning damage)
+	int _pILMaxDam; // max lightning damage (item's added lightning damage)
+	int _pIMMinDam; // min magic damage (item's added magic damage)
+	int _pIMMaxDam; // max magic damage (item's added magic damage)
+	int _pIAMinDam; // min acid damage (item's added acid damage)
+	int _pIAMaxDam; // max acid damage (item's added acid damage)*/
+	}
+
+	return sizeof(*pCmd);
+}
+
+static void PrintPlrMismatch(const char* field, int myval, int extval, int sp, int pnum)
+{
+	msg_errorf("%d received %s (%d vs. %d) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
+}
+
+static void CmpPlrArray(const char* field, void* src, void* data, int size, int len, int ip, int pnum)
+{
+	BYTE* sbuf = (BYTE*)src;
+	BYTE* dbuf = (BYTE*)data;
+	for (int i = 0; i < len; i++) {
+
+		if (size == 1) {
+			if (*sbuf != *dbuf) {
+				char tmp[256];
+				snprintf(tmp, 256, "%s[%d]", field, i);
+				PrintPlrMismatch(tmp, *dbuf, *sbuf, pnum, ip);
+			}
+		} else if (size == 2) {
+			if (*(uint16_t*)sbuf != *(uint16_t*)dbuf) {
+				char tmp[256];
+				snprintf(tmp, 256, "%s[%d]", field, i);
+				PrintPlrMismatch(tmp, *(uint16_t*)dbuf, *(uint16_t*)sbuf, pnum, ip);
+			}
+		} else if (size == 4) {
+			if (*(uint32_t*)sbuf != *(uint32_t*)dbuf) {
+				char tmp[256];
+				snprintf(tmp, 256, "%s[%d]", field, i);
+				PrintPlrMismatch(tmp, *(uint32_t*)dbuf, *(uint32_t*)sbuf, pnum, ip);
+			}
+		} else if (size == 8) {
+			if (*(uint64_t*)sbuf != *(uint64_t*)dbuf) {
+				char tmp[256];
+				snprintf(tmp, 256, "%s[%d]", field, i);
+				PrintPlrMismatch(tmp, *(uint64_t*)dbuf, *(uint64_t*)sbuf, pnum, ip);
+			}
+		}
+		sbuf += size;
+		dbuf += size;
+	}
+}
+
+static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
+{
+	BYTE* src = (BYTE*)pCmd;
+	src++;
+	int i = *src, k;
+	src++;
+	k = *src;
+	src++;
+
+//	LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
+	if (!plx(i)._pActive)
+		msg_errorf("%d received inactive plr%d from %d", mypnum, i, pnum);
+
+	switch (k) {
+	case 0: // base params
+
+		if (plx(i)._pmode != *src)
+			PrintPlrMismatch("mode", plx(i)._pmode, *src, pnum, i);
+		src++;
+
+		// walkpath
+
+		if (plx(i).destAction != *src)
+			PrintPlrMismatch("destaction", plx(i).destAction, *src, pnum, i);
+		src++;
+
+		if (plx(i).destAction != ACTION_NONE && plx(i).destParam1 != *(INT*)src)
+			PrintPlrMismatch("destparam1", plx(i).destParam1, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i).destAction != ACTION_NONE && plx(i).destParam2 != *(INT*)src)
+			PrintPlrMismatch("destparam2", plx(i).destParam2, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i).destAction != ACTION_NONE && plx(i).destParam3 != *(INT*)src)
+			PrintPlrMismatch("destparam3", plx(i).destParam3, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i).destAction != ACTION_NONE && plx(i).destParam4 != *(INT*)src)
+			PrintPlrMismatch("destparam4", plx(i).destParam4, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+
+		if (plx(i)._pInvincible != *src)
+			PrintPlrMismatch("invin", plx(i)._pInvincible, *src, pnum, i);
+		src++;
+		if (plx(i)._pLvlChanging != *src)
+			PrintPlrMismatch("lvlch", plx(i)._pLvlChanging, *src, pnum, i);
+		src++;
+		if (plx(i)._pDunLevel != *src)
+			PrintPlrMismatch("dunlevel", plx(i)._pDunLevel, *src, pnum, i);
+		src++;
+	//BYTE _pClass;
+		if (plx(i)._pLevel != *src)
+			PrintPlrMismatch("level", plx(i)._pLevel, *src, pnum, i);
+		src++;
+	//BYTE _pRank;
+		if (plx(i)._pTeam != *src)
+			PrintPlrMismatch("team", plx(i)._pTeam, *src, pnum, i);
+		src++;
+
+		if (plx(i)._pStatPts != *(WORD*)src)
+			PrintPlrMismatch("statpts", plx(i)._pStatPts, *(WORD*)src, pnum, i);
+		src += sizeof(WORD);
+
+	//BYTE _pLightRad;
+		if (plx(i)._pManaShield != *src)
+			PrintPlrMismatch("manashield", plx(i)._pManaShield, *src, pnum, i);
+		src++;
+
+		//memcpy(buf, plx(i)._pTimer, sizeof(plx(i)._pTimer));
+		//buf += sizeof(plx(i)._pTimer);
+
+		if (plx(i)._pExperience != *(INT*)src)
+			PrintPlrMismatch("expr", plx(i)._pExperience, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pNextExper != *(INT*)src)
+			PrintPlrMismatch("nexpr", plx(i)._pNextExper, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+
+		if (plx(i)._px != *src)
+			PrintPlrMismatch("px", plx(i)._px, *src, pnum, i);
+		src++;
+		if (plx(i)._py != *src)
+			PrintPlrMismatch("py", plx(i)._py, *src, pnum, i);
+		src++;
+		if (plx(i)._pfutx != *src)
+			PrintPlrMismatch("pfutx", plx(i)._pfutx, *src, pnum, i);
+		src++;
+		if (plx(i)._pfuty != *src)
+			PrintPlrMismatch("pfuty", plx(i)._pfuty, *src, pnum, i);
+		src++;
+		if (plx(i)._poldx != *src)
+			PrintPlrMismatch("poldx", plx(i)._poldx, *src, pnum, i);
+		src++;
+		if (plx(i)._poldy != *src)
+			PrintPlrMismatch("poldy", plx(i)._poldy, *src, pnum, i);
+		src++;
+
+	//int _pxoff;   // Player sprite's pixel X-offset from tile.
+	//int _pyoff;   // Player sprite's pixel Y-offset from tile.
+		if (plx(i)._pdir != *src)
+			PrintPlrMismatch("dir", plx(i)._pdir, *src, pnum, i);
+		src++;
+	//int _pAnimFrameLen; // Tick length of each frame in the current animation
+	//int _pAnimCnt;
+	//unsigned _pAnimLen;   // Number of frames in current animation
+	//int _pAnimFrame;
+	//int _pAnimWidth;
+	//int _pAnimXOffset;
+	//unsigned _plid;
+	//unsigned _pvid;
+	// char _pName[PLR_NAME_LEN];
+		if (plx(i)._pBaseStr != *(WORD*)src)
+			PrintPlrMismatch("basestr", plx(i)._pBaseStr, *(WORD*)src, pnum, i);
+		src += sizeof(WORD);
+		if (plx(i)._pBaseMag != *(WORD*)src)
+			PrintPlrMismatch("basemag", plx(i)._pBaseMag, *(WORD*)src, pnum, i);
+		src += sizeof(WORD);
+		if (plx(i)._pBaseDex != *(WORD*)src)
+			PrintPlrMismatch("basedex", plx(i)._pBaseDex, *(WORD*)src, pnum, i);
+		src += sizeof(WORD);
+		if (plx(i)._pBaseVit != *(WORD*)src)
+			PrintPlrMismatch("basevit", plx(i)._pBaseVit, *(WORD*)src, pnum, i);
+		src += sizeof(WORD);
+
+		if (plx(i)._pHPBase != *(INT*)src)
+			PrintPlrMismatch("HPBase", plx(i)._pHPBase, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pMaxHPBase != *(INT*)src)
+			PrintPlrMismatch("MaxHPBase", plx(i)._pMaxHPBase, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pManaBase != *(INT*)src)
+			PrintPlrMismatch("ManaBase", plx(i)._pManaBase, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pMaxManaBase != *(INT*)src)
+			PrintPlrMismatch("MaxManaBase", plx(i)._pMaxManaBase, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+
+		if (plx(i)._pVar1 != *(INT*)src)
+			PrintPlrMismatch("Var1", plx(i)._pVar1, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar2 != *(INT*)src)
+			PrintPlrMismatch("Var2", plx(i)._pVar2, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar3 != *(INT*)src)
+			PrintPlrMismatch("Var3", plx(i)._pVar3, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar4 != *(INT*)src)
+			PrintPlrMismatch("Var4", plx(i)._pVar4, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar5 != *(INT*)src)
+			PrintPlrMismatch("Var5", plx(i)._pVar5, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar6 != *(INT*)src)
+			PrintPlrMismatch("Var6", plx(i)._pVar6, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar7 != *(INT*)src)
+			PrintPlrMismatch("Var7", plx(i)._pVar7, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar8 != *(INT*)src)
+			PrintPlrMismatch("Var8", plx(i)._pVar8, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+
+		if (plx(i)._pGold != *(INT*)src)
+			PrintPlrMismatch("Gold", plx(i)._pGold, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+	//int _pStrength;
+	//int _pMagic;
+	//int _pDexterity;
+	//int _pVitality;
+		if (plx(i)._pHitPoints != *(INT*)src)
+			PrintPlrMismatch("HitPoints", plx(i)._pHitPoints, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+	//int _pMaxHP;     // the maximum hp of the player
+		if (plx(i)._pMana != *(INT*)src)
+			PrintPlrMismatch("Mana", plx(i)._pMana, *(INT*)src, pnum, i);
+		src += sizeof(INT);
+	//int _pMaxMana;   // the maximum mana of the player
+		break;
+	case 1: // skill data
+		CmpPlrArray("SkillLvl", src, plx(i)._pSkillLvl, sizeof(plx(i)._pSkillLvl[0]), lengthof(plx(i)._pSkillLvl), i, pnum);
+		src += sizeof(plx(i)._pSkillLvl);
+		CmpPlrArray("SkillLvlBase", src, plx(i)._pSkillLvlBase, sizeof(plx(i)._pSkillLvlBase[0]), lengthof(plx(i)._pSkillLvlBase), i, pnum);
+		src += sizeof(plx(i)._pSkillLvlBase);
+		CmpPlrArray("SkillActivity", src, plx(i)._pSkillActivity, sizeof(plx(i)._pSkillActivity[0]), lengthof(plx(i)._pSkillActivity), i, pnum);
+		src += sizeof(plx(i)._pSkillActivity);
+
+		if (plx(i)._pMemSkills != *(uint64_t*)src)
+			PrintPlrMismatch("MemSkills", plx(i)._pMemSkills, *(uint64_t*)src, pnum, i);
+		src += sizeof(uint64_t);
+		if (plx(i)._pAblSkills != *(uint64_t*)src)
+			PrintPlrMismatch("AblSkills", plx(i)._pAblSkills, *(uint64_t*)src, pnum, i);
+		src += sizeof(uint64_t);
+		if (plx(i)._pScrlSkills != *(uint64_t*)src)
+			PrintPlrMismatch("ScrlSkills", plx(i)._pScrlSkills, *(uint64_t*)src, pnum, i);
+		src += sizeof(uint64_t);
+		break;
+	case 2: // skill data
+		CmpPlrArray("SkillExp", src, plx(i)._pSkillExp, sizeof(plx(i)._pSkillExp[0]), lengthof(plx(i)._pSkillExp) / 2, i, pnum);
+		src += sizeof(plx(i)._pSkillExp) / 2;
+		break;
+	case 3: // skill data
+		CmpPlrArray("SkillExp2", src, &plx(i)._pSkillExp[32], sizeof(plx(i)._pSkillExp[0]), lengthof(plx(i)._pSkillExp) / 2, i, pnum);
+		src += sizeof(plx(i)._pSkillExp) / 2;
+		break;
+	}
+
+	return (size_t)src - (size_t)pCmd;
+}
+
+static const int ITEMCHECK_LEN = 4 + 2 + 2 + 1 + 1 + 1 + 1 + 4 + 4 + 4;
 static BYTE* SendItem(ItemStruct* is, BYTE* dst)
 {
 	BYTE* dstStart = dst;
@@ -3724,7 +4228,8 @@ static BYTE* SendItem(ItemStruct* is, BYTE* dst)
 
 	*(INT*)dst = is->_iCharges;
 	dst += sizeof(INT);
-	//int _iDurability;
+	*(INT*)dst = is->_iDurability;
+	dst += sizeof(INT);
 	*(INT*)dst = is->_ivalue;
 	dst += sizeof(INT);
 
@@ -3833,7 +4338,10 @@ static BYTE* CheckItem(ItemStruct* is, BYTE* src, int pnum, int loc, int subloc,
 		PrintItemMismatch(is, "chg", is->_iCharges, *(INT*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(INT);
-	//int _iDurability;
+	if (!none && !placeholder && is->_iDurability != *(INT*)src) {
+		PrintItemMismatch(is, "dur", is->_iDurability, *(INT*)src, sp, pnum, loc, subloc);
+	}
+	src += sizeof(INT);
 	if (!none && !placeholder && is->_ivalue != *(INT*)src) {
 		PrintItemMismatch(is, "value", is->_ivalue, *(INT*)src, sp, pnum, loc, subloc);
 	}
@@ -3874,7 +4382,7 @@ static unsigned On_DO_ITEMCHECK(TCmd* pCmd, int pnum)
 		break;
 	}
 
-//	LogErrorF("Item", "ItemCheck done.");
+//	LogErrorF("Item", "ItemCheck done. %d", (size_t)src - (size_t)pCmd);
 	return (size_t)src - (size_t)pCmd;
 }
 
@@ -4122,6 +4630,10 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 #if DEV_MODE
 	case CMD_DUMP_MONSTERS:
 		return On_DUMP_MONSTERS(pCmd, pnum);
+	case CMD_REQUEST_PLRCHECK:
+		return On_REQUEST_PLRCHECK(pCmd, pnum);
+	case CMD_DO_PLRCHECK:
+		return On_DO_PLRCHECK(pCmd, pnum);
 	case CMD_REQUEST_ITEMCHECK:
 		return On_REQUEST_ITEMCHECK(pCmd, pnum);
 	case CMD_DO_ITEMCHECK:
