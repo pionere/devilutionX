@@ -2315,6 +2315,8 @@ void PlrStartBlock(int pnum, int dir)
 
 static bool PlrDoBlock(int pnum)
 {
+	int extlen;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoBlock: illegal player %d", pnum);
 	}
@@ -2322,14 +2324,18 @@ static bool PlrDoBlock(int pnum)
 		PlrStepAnim(pnum);
 	}
 
-	if (plr._pAnimFrame >= plr._pBFrames && plr._pAnimCnt >= plr._pAnimFrameLen - 1) {
+	if (plr._pAnimFrame > plr._pBFrames || (plr._pAnimFrame == plr._pBFrames && plr._pAnimCnt >= plr._pAnimFrameLen - 1)) {
 		if (plr.destAction == ACTION_BLOCK) {
 			// extend the blocking animation TODO: does not work with too fast animations (WARRIORs) in faster/fastest games
 			plr.destAction = ACTION_NONE;
 			plr._pAnimData = plr._pBAnim[plr.destParam1];
-			plr._pAnimFrameLen = plr._pBFrames * 4;
-			if (plr._pIFlags & ISPL_FASTBLOCK)
-				plr._pAnimFrameLen >>= 1;
+			extlen = plr._pBFrames * 4;
+			if (plr._pIFlags & ISPL_FASTBLOCK) {
+				extlen >>= 1;
+				if (extlen < 8)
+					extlen = 8;
+			}
+			plr._pAnimFrameLen = extlen;
 			plr._pAnimCnt = -1;
 		} else {
 			//PlrStartStand(pnum);
