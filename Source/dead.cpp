@@ -113,7 +113,8 @@ void SyncDeadLight()
 	int dx, dy;
 
 	for (i = 0; i < nummonsters; i++) {
-		mon = &monsters[monstactive[i]];
+		assert(monstactive[i] == i);
+		mon = &monsters[i];
 		if (mon->mlid != NO_LIGHT) {
 			for (dx = 0; dx < MAXDUNX; dx++) {
 				for (dy = 0; dy < MAXDUNY; dy++) {
