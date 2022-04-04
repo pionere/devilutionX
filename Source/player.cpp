@@ -1852,11 +1852,6 @@ void StartTWarp(int pnum, int pidx)
 	}
 }
 
-static bool PlrDoStand(int pnum)
-{
-	return false;
-}
-
 static inline void PlrStepAnim(int pnum)
 {
 	plr._pAnimCnt++;
@@ -1866,7 +1861,7 @@ static inline void PlrStepAnim(int pnum)
 	}
 }
 
-static bool PlrDoWalk(int pnum)
+static void PlrDoWalk(int pnum)
 {
 	int px, py;
 	bool skipAnim;
@@ -1897,7 +1892,7 @@ static bool PlrDoWalk(int pnum)
 	assert(PlrAnimFrameLens[PA_WALK] == 1);
 	if (plr._pAnimFrame < plr._pWFrames) {
 		PlrChangeOffset(pnum);
-		return false;
+		return;
 	}
 
 	dPlayer[plr._poldx][plr._poldy] = 0;
@@ -1920,8 +1915,6 @@ static bool PlrDoWalk(int pnum)
 	}
 
 	//ClearPlrPVars(pnum);
-
-	return true;
 }
 
 static void ReduceItemDur(ItemStruct* pi, BYTE iLoc, int pnum)
@@ -2175,7 +2168,7 @@ static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 	return false;
 }
 
-static bool PlrDoAttack(int pnum)
+static void PlrDoAttack(int pnum)
 {
 	int dir, hitcnt;
 
@@ -2197,13 +2190,13 @@ static bool PlrDoAttack(int pnum)
 			PlrStepAnim(pnum);
 	}
 	if (plr._pAnimFrame < plr._pAFNum - 1)
-		return false;
+		return;
 	if (plr._pVar7 == 0) { // ATTACK_ACTION_PROGRESS
 		plr._pVar7++;
 		PlaySfxLoc(PS_SWING, plr._px, plr._py, 2);
 	}
 	if (plr._pAnimFrame == plr._pAFNum - 1) {
-		return false;
+		return;
 	}
 	dir = plr._pdir;
 	if (plr._pVar7 == 1) {
@@ -2225,15 +2218,14 @@ static bool PlrDoAttack(int pnum)
 	}
 	assert(PlrAnimFrameLens[PA_ATTACK] == 1);
 	if (plr._pAnimFrame < plr._pAFrames)
-		return false;
+		return;
 
 	//PlrStartStand(pnum);
 	StartStand(pnum);
 	//ClearPlrPVars(pnum);
-	return true;
 }
 
-static bool PlrDoRangeAttack(int pnum)
+static void PlrDoRangeAttack(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoRangeAttack: illegal player %d", pnum);
@@ -2253,7 +2245,7 @@ static bool PlrDoRangeAttack(int pnum)
 			PlrStepAnim(pnum);
 	}
 	if (plr._pAnimFrame < plr._pAFNum)
-		return false;
+		return;
 
 	if (!plr._pVar7) { // RATTACK_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
@@ -2264,12 +2256,11 @@ static bool PlrDoRangeAttack(int pnum)
 	}
 	assert(PlrAnimFrameLens[PA_ATTACK] == 1);
 	if (plr._pAnimFrame < plr._pAFrames)
-		return false;
+		return;
 
 	//PlrStartStand(pnum);
 	StartStand(pnum);
 	//ClearPlrPVars(pnum);
-	return true;
 }
 
 static void ShieldDur(int pnum)
@@ -2315,7 +2306,7 @@ void PlrStartBlock(int pnum, int dir)
 	}
 }
 
-static bool PlrDoBlock(int pnum)
+static void PlrDoBlock(int pnum)
 {
 	int extlen;
 
@@ -2343,10 +2334,8 @@ static bool PlrDoBlock(int pnum)
 			//PlrStartStand(pnum);
 			StartStand(pnum);
 			//ClearPlrPVars(pnum);
-			return true;
 		}
 	}
-	return false;
 }
 
 static void ArmorDur(int pnum)
@@ -2376,7 +2365,7 @@ static void ArmorDur(int pnum)
 	ReduceItemDur(pi, loc, pnum);
 }
 
-static bool PlrDoSpell(int pnum)
+static void PlrDoSpell(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoSpell: illegal player %d", pnum);
@@ -2393,7 +2382,7 @@ static bool PlrDoSpell(int pnum)
 	}
 
 	if (plr._pAnimFrame < plr._pSFNum)
-		return false;
+		return;
 
 	if (!plr._pVar7) { // SPELL_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
@@ -2403,12 +2392,11 @@ static bool PlrDoSpell(int pnum)
 	}
 	assert(PlrAnimFrameLens[PA_SPELL] == 1);
 	if (plr._pAnimFrame < plr._pSFrames)
-		return false;
+		return;
 
 	//PlrStartStand(pnum);
 	StartStand(pnum);
 	//ClearPlrPVars(pnum);
-	return true;
 }
 
 void KnockbackPlr(int pnum, int dir)
@@ -2440,7 +2428,7 @@ void KnockbackPlr(int pnum, int dir)
 	}
 }
 
-static bool PlrDoGotHit(int pnum)
+static void PlrDoGotHit(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoGotHit: illegal player %d", pnum);
@@ -2457,18 +2445,16 @@ static bool PlrDoGotHit(int pnum)
 	}
 	assert(PlrAnimFrameLens[PA_GOTHIT] == 1);
 	if (plr._pAnimFrame < plr._pHFrames)
-		return false;
+		return;
 	//PlrStartStand(pnum);
 	StartStand(pnum);
 	//ClearPlrPVars(pnum);
 	if (random_(3, 4) != 0) {
 		ArmorDur(pnum);
 	}
-
-	return true;
 }
 
-static bool PlrDoDeath(int pnum)
+static void PlrDoDeath(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoDeath: illegal player %d", pnum);
@@ -2487,13 +2473,6 @@ static bool PlrDoDeath(int pnum)
 		}
 		//dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 	}
-
-	return false;
-}
-
-static bool PlrDoNewLvl(int pnum)
-{
-	return false;
 }
 
 static bool CheckNewPath(int pnum)
@@ -2809,40 +2788,36 @@ void ProcessPlayers()
 			do {
 				switch (plr._pmode) {
 				case PM_STAND:
-					raflag = PlrDoStand(pnum);
 					break;
 				case PM_WALK:
 				case PM_WALK2:
-					raflag = PlrDoWalk(pnum);
+					PlrDoWalk(pnum);
 					break;
 				case PM_CHARGE:
-					raflag = false;
 					break;
 				case PM_ATTACK:
-					raflag = PlrDoAttack(pnum);
+					PlrDoAttack(pnum);
 					break;
 				case PM_RATTACK:
-					raflag = PlrDoRangeAttack(pnum);
+					PlrDoRangeAttack(pnum);
 					break;
 				case PM_BLOCK:
-					raflag = PlrDoBlock(pnum);
+					PlrDoBlock(pnum);
 					break;
 				case PM_SPELL:
-					raflag = PlrDoSpell(pnum);
+					PlrDoSpell(pnum);
 					break;
 				case PM_GOTHIT:
-					raflag = PlrDoGotHit(pnum);
+					PlrDoGotHit(pnum);
 					break;
 				case PM_DYING:
 				case PM_DEATH:
-					raflag = PlrDoDeath(pnum);
+					PlrDoDeath(pnum);
 					break;
 				case PM_NEWLVL:
-					raflag = PlrDoNewLvl(pnum);
 					break;
 				default:
 					ASSUME_UNREACHABLE
-					raflag = false;
 				}
 				raflag = CheckNewPath(pnum);
 			} while (raflag);
