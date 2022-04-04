@@ -3710,7 +3710,7 @@ static void MAI_RR2(int mnum, int mitype)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
 			}
-			mon->_mgoalvar3 = TRUE;                // MOVE_POSITIONED
+			// mon->_mgoalvar3 = TRUE;                // MOVE_POSITIONED
 			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, md)) {
 				if (v < 5 * (mon->_mInt + 16))
 					MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
@@ -3720,7 +3720,9 @@ static void MAI_RR2(int mnum, int mitype)
 	} else
 		mon->_mgoal = MGOAL_NORMAL;
 	if (mon->_mgoal == MGOAL_NORMAL) { // MOVE_POSITIONED
-		if (dist < 5 && ((dist >= 3 && v < 5 * (mon->_mInt + 2)) || v < 5 * (mon->_mInt + 1) || mon->_mgoalvar3) && LineClear(mon->_mx, mon->_my, fx, fy)) {
+		// if (dist < 5 && ((dist >= 3 && v < 5 * (mon->_mInt + 2)) || v < 5 * (mon->_mInt + 1) || mon->_mgoalvar3) && LineClear(mon->_mx, mon->_my, fx, fy)) {
+		if (dist < 5 && (dist >= 3 || v < 5 * (mon->_mInt + 1)) && LineClear(mon->_mx, mon->_my, fx, fy)) {
+			// mon->_mgoalvar3 = FALSE; // MOVE_POSITIONED
 			MonStartRSpAttack(mnum, mitype);
 			return;
 		}
@@ -3738,7 +3740,7 @@ static void MAI_RR2(int mnum, int mitype)
 					MonStartRSpAttack(mnum, mitype);
 			}
 		}
-		mon->_mgoalvar3 = FALSE; // MOVE_POSITIONED
+		// mon->_mgoalvar3 = FALSE; // MOVE_POSITIONED
 	}
 	if (mon->_mmode == MM_STAND) {
 		MonStartDelay(mnum, RandRange(5, 14));
