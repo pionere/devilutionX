@@ -141,8 +141,9 @@ static void nthread_process_pending_turns()
 			MemFreeDbg(turn);
 			continue;
 		}
-
-		multi_process_turn(turn);
+		// skip turn of the delta-info, but increment the turn-counter
+		if (turn->nmpTurn != guDeltaTurn || guDeltaTurn == 0)
+			multi_process_turn(turn);
 		MemFreeDbg(turn);
 		multi_process_msgs();
 		gdwGameLogicTurn += gbNetUpdateRate;
@@ -172,7 +173,7 @@ static int SDLCALL nthread_handler(void* data)
 			// wait a few turns to stabilize the turn-id
 			if (sgTurnQueue.size() * gbNetUpdateRate * gnTickDelay > 500) {
 				geBufferMsgs = MSG_GAME_DELTA_LOAD;
-				
+
 				TCmd cmd;
 				cmd.bCmd = NMSG_SEND_GAME_DELTA;
 				multi_send_direct_msg(SNPLAYER_ALL, (BYTE*)&cmd, sizeof(cmd));
@@ -276,16 +277,6 @@ bool nthread_level_turn()
 		switch (nthread_recv_turns()) {
 		case TS_ACTIVE: {
 			SNetTurnPkt* turn = SNetReceiveTurn(player_state);
-			if (guSendLevelData != 0) {
-				if (IsLocalGame) {
-					guSendLevelData = 0;
-					assert(mypnum == 0);
-					guReceivedLevelDelta = 1;
-				} else {
-					assert(mypnum < MAX_PLRS);
-					LevelDeltaExport(turn->nmpTurn);
-				}
-			}
 			if (geBufferMsgs == MSG_NORMAL) {
 				multi_process_turn(turn);
 				MemFreeDbg(turn);
@@ -293,6 +284,16 @@ bool nthread_level_turn()
 				assert(geBufferMsgs == MSG_LVL_DELTA_WAIT);
 				multi_pre_process_turn(turn);
 				sgTurnQueue.push_back(turn);
+			}
+			if (guSendLevelData != 0) {
+				if (IsLocalGame) {
+					guSendLevelData = 0;
+					assert(mypnum == 0);
+					guReceivedLevelDelta = 1;
+				} else {
+					assert(mypnum < MAX_PLRS);
+					LevelDeltaExport();
+				}
 			}
 
 			multi_process_msgs();
@@ -332,7 +333,7 @@ bool nthread_level_turn()
 	return result;
 }
 
-bool nthread_process_pending_delta_turns(bool pre)
+static bool nthread_process_pending_delta_turns(bool pre)
 {
 	SNetTurnPkt* turn;
 	int i;
@@ -345,18 +346,20 @@ bool nthread_process_pending_delta_turns(bool pre)
 		}
 
 		turn = sgTurnQueue.front();
+		if (geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN)
+			multi_process_turn(turn);
+		else
+			geBufferMsgs = MSG_NORMAL;
 		if (pre && turn->nmpTurn >= guDeltaTurn) {
+			net_assert(turn->nmpTurn == guDeltaTurn);
 			break;
 		}
 		sgTurnQueue.pop_front();
 		//sgDataMutex.Leave();
 
-		multi_process_turn(turn);
 		MemFreeDbg(turn);
 		multi_process_msgs();
 		if (!pre) {
-			assert(geBufferMsgs == MSG_NORMAL || geBufferMsgs == MSG_LVL_DELTA_SKIP_JOIN);
-			geBufferMsgs = MSG_NORMAL;
 			for (i = gbNetUpdateRate; i > 0; i--) {
 				++gbLvlLoad;
 				game_logic();

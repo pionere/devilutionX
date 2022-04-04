@@ -376,7 +376,7 @@ static DWORD DeltaCompressData(BYTE* end)
 	return pkSize + sizeof(gsDeltaData.ddSendRecvBuf.compressed);
 }
 
-void DeltaExportData(int pnum, uint32_t turn)
+void DeltaExportData(int pnum)
 {
 	BYTE* dstEnd;
 	int size, i;
@@ -416,9 +416,8 @@ void DeltaExportData(int pnum, uint32_t turn)
 	DeltaDataEnd deltaEnd;
 	deltaEnd.compressed = FALSE;
 	deltaEnd.numChunks = numChunks;
-	deltaEnd.turn = SDL_SwapLE32(gdwLastGameTurn + 1);
-	assert(turn == gdwLastGameTurn + 1);
-	assert(turn * gbNetUpdateRate == gdwGameLogicTurn);
+	deltaEnd.turn = SDL_SwapLE32(gdwLastGameTurn);
+	assert(gdwLastGameTurn * gbNetUpdateRate == gdwGameLogicTurn);
 	dthread_send_delta(pnum, NMSG_DLEVEL_END, &deltaEnd, sizeof(deltaEnd));
 }
 
@@ -1096,7 +1095,7 @@ void NetSendCmdJoinLevel()
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void LevelDeltaExport(uint32_t turn)
+void LevelDeltaExport()
 {
 	LDLevel* lvlData;
 
@@ -1332,8 +1331,7 @@ void LevelDeltaExport(uint32_t turn)
 	deltaEnd.compressed = FALSE;
 	deltaEnd.numChunks = completeDelta ? 1 : 0;
 	deltaEnd.level = currLvl._dLevelIdx;
-	deltaEnd.turn = SDL_SwapLE32(gdwLastGameTurn + 1);
-	assert(turn == gdwLastGameTurn + 1);
+	deltaEnd.turn = SDL_SwapLE32(gdwLastGameTurn);
 	for (pnum = 0; pnum < MAX_PLRS; pnum++, recipients >>= 1) {
 		if (recipients & 1) {
 			dthread_send_delta(pnum, NMSG_LVL_DELTA_END, &deltaEnd, sizeof(deltaEnd));
@@ -1395,7 +1393,7 @@ void LevelDeltaLoad()
 				((tplr->spMode == PM_DEATH || tplr->spMode == PM_DYING) && plr._pHitPoints < (1 << 6)));
 			net_assert(tplr->spWalkpath[0] == DIR_NONE);
 			net_assert(tplr->spDestAction == ACTION_NONE);
-			net_assert(tplr->spInvincible == (40 - gbNetUpdateRate));
+			net_assert(tplr->spInvincible == 40);
 			net_assert(plr._pTimer[PLTR_INFRAVISION] == SwapLE16(tplr->spTimer[PLTR_INFRAVISION]));
 			net_assert(plr._pTimer[PLTR_RAGE] == SwapLE16(tplr->spTimer[PLTR_RAGE]));
 			net_assert(plr._pManaShield == tplr->spManaShield);

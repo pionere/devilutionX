@@ -191,12 +191,14 @@ static void multi_parse_turns()
 	int pnum;
 	// TODO: use pre-allocated space?
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
+	multi_process_turn(turn);
+	MemFreeDbg(turn);
 
 	if (guSendGameDelta != 0) {
 		if (!gbJoinGame) {
 			for (pnum = 0; pnum < MAX_PLRS; pnum++, guSendGameDelta >>= 1) {
 				if (guSendGameDelta & 1) {
-					DeltaExportData(pnum, turn->nmpTurn);
+					DeltaExportData(pnum);
 				}
 			}
 		}
@@ -206,16 +208,13 @@ static void multi_parse_turns()
 	if (guSendLevelData != 0) {
 #ifndef  NOHOSTING
 		if (mypnum < MAX_PLRS)
-			LevelDeltaExport(turn->nmpTurn);
+			LevelDeltaExport();
 		else
 			guSendLevelData = 0;
 #else
-			LevelDeltaExport(turn->nmpTurn);
+			LevelDeltaExport();
 #endif // ! NOHOSTING
 	}
-
-	multi_process_turn(turn);
-	MemFreeDbg(turn);
 }
 
 /**
