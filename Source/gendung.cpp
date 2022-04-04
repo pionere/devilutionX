@@ -341,6 +341,14 @@ void InitLvlDungeon()
 		pMicroPieces[140].mt[1] = 0;
 		break;
 	case DTYPE_CATACOMBS:
+		// patch dSolidTable - L2.SOL
+		// enable torches on (southern) walls
+		// nTrapTable[37] = true;
+		// nTrapTable[41] = true;
+		nTrapTable[520] = true;
+		nTrapTable[522] = true;
+		nTrapTable[524] = true;
+		nTrapTable[526] = true;
 		break;
 	case DTYPE_CAVES:
 		// patch dMiniTiles - L3.MIN
