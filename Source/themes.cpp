@@ -71,14 +71,15 @@ static bool TFit_Shrine(BYTE tv)
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 			if (nTrapTable[dPiece[xx][yy - 1]]
 			 // make sure the place is wide enough
+			 // - on the inside
 			 && !nSolidTable[dPiece[xx - 1][yy]]
 			 && !nSolidTable[dPiece[xx + 1][yy]]
+			 // - on the wall (to avoid doors)
+			 && nSolidTable[dPiece[xx - 1][yy - 1]]
+			 && nSolidTable[dPiece[xx + 1][yy - 1]]
 			 // make sure it is in the same room
 			 && dTransVal[xx - 1][yy] == tv
-			 && dTransVal[xx + 1][yy] == tv
-			 // make sure there is no door on the wall
-			 && dObject[xx - 1][yy - 1] == 0
-			 && dObject[xx + 1][yy - 1] == 0) {
+			 && dTransVal[xx + 1][yy] == tv) {
 				// assert(dObject[xx][yy] == 0);
 				// assert(dObject[xx - 1][yy] == 0);
 				// assert(dObject[xx + 1][yy] == 0);
@@ -88,14 +89,15 @@ static bool TFit_Shrine(BYTE tv)
 			}
 			if (nTrapTable[dPiece[xx - 1][yy]]
 			 // make sure the place is wide enough
+			 // - on the inside
 			 && !nSolidTable[dPiece[xx][yy - 1]]
 			 && !nSolidTable[dPiece[xx][yy + 1]]
+			 // - on the wall (to avoid doors)
+			 && nSolidTable[dPiece[xx - 1][yy - 1]]
+			 && nSolidTable[dPiece[xx - 1][yy + 1]]
 			 // make sure it is in the same room
 			 && dTransVal[xx][yy - 1] == tv
-			 && dTransVal[xx][yy + 1] == tv
-			 // make sure there is no door on the wall
-			 && dObject[xx - 1][yy - 1] == 0
-			 && dObject[xx - 1][yy + 1] == 0) {
+			 && dTransVal[xx][yy + 1] == tv) {
 				// assert(dObject[xx][yy] == 0);
 				// assert(dObject[xx][yy - 1] == 0);
 				// assert(dObject[xx][yy + 1] == 0);
