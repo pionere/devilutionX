@@ -507,25 +507,61 @@ static void AddL3Objs(int x1, int y1, int x2, int y2)
 
 static void AddL2Torches()
 {
-	int i, j, pn;
-
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
+	int i, j, m, pn;
+	// place torches on NE->SW walls
+	for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
+		for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
+			// skip setmap pieces
 			if (dFlags[i][j] & BFLAG_POPULATED)
 				continue;
-
-			pn = dPiece[i][j];
-			if (pn == 1 && random_(145, 4) == 0)
+			// select 'trapable' position
+			if (!nTrapTable[dPiece[i][j]])
+				continue;
+			pn = random_(145, 32);
+			if (pn >= 2)
+				continue;
+			// make sure the place is wide enough on the wall (to avoid doors)
+			if (!(nSolidTable[dPiece[i][j - 1]] | nSolidTable[dPiece[i][j + 1]]))
+				continue;
+			// check if the wall goes in the right direction
+			m = i + (pn == 0 ? -1 : 1);
+			if (nSolidTable[dPiece[m][j]]/* | dObject[m][j]*/)
+				continue;
+			if (m > i) {
 				AddObject(OBJ_TORCHL2, i, j);
-
-			if (pn == 5 && random_(145, 4) == 0)
+			} else {
+				AddObject(OBJ_TORCHL, m, j);
+			}
+			// skip a few tiles to prevent close placement
+			j += 4;
+		}
+	}
+	// place torches on NW->SE walls
+	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
+		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
+			// skip setmap pieces
+			if (dFlags[i][j] & BFLAG_POPULATED)
+				continue;
+			// select 'trapable' position
+			if (!nTrapTable[dPiece[i][j]])
+				continue;
+			pn = random_(145, 32);
+			if (pn >= 2)
+				continue;
+			// make sure the place is wide enough on the wall (to avoid doors)
+			if (!(nSolidTable[dPiece[i - 1][j]] | nSolidTable[dPiece[i + 1][j]]))
+				continue;
+			// check if the wall goes in the right direction
+			m = j + (pn == 0 ? -1 : 1);
+			if (nSolidTable[dPiece[i][m]]/* | dObject[i][m]*/)
+				continue;
+			if (m > j) {
 				AddObject(OBJ_TORCHR2, i, j);
-
-			if (pn == 37 && random_(145, 10) == 0 && dObject[i - 1][j] == 0)
-				AddObject(OBJ_TORCHL, i - 1, j);
-
-			if (pn == 41 && random_(145, 10) == 0 && dObject[i][j - 1] == 0)
-				AddObject(OBJ_TORCHR, i, j - 1);
+			} else {
+				AddObject(OBJ_TORCHR, i, m);
+			}
+			// skip a few tiles to prevent close placement
+			i += 4;
 		}
 	}
 }
