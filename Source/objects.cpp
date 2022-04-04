@@ -717,7 +717,7 @@ static void SetupObject(int oi, int x, int y, int type)
 		os->_oAnimFrame = RandRange(1, os->_oAnimLen);
 	}
 	os->_oAnimWidth = ofd->oAnimWidth;
-	os->_oAnimXOffset = (os->_oAnimWidth - 64) >> 1;
+	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	os->_oSolidFlag = ofd->oSolidFlag;
 	os->_oMissFlag = ofd->oMissFlag;
 	os->_oLightFlag = ofd->oLightFlag;
@@ -961,7 +961,7 @@ void InitObjects()
 		if (QuestStatus(Q_LTBANNER))
 			AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
 		InitRndSarcs(OBJ_SARC);
-		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
+		AddL1Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
 		break;
 	case DTYPE_CATACOMBS:
 		if (currLvl._dLevelIdx == DLV_CATACOMBS4)
@@ -971,7 +971,7 @@ void InitObjects()
 		if (QuestStatus(Q_SCHAMB)) {
 			AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_SCHAMB);
 		}
-		AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
+		AddL2Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
 		AddL2Torches();
 		if (QuestStatus(Q_BLIND)) {
 			AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
@@ -992,7 +992,7 @@ void InitObjects()
 #ifdef HELLFIRE
 	case DTYPE_NEST:
 #endif
-		AddL3Objs(0, 0, MAXDUNX, MAXDUNY);
+		AddL3Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
 		break;
 	case DTYPE_HELL:
 		if (currLvl._dLevelIdx == DLV_HELL4) {
@@ -1029,7 +1029,7 @@ void InitObjects()
 			break;
 		}
 		InitRndSarcs(OBJ_L5SARC);
-		AddCryptObjs(0, 0, MAXDUNX, MAXDUNY);
+		AddCryptObjs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
 		break;
 #endif
 	default:
