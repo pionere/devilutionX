@@ -2318,16 +2318,18 @@ static bool PlrDoBlock(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoBlock: illegal player %d", pnum);
 	}
-	if (plr._pIFlags & ISPL_FASTBLOCK && plr._pAnimCnt == 0 && plr._pAnimFrame != 1) {
+	if ((plr._pIFlags & ISPL_FASTBLOCK) && plr._pAnimCnt == 0 && plr._pAnimFrame != 1) {
 		PlrStepAnim(pnum);
 	}
 
 	if (plr._pAnimFrame >= plr._pBFrames && plr._pAnimCnt == plr._pAnimFrameLen - 1) {
 			if (plr.destAction == ACTION_BLOCK) {
-				// extend the blocking animation TODO: does not work with too fast animations (WARRIORs)
+				// extend the blocking animation TODO: does not work with too fast animations (WARRIORs) in faster/fastest games
 				plr.destAction = ACTION_NONE;
 				plr._pAnimData = plr._pBAnim[plr.destParam1];
-				plr._pAnimFrameLen = 8;
+				plr._pAnimFrameLen = plr._pBFrames * 4;
+				if (plr._pIFlags & ISPL_FASTBLOCK)
+					plr._pAnimFrameLen >>= 1;
 				plr._pAnimCnt = -1;
 			} else {
 				//PlrStartStand(pnum);
