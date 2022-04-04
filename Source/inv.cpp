@@ -1306,6 +1306,7 @@ void InvGetItem(int pnum, int ii)
 	ItemStatOk(pnum, is);
 	copy_pod(plr._pHoldItem, *is);
 	if (pnum == mypnum) {
+		PlaySFX(IS_IGRAB);
 		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
 		pcursitem = ITEM_NONE;
 	}
@@ -1538,8 +1539,10 @@ void SyncSplitGold(int pnum, int cii, int value)
 	pi->_iSeed = seed;
 	pi->_iStatFlag = TRUE;
 	SetGoldItemValue(pi, value);
-	if (pnum == mypnum)
+	if (pnum == mypnum) {
+		PlaySFX(IS_IGRAB);
 		NewCursor(pi->_iCurs + CURSOR_FIRSTITEM);
+	}
 }
 
 BYTE CheckInvBelt()
