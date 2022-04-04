@@ -469,6 +469,7 @@ void nthread_finish(UINT uMsg)
 	gdwGameLogicTurn = lastGameTurn * gbNetUpdateRate;
 	tmp = guSendLevelData; // preserve this mask, requests of the pending turns are supposed to be handled
 	// phase 9 end
+#if !NONET
 	if (geBufferMsgs != MSG_LVL_DELTA_WAIT) {
 		// phase 10a
 		assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
@@ -481,6 +482,10 @@ void nthread_finish(UINT uMsg)
 		// assert(geBufferMsgs == MSG_NORMAL);
 		geBufferMsgs = MSG_LVL_DELTA_SKIP_JOIN;
 		nthread_process_pending_delta_turns(false);
+#else
+	assert(geBufferMsgs == MSG_LVL_DELTA_WAIT);
+	if (FALSE) {
+#endif /* !NONET */
 	} else {
 		// phase 10b
 		geBufferMsgs = MSG_NORMAL;
