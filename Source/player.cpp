@@ -14,6 +14,8 @@ int mypnum;
 PlayerStruct players[MAX_PLRS];
 /* Counter to suppress animations in case the current player is changing the level. */
 BYTE gbLvlLoad;
+/** The current player while processing the players. */
+BYTE gbGameLogicPnum;
 bool _gbPlrGfxSizeLoaded = false;
 int plr_lframe_size;
 int plr_wframe_size;
@@ -486,7 +488,7 @@ static void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int 
 	plr._pAnimData = anims[dir];
 	plr._pAnimLen = numFrames;
 	plr._pAnimFrame = 1;
-	plr._pAnimCnt = 0;
+	plr._pAnimCnt = (gbGameLogicProgress < GLP_PLAYERS_DONE && gbGameLogicPnum <= pnum) ? -1 : 0;
 	plr._pAnimFrameLen = frameLen;
 	plr._pAnimWidth = width;
 	plr._pAnimXOffset = (width - TILE_WIDTH) >> 1;
@@ -2494,14 +2496,14 @@ static bool PlrDoNewLvl(int pnum)
 	return false;
 }
 
-static void CheckNewPath(int pnum)
+static bool CheckNewPath(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("CheckNewPath: illegal player %d", pnum);
 	}
 	if (plr._pHitPoints < (1 << 6)) {
 		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
-		return;
+		return false;
 	}
 
 	if (plr.destAction == ACTION_ATTACKMON) {
@@ -2527,13 +2529,15 @@ static void CheckNewPath(int pnum)
 				//PlrStartStand(pnum);
 				StartStand(pnum);
 				plr.destAction = ACTION_NONE;
+				return false;
 			}
+			return true;
 		}
 
-		return;
+		return false;
 	}
 	if (plr.destAction == ACTION_NONE) {
-		return;
+		return false;
 	}
 
 	if (plr._pmode == PM_STAND) {
@@ -2573,7 +2577,7 @@ static void CheckNewPath(int pnum)
 		AssertFixPlayerLocation(pnum);
 		plr.destAction = ACTION_NONE;
 
-		return;
+		return plr._pmode != PM_STAND;
 	}
 
 	if (plr._pmode == PM_ATTACK && plr._pAnimFrame > plr._pAFNum) {
@@ -2599,6 +2603,7 @@ static void CheckNewPath(int pnum)
 			plr.destAction = ACTION_NONE;
 		}
 	}
+	return false;
 }
 
 #if DEBUG_MODE || DEV_MODE
@@ -2761,6 +2766,7 @@ void ProcessPlayers()
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel)
 			continue;
+		gbGameLogicPnum = pnum;
 #if DEBUG_MODE || DEV_MODE
 		ValidatePlayer(pnum);
 #endif
@@ -2838,7 +2844,7 @@ void ProcessPlayers()
 					ASSUME_UNREACHABLE
 					raflag = false;
 				}
-				CheckNewPath(pnum);
+				raflag = CheckNewPath(pnum);
 			} while (raflag);
 
 			plr._pAnimCnt++;
@@ -2851,6 +2857,7 @@ void ProcessPlayers()
 			}
 		}
 	}
+	gbGameLogicPnum = 0;
 }
 
 void ClrPlrPath(int pnum)
