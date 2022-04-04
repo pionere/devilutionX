@@ -1888,11 +1888,12 @@ static bool PlrDoWalk(int pnum)
 			PlrChangeOffset(pnum);
 		}
 	}
-
+	assert(PlrAnimFrameLens[PA_WALK] == 1);
 	if ((plr._pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, plr._px, plr._py);
 	}
 
+	assert(PlrAnimFrameLens[PA_WALK] == 1);
 	if (plr._pAnimFrame < plr._pWFrames) {
 		PlrChangeOffset(pnum);
 		return false;
@@ -2221,7 +2222,7 @@ static bool PlrDoAttack(int pnum)
 			WeaponDur(pnum, 40 - hitcnt * 8);
 		}
 	}
-
+	assert(PlrAnimFrameLens[PA_ATTACK] == 1);
 	if (plr._pAnimFrame < plr._pAFrames)
 		return false;
 
@@ -2260,7 +2261,7 @@ static bool PlrDoRangeAttack(int pnum)
 
 		WeaponDur(pnum, 40);
 	}
-
+	assert(PlrAnimFrameLens[PA_ATTACK] == 1);
 	if (plr._pAnimFrame < plr._pAFrames)
 		return false;
 
@@ -2322,7 +2323,7 @@ static bool PlrDoBlock(int pnum)
 		PlrStepAnim(pnum);
 	}
 
-	if (plr._pAnimFrame >= plr._pBFrames) {
+	if (plr._pAnimFrame >= plr._pBFrames && plr._pAnimCnt == PlrAnimFrameLens[PA_BLOCK] - 1) {
 		if (plr._pVar1 == 0) { // BLOCK_EXTENSION
 			if (plr.destAction == ACTION_BLOCK) {
 				// extend the blocking animation TODO: does not work with too fast animations (WARRIORs)
@@ -2397,7 +2398,7 @@ static bool PlrDoSpell(int pnum)
 		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // SPELL_TARGET_X, SPELL_TARGET_Y
 			spelldata[plr._pVar3].sMissile, MST_PLAYER, pnum, plr._pVar4); // SPELL_NUM, SPELL_LEVEL
 	}
-
+	assert(PlrAnimFrameLens[PA_SPELL] == 1);
 	if (plr._pAnimFrame < plr._pSFrames)
 		return false;
 
@@ -2451,7 +2452,7 @@ static bool PlrDoGotHit(int pnum)
 		if ((plr._pVar8 & 3) == 2)
 			PlrStepAnim(pnum);
 	}
-
+	assert(PlrAnimFrameLens[PA_GOTHIT] == 1);
 	if (plr._pAnimFrame < plr._pHFrames)
 		return false;
 	//PlrStartStand(pnum);
