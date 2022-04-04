@@ -3023,8 +3023,8 @@ static unsigned On_OPERATEOBJ(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 
-	if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
-		SyncOpObject(pnum, SwapLE16(cmd->wParam1));
+	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
+	//	SyncOpObject(pnum, SwapLE16(cmd->wParam1));
 	delta_sync_object(SwapLE16(cmd->wParam1), CMD_OPERATEOBJ, plr._pDunLevel);
 
 	return sizeof(*cmd);
