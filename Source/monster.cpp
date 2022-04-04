@@ -1201,7 +1201,8 @@ static void NewMonsterAnim(int mnum, int anim, int md)
 	mon->_mdir = md;
 	mon->_mAnimData = as->aData[md];
 	mon->_mAnimLen = as->aFrames;
-	mon->_mAnimCnt = 0;
+	// assert(gbGameLogicMnum <= mnum || anim == MA_STAND);
+	mon->_mAnimCnt = gbGameLogicProgress < GLP_MONSTERS_DONE ? -1 : 0;
 	mon->_mAnimFrame = 1;
 	mon->_mAnimFrameLen = as->aFrameLen;
 	mon->_mFlags &= ~(MFLAG_REV_ANIMATION | MFLAG_LOCK_ANIMATION);
@@ -4371,6 +4372,7 @@ void ProcessMonsters()
 		if (i < MAX_MINIONS && MINION_NR_INACTIVE(i))
 			continue;
 		mnum = monstactive[i];
+		// gbGameLogicMnum = mnum;
 		mon = &monsters[mnum];
 		if (IsMultiGame) {
 			SetRndSeed(mon->_mAISeed);
@@ -4525,7 +4527,7 @@ void ProcessMonsters()
 			}
 		}
 	}
-
+	// gbGameLogicMnum = 0;
 	DeleteMonsterList();
 }
 

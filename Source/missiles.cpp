@@ -1361,6 +1361,7 @@ static void SyncChargeAnim(int mi)
 static void SetMissDir(int mi, int dir)
 {
 	missile[mi]._miDir = dir;
+	// assert(gbGameLogicProgress < GLP_MISSILES_DONE);
 	missile[mi]._miAnimCnt = -1;
 	missile[mi]._miAnimFrame = 1;
 	SyncMissAnim(mi);

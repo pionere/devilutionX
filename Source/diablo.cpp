@@ -23,6 +23,7 @@ bool gbRunGameResult;
 bool gbZoomInFlag;
 bool gbLoadGame;
 bool gbCineflag;
+BYTE gbGameLogicProgress = GLP_NONE;
 int gbRedrawFlags;
 bool gbGamePaused;
 /** Specifies the 'dead' state of the local player (MYPLR_DEATH_MODE). */
@@ -1399,14 +1400,21 @@ static bool ProcessInput()
 void game_logic()
 {
 	multi_rnd_seeds();
+	// assert(gbGameLogicProgress == GLP_NONE);
 	ProcessPlayers();
+	gbGameLogicProgress = GLP_PLAYERS_DONE;
 	ProcessMonsters();
+	gbGameLogicProgress = GLP_MONSTERS_DONE;
 	if (currLvl._dType == DTYPE_TOWN) {
 		ProcessTowners();
+		// gbGameLogicProgress = GLP_TOWNERS_DONE;
 	}
 	ProcessObjects();
+	// gbGameLogicProgress = GLP_OBJECTS_DONE;
 	ProcessMissiles();
+	// gbGameLogicProgress = GLP_MISSILES_DONE;
 	ProcessItems();
+	// gbGameLogicProgress = GLP_ITEMS_DONE;
 	ProcessLightList();
 	ProcessVisionList();
 
@@ -1420,6 +1428,8 @@ void game_logic()
 	CheckTriggers();
 	CheckQuests();
 	pfile_update(false);
+
+	gbGameLogicProgress = GLP_NONE;
 }
 
 static void game_loop()

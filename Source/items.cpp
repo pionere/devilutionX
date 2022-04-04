@@ -2263,6 +2263,7 @@ void RespawnItem(int ii, bool FlipFlag)
 	if (FlipFlag) {
 		is->_iAnimFrame = 1;
 		is->_iAnimFlag = TRUE;
+		// assert(gbGameLogicProgress < GLP_ITEMS_DONE);
 		is->_iAnimCnt = -1;
 		is->_iSelFlag = 0;
 	} else {

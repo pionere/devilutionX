@@ -4100,6 +4100,16 @@ typedef enum mpq_files {
 	NUM_MPQS
 } mpq_files;
 
+typedef enum game_logic_progress {
+	GLP_NONE,
+	GLP_PLAYERS_DONE,
+	GLP_MONSTERS_DONE,
+	//GLP_TOWNERS_DONE,
+	//GLP_OBJECTS_DONE,
+	//GLP_MISSILES_DONE,
+	//GLP_ITEMS_DONE,
+} game_logic_progress; 
+
 typedef enum redraw_flags {
 	REDRAW_HP_FLASK      = 1 << 0,
 	REDRAW_MANA_FLASK    = 1 << 1,
