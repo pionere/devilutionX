@@ -3168,9 +3168,9 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 		guRequestLevelData[pnum] = gdwLastGameTurn;
 	//}
 	// should not be the case if priority is respected
-	assert(geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel); // net_
-	if (geBufferMsgs != MSG_LVL_DELTA_WAIT &&
-	 (geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel)) {
+	net_assert(geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel);
+	if (geBufferMsgs != MSG_LVL_DELTA_WAIT /*&&
+	 (geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel)*/) {
 		plr._pLvlChanging = FALSE;
 		//if (plr._pmode != PM_DEATH)
 			plr._pInvincible = 40;
