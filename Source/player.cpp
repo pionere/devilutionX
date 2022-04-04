@@ -1535,7 +1535,6 @@ static void StartBlock(int pnum, int dir)
 	}
 
 	plr._pmode = PM_BLOCK;
-	plr._pVar1 = 0; // BLOCK_EXTENSION : extended blocking
 	if (!(plr._pGFXLoad & PFILE_BLOCK)) {
 		LoadPlrGFX(pnum, PFILE_BLOCK);
 	}
@@ -2323,26 +2322,20 @@ static bool PlrDoBlock(int pnum)
 		PlrStepAnim(pnum);
 	}
 
-	if (plr._pAnimFrame >= plr._pBFrames && plr._pAnimCnt == PlrAnimFrameLens[PA_BLOCK] - 1) {
-		if (plr._pVar1 == 0) { // BLOCK_EXTENSION
+	if (plr._pAnimFrame >= plr._pBFrames && plr._pAnimCnt == plr._pAnimFrameLen - 1) {
 			if (plr.destAction == ACTION_BLOCK) {
 				// extend the blocking animation TODO: does not work with too fast animations (WARRIORs)
 				plr.destAction = ACTION_NONE;
 				plr._pAnimData = plr._pBAnim[plr.destParam1];
-				// _pVar1 = _pBFrames * (BASE_DELAY + 1) / 2 (+ 1)
-				plr._pVar1 = plr._pBFrames + (plr._pBFrames >> 1) + 1;
-				plr._pAnimFrameLen = plr._pVar1;
-				plr._pAnimCnt = 0;
+				plr._pAnimFrameLen = 8;
+				plr._pAnimCnt = -1;
 			} else {
 				//PlrStartStand(pnum);
 				StartStand(pnum);
 				//ClearPlrPVars(pnum);
 				return true;
 			}
-		}
-		plr._pVar1--;
 	}
-
 	return false;
 }
 
