@@ -35,8 +35,9 @@
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE
-
+#if DEBUG_MODE || DEV_MODE
 unsigned _guLockCount;
+#endif
 /** Back buffer */
 BYTE *gpBuffer;
 /** Upper bound of back buffer. */
@@ -46,8 +47,8 @@ BYTE *gpBufEnd;
 
 #if DEBUG_MODE
 int locktbl[256];
-#endif
 static CCritSect sgMemCrit;
+#endif
 
 static void dx_create_back_buffer()
 {
@@ -112,6 +113,7 @@ void dx_init()
 
 static void lock_buf_priv()
 {
+#if DEBUG_MODE
 	sgMemCrit.Enter();
 	if (_guLockCount != 0) {
 		_guLockCount++;
@@ -121,6 +123,11 @@ static void lock_buf_priv()
 	//gpBuffer = (BYTE *)back_surface->pixels;
 	//gpBufEnd += (uintptr_t)gpBuffer;
 	_guLockCount++;
+#elif DEV_MODE
+	assert(_guLockCount == 0);
+	_guLockCount++;
+	assert(gpBuffer == back_surface->pixels);
+#endif
 }
 
 void lock_buf(BYTE idx)
@@ -138,12 +145,15 @@ static void unlock_buf_priv()
 		app_fatal("draw main unlock error");
 	if (gpBuffer == NULL)
 		app_fatal("draw consistency error");
-#endif
 	_guLockCount--;
 	//if (_guLockCount == 0) {
 	//	gpBufEnd -= (uintptr_t)gpBuffer;
 	//}
 	sgMemCrit.Leave();
+#elif DEV_MODE
+	assert(_guLockCount == 1);
+	_guLockCount--;
+#endif
 }
 
 void unlock_buf(BYTE idx)
@@ -165,10 +175,17 @@ void dx_cleanup()
 	if (ghMainWnd != NULL)
 		SDL_HideWindow(ghMainWnd);
 #endif
+#if DEBUG_MODE
 	sgMemCrit.Enter();
 	_guLockCount = 0;
 	gpBuffer = NULL;
 	sgMemCrit.Leave();
+#elif DEV_MODE
+	_guLockCount = 0;
+	gpBuffer = NULL;
+#else
+	gpBuffer = NULL;
+#endif
 
 	if (back_surface == NULL)
 		return;
