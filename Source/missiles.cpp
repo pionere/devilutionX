@@ -1478,7 +1478,8 @@ static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 
 	mis = &missile[mi];
 	mis->_miVar1 = mitype;
-	mis->_miVar2 = mirange;		// trigger range
+	mis->_miVar2 = mirange;     // trigger range
+	mis->_miVar3 = 16;          // delay
 	if (mis->_miCaster == MST_PLAYER)
 		mis->_miSpllvl += plx(mis->_miSource)._pDexterity >> 5;
 	mis->_miRange = 16 + 1584;	// delay + ttl
@@ -1504,6 +1505,7 @@ static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 /**
  * Var1: mitype to fire upon impact
  * Var2: range of the rune
+ * Var3: fire timer
  */
 int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -1517,6 +1519,7 @@ int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 /**
  * Var1: mitype to fire upon impact
  * Var2: range of the rune
+ * Var3: fire timer
  */
 int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -1530,6 +1533,7 @@ int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 /**
  * Var1: mitype to fire upon impact
  * Var2: range of the rune
+ * Var3: fire timer
  */
 int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -1543,6 +1547,7 @@ int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 /**
  * Var1: mitype to fire upon impact
  * Var2: range of the rune
+ * Var3: fire timer
  */
 int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -1556,6 +1561,7 @@ int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 /**
  * Var1: mitype to fire upon impact
  * Var2: range of the rune
+ * Var3: fire timer
  */
 int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -3446,7 +3452,7 @@ void MI_HorkSpawn(int mi)
 void MI_Rune(int mi)
 {
 	MissileStruct* mis;
-	int j, tx, ty;
+	int j, mnum, tx, ty;
 	const char* cr;
 
 	mis = &missile[mi];
@@ -3456,18 +3462,24 @@ void MI_Rune(int mi)
 		AddUnLight(mis->_miLid);
 		return;
 	}
-	if (mis->_miRange <= 1584) { // ttl of the rune
+	if (--mis->_miVar3 < 0) {
 		cr = &CrawlTable[CrawlNum[mis->_miVar2]];
 		for (j = *cr; j > 0; j--) {
 			tx = mis->_mix + *++cr;
 			ty = mis->_miy + *++cr;
-			if ((dMonster[tx][ty] | dPlayer[tx][ty]) != 0) {
-				mis->_miDelFlag = TRUE;
-				AddUnLight(mis->_miLid);
-				// SetRndSeed(mis->_miRndSeed);
-				AddMissile(mis->_mix, mis->_miy, tx, ty, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
-				return;
+			if (dPlayer[tx][ty] == 0) {
+				mnum = dMonster[tx][ty];
+				if (mnum == 0)
+					continue;
+				mnum = mnum >= 0 ? mnum - 1 : -(mnum + 1);
+				if (monsters[mnum]._mmode == MM_STONE || monsters[mnum]._mmode == MM_DEATH)
+					continue;
 			}
+			// SetRndSeed(mis->_miRndSeed);
+			AddMissile(mis->_mix, mis->_miy, tx, ty, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			mis->_miRange -= 48;
+			mis->_miVar3 = 48;
+			break;
 		}
 	}
 	PutMissile(mi);
