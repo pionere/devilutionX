@@ -3445,14 +3445,15 @@ void MI_HorkSpawn(int mi)
 
 void MI_Rune(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int j, tx, ty;
-	const char *cr;
+	const char* cr;
 
 	mis = &missile[mi];
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
+		AddUnLight(mis->_miLid);
 		return;
 	}
 	if (mis->_miRange <= 1584) { // ttl of the rune
