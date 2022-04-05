@@ -2420,9 +2420,11 @@ void KnockbackPlr(int pnum, int dir)
 	newx = oldx + offset_x[dir];
 	newy = oldy + offset_y[dir];
 	if (PosOkPlayer(pnum, newx, newy)) {
+		RemovePlrFromMap(pnum);
 		plr._px = newx;
 		plr._py = newy;
-		RemovePlrFromMap(pnum);
+		ChangeLightXYOff(plr._plid, newx, newy);
+		ChangeVisionXY(plr._pvid, newx, newy);
 		dPlayer[newx][newy] = pnum + 1;
 		FixPlayerLocation(pnum);
 	}
