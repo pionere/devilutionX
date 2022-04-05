@@ -528,9 +528,9 @@ static void AddL2Torches()
 			if (nSolidTable[dPiece[m][j]]/* | dObject[m][j]*/)
 				continue;
 			if (m > i) {
-				AddObject(OBJ_TORCHL2, i, j);
+				AddObject(OBJ_TORCHL1, i, j);
 			} else {
-				AddObject(OBJ_TORCHL, m, j);
+				AddObject(OBJ_TORCHL2, m, j);
 			}
 			// skip a few tiles to prevent close placement
 			j += 4;
@@ -556,9 +556,9 @@ static void AddL2Torches()
 			if (nSolidTable[dPiece[i][m]]/* | dObject[i][m]*/)
 				continue;
 			if (m > j) {
-				AddObject(OBJ_TORCHR2, i, j);
+				AddObject(OBJ_TORCHR1, i, j);
 			} else {
-				AddObject(OBJ_TORCHR, i, m);
+				AddObject(OBJ_TORCHR2, i, m);
 			}
 			// skip a few tiles to prevent close placement
 			i += 4;
@@ -1400,9 +1400,9 @@ int AddObject(int type, int ox, int oy)
 #endif
 		AddObjLight(oi, 3);
 		break;
-	case OBJ_TORCHL:
-	case OBJ_TORCHR:
+	case OBJ_TORCHL1:
 	case OBJ_TORCHL2:
+	case OBJ_TORCHR1:
 	case OBJ_TORCHR2:
 		AddObjLight(oi, 8);
 		break;
@@ -1881,9 +1881,9 @@ void ProcessObjects()
 #endif
 			Obj_Door(oi);
 			break;
-		/*case OBJ_TORCHL:
-		case OBJ_TORCHR:
+		/*case OBJ_TORCHL1:
 		case OBJ_TORCHL2:
+		case OBJ_TORCHR1:
 		case OBJ_TORCHR2:
 			Obj_Light(oi, 5, flickers[1]);
 			break;*/
