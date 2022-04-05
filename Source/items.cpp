@@ -3040,9 +3040,9 @@ static int ItemColor(ItemStruct *is)
 	return COL_WHITE;
 }
 
-static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
+static void PrintItemMiscInfo(const ItemStruct* is, int x, int &y)
 {
-	const char *desc;
+	const char* desc;
 
 	switch (is->_iMiscId) {
 	case IMISC_NONE:
@@ -3072,23 +3072,17 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 		PrintItemString(x, y, desc);
 		break;
 	case IMISC_SCROLL:
-		desc = "Right-click to read";
-		PrintItemString(x, y, desc);
-		return;
-	/*case IMISC_SCROLLT:
-		desc = "Right-click to read, then";
-		PrintItemString(x, y, desc);
-		desc = "left-click to target";
-		PrintItemString(x, y, desc);
-		return;*/
 	case IMISC_BOOK:
-		desc = "Right-click to read";
+#ifdef HELLFIRE
+	case IMISC_NOTE:
+#endif
+		desc = "right-click to read";
 		PrintItemString(x, y, desc);
 		return;
 	case IMISC_UNIQUE:
 		return;
 	case IMISC_EAR:
-		snprintf(tempstr, sizeof(tempstr), "Level : %d", is->_ivalue);
+		snprintf(tempstr, sizeof(tempstr), "(lvl: %d)", is->_ivalue);
 		PrintItemString(x, y);
 		return;
 	case IMISC_SPECELIX:
@@ -3153,17 +3147,13 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 		break;
 #ifdef HELLFIRE
 	case IMISC_MAPOFDOOM:
-		desc = "Right-click to view";
+		desc = "right-click to view";
 		PrintItemString(x, y, desc);
 		return;
 	case IMISC_RUNE:
-		desc = "Right-click to activate, then";
+		desc = "right-click to activate, then";
 		PrintItemString(x, y, desc);
 		desc = "left-click to place";
-		PrintItemString(x, y, desc);
-		return;
-	case IMISC_NOTE:
-		desc = "Right click to read";
 		PrintItemString(x, y, desc);
 		return;
 #endif
@@ -3172,7 +3162,7 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 		return;
 	}
 
-	desc = "Right click to use";
+	desc = "right-click to use";
 	PrintItemString(x, y, desc);
 	return;
 }
