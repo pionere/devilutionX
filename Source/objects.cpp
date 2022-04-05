@@ -507,7 +507,7 @@ static void AddL3Objs(int x1, int y1, int x2, int y2)
 
 static void AddL2Torches()
 {
-	int i, j, m, pn;
+	int i, j;
 	// place torches on NE->SW walls
 	for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 		for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
@@ -515,22 +515,15 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_POPULATED)
 				continue;
 			// select 'trapable' position
-			if (nTrapTable[dPiece[i][j]] == PTT_NONE)
+			if (nTrapTable[dPiece[i][j]] != PTT_LEFT)
 				continue;
-			pn = random_(145, 32);
-			if (pn >= 2)
+			if (random_(145, 32) != 0)
 				continue;
-			// make sure the place is wide enough on the wall (to avoid doors)
-			if (!(nSolidTable[dPiece[i][j - 1]] | nSolidTable[dPiece[i][j + 1]]))
-				continue;
-			// check if the wall goes in the right direction
-			m = i + (pn == 0 ? -1 : 1);
-			if (nSolidTable[dPiece[m][j]]/* | dObject[m][j]*/)
-				continue;
-			if (m > i) {
+			// assert(nSolidTable[dPiece[i][j - 1]] | nSolidTable[dPiece[i][j + 1]]);
+			if (!nSolidTable[dPiece[i + 1][j]]) {
 				AddObject(OBJ_TORCHL1, i, j);
 			} else {
-				AddObject(OBJ_TORCHL2, m, j);
+				AddObject(OBJ_TORCHL2, i - 1, j);
 			}
 			// skip a few tiles to prevent close placement
 			j += 4;
@@ -543,22 +536,15 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_POPULATED)
 				continue;
 			// select 'trapable' position
-			if (nTrapTable[dPiece[i][j]] == PTT_NONE)
+			if (nTrapTable[dPiece[i][j]] != PTT_RIGHT)
 				continue;
-			pn = random_(145, 32);
-			if (pn >= 2)
+			if (random_(145, 32) != 0)
 				continue;
-			// make sure the place is wide enough on the wall (to avoid doors)
-			if (!(nSolidTable[dPiece[i - 1][j]] | nSolidTable[dPiece[i + 1][j]]))
-				continue;
-			// check if the wall goes in the right direction
-			m = j + (pn == 0 ? -1 : 1);
-			if (nSolidTable[dPiece[i][m]]/* | dObject[i][m]*/)
-				continue;
-			if (m > j) {
+			// assert(nSolidTable[dPiece[i - 1][j]] | nSolidTable[dPiece[i + 1][j]]);
+			if (!nSolidTable[dPiece[i][j + 1]]) {
 				AddObject(OBJ_TORCHR1, i, j);
 			} else {
-				AddObject(OBJ_TORCHR2, i, m);
+				AddObject(OBJ_TORCHR2, i, j - 1);
 			}
 			// skip a few tiles to prevent close placement
 			i += 4;
