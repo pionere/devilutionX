@@ -1572,15 +1572,11 @@ int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	return MIRES_FAIL_DELETE;
 }
 
-/**
- * Var1: direction to place the spawn
- */
 int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(8));
 	// missile[mi]._miMinDam = missile[mi]._miMaxDam = 0;
 	missile[mi]._miRange = 9 - 1;
-	missile[mi]._miVar1 = midir;
 	//PutMissile(mi);
 	return MIRES_DONE;
 }
@@ -3441,9 +3437,8 @@ void MI_HorkSpawn(int mi)
 			ty = mis->_miy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkMissile1(tx, ty)) {
-				i = 6;
-				AddMonster(tx, ty, mis->_miVar1, 1, true);
-				break;
+				AddMonster(tx, ty, mis->_miDir, 1, true);
+				return;
 			}
 		}
 	}
