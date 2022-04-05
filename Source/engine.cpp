@@ -20,7 +20,9 @@ int SeedCount;
 #endif
 /** Current game seed */
 Sint32 sglGameSeed;
+#if __cplusplus <= 199711L
 static CCritSect sgMemCrit;
+#endif
 
 /**
  * Specifies the increment used in the Borland C/C++ pseudo-random.
@@ -143,10 +145,13 @@ int random_(BYTE idx, int v)
 BYTE* DiabloAllocPtr(size_t dwBytes)
 {
 	BYTE* buf;
-
+#if __cplusplus <= 199711L
 	sgMemCrit.Enter();
 	buf = (BYTE*)malloc(dwBytes);
 	sgMemCrit.Leave();
+#else
+	buf = (BYTE*)malloc(dwBytes);
+#endif
 
 	if (buf == NULL)
 		app_fatal("Out of memory");
@@ -161,9 +166,13 @@ BYTE* DiabloAllocPtr(size_t dwBytes)
 void mem_free_dbg(void* p)
 {
 	if (p != NULL) {
+#if __cplusplus <= 199711L
 		sgMemCrit.Enter();
 		free(p);
 		sgMemCrit.Leave();
+#else
+		free(p);
+#endif
 	}
 }
 
