@@ -1528,21 +1528,27 @@ static void MonStartSpAttack(int mnum)
 
 void RemoveMonFromMap(int mnum)
 {
-	int x, y, mx, my, m1;
-
-	mx = monsters[mnum]._moldx;
-	my = monsters[mnum]._moldy;
+	MonsterStruct* mon;
+	int m1;
 
 	m1 = mnum + 1;
+	mon = &monsters[mnum];
+	if (abs(dMonster[mon->_moldx][mon->_moldy]) == m1)
+		dMonster[mon->_moldx][mon->_moldy] = 0;
+	if (abs(dMonster[mon->_mfutx][mon->_mfuty]) == m1)
+		dMonster[mon->_mfutx][mon->_mfuty] = 0;
+#if DEV_MODE
+	int x, y, mx, my;
 
-	static_assert(DBORDERX >= 1, "RemoveMonFromMap expects a large enough border I.");
-	static_assert(DBORDERY >= 1, "RemoveMonFromMap expects a large enough border II.");
+	mx = mon->_moldx;
+	my = mon->_moldy;
 	for (x = mx - 1; x <= mx + 1; x++) {
 		for (y = my - 1; y <= my + 1; y++) {
 			if (abs(dMonster[x][y]) == m1)
-				dMonster[x][y] = 0;
+				app_fatal("dMonster not cleared on %d:%d mode:%d ai:%d goal:%d", x, y, mon->_mmode, mon->_mAi, mon->_mgoal);
 		}
 	}
+#endif
 }
 
 static void MonPlace(int mnum)
