@@ -2689,6 +2689,13 @@ typedef enum piece_flag {
 	PFLAG_TRAP_SOURCE      = 1 << 7,
 } piece_flag;
 
+typedef enum _piece_trap_type {
+	PTT_NONE,
+	PTT_ANY,
+	PTT_LEFT,
+	PTT_RIGHT,
+} _piece_trap_type;
+
 typedef enum piece_micro_flag {
 	TMIF_WALL_TRANS = 1 << 0,
 	TMIF_LEFT_REDRAW = 1 << 1,
@@ -3389,11 +3396,12 @@ typedef enum _object_id {
 	OBJ_SWITCHSKL,
 	OBJ_TNUDEM,
 	OBJ_TNUDEW,
-	OBJ_TORTURE1,
-	OBJ_TORTURE2,
-	OBJ_TORTURE3,
-	OBJ_TORTURE4,
-	OBJ_TORTURE5,
+	OBJ_TORTUREL1,
+	OBJ_TORTUREL2,
+	OBJ_TORTUREL3,
+	OBJ_TORTURER1,
+	OBJ_TORTURER2,
+	OBJ_TORTURER3,
 	OBJ_L2LDOOR,
 	OBJ_L2RDOOR,
 	OBJ_TORCHL,

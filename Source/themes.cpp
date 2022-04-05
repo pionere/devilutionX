@@ -69,7 +69,7 @@ static bool TFit_Shrine(BYTE tv)
 	numMatches = 0;
 	while (TRUE) {
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			if (nTrapTable[dPiece[xx][yy - 1]]
+			if (nTrapTable[dPiece[xx][yy - 1]] != PTT_NONE
 			 // make sure the place is wide enough
 			 // - on the inside
 			 && !nSolidTable[dPiece[xx - 1][yy]]
@@ -87,7 +87,7 @@ static bool TFit_Shrine(BYTE tv)
 				if (++numMatches == lengthof(matches))
 					break;
 			}
-			if (nTrapTable[dPiece[xx - 1][yy]]
+			if (nTrapTable[dPiece[xx - 1][yy]] != PTT_NONE
 			 // make sure the place is wide enough
 			 // - on the inside
 			 && !nSolidTable[dPiece[xx][yy - 1]]

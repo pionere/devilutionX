@@ -47,9 +47,9 @@ bool nBlockTable[MAXTILES + 1];
  */
 bool nSolidTable[MAXTILES + 1];
 /**
- * List of trap-source dPieces
+ * List of trap-source dPieces (_piece_trap_type)
  */
-bool nTrapTable[MAXTILES + 1];
+BYTE nTrapTable[MAXTILES + 1];
 /**
  * List of missile blocking dPieces
  */
@@ -204,7 +204,7 @@ void InitLvlDungeon()
 		nSolidTable[i] = (bv & PFLAG_BLOCK_PATH) != 0;
 		nBlockTable[i] = (bv & PFLAG_BLOCK_LIGHT) != 0;
 		nMissileTable[i] = (bv & PFLAG_BLOCK_MISSILE) != 0;
-		nTrapTable[i] = (bv & PFLAG_TRAP_SOURCE) != 0;
+		nTrapTable[i] = (bv & PFLAG_TRAP_SOURCE) != 0 ? PTT_ANY : PTT_NONE;
 	}
 
 	mem_free_dbg(pSBFile);
@@ -364,6 +364,16 @@ void InitLvlDungeon()
 		nSolidTable[211] = false;
 		nMissileTable[211] = false;
 		nBlockTable[211] = false;
+		// enable hooked bodies on  walls
+		nTrapTable[2] = PTT_LEFT;
+		nTrapTable[189] = PTT_LEFT;
+		nTrapTable[197] = PTT_LEFT;
+		nTrapTable[205] = PTT_LEFT;
+		nTrapTable[209] = PTT_LEFT;
+		nTrapTable[5] = PTT_RIGHT;
+		nTrapTable[192] = PTT_RIGHT;
+		nTrapTable[212] = PTT_RIGHT;
+		nTrapTable[216] = PTT_RIGHT;
 		break;
 #ifdef HELLFIRE
 	case DTYPE_NEST:

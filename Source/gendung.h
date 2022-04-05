@@ -27,7 +27,7 @@ extern BYTE* pMicroCels;
 extern BYTE microFlags[MAXTILES + 1];
 extern bool nBlockTable[MAXTILES + 1];
 extern bool nSolidTable[MAXTILES + 1];
-extern bool nTrapTable[MAXTILES + 1];
+extern BYTE nTrapTable[MAXTILES + 1];
 extern bool nMissileTable[MAXTILES + 1];
 extern int gnDifficulty;
 extern LevelStruct currLvl;

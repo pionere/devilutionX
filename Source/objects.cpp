@@ -515,7 +515,7 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_POPULATED)
 				continue;
 			// select 'trapable' position
-			if (!nTrapTable[dPiece[i][j]])
+			if (nTrapTable[dPiece[i][j]] == PTT_NONE)
 				continue;
 			pn = random_(145, 32);
 			if (pn >= 2)
@@ -543,7 +543,7 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_POPULATED)
 				continue;
 			// select 'trapable' position
-			if (!nTrapTable[dPiece[i][j]])
+			if (nTrapTable[dPiece[i][j]] == PTT_NONE)
 				continue;
 			pn = random_(145, 32);
 			if (pn >= 2)
@@ -608,7 +608,7 @@ static void AddObjTraps()
 				continue;
 			if (dObject[tx][ty] != 0)
 				continue;
-			if (!nTrapTable[dPiece[tx][ty]])
+			if (nTrapTable[dPiece[tx][ty]] == PTT_NONE)
 				continue;
 			on = AddObject(on, tx, ty);
 			if (on == -1)
@@ -872,51 +872,34 @@ static void AddStoryBooks()
 	AddObject(OBJ_STORYCANDLE, xp + 2, yp + 1);
 }
 
-static void AddHookedBodies(int freq)
+static void AddHookedBodies()
 {
-	int i, j, ii, jj, type;
+	int i, j, ttv, type;
 
-	for (j = 0; j < DMAXY; j++) {
-		jj = DBORDERY + j * 2;
-		for (i = 0; i < DMAXX; i++) {
-			ii = DBORDERX + i * 2;
-			if (dungeon[i][j] != 1 && dungeon[i][j] != 2)
+	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
+		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
+			ttv = nTrapTable[dPiece[i][j]];
+			if (ttv == PTT_NONE)
 				continue;
-			if (random_(0, freq) != 0)
+			if (dFlags[i][j] & BFLAG_POPULATED)
 				continue;
-			if (NearThemeRoom(i, j))
+			type = random_(0, 32);
+			if (type >= 3)
 				continue;
-			if (dungeon[i][j] == 1) {
-				if (dungeon[i + 1][j] == 6) {
-					switch (random_(0, 3)) {
-					case 0:
-						type = OBJ_TORTURE1;
-						break;
-					case 1:
-						type = OBJ_TORTURE2;
-						break;
-					case 2:
-						type = OBJ_TORTURE5;
-						break;
-					default:
-						ASSUME_UNREACHABLE
-						break;
-					}
-					AddObject(type, ii + 1, jj);
-				}
-			} else /*if (dungeon[i][j] == 2 &&)*/ {
-				if (dungeon[i][j + 1] == 6) {
-					static_assert((int)OBJ_TORTURE3 + 1 == (int)OBJ_TORTURE4, "AddHookedBodies expects ordered OBJ_TORTURE values.");
-					AddObject(OBJ_TORTURE3 + random_(0, 2), ii, jj);
-				}
+			if (ttv == PTT_LEFT) {
+				type = OBJ_TORTUREL1 + type;
+			} else {
+				// assert(ttv == PTT_RIGHT);
+				type = OBJ_TORTURER1 + type;
 			}
+			AddObject(type, i, j);
 		}
 	}
 }
 
 static void AddL4Goodies()
 {
-	AddHookedBodies(6);
+	AddHookedBodies();
 	InitRndLocObj(2 * 4, 6 * 4, OBJ_TNUDEM);
 	InitRndLocObj(2 * 3, 6 * 3, OBJ_TNUDEW);
 	InitRndLocObj(2, 6, OBJ_DECAP);
