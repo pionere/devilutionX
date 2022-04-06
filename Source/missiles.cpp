@@ -3476,6 +3476,8 @@ void MI_Rune(int mi)
 			mis->_miVar3 = 48;
 			break;
 		}
+	} else {
+		mis->_miAnimCnt--;
 	}
 	PutMissile(mi);
 }
