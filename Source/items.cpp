@@ -2576,19 +2576,6 @@ ItemStruct* PlrItem(int pnum, int cii)
 	return pi;
 }
 
-static void RemovePlrItem(int pnum, int cii)
-{
-	if (cii < INVITEM_BELT_FIRST) {
-		if (cii < INVITEM_INV_FIRST) {
-			plr._pInvBody[cii]._itype = ITYPE_NONE;
-		} else {
-			SyncPlrStorageRemove(pnum, cii - INVITEM_INV_FIRST);
-		}
-	} else {
-		SyncPlrSpdBarRemove(pnum, cii - INVITEM_BELT_FIRST);
-	}
-}
-
 /*
  * Do the ability of the player, or identify an item.
  * @param pnum: the id of the player
@@ -2660,7 +2647,7 @@ void DoOil(int pnum, char from, BYTE cii)
 			return;
 
 		DoClean(pi, false);
-		RemovePlrItem(pnum, from);
+		SyncPlrItemRemove(pnum, from);
 		CalcPlrInv(pnum, true);
 		return;
 	}
@@ -2740,7 +2727,7 @@ void DoOil(int pnum, char from, BYTE cii)
 	copy_pod(*pi, items[MAXITEMS]);
 
 	pi->_iIdentified = TRUE;
-	RemovePlrItem(pnum, from);
+	SyncPlrItemRemove(pnum, from);
 	CalcPlrInv(pnum, true);
 }
 

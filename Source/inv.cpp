@@ -1002,7 +1002,7 @@ void InvPasteBeltItem(int pnum, BYTE r)
 
 	if (holditem->_iLoc != ILOC_BELT || holditem->_itype == ITYPE_NONE)
 		return;
-	
+
 	is = &plr._pSpdList[r];
 	cn = SwapItem(is, holditem);
 	if (holditem->_itype == ITYPE_NONE)
@@ -1144,6 +1144,7 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 		// assert(bLoc < MAXBELTITEMS);
 		plr._pSpdList[bLoc]._itype = ITYPE_NONE;
 		CalcPlrScrolls(pnum);
+		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 	}
 }
 
@@ -1172,15 +1173,6 @@ void SyncPlrStorageRemove(int pnum, int iv)
 	}
 
 	CalcPlrScrolls(pnum);
-}
-
-void SyncPlrSpdBarRemove(int pnum, int iv)
-{
-	plr._pSpdList[iv]._itype = ITYPE_NONE;
-
-	CalcPlrScrolls(pnum);
-
-	//gbRedrawFlags |= REDRAW_SPEED_BAR;
 }
 
 void CheckInvClick(bool bShift)
