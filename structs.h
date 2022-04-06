@@ -157,8 +157,9 @@ typedef struct ItemStruct {
 	BYTE _iMinStr;
 	BYTE _iMinMag;
 	BYTE _iMinDex;
+	BOOLEAN _iUsable;
 	BOOLEAN _iFloorFlag;
-	BOOL _iAnimFlag; // could be BOOLEAN, but convertig it causes inconsistency in case of X86_32bit_COMP...
+	BOOL _iAnimFlag; // could be BOOLEAN, but converting it causes inconsistency in case of X86_32bit_COMP...
 	BYTE* _iAnimData;        // PSX name -> ItemFrame
 	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen

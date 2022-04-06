@@ -260,8 +260,9 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iMinStr);
 	LoadByte(&is->_iMinMag);
 	LoadByte(&is->_iMinDex);
+	LoadByte(&is->_iUsable);
 	LoadByte(&is->_iFloorFlag);
-	tbuff += 2; // Alignment
+	tbuff += 1; // Alignment
 	LoadInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
@@ -982,8 +983,9 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iMinStr);
 	SaveByte(&is->_iMinMag);
 	SaveByte(&is->_iMinDex);
+	SaveByte(&is->_iUsable);
 	SaveByte(&is->_iFloorFlag);
-	tbuff += 2; // Alignment
+	tbuff += 1; // Alignment
 	SaveInt(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen

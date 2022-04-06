@@ -809,6 +809,7 @@ void SetItemData(int ii, int idata)
 	is->_iMinStr = ids->iMinStr;
 	is->_iMinMag = ids->iMinMag;
 	is->_iMinDex = ids->iMinDex;
+	is->_iUsable = ids->iUsable;
 	is->_iAC = ids->iMinAC == ids->iMaxAC ? ids->iMinAC : RandRange(ids->iMinAC, ids->iMaxAC);
 	is->_iDurability = ids->iDurability;
 	is->_iMaxDur = ids->iDurability;

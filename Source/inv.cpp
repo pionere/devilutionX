@@ -410,7 +410,7 @@ void DrawInvBelt()
 
 		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
 
-		if (is->_iStatFlag && AllItemsList[is->_iIdx].iUsable) {
+		if (is->_iStatFlag && is->_iUsable) {
 			fi = i + 49; // '1' + i;
 			ff = sfontframe[gbFontTransTbl[fi]];
 			PrintChar(screen_x + INV_SLOT_SIZE_PX - sfontkern[ff], screen_y, ff, COL_WHITE);
@@ -1730,7 +1730,7 @@ bool InvUseItem(int cii)
 		return true;
 	}
 
-	if (!AllItemsList[is->_iIdx].iUsable) {
+	if (!is->_iUsable) {
 		return false;
 	}
 
@@ -1830,7 +1830,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		return true;
 	}
 
-	if (!AllItemsList[is->_iIdx].iUsable)
+	if (!is->_iUsable)
 		return false;
 
 	// use the item
