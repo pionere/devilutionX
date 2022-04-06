@@ -2545,7 +2545,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			mid = mid >= 0 ? mid - 1 : -(mid + 1);
 			mon = &monsters[mid];
 			if (!(mon->_mFlags & MFLAG_NOSTONE)) {
-				if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mhitpoints >= (1 << 6)) {
+				if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mmode != MM_DEATH/*mon->_mhitpoints >= (1 << 6*/) {
 					mis->_miVar1 = mon->_mmode;
 					mis->_miVar2 = mid;
 					mon->_mVar3 = mon->_mmode;
