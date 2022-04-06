@@ -2534,8 +2534,8 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
-	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddStone expects a large enough border.");
-	for (i = 0; i < 6; i++) {
+	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "AddStone expects a large enough border.");
+	for (i = 0; i < 3; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = dx + *++cr;
