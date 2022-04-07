@@ -1311,20 +1311,20 @@ void DrawChr()
 	val = p->_pMaxHP;
 	col = val <= p->_pMaxHPBase ? COL_WHITE : COL_BLUE;
 	snprintf(chrstr, sizeof(chrstr), "%d", val >> 6);
-	ADD_PlrStringXY(88, 260, 125, chrstr, col);
+	ADD_PlrStringXY(87, 260, 126, chrstr, col); // 88, 125 -> 87, 126 otherwise '1000' is truncated
 	if (p->_pHitPoints != val)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pHitPoints >> 6);
-	ADD_PlrStringXY(135, 260, 172, chrstr, col);
+	ADD_PlrStringXY(134, 260, 173, chrstr, col); // 135, 172 -> 134, 173 otherwise '1000' is truncated
 
 	val = p->_pMaxMana;
 	col = val <= p->_pMaxManaBase ? COL_WHITE : COL_BLUE;
 	snprintf(chrstr, sizeof(chrstr), "%d", val >> 6);
-	ADD_PlrStringXY(88, 288, 125, chrstr, col);
+	ADD_PlrStringXY(87, 288, 126, chrstr, col); // 88, 125 -> 87, 126 otherwise '1000' is truncated
 	if (p->_pMana != val)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pMana >> 6);
-	ADD_PlrStringXY(135, 288, 172, chrstr, col);
+	ADD_PlrStringXY(134, 288, 173, chrstr, col); // 135, 172 -> 134, 173 otherwise '1000' is truncated
 }
 
 void DrawLevelUpIcon()
