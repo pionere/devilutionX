@@ -1016,6 +1016,7 @@ static void PlaceSetMapMonsters()
 		}
 
 		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && IsMultiGame) {
+			// assert(quests[Q_BETRAYER]._qactive != QUEST_NOTAVAIL);
 			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
@@ -1027,6 +1028,7 @@ static void PlaceSetMapMonsters()
 			PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
 		}
 		if (currLvl._dLevelIdx == DLV_HELL4) {
+			// assert(quests[Q_DIABLO]._qactive != QUEST_NOTAVAIL);
 			setp = LoadFileInMem("Levels\\L4Data\\diab1.DUN");
 			SetMapMonsters(setp, DIAB_QUAD_1X, DIAB_QUAD_1Y);
 			mem_free_dbg(setp);
@@ -1161,6 +1163,7 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 			if (*lm != 0) {
 				assert(SwapLE16(*lm) < lengthof(MonstConvTbl) && MonstConvTbl[SwapLE16(*lm)] != 0);
 				mtidx = AddMonsterType(MonstConvTbl[SwapLE16(*lm)], FALSE);
+				// assert(nummonsters < MAXMONSTERS);
 				PlaceMonster(nummonsters++, mtidx, i, j);
 			}
 			lm++;
