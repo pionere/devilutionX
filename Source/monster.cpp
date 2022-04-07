@@ -1054,11 +1054,9 @@ static void PlaceSetMapMonsters()
 void InitMonsters()
 {
 	TriggerStruct* ts;
-	int na;
+	unsigned na, numplacemonsters, numscattypes;
 	int i, j, xx, yy;
-	int numplacemonsters;
 	int mtidx;
-	int numscattypes;
 	int scatteridx[MAX_LVLMTYPES];
 	const int tdx[4] = { -1, -1,  2,  2 };
 	const int tdy[4] = { -1,  2, -1,  2 };
@@ -1088,14 +1086,14 @@ void InitMonsters()
 		na = 0;
 		for (xx = DBORDERX; xx < DSIZEX + DBORDERX; xx++)
 			for (yy = DBORDERY; yy < DSIZEY + DBORDERY; yy++)
-				if (!nSolidTable[dPiece[xx][yy]])
+				if ((nSolidTable[dPiece[xx][yy]] | (dFlags[xx][yy] & (BFLAG_ALERT | BFLAG_POPULATED))) == 0)
 					na++;
 		numplacemonsters = na / 30;
 		if (IsMultiGame)
 			numplacemonsters += numplacemonsters >> 1;
-		if (numplacemonsters > MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters)
-			numplacemonsters = MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters;
 		totalmonsters = nummonsters + numplacemonsters;
+		if (totalmonsters > MAXMONSTERS - 10)
+			totalmonsters = MAXMONSTERS - 10;
 		// place quest/unique monsters
 		PlaceUniques();
 		numscattypes = 0;
