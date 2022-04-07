@@ -2409,16 +2409,7 @@ static void DoRepair(int pnum, int cii)
 {
 	ItemStruct* pi = PlrItem(pnum, cii);
 
-	static_assert((int)ITYPE_SWORD + 1 == (int)ITYPE_AXE, "DoRepair check requires a specific ITYPE order I.");
-	static_assert((int)ITYPE_AXE + 1 == (int)ITYPE_BOW, "DoRepair check requires a specific ITYPE order II.");
-	static_assert((int)ITYPE_BOW + 1 == (int)ITYPE_MACE, "DoRepair check requires a specific ITYPE order III.");
-	static_assert((int)ITYPE_MACE + 1 == (int)ITYPE_STAFF, "DoRepair check requires a specific ITYPE order IV.");
-	static_assert((int)ITYPE_STAFF + 1 == (int)ITYPE_SHIELD, "DoRepair check requires a specific ITYPE order V.");
-	static_assert((int)ITYPE_SHIELD + 1 == (int)ITYPE_HELM, "DoRepair check requires a specific ITYPE order VI.");
-	static_assert((int)ITYPE_HELM + 1 == (int)ITYPE_LARMOR, "DoRepair check requires a specific ITYPE order VII.");
-	static_assert((int)ITYPE_LARMOR + 1 == (int)ITYPE_MARMOR, "DoRepair check requires a specific ITYPE order VIII.");
-	static_assert((int)ITYPE_MARMOR + 1 == (int)ITYPE_HARMOR, "DoRepair check requires a specific ITYPE order IX.");
-	if (pi->_itype < ITYPE_SWORD || pi->_itype > ITYPE_HARMOR)
+	if (!ITYPE_DURABLE(pi->_itype))
 		return;
 
 	RepairItem(pi, plr._pLevel);

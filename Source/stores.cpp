@@ -540,14 +540,13 @@ static void AddStoreSell(ItemStruct *is, int i)
 
 static bool SmithSellOk(const ItemStruct *is)
 {
-	return is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER
+	return (ITYPE_DURABLE(is->_itype) || is->_itype == ITYPE_MISC)
 #ifdef HELLFIRE
 		&& (is->_itype != ITYPE_MISC
 		 || (is->_iMiscId > IMISC_OILFIRST && is->_iMiscId < IMISC_OILLAST))
 #else
 		&& is->_itype != ITYPE_MISC
 #endif
-		&& is->_itype != ITYPE_GOLD
 		&& (is->_itype != ITYPE_STAFF || is->_iSpell == SPL_NULL)
 		&& is->_iClass != ICLASS_QUEST;
 }
@@ -618,7 +617,7 @@ static void S_StartSSell()
 
 static bool SmithRepairOk(const ItemStruct *is)
 {
-	return is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER && is->_iDurability != is->_iMaxDur;
+	return ITYPE_DURABLE(is->_itype) && is->_iDurability != is->_iMaxDur;
 }
 
 static void AddStoreHoldRepair(const ItemStruct *is, int i)

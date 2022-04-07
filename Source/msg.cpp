@@ -1193,16 +1193,7 @@ void LevelDeltaExport()
 					is = &plr._pHoldItem;
 				else
 					is = PlrItem(pnum, i);
-				static_assert((int)ITYPE_SWORD + 1 == (int)ITYPE_AXE, "LevelDeltaExport expects ordered ITYPE enum I.");
-				static_assert((int)ITYPE_AXE + 1 == (int)ITYPE_BOW, "LevelDeltaExport expects ordered ITYPE enum II.");
-				static_assert((int)ITYPE_BOW + 1 == (int)ITYPE_MACE, "LevelDeltaExport expects ordered ITYPE enum III.");
-				static_assert((int)ITYPE_MACE + 1 == (int)ITYPE_STAFF, "LevelDeltaExport expects ordered ITYPE enum IV.");
-				static_assert((int)ITYPE_STAFF + 1 == (int)ITYPE_SHIELD, "LevelDeltaExport expects ordered ITYPE enum V.");
-				static_assert((int)ITYPE_SHIELD + 1 == (int)ITYPE_HELM, "LevelDeltaExport expects ordered ITYPE enum VI.");
-				static_assert((int)ITYPE_HELM + 1 == (int)ITYPE_LARMOR, "LevelDeltaExport expects ordered ITYPE enum VII.");
-				static_assert((int)ITYPE_LARMOR + 1 == (int)ITYPE_MARMOR, "LevelDeltaExport expects ordered ITYPE enum VIII.");
-				static_assert((int)ITYPE_MARMOR + 1 == (int)ITYPE_HARMOR, "LevelDeltaExport expects ordered ITYPE enum IX.");
-				if (is->_itype >= ITYPE_SWORD && is->_itype <= ITYPE_HARMOR) {
+				if (ITYPE_DURABLE(is->_itype)) {
 					*dst = i;
 					dst++;
 					*dst = is->_iDurability;
@@ -1449,7 +1440,7 @@ void LevelDeltaLoad()
 				is = &plr._pHoldItem;
 			else
 				is = PlrItem(pnum, *src);
-			net_assert(is->_itype >= ITYPE_SWORD && is->_itype <= ITYPE_HARMOR);
+			net_assert(ITYPE_DURABLE(is->_itype));
 			src++;
 			if (pnum == mypnum) {
 				net_assert(is->_iDurability == *src);

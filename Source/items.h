@@ -8,6 +8,17 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+static_assert((int)ITYPE_SWORD + 1 == (int)ITYPE_AXE, "ITYPE_DURABLE check requires a specific ITYPE order I.");
+static_assert((int)ITYPE_AXE + 1 == (int)ITYPE_BOW, "ITYPE_DURABLE check requires a specific ITYPE order II.");
+static_assert((int)ITYPE_BOW + 1 == (int)ITYPE_MACE, "ITYPE_DURABLE check requires a specific ITYPE order III.");
+static_assert((int)ITYPE_MACE + 1 == (int)ITYPE_STAFF, "ITYPE_DURABLE check requires a specific ITYPE order IV.");
+static_assert((int)ITYPE_STAFF + 1 == (int)ITYPE_SHIELD, "ITYPE_DURABLE check requires a specific ITYPE order V.");
+static_assert((int)ITYPE_SHIELD + 1 == (int)ITYPE_HELM, "ITYPE_DURABLE check requires a specific ITYPE order VI.");
+static_assert((int)ITYPE_HELM + 1 == (int)ITYPE_LARMOR, "ITYPE_DURABLE check requires a specific ITYPE order VII.");
+static_assert((int)ITYPE_LARMOR + 1 == (int)ITYPE_MARMOR, "ITYPE_DURABLE check requires a specific ITYPE order VIII.");
+static_assert((int)ITYPE_MARMOR + 1 == (int)ITYPE_HARMOR, "ITYPE_DURABLE check requires a specific ITYPE order IX.");
+#define ITYPE_DURABLE(itype) (itype >= ITYPE_SWORD && itype <= ITYPE_HARMOR)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
