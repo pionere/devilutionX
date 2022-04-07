@@ -2083,13 +2083,12 @@ void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mo
 	}
 }
 
-void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
+void RecreateItem(int iseed, WORD wIndex, WORD wCI)
 {
 	if (wIndex == IDI_GOLD) {
 		SetItemData(MAXITEMS, IDI_GOLD);
 		//items[MAXITEMS]._iSeed = iseed;
 		//items[MAXITEMS]._iCreateInfo = wCI;
-		SetGoldItemValue(&items[MAXITEMS], ivalue);
 	} else {
 		if ((wCI & ~CF_LEVEL) == 0) {
 			SetItemData(MAXITEMS, wIndex);
@@ -2472,7 +2471,7 @@ static void DoClean(ItemStruct *pi, bool whittle)
 	ci |= CF_CRAFTED;
 
 	while (TRUE) {
-		RecreateItem(seed, idx, ci, 0);
+		RecreateItem(seed, idx, ci);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iPrePower == IPL_INVALID
 		 && items[MAXITEMS]._iSufPower == IPL_INVALID
@@ -2514,7 +2513,7 @@ static void BuckleItem(ItemStruct *pi)
 
 	ci |= CF_CRAFTED;
 	while (TRUE) {
-		RecreateItem(seed, idx, ci, 0);
+		RecreateItem(seed, idx, ci);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iMagical == magic)
 			break;
@@ -2708,7 +2707,7 @@ void DoOil(int pnum, char from, BYTE cii)
 	seed = pi->_iSeed;
 
 	while (TRUE) {
-		RecreateItem(seed, idx, ci, 0);
+		RecreateItem(seed, idx, ci);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iSpell == spell
 		 && ((items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)

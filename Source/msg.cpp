@@ -905,6 +905,7 @@ static void UnPackEar(const PkItemStruct* src)
 void UnPackPkItem(const PkItemStruct* src)
 {
 	uint16_t idx = SwapLE16(src->wIndx);
+	uint16_t value;
 
 	net_assert(idx < NUM_IDI);
 	if (idx != IDI_EAR) {
@@ -912,15 +913,18 @@ void UnPackPkItem(const PkItemStruct* src)
 		RecreateItem(
 			SwapLE32(src->dwSeed),
 			SwapLE16(src->wIndx),
-			SwapLE16(src->wCI),
-			SwapLE16(src->wValue));
-		net_assert(idx != IDI_GOLD || SwapLE16(src->wValue) <= GOLD_MAX_LIMIT);
+			SwapLE16(src->wCI));
 		net_assert(items[MAXITEMS]._iMaxCharges >= src->bMCh);
 		net_assert(src->bCh <= src->bMCh);
 		net_assert(items[MAXITEMS]._iMaxDur >= src->bMDur);
 		net_assert(src->bDur <= src->bMDur);
 		if (items[MAXITEMS]._iClass == ICLASS_ARMOR || items[MAXITEMS]._iClass == ICLASS_WEAPON) {
 			net_assert(src->bDur != 0);
+		}
+		if (idx == IDI_GOLD) {
+			value = SwapLE16(src->wValue);
+			net_assert(value <= GOLD_MAX_LIMIT);
+			SetGoldItemValue(&items[MAXITEMS], value);
 		}
 		items[MAXITEMS]._iIdentified = src->bId;
 		items[MAXITEMS]._iDurability = src->bDur;
