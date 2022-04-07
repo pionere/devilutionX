@@ -473,6 +473,8 @@ void ValidateData()
 			if (ids.iDurability == 0)
 				app_fatal("Usable item %s (%d) with miscId %d must have a non-zero durablity(stacksize).", ids.iName, i, ids.iMiscId);
 		}
+		if (ids.iClass == ICLASS_QUEST && ids.iLoc != ILOC_UNEQUIPABLE)
+			app_fatal("Quest item %s (%d) must be unequippable, not %d", ids.iName, i, ids.iLoc);
 	}
 #if UNOPTIMIZED_RNDITEMS
 	if (rnddrops > ITEM_RNDDROP_MAX)
