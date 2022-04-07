@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added Far Shot/Point Blank/Swipe/Charge skills
 - skills/spells have experience counters
 - books give skill experience instead of a whole level
-- rebalanced spells (some spells removed, others damage modified, etc...)
+- rebalanced spells (some spells removed, others damage modified, runes fire multiple times, etc...)
 - manashield is permanent
 - D2-style chain lightning
 - added splash damage to disbanded golems
@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - running is no longer supported in town, but teleporting is
 - elixirs removed
 - altered the functions of oils
+- consumable items are stackable
 - added base items: Katar(a), Poingard, Winged Helm
 - added unique items: Ring of Destruction, Spirit Ward
 - altered the effects of the shrines

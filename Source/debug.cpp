@@ -470,6 +470,8 @@ void ValidateData()
 			default:
 				app_fatal("Usable item %s (%d) with miscId %d is not handled by SyncUseItem.", ids.iName, i, ids.iMiscId);
 			}
+			if (ids.iDurability == 0)
+				app_fatal("Usable item %s (%d) with miscId %d must have a non-zero durablity(stacksize).", ids.iName, i, ids.iMiscId);
 		}
 	}
 #if UNOPTIMIZED_RNDITEMS

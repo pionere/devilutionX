@@ -811,7 +811,7 @@ void SetItemData(int ii, int idata)
 	is->_iMinDex = ids->iMinDex;
 	is->_iUsable = ids->iUsable;
 	is->_iAC = ids->iMinAC == ids->iMaxAC ? ids->iMinAC : RandRange(ids->iMinAC, ids->iMaxAC);
-	is->_iDurability = ids->iDurability;
+	is->_iDurability = ids->iUsable ? 1 : ids->iDurability; // STACK
 	is->_iMaxDur = ids->iDurability;
 	is->_ivalue = ids->iValue;
 	is->_iIvalue = ids->iValue;
@@ -1881,7 +1881,8 @@ static void GetUniqueItem(int ii, int uid)
 
 static void ItemRndDur(int ii)
 {
-	if (items[ii]._iMaxDur != 0 && items[ii]._iMaxDur != DUR_INDESTRUCTIBLE)
+	// skip STACKable and non-durable items
+	if (!items[ii]._iUsable && items[ii]._iMaxDur != 0 && items[ii]._iMaxDur != DUR_INDESTRUCTIBLE)
 		items[ii]._iDurability = random_(0, items[ii]._iMaxDur >> 1) + (items[ii]._iMaxDur >> 2) + 1;
 }
 
@@ -2636,14 +2637,17 @@ void DoOil(int pnum, char from, BYTE cii)
 	if (oilType == IMISC_OILCLEAN) {
 		if (pi->_iMagical != ITEM_QUALITY_MAGIC)
 			return;
+		if (--is->_iDurability <= 0) // STACK
+			SyncPlrItemRemove(pnum, from);
 
 		DoClean(pi, false);
-		SyncPlrItemRemove(pnum, from);
 		CalcPlrInv(pnum, true);
 		return;
 	}
 	if (pi->_iMagical != ITEM_QUALITY_NORMAL)
 		return;
+	if (--is->_iDurability <= 0) // STACK
+		SyncPlrItemRemove(pnum, from);
 
 	switch (oilType) {
 	case IMISC_OILQLTY:
@@ -2718,7 +2722,6 @@ void DoOil(int pnum, char from, BYTE cii)
 	copy_pod(*pi, items[MAXITEMS]);
 
 	pi->_iIdentified = TRUE;
-	SyncPlrItemRemove(pnum, from);
 	CalcPlrInv(pnum, true);
 }
 
@@ -3165,9 +3168,14 @@ void DrawInvItemDetails()
 	// print the name as title
 	PrintItemString(x, y, ItemName(is), ItemColor(is));
 
-	// add item-level info
+	// add item-level info or stack-size
 	if (is->_itype != ITYPE_MISC && is->_itype != ITYPE_GOLD) {
 		snprintf(tempstr, sizeof(tempstr), "(lvl: %d)", is->_iCreateInfo & CF_LEVEL);
+		y -= 6;
+		PrintItemString(x, y);
+		y += 12;
+	} else if (is->_itype == ITYPE_MISC && is->_iMaxDur > 1) { // STACK
+		snprintf(tempstr, sizeof(tempstr), "%d/%d", is->_iDurability, is->_iMaxDur);
 		y -= 6;
 		PrintItemString(x, y);
 		y += 12;

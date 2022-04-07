@@ -595,10 +595,38 @@ bool WeaponAutoPlace(int pnum, ItemStruct* is, bool saveflag)
 
 bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 {
-	int i;
+	ItemStruct* pi;
+	int i, n;
 
 	if (is->_iLoc != ILOC_BELT || !is->_iStatFlag)
 		return false;
+
+	// assert(is->_iUsable);
+	n = is->_iDurability;
+	// assert(n != 0); -- otherwise the item is discarded
+	// assert(n == 1 || saveflag); -- otherwise subsequent AutoPlaceBelt/AutoPlaceInv calls might fail
+	for (i = 0; i < MAXBELTITEMS; i++) {
+		pi = &plr._pSpdList[i];
+		if (pi->_itype != ITYPE_NONE
+		 && pi->_iMiscId == is->_iMiscId
+		 && pi->_iSpell == is->_iSpell
+		 && pi->_iDurability < pi->_iMaxDur) { // STACK
+			n -= pi->_iMaxDur - pi->_iDurability;
+			if (saveflag) {
+				//pi->_ivalue /= pi->_iDurability;
+				//is->_ivalue /= is->_iDurability;
+				if (n <= 0)
+					pi->_iDurability = pi->_iMaxDur + n;
+				else
+					pi->_iDurability = pi->_iMaxDur;
+				is->_iDurability = n;
+				//pi->_ivalue *= pi->_iDurability;
+				//is->_ivalue *= is->_iDurability;
+			}
+			if (n <= 0)
+				return true;
+		}
+	}
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
 		if (plr._pSpdList[i]._itype == ITYPE_NONE) {
@@ -616,7 +644,35 @@ bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 bool AutoPlaceInv(int pnum, ItemStruct* is, bool saveflag)
 {
 	ItemStruct* pi;
-	int i, w, h;
+	int i, n, w, h;
+
+	if (is->_iUsable) {
+		// assert(is->_itype == ITYPE_MISC);
+		n = is->_iDurability;
+		// assert(n != 0); -- otherwise the item is discarded
+		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
+			pi = &plr._pInvList[i];
+			if (pi->_itype != ITYPE_NONE
+			 && pi->_iMiscId == is->_iMiscId
+			 && pi->_iSpell == is->_iSpell
+			 && pi->_iDurability < pi->_iMaxDur) { // STACK
+				n -= pi->_iMaxDur - pi->_iDurability;
+				if (saveflag) {
+					//pi->_ivalue /= pi->_iDurability;
+					//is->_ivalue /= is->_iDurability;
+					if (n <= 0)
+						pi->_iDurability = pi->_iMaxDur + n;
+					else
+						pi->_iDurability = pi->_iMaxDur;
+					is->_iDurability = n;
+					//pi->_ivalue *= pi->_iDurability;
+					//is->_ivalue *= is->_iDurability;
+				}
+				if (n <= 0)
+					return true;
+			}
+		}
+	}
 
 	i = is->_iCurs + CURSOR_FIRSTITEM;
 	w = InvItemWidth[i] / INV_SLOT_SIZE_PX;
@@ -673,6 +729,28 @@ static int SwapHoldBodyItem(PlayerStruct* p, ItemStruct* holditem, int invLoc)
 		copy_pod(*is, *holditem);
 	else
 		cn = SwapItem(is, holditem);
+	return cn;
+}
+
+static int MergeStackableItem(ItemStruct* a, ItemStruct* b)
+{
+	int gt, ig, cn;
+
+	gt = a->_iDurability;
+	ig = b->_iDurability + gt; // STACK
+	//a->_ivalue /= a->_iDurability;
+	//b->_ivalue /= b->_iDurability;
+	if (ig <= a->_iMaxDur) {
+		a->_iDurability = ig;
+		cn = CURSOR_HAND;
+	} else {
+		ig = a->_iMaxDur - gt;
+		a->_iDurability = a->_iMaxDur;
+		b->_iDurability -= ig;
+		cn = b->_iCurs + CURSOR_FIRSTITEM;
+	}
+	//a->_ivalue *= a->_iDurability;
+	//b->_ivalue *= b->_iDurability;
 	return cn;
 }
 
@@ -921,6 +999,12 @@ void InvPasteItem(int pnum, BYTE r)
 			if (it == 0) {
 				// empty target
 				copy_pod(*is, *holditem);
+			} else if (holditem->_iUsable
+			 && holditem->_iMiscId == is->_iMiscId
+			 && holditem->_iSpell == is->_iSpell) {
+				// matching stackable items
+				cn = MergeStackableItem(is, holditem);
+				break;
 			} else {
 				it--;
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
@@ -1002,11 +1086,18 @@ void InvPasteBeltItem(int pnum, BYTE r)
 
 	if (holditem->_iLoc != ILOC_BELT || holditem->_itype == ITYPE_NONE)
 		return;
-
+	// assert(holditem->_iUsable);
 	is = &plr._pSpdList[r];
-	cn = SwapItem(is, holditem);
-	if (holditem->_itype == ITYPE_NONE)
-		cn = CURSOR_HAND;
+	if (is->_itype != ITYPE_NONE
+	 && is->_iMiscId == holditem->_iMiscId
+	 && is->_iSpell == holditem->_iSpell) {
+		// matching stackable items
+		cn = MergeStackableItem(is, holditem);
+	} else {
+		cn = SwapItem(is, holditem);
+		if (holditem->_itype == ITYPE_NONE)
+			cn = CURSOR_HAND;
+	}
 
 	CalcPlrScrolls(pnum);
 	if (pnum == mypnum) {
@@ -1645,8 +1736,10 @@ static void InvAddHp(int pnum)
 	int hp;
 
 	p = &plr;
-	hp = p->_pMaxHP >> 8;
-	hp = ((hp >> 1) + random_(39, hp)) << 6;
+	// commented out because iSeed of the STACK is not regenerated
+	// hp = p->_pMaxHP >> 8;
+	// hp = ((hp >> 1) + random_(39, hp)) << 6;
+	hp = p->_pMaxHP >> (8 - 6);
 	switch (p->_pClass) {
 #ifdef HELLFIRE
 	case PC_WARRIOR:
@@ -1671,8 +1764,10 @@ static void InvAddMana(int pnum)
 	int mana;
 
 	p = &plr;
-	mana = p->_pMaxMana >> 8;
-	mana = ((mana >> 1) + random_(40, mana)) << 6;
+	// commented out because iSeed of the STACK is not regenerated
+	// mana = p->_pMaxMana >> 8;
+	// mana = ((mana >> 1) + random_(40, mana)) << 6;
+	mana = p->_pMaxMana >> (8 - 6);
 	switch (p->_pClass) {
 	case PC_WARRIOR:				break;
 	case PC_SORCERER: mana <<= 1;	break;
@@ -1826,7 +1921,8 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		return false;
 
 	// use the item
-	SetRndSeed(is->_iSeed);
+	// commented out because iSeed of the STACK is not regenerated
+	// SetRndSeed(is->_iSeed);
 	switch (is->_iMiscId) {
 	case IMISC_HEAL:
 		InvAddHp(pnum);
@@ -1890,7 +1986,8 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		ASSUME_UNREACHABLE
 	}
 	// consume the item
-	SyncPlrItemRemove(pnum, cii);
+	if (--is->_iDurability <= 0) // STACK
+		SyncPlrItemRemove(pnum, cii);
 	return sn == SPL_INVALID;
 }
 

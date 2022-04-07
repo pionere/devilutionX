@@ -267,13 +267,15 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 		pi = myplr._pInvList;
 		for (t = NUM_INV_GRID_ELEM; t > 0; t--, pi++) {
 			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn) {
-				v++;
+				// assert(pi->_iUsable);
+				v += pi->_iDurability; // STACK
 			}
 		}
 		pi = myplr._pSpdList;
 		for (t = MAXBELTITEMS; t > 0; t--, pi++) {
 			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn) {
-				v++;
+				// assert(pi->_iUsable);
+				v += pi->_iDurability; // STACK
 			}
 		}
 		snprintf(tempstr, sizeof(tempstr), "%d", v);

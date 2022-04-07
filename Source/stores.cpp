@@ -538,17 +538,19 @@ static void AddStoreSell(ItemStruct *is, int i)
 	storehidx[storenumh++] = i;
 }
 
-static bool SmithSellOk(const ItemStruct *is)
+static bool SmithSellOk(const ItemStruct* is)
 {
-	return (ITYPE_DURABLE(is->_itype) || is->_itype == ITYPE_MISC)
+	return /* commented out because _ivalue of stackable items are not maintained
+		   (ITYPE_DURABLE(is->_itype) || is->_itype == ITYPE_MISC)
 #ifdef HELLFIRE
 		&& (is->_itype != ITYPE_MISC
 		 || (is->_iMiscId > IMISC_OILFIRST && is->_iMiscId < IMISC_OILLAST))
 #else
 		&& is->_itype != ITYPE_MISC
 #endif
-		&& (is->_itype != ITYPE_STAFF || is->_iSpell == SPL_NULL)
-		&& is->_iClass != ICLASS_QUEST;
+		&& is->_iClass != ICLASS_QUEST*/
+		ITYPE_DURABLE(is->_itype)
+		&& (is->_itype != ITYPE_STAFF || is->_iSpell == SPL_NULL);
 }
 
 static void S_ScrollSSell()
@@ -733,15 +735,17 @@ static void S_StartWBuy()
 	AddStoreFrame(tempstr);
 }
 
-static bool WitchSellOk(const ItemStruct *is)
+static bool WitchSellOk(const ItemStruct* is)
 {
+	/* commented out because _ivalue of stackable items are not maintained
 #ifdef HELLFIRE
 	return ((is->_itype == ITYPE_MISC && (is->_iMiscId < IMISC_OILFIRST || is->_iMiscId > IMISC_OILLAST))
 	 || (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL))
 #else
 	return (is->_itype == ITYPE_MISC || is->_itype == ITYPE_STAFF)
 #endif
-		&& is->_iClass != ICLASS_QUEST;
+		&& is->_iClass != ICLASS_QUEST;*/
+	return (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL);		
 }
 
 static void S_StartWSell()
