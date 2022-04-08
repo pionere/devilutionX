@@ -846,50 +846,48 @@ void ValidateData()
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
 		ItemStruct* is = NULL;
-		if (i != sd.sName)
-			app_fatal("Invalid sName %d for %s (%d:%d)", sd.sName, sd.sNameText, i, sd.sName);
 		if (SPELL_RUNE(i)) {
 			if (sd.sBookLvl != SPELL_NA)
-				app_fatal("Invalid sBookLvl %d for %s (%d:%d)", sd.sBookLvl, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);
 			if (sd.sStaffLvl != SPELL_NA)
-				app_fatal("Invalid sStaffLvl %d for %s (%d:%d)", sd.sStaffLvl, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sStaffLvl %d for %s (%d)", sd.sStaffLvl, sd.sNameText, i);
 			if (sd.sScrollLvl < RUNE_MIN)
-				app_fatal("Invalid sScrollLvl %d for %s (%d:%d)", sd.sScrollLvl, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
-				app_fatal("Invalid sStaffCost %d for %s (%d:%d)", sd.sStaffCost, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Rune of ") + 1))
-				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
 			hasRuneSpell = true;
 			continue;
 		}
 		if (sd.sBookLvl != SPELL_NA) {
 			if (sd.sType != STYPE_NONE && sd.sType != STYPE_FIRE && sd.sType != STYPE_MAGIC && sd.sType != STYPE_LIGHTNING)
-				app_fatal("Invalid sType %d for %s (%d:%d)", sd.sType, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sType %d for %s (%d)", sd.sType, sd.sNameText, i);
 			if (sd.sBookLvl < BOOK_MIN)
-				app_fatal("Invalid sBookLvl %d for %s (%d:%d)", sd.sBookLvl, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);
 			if (sd.sBookCost <= 0)
-				app_fatal("Invalid sBookCost %d for %s (%d:%d)", sd.sBookCost, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sBookCost %d for %s (%d)", sd.sBookCost, sd.sNameText, i);
 			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Book of ") + 1))
-				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
 			hasBookSpell = true;
 		}
 		if (sd.sStaffLvl != SPELL_NA) {
 			if (sd.sStaffLvl < STAFF_MIN)
-				app_fatal("Invalid sStaffLvl %d for %s (%d:%d)", sd.sStaffLvl, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sStaffLvl %d for %s (%d)", sd.sStaffLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
-				app_fatal("Invalid sStaffCost %d for %s (%d:%d)", sd.sStaffCost, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			//if (strlen(sd.sNameText) > sizeof(is->_iName) - (maxStaff + 4 + 1))
 			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Staff of ") + 1))
-				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
 			hasStaffSpell = true;
 		}
 		if (sd.sScrollLvl != SPELL_NA) {
 			if (sd.sScrollLvl < SCRL_MIN)
-				app_fatal("Invalid sScrollLvl %d for %s (%d:%d)", sd.sScrollLvl, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
-				app_fatal("Invalid sStaffCost %d for %s (%d:%d)", sd.sStaffCost, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Scroll of ") + 1))
-				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
 			hasScrollSpell = true;
 		}
 	}

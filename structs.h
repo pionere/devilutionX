@@ -1541,7 +1541,6 @@ typedef struct TMenuItem {
 //////////////////////////////////////////////////
 
 typedef struct SpellData {
-	BYTE sName;
 	BYTE sManaCost;
 	BYTE sType;
 	BYTE sIcon;
