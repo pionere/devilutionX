@@ -431,7 +431,7 @@ typedef struct MissileData {
 	int miSFX;
 	BYTE mlSFXCnt;
 	BYTE miSFXCnt;
-	ALIGNMENT(1, 5)
+	ALIGNMENT(1, 6)
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
