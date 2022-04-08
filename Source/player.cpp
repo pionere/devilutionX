@@ -1537,6 +1537,7 @@ static void StartBlock(int pnum, int dir)
 	}
 
 	plr._pmode = PM_BLOCK;
+	plr._pVar1 = 0; // BLOCK_EXTENSION : extended blocking
 	if (!(plr._pGFXLoad & PFILE_BLOCK)) {
 		LoadPlrGFX(pnum, PFILE_BLOCK);
 	}
@@ -2313,23 +2314,30 @@ static void PlrDoBlock(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoBlock: illegal player %d", pnum);
 	}
+	if (plr._pVar1 != 0) { // BLOCK_EXTENSION
+		plr._pVar1--;
+		plr._pAnimCnt--;
+		return;
+	}
+
 	if (plr._pIFlags & ISPL_FASTBLOCK) {
 		PlrStepAnim(pnum);
 	}
 
-	if (plr._pAnimFrame > plr._pBFrames || (plr._pAnimFrame == plr._pBFrames && plr._pAnimCnt >= plr._pAnimFrameLen - 1)) {
+	if (plr._pAnimFrame > plr._pBFrames || (plr._pAnimFrame == plr._pBFrames && plr._pAnimCnt >= PlrAnimFrameLens[PA_BLOCK] - 1)) {
 		if (plr.destAction == ACTION_BLOCK) {
 			// extend the blocking animation TODO: does not work with too fast animations (WARRIORs) in faster/fastest games
 			plr.destAction = ACTION_NONE;
 			plr._pAnimData = plr._pBAnim[plr.destParam1];
+			plr._pAnimFrame = plr._pBFrames;
+			plr._pAnimCnt = PlrAnimFrameLens[PA_BLOCK] - 2;
 			extlen = plr._pBFrames * 4;
 			if (plr._pIFlags & ISPL_FASTBLOCK) {
 				extlen >>= 1;
 				if (extlen < 8)
 					extlen = 8;
 			}
-			plr._pAnimFrameLen = extlen;
-			plr._pAnimCnt = -1;
+			plr._pVar1 = extlen; // BLOCK_EXTENSION
 		} else {
 			//PlrStartStand(pnum);
 			StartStand(pnum);
