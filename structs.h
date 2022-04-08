@@ -420,7 +420,6 @@ typedef struct TextData {
 // TPDEF PTR FCN VOID MIPROC
 
 typedef struct MissileData {
-	BYTE mName;
 	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
 	void (*mProc)(int);
 	BOOL mDraw;
@@ -432,7 +431,7 @@ typedef struct MissileData {
 	int miSFX;
 	BYTE mlSFXCnt;
 	BYTE miSFXCnt;
-	ALIGNMENT64(4)
+	ALIGNMENT(1, 5)
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

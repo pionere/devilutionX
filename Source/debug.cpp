@@ -903,8 +903,6 @@ void ValidateData()
 	// missiles
 	for (i = 0; i < NUM_MISTYPES; i++) {
 		const MissileData &md = missiledata[i];
-		if (md.mName != i)
-			app_fatal("Invalid mName %d for missile %d.", md.mName, i);
 		if (i == MIS_FLASH) {
 			if (misfiledata[md.mFileNum].mfAnimLen[0] != 19)
 				app_fatal("Hardcoded missile range of MIS_FLASH(%d) does not match the mfAnimLen of the assigned mFileNum", MIS_FLASH);
