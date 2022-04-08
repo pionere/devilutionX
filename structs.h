@@ -216,7 +216,7 @@ typedef struct ItemStruct {
 	int _iVAdd;
 	int _iVMult;
 	BOOL _iStatFlag;
-	ALIGNMENT(5, 5)
+	ALIGNMENT(5, 6)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
