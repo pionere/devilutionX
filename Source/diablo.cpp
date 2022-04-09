@@ -1504,8 +1504,8 @@ static WNDPROC InitGameUI()
 	gbDeathflag = MDM_ALIVE;
 	gbZoomInFlag = false;
 	CalcViewportGeometry();
-	ScrollInfo._sdx = 0;
-	ScrollInfo._sdy = 0;
+	//ScrollInfo._sdx = 0;
+	//ScrollInfo._sdy = 0;
 	ScrollInfo._sxoff = 0;
 	ScrollInfo._syoff = 0;
 	ScrollInfo._sdir = SDIR_NONE;

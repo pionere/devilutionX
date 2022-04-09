@@ -1132,8 +1132,8 @@ void FixPlayerLocation(int pnum)
 		ScrollInfo._sxoff = 0;
 		ScrollInfo._syoff = 0;
 		ScrollInfo._sdir = SDIR_NONE;
-		ViewX = plr._px;
-		ViewY = plr._py;
+		ViewX = plr._px; // - ScrollInfo._sdx;
+		ViewY = plr._py; // - ScrollInfo._sdy;
 	}
 }
 
@@ -1152,8 +1152,8 @@ static void AssertFixPlayerLocation(int pnum)
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
 		assert(ScrollInfo._sdir == SDIR_NONE);
-		assert(ViewX == plr._px);
-		assert(ViewY == plr._py);
+		assert(ViewX == plr._px); // - ScrollInfo._sdx;
+		assert(ViewY == plr._py); // - ScrollInfo._sdy;
 	}
 }
 
@@ -1207,8 +1207,8 @@ static void StartWalkStand(int pnum)
 		ScrollInfo._sxoff = 0;
 		ScrollInfo._syoff = 0;
 		ScrollInfo._sdir = SDIR_NONE;
-		ViewX = plr._px;
-		ViewY = plr._py;
+		ViewX = plr._px; // - ScrollInfo._sdx;
+		ViewY = plr._py; // - ScrollInfo._sdy;
 	}
 }*/
 
@@ -1390,12 +1390,12 @@ static bool StartWalk(int pnum)
 	NewPlrAnim(pnum, plr._pWAnim, dir, plr._pWFrames, PlrAnimFrameLens[PA_WALK], plr._pWWidth);
 
 	if (pnum == mypnum) {
-		assert(ScrollInfo._sdx == 0);
-		assert(ScrollInfo._sdy == 0);
+		// assert(ScrollInfo._sdx == 0);
+		// assert(ScrollInfo._sdy == 0);
 		assert(plr._poldx == ViewX);
 		assert(plr._poldy == ViewY);
-		//ScrollInfo._sdx = plr._poldx - ViewX;
-		//ScrollInfo._sdy = plr._poldy - ViewY;
+		// ScrollInfo._sdx = plr._poldx - ViewX;
+		// ScrollInfo._sdy = plr._poldy - ViewY;
 
 #if DEBUG_MODE
 		for (int i = 0; i < lengthof(dir2sdir); i++)

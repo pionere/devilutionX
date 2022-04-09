@@ -873,8 +873,8 @@ void LoadGame()
 	// load player-data
 	LoadInt(&_ViewX);
 	LoadInt(&_ViewY);
-	LoadInt(&ScrollInfo._sdx);
-	LoadInt(&ScrollInfo._sdy);
+	// LoadInt(&ScrollInfo._sdx);
+	// LoadInt(&ScrollInfo._sdy);
 	LoadInt(&ScrollInfo._sxoff);
 	LoadInt(&ScrollInfo._syoff);
 	LoadInt(&ScrollInfo._sdir);
@@ -1559,8 +1559,8 @@ void SaveGame()
 	// save player-data
 	SaveInt(&ViewX);
 	SaveInt(&ViewY);
-	SaveInt(&ScrollInfo._sdx);
-	SaveInt(&ScrollInfo._sdy);
+	// SaveInt(&ScrollInfo._sdx);
+	// SaveInt(&ScrollInfo._sdy);
 	SaveInt(&ScrollInfo._sxoff);
 	SaveInt(&ScrollInfo._syoff);
 	SaveInt(&ScrollInfo._sdir);

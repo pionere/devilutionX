@@ -1607,8 +1607,8 @@ static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align T
 typedef struct ScrollStruct {
 	int _sxoff; // X-offset of camera position. This usually corresponds to a negative version of plr[myplr]._pxoff
 	int _syoff; // Y-offset of camera position. This usually corresponds to a negative version of plr[myplr]._pyoff
-	int _sdx;
-	int _sdy;
+	// int _sdx;
+	// int _sdy;
 	int _sdir;
 } ScrollStruct;
 

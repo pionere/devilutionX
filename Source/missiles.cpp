@@ -2402,8 +2402,8 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis->_miLightFlag = TRUE;
 	SyncChargeAnim(mi);
 	if (pnum == mypnum) {
-		assert(ScrollInfo._sdx == 0);
-		assert(ScrollInfo._sdy == 0);
+		// assert(ScrollInfo._sdx == 0);
+		// assert(ScrollInfo._sdy == 0);
 		ScrollInfo._sdir = 1 + OPPOSITE(midir); // == dir2sdir[midir]
 	}
 	//mis->_miLid = mon->mlid;
@@ -3881,8 +3881,8 @@ void MI_Teleport(int mi)
 	ChangeLightXY(plr._plid, px, py);
 	ChangeVisionXY(plr._pvid, px, py);
 	if (pnum == mypnum) {
-		ViewX = px - ScrollInfo._sdx;
-		ViewY = py - ScrollInfo._sdy;
+		ViewX = px; // - ScrollInfo._sdx;
+		ViewY = py; // - ScrollInfo._sdy;
 	}
 }
 
@@ -4027,8 +4027,8 @@ void MI_Charge(int mi)
 		ScrollInfo._sxoff = -mis->_mixoff;
 		ScrollInfo._syoff = -mis->_miyoff;
 		if (ViewX != bx || ViewY != by) {
-			ViewX = bx;
-			ViewY = by;
+			ViewX = bx; // - ScrollInfo._sdx;
+			ViewY = by; // - ScrollInfo._sdy;
 		}
 	}
 	//ShiftMissilePos(mi);
