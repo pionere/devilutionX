@@ -218,8 +218,12 @@ static bool PosOkMissile1(int x, int y)
 
 static bool FindClosest(int sx, int sy, int &dx, int &dy)
 {
-	int j, i, mid, tx, ty;
-	const char *cr;
+	int j, i, mid, mnum, tx, ty;
+	const char* cr;
+	MonsterStruct* mon;
+
+	mid = dMonster[sx][sy];
+	mid = mid >= 0 ? mid - 1 : -(mid + 1);
 
 	static_assert(DBORDERX >= 16 && DBORDERY >= 16, "FindClosest expects a large enough border.");
 	for (i = 1; i < 16; i++) {
@@ -228,10 +232,15 @@ static bool FindClosest(int sx, int sy, int &dx, int &dy)
 			tx = sx + *++cr;
 			ty = sy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			mid = dMonster[tx][ty];
-			if (mid > 0
-			 && monsters[mid - 1]._mhitpoints >= (1 << 6)
-			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
+			mnum = dMonster[tx][ty] - 1;
+			if (mnum < 0 || mnum == mid)
+				continue;
+			mon = &monsters[mnum];
+			if (mon->_mhitpoints < (1 << 6))
+				continue;
+			tx = mon->_mfutx;
+			ty = mon->_mfuty;
+			if (LineClear(sx, sy, tx, ty)) {
 				dx = tx;
 				dy = ty;
 				return true;
@@ -243,9 +252,13 @@ static bool FindClosest(int sx, int sy, int &dx, int &dy)
 
 static bool FindClosestChain(int sx, int sy, int &dx, int &dy)
 {
-	int j, i, mid, tx, ty;
-	const char *cr;
-	
+	int j, i, mid, mnum, tx, ty;
+	const char* cr;
+	MonsterStruct* mon;
+
+	mid = dMonster[sx][sy];
+	mid = mid >= 0 ? mid - 1 : -(mid + 1);
+
 	static_assert(DBORDERX >= 8 && DBORDERY >= 8, "FindClosestChain expects a large enough border.");
 	for (i = 1; i < 8; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -253,11 +266,16 @@ static bool FindClosestChain(int sx, int sy, int &dx, int &dy)
 			tx = sx + *++cr;
 			ty = sy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			mid = dMonster[tx][ty];
-			if (mid > 0
-			 && (monsters[mid - 1]._mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE
-			 && monsters[mid - 1]._mhitpoints >= (1 << 6)
-			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
+			mnum = dMonster[tx][ty] - 1;
+			if (mnum < 0 || mnum == mid)
+				continue;
+			mon = &monsters[mnum];
+			if (mon->_mhitpoints < (1 << 6)
+			 || (mon->_mMagicRes & MORS_LIGHTNING_IMMUNE) == MORS_LIGHTNING_IMMUNE)
+				continue;
+			tx = mon->_mfutx;
+			ty = mon->_mfuty;
+			if (LineClear(sx, sy, tx, ty)) {
 				dx = tx;
 				dy = ty;
 				return true;
