@@ -471,10 +471,11 @@ set(BIN_TARGET devilutionx)
 
 if(NINTENDO_SWITCH)
   list(APPEND devilutionx_SRCS
-    Source/platform/switch/network.cpp
-    Source/platform/switch/keyboard.cpp
     Source/platform/switch/docking.cpp
+    Source/platform/switch/keyboard.cpp
+    Source/platform/switch/network.cpp
     Source/platform/switch/random.cpp
+    Source/platform/switch/romfs.cpp
     Source/platform/switch/asio/pause.c
     Source/platform/switch/asio/net/if.c
     Source/platform/switch/asio/sys/signal.c)
@@ -907,6 +908,22 @@ if(APPLE)
 endif()
 
 if(NINTENDO_SWITCH)
+  set(APP_ROMFS       "${CMAKE_BINARY_DIR}/romfs")
+  set(APP_ROMFS_FILES
+    "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
+    "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
+
+  add_custom_target(romfs_directory
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_ROMFS})
+
+  add_custom_target(romfs_files
+    COMMAND ${CMAKE_COMMAND} -E copy ${APP_ROMFS_FILES} ${APP_ROMFS}
+    DEPENDS romfs_directory)
+
+  # the romfs_directory target will create this directory at build time,
+  # but the nx_create_nro function requires it to also exist at configure time
+  file(MAKE_DIRECTORY ${APP_ROMFS})
+
   nx_generate_nacp (${BIN_TARGET}.nacp
     NAME    "DevilutionX"
     AUTHOR  "Devilution Team"
@@ -916,7 +933,9 @@ if(NINTENDO_SWITCH)
   nx_create_nro(${BIN_TARGET}
     NACP ${BIN_TARGET}.nacp
     ICON "${PROJECT_SOURCE_DIR}/Packaging/switch/icon.jpg"
+    ROMFS ${APP_ROMFS}
   )
+  add_dependencies(${BIN_TARGET}_nro romfs_files)
 endif()
 
 if(VITA)
