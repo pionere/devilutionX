@@ -765,6 +765,27 @@ if(AMIGA)
   endif()
 endif()
 
+if(NINTENDO_SWITCH)
+  target_link_libraries(${BIN_TARGET} PRIVATE
+        freetype
+        vorbisfile
+        vorbis
+        ogg
+        modplug
+        mpg123
+        SDL2
+        opusfile
+        opus
+        png
+        bz2
+        z
+        #EGL
+        #glapi
+        #drm_nouveau
+        #nx
+  )
+endif()
+
 if(VITA)
   target_link_libraries(${BIN_TARGET} PRIVATE
         ScePower_stub
@@ -886,26 +907,6 @@ if(APPLE)
 endif()
 
 if(NINTENDO_SWITCH)
-
-  target_link_libraries(${BIN_TARGET} PRIVATE
-        freetype
-        vorbisfile
-        vorbis
-        ogg
-        modplug
-        mpg123
-        SDL2
-        opusfile
-        opus
-        png
-        bz2
-        z
-        #EGL
-        #glapi
-        #drm_nouveau
-        #nx
-  )
-
   nx_generate_nacp (${BIN_TARGET}.nacp
     NAME    "DevilutionX"
     AUTHOR  "Devilution Team"
@@ -916,7 +917,6 @@ if(NINTENDO_SWITCH)
     NACP ${BIN_TARGET}.nacp
     ICON "${PROJECT_SOURCE_DIR}/Packaging/switch/icon.jpg"
   )
-
 endif()
 
 if(VITA)
