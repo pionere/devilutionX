@@ -230,18 +230,18 @@ void CheckCursMove()
 	sx += gsMouseVp._vOffsetX;
 	sy += gsMouseVp._vOffsetY;
 
-	if (ScrollInfo._sdir != SDIR_NONE) {
+	//if (ScrollInfo._sdir != SDIR_NONE) {
 		sx -= ScrollInfo._sxoff;
 		sy -= ScrollInfo._syoff;
 
-		// Predict the next frame when walking to avoid input jitter
-		fx = myplr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
-		fx -= (myplr._pVar6 + myplr._pVar4) >> PLR_WALK_SHIFT; // WALK_XOFF + WALK_XVEL
-		fy = myplr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
-		fy -= (myplr._pVar7 + myplr._pVar5) >> PLR_WALK_SHIFT; // WALK_YOFF + WALK_YVEL
-		sx -= fx;
-		sy -= fy;
-	}
+	//	// Predict the next frame when walking to avoid input jitter
+	//	fx = myplr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
+	//	fx -= (myplr._pVar6 + myplr._pVar4) >> PLR_WALK_SHIFT; // WALK_XOFF + WALK_XVEL
+	//	fy = myplr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
+	//	fy -= (myplr._pVar7 + myplr._pVar5) >> PLR_WALK_SHIFT; // WALK_YOFF + WALK_YVEL
+	//	sx -= fx;
+	//	sy -= fy;
+	//}
 
 	// Center player tile on screen
 	mx = ViewX + gsMouseVp._vShiftX;
