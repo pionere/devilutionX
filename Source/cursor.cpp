@@ -227,15 +227,18 @@ void CheckCursMove()
 		sy >>= 1;
 	}
 
-	sx -= ScrollInfo._sxoff - gsMouseVp._vOffsetX;
-	sy -= ScrollInfo._syoff - gsMouseVp._vOffsetY;
+	sx += gsMouseVp._vOffsetX;
+	sy += gsMouseVp._vOffsetY;
 
-	// Predict the next frame when walking to avoid input jitter
 	if (ScrollInfo._sdir != SDIR_NONE) {
-		fx = myplr._pVar6 / 256; // WALK_XOFF
-		fx -= (myplr._pVar6 + myplr._pVar4) / 256; // WALK_XOFF + WALK_XVEL
-		fy = myplr._pVar7 / 256; // WALK_YOFF
-		fy -= (myplr._pVar7 + myplr._pVar5) / 256; // WALK_YOFF + WALK_YVEL
+		sx -= ScrollInfo._sxoff;
+		sy -= ScrollInfo._syoff;
+
+		// Predict the next frame when walking to avoid input jitter
+		fx = myplr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
+		fx -= (myplr._pVar6 + myplr._pVar4) >> PLR_WALK_SHIFT; // WALK_XOFF + WALK_XVEL
+		fy = myplr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
+		fy -= (myplr._pVar7 + myplr._pVar5) >> PLR_WALK_SHIFT; // WALK_YOFF + WALK_YVEL
 		sx -= fx;
 		sy -= fy;
 	}
@@ -252,7 +255,6 @@ void CheckCursMove()
 	px = sx % TILE_WIDTH;
 	py = sy % TILE_HEIGHT;
 
-	// Shift position to match diamond grid aligment
 	flipy = py < (px >> 1);
 	if (flipy) {
 		my--;
