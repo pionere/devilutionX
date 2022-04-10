@@ -247,13 +247,21 @@ void CheckCursMove()
 	mx = ViewX + gsMouseVp._vShiftX;
 	my = ViewY + gsMouseVp._vShiftY;
 
-	tx = sx / TILE_WIDTH;
-	ty = sy / TILE_HEIGHT;
+	// ensure sx/y are positive
+	sx += TILE_WIDTH;
+	// assert(sx >= 0);
+	sy += TILE_HEIGHT;
+	// assert(sy >= 0);
+
+	tx = ((unsigned)sx) / TILE_WIDTH;
+	ty = ((unsigned)sy) / TILE_HEIGHT;
+	tx--; // revert added value
+	ty--;
 	SHIFT_GRID(mx, my, tx, ty);
 
 	// Shift position to match diamond grid aligment
-	px = sx % TILE_WIDTH;
-	py = sy % TILE_HEIGHT;
+	px = ((unsigned)sx) % TILE_WIDTH;
+	py = ((unsigned)sy) % TILE_HEIGHT;
 
 	flipy = py < (px >> 1);
 	if (flipy) {
