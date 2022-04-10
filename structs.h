@@ -1613,8 +1613,8 @@ typedef struct ScrollStruct {
 } ScrollStruct;
 
 typedef struct ViewportStruct {
-	int _vColumns; // number of tiles in one row
-	int _vRows;    // number of tiles in one column
+	unsigned _vColumns; // number of tiles in one row
+	unsigned _vRows;    // number of tiles in one column
 	int _vOffsetX; // X-offset in a back buffer
 	int _vOffsetY; // Y-offset in a back buffer
 	int _vShiftX; // X-shift in a dPiece

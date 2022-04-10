@@ -1013,10 +1013,10 @@ static void CalcTileOffset(int *offsetX, int *offsetY)
  * @param columns Tiles needed per row
  * @param rows Both even and odd rows
  */
-static void TilesInView(int *rcolumns, int *rrows)
+static void TilesInView(unsigned* rcolumns, unsigned* rrows)
 {
-	int columns = (SCREEN_WIDTH + TILE_WIDTH - 1) / TILE_WIDTH;
-	int rows = (VIEWPORT_HEIGHT + TILE_HEIGHT - 1) / TILE_HEIGHT;
+	unsigned columns = (unsigned)(SCREEN_WIDTH + TILE_WIDTH - 1) / TILE_WIDTH;
+	unsigned rows = (unsigned)(VIEWPORT_HEIGHT + TILE_HEIGHT - 1) / TILE_HEIGHT;
 
 	if (gbZoomInFlag) {
 		// Half the number of tiles, rounded up
@@ -1040,12 +1040,12 @@ static void CalcTileViewport()
 	gsTileVp._vOffsetY = yo - (SCREEN_Y + TILE_HEIGHT / 2 - 1);
 
 	TilesInView(&gsTileVp._vColumns, &gsTileVp._vRows);
-	int lrow = gsTileVp._vRows - RowsCoveredByPanel();
+	unsigned lrow = gsTileVp._vRows;
 
 	// Center player tile on screen
 	gsTileVp._vShiftX = 0;
 	gsTileVp._vShiftY = 0;
-	SHIFT_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, -gsTileVp._vColumns / 2, -lrow / 2);
+	SHIFT_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, 0 - (gsTileVp._vColumns / 2), 0 - (lrow / 2));
 
 	gsTileVp._vRows *= 2;
 
@@ -1081,12 +1081,12 @@ static void CalcMouseViewport()
 
 	// Convert to tile grid
 	TilesInView(&gsMouseVp._vColumns, &gsMouseVp._vRows);
-	int lrow = gsMouseVp._vRows - RowsCoveredByPanel();
+	unsigned lrow = gsMouseVp._vRows;
 
 	// Center player tile on screen
 	gsMouseVp._vShiftX = 0;
 	gsMouseVp._vShiftY = 0;
-	SHIFT_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, -gsMouseVp._vColumns / 2, -lrow / 2);
+	SHIFT_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, 0 - (gsMouseVp._vColumns / 2), 0 - (lrow / 2));
 
 	// Align grid
 	if ((gsMouseVp._vColumns & 1) == 0) {
