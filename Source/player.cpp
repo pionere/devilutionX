@@ -1228,14 +1228,14 @@ static void PlrChangeLightOff(int pnum)
 
 static void PlrChangeOffset(int pnum)
 {
-	int px, py;
+	// int px, py;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrChangeOffset: illegal player %d", pnum);
 	}
 
-	px = plr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
-	py = plr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
+	// px = plr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
+	// py = plr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
 
 	plr._pVar6 += plr._pVar4; // WALK_XOFF <- WALK_XVEL
 	plr._pVar7 += plr._pVar5; // WALK_YOFF <- WALK_YVEL
@@ -1243,13 +1243,15 @@ static void PlrChangeOffset(int pnum)
 	plr._pxoff = plr._pVar6 >> PLR_WALK_SHIFT;
 	plr._pyoff = plr._pVar7 >> PLR_WALK_SHIFT;
 
-	px -= plr._pxoff;
-	py -= plr._pyoff;
+	// px -= plr._pxoff;
+	// py -= plr._pyoff;
 
 	if (pnum == mypnum /*&& ScrollInfo._sdir != SDIR_NONE*/) {
 		assert(ScrollInfo._sdir != SDIR_NONE);
-		ScrollInfo._sxoff += px;
-		ScrollInfo._syoff += py;
+		// ScrollInfo._sxoff += px;
+		// ScrollInfo._syoff += py;
+		ScrollInfo._sxoff = -plr._pxoff;
+		ScrollInfo._syoff = -plr._pyoff;
 		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
 		//if (gbActionBtnDown && (px | py) != 0 && pcursmonst != MON_NONE)
 		//	SetCursorPos(MouseX + px, MouseY + py);
@@ -1319,6 +1321,10 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
+	ViewX = px;
+	ViewY = py;
+	ScrollInfo._sxoff = -xoff;
+	ScrollInfo._syoff = -yoff;
 	//if (plr._plid != NO_LIGHT) {
 		ChangeLightXY(plr._plid, plr._px, plr._py);
 		PlrChangeLightOff(pnum);
@@ -1390,8 +1396,8 @@ static bool StartWalk(int pnum)
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
 		// assert(ScrollInfo._sdy == 0);
-		assert(plr._poldx == ViewX);
-		assert(plr._poldy == ViewY);
+		// assert(plr._poldx == ViewX);
+		// assert(plr._poldy == ViewY);
 		// ScrollInfo._sdx = plr._poldx - ViewX;
 		// ScrollInfo._sdy = plr._poldy - ViewY;
 

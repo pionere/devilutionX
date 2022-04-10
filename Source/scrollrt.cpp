@@ -1138,37 +1138,25 @@ static void DrawGame()
 	case SDIR_NONE:
 		break;
 	case SDIR_N:
+	case SDIR_S:
 		sy -= TILE_HEIGHT;
 		SHIFT_GRID(x, y, 0, -1);
 		rows += 2;
 		break;
 	case SDIR_NE:
+	case SDIR_SW:
 		sy -= TILE_HEIGHT;
 		SHIFT_GRID(x, y, 0, -1);
 		columns++;
 		rows += 2;
 		break;
 	case SDIR_E:
-		columns++;
-		break;
-	case SDIR_SE:
-		columns++;
-		rows++;
-		break;
-	case SDIR_S:
-		rows += 2;
-		break;
-	case SDIR_SW:
-		sx -= TILE_WIDTH;
-		SHIFT_GRID(x, y, -1, 0);
-		columns++;
-		rows++;
-		break;
 	case SDIR_W:
 		sx -= TILE_WIDTH;
 		SHIFT_GRID(x, y, -1, 0);
 		columns++;
 		break;
+	case SDIR_SE:
 	case SDIR_NW:
 		sx -= TILE_WIDTH / 2;
 		sy -= TILE_HEIGHT / 2;
