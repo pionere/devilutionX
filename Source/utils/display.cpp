@@ -35,6 +35,11 @@ DEVILUTION_BEGIN_NAMESPACE
  */
 bool gbWndActive;
 /**
+ * Specifies whether to give the game exclusive access to the
+ * screen, as needed for efficient rendering in fullscreen mode.
+ */
+bool gbFullscreen = true;
+/**
  * Specfies whether vertical sync is enabled.
  */
 bool gbVsyncEnabled;

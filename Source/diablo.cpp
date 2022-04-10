@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include <config.h>
+#include "utils/display.h"
 #include "utils/paths.h"
 #include "diabloui.h"
 #include "plrctrls.h"
@@ -39,11 +40,6 @@ int gnTimeoutCurs;
 
 /* rdata */
 
-/**
- * Specifies whether to give the game exclusive access to the
- * screen, as needed for efficient rendering in fullscreen mode.
- */
-bool gbFullscreen = true;
 static bool _gbSkipIntro = false;
 bool gbShowTooltip = false;
 #if DEBUG_MODE

@@ -48,7 +48,6 @@ void game_logic();
 
 /* rdata */
 
-extern bool gbFullscreen;
 extern bool gbShowTooltip;
 #if DEBUG_MODE
 extern int DebugMonsters[10];

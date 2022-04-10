@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern bool gbWndActive;
+extern bool gbFullscreen;
 extern bool gbVsyncEnabled;
 extern bool gbFPSLimit;
 extern int gnRefreshDelay;
