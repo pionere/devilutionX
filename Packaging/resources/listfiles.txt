@@ -3410,7 +3410,7 @@ _Sfx\Misc\Portal.wav
 Sfx\Misc\Puddle.wav
 Sfx\Misc\Questdon.wav
 Sfx\Misc\Repair.wav
-Sfx\Misc\Resur.wav
+_Sfx\Misc\Resur.wav
 Sfx\Misc\Scurimp.wav
 _Sfx\Misc\Scurse.wav
 Sfx\Misc\Sentinel.wav

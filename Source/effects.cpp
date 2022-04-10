@@ -159,7 +159,7 @@ SFXStruct sgSFX[] = {
 /*LS_NOVA*/      { sfx_MISC,                  "Sfx\\Misc\\Nova.wav",         { 0, NULL } },
 /*LS_PORTAL*///  { sfx_MISC,                  "Sfx\\Misc\\Portal.wav",       { 0, NULL } },
 /*LS_PUDDLE*/    { sfx_MISC,                  "Sfx\\Misc\\Puddle.wav",       { 0, NULL } },
-/*LS_RESUR*/     { sfx_MISC,                  "Sfx\\Misc\\Resur.wav",        { 0, NULL } },
+/*LS_RESUR*///   { sfx_MISC,                  "Sfx\\Misc\\Resur.wav",        { 0, NULL } },
 /*LS_SCURSE*///  { sfx_MISC,                  "Sfx\\Misc\\Scurse.wav",       { 0, NULL } },
 /*LS_SCURIMP*/   { sfx_MISC,                  "Sfx\\Misc\\Scurimp.wav",      { 0, NULL } },
 /*LS_SENTINEL*/  { sfx_MISC,                  "Sfx\\Misc\\Sentinel.wav",     { 0, NULL } },

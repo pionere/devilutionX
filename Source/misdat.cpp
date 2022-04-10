@@ -74,7 +74,7 @@ const MissileData missiledata[] = {
 /*MIS_APOCAC*///     { &AddApocaC,                 &MI_ApocaC,         FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_APOC,     SFX_NONE,    1,        1, ALIGN },
 /*MIS_HEAL*/         { &AddHeal,                   &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_HEALOTHER*/    { &AddHealOther,              &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
-/*MIS_RESURRECT*/    { &AddResurrect,              &MI_Resurrect,      TRUE,      1,                                0, MISR_NONE,      MFILE_RESSUR1,   SFX_NONE,    LS_RESUR,    1,        1, ALIGN },
+/*MIS_RESURRECT*/    { &AddResurrect,              &MI_Resurrect,      TRUE,      1,                                0, MISR_NONE,      MFILE_RESSUR1,   SFX_NONE,    SFX_NONE,    1,        1, ALIGN }, // miSFX was LS_RESUR
 /*MIS_TELEKINESIS*/  { &AddTelekinesis,            &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_ETHEREAL, SFX_NONE,    1,        1, ALIGN },
 /*MIS_LARROW*///     { NULL,                       NULL,               TRUE,      0,                                0, MISR_LIGHTNING, MFILE_LARROW,    SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_OPITEM*/       { &AddOpItem,                 &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
