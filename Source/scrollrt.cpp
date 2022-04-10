@@ -967,23 +967,6 @@ static void Zoom()
 }
 
 /**
- * @brief Gets the number of rows covered by the main panel
- */
-static int RowsCoveredByPanel()
-{
-	//if (SCREEN_WIDTH <= PANEL_WIDTH) {
-		return 0;
-	/*}
-
-	int rows = PANEL_HEIGHT / TILE_HEIGHT;
-	if (gbZoomInFlag) {
-		rows /= 2;
-	}
-
-	return rows;*/
-}
-
-/**
  * @brief Calculate the offset needed for centering tiles in view area
  * @param offsetX Offset in pixels
  * @param offsetY Offset in pixels
