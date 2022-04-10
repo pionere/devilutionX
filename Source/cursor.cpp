@@ -210,7 +210,7 @@ void CheckTownPortal()
 
 void CheckCursMove()
 {
-	int pnum, sx, sy, fx, fy, mx, my, tx, ty, px, py, xx, yy, mi;
+	int pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, xx, yy, mi;
 	int pcurstemp; // Previously highlighted monster
 	char bv;
 	bool flipflag, flipx, flipy;
