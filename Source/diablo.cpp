@@ -958,7 +958,7 @@ static void PressKey(int vkey)
 		InvUseItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
 		break;
 	case ACT_AUTOMAP:
-		HandlePanBtn(PANBTN_AUTOMAP);
+		ToggleAutomap();
 		break;
 	case ACT_MAPZ_IN:
 		if (gbAutomapflag) {
@@ -1070,7 +1070,7 @@ static void PressKey(int vkey)
 		if (gbHelpflag) {
 			gbHelpflag = false;
 		} else if (stextflag == STORE_NONE) {
-			ClearUI();
+			ClearPanels();
 			DisplayHelp();
 		}
 		break;
