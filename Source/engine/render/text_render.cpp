@@ -36,7 +36,7 @@ const BYTE gbFontTransTbl[256] = {
 };
 
 /** Maps from font index to smaltext.cel frame number. */
-const BYTE sfontframe[128] = {
+const BYTE smallFontFrame[128] = {
 	// clang-format off
 	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -50,7 +50,7 @@ const BYTE sfontframe[128] = {
 };
 
 /** Maps from font index to medtexts.cel and bigtgold.cel frame number. */
-const BYTE mlfontframe[128] = {
+const BYTE bhFontFrame[128] = {
 	// clang-format off
 	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -63,12 +63,8 @@ const BYTE mlfontframe[128] = {
 	// clang-format on
 };
 
-/**
- * Maps from smaltext.cel frame number to character width. Note, the
- * character width may be distinct from the frame width, which is 13 for every
- * smaltext.cel frame.
- */
-const BYTE sfontkern[68] = {
+/** Maps from smaltext.cel frame number to character width. (Frame width: 13) */
+const BYTE smallFontWidth[68] = {
 	// clang-format off
 	 8, 10,  7,  9,  8,  7,  6,  8,  8,  3,
 	 3,  8,  6, 11,  9, 10,  6,  9,  9,  6,
@@ -80,12 +76,8 @@ const BYTE sfontkern[68] = {
 	// clang-format on
 };
 
-/**
- * Maps from medtexts.cel frame number to character width. Note, the
- * character width may be distinct from the frame width, which is 22 for every
- * medtexts.cel frame.
- */
-const BYTE mfontkern[56] = {
+/** Maps from medtexts.cel frame number to character width (Frame width: 22). */
+const BYTE bigFontWidth[56] = {
 	// clang-format off
 	 5, 15, 10, 13, 14, 10,  9, 13, 11,  5,
 	 5, 11, 10, 16, 13, 16, 10, 15, 12, 10,
@@ -96,8 +88,8 @@ const BYTE mfontkern[56] = {
 	// clang-format on
 };
 
-/** Maps from bigtgold.cel frame number to character width. */
-const BYTE lfontkern[56] = {
+/** Maps from bigtgold.cel frame number to character width (Frame width: 46). */
+static const BYTE hugeFontWidth[56] = {
 	// clang-format off
 	18, 33, 21, 26, 28, 19, 19, 26, 25, 11,
 	12, 25, 19, 34, 28, 32, 20, 32, 28, 20,
@@ -111,34 +103,34 @@ const BYTE lfontkern[56] = {
 //int LineHeights[3] = { 17, 43, 50 };
 
 /** Small-Text images CEL */
-BYTE *pPanelText;
+static BYTE* pSmallTextCels;
 /** Graphics for the medium size font */
-BYTE *pMedTextCels;
+BYTE* pBigTextCels;
 
-BYTE *BigTGold_cel;
+static BYTE* pHugeGoldTextCels;
 
-BYTE *PentSpin_cel;
-BYTE *pSPentSpn2Cels;
+static BYTE* pSmallPentSpinCels;
+static BYTE* pHugePentSpinCels;
 
-BYTE fontColorTableGold[256];
-BYTE fontColorTableBlue[256];
-BYTE fontColorTableRed[256];
+static BYTE fontColorTableGold[256];
+static BYTE fontColorTableBlue[256];
+static BYTE fontColorTableRed[256];
 
 void InitText()
 {
 	int i;
 	BYTE pix;
 
-	assert(pPanelText == NULL);
-	pPanelText = LoadFileInMem("CtrlPan\\SmalText.CEL");
-	assert(pMedTextCels == NULL);
-	pMedTextCels = LoadFileInMem("Data\\MedTextS.CEL");
-	assert(BigTGold_cel == NULL);
-	BigTGold_cel = LoadFileInMem("Data\\BigTGold.CEL");
-	assert(PentSpin_cel == NULL);
-	PentSpin_cel = LoadFileInMem("Data\\PentSpin.CEL");
-	assert(pSPentSpn2Cels == NULL);
-	pSPentSpn2Cels = LoadFileInMem("Data\\PentSpn2.CEL");
+	assert(pSmallTextCels == NULL);
+	pSmallTextCels = LoadFileInMem("CtrlPan\\SmalText.CEL");
+	assert(pBigTextCels == NULL);
+	pBigTextCels = LoadFileInMem("Data\\MedTextS.CEL");
+	assert(pHugeGoldTextCels == NULL);
+	pHugeGoldTextCels = LoadFileInMem("Data\\BigTGold.CEL");
+	assert(pHugePentSpinCels == NULL);
+	pHugePentSpinCels = LoadFileInMem("Data\\PentSpin.CEL");
+	assert(pSmallPentSpinCels == NULL);
+	pSmallPentSpinCels = LoadFileInMem("Data\\PentSpn2.CEL");
 
 	for (i = 0; i < lengthof(fontColorTableBlue); i++) {
 		pix = i;
@@ -172,11 +164,11 @@ void InitText()
 
 void FreeText()
 {
-	MemFreeDbg(pPanelText);
-	MemFreeDbg(pMedTextCels);
-	MemFreeDbg(BigTGold_cel);
-	MemFreeDbg(PentSpin_cel);
-	MemFreeDbg(pSPentSpn2Cels);
+	MemFreeDbg(pSmallTextCels);
+	MemFreeDbg(pBigTextCels);
+	MemFreeDbg(pHugeGoldTextCels);
+	MemFreeDbg(pHugePentSpinCels);
+	MemFreeDbg(pSmallPentSpinCels);
 }
 
 /**
@@ -192,7 +184,7 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 
 	switch (col) {
 	case COL_WHITE:
-		CelDraw(sx, sy, pPanelText, nCel, 13);
+		CelDraw(sx, sy, pSmallTextCels, nCel, 13);
 		return;
 	case COL_BLUE:
 		tbl = fontColorTableBlue;
@@ -210,31 +202,31 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	CelDrawLight(sx, sy, pPanelText, nCel, 13, tbl);
+	CelDrawLight(sx, sy, pSmallTextCels, nCel, 13, tbl);
 }
 
-int GetLargeStringWidth(const char* text)
+int GetHugeStringWidth(const char* text)
 {
 	int i;
 	BYTE c;
 
 	i = 0;
 	while (*text != '\0') {
-		c = mlfontframe[gbFontTransTbl[(BYTE)*text++]];
-		i += lfontkern[c] + 2; // kern
+		c = bhFontFrame[gbFontTransTbl[(BYTE)*text++]];
+		i += hugeFontWidth[c] + 2; // kern
 	}
 	return i - 2;
 }
 
-int GetStringWidth(const char* text)
+int GetSmallStringWidth(const char* text)
 {
 	int i;
 	BYTE c;
 
 	i = 0;
 	while (*text != '\0') {
-		c = sfontframe[gbFontTransTbl[(BYTE)*text++]];
-		i += sfontkern[c] + 1; // kern
+		c = smallFontFrame[gbFontTransTbl[(BYTE)*text++]];
+		i += smallFontWidth[c] + 1; // kern
 	}
 
 	return i - 1;
@@ -248,10 +240,10 @@ void PrintGameStr(int x, int y, const char *text, BYTE color)
 	sx = x + SCREEN_X;
 	sy = y + SCREEN_Y;
 	while (*text != '\0') {
-		c = sfontframe[gbFontTransTbl[(BYTE)*text++]];
+		c = smallFontFrame[gbFontTransTbl[(BYTE)*text++]];
 		if (c != 0)
 			PrintChar(sx, sy, c, color);
-		sx += sfontkern[c] + 1;
+		sx += smallFontWidth[c] + 1;
 	}
 }
 
@@ -276,16 +268,16 @@ void PrintString(int x, int y, int endX, const char *text, bool cjustflag, BYTE 
 		strEnd = x;
 		tmp = text;
 		while (*tmp != '\0') {
-			c = sfontframe[gbFontTransTbl[(BYTE)*tmp++]];
-			strEnd += sfontkern[c] + kern;
+			c = smallFontFrame[gbFontTransTbl[(BYTE)*tmp++]];
+			strEnd += smallFontWidth[c] + kern;
 		}
 		if (strEnd < endX) {
 			x += (endX - strEnd) >> 1;
 		}
 	}
 	while (*text != '\0') {
-		c = sfontframe[gbFontTransTbl[(BYTE)*text++]];
-		k = sfontkern[c] + kern;
+		c = smallFontFrame[gbFontTransTbl[(BYTE)*text++]];
+		k = smallFontWidth[c] + kern;
 		if (x + k < endX && c != 0) {
 			PrintChar(x, y, c, col);
 		}
@@ -298,17 +290,17 @@ int PrintLimitedString(int x, int y, const char *text, int limit, BYTE col)
 	BYTE c;
 
 	while (*text != '\0') {
-		c = sfontframe[gbFontTransTbl[(BYTE)*text++]];
-		limit -= sfontkern[c] + 1;
+		c = smallFontFrame[gbFontTransTbl[(BYTE)*text++]];
+		limit -= smallFontWidth[c] + 1;
 		if (limit >= 0 && c != 0) {
 			PrintChar(x, y, c, col);
 		}
-		x += sfontkern[c] + 1;
+		x += smallFontWidth[c] + 1;
 	}
 	return x;
 }
 
-void PrintLargeString(int x, int y, const char* text, int light)
+void PrintHugeString(int x, int y, const char* text, int light)
 {
 	BYTE c, *tbl;
 
@@ -316,14 +308,14 @@ void PrintLargeString(int x, int y, const char* text, int light)
 	//tbl = light == 0 ? NULL : ColorTrns[light];
 	tbl = ColorTrns[light];
 	while (*text != '\0') {
-		c = mlfontframe[gbFontTransTbl[(BYTE)*text++]];
+		c = bhFontFrame[gbFontTransTbl[(BYTE)*text++]];
 		if (c != 0) {
 			/*if (tbl == NULL)
-				CelDraw(x, y, BigTGold_cel, c, 46);
+				CelDraw(x, y, pHugeGoldTextCels, c, 46);
 			else*/
-				CelDrawLight(x, y, BigTGold_cel, c, 46, tbl);
+				CelDrawLight(x, y, pHugeGoldTextCels, c, 46, tbl);
 		}
-		x += lfontkern[c] + 2;
+		x += hugeFontWidth[c] + 2;
 	}
 }
 
@@ -332,21 +324,21 @@ static int PentSpn2Spin()
 	return (SDL_GetTicks() / 64) % 8 + 1;
 }
 
-void DrawPentSpn(int x1, int x2, int y)
+void DrawHugePentSpn(int x1, int x2, int y)
 {
-	CelDraw(x1, y, PentSpin_cel, PentSpn2Spin(), 48);
-	CelDraw(x2, y, PentSpin_cel, PentSpn2Spin(), 48);
+	CelDraw(x1, y, pHugePentSpinCels, PentSpn2Spin(), 48);
+	CelDraw(x2, y, pHugePentSpinCels, PentSpn2Spin(), 48);
 }
 
-void DrawPentSpn2(int x1, int x2, int y)
+void DrawSmallPentSpn(int x1, int x2, int y)
 {
-	CelDraw(x1, y, pSPentSpn2Cels, PentSpn2Spin(), 12);
-	CelDraw(x2, y, pSPentSpn2Cels, PentSpn2Spin(), 12);
+	CelDraw(x1, y, pSmallPentSpinCels, PentSpn2Spin(), 12);
+	CelDraw(x2, y, pSmallPentSpinCels, PentSpn2Spin(), 12);
 }
 
-void DrawSinglePentSpn2(int x, int y)
+void DrawSingleSmallPentSpn(int x, int y)
 {
-	CelDraw(x, y, pSPentSpn2Cels, PentSpn2Spin(), 12);
+	CelDraw(x, y, pSmallPentSpinCels, PentSpn2Spin(), 12);
 }
 
 DEVILUTION_END_NAMESPACE

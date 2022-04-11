@@ -623,14 +623,14 @@ static void PrintQLString(unsigned y, const char* str)
 
 	sx = /*x*/0 + QPNL_BORDER + SCREEN_X;
 	sy = y * QPNL_LINE_SPACING + QPNL_BORDER + QPNL_TEXT_HEIGHT + SCREEN_Y;
-	width = GetStringWidth(str);
+	width = GetSmallStringWidth(str);
 	if (width < QPNL_LINE_WIDTH) {
 		sx += (QPNL_LINE_WIDTH - width) >> 1;
 	}
 	px = qline == y ? sx : INT_MAX;
 	sx = PrintLimitedString(sx, sy, str, QPNL_LINE_WIDTH, COL_WHITE);
 	if (px != INT_MAX) {
-		DrawPentSpn2(px - 20, sx + 6, sy + 1);
+		DrawSmallPentSpn(px - 20, sx + 6, sy + 1);
 	}
 }
 

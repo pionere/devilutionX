@@ -99,7 +99,7 @@ static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 	const char *sstr, *endstr;
 	const char *str = pMsg->str;
 
-	line = (unsigned)GetStringWidth(str) >= width ? 2 : 1;
+	line = (unsigned)GetSmallStringWidth(str) >= width ? 2 : 1;
 	line *= PLRMSG_TEXT_HEIGHT;
 	y -= line;
 
@@ -111,8 +111,8 @@ static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 		sstr = endstr = str;
 		while (TRUE) {
 			if (*sstr != '\0') {
-				c = sfontframe[gbFontTransTbl[(BYTE)*sstr++]];
-				len += sfontkern[c] + 1;
+				c = smallFontFrame[gbFontTransTbl[(BYTE)*sstr++]];
+				len += smallFontWidth[c] + 1;
 				if (c == 0) // allow wordwrap on blank glyph
 					endstr = sstr;
 				else if (len >= width)
@@ -125,10 +125,10 @@ static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 
 		sx = x;
 		while (str < endstr) {
-			c = sfontframe[gbFontTransTbl[(BYTE)*str++]];
+			c = smallFontFrame[gbFontTransTbl[(BYTE)*str++]];
 			if (c != 0)
 				PrintChar(sx, y, c, col);
-			sx += sfontkern[c] + 1;
+			sx += smallFontWidth[c] + 1;
 		}
 
 		y += PLRMSG_TEXT_HEIGHT;

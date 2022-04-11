@@ -47,10 +47,10 @@ void gmenu_draw_pause()
 	int x, light;
 
 	if (!gmenu_is_active()) {
-		x = SCREEN_X + SCREEN_WIDTH / 2 - GetLargeStringWidth("Pause") / 2;
+		x = SCREEN_X + SCREEN_WIDTH / 2 - GetHugeStringWidth("Pause") / 2;
 		static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
 		light = (SDL_GetTicks() / 256) % 4;
-		PrintLargeString(x, SCREEN_Y + SCREEN_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", light);
+		PrintHugeString(x, SCREEN_Y + SCREEN_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", light);
 	}
 }
 
@@ -157,7 +157,7 @@ static int gmenu_get_lfont(TMenuItem *pItem)
 {
 	if (pItem->dwFlags & GMENU_SLIDER)
 		return SLIDER_ROW_WIDTH;
-	return GetLargeStringWidth(pItem->pszStr);
+	return GetHugeStringWidth(pItem->pszStr);
 }
 
 static void gmenu_draw_menu_item(int i, int y)
@@ -167,9 +167,9 @@ static void gmenu_draw_menu_item(int i, int y)
 
 	w = gmenu_get_lfont(pItem);
 	x = SCREEN_X + (SCREEN_WIDTH - w) / 2;
-	PrintLargeString(x, y, pItem->pszStr, (pItem->dwFlags & GMENU_ENABLED) ? 0 : MAXDARKNESS);
+	PrintHugeString(x, y, pItem->pszStr, (pItem->dwFlags & GMENU_ENABLED) ? 0 : MAXDARKNESS);
 	if (pItem == &gpCurrentMenu[guCurrItemIdx])
-		DrawPentSpn(x - 54, x + 4 + w, y + 1);
+		DrawHugePentSpn(x - 54, x + 4 + w, y + 1);
 	if (pItem->dwFlags & GMENU_SLIDER) {
 		x += SLIDER_OFFSET;
 		CelDraw(x, y - 10, gpOptbarCel, 1, 287);

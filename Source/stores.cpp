@@ -207,7 +207,7 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 	sy = LTPANEL_Y + 20 + y * 12 + stextlines[y]._syoff;
 	limit = gbWidePanel ? LTPANEL_WIDTH - 7 * 2 : STPANEL_WIDTH - 7 * 2;
 	if (cjustflag) {
-		width = GetStringWidth(str);
+		width = GetSmallStringWidth(str);
 		if (width < limit) {
 			sx += (limit - width) >> 1;
 		}
@@ -219,15 +219,15 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 		snprintf(valstr, sizeof(valstr), "%d", val);
 		sx = PANEL_X + 592 - x;
 		for (i = strlen(valstr) - 1; i >= 0; i--) {
-			c = sfontframe[gbFontTransTbl[(BYTE)valstr[i]]];
-			sx -= sfontkern[c] + 1;
+			c = smallFontFrame[gbFontTransTbl[(BYTE)valstr[i]]];
+			sx -= smallFontWidth[c] + 1;
 			if (c != 0) {
 				PrintChar(sx, sy, c, col);
 			}
 		}
 	}
 	if (px != INT_MAX) {
-		DrawPentSpn2(px - 20, cjustflag ? sx + 6 : (PANEL_X + 596 - x), sy + 1);
+		DrawSmallPentSpn(px - 20, cjustflag ? sx + 6 : (PANEL_X + 596 - x), sy + 1);
 	}
 }
 

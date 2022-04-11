@@ -13,7 +13,7 @@ namespace {
 
 int CalculateTextWidth(const char *s)
 {
-	return *s == '\0' ? 0 : GetStringWidth(s);
+	return *s == '\0' ? 0 : GetSmallStringWidth(s);
 }
 
 int SpaceWidth()

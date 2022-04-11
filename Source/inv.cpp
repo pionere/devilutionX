@@ -412,8 +412,8 @@ void DrawInvBelt()
 
 		if (is->_iStatFlag && is->_iUsable) {
 			fi = i + 49; // '1' + i;
-			ff = sfontframe[gbFontTransTbl[fi]];
-			PrintChar(screen_x + INV_SLOT_SIZE_PX - sfontkern[ff], screen_y, ff, COL_WHITE);
+			ff = smallFontFrame[gbFontTransTbl[fi]];
+			PrintChar(screen_x + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y, ff, COL_WHITE);
 		}
 	}
 }

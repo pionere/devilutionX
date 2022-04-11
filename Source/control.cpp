@@ -1340,8 +1340,8 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 	int width, result = 0;
 	BYTE* dst;
 	const int border = 4, height = 26;
-	int w1 = GetStringWidth(text1);
-	int w2 = GetStringWidth(text2);
+	int w1 = GetSmallStringWidth(text1);
+	int w2 = GetSmallStringWidth(text2);
 
 	width = std::max(w1, w2) + 2 * border;
 
@@ -1437,7 +1437,7 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 	BYTE* dst;
 	const int border = 4, height = 16;
 
-	width = GetStringWidth(text) + 2 * border;
+	width = GetSmallStringWidth(text) + 2 * border;
 
 	y -= TILE_HEIGHT;
 	if (y < 0)
@@ -2041,12 +2041,12 @@ void DrawGoldSplit(int amount)
 	if (amount > 0) {
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
 		PrintGameStr(388, 140, tempstr, COL_WHITE);
-		screen_x += GetStringWidth(tempstr);
+		screen_x += GetSmallStringWidth(tempstr);
 		screen_x += 452;
 	} else {
 		screen_x = 450;
 	}
-	DrawSinglePentSpn2(screen_x, 140 + SCREEN_Y);
+	DrawSingleSmallPentSpn(screen_x, 140 + SCREEN_Y);
 }
 
 static void control_remove_gold()
@@ -2283,15 +2283,15 @@ static char* control_print_talk_msg(char* msg, int* x, int y)
 	BYTE c;
 
 	while (*msg != '\0') {
-		c = sfontframe[gbFontTransTbl[(BYTE)*msg]];
-		limit -= sfontkern[c] + 1;
+		c = smallFontFrame[gbFontTransTbl[(BYTE)*msg]];
+		limit -= smallFontWidth[c] + 1;
 		if (limit < 0)
 			return msg;
 		msg++;
 		if (c != 0) {
 			PrintChar(*x, y, c, COL_WHITE);
 		}
-		*x += sfontkern[c] + 1;
+		*x += smallFontWidth[c] + 1;
 	}
 	return NULL;
 }
@@ -2321,7 +2321,7 @@ void DrawTalkPan()
 	}
 	if (msg != NULL)
 		*msg = '\0';
-	DrawSinglePentSpn2(x, y);
+	DrawSingleSmallPentSpn(x, y);
 }
 
 void control_type_message()
