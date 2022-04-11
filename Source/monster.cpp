@@ -4444,6 +4444,8 @@ void ProcessMonsters()
 					assert(mon->_mmode == MM_STAND);
 				}
 				mon->_mFlags |= MFLAG_NO_ENEMY;
+				mon->_menemyx = 0;
+				mon->_menemyy = 0;
 				mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
 				mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
 				mon->_mpathcount = 0;
