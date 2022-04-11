@@ -1302,6 +1302,8 @@ static void MonEnemy(int mnum)
 		mon->_menemy = enemy;
 	} else {
 		mon->_mFlags |= MFLAG_NO_ENEMY;
+		mon->_menemyx = 0;
+		mon->_menemyy = 0;
 	}
 }
 
