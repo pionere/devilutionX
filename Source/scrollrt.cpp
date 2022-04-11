@@ -170,9 +170,10 @@ static void scrollrt_draw_cursor()
 
 	assert(sgCursWdt == 0);
 
-	if (pcurs <= CURSOR_NONE || cursW == 0 || cursH == 0) {
+	if (pcurs <= CURSOR_NONE) {
 		return;
 	}
+	assert(cursW != 0 && cursH != 0);
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !gbInvflag && (!gbChrflag || !gbLvlUp))

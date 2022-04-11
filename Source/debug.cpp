@@ -261,6 +261,16 @@ void ValidateData()
 {
 	int i;
 
+	// cursors
+	for (i = 0; i < lengthof(InvItemWidth); i++) {
+		if (i != CURSOR_NONE && InvItemWidth[i] == 0)
+			app_fatal("Invalid (zero) cursor width at %d.", i);
+	}
+	for (i = 0; i < lengthof(InvItemHeight); i++) {
+		if (i != CURSOR_NONE && InvItemHeight[i] == 0)
+			app_fatal("Invalid (zero) cursor height at %d.", i);
+	}
+
 	// quests
 	for (i = 0; i < lengthof(AllLevels); i++) {
 		int j = 0;
