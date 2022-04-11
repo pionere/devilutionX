@@ -37,7 +37,7 @@ void DrawArtStr(const char* text, const SDL_Rect &rect, int flags, bool drawText
 		DrawArt(sx, sy, fontArt, *(BYTE*)text, w);
 		sx += w;
 	}
-	if (drawTextCursor && GetAnimationFrame(2, 500) != 0) {
+	if (drawTextCursor && GetAnimationFrame(2, 512) != 0) {
 		DrawArt(sx, sy, fontArt, '|');
 	}
 }
