@@ -528,7 +528,7 @@ void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 	vecDialog->push_back(new UiImage(&ArtLogoMed, 0, rect, UIS_CENTER, true));
 }
 
-void UiFadeIn()
+void UiFadeIn(bool draw_cursor)
 {
 	Uint32 currTc;
 
@@ -542,6 +542,12 @@ void UiFadeIn()
 			//_gdwFadeTc = 0;
 		}
 		SetFadeLevel(_gnFadeValue);
+	}
+	if (draw_cursor) {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		if (!sgbControllerActive)
+#endif
+			DrawArt(MouseX, MouseY, &ArtCursor);
 	}
 //#ifdef USE_SDL1
 //	if (DiabloUiSurface() == back_surface)
@@ -575,8 +581,7 @@ void UiClearScreen()
 void UiPollAndRender()
 {
 	UiRenderItems(gUiItems);
-	DrawMouse();
-	UiFadeIn();
+	UiFadeIn(true);
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0) {
@@ -871,16 +876,6 @@ void UiItemMouseEvents(SDL_Event* event)
 	}
 
 	//return handled;
-}
-
-void DrawMouse()
-{
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive)
-		return;
-#endif
-
-	DrawArt(MouseX, MouseY, &ArtCursor);
 }
 
 DEVILUTION_END_NAMESPACE

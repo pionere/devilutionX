@@ -52,7 +52,7 @@ void UiTitleDialog()
 	SDL_Event event;
 	do {
 		UiRenderItems(gUiItems);
-		UiFadeIn();
+		UiFadeIn(false);
 
 		while (SDL_PollEvent(&event) != 0) {
 			if (GetMenuAction(event) != MenuAction_NONE) {

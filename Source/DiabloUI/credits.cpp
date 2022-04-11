@@ -103,7 +103,7 @@ void UiCreditsDialog()
 	do {
 		if (!creditsRenderer.Render())
 			break;
-		UiFadeIn();
+		UiFadeIn(false);
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {
 			case SDL_KEYDOWN:

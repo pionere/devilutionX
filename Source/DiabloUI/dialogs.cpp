@@ -233,8 +233,7 @@ static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 		//if (renderBehind != NULL)
 		//	UiRenderItems(*renderBehind);
 		UiRenderItems(gUiItems);
-		DrawMouse();
-		UiFadeIn();
+		UiFadeIn(true);
 
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {

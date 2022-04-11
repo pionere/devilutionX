@@ -76,8 +76,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 		_gnProgress = fnfunc();
 		ProgressRender();
 		UiRenderItems(gUiItems);
-		DrawMouse();
-		UiFadeIn();
+		UiFadeIn(true);
 
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {
