@@ -1222,6 +1222,8 @@ static void MonEnemy(int mnum)
 	bool sameroom, bestsameroom;
 	MonsterStruct *mon = &monsters[mnum], *tmon;
 	const BYTE tv = dTransVal[mon->_mx][mon->_my];
+	int flags;
+	BYTE x, y;
 
 	enemy = 0;
 	best_dist = MAXDUNX + MAXDUNY;
@@ -1287,24 +1289,27 @@ static void MonEnemy(int mnum)
 		}
 	}
 	// clear previous target-flags
-	mon->_mFlags &= ~(MFLAG_TARGETS_MONSTER | MFLAG_NO_ENEMY);
+	flags = mon->_mFlags & ~(MFLAG_TARGETS_MONSTER | MFLAG_NO_ENEMY);
 	if (enemy != 0) {
 		if (enemy > 0) {
 			enemy--;
-			mon->_menemyx = plx(enemy)._pfutx;
-			mon->_menemyy = plx(enemy)._pfuty;
+			x = plx(enemy)._pfutx;
+			y = plx(enemy)._pfuty;
 		} else {
 			enemy = -(enemy + 1);
-			mon->_mFlags |= MFLAG_TARGETS_MONSTER;
-			mon->_menemyx = monsters[enemy]._mfutx;
-			mon->_menemyy = monsters[enemy]._mfuty;
+			flags |= MFLAG_TARGETS_MONSTER;
+			x = monsters[enemy]._mfutx;
+			y = monsters[enemy]._mfuty;
 		}
 		mon->_menemy = enemy;
 	} else {
-		mon->_mFlags |= MFLAG_NO_ENEMY;
-		mon->_menemyx = 0;
-		mon->_menemyy = 0;
+		flags |= MFLAG_NO_ENEMY;
+		x = 0;
+		y = 0;
 	}
+	mon->_mFlags = flags;
+	mon->_menemyx = x;
+	mon->_menemyy = y;
 }
 
 static int MonGetDir(int mnum)
