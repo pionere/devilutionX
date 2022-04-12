@@ -850,7 +850,7 @@ bool PeekMessage(LPMSG lpMsg)
 	if (ProcessControllerMotion(e, ctrlEvent))
 		return true;
 
-	GameAction action;
+	GameAction action = GameAction(GameActionType_NONE);
 	if (GetGameAction(e, ctrlEvent, &action)) {
 		if (action.type != GameActionType_NONE) {
 			sgbControllerActive = true;
