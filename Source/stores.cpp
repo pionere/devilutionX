@@ -91,6 +91,8 @@ static int talker;
 BYTE stextflag;
 /** Is the current dialog full size */
 static bool gbWidePanel;
+/** Should 'Your gold ' text be displayed on the top-right corner */
+static bool gbRenderGold;
 /** Does the current panel have a scrollbar */
 static bool gbHasScroll;
 /** The index of the first visible item in the store. */
@@ -171,6 +173,7 @@ void InitStoresOnce()
 	ClearSText(0, STORE_LINES);
 	stextflag = STORE_NONE;
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 	numpremium = 0;
 	premiumlevel = StoresLimitedItemLvl();
@@ -261,7 +264,8 @@ void InitSTextHelp()
 {
 	stextsel = -1;
 	gbWidePanel = true;
-	//assert(gbHasScroll == false); - not necessary since it is not used in PrintSString
+	// assert(gbRenderGold == false); - not necessary since it is not used in PrintSString
+	// assert(gbHasScroll == false); - not necessary since it is not used in PrintSString
 	ClearSText(0, STORE_LINES); // necessary to reset the _syoff values
 }
 
@@ -374,7 +378,7 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 
 static void AddStoreFrame(const char* title)
 {
-	AddSText(0, 1, true, title, COL_GOLD, false);
+	AddSText(10, 1, false, title, COL_GOLD, false);
 	AddSLine(3);
 	AddSLine(21);
 	AddSText(0, STORE_BACK, true, "Back", COL_WHITE, true);
@@ -384,6 +388,7 @@ static void AddStoreFrame(const char* title)
 static void S_StartSmith()
 {
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Blacksmith's shop", COL_GOLD, false);
@@ -440,22 +445,22 @@ static void S_StartSBuy()
 		storenumh++;
 
 	gbWidePanel = true;
+	gbRenderGold = true;
 	if (storenumh == 0) {
 		//StartStore(STORE_SMITH);
 		//stextshold = STORE_SMITH;
 		//stextsel = STORE_SMITH_BUY;
 		//return false;
 		gbHasScroll = false;
-		msg = "I have no basic item for sale.           Your gold: %d";
+		msg = "I have no basic item for sale.";
 	} else {
 		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSBuy();
 
-		msg = "I have these basic items for sale:       Your gold: %d";
+		msg = "I have these basic items for sale:";
 	}
-	snprintf(tempstr, sizeof(tempstr), msg, myplr._pGold);
-	AddStoreFrame(tempstr);
+	AddStoreFrame(msg);
 	//return true;
 }
 
@@ -502,22 +507,22 @@ static void S_StartSPBuy()
 			storenumh++;
 
 	gbWidePanel = true;
+	gbRenderGold = true;
 	if (storenumh == 0) {
 		//StartStore(STORE_SMITH);
 		//stextshold = STORE_SMITH;
 		//stextsel = STORE_SMITH_SPBUY;
 		//return false;
 		gbHasScroll = false;
-		msg = "I have no premium item for sale.         Your gold: %d";
+		msg = "I have no premium item for sale.";
 	} else {
 		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSPBuy();
 
-		msg = "I have these premium items for sale:     Your gold: %d";
+		msg = "I have these premium items for sale:";
 	}
-	snprintf(tempstr, sizeof(tempstr), msg, myplr._pGold);
-	AddStoreFrame(tempstr);
+	AddStoreFrame(msg);
 	//return true;
 }
 
@@ -603,18 +608,18 @@ static void S_StartSSell()
 #endif
 
 	gbWidePanel = true;
+	gbRenderGold = true;
 	if (storenumh == 0) {
 		gbHasScroll = false;
-		msg = "You have nothing I want.                 Your gold: %d";
+		msg = "You have nothing I want.";
 	} else {
 		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
 
-		msg = "Which item is for sale?                  Your gold: %d";
+		msg = "Which item is for sale?";
 	}
-	snprintf(tempstr, sizeof(tempstr), msg, p->_pGold);
-	AddStoreFrame(tempstr);
+	AddStoreFrame(msg);
 }
 
 static bool SmithRepairOk(const ItemStruct *is)
@@ -663,23 +668,24 @@ static void S_StartSRepair()
 			AddStoreHoldRepair(pi, i);
 
 	gbWidePanel = true;
+	gbRenderGold = true;
 	if (storenumh == 0) {
 		gbHasScroll = false;
-		msg = "You have nothing to repair.              Your gold: %d";
+		msg = "You have nothing to repair.";
 	} else {
 		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
 
-		msg = "Repair which item?                       Your gold: %d";
+		msg = "Repair which item?";
 	}
-	snprintf(tempstr, sizeof(tempstr), msg, p->_pGold);
-	AddStoreFrame(tempstr);
+	AddStoreFrame(msg);
 }
 
 static void S_StartWitch()
 {
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 
 	AddSText(0, 2, true, "Witch's shack", COL_GOLD, false);
@@ -727,12 +733,12 @@ static void S_StartWBuy()
 		storenumh++;
 
 	gbWidePanel = true;
+	gbRenderGold = true;
 	gbHasScroll = true;
 	stextsidx = 0;
 	S_ScrollWBuy();
 
-	snprintf(tempstr, sizeof(tempstr), "I have these items for sale:              Your gold: %d", myplr._pGold);
-	AddStoreFrame(tempstr);
+	AddStoreFrame("I have these items for sale:");
 }
 
 static bool WitchSellOk(const ItemStruct* is)
@@ -770,17 +776,17 @@ static void S_StartWSell()
 			AddStoreSell(pi, -(i + 1));
 
 	gbWidePanel = true;
+	gbRenderGold = true;
 	if (storenumh == 0) {
 		gbHasScroll = false;
-		msg = "You have nothing I want.                 Your gold: %d";
+		msg = "You have nothing I want.";
 	} else {
 		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
-		msg = "Which item is for sale?                  Your gold: %d";
+		msg = "Which item is for sale?";
 	}
-	snprintf(tempstr, sizeof(tempstr), msg, p->_pGold);
-	AddStoreFrame(tempstr);
+	AddStoreFrame(msg);
 }
 
 static bool WitchRechargeOk(const ItemStruct *is)
@@ -823,18 +829,18 @@ static void S_StartWRecharge()
 			AddStoreHoldRecharge(pi, i);
 
 	gbWidePanel = true;
+	gbRenderGold = true;
 	if (storenumh == 0) {
 		gbHasScroll = false;
-		msg = "You have nothing to recharge.            Your gold: %d";
+		msg = "You have nothing to recharge.";
 	} else {
 		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
 
-		msg = "Recharge which item?                     Your gold: %d";
+		msg = "Recharge which item?";
 	}
-	snprintf(tempstr, sizeof(tempstr), msg, p->_pGold);
-	AddStoreFrame(tempstr);
+	AddStoreFrame(msg);
 }
 
 static void S_StartNoMoney()
@@ -842,6 +848,7 @@ static void S_StartNoMoney()
 	StartStore(stextshold);
 	gbHasScroll = false;
 	gbWidePanel = true;
+	gbRenderGold = false;
 	ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	AddSText(0, 14, true, "You do not have enough gold", COL_WHITE, true);
 }
@@ -904,6 +911,7 @@ static void S_StartConfirm()
 static void S_StartBoy()
 {
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 	AddSText(0, 2, true, "Wirt the Peg-legged boy", COL_GOLD, false);
 	AddSLine(5);
@@ -926,9 +934,9 @@ static void S_StartBoy()
 static void S_StartBBoy()
 {
 	gbWidePanel = true;
+	gbRenderGold = true;
 	gbHasScroll = false;
-	snprintf(tempstr, sizeof(tempstr), "I have this item for sale:                Your gold: %d", myplr._pGold);
-	AddSText(0, 1, true, tempstr, COL_GOLD, false);
+	AddSText(10, 1, false, "I have this item for sale:", COL_GOLD, false);
 	AddSLine(3);
 	AddSLine(21);
 
@@ -942,6 +950,7 @@ static void S_StartBBoy()
 static void S_StartHealer()
 {
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Healer's home", COL_GOLD, false);
@@ -988,17 +997,18 @@ static void S_StartHBuy()
 		storenumh++;
 
 	gbWidePanel = true;
+	gbRenderGold = true;
 	gbHasScroll = true;
 	stextsidx = 0;
 	S_ScrollHBuy();
 
-	snprintf(tempstr, sizeof(tempstr), "I have these items for sale:              Your gold: %d", myplr._pGold);
-	AddStoreFrame(tempstr);
+	AddStoreFrame("I have these items for sale:");
 }
 
 static void S_StartStory()
 {
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 	AddSText(0, 2, true, "The Town Elder", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
@@ -1049,18 +1059,18 @@ static void S_StartSIdentify()
 			AddStoreHoldId(pi, i);
 
 	gbWidePanel = true;
+	gbRenderGold = true;
 	if (storenumh == 0) {
 		gbHasScroll = false;
-		msg = "You have nothing to identify.             Your gold: %d";
+		msg = "You have nothing to identify.";
 	} else {
 		gbHasScroll = true;
 		stextsidx = 0;
 		S_ScrollSSell();
 
-		msg = "Identify which item?             Your gold: %d";
+		msg = "Identify which item?";
 	}
-	snprintf(tempstr, sizeof(tempstr), msg, p->_pGold);
-	AddStoreFrame(tempstr);
+	AddStoreFrame(msg);
 }
 
 static void S_StartIdShow()
@@ -1070,6 +1080,7 @@ static void S_StartIdShow()
 	//ClearSText(STORE_LIST_FIRST, STORE_LINES);
 
 	//gbWidePanel = true;
+	//gbRenderGold = true;
 	gbHasScroll = false;
 
 	AddSLine(3);
@@ -1084,6 +1095,7 @@ static void S_StartTalk()
 	int i, sn, la;
 
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 	snprintf(tempstr, sizeof(tempstr), "Talk to %s", talkname[talker]);
 	AddSText(0, 2, true, tempstr, COL_GOLD, false);
@@ -1115,6 +1127,7 @@ static void S_StartTalk()
 static void S_StartTavern()
 {
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Rising Sun", COL_GOLD, false);
@@ -1127,6 +1140,7 @@ static void S_StartTavern()
 static void S_StartBarMaid()
 {
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 	AddSText(0, 2, true, "Gillian", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
@@ -1138,6 +1152,7 @@ static void S_StartBarMaid()
 static void S_StartDrunk()
 {
 	gbWidePanel = false;
+	gbRenderGold = false;
 	gbHasScroll = false;
 	AddSText(0, 2, true, "Farnham the Drunk", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
@@ -1285,6 +1300,11 @@ void DrawStore()
 			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, sts->_sclr, sts->_sval);
 	}
 
+	if (gbRenderGold) {
+		snprintf(tempstr, sizeof(tempstr), "Your gold: %d", myplr._pGold);
+		// assert(gbWidePanel);
+		PrintSString(LTPANEL_WIDTH - 178, 1, false, tempstr, COL_GOLD);
+	}
 	if (gbHasScroll)
 		DrawSSlider();
 }
