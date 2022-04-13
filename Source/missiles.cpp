@@ -66,7 +66,7 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 		for (k = 0; k < sl; k++)
 			mind += mind >> 3;
 
-		mind *= 19;
+		mind *= misfiledata[MFILE_BLUEXFR].mfAnimLen[0];
 		maxd = mind << 3;
 		mind >>= 6;
 		maxd >>= 6;
@@ -2239,10 +2239,13 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		}
 		mis->_miMinDam = dam;
 		mis->_miMaxDam = dam << 3;
-	} else if (micaster == MST_MONSTER) {
-		mis->_miMinDam = mis->_miMaxDam = monsters[misource]._mLevel << 1;
-	} else {
-		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel << 4;
+	} else  {
+		if (micaster == MST_MONSTER) {
+			dam = monsters[misource]._mLevel << 1;
+		} else {
+			dam = currLvl._dLevel << 4;
+		}
+		mis->_miMinDam = mis->_miMaxDam = dam;
 	}
 	return MIRES_DONE;
 }
@@ -3033,8 +3036,8 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	mis = &missile[mi];
 	mis->_mix = dx;
 	mis->_miy = dy;
-	mis->_misx = mis->_mix;
-	mis->_misy = mis->_miy;
+	// mis->_misx = mis->_mix;
+	// mis->_misy = mis->_miy;
 	return MIRES_DONE;
 }
 
@@ -3892,8 +3895,7 @@ void MI_Teleport(int mi)
 
 	px = mis->_mix;
 	py = mis->_miy;
-	plr._px = plr._pfutx = plr._poldx = px;
-	plr._py = plr._pfuty = plr._poldy = py;
+	SetPlayerLoc(&plr, px, py);
 	//PlrDoTrans(px, py);
 	dPlayer[px][py] = pnum + 1;
 	ChangeLightXY(plr._plid, px, py);
