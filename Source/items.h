@@ -64,7 +64,6 @@ void DoAbility(int pnum, char from, BYTE cii);
 void DoOil(int pnum, char from, BYTE cii);
 const char *ItemName(const ItemStruct* is);
 void PrintItemPower(BYTE plidx, const ItemStruct *is);
-void DrawUniqueInfo();
 void DrawInvItemDetails();
 void SpawnSmith(unsigned lvl);
 void SpawnPremium(unsigned lvl);

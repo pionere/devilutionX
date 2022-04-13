@@ -2979,7 +2979,7 @@ static void PrintUniquePower(BYTE plidx, ItemStruct *is, int x, int &y)
 	}
 }
 
-void DrawUniqueInfo(ItemStruct *is, int x, int &y)
+static void DrawUniqueInfo(ItemStruct *is, int x, int &y)
 {
 	const UniqItemData *uis;
 

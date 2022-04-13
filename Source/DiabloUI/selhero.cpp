@@ -1,4 +1,4 @@
-#include <chrono>
+#include <time.h>
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
