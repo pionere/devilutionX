@@ -3025,7 +3025,7 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	if (spllvl == mypnum)
 		NetSendCmd(CMD_PLRRESURRECT);
@@ -3035,7 +3035,6 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	mis->_miy = dy;
 	mis->_misx = mis->_mix;
 	mis->_misy = mis->_miy;
-	mis->_miRange = misfiledata[MFILE_RESSUR1].mfAnimLen[0];
 	return MIRES_DONE;
 }
 
@@ -4306,8 +4305,8 @@ void MI_Elemental(int mi)
 
 void MI_Resurrect(int mi)
 {
-	missile[mi]._miRange--;
-	if (missile[mi]._miRange >= 0) {
+	assert(missile[mi]._miAnimLen == misfiledata[MFILE_RESSUR1].mfAnimLen[0]);
+	if (missile[mi]._miAnimFrame < misfiledata[MFILE_RESSUR1].mfAnimLen[0]) {
 		PutMissile(mi);
 		return;
 	}
