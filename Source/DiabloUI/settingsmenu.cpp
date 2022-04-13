@@ -13,6 +13,13 @@ void UiSettingsDialog()
 	// enable speed setting
 	gbGameMode = 0;
 	assert(!IsMultiGame);
+	// load speed setting - TODO: copy-paste from mainmenu_single_player
+	if (getIniInt("Diablo", "Game Speed", &gnTicksRate)) {
+		if (gnTicksRate < SPEED_NORMAL)
+			gnTicksRate = SPEED_NORMAL;
+		else if (gnTicksRate > SPEED_FASTEST)
+			gnTicksRate = SPEED_FASTEST;
+	}
 	// initialize game-skeleton with active gamemenu
 	InitText();
 	InitGMenu();
