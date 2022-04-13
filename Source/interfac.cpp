@@ -220,13 +220,14 @@ void LoadGameLevel(int lvldir)
 		CreateLevel(lvldir);
 		IncProgress();
 		if (currLvl._dType != DTYPE_TOWN) {
-			SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			GetLevelMTypes();
 			InitThemes();
 			IncProgress();
 			InitObjectGFX();
 		} else {
 			InitLvlStores();
+			// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
+			// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			IncProgress();
 		}
 		IncProgress();
@@ -236,8 +237,6 @@ void LoadGameLevel(int lvldir)
 			GetReturnLvlPos();
 		if (lvldir == ENTRY_WARPLVL)
 			GetPortalLvlPos();
-
-		SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
 		if (currLvl._dType != DTYPE_TOWN) {
 			HoldThemeRooms();
