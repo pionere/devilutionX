@@ -1993,6 +1993,9 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	return MIRES_DONE;
 }
 
+/**
+ * Var1: sfx helper
+ */
 int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -3378,11 +3381,13 @@ void MI_Firewall(int mi)
 			SetMissDir(mi, 1);
 			//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
+			mis->_miVar1 = RandRange(1, 256);
 		}
 	} else {
 		// assert(mis->_miDir == 1);
-		if ((gdwGameLogicTurn + mis->_miRndSeed) % 256 == 0 && mis->_miRange > 64) {
+		if (--mis->_miVar1 == 0 && mis->_miRange > 64) {
 			// add random firewall sfx, but only if the fire last more than ~2s
+			mis->_miVar1 = 255;
 			assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);
 			assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);
 			PlaySfxLoc(LS_WALLLOOP, mis->_mix, mis->_miy);
