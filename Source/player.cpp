@@ -1321,10 +1321,12 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
-	ViewX = px;
-	ViewY = py;
-	ScrollInfo._sxoff = -xoff;
-	ScrollInfo._syoff = -yoff;
+	if (pnum == mypnum) {
+		ViewX = px;
+		ViewY = py;
+		ScrollInfo._sxoff = -xoff;
+		ScrollInfo._syoff = -yoff;
+	}
 	//if (plr._plid != NO_LIGHT) {
 		ChangeLightXY(plr._plid, plr._px, plr._py);
 		PlrChangeLightOff(pnum);
