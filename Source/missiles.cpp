@@ -2226,7 +2226,7 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 
 int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int i, dam;
 
 	AddMissile(sx, sy, 0, 0, 0, MIS_FLASH2, micaster, misource, spllvl);
@@ -2244,18 +2244,14 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	} else {
 		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel << 4;
 	}
-	//assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]);
-	mis->_miRange = misfiledata[MFILE_BLUEXFR].mfAnimLen[0];
 	return MIRES_DONE;
 }
 
 int AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	mis = &missile[mi];
-	//assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXBK].mfAnimLen[0]);
-	mis->_miRange = misfiledata[MFILE_BLUEXBK].mfAnimLen[0];
 	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;
 }
@@ -3617,15 +3613,15 @@ void MI_Flash(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	mis->_miRange--;
-	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		return;
-	}
 	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
 	CheckSplashColFull(mi);
 	if (mis->_miCaster == MST_OBJECT)
 		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
+	// assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]);
+	if (mis->_miAnimFrame == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]) {
+		mis->_miDelFlag = TRUE;
+		return;
+	}
 	PutMissile(mi);
 }
 
@@ -3634,8 +3630,8 @@ void MI_Flash2(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	mis->_miRange--;
-	if (mis->_miRange < 0) {
+	// assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXBK].mfAnimLen[0]);
+	if (mis->_miAnimFrame == misfiledata[MFILE_BLUEXBK].mfAnimLen[0]) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
