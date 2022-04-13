@@ -1785,7 +1785,7 @@ static void Obj_Trap(int oi)
 		}
 	}
 
-	SetRndSeed(os->_oRndSeed);
+	// SetRndSeed(os->_oRndSeed);
 	sx = os->_ox;
 	sy = os->_oy;
 	dir = GetDirection(sx, sy, dx, dy);
@@ -2348,7 +2348,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
 		if (pnum == mypnum)
 			InitDiabloMsg(EMSG_BONECHAMB);
-		SetRndSeed(os->_oRndSeed);
+		// SetRndSeed(os->_oRndSeed);
 		AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {

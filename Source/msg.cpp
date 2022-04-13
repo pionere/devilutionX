@@ -1297,7 +1297,7 @@ void LevelDeltaExport()
 			tmis->smiCaster = mis->_miCaster; // int?
 			tmis->smiMinDam = mis->_miMinDam;
 			tmis->smiMaxDam = mis->_miMaxDam;
-			tmis->smiRndSeed = mis->_miRndSeed;
+			// tmis->smiRndSeed = mis->_miRndSeed;
 			tmis->smiRange = mis->_miRange;
 			tmis->smiDist = mis->_miDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 			tmis->smiLidRadius = mis->_miLid == NO_LIGHT ? 0 : LightList[mis->_miLid]._lradius;
@@ -1588,7 +1588,7 @@ void LevelDeltaLoad()
 		mis->_miCaster = tmis->smiCaster; // int?
 		mis->_miMinDam = tmis->smiMinDam;
 		mis->_miMaxDam = tmis->smiMaxDam;
-		mis->_miRndSeed = tmis->smiRndSeed;
+		// mis->_miRndSeed = tmis->smiRndSeed;
 		mis->_miRange = tmis->smiRange;
 		mis->_miDist = tmis->smiDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 		mis->_miVar1 = tmis->smiVar1;

@@ -664,8 +664,8 @@ static bool MonsterTrapHit(int mnum, int mi)
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
-	SetRndSeed(mis->_miRndSeed);
-	mis->_miRndSeed = GetRndSeed();
+	// SetRndSeed(mis->_miRndSeed);
+	// mis->_miRndSeed = GetRndSeed();
 	if (mis->_miSubType == 0) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    - mon->_mArmorClass;
@@ -714,8 +714,8 @@ static bool MonsterMHit(int mnum, int mi)
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
-	SetRndSeed(mis->_miRndSeed);
-	mis->_miRndSeed = GetRndSeed();
+	// SetRndSeed(mis->_miRndSeed);
+	// mis->_miRndSeed = GetRndSeed();
 	pnum = mis->_miSource;
 	//assert((unsigned)pnum < MAX_PLRS);
 	if (mis->_miSubType == 0) {
@@ -875,8 +875,8 @@ static bool PlayerTrapHit(int pnum, int mi)
 	}
 
 	mis = &missile[mi];
-	SetRndSeed(mis->_miRndSeed);
-	mis->_miRndSeed = GetRndSeed();
+	// SetRndSeed(mis->_miRndSeed);
+	// mis->_miRndSeed = GetRndSeed();
 	if (mis->_miSubType == 0) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    + (2 * currLvl._dLevel)
@@ -934,8 +934,8 @@ static bool PlayerMHit(int pnum, int mi)
 		return false;
 	}
 	mis = &missile[mi];
-	SetRndSeed(mis->_miRndSeed);
-	mis->_miRndSeed = GetRndSeed();
+	// SetRndSeed(mis->_miRndSeed);
+	// mis->_miRndSeed = GetRndSeed();
 	mon = &monsters[mis->_miSource];
 	if (mis->_miSubType == 0) {
 		hper = 30 + mon->_mHit
@@ -999,8 +999,8 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	if (plr._pTeam == plx(offp)._pTeam || plr._pInvincible) {
 		return false;
 	}
-	SetRndSeed(mis->_miRndSeed);
-	mis->_miRndSeed = GetRndSeed();
+	// SetRndSeed(mis->_miRndSeed);
+	// mis->_miRndSeed = GetRndSeed();
 	if (mis->_miSubType == 0) {
 		hper = plx(offp)._pIHitChance
 		    - plr._pIAC;
@@ -3107,7 +3107,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis = &missile[mi];
 	memset(mis, 0, sizeof(*mis));
 
-	mis->_miRndSeed = GetRndSeed();
+	// mis->_miRndSeed = GetRndSeed();
 	mis->_miCaster = micaster;
 	mis->_miSource = misource;
 	mis->_miSpllvl = spllvl;

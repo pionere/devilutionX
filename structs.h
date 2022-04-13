@@ -489,7 +489,7 @@ typedef struct MissileStruct {
 	int _miCaster;
 	int _miMinDam;
 	int _miMaxDam;
-	int _miRndSeed;
+	// int _miRndSeed;
 	int _miRange;
 	int _miDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 	unsigned _miLid;
@@ -501,7 +501,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7;
 	int _miVar8;
-	ALIGNMENT(4, 18)
+	ALIGNMENT(5, 19)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -1275,7 +1275,7 @@ typedef struct TSyncLvlMissile {
 	int smiCaster;
 	INT smiMinDam;
 	INT smiMaxDam;
-	INT smiRndSeed;
+	// INT smiRndSeed;
 	INT smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
 	INT smiDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 	BYTE smiLidRadius;
