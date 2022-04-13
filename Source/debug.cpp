@@ -401,6 +401,8 @@ void ValidateData()
 		rnddrops += ids.iRnd;
 		if (i < IDI_RNDDROP_FIRST && ids.iRnd != 0)
 			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
+		if (ids.itype == ITYPE_NONE)
+			app_fatal("Invalid itype value for %s (%d)", ids.iName, i);
 		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor && ids.iRnd != 0)
 			minLightArmor = ids.iMinMLvl;
 		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor && ids.iRnd != 0)
@@ -485,6 +487,8 @@ void ValidateData()
 		}
 		if (ids.iClass == ICLASS_QUEST && ids.iLoc != ILOC_UNEQUIPABLE)
 			app_fatal("Quest item %s (%d) must be unequippable, not %d", ids.iName, i, ids.iLoc);
+		if (ids.iClass == ICLASS_QUEST && ids.itype != ITYPE_MISC)
+			app_fatal("Quest item %s (%d) must be have 'misc' itype, otherwise it might be sold at vendors.", ids.iName, i);
 	}
 #if UNOPTIMIZED_RNDITEMS
 	if (rnddrops > ITEM_RNDDROP_MAX)
@@ -915,9 +919,18 @@ void ValidateData()
 	// missiles
 	for (i = 0; i < NUM_MISTYPES; i++) {
 		const MissileData &md = missiledata[i];
-		if (i == MIS_FLASH) {
-			if (misfiledata[md.mFileNum].mfAnimLen[0] != 19)
-				app_fatal("Hardcoded missile range of MIS_FLASH(%d) does not match the mfAnimLen of the assigned mFileNum", MIS_FLASH);
+		if (md.mAddProc == NULL)
+			app_fatal("Missile %d has no valid mAddProc.", i);
+		if (md.mProc == NULL)
+			app_fatal("Missile %d has no valid mProc.", i);
+		if (md.mDraw) {
+			if (md.mFileNum == MFILE_NONE && i != MIS_RHINO && i != MIS_CHARGE)
+				app_fatal("Missile %d is drawn, but has no valid mFileNum.", i);
+		} else {
+			if (md.mFileNum != MFILE_NONE)
+				app_fatal("Missile %d is not drawn, but has valid mFileNum.", i);
+			if (md.miSFX != SFX_NONE)
+				app_fatal("Missile %d is not drawn, but has valid miSFX.", i);
 		}
 	}
 }
