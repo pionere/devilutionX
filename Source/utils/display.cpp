@@ -230,11 +230,31 @@ void SpawnWindow(const char* lpWindowName)
 #endif
 #endif
 #endif
-
-	int width = DEFAULT_WIDTH;
-	int height = DEFAULT_HEIGHT;
+	int width, height;
+#if 0
+	int smode = 0; 
+	switch (smode) {
+	case 0: // oe
+		width = DEFAULT_WIDTH + 64;			// 704
+		height = DEFAULT_HEIGHT + 48;		// 528
+		break;
+	case 1: // oo
+		width = DEFAULT_WIDTH + 64 + 32;	// 736
+		height = DEFAULT_HEIGHT;			// 552
+		break;
+	case 2: // EE
+		width = DEFAULT_WIDTH + (32 * 4 + 2) / 3 + 1;	// 684
+		height = DEFAULT_HEIGHT;						// 513
+		break;
+	case 3:// EO
+		width = DEFAULT_WIDTH;
+		height = DEFAULT_HEIGHT;
+		break;
+	}
+#else
 	getIniInt("Graphics", "Width", &width);
 	getIniInt("Graphics", "Height", &height);
+#endif
 #ifndef __vita__
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);

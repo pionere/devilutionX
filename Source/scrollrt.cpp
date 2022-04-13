@@ -1129,17 +1129,6 @@ static void DrawGame()
 		break;
 	case SDIR_NE:
 	case SDIR_SW:
-		sy -= TILE_HEIGHT;
-		SHIFT_GRID(x, y, 0, -1);
-		columns++;
-		rows += 2;
-		break;
-	case SDIR_E:
-	case SDIR_W:
-		sx -= TILE_WIDTH;
-		SHIFT_GRID(x, y, -1, 0);
-		columns++;
-		break;
 	case SDIR_SE:
 	case SDIR_NW:
 		sx -= TILE_WIDTH / 2;
@@ -1147,6 +1136,12 @@ static void DrawGame()
 		x--;
 		columns++;
 		rows++;
+		break;
+	case SDIR_E:
+	case SDIR_W:
+		sx -= TILE_WIDTH;
+		SHIFT_GRID(x, y, -1, 0);
+		columns++;
 		break;
 	default:
 		ASSUME_UNREACHABLE
