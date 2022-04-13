@@ -225,7 +225,7 @@ static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 		p->_pAltAtkSkillType = RSPLTYPE_INVALID;
 		//gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
-	if (p->_pAltMoveSkillType == type && !(mask & SPELL_MASK(p->_pMoveSkill))) {
+	if (p->_pAltMoveSkillType == type && !(mask & SPELL_MASK(p->_pAltMoveSkill))) {
 		p->_pAltMoveSkill = SPL_INVALID;
 		p->_pAltMoveSkillType = RSPLTYPE_INVALID;
 		//gbRedrawFlags |= REDRAW_SPELL_ICON;
