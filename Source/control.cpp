@@ -294,7 +294,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 		ASSUME_UNREACHABLE
 		return;
 	}
-	PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, true, t, 1);
+	PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, true, t, FONT_KERN_SMALL);
 }
 
 static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
@@ -362,7 +362,7 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
 		else
 			continue;
 		snprintf(tempstr, sizeof(tempstr), "#%d", i + 1);
-		PrintString(x + offset, y - SPLICONLENGTH + 16, x + offset + 18, tempstr, false, col, 1);
+		PrintString(x + offset, y - SPLICONLENGTH + 16, x + offset + 18, tempstr, false, col, FONT_KERN_SMALL);
 	}
 }
 
@@ -933,7 +933,7 @@ void DrawCtrlBtns()
 		pb = gabPanbtn[i];
 		CelDraw(x, y + 18, pPanelButtonCels, 1, 71);
 		// print the text of the button
-		PrintString(x + 3, y + 15, x + 70, PanBtnTxt[i], true, pb ? COL_GOLD : COL_WHITE, 1);
+		PrintString(x + 3, y + 15, x + 70, PanBtnTxt[i], true, pb ? COL_GOLD : COL_WHITE, FONT_KERN_SMALL);
 	}
 }
 
@@ -1141,7 +1141,7 @@ void FreeControlPan()
 	MemFreeDbg(pGoldDropCel);
 }
 
-#define ADD_PlrStringXY(x, y, endX, pszStr, col) PrintString(x + SCREEN_X, y + SCREEN_Y, endX + SCREEN_X, pszStr, true, col, 1)
+#define ADD_PlrStringXY(x, y, endX, pszStr, col) PrintString(x + SCREEN_X, y + SCREEN_Y, endX + SCREEN_X, pszStr, true, col, FONT_KERN_SMALL)
 
 void DrawChr()
 {
@@ -1963,15 +1963,15 @@ void DrawSpellBook()
 			else
 				min = -1;
 			offset = mana == 0 && min == -1 ? 5 : 0;
-			PrintString(sx + SBOOK_LINE_TAB, yp - 23 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, spelldata[sn].sNameText, false, COL_WHITE, 1);
-			PrintString(sx + SBOOK_LINE_TAB, yp - 12 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
+			PrintString(sx + SBOOK_LINE_TAB, yp - 23 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, spelldata[sn].sNameText, false, COL_WHITE, FONT_KERN_SMALL);
+			PrintString(sx + SBOOK_LINE_TAB, yp - 12 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, FONT_KERN_SMALL);
 
 			if (offset == 0) {
 				if (mana != 0)
 					cat_str(tempstr, offset, "Mana: %d  ", mana);
 				if (min != -1)
 					cat_str(tempstr, offset, "Dam: %d-%d", min, max);
-				PrintString(sx + SBOOK_LINE_TAB, yp - 1, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
+				PrintString(sx + SBOOK_LINE_TAB, yp - 1, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, FONT_KERN_SMALL);
 			}
 
 			if ((spelldata[sn].sUseFlags & plr._pSkillFlags) != spelldata[sn].sUseFlags)
@@ -2113,7 +2113,7 @@ static void DrawTeamButton(int x, int y, int width, bool pressed, const char* la
 	// label
 	color = pressed ? COL_GOLD : COL_WHITE;
 	x += txtoff;
-	PrintString(x, y - 1, x + SBOOK_LINE_LENGTH, label, false, color, 1);
+	PrintString(x, y - 1, x + SBOOK_LINE_LENGTH, label, false, color, FONT_KERN_SMALL);
 }
 
 static bool PlrHasTeam()
@@ -2155,7 +2155,7 @@ void DrawTeamBook()
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
 		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);
-		PrintString(sx + SBOOK_LINE_TAB, yp - 13, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
+		PrintString(sx + SBOOK_LINE_TAB, yp - 13, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, FONT_KERN_SMALL);
 
 		// mute
 		if (pnum != mypnum) {
@@ -2284,14 +2284,14 @@ static char* control_print_talk_msg(char* msg, int* x, int y)
 
 	while (*msg != '\0') {
 		c = smallFontFrame[gbFontTransTbl[(BYTE)*msg]];
-		limit -= smallFontWidth[c] + 1;
+		limit -= smallFontWidth[c] + FONT_KERN_SMALL;
 		if (limit < 0)
 			return msg;
 		msg++;
 		if (c != 0) {
 			PrintChar(*x, y, c, COL_WHITE);
 		}
-		*x += smallFontWidth[c] + 1;
+		*x += smallFontWidth[c] + FONT_KERN_SMALL;
 	}
 	return NULL;
 }

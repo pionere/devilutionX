@@ -90,7 +90,7 @@ static const char* ReadHelpLine(const char* str)
 	w = 0;
 	while (*str != '|' && w < limit) {
 		tempstr[c] = *str;
-		w += smallFontWidth[smallFontFrame[gbFontTransTbl[(BYTE)tempstr[c]]]] + 1;
+		w += smallFontWidth[smallFontFrame[gbFontTransTbl[(BYTE)tempstr[c]]]] + FONT_KERN_SMALL;
 		c++;
 		str++;
 	}

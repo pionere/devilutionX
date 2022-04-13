@@ -112,7 +112,7 @@ static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 		while (TRUE) {
 			if (*sstr != '\0') {
 				c = smallFontFrame[gbFontTransTbl[(BYTE)*sstr++]];
-				len += smallFontWidth[c] + 1;
+				len += smallFontWidth[c] + FONT_KERN_SMALL;
 				if (c == 0) // allow wordwrap on blank glyph
 					endstr = sstr;
 				else if (len >= width)
@@ -128,7 +128,7 @@ static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 			c = smallFontFrame[gbFontTransTbl[(BYTE)*str++]];
 			if (c != 0)
 				PrintChar(sx, y, c, col);
-			sx += smallFontWidth[c] + 1;
+			sx += smallFontWidth[c] + FONT_KERN_SMALL;
 		}
 
 		y += PLRMSG_TEXT_HEIGHT;

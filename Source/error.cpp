@@ -140,7 +140,7 @@ void DrawDiabloMsg()
 	trans_rect(x + 3, y - 8, 432, 54);
 
 	SStrCopy(tempstr, MsgStrings[currmsg], sizeof(tempstr));
-	PrintString(x, y + 24, x + PANEL_WIDTH - 2 * 101, tempstr, true, COL_GOLD, 1);
+	PrintString(x, y + 24, x + PANEL_WIDTH - 2 * 101, tempstr, true, COL_GOLD, FONT_KERN_SMALL);
 
 	if (msgdelay > 0 && msgdelay <= SDL_GetTicks() - 3500) {
 		msgdelay = 0;

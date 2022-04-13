@@ -2955,19 +2955,19 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 
 static void PrintItemString(int x, int &y)
 {
-	PrintString(x, y, x + 257, tempstr, true, COL_WHITE, 1);
+	PrintString(x, y, x + 257, tempstr, true, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int &y, const char* str)
 {
-	PrintString(x, y, x + 257, str, true, COL_WHITE, 1);
+	PrintString(x, y, x + 257, str, true, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int &y, const char* str, int col)
 {
-	PrintString(x, y, x + 257, str, true, col, 1);
+	PrintString(x, y, x + 257, str, true, col, FONT_KERN_SMALL);
 	y += 24;
 }
 

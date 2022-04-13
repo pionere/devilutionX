@@ -223,7 +223,7 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 		sx = PANEL_X + 592 - x;
 		for (i = strlen(valstr) - 1; i >= 0; i--) {
 			c = smallFontFrame[gbFontTransTbl[(BYTE)valstr[i]]];
-			sx -= smallFontWidth[c] + 1;
+			sx -= smallFontWidth[c] + FONT_KERN_SMALL;
 			if (c != 0) {
 				PrintChar(sx, sy, c, col);
 			}

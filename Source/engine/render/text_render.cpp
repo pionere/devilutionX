@@ -213,9 +213,9 @@ int GetHugeStringWidth(const char* text)
 	i = 0;
 	while (*text != '\0') {
 		c = bhFontFrame[gbFontTransTbl[(BYTE)*text++]];
-		i += hugeFontWidth[c] + 2; // kern
+		i += hugeFontWidth[c] + FONT_KERN_HUGE;
 	}
-	return i - 2;
+	return i - FONT_KERN_HUGE;
 }
 
 int GetSmallStringWidth(const char* text)
@@ -226,10 +226,10 @@ int GetSmallStringWidth(const char* text)
 	i = 0;
 	while (*text != '\0') {
 		c = smallFontFrame[gbFontTransTbl[(BYTE)*text++]];
-		i += smallFontWidth[c] + 1; // kern
+		i += smallFontWidth[c] + FONT_KERN_SMALL;
 	}
 
-	return i - 1;
+	return i - FONT_KERN_SMALL;
 }
 
 void PrintGameStr(int x, int y, const char *text, BYTE color)
@@ -243,7 +243,7 @@ void PrintGameStr(int x, int y, const char *text, BYTE color)
 		c = smallFontFrame[gbFontTransTbl[(BYTE)*text++]];
 		if (c != 0)
 			PrintChar(sx, sy, c, color);
-		sx += smallFontWidth[c] + 1;
+		sx += smallFontWidth[c] + FONT_KERN_SMALL;
 	}
 }
 
@@ -291,11 +291,11 @@ int PrintLimitedString(int x, int y, const char *text, int limit, BYTE col)
 
 	while (*text != '\0') {
 		c = smallFontFrame[gbFontTransTbl[(BYTE)*text++]];
-		limit -= smallFontWidth[c] + 1;
+		limit -= smallFontWidth[c] + FONT_KERN_SMALL;
 		if (limit >= 0 && c != 0) {
 			PrintChar(x, y, c, col);
 		}
-		x += smallFontWidth[c] + 1;
+		x += smallFontWidth[c] + FONT_KERN_SMALL;
 	}
 	return x;
 }
@@ -315,7 +315,7 @@ void PrintHugeString(int x, int y, const char* text, int light)
 			else*/
 				CelDrawLight(x, y, pHugeGoldTextCels, c, 46, tbl);
 		}
-		x += hugeFontWidth[c] + 2;
+		x += hugeFontWidth[c] + FONT_KERN_HUGE;
 	}
 }
 

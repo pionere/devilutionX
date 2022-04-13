@@ -10,6 +10,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define FONT_KERN_SMALL		1
+#define FONT_KERN_BIG		2
+#define FONT_KERN_HUGE		2
+
 #ifdef __cplusplus
 extern "C" {
 #endif
