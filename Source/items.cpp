@@ -25,6 +25,11 @@ const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 	// clang-format on
 };
 
+/** Maps from direction to delta X-offset in an 3x3 area. */
+static const int area3x3_x[NUM_DIRS + 1] = { 0, 1, 0, -1, -1, -1, 0, 1, 1 };
+/** Maps from direction to delta Y-offset in an 3x3 area. */
+static const int area3x3_y[NUM_DIRS + 1] = { 0, 1, 1, 1, 0, -1, -1, -1, 0 };
+
 static void SetItemLoc(int ii, int x, int y)
 {
 	items[ii]._ix = x;
@@ -1002,43 +1007,23 @@ bool ItemSpaceOk(int x, int y)
 
 static bool GetItemSpace(int x, int y, int ii)
 {
-	int i, j, rs;
-	bool slist[9];
-	bool savail;
+	BYTE i, rs;
+	BYTE slist[NUM_DIRS + 1];
 
 	rs = 0;
-	savail = false;
-	for (j = -1; j <= 1; j++) {
-		for (i = -1; i <= 1; i++) {
-			slist[rs] = ItemSpaceOk(x + i, y + j);
-			if (slist[rs])
-				savail = true;
+	for (i = 0; i < lengthof(area3x3_x); i++) {
+		if (ItemSpaceOk(x + area3x3_x[i], y + area3x3_y[i])) {
+			slist[rs] = i;
 			rs++;
 		}
 	}
 
-	rs = random_(13, 15);
-
-	if (!savail)
+	if (rs == 0)
 		return false;
 
-	i = 0;
-	while (TRUE) {
-		if (slist[i]) {
-			if (rs == 0)
-				break;
-			rs--;
-		}
-		if (++i == 9) {
-			i = 0;
-		}
-	}
+	rs = slist[random_(13, rs)];
 
-	x--;
-	y--;
-	x += i % 3;
-	y += i / 3;
-	SetItemLoc(ii, x, y);
+	SetItemLoc(ii, x + area3x3_x[rs], y + area3x3_y[rs]);
 	return true;
 }
 
