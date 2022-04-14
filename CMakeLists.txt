@@ -842,14 +842,18 @@ endif()
 
 if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Change __FILE__ to only show the path relative to the project folder
-  get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
-  foreach(SOURCE_FILE ${devilutionx_SRCS})
-    set_source_files_properties(${SOURCE_FILE} PROPERTIES
-      COMPILE_DEFINITIONS __FILE__="${SOURCE_FILE}"
-    )
-  endforeach(SOURCE_FILE)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-builtin-macro-redefined")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-builtin-macro-redefined")
+  if((CMAKE_CXX_COMPILER_ID MATCHES "CLANG" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
+      OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8))
+    target_compile_options(${BIN_TARGET} PUBLIC "-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=")
+  else()
+    get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
+    foreach(SOURCE_FILE ${devilutionx_SRCS})
+      set_source_files_properties(${SOURCE_FILE} PROPERTIES
+        COMPILE_DEFINITIONS __FILE__="${SOURCE_FILE}"
+      )
+    endforeach(SOURCE_FILE)
+    target_compile_options(${BIN_TARGET} PRIVATE -Wno-builtin-macro-redefined)
+  endif()
 
   # Note: For Valgrind support.
   if(DEBUG_MODE)
