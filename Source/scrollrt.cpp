@@ -27,7 +27,7 @@ ScrollStruct ScrollInfo;
   * _vShiftX: the base offset to ViewX.
   * _vShiftY: the base offset to ViewY.
 */
-static ViewportStruct gsTileVp;
+ViewportStruct gsTileVp;
 
 /**
  * Specifies the current light entry.

@@ -1514,7 +1514,7 @@ int AddObject(int type, int ox, int oy)
 static void Obj_Light(int oi)
 {
 	ObjectStruct* os;
-	int ox, oy, dx, dy, pnum, tr;
+	int ox, oy, tr;
 	bool turnon;
 	static_assert(MAX_LIGHT_RAD >= 9, "Obj_Light needs at least light-radius of 9.");
 	const int lr = 8;
@@ -1523,24 +1523,16 @@ static void Obj_Light(int oi)
 	os = &objects[oi];
 	ox = os->_ox;
 	oy = os->_oy;
-	tr = lr + 10;
 	turnon = false;
 #if DEBUG_MODE
 	if (!lightflag)
 #endif
 	{
-		for (pnum = 0; pnum < MAX_PLRS && !turnon; pnum++) {
-			if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel) {
-				dx = abs(plr._px - ox);
-				dy = abs(plr._py - oy);
-				if (dx < tr && dy < tr)
-					turnon = true;
-			}
-		}
+		tr = lr + 1 + (gsTileVp._vColumns + gsTileVp._vRows / 2) / 2;
+		turnon = abs(ViewX - ox) < tr && abs(ViewY - oy) < tr;
 	}
 	if (turnon) {
-		tr -= 10;
-		tr += flicker[os->_oAnimFrame];
+		tr = lr + flicker[os->_oAnimFrame];
 		if (os->_olid == NO_LIGHT)
 			os->_olid = AddLight(ox, oy, tr);
 		else {

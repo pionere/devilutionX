@@ -3065,6 +3065,7 @@ void MAI_Sneak(int mnum)
 	my = mon->_my;
 	// commented out because dLight is not in-sync in multiplayer games and with the added
 	// BFLAG_ALERT check there is not much point to this any more.
+	// + dynamic light is now localized
 	// TODO: change MonstPlace to prefer non-lit tiles in case of AI_SNEAK?
 	//if (dLight[mx][my] == MAXDARKNESS && (dFlags[mx][my] & BFLAG_ALERT) == 0)) {
 	//	return;	

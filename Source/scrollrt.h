@@ -27,6 +27,7 @@ extern "C" {
 extern int ViewX;
 extern int ViewY;
 extern ScrollStruct ScrollInfo;
+extern ViewportStruct gsTileVp;
 extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
