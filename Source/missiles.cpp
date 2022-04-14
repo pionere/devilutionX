@@ -825,12 +825,14 @@ static bool MonsterMHit(int mnum, int mi)
 	if (mon->_msquelch != SQUELCH_MAX) {
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 		// lead the monster to the player
+		if (mis->_miFlags & MIF_LEAD) {
 #if HELLFIRE
-		if (mis->_miCaster == MST_PLAYER) // only if the missile is not from a rune
+			if (mis->_miCaster == MST_PLAYER) // only if the missile is not from a rune
 #endif
-		{
-			mon->_lastx = plr._px;
-			mon->_lasty = plr._py;
+			{
+				mon->_lastx = plr._px;
+				mon->_lasty = plr._py;
+			}
 		}
 	}
 	return true;
