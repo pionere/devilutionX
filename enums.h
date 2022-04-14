@@ -1606,9 +1606,10 @@ typedef enum missile_id {
 } missile_id;
 
 typedef enum missile_source_type {
-	MST_PLAYER,  // player
 	MST_MONSTER, // monster
 	MST_OBJECT,  // trap or object
+	MST_RUNE,    // rune of a player
+	MST_PLAYER   = 1 << 7,  // player
 	MST_NA = 0,  // does not matter
 } missile_source_type;
 
