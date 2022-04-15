@@ -712,6 +712,12 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 static_assert((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align MonsterStruct to power of 2 for better performance.");
 #endif
 
+typedef struct MonEnemyStruct {
+	int _meLastDir;
+	int _meRealDir;
+	int _meRealDist;
+} MonEnemyStruct;
+
 typedef struct UniqMonData {
 	int mtype;
 	const char* mName;
