@@ -699,7 +699,7 @@ static bool MonsterMHit(int mnum, int mi)
 {
 	MonsterStruct* mon;
 	MissileStruct* mis;
-	int pnum, hper, dam;
+	int pnum, hper, dam, lx, ly;
 	unsigned hitFlags;
 	bool tmac, ret;
 
