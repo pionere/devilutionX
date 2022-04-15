@@ -816,15 +816,19 @@ static bool MonsterMHit(int mnum, int mi)
 	if (mon->_msquelch != SQUELCH_MAX) {
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 		// lead the monster to the player
+		lx = mis->_misx;
+		ly = mis->_misy;
 		if (mis->_miFlags & MIF_LEAD) {
 #if HELLFIRE
 			if (mis->_miCaster == MST_PLAYER) // only if the missile is not from a rune
 #endif
 			{
-				mon->_lastx = plr._px;
-				mon->_lasty = plr._py;
+				lx = plr._px;
+				ly = plr._py;
 			}
 		}
+		mon->_lastx = lx;
+		mon->_lasty = ly;
 	}
 	return true;
 }
@@ -2570,6 +2574,13 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 					mis->_miVar2 = mid;
 					mon->_mVar3 = mon->_mmode;
 					mon->_mmode = MM_STONE;
+					// ensure lastx/y are set when MI_Stone 'alerts' the monster
+					if (micaster == MST_PLAYER) {
+						mon->_lastx = plx(misource)._px;
+						mon->_lasty = plx(misource)._py;
+					//} else {
+					//	assert(!MON_RELAXED);
+					}
 
 					// range = (sl * 128 - HP + 128) * 2
 					range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
@@ -3056,6 +3067,8 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		if (!CanTalkToMonst(target) && (monsters[target]._mmaxhp >> 6) < plr._pMagic &&
 			LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)) {
 			monsters[target]._msquelch = SQUELCH_MAX;
+			monsters[target]._lastx = plr._px;
+			monsters[target]._lasty = plr._py;
 			MonGetKnockback(target, plr._px, plr._py);
 			MonStartHit(target, pnum, 0, 0);
 		}
