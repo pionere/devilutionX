@@ -2570,10 +2570,6 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 					mis->_miVar2 = mid;
 					mon->_mVar3 = mon->_mmode;
 					mon->_mmode = MM_STONE;
-					mis->_mix = tx;
-					mis->_miy = ty;
-					mis->_misx = mis->_mix;
-					mis->_misy = mis->_miy;
 
 					// range = (sl * 128 - HP + 128) * 2
 					range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
@@ -3929,8 +3925,12 @@ void MI_Stone(int mi)
 		if (mis->_miAnimType != MFILE_SHATTER1) {
 			mis->_miDrawFlag = TRUE;
 			mis->_miAnimType = MFILE_SHATTER1;
-			SetMissDir(mi, 0);
 			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] - 1;
+			mis->_mix = mon->_mx;
+			mis->_miy = mon->_my;
+			// mis->_mixoff = mon->_mxoff;
+			// mis->_miyoff = mon->_myoff;
+			SetMissDir(mi, 0);
 		}
 		PutMissile(mi);
 	}
