@@ -38,18 +38,18 @@ static const int FireWallLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 8, 9, 9 
 
 void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 {
-	int k, magic, plrlvl, mind, maxd;
+	int k, magic, mind, maxd;
 
 	assert((unsigned)mypnum < MAX_PLRS);
 	assert((unsigned)sn < NUM_SPELLS);
 	magic = myplr._pMagic;
-	plrlvl = myplr._pLevel;
 #ifdef HELLFIRE
 	if (SPELL_RUNE(sn))
-		sl += myplr._pDexterity >> 5;
+		sl += myplr._pDexterity >> 3;
 #endif
 	switch (sn) {
 	case SPL_FIREBOLT:
+	case SPL_GUARDIAN:
 		k = (magic >> 3) + sl;
 		mind = k + 1;
 		maxd = k + 10;
@@ -117,11 +117,6 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 			maxd += maxd >> 3;
 		}
 		break;
-	case SPL_GUARDIAN:
-		k = (magic >> 3) + sl;
-		mind = k + 1;
-		maxd = k + 10;
-		break;
 	case SPL_CHAIN:
 		mind = 1;
 		maxd = magic;
@@ -130,15 +125,15 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 	case SPL_RUNEWAVE:
 #endif
 	case SPL_WAVE:
-		mind = ((magic >> 3) + sl + 1) * 4;
-		maxd = ((magic >> 3) + 2 * sl + 2) * 4;
+		mind = ((magic >> 3) + 2 * sl + 1) * 4;
+		maxd = ((magic >> 3) + 4 * sl + 2) * 4;
 		break;
 #ifdef HELLFIRE
 	case SPL_RUNENOVA:
 #endif
 	case SPL_NOVA:
 		mind = 1;
-		maxd = (magic >> 1) + (sl << 4);
+		maxd = (magic >> 1) + (sl << 5);
 		break;
 	case SPL_INFERNO:
 		mind = (magic * 20) >> 6;
@@ -183,12 +178,8 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 		}
 		break;*/
 	case SPL_RUNEFIRE:
-		mind = 2 * plrlvl + 4;
-		maxd = mind + 18;
-		for (k = 0; k < sl; k++) {
-			mind += mind >> 3;
-			maxd += maxd >> 3;
-		}
+		mind = 1 + (magic >> 1) + 16 * sl;
+		mind = 1 + (magic >> 1) + 32 * sl;
 		break;
 #endif
 	default:
@@ -1508,7 +1499,7 @@ static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 	mis->_miVar3 = 16;          // delay
 	if (mis->_miCaster & MST_PLAYER) {
 		mis->_miCaster |= MST_RUNE;
-		mis->_miSpllvl += plx(mis->_miSource)._pDexterity >> 5;
+		mis->_miSpllvl += plx(mis->_miSource)._pDexterity >> 3;
 	}
 	mis->_miRange = 16 + 1584;	// delay + ttl
 
@@ -1630,17 +1621,16 @@ int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int i, dam;
+	int mindam, maxdam, dam;
 
 	mis = &missile[mi];
 	mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0];
 
 	if (misource != -1) {
 		assert((unsigned)misource < MAX_PLRS);
-		dam = 2 * (plx(misource)._pLevel + random_(60, 10) + random_(60, 10)) + 4;
-		for (i = spllvl; i > 0; i--) {
-			dam += dam >> 3;
-		}
+		mindam = 1 + (plx(misource)._pMagic >> 1) + 16 * spllvl;
+		maxdam = 1 + (plx(misource)._pMagic >> 1) + 32 * spllvl;
+		dam = RandRange(mindam, maxdam);
 	} else {
 		dam = currLvl._dLevel;
 	}
@@ -1991,7 +1981,7 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 
 	mindam = 1;
 	if (misource != -1) {
-		maxdam = (plx(misource)._pMagic >> 1) + (spllvl << 4);
+		maxdam = (plx(misource)._pMagic >> 1) + (spllvl << 5);
 	} else {
 		maxdam = 6 + currLvl._dLevel;
 	}
@@ -2296,8 +2286,8 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	if (misource != -1) {
 		assert((unsigned)misource < MAX_PLRS);
 		magic = plx(misource)._pMagic;
-		mindam = (magic >> 3) + spllvl + 1;
-		maxdam = (magic >> 3) + 2 * spllvl + 2;
+		mindam = (magic >> 3) + 2 * spllvl + 1;
+		maxdam = (magic >> 3) + 4 * spllvl + 2;
 	} else {
 		mindam = currLvl._dLevel + 1;
 		maxdam = 2 * currLvl._dLevel + 2;
@@ -3257,7 +3247,7 @@ void MI_Firebolt(int mi)
 		xptype = MIS_EXFIRE;
 		break;
 	case MIS_FIREBALL:
-		// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
+		mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1;
 		CheckSplashCol(mi);
 		xptype = MIS_EXFBALL;
 		break;
