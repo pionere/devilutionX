@@ -1215,7 +1215,7 @@ static bool MonRanged(int mnum)
 	return ai == AI_SKELBOW || ai == AI_GOATBOW || ai == AI_SUCC || ai == AI_LAZHELP;
 }
 
-static void MonEnemy(int mnum)
+static void MonFindEnemy(int mnum)
 {
 	int i, tnum;
 	int enemy, dist, best_dist;
@@ -1351,7 +1351,7 @@ static void MonStartStand(int mnum)
 	mon->_mVar1 = mon->_mmode; // STAND_PREV_MODE : previous mode of the monster
 	mon->_mVar2 = 0;           // STAND_TICK : the time spent on standing
 	mon->_mmode = MM_STAND;
-	//MonEnemy(mnum);
+	// MonFindEnemy(mnum);
 }
 
 static void MonStartDelay(int mnum, int len)
@@ -2012,7 +2012,7 @@ static bool MonDoStand(int mnum)
 		dev_fatal("MonDoStand: Invalid monster %d", mnum);
 	}
 	//if (((gdwGameLogicTurn + mnum) % 16) == 0)
-	//	MonEnemy(mnum);
+	//	MonFindEnemy(mnum);
 
 	mon = &monsters[mnum];
 	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
@@ -2528,7 +2528,7 @@ static bool MonDoDelay(int mnum)
 	if (mon->_mVar2-- == 0) { // DELAY_TICK
 		mon->_mmode = MM_STAND;
 		mon->_mVar1 = MM_DELAY; // STAND_PREV_MODE
-		//MonEnemy(mnum);
+		// MonFindEnemy(mnum);
 		return true;
 	}
 
@@ -2638,7 +2638,7 @@ static void GroupUnity(int mnum)
 	mon = &monsters[mnum];
 	// track/update enemy if still active
 	if (mon->_msquelch != 0)
-		MonEnemy(mnum);
+		MonFindEnemy(mnum);
 	// check if the leader is still available and update its squelch value + enemy location
 	if (mon->leader != MON_NO_LEADER) {
 		leader = &monsters[mon->leader];
@@ -2706,7 +2706,7 @@ static bool MonCallWalk(int mnum, int md)
 	if (ok)
 		MonWalkDir(mnum, md);
 	else
-		MonEnemy(mnum); // prevent from stucking with an inaccessible enemy
+		MonFindEnemy(mnum); // prevent from stucking with an inaccessible enemy
 	return ok;
 }
 
@@ -3547,7 +3547,7 @@ void MAI_Garg(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_GARG_STONE) {
 		if (!MON_RELAXED) {
-			//MonEnemy(mnum);
+			// MonFindEnemy(mnum);
 			mx = mon->_mx - mon->_menemyx;
 			my = mon->_my - mon->_menemyy;
 			dist = std::max(abs(mx), abs(my));
@@ -3786,7 +3786,7 @@ void MAI_Golem(int mnum)
 	mon->_msquelch = SQUELCH_MAX;
 
 	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER))
-		MonEnemy(mnum);
+		MonFindEnemy(mnum);
 
 	if (!(mon->_mFlags & MFLAG_NO_ENEMY)) {
 		if (abs(mon->_mx - mon->_menemyx) >= 2 || abs(mon->_my - mon->_menemyy) >= 2) {
@@ -4402,7 +4402,7 @@ void ProcessMonsters()
 		alert = (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) != 0;
 		hasenemy = !(mon->_mFlags & MFLAG_NO_ENEMY);
 		if (alert && !hasenemy) {
-			MonEnemy(mnum);
+			MonFindEnemy(mnum);
 			assert(!(mon->_mFlags & MFLAG_NO_ENEMY) || myplr._pInvincible);
 			alert = hasenemy = !(mon->_mFlags & MFLAG_NO_ENEMY);
 		}
