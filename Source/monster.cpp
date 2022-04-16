@@ -1212,12 +1212,6 @@ static void NewMonsterAnim(int mnum, int anim, int md)
 	mon->_mFlags &= ~(MFLAG_REV_ANIMATION | MFLAG_LOCK_ANIMATION);
 }
 
-static bool MonRanged(int mnum)
-{
-	char ai = monsters[mnum]._mAi;
-	return ai == AI_SKELBOW || ai == AI_GOATBOW || ai == AI_SUCC || ai == AI_LAZHELP;
-}
-
 static void MonFindEnemy(int mnum)
 {
 	int i, tnum;
@@ -1254,9 +1248,6 @@ static void MonFindEnemy(int mnum)
 			if (MINION_INACTIVE(tmon))
 				continue;
 			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
-			if (dist > 3 && !MonRanged(mnum)) {
-				continue;
-			}
 			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
 			if (sameroom == bestsameroom) {
 				if (dist >= best_dist)
