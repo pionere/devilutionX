@@ -3097,7 +3097,7 @@ void MAI_Sneak(int mnum)
 			//mon->_mgoalvar1 = 0;
 		}
 	}
-	if (mon->_mgoal == MGOAL_RETREAT && MON_HAS_ENEMY) {
+	if (mon->_mgoal == MGOAL_RETREAT) {
 		md = OPPOSITE(currEnemyInfo._meLastDir);
 		if (mon->_mType == MT_UNSEEN) {
 			//md = random_(112, 2) != 0 ? left[md] : right[md];
