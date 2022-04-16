@@ -60,10 +60,10 @@ static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE
 
 /** Standard MAI check if the monster has other things to do. */
 #define MON_ACTIVE (mon->_mmode != MM_STAND)
-/**
- * Standard MAI check if the monster is (not) 'disturbed'.
- */
+/** Standard MAI check if the monster is (not) 'disturbed'. */
 #define MON_RELAXED (mon->_msquelch < SQUELCH_LOW)
+/** Standard MAI check if the monster has a set enemy. */
+#define MON_HAS_ENEMY (!(mon->_mFlags & MFLAG_NO_ENEMY))
 
 /** Temporary container to store info related to the enemy of a monster */
 static MonEnemyStruct currEnemyInfo;
@@ -3098,7 +3098,7 @@ void MAI_Sneak(int mnum)
 			//mon->_mgoalvar1 = 0;
 		}
 	}
-	if (mon->_mgoal == MGOAL_RETREAT && !(mon->_mFlags & MFLAG_NO_ENEMY)) {
+	if (mon->_mgoal == MGOAL_RETREAT && MON_HAS_ENEMY) {
 		md = OPPOSITE(currEnemyInfo._meRealDir);
 		if (mon->_mType == MT_UNSEEN) {
 			//md = random_(112, 2) != 0 ? left[md] : right[md];
@@ -3762,7 +3762,7 @@ void MAI_Golem(int mnum)
 	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER))
 		MonFindEnemy(mnum);
 
-	if (!(mon->_mFlags & MFLAG_NO_ENEMY)) {
+	if (MON_HAS_ENEMY) {
 		if (abs(mon->_mx - mon->_menemyx) >= 2 || abs(mon->_my - mon->_menemyy) >= 2) {
 			// assert(mon->_mgoal == MGOAL_NORMAL);
 			mon->_mpathcount = 5; // make sure MonPathWalk is always called
@@ -4356,11 +4356,11 @@ void ProcessMonsters()
 		}
 
 		alert = (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) != 0;
-		hasenemy = !(mon->_mFlags & MFLAG_NO_ENEMY);
+		hasenemy = MON_HAS_ENEMY;
 		if (alert && !hasenemy) {
 			MonFindEnemy(mnum);
-			assert(!(mon->_mFlags & MFLAG_NO_ENEMY) || myplr._pInvincible);
-			alert = hasenemy = !(mon->_mFlags & MFLAG_NO_ENEMY);
+			assert(MON_HAS_ENEMY || myplr._pInvincible);
+			alert = hasenemy = MON_HAS_ENEMY;
 		}
 		if (hasenemy) {
 			_menemy = mon->_menemy;
