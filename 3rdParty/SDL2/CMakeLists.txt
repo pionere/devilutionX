@@ -63,6 +63,7 @@ if(NOT DEBUG_MODE)
   set(SDL_ASSERTIONS "disabled") # requires fork of SDL2
   set(SDL_LOGGING OFF) # requires fork of SDL2
   set(SDL_VERBOSE_ERROR OFF) # requires fork of SDL2
+  set(SDL_SANITIZE_ACCESS OFF) # requires fork of SDL2
 endif()
 
 include(FetchContent_MakeAvailableExcludeFromAll)
@@ -79,7 +80,7 @@ FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG ab423ad42caeed307c516a4324f813ebf297f369
+    GIT_TAG 9d4f4056fa836e0f5cd264da27f53c2dc8deedd8
 )
 endif()
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
