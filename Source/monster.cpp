@@ -1491,9 +1491,10 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 
 static void MonStartAttack(int mnum)
 {
-	int md = MonEnemyRealDir(mnum);
+	int md = currEnemyInfo._meRealDir;
 	MonsterStruct* mon;
 
+	// assert(md == MonEnemyRealDir(mnum));
 	NewMonsterAnim(mnum, MA_ATTACK, md);
 	AssertFixMonLocation(mnum);
 	mon = &monsters[mnum];
@@ -1502,9 +1503,10 @@ static void MonStartAttack(int mnum)
 
 static void MonStartRAttack(int mnum, int mitype)
 {
-	int md = MonEnemyRealDir(mnum);
+	int md = currEnemyInfo._meRealDir;
 	MonsterStruct* mon;
 
+	// assert(md == MonEnemyRealDir(mnum));
 	NewMonsterAnim(mnum, MA_ATTACK, md);
 	AssertFixMonLocation(mnum);
 	mon = &monsters[mnum];
@@ -1520,9 +1522,10 @@ static void MonStartRAttack(int mnum, int mitype)
  */
 static void MonStartRSpAttack(int mnum, int mitype)
 {
-	int md = MonEnemyRealDir(mnum);
+	int md = currEnemyInfo._meRealDir;
 	MonsterStruct* mon;
 
+	// assert(md == MonEnemyRealDir(mnum));
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
 	AssertFixMonLocation(mnum);
 	mon = &monsters[mnum];
@@ -3763,7 +3766,8 @@ void MAI_Golem(int mnum)
 		MonFindEnemy(mnum);
 
 	if (MON_HAS_ENEMY) {
-		if (abs(mon->_mx - mon->_menemyx) >= 2 || abs(mon->_my - mon->_menemyy) >= 2) {
+		MonEnemyInfo(mnum);
+		if (currEnemyInfo._meRealDist >= 2) {
 			// assert(mon->_mgoal == MGOAL_NORMAL);
 			mon->_mpathcount = 5; // make sure MonPathWalk is always called
 			if (MAI_Path(mnum)) {
