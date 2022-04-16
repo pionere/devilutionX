@@ -473,7 +473,7 @@ static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct* is)
  */
 static int GetNewItemSeed(ItemStruct* is)
 {
-	int seed = (gdwGameLogicTurn >> 8) | (gdwGameLogicTurn << 24);
+	int seed = (gdwGameLogicTurn >> 8) | (gdwGameLogicTurn << 24); // _rotr(gdwGameLogicTurn, 8)
 
 	seed ^= is->_iSeed;
 	SetRndSeed(seed);

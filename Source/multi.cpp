@@ -708,6 +708,7 @@ void NetClose()
 static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 {
 	int i, dlgresult, pnum;
+	int32_t seed;
 
 	while (TRUE) {
 		// mypnum = 0;
@@ -791,7 +792,10 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 	SetRndSeed(sgGameInitInfo.dwSeed);
 
 	for (i = 0; i < NUM_LEVELS; i++) {
-		glSeedTbl[i] = GetRndSeed();
+		seed = GetRndSeed();
+		seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
+		glSeedTbl[i] = seed;
+		SetRndSeed(seed);
 	}
 	SNetGetGameInfo(&szGameName, &szGamePassword);
 
