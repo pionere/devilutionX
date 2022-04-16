@@ -1421,7 +1421,7 @@ static void MonChangeLightOff(int mnum)
 /**
  * @brief Starting a move action towards NW, N, NE or W
  */
-static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
+static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
 {
 	MonsterStruct* mon;
 	int mx, my;
@@ -1443,8 +1443,8 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
 	assert(mon->_moldx == mx);
 	assert(mon->_moldy == my);
 
-	mx += xadd;
-	my += yadd;
+	mx += offset_x[dir];
+	my += offset_y[dir];
 	mon->_mfutx = mx;
 	mon->_mfuty = my;
 
@@ -1454,7 +1454,7 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
 /**
  * @brief Starting a move action towards SW, S, SE or E
  */
-static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd)
+static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int dir)
 {
 	MonsterStruct* mon;
 	int mx, my;
@@ -1474,8 +1474,8 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	assert(mon->_moldx == mx);
 	assert(mon->_moldy == my);
 	dMonster[mx][my] = -(mnum + 1);
-	mx += xadd;
-	my += yadd;
+	mx += offset_x[dir];
+	my += offset_y[dir];
 	mon->_mx = mon->_mfutx = mx;
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
@@ -2606,28 +2606,28 @@ void MonWalkDir(int mnum, int md)
 	mwi = MWVel[monsters[mnum]._mAnimLen - 1];
 	switch (md) {
 	case DIR_N:
-		MonStartWalk1(mnum, 0, -mwi[1], -1, -1);
+		MonStartWalk1(mnum, 0, -mwi[1], md);
 		break;
 	case DIR_NE:
-		MonStartWalk1(mnum, mwi[1], -mwi[0], 0, -1);
+		MonStartWalk1(mnum, mwi[1], -mwi[0], md);
 		break;
 	case DIR_E:
-		MonStartWalk2(mnum, mwi[2], 0, -TILE_WIDTH, 0, 1, -1);
+		MonStartWalk2(mnum, mwi[2], 0, -TILE_WIDTH, 0, md);
 		break;
 	case DIR_SE:
-		MonStartWalk2(mnum, mwi[1], mwi[0], -TILE_WIDTH/2, -TILE_HEIGHT/2, 1, 0);
+		MonStartWalk2(mnum, mwi[1], mwi[0], -TILE_WIDTH/2, -TILE_HEIGHT/2, md);
 		break;
 	case DIR_S:
-		MonStartWalk2(mnum, 0, mwi[1], 0, -TILE_HEIGHT, 1, 1);
+		MonStartWalk2(mnum, 0, mwi[1], 0, -TILE_HEIGHT, md);
 		break;
 	case DIR_SW:
-		MonStartWalk2(mnum, -mwi[1], mwi[0], TILE_WIDTH/2, -TILE_HEIGHT/2, 0, 1);
+		MonStartWalk2(mnum, -mwi[1], mwi[0], TILE_WIDTH/2, -TILE_HEIGHT/2, md);
 		break;
 	case DIR_W:
-		MonStartWalk1(mnum, -mwi[2], 0, -1, 1);
+		MonStartWalk1(mnum, -mwi[2], 0, md);
 		break;
 	case DIR_NW:
-		MonStartWalk1(mnum, -mwi[1], -mwi[0], -1, 0);
+		MonStartWalk1(mnum, -mwi[1], -mwi[0], md);
 		break;
 	default:
 		ASSUME_UNREACHABLE
