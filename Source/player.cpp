@@ -1264,7 +1264,7 @@ static void PlrChangeOffset(int pnum)
 /**
  * @brief Starting a move action towards NW, N, NE or W
  */
-static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
+static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 {
 	int px, py;
 
@@ -1283,8 +1283,8 @@ static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
 	assert(plr._poldx == px);
 	assert(plr._poldy == py);
 
-	px += xadd;
-	py += yadd;
+	px += offset_x[dir];
+	py += offset_y[dir];
 	plr._pfutx = /*plr._pVar1 =*/ px; // the Player's x-coordinate after the movement
 	plr._pfuty = /*plr._pVar2 =*/ py; // the Player's y-coordinate after the movement
 
@@ -1297,7 +1297,7 @@ static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
-static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd)
+static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir)
 {
 	int px, py;
 
@@ -1316,8 +1316,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	assert(plr._poldx == px);
 	assert(plr._poldy == py);
 	dPlayer[px][py] = -(pnum + 1);
-	px += xadd;
-	py += yadd;
+	px += offset_x[dir];
+	py += offset_y[dir];
 	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
@@ -1361,28 +1361,28 @@ static bool StartWalk(int pnum)
 	yvel = (TILE_HEIGHT << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK] * 2);
 	switch (dir) {
 	case DIR_N:
-		StartWalk1(pnum, 0, -xvel, -1, -1);
+		StartWalk1(pnum, 0, -xvel, dir);
 		break;
 	case DIR_NE:
-		StartWalk1(pnum, xvel, -yvel, 0, -1);
+		StartWalk1(pnum, xvel, -yvel, dir);
 		break;
 	case DIR_E:
-		StartWalk2(pnum, xvel3, 0, -TILE_WIDTH, 0, 1, -1);
+		StartWalk2(pnum, xvel3, 0, -TILE_WIDTH, 0, dir);
 		break;
 	case DIR_SE:
-		StartWalk2(pnum, xvel, yvel, -TILE_WIDTH/2, -TILE_HEIGHT/2, 1, 0);
+		StartWalk2(pnum, xvel, yvel, -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_S:
-		StartWalk2(pnum, 0, xvel, 0, -TILE_HEIGHT, 1, 1);
+		StartWalk2(pnum, 0, xvel, 0, -TILE_HEIGHT, dir);
 		break;
 	case DIR_SW:
-		StartWalk2(pnum, -xvel, yvel, TILE_WIDTH/2, -TILE_HEIGHT/2, 0, 1);
+		StartWalk2(pnum, -xvel, yvel, TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_W:
-		StartWalk1(pnum, -xvel3, 0, -1, 1);
+		StartWalk1(pnum, -xvel3, 0, dir);
 		break;
 	case DIR_NW:
-		StartWalk1(pnum, -xvel, -yvel, -1, 0);
+		StartWalk1(pnum, -xvel, -yvel, dir);
 		break;
 	default:
 		ASSUME_UNREACHABLE
