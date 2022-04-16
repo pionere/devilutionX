@@ -544,7 +544,8 @@ static void AddL2Torches()
 			if (!nSolidTable[dPiece[i][j + 1]]) {
 				AddObject(OBJ_TORCHR1, i, j);
 			} else {
-				AddObject(OBJ_TORCHR2, i, j - 1);
+				if (dObject[i][j - 1] == 0)
+					AddObject(OBJ_TORCHR2, i, j - 1);
 			}
 			// skip a few tiles to prevent close placement
 			i += 4;
@@ -1368,6 +1369,7 @@ int AddObject(int type, int ox, int oy)
 	objectactive[numobjects] = oi;
 	numobjects++;
 //	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
+	assert(dObject[ox][oy] == 0);
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, type);
 	switch (type) {
