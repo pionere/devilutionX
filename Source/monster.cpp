@@ -1336,6 +1336,11 @@ static int MonEnemyRealDir(int mnum)
 	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy);
 }
 
+static int MonEnemyLastDir(int mnum)
+{
+	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._lastx, monsters[mnum]._lasty);
+}
+
 static void FixMonLocation(int mnum)
 {
 	MonsterStruct* mon;
@@ -2544,7 +2549,7 @@ static bool MonDoDelay(int mnum)
 		dev_fatal("MonDoDelay: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	mon->_mdir = MonEnemyRealDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mnum);
 	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
 
 	if (mon->_mVar2-- == 0) { // DELAY_TICK
@@ -2814,7 +2819,7 @@ void MAI_Zombie(int mnum)
 					md = random_(104, NUM_DIRS);
 				}
 			} else {
-				md = currEnemyInfo._meRealDir;
+				md = currEnemyInfo._meLastDir;
 			}
 			MonCallWalk(mnum, md);
 		} else {
@@ -3013,7 +3018,7 @@ void MAI_SkelBow(int mnum)
 
 	MonEnemyInfo(mnum);
 
-	mon->_mdir = currEnemyInfo._meRealDir;
+	mon->_mdir = currEnemyInfo._meLastDir;
 
 	walking = false;
 	if (currEnemyInfo._meRealDist < 4) {
@@ -3046,7 +3051,7 @@ void MAI_Fat(int mnum)
 
 	MonEnemyInfo(mnum);
 
-	mon->_mdir = currEnemyInfo._meRealDir;
+	mon->_mdir = currEnemyInfo._meLastDir;
 	v = random_(111, 100);
 	if (currEnemyInfo._meRealDist >= 2) {
 		if ((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mInt + 20) // STAND_TICK
@@ -3084,7 +3089,7 @@ void MAI_Sneak(int mnum)
 
 	MonEnemyInfo(mnum);
 	dist = currEnemyInfo._meRealDist;
-	md = currEnemyInfo._meRealDir;
+	md = currEnemyInfo._meLastDir;
 	range = 7 - mon->_mInt;
 	if (mon->_mgoal != MGOAL_RETREAT) {
 		if (mon->_mVar1 == MM_GOTHIT) { // STAND_PREV_MODE
@@ -3102,7 +3107,7 @@ void MAI_Sneak(int mnum)
 		}
 	}
 	if (mon->_mgoal == MGOAL_RETREAT && MON_HAS_ENEMY) {
-		md = OPPOSITE(currEnemyInfo._meRealDir);
+		md = OPPOSITE(currEnemyInfo._meLastDir);
 		if (mon->_mType == MT_UNSEEN) {
 			//md = random_(112, 2) != 0 ? left[md] : right[md];
 			md = (md + 2 * random_(112, 2) - 1) & 7;
@@ -3243,7 +3248,7 @@ void MAI_Fallen(int mnum)
 			if (currEnemyInfo._meRealDist < 2) {
 				MonStartAttack(mnum);
 			} else {
-				if (!MonCallWalk(mnum, currEnemyInfo._meRealDir)) {
+				if (!MonCallWalk(mnum, currEnemyInfo._meLastDir)) {
 					// prevent isolated fallens from burnout
 					m = 12 - 1; // mon->_mAnims[MA_WALK].aFrameLen * mon->_mAnims[MA_WALK].aFrames - 1;
 					if (mon->_msquelch > (unsigned)m)
@@ -3345,7 +3350,7 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	if (mon->_msquelch >= SQUELCH_MAX - 1 /* || (mon->_mFlags & MFLAG_TARGETS_MONSTER)*/) {
-		mon->_mdir = currEnemyInfo._meRealDir;
+		mon->_mdir = currEnemyInfo._meLastDir;
 		bool walking = false;
 		if (currEnemyInfo._meRealDist < 4) {
 			if (random_(119, 100) < (76 + 8 * mon->_mInt))
@@ -3575,7 +3580,7 @@ void MAI_Garg(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartHeal(mnum);
 		} else if (mon->_mhitpoints == mon->_mmaxhp ||
-		 !MonCallWalk(mnum, OPPOSITE(currEnemyInfo._meRealDir))) {
+		 !MonCallWalk(mnum, OPPOSITE(currEnemyInfo._meLastDir))) {
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 	}
@@ -4041,7 +4046,8 @@ void MAI_Garbud(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyRealDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mnum);
+
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER
 			//if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
@@ -4075,7 +4081,7 @@ void MAI_Zhar(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyRealDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mnum);
 
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (quests[Q_ZHAR]._qvar1 == 1)
@@ -4109,7 +4115,7 @@ void MAI_SnotSpil(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyRealDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mnum);
 
 	switch (quests[Q_LTBANNER]._qvar1) {
 	case 0: // quest not started -> skip
@@ -4160,7 +4166,8 @@ void MAI_Lazarus(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyRealDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mnum);
+
 	if (IsMultiGame) {
 		if (mon->_mgoal == MGOAL_INQUIRING) {
 			if (quests[Q_BETRAYER]._qvar1 <= 3) {
@@ -4214,7 +4221,7 @@ void MAI_Lazhelp(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyRealDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mnum);
 
 	if (mon->_mgoal == MGOAL_INQUIRING || mon->_mgoal == MGOAL_TALKING) {
 		if (!IsMultiGame && quests[Q_BETRAYER]._qvar1 <= 5)
@@ -4237,7 +4244,7 @@ void MAI_Lachdanan(int mnum)
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
-	mon->_mdir = MonEnemyRealDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mnum);
 
 	if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
 		//if (mon->_mVar8++ >= gnTicksRate * 32) {
@@ -4266,7 +4273,7 @@ void MAI_Warlord(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyRealDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mnum);
 
 	switch (quests[Q_WARLORD]._qvar1) {
 	case 0: // quest not started
