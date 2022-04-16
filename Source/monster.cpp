@@ -63,7 +63,7 @@ static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE
 /** Standard MAI check if the monster is (not) 'disturbed'. */
 #define MON_RELAXED (mon->_msquelch < SQUELCH_LOW)
 /** Standard MAI check if the monster has a set enemy. */
-#define MON_HAS_ENEMY (!(mon->_mFlags & MFLAG_NO_ENEMY))
+#define MON_HAS_ENEMY (mon->_menemyx != 0)
 
 /** Temporary container to store info related to the enemy of a monster */
 static MonEnemyStruct currEnemyInfo;
@@ -659,7 +659,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	}
 	mon->_mhitpoints = mon->_mmaxhp;
 
-	mon->_mFlags |= MFLAG_NO_ENEMY;
+	// mon->_mFlags |= MFLAG_NO_ENEMY;
 }
 
 /**
@@ -1292,7 +1292,7 @@ static void MonFindEnemy(int mnum)
 		}
 	}
 	// clear previous target-flags
-	flags = mon->_mFlags & ~(MFLAG_TARGETS_MONSTER | MFLAG_NO_ENEMY);
+	flags = mon->_mFlags & ~(MFLAG_TARGETS_MONSTER); // | MFLAG_NO_ENEMY);
 	if (enemy != 0) {
 		if (enemy > 0) {
 			enemy--;
@@ -1306,7 +1306,7 @@ static void MonFindEnemy(int mnum)
 		}
 		mon->_menemy = enemy;
 	} else {
-		flags |= MFLAG_NO_ENEMY;
+		// flags |= MFLAG_NO_ENEMY;
 		x = 0;
 		y = 0;
 	}
@@ -1726,7 +1726,7 @@ void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags)
 		return;
 	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp && mon->_mmode != MM_STONE) {
 		if ((unsigned)pnum < MAX_PLRS) {
-			mon->_mFlags &= ~(MFLAG_TARGETS_MONSTER | MFLAG_NO_ENEMY);
+			mon->_mFlags &= ~(MFLAG_TARGETS_MONSTER); // | MFLAG_NO_ENEMY);
 			mon->_menemy = pnum;
 			mon->_menemyx = plr._pfutx;
 			mon->_menemyy = plr._pfuty;
@@ -1856,7 +1856,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 		return;
 	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
 		//if (offm >= 0) {
-			dmon->_mFlags &= ~(MFLAG_TARGETS_MONSTER | MFLAG_NO_ENEMY);
+			dmon->_mFlags &= ~(MFLAG_TARGETS_MONSTER); // | MFLAG_NO_ENEMY);
 			dmon->_mFlags |= MFLAG_TARGETS_MONSTER;
 			dmon->_menemy = offm;
 			dmon->_menemyx = monsters[offm]._mfutx;
@@ -4416,7 +4416,7 @@ void ProcessMonsters()
 					mon->_mFlags &= ~(MFLAG_HIDDEN | MFLAG_GARG_STONE);
 					assert(mon->_mmode == MM_STAND);
 				}
-				mon->_mFlags |= MFLAG_NO_ENEMY;
+				// mon->_mFlags |= MFLAG_NO_ENEMY;
 				mon->_menemyx = 0;
 				mon->_menemyy = 0;
 				mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
