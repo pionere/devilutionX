@@ -1331,7 +1331,7 @@ static void MonEnemyInfo(int mnum)
 	currEnemyInfo._meRealDist = std::max(abs(dx), abs(dy));
 }
 
-static int MonGetDir(int mnum)
+static int MonEnemyRealDir(int mnum)
 {
 	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy);
 }
@@ -1491,7 +1491,7 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 
 static void MonStartAttack(int mnum)
 {
-	int md = MonGetDir(mnum);
+	int md = MonEnemyRealDir(mnum);
 	MonsterStruct* mon;
 
 	NewMonsterAnim(mnum, MA_ATTACK, md);
@@ -1502,7 +1502,7 @@ static void MonStartAttack(int mnum)
 
 static void MonStartRAttack(int mnum, int mitype)
 {
-	int md = MonGetDir(mnum);
+	int md = MonEnemyRealDir(mnum);
 	MonsterStruct* mon;
 
 	NewMonsterAnim(mnum, MA_ATTACK, md);
@@ -1520,7 +1520,7 @@ static void MonStartRAttack(int mnum, int mitype)
  */
 static void MonStartRSpAttack(int mnum, int mitype)
 {
-	int md = MonGetDir(mnum);
+	int md = MonEnemyRealDir(mnum);
 	MonsterStruct* mon;
 
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
@@ -1722,7 +1722,7 @@ void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags)
 			mon->_menemy = pnum;
 			mon->_menemyx = plr._pfutx;
 			mon->_menemyy = plr._pfuty;
-			mon->_mdir = MonGetDir(mnum);
+			mon->_mdir = MonEnemyRealDir(mnum);
 			if (mon->_mType == MT_BLINK)
 				MonTeleport(mnum);
 		}
@@ -1853,7 +1853,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 			dmon->_menemy = offm;
 			dmon->_menemyx = monsters[offm]._mfutx;
 			dmon->_menemyy = monsters[offm]._mfuty;
-			dmon->_mdir = MonGetDir(offm);
+			dmon->_mdir = MonEnemyRealDir(offm);
 			if (dmon->_mType == MT_BLINK)
 				MonTeleport(defm);
 		//}
@@ -2541,7 +2541,7 @@ static bool MonDoDelay(int mnum)
 		dev_fatal("MonDoDelay: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	mon->_mdir = MonGetDir(mnum);
+	mon->_mdir = MonEnemyRealDir(mnum);
 	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
 
 	if (mon->_mVar2-- == 0) { // DELAY_TICK
@@ -4037,7 +4037,7 @@ void MAI_Garbud(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonGetDir(mnum);
+	mon->_mdir = MonEnemyRealDir(mnum);
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER
 			//if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
@@ -4071,7 +4071,7 @@ void MAI_Zhar(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonGetDir(mnum);
+	mon->_mdir = MonEnemyRealDir(mnum);
 
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (quests[Q_ZHAR]._qvar1 == 1)
@@ -4105,7 +4105,7 @@ void MAI_SnotSpil(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonGetDir(mnum);
+	mon->_mdir = MonEnemyRealDir(mnum);
 
 	switch (quests[Q_LTBANNER]._qvar1) {
 	case 0: // quest not started -> skip
@@ -4156,7 +4156,7 @@ void MAI_Lazarus(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonGetDir(mnum);
+	mon->_mdir = MonEnemyRealDir(mnum);
 	if (IsMultiGame) {
 		if (mon->_mgoal == MGOAL_INQUIRING) {
 			if (quests[Q_BETRAYER]._qvar1 <= 3) {
@@ -4210,7 +4210,7 @@ void MAI_Lazhelp(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonGetDir(mnum);
+	mon->_mdir = MonEnemyRealDir(mnum);
 
 	if (mon->_mgoal == MGOAL_INQUIRING || mon->_mgoal == MGOAL_TALKING) {
 		if (!IsMultiGame && quests[Q_BETRAYER]._qvar1 <= 5)
@@ -4233,7 +4233,7 @@ void MAI_Lachdanan(int mnum)
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
 
-	mon->_mdir = MonGetDir(mnum);
+	mon->_mdir = MonEnemyRealDir(mnum);
 
 	if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
 		//if (mon->_mVar8++ >= gnTicksRate * 32) {
@@ -4262,7 +4262,7 @@ void MAI_Warlord(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonGetDir(mnum);
+	mon->_mdir = MonEnemyRealDir(mnum);
 
 	switch (quests[Q_WARLORD]._qvar1) {
 	case 0: // quest not started
