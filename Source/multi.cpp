@@ -708,7 +708,7 @@ void NetClose()
 static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 {
 	int i, dlgresult, pnum;
-	int32_t seed;
+	uint32_t seed;
 
 	while (TRUE) {
 		// mypnum = 0;
