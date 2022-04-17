@@ -647,14 +647,24 @@ static void PKWAREAPI WriteCmpData(TCmpStruct * pWork)
                 OutputBits(pWork, pWork->nChBits[rep_length + 0xFE], pWork->nChCodes[rep_length + 0xFE]);
                 if(rep_length == 2)
                 {
+#ifdef FULL
                     OutputBits(pWork, pWork->dist_bits[pWork->distance >> 2],
                                       pWork->dist_codes[pWork->distance >> 2]);
+#else
+                    OutputBits(pWork, DistBits[pWork->distance >> 2],
+                                      DistCode[pWork->distance >> 2]);
+#endif
                     OutputBits(pWork, 2, pWork->distance & 3);
                 }
                 else
                 {
+#ifdef FULL
                     OutputBits(pWork, pWork->dist_bits[pWork->distance >> pWork->dsize_bits],
                                       pWork->dist_codes[pWork->distance >> pWork->dsize_bits]);
+#else
+                    OutputBits(pWork, DistBits[pWork->distance >> pWork->dsize_bits],
+                                      DistCode[pWork->distance >> pWork->dsize_bits]);
+#endif
                     OutputBits(pWork, pWork->dsize_bits, pWork->dsize_mask & pWork->distance);
                 }
 
@@ -768,11 +778,11 @@ unsigned int PKWAREAPI implode(
                 nChCode = (nChCode & 0x0000FFFF) + 2;
             }
 #else
-			memset(pWork->nChBits, 9, 0x100);
-			for(nCount = 0; nCount < 0x100; nCount++)
+            memset(pWork->nChBits, 9, 0x100);
+            for(nCount = 0; nCount < 0x100; nCount++)
             {
                 pWork->nChCodes[nCount] = nCount * 2;
-			}
+            }
 #endif
             break;
 
@@ -805,8 +815,10 @@ unsigned int PKWAREAPI implode(
     }
 
     // Copy the distance codes and distance bits and perform the compression
+#ifdef FULL
     memcpy(&pWork->dist_codes, DistCode, sizeof(DistCode));
     memcpy(&pWork->dist_bits, DistBits, sizeof(DistBits));
+#endif
     WriteCmpData(pWork);
     return CMP_NO_ERROR;
 }

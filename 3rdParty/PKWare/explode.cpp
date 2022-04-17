@@ -129,8 +129,8 @@ static const unsigned short ChCodeAsc[] =
 
 static void PKWAREAPI GenDecodeTabs(
     unsigned char * positions,          // [out] Table of positions
-    unsigned char * start_indexes,      // [in] Table of start indexes
-    unsigned char * length_bits,        // [in] Table of lengths. Each length is stored as number of bits
+    const unsigned char * start_indexes,      // [in] Table of start indexes
+    const unsigned char * length_bits,        // [in] Table of lengths. Each length is stored as number of bits
     size_t elements)                    // [in] Number of elements in start_indexes and length_bits
 {
     unsigned int index;
@@ -284,11 +284,19 @@ static unsigned int PKWAREAPI DecodeLit(TDcmpStruct * pWork)
         length_code = pWork->LengthCodes[pWork->bit_buff & 0xFF];
         
         // Remove the apropriate number of bits
+#ifdef FULL	
         if(WasteBits(pWork, pWork->LenBits[length_code]))
+#else
+        if(WasteBits(pWork, LenBits[length_code]))
+#endif
             return 0x306;
 
         // Are there some extra bits for the obtained length code ?
+#ifdef FULL	
         if((extra_length_bits = pWork->ExLenBits[length_code]) != 0)
+#else
+        if((extra_length_bits = ExLenBits[length_code]) != 0)
+#endif
         {
             unsigned int extra_length = pWork->bit_buff & ((1 << extra_length_bits) - 1);
 
@@ -297,7 +305,11 @@ static unsigned int PKWAREAPI DecodeLit(TDcmpStruct * pWork)
                 if((length_code + extra_length) != 0x10E)
                     return 0x306;
             }
+#ifdef FULL	
             length_code = pWork->LenBase[length_code] + extra_length;
+#else
+            length_code = LenBase[length_code] + extra_length;
+#endif
         }
 
         // In order to distinguish uncompressed byte from repetition length,
@@ -368,7 +380,11 @@ static unsigned int PKWAREAPI DecodeDist(TDcmpStruct * pWork, unsigned int rep_l
 
     // Next 2-8 bits in the input buffer is the distance position code
     dist_pos_code = pWork->DistPosCodes[pWork->bit_buff & 0xFF];
+#ifdef FULL
     dist_pos_bits = pWork->DistBits[dist_pos_code];
+#else
+    dist_pos_bits = DistBits[dist_pos_code];
+#endif
     if(WasteBits(pWork, dist_pos_bits))
         return 0;
 
@@ -516,12 +532,20 @@ unsigned int PKWAREAPI explode(
 #endif
     }
 
+#ifdef FULL
     memcpy(pWork->LenBits, LenBits, sizeof(pWork->LenBits));
     GenDecodeTabs(pWork->LengthCodes, LenCode, pWork->LenBits, sizeof(pWork->LenBits));
+#else
+    GenDecodeTabs(pWork->LengthCodes, LenCode, LenBits, sizeof(LenBits));
+#endif
+#ifdef FULL
     memcpy(pWork->ExLenBits, ExLenBits, sizeof(pWork->ExLenBits));
     memcpy(pWork->LenBase, LenBase, sizeof(pWork->LenBase));
     memcpy(pWork->DistBits, DistBits, sizeof(pWork->DistBits));
     GenDecodeTabs(pWork->DistPosCodes, DistCode, pWork->DistBits, sizeof(pWork->DistBits));
+#else
+    GenDecodeTabs(pWork->DistPosCodes, DistCode, DistBits, sizeof(DistBits));
+#endif
     if(Expand(pWork) != 0x306)
         return CMP_NO_ERROR;
         
