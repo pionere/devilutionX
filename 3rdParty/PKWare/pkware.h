@@ -125,8 +125,13 @@ unsigned int PKWAREAPI implode(
    void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param),
    char         *work_buf,
    void         *param,
+#if FULL
    unsigned int *type,
    unsigned int *dsize);
+#else
+   unsigned int type,
+   unsigned int dsize);
+#endif
 
 
 unsigned int PKWAREAPI explode(

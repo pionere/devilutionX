@@ -123,9 +123,9 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 	param.destOffset = 0;
 	param.size = size;
 
-	type = 0;
+	type = CMP_BINARY;
 	dsize = CMP_IMPLODE_DICT_SIZE3;
-	implode(PkwareBufferRead, PkwareBufferWrite, ptr, &param, &type, &dsize);
+	implode(PkwareBufferRead, PkwareBufferWrite, ptr, &param, type, dsize);
 
 	if (param.destOffset < size) {
 		memcpy(srcData, destData, param.destOffset);

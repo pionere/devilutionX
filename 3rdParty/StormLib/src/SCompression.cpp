@@ -264,13 +264,17 @@ static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBu
 
         if (cbInBuffer < 0x600)
             dict_size = CMP_IMPLODE_DICT_SIZE1;
-        else if(0x600 <= cbInBuffer && cbInBuffer < 0xC00)
+        else if(/*0x600 <= cbInBuffer &&*/ cbInBuffer < 0xC00)
             dict_size = CMP_IMPLODE_DICT_SIZE2;
         else
             dict_size = CMP_IMPLODE_DICT_SIZE3;
 
         // Do the compression
+#if FULL
         if(implode(ReadInputData, WriteOutputData, work_buf, &Info, &ctype, &dict_size) == CMP_NO_ERROR)
+#else
+        if(implode(ReadInputData, WriteOutputData, work_buf, &Info, ctype, dict_size) == CMP_NO_ERROR)
+#endif
             *pcbOutBuffer = (int)(Info.pbOutBuff - (unsigned char *)pvOutBuffer);
 
         STORM_FREE(work_buf);

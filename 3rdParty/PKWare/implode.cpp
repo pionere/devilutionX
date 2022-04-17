@@ -690,8 +690,13 @@ unsigned int PKWAREAPI implode(
     void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param),
     char         *work_buf,
     void         *param,
+#if FULL
     unsigned int *type,
     unsigned int *dsize)
+#else
+    unsigned int type,
+    unsigned int dsize)
+#endif
 {
     TCmpStruct * pWork = (TCmpStruct *)work_buf;
     unsigned int nChCode;
@@ -703,14 +708,23 @@ unsigned int PKWAREAPI implode(
     // Note: The caller must zero the "work_buff" before passing it to implode
     pWork->read_buf    = read_buf;
     pWork->write_buf   = write_buf;
+#if FULL
     pWork->dsize_bytes = *dsize;
     pWork->ctype       = *type;
+#else
+    pWork->dsize_bytes = dsize;
+    pWork->ctype       = type;
+#endif
     pWork->param       = param;
     pWork->dsize_bits  = 4;
     pWork->dsize_mask  = 0x0F;
 
     // Test dictionary size
+#if FULL
     switch(*dsize)
+#else
+    switch(dsize)
+#endif
     {
         case CMP_IMPLODE_DICT_SIZE3:    // 0x1000 bytes
             pWork->dsize_bits++;
@@ -730,7 +744,11 @@ unsigned int PKWAREAPI implode(
     }
 
     // Test the compression type
+#if FULL
     switch(*type)
+#else
+    switch(type)
+#endif
     {
         case CMP_BINARY: // We will compress data with binary compression type
             for(nChCode = 0, nCount = 0; nCount < 0x100; nCount++)
