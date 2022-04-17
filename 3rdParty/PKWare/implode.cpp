@@ -12,6 +12,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <limits.h>
 
 #include "pkware.h"
 
@@ -24,7 +25,7 @@
 
 #define MAX_REP_LENGTH 0x204            // The longest allowed repetition
 
-static char CopyrightPkware[] = "PKWARE Data Compression Library for Win32\r\n"
+static const char CopyrightPkware[] = "PKWARE Data Compression Library for Win32\r\n"
                                 "Copyright 1989-1995 PKWARE Inc.  All Rights Reserved\r\n"
                                 "Patent No. 5,051,745\r\n"
                                 "PKWARE Data Compression Library Reg. U.S. Pat. and Tm. Off.\r\n"
@@ -33,7 +34,7 @@ static char CopyrightPkware[] = "PKWARE Data Compression Library for Win32\r\n"
 //-----------------------------------------------------------------------------
 // Tables
 
-static unsigned char DistBits[] = 
+static const unsigned char DistBits[] = 
 {
     0x02, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
     0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
@@ -41,7 +42,7 @@ static unsigned char DistBits[] =
     0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08
 };
 
-static unsigned char DistCode[] = 
+static const unsigned char DistCode[] = 
 {
     0x03, 0x0D, 0x05, 0x19, 0x09, 0x11, 0x01, 0x3E, 0x1E, 0x2E, 0x0E, 0x36, 0x16, 0x26, 0x06, 0x3A,
     0x1A, 0x2A, 0x0A, 0x32, 0x12, 0x22, 0x42, 0x02, 0x7C, 0x3C, 0x5C, 0x1C, 0x6C, 0x2C, 0x4C, 0x0C,
@@ -49,22 +50,22 @@ static unsigned char DistCode[] =
     0xF0, 0x70, 0xB0, 0x30, 0xD0, 0x50, 0x90, 0x10, 0xE0, 0x60, 0xA0, 0x20, 0xC0, 0x40, 0x80, 0x00
 };
 
-static unsigned char ExLenBits[] =
+static const unsigned char ExLenBits[] =
 {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
 };
 
-static unsigned char LenBits[] =
+static const unsigned char LenBits[] =
 {
     0x03, 0x02, 0x03, 0x03, 0x04, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x07, 0x07
 };
 
-static unsigned char LenCode[] =
+static const unsigned char LenCode[] =
 {
     0x05, 0x03, 0x01, 0x06, 0x0A, 0x02, 0x0C, 0x14, 0x04, 0x18, 0x08, 0x30, 0x10, 0x20, 0x40, 0x00
 };
 
-static unsigned char ChBitsAsc[] =
+static const unsigned char ChBitsAsc[] =
 {
     0x0B, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x08, 0x07, 0x0C, 0x0C, 0x07, 0x0C, 0x0C,
     0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0D, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C,
@@ -84,7 +85,7 @@ static unsigned char ChBitsAsc[] =
     0x0D, 0x0D, 0x0C, 0x0C, 0x0C, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D
 };
 
-static unsigned short ChCodeAsc[] = 
+static const unsigned short ChCodeAsc[] = 
 {
     0x0490, 0x0FE0, 0x07E0, 0x0BE0, 0x03E0, 0x0DE0, 0x05E0, 0x09E0,
     0x01E0, 0x00B8, 0x0062, 0x0EE0, 0x06E0, 0x0022, 0x0AE0, 0x02E0,
@@ -164,7 +165,11 @@ static void PKWAREAPI SortBuffer(TCmpStruct * pWork, unsigned char * buffer_begi
     //  offs 0x001: Number of occurences of PAIR_HASH 1 or lower
     //  ...
     //  offs 0x8F7: Number of occurences of PAIR_HASH 0x8F7 or lower
+#ifdef FULL
     for(phash_to_index = pWork->phash_to_index; phash_to_index < &pWork->phash_to_index_end; phash_to_index++)
+#else
+    for(phash_to_index = pWork->phash_to_index; phash_to_index < &pWork->phash_to_index[0x900]; phash_to_index++)
+#endif
     {
         total_sum = total_sum + phash_to_index[0];
         phash_to_index[0] = total_sum;
@@ -388,7 +393,7 @@ static unsigned int PKWAREAPI FindRep(TCmpStruct * pWork, unsigned char * input_
     //          The last repetition is the best one.
     //
 
-    pWork->offs09BC[0] = 0xFFFF;
+    pWork->offs09BC[0] = USHRT_MAX;
     pWork->offs09BC[1] = 0x0000;
     di_val = 0;
 
@@ -399,7 +404,7 @@ static unsigned int PKWAREAPI FindRep(TCmpStruct * pWork, unsigned char * input_
         if(input_data[offs_in_rep] != input_data[di_val])
         {
             di_val = pWork->offs09BC[di_val];
-            if(di_val != 0xFFFF)
+            if(di_val != USHRT_MAX)
                 continue;
         }
         pWork->offs09BC[++offs_in_rep] = ++di_val;
@@ -418,7 +423,7 @@ static unsigned int PKWAREAPI FindRep(TCmpStruct * pWork, unsigned char * input_
     for(;;)
     {
         rep_length2 = pWork->offs09BC[rep_length2];
-        if(rep_length2 == 0xFFFF)
+        if(rep_length2 == USHRT_MAX)
             rep_length2 = 0;
 
         // Get the pointer to the previous repetition
@@ -491,7 +496,7 @@ static unsigned int PKWAREAPI FindRep(TCmpStruct * pWork, unsigned char * input_
                 if(input_data[offs_in_rep] != input_data[di_val])
                 {
                     di_val = pWork->offs09BC[di_val];
-                    if(di_val != 0xFFFF)
+                    if(di_val != USHRT_MAX)
                         continue;
                 }
                 pWork->offs09BC[++offs_in_rep] = ++di_val;
@@ -690,7 +695,7 @@ unsigned int PKWAREAPI implode(
     void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param),
     char         *work_buf,
     void         *param,
-#if FULL
+#ifdef FULL
     unsigned int *type,
     unsigned int *dsize)
 #else
@@ -699,16 +704,20 @@ unsigned int PKWAREAPI implode(
 #endif
 {
     TCmpStruct * pWork = (TCmpStruct *)work_buf;
+#ifdef FULL
     unsigned int nChCode;
+#endif
     unsigned int nCount;
     unsigned int i;
     int nCount2;
 
     // Fill the work buffer information
+#ifdef FULL
     // Note: The caller must zero the "work_buff" before passing it to implode
+#endif
     pWork->read_buf    = read_buf;
     pWork->write_buf   = write_buf;
-#if FULL
+#ifdef FULL
     pWork->dsize_bytes = *dsize;
     pWork->ctype       = *type;
 #else
@@ -720,7 +729,7 @@ unsigned int PKWAREAPI implode(
     pWork->dsize_mask  = 0x0F;
 
     // Test dictionary size
-#if FULL
+#ifdef FULL
     switch(*dsize)
 #else
     switch(dsize)
@@ -744,19 +753,27 @@ unsigned int PKWAREAPI implode(
     }
 
     // Test the compression type
-#if FULL
+#ifdef FULL
     switch(*type)
 #else
     switch(type)
 #endif
     {
         case CMP_BINARY: // We will compress data with binary compression type
+#ifdef FULL
             for(nChCode = 0, nCount = 0; nCount < 0x100; nCount++)
             {
                 pWork->nChBits[nCount]  = 9;
                 pWork->nChCodes[nCount] = (unsigned short)nChCode;
                 nChCode = (nChCode & 0x0000FFFF) + 2;
             }
+#else
+			memset(pWork->nChBits, 9, 0x100);
+			for(nCount = 0; nCount < 0x100; nCount++)
+            {
+                pWork->nChCodes[nCount] = nCount * 2;
+			}
+#endif
             break;
 
 
@@ -774,7 +791,9 @@ unsigned int PKWAREAPI implode(
 
     for(i = 0; i < 0x10; i++)
     {
+#ifdef FULL
         if(1 << ExLenBits[i])
+#endif
         {
             for(nCount2 = 0; nCount2 < (1 << ExLenBits[i]); nCount2++)
             {

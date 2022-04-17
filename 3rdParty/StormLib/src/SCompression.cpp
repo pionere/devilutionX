@@ -249,7 +249,9 @@ static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBu
     if(work_buf != NULL)
     {
         // Fill data information structure
+#ifdef FULL
         memset(work_buf, 0, CMP_BUFFER_SIZE);
+#endif
         Info.pbInBuff     = (unsigned char *)pvInBuffer;
         Info.pbInBuffEnd  = (unsigned char *)pvInBuffer + cbInBuffer;
         Info.pbOutBuff    = (unsigned char *)pvOutBuffer;
@@ -270,7 +272,7 @@ static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBu
             dict_size = CMP_IMPLODE_DICT_SIZE3;
 
         // Do the compression
-#if FULL
+#ifdef FULL
         if(implode(ReadInputData, WriteOutputData, work_buf, &Info, &ctype, &dict_size) == CMP_NO_ERROR)
 #else
         if(implode(ReadInputData, WriteOutputData, work_buf, &Info, ctype, dict_size) == CMP_NO_ERROR)
@@ -291,7 +293,9 @@ static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInB
         return 0;
 
     // Fill data information structure
+#ifdef FULL
     memset(work_buf, 0, EXP_BUFFER_SIZE);
+#endif
     Info.pbInBuff     = (unsigned char *)pvInBuffer;
     Info.pbInBuffEnd  = (unsigned char *)pvInBuffer + cbInBuffer;
     Info.pbOutBuff    = (unsigned char *)pvOutBuffer;
