@@ -271,8 +271,9 @@ static unsigned int PKWAREAPI DecodeLit(TDcmpStruct * pWork)
 {
     unsigned int extra_length_bits;    // Number of bits of extra literal length
     unsigned int length_code;          // Length code
+#ifdef FULL
     unsigned int value;
-
+#endif
     // Test the current bit in byte buffer. If is not set, simply return the next 8 bits.
     if(pWork->bit_buff & 1)
     {
@@ -284,7 +285,7 @@ static unsigned int PKWAREAPI DecodeLit(TDcmpStruct * pWork)
         length_code = pWork->LengthCodes[pWork->bit_buff & 0xFF];
         
         // Remove the apropriate number of bits
-#ifdef FULL	
+#ifdef FULL
         if(WasteBits(pWork, pWork->LenBits[length_code]))
 #else
         if(WasteBits(pWork, LenBits[length_code]))
@@ -292,7 +293,7 @@ static unsigned int PKWAREAPI DecodeLit(TDcmpStruct * pWork)
             return 0x306;
 
         // Are there some extra bits for the obtained length code ?
-#ifdef FULL	
+#ifdef FULL
         if((extra_length_bits = pWork->ExLenBits[length_code]) != 0)
 #else
         if((extra_length_bits = ExLenBits[length_code]) != 0)
@@ -305,7 +306,7 @@ static unsigned int PKWAREAPI DecodeLit(TDcmpStruct * pWork)
                 if((length_code + extra_length) != 0x10E)
                     return 0x306;
             }
-#ifdef FULL	
+#ifdef FULL
             length_code = pWork->LenBase[length_code] + extra_length;
 #else
             length_code = LenBase[length_code] + extra_length;
