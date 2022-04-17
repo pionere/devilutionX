@@ -233,7 +233,7 @@ static void WriteOutputData(char * buf, unsigned int * size, void * param)
     pInfo->pbOutBuff += nToWrite;
     assert(pInfo->pbOutBuff <= pInfo->pbOutBuffEnd);
 }
-
+#ifdef FULL
 static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer, int * pCmpType, int nCmpLevel)
 {
     TDataInfo Info;                                      // Data information
@@ -282,7 +282,7 @@ static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBu
         STORM_FREE(work_buf);
     }
 }
-
+#endif /* FULL */
 static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer)
 {
     TDataInfo Info;                             // Data information
@@ -678,7 +678,6 @@ static int Decompress_ADPCM_stereo(void * pvOutBuffer, int * pcbOutBuffer, void 
     *pcbOutBuffer = DecompressADPCM(pvOutBuffer, *pcbOutBuffer, pvInBuffer, cbInBuffer, 2);
     return 1;
 }
-#endif // FULL
 
 /*****************************************************************************/
 /*                                                                           */
@@ -711,7 +710,7 @@ int WINAPI SCompImplode(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffe
     *pcbOutBuffer = cbOutBuffer;
     return 1;
 }
-
+#endif // FULL
 /*****************************************************************************/
 /*                                                                           */
 /*   SCompExplode                                                            */
