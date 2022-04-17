@@ -1805,34 +1805,44 @@ void DrawTextBoxSLine(int x, /*int y,*/ int dy, bool widePanel)
 		memcpy(dst, src, length);
 }
 
-static int DrawDurIcon4Item(ItemStruct* pItem, int x, int c)
+static int DrawDurIcon4Item(ItemStruct* pItem, int x)
 {
-	if (pItem->_itype == ITYPE_NONE)
-		return x;
+	int c;
+
 	if (pItem->_iDurability > 5)
 		return x;
-	if (c == 0) {
-		if (pItem->_iClass == ICLASS_WEAPON) {
-			switch (pItem->_itype) {
-			case ITYPE_SWORD:
-				c = 2;
-				break;
-			case ITYPE_AXE:
-				c = 6;
-				break;
-			case ITYPE_BOW:
-				c = 7;
-				break;
-			case ITYPE_MACE:
-				c = 5;
-				break;
-			case ITYPE_STAFF:
-				c = 8;
-				break;
-			}
-		} else {
-			c = 1;
-		}
+	switch (pItem->_itype) {
+	case ITYPE_NONE:
+		return x;
+	case ITYPE_SWORD:
+		c = 2;
+		break;
+	case ITYPE_AXE:
+		c = 6;
+		break;
+	case ITYPE_BOW:
+		c = 7;
+		break;
+	case ITYPE_MACE:
+		c = 5;
+		break;
+	case ITYPE_STAFF:
+		c = 8;
+		break;
+	case ITYPE_SHIELD:
+		c = 1;
+		break;
+	case ITYPE_HELM:
+		c = 4;
+		break;
+	case ITYPE_LARMOR:
+	case ITYPE_MARMOR:
+	case ITYPE_HARMOR:
+		c = 3;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 	if (pItem->_iDurability > 2)
 		c += 8;
@@ -1848,10 +1858,10 @@ void DrawDurIcon()
 	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92 + 32);
 
 	inv = myplr._pInvBody;
-	x = DrawDurIcon4Item(&inv[INVLOC_HEAD], x, 4);
-	x = DrawDurIcon4Item(&inv[INVLOC_CHEST], x, 3);
-	x = DrawDurIcon4Item(&inv[INVLOC_HAND_LEFT], x, 0);
-	DrawDurIcon4Item(&inv[INVLOC_HAND_RIGHT], x, 0);
+	x = DrawDurIcon4Item(&inv[INVLOC_HEAD], x);
+	x = DrawDurIcon4Item(&inv[INVLOC_CHEST], x);
+	x = DrawDurIcon4Item(&inv[INVLOC_HAND_LEFT], x);
+	DrawDurIcon4Item(&inv[INVLOC_HAND_RIGHT], x);
 }
 
 static BYTE GetSBookTrans(int sn)
