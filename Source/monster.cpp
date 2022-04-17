@@ -397,7 +397,7 @@ void GetLevelMTypes()
 			}
 
 			if (nt > 0) {
-				i = random_(88, nt);
+				i = random_low(88, nt);
 				AddMonsterType(montypes[i], TRUE);
 				montypes[i] = montypes[--nt];
 			}
@@ -581,7 +581,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].aFrameLen;
-	mon->_mAnimCnt = random_(88, mon->_mAnimFrameLen);
+	mon->_mAnimCnt = random_low(88, mon->_mAnimFrameLen);
 	mon->_mAnimLen = cmon->cmAnims[MA_STAND].aFrames;
 	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen);
 	mon->_mmode = MM_STAND;
@@ -1108,9 +1108,10 @@ void InitMonsters()
 				numscattypes++;
 			}
 		}
+		// assert(numscattypes != 0);
 		i = currLvl._dLevelIdx;
 		while (nummonsters < totalmonsters) {
-			mtidx = scatteridx[random_(95, numscattypes)];
+			mtidx = scatteridx[random_low(95, numscattypes)];
 			if (i == DLV_CATHEDRAL1 || random_(95, 2) == 0)
 				na = 1;
 #ifdef HELLFIRE
@@ -3499,7 +3500,7 @@ void MAI_Scav(int mnum)
 							}
 						}
 						if (tmp != 0) {
-							tmp = random_(0, tmp);
+							tmp = random_low(0, tmp);
 							tmp &= ~1;
 							mon->_mgoalvar1 = corpseLocs[tmp];     // HEALING_LOCATION_X
 							mon->_mgoalvar2 = corpseLocs[tmp + 1]; // HEALING_LOCATION_Y
@@ -3595,7 +3596,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 	dist = currEnemyInfo._meRealDist;
 	//v = random_(121, 10000);
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]*/) {
-		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(122, 4 << lessmissiles) == 0)) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_low(122, 4 << lessmissiles) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 4 + RandRange(2, dist); // MOVE_DISTANCE
@@ -3982,7 +3983,7 @@ void MAI_Counselor(int mnum)
 #endif
 				static_assert(2 * 20 + (6 + 4) * 1 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with move goal.");
 				mon->_mgoal = MGOAL_MOVE;
-				mon->_mgoalvar1 = 6 + random_(0, std::min(dist, 4)); // MOVE_DISTANCE
+				mon->_mgoalvar1 = 6 + random_low(0, std::min(dist, 4)); // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(125, 2);               // MOVE_TURN_DIRECTION
 				MonStartFadeout(mnum, md, false);
 			}
@@ -5024,7 +5025,7 @@ void SpawnSkeleton(int mnum, int x, int y, int dir)
 	}
 	if (nok == 0)
 		return;
-	dir = monstok[random_(12, nok)];
+	dir = monstok[random_low(12, nok)];
 	ActivateSpawn(mnum, x + offset_x[dir], y + offset_y[dir], dir);
 
 	// return TRUE;
@@ -5037,7 +5038,7 @@ int PreSpawnSkeleton()
 	if (n == 0)
 		return -1;
 
-	n = mapSkelTypes[random_(136, n)];
+	n = mapSkelTypes[random_low(136, n)];
 	n = AddMonster(0, 0, 0, n, false);
 	if (n != -1) {
 		// inactive minions and prespawn skeletons have to be identifiable by DeltaLoadLevel

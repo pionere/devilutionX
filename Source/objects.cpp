@@ -430,7 +430,7 @@ static void InitRndBarrels()
 				break;
 			AddObject(o + (random_(143, 5) == 0 ? 1 : 0), xp, yp);
 			c++;
-		} while (random_(143, c >> 1) == 0);
+		} while (random_low(143, c >> 1) == 0);
 	}
 }
 
@@ -700,7 +700,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	os->_oAnimLen = ofd->oAnimLen;
 	//os->_oAnimCnt = 0;
 	if (ofd->oAnimFlag) {
-		os->_oAnimCnt = random_(146, os->_oAnimFrameLen);
+		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
 		os->_oAnimFrame = RandRange(1, os->_oAnimLen);
 	}
 	os->_oAnimWidth = ofd->oAnimWidth;
@@ -1115,7 +1115,7 @@ static void AddChest(int oi)
 	//	|| os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3);
 	num = os->_otype;
 	num = (num >= OBJ_TCHEST1 && num <= OBJ_TCHEST3) ? num - OBJ_TCHEST1 + 1 : num - OBJ_CHEST1 + 1;
-	rnum = random_(147, num + 1); // CHEST_ITEM_SEED2
+	rnum = random_low(147, num + 1); // CHEST_ITEM_SEED2
 	if (!currLvl._dSetLvl)
 		num = rnum;
 	os->_oVar1 = num;        // CHEST_ITEM_NUM
@@ -1189,7 +1189,7 @@ static void AddTrap(int oi)
 
 	mt = currLvl._dLevel;
 	mt = mt / 6 + 1;
-	mt = random_(148, mt) & 3;
+	mt = random_low(148, mt) & 3;
 	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
 	// TRAP_MISTYPE
@@ -2782,7 +2782,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 				cnt++;
 		}
 		if (cnt != 0) {
-			r = random_(0, cnt);
+			r = random_low(0, cnt);
 			pi = plr._pInvBody;
 			for (i = NUM_INVLOC; i != 0; i--, pi++) {
 				if (pi->_itype != ITYPE_NONE
@@ -2887,11 +2887,12 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	case SHRINE_SPIRITUAL:
 		SetRndSeed(seed);
 		cnt = plr._pDunLevel;
+		// assert(cnt != 0);
 		pi = plr._pInvList;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
 			if (pi->_itype == ITYPE_NONE) {
 				CreateBaseItem(pi, IDI_GOLD);
-				r = cnt + random_(160, 2 * cnt);
+				r = cnt + random_low(160, 2 * cnt);
 				plr._pGold += r;
 				SetGoldItemValue(pi, r);
 			}

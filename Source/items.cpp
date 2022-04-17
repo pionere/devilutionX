@@ -1021,7 +1021,7 @@ static bool GetItemSpace(int x, int y, int ii)
 	if (rs == 0)
 		return false;
 
-	rs = slist[random_(13, rs)];
+	rs = slist[random_low(13, rs)];
 
 	SetItemLoc(ii, x + area3x3_x[rs], y + area3x3_y[rs]);
 	return true;
@@ -1088,7 +1088,7 @@ static void GetBookSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_(14, ns)];
+	bs = ss[random_low(14, ns)];
 
 	is = &items[ii];
 	is->_iSpell = bs;
@@ -1142,7 +1142,7 @@ static void GetScrollSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_(14, ns)];
+	bs = ss[random_low(14, ns)];
 
 	is = &items[ii];
 	is->_iSpell = bs;
@@ -1176,7 +1176,7 @@ static void GetRuneSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_(14, ns)];
+	bs = ss[random_low(14, ns)];
 
 	is = &items[ii];
 	is->_iSpell = bs;
@@ -1226,7 +1226,7 @@ static void GetStaffSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_(18, ns)];
+	bs = ss[random_low(18, ns)];
 
 	is = &items[ii];
 	sd = &spelldata[bs];
@@ -1259,7 +1259,7 @@ static int GetItemSpell()
 		}
 	}
 	// assert(ns > 0);
-	return ss[random_(19, ns)];
+	return ss[random_low(19, ns)];
 }
 
 static void GetItemAttrs(int ii, int idata, unsigned lvl)
@@ -1570,7 +1570,8 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 			}
 		}
 		if (nl != 0) {
-			pres = l[random_(23, nl)];
+			// assert(nl < 0xFFFF);
+			pres = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			items[ii]._iPrePower = pres->PLPower;
 			SaveItemPower(
@@ -1595,7 +1596,8 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 			}
 		}
 		if (nl != 0) {
-			sufs = l[random_(23, nl)];
+			// assert(nl < 0xFFFF);
+			sufs = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			items[ii]._iSufPower = sufs->PLPower;
 			SaveItemPower(
@@ -1707,8 +1709,8 @@ static int RndUItem(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(25, ri);
+	// assert(ri != 0 && ri < 0xFFFF);
+	ri = random_low(25, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -1751,8 +1753,8 @@ static int RndAllItems(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(26, ri);
+	// assert(ri != 0 && ri < 0xFFFF);
+	ri = random_low(26, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -1797,8 +1799,8 @@ static int RndTypeItems(int itype, int imid, unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(27, ri);
+	// assert(ri != 0 && ri < 0xFFFF);
+	ri = random_low(27, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -1832,7 +1834,7 @@ static int CheckUnique(int ii, unsigned lvl, unsigned quality)
 	if (ui == 0)
 		return -1;
 
-	return uok[random_(29, ui)];
+	return uok[random_low(29, ui)];
 }
 
 static void GetUniqueItem(int ii, int uid)
@@ -1867,8 +1869,10 @@ static void GetUniqueItem(int ii, int uid)
 static void ItemRndDur(int ii)
 {
 	// skip STACKable and non-durable items
-	if (!items[ii]._iUsable && items[ii]._iMaxDur != 0 && items[ii]._iMaxDur != DUR_INDESTRUCTIBLE)
-		items[ii]._iDurability = random_(0, items[ii]._iMaxDur >> 1) + (items[ii]._iMaxDur >> 2) + 1;
+	if (!items[ii]._iUsable && items[ii]._iMaxDur != 0 && items[ii]._iMaxDur != DUR_INDESTRUCTIBLE) {
+		// assert((items[ii]._iMaxDur >> 1) < 0xFFFF);
+		items[ii]._iDurability = random_low(0, items[ii]._iMaxDur >> 1) + (items[ii]._iMaxDur >> 2) + 1;
+	}
 }
 
 static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned quality)
@@ -3268,8 +3272,8 @@ static int RndSmithItem(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(50, ri);
+	// assert(ri != 0 && ri < 0xFFFF);
+	ri = random_low(50, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -3416,8 +3420,8 @@ static int RndWitchItem(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(51, ri);
+	// assert(ri != 0 && ri < 0xFFFF);
+	ri = random_low(51, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -3531,8 +3535,8 @@ static int RndHealerItem(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(50, ri);
+	// assert(ri != 0 && ri < 0xFFFF);
+	ri = random_low(50, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)

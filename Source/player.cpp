@@ -1944,8 +1944,8 @@ static void WeaponDur(int pnum, int durrnd)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("WeaponDur: illegal player %d", pnum);
 	}
-
-	if (random_(3, durrnd) != 0) {
+	// assert(durrnd > 0 && durrnd < 0xFFFF);
+	if (random_low(3, durrnd) != 0) {
 		return;
 	}
 
@@ -1977,7 +1977,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 {
 	MonsterStruct* mon;
 	int hper, dam, skdam, damsl, dambl, dampc;
-	unsigned hitFlags;
+	unsigned tmp, hitFlags;
 	bool tmac, ret;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -2015,7 +2015,8 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (dampc != 0)
 		dam += CalcMonsterDam(mon->_mMagicRes, MISR_PUNCTURE, plr._pIPcMinDam, dampc, tmac);
 
-	if (random_(6, sn == SPL_SWIPE ? 800 : 200) < plr._pICritChance) {
+	tmp = sn == SPL_SWIPE ? 800 : 200;
+	if (random_low(6, tmp) < plr._pICritChance) {
 		dam <<= 1;
 	}
 

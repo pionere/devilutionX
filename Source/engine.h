@@ -50,6 +50,7 @@ int GetDirection(int x1, int y1, int x2, int y2);
 void SetRndSeed(int32_t s);
 int32_t GetRndSeed();
 int random_(BYTE idx, int v);
+int random_low(BYTE idx, int v);
 BYTE *DiabloAllocPtr(size_t dwBytes);
 void mem_free_dbg(void *p);
 BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen = NULL);

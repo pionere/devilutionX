@@ -1309,15 +1309,15 @@ void PlayEffect(int mnum, int mode)
 
 void PlaySFX(int psfx, int rndCnt)
 {
-	if (rndCnt != 1)
-		psfx += random_(165, rndCnt);
+	if (rndCnt > 1)
+		psfx += random_low(165, rndCnt);
 	PlaySFX_priv(psfx, false, 0, 0);
 }
 
 void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
 {
-	if (rndCnt != 1)
-		psfx += random_(165, rndCnt);
+	if (rndCnt > 1)
+		psfx += random_low(165, rndCnt);
 
 	//if (psfx <= PS_WALK4 && psfx >= PS_WALK1) {
 	if (psfx == PS_WALK1) {

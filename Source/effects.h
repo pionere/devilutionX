@@ -36,7 +36,7 @@ void InitUiSFX();
 #else
 inline bool effect_is_playing(int nSFX) { return false; }
 inline void stream_stop() { }
-inline void PlaySFX(int psfx, int rndCnt = 1) { if (rndCnt != 1) random_(165, rndCnt); }
+inline void PlaySFX(int psfx, int rndCnt = 1) { if (rndCnt > 1) random_low(165, rndCnt); }
 inline void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1) { PlaySFX(-1, rndCnt); }
 inline void InitMonsterSFX(int midx) { }
 inline void FreeMonsterSFX() { }

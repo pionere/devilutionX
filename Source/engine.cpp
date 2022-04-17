@@ -139,6 +139,19 @@ int random_(BYTE idx, int v)
 }
 
 /**
+ * @brief Same as random_ but assumes 0 < v < 0xFFFF
+ * @param idx Unused
+ * @param v The upper limit for the return value
+ * @return A random number from 0 to (v-1)
+ */
+int random_low(BYTE idx, int v)
+{
+	// assert(v > 0);
+	// assert(v < 0xFFFF);
+	return (((unsigned)GetRndSeed()) >> 16) % v;
+}
+
+/**
  * @brief Multithreaded safe malloc
  * @param dwBytes Byte size to allocate
  */

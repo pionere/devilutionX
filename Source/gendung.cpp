@@ -601,13 +601,13 @@ POS32 DRLG_PlaceMiniSet(const BYTE *miniset)
 
 	sw = miniset[0];
 	sh = miniset[1];
-
+	// assert(sw < DMAXX && sh < DMAXY);
 	tries = 0;
 	while (TRUE) {
 		done = true;
 		if ((tries & 0xFF) == 0) {
-			sx = random_(0, DMAXX - sw);
-			sy = random_(0, DMAXY - sh);
+			sx = random_low(0, DMAXX - sw);
+			sy = random_low(0, DMAXY - sh);
 		}
 		if (++tries == DMAXX * DMAXY)
 			return { DMAXX, DMAXY };
@@ -1071,7 +1071,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 	themeCount = 0;
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == floor && random_(0, freq) == 0 && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
+			if (dungeon[i][j] == floor && (freq == 0 || random_low(0, freq) == 0) && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
 				if (rndSize) {
 					min = minSize - 2;
 					themeW = RandRange(min, themeW);
