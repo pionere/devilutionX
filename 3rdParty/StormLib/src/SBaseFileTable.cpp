@@ -427,7 +427,7 @@ ULONGLONG CalculateRawSectorOffset(
 }
 
 // This function converts the MPQ header so it always looks like version 4
-int ConvertMpqHeaderToFormat4(
+DWORD ConvertMpqHeaderToFormat4(
     TMPQArchive * ha,
     ULONGLONG ByteOffset,
     ULONGLONG FileSize,
@@ -446,7 +446,7 @@ int ConvertMpqHeaderToFormat4(
     bool bHashBlockOffsetOK = false;
     bool bHetBetOffsetOK = false;
 #endif
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // If version 1.0 is forced, then the format version is forced to be 1.0
     // Reason: Storm.dll in Warcraft III ignores format version value
@@ -738,7 +738,7 @@ int ConvertMpqHeaderToFormat4(
     // Used by BOBA protector
     if(BlockTablePos64 < ByteOffset)
         ha->dwFlags |= MPQ_FLAG_MALFORMED;
-    return nError;
+    return dwErrCode;
 }
 
 //-----------------------------------------------------------------------------
@@ -794,26 +794,27 @@ static TMPQHash * GetHashEntryLocale(TMPQArchive * ha, const char * szFileName, 
     {
         // Storm_2016.dll: 150209CB
         // If the hash entry matches both locale and platform, return it immediately
-        // Note: We only succeed this check if the locale is non-neutral, because
-        // some Warcraft III maps have several items with neutral locale&platform, which leads
-        // to wrong item being returned
+        // Only do that for non-0 locale&platform, because for loc&plat=0, there's different
+        // processing in Warcraft III vs. Starcraft, which is abused by some protectors.
         if((lcLocale || Platform) && pHash->lcLocale == lcLocale && pHash->Platform == Platform)
             return pHash;
 
         // Storm_2016.dll: 150209D9
-        // If (locale matches or is neutral) OR (platform matches or is neutral)
-        // remember this as the best entry
+        // If (locale matches or is neutral) OR (platform matches or is neutral), remember this as the best entry
+        // Also remember the first matching entry for Starcraft maps
         if(pHash->lcLocale == 0 || pHash->lcLocale == lcLocale)
         {
             if(pHash->Platform == 0 || pHash->Platform == Platform)
+            {
                 pBestEntry = pHash;
+            }
         }
 
         // Get the next hash entry for that file
         pHash = GetNextHashEntry(ha, pFirstHash, pHash);
     }
 
-    // At the end, return neutral hash (if found), otherwise NULL
+    // Return the best entry that we found
     return pBestEntry;
 }
 
@@ -847,6 +848,7 @@ static TMPQHash * GetHashEntryExact(TMPQArchive * ha, const char * szFileName, L
 // are not HASH_ENTRY_FREE, the startup search index does not matter.
 // Hash table is circular, so as long as there is no terminator,
 // all entries will be found.
+/*
 static TMPQHash * DefragmentHashTable(
     TMPQArchive * ha,
     TMPQHash  * pHashTable,
@@ -901,8 +903,9 @@ static TMPQHash * DefragmentHashTable(
 
     return pHashTable;
 }
+*/
 
-static int BuildFileTableFromBlockTable(
+static DWORD BuildFileTableFromBlockTable(
     TMPQArchive * ha,
     TMPQBlock * pBlockTable)
 {
@@ -913,21 +916,29 @@ static int BuildFileTableFromBlockTable(
     TMPQHash * pHash;
     LPDWORD DefragmentTable = NULL;
     DWORD dwItemCount = 0;
-    DWORD dwFlagMask;
 
     // Sanity checks
     assert(ha->pFileTable != NULL);
     assert(ha->dwFileTableSize >= ha->dwMaxFileCount);
 
-    // MPQs for Warcraft III doesn't know some flags, namely MPQ_FILE_SINGLE_UNIT and MPQ_FILE_PATCH_FILE
-    dwFlagMask = (ha->dwFlags & MPQ_FLAG_WAR3_MAP) ? MPQ_FILE_VALID_FLAGS_W3X : MPQ_FILE_VALID_FLAGS;
+    //
+    // Defragmentation of the hash table was removed. The reason is a MPQ protector,
+    // two hash entries with the same name, where only the second one is valid.
+    // The index of the first entry (HashString(szFileName, 0)) points to the second one:
+    //
+    //      NameA     NameB     BlkIdx    Name
+    //      B701656E  FCFB1EED  0000001C  staredit\scenario.chk (correct one)
+    // -->  B701656E  FCFB1EED  0000001D  staredit\scenario.chk (corrupt one)
+    //
+    // Defragmenting the hash table corrupts the order and "staredit\scenario.chk" can't be read
+    // Example MPQ: MPQ_2022_v1_Sniper.scx
+    //
 
-    // Defragment the hash table, if needed
-    if(ha->dwFlags & MPQ_FLAG_HASH_TABLE_CUT)
-    {
-        ha->pHashTable = DefragmentHashTable(ha, ha->pHashTable, pBlockTable);
-        ha->dwMaxFileCount = pHeader->dwHashTableSize;
-    }
+    //if(ha->dwFlags & MPQ_FLAG_HASH_TABLE_CUT)
+    //{
+    //    ha->pHashTable = DefragmentHashTable(ha, ha->pHashTable, pBlockTable);
+    //    ha->dwMaxFileCount = pHeader->dwHashTableSize;
+    //}
 
     // If the hash table or block table is cut,
     // we will defragment the block table
@@ -996,10 +1007,12 @@ static int BuildFileTableFromBlockTable(
             if(pFileEntry->ByteOffset == 0 && pBlock->dwFSize == 0)
                 pFileEntry->ByteOffset = ha->pHeader->dwHeaderSize;
 
+            // Clear file flags that are unknown to this type of map.
+            pFileEntry->dwFlags = pBlock->dwFlags & ha->dwValidFileFlags;
+
             // Fill the rest of the file entry
-            pFileEntry->dwFileSize  = pBlock->dwFSize;
-            pFileEntry->dwCmpSize   = pBlock->dwCSize;
-            pFileEntry->dwFlags     = pBlock->dwFlags & dwFlagMask;
+            pFileEntry->dwFileSize = pBlock->dwFSize;
+            pFileEntry->dwCmpSize  = pBlock->dwCSize;
         }
     }
 
@@ -1186,7 +1199,7 @@ TMPQExtHeader * LoadExtTable(
     return pExtTable;
 }
 
-static int SaveMpqTable(
+static DWORD SaveMpqTable(
     TMPQArchive * ha,
     void * pMpqTable,
     ULONGLONG ByteOffset,
@@ -1197,7 +1210,7 @@ static int SaveMpqTable(
 {
     ULONGLONG FileOffset;
     void * pCompressed = NULL;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Do we have to compress the table?
     if(bCompress)
@@ -1243,15 +1256,15 @@ static int SaveMpqTable(
     BSWAP_ARRAY32_UNSIGNED(pMpqTable, Size);
     FileOffset = ha->MpqPos + ByteOffset;
     if(!FileStream_Write(ha->pStream, &FileOffset, pMpqTable, (DWORD)Size))
-        nError = GetLastError();
+        dwErrCode = GetLastError();
 
     // Free the compressed table, if any
     if(pCompressed != NULL)
         STORM_FREE(pCompressed);
-    return nError;
+    return dwErrCode;
 }
 
-static int SaveExtTable(
+static DWORD SaveExtTable(
     TMPQArchive * ha,
     TMPQExtHeader * pExtTable,
     ULONGLONG ByteOffset,
@@ -1264,7 +1277,7 @@ static int SaveExtTable(
     ULONGLONG FileOffset;
     TMPQExtHeader * pCompressed = NULL;
     DWORD cbTotalSize = 0;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Do we have to compress the table?
     if(bCompress)
@@ -1314,12 +1327,12 @@ static int SaveExtTable(
     if(FileStream_Write(ha->pStream, &FileOffset, pExtTable, dwTableSize))
         cbTotalSize += dwTableSize;
     else
-        nError = GetLastError();
+        dwErrCode = GetLastError();
 
     // We have to write raw data MD5
-    if(nError == ERROR_SUCCESS && ha->pHeader->dwRawChunkSize != 0)
+    if(dwErrCode == ERROR_SUCCESS && ha->pHeader->dwRawChunkSize != 0)
     {
-        nError = WriteMemDataMD5(ha->pStream,
+        dwErrCode = WriteMemDataMD5(ha->pStream,
                                  FileOffset,
                                  pExtTable,
                                  dwTableSize,
@@ -1334,7 +1347,7 @@ static int SaveExtTable(
     // Free the compressed table, if any
     if(pCompressed != NULL)
         STORM_FREE(pCompressed);
-    return nError;
+    return dwErrCode;
 }
 
 //-----------------------------------------------------------------------------
@@ -1430,7 +1443,7 @@ TMPQHetTable * CreateHetTable(DWORD dwEntryCount, DWORD dwTotalCount, DWORD dwNa
     return NULL;
 }
 
-static int InsertHetEntry(TMPQHetTable * pHetTable, ULONGLONG FileNameHash, DWORD dwFileIndex)
+static DWORD InsertHetEntry(TMPQHetTable * pHetTable, ULONGLONG FileNameHash, DWORD dwFileIndex)
 {
     DWORD StartIndex;
     DWORD Index;
@@ -2149,7 +2162,7 @@ void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * sz
     return pFreeEntry;
 }
 
-int RenameFileEntry(
+DWORD RenameFileEntry(
     TMPQArchive * ha,
     TMPQFile * hf,
     const char * szNewFileName)
@@ -2197,7 +2210,7 @@ int RenameFileEntry(
     return ERROR_SUCCESS;
 }
 
-int DeleteFileEntry(TMPQArchive * ha, TMPQFile * hf)
+DWORD DeleteFileEntry(TMPQArchive * ha, TMPQFile * hf)
 {
     TFileEntry * pFileEntry = hf->pFileEntry;
     TMPQHash * pHashEntry = hf->pHashEntry;
@@ -2240,7 +2253,7 @@ DWORD InvalidateInternalFile(TMPQArchive * ha, const char * szFileName, DWORD dw
 {
     TMPQFile * hf = NULL;
     DWORD dwFileFlags = MPQ_FILE_DEFAULT_INTERNAL;
-    int nError = ERROR_FILE_NOT_FOUND;
+    DWORD dwErrCode = ERROR_FILE_NOT_FOUND;
 
     // Open the file from the MPQ
     if(SFileOpenFileEx((HANDLE)ha, szFileName, SFILE_OPEN_BASE_FILE, (HANDLE *)&hf))
@@ -2249,8 +2262,8 @@ DWORD InvalidateInternalFile(TMPQArchive * ha, const char * szFileName, DWORD dw
         dwFileFlags = hf->pFileEntry->dwFlags;
 
         // Delete the file entry
-        nError = DeleteFileEntry(ha, hf);
-        if(nError == ERROR_SUCCESS)
+        dwErrCode = DeleteFileEntry(ha, hf);
+        if(dwErrCode == ERROR_SUCCESS)
             dwForceAddTheFile = 1;
 
         // Close the file
@@ -2310,7 +2323,7 @@ void InvalidateInternalFiles(TMPQArchive * ha)
 //-----------------------------------------------------------------------------
 // Support for file tables - hash table, block table, hi-block table
 
-int CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize)
+DWORD CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize)
 {
     TMPQHash * pHashTable;
 
@@ -2342,7 +2355,7 @@ static TMPQHash * LoadHashTable(TMPQArchive * ha)
     TMPQHash * pHashTable = NULL;
     DWORD dwTableSize;
     DWORD dwCmpSize;
-    bool bHashTableIsCut = false;
+    DWORD dwRealTableSize;
 
     // Note: It is allowed to load hash table if it is at offset 0.
     // Example: MPQ_2016_v1_ProtectedMap_HashOffsIsZero.w3x
@@ -2364,12 +2377,15 @@ static TMPQHash * LoadHashTable(TMPQArchive * ha)
             dwCmpSize = (DWORD)pHeader->HashTableSize64;
 
             // Read, decrypt and uncompress the hash table
-            pHashTable = (TMPQHash *)LoadMpqTable(ha, ByteOffset, pHeader->MD5_HashTable, dwCmpSize, dwTableSize, g_dwHashTableKey, &bHashTableIsCut);
+            pHashTable = (TMPQHash *)LoadMpqTable(ha, ByteOffset, pHeader->MD5_HashTable, dwCmpSize, dwTableSize, g_dwHashTableKey, &dwRealTableSize);
 //          DumpHashTable(pHashTable, pHeader->dwHashTableSize);
 
             // If the hash table was cut, we can/have to defragment it
-            if(pHashTable != NULL && bHashTableIsCut)
+            if(pHashTable != NULL && dwRealTableSize != 0 && dwRealTableSize < dwTableSize)
+            {
+                ha->dwRealHashTableSize = dwRealTableSize;
                 ha->dwFlags |= (MPQ_FLAG_MALFORMED | MPQ_FLAG_HASH_TABLE_CUT);
+            }
             break;
 
         case MPQ_SUBTYPE_SQP:
@@ -2385,7 +2401,7 @@ static TMPQHash * LoadHashTable(TMPQArchive * ha)
     return pHashTable;
 }
 
-/*int CreateFileTable(TMPQArchive * ha, DWORD dwFileTableSize)
+/*DWORD CreateFileTable(TMPQArchive * ha, DWORD dwFileTableSize)
 {
     ha->pFileTable = STORM_ALLOC(TFileEntry, dwFileTableSize);
     if(ha->pFileTable == NULL)
@@ -2403,7 +2419,7 @@ TMPQBlock * LoadBlockTable(TMPQArchive * ha, bool /* bDontFixEntries */)
     ULONGLONG ByteOffset;
     DWORD dwTableSize;
     DWORD dwCmpSize;
-    bool bBlockTableIsCut = false;
+    DWORD dwRealTableSize;
 
     // Note: It is possible that the block table starts at offset 0
     // Example: MPQ_2016_v1_ProtectedMap_HashOffsIsZero.w3x
@@ -2425,10 +2441,10 @@ TMPQBlock * LoadBlockTable(TMPQArchive * ha, bool /* bDontFixEntries */)
             dwCmpSize = (DWORD)pHeader->BlockTableSize64;
 
             // Read, decrypt and uncompress the block table
-            pBlockTable = (TMPQBlock * )LoadMpqTable(ha, ByteOffset, NULL, dwCmpSize, dwTableSize, g_dwBlockTableKey, &bBlockTableIsCut);
+            pBlockTable = (TMPQBlock * )LoadMpqTable(ha, ByteOffset, NULL, dwCmpSize, dwTableSize, g_dwBlockTableKey, &dwRealTableSize);
 
             // If the block table was cut, we need to remember it
-            if(pBlockTable != NULL && bBlockTableIsCut)
+            if(pBlockTable != NULL && dwRealTableSize && dwRealTableSize < dwTableSize)
                 ha->dwFlags |= (MPQ_FLAG_MALFORMED | MPQ_FLAG_BLOCK_TABLE_CUT);
             break;
 
@@ -2493,7 +2509,7 @@ TMPQBetTable * LoadBetTable(TMPQArchive * ha)
 }
 #endif // FULL
 
-int LoadAnyHashTable(TMPQArchive * ha)
+DWORD LoadAnyHashTable(TMPQArchive * ha)
 {
     TMPQHeader * pHeader = ha->pHeader;
 
@@ -2524,11 +2540,11 @@ int LoadAnyHashTable(TMPQArchive * ha)
     return ERROR_SUCCESS;
 }
 
-static int BuildFileTable_Classic(TMPQArchive * ha)
+static DWORD BuildFileTable_Classic(TMPQArchive * ha)
 {
     TMPQHeader * pHeader = ha->pHeader;
     TMPQBlock * pBlockTable;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Sanity checks
     assert(ha->pHashTable != NULL);
@@ -2544,16 +2560,16 @@ static int BuildFileTable_Classic(TMPQArchive * ha)
     pBlockTable = (TMPQBlock *)LoadBlockTable(ha);
     if(pBlockTable != NULL)
     {
-        nError = BuildFileTableFromBlockTable(ha, pBlockTable);
+        dwErrCode = BuildFileTableFromBlockTable(ha, pBlockTable);
         STORM_FREE(pBlockTable);
     }
     else
     {
-        nError = ERROR_NOT_ENOUGH_MEMORY;
+        dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // Load the hi-block table
-    if(nError == ERROR_SUCCESS && pHeader->HiBlockTablePos64 != 0)
+    if(dwErrCode == ERROR_SUCCESS && pHeader->HiBlockTablePos64 != 0)
     {
         ULONGLONG ByteOffset;
         USHORT * pHiBlockTable = NULL;
@@ -2567,10 +2583,10 @@ static int BuildFileTable_Classic(TMPQArchive * ha)
             // Load the hi-block table. It is not encrypted, nor compressed
             ByteOffset = ha->MpqPos + pHeader->HiBlockTablePos64;
             if(!FileStream_Read(ha->pStream, &ByteOffset, pHiBlockTable, dwTableSize))
-                nError = GetLastError();
+                dwErrCode = GetLastError();
 
             // Now merge the hi-block table to the file table
-            if(nError == ERROR_SUCCESS)
+            if(dwErrCode == ERROR_SUCCESS)
             {
                 TFileEntry * pFileEntry = ha->pFileTable;
 
@@ -2587,15 +2603,15 @@ static int BuildFileTable_Classic(TMPQArchive * ha)
         }
         else
         {
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
         }
     }
 
-    return nError;
+    return dwErrCode;
 }
 
 #ifdef FULL
-static int BuildFileTable_HetBet(TMPQArchive * ha)
+static DWORD BuildFileTable_HetBet(TMPQArchive * ha)
 {
     TMPQHetTable * pHetTable = ha->pHetTable;
     TMPQBetTable * pBetTable;
@@ -2603,7 +2619,7 @@ static int BuildFileTable_HetBet(TMPQArchive * ha)
     TMPQBits * pBitArray;
     DWORD dwBitPosition = 0;
     DWORD i;
-    int nError = ERROR_FILE_CORRUPT;
+    DWORD dwErrCode = ERROR_FILE_CORRUPT;
 
     // Load the BET table from the MPQ
     pBetTable = LoadBetTable(ha);
@@ -2696,18 +2712,18 @@ static int BuildFileTable_HetBet(TMPQArchive * ha)
 
         // Set the current size of the file table
         FreeBetTable(pBetTable);
-        nError = ERROR_SUCCESS;
+        dwErrCode = ERROR_SUCCESS;
     }
     else
     {
-        nError = ERROR_FILE_CORRUPT;
+        dwErrCode = ERROR_FILE_CORRUPT;
     }
 
-    return nError;
+    return dwErrCode;
 }
 #endif
 
-int BuildFileTable(TMPQArchive * ha)
+DWORD BuildFileTable(TMPQArchive * ha)
 {
     DWORD dwFileTableSize;
     bool bFileTableCreated = false;
@@ -2777,7 +2793,7 @@ void UpdateBlockTableSize(TMPQArchive * ha)
 
 #ifdef FULL
 // Defragment the file table so it does not contain any gaps
-int DefragmentFileTable(TMPQArchive * ha)
+DWORD DefragmentFileTable(TMPQArchive * ha)
 {
     TFileEntry * pFileTableEnd = ha->pFileTable + ha->dwFileTableSize;
     TFileEntry * pSource = ha->pFileTable;
@@ -2813,13 +2829,13 @@ int DefragmentFileTable(TMPQArchive * ha)
                 // Update the block table size
                 dwBlockTableSize = (DWORD)(pTarget - ha->pFileTable);
             }
-			else
-			{
-				// If there is file name left, free it
-				if(pSource->szFileName != NULL)
-					STORM_FREE(pSource->szFileName);
-				pSource->szFileName = NULL;
-			}
+            else
+            {
+                // If there is file name left, free it
+                if(pSource->szFileName != NULL)
+                    STORM_FREE(pSource->szFileName);
+                pSource->szFileName = NULL;
+            }
         }
 
         // Did we defragment something?
@@ -2860,13 +2876,13 @@ int DefragmentFileTable(TMPQArchive * ha)
 
 // Rebuilds the HET table from scratch based on the file table
 // Used after a modifying operation (add, rename, delete)
-int RebuildHetTable(TMPQArchive * ha)
+DWORD RebuildHetTable(TMPQArchive * ha)
 {
     TMPQHetTable * pOldHetTable = ha->pHetTable;
     TFileEntry * pFileTableEnd;
     TFileEntry * pFileEntry;
     DWORD dwBlockTableSize = ha->dwFileTableSize;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // If we are in the state of saving MPQ tables, the real size of block table
     // must already have been calculated. Use that value instead
@@ -2888,8 +2904,8 @@ int RebuildHetTable(TMPQArchive * ha)
             if(pFileEntry->dwFlags & MPQ_FILE_EXISTS)
             {
                 // Get the high
-                nError = InsertHetEntry(ha->pHetTable, pFileEntry->FileNameHash, (DWORD)(pFileEntry - ha->pFileTable));
-                if(nError != ERROR_SUCCESS)
+                dwErrCode = InsertHetEntry(ha->pHetTable, pFileEntry->FileNameHash, (DWORD)(pFileEntry - ha->pFileTable));
+                if(dwErrCode != ERROR_SUCCESS)
                     break;
             }
         }
@@ -2897,19 +2913,19 @@ int RebuildHetTable(TMPQArchive * ha)
 
     // Free the old HET table
     FreeHetTable(pOldHetTable);
-    return nError;
+    return dwErrCode;
 }
 
 // Rebuilds the file table, removing all deleted file entries.
 // Used when compacting the archive
-int RebuildFileTable(TMPQArchive * ha, DWORD dwNewHashTableSize)
+DWORD RebuildFileTable(TMPQArchive * ha, DWORD dwNewHashTableSize)
 {
     TFileEntry * pFileEntry;
     TMPQHash * pHashTableEnd = ha->pHashTable + ha->pHeader->dwHashTableSize;
     TMPQHash * pOldHashTable = ha->pHashTable;
     TMPQHash * pHashTable = NULL;
     TMPQHash * pHash;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // The new hash table size must be greater or equal to the current hash table size
     assert(dwNewHashTableSize >= ha->pHeader->dwHashTableSize);
@@ -2928,15 +2944,15 @@ int RebuildFileTable(TMPQArchive * ha, DWORD dwNewHashTableSize)
     }
 
     // Allocate new hash table
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         pHashTable = STORM_ALLOC(TMPQHash, dwNewHashTableSize);
         if(pHashTable == NULL)
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // If both succeeded, we need to rebuild the file table
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         // Make sure that the hash table is properly filled
         memset(pHashTable, 0xFF, sizeof(TMPQHash) * dwNewHashTableSize);
@@ -2964,11 +2980,11 @@ int RebuildFileTable(TMPQArchive * ha, DWORD dwNewHashTableSize)
     // Now free the remaining entries
     if(pOldHashTable != NULL)
         STORM_FREE(pOldHashTable);
-    return nError;
+    return dwErrCode;
 }
 
 // Saves MPQ header, hash table, block table and hi-block table.
-int SaveMPQTables(TMPQArchive * ha)
+DWORD SaveMPQTables(TMPQArchive * ha)
 {
     TMPQExtHeader * pHetTable = NULL;
     TMPQExtHeader * pBetTable = NULL;
@@ -2984,7 +3000,7 @@ int SaveMPQTables(TMPQArchive * ha)
     USHORT * pHiBlockTable = NULL;
     DWORD cbTotalSize;
     bool bNeedHiBlockTable = false;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // We expect this function to be called only when tables have been changed
     assert(ha->dwFlags & MPQ_FLAG_CHANGED);
@@ -2993,87 +3009,87 @@ int SaveMPQTables(TMPQArchive * ha)
     TablePos = FindFreeMpqSpace(ha);
 
     // If the MPQ has HET table, we prepare a ready-to-save version
-    if(nError == ERROR_SUCCESS && ha->pHetTable != NULL)
+    if(dwErrCode == ERROR_SUCCESS && ha->pHetTable != NULL)
     {
         pHetTable = TranslateHetTable(ha->pHetTable, &HetTableSize64);
         if(pHetTable == NULL)
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // If the MPQ has HET table, we also must create BET table to be saved
-    if(nError == ERROR_SUCCESS && ha->pHetTable != NULL)
+    if(dwErrCode == ERROR_SUCCESS && ha->pHetTable != NULL)
     {
         pBetTable = TranslateBetTable(ha, &BetTableSize64);
         if(pBetTable == NULL)
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // Now create hash table
-    if(nError == ERROR_SUCCESS && ha->pHashTable != NULL)
+    if(dwErrCode == ERROR_SUCCESS && ha->pHashTable != NULL)
     {
         pHashTable = TranslateHashTable(ha, &HashTableSize64);
         if(pHashTable == NULL)
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // Create block table
-    if(nError == ERROR_SUCCESS && ha->pFileTable != NULL)
+    if(dwErrCode == ERROR_SUCCESS && ha->pFileTable != NULL)
     {
         pBlockTable = TranslateBlockTable(ha, &BlockTableSize64, &bNeedHiBlockTable);
         if(pBlockTable == NULL)
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // Create hi-block table, if needed
-    if(nError == ERROR_SUCCESS && bNeedHiBlockTable)
+    if(dwErrCode == ERROR_SUCCESS && bNeedHiBlockTable)
     {
         pHiBlockTable = TranslateHiBlockTable(ha, &HiBlockTableSize64);
         if(pHiBlockTable == NULL)
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // Write the HET table, if any
-    if(nError == ERROR_SUCCESS && pHetTable != NULL)
+    if(dwErrCode == ERROR_SUCCESS && pHetTable != NULL)
     {
         pHeader->HetTableSize64 = HetTableSize64;
         pHeader->HetTablePos64  = TablePos;
-        nError = SaveExtTable(ha, pHetTable, TablePos, (DWORD)HetTableSize64, pHeader->MD5_HetTable, MPQ_KEY_HASH_TABLE, false, &cbTotalSize);
+        dwErrCode = SaveExtTable(ha, pHetTable, TablePos, (DWORD)HetTableSize64, pHeader->MD5_HetTable, MPQ_KEY_HASH_TABLE, false, &cbTotalSize);
         TablePos += cbTotalSize;
     }
 
     // Write the BET table, if any
-    if(nError == ERROR_SUCCESS && pBetTable != NULL)
+    if(dwErrCode == ERROR_SUCCESS && pBetTable != NULL)
     {
         pHeader->BetTableSize64 = BetTableSize64;
         pHeader->BetTablePos64  = TablePos;
-        nError = SaveExtTable(ha, pBetTable, TablePos, (DWORD)BetTableSize64, pHeader->MD5_BetTable, MPQ_KEY_BLOCK_TABLE, false, &cbTotalSize);
+        dwErrCode = SaveExtTable(ha, pBetTable, TablePos, (DWORD)BetTableSize64, pHeader->MD5_BetTable, MPQ_KEY_BLOCK_TABLE, false, &cbTotalSize);
         TablePos += cbTotalSize;
     }
 
     // Write the hash table, if we have any
-    if(nError == ERROR_SUCCESS && pHashTable != NULL)
+    if(dwErrCode == ERROR_SUCCESS && pHashTable != NULL)
     {
         pHeader->HashTableSize64 = HashTableSize64;
         pHeader->wHashTablePosHi = (USHORT)(TablePos >> 32);
         pHeader->dwHashTableSize = (DWORD)(HashTableSize64 / sizeof(TMPQHash));
         pHeader->dwHashTablePos = (DWORD)TablePos;
-        nError = SaveMpqTable(ha, pHashTable, TablePos, (size_t)HashTableSize64, pHeader->MD5_HashTable, MPQ_KEY_HASH_TABLE, false);
+        dwErrCode = SaveMpqTable(ha, pHashTable, TablePos, (size_t)HashTableSize64, pHeader->MD5_HashTable, MPQ_KEY_HASH_TABLE, false);
         TablePos += HashTableSize64;
     }
 
     // Write the block table, if we have any
-    if(nError == ERROR_SUCCESS && pBlockTable != NULL)
+    if(dwErrCode == ERROR_SUCCESS && pBlockTable != NULL)
     {
         pHeader->BlockTableSize64 = BlockTableSize64;
         pHeader->wBlockTablePosHi = (USHORT)(TablePos >> 32);
         pHeader->dwBlockTableSize = (DWORD)(BlockTableSize64 / sizeof(TMPQBlock));
         pHeader->dwBlockTablePos = (DWORD)TablePos;
-        nError = SaveMpqTable(ha, pBlockTable, TablePos, (size_t)BlockTableSize64, pHeader->MD5_BlockTable, MPQ_KEY_BLOCK_TABLE, false);
+        dwErrCode = SaveMpqTable(ha, pBlockTable, TablePos, (size_t)BlockTableSize64, pHeader->MD5_BlockTable, MPQ_KEY_BLOCK_TABLE, false);
         TablePos += BlockTableSize64;
     }
 
     // Write the hi-block table, if we have any
-    if(nError == ERROR_SUCCESS && pHiBlockTable != NULL)
+    if(dwErrCode == ERROR_SUCCESS && pHiBlockTable != NULL)
     {
         ULONGLONG ByteOffset = ha->MpqPos + TablePos;
 
@@ -3082,21 +3098,21 @@ int SaveMPQTables(TMPQArchive * ha)
         BSWAP_ARRAY16_UNSIGNED(pHiBlockTable, HiBlockTableSize64);
 
         if(!FileStream_Write(ha->pStream, &ByteOffset, pHiBlockTable, (DWORD)HiBlockTableSize64))
-            nError = GetLastError();
+            dwErrCode = GetLastError();
         TablePos += HiBlockTableSize64;
     }
 
     // Cut the MPQ
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         ULONGLONG FileSize = ha->MpqPos + TablePos;
 
         if(!FileStream_SetSize(ha->pStream, FileSize))
-            nError = GetLastError();
+            dwErrCode = GetLastError();
     }
 
     // Write the MPQ header
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         TMPQHeader SaveMpqHeader;
 
@@ -3114,11 +3130,11 @@ int SaveMPQTables(TMPQArchive * ha)
         BSWAP_TMPQHEADER(&SaveMpqHeader, MPQ_FORMAT_VERSION_3);
         BSWAP_TMPQHEADER(&SaveMpqHeader, MPQ_FORMAT_VERSION_4);
         if(!FileStream_Write(ha->pStream, &ha->MpqPos, &SaveMpqHeader, pHeader->dwHeaderSize))
-            nError = GetLastError();
+            dwErrCode = GetLastError();
     }
 
     // Clear the changed flag
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
         ha->dwFlags &= ~MPQ_FLAG_CHANGED;
 
     // Cleanup and exit
@@ -3132,6 +3148,6 @@ int SaveMPQTables(TMPQArchive * ha)
         STORM_FREE(pBlockTable);
     if(pHiBlockTable != NULL)
         STORM_FREE(pHiBlockTable);
-    return nError;
+    return dwErrCode;
 }
 #endif // FULL

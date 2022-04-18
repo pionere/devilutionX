@@ -25,7 +25,7 @@
 /*                      hash table                                           */
 /* 08.12.03  4.11  DCH  Fixed bug in reading file sector larger than 0x1000  */
 /*                      on certain files.                                    */
-/*                      Fixed bug in AddFile with MPQ_FILE_REPLACE_EXISTING  */
+/*                      Fixed bug in AddFile with MPQ_FILE_REPLACEEXISTING  */
 /*                      (Thanx Daniel Chiamarello, dchiamarello@madvawes.com)*/
 /* 21.12.03  4.50  Lad  Completed port for Mac                               */
 /*                      Fixed bug in compacting (if fsize is mul of 0x1000)  */
@@ -171,8 +171,6 @@ extern "C" {
 #define HET_ENTRY_DELETED                 0x80  // NameHash1 value for a deleted entry
 #define HET_ENTRY_FREE                    0x00  // NameHash1 value for free entry
 
-#define HASH_STATE_SIZE                   0x60  // Size of LibTomCrypt's hash_state structure
-
 // Values for SFileOpenArchive
 #define SFILE_OPEN_HARD_DISK_FILE            2  // Open the archive on HDD
 #define SFILE_OPEN_CDROM_FILE                3  // Open the archive only if it is on CDROM
@@ -193,7 +191,7 @@ extern "C" {
 #define MPQ_FLAG_CHECK_SECTOR_CRC   0x00000020  // Checking sector CRC when reading files
 #define MPQ_FLAG_SAVING_TABLES      0x00000040  // If set, we are saving MPQ internal files and MPQ tables
 #define MPQ_FLAG_PATCH              0x00000080  // If set, this MPQ is a patch archive
-#define MPQ_FLAG_WAR3_MAP           0x00000100  // If set, this MPQ is a map for Warcraft III
+#define MPQ_FLAG_WAR3_MAP           0x00000100  // If set, this MPQ is a Warcraft III map
 #define MPQ_FLAG_LISTFILE_NONE      0x00000200  // Set when no (listfile) was found in InvalidateInternalFiles
 #define MPQ_FLAG_LISTFILE_NEW       0x00000400  // Set when (listfile) invalidated by InvalidateInternalFiles
 #define MPQ_FLAG_LISTFILE_FORCE     0x00000800  // Save updated listfile on exit
@@ -250,12 +248,18 @@ extern "C" {
                                   MPQ_FILE_SIGNATURE     |  \
                                   MPQ_FILE_EXISTS)
 
+#define MPQ_FILE_VALID_FLAGS_SCX (MPQ_FILE_IMPLODE       |  \
+                                  MPQ_FILE_COMPRESS      |  \
+                                  MPQ_FILE_ENCRYPTED     |  \
+                                  MPQ_FILE_FIX_KEY       |  \
+                                  MPQ_FILE_EXISTS)
+
 // We need to mask out the upper 4 bits of the block table index.
 // This is because it gets shifted out when calculating block table offset
 // BlockTableOffset = pHash->dwBlockIndex << 0x04
 // Malformed MPQ maps may contain block indexes like 0x40000001 or 0xF0000023
 #define BLOCK_INDEX_MASK          0x0FFFFFFF
-#define MPQ_BLOCK_INDEX(pHash) (pHash->dwBlockIndex & BLOCK_INDEX_MASK)
+#define MPQ_BLOCK_INDEX(pHash) ((pHash)->dwBlockIndex & BLOCK_INDEX_MASK)
 
 // Compression types for multiple compressions
 #define MPQ_COMPRESSION_HUFFMANN          0x01  // Huffmann compression (used on WAVE files only)
@@ -479,8 +483,8 @@ typedef void (WINAPI * SFILE_DOWNLOAD_CALLBACK)(void * pvUserData, ULONGLONG Byt
 typedef void (WINAPI * SFILE_ADDFILE_CALLBACK)(void * pvUserData, DWORD dwBytesWritten, DWORD dwTotalBytes, bool bFinalCall);
 typedef void (WINAPI * SFILE_COMPACT_CALLBACK)(void * pvUserData, DWORD dwWorkType, ULONGLONG BytesProcessed, ULONGLONG TotalBytes);
 
-struct TFileStream;
-struct TMPQBits;
+typedef struct TFileStream TFileStream;
+typedef struct TMPQBits TMPQBits;
 
 //-----------------------------------------------------------------------------
 // Structures related to MPQ format
@@ -631,8 +635,8 @@ typedef struct _TMPQHash
 
 #else
 
-    BYTE   Platform;
     BYTE   Reserved;
+    BYTE   Platform;
     USHORT lcLocale;
 
 #endif
@@ -839,6 +843,8 @@ typedef struct _TMPQArchive
     DWORD          dwFileFlags2;                // Flags for (attributes)
     DWORD          dwFileFlags3;                // Flags for (signature)
     DWORD          dwAttrFlags;                 // Flags for the (attributes) file, see MPQ_ATTRIBUTE_XXX
+    DWORD          dwValidFileFlags;            // Valid flags for the current MPQ
+    DWORD          dwRealHashTableSize;         // Real size of the hash table, if MPQ_FLAG_HASH_TABLE_CUT is zet in dwFlags
     DWORD          dwFlags;                     // See MPQ_FLAG_XXXXX
     DWORD          dwSubType;                   // See MPQ_SUBTYPE_XXX
 
@@ -881,10 +887,10 @@ typedef struct _TMPQFile
     DWORD          dwSectorOffs;                // File position of currently loaded file sector
     DWORD          dwSectorSize;                // Size of the file sector. For single unit files, this is equal to the file size
 
-    unsigned char  hctx[HASH_STATE_SIZE];       // Hash state for MD5. Used when saving file to MPQ
+    void         * hctx;                        // Hash state for MD5. Used when saving file to MPQ
     DWORD          dwCrc32;                     // CRC32 value, used when saving file to MPQ
 
-    int            nAddFileError;               // Result of the "Add File" operations
+    DWORD          dwAddFileError;              // Result of the "Add File" operations
 
     bool           bLoadedSectorCRCs;           // If true, we already tried to load sector CRCs
     bool           bCheckSectorCRCs;            // If true, then SFileReadFile will check sector CRCs when reading the file
@@ -1018,7 +1024,7 @@ void   WINAPI SFileCloseArchive(HANDLE hMpq);
 // Adds another listfile into MPQ. The currently added listfile(s) remain,
 // so you can use this API to combining more listfiles.
 // Note that this function is internally called by SFileFindFirstFile
-//int    WINAPI SFileAddListFile(HANDLE hMpq, const TCHAR * szListFile);
+//DWORD  WINAPI SFileAddListFile(HANDLE hMpq, const TCHAR * szListFile);
 
 // Archive compacting
 //bool   WINAPI SFileSetCompactCallback(HANDLE hMpq, SFILE_COMPACT_CALLBACK CompactCB, void * pvUserData);
@@ -1074,7 +1080,7 @@ bool   WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass);
 //DWORD  WINAPI SFileVerifyFile(HANDLE hMpq, const char * szFileName, DWORD dwFlags);
 
 // Verifies raw data of the archive. Only works for MPQs version 4 or newer
-//int    WINAPI SFileVerifyRawData(HANDLE hMpq, DWORD dwWhatToVerify, const char * szFileName);
+//DWORD  WINAPI SFileVerifyRawData(HANDLE hMpq, DWORD dwWhatToVerify, const char * szFileName);
 
 // Verifies the signature, if present
 //bool   WINAPI SFileSignArchive(HANDLE hMpq, DWORD dwSignatureType);
@@ -1092,7 +1098,7 @@ bool   WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass);
 //bool   WINAPI SListFileFindClose(HANDLE hFind);
 
 // Locale support
-//int    WINAPI SFileEnumLocales(HANDLE hMpq, const char * szFileName, LCID * plcLocales, LPDWORD pdwMaxLocales, DWORD dwSearchScope);
+//DWORD  WINAPI SFileEnumLocales(HANDLE hMpq, const char * szFileName, LCID * plcLocales, LPDWORD pdwMaxLocales, DWORD dwSearchScope);
 
 //-----------------------------------------------------------------------------
 // Support for adding files to the MPQ
@@ -1101,7 +1107,7 @@ bool   WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass);
 //bool   WINAPI SFileWriteFile(HANDLE hFile, const void * pvData, DWORD dwSize, DWORD dwCompression);
 //bool   WINAPI SFileFinishFile(HANDLE hFile);
 
-//bool   WINAPI SFileAddFileEx(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwCompression, DWORD dwCompressionNext = MPQ_COMPRESSION_NEXT_SAME);
+//bool   WINAPI SFileAddFileEx(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwCompression, DWORD dwCompressionNext);
 //bool   WINAPI SFileAddFile(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags); 
 //bool   WINAPI SFileAddWave(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwQuality); 
 //bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope);
