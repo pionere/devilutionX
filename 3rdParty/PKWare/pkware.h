@@ -125,6 +125,18 @@ typedef struct
                                             // Defined as 12596 in pkware headers
 
 //-----------------------------------------------------------------------------
+// Tables (in explode.c)
+
+extern const unsigned char DistBits[0x40];
+extern const unsigned char DistCode[0x40];
+extern const unsigned char ExLenBits[0x10];
+// extern const unsigned short LenBase[0x10];
+extern const unsigned char LenBits[0x10];
+extern const unsigned char LenCode[0x10];
+extern const unsigned char ChBitsAsc[0x100];
+extern const unsigned short ChCodeAsc[0x100];
+
+//-----------------------------------------------------------------------------
 // Public functions
 
 #ifdef __cplusplus
