@@ -55,12 +55,12 @@ static bool mainmenu_multi_player()
 static void mainmenu_play_intro()
 {
 #ifndef HOSTONLY
-	music_stop();
+	// music_stop(); -- no need to stop/start music, play_movie takes care about it
 	// Set the background to black.
 	ClearScreenBuffer();
 	scrollrt_draw_screen(false);
 	play_movie(INTRO_ARCHIVE, MOV_SKIP);
-	mainmenu_refresh_music();
+	// mainmenu_refresh_music();
 #endif
 }
 
