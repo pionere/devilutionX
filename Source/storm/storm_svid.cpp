@@ -311,7 +311,9 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 #endif
 
 	// Set the background to black.
-	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
+	// commented out because the background is supposed to be black at this point
+	// due to RecreateDisplay, this should be done twice anyway...
+	// SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
 
 	// Copy frame to buffer
 	SVidSurface = SDL_CreateRGBSurfaceWithFormatFrom(

@@ -56,6 +56,9 @@ static void mainmenu_play_intro()
 {
 #ifndef HOSTONLY
 	music_stop();
+	// Set the background to black.
+	ClearScreenBuffer();
+	scrollrt_draw_screen(false);
 	play_movie(INTRO_ARCHIVE, MOV_SKIP);
 	mainmenu_refresh_music();
 #endif
