@@ -1968,7 +1968,7 @@ typedef struct TDataInfo {
 	BYTE* const destData;
 	DWORD destOffset;
 	const DWORD size;
-	TDataInfo(BYTE* src, BYTE* dst, DWORD s) : srcData(src), destData(dst), size(s), srcOffset(0), destOffset(0) {
+	TDataInfo(BYTE* src, BYTE* dst, DWORD s) : srcData(src), srcOffset(0), destData(dst), destOffset(0), size(s) {
 	}
 } TDataInfo;
 
