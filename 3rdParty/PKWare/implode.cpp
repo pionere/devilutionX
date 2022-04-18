@@ -696,7 +696,7 @@ unsigned int PKWAREAPI implode(
 #endif
             break;
 
-
+#ifdef FULL
         case CMP_ASCII: // We will compress data with ASCII compression type
             for(nCount = 0; nCount < 0x100; nCount++)
             {
@@ -704,7 +704,7 @@ unsigned int PKWAREAPI implode(
                 pWork->nChCodes[nCount] = (unsigned short)(ChCodeAsc[nCount] * 2);
             }
             break;
-
+#endif
         default:
             return CMP_INVALID_MODE;
     }

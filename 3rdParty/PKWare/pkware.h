@@ -133,9 +133,10 @@ extern const unsigned char ExLenBits[0x10];
 // extern const unsigned short LenBase[0x10];
 extern const unsigned char LenBits[0x10];
 extern const unsigned char LenCode[0x10];
+#ifdef FULL
 extern const unsigned char ChBitsAsc[0x100];
 extern const unsigned short ChCodeAsc[0x100];
-
+#endif
 //-----------------------------------------------------------------------------
 // Public functions
 
