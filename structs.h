@@ -1963,11 +1963,13 @@ typedef struct _PcxHeader {
 //////////////////////////////////////////////////
 
 typedef struct TDataInfo {
-	BYTE* srcData;
+	BYTE* const srcData;
 	DWORD srcOffset;
-	BYTE* destData;
+	BYTE* const destData;
 	DWORD destOffset;
-	DWORD size;
+	const DWORD size;
+	TDataInfo(BYTE* src, BYTE* dst, DWORD s) : srcData(src), destData(dst), size(s), srcOffset(0), destOffset(0) {
+	}
 } TDataInfo;
 
 DEVILUTION_END_NAMESPACE
