@@ -417,11 +417,11 @@ ULONGLONG CalculateRawSectorOffset(
     RawFilePos = hf->RawFilePos + dwSectorOffset;
     if(hf->ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
         RawFilePos = (DWORD)hf->ha->MpqPos + (DWORD)hf->pFileEntry->ByteOffset + dwSectorOffset;
-
+#ifdef FULL
     // We also have to add patch header size, if patch header is present
     if(hf->pPatchInfo != NULL)
         RawFilePos += hf->pPatchInfo->dwLength;
-
+#endif
     // Return the result offset
     return RawFilePos;
 }
@@ -450,13 +450,17 @@ DWORD ConvertMpqHeaderToFormat4(
 
     // If version 1.0 is forced, then the format version is forced to be 1.0
     // Reason: Storm.dll in Warcraft III ignores format version value
+#ifdef FULL
     if((MapType == MapTypeWarcraft3) || (dwFlags & MPQ_OPEN_FORCE_MPQ_V1))
+#else
+    if(dwFlags & MPQ_OPEN_FORCE_MPQ_V1)
+#endif
         wFormatVersion = MPQ_FORMAT_VERSION_1;
-
+#ifdef FULL
     // Don't accept format 3 for Starcraft II maps
     if((MapType == MapTypeStarcraft2) && (pHeader->wFormatVersion > MPQ_FORMAT_VERSION_2))
         wFormatVersion = MPQ_FORMAT_VERSION_4;
-
+#endif
     // Format-specific fixes
     switch(wFormatVersion)
     {
@@ -1006,9 +1010,12 @@ static DWORD BuildFileTableFromBlockTable(
             pFileEntry->ByteOffset = pBlock->dwFilePos;
             if(pFileEntry->ByteOffset == 0 && pBlock->dwFSize == 0)
                 pFileEntry->ByteOffset = ha->pHeader->dwHeaderSize;
-
+#ifdef FULL
             // Clear file flags that are unknown to this type of map.
             pFileEntry->dwFlags = pBlock->dwFlags & ha->dwValidFileFlags;
+#else
+            pFileEntry->dwFlags = pBlock->dwFlags;
+#endif
 
             // Fill the rest of the file entry
             pFileEntry->dwFileSize = pBlock->dwFSize;
@@ -2383,7 +2390,9 @@ static TMPQHash * LoadHashTable(TMPQArchive * ha)
             // If the hash table was cut, we can/have to defragment it
             if(pHashTable != NULL && dwRealTableSize != 0 && dwRealTableSize < dwTableSize)
             {
+#ifdef FULL
                 ha->dwRealHashTableSize = dwRealTableSize;
+#endif
                 ha->dwFlags |= (MPQ_FLAG_MALFORMED | MPQ_FLAG_HASH_TABLE_CUT);
             }
             break;
@@ -2530,7 +2539,11 @@ DWORD LoadAnyHashTable(TMPQArchive * ha)
         ha->pHashTable = LoadHashTable(ha);
 
     // At least one of the tables must be present
+#ifdef FULL
     if(ha->pHetTable == NULL && ha->pHashTable == NULL)
+#else
+    if(ha->pHashTable == NULL)
+#endif
         return ERROR_FILE_CORRUPT;
 
     // Set the maximum file count to the size of the hash table.

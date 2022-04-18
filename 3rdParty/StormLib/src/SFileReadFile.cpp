@@ -129,7 +129,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
                 BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
             }
 
-#ifdef FULL
+#ifdef FULL_CRC
             // If the file has sector CRC check turned on, perform it
             if (hf->bCheckSectorCRCs && hf->SectorChksums != NULL) {
                 DWORD dwAdlerExpected = hf->SectorChksums[dwIndex];
@@ -204,7 +204,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     *pdwBytesRead = dwBytesRead;
     return dwErrCode;
 }
-
+#ifdef FULL
 static DWORD ReadMpqFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
 {
     DWORD dwFilePos = hf->dwFilePos;
@@ -271,7 +271,6 @@ static DWORD ReadMpqFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead,
 
             if (pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE)
                 cbInBuffer = cbInBuffer - sizeof(TPatchInfo);
-#ifdef FULL_COMP
             // Is the file compressed by Blizzard's multiple compression ?
             if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS) {
                 // Remember the last used compression
@@ -287,9 +286,6 @@ static DWORD ReadMpqFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead,
             // Is the file compressed by PKWARE Data Compression Library ?
             // Note: Single unit files compressed with IMPLODE are not supported by Blizzard
             else if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
-#else
-            if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
-#endif
                 nResult = SCompExplode(hf->pbFileSector, &cbOutBuffer, pbRawData, cbInBuffer);
 
             dwErrCode = (nResult != 0) ? ERROR_SUCCESS : ERROR_FILE_CORRUPT;
@@ -375,12 +371,10 @@ static DWORD ReadMpkFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead,
 
         // If the file is compressed, we have to decompress it now
         if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK) {
-#ifdef FULL
             int cbOutBuffer = (int)hf->dwDataSize;
 
             hf->dwCompression0 = pbRawData[0];
             if(!SCompDecompressMpk(hf->pbFileSector, &cbOutBuffer, pbRawData, (int)pFileEntry->dwCmpSize))
-#endif
                 dwErrCode = ERROR_FILE_CORRUPT;
         } else {
             if (pbRawData != hf->pbFileSector)
@@ -419,7 +413,7 @@ static DWORD ReadMpkFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead,
     // An error, sorry
     return ERROR_CAN_NOT_COMPLETE;
 }
-
+#endif
 
 static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesToRead, LPDWORD pdwBytesRead)
 {
@@ -662,10 +656,10 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
             return false;
         }
     }
-#endif
+
     // Clear the last used compression
     hf->dwCompression0 = 0;
-
+#endif
     // If the file is local file, read the data directly from the stream
     if (hf->pStream != NULL) {
         dwErrCode = ReadMpqFileLocalFile(hf, pvBuffer, dwToRead, &dwBytesRead);
@@ -674,13 +668,13 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
     } else if (hf->hfPatch != NULL
      && (hf->pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE) == 0) {
         dwErrCode = ReadMpqFilePatchFile(hf, pvBuffer, dwToRead, &dwBytesRead);
-#endif // FULL
     // If the archive is a MPK archive, we need special way to read the file
     } else if (hf->ha->dwSubType == MPQ_SUBTYPE_MPK) {
         dwErrCode = ReadMpkFileSingleUnit(hf, pvBuffer, dwToRead, &dwBytesRead);
     // If the file is single unit file, redirect it to read file
     } else if(hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT) {
         dwErrCode = ReadMpqFileSingleUnit(hf, pvBuffer, dwToRead, &dwBytesRead);
+#endif
     // Otherwise read it as sector based MPQ file
     } else {
         dwErrCode = ReadMpqFileSectorFile(hf, pvBuffer, dwToRead, &dwBytesRead);

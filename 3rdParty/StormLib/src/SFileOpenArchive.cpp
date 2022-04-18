@@ -276,7 +276,9 @@ HANDLE WINAPI SFileOpenArchive(
         bool bSearchComplete = false;
 
         memset(ha, 0, sizeof(TMPQArchive));
+#ifdef FULL
         ha->dwValidFileFlags = MPQ_FILE_VALID_FLAGS;
+#endif
         ha->pfnHashString = HashStringSlash;
         ha->pStream = pStream;
         pStream = NULL;
@@ -443,7 +445,7 @@ HANDLE WINAPI SFileOpenArchive(
         // Check if the caller wants to force adding listfile
         if(dwFlags & MPQ_OPEN_FORCE_LISTFILE)
             ha->dwFlags |= MPQ_FLAG_LISTFILE_FORCE;
-
+#ifdef FULL
         // Remember whether whis is a map for Warcraft III
         if(MapType == MapTypeWarcraft3)
         {
@@ -454,7 +456,7 @@ HANDLE WINAPI SFileOpenArchive(
         // If this is starcraft map, set the flag mask
         if(MapType == MapTypeStarcraft)
             ha->dwValidFileFlags = MPQ_FILE_VALID_FLAGS_SCX;
-
+#endif
         // Set the size of file sector
         ha->dwSectorSize = (0x200 << ha->pHeader->wSectorSize);
 
@@ -513,7 +515,9 @@ HANDLE WINAPI SFileOpenArchive(
         {
             // Just remember that the archive is weak-signed
             assert((pFileEntry->dwFlags & MPQ_FILE_EXISTS) != 0);
+#ifdef FULL
             ha->dwFileFlags3 = pFileEntry->dwFlags;
+#endif
         }
 
         // Finally, set the MPQ_FLAG_READ_ONLY if the MPQ was found malformed
@@ -663,10 +667,12 @@ void WINAPI SFileCloseArchive(HANDLE hMpq)
         return;// false;
     }
 
+#ifdef FULL
     // Invalidate the add file callback so it won't be called
     // when saving (listfile) and (attributes)
     ha->pfnAddFileCB = NULL;
     ha->pvAddFileUserData = NULL;
+#endif
 
 #ifdef FULL
     // Flush all unsaved data to the storage

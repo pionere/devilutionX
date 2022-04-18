@@ -1191,7 +1191,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
         if(bLoadFromFile)
         {
             ULONGLONG RawFilePos = hf->RawFilePos;
-
+#ifdef FULL
             // Append the length of the patch info, if any
             if(hf->pPatchInfo != NULL)
             {
@@ -1199,7 +1199,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
                     return ERROR_FILE_CORRUPT;
                 RawFilePos += hf->pPatchInfo->dwLength;
             }
-
+#endif
             // Load the sector offsets from the file
             if(!FileStream_Read(ha->pStream, &RawFilePos, hf->SectorOffsets, dwSectorOffsLen))
             {
@@ -1603,6 +1603,7 @@ void FreeFileHandle(TMPQFile *& hf)
 {
     if(hf != NULL)
     {
+#ifdef FULL
         // If we have patch file attached to this one, free it first
         if(hf->hfPatch != NULL)
             FreeFileHandle(hf->hfPatch);
@@ -1612,12 +1613,15 @@ void FreeFileHandle(TMPQFile *& hf)
             STORM_FREE(hf->pbFileData);
         if(hf->pPatchInfo != NULL)
             STORM_FREE(hf->pPatchInfo);
+#endif
         if(hf->SectorOffsets != NULL)
             STORM_FREE(hf->SectorOffsets);
         if(hf->SectorChksums != NULL)
             STORM_FREE(hf->SectorChksums);
+#ifdef FULL
         if(hf->hctx != NULL)
             STORM_FREE(hf->hctx);
+#endif
         if(hf->pbFileSector != NULL)
             STORM_FREE(hf->pbFileSector);
         if(hf->pStream != NULL)
@@ -1632,6 +1636,7 @@ void FreeArchiveHandle(TMPQArchive *& ha)
 {
     if(ha != NULL)
     {
+#ifdef FULL
         // First of all, free the patch archive, if any
         if(ha->haPatch != NULL)
             FreeArchiveHandle(ha->haPatch);
@@ -1639,7 +1644,7 @@ void FreeArchiveHandle(TMPQArchive *& ha)
         // Free the patch prefix, if any
         if(ha->pPatchPrefix != NULL)
             STORM_FREE(ha->pPatchPrefix);
-
+#endif
         // Close the file stream
         FileStream_Close(ha->pStream);
         ha->pStream = NULL;

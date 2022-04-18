@@ -342,11 +342,11 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             if(dwHashIndex != HASH_ENTRY_FREE)
                 hf->pHashEntry = ha->pHashTable + dwHashIndex;
             hf->dwHashIndex = dwHashIndex;
-
+#ifdef FULL_CRC
             // If the MPQ has sector CRC enabled, enable if for the file
             if (ha->dwFlags & MPQ_FLAG_CHECK_SECTOR_CRC)
                 hf->bCheckSectorCRCs = true;
-
+#endif
             // If we know the real file name, copy it to the file entry
             if (bOpenByIndex == false) {
                 // If there is no file name yet, allocate it

@@ -818,36 +818,41 @@ typedef struct _TMPQArchive
     ULONGLONG      UserDataPos;                 // Position of user data (relative to the begin of the file)
     ULONGLONG      MpqPos;                      // MPQ header offset (relative to the begin of the file)
     ULONGLONG      FileSize;                    // Size of the file at the moment of file open
-
+#ifdef FULL
     struct _TMPQArchive * haPatch;              // Pointer to patch archive, if any
     struct _TMPQArchive * haBase;               // Pointer to base ("previous version") archive, if any
     TMPQNamePrefix * pPatchPrefix;              // Patch prefix to precede names of patch files
-
+#endif
     TMPQUserData * pUserData;                   // MPQ user data (NULL if not present in the file)
     TMPQHeader   * pHeader;                     // MPQ file header
     TMPQHash     * pHashTable;                  // Hash table
+#ifdef FULL
     TMPQHetTable * pHetTable;                   // HET table
+#endif
     TFileEntry   * pFileTable;                  // File table
     HASH_STRING    pfnHashString;               // Hashing function that will convert the file name into hash
 
     TMPQUserData   UserData;                    // MPQ user data. Valid only when ID_MPQ_USERDATA has been found
     DWORD          HeaderData[MPQ_HEADER_DWORDS];  // Storage for MPQ header
-
+#ifdef FULL
     DWORD          dwHETBlockSize;
     DWORD          dwBETBlockSize;
+#endif
     DWORD          dwMaxFileCount;              // Maximum number of files in the MPQ. Also total size of the file table.
     DWORD          dwFileTableSize;             // Current size of the file table, e.g. index of the entry past the last occupied one
     DWORD          dwReservedFiles;             // Number of entries reserved for internal MPQ files (listfile, attributes)
     DWORD          dwSectorSize;                // Default size of one file sector
+#ifdef FULL
     DWORD          dwFileFlags1;                // Flags for (listfile)
     DWORD          dwFileFlags2;                // Flags for (attributes)
     DWORD          dwFileFlags3;                // Flags for (signature)
     DWORD          dwAttrFlags;                 // Flags for the (attributes) file, see MPQ_ATTRIBUTE_XXX
     DWORD          dwValidFileFlags;            // Valid flags for the current MPQ
     DWORD          dwRealHashTableSize;         // Real size of the hash table, if MPQ_FLAG_HASH_TABLE_CUT is zet in dwFlags
+#endif
     DWORD          dwFlags;                     // See MPQ_FLAG_XXXXX
     DWORD          dwSubType;                   // See MPQ_SUBTYPE_XXX
-
+#ifdef FULL
     SFILE_ADDFILE_CALLBACK pfnAddFileCB;        // Callback function for adding files
     void         * pvAddFileUserData;           // User data thats passed to the callback
 
@@ -855,6 +860,7 @@ typedef struct _TMPQArchive
     ULONGLONG      CompactBytesProcessed;       // Amount of bytes that have been processed during a particular compact call
     ULONGLONG      CompactTotalBytes;           // Total amount of bytes to be compacted
     void         * pvCompactUserData;           // User data thats passed to the callback
+#endif
 } TMPQArchive;
 
 // File handle structure
@@ -870,28 +876,34 @@ typedef struct _TMPQFile
     DWORD          dwFileKey;                   // Decryption key
     DWORD          dwFilePos;                   // Current file position
     DWORD          dwMagic;                     // 'FILE'
-
+#ifdef FULL
     struct _TMPQFile * hfPatch;                 // Pointer to opened patch file
 
     TPatchInfo   * pPatchInfo;                  // Patch info block, preceding the sector table
+#endif
     LPDWORD        SectorOffsets;               // Position of each file sector, relative to the begin of the file. Only for compressed files.
     LPDWORD        SectorChksums;               // Array of sector checksums (either ADLER32 or MD5) values for each file sector
+#ifdef FULL
     LPBYTE         pbFileData;                  // Data of the file (single unit files, patched files)
     DWORD          cbFileData;                  // Size of file data
     DWORD          dwCompression0;              // Compression that will be used on the first file sector
+#endif
     DWORD          dwSectorCount;               // Number of sectors in the file
+#ifdef FULL
     DWORD          dwPatchedFileSize;           // Size of patched file. Used when saving patch file to the MPQ
+#endif
     DWORD          dwDataSize;                  // Size of data in the file (on patch files, this differs from file size in block table entry)
 
     LPBYTE         pbFileSector;                // Last loaded file sector. For single unit files, entire file content
     DWORD          dwSectorOffs;                // File position of currently loaded file sector
     DWORD          dwSectorSize;                // Size of the file sector. For single unit files, this is equal to the file size
-
+#ifdef FULL
     void         * hctx;                        // Hash state for MD5. Used when saving file to MPQ
+#endif
     DWORD          dwCrc32;                     // CRC32 value, used when saving file to MPQ
-
+#ifdef FULL
     DWORD          dwAddFileError;              // Result of the "Add File" operations
-
+#endif
     bool           bLoadedSectorCRCs;           // If true, we already tried to load sector CRCs
     bool           bCheckSectorCRCs;            // If true, then SFileReadFile will check sector CRCs when reading the file
     bool           bIsWriteHandle;              // If true, this handle has been created by SFileCreateFile
