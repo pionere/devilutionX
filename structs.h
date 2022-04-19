@@ -631,7 +631,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mmode; /* MON_MODE */
 	unsigned _msquelch;
 	BYTE _mMTidx;
-	BYTE _mpathcount;
+	BYTE _mpathcount; // unused
 	BYTE _mWhoHit;
 	BYTE _mgoal;
 	int _mgoalvar1;

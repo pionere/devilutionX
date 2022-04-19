@@ -2729,23 +2729,26 @@ static bool MonCallWalk(int mnum, int md)
 	return ok;
 }
 
-static bool MonPathWalk(int mnum)
+static bool MonDestWalk(int mnum)
 {
+	MonsterStruct* mon;
 	char path[MAX_PATH_LENGTH];
-	bool(*Check)
-	(int, int, int);
+	bool (*Check)(int, int, int);
+	int md;
 
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonPathWalk: Invalid monster %d", mnum);
+	mon = &monsters[mnum];
+	if (mon->_mFlags & MFLAG_SEARCH) {
+		Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
+		if (FindPath(Check, mnum, mon->_mx, mon->_my, mon->_lastx, mon->_lasty, path) > 0) {
+			md = path[0];
+		} else {
+			md = currEnemyInfo._meLastDir;
+		}
+	} else {
+		md = currEnemyInfo._meLastDir;
 	}
-	Check = (monsters[mnum]._mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
 
-	if (FindPath(Check, mnum, monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy, path) > 0) {
-		//MonCallWalk(mnum, walk2dir[path[0]]);
-		return MonCallWalk(mnum, path[0]);
-	}
-
-	return false;
+	return MonCallWalk(mnum, md);
 }
 
 static bool MonDumbWalk(int mnum, int md)
@@ -2837,7 +2840,7 @@ void MAI_SkelSd(int mnum)
 	mon->_mdir = currEnemyInfo._meLastDir;
 	if (currEnemyInfo._meRealDist >= 2) { // STAND_PREV_MODE
 		if (mon->_mVar1 == MM_DELAY || (random_(106, 100) >= 35 - 4 * mon->_mInt)) {
-			MonCallWalk(mnum, mon->_mdir);
+			MonDestWalk(mnum);
 		} else {
 			MonStartDelay(mnum, RandRange(15, 24) - 2 * mon->_mInt);
 		}
@@ -2848,42 +2851,6 @@ void MAI_SkelSd(int mnum)
 			MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mInt);
 		}
 	}
-}
-
-static bool MAI_Path(int mnum)
-{
-	MonsterStruct* mon;
-	bool clear;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MAI_Path: Invalid monster %d", mnum);
-	}
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
-		return false;
-	if (mon->_mgoal != MGOAL_NORMAL && mon->_mgoal != MGOAL_MOVE && mon->_mgoal != MGOAL_ATTACK2)
-		return false;
-
-	clear = LineClearF1(
-	    PosOkMonst2,
-	    mnum,
-	    mon->_mx,
-	    mon->_my,
-	    mon->_menemyx,
-	    mon->_menemyy);
-	if (!clear || (mon->_mpathcount >= 5 && mon->_mpathcount < 8)) {
-		if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
-			MonstCheckDoors(mon->_mx, mon->_my);
-		mon->_mpathcount++;
-		if (mon->_mpathcount < 5)
-			return false;
-		if (MonPathWalk(mnum))
-			return true;
-	}
-
-	mon->_mpathcount = 0;
-
-	return false;
 }
 
 void MAI_Snake(int mnum)
@@ -2931,7 +2898,7 @@ void MAI_Snake(int mnum)
 				mon->_mgoalvar2 = (mon->_mgoalvar2 + md) & 7;
 			}
 			if (!MonDumbWalk(mnum, mon->_mgoalvar2))
-				MonCallWalk(mnum, mon->_mdir);
+				MonDestWalk(mnum);
 		} else {
 			MonStartDelay(mnum, RandRange(15, 24) - mon->_mInt);
 		}
@@ -2985,7 +2952,7 @@ void MAI_Bat(int mnum)
 	} else if (dist >= 2) {
 		if ((mon->_mVar2 > MON_WALK_DELAY && v < mon->_mInt + 13) // STAND_TICK
 		 || (MON_JUST_WALKED && v < mon->_mInt + 63)) {
-			MonCallWalk(mnum, md);
+			MonDestWalk(mnum);
 		}
 	} else if (v < 4 * mon->_mInt + 8) {
 		MonStartAttack(mnum);
@@ -3050,7 +3017,7 @@ void MAI_Fat(int mnum)
 	if (currEnemyInfo._meRealDist >= 2) {
 		if ((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mInt + 20) // STAND_TICK
 		 || (MON_JUST_WALKED && v < 4 * mon->_mInt + 70)) {
-			MonCallWalk(mnum, mon->_mdir);
+			MonDestWalk(mnum);
 		}
 	} else if (v < 4 * mon->_mInt + 15) {
 		MonStartAttack(mnum);
@@ -3115,14 +3082,16 @@ void MAI_Sneak(int mnum)
 	} else if ((dist > range) && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		MonStartFadeout(mnum, mon->_mdir, true);
 	} else {
-		if (mon->_mgoal == MGOAL_RETREAT
-		 || (dist >= 2 &&
-			 ((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mInt + 14) // STAND_TICK
-			 || (MON_JUST_WALKED && v < 4 * mon->_mInt + 64)))) {
-			MonCallWalk(mnum, mon->_mdir);
+		if (mon->_mgoal == MGOAL_RETREAT) {
+			if (MonCallWalk(mnum, mon->_mdir))
+				return;
+		} else if (dist >= 2) {
+			if (((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mInt + 14) // STAND_TICK
+			 || (MON_JUST_WALKED && v < 4 * mon->_mInt + 64)))
+				MonDestWalk(mnum);
+			return;
 		}
-		if (mon->_mmode == MM_STAND
-		 && (dist < 2 && v < 4 * mon->_mInt + 10)) {
+		if (dist < 2 && v < 4 * mon->_mInt + 10) {
 			MonStartAttack(mnum);
 		}
 	}
@@ -3242,7 +3211,7 @@ void MAI_Fallen(int mnum)
 			if (currEnemyInfo._meRealDist < 2) {
 				MonStartAttack(mnum);
 			} else {
-				if (!MonCallWalk(mnum, currEnemyInfo._meLastDir)) {
+				if (!MonDestWalk(mnum)) {
 					// prevent isolated fallens from burnout
 					m = 12 - 1; // mon->_mAnims[MA_WALK].aFrameLen * mon->_mAnims[MA_WALK].aFrames - 1;
 					if (mon->_msquelch > (unsigned)m)
@@ -3269,7 +3238,7 @@ void MAI_Cleaver(int mnum)
 	mon->_mdir = currEnemyInfo._meLastDir;
 
 	if (currEnemyInfo._meRealDist >= 2)
-		MonCallWalk(mnum, mon->_mdir);
+		MonDestWalk(mnum);
 	else
 		MonStartAttack(mnum);
 }
@@ -3312,7 +3281,7 @@ static void MAI_Round(int mnum, bool special)
 		if (dist >= 2) {
 			if ((mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mInt + 28) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 2 * mon->_mInt + 78)) {
-				MonCallWalk(mnum, md);
+				MonDestWalk(mnum);
 			}
 		} else if (v < 2 * mon->_mInt + 23) {
 			mon->_mdir = md;
@@ -3343,8 +3312,8 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 	MonEnemyInfo(mnum);
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
+	mon->_mdir = currEnemyInfo._meLastDir;
 	if (mon->_msquelch >= SQUELCH_MAX - 1 /* || (mon->_mFlags & MFLAG_TARGETS_MONSTER)*/) {
-		mon->_mdir = currEnemyInfo._meLastDir;
 		bool walking = false;
 		if (currEnemyInfo._meRealDist < 4) {
 			if (random_(119, 100) < (76 + 8 * mon->_mInt))
@@ -3362,8 +3331,7 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 			}
 		}
 	} else {
-		md = currEnemyInfo._meLastDir;
-		MonCallWalk(mnum, md);
+		MonDestWalk(mnum);
 	}
 }
 
@@ -3630,7 +3598,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 		} else if (dist >= 2) {
 			if (v < 10 * (mon->_mInt + 5)
 			 || (MON_JUST_WALKED && v < 10 * (mon->_mInt + 8))) {
-				MonCallWalk(mnum, currEnemyInfo._meLastDir);
+				MonDestWalk(mnum);
 			}
 		} else if (v < 10 * (mon->_mInt + 6)) {
 			MonStartAttack(mnum);
@@ -3722,7 +3690,7 @@ static void MAI_RR2(int mnum, int mitype)
 		if (dist >= 2) {
 			if (v < 10 * (mon->_mInt + 5)
 			 || (MON_JUST_WALKED && v < 10 * (mon->_mInt + 8))) {
-				MonCallWalk(mnum, currEnemyInfo._meLastDir);
+				MonDestWalk(mnum);
 			}
 		} else {
 			if (v < 10 * (mon->_mInt + 4)) {
@@ -3769,7 +3737,9 @@ void MAI_Golem(int mnum)
 	if (MON_HAS_ENEMY) {
 		MonEnemyInfo(mnum);
 		if (currEnemyInfo._meRealDist >= 2) {
-			if (MonPathWalk(mnum)) {
+			mon->_lastx = mon->_menemyx;
+			mon->_lasty = mon->_menemyy;
+			if (MonDestWalk(mnum)) {
 				return;
 			}
 		} else {
@@ -3843,7 +3813,7 @@ void MAI_SkelKing(int mnum)
 			v = random_(129, 100);
 			if (v < mon->_mInt + 25
 			 || (MON_JUST_WALKED && v < mon->_mInt + 75)) {
-				MonCallWalk(mnum, md);
+				MonDestWalk(mnum);
 			} else {
 				MonStartDelay(mnum, RandRange(10, 19));
 			}
@@ -3898,7 +3868,7 @@ void MAI_Rhino(int mnum)
 			v = random_(134, 100);
 			if (v < 2 * mon->_mInt + 33
 			 || (MON_JUST_WALKED && v < 2 * mon->_mInt + 83)) {
-				MonCallWalk(mnum, currEnemyInfo._meLastDir);
+				MonDestWalk(mnum);
 			} else {
 				MonStartDelay(mnum, RandRange(10, 19));
 			}
@@ -3951,7 +3921,7 @@ void MAI_Horkdemon(int mnum)
 			v = random_(134, 100);
 			if (v < 2 * mon->_mInt + 33
 			 || (MON_JUST_WALKED && v < 2 * mon->_mInt + 83)) {
-				MonCallWalk(mnum, currEnemyInfo._meLastDir);
+				MonDestWalk(mnum);
 			} else {
 				MonStartDelay(mnum, RandRange(10, 19));
 			}
@@ -4418,17 +4388,13 @@ void ProcessMonsters()
 				mon->_menemyy = 0;
 				mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
 				mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
-				mon->_mpathcount = 0;
 				assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_INQUIRING || mon->_mgoal == MGOAL_TALKING);
 			}
 		}
 
 		while (TRUE) {
-			if (!(mon->_mFlags & MFLAG_SEARCH)) {
-				AiProc[mon->_mAi](mnum);
-			} else if (!MAI_Path(mnum)) {
-				AiProc[mon->_mAi](mnum);
-			}
+			AiProc[mon->_mAi](mnum);
+
 			switch (mon->_mmode) {
 			case MM_STAND:
 				raflag = MonDoStand(mnum);
