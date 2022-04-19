@@ -314,15 +314,16 @@ static void CheckPlayerNearby()
 	for (int i = 0; i < MAX_PLRS; i++) {
 		if (i == mypnum)
 			continue;
-		if (players[i]._pTeam == myplr._pTeam && spl != SPL_RESURRECT && spl != SPL_HEALOTHER)
-			continue;
+		if (spl != SPL_RESURRECT) {
+			if (players[i]._pHitPoints == 0)
+				continue;
+			if (players[i]._pTeam == myplr._pTeam && spl != SPL_HEALOTHER)
+				continue;
+		}
 		const int mx = players[i]._pfutx;
 		const int my = players[i]._pfuty;
-		if (dPlayer[mx][my] == 0
-		    || !(dFlags[mx][my] & BFLAG_VISIBLE)
-		    || (players[i]._pHitPoints == 0 && spl != SPL_RESURRECT))
+		if (!(dFlags[mx][my] & BFLAG_VISIBLE))
 			continue;
-
 		if ((myplr._pSkillFlags & SFLAG_RANGED) || HasRangedSpell() || spl == SPL_HEALOTHER) {
 			newDdistance = GetDistanceRanged(mx, my);
 		} else {
