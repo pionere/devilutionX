@@ -3763,7 +3763,8 @@ void MAI_Golem(int mnum)
 
 	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER))
 		MonFindEnemy(mnum);
-	if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
+	assert(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_OPEN_DOOR);
+	// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
 		MonstCheckDoors(mon->_mx, mon->_my);
 	if (MON_HAS_ENEMY) {
 		MonEnemyInfo(mnum);
@@ -3801,8 +3802,11 @@ void MAI_SkelKing(int mnum)
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
 	MonEnemyInfo(mnum);
-	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	assert(monsterdata[MT_SKING].mFlags & MFLAG_CAN_OPEN_DOOR);
+	if (mon->_msquelch < SQUELCH_MAX) {
+		// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
 		MonstCheckDoors(mon->_mx, mon->_my);
+	}
 	md = currEnemyInfo._meLastDir;
 	v = random_(126, 100);
 	dist = currEnemyInfo._meRealDist;
