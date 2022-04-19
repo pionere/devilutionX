@@ -3763,13 +3763,12 @@ void MAI_Golem(int mnum)
 
 	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER))
 		MonFindEnemy(mnum);
-
+	if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
+		MonstCheckDoors(mon->_mx, mon->_my);
 	if (MON_HAS_ENEMY) {
 		MonEnemyInfo(mnum);
 		if (currEnemyInfo._meRealDist >= 2) {
-			// assert(mon->_mgoal == MGOAL_NORMAL);
-			mon->_mpathcount = 5; // make sure MonPathWalk is always called
-			if (MAI_Path(mnum)) {
+			if (MonPathWalk(mnum)) {
 				return;
 			}
 		} else {
