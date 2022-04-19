@@ -301,8 +301,8 @@ static void CheckMonstersNearby()
 static void CheckPlayerNearby()
 {
 	int newDdistance;
-	int rotations = 0;
-	int distance = 0;
+	int rotations;
+	int distance = INT_MAX;
 
 	if (pcursmonst != MON_NONE)
 		return;
@@ -332,10 +332,10 @@ static void CheckPlayerNearby()
 				continue;
 		}
 
-		if (pcursplr != PLR_NONE && distance < newDdistance)
+		if (distance < newDdistance)
 			continue;
 		const int newRotations = GetRotaryDistance(mx, my);
-		if (pcursplr != PLR_NONE && distance == newDdistance && rotations < newRotations)
+		if (distance == newDdistance && rotations < newRotations)
 			continue;
 
 		distance = newDdistance;
