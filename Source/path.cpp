@@ -274,7 +274,7 @@ static PATHNODE* PathPopNode()
  * find the shortest path from (sx,sy) to (dx,dy), using PosOk(PosOkArg,x,y) to
  * check that each step is a valid position. Store the step directions (see
  * path_directions) in path, which must have room for MAX_PATH_LENGTH steps
- * @return the length of the path
+ * @return the length of the path or -1 if there is none
  */
 int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, char* path)
 {
@@ -301,7 +301,7 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 			path_length = 0;
 			while (currNode->Parent != NULL) {
 				if (path_length == MAX_PATH_LENGTH)
-					return 0; // path does not fit to the destination, abort!
+					return -1; // path does not fit to the destination, abort!
 				reversePathDirs[path_length++] = path_directions[3 * (currNode->y - currNode->Parent->y) - currNode->Parent->x + 4 + currNode->x];
 				currNode = currNode->Parent;
 			}
@@ -311,10 +311,10 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 		}
 		// ran out of nodes, abort!
 		if (!path_get_path(PosOk, PosOkArg, currNode))
-			return 0;
+			return -1;
 	}
 	// frontier is empty, no path!
-	return 0;
+	return -1;
 }
 
 /**

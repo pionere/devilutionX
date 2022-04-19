@@ -67,7 +67,7 @@ static int GetMinDistance(int dx, int dy)
  * @param dx Tile coordinates
  * @param dy Tile coordinates
  * @param maxDistance the max number of steps to search
- * @return number of steps, or 0 if not reachable
+ * @return number of steps, or -1 if not reachable
  */
 static int GetDistance(int dx, int dy, int maxDistance)
 {
@@ -78,7 +78,7 @@ static int GetDistance(int dx, int dy, int maxDistance)
 	char walkpath[MAX_PATH_LENGTH];
 	int steps = FindPath(PosOkPlayer, mypnum, myplr._pfutx, myplr._pfuty, dx, dy, walkpath);
 	if (steps > maxDistance)
-		return 0;
+		return -1;
 
 	return steps;
 }
@@ -114,7 +114,7 @@ static void FindItemOrObject()
 			int newRotations = GetRotaryDistance(mx + xx, my + yy);
 			if (rotations < newRotations)
 				continue;
-			if (xx != 0 && yy != 0 && GetDistance(mx + xx, my + yy, 1) == 0)
+			if (GetDistance(mx + xx, my + yy, 1) < 0)
 				continue;
 			rotations = newRotations;
 			pcursitem = ii;
@@ -139,7 +139,7 @@ static void FindItemOrObject()
 			int newRotations = GetRotaryDistance(mx + xx, my + yy);
 			if (rotations < newRotations)
 				continue;
-			if (xx != 0 && yy != 0 && GetDistance(mx + xx, my + yy, 1) == 0)
+			if (GetDistance(mx + xx, my + yy, 1) < 0)
 				continue;
 			rotations = newRotations;
 			pcursobj = oi;
@@ -153,7 +153,7 @@ static void CheckTownersNearby()
 {
 	for (int i = 0; i < numtowners; i++) {
 		int distance = GetDistance(towners[i]._tx, towners[i]._ty, 2);
-		if (distance == 0)
+		if (distance < 0)
 			continue;
 		pcursmonst = i;
 	}
@@ -328,7 +328,7 @@ static void CheckPlayerNearby()
 			newDdistance = GetDistanceRanged(mx, my);
 		} else {
 			newDdistance = GetDistance(mx, my, distance);
-			if (newDdistance == 0)
+			if (newDdistance < 0)
 				continue;
 		}
 
@@ -369,7 +369,7 @@ static void FindTrigger()
 			int mix = missile[mi]._mix;
 			int miy = missile[mi]._miy;
 			const int newDdistance = GetDistance(mix, miy, 2);
-			if (newDdistance == 0)
+			if (newDdistance < 0)
 				continue;
 			if (pcurstrig != -1 && distance < newDdistance)
 				continue;
@@ -391,7 +391,7 @@ static void FindTrigger()
 			if (trigs[i]._tlvl == DLV_HELL1)
 				ty -= 1;
 			const int newDdistance = GetDistance(tx, ty, 2);
-			if (newDdistance == 0)
+			if (newDdistance < 0)
 				continue;
 			cursmx = tx;
 			cursmy = ty;

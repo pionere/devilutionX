@@ -2740,7 +2740,7 @@ static bool MonPathWalk(int mnum)
 	}
 	Check = (monsters[mnum]._mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
 
-	if (FindPath(Check, mnum, monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy, path) != 0) {
+	if (FindPath(Check, mnum, monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy, path) > 0) {
 		//MonCallWalk(mnum, walk2dir[path[0]]);
 		return MonCallWalk(mnum, path[0]);
 	}

@@ -3034,11 +3034,11 @@ bool MakePlrPath(int pnum, int xx, int yy, bool endspace)
 	sx = plr._pfutx;
 	sy = plr._pfuty;
 	path = FindPath(PosOkPlayer, pnum, sx, sy, xx, yy, plr.walkpath);
-	if (path == 0) {
-		return sx == xx && sy == yy;
+	if (path < 0) {
+		return false;
 	}
 
-	if (!endspace) {
+	if (path != 0 && !endspace) {
 		path--;
 	}
 
