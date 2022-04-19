@@ -150,7 +150,7 @@ static void PKWAREAPI GenDecodeTabs(
 #ifdef FULL
 static void PKWAREAPI GenAscTabs(TDcmpStruct * pWork)
 {
-    unsigned short * pChCodeAsc = &ChCodeAsc[0xFF];
+    const unsigned short * pChCodeAsc = &ChCodeAsc[0xFF];
     unsigned int  acc, add;
     unsigned short count;
 
