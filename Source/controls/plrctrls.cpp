@@ -324,7 +324,7 @@ static void CheckPlayerNearby()
 		const int my = players[i]._pfuty;
 		if (!(dFlags[mx][my] & BFLAG_VISIBLE))
 			continue;
-		if ((myplr._pSkillFlags & SFLAG_RANGED) || HasRangedSpell() || spl == SPL_HEALOTHER) {
+		if ((myplr._pSkillFlags & SFLAG_RANGED) || HasRangedSpell()) {
 			newDdistance = GetDistanceRanged(mx, my);
 		} else {
 			newDdistance = GetDistance(mx, my, distance);
