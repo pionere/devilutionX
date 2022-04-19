@@ -4348,7 +4348,6 @@ void ProcessMonsters()
 			} else {
 				mon->_menemyx = monsters[_menemy]._mfutx;
 				mon->_menemyy = monsters[_menemy]._mfuty;
-				alert = true;
 			}
 		}
 		if (alert) {
