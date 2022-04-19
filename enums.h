@@ -531,7 +531,7 @@ typedef enum _sfx_id {
 	LS_NOVA,
 	//LS_PORTAL,
 	LS_PUDDLE,
-	LS_RESUR,
+	//LS_RESUR,
 	//LS_SCURSE,
 	LS_SCURIMP,
 	LS_SENTINEL,
