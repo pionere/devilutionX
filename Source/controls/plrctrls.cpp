@@ -302,7 +302,7 @@ static void CheckPlayerNearby()
 {
 	int newDdistance;
 	int rotations;
-	int distance = INT_MAX;
+	int distance = MAXDUNX + MAXDUNY;
 
 	if (pcursmonst != MON_NONE)
 		return;
@@ -358,7 +358,7 @@ static void FindActor()
 static void FindTrigger()
 {
 	int rotations;
-	int distance = 0;
+	int distance = 2 + 1;
 
 	if (pcursitem != ITEM_NONE || pcursobj != OBJ_NONE)
 		return; // Prefer showing items/objects over triggers (use of cursm* conflicts)
@@ -371,10 +371,10 @@ static void FindTrigger()
 			const int newDdistance = GetDistance(mix, miy, 2);
 			if (newDdistance < 0)
 				continue;
-			if (pcurstrig != -1 && distance < newDdistance)
+			if (distance < newDdistance)
 				continue;
 			const int newRotations = GetRotaryDistance(mix, miy);
-			if (pcurstrig != -1 && distance == newDdistance && rotations < newRotations)
+			if (distance == newDdistance && rotations < newRotations)
 				continue;
 			cursmx = mix;
 			cursmy = miy;
