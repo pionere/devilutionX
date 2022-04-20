@@ -722,6 +722,7 @@ int RaiseMonster(int x, int y, int dir, int mtidx)
 		mnum = monstactive[nummonsters++];
 		dMonster[x][y] = mnum + 1;
 		InitMonster(mnum, dir, mtidx, x, y);
+		monsters[mnum]._mTreasure = NO_DROP;
 	}
 
 	return mnum;
