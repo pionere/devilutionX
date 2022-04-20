@@ -1078,7 +1078,9 @@ void InitMonsters()
 #endif
 	if (!currLvl._dSetLvl) {
 		for (i = 0; i < MAX_MINIONS; i++)
-			AddMonster(0, 0, 0, 0, false);
+			InitMonster(i, 0, 0, 0, 0);
+		// assert(nummonsters == 0);
+		nummonsters = MAX_MINIONS;
 	}
 	// reserve the entry/exit area
 	for (i = 0; i < numtrigs; i++) {
@@ -1150,7 +1152,9 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 	if (currLvl._dSetLvl) {
 		AddMonsterType(MT_GOLEM, FALSE);
 		for (i = 0; i < MAX_MINIONS; i++)
-			AddMonster(0, 0, 0, 0, false);
+			InitMonster(i, 0, 0, 0, 0);
+		// assert(nummonsters == 0);
+		nummonsters = MAX_MINIONS;
 	}
 	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
@@ -5012,19 +5016,21 @@ void SpawnSkeleton(int mnum, int x, int y, int dir)
 
 int PreSpawnSkeleton()
 {
-	int n = numSkelTypes;
+	int n = numSkelTypes, mnum;
 
 	if (n == 0)
 		return -1;
 
+	mnum = nummonsters;
+	if (mnum >= MAXMONSTERS)
+		return -1;
+	// assert(monstactive[mnum] == mnum);
+	nummonsters++;
 	n = mapSkelTypes[random_low(136, n)];
-	n = AddMonster(0, 0, 0, n, false);
-	if (n != -1) {
-		// inactive minions and prespawn skeletons have to be identifiable by DeltaLoadLevel
-		assert(MINION_NR_INACTIVE(n));
-	}
-
-	return n;
+	InitMonster(mnum, 0, n, 0, 0);
+	// inactive minions and prespawn skeletons have to be identifiable by DeltaLoadLevel
+	assert(MINION_NR_INACTIVE(mnum));
+	return mnum;
 }
 
 void SyncMonsterQ(int pnum, int idx)
