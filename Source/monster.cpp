@@ -2639,13 +2639,12 @@ void MonWalkDir(int mnum, int md)
 	}
 }
 
-static void MonSpawnSkel(int x, int y, int dir)
+static void ActivateSpawn(int mnum, int x, int y, int dir)
 {
-	int i;
-
-	i = PreSpawnSkeleton();
-	assert(i != -1);
-	SpawnSkeleton(i, x, y, dir);
+	dMonster[x][y] = mnum + 1;
+	SetMonsterLoc(&monsters[mnum], x, y);
+	MonStartSpStand(mnum, dir);
+	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 }
 
 static void GroupUnity(int mnum)
@@ -3815,7 +3814,9 @@ void MAI_SkelKing(int mnum)
 			nx = mon->_mx + offset_x[md];
 			ny = mon->_my + offset_y[md];
 			if (PosOkMonst(mnum, nx, ny) && nummonsters < MAXMONSTERS) {
-				MonSpawnSkel(nx, ny, md);
+				v = PreSpawnSkeleton();
+				assert(v != -1);
+				ActivateSpawn(v, nx, ny, md);
 				MonStartSpStand(mnum, md);
 			}
 		} else if (dist < 2) {
@@ -4975,14 +4976,6 @@ bool PosOkMonst3(int mnum, int x, int y)
 		return false;
 
 	return monster_posok(mnum, x, y);
-}
-
-static void ActivateSpawn(int mnum, int x, int y, int dir)
-{
-	dMonster[x][y] = mnum + 1;
-	SetMonsterLoc(&monsters[mnum], x, y);
-	MonStartSpStand(mnum, dir);
-	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 }
 
 void SpawnSkeleton(int mnum, int x, int y, int dir)
