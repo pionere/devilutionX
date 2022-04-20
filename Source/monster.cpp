@@ -186,7 +186,13 @@ const int offset_x[NUM_DIRS] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to delta Y-offset. */
 const int offset_y[NUM_DIRS] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
-/** Maps from monster AI ID to monster AI function. */
+/**
+ * Maps from monster AI ID to monster AI function.
+ * Notable quirks of MAI functions:
+ * - lastx/y must be set when a monster is 'alerted' the first time (squelch is set from zero to non-zero)
+ * - if the monster is active, the function/monster must do something otherwise the enemy might not get updated
+ * - can not rely on dLight, because it might not be in sync in multiplayer games
+ */
 void (*AiProc[])(int i) = {
 /*AI_ZOMBIE*/	&MAI_Zombie,
 /*AI_FAT*/		&MAI_Fat,
