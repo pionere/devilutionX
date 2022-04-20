@@ -44,6 +44,7 @@ void WakeUberDiablo();
 void InitMonsters();
 void SetMapMonsters(BYTE *pMap, int startx, int starty);
 int AddMonster(int x, int y, int dir, int mtidx);
+int RaiseMonster(int x, int y, int dir, int mtidx);
 void RemoveMonFromMap(int mnum);
 void MonGetKnockback(int mnum, int sx, int sy);
 void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags);
