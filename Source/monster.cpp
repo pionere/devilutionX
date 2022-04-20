@@ -3813,11 +3813,13 @@ void MAI_SkelKing(int mnum)
 			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 			nx = mon->_mx + offset_x[md];
 			ny = mon->_my + offset_y[md];
-			if (PosOkMonst(mnum, nx, ny) && nummonsters < MAXMONSTERS) {
-				v = PreSpawnSkeleton();
-				assert(v != -1);
-				ActivateSpawn(v, nx, ny, md);
-				MonStartSpStand(mnum, md);
+			if (PosOkMonst(mnum, nx, ny)) {
+				v = mapSkelTypes[random_low(136, numSkelTypes)];
+				v = AddMonster(nx, ny, 0, v, true);
+				if (v != -1) {
+					MonStartSpStand(v, md);
+					MonStartSpStand(mnum, md);
+				}
 			}
 		} else if (dist < 2) {
 			if (v < mon->_mInt + 20) {
