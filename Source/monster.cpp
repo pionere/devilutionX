@@ -2739,6 +2739,8 @@ static bool MonDestWalk(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_SEARCH) {
 		Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
+		if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
+			MonstCheckDoors(mon->_mx, mon->_my);
 		if (FindPath(Check, mnum, mon->_mx, mon->_my, mon->_lastx, mon->_lasty, path) > 0) {
 			md = path[0];
 		} else {
@@ -2866,6 +2868,7 @@ void MAI_Snake(int mnum)
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
 	MonEnemyInfo(mnum);
+	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	md = currEnemyInfo._meLastDir;
 	mon->_mdir = md;
 	dist = currEnemyInfo._meRealDist;
@@ -2925,6 +2928,9 @@ void MAI_Bat(int mnum)
 		return;
 
 	MonEnemyInfo(mnum);
+	// commented out because only a single retreating, unique monster would benefit from this
+	// if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	//	MonstCheckDoors(mon->_mx, mon->_my);
 	md = currEnemyInfo._meLastDir;
 	mon->_mdir = md;
 	if (mon->_mgoal == MGOAL_RETREAT) {
@@ -2978,7 +2984,7 @@ void MAI_SkelBow(int mnum)
 		return;
 
 	MonEnemyInfo(mnum);
-
+	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	mon->_mdir = currEnemyInfo._meLastDir;
 
 	walking = false;
@@ -3011,7 +3017,7 @@ void MAI_Fat(int mnum)
 		return;
 
 	MonEnemyInfo(mnum);
-
+	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR) || (mon->_mFlags & MFLAG_SEARCH));
 	mon->_mdir = currEnemyInfo._meLastDir;
 	v = random_(111, 100);
 	if (currEnemyInfo._meRealDist >= 2) {
@@ -3049,6 +3055,7 @@ void MAI_Sneak(int mnum)
 	//}
 
 	MonEnemyInfo(mnum);
+	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	dist = currEnemyInfo._meRealDist;
 	md = currEnemyInfo._meLastDir;
 	range = 7 - mon->_mInt;
@@ -3160,7 +3167,7 @@ void MAI_Fallen(int mnum)
 	mon = &monsters[mnum];
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
-
+	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (random_(113, 48) == 0) {
 			MonStartSpStand(mnum, mon->_mdir);
@@ -3235,6 +3242,7 @@ void MAI_Cleaver(int mnum)
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
 	MonEnemyInfo(mnum);
+	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR) || (mon->_mFlags & MFLAG_SEARCH));
 	mon->_mdir = currEnemyInfo._meLastDir;
 
 	if (currEnemyInfo._meRealDist >= 2)
@@ -3660,8 +3668,10 @@ static void MAI_RR2(int mnum, int mitype)
 		return;
 	}*/
 
-	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	if (mon->_msquelch < SQUELCH_MAX) {
+		// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
 		MonstCheckDoors(mon->_mx, mon->_my);
+	}
 	v = random_(121, 100);
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
 		if (mon->_mgoal == MGOAL_MOVE || dist >= 3) {
@@ -3733,7 +3743,7 @@ void MAI_Golem(int mnum)
 		MonFindEnemy(mnum);
 	assert(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_OPEN_DOOR);
 	// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
-		MonstCheckDoors(mon->_mx, mon->_my);
+	MonstCheckDoors(mon->_mx, mon->_my);
 	if (MON_HAS_ENEMY) {
 		MonEnemyInfo(mnum);
 		if (currEnemyInfo._meRealDist >= 2) {
@@ -3772,8 +3782,8 @@ void MAI_SkelKing(int mnum)
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
 	MonEnemyInfo(mnum);
-	assert(monsterdata[MT_SKING].mFlags & MFLAG_CAN_OPEN_DOOR);
 	if (mon->_msquelch < SQUELCH_MAX) {
+		assert(monsterdata[MT_SKING].mFlags & MFLAG_CAN_OPEN_DOOR);
 		// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
 		MonstCheckDoors(mon->_mx, mon->_my);
 	}
@@ -3889,8 +3899,7 @@ void MAI_Horkdemon(int mnum)
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
 	MonEnemyInfo(mnum);
-	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
-		MonstCheckDoors(mon->_mx, mon->_my);
+	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	v = random_(131, 100);
 	dist = currEnemyInfo._meRealDist;
 	if (dist < 2 || mon->_msquelch != SQUELCH_MAX) {
