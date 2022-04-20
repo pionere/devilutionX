@@ -1848,7 +1848,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 		return;
 	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
 		//if (offm >= 0) {
-			dmon->_mdir = MonEnemyRealDir(offm);
+			dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
 			if (dmon->_mType == MT_BLINK)
 				MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty);
 		//}
@@ -2864,17 +2864,16 @@ void MAI_Snake(int mnum)
 		return;
 	MonEnemyInfo(mnum);
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
-	md = currEnemyInfo._meLastDir;
-	mon->_mdir = md;
+	mon->_mdir = currEnemyInfo._meLastDir;
 	dist = currEnemyInfo._meRealDist;
 	if (dist >= 2) { // STAND_PREV_MODE
 		if (dist == 2 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy) && mon->_mVar1 != MM_CHARGE) {
-			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, md, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
+			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayEffect(mnum, MS_ATTACK);
 			}
 		} else if (mon->_mVar1 == MM_DELAY || random_(106, 100) >= 35 - 2 * mon->_mInt) {
 			// calculate the desired direction
-			md = md + pattern[mon->_mgoalvar1]; // SNAKE_DIRECTION_DELTA
+			md = mon->_mdir + pattern[mon->_mgoalvar1]; // SNAKE_DIRECTION_DELTA
 			md = md & 7;
 			mon->_mgoalvar1++;
 			if (mon->_mgoalvar1 >= lengthof(pattern))
@@ -2926,9 +2925,9 @@ void MAI_Bat(int mnum)
 	// commented out because only a single retreating, unique monster would benefit from this
 	// if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 	//	MonstCheckDoors(mon->_mx, mon->_my);
-	md = currEnemyInfo._meLastDir;
-	mon->_mdir = md;
+	mon->_mdir = currEnemyInfo._meLastDir;
 	if (mon->_mgoal == MGOAL_RETREAT) {
+		md = mon->_mdir;
 		if (mon->_mgoalvar1 == 0) { // RETREAT_FINISHED
 			mon->_mgoalvar1++;
 			md = OPPOSITE(md);
@@ -2947,7 +2946,7 @@ void MAI_Bat(int mnum)
 	    && dist >= 5
 	    && v < 4 * mon->_mInt + 33
 	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
-		if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, md, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
+		if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 			MonUpdateLeader(mnum);
 		}
 	} else if (dist >= 2) {
@@ -3675,7 +3674,6 @@ static void MAI_RR2(int mnum, int mitype)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
 			}
-			// mon->_mgoalvar3 = TRUE;                // MOVE_POSITIONED
 			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, currEnemyInfo._meLastDir)) {
 				if (v < 5 * (mon->_mInt + 16))
 					MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
@@ -3684,10 +3682,8 @@ static void MAI_RR2(int mnum, int mitype)
 		}
 	} else
 		mon->_mgoal = MGOAL_NORMAL;
-	if (mon->_mgoal == MGOAL_NORMAL) { // MOVE_POSITIONED
-		// if (dist < 5 && ((dist >= 3 && v < 5 * (mon->_mInt + 2)) || v < 5 * (mon->_mInt + 1) || mon->_mgoalvar3) && LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist < 5 && (dist >= 3 || v < 5 * (mon->_mInt + 1)) && LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
-			// mon->_mgoalvar3 = FALSE; // MOVE_POSITIONED
 			MonStartRSpAttack(mnum, mitype);
 			return;
 		}
@@ -3705,7 +3701,6 @@ static void MAI_RR2(int mnum, int mitype)
 					MonStartRSpAttack(mnum, mitype);
 			}
 		}
-		// mon->_mgoalvar3 = FALSE; // MOVE_POSITIONED
 	}
 	if (mon->_mmode == MM_STAND) {
 		MonStartDelay(mnum, RandRange(5, 14));
