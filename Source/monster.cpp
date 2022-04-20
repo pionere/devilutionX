@@ -699,6 +699,34 @@ void WakeUberDiablo()
 }
 #endif
 
+int AddMonster(int x, int y, int dir, int mtidx)
+{
+	int mnum = -1;
+
+	if (nummonsters < MAXMONSTERS) {
+		mnum = nummonsters;
+		nummonsters++;
+		// assert(monstactive[mnum] == mnum);
+		dMonster[x][y] = mnum + 1;
+		InitMonster(mnum, dir, mtidx, x, y);
+	}
+
+	return mnum;
+}
+
+int RaiseMonster(int x, int y, int dir, int mtidx)
+{
+	int mnum = -1;
+
+	if (nummonsters < MAXMONSTERS) {
+		mnum = monstactive[nummonsters++];
+		dMonster[x][y] = mnum + 1;
+		InitMonster(mnum, dir, mtidx, x, y);
+	}
+
+	return mnum;
+}
+
 static void PlaceMonster(int mnum, int mtidx, int x, int y)
 {
 	int dir;
@@ -1193,34 +1221,6 @@ static void DeleteMonster(int i)
 	temp = monstactive[nummonsters];
 	monstactive[nummonsters] = monstactive[i];
 	monstactive[i] = temp;
-}
-
-int AddMonster(int x, int y, int dir, int mtidx)
-{
-	int mnum = -1;
-
-	if (nummonsters < MAXMONSTERS) {
-		mnum = nummonsters;
-		nummonsters++;
-		// assert(monstactive[mnum] == mnum);
-		dMonster[x][y] = mnum + 1;
-		InitMonster(mnum, dir, mtidx, x, y);
-	}
-
-	return mnum;
-}
-
-int RaiseMonster(int x, int y, int dir, int mtidx)
-{
-	int mnum = -1;
-
-	if (nummonsters < MAXMONSTERS) {
-		mnum = monstactive[nummonsters++];
-		dMonster[x][y] = mnum + 1;
-		InitMonster(mnum, dir, mtidx, x, y);
-	}
-
-	return mnum;
 }
 
 static void NewMonsterAnim(int mnum, int anim, int md)
