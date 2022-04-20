@@ -1237,6 +1237,8 @@ static void MonFindEnemy(int mnum)
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
 				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6)*/)
 				continue;
+			if (!LineClear(mon->_mx, mon->_my, plx(i)._px, plx(i)._py))
+				continue;
 			sameroom = tv == dTransVal[plx(i)._px][plx(i)._py];
 			dist = std::max(abs(mon->_mx - plx(i)._px), abs(mon->_my - plx(i)._py));
 			if (sameroom == bestsameroom) {
@@ -1250,9 +1252,11 @@ static void MonFindEnemy(int mnum)
 		}
 		for (i = 0; i < MAX_MINIONS; i++) {
 			tmon = &monsters[i];
+			if (MINION_INACTIVE(tmon))
+				continue;
 			if (tmon->_mhitpoints < (1 << 6))
 				continue;
-			if (MINION_INACTIVE(tmon))
+			if (!LineClear(mon->_mx, mon->_my, tmon->_mx, tmon->_my))
 				continue;
 			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
 			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
@@ -1276,6 +1280,10 @@ static void MonFindEnemy(int mnum)
 			if (MINION_INACTIVE(tmon))
 				continue;
 			if (CanTalkToMonst(tnum))
+				continue;
+			//if (!LineClear(mon->_mx, mon->_my, tmon->_mx, tmon->_my))
+			//	continue;
+			if (!(dFlags[tmon->_mx][tmon->_my] & BFLAG_ALERT))
 				continue;
 			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
 			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
@@ -2991,9 +2999,10 @@ void MAI_SkelBow(int mnum)
 
 	if (!walking) {
 		// STAND_PREV_MODE
-		if (mon->_mVar1 == MM_DELAY && LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy))
+		if (mon->_mVar1 == MM_DELAY && MON_HAS_ENEMY) {
+			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 			MonStartRAttack(mnum, MIS_ARROWC);
-		else
+		} else
 			MonStartDelay(mnum, RandRange(20, 24) - 4 * mon->_mInt);
 	}
 }
@@ -3323,7 +3332,8 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 		}
 		if (!walking) {
 			md = random_(118, 20); // STAND_PREV_MODE
-			if ((mon->_mVar1 == MM_DELAY || md == 0) && LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+			if ((mon->_mVar1 == MM_DELAY || md == 0) && MON_HAS_ENEMY) {
+				// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 				if (attackMode == MM_RSPATTACK)
 					MonStartRSpAttack(mnum, mitype);
 				else
@@ -3595,7 +3605,8 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 		v = random_(124, 100);
 		if (((dist >= 3 && v < ((8 * (mon->_mInt + 2)) >> lessmissiles))
 		        || v < ((8 * (mon->_mInt + 1)) >> lessmissiles))
-		    && LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+			&& MON_HAS_ENEMY) {
+			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 			MonStartRSpAttack(mnum, mitype);
 		} else if (dist >= 2) {
 			if (v < 10 * (mon->_mInt + 5)
@@ -3683,7 +3694,8 @@ static void MAI_RR2(int mnum, int mitype)
 	} else
 		mon->_mgoal = MGOAL_NORMAL;
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (dist < 5 && (dist >= 3 || v < 5 * (mon->_mInt + 1)) && LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+		if (dist < 5 && (dist >= 3 || v < 5 * (mon->_mInt + 1)) && MON_HAS_ENEMY) {
+			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 			MonStartRSpAttack(mnum, mitype);
 			return;
 		}
@@ -3798,7 +3810,8 @@ void MAI_SkelKing(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (!IsMultiGame
 		    && ((dist >= 3 && v < 4 * mon->_mInt + 35) || v < 6)
-		    && LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+			&& MON_HAS_ENEMY) {
+			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 			nx = mon->_mx + offset_x[md];
 			ny = mon->_my + offset_y[md];
 			if (PosOkMonst(mnum, nx, ny) && nummonsters < MAXMONSTERS) {
@@ -3948,7 +3961,8 @@ void MAI_Counselor(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		v = random_(121, 100);
 		if (dist >= 2) {
-			if (v < 5 * (mon->_mInt + 10) && LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+			if (v < 5 * (mon->_mInt + 10) && MON_HAS_ENEMY) {
+				// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 				MonStartRAttack(mnum, counsmiss[mon->_mInt]);
 			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
@@ -4336,7 +4350,8 @@ void ProcessMonsters()
 		hasenemy = MON_HAS_ENEMY;
 		if (alert && !hasenemy) {
 			MonFindEnemy(mnum);
-			assert(MON_HAS_ENEMY || myplr._pInvincible);
+			// commented out, because the player might went out of sight in the meantime
+			// assert(MON_HAS_ENEMY || myplr._pInvincible);
 			alert = hasenemy = MON_HAS_ENEMY;
 		}
 		if (hasenemy) {
