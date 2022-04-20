@@ -83,6 +83,7 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 	case SPL_STONE:
 	case SPL_INFRA:
 	case SPL_MANASHIELD:
+	case SPL_ATTRACT:
 	case SPL_TELEKINESIS:
 	case SPL_TELEPORT:
 	case SPL_RNDTELEPORT:
@@ -3045,6 +3046,46 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	mis->_miy = dy;
 	// mis->_misx = mis->_mix;
 	// mis->_misy = mis->_miy;
+	return MIRES_DONE;
+}
+
+int AddAttract(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	MonsterStruct* mon;
+	int dist, i, j, tx, ty, mnum;
+	const char* cr;
+
+	if (!LineClear(sx, sy, dx, dy))
+		return MIRES_FAIL_DELETE;
+
+	mis = &missile[mi];
+	mis->_mix = dx;
+	mis->_miy = dy;
+	mis->_miAnimFrame = 2;
+	mis->_miAnimAdd = 2;
+
+	dist = 4 + (spllvl >> 2);
+	static_assert(DBORDERX >= 10 && DBORDERY >= 10, "AddAttract expects a large enough border.");
+	if (dist > 10)
+		dist = 10;
+	for (i = 0; i < dist; i++) {
+		cr = &CrawlTable[CrawlNum[i]];
+		for (j = (BYTE)*cr; j > 0; j--) {
+			tx = dx + *++cr;
+			ty = dy + *++cr;
+			mnum = dMonster[tx][ty] - 1;
+			if (mnum < 0 || !LineClear(dx, dy, tx, ty))
+				continue;
+			mon = &monsters[mnum];
+			if (mon->_msquelch != SQUELCH_MAX) {
+				mon->_msquelch = SQUELCH_MAX;
+				mon->_lastx = dx;
+				mon->_lasty = dy;
+			}	
+		}
+	}
+
 	return MIRES_DONE;
 }
 

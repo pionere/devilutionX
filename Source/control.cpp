@@ -144,9 +144,9 @@ const RECT32 ChrBtnsRect[NUM_ATTRIBS] = {
 	{ 132, 187, CHRBTN_WIDTH, CHRBTN_HEIGHT }
 	// clang-format on
 };
-
-/** Maps from spellbook page number and position to spell_id. */
+/** The number of spells/skills on a single spellbook page. */
 #define NUM_BOOK_ENTRIES 7
+/** Maps from spellbook page number and position to spell_id. TODO: add SPL_ATTRACT */
 static BYTE SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
 	// clang-format off
 	{ SPL_NULL, SPL_CBOLT, SPL_LIGHTNING, SPL_CHAIN, SPL_NOVA, SPL_TELEKINESIS, SPL_GOLEM },
