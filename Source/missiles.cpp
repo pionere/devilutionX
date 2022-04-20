@@ -3508,7 +3508,7 @@ void MI_HorkSpawn(int mi)
 			ty = mis->_miy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkMissile1(tx, ty)) {
-				AddMonster(tx, ty, mis->_miDir, 1, true);
+				AddMonster(tx, ty, mis->_miDir, 1);
 				return;
 			}
 		}

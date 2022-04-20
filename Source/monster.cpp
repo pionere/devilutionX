@@ -1195,12 +1195,11 @@ static void DeleteMonster(int i)
 	monstactive[i] = temp;
 }
 
-int AddMonster(int x, int y, int dir, int mtidx, bool InMap)
+int AddMonster(int x, int y, int dir, int mtidx)
 {
 	if (nummonsters < MAXMONSTERS) {
 		int mnum = monstactive[nummonsters++];
-		if (InMap)
-			dMonster[x][y] = mnum + 1;
+		dMonster[x][y] = mnum + 1;
 		InitMonster(mnum, dir, mtidx, x, y);
 		return mnum;
 	}
@@ -3819,7 +3818,7 @@ void MAI_SkelKing(int mnum)
 			ny = mon->_my + offset_y[md];
 			if (PosOkMonst(mnum, nx, ny)) {
 				v = mapSkelTypes[random_low(136, numSkelTypes)];
-				v = AddMonster(nx, ny, 0, v, true);
+				v = AddMonster(nx, ny, 0, v);
 				if (v != -1) {
 					MonStartSpStand(v, md);
 					MonStartSpStand(mnum, md);
