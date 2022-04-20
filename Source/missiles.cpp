@@ -197,15 +197,9 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
  */
 static bool PosOkMissile(int x, int y)
 {
-	return (dMissile[x][y] | nSolidTable[dPiece[x][y]] | nMissileTable[dPiece[x][y]] | dObject[x][y] | dPlayer[x][y] | dMonster[x][y]) == 0;
-}
-
-/*
- * Check if an actor can be placed at the given position.
- */
-static bool PosOkMissile1(int x, int y)
-{
-	return (nSolidTable[dPiece[x][y]] | dObject[x][y] | dPlayer[x][y] | dMonster[x][y]) == 0;
+	if (!PosOkMonst(-1, x, y))
+		return false;
+	return (dMissile[x][y] | nMissileTable[dPiece[x][y]]) == 0;
 }
 
 static bool FindClosest(int sx, int sy, int &dx, int &dy)
@@ -1832,7 +1826,7 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 			dx += sx;
 			dy += sy;
 			assert(IN_DUNGEON_AREA(dx, dy));
-		} while (!PosOkMissile1(dx, dy));
+		} while (!PosOkMonst(-1, dx, dy));
 	}
 
 	mis = &missile[mi];
@@ -1959,7 +1953,7 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMissile1(tx, ty)) {
+			if (PosOkMonst(-1, tx, ty)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
 				mis->_misx = tx;
@@ -2619,7 +2613,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
 				if (LineClear(sx, sy, tx, ty)) {
-					if (PosOkMissile1(tx, ty)) {
+					if (PosOkMonst(-1, tx, ty)) {
 						SpawnGolem(misource, tx, ty, spllvl);
 						return MIRES_DELETE;
 					}
@@ -3507,7 +3501,7 @@ void MI_HorkSpawn(int mi)
 			tx = mis->_mix + *++cr;
 			ty = mis->_miy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMissile1(tx, ty)) {
+			if (PosOkMonst(-1, tx, ty)) {
 				RaiseMonster(tx, ty, mis->_miDir, 1);
 				return;
 			}
