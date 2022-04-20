@@ -1613,10 +1613,10 @@ static void MonStartGetHit(int mnum)
 	mon->_mmode = MM_GOTHIT;
 }
 
-static void MonTeleport(int mnum)
+static void MonTeleport(int mnum, int tx, int ty)
 {
 	MonsterStruct* mon;
-	int i, x, y, _mx, _my, rx;
+	int i, x, y, rx;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonTeleport: Invalid monster %d", mnum);
@@ -1624,14 +1624,12 @@ static void MonTeleport(int mnum)
 	mon = &monsters[mnum];
 	//assert(mon->_mmode != MM_STONE);
 
-	_mx = mon->_menemyx;
-	_my = mon->_menemyy;
 	rx = random_(100, NUM_DIRS);
 	static_assert(DBORDERX >= 1, "MonTeleport expects a large enough border I.");
 	static_assert(DBORDERY >= 1, "MonTeleport expects a large enough border II.");
 	for (i = 0; i < lengthof(offset_x); i++, rx = (rx + 1) & 7) {
-		x = _mx + offset_x[rx];
-		y = _my + offset_y[rx];
+		x = tx + offset_x[rx];
+		y = ty + offset_y[rx];
 		assert(IN_DUNGEON_AREA(x, y));
 		if (x != mon->_mx && y != mon->_my && PosOkMonst(mnum, x, y)) {
 			//RemoveMonFromMap(mnum);
@@ -1724,13 +1722,9 @@ void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags)
 		return;
 	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp && mon->_mmode != MM_STONE) {
 		if ((unsigned)pnum < MAX_PLRS) {
-			mon->_mFlags &= ~(MFLAG_TARGETS_MONSTER); // | MFLAG_NO_ENEMY);
-			mon->_menemy = pnum;
-			mon->_menemyx = plr._pfutx;
-			mon->_menemyy = plr._pfuty;
 			mon->_mdir = MonEnemyRealDir(mnum);
 			if (mon->_mType == MT_BLINK)
-				MonTeleport(mnum);
+				MonTeleport(mnum, plr._pfutx, plr._pfuty);
 		}
 		MonStartGetHit(mnum);
 	}
@@ -1854,14 +1848,9 @@ static void M2MStartHit(int defm, int offm, int dam)
 		return;
 	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
 		//if (offm >= 0) {
-			dmon->_mFlags &= ~(MFLAG_TARGETS_MONSTER); // | MFLAG_NO_ENEMY);
-			dmon->_mFlags |= MFLAG_TARGETS_MONSTER;
-			dmon->_menemy = offm;
-			dmon->_menemyx = monsters[offm]._mfutx;
-			dmon->_menemyy = monsters[offm]._mfuty;
 			dmon->_mdir = MonEnemyRealDir(offm);
 			if (dmon->_mType == MT_BLINK)
-				MonTeleport(defm);
+				MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty);
 		//}
 		MonStartGetHit(defm);
 	}
