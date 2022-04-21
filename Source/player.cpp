@@ -749,7 +749,7 @@ static void PlacePlayer(int pnum)
 		nx = plr._px + plrxoff2[i];
 		ny = plr._py + plryoff2[i];
 
-		if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
+		if (PosOkActor(nx, ny) && PosOkPortal(nx, ny)) {
 			break;
 		}
 	}
@@ -764,7 +764,7 @@ static void PlacePlayer(int pnum)
 			for (j = (BYTE)*cr; j > 0; j--) {
 				nx = plr._px + *++cr;
 				ny = plr._py + *++cr;
-				if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
+				if (PosOkActor(nx, ny) && PosOkPortal(nx, ny)) {
 					i = 16;
 					j = 0;
 				}
@@ -1027,7 +1027,7 @@ static bool PlrDirOK(int pnum, int dir)
 	//assert(px >= DBORDERX - 1 && px < DBORDERX + DSIZEX + 1);
 	//assert(py >= DBORDERY - 1 && px < DBORDERY + DSIZEX + 1);
 	//assert(dPiece[px][py] != 0);
-	if (/*px < 0 || !dPiece[px][py] ||*/ !PosOkPlayer(pnum, px, py)) {
+	if (/*px < 0 || !dPiece[px][py] ||*/ !PosOkActor(px, py)) {
 		return false;
 	}
 
@@ -2981,6 +2981,23 @@ void MissToPlr(int mi, bool hit)
 			StartPlrHit(mpnum, dam, true, plr._pdir);
 		return;
 	}
+}
+
+bool PosOkActor(int x, int y)
+{
+	int oi;
+
+	if ((nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) != 0)
+		return false;
+
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSolidFlag)
+			return false;
+	}
+
+	return true;
 }
 
 bool PosOkPlayer(int pnum, int x, int y)

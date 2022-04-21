@@ -2581,7 +2581,7 @@ static bool monster_posok(int mnum, int x, int y)
 {
 	if ((dFlags[x][y] & BFLAG_HAZARD) == 0)
 		return true;
-	return mnum < 0 || (monsters[mnum]._mMagicRes & MORS_FIRE_IMMUNE) == MORS_FIRE_IMMUNE;
+	return (monsters[mnum]._mMagicRes & MORS_FIRE_IMMUNE) == MORS_FIRE_IMMUNE;
 }
 
 static bool MonDoCharge(int mnum)
@@ -5008,7 +5008,7 @@ void SpawnSkeleton(int mnum, int x, int y, int dir)
 	if (mnum == -1)
 		return; // FALSE;
 
-	if (PosOkMonst(-1, x, y)) {
+	if (PosOkActor(x, y)) {
 		if (dir == DIR_NONE)
 			dir = random_(11, NUM_DIRS);
 		ActivateSpawn(mnum, x, y, dir);
@@ -5017,7 +5017,7 @@ void SpawnSkeleton(int mnum, int x, int y, int dir)
 
 	nok = 0;
 	for (i = 0; i < lengthof(offset_x); i++) {
-		if (PosOkMonst(-1, x + offset_x[i], y + offset_y[i])) {
+		if (PosOkActor(x + offset_x[i], y + offset_y[i])) {
 			monstok[nok] = i;
 			nok++;
 		}

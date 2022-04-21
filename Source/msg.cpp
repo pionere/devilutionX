@@ -3170,6 +3170,8 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 		//if (plr._pmode != PM_DEATH)
 			plr._pInvincible = 40;
 		net_assert(cmd->lLevel < NUM_LEVELS);
+		net_assert(cmd->px >= DBORDERX && cmd->px < DBORDERX + DSIZEX);
+		net_assert(cmd->py >= DBORDERY && cmd->py < DBORDERY + DSIZEY);
 		plr._pDunLevel = cmd->lLevel;
 		plr._px = cmd->px;
 		plr._py = cmd->py;

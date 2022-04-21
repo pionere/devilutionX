@@ -197,7 +197,7 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
  */
 static bool PosOkMissile(int x, int y)
 {
-	if (!PosOkMonst(-1, x, y))
+	if (!PosOkActor(x, y))
 		return false;
 	return (dMissile[x][y] | nMissileTable[dPiece[x][y]]) == 0;
 }
@@ -550,7 +550,7 @@ static void ShiftMissilePos(int mi)
 	}
 	x = mis->_mix + dx;
 	y = mis->_miy + dy;
-	if (PosOkMonst(mis->_miSource, x, y)) {
+	if (PosOkActor(x, y)) {
 		mis->_mix += dx;
 		mis->_miy += dy;
 		mis->_mixoff += (dy << 5) - (dx << 5);
@@ -1826,7 +1826,7 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 			dx += sx;
 			dy += sy;
 			assert(IN_DUNGEON_AREA(dx, dy));
-		} while (!PosOkMonst(-1, dx, dy));
+		} while (!PosOkActor(dx, dy));
 	}
 
 	mis = &missile[mi];
@@ -1953,7 +1953,7 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMonst(-1, tx, ty)) {
+			if (PosOkActor(tx, ty)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
 				mis->_misx = tx;
@@ -2613,7 +2613,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
 				if (LineClear(sx, sy, tx, ty)) {
-					if (PosOkMonst(-1, tx, ty)) {
+					if (PosOkActor(tx, ty)) {
 						SpawnGolem(misource, tx, ty, spllvl);
 						return MIRES_DELETE;
 					}
@@ -3501,7 +3501,7 @@ void MI_HorkSpawn(int mi)
 			tx = mis->_mix + *++cr;
 			ty = mis->_miy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMonst(-1, tx, ty)) {
+			if (PosOkActor(tx, ty)) {
 				RaiseMonster(tx, ty, mis->_miDir, 1);
 				return;
 			}
@@ -4023,7 +4023,7 @@ void MI_Rhino(int mi)
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
 		assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);
-		if (mis->_miAnimFrame == 13 || !PosOkMonster(-1, mis->_mix, mis->_miy)) {
+		if (mis->_miAnimFrame == 13 || !PosOkActor(mis->_mix, mis->_miy)) {
 			MissToMonst(mi);
 			mis->_miDelFlag = TRUE;
 			return;
@@ -4032,7 +4032,7 @@ void MI_Rhino(int mi)
 		mis->_mityoff -= mis->_miyvel;
 	}
 	GetMissilePos(mi);
-	if (!PosOkMonster(-1, mis->_mix, mis->_miy)) {
+	if (!PosOkActor(mis->_mix, mis->_miy)) {
 		MissToMonst(mi);
 		mis->_miDelFlag = TRUE;
 		return;
@@ -4071,7 +4071,7 @@ void MI_Charge(int mi)
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	if (!PosOkPlayer(-1, mis->_mix, mis->_miy)) {
+	if (!PosOkActor(mis->_mix, mis->_miy)) {
 		MissToPlr(mi, true);
 		mis->_miDelFlag = TRUE;
 		return;

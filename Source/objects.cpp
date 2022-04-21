@@ -1562,7 +1562,7 @@ static void GetVileMissPos(int* dx, int* dy)
 		for (j = *cr; j > 0; j--) {
 			xx = *dx + *++cr;
 			yy = *dy + *++cr;
-			if (PosOkPlayer(mypnum, xx, yy)) {
+			if (PosOkActor(xx, yy)) {
 				*dx = xx;
 				*dy = yy;
 				return;
