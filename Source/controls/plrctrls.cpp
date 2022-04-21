@@ -228,8 +228,8 @@ static void FindMeleeTarget()
 {
 	bool visited[MAXDUNX][MAXDUNY] = { { 0 } };
 	int maxSteps = MAX_PATH_LENGTH;
-	int rotations = 0;
-	bool canTalk = false;
+	int rotations = NUM_DIRS;
+	bool canTalk = true;
 
 	struct SearchNode {
 		int x, y;
@@ -264,10 +264,10 @@ static void FindMeleeTarget()
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
 					if (CanTargetMonster(mi)) {
 						const bool newCanTalk = CanTalkToMonst(mi);
-						if (pcursmonst != MON_NONE && !canTalk && newCanTalk)
+						if (!canTalk && newCanTalk)
 							continue;
 						const int newRotations = GetRotaryDistance(dx, dy);
-						if (pcursmonst != MON_NONE && canTalk == newCanTalk && rotations < newRotations)
+						if (canTalk == newCanTalk && rotations < newRotations)
 							continue;
 						rotations = newRotations;
 						canTalk = newCanTalk;
