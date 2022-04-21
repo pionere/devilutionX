@@ -439,6 +439,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 			plr._px = pkt->px;
 			plr._py = pkt->py;
 		}
+		net_assert(plr._pActive || dwMsgSize == sizeof(TurnPktHdr) || ((TCmd*)(pkt + 1))->bCmd == CMD_JOINLEVEL);
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
 		//multi_check_left_plrs();
 	}
