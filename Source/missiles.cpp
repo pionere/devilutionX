@@ -3100,7 +3100,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		break;
 	case MTT_MONSTER:
 		// assert(target < MAXMONSTERS);
-		if (!CanTalkToMonst(target) && (monsters[target]._mmaxhp >> 6) < plr._pMagic &&
+		if (!CanTalkToMonst(target) && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pMagic &&
 			LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)) {
 			monsters[target]._msquelch = SQUELCH_MAX;
 			monsters[target]._lastx = plr._px;
