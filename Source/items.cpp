@@ -1869,7 +1869,7 @@ static void GetUniqueItem(int ii, int uid)
 static void ItemRndDur(int ii)
 {
 	// skip STACKable and non-durable items
-	if (!items[ii]._iUsable && items[ii]._iMaxDur != 0 && items[ii]._iMaxDur != DUR_INDESTRUCTIBLE) {
+	if (!items[ii]._iUsable && items[ii]._iMaxDur > 1 && items[ii]._iMaxDur != DUR_INDESTRUCTIBLE) {
 		// assert((items[ii]._iMaxDur >> 1) < 0xFFFF);
 		items[ii]._iDurability = random_low(0, items[ii]._iMaxDur >> 1) + (items[ii]._iMaxDur >> 2) + 1;
 	}
