@@ -1,10 +1,5 @@
 # Building from Source
 
-Note: If you do not use git to manage the source you must provide the version to CMake manually:
-```
-cmake .. -DVERSION_NUM=1.0.0 -DVERSION_SUFFIX=FFFFFFF -DCMAKE_BUILD_TYPE=Release
-```
-
 <details><summary>Linux</summary>
 
 Note that ```pkg-config``` is an optional dependency for finding libsodium,
@@ -486,12 +481,14 @@ cmake --build build -j $(nproc) --target package
 
 ### General
 - `-DCMAKE_BUILD_TYPE=Release` change build type to release and optimize for distribution.
-- `-DNONET=ON` disable network support, this also removes the need for the ASIO and Sodium.
+- `-DVERSION_NUM=XXX` set version number (project version) to the desired value.
 - `-DUSE_SDL1=ON` build for SDL v1 instead of v2, not all features are supported under SDL v1, notably upscaling.
 - `-DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake` generate 32bit builds on 64bit platforms (remember to use the `linux32` command if on Linux).
 - `-DNOSOUND=ON` disable sound support
+- `-DSTREAM_ALL_AUDIO=ON` stream all the audio. For extremely RAM-constrained platforms
 - `-DNOWIDESCREEN=ON` disable widescreen support
-- `-DNONET=ON` disable network support
+- `-DNONET=ON` disable network support, this also removes the need for the ASIO and Sodium.
+- `-DINET_MODE=ON` enable validation of network messages
 - `-DADAPTIVE_NETUPDATE=OFF` disable adaptive network
 - `-DNETENCRYPT=OFF` disable encryption of network messages
 - `-DTCPIP=OFF` disable tcp/ip support
@@ -500,6 +497,7 @@ cmake --build build -j $(nproc) --target package
 - `-DHELLFIRE=ON` build Hellfire version
 - `-DHAS_JOYSTICK=0` disable joystick support
 - `-DHAS_DPAD=0` disable dpad support
+- `-DHAS_KBCTRL=0` disable keyboard-controller support
 - `-DHAS_GAMECTRL=0` disable game-controller support
 - `-DHAS_TOUCHPAD=0` disable touchpad support
 - `-DSCREEN_WIDTH=640` hardcode screen width to 640 pixel
