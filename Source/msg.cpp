@@ -1210,11 +1210,10 @@ void LevelDeltaExport()
 		for (i = 0; i < nummonsters; i++) {
 			mnum = monstactive[i];
 			mon = &monsters[mnum];
-			if (mnum < MAX_MINIONS && MINION_INACTIVE(mon))
-				continue;
 			if (mon->_msquelch == 0) {
 				continue;	// assume it is the same as in delta
 			}
+			// assert(mnum >= MAX_MINIONS || !MINION_INACTIVE(mon));
 			TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)dst;
 			tmon->smMnum = mnum;
 			tmon->smMode = mon->_mmode;

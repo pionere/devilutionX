@@ -4331,6 +4331,8 @@ void DeleteMonsterList()
 			//monsters[i]._mfuty = 0;
 			monsters[i]._moldx = 0;
 			monsters[i]._moldy = 0;
+			// reset squelch value to simplify sync_all_monsters and LevelDeltaExport
+			monsters[i]._msquelch = 0;
 			assert(MINION_NR_INACTIVE(i));
 		}
 	}
