@@ -199,7 +199,8 @@ static bool PosOkMissile(int x, int y)
 {
 	if (!PosOkActor(x, y))
 		return false;
-	return (dMissile[x][y] | nMissileTable[dPiece[x][y]]) == 0;
+	// nSolidTable is checked -> ignore the few additional tiles from nMissileTable
+	return (dMissile[x][y] /*| nMissileTable[dPiece[x][y]]*/) == 0;
 }
 
 static bool FindClosest(int sx, int sy, int &dx, int &dy)
