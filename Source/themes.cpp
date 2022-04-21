@@ -580,7 +580,7 @@ static void Theme_MonstPit(BYTE tv)
 
 static void AddSkelMonster(int x, int y)
 {
-	assert(PosOkMonst(-1, x, y));
+	assert(PosOkActor(x, y));
 	AddMonster(x, y, random_(11, NUM_DIRS), mapSkelTypes[random_low(136, numSkelTypes)]);
 }
 
