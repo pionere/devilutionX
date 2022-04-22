@@ -821,9 +821,8 @@ static void Theme_GoatShrine(BYTE tv)
 	for (i = 0; i < lengthof(offset_x); i++) {
 		xx = themex + offset_x[i];
 		yy = themey + offset_y[i];
-		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			AddMonster(xx, yy, OPPOSITE(i), mapGoatTypes[0]);
-		}
+		assert(dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]);
+		AddMonster(xx, yy, OPPOSITE(i), mapGoatTypes[0]);
 	}
 }
 
