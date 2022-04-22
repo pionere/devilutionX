@@ -180,7 +180,7 @@ static bool CanTargetMonster(int mnum)
 	if (mnum < MAX_MINIONS)
 		return false;
 
-	mon = monsters[mnum];
+	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_HIDDEN)
 		return false;
 	if (mon->_mhitpoints < (1 << 6)) // dead
@@ -198,22 +198,22 @@ static bool CanTargetMonster(int mnum)
 
 static void FindRangedTarget()
 {
-	int rotations = 0, distance = 0, i, mnum;
-	bool canTalk = false;
+	int rotations = NUM_DIRS, distance = MAXDUNX + MAXDUNY, mnum;
+	bool canTalk = true;
 
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
 		if (!CanTargetMonster(mnum))
 			continue;
 		const bool newCanTalk = CanTalkToMonst(mnum);
-		if (pcursmonst != MON_NONE && !canTalk && newCanTalk)
+		if (!canTalk && newCanTalk)
 			continue;
 		const MonsterStruct &mon = monsters[mnum];
 		const int mx = mon._mfutx;
 		const int my = mon._mfuty;
 		const int newDdistance = GetDistanceRanged(mx, my);
 		const int newRotations = GetRotaryDistance(mx, my);
-		if (pcursmonst != MON_NONE && canTalk == newCanTalk) {
+		if (canTalk == newCanTalk) {
 			if (distance < newDdistance)
 				continue;
 			if (distance == newDdistance && rotations < newRotations)
