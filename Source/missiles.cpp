@@ -2607,7 +2607,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	assert((unsigned)misource < MAX_PLRS);
 
 	mon = &monsters[misource];
-	if (MINION_INACTIVE(mon)) {
+	if (mon->_mmode > MM_INGAME_LAST) {
 		static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddGolem expects a large enough border.");
 		for (i = 0; i < 6; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
@@ -3955,26 +3955,29 @@ void MI_Teleport(int mi)
 
 void MI_Stone(int mi)
 {
-	MissileStruct *mis;
-	MonsterStruct *mon;
+	MissileStruct* mis;
+	MonsterStruct* mon;
+	bool dead;
 
 	mis = &missile[mi];
 	mon = &monsters[mis->_miVar2];
-	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
-	// assert(mon->_mmode == MM_STONE);
+	dead = mon->_mhitpoints < (1 << 6);
+	// assert(mon->_mmode == MM_STONE || mon->_mmode > MM_INGAME_LAST);
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
-		if (mon->_mhitpoints >= (1 << 6)) {
+		if (!dead) {
 			mon->_mmode = mis->_miVar1;
 		} else {
-			// assert(mon->_mDelFlag);
-			AddDead(mis->_miVar2, DCMD_MON_DEAD);
+			// assert(mon->_mmode > MM_INGAME_LAST);
+			AddDead(mis->_miVar2, true);
 		}
 		return;
 	}
 
-	if (mon->_mhitpoints < (1 << 6)) {
+	if (!dead) {
+		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
+	} else {
 		if (mis->_miAnimType != MFILE_SHATTER1) {
 			mis->_miDrawFlag = TRUE;
 			mis->_miAnimType = MFILE_SHATTER1;

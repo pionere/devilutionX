@@ -17,8 +17,6 @@ int totalmonsters;
 int monstimgtot;
 /* Number of active monsters on the current level (minions are considered active). */
 int nummonsters;
-/* The list of the indices of the active monsters. */
-int monstactive[MAXMONSTERS];
 /* The data of the monsters on the current level. */
 MonsterStruct monsters[MAXMONSTERS];
 /* Monster types on the current level. */
@@ -282,11 +280,21 @@ void InitLevelMonsters()
 	monstimgtot = 4000;
 	totalmonsters = MAXMONSTERS;
 
-	// simplify InitSync if this line is uncommented
-	//memset(monsters, 0, sizeof(monsters));
-
 	for (i = 0; i < MAXMONSTERS; i++) {
-		monstactive[i] = i;
+		monsters[i]._mmode = MM_UNUSED;
+		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
+		monsters[i]._msquelch = 0;
+		// reset _uniqtype value to simplify InitDead
+		// reset mlid value to simplify SyncDeadLight
+		monsters[i]._uniqtype = 0;
+		monsters[i]._uniqtrans = 0;
+		monsters[i]._udeadval = 0;
+		monsters[i].mlid = NO_LIGHT;
+		// reset leaderflag value to simplify GroupUnity
+		monsters[i].leader = MON_NO_LEADER;
+		monsters[i].leaderflag = MLEADER_NONE;
+		monsters[i].packsize = 0;
+		monsters[i]._mvid = NO_VISION;
 	}
 }
 
@@ -699,19 +707,16 @@ void WakeUberDiablo()
 }
 #endif
 
-int AddMonster(int x, int y, int dir, int mtidx)
+void AddMonster(int x, int y, int dir, int mtidx)
 {
-	int mnum = -1;
+	int mnum;
 
 	if (nummonsters < MAXMONSTERS) {
 		mnum = nummonsters;
 		nummonsters++;
-		// assert(monstactive[mnum] == mnum);
 		dMonster[x][y] = mnum + 1;
 		InitMonster(mnum, dir, mtidx, x, y);
 	}
-
-	return mnum;
 }
 
 int RaiseMonster(int x, int y, int dir, int mtidx)
@@ -719,7 +724,11 @@ int RaiseMonster(int x, int y, int dir, int mtidx)
 	int mnum = -1;
 
 	if (nummonsters < MAXMONSTERS) {
-		mnum = monstactive[nummonsters++];
+		nummonsters++;
+		for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+			if (monsters[mnum]._mmode == MM_UNUSED)
+				break;
+		}
 		dMonster[x][y] = mnum + 1;
 		InitMonster(mnum, dir, mtidx, x, y);
 		monsters[mnum]._mTreasure = NO_DROP;
@@ -728,20 +737,23 @@ int RaiseMonster(int x, int y, int dir, int mtidx)
 	return mnum;
 }
 
-static void PlaceMonster(int mnum, int mtidx, int x, int y)
+static int PlaceMonster(int mtidx, int x, int y)
 {
-	int dir;
+	int mnum, dir;
 
+	mnum = nummonsters;
+	nummonsters++;
 	dMonster[x][y] = mnum + 1;
 
 	dir = random_(90, NUM_DIRS);
 	InitMonster(mnum, dir, mtidx, x, y);
+	return mnum;
 }
 
 static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 {
 	int placed, offset, try1, try2;
-	int xp, yp, x1, y1, x2, y2;
+	int xp, yp, x1, y1, x2, y2, mnum;
 
 	if (num + nummonsters > totalmonsters) {
 		num = totalmonsters - nummonsters;
@@ -783,20 +795,19 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 			yp = y2;
 			if ((!MonstPlace(xp, yp)) || random_(0, 2) != 0)
 				continue;
-
-			PlaceMonster(nummonsters, mtidx, xp, yp);
+			// assert(nummonsters < MAXMONSTERS);
+			mnum = PlaceMonster(mtidx, xp, yp);
 			if (leaderf & UMF_GROUP) {
-				monsters[nummonsters]._mmaxhp *= 2;
-				monsters[nummonsters]._mhitpoints = monsters[nummonsters]._mmaxhp;
-				monsters[nummonsters]._mInt = monsters[leader]._mInt;
+				monsters[mnum]._mmaxhp *= 2;
+				monsters[mnum]._mhitpoints = monsters[mnum]._mmaxhp;
+				monsters[mnum]._mInt = monsters[leader]._mInt;
 
 				if (leaderf & UMF_LEADER) {
-					monsters[nummonsters].leader = leader;
-					monsters[nummonsters].leaderflag = MLEADER_PRESENT;
-					monsters[nummonsters]._mAi = monsters[leader]._mAi;
+					monsters[mnum].leader = leader;
+					monsters[mnum].leaderflag = MLEADER_PRESENT;
+					monsters[mnum]._mAi = monsters[leader]._mAi;
 				}
 			}
-			nummonsters++;
 			placed++;
 		}
 
@@ -819,7 +830,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 	char filestr[64];
 	const UniqMonData* uniqm;
 	MonsterStruct* mon;
-	int count;
+	int mnum, count;
 	static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
 	if (uniquetrans >= NUM_COLOR_TRNS) {
 		return;
@@ -918,9 +929,9 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 			}
 		}
 	}
-
-	PlaceMonster(nummonsters, uniqtype, xp, yp);
-	mon = &monsters[nummonsters];
+	// assert(nummonsters < MAXMONSTERS);
+	mnum = PlaceMonster(uniqtype, xp, yp);
+	mon = &monsters[mnum];
 	mon->_uniqtype = uniqindex + 1;
 	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
 #ifdef HELLFIRE
@@ -994,11 +1005,10 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 	}
 	mon->_mhitpoints = mon->_mmaxhp;
 
-	nummonsters++;
-
 	if (uniqm->mUnqAttr & UMF_NODROP)
 		mon->_mTreasure = NO_DROP;
 	if (uniqm->mUnqAttr & UMF_GROUP) {
+		// assert(mnum == nummonsters - 1);
 		PlaceGroup(miniontidx, bosspacksize, uniqm->mUnqAttr, nummonsters - 1);
 	}
 }
@@ -1106,8 +1116,10 @@ void InitMonsters()
 		CheckDungeonClear();
 #endif
 	if (!currLvl._dSetLvl) {
-		for (i = 0; i < MAX_MINIONS; i++)
+		for (i = 0; i < MAX_MINIONS; i++) {
 			InitMonster(i, 0, 0, 0, 0);
+			monsters[i]._mmode = MM_RESERVED;
+		}
 		// assert(nummonsters == 0);
 		nummonsters = MAX_MINIONS;
 	}
@@ -1180,8 +1192,10 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 
 	if (currLvl._dSetLvl) {
 		AddMonsterType(MT_GOLEM, FALSE);
-		for (i = 0; i < MAX_MINIONS; i++)
+		for (i = 0; i < MAX_MINIONS; i++) {
 			InitMonster(i, 0, 0, 0, 0);
+			monsters[i]._mmode = MM_RESERVED;
+		}
 		// assert(nummonsters == 0);
 		nummonsters = MAX_MINIONS;
 	}
@@ -1207,21 +1221,11 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 				assert(SwapLE16(*lm) < lengthof(MonstConvTbl) && MonstConvTbl[SwapLE16(*lm)] != 0);
 				mtidx = AddMonsterType(MonstConvTbl[SwapLE16(*lm)], FALSE);
 				// assert(nummonsters < MAXMONSTERS);
-				PlaceMonster(nummonsters++, mtidx, i, j);
+				PlaceMonster(mtidx, i, j);
 			}
 			lm++;
 		}
 	}
-}
-
-static void DeleteMonster(int i)
-{
-	int temp;
-
-	nummonsters--;
-	temp = monstactive[nummonsters];
-	monstactive[nummonsters] = monstactive[i];
-	monstactive[i] = temp;
 }
 
 static void NewMonsterAnim(int mnum, int anim, int md)
@@ -1272,7 +1276,7 @@ static void MonFindEnemy(int mnum)
 		}
 		for (i = 0; i < MAX_MINIONS; i++) {
 			tmon = &monsters[i];
-			if (MINION_INACTIVE(tmon))
+			if (tmon->_mmode > MM_INGAME_LAST)
 				continue;
 			if (tmon->_mhitpoints < (1 << 6))
 				continue;
@@ -1290,14 +1294,13 @@ static void MonFindEnemy(int mnum)
 			bestsameroom = sameroom;
 		}
 	} else {
-		for (i = 0; i < nummonsters; i++) {
-			tnum = monstactive[i];
+		for (tnum = 0; tnum < MAXMONSTERS; tnum++) {
 			if (tnum == mnum)
 				continue;
 			tmon = &monsters[tnum];
-			if (tmon->_mhitpoints < (1 << 6))
+			if (tmon->_mmode > MM_INGAME_LAST)
 				continue;
-			if (MINION_INACTIVE(tmon))
+			if (tmon->_mhitpoints < (1 << 6))
 				continue;
 			if (CanTalkToMonst(tnum))
 				continue;
@@ -1676,15 +1679,16 @@ static void MonFallenFear(int x, int y)
 	MonsterStruct* mon;
 	int i;
 
-	for (i = 0; i < nummonsters; i++) {
-		mon = &monsters[monstactive[i]];
-		if (mon->_mAi == AI_FALLEN
+	for (i = 0; i < MAXMONSTERS; i++) {
+		mon = &monsters[i];
+		if (!MON_RELAXED // TODO: use LineClear instead to prevent retreat behind walls?
+		 && mon->_mAi == AI_FALLEN
 		 && abs(x - mon->_mx) < 5
 		 && abs(y - mon->_my) < 5
-		 && mon->_mhitpoints >= (1 << 6)
-		 && !MON_RELAXED) { // TODO: use LineClear instead to prevent retreat behind walls?
+		 && mon->_mhitpoints >= (1 << 6)) {
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mmode <= MM_INGAME_LAST);
 #endif
 			static_assert((8 - 2 * 0) * 12 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with retreat goal.");
 			mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
@@ -1761,7 +1765,7 @@ void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags)
 static void MonDiabloDeath(int mnum, bool sendmsg)
 {
 	MonsterStruct* mon;
-	int i, j;
+	int i;
 	int mx, my;
 
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
@@ -1769,21 +1773,20 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 		NetSendCmdQuest(Q_DIABLO, false); // recipient should not matter
 		NetSendCmdMonstCorpse(mnum); // remove the 'corpse' of diablo
 	}
-	for (i = 0; i < nummonsters; i++) {
-		j = monstactive[i];
+	for (i = 0; i < MAXMONSTERS; i++) {
 		// commented out because this is a pointless complexity
-		//if (j == mnum)
+		//if (i == mnum)
 		//	continue;
-		if (j < MAX_MINIONS && MINION_NR_INACTIVE(j))
+		mon = &monsters[i];
+		if (mon->_mmode > MM_INGAME_LAST)
 			continue;
-		RemoveMonFromMap(j);
-		MonPlace(j);
-		mon = &monsters[j];
+		RemoveMonFromMap(i);
+		MonPlace(i);
 		//if (mon->_msquelch == 0)
 		//	continue;
 		mon->_mhitpoints = 0;
 		if (mon->_mmode != MM_STONE) {
-			NewMonsterAnim(j, MA_DEATH, mon->_mdir);
+			NewMonsterAnim(i, MA_DEATH, mon->_mdir);
 			mon->_mmode = MM_DEATH;
 		}
 	}
@@ -1968,8 +1971,8 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonSyncStartKill: Invalid monster %d", mnum);
 	}
-	if (monsters[mnum]._mmode == MM_DEATH ||
-	(monsters[mnum]._mmode == MM_STONE && monsters[mnum]._mhitpoints == 0)) {
+	if (monsters[mnum]._mmode == MM_DEATH || monsters[mnum]._mmode > MM_INGAME_LAST
+	 || (monsters[mnum]._mmode == MM_STONE && monsters[mnum]._mhitpoints == 0)) {
 		return;
 	}
 	if (dMonster[x][y] == 0 || abs(dMonster[x][y]) == mnum + 1) {
@@ -2459,8 +2462,8 @@ void MonUpdateLeader(int mnum)
 	if (monsters[mnum].leaderflag == MLEADER_NONE)
 		return;
 	if (monsters[mnum].leaderflag == MLEADER_SELF) {
-		for (i = 0; i < nummonsters; i++) {
-			mon = &monsters[monstactive[i]];
+		for (i = 0; i < MAXMONSTERS; i++) {
+			mon = &monsters[i];
 			if (/*mon->leaderflag != MLEADER_NONE && */mon->leader == mnum) {
 				mon->leader = MON_NO_LEADER;
 				mon->leaderflag = MLEADER_NONE;
@@ -2531,7 +2534,14 @@ static bool MonDoDeath(int mnum)
 		if (--mon->_mVar1 == 0) // DIABLO_TICK
 			PrepDoEnding();
 	} else if (mon->_mAnimFrame == mon->_mAnimLen) {
-		AddDead(mnum, DCMD_MON_INVALID);
+		// TODO: RemoveMonFromGame ?
+		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
+		mon->_msquelch = 0;
+		mon->_mmode = mnum >= MAX_MINIONS  ? MM_UNUSED : MM_RESERVED;
+		if (mnum >= MAX_MINIONS)
+			nummonsters--;
+		dMonster[mon->_mx][mon->_my] = 0;
+		AddDead(mnum, false);
 	}
 	return false;
 }
@@ -2613,7 +2623,12 @@ static bool MonDoStone(int mnum)
 	}
 	mon = &monsters[mnum];
 	if (mon->_mhitpoints == 0) {
-		mon->_mDelFlag = TRUE;
+		// TODO: RemoveMonFromGame ?
+		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
+		mon->_msquelch = 0;
+		// assert(mnum >= MAX_MINIONS);
+		mon->_mmode = MM_UNUSED;
+		nummonsters--;
 		dMonster[mon->_mx][mon->_my] = 0;
 	}
 	return false;
@@ -2705,8 +2720,8 @@ static void GroupUnity(int mnum)
 	}
 	// update squelch value + enemy location of the pack monsters
 	if (mon->packsize != 0) {
-		for (i = 0; i < nummonsters; i++) {
-			bmon = &monsters[monstactive[i]];
+		for (i = 0; i < MAXMONSTERS; i++) {
+			bmon = &monsters[i];
 			if (bmon->leaderflag == MLEADER_PRESENT && bmon->leader == mnum) {
 				if (mon->_msquelch > bmon->_msquelch) {
 					bmon->_lastx = mon->_lastx; // BUGFIX: use _lastx instead of _mx (fixed)
@@ -3752,7 +3767,7 @@ void MAI_Golem(int mnum)
 		dev_fatal("MAI_Golem: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	assert(!MINION_INACTIVE(mon));
+	assert(mon->_mmode <= MM_INGAME_LAST);
 	if (MON_ACTIVE) {
 		//assert(mon->_mmode == MM_DEATH || mon->_mmode == MM_SPSTAND
 		// || mon->_mmode == MM_ATTACK || mon->_mmode == MM_WALK || mon->_mmode == MM_WALK2);
@@ -4316,51 +4331,17 @@ void MAI_Warlord(int mnum)
 		MAI_SkelSd(mnum);
 }
 
-void DeleteMonsterList()
-{
-	int i;
-
-	for (i = 0; i < MAX_MINIONS; i++) {
-		if (monsters[i]._mDelFlag) {
-			monsters[i]._mDelFlag = FALSE;
-			monsters[i]._mx = 0;
-			monsters[i]._my = 0;
-			// do not reset mfutx/y to zero, otherwise monsters targeting this minion might try to
-			// reach out of the dungeon. If necessary, add a check in ProcessMonsters to prevent the OOB.
-			//monsters[i]._mfutx = 0;
-			//monsters[i]._mfuty = 0;
-			monsters[i]._moldx = 0;
-			monsters[i]._moldy = 0;
-			// reset squelch value to simplify sync_all_monsters and LevelDeltaExport
-			monsters[i]._msquelch = 0;
-			assert(MINION_NR_INACTIVE(i));
-		}
-	}
-
-	for (i = MAX_MINIONS; i < nummonsters; ) {
-		if (monsters[monstactive[i]]._mDelFlag) {
-			DeleteMonster(i);
-		} else {
-			i++;
-		}
-	}
-}
-
 void ProcessMonsters()
 {
-	int i, mnum, _menemy;
+	int mnum, _menemy;
 	bool alert, hasenemy, raflag;
 	MonsterStruct* mon;
 
-	DeleteMonsterList();
-
-	assert((unsigned)nummonsters <= MAXMONSTERS);
-	for (i = 0; i < nummonsters; i++) {
-		if (i < MAX_MINIONS && MINION_NR_INACTIVE(i))
-			continue;
-		mnum = monstactive[i];
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		// gbGameLogicMnum = mnum;
 		mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST)
+			continue;
 		if (IsMultiGame) {
 			SetRndSeed(mon->_mAISeed);
 			mon->_mAISeed = GetRndSeed();
@@ -4513,7 +4494,6 @@ void ProcessMonsters()
 		}
 	}
 	// gbGameLogicMnum = 0;
-	DeleteMonsterList();
 }
 
 void FreeMonsters()
@@ -4803,6 +4783,8 @@ void SyncMonsterAnim(int mnum)
 	case MM_DELAY:
 	case MM_CHARGE:
 	case MM_TALK:
+	case MM_RESERVED:
+	case MM_UNUSED:
 		anim = MA_STAND;
 		break;
 	default:
@@ -5034,20 +5016,15 @@ void SpawnSkeleton(int mnum, int x, int y, int dir)
 
 int PreSpawnSkeleton()
 {
-	int n = numSkelTypes, mnum;
+	int n = numSkelTypes, mnum = -1;
 
-	if (n == 0)
-		return -1;
-
-	mnum = nummonsters;
-	if (mnum >= MAXMONSTERS)
-		return -1;
-	// assert(monstactive[mnum] == mnum);
-	nummonsters++;
-	n = mapSkelTypes[random_low(136, n)];
-	InitMonster(mnum, 0, n, 0, 0);
-	// inactive minions and prespawn skeletons have to be identifiable by DeltaLoadLevel
-	assert(MINION_NR_INACTIVE(mnum));
+	if (n != 0 && nummonsters < MAXMONSTERS) {
+		mnum = nummonsters;
+		nummonsters++;
+		n = mapSkelTypes[random_low(136, n)];
+		InitMonster(mnum, 0, n, 0, 0);
+		monsters[mnum]._mmode = MM_RESERVED;
+	}
 	return mnum;
 }
 

@@ -973,14 +973,14 @@ void DeltaLoadLevel()
 			InitGolemStats(i, gsDeltaData.ddJunk.jGolems[i]);
 
 		mstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].monster;
-		for (i = 0; i < nummonsters; i++, mstr++) {
+		for (i = 0; i < MAXMONSTERS; i++, mstr++) {
 			if (mstr->_mCmd != DCMD_MON_INVALID) {
+				mon = &monsters[i];
 				// skip minions and prespawn skeletons
-				if (!MINION_NR_INACTIVE(i))
+				if (mon->_mmode <= MM_INGAME_LAST)
 					RemoveMonFromMap(i);
 				x = mstr->_mx;
 				y = mstr->_my;
-				mon = &monsters[i];
 				SetMonsterLoc(mon, x, y);
 				mon->_mdir = mstr->_mdir;
 				UpdateLeader(i, mon->leaderflag, mstr->_mleaderflag);
@@ -993,7 +993,15 @@ void DeltaLoadLevel()
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
 				if (mstr->_mCmd >= DCMD_MON_DEAD) {
-					AddDead(i, mstr->_mCmd);
+					// assert(mon->_mhitpoints == 0);
+					// TODO: RemoveMonFromGame ?
+					// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
+					mon->_msquelch = 0;
+					mon->_mmode = i >= MAX_MINIONS  ? MM_UNUSED : MM_RESERVED;
+					if (i >= MAX_MINIONS)
+						nummonsters--;
+					if (mstr->_mCmd != DCMD_MON_DESTROYED)
+						AddDead(i, false);
 				} else {
 					mon->_msquelch = mstr->_mactive;
 					mon->_mWhoHit = mstr->_mWhoHit;
@@ -1137,9 +1145,6 @@ void LevelDeltaExport()
 		static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs I.");
 		lvlData->ldNumMonsters = nummonsters;
 
-		for (i = 0; i < MAXMONSTERS; i++) {
-			lvlData->ldMonstActive[i] = monstactive[i];
-		}
 		static_assert(MAXMISSILES <= UCHAR_MAX, "Missile indices are transferred as BYTEs I.");
 		for (i = 0; i < MAXMISSILES; i++) {
 			lvlData->ldMissActive[i] = missileactive[i];
@@ -1207,18 +1212,18 @@ void LevelDeltaExport()
 			}
 		}
 
-		for (i = 0; i < nummonsters; i++) {
-			mnum = monstactive[i];
+		for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 			mon = &monsters[mnum];
 			if (mon->_msquelch == 0) {
 				continue;	// assume it is the same as in delta
 			}
+			net_assert(mon->_mmode <= MM_INGAME_LAST);
 			// assert(mnum >= MAX_MINIONS || !MINION_INACTIVE(mon));
 			TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)dst;
 			tmon->smMnum = mnum;
 			tmon->smMode = mon->_mmode;
 			tmon->smSquelch = mon->_msquelch;
-			tmon->smPathcount = mon->_mpathcount;
+			tmon->smPathcount = mon->_mpathcount; // unused
 			tmon->smWhoHit = mon->_mWhoHit;
 			tmon->smGoal = mon->_mgoal;
 			tmon->smGoalvar1 = mon->_mgoalvar1;
@@ -1240,7 +1245,7 @@ void LevelDeltaExport()
 			tmon->smAnimCnt = mon->_mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 			tmon->smAnimFrame = mon->_mAnimFrame; // Current frame of animation.
 			// assert(!mon->_mDelFlag || mon->_mmode == MM_STONE);
-			tmon->smDelFlag = mon->_mDelFlag;
+			tmon->smDelFlag = mon->_mDelFlag; // unused
 			tmon->smVar1 = mon->_mVar1;
 			tmon->smVar2 = mon->_mVar2;
 			tmon->smVar3 = mon->_mVar3;
@@ -1353,21 +1358,15 @@ void LevelDeltaLoad()
 	DeltaLoadLevel();
 	//SyncPortals();
 	// reset squelch set from delta, the message should contain more up-to-date info
-	for (mnum = MAX_MINIONS; mnum < MAXMONSTERS; mnum++) {
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		monsters[mnum]._msquelch = 0;
 	}
-	// remove monsters which are already dead
-	DeleteMonsterList();
 
 	lvlData = (LDLevel*)&gsDeltaData.ddSendRecvBuf.content[0];
 	static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs II.");
 	assert(nummonsters <= lvlData->ldNumMonsters);
 	nummonsters = lvlData->ldNumMonsters;
 	net_assert(nummonsters <= MAXMONSTERS);
-	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-		net_assert(lvlData->ldMonstActive[mnum] < MAXMONSTERS);
-		monstactive[mnum] = lvlData->ldMonstActive[mnum];
-	}
 
 	static_assert(MAXMISSILES <= UCHAR_MAX, "Missile indices are transferred as BYTEs II.");
 	for (mi = 0; mi < MAXMISSILES; mi++) {
@@ -1486,6 +1485,7 @@ void LevelDeltaLoad()
 
 		UpdateLeader(mnum, mon->leaderflag, tmon->smLeaderflag);
 
+		net_assert(tmon->smMode <= MM_INGAME_LAST);
 		mon->_mmode = tmon->smMode;
 		mon->_msquelch = tmon->smSquelch;
 		mon->_mpathcount = tmon->smPathcount;
@@ -3513,14 +3513,13 @@ static unsigned On_SYNCQUESTEXT(TCmd* pCmd, int pnum)
 #if DEV_MODE
 static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 {
-	int i, mnum;
+	int mnum;
 	MonsterStruct* mon;
 
-	for (i = 0; i < nummonsters; i++) {
-		mnum = monstactive[i];
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		mon = &monsters[mnum];
 
-		LogErrorF("D-Mon", "idx:%d mnum:%d "
+		LogErrorF("D-Mon", "mnum:%d "
 	"mo:%d "
 	"sq:%d "
 	"idx:%d "
@@ -3594,7 +3593,6 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	"ty:%d "
 	"w:%d "
 	"xo:%d ",
-			i,
 			mnum,
 			mon->_mmode,
 	mon->_msquelch,
@@ -3669,7 +3667,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mType,
 	mon->_mAnimWidth,
 	mon->_mAnimXOffset);
-	DMonsterStr* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].monster[i];
+	DMonsterStr* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].monster[mnum];
 	if (mstr->_mCmd != DCMD_MON_INVALID) {
 		LogErrorF("D-Mon", "delta ",
 	"_mCmd:%d "

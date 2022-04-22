@@ -181,16 +181,14 @@ static bool CanTargetMonster(int mnum)
 		return false;
 
 	mon = &monsters[mnum];
+	if (mon->_mmode > MM_INGAME_LAST)
+		return false;
 	if (mon->_mFlags & MFLAG_HIDDEN)
 		return false;
 	if (mon->_mhitpoints < (1 << 6)) // dead
 		return false;
 
-	const int mx = mon->_mx;
-	const int my = mon->_my;
-	if (!(dFlags[mx][my] & BFLAG_VISIBLE))
-		return false;
-	if (dMonster[mx][my] == 0)
+	if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
 		return false;
 
 	return true;
@@ -201,8 +199,7 @@ static void FindRangedTarget()
 	int rotations = NUM_DIRS, distance = MAXDUNX + MAXDUNY, mnum;
 	bool canTalk = true;
 
-	for (i = 0; i < nummonsters; i++) {
-		mnum = monstactive[i];
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		if (!CanTargetMonster(mnum))
 			continue;
 		const bool newCanTalk = CanTalkToMonst(mnum);

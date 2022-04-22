@@ -55,8 +55,7 @@ void InitDead()
 	spurtndx = nd + 1;
 	nd++;*/
 
-	for (i = MAX_MINIONS; i < nummonsters; i++) {
-		assert(monstactive[i] == i);
+	for (i = 0; i < MAXMONSTERS; i++) {
 		mon = &monsters[i];
 		if (mon->_uniqtype != 0) {
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
@@ -73,37 +72,26 @@ void InitDead()
 }
 
 /*
- * Register a dead monster and add its corpse if it is in-game.
- * monster is in-game if its status is DCMD_MON_INVALID.
+ * Add the corpse of the monster.
  *
  * @param mnum: the monster which died
- * @param bCmd: the status of the monster in delta
+ * @param stone: force a 'stone'-corpse
  */
-void AddDead(int mnum, BYTE bCmd)
+void AddDead(int mnum, bool stone)
 {
 	MonsterStruct* mon;
-	int dx, dy;
 	BYTE dv;
 
 	mon = &monsters[mnum];
-	mon->_mDelFlag = TRUE;
-
-	dx = mon->_mx;
-	dy = mon->_my;
-	if (bCmd == DCMD_MON_INVALID) {
-		dMonster[dx][dy] = 0;
+	static_assert(MAXDEAD < (1 << 5), "Encoding of dDead requires the maximum number of deads to be low.");
+	if (!stone && mon->_mType != MT_GOLEM) {
+		dv = mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval;
+		dv |= (mon->_mdir << 5);
+	} else {
+		dv = STONENDX;
 	}
-	if (bCmd != DCMD_MON_DESTROYED) {
-		static_assert(MAXDEAD < (1 << 5), "Encoding of dDead requires the maximum number of deads to be low.");
-		if (mon->_mmode != MM_STONE && mon->_mType != MT_GOLEM) {
-			dv = mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval;
-			dv |= (mon->_mdir << 5);
-		} else {
-			dv = STONENDX;
-		}
-		// assert(dv < MAXDEAD);
-		dDead[dx][dy] = dv;
-	}
+	// assert(dv < MAXDEAD);
+	dDead[mon->_mx][mon->_my] = dv;
 }
 
 void SyncDeadLight()
@@ -112,8 +100,7 @@ void SyncDeadLight()
 	int i;
 	int dx, dy;
 
-	for (i = 0; i < nummonsters; i++) {
-		assert(monstactive[i] == i);
+	for (i = 0; i < MAXMONSTERS; i++) {
 		mon = &monsters[i];
 		if (mon->mlid != NO_LIGHT) {
 			for (dx = 0; dx < MAXDUNX; dx++) {

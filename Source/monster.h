@@ -12,8 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 // ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_NORMAL_MSG_SIZE / sizeof(TSyncMonster)))
 #define SQUELCH_LOW					127
 #define SQUELCH_MAX					(SQUELCH_LOW + 240)
-#define MINION_INACTIVE(x)			((x->_mx | x->_my) == 0)
-#define MINION_NR_INACTIVE(x)		((monsters[x]._mx | monsters[x]._my) == 0)
 #define OPPOSITE(x)					(((x) + 4) & 7)
 /** Maps from direction to the opposite direction. */
 //const int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
@@ -22,7 +20,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int monstactive[MAXMONSTERS];
 extern int nummonsters;
 extern MonsterStruct monsters[MAXMONSTERS];
 extern MapMonData mapMonTypes[MAX_LVLMTYPES];
@@ -43,7 +40,7 @@ void WakeUberDiablo();
 #endif
 void InitMonsters();
 void SetMapMonsters(BYTE *pMap, int startx, int starty);
-int AddMonster(int x, int y, int dir, int mtidx);
+void AddMonster(int x, int y, int dir, int mtidx);
 int RaiseMonster(int x, int y, int dir, int mtidx);
 void RemoveMonFromMap(int mnum);
 void MonGetKnockback(int mnum, int sx, int sy);
@@ -53,7 +50,6 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum);
 void MonUpdateLeader(int mnum);
 void DoEnding();
 void MonWalkDir(int mnum, int md);
-void DeleteMonsterList();
 void ProcessMonsters();
 void FreeMonsters();
 bool MonDirOK(int mnum, int mdir);

@@ -3127,7 +3127,8 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_GLIMMERING);
 		break;
 	case SHRINE_TAINTED:
-		if (MINION_NR_INACTIVE(mypnum)) {
+		static_assert(MAX_MINIONS == MAX_PLRS, "OperateShrine requires that owner of a monster has the same id as the monster itself.");
+		if (monsters[mypnum]._mmode > MM_INGAME_LAST) {
 			AddMissile(myplr._px, myplr._py, myplr._px, myplr._py, 0, MIS_GOLEM, MST_PLAYER, mypnum, currLvl._dLevel >> 1);
 		}
 		//if (pnum != mypnum)

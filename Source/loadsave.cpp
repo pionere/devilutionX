@@ -793,9 +793,7 @@ static void LoadLevelData(bool full)
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
-			LoadInt(&monstactive[i]);
-		for (i = 0; i < nummonsters; i++)
-			LoadMonster(monstactive[i]);
+			LoadMonster(i);
 		if (full) {
 			static_assert(MAXMISSILES <= UCHAR_MAX, "LoadLevelData handles missile-ids as bytes.");
 			for (i = 0; i < MAXMISSILES; i++)
@@ -1499,9 +1497,7 @@ static void SaveLevelData(bool full)
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
-			SaveInt(&monstactive[i]);
-		for (i = 0; i < nummonsters; i++)
-			SaveMonster(monstactive[i], full);
+			SaveMonster(i, full);
 		if (full) {
 			for (i = 0; i < MAXMISSILES; i++)
 				SaveByte(&missileactive[i]);

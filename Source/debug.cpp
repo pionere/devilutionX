@@ -192,12 +192,7 @@ void PrintDebugMonster(int m)
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Mode = %d, Var1 = %d", monsters[m]._mmode, monsters[m]._mVar1);
 	NetSendCmdString(1 << mypnum);
 
-	bActive = false;
-
-	for (i = 0; i < nummonsters; i++) {
-		if (monstactive[i] == m)
-			bActive = true;
-	}
+	bActive = monsters[m]._mmode <= MM_INGAME_LAST;
 
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Active List = %d, Squelch = %d", bActive, monsters[m]._msquelch);
 	NetSendCmdString(1 << mypnum);

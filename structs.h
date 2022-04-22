@@ -650,7 +650,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 	BYTE _mListener;        // the player to whom the monster is talking to
-	BOOLEAN _mDelFlag;
+	BOOLEAN _mDelFlag; // unused
 	BYTE* _mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
@@ -1212,7 +1212,7 @@ typedef struct TSyncLvlMonster {
 	BYTE smMode; /* MON_MODE */
 	DWORD smSquelch;
 	//BYTE _mMTidx;
-	BYTE smPathcount;
+	BYTE smPathcount; // unused
 	BYTE smWhoHit;
 	BYTE smGoal;
 	INT smGoalvar1;
@@ -1231,7 +1231,7 @@ typedef struct TSyncLvlMonster {
 	BYTE smEnemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE smEnemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 	BYTE smListener;        // the player to whom the monster is talking to
-	BOOLEAN smDelFlag;
+	BOOLEAN smDelFlag; // unused
 	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	BYTE smAnimFrame; // Current frame of animation.
 	INT smVar1;
@@ -1373,7 +1373,6 @@ typedef struct DJunk {
 
 typedef struct LDLevel {
 	BYTE ldNumMonsters;
-	BYTE ldMonstActive[MAXMONSTERS];
 	BYTE ldMissActive[MAXMISSILES];
 	WORD wLen; // length of ldContent
 	BYTE ldContent[MAX_PLRS * sizeof(TSyncLvlPlayer) + MAXMONSTERS * sizeof(TSyncLvlMonster) + MAXMISSILES * sizeof(TSyncLvlMissile)];

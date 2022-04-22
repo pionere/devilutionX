@@ -878,7 +878,7 @@ void RemoveLvlPlayer(int pnum)
 		//}
 		RemovePlrFromMap(pnum);
 		static_assert(MAX_MINIONS == MAX_PLRS, "RemoveLvlPlayer requires that owner of a monster has the same id as the monster itself.");
-		if (currLvl._dLevelIdx != DLV_TOWN && !(MINION_NR_INACTIVE(pnum))) {
+		if (currLvl._dLevelIdx != DLV_TOWN && monsters[pnum]._mmode <= MM_INGAME_LAST) {
 			MonStartKill(pnum, pnum);
 		}
 	}
