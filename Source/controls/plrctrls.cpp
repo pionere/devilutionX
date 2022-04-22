@@ -172,20 +172,22 @@ static bool HasRangedSpell()
 	    && (spelldata[spl].sUseFlags & myplr._pSkillFlags) == spelldata[spl].sUseFlags;
 }
 
-static bool CanTargetMonster(int mi)
+static bool CanTargetMonster(int mnum)
 {
+	MonsterStruct* mon;
+
 	// The first MAX_MINIONS monsters are reserved for players' golems.
-	if (mi < MAX_MINIONS)
+	if (mnum < MAX_MINIONS)
 		return false;
 
-	const MonsterStruct &monst = monsters[mi];
-	if (monst._mFlags & MFLAG_HIDDEN)
+	mon = monsters[mnum];
+	if (mon->_mFlags & MFLAG_HIDDEN)
 		return false;
-	if (monst._mhitpoints < (1 << 6)) // dead
+	if (mon->_mhitpoints < (1 << 6)) // dead
 		return false;
 
-	const int mx = monst._mx;
-	const int my = monst._my;
+	const int mx = mon->_mx;
+	const int my = mon->_my;
 	if (!(dFlags[mx][my] & BFLAG_VISIBLE))
 		return false;
 	if (dMonster[mx][my] == 0)
