@@ -2562,6 +2562,8 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			mid = dMonster[tx][ty];
+			if (mid == 0)
+				continue;
 			mid = mid >= 0 ? mid - 1 : -(mid + 1);
 			mon = &monsters[mid];
 			if (!(mon->_mFlags & MFLAG_NOSTONE)) {
