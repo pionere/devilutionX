@@ -245,8 +245,6 @@ static void DeltaImportLevel()
 	item = gsDeltaData.ddLevel[bLvl].item;
 	for (i = 0; i < MAXITEMS; i++, item++) {
 		if (*src == DCMD_INVALID) {
-			static_assert((int)DCMD_INVALID == 0, "DeltaImportLevel initializes the items with zero, assuming the invalid command to be zero.");
-			memset(item, 0, sizeof(DItemStr));
 			src++;
 		} else {
 			copy_pod(*item, *reinterpret_cast<DItemStr*>(src));
@@ -263,8 +261,6 @@ static void DeltaImportLevel()
 	mon = gsDeltaData.ddLevel[bLvl].monster;
 	for (i = 0; i < MAXMONSTERS; i++, mon++) {
 		if (*src == DCMD_MON_INVALID) {
-			static_assert((int)DCMD_MON_INVALID == 0, "DeltaImportLevel initializes the monsters with zero, assuming the invalid command to be zero.");
-			memset(mon, 0, sizeof(DMonsterStr));
 			src++;
 		} else {
 			copy_pod(*mon, *reinterpret_cast<DMonsterStr*>(src));
