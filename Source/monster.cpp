@@ -621,7 +621,8 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mDelFlag = FALSE;
 	//mon->_lastx = 0;	-- should be set before use
 	//mon->_lasty = 0;
-	mon->_mAISeed = mon->_mRndSeed = GetRndSeed();
+	mon->_mRndSeed = GetRndSeed();
+	// mon->_mAISeed = -- should be set before use
 	mon->mtalkmsg = TEXT_NONE;
 
 	mon->_uniqtype = 0;
