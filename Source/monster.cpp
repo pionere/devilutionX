@@ -722,20 +722,19 @@ void AddMonster(int x, int y, int dir, int mtidx)
 
 int RaiseMonster(int x, int y, int dir, int mtidx)
 {
-	int mnum = -1;
+	unsigned mnum;
 
-	if (nummonsters < MAXMONSTERS) {
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		if (monsters[mnum]._mmode != MM_UNUSED || monsters[mnum].mlid != NO_LIGHT)
+			continue;
+
 		nummonsters++;
-		for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-			if (monsters[mnum]._mmode == MM_UNUSED)
-				break;
-		}
 		dMonster[x][y] = mnum + 1;
 		InitMonster(mnum, dir, mtidx, x, y);
 		monsters[mnum]._mTreasure = NO_DROP;
+		return mnum;
 	}
-
-	return mnum;
+	return -1;
 }
 
 static int PlaceMonster(int mtidx, int x, int y)
