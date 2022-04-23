@@ -17,6 +17,8 @@ Levels\L4Data\L4.TMI
 Levels\TownData\Town.RDUN
 Levels\TownData\Town.SOL
 Levels\TownData\Town.TMI
+Meta\Dark.tbl
+Meta\Dist.tbl
 Missiles\Farrow1.CL2
 Missiles\Farrow10.CL2
 Missiles\Farrow11.CL2

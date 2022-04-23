@@ -929,7 +929,8 @@ void InitLightGFX()
 		}
 	} else
 #endif*/
-	{
+	LoadFileWithMem("Meta\\Dark.tbl", &darkTable[0][0]);
+	/*{
 		memset(darkTable[0], MAXDARKNESS, MAX_LIGHT_DIST);
 		for (i = 1, k = 2 * MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
 			for (j = 0; j <= MAX_LIGHT_DIST; j++) {
@@ -940,9 +941,9 @@ void InitLightGFX()
 				}
 			}
 		}
-	}
-
-	for (j = 0; j < MAX_OFFSET; j++) {
+	}*/
+	LoadFileWithMem("Meta\\Dist.tbl", &distMatrix[0][0][0][0]);
+	/*for (j = 0; j < MAX_OFFSET; j++) {
 		for (i = 0; i < MAX_OFFSET; i++) {
 			for (k = 0; k < MAX_TILE_DIST; k++) {
 				fa = (MAX_OFFSET * k - i);
@@ -960,7 +961,7 @@ void InitLightGFX()
 				}
 			}
 		}
-	}
+	}*/
 }
 
 #if DEBUG_MODE

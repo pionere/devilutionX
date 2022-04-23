@@ -244,6 +244,8 @@ Levels\TownData\Town.SOL
 Levels\TownData\Town.TIL
 Levels\TownData\Town.TMI
 Levels\TownData\TownS.CEL
+Meta\Dark.tbl
+Meta\Dist.tbl
 Missiles\Acidbf1.CL2
 Missiles\Acidbf10.CL2
 Missiles\Acidbf11.CL2
