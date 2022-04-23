@@ -86,8 +86,10 @@ void AddDead(int mnum, bool stone)
 	BYTE dv;
 
 	mon = &monsters[mnum];
+	if (mon->_mFlags & MFLAG_NOCORPSE)
+		return;
 	static_assert(MAXDEAD < (1 << 5), "Encoding of dDead requires the maximum number of deads to be low.");
-	if (!stone && mon->_mType != MT_GOLEM) {
+	if (!stone) {
 		dv = mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval;
 		dv |= (mon->_mdir << 5);
 	} else {

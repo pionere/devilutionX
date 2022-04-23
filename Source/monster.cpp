@@ -1799,7 +1799,6 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
 	if (sendmsg) {
 		NetSendCmdQuest(Q_DIABLO, false); // recipient should not matter
-		NetSendCmdMonstCorpse(mnum); // remove the 'corpse' of diablo
 	}
 	for (i = 0; i < MAXMONSTERS; i++) {
 		// commented out because this is a pointless complexity
