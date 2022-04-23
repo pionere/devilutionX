@@ -16,7 +16,9 @@ void InitDead()
 	MonsterStruct* mon;
 	MapMonData* cmon;
 	int i, d, nd;
+#if DEBUG_MODE
 	bool mtypes[NUM_MTYPES];
+#endif
 
 	nd = 0;
 	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
@@ -28,22 +30,23 @@ void InitDead()
 	//stonendx = ++nd;
 	++nd;
 	assert(nd == STONENDX);
-
+#if DEBUG_MODE
 	static_assert(false == 0, "InitDead fills mtypes with 0 instead of false values.");
 	memset(mtypes, 0, sizeof(mtypes));
-
+#endif
 	cmon = mapMonTypes;
 	for (i = nummtypes; i > 0; i--, cmon++) {
-		if (!mtypes[cmon->cmType]) {
-			mtypes[cmon->cmType] = true;
-			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
-				dead[nd]._deadData[d] = cmon->cmAnims[MA_DEATH].aData[d];
-			dead[nd]._deadFrame = cmon->cmAnims[MA_DEATH].aFrames;
-			dead[nd]._deadWidth = cmon->cmWidth;
-			dead[nd]._deadXOffset = cmon->cmXOffset;
-			dead[nd]._deadtrans = 0;
-			cmon->cmDeadval = ++nd;
-		}
+#if DEBUG_MODE
+		assert(!mtypes[cmon->cmType]);
+		mtypes[cmon->cmType] = true;
+#endif
+		for (d = 0; d < lengthof(dead[nd]._deadData); d++)
+			dead[nd]._deadData[d] = cmon->cmAnims[MA_DEATH].aData[d];
+		dead[nd]._deadFrame = cmon->cmAnims[MA_DEATH].aFrames;
+		dead[nd]._deadWidth = cmon->cmWidth;
+		dead[nd]._deadXOffset = cmon->cmXOffset;
+		dead[nd]._deadtrans = 0;
+		cmon->cmDeadval = ++nd;
 	}
 
 	/*for (d = 0; d < lengthof(dead[nd]._deadData); d++)
