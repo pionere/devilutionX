@@ -930,7 +930,8 @@ void InitLightGFX()
 	} else
 #endif*/
 	{
-		for (i = 0, k = MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
+		memset(darkTable[0], MAXDARKNESS, MAX_LIGHT_DIST);
+		for (i = 1, k = 2 * MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
 			for (j = 0; j <= MAX_LIGHT_DIST; j++) {
 				if (j >= k) {
 					darkTable[i][j] = MAXDARKNESS;
