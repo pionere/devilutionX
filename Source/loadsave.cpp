@@ -717,7 +717,7 @@ static void LoadObject(int oi, bool full)
 
 	if (!full) {
 		// reset dynamic lights
-		os->_olid = -1;
+		os->_olid = NO_LIGHT;
 	}
 }
 
