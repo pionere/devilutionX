@@ -881,9 +881,9 @@ void MakeLightTable()
 void InitLightGFX()
 {
 	//BYTE* tbl;
-	int i, j, k, l;
-	BYTE col;
-	double fs, fa;
+	//int i, j, k, l;
+	//BYTE col;
+	//double fs, fa;
 
 	LoadFileWithMem("PlrGFX\\Infra.TRN", ColorTrns[COLOR_TRN_RED]);
 	LoadFileWithMem("PlrGFX\\Stone.TRN", ColorTrns[COLOR_TRN_GRAY]);
