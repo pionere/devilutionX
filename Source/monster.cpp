@@ -1035,6 +1035,7 @@ static void PlaceUniques()
 
 static void PlaceSetMapMonsters()
 {
+	int i;
 	BYTE* setp;
 
 	if (!currLvl._dSetLvl) {
@@ -1099,6 +1100,11 @@ static void PlaceSetMapMonsters()
 		PlaceUniqueMonst(UMT_LAZARUS);
 		PlaceUniqueMonst(UMT_RED_VEX);
 		PlaceUniqueMonst(UMT_BLACKJADE);
+		for (i = 1; i <= 3; i++) {
+			monsters[nummonsters - i]._mmode = MM_RESERVED;
+			dMonster[monsters[nummonsters - i]._mx][monsters[nummonsters - i]._my] = 0;
+			ChangeLightRadius(monsters[nummonsters - i].mlid, 0);
+		}
 	}
 }
 
@@ -1189,7 +1195,7 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 {
 	uint16_t rw, rh, *lm;
 	int i, j;
-	int mtidx;
+	int mtidx, mnum;
 
 	if (currLvl._dSetLvl) {
 		AddMonsterType(MT_GOLEM, FALSE);
@@ -1222,9 +1228,31 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 				assert(SwapLE16(*lm) < lengthof(MonstConvTbl) && MonstConvTbl[SwapLE16(*lm)] != 0);
 				mtidx = AddMonsterType(MonstConvTbl[SwapLE16(*lm)], FALSE);
 				// assert(nummonsters < MAXMONSTERS);
-				PlaceMonster(mtidx, i, j);
+				mnum = nummonsters;
+				nummonsters++;
+				InitMonster(mnum, random_(90, NUM_DIRS), mtidx, i, j);
+				if (PosOkActor(i, j)) {
+					dMonster[i][j] = mnum + 1;
+				} else {
+					monsters[mnum]._mmode = MM_RESERVED;
+					// assert(monsters[mnum].mlid == NO_LIGHT);
+				}
 			}
 			lm++;
+		}
+	}
+}
+
+void MonChangeMap()
+{
+	int mnum;
+
+	for (mnum = MAX_MINIONS; mnum < MAXMONSTERS; mnum++) {
+		if (monsters[mnum]._mmode == MM_RESERVED
+		 && PosOkActor(monsters[mnum]._mx, monsters[mnum]._my)) {
+			dMonster[monsters[mnum]._mx][monsters[mnum]._my] = mnum + 1;
+			monsters[mnum]._mmode = MM_STAND;
+			ChangeLightRadius(monsters[mnum].mlid, MON_LIGHTRAD);
 		}
 	}
 }
