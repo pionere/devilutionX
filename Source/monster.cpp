@@ -823,7 +823,7 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 	}
 }
 
-static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
+static void PlaceUniqueMonst(int uniqindex)
 {
 	int xp, yp, x, y;
 	int uniqtype;
@@ -1008,10 +1008,6 @@ static void PlaceUniqueMonst(int uniqindex, int miniontidx, int bosspacksize)
 
 	if (uniqm->mUnqAttr & UMF_NODROP)
 		mon->_mTreasure = NO_DROP;
-	if (uniqm->mUnqAttr & UMF_GROUP) {
-		// assert(mnum == nummonsters - 1);
-		PlaceGroup(miniontidx, bosspacksize, uniqm->mUnqAttr, nummonsters - 1);
-	}
 }
 
 static void PlaceUniques()
@@ -1026,7 +1022,11 @@ static void PlaceUniques()
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
 			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
-				PlaceUniqueMonst(u, mt, MON_PACK_SIZE - 1);
+				PlaceUniqueMonst(u);
+				if (uniqMonData[u].mUnqAttr & UMF_GROUP) {
+					// assert(mnum == nummonsters - 1);
+					PlaceGroup(mt, MON_PACK_SIZE - 1, uniqMonData[u].mUnqAttr, nummonsters - 1);
+				}
 				break;
 			}
 		}
@@ -1072,9 +1072,9 @@ static void PlaceSetMapMonsters()
 
 			AddMonsterType(MT_ADVOCATE, FALSE);
 			AddMonsterType(MT_HLSPWN, FALSE);
-			PlaceUniqueMonst(UMT_LAZARUS, 0, 0);
-			PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
-			PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
+			PlaceUniqueMonst(UMT_LAZARUS);
+			PlaceUniqueMonst(UMT_RED_VEX);
+			PlaceUniqueMonst(UMT_BLACKJADE);
 		}
 		if (currLvl._dLevelIdx == DLV_HELL4) {
 			// assert(quests[Q_DIABLO]._qactive != QUEST_NOTAVAIL);
@@ -1092,13 +1092,13 @@ static void PlaceSetMapMonsters()
 			mem_free_dbg(setp);
 		}
 	} else if (currLvl._dLevelIdx == SL_SKELKING) {
-		PlaceUniqueMonst(UMT_SKELKING, 0, 0);
+		PlaceUniqueMonst(UMT_SKELKING);
 	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		AddMonsterType(MT_ADVOCATE, FALSE);
 		AddMonsterType(MT_HLSPWN, FALSE);
-		PlaceUniqueMonst(UMT_LAZARUS, 0, 0);
-		PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
-		PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
+		PlaceUniqueMonst(UMT_LAZARUS);
+		PlaceUniqueMonst(UMT_RED_VEX);
+		PlaceUniqueMonst(UMT_BLACKJADE);
 	}
 }
 
