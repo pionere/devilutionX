@@ -1550,9 +1550,9 @@ void LevelDeltaLoad()
 		net_assert(tmis->smiMi >= MAXMONSTERS);
 		mi = tmis->smiMi - MAXMONSTERS;
 		net_assert((unsigned)mi < MAXMISSILES);
+		net_assert(nummissiles < MAXMISSILES);
 		net_assert(missileactive[nummissiles] == mi);
 		nummissiles++;
-		net_assert(nummissiles <= MAXMISSILES);
 		mis = &missile[mi];
 		memset(mis, 0, sizeof(*mis));
 
