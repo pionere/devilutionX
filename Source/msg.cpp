@@ -629,8 +629,12 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_kill_monster expects ordered DCMD_MON_ enum II.");
 	if (pD->_mCmd >= DCMD_MON_DEAD)
 		return 0;
-	delta_monster_corpse(&mon->mkParam1);
-	pD->_mCmd = (mon->mkMode != MM_STONE && mnum >= MAX_MINIONS/*mon->_mType != MT_GOLEM*/) ? DCMD_MON_DEAD : DCMD_MON_DESTROYED;
+	if (mon->mkDir < NUM_DIRS) {
+		delta_monster_corpse(&mon->mkParam1);
+		pD->_mCmd = DCMD_MON_DEAD;
+	} else {
+		pD->_mCmd = DCMD_MON_DESTROYED;
+	}
 	pD->_mx = mon->mkParam1.x;
 	pD->_my = mon->mkParam1.y;
 	pD->_mdir = mon->mkDir;
@@ -1043,7 +1047,7 @@ void DeltaLoadLevel()
 					if (i >= MAX_MINIONS)
 						nummonsters--;
 					if (mstr->_mCmd != DCMD_MON_DESTROYED)
-						AddDead(i, false);
+						AddDead(i);
 				} else {
 					mon->_msquelch = mstr->_mactive;
 					mon->_mWhoHit = mstr->_mWhoHit;
@@ -1880,8 +1884,7 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	cmd.mkMonLevel = mon->_mLevel;
 	cmd.mkParam1.x = mon->_mx;
 	cmd.mkParam1.y = mon->_my;
-	cmd.mkDir = mon->_mdir;
-	cmd.mkMode = mon->_mmode;
+	cmd.mkDir = (!(mon->_mFlags & MFLAG_NOCORPSE) && mon->_mmode != MM_STONE) ? mon->_mdir : NUM_DIRS;
 	cmd.mkParam1.bParam1 = currLvl._dLevelIdx;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));

@@ -85,8 +85,7 @@ void AddDead(int mnum)
 	BYTE dv;
 
 	mon = &monsters[mnum];
-	if (mon->_mFlags & MFLAG_NOCORPSE)
-		return;
+	// assert(!(mon->_mFlags & MFLAG_NOCORPSE));
 	static_assert(MAXDEAD < (1 << 5), "Encoding of dDead requires the maximum number of deads to be low.");
 	dv = mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval;
 	dv |= (mon->_mdir << 5);

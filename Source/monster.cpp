@@ -1932,7 +1932,8 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	mon = &monsters[mnum];
 	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	mon->_mhitpoints = 0;
-	dDead[mon->_mx][mon->_my] = 0;
+	if (!(mon->_mFlags & MFLAG_NOCORPSE) && mon->_mmode != MM_STONE)
+		dDead[mon->_mx][mon->_my] = 0;
 	CheckQuestKill(mnum, sendmsg);
 	if (sendmsg) {
 		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonstStartKill uses mnum as pnum, which must fit to BYTE.");
@@ -2572,7 +2573,8 @@ static bool MonDoDeath(int mnum)
 		if (mnum >= MAX_MINIONS)
 			nummonsters--;
 		dMonster[mon->_mx][mon->_my] = 0;
-		AddDead(mnum);
+		if (!(mon->_mFlags & MFLAG_NOCORPSE))
+			AddDead(mnum);
 	}
 	return false;
 }

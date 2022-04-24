@@ -1048,7 +1048,6 @@ typedef struct TCmdMonstKill {
 	WORD mkExp;
 	BYTE mkMonLevel;
 	BYTE mkDir;
-	BYTE mkMode;
 } TCmdMonstKill;
 
 typedef struct TCmdMonstSummon {
