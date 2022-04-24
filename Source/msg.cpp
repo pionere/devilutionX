@@ -576,7 +576,6 @@ static void delta_monster_summon(const TCmdMonstSummon* pCmd)
 {
 	BYTE bLevel;
 	DMonsterStr* mon;
-	int i;
 
 	if (!IsMultiGame)
 		return;
@@ -1582,19 +1581,24 @@ void LevelDeltaLoad()
 		if (mon->mlid != NO_LIGHT)
 			ChangeLightXY(mon->mlid, mon->_moldx, mon->_moldy);
 		// place the monster
-		dMonster[mon->_mx][mon->_my] = mnum + 1;
-		if (mon->_mmode == MM_WALK2) {
-			dMonster[mon->_moldx][mon->_moldy] = -(mnum + 1);
-		} else if (mon->_mmode == MM_WALK) {
-			dMonster[mon->_mfutx][mon->_mfuty] = -(mnum + 1);
-		} else if (mon->_mmode == MM_CHARGE) {
-			dMonster[mon->_mx][mon->_my] = -(mnum + 1);
+		mi = mon->_mmode;
+		if (mi != MM_STONE || mon->_mhitpoints != 0) {
+			dMonster[mon->_mx][mon->_my] = mnum + 1;
+			if (mi == MM_STONE)
+				mi = mon->_mVar3;
+			if (mi == MM_WALK2) {
+				dMonster[mon->_moldx][mon->_moldy] = -(mnum + 1);
+			} else if (mi == MM_WALK) {
+				dMonster[mon->_mfutx][mon->_mfuty] = -(mnum + 1);
+			} else if (mi == MM_CHARGE) {
+				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
+			}
+			// ensure dead bodies are not placed prematurely
+			if (mi == MM_DEATH)
+				dDead[mon->_mx][mon->_my] = 0;
+			else if (mnum < MAX_MINIONS)
+				mon->_mvid = AddVision(mon->_moldx, mon->_moldy, PLR_MIN_VISRAD, false);
 		}
-		// ensure dead bodies are not placed prematurely
-		if (mon->_mmode == MM_DEATH || (mon->_mmode == MM_STONE && mon->_mhitpoints == 0))
-			dDead[mon->_mx][mon->_my] = 0;
-		else if (mnum < MAX_MINIONS)
-			mon->_mvid = AddVision(mon->_moldx, mon->_moldy, PLR_MIN_VISRAD, false);
 		SyncMonsterAnim(mnum);
 		src += sizeof(TSyncLvlMonster);
 	}

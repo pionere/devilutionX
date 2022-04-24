@@ -1930,10 +1930,17 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	MonPlace(mnum);
 
 	mon = &monsters[mnum];
+	if (mon->_mmode != MM_STONE) {
+		if (!(mon->_mFlags & MFLAG_NOCORPSE))
+			dDead[mon->_mx][mon->_my] = 0;
+		mon->_mmode = MM_DEATH;
+		// TODO: might want to turn towards the offending enemy. Might not, though...
+		NewMonsterAnim(mnum, MA_DEATH, mon->_mdir);
+	} else {
+		dMonster[mon->_mx][mon->_my] = 0;
+	}
 	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	mon->_mhitpoints = 0;
-	if (!(mon->_mFlags & MFLAG_NOCORPSE) && mon->_mmode != MM_STONE)
-		dDead[mon->_mx][mon->_my] = 0;
 	CheckQuestKill(mnum, sendmsg);
 	if (sendmsg) {
 		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonstStartKill uses mnum as pnum, which must fit to BYTE.");
@@ -1951,11 +1958,6 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	else
 		PlayEffect(mnum, MS_DEATH);
 
-	if (mon->_mmode != MM_STONE) {
-		mon->_mmode = MM_DEATH;
-		// TODO: might want to turn towards the offending enemy. Might not, though...
-		NewMonsterAnim(mnum, MA_DEATH, mon->_mdir);
-	}
 	MonFallenFear(mon->_mx, mon->_my);
 #ifdef HELLFIRE
 	if ((mon->_mType >= MT_NACID && mon->_mType <= MT_XACID) || mon->_mType == MT_SPIDLORD)
@@ -2649,15 +2651,6 @@ static bool MonDoCharge(int mnum)
 
 static bool MonDoStone(int mnum)
 {
-	MonsterStruct* mon;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonDoStone: Invalid monster %d", mnum);
-	}
-	mon = &monsters[mnum];
-	if (mon->_mhitpoints == 0 && dMonster[mon->_mx][mon->_my] == mnum + 1) {
-		dMonster[mon->_mx][mon->_my] = 0;
-	}
 	return false;
 }
 
