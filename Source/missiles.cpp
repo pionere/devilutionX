@@ -3971,7 +3971,6 @@ void MI_Stone(int mi)
 			mon->_mmode = mis->_miVar1;
 		} else {
 			// assert(mon->_mmode > MM_INGAME_LAST);
-			AddDead(mis->_miVar2, true);
 		}
 		return;
 	}
@@ -3982,12 +3981,14 @@ void MI_Stone(int mi)
 		if (mis->_miAnimType != MFILE_SHATTER1) {
 			mis->_miDrawFlag = TRUE;
 			mis->_miAnimType = MFILE_SHATTER1;
-			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] - 1;
+			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] - 1 + 10;
 			mis->_mix = mon->_mx;
 			mis->_miy = mon->_my;
 			// mis->_mixoff = mon->_mxoff;
 			// mis->_miyoff = mon->_myoff;
 			SetMissDir(mi, 0);
+		} else if (mis->_miAnimFrame == misfiledata[MFILE_SHATTER1].mfAnimLen[0]) {
+			mis->_miAnimFlag = FALSE;
 		}
 		PutMissile(mi);
 	}

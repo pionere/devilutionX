@@ -2572,7 +2572,7 @@ static bool MonDoDeath(int mnum)
 		if (mnum >= MAX_MINIONS)
 			nummonsters--;
 		dMonster[mon->_mx][mon->_my] = 0;
-		AddDead(mnum, false);
+		AddDead(mnum);
 	}
 	return false;
 }
@@ -3504,7 +3504,7 @@ void MAI_Scav(int mnum)
 	if (mon->_mgoal == MGOAL_HEALING) {
 		if (mon->_mgoalvar3 != 0) {
 			mon->_mgoalvar3--; // HEALING_ROUNDS
-			if (dDead[mon->_mx][mon->_my] != 0 && dDead[mon->_mx][mon->_my] != STONENDX) {
+			if (dDead[mon->_mx][mon->_my] != 0) {
 				MonStartSpAttack(mnum);
 				maxhp = mon->_mmaxhp;
 				//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
@@ -3538,7 +3538,7 @@ void MAI_Scav(int mnum)
 						for (j = (BYTE)*cr; j > 0; j--) {
 							tx = mon->_mx + *++cr;
 							ty = mon->_my + *++cr;
-							if (dDead[tx][ty] != 0 && dDead[tx][ty] != STONENDX
+							if (dDead[tx][ty] != 0
 							 && LineClearF(CheckNoSolid, mon->_mx, mon->_my, tx, ty)) {
 								corpseLocs[tmp] = tx;
 								tmp++;

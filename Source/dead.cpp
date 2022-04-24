@@ -21,7 +21,7 @@ void InitDead()
 #endif
 
 	nd = 0;
-	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
+	/*for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 		dead[nd]._deadData[d] = misanimdata[MFILE_SHATTER1][0];
 	dead[nd]._deadFrame = misfiledata[MFILE_SHATTER1].mfAnimLen[0];
 	dead[nd]._deadWidth = misfiledata[MFILE_SHATTER1].mfAnimWidth;
@@ -29,7 +29,7 @@ void InitDead()
 	dead[nd]._deadtrans = 0;
 	//stonendx = ++nd;
 	++nd;
-	assert(nd == STONENDX);
+	assert(nd == STONENDX);*/
 #if DEBUG_MODE
 	static_assert(false == 0, "InitDead fills mtypes with 0 instead of false values.");
 	memset(mtypes, 0, sizeof(mtypes));
@@ -78,9 +78,8 @@ void InitDead()
  * Add the corpse of the monster.
  *
  * @param mnum: the monster which died
- * @param stone: force a 'stone'-corpse
  */
-void AddDead(int mnum, bool stone)
+void AddDead(int mnum)
 {
 	MonsterStruct* mon;
 	BYTE dv;
@@ -89,12 +88,8 @@ void AddDead(int mnum, bool stone)
 	if (mon->_mFlags & MFLAG_NOCORPSE)
 		return;
 	static_assert(MAXDEAD < (1 << 5), "Encoding of dDead requires the maximum number of deads to be low.");
-	if (!stone) {
-		dv = mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval;
-		dv |= (mon->_mdir << 5);
-	} else {
-		dv = STONENDX;
-	}
+	dv = mon->_uniqtype == 0 ? mon->MType->cmDeadval : mon->_udeadval;
+	dv |= (mon->_mdir << 5);
 	// assert(dv < MAXDEAD);
 	dDead[mon->_mx][mon->_my] = dv;
 }

@@ -12,11 +12,10 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#define STONENDX	1
 extern DeadStruct dead[MAXDEAD];
 
 void InitDead();
-void AddDead(int mnum, bool stone);
+void AddDead(int mnum);
 void SyncDeadLight();
 
 #ifdef __cplusplus
