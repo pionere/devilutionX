@@ -1193,6 +1193,7 @@ void LevelDeltaExport()
 		}
 
 		dst = &lvlData->ldContent[0];
+		// export the players
 		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 			TSyncLvlPlayer* __restrict tplr = (TSyncLvlPlayer*)dst;
 			if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging) {
@@ -1253,14 +1254,13 @@ void LevelDeltaExport()
 				}
 			}
 		}
-
+		// export the monsters
 		for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 			mon = &monsters[mnum];
 			if (mon->_msquelch == 0) {
 				continue;	// assume it is the same as in delta
 			}
 			net_assert(mon->_mmode <= MM_INGAME_LAST);
-			// assert(mnum >= MAX_MINIONS || !MINION_INACTIVE(mon));
 			TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)dst;
 			tmon->smMnum = mnum;
 			tmon->smMode = mon->_mmode;
@@ -1308,7 +1308,7 @@ void LevelDeltaExport()
 
 			dst += sizeof(TSyncLvlMonster);
 		}
-
+		// export the missiles
 		for (i = 0; i < nummissiles; i++) {
 			mi = missileactive[i];
 			mis = &missile[mi];
@@ -1360,6 +1360,7 @@ void LevelDeltaExport()
 		}
 
 		lvlData->wLen = SwapLE16((size_t)dst - (size_t)&lvlData->ldContent[0]);
+		// send the data to the recipients
 		DWORD size = /*Level*/DeltaCompressData(dst);
 		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 			if (recipients & (1 << pnum)) {
@@ -1405,6 +1406,7 @@ void LevelDeltaLoad()
 	}
 
 	lvlData = (LDLevel*)&gsDeltaData.ddSendRecvBuf.content[0];
+	// load static metadata
 	static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs II.");
 	assert(nummonsters <= lvlData->ldNumMonsters);
 	nummonsters = lvlData->ldNumMonsters;
@@ -1417,6 +1419,7 @@ void LevelDeltaLoad()
 	}
 
 	src = &lvlData->ldContent[0];
+	// load players
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		TSyncLvlPlayer* __restrict tplr = (TSyncLvlPlayer*)src;
 		if (tplr->spMode == PM_INVALID) {
@@ -1435,7 +1438,7 @@ void LevelDeltaLoad()
 			net_assert(plr._pHPBase == SwapLE32(tplr->spHPBase) || (plr._pHitPoints < (1 << 6) && currLvl._dLevelIdx == DLV_TOWN));
 			net_assert(plr._pManaBase == SwapLE32(tplr->spManaBase));
 		}
-		//RemovePlrFromMap(pnum);
+		// RemovePlrFromMap(pnum);
 		net_assert((unsigned)plr._px < MAXDUNX);
 		net_assert((unsigned)plr._py < MAXDUNY);
 		if (dPlayer[plr._px][plr._py] == pnum + 1)
@@ -1514,6 +1517,7 @@ void LevelDeltaLoad()
 
 	wLen = SwapLE16(lvlData->wLen);
 	wLen -= ((size_t)src - size_t(&lvlData->ldContent[0]));
+	// load monsters
 	for ( ; wLen >= sizeof(TSyncLvlMonster); wLen -= sizeof(TSyncLvlMonster)) {
 		TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)src;
 		mnum = tmon->smMnum;
@@ -1521,7 +1525,7 @@ void LevelDeltaLoad()
 			break;
 
 		mon = &monsters[mnum];
-		//RemoveMonFromMap(mnum);
+		// RemoveMonFromMap(mnum);
 		if (dMonster[mon->_mx][mon->_my] == mnum + 1)
 			dMonster[mon->_mx][mon->_my] = 0;
 
@@ -1590,6 +1594,7 @@ void LevelDeltaLoad()
 		SyncMonsterAnim(mnum);
 		src += sizeof(TSyncLvlMonster);
 	}
+	// load missiles
 	assert(nummissiles == 0);
 	for ( ; wLen >= sizeof(TSyncLvlMissile); wLen -= sizeof(TSyncLvlMissile)) {
 		TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)src;
@@ -1780,7 +1785,7 @@ void LevelDeltaLoad()
 		net_assert(plr._pAnimFrame <= plr._pAnimLen);
 	}
 
-	//ProcessLightList();
+	// ProcessLightList();
 	ProcessVisionList();
 }
 
