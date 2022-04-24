@@ -116,7 +116,7 @@ char * StringCopy(char * szTarget, size_t cchTarget, const char * szSource)
     return szTarget + cchSource;
 }
 
-void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource)
+/*void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource)
 {
     // Get the current length of the target
     size_t cchTarget = strlen(szTarget);
@@ -128,7 +128,7 @@ void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource)
     }
 }
 
-/*void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension)
+void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension)
 {
     char * szBufferEnd = szBuffer + cchMaxChars;
 

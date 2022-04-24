@@ -189,14 +189,14 @@ XCHAR * IntToString(XCHAR * szBuffer, size_t cchMaxChars, XINT nValue, size_t nD
 }
 #endif
 char * StringCopy(char * szTarget, size_t cchTarget, const char * szSource);
-void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource);
+//void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource);
 //void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension);
 
 #ifdef _UNICODE
 void StringCopy(TCHAR * szTarget, size_t cchTarget, const char * szSource);
 void StringCopy(char * szTarget, size_t cchTarget, const TCHAR * szSource);
 void StringCopy(TCHAR * szTarget, size_t cchTarget, const TCHAR * szSource);
-void StringCat(TCHAR * szTarget, size_t cchTargetMax, const TCHAR * szSource);
+//void StringCat(TCHAR * szTarget, size_t cchTargetMax, const TCHAR * szSource);
 #endif
 
 //-----------------------------------------------------------------------------
