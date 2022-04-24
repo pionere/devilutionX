@@ -2653,13 +2653,7 @@ static bool MonDoStone(int mnum)
 		dev_fatal("MonDoStone: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mhitpoints == 0) {
-		// TODO: RemoveMonFromGame ?
-		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
-		mon->_msquelch = 0;
-		// assert(mnum >= MAX_MINIONS);
-		mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
-		nummonsters--;
+	if (mon->_mhitpoints == 0 && dMonster[mon->_mx][mon->_my] == mnum + 1) {
 		dMonster[mon->_mx][mon->_my] = 0;
 	}
 	return false;

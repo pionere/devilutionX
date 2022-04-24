@@ -3963,14 +3963,19 @@ void MI_Stone(int mi)
 	mis = &missile[mi];
 	mon = &monsters[mis->_miVar2];
 	dead = mon->_mhitpoints < (1 << 6);
-	// assert(mon->_mmode == MM_STONE || mon->_mmode > MM_INGAME_LAST);
+	// assert(mon->_mmode == MM_STONE);
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
 		if (!dead) {
 			mon->_mmode = mis->_miVar1;
 		} else {
-			// assert(mon->_mmode > MM_INGAME_LAST);
+			// TODO: RemoveMonFromGame ?
+			// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
+			mon->_msquelch = 0;
+			// assert(mnum >= MAX_MINIONS);
+			mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
+			nummonsters--;
 		}
 		return;
 	}
