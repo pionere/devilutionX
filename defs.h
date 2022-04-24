@@ -7,7 +7,6 @@
 #define DATA_ARCHIVE_MAIN		"diabdat.mpq"
 #define DATA_ARCHIVE_MAIN_ALT	"DIABDAT.MPQ"
 #define DATA_ARCHIVE_PATCH		"patch_rt.mpq"
-#define MENU_ART				"ui_art\\mainmenu.pcx"
 
 #ifdef HELLFIRE
 #define LOGO_DATA				"Data\\hf_logo3.CEL"

@@ -39,7 +39,7 @@ void UiSelOkDialog(const char* title, const char* body)
 	//if (!background) {
 		LoadBackgroundArt("ui_art\\black.pcx");
 	//} else {
-	//	LoadBackgroundArt(MENU_ART);
+	//	LoadBackgroundArt(background);
 	//}
 
 	UiAddBackground(&gUiItems);

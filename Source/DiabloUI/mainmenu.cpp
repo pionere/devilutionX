@@ -48,7 +48,7 @@ static void MainmenuLoad(const char* name)
 #ifndef NOWIDESCREEN
 	LoadArt("ui_art\\mainmenuw.pcx", &ArtBackgroundWidescreen);
 #endif
-	LoadBackgroundArt(MENU_ART);
+	LoadBackgroundArt("ui_art\\mainmenu.pcx");
 
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
