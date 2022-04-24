@@ -93,23 +93,4 @@ void AddDead(int mnum)
 	dDead[mon->_mx][mon->_my] = dv;
 }
 
-void SyncDeadLight()
-{
-	MonsterStruct* mon;
-	int i;
-	int dx, dy;
-
-	for (i = 0; i < MAXMONSTERS; i++) {
-		mon = &monsters[i];
-		if (mon->mlid != NO_LIGHT) {
-			for (dx = 0; dx < MAXDUNX; dx++) {
-				for (dy = 0; dy < MAXDUNY; dy++) {
-					if ((dDead[dx][dy] & 0x1F) == mon->_udeadval)
-						ChangeLightXY(mon->mlid, dx, dy);
-				}
-			}
-		}
-	}
-}
-
 DEVILUTION_END_NAMESPACE

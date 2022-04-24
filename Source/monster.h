@@ -60,6 +60,7 @@ bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2);
 bool LineClear(int x1, int y1, int x2, int y2);
 bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2);
 void SyncMonsterAnim(int mnum);
+void SyncMonsterLight();
 void MissToMonst(int mnum);
 /* Check if the monster can be displaced to the given position. (unwillingly) */
 bool PosOkMonster(int mnum, int x, int y);

@@ -16,7 +16,6 @@ extern DeadStruct dead[MAXDEAD];
 
 void InitDead();
 void AddDead(int mnum);
-void SyncDeadLight();
 
 #ifdef __cplusplus
 }

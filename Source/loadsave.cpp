@@ -781,8 +781,6 @@ static void LoadLevelData(bool full)
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
-		if (!full)
-			SyncDeadLight();
 	}
 
 	LoadInt(&nummonsters);
@@ -1680,6 +1678,7 @@ void LoadLevel()
 
 	LoadLevelData(false);
 
+	SyncMonsterLight();
 	//ResyncQuests();
 	//SyncPortals();
 

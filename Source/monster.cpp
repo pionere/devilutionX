@@ -416,7 +416,7 @@ void InitLevelMonsters()
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		monsters[i]._msquelch = 0;
 		// reset _uniqtype value to simplify InitDead
-		// reset mlid value to simplify SyncDeadLight, DeltaLoadLevel and SummonMonster
+		// reset mlid value to simplify SyncMonsterLight, DeltaLoadLevel and SummonMonster
 		monsters[i]._uniqtype = 0;
 		monsters[i]._uniqtrans = 0;
 		monsters[i]._udeadval = 0;
@@ -4814,6 +4814,19 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnimData = mon->_mAnims[anim].aData[mon->_mdir];
 	mon->_mAnimFrameLen = mon->_mAnims[anim].aFrameLen;
 	mon->_mAnimLen = mon->_mAnims[anim].aFrames;
+}
+
+void SyncMonsterLight()
+{
+	MonsterStruct* mon;
+	int i;
+
+	for (i = 0; i < MAXMONSTERS; i++) {
+		mon = &monsters[i];
+		if (mon->mlid != NO_LIGHT /*&& mon->_mmode > MM_INGAME_LAST*/) {
+			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
+		}
+	}
 }
 
 void MissToMonst(int mi)
