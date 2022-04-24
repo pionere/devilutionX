@@ -3503,9 +3503,10 @@ void MI_HorkSpawn(int mi)
 		for (j = *cr; j > 0; j--) {
 			tx = mis->_mix + *++cr;
 			ty = mis->_miy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
+			// assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkActor(tx, ty)) {
-				RaiseMonster(tx, ty, mis->_miDir, 1);
+				// assert(mapMonTypes[1].cmType == MT_HORKSPWN);
+				SummonMonster(tx, ty, mis->_miDir, 1);
 				return;
 			}
 		}

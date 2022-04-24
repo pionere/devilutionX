@@ -65,7 +65,6 @@ static unsigned guFrameCnt;
 static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
-/* used in 1.00 debug */
 #if DEBUG_MODE
 const char *const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
@@ -84,7 +83,10 @@ const char *const szMonModeAssert[NUM_MON_MODES] = {
 	"charging",
 	"stoned",
 	"healing",
-	"talking"
+	"talking",
+	"dead",
+	"unused",
+	"reserved",
 };
 
 const char *const szPlrModeAssert[NUM_PLR_MODES] = {

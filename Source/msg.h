@@ -113,6 +113,10 @@ void NetSendCmdMonstKill(int mnum, int pnum);
  * @param mnum: the id of the monster
  */
 void NetSendCmdMonstCorpse(int mnum);
+/** Summon a monster
+ * @param mnum: the id of the monster
+ */
+void NetSendCmdMonstSummon(int mnum);
 void NetSendCmdGolem();
 void NetSendShrineCmd(BYTE type, int seed);
 void NetSendCmdQuest(BYTE q, bool extOnly);

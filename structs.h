@@ -1051,6 +1051,14 @@ typedef struct TCmdMonstKill {
 	BYTE mkMode;
 } TCmdMonstKill;
 
+typedef struct TCmdMonstSummon {
+	TCmdLocBParam1 mnParam1;
+	BYTE mnDir;
+	BYTE mnSIdx;
+	WORD mnMnum;
+	INT mnMaxHp;
+} TCmdMonstSummon;
+
 typedef struct TCmdGolem {
 	BYTE bCmd;
 	BYTE goMonLevel;
@@ -1328,6 +1336,7 @@ typedef struct DMonsterStr {
 	BYTE _mdir;
 	BYTE _mleaderflag;
 	BYTE _mWhoHit;
+	BYTE _mSIdx;
 	DWORD _mactive;
 	INT _mhitpoints;
 } DMonsterStr;

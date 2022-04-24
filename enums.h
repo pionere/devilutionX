@@ -2940,8 +2940,9 @@ typedef enum MON_MODE {
 	MM_STONE,
 	MM_HEAL,
 	MM_TALK,
-	MM_RESERVED,
-	MM_UNUSED,
+	MM_DEAD,     // dead monster. x/y coordinates are used to reproduce the corpse (and light)
+	MM_UNUSED,   // unused slot (except for ex-monsters with light)
+	MM_RESERVED, // reserved slot for minions and prespawned skeletons
 	NUM_MON_MODES,
 	MM_INGAME_LAST = MM_TALK
 } MON_MODE;
@@ -3189,6 +3190,7 @@ typedef enum _cmd_id {
 	CMD_MONSTDEATH,
 	CMD_MONSTDAMAGE,
 	CMD_MONSTCORPSE,
+	CMD_MONSTSUMMON,
 	CMD_AWAKEGOLEM,
 	CMD_PLRDEAD,
 	CMD_PLRRESURRECT,

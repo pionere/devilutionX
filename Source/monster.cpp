@@ -285,7 +285,7 @@ void InitLevelMonsters()
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		monsters[i]._msquelch = 0;
 		// reset _uniqtype value to simplify InitDead
-		// reset mlid value to simplify SyncDeadLight
+		// reset mlid value to simplify SyncDeadLight, DeltaLoadLevel and SummonMonster
 		monsters[i]._uniqtype = 0;
 		monsters[i]._uniqtrans = 0;
 		monsters[i]._udeadval = 0;
@@ -554,7 +554,7 @@ void InitMonsterGFX(int midx)
 	}
 }
 
-static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
+void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 {
 	MapMonData* cmon = &mapMonTypes[mtidx];
 	MonsterStruct* mon = &monsters[mnum];
@@ -720,7 +720,7 @@ void AddMonster(int x, int y, int dir, int mtidx)
 	}
 }
 
-int RaiseMonster(int x, int y, int dir, int mtidx)
+int SummonMonster(int x, int y, int dir, int mtidx)
 {
 	unsigned mnum;
 
@@ -730,8 +730,12 @@ int RaiseMonster(int x, int y, int dir, int mtidx)
 
 		nummonsters++;
 		dMonster[x][y] = mnum + 1;
+		// TODO: InitSummonedMonster ?
+		SetRndSeed(glSeedTbl[mnum % NUM_LEVELS]);
 		InitMonster(mnum, dir, mtidx, x, y);
 		monsters[mnum]._mTreasure = NO_DROP;
+		monsters[mnum]._mFlags |= MFLAG_NOCORPSE;
+		NetSendCmdMonstSummon(mnum);
 		return mnum;
 	}
 	return -1;
@@ -2564,7 +2568,7 @@ static bool MonDoDeath(int mnum)
 		// TODO: RemoveMonFromGame ?
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		mon->_msquelch = 0;
-		mon->_mmode = mnum >= MAX_MINIONS  ? MM_UNUSED : MM_RESERVED;
+		mon->_mmode = mnum >= MAX_MINIONS ? ((mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD) : MM_RESERVED;
 		if (mnum >= MAX_MINIONS)
 			nummonsters--;
 		dMonster[mon->_mx][mon->_my] = 0;
@@ -2654,7 +2658,7 @@ static bool MonDoStone(int mnum)
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		mon->_msquelch = 0;
 		// assert(mnum >= MAX_MINIONS);
-		mon->_mmode = MM_UNUSED;
+		mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
 		nummonsters--;
 		dMonster[mon->_mx][mon->_my] = 0;
 	}
@@ -3869,15 +3873,14 @@ void MAI_SkelKing(int mnum)
 	}
 		
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (!IsMultiGame
-		    && ((dist >= 3 && v < 4 * mon->_mInt + 35) || v < 6)
+		if (((dist >= 3 && v < 4 * mon->_mInt + 35) || v < 6)
 			&& MON_HAS_ENEMY) {
 			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 			nx = mon->_mx + offset_x[md];
 			ny = mon->_my + offset_y[md];
 			if (PosOkMonst(mnum, nx, ny)) {
 				v = mapSkelTypes[random_low(136, numSkelTypes)];
-				v = RaiseMonster(nx, ny, 0, v);
+				v = SummonMonster(nx, ny, 0, v);
 				if (v != -1) {
 					MonStartSpStand(v, md);
 					MonStartSpStand(mnum, md);
@@ -3986,7 +3989,7 @@ void MAI_Horkdemon(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (!IsMultiGame && dist >= 3 && v < 2 * mon->_mInt + 43) {
+		if (dist >= 3 && v < 2 * mon->_mInt + 43) {
 			if (PosOkMonst(mnum, mon->_mx + offset_x[mon->_mdir], mon->_my + offset_y[mon->_mdir]) && nummonsters < MAXMONSTERS) {
 				MonStartRSpAttack(mnum, MIS_HORKDMN);
 			}
@@ -4810,8 +4813,9 @@ void SyncMonsterAnim(int mnum)
 	case MM_DELAY:
 	case MM_CHARGE:
 	case MM_TALK:
-	case MM_RESERVED:
+	case MM_DEAD:
 	case MM_UNUSED:
+	case MM_RESERVED:
 		anim = MA_STAND;
 		break;
 	default:

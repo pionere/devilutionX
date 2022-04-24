@@ -572,6 +572,39 @@ static void delta_monster_corpse(const TCmdLocBParam1* pCmd)
 	}
 }
 
+static void delta_monster_summon(const TCmdMonstSummon* pCmd)
+{
+	BYTE bLevel;
+	DMonsterStr* mon;
+	int i;
+
+	if (!IsMultiGame)
+		return;
+
+	bLevel = pCmd->mnParam1.bParam1;
+	net_assert(bLevel < NUM_LEVELS);
+#if HELLFIRE
+	net_assert(bLevel == SL_SKELKING || bLevel == DLV_NEST3);
+#else
+	net_assert(bLevel == SL_SKELKING);
+#endif
+	gsDeltaData.ddLevelChanged[bLevel] = true;
+	net_assert(pCmd->mnMnum >= MAX_MINIONS && pCmd->mnMnum < MAXMONSTERS);
+	mon = &gsDeltaData.ddLevel[bLevel].monster[pCmd->mnMnum];
+	if (mon->_mCmd == DCMD_MON_ACTIVE)
+		return;
+	assert(mon->_mCmd == DCMD_MON_DEAD || mon->_mCmd == DCMD_MON_DESTROYED || mon->_mCmd == DCMD_MON_INVALID);
+	mon->_mx = pCmd->mnParam1.x;
+	mon->_my = pCmd->mnParam1.y;
+	mon->_mdir = pCmd->mnDir;
+	mon->_mSIdx = pCmd->mnSIdx + 1;
+	mon->_mCmd = DCMD_MON_ACTIVE;
+	mon->_mWhoHit = 0;
+	mon->_mactive = 0;
+	mon->_mleaderflag = MLEADER_NONE;
+	mon->_mhitpoints = pCmd->mnMaxHp;
+}
+
 static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 {
 	DMonsterStr* pD;
@@ -960,6 +993,7 @@ void DeltaLoadLevel()
 	int ii;
 	int i;
 	int x, y;
+	bool monInGame;
 
 	assert(IsMultiGame);
 
@@ -972,14 +1006,26 @@ void DeltaLoadLevel()
 		for (i = 0; i < MAXMONSTERS; i++, mstr++) {
 			if (mstr->_mCmd != DCMD_MON_INVALID) {
 				mon = &monsters[i];
+				monInGame = mon->_mmode <= MM_INGAME_LAST;
 				// skip minions and prespawn skeletons
-				if (mon->_mmode <= MM_INGAME_LAST)
+				if (monInGame)
 					RemoveMonFromMap(i);
 				x = mstr->_mx;
 				y = mstr->_my;
 				SetMonsterLoc(mon, x, y);
 				mon->_mdir = mstr->_mdir;
 				UpdateLeader(i, mon->leaderflag, mstr->_mleaderflag);
+				if (mstr->_mSIdx != 0) {
+					net_assert(mstr->_mSIdx <= nummtypes);
+					assert(mon->mlid == NO_LIGHT);
+					// TODO: InitSummonedMonster ?
+					SetRndSeed(glSeedTbl[i % NUM_LEVELS]);
+					InitMonster(i, mon->_mdir, mstr->_mSIdx - 1, mon->_mx, mon->_my);
+					mon->_mTreasure = NO_DROP;
+					mon->_mFlags |= MFLAG_NOCORPSE;
+					if (!monInGame)
+						nummonsters++;
+				}
 				// set hitpoints for dead monsters as well to ensure sync in multiplayer
 				// games even on the first game_logic run
 				mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
@@ -993,7 +1039,7 @@ void DeltaLoadLevel()
 					// TODO: RemoveMonFromGame ?
 					// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 					mon->_msquelch = 0;
-					mon->_mmode = i >= MAX_MINIONS  ? MM_UNUSED : MM_RESERVED;
+					mon->_mmode = i >= MAX_MINIONS ? ((mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD) : MM_RESERVED;
 					if (i >= MAX_MINIONS)
 						nummonsters--;
 					if (mstr->_mCmd != DCMD_MON_DESTROYED)
@@ -2170,6 +2216,24 @@ void NetSendCmdMonstCorpse(int mnum)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdMonstSummon(int mnum)
+{
+	TCmdMonstSummon cmd;
+	MonsterStruct* mon;
+
+	mon = &monsters[mnum];
+	cmd.mnParam1.bCmd = CMD_MONSTSUMMON;
+	cmd.mnParam1.bParam1 = currLvl._dLevelIdx;
+	cmd.mnParam1.x = mon->_mx;
+	cmd.mnParam1.y = mon->_my;
+	cmd.mnMnum = mnum;
+	cmd.mnSIdx = mon->_mMTidx;
+	cmd.mnDir = mon->_mdir;
+	cmd.mnMaxHp = mon->_mmaxhp;
+
+	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdString(unsigned int pmask)
 {
 	int dwStrLen;
@@ -2871,6 +2935,15 @@ static unsigned On_MONSTCORPSE(TCmd* pCmd, int pnum)
 	TCmdLocBParam1* cmd = (TCmdLocBParam1*)pCmd;
 
 	delta_monster_corpse(cmd);
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_MONSTSUMMON(TCmd* pCmd, int pnum)
+{
+	TCmdMonstSummon* cmd = (TCmdMonstSummon*)pCmd;
+
+	delta_monster_summon(cmd);
 
 	return sizeof(*cmd);
 }
@@ -4517,6 +4590,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_MONSTDAMAGE(pCmd, pnum);
 	case CMD_MONSTCORPSE:
 		return On_MONSTCORPSE(pCmd, pnum);
+	case CMD_MONSTSUMMON:
+		return On_MONSTSUMMON(pCmd, pnum);
 	case CMD_AWAKEGOLEM:
 		return On_AWAKEGOLEM(pCmd, pnum);
 	case CMD_PLRDEAD:
