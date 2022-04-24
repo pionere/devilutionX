@@ -268,6 +268,137 @@ static inline void InitMonsterTRN(AnimStruct (&anims)[NUM_MON_ANIM], const char*
 	mem_free_dbg(tf);
 }
 
+static void InitMonsterGFX(int midx)
+{
+	MapMonData* cmon;
+	const MonFileData* mfdata;
+	int mtype, anim, i;
+	char strBuff[256];
+	BYTE* celBuf;
+
+	cmon = &mapMonTypes[midx];
+	mtype = cmon->cmType;
+	mfdata = &monfiledata[monsterdata[mtype].moFileNum];
+	cmon->cmWidth = mfdata->moWidth;
+	cmon->cmXOffset = (mfdata->moWidth - TILE_WIDTH) >> 1;
+	cmon->cmAFNum = mfdata->moAFNum;
+	cmon->cmAFNum2 = mfdata->moAFNum2;
+
+	auto &monAnims = cmon->cmAnims;
+	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
+	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
+		monAnims[anim].aFrames = mfdata->moAnimFrames[anim];
+		monAnims[anim].aFrameLen = mfdata->moAnimFrameLen[anim];
+		if (mfdata->moAnimFrames[anim] > 0) {
+			snprintf(strBuff, sizeof(strBuff), mfdata->moGfxFile, animletter[anim]);
+
+			celBuf = LoadFileInMem(strBuff);
+			assert(monAnims[anim].aCelData == NULL);
+			monAnims[anim].aCelData = celBuf;
+
+			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
+				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
+					monAnims[anim].aData[i] = const_cast<BYTE*>(CelGetFrameStart(celBuf, i));
+				}
+			} else {
+				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
+					monAnims[anim].aData[i] = celBuf;
+				}
+			}
+		}
+	}
+
+
+	if (monsterdata[mtype].mTransFile != NULL) {
+		InitMonsterTRN(monAnims, monsterdata[mtype].mTransFile);
+	}
+
+	// copy walk animation to the stand animation of the golem (except aCelData and alignment)
+	if (mtype == MT_GOLEM) {
+		copy_pod(monAnims[MA_STAND].aData, monAnims[MA_WALK].aData);
+		monAnims[MA_STAND].aFrames = monAnims[MA_WALK].aFrames;
+		monAnims[MA_STAND].aFrameLen = monAnims[MA_WALK].aFrameLen;
+	}
+
+	// load optional missile-gfxs
+	switch (mtype) {
+	case MT_NMAGMA:
+	case MT_YMAGMA:
+	case MT_BMAGMA:
+	case MT_WMAGMA:
+		LoadMissileGFX(MFILE_MAGBALL);
+		break;
+	/*case MT_INCIN:
+	case MT_FLAMLRD:
+	case MT_DOOMFIRE:
+	case MT_HELLBURN:
+		LoadMissileGFX(MFILE_KRULL);
+		break;*/
+	case MT_STORM:
+	case MT_RSTORM:
+	case MT_STORML:
+	case MT_MAEL:
+		LoadMissileGFX(MFILE_THINLGHT);
+		break;
+	/*case MT_SUCCUBUS:
+		LoadMissileGFX(MFILE_FLARE);
+		LoadMissileGFX(MFILE_FLAREEXP);
+		break;*/
+	case MT_NACID:
+	case MT_RACID:
+	case MT_BACID:
+	case MT_XACID:
+#ifdef HELLFIRE
+	case MT_SPIDLORD:
+#endif
+		LoadMissileGFX(MFILE_ACIDBF);
+		LoadMissileGFX(MFILE_ACIDSPLA);
+		LoadMissileGFX(MFILE_ACIDPUD);
+		break;
+	case MT_SNOWWICH:
+		LoadMissileGFX(MFILE_SCUBMISB);
+		LoadMissileGFX(MFILE_SCBSEXPB);
+		break;
+	case MT_HLSPWN:
+		LoadMissileGFX(MFILE_SCUBMISD);
+		LoadMissileGFX(MFILE_SCBSEXPD);
+		break;
+	case MT_SOLBRNR:
+		LoadMissileGFX(MFILE_SCUBMISC);
+		LoadMissileGFX(MFILE_SCBSEXPC);
+		break;
+	case MT_DIABLO:
+		LoadMissileGFX(MFILE_FIREPLAR);
+		break;
+#ifdef HELLFIRE
+	case MT_SKLWING:
+	case MT_BONEDEMN:
+		LoadMissileGFX(MFILE_MS_ORA_B);
+		LoadMissileGFX(MFILE_EXORA1_B);
+		break;
+	case MT_PSYCHORB:
+		LoadMissileGFX(MFILE_MS_ORA);
+		LoadMissileGFX(MFILE_EXORA1);
+		break;
+	case MT_NECRMORB:
+		LoadMissileGFX(MFILE_MS_REB_B);
+		LoadMissileGFX(MFILE_EXYEL2_B);
+		break;
+	case MT_HORKDMN:
+		LoadMissileGFX(MFILE_SPAWNS);
+		break;
+	case MT_LICH:
+		LoadMissileGFX(MFILE_MS_ORA_A);
+		LoadMissileGFX(MFILE_EXORA1_A);
+		break;
+	case MT_ARCHLICH:
+		LoadMissileGFX(MFILE_MS_YEB_A);
+		LoadMissileGFX(MFILE_EXYEL2_A);
+		break;
+#endif
+	}
+}
+
 void InitLevelMonsters()
 {
 	int i;
@@ -420,137 +551,6 @@ void GetLevelMTypes()
 		if (lvl == SL_SKELKING) {
 			AddMonsterType(MT_SKING, FALSE);
 		}
-	}
-}
-
-void InitMonsterGFX(int midx)
-{
-	MapMonData* cmon;
-	const MonFileData* mfdata;
-	int mtype, anim, i;
-	char strBuff[256];
-	BYTE* celBuf;
-
-	cmon = &mapMonTypes[midx];
-	mtype = cmon->cmType;
-	mfdata = &monfiledata[monsterdata[mtype].moFileNum];
-	cmon->cmWidth = mfdata->moWidth;
-	cmon->cmXOffset = (mfdata->moWidth - TILE_WIDTH) >> 1;
-	cmon->cmAFNum = mfdata->moAFNum;
-	cmon->cmAFNum2 = mfdata->moAFNum2;
-
-	auto &monAnims = cmon->cmAnims;
-	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
-	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
-		monAnims[anim].aFrames = mfdata->moAnimFrames[anim];
-		monAnims[anim].aFrameLen = mfdata->moAnimFrameLen[anim];
-		if (mfdata->moAnimFrames[anim] > 0) {
-			snprintf(strBuff, sizeof(strBuff), mfdata->moGfxFile, animletter[anim]);
-
-			celBuf = LoadFileInMem(strBuff);
-			assert(monAnims[anim].aCelData == NULL);
-			monAnims[anim].aCelData = celBuf;
-
-			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
-				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
-					monAnims[anim].aData[i] = const_cast<BYTE*>(CelGetFrameStart(celBuf, i));
-				}
-			} else {
-				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
-					monAnims[anim].aData[i] = celBuf;
-				}
-			}
-		}
-	}
-
-
-	if (monsterdata[mtype].mTransFile != NULL) {
-		InitMonsterTRN(monAnims, monsterdata[mtype].mTransFile);
-	}
-
-	// copy walk animation to the stand animation of the golem (except aCelData and alignment)
-	if (mtype == MT_GOLEM) {
-		copy_pod(monAnims[MA_STAND].aData, monAnims[MA_WALK].aData);
-		monAnims[MA_STAND].aFrames = monAnims[MA_WALK].aFrames;
-		monAnims[MA_STAND].aFrameLen = monAnims[MA_WALK].aFrameLen;
-	}
-
-	// load optional missile-gfxs
-	switch (mtype) {
-	case MT_NMAGMA:
-	case MT_YMAGMA:
-	case MT_BMAGMA:
-	case MT_WMAGMA:
-		LoadMissileGFX(MFILE_MAGBALL);
-		break;
-	/*case MT_INCIN:
-	case MT_FLAMLRD:
-	case MT_DOOMFIRE:
-	case MT_HELLBURN:
-		LoadMissileGFX(MFILE_KRULL);
-		break;*/
-	case MT_STORM:
-	case MT_RSTORM:
-	case MT_STORML:
-	case MT_MAEL:
-		LoadMissileGFX(MFILE_THINLGHT);
-		break;
-	/*case MT_SUCCUBUS:
-		LoadMissileGFX(MFILE_FLARE);
-		LoadMissileGFX(MFILE_FLAREEXP);
-		break;*/
-	case MT_NACID:
-	case MT_RACID:
-	case MT_BACID:
-	case MT_XACID:
-#ifdef HELLFIRE
-	case MT_SPIDLORD:
-#endif
-		LoadMissileGFX(MFILE_ACIDBF);
-		LoadMissileGFX(MFILE_ACIDSPLA);
-		LoadMissileGFX(MFILE_ACIDPUD);
-		break;
-	case MT_SNOWWICH:
-		LoadMissileGFX(MFILE_SCUBMISB);
-		LoadMissileGFX(MFILE_SCBSEXPB);
-		break;
-	case MT_HLSPWN:
-		LoadMissileGFX(MFILE_SCUBMISD);
-		LoadMissileGFX(MFILE_SCBSEXPD);
-		break;
-	case MT_SOLBRNR:
-		LoadMissileGFX(MFILE_SCUBMISC);
-		LoadMissileGFX(MFILE_SCBSEXPC);
-		break;
-	case MT_DIABLO:
-		LoadMissileGFX(MFILE_FIREPLAR);
-		break;
-#ifdef HELLFIRE
-	case MT_SKLWING:
-	case MT_BONEDEMN:
-		LoadMissileGFX(MFILE_MS_ORA_B);
-		LoadMissileGFX(MFILE_EXORA1_B);
-		break;
-	case MT_PSYCHORB:
-		LoadMissileGFX(MFILE_MS_ORA);
-		LoadMissileGFX(MFILE_EXORA1);
-		break;
-	case MT_NECRMORB:
-		LoadMissileGFX(MFILE_MS_REB_B);
-		LoadMissileGFX(MFILE_EXYEL2_B);
-		break;
-	case MT_HORKDMN:
-		LoadMissileGFX(MFILE_SPAWNS);
-		break;
-	case MT_LICH:
-		LoadMissileGFX(MFILE_MS_ORA_A);
-		LoadMissileGFX(MFILE_EXORA1_A);
-		break;
-	case MT_ARCHLICH:
-		LoadMissileGFX(MFILE_MS_YEB_A);
-		LoadMissileGFX(MFILE_EXYEL2_A);
-		break;
-#endif
 	}
 }
 
