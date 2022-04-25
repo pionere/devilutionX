@@ -232,8 +232,10 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 	// TODO: set to prevent assert fail in CanTalkToMonst
 	monsters[tnum]._mgoal = MGOAL_TALKING;
 #endif // DEBUG_MODE || DEV_MODE
+	// set _mgoalvar1 for TalkToTowner
+	monsters[tnum]._mgoalvar1 = STORE_NONE; // TNR_STORE
 	// set mName, _uniqtype for DrawInfoStr
-	monsters[tnum].mName = name; // TNAME
+	monsters[tnum].mName = name; // TNR_NAME
 	monsters[tnum]._uniqtype = 0;
 	// set _mRndSeed for S_TalkEnter
 	monsters[tnum]._mRndSeed = GetRndSeed(); // TNR_SEED
@@ -247,11 +249,8 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 
 static void InitTownerTalk(int tnum, int store_id, int store_talk)
 {
-	TownerStruct* tw;
-
-	tw = &towners[tnum];
-	tw->_tStoreId = store_id;
-	tw->_tStoreTalk = store_talk;
+	monsters[tnum]._mgoalvar1 = store_id; // TNR_STORE
+	monsters[tnum].mtalkmsg = store_talk; // TNR_TALK
 }
 
 /**
@@ -444,7 +443,7 @@ void ProcessTowners()
 					if (!gbQtextflag) {
 						//tw->_tAnimFrameLen = 1000;
 						tw->_tAnimFrame = 1;
-						monsters[i].mName = "Slain Townsman"; // TNAME
+						monsters[i].mName = "Slain Townsman"; // TNR_NAME
 					}
 					continue; //tw->_tAnimCnt = 0;
 				/*} else {
@@ -946,8 +945,8 @@ void TalkToTowner(int tnum)
 	if (qt != TEXT_NONE) {
 		// tw->_tListener = pnum;
 		InitQTextMsg(qt);
-	} else if (tw->_tStoreId != STORE_NONE) {
-		TownerTalk(tw->_tStoreId, tw->_tStoreTalk);
+	} else if (monsters[tnum]._mgoalvar1 != STORE_NONE) { // TNR_STORE
+		TownerTalk(monsters[tnum]._mgoalvar1, monsters[tnum].mtalkmsg); // TNR_TALK
 	}
 }
 
