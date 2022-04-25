@@ -399,49 +399,6 @@ static void InitMonsterGFX(int midx)
 	}
 }
 
-void InitLevelMonsters()
-{
-	int i;
-
-	nummonsters = 0;
-	nummtypes = 0;
-	numSkelTypes = 0;
-	numGoatTypes = 0;
-	uniquetrans = COLOR_TRN_UNIQ;
-	monstimgtot = 4000;
-	totalmonsters = MAXMONSTERS;
-
-	for (i = 0; i < MAXMONSTERS; i++) {
-		monsters[i]._mmode = MM_UNUSED;
-		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
-		monsters[i]._msquelch = 0;
-		// reset _uniqtype value to simplify InitDead
-		// reset mlid value to simplify SyncMonsterLight, DeltaLoadLevel and SummonMonster
-		monsters[i]._uniqtype = 0;
-		monsters[i]._uniqtrans = 0;
-		monsters[i]._udeadval = 0;
-		monsters[i].mlid = NO_LIGHT;
-		// reset leaderflag value to simplify GroupUnity
-		monsters[i].leader = MON_NO_LEADER;
-		monsters[i].leaderflag = MLEADER_NONE;
-		monsters[i].packsize = 0;
-		monsters[i]._mvid = NO_VISION;
-	}
-}
-
-static bool IsSkel(int mt)
-{
-	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
-	    || (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
-	    || (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
-}
-
-static bool IsGoat(int mt)
-{
-	return (mt >= MT_NGOATMC && mt <= MT_GGOATMC)
-	    || (mt >= MT_NGOATBW && mt <= MT_GGOATBW);
-}
-
 static int AddMonsterType(int type, BOOL scatter)
 {
 	int i;
@@ -470,6 +427,59 @@ static int AddMonsterType(int type, BOOL scatter)
 	return i;
 }
 
+void InitLevelMonsters()
+{
+	int i;
+
+	nummonsters = 0;
+	nummtypes = 0;
+	numSkelTypes = 0;
+	numGoatTypes = 0;
+	uniquetrans = COLOR_TRN_UNIQ;
+	monstimgtot = 4000;
+	totalmonsters = MAXMONSTERS;
+
+	// reset monsters
+	for (i = 0; i < MAXMONSTERS; i++) {
+		monsters[i]._mmode = MM_UNUSED;
+		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
+		monsters[i]._msquelch = 0;
+		// reset _uniqtype value to simplify InitDead
+		// reset mlid value to simplify SyncMonsterLight, DeltaLoadLevel and SummonMonster
+		monsters[i]._uniqtype = 0;
+		monsters[i]._uniqtrans = 0;
+		monsters[i]._udeadval = 0;
+		monsters[i].mlid = NO_LIGHT;
+		// reset leaderflag value to simplify GroupUnity
+		monsters[i].leader = MON_NO_LEADER;
+		monsters[i].leaderflag = MLEADER_NONE;
+		monsters[i].packsize = 0;
+		monsters[i]._mvid = NO_VISION;
+	}
+	// reserve minions
+	if (currLvl._dLevelIdx != DLV_TOWN) {
+		AddMonsterType(MT_GOLEM, FALSE);
+		for (i = 0; i < MAX_MINIONS; i++) {
+			InitMonster(i, 0, 0, 0, 0);
+			monsters[i]._mmode = MM_RESERVED;
+		}
+		nummonsters = MAX_MINIONS;
+	}
+}
+
+static bool IsSkel(int mt)
+{
+	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
+	    || (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
+	    || (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
+}
+
+static bool IsGoat(int mt)
+{
+	return (mt >= MT_NGOATMC && mt <= MT_GGOATMC)
+	    || (mt >= MT_NGOATBW && mt <= MT_GGOATBW);
+}
+
 void GetLevelMTypes()
 {
 	int i, mtype;
@@ -479,7 +489,6 @@ void GetLevelMTypes()
 
 	int nt; // number of types
 
-	AddMonsterType(MT_GOLEM, FALSE);
 	lvl = currLvl._dLevelIdx;
 	if (!currLvl._dSetLvl) {
 		if (lvl == DLV_HELL4) {
@@ -1125,14 +1134,6 @@ void InitMonsters()
 	if (IsMultiGame)
 		CheckDungeonClear();
 #endif
-	if (!currLvl._dSetLvl) {
-		for (i = 0; i < MAX_MINIONS; i++) {
-			InitMonster(i, 0, 0, 0, 0);
-			monsters[i]._mmode = MM_RESERVED;
-		}
-		// assert(nummonsters == 0);
-		nummonsters = MAX_MINIONS;
-	}
 	// reserve the entry/exit area
 	for (i = 0; i < numtrigs; i++) {
 		ts = &trigs[i];
@@ -1200,15 +1201,6 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 	int i, j;
 	int mtidx, mnum;
 
-	if (currLvl._dSetLvl) {
-		AddMonsterType(MT_GOLEM, FALSE);
-		for (i = 0; i < MAX_MINIONS; i++) {
-			InitMonster(i, 0, 0, 0, 0);
-			monsters[i]._mmode = MM_RESERVED;
-		}
-		// assert(nummonsters == 0);
-		nummonsters = MAX_MINIONS;
-	}
 	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
