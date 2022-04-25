@@ -220,9 +220,12 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 {
 	TownerStruct* tw;
 
+	// set dMonster for CheckCursMove
 	dMonster[x][y] = tnum + 1;
-	monsters[tnum]._mfutx = monsters[tnum]._mx = x;
-	monsters[tnum]._mfuty = monsters[tnum]._my = y;
+	// set position for DrawInfoStr and On_TALKXY
+	monsters[tnum]._mx = x;
+	monsters[tnum]._my = y;
+	// set mtalkmsg for DoActionBtnCmd(CanTalkToMonst)
 	monsters[tnum].mtalkmsg = TEXT_KING1;
 	// monsters[tnum]._mhitpoints = 1 << 6; -- no longer necessary since PosOkPlayer does not check the monster's hp
 #if DEBUG_MODE || DEV_MODE
