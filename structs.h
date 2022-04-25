@@ -1585,11 +1585,6 @@ static_assert((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellDa
 
 typedef struct TownerStruct {
 	int _ttype;
-	int _tx;    // Tile X-position of NPC
-	int _ty;    // Tile Y-position of NPC
-	int _txoff; // Sprite X-offset (unused)
-	int _tyoff; // Sprite Y-offset (unused)
-	int _tdir;  // Facing of NPC (unused)
 	BYTE* _tAnimData;
 	int _tAnimFrameLen; // Tick length of each frame in the current animation
 	int _tAnimCnt;   // Increases by one each game tick, counting how close we are to _tAnimFrameLen
@@ -1607,7 +1602,7 @@ typedef struct TownerStruct {
 	//BOOL _tSelFlag; // unused
 	int _tSeed;
 	const char* _tName;
-	ALIGNMENT(11, 8)
+	ALIGNMENT(16, 13)
 } TownerStruct;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");

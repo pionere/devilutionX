@@ -222,8 +222,6 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 	//tw->_tSelFlag = TRUE;
 	tw->_tName = name;
 	tw->_ttype = type;
-	tw->_tx = x;
-	tw->_ty = y;
 	tw->_tSeed = GetRndSeed();
 }
 
@@ -415,22 +413,6 @@ void FreeTownerGFX()
 	MemFreeDbg(pCowCels);
 }
 
-static void TownCtrlMsg(TownerStruct* tw)
-{
-	/*PlayerStruct* p;
-	int dx, dy;
-
-	if (tw->_tListener != MAX_PLRS) {
-		p = &plx(tw->_tListener);
-		dx = abs(tw->_tx - p->_px);
-		dy = abs(tw->_ty - p->_py);
-		if (dx >= 2 || dy >= 2) {
-			tw->_tListener = MAX_PLRS;
-			stream_stop();
-		}
-	}*/
-}
-
 void ProcessTowners()
 {
 	TownerStruct* tw;
@@ -438,7 +420,6 @@ void ProcessTowners()
 
 	tw = towners;
 	for (i = numtowners; i > 0; i--, tw++) {
-		TownCtrlMsg(tw);
 		if (tw->_ttype == TOWN_DEADGUY) {
 			if (quests[Q_BUTCHER]._qactive != QUEST_INIT) {
 				//if (quests[Q_BUTCHER]._qactive != QUEST_ACTIVE || quests[Q_BUTCHER]._qlog) {
