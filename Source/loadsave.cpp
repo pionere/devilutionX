@@ -789,9 +789,9 @@ static void LoadLevelData(bool full)
 	LoadInt(&numobjects);
 	LoadInt(&numitems);
 
+	for (i = 0; i < MAXMONSTERS; i++)
+		LoadMonster(i);
 	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
-			LoadMonster(i);
 		if (full) {
 			static_assert(MAXMISSILES <= UCHAR_MAX, "LoadLevelData handles missile-ids as bytes.");
 			for (i = 0; i < MAXMISSILES; i++)
@@ -824,8 +824,8 @@ static void LoadLevelData(bool full)
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
 	}
 
+	LoadInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
 	if (currLvl._dType != DTYPE_TOWN) {
-		LoadInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
 		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
 		if (full)
@@ -1493,9 +1493,9 @@ static void SaveLevelData(bool full)
 	SaveInt(&numobjects);
 	SaveInt(&numitems);
 
+	for (i = 0; i < MAXMONSTERS; i++)
+		SaveMonster(i, full);
 	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
-			SaveMonster(i, full);
 		if (full) {
 			for (i = 0; i < MAXMISSILES; i++)
 				SaveByte(&missileactive[i]);
@@ -1521,8 +1521,8 @@ static void SaveLevelData(bool full)
 		CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
 	}
 
+	SaveInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
 	if (currLvl._dType != DTYPE_TOWN) {
-		SaveInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
 		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
 		if (full)
@@ -1587,11 +1587,11 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
+	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
 	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
-	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
+	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 176 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
