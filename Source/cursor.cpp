@@ -328,7 +328,7 @@ void CheckCursMove()
 	}
 
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "Borders are too small to skip the OOB checks.");
-	if (currLvl._dType != DTYPE_TOWN) {
+	//if (currLvl._dType != DTYPE_TOWN) {
 		if (pcurstemp != MON_NONE /*&& pcurstemp >= MAX_MINIONS*/
 		 && monsters[pcurstemp]._mhitpoints >= (1 << 6)
 		 && !(monsters[pcurstemp]._mFlags & MFLAG_HIDDEN)) {
@@ -480,7 +480,7 @@ void CheckCursMove()
 			else
 				return;
 		}
-	} else {
+	/*} else {
 		if (!flipflag) {
 			mi = dMonster[mx + 1][my];
 			if (mi > 0) {
@@ -509,12 +509,12 @@ void CheckCursMove()
 			cursmy = my + 1;
 		}
 		if (pcursmonst != MON_NONE) {
-			//if (/*pcursmonst < MAX_MINIONS ||*/!monsters[pcursmonst]._mSelFlag) // TNR_SELFLAG
+			//if (/*pcursmonst < MAX_MINIONS ||* /!monsters[pcursmonst]._mSelFlag) // TNR_SELFLAG
 			//	pcursmonst = MON_NONE;
 			//else
 				return;
 		}
-	}
+	}*/
 
 	if (!flipflag) {
 		bv = dPlayer[mx + 1][my];

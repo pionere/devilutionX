@@ -216,7 +216,7 @@ static void ReInitTownerAnim(int ttype, const char* pAnimFile)
 }
 #endif
 
-static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
+static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, int selFlag)
 {
 	MonsterStruct* tw;
 
@@ -230,15 +230,16 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 	tw->_my = y;
 	// set mtalkmsg for DoActionBtnCmd(CanTalkToMonst)
 	tw->mtalkmsg = TEXT_KING1;
-	// monsters[tnum]._mhitpoints = 1 << 6; -- no longer necessary since PosOkPlayer does not check the monster's hp
 #if DEBUG_MODE || DEV_MODE
 	// TODO: set to prevent assert fail in CanTalkToMonst
 	tw->_mgoal = MGOAL_TALKING;
 #endif // DEBUG_MODE || DEV_MODE
 	// set _mgoalvar1 for TalkToTowner
 	tw->_mgoalvar1 = STORE_NONE; // TNR_STORE
-	// set _mSelFlag for CheckCursMove
-	// monsters[tnum]._mSelFlag = TRUE; // TNR_SELFLAG
+	// set _mhitpoints, _mSelFlag and _mFlags for CheckCursMove
+	tw->_mhitpoints = 1 << 6;
+	tw->_mSelFlag = selFlag; // TNR_SELFLAG
+	tw->_mFlags = 0;
 	// set mName, _uniqtype for DrawInfoStr
 	tw->mName = name; // TNR_NAME
 	tw->_uniqtype = 0;
@@ -259,7 +260,7 @@ static void InitTownerTalk(int tnum, int store_id, int store_talk)
  */
 static void InitSmith()
 {
-	InitTownerInfo(numtowners, "Griswold the Blacksmith", TOWN_SMITH, TPOS_SMITH);
+	InitTownerInfo(numtowners, "Griswold the Blacksmith", TOWN_SMITH, TPOS_SMITH, 7);
 	InitTownerTalk(numtowners, STORE_SMITH, TEXT_GRISWOLD1);
 	InitTownerAnim(numtowners, "Towners\\Smith\\SmithN.CEL", 3, 16, 0);
 	numtowners++;
@@ -267,7 +268,7 @@ static void InitSmith()
 
 static void InitBarOwner()
 {
-	InitTownerInfo(numtowners, "Ogden the Tavern owner", TOWN_TAVERN, TPOS_TAVERN);
+	InitTownerInfo(numtowners, "Ogden the Tavern owner", TOWN_TAVERN, TPOS_TAVERN, 7);
 	InitTownerTalk(numtowners, STORE_TAVERN, TEXT_OGDEN1);
 	InitTownerAnim(numtowners, "Towners\\TwnF\\TwnFN.CEL", 3, 16, 3);
 	numtowners++;
@@ -275,14 +276,14 @@ static void InitBarOwner()
 
 static void InitTownDead()
 {
-	InitTownerInfo(numtowners, "Wounded Townsman", TOWN_DEADGUY, 14 + DBORDERX, 22 + DBORDERY);
+	InitTownerInfo(numtowners, "Wounded Townsman", TOWN_DEADGUY, 14 + DBORDERX, 22 + DBORDERY, 1);
 	InitTownerAnim(numtowners, "Towners\\Butch\\Deadguy.CEL", 6, 8, -1);
 	numtowners++;
 }
 
 static void InitWitch()
 {
-	InitTownerInfo(numtowners, "Adria the Witch", TOWN_WITCH, 70 + DBORDERX, 10 + DBORDERY);
+	InitTownerInfo(numtowners, "Adria the Witch", TOWN_WITCH, 70 + DBORDERX, 10 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_WITCH, TEXT_ADRIA1);
 	InitTownerAnim(numtowners, "Towners\\TownWmn1\\Witch.CEL", 6, 19, 5);
 	numtowners++;
@@ -290,7 +291,7 @@ static void InitWitch()
 
 static void InitBarmaid()
 {
-	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BMAID, 33 + DBORDERX, 56 + DBORDERY);
+	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BMAID, 33 + DBORDERX, 56 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_BARMAID, TEXT_GILLIAN1);
 	InitTownerAnim(numtowners, "Towners\\TownWmn1\\WmnN.CEL", 6, 18, -1);
 	numtowners++;
@@ -298,7 +299,7 @@ static void InitBarmaid()
 
 static void InitBoy()
 {
-	InitTownerInfo(numtowners, "Wirt the Peg-legged boy", TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY);
+	InitTownerInfo(numtowners, "Wirt the Peg-legged boy", TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_BOY, TEXT_WIRT1);
 	InitTownerAnim(numtowners, "Towners\\TownBoy\\PegKid1.CEL", 6, 20, -1);
 	numtowners++;
@@ -306,7 +307,7 @@ static void InitBoy()
 
 static void InitHealer()
 {
-	InitTownerInfo(numtowners, "Pepin the Healer", TOWN_HEALER, TPOS_HEALER);
+	InitTownerInfo(numtowners, "Pepin the Healer", TOWN_HEALER, TPOS_HEALER, 7);
 	InitTownerTalk(numtowners, STORE_HEALER, TEXT_PEPIN1);
 	InitTownerAnim(numtowners, "Towners\\Healer\\Healer.CEL", 6, 20, 1);
 	numtowners++;
@@ -314,7 +315,7 @@ static void InitHealer()
 
 static void InitTeller()
 {
-	InitTownerInfo(numtowners, "Cain the Elder", TOWN_STORY, 52 + DBORDERX, 61 + DBORDERY);
+	InitTownerInfo(numtowners, "Cain the Elder", TOWN_STORY, 52 + DBORDERX, 61 + DBORDERY, 7);
 	InitTownerTalk(numtowners, STORE_STORY, TEXT_STORY1);
 	InitTownerAnim(numtowners, "Towners\\Strytell\\Strytell.CEL", 3, 25, 2);
 	numtowners++;
@@ -322,7 +323,7 @@ static void InitTeller()
 
 static void InitDrunk()
 {
-	InitTownerInfo(numtowners, "Farnham the Drunk", TOWN_DRUNK, 61 + DBORDERX, 74 + DBORDERY);
+	InitTownerInfo(numtowners, "Farnham the Drunk", TOWN_DRUNK, 61 + DBORDERX, 74 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_DRUNK, TEXT_FARNHAM1);
 	InitTownerAnim(numtowners, "Towners\\Drunk\\TwnDrunk.CEL", 3, 18, 4);
 	numtowners++;
@@ -340,7 +341,7 @@ static void InitCows()
 		x = TownCowX[i];
 		y = TownCowY[i];
 		dir = TownCowDir[i];
-		InitTownerInfo(numtowners, "Cow", TOWN_COW, x, y);
+		InitTownerInfo(numtowners, "Cow", TOWN_COW, x, y, 3);
 		InitCowAnim(numtowners, dir);
 
 		xo = x + cowoffx[dir];
@@ -362,7 +363,7 @@ static void InitCows()
 #ifdef HELLFIRE
 static void InitFarmer()
 {
-	InitTownerInfo(numtowners, "Lester the farmer", TOWN_FARMER, TPOS_FARMER);
+	InitTownerInfo(numtowners, "Lester the farmer", TOWN_FARMER, TPOS_FARMER, 7);
 	InitTownerAnim(numtowners, "Towners\\Farmer\\Farmrn2.CEL", 3, 15, -1);
 	numtowners++;
 }
@@ -371,7 +372,7 @@ static void InitCowFarmer()
 {
 	const char* pAnimFile;
 
-	InitTownerInfo(numtowners, "Complete Nut", TOWN_COWFARM, TPOS_COWFARM);
+	InitTownerInfo(numtowners, "Complete Nut", TOWN_COWFARM, TPOS_COWFARM, 7);
 	pAnimFile = quests[Q_JERSEY]._qactive != QUEST_DONE ? "Towners\\Farmer\\cfrmrn2.CEL" : "Towners\\Farmer\\mfrmrn2.CEL";
 	InitTownerAnim(numtowners, pAnimFile, 3, 15, -1);
 	numtowners++;
@@ -381,7 +382,7 @@ static void InitGirl()
 {
 	const char* pAnimFile;
 
-	InitTownerInfo(numtowners, "Celia", TOWN_GIRL, TPOS_GIRL);
+	InitTownerInfo(numtowners, "Celia", TOWN_GIRL, TPOS_GIRL, 3);
 	pAnimFile = quests[Q_GIRL]._qactive == QUEST_ACTIVE ? "Towners\\Girl\\Girlw1.CEL" : "Towners\\Girl\\Girls1.CEL";
 	InitTownerAnim(numtowners, pAnimFile, 6, 20, -1);
 	numtowners++;
