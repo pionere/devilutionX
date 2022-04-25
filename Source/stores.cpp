@@ -2266,7 +2266,7 @@ static void S_TalkEnter()
 
 	if (stextsel == sn - 2) {
 		SetRndSeed(towners[talker]._tSeed);
-		tq = RandRange(towners[talker]._tGossipStart, towners[talker]._tGossipEnd);
+		tq = RandRange(GossipList[talker][0], GossipList[talker][1]);
 		InitQTextMsg(tq);
 		return;
 	}
