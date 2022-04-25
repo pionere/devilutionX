@@ -55,20 +55,12 @@ static const int QuestGroup2[3] = { Q_BLIND, Q_ROCK, Q_BLOOD };
  * two of these three quests appear in any game.
  */
 static const int QuestGroup3[3] = { Q_MUSHROOM, Q_ZHAR, Q_ANVIL };
-/**
- * A quest group containing the two quests Lachdanan and Warlord
- * of Blood, which ensures that exactly one of these two quests
- * appears in any game.
+/*
+ * Other quest groups:
+ * { Q_SKELKING, Q_PWATER }
+ * { Q_VEIL, Q_WARLORD }
+ * { Q_JERSEY, Q_FARMER }
  */
-static const int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
-#ifdef HELLFIRE
-/**
- * A quest group containing the two quests CowFarmer and Farmer,
- * which ensures that exactly one of these two quests
- * appears in any game.
- */
-static const int QuestGroup5[2] = { Q_JERSEY, Q_FARMER };
-#endif
 
 void InitQuestGFX()
 {
@@ -110,10 +102,7 @@ void InitQuests()
 #if DEBUG_MODE
 	if (!allquests) {
 #endif
-		if (random_(0, 2) != 0)
-			quests[Q_PWATER]._qactive = QUEST_NOTAVAIL;
-		else
-			quests[Q_SKELKING]._qactive = QUEST_NOTAVAIL;
+		quests[random_(0, 2) != 0 ? Q_SKELKING : Q_PWATER]._qactive = QUEST_NOTAVAIL;
 #ifdef HELLFIRE
 		if (random_(0, 2) != 0)
 			quests[Q_GIRL]._qactive = QUEST_NOTAVAIL;
@@ -122,9 +111,9 @@ void InitQuests()
 		quests[QuestGroup1[random_(0, lengthof(QuestGroup1))]]._qactive = QUEST_NOTAVAIL;
 		quests[QuestGroup2[random_(0, lengthof(QuestGroup2))]]._qactive = QUEST_NOTAVAIL;
 		quests[QuestGroup3[random_(0, lengthof(QuestGroup3))]]._qactive = QUEST_NOTAVAIL;
-		quests[QuestGroup4[random_(0, lengthof(QuestGroup4))]]._qactive = QUEST_NOTAVAIL;
+		quests[random_(0, 2) != 0 ? Q_VEIL : Q_WARLORD]._qactive = QUEST_NOTAVAIL;
 #ifdef HELLFIRE
-		quests[QuestGroup5[random_(0, lengthof(QuestGroup5))]]._qactive = QUEST_NOTAVAIL;
+		quests[random_(0, 2) != 0 ? Q_FARMER : Q_JERSEY]._qactive = QUEST_NOTAVAIL;
 #endif
 #if DEBUG_MODE
 	}
