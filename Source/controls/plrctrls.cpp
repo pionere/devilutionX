@@ -151,7 +151,7 @@ static void FindItemOrObject()
 
 static void CheckTownersNearby()
 {
-	for (int i = 0; i < numtowners; i++) {
+	for (int i = MAX_MINIONS; i < numtowners; i++) {
 		int distance = GetDistance(monsters[i]._mx, monsters[i]._my, 2);
 		if (distance < 0)
 			continue;

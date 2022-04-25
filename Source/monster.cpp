@@ -444,7 +444,6 @@ void InitLevelMonsters()
 {
 	int i;
 
-	nummonsters = 0;
 	nummtypes = 0;
 	numSkelTypes = 0;
 	numGoatTypes = 0;
@@ -470,13 +469,13 @@ void InitLevelMonsters()
 		monsters[i]._mvid = NO_VISION;
 	}
 	// reserve minions
+	nummonsters = MAX_MINIONS;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		AddMonsterType(MT_GOLEM, FALSE);
 		for (i = 0; i < MAX_MINIONS; i++) {
 			InitMonster(i, 0, 0, 0, 0);
 			monsters[i]._mmode = MM_RESERVED;
 		}
-		nummonsters = MAX_MINIONS;
 	}
 }
 

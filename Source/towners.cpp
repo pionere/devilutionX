@@ -206,7 +206,7 @@ static void ReInitTownerAnim(int ttype, const char* pAnimFile)
 {
 	int i;
 
-	for (i = 0; i < numtowners; i++) {
+	for (i = MAX_MINIONS; i < numtowners; i++) {
 		if (monsters[i]._mType != ttype) // TNR_TYPE
 			continue;
 		MemFreeDbg(monsters[i]._mAnimData); // TNR_ANIM_DATA
@@ -390,7 +390,8 @@ static void InitGirl()
 
 void InitTowners()
 {
-	numtowners = 0;
+	assert(nummonsters == MAX_MINIONS);
+	numtowners = MAX_MINIONS;
 	InitSmith();
 	InitHealer();
 	InitBarOwner();
@@ -419,7 +420,7 @@ void FreeTownerGFX()
 {
 	int i;
 
-	for (i = 0; i < numtowners; i++) {
+	for (i = MAX_MINIONS; i < numtowners; i++) {
 		if (monsters[i]._mType == TOWN_COW) { // TNR_TYPE
 			monsters[i]._mAnimData = NULL; // TNR_ANIM_DATA
 		} else {
@@ -436,7 +437,7 @@ void ProcessTowners()
 	MonsterStruct* tw;
 	int i, ao;
 
-	for (i = 0; i < numtowners; i++) {
+	for (i = MAX_MINIONS; i < numtowners; i++) {
 		tw = &monsters[i];
 		if (tw->_mType == TOWN_DEADGUY) { // TNR_TYPE
 			if (quests[Q_BUTCHER]._qactive != QUEST_INIT) {
