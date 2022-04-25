@@ -399,6 +399,19 @@ static void InitMonsterGFX(int midx)
 	}
 }
 
+static bool IsSkel(int mt)
+{
+	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
+	    || (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
+	    || (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
+}
+
+static bool IsGoat(int mt)
+{
+	return (mt >= MT_NGOATMC && mt <= MT_GGOATMC)
+	    || (mt >= MT_NGOATBW && mt <= MT_GGOATBW);
+}
+
 static int AddMonsterType(int type, BOOL scatter)
 {
 	int i;
@@ -465,19 +478,6 @@ void InitLevelMonsters()
 		}
 		nummonsters = MAX_MINIONS;
 	}
-}
-
-static bool IsSkel(int mt)
-{
-	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
-	    || (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
-	    || (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
-}
-
-static bool IsGoat(int mt)
-{
-	return (mt >= MT_NGOATMC && mt <= MT_GGOATMC)
-	    || (mt >= MT_NGOATBW && mt <= MT_GGOATBW);
 }
 
 void GetLevelMTypes()
