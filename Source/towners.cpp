@@ -229,12 +229,14 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 	// TODO: set to prevent assert fail in CanTalkToMonst
 	monsters[tnum]._mgoal = MGOAL_TALKING;
 #endif // DEBUG_MODE || DEV_MODE
+	// set mName, _uniqtype for DrawInfoStr
+	monsters[tnum].mName = name; // TNAME
+	monsters[tnum]._uniqtype = 0;
 	tw = &towners[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
 	static_assert(STORE_NONE == 0, "InitTownerTalk skipped by using zfill instead.");
 	// tw->_tListener = MAX_PLRS;
 	//tw->_tSelFlag = TRUE;
-	tw->_tName = name;
 	tw->_ttype = type;
 	tw->_tSeed = GetRndSeed();
 }
@@ -430,15 +432,15 @@ void ProcessTowners()
 	TownerStruct* tw;
 	int i, ao;
 
-	tw = towners;
-	for (i = numtowners; i > 0; i--, tw++) {
+	for (i = 0; i < numtowners; i++) {
+		tw = &towners[i];
 		if (tw->_ttype == TOWN_DEADGUY) {
 			if (quests[Q_BUTCHER]._qactive != QUEST_INIT) {
 				//if (quests[Q_BUTCHER]._qactive != QUEST_ACTIVE || quests[Q_BUTCHER]._qlog) {
 					if (!gbQtextflag) {
 						//tw->_tAnimFrameLen = 1000;
 						tw->_tAnimFrame = 1;
-						tw->_tName = "Slain Townsman";
+						monsters[i].mName = "Slain Townsman"; // TNAME
 					}
 					continue; //tw->_tAnimCnt = 0;
 				/*} else {

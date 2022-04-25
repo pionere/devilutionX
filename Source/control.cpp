@@ -1636,13 +1636,9 @@ void DrawInfoStr()
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
 		col = COL_WHITE;
-		if (currLvl._dType != DTYPE_TOWN) {
-			strcpy(infostr, mon->mName);
-			if (mon->_uniqtype != 0) {
-				col = COL_GOLD;
-			}
-		} else {
-			strcpy(infostr, towners[pcursmonst]._tName);
+		strcpy(infostr, mon->mName); // TNAME or a monster's name
+		if (mon->_uniqtype != 0) {
+			col = COL_GOLD;
 		}
 		GetMousePos(x, y, &xx, &yy);
 		xx += DrawTooltip(infostr, xx, yy, col);

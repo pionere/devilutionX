@@ -1599,8 +1599,7 @@ typedef struct TownerStruct {
 	int _tStoreTalk;
 	//BOOL _tSelFlag; // unused
 	int _tSeed;
-	const char* _tName;
-	ALIGNMENT(18, 15)
+	ALIGNMENT(19, 16)
 } TownerStruct;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");
