@@ -1594,9 +1594,7 @@ typedef struct TownerStruct {
 	int _tAnimWidth;
 	int _tAnimXOffset;
 	int _tAnimOrder; // char would suffice
-	//BYTE _tListener; // unused
-	//BOOL _tSelFlag; // unused
-	ALIGNMENT(6, 5)
+	ALIGNMENT(6, 4)
 } TownerStruct;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");

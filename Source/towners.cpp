@@ -234,16 +234,16 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 #endif // DEBUG_MODE || DEV_MODE
 	// set _mgoalvar1 for TalkToTowner
 	monsters[tnum]._mgoalvar1 = STORE_NONE; // TNR_STORE
+	// set _mSelFlag for CheckCursMove
+	// monsters[tnum]._mSelFlag = TRUE; // TNR_SELFLAG
 	// set mName, _uniqtype for DrawInfoStr
 	monsters[tnum].mName = name; // TNR_NAME
 	monsters[tnum]._uniqtype = 0;
 	// set _mRndSeed for S_TalkEnter
 	monsters[tnum]._mRndSeed = GetRndSeed(); // TNR_SEED
+	// monsters[tnum]._mListener = MAX_PLRS; // TNR_LISTENER
 	tw = &towners[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
-	static_assert(STORE_NONE == 0, "InitTownerTalk skipped by using zfill instead.");
-	// tw->_tListener = MAX_PLRS;
-	//tw->_tSelFlag = TRUE;
 	tw->_ttype = type;
 }
 
@@ -668,7 +668,7 @@ void TalkToTowner(int tnum)
 		if (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE /*&& quests[Q_BUTCHER]._qvar1 == 1*/) {
 			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
 			if (!effect_is_playing(i)) {
-				// tw->_tListener = pnum;
+				// tw->_mListener = pnum;  // TNR_LISTENER
 				PlaySFX(i);
 			}
 		} else if (quests[Q_BUTCHER]._qactive == QUEST_INIT /*|| (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 0)*/) {
@@ -943,7 +943,7 @@ void TalkToTowner(int tnum)
 	if (qn != Q_INVALID)
 		NetSendCmdQuest(qn, false);
 	if (qt != TEXT_NONE) {
-		// tw->_tListener = pnum;
+		// tw->_mListener = pnum; // TNR_LISTENER
 		InitQTextMsg(qt);
 	} else if (monsters[tnum]._mgoalvar1 != STORE_NONE) { // TNR_STORE
 		TownerTalk(monsters[tnum]._mgoalvar1, monsters[tnum].mtalkmsg); // TNR_TALK
