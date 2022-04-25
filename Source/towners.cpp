@@ -222,7 +222,7 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 
 	// set dMonster for CheckCursMove
 	dMonster[x][y] = tnum + 1;
-	// set position for DrawInfoStr and On_TALKXY
+	// set position for DrawInfoStr, On_TALKXY and CheckTownersNearby
 	monsters[tnum]._mx = x;
 	monsters[tnum]._my = y;
 	// set mtalkmsg for DoActionBtnCmd(CanTalkToMonst)
