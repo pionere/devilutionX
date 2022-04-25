@@ -457,7 +457,7 @@ void InitLevelMonsters()
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		monsters[i]._msquelch = 0;
 		// reset _uniqtype value to simplify InitDead
-		// reset mlid value to simplify SyncMonsterLight, DeltaLoadLevel and SummonMonster
+		// reset mlid value to simplify SyncMonsterLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
 		monsters[i]._uniqtype = 0;
 		monsters[i]._uniqtrans = 0;
 		monsters[i]._udeadval = 0;
