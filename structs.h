@@ -1598,8 +1598,7 @@ typedef struct TownerStruct {
 	int _tStoreId; // BYTE would suffice
 	int _tStoreTalk;
 	//BOOL _tSelFlag; // unused
-	int _tSeed;
-	ALIGNMENT(19, 16)
+	ALIGNMENT(4, 3)
 } TownerStruct;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");

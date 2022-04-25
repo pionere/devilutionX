@@ -235,13 +235,14 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 	// set mName, _uniqtype for DrawInfoStr
 	monsters[tnum].mName = name; // TNAME
 	monsters[tnum]._uniqtype = 0;
+	// set _mRndSeed for S_TalkEnter
+	monsters[tnum]._mRndSeed = GetRndSeed(); // TNR_SEED
 	tw = &towners[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
 	static_assert(STORE_NONE == 0, "InitTownerTalk skipped by using zfill instead.");
 	// tw->_tListener = MAX_PLRS;
 	//tw->_tSelFlag = TRUE;
 	tw->_ttype = type;
-	tw->_tSeed = GetRndSeed();
 }
 
 static void InitTownerTalk(int tnum, int store_id, int store_talk)
