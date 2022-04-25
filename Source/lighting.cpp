@@ -1284,11 +1284,15 @@ void ChangeVisionXY(unsigned vnum, int x, int y)
 
 void ProcessVisionList()
 {
-	LightListStruct *vis;
+	LightListStruct* vis;
 	int i;
 	BYTE temp;
 
-	if (_gbDovision) {
+	if (!_gbDovision)
+		return;
+
+	// skip vision calculation in town
+	if (currLvl._dLevelIdx != DLV_TOWN) {
 		for (i = 0; i < numvision; i++) {
 			vis = &VisionList[visionactive[i]];
 			if (vis->_lunflag) {
@@ -1318,9 +1322,9 @@ void ProcessVisionList()
 			vis = &VisionList[visionactive[i]];
 			DoVision(vis->_lx, vis->_ly, vis->_lradius, vis->_lmine);
 		}
-
-		_gbDovision = false;
 	}
+
+	_gbDovision = false;
 }
 
 void lighting_color_cycling()
