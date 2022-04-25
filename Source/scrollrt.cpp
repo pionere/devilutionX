@@ -377,15 +377,15 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
  */
 static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 {
-	TownerStruct *tw;
+	MonsterStruct* tw;
 	int tx, nCel, nWidth;
 	BYTE *pCelBuff;
 
-	tw = &towners[tnum];
-	tx = sx - tw->_tAnimXOffset;
-	pCelBuff = tw->_tAnimData;
-	nCel = tw->_tAnimFrame;
-	nWidth = tw->_tAnimWidth;
+	tw = &monsters[tnum];
+	tx = sx - tw->_mAnimXOffset;
+	pCelBuff = tw->_mAnimData;
+	nCel = tw->_mAnimFrame;
+	nWidth = tw->_mAnimWidth;
 	if (tnum == pcursmonst) {
 		CelDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
 	}

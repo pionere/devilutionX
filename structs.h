@@ -1580,27 +1580,6 @@ static_assert((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellDa
 #endif
 
 //////////////////////////////////////////////////
-// towners
-//////////////////////////////////////////////////
-
-typedef struct TownerStruct {
-	int _ttype;
-	BYTE* _tAnimData;
-	int _tAnimFrameLen; // Tick length of each frame in the current animation
-	int _tAnimCnt;   // Increases by one each game tick, counting how close we are to _tAnimFrameLen
-	int _tAnimLen;   // Number of frames in current animation
-	int _tAnimFrame; // Current frame of animation.
-	int _tAnimFrameCnt;
-	int _tAnimWidth;
-	int _tAnimXOffset;
-	int _tAnimOrder; // char would suffice
-	ALIGNMENT(6, 4)
-} TownerStruct;
-#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");
-#endif
-
-//////////////////////////////////////////////////
 // scrollrt
 //////////////////////////////////////////////////
 

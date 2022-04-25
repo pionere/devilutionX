@@ -1599,6 +1599,8 @@ void LevelDeltaLoad()
 			else if (mnum < MAX_MINIONS)
 				mon->_mvid = AddVision(mon->_moldx, mon->_moldy, PLR_MIN_VISRAD, false);
 		}
+		// no monsters in town at the moment. might want to allow it for minions later...
+		net_assert(currLvl._dLevelIdx != DLV_TOWN);
 		SyncMonsterAnim(mnum);
 		src += sizeof(TSyncLvlMonster);
 	}

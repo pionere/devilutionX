@@ -609,16 +609,8 @@ static void LoadMonster(int mnum)
 	// Omit pointer mName;
 	// Omit pointer MType;
 
-	SyncMonsterAnim(mnum);
-}
-
-static void LoadTowner(int tnum)
-{
-	TownerStruct* tw = &towners[tnum];
-
-	LoadInt(&tw->_tAnimCnt);
-	LoadInt(&tw->_tAnimFrame);
-	LoadInt(&tw->_tAnimFrameCnt);
+	if (currLvl._dType != DTYPE_TOWN)
+		SyncMonsterAnim(mnum);
 }
 
 static void LoadMissile(int mi)
@@ -940,8 +932,6 @@ void LoadGame()
 			LoadItemData(&healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
 			LoadItemData(&witchitem[i]);
-		for (i = 0; i < MAX_TOWNERS; i++)
-			LoadTowner(i);
 	}
 
 	InitAutomapScale();
@@ -1335,15 +1325,6 @@ static void SaveMonster(int mnum, bool full)
 	// Omit pointer MType;
 }
 
-static void SaveTowner(int tnum)
-{
-	TownerStruct* tw = &towners[tnum];
-
-	SaveInt(&tw->_tAnimCnt);
-	SaveInt(&tw->_tAnimFrame);
-	SaveInt(&tw->_tAnimFrameCnt);
-}
-
 static void SaveMissile(int mi)
 {
 	MissileStruct* mis = &missile[mi];
@@ -1600,10 +1581,10 @@ void SaveGame()
 	// save meta-data III. (modified by LoadGameLevel)
 	constexpr size_t smt = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
 	 + 236 + SMITH_PREMIUM_ITEMS * 236 + (SMITH_ITEMS * 236 + HEALER_ITEMS * 236
-	 + WITCH_ITEMS * 236 + 12 * MAX_TOWNERS);
+	 + WITCH_ITEMS * 236);
 	constexpr size_t smd = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
 	 + 236 + SMITH_PREMIUM_ITEMS * 236 /*+ SMITH_ITEMS * 236 + HEALER_ITEMS * 236
-	 + WITCH_ITEMS * 236 + 12 * MAX_TOWNERS*/;
+	 + WITCH_ITEMS * 236*/;
 	//SaveInt(&numtowners);
 	SaveInt(&boylevel);
 	SaveInt(&numpremium);
@@ -1635,8 +1616,6 @@ void SaveGame()
 			SaveItemData(&healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
 			SaveItemData(&witchitem[i]);
-		for (i = 0; i < MAX_TOWNERS; i++)
-			SaveTowner(i);
 	}
 
 	constexpr size_t tst = ss + slt + smt;

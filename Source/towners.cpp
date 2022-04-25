@@ -11,7 +11,6 @@ unsigned _guCowMsg;
 int numtowners;
 unsigned _guCowClicks;
 BYTE* pCowCels;
-TownerStruct towners[MAX_TOWNERS];
 
 /**
  * Maps from active cow sound effect index and player class to sound
@@ -169,36 +168,37 @@ static void CowSFX(int pnum)
 
 static void InitCowAnim(int tnum, int dir)
 {
-	TownerStruct* tw;
+	MonsterStruct* tw;
 
-	tw = &towners[tnum];
+	tw = &monsters[tnum];
 
-	tw->_tAnimData = const_cast<BYTE*>(CelGetFrameStart(pCowCels, dir));
-	tw->_tAnimLen = 12;
-	tw->_tAnimOrder = -1;
-	tw->_tAnimCnt = 0;
-	tw->_tAnimFrameLen = 3;
-	tw->_tAnimFrame = RandRange(1, 11);
-	tw->_tAnimWidth = 128;
-	tw->_tAnimXOffset = (128 - TILE_WIDTH) >> 1;
+	tw->_mAnimData = const_cast<BYTE*>(CelGetFrameStart(pCowCels, dir)); // TNR_ANIM_DATA
+	tw->_mAnimFrameLen = 3;             // TNR_ANIM_FRAME_LEN
+	tw->_mAnimLen = 12;                 // TNR_ANIM_LEN
+	tw->_mVar1 = -1;                    // TNR_ANIM_ORDER
+	tw->_mAnimCnt = 0;                  // TNR_ANIM_CNT
+	tw->_mAnimFrame = RandRange(1, 11); // TNR_ANIM_FRAME
+	tw->_mAnimWidth = 128;              // TNR_ANIM_WIDTH
+	tw->_mAnimXOffset = (128 - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
 static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFrames, int ao)
 {
-	TownerStruct* tw;
+	MonsterStruct* tw;
 
-	tw = &towners[tnum];
+	tw = &monsters[tnum];
 
-	assert(tw->_tAnimData == NULL);
-	tw->_tAnimData = LoadFileInMem(pAnimFile);
-	tw->_tAnimFrameLen = Delay;
-	tw->_tAnimLen = numFrames;
-	tw->_tAnimOrder = ao;
-	tw->_tAnimCnt = 0;
-	tw->_tAnimFrameCnt = 0;
-	tw->_tAnimFrame = 1;
-	tw->_tAnimWidth = 96;
-	tw->_tAnimXOffset = (96 - TILE_WIDTH) >> 1;
+	// commented out, because it might be populated by InitMonster
+	// assert(tw->_mAnimData == NULL);	
+	tw->_mAnimData = LoadFileInMem(pAnimFile); // TNR_ANIM_DATA
+	tw->_mAnimFrameLen = Delay; // TNR_ANIM_FRAME_LEN
+	tw->_mAnimLen = numFrames;  // TNR_ANIM_LEN
+	tw->_mVar1 = ao;            // TNR_ANIM_ORDER
+	tw->_mVar2 = 0;             // TNR_ANIM_FRAME_CNT
+	tw->_mAnimCnt = 0;          // TNR_ANIM_CNT
+	tw->_mAnimFrame = 1;        // TNR_ANIM_FRAME
+	tw->_mAnimWidth = 96;       // TNR_ANIM_WIDTH
+	tw->_mAnimXOffset = (96 - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
 #ifdef HELLFIRE
@@ -207,10 +207,10 @@ static void ReInitTownerAnim(int ttype, const char* pAnimFile)
 	int i;
 
 	for (i = 0; i < numtowners; i++) {
-		if (towners[i]._ttype != ttype)
+		if (monsters[i]._mType != ttype) // TNR_TYPE
 			continue;
-		MemFreeDbg(towners[i]._tAnimData);
-		towners[i]._tAnimData = LoadFileInMem(pAnimFile);
+		MemFreeDbg(monsters[i]._mAnimData); // TNR_ANIM_DATA
+		monsters[i]._mAnimData = LoadFileInMem(pAnimFile);
 		break;
 	}
 }
@@ -218,33 +218,33 @@ static void ReInitTownerAnim(int ttype, const char* pAnimFile)
 
 static void InitTownerInfo(int tnum, const char* name, int type, int x, int y)
 {
-	TownerStruct* tw;
+	MonsterStruct* tw;
+
+	tw = &monsters[tnum];
 
 	// set dMonster for CheckCursMove
 	dMonster[x][y] = tnum + 1;
+	tw->_mType = type; // TNR_TYPE
 	// set position for DrawInfoStr, On_TALKXY and CheckTownersNearby
-	monsters[tnum]._mx = x;
-	monsters[tnum]._my = y;
+	tw->_mx = x;
+	tw->_my = y;
 	// set mtalkmsg for DoActionBtnCmd(CanTalkToMonst)
-	monsters[tnum].mtalkmsg = TEXT_KING1;
+	tw->mtalkmsg = TEXT_KING1;
 	// monsters[tnum]._mhitpoints = 1 << 6; -- no longer necessary since PosOkPlayer does not check the monster's hp
 #if DEBUG_MODE || DEV_MODE
 	// TODO: set to prevent assert fail in CanTalkToMonst
-	monsters[tnum]._mgoal = MGOAL_TALKING;
+	tw->_mgoal = MGOAL_TALKING;
 #endif // DEBUG_MODE || DEV_MODE
 	// set _mgoalvar1 for TalkToTowner
-	monsters[tnum]._mgoalvar1 = STORE_NONE; // TNR_STORE
+	tw->_mgoalvar1 = STORE_NONE; // TNR_STORE
 	// set _mSelFlag for CheckCursMove
 	// monsters[tnum]._mSelFlag = TRUE; // TNR_SELFLAG
 	// set mName, _uniqtype for DrawInfoStr
-	monsters[tnum].mName = name; // TNR_NAME
-	monsters[tnum]._uniqtype = 0;
+	tw->mName = name; // TNR_NAME
+	tw->_uniqtype = 0;
 	// set _mRndSeed for S_TalkEnter
-	monsters[tnum]._mRndSeed = GetRndSeed(); // TNR_SEED
-	// monsters[tnum]._mListener = MAX_PLRS; // TNR_LISTENER
-	tw = &towners[tnum];
-	memset(tw, 0, sizeof(TownerStruct));
-	tw->_ttype = type;
+	tw->_mRndSeed = GetRndSeed(); // TNR_SEED
+	// tw->_mListener = MAX_PLRS; // TNR_LISTENER
 }
 
 static void InitTownerTalk(int tnum, int store_id, int store_talk)
@@ -420,54 +420,55 @@ void FreeTownerGFX()
 	int i;
 
 	for (i = 0; i < numtowners; i++) {
-		if (towners[i]._ttype == TOWN_COW) {
-			towners[i]._tAnimData = NULL;
+		if (monsters[i]._mType == TOWN_COW) { // TNR_TYPE
+			monsters[i]._mAnimData = NULL; // TNR_ANIM_DATA
 		} else {
-			MemFreeDbg(towners[i]._tAnimData);
+			MemFreeDbg(monsters[i]._mAnimData);
 		}
 	}
-
 	MemFreeDbg(pCowCels);
+
+	numtowners = 0;
 }
 
 void ProcessTowners()
 {
-	TownerStruct* tw;
+	MonsterStruct* tw;
 	int i, ao;
 
 	for (i = 0; i < numtowners; i++) {
-		tw = &towners[i];
-		if (tw->_ttype == TOWN_DEADGUY) {
+		tw = &monsters[i];
+		if (tw->_mType == TOWN_DEADGUY) { // TNR_TYPE
 			if (quests[Q_BUTCHER]._qactive != QUEST_INIT) {
 				//if (quests[Q_BUTCHER]._qactive != QUEST_ACTIVE || quests[Q_BUTCHER]._qlog) {
 					if (!gbQtextflag) {
-						//tw->_tAnimFrameLen = 1000;
-						tw->_tAnimFrame = 1;
-						monsters[i].mName = "Slain Townsman"; // TNR_NAME
+						//tw->_mAnimFrameLen = 1000;
+						tw->_mAnimFrame = 1; // TNR_ANIM_FRAME
+						tw->mName = "Slain Townsman"; // TNR_NAME
 					}
 					continue; //tw->_tAnimCnt = 0;
 				/*} else {
 					if (gbQtextflag)
-						tw->_tAnimCnt = 0;
+						tw->_tAnimCnt = 0; // TNR_ANIM_CNT
 				}*/
 			}
 		}
 
-		tw->_tAnimCnt++;
-		if (tw->_tAnimCnt >= tw->_tAnimFrameLen) {
-			tw->_tAnimCnt = 0;
+		tw->_mAnimCnt++; // TNR_ANIM_CNT
+		if (tw->_mAnimCnt >= tw->_mAnimFrameLen) { // TNR_ANIM_FRAME_LEN
+			tw->_mAnimCnt = 0;
 
-			if (tw->_tAnimOrder >= 0) {
-				ao = tw->_tAnimOrder;
-				tw->_tAnimFrameCnt++;
-				if (AnimOrder[ao][tw->_tAnimFrameCnt] == -1)
-					tw->_tAnimFrameCnt = 0;
+			if (tw->_mVar1 >= 0) { // TNR_ANIM_ORDER
+				ao = tw->_mVar1;
+				tw->_mVar2++; // TNR_ANIM_FRAME_CNT
+				if (AnimOrder[ao][tw->_mVar2] == -1)
+					tw->_mVar2 = 0;
 
-				tw->_tAnimFrame = AnimOrder[ao][tw->_tAnimFrameCnt];
+				tw->_mAnimFrame = AnimOrder[ao][tw->_mVar2]; // TNR_ANIM_FRAME, TNR_ANIM_FRAME_CNT
 			} else {
-				tw->_tAnimFrame++;
-				if (tw->_tAnimFrame > tw->_tAnimLen)
-					tw->_tAnimFrame = 1;
+				tw->_mAnimFrame++; // TNR_ANIM_FRAME
+				if (tw->_mAnimFrame > tw->_mAnimLen) // TNR_ANIM_LEN
+					tw->_mAnimFrame = 1;
 			}
 		}
 	}
@@ -616,10 +617,10 @@ void SyncTownerQ(int pnum, int idx)
 
 void TalkToTowner(int tnum)
 {
-	TownerStruct* tw;
+	MonsterStruct* tw;
 	int i, qt, qn, pnum = mypnum;
 
-	tw = &towners[tnum];
+	tw = &monsters[tnum];
 	if (gbQtextflag) {
 		return;
 	}
@@ -631,7 +632,7 @@ void TalkToTowner(int tnum)
 	qt = TEXT_NONE;
 	qn = Q_INVALID;
 
-	switch (tw->_ttype) {
+	switch (tw->_mType) { // TNR_TYPE
 	case TOWN_TAVERN:
 		if (!IsLvlVisited(DLV_CATHEDRAL1) && plr._pLevel == 1) {
 			qt = TEXT_INTRO;
@@ -945,8 +946,8 @@ void TalkToTowner(int tnum)
 	if (qt != TEXT_NONE) {
 		// tw->_mListener = pnum; // TNR_LISTENER
 		InitQTextMsg(qt);
-	} else if (monsters[tnum]._mgoalvar1 != STORE_NONE) { // TNR_STORE
-		TownerTalk(monsters[tnum]._mgoalvar1, monsters[tnum].mtalkmsg); // TNR_TALK
+	} else if (tw->_mgoalvar1 != STORE_NONE) { // TNR_STORE
+		TownerTalk(tw->_mgoalvar1, tw->mtalkmsg); // TNR_TALK
 	}
 }
 
