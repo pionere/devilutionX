@@ -1922,8 +1922,6 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 
 	mon = &monsters[mnum];
 	if (mon->_mmode != MM_STONE) {
-		if (!(mon->_mFlags & MFLAG_NOCORPSE))
-			dDead[mon->_mx][mon->_my] = 0;
 		mon->_mmode = MM_DEATH;
 		// TODO: might want to turn towards the offending enemy. Might not, though...
 		NewMonsterAnim(mnum, MA_DEATH, mon->_mdir);
@@ -3470,6 +3468,57 @@ void MAI_Torchant(int mnum)
 }
 #endif
 
+#ifdef HELLFIRE
+static void MonConsumeCorpse(MonsterStruct* mon)
+{
+	int i, n, mx, my;
+
+	mx = mon->_mx;
+	my = mon->_my;
+	i = dDead[mx][my];
+	if (i != DEAD_MULTI) {
+		// single body -> consume it
+		i--;
+		mon = &monsters[i];
+		assert(mon->_mmode == MM_DEAD);
+		mon->_mmode = MM_UNUSED;
+		static_assert(MAXMONSTERS < UCHAR_MAX, "ConsumeCorpse sends mnum in BYTE.");
+		NetSendCmdBParam2(CMD_MONSTCORPSE, currLvl._dLevelIdx, i);
+		n = 0;
+	} else {
+		// multiple bodies
+		//  1. find the last(top) one
+		for (i = MAXMONSTERS - 1; i >= 0; i--) {
+			mon = &monsters[i];
+			if (mon->_mmode != MM_DEAD || mon->_mx != mx || mon->_my != my)
+				continue;
+			mon->_mmode = MM_UNUSED;
+			static_assert(MAXMONSTERS < UCHAR_MAX, "ConsumeCorpse sends mnum in BYTE.");
+			NetSendCmdBParam2(CMD_MONSTCORPSE, currLvl._dLevelIdx, i);
+			break;
+		}
+		assert(i >= 0);
+		//  2. find out how many left
+		n = DEAD_MULTI;
+		while (--i >= 0) {
+			mon = &monsters[i];
+			if (mon->_mmode != MM_DEAD || mon->_mx != mx || mon->_my != my)
+				continue;
+			if (n == DEAD_MULTI) {
+				n = i;
+				continue;
+			}
+			n = DEAD_MULTI;
+			break;
+		}
+		assert(n == DEAD_MULTI || i < 0);
+		n = n == DEAD_MULTI ? n : n + 1;
+	}
+	//  3. update the matrix
+	dDead[mx][my] = n;
+}
+#endif
+
 void MAI_Scav(int mnum)
 {
 	MonsterStruct* mon;
@@ -3507,8 +3556,7 @@ void MAI_Scav(int mnum)
 					if (mon->_mhitpoints > maxhp)
 						mon->_mhitpoints = maxhp;
 					if (mon->_mhitpoints == maxhp || mon->_mgoalvar3 == 0) { // HEALING_ROUNDS
-						NetSendCmdMonstCorpse(mnum);
-						dDead[mon->_mx][mon->_my] = 0;
+						MonConsumeCorpse(mon);
 					}
 #else
 					mon->_mhitpoints += 1 << 6;

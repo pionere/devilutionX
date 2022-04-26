@@ -3976,7 +3976,8 @@ void MI_Stone(int mi)
 			// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 			mon->_msquelch = 0;
 			// assert(mnum >= MAX_MINIONS);
-			mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
+			// mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
+			mon->_mmode = MM_UNUSED;
 			nummonsters--;
 		}
 		return;

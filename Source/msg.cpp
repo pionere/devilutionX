@@ -550,11 +550,10 @@ void delta_init()
 	assert(!deltaload);
 }
 
-static void delta_monster_corpse(const TCmdLocBParam1* pCmd)
+static void delta_monster_corpse(const TCmdBParam2* pCmd)
 {
 	BYTE bLevel;
 	DMonsterStr* mon;
-	int i;
 
 	if (!IsMultiGame)
 		return;
@@ -563,13 +562,10 @@ static void delta_monster_corpse(const TCmdLocBParam1* pCmd)
 	net_assert(bLevel < NUM_LEVELS);
 	// commented out, because _mCmd must be already set at this point
 	//gsDeltaData.ddLevelChanged[bLevel] = true;
-	mon = gsDeltaData.ddLevel[bLevel].monster;
-	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].monster); i++, mon++) {
-		if (mon->_mCmd == DCMD_MON_DEAD
-		 && mon->_mx == pCmd->x && mon->_my == pCmd->y) {
-			mon->_mCmd = DCMD_MON_DESTROYED;
-		}
-	}
+	net_assert(pCmd->bParam2 < MAXMONSTERS);
+	mon = &gsDeltaData.ddLevel[bLevel].monster[pCmd->bParam2];
+	if (mon->_mCmd == DCMD_MON_DEAD)
+		mon->_mCmd = DCMD_MON_DESTROYED;
 }
 
 static void delta_monster_summon(const TCmdMonstSummon* pCmd)
@@ -1039,7 +1035,7 @@ void DeltaLoadLevel()
 					// TODO: RemoveMonFromGame ?
 					// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 					mon->_msquelch = 0;
-					mon->_mmode = i >= MAX_MINIONS ? ((mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD) : MM_RESERVED;
+					mon->_mmode = i >= MAX_MINIONS ? ((mstr->_mCmd == DCMD_MON_DESTROYED || (mon->_mFlags & MFLAG_NOCORPSE)) ? MM_UNUSED : MM_DEAD) : MM_RESERVED;
 					if (i >= MAX_MINIONS)
 						nummonsters--;
 					// SyncMonsterAnim(mnum);
@@ -1593,10 +1589,12 @@ void LevelDeltaLoad()
 				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 			}
 			// ensure dead bodies are not placed prematurely
-			if (mi == MM_DEATH)
-				dDead[mon->_mx][mon->_my] = 0;
-			else if (mnum < MAX_MINIONS)
+			if (mi == MM_DEATH) {
+				if (dDead[mon->_mx][mon->_my] == mnum + 1)
+					dDead[mon->_mx][mon->_my] = 0;
+			} else if (mnum < MAX_MINIONS) {
 				mon->_mvid = AddVision(mon->_moldx, mon->_moldy, PLR_MIN_VISRAD, false);
+			}
 		}
 		// no monsters in town at the moment. might want to allow it for minions later...
 		net_assert(currLvl._dLevelIdx != DLV_TOWN);
@@ -2211,20 +2209,6 @@ void NetSendCmdMonstDamage(int mnum, int hitpoints)
 	cmd.mdLevel = currLvl._dLevelIdx;
 	cmd.mdMnum = SwapLE16(mnum);
 	cmd.mdHitpoints = SwapLE32(hitpoints);
-
-	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
-}
-
-void NetSendCmdMonstCorpse(int mnum)
-{
-	TCmdLocBParam1 cmd;
-	MonsterStruct* mon;
-
-	mon = &monsters[mnum];
-	cmd.bCmd = CMD_MONSTCORPSE;
-	cmd.bParam1 = currLvl._dLevelIdx;
-	cmd.x = mon->_mx;
-	cmd.y = mon->_my;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -2945,7 +2929,7 @@ static unsigned On_MONSTDAMAGE(TCmd* pCmd, int pnum)
 
 static unsigned On_MONSTCORPSE(TCmd* pCmd, int pnum)
 {
-	TCmdLocBParam1* cmd = (TCmdLocBParam1*)pCmd;
+	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
 
 	delta_monster_corpse(cmd);
 
