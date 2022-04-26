@@ -359,7 +359,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 		trans = COLOR_TRN_RED;
 	else if (mon->_mmode == MM_STONE)
 		trans = COLOR_TRN_GRAY;
-	else if (mon->_uniqtype != 0)
+	else if (mon->_uniqtrans != 0)
 		trans = mon->_uniqtrans;
 	else {
 		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
