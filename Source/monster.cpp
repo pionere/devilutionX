@@ -4793,6 +4793,7 @@ void SyncMonsterAnim(int mnum)
 	case MM_GOTHIT:
 		anim = MA_GOTHIT;
 		break;
+	case MM_DEAD:
 	case MM_DEATH:
 		anim = MA_DEATH;
 		break;
@@ -4808,7 +4809,6 @@ void SyncMonsterAnim(int mnum)
 	case MM_DELAY:
 	case MM_CHARGE:
 	case MM_TALK:
-	case MM_DEAD:
 	case MM_UNUSED:
 	case MM_RESERVED:
 		anim = MA_STAND;
