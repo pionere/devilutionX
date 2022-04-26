@@ -374,20 +374,11 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
  * @param mx Back buffer coordinate
  * @param my Back buffer coordinate
  */
-static void DrawDeadMonster(int mnum, int sx, int sy)
+static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 {
-	MonsterStruct* mon;
 	int mx, my, nCel, nWidth;
 	BYTE* pCelBuff;
 
-	if (light_trn_index >= MAXDARKNESS)
-		return;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("DrawDeadMonster: tried to draw illegal monster %d", mnum);
-	}
-
-	mon = &monsters[mnum];
 	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
 	my = sy /*+ mon->_myoff*/;
 
@@ -407,6 +398,28 @@ static void DrawDeadMonster(int mnum, int sx, int sy)
 		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, mon->_uniqtrans);
 	} else {
 		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
+	}
+}
+
+static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
+{
+	int i;
+	MonsterStruct* mon;
+
+	if (light_trn_index >= MAXDARKNESS)
+		return;
+
+	if (mnum != DEAD_MULTI) {
+		mon = &monsters[mnum - 1];
+		DrawDeadMonsterHelper(mon, sx, sy);
+		return;
+	}
+
+	for (i = 0; i < MAXMONSTERS; i++) {
+		mon = &monsters[i];
+		if (mon->_mmode != MM_DEAD || mon->_mx != x || mon->_my != y)
+			continue;
+		DrawDeadMonsterHelper(mon, sx, sy);
 	}
 }
 
@@ -799,7 +812,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 
 	bv = dDead[sx][sy];
 	if (bv != 0)
-		DrawDeadMonster(bv - 1, dx, dy);
+		DrawDeadMonster(bv, sx, sy, dx, dy);
 	mpnum = dObject[sx][sy];
 	if (mpnum != 0)
 		DrawObject(mpnum, sx, sy, dx, dy, TRUE);

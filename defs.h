@@ -61,7 +61,7 @@
 #define NET_DEFAULT_PORT		6112
 #define MAX_SEND_STR_LEN		80
 
-#define MAXDEAD					31
+#define DEAD_MULTI				0xFF
 #define MAXITEMS				127
 #define ITEM_NONE				0xFF
 #define MAXBELTITEMS			8

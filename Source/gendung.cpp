@@ -92,6 +92,7 @@ int dMonster[MAXDUNX][MAXDUNY];
  */
 BYTE dDead[MAXDUNX][MAXDUNY];
 static_assert(MAXMONSTERS <= UCHAR_MAX, "Index of a monster might not fit to dDead.");
+static_assert((BYTE)(MAXMONSTERS + 1) < (BYTE)DEAD_MULTI, "Multi-dead in dDead reserves one entry.");
 /**
  * Contains the object numbers (objects array indices) of the map.
  *   oi + 1 : the object is on the given location

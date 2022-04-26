@@ -2552,7 +2552,7 @@ void MonAddDead(int mnum)
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	dDead[mon->_mx][mon->_my] = mnum + 1;
+	dDead[mon->_mx][mon->_my] = dDead[mon->_mx][mon->_my] == 0 ? mnum + 1 : DEAD_MULTI;
 }
 
 static bool MonDoDeath(int mnum)

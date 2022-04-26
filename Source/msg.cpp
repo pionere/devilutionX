@@ -628,12 +628,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_kill_monster expects ordered DCMD_MON_ enum II.");
 	if (pD->_mCmd >= DCMD_MON_DEAD)
 		return 0;
-	if (mon->mkDir < NUM_DIRS) {
-		delta_monster_corpse(&mon->mkParam1);
-		pD->_mCmd = DCMD_MON_DEAD;
-	} else {
-		pD->_mCmd = DCMD_MON_DESTROYED;
-	}
+	pD->_mCmd = mon->mkDir < NUM_DIRS ? DCMD_MON_DEAD : DCMD_MON_DESTROYED;
 	pD->_mx = mon->mkParam1.x;
 	pD->_my = mon->mkParam1.y;
 	pD->_mdir = mon->mkDir;
