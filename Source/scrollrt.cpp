@@ -35,6 +35,11 @@ ViewportStruct gsTileVp;
 int light_trn_index;
 
 /**
+ * Specifies the current draw mode.
+ */
+static BOOL gbPreFlag;
+
+/**
  * Cursor-size
  */
 int sgCursHgt;
@@ -243,14 +248,13 @@ static void scrollrt_draw_cursor()
  * @param mis Pointer to MissileStruct struct
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pre Is the sprite in the background
  */
-static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
+static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 {
 	int mx, my, nCel, frames;
 	BYTE *pCelBuff;
 
-	if (mis->_miPreFlag != pre || !mis->_miDrawFlag)
+	if (mis->_miPreFlag != gbPreFlag || !mis->_miDrawFlag)
 		return;
 
 	mx = sx + mis->_mixoff - mis->_miAnimXOffset;
@@ -278,16 +282,15 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pre Is the sprite in the background
  */
-static void DrawMissile(int mi, int x, int y, int sx, int sy, BOOL pre)
+static void DrawMissile(int mi, int x, int y, int sx, int sy)
 {
 	int i;
 	MissileStruct *mis;
 
 	if (mi != MIS_MULTI) {
 		mis = &missile[mi - 1];
-		DrawMissilePrivate(mis, sx, sy, pre);
+		DrawMissilePrivate(mis, sx, sy);
 		return;
 	}
 
@@ -296,7 +299,7 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy, BOOL pre)
 		mis = &missile[missileactive[i]];
 		if (mis->_mix != x || mis->_miy != y)
 			continue;
-		DrawMissilePrivate(mis, sx, sy, pre);
+		DrawMissilePrivate(mis, sx, sy);
 	}
 }
 
@@ -553,9 +556,8 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
  * @param y dPiece coordinate
  * @param ox Back buffer coordinate
  * @param oy Back buffer coordinate
- * @param pre Is the sprite in the background
  */
-static void DrawObject(int oi, int x, int y, int ox, int oy, BOOL pre)
+static void DrawObject(int oi, int x, int y, int ox, int oy)
 {
 	ObjectStruct *os;
 	int sx, sy, xx, yy, nCel, frames;
@@ -569,7 +571,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy, BOOL pre)
 	oi = oi >= 0 ? oi - 1 : -(oi + 1);
 	assert((unsigned)oi < MAXOBJECTS);
 	os = &objects[oi];
-	if (os->_oPreFlag != pre)
+	if (os->_oPreFlag != gbPreFlag)
 		return;
 	sx = ox - os->_oAnimXOffset;
 	sy = oy;
@@ -725,9 +727,8 @@ static void drawFloor(int pn, int sx, int sy)
  * @param x dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pre Is the sprite in the background
  */
-static void DrawItem(int ii, int sx, int sy, BOOL pre)
+static void DrawItem(int ii, int sx, int sy)
 {
 	int nCel, frames;
 	ItemStruct *is;
@@ -738,7 +739,7 @@ static void DrawItem(int ii, int sx, int sy, BOOL pre)
 	ii--;
 
 	is = &items[ii];
-	if (is->_iPostDraw == pre)
+	if (is->_iPostDraw == gbPreFlag)
 		return;
 
 	pCelBuff = is->_iAnimData;
@@ -791,6 +792,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	//	return;
 	//dRendered[sx][sy] = true;
 
+	gbPreFlag = TRUE;
 	bFlag = dFlags[sx][sy];
 	light_trn_index = dLight[sx][sy];
 	gbCelTransparencyActive = TransList[dTransVal[sx][sy]];
@@ -807,7 +809,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	if (bFlag & BFLAG_MISSILE_PRE) {
 		mpnum = dMissile[sx][sy];
 		assert(mpnum != 0);
-		DrawMissile(mpnum, sx, sy, dx, dy, TRUE);
+		DrawMissile(mpnum, sx, sy, dx, dy);
 	}
 
 	bv = dDead[sx][sy];
@@ -815,13 +817,14 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawDeadMonster(bv, sx, sy, dx, dy);
 	mpnum = dObject[sx][sy];
 	if (mpnum != 0)
-		DrawObject(mpnum, sx, sy, dx, dy, TRUE);
+		DrawObject(mpnum, sx, sy, dx, dy);
 	bv = dItem[sx][sy];
 	if (bv != 0)
-		DrawItem(bv, dx, dy, TRUE);
+		DrawItem(bv, dx, dy);
 	if (bFlag & BFLAG_DEAD_PLAYER) {
 		DrawDeadPlayer(sx, sy, dx, dy);
 	}
+	gbPreFlag = FALSE;
 	mpnum = dPlayer[sx][sy];
 	if (mpnum > 0)
 		DrawPlayer(mpnum - 1, bFlag, dx, dy);
@@ -830,13 +833,13 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawMonsterHelper(mpnum - 1, bFlag, dx, dy);
 	mpnum = dMissile[sx][sy];
 	if (mpnum != 0)
-		DrawMissile(mpnum, sx, sy, dx, dy, FALSE);
+		DrawMissile(mpnum, sx, sy, dx, dy);
 	mpnum = dObject[sx][sy];
 	if (mpnum != 0)
-		DrawObject(mpnum, sx, sy, dx, dy, FALSE);
+		DrawObject(mpnum, sx, sy, dx, dy);
 	bv = dItem[sx][sy];
 	if (bv != 0)
-		DrawItem(bv, dx, dy, FALSE);
+		DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		bv = dSpecial[sx][sy];
