@@ -240,6 +240,8 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 	tw->_mhitpoints = 1 << 6;
 	tw->_mSelFlag = selFlag; // TNR_SELFLAG
 	tw->_mFlags = 0;
+	// _mmaxhp for DrawInfoStr
+	tw->_mmaxhp = 0;
 	// set mName, _uniqtype for DrawInfoStr
 	tw->mName = name; // TNR_NAME
 	// tw->_uniqtype = 0;
