@@ -2551,7 +2551,6 @@ void MonAddDead(int mnum)
 {
 	MonsterStruct* mon;
 
-	static_assert(MAXMONSTERS < UCHAR_MAX, "MonAddDead stores monster indices in BYTE.");
 	mon = &monsters[mnum];
 	dDead[mon->_mx][mon->_my] = mnum + 1;
 }

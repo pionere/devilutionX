@@ -77,6 +77,7 @@ BYTE dFlags[MAXDUNX][MAXDUNY];
  * -(pnum + 1): reserved for a moving player
  */
 char dPlayer[MAXDUNX][MAXDUNY];
+static_assert(MAX_PLRS <= CHAR_MAX, "Index of a player might not fit to dPlayer.");
 /**
  * Contains the NPC numbers of the map. The NPC number represents a
  * towner number (towners array index) in Tristram and a monster number
@@ -90,25 +91,28 @@ int dMonster[MAXDUNX][MAXDUNY];
  *   mnum + 1 : the NPC corpse is on spot
  */
 BYTE dDead[MAXDUNX][MAXDUNY];
+static_assert(MAXMONSTERS <= UCHAR_MAX, "Index of a monster might not fit to dDead.");
 /**
  * Contains the object numbers (objects array indices) of the map.
  *   oi + 1 : the object is on the given location
  * -(oi + 1): a large object protrudes from its base location
  */
 char dObject[MAXDUNX][MAXDUNY];
+static_assert(MAXOBJECTS <= CHAR_MAX, "Index of an object might not fit to dObject.");
 /**
  * Contains the item numbers (items array indices) of the map.
  *   ii + 1 : the item is on the floor on the given location.
  */
 BYTE dItem[MAXDUNX][MAXDUNY];
+static_assert(MAXITEMS <= UCHAR_MAX, "Index of an item might not fit to dItem.");
 /**
  * Contains the missile numbers (missiles array indices) of the map.
  *   mi + 1 : the missile is on the given location.
  * MIS_MULTI: more than one missile on the given location.
  */
-static_assert(MAXMISSILES < UCHAR_MAX, "Index of a missile might not fit to dMissile.");
-static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMissile reserves one entry.");
 BYTE dMissile[MAXDUNX][MAXDUNY];
+static_assert(MAXMISSILES <= UCHAR_MAX, "Index of a missile might not fit to dMissile.");
+static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMissile reserves one entry.");
 /**
  * Contains the arch frame numbers of the map from the special tileset
  * (e.g. "levels/l1data/l1s.cel"). Note, the special tileset of Tristram (i.e.
