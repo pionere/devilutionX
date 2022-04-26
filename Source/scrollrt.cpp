@@ -159,11 +159,11 @@ void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, cons
 	}
 
 	if (outline)
-		CelDrawOutline(col, sx, sy, pCelBuff, nCel, nWidth);
+		CelClippedDrawOutline(col, sx, sy, pCelBuff, nCel, nWidth);
 	if (col != ICOL_RED) {
 		CelClippedDraw(sx, sy, pCelBuff, nCel, nWidth);
 	} else {
-		CelDrawLightRed(sx, sy, pCelBuff, nCel, nWidth);
+		CelClippedDrawLightRed(sx, sy, pCelBuff, nCel, nWidth);
 	}
 }
 
@@ -445,7 +445,7 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 	nCel = tw->_mAnimFrame;
 	nWidth = tw->_mAnimWidth;
 	if (tnum == pcursmonst) {
-		CelDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
+		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
 	}
 	CelClippedDraw(tx, sy, pCelBuff, nCel, nWidth);
 }
@@ -594,7 +594,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	}
 
 	if (oi == pcursobj)
-		CelDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
+		CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	if (os->_oLightFlag) {
 		CelClippedDrawLight(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	} else {
@@ -754,7 +754,7 @@ static void DrawItem(int ii, int sx, int sy)
 
 	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
 	if (ii == pcursitem) {
-		CelDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); // is->_iAnimWidth);
+		CelClippedDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); // is->_iAnimWidth);
 	}
 	CelClippedDrawLight(sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); //is->_iAnimWidth);
 }

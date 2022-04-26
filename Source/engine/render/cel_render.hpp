@@ -73,7 +73,7 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE *pCelBuff, int nCel, in
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
-void CelDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
+void CelClippedDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
  * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the target buffer at the given coordinates
@@ -84,7 +84,7 @@ void CelDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
-void CelDrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
+void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 }
 

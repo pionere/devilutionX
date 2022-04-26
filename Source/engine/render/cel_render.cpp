@@ -338,7 +338,7 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE *pCelBuff, int nCel, in
  * @param nWidth Width of sprite
  * @param light Light shade to use -- disabled for the moment
  */
-void CelDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
+void CelClippedDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 {
 	int nDataSize;
 	const BYTE* pRLEBytes;
@@ -402,7 +402,7 @@ void CelDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
  */
-void CelDrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
+void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 {
 	int nDataSize, i;
 	const BYTE *src, *end;
