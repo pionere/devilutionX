@@ -49,6 +49,7 @@ void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags);
 void MonStartKill(int mnum, int pnum);
 void MonSyncStartKill(int mnum, int x, int y, int pnum);
 void MonUpdateLeader(int mnum);
+void MonAddDead(int mnum);
 void DoEnding();
 void MonWalkDir(int mnum, int md);
 void ProcessMonsters();

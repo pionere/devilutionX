@@ -86,10 +86,8 @@ char dPlayer[MAXDUNX][MAXDUNY];
  */
 int dMonster[MAXDUNX][MAXDUNY];
 /**
- * Contains the dead numbers (deads array indices) and dead direction of
- * the map, encoded as specified by the pseudo-code below.
- * dDead[x][y] & 0x1F - index of dead
- * dDead[x][y] >> 0x5 - direction
+ * Contains the dead NPC numbers of the map (only monsters at the moment).
+ *   mnum + 1 : the NPC corpse is on spot
  */
 BYTE dDead[MAXDUNX][MAXDUNY];
 /**

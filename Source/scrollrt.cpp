@@ -369,6 +369,48 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 }
 
 /**
+ * @brief Render a sprite of a dead monster
+ * @param mnum Id of monster
+ * @param mx Back buffer coordinate
+ * @param my Back buffer coordinate
+ */
+static void DrawDeadMonster(int mnum, int sx, int sy)
+{
+	MonsterStruct* mon;
+	int mx, my, nCel, nWidth;
+	BYTE* pCelBuff;
+
+	if (light_trn_index >= MAXDARKNESS)
+		return;
+
+	if ((unsigned)mnum >= MAXMONSTERS) {
+		dev_fatal("DrawDeadMonster: tried to draw illegal monster %d", mnum);
+	}
+
+	mon = &monsters[mnum];
+	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
+	my = sy /*+ mon->_myoff*/;
+
+	pCelBuff = mon->_mAnimData;
+	if (pCelBuff == NULL) {
+		dev_fatal("Dead body(%s): NULL Cel Buffer", mon->mName);
+	}
+	nCel = mon->_mAnimFrame;
+#if DEBUG_MODE
+	int frames = SwapLE32(*(uint32_t *)pCelBuff);
+	if (nCel < 1 || frames > 50 || nCel > frames) {
+		dev_fatal("DrawDeadMonster: frame %d of %d, name:%s", nCel, frames, mon->mName);
+	}
+#endif
+	nWidth = mon->_mAnimWidth;
+	if (mon->_uniqtrans != 0) {
+		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, mon->_uniqtrans);
+	} else {
+		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
+	}
+}
+
+/**
  * @brief Render a towner sprite
  * @param mnum Id of towner
  * @param bFlag flags to draw
@@ -717,35 +759,6 @@ static void DrawMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
 		DrawTowner(mnum, bFlag, sx, sy);
 }
 
-static void DrawDeadMonster(BYTE bDead, int sx, int sy)
-{
-	BYTE dd;
-	DeadStruct* pDeadGuy;
-	BYTE* pCelBuff;
-	int px, nCel, frames;
-
-	if (light_trn_index >= MAXDARKNESS)
-		return;
-
-	pDeadGuy = &dead[(bDead & 0x1F) - 1];
-	dd = (bDead >> 5) & 7;
-	px = sx - pDeadGuy->_deadXOffset;
-	pCelBuff = pDeadGuy->_deadData[dd];
-	if (pCelBuff == NULL) {
-		dev_fatal("Dead body(%d) without Data(%d) to draw .", bDead, dd);
-	}
-	frames = SwapLE32(*(uint32_t *)pCelBuff);
-	nCel = pDeadGuy->_deadFrame;
-	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Unclipped dead: frame %d of %d, deadnum==%d", nCel, frames, bDead);
-	}
-	if (pDeadGuy->_deadtrans != 0) {
-		Cl2DrawLightTbl(px, sy, pCelBuff, nCel, pDeadGuy->_deadWidth, pDeadGuy->_deadtrans);
-	} else {
-		Cl2DrawLight(px, sy, pCelBuff, nCel, pDeadGuy->_deadWidth);
-	}
-}
-
 /**
  * @brief Render object sprites
  * @param sx dPiece coordinate
@@ -786,7 +799,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 
 	bv = dDead[sx][sy];
 	if (bv != 0)
-		DrawDeadMonster(bv, dx, dy);
+		DrawDeadMonster(bv - 1, dx, dy);
 	mpnum = dObject[sx][sy];
 	if (mpnum != 0)
 		DrawObject(mpnum, sx, sy, dx, dy, TRUE);

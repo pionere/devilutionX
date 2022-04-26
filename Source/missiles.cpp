@@ -3971,6 +3971,8 @@ void MI_Stone(int mi)
 			mon->_mmode = mis->_miVar1;
 		} else {
 			// TODO: RemoveMonFromGame ?
+			// mon->_mAnimFrame = mon->_mAnimLen;
+			// mon->_mAnimCnt = -1;
 			// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 			mon->_msquelch = 0;
 			// assert(mnum >= MAX_MINIONS);

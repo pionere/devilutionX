@@ -2542,6 +2542,20 @@ static void PrepDoEnding()
 	}
 }
 
+/*
+ * Add the corpse of the monster.
+ *
+ * @param mnum: the monster which died
+ */
+void MonAddDead(int mnum)
+{
+	MonsterStruct* mon;
+
+	static_assert(MAXMONSTERS < UCHAR_MAX, "MonAddDead stores monster indices in BYTE.");
+	mon = &monsters[mnum];
+	dDead[mon->_mx][mon->_my] = mnum + 1;
+}
+
 static bool MonDoDeath(int mnum)
 {
 	MonsterStruct* mon;
@@ -2560,6 +2574,7 @@ static bool MonDoDeath(int mnum)
 			PrepDoEnding();
 	} else if (mon->_mAnimFrame == mon->_mAnimLen) {
 		// TODO: RemoveMonFromGame ?
+		mon->_mAnimCnt = -1;
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		mon->_msquelch = 0;
 		mon->_mmode = mnum >= MAX_MINIONS ? ((mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD) : MM_RESERVED;
@@ -2567,7 +2582,7 @@ static bool MonDoDeath(int mnum)
 			nummonsters--;
 		dMonster[mon->_mx][mon->_my] = 0;
 		if (!(mon->_mFlags & MFLAG_NOCORPSE))
-			AddDead(mnum);
+			MonAddDead(mnum);
 	}
 	return false;
 }

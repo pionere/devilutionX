@@ -335,7 +335,6 @@ set(devilutionx_SRCS
   Source/codec.cpp
   Source/control.cpp
   Source/cursor.cpp
-  Source/dead.cpp
   Source/debug.cpp
   Source/diablo.cpp
   Source/doom.cpp
@@ -512,7 +511,6 @@ if(RUN_TESTS)
     test/control_test.cpp
     test/cursor_test.cpp
     test/codec_test.cpp
-    test/dead_test.cpp
     test/diablo_test.cpp
     test/doom_test.cpp
     test/drlg_l1_test.cpp

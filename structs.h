@@ -1698,25 +1698,6 @@ static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "A
 #endif
 
 //////////////////////////////////////////////////
-// dead
-//////////////////////////////////////////////////
-
-typedef struct DeadStruct {
-	BYTE* _deadData[NUM_DIRS];
-	int _deadFrame;
-	int _deadWidth;
-	int _deadXOffset;
-	BYTE _deadtrans;
-	ALIGNMENT64(12)
-} DeadStruct;
-
-#ifdef X86_32bit_COMP
-static_assert((sizeof(DeadStruct) & (sizeof(DeadStruct) - 1)) == 32, "Align DeadStruct closer to power of 2 for better performance.");
-#elif defined(X86_64bit_COMP)
-static_assert((sizeof(DeadStruct) & (sizeof(DeadStruct) - 1)) == 0, "Align DeadStruct closer to power of 2 for better performance.");
-#endif
-
-//////////////////////////////////////////////////
 // diabloui
 //////////////////////////////////////////////////
 

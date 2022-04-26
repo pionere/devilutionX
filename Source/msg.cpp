@@ -1038,6 +1038,8 @@ void DeltaLoadLevel()
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
 				if (mstr->_mCmd >= DCMD_MON_DEAD) {
+					if (mstr->_mCmd != DCMD_MON_DESTROYED)
+						MonAddDead(i);
 					// assert(mon->_mhitpoints == 0);
 					// TODO: RemoveMonFromGame ?
 					// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
@@ -1045,8 +1047,10 @@ void DeltaLoadLevel()
 					mon->_mmode = i >= MAX_MINIONS ? ((mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD) : MM_RESERVED;
 					if (i >= MAX_MINIONS)
 						nummonsters--;
-					if (mstr->_mCmd != DCMD_MON_DESTROYED)
-						AddDead(i);
+					// SyncMonsterAnim(mnum);
+					mon->_mAnimFrame = mon->_mAnims[MA_DEATH].aFrames;
+					// mon->_mAnimCnt = -1;
+					mon->_mAnimData = mon->_mAnims[MA_DEATH].aData[mon->_mdir];
 				} else {
 					mon->_msquelch = mstr->_mactive;
 					mon->_mWhoHit = mstr->_mWhoHit;

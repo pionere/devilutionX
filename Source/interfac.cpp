@@ -247,13 +247,10 @@ void LoadGameLevel(int lvldir)
 				InitItems();
 				CreateThemeRooms();
 			}
-			IncProgress();
-			InitDead();
 		} else {
 			InitTowners();
 			IncProgress();
 			InitItems();
-			IncProgress();
 		}
 	} else {
 		LoadSetMap();
@@ -263,15 +260,14 @@ void LoadGameLevel(int lvldir)
 		InitMonsters();
 		IncProgress();
 		IncProgress();
-		InitDead();
 		IncProgress();
 
 		if (lvldir == ENTRY_WARPLVL)
 			GetPortalLvlPos();
 
 		InitItems();
-		IncProgress();
 	}
+	IncProgress();
 	InitMissiles();
 	SavePreLighting();
 
