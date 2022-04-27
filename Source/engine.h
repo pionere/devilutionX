@@ -40,7 +40,8 @@ inline const BYTE *CelGetFrameClipped(const BYTE *pCelBuff, int nCel, int *nData
 	DWORD nDataStart;
 	const BYTE *pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
 
-	nDataStart = pRLEBytes[1] << 8 | pRLEBytes[0];
+	// assert((pRLEBytes[1] << 8 | pRLEBytes[0]) == 0x000A);
+	nDataStart = 0x0A;
 	*nDataSize -= nDataStart;
 
 	return &pRLEBytes[nDataStart];
