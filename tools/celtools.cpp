@@ -203,17 +203,47 @@ void PNGFlip(png_image_data &imagedata, bool vertical)
 	}
 }
 
-static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, bool clipped, BYTE *palette, int numcolors, int coloroffset)
+/**
+ * Convert PNG file to CEL
+ * @param pngnames: the list of PNG file names
+ * @param numimage: the number of frames.
+ * @param multi: false - numimage equals to the number of PNG files, true - a single PNG file is split to the number of frames
+ * @param celname: the name of the output CEL file
+ * @param clipped: whether the optional frame header is added
+ * @param palette: the palette to use
+ * @param numcolors: the number of colors in the palette
+ * @param coloroffset: offset to be added to the selected color
+ */
+static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char *celname, bool clipped, BYTE *palette, int numcolors, int coloroffset)
 {
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
 
 	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
-	for (int n = 0; n < numimage; n++) {
-		if (!ReadPNG(pngnames[n], imagedata[n])) {
-			while (--n >= 0)
-				free(imagedata[n].row_pointers);
+	if (multi) {
+		if (!ReadPNG(pngnames[0], imagedata[0])) {
 			free(imagedata);
 			return false;
+		}
+		png_image_data *image_data = &imagedata[0];
+		if ((image_data->height % numimage) != 0) {
+			free(imagedata);
+			return false;
+		}
+		image_data->height /= numimage;
+		for (int n = 1; n < numimage; n++) {
+			png_image_data *img_data = &imagedata[n];
+			img_data->width = image_data->width;
+			img_data->height = image_data->height;
+			img_data->row_pointers = &image_data->row_pointers[n * image_data->height];
+		}
+	} else {
+		for (int n = 0; n < numimage; n++) {
+			if (!ReadPNG(pngnames[n], imagedata[n])) {
+				while (--n >= 0)
+					free(imagedata[n].row_pointers);
+				free(imagedata);
+				return false;
+			}
 		}
 	}
 
@@ -248,7 +278,7 @@ static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, bo
 			for (int j = 0; j < image_data->width; j++) {
 				if (data[j].a == 255) {
 					// add opaque pixel
-					if (alpha || *pHead >= 126) {
+					if (alpha || *pHead > 126) {
 						pHead = pBuf;
 						pBuf++;
 					}
@@ -276,10 +306,14 @@ static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, bo
 	fclose(fp);
 
 	// cleanup
-	for (int n = 0; n < numimage; n++) {
-		png_image_data *image_data = &imagedata[n];
+	if (multi) {
+		free(imagedata[0].row_pointers);
+	} else {
+		for (int n = 0; n < numimage; n++) {
+			png_image_data *image_data = &imagedata[n];
 
-		free(image_data->row_pointers);
+			free(image_data->row_pointers);
+		}
 	}
 	free(imagedata);
 	return true;
@@ -1001,21 +1035,24 @@ int main()
 			"f:\\L1Doors_CEL_frame0001.png",
 			"f:\\L1Doors_CEL_frame0002.png",
 			"f:\\L1Doors_CEL_frame0003.png"};
-	PNG2Cel(doors, 4, "f:\\L1Doors.CEL", true, pal, 256, 0);*/
+	PNG2Cel(doors, 4, false, "f:\\L1Doors.CEL", true, pal, 256, 0);*/
 
 	//PNG2Cel("f:\\inv.png", "f:\\inv.cel", false, &diapal[0][0], 128, 128);
 	//PNG2Cel("f:\\quest.png", "f:\\quest.cel", false, &diapal[0][0], 128, 128);
 	//PNG2Cel("f:\\char.png", "f:\\char.cel", false, &diapal[0][0], 128, 128);
 	const char* fsb0[] = { "f:\\SpellBk.png" };
-	PNG2Cel(fsb0, 1, "f:\\SpellBk.CEL", false, &diapal[0][0], 128, 128);
+	PNG2Cel(fsb0, 1, false, "f:\\SpellBk.CEL", false, &diapal[0][0], 128, 128);
 
 	const char* fsb1[] = { "f:\\SpellBkB1.png", "f:\\SpellBkB2.png",
 		"f:\\SpellBkB3.png", "f:\\SpellBkB4.png"};
-	PNG2Cel(fsb1, 4, "f:\\SpellBkB__.CEL", false, &diapal[0][0], 128, 128);
+	PNG2Cel(fsb1, 4, false, "f:\\SpellBkB__.CEL", false, &diapal[0][0], 128, 128);
 	//PNG2Cel("f:\\SpellBkB1.png", "f:\\SpellBkB1.CEL", false, &diapal[0][0], 128, 128);
 	//PNG2Cel("f:\\SpellBkB2.png", "f:\\SpellBkB2.CEL", false, &diapal[0][0], 128, 128);
 	//PNG2Cel("f:\\SpellBkB3.png", "f:\\SpellBkB3.CEL", false, &diapal[0][0], 128, 128);
 	//PNG2Cel("f:\\SpellBkB4.png", 1, "f:\\SpellBkB4.CEL", false, &diapal[0][0], 128, 128);
+
+	const char* pnames[] = { "f:\\heros.png" };
+	PNG2Cel(pnames, 7, true, "f:\\heros.CEL", false, &diapal[0][0], 128, 128);
 
 	Cel2Cel("f:\\SpellBkB1.cel", 2, "f:\\SpellBkB2.cel", "f:\\SpellBkB12.cel");
 	Cel2Cel("f:\\SpellBkB3.cel", 2, "f:\\SpellBkB4.cel", "f:\\SpellBkB34.cel");
