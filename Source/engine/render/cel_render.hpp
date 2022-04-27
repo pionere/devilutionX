@@ -25,7 +25,7 @@ extern "C" {
 void CelDraw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
- * @brief Same as CelDraw but with the option to skip parts of the top and bottom of the sprite
+ * @brief Blit CEL sprite with frame header to the back buffer at the given coordinates
  * @param out Target buffer
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
@@ -46,7 +46,7 @@ void CelClippedDraw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 void CelDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, const BYTE *tbl);
 
 /**
- * @brief Same as CelDrawLight but with the option to skip parts of the top and bottom of the sprite
+ * @brief Blit CEL sprite with frame header, and apply lighting, to the back buffer at the given coordinates
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
  * @param pCelBuff CEL buffer
@@ -56,7 +56,7 @@ void CelDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, co
 void CelClippedDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
- * @brief Same as CelClippedDrawLight
+ * @brief Same as CelClippedDrawLight optionally drawing in stippled-transparent mode
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
  * @param pCelBuff CEL buffer
@@ -66,7 +66,7 @@ void CelClippedDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWi
 void CelClippedDrawLightTrans(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
- * @brief Blit CEL sprite, and apply lighting, to the back buffer at the given coordinates, translated to a red hue
+ * @brief Apply red hue to the CEL sprite and blit to the back buffer at the given coordinates
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
  * @param pCelBuff CEL buffer
@@ -76,7 +76,7 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE *pCelBuff, int nCel, in
 void CelClippedDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
- * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the target buffer at the given coordinates
+ * @brief Blit an outline one pixel larger then the given sprite shape to the target buffer at the given coordinates
  * @param col Color index from current palette
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate

@@ -322,7 +322,7 @@ void Cl2Draw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 }
 
 /**
- * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the back buffer at the given coordinates
+ * @brief Blit an outline one pixel larger then the given sprite shape to the back buffer at the given coordinates
  * @param col Color index from current palette
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
