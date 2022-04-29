@@ -11,9 +11,6 @@ static void TitleLoad()
 {
 #ifdef HELLFIRE
 	LoadBackgroundArt("ui_art\\hf_logo1.pcx", 16);
-#ifndef NOWIDESCREEN
-	LoadArt("ui_art\\hf_titlew.pcx", &ArtBackgroundWidescreen);
-#endif
 	UiAddBackground(&gUiItems);
 #else
 	LoadBackgroundArt("ui_art\\title.pcx");
@@ -32,11 +29,7 @@ static void TitleLoad()
 static void TitleFree()
 {
 	ArtBackground.Unload();
-#ifdef HELLFIRE
-#ifndef NOWIDESCREEN
-	ArtBackgroundWidescreen.Unload();
-#endif
-#else // HELLFIRE
+#ifndef HELLFIRE
 	ArtLogoBig.Unload();
 #endif
 	UiClearItems(gUiItems);

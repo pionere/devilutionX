@@ -45,9 +45,6 @@ static void MainmenuLoad(const char* name)
 	gUIListItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));
 	gUIListItems.push_back(new UiListItem("Exit Game", MAINMENU_EXIT_DIABLO));
 
-#ifndef NOWIDESCREEN
-	LoadArt("ui_art\\mainmenuw.pcx", &ArtBackgroundWidescreen);
-#endif
 	LoadBackgroundArt("ui_art\\mainmenu.pcx");
 
 	UiAddBackground(&gUiItems);
@@ -66,9 +63,6 @@ static void MainmenuLoad(const char* name)
 
 static void MainmenuFree()
 {
-#ifndef NOWIDESCREEN
-	ArtBackgroundWidescreen.Unload();
-#endif
 	ArtBackground.Unload();
 
 	UiClearItems(gUiItems);

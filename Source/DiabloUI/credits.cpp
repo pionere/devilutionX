@@ -26,9 +26,6 @@ class CreditsRenderer {
 public:
 	CreditsRenderer()
 	{
-#ifndef NOWIDESCREEN
-		LoadArt("ui_art\\creditsw.pcx", &ArtBackgroundWidescreen);
-#endif
 		LoadBackgroundArt("ui_art\\credits.pcx");
 		UiAddBackground(&gUiItems);
 		ticks_begin_ = SDL_GetTicks();
@@ -37,9 +34,6 @@ public:
 
 	~CreditsRenderer()
 	{
-#ifndef NOWIDESCREEN
-		ArtBackgroundWidescreen.Unload();
-#endif
 		ArtBackground.Unload();
 		UiClearItems(gUiItems);
 	}

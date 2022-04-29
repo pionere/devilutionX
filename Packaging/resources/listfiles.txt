@@ -51,13 +51,10 @@ Gendata\Cutl1d.CEL
 Gendata\Cutl1d.pal
 Gendata\Cutportl.CEL
 Gendata\Cutportl.pal
-Gendata\Cutportlw.pcx
 Gendata\Cutportr.CEL
 Gendata\Cutportr.pal
-Gendata\Cutportrw.pcx
 Gendata\Cutstart.CEL
 Gendata\Cutstart.pal
-Gendata\Cutstartw.pcx
 Gendata\Cuttt.CEL
 Gendata\Cuttt.pal
 gendata\Diabend.smk
@@ -4215,7 +4212,6 @@ Towners\TownWmn1\WmnN.CEL
 Towners\TwnF\TwnFN.CEL
 ui_art\black.pcx
 ui_art\credits.pcx
-ui_art\creditsw.pcx
 ui_art\cursor.pcx
 ui_art\focus.pcx
 ui_art\focus16.pcx
@@ -4234,12 +4230,10 @@ ui_art\font42g.pcx
 ui_art\heros.pcx
 ui_art\hf_logo1.pcx
 ui_art\hf_logo2.pcx
-ui_art\hf_titlew.pcx
 ui_art\logo.pcx
 ui_art\lpopup.pcx
 ui_art\lrpopup.pcx
 ui_art\mainmenu.pcx
-ui_art\mainmenuw.pcx
 ui_art\prog_bg.pcx
 ui_art\prog_fil.pcx
 ui_art\sb_arrow.pcx
@@ -4250,7 +4244,6 @@ ui_art\selgame.pcx
 ui_art\selhero.pcx
 ui_art\smbutton.pcx
 ui_art\smlogo.pcx
-ui_art\supportw.pcx
 ui_art\spopup.pcx
 _ui_art\srpopup.pcx
 _ui_art\swmmenu.pcx

@@ -31,9 +31,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static Art ArtLogoMed;
 Art ArtFocus[NUM_FOCUS];
-#ifndef NOWIDESCREEN
-Art ArtBackgroundWidescreen;
-#endif
 Art ArtBackground;
 Art ArtCursor;
 Art ArtSmlButton;
@@ -514,11 +511,6 @@ void LoadBackgroundArt(const char* pszFile, int frames)
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
 {
 	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
-#ifndef NOWIDESCREEN
-	if (ArtBackgroundWidescreen.surface != NULL) {
-		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, 0, rect, UIS_CENTER, false));
-	}
-#endif
 	vecDialog->push_back(new UiImage(&ArtBackground, 0, rect, UIS_CENTER, false));
 }
 

@@ -22,9 +22,6 @@ typedef enum _artFocus {
 
 extern Art ArtFocus[NUM_FOCUS];
 extern Art ArtBackground;
-#ifndef NOWIDESCREEN
-extern Art ArtBackgroundWidescreen;
-#endif
 extern Art ArtCursor;
 extern Art ArtHero;
 extern Art ArtSmlButton;
