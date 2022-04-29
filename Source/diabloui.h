@@ -20,7 +20,7 @@ void UiSettingsDialog();
 /* Defined in credits.cpp */
 void UiCreditsDialog();
 /* Defined in mainmenu.cpp */
-int UiMainMenuDialog(const char* name, void(*fnSound)(int sfx, int rndCnt));
+int UiMainMenuDialog(void(*fnSound)(int sfx, int rndCnt));
 /* Defined in progress.cpp */
 bool UiProgressDialog(const char *msg, int(*fnfunc)());
 

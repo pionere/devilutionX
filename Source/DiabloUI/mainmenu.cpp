@@ -31,7 +31,7 @@ void mainmenu_restart_repintro()
 	guAttractTc = SDL_GetTicks() + ATTRACT_TIMEOUT * 1000;
 }
 
-static void MainmenuLoad(const char* name)
+static void MainmenuLoad()
 {
 	int numOptions = 5;
 
@@ -54,9 +54,6 @@ static void MainmenuLoad(const char* name)
 	SDL_Rect rect1 = { PANEL_LEFT + 64, (UI_OFFSET_Y + 190), PANEL_WIDTH - 64 * 2, 43 * numOptions };
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_HUGE | UIS_GOLD));
 
-	SDL_Rect rect2 = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
-	gUiItems.push_back(new UiArtText(name, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
-
 	//assert(gUIListItems.size() == numOptions);
 	UiInitList(numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
 }
@@ -72,11 +69,11 @@ static void MainmenuFree()
 	//UiInitList_clear();
 }
 
-int UiMainMenuDialog(const char* name, void (*fnSound)(int sfx, int rndCnt))
+int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt))
 {
 	gfnSoundFunction = fnSound;
 
-	MainmenuLoad(name);
+	MainmenuLoad();
 
 	mainmenu_restart_repintro(); // for automatic starts
 
