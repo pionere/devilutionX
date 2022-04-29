@@ -13,9 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
-#define VIEWPORT_X		0
 #define VIEWPORT_Y		114
-#define VIEWPORT_W		PANEL_WIDTH
 #define VIEWPORT_H		251
 #define LINE_H	22
 
@@ -66,9 +64,9 @@ bool CreditsRenderer::Render()
 	}
 
 	SDL_Rect viewport;
-	viewport.x = VIEWPORT_X + PANEL_LEFT;
+	viewport.x = PANEL_LEFT;
 	viewport.y = VIEWPORT_Y + UI_OFFSET_Y;
-	viewport.w = VIEWPORT_W;
+	viewport.w = PANEL_WIDTH;
 	viewport.h = VIEWPORT_H;
 	//ScaleOutputRect(&viewport); -- unnecessary (and wrong) when drawing to back_surface
 	viewport.x += SCREEN_X;
@@ -79,7 +77,7 @@ bool CreditsRenderer::Render()
 	int destY = UI_OFFSET_Y + VIEWPORT_Y - (offsetY - linesBegin * LINE_H);
 	for (unsigned i = linesBegin; i < linesEnd; ++i, destY += LINE_H) {
 		const char* text = CREDITS_LINES[i];
-		int destX = PANEL_LEFT + VIEWPORT_X + 31;
+		int destX = PANEL_LEFT + 31;
 		for ( ; *text == '\t'; text++) {
 			destX += 40;
 		}
