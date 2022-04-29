@@ -131,11 +131,6 @@ static void AdjustToScreenGeometry(int width, int height)
 		DoLog("Using software scaling");
 	}
 #endif
-	//viewportHeight = screenHeight;
-	/*if (screenWidth <= PANEL_WIDTH) {
-		// Part of the screen is fully obscured by the UI
-		viewportHeight -= PANEL_HEIGHT;
-	}*/
 }
 
 #ifndef USE_SDL1

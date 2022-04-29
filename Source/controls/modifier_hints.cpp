@@ -103,7 +103,7 @@ void DrawCircleMenuHint(const CircleMenuHint &hint, int x, int y)
 }
 
 const int CircleMarginX = 16;
-const int CirclesTop = 76;
+const int CirclesTop = 128 + 76;
 
 void DrawStartModifierMenu()
 {
@@ -111,8 +111,8 @@ void DrawStartModifierMenu()
 		return;
 	static const CircleMenuHint dPad(/*is_dpad=*/true, /*top=*/"Menu", /*right=*/"Inv", /*bottom=*/"Map", /*left=*/"Char");
 	static const CircleMenuHint buttons(/*is_dpad=*/false, /*top=*/"", /*right=*/"", /*bottom=*/"Spells", /*left=*/"Quests");
-	DrawCircleMenuHint(dPad, PANEL_LEFT + CircleMarginX, PANEL_TOP - CirclesTop);
-	DrawCircleMenuHint(buttons, PANEL_LEFT + PANEL_WIDTH - buttons.Width() - CircleMarginX, PANEL_TOP - CirclesTop);
+	DrawCircleMenuHint(dPad, PANEL_LEFT + CircleMarginX, SCREEN_HEIGHT - CirclesTop);
+	DrawCircleMenuHint(buttons, PANEL_LEFT + PANEL_WIDTH - buttons.Width() - CircleMarginX, SCREEN_HEIGHT - CirclesTop);
 }
 
 void DrawSelectModifierMenu()
@@ -121,10 +121,10 @@ void DrawSelectModifierMenu()
 		return;
 	if (dpad_hotkeys) {
 		static const CircleMenuHint dPad(/*is_dpad=*/true, /*top=*/"W", /*right=*/"R", /*bottom=*/"E", /*left=*/"Q");
-		DrawCircleMenuHint(dPad, PANEL_LEFT + CircleMarginX, PANEL_TOP - CirclesTop);
+		DrawCircleMenuHint(dPad, PANEL_LEFT + CircleMarginX, SCREEN_HEIGHT - CirclesTop);
 	}
 	static const CircleMenuHint spells(/*is_dpad=*/false, "W", "R", "E", "Q");
-	DrawCircleMenuHint(spells, PANEL_LEFT + PANEL_WIDTH - spells.Width() - CircleMarginX, PANEL_TOP - CirclesTop);
+	DrawCircleMenuHint(spells, PANEL_LEFT + PANEL_WIDTH - spells.Width() - CircleMarginX, SCREEN_HEIGHT - CirclesTop);
 }
 
 } // namespace

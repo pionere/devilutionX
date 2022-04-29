@@ -102,7 +102,7 @@ void doom_draw()
 	}
 #endif
 
-	CelDraw(PANEL_X, PANEL_Y - 1, pDoomCel, 1, 640);
+	CelDraw(PANEL_X, SCREEN_HEIGHT - (128 + 1), pDoomCel, 1, PANEL_WIDTH);
 }
 
 DEVILUTION_END_NAMESPACE

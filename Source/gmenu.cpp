@@ -299,9 +299,6 @@ bool gmenu_left_mouse(bool isDown)
 		}
 	}
 
-	if (MouseY >= PANEL_TOP) {
-		return false;
-	}
 	i = MouseY - (117 + UI_OFFSET_Y);
 	if (i < 0) {
 		return true;
