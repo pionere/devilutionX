@@ -230,7 +230,8 @@ void SpawnWindow(const char* lpWindowName)
 #endif
 #endif
 #endif
-	int width, height;
+	int width = DEFAULT_WIDTH;
+	int height = DEFAULT_HEIGHT;
 #if 0
 	int smode = 0; 
 	switch (smode) {
