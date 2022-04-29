@@ -13,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
-static const SDL_Rect VIEWPORT = { 0, 114, 640, 251 };
+static const SDL_Rect VIEWPORT = { 0, 114, PANEL_WIDTH, 251 };
 #define LINE_H	22
 
 // The maximum number of visible lines is the number of whole lines
