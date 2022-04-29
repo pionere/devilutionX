@@ -3311,6 +3311,18 @@ typedef enum _music_id {
 	NUM_MUSIC,
 } _music_id;
 
+enum _artFontTables {
+	AFT_SMALL,
+	AFT_MED,
+	AFT_BIG,
+	AFT_HUGE,
+};
+
+enum _artFontColors {
+	AFC_SILVER,
+	AFC_GOLD,
+};
+
 typedef enum _mainmenu_selections {
 	MAINMENU_SINGLE_PLAYER,
 	MAINMENU_MULTIPLAYER,
