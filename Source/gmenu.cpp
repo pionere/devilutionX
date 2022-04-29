@@ -12,6 +12,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MENU_HEADER_Y		102
+#define MENU_HEADER_OFF		13
 #define MENU_ITEM_HEIGHT	45
 #define SLIDER_ROW_WIDTH	490
 #define SLIDER_OFFSET		186
@@ -199,9 +201,9 @@ void gmenu_draw()
 #else
 	nCel = 1;
 #endif
-	y = PANEL_Y + 102;
+	y = PANEL_Y + MENU_HEADER_Y;
 	CelDraw(SCREEN_X + (SCREEN_WIDTH - LOGO_WIDTH) / 2, y, gpLogoCel, nCel, LOGO_WIDTH);
-	y += 58;
+	y += MENU_HEADER_OFF + MENU_ITEM_HEIGHT;
 	for (i = 0; i < guCurrentMenuSize; i++, y += MENU_ITEM_HEIGHT)
 		gmenu_draw_menu_item(i, y);
 }
@@ -284,7 +286,7 @@ bool gmenu_left_mouse(bool isDown)
 		}
 	}
 
-	i = MouseY - (117 + UI_OFFSET_Y);
+	i = MouseY - (UI_OFFSET_Y + MENU_HEADER_Y + MENU_HEADER_OFF);
 	if (i < 0) {
 		return true;
 	}
