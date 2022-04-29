@@ -199,7 +199,7 @@ void gmenu_draw()
 #else
 	nCel = 1;
 #endif
-	y = 102 + SCREEN_Y + UI_OFFSET_Y;
+	y = PANEL_Y + 102;
 	CelDraw(SCREEN_X + (SCREEN_WIDTH - LOGO_WIDTH) / 2, y, gpLogoCel, nCel, LOGO_WIDTH);
 	y += 58;
 	for (i = 0; i < guCurrentMenuSize; i++, y += MENU_ITEM_HEIGHT)

@@ -113,7 +113,7 @@ static void DrawProgress()
 static void DrawCutscene()
 {
 	lock_buf(1);
-	CelDraw(PANEL_X, 480 + SCREEN_Y - 1 + UI_OFFSET_Y, sgpBackCel, 1, PANEL_WIDTH);
+	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1, PANEL_WIDTH);
 
 	DrawProgress();
 

@@ -32,7 +32,7 @@ static void ProgressLoad(const char *msg)
 	LoadArt("ui_art\\smbutton.pcx", &ArtSmlButton, 2);
 
 	int x = PANEL_LEFT + (PANEL_WIDTH - PRPANEL_WIDTH) / 2;
-	int y = UI_OFFSET_Y + (480 - PRPANEL_HEIGHT) / 2;
+	int y = UI_OFFSET_Y + (PANEL_HEIGHT - PRPANEL_HEIGHT) / 2;
 
 	SDL_Rect rect1 = { x + 50, y + 20, PRPANEL_WIDTH - 100, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiArtText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
@@ -56,7 +56,7 @@ static void ProgressRender()
 	DrawArt(0, 0, &ArtBackground);
 
 	int x = PANEL_LEFT + (PANEL_WIDTH - PRPANEL_WIDTH) / 2;
-	int y = UI_OFFSET_Y + (480 - PRPANEL_HEIGHT) / 2;
+	int y = UI_OFFSET_Y + (PANEL_HEIGHT - PRPANEL_HEIGHT) / 2;
 
 	DrawArt(x, y, &ArtPopupSm, 0, PRPANEL_WIDTH, PRPANEL_HEIGHT);
 	DrawArt(x + (PRPANEL_WIDTH - 227) / 2, y + 52, &ArtProgBG, 0, 227);
