@@ -21,12 +21,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Logo CEL above the menu */
 static BYTE* gpLogoCel;
-#ifdef HELLFIRE
-/** The next tick to increment the frame of the logo animation. */
-static Uint32 guNextLogoAnimTc;
-/** The current frame of the logo animation. */
-static BYTE gbLogoAnimFrame;
-#endif
 /** Slider CEL */
 static BYTE* gpOptbarCel;
 /** Slider button CEL */
@@ -63,9 +57,6 @@ void FreeGMenu()
 
 void InitGMenu()
 {
-#ifdef HELLFIRE
-	gbLogoAnimFrame = 1;
-#endif
 	gpCurrentMenu = NULL;
 	gmUpdateFunc = NULL;
 	guCurrItemIdx = 0;
@@ -203,14 +194,8 @@ void gmenu_draw()
 	gmUpdateFunc();
 	GameMenuMove();
 #ifdef HELLFIRE
-	Uint32 currTc = SDL_GetTicks();
-	if (currTc > guNextLogoAnimTc) {
-		guNextLogoAnimTc = currTc + 25;
-		gbLogoAnimFrame++;
-		if (gbLogoAnimFrame > 16)
-			gbLogoAnimFrame = 1;
-	}
-	nCel = gbLogoAnimFrame;
+	// nCel = GetAnimationFrame(32, 16);
+	nCel = ((SDL_GetTicks() / 32) % 16) + 1;
 #else
 	nCel = 1;
 #endif
