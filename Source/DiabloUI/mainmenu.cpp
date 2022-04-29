@@ -51,7 +51,7 @@ static void MainmenuLoad(const char* name)
 	UiAddLogo(&gUiItems);
 
 	//assert(gUIListItems.size() == numOptions);
-	SDL_Rect rect1 = { PANEL_LEFT + 64, (UI_OFFSET_Y + 192), 510, 43 * numOptions };
+	SDL_Rect rect1 = { PANEL_LEFT + 64, (UI_OFFSET_Y + 190), PANEL_WIDTH - 64 * 2, 43 * numOptions };
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_HUGE | UIS_GOLD));
 
 	SDL_Rect rect2 = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
