@@ -11,48 +11,18 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-namespace {
-
 #define VIEWPORT_Y		114
 #define VIEWPORT_H		251
 #define LINE_H	22
 
 // The maximum number of visible lines is the number of whole lines
-// (VIEWPORT.h / LINE_H) rounded up, plus one extra line for when
+// (VIEWPORT_H / LINE_H) rounded up, plus one extra line for when
 // a line is leaving the screen while another one is entering.
 #define MAX_VISIBLE_LINES ((VIEWPORT_H - 1) / LINE_H + 2)
 
-class CreditsRenderer {
 
-public:
-	CreditsRenderer()
-	{
-		LoadBackgroundArt("ui_art\\credits.pcx");
-		UiAddBackground(&gUiItems);
-		ticks_begin_ = SDL_GetTicks();
-		prev_offset_y_ = 0;
-	}
-
-	~CreditsRenderer()
-	{
-		ArtBackground.Unload();
-		UiClearItems(gUiItems);
-	}
-
-	bool Render();
-
-private:
-	Uint32 ticks_begin_;
-	int prev_offset_y_;
-};
-
-bool CreditsRenderer::Render()
+static bool CreditsRender(int offsetY)
 {
-	const int offsetY = -VIEWPORT_H + (SDL_GetTicks() - ticks_begin_) / 40;
-	if (offsetY == prev_offset_y_)
-		return true;
-	prev_offset_y_ = offsetY;
-
 	UiClearScreen();
 	UiRenderItems(gUiItems);
 
@@ -89,17 +59,23 @@ bool CreditsRenderer::Render()
 	return true;
 }
 
-} // namespace
-
 void UiCreditsDialog()
 {
-	CreditsRenderer creditsRenderer;
 	bool endMenu = false;
+	Uint32 ticks_begin_;
+	int prev_offset_y_ = 0;
+
+	LoadBackgroundArt("ui_art\\credits.pcx");
+	UiAddBackground(&gUiItems);
+	ticks_begin_ = SDL_GetTicks();
 
 	SDL_Event event;
 	do {
-		if (!creditsRenderer.Render())
+		int offsetY = -VIEWPORT_H + (SDL_GetTicks() - ticks_begin_) / 40;
+		if (offsetY != prev_offset_y_ && !CreditsRender(offsetY))
 			break;
+		prev_offset_y_ = offsetY;
+
 		UiFadeIn(false);
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {
@@ -120,6 +96,9 @@ void UiCreditsDialog()
 			UiHandleEvents(&event);
 		}
 	} while (!endMenu);
+
+	ArtBackground.Unload();
+	UiClearItems(gUiItems);
 }
 
 DEVILUTION_END_NAMESPACE
