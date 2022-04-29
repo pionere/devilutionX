@@ -11,23 +11,17 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define VIEWPORT_Y		114
-#define VIEWPORT_H		251
+#define VIEWPORT_Y		100
+#define VIEWPORT_H		280
 #define LINE_H	22
-
-// The maximum number of visible lines is the number of whole lines
-// (VIEWPORT_H / LINE_H) rounded up, plus one extra line for when
-// a line is leaving the screen while another one is entering.
-#define MAX_VISIBLE_LINES ((VIEWPORT_H - 1) / LINE_H + 2)
-
 
 static bool CreditsRender(int offsetY)
 {
 	UiClearScreen();
 	UiRenderItems(gUiItems);
 
-	const unsigned linesBegin = std::max(offsetY / LINE_H, 0);
-	const unsigned linesEnd = std::min(linesBegin + MAX_VISIBLE_LINES, CREDITS_LINES_SIZE);
+	int linesBegin = std::max(offsetY / LINE_H, 0);
+	int linesEnd = std::min((VIEWPORT_H + offsetY + LINE_H - 1) / LINE_H, (int)CREDITS_LINES_SIZE);
 
 	if (linesBegin >= linesEnd) {
 		return linesEnd != CREDITS_LINES_SIZE;
@@ -45,7 +39,7 @@ static bool CreditsRender(int offsetY)
 
 	// We use unscaled coordinates for calculation throughout.
 	int destY = UI_OFFSET_Y + VIEWPORT_Y - (offsetY - linesBegin * LINE_H);
-	for (unsigned i = linesBegin; i < linesEnd; ++i, destY += LINE_H) {
+	for (int i = linesBegin; i < linesEnd; ++i, destY += LINE_H) {
 		const char* text = CREDITS_LINES[i];
 		int destX = PANEL_LEFT + 31;
 		for ( ; *text == '\t'; text++) {
@@ -71,7 +65,7 @@ void UiCreditsDialog()
 
 	SDL_Event event;
 	do {
-		int offsetY = -VIEWPORT_H + (SDL_GetTicks() - ticks_begin_) / 40;
+		int offsetY = -VIEWPORT_H + (SDL_GetTicks() - ticks_begin_) / 32;
 		if (offsetY != prev_offset_y_ && !CreditsRender(offsetY))
 			break;
 		prev_offset_y_ = offsetY;
