@@ -50,10 +50,12 @@ struct RGBA {
 	BYTE a;
 };
 
-static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors)
+static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset)
 {
-	BYTE res = 0;
-	int best = INT_MAX;
+	int res = -1;
+	int best = abs(data.r - 0) + 
+			   abs(data.g - 0) + 
+			   abs(data.b - 0)
 
 	for (int i = 0; i < numcolors; i++, palette += 3) {
 		int dist = abs(data.r - palette[0]) + 
@@ -64,6 +66,10 @@ static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors)
 			res = i;
 		}
 	}
+	if (res == -1)
+		res = 0;
+	else
+		res += offset;
 
 	return res;
 }
@@ -283,7 +289,7 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 						pBuf++;
 					}
 					++*pHead;
-					*pBuf = GetPalColor(data[j], palette, numcolors) + coloroffset;
+					*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
 					pBuf++;
 					alpha = false;
 				} else {
@@ -387,7 +393,7 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 			for (int j = 0; j < image_data->width; j++) {
 				if (data[j].a == 255) {
 					// add opaque pixel
-					col = GetPalColor(data[j], palette, numcolors) + coloroffset;
+					col = GetPalColor(data[j], palette, numcolors, coloroffset);
 					if (alpha || first || col != lastCol)
 						colMatches = 1;
 					else
