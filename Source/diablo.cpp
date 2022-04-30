@@ -16,6 +16,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 #include <gperftools/heap-profiler.h>
 #endif
+static const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
+
 uint32_t glSeedTbl[NUM_LEVELS];
 int MouseX;
 int MouseY;

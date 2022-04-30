@@ -24,8 +24,6 @@ void init_archives();
 //void MainWndProc(UINT Msg);
 WNDPROC SetWindowProc(WNDPROC NewProc);
 
-extern const char gszProductName[];
-
 #ifdef __cplusplus
 }
 #endif

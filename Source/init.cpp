@@ -63,8 +63,6 @@ static HANDLE init_test_access(const char* mpq_name)
 
 /* data */
 
-const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
-
 void init_cleanup()
 {
 	pfile_flush(true);
