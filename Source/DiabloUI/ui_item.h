@@ -115,7 +115,7 @@ public:
 class UiTxtButton : public UiItemBase {
 public:
 	UiTxtButton(const char* text, void (*action)(), SDL_Rect &rect, int flags)
-	    : UiItemBase(UI_TEXT_BUTTON, rect, flags), m_text(text), m_action(action)
+	    : UiItemBase(UI_TXT_BUTTON, rect, flags), m_text(text), m_action(action)
 	{
 	}
 
