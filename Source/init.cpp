@@ -10,7 +10,6 @@
 //#endif
 
 #include "all.h"
-#include <config.h>
 #include "utils/paths.h"
 #include "utils/file_util.h"
 #include <SDL.h>
@@ -27,8 +26,6 @@ int _newlib_heap_size_user = 100 * 1024 * 1024;
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** The current input handler function */
-WNDPROC CurrentWndProc;
 /** A handle to the mpq archives. */
 #ifdef MPQONE
 HANDLE diabdat_mpq;
@@ -255,27 +252,6 @@ void init_archives()
 	diabdat_mpq = init_test_access(MPQONE);
 	assert(diabdat_mpq != NULL);
 #endif
-}
-
-/*void MainWndProc(UINT Msg)
-{
-	switch (Msg) {
-	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
-		break;
-	//case DVL_WM_QUERYENDSESSION:
-	//	diablo_quit(0);
-	//	break;
-	}
-}*/
-
-WNDPROC SetWindowProc(WNDPROC newWndProc)
-{
-	WNDPROC oldWndProc;
-
-	oldWndProc = CurrentWndProc;
-	CurrentWndProc = newWndProc;
-	return oldWndProc;
 }
 
 DEVILUTION_END_NAMESPACE

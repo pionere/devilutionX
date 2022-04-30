@@ -27,6 +27,9 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static std::deque<MSG> message_queue;
 
+/** The current input handler function */
+WNDPROC CurrentWndProc;
+
 bool mouseWarping = false;
 int mouseWarpingX;
 int mouseWarpingY;
@@ -1242,6 +1245,27 @@ void PostMessage(UINT type, WPARAM wParam)
 	message.wParam = wParam;
 
 	message_queue.push_back(message);
+}
+
+/*void MainWndProc(UINT Msg)
+{
+	switch (Msg) {
+	case DVL_WM_PAINT:
+		gbRedrawFlags = REDRAW_ALL;
+		break;
+	//case DVL_WM_QUERYENDSESSION:
+	//	diablo_quit(0);
+	//	break;
+	}
+}*/
+
+WNDPROC SetWindowProc(WNDPROC newWndProc)
+{
+	WNDPROC oldWndProc;
+
+	oldWndProc = CurrentWndProc;
+	CurrentWndProc = newWndProc;
+	return oldWndProc;
 }
 
 DEVILUTION_END_NAMESPACE

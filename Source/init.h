@@ -12,7 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern WNDPROC CurrentWndProc;
 #ifdef MPQONE
 extern HANDLE diabdat_mpq;
 #else
@@ -21,8 +20,6 @@ extern HANDLE diabdat_mpqs[NUM_MPQS];
 
 void init_cleanup();
 void init_archives();
-//void MainWndProc(UINT Msg);
-WNDPROC SetWindowProc(WNDPROC NewProc);
 
 #ifdef __cplusplus
 }

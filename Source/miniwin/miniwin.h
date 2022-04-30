@@ -38,6 +38,7 @@ typedef struct tagMSG {
 //
 // Everything else
 //
+extern WNDPROC CurrentWndProc;
 
 void SetCursorPos(int X, int Y);
 
@@ -48,6 +49,7 @@ bool PeekMessage(LPMSG lpMsg);
 void TranslateMessage(const MSG* lpMsg);
 void DispatchMessage(const MSG *lpMsg);
 void PostMessage(UINT Msg, WPARAM wParam);
+WNDPROC SetWindowProc(WNDPROC NewProc);
 
 #ifndef TRUE
 #define TRUE true
