@@ -241,8 +241,8 @@ static void DrawSSlider(/*int y1, int y2*/)
 
 	assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
 	x = STORE_PNL_X + STPANEL_WIDTH - 14; 
-	yd1 = y1 * 12 + 44 + SCREEN_Y + UI_OFFSET_Y; // top position of the scrollbar
-	yd2 = y2 * 12 + 44 + SCREEN_Y + UI_OFFSET_Y; // bottom position of the scrollbar
+	yd1 = y1 * 12 + 44 + SCREEN_Y + PANEL_TOP; // top position of the scrollbar
+	yd2 = y2 * 12 + 44 + SCREEN_Y + PANEL_TOP; // bottom position of the scrollbar
 	yd3 = (y2 * 12 - y1 * 12 - 24);              // height of the scrollbar
 	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10, 12);
@@ -2431,7 +2431,7 @@ void CheckStoreBtn()
 			if (MouseX < STORE_PNL_X - SCREEN_X || MouseX > STORE_PNL_X + STPANEL_WIDTH - SCREEN_X)
 				return;
 		}
-		y = (MouseY - (32 + UI_OFFSET_Y)) / 12;
+		y = (MouseY - (32 + PANEL_TOP)) / 12;
 		assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
 		if (MouseX >= STORE_PNL_X + STPANEL_WIDTH - 14 - SCREEN_X && gbHasScroll) {
 			if (stextsmax != 0 && y >= STORE_SCROLL_UP && y <= STORE_SCROLL_DOWN) {

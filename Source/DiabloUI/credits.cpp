@@ -33,7 +33,7 @@ static bool CreditsRender(int offsetY)
 	pEnd = gpBufEnd;
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + VIEWPORT_Y + VIEWPORT_H)];
 
-	int destY = UI_OFFSET_Y + VIEWPORT_Y - (offsetY - linesBegin * LINE_H);
+	int destY = PANEL_TOP + VIEWPORT_Y - (offsetY - linesBegin * LINE_H);
 	for (int i = linesBegin; i < linesEnd; ++i, destY += LINE_H) {
 		const char* text = CREDITS_LINES[i];
 		int destX = PANEL_LEFT + 31;

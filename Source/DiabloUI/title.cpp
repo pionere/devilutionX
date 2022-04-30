@@ -14,10 +14,10 @@ static void TitleLoad()
 
 	UiAddBackground(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + (PANEL_WIDTH - 550) / 2, UI_OFFSET_Y + 182, 550, 216 };
+	SDL_Rect rect1 = { PANEL_LEFT + (PANEL_WIDTH - 550) / 2, PANEL_TOP + 182, 550, 216 };
 	gUiItems.push_back(new UiImage(gbLogoBig, 15, rect1, UIS_CENTER, true));
 
-	SDL_Rect rect2 = { PANEL_LEFT, (UI_OFFSET_Y + 420), PANEL_WIDTH, 26 };
+	SDL_Rect rect2 = { PANEL_LEFT, (PANEL_TOP + 420), PANEL_WIDTH, 26 };
 	gUiItems.push_back(new UiText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect2, UIS_CENTER | UIS_SMALL | UIS_GOLD));
 }
 

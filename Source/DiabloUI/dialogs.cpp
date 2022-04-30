@@ -170,28 +170,28 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		gbDialogBackCel = LoadFileInMem(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL");
 		WordWrapArtStr(text, 240, AFT_SMALL);
 
-		SDL_Rect rect1 = { PANEL_LEFT + 180, (UI_OFFSET_Y + 168), 280, 144 };
+		SDL_Rect rect1 = { PANEL_LEFT + 180, (PANEL_TOP + 168), 280, 144 };
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, 0, false));
 
-		SDL_Rect rect2 = { PANEL_LEFT + 200, (UI_OFFSET_Y + 211), 240, 80 };
+		SDL_Rect rect2 = { PANEL_LEFT + 200, (PANEL_TOP + 211), 240, 80 };
 		gUiItems.push_back(new UiText(text, rect2, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
-		SDL_Rect rect3 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+		SDL_Rect rect3 = { PANEL_LEFT + 265, (PANEL_TOP + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect3));
 	} else {*/
 		gbDialogBackCel = LoadFileInMem(error ? "ui_art\\lrpopup.CEL" : "ui_art\\lpopup.CEL");
 		WordWrapArtStr(text, 346, AFT_SMALL);
 
-		SDL_Rect rect1 = { PANEL_LEFT + 127, (UI_OFFSET_Y + 100), 385, 280 };
+		SDL_Rect rect1 = { PANEL_LEFT + 127, (PANEL_TOP + 100), 385, 280 };
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, 0, false));
 
-		SDL_Rect rect2 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 110), 346, 20 };
+		SDL_Rect rect2 = { PANEL_LEFT + 147, (PANEL_TOP + 110), 346, 20 };
 		gUiItems.push_back(new UiText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect3 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 141), 346, 190 };
+		SDL_Rect rect3 = { PANEL_LEFT + 147, (PANEL_TOP + 141), 346, 190 };
 		gUiItems.push_back(new UiText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
-		SDL_Rect rect4 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+		SDL_Rect rect4 = { PANEL_LEFT + 264, (PANEL_TOP + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect4));
 	//}
 }

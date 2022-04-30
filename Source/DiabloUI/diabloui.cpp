@@ -499,14 +499,14 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
 {
 	assert(gbBackCel != NULL);
-	SDL_Rect rect = { PANEL_LEFT, UI_OFFSET_Y, PANEL_WIDTH, PANEL_HEIGHT };
+	SDL_Rect rect = { PANEL_LEFT, PANEL_TOP, PANEL_WIDTH, PANEL_HEIGHT };
 	vecDialog->push_back(new UiImage(gbBackCel, 0, rect, UIS_CENTER, false));
 }
 
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 {
 	assert(gbLogoCel != NULL);
-	SDL_Rect rect = { PANEL_LEFT + (PANEL_WIDTH - 390) / 2, UI_OFFSET_Y, 390, 154 };
+	SDL_Rect rect = { PANEL_LEFT + (PANEL_WIDTH - 390) / 2, PANEL_TOP, 390, 154 };
 	vecDialog->push_back(new UiImage(gbLogoCel, 15, rect, UIS_CENTER, true));
 }
 

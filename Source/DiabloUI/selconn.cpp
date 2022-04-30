@@ -94,29 +94,29 @@ static void SelconnLoad()
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 24, (PANEL_TOP + 161), 590, 35 };
 	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect2 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 34 };
+	SDL_Rect rect2 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 211), DESCRIPTION_WIDTH, 34 };
 	gUiItems.push_back(new UiText(selconn_MaxPlayers, rect2, UIS_LEFT | UIS_VCENTER | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 21 };
+	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 256), DESCRIPTION_WIDTH, 21 };
 	gUiItems.push_back(new UiText("Requirements:", rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect4 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 275), DESCRIPTION_WIDTH, 66 };
+	SDL_Rect rect4 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 275), DESCRIPTION_WIDTH, 66 };
 	gUiItems.push_back(new UiText(selconn_Description, rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect7 = { PANEL_LEFT + 280, (UI_OFFSET_Y + 211), 334, 34 };
+	SDL_Rect rect7 = { PANEL_LEFT + 280, (PANEL_TOP + 211), 334, 34 };
 	gUiItems.push_back(new UiText("Select Connection", rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	//assert(numOptions == gUIListItems.size());
-	SDL_Rect rect8 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 256), 285, 26 * numOptions };
+	SDL_Rect rect8 = { PANEL_LEFT + 305, (PANEL_TOP + 256), 285, 26 * numOptions };
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD));
 
-	SDL_Rect rect9 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
+	SDL_Rect rect9 = { PANEL_LEFT + 299, (PANEL_TOP + 427), 140, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect10 = { PANEL_LEFT + 454, (UI_OFFSET_Y + 427), 140, 35 };
+	SDL_Rect rect10 = { PANEL_LEFT + 454, (PANEL_TOP + 427), 140, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(numOptions == gUIListItems.size());

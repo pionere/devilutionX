@@ -45,7 +45,7 @@ static void ProgressLoad(const char *msg)
 	MemFreeDbg(gbProgFillCel);
 
 	x = PANEL_LEFT + (PANEL_WIDTH - PRPANEL_WIDTH) / 2;
-	y = UI_OFFSET_Y + (PANEL_HEIGHT - PRPANEL_HEIGHT) / 2;
+	y = PANEL_TOP + (PANEL_HEIGHT - PRPANEL_HEIGHT) / 2;
 
 	SDL_Rect rect1 = { x + 50, y + 20, PRPANEL_WIDTH - 100, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));

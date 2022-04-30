@@ -286,7 +286,7 @@ bool gmenu_left_mouse(bool isDown)
 		}
 	}
 
-	i = MouseY - (UI_OFFSET_Y + MENU_HEADER_Y + MENU_HEADER_OFF);
+	i = MouseY - (PANEL_TOP + MENU_HEADER_Y + MENU_HEADER_OFF);
 	if (i < 0) {
 		return true;
 	}
