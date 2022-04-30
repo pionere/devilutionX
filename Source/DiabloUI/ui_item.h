@@ -15,8 +15,8 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 enum UiType : uint8_t {
-	UI_ART_TEXT,
-	UI_ART_TEXT_BUTTON,
+	UI_TEXT,
+	UI_TXT_BUTTON,
 	UI_IMAGE,
 	UI_BUTTON,
 	UI_LIST,
@@ -85,14 +85,14 @@ public:
 
 //=============================================================================
 
-class UiArtText : public UiItemBase {
+class UiText : public UiItemBase {
 public:
-	UiArtText(const char* text, SDL_Rect &rect, int flags)
-	    : UiItemBase(UI_ART_TEXT, rect, flags), m_text(text)
+	UiText(const char* text, SDL_Rect &rect, int flags)
+	    : UiItemBase(UI_TEXT, rect, flags), m_text(text)
 	{
 	}
 
-	~UiArtText() = default;
+	~UiText() = default;
 
 	//private:
 	const char *m_text;
@@ -112,14 +112,14 @@ public:
 
 //=============================================================================
 
-class UiArtTextButton : public UiItemBase {
+class UiTxtButton : public UiItemBase {
 public:
-	UiArtTextButton(const char* text, void (*action)(), SDL_Rect &rect, int flags)
-	    : UiItemBase(UI_ART_TEXT_BUTTON, rect, flags), m_text(text), m_action(action)
+	UiTxtButton(const char* text, void (*action)(), SDL_Rect &rect, int flags)
+	    : UiItemBase(UI_TEXT_BUTTON, rect, flags), m_text(text), m_action(action)
 	{
 	}
 
-	~UiArtTextButton() = default;
+	~UiTxtButton() = default;
 
 	//private:
 	const char *m_text;

@@ -184,7 +184,7 @@ static bool Init(const char* caption, char* text, bool error/*, const std::vecto
 		gUiItems.push_back(new UiImage(&dialogArt, 0, rect1, 0, false));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 200, (UI_OFFSET_Y + 211), 240, 80 };
-		gUiItems.push_back(new UiArtText(text, rect2, UIS_LEFT | UIS_SMALL | UIS_GOLD));
+		gUiItems.push_back(new UiText(text, rect2, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect3));
@@ -196,10 +196,10 @@ static bool Init(const char* caption, char* text, bool error/*, const std::vecto
 		gUiItems.push_back(new UiImage(&dialogArt, 0, rect1, 0, false));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 110), 346, 20 };
-		gUiItems.push_back(new UiArtText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
+		gUiItems.push_back(new UiText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 141), 346, 190 };
-		gUiItems.push_back(new UiArtText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
+		gUiItems.push_back(new UiText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
 		SDL_Rect rect4 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect4));

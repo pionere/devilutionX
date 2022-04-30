@@ -596,7 +596,7 @@ void UiPollAndRender()
 #endif
 }
 
-static void Render(const UiArtText* uiArtText)
+static void Render(const UiText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
 }
@@ -614,12 +614,12 @@ static void Render(const UiImage* uiImage)
 	DrawArt(x, uiImage->m_rect.y, mArt, frame, uiImage->m_rect.w, uiImage->m_rect.h);
 }
 
-static void Render(const UiArtTextButton* uiButton)
+static void Render(const UiTxtButton* uiButton)
 {
 	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
 }
 
-static void Render(UiButton* button)
+static void Render(const UiButton* button)
 {
 	int frame = button->m_pressed ? UiButton::PRESSED : UiButton::DEFAULT;
 
@@ -688,14 +688,14 @@ static void Render(const UiEdit* uiEdit)
 static void RenderItem(UiItemBase* item)
 {
 	switch (item->m_type) {
-	case UI_ART_TEXT:
-		Render(static_cast<UiArtText *>(item));
+	case UI_TEXT:
+		Render(static_cast<UiText *>(item));
 		break;
 	case UI_IMAGE:
 		Render(static_cast<UiImage *>(item));
 		break;
-	case UI_ART_TEXT_BUTTON:
-		Render(static_cast<UiArtTextButton *>(item));
+	case UI_TXT_BUTTON:
+		Render(static_cast<UiTxtButton *>(item));
 		break;
 	case UI_BUTTON:
 		Render(static_cast<UiButton *>(item));
@@ -715,7 +715,7 @@ static void RenderItem(UiItemBase* item)
 	}
 }
 
-static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton* uiButton)
+static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiTxtButton* uiButton)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
 		return false;
@@ -803,8 +803,8 @@ static bool HandleMouseEvent(const SDL_Event &event, UiItemBase* item)
 	if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
 		return false;
 	switch (item->m_type) {
-	case UI_ART_TEXT_BUTTON:
-		return HandleMouseEventArtTextButton(event, static_cast<UiArtTextButton *>(item));
+	case UI_TXT_BUTTON:
+		return HandleMouseEventArtTextButton(event, static_cast<UiTxtButton *>(item));
 	case UI_BUTTON:
 		return HandleMouseEventButton(event, static_cast<UiButton *>(item));
 	case UI_LIST:

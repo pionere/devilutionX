@@ -44,10 +44,10 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	UiAddLogo(&gUiItems);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 0, (UI_OFFSET_Y + 161), PANEL_WIDTH, 35 };
-	gUiItems.push_back(new UiArtText(title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
+	gUiItems.push_back(new UiText(title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 130, (UI_OFFSET_Y + 236), MESSAGE_WIDTH, 168 };
-	gUiItems.push_back(new UiArtText(selyesno_confirmationMessage, rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
+	gUiItems.push_back(new UiText(selyesno_confirmationMessage, rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 
 	gUIListItems.push_back(new UiListItem("Yes", 0));
 	gUIListItems.push_back(new UiListItem("No", 1));

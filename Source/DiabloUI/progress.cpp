@@ -35,7 +35,7 @@ static void ProgressLoad(const char *msg)
 	int y = UI_OFFSET_Y + (PANEL_HEIGHT - PRPANEL_HEIGHT) / 2;
 
 	SDL_Rect rect1 = { x + 50, y + 20, PRPANEL_WIDTH - 100, SML_BUTTON_HEIGHT };
-	gUiItems.push_back(new UiArtText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
+	gUiItems.push_back(new UiText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
 	SDL_Rect rect2 = { x + 85, y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiButton("Cancel", &DialogActionCancel, rect2));
 }

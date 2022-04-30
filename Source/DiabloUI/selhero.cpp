@@ -26,8 +26,8 @@ static int(*gfnHeroCreate)(_uiheroinfo *);
 //static void (*gfnHeroStats)(unsigned int, _uidefaultstats *);
 
 static std::vector<UiItemBase *> vecSelHeroDialog;
-static UiArtTextButton *SELLIST_DIALOG_DELETE_BUTTON;
-static UiImage *SELHERO_DIALOG_HERO_IMG;
+static UiTxtButton* SELLIST_DIALOG_DELETE_BUTTON;
+static UiImage* SELHERO_DIALOG_HERO_IMG;
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelheroListSelect(unsigned index);
@@ -189,7 +189,7 @@ static void SelheroInit()
 	UiAddLogo(&vecSelHeroDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT, (UI_OFFSET_Y + 161), PANEL_WIDTH, 35 };
-	vecSelHeroDialog.push_back(new UiArtText(selhero_title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText(selhero_title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 211), 180, 76 };
 #ifdef HELLFIRE
@@ -200,29 +200,29 @@ static void SelheroInit()
 	vecSelHeroDialog.push_back(SELHERO_DIALOG_HERO_IMG);
 
 	SDL_Rect rect4 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 323), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Level:", rect4, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText("Level:", rect4, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect5 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 323), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[0], rect5, UIS_CENTER | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText(textStats[0], rect5, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 358), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Strength:", rect6, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText("Strength:", rect6, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect7 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 358), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[1], rect7, UIS_CENTER | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText(textStats[1], rect7, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect8 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 380), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Magic:", rect8, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText("Magic:", rect8, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect9 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 380), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[2], rect9, UIS_CENTER | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText(textStats[2], rect9, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect10 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 401), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Dexterity:", rect10, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText("Dexterity:", rect10, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect11 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 401), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[3], rect11, UIS_CENTER | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText(textStats[3], rect11, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect12 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 422), 110, 21 };
-	vecSelHeroDialog.push_back(new UiArtText("Vitality:", rect12, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText("Vitality:", rect12, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
 	SDL_Rect rect13 = { PANEL_LEFT + 159, (UI_OFFSET_Y + 422), 40, 21 };
-	vecSelHeroDialog.push_back(new UiArtText(textStats[4], rect13, UIS_CENTER | UIS_SMALL | UIS_SILVER));
+	vecSelHeroDialog.push_back(new UiText(textStats[4], rect13, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 }
 
 static void SelheroListEsc()
@@ -269,7 +269,7 @@ static void SelheroListInit()
 	SelheroFreeDlgItems();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 34 };
-	gUiItems.push_back(new UiArtText("Select Hero", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+	gUiItems.push_back(new UiText("Select Hero", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	unsigned num_viewport_heroes = std::min(selhero_SaveCount + 1, MAX_VIEWPORT_ITEMS);
 	for (unsigned i = 0; i < num_viewport_heroes; i++) {
@@ -285,14 +285,14 @@ static void SelheroListInit()
 	gUiItems.push_back(scrollBar);
 
 	SDL_Rect rect4 = { PANEL_LEFT + 239, (UI_OFFSET_Y + 429), 120, 35 };
-	gUiItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 364, (UI_OFFSET_Y + 429), 120, 35 };
-	SELLIST_DIALOG_DELETE_BUTTON = new UiArtTextButton("Delete", &SelheroUiFocusNavigationYesNo, rect5, UIS_CENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
+	SELLIST_DIALOG_DELETE_BUTTON = new UiTxtButton("Delete", &SelheroUiFocusNavigationYesNo, rect5, UIS_CENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
 	gUiItems.push_back(SELLIST_DIALOG_DELETE_BUTTON);
 
 	SDL_Rect rect6 = { PANEL_LEFT + 489, (UI_OFFSET_Y + 429), 120, 35 };
-	gUiItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo);
 	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS);
@@ -346,7 +346,7 @@ static void SelheroListSelect(unsigned index)
 		SelheroFreeDlgItems();
 
 		SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 34 };
-		gUiItems.push_back(new UiArtText("Choose Class", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+		gUiItems.push_back(new UiText("Choose Class", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 		int listH = 33 * NUM_CLASSES;
 		gUIListItems.push_back(new UiListItem("Warrior", PC_WARRIOR));
@@ -365,10 +365,10 @@ static void SelheroListSelect(unsigned index)
 		gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 429), 140, 35 };
-		gUiItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
+		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 		SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 429), 140, 35 };
-		gUiItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
+		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == NUM_CLASSES);
 		UiInitList(NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
@@ -381,7 +381,7 @@ static void SelheroListSelect(unsigned index)
 		SelheroFreeDlgItems();
 
 		SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 34 };
-		gUiItems.push_back(new UiArtText("Save File Exists", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+		gUiItems.push_back(new UiText("Save File Exists", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 		gUIListItems.push_back(new UiListItem("Load Game", 0));
 		gUIListItems.push_back(new UiListItem("New Game", 1));
@@ -389,10 +389,10 @@ static void SelheroListSelect(unsigned index)
 		gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 427), 140, 35 };
-		gUiItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 427), 140, 35 };
-		gUiItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == 2);
 		UiInitList(2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit);
@@ -421,16 +421,16 @@ static void SelheroClassSelectorSelect(unsigned index)
 		SStrCopy(selhero_heroInfo.hiName, SelheroGenerateName(selhero_heroInfo.hiClass), sizeof(selhero_heroInfo.hiName));
 #endif
 	SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 34 };
-	gUiItems.push_back(new UiArtText("Enter Name", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+	gUiItems.push_back(new UiText("Enter Name", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 317), 320, 33 };
 	gUiItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName) - 1, rect2));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 429), 140, 35 };
-	gUiItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 429), 140, 35 };
-	gUiItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(0, NULL, SelheroNameSelect, SelheroNameEsc);
 }
