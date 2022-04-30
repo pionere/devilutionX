@@ -268,7 +268,7 @@ static void SelheroListInit()
 {
 	SelheroFreeDlgItems();
 
-	SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 33 };
+	SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 34 };
 	gUiItems.push_back(new UiArtText("Select Hero", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	unsigned num_viewport_heroes = std::min(selhero_SaveCount + 1, MAX_VIEWPORT_ITEMS);
@@ -345,7 +345,7 @@ static void SelheroListSelect(unsigned index)
 	if (index == selhero_SaveCount) {
 		SelheroFreeDlgItems();
 
-		SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 33 };
+		SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 34 };
 		gUiItems.push_back(new UiArtText("Choose Class", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 		int listH = 33 * NUM_CLASSES;
@@ -380,7 +380,7 @@ static void SelheroListSelect(unsigned index)
 	if (selhero_heroInfo.hiHasSaved) {
 		SelheroFreeDlgItems();
 
-		SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 33 };
+		SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 34 };
 		gUiItems.push_back(new UiArtText("Save File Exists", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 		gUIListItems.push_back(new UiListItem("Load Game", 0));
@@ -420,7 +420,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 #endif
 		SStrCopy(selhero_heroInfo.hiName, SelheroGenerateName(selhero_heroInfo.hiClass), sizeof(selhero_heroInfo.hiName));
 #endif
-	SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 33 };
+	SDL_Rect rect1 = { PANEL_LEFT + 240, (UI_OFFSET_Y + 211), 370, 34 };
 	gUiItems.push_back(new UiArtText("Enter Name", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 317), 320, 33 };
