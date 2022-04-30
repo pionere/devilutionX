@@ -228,9 +228,6 @@ static void SelgameModeInit()
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
 	gUiItems.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect2 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 192 };
-	gUiItems.push_back(new UiArtText("Description:", rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
-
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
@@ -280,9 +277,6 @@ static void SelgamePasswordInit(unsigned index)
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
 	gUiItems.push_back(new UiArtText(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect2 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 192 };
-	gUiItems.push_back(new UiArtText("Description:", rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
-
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
@@ -310,9 +304,6 @@ static void SelgamePortInit(unsigned index)
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
 	gUiItems.push_back(new UiArtText("Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
-
-	SDL_Rect rect2 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 192 };
-	gUiItems.push_back(new UiArtText("Description:", rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
@@ -379,14 +370,14 @@ static void SelgameModeSelect(unsigned index)
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
 	gUiItems.push_back(new UiArtText(index == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect2 = { PANEL_LEFT + 34, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 33 };
-	gUiItems.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_BIG | UIS_SILVER));
-
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	switch (index) {
 	case SELGAME_CREATE: {
+		SDL_Rect rect2 = { PANEL_LEFT + 34, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 33 };
+		gUiItems.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_BIG | UIS_SILVER));
+
 		SDL_Rect rect4 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 211), 295, 35 };
 		gUiItems.push_back(new UiArtText("Select Difficulty", rect4, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
