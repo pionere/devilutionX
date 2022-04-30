@@ -30,15 +30,22 @@ static std::deque<MSG> message_queue;
 /** The current input handler function */
 WNDPROC CurrentWndProc;
 
-bool mouseWarping = false;
-int mouseWarpingX;
-int mouseWarpingY;
+#if __linux__ && (HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD)
+#define FIX_WARPING	1
+static bool mouseWarping = false;
+static int mouseWarpingX;
+static int mouseWarpingY;
+#else
+#define FIX_WARPING	0
+#endif
 
 void SetCursorPos(int x, int y)
 {
+#if FIX_WARPING
 	mouseWarpingX = x;
 	mouseWarpingY = y;
 	mouseWarping = true;
+#endif
 	LogicalToOutput(&x, &y);
 	SDL_WarpMouseInWindow(ghMainWnd, x, y);
 }
@@ -949,7 +956,11 @@ bool PeekMessage(LPMSG lpMsg)
 #else
 	if (e.type < SDL_JOYAXISMOTION) {
 #endif
+#if FIX_WARPING
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
+#else
+		if (e.type != SDL_MOUSEMOTION)
+#endif // FIX_WARPING
 			sgbControllerActive = false;
 	}
 #endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -972,8 +983,10 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 	} break;
 	case SDL_MOUSEMOTION:
+#if FIX_WARPING
 		if (mouseWarping)
 			mouseWarping = false;
+#endif
 		lpMsg->message = DVL_WM_MOUSEMOVE;
 		lpMsg->wParam = PositionForMouse(e.motion.x, e.motion.y);
 		//lpMsg->lParam = KeystateForMouse(0);
@@ -1063,6 +1076,7 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 			break;
 		case SDL_WINDOWEVENT_ENTER:
+#if FIX_WARPING
 			// Bug in SDL, SDL_WarpMouseInWindow doesn't emit SDL_MOUSEMOTION
 			// and SDL_GetMouseState gives previous location if mouse was
 			// outside window (observed on Ubuntu 19.04)
@@ -1071,6 +1085,7 @@ bool PeekMessage(LPMSG lpMsg)
 				MouseY = mouseWarpingY;
 				mouseWarping = false;
 			}
+#endif
 			break;
 		case SDL_WINDOWEVENT_CLOSE:
 			// -- no need to handle, wait for the QUIT event
