@@ -473,16 +473,6 @@ void UiDestroy()
 	//UiInitList_clear();
 }
 
-static int GetCenterOffset(int w, int bw)
-{
-	//assert(bw == 0);
-	//if (bw == 0) {
-		bw = SCREEN_WIDTH;
-	//}
-
-	return (bw - w) / 2;
-}
-
 void LoadBackgroundArt(const char* pszFile, const char* palette)
 {
 	assert(gbBackCel == NULL);
