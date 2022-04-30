@@ -5,6 +5,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 extern const char *const CREDITS_LINES[];
-extern const unsigned CREDITS_LINES_SIZE;
+extern const int CREDITS_LINES_SIZE;
 
 DEVILUTION_END_NAMESPACE
