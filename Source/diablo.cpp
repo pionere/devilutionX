@@ -123,10 +123,7 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 };
 // clang-format on
 
-/** To know if these things have been done when we get to the diablo_deinit() function */
-bool _gbWasArchivesInit = false;
-/** To know if surfaces have been initialized or not */
-bool _gbWasWindowInit = false;
+/** To know if ui has been initialized or not */
 bool gbWasUiInit = false;
 bool gbSndInited = false;
 
@@ -261,10 +258,8 @@ static void diablo_init()
 	InitPaths();
 
 	dx_init();
-	_gbWasWindowInit = true;
 
 	init_archives();
-	_gbWasArchivesInit = true;
 #if DEBUG_MODE || DEV_MODE
 	ValidateData();
 #endif
@@ -307,15 +302,15 @@ static void diablo_deinit()
 		FreeUiSFX();
 		FreeSound();
 	}
-	if (gbWasUiInit)
+	//if (gbWasUiInit)
 		UiDestroy();
-	if (_gbWasArchivesInit)
+	//if (_gbWasArchivesInit)
 		init_cleanup();
-	if (_gbWasWindowInit) {
+	//if (_gbWasWindowInit) {
 		dx_cleanup(); // Cleanup SDL surfaces stuff, so we have to do it before SDL_Quit().
 	//if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC) != 0)
 		SDL_Quit();
-	}
+	//}
 }
 
 int DiabloMain(int argc, char **argv)
