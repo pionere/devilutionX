@@ -1,37 +1,30 @@
 #include "controls/menu_controls.h"
 #include "DiabloUI/diabloui.h"
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifndef HELLFIRE
-Art ArtLogoBig;
-#endif
+BYTE* gbLogoBig;
 
 static void TitleLoad()
 {
-#ifdef HELLFIRE
-	LoadBackgroundArt("ui_art\\hf_logo1.pcx", 16);
-	UiAddBackground(&gUiItems);
-#else
-	LoadBackgroundArt("ui_art\\title.pcx");
-	LoadMaskedArt("ui_art\\logo.pcx", &ArtLogoBig, 15, 250);
+	LoadBackgroundArt("ui_art\\title.CEL", "ui_art\\menu.pal");
+	// assert(gbLogoBig == NULL);
+	gbLogoBig = LoadFileInMem("ui_art\\logo.CEL");
 
 	UiAddBackground(&gUiItems);
 
-	SDL_Rect rect1 = { 0, UI_OFFSET_Y + 182, 0, 0 };
-	gUiItems.push_back(new UiImage(&ArtLogoBig, 0, rect1, UIS_CENTER, true));
+	SDL_Rect rect1 = { PANEL_LEFT + (PANEL_WIDTH - 550) / 2, UI_OFFSET_Y + 182, 550, 216 };
+	gUiItems.push_back(new UiImage(gbLogoBig, 15, rect1, UIS_CENTER, true));
 
-	SDL_Rect rect2 = { PANEL_LEFT, (UI_OFFSET_Y + 410), PANEL_WIDTH, 26 };
-	gUiItems.push_back(new UiText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect2, UIS_CENTER | UIS_MED | UIS_SILVER));
-#endif
+	SDL_Rect rect2 = { PANEL_LEFT, (UI_OFFSET_Y + 420), PANEL_WIDTH, 26 };
+	gUiItems.push_back(new UiText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect2, UIS_CENTER | UIS_SMALL | UIS_GOLD));
 }
 
 static void TitleFree()
 {
-	ArtBackground.Unload();
-#ifndef HELLFIRE
-	ArtLogoBig.Unload();
-#endif
+	MemFreeDbg(gbBackCel);
+	MemFreeDbg(gbLogoBig);
 	UiClearItems(gUiItems);
 }
 

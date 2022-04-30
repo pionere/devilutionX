@@ -1,20 +1,20 @@
 #pragma once
 
-#include "DiabloUI/art.h"
 #include "DiabloUI/ui_item.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern Art ArtScrollBarBackground;
-const int SCROLLBAR_BG_WIDTH = 24; // 28
+const int SCROLLBAR_BG_WIDTH = 25;
 const int SCROLLBAR_BG_HEIGHT = 100;
-extern Art ArtScrollBarThumb;
+extern BYTE* scrollBarBackCel;
+const int SCROLLBAR_THUMB_WIDTH = 18;
 const int SCROLLBAR_THUMB_HEIGHT = 19;
 const int SCROLLBAR_THUMB_OFFSET_X = 3;
+extern BYTE* scrollBarThumbCel;
 
-extern Art ArtScrollBarArrow;
-const int SCROLLBAR_ARROW_WIDTH = 24; // 25
+const int SCROLLBAR_ARROW_WIDTH = 25;
 const int SCROLLBAR_ARROW_HEIGHT = 22;
+extern BYTE* scrollBarArrowCel;
 
 enum ScrollBarArrowFrame {
 	ScrollBarArrowFrame_UP_ACTIVE,
@@ -27,7 +27,7 @@ inline SDL_Rect UpArrowRect(const UiScrollBar *sb)
 {
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x;
-	Tmp.y = sb->m_rect.y;
+	Tmp.y = sb->m_rect.y + SCROLLBAR_ARROW_HEIGHT;
 	Tmp.w = SCROLLBAR_ARROW_WIDTH;
 	Tmp.h = SCROLLBAR_ARROW_HEIGHT;
 
@@ -38,7 +38,7 @@ inline SDL_Rect DownArrowRect(const UiScrollBar *sb)
 {
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x;
-	Tmp.y = sb->m_rect.y + sb->m_rect.h - SCROLLBAR_ARROW_HEIGHT;
+	Tmp.y = sb->m_rect.y + sb->m_rect.h;
 	Tmp.w = SCROLLBAR_ARROW_WIDTH,
 	Tmp.h = SCROLLBAR_ARROW_HEIGHT;
 
@@ -68,7 +68,7 @@ inline SDL_Rect ThumbRect(const UiScrollBar* sb, unsigned selected_index, unsign
 
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x + SCROLLBAR_THUMB_OFFSET_X;
-	Tmp.y = sb->m_rect.y + SCROLLBAR_ARROW_HEIGHT + thumb_y;
+	Tmp.y = sb->m_rect.y + SCROLLBAR_ARROW_HEIGHT + thumb_y + SCROLLBAR_THUMB_HEIGHT;
 	Tmp.w = sb->m_rect.w - SCROLLBAR_THUMB_OFFSET_X;
 	Tmp.h = SCROLLBAR_THUMB_HEIGHT;
 

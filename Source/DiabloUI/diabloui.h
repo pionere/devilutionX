@@ -4,7 +4,6 @@
 #include <vector>
 #include <SDL.h>
 
-#include "DiabloUI/art.h"
 #include "DiabloUI/ui_item.h"
 #include "utils/display.h"
 
@@ -13,18 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SML_BUTTON_WIDTH	110
 #define SML_BUTTON_HEIGHT	28
 
-typedef enum _artFocus {
-	FOCUS_SMALL,
-	FOCUS_MED,
-	FOCUS_BIG,
-	NUM_FOCUS
-} _artFocus;
-
-extern Art ArtFocus[NUM_FOCUS];
-extern Art ArtBackground;
-extern Art ArtCursor;
-extern Art ArtHero;
-extern Art ArtSmlButton;
+extern BYTE* gbBackCel;
+extern BYTE* gbHerosCel;
+extern BYTE* gbSmlButtonCel;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);
 extern std::vector<UiListItem*> gUIListItems;
@@ -56,7 +46,7 @@ inline SDL_Surface* DiabloUiSurface()
 void UiFadeIn(bool draw_cursor);
 void UiHandleEvents(SDL_Event* event);
 void UiItemMouseEvents(SDL_Event* event);
-void LoadBackgroundArt(const char* pszFile, int frames = 1);
+void LoadBackgroundArt(const char* pszFile, const char* palette);
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
 void UiFocusNavigationSelect();

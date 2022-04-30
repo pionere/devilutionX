@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DiabloUI/fonts.h"
+#include "../types.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

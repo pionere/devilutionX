@@ -205,6 +205,103 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 	CelDrawLight(sx, sy, pSmallTextCels, nCel, 13, tbl);
 }
 
+int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
+{
+	BYTE nCel = bhFontFrame[gbFontTransTbl[text]];
+	BYTE* tbl;
+
+	if (nCel != 0) {
+		switch (col) {
+		case COL_WHITE:
+			CelDraw(sx, sy, pBigTextCels, nCel, 22);
+			return bigFontWidth[nCel] + FONT_KERN_BIG;
+		case COL_BLUE:
+			tbl = fontColorTableBlue;
+			break;
+		case COL_RED:
+			tbl = fontColorTableRed;
+			break;
+		case COL_GOLD:
+			tbl = fontColorTableGold;
+			break;
+		/*case COL_BLACK:
+			tbl = ColorTrns[MAXDARKNESS];
+			break;*/
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+		CelDrawLight(sx, sy, pBigTextCels, nCel, 22, tbl);
+	}
+
+	return bigFontWidth[nCel] + FONT_KERN_BIG;
+}
+
+int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
+{
+	BYTE nCel = smallFontFrame[gbFontTransTbl[text]];
+	BYTE* tbl;
+
+	if (nCel != 0) {
+		switch (col) {
+		case COL_WHITE:
+			CelDraw(sx, sy, pSmallTextCels, nCel, 13);
+			return smallFontWidth[nCel] + FONT_KERN_SMALL;
+		case COL_BLUE:
+			tbl = fontColorTableBlue;
+			break;
+		case COL_RED:
+			tbl = fontColorTableRed;
+			break;
+		case COL_GOLD:
+			tbl = fontColorTableGold;
+			break;
+		/*case COL_BLACK:
+			tbl = ColorTrns[MAXDARKNESS];
+			break;*/
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+		CelDrawLight(sx, sy, pSmallTextCels, nCel, 13, tbl);
+	}
+
+	return smallFontWidth[nCel] + FONT_KERN_SMALL;
+}
+
+int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
+{
+	BYTE nCel = bhFontFrame[gbFontTransTbl[text]];
+	//BYTE* tbl;
+
+	if (nCel != 0) {
+		/*switch (col) {
+		case COL_WHITE:
+			CelDraw(sx, sy, pSmallTextCels, nCel, 46);
+			return hugeFontWidth[nCel] + FONT_KERN_HUGE;
+		case COL_BLUE:
+			tbl = fontColorTableBlue;
+			break;
+		case COL_RED:
+			tbl = fontColorTableRed;
+			break;
+		case COL_GOLD:
+			tbl = fontColorTableGold;
+			break;
+		/*case COL_BLACK:
+			tbl = ColorTrns[MAXDARKNESS];
+			break;* /
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+		CelDrawLight(sx, sy, pHugeGoldTextCels, nCel, 46, tbl);*/
+		CelDraw(sx, sy, pHugeGoldTextCels, nCel, 46);
+	}
+
+	return hugeFontWidth[nCel] + FONT_KERN_HUGE;
+}
+
 int GetHugeStringWidth(const char* text)
 {
 	int i;
@@ -216,6 +313,32 @@ int GetHugeStringWidth(const char* text)
 		i += hugeFontWidth[c] + FONT_KERN_HUGE;
 	}
 	return i - FONT_KERN_HUGE;
+}
+
+int GetBigStringWidth(const char* text)
+{
+	int i;
+	BYTE c;
+
+	i = 0;
+	while (*text != '\0') {
+		c = bhFontFrame[gbFontTransTbl[(BYTE)*text++]];
+		i += bigFontWidth[c] + FONT_KERN_BIG;
+	}
+	return i - FONT_KERN_BIG;
+}
+
+int GetMediumStringWidth(const char* text)
+{
+	int i;
+	BYTE c;
+
+	i = 0;
+	while (*text != '\0') {
+		c = bhFontFrame[gbFontTransTbl[(BYTE)*text++]];
+		i += bigFontWidth[c] + FONT_KERN_BIG;
+	}
+	return i - FONT_KERN_BIG;
 }
 
 int GetSmallStringWidth(const char* text)

@@ -2,7 +2,7 @@
 #include "utils/display.h"
 
 #include "DiabloUI/diabloui.h"
-#include "DiabloUI/selok.h"
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -45,7 +45,7 @@ static void MainmenuLoad()
 	gUIListItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));
 	gUIListItems.push_back(new UiListItem("Exit Game", MAINMENU_EXIT_DIABLO));
 
-	LoadBackgroundArt("ui_art\\mainmenu.pcx");
+	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
 
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
@@ -60,7 +60,7 @@ static void MainmenuLoad()
 
 static void MainmenuFree()
 {
-	ArtBackground.Unload();
+	MemFreeDbg(gbBackCel);
 
 	UiClearItems(gUiItems);
 

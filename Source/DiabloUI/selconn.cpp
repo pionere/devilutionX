@@ -3,7 +3,9 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_net.h"
-#include "all.h"
+//#include "all.h"
+#include <algorithm>
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -65,7 +67,7 @@ static void SelconnLoad()
 {
 	int numOptions = 0;
 
-	LoadBackgroundArt("ui_art\\selconn.pcx");
+	LoadBackgroundArt("ui_art\\selconn.CEL", "ui_art\\menu.pal");
 #ifndef HOSTONLY
 	gUIListItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
 	numOptions++;
@@ -123,8 +125,7 @@ static void SelconnLoad()
 
 static void SelconnFree()
 {
-	ArtBackground.Unload();
-
+	MemFreeDbg(gbBackCel);
 	UiClearListItems();
 
 	UiClearItems(gUiItems);

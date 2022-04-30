@@ -20,19 +20,10 @@ void UiSettingsDialog()
 		else if (gnTicksRate > SPEED_FASTEST)
 			gnTicksRate = SPEED_FASTEST;
 	}
-	// initialize game-skeleton with active gamemenu
-	InitText();
+	// initialize gamemenu
 	InitGMenu();
 	gamemenu_settings(true);
 	settingsMenu = gpCurrentMenu;
-
-	InitCursorGFX();
-	NewCursor(CURSOR_HAND);
-
-	MakeLightTable();
-
-	LoadPalette("Levels\\TownData\\Town.pal");
-	PaletteFadeIn(true);
 
 	SDL_Event event;
 	while (settingsMenu == gpCurrentMenu) {
@@ -91,12 +82,10 @@ void UiSettingsDialog()
 		}
 	}
 	PlaySFX(IS_TITLSLCT); // UiFocusNavigationSelect(); -- needs UiInitList...
-	PaletteFadeOut();
+	//PaletteFadeOut();
 
 	gmenu_set_items(NULL, 0, NULL);
-	FreeCursorGFX();
 	FreeGMenu();
-	FreeText();
 }
 
 DEVILUTION_END_NAMESPACE

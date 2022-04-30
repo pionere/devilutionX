@@ -7,7 +7,7 @@
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selconn.h"
 #include "controls/plrctrls.h"
-#include "all.h"
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -135,8 +135,8 @@ static void SelheroFreeDlgItems()
 
 static void SelheroFree()
 {
-	ArtBackground.Unload();
-	ArtHero.Unload();
+	MemFreeDbg(gbBackCel);
+	MemFreeDbg(gbHerosCel);
 	UnloadScrollBar();
 
 	UiClearItems(vecSelHeroDialog);
@@ -149,11 +149,9 @@ static void SelheroFree()
 static void SelheroSetStats()
 {
 	int heroclass = selhero_heroInfo.hiClass;
-#ifdef HELLFIRE
-	if (heroclass == PC_BARBARIAN)
-		heroclass = PC_WARRIOR; // The graphics is missing from heros.pcx
-#endif
-	SELHERO_DIALOG_HERO_IMG->m_frame = heroclass;
+
+	SELHERO_DIALOG_HERO_IMG->m_frame = heroclass + 1;
+
 	snprintf(textStats[0], sizeof(textStats[0]), "%d", selhero_heroInfo.hiLevel);
 	snprintf(textStats[1], sizeof(textStats[1]), "%d", selhero_heroInfo.hiStrength);
 	snprintf(textStats[2], sizeof(textStats[2]), "%d", selhero_heroInfo.hiMagic);
@@ -178,13 +176,9 @@ static void SelheroUpdateViewportItems()
 static void SelheroInit()
 {
 	LoadScrollBar();
-#ifdef HELLFIRE
-	LoadArt("ui_art\\heros.pcx", &ArtHero, 6);
-#else
-	LoadArt("ui_art\\heros.pcx", &ArtHero, 4);
-#endif
+	gbHerosCel = LoadFileInMem("ui_art\\heros.CEL");
 
-	LoadBackgroundArt("ui_art\\selhero.pcx");
+	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 	UiAddBackground(&vecSelHeroDialog);
 	UiAddLogo(&vecSelHeroDialog);
 
@@ -192,11 +186,7 @@ static void SelheroInit()
 	vecSelHeroDialog.push_back(new UiText(selhero_title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 211), 180, 76 };
-#ifdef HELLFIRE
-	SELHERO_DIALOG_HERO_IMG = new UiImage(&ArtHero, 5, rect2, 0, false);
-#else
-	SELHERO_DIALOG_HERO_IMG = new UiImage(&ArtHero, NUM_CLASSES, rect2, 0, false);
-#endif
+	SELHERO_DIALOG_HERO_IMG = new UiImage(gbHerosCel, 7, rect2, 0, false);
 	vecSelHeroDialog.push_back(SELHERO_DIALOG_HERO_IMG);
 
 	SDL_Rect rect4 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 323), 110, 21 };
@@ -243,11 +233,7 @@ static void SelheroListFocus(unsigned index)
 		return;
 	}
 
-#ifdef HELLFIRE
-	SELHERO_DIALOG_HERO_IMG->m_frame = 5;
-#else
-	SELHERO_DIALOG_HERO_IMG->m_frame = NUM_CLASSES;
-#endif
+	SELHERO_DIALOG_HERO_IMG->m_frame = 0;
 	copy_cstr(textStats[0], "--");
 	copy_cstr(textStats[1], "--");
 	copy_cstr(textStats[2], "--");
@@ -461,11 +447,11 @@ static void SelheroNameSelect(unsigned index)
 		break;
 	}
 
-	ArtBackground.Unload();
+	MemFreeDbg(gbBackCel);
 	SelheroFreeDlgItems();
 	//UiInitList_clear();
 	UiSelOkDialog(selhero_title, err);
-	LoadBackgroundArt("ui_art\\selhero.pcx");
+	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 	SelheroClassSelectorSelect(0);
 }
 

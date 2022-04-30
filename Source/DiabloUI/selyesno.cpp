@@ -4,6 +4,7 @@
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -14,8 +15,7 @@ static bool _gbYNValue;
 
 static void SelyesnoFree()
 {
-	ArtBackground.Unload();
-
+	MemFreeDbg(gbBackCel);
 	UiClearListItems();
 
 	UiClearItems(gUiItems);
@@ -39,7 +39,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 {
 	char selyesno_confirmationMessage[256];
 
-	LoadBackgroundArt("ui_art\\black.pcx");
+	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 

@@ -8,8 +8,6 @@
 #include "../types.h"
 #include "../appfat.h"
 
-#include "DiabloUI/art.h"
-#include "DiabloUI/fonts.h"
 #include "DiabloUI/text_draw.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -70,15 +68,15 @@ public:
 
 class UiImage : public UiItemBase {
 public:
-	UiImage(Art* art, int frame, SDL_Rect &rect, int flags, bool animated)
-	    : UiItemBase(UI_IMAGE, rect, flags), m_art(art), m_frame(frame), m_animated(animated)
+	UiImage(BYTE* celData, int frame, SDL_Rect &rect, int flags, bool animated)
+	    : UiItemBase(UI_IMAGE, rect, flags), m_cel_data(celData), m_frame(frame), m_animated(animated)
 	{
 	}
 
 	~UiImage() = default;
 
 	//private:
-	Art* m_art;
+	BYTE* m_cel_data;
 	int m_frame;
 	bool m_animated;
 };

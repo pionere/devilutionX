@@ -1,13 +1,15 @@
 
-#include "config.h"
-#include "all.h"
-
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/selconn.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_net.h"
+#include "all.h"
+//#include "../diablo.h"
+//#include <algorithm>
+//#include "../engine.h"
+//#include "storm/storm.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -74,8 +76,7 @@ static void SelgameFreeDlgItems()
 
 static void SelgameFree()
 {
-	ArtBackground.Unload();
-
+	MemFreeDbg(gbBackCel);
 	SelgameFreeDlgItems();
 
 	//UiInitList_clear();
@@ -461,7 +462,7 @@ static void SelgamePasswordSelect(unsigned index)
 
 	SelgameFree();
 	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", dialogText);
-	LoadBackgroundArt("ui_art\\selgame.pcx");
+	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
 	SelgamePasswordInit(0);
 }
 
@@ -471,7 +472,7 @@ int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt)
 
 	selgame_add_event_handlers(event_handler);
 
-	LoadBackgroundArt("ui_art\\selgame.pcx");
+	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
 	SelgameModeInit();
 
 	selgame_endMenu = false;

@@ -1,13 +1,12 @@
 #include <algorithm>
 
 #include "controls/menu_controls.h"
-#include "utils/display.h"
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/credits_lines.h"
-#include "DiabloUI/art.h"
-#include "DiabloUI/art_draw.h"
-#include "DiabloUI/fonts.h"
+#include "DiabloUI/text_draw.h"
+#include "../engine.h"
+#include "../dx.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -17,6 +16,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static bool CreditsRender(int offsetY)
 {
+	BYTE *pStart, *pEnd;
+
 	UiClearScreen();
 	UiRenderItems(gUiItems);
 
@@ -27,17 +28,11 @@ static bool CreditsRender(int offsetY)
 		return linesEnd != CREDITS_LINES_SIZE;
 	}
 
-	SDL_Rect viewport;
-	viewport.x = PANEL_LEFT;
-	viewport.y = VIEWPORT_Y + UI_OFFSET_Y;
-	viewport.w = PANEL_WIDTH;
-	viewport.h = VIEWPORT_H;
-	//ScaleOutputRect(&viewport); -- unnecessary (and wrong) when drawing to back_surface
-	viewport.x += SCREEN_X;
-	viewport.y += SCREEN_Y;
-	SDL_SetClipRect(DiabloUiSurface(), &viewport);
+	pStart = gpBufStart;
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + VIEWPORT_Y )];
+	pEnd = gpBufEnd;
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + VIEWPORT_Y + VIEWPORT_H)];
 
-	// We use unscaled coordinates for calculation throughout.
 	int destY = UI_OFFSET_Y + VIEWPORT_Y - (offsetY - linesBegin * LINE_H);
 	for (int i = linesBegin; i < linesEnd; ++i, destY += LINE_H) {
 		const char* text = CREDITS_LINES[i];
@@ -49,7 +44,9 @@ static bool CreditsRender(int offsetY)
 		DrawArtStr(text, dstRect, UIS_LEFT | UIS_SMALL | UIS_GOLD);
 	}
 
-	SDL_SetClipRect(DiabloUiSurface(), NULL);
+	gpBufStart = pStart;
+	gpBufEnd = pEnd;
+
 	return true;
 }
 
@@ -59,7 +56,7 @@ void UiCreditsDialog()
 	Uint32 ticks_begin_;
 	int prev_offset_y_ = 0;
 
-	LoadBackgroundArt("ui_art\\credits.pcx");
+	LoadBackgroundArt("ui_art\\credits.CEL", "ui_art\\credits.pal");
 	UiAddBackground(&gUiItems);
 	ticks_begin_ = SDL_GetTicks();
 
@@ -91,7 +88,7 @@ void UiCreditsDialog()
 		}
 	} while (!endMenu);
 
-	ArtBackground.Unload();
+	MemFreeDbg(gbBackCel);
 	UiClearItems(gUiItems);
 }
 

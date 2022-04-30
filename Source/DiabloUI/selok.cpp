@@ -4,6 +4,7 @@
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -13,7 +14,7 @@ static bool _gbSelokEndMenu;
 
 static void SelokFree()
 {
-	ArtBackground.Unload();
+	MemFreeDbg(gbBackCel);
 
 	UiClearListItems();
 
@@ -37,7 +38,7 @@ void UiSelOkDialog(const char* title, const char* body)
 	char dialogText[256];
 
 	//if (!background) {
-		LoadBackgroundArt("ui_art\\black.pcx");
+		LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
 	//} else {
 	//	LoadBackgroundArt(background);
 	//}

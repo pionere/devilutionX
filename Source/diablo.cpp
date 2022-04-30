@@ -263,6 +263,9 @@ static void diablo_init()
 #if DEBUG_MODE || DEV_MODE
 	ValidateData();
 #endif
+	MakeLightTable();
+	InitText();
+	InitCursorGFX();
 	UiInitialize();
 	gbWasUiInit = true;
 
@@ -304,6 +307,8 @@ static void diablo_deinit()
 	}
 	//if (gbWasUiInit)
 		UiDestroy();
+		FreeText();
+		FreeCursorGFX();
 	//if (_gbWasArchivesInit)
 		FreeArchives();
 	//if (_gbWasWindowInit) {
@@ -1481,7 +1486,6 @@ static WNDPROC InitGameUI()
 	InitAutomapOnce(); // values
 	InitHelp(); // values
 	InitControlPan(); // gfx + values
-	InitText(); // gfx
 	InitInv(); // gfx + values
 	InitGMenu(); // gfx
 	InitQuestGFX(); // gfx + values
@@ -1492,7 +1496,6 @@ static WNDPROC InitGameUI()
 	InitGameMissileGFX(); // gfx
 	InitLightGFX(); // 'values'
 	InitGameSFX(); // sfx
-	InitCursorGFX(); // gfx + values
 
 	gbDeathflag = MDM_ALIVE;
 	gbZoomInFlag = false;
@@ -1523,7 +1526,6 @@ static void FreeGameUI()
 	FreeLevelMem();
 
 	FreeControlPan();
-	FreeText();
 	FreeInvGFX();
 	FreeGMenu();
 	FreeQuestGFX();
@@ -1534,7 +1536,6 @@ static void FreeGameUI()
 	FreeItemGFX();
 	FreeGameMissileGFX();
 	FreeGameSFX();
-	FreeCursorGFX();
 #if DEBUG_MODE
 	FreeDebugGFX();
 #endif
