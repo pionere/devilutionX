@@ -16,7 +16,7 @@ static bool selconn_ReturnValue;
 static bool selconn_EndMenu;
 
 #define DESCRIPTION_OFFSET 35
-#define DESCRIPTION_WIDTH  205
+#define DESCRIPTION_WIDTH  208
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelconnSelect(unsigned index);
@@ -104,7 +104,7 @@ static void SelconnLoad()
 	SDL_Rect rect4 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 275), DESCRIPTION_WIDTH, 66 };
 	gUiItems.push_back(new UiArtText(selconn_Description, rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect7 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
+	SDL_Rect rect7 = { PANEL_LEFT + 280, (UI_OFFSET_Y + 211), 334, 33 };
 	gUiItems.push_back(new UiArtText("Select Connection", rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	//assert(numOptions == gUIListItems.size());

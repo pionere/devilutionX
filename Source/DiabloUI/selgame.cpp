@@ -25,7 +25,7 @@ static bool selgame_endMenu;
 static SNetGameData* selgame_gameData;
 
 #define DESCRIPTION_OFFSET 35
-#define DESCRIPTION_WIDTH  205
+#define DESCRIPTION_WIDTH  208
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelgameModeSelect(unsigned index);
@@ -168,13 +168,13 @@ static void SelgameSpeedInit()
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
 	gUiItems.push_back(new UiArtText("Create Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect2 = { PANEL_LEFT + 34, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 33 };
+	SDL_Rect rect2 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 33 };
 	gUiItems.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect4 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 211), 295, 35 };
+	SDL_Rect rect4 = { PANEL_LEFT + 280, (UI_OFFSET_Y + 211), 334, 35 };
 	gUiItems.push_back(new UiArtText("Select Game Speed", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	gUIListItems.push_back(new UiListItem("Normal", SPEED_NORMAL));
@@ -231,7 +231,7 @@ static void SelgameModeInit()
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect4 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
+	SDL_Rect rect4 = { PANEL_LEFT + 280, (UI_OFFSET_Y + 211), 334, 33 };
 	gUiItems.push_back(new UiArtText("Select Action", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	static_assert(0 == (int)SELGAME_CREATE, "SelgameModeSelect expects the index and its value to match I.");
@@ -280,7 +280,7 @@ static void SelgamePasswordInit(unsigned index)
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
+	SDL_Rect rect4 = { PANEL_LEFT + 280, (UI_OFFSET_Y + 211), 334, 33 };
 	gUiItems.push_back(new UiArtText("Enter Password", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
@@ -308,7 +308,7 @@ static void SelgamePortInit(unsigned index)
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiArtText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
+	SDL_Rect rect4 = { PANEL_LEFT + 280, (UI_OFFSET_Y + 211), 334, 33 };
 	gUiItems.push_back(new UiArtText("Enter Port", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
@@ -375,10 +375,10 @@ static void SelgameModeSelect(unsigned index)
 
 	switch (index) {
 	case SELGAME_CREATE: {
-		SDL_Rect rect2 = { PANEL_LEFT + 34, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 33 };
+		SDL_Rect rect2 = { PANEL_LEFT + DESCRIPTION_OFFSET, (UI_OFFSET_Y + 211), DESCRIPTION_WIDTH, 33 };
 		gUiItems.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-		SDL_Rect rect4 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 211), 295, 35 };
+		SDL_Rect rect4 = { PANEL_LEFT + 280, (UI_OFFSET_Y + 211), 334, 35 };
 		gUiItems.push_back(new UiArtText("Select Difficulty", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 		gUIListItems.push_back(new UiListItem("Normal", DIFF_NORMAL));
@@ -398,7 +398,7 @@ static void SelgameModeSelect(unsigned index)
 		UiInitList(3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc);
 	} break;
 	case SELGAME_JOIN: {
-		SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
+		SDL_Rect rect4 = { PANEL_LEFT + 280, (UI_OFFSET_Y + 211), 334, 33 };
 		gUiItems.push_back(new UiArtText("Enter Address", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 		SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };

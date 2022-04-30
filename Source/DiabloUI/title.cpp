@@ -21,7 +21,7 @@ static void TitleLoad()
 	SDL_Rect rect1 = { 0, UI_OFFSET_Y + 182, 0, 0 };
 	gUiItems.push_back(new UiImage(&ArtLogoBig, 0, rect1, UIS_CENTER, true));
 
-	SDL_Rect rect2 = { PANEL_LEFT + 49, (UI_OFFSET_Y + 410), 550, 26 };
+	SDL_Rect rect2 = { PANEL_LEFT, (UI_OFFSET_Y + 410), PANEL_WIDTH, 26 };
 	gUiItems.push_back(new UiArtText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect2, UIS_CENTER | UIS_MED | UIS_SILVER));
 #endif
 }
