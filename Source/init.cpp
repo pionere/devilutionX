@@ -60,7 +60,7 @@ static HANDLE init_test_access(const char* mpq_name)
 
 /* data */
 
-void init_cleanup()
+void FreeArchives()
 {
 	pfile_flush(true);
 
@@ -141,7 +141,7 @@ static void ReadOnlyTest()
 	}
 }
 
-void init_archives()
+void InitArchives()
 {
 	InitializeMpqCryptography();
 	ReadOnlyTest();

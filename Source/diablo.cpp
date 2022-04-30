@@ -259,7 +259,7 @@ static void diablo_init()
 
 	dx_init();
 
-	init_archives();
+	InitArchives();
 #if DEBUG_MODE || DEV_MODE
 	ValidateData();
 #endif
@@ -305,7 +305,7 @@ static void diablo_deinit()
 	//if (gbWasUiInit)
 		UiDestroy();
 	//if (_gbWasArchivesInit)
-		init_cleanup();
+		FreeArchives();
 	//if (_gbWasWindowInit) {
 		dx_cleanup(); // Cleanup SDL surfaces stuff, so we have to do it before SDL_Quit().
 	//if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC) != 0)

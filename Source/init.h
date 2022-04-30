@@ -18,8 +18,8 @@ extern HANDLE diabdat_mpq;
 extern HANDLE diabdat_mpqs[NUM_MPQS];
 #endif
 
-void init_cleanup();
-void init_archives();
+void FreeArchives();
+void InitArchives();
 
 #ifdef __cplusplus
 }
