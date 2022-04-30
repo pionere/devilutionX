@@ -52,7 +52,7 @@ static void MainmenuLoad()
 
 	//assert(gUIListItems.size() == numOptions);
 	SDL_Rect rect1 = { PANEL_LEFT + 64, (UI_OFFSET_Y + 190), PANEL_WIDTH - 64 * 2, 43 * numOptions };
-	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_HUGE | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
 	UiInitList(numOptions, NULL, UiMainMenuSelect, MainmenuEsc);

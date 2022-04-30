@@ -58,7 +58,7 @@ void UiSelOkDialog(const char* title, const char* body)
 
 	gUIListItems.push_back(new UiListItem("OK", 0));
 	SDL_Rect rect3 = { PANEL_LEFT + 230, (UI_OFFSET_Y + 390), 180, 35 * 1 };
-	gUiItems.push_back(new UiList(&gUIListItems, 1, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, 1, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SStrCopy(dialogText, body, sizeof(dialogText));
 	WordWrapArtStr(dialogText, MESSAGE_WIDTH, AFT_MED);

@@ -52,7 +52,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	gUIListItems.push_back(new UiListItem("Yes", 0));
 	gUIListItems.push_back(new UiListItem("No", 1));
 	SDL_Rect rect3 = { PANEL_LEFT + 230, (UI_OFFSET_Y + 390), 180, 35 * 2 };
-	gUiItems.push_back(new UiList(&gUIListItems, 2, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, 2, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SStrCopy(selyesno_confirmationMessage, body, sizeof(selyesno_confirmationMessage));
 	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH, AFT_MED);
