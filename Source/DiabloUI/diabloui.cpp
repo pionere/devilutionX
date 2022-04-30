@@ -572,7 +572,7 @@ static void DrawSelector(const SDL_Rect &rect)
 
 void UiClearScreen()
 {
-	if (SCREEN_WIDTH > 640) // Background size
+	if (SCREEN_WIDTH > PANEL_WIDTH) // Background size
 		SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 }
 

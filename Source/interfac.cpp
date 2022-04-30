@@ -4,10 +4,6 @@
  * Implementation of load screens.
  */
 #include "all.h"
-#ifndef NOWIDESCREEN
-#include "DiabloUI/diabloui.h"
-#include "DiabloUI/art_draw.h"
-#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
