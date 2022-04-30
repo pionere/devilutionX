@@ -94,7 +94,7 @@ static void DrawProgress()
 	unsigned w, i, j;
 
 	screen_x = PANEL_X + BAR_POS_X;
-	screen_y = SCREEN_Y + UI_OFFSET_Y + (sgbLoadBarOnTop ? 37 : 421);
+	screen_y = SCREEN_Y + PANEL_TOP + (sgbLoadBarOnTop ? 37 : 421);
 	dst = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
 	col = sgbLoadBarCol;
 	w = sgdwProgress;
