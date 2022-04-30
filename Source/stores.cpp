@@ -241,9 +241,9 @@ static void DrawSSlider(/*int y1, int y2*/)
 
 	assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
 	x = STORE_PNL_X + STPANEL_WIDTH - 14; 
-	yd1 = y1 * 12 + 44 + SCREEN_Y + PANEL_TOP; // top position of the scrollbar
-	yd2 = y2 * 12 + 44 + SCREEN_Y + PANEL_TOP; // bottom position of the scrollbar
-	yd3 = (y2 * 12 - y1 * 12 - 24);              // height of the scrollbar
+	yd1 = y1 * 12 + 44 + PANEL_Y;   // top position of the scrollbar
+	yd2 = y2 * 12 + 44 + PANEL_Y;   // bottom position of the scrollbar
+	yd3 = (y2 * 12 - y1 * 12 - 24); // height of the scrollbar
 	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10, 12);
 	// draw the down arrow

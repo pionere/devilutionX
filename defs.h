@@ -203,7 +203,7 @@
 #define TPANEL_BORDER	3
 
 #define LTPANEL_X		PANEL_X + 24
-#define LTPANEL_Y		SCREEN_Y + PANEL_TOP + 24
+#define LTPANEL_Y		PANEL_Y + 24
 
 #define STORE_PNL_X		PANEL_X + 344
 
