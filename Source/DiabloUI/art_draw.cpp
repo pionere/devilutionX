@@ -40,10 +40,4 @@ void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 		sdl_error(ERR_SDL_ART_BLIT);
 }
 
-int GetAnimationFrame(int frames, int animFrameLenMs)
-{
-	//assert(frames > 0 && fps > 0);
-	return (SDL_GetTicks() / animFrameLenMs) % frames;
-}
-
 DEVILUTION_END_NAMESPACE

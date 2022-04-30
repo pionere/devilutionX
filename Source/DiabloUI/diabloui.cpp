@@ -548,6 +548,12 @@ void UiFadeIn(bool draw_cursor)
 	RenderPresent();
 }
 
+int GetAnimationFrame(int frames, int animFrameLenMs)
+{
+	//assert(frames > 0 && fps > 0);
+	return (SDL_GetTicks() / animFrameLenMs) % frames;
+}
+
 static void DrawSelector(const SDL_Rect &rect)
 {
 	int size = FOCUS_SMALL;

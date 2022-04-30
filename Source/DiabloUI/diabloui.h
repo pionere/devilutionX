@@ -71,6 +71,7 @@ void UiClearItems(std::vector<UiItemBase*> &uiItems);
 void UiClearListItems();
 //void UiInitList_clear();
 
+int GetAnimationFrame(int frames, int animFrameLenMs = 64);
 void mainmenu_restart_repintro();
 
 DEVILUTION_END_NAMESPACE
