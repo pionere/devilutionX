@@ -358,15 +358,11 @@ int GetSmallStringWidth(const char* text)
 void PrintGameStr(int x, int y, const char *text, BYTE color)
 {
 	BYTE c;
-	int sx, sy;
-
-	sx = x + SCREEN_X;
-	sy = y + SCREEN_Y;
 	while (*text != '\0') {
 		c = smallFontFrame[gbFontTransTbl[(BYTE)*text++]];
 		if (c != 0)
-			PrintChar(sx, sy, c, color);
-		sx += smallFontWidth[c] + FONT_KERN_SMALL;
+			PrintChar(x, y, c, color);
+		x += smallFontWidth[c] + FONT_KERN_SMALL;
 	}
 }
 

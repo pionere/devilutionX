@@ -92,6 +92,9 @@ text_color CircleMenuHintTextColor(bool active)
 void DrawCircleMenuHint(const CircleMenuHint &hint, int x, int y)
 {
 	const int lineHeight = 25;
+	x += SCREEN_X;
+	y += SCREEN_Y;
+
 	PrintGameStr(x + hint.x_mid - hint.top_w / 2, y, hint.top, CircleMenuHintTextColor(IsTopActive(hint)));
 	y += lineHeight;
 

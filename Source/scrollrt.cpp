@@ -1379,7 +1379,7 @@ static void DrawFPS()
 		guFrameCnt = 0;
 	}
 	snprintf(tempstr, sizeof(tempstr), "%d FPS", guFrameRate);
-	PrintGameStr(8, 65, tempstr, COL_RED);
+	PrintGameStr(SCREEN_X + 8, SCREEN_Y + 65, tempstr, COL_RED);
 }
 
 /**

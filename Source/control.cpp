@@ -1374,8 +1374,8 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 		w1 = (w2 - w1) >> 1;
 		w2 = 0;
 	}
-	PrintGameStr(x + border + w1, y + height - 14, text1, col);
-	PrintGameStr(x + border + w2, y + height - 3, text2, COL_WHITE);
+	PrintGameStr(SCREEN_X + x + border + w1, SCREEN_Y + y + height - 14, text1, col);
+	PrintGameStr(SCREEN_X + x + border + w2, SCREEN_Y + y + height - 3, text2, COL_WHITE);
 	return result;
 }
 
@@ -1461,7 +1461,7 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 		memset(dst, PAL16_ORANGE + 14, width - 2);
 
 	// print the info
-	PrintGameStr(x + border, y + height - 3, text, col);
+	PrintGameStr(SCREEN_X + x + border, SCREEN_Y + y + height - 3, text, col);
 	return result;
 }
 
@@ -2045,7 +2045,7 @@ void DrawGoldSplit(int amount)
 	ADD_PlrStringXY(366, 121, 600, "you want to remove?", COL_GOLD);
 	if (amount > 0) {
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
-		PrintGameStr(388, 140, tempstr, COL_WHITE);
+		PrintGameStr(388 + SCREEN_X, 140 + SCREEN_Y, tempstr, COL_WHITE);
 		screen_x += GetSmallStringWidth(tempstr);
 		screen_x += 452;
 	} else {

@@ -562,7 +562,7 @@ static uint16_t GetAutomapType(int x, int y, bool view)
  */
 static void DrawAutomapText()
 {
-	PrintGameStr(8, 20, AllLevels[currLvl._dLevelIdx].dLevelName, COL_GOLD);
+	PrintGameStr(SCREEN_X + 8, SCREEN_Y + 20, AllLevels[currLvl._dLevelIdx].dLevelName, COL_GOLD);
 }
 
 /**
