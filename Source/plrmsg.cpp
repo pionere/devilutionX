@@ -125,10 +125,7 @@ static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 
 		sx = x;
 		while (str < endstr) {
-			c = smallFontFrame[gbFontTransTbl[(BYTE)*str++]];
-			if (c != 0)
-				PrintChar(sx, y, c, col);
-			sx += smallFontWidth[c] + FONT_KERN_SMALL;
+			sx += PrintSmallChar(sx, y, (BYTE)*str++, col);
 		}
 
 		y += PLRMSG_TEXT_HEIGHT;
