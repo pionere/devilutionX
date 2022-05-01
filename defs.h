@@ -183,8 +183,10 @@
 
 #define PANEL_WIDTH		640
 #define PANEL_HEIGHT	480
-#define PANEL_LEFT		(SCREEN_WIDTH - PANEL_WIDTH) / 2
-#define PANEL_TOP		((SCREEN_HEIGHT - PANEL_HEIGHT) / 2)
+#define PANEL_LEFT		((int)((unsigned)SCREEN_WIDTH / 2 - PANEL_WIDTH / 2))
+#define PANEL_RIGHT		((int)((unsigned)SCREEN_WIDTH / 2 + PANEL_WIDTH / 2))
+#define PANEL_TOP		((int)((unsigned)SCREEN_HEIGHT / 2 - PANEL_HEIGHT / 2))
+#define PANEL_BOTTOM	((int)((unsigned)SCREEN_HEIGHT / 2 + PANEL_HEIGHT / 2))
 #define PANEL_X			(SCREEN_X + PANEL_LEFT)
 #define PANEL_Y			(SCREEN_Y + PANEL_TOP)
 
