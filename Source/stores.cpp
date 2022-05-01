@@ -202,8 +202,7 @@ void InitLvlStores()
 void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int val)
 {
 	int sx, sy, px;
-	int width, limit, i;
-	BYTE c;
+	int width, limit;
 	char valstr[32];
 
 	sx = (gbWidePanel ? LTPANEL_X + 7 : STORE_PNL_X + 7) + x;
