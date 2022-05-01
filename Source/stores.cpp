@@ -220,14 +220,8 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 	if (val >= 0) {
 		assert(!cjustflag);
 		snprintf(valstr, sizeof(valstr), "%d", val);
-		sx = PANEL_X + 592 - x;
-		for (i = strlen(valstr) - 1; i >= 0; i--) {
-			c = smallFontFrame[gbFontTransTbl[(BYTE)valstr[i]]];
-			sx -= smallFontWidth[c] + FONT_KERN_SMALL;
-			if (c != 0) {
-				PrintChar(sx, sy, c, col);
-			}
-		}
+		sx = PANEL_X + 592 - x - GetSmallStringWidth(valstr);
+		PrintGameStr(sx, sy, valstr, col);
 	}
 	if (px != INT_MAX) {
 		DrawSmallPentSpn(px - 20, cjustflag ? sx + 6 : (PANEL_X + 596 - x), sy + 1);
