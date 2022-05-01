@@ -923,15 +923,14 @@ void DrawCtrlBtns()
 
 	i = 0;
 	x = SCREEN_X + PanBtnPos[i][0];
-	if (!gabPanbtn[PANBTN_MAINMENU]) {
-		CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + 18, pPanelButtonCels, 4, 71);
+	pb = gabPanbtn[PANBTN_MAINMENU];
+	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + 18, pPanelButtonCels, pb ? 4 : 3, 71);
+	if (!pb)
 		return;
-	}
-	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + 18, pPanelButtonCels, 3, 71);
 	for (i = 1; i < numpanbtns; i++) {
 		y = SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1];
 		pb = gabPanbtn[i];
-		CelDraw(x, y + 18, pPanelButtonCels, 1, 71);
+		CelDraw(x, y + 18, pPanelButtonCels, 2, 71);
 		// print the text of the button
 		PrintString(x + 3, y + 15, x + 70, PanBtnTxt[i], true, pb ? COL_GOLD : COL_WHITE, FONT_KERN_SMALL);
 	}
