@@ -186,7 +186,7 @@ static void SelheroInit()
 	vecSelHeroDialog.push_back(new UiText(selhero_title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 30, (PANEL_TOP + 211), 180, 76 };
-	SELHERO_DIALOG_HERO_IMG = new UiImage(gbHerosCel, 7, rect2, 0, false);
+	SELHERO_DIALOG_HERO_IMG = new UiImage(gbHerosCel, 7, rect2, false);
 	vecSelHeroDialog.push_back(SELHERO_DIALOG_HERO_IMG);
 
 	SDL_Rect rect4 = { PANEL_LEFT + 39, (PANEL_TOP + 323), 110, 21 };

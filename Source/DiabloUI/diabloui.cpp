@@ -500,14 +500,14 @@ void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
 {
 	assert(gbBackCel != NULL);
 	SDL_Rect rect = { PANEL_LEFT, PANEL_TOP, PANEL_WIDTH, PANEL_HEIGHT };
-	vecDialog->push_back(new UiImage(gbBackCel, 0, rect, UIS_CENTER, false));
+	vecDialog->push_back(new UiImage(gbBackCel, 0, rect, false));
 }
 
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 {
 	assert(gbLogoCel != NULL);
 	SDL_Rect rect = { PANEL_LEFT + (PANEL_WIDTH - 390) / 2, PANEL_TOP, 390, 154 };
-	vecDialog->push_back(new UiImage(gbLogoCel, 15, rect, UIS_CENTER, true));
+	vecDialog->push_back(new UiImage(gbLogoCel, 15, rect, true));
 }
 
 void UiFadeIn(bool draw_cursor)

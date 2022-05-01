@@ -68,8 +68,8 @@ public:
 
 class UiImage : public UiItemBase {
 public:
-	UiImage(BYTE* celData, int frame, SDL_Rect &rect, int flags, bool animated)
-	    : UiItemBase(UI_IMAGE, rect, flags), m_cel_data(celData), m_frame(frame), m_animated(animated)
+	UiImage(BYTE* celData, int frame, SDL_Rect &rect, bool animated)
+	    : UiItemBase(UI_IMAGE, rect, 0), m_cel_data(celData), m_frame(frame), m_animated(animated)
 	{
 	}
 
