@@ -973,7 +973,7 @@ void StoreSpellCoords()
 {
 	const int START_X = PANEL_LEFT + 12 + SPLICONLENGTH / 2;
 	const int END_X = START_X + SPLICONLENGTH * SPLROWICONLS;
-	const int END_Y = SCREEN_HEIGHT - (128 + 17) - SPLICONLENGTH / 2;
+	const int END_Y = PANEL_BOTTOM - (128 + 17) - SPLICONLENGTH / 2;
 	speedspellcount = 0;
 	int xo = END_X;
 	int yo = END_Y;
