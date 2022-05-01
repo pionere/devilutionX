@@ -26,9 +26,10 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #define FOCUS_FRAME_COUNT	8
+#define SMALL_LOGO_WIDTH	390
 
 BYTE* gbBackCel;
-static BYTE* gbLogoCel;
+static BYTE* gbLogoCelSmall;
 static BYTE* gbFocusCelSmall;
 static BYTE* gbFocusCelMed;
 static BYTE* gbFocusCelBig;
@@ -437,8 +438,8 @@ static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 
 static void LoadUiGFX()
 {
-	assert(gbLogoCel == NULL);
-	gbLogoCel = LoadFileInMem("ui_art\\smlogo.CEL");
+	assert(gbLogoCelSmall == NULL);
+	gbLogoCelSmall = LoadFileInMem("ui_art\\smlogo.CEL");
 	assert(gbFocusCelSmall == NULL);
 	gbFocusCelSmall = LoadFileInMem("ui_art\\focus16.CEL");
 	assert(gbFocusCelMed == NULL);
@@ -451,7 +452,7 @@ static void LoadUiGFX()
 
 static void UnloadUiGFX()
 {
-	MemFreeDbg(gbLogoCel);
+	MemFreeDbg(gbLogoCelSmall);
 	MemFreeDbg(gbFocusCelSmall);
 	MemFreeDbg(gbFocusCelMed);
 	MemFreeDbg(gbFocusCelBig);
@@ -505,9 +506,9 @@ void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
 
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 {
-	assert(gbLogoCel != NULL);
-	SDL_Rect rect = { PANEL_LEFT + (PANEL_WIDTH - 390) / 2, PANEL_TOP, 390, 154 };
-	vecDialog->push_back(new UiImage(gbLogoCel, 15, rect, true));
+	assert(gbLogoCelSmall != NULL);
+	SDL_Rect rect = { PANEL_LEFT + (PANEL_WIDTH - SMALL_LOGO_WIDTH) / 2, PANEL_TOP, SMALL_LOGO_WIDTH, 154 };
+	vecDialog->push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 
 void UiFadeIn(bool draw_cursor)
