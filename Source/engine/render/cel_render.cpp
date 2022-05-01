@@ -36,7 +36,7 @@ static void CelBlit(BYTE *pDecodeTo, const BYTE *pRLEBytes, int nDataSize, int n
 			width = *src++;
 			if (width >= 0) {
 				i -= width;
-				if (dst < gpBufEnd && dst > gpBufStart) {
+				if (dst < gpBufEnd && dst >= gpBufStart) {
 					memcpy(dst, src, width);
 				}
 				src += width;
@@ -80,7 +80,7 @@ static void CelBlitLight(BYTE *pDecodeTo, const BYTE *pRLEBytes, int nDataSize, 
 			width = *src++;
 			if (width >= 0) {
 				i -= width;
-				if (dst < gpBufEnd && dst > gpBufStart) {
+				if (dst < gpBufEnd && dst >= gpBufStart) {
 					if (width & 1) {
 						dst[0] = tbl[src[0]];
 						src++;
@@ -244,7 +244,7 @@ static void CelBlitLightTrans(BYTE *pDecodeTo, const BYTE *pRLEBytes, int nDataS
 			width = *src++;
 			if (width >= 0) {
 				i -= width;
-				if (dst < gpBufEnd && dst > gpBufStart) {
+				if (dst < gpBufEnd && dst >= gpBufStart) {
 					if (((BYTE)(size_t)dst & 1) == shift) {
 						if (!(width & 1)) {
 							goto L_ODD;
@@ -420,7 +420,7 @@ void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int n
 			width = *src++;
 			if (width >= 0) {
 				i -= width;
-				if (dst < gpBufEnd && dst > gpBufStart) {
+				if (dst < gpBufEnd && dst >= gpBufStart) {
 					if (dst >= gpBufEnd - BUFFER_WIDTH) {
 						while (width != 0) {
 							if (*src++) {

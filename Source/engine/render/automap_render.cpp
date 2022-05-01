@@ -61,7 +61,7 @@ void engine_draw_pixel(int sx, int sy)
 		dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 	}
 
-	if (dst < gpBufEnd && dst > gpBufStart)
+	if (dst < gpBufEnd && dst >= gpBufStart)
 		*dst = gbPixelCol;
 }
 #endif
