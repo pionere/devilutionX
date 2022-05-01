@@ -557,7 +557,7 @@ static void DrawSelector(const SDL_Rect &rect)
 	}
 	frame = GetAnimationFrame(FOCUS_FRAME_COUNT) + 1;
 	x = SCREEN_X + rect.x;
-	y = SCREEN_Y + rect.y + (rect.h - size) / 2 + size; // TODO FOCUS_MED appears higher than the box
+	y = SCREEN_Y + rect.y + (rect.h - size) / 2 + size - 1; // TODO FOCUS_MED appears higher than the box
 
 	CelDraw(x, y, selCel, frame, size);
 	x += rect.w - size;
@@ -597,9 +597,9 @@ static void Render(const UiText* uiArtText)
 
 static void Render(const UiImage* uiImage)
 {
-	int x = SCREEN_X + uiImage->m_rect.x;
-	int y = SCREEN_Y + uiImage->m_rect.y + uiImage->m_rect.h;
 	int frame = uiImage->m_animated ? GetAnimationFrame(uiImage->m_frame) : uiImage->m_frame;
+	int x = SCREEN_X + uiImage->m_rect.x;
+	int y = SCREEN_Y + uiImage->m_rect.y + uiImage->m_rect.h - 1;
 
 	CelDraw(x, y, uiImage->m_cel_data, frame + 1, uiImage->m_rect.w);
 }
@@ -612,8 +612,10 @@ static void Render(const UiTxtButton* uiButton)
 static void Render(const UiButton* button)
 {
 	int frame = button->m_pressed ? UiButton::PRESSED : UiButton::DEFAULT;
+	int x = SCREEN_X + button->m_rect.x;
+	int y = SCREEN_Y + button->m_rect.y + 28 - 1;
 
-	CelDraw(SCREEN_X + button->m_rect.x, SCREEN_Y + button->m_rect.y + 28, gbSmlButtonCel, frame + 1, 110);	
+	CelDraw(x, y, gbSmlButtonCel, frame + 1, 110);
 
 	SDL_Rect textRect = button->m_rect;
 	if (button->m_pressed)
@@ -636,9 +638,9 @@ static void Render(const UiScrollBar* uiSb)
 {
 	// Bar background (tiled):
 	{
-		int bgYEnd = SCREEN_Y + DownArrowRect(uiSb).y;
+		int bgYEnd = SCREEN_Y + DownArrowRect(uiSb).y - 1;
 		int bgX = SCREEN_X + uiSb->m_rect.x;
-		int bgY = SCREEN_Y + uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT;
+		int bgY = SCREEN_Y + uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT - 1;
 		assert(scrollBarBackCel != NULL);
 		while (bgY < bgYEnd) {
 			bgY += SCROLLBAR_BG_HEIGHT;
@@ -651,11 +653,13 @@ static void Render(const UiScrollBar* uiSb)
 	assert(scrollBarArrowCel != NULL);
 	{
 		SDL_Rect rect = UpArrowRect(uiSb);
+		rect.y--;
 		int frame = scrollBarState.upPressCounter != -1 ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP;
 		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1,SCROLLBAR_ARROW_WIDTH);
 	}
 	{
 		SDL_Rect rect = DownArrowRect(uiSb);
+		rect.y--;
 		int frame = scrollBarState.downPressCounter != -1 ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN;
 		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1,SCROLLBAR_ARROW_WIDTH);
 	}
@@ -663,6 +667,7 @@ static void Render(const UiScrollBar* uiSb)
 	assert(scrollBarThumbCel != NULL);
 	if (SelectedItemMax > 0) {
 		SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
+		rect.y--;
 		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarThumbCel, 1, SCROLLBAR_THUMB_WIDTH);
 	}
 }
