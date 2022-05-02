@@ -16,8 +16,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PRBAR_WIDTH		228
 #define PRBAR_HEIGHT	38
 
-static BYTE* gbProgBackCel;
-static BYTE* gbProgEmptyCel;
+static CelImageBuf* gbProgBackCel;
+static CelImageBuf* gbProgEmptyCel;
 static BYTE* gbProgFillBmp;
 static int _gnProgress;
 
@@ -28,17 +28,17 @@ static void DialogActionCancel()
 
 static void ProgressLoad(const char *msg)
 {
-	BYTE* gbProgFillCel;
+	CelImageBuf* gbProgFillCel;
 	int i, x, y;
 
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-	gbSmlButtonCel = LoadFileInMem("ui_art\\smbutton.CEL");
-	gbProgBackCel = LoadFileInMem("ui_art\\spopup.CEL");
-	gbProgEmptyCel = LoadFileInMem("ui_art\\prog_bg.CEL");
+	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", 110);
+	gbProgBackCel = CelLoadImage("ui_art\\spopup.CEL", PRPANEL_WIDTH);
+	gbProgEmptyCel = CelLoadImage("ui_art\\prog_bg.CEL", PRBAR_WIDTH);
 
 	gbProgFillBmp = DiabloAllocPtr(PRBAR_HEIGHT * PRBAR_WIDTH);
-	gbProgFillCel = LoadFileInMem("ui_art\\prog_fil.CEL");
-	CelDraw(SCREEN_X, SCREEN_Y + PRBAR_HEIGHT - 1, gbProgFillCel, 1, PRBAR_WIDTH);
+	gbProgFillCel = CelLoadImage("ui_art\\prog_fil.CEL", PRBAR_WIDTH);
+	CelDraw(SCREEN_X, SCREEN_Y + PRBAR_HEIGHT - 1, gbProgFillCel, 1);
 	for (i = 0; i < PRBAR_HEIGHT; i++) {
 		memcpy(&gbProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[SCREEN_X + (SCREEN_Y + i) * BUFFER_WIDTH], PRBAR_WIDTH);
 	}
@@ -68,15 +68,15 @@ static void ProgressRender()
 {
 	int x, y, i, dx;
 
-	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, gbBackCel, 1, PANEL_WIDTH);
+	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, gbBackCel, 1);
 
 	x = PANEL_X + (PANEL_WIDTH - PRPANEL_WIDTH) / 2;
 	y = PANEL_Y + (PANEL_HEIGHT - PRPANEL_HEIGHT) / 2;
 
-	CelDraw(x, y + PRPANEL_HEIGHT, gbProgBackCel, 1, PRPANEL_WIDTH);
+	CelDraw(x, y + PRPANEL_HEIGHT, gbProgBackCel, 1);
 	x += (PRPANEL_WIDTH - 227) / 2;
 	y += 52 + PRBAR_HEIGHT;
-	CelDraw(x, y - 1, gbProgEmptyCel, 1, PRBAR_WIDTH);
+	CelDraw(x, y - 1, gbProgEmptyCel, 1);
 	dx = _gnProgress;
 	if (dx > 100)
 		dx = 100;

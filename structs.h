@@ -46,6 +46,16 @@ typedef struct RECT32 {
 	int h;
 } RECT32;
 
+typedef struct CelImageBuf {
+#if DEBUG_MODE
+	WORD ciWidth; // number of images before loaded, but overwritten with width when loaded
+	WORD ciFrameCnt; // number of images before loaded, but overwritten with width when loaded
+#else
+	DWORD ciWidth; // number of images before loaded, but overwritten with width when loaded
+#endif
+	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
+} CelImageBuf;
+
 //////////////////////////////////////////////////
 // items
 //////////////////////////////////////////////////
@@ -384,15 +394,15 @@ typedef struct PlayerStruct {
 	int _pIMMaxDam; // max magic damage (item's added magic damage)
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
-	BYTE* _pNData;
-	BYTE* _pWData;
-	BYTE* _pAData;
-	BYTE* _pLData;
-	BYTE* _pFData;
-	BYTE* _pTData;
-	BYTE* _pHData;
-	BYTE* _pDData;
-	BYTE* _pBData;
+	BYTE* _pNData; // file-pointer of the standing animations
+	BYTE* _pWData; // file-pointer of the walking animations
+	BYTE* _pAData; // file-pointer of the attack animations
+	BYTE* _pLData; // file-pointer of the lightning spell animations
+	BYTE* _pFData; // file-pointer of the fire spell animations
+	BYTE* _pTData; // file-pointer of the generic spell animations
+	BYTE* _pHData; // file-pointer of the getting hit animations
+	BYTE* _pDData; // file-pointer of the death animations
+	BYTE* _pBData; // file-pointer of the block animations
 	ALIGNMENT(191, 104)
 } PlayerStruct;
 

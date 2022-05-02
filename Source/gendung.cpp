@@ -159,7 +159,10 @@ void InitLvlDungeon()
 	assert(pMegaTiles == NULL);
 	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
 	assert(pSpecialCels == NULL);
-	pSpecialCels = LoadFileInMem(lds->dSpecCels);
+	if (currLvl._dLevelIdx != DLV_TOWN)
+		pSpecialCels = LoadFileInMem(lds->dSpecCels);
+	else
+		pSpecialCels = (BYTE*)CelLoadImage(lds->dSpecCels, TILE_WIDTH);
 	MicroTileLen = lds->dMicroTileLen;
 	LoadFileWithMem(lds->dMicroFlags, microFlags);
 

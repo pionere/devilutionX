@@ -10,8 +10,24 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define TALK_PNL_WIDTH		302
+#define TALK_PNL_HEIGHT		51
+#define TALK_PNL_BORDER		15
+#define TALK_PNL_TOP		(SCREEN_HEIGHT - 48 - TALK_PNL_HEIGHT)
+#define TALK_PNL_LEFT		((SCREEN_WIDTH - TALK_PNL_WIDTH) / 2)
+
+#define SBOOK_CELWIDTH		37
+#define SBOOK_CELHEIGHT		38
+#define SBOOK_CELBORDER		 1
+#define SBOOK_TOP_BORDER	 1
+#define SBOOK_LEFT_BORDER	 1
+#define SBOOK_LINE_BORDER	10
+#define SBOOK_LINE_LENGTH	SPANEL_WIDTH - 2 * SBOOK_LEFT_BORDER - SBOOK_CELBORDER - SBOOK_CELWIDTH - 2 * SBOOK_LINE_BORDER
+#define SBOOK_LINE_TAB		SBOOK_CELWIDTH + SBOOK_CELBORDER + SBOOK_LINE_BORDER
+#define SBOOK_PAGER_WIDTH	56
+
 /** Menu button images CEL */
-static BYTE* pPanelButtonCels;
+static CelImageBuf* pPanelButtonCels;
 /** The number of buttons in the menu. */
 int numpanbtns;
 /** Specifies whether the menu-button is pressed. */
@@ -23,13 +39,13 @@ int gnHPPer;
 /** Specifies how much the mana flask is filled (percentage). */
 int gnManaPer;
 /** Graphics for the (transparent) text box */
-static BYTE* pTextBoxCels;
+static CelImageBuf* pTextBoxCels;
 /** Graphics for the (transparent) small text box */
-static BYTE* pSTextBoxCels;
+static CelImageBuf* pSTextBoxCels;
 /** Graphics for the scrollbar of text boxes. */
-BYTE* pSTextSlidCels;
+CelImageBuf* pSTextSlidCels;
 /** Low-Durability images CEL */
-static BYTE* pDurIconCels;
+static CelImageBuf* pDurIconCels;
 
 /** Specifies whether the Team-Panel is displayed. */
 bool gbTeamFlag;
@@ -46,7 +62,7 @@ unsigned guTeamMute;
 /** Specifies whether the Chat-Panel is displayed. */
 bool gbTalkflag;
 /** Chat-Panel background CEL */
-static BYTE* pTalkPnlCel;
+static CelImageBuf* pTalkPnlCel;
 /** The current message in the Chat-Panel. */
 static char sgszTalkMsg[MAX_SEND_STR_LEN];
 /** The cached messages of the Chat-Panel. */
@@ -58,7 +74,7 @@ static BYTE sgbTalkSavePos;
 /** Specifies whether the Golddrop is displayed. */
 bool gbDropGoldFlag;
 /** Golddrop background CEL */
-static BYTE* pGoldDropCel;
+static CelImageBuf* pGoldDropCel;
 /** The gold-stack index which is used as a source in Golddrop. */
 BYTE initialDropGoldIndex;
 /** The gold-stack size which is used as a source in Golddrop. */
@@ -71,9 +87,9 @@ char infostr[256];
 /**Specifies whether the Spell-Book is displayed. */
 bool gbSbookflag;
 /** SpellBook background CEL */
-static BYTE* pSpellBkCel;
+static CelImageBuf* pSpellBkCel;
 /** SpellBook icons CEL */
-static BYTE* pSBkIconCels;
+static CelImageBuf* pSBkIconCels;
 /** The current tab in the Spell-Book. */
 unsigned guBooktab;
 /** Specifies whether the Character-Panel is displayed. */
@@ -83,9 +99,9 @@ bool gbLvlUp;
 /** Specifies whether the LevelUp button is pressed. */
 bool gbLvlbtndown;
 /** Char-Panel background CEL */
-static BYTE* pChrPanelCel;
+static CelImageBuf* pChrPanelCel;
 /** Char-Panel button images CEL */
-static BYTE* pChrButtonCels;
+static CelImageBuf* pChrButtonCels;
 /** Specifies whether the button of the given attribute is pressed on Character-Panel. */
 static bool _gabChrbtn[NUM_ATTRIBS];
 /** Specifies whether any attribute-button is pressed on Character-Panel. */
@@ -99,7 +115,7 @@ static BYTE SkillTrns[NUM_RSPLTYPES][256];
 /** Specifies whether the Skill-List is displayed. */
 bool gbSkillListFlag;
 /** Skill-List images CEL */
-static BYTE* pSpellCels;
+static CelImageBuf* pSpellCels;
 /** The 'highlighted' skill in the Skill-List or in the Spell-Book. */
 static BYTE currSkill;
 /** The type of the 'highlighted' skill in the Skill-List or in the Spell-Book. */
@@ -316,7 +332,7 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 	}
 	y = SCREEN_Y + SCREEN_HEIGHT - 1 - offset;
 	CelDrawLight(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, y, pSpellCels,
-		spelldata[spl].sIcon, SPLICONLENGTH, SkillTrns[GetSpellTrans(st, spl)]);
+		spelldata[spl].sIcon, SkillTrns[GetSpellTrans(st, spl)]);
 	DrawSpellIconOverlay(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, y, spl, st, lvl);
 }
 
@@ -449,7 +465,7 @@ void DrawSkillList()
 				st = RSPLTYPE_INVALID;
 			else
 				st = GetSpellTrans(st, j);
-			CelDrawLight(x, y, pSpellCels, spelldata[j].sIcon, SPLICONLENGTH, SkillTrns[st]);
+			CelDrawLight(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -458,8 +474,8 @@ void DrawSkillList()
 			}
 #endif
 			if (MouseX >= lx && MouseX < lx + SPLICONLENGTH && MouseY >= ly && MouseY < ly + SPLICONLENGTH) {
-				//CelDrawLight(x, y, pSpellCels, c, SPLICONLENGTH, SkillTrns[st]);
-				CelDrawLight(x, y, pSpellCels, SPLICONLAST, SPLICONLENGTH, SkillTrns[st]);
+				//CelDrawLight(x, y, pSpellCels, c, SkillTrns[st]);
+				CelDrawLight(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
 				currSkill = j;
 				if (j == SPL_NULL) {
@@ -843,12 +859,12 @@ void InitControlPan()
 	assert(pFlaskCels == NULL);
 	pFlaskCels = LoadFileInMem("CtrlPan\\Flasks.CEL");;
 	assert(pChrPanelCel == NULL);
-	pChrPanelCel = LoadFileInMem("Data\\Char.CEL");
+	pChrPanelCel = CelLoadImage("Data\\Char.CEL", SPANEL_WIDTH);
 	assert(pSpellCels == NULL);
 #ifdef HELLFIRE
-	pSpellCels = LoadFileInMem("Data\\SpelIcon.CEL");
+	pSpellCels = CelLoadImage("Data\\SpelIcon.CEL", SPLICONLENGTH);
 #else
-	pSpellCels = LoadFileInMem("CtrlPan\\SpelIcon.CEL");
+	pSpellCels = CelLoadImage("CtrlPan\\SpelIcon.CEL", SPLICONLENGTH);
 #endif
 	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
 		for (j = 0; j < 256; j++)
@@ -871,41 +887,41 @@ void InitControlPan()
 	sgszTalkMsg[0] = '\0';
 	if (!IsLocalGame) {
 		assert(pTalkPnlCel == NULL);
-		pTalkPnlCel = LoadFileInMem("CtrlPan\\TalkPnl.CEL");
+		pTalkPnlCel = CelLoadImage("CtrlPan\\TalkPnl.CEL", TALK_PNL_WIDTH);
 	}
 	gbLvlbtndown = false;
 	assert(pPanelButtonCels == NULL);
-	pPanelButtonCels = LoadFileInMem("CtrlPan\\Menu.CEL");
+	pPanelButtonCels = CelLoadImage("CtrlPan\\Menu.CEL", 71);
 	for (i = 0; i < lengthof(gabPanbtn); i++)
 		gabPanbtn[i] = false;
 	numpanbtns = IsLocalGame ? NUM_PANBTNS - 2 : NUM_PANBTNS;
 	assert(pChrButtonCels == NULL);
-	pChrButtonCels = LoadFileInMem("Data\\CharBut.CEL");
+	pChrButtonCels = CelLoadImage("Data\\CharBut.CEL", CHRBTN_WIDTH);
 	for (i = 0; i < lengthof(_gabChrbtn); i++)
 		_gabChrbtn[i] = false;
 	gbChrbtnactive = false;
 	assert(pTextBoxCels == NULL);
-	pTextBoxCels = LoadFileInMem("Data\\TextBox.CEL");
+	pTextBoxCels = CelLoadImage("Data\\TextBox.CEL", LTPANEL_WIDTH);
 	assert(pSTextBoxCels == NULL);
-	pSTextBoxCels = LoadFileInMem("Data\\TextBox2.CEL");
+	pSTextBoxCels = CelLoadImage("Data\\TextBox2.CEL", STPANEL_WIDTH);
 	assert(pSTextSlidCels == NULL);
-	pSTextSlidCels = LoadFileInMem("Data\\TextSlid.CEL");
+	pSTextSlidCels = CelLoadImage("Data\\TextSlid.CEL", 12);
 	assert(pDurIconCels == NULL);
-	pDurIconCels = LoadFileInMem("Items\\DurIcons.CEL");
+	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", 32);
 	infostr[0] = '\0';
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbChrflag = false;
 	gbLvlUp = false;
 	gbSkillListFlag = false;
 	assert(pSpellBkCel == NULL);
-	pSpellBkCel = LoadFileInMem("Data\\SpellBk.CEL");
+	pSpellBkCel = CelLoadImage("Data\\SpellBk.CEL", SPANEL_WIDTH);
 	assert(pSBkIconCels == NULL);
-	pSBkIconCels = LoadFileInMem("Data\\SpellI2.CEL");
+	pSBkIconCels = CelLoadImage("Data\\SpellI2.CEL", SBOOK_CELWIDTH);
 	guBooktab = 0;
 	gbSbookflag = false;
 	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
-	pGoldDropCel = LoadFileInMem("CtrlPan\\Golddrop.cel");
+	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", 261);
 	gbDropGoldFlag = false;
 	dropGoldValue = 0;
 	initialDropGoldValue = 0;
@@ -924,13 +940,13 @@ void DrawCtrlBtns()
 	i = 0;
 	x = SCREEN_X + PanBtnPos[i][0];
 	pb = gabPanbtn[PANBTN_MAINMENU];
-	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + 18, pPanelButtonCels, pb ? 4 : 3, 71);
+	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + 18, pPanelButtonCels, pb ? 4 : 3);
 	if (!pb)
 		return;
 	for (i = 1; i < numpanbtns; i++) {
 		y = SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1];
 		pb = gabPanbtn[i];
-		CelDraw(x, y + 18, pPanelButtonCels, 2, 71);
+		CelDraw(x, y + 18, pPanelButtonCels, 2);
 		// print the text of the button
 		PrintString(x + 3, y + 15, x + 70, PanBtnTxt[i], true, pb ? COL_GOLD : COL_WHITE, FONT_KERN_SMALL);
 	}
@@ -1152,7 +1168,7 @@ void DrawChr()
 	p = &myplr;
 	pc = p->_pClass;
 
-	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pChrPanelCel, 1, SPANEL_WIDTH);
+	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pChrPanelCel, 1);
 	ADD_PlrStringXY(5, 19, 144, p->_pName, COL_WHITE);
 
 	ADD_PlrStringXY(153, 19, 292, ClassStrTbl[pc], COL_WHITE);
@@ -1194,10 +1210,10 @@ void DrawChr()
 	if (p->_pStatPts > 0) {
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
 		ADD_PlrStringXY(88, 231, 125, chrstr, COL_RED);
-		CelDraw(ChrBtnsRect[ATTRIB_STR].x + SCREEN_X, ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_STR] ? 3 : 2, CHRBTN_WIDTH);
-		CelDraw(ChrBtnsRect[ATTRIB_MAG].x + SCREEN_X, ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_MAG] ? 5 : 4, CHRBTN_WIDTH);
-		CelDraw(ChrBtnsRect[ATTRIB_DEX].x + SCREEN_X, ChrBtnsRect[ATTRIB_DEX].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_DEX] ? 7 : 6, CHRBTN_WIDTH);
-		CelDraw(ChrBtnsRect[ATTRIB_VIT].x + SCREEN_X, ChrBtnsRect[ATTRIB_VIT].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_VIT] ? 9 : 8, CHRBTN_WIDTH);
+		CelDraw(ChrBtnsRect[ATTRIB_STR].x + SCREEN_X, ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_STR] ? 3 : 2);
+		CelDraw(ChrBtnsRect[ATTRIB_MAG].x + SCREEN_X, ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_MAG] ? 5 : 4);
+		CelDraw(ChrBtnsRect[ATTRIB_DEX].x + SCREEN_X, ChrBtnsRect[ATTRIB_DEX].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_DEX] ? 7 : 6);
+		CelDraw(ChrBtnsRect[ATTRIB_VIT].x + SCREEN_X, ChrBtnsRect[ATTRIB_VIT].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_VIT] ? 9 : 8);
 	}
 
 	if (p->_pHasUnidItem)
@@ -1331,7 +1347,7 @@ void DrawChr()
 void DrawLevelUpIcon()
 {
 	ADD_PlrStringXY(137, SCREEN_HEIGHT - 4, 137 + 120, "Level Up", COL_WHITE);
-	CelDraw(SCREEN_X + 175, SCREEN_Y + SCREEN_HEIGHT - 24, pChrButtonCels, gbLvlbtndown ? 3 : 2, CHRBTN_WIDTH);
+	CelDraw(SCREEN_X + 175, SCREEN_Y + SCREEN_HEIGHT - 24, pChrButtonCels, gbLvlbtndown ? 3 : 2);
 }
 
 static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE col)
@@ -1753,7 +1769,7 @@ void DrawTextBox()
 	x = LTPANEL_X;
 	y = LTPANEL_Y;
 
-	CelDraw(x, y + TPANEL_HEIGHT, pTextBoxCels, 1, LTPANEL_WIDTH);
+	CelDraw(x, y + TPANEL_HEIGHT, pTextBoxCels, 1);
 	trans_rect(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
 }
 
@@ -1767,7 +1783,7 @@ void DrawSTextBox(int x/*, int y*/)
 {
 	int y = LTPANEL_Y;
 
-	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1, STPANEL_WIDTH);
+	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1);
 	trans_rect(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
 }
 
@@ -1841,7 +1857,7 @@ static int DrawDurIcon4Item(ItemStruct* pItem, int x)
 	}
 	if (pItem->_iDurability > 2)
 		c += 8;
-	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - 8, pDurIconCels, c, 32);
+	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - 8, pDurIconCels, c);
 	return x - 32 - 8;
 }
 
@@ -1879,16 +1895,6 @@ static BYTE GetSBookTrans(int sn)
 	return st;
 }
 
-#define SBOOK_CELWIDTH		37
-#define SBOOK_CELHEIGHT		38
-#define SBOOK_CELBORDER		 1
-#define SBOOK_TOP_BORDER	 1
-#define SBOOK_LEFT_BORDER	 1
-#define SBOOK_LINE_BORDER	10
-#define SBOOK_LINE_LENGTH	SPANEL_WIDTH - 2 * SBOOK_LEFT_BORDER - SBOOK_CELBORDER - SBOOK_CELWIDTH - 2 * SBOOK_LINE_BORDER
-#define SBOOK_LINE_TAB		SBOOK_CELWIDTH + SBOOK_CELBORDER + SBOOK_LINE_BORDER
-#define SBOOK_PAGER_WIDTH	56
-
 void DrawSpellBook()
 {
 	ItemStruct* pi;
@@ -1897,7 +1903,7 @@ void DrawSpellBook()
 	uint64_t spl;
 
 	// back panel
-	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1, SPANEL_WIDTH);
+	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
 	// selected page
 	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
 	PrintString(RIGHT_PANEL_X + 2, SCREEN_Y + SPANEL_HEIGHT - 7, RIGHT_PANEL_X + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
@@ -1981,11 +1987,11 @@ void DrawSpellBook()
 
 			if ((spelldata[sn].sUseFlags & plr._pSkillFlags) != spelldata[sn].sUseFlags)
 				st = RSPLTYPE_INVALID;
-			CelDrawLight(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH, SkillTrns[GetSpellTrans(st, sn)]);
+			CelDrawLight(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[GetSpellTrans(st, sn)]);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
 			if ((sn == plr._pAltAtkSkill && st == plr._pAltAtkSkillType)
 			 || (sn == plr._pAltMoveSkill && st == plr._pAltMoveSkillType)) {
-				CelDrawLight(sx, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELWIDTH, SkillTrns[RSPLTYPE_ABILITY]);
+				CelDrawLight(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
 			}
 		}
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
@@ -2037,7 +2043,7 @@ void DrawGoldSplit(int amount)
 	int screen_x;
 
 	screen_x = 0;
-	CelDraw(351 + SCREEN_X, 178 + SCREEN_Y, pGoldDropCel, 1, 261);
+	CelDraw(351 + SCREEN_X, 178 + SCREEN_Y, pGoldDropCel, 1);
 	snprintf(tempstr, sizeof(tempstr), "You have %d gold", initialDropGoldValue);
 	ADD_PlrStringXY(366, 87, 600, tempstr, COL_GOLD);
 	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(initialDropGoldValue));
@@ -2140,7 +2146,7 @@ void DrawTeamBook()
 	BYTE st;
 
 	// back panel
-	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1, SPANEL_WIDTH);
+	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
 	// selected page
 	snprintf(tempstr, sizeof(tempstr), "%d.", guTeamTab + 1);
 	PrintString(RIGHT_PANEL_X + 2, SCREEN_Y + SPANEL_HEIGHT - 7, RIGHT_PANEL_X + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
@@ -2191,7 +2197,7 @@ void DrawTeamBook()
 
 		// icon
 		st = plr._pDunLevel == DLV_TOWN ? RSPLTYPE_ABILITY : (plr._pmode == PM_DEATH ? RSPLTYPE_INVALID : RSPLTYPE_SPELL);
-		CelDrawLight(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SBOOK_CELWIDTH, SkillTrns[st]);
+		CelDrawLight(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SkillTrns[st]);
 
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}
@@ -2277,11 +2283,6 @@ void CheckTeamClick(bool shift)
 	}
 }
 
-#define TALK_PNL_WIDTH		302
-#define TALK_PNL_HEIGHT		51
-#define TALK_PNL_BORDER		15
-#define TALK_PNL_TOP		(SCREEN_HEIGHT - 48 - TALK_PNL_HEIGHT)
-#define TALK_PNL_LEFT		((SCREEN_WIDTH - TALK_PNL_WIDTH) / 2)
 static char* control_print_talk_msg(char* msg, int* x, int y)
 {
 	int limit = TALK_PNL_WIDTH - 2 * TALK_PNL_BORDER;
@@ -2312,7 +2313,7 @@ void DrawTalkPan()
 	int sy = SCREEN_Y + TALK_PNL_TOP;
 
 	// add background
-	CelDraw(sx, sy + TALK_PNL_HEIGHT, pTalkPnlCel, 1, TALK_PNL_WIDTH);
+	CelDraw(sx, sy + TALK_PNL_HEIGHT, pTalkPnlCel, 1);
 
 	// print the current (not sent) message
 	sy += 17;

@@ -57,6 +57,19 @@ void mem_free_dbg(void *p);
 BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen = NULL);
 void LoadFileWithMem(const char *pszName, BYTE *p);
 
+/* Load .CEL file and overwrite the first (unused) DWORD with nWidth */
+inline CelImageBuf* CelLoadImage(const char* name, DWORD nWidth)
+{
+	CelImageBuf* res;
+
+	res = (CelImageBuf*)LoadFileInMem(name);
+#if DEBUG_MODE
+	res->ciFrameCnt = SwapLE32(*((DWORD *)res));
+#endif
+	res->ciWidth = nWidth;
+	return res;
+}
+
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
 void PlayInGameMovie(const char *pszMovie);

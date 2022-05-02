@@ -119,21 +119,21 @@ void DrawDiabloMsg()
 	x = PANEL_X + 101;
 	y = DIALOG_Y;
 
-	CelDraw(x, y, pSTextSlidCels, 1, 12);
-	CelDraw(x + 426, y, pSTextSlidCels, 4, 12);
-	CelDraw(x, y + 48, pSTextSlidCels, 2, 12);
-	CelDraw(x + 426, y + 48, pSTextSlidCels, 3, 12);
+	CelDraw(x, y, pSTextSlidCels, 1);
+	CelDraw(x + 426, y, pSTextSlidCels, 4);
+	CelDraw(x, y + 48, pSTextSlidCels, 2);
+	CelDraw(x + 426, y + 48, pSTextSlidCels, 3);
 
 	sx = x + 8;
 	for (i = 0; i < 35; i++) {
-		CelDraw(sx, y, pSTextSlidCels, 5, 12);
-		CelDraw(sx, y + 48, pSTextSlidCels, 7, 12);
+		CelDraw(sx, y, pSTextSlidCels, 5);
+		CelDraw(sx, y + 48, pSTextSlidCels, 7);
 		sx += 12;
 	}
 	sy = y + 12;
 	for (i = 0; i < 3; i++) {
-		CelDraw(x, sy, pSTextSlidCels, 6, 12);
-		CelDraw(x + 426, sy, pSTextSlidCels, 8, 12);
+		CelDraw(x, sy, pSTextSlidCels, 6);
+		CelDraw(x + 426, sy, pSTextSlidCels, 8);
 		sy += 12;
 	}
 

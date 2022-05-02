@@ -103,14 +103,14 @@ static const BYTE hugeFontWidth[56] = {
 //int LineHeights[3] = { 17, 43, 50 };
 
 /** Small-Text images CEL */
-static BYTE* pSmallTextCels;
+static CelImageBuf* pSmallTextCels;
 /** Graphics for the medium size font */
-BYTE* pBigTextCels;
+CelImageBuf* pBigTextCels;
 
-static BYTE* pHugeGoldTextCels;
+static CelImageBuf* pHugeGoldTextCels;
 
-static BYTE* pSmallPentSpinCels;
-static BYTE* pHugePentSpinCels;
+static CelImageBuf* pSmallPentSpinCels;
+static CelImageBuf* pHugePentSpinCels;
 
 static BYTE fontColorTableGold[256];
 static BYTE fontColorTableBlue[256];
@@ -122,15 +122,15 @@ void InitText()
 	BYTE pix;
 
 	assert(pSmallTextCels == NULL);
-	pSmallTextCels = LoadFileInMem("CtrlPan\\SmalText.CEL");
+	pSmallTextCels = CelLoadImage("CtrlPan\\SmalText.CEL", 13);
 	assert(pBigTextCels == NULL);
-	pBigTextCels = LoadFileInMem("Data\\MedTextS.CEL");
+	pBigTextCels = CelLoadImage("Data\\MedTextS.CEL", 22);
 	assert(pHugeGoldTextCels == NULL);
-	pHugeGoldTextCels = LoadFileInMem("Data\\BigTGold.CEL");
+	pHugeGoldTextCels = CelLoadImage("Data\\BigTGold.CEL", 46);
 	assert(pHugePentSpinCels == NULL);
-	pHugePentSpinCels = LoadFileInMem("Data\\PentSpin.CEL");
+	pHugePentSpinCels = CelLoadImage("Data\\PentSpin.CEL", 48);
 	assert(pSmallPentSpinCels == NULL);
-	pSmallPentSpinCels = LoadFileInMem("Data\\PentSpn2.CEL");
+	pSmallPentSpinCels = CelLoadImage("Data\\PentSpn2.CEL", 12);
 
 	for (i = 0; i < lengthof(fontColorTableBlue); i++) {
 		pix = i;
@@ -184,7 +184,7 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 
 	switch (col) {
 	case COL_WHITE:
-		CelDraw(sx, sy, pSmallTextCels, nCel, 13);
+		CelDraw(sx, sy, pSmallTextCels, nCel);
 		return;
 	case COL_BLUE:
 		tbl = fontColorTableBlue;
@@ -202,7 +202,7 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	CelDrawLight(sx, sy, pSmallTextCels, nCel, 13, tbl);
+	CelDrawLight(sx, sy, pSmallTextCels, nCel, tbl);
 }
 
 int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
@@ -213,7 +213,7 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 	if (nCel != 0) {
 		switch (col) {
 		case COL_WHITE:
-			CelDraw(sx, sy, pBigTextCels, nCel, 22);
+			CelDraw(sx, sy, pBigTextCels, nCel);
 			return bigFontWidth[nCel] + FONT_KERN_BIG;
 		case COL_BLUE:
 			tbl = fontColorTableBlue;
@@ -231,7 +231,7 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawLight(sx, sy, pBigTextCels, nCel, 22, tbl);
+		CelDrawLight(sx, sy, pBigTextCels, nCel, tbl);
 	}
 
 	return bigFontWidth[nCel] + FONT_KERN_BIG;
@@ -245,7 +245,7 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 	if (nCel != 0) {
 		switch (col) {
 		case COL_WHITE:
-			CelDraw(sx, sy, pSmallTextCels, nCel, 13);
+			CelDraw(sx, sy, pSmallTextCels, nCel);
 			return smallFontWidth[nCel] + FONT_KERN_SMALL;
 		case COL_BLUE:
 			tbl = fontColorTableBlue;
@@ -263,7 +263,7 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawLight(sx, sy, pSmallTextCels, nCel, 13, tbl);
+		CelDrawLight(sx, sy, pSmallTextCels, nCel, tbl);
 	}
 
 	return smallFontWidth[nCel] + FONT_KERN_SMALL;
@@ -277,7 +277,7 @@ int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
 	if (nCel != 0) {
 		/*switch (col) {
 		case COL_WHITE:
-			CelDraw(sx, sy, pSmallTextCels, nCel, 46);
+			CelDraw(sx, sy, pHugeGoldTextCels, nCel);
 			return hugeFontWidth[nCel] + FONT_KERN_HUGE;
 		case COL_BLUE:
 			tbl = fontColorTableBlue;
@@ -295,8 +295,8 @@ int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawLight(sx, sy, pHugeGoldTextCels, nCel, 46, tbl);*/
-		CelDraw(sx, sy, pHugeGoldTextCels, nCel, 46);
+		CelDrawLight(sx, sy, pHugeGoldTextCels, nCel, tbl);*/
+		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
 	}
 
 	return hugeFontWidth[nCel] + FONT_KERN_HUGE;
@@ -426,9 +426,9 @@ void PrintHugeString(int x, int y, const char* text, int light)
 		c = bhFontFrame[gbFontTransTbl[(BYTE)*text++]];
 		if (c != 0) {
 			/*if (tbl == NULL)
-				CelDraw(x, y, pHugeGoldTextCels, c, 46);
+				CelDraw(x, y, pHugeGoldTextCels, c);
 			else*/
-				CelDrawLight(x, y, pHugeGoldTextCels, c, 46, tbl);
+				CelDrawLight(x, y, pHugeGoldTextCels, c, tbl);
 		}
 		x += hugeFontWidth[c] + FONT_KERN_HUGE;
 	}
@@ -441,19 +441,19 @@ static int PentSpn2Spin()
 
 void DrawHugePentSpn(int x1, int x2, int y)
 {
-	CelDraw(x1, y, pHugePentSpinCels, PentSpn2Spin(), 48);
-	CelDraw(x2, y, pHugePentSpinCels, PentSpn2Spin(), 48);
+	CelDraw(x1, y, pHugePentSpinCels, PentSpn2Spin());
+	CelDraw(x2, y, pHugePentSpinCels, PentSpn2Spin());
 }
 
 void DrawSmallPentSpn(int x1, int x2, int y)
 {
-	CelDraw(x1, y, pSmallPentSpinCels, PentSpn2Spin(), 12);
-	CelDraw(x2, y, pSmallPentSpinCels, PentSpn2Spin(), 12);
+	CelDraw(x1, y, pSmallPentSpinCels, PentSpn2Spin());
+	CelDraw(x2, y, pSmallPentSpinCels, PentSpn2Spin());
 }
 
 void DrawSingleSmallPentSpn(int x, int y)
 {
-	CelDraw(x, y, pSmallPentSpinCels, PentSpn2Spin(), 12);
+	CelDraw(x, y, pSmallPentSpinCels, PentSpn2Spin());
 }
 
 DEVILUTION_END_NAMESPACE

@@ -6,15 +6,15 @@ DEVILUTION_BEGIN_NAMESPACE
 
 const int SCROLLBAR_BG_WIDTH = 25;
 const int SCROLLBAR_BG_HEIGHT = 100;
-extern BYTE* scrollBarBackCel;
+extern CelImageBuf* scrollBarBackCel;
 const int SCROLLBAR_THUMB_WIDTH = 18;
 const int SCROLLBAR_THUMB_HEIGHT = 19;
 const int SCROLLBAR_THUMB_OFFSET_X = 3;
-extern BYTE* scrollBarThumbCel;
+extern CelImageBuf* scrollBarThumbCel;
 
 const int SCROLLBAR_ARROW_WIDTH = 25;
 const int SCROLLBAR_ARROW_HEIGHT = 22;
-extern BYTE* scrollBarArrowCel;
+extern CelImageBuf* scrollBarArrowCel;
 
 enum ScrollBarArrowFrame {
 	ScrollBarArrowFrame_UP_ACTIVE,

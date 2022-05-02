@@ -84,7 +84,7 @@ void DrawQText()
 		while (str < endstr) {
 			c = bhFontFrame[gbFontTransTbl[(BYTE)*str++]];
 			if (c != 0) {
-				CelDraw(tx, ty, pBigTextCels, c, 22);
+				CelDraw(tx, ty, pBigTextCels, c);
 			}
 			tx += bigFontWidth[c] + FONT_KERN_BIG;
 		}

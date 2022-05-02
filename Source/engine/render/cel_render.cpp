@@ -120,9 +120,8 @@ static void CelBlitLight(BYTE *pDecodeTo, const BYTE *pRLEBytes, int nDataSize, 
  * @param sy Back buffer coordinate
  * @param pCelBuff Cel data
  * @param nCel CEL frame number
- * @param nWidth Width of sprite
  */
-void CelDraw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
+void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
 {
 	int nDataSize;
 	const BYTE *pRLEBytes;
@@ -130,9 +129,9 @@ void CelDraw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
-	pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
+	pRLEBytes = CelGetFrame((const BYTE*)pCelBuff, nCel, &nDataSize);
 
-	CelBlit(&gpBuffer[sx + BUFFER_WIDTH * sy], pRLEBytes, nDataSize, nWidth);
+	CelBlit(&gpBuffer[sx + BUFFER_WIDTH * sy], pRLEBytes, nDataSize, pCelBuff->ciWidth);
 }
 
 /**
@@ -162,10 +161,9 @@ void CelClippedDraw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
  * @param sy Back buffer coordinate
  * @param pCelBuff Cel data
  * @param nCel CEL frame number
- * @param nWidth Width of sprite
  * @param tbl Palette translation table
  */
-void CelDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, const BYTE *tbl)
+void CelDrawLight(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const BYTE *tbl)
 {
 	int nDataSize;
 	BYTE *pDecodeTo;
@@ -174,7 +172,7 @@ void CelDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, co
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
-	pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
+	pRLEBytes = CelGetFrame((const BYTE*)pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
 	/*if (tbl == NULL) {
@@ -184,7 +182,7 @@ void CelDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, co
 		}
 		tbl = ColorTrns[light_trn_index];
 	}*/
-	CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, tbl);
+	CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, pCelBuff->ciWidth, tbl);
 }
 
 /**

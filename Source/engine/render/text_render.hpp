@@ -18,7 +18,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BYTE* pBigTextCels;
+extern CelImageBuf* pBigTextCels;
 
 extern const BYTE smallFontFrame[128];
 extern const BYTE bhFontFrame[128];

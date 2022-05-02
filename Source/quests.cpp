@@ -16,7 +16,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */
-BYTE* pQLogCel;
+CelImageBuf* pQLogCel;
 /** the entries of the quest-log panel (quest_id) */
 BYTE qlist[QPNL_MAXENTRIES];
 /** Specifies whether the quest-log panel is shown. */
@@ -71,7 +71,7 @@ void InitQuestGFX()
 	guLvlVisited = 0;
 
 	assert(pQLogCel == NULL);
-	pQLogCel = LoadFileInMem("Data\\Quest.CEL");
+	pQLogCel = CelLoadImage("Data\\Quest.CEL", SPANEL_WIDTH);
 }
 
 void FreeQuestGFX()
@@ -627,7 +627,7 @@ void DrawQuestLog()
 {
 	unsigned i;
 
-	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pQLogCel, 1, SPANEL_WIDTH);
+	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pQLogCel, 1);
 	for (i = 0; i < numqlines; i++) {
 		PrintQLString(qtopline + i, questlist[qlist[i]]._qlstr);
 	}

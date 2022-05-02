@@ -176,7 +176,7 @@ static void SelheroUpdateViewportItems()
 static void SelheroInit()
 {
 	LoadScrollBar();
-	gbHerosCel = LoadFileInMem("ui_art\\heros.CEL");
+	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", 180);
 
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 	UiAddBackground(&vecSelHeroDialog);

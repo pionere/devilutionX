@@ -22,11 +22,11 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SLIDER_BUTTON_WIDTH	27
 
 /** Logo CEL above the menu */
-static BYTE* gpLogoCel;
+static CelImageBuf* gpLogoCel;
 /** Slider CEL */
-static BYTE* gpOptbarCel;
+static CelImageBuf* gpOptbarCel;
 /** Slider button CEL */
-static BYTE* gpOptionCel;
+static CelImageBuf* gpOptionCel;
 /** Speficifies whether the mouse is pressed while navigating the menu. */
 static bool _gbMouseNavigation;
 /** The array of the current menu items. */
@@ -65,11 +65,11 @@ void InitGMenu()
 	guCurrentMenuSize = 0;
 	_gbMouseNavigation = false;
 	assert(gpLogoCel == NULL);
-	gpLogoCel = LoadFileInMem(LOGO_DATA);
+	gpLogoCel = CelLoadImage(LOGO_DATA, LOGO_WIDTH);
 	assert(gpOptionCel == NULL);
-	gpOptionCel = LoadFileInMem("Data\\option.CEL");
+	gpOptionCel = CelLoadImage("Data\\option.CEL", SLIDER_BUTTON_WIDTH);
 	assert(gpOptbarCel == NULL);
-	gpOptbarCel = LoadFileInMem("Data\\optbar.CEL");
+	gpOptbarCel = CelLoadImage("Data\\optbar.CEL", 287);
 }
 
 static void gmenu_up_down(bool isDown)
@@ -165,13 +165,13 @@ static void gmenu_draw_menu_item(int i, int y)
 		DrawHugePentSpn(x - 54, x + 4 + w, y + 1);
 	if (pItem->dwFlags & GMENU_SLIDER) {
 		x += SLIDER_OFFSET;
-		CelDraw(x, y - 10, gpOptbarCel, 1, 287);
+		CelDraw(x, y - 10, gpOptbarCel, 1);
 		x += SLIDER_BORDER;
 		step = pItem->wMenuParam2;
 		nSteps = pItem->wMenuParam1;
 		pos = step * SLIDER_STEPS / nSteps;
 		gmenu_draw_rectangle(x, y - 12, pos + SLIDER_BUTTON_WIDTH / 2, 28);
-		CelDraw(x + pos, y - 12, gpOptionCel, 1, SLIDER_BUTTON_WIDTH);
+		CelDraw(x + pos, y - 12, gpOptionCel, 1);
 	}
 }
 
@@ -202,7 +202,7 @@ void gmenu_draw()
 	nCel = 1;
 #endif
 	y = PANEL_Y + MENU_HEADER_Y;
-	CelDraw(SCREEN_X + (SCREEN_WIDTH - LOGO_WIDTH) / 2, y, gpLogoCel, nCel, LOGO_WIDTH);
+	CelDraw(SCREEN_X + (SCREEN_WIDTH - LOGO_WIDTH) / 2, y, gpLogoCel, nCel);
 	y += MENU_HEADER_OFF + MENU_ITEM_HEIGHT;
 	for (i = 0; i < guCurrentMenuSize; i++, y += MENU_ITEM_HEIGHT)
 		gmenu_draw_menu_item(i, y);

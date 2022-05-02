@@ -13,8 +13,8 @@ BYTE gbTSpell;   // the spell to cast after the target is selected
 char gbTSplFrom; // the source of the spell after the target is selected
 char gbOilFrom;
 
-BYTE* pInvCels;
-BYTE* pBeltCels;
+CelImageBuf* pInvCels;
+CelImageBuf* pBeltCels;
 
 /**
  * Maps from inventory slot to screen position. The inventory slots are
@@ -198,9 +198,9 @@ void FreeInvGFX()
 void InitInv()
 {
 	assert(pInvCels == NULL);
-	pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL");
+	pInvCels = CelLoadImage("Data\\Inv\\Inv.CEL", SPANEL_WIDTH);
 	assert(pBeltCels == NULL);
-	pBeltCels = LoadFileInMem("Data\\Inv\\Belt.CEL");
+	pBeltCels = CelLoadImage("Data\\Inv\\Belt.CEL", 60);
 	gbInvflag = false;
 	//gbTSpell = SPL_NULL;
 	//gbTSplFrom = 0;
@@ -240,7 +240,7 @@ void DrawInv()
 	int pnum, frame, frame_width, screen_x, screen_y, i;
 	BYTE* cCels;
 
-	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pInvCels, 1, SPANEL_WIDTH);
+	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pInvCels, 1);
 
 	cCels = pCursCels;
 
@@ -386,7 +386,7 @@ void DrawInvBelt()
 	BYTE fi, ff;
 	BYTE* cCels;
 
-	CelDraw(SCREEN_X + InvRect[SLOTXY_BELT_FIRST].X - 1, SCREEN_Y + SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1, 60);
+	CelDraw(SCREEN_X + InvRect[SLOTXY_BELT_FIRST].X - 1, SCREEN_Y + SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1);
 
 	pnum = mypnum;
 	pi = NULL;

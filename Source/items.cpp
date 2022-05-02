@@ -2247,8 +2247,8 @@ void RespawnItem(int ii, bool FlipFlag)
 	is->_iAnimData = itemanims[it];
 	is->_iAnimLen = itemfiledata[it].iAnimLen;
 	is->_iAnimFrameLen = 1;
-	//is->_iAnimWidth = 96;
-	//is->_iAnimXOffset = 16;
+	//is->_iAnimWidth = ITEM_ANIM_WIDTH;
+	//is->_iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) / 2;
 	is->_iPostDraw = FALSE;
 	if (FlipFlag) {
 		is->_iAnimFrame = 1;

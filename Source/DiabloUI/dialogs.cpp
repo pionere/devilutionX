@@ -15,7 +15,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static BYTE* gbDialogBackCel;
+static CelImageBuf* gbDialogBackCel;
 static bool _gbDialogEnd;
 static bool gbInDialog = false;
 
@@ -164,10 +164,10 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		UiAddBackground(&gUiItems);
 	//}
 
-	gbSmlButtonCel = LoadFileInMem("ui_art\\smbutton.CEL");
+	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", 110);
 
 	/*if (caption == NULL) {
-		gbDialogBackCel = LoadFileInMem(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL");
+		gbDialogBackCel = CelLoadImage(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL", 280);
 		WordWrapArtStr(text, 240, AFT_SMALL);
 
 		SDL_Rect rect1 = { PANEL_LEFT + 180, (PANEL_TOP + 168), 280, 144 };
@@ -179,7 +179,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		SDL_Rect rect3 = { PANEL_LEFT + 265, (PANEL_TOP + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect3));
 	} else {*/
-		gbDialogBackCel = LoadFileInMem(error ? "ui_art\\lrpopup.CEL" : "ui_art\\lpopup.CEL");
+		gbDialogBackCel = CelLoadImage(error ? "ui_art\\lrpopup.CEL" : "ui_art\\lpopup.CEL", 385);
 		WordWrapArtStr(text, 346, AFT_SMALL);
 
 		SDL_Rect rect1 = { PANEL_LEFT + 127, (PANEL_TOP + 100), 385, 280 };

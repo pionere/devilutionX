@@ -68,7 +68,7 @@ public:
 
 class UiImage : public UiItemBase {
 public:
-	UiImage(BYTE* celData, int frame, SDL_Rect &rect, bool animated)
+	UiImage(CelImageBuf* celData, int frame, SDL_Rect &rect, bool animated)
 	    : UiItemBase(UI_IMAGE, rect, 0), m_cel_data(celData), m_frame(frame), m_animated(animated)
 	{
 	}
@@ -76,7 +76,7 @@ public:
 	~UiImage() = default;
 
 	//private:
-	BYTE* m_cel_data;
+	CelImageBuf* m_cel_data;
 	int m_frame;
 	bool m_animated;
 };

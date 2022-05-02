@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /** Scrollbar graphics */
-extern BYTE* pSTextSlidCels;
+extern CelImageBuf* pSTextSlidCels;
 
 extern int gnHPPer;
 extern int gnManaPer;

@@ -28,13 +28,13 @@ DEVILUTION_BEGIN_NAMESPACE
 #define FOCUS_FRAME_COUNT	8
 #define SMALL_LOGO_WIDTH	390
 
-BYTE* gbBackCel;
-static BYTE* gbLogoCelSmall;
-static BYTE* gbFocusCelSmall;
-static BYTE* gbFocusCelMed;
-static BYTE* gbFocusCelBig;
-BYTE* gbHerosCel;
-BYTE* gbSmlButtonCel;
+CelImageBuf* gbBackCel;
+static CelImageBuf* gbLogoCelSmall;
+static CelImageBuf* gbFocusCelSmall;
+static CelImageBuf* gbFocusCelMed;
+static CelImageBuf* gbFocusCelBig;
+CelImageBuf* gbHerosCel;
+CelImageBuf* gbSmlButtonCel;
 
 void (*gfnSoundFunction)(int gfx, int rndCnt);
 static void (*gfnListFocus)(unsigned index);
@@ -439,13 +439,13 @@ static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 static void LoadUiGFX()
 {
 	assert(gbLogoCelSmall == NULL);
-	gbLogoCelSmall = LoadFileInMem("ui_art\\smlogo.CEL");
+	gbLogoCelSmall = CelLoadImage("ui_art\\smlogo.CEL", SMALL_LOGO_WIDTH);
 	assert(gbFocusCelSmall == NULL);
-	gbFocusCelSmall = LoadFileInMem("ui_art\\focus16.CEL");
+	gbFocusCelSmall = CelLoadImage("ui_art\\focus16.CEL", 20);
 	assert(gbFocusCelMed == NULL);
-	gbFocusCelMed = LoadFileInMem("ui_art\\focus.CEL");
+	gbFocusCelMed = CelLoadImage("ui_art\\focus.CEL", 30);
 	assert(gbFocusCelBig == NULL);
-	gbFocusCelBig = LoadFileInMem("ui_art\\focus42.CEL");
+	gbFocusCelBig = CelLoadImage("ui_art\\focus42.CEL", 42);
 
 	NewCursor(CURSOR_HAND);
 }
@@ -479,7 +479,7 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 	assert(gbBackCel == NULL);
 	//if (gbBackCel != NULL)
 	//	MemFreeDbg(gbBackCel);
-	gbBackCel = LoadFileInMem(pszFile);
+	gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
 
 	LoadPalette(palette);
 	PaletteFadeIn(true);
@@ -542,27 +542,25 @@ int GetAnimationFrame(int frames, int animFrameLenMs)
 static void DrawSelector(const SDL_Rect &rect)
 {
 	int size, frame, x, y;
-	BYTE* selCel;
+	CelImageBuf* selCel;
 
 	assert(gbFocusCelSmall != NULL);
 	assert(gbFocusCelMed != NULL);
 	assert(gbFocusCelBig != NULL);
-	size = 20;
 	selCel = gbFocusCelSmall;
 	if (rect.h >= 42) {
-		size = 42;
 		selCel = gbFocusCelBig;
 	} else if (rect.h >= 30) {
-		size = 30;
 		selCel = gbFocusCelMed;
 	}
+	size = selCel->ciWidth;
 	frame = GetAnimationFrame(FOCUS_FRAME_COUNT) + 1;
 	x = SCREEN_X + rect.x;
 	y = SCREEN_Y + rect.y + (rect.h - size) / 2 + size - 1; // TODO FOCUS_MED appears higher than the box
 
-	CelDraw(x, y, selCel, frame, size);
+	CelDraw(x, y, selCel, frame);
 	x += rect.w - size;
-	CelDraw(x, y, selCel, frame, size);
+	CelDraw(x, y, selCel, frame);
 }
 
 void UiClearScreen()
@@ -602,7 +600,7 @@ static void Render(const UiImage* uiImage)
 	int x = SCREEN_X + uiImage->m_rect.x;
 	int y = SCREEN_Y + uiImage->m_rect.y + uiImage->m_rect.h - 1;
 
-	CelDraw(x, y, uiImage->m_cel_data, frame + 1, uiImage->m_rect.w);
+	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
 
 static void Render(const UiTxtButton* uiButton)
@@ -616,7 +614,7 @@ static void Render(const UiButton* button)
 	int x = SCREEN_X + button->m_rect.x;
 	int y = SCREEN_Y + button->m_rect.y + 28 - 1;
 
-	CelDraw(x, y, gbSmlButtonCel, frame + 1, 110);
+	CelDraw(x, y, gbSmlButtonCel, frame + 1);
 
 	SDL_Rect textRect = button->m_rect;
 	if (button->m_pressed)
@@ -647,7 +645,7 @@ static void Render(const UiScrollBar* uiSb)
 			bgY += SCROLLBAR_BG_HEIGHT;
 			if (bgYEnd < bgY)
 				bgY = bgYEnd;
-			CelDraw(bgX, bgY, scrollBarBackCel, 1, SCROLLBAR_BG_WIDTH);
+			CelDraw(bgX, bgY, scrollBarBackCel, 1);
 		}
 	}
 	// Arrows:
@@ -656,20 +654,20 @@ static void Render(const UiScrollBar* uiSb)
 		SDL_Rect rect = UpArrowRect(uiSb);
 		rect.y--;
 		int frame = scrollBarState.upPressCounter != -1 ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP;
-		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1,SCROLLBAR_ARROW_WIDTH);
+		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1);
 	}
 	{
 		SDL_Rect rect = DownArrowRect(uiSb);
 		rect.y--;
 		int frame = scrollBarState.downPressCounter != -1 ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN;
-		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1,SCROLLBAR_ARROW_WIDTH);
+		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1);
 	}
 	// Thumb:
 	assert(scrollBarThumbCel != NULL);
 	if (SelectedItemMax > 0) {
 		SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
 		rect.y--;
-		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarThumbCel, 1, SCROLLBAR_THUMB_WIDTH);
+		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarThumbCel, 1);
 	}
 }
 

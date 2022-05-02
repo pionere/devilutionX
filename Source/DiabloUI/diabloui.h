@@ -12,9 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SML_BUTTON_WIDTH	110
 #define SML_BUTTON_HEIGHT	28
 
-extern BYTE* gbBackCel;
-extern BYTE* gbHerosCel;
-extern BYTE* gbSmlButtonCel;
+extern CelImageBuf* gbBackCel;
+extern CelImageBuf* gbHerosCel;
+extern CelImageBuf* gbSmlButtonCel;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);
 extern std::vector<UiListItem*> gUIListItems;

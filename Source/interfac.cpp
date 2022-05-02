@@ -13,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define BAR_WIDTH		PANEL_WIDTH - BAR_POS_X * 2
 
 /** Cutscene image CEL */
-BYTE* sgpBackCel;
+CelImageBuf* sgpBackCel;
 
 unsigned sgdwProgress;
 
@@ -31,7 +31,7 @@ static void InitLvlCutscene(BYTE lvl)
 {
 	sgbLoadBarOnTop = AllLevels[lvl].dLoadBarOnTop;
 	sgbLoadBarCol = AllLevels[lvl].dLoadBarColor;
-	sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
+	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, PANEL_WIDTH);
 	LoadPalette(AllLevels[lvl].dLoadPal);
 }
 
@@ -62,13 +62,13 @@ static void InitCutscene(unsigned int uMsg)
 		InitLvlCutscene(lvl);
 		break;
 	case DVL_DWM_WARPLVL:
-		sgpBackCel = LoadFileInMem("Gendata\\Cutportl.CEL");
+		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", PANEL_WIDTH);
 		LoadPalette("Gendata\\Cutportl.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
-		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL");
+		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", PANEL_WIDTH);
 		LoadPalette("Gendata\\Cutstart.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
@@ -109,7 +109,7 @@ static void DrawProgress()
 static void DrawCutscene()
 {
 	lock_buf(1);
-	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1, PANEL_WIDTH);
+	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
 
 	DrawProgress();
 

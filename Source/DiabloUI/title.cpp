@@ -4,17 +4,19 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-BYTE* gbLogoBig;
+#define BIG_LOGO_WIDTH	550
+
+CelImageBuf* gbLogoBig;
 
 static void TitleLoad()
 {
 	LoadBackgroundArt("ui_art\\title.CEL", "ui_art\\menu.pal");
 	// assert(gbLogoBig == NULL);
-	gbLogoBig = LoadFileInMem("ui_art\\logo.CEL");
+	gbLogoBig = CelLoadImage("ui_art\\logo.CEL", BIG_LOGO_WIDTH);
 
 	UiAddBackground(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + (PANEL_WIDTH - 550) / 2, PANEL_TOP + 182, 550, 216 };
+	SDL_Rect rect1 = { PANEL_LEFT + (PANEL_WIDTH - BIG_LOGO_WIDTH) / 2, PANEL_TOP + 182, BIG_LOGO_WIDTH, 216 };
 	gUiItems.push_back(new UiImage(gbLogoBig, 15, rect1, true));
 }
 
