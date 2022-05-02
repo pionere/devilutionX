@@ -556,7 +556,7 @@ static void DrawSelector(const SDL_Rect &rect)
 	size = selCel->ciWidth;
 	frame = GetAnimationFrame(FOCUS_FRAME_COUNT) + 1;
 	x = SCREEN_X + rect.x;
-	y = SCREEN_Y + rect.y + (rect.h - size) / 2 + size - 1; // TODO FOCUS_MED appears higher than the box
+	y = SCREEN_Y + rect.y + (unsigned)(rect.h + size) / 2 - 1; // TODO FOCUS_MED appears higher than the box
 
 	CelDraw(x, y, selCel, frame);
 	x += rect.w - size;
