@@ -1,6 +1,7 @@
 CtrlPan\Flasks.CEL
 CtrlPan\Menu.CEL
 CtrlPan\TalkPnl.CEL
+Data\BigTGold.CEL
 Data\Char.CEL
 Data\Inv\Belt.CEL
 Data\Inv\Inv.CEL
