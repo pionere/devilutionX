@@ -610,11 +610,11 @@ static void Render(const UiTxtButton* uiButton)
 
 static void Render(const UiButton* button)
 {
-	int frame = button->m_pressed ? UiButton::PRESSED : UiButton::DEFAULT;
+	int frame = button->m_pressed ? 2 : 1;
 	int x = SCREEN_X + button->m_rect.x;
 	int y = SCREEN_Y + button->m_rect.y + 28 - 1;
 
-	CelDraw(x, y, gbSmlButtonCel, frame + 1);
+	CelDraw(x, y, gbSmlButtonCel, frame);
 
 	SDL_Rect textRect = button->m_rect;
 	if (button->m_pressed)

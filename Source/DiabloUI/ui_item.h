@@ -151,20 +151,12 @@ public:
 class UiButton : public UiItemBase {
 public:
 	UiButton(const char* text, void (*action)(), SDL_Rect &rect)
-	    : UiItemBase(UI_BUTTON, rect, 0)
+	    : UiItemBase(UI_BUTTON, rect, 0), m_text(text), m_action(action)
 	{
-		m_text = text;
-		m_action = action;
 		m_pressed = false;
 	}
 
 	~UiButton() = default;
-
-	enum FrameKey : uint8_t {
-		DEFAULT,
-		PRESSED,
-		DISABLED
-	};
 
 	//private:
 
