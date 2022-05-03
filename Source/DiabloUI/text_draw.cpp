@@ -27,8 +27,8 @@ void DrawArtStr(const char* text, const SDL_Rect &rect, int flags, bool drawText
 	case AFT_SMALL:
 		w = GetSmallStringWidth(text);
 		dy = 1;
-		h = 13 - dy;
-		//h = 13;
+		h = 11 - dy;
+		//h = 11;
 		pChar = PrintSmallChar;
 		break;
 	case AFT_MED:
