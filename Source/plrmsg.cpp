@@ -111,7 +111,7 @@ static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 		sstr = endstr = str;
 		while (TRUE) {
 			if (*sstr != '\0') {
-				c = smallFontFrame[gbFontTransTbl[(BYTE)*sstr++]];
+				c = gbStdFontFrame[(BYTE)*sstr++];
 				len += smallFontWidth[c] + FONT_KERN_SMALL;
 				if (c == 0) // allow wordwrap on blank glyph
 					endstr = sstr;

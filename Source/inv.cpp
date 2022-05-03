@@ -412,7 +412,7 @@ void DrawInvBelt()
 
 		if (is->_iStatFlag && is->_iUsable) {
 			fi = i + 49; // '1' + i;
-			ff = smallFontFrame[gbFontTransTbl[fi]];
+			ff = gbStdFontFrame[fi];
 			PrintChar(screen_x + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y, ff, COL_WHITE);
 		}
 	}

@@ -2289,7 +2289,7 @@ static char* control_print_talk_msg(char* msg, int* x, int y)
 	BYTE c;
 
 	while (*msg != '\0') {
-		c = smallFontFrame[gbFontTransTbl[(BYTE)*msg]];
+		c = gbStdFontFrame[(BYTE)*msg];
 		limit -= smallFontWidth[c] + FONT_KERN_SMALL;
 		if (limit < 0)
 			return msg;

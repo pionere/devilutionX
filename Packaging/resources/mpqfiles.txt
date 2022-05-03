@@ -1,10 +1,12 @@
 CtrlPan\Flasks.CEL
 CtrlPan\Menu.CEL
+CtrlPan\SmalText.CEL
 CtrlPan\TalkPnl.CEL
 Data\BigTGold.CEL
 Data\Char.CEL
 Data\Inv\Belt.CEL
 Data\Inv\Inv.CEL
+Data\MedTextS.CEL
 Data\SpellBk.CEL
 Data\SpellBkB.CEL
 Data\Quest.CEL

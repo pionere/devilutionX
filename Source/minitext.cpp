@@ -72,7 +72,7 @@ void DrawQText()
 				endstr = sstr + 1;
 				break;
 			}
-			c = bhFontFrame[gbFontTransTbl[(BYTE)*sstr++]];
+			c = gbStdFontFrame[(BYTE)*sstr++];
 			len += bigFontWidth[c] + FONT_KERN_BIG;
 			if (c == 0) // allow wordwrap on blank glyph
 				endstr = sstr;
@@ -82,7 +82,7 @@ void DrawQText()
 
 		tx = LTPANEL_X + 24;
 		while (str < endstr) {
-			c = bhFontFrame[gbFontTransTbl[(BYTE)*str++]];
+			c = gbStdFontFrame[(BYTE)*str++];
 			if (c != 0) {
 				CelDraw(tx, ty, pBigTextCels, c);
 			}
