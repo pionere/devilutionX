@@ -43,10 +43,10 @@ void gmenu_draw_pause()
 	int x, light;
 
 	if (!gmenu_is_active()) {
-		x = SCREEN_X + SCREEN_WIDTH / 2 - GetHugeStringWidth("Pause") / 2;
+		x = PANEL_X + (PANEL_WIDTH - GetHugeStringWidth("Pause")) / 2;
 		static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
 		light = (SDL_GetTicks() / 256) % 4;
-		PrintHugeString(x, SCREEN_Y + SCREEN_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", light);
+		PrintHugeString(x, PANEL_Y + PANEL_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", light);
 	}
 }
 
@@ -202,7 +202,7 @@ void gmenu_draw()
 	nCel = 1;
 #endif
 	y = PANEL_Y + MENU_HEADER_Y;
-	CelDraw(SCREEN_X + (SCREEN_WIDTH - LOGO_WIDTH) / 2, y, gpLogoCel, nCel);
+	CelDraw(PANEL_X + (PANEL_WIDTH - LOGO_WIDTH) / 2, y, gpLogoCel, nCel);
 	y += MENU_HEADER_OFF + MENU_ITEM_HEIGHT;
 	for (i = 0; i < guCurrentMenuSize; i++, y += MENU_ITEM_HEIGHT)
 		gmenu_draw_menu_item(i, y);

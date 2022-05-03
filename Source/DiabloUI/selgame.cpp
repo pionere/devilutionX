@@ -166,7 +166,7 @@ static void SelgameSpeedInit()
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 24, (PANEL_TOP + 161), 590, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + 161), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Create Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 211), DESCRIPTION_WIDTH, 34 };
@@ -226,7 +226,7 @@ static void SelgameModeInit()
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 24, (PANEL_TOP + 161), 590, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + 161), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 256), DESCRIPTION_WIDTH, 192 };
@@ -275,7 +275,7 @@ static void SelgamePasswordInit(unsigned index)
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 24, (PANEL_TOP + 161), 590, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + 161), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 256), DESCRIPTION_WIDTH, 192 };
@@ -303,7 +303,7 @@ static void SelgamePortInit(unsigned index)
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 24, (PANEL_TOP + 161), 590, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + 161), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 256), DESCRIPTION_WIDTH, 192 };
@@ -368,7 +368,7 @@ static void SelgameModeSelect(unsigned index)
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 24, (PANEL_TOP + 161), 590, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + 161), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(index == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 256), DESCRIPTION_WIDTH, 192 };
