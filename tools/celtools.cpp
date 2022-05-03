@@ -1,12 +1,29 @@
 #include <png.h>
 #include <zlib.h>
+#include <stdint.h>
 
-typedef unsigned int DWORD;
-typedef unsigned short WORD;
+typedef uint32_t DWORD;
+typedef uint16_t WORD;
 typedef unsigned char BYTE;
 
 #define PNG_TRANSFORM_VFLIP 0x10000
 #define PNG_TRANSFORM_HFLIP 0x20000
+
+static WORD SwapLE16(WORD w)
+{
+	WORD v = 1;
+	if (((BYTE*)&v)[1] == 0)
+		return w;
+	return ((w >> 8) & 0x00FF) | ((w << 8) & 0xFF00);
+}
+
+static DWORD SwapLE32(DWORD dw)
+{
+	DWORD v = 1;
+	if (((BYTE*)&v)[3] == 0)
+		return dw;
+	return ((dw >> 24) & 0xFF) | ((dw << 24) & 0xFF000000) | ((dw >> 8) & 0x00FF00) | ((dw << 8) & 0xFF0000);
+}
 
 BYTE diapal[128][3] = {
 { 159, 159, 255}, { 87, 87, 255}, { 36, 36, 254}, { 1, 1, 239}, 
@@ -264,7 +281,7 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 	BYTE *buf = (BYTE *)malloc(maxsize);
 	memset(buf, 0, maxsize);
 	buf[0] = numimage;
-	buf[4] = HEADER_SIZE;
+	*(DWORD*)&buf[4] = SwapLE32(HEADER_SIZE);
 	BYTE *pBuf = &buf[HEADER_SIZE];
 	for (int n = 0; n < numimage; n++) {
 		// add optional {CEL FRAME HEADER}
@@ -303,7 +320,7 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 				}
 			}
 		}
-		*(DWORD*)&buf[4 + 4 * (n + 1)] = pBuf - buf;
+		*(DWORD*)&buf[4 + 4 * (n + 1)] = SwapLE32(pBuf - buf);
 	}
 
 	// write to file
@@ -357,7 +374,7 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 
 	// convert to cl2
 	buf[0] = numimage;
-	buf[4] = HEADER_SIZE;
+	*(DWORD*)&buf[4] = SwapLE32(HEADER_SIZE);
 
 	BYTE *pBuf = &buf[HEADER_SIZE];
 	for (int n = 0; n < numimage; n++) {
@@ -376,7 +393,7 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
 			if (i == 32 + 1) {
 				pHead = pBuf;
-				*(WORD*)(&pHeader[2]) = pHead - pHeader;//pHead - buf - SUB_HEADER_SIZE;
+				*(WORD*)(&pHeader[2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 
 				colMatches = 0;
 				alpha = false;
@@ -384,7 +401,7 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 			}
 			if (i == image_data->height - (32 - 1)) {
 				pHead = pBuf;
-				*(WORD*)(&pHeader[4]) = pHead - pHeader;//pHead - buf - SUB_HEADER_SIZE;
+				*(WORD*)(&pHeader[4]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 
 				colMatches = 0;
 				alpha = false;
@@ -436,7 +453,7 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 				first = FALSE;
 			}
 		}
-		*(DWORD*)&buf[4 + 4 * (n + 1)] = pBuf - buf;
+		*(DWORD*)&buf[4 + 4 * (n + 1)] = SwapLE32(pBuf - buf);
 	}
 	// write to file
 	FILE *fp = fopen(celname, "wb");
@@ -859,7 +876,7 @@ bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, B
 		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
 		celdata[i].width = nWidth;
 		// skip frame-header
-		WORD subHeaderSize = *(WORD*)src;
+		WORD subHeaderSize = SwapLE16(*(WORD*)src);
 		src += subHeaderSize;
 		celdata[i].data += subHeaderSize;
 		celdata[i].dataSize -= subHeaderSize;
