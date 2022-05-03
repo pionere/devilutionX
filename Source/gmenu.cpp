@@ -43,7 +43,8 @@ void gmenu_draw_pause()
 	int x, light;
 
 	if (!gmenu_is_active()) {
-		x = PANEL_X + (PANEL_WIDTH - GetHugeStringWidth("Pause")) / 2;
+		// assert(GetHugeStringWidth("Pause") == 135);
+		x = PANEL_X + (PANEL_WIDTH - 135) / 2;
 		static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
 		light = (SDL_GetTicks() / 256) % 4;
 		PrintHugeString(x, PANEL_Y + PANEL_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", light);

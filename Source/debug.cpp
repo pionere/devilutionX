@@ -256,6 +256,10 @@ void ValidateData()
 {
 	int i;
 
+	// text
+	if (GetHugeStringWidth("Pause") != 135)
+		app_fatal("gmenu_draw_pause expects hardcoded width 135.");
+
 	// cursors
 	for (i = 0; i < lengthof(InvItemWidth); i++) {
 		if (i != CURSOR_NONE && InvItemWidth[i] == 0)
@@ -510,6 +514,9 @@ void ValidateData()
 #if UNOPTIMIZED_RNDITEMS
 	if (rnddrops > ITEM_RNDDROP_MAX)
 		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, ITEM_RNDDROP_MAX);
+#else
+	if (rnddrops > 0xFFFF)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, 0xFFFF);
 #endif
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
