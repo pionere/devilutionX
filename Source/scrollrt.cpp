@@ -559,10 +559,10 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
  */
 static void DrawObject(int oi, int x, int y, int ox, int oy)
 {
-	ObjectStruct *os;
-	int sx, sy, xx, yy, nCel, frames;
+	ObjectStruct* os;
+	int sx, sy, xx, yy, nCel, nWidth;
 	bool mainTile;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
 	if (light_trn_index >= MAXDARKNESS)
 		return;
@@ -588,17 +588,19 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	}
 
 	nCel = os->_oAnimFrame;
-	frames = SwapLE32(*(uint32_t *)pCelBuff);
+#if DEBUG_MODE
+	int frames = pCelBuff->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, os->_otype);
 	}
-
+#endif
+	nWidth = os->_oAnimWidth;
 	if (oi == pcursobj)
-		CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
+		CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, nWidth);
 	if (os->_oLightFlag) {
-		CelClippedDrawLight(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
+		CelClippedDrawLight(sx, sy, pCelBuff, nCel, nWidth);
 	} else {
-		CelClippedDraw(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
+		CelClippedDraw(sx, sy, pCelBuff, nCel, nWidth);
 	}
 }
 
