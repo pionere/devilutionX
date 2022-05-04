@@ -70,14 +70,20 @@ struct RGBA {
 static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset)
 {
 	int res = -1;
-	int best = abs(data.r - 0) + 
-			   abs(data.g - 0) + 
-			   abs(data.b - 0)
+	//int best = abs(data.r - 0) + 
+	//		   abs(data.g - 0) + 
+	//		   abs(data.b - 0)
+	int best = (data.r - 0) * (data.r - 0) + 
+			   (data.g - 0) * (data.g - 0) + 
+			   (data.b - 0) * (data.b - 0);
 
 	for (int i = 0; i < numcolors; i++, palette += 3) {
-		int dist = abs(data.r - palette[0]) + 
-				   abs(data.g - palette[1]) + 
-				   abs(data.b - palette[2]);
+		//int dist = abs(data.r - palette[0]) + 
+		//		   abs(data.g - palette[1]) + 
+		//		   abs(data.b - palette[2]);
+		int dist = (data.r - palette[0]) * (data.r - palette[0]) + 
+				   (data.g - palette[1]) * (data.g - palette[1]) + 
+				   (data.b - palette[2]) * (data.b - palette[2]);
 		if (dist < best) {
 			best = dist;
 			res = i;
@@ -280,7 +286,7 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 
 	BYTE *buf = (BYTE *)malloc(maxsize);
 	memset(buf, 0, maxsize);
-	buf[0] = numimage;
+	*(DWORD*)&buf[0] = SwapLE32(numimage);
 	*(DWORD*)&buf[4] = SwapLE32(HEADER_SIZE);
 	BYTE *pBuf = &buf[HEADER_SIZE];
 	for (int n = 0; n < numimage; n++) {
@@ -288,6 +294,8 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 		if (clipped) {
 			pBuf[0] = 0x0A;
 			pBuf[1] = 0x00;
+			*(DWORD*)&pBuf[2] = 0;
+			*(DWORD*)&pBuf[6] = 0;
 			pBuf += 0x0A;
 		}
 		// convert to cel
@@ -373,7 +381,7 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 	memset(buf, 0, maxsize);
 
 	// convert to cl2
-	buf[0] = numimage;
+	*(DWORD*)&buf[0] = SwapLE32(numimage);
 	*(DWORD*)&buf[4] = SwapLE32(HEADER_SIZE);
 
 	BYTE *pBuf = &buf[HEADER_SIZE];
@@ -498,10 +506,11 @@ bool Cel2Cel(const char* destCelName, int nCel,
 
 	// create result with a single pointer (data)
 	frData = fopen(resCelName, "wb");
-	int v = srcCount + destCount;
+	DWORD v = SwapLE32(srcCount + destCount);
 	// write dummy header data (only the first entry is valid)
 	for (int i = 0; i < v + 2; i++)
-		fwrite(&v, 1, 4, frData);
+		fwrite(&v, 4, 1, frData);
+	v = SwapLE32(v);
 
 	// allocate container for the header info
 	DWORD *headBuf = (DWORD *)malloc((v + 1) * 4);
@@ -559,7 +568,8 @@ bool Cel2Cel(const char* destCelName, int nCel,
 	fseek(frData, 4, SEEK_SET);
 	curs = (2 + ci) * 4;
 	for (int i = 0; i <= ci; i++) {
-		fwrite(&curs, 1, 4, frData);
+		DWORD cv = SwapLE32(curs);
+		fwrite(&cv, 4, 1, frData);
 		curs += headBuf[i];
 	}
 
@@ -756,15 +766,16 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 	FILE *f = fopen(celname, "rb");
 
 	// read the file into memory
-	int numimage;
+	DWORD numimage;
 	fread(&numimage, 4, 1, f);
+	numimage = SwapLE32(numimage);
 
-	int headerSize = 4 + 4 + 4 *numimage;
+	int headerSize = 4 + 4 + 4 * numimage;
 	cel_image_data *celdata = (cel_image_data *)malloc(sizeof(cel_image_data) * (numimage + 1));
 	DWORD dataSize;
 	for (int i = 0; i <= numimage; i++) {
 		fread(&dataSize, 4, 1, f);
-		celdata[i].dataSize = dataSize;
+		celdata[i].dataSize = SwapLE32(dataSize);
 	}
 
 	BYTE *buf = (BYTE *)malloc(dataSize);
@@ -853,15 +864,16 @@ bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, B
 {
 	FILE *f = fopen(celname, "rb");
 	// read the file into memory
-	int numimage;
+	DWORD numimage;
 	fread(&numimage, 4, 1, f);
+	numimage = SwapLE32(numimage);
 
-	int headerSize = 4 + 4 + 4 *numimage;
+	int headerSize = 4 + 4 + 4 * numimage;
 	cel_image_data *celdata = (cel_image_data *)malloc(sizeof(cel_image_data) * (numimage + 1));
 	DWORD dataSize;
 	for (int i = 0; i <= numimage; i++) {
 		fread(&dataSize, 4, 1, f);
-		celdata[i].dataSize = dataSize;
+		celdata[i].dataSize = SwapLE32(dataSize);
 	}
 
 	BYTE *buf = (BYTE *)malloc(dataSize);

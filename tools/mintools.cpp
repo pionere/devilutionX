@@ -96,8 +96,6 @@ static int max(int x1, int x2)
 
 #define TILE_HEIGHT 32
 #define TILE_WIDTH 64
-#define SwapLE32(x) x
-#define SwapLE16(x) x
 #ifndef  ASSUME_UNREACHABLE
 #define ASSUME_UNREACHABLE assert(0);
 #endif // ! ASSUME_UNREACHABLE
@@ -121,10 +119,15 @@ static BYTE* LoadPal(const char* palFile)
 	return result;
 }
 
-static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors)
+static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset)
 {
-	BYTE res = 0;
-	int best = INT_MAX;
+	int res = -1;
+	//int best = abs(data.r - 0) + 
+	//		   abs(data.g - 0) + 
+	//		   abs(data.b - 0)
+	int best = (data.r - 0) * (data.r - 0) + 
+			   (data.g - 0) * (data.g - 0) + 
+			   (data.b - 0) * (data.b - 0);
 
 	for (int i = 0; i < numcolors; i++, palette += 3) {
 		//int dist = abs(data.r - palette[0]) + 
@@ -138,7 +141,10 @@ static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors)
 			res = i;
 		}
 	}
-
+	if (res == -1)
+		res = 0;
+	else
+		res += offset;
 	return res;
 }
 
@@ -730,7 +736,7 @@ static void EncodeMicro(png_image_data* imagedata, int sy, bool left, MicroMetaD
 					pHead = pBuf;
 					pBuf++;
 				}
-				*pBuf = GetPalColor(data[j], palette, numcolors) + coloroffset;
+				*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
 				pBuf++;
 				++*pHead;
 				hasColor = true;
