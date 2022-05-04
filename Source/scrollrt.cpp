@@ -617,11 +617,12 @@ static void drawCell(int pn, int sx, int sy)
 	int tmp, mask;
 
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
-		return;
+		return; // starting from too far to the left or right -> skip
 
-	tmp = (sy - SCREEN_Y + (TILE_HEIGHT / 2 + 1)) / (TILE_HEIGHT / 2);
-	if (tmp <= 0)
-		return;
+	tmp = sy - SCREEN_Y;
+	if (tmp < 0)
+		return; // starting from above the top -> skip
+	tmp = (unsigned)(tmp + 1 + (TILE_HEIGHT / 2 - 1)) / (TILE_HEIGHT / 2);
 	limit = tmp <= MicroTileLen ? tmp : MicroTileLen;
 	/*limit = MicroTileLen;
 	while (sy - limit * (TILE_HEIGHT / 2) <= SCREEN_Y - TILE_HEIGHT) {
@@ -632,13 +633,15 @@ static void drawCell(int pn, int sx, int sy)
 		sy -= TILE_HEIGHT;
 		i += 2;
 	}*/
-	tmp = (sy - (SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT) + (TILE_HEIGHT - 1)) / TILE_HEIGHT;
+	tmp = sy - (SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1);
 	i = 0;
-	if (tmp > 0) {
+	if (tmp >= 0) {
+		// starting from below the bottom -> skip microtiles
+		tmp = 1 + (unsigned)tmp / TILE_HEIGHT;
 		sy -= TILE_HEIGHT * tmp;
 		i = tmp * 2;
 		if (i >= limit)
-			return;
+			return; // not enough microtiles to affect the screen -> skip
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
@@ -701,10 +704,10 @@ static void drawFloor(int pn, int sx, int sy)
 	MICROS *pMap;
 
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
-		return;
+		return; // starting from too far to the left or right -> skip
 
-	if (sy <= SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
-		return;
+	if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1)
+		return; // starting from above the top or below the bottom -> skip
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
