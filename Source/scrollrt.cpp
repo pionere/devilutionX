@@ -735,9 +735,9 @@ static void drawFloor(int pn, int sx, int sy)
  */
 static void DrawItem(int ii, int sx, int sy)
 {
-	int nCel, frames;
-	ItemStruct *is;
-	BYTE *pCelBuff;
+	int nCel;
+	ItemStruct* is;
+	BYTE* pCelBuff;
 
 	assert(ii > 0);
 
@@ -751,12 +751,13 @@ static void DrawItem(int ii, int sx, int sy)
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Item \"%s\" 1: NULL Cel Buffer", is->_iName);
 	}
-	frames = SwapLE32(*(uint32_t *)pCelBuff);
 	nCel = is->_iAnimFrame;
+#if DEBUG_MODE
+	int frames = pCelBuff->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iName, nCel, frames, is->_itype);
 	}
-
+#endif
 	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
 	if (ii == pcursitem) {
 		CelClippedDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); // is->_iAnimWidth);
