@@ -101,7 +101,17 @@ struct png_image_data {
 	png_uint_32 width;
 	png_uint_32 height;
 	png_bytep *row_pointers;
+	png_bytep *data_ptr;
 };
+
+static void CleanupImageData(png_image_data* imagedata, int numimages)
+{
+	for (int n = 0; n < numimages; n++) {
+		free(imagedata[n].data_ptr);
+		free(imagedata[n].row_pointers);
+	}
+	free(imagedata);
+}
 
 static bool ReadPNG(const char *pngname, png_image_data &data)
 {
@@ -207,6 +217,7 @@ static bool ReadPNG(const char *pngname, png_image_data &data)
 
 	fclose(fp);
 	data.row_pointers = row_pointers;
+	data.data_ptr = buffer;
 	return true;
 }
 
@@ -255,7 +266,7 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 		}
 		png_image_data *image_data = &imagedata[0];
 		if ((image_data->height % numimage) != 0) {
-			free(imagedata);
+			CleanupImageData(imagedata, 1);
 			return false;
 		}
 		image_data->height /= numimage;
@@ -264,13 +275,12 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 			img_data->width = image_data->width;
 			img_data->height = image_data->height;
 			img_data->row_pointers = &image_data->row_pointers[n * image_data->height];
+			img_data->data_ptr = NULL;
 		}
 	} else {
 		for (int n = 0; n < numimage; n++) {
 			if (!ReadPNG(pngnames[n], imagedata[n])) {
-				while (--n >= 0)
-					free(imagedata[n].row_pointers);
-				free(imagedata);
+				CleanupImageData(imagedata, n - 1);
 				return false;
 			}
 		}
@@ -337,16 +347,7 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 	fclose(fp);
 
 	// cleanup
-	if (multi) {
-		free(imagedata[0].row_pointers);
-	} else {
-		for (int n = 0; n < numimage; n++) {
-			png_image_data *image_data = &imagedata[n];
-
-			free(image_data->row_pointers);
-		}
-	}
-	free(imagedata);
+	CleanupImageData(imagedata, multi ? 1 : numimage);
 	return true;
 }
 
@@ -360,9 +361,7 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	for (int n = 0; n < numimage; n++) {
 		if (!ReadPNG(pngnames[n], imagedata[n])) {
-			while (--n >= 0)
-				free(imagedata[n].row_pointers);
-			free(imagedata);
+			CleanupImageData(imagedata, n - 1);
 			return false;
 		}
 		if (transform & PNG_TRANSFORM_HFLIP)
@@ -468,12 +467,7 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 	fwrite(buf, 1, pBuf - buf, fp);
 	fclose(fp);
 	// cleanup
-	for (int n = 0; n < numimage; n++) {
-		png_image_data *image_data = &imagedata[n];
-
-		free(image_data->row_pointers);
-	}
-	free(imagedata);
+	CleanupImageData(imagedata, numimage);
 	return true;
 }
 
@@ -573,7 +567,7 @@ bool Cel2Cel(const char* destCelName, int nCel,
 		curs += headBuf[i];
 	}
 
-	fclose(frData);	
+	fclose(frData);
 	free(headBuf);
 	return true;
 }

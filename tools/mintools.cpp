@@ -48,6 +48,7 @@ typedef struct png_image_data {
 	png_uint_32 width;
 	png_uint_32 height;
 	png_bytep *row_pointers;
+	png_bytep *data_ptr;
 } png_image_data;
 
 typedef struct MegaMetaData {
@@ -252,10 +253,11 @@ static bool ReadPNG(const char *pngname, png_image_data &data)
 	png_read_end(png_ptr, (png_infop)NULL);
 
 	png_destroy_read_struct(&png_ptr, &info_ptr,
-       (png_infopp)NULL);	
+       (png_infopp)NULL);
 
 	fclose(fp);
 	data.row_pointers = row_pointers;
+	data.data_ptr = buffer;
 	return true;
 }
 
@@ -430,6 +432,7 @@ static bool hasFoliageBit(int type, bool left, BYTE* src)
 static void CleanupImageData(png_image_data* imagedata, int numimages)
 {
 	for (int n = 0; n < numimages; n++) {
+		free(imagedata[n].data_ptr);
 		free(imagedata[n].row_pointers);
 	}
 	free(imagedata);
