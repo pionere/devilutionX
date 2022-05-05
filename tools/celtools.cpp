@@ -935,7 +935,7 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 	return true;
 }
 
-static cel_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf)
+static cl2_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf)
 {
 	FILE *f = fopen(celname, "rb");
 
@@ -948,7 +948,7 @@ static cel_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 	numimage = SwapLE32(numimage);
 
 	int headerSize = 4 + 4 + 4 * numimage;
-	cel_image_data *celdata = (cel_image_data *)malloc(sizeof(cel_image_data) * (numimage + 1));
+	cl2_image_data *celdata = (cl2_image_data *)malloc(sizeof(cl2_image_data) * (numimage + 1));
 	DWORD dataSize;
 	for (int i = 0; i <= numimage; i++) {
 		fread(&dataSize, 4, 1, f);
@@ -968,6 +968,7 @@ static cel_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
 		//celdata[i].width = nWidth;
 		celdata[i].width = 0;
+		celdata[i].groupSize = numimage;
 		// skip frame-header
 		WORD subHeaderSize = SwapLE16(*(WORD*)src);
 		int blockOffset = SwapLE16(*(WORD*)&src[2]) - subHeaderSize;
@@ -1035,7 +1036,7 @@ bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, B
 {
 	int numimage;
 	BYTE* buf;
-	cel_image_data* celdata = ReadCl2Data(celname, &numimage, &buf);
+	cl2_image_data* celdata = ReadCl2Data(celname, &numimage, &buf);
 	if (celdata == NULL)
 		return false;
 
