@@ -768,7 +768,8 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 	DWORD dataSize;
 	for (int i = 0; i <= numimage; i++) {
 		fread(&dataSize, 4, 1, f);
-		celdata[i].dataSize = SwapLE32(dataSize);
+		dataSize = SwapLE32(dataSize);
+		celdata[i].dataSize = dataSize;
 	}
 
 	BYTE *buf = (BYTE *)malloc(dataSize);
@@ -866,7 +867,8 @@ bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, B
 	DWORD dataSize;
 	for (int i = 0; i <= numimage; i++) {
 		fread(&dataSize, 4, 1, f);
-		celdata[i].dataSize = SwapLE32(dataSize);
+		dataSize = SwapLE32(dataSize);
+		celdata[i].dataSize = dataSize;
 	}
 
 	BYTE *buf = (BYTE *)malloc(dataSize);
