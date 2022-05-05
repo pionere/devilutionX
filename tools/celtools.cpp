@@ -398,17 +398,9 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 		bool first = TRUE;
 		for (int i = 1; i <= image_data->height; i++) {
 			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-			if (i == 32 + 1) {
+			if (i == 32 + 1) { // TODO: write more entries if necessary?
 				pHead = pBuf;
-				*(WORD*)(&pHeader[2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
-
-				colMatches = 0;
-				alpha = false;
-				first = TRUE;
-			}
-			if (i == image_data->height - (32 - 1)) {
-				pHead = pBuf;
-				*(WORD*)(&pHeader[4]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+				*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 
 				colMatches = 0;
 				alpha = false;
