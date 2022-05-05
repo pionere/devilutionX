@@ -935,40 +935,134 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 	return true;
 }
 
+size_t GetFileSize(const char* filename)
+{
+    struct stat stat_buf;
+    int rc = stat(filename, &stat_buf);
+    return rc == 0 ? stat_buf.st_size : -1;
+}
+
+bool Cl2IsMono(const char* celname)
+{
+	bool result = true;
+	int numimage;
+
+	FILE* f = fopen(celname, "rb");
+	if (f == NULL)
+		return false;
+
+	fread(&numimage, 4, 1, f);
+	numimage = SwapLE32(numimage);
+	// first offset of a non-mono CL2 must point to the end end of the group-header with size of 4 * numgroups
+	if (numimage % 4 == 0) {
+		result = false;
+		int lastOffset, i;
+		for (i = 0; i < numimage; i++) {
+			int offset;
+			if (fread(&offset, 4, 1, f) != 1) {
+				break;
+			}
+			offset = SwapLE32(offset);
+			if (i == 0) {
+				// first offset must point to the end of the header
+				if (offset != 4 + 4 * (numimage + 1))
+					break;
+			} else {
+				// subsequent offsets must be greater than the previous one
+				if (offset <= lastOffset)
+					break;
+			}
+			lastOffset = offset;
+		}
+		if (i == numimage) {
+			// last entry in the header must match the file-size
+			int fileSize;
+			if (fread(&fileSize, 4, 1, f) == 1) {
+				fileSize = SwapLE32(fileSize);
+				result = fileSize == GetFileSize(celname);
+			}
+		}
+	}
+
+	fclose(f);
+	return result;
+}
+
 static cl2_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf)
 {
+	bool mono = Cl2IsMono(celname);
+
 	FILE *f = fopen(celname, "rb");
 
 	if (f == NULL)
 		return NULL;
 
 	// read the file into memory
-	DWORD numimage;
-	fread(&numimage, 4, 1, f);
-	numimage = SwapLE32(numimage);
+	DWORD numimage, dataSize;
+	int headerSize, groupSize;
+	cl2_image_data *celdata;
+	DWORD* groupOffsets;
+	if (!mono) {
+		// CL2 with groups
+		fread(&headerSize, 4, 1, f);
+		headerSize = SwapLE32(headerSize);
+		fseek(f, headerSize, SEEK_SET);
+		numimage = 0;
+		groupSize = headerSize / 4;
+		groupOffsets = (DWORD*)malloc(groupSize * sizeof(DWORD));
+		for (int i = 0; i < groupSize; i++) {
+			fseek(f, i * 4, SEEK_SET);
 
-	int headerSize = 4 + 4 + 4 * numimage;
-	cl2_image_data *celdata = (cl2_image_data *)malloc(sizeof(cl2_image_data) * (numimage + 1));
-	DWORD dataSize;
-	for (int i = 0; i <= numimage; i++) {
+			DWORD offset;
+			fread(&offset, 4, 1, f);
+			offset = SwapLE32(offset);
+			groupOffsets[i] = offset - groupSize * 4;
+			fseek(f, offset, SEEK_SET);
+
+			DWORD ni;
+			fread(&ni, 4, 1, f);
+			ni = SwapLE32(ni);
+			numimage += ni;
+
+			fseek(f, ni * 4, SEEK_CUR);
+			fread(&dataSize, 4, 1, f);
+			dataSize = offset + SwapLE32(dataSize);
+		}
+
+		fseek(f, groupSize * 4, SEEK_SET);
+	} else {
+		// mono CL2 -> prepare fake group
+		fread(&numimage, 4, 1, f);
+		numimage = SwapLE32(numimage);
+		groupSize = 1;
+		groupOffsets = (DWORD*)malloc(groupSize * sizeof(DWORD));
+		groupOffsets[0] = 0;
+		fseek(f, numimage * 4, SEEK_CUR);
 		fread(&dataSize, 4, 1, f);
 		dataSize = SwapLE32(dataSize);
-		celdata[i].dataSize = dataSize;
+
+		fseek(f, 0, SEEK_SET);
 	}
 
 	BYTE *buf = (BYTE *)malloc(dataSize);
-	fread(buf, 1, dataSize - headerSize, f);
+	fread(buf, 1, dataSize, f);
 
 	fclose(f);
 
+	celdata = (cl2_image_data *)malloc(sizeof(cl2_image_data) * (numimage + 1));
 	// prepare celdata info
-	BYTE *src = buf;
-	for (int i = 0; i < numimage; i++) {
+	int i = 0;
+	for (int n = 0; n < groupSize; n++) {
+		BYTE* cur = &buf[groupOffsets[n]];
+		DWORD ni = *(DWORD*)cur;
+		ni = SwapLE32(ni);
+		BYTE *src = cur + SwapLE32(*(DWORD*)&cur[4]);
+	for (int j = 0; j < ni; j++, i++) {
 		celdata[i].data = src;
-		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
+		celdata[i].dataSize = *(DWORD*)&cur[(j + 2) * 4] - *(DWORD*)&cur[(j + 1) * 4];
 		//celdata[i].width = nWidth;
 		celdata[i].width = 0;
-		celdata[i].groupSize = numimage;
+		celdata[i].groupSize = ni;
 		// skip frame-header
 		WORD subHeaderSize = SwapLE16(*(WORD*)src);
 		int blockOffset = SwapLE16(*(WORD*)&src[2]) - subHeaderSize;
@@ -1016,17 +1110,22 @@ static cl2_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 		}
 		if (src != &celdata[i].data[celdata[i].dataSize]) {
 			free(buf);
+			free(groupOffsets);
 			free(celdata);
 			return NULL;
 		}
 		int nWidth = celdata[i].width;
 		if (nWidth == 0 || pixels % nWidth != 0) {
 			free(buf);
+			free(groupOffsets);
 			free(celdata);
 			return NULL;
 		}
 		celdata[i].height = pixels / nWidth;
 	}
+
+	free(groupOffsets);
+
 	*nImage = numimage;
 	*oBuf = buf;
 	return celdata;
