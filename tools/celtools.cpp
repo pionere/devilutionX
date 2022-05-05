@@ -633,10 +633,17 @@ static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset)
 {
 	RGBA result;
 
-	col -= coloroffset;
-	result.r = palette[col * 3 + 0];
-	result.g = palette[col * 3 + 1];
-	result.b = palette[col * 3 + 2];
+	if (col < coloroffset) {
+		// assert(col == 0);
+		result.r = 0;
+		result.g = 0;
+		result.b = 0;
+	} else {
+		col -= coloroffset;
+		result.r = palette[col * 3 + 0];
+		result.g = palette[col * 3 + 1];
+		result.b = palette[col * 3 + 2];
+	}
 	result.a = 255;
 	return result;
 }
