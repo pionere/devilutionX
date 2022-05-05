@@ -373,6 +373,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 	int maxsize = HEADER_SIZE;
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
+		maxsize += SUB_HEADER_SIZE;
 		maxsize += image_data->height * (2 * image_data->width);
 	}
 
@@ -387,8 +388,11 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
 		BYTE *pHeader = pBuf;
-		memset(pBuf, 0, SUB_HEADER_SIZE);
+		// add CL2 FRAME HEADER
 		pBuf[0] = SUB_HEADER_SIZE;
+		pBuf[1] = 0x00;
+		*(DWORD*)&pBuf[2] = 0;
+		*(DWORD*)&pBuf[6] = 0;
 		pBuf += SUB_HEADER_SIZE;
 
 		BYTE *pHead = pBuf;
