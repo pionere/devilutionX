@@ -99,12 +99,12 @@ static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset)
 	return res;
 }
 
-struct png_image_data {
+typedef struct png_image_data {
 	png_uint_32 width;
 	png_uint_32 height;
 	png_bytep *row_pointers;
 	png_bytep *data_ptr;
-};
+} png_image_data;
 
 static void CleanupImageData(png_image_data* imagedata, int numimages)
 {
@@ -1197,8 +1197,104 @@ BYTE* LoadPal(const char* palFile)
 	return result;
 }
 
+RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
+{
+	if (c1->a != 255)
+		return *c1; // preserve tranparent pixels
+
+	RGBA res;
+	res.a = 255;
+	res.r = (c0->r * (len - idx) + c1->r * idx) / len;
+	res.g = (c0->g * (len - idx) + c1->g * idx) / len;
+	res.b = (c0->b * (len - idx) + c1->b * idx) / len;
+	return res;
+}
+
+void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier)
+{
+	// upscale the pngs
+	for (int i = 0; i < numimage; i++) {
+		RGBA* src = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - imagedata[i].height / multiplier];
+		src += imagedata[i].width - imagedata[i].width / multiplier;
+		RGBA* dst = (RGBA*)imagedata[i].row_pointers[0];
+		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
+			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+				for (int j = 0; j < multiplier; j++) {
+					*dst = *src;
+					dst++;
+				}
+				src++;
+			}
+			for (int j = 0; j < multiplier - 1; j++) {
+				memcpy(dst, dst - imagedata[i].width, sizeof(RGBA) * imagedata[i].width);
+				dst += imagedata[i].width;
+			}
+			src += imagedata[i].width - imagedata[i].width / multiplier;
+		}
+	}
+
+	// resample the pixels
+	for (int i = 0; i < numimage; i++) {
+		for (int y = 0; y < imagedata[i].height / multiplier - 1; y++) {
+			RGBA* p0 = (RGBA*)imagedata[i].row_pointers[y * multiplier];
+			for (int x = 0; x < imagedata[i].width / multiplier - 1; x++, p0 += multiplier) {
+				if (p0->a != 255)
+					continue; // skip transparent pixels
+
+				RGBA* p1 = p0 + multiplier;
+				for (int j = 0; j < multiplier; j++) {
+					for (int k = 1; k < multiplier; k++) {
+						RGBA* pp = p0 + j * imagedata[i].width + k;
+						*pp = Interpolate(p0, p1, k, multiplier);
+					}
+				}
+					for (int k = 1; k < multiplier; k++) {
+						RGBA* pp = p0 + k * imagedata[i].width;
+						*pp = Interpolate(p0, p1, k, multiplier);
+					}
+			}
+		}
+	}
+}
+
+void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolors, int coloroffset, const char* resCelName)
+{
+	int numimage;
+	BYTE* buf;
+	cl2_image_data* celdata = ReadCl2Data(celname, &numimage, &buf);
+	if (celdata == NULL)
+		return;
+
+	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+	for (int i = 0; i < numimage; i++) {
+		// prepare pngdata
+		imagedata[i].width = celdata[i].width * multiplier;
+		imagedata[i].height = celdata[i].height * multiplier;
+		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
+		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
+		for (int n = 0; n < imagedata[i].height; n++) {
+			imagedata[i].row_pointers[n] = (png_bytep)&imagerows[imagedata[i].width * n];
+		}
+
+		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
+		//lastLine += imagedata.width * (imagedata.height - 1);
+		// blit to the bottom right
+		Cl2BlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset);
+	}
+
+	free(buf);
+
+	// upscale the png data
+	UpscalePNGImages(imagedata, numimage, multiplier);
+
+	// convert pngs back to cl2
+	WritePNG2Cl2(imagedata, numimage, celdata, resCelName, palette, numcolors, coloroffset);
+}
+
 int main()
 {
+	//UpscaleCl2("f:\\plrgfx\\rogue\\rhbat.CL2", 2, &diapal[0][0], 128, 128, "f:\\rhbat.CL2");
+
 	//Cl2PNG("f:\\Farrow1.CL2", 0, "f:\\", &diapal[0][0], 128);
 
 	/*const char* sffilenames[] = {
