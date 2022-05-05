@@ -415,10 +415,21 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 					else
 						colMatches++;
 					if (colMatches < RLE_LEN || (char)*pHead <= -127) {
-						// bmp encoding
-						if (alpha || (char)*pHead <= -65) {
-							pHead = pBuf;
-							pBuf++;
+						/*if (colMatches == RLE_LEN - 1 && pBuf - pHead == RLE_LEN - 1) {
+							// RLE encode the whole 'line'
+							memset(pBuf - (RLE_LEN - 2), 0, RLE_LEN - 2);
+							*pHead += RLE_LEN - 2;
+							if (*pHead != 0) {
+								pHead = pBuf - (RLE_LEN - 2);
+							}
+							*pHead = -65 - (RLE_LEN - 2);
+							pBuf = pHead + 1;
+						} else*/ {
+							// bmp encoding
+							if (alpha || (char)*pHead <= -65) {
+								pHead = pBuf;
+								pBuf++;
+							}
 						}
 						*pBuf = col;
 						pBuf++;
@@ -463,6 +474,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 		result = true;
 	}
 	// cleanup
+	free(buf);
 	CleanupImageData(imagedata, numimage);
 	return result;
 }
