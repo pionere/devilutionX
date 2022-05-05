@@ -364,13 +364,33 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 	return WritePNG2Cel(imagedata, numimage, multi, celname, clipped, palette, numcolors, coloroffset);
 }
 
+struct cl2_image_data {
+	DWORD dataSize;
+	DWORD width;
+	DWORD height;
+	int groupSize;
+	BYTE* data;
+};
 static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* celname, BYTE *palette, int numcolors, int coloroffset)
 {
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
 
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
 
-	int maxsize = HEADER_SIZE;
+	// calculate header size
+	int groupNum = 0;
+	int headerSize = 0;
+	for (int i = 0; i < numimage; ) {
+		int ni = celdata[i].groupSize;
+		headerSize += 4 + 4 * (ni + 1);
+		i += ni;
+		groupNum++;
+	}
+	if (groupNum > 1) {
+		headerSize += sizeof(DWORD) * groupNum;
+	}
+	// estimate data size
+	int maxsize = headerSize;
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
 		maxsize += SUB_HEADER_SIZE;
@@ -380,13 +400,29 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 	BYTE *buf = (BYTE *)malloc(maxsize);
 	memset(buf, 0, maxsize);
 
-	// convert to cl2
-	*(DWORD*)&buf[0] = SwapLE32(numimage);
-	*(DWORD*)&buf[4] = SwapLE32(HEADER_SIZE);
+	BYTE* hdr = buf;
+	if (groupNum > 1) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = groupNum * 4;
+		for (int i = 0; i < groupNum; i++, hdr += 4) {
+			*(DWORD*)&hdr[0] = offset;
+			DWORD ni = celdata[i].groupSize;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
 
-	BYTE *pBuf = &buf[HEADER_SIZE];
-	for (int n = 0; n < numimage; n++) {
-		png_image_data *image_data = &imagedata[n];
+	BYTE* pBuf = &buf[headerSize];
+	int idx = 0;
+	for (int i = 0; i < groupNum; i++) {
+	// convert to cl2
+		DWORD ni = celdata[i].groupSize;
+		*(DWORD*)&hdr[0] = SwapLE32(ni);
+		//int HEADER_SIZE = 4 + 4 + ni * 4;
+		//*(DWORD*)&hdr[4] = SwapLE32(HEADER_SIZE);
+		*(DWORD*)&hdr[4] = SwapLE32(pBuf - hdr);
+
+	for (int n = 0; n < ni; n++, idx++) {
+		png_image_data *image_data = &imagedata[idx];
 		BYTE *pHeader = pBuf;
 		// add CL2 FRAME HEADER
 		pBuf[0] = SUB_HEADER_SIZE;
@@ -467,7 +503,9 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 				first = FALSE;
 			}
 		}
-		*(DWORD*)&buf[4 + 4 * (n + 1)] = SwapLE32(pBuf - buf);
+		*(DWORD*)&hdr[4 + 4 * (n + 1)] = SwapLE32(pBuf - hdr);
+	}
+		hdr += 4 + 4 * (ni + 1);
 	}
 	// write to file
 	bool result = false;
@@ -480,6 +518,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 	// cleanup
 	free(buf);
 	CleanupImageData(imagedata, numimage);
+	free(celdata);
 	return result;
 }
 
@@ -497,7 +536,11 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 			PNGFlip(imagedata[n], true);
 	}
 
-	return WritePNG2Cl2(imagedata, numimage, celname, palette, numcolors, coloroffset);
+	cl2_image_data* celdata = (cl2_image_data*)malloc(sizeof(cl2_image_data) * numimage);
+	for (int n = 0; n < numimage; n++) {
+		celdata[n].groupSize = numimage;
+	}
+	return WritePNG2Cl2(imagedata, numimage, celdata, celname, palette, numcolors, coloroffset);
 }
 
 bool Cel2Cel(const char* destCelName, int nCel,
