@@ -121,6 +121,8 @@ static bool ReadPNG(const char *pngname, png_image_data &data)
 	FILE *fp;
 
 	fp = fopen(pngname, "rb");
+	if (fp == NULL)
+		return false;
 	/*int number = 0;
 	png_const_bytep header;
 	const int number = 8;
@@ -245,7 +247,7 @@ void PNGFlip(png_image_data &imagedata, bool vertical)
 	}
 }
 
-static void WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, const char* celname, bool clipped, BYTE* palette, int numcolors, int coloroffset)
+static bool WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, const char* celname, bool clipped, BYTE* palette, int numcolors, int coloroffset)
 {
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
 	int maxsize = HEADER_SIZE;
@@ -305,12 +307,17 @@ static void WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, co
 	}
 
 	// write to file
+	bool result = false;
 	FILE *fp = fopen(celname, "wb");
-	fwrite(buf, 1, pBuf - buf, fp);
-	fclose(fp);
+	if (fp != NULL) {
+		fwrite(buf, 1, pBuf - buf, fp);
+		fclose(fp);
+		result = true;
+	}
 
 	// cleanup
 	CleanupImageData(imagedata, multi ? 1 : numimage);
+	return result;
 }
 
 /**
@@ -354,11 +361,10 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 		}
 	}
 
-	WritePNG2Cel(imagedata, numimage, multi, celname, clipped, palette, numcolors, coloroffset);
-	return true;
+	return WritePNG2Cel(imagedata, numimage, multi, celname, clipped, palette, numcolors, coloroffset);
 }
 
-static void WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* celname, BYTE *palette, int numcolors, int coloroffset)
+static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* celname, BYTE *palette, int numcolors, int coloroffset)
 {
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
 
@@ -449,11 +455,16 @@ static void WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 		*(DWORD*)&buf[4 + 4 * (n + 1)] = SwapLE32(pBuf - buf);
 	}
 	// write to file
+	bool result = false;
 	FILE *fp = fopen(celname, "wb");
-	fwrite(buf, 1, pBuf - buf, fp);
-	fclose(fp);
+	if (fp != NULL) {
+		fwrite(buf, 1, pBuf - buf, fp);
+		fclose(fp);
+		result = true;
+	}
 	// cleanup
 	CleanupImageData(imagedata, numimage);
+	return result;
 }
 
 static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset)
@@ -470,8 +481,7 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 			PNGFlip(imagedata[n], true);
 	}
 
-	WritePNG2Cl2(imagedata, numimage, celname, palette, numcolors, coloroffset);
-	return true;
+	return WritePNG2Cl2(imagedata, numimage, celname, palette, numcolors, coloroffset);
 }
 
 bool Cel2Cel(const char* destCelName, int nCel,
@@ -769,6 +779,9 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 {
 	FILE *f = fopen(celname, "rb");
 
+	if (f == NULL)
+		return false;
+
 	// read the file into memory
 	DWORD numimage;
 	fread(&numimage, 4, 1, f);
@@ -868,6 +881,10 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 static cel_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf)
 {
 	FILE *f = fopen(celname, "rb");
+
+	if (f == NULL)
+		return NULL;
+
 	// read the file into memory
 	DWORD numimage;
 	fread(&numimage, 4, 1, f);
