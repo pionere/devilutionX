@@ -9,6 +9,8 @@ typedef unsigned char BYTE;
 #define PNG_TRANSFORM_VFLIP 0x10000
 #define PNG_TRANSFORM_HFLIP 0x20000
 
+#define SUB_HEADER_SIZE		0x0A
+
 static WORD SwapLE16(WORD w)
 {
 	WORD v = 1;
@@ -288,7 +290,7 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 
 	int maxsize = HEADER_SIZE;
 	if (clipped)
-		maxsize += numimage * 0x0A;
+		maxsize += numimage * SUB_HEADER_SIZE;
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
 		maxsize += image_data->height * (2 * image_data->width);
@@ -302,11 +304,11 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 	for (int n = 0; n < numimage; n++) {
 		// add optional {CEL FRAME HEADER}
 		if (clipped) {
-			pBuf[0] = 0x0A;
+			pBuf[0] = SUB_HEADER_SIZE;
 			pBuf[1] = 0x00;
 			*(DWORD*)&pBuf[2] = 0;
 			*(DWORD*)&pBuf[6] = 0;
-			pBuf += 0x0A;
+			pBuf += SUB_HEADER_SIZE;
 		}
 		// convert to cel
 		png_image_data *image_data = &imagedata[n];
@@ -353,7 +355,6 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 
 static void WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* celname, BYTE *palette, int numcolors, int coloroffset)
 {
-	const int SUB_HEADER_SIZE = 10;
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
 
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
@@ -788,9 +789,9 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 		celdata[i].width = nWidth;
 		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
 		// skip optional {CEL FRAME HEADER}
-		if (src[0] == 0x0A && src[1] == 0) {
-			src += 0x0A;
-			celdata[i].dataSize -= 0x0A;
+		if (src[0] == SUB_HEADER_SIZE && src[1] == 0) {
+			src += SUB_HEADER_SIZE;
+			celdata[i].dataSize -= SUB_HEADER_SIZE;
 		}
 		celdata[i].data = src;
 		int pixels = 0;
