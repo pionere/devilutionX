@@ -245,50 +245,11 @@ void PNGFlip(png_image_data &imagedata, bool vertical)
 	}
 }
 
-/**
- * Convert PNG file to CEL
- * @param pngnames: the list of PNG file names
- * @param numimage: the number of frames.
- * @param multi: false - numimage equals to the number of PNG files, true - a single PNG file is split to the number of frames
- * @param celname: the name of the output CEL file
- * @param clipped: whether the optional frame header is added
- * @param palette: the palette to use
- * @param numcolors: the number of colors in the palette
- * @param coloroffset: offset to be added to the selected color
- */
-static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char *celname, bool clipped, BYTE *palette, int numcolors, int coloroffset)
+static void WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, const char* celname, bool clipped, BYTE* palette, int numcolors, int coloroffset)
 {
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
-
-	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
-	if (multi) {
-		if (!ReadPNG(pngnames[0], imagedata[0])) {
-			free(imagedata);
-			return false;
-		}
-		png_image_data *image_data = &imagedata[0];
-		if ((image_data->height % numimage) != 0) {
-			CleanupImageData(imagedata, 1);
-			return false;
-		}
-		image_data->height /= numimage;
-		for (int n = 1; n < numimage; n++) {
-			png_image_data *img_data = &imagedata[n];
-			img_data->width = image_data->width;
-			img_data->height = image_data->height;
-			img_data->row_pointers = &image_data->row_pointers[n * image_data->height];
-			img_data->data_ptr = NULL;
-		}
-	} else {
-		for (int n = 0; n < numimage; n++) {
-			if (!ReadPNG(pngnames[n], imagedata[n])) {
-				CleanupImageData(imagedata, n - 1);
-				return false;
-			}
-		}
-	}
-
 	int maxsize = HEADER_SIZE;
+
 	if (clipped)
 		maxsize += numimage * SUB_HEADER_SIZE;
 	for (int n = 0; n < numimage; n++) {
@@ -350,6 +311,50 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 
 	// cleanup
 	CleanupImageData(imagedata, multi ? 1 : numimage);
+}
+
+/**
+ * Convert PNG file to CEL
+ * @param pngnames: the list of PNG file names
+ * @param numimage: the number of frames.
+ * @param multi: false - numimage equals to the number of PNG files, true - a single PNG file is split to the number of frames
+ * @param celname: the name of the output CEL file
+ * @param clipped: whether the optional frame header is added
+ * @param palette: the palette to use
+ * @param numcolors: the number of colors in the palette
+ * @param coloroffset: offset to be added to the selected color
+ */
+static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char *celname, bool clipped, BYTE *palette, int numcolors, int coloroffset)
+{
+	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+	if (multi) {
+		if (!ReadPNG(pngnames[0], imagedata[0])) {
+			free(imagedata);
+			return false;
+		}
+		png_image_data *image_data = &imagedata[0];
+		if ((image_data->height % numimage) != 0) {
+			CleanupImageData(imagedata, 1);
+			return false;
+		}
+		image_data->height /= numimage;
+		for (int n = 1; n < numimage; n++) {
+			png_image_data *img_data = &imagedata[n];
+			img_data->width = image_data->width;
+			img_data->height = image_data->height;
+			img_data->row_pointers = &image_data->row_pointers[n * image_data->height];
+			img_data->data_ptr = NULL;
+		}
+	} else {
+		for (int n = 0; n < numimage; n++) {
+			if (!ReadPNG(pngnames[n], imagedata[n])) {
+				CleanupImageData(imagedata, n - 1);
+				return false;
+			}
+		}
+	}
+
+	WritePNG2Cel(imagedata, numimage, multi, celname, clipped, palette, numcolors, coloroffset);
 	return true;
 }
 
