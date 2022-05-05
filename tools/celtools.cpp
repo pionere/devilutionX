@@ -881,9 +881,11 @@ static cel_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 	for (int i = 0; i < numimage; i++) {
 		celdata[i].data = src;
 		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
-		celdata[i].width = nWidth;
+		//celdata[i].width = nWidth;
+		celdata[i].width = 0;
 		// skip frame-header
 		WORD subHeaderSize = SwapLE16(*(WORD*)src);
+		int blockOffset = SwapLE16(*(WORD*)&src[2]) - subHeaderSize;
 		src += subHeaderSize;
 		celdata[i].data += subHeaderSize;
 		celdata[i].dataSize -= subHeaderSize;
@@ -892,17 +894,37 @@ static cel_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 		while (src < &celdata[i].data[celdata[i].dataSize]) {
 			char width = *src++;
 			if (width >= 0) {
+				// transparent
 				pixels += width;
+				if (blockOffset != 0) {
+					blockOffset -= 1;
+					if (blockOffset == 0) {
+						// calculate width based on https://github.com/savagesteel/d1-file-formats/blob/master/PC-Mac/CL2.md#41-cl2-frame-header
+						celdata[i].width = pixels / 32;
+					}
+				}
 			} else {
 				width = -width;
 				if (width > 65) {
 					// fill
 					pixels += width - 65;
 					src++;
+					if (blockOffset != 0) {
+						blockOffset -= 2;
+						if (blockOffset == 0) {
+							celdata[i].width = pixels / 32;
+						}
+					}
 				} else {
 					// bmp
 					pixels += width;
 					src += width;
+					if (blockOffset != 0) {
+						blockOffset -= width + 1;
+						if (blockOffset == 0) {
+							celdata[i].width = pixels / 32;
+						}
+					}
 				}
 			}
 		}
@@ -911,7 +933,8 @@ static cel_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 			free(celdata);
 			return NULL;
 		}
-		if (pixels % nWidth != 0) {
+		int nWidth = celdata[i].width;
+		if (nWidth == 0 || pixels % nWidth != 0) {
 			free(buf);
 			free(celdata);
 			return NULL;
