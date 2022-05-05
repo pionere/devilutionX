@@ -1293,6 +1293,32 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 
 int main()
 {
+	/* upscale all cl2 files of listfiles.txt (fails if the output-folder structure is not prepared)
+	std::ifstream input("f:\\listfiles.txt");
+
+	std::string line;
+	while (std::getline(input, line)) {
+		size_t ls = line.size();
+		if (ls < 4)
+			continue;
+		if (line.c_str()[ls - 1] != '2')
+			continue;
+		if (line.c_str()[ls - 4] != '.')
+			continue;
+		if (line.c_str()[ls - 2] != 'l' && line.c_str()[ls - 2] != 'L')
+			continue;
+		if (line.c_str()[ls - 3] != 'c' && line.c_str()[ls - 3] != 'C')
+			continue;
+				
+		char path[256];
+		snprintf(path, 256, "f:\\MPQE\\Work\\%s", line.c_str());
+		char outpath[256];
+		snprintf(outpath, 256, "f:\\outcl2\\%s", line.c_str());
+		UpscaleCl2(path, 2, &diapal[0][0], 128, 128, outpath);
+	}
+	input.close();
+	*/
+
 	//UpscaleCl2("f:\\plrgfx\\rogue\\rhbat.CL2", 2, &diapal[0][0], 128, 128, "f:\\rhbat.CL2");
 
 	//Cl2PNG("f:\\Farrow1.CL2", 0, "f:\\", &diapal[0][0], 128);
