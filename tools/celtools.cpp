@@ -1275,7 +1275,7 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 		for (int n = 0; n < imagedata[i].height; n++) {
 			imagedata[i].row_pointers[n] = (png_bytep)&imagerows[imagedata[i].width * n];
 		}
-
+		imagedata[i].data_ptr = (png_bytep *)imagerows;
 		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
 		//lastLine += imagedata.width * (imagedata.height - 1);
 		// blit to the bottom right
