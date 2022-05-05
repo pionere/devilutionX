@@ -351,24 +351,12 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 	return true;
 }
 
-static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset)
+static void WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* celname, BYTE *palette, int numcolors, int coloroffset)
 {
 	const int SUB_HEADER_SIZE = 10;
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
 
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
-
-	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
-	for (int n = 0; n < numimage; n++) {
-		if (!ReadPNG(pngnames[n], imagedata[n])) {
-			CleanupImageData(imagedata, n - 1);
-			return false;
-		}
-		if (transform & PNG_TRANSFORM_HFLIP)
-			PNGFlip(imagedata[n], false);
-		if (transform & PNG_TRANSFORM_VFLIP)
-			PNGFlip(imagedata[n], true);
-	}
 
 	int maxsize = HEADER_SIZE;
 	for (int n = 0; n < numimage; n++) {
@@ -460,6 +448,23 @@ static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const ch
 	fclose(fp);
 	// cleanup
 	CleanupImageData(imagedata, numimage);
+}
+
+static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset)
+{
+	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+	for (int n = 0; n < numimage; n++) {
+		if (!ReadPNG(pngnames[n], imagedata[n])) {
+			CleanupImageData(imagedata, n - 1);
+			return false;
+		}
+		if (transform & PNG_TRANSFORM_HFLIP)
+			PNGFlip(imagedata[n], false);
+		if (transform & PNG_TRANSFORM_VFLIP)
+			PNGFlip(imagedata[n], true);
+	}
+
+	WritePNG2Cl2(imagedata, numimage, celname, palette, numcolors, coloroffset);
 	return true;
 }
 
