@@ -414,97 +414,95 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 	BYTE* pBuf = &buf[headerSize];
 	int idx = 0;
 	for (int i = 0; i < groupNum; i++) {
-	// convert to cl2
 		DWORD ni = celdata[i].groupSize;
 		*(DWORD*)&hdr[0] = SwapLE32(ni);
-		//int HEADER_SIZE = 4 + 4 + ni * 4;
-		//*(DWORD*)&hdr[4] = SwapLE32(HEADER_SIZE);
 		*(DWORD*)&hdr[4] = SwapLE32(pBuf - hdr);
 
-	for (int n = 0; n < ni; n++, idx++) {
-		png_image_data *image_data = &imagedata[idx];
-		BYTE *pHeader = pBuf;
-		// add CL2 FRAME HEADER
-		pBuf[0] = SUB_HEADER_SIZE;
-		pBuf[1] = 0x00;
-		*(DWORD*)&pBuf[2] = 0;
-		*(DWORD*)&pBuf[6] = 0;
-		pBuf += SUB_HEADER_SIZE;
+		for (int n = 0; n < ni; n++, idx++) {
+			// convert one image to cl2-data
+			png_image_data *image_data = &imagedata[idx];
+			BYTE *pHeader = pBuf;
+			// add CL2 FRAME HEADER
+			pBuf[0] = SUB_HEADER_SIZE;
+			pBuf[1] = 0x00;
+			*(DWORD*)&pBuf[2] = 0;
+			*(DWORD*)&pBuf[6] = 0;
+			pBuf += SUB_HEADER_SIZE;
 
-		BYTE *pHead = pBuf;
-		BYTE col, lastCol;
-		BYTE colMatches = 0;
-		bool alpha = false;
-		bool first = TRUE;
-		for (int i = 1; i <= image_data->height; i++) {
-			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-			if (i == 32 + 1) { // TODO: write more entries if necessary?
-				pHead = pBuf;
-				*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+			BYTE *pHead = pBuf;
+			BYTE col, lastCol;
+			BYTE colMatches = 0;
+			bool alpha = false;
+			bool first = TRUE;
+			for (int i = 1; i <= image_data->height; i++) {
+				RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
+				if (i == 32 + 1) { // TODO: write more entries if necessary?
+					pHead = pBuf;
+					*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 
-				colMatches = 0;
-				alpha = false;
-				first = TRUE;
-			}
-			for (int j = 0; j < image_data->width; j++) {
-				if (data[j].a == 255) {
-					// add opaque pixel
-					col = GetPalColor(data[j], palette, numcolors, coloroffset);
-					if (alpha || first || col != lastCol)
-						colMatches = 1;
-					else
-						colMatches++;
-					if (colMatches < RLE_LEN || (char)*pHead <= -127) {
-						/*if (colMatches == RLE_LEN - 1 && pBuf - pHead == RLE_LEN - 1) {
-							// RLE encode the whole 'line'
-							memset(pBuf - (RLE_LEN - 2), 0, RLE_LEN - 2);
-							*pHead += RLE_LEN - 2;
-							if (*pHead != 0) {
-								pHead = pBuf - (RLE_LEN - 2);
+					colMatches = 0;
+					alpha = false;
+					first = TRUE;
+				}
+				for (int j = 0; j < image_data->width; j++) {
+					if (data[j].a == 255) {
+						// add opaque pixel
+						col = GetPalColor(data[j], palette, numcolors, coloroffset);
+						if (alpha || first || col != lastCol)
+							colMatches = 1;
+						else
+							colMatches++;
+						if (colMatches < RLE_LEN || (char)*pHead <= -127) {
+							/*if (colMatches == RLE_LEN - 1 && pBuf - pHead == RLE_LEN - 1) {
+								// RLE encode the whole 'line'
+								memset(pBuf - (RLE_LEN - 2), 0, RLE_LEN - 2);
+								*pHead += RLE_LEN - 2;
+								if (*pHead != 0) {
+									pHead = pBuf - (RLE_LEN - 2);
+								}
+								*pHead = -65 - (RLE_LEN - 2);
+								pBuf = pHead + 1;
+							} else*/ {
+								// bmp encoding
+								if (alpha || (char)*pHead <= -65) {
+									pHead = pBuf;
+									pBuf++;
+								}
 							}
-							*pHead = -65 - (RLE_LEN - 2);
-							pBuf = pHead + 1;
-						} else*/ {
-							// bmp encoding
-							if (alpha || (char)*pHead <= -65) {
-								pHead = pBuf;
+							*pBuf = col;
+							pBuf++;
+						} else {
+							// RLE encoding
+							if (colMatches == RLE_LEN) {
+								memset(pBuf - (RLE_LEN - 1), 0, RLE_LEN - 1);
+								*pHead += RLE_LEN - 1;
+								if (*pHead != 0) {
+									pHead = pBuf - (RLE_LEN - 1);
+								}
+								*pHead = -65 - (RLE_LEN - 1);
+								pBuf = pHead + 1;
+								*pBuf = col;
 								pBuf++;
 							}
 						}
-						*pBuf = col;
-						pBuf++;
+						--*pHead;
+
+						lastCol = col;
+						alpha = false;
 					} else {
-						// RLE encoding
-						if (colMatches == RLE_LEN) {
-							memset(pBuf - (RLE_LEN - 1), 0, RLE_LEN - 1);
-							*pHead += RLE_LEN - 1;
-							if (*pHead != 0) {
-								pHead = pBuf - (RLE_LEN - 1);
-							}
-							*pHead = -65 - (RLE_LEN - 1);
-							pBuf = pHead + 1;
-							*pBuf = col;
+						// add transparent pixel
+						if (!alpha || (char)*pHead >= 127) {
+							pHead = pBuf;
 							pBuf++;
 						}
+						++*pHead;
+						alpha = true;
 					}
-					--*pHead;
-
-					lastCol = col;
-					alpha = false;
-				} else {
-					// add transparent pixel
-					if (!alpha || (char)*pHead >= 127) {
-						pHead = pBuf;
-						pBuf++;
-					}
-					++*pHead;
-					alpha = true;
+					first = FALSE;
 				}
-				first = FALSE;
 			}
+			*(DWORD*)&hdr[4 + 4 * (n + 1)] = SwapLE32(pBuf - hdr);
 		}
-		*(DWORD*)&hdr[4 + 4 * (n + 1)] = SwapLE32(pBuf - hdr);
-	}
 		hdr += 4 + 4 * (ni + 1);
 	}
 	// write to file
