@@ -854,7 +854,7 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 	return true;
 }
 
-bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, BYTE *palette, int coloroffset)
+static cel_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf)
 {
 	FILE *f = fopen(celname, "rb");
 	// read the file into memory
@@ -909,15 +909,27 @@ bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, B
 		if (src != &celdata[i].data[celdata[i].dataSize]) {
 			free(buf);
 			free(celdata);
-			return false;
+			return NULL;
 		}
 		if (pixels % nWidth != 0) {
 			free(buf);
 			free(celdata);
-			return false;
+			return NULL;
 		}
 		celdata[i].height = pixels / nWidth;
 	}
+	*nImage = numimage;
+	*oBuf = buf;
+	return celdata;
+}
+
+bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, BYTE *palette, int coloroffset)
+{
+	int numimage;
+	BYTE* buf;
+	cel_image_data* celdata = ReadCl2Data(celname, &numimage, &buf);
+	if (celdata == NULL)
+		return false;
 
 	// write the png(s)
 	nCel--;
