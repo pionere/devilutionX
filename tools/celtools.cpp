@@ -1032,7 +1032,7 @@ static cl2_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 	return celdata;
 }
 
-bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, BYTE *palette, int coloroffset)
+bool Cl2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palette, int coloroffset)
 {
 	int numimage;
 	BYTE* buf;
@@ -1100,7 +1100,7 @@ BYTE* LoadPal(const char* palFile)
 
 int main()
 {
-	//Cl2PNG("f:\\Farrow1.CL2", 0, 96, "f:\\", &diapal[0][0], 128);
+	//Cl2PNG("f:\\Farrow1.CL2", 0, "f:\\", &diapal[0][0], 128);
 
 	/*const char* sffilenames[] = {
 		"f:\\Splash_CL2_frame0000.png",
