@@ -767,7 +767,7 @@ static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset)
 	return result;
 }
 
-static void CelBlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE *palette, int coloroffset)
+static void CelBlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, int bufferWidth, BYTE *palette, int coloroffset)
 {
 	int i, w, BUFFER_WIDTH;
 	char width;
@@ -776,7 +776,8 @@ static void CelBlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 
 	src = pRLEBytes;
 	dst = pDecodeTo;
-	w = BUFFER_WIDTH = nWidth;
+	w = nWidth;
+	BUFFER_WIDTH = bufferWidth;
 
 	for (; src != &pRLEBytes[nDataSize]; dst -= BUFFER_WIDTH + w) {
 		for (i = w; i != 0;) {
@@ -1174,7 +1175,7 @@ bool Cel2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palett
 				imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
 			}
 			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
-			CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, palette, coloroffset);
+			CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
 
 			// write a single png
 			char destFile[256];
@@ -1525,6 +1526,40 @@ void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier)
 	}
 }
 
+void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolors, int coloroffset, const char* resCelName)
+{
+	int numimage;
+	BYTE* buf;
+	cel_image_data* celdata = ReadCelData(celname, &numimage, &buf);
+	if (celdata == NULL)
+		return;
+
+	// prepare pngdata
+	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+	for (int i = 0; i < numimage; i++) {
+		imagedata[i].width = celdata[i].width * multiplier;
+		imagedata[i].height = celdata[i].height * multiplier;
+		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
+		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
+		for (int n = 0; n < imagedata[i].height; n++) {
+			imagedata[i].row_pointers[n] = (png_bytep)&imagerows[imagedata[i].width * n];
+		}
+		imagedata[i].data_ptr = (png_bytep)imagerows;
+		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
+		//lastLine += imagedata.width * (imagedata.height - 1);
+		// blit to the bottom right
+		CelBlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset);
+	}
+
+	free(buf);
+
+	// upscale the png data
+	UpscalePNGImages(imagedata, numimage, multiplier);
+
+	// convert pngs back to cel
+	WritePNG2Cel(imagedata, numimage, celdata, false, resCelName, palette, numcolors, coloroffset);
+}
+
 void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolors, int coloroffset, const char* resCelName)
 {
 	int numimage;
@@ -1561,6 +1596,36 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 
 int main()
 {
+	/* upscale regular cel files of listfiles.txt
+		- fails if the output-folder structure is not prepared
+		- skips Levels and cow.CEL manually
+	// #include <fstream>
+	std::ifstream input("f:\\listfiles.txt");
+
+	std::string line;
+	while (std::getline(input, line)) {
+		size_t ls = line.size();
+		if (ls <= 4)
+			continue;
+		if (line[0] == '_')
+			continue;
+		if (!stringicomp(line.substr(line.length() - 4, 4).c_str(), ".CEL"))
+			continue;
+		if (ls > 6 && stringicomp(line.substr(0, 6).c_str(), "Levels"))
+			continue;
+		if (ls > 7 && stringicomp(line.substr(1, 6).c_str(), "Levels"))
+			continue;
+		if (ls > 7 && stringicomp(line.substr(line.length() - 7, 7).c_str(), "cow.CEL"))
+			continue;
+
+		char path[256];
+		snprintf(path, 256, "F:\\MPQE\\Work\\%s", line.c_str());
+		char outpath[256];
+		snprintf(outpath, 256, "F:\\outcel\\%s", line.c_str());
+		UpscaleCel(path, 1, &diapal[0][0], 128, 128, outpath);
+	}
+	input.close();
+	*/
 	/* upscale all cl2 files of listfiles.txt (fails if the output-folder structure is not prepared)
 	// #include <fstream>
 	std::ifstream input("f:\\listfiles.txt");
