@@ -1,6 +1,7 @@
 #include <png.h>
 #include <zlib.h>
 #include <stdint.h>
+#include <string>
 
 typedef uint32_t DWORD;
 typedef uint16_t WORD;
@@ -25,6 +26,26 @@ static DWORD SwapLE32(DWORD dw)
 	if (((BYTE*)&v)[3] == 0)
 		return dw;
 	return ((dw >> 24) & 0xFF) | ((dw << 24) & 0xFF000000) | ((dw >> 8) & 0x00FF00) | ((dw << 8) & 0xFF0000);
+}
+
+static bool stringicomp(const char* str1, const char* str2)
+{
+	int len = strlen(str1); 
+	if (len != strlen(str2))
+		return false;
+	for (int i = 0; i < len; i++) {
+		if (str1[i] == str2[i])
+			continue;
+		if (str1[i] <= 'Z' && str1[i] >= 'A') {
+			if (str2[i] == str1[i] - 'A' + 'a')
+				continue;
+		} else if (str1[i] <= 'z' && str1[i] >= 'a') {
+			if (str2[i] == str1[i] - 'a' + 'A')
+				continue;
+		}
+		return false;
+	}
+	return true;
 }
 
 BYTE diapal[128][3] = {
@@ -388,7 +409,7 @@ struct cl2_image_data {
 	int groupSize;
 	BYTE* data;
 };
-static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* celname, BYTE *palette, int numcolors, int coloroffset)
+static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data* celdata, const char* celname, BYTE *palette, int numcolors, int coloroffset)
 {
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
 
@@ -450,7 +471,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 			BYTE col, lastCol;
 			BYTE colMatches = 0;
 			bool alpha = false;
-			bool first = TRUE;
+			bool first = true;
 			for (int i = 1; i <= image_data->height; i++) {
 				RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
 				if (i == 32 + 1) { // TODO: write more entries if necessary?
@@ -459,7 +480,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 
 					colMatches = 0;
 					alpha = false;
-					first = TRUE;
+					first = true;
 				}
 				for (int j = 0; j < image_data->width; j++) {
 					if (data[j].a == 255) {
@@ -515,7 +536,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, const char* ce
 						++*pHead;
 						alpha = true;
 					}
-					first = FALSE;
+					first = false;
 				}
 			}
 			*(DWORD*)&hdr[4 + 4 * (n + 1)] = SwapLE32(pBuf - hdr);
@@ -774,7 +795,7 @@ static void CelBlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 	}
 }
 
-static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE *palette, int coloroffset)
+static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, int bufferWidth, BYTE *palette, int coloroffset)
 {
 	int w, BUFFER_WIDTH;
 	char width;
@@ -784,7 +805,8 @@ static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 
 	src = pRLEBytes;
 	dst = pDecodeTo;
-	w = BUFFER_WIDTH = nWidth;
+	w = nWidth;
+	BUFFER_WIDTH = bufferWidth;
 
 	while (nDataSize != 0) { 
 		width = *src++;
@@ -1149,7 +1171,7 @@ static cl2_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 		}
 		celdata[i].height = pixels / nWidth;
 	}
-
+	}
 	free(groupOffsets);
 
 	*nImage = numimage;
@@ -1181,7 +1203,7 @@ bool Cl2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palette
 
 			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 			//lastLine += imagedata.width * (imagedata.height - 1);
-			Cl2BlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, palette, coloroffset);
+			Cl2BlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
 			
 			// write a single png
 			char destFile[256];
@@ -1328,15 +1350,9 @@ int main()
 		size_t ls = line.size();
 		if (ls < 4)
 			continue;
-		if (line.c_str()[ls - 1] != '2')
+		if (!stringicomp(line.substr(line.length() - 4, 4).c_str(), ".CL2"))
 			continue;
-		if (line.c_str()[ls - 4] != '.')
-			continue;
-		if (line.c_str()[ls - 2] != 'l' && line.c_str()[ls - 2] != 'L')
-			continue;
-		if (line.c_str()[ls - 3] != 'c' && line.c_str()[ls - 3] != 'C')
-			continue;
-				
+
 		char path[256];
 		snprintf(path, 256, "f:\\MPQE\\Work\\%s", line.c_str());
 		char outpath[256];
