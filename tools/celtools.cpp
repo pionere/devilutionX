@@ -247,14 +247,21 @@ void PNGFlip(png_image_data &imagedata, bool vertical)
 	}
 }
 
-static bool WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, const char* celname, bool clipped, BYTE* palette, int numcolors, int coloroffset)
+typedef struct cel_image_data {
+	DWORD dataSize;
+	DWORD width;
+	DWORD height;
+	bool clipped;
+	BYTE* data;
+} cel_image_data;
+static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data* celdata, bool multi, const char* celname, BYTE* palette, int numcolors, int coloroffset)
 {
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
 	int maxsize = HEADER_SIZE;
 
-	if (clipped)
-		maxsize += numimage * SUB_HEADER_SIZE;
 	for (int n = 0; n < numimage; n++) {
+		if (celdata[n].clipped)
+			maxsize += SUB_HEADER_SIZE;
 		png_image_data *image_data = &imagedata[n];
 		maxsize += image_data->height * (2 * image_data->width);
 	}
@@ -267,7 +274,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, co
 	for (int n = 0; n < numimage; n++) {
 		// add optional {CEL FRAME HEADER}
 		BYTE *pHeader = pBuf;
-		if (clipped) {
+		if (celdata[n].clipped) {
 			pBuf[0] = SUB_HEADER_SIZE;
 			pBuf[1] = 0x00;
 			*(DWORD*)&pBuf[2] = 0;
@@ -282,7 +289,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, co
 			pBuf++;
 			bool alpha = false;
 			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-			if (i == 32 + 1 && clipped) { // TODO: write more entries if necessary?
+			if (i == 32 + 1 && celdata[n].clipped) { // TODO: write more entries if necessary?
 				*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 			}
 			for (int j = 0; j < image_data->width; j++) {
@@ -320,7 +327,9 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, co
 	}
 
 	// cleanup
+	free(buf);
 	CleanupImageData(imagedata, multi ? 1 : numimage);
+	free(celdata);
 	return result;
 }
 
@@ -337,7 +346,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, co
  */
 static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char *celname, bool clipped, BYTE *palette, int numcolors, int coloroffset)
 {
-	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	if (multi) {
 		if (!ReadPNG(pngnames[0], imagedata[0])) {
 			free(imagedata);
@@ -365,7 +374,11 @@ static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char 
 		}
 	}
 
-	return WritePNG2Cel(imagedata, numimage, multi, celname, clipped, palette, numcolors, coloroffset);
+	cel_image_data *celdata = (cel_image_data*)malloc(sizeof(cel_image_data) * numimage);
+	for (int n = 0; n < numimage; n++) {
+		celdata[n].clipped = clipped;
+	}
+	return WritePNG2Cel(imagedata, numimage, celdata, multi, celname, palette, numcolors, coloroffset);
 }
 
 struct cl2_image_data {
@@ -830,12 +843,6 @@ static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 	}
 }
 
-struct cel_image_data {
-	DWORD dataSize;
-	DWORD width;
-	DWORD height;
-	BYTE* data;
-};
 bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, BYTE *palette, int coloroffset)
 {
 	FILE *f = fopen(celname, "rb");
@@ -867,8 +874,10 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 	for (int i = 0; i < numimage; i++) {
 		celdata[i].width = nWidth;
 		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
+		celdata[i].clipped = false;
 		// skip optional {CEL FRAME HEADER}
 		if (src[0] == SUB_HEADER_SIZE && src[1] == 0) {
+			celdata[i].clipped = true;
 			src += SUB_HEADER_SIZE;
 			celdata[i].dataSize -= SUB_HEADER_SIZE;
 		}
