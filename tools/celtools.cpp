@@ -103,7 +103,7 @@ typedef struct png_image_data {
 	png_uint_32 width;
 	png_uint_32 height;
 	png_bytep *row_pointers;
-	png_bytep *data_ptr;
+	png_bytep data_ptr;
 } png_image_data;
 
 static void CleanupImageData(png_image_data* imagedata, int numimages)
@@ -1275,7 +1275,7 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 		for (int n = 0; n < imagedata[i].height; n++) {
 			imagedata[i].row_pointers[n] = (png_bytep)&imagerows[imagedata[i].width * n];
 		}
-		imagedata[i].data_ptr = (png_bytep *)imagerows;
+		imagedata[i].data_ptr = (png_bytep)imagerows;
 		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
 		//lastLine += imagedata.width * (imagedata.height - 1);
 		// blit to the bottom right
@@ -1294,6 +1294,7 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 int main()
 {
 	/* upscale all cl2 files of listfiles.txt (fails if the output-folder structure is not prepared)
+	// #include <fstream>
 	std::ifstream input("f:\\listfiles.txt");
 
 	std::string line;
