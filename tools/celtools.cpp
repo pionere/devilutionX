@@ -1,7 +1,10 @@
 #include <png.h>
 #include <zlib.h>
 #include <stdint.h>
+#include <algorithm>
 #include <string>
+#include <set>
+#include <map>
 
 typedef uint32_t DWORD;
 typedef uint16_t WORD;
@@ -865,7 +868,224 @@ static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 	}
 }
 
-cel_image_data* ReadCelData(const char* celname, int nWidth, int* nImage, BYTE** oBuf)
+static bool CelValidWidth(int w, int pixels, std::map<int, int>& lineBreaks, std::map<int, int>& colorBreaks)
+{
+	// check if width is consistent with the number of pixels
+	if (pixels % w != 0)
+		return false;
+	// check if every line-break is consistent with the width
+	for (auto lit = lineBreaks.begin(); lit != lineBreaks.end(); ++lit) {
+		if (lit->second % w != 0)
+			return false;
+	}
+	// check if there is a break (line or color) at every block-end
+	for (int i = w; i < pixels; i += w) {
+		auto lit = lineBreaks.begin();
+		for ( ; lit != lineBreaks.end(); ++lit) {
+			if (lit->second == i)
+				break;
+		}
+		if (lit != lineBreaks.end())
+			continue;
+		auto cit = colorBreaks.begin();
+		for ( ; cit != colorBreaks.end(); ++cit) {
+			if (cit->second == i)
+				break;
+		}
+		if (cit == colorBreaks.end())
+			return false;
+	}
+	return true;
+}
+
+/*
+ * collect line breaks of a CEL-frame.
+ * @param frameData: the BYTE array of the frame
+ * @param frameLen: the length of the BYTE array
+ * @param lineBreaks: the collected definite line break
+ * @param colorBreaks: the collected possible line break
+ * @param pixels: the number of pixels in the image
+ * @return true if parsing is successful
+ */
+static bool CelCollectLineBreaks(BYTE* frameData, int frameLen, std::map<int, int>& lineBreaks, std::map<int, int>& colorBreaks, int* pixels)
+{
+	BYTE* frameEnd = &frameData[frameLen];
+	BYTE* frameBegin = frameData;
+	int counter = 0;
+	char lastLen;
+	bool alpha = false;
+
+	while (frameData < frameEnd) {
+		char len = *frameData;
+		if (counter != 0) {
+			if (len >= 0) {
+				if (!alpha && lastLen != CHAR_MAX) {
+					lineBreaks[(size_t)frameData - (size_t)frameBegin] = counter;
+				} else {
+					colorBreaks[(size_t)frameData - (size_t)frameBegin] = counter;
+				}
+				frameData += len + 1;
+				counter += len;
+			} else {
+				if (alpha && lastLen != CHAR_MIN) {
+					lineBreaks[(size_t)frameData - (size_t)frameBegin] = counter;
+				} else {
+					colorBreaks[(size_t)frameData - (size_t)frameBegin] = counter;
+				}
+				frameData++;
+				counter -= len;
+			}
+		} else {
+			if (len >= 0) {
+				frameData += len + 1;
+				counter += len;
+			} else {
+				frameData++;
+				counter -= len;
+			}
+		}
+		lastLen = len;
+		alpha = len < 0;
+	}
+	*pixels = counter;
+	return frameData == frameEnd;
+}
+
+static int CelGetFrameWidth(bool clipped, BYTE* frameData, int frameLen)
+{
+	int pixels;
+	std::map<int, int> lineBreaks, colorBreaks;
+	if (clipped) {
+		if (!CelCollectLineBreaks(&frameData[SUB_HEADER_SIZE], frameLen - SUB_HEADER_SIZE, lineBreaks, colorBreaks, &pixels)) {
+			return 0; // failed to parse
+		}
+		int offset = SwapLE16(*(WORD*)&frameData[2]);
+		if (offset != 0 && offset > SUB_HEADER_SIZE) {
+			offset -= SUB_HEADER_SIZE;
+			int w;
+			auto lit = lineBreaks.find(offset);
+			if (lit != lineBreaks.end()) {
+				w = lit->second;
+			} else {
+				auto cit = colorBreaks.find(offset);
+				if (cit != colorBreaks.end())
+					w = cit->second;
+				else
+					w = 1; // dummy value to skip the further testing
+			}
+			if (w % 32 == 0) {
+				w /= 32;
+				if (CelValidWidth(w, pixels, lineBreaks, colorBreaks))
+					return w;
+			}
+		}
+	} else {
+		if (!CelCollectLineBreaks(&frameData[0], frameLen, lineBreaks, colorBreaks, &pixels)) {
+			return 0; // failed to parse
+		}
+	}
+	std::set<int> candidates;
+	if (!lineBreaks.empty()) {
+		lineBreaks[0] = 0;
+		lineBreaks[frameLen] = pixels;
+		// the length between two linebreaks could be the real width
+		for (auto lit = lineBreaks.begin(); lit != lineBreaks.end(); lit++) {
+			auto llit = lit;
+			for (llit++; llit != lineBreaks.end(); llit++) {
+				int w = (llit->second - lit->second);
+				if (CelValidWidth(w, pixels, lineBreaks, colorBreaks)) {
+					// check if there is a break in between as possible 'hidden' linebreak
+					auto cit = colorBreaks.begin();
+					for ( ; cit != colorBreaks.end(); cit++) {
+						if (cit->second > lit->second)
+							break; // skip preceeding color-breaks
+					}
+					auto ccit = cit;
+					for ( ; cit != colorBreaks.end(); cit++) {
+						if (cit->second > llit->second)
+							continue; // skip color-breaks after the second linebreak
+						int ww = std::min(llit->second - cit->second, cit->second - lit->second);
+						if (CelValidWidth(ww, pixels, lineBreaks, colorBreaks))
+							break;
+					}
+					if (cit == colorBreaks.end())
+						return w;
+					candidates.insert(w);
+				}
+			}
+		}
+		candidates.clear();
+	}
+	// can not rely on definite line-breaks -> try all possible widths collected from the breaks
+	std::map<int, int> allBreaks = lineBreaks;
+	allBreaks.insert(colorBreaks.begin(), colorBreaks.end());
+	for (auto it = allBreaks.begin(); it != allBreaks.end(); it++) {
+		auto ait = it;
+		for (ait++; ait != allBreaks.end(); ait++) {
+			int w = ait->second - it->second;
+			candidates.insert(w);
+		}
+	}
+	// find the smallest possible width
+	for (auto it = candidates.begin(); it != candidates.end(); it++) {
+		if (CelValidWidth(*it, pixels, lineBreaks, colorBreaks))
+			return *it;
+	}
+	return 0;
+}
+
+static bool IsCelFrameClipped(BYTE* frameData, int frameLen)
+{
+	if (frameData[0] != SUB_HEADER_SIZE || frameData[1] != 0)
+		return false; // wrong header
+	if (frameLen <= SUB_HEADER_SIZE)
+		return false; // not enough data
+	int pixels;
+	std::map<int, int> lineBreaks, colorBreaks;
+	if (!CelCollectLineBreaks(&frameData[0], frameLen, lineBreaks, colorBreaks, &pixels))
+		return true; // can not be parsed as a non-clipped frame
+	lineBreaks.clear(); colorBreaks.clear();
+	if (!CelCollectLineBreaks(&frameData[SUB_HEADER_SIZE], frameLen - SUB_HEADER_SIZE, lineBreaks, colorBreaks, &pixels))
+		return false; // can not be parsed as a clipped frame
+	int lastOffset = 0; int nWidth = 0;
+	for (int i = 1; i < SUB_HEADER_SIZE / 2; i++) {
+		int offset = SwapLE16(*(WORD*)&frameData[i * 2]);
+		if (offset == 0)
+			break;
+		if (offset <= SUB_HEADER_SIZE)
+			return false; // invalid header
+		offset = offset - SUB_HEADER_SIZE;
+		if (offset < lastOffset)
+			return false; // invalid header
+		int w;
+		auto lit = lineBreaks.find(offset);
+		if (lit != lineBreaks.end()) {
+			w = lit->second;
+		} else {
+			auto cit = colorBreaks.find(offset);
+			if (cit == colorBreaks.end())
+				return false; // no line break at the specified location
+			w = cit->second;
+		}
+		if (w % (32 * i) != 0)
+			return false; // line break at a wrong location
+		w /= 32 * i;
+		if (nWidth != w && nWidth != 0)
+			return false; // mismatching widths
+		if (w == 0 || pixels % w != 0)
+			return false; // wrong width
+		nWidth = w;
+		lastOffset = offset;
+	}
+	if (nWidth != 0) {
+		return CelValidWidth(nWidth, pixels, lineBreaks, colorBreaks);
+	}
+
+	nWidth = CelGetFrameWidth(true, frameData, frameLen);
+	return nWidth != 0;
+}
+
+cel_image_data* ReadCelData(const char* celname, int* nImage, BYTE** oBuf)
 {
 	FILE *f = fopen(celname, "rb");
 
@@ -894,12 +1114,11 @@ cel_image_data* ReadCelData(const char* celname, int nWidth, int* nImage, BYTE**
 	// prepare celdata info
 	BYTE *src = buf;
 	for (int i = 0; i < numimage; i++) {
-		celdata[i].width = nWidth;
 		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
-		celdata[i].clipped = false;
+		celdata[i].clipped = IsCelFrameClipped(src, celdata[i].dataSize);
+		celdata[i].width = CelGetFrameWidth(celdata[i].clipped, src, celdata[i].dataSize);
 		// skip optional {CEL FRAME HEADER}
-		if (src[0] == SUB_HEADER_SIZE && src[1] == 0) {
-			celdata[i].clipped = true;
+		if (celdata[i].clipped) {
 			src += SUB_HEADER_SIZE;
 			celdata[i].dataSize -= SUB_HEADER_SIZE;
 		}
@@ -919,7 +1138,8 @@ cel_image_data* ReadCelData(const char* celname, int nWidth, int* nImage, BYTE**
 			free(celdata);
 			return false;
 		}
-		if (pixels % nWidth != 0) {
+		int nWidth = celdata[i].width;
+		if (nWidth == 0 || pixels % nWidth != 0) {
 			free(buf);
 			free(celdata);
 			return false;
@@ -932,11 +1152,11 @@ cel_image_data* ReadCelData(const char* celname, int nWidth, int* nImage, BYTE**
 	return celdata;
 }
 
-bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, BYTE *palette, int coloroffset)
+bool Cel2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palette, int coloroffset)
 {
 	int numimage;
 	BYTE* buf;
-	cel_image_data* celdata = ReadCelData(celname, nWidth, &numimage, &buf);
+	cel_image_data* celdata = ReadCelData(celname, &numimage, &buf);
 	if (celdata == NULL)
 		return false;
 
@@ -1348,7 +1568,9 @@ int main()
 	std::string line;
 	while (std::getline(input, line)) {
 		size_t ls = line.size();
-		if (ls < 4)
+		if (ls <= 4)
+			continue;
+		if (line[0] == '_')
 			continue;
 		if (!stringicomp(line.substr(line.length() - 4, 4).c_str(), ".CL2"))
 			continue;
@@ -1408,7 +1630,7 @@ int main()
 		"f:\\Farrow1_CL2_frame0003_.png"};
 	PNG2Cl2(ffilenames, 4, PNG_TRANSFORM_IDENTITY, "f:\\Farrow1__.CL2", &diapal[0][0], 128, 128);
 
-	Cel2PNG("f:\\SpellBkB.CEL", 0, 76, "f:\\", &diapal[0][0], 128);
+	Cel2PNG("f:\\SpellBkB.CEL", 0, "f:\\", &diapal[0][0], 128);
 
 	const char* filenames[] = { "f:\\Farrow1.png" };
 	PNG2Cl2(filenames, 1, PNG_TRANSFORM_IDENTITY, "f:\\Farrow1.CL2", &diapal[0][0], 128, 128);
@@ -1444,7 +1666,7 @@ int main()
 	f = NULL;*/
 
 	/*BYTE* pal = LoadPal("f:\\L1_1.PAL");
-	Cel2PNG("f:\\L1Doors.CEL", 0, 64, "f:\\", pal, 256);
+	Cel2PNG("f:\\L1Doors.CEL", 0, "f:\\", pal, 256);
 	const char* doors[] = {
 			"f:\\L1Doors_CEL_frame0000.png",
 			"f:\\L1Doors_CEL_frame0001.png",
