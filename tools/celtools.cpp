@@ -843,7 +843,7 @@ static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 	}
 }
 
-bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, BYTE *palette, int coloroffset)
+cel_image_data* ReadCelData(const char* celname, int nWidth, int* nImage, BYTE** oBuf)
 {
 	FILE *f = fopen(celname, "rb");
 
@@ -904,6 +904,19 @@ bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, 
 		}
 		celdata[i].height = pixels / nWidth;
 	}
+
+	*nImage = numimage;
+	*oBuf = buf;
+	return celdata;
+}
+
+bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, BYTE *palette, int coloroffset)
+{
+	int numimage;
+	BYTE* buf;
+	cel_image_data* celdata = ReadCelData(celname, nWidth, &numimage, &buf);
+	if (celdata == NULL)
+		return false;
 
 	// write the png(s)
 	nCel--;
