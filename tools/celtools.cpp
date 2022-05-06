@@ -266,6 +266,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, co
 	BYTE *pBuf = &buf[HEADER_SIZE];
 	for (int n = 0; n < numimage; n++) {
 		// add optional {CEL FRAME HEADER}
+		BYTE *pHeader = pBuf;
 		if (clipped) {
 			pBuf[0] = SUB_HEADER_SIZE;
 			pBuf[1] = 0x00;
@@ -281,6 +282,9 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, bool multi, co
 			pBuf++;
 			bool alpha = false;
 			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
+			if (i == 32 + 1 && clipped) { // TODO: write more entries if necessary?
+				*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+			}
 			for (int j = 0; j < image_data->width; j++) {
 				if (data[j].a == 255) {
 					// add opaque pixel
