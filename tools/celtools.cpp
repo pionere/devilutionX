@@ -1164,7 +1164,18 @@ static cel_image_data* ReadCelData(const char* celname, int* nImage, BYTE** oBuf
 	return celdata;
 }
 
-bool Cel2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palette, int coloroffset)
+/*
+ * Convert a regular CEL file to PNG(s)
+ * @param celname: the path of the CEL file
+ * @param nCel: the frame which should be exported. 0 to export the whole content of the CEL file
+ * @param multi:
+ *        false: each frame is written to a separate png file
+ *        true: the whole content is written to a single png file
+ * @param destFolder: the output folder
+ * @param palette: the palette to be used
+ * @param coloroffset: the offset to be applied when selecting a color from the palette
+ */
+bool Cel2PNG(const char* celname, int nCel, bool multi, const char* destFolder, BYTE *palette, int coloroffset)
 {
 	int numimage;
 	BYTE* buf;
@@ -1173,6 +1184,50 @@ bool Cel2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palett
 		return false;
 
 	// write the png(s)
+	if (multi) {
+		//  find the required width
+		DWORD width = 0;
+		for (int i = 0; i < numimage; i++) {
+			width = std::max(celdata[i].width, width);
+		}
+		// blit the frames to png_image_data
+		png_image_data imagedata;
+		imagedata.width = width;
+		imagedata.height = 0;
+		imagedata.data_ptr = NULL;
+		imagedata.row_pointers = NULL;
+		for (int i = 0; i < numimage; i++) {
+			// prepare pngdata
+			imagedata.height += celdata[i].height;
+			imagedata.data_ptr = (png_bytep)realloc(imagedata.data_ptr, sizeof(RGBA) * imagedata.height * imagedata.width);
+			imagedata.row_pointers = (png_bytep*)realloc(imagedata.row_pointers, imagedata.height * sizeof(void*));
+			RGBA *imagerows = (RGBA *)imagedata.data_ptr;
+			for (int n = 0; n < imagedata.height; n++) {
+				imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
+			}
+			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
+			//lastLine += imagedata.width * (imagedata.height - 1);
+			CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, celdata[i].width, imagedata.width, palette, coloroffset);
+		}
+
+		// write a single png
+		char destFile[256];
+		int idx = strlen(celname) - 1;
+		while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
+			idx--;
+		int fnc = snprintf(destFile, 246, "%s%s", destFolder, &celname[idx + 1]);
+		snprintf(&destFile[fnc - 3], 10, "png");
+
+		if (!WritePNG(destFile, imagedata)) {
+			free(imagedata.row_pointers);
+			free(imagedata.data_ptr);
+			free(buf);
+			free(celdata);
+			return false;
+		}
+		free(imagedata.row_pointers);
+		free(imagedata.data_ptr);
+	} else {
 	nCel--;
 	png_image_data imagedata;
 	for (int i = 0; i < numimage; i++) {
@@ -1208,7 +1263,7 @@ bool Cel2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palett
 			free(imagerows);
 		}
 	}
-
+	}
 	// cleanup
 	free(buf);
 	free(celdata);
@@ -1964,7 +2019,7 @@ int main()
 		"f:\\Farrow1_CL2_frame0003_.png"};
 	PNG2Cl2(ffilenames, 4, PNG_TRANSFORM_IDENTITY, "f:\\Farrow1__.CL2", &diapal[0][0], 128, 128);
 
-	Cel2PNG("f:\\MPQE\\Work\\data\\char.CEL", 0, "f:\\", &diapal[0][0], 128);
+	Cel2PNG("f:\\MPQE\\Work\\data\\char.CEL", 0, false, "f:\\", &diapal[0][0], 128);
 	CelComp2PNG("f:\\MPQE\\Work\\towners\\animals\\cow.CEL", 0, 2, "f:\\", &diapal[0][0], 128);
 
 	Cel2PNG("f:\\SpellBkB.CEL", 0, "f:\\", &diapal[0][0], 128);
@@ -2002,14 +2057,25 @@ int main()
 	fclose(f);
 	f = NULL;*/
 
-	/*BYTE* pal = LoadPal("f:\\L1_1.PAL");
-	Cel2PNG("f:\\L1Doors.CEL", 0, "f:\\", pal, 256);
-	const char* doors[] = {
+	/*{ // sample code to convert CEL to PNGs, then convert the PNGs back to CEL
+		BYTE* pal = LoadPal("f:\\L1_1.PAL");
+		Cel2PNG("f:\\L1Doors.CEL", 0, false, "f:\\", pal, 256);
+		const char* doors[] = {
 			"f:\\L1Doors_CEL_frame0000.png",
 			"f:\\L1Doors_CEL_frame0001.png",
 			"f:\\L1Doors_CEL_frame0002.png",
 			"f:\\L1Doors_CEL_frame0003.png"};
-	PNG2Cel(doors, 4, false, "f:\\L1Doors.CEL", true, pal, 256, 0);*/
+		PNG2Cel(doors, 4, false, "f:\\L1Doors_per.CEL", true, pal, 256, 0);
+		free(pal);
+	}*/
+	/*{ // sample code to convert CEL to a PNG with multiple frames, then convert the PNG back to CEL
+		BYTE* pal = LoadPal("f:\\L1_1.PAL");
+		Cel2PNG("f:\\L1Doors.CEL", 0, true, "f:\\", pal, 256);
+		const char* doors[] = {
+			"f:\\L1Doors.png" };
+		PNG2Cel(doors, 4, true, "f:\\L1Doors_mul.CEL", true, pal, 256, 0);
+		free(pal);
+	}*/
 
 	//PNG2Cel("f:\\inv.png", "f:\\inv.cel", false, &diapal[0][0], 128, 128);
 	//PNG2Cel("f:\\quest.png", "f:\\quest.cel", false, &diapal[0][0], 128, 128);
