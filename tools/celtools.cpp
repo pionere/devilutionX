@@ -1193,10 +1193,10 @@ bool Cel2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palett
 			int idx = strlen(celname) - 1;
 			while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
 				idx--;
-			int fnc = snprintf(destFile, 256, "%s%s", destFolder, &celname[idx + 1]);
+			int fnc = snprintf(destFile, 236, "%s%s", destFolder, &celname[idx + 1]);
 			destFile[fnc - 4] = '_';
-			snprintf(&destFile[fnc], 256, "_frame%04d.png", i);
-			
+			snprintf(&destFile[fnc], 20, "_frame%04d.png", i);
+
 			if (!WritePNG(destFile, imagedata)) {
 				free(imagedata.row_pointers);
 				free(imagerows);
@@ -1333,16 +1333,16 @@ bool CelComp2PNG(const char* celname, int nCel, const char* destFolder, BYTE *pa
 			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 			//lastLine += imagedata.width * (imagedata.height - 1);
 			CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
-			
+
 			// write a single png
 			char destFile[256];
 			int idx = strlen(celname) - 1;
 			while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
 				idx--;
-			int fnc = snprintf(destFile, 256, "%s%s", destFolder, &celname[idx + 1]);
+			int fnc = snprintf(destFile, 236, "%s%s", destFolder, &celname[idx + 1]);
 			destFile[fnc - 4] = '_';
-			snprintf(&destFile[fnc], 256, "_frame%04d.png", i);
-			
+			snprintf(&destFile[fnc], 20, "_frame%04d.png", i);
+
 			if (!WritePNG(destFile, imagedata)) {
 				free(imagedata.row_pointers);
 				free(imagerows);
@@ -1575,16 +1575,16 @@ bool Cl2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palette
 			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 			//lastLine += imagedata.width * (imagedata.height - 1);
 			Cl2BlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
-			
+
 			// write a single png
 			char destFile[256];
 			int idx = strlen(celname) - 1;
 			while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
 				idx--;
-			int fnc = snprintf(destFile, 256, "%s%s", destFolder, &celname[idx + 1]);
+			int fnc = snprintf(destFile, 236, "%s%s", destFolder, &celname[idx + 1]);
 			destFile[fnc - 4] = '_';
-			snprintf(&destFile[fnc], 256, "_frame%04d.png", i);
-			
+			snprintf(&destFile[fnc], 20, "_frame%04d.png", i);
+
 			if (!WritePNG(destFile, imagedata)) {
 				free(imagedata.row_pointers);
 				free(imagerows);
