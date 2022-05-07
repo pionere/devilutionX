@@ -5,6 +5,7 @@
  *  UpscaleCel: (integer) upscale regular CEL file
  *  CelComp2PNG: convert compiled CEL file to PNG
  *  PNG2CelComp: convert PNG to compiled CEL file
+ *  UpscaleCelComp: (integer) upscale compiled CEL file
  *  Cl2PNG: convert CL2 file to PNG
  *  PNG2Cl2: convert PNG to CL2 file
  *  UpscaleCl2: (integer) upscale CL2 file
@@ -2150,6 +2151,40 @@ void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolor
 	WritePNG2Cel(imagedata, numimage, celdata, false, resCelName, palette, numcolors, coloroffset);
 }
 
+void UpscaleCelComp(const char* celname, int multiplier, BYTE* palette, int numcolors, int coloroffset, const char* resCelName)
+{
+	int numimage;
+	BYTE* buf;
+	celcmp_image_data* celdata = ReadCelCompData(celname, &numimage, &buf);
+	if (celdata == NULL)
+		return;
+
+	// prepare pngdata
+	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+	for (int i = 0; i < numimage; i++) {
+		imagedata[i].width = celdata[i].width * multiplier;
+		imagedata[i].height = celdata[i].height * multiplier;
+		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
+		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
+		for (int n = 0; n < imagedata[i].height; n++) {
+			imagedata[i].row_pointers[n] = (png_bytep)&imagerows[imagedata[i].width * n];
+		}
+		imagedata[i].data_ptr = (png_bytep)imagerows;
+		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
+		//lastLine += imagedata.width * (imagedata.height - 1);
+		// blit to the bottom right
+		CelBlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset);
+	}
+
+	free(buf);
+
+	// upscale the png data
+	UpscalePNGImages(imagedata, numimage, multiplier);
+
+	// convert pngs back to cel
+	WritePNG2CelComp(imagedata, numimage, celdata, false, resCelName, palette, numcolors, coloroffset);
+}
+
 void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolors, int coloroffset, const char* resCelName)
 {
 	int numimage;
@@ -2216,6 +2251,7 @@ int main()
 	}
 	input.close();
 	*/
+	// UpscaleCelComp("F:\\MPQE\\Work\\towners\\animals\\cow.CEL", 1, &diapal[0][0], 128, 128, "F:\\outcel\\towners\\animals\\cow.cel");
 	/* upscale all cl2 files of listfiles.txt (fails if the output-folder structure is not prepared)
 	// #include <fstream>
 	std::ifstream input("f:\\listfiles.txt");
