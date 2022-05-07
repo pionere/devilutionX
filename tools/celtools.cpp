@@ -1,3 +1,13 @@
+/*
+ * Utility functions to manipulate Diablo assets. Its main features are:
+ *  Cel2PNG: convert regular CEL file to PNG
+ *  PNG2Cel: convert PNG to regular CEL file
+ *  UpscaleCel: (integer) upscale regular CEL file
+ *  Cl2PNG: convert CL2 file to PNG
+ *  PNG2Cl2: convert PNG to CL2 file
+ *  UpscaleCl2: (integer) upscale CL2 file
+ *  Cel2Cel: merge two regular CEL files
+ */
 #include <png.h>
 #include <zlib.h>
 #include <stdint.h>
@@ -86,12 +96,12 @@ BYTE diapal[128][3] = {
 { 46, 46, 46}, { 30, 30, 30}, { 17, 17, 17}, { 255, 255, 255}, 
 };
 
-struct RGBA {
+typedef struct RGBA {
 	BYTE r;
 	BYTE g;
 	BYTE b;
 	BYTE a;
-};
+} RGBA;
 
 static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset)
 {
@@ -249,7 +259,7 @@ static bool ReadPNG(const char *pngname, png_image_data &data)
 	return true;
 }
 
-void PNGFlip(png_image_data &imagedata, bool vertical)
+static void PNGFlip(png_image_data &imagedata, bool vertical)
 {
 	if (vertical) {
 		RGBA tmp;
@@ -368,7 +378,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
  * @param numcolors: the number of colors in the palette
  * @param coloroffset: offset to be added to the selected color
  */
-static bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char *celname, bool clipped, BYTE *palette, int numcolors, int coloroffset)
+bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char *celname, bool clipped, BYTE *palette, int numcolors, int coloroffset)
 {
 	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	if (multi) {
@@ -561,7 +571,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 	return result;
 }
 
-static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset)
+bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset)
 {
 	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	for (int n = 0; n < numimage; n++) {
@@ -1086,7 +1096,7 @@ static bool IsCelFrameClipped(BYTE* frameData, int frameLen)
 	return nWidth != 0;
 }
 
-cel_image_data* ReadCelData(const char* celname, int* nImage, BYTE** oBuf)
+static cel_image_data* ReadCelData(const char* celname, int* nImage, BYTE** oBuf)
 {
 	FILE *f = fopen(celname, "rb");
 
@@ -1204,14 +1214,14 @@ bool Cel2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palett
 	return true;
 }
 
-size_t GetFileSize(const char* filename)
+static size_t GetFileSize(const char* filename)
 {
     struct stat stat_buf;
     int rc = stat(filename, &stat_buf);
     return rc == 0 ? stat_buf.st_size : -1;
 }
 
-bool Cl2IsMono(const char* celname)
+static bool Cl2IsMono(const char* celname)
 {
 	bool result = true;
 	int numimage;
@@ -1466,7 +1476,7 @@ BYTE* LoadPal(const char* palFile)
 	return result;
 }
 
-RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
+static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
 {
 	if (c1->a != 255)
 		return *c1; // preserve tranparent pixels
@@ -1479,7 +1489,7 @@ RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
 	return res;
 }
 
-void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier)
+static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier)
 {
 	// upscale the pngs
 	for (int i = 0; i < numimage; i++) {
