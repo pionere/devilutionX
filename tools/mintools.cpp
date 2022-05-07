@@ -828,6 +828,7 @@ static void EncodeMicro(png_image_data* imagedata, int sy, bool left, MicroMetaD
  * @param palette: the palette to be used to generate the CEL file
  * @param numcolors: the number of colors in the palette
  * @param coloroffset: added to the color-values which are selected from the palette
+ * @return 0 if the function succeeds
  */
 int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	const char* outfolder, const char* prefix,
@@ -1150,6 +1151,7 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	free(pieceData);
 	free(megaData);
 	free(microData);
+	return 0;
 }
 
 static void PatchFile(FILE* file, int idx, int flag, int flagPos, int value)
