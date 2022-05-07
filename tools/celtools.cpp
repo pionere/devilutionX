@@ -1185,6 +1185,7 @@ bool Cel2PNG(const char* celname, int nCel, bool multi, const char* destFolder, 
 
 	// write the png(s)
 	if (multi) {
+		// all in one
 		//  find the required width
 		DWORD width = 0;
 		for (int i = 0; i < numimage; i++) {
@@ -1228,41 +1229,42 @@ bool Cel2PNG(const char* celname, int nCel, bool multi, const char* destFolder, 
 		free(imagedata.row_pointers);
 		free(imagedata.data_ptr);
 	} else {
-	nCel--;
-	png_image_data imagedata;
-	for (int i = 0; i < numimage; i++) {
-		if (i == nCel || nCel < 0) {
-			// prepare pngdata
-			imagedata.width = celdata[i].width;
-			imagedata.height = celdata[i].height;
-			RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata.height * imagedata.width);
-			imagedata.row_pointers = (png_bytep*)malloc(imagedata.height * sizeof(void*));
-			for (int n = 0; n < imagedata.height; n++) {
-				imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
-			}
-			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
-			CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
+		// one png per frame
+		nCel--;
+		png_image_data imagedata;
+		for (int i = 0; i < numimage; i++) {
+			if (i == nCel || nCel < 0) {
+				// prepare pngdata
+				imagedata.width = celdata[i].width;
+				imagedata.height = celdata[i].height;
+				RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata.height * imagedata.width);
+				imagedata.row_pointers = (png_bytep*)malloc(imagedata.height * sizeof(void*));
+				for (int n = 0; n < imagedata.height; n++) {
+					imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
+				}
+				RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
+				CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
 
-			// write a single png
-			char destFile[256];
-			int idx = strlen(celname) - 1;
-			while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
-				idx--;
-			int fnc = snprintf(destFile, 236, "%s%s", destFolder, &celname[idx + 1]);
-			destFile[fnc - 4] = '_';
-			snprintf(&destFile[fnc], 20, "_frame%04d.png", i);
+				// write a single png
+				char destFile[256];
+				int idx = strlen(celname) - 1;
+				while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
+					idx--;
+				int fnc = snprintf(destFile, 236, "%s%s", destFolder, &celname[idx + 1]);
+				destFile[fnc - 4] = '_';
+				snprintf(&destFile[fnc], 20, "_frame%04d.png", i);
 
-			if (!WritePNG(destFile, imagedata)) {
+				if (!WritePNG(destFile, imagedata)) {
+					free(imagedata.row_pointers);
+					free(imagerows);
+					free(buf);
+					free(celdata);
+					return false;
+				}
 				free(imagedata.row_pointers);
 				free(imagerows);
-				free(buf);
-				free(celdata);
-				return false;
 			}
-			free(imagedata.row_pointers);
-			free(imagerows);
 		}
-	}
 	}
 	// cleanup
 	free(buf);
