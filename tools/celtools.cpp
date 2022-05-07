@@ -4,6 +4,7 @@
  *  PNG2Cel: convert PNG to regular CEL file
  *  UpscaleCel: (integer) upscale regular CEL file
  *  CelComp2PNG: convert compiled CEL file to PNG
+ *  PNG2CelComp: convert PNG to compiled CEL file
  *  Cl2PNG: convert CL2 file to PNG
  *  PNG2Cl2: convert PNG to CL2 file
  *  UpscaleCl2: (integer) upscale CL2 file
@@ -369,7 +370,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
 }
 
 /**
- * Convert PNG file to CEL
+ * Convert PNG file to regular CEL
  * @param pngnames: the list of PNG file names
  * @param numimage: the number of frames.
  * @param multi: false - numimage equals to the number of PNG files, true - a single PNG file is split to the number of frames
@@ -378,6 +379,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
  * @param palette: the palette to use
  * @param numcolors: the number of colors in the palette
  * @param coloroffset: offset to be added to the selected color
+ * @return true if the function succeeds
  */
 bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char *celname, bool clipped, BYTE *palette, int numcolors, int coloroffset)
 {
@@ -416,6 +418,164 @@ bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char *celnam
 	return WritePNG2Cel(imagedata, numimage, celdata, multi, celname, palette, numcolors, coloroffset);
 }
 
+typedef struct celcmp_image_data {
+	DWORD dataSize;
+	DWORD width;
+	DWORD height;
+	bool clipped;
+	int groupSize;
+	BYTE* data;
+} celcmp_image_data;
+static bool WritePNG2CelComp(png_image_data* imagedata, int numimage, celcmp_image_data* celdata,  bool multi, const char* celname, BYTE *palette, int numcolors, int coloroffset)
+{
+	// calculate header size
+	int groupNum = 0;
+	int headerSize = 0;
+	for (int i = 0; i < numimage; ) {
+		int ni = celdata[i].groupSize;
+		headerSize += 4 + 4 * (ni + 1);
+		i += ni;
+		groupNum++;
+	}
+	//if (groupNum > 1) {
+		headerSize += sizeof(DWORD) * groupNum;
+	//}
+	// estimate data size
+	int maxsize = headerSize;
+	for (int n = 0; n < numimage; n++) {
+		png_image_data *image_data = &imagedata[n];
+		if (celdata[n].clipped)
+			maxsize += SUB_HEADER_SIZE;
+		maxsize += image_data->height * (2 * image_data->width);
+	}	
+
+	BYTE *buf = (BYTE *)malloc(maxsize);
+	memset(buf, 0, maxsize);
+
+	BYTE* pBuf = &buf[sizeof(DWORD) * groupNum];
+	int idx = 0;
+	for (int i = 0; i < groupNum; i++) {
+		DWORD ni = celdata[i].groupSize;
+		*(DWORD*)&buf[i * sizeof(DWORD)] = SwapLE32(pBuf - buf);
+
+		BYTE* hdr = pBuf;
+		*(DWORD*)&hdr[0] = SwapLE32(ni);
+		*(DWORD*)&hdr[4] = SwapLE32(4 + 4 * (ni + 1));
+
+		pBuf += 4 + 4 * (ni + 1);
+		for (int n = 0; n < ni; n++, idx++) {
+			// add optional {CEL FRAME HEADER}
+			BYTE *pHeader = pBuf;
+			if (celdata[idx].clipped) {
+				pBuf[0] = SUB_HEADER_SIZE;
+				pBuf[1] = 0x00;
+				*(DWORD*)&pBuf[2] = 0;
+				*(DWORD*)&pBuf[6] = 0;
+				pBuf += SUB_HEADER_SIZE;
+			}
+			// convert to cel
+			png_image_data *image_data = &imagedata[idx];
+			BYTE *pHead;
+			for (int i = 1; i <= image_data->height; i++) {
+				pHead = pBuf;
+				pBuf++;
+				bool alpha = false;
+				RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
+				if (i == 32 + 1 && celdata[idx].clipped) { // TODO: write more entries if necessary?
+					*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+				}
+				for (int j = 0; j < image_data->width; j++) {
+					if (data[j].a == 255) {
+						// add opaque pixel
+						if (alpha || *pHead > 126) {
+							pHead = pBuf;
+							pBuf++;
+						}
+						++*pHead;
+						*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
+						pBuf++;
+						alpha = false;
+					} else {
+						// add transparent pixel
+						if (j != 0 && (!alpha || (char)*pHead == -128)) {
+							pHead = pBuf;
+							pBuf++;
+						}
+						--*pHead;
+						alpha = true;
+					}
+				}
+			}
+			*(DWORD*)&hdr[4 + 4 * (n + 1)] = SwapLE32(pBuf - hdr);
+		}
+	}
+	// write to file
+	bool result = false;
+	FILE *fp = fopen(celname, "wb");
+	if (fp != NULL) {
+		fwrite(buf, 1, pBuf - buf, fp);
+		fclose(fp);
+		result = true;
+	}
+
+	// cleanup
+	free(buf);
+	CleanupImageData(imagedata, multi ? 1 : numimage);
+	free(celdata);
+	return result;
+}
+
+/**
+ * Convert PNG file to compiled CEL
+ * @param pngnames: the list of PNG file names
+ * @param numimage: the number of frames.
+ * @param multi: false - numimage equals to the number of PNG files, true - a single PNG file is split to the number of frames
+ * @param celname: the name of the output CEL file
+ * @param clipped: whether the optional frame header is added
+ * @param groupSize: the number of frames per group (numimage / number of groups)
+ * @param palette: the palette to use
+ * @param numcolors: the number of colors in the palette
+ * @param coloroffset: offset to be added to the selected color
+ * @return true if the function succeeds
+ */
+bool PNG2CelComp(const char** pngnames, int numimage, bool multi, const char *celname, bool clipped, int groupSize, BYTE *palette, int numcolors, int coloroffset)
+{
+	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+	if (multi) {
+		if (!ReadPNG(pngnames[0], imagedata[0])) {
+			free(imagedata);
+			return false;
+		}
+		png_image_data *image_data = &imagedata[0];
+		if ((image_data->height % numimage) != 0) {
+			CleanupImageData(imagedata, 1);
+			return false;
+		}
+		image_data->height /= numimage;
+		for (int n = 1; n < numimage; n++) {
+			png_image_data *img_data = &imagedata[n];
+			img_data->width = image_data->width;
+			img_data->height = image_data->height;
+			img_data->row_pointers = &image_data->row_pointers[n * image_data->height];
+			img_data->data_ptr = NULL;
+		}
+	} else {
+		for (int n = 0; n < numimage; n++) {
+			if (!ReadPNG(pngnames[n], imagedata[n])) {
+				CleanupImageData(imagedata, n - 1);
+				return false;
+			}
+		}
+	}
+
+	celcmp_image_data *celdata = (celcmp_image_data*)malloc(sizeof(celcmp_image_data) * numimage);
+	for (int n = 0; n < numimage; n++) {
+		celdata[n].clipped = clipped;
+		celdata[n].groupSize = groupSize;
+	}
+	return WritePNG2CelComp(imagedata, numimage, celdata, multi, celname, palette, numcolors, coloroffset);
+}
+
 struct cl2_image_data {
 	DWORD dataSize;
 	DWORD width;
@@ -426,8 +586,6 @@ struct cl2_image_data {
 static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data* celdata, const char* celname, BYTE *palette, int numcolors, int coloroffset)
 {
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
-
-	int HEADER_SIZE = 4 + 4 + numimage * 4;
 
 	// calculate header size
 	int groupNum = 0;
@@ -1280,14 +1438,6 @@ static size_t GetFileSize(const char* filename)
     return rc == 0 ? stat_buf.st_size : -1;
 }
 
-typedef struct celcmp_image_data {
-	DWORD dataSize;
-	DWORD width;
-	DWORD height;
-	bool clipped;
-	int groupSize;
-	BYTE* data;
-} celcmp_image_data;
 static celcmp_image_data* ReadCelCompData(const char* celname, int* nImage, BYTE** oBuf)
 {
 	FILE *f = fopen(celname, "rb");
@@ -2193,7 +2343,11 @@ int main()
 		PNG2Cel(doors, 4, true, "f:\\L1Doors_mul.CEL", true, pal, 256, 0);
 		free(pal);
 	}*/
-
+	/*{ // sample code to convert compiled CEL to a PNG with multiple frames, then convert the PNG back to CEL
+		CelComp2PNG("f:\\MPQE\\Work\\towners\\animals\\cow.CEL", 0, 2, "f:\\", &diapal[0][0], 128);
+		const char* pnames[] = { "f:\\cow.png" };
+		PNG2CelComp(pnames, 8 * 12, true, "f:\\cow_out.CEL", true, 12, &diapal[0][0], 128, 128);
+	}*/
 	//PNG2Cel("f:\\inv.png", "f:\\inv.cel", false, &diapal[0][0], 128, 128);
 	//PNG2Cel("f:\\quest.png", "f:\\quest.cel", false, &diapal[0][0], 128, 128);
 	//PNG2Cel("f:\\char.png", "f:\\char.cel", false, &diapal[0][0], 128, 128);
