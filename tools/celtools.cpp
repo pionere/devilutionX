@@ -1222,7 +1222,15 @@ static size_t GetFileSize(const char* filename)
     return rc == 0 ? stat_buf.st_size : -1;
 }
 
-static cel_image_data* ReadCelCompData(const char* celname, int* nImage, BYTE** oBuf)
+typedef struct celcmp_image_data {
+	DWORD dataSize;
+	DWORD width;
+	DWORD height;
+	bool clipped;
+	int groupSize;
+	BYTE* data;
+} celcmp_image_data;
+static celcmp_image_data* ReadCelCompData(const char* celname, int* nImage, BYTE** oBuf)
 {
 	FILE *f = fopen(celname, "rb");
 	if (f == NULL)
@@ -1248,7 +1256,7 @@ static cel_image_data* ReadCelCompData(const char* celname, int* nImage, BYTE** 
 	fread(buf, 1, dataSize - numGroups * 4, f);
 
 	fclose(f);
-	cel_image_data *celdata = NULL;
+	celcmp_image_data *celdata = NULL;
 	DWORD numimage = 0;
 	for (int n = 0; n < numGroups; n++) {
 		BYTE *src = buf + groupOffsets[n];
@@ -1257,7 +1265,7 @@ static cel_image_data* ReadCelCompData(const char* celname, int* nImage, BYTE** 
 		int headerSize = 4 + 4 + 4 * ni;
 		DWORD imgOffset = numimage;
 		numimage += ni;
-		celdata = (cel_image_data *)realloc(celdata, sizeof(cel_image_data) * (numimage + 1));
+		celdata = (celcmp_image_data *)realloc(celdata, sizeof(cel_image_data) * (numimage + 1));
 		DWORD dataSize;
 		for (int i = imgOffset; i <= imgOffset + ni; i++) {
 			dataSize = SwapLE32(*(DWORD*)src);
@@ -1309,15 +1317,126 @@ static cel_image_data* ReadCelCompData(const char* celname, int* nImage, BYTE** 
 	return celdata;
 }
 
-bool CelComp2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palette, int coloroffset)
+/*
+ * Convert a compiled CEL file to PNG(s)
+ * @param celname: the path of the CEL file
+ * @param nCel: the frame which should be exported. 0 to export the whole content of the CEL file
+ * @param multi:
+ *        0: each frame is written to a separate png file
+ *        1: each group is written to a separate png file
+ *        2: the whole content is written to a single png file
+ * @param destFolder: the output folder
+ * @param palette: the palette to be used
+ * @param coloroffset: the offset to be applied when selecting a color from the palette
+ */
+bool CelComp2PNG(const char* celname, int nCel, int multi, const char* destFolder, BYTE *palette, int coloroffset)
 {
 	int numimage;
 	BYTE* buf;
-	cel_image_data* celdata = ReadCelCompData(celname, &numimage, &buf);
+	celcmp_image_data* celdata = ReadCelCompData(celname, &numimage, &buf);
 	if (celdata == NULL)
 		return false;
 
 	// write the png(s)
+	if (multi) {
+		if (multi == 1) {
+			// one png per group
+			int groupIdx = 0;
+			for (int i = 0; i < numimage; groupIdx++) {
+				// find out the required width of the group
+				DWORD width = 0;
+				for (int n = i; n < i + celdata[i].groupSize; n++) {
+					width = std::max(celdata[n].width, width);
+				}
+
+				// blit the frames to png_image_data
+				png_image_data imagedata;
+				imagedata.width = width;
+				imagedata.height = 0;
+				imagedata.data_ptr = NULL;
+				imagedata.row_pointers = NULL;
+
+				for (int j = i; j < i + celdata[i].groupSize; j++) {
+					// prepare pngdata
+					imagedata.height += celdata[j].height;
+					imagedata.data_ptr = (png_bytep)realloc(imagedata.data_ptr, sizeof(RGBA) * imagedata.height * imagedata.width);
+					imagedata.row_pointers = (png_bytep*)realloc(imagedata.row_pointers, imagedata.height * sizeof(void*));
+					RGBA *imagerows = (RGBA *)imagedata.data_ptr;
+					for (int n = 0; n < imagedata.height; n++) {
+						imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
+					}
+					RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
+					//lastLine += imagedata.width * (imagedata.height - 1);
+					CelBlitSafe(lastLine, celdata[j].data, celdata[j].dataSize, celdata[j].width, imagedata.width, palette, coloroffset);
+				}
+
+				// write a single png
+				char destFile[256];
+				int idx = strlen(celname) - 1;
+				while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
+					idx--;
+				int fnc = snprintf(destFile, 246, "%s%s", destFolder, &celname[idx + 1]);
+				snprintf(&destFile[fnc - 3], 10, "_%02d.png", groupIdx);
+
+				if (!WritePNG(destFile, imagedata)) {
+					free(imagedata.row_pointers);
+					free(imagedata.data_ptr);
+					free(buf);
+					free(celdata);
+					return false;
+				}
+				free(imagedata.row_pointers);
+				free(imagedata.data_ptr);
+
+				i += celdata[i].groupSize;
+			}
+		} else {
+			// one png per cel
+			//  find the required width
+			DWORD width = 0;
+			for (int i = 0; i < numimage; i++) {
+				width = std::max(celdata[i].width, width);
+			}
+			// blit the frames to png_image_data
+			png_image_data imagedata;
+			imagedata.width = width;
+			imagedata.height = 0;
+			imagedata.data_ptr = NULL;
+			imagedata.row_pointers = NULL;
+			for (int i = 0; i < numimage; i++) {
+				// prepare pngdata
+				imagedata.height += celdata[i].height;
+				imagedata.data_ptr = (png_bytep)realloc(imagedata.data_ptr, sizeof(RGBA) * imagedata.height * imagedata.width);
+				imagedata.row_pointers = (png_bytep*)realloc(imagedata.row_pointers, imagedata.height * sizeof(void*));
+				RGBA *imagerows = (RGBA *)imagedata.data_ptr;
+				for (int n = 0; n < imagedata.height; n++) {
+					imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
+				}
+				RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
+				//lastLine += imagedata.width * (imagedata.height - 1);
+				CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, celdata[i].width, imagedata.width, palette, coloroffset);
+			}
+
+			// write a single png
+			char destFile[256];
+			int idx = strlen(celname) - 1;
+			while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
+				idx--;
+			int fnc = snprintf(destFile, 246, "%s%s", destFolder, &celname[idx + 1]);
+			snprintf(&destFile[fnc - 3], 10, "png");
+
+			if (!WritePNG(destFile, imagedata)) {
+				free(imagedata.row_pointers);
+				free(imagedata.data_ptr);
+				free(buf);
+				free(celdata);
+				return false;
+			}
+			free(imagedata.row_pointers);
+			free(imagedata.data_ptr);
+		}
+	} else {
+	// one png per frame
 	nCel--;
 	png_image_data imagedata;
 	for (int i = 0; i < numimage; i++) {
@@ -1354,7 +1473,7 @@ bool CelComp2PNG(const char* celname, int nCel, const char* destFolder, BYTE *pa
 			free(imagerows);
 		}
 	}
-
+	}
 	// cleanup
 	free(buf);
 	free(celdata);
@@ -1846,7 +1965,7 @@ int main()
 	PNG2Cl2(ffilenames, 4, PNG_TRANSFORM_IDENTITY, "f:\\Farrow1__.CL2", &diapal[0][0], 128, 128);
 
 	Cel2PNG("f:\\MPQE\\Work\\data\\char.CEL", 0, "f:\\", &diapal[0][0], 128);
-	CelComp2PNG("f:\\MPQE\\Work\\towners\\animals\\cow.CEL", 0, "f:\\", &diapal[0][0], 128);
+	CelComp2PNG("f:\\MPQE\\Work\\towners\\animals\\cow.CEL", 0, 2, "f:\\", &diapal[0][0], 128);
 
 	Cel2PNG("f:\\SpellBkB.CEL", 0, "f:\\", &diapal[0][0], 128);
 
