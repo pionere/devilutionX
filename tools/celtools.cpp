@@ -3,6 +3,7 @@
  *  Cel2PNG: convert regular CEL file to PNG
  *  PNG2Cel: convert PNG to regular CEL file
  *  UpscaleCel: (integer) upscale regular CEL file
+ *  CelComp2PNG: convert compiled CEL file to PNG
  *  Cl2PNG: convert CL2 file to PNG
  *  PNG2Cl2: convert PNG to CL2 file
  *  UpscaleCl2: (integer) upscale CL2 file
@@ -1221,6 +1222,145 @@ static size_t GetFileSize(const char* filename)
     return rc == 0 ? stat_buf.st_size : -1;
 }
 
+static cel_image_data* ReadCelCompData(const char* celname, int* nImage, BYTE** oBuf)
+{
+	FILE *f = fopen(celname, "rb");
+	if (f == NULL)
+		return NULL;
+
+	// read the file into memory
+	DWORD numGroups;
+	fread(&numGroups, 4, 1, f);
+	numGroups = SwapLE32(numGroups);
+	numGroups /= 4;
+
+	DWORD* groupOffsets = (DWORD*)malloc(sizeof(DWORD) * numGroups);
+
+	groupOffsets[0] = 0;
+	for (int i = 1; i < numGroups; i++) {
+		fread(&groupOffsets[i], 4, 1, f);
+		groupOffsets[i] = SwapLE32(groupOffsets[i]) - 4 * numGroups;
+	}
+
+	DWORD dataSize = GetFileSize(celname);
+
+	BYTE *buf = (BYTE *)malloc(dataSize - numGroups * 4);
+	fread(buf, 1, dataSize - numGroups * 4, f);
+
+	fclose(f);
+	cel_image_data *celdata = NULL;
+	DWORD numimage = 0;
+	for (int n = 0; n < numGroups; n++) {
+		BYTE *src = buf + groupOffsets[n];
+		DWORD ni = SwapLE32(*(DWORD*)src);
+		src += 4;
+		int headerSize = 4 + 4 + 4 * ni;
+		DWORD imgOffset = numimage;
+		numimage += ni;
+		celdata = (cel_image_data *)realloc(celdata, sizeof(cel_image_data) * (numimage + 1));
+		DWORD dataSize;
+		for (int i = imgOffset; i <= imgOffset + ni; i++) {
+			dataSize = SwapLE32(*(DWORD*)src);
+			src += 4;
+			celdata[i].dataSize = dataSize;
+		}
+
+		// prepare celdata info
+		for (int i = imgOffset; i < imgOffset + ni; i++) {
+			// celdata[i].width = nWidth;
+			celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
+			// skip optional {CEL FRAME HEADER}
+			celdata[i].clipped = IsCelFrameClipped(src, celdata[i].dataSize);
+			celdata[i].width = CelGetFrameWidth(celdata[i].clipped, src, celdata[i].dataSize);
+			if (celdata[i].clipped) {
+				src += SUB_HEADER_SIZE;
+				celdata[i].dataSize -= SUB_HEADER_SIZE;
+			}
+			celdata[i].data = src;
+			int pixels = 0;
+			while (src < &celdata[i].data[celdata[i].dataSize]) {
+				char width = *src++;
+				if (width >= 0) {
+					pixels += width;
+					src += width;
+				} else {
+					pixels -= width;
+				}
+			}
+			if (src != &celdata[i].data[celdata[i].dataSize]) {
+				free(groupOffsets);
+				free(buf);
+				free(celdata);
+				return NULL;
+			}
+			int nWidth = celdata[i].width;
+			if (nWidth == 0 || pixels % nWidth != 0) {
+				free(groupOffsets);
+				free(buf);
+				free(celdata);
+				return NULL;
+			}
+			celdata[i].height = pixels / nWidth;
+		}
+	}
+	free(groupOffsets);
+	*nImage = numimage;
+	*oBuf = buf;
+	return celdata;
+}
+
+bool CelComp2PNG(const char* celname, int nCel, const char* destFolder, BYTE *palette, int coloroffset)
+{
+	int numimage;
+	BYTE* buf;
+	cel_image_data* celdata = ReadCelCompData(celname, &numimage, &buf);
+	if (celdata == NULL)
+		return false;
+
+	// write the png(s)
+	nCel--;
+	png_image_data imagedata;
+	for (int i = 0; i < numimage; i++) {
+		if (i == nCel || nCel < 0) {
+			// prepare pngdata
+			imagedata.width = celdata[i].width;
+			imagedata.height = celdata[i].height;
+			RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata.height * imagedata.width);
+			imagedata.row_pointers = (png_bytep*)malloc(imagedata.height * sizeof(void*));
+			for (int n = 0; n < imagedata.height; n++) {
+				imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
+			}
+			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
+			//lastLine += imagedata.width * (imagedata.height - 1);
+			CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
+			
+			// write a single png
+			char destFile[256];
+			int idx = strlen(celname) - 1;
+			while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
+				idx--;
+			int fnc = snprintf(destFile, 256, "%s%s", destFolder, &celname[idx + 1]);
+			destFile[fnc - 4] = '_';
+			snprintf(&destFile[fnc], 256, "_frame%04d.png", i);
+			
+			if (!WritePNG(destFile, imagedata)) {
+				free(imagedata.row_pointers);
+				free(imagerows);
+				free(buf);
+				free(celdata);
+				return false;
+			}
+			free(imagedata.row_pointers);
+			free(imagerows);
+		}
+	}
+
+	// cleanup
+	free(buf);
+	free(celdata);
+	return true;
+}
+
 static bool Cl2IsMono(const char* celname)
 {
 	bool result = true;
@@ -1704,6 +1844,9 @@ int main()
 		"f:\\Farrow1_CL2_frame0002_.png",
 		"f:\\Farrow1_CL2_frame0003_.png"};
 	PNG2Cl2(ffilenames, 4, PNG_TRANSFORM_IDENTITY, "f:\\Farrow1__.CL2", &diapal[0][0], 128, 128);
+
+	Cel2PNG("f:\\MPQE\\Work\\data\\char.CEL", 0, "f:\\", &diapal[0][0], 128);
+	CelComp2PNG("f:\\MPQE\\Work\\towners\\animals\\cow.CEL", 0, "f:\\", &diapal[0][0], 128);
 
 	Cel2PNG("f:\\SpellBkB.CEL", 0, "f:\\", &diapal[0][0], 128);
 
