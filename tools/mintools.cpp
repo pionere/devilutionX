@@ -1,3 +1,8 @@
+/*
+ * Utility functions to manipulate Diablo Level CEL files. Its main features are:
+ *  PNG2Min: Generate CEL and meta-files based on PNG-quads
+ *  PatchMin: Patch the given SOL and TMI files using a TXT file.
+ */
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -48,7 +53,7 @@ typedef struct png_image_data {
 	png_uint_32 width;
 	png_uint_32 height;
 	png_bytep *row_pointers;
-	png_bytep *data_ptr;
+	png_bytep data_ptr;
 } png_image_data;
 
 typedef struct MegaMetaData {
@@ -813,6 +818,7 @@ static void EncodeMicro(png_image_data* imagedata, int sy, bool left, MicroMetaD
  *		};
  *     BYTE* pal = LoadPal("d:\\L1_1.PAL");
  *     PNG2Min(filenames, 2, 10, "d:\\out\\", "L1", pal, 256, 0);
+ *   output: TIL, CEL, MIN, TMI, SOL, TXT files
  *
  * @param megatiles: PNG-quads, images of tiles for each megatile
  * @param nummegas: the number of PNG-quads
