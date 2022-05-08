@@ -1155,7 +1155,6 @@ static int CelGetFrameWidth(bool clipped, BYTE* frameData, int frameLen)
 			return 0; // failed to parse
 		}
 	}
-	std::set<int> candidates;
 	if (!lineBreaks.empty()) {
 		lineBreaks[0] = 0;
 		lineBreaks[frameLen] = pixels;
@@ -1181,28 +1180,16 @@ static int CelGetFrameWidth(bool clipped, BYTE* frameData, int frameLen)
 					}
 					if (cit == colorBreaks.end())
 						return w;
-					candidates.insert(w);
 				}
 			}
 		}
-		candidates.clear();
-	}
-	// can not rely on definite line-breaks -> try all possible widths collected from the breaks
-	std::map<int, int> allBreaks = lineBreaks;
-	allBreaks.insert(colorBreaks.begin(), colorBreaks.end());
-	for (auto it = allBreaks.begin(); it != allBreaks.end(); it++) {
-		auto ait = it;
-		for (ait++; ait != allBreaks.end(); ait++) {
-			int w = ait->second - it->second;
-			candidates.insert(w);
-		}
 	}
 	// find the smallest possible width
-	for (auto it = candidates.begin(); it != candidates.end(); it++) {
-		if (CelValidWidth(*it, pixels, lineBreaks, colorBreaks))
-			return *it;
+	for (int i = 1; i < pixels / 2; i++) {
+		if (CelValidWidth(i, pixels, lineBreaks, colorBreaks))
+			return i;
 	}
-	return 0;
+	return pixels;
 }
 
 static bool IsCelFrameClipped(BYTE* frameData, int frameLen)
@@ -1218,15 +1205,16 @@ static bool IsCelFrameClipped(BYTE* frameData, int frameLen)
 	lineBreaks.clear(); colorBreaks.clear();
 	if (!CelCollectLineBreaks(&frameData[SUB_HEADER_SIZE], frameLen - SUB_HEADER_SIZE, lineBreaks, colorBreaks, &pixels))
 		return false; // can not be parsed as a clipped frame
+	// validate CEL FRAME HEADER
 	int lastOffset = 0; int nWidth = 0;
 	for (int i = 1; i < SUB_HEADER_SIZE / 2; i++) {
 		int offset = SwapLE16(*(WORD*)&frameData[i * 2]);
 		if (offset == 0)
 			break;
-		if (offset <= SUB_HEADER_SIZE)
+		if (offset >= frameLen)
 			return false; // invalid header
 		offset = offset - SUB_HEADER_SIZE;
-		if (offset < lastOffset)
+		if (offset <= lastOffset)
 			return false; // invalid header
 		int w;
 		auto lit = lineBreaks.find(offset);
@@ -1251,9 +1239,10 @@ static bool IsCelFrameClipped(BYTE* frameData, int frameLen)
 	if (nWidth != 0) {
 		return CelValidWidth(nWidth, pixels, lineBreaks, colorBreaks);
 	}
-
-	nWidth = CelGetFrameWidth(true, frameData, frameLen);
-	return nWidth != 0;
+	// commented out, because pixels as width is always valid
+	//nWidth = CelGetFrameWidth(true, frameData, frameLen);
+	//return nWidth != 0;
+	return true;
 }
 
 static cel_image_data* ReadCelData(const char* celname, int* nImage, BYTE** oBuf)
