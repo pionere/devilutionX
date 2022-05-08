@@ -1188,7 +1188,7 @@ static void fput_int16(FILE* f0, int16_t val)
 	fputc((val >> 8) & 0xFF, f0);
 }
 
-static void EncodeMicro(png_image_data* imagedata, int sy, bool left, MicroMetaData* mmd,
+static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData* mmd,
 	BYTE* palette, int numcolors, int coloroffset)
 {
 	BYTE* celData = (BYTE*)malloc(TILE_WIDTH * TILE_HEIGHT);
@@ -1200,8 +1200,7 @@ static void EncodeMicro(png_image_data* imagedata, int sy, bool left, MicroMetaD
 	BYTE* pBuf = celData + 1;
 	for (int i = sy; i >= max(0, sy - (TILE_HEIGHT - 1)); i--) {
 		RGBA* data = (RGBA*)imagedata->row_pointers[i];
-		if (!left)
-			data += TILE_WIDTH / 2;
+		data += sx;
 		bool alpha = false;
 		for (int j = 0; j < TILE_WIDTH / 2; j++) {
 			if (data[j].a != 255) {
@@ -1251,25 +1250,16 @@ static void EncodeMicro(png_image_data* imagedata, int sy, bool left, MicroMetaD
 	}
 
 	uint32_t bestLen = pBuf - celData;
-	if (!hasFoliageBit(MET_TRANSPARENT, left, celData)) {
-		if (bestLen >= TILE_WIDTH * TILE_HEIGHT / 4 + TILE_HEIGHT) {
-			uint32_t newLen;
-			BYTE* remData = ReEncodeMicro(celData, left ? MET_LTRIANGLE : MET_RTRIANGLE, &newLen);
-			if (remData != NULL) {
-				mmd->celData = remData;
-				mmd->celLength = newLen;
-				mmd->MicroType = left ? MET_LTRIANGLE : MET_RTRIANGLE;
-				free(celData);
-				return;
-			}
-		}
-	} else {
+	// list of encodings sorted by size
+	static const int encodings[4] = { MET_LTRIANGLE, MET_RTRIANGLE, MET_LTRAPEZOID, MET_RTRAPEZOID };
+	for (int i = 0; i < lengthof(encodings); i++) {
+		int type = encodings[i];
 		uint32_t newLen;
-		BYTE* remData = ReEncodeMicro(celData, left ? MET_LTRAPEZOID : MET_RTRAPEZOID, &newLen);
+		BYTE* remData = ReEncodeMicro(celData, type, &newLen);
 		if (remData != NULL) {
 			mmd->celData = remData;
 			mmd->celLength = newLen;
-			mmd->MicroType = left ? MET_LTRAPEZOID : MET_RTRAPEZOID;
+			mmd->MicroType = type;
 			free(celData);
 			return;
 		}
@@ -1361,8 +1351,8 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 		memset(cpd->micros, 0, sizeof(cpd->micros));
 		int n = 0;
 		for (int i = imgdata->height - 1; i >= 0; i -= TILE_HEIGHT) {
-			EncodeMicro(imgdata, i, true, &cpd->micros[n++], palette, numcolors, coloroffset);
-			EncodeMicro(imgdata, i, false, &cpd->micros[n++], palette, numcolors, coloroffset);
+			EncodeMicro(imgdata, 0, i, &cpd->micros[n++], palette, numcolors, coloroffset);
+			EncodeMicro(imgdata, TILE_WIDTH / 2, i, &cpd->micros[n++], palette, numcolors, coloroffset);
 		}
 
 		cpd->micros[0].isFloor = true;
