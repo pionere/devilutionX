@@ -1,5 +1,6 @@
 /*
  * Utility functions to manipulate Diablo Level CEL files. Its main features are:
+ *  Min2PNG: Convert a MIN file to PNG(s)
  *  PNG2Min: Generate CEL and meta-files based on PNG-quads
  *  PatchMin: Patch the given SOL and TMI files using a TXT file.
  */
@@ -9,6 +10,10 @@
 #include <set>
 #include <map>
 #include <png.h>
+
+typedef uint32_t DWORD;
+typedef uint16_t WORD;
+typedef unsigned char BYTE;
 
 typedef enum micro_flag {
 	MET_SQUARE,
@@ -40,7 +45,14 @@ typedef enum piece_micro_flag {
 	TMIF_RIGHT_WALL_TRANS = 1 << 6,
 } piece_micro_flag;
 
-typedef unsigned char BYTE;
+typedef enum _draw_mask_type {
+	DMT_NONE,
+	DMT_TWALL,
+	DMT_LTFLOOR,
+	DMT_RTFLOOR,
+	DMT_LFLOOR,
+	DMT_RFLOOR,
+} _draw_mask_type;
 
 typedef struct RGBA {
 	BYTE r;
@@ -110,6 +122,29 @@ template<class T, int N>
 constexpr int lengthof(T (&arr)[N])
 {
 	return N;
+}
+
+static WORD SwapLE16(WORD w)
+{
+	WORD v = 1;
+	if (((BYTE*)&v)[1] == 0)
+		return w;
+	return ((w >> 8) & 0x00FF) | ((w << 8) & 0xFF00);
+}
+
+static DWORD SwapLE32(DWORD dw)
+{
+	DWORD v = 1;
+	if (((BYTE*)&v)[3] == 0)
+		return dw;
+	return ((dw >> 24) & 0xFF) | ((dw << 24) & 0xFF000000) | ((dw >> 8) & 0x00FF00) | ((dw << 8) & 0xFF0000);
+}
+
+static size_t GetFileSize(const char* filename)
+{
+    struct stat stat_buf;
+    int rc = stat(filename, &stat_buf);
+    return rc == 0 ? stat_buf.st_size : -1;
 }
 
 static BYTE* LoadPal(const char* palFile)
@@ -263,6 +298,71 @@ static bool ReadPNG(const char *pngname, png_image_data &data)
 	fclose(fp);
 	data.row_pointers = row_pointers;
 	data.data_ptr = buffer;
+	return true;
+}
+
+static bool WritePNG(const char *pngname, png_image_data &data)
+{
+	const int alphaByte = 255;
+	const int bitDepth = 8;
+	FILE *fp;
+
+	fp = fopen(pngname, "wb");
+	if (fp == NULL)
+		return false;
+
+	png_structp png_ptr = png_create_write_struct
+		(PNG_LIBPNG_VER_STRING, (png_voidp)NULL, NULL, NULL);
+
+	if (png_ptr == NULL) {
+		fclose(fp);
+		return false;
+	}
+
+	png_infop info_ptr = png_create_info_struct(png_ptr);
+	if (info_ptr == NULL) {
+		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		fclose(fp);
+		return false;
+	}
+
+	if (setjmp(png_jmpbuf(png_ptr))) {
+		png_destroy_write_struct(&png_ptr, &info_ptr);
+		fclose(fp);
+		return false;
+	}
+
+	png_init_io(png_ptr, fp);
+
+	/* turn on or off filtering, and/or choose
+       specific filters.  You can use either a single
+       PNG_FILTER_VALUE_NAME or the bitwise OR of one
+       or more PNG_FILTER_NAME masks.
+     */
+    /*png_set_filter(png_ptr, 0,
+       PNG_FILTER_NONE  | PNG_FILTER_VALUE_NONE |
+       PNG_FILTER_SUB   | PNG_FILTER_VALUE_SUB  |
+       PNG_FILTER_UP    | PNG_FILTER_VALUE_UP   |
+       PNG_FILTER_AVG   | PNG_FILTER_VALUE_AVG  |
+       PNG_FILTER_PAETH | PNG_FILTER_VALUE_PAETH|
+       PNG_ALL_FILTERS  | PNG_FAST_FILTERS);*/
+	png_set_IHDR(png_ptr, info_ptr, data.width, data.height,
+       bitDepth, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+       PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); /* PNG_INTRAPIXEL_DIFFERENCING for MNG */
+
+	// png_set_PLTE(png_ptr, info_ptr, palette, num_palette);
+
+	/*png_write_info(png_ptr, info_ptr);
+
+	png_write_image(png_ptr, data.row_pointers);
+
+	png_write_end(png_ptr, info_ptr);*/
+	png_set_rows(png_ptr, info_ptr, data.row_pointers);
+	png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+
+	png_destroy_write_struct(&png_ptr, &info_ptr);
+
+	fclose(fp);
 	return true;
 }
 
@@ -441,6 +541,382 @@ static void CleanupImageData(png_image_data* imagedata, int numimages)
 		free(imagedata[n].row_pointers);
 	}
 	free(imagedata);
+}
+
+static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset)
+{
+	RGBA result;
+
+	if (col < coloroffset) {
+		result.r = 0;
+		result.g = 0;
+		result.b = 0;
+	} else {
+		col -= coloroffset;
+		result.r = palette[col * 3 + 0];
+		result.g = palette[col * 3 + 1];
+		result.b = palette[col * 3 + 2];
+	}
+	result.a = 255;
+	return result;
+}
+
+inline static void RenderLine(RGBA* dst, BYTE* src, int n, uint32_t mask, BYTE* palette, int coloroffset)
+{
+//#ifdef NO_OVERDRAW
+//	if (dst >= gpBufStart && dst <= gpBufEnd)
+//#endif
+	{
+		assert(n != 0);
+		int i = ((sizeof(uint32_t) * CHAR_BIT) - n);
+		BYTE* tbl;
+		// Add the lower bits about we don't care.
+		mask |= (1 << i) - 1;
+		if (mask == 0xFFFFFFFF) {
+			for (i = 0; i < n; i++) {
+				dst[i] = GetPNGColor(src[i], palette, coloroffset);
+			}
+		} else {
+			// Clear the lower bits of the mask to avoid testing i < n in the loops.
+			mask = (mask >> i) << i;
+			for (i = 0; mask != 0; i++, mask <<= 1) {
+				if (mask & 0x80000000) {
+					dst[i] = GetPNGColor(src[i], palette, coloroffset);
+				}
+			}
+		}
+	/*} else {
+		if (dst < gpBufStart) {
+			int xy = gpBufStart - dst;
+			int y = -(xy / BUFFER_WIDTH);
+			extern int aminy;
+			if (aminy > y)
+				aminy = y;
+		} else {
+			int xy = dst - gpBufEnd;
+			int y = (gbZoomInFlag ? SCREEN_HEIGHT / 2 : SCREEN_HEIGHT) + (xy / BUFFER_WIDTH);
+			extern int amaxy;
+			if (amaxy < y)
+				amaxy = y;
+		}*/
+	}
+
+	//(*src) += n;
+	//(*dst) += n;
+}
+
+void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskType, BYTE* srcCels, BYTE* palette, int coloroffset)
+{
+	int i, j, light = 0;
+	char v, encoding;
+	BYTE *src;
+	RGBA* dst;
+	uint32_t m, *mask, *pFrameTable;
+
+	int BUFFER_WIDTH = bufferWidth;
+
+	dst = pBuff;
+	pFrameTable = (uint32_t *)srcCels;
+	if (levelCelBlock == 0 || pFrameTable[0] < (levelCelBlock & 0xFFF))
+		return;
+	src = &srcCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
+	encoding = (levelCelBlock /*& 0x7000*/) >> 12;
+
+	//mask = &SolidMask[TILE_HEIGHT - 1];
+	switch (maskType) {
+	case DMT_NONE:
+		mask = &SolidMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_TWALL:
+		mask = &WallMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_LTFLOOR:
+		mask = encoding != MET_LTRIANGLE ? &LeftMask[TILE_HEIGHT - 1] : &SolidMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_RTFLOOR:
+		mask = encoding != MET_RTRIANGLE ? &RightMask[TILE_HEIGHT - 1] : &SolidMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_LFLOOR:
+		//if (encoding != MET_TRANSPARENT)
+		//	return;
+		mask = &LeftFoliageMask[TILE_HEIGHT - 1];
+		break;
+	case DMT_RFLOOR:
+		//if (encoding != MET_TRANSPARENT)
+		//	return;
+		mask = &RightFoliageMask[TILE_HEIGHT - 1];
+		break;
+	default:
+		ASSUME_UNREACHABLE;
+	}
+
+	static_assert(TILE_HEIGHT - 2 < TILE_WIDTH / 2, "Line with negative or zero width.");
+	static_assert(TILE_WIDTH / 2 <= sizeof(*mask) * CHAR_BIT, "Mask is too small to cover the tile.");
+	switch (encoding) {
+	case MET_SQUARE:
+		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			RenderLine(dst, src, TILE_WIDTH / 2, *mask, palette, coloroffset);
+			src += TILE_WIDTH / 2;
+			dst += TILE_WIDTH / 2;
+		}
+		break;
+	case MET_TRANSPARENT:
+		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			m = *mask;
+			static_assert(TILE_WIDTH / 2 <= sizeof(m) * CHAR_BIT, "Undefined left-shift behavior.");
+			for (j = TILE_WIDTH / 2; j != 0; j -= v, m <<= v) {
+				v = *src++;
+				if (v > 0) {
+					RenderLine(dst, src, v, m, palette, coloroffset);
+					src += v;
+					dst += v;
+				} else {
+					v = -v;
+					dst += v;
+				}
+			}
+		}
+		break;
+	case MET_LTRIANGLE:
+		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			src += i & 2;
+			dst += i;
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
+			src += TILE_WIDTH / 2 - i;
+			dst += TILE_WIDTH / 2 - i;
+		}
+		for (i = 2; i != TILE_WIDTH / 2; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			src += i & 2;
+			dst += i;
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
+			src += TILE_WIDTH / 2 - i;
+			dst += TILE_WIDTH / 2 - i;
+		}
+		break;
+	case MET_RTRIANGLE:
+		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
+			src += TILE_WIDTH / 2 - i;
+			dst += TILE_WIDTH / 2 - i;
+			src += i & 2;
+			dst += i;
+		}
+		for (i = 2; i != TILE_HEIGHT; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
+			src += TILE_WIDTH / 2 - i;
+			dst += TILE_WIDTH / 2 - i;
+			src += i & 2;
+			dst += i;
+		}
+		break;
+	case MET_LTRAPEZOID:
+		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			src += i & 2;
+			dst += i;
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
+			src += TILE_WIDTH / 2 - i;
+			dst += TILE_WIDTH / 2 - i;
+		}
+		for (i = TILE_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			RenderLine(dst, src, TILE_WIDTH / 2, *mask, palette, coloroffset);
+			src += TILE_WIDTH / 2;
+			dst += TILE_WIDTH / 2;
+		}
+		break;
+	case MET_RTRAPEZOID:
+		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
+			src += TILE_WIDTH / 2 - i;
+			dst += TILE_WIDTH / 2 - i;
+			src += i & 2;
+			dst += i;
+		}
+		for (i = TILE_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+			RenderLine(dst, src, TILE_WIDTH / 2, *mask, palette, coloroffset);
+			src += TILE_WIDTH / 2;
+			dst += TILE_WIDTH / 2;
+		}
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+}
+
+typedef struct min_image_data {
+	uint16_t* levelBlocks;
+} min_image_data;
+min_image_data* ReadMinData(const char* minname, int &columns, int &rows, const char* celname,
+	const char* tilname, int* oNumtiles, BYTE** oCelBuf, BYTE** oMinBuf)
+{
+	// read the CEL file into memory
+	FILE* f = fopen(celname, "rb");
+	if (f == NULL)
+		return NULL;
+
+	size_t fileSize = GetFileSize(celname);
+	if (fileSize == 0)
+		return NULL;
+	BYTE *celBuf = (BYTE *)malloc(fileSize);
+
+	fread(celBuf, 1, fileSize, f);
+	fclose(f);
+
+	fileSize = GetFileSize(minname);
+	if (columns == 0)
+		columns = 2;
+
+	if (rows == 0) {
+		if (fileSize % (columns * 5 * 2) == 0) {
+			if (fileSize % (columns * 8 * 2) == 0) {
+				fileSize = fileSize;
+			}
+			rows = 5;
+		} else if (fileSize % (columns * 8 * 2) == 0) {
+			rows = 8;
+		} else {
+			// invalid MIN file
+			free(celBuf);
+			return NULL;
+		}
+	} else {
+		if (fileSize % (columns * rows * 2) != 0) {
+			// MIN file does not match the input celpertile
+			free(celBuf);
+			return NULL;
+		}
+	}
+
+	// read MIN file to memory
+	f = fopen(minname, "rb");
+	if (f == NULL) {
+		free(celBuf);
+		return NULL;
+	}
+
+	BYTE *minBuf = (BYTE *)malloc(fileSize);
+	fread(minBuf, 1, fileSize, f);
+	fclose(f);
+
+	int numtiles;
+	min_image_data* mindata;
+	if (tilname != NULL) {
+		// print the tiles specified by the TIL file
+		f = fopen(tilname, "rb");
+		if (f == NULL) {
+			free(celBuf);
+			free(minBuf);
+			return NULL;
+		}
+		size_t tilSize = GetFileSize(tilname);
+		if (tilSize % (4 * 2) != 0) {
+			// invalid TIL file
+			free(celBuf);
+			free(minBuf);
+			return NULL;
+		}
+		numtiles = tilSize / 8;
+		numtiles *= 4;
+		mindata = (min_image_data*)malloc(sizeof(min_image_data) * numtiles);
+		for (int i = 0; i < numtiles; i++) {
+			int n;
+			fread(&n, 1, 2, f);
+			n = SwapLE16(n);
+			mindata[i].levelBlocks = &((WORD*)&minBuf[0])[n * (rows * columns)];
+			if (n * (rows * columns) > fileSize - (rows * columns)) {
+				// MIN file does not contain enough entries
+				free(celBuf);
+				free(minBuf);
+				return NULL;
+			}
+		}
+
+		fclose(f);
+	} else {
+		// print the content of MIN sequentially
+		numtiles = fileSize / (columns * rows * 2);
+		mindata = (min_image_data*)malloc(sizeof(min_image_data) * numtiles);
+		for (int i = 0; i < numtiles; i++) {
+			mindata[i].levelBlocks = &((WORD*)&minBuf[0])[i * (rows * columns)];
+		}
+	}
+
+	*oNumtiles = numtiles;
+	*oCelBuf = celBuf;
+	*oMinBuf = minBuf;
+	return mindata;
+}
+
+/*
+ * Convert a MIN file to PNG(s)
+ * @param minname: the path of the MIN file
+ * @param columns: the number of columns in one tile. It is set to 2 by default.
+ * @param rows: the number of rows in one tile. It is set to 5 or 8 by default depending on the size of the MIN file.
+ * @param celname: the path to the CEL file containing the images of the sub-tiles
+ * @param tilname: the path of the TIL file to select which tiles should be converted. The whole content of the MIN file is converted if it is set to NULL.
+ * @param destFolder: the output folder
+ * @param palette: the palette to be used
+ * @param coloroffset: the offset to be applied when selecting a color from the palette
+ * @return true if the function succeeds
+ */
+bool Min2PNG(const char* minname, int columns, int rows, const char* celname,
+	const char* tilname, const char* destFolder, BYTE* palette, int coloroffset)
+{
+	int numtiles;
+	BYTE *celBuf, *minBuf;
+	min_image_data* mindata = ReadMinData(minname, columns, rows, celname, tilname, &numtiles, &celBuf, &minBuf);
+	if (mindata == NULL)
+		return false;
+
+	// write the png(s)
+	png_image_data imagedata;
+	for (int i = 0; i < numtiles; i++) {
+		imagedata.width = columns * TILE_WIDTH / 2;
+		imagedata.height = rows * TILE_HEIGHT;
+		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata.height * imagedata.width);
+		// make the background transparent
+		memset(imagerows, 0, sizeof(sizeof(RGBA) * imagedata.height * imagedata.width));
+		imagedata.row_pointers = (png_bytep*)malloc(imagedata.height * sizeof(void*));
+		for (int n = 0; n < imagedata.height; n++) {
+			imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
+		}
+		imagedata.data_ptr = (png_bytep)imagerows;
+
+		RGBA* dst = (RGBA*)imagedata.row_pointers[TILE_HEIGHT - 1];
+		uint16_t* src = mindata[i].levelBlocks;
+		for (int y = 0; y < rows; y++) {
+			for (int x = 0; x < columns; x++, src++) {
+				uint16_t levelCelBlock = *src;
+				RenderMicro(dst, columns * TILE_WIDTH / 2, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
+				dst += TILE_WIDTH / 2;
+			}
+			dst += TILE_HEIGHT * TILE_WIDTH - columns * TILE_WIDTH / 2;
+		}
+
+		// write a single png
+		char destFile[256];
+		int idx = strlen(celname) - 1;
+		while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
+			idx--;
+		int fnc = snprintf(destFile, 236, "%s%s", destFolder, &celname[idx + 1]);
+		snprintf(&destFile[fnc - 4], 20, "_tile%04d.png", i);
+
+		if (!WritePNG(destFile, imagedata)) {
+			free(imagedata.row_pointers);
+			free(imagerows);
+			free(celBuf);
+			free(minBuf);
+			free(mindata);
+			return false;
+		}
+		free(imagedata.row_pointers);
+		free(imagerows);
+	}
+
+	free(celBuf);
+	free(minBuf);
+	free(mindata);
+	return true;
 }
 
 static bool InitFloorFlags(MetaFlags* mFlags, MicroMetaData* floorMeta, MicroMetaData* lvlMeta,
@@ -1232,4 +1708,14 @@ void PatchMin(const char* patchFileName, const char* solFileName, const char* tm
 
 	fclose(solFile);
 	fclose(tmiFile);
+}
+
+int main()
+{
+	/*{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
+		Min2PNG("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 0, 0,
+			"f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL",
+			"f:\\MPQE\\Work\\Levels\\TownData\\Town.TIL", "f:\\outmin\\TownData\\", pal, 0);
+	}*/
 }
