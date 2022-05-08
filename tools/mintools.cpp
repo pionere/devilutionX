@@ -2,6 +2,7 @@
  * Utility functions to manipulate Diablo Level CEL files. Its main features are:
  *  Min2PNG: Convert a MIN file to PNG(s)
  *  PNG2Min: Generate CEL and meta-files based on PNG-quads
+ *  UpscaleMin: (integer) upscale a MIN file (+ its corresponding CEL)
  *  PatchMin: Patch the given SOL and TMI files using a TXT file.
  */
 #include <iostream>
@@ -9,6 +10,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <vector>
 #include <png.h>
 
 typedef uint32_t DWORD;
@@ -1269,6 +1271,257 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
 	mmd->MicroType = MET_TRANSPARENT;
 }
 
+static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
+{
+	if (c1->a != 255)
+		return *c1; // preserve tranparent pixels
+
+	RGBA res;
+	res.a = 255;
+	res.r = (c0->r * (len - idx) + c1->r * idx) / len;
+	res.g = (c0->g * (len - idx) + c1->g * idx) / len;
+	res.b = (c0->b * (len - idx) + c1->b * idx) / len;
+	return res;
+}
+
+static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier)
+{
+	// upscale the pngs
+	for (int i = 0; i < numimage; i++) {
+		RGBA* src = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - imagedata[i].height / multiplier];
+		src += imagedata[i].width - imagedata[i].width / multiplier;
+		RGBA* dst = (RGBA*)imagedata[i].row_pointers[0];
+		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
+			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+				for (int j = 0; j < multiplier; j++) {
+					*dst = *src;
+					dst++;
+				}
+				src++;
+			}
+			for (int j = 0; j < multiplier - 1; j++) {
+				memcpy(dst, dst - imagedata[i].width, sizeof(RGBA) * imagedata[i].width);
+				dst += imagedata[i].width;
+			}
+			src += imagedata[i].width - imagedata[i].width / multiplier;
+		}
+	}
+
+	// resample the pixels
+	for (int i = 0; i < numimage; i++) {
+		for (int y = 0; y < imagedata[i].height / multiplier - 1; y++) {
+			RGBA* p0 = (RGBA*)imagedata[i].row_pointers[y * multiplier];
+			for (int x = 0; x < imagedata[i].width / multiplier - 1; x++, p0 += multiplier) {
+				if (p0->a != 255)
+					continue; // skip transparent pixels
+
+				RGBA* p1 = p0 + multiplier;
+				for (int j = 0; j < multiplier; j++) {
+					for (int k = 1; k < multiplier; k++) {
+						RGBA* pp = p0 + j * imagedata[i].width + k;
+						*pp = Interpolate(p0, p1, k, multiplier);
+					}
+				}
+					for (int k = 1; k < multiplier; k++) {
+						RGBA* pp = p0 + k * imagedata[i].width;
+						*pp = Interpolate(p0, p1, k, multiplier);
+					}
+			}
+		}
+	}
+}
+
+void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* mindata, const char* destFolder, const char* prefix, BYTE* palette, int numcolors, int coloroffset)
+{
+	if (numtiles == 0) {
+		CleanupImageData(imagedata, numtiles);
+		return;
+	}
+
+	// convert PNG to CEL-micros
+	int nummicros = imagedata[0].width / (TILE_WIDTH / 2);
+	nummicros *= imagedata[0].height / TILE_HEIGHT;
+
+	MicroMetaData* microData = (MicroMetaData*)malloc(sizeof(MicroMetaData) * numtiles * nummicros);
+	memset(microData, 0, sizeof(MicroMetaData) * numtiles * nummicros);
+	int n = 0;
+	for (int i = 0; i < numtiles; i++) {
+		png_image_data* img_data = &imagedata[i];
+		for (int y = TILE_HEIGHT - 1; y < img_data->height; y += TILE_HEIGHT) {
+			for (int x = 0; x < img_data->width; x += TILE_WIDTH / 2, n++) {
+				EncodeMicro(img_data, x, y, &microData[n], palette, numcolors, coloroffset);
+			}
+		}
+		//CleanupImageData(img_data, 1);
+		free(img_data->data_ptr);
+		free(img_data->row_pointers);
+	}
+	free(imagedata);
+
+	// create output files
+	char filename[256];
+	FILE* f;
+	// create MIN
+	snprintf(filename, sizeof(filename), "%s%s.MIN", destFolder, prefix);
+	f = fopen(filename, "wb");
+
+	n = 0;
+	std::vector<MicroMetaData*> uniqMicros;
+	for (int i = 0; i < numtiles; i++) {
+		for (int j = 0; j < nummicros; j++, n++) {
+			MicroMetaData* mmd = &microData[n];
+			if (mmd->celData == NULL) {
+				// blank
+				fput_int16(f, 0);
+				continue;
+			}
+			auto it = uniqMicros.cbegin();
+			for ( ; it != uniqMicros.cend(); ++it) {
+				if ((*it)->celLength != mmd->celLength)
+					continue;
+				if (memcmp((*it)->celData, microData[n].celData, mmd->celLength) == 0)
+					break;
+			}
+			if (it != uniqMicros.cend()) {
+				// existing micro
+				fput_int16(f, (it - uniqMicros.cbegin()) + 1);
+				continue;
+			}
+			// add new micro
+			uniqMicros.push_back(mmd);
+			uint16_t idx = (mmd->MicroType << 12) |  uniqMicros.size();
+			fput_int16(f, idx);
+		}
+	}
+	fclose(f);
+
+	// create CEL
+	snprintf(filename, sizeof(filename), "%s%s.CEL", destFolder, prefix);
+	f = fopen(filename, "wb");
+
+	fput_int32(f, uniqMicros.size());
+	uint32_t addr = 4 + 4 * (uniqMicros.size() + 1);
+	for (int n = 0; n < uniqMicros.size(); n++) {
+		MicroMetaData* mmd = uniqMicros[n];
+		fput_int32(f, addr);
+		addr += mmd->celLength;
+		mmd->dataAddr = addr;
+	}
+	fput_int32(f, addr);
+
+	for (int n = 0; n < uniqMicros.size(); n++) {
+		MicroMetaData* mmd = uniqMicros[n];
+		fwrite(mmd->celData, 1, mmd->celLength, f);
+	}
+	fclose(f);
+
+	// create TMI
+	/*snprintf(filename, sizeof(filename), "%s%s.TMI", destFolder, prefix);
+	f = fopen(filename, "wb");
+	fputc(0, f);
+	for (int n = 0; n < pn; n++) {
+		PieceMetaData* cpd = &pieceData[n];
+		BYTE bv = 0;
+		bv |= (cpd->transAbove ? 1 : 0) << 0;
+		bv |= (cpd->left.secondDraw ? 1 : 0) << 1;
+		bv |= (cpd->left.foliageDraw ? 1 : 0) << 2;
+		bv |= (cpd->left.trans ? 1 : 0) << 3;
+		bv |= (cpd->right.secondDraw ? 1 : 0) << 4;
+		bv |= (cpd->right.foliageDraw ? 1 : 0) << 5;
+		bv |= (cpd->right.trans ? 1 : 0) << 6;
+		fputc(bv, f);
+	}
+	fclose(f);
+
+	// create SOL
+	snprintf(filename, sizeof(filename), "%s%s.SOL", destFolder, prefix);
+	f = fopen(filename, "wb");
+	fputc(0, f);
+	for (int n = 0; n < pn; n++) {
+		PieceMetaData* cpd = &pieceData[n];
+		BYTE bv = 0;
+
+		bv |= (cpd->blockPath ? 1 : 0) << 0;
+		bv |= (cpd->blockLight ? 1 : 0) << 1;
+		bv |= (cpd->blockMissile ? 1 : 0) << 2;
+
+		bv |= (cpd->transAbove ? 1 : 0) << 3;
+		bv |= (cpd->left.trans ? 1 : 0) << 4;
+		bv |= (cpd->right.trans ? 1 : 0) << 5;
+
+		bv |= (cpd->trapSource ? 1 : 0) << 7;
+		fputc(bv, f);
+	}
+	fclose(f);*/
+
+	// cleanup memory
+	for (int i = 0; i < nummicros; i++)
+		free(microData[i].celData);
+	free(microData);
+}
+
+/*
+ * (integer) upscale a MIN file (+ its corresponding CEL)
+ * @param minname: the path of the MIN file
+ * @param multiplier: the extent of the upscale
+ * @param celname: the path of the CEL file
+ * @param palette: the palette to be used
+ * @param numcolors: the number of colors in the palette
+ * @param coloroffset: the offset to be applied when selecting a color from the palette
+ * @param destFolder: the output folder
+ * @param prefix: the base name of the generated output files
+ */
+void UpscaleMin(const char* minname, int multiplier, const char* celname, BYTE* palette, int numcolors, int coloroffset,
+	const char* destFolder, const char* prefix)
+{
+	int numtiles, columns = 0, rows = 0;
+	BYTE *celBuf, *minBuf;
+	min_image_data* mindata = ReadMinData(minname, columns, rows, celname, NULL, &numtiles, &celBuf, &minBuf);
+	if (mindata == NULL)
+		return;
+
+	// write the png(s)
+	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numtiles);
+	for (int i = 0; i < numtiles; i++) {
+		// prepare pngdata
+		imagedata[i].width = columns * TILE_WIDTH / 2 * multiplier;
+		imagedata[i].height = rows * TILE_HEIGHT * multiplier;
+		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
+		// make the background transparent
+		memset(imagerows, 0, sizeof(sizeof(RGBA) * imagedata[i].height * imagedata[i].width));
+		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
+		for (int n = 0; n < imagedata[i].height; n++) {
+			imagedata[i].row_pointers[n] = (png_bytep)&imagerows[imagedata[i].width * n];
+		}
+		imagedata[i].data_ptr = (png_bytep)imagerows;
+
+		//lastLine += imagedata.width * (imagedata.height - 1);
+		// CelBlitSafe(, celdata[i].data, celdata[i].dataSize, imagedata.width / multiplier, imagedata.width, palette, coloroffset);
+
+		RGBA* dst = (RGBA*)imagedata[i].row_pointers[rows * TILE_HEIGHT * (multiplier - 1)];
+		// blit to the bottom right
+		dst += imagedata[i].width - imagedata[i].width / multiplier;
+		uint16_t* src = mindata[i].levelBlocks;
+		for (int y = 0; y < rows; y++) {
+			for (int x = 0; x < columns; x++, src++) {
+				uint16_t levelCelBlock = *src;
+				RenderMicro(dst, columns * TILE_WIDTH / 2 * multiplier, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
+				dst += TILE_WIDTH / 2;
+			}
+			dst += TILE_HEIGHT * TILE_WIDTH - columns * TILE_WIDTH / 2;
+		}
+	}
+
+	free(minBuf);
+	free(celBuf);
+
+	// upscale the png data
+	UpscalePNGImages(imagedata, numtiles, multiplier);
+
+	// convert pngs back to min/cel
+	WritePNG2Min(imagedata, numtiles, mindata, destFolder, prefix, palette, numcolors, coloroffset);
+}
+
 /*
  * Generate CEL and meta-files based on PNG-quads.
  * - Sample usage:
@@ -1289,8 +1542,8 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
  * @param megatiles: PNG-quads, images of tiles for each megatile
  * @param nummegas: the number of PNG-quads
  * @param blocks: the number of micros per tile. Must be an even number. 10 or 16 in vanilla diablo.
- * @param destFolder: the path to the folder where the output files are placed
- * @param prefix: added to the generated filenames.
+ * @param destFolder: the output folder
+ * @param prefix: the base name of the generated output files
  * @param palette: the palette to be used to generate the CEL file
  * @param numcolors: the number of colors in the palette
  * @param coloroffset: added to the color-values which are selected from the palette
@@ -1702,6 +1955,11 @@ void PatchMin(const char* patchFileName, const char* solFileName, const char* tm
 
 int main()
 {
+	/*{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL", pal, 256, 0, 
+			"f:\\outmin\\", "Town_hd");
+	}*/
 	/*{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
 		Min2PNG("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 0, 0,
