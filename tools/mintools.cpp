@@ -1289,7 +1289,7 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
  * @param megatiles: PNG-quads, images of tiles for each megatile
  * @param nummegas: the number of PNG-quads
  * @param blocks: the number of micros per tile. Must be an even number. 10 or 16 in vanilla diablo.
- * @param outfolder: the path to the folder where the output files are placed
+ * @param destFolder: the path to the folder where the output files are placed
  * @param prefix: added to the generated filenames.
  * @param palette: the palette to be used to generate the CEL file
  * @param numcolors: the number of colors in the palette
@@ -1297,7 +1297,7 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
  * @return 0 if the function succeeds
  */
 int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
-	const char* outfolder, const char* prefix,
+	const char* destFolder, const char* prefix,
 	BYTE* palette, int numcolors, int coloroffset)
 {
 	// read the png images
@@ -1448,7 +1448,7 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	char filename[256];
 	FILE* f0;
 	// create TIL
-	snprintf(filename, sizeof(filename), "%s%s.TIL", outfolder, prefix);
+	snprintf(filename, sizeof(filename), "%s%s.TIL", destFolder, prefix);
 	f0 = fopen(filename, "wb");
 	for (int n = 0; n < nummegas; n++) {
 		for (int i = 0; i < 4; i++) {
@@ -1458,7 +1458,7 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	fclose(f0);
 
 	// create CEL
-	snprintf(filename, sizeof(filename), "%s%s.CEL", outfolder, prefix);
+	snprintf(filename, sizeof(filename), "%s%s.CEL", destFolder, prefix);
 	f0 = fopen(filename, "wb");
 	fput_int32(f0, midx - 1);
 	uint32_t addr = 4 * (midx + 1);
@@ -1477,7 +1477,7 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	fclose(f0);
 
 	// create MIN
-	snprintf(filename, sizeof(filename), "%s%s.MIN", outfolder, prefix);
+	snprintf(filename, sizeof(filename), "%s%s.MIN", destFolder, prefix);
 	f0 = fopen(filename, "wb");
 	for (int n = 0; n < pn; n++) {
 		PieceMetaData* cpd = &pieceData[n];
@@ -1495,7 +1495,7 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	fclose(f0);
 
 	// create TMI
-	snprintf(filename, sizeof(filename), "%s%s.TMI", outfolder, prefix);
+	snprintf(filename, sizeof(filename), "%s%s.TMI", destFolder, prefix);
 	f0 = fopen(filename, "wb");
 	fputc(0, f0);
 	for (int n = 0; n < pn; n++) {
@@ -1513,7 +1513,7 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	fclose(f0);
 
 	// create SOL
-	snprintf(filename, sizeof(filename), "%s%s.SOL", outfolder, prefix);
+	snprintf(filename, sizeof(filename), "%s%s.SOL", destFolder, prefix);
 	f0 = fopen(filename, "wb");
 	fputc(0, f0);
 	for (int n = 0; n < pn; n++) {
@@ -1534,7 +1534,7 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	fclose(f0);
 
 	// create TXT
-	snprintf(filename, sizeof(filename), "%s%s.TXT", outfolder, prefix);
+	snprintf(filename, sizeof(filename), "%s%s.TXT", destFolder, prefix);
 	f0 = fopen(filename, "wt");
 	for (int n = 1; n <= pn; n++) {
 		PieceMetaData* mData = &pieceData[n - 1];
