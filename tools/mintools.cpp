@@ -116,6 +116,8 @@ static int max(int x1, int x2)
 
 #define TILE_HEIGHT 32
 #define TILE_WIDTH 64
+#define MICRO_WIDTH 32
+#define MICRO_HEIGHT 32
 #ifndef  ASSUME_UNREACHABLE
 #define ASSUME_UNREACHABLE assert(0);
 #endif // ! ASSUME_UNREACHABLE
@@ -369,7 +371,7 @@ static bool WritePNG(const char *pngname, png_image_data &data)
 }
 
 /** Specifies the draw masks used to render transparency of the right side of tiles. */
-static uint32_t RightMask[TILE_HEIGHT] = {
+static uint32_t RightMask[MICRO_HEIGHT] = {
 	0xEAAAAAAA, 0xF5555555,
 	0xFEAAAAAA, 0xFF555555,
 	0xFFEAAAAA, 0xFFF55555,
@@ -388,7 +390,7 @@ static uint32_t RightMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF
 };
 /** Specifies the draw masks used to render transparency of the left side of tiles. */
-static uint32_t LeftMask[TILE_HEIGHT] = {
+static uint32_t LeftMask[MICRO_HEIGHT] = {
 	0xAAAAAAAB, 0x5555555F,
 	0xAAAAAABF, 0x555555FF,
 	0xAAAAABFF, 0x55555FFF,
@@ -407,7 +409,7 @@ static uint32_t LeftMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF
 };
 /** Specifies the draw masks used to render transparency of wall tiles. */
-static uint32_t WallMask[TILE_HEIGHT] = {
+static uint32_t WallMask[MICRO_HEIGHT] = {
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555,
@@ -426,7 +428,7 @@ static uint32_t WallMask[TILE_HEIGHT] = {
 	0xAAAAAAAA, 0x55555555
 };
 
-static uint32_t SolidMask[TILE_HEIGHT] = {
+static uint32_t SolidMask[MICRO_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
@@ -445,7 +447,7 @@ static uint32_t SolidMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF
 };
 
-static uint32_t RightFoliageMask[TILE_HEIGHT] = {
+static uint32_t RightFoliageMask[MICRO_HEIGHT] = {
 	0xFFFFFFFF, 0x3FFFFFFF,
 	0x0FFFFFFF, 0x03FFFFFF,
 	0x00FFFFFF, 0x003FFFFF,
@@ -464,7 +466,7 @@ static uint32_t RightFoliageMask[TILE_HEIGHT] = {
 	0x0FFFFFFF, 0x3FFFFFFF,
 };
 
-static uint32_t LeftFoliageMask[TILE_HEIGHT] = {
+static uint32_t LeftFoliageMask[MICRO_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFC,
 	0xFFFFFFF0, 0xFFFFFFC0,
 	0xFFFFFF00, 0xFFFFFC00,
@@ -499,19 +501,19 @@ static bool hasFoliageBit(int type, bool left, BYTE* src)
 	uint32_t m, *mask;
 
 	if (left) {
-		mask = &LeftFoliageMask[TILE_HEIGHT - 1];
+		mask = &LeftFoliageMask[MICRO_HEIGHT - 1];
 	} else {
-		mask = &RightFoliageMask[TILE_HEIGHT - 1];
+		mask = &RightFoliageMask[MICRO_HEIGHT - 1];
 	}	
 
 	switch (type) {
 	case MET_SQUARE:
 		return true;
 	case MET_TRANSPARENT:
-		for (i = TILE_HEIGHT; i != 0; i--, mask--) {
+		for (i = MICRO_HEIGHT; i != 0; i--, mask--) {
 			m = *mask;
-			static_assert(TILE_WIDTH / 2 <= sizeof(m) * CHAR_BIT, "Undefined left-shift behavior.");
-			for (j = TILE_WIDTH / 2; j != 0; j -= v, m <<= v) {
+			static_assert(MICRO_WIDTH <= sizeof(m) * CHAR_BIT, "Undefined left-shift behavior.");
+			for (j = MICRO_WIDTH; j != 0; j -= v, m <<= v) {
 				v = *src++;
 				if (v > 0) {
 					if (hasFoliageLine(v, m))
@@ -624,49 +626,49 @@ void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskT
 	src = &srcCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
 	encoding = (levelCelBlock /*& 0x7000*/) >> 12;
 
-	//mask = &SolidMask[TILE_HEIGHT - 1];
+	//mask = &SolidMask[MICRO_HEIGHT - 1];
 	switch (maskType) {
 	case DMT_NONE:
-		mask = &SolidMask[TILE_HEIGHT - 1];
+		mask = &SolidMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_TWALL:
-		mask = &WallMask[TILE_HEIGHT - 1];
+		mask = &WallMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_LTFLOOR:
-		mask = encoding != MET_LTRIANGLE ? &LeftMask[TILE_HEIGHT - 1] : &SolidMask[TILE_HEIGHT - 1];
+		mask = encoding != MET_LTRIANGLE ? &LeftMask[MICRO_HEIGHT - 1] : &SolidMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_RTFLOOR:
-		mask = encoding != MET_RTRIANGLE ? &RightMask[TILE_HEIGHT - 1] : &SolidMask[TILE_HEIGHT - 1];
+		mask = encoding != MET_RTRIANGLE ? &RightMask[MICRO_HEIGHT - 1] : &SolidMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_LFLOOR:
 		//if (encoding != MET_TRANSPARENT)
 		//	return;
-		mask = &LeftFoliageMask[TILE_HEIGHT - 1];
+		mask = &LeftFoliageMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_RFLOOR:
 		//if (encoding != MET_TRANSPARENT)
 		//	return;
-		mask = &RightFoliageMask[TILE_HEIGHT - 1];
+		mask = &RightFoliageMask[MICRO_HEIGHT - 1];
 		break;
 	default:
 		ASSUME_UNREACHABLE;
 	}
 
-	static_assert(TILE_HEIGHT - 2 < TILE_WIDTH / 2, "Line with negative or zero width.");
-	static_assert(TILE_WIDTH / 2 <= sizeof(*mask) * CHAR_BIT, "Mask is too small to cover the tile.");
+	static_assert(MICRO_HEIGHT - 2 < MICRO_WIDTH, "Line with negative or zero width.");
+	static_assert(MICRO_WIDTH <= sizeof(*mask) * CHAR_BIT, "Mask is too small to cover the tile.");
 	switch (encoding) {
 	case MET_SQUARE:
-		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2, *mask, palette, coloroffset);
-			src += TILE_WIDTH / 2;
-			dst += TILE_WIDTH / 2;
+		for (i = MICRO_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH, *mask, palette, coloroffset);
+			src += MICRO_WIDTH;
+			dst += MICRO_WIDTH;
 		}
 		break;
 	case MET_TRANSPARENT:
-		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+		for (i = MICRO_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			m = *mask;
-			static_assert(TILE_WIDTH / 2 <= sizeof(m) * CHAR_BIT, "Undefined left-shift behavior.");
-			for (j = TILE_WIDTH / 2; j != 0; j -= v, m <<= v) {
+			static_assert(MICRO_WIDTH <= sizeof(m) * CHAR_BIT, "Undefined left-shift behavior.");
+			for (j = MICRO_WIDTH; j != 0; j -= v, m <<= v) {
 				v = *src++;
 				if (v > 0) {
 					RenderLine(dst, src, v, m, palette, coloroffset);
@@ -680,63 +682,63 @@ void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskT
 		}
 		break;
 	case MET_LTRIANGLE:
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 		}
-		for (i = 2; i != TILE_WIDTH / 2; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+		for (i = 2; i != MICRO_WIDTH; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 		}
 		break;
 	case MET_RTRIANGLE:
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
-		for (i = 2; i != TILE_HEIGHT; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+		for (i = 2; i != MICRO_HEIGHT; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
 		break;
 	case MET_LTRAPEZOID:
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 		}
-		for (i = TILE_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2, *mask, palette, coloroffset);
-			src += TILE_WIDTH / 2;
-			dst += TILE_WIDTH / 2;
+		for (i = MICRO_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH, *mask, palette, coloroffset);
+			src += MICRO_WIDTH;
+			dst += MICRO_WIDTH;
 		}
 		break;
 	case MET_RTRAPEZOID:
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, palette, coloroffset);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
-		for (i = TILE_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2, *mask, palette, coloroffset);
-			src += TILE_WIDTH / 2;
-			dst += TILE_WIDTH / 2;
+		for (i = MICRO_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH, *mask, palette, coloroffset);
+			src += MICRO_WIDTH;
+			dst += MICRO_WIDTH;
 		}
 		break;
 	default:
@@ -873,8 +875,8 @@ bool Min2PNG(const char* minname, int columns, int rows, const char* celname,
 	// write the png(s)
 	png_image_data imagedata;
 	for (int i = 0; i < numtiles; i++) {
-		imagedata.width = columns * TILE_WIDTH / 2;
-		imagedata.height = rows * TILE_HEIGHT;
+		imagedata.width = columns * MICRO_WIDTH;
+		imagedata.height = rows * MICRO_HEIGHT;
 		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata.height * imagedata.width);
 		// make the background transparent
 		memset(imagerows, 0, sizeof(sizeof(RGBA) * imagedata.height * imagedata.width));
@@ -884,15 +886,15 @@ bool Min2PNG(const char* minname, int columns, int rows, const char* celname,
 		}
 		imagedata.data_ptr = (png_bytep)imagerows;
 
-		RGBA* dst = (RGBA*)imagedata.row_pointers[TILE_HEIGHT - 1];
+		RGBA* dst = (RGBA*)imagedata.row_pointers[MICRO_HEIGHT - 1];
 		uint16_t* src = mindata[i].levelBlocks;
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < columns; x++, src++) {
 				uint16_t levelCelBlock = *src;
-				RenderMicro(dst, columns * TILE_WIDTH / 2, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
-				dst += TILE_WIDTH / 2;
+				RenderMicro(dst, columns * MICRO_WIDTH, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
+				dst += MICRO_WIDTH;
 			}
-			dst += imagedata.width * TILE_HEIGHT - columns * TILE_WIDTH / 2;
+			dst += imagedata.width * MICRO_HEIGHT - columns * MICRO_WIDTH;
 		}
 
 		// write a single png
@@ -972,23 +974,23 @@ static BYTE* ReEncodeMicro(BYTE* celData, int type, uint32_t* length)
 
 	switch (type) {
 	case MET_LTRIANGLE:
-		*length = TILE_WIDTH * TILE_HEIGHT / 4 + TILE_HEIGHT;
+		*length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
 		tmpData = (BYTE*)malloc(*length);
 		memset(tmpData, 0, *length);
 		pDst = tmpData;
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2) {
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2) {
 			if (((char)*pSrc) == -i) {
 				// skip transparent pixels
 				++pSrc;
 			} else if (i != 0)
 				break;
-			if (*pSrc != (TILE_WIDTH / 2 - i))
+			if (*pSrc != (MICRO_WIDTH - i))
 				break;
 			++pSrc;
 			//if (i & 2)
 			//	++pDst;
 			pDst += i & 2;
-			for (j = 0; j < TILE_WIDTH / 2 - i; ++j) {
+			for (j = 0; j < MICRO_WIDTH - i; ++j) {
 				*pDst = *pSrc;
 				++pDst;
 				++pSrc;
@@ -997,37 +999,37 @@ static BYTE* ReEncodeMicro(BYTE* celData, int type, uint32_t* length)
 		if (i >= 0)
 			break;
 
-		for (i = 2; i != TILE_HEIGHT; i += 2) {
+		for (i = 2; i != MICRO_HEIGHT; i += 2) {
 			if (((char)*pSrc) != -i)
 				break;
 			++pSrc;
-			if (*pSrc != (TILE_WIDTH / 2 - i))
+			if (*pSrc != (MICRO_WIDTH - i))
 				break;
 			++pSrc;
 			//if (i & 2)
 			//	++pDst;
 			pDst += i & 2;
-			for (j = 0; j < TILE_WIDTH / 2 - i; ++j) {
+			for (j = 0; j < MICRO_WIDTH - i; ++j) {
 				*pDst = *pSrc;
 				++pDst;
 				++pSrc;
 			}
 		}
-		if (i == TILE_HEIGHT) {
+		if (i == MICRO_HEIGHT) {
 			assert(pDst - tmpData == *length);
 			return tmpData;
 		}
 		break;
 	case MET_RTRIANGLE:
-		*length = TILE_WIDTH * TILE_HEIGHT / 4 + TILE_HEIGHT;
+		*length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
 		tmpData = (BYTE*)malloc(*length);
 		memset(tmpData, 0, *length);
 		pDst = tmpData;
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2) {
-			if (*pSrc != (TILE_WIDTH / 2 - i))
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2) {
+			if (*pSrc != (MICRO_WIDTH - i))
 				break;
 			++pSrc;
-			for (j = 0; j < TILE_WIDTH / 2 - i; ++j) {
+			for (j = 0; j < MICRO_WIDTH - i; ++j) {
 				*pDst = *pSrc;
 				++pDst;
 				++pSrc;
@@ -1045,11 +1047,11 @@ static BYTE* ReEncodeMicro(BYTE* celData, int type, uint32_t* length)
 		if (i >= 0)
 			break;
 
-		for (i = 2; i != TILE_HEIGHT; i += 2) {
-			if (*pSrc != (TILE_WIDTH / 2 - i))
+		for (i = 2; i != MICRO_HEIGHT; i += 2) {
+			if (*pSrc != (MICRO_WIDTH - i))
 				break;
 			++pSrc;
-			for (j = 0; j < TILE_WIDTH / 2 - i; ++j) {
+			for (j = 0; j < MICRO_WIDTH - i; ++j) {
 				*pDst = *pSrc;
 				++pDst;
 				++pSrc;
@@ -1061,29 +1063,29 @@ static BYTE* ReEncodeMicro(BYTE* celData, int type, uint32_t* length)
 			//	++pDst;
 			pDst += i & 2;
 		}
-		if (i == TILE_HEIGHT) {
+		if (i == MICRO_HEIGHT) {
 			assert(pDst - tmpData == *length);
 			return tmpData;
 		}
 		break;
 	case MET_LTRAPEZOID:
-		*length = (TILE_WIDTH * TILE_HEIGHT) / 4 + TILE_HEIGHT * (2 + TILE_HEIGHT) / 4 + TILE_HEIGHT / 2;
+		*length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
 		tmpData = (BYTE*)malloc(*length);
 		memset(tmpData, 0, *length);
 		pDst = tmpData;
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2) {
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2) {
 			if (((char)*pSrc) == -i) {
 				// skip transparent pixels
 				++pSrc;
 			} else if (i != 0)
 				break;
-			if (*pSrc != (TILE_WIDTH / 2 - i))
+			if (*pSrc != (MICRO_WIDTH - i))
 				break;
 			++pSrc;
 			//if (i & 2)
 			//	++pDst;
 			pDst += i & 2;
-			for (j = 0; j < TILE_WIDTH / 2 - i; ++j) {
+			for (j = 0; j < MICRO_WIDTH - i; ++j) {
 				*pDst = *pSrc;
 				++pDst;
 				++pSrc;
@@ -1092,11 +1094,11 @@ static BYTE* ReEncodeMicro(BYTE* celData, int type, uint32_t* length)
 		if (i >= 0)
 			break;
 
-		for (i = TILE_HEIGHT / 2; i != 0; i--) {
-			if (*pSrc != TILE_WIDTH / 2)
+		for (i = MICRO_HEIGHT / 2; i != 0; i--) {
+			if (*pSrc != MICRO_WIDTH)
 				break;
 			++pSrc;
-			for (j = 0; j < TILE_WIDTH / 2; ++j) {
+			for (j = 0; j < MICRO_WIDTH; ++j) {
 				*pDst = *pSrc;
 				++pDst;
 				++pSrc;
@@ -1108,15 +1110,15 @@ static BYTE* ReEncodeMicro(BYTE* celData, int type, uint32_t* length)
 		}
 		break;
 	case MET_RTRAPEZOID:
-		*length = (TILE_WIDTH * TILE_HEIGHT) / 4 + TILE_HEIGHT * (2 + TILE_HEIGHT) / 4 + TILE_HEIGHT / 2;
+		*length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
 		tmpData = (BYTE*)malloc(*length);
 		memset(tmpData, 0, *length);
 		pDst = tmpData;
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2) {
-			if (*pSrc != (TILE_WIDTH / 2 - i))
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2) {
+			if (*pSrc != (MICRO_WIDTH - i))
 				break;
 			++pSrc;
-			for (j = 0; j < TILE_WIDTH / 2 - i; ++j) {
+			for (j = 0; j < MICRO_WIDTH - i; ++j) {
 				*pDst = *pSrc;
 				++pDst;
 				++pSrc;
@@ -1134,11 +1136,11 @@ static BYTE* ReEncodeMicro(BYTE* celData, int type, uint32_t* length)
 		if (i >= 0)
 			break;
 
-		for (i = TILE_HEIGHT / 2; i != 0; i--) {
-			if (*pSrc != TILE_WIDTH / 2)
+		for (i = MICRO_HEIGHT / 2; i != 0; i--) {
+			if (*pSrc != MICRO_WIDTH)
 				break;
 			++pSrc;
-			for (j = 0; j < TILE_WIDTH / 2; ++j) {
+			for (j = 0; j < MICRO_WIDTH; ++j) {
 				*pDst = *pSrc;
 				++pDst;
 				++pSrc;
@@ -1150,15 +1152,15 @@ static BYTE* ReEncodeMicro(BYTE* celData, int type, uint32_t* length)
 		}
 		break;
 	case MET_SQUARE:
-		*length = TILE_WIDTH * TILE_HEIGHT / 2;
+		*length = MICRO_WIDTH * MICRO_HEIGHT;
 		tmpData = (BYTE*)malloc(*length);
 		memset(tmpData, 0, *length);
 		pDst = tmpData;
-		for (i = TILE_HEIGHT; i != 0; i--) {
-			if (*pSrc != TILE_WIDTH / 2)
+		for (i = MICRO_HEIGHT; i != 0; i--) {
+			if (*pSrc != MICRO_WIDTH)
 				break;
 			++pSrc;
-			for (j = 0; j < TILE_WIDTH / 2; ++j) {
+			for (j = 0; j < MICRO_WIDTH; ++j) {
 				*pDst = *pSrc;
 				++pDst;
 				++pSrc;
@@ -1193,18 +1195,18 @@ static void fput_int16(FILE* f0, int16_t val)
 static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData* mmd,
 	BYTE* palette, int numcolors, int coloroffset)
 {
-	BYTE* celData = (BYTE*)malloc(TILE_WIDTH * TILE_HEIGHT);
-	memset(celData, 0, TILE_WIDTH * TILE_HEIGHT);
+	BYTE* celData = (BYTE*)malloc(2 * MICRO_WIDTH * MICRO_HEIGHT);
+	memset(celData, 0, 2 * MICRO_WIDTH * MICRO_HEIGHT);
 
 	bool hasAlpha = false;
 	bool hasColor = false;
 	BYTE* pHead = celData;
 	BYTE* pBuf = celData + 1;
-	for (int i = sy; i >= max(0, sy - (TILE_HEIGHT - 1)); i--) {
+	for (int i = sy; i >= max(0, sy - (MICRO_HEIGHT - 1)); i--) {
 		RGBA* data = (RGBA*)imagedata->row_pointers[i];
 		data += sx;
 		bool alpha = false;
-		for (int j = 0; j < TILE_WIDTH / 2; j++) {
+		for (int j = 0; j < MICRO_WIDTH; j++) {
 			if (data[j].a != 255) {
 				// add transparent pixel
 				if ((char)(*pHead) > 0) {
@@ -1236,8 +1238,8 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
 	}
 
 	// add transparent rows
-	for (int i = 0; i < -(sy - (TILE_HEIGHT - 1)); i++) {
-		*pBuf = -(TILE_WIDTH / 2);
+	for (int i = 0; i < -(sy - (MICRO_HEIGHT - 1)); i++) {
+		*pBuf = -(MICRO_WIDTH);
 		pBuf++;
 		hasAlpha = true;
 	}
@@ -1339,16 +1341,16 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 	}
 
 	// convert PNG to CEL-micros
-	int nummicros = imagedata[0].width / (TILE_WIDTH / 2);
-	nummicros *= imagedata[0].height / TILE_HEIGHT;
+	int nummicros = imagedata[0].width / (MICRO_WIDTH);
+	nummicros *= imagedata[0].height / MICRO_HEIGHT;
 
 	MicroMetaData* microData = (MicroMetaData*)malloc(sizeof(MicroMetaData) * numtiles * nummicros);
 	memset(microData, 0, sizeof(MicroMetaData) * numtiles * nummicros);
 	int n = 0;
 	for (int i = 0; i < numtiles; i++) {
 		png_image_data* img_data = &imagedata[i];
-		for (int y = TILE_HEIGHT - 1; y < img_data->height; y += TILE_HEIGHT) {
-			for (int x = 0; x < img_data->width; x += TILE_WIDTH / 2, n++) {
+		for (int y = MICRO_HEIGHT - 1; y < img_data->height; y += MICRO_HEIGHT) {
+			for (int x = 0; x < img_data->width; x += MICRO_WIDTH, n++) {
 				EncodeMicro(img_data, x, y, &microData[n], palette, numcolors, coloroffset);
 			}
 		}
@@ -1484,8 +1486,8 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, BYTE* 
 	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numtiles);
 	for (int i = 0; i < numtiles; i++) {
 		// prepare pngdata
-		imagedata[i].width = columns * TILE_WIDTH / 2 * multiplier;
-		imagedata[i].height = rows * TILE_HEIGHT * multiplier;
+		imagedata[i].width = columns * MICRO_WIDTH * multiplier;
+		imagedata[i].height = rows * MICRO_HEIGHT * multiplier;
 		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
 		// make the background transparent
 		memset(imagerows, 0, sizeof(sizeof(RGBA) * imagedata[i].height * imagedata[i].width));
@@ -1498,17 +1500,17 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, BYTE* 
 		//lastLine += imagedata.width * (imagedata.height - 1);
 		// CelBlitSafe(, celdata[i].data, celdata[i].dataSize, imagedata.width / multiplier, imagedata.width, palette, coloroffset);
 
-		RGBA* dst = (RGBA*)imagedata[i].row_pointers[rows * TILE_HEIGHT * (multiplier - 1) + TILE_HEIGHT - 1];
+		RGBA* dst = (RGBA*)imagedata[i].row_pointers[rows * MICRO_HEIGHT * (multiplier - 1) + MICRO_HEIGHT - 1];
 		// blit to the bottom right
 		dst += imagedata[i].width - imagedata[i].width / multiplier;
 		uint16_t* src = mindata[i].levelBlocks;
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < columns; x++, src++) {
 				uint16_t levelCelBlock = *src;
-				RenderMicro(dst, columns * TILE_WIDTH / 2 * multiplier, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
-				dst += TILE_WIDTH / 2;
+				RenderMicro(dst, columns * MICRO_WIDTH * multiplier, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
+				dst += MICRO_WIDTH;
 			}
-			dst += imagedata[i].width * TILE_HEIGHT - columns * TILE_WIDTH / 2;
+			dst += imagedata[i].width * MICRO_HEIGHT - columns * MICRO_WIDTH;
 		}
 	}
 
@@ -1574,11 +1576,11 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	// validate the images
 	for (int n = 0; n < pn; n++) {
 		png_image_data* imgdata = &imagedata[n];
-		if (imgdata->width != TILE_WIDTH) {
+		if (imgdata->width != 2 * MICRO_WIDTH) {
 			CleanupImageData(imagedata, pn);
 			return 2; // invalid image (width)
 		}
-		if (imgdata->height > TILE_HEIGHT * blocks / 2) {
+		if (imgdata->height > MICRO_HEIGHT * blocks / 2) {
 			CleanupImageData(imagedata, pn);
 			return 3; // invalid image (height)
 		}
@@ -1603,9 +1605,9 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 
 		memset(cpd->micros, 0, sizeof(cpd->micros));
 		int n = 0;
-		for (int i = imgdata->height - 1; i >= 0; i -= TILE_HEIGHT) {
+		for (int i = imgdata->height - 1; i >= 0; i -= MICRO_HEIGHT) {
 			EncodeMicro(imgdata, 0, i, &cpd->micros[n++], palette, numcolors, coloroffset);
-			EncodeMicro(imgdata, TILE_WIDTH / 2, i, &cpd->micros[n++], palette, numcolors, coloroffset);
+			EncodeMicro(imgdata, MICRO_WIDTH, i, &cpd->micros[n++], palette, numcolors, coloroffset);
 		}
 
 		cpd->micros[0].isFloor = true;
