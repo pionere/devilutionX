@@ -348,10 +348,10 @@ void world_draw_black_tile(int sx, int sy)
 	int i;
 	BYTE* dst;
 
-	if (sx < SCREEN_X - (TILE_WIDTH - 4) || sx >= SCREEN_X + SCREEN_WIDTH)
+	if (sx <= SCREEN_X - (TILE_WIDTH - 4) || sx >= SCREEN_X + SCREEN_WIDTH)
 		return;
 
-	if (sy <= SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
+	if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
 		return;
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy] + TILE_WIDTH / 2 - 2;
