@@ -624,23 +624,23 @@ static void drawCell(int pn, int sx, int sy)
 	tmp = sy - SCREEN_Y;
 	if (tmp < 0)
 		return; // starting from above the top -> skip
-	tmp = (unsigned)(tmp + 1 + (TILE_HEIGHT / 2 - 1)) / (TILE_HEIGHT / 2);
+	tmp = (unsigned)(tmp + 1 + (MICRO_HEIGHT / 2 - 1)) / (MICRO_HEIGHT / 2);
 	limit = tmp <= MicroTileLen ? tmp : MicroTileLen;
 	/*limit = MicroTileLen;
-	while (sy - limit * (TILE_HEIGHT / 2) <= SCREEN_Y - TILE_HEIGHT) {
+	while (sy - limit * (MICRO_HEIGHT / 2) <= SCREEN_Y - MICRO_HEIGHT) {
 		limit -= 2;
 	}*/
 	/*i = 0;
-	while (sy > SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT) {
-		sy -= TILE_HEIGHT;
+	while (sy > SCREEN_Y + VIEWPORT_HEIGHT + MICRO_HEIGHT) {
+		sy -= MICRO_HEIGHT;
 		i += 2;
 	}*/
-	tmp = sy - (SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1);
+	tmp = sy - (SCREEN_Y + VIEWPORT_HEIGHT + MICRO_HEIGHT - 1);
 	i = 0;
 	if (tmp >= 0) {
 		// starting from below the bottom -> skip microtiles
-		tmp = 1 + (unsigned)tmp / TILE_HEIGHT;
-		sy -= TILE_HEIGHT * tmp;
+		tmp = 1 + (unsigned)tmp / MICRO_HEIGHT;
+		sy -= MICRO_HEIGHT * tmp;
 		i = tmp * 2;
 		if (i >= limit)
 			return; // not enough microtiles to affect the screen -> skip
@@ -655,9 +655,9 @@ static void drawCell(int pn, int sx, int sy)
 		if (levelCelBlock != 0 && (tmp & TMIF_LEFT_REDRAW)) {
 			mask = DMT_NONE;
 			if (tmp & TMIF_LEFT_WALL_TRANS) {
-				mask = DMT_LTFLOOR;	// &LeftMask[TILE_HEIGHT - 1];
+				mask = DMT_LTFLOOR;	// &LeftMask[MICRO_HEIGHT - 1];
 			} else if (tmp & TMIF_LEFT_FOLIAGE) {
-				mask = DMT_LFLOOR;	// &LeftFoliageMask[TILE_HEIGHT - 1];
+				mask = DMT_LFLOOR;	// &LeftFoliageMask[MICRO_HEIGHT - 1];
 			}
 			RenderMicro(dst, levelCelBlock, mask);
 		}
@@ -666,18 +666,18 @@ static void drawCell(int pn, int sx, int sy)
 		if (levelCelBlock != 0 && (tmp & TMIF_RIGHT_REDRAW)) {
 			mask = DMT_NONE;
 			if (tmp & TMIF_RIGHT_WALL_TRANS) {
-				mask = DMT_RTFLOOR;	// &RightMask[TILE_HEIGHT - 1];
+				mask = DMT_RTFLOOR;	// &RightMask[MICRO_HEIGHT - 1];
 			} else if (tmp & TMIF_RIGHT_FOLIAGE) {
-				mask = DMT_RFLOOR;	// &RightFoliageMask[TILE_HEIGHT - 1];
+				mask = DMT_RFLOOR;	// &RightFoliageMask[MICRO_HEIGHT - 1];
 			}
-			RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, mask);
+			RenderMicro(dst + MICRO_WIDTH, levelCelBlock, mask);
 		}
 		pMap++;
-		dst -= BUFFER_WIDTH * TILE_HEIGHT;
+		dst -= BUFFER_WIDTH * MICRO_HEIGHT;
 		i = 2;
 	}
 
-	mask = (tmp & TMIF_WALL_TRANS) ? DMT_TWALL : DMT_NONE; // &WallMask[TILE_HEIGHT - 1]
+	mask = (tmp & TMIF_WALL_TRANS) ? DMT_TWALL : DMT_NONE; // &WallMask[MICRO_HEIGHT - 1]
 	for ( ; i < limit; i += 2) {
 		levelCelBlock = *pMap;
 		if (levelCelBlock != 0) {
@@ -686,10 +686,10 @@ static void drawCell(int pn, int sx, int sy)
 		pMap++;
 		levelCelBlock = *pMap;
 		if (levelCelBlock != 0) {
-			RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, mask);
+			RenderMicro(dst + MICRO_WIDTH, levelCelBlock, mask);
 		}
 		pMap++;
-		dst -= BUFFER_WIDTH * TILE_HEIGHT;
+		dst -= BUFFER_WIDTH * MICRO_HEIGHT;
 	}
 }
 
@@ -722,7 +722,7 @@ static void drawFloor(int pn, int sx, int sy)
 	}
 	levelCelBlock = pMap->mt[1];
 	if (levelCelBlock != 0 && (tmp & (TMIF_RIGHT_REDRAW | TMIF_RIGHT_FOLIAGE)) != TMIF_RIGHT_REDRAW) {
-		RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, DMT_NONE);
+		RenderMicro(dst + MICRO_WIDTH, levelCelBlock, DMT_NONE);
 	}
 }
 

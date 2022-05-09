@@ -10,7 +10,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Specifies the draw masks used to render transparency of the right side of tiles. */
-static uint32_t RightMask[TILE_HEIGHT] = {
+static uint32_t RightMask[MICRO_HEIGHT] = {
 	// clang-format off
 	0xEAAAAAAA, 0xF5555555,
 	0xFEAAAAAA, 0xFF555555,
@@ -31,7 +31,7 @@ static uint32_t RightMask[TILE_HEIGHT] = {
 	// clang-format on
 };
 /** Specifies the draw masks used to render transparency of the left side of tiles. */
-static uint32_t LeftMask[TILE_HEIGHT] = {
+static uint32_t LeftMask[MICRO_HEIGHT] = {
 	// clang-format off
 	0xAAAAAAAB, 0x5555555F,
 	0xAAAAAABF, 0x555555FF,
@@ -52,7 +52,7 @@ static uint32_t LeftMask[TILE_HEIGHT] = {
 	// clang-format on
 };
 /** Specifies the draw masks used to render transparency of wall tiles. */
-static uint32_t WallMask[TILE_HEIGHT] = {
+static uint32_t WallMask[MICRO_HEIGHT] = {
 	// clang-format off
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555,
@@ -73,7 +73,7 @@ static uint32_t WallMask[TILE_HEIGHT] = {
 	// clang-format on
 };
 
-static uint32_t SolidMask[TILE_HEIGHT] = {
+static uint32_t SolidMask[MICRO_HEIGHT] = {
 	// clang-format off
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF,
@@ -94,7 +94,7 @@ static uint32_t SolidMask[TILE_HEIGHT] = {
 	// clang-format on
 };
 
-static uint32_t RightFoliageMask[TILE_HEIGHT] = {
+static uint32_t RightFoliageMask[MICRO_HEIGHT] = {
 	// clang-format off
 	0xFFFFFFFF, 0x3FFFFFFF,
 	0x0FFFFFFF, 0x03FFFFFF,
@@ -115,7 +115,7 @@ static uint32_t RightFoliageMask[TILE_HEIGHT] = {
 	// clang-format on
 };
 
-static uint32_t LeftFoliageMask[TILE_HEIGHT] = {
+static uint32_t LeftFoliageMask[MICRO_HEIGHT] = {
 	// clang-format off
 	0xFFFFFFFF, 0xFFFFFFFC,
 	0xFFFFFFF0, 0xFFFFFFC0,
@@ -215,51 +215,51 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 
 	switch (maskType) {
 	case DMT_NONE:
-		mask = &SolidMask[TILE_HEIGHT - 1];
+		mask = &SolidMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_TWALL:
-		mask = &WallMask[TILE_HEIGHT - 1];
+		mask = &WallMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_LTFLOOR:
-		mask = &LeftMask[TILE_HEIGHT - 1];
+		mask = &LeftMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_RTFLOOR:
-		mask = &RightMask[TILE_HEIGHT - 1];
+		mask = &RightMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_LFLOOR:
-		mask = &LeftFoliageMask[TILE_HEIGHT - 1];
+		mask = &LeftFoliageMask[MICRO_HEIGHT - 1];
 		break;
 	case DMT_RFLOOR:
-		mask = &RightFoliageMask[TILE_HEIGHT - 1];
+		mask = &RightFoliageMask[MICRO_HEIGHT - 1];
 		break;
 	default:
 		ASSUME_UNREACHABLE;
-		mask = &SolidMask[TILE_HEIGHT - 1];
+		mask = &SolidMask[MICRO_HEIGHT - 1];
 		break; 
 	}
 
 #if DEBUG_MODE
 	if (GetAsyncKeyState(DVL_VK_MENU)) {
-		mask = &SolidMask[TILE_HEIGHT - 1];
+		mask = &SolidMask[MICRO_HEIGHT - 1];
 	}
 #endif
 
 	light = light_trn_index;
-	static_assert(TILE_HEIGHT - 2 < TILE_WIDTH / 2, "Line with negative or zero width.");
-	static_assert(TILE_WIDTH / 2 <= sizeof(*mask) * CHAR_BIT, "Mask is too small to cover the tile.");
+	static_assert(MICRO_HEIGHT - 2 < MICRO_WIDTH, "Line with negative or zero width.");
+	static_assert(MICRO_WIDTH <= sizeof(*mask) * CHAR_BIT, "Mask is too small to cover the tile.");
 	switch (encoding) {
 	case MET_SQUARE:
-		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2, *mask, light);
-			src += TILE_WIDTH / 2;
-			dst += TILE_WIDTH / 2;
+		for (i = MICRO_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH, *mask, light);
+			src += MICRO_WIDTH;
+			dst += MICRO_WIDTH;
 		}
 		break;
 	case MET_TRANSPARENT:
-		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+		for (i = MICRO_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			m = *mask;
-			static_assert(TILE_WIDTH / 2 <= sizeof(m) * CHAR_BIT, "Undefined left-shift behavior.");
-			for (j = TILE_WIDTH / 2; j != 0; j -= v, m <<= v) {
+			static_assert(MICRO_WIDTH <= sizeof(m) * CHAR_BIT, "Undefined left-shift behavior.");
+			for (j = MICRO_WIDTH; j != 0; j -= v, m <<= v) {
 				v = *src++;
 				if (v > 0) {
 					RenderLine(dst, src, v, m, light);
@@ -273,63 +273,63 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 		}
 		break;
 	case MET_LTRIANGLE:
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 		}
-		for (i = 2; i != TILE_HEIGHT; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+		for (i = 2; i != MICRO_HEIGHT; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 		}
 		break;
 	case MET_RTRIANGLE:
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
-		for (i = 2; i != TILE_HEIGHT; i += 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+		for (i = 2; i != MICRO_HEIGHT; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
 		break;
 	case MET_LTRAPEZOID:
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 		}
-		for (i = TILE_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2, *mask, light);
-			src += TILE_WIDTH / 2;
-			dst += TILE_WIDTH / 2;
+		for (i = MICRO_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH, *mask, light);
+			src += MICRO_WIDTH;
+			dst += MICRO_WIDTH;
 		}
 		break;
 	case MET_RTRAPEZOID:
-		for (i = TILE_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2 - i, *mask, light);
-			src += TILE_WIDTH / 2 - i;
-			dst += TILE_WIDTH / 2 - i;
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
+			src += MICRO_WIDTH - i;
+			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
-		for (i = TILE_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
-			RenderLine(dst, src, TILE_WIDTH / 2, *mask, light);
-			src += TILE_WIDTH / 2;
-			dst += TILE_WIDTH / 2;
+		for (i = MICRO_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+			RenderLine(dst, src, MICRO_WIDTH, *mask, light);
+			src += MICRO_WIDTH;
+			dst += MICRO_WIDTH;
 		}
 		break;
 	default:
