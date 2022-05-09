@@ -1185,7 +1185,7 @@ static int CelGetFrameWidth(bool clipped, BYTE* frameData, int frameLen)
 		}
 	}
 	// find the smallest possible width
-	for (int i = 1; i < pixels / 2; i++) {
+	for (int i = 1; i <= pixels / 2; i++) {
 		if (CelValidWidth(i, pixels, lineBreaks, colorBreaks))
 			return i;
 	}
@@ -2240,6 +2240,21 @@ int main()
 	}
 	input.close();
 	*/
+	/*{ // upscale special cells of the levels (fails if the output-folder structure is not prepared)
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
+		UpscaleCel("f:\\MPQE\\Work\\Levels\\TownData\\TownS.CEL", 1, pal, 128, 0, 
+			"f:\\outcel\\Levels\\TownData\\TownS.CEL");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L1Data\\L1_1.PAL");
+		UpscaleCel("f:\\MPQE\\Work\\Levels\\L1Data\\L1S.CEL", 1, pal, 128, 0, 
+			"f:\\outcel\\Levels\\L1Data\\L1S.CEL");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L2Data\\L2_1.PAL");
+		UpscaleCel("f:\\MPQE\\Work\\Levels\\L2Data\\L2S.CEL", 1, pal, 128, 0, 
+			"f:\\outcel\\Levels\\L2Data\\L2S.CEL");
+	}*/
 	// UpscaleCelComp("F:\\MPQE\\Work\\towners\\animals\\cow.CEL", 1, &diapal[0][0], 128, 128, "F:\\outcel\\towners\\animals\\cow.cel");
 	/* upscale all cl2 files of listfiles.txt (fails if the output-folder structure is not prepared)
 	// #include <fstream>
