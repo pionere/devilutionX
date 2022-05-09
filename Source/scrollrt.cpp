@@ -624,16 +624,16 @@ static void drawCell(int pn, int sx, int sy)
 	tmp = sy - SCREEN_Y;
 	if (tmp < 0)
 		return; // starting from above the top -> skip
-	tmp = (unsigned)(tmp + 1 + (MICRO_HEIGHT / 2 - 1)) / (MICRO_HEIGHT / 2);
+	tmp = (unsigned)(tmp + 1 + (MICRO_HEIGHT / (TILE_WIDTH / MICRO_WIDTH) - 1)) / (MICRO_HEIGHT / (TILE_WIDTH / MICRO_WIDTH));
 	limit = tmp <= MicroTileLen ? tmp : MicroTileLen;
 	/*limit = MicroTileLen;
-	while (sy - limit * (MICRO_HEIGHT / 2) <= SCREEN_Y - MICRO_HEIGHT) {
-		limit -= 2;
+	while (sy - limit * (MICRO_HEIGHT / (TILE_WIDTH / MICRO_WIDTH)) <= SCREEN_Y - MICRO_HEIGHT) {
+		limit -= (TILE_WIDTH / MICRO_WIDTH);
 	}*/
 	/*i = 0;
 	while (sy > SCREEN_Y + VIEWPORT_HEIGHT + MICRO_HEIGHT) {
 		sy -= MICRO_HEIGHT;
-		i += 2;
+		i += (TILE_WIDTH / MICRO_WIDTH);
 	}*/
 	tmp = sy - (SCREEN_Y + VIEWPORT_HEIGHT + MICRO_HEIGHT - 1);
 	i = 0;
@@ -641,7 +641,7 @@ static void drawCell(int pn, int sx, int sy)
 		// starting from below the bottom -> skip microtiles
 		tmp = 1 + (unsigned)tmp / MICRO_HEIGHT;
 		sy -= MICRO_HEIGHT * tmp;
-		i = tmp * 2;
+		i = tmp * (TILE_WIDTH / MICRO_WIDTH);
 		if (i >= limit)
 			return; // not enough microtiles to affect the screen -> skip
 	}
@@ -674,21 +674,23 @@ static void drawCell(int pn, int sx, int sy)
 		}
 		pMap++;
 		dst -= BUFFER_WIDTH * MICRO_HEIGHT;
-		i = 2;
+		i = (TILE_WIDTH / MICRO_WIDTH);
 	}
 
 	mask = (tmp & TMIF_WALL_TRANS) ? DMT_TWALL : DMT_NONE; // &WallMask[MICRO_HEIGHT - 1]
-	for ( ; i < limit; i += 2) {
+	while (i < limit) {
 		levelCelBlock = *pMap;
 		if (levelCelBlock != 0) {
 			RenderMicro(dst, levelCelBlock, mask);
 		}
 		pMap++;
+		i++;
 		levelCelBlock = *pMap;
 		if (levelCelBlock != 0) {
 			RenderMicro(dst + MICRO_WIDTH, levelCelBlock, mask);
 		}
 		pMap++;
+		i++;
 		dst -= BUFFER_WIDTH * MICRO_HEIGHT;
 	}
 }
