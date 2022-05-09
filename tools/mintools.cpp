@@ -1498,7 +1498,7 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, BYTE* 
 		//lastLine += imagedata.width * (imagedata.height - 1);
 		// CelBlitSafe(, celdata[i].data, celdata[i].dataSize, imagedata.width / multiplier, imagedata.width, palette, coloroffset);
 
-		RGBA* dst = (RGBA*)imagedata[i].row_pointers[rows * TILE_HEIGHT * (multiplier - 1)];
+		RGBA* dst = (RGBA*)imagedata[i].row_pointers[rows * TILE_HEIGHT * (multiplier - 1) + TILE_HEIGHT - 1];
 		// blit to the bottom right
 		dst += imagedata[i].width - imagedata[i].width / multiplier;
 		uint16_t* src = mindata[i].levelBlocks;
@@ -1508,7 +1508,7 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, BYTE* 
 				RenderMicro(dst, columns * TILE_WIDTH / 2 * multiplier, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
 				dst += TILE_WIDTH / 2;
 			}
-			dst += TILE_HEIGHT * TILE_WIDTH - columns * TILE_WIDTH / 2;
+			dst += imagedata[i].width * TILE_HEIGHT - columns * TILE_WIDTH / 2;
 		}
 	}
 
@@ -1955,10 +1955,45 @@ void PatchMin(const char* patchFileName, const char* solFileName, const char* tm
 
 int main()
 {
-	/*{
+	/*{ // upscale tiles of the levels (fails if the output-folder structure is not prepared)
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
 		UpscaleMin("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL", pal, 256, 0, 
-			"f:\\outmin\\", "Town_hd");
+			"f:\\outmin\\Levels\\TownData\\", "Town");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L1Data\\L1_1.PAL");
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L1Data\\L1.MIN", 2, "f:\\MPQE\\Work\\Levels\\L1Data\\L1.CEL", pal, 128, 0, 
+			"f:\\outmin\\Levels\\L1Data\\", "L1");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L2Data\\L2_1.PAL");
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L2Data\\L2.MIN", 2, "f:\\MPQE\\Work\\Levels\\L2Data\\L2.CEL", pal, 128, 0, 
+			"f:\\outmin\\Levels\\L2Data\\", "L2");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L3Data\\L3_1.PAL");
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L3Data\\L3.MIN", 2, "f:\\MPQE\\Work\\Levels\\L3Data\\L3.CEL", pal, 128, 0, 
+			"f:\\outmin\\Levels\\L3Data\\", "L3");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L4Data\\L4_1.PAL");
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L4Data\\L4.MIN", 2, "f:\\MPQE\\Work\\Levels\\L4Data\\L4.CEL", pal, 128, 0, 
+			"f:\\outmin\\Levels\\L4Data\\", "L4");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\NLevels\\TownData\\Town.CEL", pal, 256, 0, 
+			"f:\\outmin\\NLevels\\TownData\\", "Town");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L5Data\\L5Base.PAL");
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L5Data\\L5.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L5Data\\L5.CEL", pal, 256, 0, 
+			"f:\\outmin\\NLevels\\L5Data\\", "L5");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L6Data\\L6Base1.PAL");
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L6Data\\L6.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L6Data\\L6.CEL", pal, 128, 0, 
+			"f:\\outmin\\NLevels\\L6Data\\", "L6");
 	}*/
 	/*{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
