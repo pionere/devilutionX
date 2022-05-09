@@ -892,7 +892,7 @@ bool Min2PNG(const char* minname, int columns, int rows, const char* celname,
 				RenderMicro(dst, columns * TILE_WIDTH / 2, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
 				dst += TILE_WIDTH / 2;
 			}
-			dst += TILE_HEIGHT * TILE_WIDTH - columns * TILE_WIDTH / 2;
+			dst += imagedata.width * TILE_HEIGHT - columns * TILE_WIDTH / 2;
 		}
 
 		// write a single png
