@@ -5,6 +5,7 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/credits_lines.h"
 #include "DiabloUI/text_draw.h"
+#include "../gameui.h"
 #include "../engine.h"
 #include "../dx.h"
 

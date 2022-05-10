@@ -5,6 +5,7 @@
 #include "storm/storm_net.h"
 //#include "all.h"
 #include <algorithm>
+#include "../gameui.h"
 #include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
