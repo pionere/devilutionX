@@ -7,12 +7,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define QPNL_LINE_SPACING	24
-#define QPNL_BORDER			10
-#define QPNL_MAXENTRIES		((SPANEL_HEIGHT - 2 * QPNL_BORDER) / QPNL_LINE_SPACING)
-#define QPNL_LINE_WIDTH		(SPANEL_WIDTH - 2 * QPNL_BORDER)
-#define QPNL_TEXT_HEIGHT	12
-
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */

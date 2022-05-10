@@ -12,17 +12,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define GAMEMENU_HEADER_Y		102
-#define GAMEMENU_HEADER_OFF		13
-#define GAMEMENU_ITEM_HEIGHT	45
-#define SLIDER_ROW_WIDTH		490
-#define SLIDER_BOX_WIDTH		287
-#define SLIDER_BOX_HEIGHT		32
-#define SLIDER_OFFSET			186
-#define SLIDER_BORDER			2
-#define SLIDER_STEPS			256
-#define SLIDER_BUTTON_WIDTH		27
-
 /** Logo CEL above the menu */
 static CelImageBuf* gpLogoCel;
 /** Slider CEL */

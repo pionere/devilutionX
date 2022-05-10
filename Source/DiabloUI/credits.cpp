@@ -11,10 +11,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define CREDITS_TOP		100
-#define CREDITS_HEIGHT	280
-#define CREDITS_LINE_H	22
-
 static bool CreditsRender(int offsetY)
 {
 	BYTE *pStart, *pEnd;

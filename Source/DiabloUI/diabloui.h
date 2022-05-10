@@ -9,9 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SML_BUTTON_WIDTH	110
-#define SML_BUTTON_HEIGHT	28
-
 extern CelImageBuf* gbBackCel;
 extern CelImageBuf* gbHerosCel;
 extern CelImageBuf* gbSmlButtonCel;

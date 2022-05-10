@@ -15,9 +15,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define LARGE_POPUP_WIDTH	385
-#define LARGE_POPUP_HEIGHT	280
-
 static CelImageBuf* gbDialogBackCel;
 static bool _gbDialogEnd;
 static bool gbInDialog = false;

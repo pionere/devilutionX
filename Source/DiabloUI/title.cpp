@@ -5,8 +5,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define BIG_LOGO_WIDTH	550
-
 CelImageBuf* gbLogoBig;
 
 static void TitleLoad()

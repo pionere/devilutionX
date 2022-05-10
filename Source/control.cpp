@@ -10,25 +10,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define TALK_PNL_WIDTH		302
-#define TALK_PNL_HEIGHT		51
-#define TALK_PNL_BORDER		15
-#define TALK_PNL_TOP		(SCREEN_HEIGHT - 48 - TALK_PNL_HEIGHT)
-#define TALK_PNL_LEFT		((SCREEN_WIDTH - TALK_PNL_WIDTH) / 2)
-
-#define SBOOK_CELWIDTH		37
-#define SBOOK_CELHEIGHT		38
-#define SBOOK_CELBORDER		 1
-#define SBOOK_TOP_BORDER	 1
-#define SBOOK_LEFT_BORDER	 1
-#define SBOOK_LINE_BORDER	10
-#define SBOOK_LINE_LENGTH	SPANEL_WIDTH - 2 * SBOOK_LEFT_BORDER - SBOOK_CELBORDER - SBOOK_CELWIDTH - 2 * SBOOK_LINE_BORDER
-#define SBOOK_LINE_TAB		SBOOK_CELWIDTH + SBOOK_CELBORDER + SBOOK_LINE_BORDER
-#define SBOOK_PAGER_WIDTH	56
-
-#define DURICON_WIDTH		32
-#define GOLDDROP_WIDTH		261
-
 /** Menu button images CEL */
 static CelImageBuf* pPanelButtonCels;
 /** The number of buttons in the menu. */
@@ -2140,7 +2121,6 @@ static bool PlrHasTeam()
 	return false;
 }
 
-#define TBOOK_BTN_WIDTH	60
 #define TBOOKTABS		((MAX_PLRS + NUM_BOOK_ENTRIES - 1) / NUM_BOOK_ENTRIES)
 void DrawTeamBook()
 {

@@ -11,9 +11,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define PROGRESS_CANCEL	101
 
-#define PRBAR_WIDTH		228
-#define PRBAR_HEIGHT	38
-
 static CelImageBuf* gbProgBackCel;
 static CelImageBuf* gbProgEmptyCel;
 static BYTE* gbProgFillBmp;

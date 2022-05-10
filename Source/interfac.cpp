@@ -7,11 +7,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** The starting x-position of the progress bar. */
-#define BAR_POS_X		53
-/** The width of the progress bar. */
-#define BAR_WIDTH		PANEL_WIDTH - BAR_POS_X * 2
-
 /** Cutscene image CEL */
 CelImageBuf* sgpBackCel;
 
