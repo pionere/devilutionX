@@ -506,7 +506,7 @@ void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 {
 	assert(gbLogoCelSmall != NULL);
-	SDL_Rect rect = { PANEL_LEFT + (PANEL_WIDTH - SMALL_LOGO_WIDTH) / 2, PANEL_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
+	SDL_Rect rect = { PANEL_MIDX(SMALL_LOGO_WIDTH), PANEL_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
 	vecDialog->push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 

@@ -39,11 +39,11 @@ static void ProgressLoad(const char *msg)
 	}
 	MemFreeDbg(gbProgFillCel);
 
-	y = PANEL_TOP + (PANEL_HEIGHT - SMALL_POPUP_HEIGHT) / 2;
+	y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
 
 	SDL_Rect rect1 = { PANEL_LEFT, y + 20, PANEL_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
-	SDL_Rect rect2 = { PANEL_LEFT + (PANEL_WIDTH - SML_BUTTON_WIDTH) / 2, y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+	SDL_Rect rect2 = { PANEL_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiButton("Cancel", &DialogActionCancel, rect2));
 }
 
@@ -64,8 +64,8 @@ static void ProgressRender()
 
 	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, gbBackCel, 1);
 
-	x = PANEL_X + (PANEL_WIDTH - SMALL_POPUP_WIDTH) / 2;
-	y = PANEL_Y + (PANEL_HEIGHT - SMALL_POPUP_HEIGHT) / 2;
+	x = PANEL_CENTERX(SMALL_POPUP_WIDTH);
+	y = PANEL_CENTERY(SMALL_POPUP_HEIGHT);
 
 	CelDraw(x, y + SMALL_POPUP_HEIGHT, gbProgBackCel, 1);
 	x += (SMALL_POPUP_WIDTH - PRBAR_WIDTH) / 2;

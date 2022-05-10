@@ -35,10 +35,10 @@ void gmenu_draw_pause()
 
 	if (!gmenu_is_active()) {
 		// assert(GetHugeStringWidth("Pause") == 135);
-		x = PANEL_X + (PANEL_WIDTH - 135) / 2;
+		x = PANEL_CENTERX(135);
 		static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
 		light = (SDL_GetTicks() / 256) % 4;
-		PrintHugeString(x, PANEL_Y + PANEL_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", light);
+		PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", light);
 	}
 }
 
@@ -151,7 +151,7 @@ static void gmenu_draw_menu_item(int i, int y)
 	unsigned w, x, nSteps, step, pos;
 
 	w = gmenu_get_lfont(pItem);
-	x = SCREEN_X + (SCREEN_WIDTH - w) / 2;
+	x = PANEL_CENTERX(w);
 	PrintHugeString(x, y, pItem->pszStr, (pItem->dwFlags & GMF_ENABLED) ? 0 : MAXDARKNESS);
 	if (pItem == &gpCurrentMenu[guCurrItemIdx])
 		DrawHugePentSpn(x - (FOCUS_HUGE + 6), x + 4 + w, y + 1);
@@ -194,7 +194,7 @@ void gmenu_draw()
 	nCel = 1;
 #endif
 	y = PANEL_Y + GAMEMENU_HEADER_Y;
-	CelDraw(PANEL_X + (PANEL_WIDTH - LOGO_WIDTH) / 2, y, gpLogoCel, nCel);
+	CelDraw(PANEL_CENTERX(LOGO_WIDTH), y, gpLogoCel, nCel);
 	y += GAMEMENU_HEADER_OFF + GAMEMENU_ITEM_HEIGHT;
 	for (i = 0; i < guCurrentMenuSize; i++, y += GAMEMENU_ITEM_HEIGHT)
 		gmenu_draw_menu_item(i, y);
