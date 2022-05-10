@@ -164,7 +164,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		UiAddBackground(&gUiItems);
 	//}
 
-	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", 110);
+	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
 
 	/*if (caption == NULL) {
 		gbDialogBackCel = CelLoadImage(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL", 280);

@@ -32,7 +32,7 @@ static void ProgressLoad(const char *msg)
 	int i, y;
 
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", 110);
+	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
 	gbProgBackCel = CelLoadImage("ui_art\\spopup.CEL", PRPANEL_WIDTH);
 	gbProgEmptyCel = CelLoadImage("ui_art\\prog_bg.CEL", PRBAR_WIDTH);
 
