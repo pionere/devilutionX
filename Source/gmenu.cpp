@@ -16,6 +16,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #define MENU_HEADER_OFF		13
 #define MENU_ITEM_HEIGHT	45
 #define SLIDER_ROW_WIDTH	490
+#define SLIDER_BOX_WIDTH	287
+#define SLIDER_BOX_HEIGHT	32
 #define SLIDER_OFFSET		186
 #define SLIDER_BORDER		2
 #define SLIDER_STEPS		256
@@ -70,7 +72,7 @@ void InitGMenu()
 	assert(gpOptionCel == NULL);
 	gpOptionCel = CelLoadImage("Data\\option.CEL", SLIDER_BUTTON_WIDTH);
 	assert(gpOptbarCel == NULL);
-	gpOptbarCel = CelLoadImage("Data\\optbar.CEL", 287);
+	gpOptbarCel = CelLoadImage("Data\\optbar.CEL", SLIDER_BOX_WIDTH);
 }
 
 static void gmenu_up_down(bool isDown)
@@ -171,7 +173,7 @@ static void gmenu_draw_menu_item(int i, int y)
 		step = pItem->wMenuParam2;
 		nSteps = pItem->wMenuParam1;
 		pos = step * SLIDER_STEPS / nSteps;
-		gmenu_draw_rectangle(x, y - 12, pos + SLIDER_BUTTON_WIDTH / 2, 28);
+		gmenu_draw_rectangle(x, y - 12, pos + SLIDER_BUTTON_WIDTH / 2, SLIDER_BOX_HEIGHT - 4);
 		CelDraw(x + pos, y - 12, gpOptionCel, 1);
 	}
 }
