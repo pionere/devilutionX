@@ -11,8 +11,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define PROGRESS_CANCEL	101
 
-#define PRPANEL_WIDTH	280
-#define PRPANEL_HEIGHT	144
 #define PRBAR_WIDTH		228
 #define PRBAR_HEIGHT	38
 
@@ -33,7 +31,7 @@ static void ProgressLoad(const char *msg)
 
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
 	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
-	gbProgBackCel = CelLoadImage("ui_art\\spopup.CEL", PRPANEL_WIDTH);
+	gbProgBackCel = CelLoadImage("ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
 	gbProgEmptyCel = CelLoadImage("ui_art\\prog_bg.CEL", PRBAR_WIDTH);
 
 	gbProgFillBmp = DiabloAllocPtr(PRBAR_HEIGHT * PRBAR_WIDTH);
@@ -44,7 +42,7 @@ static void ProgressLoad(const char *msg)
 	}
 	MemFreeDbg(gbProgFillCel);
 
-	y = PANEL_TOP + (PANEL_HEIGHT - PRPANEL_HEIGHT) / 2;
+	y = PANEL_TOP + (PANEL_HEIGHT - SMALL_POPUP_HEIGHT) / 2;
 
 	SDL_Rect rect1 = { PANEL_LEFT, y + 20, PANEL_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
@@ -69,11 +67,11 @@ static void ProgressRender()
 
 	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, gbBackCel, 1);
 
-	x = PANEL_X + (PANEL_WIDTH - PRPANEL_WIDTH) / 2;
-	y = PANEL_Y + (PANEL_HEIGHT - PRPANEL_HEIGHT) / 2;
+	x = PANEL_X + (PANEL_WIDTH - SMALL_POPUP_WIDTH) / 2;
+	y = PANEL_Y + (PANEL_HEIGHT - SMALL_POPUP_HEIGHT) / 2;
 
-	CelDraw(x, y + PRPANEL_HEIGHT, gbProgBackCel, 1);
-	x += (PRPANEL_WIDTH - PRBAR_WIDTH) / 2;
+	CelDraw(x, y + SMALL_POPUP_HEIGHT, gbProgBackCel, 1);
+	x += (SMALL_POPUP_WIDTH - PRBAR_WIDTH) / 2;
 	y += 46 + PRBAR_HEIGHT;
 	CelDraw(x, y - 1, gbProgEmptyCel, 1);
 	dx = _gnProgress;

@@ -170,10 +170,10 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
 
 	/*if (caption == NULL) {
-		gbDialogBackCel = CelLoadImage(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL", 280);
+		gbDialogBackCel = CelLoadImage(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
 		WordWrapArtStr(text, 240, AFT_SMALL);
 
-		SDL_Rect rect1 = { PANEL_LEFT + 180, (PANEL_TOP + 168), 280, 144 };
+		SDL_Rect rect1 = { PANEL_LEFT + 180, (PANEL_TOP + 168), SMALL_POPUP_WIDTH, SMALL_POPUP_HEIGHT };
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, false));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 200, (PANEL_TOP + 211), 240, 80 };
