@@ -180,7 +180,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect3));
 	} else {*/
 		gbDialogBackCel = CelLoadImage(error ? "ui_art\\lrpopup.CEL" : "ui_art\\lpopup.CEL", LARGE_POPUP_WIDTH);
-		WordWrapArtStr(text, 346, AFT_SMALL);
+		WordWrapArtStr(text, LARGE_POPUP_TEXT_WIDTH, AFT_SMALL);
 
 		SDL_Rect rect1 = { PANEL_LEFT + (PANEL_WIDTH - LARGE_POPUP_WIDTH) / 2, (PANEL_TOP + 100), LARGE_POPUP_WIDTH, LARGE_POPUP_HEIGHT };
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, false));
@@ -188,10 +188,10 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		SDL_Rect rect2 = { PANEL_LEFT + 0, (PANEL_TOP + 110), PANEL_WIDTH, 20 };
 		gUiItems.push_back(new UiText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect3 = { PANEL_LEFT + (PANEL_WIDTH - 346) / 2, (PANEL_TOP + 141), 346, 190 };
+		SDL_Rect rect3 = { PANEL_LEFT + (PANEL_WIDTH - LARGE_POPUP_TEXT_WIDTH) / 2, (PANEL_TOP + 141), LARGE_POPUP_TEXT_WIDTH, LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17 - 17 };
 		gUiItems.push_back(new UiText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
-		SDL_Rect rect4 = { PANEL_LEFT + (PANEL_WIDTH - SML_BUTTON_WIDTH) / 2, (PANEL_TOP + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+		SDL_Rect rect4 = { PANEL_LEFT + (PANEL_WIDTH - SML_BUTTON_WIDTH) / 2, (PANEL_TOP + 100 + LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect4));
 	//}
 }
