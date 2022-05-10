@@ -200,7 +200,7 @@ void InitInv()
 	assert(pInvCels == NULL);
 	pInvCels = CelLoadImage("Data\\Inv\\Inv.CEL", SPANEL_WIDTH);
 	assert(pBeltCels == NULL);
-	pBeltCels = CelLoadImage("Data\\Inv\\Belt.CEL", 60);
+	pBeltCels = CelLoadImage("Data\\Inv\\Belt.CEL", BELT_WIDTH);
 	gbInvflag = false;
 	//gbTSpell = SPL_NULL;
 	//gbTSplFrom = 0;
