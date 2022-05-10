@@ -8,6 +8,14 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef HELLFIRE
+#define LOGO_DATA				"Data\\hf_logo3.CEL"
+#define LOGO_WIDTH				430
+#else
+#define LOGO_DATA				"Data\\Diabsmal.CEL"
+#define LOGO_WIDTH				296
+#endif
+
 #ifndef DEFAULT_WIDTH
 #define DEFAULT_WIDTH	640
 #endif
@@ -67,6 +75,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define LTPANEL_Y		PANEL_Y + 24
 
 #define STORE_PNL_X		PANEL_X + 344
+#define STORE_LINES		24
 
 #define SCREENXY(x, y) ((x) + SCREEN_X + ((y) + SCREEN_Y) * BUFFER_WIDTH)
 
@@ -83,6 +92,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SPLICONLAST		43
 #define SPLBOOKTABS		4
 #endif
+
+#define INV_SLOT_SIZE_PX	28
 
 #define SMALL_SCROLL_WIDTH	12
 #define SMALL_SCROLL_HEIGHT	12

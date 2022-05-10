@@ -9,15 +9,11 @@
 #define DATA_ARCHIVE_PATCH		"patch_rt.mpq"
 
 #ifdef HELLFIRE
-#define LOGO_DATA				"Data\\hf_logo3.CEL"
-#define LOGO_WIDTH				430
 #define INTRO_ARCHIVE			"gendata\\Hellfire.smk"
 #define GAME_ID					((int)'HRTL')
 #define GAME_VERSION			34
 #define HELP_TITLE				"Hellfire Help"
 #else
-#define LOGO_DATA				"Data\\Diabsmal.CEL"
-#define LOGO_WIDTH				296
 #define INTRO_ARCHIVE			"gendata\\diablo1.smk"
 #define GAME_ID					((int)'DRTL')
 #define GAME_VERSION			42
@@ -87,7 +83,6 @@
 
 // number of inventory grid cells
 #define NUM_INV_GRID_ELEM		40
-#define INV_SLOT_SIZE_PX		28
 
 // Item indestructible durability
 #define DUR_INDESTRUCTIBLE		255
@@ -107,7 +102,6 @@
 #define SMITH_PREMIUM_ITEMS		8
 #define SMITH_MAX_VALUE			140000
 #define SMITH_MAX_PREMIUM_VALUE 140000
-#define STORE_LINES				24
 
 // from diablo 2 beta
 #define MAXRESIST				75
