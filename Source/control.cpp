@@ -27,6 +27,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SBOOK_PAGER_WIDTH	56
 
 #define DURICON_WIDTH		32
+#define GOLDDROP_WIDTH		261
 
 /** Menu button images CEL */
 static CelImageBuf* pPanelButtonCels;
@@ -923,7 +924,7 @@ void InitControlPan()
 	gbSbookflag = false;
 	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
-	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", 261);
+	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);
 	gbDropGoldFlag = false;
 	dropGoldValue = 0;
 	initialDropGoldValue = 0;
@@ -2047,10 +2048,10 @@ void DrawGoldSplit(int amount)
 	screen_x = 0;
 	CelDraw(351 + SCREEN_X, 178 + SCREEN_Y, pGoldDropCel, 1);
 	snprintf(tempstr, sizeof(tempstr), "You have %d gold", initialDropGoldValue);
-	ADD_PlrStringXY(366, 87, 600, tempstr, COL_GOLD);
+	ADD_PlrStringXY(351 + 15, 87, 351 + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD);
 	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(initialDropGoldValue));
-	ADD_PlrStringXY(366, 103, 600, tempstr, COL_GOLD);
-	ADD_PlrStringXY(366, 121, 600, "you want to remove?", COL_GOLD);
+	ADD_PlrStringXY(351 + 15, 103, 351 + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD);
+	ADD_PlrStringXY(351 + 15, 121, 351 + GOLDDROP_WIDTH - 15, "you want to remove?", COL_GOLD);
 	if (amount > 0) {
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
 		PrintGameStr(388 + SCREEN_X, 140 + SCREEN_Y, tempstr, COL_WHITE);
