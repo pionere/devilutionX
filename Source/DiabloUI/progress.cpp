@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PROGRESS_CANCEL	101
 
 #define PRPANEL_WIDTH	280
-#define PRPANEL_HEIGHT	140
+#define PRPANEL_HEIGHT	144
 #define PRBAR_WIDTH		228
 #define PRBAR_HEIGHT	38
 
@@ -73,8 +73,8 @@ static void ProgressRender()
 	y = PANEL_Y + (PANEL_HEIGHT - PRPANEL_HEIGHT) / 2;
 
 	CelDraw(x, y + PRPANEL_HEIGHT, gbProgBackCel, 1);
-	x += (PRPANEL_WIDTH - 227) / 2;
-	y += 52 + PRBAR_HEIGHT;
+	x += (PRPANEL_WIDTH - PRBAR_WIDTH) / 2;
+	y += 46 + PRBAR_HEIGHT;
 	CelDraw(x, y - 1, gbProgEmptyCel, 1);
 	dx = _gnProgress;
 	if (dx > 100)
