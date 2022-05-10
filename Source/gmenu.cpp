@@ -15,7 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Logo CEL above the menu */
 static CelImageBuf* gpLogoCel;
 /** Slider CEL */
-static CelImageBuf* gpOptbarCel;
+CelImageBuf* gpOptbarCel;
 /** Slider button CEL */
 static CelImageBuf* gpOptionCel;
 /** Speficifies whether the mouse is pressed while navigating the menu. */
