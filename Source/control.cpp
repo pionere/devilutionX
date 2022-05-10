@@ -741,8 +741,8 @@ static void DrawFlask2(int sx, int filled, int emptyCel, int fullCel, int w)
 
 	sy = SCREEN_Y + SCREEN_HEIGHT - 1;
 
-	filled += 13;
-	int emptied = 95 - filled;
+	filled += FLASK_TOTAL_HEIGHT - FLASK_BULB_HEIGHT;
+	int emptied = FLASK_TOTAL_HEIGHT - filled;
 	empty = CelGetFrame(pFlaskCels, emptyCel, &dataSize);
 	full = CelGetFrame(pFlaskCels, fullCel, &dataSize);
 
@@ -799,16 +799,16 @@ void DrawLifeFlask()
 		if (hp <= 0 || maxHP <= 0)
 			filled = 0;
 		else
-			filled = 82 * hp / maxHP;
-		if (filled > 82)
-			filled = 82;
+			filled = FLASK_BULB_HEIGHT * hp / maxHP;
+		if (filled > FLASK_BULB_HEIGHT)
+			filled = FLASK_BULB_HEIGHT;
 		gnHPPer = filled;
 	} else {
 		filled = gnHPPer;
 	}
 
-	x = SCREEN_X + 80 - 28;
-	DrawFlask2(x, filled, 1, 2, 118);
+	x = SCREEN_X + MENUBTN_WIDTH - LIFE_FLASK_WIDTH / 6;
+	DrawFlask2(x, filled, 1, 2, LIFE_FLASK_WIDTH);
 }
 
 void DrawManaFlask()
@@ -824,16 +824,16 @@ void DrawManaFlask()
 		if (mana <= 0 || maxMana <= 0)
 			filled = 0;
 		else
-			filled = 82 * mana / maxMana;
-		if (filled > 82)
-			filled = 82;
+			filled = FLASK_BULB_HEIGHT * mana / maxMana;
+		if (filled > FLASK_BULB_HEIGHT)
+			filled = FLASK_BULB_HEIGHT;
 		gnManaPer = filled;
 	} else {
 		filled = gnManaPer;
 	}
 
-	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92);
-	DrawFlask2(x, filled, 3, myplr._pManaShield == 0 ? 4 : 5, 93);
+	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + MANA_FLASK_WIDTH - MANA_FLASK_WIDTH / 20);
+	DrawFlask2(x, filled, 3, myplr._pManaShield == 0 ? 4 : 5, MANA_FLASK_WIDTH);
 }
 
 void InitControlPan()
