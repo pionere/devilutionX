@@ -185,10 +185,11 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PRBAR_WIDTH		228
 #define PRBAR_HEIGHT	38
 
-/** The starting x-position of the progress bar. */
-#define BAR_POS_X		53
 /** The width of the progress bar. */
-#define BAR_WIDTH		PANEL_WIDTH - BAR_POS_X * 2
+#define BAR_WIDTH		534
+#define BAR_HEIGHT		22
+#define TOP_BAR_Y		37
+#define BOTTOM_BAR_Y	421
 
 DEVILUTION_END_NAMESPACE
 

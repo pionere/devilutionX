@@ -88,12 +88,12 @@ static void DrawProgress()
 	int screen_x, screen_y;
 	unsigned w, i, j;
 
-	screen_x = PANEL_X + BAR_POS_X;
-	screen_y = PANEL_Y + (sgbLoadBarOnTop ? 37 : 421);
+	screen_x = PANEL_CENTERX(BAR_WIDTH);
+	screen_y = PANEL_Y + (sgbLoadBarOnTop ? TOP_BAR_Y : BOTTOM_BAR_Y);
 	dst = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
 	col = sgbLoadBarCol;
 	w = sgdwProgress;
-	for (j = 0; j < 22; j++) {
+	for (j = 0; j < BAR_HEIGHT; j++) {
 		for (i = 0; i < w; i++, dst++) {
 			*dst = col;
 		}
@@ -127,7 +127,7 @@ void interface_msg_pump()
 void IncProgress()
 {
 	interface_msg_pump();
-	sgdwProgress += 30;
+	sgdwProgress += (BAR_WIDTH + 17) / 18;
 	if (sgdwProgress > BAR_WIDTH)
 		sgdwProgress = BAR_WIDTH;
 	// do not draw in case of quick-load
