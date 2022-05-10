@@ -15,6 +15,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define LARGE_POPUP_WIDTH	385
+#define LARGE_POPUP_HEIGHT	280
+
 static CelImageBuf* gbDialogBackCel;
 static bool _gbDialogEnd;
 static bool gbInDialog = false;
@@ -179,10 +182,10 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		SDL_Rect rect3 = { PANEL_LEFT + 265, (PANEL_TOP + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect3));
 	} else {*/
-		gbDialogBackCel = CelLoadImage(error ? "ui_art\\lrpopup.CEL" : "ui_art\\lpopup.CEL", 385);
+		gbDialogBackCel = CelLoadImage(error ? "ui_art\\lrpopup.CEL" : "ui_art\\lpopup.CEL", LARGE_POPUP_WIDTH);
 		WordWrapArtStr(text, 346, AFT_SMALL);
 
-		SDL_Rect rect1 = { PANEL_LEFT + (PANEL_WIDTH - 385) / 2, (PANEL_TOP + 100), 385, 280 };
+		SDL_Rect rect1 = { PANEL_LEFT + (PANEL_WIDTH - LARGE_POPUP_WIDTH) / 2, (PANEL_TOP + 100), LARGE_POPUP_WIDTH, LARGE_POPUP_HEIGHT };
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, false));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 0, (PANEL_TOP + 110), PANEL_WIDTH, 20 };
