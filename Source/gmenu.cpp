@@ -165,7 +165,7 @@ static void gmenu_draw_menu_item(int i, int y)
 	x = SCREEN_X + (SCREEN_WIDTH - w) / 2;
 	PrintHugeString(x, y, pItem->pszStr, (pItem->dwFlags & GMENU_ENABLED) ? 0 : MAXDARKNESS);
 	if (pItem == &gpCurrentMenu[guCurrItemIdx])
-		DrawHugePentSpn(x - 54, x + 4 + w, y + 1);
+		DrawHugePentSpn(x - (FOCUS_HUGE + 6), x + 4 + w, y + 1);
 	if (pItem->dwFlags & GMENU_SLIDER) {
 		x += SLIDER_OFFSET;
 		CelDraw(x, y - 10, gpOptbarCel, 1);
@@ -173,8 +173,8 @@ static void gmenu_draw_menu_item(int i, int y)
 		step = pItem->wMenuParam2;
 		nSteps = pItem->wMenuParam1;
 		pos = step * SLIDER_STEPS / nSteps;
-		gmenu_draw_rectangle(x, y - 12, pos + SLIDER_BUTTON_WIDTH / 2, SLIDER_BOX_HEIGHT - 4);
-		CelDraw(x + pos, y - 12, gpOptionCel, 1);
+		gmenu_draw_rectangle(x, y - 10 - SLIDER_BORDER, pos + SLIDER_BUTTON_WIDTH / 2, SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER);
+		CelDraw(x + pos, y - 10 - SLIDER_BORDER, gpOptionCel, 1);
 	}
 }
 
