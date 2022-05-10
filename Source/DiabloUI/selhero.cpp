@@ -182,7 +182,7 @@ static void SelheroInit()
 	UiAddBackground(&vecSelHeroDialog);
 	UiAddLogo(&vecSelHeroDialog);
 
-	SDL_Rect rect1 = { PANEL_LEFT, (PANEL_TOP + 161), PANEL_WIDTH, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
 	vecSelHeroDialog.push_back(new UiText(selhero_title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 30, (PANEL_TOP + 211), 180, 76 };

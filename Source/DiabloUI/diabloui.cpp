@@ -26,7 +26,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #define FOCUS_FRAME_COUNT	8
-#define SMALL_LOGO_WIDTH	390
 
 CelImageBuf* gbBackCel;
 static CelImageBuf* gbLogoCelSmall;
@@ -507,7 +506,7 @@ void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 {
 	assert(gbLogoCelSmall != NULL);
-	SDL_Rect rect = { PANEL_LEFT + (PANEL_WIDTH - SMALL_LOGO_WIDTH) / 2, PANEL_TOP, SMALL_LOGO_WIDTH, 154 };
+	SDL_Rect rect = { PANEL_LEFT + (PANEL_WIDTH - SMALL_LOGO_WIDTH) / 2, PANEL_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
 	vecDialog->push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 

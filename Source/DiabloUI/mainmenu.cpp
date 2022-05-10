@@ -52,7 +52,7 @@ static void MainmenuLoad()
 	UiAddLogo(&gUiItems);
 
 	//assert(gUIListItems.size() == numOptions);
-	SDL_Rect rect1 = { PANEL_LEFT + 64, (PANEL_TOP + 190), PANEL_WIDTH - 64 * 2, 43 * numOptions };
+	SDL_Rect rect1 = { PANEL_LEFT + 64, (PANEL_TOP + SMALL_LOGO_HEIGHT + 36), PANEL_WIDTH - 64 * 2, 43 * numOptions };
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
