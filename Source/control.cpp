@@ -891,7 +891,7 @@ void InitControlPan()
 	}
 	gbLvlbtndown = false;
 	assert(pPanelButtonCels == NULL);
-	pPanelButtonCels = CelLoadImage("CtrlPan\\Menu.CEL", 71);
+	pPanelButtonCels = CelLoadImage("CtrlPan\\Menu.CEL", MENUBTN_WIDTH);
 	for (i = 0; i < lengthof(gabPanbtn); i++)
 		gabPanbtn[i] = false;
 	numpanbtns = IsLocalGame ? NUM_PANBTNS - 2 : NUM_PANBTNS;
