@@ -234,16 +234,16 @@ static void DrawSSlider(/*int y1, int y2*/)
 
 	assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
 	x = STORE_PNL_X + STPANEL_WIDTH - 14; 
-	yd1 = y1 * 12 + 44 + PANEL_Y;   // top position of the scrollbar
-	yd2 = y2 * 12 + 44 + PANEL_Y;   // bottom position of the scrollbar
-	yd3 = (y2 * 12 - y1 * 12 - 24); // height of the scrollbar
+	yd1 = y1 * SMALL_SCROLL_HEIGHT + 44 + PANEL_Y;   // top position of the scrollbar
+	yd2 = y2 * SMALL_SCROLL_HEIGHT + 44 + PANEL_Y;   // bottom position of the scrollbar
+	yd3 = ((y2 - y1 - 2) * SMALL_SCROLL_HEIGHT); // height of the scrollbar
 	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10);
 	// draw the down arrow
 	CelDraw(x, yd2, pSTextSlidCels, stextscrldbtn != -1 ? 11 : 9);
 	// the the bar
-	yd1 += 12;
-	for (i = yd1; i < yd2; i += 12) {
+	yd1 += SMALL_SCROLL_HEIGHT;
+	for (i = yd1; i < yd2; i += SMALL_SCROLL_HEIGHT) {
 		CelDraw(x, i, pSTextSlidCels, 14);
 	}
 	// draw the scroll thumb

@@ -908,7 +908,7 @@ void InitControlPan()
 	assert(pSTextBoxCels == NULL);
 	pSTextBoxCels = CelLoadImage("Data\\TextBox2.CEL", STPANEL_WIDTH);
 	assert(pSTextSlidCels == NULL);
-	pSTextSlidCels = CelLoadImage("Data\\TextSlid.CEL", 12);
+	pSTextSlidCels = CelLoadImage("Data\\TextSlid.CEL", SMALL_SCROLL_WIDTH);
 	assert(pDurIconCels == NULL);
 	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", DURICON_WIDTH);
 	infostr[0] = '\0';
