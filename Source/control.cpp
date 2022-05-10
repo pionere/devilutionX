@@ -111,15 +111,15 @@ static BYTE _gbMoveCursor = 0;
 
 static const int PanBtnPos[NUM_PANBTNS][2] = {
 	// clang-format off
-	{   0, 20 + 0 * MENUBTN_HEIGHT }, // menu button
-	{   0, 20 + 1 * MENUBTN_HEIGHT }, // options button
-	{   0, 20 + 2 * MENUBTN_HEIGHT }, // char button
-	{   0, 20 + 3 * MENUBTN_HEIGHT }, // inv button
-	{   0, 20 + 4 * MENUBTN_HEIGHT }, // spells button
-	{   0, 20 + 5 * MENUBTN_HEIGHT }, // quests button
-	{   0, 20 + 6 * MENUBTN_HEIGHT }, // map button
-	{   0, 20 + 7 * MENUBTN_HEIGHT }, // chat button
-	{   0, 20 + 8 * MENUBTN_HEIGHT }, // teams button
+	{   0, (1 + 0) * MENUBTN_HEIGHT }, // menu button
+	{   0, (1 + 1) * MENUBTN_HEIGHT }, // options button
+	{   0, (1 + 2) * MENUBTN_HEIGHT }, // char button
+	{   0, (1 + 3) * MENUBTN_HEIGHT }, // inv button
+	{   0, (1 + 4) * MENUBTN_HEIGHT }, // spells button
+	{   0, (1 + 5) * MENUBTN_HEIGHT }, // quests button
+	{   0, (1 + 6) * MENUBTN_HEIGHT }, // map button
+	{   0, (1 + 7) * MENUBTN_HEIGHT }, // chat button
+	{   0, (1 + 8) * MENUBTN_HEIGHT }, // teams button
 	// clang-format on
 };
 static const char* PanBtnTxt[NUM_PANBTNS] = {
@@ -924,15 +924,15 @@ void DrawCtrlBtns()
 	i = 0;
 	x = SCREEN_X + PanBtnPos[i][0];
 	pb = gabPanbtn[PANBTN_MAINMENU];
-	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + 18, pPanelButtonCels, pb ? 4 : 3);
+	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + MENUBTN_HEIGHT - 1, pPanelButtonCels, pb ? 4 : 3);
 	if (!pb)
 		return;
 	for (i = 1; i < numpanbtns; i++) {
 		y = SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1];
 		pb = gabPanbtn[i];
-		CelDraw(x, y + 18, pPanelButtonCels, 2);
+		CelDraw(x, y + MENUBTN_HEIGHT - 1, pPanelButtonCels, 2);
 		// print the text of the button
-		PrintString(x + 3, y + 15, x + 70, PanBtnTxt[i], true, pb ? COL_GOLD : COL_WHITE, FONT_KERN_SMALL);
+		PrintString(x + 3, y + (MENUBTN_HEIGHT + SMALL_FONT_HEIGHT) / 2, x + MENUBTN_WIDTH - 1, PanBtnTxt[i], true, pb ? COL_GOLD : COL_WHITE, FONT_KERN_SMALL);
 	}
 }
 

@@ -7,8 +7,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SMALL_FONT_HEIGHT	11
-
 char msgtable[NUM_EMSGS];
 Uint32 msgdelay;
 BYTE currmsg;
