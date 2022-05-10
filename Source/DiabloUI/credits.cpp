@@ -11,9 +11,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define VIEWPORT_Y		100
-#define VIEWPORT_H		280
-#define LINE_H	22
+#define CREDITS_TOP		100
+#define CREDITS_HEIGHT	280
+#define CREDITS_LINE_H	22
 
 static bool CreditsRender(int offsetY)
 {
@@ -22,20 +22,20 @@ static bool CreditsRender(int offsetY)
 	UiClearScreen();
 	UiRenderItems(gUiItems);
 
-	int linesBegin = std::max(offsetY / LINE_H, 0);
-	int linesEnd = std::min((VIEWPORT_H + offsetY + LINE_H - 1) / LINE_H, (int)CREDITS_LINES_SIZE);
+	int linesBegin = std::max(offsetY / CREDITS_LINE_H, 0);
+	int linesEnd = std::min((CREDITS_HEIGHT + offsetY + CREDITS_LINE_H - 1) / CREDITS_LINE_H, (int)CREDITS_LINES_SIZE);
 
 	if (linesBegin >= linesEnd) {
 		return linesEnd != CREDITS_LINES_SIZE;
 	}
 
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + VIEWPORT_Y )];
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + CREDITS_TOP )];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + VIEWPORT_Y + VIEWPORT_H)];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + CREDITS_TOP + CREDITS_HEIGHT)];
 
-	int destY = PANEL_TOP + VIEWPORT_Y - (offsetY - linesBegin * LINE_H);
-	for (int i = linesBegin; i < linesEnd; ++i, destY += LINE_H) {
+	int destY = PANEL_TOP + CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
+	for (int i = linesBegin; i < linesEnd; ++i, destY += CREDITS_LINE_H) {
 		const char* text = CREDITS_LINES[i];
 		int destX = PANEL_LEFT + 31;
 		for ( ; *text == '\t'; text++) {
@@ -63,7 +63,7 @@ void UiCreditsDialog()
 
 	SDL_Event event;
 	do {
-		int offsetY = -VIEWPORT_H + (SDL_GetTicks() - ticks_begin_) / 32;
+		int offsetY = -CREDITS_HEIGHT + (SDL_GetTicks() - ticks_begin_) / 32;
 		if (offsetY != prev_offset_y_ && !CreditsRender(offsetY))
 			break;
 		prev_offset_y_ = offsetY;
