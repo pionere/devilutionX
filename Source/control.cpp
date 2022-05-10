@@ -26,6 +26,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SBOOK_LINE_TAB		SBOOK_CELWIDTH + SBOOK_CELBORDER + SBOOK_LINE_BORDER
 #define SBOOK_PAGER_WIDTH	56
 
+#define DURICON_WIDTH		32
+
 /** Menu button images CEL */
 static CelImageBuf* pPanelButtonCels;
 /** The number of buttons in the menu. */
@@ -907,7 +909,7 @@ void InitControlPan()
 	assert(pSTextSlidCels == NULL);
 	pSTextSlidCels = CelLoadImage("Data\\TextSlid.CEL", 12);
 	assert(pDurIconCels == NULL);
-	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", 32);
+	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", DURICON_WIDTH);
 	infostr[0] = '\0';
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbChrflag = false;
@@ -1858,7 +1860,7 @@ static int DrawDurIcon4Item(ItemStruct* pItem, int x)
 	if (pItem->_iDurability > 2)
 		c += 8;
 	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - 8, pDurIconCels, c);
-	return x - 32 - 8;
+	return x - DURICON_WIDTH - 8;
 }
 
 void DrawDurIcon()
@@ -1866,7 +1868,7 @@ void DrawDurIcon()
 	ItemStruct* inv;
 	int x;
 
-	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92 + 32);
+	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92 + DURICON_WIDTH);
 
 	inv = myplr._pInvBody;
 	x = DrawDurIcon4Item(&inv[INVLOC_HEAD], x);
