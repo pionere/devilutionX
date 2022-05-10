@@ -35,9 +35,6 @@
 #define MAXDUNX					112
 #define MAXDUNY					112
 
-#define GMENU_SLIDER			0x40000000
-#define GMENU_ENABLED			0x80000000
-
 // must be unsigned to generate unsigned comparisons with pnum
 #define MAX_PLRS				4
 #define MAX_MINIONS				MAX_PLRS

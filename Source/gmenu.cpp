@@ -12,16 +12,16 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define MENU_HEADER_Y		102
-#define MENU_HEADER_OFF		13
-#define MENU_ITEM_HEIGHT	45
-#define SLIDER_ROW_WIDTH	490
-#define SLIDER_BOX_WIDTH	287
-#define SLIDER_BOX_HEIGHT	32
-#define SLIDER_OFFSET		186
-#define SLIDER_BORDER		2
-#define SLIDER_STEPS		256
-#define SLIDER_BUTTON_WIDTH	27
+#define GAMEMENU_HEADER_Y		102
+#define GAMEMENU_HEADER_OFF		13
+#define GAMEMENU_ITEM_HEIGHT	45
+#define SLIDER_ROW_WIDTH		490
+#define SLIDER_BOX_WIDTH		287
+#define SLIDER_BOX_HEIGHT		32
+#define SLIDER_OFFSET			186
+#define SLIDER_BORDER			2
+#define SLIDER_STEPS			256
+#define SLIDER_BUTTON_WIDTH		27
 
 /** Logo CEL above the menu */
 static CelImageBuf* gpLogoCel;
@@ -91,7 +91,7 @@ static void gmenu_up_down(bool isDown)
 			if (--n < 0)
 				n = guCurrentMenuSize - 1;
 		}
-		if (gpCurrentMenu[n].dwFlags & GMENU_ENABLED)
+		if (gpCurrentMenu[n].dwFlags & GMF_ENABLED)
 			break;
 	}
 	if (n != guCurrItemIdx) {
@@ -105,7 +105,7 @@ static void gmenu_left_right(bool isRight)
 	TMenuItem* pItem = &gpCurrentMenu[guCurrItemIdx];
 	int step, steps;
 
-	if ((pItem->dwFlags & (GMENU_SLIDER | GMENU_ENABLED)) != (GMENU_SLIDER | GMENU_ENABLED))
+	if ((pItem->dwFlags & (GMF_SLIDER | GMF_ENABLED)) != (GMF_SLIDER | GMF_ENABLED))
 		return;
 
 	step = pItem->wMenuParam2;
@@ -151,7 +151,7 @@ static void gmenu_draw_rectangle(int x, int y, int width, int height)
 
 static int gmenu_get_lfont(TMenuItem *pItem)
 {
-	if (pItem->dwFlags & GMENU_SLIDER)
+	if (pItem->dwFlags & GMF_SLIDER)
 		return SLIDER_ROW_WIDTH;
 	return GetHugeStringWidth(pItem->pszStr);
 }
@@ -163,10 +163,10 @@ static void gmenu_draw_menu_item(int i, int y)
 
 	w = gmenu_get_lfont(pItem);
 	x = SCREEN_X + (SCREEN_WIDTH - w) / 2;
-	PrintHugeString(x, y, pItem->pszStr, (pItem->dwFlags & GMENU_ENABLED) ? 0 : MAXDARKNESS);
+	PrintHugeString(x, y, pItem->pszStr, (pItem->dwFlags & GMF_ENABLED) ? 0 : MAXDARKNESS);
 	if (pItem == &gpCurrentMenu[guCurrItemIdx])
 		DrawHugePentSpn(x - (FOCUS_HUGE + 6), x + 4 + w, y + 1);
-	if (pItem->dwFlags & GMENU_SLIDER) {
+	if (pItem->dwFlags & GMF_SLIDER) {
 		x += SLIDER_OFFSET;
 		CelDraw(x, y - 10, gpOptbarCel, 1);
 		x += SLIDER_BORDER;
@@ -204,10 +204,10 @@ void gmenu_draw()
 #else
 	nCel = 1;
 #endif
-	y = PANEL_Y + MENU_HEADER_Y;
+	y = PANEL_Y + GAMEMENU_HEADER_Y;
 	CelDraw(PANEL_X + (PANEL_WIDTH - LOGO_WIDTH) / 2, y, gpLogoCel, nCel);
-	y += MENU_HEADER_OFF + MENU_ITEM_HEIGHT;
-	for (i = 0; i < guCurrentMenuSize; i++, y += MENU_ITEM_HEIGHT)
+	y += GAMEMENU_HEADER_OFF + GAMEMENU_ITEM_HEIGHT;
+	for (i = 0; i < guCurrentMenuSize; i++, y += GAMEMENU_ITEM_HEIGHT)
 		gmenu_draw_menu_item(i, y);
 }
 
@@ -220,7 +220,7 @@ bool gmenu_presskeys(int vkey)
 	case DVL_VK_LBUTTON:
 		return gmenu_left_mouse(true);
 	case DVL_VK_RETURN:
-		if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMENU_ENABLED) {
+		if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
 			gpCurrentMenu[guCurrItemIdx].fnMenu(true);
 		}
 		break;
@@ -289,23 +289,23 @@ bool gmenu_left_mouse(bool isDown)
 		}
 	}
 
-	i = MouseY - (PANEL_TOP + MENU_HEADER_Y + MENU_HEADER_OFF);
+	i = MouseY - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
 	if (i < 0) {
 		return true;
 	}
-	i /= MENU_ITEM_HEIGHT;
+	i /= GAMEMENU_ITEM_HEIGHT;
 	if (i >= guCurrentMenuSize) {
 		return true;
 	}
 	pItem = &gpCurrentMenu[i];
-	if (!(pItem->dwFlags & GMENU_ENABLED)) {
+	if (!(pItem->dwFlags & GMF_ENABLED)) {
 		return true;
 	}
 	w = gmenu_get_lfont(pItem) / 2;
 	if (abs(MouseX - SCREEN_WIDTH / 2) > w)
 		return true;
 	guCurrItemIdx = i;
-	if (pItem->dwFlags & GMENU_SLIDER) {
+	if (pItem->dwFlags & GMF_SLIDER) {
 		gmenu_mouse_slider();
 	} else {
 		pItem->fnMenu(true);
@@ -316,9 +316,9 @@ bool gmenu_left_mouse(bool isDown)
 void gmenu_enable(TMenuItem *pMenuItem, bool enable)
 {
 	if (enable)
-		pMenuItem->dwFlags |= GMENU_ENABLED;
+		pMenuItem->dwFlags |= GMF_ENABLED;
 	else
-		pMenuItem->dwFlags &= ~GMENU_ENABLED;
+		pMenuItem->dwFlags &= ~GMF_ENABLED;
 }
 
 void gmenu_slider_set(TMenuItem *pItem, int min, int max, int value)

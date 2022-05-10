@@ -4112,6 +4112,11 @@ typedef enum _artfonts {
 	AF_HUGEGRAY,
 } _artfonts;
 
+typedef enum _gmenu_flags {
+	GMF_SLIDER	= 0x40000000,
+	GMF_ENABLED = 0x80000000
+} _gmenu_flags;
+
 typedef enum mpq_files {
 	MPQ_DEVILX,
 #ifndef NOWIDESCREEN
