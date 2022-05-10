@@ -440,11 +440,11 @@ static void LoadUiGFX()
 	assert(gbLogoCelSmall == NULL);
 	gbLogoCelSmall = CelLoadImage("ui_art\\smlogo.CEL", SMALL_LOGO_WIDTH);
 	assert(gbFocusCelSmall == NULL);
-	gbFocusCelSmall = CelLoadImage("ui_art\\focus16.CEL", 20);
+	gbFocusCelSmall = CelLoadImage("ui_art\\focus16.CEL", FOCUS_SMALL);
 	assert(gbFocusCelMed == NULL);
-	gbFocusCelMed = CelLoadImage("ui_art\\focus.CEL", 30);
+	gbFocusCelMed = CelLoadImage("ui_art\\focus.CEL", FOCUS_MEDIUM);
 	assert(gbFocusCelBig == NULL);
-	gbFocusCelBig = CelLoadImage("ui_art\\focus42.CEL", 42);
+	gbFocusCelBig = CelLoadImage("ui_art\\focus42.CEL", FOCUS_BIG);
 
 	NewCursor(CURSOR_HAND);
 }
@@ -547,9 +547,9 @@ static void DrawSelector(const SDL_Rect &rect)
 	assert(gbFocusCelMed != NULL);
 	assert(gbFocusCelBig != NULL);
 	selCel = gbFocusCelSmall;
-	if (rect.h >= 42) {
+	if (rect.h >= FOCUS_BIG) {
 		selCel = gbFocusCelBig;
-	} else if (rect.h >= 30) {
+	} else if (rect.h >= FOCUS_MEDIUM) {
 		selCel = gbFocusCelMed;
 	}
 	size = selCel->ciWidth;

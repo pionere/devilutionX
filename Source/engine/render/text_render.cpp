@@ -136,9 +136,9 @@ void InitText()
 	assert(pHugeGoldTextCels == NULL);
 	pHugeGoldTextCels = CelLoadImage("Data\\BigTGold.CEL", 46);
 	assert(pHugePentSpinCels == NULL);
-	pHugePentSpinCels = CelLoadImage("Data\\PentSpin.CEL", 48);
+	pHugePentSpinCels = CelLoadImage("Data\\PentSpin.CEL", FOCUS_HUGE);
 	assert(pSmallPentSpinCels == NULL);
-	pSmallPentSpinCels = CelLoadImage("Data\\PentSpn2.CEL", 12);
+	pSmallPentSpinCels = CelLoadImage("Data\\PentSpn2.CEL", FOCUS_MINI);
 }
 
 void FreeText()
