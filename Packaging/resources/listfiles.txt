@@ -1285,12 +1285,6 @@ Monsters\Unrav\Unravh.CL2
 Monsters\Unrav\Unravn.CL2
 Monsters\Unrav\Unravs.CL2
 Monsters\Unrav\Unravw.CL2
-Monsters\Worm\Worma.CL2
-Monsters\Worm\Wormd.CL2
-Monsters\Worm\Wormh.CL2
-Monsters\Worm\Wormn.CL2
-Monsters\Worm\Worms.CL2
-Monsters\Worm\Wormw.CL2
 Monsters\WScorp\WScorpa.CL2
 Monsters\WScorp\WScorpd.CL2
 Monsters\WScorp\WScorph.CL2
