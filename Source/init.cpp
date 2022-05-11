@@ -148,6 +148,7 @@ void InitArchives()
 	SFileEnableDirectAccess(getIniBool("Diablo", "Direct FileAccess", false));
 
 	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
+	//CreateMpq("devilx_hd2.mpq", "WorkHd\\", "hdfiles.txt");
 #ifdef MPQONE
 	diabdat_mpq = init_test_access(MPQONE);
 	if (diabdat_mpq != NULL)
