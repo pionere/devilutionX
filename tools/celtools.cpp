@@ -2254,7 +2254,15 @@ int main()
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L2Data\\L2_1.PAL");
 		UpscaleCel("f:\\MPQE\\Work\\Levels\\L2Data\\L2S.CEL", 1, pal, 128, 0, 
 			"f:\\outcel\\Levels\\L2Data\\L2S.CEL");
+	}
+	{
+		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L5Data\\L5base.PAL");
+		UpscaleCel("f:\\MPQE\\Work\\NLevels\\L5Data\\L5S.CEL", 1, pal, 128, 0, 
+			"f:\\outcel\\NLevels\\L5Data\\L5S.CEL");
 	}*/
+	// upscale unique files
+	// UpscaleCel("f:\\MPQE\\Work\\NLevels\\CutL5.CEL", 1, &diapal[0][0], 128, 128, "f:\\outcel\\NLevels\\CutL5.CEL");
+	// UpscaleCel("f:\\MPQE\\Work\\NLevels\\CutL6.CEL", 1, &diapal[0][0], 128, 128, "f:\\outcel\\NLevels\\CutL6.CEL");
 	// UpscaleCelComp("F:\\MPQE\\Work\\towners\\animals\\cow.CEL", 1, &diapal[0][0], 128, 128, "F:\\outcel\\towners\\animals\\cow.cel");
 	/* upscale all cl2 files of listfiles.txt (fails if the output-folder structure is not prepared)
 	// #include <fstream>
