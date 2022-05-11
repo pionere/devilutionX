@@ -1379,14 +1379,13 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 			}
 			auto it = uniqMicros.cbegin();
 			for ( ; it != uniqMicros.cend(); ++it) {
-				if ((*it)->celLength != mmd->celLength)
+				if ((*it)->celLength != mmd->celLength || (*it)->MicroType != mmd->MicroType)
 					continue;
-				if (memcmp((*it)->celData, microData[n].celData, mmd->celLength) == 0)
-					break;
+				if (memcmp((*it)->celData, mmd->celData, mmd->celLength) == 0)
 			}
 			if (it != uniqMicros.cend()) {
 				// existing micro
-				fput_int16(f, (it - uniqMicros.cbegin()) + 1);
+				fput_int16(f, (mmd->MicroType << 12) | ((it - uniqMicros.cbegin()) + 1));
 				continue;
 			}
 			// add new micro
