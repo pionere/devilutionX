@@ -2244,26 +2244,64 @@ int main()
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
 		UpscaleCel("f:\\MPQE\\Work\\Levels\\TownData\\TownS.CEL", 1, pal, 128, 0, 
 			"f:\\outcel\\Levels\\TownData\\TownS.CEL");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L1Data\\L1_1.PAL");
 		UpscaleCel("f:\\MPQE\\Work\\Levels\\L1Data\\L1S.CEL", 1, pal, 128, 0, 
 			"f:\\outcel\\Levels\\L1Data\\L1S.CEL");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L2Data\\L2_1.PAL");
 		UpscaleCel("f:\\MPQE\\Work\\Levels\\L2Data\\L2S.CEL", 1, pal, 128, 0, 
 			"f:\\outcel\\Levels\\L2Data\\L2S.CEL");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L5Data\\L5base.PAL");
 		UpscaleCel("f:\\MPQE\\Work\\NLevels\\L5Data\\L5S.CEL", 1, pal, 128, 0, 
 			"f:\\outcel\\NLevels\\L5Data\\L5S.CEL");
+		free(pal);
 	}*/
 	// upscale unique files
 	// UpscaleCel("f:\\MPQE\\Work\\NLevels\\CutL5.CEL", 1, &diapal[0][0], 128, 128, "f:\\outcel\\NLevels\\CutL5.CEL");
 	// UpscaleCel("f:\\MPQE\\Work\\NLevels\\CutL6.CEL", 1, &diapal[0][0], 128, 128, "f:\\outcel\\NLevels\\CutL6.CEL");
 	// UpscaleCelComp("F:\\MPQE\\Work\\towners\\animals\\cow.CEL", 1, &diapal[0][0], 128, 128, "F:\\outcel\\towners\\animals\\cow.cel");
+	/*{ // upscale non-standard CELs of the menu (converted from PCX)
+		const char* menuCELs[] = {
+			"ui_art\\mainmenu.CEL", "ui_art\\title.CEL", "ui_art\\logo.CEL", "ui_art\\smlogo.CEL"
+		};
+		BYTE* pal = LoadPal("f:\\Diablo\\Work\\ui_art\\menu.PAL");
+		for (int i = 0; i < lengthof(menuCELs); i++) {
+			char path[256];
+			snprintf(path, 256, "f:\\Diablo\\Work\\%s", menuCELs[i]);
+			char outpath[256];
+			snprintf(outpath, 256, "f:\\outcel\\%s", menuCELs[i]);
+			UpscaleCel(path, 2, pal, 256, 0, outpath);
+		}
+		free(pal);
+
+		const char* diaCELs[] = { "ui_art\\black.CEL", "ui_art\\heros.CEL",
+			"ui_art\\selconn.CEL", "ui_art\\selgame.CEL", "ui_art\\selhero.CEL",
+			// "ui_art\\focus.CEL", "ui_art\\focus16.CEL", "ui_art\\focus42.CEL",
+			// "ui_art\\lrpopup.CEL", "ui_art\\spopup.CEL", "ui_art\\srpopup.CEL", "ui_art\\smbutton.CEL"
+			// "ui_art\\prog_bg.CEL", "ui_art\\prog_fil.CEL",
+			// "ui_art\\sb_arrow.CEL", "ui_art\\sb_bg.CEL", "ui_art\\sb_thumb.CEL",
+		};
+		for (int i = 0; i < lengthof(diaCELs); i++) {
+			char path[256];
+			snprintf(path, 256, "f:\\Diablo\\Work\\%s", diaCELs[i]);
+			char outpath[256];
+			snprintf(outpath, 256, "f:\\outcel\\%s", diaCELs[i]);
+			UpscaleCel(path, 2, &diapal[0][0], 128, 128, outpath);
+		}
+
+		pal = LoadPal("f:\\Diablo\\Work\\ui_art\\credits.PAL");
+		UpscaleCel("f:\\Diablo\\Work\\ui_art\\credits.CEL", 2, pal, 256, 0, 
+			"f:\\outcel\\ui_art\\credits.CEL");
+		free(pal);
+	}*/
 	/* upscale all cl2 files of listfiles.txt (fails if the output-folder structure is not prepared)
 	// #include <fstream>
 	std::ifstream input("f:\\listfiles.txt");
