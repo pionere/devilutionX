@@ -1276,7 +1276,7 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
 static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
 {
 	if (c1->a != 255)
-		return *c1; // preserve tranparent pixels
+		return *c0; // preserve tranparent pixels
 
 	RGBA res;
 	res.a = 255;
