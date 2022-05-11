@@ -192,7 +192,7 @@ const MonFileData monfiledata[NUM_MOFILE] = {
 #ifdef HELLFIRE
 /*MOFILE_FORK*/    { 1300, "Monsters\\Fork\\Fork%c.CL2",       "Monsters\\newsfx\\HBoar%c%d.WAV",   { 10, 10, 15,  6, 16,  0 }, { 2, 1, 1, 1, 1, 0 }, 188, FALSE,              7,        0 },
 /*MOFILE_SCORP*/   {  400, "Monsters\\Scorp\\Scorp%c.CL2",     "Monsters\\newsfx\\Stingr%c%d.WAV",  { 10, 10, 12,  6, 15,  0 }, { 2, 1, 1, 1, 1, 0 },  64, FALSE,              8,        0 },
-/*MOFILE_EYE*/     { 1200, "Monsters\\Eye\\Eye%c.CL2",         "Monsters\\newsfx\\psyco%c%d.WAV",   { 12, 13, 13,  7, 21,  0 }, { 2, 1, 1, 1, 1, 0 }, 156, FALSE,              8,        0 },
+/*MOFILE_EYE*/     { 1200, "Monsters\\Eye\\Eye%c.CL2",         "Monsters\\newsfx\\Psyco%c%d.WAV",   { 12, 13, 13,  7, 21,  0 }, { 2, 1, 1, 1, 1, 0 }, 156, FALSE,              8,        0 },
 /*MOFILE_SPIDER*/  { 1080, "Monsters\\Spider\\Spider%c.CL2",   "Monsters\\newsfx\\SLord%c%d.WAV",   { 12, 10, 15,  6, 20,  0 }, { 2, 1, 1, 1, 1, 0 }, 148, FALSE,              8,        0 },
 /*MOFILE_TSNEAK*/  {  800, "Monsters\\TSneak\\TSneak%c.CL2",   "Monsters\\newsfx\\FTwin%c%d.WAV",   { 13, 13, 15, 11, 16,  0 }, { 2, 1, 1, 1, 1, 0 }, 128, FALSE,              8,        0 },
 /*MOFILE_UNRAV*/   {  484, "Monsters\\Unrav\\Unrav%c.CL2",     "Monsters\\newsfx\\Shred%c%d.WAV",   { 10, 10, 12,  5, 16,  0 }, { 1, 1, 1, 1, 1, 0 },  96, FALSE,              7,        0 },
