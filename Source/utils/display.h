@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "../types.h"
+#include "../gameui.h"
 #include <SDL.h>
 
 DEVILUTION_BEGIN_NAMESPACE
