@@ -3,8 +3,6 @@
  *
  * Implementation of routines for initializing the environment, disable screen saver, load MPQ.
  */
-#include <string>
-
 //#if defined(_WIN64) || defined(_WIN32)
 //#include <find_steam_game.h>
 //#endif
@@ -90,12 +88,14 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	int entryCount = 0;
 	std::string line;
 	while (std::getline(input, line)) {
+		if (line[0] == '_')
+			continue;
 		std::string path = basePath + line.c_str();
 		FILE* fp = fopen(path.c_str(), "r");
-		if (fp != NULL) {
-			fclose(fp);
-			entryCount++;
-		}
+		if (fp == NULL)
+			app_fatal("Missing file: %s", path.c_str());
+		fclose(fp);
+		entryCount++;
 	}
 	input.close();
 	// TODO: use GetNearestPowerOfTwo of StormCommon.h?
