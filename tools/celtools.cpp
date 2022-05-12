@@ -28,6 +28,12 @@ typedef unsigned char BYTE;
 
 #define SUB_HEADER_SIZE		0x0A
 
+template<class T, int N>
+constexpr int lengthof(T (&arr)[N])
+{
+	return N;
+}
+
 static WORD SwapLE16(WORD w)
 {
 	WORD v = 1;
@@ -2212,7 +2218,7 @@ int main()
 {
 	/* upscale regular cel files of listfiles.txt
 		- fails if the output-folder structure is not prepared
-		- skips Levels and cow.CEL manually
+		- skips Levels(dungeon tiles), gendata(cutscenes) and cow.CEL manually
 	// #include <fstream>
 	std::ifstream input("f:\\listfiles.txt");
 
@@ -2225,7 +2231,9 @@ int main()
 			continue;
 		if (!stringicomp(line.substr(line.length() - 4, 4).c_str(), ".CEL"))
 			continue;
-		if (ls > 6 && stringicomp(line.substr(0, 6).c_str(), "Levels"))
+		if (ls > 7 && stringicomp(line.substr(0, 7).c_str(), "gendata"))
+			continue;
+		if (ls > 7 && stringicomp(line.substr(0, 6).c_str(), "Levels"))
 			continue;
 		if (ls > 7 && stringicomp(line.substr(1, 6).c_str(), "Levels"))
 			continue;
@@ -2264,9 +2272,31 @@ int main()
 			"f:\\outcel\\NLevels\\L5Data\\L5S.CEL");
 		free(pal);
 	}*/
-	// upscale unique files
-	// UpscaleCel("f:\\MPQE\\Work\\NLevels\\CutL5.CEL", 1, &diapal[0][0], 128, 128, "f:\\outcel\\NLevels\\CutL5.CEL");
-	// UpscaleCel("f:\\MPQE\\Work\\NLevels\\CutL6.CEL", 1, &diapal[0][0], 128, 128, "f:\\outcel\\NLevels\\CutL6.CEL");
+	/*{ // upscale cutscenes
+		const char* celPalPairs[][2] = {
+			{ "Gendata\\Cut2.CEL", "Gendata\\Cut2.pal" },
+			{ "Gendata\\Cut3.CEL", "Gendata\\Cut3.pal" },
+			{ "Gendata\\Cut4.CEL", "Gendata\\Cut4.pal" },
+			{ "Gendata\\Cutgate.CEL", "Gendata\\Cutgate.pal" },
+			{ "Gendata\\Cutl1d.CEL", "Gendata\\Cutl1d.pal" },
+			{ "Gendata\\Cutportl.CEL", "Gendata\\Cutportl.pal" },
+			{ "Gendata\\Cutportr.CEL", "Gendata\\Cutportr.pal" },
+			{ "Gendata\\Cutstart.CEL", "Gendata\\Cutstart.pal" },
+			{ "Gendata\\Cuttt.CEL", "Gendata\\Cuttt.pal" },
+			{ "NLevels\\CutL5.CEL", "NLevels\\CutL5.pal" },
+			{ "NLevels\\CutL6.CEL", "NLevels\\CutL6.pal" },
+		};
+		for (int i = 0; i < lengthof(celPalPairs); i++) {
+			char path[256];
+			snprintf(path, 256, "f:\\games\\devilx\\MPQE\\Work\\%s", celPalPairs[i][1]);
+			BYTE* pal = LoadPal(path);
+			snprintf(path, 256, "f:\\games\\devilx\\MPQE\\Work\\%s", celPalPairs[i][0]);
+			char outpath[256];
+			snprintf(outpath, 256, "F:\\old\\outcel\\%s", celPalPairs[i][0]);
+			UpscaleCel(path, 2, pal, 256, 0, outpath);
+			free(pal);
+		}
+	}*/
 	// UpscaleCelComp("F:\\MPQE\\Work\\towners\\animals\\cow.CEL", 1, &diapal[0][0], 128, 128, "F:\\outcel\\towners\\animals\\cow.cel");
 	/*{ // upscale non-standard CELs of the menu (converted from PCX)
 		const char* menuCELs[] = {
