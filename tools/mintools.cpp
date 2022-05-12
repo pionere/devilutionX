@@ -1395,14 +1395,12 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 				if (memcmp((*it)->celData, mmd->celData, mmd->celLength) == 0)
 					break;
 			}
-			if (it != uniqMicros.cend()) {
-				// existing micro
-				fput_int16(f, (mmd->MicroType << 12) | ((it - uniqMicros.cbegin()) + 1));
-				continue;
+			uint16_t idx = ((it - uniqMicros.cbegin()) + 1);
+			if (it == uniqMicros.cend()) {
+				// add new micro
+				uniqMicros.push_back(mmd);
 			}
-			// add new micro
-			uniqMicros.push_back(mmd);
-			uint16_t idx = (mmd->MicroType << 12) |  uniqMicros.size();
+			idx |= mmd->MicroType << 12;
 			fput_int16(f, idx);
 		}
 	}
