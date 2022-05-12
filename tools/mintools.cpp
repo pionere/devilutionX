@@ -56,6 +56,17 @@ typedef enum _draw_mask_type {
 	DMT_RFLOOR,
 } _draw_mask_type;
 
+typedef enum dungeon_type {
+	DTYPE_TOWN,
+	DTYPE_CATHEDRAL,
+	DTYPE_CATACOMBS,
+	DTYPE_CAVES,
+	DTYPE_HELL,
+	DTYPE_CRYPT,
+	DTYPE_NEST,
+	DTYPE_NONE = 0xFF,
+} dungeon_type;
+
 typedef struct RGBA {
 	BYTE r;
 	BYTE g;
@@ -1462,18 +1473,226 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 	free(microData);
 }
 
+static int Block2MicroTile(int i, int microTileLen)
+{
+	int idx = microTileLen - i;
+
+	idx = idx - 2 * ((idx + 1) & 1);
+	return idx;
+}
+
+#define Blk2Mcr(n, x) mindata[n - 1].levelBlocks[Block2MicroTile(x, microTileLen)] = 0;
+void PatchMinData(int dunType, int microTileLen, min_image_data* mindata, int numtiles)
+{
+	switch (dunType) {
+	case DTYPE_TOWN:
+		// patch dMiniTiles - Town.MIN
+		// pointless tree micros (re-drawn by dSpecial)
+		Blk2Mcr(117, 3);
+		Blk2Mcr(117, 5);
+		Blk2Mcr(128, 2);
+		Blk2Mcr(128, 4);
+		Blk2Mcr(128, 6);
+		Blk2Mcr(129, 3);
+		Blk2Mcr(129, 5);
+		Blk2Mcr(129, 7);
+		Blk2Mcr(130, 2);
+		Blk2Mcr(130, 4);
+		Blk2Mcr(130, 6);
+		Blk2Mcr(156, 2);
+		Blk2Mcr(156, 3);
+		Blk2Mcr(156, 4);
+		Blk2Mcr(156, 5);
+		Blk2Mcr(156, 6);
+		Blk2Mcr(156, 7);
+		Blk2Mcr(156, 8);
+		Blk2Mcr(156, 9);
+		Blk2Mcr(156, 10);
+		Blk2Mcr(156, 11);
+		Blk2Mcr(157, 3);
+		Blk2Mcr(157, 5);
+		Blk2Mcr(157, 7);
+		Blk2Mcr(157, 9);
+		Blk2Mcr(157, 11);
+		Blk2Mcr(158, 2);
+		Blk2Mcr(158, 4);
+		Blk2Mcr(160, 2);
+		Blk2Mcr(160, 3);
+		Blk2Mcr(160, 4);
+		Blk2Mcr(160, 5);
+		Blk2Mcr(160, 6);
+		Blk2Mcr(160, 7);
+		Blk2Mcr(160, 8);
+		Blk2Mcr(160, 9);
+		Blk2Mcr(162, 2);
+		Blk2Mcr(162, 4);
+		Blk2Mcr(162, 6);
+		Blk2Mcr(162, 8);
+		Blk2Mcr(162, 10);
+		Blk2Mcr(212, 3);
+		Blk2Mcr(212, 4);
+		Blk2Mcr(212, 5);
+		Blk2Mcr(212, 6);
+		Blk2Mcr(212, 7);
+		Blk2Mcr(212, 8);
+		Blk2Mcr(212, 9);
+		Blk2Mcr(212, 10);
+		Blk2Mcr(212, 11);
+		//Blk2Mcr(214, 4);
+		//Blk2Mcr(214, 6);
+		Blk2Mcr(216, 2);
+		Blk2Mcr(216, 4);
+		Blk2Mcr(216, 6);
+		//Blk2Mcr(217, 4);
+		//Blk2Mcr(217, 6);
+		//Blk2Mcr(217, 8);
+		//Blk2Mcr(358, 4);
+		//Blk2Mcr(358, 5);
+		//Blk2Mcr(358, 6);
+		//Blk2Mcr(358, 7);
+		//Blk2Mcr(358, 8);
+		//Blk2Mcr(358, 9);
+		//Blk2Mcr(358, 10);
+		//Blk2Mcr(358, 11);
+		//Blk2Mcr(358, 12);
+		//Blk2Mcr(358, 13);
+		//Blk2Mcr(360, 4);
+		//Blk2Mcr(360, 6);
+		//Blk2Mcr(360, 8);
+		//Blk2Mcr(360, 10);
+		// fix bad artifact
+		Blk2Mcr(233, 6);
+		// useless black micros
+		Blk2Mcr(426, 1);
+		Blk2Mcr(427, 0);
+		Blk2Mcr(427, 1);
+		Blk2Mcr(429, 1);
+		// fix bad artifacts
+		Blk2Mcr(828, 12);
+		Blk2Mcr(828, 13);
+		Blk2Mcr(1018, 2);
+		// useless black micros
+		Blk2Mcr(1143, 0);
+		Blk2Mcr(1145, 0);
+		Blk2Mcr(1145, 1);
+		Blk2Mcr(1146, 0);
+		Blk2Mcr(1153, 0);
+		Blk2Mcr(1155, 1);
+		Blk2Mcr(1156, 0);
+		Blk2Mcr(1169, 1);
+		Blk2Mcr(1170, 0);
+		Blk2Mcr(1170, 1);
+		Blk2Mcr(1172, 1);
+		Blk2Mcr(1176, 1);
+		Blk2Mcr(1199, 1);
+		Blk2Mcr(1200, 0);
+		Blk2Mcr(1200, 1);
+		Blk2Mcr(1202, 1);
+		Blk2Mcr(1203, 1);
+		Blk2Mcr(1205, 1);
+		Blk2Mcr(1212, 0);
+		Blk2Mcr(1219, 0);
+		if (numtiles > 1258)
+			//#ifdef HELLFIRE
+			// fix bad artifact
+			Blk2Mcr(1273, 7);
+		break;
+	case DTYPE_CATHEDRAL:
+		// patch dMiniTiles - L1.MIN
+		// useless black micros
+		Blk2Mcr(107, 0);
+		Blk2Mcr(107, 1);
+		Blk2Mcr(109, 1);
+		Blk2Mcr(137, 1);
+		Blk2Mcr(138, 0);
+		Blk2Mcr(138, 1);
+		Blk2Mcr(140, 1);
+		break;
+	case DTYPE_CATACOMBS:
+		break;
+	case DTYPE_CAVES:
+		// patch dMiniTiles - L3.MIN
+		// fix bad artifact
+		Blk2Mcr(82, 4);
+		break;
+	case DTYPE_HELL:
+		break;
+	case DTYPE_NEST:
+		// patch dMiniTiles - L6.MIN
+		// useless black micros
+		Blk2Mcr(21, 0);
+		Blk2Mcr(21, 1);
+		// fix bad artifacts
+		Blk2Mcr(132, 7);
+		Blk2Mcr(366, 1);
+		break;
+	case DTYPE_CRYPT:
+		// patch dMiniTiles - L5.MIN
+		// useless black micros
+		Blk2Mcr(130, 0);
+		Blk2Mcr(130, 1);
+		Blk2Mcr(132, 1);
+		Blk2Mcr(134, 0);
+		Blk2Mcr(134, 1);
+		Blk2Mcr(149, 0);
+		Blk2Mcr(149, 1);
+		Blk2Mcr(149, 2);
+		Blk2Mcr(150, 0);
+		Blk2Mcr(150, 1);
+		Blk2Mcr(150, 2);
+		Blk2Mcr(150, 4);
+		Blk2Mcr(151, 0);
+		Blk2Mcr(151, 1);
+		Blk2Mcr(151, 3);
+		Blk2Mcr(152, 0);
+		Blk2Mcr(152, 1);
+		Blk2Mcr(152, 3);
+		Blk2Mcr(152, 5);
+		Blk2Mcr(153, 0);
+		Blk2Mcr(153, 1);
+		// fix bad artifact
+		Blk2Mcr(156, 2);
+		// useless black micros
+		Blk2Mcr(172, 0);
+		Blk2Mcr(172, 1);
+		Blk2Mcr(172, 2);
+		Blk2Mcr(173, 0);
+		Blk2Mcr(173, 1);
+		Blk2Mcr(174, 0);
+		Blk2Mcr(174, 1);
+		Blk2Mcr(174, 2);
+		Blk2Mcr(174, 4);
+		Blk2Mcr(175, 0);
+		Blk2Mcr(175, 1);
+		Blk2Mcr(176, 0);
+		Blk2Mcr(176, 1);
+		Blk2Mcr(176, 3);
+		Blk2Mcr(177, 0);
+		Blk2Mcr(177, 1);
+		Blk2Mcr(177, 3);
+		Blk2Mcr(177, 5);
+		Blk2Mcr(178, 0);
+		Blk2Mcr(178, 1);
+		Blk2Mcr(179, 0);
+		Blk2Mcr(179, 1);
+		break;
+	}
+}
+
 /*
  * (integer) upscale a MIN file (+ its corresponding CEL)
  * @param minname: the path of the MIN file
  * @param multiplier: the extent of the upscale
  * @param celname: the path of the CEL file
+ * @param dunType: reset useless micros based on the type of the dungeon. Set to DTYPE_NONE to skip.
  * @param palette: the palette to be used
  * @param numcolors: the number of colors in the palette
  * @param coloroffset: the offset to be applied when selecting a color from the palette
  * @param destFolder: the output folder
  * @param prefix: the base name of the generated output files
  */
-void UpscaleMin(const char* minname, int multiplier, const char* celname, BYTE* palette, int numcolors, int coloroffset,
+void UpscaleMin(const char* minname, int multiplier, const char* celname, int dunType,
+	BYTE* palette, int numcolors, int coloroffset,
 	const char* destFolder, const char* prefix)
 {
 	int numtiles, columns = 0, rows = 0;
@@ -1481,6 +1700,9 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, BYTE* 
 	min_image_data* mindata = ReadMinData(minname, columns, rows, celname, NULL, &numtiles, &celBuf, &minBuf);
 	if (mindata == NULL)
 		return;
+
+	// reset useless micros
+	PatchMinData(dunType, columns * rows, mindata, numtiles);
 
 	// write the png(s)
 	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numtiles);
@@ -1959,42 +2181,42 @@ int main()
 {
 	/*{ // upscale tiles of the levels (fails if the output-folder structure is not prepared)
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL", pal, 256, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 256, 0, 
 			"f:\\outmin\\Levels\\TownData\\", "Town");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L1Data\\L1_1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\L1Data\\L1.MIN", 2, "f:\\MPQE\\Work\\Levels\\L1Data\\L1.CEL", pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L1Data\\L1.MIN", 2, "f:\\MPQE\\Work\\Levels\\L1Data\\L1.CEL", DTYPE_CATHEDRAL, pal, 128, 0, 
 			"f:\\outmin\\Levels\\L1Data\\", "L1");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L2Data\\L2_1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\L2Data\\L2.MIN", 2, "f:\\MPQE\\Work\\Levels\\L2Data\\L2.CEL", pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L2Data\\L2.MIN", 2, "f:\\MPQE\\Work\\Levels\\L2Data\\L2.CEL", DTYPE_CATACOMBS, pal, 128, 0, 
 			"f:\\outmin\\Levels\\L2Data\\", "L2");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L3Data\\L3_1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\L3Data\\L3.MIN", 2, "f:\\MPQE\\Work\\Levels\\L3Data\\L3.CEL", pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L3Data\\L3.MIN", 2, "f:\\MPQE\\Work\\Levels\\L3Data\\L3.CEL", DTYPE_CAVES, pal, 128, 0, 
 			"f:\\outmin\\Levels\\L3Data\\", "L3");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L4Data\\L4_1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\L4Data\\L4.MIN", 2, "f:\\MPQE\\Work\\Levels\\L4Data\\L4.CEL", pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L4Data\\L4.MIN", 2, "f:\\MPQE\\Work\\Levels\\L4Data\\L4.CEL", DTYPE_HELL, pal, 128, 0, 
 			"f:\\outmin\\Levels\\L4Data\\", "L4");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\NLevels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\NLevels\\TownData\\Town.CEL", pal, 256, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\NLevels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 256, 0, 
 			"f:\\outmin\\NLevels\\TownData\\", "Town");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L5Data\\L5Base.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L5Data\\L5.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L5Data\\L5.CEL", pal, 256, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L5Data\\L5.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L5Data\\L5.CEL", DTYPE_CRYPT, pal, 256, 0, 
 			"f:\\outmin\\NLevels\\L5Data\\", "L5");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L6Data\\L6Base1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L6Data\\L6.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L6Data\\L6.CEL", pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L6Data\\L6.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L6Data\\L6.CEL", DTYPE_NEST, pal, 128, 0, 
 			"f:\\outmin\\NLevels\\L6Data\\", "L6");
 	}*/
 	/*{
