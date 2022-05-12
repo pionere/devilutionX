@@ -1382,6 +1382,7 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 				if ((*it)->celLength != mmd->celLength || (*it)->MicroType != mmd->MicroType)
 					continue;
 				if (memcmp((*it)->celData, mmd->celData, mmd->celLength) == 0)
+					break;
 			}
 			if (it != uniqMicros.cend()) {
 				// existing micro
