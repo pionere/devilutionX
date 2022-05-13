@@ -111,8 +111,8 @@ static void SelconnLoad()
 	gUiItems.push_back(new UiText("Select Connection", rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	//assert(numOptions == gUIListItems.size());
-	SDL_Rect rect8 = { PANEL_LEFT + 305, (PANEL_TOP + 256), 285, 26 * numOptions };
-	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_MID | UIS_GOLD));
+	SDL_Rect rect8 = { PANEL_LEFT + 280 + (334 - 325) / 2, (PANEL_TOP + 256), 325, 26 * numOptions };
+	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect9 = { PANEL_LEFT + 299, (PANEL_TOP + 427), 140, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
