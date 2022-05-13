@@ -270,14 +270,14 @@ static void SelheroListInit()
 	UiScrollBar* scrollBar = new UiScrollBar(rect3);
 	gUiItems.push_back(scrollBar);
 
-	SDL_Rect rect4 = { PANEL_LEFT + 239, (PANEL_TOP + 429), 120, 35 };
+	SDL_Rect rect4 = { PANEL_LEFT + 239, (PANEL_TOP + 427), 120, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect5 = { PANEL_LEFT + 364, (PANEL_TOP + 429), 120, 35 };
+	SDL_Rect rect5 = { PANEL_LEFT + 364, (PANEL_TOP + 427), 120, 35 };
 	SELLIST_DIALOG_DELETE_BUTTON = new UiTxtButton("Delete", &SelheroUiFocusNavigationYesNo, rect5, UIS_CENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
 	gUiItems.push_back(SELLIST_DIALOG_DELETE_BUTTON);
 
-	SDL_Rect rect6 = { PANEL_LEFT + 489, (PANEL_TOP + 429), 120, 35 };
+	SDL_Rect rect6 = { PANEL_LEFT + 489, (PANEL_TOP + 427), 120, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo);
@@ -350,10 +350,10 @@ static void SelheroListSelect(unsigned index)
 		SDL_Rect rect2 = { PANEL_LEFT + 264, (PANEL_TOP + itemY), 320, listH };
 		gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect3 = { PANEL_LEFT + 279, (PANEL_TOP + 429), 140, 35 };
+		SDL_Rect rect3 = { PANEL_LEFT + 279, (PANEL_TOP + 427), 140, 35 };
 		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-		SDL_Rect rect4 = { PANEL_LEFT + 429, (PANEL_TOP + 429), 140, 35 };
+		SDL_Rect rect4 = { PANEL_LEFT + 429, (PANEL_TOP + 427), 140, 35 };
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == NUM_CLASSES);
@@ -412,10 +412,10 @@ static void SelheroClassSelectorSelect(unsigned index)
 	SDL_Rect rect2 = { PANEL_LEFT + 265, (PANEL_TOP + 317), 320, 33 };
 	gUiItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName) - 1, rect2));
 
-	SDL_Rect rect3 = { PANEL_LEFT + 279, (PANEL_TOP + 429), 140, 35 };
+	SDL_Rect rect3 = { PANEL_LEFT + 279, (PANEL_TOP + 427), 140, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect4 = { PANEL_LEFT + 429, (PANEL_TOP + 429), 140, 35 };
+	SDL_Rect rect4 = { PANEL_LEFT + 429, (PANEL_TOP + 427), 140, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(0, NULL, SelheroNameSelect, SelheroNameEsc);
