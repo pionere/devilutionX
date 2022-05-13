@@ -183,7 +183,7 @@ static void SelgameSpeedInit()
 	gUIListItems.push_back(new UiListItem("Faster", SPEED_FASTER));
 	gUIListItems.push_back(new UiListItem("Fastest", SPEED_FASTEST));
 
-	SDL_Rect rect5 = { PANEL_LEFT + 300, (PANEL_TOP + 279), 295, 26 * 4 };
+	SDL_Rect rect5 = { PANEL_LEFT + 300, (PANEL_TOP + 256), 295, 26 * 4 };
 	gUiItems.push_back(new UiList(&gUIListItems, 4, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 299, (PANEL_TOP + 427), 140, 35 };
@@ -240,7 +240,7 @@ static void SelgameModeInit()
 	gUIListItems.push_back(new UiListItem("Create Game", SELGAME_CREATE));
 	gUIListItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
-	SDL_Rect rect5 = { PANEL_LEFT + 305, (PANEL_TOP + 255), 285, 26 * 2 };
+	SDL_Rect rect5 = { PANEL_LEFT + 305, (PANEL_TOP + 256), 285, 26 * 2 };
 	gUiItems.push_back(new UiList(&gUIListItems, 2, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 299, (PANEL_TOP + 427), 140, 35 };
@@ -386,7 +386,7 @@ static void SelgameModeSelect(unsigned index)
 		gUIListItems.push_back(new UiListItem("Nightmare", DIFF_NIGHTMARE));
 		gUIListItems.push_back(new UiListItem("Hell", DIFF_HELL));
 
-		SDL_Rect rect5 = { PANEL_LEFT + 300, (PANEL_TOP + 282), 295, 26 * 3 };
+		SDL_Rect rect5 = { PANEL_LEFT + 300, (PANEL_TOP + 256), 295, 26 * 3 };
 		gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect6 = { PANEL_LEFT + 299, (PANEL_TOP + 427), 140, 35 };

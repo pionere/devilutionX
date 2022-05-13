@@ -335,7 +335,6 @@ static void SelheroListSelect(unsigned index)
 		SDL_Rect rect1 = { PANEL_LEFT + 240, (PANEL_TOP + 211), 370, 34 };
 		gUiItems.push_back(new UiText("Choose Class", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-		int listH = 33 * NUM_CLASSES;
 		gUIListItems.push_back(new UiListItem("Warrior", PC_WARRIOR));
 		gUIListItems.push_back(new UiListItem("Rogue", PC_ROGUE));
 		gUIListItems.push_back(new UiListItem("Sorcerer", PC_SORCERER));
@@ -343,12 +342,9 @@ static void SelheroListSelect(unsigned index)
 		gUIListItems.push_back(new UiListItem("Monk", PC_MONK));
 		gUIListItems.push_back(new UiListItem("Bard", PC_BARD));
 		gUIListItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
-
-		listH = 26 * NUM_CLASSES;
 #endif
 		//assert(gUIListItems.size() == NUM_CLASSES);
-		int itemY = 246 + (176 - listH) / 2;
-		SDL_Rect rect2 = { PANEL_LEFT + 264, (PANEL_TOP + itemY), 320, listH };
+		SDL_Rect rect2 = { PANEL_LEFT + 264, (PANEL_TOP + 256), 320, 26 * NUM_CLASSES };
 		gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 279, (PANEL_TOP + 427), 140, 35 };
@@ -372,7 +368,7 @@ static void SelheroListSelect(unsigned index)
 
 		gUIListItems.push_back(new UiListItem("Load Game", 0));
 		gUIListItems.push_back(new UiListItem("New Game", 1));
-		SDL_Rect rect2 = { PANEL_LEFT + 265, (PANEL_TOP + 285), 320, 33 * 2 };
+		SDL_Rect rect2 = { PANEL_LEFT + 265, (PANEL_TOP + 256), 320, 26 * 2 };
 		gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_LEFT + 279, (PANEL_TOP + 427), 140, 35 };

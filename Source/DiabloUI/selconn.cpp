@@ -112,7 +112,7 @@ static void SelconnLoad()
 
 	//assert(numOptions == gUIListItems.size());
 	SDL_Rect rect8 = { PANEL_LEFT + 305, (PANEL_TOP + 256), 285, 26 * numOptions };
-	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_MID | UIS_GOLD));
 
 	SDL_Rect rect9 = { PANEL_LEFT + 299, (PANEL_TOP + 427), 140, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
