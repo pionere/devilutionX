@@ -11,10 +11,11 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MAX_VIEWPORT_ITEMS		((unsigned)6)
+
 static _uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
 static std::vector<_uiheroinfo> selhero_heros;
-static const unsigned MAX_VIEWPORT_ITEMS = 6;
 static char textStats[5][4];
 static char selhero_title[32];
 static int selhero_result;
