@@ -8,13 +8,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifdef HELLFIRE
-#define LOGO_DATA				"Data\\hf_logo3.CEL"
-#define LOGO_WIDTH				430
-#else
-#define LOGO_DATA				"Data\\Diabsmal.CEL"
-#define LOGO_WIDTH				296
-#endif
+//////////////////////////////////////////////////
+// IN-GAME UI
+//////////////////////////////////////////////////
 
 #ifndef DEFAULT_WIDTH
 #define DEFAULT_WIDTH	640
@@ -159,12 +155,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SCROLLBAR_ARROW_WIDTH		25
 #define SCROLLBAR_ARROW_HEIGHT		22
 
-#define SMALL_LOGO_WIDTH	390
-#define SMALL_LOGO_HEIGHT	154
-
-#define BIG_LOGO_WIDTH	550
-#define BIG_LOGO_HEIGHT	216
-
 #define SMALL_POPUP_WIDTH		280
 #define SMALL_POPUP_HEIGHT		144
 #define LARGE_POPUP_WIDTH		385
@@ -179,6 +169,24 @@ DEVILUTION_BEGIN_NAMESPACE
 #define FOCUS_MEDIUM		30
 #define FOCUS_BIG			42
 #define FOCUS_HUGE			48
+
+//////////////////////////////////////////////////
+// DIABLO UI (MENU)
+//////////////////////////////////////////////////
+
+#ifdef HELLFIRE
+#define LOGO_DATA				"Data\\hf_logo3.CEL"
+#define LOGO_WIDTH				430
+#else
+#define LOGO_DATA				"Data\\Diabsmal.CEL"
+#define LOGO_WIDTH				296
+#endif
+
+#define SMALL_LOGO_WIDTH	390
+#define SMALL_LOGO_HEIGHT	154
+
+#define BIG_LOGO_WIDTH	550
+#define BIG_LOGO_HEIGHT	216
 
 #define CREDITS_TOP		100
 #define CREDITS_HEIGHT	280
