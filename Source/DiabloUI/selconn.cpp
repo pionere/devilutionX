@@ -18,8 +18,7 @@ static char selconn_Description[64];
 static bool selconn_ReturnValue;
 static bool selconn_EndMenu;
 
-#define DESCRIPTION_OFFSET 35
-#define DESCRIPTION_WIDTH  208
+#define DESCRIPTION_WIDTH	(SELCONN_LPANEL_WIDTH - 2 * 10)
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelconnSelect(unsigned index);
@@ -98,26 +97,26 @@ static void SelconnLoad()
 	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect2 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 211), DESCRIPTION_WIDTH, 34 };
+	SDL_Rect rect2 = { SELCONN_LPANEL_LEFT + 10, SELCONN_PNL_TOP, DESCRIPTION_WIDTH, SELCONN_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText(selconn_MaxPlayers, rect2, UIS_LEFT | UIS_VCENTER | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect3 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 256), DESCRIPTION_WIDTH, 21 };
+	SDL_Rect rect3 = { SELCONN_LPANEL_LEFT + 10, SELCONN_PNL_TOP + SELCONN_HEADER_HEIGHT + 11, DESCRIPTION_WIDTH, 21 };
 	gUiItems.push_back(new UiText("Requirements:", rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect4 = { PANEL_LEFT + DESCRIPTION_OFFSET, (PANEL_TOP + 275), DESCRIPTION_WIDTH, 66 };
+	SDL_Rect rect4 = { SELCONN_LPANEL_LEFT + 10, SELCONN_PNL_TOP + SELCONN_HEADER_HEIGHT + 32, DESCRIPTION_WIDTH, 66 };
 	gUiItems.push_back(new UiText(selconn_Description, rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect7 = { PANEL_LEFT + 280, (PANEL_TOP + 211), 334, 34 };
+	SDL_Rect rect7 = { SELCONN_RPANEL_LEFT, SELCONN_PNL_TOP, SELCONN_RPANEL_WIDTH, SELCONN_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText("Select Connection", rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	//assert(numOptions == gUIListItems.size());
-	SDL_Rect rect8 = { PANEL_LEFT + 280 + (334 - 325) / 2, (PANEL_TOP + 256), 325, 26 * numOptions };
+	SDL_Rect rect8 = { SELCONN_RPANEL_LEFT + (334 - 325) / 2, SELCONN_PNL_TOP + 45, 325, 26 * numOptions };
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect9 = { PANEL_LEFT + 299, (PANEL_TOP + 427), 140, 35 };
+	SDL_Rect rect9 = { SELCONN_RPANEL_LEFT + 19, SELCONN_PNL_TOP + SELCONN_RPANEL_HEIGHT + 38, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect10 = { PANEL_LEFT + 454, (PANEL_TOP + 427), 140, 35 };
+	SDL_Rect rect10 = { SELCONN_RPANEL_LEFT + 174, SELCONN_PNL_TOP + SELCONN_RPANEL_HEIGHT + 38, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(numOptions == gUIListItems.size());
