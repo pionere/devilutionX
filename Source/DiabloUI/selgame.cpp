@@ -283,7 +283,7 @@ static void SelgamePasswordInit(unsigned index)
 	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText("Enter Password", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 25, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 69, SELGAME_RPANEL_WIDTH - 49, 33 };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 69, SELGAME_RPANEL_WIDTH - 24 * 2, 33 };
 	gUiItems.push_back(new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password) - 1, rect5));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
@@ -311,7 +311,7 @@ static void SelgamePortInit(unsigned index)
 	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText("Enter Port", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 25, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 69, SELGAME_RPANEL_WIDTH - 49, 33 };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 69, SELGAME_RPANEL_WIDTH - 24 * 2, 33 };
 	gUiItems.push_back(new UiEdit("Enter Port", selgame_Port, sizeof(selgame_Port) - 1, rect5));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
@@ -401,7 +401,7 @@ static void SelgameModeSelect(unsigned index)
 		SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
 		gUiItems.push_back(new UiText("Enter Address", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 25, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 69, SELGAME_RPANEL_WIDTH - 49, 33 };
+		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 69, SELGAME_RPANEL_WIDTH - 24 * 2, 33 };
 		gUiItems.push_back(new UiEdit("Enter Address", selgame_Ip, sizeof(selgame_Ip) - 1, rect5));
 
 		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
