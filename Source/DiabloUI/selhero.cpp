@@ -406,7 +406,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 	SDL_Rect rect1 = { SELHERO_RPANEL_LEFT, SELHERO_PNL_TOP, SELHERO_RPANEL_WIDTH, SELHERO_RHEADER_HEIGHT };
 	gUiItems.push_back(new UiText("Enter Name", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 24, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + 72, SELHERO_RPANEL_WIDTH - 2 * 24, 33 };
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 24, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELHERO_RPANEL_WIDTH - 2 * 24, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName) - 1, rect2));
 
 	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + 39, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + SELHERO_RPANEL_HEIGHT + 4, 140, 35 };
