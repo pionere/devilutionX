@@ -684,6 +684,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 								if (alpha || (char)*pHead <= -65) {
 									pHead = pBuf;
 									pBuf++;
+									colMatches = 1;
 								}
 							}
 							*pBuf = col;
