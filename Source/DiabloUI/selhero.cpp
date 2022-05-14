@@ -344,7 +344,7 @@ static void SelheroListSelect(unsigned index)
 		gUIListItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
 #endif
 		//assert(gUIListItems.size() == NUM_CLASSES);
-		SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 24, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + 11, SELHERO_RPANEL_WIDTH - 2 * 25, 26 * NUM_CLASSES };
+		SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + 11, 270, 26 * NUM_CLASSES };
 		gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + 39, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + SELHERO_RPANEL_HEIGHT + 4, 140, 35 };
@@ -368,7 +368,7 @@ static void SelheroListSelect(unsigned index)
 
 		gUIListItems.push_back(new UiListItem("Load Game", 0));
 		gUIListItems.push_back(new UiListItem("New Game", 1));
-		SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 25, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + 11, SELHERO_RPANEL_WIDTH - 2 * 25, 26 * 2 };
+		SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 280) / 2, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + 11, 280, 26 * 2 };
 		gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + 39, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + SELHERO_RPANEL_HEIGHT + 4, 140, 35 };

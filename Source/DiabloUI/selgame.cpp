@@ -182,7 +182,7 @@ static void SelgameSpeedInit()
 	gUIListItems.push_back(new UiListItem("Faster", SPEED_FASTER));
 	gUIListItems.push_back(new UiListItem("Fastest", SPEED_FASTEST));
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 20, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, SELGAME_RPANEL_WIDTH - 39, 26 * 4 };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 240) / 2, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 240, 26 * 4 };
 	gUiItems.push_back(new UiList(&gUIListItems, 4, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
@@ -239,7 +239,7 @@ static void SelgameModeInit()
 	gUIListItems.push_back(new UiListItem("Create Game", SELGAME_CREATE));
 	gUIListItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 25, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, SELGAME_RPANEL_WIDTH - 49, 26 * 2 };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 260) / 2, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 260, 26 * 2 };
 	gUiItems.push_back(new UiList(&gUIListItems, 2, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
@@ -385,7 +385,7 @@ static void SelgameModeSelect(unsigned index)
 		gUIListItems.push_back(new UiListItem("Nightmare", DIFF_NIGHTMARE));
 		gUIListItems.push_back(new UiListItem("Hell", DIFF_HELL));
 
-		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 20, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 295, 26 * 3 };
+		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 250) / 2, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 250, 26 * 3 };
 		gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
