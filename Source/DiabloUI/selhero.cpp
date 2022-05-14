@@ -11,7 +11,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define MAX_VIEWPORT_ITEMS		((unsigned)(SELHERO_RPANEL_HEIGHT / 26))
+#define MAX_VIEWPORT_ITEMS		((unsigned)((SELHERO_RPANEL_HEIGHT - 22) / 26))
 
 static _uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
@@ -267,7 +267,7 @@ static void SelheroListInit()
 	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 25, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT + 11, SELHERO_RPANEL_WIDTH - 2 * 25, 26 * (int)num_viewport_heroes };
 	gUiItems.push_back(new UiList(&gUIListItems, num_viewport_heroes, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + 346, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT - 1, SCROLLBAR_BG_WIDTH, SELHERO_RPANEL_HEIGHT + 1 };
+	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH - SCROLLBAR_BG_WIDTH + 1, SELHERO_PNL_TOP + SELHERO_RHEADER_HEIGHT - 1, SCROLLBAR_BG_WIDTH, SELHERO_RPANEL_HEIGHT + 1 };
 	UiScrollBar* scrollBar = new UiScrollBar(rect3);
 	gUiItems.push_back(scrollBar);
 
