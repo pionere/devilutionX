@@ -94,7 +94,7 @@ static void SelconnLoad()
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, SELCONN_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { SELCONN_LPANEL_LEFT + 10, SELCONN_PNL_TOP, DESCRIPTION_WIDTH, SELCONN_HEADER_HEIGHT };

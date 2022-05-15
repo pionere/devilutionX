@@ -165,7 +165,7 @@ static void SelgameSpeedInit()
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Create Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP, DESCRIPTION_WIDTH, SELGAME_HEADER_HEIGHT };
@@ -225,7 +225,7 @@ static void SelgameModeInit()
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
@@ -274,7 +274,7 @@ static void SelgamePasswordInit(unsigned index)
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
@@ -302,7 +302,7 @@ static void SelgamePortInit(unsigned index)
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
@@ -367,7 +367,7 @@ static void SelgameModeSelect(unsigned index)
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
+	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(index == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
