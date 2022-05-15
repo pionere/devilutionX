@@ -271,14 +271,14 @@ static void SelheroListInit()
 	UiScrollBar* scrollBar = new UiScrollBar(rect3);
 	gUiItems.push_back(scrollBar);
 
-	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT - 1, SELHERO_RBUTTON_TOP, 120, 35 };
+	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 3, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect5 = { SELHERO_RPANEL_LEFT + 124, SELHERO_RBUTTON_TOP, 120, 35 };
+	SDL_Rect rect5 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 3, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 3, 35 };
 	SELLIST_DIALOG_DELETE_BUTTON = new UiTxtButton("Delete", &SelheroUiFocusNavigationYesNo, rect5, UIS_CENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
 	gUiItems.push_back(SELLIST_DIALOG_DELETE_BUTTON);
 
-	SDL_Rect rect6 = { SELHERO_RPANEL_LEFT + 189, SELHERO_RBUTTON_TOP, 120, 35 };
+	SDL_Rect rect6 = { SELHERO_RPANEL_LEFT + 2 * SELHERO_RPANEL_WIDTH / 3, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 3, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo);
@@ -347,10 +347,10 @@ static void SelheroListSelect(unsigned index)
 		SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELCONN_LIST_TOP, 270, 26 * NUM_CLASSES };
 		gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + 39, SELHERO_RBUTTON_TOP, 140, 35 };
+		SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-		SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + 189, SELHERO_RBUTTON_TOP, 140, 35 };
+		SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == NUM_CLASSES);
@@ -371,10 +371,10 @@ static void SelheroListSelect(unsigned index)
 		SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 280) / 2, SELCONN_LIST_TOP, 280, 26 * 2 };
 		gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + 39, SELHERO_RBUTTON_TOP, 140, 35 };
+		SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + 189, SELHERO_RBUTTON_TOP, 140, 35 };
+		SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == 2);
@@ -409,10 +409,10 @@ static void SelheroClassSelectorSelect(unsigned index)
 	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 24, SELHERO_RPANEL_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELHERO_RPANEL_WIDTH - 2 * 24, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName) - 1, rect2));
 
-	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + 39, SELHERO_RBUTTON_TOP, 140, 35 };
+	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + 189, SELHERO_RBUTTON_TOP, 140, 35 };
+	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(0, NULL, SelheroNameSelect, SelheroNameEsc);

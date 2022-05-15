@@ -113,10 +113,10 @@ static void SelconnLoad()
 	SDL_Rect rect8 = { SELCONN_RPANEL_LEFT + (SELCONN_RPANEL_WIDTH - 320) / 2, SELCONN_LIST_TOP, 320, 26 * numOptions };
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect9 = { SELCONN_RPANEL_LEFT + 19, SELCONN_RBUTTON_TOP, 140, 35 };
+	SDL_Rect rect9 = { SELCONN_RPANEL_LEFT, SELCONN_RBUTTON_TOP, SELCONN_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect10 = { SELCONN_RPANEL_LEFT + 174, SELCONN_RBUTTON_TOP, 140, 35 };
+	SDL_Rect rect10 = { SELCONN_RPANEL_LEFT + SELCONN_RPANEL_WIDTH / 2, SELCONN_RBUTTON_TOP, SELCONN_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(numOptions == gUIListItems.size());
