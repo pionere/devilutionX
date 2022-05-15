@@ -190,29 +190,29 @@ static void SelheroInit()
 	SELHERO_DIALOG_HERO_IMG = new UiImage(gbHerosCel, 7, rect2, false);
 	vecSelHeroDialog.push_back(SELHERO_DIALOG_HERO_IMG);
 
-	SDL_Rect rect4 = { SELHERO_HEROS_LEFT + 9, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
+	SDL_Rect rect4 = { SELHERO_HEROS_LEFT + 9, SELHERO_LCONTENT_TOP, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
 	vecSelHeroDialog.push_back(new UiText("Level:", rect4, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
-	SDL_Rect rect5 = { SELHERO_HEROS_LEFT + 129, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36, 40, 21 };
+	SDL_Rect rect5 = { SELHERO_HEROS_LEFT + 129, SELHERO_LCONTENT_TOP, 40, 21 };
 	vecSelHeroDialog.push_back(new UiText(textStats[0], rect5, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect6 = { SELHERO_HEROS_LEFT + 9, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36 + 35 + 0 * 21, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
+	SDL_Rect rect6 = { SELHERO_HEROS_LEFT + 9, SELHERO_LCONTENT_TOP + 35 + 0 * 21, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
 	vecSelHeroDialog.push_back(new UiText("Strength:", rect6, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
-	SDL_Rect rect7 = { SELHERO_HEROS_LEFT + 129, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36 + 35 + 0 * 21, 40, 21 };
+	SDL_Rect rect7 = { SELHERO_HEROS_LEFT + 129, SELHERO_LCONTENT_TOP + 35 + 0 * 21, 40, 21 };
 	vecSelHeroDialog.push_back(new UiText(textStats[1], rect7, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect8 = { SELHERO_HEROS_LEFT + 9, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36 + 35 + 1 * 21, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
+	SDL_Rect rect8 = { SELHERO_HEROS_LEFT + 9, SELHERO_LCONTENT_TOP + 35 + 1 * 21, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
 	vecSelHeroDialog.push_back(new UiText("Magic:", rect8, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
-	SDL_Rect rect9 = { SELHERO_HEROS_LEFT + 129, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36 + 35 + 1 * 21, 40, 21 };
+	SDL_Rect rect9 = { SELHERO_HEROS_LEFT + 129, SELHERO_LCONTENT_TOP + 35 + 1 * 21, 40, 21 };
 	vecSelHeroDialog.push_back(new UiText(textStats[2], rect9, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect10 = { SELHERO_HEROS_LEFT + 9, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36 + 35 + 2 * 21, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
+	SDL_Rect rect10 = { SELHERO_HEROS_LEFT + 9, SELHERO_LCONTENT_TOP + 35 + 2 * 21, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
 	vecSelHeroDialog.push_back(new UiText("Dexterity:", rect10, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
-	SDL_Rect rect11 = { SELHERO_HEROS_LEFT + 129, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36 + 35 + 2 * 21, 40, 21 };
+	SDL_Rect rect11 = { SELHERO_HEROS_LEFT + 129, SELHERO_LCONTENT_TOP + 35 + 2 * 21, 40, 21 };
 	vecSelHeroDialog.push_back(new UiText(textStats[3], rect11, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect12 = { SELHERO_HEROS_LEFT + 9, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36 + 35 + 3 * 21, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
+	SDL_Rect rect12 = { SELHERO_HEROS_LEFT + 9, SELHERO_LCONTENT_TOP + 35 + 3 * 21, SELHERO_HEROS_WIDTH / 2 + 20, 21 };
 	vecSelHeroDialog.push_back(new UiText("Vitality:", rect12, UIS_RIGHT | UIS_SMALL | UIS_SILVER));
-	SDL_Rect rect13 = { SELHERO_HEROS_LEFT + 129, SELHERO_PNL_TOP + SELHERO_HEROS_HEIGHT + 36 + 35 + 3 * 21, 40, 21 };
+	SDL_Rect rect13 = { SELHERO_HEROS_LEFT + 129, SELHERO_LCONTENT_TOP + 35 + 3 * 21, 40, 21 };
 	vecSelHeroDialog.push_back(new UiText(textStats[4], rect13, UIS_CENTER | UIS_SMALL | UIS_SILVER));
 }
 
