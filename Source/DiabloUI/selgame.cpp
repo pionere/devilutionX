@@ -171,7 +171,7 @@ static void SelgameSpeedInit()
 	SDL_Rect rect2 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP, DESCRIPTION_WIDTH, SELGAME_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText(selgame_Label, rect2, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, DESCRIPTION_WIDTH, 192 };
+	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
@@ -182,7 +182,7 @@ static void SelgameSpeedInit()
 	gUIListItems.push_back(new UiListItem("Faster", SPEED_FASTER));
 	gUIListItems.push_back(new UiListItem("Fastest", SPEED_FASTEST));
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 240) / 2, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 240, 26 * 4 };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 240) / 2, SELGAME_LIST_TOP, 240, 26 * 4 };
 	gUiItems.push_back(new UiList(&gUIListItems, 4, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
@@ -228,7 +228,7 @@ static void SelgameModeInit()
 	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, DESCRIPTION_WIDTH, 192 };
+	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
@@ -239,7 +239,7 @@ static void SelgameModeInit()
 	gUIListItems.push_back(new UiListItem("Create Game", SELGAME_CREATE));
 	gUIListItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 260) / 2, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 260, 26 * 2 };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 260) / 2, SELGAME_LIST_TOP, 260, 26 * 2 };
 	gUiItems.push_back(new UiList(&gUIListItems, 2, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
@@ -277,13 +277,13 @@ static void SelgamePasswordInit(unsigned index)
 	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, DESCRIPTION_WIDTH, 192 };
+	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText("Enter Password", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password) - 1, rect5));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
@@ -305,13 +305,13 @@ static void SelgamePortInit(unsigned index)
 	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, DESCRIPTION_WIDTH, 192 };
+	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText("Enter Port", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Port", selgame_Port, sizeof(selgame_Port) - 1, rect5));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
@@ -370,7 +370,7 @@ static void SelgameModeSelect(unsigned index)
 	SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(index == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, DESCRIPTION_WIDTH, 192 };
+	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
 	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	switch (index) {
@@ -385,7 +385,7 @@ static void SelgameModeSelect(unsigned index)
 		gUIListItems.push_back(new UiListItem("Nightmare", DIFF_NIGHTMARE));
 		gUIListItems.push_back(new UiListItem("Hell", DIFF_HELL));
 
-		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 250) / 2, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 250, 26 * 3 };
+		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 250) / 2, SELGAME_LIST_TOP, 250, 26 * 3 };
 		gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
@@ -401,7 +401,7 @@ static void SelgameModeSelect(unsigned index)
 		SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
 		gUiItems.push_back(new UiText("Enter Address", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
-		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 		gUiItems.push_back(new UiEdit("Enter Address", selgame_Ip, sizeof(selgame_Ip) - 1, rect5));
 
 		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
