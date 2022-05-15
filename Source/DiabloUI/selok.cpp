@@ -48,10 +48,10 @@ void UiSelOkDialog(const char* title, const char* body)
 	UiAddLogo(&gUiItems);
 
 	//if (title != NULL) {
-		SDL_Rect rect1 = { PANEL_LEFT + 0, (PANEL_TOP + SMALL_LOGO_HEIGHT + 7), PANEL_WIDTH, 35 };
+		SDL_Rect rect1 = { PANEL_LEFT + 0, SELYNOK_TITLE_TOP, PANEL_WIDTH, 35 };
 		gUiItems.push_back(new UiText(title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-		SDL_Rect rect2 = { PANEL_LEFT + 60, (PANEL_TOP + SMALL_LOGO_HEIGHT + 82), MESSAGE_WIDTH, 168 };
+		SDL_Rect rect2 = { PANEL_LEFT + 60, SELYNOK_CONTENT_TOP, MESSAGE_WIDTH, SELYNOK_CONTENT_HEIGHT };
 		gUiItems.push_back(new UiText(dialogText, rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 	//} else {
 	//	SDL_Rect rect1 = { PANEL_LEFT + 140, (PANEL_TOP + 197), MESSAGE_WIDTH, 168 };
@@ -59,7 +59,7 @@ void UiSelOkDialog(const char* title, const char* body)
 	//}
 
 	gUIListItems.push_back(new UiListItem("OK", 0));
-	SDL_Rect rect3 = { PANEL_MIDX(180), (PANEL_TOP + 390), 180, 35 * 1 };
+	SDL_Rect rect3 = { PANEL_MIDX(180), SELYNOK_BUTTON_TOP, 180, 35 * 1 };
 	gUiItems.push_back(new UiList(&gUIListItems, 1, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SStrCopy(dialogText, body, sizeof(dialogText));
