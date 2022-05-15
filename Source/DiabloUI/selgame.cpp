@@ -185,10 +185,10 @@ static void SelgameSpeedInit()
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 240) / 2, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 240, 26 * 4 };
 	gUiItems.push_back(new UiList(&gUIListItems, 4, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_RBUTTON_TOP, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == 4);
@@ -242,10 +242,10 @@ static void SelgameModeInit()
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 260) / 2, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 260, 26 * 2 };
 	gUiItems.push_back(new UiList(&gUIListItems, 2, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_RBUTTON_TOP, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == 2);
@@ -286,10 +286,10 @@ static void SelgamePasswordInit(unsigned index)
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password) - 1, rect5));
 
-	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_RBUTTON_TOP, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
@@ -314,10 +314,10 @@ static void SelgamePortInit(unsigned index)
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Port", selgame_Port, sizeof(selgame_Port) - 1, rect5));
 
-	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_RBUTTON_TOP, 140, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitList(0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
@@ -388,10 +388,10 @@ static void SelgameModeSelect(unsigned index)
 		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 250) / 2, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + 11, 250, 26 * 3 };
 		gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
 		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+		SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_RBUTTON_TOP, 140, 35 };
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == 3);
@@ -404,10 +404,10 @@ static void SelgameModeSelect(unsigned index)
 		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 		gUiItems.push_back(new UiEdit("Enter Address", selgame_Ip, sizeof(selgame_Ip) - 1, rect5));
 
-		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + 19, SELGAME_RBUTTON_TOP, 140, 35 };
 		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_PNL_TOP + SELGAME_RPANEL_HEIGHT + SELGAME_HEADER_HEIGHT + 4, 140, 35 };
+		SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + 169, SELGAME_RBUTTON_TOP, 140, 35 };
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		UiInitList(0, NULL, SelgamePortInit, SelgameModeInit);
