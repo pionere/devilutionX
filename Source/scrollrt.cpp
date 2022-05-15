@@ -647,7 +647,7 @@ static void drawCell(int pn, int sx, int sy)
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn].mt[i];
+	pMap = &pMicroPieces[pn][i];
 	tmp = microFlags[pn];
 	tmp &= gbCelTransparencyActive ? ~0 : ~(TMIF_LEFT_WALL_TRANS | TMIF_RIGHT_WALL_TRANS | TMIF_WALL_TRANS);
 	if (i == 0) {
@@ -705,7 +705,7 @@ static void drawFloor(int pn, int sx, int sy)
 {
 	BYTE *dst, tmp;
 	uint16_t levelCelBlock;
-	MICROS *pMap;
+	uint16_t* pMap;
 
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
 		return; // starting from too far to the left or right -> skip
@@ -715,14 +715,14 @@ static void drawFloor(int pn, int sx, int sy)
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn];
+	pMap = &pMicroPieces[pn][0];
 	tmp = microFlags[pn];
 
-	levelCelBlock = pMap->mt[0];
+	levelCelBlock = pMap[0];
 	if (levelCelBlock != 0 && (tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
 		RenderMicro(dst, levelCelBlock, DMT_NONE);
 	}
-	levelCelBlock = pMap->mt[1];
+	levelCelBlock = pMap[1];
 	if (levelCelBlock != 0 && (tmp & (TMIF_RIGHT_REDRAW | TMIF_RIGHT_FOLIAGE)) != TMIF_RIGHT_REDRAW) {
 		RenderMicro(dst + MICRO_WIDTH, levelCelBlock, DMT_NONE);
 	}

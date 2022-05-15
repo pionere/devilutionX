@@ -29,7 +29,7 @@ BYTE *pMegaTiles;
 /*
  * The micros of the dPieces
  */
-MICROS pMicroPieces[MAXTILES + 1];
+uint16_t pMicroPieces[MAXTILES + 1][16];
 /*
  * Micro images CEL
  */
@@ -173,7 +173,7 @@ void InitLvlDungeon()
 	assert(dwTiles <= MAXTILES);
 
 	for (i = 1; i <= dwTiles; i++) {
-		pPTmp = pMicroPieces[i].mt;
+		pPTmp = &pMicroPieces[i][0];
 		pPiece = &pLPFile[blocks * i];
 		for (bv = 0; bv < blocks; bv += 2) {
 			pPiece -= 2;
@@ -224,116 +224,116 @@ void InitLvlDungeon()
 
 		// patch dMiniTiles - Town.MIN
 		// pointless tree micros (re-drawn by dSpecial)
-		pMicroPieces[117].mt[3] = 0;
-		pMicroPieces[117].mt[5] = 0;
-		pMicroPieces[128].mt[2] = 0;
-		pMicroPieces[128].mt[3] = 0;
-		pMicroPieces[128].mt[4] = 0;
-		pMicroPieces[128].mt[5] = 0;
-		pMicroPieces[128].mt[6] = 0;
-		pMicroPieces[128].mt[7] = 0;
-		pMicroPieces[129].mt[3] = 0;
-		pMicroPieces[129].mt[5] = 0;
-		pMicroPieces[129].mt[7] = 0;
-		pMicroPieces[130].mt[2] = 0;
-		pMicroPieces[130].mt[4] = 0;
-		pMicroPieces[130].mt[6] = 0;
-		pMicroPieces[156].mt[2] = 0;
-		pMicroPieces[156].mt[3] = 0;
-		pMicroPieces[156].mt[4] = 0;
-		pMicroPieces[156].mt[5] = 0;
-		pMicroPieces[156].mt[6] = 0;
-		pMicroPieces[156].mt[7] = 0;
-		pMicroPieces[156].mt[8] = 0;
-		pMicroPieces[156].mt[9] = 0;
-		pMicroPieces[156].mt[10] = 0;
-		pMicroPieces[156].mt[11] = 0;
-		pMicroPieces[157].mt[3] = 0;
-		pMicroPieces[157].mt[5] = 0;
-		pMicroPieces[157].mt[7] = 0;
-		pMicroPieces[157].mt[9] = 0;
-		pMicroPieces[157].mt[11] = 0;
-		pMicroPieces[158].mt[2] = 0;
-		pMicroPieces[158].mt[4] = 0;
-		pMicroPieces[160].mt[2] = 0;
-		pMicroPieces[160].mt[3] = 0;
-		pMicroPieces[160].mt[4] = 0;
-		pMicroPieces[160].mt[5] = 0;
-		pMicroPieces[160].mt[6] = 0;
-		pMicroPieces[160].mt[7] = 0;
-		pMicroPieces[160].mt[8] = 0;
-		pMicroPieces[160].mt[9] = 0;
-		pMicroPieces[162].mt[2] = 0;
-		pMicroPieces[162].mt[4] = 0;
-		pMicroPieces[162].mt[6] = 0;
-		pMicroPieces[162].mt[8] = 0;
-		pMicroPieces[162].mt[10] = 0;
-		pMicroPieces[212].mt[3] = 0;
-		pMicroPieces[212].mt[4] = 0;
-		pMicroPieces[212].mt[5] = 0;
-		pMicroPieces[212].mt[6] = 0;
-		pMicroPieces[212].mt[7] = 0;
-		pMicroPieces[212].mt[8] = 0;
-		pMicroPieces[212].mt[9] = 0;
-		pMicroPieces[212].mt[10] = 0;
-		pMicroPieces[212].mt[11] = 0;
-		//pMicroPieces[214].mt[4] = 0;
-		//pMicroPieces[214].mt[6] = 0;
-		pMicroPieces[216].mt[2] = 0;
-		pMicroPieces[216].mt[4] = 0;
-		pMicroPieces[216].mt[6] = 0;
-		//pMicroPieces[217].mt[4] = 0;
-		//pMicroPieces[217].mt[6] = 0;
-		//pMicroPieces[217].mt[8] = 0;
-		//pMicroPieces[358].mt[4] = 0;
-		//pMicroPieces[358].mt[5] = 0;
-		//pMicroPieces[358].mt[6] = 0;
-		//pMicroPieces[358].mt[7] = 0;
-		//pMicroPieces[358].mt[8] = 0;
-		//pMicroPieces[358].mt[9] = 0;
-		//pMicroPieces[358].mt[10] = 0;
-		//pMicroPieces[358].mt[11] = 0;
-		//pMicroPieces[358].mt[12] = 0;
-		//pMicroPieces[358].mt[13] = 0;
-		//pMicroPieces[360].mt[4] = 0;
-		//pMicroPieces[360].mt[6] = 0;
-		//pMicroPieces[360].mt[8] = 0;
-		//pMicroPieces[360].mt[10] = 0;
+		pMicroPieces[117][3] = 0;
+		pMicroPieces[117][5] = 0;
+		pMicroPieces[128][2] = 0;
+		pMicroPieces[128][3] = 0;
+		pMicroPieces[128][4] = 0;
+		pMicroPieces[128][5] = 0;
+		pMicroPieces[128][6] = 0;
+		pMicroPieces[128][7] = 0;
+		pMicroPieces[129][3] = 0;
+		pMicroPieces[129][5] = 0;
+		pMicroPieces[129][7] = 0;
+		pMicroPieces[130][2] = 0;
+		pMicroPieces[130][4] = 0;
+		pMicroPieces[130][6] = 0;
+		pMicroPieces[156][2] = 0;
+		pMicroPieces[156][3] = 0;
+		pMicroPieces[156][4] = 0;
+		pMicroPieces[156][5] = 0;
+		pMicroPieces[156][6] = 0;
+		pMicroPieces[156][7] = 0;
+		pMicroPieces[156][8] = 0;
+		pMicroPieces[156][9] = 0;
+		pMicroPieces[156][10] = 0;
+		pMicroPieces[156][11] = 0;
+		pMicroPieces[157][3] = 0;
+		pMicroPieces[157][5] = 0;
+		pMicroPieces[157][7] = 0;
+		pMicroPieces[157][9] = 0;
+		pMicroPieces[157][11] = 0;
+		pMicroPieces[158][2] = 0;
+		pMicroPieces[158][4] = 0;
+		pMicroPieces[160][2] = 0;
+		pMicroPieces[160][3] = 0;
+		pMicroPieces[160][4] = 0;
+		pMicroPieces[160][5] = 0;
+		pMicroPieces[160][6] = 0;
+		pMicroPieces[160][7] = 0;
+		pMicroPieces[160][8] = 0;
+		pMicroPieces[160][9] = 0;
+		pMicroPieces[162][2] = 0;
+		pMicroPieces[162][4] = 0;
+		pMicroPieces[162][6] = 0;
+		pMicroPieces[162][8] = 0;
+		pMicroPieces[162][10] = 0;
+		pMicroPieces[212][3] = 0;
+		pMicroPieces[212][4] = 0;
+		pMicroPieces[212][5] = 0;
+		pMicroPieces[212][6] = 0;
+		pMicroPieces[212][7] = 0;
+		pMicroPieces[212][8] = 0;
+		pMicroPieces[212][9] = 0;
+		pMicroPieces[212][10] = 0;
+		pMicroPieces[212][11] = 0;
+		//pMicroPieces[214][4] = 0;
+		//pMicroPieces[214][6] = 0;
+		pMicroPieces[216][2] = 0;
+		pMicroPieces[216][4] = 0;
+		pMicroPieces[216][6] = 0;
+		//pMicroPieces[217][4] = 0;
+		//pMicroPieces[217][6] = 0;
+		//pMicroPieces[217][8] = 0;
+		//pMicroPieces[358][4] = 0;
+		//pMicroPieces[358][5] = 0;
+		//pMicroPieces[358][6] = 0;
+		//pMicroPieces[358][7] = 0;
+		//pMicroPieces[358][8] = 0;
+		//pMicroPieces[358][9] = 0;
+		//pMicroPieces[358][10] = 0;
+		//pMicroPieces[358][11] = 0;
+		//pMicroPieces[358][12] = 0;
+		//pMicroPieces[358][13] = 0;
+		//pMicroPieces[360][4] = 0;
+		//pMicroPieces[360][6] = 0;
+		//pMicroPieces[360][8] = 0;
+		//pMicroPieces[360][10] = 0;
 		// fix bad artifact
-		pMicroPieces[233].mt[6] = 0;
+		pMicroPieces[233][6] = 0;
 		// useless black micros
-		pMicroPieces[426].mt[1] = 0;
-		pMicroPieces[427].mt[0] = 0;
-		pMicroPieces[427].mt[1] = 0;
-		pMicroPieces[429].mt[1] = 0;
+		pMicroPieces[426][1] = 0;
+		pMicroPieces[427][0] = 0;
+		pMicroPieces[427][1] = 0;
+		pMicroPieces[429][1] = 0;
 		// fix bad artifacts
-		pMicroPieces[828].mt[12] = 0;
-		pMicroPieces[828].mt[13] = 0;
-		pMicroPieces[1018].mt[2] = 0;
+		pMicroPieces[828][12] = 0;
+		pMicroPieces[828][13] = 0;
+		pMicroPieces[1018][2] = 0;
 		// useless black micros
-		pMicroPieces[1143].mt[0] = 0;
-		pMicroPieces[1145].mt[0] = 0;
-		pMicroPieces[1145].mt[1] = 0;
-		pMicroPieces[1146].mt[0] = 0;
-		pMicroPieces[1153].mt[0] = 0;
-		pMicroPieces[1155].mt[1] = 0;
-		pMicroPieces[1156].mt[0] = 0;
-		pMicroPieces[1169].mt[1] = 0;
-		pMicroPieces[1170].mt[0] = 0;
-		pMicroPieces[1170].mt[1] = 0;
-		pMicroPieces[1172].mt[1] = 0;
-		pMicroPieces[1176].mt[1] = 0;
-		pMicroPieces[1199].mt[1] = 0;
-		pMicroPieces[1200].mt[0] = 0;
-		pMicroPieces[1200].mt[1] = 0;
-		pMicroPieces[1202].mt[1] = 0;
-		pMicroPieces[1203].mt[1] = 0;
-		pMicroPieces[1205].mt[1] = 0;
-		pMicroPieces[1212].mt[0] = 0;
-		pMicroPieces[1219].mt[0] = 0;
+		pMicroPieces[1143][0] = 0;
+		pMicroPieces[1145][0] = 0;
+		pMicroPieces[1145][1] = 0;
+		pMicroPieces[1146][0] = 0;
+		pMicroPieces[1153][0] = 0;
+		pMicroPieces[1155][1] = 0;
+		pMicroPieces[1156][0] = 0;
+		pMicroPieces[1169][1] = 0;
+		pMicroPieces[1170][0] = 0;
+		pMicroPieces[1170][1] = 0;
+		pMicroPieces[1172][1] = 0;
+		pMicroPieces[1176][1] = 0;
+		pMicroPieces[1199][1] = 0;
+		pMicroPieces[1200][0] = 0;
+		pMicroPieces[1200][1] = 0;
+		pMicroPieces[1202][1] = 0;
+		pMicroPieces[1203][1] = 0;
+		pMicroPieces[1205][1] = 0;
+		pMicroPieces[1212][0] = 0;
+		pMicroPieces[1219][0] = 0;
 #ifdef HELLFIRE
 		// fix bad artifact
-		pMicroPieces[1273].mt[7] = 0;
+		pMicroPieces[1273][7] = 0;
 #endif
 		break;
 	case DTYPE_CATHEDRAL:
@@ -341,13 +341,13 @@ void InitLvlDungeon()
 		nMissileTable[8] = false; // the only column which was blocking missiles
 		// patch dMiniTiles - L1.MIN
 		// useless black micros
-		pMicroPieces[107].mt[0] = 0;
-		pMicroPieces[107].mt[1] = 0;
-		pMicroPieces[109].mt[1] = 0;
-		pMicroPieces[137].mt[1] = 0;
-		pMicroPieces[138].mt[0] = 0;
-		pMicroPieces[138].mt[1] = 0;
-		pMicroPieces[140].mt[1] = 0;
+		pMicroPieces[107][0] = 0;
+		pMicroPieces[107][1] = 0;
+		pMicroPieces[109][1] = 0;
+		pMicroPieces[137][1] = 0;
+		pMicroPieces[138][0] = 0;
+		pMicroPieces[138][1] = 0;
+		pMicroPieces[140][1] = 0;
 		break;
 	case DTYPE_CATACOMBS:
 		// patch dSolidTable - L2.SOL
@@ -468,7 +468,7 @@ void InitLvlDungeon()
 	case DTYPE_CAVES:
 		// patch dMiniTiles - L3.MIN
 		// fix bad artifact
-		pMicroPieces[82].mt[4] = 0;
+		pMicroPieces[82][4] = 0;
 		break;
 	case DTYPE_HELL:
 		// patch dSolidTable - L4.SOL
@@ -498,11 +498,11 @@ void InitLvlDungeon()
 		nSolidTable[416] = false; // make a pool tile walkable III.
 		// patch dMiniTiles - L6.MIN
 		// useless black micros
-		pMicroPieces[21].mt[0] = 0;
-		pMicroPieces[21].mt[1] = 0;
+		pMicroPieces[21][0] = 0;
+		pMicroPieces[21][1] = 0;
 		// fix bad artifacts
-		pMicroPieces[132].mt[7] = 0;
-		pMicroPieces[366].mt[1] = 0;
+		pMicroPieces[132][7] = 0;
+		pMicroPieces[366][1] = 0;
 		break;
 	case DTYPE_CRYPT:
 		// patch dSolidTable - L5.SOL
@@ -527,54 +527,54 @@ void InitLvlDungeon()
 		nSolidTable[600] = false;
 		// patch dMiniTiles - L5.MIN
 		// useless black micros
-		pMicroPieces[130].mt[0] = 0;
-		pMicroPieces[130].mt[1] = 0;
-		pMicroPieces[132].mt[1] = 0;
-		pMicroPieces[134].mt[0] = 0;
-		pMicroPieces[134].mt[1] = 0;
-		pMicroPieces[149].mt[0] = 0;
-		pMicroPieces[149].mt[1] = 0;
-		pMicroPieces[149].mt[2] = 0;
-		pMicroPieces[150].mt[0] = 0;
-		pMicroPieces[150].mt[1] = 0;
-		pMicroPieces[150].mt[2] = 0;
-		pMicroPieces[150].mt[4] = 0;
-		pMicroPieces[151].mt[0] = 0;
-		pMicroPieces[151].mt[1] = 0;
-		pMicroPieces[151].mt[3] = 0;
-		pMicroPieces[152].mt[0] = 0;
-		pMicroPieces[152].mt[1] = 0;
-		pMicroPieces[152].mt[3] = 0;
-		pMicroPieces[152].mt[5] = 0;
-		pMicroPieces[153].mt[0] = 0;
-		pMicroPieces[153].mt[1] = 0;
+		pMicroPieces[130][0] = 0;
+		pMicroPieces[130][1] = 0;
+		pMicroPieces[132][1] = 0;
+		pMicroPieces[134][0] = 0;
+		pMicroPieces[134][1] = 0;
+		pMicroPieces[149][0] = 0;
+		pMicroPieces[149][1] = 0;
+		pMicroPieces[149][2] = 0;
+		pMicroPieces[150][0] = 0;
+		pMicroPieces[150][1] = 0;
+		pMicroPieces[150][2] = 0;
+		pMicroPieces[150][4] = 0;
+		pMicroPieces[151][0] = 0;
+		pMicroPieces[151][1] = 0;
+		pMicroPieces[151][3] = 0;
+		pMicroPieces[152][0] = 0;
+		pMicroPieces[152][1] = 0;
+		pMicroPieces[152][3] = 0;
+		pMicroPieces[152][5] = 0;
+		pMicroPieces[153][0] = 0;
+		pMicroPieces[153][1] = 0;
 		// fix bad artifact
-		pMicroPieces[156].mt[2] = 0;
+		pMicroPieces[156][2] = 0;
 		// useless black micros
-		pMicroPieces[172].mt[0] = 0;
-		pMicroPieces[172].mt[1] = 0;
-		pMicroPieces[172].mt[2] = 0;
-		pMicroPieces[173].mt[0] = 0;
-		pMicroPieces[173].mt[1] = 0;
-		pMicroPieces[174].mt[0] = 0;
-		pMicroPieces[174].mt[1] = 0;
-		pMicroPieces[174].mt[2] = 0;
-		pMicroPieces[174].mt[4] = 0;
-		pMicroPieces[175].mt[0] = 0;
-		pMicroPieces[175].mt[1] = 0;
-		pMicroPieces[176].mt[0] = 0;
-		pMicroPieces[176].mt[1] = 0;
-		pMicroPieces[176].mt[3] = 0;
-		pMicroPieces[177].mt[0] = 0;
-		pMicroPieces[177].mt[1] = 0;
-		pMicroPieces[177].mt[3] = 0;
-		pMicroPieces[177].mt[5] = 0;
-		pMicroPieces[178].mt[0] = 0;
-		pMicroPieces[178].mt[1] = 0;
-		pMicroPieces[179].mt[0] = 0;
-		pMicroPieces[179].mt[1] = 0;
+		pMicroPieces[172][0] = 0;
+		pMicroPieces[172][1] = 0;
+		pMicroPieces[172][2] = 0;
+		pMicroPieces[173][0] = 0;
+		pMicroPieces[173][1] = 0;
+		pMicroPieces[174][0] = 0;
+		pMicroPieces[174][1] = 0;
+		pMicroPieces[174][2] = 0;
+		pMicroPieces[174][4] = 0;
+		pMicroPieces[175][0] = 0;
+		pMicroPieces[175][1] = 0;
+		pMicroPieces[176][0] = 0;
+		pMicroPieces[176][1] = 0;
+		pMicroPieces[176][3] = 0;
+		pMicroPieces[177][0] = 0;
+		pMicroPieces[177][1] = 0;
+		pMicroPieces[177][3] = 0;
+		pMicroPieces[177][5] = 0;
+		pMicroPieces[178][0] = 0;
+		pMicroPieces[178][1] = 0;
+		pMicroPieces[179][0] = 0;
+		pMicroPieces[179][1] = 0;
 		break;
-#endif
+#endif /* HELLFIRE */
 	default:
 		ASSUME_UNREACHABLE
 		break;

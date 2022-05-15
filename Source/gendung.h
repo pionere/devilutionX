@@ -22,7 +22,7 @@ extern int setpc_h;
 extern BYTE *pSetPiece;
 extern BYTE *pSpecialCels;
 extern BYTE *pMegaTiles;
-extern MICROS pMicroPieces[MAXTILES + 1];
+extern uint16_t pMicroPieces[MAXTILES + 1][16];
 extern BYTE* pMicroCels;
 extern BYTE microFlags[MAXTILES + 1];
 extern bool nBlockTable[MAXTILES + 1];
