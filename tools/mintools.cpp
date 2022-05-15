@@ -1489,8 +1489,11 @@ void PatchMinData(int dunType, int microTileLen, min_image_data* mindata, int nu
 		Blk2Mcr(117, 3);
 		Blk2Mcr(117, 5);
 		Blk2Mcr(128, 2);
+		Blk2Mcr(128, 3);
 		Blk2Mcr(128, 4);
+		Blk2Mcr(128, 5);
 		Blk2Mcr(128, 6);
+		Blk2Mcr(128, 7);
 		Blk2Mcr(129, 3);
 		Blk2Mcr(129, 5);
 		Blk2Mcr(129, 7);

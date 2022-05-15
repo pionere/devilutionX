@@ -227,8 +227,11 @@ void InitLvlDungeon()
 		pMicroPieces[117].mt[3] = 0;
 		pMicroPieces[117].mt[5] = 0;
 		pMicroPieces[128].mt[2] = 0;
+		pMicroPieces[128].mt[3] = 0;
 		pMicroPieces[128].mt[4] = 0;
+		pMicroPieces[128].mt[5] = 0;
 		pMicroPieces[128].mt[6] = 0;
+		pMicroPieces[128].mt[7] = 0;
 		pMicroPieces[129].mt[3] = 0;
 		pMicroPieces[129].mt[5] = 0;
 		pMicroPieces[129].mt[7] = 0;
