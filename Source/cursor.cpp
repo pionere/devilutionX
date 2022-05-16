@@ -549,7 +549,7 @@ void CheckCursMove()
 		bv = dObject[mx + 1][my];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (objects[bv]._oSelFlag >= 2) {
+			if (objects[bv]._oSelFlag & 2) {
 				cursmx = mx + 1;
 				cursmy = my;
 				pcursobj = bv;
@@ -559,7 +559,7 @@ void CheckCursMove()
 		bv = dObject[mx][my + 1];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (objects[bv]._oSelFlag >= 2) {
+			if (objects[bv]._oSelFlag & 2) {
 				cursmx = mx;
 				cursmy = my + 1;
 				pcursobj = bv;
@@ -569,7 +569,7 @@ void CheckCursMove()
 	bv = dObject[mx][my];
 	if (bv != 0) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (objects[bv]._oSelFlag == 1 || objects[bv]._oSelFlag == 3) {
+		if (objects[bv]._oSelFlag & 1) {
 			cursmx = mx;
 			cursmy = my;
 			pcursobj = bv;
@@ -578,7 +578,7 @@ void CheckCursMove()
 	bv = dObject[mx + 1][my + 1];
 	if (bv != 0) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (objects[bv]._oSelFlag >= 2) {
+		if (objects[bv]._oSelFlag & 2) {
 			cursmx = mx + 1;
 			cursmy = my + 1;
 			pcursobj = bv;
@@ -592,7 +592,7 @@ void CheckCursMove()
 		bv = dItem[mx + 1][my];
 		if (bv > 0) {
 			bv--;
-			if (items[bv]._iSelFlag >= 2) {
+			if (items[bv]._iSelFlag & 2) {
 				cursmx = mx + 1;
 				cursmy = my;
 				pcursitem = bv;
@@ -602,7 +602,7 @@ void CheckCursMove()
 		bv = dItem[mx][my + 1];
 		if (bv > 0) {
 			bv--;
-			if (items[bv]._iSelFlag >= 2) {
+			if (items[bv]._iSelFlag & 2) {
 				cursmx = mx;
 				cursmy = my + 1;
 				pcursitem = bv;
@@ -612,7 +612,7 @@ void CheckCursMove()
 	bv = dItem[mx][my];
 	if (bv > 0) {
 		bv--;
-		if (items[bv]._iSelFlag == 1 || items[bv]._iSelFlag == 3) {
+		if (items[bv]._iSelFlag & 1) {
 			cursmx = mx;
 			cursmy = my;
 			pcursitem = bv;
@@ -621,7 +621,7 @@ void CheckCursMove()
 	bv = dItem[mx + 1][my + 1];
 	if (bv > 0) {
 		bv--;
-		if (items[bv]._iSelFlag >= 2) {
+		if (items[bv]._iSelFlag & 2) {
 			cursmx = mx + 1;
 			cursmy = my + 1;
 			pcursitem = bv;
