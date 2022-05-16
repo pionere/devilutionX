@@ -394,12 +394,14 @@ static bool MoveToSkill(int pnum, int sn, int st)
 
 void DrawSkillList()
 {
-	int pnum, i, j, x, y, /*c,*/ sl, sn, st, lx, ly;
+	int pnum, i, j, x, y, sx, /*c,*/ sl, sn, st, lx, ly;
 	uint64_t mask;
 
 	currSkill = SPL_INVALID;
-	x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
+	sx = PANEL_CENTERX(SPLICONLENGTH * SPLROWICONLS);
+	x = sx + SPLICONLENGTH * SPLROWICONLS - SPLICONLENGTH;
 	y = SCREEN_Y + PANEL_BOTTOM - (128 + 17);
+	//y = PANEL_CENTERY(190) + 190;
 	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
@@ -482,15 +484,15 @@ void DrawSkillList()
 					plr._pAltMoveSkillHotKey, plr._pAltMoveSkillTypeHotKey);
 			}
 			x -= SPLICONLENGTH;
-			if (x == PANEL_X + 12 - SPLICONLENGTH) {
-				x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
+			if (x == sx - SPLICONLENGTH) {
+				x = sx + SPLICONLENGTH * SPLROWICONLS - SPLICONLENGTH;
 				y -= SPLICONLENGTH;
 			}
 		}
-		if (j != 0 && x != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS) {
+		if (j != 0 && x != sx + SPLICONLENGTH * SPLROWICONLS - SPLICONLENGTH) {
 			x -= SPLICONLENGTH;
-			if (x == PANEL_X + 12 - SPLICONLENGTH) {
-				x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
+			if (x == sx - SPLICONLENGTH) {
+				x = sx + SPLICONLENGTH * SPLROWICONLS - SPLICONLENGTH;
 				y -= SPLICONLENGTH;
 			}
 		}
