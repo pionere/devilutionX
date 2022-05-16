@@ -1647,7 +1647,7 @@ void DrawInfoStr()
 			col = COL_GOLD;
 		}
 		GetMousePos(x, y, &xx, &yy);
-		yy -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
+		yy -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
 		xx += DrawTooltip(infostr, xx, yy, col);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (pcursplr != PLR_NONE) {
