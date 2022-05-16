@@ -2217,7 +2217,7 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 
 int main()
 {
-	/* upscale regular cel files of listfiles.txt
+	/*{ // upscale regular cel files of listfiles.txt
 		- fails if the output-folder structure is not prepared
 		- skips Levels(dungeon tiles), gendata(cutscenes) and cow.CEL manually
 	// #include <fstream>
@@ -2245,31 +2245,55 @@ int main()
 		snprintf(path, 256, "F:\\MPQE\\Work\\%s", line.c_str());
 		char outpath[256];
 		snprintf(outpath, 256, "F:\\outcel\\%s", line.c_str());
-		UpscaleCel(path, 1, &diapal[0][0], 128, 128, outpath);
+		UpscaleCel(path, 2, &diapal[0][0], 128, 128, outpath);
 	}
 	input.close();
-	*/
+	}*/
+	/*{ // upscale objects with level-specific palette (fails if the output-folder structure is not prepared)
+		const char* celPalPairs[][3] = {
+			{ "Objects\\L1Doors.CEL", "Levels\\L1Data\\L1_1.PAL", "128" },
+			{ "Objects\\L2Doors.CEL", "Levels\\L2Data\\L2_1.PAL", "128" },
+			{ "Objects\\L3Doors.CEL", "Levels\\L3Data\\L3_1.PAL", "128" },
+			{ "Objects\\L5Door.CEL", "NLevels\\L5Data\\L5base.PAL", "128" },
+			{ "Objects\\L5Books.CEL", "NLevels\\L5Data\\L5base.PAL", "256" },
+			{ "Objects\\L5Lever.CEL", "NLevels\\L5Data\\L5base.PAL", "128" },
+			{ "Objects\\L5Light.CEL", "NLevels\\L5Data\\L5base.PAL", "128" },
+			{ "Objects\\L5Sarco.CEL", "NLevels\\L5Data\\L5base.PAL", "256" },
+			{ "Objects\\Urnexpld.CEL", "NLevels\\L5Data\\L5base.PAL", "256" },
+			{ "Objects\\Urn.CEL", "NLevels\\L5Data\\L5base.PAL", "256" },
+		};
+		for (int i = 0; i < lengthof(celPalPairs); i++) {
+			char path[256];
+			snprintf(path, 256, "f:\\MPQE\\Work\\%s", celPalPairs[i][1]);
+			BYTE* pal = LoadPal(path);
+			snprintf(path, 256, "f:\\MPQE\\Work\\%s", celPalPairs[i][0]);
+			char outpath[256];
+			snprintf(outpath, 256, "F:\\outcel\\%s", celPalPairs[i][0]);
+			UpscaleCel(path, 2, pal, atoi(celPalPairs[i][2]), 0, outpath);
+			free(pal);
+		}
+	}*/
 	/*{ // upscale special cells of the levels (fails if the output-folder structure is not prepared)
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
-		UpscaleCel("f:\\MPQE\\Work\\Levels\\TownData\\TownS.CEL", 1, pal, 128, 0, 
+		UpscaleCel("f:\\MPQE\\Work\\Levels\\TownData\\TownS.CEL", 2, pal, 128, 0, 
 			"f:\\outcel\\Levels\\TownData\\TownS.CEL");
 		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L1Data\\L1_1.PAL");
-		UpscaleCel("f:\\MPQE\\Work\\Levels\\L1Data\\L1S.CEL", 1, pal, 128, 0, 
+		UpscaleCel("f:\\MPQE\\Work\\Levels\\L1Data\\L1S.CEL", 2, pal, 128, 0, 
 			"f:\\outcel\\Levels\\L1Data\\L1S.CEL");
 		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L2Data\\L2_1.PAL");
-		UpscaleCel("f:\\MPQE\\Work\\Levels\\L2Data\\L2S.CEL", 1, pal, 128, 0, 
+		UpscaleCel("f:\\MPQE\\Work\\Levels\\L2Data\\L2S.CEL", 2, pal, 128, 0, 
 			"f:\\outcel\\Levels\\L2Data\\L2S.CEL");
 		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L5Data\\L5base.PAL");
-		UpscaleCel("f:\\MPQE\\Work\\NLevels\\L5Data\\L5S.CEL", 1, pal, 128, 0, 
+		UpscaleCel("f:\\MPQE\\Work\\NLevels\\L5Data\\L5S.CEL", 2, pal, 128, 0, 
 			"f:\\outcel\\NLevels\\L5Data\\L5S.CEL");
 		free(pal);
 	}*/
@@ -2289,11 +2313,11 @@ int main()
 		};
 		for (int i = 0; i < lengthof(celPalPairs); i++) {
 			char path[256];
-			snprintf(path, 256, "f:\\games\\devilx\\MPQE\\Work\\%s", celPalPairs[i][1]);
+			snprintf(path, 256, "f:\\MPQE\\Work\\%s", celPalPairs[i][1]);
 			BYTE* pal = LoadPal(path);
-			snprintf(path, 256, "f:\\games\\devilx\\MPQE\\Work\\%s", celPalPairs[i][0]);
+			snprintf(path, 256, "f:\\MPQE\\Work\\%s", celPalPairs[i][0]);
 			char outpath[256];
-			snprintf(outpath, 256, "F:\\old\\outcel\\%s", celPalPairs[i][0]);
+			snprintf(outpath, 256, "F:\\outcel\\%s", celPalPairs[i][0]);
 			UpscaleCel(path, 2, pal, 256, 0, outpath);
 			free(pal);
 		}
