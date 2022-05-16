@@ -1344,7 +1344,6 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 
 	width = std::max(w1, w2) + 2 * border;
 
-	y -= TILE_HEIGHT;
 	if (y < 0)
 		return result;
 	x -= width / 2;
@@ -1429,16 +1428,18 @@ static void GetItemInfo(ItemStruct* is)
 		snprintf(infostr, sizeof(infostr), "%d gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 	}
 }
-
+#define TOOLTIP_HEIGHT		16
+#define TOOLTIP2_HEIGHT		26
+#define HEALTHBAR_HEIGHT	4
+#define HEALTHBAR_WIDTH		66
 static int DrawTooltip(const char* text, int x, int y, BYTE col)
 {
 	int width, result = 0;
 	BYTE* dst;
-	const int border = 4, height = 16;
+	const int border = 4;
 
 	width = GetSmallStringWidth(text) + 2 * border;
 
-	y -= TILE_HEIGHT;
 	if (y < 0)
 		return result;
 	x -= width / 2;
@@ -1452,50 +1453,48 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 
 	// draw gray border
 	dst = &gpBuffer[SCREENXY(x, y)];
-	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
+	for (int i = 0; i < TOOLTIP_HEIGHT; i++, dst += BUFFER_WIDTH)
 		memset(dst, PAL16_GRAY + 8, width);
 
 	// draw background
 	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
-	for (int i = 0; i < height - 2; i++, dst += BUFFER_WIDTH)
+	for (int i = 0; i < TOOLTIP_HEIGHT - 2; i++, dst += BUFFER_WIDTH)
 		memset(dst, PAL16_ORANGE + 14, width - 2);
 
 	// print the info
-	PrintGameStr(SCREEN_X + x + border, SCREEN_Y + y + height - 3, text, col);
+	PrintGameStr(SCREEN_X + x + border, SCREEN_Y + y + TOOLTIP_HEIGHT - 3, text, col);
 	return result;
 }
 
 static void DrawHealthBar(int hp, int maxhp, int x, int y)
 {
 	BYTE* dst;
-	const int height = 4, width = 66;
 	int h, dhp, w, dw;
 
 	if (maxhp <= 0)
 		return;
 
-	y -= TILE_HEIGHT / 2 + 2;
 	if (y < 0)
 		return;
-	x -= width / 2;
+	x -= HEALTHBAR_WIDTH / 2;
 	if (x < 0)
 		x = 0;
-	else if (x > SCREEN_WIDTH - width)
-		x = SCREEN_WIDTH - width;
+	else if (x > SCREEN_WIDTH - HEALTHBAR_WIDTH)
+		x = SCREEN_WIDTH - HEALTHBAR_WIDTH;
 
 	// draw gray border
 	dst = &gpBuffer[SCREENXY(x, y)];
-	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_GRAY + 5, width);
+	for (int i = 0; i < HEALTHBAR_HEIGHT; i++, dst += BUFFER_WIDTH)
+		memset(dst, PAL16_GRAY + 5, HEALTHBAR_WIDTH);
 
 	// draw the bar
-	//width = (width - 2) * hp / maxhp;
+	//width = (HEALTHBAR_WIDTH - 2) * hp / maxhp;
 	dhp = (maxhp + 7) >> 3;
-	dw = ((width - 2) >> 3);
+	dw = ((HEALTHBAR_WIDTH - 2) >> 3);
 	for (w = 0, h = 0; h < hp; h += dhp, w += dw) {
 	}
 	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
-	for (int i = 0; i < height - 2; i++, dst += BUFFER_WIDTH)
+	for (int i = 0; i < HEALTHBAR_HEIGHT - 2; i++, dst += BUFFER_WIDTH)
 		memset(dst, PAL16_RED + 9, w);
 }
 
@@ -1509,7 +1508,8 @@ static void DrawTrigInfo()
 		if (mis->_miType == MIS_TOWN) {
 			copy_cstr(infostr, "Town Portal");
 			snprintf(tempstr, sizeof(tempstr), "(%s)", players[mis->_miSource]._pName);
-			GetMousePos(cursmx - 2, cursmy - 2, &xx, &yy);
+			GetMousePos(cursmx, cursmy, &xx, &yy);
+			yy -= TILE_HEIGHT * 3;
 			DrawTooltip2(infostr, tempstr, xx, yy, COL_WHITE);
 		} else {
 			if (!currLvl._dSetLvl) {
@@ -1517,7 +1517,8 @@ static void DrawTrigInfo()
 			} else {
 				copy_cstr(infostr, "Portal back to hell");
 			}
-			GetMousePos(cursmx - 2, cursmy - 2, &xx, &yy);
+			GetMousePos(cursmx, cursmy, &xx, &yy);
+			yy -= TILE_HEIGHT * 3;
 			DrawTooltip(infostr, xx, yy, COL_WHITE);
 		}
 		return;
@@ -1607,7 +1608,8 @@ static void DrawTrigInfo()
 		}
 	}
 
-	GetMousePos(cursmx - 1, cursmy - 1, &xx, &yy);
+	GetMousePos(cursmx, cursmy, &xx, &yy);
+	yy -= TILE_HEIGHT * 2;
 	DrawTooltip(infostr, xx, yy, COL_WHITE);
 }
 
@@ -1622,34 +1624,38 @@ void DrawInfoStr()
 		x = is->_ix;
 		y = is->_iy;
 		GetMousePos(x, y, &xx, &yy);
+		yy -= TILE_HEIGHT;
 		DrawTooltip(infostr, xx, yy, infoclr);
 	} else if (pcursobj != OBJ_NONE) {
 		GetObjectStr(pcursobj);
 		ObjectStruct* os = &objects[pcursobj];
-		x = os->_ox - 1;
-		y = os->_oy - 1;
+		x = os->_ox;
+		y = os->_oy;
 		GetMousePos(x, y, &xx, &yy);
+		yy -= TILE_HEIGHT * 2;
 		DrawTooltip(infostr, xx, yy, infoclr);
 	} else if (pcursmonst != MON_NONE) {
 		MonsterStruct* mon = &monsters[pcursmonst];
-		x = mon->_mx - 2;
-		y = mon->_my - 2;
+		x = mon->_mx;
+		y = mon->_my;
 		col = COL_WHITE;
 		strcpy(infostr, mon->mName); // TNR_NAME or a monster's name
 		if (mon->_uniqtype != 0) {
 			col = COL_GOLD;
 		}
 		GetMousePos(x, y, &xx, &yy);
+		yy -= TILE_HEIGHT * 3;
 		xx += DrawTooltip(infostr, xx, yy, col);
-		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy);
+		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (pcursplr != PLR_NONE) {
 		PlayerStruct* p = &players[pcursplr];
-		x = p->_px - 2;
-		y = p->_py - 2;
+		x = p->_px;
+		y = p->_py;
 		GetMousePos(x, y, &xx, &yy);
+		yy -= TILE_HEIGHT * 3;
 		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%d)" : "%s(%d)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		xx += DrawTooltip2(p->_pName, infostr, xx, yy, COL_GOLD);
-		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, xx, yy + 10);
+		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, xx, yy + TOOLTIP2_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (gbSkillListFlag) {
 		if (currSkill == SPL_INVALID || currSkill == SPL_NULL)
 			return;
@@ -1674,14 +1680,14 @@ void DrawInfoStr()
 			break;
 		}
 		snprintf(infostr, sizeof(infostr), fmt, spelldata[currSkill].sNameText);
-		DrawTooltip(infostr, MouseX, MouseY - 8, COL_WHITE);
+		DrawTooltip(infostr, MouseX, MouseY - (3 * SPLICONLENGTH / 4), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
 		DrawTrigInfo();
 	} else if (pcurs >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
-		DrawTooltip(infostr, MouseX + cursW / 2, MouseY, infoclr);
+		DrawTooltip(infostr, MouseX + cursW / 2, MouseY - INV_SLOT_SIZE_PX, infoclr);
 	}
 }
 
