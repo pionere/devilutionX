@@ -1428,6 +1428,7 @@ static void GetItemInfo(ItemStruct* is)
 		snprintf(infostr, sizeof(infostr), "%d gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 	}
 }
+#define TOOLTIP_OFFSET		32
 #define TOOLTIP_HEIGHT		16
 #define TOOLTIP2_HEIGHT		26
 #define HEALTHBAR_HEIGHT	4
@@ -1509,7 +1510,7 @@ static void DrawTrigInfo()
 			copy_cstr(infostr, "Town Portal");
 			snprintf(tempstr, sizeof(tempstr), "(%s)", players[mis->_miSource]._pName);
 			GetMousePos(cursmx, cursmy, &xx, &yy);
-			yy -= TILE_HEIGHT * 3;
+			yy -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip2(infostr, tempstr, xx, yy, COL_WHITE);
 		} else {
 			if (!currLvl._dSetLvl) {
@@ -1518,7 +1519,7 @@ static void DrawTrigInfo()
 				copy_cstr(infostr, "Portal back to hell");
 			}
 			GetMousePos(cursmx, cursmy, &xx, &yy);
-			yy -= TILE_HEIGHT * 3;
+			yy -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip(infostr, xx, yy, COL_WHITE);
 		}
 		return;
@@ -1609,7 +1610,7 @@ static void DrawTrigInfo()
 	}
 
 	GetMousePos(cursmx, cursmy, &xx, &yy);
-	yy -= TILE_HEIGHT * 2;
+	yy -= TILE_HEIGHT + TOOLTIP_OFFSET;
 	DrawTooltip(infostr, xx, yy, COL_WHITE);
 }
 
@@ -1624,7 +1625,7 @@ void DrawInfoStr()
 		x = is->_ix;
 		y = is->_iy;
 		GetMousePos(x, y, &xx, &yy);
-		yy -= TILE_HEIGHT;
+		yy -= TOOLTIP_OFFSET;
 		DrawTooltip(infostr, xx, yy, infoclr);
 	} else if (pcursobj != OBJ_NONE) {
 		GetObjectStr(pcursobj);
@@ -1632,7 +1633,7 @@ void DrawInfoStr()
 		x = os->_ox;
 		y = os->_oy;
 		GetMousePos(x, y, &xx, &yy);
-		yy -= TILE_HEIGHT * 2;
+		yy -= TILE_HEIGHT + TOOLTIP_OFFSET;
 		DrawTooltip(infostr, xx, yy, infoclr);
 	} else if (pcursmonst != MON_NONE) {
 		MonsterStruct* mon = &monsters[pcursmonst];
@@ -1644,7 +1645,7 @@ void DrawInfoStr()
 			col = COL_GOLD;
 		}
 		GetMousePos(x, y, &xx, &yy);
-		yy -= TILE_HEIGHT * 3;
+		yy -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 		xx += DrawTooltip(infostr, xx, yy, col);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (pcursplr != PLR_NONE) {
@@ -1652,7 +1653,7 @@ void DrawInfoStr()
 		x = p->_px;
 		y = p->_py;
 		GetMousePos(x, y, &xx, &yy);
-		yy -= TILE_HEIGHT * 3;
+		yy -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%d)" : "%s(%d)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		xx += DrawTooltip2(p->_pName, infostr, xx, yy, COL_GOLD);
 		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, xx, yy + TOOLTIP2_HEIGHT - HEALTHBAR_HEIGHT / 2);
@@ -1680,14 +1681,14 @@ void DrawInfoStr()
 			break;
 		}
 		snprintf(infostr, sizeof(infostr), fmt, spelldata[currSkill].sNameText);
-		DrawTooltip(infostr, MouseX, MouseY - (3 * SPLICONLENGTH / 4), COL_WHITE);
+		DrawTooltip(infostr, MouseX, MouseY - (SPLICONLENGTH / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
 		DrawTrigInfo();
 	} else if (pcurs >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
-		DrawTooltip(infostr, MouseX + cursW / 2, MouseY - INV_SLOT_SIZE_PX, infoclr);
+		DrawTooltip(infostr, MouseX + cursW / 2, MouseY - TOOLTIP_OFFSET, infoclr);
 	}
 }
 
