@@ -23,7 +23,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define NKR_C	7
 
 int trapid;
-BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
+static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
 int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
@@ -133,8 +133,8 @@ const int StoryText[3][3] = {
 	{ TEXT_BOOK31, TEXT_BOOK32, TEXT_BOOK33 }
 };
 
-const int flickers[1][32] = {
-	{ 1, 1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 1 },
+const int flickers[32] = {
+	1, 1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 1
 	//{ 0, 0, 0, 0, 0, 0, 1, 1, 1 }
 };
 
@@ -1207,9 +1207,12 @@ static void AddObjLight(int oi, int diffr)
 
 	os = &objects[oi];
 	//if (gbInitObjFlag) {
-		if (diffr != 0)
+#if FLICKER_LIGHT
+		if (diffr == 0)
+			os->_olid = NO_LIGHT;
+		else
+#endif
 			DoLighting(os->_ox, os->_oy, diffr, NO_LIGHT);
-		os->_olid = NO_LIGHT;
 	//}
 }
 
@@ -1374,7 +1377,11 @@ int AddObject(int type, int ox, int oy)
 	SetupObject(oi, ox, oy, type);
 	switch (type) {
 	case OBJ_L1LIGHT:
+#if FLICKER_LIGHT
 		AddObjLight(oi, 0);
+#else
+		AddObjLight(oi, 10);
+#endif
 		break;
 	case OBJ_SKFIRE:
 	//case OBJ_CANDLE1:
@@ -1512,7 +1519,7 @@ int AddObject(int type, int ox, int oy)
 	}
 	return oi;
 }
-
+#if FLICKER_LIGHT
 static void Obj_Light(int oi)
 {
 	ObjectStruct* os;
@@ -1520,7 +1527,6 @@ static void Obj_Light(int oi)
 	bool turnon;
 	static_assert(MAX_LIGHT_RAD >= 9, "Obj_Light needs at least light-radius of 9.");
 	const int lr = 8;
-	const int* flicker = flickers[0];
 
 	os = &objects[oi];
 	ox = os->_ox;
@@ -1534,7 +1540,9 @@ static void Obj_Light(int oi)
 		turnon = abs(ViewX - ox) < tr && abs(ViewY - oy) < tr;
 	}
 	if (turnon) {
-		tr = lr + flicker[os->_oAnimFrame];
+		assert(objectdata[OBJ_L1LIGHT].ofindex == OFILE_L1BRAZ);
+		assert(objfiledata[OFILE_L1BRAZ].oAnimFrameLen < lengthof(flickers));
+		tr = lr + flickers[os->_oAnimFrame];
 		if (os->_olid == NO_LIGHT)
 			os->_olid = AddLight(ox, oy, tr);
 		else {
@@ -1548,7 +1556,7 @@ static void Obj_Light(int oi)
 		}
 	}
 }
-
+#endif
 static void GetVileMissPos(int* dx, int* dy)
 {
 	int xx, yy, j, i;
@@ -1817,9 +1825,11 @@ void ProcessObjects()
 	for (i = 0; i < numobjects; ++i) {
 		oi = objectactive[i];
 		switch (objects[oi]._otype) {
+#if FLICKER_LIGHT
 		case OBJ_L1LIGHT:
 			Obj_Light(oi);
 			break;
+#endif
 		/*case OBJ_SKFIRE:
 		case OBJ_CANDLE1:
 		case OBJ_CANDLE2:
