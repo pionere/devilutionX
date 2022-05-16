@@ -2053,7 +2053,7 @@ BYTE* LoadPal(const char* palFile)
 	return result;
 }
 
-static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
+static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
 	if (c1->a != 255)
 		return *c0; // preserve tranparent pixels
@@ -2063,10 +2063,16 @@ static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
 	res.r = (c0->r * (len - idx) + c1->r * idx) / len;
 	res.g = (c0->g * (len - idx) + c1->g * idx) / len;
 	res.b = (c0->b * (len - idx) + c1->b * idx) / len;
+	if (numfixcolors != 0 && palette != NULL) {
+		// do not interpolate 'protected' colors
+		BYTE col = GetPalColor(res, palette, numcolors, coloroffset);
+		if (col != 0 && col < numfixcolors)
+			return *c0;
+	}
 	return res;
 }
 
-static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier)
+static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
 	// upscale the pngs
 	for (int i = 0; i < numimage; i++) {
@@ -2096,24 +2102,29 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 			for (int x = 0; x < imagedata[i].width / multiplier - 1; x++, p0 += multiplier) {
 				if (p0->a != 255)
 					continue; // skip transparent pixels
-
+				if (numfixcolors != 0 && palette != NULL) {
+					// skip 'protected' colors
+					BYTE col = GetPalColor(*p0, palette, numcolors, coloroffset);
+					if (col != 0 && col < numfixcolors)
+						continue;
+				}
 				RGBA* p1 = p0 + multiplier;
 				for (int j = 0; j < multiplier; j++) {
 					for (int k = 1; k < multiplier; k++) {
 						RGBA* pp = p0 + j * imagedata[i].width + k;
-						*pp = Interpolate(p0, p1, k, multiplier);
+						*pp = Interpolate(p0, p1, k, multiplier, palette, numcolors, coloroffset, numfixcolors);
 					}
 				}
 					for (int k = 1; k < multiplier; k++) {
 						RGBA* pp = p0 + k * imagedata[i].width;
-						*pp = Interpolate(p0, p1, k, multiplier);
+						*pp = Interpolate(p0, p1, k, multiplier, palette, numcolors, coloroffset, numfixcolors);
 					}
 			}
 		}
 	}
 }
 
-void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolors, int coloroffset, const char* resCelName)
+void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolors, int coloroffset, int numfixcolors, const char* resCelName)
 {
 	int numimage;
 	BYTE* buf;
@@ -2141,7 +2152,7 @@ void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolor
 	free(buf);
 
 	// upscale the png data
-	UpscalePNGImages(imagedata, numimage, multiplier);
+	UpscalePNGImages(imagedata, numimage, multiplier, palette, numcolors, coloroffset, numfixcolors);
 
 	// convert pngs back to cel
 	WritePNG2Cel(imagedata, numimage, celdata, false, resCelName, palette, numcolors, coloroffset);
@@ -2175,7 +2186,7 @@ void UpscaleCelComp(const char* celname, int multiplier, BYTE* palette, int numc
 	free(buf);
 
 	// upscale the png data
-	UpscalePNGImages(imagedata, numimage, multiplier);
+	UpscalePNGImages(imagedata, numimage, multiplier, NULL, 0, 0, 0);
 
 	// convert pngs back to cel
 	WritePNG2CelComp(imagedata, numimage, celdata, false, resCelName, palette, numcolors, coloroffset);
@@ -2209,7 +2220,7 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 	free(buf);
 
 	// upscale the png data
-	UpscalePNGImages(imagedata, numimage, multiplier);
+	UpscalePNGImages(imagedata, numimage, multiplier, NULL, 0, 0, 0);
 
 	// convert pngs back to cl2
 	WritePNG2Cl2(imagedata, numimage, celdata, resCelName, palette, numcolors, coloroffset);
@@ -2245,22 +2256,23 @@ int main()
 		snprintf(path, 256, "F:\\MPQE\\Work\\%s", line.c_str());
 		char outpath[256];
 		snprintf(outpath, 256, "F:\\outcel\\%s", line.c_str());
-		UpscaleCel(path, 2, &diapal[0][0], 128, 128, outpath);
+		UpscaleCel(path, 2, &diapal[0][0], 128, 128, 0, outpath);
 	}
 	input.close();
 	}*/
 	/*{ // upscale objects with level-specific palette (fails if the output-folder structure is not prepared)
-		const char* celPalPairs[][3] = {
-			{ "Objects\\L1Doors.CEL", "Levels\\L1Data\\L1_1.PAL", "128" },
-			{ "Objects\\L2Doors.CEL", "Levels\\L2Data\\L2_1.PAL", "128" },
-			{ "Objects\\L3Doors.CEL", "Levels\\L3Data\\L3_1.PAL", "128" },
-			{ "Objects\\L5Door.CEL", "NLevels\\L5Data\\L5base.PAL", "128" },
-			{ "Objects\\L5Books.CEL", "NLevels\\L5Data\\L5base.PAL", "256" },
-			{ "Objects\\L5Lever.CEL", "NLevels\\L5Data\\L5base.PAL", "128" },
-			{ "Objects\\L5Light.CEL", "NLevels\\L5Data\\L5base.PAL", "128" },
-			{ "Objects\\L5Sarco.CEL", "NLevels\\L5Data\\L5base.PAL", "256" },
-			{ "Objects\\Urnexpld.CEL", "NLevels\\L5Data\\L5base.PAL", "256" },
-			{ "Objects\\Urn.CEL", "NLevels\\L5Data\\L5base.PAL", "256" },
+		const char* celPalPairs[][4] = {
+			// celname,				  palette,				  numcolors, numfixcolors (protected colors)
+			{ "Objects\\L1Doors.CEL", "Levels\\L1Data\\L1_1.PAL", "128", "0" },
+			{ "Objects\\L2Doors.CEL", "Levels\\L2Data\\L2_1.PAL", "128", "0" },
+			{ "Objects\\L3Doors.CEL", "Levels\\L3Data\\L3_1.PAL", "128", "32" },
+			{ "Objects\\L5Door.CEL", "NLevels\\L5Data\\L5base.PAL", "128", "32" },
+			{ "Objects\\L5Books.CEL", "NLevels\\L5Data\\L5base.PAL", "256", "32" },
+			{ "Objects\\L5Lever.CEL", "NLevels\\L5Data\\L5base.PAL", "128", "32" },
+			{ "Objects\\L5Light.CEL", "NLevels\\L5Data\\L5base.PAL", "128", "32" },
+			{ "Objects\\L5Sarco.CEL", "NLevels\\L5Data\\L5base.PAL", "256", "32" },
+			{ "Objects\\Urnexpld.CEL", "NLevels\\L5Data\\L5base.PAL", "256", "32" },
+			{ "Objects\\Urn.CEL", "NLevels\\L5Data\\L5base.PAL", "256", "32" },
 		};
 		for (int i = 0; i < lengthof(celPalPairs); i++) {
 			char path[256];
@@ -2269,31 +2281,31 @@ int main()
 			snprintf(path, 256, "f:\\MPQE\\Work\\%s", celPalPairs[i][0]);
 			char outpath[256];
 			snprintf(outpath, 256, "F:\\outcel\\%s", celPalPairs[i][0]);
-			UpscaleCel(path, 2, pal, atoi(celPalPairs[i][2]), 0, outpath);
+			UpscaleCel(path, 2, pal, atoi(celPalPairs[i][2]), 0, atoi(celPalPairs[i][3]), outpath);
 			free(pal);
 		}
 	}*/
 	/*{ // upscale special cells of the levels (fails if the output-folder structure is not prepared)
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
-		UpscaleCel("f:\\MPQE\\Work\\Levels\\TownData\\TownS.CEL", 2, pal, 128, 0, 
+		UpscaleCel("f:\\MPQE\\Work\\Levels\\TownData\\TownS.CEL", 2, pal, 128, 0, 0,
 			"f:\\outcel\\Levels\\TownData\\TownS.CEL");
 		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L1Data\\L1_1.PAL");
-		UpscaleCel("f:\\MPQE\\Work\\Levels\\L1Data\\L1S.CEL", 2, pal, 128, 0, 
+		UpscaleCel("f:\\MPQE\\Work\\Levels\\L1Data\\L1S.CEL", 2, pal, 128, 0, 0,
 			"f:\\outcel\\Levels\\L1Data\\L1S.CEL");
 		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L2Data\\L2_1.PAL");
-		UpscaleCel("f:\\MPQE\\Work\\Levels\\L2Data\\L2S.CEL", 2, pal, 128, 0, 
+		UpscaleCel("f:\\MPQE\\Work\\Levels\\L2Data\\L2S.CEL", 2, pal, 128, 0, 0,
 			"f:\\outcel\\Levels\\L2Data\\L2S.CEL");
 		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L5Data\\L5base.PAL");
-		UpscaleCel("f:\\MPQE\\Work\\NLevels\\L5Data\\L5S.CEL", 2, pal, 128, 0, 
+		UpscaleCel("f:\\MPQE\\Work\\NLevels\\L5Data\\L5S.CEL", 2, pal, 128, 0, 32, 
 			"f:\\outcel\\NLevels\\L5Data\\L5S.CEL");
 		free(pal);
 	}*/
@@ -2318,7 +2330,7 @@ int main()
 			snprintf(path, 256, "f:\\MPQE\\Work\\%s", celPalPairs[i][0]);
 			char outpath[256];
 			snprintf(outpath, 256, "F:\\outcel\\%s", celPalPairs[i][0]);
-			UpscaleCel(path, 2, pal, 256, 0, outpath);
+			UpscaleCel(path, 2, pal, 256, 0, 0, outpath);
 			free(pal);
 		}
 	}*/
@@ -2333,7 +2345,7 @@ int main()
 			snprintf(path, 256, "f:\\Diablo\\Work\\%s", menuCELs[i]);
 			char outpath[256];
 			snprintf(outpath, 256, "f:\\outcel\\%s", menuCELs[i]);
-			UpscaleCel(path, 2, pal, 256, 0, outpath);
+			UpscaleCel(path, 2, pal, 256, 0, 0, outpath);
 		}
 		free(pal);
 
@@ -2349,11 +2361,11 @@ int main()
 			snprintf(path, 256, "f:\\Diablo\\Work\\%s", diaCELs[i]);
 			char outpath[256];
 			snprintf(outpath, 256, "f:\\outcel\\%s", diaCELs[i]);
-			UpscaleCel(path, 2, &diapal[0][0], 128, 128, outpath);
+			UpscaleCel(path, 2, &diapal[0][0], 128, 128, 0, outpath);
 		}
 
 		pal = LoadPal("f:\\Diablo\\Work\\ui_art\\credits.PAL");
-		UpscaleCel("f:\\Diablo\\Work\\ui_art\\credits.CEL", 2, pal, 256, 0, 
+		UpscaleCel("f:\\Diablo\\Work\\ui_art\\credits.CEL", 2, pal, 256, 0, 0,
 			"f:\\outcel\\ui_art\\credits.CEL");
 		free(pal);
 	}*/
