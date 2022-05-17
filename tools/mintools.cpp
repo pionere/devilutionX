@@ -2263,7 +2263,7 @@ int main()
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\NLevels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\NLevels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 128, 0, 32,
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\NLevels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 256, 0, 0,
 			"f:\\outmin\\NLevels\\TownData\\", "Town");
 	}
 	{
