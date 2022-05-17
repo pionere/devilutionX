@@ -79,7 +79,7 @@ void InitAutomapOnce()
  */
 void InitAutomapScale()
 {
-	AmLine64 = (AutoMapScale << 6) / 128;
+	AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 	AmLine32 = AmLine64 >> 1;
 	AmLine16 = AmLine32 >> 1;
 	AmLine8 = AmLine16 >> 1;
@@ -200,7 +200,7 @@ void AutomapZoomIn()
 {
 	if (AutoMapScale < MAP_SCALE_MAX) {
 		AutoMapScale += 16;
-		AmLine64 = (AutoMapScale << 6) / 128;
+		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;
 		AmLine16 = AmLine32 >> 1;
 		AmLine8 = AmLine16 >> 1;
@@ -215,7 +215,7 @@ void AutomapZoomOut()
 {
 	if (AutoMapScale > MAP_SCALE_MIN) {
 		AutoMapScale -= 16;
-		AmLine64 = (AutoMapScale << 6) / 128;
+		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;
 		AmLine16 = AmLine32 >> 1;
 		AmLine8 = AmLine16 >> 1;
@@ -464,10 +464,10 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	if (y < SCREEN_Y || y >= VIEWPORT_HEIGHT + SCREEN_Y || x < SCREEN_X || x >= SCREEN_WIDTH + SCREEN_X)
 		return;
 
-	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX << 6) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping V.");
-	static_assert(BORDER_RIGHT >= (MAP_SCALE_MAX << 6) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VI.");
-	static_assert(BORDER_TOP >= (MAP_SCALE_MAX << 6) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VII.");
-	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX << 6) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VIII.");
+	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping V.");
+	static_assert(BORDER_RIGHT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VI.");
+	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VII.");
+	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VIII.");
 
 	switch (p->_pdir) {
 	case DIR_N:
@@ -601,11 +601,11 @@ void DrawAutomap()
 		mapy = DMAXY - 1;
 	}
 
-	// assert(AmLine64 <= (MAP_SCALE_MAX << 6) / 128);
-	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX << 6) / 128, "Make sure the automap-renderer does not have to check for clipping I.");
-	static_assert(BORDER_RIGHT >= (MAP_SCALE_MAX << 6) / 128, "Make sure the automap-renderer does not have to check for clipping II.");
-	static_assert(BORDER_TOP >= (MAP_SCALE_MAX << 6) / 128, "Make sure the automap-renderer does not have to check for clipping III.");
-	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX << 6) / 128 / 2, "Make sure the automap-renderer does not have to check for clipping IV.");
+	// assert(AmLine64 <= (MAP_SCALE_MAX * TILE_WIDTH) / 128);
+	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping I.");
+	static_assert(BORDER_RIGHT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping II.");
+	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping III.");
+	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 2, "Make sure the automap-renderer does not have to check for clipping IV.");
 
 	// find an odd number of tiles which fits to the width
 	// assert(SCREEN_WIDTH >= AmLine64);
