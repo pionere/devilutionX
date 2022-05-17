@@ -506,6 +506,7 @@ void InitLvlDungeon()
 		break;
 	case DTYPE_CRYPT:
 		// patch dSolidTable - L5.SOL
+		nSolidTable[143] = false; // make right side of down-stairs consistent (walkable)
 		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
 		// make collision-checks more reasonable
 		//  - prevent non-crossable floor-tile configurations I.
