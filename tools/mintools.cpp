@@ -890,7 +890,7 @@ bool Min2PNG(const char* minname, int columns, int rows, const char* celname,
 		imagedata.height = rows * MICRO_HEIGHT;
 		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata.height * imagedata.width);
 		// make the background transparent
-		memset(imagerows, 0, sizeof(sizeof(RGBA) * imagedata.height * imagedata.width));
+		memset(imagerows, 0, sizeof(RGBA) * imagedata.height * imagedata.width);
 		imagedata.row_pointers = (png_bytep*)malloc(imagedata.height * sizeof(void*));
 		for (int n = 0; n < imagedata.height; n++) {
 			imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
@@ -1713,7 +1713,7 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, int du
 		imagedata[i].height = rows * MICRO_HEIGHT * multiplier;
 		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
 		// make the background transparent
-		memset(imagerows, 0, sizeof(sizeof(RGBA) * imagedata[i].height * imagedata[i].width));
+		memset(imagerows, 0, sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
 		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
 		for (int n = 0; n < imagedata[i].height; n++) {
 			imagedata[i].row_pointers[n] = (png_bytep)&imagerows[imagedata[i].width * n];
