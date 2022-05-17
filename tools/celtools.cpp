@@ -147,6 +147,7 @@ typedef struct png_image_data {
 	png_uint_32 height;
 	png_bytep *row_pointers;
 	png_bytep data_ptr;
+	BYTE* fixColorMask;
 } png_image_data;
 
 static void CleanupImageData(png_image_data* imagedata, int numimages)
@@ -154,6 +155,7 @@ static void CleanupImageData(png_image_data* imagedata, int numimages)
 	for (int n = 0; n < numimages; n++) {
 		free(imagedata[n].data_ptr);
 		free(imagedata[n].row_pointers);
+		free(imagedata[n].fixColorMask);
 	}
 	free(imagedata);
 }
@@ -265,6 +267,7 @@ static bool ReadPNG(const char *pngname, png_image_data &data)
 	fclose(fp);
 	data.row_pointers = row_pointers;
 	data.data_ptr = buffer;
+	data.fixColorMask = NULL;
 	return true;
 }
 
@@ -343,7 +346,10 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
 						pBuf++;
 					}
 					++*pHead;
-					*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
+					if (imagedata->fixColorMask != NULL && imagedata->fixColorMask[(image_data->height - i) * imagedata->width + j] != 0)
+						*pBuf = imagedata->fixColorMask[(image_data->height - i) * imagedata->width + j];
+					else
+						*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
 					pBuf++;
 					alpha = false;
 				} else {
@@ -664,6 +670,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 				for (int j = 0; j < image_data->width; j++) {
 					if (data[j].a == 255) {
 						// add opaque pixel
+						// assert(image_data->fixColorMask == NULL);
 						col = GetPalColor(data[j], palette, numcolors, coloroffset);
 						if (alpha || first || col != lastCol)
 							colMatches = 1;
@@ -925,7 +932,7 @@ static bool WritePNG(const char *pngname, png_image_data &data)
 	return true;
 }
 
-static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset)
+static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset, int numfixcolors)
 {
 	RGBA result;
 
@@ -934,17 +941,18 @@ static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset)
 		result.r = 0;
 		result.g = 0;
 		result.b = 0;
+		result.a = 255;
 	} else {
 		col -= coloroffset;
 		result.r = palette[col * 3 + 0];
 		result.g = palette[col * 3 + 1];
 		result.b = palette[col * 3 + 2];
+		result.a = (col != 0 && col < numfixcolors) ? col : 255;
 	}
-	result.a = 255;
 	return result;
 }
 
-static void CelBlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, int bufferWidth, BYTE *palette, int coloroffset)
+static void CelBlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, int bufferWidth, BYTE *palette, int coloroffset, int numfixcolors)
 {
 	int i, w, BUFFER_WIDTH;
 	char width;
@@ -962,7 +970,7 @@ static void CelBlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 			if (width >= 0) {
 				i -= width;
 				while (width-- != 0) {
-					*dst = GetPNGColor(*src++, palette, coloroffset);
+					*dst = GetPNGColor(*src++, palette, coloroffset, numfixcolors);
 					dst++;
 				}
 			} else {
@@ -976,7 +984,7 @@ static void CelBlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 	}
 }
 
-static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, int bufferWidth, BYTE *palette, int coloroffset)
+static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, int bufferWidth, BYTE *palette, int coloroffset, int numfixcolors)
 {
 	int w, BUFFER_WIDTH;
 	char width;
@@ -997,7 +1005,7 @@ static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 			if (width > 65) {
 				width -= 65;
 				nDataSize--;
-				RGBA fill = GetPNGColor(*src++, palette, coloroffset);
+				RGBA fill = GetPNGColor(*src++, palette, coloroffset, numfixcolors);
 				w -= width;
 				while (width != 0) {
 					*dst = fill;
@@ -1012,7 +1020,7 @@ static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 				nDataSize -= width;
 				w -= width;
 				while (width != 0) {
-					*dst = GetPNGColor(*src, palette, coloroffset);
+					*dst = GetPNGColor(*src, palette, coloroffset, numfixcolors);
 					src++;
 					dst++;
 					width--;
@@ -1364,7 +1372,8 @@ bool Cel2PNG(const char* celname, int nCel, bool multi, const char* destFolder, 
 			}
 			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 			//lastLine += imagedata.width * (imagedata.height - 1);
-			CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, celdata[i].width, imagedata.width, palette, coloroffset);
+			CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, celdata[i].width, imagedata.width, palette, coloroffset, 0);
+			// imagedata.fixColorMask = NULL;
 		}
 
 		// write a single png
@@ -1399,7 +1408,8 @@ bool Cel2PNG(const char* celname, int nCel, bool multi, const char* destFolder, 
 					imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
 				}
 				RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
-				CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
+				CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset, 0);
+				// imagedata.fixColorMask = NULL;
 
 				// write a single png
 				char destFile[256];
@@ -1573,7 +1583,8 @@ bool CelComp2PNG(const char* celname, int nCel, int multi, const char* destFolde
 					}
 					RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 					//lastLine += imagedata.width * (imagedata.height - 1);
-					CelBlitSafe(lastLine, celdata[j].data, celdata[j].dataSize, celdata[j].width, imagedata.width, palette, coloroffset);
+					CelBlitSafe(lastLine, celdata[j].data, celdata[j].dataSize, celdata[j].width, imagedata.width, palette, coloroffset, 0);
+					// imagedata.fixColorMask = NULL;
 				}
 
 				// write a single png
@@ -1620,7 +1631,8 @@ bool CelComp2PNG(const char* celname, int nCel, int multi, const char* destFolde
 				}
 				RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 				//lastLine += imagedata.width * (imagedata.height - 1);
-				CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, celdata[i].width, imagedata.width, palette, coloroffset);
+				CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, celdata[i].width, imagedata.width, palette, coloroffset, 0);
+				// imagedata.fixColorMask = NULL;
 			}
 
 			// write a single png
@@ -1657,7 +1669,8 @@ bool CelComp2PNG(const char* celname, int nCel, int multi, const char* destFolde
 				}
 				RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 				//lastLine += imagedata.width * (imagedata.height - 1);
-				CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
+				CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset, 0);
+				// imagedata.fixColorMask = NULL;
 
 				// write a single png
 				char destFile[256];
@@ -1926,7 +1939,8 @@ bool Cl2PNG(const char* celname, int nCel, int multi, const char* destFolder, BY
 					}
 					RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 					//lastLine += imagedata.width * (imagedata.height - 1);
-					Cl2BlitSafe(lastLine, celdata[j].data, celdata[j].dataSize, celdata[j].width, imagedata.width, palette, coloroffset);
+					Cl2BlitSafe(lastLine, celdata[j].data, celdata[j].dataSize, celdata[j].width, imagedata.width, palette, coloroffset, 0);
+					// imagedata.fixColorMask = NULL;
 				}
 
 				// write a single png
@@ -1973,7 +1987,8 @@ bool Cl2PNG(const char* celname, int nCel, int multi, const char* destFolder, BY
 				}
 				RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 				//lastLine += imagedata.width * (imagedata.height - 1);
-				Cl2BlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, celdata[i].width, imagedata.width, palette, coloroffset);
+				Cl2BlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, celdata[i].width, imagedata.width, palette, coloroffset, 0);
+				// imagedata.fixColorMask = NULL;
 			}
 
 			// write a single png
@@ -2011,7 +2026,8 @@ bool Cl2PNG(const char* celname, int nCel, int multi, const char* destFolder, BY
 
 				RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
 				//lastLine += imagedata.width * (imagedata.height - 1);
-				Cl2BlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset);
+				Cl2BlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset, 0);
+				// imagedata.fixColorMask = NULL;
 
 				// write a single png
 				char destFile[256];
@@ -2095,6 +2111,29 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 		}
 	}
 
+	// upscale the meta
+	for (int i = 0; i < numimage; i++) {
+		if (imagedata[i].fixColorMask == NULL)
+			continue;
+		BYTE* src = (BYTE*)&imagedata[i].fixColorMask[(imagedata[i].height - imagedata[i].height / multiplier) * imagedata[i].width];
+		src += imagedata[i].width - imagedata[i].width / multiplier;
+		BYTE* dst = (BYTE*)&imagedata[i].fixColorMask[0];
+		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
+			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+				for (int j = 0; j < multiplier; j++) {
+					*dst = *src;
+					dst++;
+				}
+				src++;
+			}
+			for (int j = 0; j < multiplier - 1; j++) {
+				memcpy(dst, dst - imagedata[i].width, sizeof(BYTE) * imagedata[i].width);
+				dst += imagedata[i].width;
+			}
+			src += imagedata[i].width - imagedata[i].width / multiplier;
+		}
+	}
+
 	// resample the pixels
 	for (int i = 0; i < numimage; i++) {
 		for (int y = 0; y < imagedata[i].height / multiplier - 1; y++) {
@@ -2102,12 +2141,10 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 			for (int x = 0; x < imagedata[i].width / multiplier - 1; x++, p0 += multiplier) {
 				if (p0->a != 255)
 					continue; // skip transparent pixels
-				if (numfixcolors != 0 && palette != NULL) {
-					// skip 'protected' colors
-					BYTE col = GetPalColor(*p0, palette, numcolors, coloroffset);
-					if (col != 0 && col < numfixcolors)
-						continue;
-				}
+				// skip 'protected' colors
+				if (imagedata[i].fixColorMask != NULL && imagedata[i].fixColorMask[x + y * imagedata[i].width] != 0)
+					continue;
+
 				RGBA* p1 = p0 + multiplier;
 				for (int j = 0; j < multiplier; j++) {
 					for (int k = 1; k < multiplier; k++) {
@@ -2146,7 +2183,23 @@ void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolor
 		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
 		//lastLine += imagedata.width * (imagedata.height - 1);
 		// blit to the bottom right
-		CelBlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset);
+		RGBA* dst = &lastLine[imagedata[i].width - imagedata[i].width / multiplier];
+		CelBlitSafe(dst, celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset, numfixcolors);
+
+		// prepare meta-info
+		imagedata[i].fixColorMask = (BYTE*)malloc(sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
+		memset(imagedata[i].fixColorMask, 0, sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
+		BYTE* dstB = &imagedata[i].fixColorMask[(imagedata[i].height - 1) * imagedata[i].width + imagedata[i].width - imagedata[i].width / multiplier];
+		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
+			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+				if (dst[x].a != 0 && dst[x].a != 255) {
+					dstB[x] = dst[x].a;
+					dst[x].a = 255;
+				}
+			}
+			dstB -= imagedata[i].width;
+			dst -= imagedata[i].width;
+		}
 	}
 
 	free(buf);
@@ -2180,7 +2233,8 @@ void UpscaleCelComp(const char* celname, int multiplier, BYTE* palette, int numc
 		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
 		//lastLine += imagedata.width * (imagedata.height - 1);
 		// blit to the bottom right
-		CelBlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset);
+		CelBlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset, 0);
+		imagedata[i].fixColorMask = NULL;
 	}
 
 	free(buf);
@@ -2214,7 +2268,8 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
 		//lastLine += imagedata.width * (imagedata.height - 1);
 		// blit to the bottom right
-		Cl2BlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset);
+		Cl2BlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset, 0);
+		imagedata[i].fixColorMask = NULL;
 	}
 
 	free(buf);
@@ -2369,28 +2424,28 @@ int main()
 			"f:\\outcel\\ui_art\\credits.CEL");
 		free(pal);
 	}*/
-	/* upscale all cl2 files of listfiles.txt (fails if the output-folder structure is not prepared)
+	/*{ // upscale all cl2 files of listfiles.txt (fails if the output-folder structure is not prepared)
 	// #include <fstream>
-	std::ifstream input("f:\\listfiles.txt");
+		std::ifstream input("f:\\listfiles.txt");
 
-	std::string line;
-	while (std::getline(input, line)) {
-		size_t ls = line.size();
-		if (ls <= 4)
-			continue;
-		if (line[0] == '_')
-			continue;
-		if (!stringicomp(line.substr(line.length() - 4, 4).c_str(), ".CL2"))
-			continue;
+		std::string line;
+		while (std::getline(input, line)) {
+			size_t ls = line.size();
+			if (ls <= 4)
+				continue;
+			if (line[0] == '_')
+				continue;
+			if (!stringicomp(line.substr(line.length() - 4, 4).c_str(), ".CL2"))
+				continue;
 
-		char path[256];
-		snprintf(path, 256, "f:\\MPQE\\Work\\%s", line.c_str());
-		char outpath[256];
-		snprintf(outpath, 256, "f:\\outcl2\\%s", line.c_str());
-		UpscaleCl2(path, 2, &diapal[0][0], 128, 128, outpath);
-	}
-	input.close();
-	*/
+			char path[256];
+			snprintf(path, 256, "f:\\MPQE\\Work\\%s", line.c_str());
+			char outpath[256];
+			snprintf(outpath, 256, "f:\\outcl2\\%s", line.c_str());
+			UpscaleCl2(path, 2, &diapal[0][0], 128, 128, outpath);
+		}
+		input.close();
+	}*/
 
 	//UpscaleCl2("f:\\plrgfx\\rogue\\rhbat.CL2", 2, &diapal[0][0], 128, 128, "f:\\rhbat.CL2");
 
@@ -2442,41 +2497,27 @@ int main()
 	Cel2PNG("f:\\MPQE\\Work\\data\\char.CEL", 0, false, "f:\\", &diapal[0][0], 128);
 	CelComp2PNG("f:\\MPQE\\Work\\towners\\animals\\cow.CEL", 0, 2, "f:\\", &diapal[0][0], 128);
 
-	Cel2PNG("f:\\SpellBkB.CEL", 0, "f:\\", &diapal[0][0], 128);
+	Cel2PNG("f:\\SpellBkB.CEL", 0, false, "f:\\", &diapal[0][0], 128);
 
 	const char* filenames[] = { "f:\\Farrow1.png" };
 	PNG2Cl2(filenames, 1, PNG_TRANSFORM_IDENTITY, "f:\\Farrow1.CL2", &diapal[0][0], 128, 128);
-	/*FILE *fa = fopen("f:\\Farrow1.CL2", "rb");
-	int srcCount;
-	fread(&srcCount, 1, 4, fa);
-	int srcDataSize;
-	for (int i = 0; i <= srcCount; i++)
-		fread(&srcDataSize, 1, 4, fa);
-	fclose(fa);
-	BYTE *bufy = (BYTE*)malloc(srcDataSize);
-	fa = fopen("f:\\Farrow1.CL2", "rb");
-	fread(bufy, 1, srcDataSize, fa);
-	fclose(fa);
-	BYTE *bufo = (BYTE*)malloc(srcDataSize);
-	memset(bufo, 0, srcDataSize);
-	Cl2Draw(bufo, bufy, 1, 96);*/
 
-	/*FILE *f = fopen("f:\\town.sol", "rb");
-	BYTE *bufy = (BYTE*)malloc(0x4F0);
-	int lenn = fread(bufy, 1, 1264, f);
-	fclose(f);
-	bufy[521] |= 1;
-	bufy[522] |= 1;
-	bufy[523] |= 1;
-	bufy[524] |= 1;
-	bufy[539] |= 1;
-	bufy[551] |= 1;
-	bufy[552] |= 1;
-	f = fopen("f:\\town_.sol", "wb");
-	fwrite(bufy, 1, lenn, f);
-	fclose(f);
-	f = NULL;*/
-
+	/*{ // sample code to patch a sol file
+		FILE *f = fopen("f:\\town.sol", "rb");
+		BYTE *bufy = (BYTE*)malloc(0x4F0);
+		int lenn = fread(bufy, 1, 1264, f);
+		fclose(f);
+		bufy[521] |= 1;
+		bufy[522] |= 1;
+		bufy[523] |= 1;
+		bufy[524] |= 1;
+		bufy[539] |= 1;
+		bufy[551] |= 1;
+		bufy[552] |= 1;
+		f = fopen("f:\\town_.sol", "wb");
+		fwrite(bufy, 1, lenn, f);
+		fclose(f);
+	}*/
 	/*{ // sample code to convert CEL to PNGs, then convert the PNGs back to CEL
 		BYTE* pal = LoadPal("f:\\L1_1.PAL");
 		Cel2PNG("f:\\L1Doors.CEL", 0, false, "f:\\", pal, 256);

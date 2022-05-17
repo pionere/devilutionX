@@ -79,6 +79,7 @@ typedef struct png_image_data {
 	png_uint_32 height;
 	png_bytep *row_pointers;
 	png_bytep data_ptr;
+	BYTE* fixColorMask;
 } png_image_data;
 
 typedef struct MegaMetaData {
@@ -313,6 +314,7 @@ static bool ReadPNG(const char *pngname, png_image_data &data)
 	fclose(fp);
 	data.row_pointers = row_pointers;
 	data.data_ptr = buffer;
+	data.fixColorMask = NULL;
 	return true;
 }
 
@@ -554,11 +556,12 @@ static void CleanupImageData(png_image_data* imagedata, int numimages)
 	for (int n = 0; n < numimages; n++) {
 		free(imagedata[n].data_ptr);
 		free(imagedata[n].row_pointers);
+		free(imagedata[n].fixColorMask);
 	}
 	free(imagedata);
 }
 
-static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset)
+static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset, int numfixcolors)
 {
 	RGBA result;
 
@@ -566,17 +569,18 @@ static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset)
 		result.r = 0;
 		result.g = 0;
 		result.b = 0;
+		result.a = 255;
 	} else {
 		col -= coloroffset;
 		result.r = palette[col * 3 + 0];
 		result.g = palette[col * 3 + 1];
 		result.b = palette[col * 3 + 2];
+		result.a = (col != 0 && col < numfixcolors) ? col : 255;
 	}
-	result.a = 255;
 	return result;
 }
 
-inline static void RenderLine(RGBA* dst, BYTE* src, int n, uint32_t mask, BYTE* palette, int coloroffset)
+inline static void RenderLine(RGBA* dst, BYTE* src, int n, uint32_t mask, BYTE* palette, int coloroffset, int numfixcolors)
 {
 //#ifdef NO_OVERDRAW
 //	if (dst >= gpBufStart && dst <= gpBufEnd)
@@ -589,14 +593,14 @@ inline static void RenderLine(RGBA* dst, BYTE* src, int n, uint32_t mask, BYTE* 
 		mask |= (1 << i) - 1;
 		if (mask == 0xFFFFFFFF) {
 			for (i = 0; i < n; i++) {
-				dst[i] = GetPNGColor(src[i], palette, coloroffset);
+				dst[i] = GetPNGColor(src[i], palette, coloroffset, numfixcolors);
 			}
 		} else {
 			// Clear the lower bits of the mask to avoid testing i < n in the loops.
 			mask = (mask >> i) << i;
 			for (i = 0; mask != 0; i++, mask <<= 1) {
 				if (mask & 0x80000000) {
-					dst[i] = GetPNGColor(src[i], palette, coloroffset);
+					dst[i] = GetPNGColor(src[i], palette, coloroffset, numfixcolors);
 				}
 			}
 		}
@@ -620,7 +624,7 @@ inline static void RenderLine(RGBA* dst, BYTE* src, int n, uint32_t mask, BYTE* 
 	//(*dst) += n;
 }
 
-void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskType, BYTE* srcCels, BYTE* palette, int coloroffset)
+void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskType, BYTE* srcCels, BYTE* palette, int coloroffset, int numfixcolors)
 {
 	int i, j, light = 0;
 	char v, encoding;
@@ -670,7 +674,7 @@ void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskT
 	switch (encoding) {
 	case MET_SQUARE:
 		for (i = MICRO_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
-			RenderLine(dst, src, MICRO_WIDTH, *mask, palette, coloroffset);
+			RenderLine(dst, src, MICRO_WIDTH, *mask, palette, coloroffset, numfixcolors);
 			src += MICRO_WIDTH;
 			dst += MICRO_WIDTH;
 		}
@@ -682,7 +686,7 @@ void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskT
 			for (j = MICRO_WIDTH; j != 0; j -= v, m <<= v) {
 				v = *src++;
 				if (v > 0) {
-					RenderLine(dst, src, v, m, palette, coloroffset);
+					RenderLine(dst, src, v, m, palette, coloroffset, numfixcolors);
 					src += v;
 					dst += v;
 				} else {
@@ -696,28 +700,28 @@ void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskT
 		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset, numfixcolors);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 		}
 		for (i = 2; i != MICRO_WIDTH; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset, numfixcolors);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 		}
 		break;
 	case MET_RTRIANGLE:
 		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
-			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset, numfixcolors);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
 		for (i = 2; i != MICRO_HEIGHT; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
-			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset, numfixcolors);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 			src += i & 2;
@@ -728,26 +732,26 @@ void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskT
 		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			src += i & 2;
 			dst += i;
-			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset, numfixcolors);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 		}
 		for (i = MICRO_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
-			RenderLine(dst, src, MICRO_WIDTH, *mask, palette, coloroffset);
+			RenderLine(dst, src, MICRO_WIDTH, *mask, palette, coloroffset, numfixcolors);
 			src += MICRO_WIDTH;
 			dst += MICRO_WIDTH;
 		}
 		break;
 	case MET_RTRAPEZOID:
 		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
-			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset);
+			RenderLine(dst, src, MICRO_WIDTH - i, *mask, palette, coloroffset, numfixcolors);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
 		for (i = MICRO_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
-			RenderLine(dst, src, MICRO_WIDTH, *mask, palette, coloroffset);
+			RenderLine(dst, src, MICRO_WIDTH, *mask, palette, coloroffset, numfixcolors);
 			src += MICRO_WIDTH;
 			dst += MICRO_WIDTH;
 		}
@@ -902,11 +906,12 @@ bool Min2PNG(const char* minname, int columns, int rows, const char* celname,
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < columns; x++, src++) {
 				uint16_t levelCelBlock = *src;
-				RenderMicro(dst, columns * MICRO_WIDTH, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
+				RenderMicro(dst, columns * MICRO_WIDTH, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset, 0);
 				dst += MICRO_WIDTH;
 			}
 			dst += imagedata.width * MICRO_HEIGHT - columns * MICRO_WIDTH;
 		}
+		// imagedata.fixColorMask = NULL;
 
 		// write a single png
 		char destFile[256];
@@ -1234,7 +1239,10 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
 					pHead = pBuf;
 					pBuf++;
 				}
-				*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
+				if (imagedata->fixColorMask != NULL && imagedata->fixColorMask[i * imagedata->width + sx + j] != 0)
+					*pBuf = imagedata->fixColorMask[i * imagedata->width + sx + j];
+				else
+					*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
 				pBuf++;
 				++*pHead;
 				hasColor = true;
@@ -1284,7 +1292,7 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
 	mmd->MicroType = MET_TRANSPARENT;
 }
 
-static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
+static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
 	if (c1->a != 255)
 		return *c0; // preserve tranparent pixels
@@ -1294,10 +1302,16 @@ static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len)
 	res.r = (c0->r * (len - idx) + c1->r * idx) / len;
 	res.g = (c0->g * (len - idx) + c1->g * idx) / len;
 	res.b = (c0->b * (len - idx) + c1->b * idx) / len;
+	if (numfixcolors != 0 && palette != NULL) {
+		// do not interpolate 'protected' colors
+		BYTE col = GetPalColor(res, palette, numcolors, coloroffset);
+		if (col != 0 && col < numfixcolors)
+			return *c0;
+	}
 	return res;
 }
 
-static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier)
+static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
 	// upscale the pngs
 	for (int i = 0; i < numimage; i++) {
@@ -1320,6 +1334,29 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 		}
 	}
 
+	// upscale the meta
+	for (int i = 0; i < numimage; i++) {
+		if (imagedata[i].fixColorMask == NULL)
+			continue;
+		BYTE* src = (BYTE*)&imagedata[i].fixColorMask[(imagedata[i].height - imagedata[i].height / multiplier) * imagedata[i].width];
+		src += imagedata[i].width - imagedata[i].width / multiplier;
+		BYTE* dst = (BYTE*)&imagedata[i].fixColorMask[0];
+		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
+			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+				for (int j = 0; j < multiplier; j++) {
+					*dst = *src;
+					dst++;
+				}
+				src++;
+			}
+			for (int j = 0; j < multiplier - 1; j++) {
+				memcpy(dst, dst - imagedata[i].width, sizeof(BYTE) * imagedata[i].width);
+				dst += imagedata[i].width;
+			}
+			src += imagedata[i].width - imagedata[i].width / multiplier;
+		}
+	}
+
 	// resample the pixels
 	for (int i = 0; i < numimage; i++) {
 		for (int y = 0; y < imagedata[i].height / multiplier - 1; y++) {
@@ -1327,17 +1364,20 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 			for (int x = 0; x < imagedata[i].width / multiplier - 1; x++, p0 += multiplier) {
 				if (p0->a != 255)
 					continue; // skip transparent pixels
+				// skip 'protected' colors
+				if (imagedata[i].fixColorMask != NULL && imagedata[i].fixColorMask[x + y * imagedata[i].width] != 0)
+					continue;
 
 				RGBA* p1 = p0 + multiplier;
 				for (int j = 0; j < multiplier; j++) {
 					for (int k = 1; k < multiplier; k++) {
 						RGBA* pp = p0 + j * imagedata[i].width + k;
-						*pp = Interpolate(p0, p1, k, multiplier);
+						*pp = Interpolate(p0, p1, k, multiplier, palette, numcolors, coloroffset, numfixcolors);
 					}
 				}
 					for (int k = 1; k < multiplier; k++) {
 						RGBA* pp = p0 + k * imagedata[i].width;
-						*pp = Interpolate(p0, p1, k, multiplier);
+						*pp = Interpolate(p0, p1, k, multiplier, palette, numcolors, coloroffset, numfixcolors);
 					}
 			}
 		}
@@ -1693,7 +1733,7 @@ void PatchMinData(int dunType, int microTileLen, min_image_data* mindata, int nu
  * @param prefix: the base name of the generated output files
  */
 void UpscaleMin(const char* minname, int multiplier, const char* celname, int dunType,
-	BYTE* palette, int numcolors, int coloroffset,
+	BYTE* palette, int numcolors, int coloroffset, int numfixcolors,
 	const char* destFolder, const char* prefix)
 {
 	int numtiles, columns = 0, rows = 0;
@@ -1721,7 +1761,7 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, int du
 		imagedata[i].data_ptr = (png_bytep)imagerows;
 
 		//lastLine += imagedata.width * (imagedata.height - 1);
-		// CelBlitSafe(, celdata[i].data, celdata[i].dataSize, imagedata.width / multiplier, imagedata.width, palette, coloroffset);
+		// CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width / multiplier, imagedata.width, palette, coloroffset, 0);
 
 		RGBA* dst = (RGBA*)imagedata[i].row_pointers[rows * MICRO_HEIGHT * (multiplier - 1) + MICRO_HEIGHT - 1];
 		// blit to the bottom right
@@ -1730,10 +1770,26 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, int du
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < columns; x++, src++) {
 				uint16_t levelCelBlock = *src;
-				RenderMicro(dst, columns * MICRO_WIDTH * multiplier, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset);
+				RenderMicro(dst, columns * MICRO_WIDTH * multiplier, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset, numfixcolors);
 				dst += MICRO_WIDTH;
 			}
 			dst += imagedata[i].width * MICRO_HEIGHT - columns * MICRO_WIDTH;
+		}
+
+		// prepare meta-info
+		dst -= imagedata[i].width * TILE_HEIGHT;
+		imagedata[i].fixColorMask = (BYTE*)malloc(sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
+		memset(imagedata[i].fixColorMask, 0, sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
+		BYTE* dstB = &imagedata[i].fixColorMask[(imagedata[i].height - 1) * imagedata[i].width + imagedata[i].width - imagedata[i].width / multiplier];
+		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
+			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+				if (dst[x].a != 0 && dst[x].a != 255) {
+					dstB[x] = dst[x].a;
+					dst[x].a = 255;
+				}
+			}
+			dstB -= imagedata[i].width;
+			dst -= imagedata[i].width;
 		}
 	}
 
@@ -1741,7 +1797,7 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, int du
 	free(celBuf);
 
 	// upscale the png data
-	UpscalePNGImages(imagedata, numtiles, multiplier);
+	UpscalePNGImages(imagedata, numtiles, multiplier, palette, numcolors, coloroffset, numfixcolors);
 
 	// convert pngs back to min/cel
 	WritePNG2Min(imagedata, numtiles, mindata, destFolder, prefix, palette, numcolors, coloroffset);
@@ -2182,42 +2238,42 @@ int main()
 {
 	/*{ // upscale tiles of the levels (fails if the output-folder structure is not prepared)
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 256, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 128, 0, 0,
 			"f:\\outmin\\Levels\\TownData\\", "Town");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L1Data\\L1_1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\L1Data\\L1.MIN", 2, "f:\\MPQE\\Work\\Levels\\L1Data\\L1.CEL", DTYPE_CATHEDRAL, pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L1Data\\L1.MIN", 2, "f:\\MPQE\\Work\\Levels\\L1Data\\L1.CEL", DTYPE_CATHEDRAL, pal, 128, 0, 0,
 			"f:\\outmin\\Levels\\L1Data\\", "L1");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L2Data\\L2_1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\L2Data\\L2.MIN", 2, "f:\\MPQE\\Work\\Levels\\L2Data\\L2.CEL", DTYPE_CATACOMBS, pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L2Data\\L2.MIN", 2, "f:\\MPQE\\Work\\Levels\\L2Data\\L2.CEL", DTYPE_CATACOMBS, pal, 128, 0, 0,
 			"f:\\outmin\\Levels\\L2Data\\", "L2");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L3Data\\L3_1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\L3Data\\L3.MIN", 2, "f:\\MPQE\\Work\\Levels\\L3Data\\L3.CEL", DTYPE_CAVES, pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L3Data\\L3.MIN", 2, "f:\\MPQE\\Work\\Levels\\L3Data\\L3.CEL", DTYPE_CAVES, pal, 128, 0, 32, 
 			"f:\\outmin\\Levels\\L3Data\\", "L3");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L4Data\\L4_1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\L4Data\\L4.MIN", 2, "f:\\MPQE\\Work\\Levels\\L4Data\\L4.CEL", DTYPE_HELL, pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L4Data\\L4.MIN", 2, "f:\\MPQE\\Work\\Levels\\L4Data\\L4.CEL", DTYPE_HELL, pal, 128, 0, 30,
 			"f:\\outmin\\Levels\\L4Data\\", "L4");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\NLevels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\NLevels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 256, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\NLevels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 128, 0, 32,
 			"f:\\outmin\\NLevels\\TownData\\", "Town");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L5Data\\L5Base.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L5Data\\L5.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L5Data\\L5.CEL", DTYPE_CRYPT, pal, 256, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L5Data\\L5.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L5Data\\L5.CEL", DTYPE_CRYPT, pal, 128, 0, 32,
 			"f:\\outmin\\NLevels\\L5Data\\", "L5");
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L6Data\\L6Base1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L6Data\\L6.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L6Data\\L6.CEL", DTYPE_NEST, pal, 128, 0, 
+		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L6Data\\L6.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L6Data\\L6.CEL", DTYPE_NEST, pal, 128, 0, 32, 
 			"f:\\outmin\\NLevels\\L6Data\\", "L6");
 	}*/
 	/*{
