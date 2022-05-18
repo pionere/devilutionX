@@ -132,12 +132,12 @@ const int StoryText[3][3] = {
 	{ TEXT_BOOK21, TEXT_BOOK22, TEXT_BOOK23 },
 	{ TEXT_BOOK31, TEXT_BOOK32, TEXT_BOOK33 }
 };
-
+#if FLICKER_LIGHT
 const int flickers[32] = {
 	1, 1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 1
 	//{ 0, 0, 0, 0, 0, 0, 1, 1, 1 }
 };
-
+#endif
 void InitObjectGFX()
 {
 	const ObjectData* ods;
@@ -1201,7 +1201,7 @@ static void AddTrap(int oi)
 	os->_oVar4 = TRAP_ACTIVE; // TRAP_LIVE
 }
 
-static void AddObjLight(int oi, int diffr)
+static void AddObjLight(int oi, int diffr, int dx, int dy)
 {
 	ObjectStruct* os;
 
@@ -1212,7 +1212,7 @@ static void AddObjLight(int oi, int diffr)
 			os->_olid = NO_LIGHT;
 		else
 #endif
-			DoLighting(os->_ox, os->_oy, diffr, NO_LIGHT);
+			DoLighting(os->_ox + dx, os->_oy + dy, diffr, NO_LIGHT);
 	//}
 }
 
@@ -1378,28 +1378,32 @@ int AddObject(int type, int ox, int oy)
 	switch (type) {
 	case OBJ_L1LIGHT:
 #if FLICKER_LIGHT
-		AddObjLight(oi, 0);
+		AddObjLight(oi, 0, 0, 0);
 #else
-		AddObjLight(oi, 10);
+		AddObjLight(oi, 10, 0, 0);
 #endif
 		break;
 	case OBJ_SKFIRE:
 	//case OBJ_CANDLE1:
 	case OBJ_CANDLE2:
 	case OBJ_BOOKCANDLE:
-		AddObjLight(oi, 5);
+		AddObjLight(oi, 5, 0, 0);
 		break;
 	case OBJ_STORYCANDLE:
 #ifdef HELLFIRE
 	case OBJ_L5CANDLE:
 #endif
-		AddObjLight(oi, 3);
+		AddObjLight(oi, 3, 0, 0);
 		break;
 	case OBJ_TORCHL1:
-	case OBJ_TORCHL2:
+		AddObjLight(oi, 8, 1, 0);
+		break;
 	case OBJ_TORCHR1:
+		AddObjLight(oi, 8, 0, 1);
+		break;
 	case OBJ_TORCHR2:
-		AddObjLight(oi, 8);
+	case OBJ_TORCHL2:
+		AddObjLight(oi, 8, 0, 0);
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -1508,7 +1512,7 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_TBCROSS:
 		// ObjAddRndSeed(oi);
-		AddObjLight(oi, 10);
+		AddObjLight(oi, 10, 0, 0);
 		break;
 	case OBJ_TNUDEM:
 		AddTorturedMaleBody(oi);
