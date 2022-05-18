@@ -546,10 +546,7 @@ else()
     Packaging/windows/devilutionx.rc)
 endif()
 
-# Copy devilutionx.mpq and devilx.mpq to the build directory to it works from the build directory
-if(NOT NOWIDESCREEN)
-  file(COPY "Packaging/resources/devilutionx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-endif()
+# Copy devilx.mpq to the build directory to it works from the build directory
 file(COPY "Packaging/resources/devilx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 if(AMIGA)
   file(COPY "Packaging/amiga/devilutionx.info" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
@@ -910,7 +907,6 @@ endif()
 if(NINTENDO_SWITCH)
   set(APP_ROMFS       "${CMAKE_BINARY_DIR}/romfs")
   set(APP_ROMFS_FILES
-    "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
     "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
 
   add_custom_target(romfs_directory
@@ -954,7 +950,6 @@ if(VITA)
     FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
     FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
     FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-    FILE Packaging/resources/devilutionx.mpq devilutionx.mpq
     FILE Packaging/resources/devilx.mpq devilx.mpq
   )
 endif()
@@ -962,9 +957,6 @@ endif()
 if(PS4)
   set(APP_MPQ_FOLDER  "${PROJECT_SOURCE_DIR}/Packaging/ps4")
   set(APP_MPQ_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
-  if(NOT NOWIDESCREEN)
-    set(APP_MPQ_FILES ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq")
-  endif()
   add_custom_target(mpq_files
     COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} ${APP_MPQ_FOLDER})
   if(NOT PROJECT_VERSION)
@@ -1041,10 +1033,6 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
     )
-    if(NOT NOWIDESCREEN)
-      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
-        DESTINATION "."
-      )
     endif()
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
@@ -1132,11 +1120,6 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/nix/README.txt"
       DESTINATION "share/diasurgical/${project_name}"
     )
-    if(NOT NOWIDESCREEN)
-      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
-        DESTINATION "share/diasurgical/${project_name}"
-      )
-    endif()
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "share/diasurgical/${project_name}"
     )

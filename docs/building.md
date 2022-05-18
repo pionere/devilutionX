@@ -500,6 +500,7 @@ cmake --build build -j $(nproc) --target package
 - `-DHAS_KBCTRL=0` disable keyboard-controller support
 - `-DHAS_GAMECTRL=0` disable game-controller support
 - `-DHAS_TOUCHPAD=0` disable touchpad support
+- `-DASSET_MPL=2` use upscaled assets, requires devilx_hdX.mpq (e.g. devilx_hd2.mpq)
 - `-DSCREEN_WIDTH=640` hardcode screen width to 640 pixel
 - `-DSCREEN_HEIGHT=480` hardcode screen height to 480 pixel
 - `-DMPQONE="hellone.mpq"` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.
