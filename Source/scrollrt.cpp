@@ -635,13 +635,13 @@ static void drawCell(int pn, int sx, int sy)
 		sy -= MICRO_HEIGHT;
 		i += (TILE_WIDTH / MICRO_WIDTH);
 	}*/
-	tmp = sy - (SCREEN_Y + VIEWPORT_HEIGHT + MICRO_HEIGHT - 1);
+	tmp = sy - (SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1);
 	i = 0;
 	if (tmp >= 0) {
-		// starting from below the bottom -> skip microtiles
-		tmp = 1 + (unsigned)tmp / MICRO_HEIGHT;
-		sy -= MICRO_HEIGHT * tmp;
-		i = tmp * (TILE_WIDTH / MICRO_WIDTH);
+		// starting from below the bottom -> skip tiles
+		tmp = 1 + (unsigned)tmp / TILE_HEIGHT;
+		sy -= TILE_HEIGHT * tmp;
+		i = tmp * (TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT);
 		if (i >= limit)
 			return; // not enough microtiles to affect the screen -> skip
 	}
