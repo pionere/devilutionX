@@ -1395,14 +1395,24 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 	int nummicros = imagedata[0].width / (MICRO_WIDTH);
 	nummicros *= imagedata[0].height / MICRO_HEIGHT;
 
+	int upscale = imagedata[0].width / (2 * MICRO_WIDTH);
+
 	MicroMetaData* microData = (MicroMetaData*)malloc(sizeof(MicroMetaData) * numtiles * nummicros);
 	memset(microData, 0, sizeof(MicroMetaData) * numtiles * nummicros);
 	int n = 0;
 	for (int i = 0; i < numtiles; i++) {
 		png_image_data* img_data = &imagedata[i];
-		for (int y = MICRO_HEIGHT - 1; y < img_data->height; y += MICRO_HEIGHT) {
-			for (int x = 0; x < img_data->width; x += MICRO_WIDTH, n++) {
-				EncodeMicro(img_data, x, y, &microData[n], palette, numcolors, coloroffset);
+		if (upscale > 1) {
+			for (int y = img_data->height - 1; y > 0; y -= MICRO_HEIGHT) {
+				for (int x = 0; x < img_data->width; x += MICRO_WIDTH, n++) {
+					EncodeMicro(img_data, x, y, &microData[n], palette, numcolors, coloroffset);
+				}
+			}
+		} else {
+			for (int y = MICRO_HEIGHT - 1; y < img_data->height; y += MICRO_HEIGHT) {
+				for (int x = 0; x < img_data->width; x += MICRO_WIDTH, n++) {
+					EncodeMicro(img_data, x, y, &microData[n], palette, numcolors, coloroffset);
+				}
 			}
 		}
 		//CleanupImageData(img_data, 1);
@@ -1440,8 +1450,16 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 				// add new micro
 				uniqMicros.push_back(mmd);
 			}
-			idx |= mmd->MicroType << 12;
+			if (upscale == 1)
+				idx |= mmd->MicroType << 12;
 			fput_int16(f, idx);
+		}
+		if (upscale > 1) {
+			// add blanks to ensure 16 blocks
+			for (int j = nummicros; j < 16 * upscale * upscale; j++) {
+				// blank
+				fput_int16(f, 0);
+			}
 		}
 	}
 	fclose(f);
@@ -1456,15 +1474,41 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 		MicroMetaData* mmd = uniqMicros[n];
 		fput_int32(f, addr);
 		addr += mmd->celLength;
+		if (upscale > 1)
+			addr++;
 		mmd->dataAddr = addr;
 	}
 	fput_int32(f, addr);
 
 	for (int n = 0; n < uniqMicros.size(); n++) {
 		MicroMetaData* mmd = uniqMicros[n];
+		if (upscale > 1) // (prefix celdata with the type of the micro)
+			fputc(mmd->MicroType, f);
 		fwrite(mmd->celData, 1, mmd->celLength, f);
 	}
 	fclose(f);
+
+	if (upscale > 1) {
+		// create standard CEL to view in "Diablo 1 Graphics Tool"
+		snprintf(filename, sizeof(filename), "%s%s_orig.CEL", destFolder, prefix);
+		f = fopen(filename, "wb");
+
+		fput_int32(f, uniqMicros.size());
+		uint32_t addr = 4 + 4 * (uniqMicros.size() + 1);
+		for (int n = 0; n < uniqMicros.size(); n++) {
+			MicroMetaData* mmd = uniqMicros[n];
+			fput_int32(f, addr);
+			addr += mmd->celLength;
+			mmd->dataAddr = addr;
+		}
+		fput_int32(f, addr);
+
+		for (int n = 0; n < uniqMicros.size(); n++) {
+			MicroMetaData* mmd = uniqMicros[n];
+			fwrite(mmd->celData, 1, mmd->celLength, f);
+		}
+		fclose(f);
+	}
 
 	// create TMI
 	/*snprintf(filename, sizeof(filename), "%s%s.TMI", destFolder, prefix);
