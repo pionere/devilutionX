@@ -679,19 +679,16 @@ static void drawCell(int pn, int sx, int sy)
 
 	mask = (tmp & TMIF_WALL_TRANS) ? DMT_TWALL : DMT_NONE; // &WallMask[MICRO_HEIGHT - 1]
 	while (i < limit) {
-		levelCelBlock = *pMap;
-		if (levelCelBlock != 0) {
-			RenderMicro(dst, levelCelBlock, mask);
+		for (int j = 0; j < (TILE_WIDTH / MICRO_WIDTH); j++) {
+			levelCelBlock = *pMap;
+			if (levelCelBlock != 0) {
+				RenderMicro(dst, levelCelBlock, mask);
+			}
+			pMap++;
+			dst += MICRO_WIDTH;
 		}
-		pMap++;
-		i++;
-		levelCelBlock = *pMap;
-		if (levelCelBlock != 0) {
-			RenderMicro(dst + MICRO_WIDTH, levelCelBlock, mask);
-		}
-		pMap++;
-		i++;
-		dst -= BUFFER_WIDTH * MICRO_HEIGHT;
+		i += (TILE_WIDTH / MICRO_WIDTH);
+		dst -= TILE_WIDTH + BUFFER_WIDTH * MICRO_HEIGHT;
 	}
 }
 
