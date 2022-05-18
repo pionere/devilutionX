@@ -279,8 +279,8 @@ static void InitMonsterGFX(int midx)
 	cmon = &mapMonTypes[midx];
 	mtype = cmon->cmType;
 	mfdata = &monfiledata[monsterdata[mtype].moFileNum];
-	cmon->cmWidth = mfdata->moWidth;
-	cmon->cmXOffset = (mfdata->moWidth - TILE_WIDTH) >> 1;
+	cmon->cmWidth = mfdata->moWidth * ASSET_MPL;
+	cmon->cmXOffset = (cmon->cmWidth - TILE_WIDTH) >> 1;
 	cmon->cmAFNum = mfdata->moAFNum;
 	cmon->cmAFNum2 = mfdata->moAFNum2;
 
@@ -1473,8 +1473,8 @@ static void MonChangeLightOff(int mnum)
 	lx = mon->_mxoff + 2 * mon->_myoff;
 	ly = 2 * mon->_myoff - mon->_mxoff;
 
-	lx = lx / 8;
-	ly = ly / 8;
+	lx = lx / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
+	ly = ly / (TILE_WIDTH / 8);
 
 	CondChangeLightOff(mon->mlid, lx, ly);
 }

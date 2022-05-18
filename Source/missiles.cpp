@@ -508,8 +508,8 @@ static void GetMissilePos(int mi)
 
 	mis->_mix = dx + mis->_misx;
 	mis->_miy = dy + mis->_misy;
-	mis->_mixoff = mx + (dy * 32) - (dx * 32);
-	mis->_miyoff = (my >> 1) - (dx * 16) - (dy * 16);
+	mis->_mixoff = (mx + (dy * 32) - (dx * 32)) * ASSET_MPL;
+	mis->_miyoff = ((my >> 1) - (dx * 16) - (dy * 16)) * ASSET_MPL;
 	ChangeLightOff(mis->_miLid, lx - (dx * 8), ly - (dy * 8));
 }
 
@@ -1328,7 +1328,7 @@ static void SyncMissAnim(int mi)
 	mis->_miAnimFlag = (mfd->mfFlags & MAFLAG_LOCK_ANIMATION) == 0;
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
-	mis->_miAnimWidth = mfd->mfAnimWidth;
+	mis->_miAnimWidth = mfd->mfAnimWidth * ASSET_MPL;
 	mis->_miAnimXOffset = mfd->mfAnimXOffset;
 }
 

@@ -29,7 +29,7 @@ BYTE *pMegaTiles;
 /*
  * The micros of the dPieces
  */
-uint16_t pMicroPieces[MAXTILES + 1][16];
+uint16_t pMicroPieces[MAXTILES + 1][16 * ASSET_MPL * ASSET_MPL];
 /*
  * Micro images CEL
  */
@@ -146,11 +146,12 @@ void DRLG_Init_Globals()
 
 void InitLvlDungeon()
 {
-	BYTE bv, blocks;
+	uint16_t bv;
 	size_t i, dwTiles;
 	BYTE *pSBFile, *pTmp;
-	uint16_t *pLPFile, *pPiece, *pPTmp;
-
+#if ASSET_MPL == 1
+	uint16_t blocks, *pLPFile, *pPiece, *pPTmp;
+#endif
 	const LevelData *lds;
 	assert(pMicroCels == NULL);
 	lds = &AllLevels[currLvl._dLevelIdx];
@@ -163,9 +164,9 @@ void InitLvlDungeon()
 		pSpecialCels = LoadFileInMem(lds->dSpecCels);
 	else
 		pSpecialCels = (BYTE*)CelLoadImage(lds->dSpecCels, TILE_WIDTH);
-	MicroTileLen = lds->dMicroTileLen;
+	MicroTileLen = lds->dMicroTileLen * ASSET_MPL * ASSET_MPL;
 	LoadFileWithMem(lds->dMicroFlags, microFlags);
-
+#if ASSET_MPL == 1
 	pLPFile = (uint16_t *)LoadFileInMem(lds->dMiniTiles, &dwTiles);
 
 	blocks = lds->dBlocks;
@@ -188,6 +189,16 @@ void InitLvlDungeon()
 	}
 
 	mem_free_dbg(pLPFile);
+#else
+	LoadFileWithMem(lds->dMiniTiles, (BYTE*)&pMicroPieces[1][0]);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	for (i = 1; i < lengthof(pMicroPieces); i++) {
+		for (bv = 0; bv < lengthof(pMicroPieces[0]); bv++) {
+			pMicroPieces[i][bv] = SwapLE16(pMicroPieces[i][bv]);
+		}
+	}
+#endif
+#endif /* ASSET_MPL == 1 */
 
 #if DEBUG_MODE
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
@@ -224,6 +235,7 @@ void InitLvlDungeon()
 
 		// patch dMiniTiles - Town.MIN
 		// pointless tree micros (re-drawn by dSpecial)
+#if ASSET_MPL == 1
 		pMicroPieces[117][3] = 0;
 		pMicroPieces[117][5] = 0;
 		pMicroPieces[128][2] = 0;
@@ -335,10 +347,12 @@ void InitLvlDungeon()
 		// fix bad artifact
 		pMicroPieces[1273][7] = 0;
 #endif
+#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_CATHEDRAL:
 		// patch dSolidTable - L1.SOL
 		nMissileTable[8] = false; // the only column which was blocking missiles
+#if ASSET_MPL == 1
 		// patch dMiniTiles - L1.MIN
 		// useless black micros
 		pMicroPieces[107][0] = 0;
@@ -348,6 +362,7 @@ void InitLvlDungeon()
 		pMicroPieces[138][0] = 0;
 		pMicroPieces[138][1] = 0;
 		pMicroPieces[140][1] = 0;
+#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_CATACOMBS:
 		// patch dSolidTable - L2.SOL
@@ -466,9 +481,11 @@ void InitLvlDungeon()
 		nTrapTable[534] = PTT_RIGHT;
 		break;
 	case DTYPE_CAVES:
+#if ASSET_MPL == 1
 		// patch dMiniTiles - L3.MIN
 		// fix bad artifact
 		pMicroPieces[82][4] = 0;
+#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_HELL:
 		// patch dSolidTable - L4.SOL
@@ -496,6 +513,7 @@ void InitLvlDungeon()
 		nSolidTable[390] = false; // make a pool tile walkable I.
 		nSolidTable[413] = false; // make a pool tile walkable II.
 		nSolidTable[416] = false; // make a pool tile walkable III.
+#if ASSET_MPL == 1
 		// patch dMiniTiles - L6.MIN
 		// useless black micros
 		pMicroPieces[21][0] = 0;
@@ -503,6 +521,7 @@ void InitLvlDungeon()
 		// fix bad artifacts
 		pMicroPieces[132][7] = 0;
 		pMicroPieces[366][1] = 0;
+#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_CRYPT:
 		// patch dSolidTable - L5.SOL
@@ -526,6 +545,7 @@ void InitLvlDungeon()
 		//  - prevent non-crossable floor-tile configurations II.
 		nSolidTable[598] = false;
 		nSolidTable[600] = false;
+#if ASSET_MPL == 1
 		// patch dMiniTiles - L5.MIN
 		// useless black micros
 		pMicroPieces[130][0] = 0;
@@ -574,6 +594,7 @@ void InitLvlDungeon()
 		pMicroPieces[178][1] = 0;
 		pMicroPieces[179][0] = 0;
 		pMicroPieces[179][1] = 0;
+#endif /* ASSET_MPL == 1 */
 		break;
 #endif /* HELLFIRE */
 	default:

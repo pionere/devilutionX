@@ -4,6 +4,10 @@
  * Global definitions and Macros.
  */
 
+#ifndef ASSET_MPL
+#define ASSET_MPL				1
+#endif
+
 #define DATA_ARCHIVE_MAIN		"diabdat.mpq"
 #define DATA_ARCHIVE_MAIN_ALT	"DIABDAT.MPQ"
 #define DATA_ARCHIVE_PATCH		"patch_rt.mpq"

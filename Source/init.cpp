@@ -182,12 +182,16 @@ void InitArchives()
 	diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq");
 	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
 #endif
-#ifndef NOWIDESCREEN
-	diabdat_mpqs[MPQ_DEVILUTIONX] = init_test_access("devilutionx.mpq");
-#endif
 	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq");
 	if (diabdat_mpqs[MPQ_DEVILX] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", "devilx.mpq");
+#if ASSET_MPL != 1
+	char tmpstr[32];
+	snprintf(tmpstr, lengthof(tmpstr), "devilx_hd%d.mpq", ASSET_MPL);
+	diabdat_mpqs[MPQ_DEVILHD] = init_test_access(tmpstr);
+	if (diabdat_mpqs[MPQ_DEVILHD] == NULL)
+		app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
+#endif
 
 #ifdef MPQONE
 	int i;

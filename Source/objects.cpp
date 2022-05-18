@@ -703,7 +703,7 @@ static void SetupObject(int oi, int x, int y, int type)
 		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
 		os->_oAnimFrame = RandRange(1, os->_oAnimLen);
 	}
-	os->_oAnimWidth = ofd->oAnimWidth;
+	os->_oAnimWidth = ofd->oAnimWidth * ASSET_MPL;
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	os->_oSolidFlag = ofd->oSolidFlag;
 	os->_oMissFlag = ofd->oMissFlag;

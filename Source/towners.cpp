@@ -178,8 +178,8 @@ static void InitCowAnim(int tnum, int dir)
 	tw->_mVar1 = -1;                    // TNR_ANIM_ORDER
 	tw->_mAnimCnt = 0;                  // TNR_ANIM_CNT
 	tw->_mAnimFrame = RandRange(1, 11); // TNR_ANIM_FRAME
-	tw->_mAnimWidth = 128;              // TNR_ANIM_WIDTH
-	tw->_mAnimXOffset = (128 - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
+	tw->_mAnimWidth = 128 * ASSET_MPL;  // TNR_ANIM_WIDTH
+	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
 static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFrames, int ao)
@@ -191,14 +191,14 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFr
 	// commented out, because it might be populated by InitMonster
 	// assert(tw->_mAnimData == NULL);	
 	tw->_mAnimData = LoadFileInMem(pAnimFile); // TNR_ANIM_DATA
-	tw->_mAnimFrameLen = Delay; // TNR_ANIM_FRAME_LEN
-	tw->_mAnimLen = numFrames;  // TNR_ANIM_LEN
-	tw->_mVar1 = ao;            // TNR_ANIM_ORDER
-	tw->_mVar2 = 0;             // TNR_ANIM_FRAME_CNT
-	tw->_mAnimCnt = 0;          // TNR_ANIM_CNT
-	tw->_mAnimFrame = 1;        // TNR_ANIM_FRAME
-	tw->_mAnimWidth = 96;       // TNR_ANIM_WIDTH
-	tw->_mAnimXOffset = (96 - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
+	tw->_mAnimFrameLen = Delay;        // TNR_ANIM_FRAME_LEN
+	tw->_mAnimLen = numFrames;         // TNR_ANIM_LEN
+	tw->_mVar1 = ao;                   // TNR_ANIM_ORDER
+	tw->_mVar2 = 0;                    // TNR_ANIM_FRAME_CNT
+	tw->_mAnimCnt = 0;                 // TNR_ANIM_CNT
+	tw->_mAnimFrame = 1;               // TNR_ANIM_FRAME
+	tw->_mAnimWidth = 96 * ASSET_MPL;  // TNR_ANIM_WIDTH
+	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
 #ifdef HELLFIRE

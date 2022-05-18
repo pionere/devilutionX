@@ -612,9 +612,8 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
  */
 static void drawCell(int pn, int sx, int sy)
 {
-	BYTE *dst, i;
-	uint16_t levelCelBlock;
-	BYTE limit;
+	BYTE *dst;
+	uint16_t levelCelBlock, i, limit;
 	uint16_t* pMap;
 	int tmp, mask;
 
@@ -652,33 +651,305 @@ static void drawCell(int pn, int sx, int sy)
 	tmp = microFlags[pn];
 	tmp &= gbCelTransparencyActive ? ~0 : ~(TMIF_LEFT_WALL_TRANS | TMIF_RIGHT_WALL_TRANS | TMIF_WALL_TRANS);
 	if (i == 0) {
-		levelCelBlock = *pMap;
-		if (levelCelBlock != 0 && (tmp & TMIF_LEFT_REDRAW)) {
-			mask = DMT_NONE;
-			if (tmp & TMIF_LEFT_WALL_TRANS) {
-				mask = DMT_LTFLOOR;	// &LeftMask[MICRO_HEIGHT - 1];
-			} else if (tmp & TMIF_LEFT_FOLIAGE) {
-				mask = DMT_LFLOOR;	// &LeftFoliageMask[MICRO_HEIGHT - 1];
+		if (tmp & TMIF_LEFT_REDRAW) {
+			for (int j = 0; j < ASSET_MPL; j++) {
+				for (int k = 0; k < ASSET_MPL; k++) {
+					levelCelBlock = pMap[k + j * ASSET_MPL * 2];
+					if (levelCelBlock != 0) {
+						mask = DMT_NONE;
+#if ASSET_MPL == 1
+						if (tmp & TMIF_LEFT_WALL_TRANS) {
+							mask = DMT_LTFLOOR;
+						} else if (tmp & TMIF_LEFT_FOLIAGE) {
+							mask = DMT_LFLOOR;
+						}
+#elif ASSET_MPL == 2
+						if (tmp & TMIF_LEFT_WALL_TRANS) {
+							static int leftTrnMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,              DMT_NONE,
+								DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR,
+								// clang-format on
+							};
+							mask = leftTrnMasksEven[j][k];
+						} else if (tmp & TMIF_LEFT_FOLIAGE) {
+							static int leftFolMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT,
+								DMT_FLOOR_UP_TOP_LEFT,     DMT_FLOOR_TOP_LEFT,
+								// clang-format on
+							};
+							mask = leftFolMasksEven[j][k];
+						}
+#elif ASSET_MPL == 3
+						if (tmp & TMIF_LEFT_WALL_TRANS) {
+							static int leftTrnMasksOdd[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,    DMT_NONE,              DMT_NONE,
+								DMT_LTFLOOR, DMT_NONE,              DMT_NONE,
+								DMT_TWALL,   DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR,
+								// clang-format on
+							};
+							mask = leftTrnMasksOdd[j][k];
+						} else if (tmp & TMIF_LEFT_FOLIAGE) {
+							static int leftFolMasksOdd[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,   DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT,
+								DMT_LFLOOR, DMT_EMPTY,                 DMT_EMPTY,
+								DMT_NONE,   DMT_FLOOR_UP_TOP_LEFT,     DMT_FLOOR_TOP_LEFT,
+								// clang-format on
+							};
+							mask = leftFolMasksOdd[j][k];
+						}
+#elif ASSET_MPL == 4
+						if (tmp & TMIF_LEFT_WALL_TRANS) {
+							static int leftTrnMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,              DMT_NONE,    DMT_NONE,              DMT_NONE,
+								DMT_NONE,              DMT_NONE,    DMT_NONE,              DMT_NONE,
+								DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR, DMT_NONE,              DMT_NONE,
+								DMT_TWALL,             DMT_TWALL,   DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR,
+								// clang-format on
+							};
+							mask = leftTrnMasksEven[j][k];
+						} else if (tmp & TMIF_LEFT_FOLIAGE) {
+							static int leftFolMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,                  DMT_NONE,              DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT,
+							    DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT, DMT_EMPTY,                 DMT_EMPTY,
+								DMT_FLOOR_UP_TOP_LEFT,     DMT_FLOOR_TOP_LEFT,    DMT_EMPTY,                 DMT_EMPTY,
+								DMT_NONE,                  DMT_NONE,              DMT_FLOOR_UP_TOP_LEFT,     DMT_FLOOR_TOP_LEFT,
+								// clang-format on
+							};
+							mask = leftFolMasksEven[j][k];
+						}
+#else
+					bool ASSET_EVEN = (ASSET_MPL & 1) == 0;
+					static int leftTrnMasksEven[] = {
+						// clang-format off
+						DMT_NONE, DMT_NONE, DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR,
+						DMT_NONE, DMT_NONE, DMT_NONE /*DMT_LTFLOOR*/, DMT_NONE /*DMT_LTFLOOR*/,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int leftTrnMasksOdd[] = {
+						// clang-format off
+						DMT_NONE, DMT_NONE, DMT_LTFLOOR, DMT_FLOOR_TRN_UP_LEFT,
+						DMT_NONE, DMT_NONE, DMT_LTFLOOR, DMT_LTFLOOR,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int leftFolMasksEven[] = {
+						// clang-format off
+						DMT_EMPTY, DMT_EMPTY, DMT_FLOOR_UP_TOP_LEFT, DMT_FLOOR_TOP_LEFT,
+						DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT, DMT_NONE /*DMT_LFLOOR*/, DMT_NONE /*DMT_LFLOOR*/,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int leftFolMasksOdd[] = {
+						// clang-format off
+						DMT_EMPTY, DMT_EMPTY, DMT_FLOOR_TOP_LEFT, DMT_FLOOR_UP_TOP_LEFT,
+						DMT_FLOOR_BOTTOM_LEFT, DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_LFLOOR, DMT_LFLOOR,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					mask = (k & 1)									// odd
+					 | ((j == (ASSET_MPL + k) / 2) << 1)			// onUpperTop
+					 | (((j + 1) == (ASSET_MPL - k + 1) / 2) << 2)	// onLowerBottom
+					 | ((j > (ASSET_MPL + k) / 2) << 3) 			// upperTop
+					 | (((j + 1) < (ASSET_MPL - k + 1) / 2) << 4);	// lowerBottom
+					if (tmp & TMIF_LEFT_WALL_TRANS) {
+						if (ASSET_EVEN)
+							mask = leftTrnMasksEven[mask];
+						else
+							mask = leftTrnMasksOdd[mask];
+					} else if (tmp & TMIF_LEFT_FOLIAGE) {
+						if (ASSET_EVEN)
+							mask = leftFolMasksEven[mask];
+						else
+							mask = leftFolMasksOdd[mask];
+					} else {
+						mask = DMT_NONE;
+					}
+#endif /* ASSET_MPL */
+						RenderMicro(dst + MICRO_WIDTH * k - j * BUFFER_WIDTH * MICRO_HEIGHT, levelCelBlock, mask);
+					}
+				}
 			}
-			RenderMicro(dst, levelCelBlock, mask);
 		}
-		pMap++;
-		levelCelBlock = *pMap;
-		if (levelCelBlock != 0 && (tmp & TMIF_RIGHT_REDRAW)) {
-			mask = DMT_NONE;
-			if (tmp & TMIF_RIGHT_WALL_TRANS) {
-				mask = DMT_RTFLOOR;	// &RightMask[MICRO_HEIGHT - 1];
-			} else if (tmp & TMIF_RIGHT_FOLIAGE) {
-				mask = DMT_RFLOOR;	// &RightFoliageMask[MICRO_HEIGHT - 1];
+		pMap += ASSET_MPL;
+		if (tmp & TMIF_RIGHT_REDRAW) {
+			for (int j = 0; j < ASSET_MPL; j++) {
+				for (int k = 0; k < ASSET_MPL; k++) {
+					levelCelBlock = pMap[k + j * ASSET_MPL * 2];
+					if (levelCelBlock != 0) {
+						mask = DMT_NONE;
+#if ASSET_MPL == 1
+						if (tmp & TMIF_RIGHT_WALL_TRANS) {
+							mask = DMT_RTFLOOR;	// &RightMask[MICRO_HEIGHT - 1];
+						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+							mask = DMT_RFLOOR;	// &RightFoliageMask[MICRO_HEIGHT - 1];
+						}
+#elif ASSET_MPL == 2
+						if (tmp & TMIF_RIGHT_WALL_TRANS) {
+							static int rightTrnMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,    DMT_NONE,
+								DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT,
+								// clang-format on
+							};
+							mask = rightTrnMasksEven[j][k];
+						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+							static int rightFolMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT,
+								DMT_FLOOR_TOP_RIGHT,    DMT_FLOOR_UP_TOP_RIGHT,
+								// clang-format on
+							};
+							mask = rightFolMasksEven[j][k];
+						}
+#elif ASSET_MPL == 3
+						if (tmp & TMIF_RIGHT_WALL_TRANS) {
+							static int rightTrnMasksOdd[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,    DMT_NONE,               DMT_NONE,
+								DMT_NONE,    DMT_NONE,               DMT_RTFLOOR,
+								DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT, DMT_TWALL,
+								// clang-format on
+							};
+							mask = rightTrnMasksOdd[j][k];
+						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+							static int rightFolMasksOdd[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT, DMT_NONE,
+								DMT_EMPTY,              DMT_EMPTY,                  DMT_RFLOOR,
+								DMT_FLOOR_TOP_RIGHT,    DMT_FLOOR_UP_TOP_RIGHT,     DMT_NONE,
+								// clang-format on
+							};
+							mask = rightFolMasksOdd[j][k];
+						}
+#elif ASSET_MPL == 4
+						if (tmp & TMIF_RIGHT_WALL_TRANS) {
+							static int rightTrnMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,    DMT_NONE,               DMT_NONE,    DMT_NONE,
+								DMT_NONE,    DMT_NONE,               DMT_NONE,    DMT_NONE,
+								DMT_NONE,    DMT_NONE,               DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT,
+								DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT, DMT_TWALL,   DMT_TWALL,
+								// clang-format on
+							};
+							mask = rightTrnMasksEven[j][k];
+						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+							static int rightFolMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT, DMT_NONE,               DMT_NONE,
+								DMT_EMPTY,              DMT_EMPTY,                  DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT,
+								DMT_EMPTY,              DMT_EMPTY,                  DMT_FLOOR_TOP_RIGHT,    DMT_FLOOR_UP_TOP_RIGHT,
+								DMT_FLOOR_TOP_RIGHT,    DMT_FLOOR_UP_TOP_RIGHT,     DMT_NONE,               DMT_NONE,
+								// clang-format on
+							};
+							mask = rightFolMasksEven[j][k];
+						}
+#else
+					bool ASSET_EVEN = (ASSET_MPL & 1) == 0;
+					static int rightTrnMasksEven[] = {
+						// clang-format off
+						DMT_NONE, DMT_NONE, DMT_FLOOR_TRN_UP_RIGHT, DMT_RTFLOOR,
+						DMT_NONE, DMT_NONE, DMT_NONE /*DMT_RTFLOOR*/, DMT_NONE /*DMT_RTFLOOR*/,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int rightTrnMasksOdd[] = {
+						// clang-format off
+						DMT_NONE, DMT_NONE, DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT,
+						DMT_NONE, DMT_NONE, DMT_RTFLOOR, DMT_RTFLOOR,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int rightFolMasksEven[] = {
+						// clang-format off
+						DMT_EMPTY, DMT_EMPTY, DMT_FLOOR_UP_TOP_RIGHT, DMT_FLOOR_TOP_RIGHT,
+						DMT_FLOOR_LOW_BOTTOM_RIGHT, DMT_FLOOR_BOTTOM_RIGHT, DMT_NONE /*DMT_RFLOOR*/, DMT_NONE /*DMT_RFLOOR*/,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int rightFolMasksOdd[] = {
+						// clang-format off
+						DMT_EMPTY, DMT_EMPTY, DMT_FLOOR_TOP_RIGHT, DMT_FLOOR_UP_TOP_RIGHT,
+						DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT, DMT_RFLOOR, DMT_RFLOOR,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					mask = ((ASSET_MPL - 1 - k) & 1)									// odd
+					 | ((j == (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 1)				// onUpperTop
+					 | (((j + 1) == (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 2)	// onLowerBottom
+					 | ((j > (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 3)				// upperTop
+					 | (((j + 1) < (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 4);	// lowerBottom
+					if (tmp & TMIF_RIGHT_WALL_TRANS) {
+						if (ASSET_EVEN)
+							mask = rightTrnMasksEven[mask];
+						else
+							mask = rightTrnMasksOdd[mask];
+					} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+						if (ASSET_EVEN)
+							mask = rightFolMasksEven[mask];
+						else
+							mask = rightFolMasksOdd[mask];
+					} else {
+						mask = DMT_NONE;
+					}
+#endif  /* ASSET_MPL */
+						RenderMicro(dst + ASSET_MPL * MICRO_WIDTH + MICRO_WIDTH * k - j * BUFFER_WIDTH * MICRO_HEIGHT, levelCelBlock, mask);
+					}
+				}
 			}
-			RenderMicro(dst + MICRO_WIDTH, levelCelBlock, mask);
 		}
-		pMap++;
-		dst -= BUFFER_WIDTH * MICRO_HEIGHT;
-		i = (TILE_WIDTH / MICRO_WIDTH);
+		pMap += (TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT) - ASSET_MPL;
+		dst -= BUFFER_WIDTH * TILE_HEIGHT;
+		i = (TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT); // ASSET_MPL
 	}
 
-	mask = (tmp & TMIF_WALL_TRANS) ? DMT_TWALL : DMT_NONE; // &WallMask[MICRO_HEIGHT - 1]
+	mask = (tmp & TMIF_WALL_TRANS) ? DMT_TWALL : DMT_NONE;
 	while (i < limit) {
 		for (int j = 0; j < (TILE_WIDTH / MICRO_WIDTH); j++) {
 			levelCelBlock = *pMap;
@@ -716,13 +987,25 @@ static void drawFloor(int pn, int sx, int sy)
 	pMap = &pMicroPieces[pn][0];
 	tmp = microFlags[pn];
 
-	levelCelBlock = pMap[0];
-	if (levelCelBlock != 0 && (tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
-		RenderMicro(dst, levelCelBlock, DMT_NONE);
+	if ((tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
+		for (int j = 0; j < ASSET_MPL; j++) {
+			for (int i = 0; i < ASSET_MPL; i++) {
+				levelCelBlock = pMap[i + ASSET_MPL * 2 * j];
+				if (levelCelBlock != 0) {
+					RenderMicro(dst + MICRO_WIDTH * i - BUFFER_WIDTH * j * MICRO_HEIGHT, levelCelBlock, DMT_NONE);
+				}
+			}
+		}
 	}
-	levelCelBlock = pMap[1];
-	if (levelCelBlock != 0 && (tmp & (TMIF_RIGHT_REDRAW | TMIF_RIGHT_FOLIAGE)) != TMIF_RIGHT_REDRAW) {
-		RenderMicro(dst + MICRO_WIDTH, levelCelBlock, DMT_NONE);
+	if ((tmp & (TMIF_RIGHT_REDRAW | TMIF_RIGHT_FOLIAGE)) != TMIF_RIGHT_REDRAW) {
+		for (int j = 0; j < ASSET_MPL; j++) {
+			for (int i = 0; i < ASSET_MPL; i++) {
+				levelCelBlock = pMap[i + ASSET_MPL + ASSET_MPL * 2 * j];
+				if (levelCelBlock != 0) {
+					RenderMicro(dst + ASSET_MPL * MICRO_WIDTH + MICRO_WIDTH * i - BUFFER_WIDTH * j * MICRO_HEIGHT, levelCelBlock, DMT_NONE);
+				}
+			}
+		}
 	}
 }
 

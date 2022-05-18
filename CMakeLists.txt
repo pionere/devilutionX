@@ -661,6 +661,7 @@ endforeach(def_name)
 # Defines with value
 foreach(
   def_name
+  ASSET_MPL
   DEFAULT_WIDTH
   DEFAULT_HEIGHT
   SCREEN_WIDTH
@@ -1242,6 +1243,7 @@ endforeach(def_name)
 # Defines with value
 foreach(
   def_name
+  ASSET_MPL
   DEFAULT_WIDTH
   DEFAULT_HEIGHT
   SCREEN_WIDTH

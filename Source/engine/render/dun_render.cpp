@@ -30,6 +30,28 @@ static uint32_t RightMask[MICRO_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF
 	// clang-format on
 };
+#if ASSET_MPL != 1
+static uint32_t UpperRightMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xEAAAAAAA, 0xF5555555,
+	0xFEAAAAAA, 0xFF555555,
+	0xFFEAAAAA, 0xFFF55555,
+	0xFFFEAAAA, 0xFFFF5555,
+	0xFFFFEAAA, 0xFFFFF555,
+	0xFFFFFEAA, 0xFFFFFF55,
+	0xFFFFFFEA, 0xFFFFFFF5,
+	0xFFFFFFFE, 0xFFFFFFFF,
+	// clang-format on
+};
+#endif
 /** Specifies the draw masks used to render transparency of the left side of tiles. */
 static uint32_t LeftMask[MICRO_HEIGHT] = {
 	// clang-format off
@@ -51,6 +73,28 @@ static uint32_t LeftMask[MICRO_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF
 	// clang-format on
 };
+#if ASSET_MPL != 1
+static uint32_t UpperLeftMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAA, 0x55555555,
+	0xAAAAAAAB, 0x5555555F,
+	0xAAAAAABF, 0x555555FF,
+	0xAAAAABFF, 0x55555FFF,
+	0xAAAABFFF, 0x5555FFFF,
+	0xAAABFFFF, 0x555FFFFF,
+	0xAABFFFFF, 0x55FFFFFF,
+	0xABFFFFFF, 0x5FFFFFFF,
+	0xBFFFFFFF, 0xFFFFFFFF,
+	// clang-format on
+};
+#endif
 /** Specifies the draw masks used to render transparency of wall tiles. */
 static uint32_t WallMask[MICRO_HEIGHT] = {
 	// clang-format off
@@ -114,7 +158,88 @@ static uint32_t RightFoliageMask[MICRO_HEIGHT] = {
 	0x0FFFFFFF, 0x3FFFFFFF,
 	// clang-format on
 };
-
+#if ASSET_MPL != 1
+static uint32_t TopRightFoliageMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0xFFFFFFFF, 0x3FFFFFFF,
+	0x0FFFFFFF, 0x03FFFFFF,
+	0x00FFFFFF, 0x003FFFFF,
+	0x000FFFFF, 0x0003FFFF,
+	0x0000FFFF, 0x00003FFF,
+	0x00000FFF, 0x000003FF,
+	0x000000FF, 0x0000003F,
+	0x0000000F, 0x00000003,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	// clang-format on
+};
+static uint32_t UpperTopRightFoliageMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0x3FFFFFFF,
+	0x0FFFFFFF, 0x03FFFFFF,
+	0x00FFFFFF, 0x003FFFFF,
+	0x000FFFFF, 0x0003FFFF,
+	0x0000FFFF, 0x00003FFF,
+	0x00000FFF, 0x000003FF,
+	0x000000FF, 0x0000003F,
+	0x0000000F, 0x00000003,
+	// clang-format on
+};
+static uint32_t BottomRightFoliageMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000003,
+	0x0000000F, 0x0000003F,
+	0x000000FF, 0x000003FF,
+	0x00000FFF, 0x00003FFF,
+	0x0000FFFF, 0x0003FFFF,
+	0x000FFFFF, 0x003FFFFF,
+	0x00FFFFFF, 0x03FFFFFF,
+	0x0FFFFFFF, 0x3FFFFFFF,
+	// clang-format on
+};
+static uint32_t LowerBottomRightFoliageMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0x00000000, 0x00000003,
+	0x0000000F, 0x0000003F,
+	0x000000FF, 0x000003FF,
+	0x00000FFF, 0x00003FFF,
+	0x0000FFFF, 0x0003FFFF,
+	0x000FFFFF, 0x003FFFFF,
+	0x00FFFFFF, 0x03FFFFFF,
+	0x0FFFFFFF, 0x3FFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	// clang-format on
+};
+#endif
 static uint32_t LeftFoliageMask[MICRO_HEIGHT] = {
 	// clang-format off
 	0xFFFFFFFF, 0xFFFFFFFC,
@@ -135,6 +260,88 @@ static uint32_t LeftFoliageMask[MICRO_HEIGHT] = {
 	0xFFFFFFF0, 0xFFFFFFFC,
 	// clang-format on
 };
+#if ASSET_MPL != 1
+static uint32_t TopLeftFoliageMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0xFFFFFFFF, 0xFFFFFFFC,
+	0xFFFFFFF0, 0xFFFFFFC0,
+	0xFFFFFF00, 0xFFFFFC00,
+	0xFFFFF000, 0xFFFFC000,
+	0xFFFF0000, 0xFFFC0000,
+	0xFFF00000, 0xFFC00000,
+	0xFF000000, 0xFC000000,
+	0xF0000000, 0xC0000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	// clang-format on
+};
+static uint32_t UpperTopLeftFoliageMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFC,
+	0xFFFFFFF0, 0xFFFFFFC0,
+	0xFFFFFF00, 0xFFFFFC00,
+	0xFFFFF000, 0xFFFFC000,
+	0xFFFF0000, 0xFFFC0000,
+	0xFFF00000, 0xFFC00000,
+	0xFF000000, 0xFC000000,
+	0xF0000000, 0xC0000000,
+	// clang-format on
+};
+static uint32_t BottomLeftFoliageMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0x00000000,
+	0x00000000, 0xC0000000,
+	0xF0000000, 0xFC000000,
+	0xFF000000, 0xFFC00000,
+	0xFFF00000, 0xFFFC0000,
+	0xFFFF0000, 0xFFFFC000,
+	0xFFFFF000, 0xFFFFFC00,
+	0xFFFFFF00, 0xFFFFFFC0,
+	0xFFFFFFF0, 0xFFFFFFFC,
+	// clang-format on
+};
+static uint32_t LowerBottomLeftFoliageMask[MICRO_HEIGHT] = {
+	// clang-format off
+	0x00000000, 0xC0000000,
+	0xF0000000, 0xFC000000,
+	0xFF000000, 0xFFC00000,
+	0xFFF00000, 0xFFFC0000,
+	0xFFFF0000, 0xFFFFC000,
+	0xFFFFF000, 0xFFFFFC00,
+	0xFFFFFF00, 0xFFFFFFC0,
+	0xFFFFFFF0, 0xFFFFFFFC,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	0xFFFFFFFF, 0xFFFFFFFF,
+	// clang-format on
+};
+#endif
 
 inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int light)
 {
@@ -210,8 +417,14 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	dst = pBuff;
 	pFrameTable = (uint32_t*)pMicroCels;
 
+#if ASSET_MPL == 1
 	src = &pMicroCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
 	encoding = levelCelBlock >> 12;
+#else
+	src = &pMicroCels[SwapLE32(pFrameTable[levelCelBlock])];
+	encoding = *src;
+	src++;
+#endif
 
 	switch (maskType) {
 	case DMT_NONE:
@@ -232,6 +445,42 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	case DMT_RFLOOR:
 		mask = &RightFoliageMask[MICRO_HEIGHT - 1];
 		break;
+#if ASSET_MPL != 1
+	case DMT_FLOOR_UP_TOP_LEFT:
+		mask = &UpperTopLeftFoliageMask[MICRO_HEIGHT - 1];
+		break;
+	case DMT_FLOOR_TOP_LEFT:
+		mask = &TopLeftFoliageMask[MICRO_HEIGHT - 1];
+		break;
+	case DMT_FLOOR_LOW_BOTTOM_LEFT:
+		mask = &LowerBottomLeftFoliageMask[MICRO_HEIGHT - 1];
+		break;
+	case DMT_FLOOR_BOTTOM_LEFT:
+		mask = &BottomLeftFoliageMask[MICRO_HEIGHT - 1];
+		break;
+	case DMT_FLOOR_UP_TOP_RIGHT:
+		mask = &UpperTopRightFoliageMask[MICRO_HEIGHT - 1];
+		break;
+	case DMT_FLOOR_TOP_RIGHT:
+		mask = &TopRightFoliageMask[MICRO_HEIGHT - 1];
+		break;
+	case DMT_FLOOR_LOW_BOTTOM_RIGHT:
+		mask = &LowerBottomRightFoliageMask[MICRO_HEIGHT - 1];
+		break;
+	case DMT_FLOOR_BOTTOM_RIGHT:
+		mask = &BottomRightFoliageMask[MICRO_HEIGHT - 1];
+		break;
+	case DMT_FLOOR_TRN_UP_LEFT:
+		mask = &UpperLeftMask[MICRO_HEIGHT - 1];
+		break;
+	case DMT_FLOOR_TRN_UP_RIGHT:
+		mask = &UpperRightMask[MICRO_HEIGHT - 1];
+		break;
+#if ASSET_MPL > 2
+	case DMT_EMPTY:
+		return;
+#endif /* ASSET_MPL > 2 */
+#endif /* ASSET_MPL != 1 */
 	default:
 		ASSUME_UNREACHABLE;
 		mask = &SolidMask[MICRO_HEIGHT - 1];

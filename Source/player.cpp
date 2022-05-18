@@ -514,13 +514,13 @@ void SetPlrAnims(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("SetPlrAnims: illegal player %d", pnum);
 	}
-	plr._pNWidth = 96;
-	plr._pWWidth = 96;
-	plr._pAWidth = 128;
-	plr._pHWidth = 96;
-	plr._pSWidth = 96;
-	plr._pDWidth = 128;
-	plr._pBWidth = 96;
+	plr._pNWidth = 96 * ASSET_MPL;
+	plr._pWWidth = 96 * ASSET_MPL;
+	plr._pAWidth = 128 * ASSET_MPL;
+	plr._pHWidth = 96 * ASSET_MPL;
+	plr._pSWidth = 96 * ASSET_MPL;
+	plr._pDWidth = 128 * ASSET_MPL;
+	plr._pBWidth = 96 * ASSET_MPL;
 
 	pc = plr._pClass;
 	plr._pAFNum = PlrGFXAnimActFrames[pc][0];
@@ -539,7 +539,7 @@ void SetPlrAnims(int pnum)
 	case PC_WARRIOR:
 		if (gn == ANIM_ID_BOW) {
 			plr._pNFrames = 8;
-			plr._pAWidth = 96;
+			plr._pAWidth = 96 * ASSET_MPL;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_AXE) {
 			plr._pAFrames = 20;
@@ -562,7 +562,7 @@ void SetPlrAnims(int pnum)
 		}
 		break;
 	case PC_SORCERER:
-		plr._pSWidth = 128;
+		plr._pSWidth = 128 * ASSET_MPL;
 		if (gn == ANIM_ID_UNARMED) {
 			plr._pAFrames = 20;
 		} else if (gn == ANIM_ID_UNARMED_SHIELD) {
@@ -577,13 +577,13 @@ void SetPlrAnims(int pnum)
 		break;
 #ifdef HELLFIRE
 	case PC_MONK:
-		plr._pNWidth = 112;
-		plr._pWWidth = 112;
-		plr._pAWidth = 130;
-		plr._pHWidth = 98;
-		plr._pSWidth = 114;
-		plr._pDWidth = 160;
-		plr._pBWidth = 98;
+		plr._pNWidth = 112 * ASSET_MPL;
+		plr._pWWidth = 112 * ASSET_MPL;
+		plr._pAWidth = 130 * ASSET_MPL;
+		plr._pHWidth = 98 * ASSET_MPL;
+		plr._pSWidth = 114 * ASSET_MPL;
+		plr._pDWidth = 160 * ASSET_MPL;
+		plr._pBWidth = 98 * ASSET_MPL;
 
 		switch (gn) {
 		case ANIM_ID_UNARMED:
@@ -625,7 +625,7 @@ void SetPlrAnims(int pnum)
 			plr._pAFNum = 8;
 		} else if (gn == ANIM_ID_BOW) {
 			plr._pNFrames = 8;
-			plr._pAWidth = 96;
+			plr._pAWidth = 96 * ASSET_MPL;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
 			//plr._pAFrames = 16;
@@ -1220,8 +1220,8 @@ static void PlrChangeLightOff(int pnum)
 	x = plr._pxoff + 2 * plr._pyoff;
 	y = 2 * plr._pyoff - plr._pxoff;
 
-	x = x / 8;
-	y = y / 8;
+	x = x / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
+	y = y / (TILE_WIDTH / 8);
 
 	CondChangeLightOff(plr._plid, x, y);
 }

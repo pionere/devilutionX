@@ -2720,12 +2720,23 @@ typedef enum micro_encoding_type {
 } micro_encoding_type;
 
 typedef enum _draw_mask_type {
-	DMT_NONE,
-	DMT_TWALL,
-	DMT_LTFLOOR,
-	DMT_RTFLOOR,
-	DMT_LFLOOR,
-	DMT_RFLOOR,
+	DMT_NONE,					// SolidMask
+	DMT_TWALL,					// WallMask
+	DMT_LTFLOOR,				// LeftMask
+	DMT_RTFLOOR,				// RightMask
+	DMT_LFLOOR,					// LeftFoliageMask
+	DMT_RFLOOR,					// RightFoliageMask
+	DMT_FLOOR_UP_TOP_LEFT,		// UpperTopLeftFoliageMask
+	DMT_FLOOR_TOP_LEFT,			// TopLeftFoliageMask
+	DMT_FLOOR_LOW_BOTTOM_LEFT,	// LowerBottomLeftFoliageMask
+	DMT_FLOOR_BOTTOM_LEFT,		// BottomLeftFoliageMask
+	DMT_FLOOR_UP_TOP_RIGHT,		// UpperTopRightFoliageMask
+	DMT_FLOOR_TOP_RIGHT,		// TopRightFoliageMask
+	DMT_FLOOR_LOW_BOTTOM_RIGHT,	// LowerBottomRightFoliageMask
+	DMT_FLOOR_BOTTOM_RIGHT,		// BottomRightFoliageMask
+	DMT_FLOOR_TRN_UP_LEFT,		// UpperLeftMask
+	DMT_FLOOR_TRN_UP_RIGHT,		// UpperRightMask
+	DMT_EMPTY,
 } _draw_mask_type;
 
 typedef enum dflag {
@@ -4118,10 +4129,10 @@ typedef enum _gmenu_flags {
 } _gmenu_flags;
 
 typedef enum mpq_files {
-	MPQ_DEVILX,
-#ifndef NOWIDESCREEN
-	MPQ_DEVILUTIONX,
+#if ASSET_MPL != 1
+	MPQ_DEVILHD,
 #endif
+	MPQ_DEVILX,
 #ifdef HELLFIRE
 	MPQ_HF_OPT2,
 	MPQ_HF_OPT1,
