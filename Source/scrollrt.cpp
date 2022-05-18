@@ -624,7 +624,8 @@ static void drawCell(int pn, int sx, int sy)
 	tmp = sy - SCREEN_Y;
 	if (tmp < 0)
 		return; // starting from above the top -> skip
-	tmp = (unsigned)(tmp + 1 + (MICRO_HEIGHT / (TILE_WIDTH / MICRO_WIDTH) - 1)) / (MICRO_HEIGHT / (TILE_WIDTH / MICRO_WIDTH));
+	tmp = (unsigned)(tmp + 1 + (MICRO_HEIGHT - 1)) / MICRO_HEIGHT;
+	tmp *= TILE_WIDTH / MICRO_WIDTH;
 	limit = tmp <= MicroTileLen ? tmp : MicroTileLen;
 	/*limit = MicroTileLen;
 	while (sy - limit * (MICRO_HEIGHT / (TILE_WIDTH / MICRO_WIDTH)) <= SCREEN_Y - MICRO_HEIGHT) {
