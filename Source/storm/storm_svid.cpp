@@ -281,17 +281,20 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, 0);
-			if (deviceId == 0) {
-				sdl_error(ERR_SDL_AUDIO_DEVICE_SDL2);
+			if (deviceId != 0) {
+				SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
+			} else {
+				DoLog(SDL_GetError());
+				//sdl_error(ERR_SDL_AUDIO_DEVICE_SDL2);
 			}
-
-			SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
 #else
 			sVidAudioQueue->Subscribe(&audioFormat);
-			if (SDL_OpenAudio(&audioFormat, NULL) != 0) {
-				sdl_error(ERR_SDL_AUDIO_DEVICE_SDL1);
+			if (SDL_OpenAudio(&audioFormat, NULL) == 0) {
+				SDL_PauseAudio(0);
+			} else {
+				DoLog(SDL_GetError());
+				//sdl_error(ERR_SDL_AUDIO_DEVICE_SDL1);
 			}
-			SDL_PauseAudio(0);
 #endif
 		}
 	}
