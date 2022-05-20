@@ -8,6 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern bool sgbControllerActive;
 
 // Runs at the end of CheckCursMove()
@@ -34,6 +38,10 @@ void finish_simulated_mouse_clicks(int current_mouse_x, int current_mouse_y);
 
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 
