@@ -161,6 +161,12 @@
 #define NIGHTMARE_MAGIC_BONUS 35
 #define HELL_MAGIC_BONUS      50
 
+#define POS_IN_RECT(x, y, rx, ry, rw, rh) \
+	((x) >= (rx)                          \
+	&& (x) < (rx + rw)                    \
+	&& (y) >= (ry)                        \
+	&& (y) < (ry + rh))
+
 #define IN_DUNGEON_AREA(x, y) \
 	(x >= 0                   \
 	&& x < MAXDUNX            \

@@ -416,10 +416,9 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	// first, find our cursor location
 	int slot = 0;
 	for (int i = 0; i < lengthof(ChrBtnsRect); i++) {
-		if (MouseX >= ChrBtnsRect[i].x
-		 && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
-		 && MouseY >= ChrBtnsRect[i].y
-		 && MouseY <= ChrBtnsRect[i].h + ChrBtnsRect[i].y) {
+		if (POS_IN_RECT(MouseX, MouseY,
+			ChrBtnsRect[i].x,  ChrBtnsRect[i].y,
+			ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
 			slot = i;
 			break;
 		}
@@ -470,20 +469,18 @@ static void InvMove(AxisDirection dir)
 	// check which inventory rectangle the mouse is in, if any
 	// standard inventory
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
-		if (x >= InvRect[r].X + RIGHT_PANEL
-		 && x <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
-		 && y >= InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && y <= InvRect[r].Y) {
+		if (POS_IN_RECT(x, y,
+			InvRect[r].X + RIGHT_PANEL,  InvRect[r].Y - INV_SLOT_SIZE_PX,
+			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
 		}
 	}
 	// belt
 	if (r == SLOTXY_BELT_FIRST) {
 		for ( ; r <= SLOTXY_BELT_LAST; r++) {
-			if (x >= InvRect[r].X
-			 && x <= InvRect[r].X + INV_SLOT_SIZE_PX
-			 && y >= SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX
-			 && y <= SCREEN_HEIGHT - InvRect[r].Y) {
+			if (POS_IN_RECT(x, y,
+				InvRect[r].X,  SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX,
+				INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 				break;
 			}
 		}
@@ -683,10 +680,9 @@ static void InvMove(AxisDirection dir)
 static bool HSExists(int x, int y)
 {
 	for (int r = 0; r < speedspellcount; r++) {
-		if (x >= speedspellscoords[r].x - SPLICONLENGTH / 2
-		 && x <= speedspellscoords[r].x + SPLICONLENGTH / 2
-		 && y >= speedspellscoords[r].y - SPLICONLENGTH / 2
-		 && y <= speedspellscoords[r].y + SPLICONLENGTH / 2) {
+		if (POS_IN_RECT(x, y,
+			speedspellscoords[r].x - SPLICONLENGTH / 2,  speedspellscoords[r].y - SPLICONLENGTH / 2,
+			SPLICONLENGTH, SPLICONLENGTH)) {
 			return true;
 		}
 	}
@@ -704,10 +700,9 @@ static void HotSpellMove(AxisDirection dir)
 	if (spbslot == SPL_INVALID)
 		spbslot = myplr._pAltMoveSkill;
 	for (int r = 0; r < speedspellcount; r++) {
-		if (MouseX >= speedspellscoords[r].x - SPLICONLENGTH / 2
-		 && MouseX <= speedspellscoords[r].x + SPLICONLENGTH / 2
-		 && MouseY >= speedspellscoords[r].y - SPLICONLENGTH / 2
-		 && MouseY <= speedspellscoords[r].y + SPLICONLENGTH / 2) {
+		if (POS_IN_RECT(MouseX, MouseY,
+			speedspellscoords[r].x - SPLICONLENGTH / 2,  speedspellscoords[r].y - SPLICONLENGTH / 2,
+			SPLICONLENGTH, SPLICONLENGTH)) {
 			spbslot = r;
 			break;
 		}

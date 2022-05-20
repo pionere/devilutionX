@@ -766,10 +766,9 @@ static void CheckInvPaste()
 	sy /= INV_SLOT_SIZE_PX;
 
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
-		if (i >= InvRect[r].X + RIGHT_PANEL
-		 && i <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
-		 && j >= InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && j <= InvRect[r].Y) {
+		if (POS_IN_RECT(i, j,
+			InvRect[r].X + RIGHT_PANEL,  InvRect[r].Y - INV_SLOT_SIZE_PX,
+			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			NetSendCmdBParam1(CMD_PASTEPLRITEM, r);
 			break;
 		}
@@ -1064,10 +1063,9 @@ static void CheckBeltPaste()
 	j = MouseY + INV_SLOT_SIZE_PX / 2;
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
-		if (i >= InvRect[r].X
-		 && i <= InvRect[r].X + INV_SLOT_SIZE_PX
-		 && j >= SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && j <= SCREEN_HEIGHT - InvRect[r].Y) {
+		if (POS_IN_RECT(i, j,
+			InvRect[r].X,  SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX,
+			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			NetSendCmdBParam1(CMD_PASTEPLRBELTITEM, r);
 			break;
 		}
@@ -1633,10 +1631,9 @@ BYTE CheckInvBelt()
 	int r;
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
-		if (MouseX >= InvRect[r].X
-		 && MouseX <= InvRect[r].X + INV_SLOT_SIZE_PX
-		 && MouseY >= SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && MouseY <= SCREEN_HEIGHT - InvRect[r].Y) {
+		if (POS_IN_RECT(MouseX, MouseY,
+			InvRect[r].X,  SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX,
+			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
 		}
 	}
@@ -1657,10 +1654,9 @@ BYTE CheckInvItem()
 	BYTE rv;
 
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
-		if (MouseX >= InvRect[r].X + RIGHT_PANEL
-		 && MouseX <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
-		 && MouseY >= InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && MouseY <= InvRect[r].Y) {
+		if (POS_IN_RECT(MouseX, MouseY,
+			InvRect[r].X + RIGHT_PANEL,  InvRect[r].Y - INV_SLOT_SIZE_PX,
+			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
 		}
 	}

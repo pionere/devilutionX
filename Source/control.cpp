@@ -459,7 +459,7 @@ void DrawSkillList()
 				SetCursorPos(lx + SPLICONLENGTH / 2, ly + SPLICONLENGTH / 2);
 			}
 #endif
-			if (MouseX >= lx && MouseX < lx + SPLICONLENGTH && MouseY >= ly && MouseY < ly + SPLICONLENGTH) {
+			if (POS_IN_RECT(MouseX, MouseY, lx, ly, SPLICONLENGTH, SPLICONLENGTH)) {
 				//CelDrawLight(x, y, pSpellCels, c, SkillTrns[st]);
 				CelDrawLight(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
@@ -978,10 +978,9 @@ static void control_set_button_down(int btn_id)
 
 static bool InLvlUpRect()
 {
-	return MouseX >= LVLUP_LEFT
-		&& MouseX <= LVLUP_LEFT + CHRBTN_WIDTH
-		&& MouseY >= SCREEN_HEIGHT - LVLUP_OFFSET - CHRBTN_HEIGHT
-		&& MouseY <= SCREEN_HEIGHT - LVLUP_OFFSET;
+	return POS_IN_RECT(MouseX, MouseY,
+		LVLUP_LEFT, SCREEN_HEIGHT - LVLUP_OFFSET - CHRBTN_HEIGHT,
+		CHRBTN_WIDTH, CHRBTN_HEIGHT);
 }
 
 void ReleaseLvlBtn()
@@ -1001,18 +1000,16 @@ bool DoPanBtn()
 	mx = MouseX;
 	my = MouseY;
 	for (i = gabPanbtn[PANBTN_MAINMENU] ? numpanbtns - 1 : 0; i >= 0; i--) {
-		if (mx >= PanBtnPos[i][0]
-		 && mx <= PanBtnPos[i][0] + MENUBTN_WIDTH
-		 && my >= SCREEN_HEIGHT - PanBtnPos[i][1]
-		 && my <= SCREEN_HEIGHT - PanBtnPos[i][1] + MENUBTN_HEIGHT) {
+		if (POS_IN_RECT(mx, my,
+			PanBtnPos[i][0],  SCREEN_HEIGHT - PanBtnPos[i][1],
+			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 			control_set_button_down(i);
 			return true;
 		}
 	}
-	if (mx >= SCREEN_WIDTH - SPLICONLENGTH
-	 && mx <= SCREEN_WIDTH
-	 && my >= SCREEN_HEIGHT - 2 * SPLICONLENGTH
-	 && my <= SCREEN_HEIGHT) {
+	if (POS_IN_RECT(mx, my,
+		SCREEN_WIDTH - SPLICONLENGTH,  SCREEN_HEIGHT - 2 * SPLICONLENGTH,
+		SPLICONLENGTH + 1, 2 * SPLICONLENGTH + 1)) {
 		HandleSkillBtn(my < SCREEN_HEIGHT - SPLICONLENGTH);
 		return true;
 	}
@@ -1023,16 +1020,14 @@ bool DoPanBtn()
 
 void DoLimitedPanBtn()
 {
-	if (MouseX >= PanBtnPos[PANBTN_MAINMENU][0]
-	 && MouseX <= PanBtnPos[PANBTN_MAINMENU][0] + MENUBTN_WIDTH
-	 && MouseY >= SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1]
-	 && MouseY <= SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1] + MENUBTN_HEIGHT) {
+	if (POS_IN_RECT(MouseX, MouseY,
+		PanBtnPos[PANBTN_MAINMENU][0],  SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1],
+		MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 		control_set_button_down(PANBTN_MAINMENU);
 	} else if (gabPanbtn[PANBTN_MAINMENU] && !IsLocalGame) {
-		if (MouseX >= PanBtnPos[PANBTN_SENDMSG][0]
-		 && MouseX <= PanBtnPos[PANBTN_SENDMSG][0] + MENUBTN_WIDTH
-		 && MouseY >= SCREEN_HEIGHT - PanBtnPos[PANBTN_SENDMSG][1]
-		 && MouseY <= SCREEN_HEIGHT - PanBtnPos[PANBTN_SENDMSG][1] + MENUBTN_HEIGHT) {
+		if (POS_IN_RECT(MouseX, MouseY,
+			PanBtnPos[PANBTN_SENDMSG][0],  SCREEN_HEIGHT - PanBtnPos[PANBTN_SENDMSG][1],
+			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 			control_set_button_down(PANBTN_SENDMSG);
 		}
 	}
@@ -1111,10 +1106,9 @@ void CheckBtnUp()
 		}
 
 		gabPanbtn[i] = false;
-		if (MouseX < PanBtnPos[i][0]
-		 || MouseX > PanBtnPos[i][0] + MENUBTN_WIDTH
-		 || MouseY < SCREEN_HEIGHT - PanBtnPos[i][1]
-		 || MouseY > SCREEN_HEIGHT - PanBtnPos[i][1] + MENUBTN_HEIGHT) {
+		if (!POS_IN_RECT(MouseX, MouseY,
+			PanBtnPos[i][0],  SCREEN_HEIGHT - PanBtnPos[i][1],
+			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 			continue;
 		}
 
@@ -1701,10 +1695,9 @@ bool CheckChrBtns()
 
 	if (myplr._pStatPts != 0 && !gbChrbtnactive) {
 		for (i = 0; i < lengthof(ChrBtnsRect); i++) {
-			if (MouseX < ChrBtnsRect[i].x
-			 || MouseX > ChrBtnsRect[i].x + ChrBtnsRect[i].w
-			 || MouseY < ChrBtnsRect[i].y
-			 || MouseY > ChrBtnsRect[i].y + ChrBtnsRect[i].h)
+			if (!POS_IN_RECT(MouseX, MouseY,
+				ChrBtnsRect[i].x,  ChrBtnsRect[i].y,
+				ChrBtnsRect[i].w, ChrBtnsRect[i].h))
 				continue;
 
 			_gabChrbtn[i] = true;
@@ -1725,10 +1718,9 @@ void ReleaseChrBtns()
 	for (i = 0; i < lengthof(_gabChrbtn); ++i) {
 		if (_gabChrbtn[i]) {
 			_gabChrbtn[i] = false;
-			if (MouseX >= ChrBtnsRect[i].x
-			 && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
-			 && MouseY >= ChrBtnsRect[i].y
-			 && MouseY <= ChrBtnsRect[i].y + ChrBtnsRect[i].h) {
+			if (POS_IN_RECT(MouseX, MouseY,
+				ChrBtnsRect[i].x,  ChrBtnsRect[i].y,
+				ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
 				switch (i) {
 				case 0:
 					NetSendCmd(CMD_ADDSTR);
@@ -1910,10 +1902,9 @@ void DrawSpellBook()
 		sn = SpellPages[guBooktab][i];
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn);
-			if (MouseX >= sx - BORDER_LEFT
-			 && MouseX < sx - BORDER_LEFT + SBOOK_CELWIDTH
-			 && MouseY >= yp - BORDER_TOP - SBOOK_CELHEIGHT
-			 && MouseY < yp - BORDER_TOP) {
+			if (POS_IN_RECT(MouseX, MouseY,
+				sx - BORDER_LEFT, yp - BORDER_TOP - SBOOK_CELHEIGHT,
+				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
 				currSkill = sn;
 				currSkillType = st;
 			}
