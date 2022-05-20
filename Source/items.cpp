@@ -3140,8 +3140,8 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int &y)
 void DrawInvItemDetails()
 {
 	ItemStruct* is;
-	int x = SCREEN_X + (RIGHT_PANEL - STPANEL_WIDTH) / 2;
-	int y = LTPANEL_Y;
+	int x = RIGHT_PANEL_X - (STPANEL_WIDTH + 38);
+	int y = SCREEN_Y + 0;
 
 	// draw the background
 	DrawSTextBox(x, y);
