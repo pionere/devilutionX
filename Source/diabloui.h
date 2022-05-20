@@ -8,6 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void UiInitialize();
 void UiDestroy();
 
@@ -32,8 +36,12 @@ void UIDisconnectGame(int reason);
 extern int provider;
 bool UiSelectProvider(bool bMulti);
 
-/* Defined in dialogs.h */
+/* Defined in dialogs.cpp */
 void UiErrorOkDialog(const char* caption, const char* text, bool error = true);
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 
