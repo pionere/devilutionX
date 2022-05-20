@@ -6,8 +6,13 @@
 
 #include "DiabloUI/ui_item.h"
 #include "utils/display.h"
+#include "../diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern CelImageBuf* gbBackCel;
 extern CelImageBuf* gbHerosCel;
@@ -57,8 +62,13 @@ void UiRenderItems(const std::vector<UiItemBase*> &uiItems);
 void UiClearItems(std::vector<UiItemBase*> &uiItems);
 void UiClearListItems();
 //void UiInitList_clear();
-
 int GetAnimationFrame(int frames, int animFrameLenMs = 64);
+
+/* Defined in mainmenu.cpp */
 void mainmenu_restart_repintro();
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE

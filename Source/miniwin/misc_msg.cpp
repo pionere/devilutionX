@@ -50,17 +50,6 @@ void SetCursorPos(int x, int y)
 	SDL_WarpMouseInWindow(ghMainWnd, x, y);
 }
 
-// Moves the mouse to the first attribute "+" button.
-void FocusOnCharInfo()
-{
-	if (gbInvflag || myplr._pStatPts <= 0)
-		return;
-
-	// Jump to the first incrementable stat.
-	const RECT32 &rect = ChrBtnsRect[0];
-	SetCursorPos(rect.x + (rect.w / 2), rect.y + (rect.h / 2));
-}
-
 static int TranslateSdlKey(SDL_Keysym key)
 {
 	// ref: https://wiki.libsdl.org/SDL_Keycode

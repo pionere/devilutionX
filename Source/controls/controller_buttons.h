@@ -5,9 +5,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // NOTE: A, B, X, Y refer to physical positions on an XBox 360 controller.
 // A<->B and X<->Y are reversed on a Nintendo controller.
-enum ControllerButton {
+typedef enum ControllerButton {
 	ControllerButton_NONE = 0,
 	ControllerButton_IGNORE,
 	ControllerButton_AXIS_TRIGGERLEFT,  // ZL (aka L2)
@@ -26,7 +30,7 @@ enum ControllerButton {
 	ControllerButton_BUTTON_DPAD_DOWN,
 	ControllerButton_BUTTON_DPAD_LEFT,
 	ControllerButton_BUTTON_DPAD_RIGHT
-};
+} ControllerButton;
 
 inline bool IsDPadButton(ControllerButton button)
 {
@@ -35,5 +39,9 @@ inline bool IsDPadButton(ControllerButton button)
 	    || button == ControllerButton_BUTTON_DPAD_LEFT
 	    || button == ControllerButton_BUTTON_DPAD_RIGHT;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE

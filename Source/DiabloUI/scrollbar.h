@@ -5,16 +5,20 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern CelImageBuf* scrollBarBackCel;
 extern CelImageBuf* scrollBarThumbCel;
 extern CelImageBuf* scrollBarArrowCel;
 
-enum ScrollBarArrowFrame {
+typedef enum ScrollBarArrowFrame {
 	ScrollBarArrowFrame_UP_ACTIVE,
 	ScrollBarArrowFrame_UP,
 	ScrollBarArrowFrame_DOWN_ACTIVE,
 	ScrollBarArrowFrame_DOWN,
-};
+} ScrollBarArrowFrame;
 
 inline SDL_Rect UpArrowRect(const UiScrollBar *sb)
 {
@@ -70,5 +74,9 @@ inline SDL_Rect ThumbRect(const UiScrollBar* sb, unsigned selected_index, unsign
 
 void LoadScrollBar();
 void UnloadScrollBar();
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE

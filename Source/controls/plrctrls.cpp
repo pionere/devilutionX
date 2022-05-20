@@ -1073,6 +1073,17 @@ void FocusOnInventory()
 	SetCursorPos(InvRect[SLOTXY_INV_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2), InvRect[SLOTXY_INV_FIRST].Y - (INV_SLOT_SIZE_PX / 2));
 }
 
+// Moves the mouse to the first attribute "+" button.
+void FocusOnCharInfo()
+{
+	if (gbInvflag || myplr._pStatPts <= 0)
+		return;
+
+	// Jump to the first incrementable stat.
+	const RECT32 &rect = ChrBtnsRect[0];
+	SetCursorPos(rect.x + (rect.w / 2), rect.y + (rect.h / 2));
+}
+
 void plrctrls_after_check_curs_move()
 {
 	// check for monsters first, then items, then towners.
