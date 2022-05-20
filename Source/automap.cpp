@@ -465,7 +465,6 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 		return;
 
 	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping V.");
-	static_assert(BORDER_RIGHT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VI.");
 	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VII.");
 	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VIII.");
 
@@ -603,7 +602,6 @@ void DrawAutomap()
 
 	// assert(AmLine64 <= (MAP_SCALE_MAX * TILE_WIDTH) / 128);
 	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping I.");
-	static_assert(BORDER_RIGHT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping II.");
 	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping III.");
 	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 2, "Make sure the automap-renderer does not have to check for clipping IV.");
 
