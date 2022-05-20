@@ -978,10 +978,10 @@ static void control_set_button_down(int btn_id)
 
 static bool InLvlUpRect()
 {
-	return MouseX >= 175
-		&& MouseX <= 175 + CHRBTN_WIDTH
-		&& MouseY >= SCREEN_HEIGHT - 24 - CHRBTN_HEIGHT
-		&& MouseY <= SCREEN_HEIGHT - 24;
+	return MouseX >= LVLUP_LEFT
+		&& MouseX <= LVLUP_LEFT + CHRBTN_WIDTH
+		&& MouseY >= SCREEN_HEIGHT - LVLUP_OFFSET - CHRBTN_HEIGHT
+		&& MouseY <= SCREEN_HEIGHT - LVLUP_OFFSET;
 }
 
 void ReleaseLvlBtn()
@@ -1333,7 +1333,7 @@ void DrawChr()
 void DrawLevelUpIcon()
 {
 	ADD_PlrStringXY(137, SCREEN_HEIGHT - 4, 137 + 120, "Level Up", COL_WHITE);
-	CelDraw(SCREEN_X + 175, SCREEN_Y + SCREEN_HEIGHT - 24, pChrButtonCels, gbLvlbtndown ? 3 : 2);
+	CelDraw(SCREEN_X + LVLUP_LEFT, SCREEN_Y + SCREEN_HEIGHT - LVLUP_OFFSET, pChrButtonCels, gbLvlbtndown ? 3 : 2);
 }
 
 static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE col)
