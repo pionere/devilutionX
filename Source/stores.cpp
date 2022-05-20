@@ -217,13 +217,14 @@ void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int v
 	px = stextsel == y ? sx : INT_MAX;
 	sx = PrintLimitedString(sx, sy, str, limit, col);
 	if (val >= 0) {
-		assert(!cjustflag);
+		assert(!cjustflag && gbWidePanel);
 		snprintf(valstr, sizeof(valstr), "%d", val);
-		sx = PANEL_X + 592 - x - GetSmallStringWidth(valstr);
+		sx = LTPANEL_X + LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x + GetSmallStringWidth(valstr));
 		PrintGameStr(sx, sy, valstr, col);
 	}
 	if (px != INT_MAX) {
-		DrawSmallPentSpn(px - 20, cjustflag ? sx + 6 : (PANEL_X + 596 - x), sy + 1);
+		assert(cjustflag || gbWidePanel);
+		DrawSmallPentSpn(px - FOCUS_SMALL, cjustflag ? sx + 6 : (LTPANEL_X + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);
 	}
 }
 
@@ -232,10 +233,12 @@ static void DrawSSlider(/*int y1, int y2*/)
 	const int y1 = STORE_SCROLL_UP, y2 = STORE_SCROLL_DOWN;
 	int x, i, yd1, yd2, yd3;
 
-	assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
-	x = STORE_PNL_X + STPANEL_WIDTH - 14; 
-	yd1 = y1 * SMALL_SCROLL_HEIGHT + 44 + PANEL_Y;   // top position of the scrollbar
-	yd2 = y2 * SMALL_SCROLL_HEIGHT + 44 + PANEL_Y;   // bottom position of the scrollbar
+	//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
+	//x = STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
+	assert(gbWidePanel);
+	x = LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
+	yd1 = y1 * SMALL_SCROLL_HEIGHT + LTPANEL_Y + 20;   // top position of the scrollbar
+	yd2 = y2 * SMALL_SCROLL_HEIGHT + LTPANEL_Y + 20;   // bottom position of the scrollbar
 	yd3 = ((y2 - y1 - 2) * SMALL_SCROLL_HEIGHT); // height of the scrollbar
 	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10);
@@ -2424,9 +2427,11 @@ void CheckStoreBtn()
 			if (MouseX < STORE_PNL_X - SCREEN_X || MouseX > STORE_PNL_X + STPANEL_WIDTH - SCREEN_X)
 				return;
 		}
-		y = (MouseY - (32 + PANEL_TOP)) / 12;
-		assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
-		if (MouseX >= STORE_PNL_X + STPANEL_WIDTH - 14 - SCREEN_X && gbHasScroll) {
+		y = (MouseY - (LTPANEL_Y - SCREEN_Y + 8)) / 12;
+		//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
+		//if (MouseX >= STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
+		if (MouseX >= LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
+			assert(gbWidePanel);
 			if (stextsmax != 0 && y >= STORE_SCROLL_UP && y <= STORE_SCROLL_DOWN) {
 				if (y == STORE_SCROLL_DOWN) {
 					// down arrow
