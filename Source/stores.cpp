@@ -1256,7 +1256,7 @@ void DrawStore()
 	if (gbWidePanel)
 		DrawTextBox();
 	else
-		DrawSTextBox(STORE_PNL_X/*, LTPANEL_Y*/);
+		DrawSTextBox(STORE_PNL_X, LTPANEL_Y);
 
 	if (gbHasScroll) {
 		switch (stextflag) {
@@ -1288,7 +1288,7 @@ void DrawStore()
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		if (sts->_sline)
-			DrawTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, i * 12 + 14, gbWidePanel);
+			DrawTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, LTPANEL_Y, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
 			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, sts->_sclr, sts->_sval);
 	}

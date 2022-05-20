@@ -114,7 +114,7 @@ void DrawHelp()
 	DrawTextBox();
 
 	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);
-	DrawTextBoxSLine(LTPANEL_X, 5 * 12 + 14, true);
+	DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 5 * 12 + 14, true);
 
 	s = &gszHelpText[0];
 

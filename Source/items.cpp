@@ -3144,10 +3144,10 @@ void DrawInvItemDetails()
 	int y = LTPANEL_Y;
 
 	// draw the background
-	DrawSTextBox(x/*, y*/);
+	DrawSTextBox(x, y);
 
 	// add separator
-	DrawTextBoxSLine(x, 74, false);
+	DrawTextBoxSLine(x, y, 74, false);
 
 	x += 8;
 	y += 44;

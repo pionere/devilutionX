@@ -1770,12 +1770,10 @@ void DrawTextBox()
  * @brief Draw a small text box with transparent background.
  *  used as background to items and in stores.
  * @param x: the starting x-coordinate of the text box
- * @param y: the starting y-coordinate of the text box (unused)
+ * @param y: the starting y-coordinate of the text box
  */
-void DrawSTextBox(int x/*, int y*/)
+void DrawSTextBox(int x, int y)
 {
-	int y = LTPANEL_Y;
-
 	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1);
 	trans_rect(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
 }
@@ -1784,17 +1782,17 @@ void DrawSTextBox(int x/*, int y*/)
  * @brief Draw a separator line into the text box.
  *  used with items and in stores.
  * @param x: the starting x-coordinate of the text box
- * @param y: the starting y-coordinate of the text box (unused)
+ * @param y: the starting y-coordinate of the text box
  * @param dy: the distance from the top of the box where the separator should be drawn
  * @param widePanel: true if large text box is used, false if small text box
  */
-void DrawTextBoxSLine(int x, /*int y,*/ int dy, bool widePanel)
+void DrawTextBoxSLine(int x, int y, int dy, bool widePanel)
 {
 	int sxy, dxy, width, length;
 	
 	width = BUFFER_WIDTH;
-	sxy = x + 2 + width * (LTPANEL_Y + 1);
-	dxy = x + 2 + width * (LTPANEL_Y + dy);
+	sxy = x + 2 + width * (y + 1);
+	dxy = x + 2 + width * (y + dy);
 	length = widePanel ? LTPANEL_WIDTH - 4 : STPANEL_WIDTH - 4;
 
 	/// ASSERT: assert(gpBuffer != NULL);
