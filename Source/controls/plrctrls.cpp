@@ -403,23 +403,6 @@ static void FindTrigger()
 	CheckTownPortal();
 }
 
-static void Interact()
-{
-	/*
-	if (pcursmonst != MON_NONE && CanTalkToMonst(pcursmonst))
-		NetSendCmdParam1(CMD_TALKXY, pcursmonst);
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		int attack = myplr._pAtkSkill;
-		bool melee = (myplr._pSkillFlags & SFLAG_MELEE) != 0;
-		if (pcursmonst != MON_NONE)
-			NetSendCmdMonstAttack(melee ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack);
-		else if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam)
-			NetSendCmdPlrAttack(pcursplr, attack);
-	}*/
-	ActionBtnCmd(false);
-}
-
 static void AttrIncBtnSnap(AxisDirection dir)
 {
 	static AxisDirectionRepeater repeater;
@@ -1141,47 +1124,63 @@ void UseBeltItem(int type)
 
 void PerformPrimaryAction()
 {
+	if (gbSkillListFlag) {
+		SetSkill(false, false);
+		return;
+	}
+
+	if (stextflag != STORE_NONE) {
+		CheckStoreBtn();
+		return;
+	}
+
 	if (DoPanBtn())
 		return;
 
 	if (TryIconCurs(false))
 		return;
 
-	if (MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX && MouseY >= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y - INV_SLOT_SIZE_PX) {
+	if (pcurswnd == WND_QUEST) {
+		CheckQuestlog();
+		return;
+	}
+
+	if (pcurswnd == WND_BELT) {
 		// in belt
 		// assert(!DoPanBtn());
 		CheckBeltClick(false);
 		return;
 	}
 
-	if (gbInvflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_CHAR) {
+		if (CheckChrBtns())
+			ReleaseChrBtns();
+		return;
+	}
+
+	if (pcurswnd == WND_INV) {
 		// in inventory
 		CheckInvClick(false);
 		return;
 	}
 
-	if (gbSbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_BOOK) {
 		SelectBookSkill(false, false);
 		return;
 	}
 
-	if (gbTeamFlag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_TEAM) {
 		// in team panel
 		CheckTeamClick(false);
 		return;
 	}
 
-	if (gbSkillListFlag) {
-		SetSkill(false, false);
+	if (pcurs >= CURSOR_FIRSTITEM) {
+		DropItem();
 		return;
 	}
 
-	if (gbChrflag && CheckChrBtns()) {
-		ReleaseChrBtns();
-		return;
-	}
-
-	Interact();
+	ActionBtnCmd(false);
 }
 
 static bool SpellHasActorTarget()
