@@ -44,7 +44,9 @@ void DrawHugePentSpn(int x1, int x2, int y);
 void DrawSmallPentSpn(int x1, int x2, int y);
 void DrawSingleSmallPentSpn(int x, int y);
 
+#ifdef __cplusplus
 }
+#endif
 
 DEVILUTION_END_NAMESPACE
 

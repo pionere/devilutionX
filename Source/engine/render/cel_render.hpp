@@ -84,7 +84,9 @@ void CelClippedDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int 
  */
 void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
+#ifdef __cplusplus
 }
+#endif
 
 DEVILUTION_END_NAMESPACE
 
