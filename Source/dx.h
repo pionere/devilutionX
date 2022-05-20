@@ -18,6 +18,8 @@ extern BYTE *gpBuffer;
 extern BYTE *gpBufStart;
 /** Lower bound of back buffer. */
 extern BYTE *gpBufEnd;
+/** The width of the back buffer. */
+extern int gnBufferWidth;
 
 void dx_init();
 void lock_buf(BYTE idx);
