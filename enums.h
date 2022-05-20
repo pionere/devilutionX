@@ -3918,6 +3918,16 @@ typedef enum item_special_effect {
 	ISPL_NOMANA         = 0x80000000,
 } item_special_effect;
 
+typedef enum window_active {
+	WND_CHAR,
+	WND_QUEST,
+	WND_INV,
+	WND_BELT,
+	WND_TEAM,
+	WND_BOOK,
+	WND_NONE = 0xFF,
+} window_active;
+
 // Logical equipment locations
 typedef enum inv_item {
 	INVITEM_BODY_FIRST = 0,

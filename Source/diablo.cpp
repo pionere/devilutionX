@@ -596,35 +596,35 @@ static void ActionBtnDown(bool bShift)
 	if (TryIconCurs(bShift))
 		return;
 
-	if (gbQuestlog && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_QUEST) {
 		CheckQuestlog();
 		return;
 	}
 
-	if (MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX && MouseY >= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y - INV_SLOT_SIZE_PX) {
+	if (pcurswnd == WND_BELT) {
 		// in belt
 		// assert(!DoPanBtn());
 		CheckBeltClick(bShift);
 		return;
 	}
 
-	if (gbChrflag && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_CHAR) {
 		CheckChrBtns();
 		return;
 	}
 
-	if (gbInvflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_INV) {
 		// in inventory
 		CheckInvClick(bShift);
 		return;
 	}
 
-	if (gbSbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_BOOK) {
 		SelectBookSkill(bShift, false);
 		return;
 	}
 
-	if (gbTeamFlag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_TEAM) {
 		CheckTeamClick(bShift);
 		return;
 	}
@@ -677,12 +677,12 @@ static void AltActionBtnDown(bool bShift)
 	if (pcursinvitem != INVITEM_NONE && InvUseItem(pcursinvitem))
 		return;
 
-	if (gbSbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_BOOK) {
 		SelectBookSkill(bShift, true);
 		return;
 	}
 
-	if (gbTeamFlag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+	if (pcurswnd == WND_TEAM) {
 		CheckTeamClick(bShift);
 		return;
 	}

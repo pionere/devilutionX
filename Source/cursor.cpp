@@ -28,6 +28,8 @@ int pcursmonst = MON_NONE;
 /** Cursor images CEL */
 BYTE *pCursCels;
 
+/** Current active window */
+BYTE pcurswnd;
 /** inv_item value */
 BYTE pcursinvitem;
 /** Current highlighted item */
@@ -290,30 +292,36 @@ void CheckCursMove()
 	pcursinvitem = INVITEM_NONE;
 	pcursplr = PLR_NONE;
 	pcurstrig = -1;
+	pcurswnd = WND_NONE;
 
 	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");	
 	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
 	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
 		return;
+	if ((gbChrflag | gbQuestlog) && MouseX < SPANEL_WIDTH && MouseY <= SPANEL_HEIGHT) {
+		pcurswnd = gbChrflag ? WND_CHAR : WND_QUEST;
+	}
+	if ((gbInvflag | gbSbookflag | gbTeamFlag) && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
+		pcurswnd = gbInvflag ? WND_INV : (gbSbookflag ? WND_BOOK : WND_QUEST);
+	}
+	if (MouseX >= InvRect[SLOTXY_BELT_FIRST].X
+	 && MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX
+	 && MouseY >= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y  - INV_SLOT_SIZE_PX
+	 && MouseY <= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y) {
+		pcurswnd = WND_BELT;
+	}
+
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		cursmx = mx;
 		cursmy = my;
 		return;
 	}
-	if ((gbInvflag | gbSbookflag | gbTeamFlag) && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
-		if (gbInvflag)
-			pcursinvitem = CheckInvItem();
-		return;
-	}
-	if ((gbChrflag | gbQuestlog) && MouseX < SPANEL_WIDTH && MouseY <= SPANEL_HEIGHT) {
-		return;
-	}
 
-	if (MouseX >= InvRect[SLOTXY_BELT_FIRST].X
-	 && MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX
-	 && MouseY >= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y  - INV_SLOT_SIZE_PX
-	 && MouseY <= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y) {
-		pcursinvitem = CheckInvBelt();
+	if (pcurswnd != WND_NONE) {
+		if (pcurswnd == WND_INV)
+			pcursinvitem = CheckInvItem();
+		else if (pcurswnd == WND_BELT)
+			pcursinvitem = CheckInvBelt();
 		return;
 	}
 
