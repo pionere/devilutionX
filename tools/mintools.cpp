@@ -1,5 +1,6 @@
 /*
  * Utility functions to manipulate Diablo Level CEL files. Its main features are:
+ *  Pal2PalUniq: Change palette colors to ensure each color is unique.
  *  Min2PNG: Convert a MIN file to PNG(s)
  *  PNG2Min: Generate CEL and meta-files based on PNG-quads
  *  UpscaleMin: (integer) upscale a MIN file (+ its corresponding CEL)
@@ -174,6 +175,118 @@ static BYTE* LoadPal(const char* palFile)
 	fclose(f);
 
 	return result;
+}
+static void DumpPalette(const char* palFile, BYTE* palette, int numcolors)
+{
+	FILE* f = fopen(name, "wb");
+
+	if (f == NULL) {
+		return;
+	}
+	for (int i = 0; i < numcolors; i++) {
+		fputc(palette[0], f);
+		fputc(palette[1], f);
+		fputc(palette[2], f);
+		palette += 3;
+	}
+	fclose(f);
+}
+
+static bool PalColorUnique(BYTE* palCol, BYTE* palette, int numcolors)
+{
+	for (int i = 0; i < numcolors; i++, palette += 3) {
+		if (palCol[0] != palette[0] || palCol[1] != palette[1] || palCol[2] != palette[2])
+			continue;
+		if (palCol == palette)
+			continue;
+		return false;
+	}
+	return true;
+}
+
+static bool NextPalColor(BYTE* palCol, int i)
+{
+	int sgn = i & 1;
+	int dc = i >> 1;
+	int dr, dg, db;
+
+	switch (dc % 8) {
+	case 0: dr = 0; dg = 0; db = 0; break;
+	case 1: dr = 1; dg = 0; db = 0; break;
+	case 2: dr = 0; dg = 1; db = 0; break;
+	case 3: dr = 0; dg = 0; db = 1; break;
+	case 4: dr = 1; dg = 1; db = 0; break;
+	case 5: dr = 1; dg = 0; db = 1; break;
+	case 6: dr = 0; dg = 1; db = 1; break;
+	case 7: dr = 1; dg = 1; db = 1; break;
+	}
+
+	dc /= 8;
+	dr += dc;
+	dg += dc;
+	db += dc;
+	if (sgn) {
+		dr = -dr;
+		dg = -dg;
+		db = -db;
+	}
+
+	if (dr + palCol[0] < 0 || dr + palCol[0] > UCHAR_MAX)
+		return false;
+	if (dg + palCol[1] < 0 || dg + palCol[2] > UCHAR_MAX)
+		return false;
+	if (db + palCol[2] < 0 || db + palCol[2] > UCHAR_MAX)
+		return false;
+
+	palCol[0] += dr;
+	palCol[1] += dg;
+	palCol[2] += db;
+	return true;
+}
+
+/**
+ * Change palette colors to ensure each color is unique. Necessary to preserve information while transforming data between  * PNG and CEL formats.
+ * 
+ * @param palName: the path to the palette
+ * @param numcolors: the number of colors in the palette
+ * @param outPalName: the result of the change
+ * @return true if the change is successful and necessary
+ */
+bool Pal2PalUniq(const char* palName, int numcolors, const char* outPalName)
+{
+	int result;
+	BYTE* pal = LoadPal(palName);
+	BYTE* palCol;
+
+	if (pal == NULL) {
+		return false;
+	}
+
+	result = 0;
+	for (int i = 1; i < numcolors; i++) {
+		palCol = &pal[i * 3];
+		if (PalColorUnique(palCol, pal, numcolors))
+			continue;
+
+		RGBA col;
+		col.r = palCol[0];
+		col.g = palCol[1];
+		col.b = palCol[2];
+		for (int j = 2; j < 512; j++) {
+			NextPalColor(palCol, j);
+			if (PalColorUnique(palCol, pal, numcolors))
+				break;
+			palCol[0] = col.r;
+			palCol[1] = col.g;
+			palCol[2] = col.b;
+		}
+		result++;
+	}
+
+	DumpPalette(outPalName, pal, numcolors);
+
+	free(pal);
+	return result != 0;
 }
 
 static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset, int numfixcolors)
@@ -2285,46 +2398,63 @@ int main()
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
 		UpscaleMin("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 128, 0, 0,
 			"f:\\outmin\\Levels\\TownData\\", "Town");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L1Data\\L1_1.PAL");
 		UpscaleMin("f:\\MPQE\\Work\\Levels\\L1Data\\L1.MIN", 2, "f:\\MPQE\\Work\\Levels\\L1Data\\L1.CEL", DTYPE_CATHEDRAL, pal, 128, 0, 0,
 			"f:\\outmin\\Levels\\L1Data\\", "L1");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L2Data\\L2_1.PAL");
 		UpscaleMin("f:\\MPQE\\Work\\Levels\\L2Data\\L2.MIN", 2, "f:\\MPQE\\Work\\Levels\\L2Data\\L2.CEL", DTYPE_CATACOMBS, pal, 128, 0, 0,
 			"f:\\outmin\\Levels\\L2Data\\", "L2");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L3Data\\L3_1.PAL");
 		UpscaleMin("f:\\MPQE\\Work\\Levels\\L3Data\\L3.MIN", 2, "f:\\MPQE\\Work\\Levels\\L3Data\\L3.CEL", DTYPE_CAVES, pal, 128, 0, 32, 
 			"f:\\outmin\\Levels\\L3Data\\", "L3");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L4Data\\L4_1.PAL");
 		UpscaleMin("f:\\MPQE\\Work\\Levels\\L4Data\\L4.MIN", 2, "f:\\MPQE\\Work\\Levels\\L4Data\\L4.CEL", DTYPE_HELL, pal, 128, 0, 32,
 			"f:\\outmin\\Levels\\L4Data\\", "L4");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
 		UpscaleMin("f:\\MPQE\\Work\\NLevels\\TownData\\Town.MIN", 2, "f:\\MPQE\\Work\\NLevels\\TownData\\Town.CEL", DTYPE_TOWN, pal, 256, 0, 0,
 			"f:\\outmin\\NLevels\\TownData\\", "Town");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L5Data\\L5Base.PAL");
 		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L5Data\\L5.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L5Data\\L5.CEL", DTYPE_CRYPT, pal, 128, 0, 32,
 			"f:\\outmin\\NLevels\\L5Data\\", "L5");
+		free(pal);
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\NLevels\\L6Data\\L6Base1.PAL");
 		UpscaleMin("f:\\MPQE\\Work\\NLevels\\L6Data\\L6.MIN", 2, "f:\\MPQE\\Work\\NLevels\\L6Data\\L6.CEL", DTYPE_NEST, pal, 128, 0, 32, 
 			"f:\\outmin\\NLevels\\L6Data\\", "L6");
+		free(pal);
 	}*/
-	/*{
+	/*{ // sample code to convert TIL, CEL, MIN, PAL to PNGs (fails if the output-folder structure is not prepared)
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\TownData\\Town.PAL");
 		Min2PNG("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 0, 0,
 			"f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL",
 			"f:\\MPQE\\Work\\Levels\\TownData\\Town.TIL", "f:\\outmin\\TownData\\", pal, 0);
+		free(pal);
+	}*/
+	/*{ // sample code to convert TIL, CEL, MIN, PAL to PNGs where the original colors of the palette are not unique (fails if the output-folder structure is not prepared)
+		Pal2PalUniq("f:\\MPQE\\Work\\Levels\\L3Data\\L3_1.PAL", 256, "f:\\outmin\\Levels\\L3Data\\L3_1_uniq.PAL");
+		BYTE* pal = LoadPal("f:\\outmin\\Levels\\L3Data\\L3_1_uniq.PAL");
+		Min2PNG("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 0, 0,
+			"f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL",
+			"f:\\MPQE\\Work\\Levels\\TownData\\Town.TIL", "f:\\outmin\\Levels\\L3Data\\", pal, 0);
+		free(pal);
 	}*/
 }
