@@ -738,7 +738,7 @@ inline static void RenderLine(RGBA* dst, BYTE* src, int n, uint32_t mask, BYTE* 
 	//(*dst) += n;
 }
 
-void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskType, BYTE* srcCels, BYTE* palette, int coloroffset, int numfixcolors)
+void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskType, BYTE* srcCels, bool upscaled, BYTE* palette, int coloroffset, int numfixcolors)
 {
 	int i, j, light = 0;
 	char v, encoding;
@@ -750,10 +750,20 @@ void RenderMicro(RGBA* pBuff, int bufferWidth, uint16_t levelCelBlock, int maskT
 
 	dst = pBuff;
 	pFrameTable = (uint32_t *)srcCels;
-	if (levelCelBlock == 0 || pFrameTable[0] < (levelCelBlock & 0xFFF))
+	if (levelCelBlock == 0)
 		return;
-	src = &srcCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
-	encoding = (levelCelBlock /*& 0x7000*/) >> 12;
+	if (upscaled) {
+		if (pFrameTable[0] < levelCelBlock)
+			return;
+		src = &srcCels[SwapLE32(pFrameTable[levelCelBlock])];
+		encoding = *src;
+		src++;
+	} else {
+		if (pFrameTable[0] < (levelCelBlock & 0xFFF))
+			return;
+		src = &srcCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
+		encoding = (levelCelBlock /*& 0x7000*/) >> 12;
+	}
 
 	//mask = &SolidMask[MICRO_HEIGHT - 1];
 	switch (maskType) {
@@ -1015,15 +1025,29 @@ bool Min2PNG(const char* minname, int columns, int rows, const char* celname,
 		}
 		imagedata.data_ptr = (png_bytep)imagerows;
 
-		RGBA* dst = (RGBA*)imagedata.row_pointers[MICRO_HEIGHT - 1];
 		uint16_t* src = mindata[i].levelBlocks;
-		for (int y = 0; y < rows; y++) {
-			for (int x = 0; x < columns; x++, src++) {
-				uint16_t levelCelBlock = *src;
-				RenderMicro(dst, columns * MICRO_WIDTH, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset, 0);
-				dst += MICRO_WIDTH;
+		if (columns != 2) {
+			// upscaled min
+			RGBA* dst = (RGBA*)imagedata.row_pointers[rows * MICRO_HEIGHT - 1];
+			for (int y = 0; y < rows; y++) {
+				for (int x = 0; x < columns; x++, src++) {
+					uint16_t levelCelBlock = SwapLE16(*src);
+					RenderMicro(dst, columns * MICRO_WIDTH, levelCelBlock, DMT_NONE, celBuf, true, palette, coloroffset, 0);
+					dst += MICRO_WIDTH;
+				}
+				dst -= columns * MICRO_WIDTH * (MICRO_HEIGHT + 1);
 			}
-			dst += imagedata.width * MICRO_HEIGHT - columns * MICRO_WIDTH;
+		} else {
+			// standard min
+			RGBA* dst = (RGBA*)imagedata.row_pointers[MICRO_HEIGHT - 1];
+			for (int y = 0; y < rows; y++) {
+				for (int x = 0; x < columns; x++, src++) {
+					uint16_t levelCelBlock = SwapLE16(*src);
+					RenderMicro(dst, columns * MICRO_WIDTH, levelCelBlock, DMT_NONE, celBuf, false, palette, coloroffset, 0);
+					dst += MICRO_WIDTH;
+				}
+				dst += columns * MICRO_WIDTH * (MICRO_HEIGHT - 1);
+			}
 		}
 		// imagedata.fixColorMask = NULL;
 
@@ -1928,7 +1952,7 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, int du
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < columns; x++, src++) {
 				uint16_t levelCelBlock = *src;
-				RenderMicro(dst, columns * MICRO_WIDTH * multiplier, levelCelBlock, DMT_NONE, celBuf, palette, coloroffset, numfixcolors);
+				RenderMicro(dst, columns * MICRO_WIDTH * multiplier, levelCelBlock, DMT_NONE, celBuf, false, palette, coloroffset, numfixcolors);
 				dst += MICRO_WIDTH;
 			}
 			dst += imagedata[i].width * MICRO_HEIGHT - columns * MICRO_WIDTH;
@@ -2455,6 +2479,13 @@ int main()
 		Min2PNG("f:\\MPQE\\Work\\Levels\\TownData\\Town.MIN", 0, 0,
 			"f:\\MPQE\\Work\\Levels\\TownData\\Town.CEL",
 			"f:\\MPQE\\Work\\Levels\\TownData\\Town.TIL", "f:\\outmin\\Levels\\L3Data\\", pal, 0);
+		free(pal);
+	}*/
+	/*{ // sample code to convert upscaled(2x) MIN, CEL (TIL, PAL) to PNGs
+		BYTE* pal = LoadPal("f:\\outmin\\Levels\\L3Data\\L3_1_uniq.PAL");
+		Min2PNG("f:\\outmin\\Levels\\L3Data\\L3.MIN", 2 * 2, 8 * 2,
+			"f:\\outmin\\Levels\\L3Data\\L3.CEL",
+			"f:\\MPQE\\Work\\Levels\\L3Data\\L3.TIL", "f:\\outmin\\Levels\\L3Data\\", pal, 0);
 		free(pal);
 	}*/
 }
