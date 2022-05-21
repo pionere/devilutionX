@@ -305,7 +305,7 @@ void CheckCursMove()
 		pcurswnd = gbInvflag ? WND_INV : (gbSbookflag ? WND_BOOK : WND_TEAM);
 	}
 	if (POS_IN_RECT(MouseX, MouseY,
-		InvRect[SLOTXY_BELT_FIRST].X, SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y  - INV_SLOT_SIZE_PX,
+		PANEL_LEFT + InvRect[SLOTXY_BELT_FIRST].X, PANEL_BOTTOM - InvRect[SLOTXY_BELT_FIRST].Y  - INV_SLOT_SIZE_PX,
 		InvRect[SLOTXY_BELT_LAST].X - InvRect[SLOTXY_BELT_FIRST].X + INV_SLOT_SIZE_PX + 1, InvRect[SLOTXY_BELT_FIRST].Y - InvRect[SLOTXY_BELT_LAST].Y + INV_SLOT_SIZE_PX + 1)) {
 		pcurswnd = WND_BELT;
 	}

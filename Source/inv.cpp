@@ -386,7 +386,7 @@ void DrawInvBelt()
 	BYTE fi, ff;
 	BYTE* cCels;
 
-	CelDraw(SCREEN_X + InvRect[SLOTXY_BELT_FIRST].X - 1, SCREEN_Y + SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1);
+	CelDraw(PANEL_X + InvRect[SLOTXY_BELT_FIRST].X - 1, PANEL_Y + PANEL_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1);
 
 	pnum = mypnum;
 	pi = NULL;
@@ -401,8 +401,8 @@ void DrawInvBelt()
 		if (is->_itype == ITYPE_NONE) {
 			continue;
 		}
-		screen_x = InvRect[SLOTXY_BELT_FIRST + i].X + SCREEN_X;
-		screen_y = SCREEN_Y + SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST + i].Y;
+		screen_x = PANEL_X + InvRect[SLOTXY_BELT_FIRST + i].X;
+		screen_y = PANEL_Y + PANEL_HEIGHT - InvRect[SLOTXY_BELT_FIRST + i].Y;
 		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		assert(InvItemWidth[frame] == INV_SLOT_SIZE_PX);
@@ -1064,7 +1064,7 @@ static void CheckBeltPaste()
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
 		if (POS_IN_RECT(i, j,
-			InvRect[r].X,  SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX,
+			PANEL_LEFT + InvRect[r].X,  PANEL_BOTTOM - InvRect[r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			NetSendCmdBParam1(CMD_PASTEPLRBELTITEM, r);
 			break;
@@ -1632,7 +1632,7 @@ BYTE CheckInvBelt()
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
 		if (POS_IN_RECT(MouseX, MouseY,
-			InvRect[r].X,  SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX,
+			PANEL_LEFT + InvRect[r].X,  PANEL_BOTTOM - InvRect[r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
 		}
