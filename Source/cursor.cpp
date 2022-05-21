@@ -302,7 +302,7 @@ void CheckCursMove()
 		pcurswnd = gbChrflag ? WND_CHAR : WND_QUEST;
 	}
 	if ((gbInvflag | gbSbookflag | gbTeamFlag) && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
-		pcurswnd = gbInvflag ? WND_INV : (gbSbookflag ? WND_BOOK : WND_QUEST);
+		pcurswnd = gbInvflag ? WND_INV : (gbSbookflag ? WND_BOOK : WND_TEAM);
 	}
 	if (POS_IN_RECT(MouseX, MouseY,
 		InvRect[SLOTXY_BELT_FIRST].X, SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y  - INV_SLOT_SIZE_PX,
