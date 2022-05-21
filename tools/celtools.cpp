@@ -112,7 +112,7 @@ typedef struct RGBA {
 	BYTE a;
 } RGBA;
 
-static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset)
+static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset, int numfixcolors)
 {
 	int res = -1;
 	//int best = abs(data.r - 0) + 
@@ -122,7 +122,8 @@ static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset)
 			   (data.g - 0) * (data.g - 0) + 
 			   (data.b - 0) * (data.b - 0);
 
-	for (int i = 0; i < numcolors; i++, palette += 3) {
+	palette += numfixcolors * 3;
+	for (int i = numfixcolors; i < numcolors; i++, palette += 3) {
 		//int dist = abs(data.r - palette[0]) + 
 		//		   abs(data.g - palette[1]) + 
 		//		   abs(data.b - palette[2]);
@@ -300,7 +301,7 @@ typedef struct cel_image_data {
 	bool clipped;
 	BYTE* data;
 } cel_image_data;
-static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data* celdata, bool multi, const char* celname, BYTE* palette, int numcolors, int coloroffset)
+static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data* celdata, bool multi, const char* celname, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
 	int maxsize = HEADER_SIZE;
@@ -349,7 +350,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
 					if (imagedata->fixColorMask != NULL && imagedata->fixColorMask[(image_data->height - i) * imagedata->width + j] != 0)
 						*pBuf = imagedata->fixColorMask[(image_data->height - i) * imagedata->width + j];
 					else
-						*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
+						*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset, numfixcolors);
 					pBuf++;
 					alpha = false;
 				} else {
@@ -428,7 +429,7 @@ bool PNG2Cel(const char** pngnames, int numimage, bool multi, const char *celnam
 	for (int n = 0; n < numimage; n++) {
 		celdata[n].clipped = clipped;
 	}
-	return WritePNG2Cel(imagedata, numimage, celdata, multi, celname, palette, numcolors, coloroffset);
+	return WritePNG2Cel(imagedata, numimage, celdata, multi, celname, palette, numcolors, coloroffset, 0);
 }
 
 typedef struct celcmp_image_data {
@@ -505,7 +506,7 @@ static bool WritePNG2CelComp(png_image_data* imagedata, int numimage, celcmp_ima
 							pBuf++;
 						}
 						++*pHead;
-						*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
+						*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset, 0);
 						pBuf++;
 						alpha = false;
 					} else {
@@ -671,7 +672,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 					if (data[j].a == 255) {
 						// add opaque pixel
 						// assert(image_data->fixColorMask == NULL);
-						col = GetPalColor(data[j], palette, numcolors, coloroffset);
+						col = GetPalColor(data[j], palette, numcolors, coloroffset, 0);
 						if (alpha || first || col != lastCol)
 							colMatches = 1;
 						else
@@ -2079,12 +2080,12 @@ static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len, BYTE* palette, int
 	res.r = (c0->r * (len - idx) + c1->r * idx) / len;
 	res.g = (c0->g * (len - idx) + c1->g * idx) / len;
 	res.b = (c0->b * (len - idx) + c1->b * idx) / len;
-	if (numfixcolors != 0 && palette != NULL) {
+	/*if (numfixcolors != 0 && palette != NULL) {
 		// do not interpolate 'protected' colors
 		BYTE col = GetPalColor(res, palette, numcolors, coloroffset);
 		if (col != 0 && col < numfixcolors)
 			return *c0;
-	}
+	}*/
 	return res;
 }
 
@@ -2208,7 +2209,7 @@ void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolor
 	UpscalePNGImages(imagedata, numimage, multiplier, palette, numcolors, coloroffset, numfixcolors);
 
 	// convert pngs back to cel
-	WritePNG2Cel(imagedata, numimage, celdata, false, resCelName, palette, numcolors, coloroffset);
+	WritePNG2Cel(imagedata, numimage, celdata, false, resCelName, palette, numcolors, coloroffset, numfixcolors);
 }
 
 void UpscaleCelComp(const char* celname, int multiplier, BYTE* palette, int numcolors, int coloroffset, const char* resCelName)

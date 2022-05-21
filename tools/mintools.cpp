@@ -176,7 +176,7 @@ static BYTE* LoadPal(const char* palFile)
 	return result;
 }
 
-static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset)
+static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset, int numfixcolors)
 {
 	int res = -1;
 	//int best = abs(data.r - 0) + 
@@ -186,7 +186,8 @@ static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset)
 			   (data.g - 0) * (data.g - 0) + 
 			   (data.b - 0) * (data.b - 0);
 
-	for (int i = 0; i < numcolors; i++, palette += 3) {
+	palette += numfixcolors * 3;
+	for (int i = numfixcolors; i < numcolors; i++, palette += 3) {
 		//int dist = abs(data.r - palette[0]) + 
 		//		   abs(data.g - palette[1]) + 
 		//		   abs(data.b - palette[2]);
@@ -1209,7 +1210,7 @@ static void fput_int16(FILE* f0, int16_t val)
 }
 
 static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData* mmd,
-	BYTE* palette, int numcolors, int coloroffset)
+	BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
 	BYTE* celData = (BYTE*)malloc(2 * MICRO_WIDTH * MICRO_HEIGHT);
 	memset(celData, 0, 2 * MICRO_WIDTH * MICRO_HEIGHT);
@@ -1242,7 +1243,7 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
 				if (imagedata->fixColorMask != NULL && imagedata->fixColorMask[i * imagedata->width + sx + j] != 0)
 					*pBuf = imagedata->fixColorMask[i * imagedata->width + sx + j];
 				else
-					*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset);
+					*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset, numfixcolors);
 				pBuf++;
 				++*pHead;
 				hasColor = true;
@@ -1302,12 +1303,12 @@ static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len, BYTE* palette, int
 	res.r = (c0->r * (len - idx) + c1->r * idx) / len;
 	res.g = (c0->g * (len - idx) + c1->g * idx) / len;
 	res.b = (c0->b * (len - idx) + c1->b * idx) / len;
-	if (numfixcolors != 0 && palette != NULL) {
+	/*if (numfixcolors != 0 && palette != NULL) {
 		// do not interpolate 'protected' colors
 		BYTE col = GetPalColor(res, palette, numcolors, coloroffset);
 		if (col != 0 && col < numfixcolors)
 			return *c0;
-	}
+	}*/
 	return res;
 }
 
@@ -1384,7 +1385,7 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 	}
 }
 
-void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* mindata, const char* destFolder, const char* prefix, BYTE* palette, int numcolors, int coloroffset)
+void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* mindata, const char* destFolder, const char* prefix, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
 	if (numtiles == 0) {
 		CleanupImageData(imagedata, numtiles);
@@ -1405,13 +1406,13 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 		if (upscale > 1) {
 			for (int y = img_data->height - 1; y > 0; y -= MICRO_HEIGHT) {
 				for (int x = 0; x < img_data->width; x += MICRO_WIDTH, n++) {
-					EncodeMicro(img_data, x, y, &microData[n], palette, numcolors, coloroffset);
+					EncodeMicro(img_data, x, y, &microData[n], palette, numcolors, coloroffset, numfixcolors);
 				}
 			}
 		} else {
 			for (int y = MICRO_HEIGHT - 1; y < img_data->height; y += MICRO_HEIGHT) {
 				for (int x = 0; x < img_data->width; x += MICRO_WIDTH, n++) {
-					EncodeMicro(img_data, x, y, &microData[n], palette, numcolors, coloroffset);
+					EncodeMicro(img_data, x, y, &microData[n], palette, numcolors, coloroffset, numfixcolors);
 				}
 			}
 		}
@@ -1844,7 +1845,7 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, int du
 	UpscalePNGImages(imagedata, numtiles, multiplier, palette, numcolors, coloroffset, numfixcolors);
 
 	// convert pngs back to min/cel
-	WritePNG2Min(imagedata, numtiles, mindata, destFolder, prefix, palette, numcolors, coloroffset);
+	WritePNG2Min(imagedata, numtiles, mindata, destFolder, prefix, palette, numcolors, coloroffset, numfixcolors);
 }
 
 /*
@@ -1929,8 +1930,8 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 		memset(cpd->micros, 0, sizeof(cpd->micros));
 		int n = 0;
 		for (int i = imgdata->height - 1; i >= 0; i -= MICRO_HEIGHT) {
-			EncodeMicro(imgdata, 0, i, &cpd->micros[n++], palette, numcolors, coloroffset);
-			EncodeMicro(imgdata, MICRO_WIDTH, i, &cpd->micros[n++], palette, numcolors, coloroffset);
+			EncodeMicro(imgdata, 0, i, &cpd->micros[n++], palette, numcolors, coloroffset, 0);
+			EncodeMicro(imgdata, MICRO_WIDTH, i, &cpd->micros[n++], palette, numcolors, coloroffset, 0);
 		}
 
 		cpd->micros[0].isFloor = true;
@@ -2302,7 +2303,7 @@ int main()
 	}
 	{
 		BYTE* pal = LoadPal("f:\\MPQE\\Work\\Levels\\L4Data\\L4_1.PAL");
-		UpscaleMin("f:\\MPQE\\Work\\Levels\\L4Data\\L4.MIN", 2, "f:\\MPQE\\Work\\Levels\\L4Data\\L4.CEL", DTYPE_HELL, pal, 128, 0, 30,
+		UpscaleMin("f:\\MPQE\\Work\\Levels\\L4Data\\L4.MIN", 2, "f:\\MPQE\\Work\\Levels\\L4Data\\L4.CEL", DTYPE_HELL, pal, 128, 0, 32,
 			"f:\\outmin\\Levels\\L4Data\\", "L4");
 	}
 	{
