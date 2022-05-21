@@ -596,20 +596,10 @@ static void ActionBtnDown(bool bShift)
 	if (TryIconCurs(bShift))
 		return;
 
-	if (pcurswnd == WND_QUEST) {
-		CheckQuestlog();
-		return;
-	}
-
 	if (pcurswnd == WND_BELT) {
 		// in belt
 		// assert(!DoPanBtn());
 		CheckBeltClick(bShift);
-		return;
-	}
-
-	if (pcurswnd == WND_CHAR) {
-		CheckChrBtns();
 		return;
 	}
 
@@ -619,13 +609,23 @@ static void ActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (pcurswnd == WND_BOOK) {
-		SelectBookSkill(bShift, false);
+	if (pcurswnd == WND_CHAR) {
+		CheckChrBtns();
+		return;
+	}
+
+	if (pcurswnd == WND_QUEST) {
+		CheckQuestlog();
 		return;
 	}
 
 	if (pcurswnd == WND_TEAM) {
 		CheckTeamClick(bShift);
+		return;
+	}
+
+	if (pcurswnd == WND_BOOK) {
+		SelectBookSkill(bShift, false);
 		return;
 	}
 

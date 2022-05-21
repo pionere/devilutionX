@@ -1135,21 +1135,10 @@ void PerformPrimaryAction()
 	if (TryIconCurs(false))
 		return;
 
-	if (pcurswnd == WND_QUEST) {
-		CheckQuestlog();
-		return;
-	}
-
 	if (pcurswnd == WND_BELT) {
 		// in belt
 		// assert(!DoPanBtn());
 		CheckBeltClick(false);
-		return;
-	}
-
-	if (pcurswnd == WND_CHAR) {
-		if (CheckChrBtns())
-			ReleaseChrBtns();
 		return;
 	}
 
@@ -1159,14 +1148,25 @@ void PerformPrimaryAction()
 		return;
 	}
 
-	if (pcurswnd == WND_BOOK) {
-		SelectBookSkill(false, false);
+	if (pcurswnd == WND_CHAR) {
+		if (CheckChrBtns())
+			ReleaseChrBtns();
+		return;
+	}
+
+	if (pcurswnd == WND_QUEST) {
+		CheckQuestlog();
 		return;
 	}
 
 	if (pcurswnd == WND_TEAM) {
 		// in team panel
 		CheckTeamClick(false);
+		return;
+	}
+
+	if (pcurswnd == WND_BOOK) {
+		SelectBookSkill(false, false);
 		return;
 	}
 

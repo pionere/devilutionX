@@ -1501,38 +1501,41 @@ static void DrawView()
 
 	DrawPlrMsg(false);
 
-	if (stextflag != STORE_NONE && !gbQtextflag)
-		DrawStore();
-	if (gbInvflag) {
-		DrawInv();
-	} else if (gbSbookflag) {
-		DrawSpellBook();
-	} else if (gbTeamFlag) {
-		DrawTeamBook();
-	}
-
-	if (gbChrflag) {
-		DrawChr();
-	} else if (gbQuestlog) {
-		DrawQuestLog();
-	}
-	if (gbLvlUp && stextflag == STORE_NONE) {
-		DrawLevelUpIcon();
-	}
 	if (gbQtextflag) {
 		DrawQText();
-	}
-	if (gbSkillListFlag) {
-		DrawSkillList();
-	}
-	if (gbShowTooltip || GetAsyncKeyState(DVL_VK_MENU)) {
-		DrawInfoStr();
-	}
-	if (gbDropGoldFlag) {
-		DrawGoldSplit(dropGoldValue);
-	}
-	if (gbHelpflag) {
-		DrawHelp();
+	} else if (stextflag != STORE_NONE) {
+		DrawStore();
+	} else {
+		if (gbLvlUp) {
+			DrawLevelUpIcon();
+		}
+		if (gbSbookflag) {
+			DrawSpellBook();
+		}
+		if (gbTeamFlag) {
+			DrawTeamBook();
+		}
+		if (gbQuestlog) {
+			DrawQuestLog();
+		}
+		if (gbChrflag) {
+			DrawChr();
+		}
+		if (gbInvflag) {
+			DrawInv();
+		}
+		if (gbDropGoldFlag) {
+			DrawGoldSplit(dropGoldValue);
+		}
+		if (gbSkillListFlag) {
+			DrawSkillList();
+		}
+		if (gbShowTooltip || GetAsyncKeyState(DVL_VK_MENU)) {
+			DrawInfoStr();
+		}
+		if (gbHelpflag) {
+			DrawHelp();
+		}
 	}
 	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();
