@@ -958,11 +958,11 @@ void HandleSkillBtn(bool altSkill)
 {
 	if (!gbSkillListFlag) {
 		ClearPanels();
+		gamemenu_off();
 		DoSkillList(altSkill);
 	} else {
 		gbSkillListFlag = false;
 	}
-	gamemenu_off();
 }
 
 static void control_set_button_down(int btn_id)
