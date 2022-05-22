@@ -1070,11 +1070,21 @@ void HandlePanBtn(int i)
 	case PANBTN_CHARINFO:
 		gbSkillListFlag = false;
 		gbLvlUp = false;
-		ToggleWindow(WND_CHAR);
+		if (ToggleWindow(WND_CHAR)) {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+			if (sgbControllerActive)
+				FocusOnCharInfo();
+#endif
+		}
 		break;
 	case PANBTN_INVENTORY:
 		gbSkillListFlag = false;
-		ToggleWindow(WND_INV);
+		if (ToggleWindow(WND_INV)) {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+			if (sgbControllerActive)
+				FocusOnInventory();
+#endif
+		}
 		break;
 	case PANBTN_SPELLBOOK:
 		gbSkillListFlag = false;

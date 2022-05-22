@@ -884,31 +884,19 @@ bool PeekMessage(LPMSG lpMsg)
 			HandleSkillBtn(true);
 			break;
 		case GameActionType_TOGGLE_CHARACTER_INFO:
-			gbSkillListFlag = false;
-			gbLvlUp = false;
-			if (ToggleWindow(WND_CHAR)) {
-				FocusOnCharInfo();
-			}
+			HandlePanBtn(PANBTN_CHARINFO);
 			break;
 		case GameActionType_TOGGLE_QUEST_LOG:
-			gbSkillListFlag = false;
-			if (ToggleWindow(WND_QUEST)) {
-				StartQuestlog();
-			}
+			HandlePanBtn(PANBTN_QLOG);
 			break;
 		case GameActionType_TOGGLE_INVENTORY:
-			gbSkillListFlag = false;
-			if (ToggleWindow(WND_INV)) {
-				FocusOnInventory();
-			}
+			HandlePanBtn(PANBTN_INVENTORY);
 			break;
 		case GameActionType_TOGGLE_SPELL_BOOK:
-			gbSkillListFlag = false;
-			ToggleWindow(WND_BOOK);
+			HandlePanBtn(PANBTN_SPELLBOOK);
 			break;
 		case GameActionType_TOGGLE_TEAM:
-			gbSkillListFlag = false;
-			ToggleWindow(WND_TEAM);
+			HandlePanBtn(PANBTN_TEAMBOOK);
 			break;
 		case GameActionType_SEND_KEY:
 			lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
