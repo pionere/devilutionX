@@ -26,6 +26,7 @@ typedef enum GameActionType {
 	GameActionType_TOGGLE_SKILL_LIST,
 	GameActionType_TOGGLE_SPELL_BOOK,
 	GameActionType_TOGGLE_QUEST_LOG,
+	GameActionType_TOGGLE_TEAM,
 	GameActionType_SEND_KEY,
 	GameActionType_SEND_MOUSE_CLICK,
 } GameActionType;

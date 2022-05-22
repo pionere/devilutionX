@@ -915,6 +915,12 @@ bool PeekMessage(LPMSG lpMsg)
 			gbTeamFlag = false;
 			gbSbookflag = !gbSbookflag;
 			break;
+		case GameActionType_TOGGLE_TEAM:
+			gbInvflag = false;
+			gbSkillListFlag = false;
+			gbSbookflag = false;
+			gbTeamFlag = !gbTeamFlag;
+			break;
 		case GameActionType_SEND_KEY:
 			lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
 			lpMsg->wParam = action.send_key.vk_code;

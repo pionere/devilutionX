@@ -256,6 +256,8 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 				*action = GameAction(GameActionType_TOGGLE_QUEST_LOG);
 			else if (gbChrflag)
 				*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
+			else if (gbTeamFlag)
+				*action = GameAction(GameActionType_TOGGLE_TEAM);
 			else
 				*action = GameAction(GameActionType_TOGGLE_SKILL_LIST);
 			return true;
