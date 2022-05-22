@@ -142,13 +142,13 @@ void DrawPlrMsg(bool onTop)
 
 	n = gbTalkflag ? PLRMSG_COUNT : 3;
 	timeout = gbTalkflag ? 0 : SDL_GetTicks() - PLRMSG_TEXT_TIMEOUT;
-	x = 10 + SCREEN_X;
-	y = SCREEN_Y + PLRMSG_TEXT_BOTTOM;
+	x = PLRMSG_TEXT_X;
+	y = PLRMSG_TEXT_BOTTOM;
 	for (i = 1; i <= PLRMSG_COUNT; i++) {
 		idx = (unsigned)(plr_msg_slot - i) % PLRMSG_COUNT;
 		if (plr_msgs[idx].str[0] != '\0' && plr_msgs[idx].time >= timeout) {
 			y = PrintPlrMsg(x, y, &plr_msgs[idx]);
-			if (--n == 0 || y <= (SCREEN_Y + 2 * PLRMSG_TEXT_HEIGHT + 2 * PLRMSG_PANEL_BORDER))
+			if (--n == 0 || y <= PLRMSG_TEXT_TOP)
 				break;
 		}
 	}

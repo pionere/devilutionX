@@ -2316,8 +2316,8 @@ void DrawTalkPan()
 
 	assert(gbTalkflag);
 
-	int sx = SCREEN_X + TALK_PNL_LEFT;
-	int sy = SCREEN_Y + TALK_PNL_TOP;
+	int sx = TALK_PNL_X;
+	int sy = TALK_PNL_Y;
 
 	// add background
 	CelDraw(sx, sy + TALK_PNL_HEIGHT, pTalkPnlCel, 1);
