@@ -240,8 +240,12 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 			return true;
 		}
 
-		// Bottom button: Closes menus or opens quick spell book if nothing is open.
-		if (ctrlEvent.button == ControllerButton_BUTTON_A) { // Bottom button
+		switch (ctrlEvent.button) {
+		case ControllerButton_IGNORE:
+		case ControllerButton_BUTTON_BACK:
+			return true;
+		case ControllerButton_BUTTON_A: // Bottom button
+			// Bottom button: Closes menus or opens quick spell book if nothing is open.
 			if (ctrlEvent.up)
 				return true;
 			if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
@@ -258,11 +262,6 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 				*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
 			else
 				*action = GameAction(GameActionType_TOGGLE_QUICK_SPELL_MENU);
-			return true;
-		}
-
-		switch (ctrlEvent.button) {
-		case ControllerButton_IGNORE:
 			return true;
 		case ControllerButton_BUTTON_B: // Right button
 			if (!ctrlEvent.up) {
@@ -304,10 +303,6 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 			return true;
 		default:
 			break;
-		}
-
-		if (ctrlEvent.button == ControllerButton_BUTTON_BACK) {
-			return true; // Ignore mod button
 		}
 	}
 
