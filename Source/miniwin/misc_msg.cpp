@@ -881,12 +881,9 @@ bool PeekMessage(LPMSG lpMsg)
 			PerformSpellAction();
 			break;
 		case GameActionType_TOGGLE_SKILL_LIST:
-			if (!gbSkillListFlag) {
-				ClearPanels();
-				DoSkillList(true);
+			HandleSkillBtn(true);
+			if (gbSkillListFlag) {
 				StoreSpellCoords();
-			} else {
-				gbSkillListFlag = false;
 			}
 			break;
 		case GameActionType_TOGGLE_CHARACTER_INFO:
