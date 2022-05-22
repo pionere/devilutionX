@@ -23,7 +23,7 @@ typedef enum GameActionType {
 	GameActionType_CAST_SPELL,
 	GameActionType_TOGGLE_INVENTORY,
 	GameActionType_TOGGLE_CHARACTER_INFO,
-	GameActionType_TOGGLE_QUICK_SPELL_MENU,
+	GameActionType_TOGGLE_SKILL_LIST,
 	GameActionType_TOGGLE_SPELL_BOOK,
 	GameActionType_TOGGLE_QUEST_LOG,
 	GameActionType_SEND_KEY,

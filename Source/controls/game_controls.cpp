@@ -261,7 +261,7 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 			else if (gbChrflag)
 				*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
 			else
-				*action = GameAction(GameActionType_TOGGLE_QUICK_SPELL_MENU);
+				*action = GameAction(GameActionType_TOGGLE_SKILL_LIST);
 			return true;
 		case ControllerButton_BUTTON_B: // Right button
 			if (!ctrlEvent.up) {

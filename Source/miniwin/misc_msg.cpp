@@ -880,7 +880,7 @@ bool PeekMessage(LPMSG lpMsg)
 		case GameActionType_CAST_SPELL:
 			PerformSpellAction();
 			break;
-		case GameActionType_TOGGLE_QUICK_SPELL_MENU:
+		case GameActionType_TOGGLE_SKILL_LIST:
 			if (!gbSkillListFlag) {
 				ClearPanels();
 				DoSkillList(true);
