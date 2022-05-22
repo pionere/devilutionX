@@ -669,11 +669,6 @@ static void AltActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (gbQuestlog) {
-		gbQuestlog = false;
-		return;
-	}
-
 	if (pcursinvitem != INVITEM_NONE && InvUseItem(pcursinvitem))
 		return;
 

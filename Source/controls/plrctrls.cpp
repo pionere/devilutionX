@@ -1224,7 +1224,7 @@ static void TryDropItem()
 
 void PerformSpellAction()
 {
-	if (InGameMenu() || gbQuestlog || gbSbookflag || gbTeamFlag)
+	if (InGameMenu())
 		return;
 
 	if (gbSkillListFlag) {
@@ -1272,10 +1272,8 @@ void PerformSecondaryAction()
 {
 	int dx, dy;
 
-	if (gbInvflag) {
-		CtrlUseInvItem();
+	if (InGameMenu())
 		return;
-	}
 
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		TryDropItem();
@@ -1283,6 +1281,21 @@ void PerformSecondaryAction()
 	}
 	if (pcurs > CURSOR_HAND)
 		NewCursor(CURSOR_HAND);
+
+	if (gbInvflag) {
+		CtrlUseInvItem();
+		return;
+	}
+
+	if (pcurswnd == WND_BOOK) {
+		SelectBookSkill(false, true);
+		return;
+	}
+
+	if (pcurswnd == WND_TEAM) {
+		CheckTeamClick(false);
+		return;
+	}
 
 	if (pcursitem != ITEM_NONE) {
 		NetSendCmdLocParam1(CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
