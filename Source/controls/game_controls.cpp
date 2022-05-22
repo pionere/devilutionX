@@ -295,28 +295,22 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 			if (!ctrlEvent.up)
 				*action = GameAction(GameActionType_USE_MANA_POTION);
 			return true;
-		case ControllerButton_BUTTON_DPAD_UP:
-		case ControllerButton_BUTTON_DPAD_DOWN:
-		case ControllerButton_BUTTON_DPAD_LEFT:
-		case ControllerButton_BUTTON_DPAD_RIGHT:
-			// The rest of D-Pad actions are handled in Movement(plrctrls.cpp) after every game_logic() call.
-			return true;
 		default:
 			break;
 		}
 	}
 
-	// DPad navigation is handled separately for these.
-	if (gmenu_is_active() || gbQuestlog || stextflag != STORE_NONE) {
-		switch (ctrlEvent.button) {
-		case ControllerButton_BUTTON_DPAD_UP:
-		case ControllerButton_BUTTON_DPAD_DOWN:
-		case ControllerButton_BUTTON_DPAD_LEFT:
-		case ControllerButton_BUTTON_DPAD_RIGHT:
-			return true;
-		default:
-			break;
-		}
+	// DPad navigation is handled separately.
+	// - movement in store and other windows are handled in plrctrls_every_frame
+	// - standard movement is handled in plrctrls_after_game_logic
+	switch (ctrlEvent.button) {
+	case ControllerButton_BUTTON_DPAD_UP:
+	case ControllerButton_BUTTON_DPAD_DOWN:
+	case ControllerButton_BUTTON_DPAD_LEFT:
+	case ControllerButton_BUTTON_DPAD_RIGHT:
+		return true;
+	default:
+		break;
 	}
 
 	// By default, map to a keyboard key.
