@@ -918,19 +918,13 @@ static void PressKey(int vkey)
 			SelectHotKeySkill(transKey - ACT_SKL4, true);
 		break;
 	case ACT_INV:
-		if (stextflag == STORE_NONE) {
-			HandlePanBtn(PANBTN_INVENTORY);
-		}
+		HandlePanBtn(PANBTN_INVENTORY);
 		break;
 	case ACT_CHAR:
-		if (stextflag == STORE_NONE) {
-			HandlePanBtn(PANBTN_CHARINFO);
-		}
+		HandlePanBtn(PANBTN_CHARINFO);
 		break;
 	case ACT_SKLBOOK:
-		if (stextflag == STORE_NONE) {
-			HandlePanBtn(PANBTN_SPELLBOOK);
-		}
+		HandlePanBtn(PANBTN_SPELLBOOK);
 		break;
 	case ACT_SKLLIST:
 		if (stextflag == STORE_NONE) {
@@ -1022,14 +1016,10 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_TEAM:
-		if (stextflag == STORE_NONE) {
-			HandlePanBtn(PANBTN_TEAMBOOK);
-		}
+		HandlePanBtn(PANBTN_TEAMBOOK);
 		break;
 	case ACT_QUESTS:
-		if (stextflag == STORE_NONE) {
-			HandlePanBtn(PANBTN_QLOG);
-		}
+		HandlePanBtn(PANBTN_QLOG);
 		break;
 	case ACT_MSG0:
 	case ACT_MSG1:

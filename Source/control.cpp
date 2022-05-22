@@ -1035,6 +1035,9 @@ void DoLimitedPanBtn()
 
 void HandlePanBtn(int i)
 {
+	if (stextflag != STORE_NONE)
+		return;
+
 	switch (i) {
 	case PANBTN_MAINMENU:
 		gbQtextflag = false;
