@@ -324,8 +324,6 @@ bool ToggleWindow(char idx)
 
 	for (i = 0; i < gnNumActiveWindows; i++) {
 		if (gaActiveWindows[i] == idx) {
-			if (idx == WND_INV)
-				gbInvflag = false;
 			gnNumActiveWindows--;
 			for ( ; i < gnNumActiveWindows; i++) {
 				gaActiveWindows[i] = gaActiveWindows[i + 1];
@@ -335,8 +333,6 @@ bool ToggleWindow(char idx)
 	}
 
 	gaActiveWindows[gnNumActiveWindows] = idx;
-	if (idx == WND_INV)
-		gbInvflag = true;
 	gnNumActiveWindows++;
 	return true;
 }
@@ -1079,12 +1075,11 @@ void HandlePanBtn(int i)
 		break;
 	case PANBTN_INVENTORY:
 		gbSkillListFlag = false;
-		if (ToggleWindow(WND_INV)) {
+		gbInvflag = ToggleWindow(WND_INV);
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-			if (sgbControllerActive)
-				FocusOnInventory();
+		if (gbInvflag && sgbControllerActive)
+			FocusOnInventory();
 #endif
-		}
 		break;
 	case PANBTN_SPELLBOOK:
 		gbSkillListFlag = false;

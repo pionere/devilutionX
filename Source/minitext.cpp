@@ -25,7 +25,7 @@ void InitQTextMsg(int m, bool showText)
 
 	tds = &alltext[m];
 	if (tds->scrlltxt && showText) {
-		ClearPanels();
+		// ClearPanels();
 		gbQtextflag = true;
 		qtextptr = tds->txtstr;
 		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;

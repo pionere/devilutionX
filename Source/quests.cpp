@@ -673,7 +673,8 @@ void QuestlogEnter()
 	PlaySFX(IS_TITLSLCT);
 	if (/*numqlines != 0 &&*/ qline != QPNL_MAXENTRIES)
 		InitQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
-	ToggleWindow(WND_QUEST);
+	else
+		ToggleWindow(WND_QUEST);
 }
 
 void CheckQuestlog()

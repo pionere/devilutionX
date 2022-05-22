@@ -1882,7 +1882,6 @@ bool InvUseItem(int cii)
 #ifdef HELLFIRE
 	case IMISC_NOTE:
 		InitQTextMsg(TEXT_BOOK9);
-		ToggleWindow(WND_INV);
 		return true;
 #endif
 	default:
