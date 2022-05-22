@@ -1134,6 +1134,11 @@ void PerformPrimaryAction()
 		return;
 	}
 
+	if (gmenu_is_active()) {
+		DoLimitedPanBtn();
+		return;
+	}
+
 	if (DoPanBtn())
 		return;
 
