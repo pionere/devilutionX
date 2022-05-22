@@ -872,19 +872,24 @@ typedef void (*HandleLeftStickOrDPadFn)(dvl::AxisDirection);
 
 static HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
 {
-	if (gbInvflag) {
-		return &InvMove;
-	} else if (gbChrflag && myplr._pStatPts > 0) {
-		return &AttrIncBtnSnap;
-	} else if (gbSkillListFlag) {
-		return &HotSpellMove;
-	} else if (gbSbookflag) {
-		return &SpellBookMove;
-	} else if (gbQuestlog) {
-		return &QuestLogMove;
-	} else if (stextflag != STORE_NONE) {
+	if (stextflag != STORE_NONE) {
 		return &StoreMove;
 	}
+	if (gbSkillListFlag) {
+		return &HotSpellMove;
+	}
+	if (gbInvflag) {
+		return &InvMove;
+	}
+	if (gbChrflag && myplr._pStatPts > 0) {
+		return &AttrIncBtnSnap;
+	}
+	if (gbSbookflag) {
+		return &SpellBookMove;
+	}
+	if (gbQuestlog) {
+		return &QuestLogMove;
+	} 
 	return NULL;
 }
 
