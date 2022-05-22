@@ -201,7 +201,7 @@ void InitInv()
 	pInvCels = CelLoadImage("Data\\Inv\\Inv.CEL", SPANEL_WIDTH);
 	assert(pBeltCels == NULL);
 	pBeltCels = CelLoadImage("Data\\Inv\\Belt.CEL", BELT_WIDTH);
-	gbInvflag = false;
+	//gbInvflag = false;
 	//gbTSpell = SPL_NULL;
 	//gbTSplFrom = 0;
 	//gbOilFrom = 0;
@@ -1882,7 +1882,7 @@ bool InvUseItem(int cii)
 #ifdef HELLFIRE
 	case IMISC_NOTE:
 		InitQTextMsg(TEXT_BOOK9);
-		gbInvflag = false;
+		ToggleWindow(WND_INV);
 		return true;
 #endif
 	default:

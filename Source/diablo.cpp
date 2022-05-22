@@ -793,12 +793,9 @@ void ClearPanels()
 {
 	gbHelpflag = false;
 	gbInvflag = false;
-	gbChrflag = false;
-	gbSbookflag = false;
-	gbTeamFlag = false;
+	gnNumActiveWindows = 0;
 	gbSkillListFlag = false;
 	gbDropGoldFlag = false;
-	gbQuestlog = false;
 }
 
 static void ClearUI()
@@ -967,7 +964,7 @@ static void PressKey(int vkey)
 	case ACT_UP:
 		if (stextflag != STORE_NONE) {
 			STextUp();
-		} else if (gbQuestlog) {
+		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogUp();
 		} else if (gbHelpflag) {
 			HelpScrollUp();
@@ -978,7 +975,7 @@ static void PressKey(int vkey)
 	case ACT_DOWN:
 		if (stextflag != STORE_NONE) {
 			STextDown();
-		} else if (gbQuestlog) {
+		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogDown();
 		} else if (gbHelpflag) {
 			HelpScrollDown();
@@ -1009,7 +1006,7 @@ static void PressKey(int vkey)
 	case ACT_RETURN:
 		if (stextflag != STORE_NONE) {
 			STextEnter();
-		} else if (gbQuestlog) {
+		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogEnter();
 		} else {
 			control_type_message();

@@ -12,7 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern bool gbQuestlog;
 extern int gnReturnLvlX;
 extern int gnReturnLvlY;
 extern int gnReturnLvl;

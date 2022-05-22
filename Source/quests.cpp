@@ -13,8 +13,6 @@ QuestStruct quests[NUM_QUESTS];
 CelImageBuf* pQLogCel;
 /** the entries of the quest-log panel (quest_id) */
 BYTE qlist[QPNL_MAXENTRIES];
-/** Specifies whether the quest-log panel is shown. */
-bool gbQuestlog;
 /** the index of the first valid line on the quest-log panel */
 unsigned qtopline;
 /** the number of valid lines on the quest-log panel */
@@ -58,8 +56,6 @@ static const int QuestGroup3[3] = { Q_MUSHROOM, Q_ZHAR, Q_ANVIL };
 
 void InitQuestGFX()
 {
-	gbQuestlog = false;
-
 	gbTownWarps = 0;
 	gbWaterDone = 0;
 	guLvlVisited = 0;
@@ -677,7 +673,7 @@ void QuestlogEnter()
 	PlaySFX(IS_TITLSLCT);
 	if (/*numqlines != 0 &&*/ qline != QPNL_MAXENTRIES)
 		InitQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
-	gbQuestlog = false;
+	ToggleWindow(WND_QUEST);
 }
 
 void CheckQuestlog()

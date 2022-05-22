@@ -248,18 +248,20 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 				*action = GameActionSendKey { DVL_VK_F7, ctrlEvent.up };
 			else if (gbDoomflag)
 				*action = GameActionSendKey { DVL_VK_ESCAPE, ctrlEvent.up };
-			else if (gbInvflag)
-				*action = GameAction(GameActionType_TOGGLE_INVENTORY);
-			else if (gbSbookflag)
-				*action = GameAction(GameActionType_TOGGLE_SPELL_BOOK);
-			else if (gbQuestlog)
-				*action = GameAction(GameActionType_TOGGLE_QUEST_LOG);
-			else if (gbChrflag)
-				*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
-			else if (gbTeamFlag)
-				*action = GameAction(GameActionType_TOGGLE_TEAM);
-			else
-				*action = GameAction(GameActionType_TOGGLE_SKILL_LIST);
+			else {
+				GameActionType gat = GameActionType_TOGGLE_SKILL_LIST;
+				if (gnNumActiveWindows != 0) {
+					switch (gaActiveWindows[gnNumActiveWindows - 1]) {
+						case WND_INV:	gat = GameActionType_TOGGLE_INVENTORY;		break;
+						case WND_CHAR:	gat = GameActionType_TOGGLE_CHARACTER_INFO;	break;
+						case WND_BOOK:	gat = GameActionType_TOGGLE_SPELL_BOOK;		break;
+						case WND_TEAM:	gat = GameActionType_TOGGLE_TEAM;			break;
+						case WND_QUEST:	gat = GameActionType_TOGGLE_QUEST_LOG;		break;
+						default: ASSUME_UNREACHABLE;	break;
+					}
+				}
+				*action = GameAction(gat);
+			}
 			return true;
 		case ControllerButton_BUTTON_B: // Right button
 			if (!ctrlEvent.up) {

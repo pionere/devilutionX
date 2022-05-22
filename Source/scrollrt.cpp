@@ -183,7 +183,8 @@ static void scrollrt_draw_cursor()
 	assert(cursW != 0 && cursH != 0);
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !gbInvflag && (!gbChrflag || !gbLvlUp))
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT
+	 && (gnNumActiveWindows == 0 || (gaActiveWindows[gnNumActiveWindows - 1] != WND_INV && (gaActiveWindows[gnNumActiveWindows - ] != WND_CHAR || !gbLvlUp))))
 		return;
 #endif
 
@@ -1509,20 +1510,15 @@ static void DrawView()
 		if (gbLvlUp) {
 			DrawLevelUpIcon();
 		}
-		if (gbSbookflag) {
-			DrawSpellBook();
-		}
-		if (gbTeamFlag) {
-			DrawTeamBook();
-		}
-		if (gbQuestlog) {
-			DrawQuestLog();
-		}
-		if (gbChrflag) {
-			DrawChr();
-		}
-		if (gbInvflag) {
-			DrawInv();
+		for (int i = 0; i < gnNumActiveWindows; i++) {
+			switch (gaActiveWindows[i]) {
+			case WND_INV:	DrawInv();		break;
+			case WND_CHAR:	DrawChr();		break;
+			case WND_BOOK:	DrawSpellBook();break;
+			case WND_TEAM:	DrawTeamBook();	break;
+			case WND_QUEST:	DrawQuestLog();	break;
+			default: ASSUME_UNREACHABLE;	break;
+			}
 		}
 		if (gbDropGoldFlag) {
 			DrawGoldSplit(dropGoldValue);

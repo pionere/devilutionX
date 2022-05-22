@@ -878,18 +878,16 @@ static HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
 	if (gbSkillListFlag) {
 		return &HotSpellMove;
 	}
-	if (gbInvflag) {
-		return &InvMove;
+	if (gnNumActiveWindows != 0) {
+		switch (gaActiveWindows[gnNumActiveWindows - 1]) {
+		case WND_INV:	return &InvMove;
+		case WND_CHAR:	return myplr._pStatPts > 0 ? &AttrIncBtnSnap : NULL;
+		case WND_BOOK:	return &SpellBookMove;
+		case WND_TEAM:	return NULL;
+		case WND_QUEST:	return &QuestLogMove;
+		default: ASSUME_UNREACHABLE;	break;
+		}
 	}
-	if (gbChrflag && myplr._pStatPts > 0) {
-		return &AttrIncBtnSnap;
-	}
-	if (gbSbookflag) {
-		return &SpellBookMove;
-	}
-	if (gbQuestlog) {
-		return &QuestLogMove;
-	} 
 	return NULL;
 }
 

@@ -866,15 +866,17 @@ void LoadGame()
 	LoadInt(&ScrollInfo._sxoff);
 	LoadInt(&ScrollInfo._syoff);
 	LoadInt(&ScrollInfo._sdir);
-	gbZoomInFlag = LoadBool();
-	gbInvflag = LoadBool();
-	gbChrflag = LoadBool();
-	gbLvlUp = LoadBool();
 	LoadInt(&gnHPPer);
 	LoadInt(&gnManaPer);
 
+	gbLvlUp = LoadBool();
 	gbAutomapflag = LoadBool();
-	tbuff += 3; // Alignment
+	gbZoomInFlag = LoadBool();
+	gbInvflag = LoadBool();
+	LoadInt(&gnNumActiveWindows);
+	for (i = 0; i < NUM_WNDS; i++) {
+		LoadByte(&gaActiveWindows[i]);
+	}
 	LoadInt(&AutoMapScale);
 	LoadInt(&AutoMapXOfs);
 	LoadInt(&AutoMapYOfs);
@@ -1517,7 +1519,7 @@ void SaveGame()
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 13964 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
+	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 48 + NUM_WNDS + 13964 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
 	// initial
 	i = SAVE_INITIAL;
 	SaveInt(&i);
@@ -1539,15 +1541,17 @@ void SaveGame()
 	SaveInt(&ScrollInfo._sxoff);
 	SaveInt(&ScrollInfo._syoff);
 	SaveInt(&ScrollInfo._sdir);
-	SaveBool(gbZoomInFlag);
-	SaveBool(gbInvflag);
-	SaveBool(gbChrflag);
-	SaveBool(gbLvlUp);
 	SaveInt(&gnHPPer);
 	SaveInt(&gnManaPer);
 
+	SaveBool(gbLvlUp);
 	SaveBool(gbAutomapflag);
-	tbuff += 3; // Alignment
+	SaveBool(gbZoomInFlag);
+	SaveBool(gbInvflag);
+	SaveInt(&gnNumActiveWindows);
+	for (i = 0; i < NUM_WNDS; i++) {
+		SaveByte(&gaActiveWindows[i]);
+	}
 	SaveInt(&AutoMapScale);
 	SaveInt(&AutoMapXOfs);
 	SaveInt(&AutoMapYOfs);

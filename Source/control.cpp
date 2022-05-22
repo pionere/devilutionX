@@ -31,8 +31,6 @@ CelImageBuf* pSTextSlidCels;
 /** Low-Durability images CEL */
 static CelImageBuf* pDurIconCels;
 
-/** Specifies whether the Team-Panel is displayed. */
-bool gbTeamFlag;
 /** The current tab in the Team-Book. */
 static unsigned guTeamTab;
 static_assert(MAX_PLRS < sizeof(int) * CHAR_BIT, "Players mask is used to maintain the team information.");
@@ -68,16 +66,16 @@ int dropGoldValue;
 BYTE infoclr;
 char tempstr[256];
 char infostr[256];
-/**Specifies whether the Spell-Book is displayed. */
-bool gbSbookflag;
+/** Number of active windows on the screen. */
+int gnNumActiveWindows;
+/** The list of active windows on the screen. */
+char gaActiveWindows[NUM_WNDS];
 /** SpellBook background CEL */
 static CelImageBuf* pSpellBkCel;
 /** SpellBook icons CEL */
 static CelImageBuf* pSBkIconCels;
 /** The current tab in the Spell-Book. */
 unsigned guBooktab;
-/** Specifies whether the Character-Panel is displayed. */
-bool gbChrflag;
 /** Specifies whether the LevelUp button is displayed. */
 bool gbLvlUp;
 /** Specifies whether the LevelUp button is pressed. */
@@ -318,6 +316,29 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 	CelDrawLight(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, pSpellCels,
 		spelldata[spl].sIcon, SkillTrns[GetSpellTrans(st, spl)]);
 	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, spl, st, lvl);
+}
+
+bool ToggleWindow(char idx)
+{
+	int i;
+
+	for (i = 0; i < gnNumActiveWindows; i++) {
+		if (gaActiveWindows[i] == idx) {
+			if (idx == WND_INV)
+				gbInvflag = false;
+			gnNumActiveWindows--;
+			for ( ; i < gnNumActiveWindows; i++) {
+				gaActiveWindows[i] = gaActiveWindows[i + 1];
+			}
+			return false;
+		}
+	}
+
+	gaActiveWindows[gnNumActiveWindows] = idx;
+	if (idx == WND_INV)
+		gbInvflag = true;
+	gnNumActiveWindows++;
+	return true;
 }
 
 /**
@@ -865,8 +886,9 @@ void InitControlPan()
 #ifdef HELLFIRE
 	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[NUM_RSPLTYPES]);
 #endif
+	gnNumActiveWindows = 0;
+	gbInvflag = false;
 	gbTalkflag = false;
-	gbTeamFlag = false;
 	guTeamInviteRec = 0;
 	guTeamInviteSent = 0;
 	guTeamMute = 0;
@@ -896,7 +918,6 @@ void InitControlPan()
 	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", DURICON_WIDTH);
 	infostr[0] = '\0';
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
-	gbChrflag = false;
 	gbLvlUp = false;
 	gbSkillListFlag = false;
 	assert(pSpellBkCel == NULL);
@@ -904,7 +925,6 @@ void InitControlPan()
 	assert(pSBkIconCels == NULL);
 	pSBkIconCels = CelLoadImage("Data\\SpellI2.CEL", SBOOK_CELWIDTH);
 	guBooktab = 0;
-	gbSbookflag = false;
 	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
 	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);
@@ -1048,28 +1068,21 @@ void HandlePanBtn(int i)
 		gamemenu_on();
 		return;
 	case PANBTN_CHARINFO:
-		gbQuestlog = false;
 		gbSkillListFlag = false;
 		gbLvlUp = false;
-		gbChrflag = !gbChrflag;
+		ToggleWindow(WND_CHAR);
 		break;
 	case PANBTN_INVENTORY:
-		gbSbookflag = false;
 		gbSkillListFlag = false;
-		gbTeamFlag = false;
-		gbInvflag = !gbInvflag;
+		ToggleWindow(WND_INV);
 		break;
 	case PANBTN_SPELLBOOK:
-		gbInvflag = false;
-		gbTeamFlag = false;
 		gbSkillListFlag = false;
-		gbSbookflag = !gbSbookflag;
+		ToggleWindow(WND_BOOK);
 		break;
 	case PANBTN_QLOG:
-		gbChrflag = false;
 		gbSkillListFlag = false;
-		gbQuestlog = !gbQuestlog;
-		if (gbQuestlog)
+		if (ToggleWindow(WND_QUEST))
 			StartQuestlog();
 		break;
 	case PANBTN_AUTOMAP:
@@ -1082,10 +1095,8 @@ void HandlePanBtn(int i)
 			control_type_message();
 		break;
 	case PANBTN_TEAMBOOK:
-		gbInvflag = false;
 		gbSkillListFlag = false;
-		gbSbookflag = false;
-		gbTeamFlag = !gbTeamFlag;
+		ToggleWindow(WND_TEAM);
 		break;
 	default:
 		ASSUME_UNREACHABLE

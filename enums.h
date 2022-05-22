@@ -3919,12 +3919,13 @@ typedef enum item_special_effect {
 } item_special_effect;
 
 typedef enum window_active {
-	WND_CHAR,
-	WND_QUEST,
 	WND_INV,
-	WND_BELT,
-	WND_TEAM,
+	WND_CHAR,
 	WND_BOOK,
+	WND_TEAM,
+	WND_QUEST,
+	WND_BELT,
+	NUM_WNDS,
 	WND_NONE = 0xFF,
 } window_active;
 
