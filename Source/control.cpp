@@ -948,6 +948,8 @@ void DoSkillList(bool altSkill)
 	gbSkillListFlag = true;
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	StoreSpellCoords();
+
 	_gbMoveCursor = 0;
 	if (sgbControllerActive)
 		_gbMoveCursor = altSkill ? 1 : 2;

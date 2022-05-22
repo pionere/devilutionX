@@ -882,9 +882,6 @@ bool PeekMessage(LPMSG lpMsg)
 			break;
 		case GameActionType_TOGGLE_SKILL_LIST:
 			HandleSkillBtn(true);
-			if (gbSkillListFlag) {
-				StoreSpellCoords();
-			}
 			break;
 		case GameActionType_TOGGLE_CHARACTER_INFO:
 			gbQuestlog = false;
