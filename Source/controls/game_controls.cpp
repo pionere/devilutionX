@@ -18,9 +18,7 @@ bool dpad_hotkeys = false;
 /** Shoulder gamepad buttons act as potions by default */
 bool switch_potions_and_clicks = false;
 
-namespace {
-
-uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton)
+static uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton)
 {
 	switch (controllerButton) {
 	case ControllerButton_BUTTON_A: // Bottom button
@@ -34,20 +32,20 @@ uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton)
 	case ControllerButton_BUTTON_BACK:
 	case ControllerButton_BUTTON_START:
 		return DVL_VK_ESCAPE;
-	case ControllerButton_BUTTON_DPAD_LEFT:
+	/*case ControllerButton_BUTTON_DPAD_LEFT:
 		return DVL_VK_LEFT;
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return DVL_VK_RIGHT;
 	case ControllerButton_BUTTON_DPAD_UP:
 		return DVL_VK_UP;
 	case ControllerButton_BUTTON_DPAD_DOWN:
-		return DVL_VK_DOWN;
+		return DVL_VK_DOWN;*/
 	default:
 		return 0;
 	}
 }
 
-bool HandleStartAndSelect(const ControllerButtonEvent &ctrlEvent, GameAction *action)
+static bool HandleStartAndSelect(const ControllerButtonEvent &ctrlEvent, GameAction *action)
 {
 	const bool inGameMenu = InGameMenu();
 
@@ -89,8 +87,6 @@ bool HandleStartAndSelect(const ControllerButtonEvent &ctrlEvent, GameAction *ac
 
 	return false;
 }
-
-} // namespace
 
 bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, GameAction *action)
 {
