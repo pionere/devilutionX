@@ -288,18 +288,18 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 			}
 			return true;
 		case ControllerButton_BUTTON_LEFTSHOULDER:
-			if (stextflag == STORE_NONE && !ctrlEvent.up)
+			if (!ctrlEvent.up)
 				*action = GameAction(GameActionType_USE_HEALTH_POTION);
 			return true;
 		case ControllerButton_BUTTON_RIGHTSHOULDER:
-			if (stextflag == STORE_NONE && !ctrlEvent.up)
+			if (!ctrlEvent.up)
 				*action = GameAction(GameActionType_USE_MANA_POTION);
 			return true;
 		case ControllerButton_BUTTON_DPAD_UP:
 		case ControllerButton_BUTTON_DPAD_DOWN:
 		case ControllerButton_BUTTON_DPAD_LEFT:
 		case ControllerButton_BUTTON_DPAD_RIGHT:
-			// The rest of D-Pad actions are handled in charMovement() on every game_logic() call.
+			// The rest of D-Pad actions are handled in Movement(plrctrls.cpp) after every game_logic() call.
 			return true;
 		default:
 			break;
