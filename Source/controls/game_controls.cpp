@@ -261,51 +261,49 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 			return true;
 		}
 
-		if (!gbQuestlog && !gbSbookflag) {
-			switch (ctrlEvent.button) {
-			case ControllerButton_IGNORE:
-				return true;
-			case ControllerButton_BUTTON_B: // Right button
-				if (!ctrlEvent.up) {
-					if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-						*action = GameActionSendKey { DVL_VK_F8, ctrlEvent.up };
-					else
-						*action = GameAction(GameActionType_PRIMARY_ACTION);
-				}
-				return true;
-			case ControllerButton_BUTTON_Y: // Top button
-				if (!ctrlEvent.up) {
-					if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-						*action = GameActionSendKey { DVL_VK_F6, ctrlEvent.up };
-					else
-						*action = GameAction(GameActionType_SECONDARY_ACTION);
-				}
-				return true;
-			case ControllerButton_BUTTON_X: // Left button
-				if (!ctrlEvent.up) {
-					if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-						*action = GameActionSendKey { DVL_VK_F5, ctrlEvent.up };
-					else
-						*action = GameAction(GameActionType_CAST_SPELL);
-				}
-				return true;
-			case ControllerButton_BUTTON_LEFTSHOULDER:
-				if (stextflag == STORE_NONE && !ctrlEvent.up)
-					*action = GameAction(GameActionType_USE_HEALTH_POTION);
-				return true;
-			case ControllerButton_BUTTON_RIGHTSHOULDER:
-				if (stextflag == STORE_NONE && !ctrlEvent.up)
-					*action = GameAction(GameActionType_USE_MANA_POTION);
-				return true;
-			case ControllerButton_BUTTON_DPAD_UP:
-			case ControllerButton_BUTTON_DPAD_DOWN:
-			case ControllerButton_BUTTON_DPAD_LEFT:
-			case ControllerButton_BUTTON_DPAD_RIGHT:
-				// The rest of D-Pad actions are handled in charMovement() on every game_logic() call.
-				return true;
-			default:
-				break;
+		switch (ctrlEvent.button) {
+		case ControllerButton_IGNORE:
+			return true;
+		case ControllerButton_BUTTON_B: // Right button
+			if (!ctrlEvent.up) {
+				if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
+					*action = GameActionSendKey { DVL_VK_F8, ctrlEvent.up };
+				else
+					*action = GameAction(GameActionType_PRIMARY_ACTION);
 			}
+			return true;
+		case ControllerButton_BUTTON_Y: // Top button
+			if (!ctrlEvent.up) {
+				if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
+					*action = GameActionSendKey { DVL_VK_F6, ctrlEvent.up };
+				else
+					*action = GameAction(GameActionType_SECONDARY_ACTION);
+			}
+			return true;
+		case ControllerButton_BUTTON_X: // Left button
+			if (!ctrlEvent.up) {
+				if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
+					*action = GameActionSendKey { DVL_VK_F5, ctrlEvent.up };
+				else
+					*action = GameAction(GameActionType_CAST_SPELL);
+			}
+			return true;
+		case ControllerButton_BUTTON_LEFTSHOULDER:
+			if (stextflag == STORE_NONE && !ctrlEvent.up)
+				*action = GameAction(GameActionType_USE_HEALTH_POTION);
+			return true;
+		case ControllerButton_BUTTON_RIGHTSHOULDER:
+			if (stextflag == STORE_NONE && !ctrlEvent.up)
+				*action = GameAction(GameActionType_USE_MANA_POTION);
+			return true;
+		case ControllerButton_BUTTON_DPAD_UP:
+		case ControllerButton_BUTTON_DPAD_DOWN:
+		case ControllerButton_BUTTON_DPAD_LEFT:
+		case ControllerButton_BUTTON_DPAD_RIGHT:
+			// The rest of D-Pad actions are handled in charMovement() on every game_logic() call.
+			return true;
+		default:
+			break;
 		}
 
 		if (ctrlEvent.button == ControllerButton_BUTTON_BACK) {
