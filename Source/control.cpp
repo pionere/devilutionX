@@ -1138,28 +1138,30 @@ void FreeControlPan()
 	MemFreeDbg(pGoldDropCel);
 }
 
-#define ADD_PlrStringXY(x, y, endX, pszStr, col) PrintString(x + SCREEN_X, y + SCREEN_Y, endX + SCREEN_X, pszStr, true, col, FONT_KERN_SMALL)
-
 void DrawChr()
 {
 	PlayerStruct* p;
 	BYTE col;
 	char chrstr[64];
-	int pc, val, mindam, maxdam;
+	int screen_x, screen_y, pc, val, mindam, maxdam;
 
 	p = &myplr;
 	pc = p->_pClass;
 
-	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pChrPanelCel, 1);
-	ADD_PlrStringXY(5, 19, 144, p->_pName, COL_WHITE);
+	screen_x = SCREEN_X;
+	screen_y = SCREEN_Y;
+	CelDraw(screen_x, screen_y + SPANEL_HEIGHT - 1, pChrPanelCel, 1);
+	PrintString(screen_x + 5, screen_y + 19, screen_x + 144, p->_pName, true, COL_WHITE, FONT_KERN_SMALL);
 
-	ADD_PlrStringXY(153, 19, 292, ClassStrTbl[pc], COL_WHITE);
+	PrintString(screen_x + 153, screen_y + 19, screen_x + 292, ClassStrTbl[pc], true, COL_WHITE, FONT_KERN_SMALL);
 
+	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pLevel);
-	ADD_PlrStringXY(53, 46, 96, chrstr, COL_WHITE);
+	PrintString(screen_x + 53, screen_y + 46, screen_x + 96, chrstr, true, col, FONT_KERN_SMALL);
 
+	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pExperience);
-	ADD_PlrStringXY(200, 46, 292, chrstr, COL_WHITE);
+	PrintString(screen_x + 200, screen_y + 46, screen_x + 292, chrstr, true, col, FONT_KERN_SMALL);
 
 	if (p->_pLevel == MAXCHARLEVEL) {
 		copy_cstr(chrstr, "None");
@@ -1168,34 +1170,35 @@ void DrawChr()
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pNextExper);
 		col = COL_WHITE;
 	}
-	ADD_PlrStringXY(200, 71, 292, chrstr, col);
+	PrintString(screen_x + 200, screen_y + 71, screen_x + 292, chrstr, true, col, FONT_KERN_SMALL);
 
+	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pGold);
-	ADD_PlrStringXY(221, 97, 292, chrstr, COL_WHITE);
+	PrintString(screen_x + 221, screen_y + 97, screen_x + 292, chrstr, true, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseStr);
-	ADD_PlrStringXY(88, 119, 125, chrstr, col);
+	PrintString(screen_x + 88, screen_y + 119, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseMag);
-	ADD_PlrStringXY(88, 147, 125, chrstr, col);
+	PrintString(screen_x + 88, screen_y + 147, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseDex);
-	ADD_PlrStringXY(88, 175, 125, chrstr, col);
+	PrintString(screen_x + 88, screen_y + 175, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseVit);
-	ADD_PlrStringXY(88, 203, 125, chrstr, col);
+	PrintString(screen_x + 88, screen_y + 203, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
 
 	if (p->_pStatPts > 0) {
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
-		ADD_PlrStringXY(88, 231, 125, chrstr, COL_RED);
-		CelDraw(ChrBtnsRect[ATTRIB_STR].x + SCREEN_X, ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_STR] ? 3 : 2);
-		CelDraw(ChrBtnsRect[ATTRIB_MAG].x + SCREEN_X, ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_MAG] ? 5 : 4);
-		CelDraw(ChrBtnsRect[ATTRIB_DEX].x + SCREEN_X, ChrBtnsRect[ATTRIB_DEX].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_DEX] ? 7 : 6);
-		CelDraw(ChrBtnsRect[ATTRIB_VIT].x + SCREEN_X, ChrBtnsRect[ATTRIB_VIT].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtonCels, _gabChrbtn[ATTRIB_VIT] ? 9 : 8);
+		PrintString(screen_x + 88, screen_y + 231, screen_x + 125, chrstr, true, COL_RED, FONT_KERN_SMALL);
+		CelDraw(screen_x + ChrBtnsRect[ATTRIB_STR].x, screen_y + ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_STR] ? 3 : 2);
+		CelDraw(screen_x + ChrBtnsRect[ATTRIB_MAG].x, screen_y + ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_MAG] ? 5 : 4);
+		CelDraw(screen_x + ChrBtnsRect[ATTRIB_DEX].x, screen_y + ChrBtnsRect[ATTRIB_DEX].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_DEX] ? 7 : 6);
+		CelDraw(screen_x + ChrBtnsRect[ATTRIB_VIT].x, screen_y + ChrBtnsRect[ATTRIB_VIT].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_VIT] ? 9 : 8);
 	}
 
 	if (p->_pHasUnidItem)
@@ -1209,7 +1212,7 @@ void DrawChr()
 		else if (val < p->_pBaseStr)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%d", val);
-		ADD_PlrStringXY(135, 119, 172, chrstr, col);
+		PrintString(screen_x + 135, screen_y + 119, screen_x + 172, chrstr, true, col, FONT_KERN_SMALL);
 
 		val = p->_pMagic;
 		col = COL_WHITE;
@@ -1218,7 +1221,7 @@ void DrawChr()
 		else if (val < p->_pBaseMag)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%d", val);
-		ADD_PlrStringXY(135, 147, 172, chrstr, col);
+		PrintString(screen_x + 135, screen_y + 147, screen_x + 172, chrstr, true, col, FONT_KERN_SMALL);
 
 		val = p->_pDexterity;
 		col = COL_WHITE;
@@ -1227,7 +1230,7 @@ void DrawChr()
 		else if (val < p->_pBaseDex)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%d", val);
-		ADD_PlrStringXY(135, 175, 172, chrstr, col);
+		PrintString(screen_x + 135, screen_y + 175, screen_x + 172, chrstr, true, col, FONT_KERN_SMALL);
 
 		val = p->_pVitality;
 		col = COL_WHITE;
@@ -1236,16 +1239,16 @@ void DrawChr()
 		else if (val < p->_pBaseVit)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%d", val);
-		ADD_PlrStringXY(135, 203, 172, chrstr, col);
+		PrintString(screen_x + 135, screen_y + 203, screen_x + 172, chrstr, true, col, FONT_KERN_SMALL);
 	}
 
 	snprintf(chrstr, sizeof(chrstr), "%d/%d", p->_pIAC, p->_pIEvasion);
 	// instead of (242;291) x-limits, (239;294) are used to make sure the values are displayed
-	PrintString(239 + SCREEN_X, 122 + SCREEN_Y, 294 + SCREEN_X, chrstr, true, COL_WHITE, -1);
+	PrintString(screen_x + 239, screen_y + 122, screen_x + 294, chrstr, true, COL_WHITE, -1);
 
 	snprintf(chrstr, sizeof(chrstr), "%d/%d", p->_pIBlockChance, p->_pICritChance / 2);
 	// instead of (242;291) x-limits, (241;292) are used to make sure the values are displayed
-	PrintString(241 + SCREEN_X, 150 + SCREEN_Y, 292 + SCREEN_X, chrstr, true, COL_WHITE, -1);
+	PrintString(screen_x + 241, screen_y + 150, screen_x + 292, chrstr, true, COL_WHITE, -1);
 
 	val = p->_pIHitChance;
 	col = COL_WHITE;
@@ -1254,7 +1257,7 @@ void DrawChr()
 	else if (p->_pIBaseHitBonus == IBONUS_NEGATIVE)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%d%%", val);
-	ADD_PlrStringXY(242, 178, 291, chrstr, col);
+	PrintString(screen_x + 242, screen_y + 178, screen_x + 291, chrstr, true, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	mindam = (p->_pIFMinDam + p->_pILMinDam + p->_pIMMinDam + p->_pIAMinDam) >> 6;
@@ -1265,7 +1268,7 @@ void DrawChr()
 	maxdam += (p->_pISlMaxDam + p->_pIBlMaxDam + p->_pIPcMaxDam) >> (6 + 1);
 	snprintf(chrstr, sizeof(chrstr), "%d-%d", mindam, maxdam);
 	// instead of (242;291) x-limits, (240;293) are used to make sure the values are displayed
-	PrintString(240 + SCREEN_X, 206 + SCREEN_Y, 293 + SCREEN_X, chrstr, true, col, mindam < 100 ? 0 : -1);
+	PrintString(screen_x + 240, screen_y + 206, screen_x + 293, chrstr, true, col, mindam < 100 ? 0 : -1);
 
 	val = p->_pMagResist;
 	if (val < MAXRESIST) {
@@ -1275,7 +1278,7 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(185, 254, 234, chrstr, col);
+	PrintString(screen_x + 185, screen_y + 254, screen_x + 234, chrstr, true, col, FONT_KERN_SMALL);
 
 	val = p->_pFireResist;
 	if (val < MAXRESIST) {
@@ -1285,7 +1288,7 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(242, 254, 291, chrstr, col);
+	PrintString(screen_x + 242, screen_y + 254, screen_x + 291, chrstr, true, col, FONT_KERN_SMALL);
 
 	val = p->_pLghtResist;
 	if (val < MAXRESIST) {
@@ -1295,7 +1298,7 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(185, 289, 234, chrstr, col);
+	PrintString(screen_x + 185, screen_y + 289, screen_x + 234, chrstr, true, col, FONT_KERN_SMALL);
 
 	val = p->_pAcidResist;
 	if (val < MAXRESIST) {
@@ -1305,31 +1308,35 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(242, 289, 291, chrstr, col);
+	PrintString(screen_x + 242, screen_y + 289, screen_x + 291, chrstr, true, col, FONT_KERN_SMALL);
 
 	val = p->_pMaxHP;
 	col = val <= p->_pMaxHPBase ? COL_WHITE : COL_BLUE;
 	snprintf(chrstr, sizeof(chrstr), "%d", val >> 6);
-	ADD_PlrStringXY(87, 260, 126, chrstr, col); // 88, 125 -> 87, 126 otherwise '1000' is truncated
+	PrintString(screen_x + 87, screen_y + 260, screen_x + 126, chrstr, true, col, FONT_KERN_SMALL); // 88, 125 -> 87, 126 otherwise '1000' is truncated
 	if (p->_pHitPoints != val)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pHitPoints >> 6);
-	ADD_PlrStringXY(134, 260, 173, chrstr, col); // 135, 172 -> 134, 173 otherwise '1000' is truncated
+	PrintString(screen_x + 134, screen_y + 260, screen_x + 173, chrstr, true, col, FONT_KERN_SMALL); // 135, 172 -> 134, 173 otherwise '1000' is truncated
 
 	val = p->_pMaxMana;
 	col = val <= p->_pMaxManaBase ? COL_WHITE : COL_BLUE;
 	snprintf(chrstr, sizeof(chrstr), "%d", val >> 6);
-	ADD_PlrStringXY(87, 288, 126, chrstr, col); // 88, 125 -> 87, 126 otherwise '1000' is truncated
+	PrintString(screen_x + 87, screen_y + 288, screen_x + 126, chrstr, true, col, FONT_KERN_SMALL); // 88, 125 -> 87, 126 otherwise '1000' is truncated
 	if (p->_pMana != val)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pMana >> 6);
-	ADD_PlrStringXY(134, 288, 173, chrstr, col); // 135, 172 -> 134, 173 otherwise '1000' is truncated
+	PrintString(screen_x + 134, screen_y + 288, screen_x + 173, chrstr, true, col, FONT_KERN_SMALL); // 135, 172 -> 134, 173 otherwise '1000' is truncated
 }
 
 void DrawLevelUpIcon()
 {
-	ADD_PlrStringXY(LVLUP_LEFT - 38, PANEL_TOP + PANEL_HEIGHT - (LVLUP_OFFSET - 20), LVLUP_LEFT - 38 + 120, "Level Up", COL_WHITE);
-	CelDraw(SCREEN_X + LVLUP_LEFT, PANEL_Y + PANEL_HEIGHT - LVLUP_OFFSET, pChrButtonCels, gbLvlbtndown ? 3 : 2);
+	int screen_x, screen_y;
+
+	screen_x = SCREEN_X + LVLUP_LEFT;
+	screen_y = PANEL_Y + PANEL_HEIGHT - LVLUP_OFFSET;
+	PrintString(screen_x - 38, screen_y + 20, screen_x - 38 + 120, "Level Up", true, COL_WHITE, FONT_KERN_SMALL);
+	CelDraw(screen_x, screen_y, pChrButtonCels, gbLvlbtndown ? 3 : 2);
 }
 
 static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE col)
