@@ -229,7 +229,7 @@ static void diablo_init_screen()
 		SetCursorPos(MouseX, MouseY);
 	static_assert(EMSG_NONE == 0, "ClrDiabloMsg is not called, because zero initialization cares about it.");
 	// not the best place to call this, since it is an in-game 'system'
-	// InitGameUI would be more appropriate place, but calling it once would
+	// InitGameFX would be more appropriate place, but calling it once would
 	// suffice for the moment, because the player can not leave the game
 	// until the messages are cleared
 	//ClrDiabloMsg();
@@ -299,7 +299,7 @@ static void diablo_splash()
 static void diablo_deinit()
 {
 	NetClose();
-	// FreeGameUI(); -- TODO: enable if necessary
+	// FreeGameFX(); -- TODO: enable if necessary
 	if (gbSndInited) {
 		sound_stop(); // stop click-effect
 		FreeUiSFX();
@@ -1469,7 +1469,7 @@ static void diablo_color_cyc_logic()
 		palette_update_caves();
 }
 
-static WNDPROC InitGameUI()
+static WNDPROC InitGameFX()
 {
 	int i;
 
@@ -1509,7 +1509,7 @@ static WNDPROC InitGameUI()
 	return SetWindowProc(GameWndProc);
 }
 
-static void FreeGameUI()
+static void FreeGameFX()
 {
 	int i;
 
@@ -1538,7 +1538,7 @@ static void run_game()
 	WNDPROC saveProc;
 	MSG msg;
 
-	saveProc = InitGameUI();
+	saveProc = InitGameFX();
 
 	GameWndProc(DVL_DWM_NEWGAME, 0);
 
@@ -1577,7 +1577,7 @@ static void run_game()
 	//scrollrt_draw_screen(true);
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == GameWndProc);
-	FreeGameUI();
+	FreeGameFX();
 
 	if (gbCineflag) {
 		gbCineflag = false;
