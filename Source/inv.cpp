@@ -375,7 +375,9 @@ void DrawInvBelt()
 	BYTE fi, ff;
 	BYTE* cCels;
 
-	CelDraw(PANEL_X + InvRect[SLOTXY_BELT_FIRST].X - 1, PANEL_Y + PANEL_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1);
+	screen_x = PANEL_X;
+	screen_y = PANEL_Y + PANEL_HEIGHT;
+	CelDraw(screen_x + InvRect[SLOTXY_BELT_FIRST].X - 1, screen_y - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1);
 
 	pnum = mypnum;
 	pi = NULL;
@@ -390,19 +392,17 @@ void DrawInvBelt()
 		if (is->_itype == ITYPE_NONE) {
 			continue;
 		}
-		screen_x = PANEL_X + InvRect[SLOTXY_BELT_FIRST + i].X;
-		screen_y = PANEL_Y + PANEL_HEIGHT - InvRect[SLOTXY_BELT_FIRST + i].Y;
-		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X, screen_y - InvRect[SLOTXY_BELT_FIRST + i].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		assert(InvItemWidth[frame] == INV_SLOT_SIZE_PX);
 		frame_width = INV_SLOT_SIZE_PX;
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_BELT_FIRST + i].X, screen_y - InvRect[SLOTXY_BELT_FIRST + i].Y, cCels, frame, frame_width);
 
 		if (is->_iStatFlag && is->_iUsable) {
 			fi = i + 49; // '1' + i;
 			ff = gbStdFontFrame[fi];
-			PrintChar(screen_x + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y, ff, COL_WHITE);
+			PrintChar(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y - InvRect[SLOTXY_BELT_FIRST + i].Y, ff, COL_WHITE);
 		}
 	}
 }
