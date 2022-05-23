@@ -747,6 +747,16 @@ bool PressEscKey()
 {
 	bool rv = false;
 
+	/*assert(!gmenu_is_active());
+	if (gmenu_is_active()) {
+		gamemenu_off();
+		rv = true;
+	}
+	//assert(!gbTalkflag);
+	if (gbTalkflag) {
+		StopPlrMsg();
+		rv = true;
+	}*/
 	if (gbDoomflag) {
 		doom_close();
 		rv = true;
@@ -755,7 +765,6 @@ bool PressEscKey()
 		gbHelpflag = false;
 		rv = true;
 	}
-
 	if (gbQtextflag) {
 		gbQtextflag = false;
 		stream_stop();
@@ -764,13 +773,8 @@ bool PressEscKey()
 		STextESC();
 		rv = true;
 	}
-
 	if (currmsg != EMSG_NONE) {
 		msgdelay = 0;
-		rv = true;
-	}
-	if (gbTalkflag) {
-		StopPlrMsg();
 		rv = true;
 	}
 	if (gbDropGoldFlag) {
@@ -779,6 +783,10 @@ bool PressEscKey()
 	}
 	if (gbSkillListFlag) {
 		gbSkillListFlag = false;
+		rv = true;
+	}
+	if (gabPanbtn[PANBTN_MAINMENU]) {
+		gabPanbtn[PANBTN_MAINMENU] = false;
 		rv = true;
 	}
 	if (pcurs != CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
