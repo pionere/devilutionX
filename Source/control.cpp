@@ -2024,24 +2024,26 @@ const char* get_pieces_str(int nGold)
 
 void DrawGoldSplit(int amount)
 {
-	int screen_x;
+	int screen_x, screen_y;
 
-	screen_x = 0;
-	CelDraw(351 + SCREEN_X, 178 + SCREEN_Y, pGoldDropCel, 1);
+	screen_x = RIGHT_PANEL_X + (SPANEL_WIDTH - GOLDDROP_WIDTH) / 2;
+	screen_y = SCREEN_Y + 178;
+
+	CelDraw(screen_x, screen_y, pGoldDropCel, 1);
 	snprintf(tempstr, sizeof(tempstr), "You have %d gold", initialDropGoldValue);
-	ADD_PlrStringXY(351 + 15, 87, 351 + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD);
+	PrintString(screen_x + 15, screen_y - (18 + 18 * 4), screen_x + GOLDDROP_WIDTH - 15, tempstr, true, COL_GOLD, FONT_KERN_SMALL);
 	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(initialDropGoldValue));
-	ADD_PlrStringXY(351 + 15, 103, 351 + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD);
-	ADD_PlrStringXY(351 + 15, 121, 351 + GOLDDROP_WIDTH - 15, "you want to remove?", COL_GOLD);
+	PrintString(screen_x + 15, screen_y - (18 + 18 * 3), screen_x + GOLDDROP_WIDTH - 15, tempstr, true, COL_GOLD, FONT_KERN_SMALL);
+	PrintString(screen_x + 15, screen_y - (18 + 18 * 2), screen_x + GOLDDROP_WIDTH - 15, "you want to remove?", true, COL_GOLD, FONT_KERN_SMALL);
+	screen_x += 37;
+	screen_y -= 18 + 18 * 1;
 	if (amount > 0) {
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
-		PrintGameStr(388 + SCREEN_X, 140 + SCREEN_Y, tempstr, COL_WHITE);
+		PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
 		screen_x += GetSmallStringWidth(tempstr);
-		screen_x += 452;
-	} else {
-		screen_x = 450;
 	}
-	DrawSingleSmallPentSpn(screen_x, 140 + SCREEN_Y);
+	screen_x += 2;
+	DrawSingleSmallPentSpn(screen_x, screen_y);
 }
 
 static void control_remove_gold()
