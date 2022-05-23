@@ -1895,18 +1895,20 @@ void DrawSpellBook()
 	uint64_t spl;
 
 	// back panel
-	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
+	sx = RIGHT_PANEL_X;
+	yp = SCREEN_Y;
+	CelDraw(sx, yp + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
 	// selected page
 	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
-	PrintString(RIGHT_PANEL_X + 2, SCREEN_Y + SPANEL_HEIGHT - 7, RIGHT_PANEL_X + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
+	PrintString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
 
 	currSkill = SPL_INVALID;
 
 	pnum = mypnum;
 	spl = plr._pMemSkills | plr._pISpells | plr._pAblSkills | plr._pScrlSkills;
 
-	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
-	sx = RIGHT_PANEL_X + SBOOK_CELBORDER;
+	yp += SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
+	sx += SBOOK_CELBORDER;
 	for (i = 0; i < lengthof(SpellPages[guBooktab]); i++) {
 		sn = SpellPages[guBooktab][i];
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
@@ -2138,15 +2140,17 @@ void DrawTeamBook()
 	BYTE st;
 
 	// back panel
-	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
+	sx = RIGHT_PANEL_X;
+	yp = SCREEN_Y;
+	CelDraw(sx, yp + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
 	// selected page
 	snprintf(tempstr, sizeof(tempstr), "%d.", guTeamTab + 1);
-	PrintString(RIGHT_PANEL_X + 2, SCREEN_Y + SPANEL_HEIGHT - 7, RIGHT_PANEL_X + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
+	PrintString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
 
 	hasTeam = PlrHasTeam();
 
-	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
-	sx = RIGHT_PANEL_X + SBOOK_CELBORDER;
+	yp += SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
+	sx += SBOOK_CELBORDER;
 	for (i = 0; i < NUM_BOOK_ENTRIES; i++) {
 		pnum = i + guTeamTab * NUM_BOOK_ENTRIES;
 		if (pnum >= MAX_PLRS)
