@@ -78,7 +78,7 @@ void UiSettingsDialog()
 				break;
 			}
 			if (keypress != DVL_VK_NONAME)
-				gmenu_presskeys(keypress);
+				gmenu_presskey(keypress);
 		}
 	}
 	PlaySFX(IS_TITLSLCT); // UiFocusNavigationSelect(); -- needs UiInitList...

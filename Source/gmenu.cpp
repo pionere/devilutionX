@@ -200,7 +200,7 @@ void gmenu_draw()
 		gmenu_draw_menu_item(i, y);
 }
 
-bool gmenu_presskeys(int vkey)
+bool gmenu_presskey(int vkey)
 {
 	assert(gmUpdateFunc != NULL);
 	gmUpdateFunc();

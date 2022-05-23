@@ -812,7 +812,7 @@ static void ClearUI()
 static void PressKey(int vkey)
 {
 	if (gmenu_is_active()) {
-		if (gmenu_presskeys(vkey))
+		if (gmenu_presskey(vkey))
 			return;
 	}
 	if (gbTalkflag) {
