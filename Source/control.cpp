@@ -367,7 +367,7 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
 		else
 			continue;
 		snprintf(tempstr, sizeof(tempstr), "#%d", i + 1);
-		PrintString(x + offset, y - SPLICONLENGTH + 16, x + offset + 18, tempstr, false, col, FONT_KERN_SMALL);
+		PrintGameStr(x + offset, y - SPLICONLENGTH + 16, tempstr, col);
 	}
 }
 
@@ -1965,15 +1965,15 @@ void DrawSpellBook()
 			else
 				min = -1;
 			offset = mana == 0 && min == -1 ? 5 : 0;
-			PrintString(sx + SBOOK_LINE_TAB, yp - 23 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, spelldata[sn].sNameText, false, COL_WHITE, FONT_KERN_SMALL);
-			PrintString(sx + SBOOK_LINE_TAB, yp - 12 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, FONT_KERN_SMALL);
+			PrintGameStr(sx + SBOOK_LINE_TAB, yp - 23 + offset, spelldata[sn].sNameText, COL_WHITE);
+			PrintGameStr(sx + SBOOK_LINE_TAB, yp - 12 + offset, tempstr, COL_WHITE);
 
 			if (offset == 0) {
 				if (mana != 0)
 					cat_str(tempstr, offset, "Mana: %d  ", mana);
 				if (min != -1)
 					cat_str(tempstr, offset, "Dam: %d-%d", min, max);
-				PrintString(sx + SBOOK_LINE_TAB, yp - 1, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, FONT_KERN_SMALL);
+				PrintGameStr(sx + SBOOK_LINE_TAB, yp - 1, tempstr, COL_WHITE);
 			}
 
 			if ((spelldata[sn].sUseFlags & plr._pSkillFlags) != spelldata[sn].sUseFlags)
@@ -2117,7 +2117,7 @@ static void DrawTeamButton(int x, int y, int width, bool pressed, const char* la
 	// label
 	color = pressed ? COL_GOLD : COL_WHITE;
 	x += txtoff;
-	PrintString(x, y - 1, x + SBOOK_LINE_LENGTH, label, false, color, FONT_KERN_SMALL);
+	PrintGameStr(x, y - 1, label, color);
 }
 
 static bool PlrHasTeam()
@@ -2158,7 +2158,7 @@ void DrawTeamBook()
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
 		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);
-		PrintString(sx + SBOOK_LINE_TAB, yp - 13, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, FONT_KERN_SMALL);
+		PrintGameStr(sx + SBOOK_LINE_TAB, yp - 13, tempstr, COL_WHITE);
 
 		// mute
 		if (pnum != mypnum) {
