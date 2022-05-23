@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PLRMSG_TEXT_TIMEOUT 10000
 
 static BYTE plr_msg_slot;
-static _plrmsg plr_msgs[PLRMSG_COUNT];
+static _plrmsg plr_msgs[PLRMSG_COUNT + 1];
 //static Uint32 guDelayStartTc;
 
 void plrmsg_delay(bool delay)
@@ -87,15 +87,14 @@ void InitPlrMsg()
 	plr_msg_slot = 0;
 }
 
-static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
+static int PrintPlrMsg(int x, int y, _plrmsg *pMsg)
 {
 	BYTE c, col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
-	int sx, line;
-	unsigned len, width = PANEL_WIDTH - 20;
+	int sx, line, len, width = PANEL_WIDTH - 20;
 	const char *sstr, *endstr;
 	const char *str = pMsg->str;
 
-	line = (unsigned)GetSmallStringWidth(str) >= width ? 2 : 1;
+	line = GetSmallStringWidth(str) >= width ? 2 : 1;
 	line *= PLRMSG_TEXT_HEIGHT;
 	y -= line;
 
@@ -128,13 +127,22 @@ static unsigned PrintPlrMsg(unsigned x, unsigned y, _plrmsg *pMsg)
 		if (++line == 2)
 			break;
 	}
+	if (&plr_msgs[PLRMSG_COUNT] == pMsg) {
+		if (line == 0) {
+			line = 1;
+			sx = x;
+			y += PLRMSG_TEXT_HEIGHT;
+		}
+		if ((SDL_GetTicks() / 512) % 2) { // GetAnimationFrame(2, 512) != 0) {
+			PrintSmallChar(sx, y - PLRMSG_TEXT_HEIGHT, '|', col);
+		}
+	}
 	return y - line * PLRMSG_TEXT_HEIGHT;
 }
 
 void DrawPlrMsg(bool onTop)
 {
-	int i, n, idx;
-	unsigned x, y;
+	int i, n, idx, x, y;
 	Uint32 timeout;
 
 	if (onTop != gbTalkflag)
@@ -144,6 +152,11 @@ void DrawPlrMsg(bool onTop)
 	timeout = gbTalkflag ? 0 : SDL_GetTicks() - PLRMSG_TEXT_TIMEOUT;
 	x = PLRMSG_TEXT_X;
 	y = PLRMSG_TEXT_BOTTOM;
+	if (gbTalkflag) {
+		plr_msgs[PLRMSG_COUNT].player = mypnum;
+		copy_cstr(plr_msgs[PLRMSG_COUNT].str, sgszTalkMsg);
+		y = PrintPlrMsg(x, y, &plr_msgs[PLRMSG_COUNT]);
+	}
 	for (i = 1; i <= PLRMSG_COUNT; i++) {
 		idx = (unsigned)(plr_msg_slot - i) % PLRMSG_COUNT;
 		if (plr_msgs[idx].str[0] != '\0' && plr_msgs[idx].time >= timeout) {

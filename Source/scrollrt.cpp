@@ -1551,9 +1551,6 @@ static void DrawView()
 	if (gbDoomflag) {
 		doom_draw();
 	}
-	if (gbTalkflag) {
-		DrawTalkPan();
-	}
 	//if (gbRedrawFlags & REDRAW_CTRL_BUTTONS) {
 		DrawCtrlBtns();
 	//}

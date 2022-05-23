@@ -9,7 +9,7 @@ CtrlPan\SmalText.CEL
 CtrlPan\SpelIcon.CEL
 _CtrlPan\TalkButt.CEL
 _CtrlPan\TalkPanl.CEL
-CtrlPan\TalkPnl.CEL
+_CtrlPan\TalkPnl.CEL
 Data\BigTGold.CEL
 Data\Char.CEL
 Data\CharBut.CEL

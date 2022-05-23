@@ -43,10 +43,8 @@ unsigned guTeamMute;
 
 /** Specifies whether the Chat-Panel is displayed. */
 bool gbTalkflag;
-/** Chat-Panel background CEL */
-static CelImageBuf* pTalkPnlCel;
 /** The current message in the Chat-Panel. */
-static char sgszTalkMsg[MAX_SEND_STR_LEN];
+char sgszTalkMsg[MAX_SEND_STR_LEN];
 /** The cached messages of the Chat-Panel. */
 static char sgszTalkSave[8][MAX_SEND_STR_LEN];
 /** The next position in the sgszTalkSave to save the message. */
@@ -889,10 +887,6 @@ void InitControlPan()
 	guTeamInviteSent = 0;
 	guTeamMute = 0;
 	sgszTalkMsg[0] = '\0';
-	if (!IsLocalGame) {
-		assert(pTalkPnlCel == NULL);
-		pTalkPnlCel = CelLoadImage("CtrlPan\\TalkPnl.CEL", TALK_PNL_WIDTH);
-	}
 	gbLvlbtndown = false;
 	assert(pPanelButtonCels == NULL);
 	pPanelButtonCels = CelLoadImage("CtrlPan\\Menu.CEL", MENUBTN_WIDTH);
@@ -1146,7 +1140,6 @@ void FreeControlPan()
 	MemFreeDbg(pChrPanelCel);
 	MemFreeDbg(pSpellCels);
 	MemFreeDbg(pPanelButtonCels);
-	MemFreeDbg(pTalkPnlCel);
 	MemFreeDbg(pChrButtonCels);
 	MemFreeDbg(pSTextBoxCels);
 	MemFreeDbg(pSTextSlidCels);
@@ -2283,53 +2276,6 @@ void CheckTeamClick(bool shift)
 			}
 		}
 	}
-}
-
-static char* control_print_talk_msg(char* msg, int* x, int y)
-{
-	int limit = TALK_PNL_WIDTH - 2 * TALK_PNL_BORDER;
-	BYTE c;
-
-	while (*msg != '\0') {
-		c = gbStdFontFrame[(BYTE)*msg];
-		limit -= smallFontWidth[c] + FONT_KERN_SMALL;
-		if (limit < 0)
-			return msg;
-		msg++;
-		if (c != 0) {
-			PrintChar(*x, y, c, COL_WHITE);
-		}
-		*x += smallFontWidth[c] + FONT_KERN_SMALL;
-	}
-	return NULL;
-}
-
-void DrawTalkPan()
-{
-	int x, y;
-	char* msg;
-
-	assert(gbTalkflag);
-
-	int sx = TALK_PNL_X;
-	int sy = TALK_PNL_Y;
-
-	// add background
-	CelDraw(sx, sy + TALK_PNL_HEIGHT, pTalkPnlCel, 1);
-
-	// print the current (not sent) message
-	sy += 17;
-	sx += TALK_PNL_BORDER;
-	msg = sgszTalkMsg;
-	for (y = sy; ; y += 13) {
-		x = sx;
-		msg = control_print_talk_msg(msg, &x, y);
-		if (msg == NULL)
-			break;
-	}
-	if (msg != NULL)
-		*msg = '\0';
-	DrawSingleSmallPentSpn(x, y);
 }
 
 void control_type_message()
