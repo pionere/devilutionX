@@ -26,8 +26,6 @@ extern BYTE infoclr;
 extern char infostr[256];
 extern char tempstr[256];
 extern unsigned guBooktab;
-extern bool gbTalkflag;
-extern char sgszTalkMsg[MAX_SEND_STR_LEN];
 extern int gnNumActiveWindows;
 extern char gaActiveWindows[NUM_WNDS];
 extern bool gbLvlUp;
@@ -73,10 +71,6 @@ void DrawGoldSplit(int amount);
 void control_drop_gold(char vkey);
 void DrawTeamBook();
 void CheckTeamClick(bool shift);
-void control_type_message();
-void control_reset_talk();
-bool control_talk_last_key(int vkey);
-bool control_presskeys(int vkey);
 
 /* data */
 

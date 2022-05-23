@@ -770,7 +770,7 @@ bool PressEscKey()
 		rv = true;
 	}
 	if (gbTalkflag) {
-		control_reset_talk();
+		StopPlrMsg();
 		rv = true;
 	}
 	if (gbDropGoldFlag) {
@@ -816,7 +816,7 @@ static void PressKey(int vkey)
 			return;
 	}
 	if (gbTalkflag) {
-		if (control_presskeys(vkey))
+		if (plrmsg_presskey(vkey))
 			return;
 	}
 
@@ -839,7 +839,7 @@ static void PressKey(int vkey)
 	int transKey = WMButtonInputTransTbl[vkey];
 	if (gbDeathflag != MDM_ALIVE) {
 		if (vkey == DVL_VK_RETURN) {
-			control_type_message();
+			StartPlrMsg();
 		} else if (vkey == DVL_VK_LBUTTON) {
 			DoLimitedPanBtn();
 		} else {
@@ -1009,7 +1009,7 @@ static void PressKey(int vkey)
 		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogEnter();
 		} else {
-			control_type_message();
+			StartPlrMsg();
 		}
 		break;
 	case ACT_TEAM:
@@ -1101,7 +1101,7 @@ static void PressChar(WPARAM vkey)
 		return;
 	}
 	if (gbTalkflag) {
-		if (control_talk_last_key(vkey))
+		if (plrmsg_presschar(vkey))
 			return;
 	}
 #if DEBUG_MODE

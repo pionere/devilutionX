@@ -41,16 +41,6 @@ unsigned guTeamInviteSent;
 /** The mask of players who were muted. */
 unsigned guTeamMute;
 
-/** Specifies whether the Chat-Panel is displayed. */
-bool gbTalkflag;
-/** The current message in the Chat-Panel. */
-char sgszTalkMsg[MAX_SEND_STR_LEN];
-/** The cached messages of the Chat-Panel. */
-static char sgszTalkSave[8][MAX_SEND_STR_LEN];
-/** The next position in the sgszTalkSave to save the message. */
-static BYTE sgbNextTalkSave;
-/** The index of selected message in the sgszTalkSave array. */
-static BYTE sgbTalkSavePos;
 /** Specifies whether the Golddrop is displayed. */
 bool gbDropGoldFlag;
 /** Golddrop background CEL */
@@ -882,11 +872,9 @@ void InitControlPan()
 #endif
 	gnNumActiveWindows = 0;
 	gbInvflag = false;
-	gbTalkflag = false;
 	guTeamInviteRec = 0;
 	guTeamInviteSent = 0;
 	guTeamMute = 0;
-	sgszTalkMsg[0] = '\0';
 	gbLvlbtndown = false;
 	assert(pPanelButtonCels == NULL);
 	pPanelButtonCels = CelLoadImage("CtrlPan\\Menu.CEL", MENUBTN_WIDTH);
@@ -1089,9 +1077,9 @@ void HandlePanBtn(int i)
 		break;
 	case PANBTN_SENDMSG:
 		if (gbTalkflag)
-			control_reset_talk();
+			StopPlrMsg();
 		else
-			control_type_message();
+			StartPlrMsg();
 		break;
 	case PANBTN_TEAMBOOK:
 		gbSkillListFlag = false;
@@ -2217,13 +2205,7 @@ void CheckTeamClick(bool shift)
 			return;
 		if (dx <= SBOOK_CELWIDTH) {
 			// clicked on the icon
-			if (!gbTalkflag)
-				control_type_message();
-			if (!shift) {
-				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/p%d ", pnum);
-			} else {
-				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/t%d ", plr._pTeam);
-			}
+			SetupPlrMsg(pnum, shift);
 		} else if (dx > SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
 		 && dx <= SBOOK_LINE_TAB + SBOOK_LINE_LENGTH + 8) {
 			// clicked on the right column of buttons
@@ -2276,154 +2258,6 @@ void CheckTeamClick(bool shift)
 			}
 		}
 	}
-}
-
-void control_type_message()
-{
-	if (IsLocalGame) {
-		return;
-	}
-
-	gbTalkflag = true;
-	SDL_StartTextInput();
-	sgszTalkMsg[0] = '\0';
-	//gbRedrawFlags = REDRAW_ALL;
-	sgbTalkSavePos = sgbNextTalkSave;
-}
-
-void control_reset_talk()
-{
-	gbTalkflag = false;
-	SDL_StopTextInput();
-	//gbRedrawFlags = REDRAW_ALL;
-}
-
-static void control_press_enter()
-{
-	int i, team, pmask;
-	BYTE talk_save;
-	char* msg;
-
-	pmask = SNPLAYER_ALL;
-	msg = sgszTalkMsg;
-	if (msg[0] == '/') {
-		if (msg[1] == 'p') {
-			// "/pX msg" -> send message to player X
-			i = strtol(&msg[2], &msg, 10);
-			if (msg != &sgszTalkMsg[2]) {
-				pmask = 1 << i;
-				if (*msg == ' ') {
-					msg++;
-				}
-			} else {
-				msg = sgszTalkMsg;
-			}
-		} else if (msg[1] == 't') {
-			team = -1;
-			if (msg[2] == ' ') {
-				// "/t msg" -> send message to the player's team
-				team = myplr._pTeam;
-			} else {
-				// "/tX msg" -> send message to the team N
-				team= strtol(&msg[2], &msg, 10);
-				if (msg == &sgszTalkMsg[2]) {
-					team = -1;
-					msg = sgszTalkMsg;
-				}
-			}
-			if (team!= -1) {
-				pmask = 0;
-				for (i = 0; i < MAX_PLRS; i++) {
-					if (players[i]._pTeam == team)
-						pmask |= 1 << i;
-				}
-			}
-		}
-	}
-
-	if (*msg != '\0') {
-		SStrCopy(gbNetMsg, msg, sizeof(gbNetMsg));
-		NetSendCmdString(pmask);
-
-		for (i = 0; i < lengthof(sgszTalkSave); i++) {
-			if (!strcmp(sgszTalkSave[i], sgszTalkMsg))
-				break;
-		}
-		if (i == lengthof(sgszTalkSave)) {
-			copy_str(sgszTalkSave[sgbNextTalkSave], sgszTalkMsg);
-			sgbNextTalkSave++;
-			sgbNextTalkSave &= 7;
-		} else {
-			talk_save = sgbNextTalkSave - 1;
-			talk_save &= 7;
-			if (i != talk_save) {
-				copy_str(sgszTalkSave[i], sgszTalkSave[talk_save]);
-				copy_str(sgszTalkSave[talk_save], sgszTalkMsg);
-			}
-		}
-		sgszTalkMsg[0] = '\0';
-		sgbTalkSavePos = sgbNextTalkSave;
-	} else {
-		control_reset_talk();
-	}
-}
-
-bool control_talk_last_key(int vkey)
-{
-	unsigned result;
-
-	assert(gbTalkflag);
-	assert(!IsLocalGame);
-
-	if ((unsigned)vkey < DVL_VK_SPACE)
-		return false;
-
-	result = strlen(sgszTalkMsg);
-	if (result < sizeof(sgszTalkMsg) - 1) {
-		sgszTalkMsg[result] = vkey;
-		sgszTalkMsg[result + 1] = '\0';
-	}
-	return true;
-}
-
-static void control_up_down(int v)
-{
-	int i;
-
-	static_assert(lengthof(sgszTalkSave) == 8, "Table sgszTalkSave does not work in control_up_down.");
-	for (i = 0; i < lengthof(sgszTalkSave); i++) {
-		sgbTalkSavePos = (v + sgbTalkSavePos) & 7;
-		if (sgszTalkSave[sgbTalkSavePos][0] != '\0') {
-			copy_str(sgszTalkMsg, sgszTalkSave[sgbTalkSavePos]);
-			return;
-		}
-	}
-}
-
-bool control_presskeys(int vkey)
-{
-	int len;
-
-	assert(gbTalkflag);
-
-	if (vkey == DVL_VK_ESCAPE) {
-		control_reset_talk();
-	} else if (vkey == DVL_VK_RETURN) {
-		control_press_enter();
-	} else if (vkey == DVL_VK_BACK) {
-		len = strlen(sgszTalkMsg);
-		if (len > 0)
-			sgszTalkMsg[len - 1] = '\0';
-	} else if (vkey == DVL_VK_DOWN) {
-		control_up_down(1);
-	} else if (vkey == DVL_VK_UP) {
-		control_up_down(-1);
-	} else if (vkey == DVL_VK_LBUTTON) {
-		return false;
-	} else if (vkey == DVL_VK_RBUTTON) {
-		return false;
-	}
-	return true;
 }
 
 DEVILUTION_END_NAMESPACE

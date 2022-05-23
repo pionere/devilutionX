@@ -3370,7 +3370,7 @@ static unsigned On_STRING(TCmd* pCmd, int pnum)
 	//if (geBufferMsgs != MSG_GAME_DELTA_LOAD && geBufferMsgs != MSG_GAME_DELTA_WAIT) {
 		if (pnum < MAX_PLRS) {
 			if (!(guTeamMute & (1 << pnum))) {
-				SendPlrMsg(pnum, cmd->str);
+				ReceivePlrMsg(pnum, cmd->str);
 			}
 		} else {
 			EventPlrMsg(cmd->str);
