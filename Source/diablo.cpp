@@ -1337,10 +1337,10 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		ShowCutscene(uMsg);
 		if (gbRunGame) {
 			InitLevelCursor();
-			gbRedrawFlags = REDRAW_ALL;
-			scrollrt_draw_game();
 			LoadPWaterPalette();
 			PaletteFadeIn(true);
+			gbRedrawFlags = REDRAW_ALL;
+			scrollrt_draw_game();
 			//gbRedrawFlags = REDRAW_ALL;
 		}
 		return;
