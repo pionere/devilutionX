@@ -237,10 +237,12 @@ static void InvDrawSlotBack(int X, int Y, int W, int H)
 void DrawInv()
 {
 	ItemStruct *is, *pi;
-	int pnum, frame, frame_width, screen_x, screen_y, i;
+	int pnum, frame, frame_width, screen_x, screen_y, dx, dy, i;
 	BYTE* cCels;
 
-	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pInvCels, 1);
+	screen_x = RIGHT_PANEL_X;
+	screen_y = SCREEN_Y;
+	CelDraw(screen_x, screen_y + SPANEL_HEIGHT - 1, pInvCels, 1);
 
 	cCels = pCursCels;
 
@@ -248,117 +250,107 @@ void DrawInv()
 	pi = /*pcursinvitem == ITEM_NONE ? NULL :*/ PlrItem(pnum, pcursinvitem);
 	is = &plr._pInvBody[INVLOC_HEAD];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HEAD_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_HEAD_LAST].Y;
-		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_HEAD_FIRST].X, screen_y + InvRect[SLOTXY_HEAD_LAST].Y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_HEAD_FIRST].X, screen_y + InvRect[SLOTXY_HEAD_LAST].Y, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_RING_LEFT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_LEFT].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_RING_LEFT].Y;
-		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_RING_LEFT].X, screen_y + InvRect[SLOTXY_RING_LEFT].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_RING_LEFT].X, screen_y + InvRect[SLOTXY_RING_LEFT].Y, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_RING_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_RIGHT].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_RING_RIGHT].Y;
-		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_RING_RIGHT].X, screen_y + InvRect[SLOTXY_RING_RIGHT].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_RING_RIGHT].X, screen_y + InvRect[SLOTXY_RING_RIGHT].Y, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_AMULET];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_AMULET].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_AMULET].Y;
-		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_AMULET].X, screen_y + InvRect[SLOTXY_AMULET].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_AMULET].X, screen_y + InvRect[SLOTXY_AMULET].Y, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_HAND_LEFT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_LEFT_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_LEFT_LAST].Y;
-		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_HAND_LEFT_FIRST].X, screen_y + InvRect[SLOTXY_HAND_LEFT_LAST].Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
+		dx = 0;
+		dy = 0;
 		if (frame_width == INV_SLOT_SIZE_PX)
-			screen_x += INV_SLOT_SIZE_PX / 2;
+			dx += INV_SLOT_SIZE_PX / 2;
 		if (InvItemHeight[frame] != (3 * INV_SLOT_SIZE_PX))
-			screen_y -= INV_SLOT_SIZE_PX / 2;
+			dy -= INV_SLOT_SIZE_PX / 2;
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_HAND_LEFT_FIRST].X + dx, screen_y + InvRect[SLOTXY_HAND_LEFT_LAST].Y + dy, cCels, frame, frame_width);
 
 		if (TWOHAND_WIELD(&plr, is)) {
-				screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;
-				screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y;
-				InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+				InvDrawSlotBack(screen_x + InvRect[SLOTXY_HAND_RIGHT_FIRST].X, screen_y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 				light_trn_index = 0;
 				gbCelTransparencyActive = true;
 
+				dx = 0;
+				dy = 0;
 				if (frame_width == INV_SLOT_SIZE_PX)
-					screen_x += INV_SLOT_SIZE_PX / 2;
+					dx += INV_SLOT_SIZE_PX / 2;
 				if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
-					screen_y -= INV_SLOT_SIZE_PX / 2;
-				CelClippedDrawLightTrans(screen_x, screen_y, cCels, frame, frame_width);
+					dy -= INV_SLOT_SIZE_PX / 2;
+				CelClippedDrawLightTrans(screen_x + InvRect[SLOTXY_HAND_RIGHT_FIRST].X + dx, screen_y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y + dy, cCels, frame, frame_width);
 		}
 	}
 
 	is = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y;
-		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_HAND_RIGHT_FIRST].X, screen_y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
+		dx = 0;
+		dy = 0;
 		if (frame_width == INV_SLOT_SIZE_PX)
-			screen_x += INV_SLOT_SIZE_PX / 2;
+			dx += INV_SLOT_SIZE_PX / 2;
 		if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
-			screen_y -= INV_SLOT_SIZE_PX / 2;
+			dy -= INV_SLOT_SIZE_PX / 2;
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_HAND_RIGHT_FIRST].X + dx, screen_y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y + dy, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_CHEST];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_CHEST_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_CHEST_LAST].Y;
-		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_CHEST_FIRST].X, screen_y + InvRect[SLOTXY_CHEST_LAST].Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_CHEST_FIRST].X, screen_y + InvRect[SLOTXY_CHEST_LAST].Y, cCels, frame, frame_width);
 	}
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		if (plr._pInvList[i]._itype != ITYPE_NONE) {
 			InvDrawSlotBack(
-			    InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
-			    InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y,
+			    screen_x + InvRect[i + SLOTXY_INV_FIRST].X,
+			    screen_y + InvRect[i + SLOTXY_INV_FIRST].Y,
 			    INV_SLOT_SIZE_PX,
 			    INV_SLOT_SIZE_PX);
 		}
@@ -368,13 +360,10 @@ void DrawInv()
 		is = &plr._pInvList[i];
 		if (is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER) {
 			// first (bottom left) slot of an item
-			screen_x = InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X;
-			screen_y = InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y;
-
 			frame = is->_iCurs + CURSOR_FIRSTITEM;
 			frame_width = InvItemWidth[frame];
 
-			scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+			scrollrt_draw_item(is, pi == is, screen_x + InvRect[i + SLOTXY_INV_FIRST].X, screen_y + InvRect[i + SLOTXY_INV_FIRST].Y, cCels, frame, frame_width);
 		}
 	}
 }
