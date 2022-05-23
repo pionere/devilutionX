@@ -1849,7 +1849,7 @@ static int DrawDurIcon4Item(ItemStruct* pItem, int x)
 	}
 	if (pItem->_iDurability > 2)
 		c += 8;
-	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - 8, pDurIconCels, c);
+	CelDraw(x, SCREEN_Y + PANEL_BOTTOM - 8, pDurIconCels, c);
 	return x - DURICON_WIDTH - 8;
 }
 
@@ -1858,7 +1858,7 @@ void DrawDurIcon()
 	ItemStruct* inv;
 	int x;
 
-	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92 + DURICON_WIDTH);
+	x = SCREEN_X + PANEL_RIGHT - (SPLICONLENGTH + MANA_FLASK_WIDTH + DURICON_WIDTH);
 
 	inv = myplr._pInvBody;
 	x = DrawDurIcon4Item(&inv[INVLOC_HEAD], x);
