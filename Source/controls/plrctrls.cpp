@@ -479,7 +479,7 @@ static void InvMove(AxisDirection dir)
 	if (r == SLOTXY_BELT_FIRST) {
 		for ( ; r <= SLOTXY_BELT_LAST; r++) {
 			if (POS_IN_RECT(x, y,
-				InvRect[r].X,  SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX,
+				PANEL_LEFT + InvRect[r].X, PANEL_BOTTOM - InvRect[r].Y - INV_SLOT_SIZE_PX,
 				INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 				break;
 			}
