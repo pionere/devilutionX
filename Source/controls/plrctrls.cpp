@@ -500,18 +500,19 @@ static void InvMove(AxisDirection dir)
 			SELECT_INV_SLOT(SLOTXY_RING_LEFT)
 			break;
 		case SLOT_AMULET:
-			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
+			SELECT_INV_SLOT(SLOTXY_HEAD_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
+			y -= INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_HAND_LEFT:	// left hand
 			break;				// do nothing
 		case SLOT_HAND_RIGHT:
-			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_CHEST_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_CHEST:
-			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_HAND_LEFT_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_STORAGE:		// general inventory
 			if (((slot - SLOTXY_INV_FIRST) % 10) != 0) {
@@ -541,14 +542,14 @@ static void InvMove(AxisDirection dir)
 		case SLOT_AMULET:
 			break;				// do nothing
 		case SLOT_HAND_LEFT:
-			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_CHEST_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_HAND_RIGHT:	// right hand
 			break;				// do nothing
 		case SLOT_CHEST:
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_HAND_RIGHT_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_STORAGE:		// general inventory
 			if (((SLOTXY_INV_LAST - slot) % 10) != 0) {
@@ -573,32 +574,34 @@ static void InvMove(AxisDirection dir)
 		case SLOT_HEAD:
 			break;				// do nothing
 		case SLOT_RING_LEFT: // left ring to left hand
-			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_HAND_LEFT_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_RING_RIGHT:	// right ring to right hand
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_HAND_RIGHT_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_AMULET:
 			break;				// do nothing
 		case SLOT_HAND_LEFT:	// left hand to head
-			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
+			SELECT_INV_SLOT(SLOTXY_HEAD_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
+			y -= INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_HAND_RIGHT: // right hand to amulet
 			SELECT_INV_SLOT(SLOTXY_AMULET)
 			break;
 		case SLOT_CHEST: // chest to head
-			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
+			SELECT_INV_SLOT(SLOTXY_HEAD_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
+			y -= INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_STORAGE:			// general inventory
 			if (slot >= SLOTXY_INV_FIRST && slot <= SLOTXY_INV_FIRST + 2) { // first 3 general slots
 				SELECT_INV_SLOT(SLOTXY_RING_LEFT)
 			} else if (slot >= SLOTXY_INV_FIRST + 3 && slot <= SLOTXY_INV_FIRST + 6) { // middle 4 general slots
-				x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-				y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+				SELECT_INV_SLOT(SLOTXY_CHEST_FIRST + 2)
+				x += INV_SLOT_SIZE_PX / 2;
 			} else if (slot >= SLOTXY_INV_FIRST + 7 && slot <= SLOTXY_INV_FIRST + 9) { // last 3 general slots
 				SELECT_INV_SLOT(SLOTXY_RING_RIGHT)
 			} else {
@@ -620,8 +623,8 @@ static void InvMove(AxisDirection dir)
 	} else if (dir.y == AxisDirectionY_DOWN) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD:
-			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_CHEST_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_RING_LEFT:
 			SELECT_INV_SLOT(SLOTXY_INV_FIRST + 1)
@@ -630,8 +633,8 @@ static void InvMove(AxisDirection dir)
 			SELECT_INV_SLOT(SLOTXY_INV_FIRST + 8)
 			break;
 		case SLOT_AMULET:
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_HAND_RIGHT_FIRST + 2)
+			x += INV_SLOT_SIZE_PX / 2;
 			break;
 		case SLOT_HAND_LEFT:
 			SELECT_INV_SLOT(SLOTXY_RING_LEFT)
