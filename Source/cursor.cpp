@@ -217,8 +217,65 @@ void CheckCursMove()
 	char bv;
 	bool flipflag, flipx, flipy;
 
+	pcurstemp = pcursmonst;
+	pcursmonst = MON_NONE;
+	pcursobj = OBJ_NONE;
+	pcursitem = ITEM_NONE;
+	//if (pcursinvitem != INVITEM_NONE) {
+	//	gbRedrawFlags |= REDRAW_SPEED_BAR;
+	//}
+	pcursinvitem = INVITEM_NONE;
+	pcursplr = PLR_NONE;
+	pcurstrig = -1;
+	pcurswnd = WND_NONE;
+
+	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");	
+	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
+	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
+		return;
+
 	sx = MouseX;
 	sy = MouseY;
+
+	if (POS_IN_RECT(sx, sy, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
+		pcurswnd = WND_BELT;
+	for (int i = 0; i < gnNumActiveWindows; i++) {
+		switch (gaActiveWindows[i]) {
+		case WND_INV:
+			if (POS_IN_RECT(sx, sy, gnWndInvX, gnWndInvY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_INV;
+			break;
+		case WND_CHAR:
+			if (POS_IN_RECT(sx, sy, gnWndCharX, gnWndCharY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_CHAR;
+			break;
+		case WND_BOOK:
+			if (POS_IN_RECT(sx, sy, gnWndBookX, gnWndBookY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_BOOK;
+			break;
+		case WND_TEAM:
+			if (POS_IN_RECT(sx, sy, gnWndTeamX, gnWndTeamY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_TEAM;
+			break;
+		case WND_QUEST:
+			if (POS_IN_RECT(sx, sy, gnWndQuestX, gnWndQuestY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_QUEST;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+	}
+	// skip monster/player/object/etc targeting if hovering over a window.
+	if (pcurswnd != WND_NONE) {
+		if (pcursicon <= CURSOR_LAST_ITEMTGT) {
+			if (pcurswnd == WND_INV)
+				pcursinvitem = CheckInvItem();
+			else if (pcurswnd == WND_BELT)
+				pcursinvitem = CheckInvBelt();
+		}
+		return;
+	}
 
 	if (gbZoomInFlag) {
 		sx >>= 1;
@@ -282,61 +339,6 @@ void CheckCursMove()
 	else if (my > MAXDUNY - 1 - DBORDERY)
 		my = MAXDUNY - 1 - DBORDERY;
 
-	pcurstemp = pcursmonst;
-	pcursmonst = MON_NONE;
-	pcursobj = OBJ_NONE;
-	pcursitem = ITEM_NONE;
-	//if (pcursinvitem != INVITEM_NONE) {
-	//	gbRedrawFlags |= REDRAW_SPEED_BAR;
-	//}
-	pcursinvitem = INVITEM_NONE;
-	pcursplr = PLR_NONE;
-	pcurstrig = -1;
-	pcurswnd = WND_NONE;
-
-	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");	
-	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
-	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
-		return;
-	if (POS_IN_RECT(MouseX, MouseY, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
-		pcurswnd = WND_BELT;
-	for (int i = 0; i < gnNumActiveWindows; i++) {
-		switch (gaActiveWindows[i]) {
-		case WND_INV:
-			if (POS_IN_RECT(MouseX, MouseY, gnWndInvX, gnWndInvY, SPANEL_WIDTH, SPANEL_HEIGHT))
-				pcurswnd = WND_INV;
-			break;
-		case WND_CHAR:
-			if (POS_IN_RECT(MouseX, MouseY, gnWndCharX, gnWndCharY, SPANEL_WIDTH, SPANEL_HEIGHT))
-				pcurswnd = WND_CHAR;
-			break;
-		case WND_BOOK:
-			if (POS_IN_RECT(MouseX, MouseY, gnWndBookX, gnWndBookY, SPANEL_WIDTH, SPANEL_HEIGHT))
-				pcurswnd = WND_BOOK;
-			break;
-		case WND_TEAM:
-			if (POS_IN_RECT(MouseX, MouseY, gnWndTeamX, gnWndTeamY, SPANEL_WIDTH, SPANEL_HEIGHT))
-				pcurswnd = WND_TEAM;
-			break;
-		case WND_QUEST:
-			if (POS_IN_RECT(MouseX, MouseY, gnWndQuestX, gnWndQuestY, SPANEL_WIDTH, SPANEL_HEIGHT))
-				pcurswnd = WND_QUEST;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-	}
-	// skip monster/player/object/etc targeting if hovering over a window.
-	if (pcurswnd != WND_NONE) {
-		if (pcursicon <= CURSOR_LAST_ITEMTGT) {
-			if (pcurswnd == WND_INV)
-				pcursinvitem = CheckInvItem();
-			else if (pcurswnd == WND_BELT)
-				pcursinvitem = CheckInvBelt();
-		}
-		return;
-	}
 	// skip monster/player/object/etc targeting if the player is holding an item
 	// Could be skipped when using a skill/spell to target an item, but there is not much point to it yet...
 	if (pcursicon >= CURSOR_FIRSTITEM /*|| (pcursicon > CURSOR_HAND && pcursicon <= CURSOR_LAST_ITEMTGT)*/) {
