@@ -425,11 +425,13 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	}
 
 	if (dir.y == AxisDirectionY_UP) {
-		if (slot > 0)
-			--slot;
+		if (slot == 0)
+			return; // Avoid wobbling when scaled
+		--slot;
 	} else if (dir.y == AxisDirectionY_DOWN) {
-		if (slot < 3)
-			++slot;
+		if (slot >= lengthof(ChrBtnsRect) - 1)
+			return; // Avoid wobbling when scaled
+		++slot;
 	}
 
 	// move cursor to our new location
@@ -659,7 +661,7 @@ static void InvMove(AxisDirection dir)
 	}
 
 	if (x == MouseX && y == MouseY) {
-		return; // Avoid wobeling when scalled
+		return; // Avoid wobbling when scaled
 	}
 
 	if (pcurs > 1) {       // [3] Keep item in the same slot, don't jump it up
