@@ -327,13 +327,7 @@ void CheckCursMove()
 			break;
 		}
 	}
-
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		cursmx = mx;
-		cursmy = my;
-		return;
-	}
-
+	// skip monster/player/object/etc targeting if hovering over a window.
 	if (pcurswnd != WND_NONE) {
 		if (pcursicon <= CURSOR_LAST_ITEMTGT) {
 			if (pcurswnd == WND_INV)
@@ -343,8 +337,9 @@ void CheckCursMove()
 		}
 		return;
 	}
-
-	if (pcursicon == CURSOR_IDENTIFY) {
+	// skip monster/player/object/etc targeting if the player is holding an item
+	// Could be skipped when using a skill/spell to target an item, but there is not much point to it yet...
+	if (pcursicon >= CURSOR_FIRSTITEM /*|| (pcursicon > CURSOR_HAND && pcursicon <= CURSOR_LAST_ITEMTGT)*/) {
 		cursmx = mx;
 		cursmy = my;
 		return;
