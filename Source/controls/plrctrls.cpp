@@ -1128,6 +1128,7 @@ void PerformPrimaryAction()
 
 	if (stextflag != STORE_NONE) {
 		TryStoreBtnClick();
+		ReleaseStoreBtn();
 		return;
 	}
 
@@ -1136,8 +1137,11 @@ void PerformPrimaryAction()
 		return;
 	}
 
-	if (TryPanBtnClick())
+	if (TryPanBtnClick()) {
+		ReleasePanBtn();
+		ReleaseLvlBtn();
 		return;
+	}
 
 	if (TryIconCurs(false))
 		return;
@@ -1156,8 +1160,8 @@ void PerformPrimaryAction()
 	}
 
 	if (pcurswnd == WND_CHAR) {
-		if (CheckChrBtnClick())
-			ReleaseChrBtn();
+		CheckChrBtnClick();
+		ReleaseChrBtn();
 		return;
 	}
 

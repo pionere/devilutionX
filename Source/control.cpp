@@ -1698,7 +1698,7 @@ void DrawInfoStr()
 }
 
 
-bool CheckChrBtnClick()
+void CheckChrBtnClick()
 {
 	int i;
 
@@ -1711,10 +1711,10 @@ bool CheckChrBtnClick()
 
 			_gabChrbtn[i] = true;
 			gbChrbtnactive = true;
-			return true;
+			return; // true;
 		}
 	}
-	return false;
+	// return false;
 }
 
 void ReleaseChrBtn()
