@@ -859,7 +859,7 @@ static void S_StartNoRoom()
 
 static void S_StartWait()
 {
-	if (pcurs == CURSOR_HAND)
+	if (pcursicon == CURSOR_HAND)
 		NewCursor(CURSOR_HOURGLASS);
 	stextflag = STORE_WAIT;
 }
@@ -1709,7 +1709,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 	if (pnum == mypnum && stextflag != STORE_NONE) {
 		if (stextflag == STORE_WAIT) {
 			nextMode = stextshold;
-			if (pcurs == CURSOR_HOURGLASS && gnTimeoutCurs == CURSOR_NONE)
+			if (pcursicon == CURSOR_HOURGLASS && gnTimeoutCurs == CURSOR_NONE)
 				NewCursor(CURSOR_HAND);
 		}
 		stextflag = STORE_NONE;

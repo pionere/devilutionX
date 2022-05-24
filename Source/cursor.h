@@ -26,7 +26,7 @@ extern BYTE pcursplr;
 extern int pcurstrig;
 extern int cursmx;
 extern int cursmy;
-extern int pcurs;
+extern int pcursicon;
 
 void InitCursorGFX();
 void FreeCursorGFX();

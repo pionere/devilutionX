@@ -173,7 +173,7 @@ void LoadGameLevel(int lvldir)
 #endif
 
 	music_stop();
-	//if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
+	//if (pcursicon > CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 	//	NewCursor(CURSOR_HAND);
 	//}
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);

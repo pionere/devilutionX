@@ -664,7 +664,7 @@ static void InvMove(AxisDirection dir)
 		return; // Avoid wobbling when scaled
 	}
 
-	if (pcurs > CURSOR_HAND) {       // [3] Keep item in the same slot, don't jump it up
+	if (pcursicon > CURSOR_HAND) {       // [3] Keep item in the same slot, don't jump it up
 		if (x != MouseX) { // without this, the cursor keeps moving -10
 			x -= 10;
 			y -= 10;
@@ -1177,7 +1177,7 @@ void PerformPrimaryAction()
 		return;
 	}
 
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		DropItem();
 		return;
 	}
@@ -1241,7 +1241,7 @@ void PerformSpellAction()
 
 	if (TryIconCurs(false))
 		return;
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		TryDropItem();
 		return;
 	}
@@ -1282,11 +1282,11 @@ void PerformSecondaryAction()
 	if (InGameMenu())
 		return;
 
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		TryDropItem();
 		return;
 	}
-	if (pcurs > CURSOR_HAND)
+	if (pcursicon > CURSOR_HAND)
 		NewCursor(CURSOR_HAND);
 
 	if (gbInvflag) {

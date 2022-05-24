@@ -629,7 +629,7 @@ void TalkToTowner(int tnum)
 		return;
 	}
 
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		return;
 	}
 

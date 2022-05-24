@@ -508,7 +508,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 void ActionBtnCmd(bool bShift)
 {
-	assert(pcurs == CURSOR_HAND);
+	assert(pcursicon == CURSOR_HAND);
 
 	DoActionBtnCmd(myplr._pMoveSkill, myplr._pMoveSkillType,
 		myplr._pAtkSkill, myplr._pAtkSkillType, bShift);
@@ -516,7 +516,7 @@ void ActionBtnCmd(bool bShift)
 
 bool TryIconCurs(bool bShift)
 {
-	switch (pcurs) {
+	switch (pcursicon) {
 	case CURSOR_IDENTIFY:
 	case CURSOR_REPAIR:
 	case CURSOR_RECHARGE:
@@ -631,7 +631,7 @@ static void ActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		DropItem();
 		return;
 	}
@@ -641,7 +641,7 @@ static void ActionBtnDown(bool bShift)
 
 void AltActionBtnCmd(bool bShift)
 {
-	assert(pcurs == CURSOR_HAND);
+	assert(pcursicon == CURSOR_HAND);
 
 	DoActionBtnCmd(myplr._pAltMoveSkill, myplr._pAltMoveSkillType,
 		myplr._pAltAtkSkill, myplr._pAltAtkSkillType, bShift);
@@ -666,7 +666,7 @@ static void AltActionBtnDown(bool bShift)
 
 	if (TryIconCurs(bShift))
 		return;
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		DropItem();
 		return;
 	}
@@ -791,7 +791,7 @@ bool PressEscKey()
 		gabPanbtn[PANBTN_MAINMENU] = false;
 		rv = true;
 	}
-	if (pcurs != CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
+	if (pcursicon != CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 		NewCursor(CURSOR_HAND);
 		rv = true;
 	}
@@ -1433,7 +1433,7 @@ static void game_loop()
 			break;
 		if (!multi_handle_turn()) {
 			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
-				gnTimeoutCurs = pcurs;
+				gnTimeoutCurs = pcursicon;
 				NewCursor(CURSOR_HOURGLASS);
 				//gbRedrawFlags = REDRAW_ALL;
 			}

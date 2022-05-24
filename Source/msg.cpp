@@ -2978,7 +2978,7 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 
 	if (dmgtype == DMGTYPE_NPC && !diablolevel) {
 		if (PlrDeadItem(pnum, &plr._pHoldItem, NUM_DIRS - 1)) {
-			if (pnum == mypnum && pcurs >= CURSOR_FIRSTITEM)
+			if (pnum == mypnum && pcursicon >= CURSOR_FIRSTITEM)
 				NewCursor(CURSOR_HAND);
 			static_assert((int)NUM_INVLOC < (int)NUM_DIRS, "PlrDeadItem uses inv loc as direction offset.");
 			for (i = 0; i < NUM_INVLOC; i++) {

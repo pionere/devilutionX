@@ -1691,7 +1691,7 @@ void DrawInfoStr()
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
 		DrawTrigInfo();
-	} else if (pcurs >= CURSOR_FIRSTITEM) {
+	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
 		DrawTooltip(infostr, MouseX + cursW / 2, MouseY - TOOLTIP_OFFSET, infoclr);
 	}

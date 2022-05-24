@@ -1036,7 +1036,7 @@ void InvPasteItem(int pnum, BYTE r)
 	if (cn == CURSOR_HAND)
 		holditem->_itype = ITYPE_NONE;
 	if (pnum == mypnum) {
-		PlaySFX(itemfiledata[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]].iiSFX);
+		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		if (cn == CURSOR_HAND) {
 			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
 		}
@@ -1088,7 +1088,7 @@ void InvPasteBeltItem(int pnum, BYTE r)
 
 	CalcPlrScrolls(pnum);
 	if (pnum == mypnum) {
-		PlaySFX(itemfiledata[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]].iiSFX);
+		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 		if (cn == CURSOR_HAND)
 			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
@@ -1255,7 +1255,7 @@ void SyncPlrStorageRemove(int pnum, int iv)
 
 void CheckInvClick(bool bShift)
 {
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		CheckInvPaste();
 	} else {
 		CheckInvCut(bShift);
@@ -1267,7 +1267,7 @@ void CheckInvClick(bool bShift)
  */
 void CheckBeltClick(bool bShift)
 {
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		/*return*/ CheckBeltPaste();
 	} else {
 		/*return*/ CheckInvCut(bShift);
@@ -1777,7 +1777,7 @@ bool InvUseItem(int cii)
 
 	if (plr._pHitPoints < (1 << 6))
 		return true;
-	if (pcurs != CURSOR_HAND)
+	if (pcursicon != CURSOR_HAND)
 		return true;
 	if (stextflag != STORE_NONE)
 		return true;

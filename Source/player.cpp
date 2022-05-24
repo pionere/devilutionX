@@ -1629,7 +1629,7 @@ static void StartPickItem(int pnum)
 
 	if (pnum != mypnum)
 		return;
-	if (pcurs != CURSOR_HAND)
+	if (pcursicon != CURSOR_HAND)
 		return;
 
 	i = plr.destParam1;

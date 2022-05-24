@@ -177,13 +177,13 @@ static void scrollrt_draw_cursor()
 
 	assert(sgCursWdt == 0);
 
-	if (pcurs <= CURSOR_NONE) {
+	if (pcursicon <= CURSOR_NONE) {
 		return;
 	}
 	assert(cursW != 0 && cursH != 0);
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcursicon != CURSOR_TELEPORT
 	 && (gnNumActiveWindows == 0 || (gaActiveWindows[gnNumActiveWindows - 1] != WND_INV && (gaActiveWindows[gnNumActiveWindows - 1] != WND_CHAR || !gbLvlUp))))
 		return;
 #endif
@@ -235,7 +235,7 @@ static void scrollrt_draw_cursor()
 	my++;
 	my += cursH + SCREEN_Y - 1;
 
-	frame = pcurs;
+	frame = pcursicon;
 	cCels = pCursCels;
 	if (frame < CURSOR_FIRSTITEM) {
 		CelClippedDraw(mx, my, cCels, frame, cursW);
@@ -1564,7 +1564,7 @@ void ScrollView()
 {
 	bool scroll;
 
-	if (pcurs >= CURSOR_FIRSTITEM)
+	if (pcursicon >= CURSOR_FIRSTITEM)
 		return;
 
 	scroll = false;

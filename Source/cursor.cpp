@@ -48,7 +48,7 @@ int cursmx;
 /** Current highlighted tile column */
 int cursmy;
 /** Index of current cursor image */
-int pcurs;
+int pcursicon;
 
 /*  Maps from objcurs.cel frame number to frame width.
  **If the values are modified, make sure validateCursorAreas does not fail.**
@@ -166,7 +166,7 @@ void FreeCursorGFX()
 
 void NewCursor(int i)
 {
-	pcurs = i;
+	pcursicon = i;
 	cursW = InvItemWidth[i];
 	cursH = InvItemHeight[i];
 }
@@ -328,7 +328,7 @@ void CheckCursMove()
 		}
 	}
 
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		cursmx = mx;
 		cursmy = my;
 		return;
@@ -342,7 +342,7 @@ void CheckCursMove()
 		return;
 	}
 
-	if (pcurs == CURSOR_IDENTIFY) {
+	if (pcursicon == CURSOR_IDENTIFY) {
 		cursmx = mx;
 		cursmy = my;
 		return;
@@ -541,7 +541,7 @@ void CheckCursMove()
 			}
 		}
 	}
-	if (pcurs == CURSOR_RESURRECT) {
+	if (pcursicon == CURSOR_RESURRECT) {
 		for (xx = -1; xx <= 1; xx++) {
 			for (yy = -1; yy <= 1; yy++) {
 				if ((dFlags[mx + xx][my + yy] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
