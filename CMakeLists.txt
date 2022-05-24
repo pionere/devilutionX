@@ -349,6 +349,7 @@ set(devilutionx_SRCS
   Source/engine.cpp
   Source/error.cpp
   Source/gamemenu.cpp
+  Source/gameui.cpp
   Source/gendung.cpp
   Source/gmenu.cpp
   Source/help.cpp

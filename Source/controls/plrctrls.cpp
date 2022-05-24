@@ -417,7 +417,7 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	int slot = 0;
 	for (int i = 0; i < lengthof(ChrBtnsRect); i++) {
 		if (POS_IN_RECT(MouseX, MouseY,
-			ChrBtnsRect[i].x,  ChrBtnsRect[i].y,
+			gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
 			ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
 			slot = i;
 			break;
@@ -435,23 +435,23 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	}
 
 	// move cursor to our new location
-	int x = ChrBtnsRect[slot].x + (ChrBtnsRect[slot].w / 2);
-	int y = ChrBtnsRect[slot].y + (ChrBtnsRect[slot].h / 2);
+	int x = gnWndCharX + ChrBtnsRect[slot].x + (ChrBtnsRect[slot].w / 2);
+	int y = gnWndCharY + ChrBtnsRect[slot].y + (ChrBtnsRect[slot].h / 2);
 	SetCursorPos(x, y);
 }
 
 #define SELECT_INV_SLOT(s)									\
 {															\
 	slot = s;												\
-	x = InvRect[s].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);\
-	y = InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);				\
+	x = gnWndInvX + InvRect[s].X + (INV_SLOT_SIZE_PX / 2);	\
+	y = gnWndInvY + InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);	\
 }
 
-#define SELECT_BELT_SLOT(s)										\
-{																\
-	slot = s;													\
-	x = PANEL_LEFT + InvRect[s].X + (INV_SLOT_SIZE_PX / 2);		\
-	y = PANEL_BOTTOM - InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);	\
+#define SELECT_BELT_SLOT(s)									\
+{															\
+	slot = s;												\
+	x = gnWndBeltX + InvRect[s].X + (INV_SLOT_SIZE_PX / 2);	\
+	y = gnWndBeltY + InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);	\
 }
 
 /**
@@ -474,7 +474,7 @@ static void InvMove(AxisDirection dir)
 	// standard inventory
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
 		if (POS_IN_RECT(x, y,
-			InvRect[r].X + RIGHT_PANEL,  InvRect[r].Y - INV_SLOT_SIZE_PX,
+			gnWndInvX + InvRect[r].X, gnWndInvY + InvRect[r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
 		}
@@ -483,7 +483,7 @@ static void InvMove(AxisDirection dir)
 	if (r == SLOTXY_BELT_FIRST) {
 		for ( ; r <= SLOTXY_BELT_LAST; r++) {
 			if (POS_IN_RECT(x, y,
-				PANEL_LEFT + InvRect[r].X, PANEL_BOTTOM - InvRect[r].Y - INV_SLOT_SIZE_PX,
+				gnWndBeltX + InvRect[r].X, gnWndBeltY + InvRect[r].Y - INV_SLOT_SIZE_PX,
 				INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 				break;
 			}
@@ -1050,7 +1050,7 @@ static void HandleRightStickMotion()
  */
 void FocusOnInventory()
 {
-	SetCursorPos(InvRect[SLOTXY_INV_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2), InvRect[SLOTXY_INV_FIRST].Y - (INV_SLOT_SIZE_PX / 2));
+	SetCursorPos(gnWndInvX + InvRect[SLOTXY_INV_FIRST].X + (INV_SLOT_SIZE_PX / 2), gnWndInvY + InvRect[SLOTXY_INV_FIRST].Y - (INV_SLOT_SIZE_PX / 2));
 }
 
 // Moves the mouse to the first attribute "+" button.
@@ -1061,7 +1061,7 @@ void FocusOnCharInfo()
 
 	// Jump to the first incrementable stat.
 	const RECT32 &rect = ChrBtnsRect[0];
-	SetCursorPos(rect.x + (rect.w / 2), rect.y + (rect.h / 2));
+	SetCursorPos(gnWndCharX + rect.x + (rect.w / 2), gnWndCharY + rect.y + (rect.h / 2));
 }
 
 void plrctrls_after_check_curs_move()

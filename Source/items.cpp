@@ -3140,8 +3140,39 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int &y)
 void DrawInvItemDetails()
 {
 	ItemStruct* is;
-	int x = RIGHT_PANEL_X - (STPANEL_WIDTH + 38);
-	int y = SCREEN_Y + 0;
+	int x, y, dx;
+
+	if (pcursinvitem <= INVITEM_INV_LAST) {
+		x = gnWndInvX;
+		y = gnWndInvY;
+		if (x > PANEL_MIDX(SPANEL_WIDTH)) {
+			x -= STPANEL_WIDTH;
+			dx = std::min(x, 76);
+			if (dx > 0)
+				x -= (dx >> 1);
+		} else {
+			x += SPANEL_WIDTH;
+			dx = std::min(PANEL_RIGHT - (x + STPANEL_WIDTH), 76);
+			if (dx > 0)
+				x += dx >> 1;
+		}
+		if (y > PANEL_MIDY(SPANEL_HEIGHT)) {
+			y -= TPANEL_HEIGHT - SPANEL_HEIGHT;
+		}
+	} else {
+		x = gnWndBeltX;
+		y = gnWndBeltY;
+		if (x > PANEL_MIDX(BELT_WIDTH)) {
+			x -= STPANEL_WIDTH - (76 >> 1);
+		} else {
+			x += BELT_WIDTH + (76 >> 1);
+		}
+		if (y > PANEL_MIDY(BELT_HEIGHT)) {
+			y -= TPANEL_HEIGHT - BELT_HEIGHT;
+		}
+	}
+	x += SCREEN_X;
+	y += SCREEN_Y;
 
 	// draw the background
 	DrawSTextBox(x, y);

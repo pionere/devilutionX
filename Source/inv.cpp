@@ -99,14 +99,14 @@ const InvXY InvRect[NUM_XY_SLOTS] = {
 	{  2 + 7 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
 	{  2 + 8 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
 	{  2 + 9 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
-	{ 1                   ,  MENUBTN_HEIGHT + 3 + 3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 1                   ,  MENUBTN_HEIGHT + 3 + 2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 1                   ,  MENUBTN_HEIGHT + 3 + 1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 1                   ,  MENUBTN_HEIGHT + 3 + 0 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 0 * (INV_SLOT_SIZE_PX + 1) }  // belt column 2
+	{ 1                   ,  1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 1                   ,  2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 1                   ,  3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 1                   ,  4 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 2 + INV_SLOT_SIZE_PX,  1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
+	{ 2 + INV_SLOT_SIZE_PX,  2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
+	{ 2 + INV_SLOT_SIZE_PX,  3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
+	{ 2 + INV_SLOT_SIZE_PX,  4 * (INV_SLOT_SIZE_PX + 1) }  // belt column 2
 	// clang-format on
 };
 
@@ -240,8 +240,8 @@ void DrawInv()
 	int pnum, frame, frame_width, screen_x, screen_y, dx, dy, i;
 	BYTE* cCels;
 
-	screen_x = RIGHT_PANEL_X;
-	screen_y = SCREEN_Y;
+	screen_x = SCREEN_X + gnWndInvX;
+	screen_y = SCREEN_Y + gnWndInvY;
 	CelDraw(screen_x, screen_y + SPANEL_HEIGHT - 1, pInvCels, 1);
 
 	cCels = pCursCels;
@@ -375,9 +375,9 @@ void DrawInvBelt()
 	BYTE fi, ff;
 	BYTE* cCels;
 
-	screen_x = PANEL_X;
-	screen_y = PANEL_Y + PANEL_HEIGHT;
-	CelDraw(screen_x + InvRect[SLOTXY_BELT_FIRST].X - 1, screen_y - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1);
+	screen_x = SCREEN_X + gnWndBeltX;
+	screen_y = SCREEN_Y + gnWndBeltY;
+	CelDraw(screen_x, screen_y + BELT_HEIGHT - 1, pBeltCels, 1);
 
 	pnum = mypnum;
 	pi = NULL;
@@ -392,17 +392,17 @@ void DrawInvBelt()
 		if (is->_itype == ITYPE_NONE) {
 			continue;
 		}
-		InvDrawSlotBack(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X, screen_y - InvRect[SLOTXY_BELT_FIRST + i].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X, screen_y + InvRect[SLOTXY_BELT_FIRST + i].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		assert(InvItemWidth[frame] == INV_SLOT_SIZE_PX);
 		frame_width = INV_SLOT_SIZE_PX;
 
-		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_BELT_FIRST + i].X, screen_y - InvRect[SLOTXY_BELT_FIRST + i].Y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_BELT_FIRST + i].X, screen_y + InvRect[SLOTXY_BELT_FIRST + i].Y, cCels, frame, frame_width);
 
 		if (is->_iStatFlag && is->_iUsable) {
 			fi = i + 49; // '1' + i;
 			ff = gbStdFontFrame[fi];
-			PrintChar(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y - InvRect[SLOTXY_BELT_FIRST + i].Y, ff, COL_WHITE);
+			PrintChar(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y + InvRect[SLOTXY_BELT_FIRST + i].Y, ff, COL_WHITE);
 		}
 	}
 }
@@ -756,7 +756,7 @@ static void CheckInvPaste()
 
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
 		if (POS_IN_RECT(i, j,
-			InvRect[r].X + RIGHT_PANEL,  InvRect[r].Y - INV_SLOT_SIZE_PX,
+			gnWndInvX + InvRect[r].X, gnWndInvY + InvRect[r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			NetSendCmdBParam1(CMD_PASTEPLRITEM, r);
 			break;
@@ -1053,7 +1053,7 @@ static void CheckBeltPaste()
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
 		if (POS_IN_RECT(i, j,
-			PANEL_LEFT + InvRect[r].X,  PANEL_BOTTOM - InvRect[r].Y - INV_SLOT_SIZE_PX,
+			gnWndBeltX + InvRect[r].X,  gnWndBeltY + InvRect[r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			NetSendCmdBParam1(CMD_PASTEPLRBELTITEM, r);
 			break;
@@ -1621,7 +1621,7 @@ BYTE CheckInvBelt()
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
 		if (POS_IN_RECT(MouseX, MouseY,
-			PANEL_LEFT + InvRect[r].X,  PANEL_BOTTOM - InvRect[r].Y - INV_SLOT_SIZE_PX,
+			gnWndBeltX + InvRect[r].X, gnWndBeltY + InvRect[r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
 		}
@@ -1644,7 +1644,7 @@ BYTE CheckInvItem()
 
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
 		if (POS_IN_RECT(MouseX, MouseY,
-			InvRect[r].X + RIGHT_PANEL,  InvRect[r].Y - INV_SLOT_SIZE_PX,
+			gnWndInvX + InvRect[r].X, gnWndInvY + InvRect[r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
 		}

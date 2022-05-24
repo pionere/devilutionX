@@ -600,8 +600,8 @@ static void PrintQLString(unsigned y, const char* str)
 {
 	int width, sx, sy, px;
 
-	sx = /*x*/0 + QPNL_BORDER + SCREEN_X;
-	sy = y * QPNL_LINE_SPACING + QPNL_BORDER + QPNL_TEXT_HEIGHT + SCREEN_Y;
+	sx = /*x*/0 + QPNL_BORDER + SCREEN_X + gnWndQuestX;
+	sy = y * QPNL_LINE_SPACING + QPNL_BORDER + QPNL_TEXT_HEIGHT + SCREEN_Y + gnWndQuestY;
 	width = GetSmallStringWidth(str);
 	if (width < QPNL_LINE_WIDTH) {
 		sx += (QPNL_LINE_WIDTH - width) >> 1;
@@ -617,7 +617,7 @@ void DrawQuestLog()
 {
 	unsigned i;
 
-	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pQLogCel, 1);
+	CelDraw(SCREEN_X + gnWndQuestX, SCREEN_Y + gnWndQuestY + SPANEL_HEIGHT - 1, pQLogCel, 1);
 	for (i = 0; i < numqlines; i++) {
 		PrintQLString(qtopline + i, questlist[qlist[i]]._qlstr);
 	}
@@ -681,7 +681,7 @@ void CheckQuestlog()
 {
 	int y;
 
-	y = (MouseY - (QPNL_BORDER + QPNL_TEXT_HEIGHT / 2) + QPNL_LINE_SPACING / 2 + QPNL_LINE_SPACING) / QPNL_LINE_SPACING - 1;
+	y = (MouseY - (gnWndQuestY + QPNL_BORDER + QPNL_TEXT_HEIGHT / 2) + QPNL_LINE_SPACING / 2 + QPNL_LINE_SPACING) / QPNL_LINE_SPACING - 1;
 	if (y != QPNL_MAXENTRIES) {
 		y -= qtopline;
 		if ((unsigned)y >= numqlines)

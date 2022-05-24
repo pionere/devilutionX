@@ -276,6 +276,8 @@ static void diablo_init()
 
 	InitUiSFX(); // sfx
 
+	InitGameUI();
+
 	InitControls();
 }
 

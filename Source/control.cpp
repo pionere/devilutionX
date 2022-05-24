@@ -1148,8 +1148,8 @@ void DrawChr()
 	p = &myplr;
 	pc = p->_pClass;
 
-	screen_x = SCREEN_X;
-	screen_y = SCREEN_Y;
+	screen_x = SCREEN_X + gnWndCharX;
+	screen_y = SCREEN_Y + gnWndCharY;
 	CelDraw(screen_x, screen_y + SPANEL_HEIGHT - 1, pChrPanelCel, 1);
 	PrintString(screen_x + 5, screen_y + 19, screen_x + 144, p->_pName, true, COL_WHITE, FONT_KERN_SMALL);
 
@@ -1705,7 +1705,7 @@ bool CheckChrBtns()
 	if (myplr._pStatPts != 0 && !gbChrbtnactive) {
 		for (i = 0; i < lengthof(ChrBtnsRect); i++) {
 			if (!POS_IN_RECT(MouseX, MouseY,
-				ChrBtnsRect[i].x,  ChrBtnsRect[i].y,
+				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
 				ChrBtnsRect[i].w, ChrBtnsRect[i].h))
 				continue;
 
@@ -1728,7 +1728,7 @@ void ReleaseChrBtns()
 		if (_gabChrbtn[i]) {
 			_gabChrbtn[i] = false;
 			if (POS_IN_RECT(MouseX, MouseY,
-				ChrBtnsRect[i].x,  ChrBtnsRect[i].y,
+				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
 				ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
 				switch (i) {
 				case 0:
@@ -1895,8 +1895,8 @@ void DrawSpellBook()
 	uint64_t spl;
 
 	// back panel
-	sx = RIGHT_PANEL_X;
-	yp = SCREEN_Y;
+	sx = SCREEN_X + gnWndBookX;
+	yp = SCREEN_Y + gnWndBookY;
 	CelDraw(sx, yp + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
 	// selected page
 	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
@@ -2000,10 +2000,10 @@ void SelectBookSkill(bool shift, bool altSkill)
 		return;
 	}
 
-	dx = MouseX - (RIGHT_PANEL + SBOOK_LEFT_BORDER);
+	dx = MouseX - (gnWndBookX + SBOOK_LEFT_BORDER);
 	if (dx < 0)
 		return;
-	dy = MouseY - SBOOK_TOP_BORDER;
+	dy = MouseY - (gnWndBookY + SBOOK_TOP_BORDER);
 	if (dy < 0)
 		return;
 
@@ -2035,8 +2035,8 @@ void DrawGoldSplit(int amount)
 {
 	int screen_x, screen_y;
 
-	screen_x = RIGHT_PANEL_X + (SPANEL_WIDTH - GOLDDROP_WIDTH) / 2;
-	screen_y = SCREEN_Y + 178;
+	screen_x = SCREEN_X + gnWndInvX + (SPANEL_WIDTH - GOLDDROP_WIDTH) / 2;
+	screen_y = SCREEN_Y + gnWndInvY + 178;
 
 	CelDraw(screen_x, screen_y, pGoldDropCel, 1);
 	snprintf(tempstr, sizeof(tempstr), "You have %d gold", initialDropGoldValue);
@@ -2140,8 +2140,8 @@ void DrawTeamBook()
 	BYTE st;
 
 	// back panel
-	sx = RIGHT_PANEL_X;
-	yp = SCREEN_Y;
+	sx = SCREEN_X + gnWndTeamX;
+	yp = SCREEN_Y + gnWndTeamY;
 	CelDraw(sx, yp + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
 	// selected page
 	snprintf(tempstr, sizeof(tempstr), "%d.", guTeamTab + 1);
@@ -2203,10 +2203,10 @@ void CheckTeamClick(bool shift)
 {
 	int dx, dy;
 
-	dx = MouseX - (RIGHT_PANEL + SBOOK_LEFT_BORDER);
+	dx = MouseX - (gnWndTeamX + SBOOK_LEFT_BORDER);
 	if (dx < 0)
 		return;
-	dy = MouseY - SBOOK_TOP_BORDER;
+	dy = MouseY - (gnWndTeamY + SBOOK_TOP_BORDER);
 	if (dy < 0)
 		return;
 

@@ -8,6 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //////////////////////////////////////////////////
 // IN-GAME UI
 //////////////////////////////////////////////////
@@ -131,6 +135,9 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define INV_SLOT_SIZE_PX	28
 #define BELT_WIDTH			60
+#define BELT_HEIGHT			118
+#define BELT_LEFT			PANEL_LEFT
+#define BELT_TOP			(PANEL_HEIGHT - (MENUBTN_HEIGHT + BELT_HEIGHT))
 
 #define DURICON_WIDTH		32
 #define GOLDDROP_WIDTH		261
@@ -268,6 +275,19 @@ DEVILUTION_BEGIN_NAMESPACE
 #define BOTTOM_BAR_Y	(421 * ASSET_MPL)
 
 #define SMALL_FONT_HEIGHT	11
+
+extern int gnWndBeltX, gnWndBeltY;
+extern int gnWndInvX, gnWndInvY;
+extern int gnWndCharX, gnWndCharY;
+extern int gnWndBookX, gnWndBookY;
+extern int gnWndTeamX, gnWndTeamY;
+extern int gnWndQuestX, gnWndQuestY;
+
+void InitGameUI();
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 

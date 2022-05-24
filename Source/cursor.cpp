@@ -298,31 +298,28 @@ void CheckCursMove()
 	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
 	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
 		return;
-	if (POS_IN_RECT(MouseX, MouseY,
-		PANEL_LEFT + InvRect[SLOTXY_BELT_FIRST].X, PANEL_BOTTOM - InvRect[SLOTXY_BELT_FIRST].Y  - INV_SLOT_SIZE_PX,
-		InvRect[SLOTXY_BELT_LAST].X - InvRect[SLOTXY_BELT_FIRST].X + INV_SLOT_SIZE_PX + 1, InvRect[SLOTXY_BELT_FIRST].Y - InvRect[SLOTXY_BELT_LAST].Y + INV_SLOT_SIZE_PX + 1)) {
+	if (POS_IN_RECT(MouseX, MouseY, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
 		pcurswnd = WND_BELT;
-	}
 	for (int i = 0; i < gnNumActiveWindows; i++) {
 		switch (gaActiveWindows[i]) {
 		case WND_INV:
-			if (MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT)
+			if (POS_IN_RECT(MouseX, MouseY, gnWndInvX, gnWndInvY, SPANEL_WIDTH, SPANEL_HEIGHT))
 				pcurswnd = WND_INV;
 			break;
 		case WND_CHAR:
-			if (MouseX < SPANEL_WIDTH && MouseY <= SPANEL_HEIGHT)
+			if (POS_IN_RECT(MouseX, MouseY, gnWndCharX, gnWndCharY, SPANEL_WIDTH, SPANEL_HEIGHT))
 				pcurswnd = WND_CHAR;
 			break;
 		case WND_BOOK:
-			if (MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT)
+			if (POS_IN_RECT(MouseX, MouseY, gnWndBookX, gnWndBookY, SPANEL_WIDTH, SPANEL_HEIGHT))
 				pcurswnd = WND_BOOK;
 			break;
 		case WND_TEAM:
-			if (MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT)
+			if (POS_IN_RECT(MouseX, MouseY, gnWndTeamX, gnWndTeamY, SPANEL_WIDTH, SPANEL_HEIGHT))
 				pcurswnd = WND_TEAM;
 			break;
 		case WND_QUEST:
-			if (MouseX < SPANEL_WIDTH && MouseY <= SPANEL_HEIGHT)
+			if (POS_IN_RECT(MouseX, MouseY, gnWndQuestX, gnWndQuestY, SPANEL_WIDTH, SPANEL_HEIGHT))
 				pcurswnd = WND_QUEST;
 			break;
 		default:
