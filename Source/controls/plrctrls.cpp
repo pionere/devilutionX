@@ -664,7 +664,7 @@ static void InvMove(AxisDirection dir)
 		return; // Avoid wobbling when scaled
 	}
 
-	if (pcurs > 1) {       // [3] Keep item in the same slot, don't jump it up
+	if (pcurs > CURSOR_HAND) {       // [3] Keep item in the same slot, don't jump it up
 		if (x != MouseX) { // without this, the cursor keeps moving -10
 			x -= 10;
 			y -= 10;
