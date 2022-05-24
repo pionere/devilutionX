@@ -883,6 +883,17 @@ void ValidateData()
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
+		if (i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE || i == SPL_BUCKLE || i == SPL_WHITTLE) {
+			if (sd.scCurs > CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
+			if (sd.spCurs > CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+		} else {
+			if (sd.scCurs != CURSOR_NONE && sd.scCurs <= CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
+			if (sd.spCurs != CURSOR_NONE && sd.spCurs <= CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+		}
 		ItemStruct* is = NULL;
 		if (SPELL_RUNE(i)) {
 			if (sd.sBookLvl != SPELL_NA)
@@ -964,8 +975,8 @@ void ValidateData()
 void LogErrorF(const char* type, const char* msg, ...)
 {
 	char tmp[256];
-	//snprintf(tmp, sizeof(tmp), "c:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
-	snprintf(tmp, sizeof(tmp), "c:\\logdebug%d.txt", mypnum);
+	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
+	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
 	FILE *f0 = fopen(tmp, "a+");
 	if (f0 == NULL)
 		return;

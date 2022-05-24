@@ -335,10 +335,12 @@ void CheckCursMove()
 	}
 
 	if (pcurswnd != WND_NONE) {
-		if (pcurswnd == WND_INV)
-			pcursinvitem = CheckInvItem();
-		else if (pcurswnd == WND_BELT)
-			pcursinvitem = CheckInvBelt();
+		if (pcursicon <= CURSOR_LAST_ITEMTGT) {
+			if (pcurswnd == WND_INV)
+				pcursinvitem = CheckInvItem();
+			else if (pcurswnd == WND_BELT)
+				pcursinvitem = CheckInvBelt();
+		}
 		return;
 	}
 
