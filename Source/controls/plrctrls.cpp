@@ -440,12 +440,14 @@ static void AttrIncBtnSnap(AxisDirection dir)
 
 #define SELECT_INV_SLOT(s)									\
 {															\
+	slot = s;												\
 	x = InvRect[s].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);\
 	y = InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);				\
 }
 
 #define SELECT_BELT_SLOT(s)										\
 {																\
+	slot = s;													\
 	x = PANEL_LEFT + InvRect[s].X + (INV_SLOT_SIZE_PX / 2);		\
 	y = PANEL_BOTTOM - InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);	\
 }
@@ -516,15 +518,13 @@ static void InvMove(AxisDirection dir)
 			break;
 		case SLOT_STORAGE:		// general inventory
 			if (((slot - SLOTXY_INV_FIRST) % 10) != 0) {
-				slot -= 1;
-				SELECT_INV_SLOT(slot)
+				SELECT_INV_SLOT(slot - 1)
 			}
 			break;
 		case SLOT_BELT: // belt
 			if (slot < SLOTXY_BELT_FIRST + 4)
 				break;
-			slot -= 4;
-			SELECT_BELT_SLOT(slot)
+			SELECT_BELT_SLOT(slot - 4)
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -553,16 +553,14 @@ static void InvMove(AxisDirection dir)
 			break;
 		case SLOT_STORAGE:		// general inventory
 			if (((SLOTXY_INV_LAST - slot) % 10) != 0) {
-				slot += 1;
-				SELECT_INV_SLOT(slot)
+				SELECT_INV_SLOT(slot + 1)
 			}
 			break;
 		case SLOT_BELT:			// belt
 			if (slot >= SLOTXY_BELT_FIRST + 4) {
 				SELECT_INV_SLOT(SLOTXY_INV_FIRST + 30)
 			} else {
-				slot += 4;
-				SELECT_BELT_SLOT(slot)
+				SELECT_BELT_SLOT(slot + 4)
 			}
 			break;
 		default:
@@ -605,16 +603,14 @@ static void InvMove(AxisDirection dir)
 			} else if (slot >= SLOTXY_INV_FIRST + 7 && slot <= SLOTXY_INV_FIRST + 9) { // last 3 general slots
 				SELECT_INV_SLOT(SLOTXY_RING_RIGHT)
 			} else {
-				slot -= 10;
-				SELECT_INV_SLOT(slot)
+				SELECT_INV_SLOT(slot - 10)
 			}
 			break;
 		case SLOT_BELT:			// belt to general inventory
 			if (slot == SLOTXY_BELT_FIRST || slot == SLOTXY_BELT_FIRST + 4) {
 				SELECT_INV_SLOT(SLOTXY_INV_FIRST + 30)
 			} else {
-				slot -= 1;
-				SELECT_BELT_SLOT(slot)
+				SELECT_BELT_SLOT(slot - 1)
 			}
 			break;
 		default:
@@ -647,8 +643,7 @@ static void InvMove(AxisDirection dir)
 			break;
 		case SLOT_STORAGE:
 			if (slot <= (SLOTXY_INV_LAST - 10)) { // general inventory
-				slot += 10;
-				SELECT_INV_SLOT(slot)
+				SELECT_INV_SLOT(slot + 10)
 			} else {
 				SELECT_BELT_SLOT(SLOTXY_BELT_FIRST + 4)
 			}
@@ -656,8 +651,7 @@ static void InvMove(AxisDirection dir)
 		case SLOT_BELT:
 			if (slot == SLOTXY_BELT_LAST || slot == SLOTXY_BELT_LAST - 4)
 				break;
-			slot += 1;
-			SELECT_BELT_SLOT(slot)
+			SELECT_BELT_SLOT(slot + 1)
 			break;
 		default:
 			ASSUME_UNREACHABLE
