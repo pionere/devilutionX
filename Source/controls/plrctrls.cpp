@@ -1127,16 +1127,16 @@ void PerformPrimaryAction()
 	}
 
 	if (stextflag != STORE_NONE) {
-		CheckStoreBtn();
+		TryStoreBtnClick();
 		return;
 	}
 
 	if (gmenu_is_active()) {
-		DoLimitedPanBtn();
+		TryLimitedPanBtnClick();
 		return;
 	}
 
-	if (DoPanBtn())
+	if (TryPanBtnClick())
 		return;
 
 	if (TryIconCurs(false))
@@ -1144,7 +1144,7 @@ void PerformPrimaryAction()
 
 	if (pcurswnd == WND_BELT) {
 		// in belt
-		// assert(!DoPanBtn());
+		// assert(!TryPanBtnClick());
 		CheckBeltClick(false);
 		return;
 	}
@@ -1156,13 +1156,13 @@ void PerformPrimaryAction()
 	}
 
 	if (pcurswnd == WND_CHAR) {
-		if (CheckChrBtns())
-			ReleaseChrBtns();
+		if (CheckChrBtnClick())
+			ReleaseChrBtn();
 		return;
 	}
 
 	if (pcurswnd == WND_QUEST) {
-		CheckQuestlog();
+		CheckQuestlogClick();
 		return;
 	}
 
@@ -1173,7 +1173,7 @@ void PerformPrimaryAction()
 	}
 
 	if (pcurswnd == WND_BOOK) {
-		SelectBookSkill(false, false);
+		CheckBookClick(false, false);
 		return;
 	}
 
@@ -1295,7 +1295,7 @@ void PerformSecondaryAction()
 	}
 
 	if (pcurswnd == WND_BOOK) {
-		SelectBookSkill(false, true);
+		CheckBookClick(false, true);
 		return;
 	}
 

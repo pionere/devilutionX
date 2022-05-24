@@ -993,7 +993,7 @@ void ReleaseLvlBtn()
 /**
  * Checks if the mouse cursor is within any of the panel buttons and flag it if so.
  */
-bool DoPanBtn()
+bool TryPanBtnClick()
 {
 	int i, mx, my;
 
@@ -1018,7 +1018,7 @@ bool DoPanBtn()
 	return gbLvlbtndown;
 }
 
-void DoLimitedPanBtn()
+void TryLimitedPanBtnClick()
 {
 	if (POS_IN_RECT(MouseX, MouseY,
 		PANEL_LEFT + PanBtnPos[PANBTN_MAINMENU][0],  PANEL_BOTTOM - PanBtnPos[PANBTN_MAINMENU][1],
@@ -1097,7 +1097,7 @@ void HandlePanBtn(int i)
  * Check if the mouse is within a control panel button that's flagged.
  * Takes apropiate action if so.
  */
-void CheckBtnUp()
+void ReleasePanBtn()
 {
 	int i;
 
@@ -1698,7 +1698,7 @@ void DrawInfoStr()
 }
 
 
-bool CheckChrBtns()
+bool CheckChrBtnClick()
 {
 	int i;
 
@@ -1717,7 +1717,7 @@ bool CheckChrBtns()
 	return false;
 }
 
-void ReleaseChrBtns()
+void ReleaseChrBtn()
 {
 	int i;
 
@@ -1991,7 +1991,7 @@ void DrawSpellBook()
 	}
 }
 
-void SelectBookSkill(bool shift, bool altSkill)
+void CheckBookClick(bool shift, bool altSkill)
 {
 	int dx, dy;
 

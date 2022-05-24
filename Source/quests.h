@@ -43,7 +43,7 @@ void StartQuestlog();
 void QuestlogUp();
 void QuestlogDown();
 void QuestlogEnter();
-void CheckQuestlog();
+void CheckQuestlogClick();
 void SetMultiQuest(int qn, int qa, int qlog, int qvar);
 void PlayDungMsgs();
 

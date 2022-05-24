@@ -2414,7 +2414,7 @@ void STextEnter()
 	PlaySFX(IS_TITLSLCT);
 }
 
-void CheckStoreBtn()
+void TryStoreBtnClick()
 {
 	int y, ly;
 
@@ -2463,7 +2463,7 @@ void CheckStoreBtn()
 				}
 			}
 		} else if (y >= STORE_LIST_FIRST && y < STORE_LINES) {
-			static_assert(STORE_BACK <= 22, "STORE_BACK does not fit to CheckStoreBtn.");
+			static_assert(STORE_BACK <= 22, "STORE_BACK does not fit to TryStoreBtnClick.");
 			// add some freedom to the back button since it has an offset
 			if (y >= 22)
 				y = 22;

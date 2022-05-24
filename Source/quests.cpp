@@ -677,7 +677,7 @@ void QuestlogEnter()
 		ToggleWindow(WND_QUEST);
 }
 
-void CheckQuestlog()
+void CheckQuestlogClick()
 {
 	int y;
 

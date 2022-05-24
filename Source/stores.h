@@ -48,7 +48,7 @@ void STextPageDown();
 void SyncStoreCmd(int pnum, int cmd, int ii, int price);
 bool TakePlrsMoney(int pnum, int cost);
 void STextEnter();
-void CheckStoreBtn();
+void TryStoreBtnClick();
 void ReleaseStoreBtn();
 
 /* rdata */

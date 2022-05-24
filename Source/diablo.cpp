@@ -582,16 +582,16 @@ static void ActionBtnDown(bool bShift)
 	}
 
 	if (stextflag != STORE_NONE) {
-		CheckStoreBtn();
+		TryStoreBtnClick();
 		return;
 	}
 
 	if (gmenu_is_active()) {
-		DoLimitedPanBtn();
+		TryLimitedPanBtnClick();
 		return;
 	}
 
-	if (DoPanBtn()) {
+	if (TryPanBtnClick()) {
 		return;
 	}
 
@@ -600,7 +600,7 @@ static void ActionBtnDown(bool bShift)
 
 	if (pcurswnd == WND_BELT) {
 		// in belt
-		// assert(!DoPanBtn());
+		// assert(!TryPanBtnClick());
 		CheckBeltClick(bShift);
 		return;
 	}
@@ -612,12 +612,12 @@ static void ActionBtnDown(bool bShift)
 	}
 
 	if (pcurswnd == WND_CHAR) {
-		CheckChrBtns();
+		CheckChrBtnClick();
 		return;
 	}
 
 	if (pcurswnd == WND_QUEST) {
-		CheckQuestlog();
+		CheckQuestlogClick();
 		return;
 	}
 
@@ -627,7 +627,7 @@ static void ActionBtnDown(bool bShift)
 	}
 
 	if (pcurswnd == WND_BOOK) {
-		SelectBookSkill(bShift, false);
+		CheckBookClick(bShift, false);
 		return;
 	}
 
@@ -675,7 +675,7 @@ static void AltActionBtnDown(bool bShift)
 		return;
 
 	if (pcurswnd == WND_BOOK) {
-		SelectBookSkill(bShift, true);
+		CheckBookClick(bShift, true);
 		return;
 	}
 
@@ -727,9 +727,9 @@ static void ReleaseKey(int vkey)
 		if (gmenu_is_active())
 			gmenu_left_mouse(false);
 		if (gabPanbtn[PANBTN_MAINMENU])
-			CheckBtnUp();
+			ReleasePanBtn();
 		if (gbChrbtnactive)
-			ReleaseChrBtns();
+			ReleaseChrBtn();
 		if (gbLvlbtndown)
 			ReleaseLvlBtn();
 		if (stextflag != STORE_NONE)
@@ -851,7 +851,7 @@ static void PressKey(int vkey)
 		if (vkey == DVL_VK_RETURN) {
 			StartPlrMsg();
 		} else if (vkey == DVL_VK_LBUTTON) {
-			DoLimitedPanBtn();
+			TryLimitedPanBtnClick();
 		} else {
 			if (transKey >= ACT_MSG0 && transKey <= ACT_MSG3)
 				diablo_hotkey_msg(transKey);
