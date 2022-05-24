@@ -941,7 +941,7 @@ void DrawCtrlBtns()
  * show up when you click the spell slot at the control panel.
  * @param altSkill whether the cursor is moved to the active skill or altSkill (controllers-only)
  */
-void DoSkillList(bool altSkill)
+static void DoSkillList(bool altSkill)
 {
 	gbSkillListFlag = true;
 
