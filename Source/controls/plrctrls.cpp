@@ -410,7 +410,7 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	if (dir.y == AxisDirectionY_NONE)
 		return;
 
-	if (gbChrbtnactive && myplr._pStatPts <= 0)
+	if (gbChrbtnactive || myplr._pStatPts <= 0)
 		return;
 
 	// first, find our cursor location
