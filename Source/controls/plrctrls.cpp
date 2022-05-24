@@ -446,8 +446,8 @@ static void AttrIncBtnSnap(AxisDirection dir)
 
 #define SELECT_BELT_SLOT(s)										\
 {																\
-	x = InvRect[s].X + (INV_SLOT_SIZE_PX / 2);					\
-	y = SCREEN_HEIGHT - InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);	\
+	x = PANEL_LEFT + InvRect[s].X + (INV_SLOT_SIZE_PX / 2);		\
+	y = PANEL_BOTTOM - InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);	\
 }
 
 /**
