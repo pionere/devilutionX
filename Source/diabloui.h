@@ -30,7 +30,7 @@ bool UiProgressDialog(const char *msg, int(*fnfunc)());
 
 /* Defined in selgame.cpp */
 int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt));
-void UIDisconnectGame(int reason);
+void UIDisconnectGame();
 
 /* Defined in selconn.cpp */
 extern int provider;

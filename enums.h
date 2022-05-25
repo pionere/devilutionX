@@ -2901,7 +2901,6 @@ typedef enum turn_status {
 typedef enum leave_reason {
 	LEAVE_NONE,
 	LEAVE_UNKNOWN,
-	LEAVE_ENDING, // was 0x40000004
 	LEAVE_DROP,   // was 0x40000006
 } leave_reason;
 

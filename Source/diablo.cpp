@@ -1583,11 +1583,6 @@ static void run_game()
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == GameWndProc);
 	FreeGameFX();
-
-	if (gbCineflag) {
-		gbCineflag = false;
-		DoEnding();
-	}
 }
 
 bool StartGame(bool bSinglePlayer)

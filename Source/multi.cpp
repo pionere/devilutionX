@@ -250,9 +250,6 @@ void multi_deactivate_player(int pnum, int reason)
 			switch (reason) {
 			//case LEAVE_UNKNOWN:
 			//	break;
-			case LEAVE_ENDING:
-				pszFmt = "Player '%s' killed Diablo and left the game!";
-				break;
 			case LEAVE_DROP:
 				pszFmt = "Player '%s' dropped due to timeout";
 				break;
@@ -703,7 +700,7 @@ void NetClose()
 	_gbNetInited = false;
 	nthread_cleanup();
 	dthread_cleanup();
-	UIDisconnectGame(gbCineflag ? LEAVE_ENDING : LEAVE_UNKNOWN);
+	UIDisconnectGame();
 }
 
 static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)

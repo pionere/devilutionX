@@ -68,9 +68,13 @@ static void InitCutscene(unsigned int uMsg)
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
+	case DVL_DWM_RETOWN:
+		if (gbCineflag) {
+			gbCineflag = false;
+			DoEnding();
+		}
 	case DVL_DWM_TWARPDN:
 	case DVL_DWM_TWARPUP:
-	case DVL_DWM_RETOWN:
 		lvl = myplr._pDunLevel; // the destination level
 		InitLvlCutscene(lvl);
 		break;

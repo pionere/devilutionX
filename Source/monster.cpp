@@ -2521,21 +2521,14 @@ void DoEnding()
 
 	// they tried to play TMUSIC_L2 in vanilla but failed, because
 	// music is stopped/paused in play_movie
-	play_movie("gendata\\loopdend.smk", MOV_SKIP | MOV_LOOP);
+	if (!IsMultiGame) // skip movie in multiplayer games to prevent overflow due to pending turns
+		play_movie("gendata\\loopdend.smk", MOV_SKIP | MOV_LOOP);
 }
 
 static void PrepDoEnding()
 {
-	gbRunGame = false;
-	gbDeathflag = MDM_ALIVE;
 	gbCineflag = true;
-
-	if (!IsMultiGame) {
-		// save the hero + items
-		pfile_write_hero(true);
-		// delete the game
-		pfile_delete_save_file(true);
-	}
+	NetSendCmd(CMD_RETOWN);
 }
 
 /*
