@@ -161,6 +161,7 @@ typedef enum window_messages {
 #define DVL_VK_F 0x46
 #define DVL_VK_G 0x47
 #define DVL_VK_I 0x49
+#define DVL_VK_L 0x4C
 #define DVL_VK_M 0x4D
 #define DVL_VK_P 0x50
 #define DVL_VK_Q 0x51
