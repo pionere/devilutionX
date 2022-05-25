@@ -1052,6 +1052,18 @@ void DeltaLoadLevel()
 				}
 			}
 		}
+		// ensure the level of Diablo is empty after she is defeated
+		if (currLvl._dLevelIdx == DLV_HELL4 && quests[Q_DIABLO]._qactive == QUEST_DONE) {
+			for (i = 0; i < MAXMONSTERS; i++) {
+				mon = &monsters[i];
+				monInGame = mon->_mmode <= MM_INGAME_LAST;
+				if (monInGame) {
+					RemoveMonFromMap(i);
+					mon->_mmode = i >= MAX_MINIONS ? MM_UNUSED : MM_RESERVED;
+				}
+			}
+			nummonsters = MAX_MINIONS;
+		}
 		// SyncMonsterLight();
 
 		memcpy(automapview, gsDeltaData.ddLocal[currLvl._dLevelIdx].automapsv, sizeof(automapview));
