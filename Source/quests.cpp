@@ -684,8 +684,10 @@ void CheckQuestlogClick()
 	y = (MouseY - (gnWndQuestY + QPNL_BORDER + QPNL_TEXT_HEIGHT / 2) + QPNL_LINE_SPACING / 2 + QPNL_LINE_SPACING) / QPNL_LINE_SPACING - 1;
 	if (y != QPNL_MAXENTRIES) {
 		y -= qtopline;
-		if ((unsigned)y >= numqlines)
+		if ((unsigned)y >= numqlines) {
+			StartWndDrag(WND_QUEST);
 			return;
+		}
 	}
 	qline = y;
 	QuestlogEnter();

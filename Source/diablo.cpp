@@ -734,6 +734,7 @@ static void ReleaseKey(int vkey)
 			ReleaseLvlBtn();
 		if (stextflag != STORE_NONE)
 			ReleaseStoreBtn();
+		gbDragWnd = WND_NONE;
 	} else if (vkey == DVL_VK_SNAPSHOT) {
 		CaptureScreen();
 	}
@@ -1297,6 +1298,8 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		GetMousePos(wParam);
 		if (gmenu_is_active())
 			gmenu_on_mouse_move();
+		else if (gbDragWnd != WND_NONE)
+			DoWndDrag();
 		return;
 	case DVL_WM_LBUTTONDOWN:
 		GetMousePos(wParam);
@@ -1365,7 +1368,7 @@ static bool ProcessInput()
 		return IsMultiGame;
 	}
 
-	if (gnTimeoutCurs == CURSOR_NONE) {
+	if (gnTimeoutCurs == CURSOR_NONE && gbDragWnd == WND_NONE) {
 #if HAS_TOUCHPAD
 		finish_simulated_mouse_clicks(MouseX, MouseY);
 #endif

@@ -89,4 +89,60 @@ void InitGameUI()
 	}
 }
 
+bool MoveWndPos(BYTE wnd, int dx, int dy)
+{
+	switch (wnd) {
+	case WND_INV:
+		if (WND_CHECK_X(gnWndInvX, dx, SPANEL_WIDTH))
+			break;
+		if (WND_CHECK_Y(gnWndInvY, dy, SPANEL_HEIGHT))
+			break;
+		gnWndInvX += dx;
+		gnWndInvY += dy;
+		return true;
+	case WND_CHAR:
+		if (WND_CHECK_X(gnWndCharX, dx, SPANEL_WIDTH))
+			break;
+		if (WND_CHECK_Y(gnWndCharY, dy, SPANEL_HEIGHT))
+			break;
+		gnWndCharX += dx;
+		gnWndCharY += dy;
+		return true;
+	case WND_BOOK:
+		if (WND_CHECK_X(gnWndBookX, dx, SPANEL_WIDTH))
+			break;
+		if (WND_CHECK_Y(gnWndBookY, dy, SPANEL_HEIGHT))
+			break;
+		gnWndBookX += dx;
+		gnWndBookY += dy;
+		return true;
+	case WND_TEAM:
+		if (WND_CHECK_X(gnWndTeamX, dx, SPANEL_WIDTH))
+			break;
+		if (WND_CHECK_Y(gnWndTeamY, dy, SPANEL_HEIGHT))
+			break;
+		gnWndTeamX += dx;
+		gnWndTeamY += dy;
+		return true;
+	case WND_QUEST:
+		if (WND_CHECK_X(gnWndQuestX, dx, SPANEL_WIDTH))
+			break;
+		if (WND_CHECK_Y(gnWndQuestY, dy, SPANEL_HEIGHT))
+			break;
+		gnWndQuestX += dx;
+		gnWndQuestY += dy;
+		return true;
+	case WND_BELT:
+		if (WND_CHECK_X(gnWndBeltX, dx, BELT_WIDTH))
+			break;
+		if (WND_CHECK_Y(gnWndBeltY, dy, BELT_HEIGHT))
+			break;
+		gnWndBeltX += dx;
+		gnWndBeltY += dy;
+		return true;
+	}
+
+	return false;
+}
+
 DEVILUTION_END_NAMESPACE

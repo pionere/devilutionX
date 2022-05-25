@@ -284,6 +284,7 @@ extern int gnWndTeamX, gnWndTeamY;
 extern int gnWndQuestX, gnWndQuestY;
 
 void InitGameUI();
+bool MoveWndPos(BYTE wnd, int dx, int dy);
 
 #ifdef __cplusplus
 }

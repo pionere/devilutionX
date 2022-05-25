@@ -1096,19 +1096,20 @@ void InvPasteBeltItem(int pnum, BYTE r)
 	}
 }
 
-static void CheckInvCut(bool bShift)
+static bool CheckInvCut(bool bShift)
 {
 	BYTE r;
 
 	if (myplr._pmode != PM_STAND) {
-		return; // FALSE;
+		return false;
 	}
 
 	r = pcursinvitem;
 	if (r == INVITEM_NONE)
-		return; // FALSE;
+		return false;
 
 	NetSendCmdBParam2(CMD_CUTPLRITEM, r, bShift);
+	return true;
 }
 
 void InvCutItem(int pnum, BYTE r, bool bShift)
@@ -1258,7 +1259,9 @@ void CheckInvClick(bool bShift)
 	if (pcursicon >= CURSOR_FIRSTITEM) {
 		CheckInvPaste();
 	} else {
-		CheckInvCut(bShift);
+		if (!CheckInvCut(bShift)) {
+			StartWndDrag(WND_INV);
+		}
 	}
 }
 
@@ -1270,7 +1273,9 @@ void CheckBeltClick(bool bShift)
 	if (pcursicon >= CURSOR_FIRSTITEM) {
 		/*return*/ CheckBeltPaste();
 	} else {
-		/*return*/ CheckInvCut(bShift);
+		if (!CheckInvCut(bShift)) {
+			StartWndDrag(WND_BELT);
+		}
 	}
 }
 

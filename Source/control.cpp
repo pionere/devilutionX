@@ -58,6 +58,9 @@ char infostr[256];
 int gnNumActiveWindows;
 /** The list of active windows on the screen. */
 char gaActiveWindows[NUM_WNDS];
+BYTE gbDragWnd;
+int gnDragWndX;
+int gnDragWndY;
 /** SpellBook background CEL */
 static CelImageBuf* pSpellBkCel;
 /** SpellBook icons CEL */
@@ -871,6 +874,7 @@ void InitControlPan()
 	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[NUM_RSPLTYPES]);
 #endif
 	gnNumActiveWindows = 0;
+	gbDragWnd = WND_NONE;
 	gbInvflag = false;
 	guTeamInviteRec = 0;
 	guTeamInviteSent = 0;
@@ -910,6 +914,30 @@ void InitControlPan()
 	dropGoldValue = 0;
 	initialDropGoldValue = 0;
 	initialDropGoldIndex = 0;
+}
+
+void StartWndDrag(BYTE wnd)
+{
+	gbDragWnd = wnd;
+	gnDragWndX = MouseX;
+	gnDragWndY = MouseY;
+}
+
+void DoWndDrag()
+{
+	int dx = MouseX - gnDragWndX;
+	int dy = MouseY - gnDragWndY;
+
+	// assert(gbDragWnd != WND_NONE);
+	if (dx == 0 && dy == 0)
+		return;
+
+	if (MoveWndPos(gbDragWnd, dx, dy)) {
+		gnDragWndX = MouseX;
+		gnDragWndY = MouseY;
+	} else {
+		SetCursorPos(gnDragWndX, gnDragWndY);
+	}
 }
 
 /**
@@ -1714,6 +1742,7 @@ void CheckChrBtnClick()
 			return; // true;
 		}
 	}
+	StartWndDrag(WND_CHAR);
 	// return false;
 }
 
@@ -2001,10 +2030,8 @@ void CheckBookClick(bool shift, bool altSkill)
 	}
 
 	dx = MouseX - (gnWndBookX + SBOOK_LEFT_BORDER);
-	if (dx < 0)
-		return;
 	dy = MouseY - (gnWndBookY + SBOOK_TOP_BORDER);
-	if (dy < 0)
+	if (dx < 0 || dy < 0)
 		return;
 
 	if (dy >= lengthof(SpellPages[guBooktab]) * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
@@ -2023,6 +2050,8 @@ void CheckBookClick(bool shift, bool altSkill)
 					guBooktab++;
 			}
 		}
+	} else {
+		StartWndDrag(WND_BOOK);
 	}
 }
 
@@ -2204,18 +2233,19 @@ void CheckTeamClick(bool shift)
 	int dx, dy;
 
 	dx = MouseX - (gnWndTeamX + SBOOK_LEFT_BORDER);
-	if (dx < 0)
-		return;
 	dy = MouseY - (gnWndTeamY + SBOOK_TOP_BORDER);
-	if (dy < 0)
+	if (dx < 0 || dy < 0) {
 		return;
+	}
 
 	if (dy < NUM_BOOK_ENTRIES * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
 		int pnum = dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
 		dy = dy % (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
 		pnum += guTeamTab * NUM_BOOK_ENTRIES;
-		if (pnum >= MAX_PLRS || !plr._pActive)
+		if (pnum >= MAX_PLRS || !plr._pActive) {
+			StartWndDrag(WND_TEAM);
 			return;
+		}
 		if (dx <= SBOOK_CELWIDTH) {
 			// clicked on the icon
 			SetupPlrMsg(pnum, shift);
