@@ -1788,8 +1788,8 @@ void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags)
 static void MonDiabloDeath(int mnum, bool sendmsg)
 {
 	MonsterStruct* mon;
-	int i;
-	int mx, my;
+	int i, mx, my;
+	unsigned killLevel;
 
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
 	if (sendmsg) {
@@ -1822,6 +1822,7 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 	DoVision(mx, my, 8, true);
 
 	// assert(currLvl._dLevelIdx == DLV_HELL4);
+	killLevel = gnDifficulty + 1;
 	for (i = 0; i < MAX_PLRS; i++) {
 		// ensure the players are not processed and not sending level-delta
 		// might produce a slight inconsistent state in case a player enters the level
@@ -1829,6 +1830,9 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 		if (plx(i)._pActive && plx(i)._pDunLevel == DLV_HELL4) {
 			plx(i)._pLvlChanging = TRUE;
 			plx(i)._pInvincible = TRUE;
+			// grant rank TODO: sync with other players?
+			if (killLevel > plx(i)._pRank)
+				plx(i)._pRank = killLevel;
 		}
 	}
 }
@@ -2522,15 +2526,9 @@ void DoEnding()
 
 static void PrepDoEnding()
 {
-	unsigned killLevel;
-
 	gbRunGame = false;
 	gbDeathflag = MDM_ALIVE;
 	gbCineflag = true;
-
-	killLevel = gnDifficulty + 1;
-	if (killLevel > myplr._pRank)
-		myplr._pRank = killLevel;
 
 	if (!IsMultiGame) {
 		// save the hero + items
