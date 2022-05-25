@@ -2983,12 +2983,10 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
 	int i, dmgtype = cmd->bParam1;
-	bool diablolevel = IsMultiGame && plr._pDunLevel == DLV_HELL4;
 
-	if (dmgtype == DMGTYPE_NPC)
+	if (dmgtype == DMGTYPE_NPC) {
 		plr._pExperience -= (plr._pExperience - PlrExpLvlsTbl[plr._pLevel - 1]) >> 2;
 
-	if (dmgtype == DMGTYPE_NPC && !diablolevel) {
 		if (PlrDeadItem(pnum, &plr._pHoldItem, NUM_DIRS - 1)) {
 			if (pnum == mypnum && pcursicon >= CURSOR_FIRSTITEM)
 				NewCursor(CURSOR_HAND);
