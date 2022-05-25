@@ -873,6 +873,8 @@ bool PeekMessage(LPMSG lpMsg)
 			break;
 		case GameActionType_PRIMARY_ACTION:
 			PerformPrimaryAction();
+			lpMsg->message = DVL_WM_KEYUP;
+			lpMsg->wParam = DVL_VK_LBUTTON;
 			break;
 		case GameActionType_SECONDARY_ACTION:
 			PerformSecondaryAction();
@@ -880,28 +882,10 @@ bool PeekMessage(LPMSG lpMsg)
 		case GameActionType_CAST_SPELL:
 			PerformSpellAction();
 			break;
-		case GameActionType_TOGGLE_SKILL_LIST:
-			HandleSkillBtn(true);
-			break;
-		case GameActionType_TOGGLE_CHARACTER_INFO:
-			HandlePanBtn(PANBTN_CHARINFO);
-			break;
-		case GameActionType_TOGGLE_QUEST_LOG:
-			HandlePanBtn(PANBTN_QLOG);
-			break;
-		case GameActionType_TOGGLE_INVENTORY:
-			HandlePanBtn(PANBTN_INVENTORY);
-			break;
-		case GameActionType_TOGGLE_SPELL_BOOK:
-			HandlePanBtn(PANBTN_SPELLBOOK);
-			break;
-		case GameActionType_TOGGLE_TEAM:
-			HandlePanBtn(PANBTN_TEAMBOOK);
-			break;
 		case GameActionType_SEND_KEY:
 			lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
 			lpMsg->wParam = action.send_key.vk_code;
-			return true;
+			break;
 		case GameActionType_SEND_MOUSE_CLICK:
 			sgbControllerActive = false;
 			switch (action.send_mouse_click.button) {

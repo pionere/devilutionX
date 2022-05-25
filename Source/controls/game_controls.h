@@ -21,12 +21,6 @@ typedef enum GameActionType {
 	GameActionType_PRIMARY_ACTION,   // Talk to towners, click on inv items, attack, etc.
 	GameActionType_SECONDARY_ACTION, // Open chests, doors, pickup items.
 	GameActionType_CAST_SPELL,
-	GameActionType_TOGGLE_INVENTORY,
-	GameActionType_TOGGLE_CHARACTER_INFO,
-	GameActionType_TOGGLE_SKILL_LIST,
-	GameActionType_TOGGLE_SPELL_BOOK,
-	GameActionType_TOGGLE_QUEST_LOG,
-	GameActionType_TOGGLE_TEAM,
 	GameActionType_SEND_KEY,
 	GameActionType_SEND_MOUSE_CLICK,
 } GameActionType;

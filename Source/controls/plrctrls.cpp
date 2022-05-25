@@ -1118,7 +1118,7 @@ void UseBeltItem(int type)
 		}
 	}
 }
-
+// TODO: same as ActionBtnDown(false)
 void PerformPrimaryAction()
 {
 	if (gbSkillListFlag) {
@@ -1128,7 +1128,6 @@ void PerformPrimaryAction()
 
 	if (stextflag != STORE_NONE) {
 		TryStoreBtnClick();
-		ReleaseStoreBtn();
 		return;
 	}
 
@@ -1138,8 +1137,6 @@ void PerformPrimaryAction()
 	}
 
 	if (TryPanBtnClick()) {
-		ReleasePanBtn();
-		ReleaseLvlBtn();
 		return;
 	}
 
@@ -1161,7 +1158,6 @@ void PerformPrimaryAction()
 
 	if (pcurswnd == WND_CHAR) {
 		CheckChrBtnClick();
-		ReleaseChrBtn();
 		return;
 	}
 
