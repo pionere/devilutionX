@@ -178,7 +178,7 @@ static BYTE* LoadPal(const char* palFile)
 }
 static void DumpPalette(const char* palFile, BYTE* palette, int numcolors)
 {
-	FILE* f = fopen(name, "wb");
+	FILE* f = fopen(palFile, "wb");
 
 	if (f == NULL) {
 		return;
