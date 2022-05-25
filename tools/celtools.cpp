@@ -2091,13 +2091,25 @@ static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len, BYTE* palette, int
 
 static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
+	png_image_data* orimg_data = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+
 	// upscale the pngs
 	for (int i = 0; i < numimage; i++) {
-		RGBA* src = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - imagedata[i].height / multiplier];
-		src += imagedata[i].width - imagedata[i].width / multiplier;
+		// prepare orimg_data
+		orimg_data[i] = imagedata[i];
+
+		imagedata[i].width *= multiplier;
+		imagedata[i].height *= multiplier;
+		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
+		imagedata[i].data_ptr = (png_bytep)imagerows;
+		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
+		for (int n = 0; n < imagedata[i].height; n++) {
+			imagedata[i].row_pointers[n] = (png_bytep)&imagerows[imagedata[i].width * n];
+		}
+		RGBA* src = (RGBA*)orimg_data[i].row_pointers[0];
 		RGBA* dst = (RGBA*)imagedata[i].row_pointers[0];
-		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
-			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+		for (int y = 0; y < orimg_data[i].height; y++) {
+			for (int x = 0; x < orimg_data[i].width; x++) {
 				for (int j = 0; j < multiplier; j++) {
 					*dst = *src;
 					dst++;
@@ -2108,7 +2120,6 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 				memcpy(dst, dst - imagedata[i].width, sizeof(RGBA) * imagedata[i].width);
 				dst += imagedata[i].width;
 			}
-			src += imagedata[i].width - imagedata[i].width / multiplier;
 		}
 	}
 
@@ -2116,11 +2127,13 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 	for (int i = 0; i < numimage; i++) {
 		if (imagedata[i].fixColorMask == NULL)
 			continue;
-		BYTE* src = (BYTE*)&imagedata[i].fixColorMask[(imagedata[i].height - imagedata[i].height / multiplier) * imagedata[i].width];
-		src += imagedata[i].width - imagedata[i].width / multiplier;
+
+		imagedata[i].fixColorMask = (BYTE*)malloc(sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
+
+		BYTE* src = (BYTE*)&orimg_data[i].fixColorMask[0];
 		BYTE* dst = (BYTE*)&imagedata[i].fixColorMask[0];
-		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
-			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+		for (int y = 0; y < orimg_data[i].height; y++) {
+			for (int x = 0; x < orimg_data[i].width; x++) {
 				for (int j = 0; j < multiplier; j++) {
 					*dst = *src;
 					dst++;
@@ -2131,7 +2144,6 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 				memcpy(dst, dst - imagedata[i].width, sizeof(BYTE) * imagedata[i].width);
 				dst += imagedata[i].width;
 			}
-			src += imagedata[i].width - imagedata[i].width / multiplier;
 		}
 	}
 
@@ -2160,6 +2172,9 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 			}
 		}
 	}
+
+	// cleanup memory
+	CleanupImageData(orimg_data, numimage);
 }
 
 void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolors, int coloroffset, int numfixcolors, const char* resCelName)
@@ -2173,8 +2188,8 @@ void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolor
 	// prepare pngdata
 	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	for (int i = 0; i < numimage; i++) {
-		imagedata[i].width = celdata[i].width * multiplier;
-		imagedata[i].height = celdata[i].height * multiplier;
+		imagedata[i].width = celdata[i].width;
+		imagedata[i].height = celdata[i].height;
 		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
 		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
 		for (int n = 0; n < imagedata[i].height; n++) {
@@ -2182,17 +2197,15 @@ void UpscaleCel(const char* celname, int multiplier, BYTE* palette, int numcolor
 		}
 		imagedata[i].data_ptr = (png_bytep)imagerows;
 		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
-		//lastLine += imagedata.width * (imagedata.height - 1);
-		// blit to the bottom right
-		RGBA* dst = &lastLine[imagedata[i].width - imagedata[i].width / multiplier];
-		CelBlitSafe(dst, celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset, numfixcolors);
+		RGBA* dst = &lastLine[0];
+		CelBlitSafe(dst, celdata[i].data, celdata[i].dataSize, imagedata[i].width, imagedata[i].width, palette, coloroffset, numfixcolors);
 
 		// prepare meta-info
 		imagedata[i].fixColorMask = (BYTE*)malloc(sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
 		memset(imagedata[i].fixColorMask, 0, sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
-		BYTE* dstB = &imagedata[i].fixColorMask[(imagedata[i].height - 1) * imagedata[i].width + imagedata[i].width - imagedata[i].width / multiplier];
-		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
-			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+		BYTE* dstB = &imagedata[i].fixColorMask[(imagedata[i].height - 1) * imagedata[i].width];
+		for (int y = 0; y < imagedata[i].height; y++) {
+			for (int x = 0; x < imagedata[i].width; x++) {
 				if (dst[x].a != 0 && dst[x].a != 255) {
 					dstB[x] = dst[x].a;
 					dst[x].a = 255;
@@ -2223,8 +2236,8 @@ void UpscaleCelComp(const char* celname, int multiplier, BYTE* palette, int numc
 	// prepare pngdata
 	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	for (int i = 0; i < numimage; i++) {
-		imagedata[i].width = celdata[i].width * multiplier;
-		imagedata[i].height = celdata[i].height * multiplier;
+		imagedata[i].width = celdata[i].width;
+		imagedata[i].height = celdata[i].height;
 		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
 		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
 		for (int n = 0; n < imagedata[i].height; n++) {
@@ -2234,7 +2247,7 @@ void UpscaleCelComp(const char* celname, int multiplier, BYTE* palette, int numc
 		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
 		//lastLine += imagedata.width * (imagedata.height - 1);
 		// blit to the bottom right
-		CelBlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset, 0);
+		CelBlitSafe(&lastLine[0], celdata[i].data, celdata[i].dataSize, imagedata[i].width, imagedata[i].width, palette, coloroffset, 0);
 		imagedata[i].fixColorMask = NULL;
 	}
 
@@ -2258,8 +2271,8 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	for (int i = 0; i < numimage; i++) {
 		// prepare pngdata
-		imagedata[i].width = celdata[i].width * multiplier;
-		imagedata[i].height = celdata[i].height * multiplier;
+		imagedata[i].width = celdata[i].width;
+		imagedata[i].height = celdata[i].height;
 		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
 		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
 		for (int n = 0; n < imagedata[i].height; n++) {
@@ -2267,9 +2280,7 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 		}
 		imagedata[i].data_ptr = (png_bytep)imagerows;
 		RGBA* lastLine = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - 1];
-		//lastLine += imagedata.width * (imagedata.height - 1);
-		// blit to the bottom right
-		Cl2BlitSafe(&lastLine[imagedata[i].width - imagedata[i].width / multiplier], celdata[i].data, celdata[i].dataSize, imagedata[i].width / multiplier, imagedata[i].width, palette, coloroffset, 0);
+		Cl2BlitSafe(&lastLine[0], celdata[i].data, celdata[i].dataSize, imagedata[i].width, imagedata[i].width, palette, coloroffset, 0);
 		imagedata[i].fixColorMask = NULL;
 	}
 

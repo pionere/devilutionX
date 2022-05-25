@@ -1451,13 +1451,25 @@ static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len, BYTE* palette, int
 
 static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
+	png_image_data* orimg_data = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+
 	// upscale the pngs
 	for (int i = 0; i < numimage; i++) {
-		RGBA* src = (RGBA*)imagedata[i].row_pointers[imagedata[i].height - imagedata[i].height / multiplier];
-		src += imagedata[i].width - imagedata[i].width / multiplier;
+		// prepare orimg_data
+		orimg_data[i] = imagedata[i];
+
+		imagedata[i].width *= multiplier;
+		imagedata[i].height *= multiplier;
+		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
+		imagedata[i].data_ptr = (png_bytep)imagerows;
+		imagedata[i].row_pointers = (png_bytep*)malloc(imagedata[i].height * sizeof(void*));
+		for (int n = 0; n < imagedata[i].height; n++) {
+			imagedata[i].row_pointers[n] = (png_bytep)&imagerows[imagedata[i].width * n];
+		}
+		RGBA* src = (RGBA*)orimg_data[i].row_pointers[0];
 		RGBA* dst = (RGBA*)imagedata[i].row_pointers[0];
-		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
-			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+		for (int y = 0; y < orimg_data[i].height; y++) {
+			for (int x = 0; x < orimg_data[i].width; x++) {
 				for (int j = 0; j < multiplier; j++) {
 					*dst = *src;
 					dst++;
@@ -1468,7 +1480,6 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 				memcpy(dst, dst - imagedata[i].width, sizeof(RGBA) * imagedata[i].width);
 				dst += imagedata[i].width;
 			}
-			src += imagedata[i].width - imagedata[i].width / multiplier;
 		}
 	}
 
@@ -1476,11 +1487,13 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 	for (int i = 0; i < numimage; i++) {
 		if (imagedata[i].fixColorMask == NULL)
 			continue;
-		BYTE* src = (BYTE*)&imagedata[i].fixColorMask[(imagedata[i].height - imagedata[i].height / multiplier) * imagedata[i].width];
-		src += imagedata[i].width - imagedata[i].width / multiplier;
+
+		imagedata[i].fixColorMask = (BYTE*)malloc(sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
+
+		BYTE* src = (BYTE*)&orimg_data[i].fixColorMask[0];
 		BYTE* dst = (BYTE*)&imagedata[i].fixColorMask[0];
-		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
-			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+		for (int y = 0; y < orimg_data[i].height; y++) {
+			for (int x = 0; x < orimg_data[i].width; x++) {
 				for (int j = 0; j < multiplier; j++) {
 					*dst = *src;
 					dst++;
@@ -1491,7 +1504,6 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 				memcpy(dst, dst - imagedata[i].width, sizeof(BYTE) * imagedata[i].width);
 				dst += imagedata[i].width;
 			}
-			src += imagedata[i].width - imagedata[i].width / multiplier;
 		}
 	}
 
@@ -1520,6 +1532,9 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 			}
 		}
 	}
+
+	// cleanup memory
+	CleanupImageData(orimg_data, numimage);
 }
 
 void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* mindata, const char* destFolder, const char* prefix, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
@@ -1931,8 +1946,8 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, int du
 	png_image_data* imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numtiles);
 	for (int i = 0; i < numtiles; i++) {
 		// prepare pngdata
-		imagedata[i].width = columns * MICRO_WIDTH * multiplier;
-		imagedata[i].height = rows * MICRO_HEIGHT * multiplier;
+		imagedata[i].width = columns * MICRO_WIDTH;
+		imagedata[i].height = rows * MICRO_HEIGHT;
 		RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
 		// make the background transparent
 		memset(imagerows, 0, sizeof(RGBA) * imagedata[i].height * imagedata[i].width);
@@ -1943,28 +1958,26 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, int du
 		imagedata[i].data_ptr = (png_bytep)imagerows;
 
 		//lastLine += imagedata.width * (imagedata.height - 1);
-		// CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width / multiplier, imagedata.width, palette, coloroffset, 0);
+		// CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, imagedata.width, palette, coloroffset, 0);
 
-		RGBA* dst = (RGBA*)imagedata[i].row_pointers[rows * MICRO_HEIGHT * (multiplier - 1) + MICRO_HEIGHT - 1];
-		// blit to the bottom right
-		dst += imagedata[i].width - imagedata[i].width / multiplier;
+		RGBA* dst = (RGBA*)imagedata[i].row_pointers[MICRO_HEIGHT - 1];
 		uint16_t* src = mindata[i].levelBlocks;
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < columns; x++, src++) {
 				uint16_t levelCelBlock = *src;
-				RenderMicro(dst, columns * MICRO_WIDTH * multiplier, levelCelBlock, DMT_NONE, celBuf, false, palette, coloroffset, numfixcolors);
+				RenderMicro(dst, imagedata[i].width, levelCelBlock, DMT_NONE, celBuf, false, palette, coloroffset, numfixcolors);
 				dst += MICRO_WIDTH;
 			}
 			dst += imagedata[i].width * MICRO_HEIGHT - columns * MICRO_WIDTH;
 		}
 
 		// prepare meta-info
-		dst -= imagedata[i].width * TILE_HEIGHT;
+		dst -= imagedata[i].width * MICRO_HEIGHT;
 		imagedata[i].fixColorMask = (BYTE*)malloc(sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
 		memset(imagedata[i].fixColorMask, 0, sizeof(BYTE) * imagedata[i].height * imagedata[i].width);
-		BYTE* dstB = &imagedata[i].fixColorMask[(imagedata[i].height - 1) * imagedata[i].width + imagedata[i].width - imagedata[i].width / multiplier];
-		for (int y = 0; y < imagedata[i].height / multiplier; y++) {
-			for (int x = 0; x < imagedata[i].width / multiplier; x++) {
+		BYTE* dstB = &imagedata[i].fixColorMask[(imagedata[i].height - 1) * imagedata[i].width];
+		for (int y = 0; y < imagedata[i].height; y++) {
+			for (int x = 0; x < imagedata[i].width; x++) {
 				if (dst[x].a != 0 && dst[x].a != 255) {
 					dstB[x] = dst[x].a;
 					dst[x].a = 255;
