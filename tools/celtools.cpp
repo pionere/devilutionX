@@ -2165,6 +2165,7 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 						*pp = Interpolate(p0, p1, k, multiplier, palette, numcolors, coloroffset, numfixcolors);
 					}
 				}
+				p1 = p0 + multiplier * imagedata[i].width;
 					for (int k = 1; k < multiplier; k++) {
 						RGBA* pp = p0 + k * imagedata[i].width;
 						*pp = Interpolate(p0, p1, k, multiplier, palette, numcolors, coloroffset, numfixcolors);
