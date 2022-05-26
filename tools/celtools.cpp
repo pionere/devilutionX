@@ -2297,36 +2297,37 @@ void UpscaleCl2(const char* celname, int multiplier, BYTE* palette, int numcolor
 int main()
 {
 	/*{ // upscale regular cel files of listfiles.txt
-		- fails if the output-folder structure is not prepared
-		- skips Levels(dungeon tiles), gendata(cutscenes) and cow.CEL manually
+	//	- fails if the output-folder structure is not prepared
+	//	- skips Levels(dungeon tiles), gendata(cutscenes) and cow.CEL manually
 	// #include <fstream>
-	std::ifstream input("f:\\listfiles.txt");
+		std::ifstream input("f:\\listfiles.txt");
 
-	std::string line;
-	while (std::getline(input, line)) {
-		size_t ls = line.size();
-		if (ls <= 4)
-			continue;
-		if (line[0] == '_')
-			continue;
-		if (!stringicomp(line.substr(line.length() - 4, 4).c_str(), ".CEL"))
-			continue;
-		if (ls > 7 && stringicomp(line.substr(0, 7).c_str(), "gendata"))
-			continue;
-		if (ls > 7 && stringicomp(line.substr(0, 6).c_str(), "Levels"))
-			continue;
-		if (ls > 7 && stringicomp(line.substr(1, 6).c_str(), "Levels"))
-			continue;
-		if (ls > 7 && stringicomp(line.substr(line.length() - 7, 7).c_str(), "cow.CEL"))
-			continue;
+		std::string line;
+		while (std::getline(input, line)) {
+			size_t ls = line.size();
+			if (ls <= 4)
+				continue;
+			if (line[0] == '_')
+				continue;
+			if (!stringicomp(line.substr(line.length() - 4, 4).c_str(), ".CEL"))
+				continue;
+			if (ls > 7 && stringicomp(line.substr(0, 7).c_str(), "gendata"))
+				continue;
+			if (ls > 7 && stringicomp(line.substr(0, 6).c_str(), "Levels")
+				 && !stringicomp(line.substr(line.length() - 5, 5).c_str(), "S.CEL"))
+				continue;
+			if (ls > 7 && stringicomp(line.substr(1, 6).c_str(), "Levels"))
+				continue;
+			if (ls > 7 && stringicomp(line.substr(line.length() - 7, 7).c_str(), "cow.CEL"))
+				continue;
 
-		char path[256];
-		snprintf(path, 256, "F:\\MPQE\\Work\\%s", line.c_str());
-		char outpath[256];
-		snprintf(outpath, 256, "F:\\outcel\\%s", line.c_str());
-		UpscaleCel(path, 2, &diapal[0][0], 128, 128, 0, outpath);
-	}
-	input.close();
+			char path[256];
+			snprintf(path, 256, "f:\\MPQE\\Work\\%s", line.c_str());
+			char outpath[256];
+			snprintf(outpath, 256, "f:\\outcel\\%s", line.c_str());
+			UpscaleCel(path, 2, &diapal[0][0], 128, 128, 0, outpath);
+		}
+		input.close();
 	}*/
 	/*{ // upscale objects with level-specific palette (fails if the output-folder structure is not prepared)
 		const char* celPalPairs[][4] = {
@@ -2348,7 +2349,7 @@ int main()
 			BYTE* pal = LoadPal(path);
 			snprintf(path, 256, "f:\\MPQE\\Work\\%s", celPalPairs[i][0]);
 			char outpath[256];
-			snprintf(outpath, 256, "F:\\outcel\\%s", celPalPairs[i][0]);
+			snprintf(outpath, 256, "f:\\outcel\\%s", celPalPairs[i][0]);
 			UpscaleCel(path, 2, pal, atoi(celPalPairs[i][2]), 0, atoi(celPalPairs[i][3]), outpath);
 			free(pal);
 		}
@@ -2397,12 +2398,12 @@ int main()
 			BYTE* pal = LoadPal(path);
 			snprintf(path, 256, "f:\\MPQE\\Work\\%s", celPalPairs[i][0]);
 			char outpath[256];
-			snprintf(outpath, 256, "F:\\outcel\\%s", celPalPairs[i][0]);
+			snprintf(outpath, 256, "f:\\outcel\\%s", celPalPairs[i][0]);
 			UpscaleCel(path, 2, pal, 256, 0, 0, outpath);
 			free(pal);
 		}
 	}*/
-	// UpscaleCelComp("F:\\MPQE\\Work\\towners\\animals\\cow.CEL", 1, &diapal[0][0], 128, 128, "F:\\outcel\\towners\\animals\\cow.cel");
+	// UpscaleCelComp("f:\\MPQE\\Work\\towners\\animals\\cow.CEL", 2, &diapal[0][0], 128, 128, "f:\\outcel\\towners\\animals\\cow.cel");
 	/*{ // upscale non-standard CELs of the menu (converted from PCX)
 		const char* menuCELs[] = {
 			"ui_art\\mainmenu.CEL", "ui_art\\title.CEL", "ui_art\\logo.CEL", "ui_art\\smlogo.CEL"
