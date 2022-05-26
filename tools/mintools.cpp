@@ -1430,19 +1430,33 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
 	mmd->MicroType = MET_TRANSPARENT;
 }
 
-static RGBA Interpolate(RGBA* c0, RGBA* c1, int idx, int len, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
+static RGBA BilinearInterpolate(RGBA* c0, RGBA* cR, int dx, RGBA* cD, int dy, int len, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
-	if (c1->a != 255)
-		return *c0; // preserve tranparent pixels
-
 	RGBA res;
 	res.a = 255;
-	res.r = (c0->r * (len - idx) + c1->r * idx) / len;
-	res.g = (c0->g * (len - idx) + c1->g * idx) / len;
-	res.b = (c0->b * (len - idx) + c1->b * idx) / len;
+
+	if (cR->a != 255) {
+		if (cD->a != 255)
+			return *c0; // preserve transparent pixels
+		// interpolate down
+		res.r = (c0->r * (len - dy) + cD->r * dy) / len;
+		res.g = (c0->g * (len - dy) + cD->g * dy) / len;
+		res.b = (c0->b * (len - dy) + cD->b * dy) / len;
+	} else if (cD->a != 255) {
+		// interpolate right
+		res.r = (c0->r * (len - dx) + cR->r * dx) / len;
+		res.g = (c0->g * (len - dx) + cR->g * dx) / len;
+		res.b = (c0->b * (len - dx) + cR->b * dx) / len;
+	} else {
+		// interpolate down and right
+		res.r = (c0->r * (len - dx + len - dy) + cR->r * dx + cD->r * dy) / (2 * len);
+		res.g = (c0->g * (len - dx + len - dy) + cR->g * dx + cD->g * dy) / (2 * len);
+		res.b = (c0->b * (len - dx + len - dy) + cR->b * dx + cD->b * dy) / (2 * len);
+	}
+
 	/*if (numfixcolors != 0 && palette != NULL) {
 		// do not interpolate 'protected' colors
-		BYTE col = GetPalColor(res, palette, numcolors, coloroffset);
+		BYTE col = GetPalColor(res, palette, numcolors, coloroffset, 0);
 		if (col != 0 && col < numfixcolors)
 			return *c0;
 	}*/
@@ -1518,18 +1532,14 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 				if (imagedata[i].fixColorMask != NULL && imagedata[i].fixColorMask[x + y * imagedata[i].width] != 0)
 					continue;
 
-				RGBA* p1 = p0 + multiplier;
+				RGBA* pR = p0 + multiplier;
+				RGBA* pD = p0 + multiplier * imagedata[i].width;
 				for (int j = 0; j < multiplier; j++) {
-					for (int k = 1; k < multiplier; k++) {
+					for (int k = 0; k < multiplier; k++) {
 						RGBA* pp = p0 + j * imagedata[i].width + k;
-						*pp = Interpolate(p0, p1, k, multiplier, palette, numcolors, coloroffset, numfixcolors);
+						*pp = BilinearInterpolate(pp, pR, k, pD, j, multiplier, palette, numcolors, coloroffset, numfixcolors);
 					}
 				}
-				p1 = p0 + multiplier * imagedata[i].width;
-					for (int k = 1; k < multiplier; k++) {
-						RGBA* pp = p0 + k * imagedata[i].width;
-						*pp = Interpolate(p0, p1, k, multiplier, palette, numcolors, coloroffset, numfixcolors);
-					}
 			}
 		}
 	}
