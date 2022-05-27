@@ -2360,8 +2360,7 @@ int main()
 				continue;
 			if (ls > 7 && stringicomp(line.substr(0, 7).c_str(), "gendata"))
 				continue;
-			if (ls > 7 && stringicomp(line.substr(0, 6).c_str(), "Levels")
-				 && !stringicomp(line.substr(line.length() - 5, 5).c_str(), "S.CEL"))
+			if (ls > 7 && stringicomp(line.substr(0, 6).c_str(), "Levels"))
 				continue;
 			if (ls > 7 && stringicomp(line.substr(1, 6).c_str(), "Levels"))
 				continue;
@@ -2603,24 +2602,37 @@ int main()
 		const char* pnames[] = { "f:\\cow.png" };
 		PNG2CelComp(pnames, 8 * 12, true, "f:\\cow_out.CEL", true, 12, &diapal[0][0], 128, 128);
 	}*/
-	//PNG2Cel("f:\\inv.png", "f:\\inv.cel", false, &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\quest.png", "f:\\quest.cel", false, &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\char.png", "f:\\char.cel", false, &diapal[0][0], 128, 128);
-	const char* fsb0[] = { "f:\\SpellBk.png" };
-	PNG2Cel(fsb0, 1, false, "f:\\SpellBk.CEL", false, &diapal[0][0], 128, 128);
+	/*{ // sample code to convert single PNG to CEL
+		const char* inv[] = { "f:\\inv.png" };
+		PNG2Cel(inv, 1, false, "f:\\inv.cel", false, &diapal[0][0], 128, 128);
+		const char* quest[] = { "f:\\quest.png" };
+		PNG2Cel(quest, 1 , false, "f:\\quest.cel", false, &diapal[0][0], 128, 128);
+		const char* chr[] = { "f:\\char.png" };
+		PNG2Cel(chr, 1, false, "f:\\char.cel", false, &diapal[0][0], 128, 128);
+		const char* sb[] = { "f:\\SpellBk.png" };
+		PNG2Cel(sb, 1, false, "f:\\SpellBk.CEL", false, &diapal[0][0], 128, 128);
+	}*/
+	/*{ // sample code to convert multiple PNGs to a CEL
+		const char* sblist[] = { "f:\\SpellBkB1.png", "f:\\SpellBkB2.png",
+			"f:\\SpellBkB3.png", "f:\\SpellBkB4.png"};
+		PNG2Cel(sblist, 4, false, "f:\\SpellBkB.CEL", false, &diapal[0][0], 128, 128);
+	}*/
+	/*{ // sample code to convert single PNGs to CELs, then merge the CELs to a single CEL
+		const char* sb1[] = { "f:\\SpellBk1.png" };
+		PNG2Cel(sb1, 1, false, "f:\\SpellBkB1.CEL", false, &diapal[0][0], 128, 128);
+		const char* sb2[] = { "f:\\SpellBk2.png" };
+		PNG2Cel(sb2, 1, false, "f:\\SpellBkB2.CEL", false, &diapal[0][0], 128, 128);
+		const char* sb3[] = { "f:\\SpellBk3.png" };
+		PNG2Cel(sb3, 1, false, "f:\\SpellBkB3.CEL", false, &diapal[0][0], 128, 128);
+		const char* sb4[] = { "f:\\SpellBk4.png" };
+		PNG2Cel(sb1, 1, false, "f:\\SpellBkB4.CEL", false, &diapal[0][0], 128, 128);
 
-	const char* fsb1[] = { "f:\\SpellBkB1.png", "f:\\SpellBkB2.png",
-		"f:\\SpellBkB3.png", "f:\\SpellBkB4.png"};
-	PNG2Cel(fsb1, 4, false, "f:\\SpellBkB__.CEL", false, &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\SpellBkB1.png", "f:\\SpellBkB1.CEL", false, &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\SpellBkB2.png", "f:\\SpellBkB2.CEL", false, &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\SpellBkB3.png", "f:\\SpellBkB3.CEL", false, &diapal[0][0], 128, 128);
-	//PNG2Cel("f:\\SpellBkB4.png", 1, "f:\\SpellBkB4.CEL", false, &diapal[0][0], 128, 128);
-
-	const char* pnames[] = { "f:\\heros.png" };
-	PNG2Cel(pnames, 7, true, "f:\\heros.CEL", false, &diapal[0][0], 128, 128);
-
-	Cel2Cel("f:\\SpellBkB1.cel", 2, "f:\\SpellBkB2.cel", "f:\\SpellBkB12.cel");
-	Cel2Cel("f:\\SpellBkB3.cel", 2, "f:\\SpellBkB4.cel", "f:\\SpellBkB34.cel");
-	Cel2Cel("f:\\SpellBkB12.cel", 3, "f:\\SpellBkB34.cel", "f:\\SpellBkB_.cel");
+		Cel2Cel("f:\\SpellBkB1.cel", 2, "f:\\SpellBkB2.cel", "f:\\SpellBkB12.cel");
+		Cel2Cel("f:\\SpellBkB3.cel", 2, "f:\\SpellBkB4.cel", "f:\\SpellBkB34.cel");
+		Cel2Cel("f:\\SpellBkB12.cel", 3, "f:\\SpellBkB34.cel", "f:\\SpellBkB_.cel");
+	}*/
+	/*{ // sample code to convert a single PNG with multiple frames to a CEL with multiple frames
+		const char* pnames[] = { "f:\\heros.png" };
+		PNG2Cel(pnames, 7, true, "f:\\heros.CEL", false, &diapal[0][0], 128, 128);
+	}*/
 }
