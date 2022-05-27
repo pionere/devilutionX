@@ -1430,28 +1430,64 @@ static void EncodeMicro(png_image_data* imagedata, int sx, int sy, MicroMetaData
 	mmd->MicroType = MET_TRANSPARENT;
 }
 
-static RGBA BilinearInterpolate(RGBA* c0, RGBA* cR, int dx, RGBA* cD, int dy, int len, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
+static void BilinearInterpolateColors(RGBA* c0, RGBA* cR, int dx, RGBA* cD, int dy, RGBA* cDR, int len, RGBA& res)
+{
+	res.r = (c0->r * (len - dx) * (len - dy) + cR->r * dx * (len - dy) + cD->r * (len - dx) * dy + cDR->r * dx * dy) / (len * len);
+	res.g = (c0->g * (len - dx) * (len - dy) + cR->g * dx * (len - dy) + cD->g * (len - dx) * dy + cDR->g * dx * dy) / (len * len);
+	res.b = (c0->b * (len - dx) * (len - dy) + cR->b * dx * (len - dy) + cD->b * (len - dx) * dy + cDR->b * dx * dy) / (len * len);
+}
+
+static RGBA BilinearInterpolate(RGBA* c0, RGBA* cR, int dx, RGBA* cD, int dy, RGBA* cDR, int len/*, BYTE* palette, int numcolors, int coloroffset, int numfixcolors*/)
 {
 	RGBA res;
 	res.a = 255;
+	//res.r = 0;
+	//res.g = 0;
+	//res.b = 0;
 
 	if (cR->a != 255) {
-		if (cD->a != 255)
-			return *c0; // preserve transparent pixels
-		// interpolate down
-		res.r = (c0->r * (len - dy) + cD->r * dy) / len;
-		res.g = (c0->g * (len - dy) + cD->g * dy) / len;
-		res.b = (c0->b * (len - dy) + cD->b * dy) / len;
+		if (cD->a != 255) {
+			return *c0; // preserve if pixels on the right and down are transparent
+		}
+		if (cDR->a != 255) {
+			// interpolate down
+			res.r = (c0->r * (len - dy) + cD->r * dy) / len;
+			res.g = (c0->g * (len - dy) + cD->g * dy) / len;
+			res.b = (c0->b * (len - dy) + cD->b * dy) / len;
+		} else {
+			// interpolate down and down-right
+			RGBA cR_;
+			cR_.r = (c0->r + cDR->r) / 2;
+			cR_.g = (c0->g + cDR->g) / 2;
+			cR_.b = (c0->b + cDR->b) / 2;
+			BilinearInterpolateColors(c0, &cR_, dx, cD, dy, cDR, len, res);
+		}
 	} else if (cD->a != 255) {
-		// interpolate right
-		res.r = (c0->r * (len - dx) + cR->r * dx) / len;
-		res.g = (c0->g * (len - dx) + cR->g * dx) / len;
-		res.b = (c0->b * (len - dx) + cR->b * dx) / len;
+		if (cDR->a != 255) {
+			// interpolate right
+			res.r = (c0->r * (len - dx) + cR->r * dx) / len;
+			res.g = (c0->g * (len - dx) + cR->g * dx) / len;
+			res.b = (c0->b * (len - dx) + cR->b * dx) / len;
+		} else {
+			// interpolate right and down-right
+			RGBA cD_;
+			cD_.r = (c0->r + cDR->r) / 2;
+			cD_.g = (c0->g + cDR->g) / 2;
+			cD_.b = (c0->b + cDR->b) / 2;
+			BilinearInterpolateColors(c0, cR, dx, &cD_, dy, cDR, len, res);
+		}
 	} else {
-		// interpolate down and right
-		res.r = (c0->r * (len - dx + len - dy) + cR->r * dx + cD->r * dy) / (2 * len);
-		res.g = (c0->g * (len - dx + len - dy) + cR->g * dx + cD->g * dy) / (2 * len);
-		res.b = (c0->b * (len - dx + len - dy) + cR->b * dx + cD->b * dy) / (2 * len);
+		if (cDR->a != 255) {
+			// interpolate down and right
+			RGBA cDR_;
+			cDR_.r = (cR->r + cD->r) / 2;
+			cDR_.g = (cR->g + cD->g) / 2;
+			cDR_.b = (cR->b + cD->b) / 2;
+			BilinearInterpolateColors(c0, cR, dx, cD, dy, &cDR_, len, res);
+		} else {
+			// full bilinear interpolation
+			BilinearInterpolateColors(c0, cR, dx, cD, dy, cDR, len, res);
+		}
 	}
 
 	/*if (numfixcolors != 0 && palette != NULL) {
@@ -1534,10 +1570,11 @@ static void UpscalePNGImages(png_image_data* imagedata, int numimage, int multip
 
 				RGBA* pR = p0 + multiplier;
 				RGBA* pD = p0 + multiplier * imagedata[i].width;
+				RGBA* pDR = pD + multiplier;
 				for (int j = 0; j < multiplier; j++) {
 					for (int k = 0; k < multiplier; k++) {
 						RGBA* pp = p0 + j * imagedata[i].width + k;
-						*pp = BilinearInterpolate(pp, pR, k, pD, j, multiplier, palette, numcolors, coloroffset, numfixcolors);
+						*pp = BilinearInterpolate(pp, pR, k, pD, j, pDR, multiplier/*, palette, numcolors, coloroffset, numfixcolors*/);
 					}
 				}
 			}
