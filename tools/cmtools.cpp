@@ -385,9 +385,9 @@ void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, B
 
 	// resample the pixels
 	for (int i = 0; i < numimage; i++) {
-		for (int y = 0; y < imagedata[i].height / multiplier - 1; y++) {
-			RGBA* p0 = (RGBA*)imagedata[i].row_pointers[y * multiplier];
-			for (int x = 0; x < imagedata[i].width / multiplier - 1; x++, p0 += multiplier) {
+		for (int y = 0; y < imagedata[i].height - multiplier; y += multiplier) {
+			RGBA* p0 = (RGBA*)imagedata[i].row_pointers[y];
+			for (int x = 0; x < imagedata[i].width - multiplier; x += multiplier, p0 += multiplier) {
 				if (p0->a != 255)
 					continue; // skip transparent pixels
 				// skip 'protected' colors
