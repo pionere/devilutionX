@@ -18,12 +18,6 @@
 
 #define SUB_HEADER_SIZE		0x0A
 
-template<class T, int N>
-constexpr int lengthof(T (&arr)[N])
-{
-	return N;
-}
-
 static bool stringicomp(const char* str1, const char* str2)
 {
 	int len = strlen(str1); 

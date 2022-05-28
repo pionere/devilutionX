@@ -9,6 +9,12 @@
 #include <vector>
 #include <png.h>
 
+template<class T, int N>
+constexpr int lengthof(T (&arr)[N])
+{
+	return N;
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif

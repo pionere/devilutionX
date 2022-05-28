@@ -105,12 +105,6 @@ static void assert(bool check)
 #define ASSUME_UNREACHABLE assert(0);
 #endif // ! ASSUME_UNREACHABLE
 
-template<class T, int N>
-constexpr int lengthof(T (&arr)[N])
-{
-	return N;
-}
-
 static void DumpPalette(const char* palFile, BYTE* palette, int numcolors)
 {
 	FILE* f = fopen(palFile, "wb");
