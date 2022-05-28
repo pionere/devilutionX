@@ -1577,7 +1577,7 @@ void UpscaleMin(const char* minname, int multiplier, const char* celname, int du
 	free(celBuf);
 
 	// upscale the png data
-	UpscalePNGImages(imagedata, numtiles, multiplier, palette, numcolors, coloroffset, numfixcolors);
+	UpscalePNGImages(imagedata, numtiles, multiplier, palette, numcolors, coloroffset, numfixcolors, 2);
 
 	// convert pngs back to min/cel
 	WritePNG2Min(imagedata, numtiles, mindata, destFolder, prefix, palette, numcolors, coloroffset, numfixcolors);

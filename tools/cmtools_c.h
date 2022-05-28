@@ -60,7 +60,7 @@ extern BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors, int offset, in
 extern RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset, int numfixcolors);
 extern bool ReadPNG(const char *pngname, png_image_data &data);
 extern bool WritePNG(const char *pngname, png_image_data &data);
-extern void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, BYTE* palette, int numcolors, int coloroffset, int numfixcolors);
+extern void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, BYTE* palette, int numcolors, int coloroffset, int numfixcolors, int antiAliasingMode = 0);
 extern void CleanupImageData(png_image_data* imagedata, int numimages);
 
 #ifdef __cplusplus
