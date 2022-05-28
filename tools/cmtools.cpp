@@ -263,8 +263,7 @@ static void BilinearInterpolateColors(RGBA* c0, RGBA* cR, int dx, RGBA* cD, int 
 	res.b = (c0->b * (len - dx) * (len - dy) + cR->b * dx * (len - dy) + cD->b * (len - dx) * dy + cDR->b * dx * dy) / (len * len);
 }
 
-static RGBA BilinearInterpolate(RGBA* c0, RGBA* cR, int dx, RGBA* cD, int dy, RGBA* cDR, int len/*, BYTE* palette, int 
-numcolors, int coloroffset, int numfixcolors*/)
+static RGBA BilinearInterpolate(RGBA* c0, RGBA* cR, int dx, RGBA* cD, int dy, RGBA* cDR, int len/*, BYTE* palette, int numcolors, int coloroffset, int numfixcolors*/)
 {
 	RGBA res;
 	res.a = 255;
