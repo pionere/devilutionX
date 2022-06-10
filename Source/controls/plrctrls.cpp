@@ -362,45 +362,44 @@ static void FindTrigger()
 	if (pcursitem != ITEM_NONE || pcursobj != OBJ_NONE)
 		return; // Prefer showing items/objects over triggers (use of cursm* conflicts)
 
+	for (int i = 0; i < numtrigs; i++) {
+		int tx = trigs[i]._tx;
+		int ty = trigs[i]._ty;
+		const int newDistance = GetDistance(tx, ty, 2);
+		if (newDistance < 0)
+			continue;
+		cursmx = tx;
+		cursmy = ty;
+		pcurstrig = i;
+	}
+
 	for (int i = 0; i < nummissiles; i++) {
 		int mi = missileactive[i];
 		if (missile[mi]._miType == MIS_TOWN || missile[mi]._miType == MIS_RPORTAL) {
 			int mix = missile[mi]._mix;
 			int miy = missile[mi]._miy;
-			const int newDdistance = GetDistance(mix, miy, 2);
-			if (newDdistance < 0)
+			const int newDistance = GetDistance(mix, miy, 2);
+			if (newDistance < 0)
 				continue;
-			if (distance < newDdistance)
+			if (distance < newDistance)
 				continue;
 			const int newRotations = GetRotaryDistance(mix, miy);
-			if (distance == newDdistance && rotations < newRotations)
+			if (distance == newDistance && rotations < newRotations)
 				continue;
 			cursmx = mix;
 			cursmy = miy;
 			pcurstrig = MAXTRIGGERS + mi + 1;
-			distance = newDdistance;
+			distance = newDistance;
 			rotations = newRotations;
 		}
 	}
 
-	if (pcurstrig == -1) {
-		for (int i = 0; i < numtrigs; i++) {
-			int tx = trigs[i]._tx;
-			int ty = trigs[i]._ty;
-			const int newDdistance = GetDistance(tx, ty, 2);
-			if (newDdistance < 0)
-				continue;
-			cursmx = tx;
-			cursmy = ty;
-			pcurstrig = i;
-		}
-	}
-
-	if (pcursmonst != MON_NONE || pcursplr != PLR_NONE || cursmx == -1 || cursmy == -1)
+	/* commented out because it would just set the cursmx/y and pcurstrig fields again
+	if (pcursmonst != MON_NONE || pcursplr != PLR_NONE || pcurstrig == -1)
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
-	CheckTownPortal();
+	CheckTownPortal();*/
 }
 
 static void AttrIncBtnSnap(AxisDirection dir)
