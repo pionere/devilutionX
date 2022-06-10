@@ -22,9 +22,10 @@ bool InGameMenu()
 	    || gbHelpflag
 	    || gbTalkflag
 	    || gbQtextflag
+	    || gbDoomflag
 	    || gmenu_is_active()
 	    || gbGamePaused
-	    || myplr._pInvincible;
+	    || gbDeathflag;
 }
 
 static int slot = SLOTXY_INV_FIRST;
@@ -1067,7 +1068,7 @@ void plrctrls_after_check_curs_move()
 {
 	// check for monsters first, then items, then towners.
 	if (sgbControllerActive) {
-		// Clear focuse set by cursor
+		// Clear focus set by cursor
 		pcursplr = PLR_NONE;
 		pcursmonst = MON_NONE;
 		pcursitem = ITEM_NONE;
@@ -1075,10 +1076,9 @@ void plrctrls_after_check_curs_move()
 		pcurstrig = -1;
 		cursmx = -1;
 		cursmy = -1;
-		if (myplr._pInvincible) {
-			return;
-		}
-		if (gbDoomflag) {
+		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");	
+		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
+		if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag) {
 			return;
 		}
 		if (!gbInvflag) {
