@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added teams. Manage your team by opening the teams panel (default button: 'm')
 - fully configurable primary/secondary actions (one move and/or one action skill can be selected for both actions)
 - fully configurable keyboard/button mapping (see [diablo.ini](https://github.com/pionere/devilutionX/wiki/DevilutionX-diablo.ini-configuration-guide))
+- drag and drop support for modal windows (inventory, skill book, teams list, character sheet, quests list, belt)
+- configurable starting positions for modal windows (in diablo.ini)
+- multiple modal windows might be open at a time
 - control-click to move between belt and inventory
 ### Gameplay
 - SAVE-files are NOT backwards compatible
@@ -46,7 +49,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added unique items: Ring of Destruction, Spirit Ward
 - altered the effects of the shrines
 - most of the quests are available in multiplayer games
+- Skeleton King (and Hork Demon) are summoning monsters in multiplayer games
 - added unique monsters to crypt and nest levels
+- multiple corpses are allowed on one tile
+- players do not leave the game after Diablo is defeated (restart in town)
+- players do not lose gold on death
+- players lose experience on death
+- items are dropped on death even on diablo-level
 - better rewards on higher difficulties
 - limited offers in stores/wirt
 ### System
@@ -54,10 +63,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adaptive netupdate
 - Game server (maintains game-delta, but no validation at the moment)
 - Merge .mpq files on demand
+- Support for high definition assets
 - Widescreen, controller, sound support and encryption of net-messages are optional features
-- separate (.TMI) file to control drawing of the tiles
-- added tools to convert PNG to CEL/CL2, PNGs to (TIL,MIN,CEL,SOL,TMI), CEL to CEL (aka. merge)
-- slash/blunt/puncture damage types with corresponding resistances
+- Separate (.TMI) file to control drawing of the tiles
+- Added tools to convert PNG to CEL/CL2, PNGs to (TIL,MIN,CEL,SOL,TMI), CEL to CEL (aka. merge)
+- Added tools to upscale assets
+- Slash/blunt/puncture damage types with corresponding resistances
 
 ## DevilutionX 1.2.1
 ### Bugfixes
