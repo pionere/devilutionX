@@ -454,7 +454,7 @@ void AddL1Objs(int x1, int y1, int x2, int y2)
 }
 
 #ifdef HELLFIRE
-static void AddCryptObjs(int x1, int y1, int x2, int y2)
+static void AddL5Objs(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
 
@@ -843,7 +843,7 @@ static void Alloc2x2Obj(int oi)
 	dObject[ox - 1][oy - 1] = oi;
 }
 
-static void AddStoryBooks()
+static void AddStoryBook()
 {
 	int xp, yp;
 
@@ -923,7 +923,7 @@ void InitObjects()
 	switch (currLvl._dType) {
 	case DTYPE_CATHEDRAL:
 		if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
-			AddStoryBooks();
+			AddStoryBook();
 		if (QuestStatus(Q_BUTCHER))
 			LoadMapSetObjs("Levels\\L1Data\\Butcher.DUN");
 		if (QuestStatus(Q_PWATER))
@@ -935,14 +935,12 @@ void InitObjects()
 		break;
 	case DTYPE_CATACOMBS:
 		if (currLvl._dLevelIdx == DLV_CATACOMBS4)
-			AddStoryBooks();
+			AddStoryBook();
 		if (QuestStatus(Q_ROCK))
 			InitRndLocObj5x5(OBJ_STAND);
 		if (QuestStatus(Q_SCHAMB)) {
 			AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_SCHAMB);
 		}
-		AddL2Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
-		AddL2Torches();
 		if (QuestStatus(Q_BLIND)) {
 			AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
 			LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
@@ -951,17 +949,16 @@ void InitObjects()
 			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD);
 			AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 		}
+		AddL2Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
+		AddL2Torches();
 		break;
 	case DTYPE_CAVES:
+		if (currLvl._dLevelIdx == DLV_CAVES4)
+			AddStoryBook();
+		else if (currLvl._dLevelIdx == DLV_CAVES1 && !IsMultiGame)
+			InitRndLocObj5x5(OBJ_SLAINHERO);
 		if (QuestStatus(Q_MUSHROOM))
 			InitRndLocObj5x5(OBJ_MUSHPATCH);
-		if (currLvl._dLevelIdx == DLV_CAVES1 && !IsMultiGame)
-			InitRndLocObj5x5(OBJ_SLAINHERO);
-		else if (currLvl._dLevelIdx == DLV_CAVES4)
-			AddStoryBooks();
-#ifdef HELLFIRE
-	case DTYPE_NEST:
-#endif
 		AddL3Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
 		break;
 	case DTYPE_HELL:
@@ -999,7 +996,9 @@ void InitObjects()
 			break;
 		}
 		InitRndSarcs(OBJ_L5SARC);
-		AddCryptObjs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
+		AddL5Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
+		break;
+	case DTYPE_NEST:
 		break;
 #endif
 	default:
