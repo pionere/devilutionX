@@ -1308,18 +1308,7 @@ void PerformSecondaryAction()
 	} else if (pcursobj != OBJ_NONE) {
 		NetSendCmdLocParam1(CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 	} else if (pcurstrig != -1) {
-		if (pcurstrig >= MAXTRIGGERS + 1) {
-			// portal
-			int mi = pcurstrig - (MAXTRIGGERS + 1);
-			dx = missile[mi]._mix;
-			dy = missile[mi]._miy;
-		} else {
-			// standard trigger
-			dx = trigs[pcurstrig]._tx;
-			dy = trigs[pcurstrig]._ty;
-		}
-		MakePlrPath(mypnum, dx, dy, true);
-		myplr.destAction = ACTION_WALK;
+		NetSendCmdLoc(CMD_WALKXY, cursmx, cursmy);
 	}
 }
 
