@@ -148,8 +148,8 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
 						pBuf++;
 					}
 					++*pHead;
-					if (imagedata->fixColorMask != NULL && imagedata->fixColorMask[(image_data->height - i) * imagedata->width + j] != 0)
-						*pBuf = imagedata->fixColorMask[(image_data->height - i) * imagedata->width + j];
+					if (image_data->fixColorMask != NULL && image_data->fixColorMask[(image_data->height - i) * image_data->width + j] != 0)
+						*pBuf = image_data->fixColorMask[(image_data->height - i) * image_data->width + j];
 					else
 						*pBuf = GetPalColor(data[j], palette, numcolors, coloroffset, numfixcolors);
 					pBuf++;
