@@ -1276,8 +1276,6 @@ static void CtrlUseInvItem()
 
 void PerformSecondaryAction()
 {
-	int dx, dy;
-
 	if (InGameMenu())
 		return;
 
