@@ -180,7 +180,7 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 		break;*/
 	case SPL_RUNEFIRE:
 		mind = 1 + (magic >> 1) + 16 * sl;
-		mind = 1 + (magic >> 1) + 32 * sl;
+		maxd = 1 + (magic >> 1) + 32 * sl;
 		break;
 #endif
 	default:
