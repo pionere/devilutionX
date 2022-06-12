@@ -19,14 +19,11 @@ sudo apk add git cmake g++ sdl2-dev libsodium-dev
 ```
 
 ### Compiling
-```
-// cd build
-// cmake .. -DCMAKE_BUILD_TYPE=Release
-// make -j$(nproc)
+```bash
 git clone https://github.com/pionere/devilutionx
 cd devilutionx
 cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(nproc) --target package
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 </details>
 
@@ -34,13 +31,10 @@ cmake --build build -j $(nproc) --target package
 
 Make sure you have [Homebrew](https://brew.sh/) installed, then run:
 
-```
-// brew install cmake libsodium pkg-config
+```bash
 brew bundle install
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(sysctl -n hw.physicalcpu)
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(sysctl -n hw.physicalcpu)
 ```
 </details>
 <details><summary>iOS</summary>
@@ -73,10 +67,9 @@ Then open the generated Xcode project and run things from there.
 pkg install cmake libsodium
 ```
 ### Compiling
-```
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(sysctl -n hw.ncpu)
+```bash
+cmake -S. -Bbuild. -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(sysctl -n hw.ncpu)
 ```
 </details>
 <details><summary>NetBSD</summary>
@@ -86,10 +79,9 @@ cmake --build . -j $(sysctl -n hw.ncpu)
 pkgin install cmake libsodium
 ```
 ### Compiling
-```
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(sysctl -n hw.ncpu)
+```bash
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(sysctl -n hw.ncpu)
 ```
 </details>
 
@@ -100,10 +92,9 @@ cmake --build . -j $(sysctl -n hw.ncpu)
 pkg_add cmake libsodium gmake
 ```
 ### Compiling
-```
-cd build
-cmake .. -DCMAKE_MAKE_PROGRAM=gmake -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(sysctl -n hw.ncpuonline)
+```bash
+cmake -S. -Bbuild -DCMAKE_MAKE_PROGRAM=gmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(sysctl -n hw.ncpuonline)
 ```
 </details>
 
@@ -136,22 +127,16 @@ cd devilutionx
 
 ### 32-bit
 
-```
-// cd build
-// cmake .. -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
-// make -j$(nproc)
+```bash
 cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(nproc) --target package
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 
 ### 64-bit
 
-```
-// cd build
-// cmake .. -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.cmake -DCMAKE_BUILD_TYPE=Release
-// make -j$(nproc)
+```bash
 cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(nproc) --target package
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 
 Note: If your `(i686|x86_64)-w64-mingw32` directory is not in `/usr` (e.g. when on Debian), the mingw-prep scripts and the CMake
@@ -279,10 +264,9 @@ sudo (dkp-)pacman -S devkitARM general-tools 3dstools devkitpro-pkgbuild-helpers
 _If you are compiling using MSYS2, you will need to run `export MSYS2_ARG_CONV_EXCL=-D` before compiling.
 Otherwise, MSYS will sanitize file paths in compiler flags which will likely lead to errors in the build._
 
-```
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
+```bash
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 The output files will be generated in the build folder.
 
@@ -292,10 +276,9 @@ The output files will be generated in the build folder.
 <details><summary>PlayStation Vita</summary>
 
 ### Compiling
-```
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-make
+```bash
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 ```
 [PlayStation Vita manual](/docs/manual/platforms/vita.md)
 </details>
@@ -325,18 +308,16 @@ pkgman install cmake_x86 devel:libsdl2_x86 devel:libsodium_x86
 pkgman install cmake devel:libsdl2 devel:libsodium
 ```
 ### Compiling on 32 bit Haiku
-```
-cd build
+```bash
 setarch x86 #Switch to secondary compiler toolchain (GCC8+)
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(nproc)
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 ### Compiling on 64 bit Haiku
 No setarch required, as there is no secondary toolchain on x86_64, and the primary is GCC8+
 ```
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(nproc)
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 </details>
 
@@ -424,15 +405,11 @@ sudo apt-get install git rpm cmake g++-multilib libsdl2-dev:i386 libsodium-dev l
 ```
 
 ### Compiling
-```
-// mkdir build
-// cd build
-// linux32 cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake ..
-// linux32 make -j$(nproc)
+```bash
 git clone https://github.com/pionere/devilutionx
 cd devilutionx
-linux32 cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake
-linux32 cmake --build build -j $(nproc) --target package
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 </details>
 
@@ -476,7 +453,7 @@ git clone https://github.com/pionere/devilutionx
 cd devilutionx
 Packaging/windows/mingw-prep.sh  
 cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(nproc) --target package  
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 </details>
 
