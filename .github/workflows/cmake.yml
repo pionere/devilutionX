@@ -27,7 +27,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'
-        distribution: 'adopt'
+        distribution: 'temurin'
         cache: gradle
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
