@@ -29,7 +29,7 @@ BYTE *pMegaTiles;
 /*
  * The micros of the dPieces
  */
-MICROS pMicroPieces[MAXTILES + 1];
+uint16_t pMicroPieces[MAXTILES + 1][16 * ASSET_MPL * ASSET_MPL];
 /*
  * Micro images CEL
  */
@@ -47,9 +47,9 @@ bool nBlockTable[MAXTILES + 1];
  */
 bool nSolidTable[MAXTILES + 1];
 /**
- * List of trap-source dPieces
+ * List of trap-source dPieces (_piece_trap_type)
  */
-bool nTrapTable[MAXTILES + 1];
+BYTE nTrapTable[MAXTILES + 1];
 /**
  * List of missile blocking dPieces
  */
@@ -77,6 +77,7 @@ BYTE dFlags[MAXDUNX][MAXDUNY];
  * -(pnum + 1): reserved for a moving player
  */
 char dPlayer[MAXDUNX][MAXDUNY];
+static_assert(MAX_PLRS <= CHAR_MAX, "Index of a player might not fit to dPlayer.");
 /**
  * Contains the NPC numbers of the map. The NPC number represents a
  * towner number (towners array index) in Tristram and a monster number
@@ -86,31 +87,33 @@ char dPlayer[MAXDUNX][MAXDUNY];
  */
 int dMonster[MAXDUNX][MAXDUNY];
 /**
- * Contains the dead numbers (deads array indices) and dead direction of
- * the map, encoded as specified by the pseudo-code below.
- * dDead[x][y] & 0x1F - index of dead
- * dDead[x][y] >> 0x5 - direction
+ * Contains the dead NPC numbers of the map (only monsters at the moment).
+ *   mnum + 1 : the NPC corpse is on spot
  */
 BYTE dDead[MAXDUNX][MAXDUNY];
+static_assert(MAXMONSTERS <= UCHAR_MAX, "Index of a monster might not fit to dDead.");
+static_assert((BYTE)(MAXMONSTERS + 1) < (BYTE)DEAD_MULTI, "Multi-dead in dDead reserves one entry.");
 /**
  * Contains the object numbers (objects array indices) of the map.
  *   oi + 1 : the object is on the given location
  * -(oi + 1): a large object protrudes from its base location
  */
 char dObject[MAXDUNX][MAXDUNY];
+static_assert(MAXOBJECTS <= CHAR_MAX, "Index of an object might not fit to dObject.");
 /**
  * Contains the item numbers (items array indices) of the map.
  *   ii + 1 : the item is on the floor on the given location.
  */
 BYTE dItem[MAXDUNX][MAXDUNY];
+static_assert(MAXITEMS <= UCHAR_MAX, "Index of an item might not fit to dItem.");
 /**
  * Contains the missile numbers (missiles array indices) of the map.
  *   mi + 1 : the missile is on the given location.
  * MIS_MULTI: more than one missile on the given location.
  */
-static_assert(MAXMISSILES < UCHAR_MAX, "Index of a missile might not fit to dMissile.");
-static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMissile reserves one entry.");
 BYTE dMissile[MAXDUNX][MAXDUNY];
+static_assert(MAXMISSILES <= UCHAR_MAX, "Index of a missile might not fit to dMissile.");
+static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMissile reserves one entry.");
 /**
  * Contains the arch frame numbers of the map from the special tileset
  * (e.g. "levels/l1data/l1s.cel"). Note, the special tileset of Tristram (i.e.
@@ -143,11 +146,12 @@ void DRLG_Init_Globals()
 
 void InitLvlDungeon()
 {
-	BYTE bv, blocks;
+	uint16_t bv;
 	size_t i, dwTiles;
 	BYTE *pSBFile, *pTmp;
-	uint16_t *pLPFile, *pPiece, *pPTmp;
-
+#if ASSET_MPL == 1
+	uint16_t blocks, *pLPFile, *pPiece, *pPTmp;
+#endif
 	const LevelData *lds;
 	assert(pMicroCels == NULL);
 	lds = &AllLevels[currLvl._dLevelIdx];
@@ -156,10 +160,13 @@ void InitLvlDungeon()
 	assert(pMegaTiles == NULL);
 	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
 	assert(pSpecialCels == NULL);
-	pSpecialCels = LoadFileInMem(lds->dSpecCels);
-	MicroTileLen = lds->dMicroTileLen;
+	if (currLvl._dLevelIdx != DLV_TOWN)
+		pSpecialCels = LoadFileInMem(lds->dSpecCels);
+	else
+		pSpecialCels = (BYTE*)CelLoadImage(lds->dSpecCels, TILE_WIDTH);
+	MicroTileLen = lds->dMicroTileLen * ASSET_MPL * ASSET_MPL;
 	LoadFileWithMem(lds->dMicroFlags, microFlags);
-
+#if ASSET_MPL == 1
 	pLPFile = (uint16_t *)LoadFileInMem(lds->dMiniTiles, &dwTiles);
 
 	blocks = lds->dBlocks;
@@ -167,7 +174,7 @@ void InitLvlDungeon()
 	assert(dwTiles <= MAXTILES);
 
 	for (i = 1; i <= dwTiles; i++) {
-		pPTmp = pMicroPieces[i].mt;
+		pPTmp = &pMicroPieces[i][0];
 		pPiece = &pLPFile[blocks * i];
 		for (bv = 0; bv < blocks; bv += 2) {
 			pPiece -= 2;
@@ -182,6 +189,16 @@ void InitLvlDungeon()
 	}
 
 	mem_free_dbg(pLPFile);
+#else
+	LoadFileWithMem(lds->dMiniTiles, (BYTE*)&pMicroPieces[1][0]);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	for (i = 1; i < lengthof(pMicroPieces); i++) {
+		for (bv = 0; bv < lengthof(pMicroPieces[0]); bv++) {
+			pMicroPieces[i][bv] = SwapLE16(pMicroPieces[i][bv]);
+		}
+	}
+#endif
+#endif /* ASSET_MPL == 1 */
 
 #if DEBUG_MODE
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
@@ -204,7 +221,7 @@ void InitLvlDungeon()
 		nSolidTable[i] = (bv & PFLAG_BLOCK_PATH) != 0;
 		nBlockTable[i] = (bv & PFLAG_BLOCK_LIGHT) != 0;
 		nMissileTable[i] = (bv & PFLAG_BLOCK_MISSILE) != 0;
-		nTrapTable[i] = (bv & PFLAG_TRAP_SOURCE) != 0;
+		nTrapTable[i] = (bv & PFLAG_TRAP_SOURCE) != 0 ? PTT_ANY : PTT_NONE;
 	}
 
 	mem_free_dbg(pSBFile);
@@ -218,134 +235,257 @@ void InitLvlDungeon()
 
 		// patch dMiniTiles - Town.MIN
 		// pointless tree micros (re-drawn by dSpecial)
-		pMicroPieces[117].mt[3] = 0;
-		pMicroPieces[117].mt[5] = 0;
-		pMicroPieces[128].mt[2] = 0;
-		pMicroPieces[128].mt[4] = 0;
-		pMicroPieces[128].mt[6] = 0;
-		pMicroPieces[129].mt[3] = 0;
-		pMicroPieces[129].mt[5] = 0;
-		pMicroPieces[129].mt[7] = 0;
-		pMicroPieces[130].mt[2] = 0;
-		pMicroPieces[130].mt[4] = 0;
-		pMicroPieces[130].mt[6] = 0;
-		pMicroPieces[156].mt[2] = 0;
-		pMicroPieces[156].mt[3] = 0;
-		pMicroPieces[156].mt[4] = 0;
-		pMicroPieces[156].mt[5] = 0;
-		pMicroPieces[156].mt[6] = 0;
-		pMicroPieces[156].mt[7] = 0;
-		pMicroPieces[156].mt[8] = 0;
-		pMicroPieces[156].mt[9] = 0;
-		pMicroPieces[156].mt[10] = 0;
-		pMicroPieces[156].mt[11] = 0;
-		pMicroPieces[157].mt[3] = 0;
-		pMicroPieces[157].mt[5] = 0;
-		pMicroPieces[157].mt[7] = 0;
-		pMicroPieces[157].mt[9] = 0;
-		pMicroPieces[157].mt[11] = 0;
-		pMicroPieces[158].mt[2] = 0;
-		pMicroPieces[158].mt[4] = 0;
-		pMicroPieces[160].mt[2] = 0;
-		pMicroPieces[160].mt[3] = 0;
-		pMicroPieces[160].mt[4] = 0;
-		pMicroPieces[160].mt[5] = 0;
-		pMicroPieces[160].mt[6] = 0;
-		pMicroPieces[160].mt[7] = 0;
-		pMicroPieces[160].mt[8] = 0;
-		pMicroPieces[160].mt[9] = 0;
-		pMicroPieces[162].mt[2] = 0;
-		pMicroPieces[162].mt[4] = 0;
-		pMicroPieces[162].mt[6] = 0;
-		pMicroPieces[162].mt[8] = 0;
-		pMicroPieces[162].mt[10] = 0;
-		pMicroPieces[212].mt[3] = 0;
-		pMicroPieces[212].mt[4] = 0;
-		pMicroPieces[212].mt[5] = 0;
-		pMicroPieces[212].mt[6] = 0;
-		pMicroPieces[212].mt[7] = 0;
-		pMicroPieces[212].mt[8] = 0;
-		pMicroPieces[212].mt[9] = 0;
-		pMicroPieces[212].mt[10] = 0;
-		pMicroPieces[212].mt[11] = 0;
-		//pMicroPieces[214].mt[4] = 0;
-		//pMicroPieces[214].mt[6] = 0;
-		pMicroPieces[216].mt[2] = 0;
-		pMicroPieces[216].mt[4] = 0;
-		pMicroPieces[216].mt[6] = 0;
-		//pMicroPieces[217].mt[4] = 0;
-		//pMicroPieces[217].mt[6] = 0;
-		//pMicroPieces[217].mt[8] = 0;
-		//pMicroPieces[358].mt[4] = 0;
-		//pMicroPieces[358].mt[5] = 0;
-		//pMicroPieces[358].mt[6] = 0;
-		//pMicroPieces[358].mt[7] = 0;
-		//pMicroPieces[358].mt[8] = 0;
-		//pMicroPieces[358].mt[9] = 0;
-		//pMicroPieces[358].mt[10] = 0;
-		//pMicroPieces[358].mt[11] = 0;
-		//pMicroPieces[358].mt[12] = 0;
-		//pMicroPieces[358].mt[13] = 0;
-		//pMicroPieces[360].mt[4] = 0;
-		//pMicroPieces[360].mt[6] = 0;
-		//pMicroPieces[360].mt[8] = 0;
-		//pMicroPieces[360].mt[10] = 0;
+#if ASSET_MPL == 1
+		pMicroPieces[117][3] = 0;
+		pMicroPieces[117][5] = 0;
+		pMicroPieces[128][2] = 0;
+		pMicroPieces[128][3] = 0;
+		pMicroPieces[128][4] = 0;
+		pMicroPieces[128][5] = 0;
+		pMicroPieces[128][6] = 0;
+		pMicroPieces[128][7] = 0;
+		pMicroPieces[129][3] = 0;
+		pMicroPieces[129][5] = 0;
+		pMicroPieces[129][7] = 0;
+		pMicroPieces[130][2] = 0;
+		pMicroPieces[130][4] = 0;
+		pMicroPieces[130][6] = 0;
+		pMicroPieces[156][2] = 0;
+		pMicroPieces[156][3] = 0;
+		pMicroPieces[156][4] = 0;
+		pMicroPieces[156][5] = 0;
+		pMicroPieces[156][6] = 0;
+		pMicroPieces[156][7] = 0;
+		pMicroPieces[156][8] = 0;
+		pMicroPieces[156][9] = 0;
+		pMicroPieces[156][10] = 0;
+		pMicroPieces[156][11] = 0;
+		pMicroPieces[157][3] = 0;
+		pMicroPieces[157][5] = 0;
+		pMicroPieces[157][7] = 0;
+		pMicroPieces[157][9] = 0;
+		pMicroPieces[157][11] = 0;
+		pMicroPieces[158][2] = 0;
+		pMicroPieces[158][4] = 0;
+		pMicroPieces[160][2] = 0;
+		pMicroPieces[160][3] = 0;
+		pMicroPieces[160][4] = 0;
+		pMicroPieces[160][5] = 0;
+		pMicroPieces[160][6] = 0;
+		pMicroPieces[160][7] = 0;
+		pMicroPieces[160][8] = 0;
+		pMicroPieces[160][9] = 0;
+		pMicroPieces[162][2] = 0;
+		pMicroPieces[162][4] = 0;
+		pMicroPieces[162][6] = 0;
+		pMicroPieces[162][8] = 0;
+		pMicroPieces[162][10] = 0;
+		pMicroPieces[212][3] = 0;
+		pMicroPieces[212][4] = 0;
+		pMicroPieces[212][5] = 0;
+		pMicroPieces[212][6] = 0;
+		pMicroPieces[212][7] = 0;
+		pMicroPieces[212][8] = 0;
+		pMicroPieces[212][9] = 0;
+		pMicroPieces[212][10] = 0;
+		pMicroPieces[212][11] = 0;
+		//pMicroPieces[214][4] = 0;
+		//pMicroPieces[214][6] = 0;
+		pMicroPieces[216][2] = 0;
+		pMicroPieces[216][4] = 0;
+		pMicroPieces[216][6] = 0;
+		//pMicroPieces[217][4] = 0;
+		//pMicroPieces[217][6] = 0;
+		//pMicroPieces[217][8] = 0;
+		//pMicroPieces[358][4] = 0;
+		//pMicroPieces[358][5] = 0;
+		//pMicroPieces[358][6] = 0;
+		//pMicroPieces[358][7] = 0;
+		//pMicroPieces[358][8] = 0;
+		//pMicroPieces[358][9] = 0;
+		//pMicroPieces[358][10] = 0;
+		//pMicroPieces[358][11] = 0;
+		//pMicroPieces[358][12] = 0;
+		//pMicroPieces[358][13] = 0;
+		//pMicroPieces[360][4] = 0;
+		//pMicroPieces[360][6] = 0;
+		//pMicroPieces[360][8] = 0;
+		//pMicroPieces[360][10] = 0;
 		// fix bad artifact
-		pMicroPieces[233].mt[6] = 0;
+		pMicroPieces[233][6] = 0;
 		// useless black micros
-		pMicroPieces[426].mt[1] = 0;
-		pMicroPieces[427].mt[0] = 0;
-		pMicroPieces[427].mt[1] = 0;
-		pMicroPieces[429].mt[1] = 0;
+		pMicroPieces[426][1] = 0;
+		pMicroPieces[427][0] = 0;
+		pMicroPieces[427][1] = 0;
+		pMicroPieces[429][1] = 0;
 		// fix bad artifacts
-		pMicroPieces[828].mt[12] = 0;
-		pMicroPieces[828].mt[13] = 0;
-		pMicroPieces[1018].mt[2] = 0;
+		pMicroPieces[828][12] = 0;
+		pMicroPieces[828][13] = 0;
+		pMicroPieces[1018][2] = 0;
 		// useless black micros
-		pMicroPieces[1143].mt[0] = 0;
-		pMicroPieces[1145].mt[0] = 0;
-		pMicroPieces[1145].mt[1] = 0;
-		pMicroPieces[1146].mt[0] = 0;
-		pMicroPieces[1153].mt[0] = 0;
-		pMicroPieces[1155].mt[1] = 0;
-		pMicroPieces[1156].mt[0] = 0;
-		pMicroPieces[1169].mt[1] = 0;
-		pMicroPieces[1170].mt[0] = 0;
-		pMicroPieces[1170].mt[1] = 0;
-		pMicroPieces[1172].mt[1] = 0;
-		pMicroPieces[1176].mt[1] = 0;
-		pMicroPieces[1199].mt[1] = 0;
-		pMicroPieces[1200].mt[0] = 0;
-		pMicroPieces[1200].mt[1] = 0;
-		pMicroPieces[1202].mt[1] = 0;
-		pMicroPieces[1203].mt[1] = 0;
-		pMicroPieces[1205].mt[1] = 0;
-		pMicroPieces[1212].mt[0] = 0;
-		pMicroPieces[1219].mt[0] = 0;
+		pMicroPieces[1143][0] = 0;
+		pMicroPieces[1145][0] = 0;
+		pMicroPieces[1145][1] = 0;
+		pMicroPieces[1146][0] = 0;
+		pMicroPieces[1153][0] = 0;
+		pMicroPieces[1155][1] = 0;
+		pMicroPieces[1156][0] = 0;
+		pMicroPieces[1169][1] = 0;
+		pMicroPieces[1170][0] = 0;
+		pMicroPieces[1170][1] = 0;
+		pMicroPieces[1172][1] = 0;
+		pMicroPieces[1176][1] = 0;
+		pMicroPieces[1199][1] = 0;
+		pMicroPieces[1200][0] = 0;
+		pMicroPieces[1200][1] = 0;
+		pMicroPieces[1202][1] = 0;
+		pMicroPieces[1203][1] = 0;
+		pMicroPieces[1205][1] = 0;
+		pMicroPieces[1212][0] = 0;
+		pMicroPieces[1219][0] = 0;
 #ifdef HELLFIRE
 		// fix bad artifact
-		pMicroPieces[1273].mt[7] = 0;
+		pMicroPieces[1273][7] = 0;
 #endif
+#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_CATHEDRAL:
 		// patch dSolidTable - L1.SOL
 		nMissileTable[8] = false; // the only column which was blocking missiles
+#if ASSET_MPL == 1
 		// patch dMiniTiles - L1.MIN
 		// useless black micros
-		pMicroPieces[107].mt[0] = 0;
-		pMicroPieces[107].mt[1] = 0;
-		pMicroPieces[109].mt[1] = 0;
-		pMicroPieces[137].mt[1] = 0;
-		pMicroPieces[138].mt[0] = 0;
-		pMicroPieces[138].mt[1] = 0;
-		pMicroPieces[140].mt[1] = 0;
+		pMicroPieces[107][0] = 0;
+		pMicroPieces[107][1] = 0;
+		pMicroPieces[109][1] = 0;
+		pMicroPieces[137][1] = 0;
+		pMicroPieces[138][0] = 0;
+		pMicroPieces[138][1] = 0;
+		pMicroPieces[140][1] = 0;
+#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_CATACOMBS:
+		// patch dSolidTable - L2.SOL
+		// specify direction for torches
+		nTrapTable[1] = PTT_LEFT;
+		nTrapTable[3] = PTT_LEFT;
+		nTrapTable[5] = PTT_RIGHT;
+		nTrapTable[6] = PTT_RIGHT;
+		nTrapTable[15] = PTT_LEFT;
+		nTrapTable[18] = PTT_RIGHT;
+		nTrapTable[27] = PTT_LEFT;
+		nTrapTable[30] = PTT_RIGHT;
+		nTrapTable[31] = PTT_LEFT;
+		nTrapTable[34] = PTT_RIGHT;
+		nTrapTable[57] = PTT_LEFT; // added
+		nTrapTable[59] = PTT_RIGHT; // added
+		nTrapTable[60] = PTT_LEFT;
+		nTrapTable[62] = PTT_LEFT;
+		nTrapTable[64] = PTT_LEFT;
+		nTrapTable[66] = PTT_LEFT;
+		nTrapTable[68] = PTT_RIGHT;
+		nTrapTable[69] = PTT_RIGHT;
+		nTrapTable[72] = PTT_RIGHT;
+		nTrapTable[73] = PTT_RIGHT;
+		nTrapTable[78] = PTT_LEFT;
+		nTrapTable[82] = PTT_LEFT;
+		nTrapTable[85] = PTT_LEFT;
+		nTrapTable[88] = PTT_LEFT;
+		nTrapTable[92] = PTT_LEFT;
+		nTrapTable[94] = PTT_LEFT;
+		nTrapTable[96] = PTT_LEFT;
+		nTrapTable[99] = PTT_RIGHT;
+		nTrapTable[104] = PTT_RIGHT;
+		nTrapTable[108] = PTT_RIGHT;
+		nTrapTable[111] = PTT_RIGHT; // added
+		nTrapTable[112] = PTT_RIGHT;
+		nTrapTable[115] = PTT_LEFT; // added
+		nTrapTable[117] = PTT_LEFT;
+		nTrapTable[119] = PTT_LEFT;
+		nTrapTable[120] = PTT_LEFT;
+		nTrapTable[121] = PTT_RIGHT; // added
+		nTrapTable[122] = PTT_RIGHT;
+		nTrapTable[125] = PTT_RIGHT;
+		nTrapTable[126] = PTT_RIGHT;
+		nTrapTable[128] = PTT_RIGHT;
+		nTrapTable[129] = PTT_LEFT;
+		nTrapTable[144] = PTT_LEFT;
+		//nTrapTable[170] = PTT_LEFT; // added
+		//nTrapTable[172] = PTT_LEFT; // added
+		//nTrapTable[174] = PTT_LEFT; // added
+		//nTrapTable[176] = PTT_LEFT; // added
+		//nTrapTable[180] = PTT_LEFT; // added
+		//nTrapTable[183] = PTT_RIGHT; // added
+		//nTrapTable[186] = PTT_RIGHT; // added
+		//nTrapTable[187] = PTT_RIGHT; // added
+		//nTrapTable[190] = PTT_RIGHT; // added
+		//nTrapTable[191] = PTT_RIGHT; // added
+		//nTrapTable[194] = PTT_RIGHT; // added
+		//nTrapTable[195] = PTT_RIGHT; // added
+		nTrapTable[234] = PTT_LEFT;
+		nTrapTable[236] = PTT_LEFT;
+		nTrapTable[238] = PTT_LEFT; // added
+		nTrapTable[240] = PTT_LEFT;
+		nTrapTable[242] = PTT_LEFT; // added
+		nTrapTable[244] = PTT_LEFT;
+		nTrapTable[253] = PTT_RIGHT; // added
+		nTrapTable[254] = PTT_RIGHT;
+		nTrapTable[257] = PTT_RIGHT;
+		nTrapTable[258] = PTT_RIGHT; // added
+		nTrapTable[261] = PTT_RIGHT; // added
+		nTrapTable[262] = PTT_RIGHT;
+		nTrapTable[277] = PTT_LEFT;
+		nTrapTable[281] = PTT_LEFT;
+		nTrapTable[285] = PTT_LEFT;
+		nTrapTable[292] = PTT_RIGHT;
+		nTrapTable[296] = PTT_RIGHT;
+		nTrapTable[300] = PTT_RIGHT;
+		nTrapTable[304] = PTT_RIGHT;
+		nTrapTable[305] = PTT_LEFT;
+		nTrapTable[446] = PTT_LEFT;
+		nTrapTable[448] = PTT_LEFT;
+		nTrapTable[450] = PTT_LEFT;
+		nTrapTable[452] = PTT_LEFT;
+		nTrapTable[454] = PTT_RIGHT;
+		nTrapTable[455] = PTT_RIGHT;
+		nTrapTable[458] = PTT_RIGHT;
+		nTrapTable[459] = PTT_RIGHT;
+		nTrapTable[480] = PTT_LEFT;
+		nTrapTable[499] = PTT_RIGHT;
+		nTrapTable[510] = PTT_LEFT;
+		nTrapTable[512] = PTT_LEFT;
+		nTrapTable[514] = PTT_RIGHT;
+		nTrapTable[515] = PTT_RIGHT;
+		nTrapTable[539] = PTT_LEFT; // added
+		nTrapTable[543] = PTT_LEFT; // added
+		nTrapTable[545] = PTT_LEFT; // added
+		nTrapTable[547] = PTT_RIGHT; // added
+		nTrapTable[548] = PTT_RIGHT; // added
+		nTrapTable[552] = PTT_LEFT; // added
+		// enable torches on (southern) walls
+		// nTrapTable[37] = PTT_LEFT;
+		// nTrapTable[39] = PTT_LEFT;
+		// nTrapTable[41] = PTT_RIGHT;
+		// nTrapTable[42] = PTT_RIGHT;
+		// nTrapTable[46] = PTT_RIGHT;
+		// nTrapTable[47] = PTT_LEFT;
+		// nTrapTable[49] = PTT_LEFT;
+		// nTrapTable[51] = PTT_RIGHT;
+		nTrapTable[520] = PTT_LEFT;
+		nTrapTable[522] = PTT_LEFT;
+		nTrapTable[524] = PTT_RIGHT;
+		nTrapTable[525] = PTT_RIGHT;
+		nTrapTable[529] = PTT_RIGHT;
+		nTrapTable[530] = PTT_LEFT;
+		nTrapTable[532] = PTT_LEFT;
+		nTrapTable[534] = PTT_RIGHT;
 		break;
 	case DTYPE_CAVES:
+#if ASSET_MPL == 1
 		// patch dMiniTiles - L3.MIN
 		// fix bad artifact
-		pMicroPieces[82].mt[4] = 0;
+		pMicroPieces[82][4] = 0;
+#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_HELL:
 		// patch dSolidTable - L4.SOL
@@ -356,6 +496,16 @@ void InitLvlDungeon()
 		nSolidTable[211] = false;
 		nMissileTable[211] = false;
 		nBlockTable[211] = false;
+		// enable hooked bodies on  walls
+		nTrapTable[2] = PTT_LEFT;
+		nTrapTable[189] = PTT_LEFT;
+		nTrapTable[197] = PTT_LEFT;
+		nTrapTable[205] = PTT_LEFT;
+		nTrapTable[209] = PTT_LEFT;
+		nTrapTable[5] = PTT_RIGHT;
+		nTrapTable[192] = PTT_RIGHT;
+		nTrapTable[212] = PTT_RIGHT;
+		nTrapTable[216] = PTT_RIGHT;
 		break;
 #ifdef HELLFIRE
 	case DTYPE_NEST:
@@ -363,16 +513,19 @@ void InitLvlDungeon()
 		nSolidTable[390] = false; // make a pool tile walkable I.
 		nSolidTable[413] = false; // make a pool tile walkable II.
 		nSolidTable[416] = false; // make a pool tile walkable III.
+#if ASSET_MPL == 1
 		// patch dMiniTiles - L6.MIN
 		// useless black micros
-		pMicroPieces[21].mt[0] = 0;
-		pMicroPieces[21].mt[1] = 0;
+		pMicroPieces[21][0] = 0;
+		pMicroPieces[21][1] = 0;
 		// fix bad artifacts
-		pMicroPieces[132].mt[7] = 0;
-		pMicroPieces[366].mt[1] = 0;
+		pMicroPieces[132][7] = 0;
+		pMicroPieces[366][1] = 0;
+#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_CRYPT:
 		// patch dSolidTable - L5.SOL
+		nSolidTable[143] = false; // make right side of down-stairs consistent (walkable)
 		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
 		// make collision-checks more reasonable
 		//  - prevent non-crossable floor-tile configurations I.
@@ -392,56 +545,58 @@ void InitLvlDungeon()
 		//  - prevent non-crossable floor-tile configurations II.
 		nSolidTable[598] = false;
 		nSolidTable[600] = false;
+#if ASSET_MPL == 1
 		// patch dMiniTiles - L5.MIN
 		// useless black micros
-		pMicroPieces[130].mt[0] = 0;
-		pMicroPieces[130].mt[1] = 0;
-		pMicroPieces[132].mt[1] = 0;
-		pMicroPieces[134].mt[0] = 0;
-		pMicroPieces[134].mt[1] = 0;
-		pMicroPieces[149].mt[0] = 0;
-		pMicroPieces[149].mt[1] = 0;
-		pMicroPieces[149].mt[2] = 0;
-		pMicroPieces[150].mt[0] = 0;
-		pMicroPieces[150].mt[1] = 0;
-		pMicroPieces[150].mt[2] = 0;
-		pMicroPieces[150].mt[4] = 0;
-		pMicroPieces[151].mt[0] = 0;
-		pMicroPieces[151].mt[1] = 0;
-		pMicroPieces[151].mt[3] = 0;
-		pMicroPieces[152].mt[0] = 0;
-		pMicroPieces[152].mt[1] = 0;
-		pMicroPieces[152].mt[3] = 0;
-		pMicroPieces[152].mt[5] = 0;
-		pMicroPieces[153].mt[0] = 0;
-		pMicroPieces[153].mt[1] = 0;
+		pMicroPieces[130][0] = 0;
+		pMicroPieces[130][1] = 0;
+		pMicroPieces[132][1] = 0;
+		pMicroPieces[134][0] = 0;
+		pMicroPieces[134][1] = 0;
+		pMicroPieces[149][0] = 0;
+		pMicroPieces[149][1] = 0;
+		pMicroPieces[149][2] = 0;
+		pMicroPieces[150][0] = 0;
+		pMicroPieces[150][1] = 0;
+		pMicroPieces[150][2] = 0;
+		pMicroPieces[150][4] = 0;
+		pMicroPieces[151][0] = 0;
+		pMicroPieces[151][1] = 0;
+		pMicroPieces[151][3] = 0;
+		pMicroPieces[152][0] = 0;
+		pMicroPieces[152][1] = 0;
+		pMicroPieces[152][3] = 0;
+		pMicroPieces[152][5] = 0;
+		pMicroPieces[153][0] = 0;
+		pMicroPieces[153][1] = 0;
 		// fix bad artifact
-		pMicroPieces[156].mt[2] = 0;
+		pMicroPieces[156][2] = 0;
 		// useless black micros
-		pMicroPieces[172].mt[0] = 0;
-		pMicroPieces[172].mt[1] = 0;
-		pMicroPieces[172].mt[2] = 0;
-		pMicroPieces[173].mt[0] = 0;
-		pMicroPieces[173].mt[1] = 0;
-		pMicroPieces[174].mt[0] = 0;
-		pMicroPieces[174].mt[1] = 0;
-		pMicroPieces[174].mt[2] = 0;
-		pMicroPieces[174].mt[4] = 0;
-		pMicroPieces[175].mt[0] = 0;
-		pMicroPieces[175].mt[1] = 0;
-		pMicroPieces[176].mt[0] = 0;
-		pMicroPieces[176].mt[1] = 0;
-		pMicroPieces[176].mt[3] = 0;
-		pMicroPieces[177].mt[0] = 0;
-		pMicroPieces[177].mt[1] = 0;
-		pMicroPieces[177].mt[3] = 0;
-		pMicroPieces[177].mt[5] = 0;
-		pMicroPieces[178].mt[0] = 0;
-		pMicroPieces[178].mt[1] = 0;
-		pMicroPieces[179].mt[0] = 0;
-		pMicroPieces[179].mt[1] = 0;
+		pMicroPieces[172][0] = 0;
+		pMicroPieces[172][1] = 0;
+		pMicroPieces[172][2] = 0;
+		pMicroPieces[173][0] = 0;
+		pMicroPieces[173][1] = 0;
+		pMicroPieces[174][0] = 0;
+		pMicroPieces[174][1] = 0;
+		pMicroPieces[174][2] = 0;
+		pMicroPieces[174][4] = 0;
+		pMicroPieces[175][0] = 0;
+		pMicroPieces[175][1] = 0;
+		pMicroPieces[176][0] = 0;
+		pMicroPieces[176][1] = 0;
+		pMicroPieces[176][3] = 0;
+		pMicroPieces[177][0] = 0;
+		pMicroPieces[177][1] = 0;
+		pMicroPieces[177][3] = 0;
+		pMicroPieces[177][5] = 0;
+		pMicroPieces[178][0] = 0;
+		pMicroPieces[178][1] = 0;
+		pMicroPieces[179][0] = 0;
+		pMicroPieces[179][1] = 0;
+#endif /* ASSET_MPL == 1 */
 		break;
-#endif
+#endif /* HELLFIRE */
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -477,13 +632,13 @@ POS32 DRLG_PlaceMiniSet(const BYTE *miniset)
 
 	sw = miniset[0];
 	sh = miniset[1];
-
+	// assert(sw < DMAXX && sh < DMAXY);
 	tries = 0;
 	while (TRUE) {
 		done = true;
 		if ((tries & 0xFF) == 0) {
-			sx = random_(0, DMAXX - sw);
-			sy = random_(0, DMAXY - sh);
+			sx = random_low(0, DMAXX - sw);
+			sy = random_low(0, DMAXY - sh);
 		}
 		if (++tries == DMAXX * DMAXY)
 			return { DMAXX, DMAXY };
@@ -947,7 +1102,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 	themeCount = 0;
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == floor && random_(0, freq) == 0 && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
+			if (dungeon[i][j] == floor && (freq == 0 || random_low(0, freq) == 0) && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
 				if (rndSize) {
 					min = minSize - 2;
 					themeW = RandRange(min, themeW);

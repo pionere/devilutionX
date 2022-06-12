@@ -1,21 +1,19 @@
 
 #include "controls/menu_controls.h"
-#include "DiabloUI/art_draw.h"
 #include "DiabloUI/diabloui.h"
-#include "DiabloUI/fonts.h"
-#include "utils/display.h"
-#include "../palette.h"
+#include "all.h"
+//#include "../dx.h"
+//#include "../engine.h"
+//#include "../engine/render/cel_render.hpp"
+//#include "../palette.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 #define PROGRESS_CANCEL	101
 
-#define PRPANEL_WIDTH	280
-#define PRPANEL_HEIGHT	140
-
-static Art ArtPopupSm;
-static Art ArtProgBG;
-static Art ArtProgFil;
+static CelImageBuf* gbProgBackCel;
+static CelImageBuf* gbProgEmptyCel;
+static BYTE* gbProgFillBmp;
 static int _gnProgress;
 
 static void DialogActionCancel()
@@ -25,45 +23,61 @@ static void DialogActionCancel()
 
 static void ProgressLoad(const char *msg)
 {
-	LoadBackgroundArt("ui_art\\black.pcx");
-	LoadArt("ui_art\\spopup.pcx", &ArtPopupSm);
-	LoadArt("ui_art\\prog_bg.pcx", &ArtProgBG);
-	LoadArt("ui_art\\prog_fil.pcx", &ArtProgFil);
-	LoadArt("ui_art\\smbutton.pcx", &ArtSmlButton, 2);
+	CelImageBuf* gbProgFillCel;
+	int i, y;
 
-	int x = PANEL_LEFT + (PANEL_WIDTH - PRPANEL_WIDTH) / 2;
-	int y = UI_OFFSET_Y + (480 - PRPANEL_HEIGHT) / 2;
+	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
+	gbProgBackCel = CelLoadImage("ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
+	gbProgEmptyCel = CelLoadImage("ui_art\\prog_bg.CEL", PRBAR_WIDTH);
 
-	SDL_Rect rect1 = { x + 50, y + 20, PRPANEL_WIDTH - 100, SML_BUTTON_HEIGHT };
-	gUiItems.push_back(new UiArtText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
-	SDL_Rect rect2 = { x + 85, y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+	gbProgFillBmp = DiabloAllocPtr(PRBAR_HEIGHT * PRBAR_WIDTH);
+	gbProgFillCel = CelLoadImage("ui_art\\prog_fil.CEL", PRBAR_WIDTH);
+	CelDraw(SCREEN_X, SCREEN_Y + PRBAR_HEIGHT - 1, gbProgFillCel, 1);
+	for (i = 0; i < PRBAR_HEIGHT; i++) {
+		memcpy(&gbProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[SCREEN_X + (SCREEN_Y + i) * BUFFER_WIDTH], PRBAR_WIDTH);
+	}
+	MemFreeDbg(gbProgFillCel);
+
+	y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
+
+	SDL_Rect rect1 = { PANEL_LEFT, y + 20, PANEL_WIDTH, SML_BUTTON_HEIGHT };
+	gUiItems.push_back(new UiText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
+	SDL_Rect rect2 = { PANEL_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiButton("Cancel", &DialogActionCancel, rect2));
 }
 
 static void ProgressFree()
 {
-	ArtBackground.Unload();
-	ArtPopupSm.Unload();
-	ArtProgBG.Unload();
-	ArtProgFil.Unload();
-	ArtSmlButton.Unload();
+	MemFreeDbg(gbBackCel);
+	MemFreeDbg(gbSmlButtonCel);
+	MemFreeDbg(gbProgBackCel);
+	MemFreeDbg(gbProgEmptyCel);
+	MemFreeDbg(gbProgFillBmp);
+
 	UiClearItems(gUiItems);
 }
 
 static void ProgressRender()
 {
-	UiClearScreen();
-	DrawArt(0, 0, &ArtBackground);
+	int x, y, i, dx;
 
-	int x = PANEL_LEFT + (PANEL_WIDTH - PRPANEL_WIDTH) / 2;
-	int y = UI_OFFSET_Y + (480 - PRPANEL_HEIGHT) / 2;
+	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, gbBackCel, 1);
 
-	DrawArt(x, y, &ArtPopupSm, 0, PRPANEL_WIDTH, PRPANEL_HEIGHT);
-	DrawArt(x + (PRPANEL_WIDTH - 227) / 2, y + 52, &ArtProgBG, 0, 227);
-	if (_gnProgress != 0) {
-		DrawArt(x + (PRPANEL_WIDTH - 227) / 2, y + 52, &ArtProgFil, 0, 227 * _gnProgress / 100);
+	x = PANEL_CENTERX(SMALL_POPUP_WIDTH);
+	y = PANEL_CENTERY(SMALL_POPUP_HEIGHT);
+
+	CelDraw(x, y + SMALL_POPUP_HEIGHT, gbProgBackCel, 1);
+	x += (SMALL_POPUP_WIDTH - PRBAR_WIDTH) / 2;
+	y += 46 + PRBAR_HEIGHT;
+	CelDraw(x, y - 1, gbProgEmptyCel, 1);
+	dx = _gnProgress;
+	if (dx > 100)
+		dx = 100;
+	dx = PRBAR_WIDTH * dx / 100;
+	for (i = 0; i < PRBAR_HEIGHT && dx != 0; i++) {
+		memcpy(&gpBuffer[x + (y + i - PRBAR_HEIGHT) * BUFFER_WIDTH], &gbProgFillBmp[0 + i * PRBAR_WIDTH], dx);
 	}
-	DrawArt(x + (PRPANEL_WIDTH - SML_BUTTON_WIDTH) / 2, y + 99, &ArtSmlButton, 2, SML_BUTTON_WIDTH);
 }
 
 bool UiProgressDialog(const char *msg, int (*fnfunc)())
@@ -74,10 +88,10 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 	SDL_Event event;
 	do {
 		_gnProgress = fnfunc();
+		UiClearScreen();
 		ProgressRender();
 		UiRenderItems(gUiItems);
-		DrawMouse();
-		UiFadeIn();
+		UiFadeIn(true);
 
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {

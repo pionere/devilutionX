@@ -90,7 +90,7 @@ static const char* ReadHelpLine(const char* str)
 	w = 0;
 	while (*str != '|' && w < limit) {
 		tempstr[c] = *str;
-		w += sfontkern[sfontframe[gbFontTransTbl[(BYTE)tempstr[c]]]] + 1;
+		w += smallFontWidth[gbStdFontFrame[(BYTE)tempstr[c]]] + FONT_KERN_SMALL;
 		c++;
 		str++;
 	}
@@ -114,7 +114,7 @@ void DrawHelp()
 	DrawTextBox();
 
 	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);
-	DrawTextBoxSLine(LTPANEL_X, 5 * 12 + 14, true);
+	DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 5 * 12 + 14, true);
 
 	s = &gszHelpText[0];
 

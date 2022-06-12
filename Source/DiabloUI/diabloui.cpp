@@ -6,9 +6,7 @@
 #include "controls/menu_controls.h"
 
 #include "DiabloUI/scrollbar.h"
-#include "DiabloUI/art_draw.h"
 #include "DiabloUI/text_draw.h"
-#include "DiabloUI/fonts.h"
 #include "DiabloUI/dialogs.h"
 #include "controls/plrctrls.h"
 
@@ -29,15 +27,13 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define FOCUS_FRAME_COUNT	8
 
-static Art ArtLogoMed;
-Art ArtFocus[NUM_FOCUS];
-#ifndef NOWIDESCREEN
-Art ArtBackgroundWidescreen;
-#endif
-Art ArtBackground;
-Art ArtCursor;
-Art ArtSmlButton;
-Art ArtHero;
+CelImageBuf* gbBackCel;
+static CelImageBuf* gbLogoCelSmall;
+static CelImageBuf* gbFocusCelSmall;
+static CelImageBuf* gbFocusCelMed;
+static CelImageBuf* gbFocusCelBig;
+CelImageBuf* gbHerosCel;
+CelImageBuf* gbSmlButtonCel;
 
 void (*gfnSoundFunction)(int gfx, int rndCnt);
 static void (*gfnListFocus)(unsigned index);
@@ -441,62 +437,51 @@ static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 
 static void LoadUiGFX()
 {
-#ifdef HELLFIRE
-	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogoMed, 16, 0);
-#else
-	LoadMaskedArt("ui_art\\smlogo.pcx", &ArtLogoMed, 15, 250);
-#endif
-	LoadMaskedArt("ui_art\\focus16.pcx", &ArtFocus[FOCUS_SMALL], FOCUS_FRAME_COUNT, 250);
-	LoadMaskedArt("ui_art\\focus.pcx", &ArtFocus[FOCUS_MED], FOCUS_FRAME_COUNT, 250);
-	LoadMaskedArt("ui_art\\focus42.pcx", &ArtFocus[FOCUS_BIG], FOCUS_FRAME_COUNT, 250);
-	LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
+	assert(gbLogoCelSmall == NULL);
+	gbLogoCelSmall = CelLoadImage("ui_art\\smlogo.CEL", SMALL_LOGO_WIDTH);
+	assert(gbFocusCelSmall == NULL);
+	gbFocusCelSmall = CelLoadImage("ui_art\\focus16.CEL", FOCUS_SMALL);
+	assert(gbFocusCelMed == NULL);
+	gbFocusCelMed = CelLoadImage("ui_art\\focus.CEL", FOCUS_MEDIUM);
+	assert(gbFocusCelBig == NULL);
+	gbFocusCelBig = CelLoadImage("ui_art\\focus42.CEL", FOCUS_BIG);
+
+	NewCursor(CURSOR_HAND);
 }
 
 static void UnloadUiGFX()
 {
-	ArtLogoMed.Unload();
-	ArtFocus[FOCUS_SMALL].Unload();
-	ArtFocus[FOCUS_MED].Unload();
-	ArtFocus[FOCUS_BIG].Unload();
-	ArtCursor.Unload();
+	MemFreeDbg(gbLogoCelSmall);
+	MemFreeDbg(gbFocusCelSmall);
+	MemFreeDbg(gbFocusCelMed);
+	MemFreeDbg(gbFocusCelBig);
 }
 
 void UiInitialize()
 {
 	LoadUiGFX();
-	LoadArtFonts();
-	if (ArtCursor.surface != NULL) {
+	//if (pCursCels != NULL) {
 		if (SDL_ShowCursor(SDL_DISABLE) < 0) {
 			sdl_error(ERR_SDL_UI_CURSOR_DISABLE);
 		}
-	}
+	//}
 }
 
 void UiDestroy()
 {
 	UnloadUiGFX();
-	UnloadArtFonts();
 	//UiInitList_clear();
 }
 
-static int GetCenterOffset(int w, int bw)
+void LoadBackgroundArt(const char* pszFile, const char* palette)
 {
-	//assert(bw == 0);
-	//if (bw == 0) {
-		bw = SCREEN_WIDTH;
-	//}
+	assert(gbBackCel == NULL);
+	//if (gbBackCel != NULL)
+	//	MemFreeDbg(gbBackCel);
+	gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
 
-	return (bw - w) / 2;
-}
-
-void LoadBackgroundArt(const char* pszFile, int frames)
-{
-	assert(ArtBackground.surface == NULL);
-
-	if (!LoadArt(pszFile, &ArtBackground, frames, orig_palette))
-		return;
-
-	ApplyGamma(logical_palette, orig_palette);
+	LoadPalette(palette);
+	PaletteFadeIn(true);
 
 	// help the render loops by setting up an initial fade level
 	_gdwFadeTc = 0;
@@ -513,22 +498,19 @@ void LoadBackgroundArt(const char* pszFile, int frames)
 
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
 {
-	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
-#ifndef NOWIDESCREEN
-	if (ArtBackgroundWidescreen.surface != NULL) {
-		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, 0, rect, UIS_CENTER, false));
-	}
-#endif
-	vecDialog->push_back(new UiImage(&ArtBackground, 0, rect, UIS_CENTER, false));
+	assert(gbBackCel != NULL);
+	SDL_Rect rect = { PANEL_LEFT, PANEL_TOP, PANEL_WIDTH, PANEL_HEIGHT };
+	vecDialog->push_back(new UiImage(gbBackCel, 0, rect, false));
 }
 
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 {
-	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
-	vecDialog->push_back(new UiImage(&ArtLogoMed, 0, rect, UIS_CENTER, true));
+	assert(gbLogoCelSmall != NULL);
+	SDL_Rect rect = { PANEL_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
+	vecDialog->push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 
-void UiFadeIn()
+void UiFadeIn(bool draw_cursor)
 {
 	Uint32 currTc;
 
@@ -543,40 +525,53 @@ void UiFadeIn()
 		}
 		SetFadeLevel(_gnFadeValue);
 	}
-//#ifdef USE_SDL1
-//	if (DiabloUiSurface() == back_surface)
-		BltFast();
-//#endif
-	RenderPresent();
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (sgbControllerActive)
+		draw_cursor = false;
+#endif
+	scrollrt_draw_screen(draw_cursor);
+}
+
+int GetAnimationFrame(int frames, int animFrameLenMs)
+{
+	//assert(frames > 0 && fps > 0);
+	return (SDL_GetTicks() / animFrameLenMs) % frames;
 }
 
 static void DrawSelector(const SDL_Rect &rect)
 {
-	int size = FOCUS_SMALL;
-	if (rect.h >= 42)
-		size = FOCUS_BIG;
-	else if (rect.h >= 30)
-		size = FOCUS_MED;
-	Art *art = &ArtFocus[size];
+	int size, frame, x, y;
+	CelImageBuf* selCel;
 
-	int frame = GetAnimationFrame(FOCUS_FRAME_COUNT);
-	int y = rect.y + (rect.h - art->frame_height) / 2; // TODO FOCUS_MED appears higher than the box
+	assert(gbFocusCelSmall != NULL);
+	assert(gbFocusCelMed != NULL);
+	assert(gbFocusCelBig != NULL);
+	selCel = gbFocusCelSmall;
+	if (rect.h >= FOCUS_BIG) {
+		selCel = gbFocusCelBig;
+	} else if (rect.h >= FOCUS_MEDIUM) {
+		selCel = gbFocusCelMed;
+	}
+	size = selCel->ciWidth;
+	frame = GetAnimationFrame(FOCUS_FRAME_COUNT) + 1;
+	x = SCREEN_X + rect.x;
+	y = SCREEN_Y + rect.y + (unsigned)(rect.h + size) / 2 - 1; // TODO FOCUS_MED appears higher than the box
 
-	DrawArt(rect.x, y, art, frame);
-	DrawArt(rect.x + rect.w - art->logical_width, y, art, frame);
+	CelDraw(x, y, selCel, frame);
+	x += rect.w - size;
+	CelDraw(x, y, selCel, frame);
 }
 
 void UiClearScreen()
 {
-	if (SCREEN_WIDTH > 640) // Background size
+	if (SCREEN_WIDTH > PANEL_WIDTH) // Background size
 		SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 }
 
 void UiPollAndRender()
 {
 	UiRenderItems(gUiItems);
-	DrawMouse();
-	UiFadeIn();
+	UiFadeIn(true);
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0) {
@@ -593,34 +588,32 @@ void UiPollAndRender()
 #endif
 }
 
-static void Render(const UiArtText* uiArtText)
+static void Render(const UiText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
 }
 
 static void Render(const UiImage* uiImage)
 {
-	Art* mArt = uiImage->m_art;
-	int x = uiImage->m_rect.x;
+	int frame = uiImage->m_animated ? GetAnimationFrame(uiImage->m_frame) : uiImage->m_frame;
+	int x = SCREEN_X + uiImage->m_rect.x;
+	int y = SCREEN_Y + uiImage->m_rect.y + uiImage->m_rect.h - 1;
 
-	if (uiImage->m_iFlags & UIS_CENTER) {
-		const int xOffset = GetCenterOffset(mArt->logical_width, uiImage->m_rect.w);
-		x += xOffset;
-	}
-	int frame = uiImage->m_animated ? GetAnimationFrame(mArt->frames) : uiImage->m_frame;
-	DrawArt(x, uiImage->m_rect.y, mArt, frame, uiImage->m_rect.w, uiImage->m_rect.h);
+	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
 
-static void Render(const UiArtTextButton* uiButton)
+static void Render(const UiTxtButton* uiButton)
 {
 	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
 }
 
-static void Render(UiButton* button)
+static void Render(const UiButton* button)
 {
-	int frame = button->m_pressed ? UiButton::PRESSED : UiButton::DEFAULT;
+	int frame = button->m_pressed ? 2 : 1;
+	int x = SCREEN_X + button->m_rect.x;
+	int y = SCREEN_Y + button->m_rect.y + 28 - 1;
 
-	DrawArt(button->m_rect.x, button->m_rect.y, &ArtSmlButton, frame, button->m_rect.w, button->m_rect.h);
+	CelDraw(x, y, gbSmlButtonCel, frame);
 
 	SDL_Rect textRect = button->m_rect;
 	if (button->m_pressed)
@@ -643,32 +636,37 @@ static void Render(const UiScrollBar* uiSb)
 {
 	// Bar background (tiled):
 	{
-		int bgYEnd = DownArrowRect(uiSb).y;
-		int bgX = uiSb->m_rect.x;
-		int bgY = uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT;
+		int bgYEnd = SCREEN_Y + DownArrowRect(uiSb).y - 1;
+		int bgX = SCREEN_X + uiSb->m_rect.x;
+		int bgY = SCREEN_Y + uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT - 1;
+		assert(scrollBarBackCel != NULL);
 		while (bgY < bgYEnd) {
-			int drawH = std::min(bgY + SCROLLBAR_BG_HEIGHT, bgYEnd) - bgY;
-			DrawArt(bgX, bgY, &ArtScrollBarBackground, 0, SCROLLBAR_BG_WIDTH, drawH);
 			bgY += SCROLLBAR_BG_HEIGHT;
+			if (bgYEnd < bgY)
+				bgY = bgYEnd;
+			CelDraw(bgX, bgY, scrollBarBackCel, 1);
 		}
 	}
-
 	// Arrows:
+	assert(scrollBarArrowCel != NULL);
 	{
 		SDL_Rect rect = UpArrowRect(uiSb);
+		rect.y--;
 		int frame = scrollBarState.upPressCounter != -1 ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP;
-		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame);
+		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1);
 	}
 	{
 		SDL_Rect rect = DownArrowRect(uiSb);
+		rect.y--;
 		int frame = scrollBarState.downPressCounter != -1 ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN;
-		DrawArt(rect.x, rect.y, &ArtScrollBarArrow, frame);
+		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1);
 	}
-
 	// Thumb:
+	assert(scrollBarThumbCel != NULL);
 	if (SelectedItemMax > 0) {
 		SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
-		DrawArt(rect.x, rect.y, &ArtScrollBarThumb);
+		rect.y--;
+		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarThumbCel, 1);
 	}
 }
 
@@ -685,14 +683,14 @@ static void Render(const UiEdit* uiEdit)
 static void RenderItem(UiItemBase* item)
 {
 	switch (item->m_type) {
-	case UI_ART_TEXT:
-		Render(static_cast<UiArtText *>(item));
+	case UI_TEXT:
+		Render(static_cast<UiText *>(item));
 		break;
 	case UI_IMAGE:
 		Render(static_cast<UiImage *>(item));
 		break;
-	case UI_ART_TEXT_BUTTON:
-		Render(static_cast<UiArtTextButton *>(item));
+	case UI_TXT_BUTTON:
+		Render(static_cast<UiTxtButton *>(item));
 		break;
 	case UI_BUTTON:
 		Render(static_cast<UiButton *>(item));
@@ -712,7 +710,7 @@ static void RenderItem(UiItemBase* item)
 	}
 }
 
-static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton* uiButton)
+static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiTxtButton* uiButton)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
 		return false;
@@ -800,8 +798,8 @@ static bool HandleMouseEvent(const SDL_Event &event, UiItemBase* item)
 	if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
 		return false;
 	switch (item->m_type) {
-	case UI_ART_TEXT_BUTTON:
-		return HandleMouseEventArtTextButton(event, static_cast<UiArtTextButton *>(item));
+	case UI_TXT_BUTTON:
+		return HandleMouseEventArtTextButton(event, static_cast<UiTxtButton *>(item));
 	case UI_BUTTON:
 		return HandleMouseEventButton(event, static_cast<UiButton *>(item));
 	case UI_LIST:
@@ -871,16 +869,6 @@ void UiItemMouseEvents(SDL_Event* event)
 	}
 
 	//return handled;
-}
-
-void DrawMouse()
-{
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive)
-		return;
-#endif
-
-	DrawArt(MouseX, MouseY, &ArtCursor);
 }
 
 DEVILUTION_END_NAMESPACE

@@ -1700,7 +1700,7 @@ static void L1FillChambers()
 
 	if (pSetPiece != NULL) {
 		c = ChambersFirst + ChambersMiddle + ChambersLast;
-		c = random_(0, c);
+		c = random_low(0, c);
 		if (ChambersFirst) {
 			if (c == 0)
 				c = 2; // select the first chamber for the set piece

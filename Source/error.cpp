@@ -111,36 +111,36 @@ void ClrDiabloMsg()
 
 void DrawDiabloMsg()
 {
-	int i, x, y, sx, sy;
+	int x, y, sx, sy;
+	BYTE backup[2 * SLIDER_BORDER][2 * SLIDER_BOX_HEIGHT];
 
 	//assert(currmsg != EMSG_NONE);
 	//assert(msgcnt > 0);
 
-	x = PANEL_X + 101;
-	y = DIALOG_Y;
-
-	CelDraw(x, y, pSTextSlidCels, 1, 12);
-	CelDraw(x + 426, y, pSTextSlidCels, 4, 12);
-	CelDraw(x, y + 48, pSTextSlidCels, 2, 12);
-	CelDraw(x + 426, y + 48, pSTextSlidCels, 3, 12);
-
-	sx = x + 8;
-	for (i = 0; i < 35; i++) {
-		CelDraw(sx, y, pSTextSlidCels, 5, 12);
-		CelDraw(sx, y + 48, pSTextSlidCels, 7, 12);
-		sx += 12;
+	x = PANEL_CENTERX((3 * SLIDER_BOX_WIDTH) / 2);
+	y = PANEL_CENTERY(SLIDER_BOX_HEIGHT + 2 * TILE_HEIGHT);
+	// preserve image content on borders
+	for (sx = 0; sx < SLIDER_BORDER; sx++) {
+		for (sy = SLIDER_BORDER; sy < SLIDER_BOX_HEIGHT - SLIDER_BORDER; sy++) {
+			backup[sx][sy - SLIDER_BORDER] = gpBuffer[x + (SLIDER_BOX_WIDTH - SLIDER_BORDER) + sx + (y - sy) * BUFFER_WIDTH];
+			backup[sx + SLIDER_BORDER][sy - SLIDER_BORDER] = gpBuffer[sx + x + SLIDER_BOX_WIDTH / 2 + (y - sy) * BUFFER_WIDTH];
+		}
 	}
-	sy = y + 12;
-	for (i = 0; i < 3; i++) {
-		CelDraw(x, sy, pSTextSlidCels, 6, 12);
-		CelDraw(x + 426, sy, pSTextSlidCels, 8, 12);
-		sy += 12;
+	// draw two overlapping bars
+	CelDraw(x, y, gpOptbarCel, 1);
+	CelDraw(x + SLIDER_BOX_WIDTH / 2, y, gpOptbarCel, 1);
+	// restore image content of the unwanted borders
+	for (sx = 0; sx < SLIDER_BORDER; sx++) {
+		for (sy = SLIDER_BORDER; sy < SLIDER_BOX_HEIGHT - SLIDER_BORDER; sy++) {
+			gpBuffer[x + (SLIDER_BOX_WIDTH - SLIDER_BORDER) + sx + (y - sy) * BUFFER_WIDTH] = backup[sx][sy - SLIDER_BORDER];
+			gpBuffer[sx + x + SLIDER_BOX_WIDTH / 2 + (y - sy) * BUFFER_WIDTH] = backup[sx + SLIDER_BORDER][sy - SLIDER_BORDER];
+		}
 	}
-
-	trans_rect(x + 3, y - 8, 432, 54);
-
+	// make the center transparent
+	trans_rect(x + SLIDER_BORDER, y - SLIDER_BOX_HEIGHT + SLIDER_BORDER, (3 * SLIDER_BOX_WIDTH) / 2 - 2 * SLIDER_BORDER, (SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER));
+	// print the message
 	SStrCopy(tempstr, MsgStrings[currmsg], sizeof(tempstr));
-	PrintString(x, y + 24, x + PANEL_WIDTH - 2 * 101, tempstr, true, COL_GOLD, 1);
+	PrintString(x, y - (SLIDER_BOX_HEIGHT - SMALL_FONT_HEIGHT) / 2, x + (3 * SLIDER_BOX_WIDTH) / 2, tempstr, true, COL_GOLD, FONT_KERN_SMALL);
 
 	if (msgdelay > 0 && msgdelay <= SDL_GetTicks() - 3500) {
 		msgdelay = 0;

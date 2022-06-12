@@ -5,22 +5,8 @@ set(UBSAN OFF)
 # General build options.
 set(USE_SDL1 ON)
 #set(ZEROTIER OFF)
-
 # Disable system dependencies.
 set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
-
-set(PREFILL_PLAYER_NAME ON)
-
-# 3DS libraries
-list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/ctr/modules")
-find_package(CITRO3D REQUIRED)
-find_package(FREETYPE REQUIRED)
-find_package(BZIP2 REQUIRED)
-find_package(Tremor REQUIRED)
-find_package(OGG REQUIRED)
-find_package(MIKMOD REQUIRED)
-find_package(MAD REQUIRED)
-find_package(PNG REQUIRED)
 
 # additional compilation definitions
 add_definitions(-D__3DS__)
@@ -34,11 +20,13 @@ set(SDL1_VIDEO_MODE_BPP 8)
 set(DEFAULT_WIDTH 800)
 set(DEFAULT_HEIGHT 480)
 
+set(PREFILL_PLAYER_NAME ON)
+
 # SDL Joystick axis mapping (circle-pad/C-stick)
 set(JOY_AXIS_LEFTX 0)
 set(JOY_AXIS_LEFTY 1)
-set(JOY_AXIS_RIGHTX 3)
-set(JOY_AXIS_RIGHTY 4)
+set(JOY_AXIS_RIGHTX 2)
+set(JOY_AXIS_RIGHTY 3)
 # SDL Joystick hat mapping (D-pad)
 set(JOY_HAT_DPAD_UP_HAT 0)
 set(JOY_HAT_DPAD_RIGHT_HAT 0)

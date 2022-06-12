@@ -96,13 +96,13 @@ typedef enum item_effect_type {
 	IPL_ACIDRES,
 	IPL_ALLRES,
 	IPL_CRITP,
-	IPL_SPLDUR,			/* only used in beta */
-	IPL_SPLLVLADD,
+	IPL_SKILLLVL,
+	IPL_SKILLLEVELS,
 	IPL_CHARGES,
 	IPL_FIREDAM,
 	IPL_LIGHTDAM,
-	IPL_MAGICDAM, // unused
-	IPL_ACIDDAM,  // unused
+	IPL_MAGICDAM,
+	IPL_ACIDDAM,
 	IPL_STR,
 	IPL_MAG,
 	IPL_DEX,
@@ -117,11 +117,11 @@ typedef enum item_effect_type {
 	IPL_LIGHT,
 	IPL_MULT_ARROWS,	/* only used in hellfire */
 	IPL_INVCURS,
-	IPL_THORNS,
+	//IPL_THORNS,
 	IPL_NOMANA,
 	IPL_KNOCKBACK,
 	IPL_STUN,
-	IPL_NOHEALMON,		/* unused */
+	//IPL_NOHEALMON,
 	IPL_STEALMANA,
 	IPL_STEALLIFE,
 	IPL_PENETRATE_PHYS,
@@ -136,7 +136,7 @@ typedef enum item_effect_type {
 	IPL_ONEHAND,
 	IPL_ALLRESZERO,
 	IPL_DRAINLIFE,
-	IPL_INFRAVISION,	/* unused */
+	//IPL_INFRAVISION,
 	IPL_SETAC,
 	IPL_ACMOD,
 	IPL_CRYSTALLINE,
@@ -531,7 +531,7 @@ typedef enum _sfx_id {
 	LS_NOVA,
 	//LS_PORTAL,
 	LS_PUDDLE,
-	LS_RESUR,
+	//LS_RESUR,
 	//LS_SCURSE,
 	LS_SCURIMP,
 	LS_SENTINEL,
@@ -1556,6 +1556,7 @@ typedef enum missile_id {
 	MIS_HEAL,
 	MIS_HEALOTHER,
 	MIS_RESURRECT,
+	MIS_ATTRACT,
 	MIS_TELEKINESIS,
 	//MIS_LARROW,
 	MIS_OPITEM,
@@ -1606,9 +1607,10 @@ typedef enum missile_id {
 } missile_id;
 
 typedef enum missile_source_type {
-	MST_PLAYER,  // player
 	MST_MONSTER, // monster
 	MST_OBJECT,  // trap or object
+	MST_RUNE,    // rune of a player
+	MST_PLAYER   = 1 << 7,  // player
 	MST_NA = 0,  // does not matter
 } missile_source_type;
 
@@ -1694,9 +1696,10 @@ typedef enum missile_gfx_id {
 } missile_gfx_id;
 
 typedef enum missile_flags {
-	MIF_AREA    = 1 << 0,
-	MIF_NOBLOCK = 1 << 1,
-	MIF_DOT     = 1 << 2,
+	MIF_AREA    = 1 << 0, // alternative hit chance calculation
+	MIF_NOBLOCK = 1 << 1, // can not be blocked
+	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored
+	MIF_LEAD    = 1 << 3, // leads the monster to the player (on impact)
 } missile_flags;
 
 typedef enum missile_anim_flags {
@@ -1710,6 +1713,12 @@ typedef enum missile_add_result {
 	MIRES_DELETE,
 	MIRES_FAIL_DELETE,
 } missile_add_result;
+
+typedef enum missile_collision_mode {
+	MICM_NONE,
+	MICM_BLOCK_ANY,
+	MICM_BLOCK_WALL,
+} missile_collision_mode;
 
 typedef enum _monster_ai {
 	AI_ZOMBIE,
@@ -1822,10 +1831,10 @@ typedef enum _monster_id {
 	MT_MUDMAN,
 	MT_TOAD,
 	MT_FLAYED,
-	MT_WYRM,
-	MT_CAVSLUG,
-	MT_DVLWYRM,
-	MT_DEVOUR,
+//	MT_WYRM,
+//	MT_CAVSLUG,
+//	MT_DVLWYRM,
+//	MT_DEVOUR,
 	MT_NMAGMA,
 	MT_YMAGMA,
 	MT_BMAGMA,
@@ -1929,10 +1938,10 @@ typedef enum _monster_gfx_id {
 	MOFILE_SKING,
 	MOFILE_CLEAVER,
 	MOFILE_FAT,
-	MOFILE_WORM,
+//	MOFILE_WORM,
 	MOFILE_MAGMA,
 	MOFILE_RHINO,
-//MOFILE_FIREMAN,
+//	MOFILE_FIREMAN,
 	MOFILE_THIN,
 	MOFILE_GARGOYLE,
 	MOFILE_MEGA,
@@ -2004,9 +2013,10 @@ typedef enum _monster_flag {
 	MFLAG_CAN_OPEN_DOOR   = 0x0040,
 	MFLAG_SEARCH          = 0x0080,
 	MFLAG_TARGETS_MONSTER = 0x0100,
-	MFLAG_NO_ENEMY        = 0x0200,
-	MFLAG_NOSTONE         = 0x0400,
-	MFLAG_NOHEAL          = 0x0800,
+	MFLAG_NOSTONE         = 0x0200,
+	MFLAG_NOCORPSE        = 0x0400,
+	// MFLAG_NO_ENEMY        = 0x0800,
+	// MFLAG_NOHEAL          = 0x1000,
 } _monster_flag;
 
 typedef enum _monster_treasure {
@@ -2683,6 +2693,13 @@ typedef enum piece_flag {
 	PFLAG_TRAP_SOURCE      = 1 << 7,
 } piece_flag;
 
+typedef enum _piece_trap_type {
+	PTT_NONE,
+	PTT_ANY,
+	PTT_LEFT,
+	PTT_RIGHT,
+} _piece_trap_type;
+
 typedef enum piece_micro_flag {
 	TMIF_WALL_TRANS = 1 << 0,
 	TMIF_LEFT_REDRAW = 1 << 1,
@@ -2703,12 +2720,23 @@ typedef enum micro_encoding_type {
 } micro_encoding_type;
 
 typedef enum _draw_mask_type {
-	DMT_NONE,
-	DMT_TWALL,
-	DMT_LTFLOOR,
-	DMT_RTFLOOR,
-	DMT_LFLOOR,
-	DMT_RFLOOR,
+	DMT_NONE,					// SolidMask
+	DMT_TWALL,					// WallMask
+	DMT_LTFLOOR,				// LeftMask
+	DMT_RTFLOOR,				// RightMask
+	DMT_LFLOOR,					// LeftFoliageMask
+	DMT_RFLOOR,					// RightFoliageMask
+	DMT_FLOOR_UP_TOP_LEFT,		// UpperTopLeftFoliageMask
+	DMT_FLOOR_TOP_LEFT,			// TopLeftFoliageMask
+	DMT_FLOOR_LOW_BOTTOM_LEFT,	// LowerBottomLeftFoliageMask
+	DMT_FLOOR_BOTTOM_LEFT,		// BottomLeftFoliageMask
+	DMT_FLOOR_UP_TOP_RIGHT,		// UpperTopRightFoliageMask
+	DMT_FLOOR_TOP_RIGHT,		// TopRightFoliageMask
+	DMT_FLOOR_LOW_BOTTOM_RIGHT,	// LowerBottomRightFoliageMask
+	DMT_FLOOR_BOTTOM_RIGHT,		// BottomRightFoliageMask
+	DMT_FLOOR_TRN_UP_LEFT,		// UpperLeftMask
+	DMT_FLOOR_TRN_UP_RIGHT,		// UpperRightMask
+	DMT_EMPTY,
 } _draw_mask_type;
 
 typedef enum dflag {
@@ -2726,15 +2754,6 @@ typedef enum placeflag {
 	PLACE_SPECIAL = 2,
 	PLACE_UNIQUE  = 4,
 } placeflag;
-
-/*
-Looks like someone treated hex values as binary, so 0x10 came after 0x01, that's why we have 1 and 16, they did the same thing with affix_item_type
-*/
-typedef enum goodorevil {
-	GOE_ANY  = 0x00,
-	GOE_EVIL = 0x01,
-	GOE_GOOD = 0x10,
-} goodorevil;
 
 /*
  First 8 bits store level
@@ -2837,13 +2856,6 @@ typedef enum diablo_message {
 	NUM_EMSGS
 } diablo_message;
 
-typedef enum magic_type {
-	STYPE_FIRE,
-	STYPE_LIGHTNING,
-	STYPE_MAGIC,
-	STYPE_NONE
-} magic_type;
-
 typedef enum theme_id {
 	THEME_BARREL,
 	THEME_SHRINE,
@@ -2889,7 +2901,6 @@ typedef enum turn_status {
 typedef enum leave_reason {
 	LEAVE_NONE,
 	LEAVE_UNKNOWN,
-	LEAVE_ENDING, // was 0x40000004
 	LEAVE_DROP,   // was 0x40000006
 } leave_reason;
 
@@ -2939,7 +2950,11 @@ typedef enum MON_MODE {
 	MM_STONE,
 	MM_HEAL,
 	MM_TALK,
-	NUM_MON_MODES
+	MM_DEAD,     // dead monster. x/y coordinates are used to reproduce the corpse (and light)
+	MM_UNUSED,   // unused slot (except for ex-monsters with light)
+	MM_RESERVED, // reserved slot for minions and prespawned skeletons
+	NUM_MON_MODES,
+	MM_INGAME_LAST = MM_TALK
 } MON_MODE;
 
 typedef enum MON_ANIM {
@@ -3006,6 +3021,7 @@ typedef enum spell_type {
 	RSPLTYPE_SCROLL,
 	RSPLTYPE_CHARGES,
 	RSPLTYPE_INVALID,
+	NUM_RSPLTYPES
 } spell_type;
 
 typedef enum spell_from_type {
@@ -3023,12 +3039,13 @@ typedef enum cursor_id {
 	CURSOR_IDENTIFY,
 	CURSOR_REPAIR,
 	CURSOR_RECHARGE,
-	CURSOR_DISARM,
 	CURSOR_OIL,
+	CURSOR_LAST_ITEMTGT = CURSOR_OIL,
+	CURSOR_DISARM,
 	CURSOR_TELEKINESIS,
+	CURSOR_RESURRECT,
 	CURSOR_TELEPORT,
 	CURSOR_HEALOTHER,
-	CURSOR_RESURRECT,
 	CURSOR_HOURGLASS,
 	CURSOR_FIRSTITEM,
 } cursor_id;
@@ -3118,6 +3135,7 @@ typedef enum spell_id {
 	SPL_STONE,
 	SPL_INFRA,
 	SPL_MANASHIELD,
+	SPL_ATTRACT,
 	SPL_TELEKINESIS,
 	SPL_TELEPORT,
 	SPL_RNDTELEPORT,
@@ -3143,7 +3161,11 @@ typedef enum spell_id {
 	SPL_RUNESTONE,
 #endif
 	NUM_SPELLS,
-	SPL_INVALID = NUM_SPELLS
+	SPL_INVALID = NUM_SPELLS,
+#ifdef HELLFIRE
+	SPL_RUNE_FIRST = SPL_RUNEFIRE,
+	SPL_RUNE_LAST = SPL_RUNESTONE
+#endif
 } spell_id;
 
 typedef enum _msg_id {
@@ -3179,6 +3201,7 @@ typedef enum _cmd_id {
 	CMD_MONSTDEATH,
 	CMD_MONSTDAMAGE,
 	CMD_MONSTCORPSE,
+	CMD_MONSTSUMMON,
 	CMD_AWAKEGOLEM,
 	CMD_PLRDEAD,
 	CMD_PLRRESURRECT,
@@ -3230,6 +3253,8 @@ typedef enum _cmd_id {
 	CMD_BLOODPASS,
 	CMD_OPENSPIL,
 	CMD_DUMP_MONSTERS,     // DEV_MODE
+	CMD_REQUEST_PLRCHECK,  // DEV_MODE
+	CMD_DO_PLRCHECK,       // DEV_MODE
 	CMD_REQUEST_ITEMCHECK, // DEV_MODE
 	CMD_DO_ITEMCHECK,      // DEV_MODE
 	CMD_CHEAT_EXPERIENCE,  // DEBUG_MODE
@@ -3296,6 +3321,18 @@ typedef enum _music_id {
 	TMUSIC_INTRO,
 	NUM_MUSIC,
 } _music_id;
+
+enum _artFontTables {
+	AFT_SMALL,
+	AFT_MED,
+	AFT_BIG,
+	AFT_HUGE,
+};
+
+enum _artFontColors {
+	AFC_SILVER,
+	AFC_GOLD,
+};
 
 typedef enum _mainmenu_selections {
 	MAINMENU_SINGLE_PLAYER,
@@ -3392,16 +3429,17 @@ typedef enum _object_id {
 	OBJ_SWITCHSKL,
 	OBJ_TNUDEM,
 	OBJ_TNUDEW,
-	OBJ_TORTURE1,
-	OBJ_TORTURE2,
-	OBJ_TORTURE3,
-	OBJ_TORTURE4,
-	OBJ_TORTURE5,
+	OBJ_TORTUREL1,
+	OBJ_TORTUREL2,
+	OBJ_TORTUREL3,
+	OBJ_TORTURER1,
+	OBJ_TORTURER2,
+	OBJ_TORTURER3,
 	OBJ_L2LDOOR,
 	OBJ_L2RDOOR,
-	OBJ_TORCHL,
-	OBJ_TORCHR,
+	OBJ_TORCHL1,
 	OBJ_TORCHL2,
+	OBJ_TORCHR1,
 	OBJ_TORCHR2,
 	OBJ_SARC,
 	//OBJ_FLAMEHOLE,
@@ -3563,20 +3601,22 @@ typedef enum _item_indexes {
 	IDI_FULLNOTE,
 	IDI_BROWNSUIT,
 	IDI_GRAYSUIT,
+	IDI_CAP,
+	IDI_RNDDROP_FIRST = IDI_CAP,
 	IDI_HEAL       = 0x48,
 	IDI_FULLHEAL   = 0x49,
 	IDI_MANA       = 0x4A,
 	IDI_FULLMANA   = 0x4B,
 	IDI_REJUV      = 0x4C,
 	IDI_FULLREJUV  = 0x4D,
-	IDI_BOOK1      = 0x6B,
-	IDI_BOOK4      = 0x6E,
-	IDI_CLUB       = 0x87,
-	IDI_DROPSHSTAFF= 0x93,
+	IDI_BOOK1      = 0x5E,
+	IDI_BOOK4      = 0x61,
+	IDI_CLUB       = 0x7A,
+	IDI_DROPSHSTAFF= 0x86,
 #ifdef HELLFIRE
-	NUM_IDI        = 0xA5,
+	NUM_IDI        = 0x9A,
 #else
-	NUM_IDI        = 0xA0,
+	NUM_IDI        = 0x93,
 #endif
 	IDI_PHOLDER    = 0xFFFE,
 	IDI_NONE       = 0xFFFF
@@ -3764,6 +3804,7 @@ typedef enum _unique_items {
 	UITEM_CONSTRICT,
 	UITEM_ENGAGERING,
 	UITEM_DESTRING,
+	UITEM_RAINBOWRING,
 #ifdef HELLFIRE
 	UITEM_GKNUCKLE,
 	UITEM_MERCURING,
@@ -3812,6 +3853,17 @@ typedef enum plr_class {
 	WALK_W    = 0x8,
 } _walk_path;*/
 
+typedef enum magic_type {
+	STYPE_FIRE,
+	STYPE_LIGHTNING,
+	STYPE_MAGIC,
+	STYPE_NONE
+} magic_type;
+
+typedef enum skill_data_flags {
+	SDFLAG_TARGETED = 1 << 7,
+} skill_data_flags;
+
 typedef enum player_skill_flags {
 	SFLAG_ANY     = 0,
 	SFLAG_DUNGEON = 1 << 0,
@@ -3829,12 +3881,6 @@ typedef enum item_class {
 	ICLASS_GOLD,
 	ICLASS_QUEST,
 } item_class;
-
-typedef enum item_drop_rate {
-	IDROP_NEVER,
-	IDROP_REGULAR,
-	IDROP_DOUBLE,
-} item_drop_rate;
 
 typedef enum item_base_bonus {
 	IBONUS_NONE,
@@ -3861,9 +3907,9 @@ typedef enum item_special_effect {
 	ISPL_MULT_ARROWS    = 0x00004000,
 	ISPL_DRAINLIFE      = 0x00008000,
 	ISPL_KNOCKBACK      = 0x00010000,
-	ISPL_NOHEALMON      = 0x00020000, /* unused */ 
-	ISPL_THORNS         = 0x00040000,
-	ISPL_INFRAVISION    = 0x00080000, /* unused */ 
+	//ISPL_NOHEALMON      = 0x00020000,
+	//ISPL_THORNS         = 0x00040000,
+	//ISPL_INFRAVISION    = 0x00080000,
 	ISPL_ALLRESZERO     = 0x00100000,
 	ISPL_LIFETOMANA     = 0x00200000,
 	ISPL_MANATOLIFE     = 0x00400000,
@@ -3871,6 +3917,17 @@ typedef enum item_special_effect {
 	ISPL_STUN           = 0x40000000,
 	ISPL_NOMANA         = 0x80000000,
 } item_special_effect;
+
+typedef enum window_active {
+	WND_INV,
+	WND_CHAR,
+	WND_BOOK,
+	WND_TEAM,
+	WND_QUEST,
+	WND_BELT,
+	NUM_WNDS,
+	WND_NONE = 0xFF,
+} window_active;
 
 // Logical equipment locations
 typedef enum inv_item {
@@ -4077,11 +4134,16 @@ typedef enum _artfonts {
 	AF_HUGEGRAY,
 } _artfonts;
 
+typedef enum _gmenu_flags {
+	GMF_SLIDER	= 0x40000000,
+	GMF_ENABLED = 0x80000000
+} _gmenu_flags;
+
 typedef enum mpq_files {
-	MPQ_DEVILX,
-#ifndef NOWIDESCREEN
-	MPQ_DEVILUTIONX,
+#if ASSET_MPL != 1
+	MPQ_DEVILHD,
 #endif
+	MPQ_DEVILX,
 #ifdef HELLFIRE
 	MPQ_HF_OPT2,
 	MPQ_HF_OPT1,
@@ -4096,6 +4158,16 @@ typedef enum mpq_files {
 	MPQ_DIABDAT,
 	NUM_MPQS
 } mpq_files;
+
+typedef enum game_logic_progress {
+	GLP_NONE,
+	GLP_PLAYERS_DONE,
+	GLP_MONSTERS_DONE,
+	//GLP_TOWNERS_DONE,
+	//GLP_OBJECTS_DONE,
+	//GLP_MISSILES_DONE,
+	//GLP_ITEMS_DONE,
+} game_logic_progress; 
 
 typedef enum redraw_flags {
 	REDRAW_HP_FLASK      = 1 << 0,

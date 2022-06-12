@@ -16,8 +16,13 @@ endif()
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+if(NINTENDO_3DS)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/ctr")
+endif()
+
 if(NOT VERSION_NUM)
-  include(CMake/git.cmake)
+  include(git)
   get_git_tag(VERSION_NUM)
   string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
   if("${VERSION_NUM}" STREQUAL "")
@@ -43,8 +48,74 @@ else()
     LANGUAGES C CXX)
 endif()
 
+if(NINTENDO_SWITCH)
+  include(switch_defs)
+endif()
+
+if(VITA)
+  include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+  include(vita_defs)
+endif()
+
+set(TARGET_PLATFORM host CACHE STRING "Target platform")
+set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh)
+if(TARGET_PLATFORM STREQUAL "lepus")
+  include(lepus_defs)
+elseif(TARGET_PLATFORM STREQUAL "retrofw")
+  include(retrofw_defs)
+elseif(TARGET_PLATFORM STREQUAL "rg350")
+  include(rg350_defs)
+elseif(TARGET_PLATFORM STREQUAL "gkd350h")
+  include(gkd350h_defs)
+elseif(TARGET_PLATFORM STREQUAL "cpigamesh")
+  include(cpigamesh_defs)
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
+  if(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
+    add_definitions(-D_NETBSD_SOURCE)
+  else()
+    add_definitions(-D_BSD_SOURCE)
+    set(UBSAN OFF)
+  endif()
+  set(ASAN OFF)
+endif()
+
+if(WIN32)
+  set(ASAN OFF)
+  set(UBSAN OFF)
+  if(_WIN32_WINNT)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
+  endif()
+endif()
+
+if(HAIKU)
+  set(ASAN OFF)
+  set(UBSAN OFF)
+endif()
+
+if(AMIGA)
+  include(amiga_defs)
+endif()
+
+if(NINTENDO_3DS)
+  include(n3ds_defs)
+endif()
+
+if(PS4)
+  include(ps4_defs)
+endif()
+
+if(ANDROID)
+  include(android_defs)
+endif()
+
+if(IOS)
+  include(ios_defs)
+endif()
+
 include(CMakeDependentOption)
-include(CMake/out_of_tree.cmake)
+include(out_of_tree)
 
 macro(cmake_conditional_option NAME DESCRIPTION)
   if(${ARGN})
@@ -85,7 +156,11 @@ cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP
 cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
-
+option(HAS_JOYSTICK "Enable joystick support" ON)
+option(HAS_DPAD "Enable D-Pad support" ON)
+option(HAS_KBCTRL "Enable keyboard controller support" ON)
+cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
+cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
 
 if(NOT NONET)
   option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
@@ -96,83 +171,6 @@ if(NOT USE_SDL1)
   option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
   cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
-
-list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake")
-
-if(NINTENDO_SWITCH)
-  list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/switch")
-  include(switch_defs)
-endif()
-
-if(VITA)
-  include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
-  include(vita_defs)
-endif()
-
-set(TARGET_PLATFORM host CACHE STRING "Target platform")
-set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host retrofw rg350 gkd350h cpigamesh)
-if(TARGET_PLATFORM STREQUAL "lepus")
-  include(lepus_defs)
-elseif(TARGET_PLATFORM STREQUAL "retrofw")
-  include(retrofw_defs)
-elseif(TARGET_PLATFORM STREQUAL "rg350")
-  include(rg350_defs)
-elseif(TARGET_PLATFORM STREQUAL "gkd350h")
-  include(gkd350h_defs)
-elseif(TARGET_PLATFORM STREQUAL "cpigamesh")
-  include(cpigamesh_defs)
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
-  if(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
-    add_definitions(-D_NETBSD_SOURCE)
-  else()
-    add_definitions(-D_BSD_SOURCE)
-    set(UBSAN OFF)
-  endif()
-  set(ASAN OFF)
-  add_definitions(-DO_LARGEFILE=0 -Dstat64=stat -Dlstat64=lstat -Dlseek64=lseek -Doff64_t=off_t -Dfstat64=fstat -Dftruncate64=ftruncate)
-endif()
-
-if(WIN32)
-  set(ASAN OFF)
-  set(UBSAN OFF)
-  if(_WIN32_WINNT)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
-  endif()
-endif()
-
-if(HAIKU)
-  set(ASAN OFF)
-  set(UBSAN OFF)
-endif()
-
-if(AMIGA)
-  include(amiga_defs)
-endif()
-
-if(NINTENDO_3DS)
-  list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/ctr")
-  include(n3ds_defs)
-endif()
-
-if(PS4)
-  include(ps4_defs)
-endif()
-
-if(ANDROID)
-  include(android_defs)
-endif()
-
-if(IOS)
-  include(ios_defs)
-endif()
-
-option(HAS_JOYSTICK "Enable joystick support" ON)
-option(HAS_DPAD "Enable D-Pad support" ON)
-option(HAS_KBCTRL "Enable keyboard controller support" ON)
-cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
-cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -197,8 +195,16 @@ if(NOT DISABLE_LTO)
   endif()
 endif()
 
-if(NOT NINTENDO_3DS)
-  find_package(Threads REQUIRED)
+find_package(Threads REQUIRED)
+if(NINTENDO_3DS)
+  find_package(CITRO3D REQUIRED)
+  find_package(FREETYPE REQUIRED)
+  find_package(BZIP2 REQUIRED)
+  find_package(Tremor REQUIRED)
+  find_package(OGG REQUIRED)
+  find_package(MIKMOD REQUIRED)
+  find_package(MAD REQUIRED)
+  find_package(PNG REQUIRED)
 endif()
 if(AMIGA)
   find_package(Freetype REQUIRED)
@@ -269,9 +275,14 @@ if(TCPIP)
   add_subdirectory(3rdParty/asio)
   target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1)
   if(NINTENDO_3DS)
-      include(asio_defs)
+    target_compile_definitions(asio INTERFACE ASIO_DISABLE_THREADS=ON ASIO_HAS_UNISTD_H=ON)
+    # Missing headers and declarations provided by DevilutionX
+    target_include_directories(asio BEFORE INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Source/platform/ctr/asio/include)
   elseif(NINTENDO_SWITCH)
-    include(asio_defs)
+    # Enables a number of header file definitions required by ASIO
+    target_compile_definitions(asio INTERFACE _DEFAULT_SOURCE=ON)
+    # Missing headers and declarations provided by DevilutionX
+    target_include_directories(asio BEFORE INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Source/platform/switch/asio/include)
   endif()
 endif()
 
@@ -324,7 +335,6 @@ set(devilutionx_SRCS
   Source/codec.cpp
   Source/control.cpp
   Source/cursor.cpp
-  Source/dead.cpp
   Source/debug.cpp
   Source/diablo.cpp
   Source/doom.cpp
@@ -339,6 +349,7 @@ set(devilutionx_SRCS
   Source/engine.cpp
   Source/error.cpp
   Source/gamemenu.cpp
+  Source/gameui.cpp
   Source/gendung.cpp
   Source/gmenu.cpp
   Source/help.cpp
@@ -406,14 +417,11 @@ set(devilutionx_SRCS
   Source/utils/paths.cpp
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp
-  Source/DiabloUI/art.cpp
-  Source/DiabloUI/art_draw.cpp
   Source/DiabloUI/credits.cpp
   Source/DiabloUI/credits_lines.cpp
   Source/DiabloUI/diabloui.cpp
   Source/DiabloUI/dialogs.cpp
   Source/DiabloUI/errorart.cpp
-  Source/DiabloUI/fonts.cpp
   Source/DiabloUI/mainmenu.cpp
   Source/DiabloUI/progress.cpp
   Source/DiabloUI/scrollbar.cpp
@@ -460,10 +468,11 @@ set(BIN_TARGET devilutionx)
 
 if(NINTENDO_SWITCH)
   list(APPEND devilutionx_SRCS
-    Source/platform/switch/network.cpp
-    Source/platform/switch/keyboard.cpp
     Source/platform/switch/docking.cpp
+    Source/platform/switch/keyboard.cpp
+    Source/platform/switch/network.cpp
     Source/platform/switch/random.cpp
+    Source/platform/switch/romfs.cpp
     Source/platform/switch/asio/pause.c
     Source/platform/switch/asio/net/if.c
     Source/platform/switch/asio/sys/signal.c)
@@ -500,7 +509,6 @@ if(RUN_TESTS)
     test/control_test.cpp
     test/cursor_test.cpp
     test/codec_test.cpp
-    test/dead_test.cpp
     test/diablo_test.cpp
     test/doom_test.cpp
     test/drlg_l1_test.cpp
@@ -516,9 +524,6 @@ if(RUN_TESTS)
     test/stores_test.cpp)
 endif()
 
-if(HELLFIRE)
-  add_definitions(-DHELLFIRE)
-endif()
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
 elseif(APPLE)
@@ -542,10 +547,7 @@ else()
     Packaging/windows/devilutionx.rc)
 endif()
 
-# Copy devilutionx.mpq and devilx.mpq to the build directory to it works from the build directory
-if(NOT NOWIDESCREEN)
-  file(COPY "Packaging/resources/devilutionx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-endif()
+# Copy devilx.mpq to the build directory to it works from the build directory
 file(COPY "Packaging/resources/devilx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 if(AMIGA)
   file(COPY "Packaging/amiga/devilutionx.info" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
@@ -599,10 +601,7 @@ target_include_directories(${BIN_TARGET} PRIVATE
   Source
   ${CMAKE_CURRENT_BINARY_DIR})
 
-if(NOT NINTENDO_3DS)
-  target_link_libraries(${BIN_TARGET} PUBLIC
-  Threads::Threads)
-endif()
+target_link_libraries(${BIN_TARGET} PUBLIC Threads::Threads)
 
 target_link_libraries(${BIN_TARGET} PRIVATE
   PKWare
@@ -628,6 +627,7 @@ endif()
 foreach(
   def_name
   USE_SDL1
+  HELLFIRE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
@@ -659,6 +659,7 @@ endforeach(def_name)
 # Defines with value
 foreach(
   def_name
+  ASSET_MPL
   DEFAULT_WIDTH
   DEFAULT_HEIGHT
   SCREEN_WIDTH
@@ -759,6 +760,27 @@ if(AMIGA)
   endif()
 endif()
 
+if(NINTENDO_SWITCH)
+  target_link_libraries(${BIN_TARGET} PRIVATE
+        freetype
+        vorbisfile
+        vorbis
+        ogg
+        modplug
+        mpg123
+        SDL2
+        opusfile
+        opus
+        png
+        bz2
+        z
+        #EGL
+        #glapi
+        #drm_nouveau
+        #nx
+  )
+endif()
+
 if(VITA)
   target_link_libraries(${BIN_TARGET} PRIVATE
         ScePower_stub
@@ -814,14 +836,18 @@ endif()
 
 if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Change __FILE__ to only show the path relative to the project folder
-  get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
-  foreach(SOURCE_FILE ${devilutionx_SRCS})
-    set_source_files_properties(${SOURCE_FILE} PROPERTIES
-      COMPILE_DEFINITIONS __FILE__="${SOURCE_FILE}"
-    )
-  endforeach(SOURCE_FILE)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-builtin-macro-redefined")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-builtin-macro-redefined")
+  if((CMAKE_CXX_COMPILER_ID MATCHES "CLANG" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
+      OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8))
+    target_compile_options(${BIN_TARGET} PUBLIC "-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=")
+  else()
+    get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
+    foreach(SOURCE_FILE ${devilutionx_SRCS})
+      set_source_files_properties(${SOURCE_FILE} PROPERTIES
+        COMPILE_DEFINITIONS __FILE__="${SOURCE_FILE}"
+      )
+    endforeach(SOURCE_FILE)
+    target_compile_options(${BIN_TARGET} PRIVATE -Wno-builtin-macro-redefined)
+  endif()
 
   # Note: For Valgrind support.
   if(DEBUG_MODE)
@@ -880,25 +906,20 @@ if(APPLE)
 endif()
 
 if(NINTENDO_SWITCH)
+  set(APP_ROMFS       "${CMAKE_BINARY_DIR}/romfs")
+  set(APP_ROMFS_FILES
+    "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
 
-  target_link_libraries(${BIN_TARGET} PRIVATE
-        freetype
-        vorbisfile
-        vorbis
-        ogg
-        modplug
-        mpg123
-        SDL2
-        opusfile
-        opus
-        png
-        bz2
-        z
-        #EGL
-        #glapi
-        #drm_nouveau
-        #nx
-  )
+  add_custom_target(romfs_directory
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_ROMFS})
+
+  add_custom_target(romfs_files
+    COMMAND ${CMAKE_COMMAND} -E copy ${APP_ROMFS_FILES} ${APP_ROMFS}
+    DEPENDS romfs_directory)
+
+  # the romfs_directory target will create this directory at build time,
+  # but the nx_create_nro function requires it to also exist at configure time
+  file(MAKE_DIRECTORY ${APP_ROMFS})
 
   nx_generate_nacp (${BIN_TARGET}.nacp
     NAME    "DevilutionX"
@@ -909,8 +930,9 @@ if(NINTENDO_SWITCH)
   nx_create_nro(${BIN_TARGET}
     NACP ${BIN_TARGET}.nacp
     ICON "${PROJECT_SOURCE_DIR}/Packaging/switch/icon.jpg"
+    ROMFS ${APP_ROMFS}
   )
-
+  add_dependencies(${BIN_TARGET}_nro romfs_files)
 endif()
 
 if(VITA)
@@ -929,7 +951,6 @@ if(VITA)
     FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
     FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
     FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-    FILE Packaging/resources/devilutionx.mpq devilutionx.mpq
     FILE Packaging/resources/devilx.mpq devilx.mpq
   )
 endif()
@@ -937,13 +958,10 @@ endif()
 if(PS4)
   set(APP_MPQ_FOLDER  "${PROJECT_SOURCE_DIR}/Packaging/ps4")
   set(APP_MPQ_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
-  if(NOT NOWIDESCREEN)
-    set(APP_MPQ_FILES ${APP_MPQ_FILES} "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq")
-  endif()
   add_custom_target(mpq_files
     COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} ${APP_MPQ_FOLDER})
   if(NOT PROJECT_VERSION)
-    set(PROJECT_VERSION "1.0")
+    set(PROJECT_VERSION "01.00")
   endif()
   add_self(${BIN_TARGET})
   add_pkg(${BIN_TARGET} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
@@ -1016,11 +1034,6 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
     )
-    if(NOT NOWIDESCREEN)
-      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
-        DESTINATION "."
-      )
-    endif()
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
@@ -1107,11 +1120,6 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/nix/README.txt"
       DESTINATION "share/diasurgical/${project_name}"
     )
-    if(NOT NOWIDESCREEN)
-      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
-        DESTINATION "share/diasurgical/${project_name}"
-      )
-    endif()
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "share/diasurgical/${project_name}"
     )
@@ -1218,6 +1226,7 @@ endforeach(def_name)
 # Defines with value
 foreach(
   def_name
+  ASSET_MPL
   DEFAULT_WIDTH
   DEFAULT_HEIGHT
   SCREEN_WIDTH

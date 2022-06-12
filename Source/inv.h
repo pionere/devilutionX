@@ -34,7 +34,6 @@ void InvPasteBeltItem(int pnum, BYTE r);
 void InvCutItem(int pnum, BYTE r, bool bShift);
 void SyncPlrItemRemove(int pnum, BYTE bLoc);
 void SyncPlrStorageRemove(int pnum, int iv);
-void SyncPlrSpdBarRemove(int pnum, int iv);
 void CheckInvClick(bool bShift);
 void CheckBeltClick(bool bShift);
 void InvGetItem(int pnum, int ii);

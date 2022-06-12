@@ -29,6 +29,7 @@
 #include "../types.h"
 
 //#include "diabloui.h"
+#include "gameui.h"
 #include "display.h"
 #include "dx.h"
 //#include "utils/paths.h"
@@ -41,7 +42,6 @@
 #include "codec.h"
 #include "control.h"
 #include "cursor.h"
-#include "dead.h"
 #include "debug.h"
 #include "diablo.h"
 #include "doom.h"

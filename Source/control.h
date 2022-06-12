@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /** Scrollbar graphics */
-extern BYTE* pSTextSlidCels;
+extern CelImageBuf* pSTextSlidCels;
 
 extern int gnHPPer;
 extern int gnManaPer;
@@ -26,12 +26,13 @@ extern BYTE infoclr;
 extern char infostr[256];
 extern char tempstr[256];
 extern unsigned guBooktab;
-extern bool gbTalkflag;
-extern bool gbSbookflag;
-extern bool gbChrflag;
+extern int gnNumActiveWindows;
+extern char gaActiveWindows[NUM_WNDS];
+extern BYTE gbDragWnd;
+extern int gnDragWndX;
+extern int gnDragWndY;
 extern bool gbLvlUp;
 extern bool gbLvlbtndown;
-extern bool gbTeamFlag;
 extern unsigned guTeamInviteRec;
 extern unsigned guTeamInviteSent;
 extern unsigned guTeamMute;
@@ -47,36 +48,33 @@ void DrawLifeFlask();
 void DrawManaFlask();
 void DrawSkillIcons();
 void InitControlPan();
+void FreeControlPan();
+void StartWndDrag(BYTE wnd);
+void DoWndDrag();
 void DrawCtrlBtns();
-void DoSkillList(bool altSkill);
-bool DoPanBtn();
-void DoLimitedPanBtn();
-void CheckBtnUp();
+bool ToggleWindow(char idx);
+bool TryPanBtnClick();
+void TryLimitedPanBtnClick();
+void ReleasePanBtn();
 void HandlePanBtn(int i);
 void HandleSkillBtn(bool altSkill);
-void FreeControlPan();
 void DrawChr();
 void ReleaseLvlBtn();
 void DrawLevelUpIcon();
 void DrawInfoStr();
-bool CheckChrBtns();
-void ReleaseChrBtns();
+void CheckChrBtnClick();
+void ReleaseChrBtn();
 void DrawTextBox();
-void DrawSTextBox(int x/*, int y*/);
-void DrawTextBoxSLine(int x, int dy, bool widePanel);
+void DrawSTextBox(int x, int y);
+void DrawTextBoxSLine(int x, int y, int dy, bool widePanel);
 void DrawDurIcon();
 void DrawSpellBook();
-void SelectBookSkill(bool shift, bool altSkill);
+void CheckBookClick(bool shift, bool altSkill);
 const char *get_pieces_str(int nGold);
 void DrawGoldSplit(int amount);
 void control_drop_gold(char vkey);
-void DrawTalkPan();
 void DrawTeamBook();
 void CheckTeamClick(bool shift);
-void control_type_message();
-void control_reset_talk();
-bool control_talk_last_key(int vkey);
-bool control_presskeys(int vkey);
 
 /* data */
 

@@ -159,7 +159,7 @@ SFXStruct sgSFX[] = {
 /*LS_NOVA*/      { sfx_MISC,                  "Sfx\\Misc\\Nova.wav",         { 0, NULL } },
 /*LS_PORTAL*///  { sfx_MISC,                  "Sfx\\Misc\\Portal.wav",       { 0, NULL } },
 /*LS_PUDDLE*/    { sfx_MISC,                  "Sfx\\Misc\\Puddle.wav",       { 0, NULL } },
-/*LS_RESUR*/     { sfx_MISC,                  "Sfx\\Misc\\Resur.wav",        { 0, NULL } },
+/*LS_RESUR*///   { sfx_MISC,                  "Sfx\\Misc\\Resur.wav",        { 0, NULL } },
 /*LS_SCURSE*///  { sfx_MISC,                  "Sfx\\Misc\\Scurse.wav",       { 0, NULL } },
 /*LS_SCURIMP*/   { sfx_MISC,                  "Sfx\\Misc\\Scurimp.wav",      { 0, NULL } },
 /*LS_SENTINEL*/  { sfx_MISC,                  "Sfx\\Misc\\Sentinel.wav",     { 0, NULL } },
@@ -1181,7 +1181,7 @@ static void stream_update()
 	}
 }
 
-void InitMonsterSND(int midx)
+void InitMonsterSFX(int midx)
 {
 	char name[MAX_PATH];
 	int i, n, j;
@@ -1206,7 +1206,7 @@ void InitMonsterSND(int midx)
 	}
 }
 
-void FreeMonsterSnd()
+void FreeMonsterSFX()
 {
 	MapMonData* cmon;
 	int i, j, k;
@@ -1309,15 +1309,15 @@ void PlayEffect(int mnum, int mode)
 
 void PlaySFX(int psfx, int rndCnt)
 {
-	if (rndCnt != 1)
-		psfx += random_(165, rndCnt);
+	if (rndCnt > 1)
+		psfx += random_low(165, rndCnt);
 	PlaySFX_priv(psfx, false, 0, 0);
 }
 
 void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
 {
-	if (rndCnt != 1)
-		psfx += random_(165, rndCnt);
+	if (rndCnt > 1)
+		psfx += random_low(165, rndCnt);
 
 	//if (psfx <= PS_WALK4 && psfx >= PS_WALK1) {
 	if (psfx == PS_WALK1) {
@@ -1375,7 +1375,7 @@ static void priv_sound_init(BYTE bLoadMask)
 	}
 }
 
-void InitGameEffects()
+void InitGameSFX()
 {
 #ifdef HELLFIRE
 	BYTE mask = sfx_MISC | sfx_HELLFIRE;
@@ -1394,17 +1394,17 @@ void InitGameEffects()
 	priv_sound_init(mask);
 }
 
-void InitUiEffects()
+void InitUiSFX()
 {
 	priv_sound_init(sfx_UI);
 }
 
-void FreeGameEffects()
+void FreeGameSFX()
 {
 	priv_sound_free(~(sfx_UI | sfx_STREAM));
 }
 
-void FreeUiEffects()
+void FreeUiSFX()
 {
 	priv_sound_free(sfx_UI);
 }

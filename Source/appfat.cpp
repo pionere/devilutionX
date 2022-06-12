@@ -37,7 +37,20 @@ void app_fatal(const char *pszFmt, ...)
 
 	va_start(va, pszFmt);
 	FreeDlg();
-
+#if DEBUG_MODE || DEV_MODE
+	extern unsigned _guLockCount;
+	if (_guLockCount != 0) {
+		BYTE idx = 0;
+#if DEBUG_MODE
+		extern int locktbl[256];
+		for ( ; idx < lengthof(locktbl); idx++) {
+			if (locktbl[idx] != 0)
+				break;
+		}
+#endif
+		unlock_buf(idx);
+	}
+#endif
 	MsgBox(pszFmt, va);
 
 	va_end(va);

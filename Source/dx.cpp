@@ -35,27 +35,35 @@
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE
-
+#if DEBUG_MODE || DEV_MODE
 unsigned _guLockCount;
+#endif
 /** Back buffer */
 BYTE *gpBuffer;
 /** Upper bound of back buffer. */
 BYTE *gpBufStart;
 /** Lower bound of back buffer. */
 BYTE *gpBufEnd;
+/** The width of the back buffer. */
+int gnBufferWidth;
 
 #if DEBUG_MODE
 int locktbl[256];
-#endif
 static CCritSect sgMemCrit;
+#endif
 
 static void dx_create_back_buffer()
 {
+	gnBufferWidth = BORDER_LEFT + SCREEN_WIDTH + BORDER_LEFT;
+	// The buffer needs to be divisible by 4 for the engine to blit correctly
+	if (gnBufferWidth & 3) {
+		gnBufferWidth += 4 - (gnBufferWidth & 3);
+	}
 	back_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 0, SDL_PIXELFORMAT_INDEX8);
 	if (back_surface == NULL) {
 		sdl_error(ERR_SDL_BACK_PALETTE_CREATE);
 	}
-
+	assert(back_surface->pitch == gnBufferWidth);
 	gpBuffer = (BYTE *)back_surface->pixels;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
 	//gpBufEnd = (BYTE *)(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));
@@ -112,6 +120,7 @@ void dx_init()
 
 static void lock_buf_priv()
 {
+#if DEBUG_MODE
 	sgMemCrit.Enter();
 	if (_guLockCount != 0) {
 		_guLockCount++;
@@ -121,6 +130,11 @@ static void lock_buf_priv()
 	//gpBuffer = (BYTE *)back_surface->pixels;
 	//gpBufEnd += (uintptr_t)gpBuffer;
 	_guLockCount++;
+#elif DEV_MODE
+	assert(_guLockCount == 0);
+	_guLockCount++;
+	assert(gpBuffer == back_surface->pixels);
+#endif
 }
 
 void lock_buf(BYTE idx)
@@ -138,12 +152,15 @@ static void unlock_buf_priv()
 		app_fatal("draw main unlock error");
 	if (gpBuffer == NULL)
 		app_fatal("draw consistency error");
-#endif
 	_guLockCount--;
 	//if (_guLockCount == 0) {
 	//	gpBufEnd -= (uintptr_t)gpBuffer;
 	//}
 	sgMemCrit.Leave();
+#elif DEV_MODE
+	assert(_guLockCount == 1);
+	_guLockCount--;
+#endif
 }
 
 void unlock_buf(BYTE idx)
@@ -165,10 +182,17 @@ void dx_cleanup()
 	if (ghMainWnd != NULL)
 		SDL_HideWindow(ghMainWnd);
 #endif
+#if DEBUG_MODE
 	sgMemCrit.Enter();
 	_guLockCount = 0;
 	gpBuffer = NULL;
 	sgMemCrit.Leave();
+#elif DEV_MODE
+	_guLockCount = 0;
+	gpBuffer = NULL;
+#else
+	gpBuffer = NULL;
+#endif
 
 	if (back_surface == NULL)
 		return;

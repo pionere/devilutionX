@@ -10,6 +10,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MICRO_WIDTH		32
+#define MICRO_HEIGHT	32
+
 #ifdef __cplusplus
 extern "C" {
 #endif

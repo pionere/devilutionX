@@ -151,6 +151,14 @@ int Joystick::ToSdlJoyButton(ControllerButton button)
 	case ControllerButton_BUTTON_RIGHTSHOULDER:
 		return JOY_BUTTON_RIGHTSHOULDER;
 #endif
+#ifdef JOY_BUTTON_TRIGGERLEFT
+	case ControllerButton_AXIS_TRIGGERLEFT:
+		return JOY_BUTTON_TRIGGERLEFT;
+#endif
+#ifdef JOY_BUTTON_TRIGGERRIGHT
+	case ControllerButton_AXIS_TRIGGERRIGHT:
+		return JOY_BUTTON_TRIGGERRIGHT;
+#endif
 #ifdef JOY_BUTTON_DPAD_UP
 	case ControllerButton_BUTTON_DPAD_UP:
 		return JOY_BUTTON_DPAD_UP;
@@ -167,10 +175,6 @@ int Joystick::ToSdlJoyButton(ControllerButton button)
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return JOY_BUTTON_DPAD_RIGHT;
 #endif
-	case ControllerButton_AXIS_TRIGGERLEFT:
-	case ControllerButton_AXIS_TRIGGERRIGHT:
-		ASSUME_UNREACHABLE
-		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;

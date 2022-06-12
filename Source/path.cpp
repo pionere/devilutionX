@@ -9,8 +9,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Pre-allocated memory to store nodes used by the path finding algorithm. */
 PATHNODE path_nodes[MAXPATHNODES];
-/** The number of in-use nodes in path_nodes. */
-static int gnCurNodes;
+/** The index of last used node in path_nodes. */
+static unsigned gnLastNodeIdx;
 /** Container for reconstructing the path after the A* search is done. */
 static char reversePathDirs[MAX_PATH_LENGTH];
 /** A linked list of all visited nodes. */
@@ -61,12 +61,14 @@ static PATHNODE* PathFrontNodeAt(int dx, int dy)
  */
 static PATHNODE* PathVisitedNodeAt(int dx, int dy)
 {
-	PATHNODE* result = pathVisitedNodes->NextNode;
+	PATHNODE* result = pathVisitedNodes;
 
-	while (result != NULL) {
+	while (TRUE) {
 		if (result->x == dx && result->y == dy)
 			break;
 		result = result->NextNode;
+		if (result == NULL)
+			break;
 	}
 	return result;
 }
@@ -135,22 +137,6 @@ static void PathUpdateCosts(PATHNODE* pPath)
 }
 
 /**
- * @brief zero one of the preallocated nodes and return a pointer to it, or NULL if none are available
- */
-static PATHNODE* path_new_step()
-{
-	PATHNODE* new_node;
-
-	if (gnCurNodes == MAXPATHNODES)
-		return NULL;
-
-	new_node = &path_nodes[gnCurNodes];
-	gnCurNodes++;
-	memset(new_node, 0, sizeof(PATHNODE));
-	return new_node;
-}
-
-/**
  * @brief heuristic, estimated cost from (x,y) to (gnTx,gnTy)
  */
 static int PathRemainingCost(int x, int y)
@@ -212,9 +198,10 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 			}
 		} else {
 			// case 3: (dx,dy) is totally new
-			dxdy = path_new_step();
-			if (dxdy == NULL)
+			if (gnLastNodeIdx == MAXPATHNODES - 1)
 				return false;
+			dxdy = &path_nodes[++gnLastNodeIdx];
+			memset(dxdy, 0, sizeof(PATHNODE));
 			dxdy->Parent = pPath;
 			PathAppendChild(pPath, dxdy);
 			dxdy->x = dx;
@@ -274,34 +261,34 @@ static PATHNODE* PathPopNode()
  * find the shortest path from (sx,sy) to (dx,dy), using PosOk(PosOkArg,x,y) to
  * check that each step is a valid position. Store the step directions (see
  * path_directions) in path, which must have room for MAX_PATH_LENGTH steps
- * @return the length of the path
+ * @return the length of the path or -1 if there is none
  */
 int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, char* path)
 {
 	PATHNODE* currNode;
 	int path_length, i;
 
-	// clear all nodes, create root nodes for the visited/frontier linked lists
-	gnCurNodes = 0;
-	pathFrontNodes = path_new_step();
-	pathVisitedNodes = path_new_step();
 	gnTx = dx;
 	gnTy = dy;
-	currNode = path_new_step();
+	// create root nodes for the visited/frontier linked lists
+	pathFrontNodes = &path_nodes[0];
+	currNode = &path_nodes[1];
+	gnLastNodeIdx = 1;
+	memset(&path_nodes[0], 0, 2 * sizeof(PATHNODE));
 	currNode->x = sx;
 	currNode->y = sy;
 	currNode->remainingCost = PathRemainingCost(sx, sy);
 	currNode->walkCost = 0;
 	currNode->totalCost = currNode->remainingCost + currNode->walkCost;
-	pathFrontNodes->NextNode = currNode;
+	pathVisitedNodes = currNode;
 	// A* search until we find (dx,dy) or fail
-	while ((currNode = PathPopNode())) {
+	while (TRUE) {
 		// reached the end, success!
 		if (currNode->x == gnTx && currNode->y == gnTy) {
 			path_length = 0;
 			while (currNode->Parent != NULL) {
 				if (path_length == MAX_PATH_LENGTH)
-					return 0; // path does not fit to the destination, abort!
+					return -1; // path does not fit to the destination, abort!
 				reversePathDirs[path_length++] = path_directions[3 * (currNode->y - currNode->Parent->y) - currNode->Parent->x + 4 + currNode->x];
 				currNode = currNode->Parent;
 			}
@@ -309,12 +296,14 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 				path[i] = reversePathDirs[path_length - i - 1];
 			return i;
 		}
-		// ran out of nodes, abort!
+		if (currNode->totalCost > 4 * (MAX_PATH_LENGTH - 1))
+			return -1; // path is hopeless
 		if (!path_get_path(PosOk, PosOkArg, currNode))
-			return 0;
+			return -1; // ran out of nodes, abort!
+		currNode = PathPopNode();
+		if (currNode == NULL)
+			return -1; // frontier is empty, no path!
 	}
-	// frontier is empty, no path!
-	return 0;
 }
 
 /**

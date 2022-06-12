@@ -1,19 +1,24 @@
 #include "text.h"
 
 #include <string>
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 unsigned GetArtStrWidth(const char* str, unsigned size)
 {
-	unsigned strWidth = 0;
-
-	for ( ; *str != '\0'; str++) {
-		BYTE w = FontTables[size][*(BYTE*)str];
-		strWidth += w;
+	switch (size) {
+	case AFT_SMALL:
+		return GetSmallStringWidth(str);
+	case AFT_MED:
+	case AFT_BIG:
+		return GetBigStringWidth(str);
+	case AFT_HUGE:
+		return GetHugeStringWidth(str);
+	default:
+		ASSUME_UNREACHABLE
+		return 0;
 	}
-
-	return strWidth;
 }
 
 void WordWrapArtStr(char* text, unsigned width, unsigned size)

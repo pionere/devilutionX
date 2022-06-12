@@ -1,44 +1,28 @@
 #include "controls/menu_controls.h"
 #include "DiabloUI/diabloui.h"
+#include "../gameui.h"
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifndef HELLFIRE
-Art ArtLogoBig;
-#endif
+CelImageBuf* gbLogoBig;
 
 static void TitleLoad()
 {
-#ifdef HELLFIRE
-	LoadBackgroundArt("ui_art\\hf_logo1.pcx", 16);
-#ifndef NOWIDESCREEN
-	LoadArt("ui_art\\hf_titlew.pcx", &ArtBackgroundWidescreen);
-#endif
-	UiAddBackground(&gUiItems);
-#else
-	LoadBackgroundArt("ui_art\\title.pcx");
-	LoadMaskedArt("ui_art\\logo.pcx", &ArtLogoBig, 15, 250);
+	LoadBackgroundArt("ui_art\\title.CEL", "ui_art\\menu.pal");
+	// assert(gbLogoBig == NULL);
+	gbLogoBig = CelLoadImage("ui_art\\logo.CEL", BIG_LOGO_WIDTH);
 
 	UiAddBackground(&gUiItems);
 
-	SDL_Rect rect1 = { 0, UI_OFFSET_Y + 182, 0, 0 };
-	gUiItems.push_back(new UiImage(&ArtLogoBig, 0, rect1, UIS_CENTER, true));
-
-	SDL_Rect rect2 = { PANEL_LEFT + 49, (UI_OFFSET_Y + 410), 550, 26 };
-	gUiItems.push_back(new UiArtText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect2, UIS_CENTER | UIS_MED | UIS_SILVER));
-#endif
+	SDL_Rect rect1 = { PANEL_MIDX(BIG_LOGO_WIDTH), BIG_LOGO_TOP, BIG_LOGO_WIDTH, BIG_LOGO_HEIGHT };
+	gUiItems.push_back(new UiImage(gbLogoBig, 15, rect1, true));
 }
 
 static void TitleFree()
 {
-	ArtBackground.Unload();
-#ifdef HELLFIRE
-#ifndef NOWIDESCREEN
-	ArtBackgroundWidescreen.Unload();
-#endif
-#else // HELLFIRE
-	ArtLogoBig.Unload();
-#endif
+	MemFreeDbg(gbBackCel);
+	MemFreeDbg(gbLogoBig);
 	UiClearItems(gUiItems);
 }
 
@@ -52,7 +36,7 @@ void UiTitleDialog()
 	SDL_Event event;
 	do {
 		UiRenderItems(gUiItems);
-		UiFadeIn();
+		UiFadeIn(false);
 
 		while (SDL_PollEvent(&event) != 0) {
 			if (GetMenuAction(event) != MenuAction_NONE) {

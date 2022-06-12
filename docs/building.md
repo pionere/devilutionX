@@ -1,10 +1,5 @@
 # Building from Source
 
-Note: If you do not use git to manage the source you must provide the version to CMake manually:
-```
-cmake .. -DVERSION_NUM=1.0.0 -DVERSION_SUFFIX=FFFFFFF -DCMAKE_BUILD_TYPE=Release
-```
-
 <details><summary>Linux</summary>
 
 Note that ```pkg-config``` is an optional dependency for finding libsodium,
@@ -223,25 +218,6 @@ You can download the libraries manually from [SDL2](https://www.libsdl.org/downl
 7. Use build/debug etc. commands inside Visual Studio Solution like with any normal Visual Studio project.
 </details>
 
-<details><summary>Nintendo Switch</summary>
-
-Run:
-
-```
-Packaging/switch/build.sh
-```
-
-This will install the [Switch devkit](https://switchbrew.org/wiki/Setting_up_Development_Environment) and build a DevilutionX Switch package. If you already have the devkit installed, or are on a non-Debian system, pass the the devkit path to the script like this:
-
-```
-DEVKITPRO=<path to devkit> Packaging/switch/build.sh
-```
-
-The nro-file will be generated in the build folder. Test with an emulator (RyuJinx) or real hardware.
-
-[Nintendo Switch manual](/docs/manual/platforms/switch.md)
-</details>
-
 <details><summary>Android</summary>
 
 ### Installing dependencies
@@ -254,6 +230,30 @@ Click "Open Existing Project" and choose "android-project" folder in DevilutionX
 Wait until Gradle sync is completed.
 In Android Studio, go to "Build -> Make Project" or use the shortcut Ctrl+F9
 You can find the compiled APK in `/android-project/app/build/outputs/apk/`
+</details>
+
+<details><summary>Nintendo Switch</summary>
+
+### Installing dependencies
+
+https://devkitpro.org/wiki/Getting_Started
+
+
+- Install (dkp-)pacman: https://devkitpro.org/wiki/devkitPro_pacman
+
+- Install required packages with (dkp-)pacman:
+```
+sudo (dkp-)pacman -S --needed - < Packaging/switch/packages.txt
+```
+
+### Compiling
+```bash
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+```
+The nro-file will be generated in the build folder. Test with an emulator (RyuJinx) or real hardware.
+
+[Nintendo Switch manual](/docs/manual/platforms/switch.md)
 </details>
 
 <details><summary>Nintendo 3DS</summary>
@@ -486,12 +486,14 @@ cmake --build build -j $(nproc) --target package
 
 ### General
 - `-DCMAKE_BUILD_TYPE=Release` change build type to release and optimize for distribution.
-- `-DNONET=ON` disable network support, this also removes the need for the ASIO and Sodium.
+- `-DVERSION_NUM=XXX` set version number (project version) to the desired value.
 - `-DUSE_SDL1=ON` build for SDL v1 instead of v2, not all features are supported under SDL v1, notably upscaling.
 - `-DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake` generate 32bit builds on 64bit platforms (remember to use the `linux32` command if on Linux).
 - `-DNOSOUND=ON` disable sound support
+- `-DSTREAM_ALL_AUDIO=ON` stream all the audio. For extremely RAM-constrained platforms
 - `-DNOWIDESCREEN=ON` disable widescreen support
-- `-DNONET=ON` disable network support
+- `-DNONET=ON` disable network support, this also removes the need for the ASIO and Sodium.
+- `-DINET_MODE=ON` enable validation of network messages
 - `-DADAPTIVE_NETUPDATE=OFF` disable adaptive network
 - `-DNETENCRYPT=OFF` disable encryption of network messages
 - `-DTCPIP=OFF` disable tcp/ip support
@@ -500,8 +502,10 @@ cmake --build build -j $(nproc) --target package
 - `-DHELLFIRE=ON` build Hellfire version
 - `-DHAS_JOYSTICK=0` disable joystick support
 - `-DHAS_DPAD=0` disable dpad support
+- `-DHAS_KBCTRL=0` disable keyboard-controller support
 - `-DHAS_GAMECTRL=0` disable game-controller support
 - `-DHAS_TOUCHPAD=0` disable touchpad support
+- `-DASSET_MPL=2` use upscaled assets, requires devilx_hdX.mpq (e.g. devilx_hd2.mpq)
 - `-DSCREEN_WIDTH=640` hardcode screen width to 640 pixel
 - `-DSCREEN_HEIGHT=480` hardcode screen height to 480 pixel
 - `-DMPQONE="hellone.mpq"` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.

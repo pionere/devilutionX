@@ -8,8 +8,15 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SPELL_MASK(x)			((uint64_t)1 << (x - 1))
+#define SPELL_MASK(sn)			((uint64_t)1 << (sn - 1))
 #define SPLFROM_INVALID(x)		((char)x <= SPLFROM_INVALID_SOURCE)
+
+#ifdef HELLFIRE
+static_assert((int)SPL_RUNESTONE + 1 == (int)NUM_SPELLS, "SPELL_RUNE expects ordered spell_id enum");
+#define SPELL_RUNE(sn)			(sn >= SPL_RUNEFIRE)
+#else
+#define SPELL_RUNE(sn)			(FALSE)
+#endif
 
 #ifdef __cplusplus
 extern "C" {

@@ -7,7 +7,7 @@ set(UBSAN OFF)
 #set(ZEROTIER OFF)
 #set(NOSOUND ON)
 
-# Disable all system dependencies.
+# Disable system dependencies.
 # All of these will be fetched via FetchContent and linked statically.
 set(DEVILUTIONX_SYSTEM_SDL2 OFF)
 #set(DEVILUTIONX_STATIC_SDL2 ON)

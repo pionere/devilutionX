@@ -46,20 +46,28 @@ typedef struct RECT32 {
 	int h;
 } RECT32;
 
+typedef struct CelImageBuf {
+#if DEBUG_MODE
+	WORD ciWidth; // number of images before loaded, but overwritten with width when loaded
+	WORD ciFrameCnt; // number of images before loaded, but overwritten with width when loaded
+#else
+	DWORD ciWidth; // number of images before loaded, but overwritten with width when loaded
+#endif
+	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
+} CelImageBuf;
+
 //////////////////////////////////////////////////
 // items
 //////////////////////////////////////////////////
 
 typedef struct AffixData {
-	const char* PLName;
 	BYTE PLPower;
 	int PLParam1;
 	int PLParam2;
 	BYTE PLMinLvl;
 	int PLIType;
-	BYTE PLGOE;
-	BOOL PLDouble;
-	BOOL PLOk;
+	BOOLEAN PLDouble;
+	BOOLEAN PLOk;
 	int PLMinVal;
 	int PLMaxVal;
 	int PLMultVal;
@@ -67,7 +75,7 @@ typedef struct AffixData {
 
 typedef struct UniqItemData {
 	const char* UIName;
-	BYTE UIItemId;
+	BYTE UIUniqType;
 	BYTE UIMinLvl;
 	int UIValue;
 	BYTE UIPower1;
@@ -110,7 +118,7 @@ static_assert((sizeof(ItemFileData) & (sizeof(ItemFileData) - 1)) == 0, "Align I
 typedef struct ItemData {
 	BYTE iRnd;
 	BYTE iMinMLvl;
-	BYTE iItemId; // unique_base_item
+	BYTE iUniqType; // unique_base_item
 	const char* iName;
 	int iCurs; // item_cursor_graphic
 	int itype; // item_type
@@ -159,8 +167,9 @@ typedef struct ItemStruct {
 	BYTE _iMinStr;
 	BYTE _iMinMag;
 	BYTE _iMinDex;
+	BOOLEAN _iUsable;
 	BOOLEAN _iFloorFlag;
-	BOOL _iAnimFlag; // could be BOOLEAN, but convertig it causes inconsistency in case of X86_32bit_COMP...
+	BOOLEAN _iAnimFlag;
 	BYTE* _iAnimData;        // PSX name -> ItemFrame
 	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
@@ -199,23 +208,25 @@ typedef struct ItemStruct {
 	int _iPLDamMod;
 	int _iPLGetHit;
 	char _iPLLight;
-	char _iSplLvlAdd;
-	BYTE _iManaSteal;
-	BYTE _iLifeSteal;
+	char _iPLSkillLevels;
+	BYTE _iPLSkill;
+	char _iPLSkillLvl;
+	BYTE _iPLManaSteal;
+	BYTE _iPLLifeSteal;
 	BYTE _iPLCrit;
 	int _iUid;
-	BYTE _iFMinDam;
-	BYTE _iFMaxDam;
-	BYTE _iLMinDam;
-	BYTE _iLMaxDam;
-	BYTE _iMMinDam;
-	BYTE _iMMaxDam;
-	BYTE _iAMinDam;
-	BYTE _iAMaxDam;
+	BYTE _iPLFMinDam;
+	BYTE _iPLFMaxDam;
+	BYTE _iPLLMinDam;
+	BYTE _iPLLMaxDam;
+	BYTE _iPLMMinDam;
+	BYTE _iPLMMaxDam;
+	BYTE _iPLAMinDam;
+	BYTE _iPLAMaxDam;
 	int _iVAdd;
 	int _iVMult;
 	BOOL _iStatFlag;
-	ALIGNMENT(5, 4)
+	ALIGNMENT(6, 4)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -287,7 +298,7 @@ typedef struct PlayerStruct {
 	unsigned _pSkillExp[64];
 	uint64_t _pMemSkills;  // Bitmask of learned skills
 	uint64_t _pAblSkills;  // Bitmask of abilities
-	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls
+	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls or runes
 	char _pName[PLR_NAME_LEN];
 	WORD _pBaseStr;
 	WORD _pBaseMag;
@@ -383,15 +394,15 @@ typedef struct PlayerStruct {
 	int _pIMMaxDam; // max magic damage (item's added magic damage)
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
-	BYTE* _pNData;
-	BYTE* _pWData;
-	BYTE* _pAData;
-	BYTE* _pLData;
-	BYTE* _pFData;
-	BYTE* _pTData;
-	BYTE* _pHData;
-	BYTE* _pDData;
-	BYTE* _pBData;
+	BYTE* _pNData; // file-pointer of the standing animations
+	BYTE* _pWData; // file-pointer of the walking animations
+	BYTE* _pAData; // file-pointer of the attack animations
+	BYTE* _pLData; // file-pointer of the lightning spell animations
+	BYTE* _pFData; // file-pointer of the fire spell animations
+	BYTE* _pTData; // file-pointer of the generic spell animations
+	BYTE* _pHData; // file-pointer of the getting hit animations
+	BYTE* _pDData; // file-pointer of the death animations
+	BYTE* _pBData; // file-pointer of the block animations
 	ALIGNMENT(191, 104)
 } PlayerStruct;
 
@@ -419,7 +430,6 @@ typedef struct TextData {
 // TPDEF PTR FCN VOID MIPROC
 
 typedef struct MissileData {
-	BYTE mName;
 	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
 	void (*mProc)(int);
 	BOOL mDraw;
@@ -431,7 +441,7 @@ typedef struct MissileData {
 	int miSFX;
 	BYTE mlSFXCnt;
 	BYTE miSFXCnt;
-	ALIGNMENT64(4)
+	ALIGNMENT(1, 6)
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -489,8 +499,8 @@ typedef struct MissileStruct {
 	int _miCaster;
 	int _miMinDam;
 	int _miMaxDam;
-	int _miRndSeed;
-	int _miRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+	// int _miRndSeed;
+	int _miRange;
 	int _miDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 	unsigned _miLid;
 	int _miVar1;
@@ -501,7 +511,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7;
 	int _miVar8;
-	ALIGNMENT(4, 18)
+	ALIGNMENT(5, 19)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -631,7 +641,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mmode; /* MON_MODE */
 	unsigned _msquelch;
 	BYTE _mMTidx;
-	BYTE _mpathcount;
+	BYTE _mpathcount; // unused
 	BYTE _mWhoHit;
 	BYTE _mgoal;
 	int _mgoalvar1;
@@ -650,7 +660,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 	BYTE _mListener;        // the player to whom the monster is talking to
-	BOOLEAN _mDelFlag;
+	BOOLEAN _mDelFlag; // unused
 	BYTE* _mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
@@ -711,6 +721,12 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align MonsterStruct to power of 2 for better performance.");
 #endif
+
+typedef struct MonEnemyStruct {
+	int _meLastDir;
+	int _meRealDir;
+	int _meRealDist;
+} MonEnemyStruct;
 
 typedef struct UniqMonData {
 	int mtype;
@@ -1042,8 +1058,15 @@ typedef struct TCmdMonstKill {
 	WORD mkExp;
 	BYTE mkMonLevel;
 	BYTE mkDir;
-	BYTE mkMode;
 } TCmdMonstKill;
+
+typedef struct TCmdMonstSummon {
+	TCmdLocBParam1 mnParam1;
+	BYTE mnDir;
+	BYTE mnSIdx;
+	WORD mnMnum;
+	INT mnMaxHp;
+} TCmdMonstSummon;
 
 typedef struct TCmdGolem {
 	BYTE bCmd;
@@ -1206,7 +1229,7 @@ typedef struct TSyncLvlMonster {
 	BYTE smMode; /* MON_MODE */
 	DWORD smSquelch;
 	//BYTE _mMTidx;
-	BYTE smPathcount;
+	BYTE smPathcount; // unused
 	BYTE smWhoHit;
 	BYTE smGoal;
 	INT smGoalvar1;
@@ -1225,7 +1248,7 @@ typedef struct TSyncLvlMonster {
 	BYTE smEnemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE smEnemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 	BYTE smListener;        // the player to whom the monster is talking to
-	BOOLEAN smDelFlag;
+	BOOLEAN smDelFlag; // unused
 	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	BYTE smAnimFrame; // Current frame of animation.
 	INT smVar1;
@@ -1275,7 +1298,7 @@ typedef struct TSyncLvlMissile {
 	int smiCaster;
 	INT smiMinDam;
 	INT smiMaxDam;
-	INT smiRndSeed;
+	// INT smiRndSeed;
 	INT smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
 	INT smiDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 	BYTE smiLidRadius;
@@ -1322,6 +1345,7 @@ typedef struct DMonsterStr {
 	BYTE _mdir;
 	BYTE _mleaderflag;
 	BYTE _mWhoHit;
+	BYTE _mSIdx;
 	DWORD _mactive;
 	INT _mhitpoints;
 } DMonsterStr;
@@ -1367,7 +1391,6 @@ typedef struct DJunk {
 
 typedef struct LDLevel {
 	BYTE ldNumMonsters;
-	BYTE ldMonstActive[MAXMONSTERS];
 	BYTE ldMissActive[MAXMISSILES];
 	WORD wLen; // length of ldContent
 	BYTE ldContent[MAX_PLRS * sizeof(TSyncLvlPlayer) + MAXMONSTERS * sizeof(TSyncLvlMonster) + MAXMISSILES * sizeof(TSyncLvlMissile)];
@@ -1540,18 +1563,17 @@ typedef struct TMenuItem {
 //////////////////////////////////////////////////
 
 typedef struct SpellData {
-	BYTE sName;
 	BYTE sManaCost;
 	BYTE sType;
 	BYTE sIcon;
 	const char* sNameText;
-	BYTE sBookLvl;
-	BYTE sStaffLvl;
-	BYTE sScrollLvl;
-	BOOLEAN sTargeted;
+	BYTE sBookLvl;   // minimum level for books
+	BYTE sStaffLvl;  // minimum level for staves
+	BYTE sScrollLvl; // minimum level for scrolls/runes
+	BYTE sSkillFlags; // flags (SDFLAG*) of the skill
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells
-	BYTE sFlags; // the required flags(SFLAG*) to use the skill
+	BYTE sUseFlags; // the required flags(SFLAG*) to use the skill
 	BYTE sMinInt;
 	BYTE sSFX;
 	BYTE sMissile;
@@ -1560,45 +1582,11 @@ typedef struct SpellData {
 	WORD sStaffMin;
 	WORD sStaffMax;
 	int sBookCost;
-	int sStaffCost; // == sScrollCost
+	int sStaffCost; // == sScrollCost == sRuneCost
 	ALIGNMENT64(6)
 } SpellData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellData to power of 2 for better performance.");
-#endif
-
-//////////////////////////////////////////////////
-// towners
-//////////////////////////////////////////////////
-
-typedef struct TownerStruct {
-	int _ttype;
-	int _tx;    // Tile X-position of NPC
-	int _ty;    // Tile Y-position of NPC
-	int _txoff; // Sprite X-offset (unused)
-	int _tyoff; // Sprite Y-offset (unused)
-	int _tdir;  // Facing of NPC (unused)
-	BYTE* _tAnimData;
-	int _tAnimFrameLen; // Tick length of each frame in the current animation
-	int _tAnimCnt;   // Increases by one each game tick, counting how close we are to _tAnimFrameLen
-	int _tAnimLen;   // Number of frames in current animation
-	int _tAnimFrame; // Current frame of animation.
-	int _tAnimFrameCnt;
-	int _tAnimWidth;
-	int _tAnimXOffset;
-	int _tAnimOrder; // char would suffice
-	//BYTE _tListener; // unused
-	int _tStoreId; // BYTE would suffice
-	int _tStoreTalk;
-	int _tGossipStart;
-	int _tGossipEnd;
-	//BOOL _tSelFlag; // unused
-	int _tSeed;
-	const char* _tName;
-	ALIGNMENT(11, 8)
-} TownerStruct;
-#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -1608,14 +1596,14 @@ static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align T
 typedef struct ScrollStruct {
 	int _sxoff; // X-offset of camera position. This usually corresponds to a negative version of plr[myplr]._pxoff
 	int _syoff; // Y-offset of camera position. This usually corresponds to a negative version of plr[myplr]._pyoff
-	int _sdx;
-	int _sdy;
+	// int _sdx;
+	// int _sdy;
 	int _sdir;
 } ScrollStruct;
 
 typedef struct ViewportStruct {
-	int _vColumns; // number of tiles in one row
-	int _vRows;    // number of tiles in one column
+	unsigned _vColumns; // number of tiles in one row
+	unsigned _vRows;    // number of tiles in one column
 	int _vOffsetX; // X-offset in a back buffer
 	int _vOffsetY; // Y-offset in a back buffer
 	int _vShiftX; // X-shift in a dPiece
@@ -1633,10 +1621,6 @@ typedef struct THEME_LOC {
 	int width;
 	int height;
 } THEME_LOC;
-
-typedef struct MICROS {
-	uint16_t mt[16];
-} MICROS;
 
 //////////////////////////////////////////////////
 // drlg
@@ -1717,25 +1701,6 @@ typedef struct LightListStruct {
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "Align LightListStruct closer to power of 2 for better performance.");
-#endif
-
-//////////////////////////////////////////////////
-// dead
-//////////////////////////////////////////////////
-
-typedef struct DeadStruct {
-	BYTE* _deadData[NUM_DIRS];
-	int _deadFrame;
-	int _deadWidth;
-	int _deadXOffset;
-	BYTE _deadtrans;
-	ALIGNMENT64(12)
-} DeadStruct;
-
-#ifdef X86_32bit_COMP
-static_assert((sizeof(DeadStruct) & (sizeof(DeadStruct) - 1)) == 32, "Align DeadStruct closer to power of 2 for better performance.");
-#elif defined(X86_64bit_COMP)
-static_assert((sizeof(DeadStruct) & (sizeof(DeadStruct) - 1)) == 0, "Align DeadStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -1958,11 +1923,13 @@ typedef struct _PcxHeader {
 //////////////////////////////////////////////////
 
 typedef struct TDataInfo {
-	BYTE* srcData;
+	BYTE* const srcData;
 	DWORD srcOffset;
-	BYTE* destData;
+	BYTE* const destData;
 	DWORD destOffset;
-	DWORD size;
+	const DWORD size;
+	TDataInfo(BYTE* src, BYTE* dst, DWORD s) : srcData(src), srcOffset(0), destData(dst), destOffset(0), size(s) {
+	}
 } TDataInfo;
 
 DEVILUTION_END_NAMESPACE

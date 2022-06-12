@@ -167,7 +167,7 @@ static bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, HANDLE * PtrFi
 // pointed by plcLocales. There must be enough entries to copy the localed,
 // otherwise the function returns ERROR_INSUFFICIENT_BUFFER.
 
-/*int WINAPI SFileEnumLocales(
+/*DWORD WINAPI SFileEnumLocales(
     HANDLE hMpq,
     const char * szFileName,
     LCID * PtrLocales,
@@ -229,23 +229,23 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     TMPQFile    * hf = NULL;
     DWORD dwHashIndex = HASH_ENTRY_FREE;
     DWORD dwFileIndex = 0;
+    DWORD dwErrCode = ERROR_SUCCESS;
     bool bOpenByIndex = false;
-    int nError = ERROR_SUCCESS;
 
     // Don't accept NULL pointer to file handle
     if (szFileName == NULL || *szFileName == 0)
-        nError = ERROR_INVALID_PARAMETER;
+        dwErrCode = ERROR_INVALID_PARAMETER;
 
     // When opening a file from MPQ, the handle must be valid
     if (dwSearchScope != SFILE_OPEN_LOCAL_FILE && ha == NULL)
-        nError = ERROR_INVALID_HANDLE;
+        dwErrCode = ERROR_INVALID_HANDLE;
 
     // When not checking for existence, the pointer to file handle must be valid
     if (dwSearchScope != SFILE_OPEN_CHECK_EXISTS && PtrFile == NULL)
-        nError = ERROR_INVALID_PARAMETER;
+        dwErrCode = ERROR_INVALID_PARAMETER;
 
     // Prepare the file opening
-    if (nError == ERROR_SUCCESS) {
+    if (dwErrCode == ERROR_SUCCESS) {
         switch (dwSearchScope) {
             case SFILE_OPEN_FROM_MPQ:
             case SFILE_OPEN_BASE_FILE:
@@ -283,13 +283,13 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             default:
 
                 // Don't accept any other value
-                nError = ERROR_INVALID_PARAMETER;
+                dwErrCode = ERROR_INVALID_PARAMETER;
                 break;
         }
     }
 
     // Check whether the file really exists in the MPQ
-    if (nError == ERROR_SUCCESS) {
+    if (dwErrCode == ERROR_SUCCESS) {
         // If we didn't find the file, try to open it using pseudo file name ("File
         if (pFileEntry == NULL || (pFileEntry->dwFlags & MPQ_FILE_EXISTS) == 0) {
             // Check the pseudo-file name  ("File00000001.ext")
@@ -306,7 +306,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             // Still not found?
             if (pFileEntry == NULL)
             {
-                nError = ERROR_FILE_NOT_FOUND;
+                dwErrCode = ERROR_FILE_NOT_FOUND;
             }
         }
 
@@ -318,21 +318,21 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             // If the file is not compressed, its size cannot be bigger than archive size
             if ((pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK) == 0 && (pFileEntry->dwFileSize > ha->FileSize))
             {
-                nError = ERROR_FILE_CORRUPT;
+                dwErrCode = ERROR_FILE_CORRUPT;
                 pFileEntry = NULL;
             }
 
             // Ignore unknown loading flags (example: MPQ_2016_v1_WME4_4.w3x)
 //          if(pFileEntry->dwFlags & ~MPQ_FILE_VALID_FLAGS)
 //          {
-//              nError = ERROR_NOT_SUPPORTED;
+//              dwErrCode = ERROR_NOT_SUPPORTED;
 //              pFileEntry = NULL;
 //          }
         }
     }
 
     // Did the caller just wanted to know if the file exists?
-    if (nError == ERROR_SUCCESS && dwSearchScope != SFILE_OPEN_CHECK_EXISTS) {
+    if (dwErrCode == ERROR_SUCCESS && dwSearchScope != SFILE_OPEN_CHECK_EXISTS) {
         // Allocate file handle
         hf = CreateFileHandle(ha, pFileEntry);
         if (hf != NULL) {
@@ -342,11 +342,11 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             if(dwHashIndex != HASH_ENTRY_FREE)
                 hf->pHashEntry = ha->pHashTable + dwHashIndex;
             hf->dwHashIndex = dwHashIndex;
-
+#ifdef FULL_CRC
             // If the MPQ has sector CRC enabled, enable if for the file
             if (ha->dwFlags & MPQ_FLAG_CHECK_SECTOR_CRC)
                 hf->bCheckSectorCRCs = true;
-
+#endif
             // If we know the real file name, copy it to the file entry
             if (bOpenByIndex == false) {
                 // If there is no file name yet, allocate it
@@ -361,7 +361,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                 }
             }
         } else {
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
         }
     }
 
@@ -370,9 +370,9 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
         PtrFile[0] = hf;
 
     // Return error code
-    if (nError != ERROR_SUCCESS)
-        SetLastError(nError);
-    return (nError == ERROR_SUCCESS);
+    if (dwErrCode != ERROR_SUCCESS)
+        SetLastError(dwErrCode);
+    return (dwErrCode == ERROR_SUCCESS);
 }
 
 //-----------------------------------------------------------------------------

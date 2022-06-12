@@ -20,13 +20,14 @@ extern "C" {
  */
 #define SHIFT_GRID(x, y, horizontal, vertical)	\
 {												\
-	x += vertical + horizontal;					\
-	y += vertical - horizontal;					\
+	x += (vertical) + (horizontal);				\
+	y += (vertical) - (horizontal);				\
 }
 
 extern int ViewX;
 extern int ViewY;
 extern ScrollStruct ScrollInfo;
+extern ViewportStruct gsTileVp;
 extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
