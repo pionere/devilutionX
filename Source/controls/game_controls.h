@@ -10,37 +10,36 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-enum GameActionType {
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum GameActionType {
 	GameActionType_NONE = 0,
 	GameActionType_USE_HEALTH_POTION,
 	GameActionType_USE_MANA_POTION,
 	GameActionType_PRIMARY_ACTION,   // Talk to towners, click on inv items, attack, etc.
 	GameActionType_SECONDARY_ACTION, // Open chests, doors, pickup items.
 	GameActionType_CAST_SPELL,
-	GameActionType_TOGGLE_INVENTORY,
-	GameActionType_TOGGLE_CHARACTER_INFO,
-	GameActionType_TOGGLE_QUICK_SPELL_MENU,
-	GameActionType_TOGGLE_SPELL_BOOK,
-	GameActionType_TOGGLE_QUEST_LOG,
 	GameActionType_SEND_KEY,
 	GameActionType_SEND_MOUSE_CLICK,
-};
+} GameActionType;
 
-struct GameActionSendKey {
+typedef struct GameActionSendKey {
 	Uint32 vk_code;
 	bool up;
-};
+} GameActionSendKey;
 
-struct GameActionSendMouseClick {
+typedef struct GameActionSendMouseClick {
 	enum Button {
 		LEFT = 0,
 		RIGHT,
 	};
 	Button button;
 	bool up;
-};
+} GameActionSendMouseClick;
 
-struct GameAction {
+typedef struct GameAction {
 	GameActionType type;
 
 	GameAction()
@@ -69,7 +68,7 @@ struct GameAction {
 		GameActionSendKey send_key;
 		GameActionSendMouseClick send_mouse_click;
 	};
-};
+} GameAction;
 
 bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, GameAction *action);
 
@@ -79,6 +78,10 @@ extern bool start_modifier_active;
 extern bool select_modifier_active;
 extern bool dpad_hotkeys;
 extern bool switch_potions_and_clicks;
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 

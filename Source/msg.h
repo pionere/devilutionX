@@ -18,14 +18,14 @@ extern _msg_mode geBufferMsgs;
 extern char gbNetMsg[MAX_SEND_STR_LEN];
 
 // send level-delta
-void LevelDeltaExport(uint32_t turn);
+void LevelDeltaExport();
 // load level info from level-delta
 void LevelDeltaLoad();
 void msg_send_drop_plr(int pnum, BYTE reason);
 // download game-delta
 bool DownloadDeltaInfo();
 // send game-delta
-void DeltaExportData(int pnum, uint32_t turn);
+void DeltaExportData(int pnum);
 void delta_init();
 // add items which are part of the dungeon to the game-delta
 void DeltaAddItem(int ii);
@@ -109,10 +109,10 @@ void NetSendCmdMonstDamage(int mnum, int hitpoints);
  * @param pnum: the id of the player who killed it
  */
 void NetSendCmdMonstKill(int mnum, int pnum);
-/** Destroy corpses at a monster
+/** Summon a monster
  * @param mnum: the id of the monster
  */
-void NetSendCmdMonstCorpse(int mnum);
+void NetSendCmdMonstSummon(int mnum);
 void NetSendCmdGolem();
 void NetSendShrineCmd(BYTE type, int seed);
 void NetSendCmdQuest(BYTE q, bool extOnly);

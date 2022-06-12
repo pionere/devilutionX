@@ -15,7 +15,9 @@ extern "C" {
 void AutomapDrawPixel(int sx, int sy, BYTE col);
 void AutomapDrawLine(int x0, int y0, int x1, int y1, BYTE col);
 
+#ifdef __cplusplus
 }
+#endif
 
 DEVILUTION_END_NAMESPACE
 

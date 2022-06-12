@@ -12,7 +12,8 @@ static int currently_docked = -1; // keep track of docked or handheld mode
  */
 void HandleDocking()
 {
-	int docked;
+	int docked, display_width, display_height;
+
 	switch (appletGetOperationMode()) {
 	case AppletOperationMode_Handheld:
 		docked = 0;
@@ -24,20 +25,18 @@ void HandleDocking()
 		docked = 0;
 	}
 
-	int display_width;
-	int display_height;
-	if ((currently_docked == -1) || (docked && !currently_docked) || (!docked && currently_docked)) {
+	if (docked != currently_docked) {
+		currently_docked = docked;
 		// docked mode has changed, update window size
 		if (docked) {
 			display_width = 1920;
 			display_height = 1080;
-			currently_docked = 1;
 		} else {
 			display_width = 1280;
 			display_height = 720;
-			currently_docked = 0;
 		}
-		// remove leftover-garbage on screen
+		// remove leftover-garbage on screen. Need to perform three clears to ensure all buffers get cleared, otherwise
+		//  the display flickers showing a stale frame at certain refresh rates/dock modes.
 		for (int i = 0; i < 3; i++) {
 			SDL_RenderClear(renderer);
 			SDL_RenderPresent(renderer);

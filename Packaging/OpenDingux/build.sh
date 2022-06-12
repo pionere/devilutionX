@@ -77,9 +77,8 @@ make_buildroot() {
 cmake_configure() {
 	cmake -S. -B"$BUILD_DIR" \
 		"-DTARGET_PLATFORM=$TARGET" \
+		-DCMAKE_VERBOSE_MAKEFILE=ON \
 		-DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}/usr/share/buildroot/toolchainfile.cmake" \
-		-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF \
-		-DZEROTIER=OFF \
 		"${CMAKE_ARGS}" \
 		"$@"
 }
@@ -93,7 +92,7 @@ strip_bin() {
 }
 
 build_debug() {
-	cmake_configure -DCMAKE_BUILD_TYPE=Debug -DASAN=OFF -DUBSAN=OFF -DCMAKE_CXX_FLAGS_DEBUG="-g -fno-omit-frame-pointer"
+	cmake_configure -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS_DEBUG="-g -fno-omit-frame-pointer"
 	cmake_build
 }
 

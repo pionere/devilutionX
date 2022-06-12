@@ -20,7 +20,9 @@ int SeedCount;
 #endif
 /** Current game seed */
 Sint32 sglGameSeed;
+#if __cplusplus <= 199711L
 static CCritSect sgMemCrit;
+#endif
 
 /**
  * Specifies the increment used in the Borland C/C++ pseudo-random.
@@ -42,7 +44,8 @@ const Uint32 RndMult = 0x015A4E35;
  */
 int GetDirection(int x1, int y1, int x2, int y2)
 {
-	/*int mx, my;
+#if UNOPTIMIZED_DIRECTION
+	int mx, my;
 	int md;
 
 	mx = x2 - x1;
@@ -77,8 +80,8 @@ int GetDirection(int x1, int y1, int x2, int y2)
 			md = DIR_NW;
 	}
 
-	return md;*/
-	// The implementation of above with fewer branches
+	return md;
+#else
 	int dx = x2 - x1;
 	int dy = y2 - y1;
 	unsigned adx = abs(dx);
@@ -92,6 +95,7 @@ int GetDirection(int x1, int y1, int x2, int y2)
 	//dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 0 : 1)];
 	dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 1 : 0)];
 	return dir & 7;
+#endif
 }
 
 /**
@@ -130,8 +134,21 @@ int random_(BYTE idx, int v)
 	if (v <= 0)
 		return 0;
 	if (v < 0xFFFF)
-		return (GetRndSeed() >> 16) % v;
-	return GetRndSeed() % v;
+		return (((unsigned)GetRndSeed()) >> 16) % v;
+	return ((unsigned)GetRndSeed()) % v;
+}
+
+/**
+ * @brief Same as random_ but assumes 0 < v < 0xFFFF
+ * @param idx Unused
+ * @param v The upper limit for the return value
+ * @return A random number from 0 to (v-1)
+ */
+int random_low(BYTE idx, int v)
+{
+	// assert(v > 0);
+	// assert(v < 0xFFFF);
+	return (((unsigned)GetRndSeed()) >> 16) % v;
 }
 
 /**
@@ -141,10 +158,13 @@ int random_(BYTE idx, int v)
 BYTE* DiabloAllocPtr(size_t dwBytes)
 {
 	BYTE* buf;
-
+#if __cplusplus <= 199711L
 	sgMemCrit.Enter();
 	buf = (BYTE*)malloc(dwBytes);
 	sgMemCrit.Leave();
+#else
+	buf = (BYTE*)malloc(dwBytes);
+#endif
 
 	if (buf == NULL)
 		app_fatal("Out of memory");
@@ -159,9 +179,13 @@ BYTE* DiabloAllocPtr(size_t dwBytes)
 void mem_free_dbg(void* p)
 {
 	if (p != NULL) {
+#if __cplusplus <= 199711L
 		sgMemCrit.Enter();
 		free(p);
 		sgMemCrit.Leave();
+#else
+		free(p);
+#endif
 	}
 }
 

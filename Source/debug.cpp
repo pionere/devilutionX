@@ -192,12 +192,7 @@ void PrintDebugMonster(int m)
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Mode = %d, Var1 = %d", monsters[m]._mmode, monsters[m]._mVar1);
 	NetSendCmdString(1 << mypnum);
 
-	bActive = false;
-
-	for (i = 0; i < nummonsters; i++) {
-		if (monstactive[i] == m)
-			bActive = true;
-	}
+	bActive = monsters[m]._mmode <= MM_INGAME_LAST;
 
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Active List = %d, Squelch = %d", bActive, monsters[m]._msquelch);
 	NetSendCmdString(1 << mypnum);
@@ -259,8 +254,24 @@ void DumpDungeon()
 #if DEBUG_MODE || DEV_MODE
 void ValidateData()
 {
+	int i;
+
+	// text
+	if (GetHugeStringWidth("Pause") != 135)
+		app_fatal("gmenu_draw_pause expects hardcoded width 135.");
+
+	// cursors
+	for (i = 0; i < lengthof(InvItemWidth); i++) {
+		if (i != CURSOR_NONE && InvItemWidth[i] == 0)
+			app_fatal("Invalid (zero) cursor width at %d.", i);
+	}
+	for (i = 0; i < lengthof(InvItemHeight); i++) {
+		if (i != CURSOR_NONE && InvItemHeight[i] == 0)
+			app_fatal("Invalid (zero) cursor height at %d.", i);
+	}
+
 	// quests
-	for (int i = 0; i < lengthof(AllLevels); i++) {
+	for (i = 0; i < lengthof(AllLevels); i++) {
 		int j = 0;
 		for ( ; j < lengthof(AllLevels[i].dMonTypes); j++) {
 			if (AllLevels[i].dMonTypes[j] == MT_INVALID)
@@ -271,15 +282,27 @@ void ValidateData()
 	}
 
 	// monsters
-	for (int i = 0; i < NUM_MTYPES; i++) {
+	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
 		// check RETREAT_DISTANCE for MonFallenFear
 		if (md.mAi == AI_FALLEN && md.mInt > 3)
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
 		if (md.mAi == AI_COUNSLR && md.mInt > 5)
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
+		if ((md.mAi == AI_GOLUM || md.mAi == AI_SKELKING || md.mAi == AI_MEGA) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("AI_GOLUM, AI_SKELKING and AI_MEGA always check the doors (%s, %d)", md.mName, i);
+		if ((md.mAi == AI_FALLEN || md.mAi == AI_SNAKE || md.mAi == AI_SNEAK || md.mAi == AI_SKELBOW) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("AI_FALLEN,  AI_SNAKE, AI_SNEAK and AI_SKELBOW never check the doors (%s, %d)", md.mName, i);
+#ifdef HELLFIRE
+		if ((md.mAi == AI_HORKDMN) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("AI_HORKDMN never check the doors (%s, %d)", md.mName, i);
+#endif
+		if ((md.mAi == AI_CLEAVER || md.mAi == AI_FAT || md.mAi == AI_BAT) && (md.mFlags & MFLAG_CAN_OPEN_DOOR) && !(md.mFlags & MFLAG_SEARCH))
+			app_fatal("AI_CLEAVER, AI_FAT and AI_BAT only check the doors while searching (%s, %d)", md.mName, i);
 		if (md.mLevel + HELL_LEVEL_BONUS > CF_LEVEL && (md.mTreasure & 0x4000) == 0)
 			app_fatal("Invalid mLevel %d for %s (%d). Too high in hell to set the level of item-drop.", md.mLevel, md.mName, i);
+		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
+			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
 
 		uint16_t res = md.mMagicRes;
 		uint16_t resH = md.mMagicRes2;
@@ -289,7 +312,7 @@ void ValidateData()
 			}
 		}
 	}
-	for (int i = 0; i < NUM_MOFILE; i++) {
+	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
 		if (md.moAnimFrames[MA_WALK] > 24) // required by MonWalkDir
 			app_fatal("Too many(%d) walk-frames for %s (%d).", md.moAnimFrames[MA_WALK], md.moGfxFile, i);
@@ -312,7 +335,7 @@ void ValidateData()
 	assert(uniqMonData[UMT_BLACKJADE].mtype == MT_HLSPWN);
 	assert(uniqMonData[UMT_RED_VEX].mtype == MT_HLSPWN);
 
-	for (int i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
+	for (i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
 		const UniqMonData& um = uniqMonData[i];
 		if (um.mtype >= NUM_MTYPES)
 			app_fatal("Invalid unique monster type %d for %s (%d)", um.mtype, um.mName, i);
@@ -341,6 +364,16 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
 		if (um.mAi == AI_COUNSLR && um.mInt > 5)
 			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
+		if ((um.mAi == AI_GOLUM || um.mAi == AI_SKELKING || um.mAi == AI_MEGA) && !(monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("Unique AI_GOLUM, AI_SKELKING and AI_MEGA always check the doors (%s, %d)", um.mName, i);
+		if ((um.mAi == AI_FALLEN || um.mAi == AI_SNAKE || um.mAi == AI_SNEAK || um.mAi == AI_SKELBOW) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("Unique AI_FALLEN, AI_CLEAVER, AI_SNAKE, AI_SNEAK, AI_SKELBOW and AI_FAT never check the doors (%s, %d)", um.mName, i);
+#ifdef HELLFIRE
+		if ((um.mAi == AI_HORKDMN) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("Unique AI_HORKDMN never check the doors (%s, %d)", um.mName, i);
+#endif
+		if ((um.mAi == AI_CLEAVER || um.mAi == AI_FAT) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR) && !(monsterdata[um.mtype].mFlags & MFLAG_SEARCH))
+			app_fatal("Unique AI_CLEAVER and AI_FAT only check the doors while searching (%s, %d)", um.mName, i);
 		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mTreasure & 0x4000) == 0)
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
 		if ((um.mUnqAttr & UMF_LEADER) != 0 && ((um.mUnqAttr & UMF_GROUP) == 0))
@@ -358,18 +391,49 @@ void ValidateData()
 	}
 
 	// items
+	if (AllItemsList[IDI_HEAL].iMiscId != IMISC_HEAL)
+		app_fatal("IDI_HEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_HEAL].iMiscId, AllItemsList[IDI_HEAL].iMinMLvl);
+	if (AllItemsList[IDI_FULLHEAL].iMiscId != IMISC_FULLHEAL)
+		app_fatal("IDI_FULLHEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_FULLHEAL].iMiscId, AllItemsList[IDI_FULLHEAL].iMinMLvl);
+	if (AllItemsList[IDI_MANA].iMiscId != IMISC_MANA)
+		app_fatal("IDI_MANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_MANA].iMiscId, AllItemsList[IDI_MANA].iMinMLvl);
+	if (AllItemsList[IDI_FULLMANA].iMiscId != IMISC_FULLMANA)
+		app_fatal("IDI_FULLMANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_FULLMANA].iMiscId, AllItemsList[IDI_FULLMANA].iMinMLvl);
+	if (AllItemsList[IDI_REJUV].iMiscId != IMISC_REJUV)
+		app_fatal("IDI_REJUV is not a rejuv potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_REJUV].iMiscId, AllItemsList[IDI_REJUV].iMinMLvl);
+	if (AllItemsList[IDI_FULLREJUV].iMiscId != IMISC_FULLREJUV)
+		app_fatal("IDI_FULLREJUV is not a rejuv potion, its miscId is %d.", AllItemsList[IDI_FULLREJUV].iMiscId, AllItemsList[IDI_FULLREJUV].iMinMLvl);
+	if (AllItemsList[IDI_BOOK1].iMiscId != IMISC_BOOK)
+		app_fatal("IDI_BOOK1 is not a book, its miscId is %d, iminlvl %d.", AllItemsList[IDI_BOOK1].iMiscId, AllItemsList[IDI_BOOK1].iMinMLvl);
+	if (AllItemsList[IDI_BOOK4].iMiscId != IMISC_BOOK)
+		app_fatal("IDI_BOOK4 is not a book, its miscId is %d, iminlvl %d.", AllItemsList[IDI_BOOK4].iMiscId, AllItemsList[IDI_BOOK4].iMinMLvl);
+	static_assert(IDI_BOOK4 - IDI_BOOK1 == 3, "Invalid IDI_BOOK indices.");
+	if (AllItemsList[IDI_CLUB].iCurs != ICURS_CLUB)
+		app_fatal("IDI_CLUB is not a club, its cursor is %d, iminlvl %d.", AllItemsList[IDI_CLUB].iCurs, AllItemsList[IDI_CLUB].iMinMLvl);
+	if (AllItemsList[IDI_DROPSHSTAFF].iUniqType != UITYPE_SHORTSTAFF)
+		app_fatal("IDI_DROPSHSTAFF is not a short staff, its utype is %d, iminlvl %d.", AllItemsList[UITYPE_SHORTSTAFF].iUniqType, AllItemsList[UITYPE_SHORTSTAFF].iMinMLvl);
 	int minAmu, minLightArmor, minMediumArmor, minHeavyArmor; //, maxStaff = 0;
 	minAmu = minLightArmor = minMediumArmor = minHeavyArmor = MAXCHARLEVEL;
-	for (int i = 0; i < NUM_IDI; i++) {
+	int rnddrops = 0;
+	for (i = 0; i < NUM_IDI; i++) {
 		const ItemData& ids = AllItemsList[i];
 		if (strlen(ids.iName) > 32 - 1)
 			app_fatal("Too long name for %s (%d)", ids.iName, i);
-		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor)
+		rnddrops += ids.iRnd;
+		if (i < IDI_RNDDROP_FIRST && ids.iRnd != 0)
+			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
+		if (ids.itype == ITYPE_NONE)
+			app_fatal("Invalid itype value for %s (%d)", ids.iName, i);
+		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor && ids.iRnd != 0)
 			minLightArmor = ids.iMinMLvl;
-		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor)
+		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor && ids.iRnd != 0)
 			minMediumArmor = ids.iMinMLvl;
-		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor)
+		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor && ids.iRnd != 0)
 			minHeavyArmor = ids.iMinMLvl;
+		if (ids.iMinMLvl == 0 && ids.itype != ITYPE_MISC && ids.itype != ITYPE_GOLD && ids.iMiscId != IMISC_UNIQUE)
+			app_fatal("iMinMLvl field is not set for %s (%d).", ids.iName, i);
+		if (ids.iMiscId == IMISC_UNIQUE && ids.iRnd != 0)
+			app_fatal("Fix unique item %s (%d) should not be part of the loot.", ids.iName, i);
 		if (ids.iClass == ICLASS_ARMOR) {
 			if (ids.itype != ITYPE_LARMOR && ids.itype != ITYPE_MARMOR
 			 && ids.itype != ITYPE_HARMOR && ids.itype != ITYPE_SHIELD
@@ -396,7 +460,7 @@ void ValidateData()
 			if (ids.iBaseCrit != 0)
 				app_fatal("Crit.chance set for %s (%d), which is not a weapon.", ids.iName, i);
 		}
-		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu)
+		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu && ids.iRnd != 0)
 			minAmu = ids.iMinMLvl;
 		//if (ids.itype == ITYPE_STAFF && strlen(ids.iName) > maxStaff)
 		//	maxStaff = strlen(ids.iName);
@@ -439,8 +503,21 @@ void ValidateData()
 			default:
 				app_fatal("Usable item %s (%d) with miscId %d is not handled by SyncUseItem.", ids.iName, i, ids.iMiscId);
 			}
+			if (ids.iDurability == 0)
+				app_fatal("Usable item %s (%d) with miscId %d must have a non-zero durablity(stacksize).", ids.iName, i, ids.iMiscId);
 		}
+		if (ids.iClass == ICLASS_QUEST && ids.iLoc != ILOC_UNEQUIPABLE)
+			app_fatal("Quest item %s (%d) must be unequippable, not %d", ids.iName, i, ids.iLoc);
+		if (ids.iClass == ICLASS_QUEST && ids.itype != ITYPE_MISC)
+			app_fatal("Quest item %s (%d) must be have 'misc' itype, otherwise it might be sold at vendors.", ids.iName, i);
 	}
+#if UNOPTIMIZED_RNDITEMS
+	if (rnddrops > ITEM_RNDDROP_MAX)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, ITEM_RNDDROP_MAX);
+#else
+	if (rnddrops > 0xFFFF)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, 0xFFFF);
+#endif
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
 	if (minMediumArmor > 10)
@@ -449,53 +526,446 @@ void ValidateData()
 		app_fatal("No heavy armor for OperateArmorStand. Current minimum is level %d", minHeavyArmor);
 	if (uniqMonData[UMT_HORKDMN].muLevel < minAmu)
 		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, uniqMonData[UMT_HORKDMN].muLevel);
-	/*for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
-
+	rnddrops = 0; i = 0;
+	for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
+		rnddrops += pres->PLDouble ? 2 : 1;
+		if (pres->PLPower == IPL_FASTATTACK) {
+			if (pres->PLParam1 < 1 || pres->PLParam2 > 4) {
+				app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			}
+		}
+		if (pres->PLPower == IPL_FASTRECOVER) {
+			if (pres->PLParam1 < 1 || pres->PLParam2 > 3) {
+				app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			}
+		}
+		if (pres->PLPower == IPL_FASTCAST) {
+			if (pres->PLParam1 < 1 || pres->PLParam2 > 3) {
+				app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			}
+		}
+		if (pres->PLPower == IPL_FASTWALK) {
+			if (pres->PLParam1 < 1 || pres->PLParam2 > 3) {
+				app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			}
+		}
 	}
-	for (const AffixData *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
+	if (rnddrops > ITEM_RNDAFFIX_MAX)
+		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
+	rnddrops = 0;
+	const AffixData* sufs = PL_Suffix;
+	for (i = 0; sufs->PLPower != IPL_INVALID; sufs++, i++) {
+		if (sufs->PLDouble)
+			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+		rnddrops++;
+		if (sufs->PLPower == IPL_FASTATTACK) {
+			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 4) {
+				app_fatal("Invalid PLParam set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			}
+		}
+		if (sufs->PLPower == IPL_FASTRECOVER) {
+			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 3) {
+				app_fatal("Invalid PLParam set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			}
+		}
+		if (sufs->PLPower == IPL_FASTCAST) {
+			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 3) {
+				app_fatal("Invalid PLParam set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			}
+		}
+		if (sufs->PLPower == IPL_FASTWALK) {
+			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 3) {
+				app_fatal("Invalid PLParam set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			}
+		}
+		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+			if ((sufs->PLIType & pres->PLIType) == 0)
+				continue;
+			if (sufs->PLPower == pres->PLPower) {
+				app_fatal("Same power is set as prefix and suffix at the same time: suffix(%d. power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			}
+			if (pres->PLPower == IPL_ATTRIBS &&
+				(sufs->PLPower == IPL_STR || sufs->PLPower == IPL_MAG || sufs->PLPower == IPL_DEX || sufs->PLPower == IPL_VIT)) {
+				app_fatal("IPL_ATTRIBS and IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT might be set for the same item.");
+			}
+			if (sufs->PLPower == IPL_ATTRIBS &&
+				(pres->PLPower == IPL_STR || pres->PLPower == IPL_MAG || pres->PLPower == IPL_DEX || pres->PLPower == IPL_VIT)) {
+				app_fatal("IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT and IPL_ATTRIBS might be set for the same item.");
+			}
+			if (pres->PLPower == IPL_ALLRES &&
+				(sufs->PLPower == IPL_FIRERES || sufs->PLPower == IPL_LIGHTRES || sufs->PLPower == IPL_MAGICRES || sufs->PLPower == IPL_ACIDRES)) {
+				app_fatal("IPL_ALLRES and IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES might be set for the same item.");
+			}
+			if (sufs->PLPower == IPL_ALLRES &&
+				(pres->PLPower == IPL_FIRERES || pres->PLPower == IPL_LIGHTRES || pres->PLPower == IPL_MAGICRES || pres->PLPower == IPL_ACIDRES)) {
+				app_fatal("IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES and IPL_ALLRES might be set for the same item.");
+			}
+			if (sufs->PLPower == IPL_TOHIT && pres->PLPower == IPL_TOHIT_DAMP) {
+				app_fatal("IPL_TOHIT_DAMP and IPL_TOHIT might be set for the same item.");
+			}
+			if (pres->PLPower == IPL_TOHIT && sufs->PLPower == IPL_TOHIT_DAMP) {
+				app_fatal("IPL_TOHIT and IPL_TOHIT_DAMP might be set for the same item.");
+			}
+			if ((pres->PLPower == IPL_DAMP || pres->PLPower == IPL_TOHIT_DAMP || pres->PLPower == IPL_CRYSTALLINE) &&
+				(sufs->PLPower == IPL_DAMP || sufs->PLPower == IPL_TOHIT_DAMP || sufs->PLPower == IPL_CRYSTALLINE)) {
+				app_fatal("IPL_DAMP/IPL_TOHIT_DAMP/IPL_CRYSTALLINE might be set for the same item.");
+			}
+		}
+	}
+	if (rnddrops > ITEM_RNDAFFIX_MAX)
+		app_fatal("Too many suffix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
 
-	}*/
-
+#if 0
+	for (i = 1; i < MAXCHARLEVEL; i++) {
+		int a = 0, b = 0, c = 0, w = 0;
+		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+			if (pres->PLMinLvl > i) {
+				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
+					c++;
+				continue;
+			}
+			if (pres->PLMinLvl >= (i >> 1) && pres->PLOk) {
+				a++;
+				c++;
+			}
+			if (pres->PLMinLvl >= (i >> 2)) {
+				b++;
+				if (!pres->PLOk)
+					w++;
+			}
+		}
+		int as = 0, bs = 0, cs = 0, ws = 0;
+		for (const AffixData *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
+			if (pres->PLMinLvl > i) {
+				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
+					cs++;
+				continue;
+			}
+			if (pres->PLMinLvl >= (i >> 1) && pres->PLOk) {
+				as++;
+				cs++;
+			}
+			if (pres->PLMinLvl >= (i >> 2)) {
+				bs++;
+				if (!pres->PLOk)
+					ws++;
+			}
+		}
+		LogErrorF("ITEMAFF", "Affix for lvl%2d: shop(%d:%d) loot(%d:%d/%d:%d) boy(%d:%d)", i, a, as, b, bs, w, ws, c, cs);
+	}
+#endif
+	// unique items
+	for (i = 0; i < NUM_UITEM; i++) {
+		const UniqItemData& ui = UniqueItemList[i];
+		if (ui.UIPower1 == IPL_INVALID)
+			app_fatal("Unique item '%s' %d does not have any affix", ui.UIName, i);
+		//if (ui.UIPower1 != IPL_INVALID) {
+			if (ui.UIPower1 == ui.UIPower2) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs2.", ui.UIName, i);
+			}
+			if (ui.UIPower1 == ui.UIPower3) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs3.", ui.UIName, i);
+			}
+			if (ui.UIPower1 == ui.UIPower4) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs4.", ui.UIName, i);
+			}
+			if (ui.UIPower1 == ui.UIPower5) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs5.", ui.UIName, i);
+			}
+			if (ui.UIPower1 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs6.", ui.UIName, i);
+			}
+		//}
+		if (ui.UIPower2 != IPL_INVALID) {
+			if (ui.UIPower2 == ui.UIPower3) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs3.", ui.UIName, i);
+			}
+			if (ui.UIPower2 == ui.UIPower4) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs4.", ui.UIName, i);
+			}
+			if (ui.UIPower2 == ui.UIPower5) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs5.", ui.UIName, i);
+			}
+			if (ui.UIPower2 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs6.", ui.UIName, i);
+			}
+		} else {
+			if (ui.UIPower3 != IPL_INVALID || ui.UIPower4 != IPL_INVALID || ui.UIPower5 != IPL_INVALID || ui.UIPower6 != IPL_INVALID)
+				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower2 is IPL_INVALID.", ui.UIName, i);
+		}
+		if (ui.UIPower3 != IPL_INVALID) {
+			if (ui.UIPower3 == ui.UIPower4) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 3vs4.", ui.UIName, i);
+			}
+			if (ui.UIPower3 == ui.UIPower5) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 3vs5.", ui.UIName, i);
+			}
+			if (ui.UIPower3 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 3vs6.", ui.UIName, i);
+			}
+		} else {
+			if (ui.UIPower4 != IPL_INVALID || ui.UIPower5 != IPL_INVALID || ui.UIPower6 != IPL_INVALID)
+				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower3 is IPL_INVALID.", ui.UIName, i);
+		}
+		if (ui.UIPower4 != IPL_INVALID) {
+			if (ui.UIPower4 == ui.UIPower5) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 4vs5.", ui.UIName, i);
+			}
+			if (ui.UIPower4 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 4vs6.", ui.UIName, i);
+			}
+		} else {
+			if (ui.UIPower5 != IPL_INVALID || ui.UIPower6 != IPL_INVALID)
+				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower4 is IPL_INVALID.", ui.UIName, i);
+		}
+		if (ui.UIPower5 != IPL_INVALID) {
+			if (ui.UIPower5 == ui.UIPower6) {
+				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 5vs6.", ui.UIName, i);
+			}
+		} else {
+			if (ui.UIPower6 != IPL_INVALID)
+				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower5 is IPL_INVALID.", ui.UIName, i);
+		}
+		if (ui.UIPower1 == IPL_ATTRIBS || ui.UIPower2 == IPL_ATTRIBS || ui.UIPower3 == IPL_ATTRIBS || ui.UIPower4 == IPL_ATTRIBS || ui.UIPower5 == IPL_ATTRIBS || ui.UIPower6 == IPL_ATTRIBS) {
+			if ((ui.UIPower1 == IPL_STR || ui.UIPower2 == IPL_STR || ui.UIPower3 == IPL_STR || ui.UIPower4 == IPL_STR || ui.UIPower5 == IPL_STR || ui.UIPower6 == IPL_STR) ||
+			    (ui.UIPower1 == IPL_MAG || ui.UIPower2 == IPL_MAG || ui.UIPower3 == IPL_MAG || ui.UIPower4 == IPL_MAG || ui.UIPower5 == IPL_MAG || ui.UIPower6 == IPL_MAG) ||
+			    (ui.UIPower1 == IPL_DEX || ui.UIPower2 == IPL_DEX || ui.UIPower3 == IPL_DEX || ui.UIPower4 == IPL_DEX || ui.UIPower5 == IPL_DEX || ui.UIPower6 == IPL_DEX) ||
+				(ui.UIPower1 == IPL_VIT || ui.UIPower2 == IPL_VIT || ui.UIPower3 == IPL_VIT || ui.UIPower4 == IPL_VIT || ui.UIPower5 == IPL_VIT || ui.UIPower6 == IPL_VIT)) {
+				app_fatal("SaveItemPower does not support IPL_ATTRIBS and IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_ALLRES || ui.UIPower2 == IPL_ALLRES || ui.UIPower3 == IPL_ALLRES || ui.UIPower4 == IPL_ALLRES || ui.UIPower5 == IPL_ALLRES || ui.UIPower6 == IPL_ALLRES) {
+			if ((ui.UIPower1 == IPL_FIRERES || ui.UIPower2 == IPL_FIRERES || ui.UIPower3 == IPL_FIRERES || ui.UIPower4 == IPL_FIRERES || ui.UIPower5 == IPL_FIRERES || ui.UIPower6 == IPL_FIRERES) ||
+			    (ui.UIPower1 == IPL_LIGHTRES || ui.UIPower2 == IPL_LIGHTRES || ui.UIPower3 == IPL_LIGHTRES || ui.UIPower4 == IPL_LIGHTRES || ui.UIPower5 == IPL_LIGHTRES || ui.UIPower6 == IPL_LIGHTRES) ||
+			    (ui.UIPower1 == IPL_MAGICRES || ui.UIPower2 == IPL_MAGICRES || ui.UIPower3 == IPL_MAGICRES || ui.UIPower4 == IPL_MAGICRES || ui.UIPower5 == IPL_MAGICRES || ui.UIPower6 == IPL_MAGICRES) ||
+				(ui.UIPower1 == IPL_ACIDRES || ui.UIPower2 == IPL_ACIDRES || ui.UIPower3 == IPL_ACIDRES || ui.UIPower4 == IPL_ACIDRES || ui.UIPower5 == IPL_ACIDRES || ui.UIPower6 == IPL_ACIDRES)) {
+				app_fatal("SaveItemPower does not support IPL_ALLRES and IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_TOHIT || ui.UIPower2 == IPL_TOHIT || ui.UIPower3 == IPL_TOHIT || ui.UIPower4 == IPL_TOHIT || ui.UIPower5 == IPL_TOHIT || ui.UIPower6 == IPL_TOHIT) {
+			if (ui.UIPower1 == IPL_TOHIT_DAMP || ui.UIPower2 == IPL_TOHIT_DAMP || ui.UIPower3 == IPL_TOHIT_DAMP || ui.UIPower4 == IPL_TOHIT_DAMP || ui.UIPower5 == IPL_TOHIT_DAMP || ui.UIPower6 == IPL_TOHIT_DAMP) {
+				app_fatal("SaveItemPower does not support IPL_TOHIT and IPL_TOHIT_DAMP modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_DAMP || ui.UIPower2 == IPL_DAMP || ui.UIPower3 == IPL_DAMP || ui.UIPower4 == IPL_DAMP || ui.UIPower5 == IPL_DAMP || ui.UIPower6 == IPL_DAMP) {
+			if ((ui.UIPower1 == IPL_TOHIT_DAMP || ui.UIPower2 == IPL_TOHIT_DAMP || ui.UIPower3 == IPL_TOHIT_DAMP || ui.UIPower4 == IPL_TOHIT_DAMP || ui.UIPower5 == IPL_TOHIT_DAMP || ui.UIPower6 == IPL_TOHIT_DAMP) ||
+			    (ui.UIPower1 == IPL_CRYSTALLINE || ui.UIPower2 == IPL_CRYSTALLINE || ui.UIPower3 == IPL_CRYSTALLINE || ui.UIPower4 == IPL_CRYSTALLINE || ui.UIPower5 == IPL_CRYSTALLINE || ui.UIPower6 == IPL_CRYSTALLINE)) {
+				app_fatal("SaveItemPower does not support IPL_DAMP and IPL_TOHIT_DAMP/IPL_CRYSTALLINE modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_TOHIT_DAMP || ui.UIPower2 == IPL_TOHIT_DAMP || ui.UIPower3 == IPL_TOHIT_DAMP || ui.UIPower4 == IPL_TOHIT_DAMP || ui.UIPower5 == IPL_TOHIT_DAMP || ui.UIPower6 == IPL_TOHIT_DAMP) {
+			if (ui.UIPower1 == IPL_CRYSTALLINE || ui.UIPower2 == IPL_CRYSTALLINE || ui.UIPower3 == IPL_CRYSTALLINE || ui.UIPower4 == IPL_CRYSTALLINE || ui.UIPower5 == IPL_CRYSTALLINE || ui.UIPower6 == IPL_CRYSTALLINE) {
+				app_fatal("SaveItemPower does not support IPL_TOHIT_DAMP and IPL_CRYSTALLINE modifiers at the same time on '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_FASTATTACK) {
+			if (ui.UIParam1a < 1 || ui.UIParam1b > 4) {
+				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_FASTRECOVER) {
+			if (ui.UIParam1a < 1 || ui.UIParam1b > 3) {
+				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_FASTCAST) {
+			if (ui.UIParam1a < 1 || ui.UIParam1b > 3) {
+				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower1 == IPL_FASTWALK) {
+			if (ui.UIParam1a < 1 || ui.UIParam1b > 3) {
+				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower2 == IPL_FASTATTACK) {
+			if (ui.UIParam2a < 1 || ui.UIParam2b > 4) {
+				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower2 == IPL_FASTRECOVER) {
+			if (ui.UIParam2a < 1 || ui.UIParam2a > 3) {
+				app_fatal("Invalid UIParam2a set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower2 == IPL_FASTCAST) {
+			if (ui.UIParam2a < 1 || ui.UIParam2b > 3) {
+				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower2 == IPL_FASTWALK) {
+			if (ui.UIParam2a < 1 || ui.UIParam2b > 3) {
+				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower3 == IPL_FASTATTACK) {
+			if (ui.UIParam3a < 1 || ui.UIParam3b > 4) {
+				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower3 == IPL_FASTRECOVER) {
+			if (ui.UIParam3a < 1 || ui.UIParam3b > 3) {
+				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower3 == IPL_FASTCAST) {
+			if (ui.UIParam3a < 1 || ui.UIParam3b > 3) {
+				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower3 == IPL_FASTWALK) {
+			if (ui.UIParam3a < 1 || ui.UIParam3b > 3) {
+				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower4 == IPL_FASTATTACK) {
+			if (ui.UIParam4a < 1 || ui.UIParam4b > 4) {
+				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower4 == IPL_FASTRECOVER) {
+			if (ui.UIParam4a < 1 || ui.UIParam4b > 3) {
+				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower4 == IPL_FASTCAST) {
+			if (ui.UIParam4a < 1 || ui.UIParam4b > 3) {
+				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower4 == IPL_FASTWALK) {
+			if (ui.UIParam4a < 1 || ui.UIParam4b > 3) {
+				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower5 == IPL_FASTATTACK) {
+			if (ui.UIParam5a < 1 || ui.UIParam5b > 4) {
+				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower5 == IPL_FASTRECOVER) {
+			if (ui.UIParam5a < 1 || ui.UIParam5b > 3) {
+				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower5 == IPL_FASTCAST) {
+			if (ui.UIParam5a < 1 || ui.UIParam5b > 3) {
+				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower5 == IPL_FASTWALK) {
+			if (ui.UIParam5a < 1 || ui.UIParam5b > 3) {
+				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower6 == IPL_FASTATTACK) {
+			if (ui.UIParam6a < 1 || ui.UIParam6b > 4) {
+				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower6 == IPL_FASTRECOVER) {
+			if (ui.UIParam6a < 1 || ui.UIParam6b > 3) {
+				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower6 == IPL_FASTCAST) {
+			if (ui.UIParam6a < 1 || ui.UIParam6b > 3) {
+				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower6 == IPL_FASTWALK) {
+			if (ui.UIParam6a < 1 || ui.UIParam6b > 3) {
+				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+	}
 	// spells
-	for (int i = 0; i < NUM_SPELLS; i++) {
+	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
+	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
-		if (i != sd.sName)
-			app_fatal("Invalid sName %d for %s (%d:%d)", sd.sName, sd.sNameText, i, sd.sName);
+		if (i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE || i == SPL_BUCKLE || i == SPL_WHITTLE) {
+			if (sd.scCurs > CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
+			if (sd.spCurs > CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+		} else {
+			if (sd.scCurs != CURSOR_NONE && sd.scCurs <= CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
+			if (sd.spCurs != CURSOR_NONE && sd.spCurs <= CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+		}
+		ItemStruct* is = NULL;
+		if (SPELL_RUNE(i)) {
+			if (sd.sBookLvl != SPELL_NA)
+				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);
+			if (sd.sStaffLvl != SPELL_NA)
+				app_fatal("Invalid sStaffLvl %d for %s (%d)", sd.sStaffLvl, sd.sNameText, i);
+			if (sd.sScrollLvl < RUNE_MIN)
+				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
+			if (sd.sStaffCost <= 0)
+				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
+			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Rune of ") + 1))
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
+			hasRuneSpell = true;
+			continue;
+		}
 		if (sd.sBookLvl != SPELL_NA) {
+			if (sd.sType != STYPE_NONE && sd.sType != STYPE_FIRE && sd.sType != STYPE_MAGIC && sd.sType != STYPE_LIGHTNING)
+				app_fatal("Invalid sType %d for %s (%d)", sd.sType, sd.sNameText, i);
 			if (sd.sBookLvl < BOOK_MIN)
-				app_fatal("Invalid sBookLvl %d for %s (%d:%d)", sd.sBookLvl, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);
 			if (sd.sBookCost <= 0)
-				app_fatal("Invalid sBookCost %d for %s (%d:%d)", sd.sBookCost, sd.sNameText, i, sd.sName);
-			if (strlen(sd.sNameText) > 32 - (strlen("Book of ") + 1))
-				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sBookCost %d for %s (%d)", sd.sBookCost, sd.sNameText, i);
+			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Book of ") + 1))
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
+			hasBookSpell = true;
 		}
 		if (sd.sStaffLvl != SPELL_NA) {
 			if (sd.sStaffLvl < STAFF_MIN)
-				app_fatal("Invalid sStaffLvl %d for %s (%d:%d)", sd.sStaffLvl, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sStaffLvl %d for %s (%d)", sd.sStaffLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
-				app_fatal("Invalid sStaffCost %d for %s (%d:%d)", sd.sStaffCost, sd.sNameText, i, sd.sName);
-			//if (strlen(sd.sNameText) > 32 - (maxStaff + 4 + 1))
-			if (strlen(sd.sNameText) > 32 - (strlen("Staff of ") + 1))
-				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
+			//if (strlen(sd.sNameText) > sizeof(is->_iName) - (maxStaff + 4 + 1))
+			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Staff of ") + 1))
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
+			hasStaffSpell = true;
 		}
 		if (sd.sScrollLvl != SPELL_NA) {
 			if (sd.sScrollLvl < SCRL_MIN)
-				app_fatal("Invalid sScrollLvl %d for %s (%d:%d)", sd.sScrollLvl, sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
-				app_fatal("Invalid sStaffCost %d for %s (%d:%d)", sd.sStaffCost, sd.sNameText, i, sd.sName);
-			if (strlen(sd.sNameText) > 32 - (strlen("Scroll of ") + 1))
-				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
+			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Scroll of ") + 1))
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
+			if ((sd.sSkillFlags & SDFLAG_TARGETED) && sd.scCurs == CURSOR_NONE)
+				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
+			hasScrollSpell = true;
 		}
 	}
+	if (!hasBookSpell)
+		app_fatal("No book spell for GetBookSpell.");
+	if (!hasStaffSpell)
+		app_fatal("No staff spell for GetStaffSpell.");
+	if (!hasScrollSpell)
+		app_fatal("No scroll spell for GetScrollSpell.");
+	if (!hasRuneSpell)
+		app_fatal("No rune spell for GetRuneSpell.");
 
 	// missiles
-	for (int i = 0; i < NUM_MISTYPES; i++) {
+	for (i = 0; i < NUM_MISTYPES; i++) {
 		const MissileData &md = missiledata[i];
-		if (md.mName != i)
-			app_fatal("Invalid mName %d for missile %d.", md.mName, i);
-		if (i == MIS_FLASH) {
-			if (misfiledata[md.mFileNum].mfAnimLen[0] != 19)
-				app_fatal("Hardcoded missile range of MIS_FLASH(%d) does not match the mfAnimLen of the assigned mFileNum", MIS_FLASH);
+		if (md.mAddProc == NULL)
+			app_fatal("Missile %d has no valid mAddProc.", i);
+		if (md.mProc == NULL)
+			app_fatal("Missile %d has no valid mProc.", i);
+		if (md.mDraw) {
+			if (md.mFileNum == MFILE_NONE && i != MIS_RHINO && i != MIS_CHARGE)
+				app_fatal("Missile %d is drawn, but has no valid mFileNum.", i);
+		} else {
+			if (md.mFileNum != MFILE_NONE)
+				app_fatal("Missile %d is not drawn, but has valid mFileNum.", i);
+			if (md.miSFX != SFX_NONE)
+				app_fatal("Missile %d is not drawn, but has valid miSFX.", i);
 		}
 	}
 }
@@ -505,8 +975,8 @@ void ValidateData()
 void LogErrorF(const char* type, const char* msg, ...)
 {
 	char tmp[256];
-	//snprintf(tmp, sizeof(tmp), "c:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
-	snprintf(tmp, sizeof(tmp), "c:\\logdebug%d.txt", mypnum);
+	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
+	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
 	FILE *f0 = fopen(tmp, "a+");
 	if (f0 == NULL)
 		return;

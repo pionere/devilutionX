@@ -19,6 +19,8 @@ extern "C" {
 #define STAFF_MIN		2
 /* Minimum level requirement of a scroll. */
 #define SCRL_MIN		1
+/* Minimum level requirement of a rune. */
+#define RUNE_MIN		1
 /* The cooldown period of the rage skill. */
 #define RAGE_COOLDOWN_TICK		1200
 

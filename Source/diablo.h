@@ -22,6 +22,7 @@ extern bool gbRunGameResult;
 extern bool gbZoomInFlag;
 extern bool gbLoadGame;
 extern bool gbCineflag;
+extern BYTE gbGameLogicProgress;
 extern int gbRedrawFlags;
 extern bool gbGamePaused;
 extern BYTE gbDeathflag;
@@ -47,7 +48,6 @@ void game_logic();
 
 /* rdata */
 
-extern bool gbFullscreen;
 extern bool gbShowTooltip;
 #if DEBUG_MODE
 extern int DebugMonsters[10];

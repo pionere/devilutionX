@@ -3,7 +3,10 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_net.h"
-#include "all.h"
+//#include "all.h"
+#include <algorithm>
+#include "../gameui.h"
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -15,7 +18,7 @@ static char selconn_Description[64];
 static bool selconn_ReturnValue;
 static bool selconn_EndMenu;
 
-#define DESCRIPTION_WIDTH 205
+#define DESCRIPTION_WIDTH	(SELCONN_LPANEL_WIDTH - 2 * 10)
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelconnSelect(unsigned index);
@@ -64,7 +67,7 @@ static void SelconnLoad()
 {
 	int numOptions = 0;
 
-	LoadBackgroundArt("ui_art\\selconn.pcx");
+	LoadBackgroundArt("ui_art\\selconn.CEL", "ui_art\\menu.pal");
 #ifndef HOSTONLY
 	gUIListItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
 	numOptions++;
@@ -91,33 +94,30 @@ static void SelconnLoad()
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
-	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	gUiItems.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
+	SDL_Rect rect1 = { PANEL_LEFT + 0, SELCONN_TITLE_TOP, PANEL_WIDTH, 35 };
+	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
 
-	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 218), DESCRIPTION_WIDTH, 21 };
-	gUiItems.push_back(new UiArtText(selconn_MaxPlayers, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
+	SDL_Rect rect2 = { SELCONN_LPANEL_LEFT + 10, SELCONN_PNL_TOP, DESCRIPTION_WIDTH, SELCONN_HEADER_HEIGHT };
+	gUiItems.push_back(new UiText(selconn_MaxPlayers, rect2, UIS_LEFT | UIS_VCENTER | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 21 };
-	gUiItems.push_back(new UiArtText("Requirements:", rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
+	SDL_Rect rect3 = { SELCONN_LPANEL_LEFT + 10, SELCONN_CONTENT_TOP + 11, DESCRIPTION_WIDTH, 21 };
+	gUiItems.push_back(new UiText("Requirements:", rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect4 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 275), DESCRIPTION_WIDTH, 66 };
-	gUiItems.push_back(new UiArtText(selconn_Description, rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER));
+	SDL_Rect rect4 = { SELCONN_LPANEL_LEFT + 10, SELCONN_CONTENT_TOP + 32, DESCRIPTION_WIDTH, 66 };
+	gUiItems.push_back(new UiText(selconn_Description, rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
-	SDL_Rect rect5 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 356), 220, 31 };
-	gUiItems.push_back(new UiArtText("no gateway needed", rect5, UIS_CENTER | UIS_MED | UIS_SILVER));
-
-	SDL_Rect rect7 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
-	gUiItems.push_back(new UiArtText("Select Connection", rect7, UIS_CENTER | UIS_BIG | UIS_SILVER));
+	SDL_Rect rect7 = { SELCONN_RPANEL_LEFT, SELCONN_PNL_TOP, SELCONN_RPANEL_WIDTH, SELCONN_HEADER_HEIGHT };
+	gUiItems.push_back(new UiText("Select Connection", rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	//assert(numOptions == gUIListItems.size());
-	SDL_Rect rect8 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 256), 285, 26 * numOptions };
-	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD));
+	SDL_Rect rect8 = { SELCONN_RPANEL_LEFT + (SELCONN_RPANEL_WIDTH - 320) / 2, SELCONN_LIST_TOP, 320, 26 * numOptions };
+	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-	SDL_Rect rect9 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
-	gUiItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	SDL_Rect rect9 = { SELCONN_RPANEL_LEFT, SELCONN_RBUTTON_TOP, SELCONN_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	SDL_Rect rect10 = { PANEL_LEFT + 454, (UI_OFFSET_Y + 427), 140, 35 };
-	gUiItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	SDL_Rect rect10 = { SELCONN_RPANEL_LEFT + SELCONN_RPANEL_WIDTH / 2, SELCONN_RBUTTON_TOP, SELCONN_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(numOptions == gUIListItems.size());
 	UiInitList(numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
@@ -125,8 +125,7 @@ static void SelconnLoad()
 
 static void SelconnFree()
 {
-	ArtBackground.Unload();
-
+	MemFreeDbg(gbBackCel);
 	UiClearListItems();
 
 	UiClearItems(gUiItems);

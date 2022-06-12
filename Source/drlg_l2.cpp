@@ -2309,7 +2309,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 				nCurrd = nX2 <= nX1 ? HDIR_LEFT : HDIR_RIGHT;
 			continue;
 		}
-		nRp = random_(0, 2 * (nDx + nDy));
+		nRp = random_low(0, 2 * (nDx + nDy));
 		if (nRp < (nDx + nDy)) {
 			if (nRp < nDx)
 				nCurrd = nX2 <= nX1 ? HDIR_LEFT : HDIR_RIGHT;

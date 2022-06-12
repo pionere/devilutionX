@@ -3,7 +3,7 @@
 In order to run the game you need access to these MPQ files:
 - The `DIABDAT.MPQ` on your CD or in the [GoG](https://www.gog.com/game/diablo) installation (you might [extract it from the GoG installer](https://github.com/diasurgical/devilutionX/wiki/Extracting-the-.MPQs-from-the-GoG-installer)).
 - _Diablo: Hellfire_ expansion also needs `hellfire.mpq`, `hfmonk.mpq`, `hfmusic.mpq`, `hfvoice.mpq`.
-- [`devilx.mpq`](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilx.mpq) and [`devilutionx.mpq`](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilutionx.mpq) from [GitHub](https://github.com/pionere/devilutionX/tree/master/Packaging/resources).
+- [`devilx.mpq`](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilx.mpq) from [GitHub](https://github.com/pionere/devilutionX/tree/master/Packaging/resources).
 
 Download the latest [DevilutionX release](https://github.com/pionere/devilutionX/releases) for your system (if available) and extract the contents to a location of your choosing, or [build from source](building.md). Then follow the system-specific instructions below.
 
@@ -111,6 +111,16 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 </details>
 
+<details><summary>Playstation 4</summary>
+
+**Requires Playstation 4 capable of running homebrew**
+
+- Install the devilutionX PS4 pkg
+- Copy the MPQ files (e.g., via ftp) to `/user/data/diasurgical/devilution/`
+
+[PS4 manual](/docs/manual/platforms/ps4.md)
+
+</details>
 <details><summary>ClockworkPi GameShell</summary>
 
 - Copy the `__init__.py` to a newly created folder under /home/cpi/apps/Menu and run it from the menu. The folder then symbolizes the devilutionX icon.

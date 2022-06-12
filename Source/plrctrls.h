@@ -8,6 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern bool sgbControllerActive;
 
 // Runs at the end of CheckCursMove()
@@ -26,7 +30,6 @@ bool IsMovingMouseCursorWithController();
 
 void FocusOnInventory();
 
-// defined in misc_msg.cpp
 void FocusOnCharInfo();
 
 // defined in touch.cpp
@@ -34,6 +37,20 @@ void finish_simulated_mouse_clicks(int current_mouse_x, int current_mouse_y);
 
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();
+
+void UseBeltItem(int type);
+
+// Talk to towners, click on inv items, attack, etc.
+void PerformPrimaryAction();
+
+// Open chests, doors, pickup items.
+void PerformSecondaryAction();
+void PerformSpellAction();
+void StoreSpellCoords();
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 

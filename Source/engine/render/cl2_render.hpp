@@ -33,7 +33,7 @@ void Cl2ApplyTrans(BYTE *p, const BYTE *ttbl, int nCel);
 void Cl2Draw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
- * @brief Blit a solid colder shape one pixel larger than the given sprite shape, to the given buffer at the given coordinates
+ * @brief Blit an outline one pixel larger than the given sprite shape to the back buffer at the given coordinates
  * @param col Color index from current palette
  * @param sx Output buffer coordinate
  * @param sy Output buffer coordinate
@@ -55,7 +55,7 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, in
 void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light);
 
 /**
- * @brief Blit CL2 sprite, and apply lighting, to the given buffer at the given coordinates
+ * @brief Blit CL2 sprite, and apply lighting, to the back buffer at the given coordinates
  * @param sx Output buffer coordinate
  * @param sy Output buffer coordinate
  * @param pCelBuff CL2 buffer
@@ -64,7 +64,9 @@ void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth,
  */
 void Cl2DrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
+#ifdef __cplusplus
 }
+#endif
 
 DEVILUTION_END_NAMESPACE
 

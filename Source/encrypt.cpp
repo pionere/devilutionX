@@ -95,11 +95,13 @@ static unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param)
 static void PkwareBufferWrite(char* buf, unsigned int* size, void* param)
 {
 	TDataInfo* pInfo;
+	DWORD sSize;
 
 	pInfo = (TDataInfo*)param;
 
-	memcpy(pInfo->destData + pInfo->destOffset, buf, *size);
-	pInfo->destOffset += *size;
+	sSize = *size;
+	memcpy(pInfo->destData + pInfo->destOffset, buf, sSize);
+	pInfo->destOffset += sSize;
 }
 
 DWORD PkwareCompress(BYTE* srcData, DWORD size)
@@ -107,7 +109,6 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 	BYTE* destData;
 	char* ptr;
 	unsigned int destSize, type, dsize;
-	TDataInfo param;
 
 	ptr = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
 
@@ -115,48 +116,39 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 	if (destSize < 2 * CMP_IMPLODE_DICT_SIZE3)
 		destSize = 2 * CMP_IMPLODE_DICT_SIZE3;
 
-	destData = (BYTE*)DiabloAllocPtr(destSize);
+	destData = DiabloAllocPtr(destSize);
 
-	param.srcData = srcData;
-	param.srcOffset = 0;
-	param.destData = destData;
-	param.destOffset = 0;
-	param.size = size;
+	TDataInfo info = TDataInfo(srcData, destData, size);
 
-	type = 0;
+	type = CMP_BINARY;
 	dsize = CMP_IMPLODE_DICT_SIZE3;
-	implode(PkwareBufferRead, PkwareBufferWrite, ptr, &param, &type, &dsize);
+	implode(PkwareBufferRead, PkwareBufferWrite, ptr, &info, type, dsize);
 
-	if (param.destOffset < size) {
-		memcpy(srcData, destData, param.destOffset);
-		size = param.destOffset;
+	// size = info.size;
+	if (info.destOffset < size) {
+		size = info.destOffset;
+		memcpy(info.srcData, info.destData, size);
 	}
-
 	mem_free_dbg(ptr);
-	mem_free_dbg(destData);
+	mem_free_dbg(info.destData);
 
 	return size;
 }
 
-void PkwareDecompress(BYTE* pbInBuff, int recv_size, int dwMaxBytes)
+void PkwareDecompress(BYTE* srcData, int recv_size, int dwMaxBytes)
 {
+	BYTE* destData;
 	char* ptr;
-	BYTE* pbOutBuff;
-	TDataInfo info;
 
 	ptr = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
-	pbOutBuff = DiabloAllocPtr(dwMaxBytes);
+	destData = DiabloAllocPtr(dwMaxBytes);
 
-	info.srcData = pbInBuff;
-	info.srcOffset = 0;
-	info.destData = pbOutBuff;
-	info.destOffset = 0;
-	info.size = recv_size;
+	TDataInfo info = TDataInfo(srcData, destData, recv_size);
 
 	explode(PkwareBufferRead, PkwareBufferWrite, ptr, &info);
-	memcpy(pbInBuff, pbOutBuff, info.destOffset);
+	memcpy(info.srcData, info.destData, info.destOffset);
 	mem_free_dbg(ptr);
-	mem_free_dbg(pbOutBuff);
+	mem_free_dbg(info.destData);
 }
 
 DEVILUTION_END_NAMESPACE

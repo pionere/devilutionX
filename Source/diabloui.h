@@ -8,6 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void UiInitialize();
 void UiDestroy();
 
@@ -20,20 +24,24 @@ void UiSettingsDialog();
 /* Defined in credits.cpp */
 void UiCreditsDialog();
 /* Defined in mainmenu.cpp */
-int UiMainMenuDialog(const char* name, void(*fnSound)(int sfx, int rndCnt));
+int UiMainMenuDialog(void(*fnSound)(int sfx, int rndCnt));
 /* Defined in progress.cpp */
 bool UiProgressDialog(const char *msg, int(*fnfunc)());
 
 /* Defined in selgame.cpp */
 int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt));
-void UIDisconnectGame(int reason);
+void UIDisconnectGame();
 
 /* Defined in selconn.cpp */
 extern int provider;
 bool UiSelectProvider(bool bMulti);
 
-/* Defined in dialogs.h */
+/* Defined in dialogs.cpp */
 void UiErrorOkDialog(const char* caption, const char* text, bool error = true);
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 

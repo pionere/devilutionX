@@ -51,20 +51,27 @@ typedef struct
     unsigned int   dsize_mask;              // 0010: Bit mask for dictionary. 0x0F = 0x400, 0x1F = 0x800, 0x3F = 0x1000
     unsigned int   ctype;                   // 0014: Compression type (CMP_ASCII or CMP_BINARY)
     unsigned int   dsize_bytes;             // 0018: Dictionary size in bytes
+#ifdef FULL
     unsigned char  dist_bits[0x40];         // 001C: Distance bits
     unsigned char  dist_codes[0x40];        // 005C: Distance codes
+#endif
     unsigned char  nChBits[0x306];          // 009C: Table of literal bit lengths to be put to the output stream
     unsigned short nChCodes[0x306];         // 03A2: Table of literal codes to be put to the output stream
+#ifdef FULL
     unsigned short offs09AE;                // 09AE: 
-
+#endif
     void         * param;                   // 09B0: User parameter
     unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param);  // 9B4
     void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param); // 9B8
 
     unsigned short offs09BC[0x204];         // 09BC:
+#ifdef FULL
     unsigned long  offs0DC4;                // 0DC4: 
+#endif
     unsigned short phash_to_index[0x900];   // 0DC8: Array of indexes (one for each PAIR_HASH) to the "pair_hash_offsets" table
+#ifdef FULL
     unsigned short phash_to_index_end;      // 1FC8: End marker for "phash_to_index" table
+#endif
     char           out_buff[0x802];         // 1FCA: Compressed data
     unsigned char  work_buff[0x2204];       // 27CC: Work buffer
                                             //  + DICT_OFFSET  => Dictionary
@@ -79,7 +86,9 @@ typedef struct
 // Decompression structure
 typedef struct
 {
+#ifdef FULL
     unsigned long offs0000;                 // 0000
+#endif
     unsigned long ctype;                    // 0004: Compression type (CMP_BINARY or CMP_ASCII)
     unsigned long outputPos;                // 0008: Position in output buffer
     unsigned long dsize_bits;               // 000C: Dict size (4, 5, 6 for 0x400, 0x800, 0x1000)
@@ -99,6 +108,7 @@ typedef struct
     unsigned char in_buff[0x800];           // 2234: Buffer for data to be decompressed
     unsigned char DistPosCodes[0x100];      // 2A34: Table of distance position codes
     unsigned char LengthCodes[0x100];       // 2B34: Table of length codes
+#ifdef FULL
     unsigned char offs2C34[0x100];          // 2C34: Buffer for 
     unsigned char offs2D34[0x100];          // 2D34: Buffer for 
     unsigned char offs2E34[0x80];           // 2EB4: Buffer for 
@@ -108,11 +118,25 @@ typedef struct
     unsigned char LenBits[0x10];            // 30F4: Numbers of bits for skip copied block length
     unsigned char ExLenBits[0x10];          // 3104: Number of valid bits for copied block
     unsigned short LenBase[0x10];           // 3114: Buffer for 
+#endif
 } TDcmpStruct;
 
 #define EXP_BUFFER_SIZE sizeof(TDcmpStruct) // Size of decompression structure
                                             // Defined as 12596 in pkware headers
 
+//-----------------------------------------------------------------------------
+// Tables (in explode.c)
+
+extern const unsigned char DistBits[0x40];
+extern const unsigned char DistCode[0x40];
+extern const unsigned char ExLenBits[0x10];
+// extern const unsigned short LenBase[0x10];
+extern const unsigned char LenBits[0x10];
+extern const unsigned char LenCode[0x10];
+#ifdef FULL
+extern const unsigned char ChBitsAsc[0x100];
+extern const unsigned short ChCodeAsc[0x100];
+#endif
 //-----------------------------------------------------------------------------
 // Public functions
 
@@ -125,8 +149,13 @@ unsigned int PKWAREAPI implode(
    void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param),
    char         *work_buf,
    void         *param,
+#if FULL
    unsigned int *type,
    unsigned int *dsize);
+#else
+   unsigned int type,
+   unsigned int dsize);
+#endif
 
 
 unsigned int PKWAREAPI explode(

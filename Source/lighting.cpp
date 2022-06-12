@@ -880,15 +880,16 @@ void MakeLightTable()
 
 void InitLightGFX()
 {
-	BYTE* tbl;
-	int i, j, k, l;
-	BYTE col;
-	double fs, fa;
+	//BYTE* tbl;
+	//int i, j, k, l;
+	//BYTE col;
+	//double fs, fa;
 
 	LoadFileWithMem("PlrGFX\\Infra.TRN", ColorTrns[COLOR_TRN_RED]);
 	LoadFileWithMem("PlrGFX\\Stone.TRN", ColorTrns[COLOR_TRN_GRAY]);
+	LoadFileWithMem("PlrGFX\\Coral.TRN", ColorTrns[COLOR_TRN_CORAL]);
 
-	tbl = ColorTrns[COLOR_TRN_CORAL];
+	/*tbl = ColorTrns[COLOR_TRN_CORAL];
 	for (i = 0; i < 8; i++) {
 		for (col = 226; col < 239; col++) {
 			if (i != 0 || col != 226) {
@@ -913,7 +914,7 @@ void InitLightGFX()
 			*tbl++ = col;
 		}
 		*tbl++ = 0;
-	}
+	}*/
 
 /*#ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
@@ -928,8 +929,10 @@ void InitLightGFX()
 		}
 	} else
 #endif*/
-	{
-		for (i = 0, k = MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
+	LoadFileWithMem("Meta\\Dark.tbl", &darkTable[0][0]);
+	/*{
+		memset(darkTable[0], MAXDARKNESS, MAX_LIGHT_DIST);
+		for (i = 1, k = 2 * MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
 			for (j = 0; j <= MAX_LIGHT_DIST; j++) {
 				if (j >= k) {
 					darkTable[i][j] = MAXDARKNESS;
@@ -938,9 +941,9 @@ void InitLightGFX()
 				}
 			}
 		}
-	}
-
-	for (j = 0; j < MAX_OFFSET; j++) {
+	}*/
+	LoadFileWithMem("Meta\\Dist.tbl", &distMatrix[0][0][0][0]);
+	/*for (j = 0; j < MAX_OFFSET; j++) {
 		for (i = 0; i < MAX_OFFSET; i++) {
 			for (k = 0; k < MAX_TILE_DIST; k++) {
 				fa = (MAX_OFFSET * k - i);
@@ -958,7 +961,7 @@ void InitLightGFX()
 				}
 			}
 		}
-	}
+	}*/
 }
 
 #if DEBUG_MODE
@@ -1281,11 +1284,15 @@ void ChangeVisionXY(unsigned vnum, int x, int y)
 
 void ProcessVisionList()
 {
-	LightListStruct *vis;
+	LightListStruct* vis;
 	int i;
 	BYTE temp;
 
-	if (_gbDovision) {
+	if (!_gbDovision)
+		return;
+
+	// skip vision calculation in town
+	if (currLvl._dLevelIdx != DLV_TOWN) {
 		for (i = 0; i < numvision; i++) {
 			vis = &VisionList[visionactive[i]];
 			if (vis->_lunflag) {
@@ -1315,9 +1322,9 @@ void ProcessVisionList()
 			vis = &VisionList[visionactive[i]];
 			DoVision(vis->_lx, vis->_ly, vis->_lradius, vis->_lmine);
 		}
-
-		_gbDovision = false;
 	}
+
+	_gbDovision = false;
 }
 
 void lighting_color_cycling()

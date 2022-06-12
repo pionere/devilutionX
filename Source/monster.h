@@ -12,8 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 // ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_NORMAL_MSG_SIZE / sizeof(TSyncMonster)))
 #define SQUELCH_LOW					127
 #define SQUELCH_MAX					(SQUELCH_LOW + 240)
-#define MINION_INACTIVE(x)			((x->_mx | x->_my) == 0)
-#define MINION_NR_INACTIVE(x)		((monsters[x]._mx | monsters[x]._my) == 0)
 #define OPPOSITE(x)					(((x) + 4) & 7)
 /** Maps from direction to the opposite direction. */
 //const int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
@@ -22,7 +20,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int monstactive[MAXMONSTERS];
 extern int nummonsters;
 extern MonsterStruct monsters[MAXMONSTERS];
 extern MapMonData mapMonTypes[MAX_LVLMTYPES];
@@ -37,22 +34,24 @@ extern BYTE mapGoatTypes[MAX_LVLMTYPES];
 
 void InitLevelMonsters();
 void GetLevelMTypes();
-void InitMonsterGFX(int midx);
 #ifdef HELLFIRE
 void WakeUberDiablo();
 #endif
 void InitMonsters();
 void SetMapMonsters(BYTE *pMap, int startx, int starty);
-int AddMonster(int x, int y, int dir, int mtidx, bool InMap);
+void MonChangeMap();
+void InitMonster(int mnum, int dir, int mtidx, int x, int y);
+void AddMonster(int x, int y, int dir, int mtidx);
+int SummonMonster(int x, int y, int dir, int mtidx);
 void RemoveMonFromMap(int mnum);
 void MonGetKnockback(int mnum, int sx, int sy);
 void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags);
 void MonStartKill(int mnum, int pnum);
 void MonSyncStartKill(int mnum, int x, int y, int pnum);
 void MonUpdateLeader(int mnum);
+void MonAddDead(int mnum);
 void DoEnding();
 void MonWalkDir(int mnum, int md);
-void DeleteMonsterList();
 void ProcessMonsters();
 void FreeMonsters();
 bool MonDirOK(int mnum, int mdir);
@@ -62,6 +61,7 @@ bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2);
 bool LineClear(int x1, int y1, int x2, int y2);
 bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2);
 void SyncMonsterAnim(int mnum);
+void SyncMonsterLight();
 void MissToMonst(int mnum);
 /* Check if the monster can be displaced to the given position. (unwillingly) */
 bool PosOkMonster(int mnum, int x, int y);

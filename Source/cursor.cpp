@@ -28,6 +28,8 @@ int pcursmonst = MON_NONE;
 /** Cursor images CEL */
 BYTE *pCursCels;
 
+/** Current active window */
+BYTE pcurswnd;
 /** inv_item value */
 BYTE pcursinvitem;
 /** Current highlighted item */
@@ -46,7 +48,7 @@ int cursmx;
 /** Current highlighted tile column */
 int cursmy;
 /** Index of current cursor image */
-int pcurs;
+int pcursicon;
 
 /*  Maps from objcurs.cel frame number to frame width.
  **If the values are modified, make sure validateCursorAreas does not fail.**
@@ -164,7 +166,7 @@ void FreeCursorGFX()
 
 void NewCursor(int i)
 {
-	pcurs = i;
+	pcursicon = i;
 	cursW = InvItemWidth[i];
 	cursH = InvItemHeight[i];
 }
@@ -210,49 +212,112 @@ void CheckTownPortal()
 
 void CheckCursMove()
 {
-	int pnum, sx, sy, fx, fy, mx, my, tx, ty, px, py, xx, yy, mi;
+	int pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, xx, yy, mi;
 	int pcurstemp; // Previously highlighted monster
 	char bv;
 	bool flipflag, flipx, flipy;
 
+	pcurstemp = pcursmonst;
+	pcursmonst = MON_NONE;
+	pcursobj = OBJ_NONE;
+	pcursitem = ITEM_NONE;
+	//if (pcursinvitem != INVITEM_NONE) {
+	//	gbRedrawFlags |= REDRAW_SPEED_BAR;
+	//}
+	pcursinvitem = INVITEM_NONE;
+	pcursplr = PLR_NONE;
+	pcurstrig = -1;
+	pcurswnd = WND_NONE;
+
+	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");	
+	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
+	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
+		return;
+
 	sx = MouseX;
 	sy = MouseY;
 
-	//if (sy > PANEL_TOP - 1 && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH && track_isscrolling()) {
-	//	sy = PANEL_TOP - 1;
-	//}
+	if (POS_IN_RECT(sx, sy, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
+		pcurswnd = WND_BELT;
+	for (int i = 0; i < gnNumActiveWindows; i++) {
+		switch (gaActiveWindows[i]) {
+		case WND_INV:
+			if (POS_IN_RECT(sx, sy, gnWndInvX, gnWndInvY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_INV;
+			break;
+		case WND_CHAR:
+			if (POS_IN_RECT(sx, sy, gnWndCharX, gnWndCharY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_CHAR;
+			break;
+		case WND_BOOK:
+			if (POS_IN_RECT(sx, sy, gnWndBookX, gnWndBookY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_BOOK;
+			break;
+		case WND_TEAM:
+			if (POS_IN_RECT(sx, sy, gnWndTeamX, gnWndTeamY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_TEAM;
+			break;
+		case WND_QUEST:
+			if (POS_IN_RECT(sx, sy, gnWndQuestX, gnWndQuestY, SPANEL_WIDTH, SPANEL_HEIGHT))
+				pcurswnd = WND_QUEST;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+	}
+	// skip monster/player/object/etc targeting if hovering over a window.
+	if (pcurswnd != WND_NONE) {
+		if (pcursicon <= CURSOR_LAST_ITEMTGT) {
+			if (pcurswnd == WND_INV)
+				pcursinvitem = CheckInvItem();
+			else if (pcurswnd == WND_BELT)
+				pcursinvitem = CheckInvBelt();
+		}
+		return;
+	}
 
 	if (gbZoomInFlag) {
 		sx >>= 1;
 		sy >>= 1;
 	}
 
-	sx -= ScrollInfo._sxoff - gsMouseVp._vOffsetX;
-	sy -= ScrollInfo._syoff - gsMouseVp._vOffsetY;
+	sx += gsMouseVp._vOffsetX;
+	sy += gsMouseVp._vOffsetY;
 
-	// Predict the next frame when walking to avoid input jitter
-	if (ScrollInfo._sdir != SDIR_NONE) {
-		fx = myplr._pVar6 / 256; // WALK_XOFF
-		fx -= (myplr._pVar6 + myplr._pVar4) / 256; // WALK_XOFF + WALK_XVEL
-		fy = myplr._pVar7 / 256; // WALK_YOFF
-		fy -= (myplr._pVar7 + myplr._pVar5) / 256; // WALK_YOFF + WALK_YVEL
-		sx -= fx;
-		sy -= fy;
-	}
+	//if (ScrollInfo._sdir != SDIR_NONE) {
+		sx -= ScrollInfo._sxoff;
+		sy -= ScrollInfo._syoff;
+
+	//	// Predict the next frame when walking to avoid input jitter
+	//	fx = myplr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
+	//	fx -= (myplr._pVar6 + myplr._pVar4) >> PLR_WALK_SHIFT; // WALK_XOFF + WALK_XVEL
+	//	fy = myplr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
+	//	fy -= (myplr._pVar7 + myplr._pVar5) >> PLR_WALK_SHIFT; // WALK_YOFF + WALK_YVEL
+	//	sx -= fx;
+	//	sy -= fy;
+	//}
 
 	// Center player tile on screen
 	mx = ViewX + gsMouseVp._vShiftX;
 	my = ViewY + gsMouseVp._vShiftY;
 
-	tx = sx / TILE_WIDTH;
-	ty = sy / TILE_HEIGHT;
+	// ensure sx/y are positive
+	sx += TILE_WIDTH;
+	// assert(sx >= 0);
+	sy += TILE_HEIGHT;
+	// assert(sy >= 0);
+
+	tx = ((unsigned)sx) / TILE_WIDTH;
+	ty = ((unsigned)sy) / TILE_HEIGHT;
+	tx--; // revert added value
+	ty--;
 	SHIFT_GRID(mx, my, tx, ty);
 
 	// Shift position to match diamond grid aligment
-	px = sx % TILE_WIDTH;
-	py = sy % TILE_HEIGHT;
+	px = ((unsigned)sx) % TILE_WIDTH;
+	py = ((unsigned)sy) % TILE_HEIGHT;
 
-	// Shift position to match diamond grid aligment
 	flipy = py < (px >> 1);
 	if (flipy) {
 		my--;
@@ -274,134 +339,26 @@ void CheckCursMove()
 	else if (my > MAXDUNY - 1 - DBORDERY)
 		my = MAXDUNY - 1 - DBORDERY;
 
-	pcurstemp = pcursmonst;
-	pcursmonst = MON_NONE;
-	pcursobj = OBJ_NONE;
-	pcursitem = ITEM_NONE;
-	//if (pcursinvitem != INVITEM_NONE) {
-	//	gbRedrawFlags |= REDRAW_SPEED_BAR;
-	//}
-	pcursinvitem = INVITEM_NONE;
-	pcursplr = PLR_NONE;
-	pcurstrig = -1;
-
-	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");	
-	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
-	if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag)
-		return;
-	if (pcurs >= CURSOR_FIRSTITEM) {
-		cursmx = mx;
-		cursmy = my;
-		return;
-	}
-	if ((gbInvflag | gbSbookflag | gbTeamFlag) && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
-		if (gbInvflag)
-			pcursinvitem = CheckInvItem();
-		return;
-	}
-	if ((gbChrflag | gbQuestlog) && MouseX < SPANEL_WIDTH && MouseY <= SPANEL_HEIGHT) {
-		return;
-	}
-
-	if (MouseX >= InvRect[SLOTXY_BELT_FIRST].X
-	 && MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX
-	 && MouseY >= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y  - INV_SLOT_SIZE_PX
-	 && MouseY <= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y) {
-		pcursinvitem = CheckInvBelt();
-		return;
-	}
-
-	if (pcurs == CURSOR_IDENTIFY) {
+	// skip monster/player/object/etc targeting if the player is holding an item
+	// Could be skipped when using a skill/spell to target an item, but there is not much point to it yet...
+	if (pcursicon >= CURSOR_FIRSTITEM /*|| (pcursicon > CURSOR_HAND && pcursicon <= CURSOR_LAST_ITEMTGT)*/) {
 		cursmx = mx;
 		cursmy = my;
 		return;
 	}
 
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "Borders are too small to skip the OOB checks.");
-	if (currLvl._dType != DTYPE_TOWN) {
-		if (pcurstemp != MON_NONE /*&& pcurstemp >= MAX_MINIONS*/
-		 && monsters[pcurstemp]._mhitpoints >= (1 << 6)
-		 && !(monsters[pcurstemp]._mFlags & MFLAG_HIDDEN)) {
-			if (!flipflag) {
-				mi = dMonster[mx + 2][my + 1];
-				if (mi != 0 && (dFlags[mx + 2][my + 1] & BFLAG_VISIBLE)) {
-					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
-						cursmx = mx + 2; /// BUGFIX: 'mx + 2' (fixed)
-						cursmy = my + 1; /// BUGFIX: 'my + 1' (fixed)
-						pcursmonst = mi;
-					}
-				}
-			} else {
-				mi = dMonster[mx + 1][my + 2];
-				if (mi != 0 && (dFlags[mx + 1][my + 2] & BFLAG_VISIBLE)) {
-					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
-						cursmx = mx + 1;
-						cursmy = my + 2;
-						pcursmonst = mi;
-					}
-				}
-			}
-			mi = dMonster[mx + 2][my + 2];
-			if (mi != 0 && (dFlags[mx + 2][my + 2] & BFLAG_VISIBLE)) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
-					cursmx = mx + 2;
-					cursmy = my + 2;
-					pcursmonst = mi;
-				}
-			}
-			if (!flipflag) {
-				mi = dMonster[mx + 1][my];
-				if (mi != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
-					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
-						cursmx = mx + 1;
-						cursmy = my;
-						pcursmonst = mi;
-					}
-				}
-			} else {
-				mi = dMonster[mx][my + 1];
-				if (mi != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
-					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
-						cursmx = mx;
-						cursmy = my + 1;
-						pcursmonst = mi;
-					}
-				}
-			}
-			mi = dMonster[mx][my];
-			if (mi != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == pcurstemp && monsters[mi]._mSelFlag & 1) {
-					cursmx = mx;
-					cursmy = my;
-					pcursmonst = mi;
-				}
-			}
-			mi = dMonster[mx + 1][my + 1];
-			if (mi != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
-					cursmx = mx + 1;
-					cursmy = my + 1;
-					pcursmonst = mi;
-				}
-			}
-			if (pcursmonst != MON_NONE) {
-				return;
-			}
-		}
+	// select a monster
+	if (pcurstemp != MON_NONE
+	 && monsters[pcurstemp]._mhitpoints >= (1 << 6)
+	 && !(monsters[pcurstemp]._mFlags & MFLAG_HIDDEN)) {
 		if (!flipflag) {
 			mi = dMonster[mx + 2][my + 1];
 			if (mi != 0 && (dFlags[mx + 2][my + 1] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
-					cursmx = mx + 2;
-					cursmy = my + 1;
+				if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
+					cursmx = mx + 2; /// BUGFIX: 'mx + 2' (fixed)
+					cursmy = my + 1; /// BUGFIX: 'my + 1' (fixed)
 					pcursmonst = mi;
 				}
 			}
@@ -409,7 +366,7 @@ void CheckCursMove()
 			mi = dMonster[mx + 1][my + 2];
 			if (mi != 0 && (dFlags[mx + 1][my + 2] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
+				if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
 					cursmx = mx + 1;
 					cursmy = my + 2;
 					pcursmonst = mi;
@@ -419,7 +376,7 @@ void CheckCursMove()
 		mi = dMonster[mx + 2][my + 2];
 		if (mi != 0 && (dFlags[mx + 2][my + 2] & BFLAG_VISIBLE)) {
 			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
+			if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
 				cursmx = mx + 2;
 				cursmy = my + 2;
 				pcursmonst = mi;
@@ -429,7 +386,7 @@ void CheckCursMove()
 			mi = dMonster[mx + 1][my];
 			if (mi != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
+				if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
 					cursmx = mx + 1;
 					cursmy = my;
 					pcursmonst = mi;
@@ -439,7 +396,7 @@ void CheckCursMove()
 			mi = dMonster[mx][my + 1];
 			if (mi != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
+				if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
 					cursmx = mx;
 					cursmy = my + 1;
 					pcursmonst = mi;
@@ -449,7 +406,7 @@ void CheckCursMove()
 		mi = dMonster[mx][my];
 		if (mi != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
 			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 1) {
+			if (mi == pcurstemp && monsters[mi]._mSelFlag & 1) {
 				cursmx = mx;
 				cursmy = my;
 				pcursmonst = mi;
@@ -458,54 +415,92 @@ void CheckCursMove()
 		mi = dMonster[mx + 1][my + 1];
 		if (mi != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
 			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
+			if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
 				cursmx = mx + 1;
 				cursmy = my + 1;
 				pcursmonst = mi;
 			}
 		}
 		if (pcursmonst != MON_NONE) {
-			if (pcursmonst < MAX_MINIONS || monsters[pcursmonst]._mFlags & MFLAG_HIDDEN)
-				pcursmonst = MON_NONE;
-			else
-				return;
-		}
-	} else {
-		if (!flipflag) {
-			mi = dMonster[mx + 1][my];
-			if (mi > 0) {
-				pcursmonst = mi - 1;
-				cursmx = mx + 1;
-				cursmy = my;
-			}
-		} else {
-			mi = dMonster[mx][my + 1];
-			if (mi > 0) {
-				pcursmonst = mi - 1;
-				cursmx = mx;
-				cursmy = my + 1;
-			}
-		}
-		mi = dMonster[mx][my];
-		if (mi > 0) {
-			pcursmonst = mi - 1;
-			cursmx = mx;
-			cursmy = my;
-		}
-		mi = dMonster[mx + 1][my + 1];
-		if (mi > 0) {
-			pcursmonst = mi - 1;
-			cursmx = mx + 1;
-			cursmy = my + 1;
-		}
-		if (pcursmonst != MON_NONE) {
-			//if (/*pcursmonst < MAX_MINIONS ||*/!towners[pcursmonst]._tSelFlag)
-			//	pcursmonst = MON_NONE;
-			//else
-				return;
+			return;
 		}
 	}
-
+	if (!flipflag) {
+		mi = dMonster[mx + 2][my + 1];
+		if (mi != 0 && (dFlags[mx + 2][my + 1] & BFLAG_VISIBLE)) {
+			mi = mi >= 0 ? mi - 1 : -(mi + 1);
+			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
+				cursmx = mx + 2;
+				cursmy = my + 1;
+				pcursmonst = mi;
+			}
+		}
+	} else {
+		mi = dMonster[mx + 1][my + 2];
+		if (mi != 0 && (dFlags[mx + 1][my + 2] & BFLAG_VISIBLE)) {
+			mi = mi >= 0 ? mi - 1 : -(mi + 1);
+			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
+				cursmx = mx + 1;
+				cursmy = my + 2;
+				pcursmonst = mi;
+			}
+		}
+	}
+	mi = dMonster[mx + 2][my + 2];
+	if (mi != 0 && (dFlags[mx + 2][my + 2] & BFLAG_VISIBLE)) {
+		mi = mi >= 0 ? mi - 1 : -(mi + 1);
+		if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
+			cursmx = mx + 2;
+			cursmy = my + 2;
+			pcursmonst = mi;
+		}
+	}
+	if (!flipflag) {
+		mi = dMonster[mx + 1][my];
+		if (mi != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
+			mi = mi >= 0 ? mi - 1 : -(mi + 1);
+			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
+				cursmx = mx + 1;
+				cursmy = my;
+				pcursmonst = mi;
+			}
+		}
+	} else {
+		mi = dMonster[mx][my + 1];
+		if (mi != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
+			mi = mi >= 0 ? mi - 1 : -(mi + 1);
+			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
+				cursmx = mx;
+				cursmy = my + 1;
+				pcursmonst = mi;
+			}
+		}
+	}
+	mi = dMonster[mx][my];
+	if (mi != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
+		mi = mi >= 0 ? mi - 1 : -(mi + 1);
+		if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 1) {
+			cursmx = mx;
+			cursmy = my;
+			pcursmonst = mi;
+		}
+	}
+	mi = dMonster[mx + 1][my + 1];
+	if (mi != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
+		mi = mi >= 0 ? mi - 1 : -(mi + 1);
+		if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
+			cursmx = mx + 1;
+			cursmy = my + 1;
+			pcursmonst = mi;
+		}
+	}
+	if (pcursmonst != MON_NONE) {
+		if (pcursmonst < MAX_MINIONS || monsters[pcursmonst]._mFlags & MFLAG_HIDDEN)
+			pcursmonst = MON_NONE;
+		else
+			return;
+	}
+	// select a player
 	if (!flipflag) {
 		bv = dPlayer[mx + 1][my];
 		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
@@ -545,7 +540,7 @@ void CheckCursMove()
 			}
 		}
 	}
-	if (pcurs == CURSOR_RESURRECT) {
+	if (pcursicon == CURSOR_RESURRECT) {
 		for (xx = -1; xx <= 1; xx++) {
 			for (yy = -1; yy <= 1; yy++) {
 				if ((dFlags[mx + xx][my + yy] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
@@ -573,12 +568,12 @@ void CheckCursMove()
 	if (pcursplr != PLR_NONE) {
 		return;
 	}
-
+	// select an object
 	if (!flipflag) {
 		bv = dObject[mx + 1][my];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (objects[bv]._oSelFlag >= 2) {
+			if (objects[bv]._oSelFlag & 2) {
 				cursmx = mx + 1;
 				cursmy = my;
 				pcursobj = bv;
@@ -588,7 +583,7 @@ void CheckCursMove()
 		bv = dObject[mx][my + 1];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (objects[bv]._oSelFlag >= 2) {
+			if (objects[bv]._oSelFlag & 2) {
 				cursmx = mx;
 				cursmy = my + 1;
 				pcursobj = bv;
@@ -598,7 +593,7 @@ void CheckCursMove()
 	bv = dObject[mx][my];
 	if (bv != 0) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (objects[bv]._oSelFlag == 1 || objects[bv]._oSelFlag == 3) {
+		if (objects[bv]._oSelFlag & 1) {
 			cursmx = mx;
 			cursmy = my;
 			pcursobj = bv;
@@ -607,7 +602,7 @@ void CheckCursMove()
 	bv = dObject[mx + 1][my + 1];
 	if (bv != 0) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (objects[bv]._oSelFlag >= 2) {
+		if (objects[bv]._oSelFlag & 2) {
 			cursmx = mx + 1;
 			cursmy = my + 1;
 			pcursobj = bv;
@@ -616,12 +611,12 @@ void CheckCursMove()
 
 	if (pcursobj != OBJ_NONE)
 		return;
-
+	// select an item
 	if (!flipflag) {
 		bv = dItem[mx + 1][my];
 		if (bv > 0) {
 			bv--;
-			if (items[bv]._iSelFlag >= 2) {
+			if (items[bv]._iSelFlag & 2) {
 				cursmx = mx + 1;
 				cursmy = my;
 				pcursitem = bv;
@@ -631,7 +626,7 @@ void CheckCursMove()
 		bv = dItem[mx][my + 1];
 		if (bv > 0) {
 			bv--;
-			if (items[bv]._iSelFlag >= 2) {
+			if (items[bv]._iSelFlag & 2) {
 				cursmx = mx;
 				cursmy = my + 1;
 				pcursitem = bv;
@@ -641,7 +636,7 @@ void CheckCursMove()
 	bv = dItem[mx][my];
 	if (bv > 0) {
 		bv--;
-		if (items[bv]._iSelFlag == 1 || items[bv]._iSelFlag == 3) {
+		if (items[bv]._iSelFlag & 1) {
 			cursmx = mx;
 			cursmy = my;
 			pcursitem = bv;
@@ -650,7 +645,7 @@ void CheckCursMove()
 	bv = dItem[mx + 1][my + 1];
 	if (bv > 0) {
 		bv--;
-		if (items[bv]._iSelFlag >= 2) {
+		if (items[bv]._iSelFlag & 2) {
 			cursmx = mx + 1;
 			cursmy = my + 1;
 			pcursitem = bv;

@@ -387,9 +387,51 @@ jobs:
         name: ${{ matrix.artifact }}
         path: build-retrofw/devilutionx-retrofw.opk
 
+  build_ps4:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-PS4
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [diablo, hellfire]
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-ps4.pkg'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-ps4.pkg'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: >
+        sudo apt-get update &&
+        sudo apt-get install -y wget cmake git gettext &&
+        wget https://github.com/PacBrew/pacbrew-pacman/releases/download/pacbrew-release-1.0/pacbrew-pacman-1.0.deb &&
+        sudo dpkg -i pacbrew-pacman-1.0.deb && sudo pacbrew-pacman -Sy &&
+        sudo pacbrew-pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs &&
+        echo "#include <endian.h>" | sudo tee /opt/pacbrew/ps4/openorbis/include/sys/endian.h
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: Packaging/ps4/build.sh "${{ matrix.cmakeargs }}"
+
+    - name: Upload-Package
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.artifact }}
+        path: build-ps4/devilutionx-ps4.pkg
+
   # Releases
   release:
-    needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw]
+    needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
@@ -514,6 +556,19 @@ jobs:
         name: hellfire-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/hellfire-nightly-retrofw.opk
 
+    # ps4 builds
+    - name: Download a diablo ps4 artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: diablo-nightly-ps4.pkg
+    - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/diablo-nightly-ps4.pkg
+
+    - name: Download a hellfire ps4 artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellfire-nightly-ps4.pkg
+    - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4.pkg
+
     # release notes
     - name: Create release notes
       run: |
@@ -528,6 +583,7 @@ jobs:
         echo '[diablo-nightly-lepus.opk](../../releases/download/devilx-nightly/diablo-nightly-lepus.opk)   | Diablo package for `Lepus`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-retrofw.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-ps4.pkg](../../releases/download/devilx-nightly/diablo-nightly-ps4.pkg)   | Diablo package for `PS4`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-ios.ipa](../../releases/download/devilx-nightly/diablo-nightly-ios.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
@@ -540,6 +596,7 @@ jobs:
         echo '[hellfire-nightly-lepus.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepus.opk)   | Hellfire package for `Lepus`'       >> RELEASE_NOTE.md
         echo '[hellfire-nightly-retrofw.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-ps4.pkg](../../releases/download/devilx-nightly/hellfire-nightly-ps4.pkg)   | Hellfire package for `PS4`'             >> RELEASE_NOTE.md
         echo '[hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-ios.ipa](../../releases/download/devilx-nightly/hellfire-nightly-ios.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
@@ -571,6 +628,7 @@ jobs:
           ${{github.workspace}}/diablo-nightly-lepus.opk
           ${{github.workspace}}/diablo-nightly-retrofw.opk
           ${{github.workspace}}/diablo-nightly-rg350.opk
+          ${{github.workspace}}/diablo-nightly-ps4.pkg
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-ios.ipa
           ${{github.workspace}}/diablo-nightly-x64.zip
@@ -579,6 +637,7 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-lepus.opk
           ${{github.workspace}}/hellfire-nightly-retrofw.opk
           ${{github.workspace}}/hellfire-nightly-rg350.opk
+          ${{github.workspace}}/hellfire-nightly-ps4.pkg
           ${{github.workspace}}/hellfire-nightly-mac.dmg
           ${{github.workspace}}/hellfire-nightly-ios.ipa
           ${{github.workspace}}/hellfire-nightly-x64.zip

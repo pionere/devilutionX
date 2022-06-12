@@ -8,15 +8,13 @@
 #include "../types.h"
 #include "../appfat.h"
 
-#include "DiabloUI/art.h"
-#include "DiabloUI/fonts.h"
 #include "DiabloUI/text_draw.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 enum UiType : uint8_t {
-	UI_ART_TEXT,
-	UI_ART_TEXT_BUTTON,
+	UI_TEXT,
+	UI_TXT_BUTTON,
 	UI_IMAGE,
 	UI_BUTTON,
 	UI_LIST,
@@ -70,29 +68,29 @@ public:
 
 class UiImage : public UiItemBase {
 public:
-	UiImage(Art* art, int frame, SDL_Rect &rect, int flags, bool animated)
-	    : UiItemBase(UI_IMAGE, rect, flags), m_art(art), m_frame(frame), m_animated(animated)
+	UiImage(CelImageBuf* celData, int frame, SDL_Rect &rect, bool animated)
+	    : UiItemBase(UI_IMAGE, rect, 0), m_cel_data(celData), m_frame(frame), m_animated(animated)
 	{
 	}
 
 	~UiImage() = default;
 
 	//private:
-	Art* m_art;
+	CelImageBuf* m_cel_data;
 	int m_frame;
 	bool m_animated;
 };
 
 //=============================================================================
 
-class UiArtText : public UiItemBase {
+class UiText : public UiItemBase {
 public:
-	UiArtText(const char* text, SDL_Rect &rect, int flags)
-	    : UiItemBase(UI_ART_TEXT, rect, flags), m_text(text)
+	UiText(const char* text, SDL_Rect &rect, int flags)
+	    : UiItemBase(UI_TEXT, rect, flags), m_text(text)
 	{
 	}
 
-	~UiArtText() = default;
+	~UiText() = default;
 
 	//private:
 	const char *m_text;
@@ -112,14 +110,14 @@ public:
 
 //=============================================================================
 
-class UiArtTextButton : public UiItemBase {
+class UiTxtButton : public UiItemBase {
 public:
-	UiArtTextButton(const char* text, void (*action)(), SDL_Rect &rect, int flags)
-	    : UiItemBase(UI_ART_TEXT_BUTTON, rect, flags), m_text(text), m_action(action)
+	UiTxtButton(const char* text, void (*action)(), SDL_Rect &rect, int flags)
+	    : UiItemBase(UI_TXT_BUTTON, rect, flags), m_text(text), m_action(action)
 	{
 	}
 
-	~UiArtTextButton() = default;
+	~UiTxtButton() = default;
 
 	//private:
 	const char *m_text;
@@ -153,20 +151,12 @@ public:
 class UiButton : public UiItemBase {
 public:
 	UiButton(const char* text, void (*action)(), SDL_Rect &rect)
-	    : UiItemBase(UI_BUTTON, rect, 0)
+	    : UiItemBase(UI_BUTTON, rect, 0), m_text(text), m_action(action)
 	{
-		m_text = text;
-		m_action = action;
 		m_pressed = false;
 	}
 
 	~UiButton() = default;
-
-	enum FrameKey : uint8_t {
-		DEFAULT,
-		PRESSED,
-		DISABLED
-	};
 
 	//private:
 
