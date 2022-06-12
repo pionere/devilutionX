@@ -431,7 +431,8 @@ jobs:
 
   # Releases
   release:
-    needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
+    #needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
+    needs: [build_check, build_win, build_mac, build_ios, build_retrofw, build_ps4]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
@@ -505,43 +506,43 @@ jobs:
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/hellfire-nightly-ios.ipa
 
     # android builds
-    - name: Download a diablo android artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: diablo-nightly-android.apk
-    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
+    #- name: Download a diablo android artifact
+    #  uses: actions/download-artifact@v2
+    #  with:
+    #    name: diablo-nightly-android.apk
+    #- run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
 
-    - name: Download a hellfire android artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: hellfire-nightly-android.apk
-    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
+    #- name: Download a hellfire android artifact
+    #  uses: actions/download-artifact@v2
+    #  with:
+    #    name: hellfire-nightly-android.apk
+    #- run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
 
     # rg350 builds
-    - name: Download a diablo rg350 artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: diablo-nightly-rg350.opk
-    - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/diablo-nightly-rg350.opk
+    #- name: Download a diablo rg350 artifact
+    #  uses: actions/download-artifact@v2
+    #  with:
+    #    name: diablo-nightly-rg350.opk
+    #- run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/diablo-nightly-rg350.opk
 
-    - name: Download a hellfire rg350 artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: hellfire-nightly-rg350.opk
-    - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/hellfire-nightly-rg350.opk
+    #- name: Download a hellfire rg350 artifact
+    #  uses: actions/download-artifact@v2
+    #  with:
+    #    name: hellfire-nightly-rg350.opk
+    #- run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/hellfire-nightly-rg350.opk
 
     # lepus builds
-    - name: Download a diablo lepus artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: diablo-nightly-lepus.opk
-    - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/diablo-nightly-lepus.opk
+    #- name: Download a diablo lepus artifact
+    #  uses: actions/download-artifact@v2
+    #  with:
+    #    name: diablo-nightly-lepus.opk
+    #- run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/diablo-nightly-lepus.opk
 
-    - name: Download a hellfire lepus artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: hellfire-nightly-lepus.opk
-    - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/hellfire-nightly-lepus.opk
+    #- name: Download a hellfire lepus artifact
+    #  uses: actions/download-artifact@v2
+    #  with:
+    #    name: hellfire-nightly-lepus.opk
+    #- run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/hellfire-nightly-lepus.opk
 
     # retrofw builds
     - name: Download a diablo retrofw artifact
@@ -579,10 +580,10 @@ jobs:
         echo '### **Diablo**'               >> RELEASE_NOTE.md
         echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
         echo '------------ | -------------' >> RELEASE_NOTE.md
-        echo '[diablo-nightly-android.apk](../../releases/download/devilx-nightly/diablo-nightly-android.apk)   | Diablo package for `Android`' >> RELEASE_NOTE.md
-        echo '[diablo-nightly-lepus.opk](../../releases/download/devilx-nightly/diablo-nightly-lepus.opk)   | Diablo package for `Lepus`'       >> RELEASE_NOTE.md
+    #    echo '[diablo-nightly-android.apk](../../releases/download/devilx-nightly/diablo-nightly-android.apk)   | Diablo package for `Android`' >> RELEASE_NOTE.md
+    #    echo '[diablo-nightly-lepus.opk](../../releases/download/devilx-nightly/diablo-nightly-lepus.opk)   | Diablo package for `Lepus`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-retrofw.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
-        echo '[diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
+    #    echo '[diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-ps4.pkg](../../releases/download/devilx-nightly/diablo-nightly-ps4.pkg)   | Diablo package for `PS4`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-ios.ipa](../../releases/download/devilx-nightly/diablo-nightly-ios.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
@@ -592,10 +593,10 @@ jobs:
         echo '### **Diablo: Hellfire**'     >> RELEASE_NOTE.md
         echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
         echo '------------ | -------------' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-android.apk](../../releases/download/devilx-nightly/hellfire-nightly-android.apk)   | Hellfire package for `Android`' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-lepus.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepus.opk)   | Hellfire package for `Lepus`'       >> RELEASE_NOTE.md
+    #    echo '[hellfire-nightly-android.apk](../../releases/download/devilx-nightly/hellfire-nightly-android.apk)   | Hellfire package for `Android`' >> RELEASE_NOTE.md
+    #    echo '[hellfire-nightly-lepus.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepus.opk)   | Hellfire package for `Lepus`'       >> RELEASE_NOTE.md
         echo '[hellfire-nightly-retrofw.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
+    #    echo '[hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
         echo '[hellfire-nightly-ps4.pkg](../../releases/download/devilx-nightly/hellfire-nightly-ps4.pkg)   | Hellfire package for `PS4`'             >> RELEASE_NOTE.md
         echo '[hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-ios.ipa](../../releases/download/devilx-nightly/hellfire-nightly-ios.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
@@ -645,6 +646,6 @@ jobs:
           ${{github.workspace}}/hellone-nightly-x64.zip
           ${{github.workspace}}/hellone-nightly-x86.zip
           ${{github.workspace}}/hellsrv-nightly-x86.zip
-        fail_on_unmatched_files: true
+        fail_on_unmatched_files: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
