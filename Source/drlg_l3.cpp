@@ -2140,8 +2140,8 @@ static void DRLG_L3(int entry)
 				if (pSetPiece != NULL) {
 					setpc_w = pSetPiece[0];
 					setpc_h = pSetPiece[2];
-					assert(DMAXX - setpc_w - 10 > 10, "DRLG_L3 uses RandRangeLow to place pSetPiece I.");
-					assert(DMAXY - setpc_h - 10 > 10, "DRLG_L3 uses RandRangeLow to place pSetPiece II.");
+					assert(DMAXX - setpc_w - 10 > 10);
+					assert(DMAXY - setpc_h - 10 > 10);
 					setpc_x = RandRangeLow(10, DMAXX - setpc_w - 10);
 					setpc_y = RandRangeLow(10, DMAXY - setpc_h - 10);
 					DRLG_L3FloorArea(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);

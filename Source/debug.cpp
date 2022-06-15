@@ -495,7 +495,7 @@ void ValidateData()
 			if (InvItemHeight[ids.iCurs + CURSOR_FIRSTITEM] != INV_SLOT_SIZE_PX)
 				app_fatal("Belt item %s (%d) is too tall.", ids.iName, i);
 		}
-		if (ids.iDurability * 3 >= DUR_INDESTRUCTIBLE)
+		if (ids.iDurability * 3 >= DUR_INDESTRUCTIBLE) // required by SaveItemPower/IPL_DUR
 			app_fatal("Item %s (%d) has too high durability I.", ids.iName, i);
 		if (ids.iDurability * 3 >= 0x7FFF) // required by ItemRndDur
 			app_fatal("Item %s (%d) has too high durability II.", ids.iName, i);
@@ -588,8 +588,13 @@ void ValidateData()
 				app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
 			}
 		}
+		if (pres->PLPower == IPL_DUR) {
+			if (pres->PLParam2 > 200) {
+				app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2);
+			}
+		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX)
+	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
 		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
 	rnddrops = 0;
 	const AffixData* sufs = PL_Suffix;
@@ -615,6 +620,11 @@ void ValidateData()
 		if (sufs->PLPower == IPL_FASTWALK) {
 			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 3) {
 				app_fatal("Invalid PLParam set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			}
+		}
+		if (sufs->PLPower == IPL_DUR) {
+			if (sufs->PLParam2 > 200) {
+				app_fatal("PLParam too high for %d. suffix (power:%d, pparam2:%d)", i, sufs->PLPower, sufs->PLParam2);
 			}
 		}
 		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
@@ -817,6 +827,11 @@ void ValidateData()
 				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
 			}
 		}
+		if (ui.UIPower1 == IPL_DUR) {
+			if (ui.UIParam1b > 200) {
+				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
+			}
+		}
 		if (ui.UIPower2 == IPL_FASTATTACK) {
 			if (ui.UIParam2a < 1 || ui.UIParam2b > 4) {
 				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
@@ -834,6 +849,11 @@ void ValidateData()
 		}
 		if (ui.UIPower2 == IPL_FASTWALK) {
 			if (ui.UIParam2a < 1 || ui.UIParam2b > 3) {
+				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower2 == IPL_DUR) {
+			if (ui.UIParam2b > 200) {
 				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
 			}
 		}
@@ -857,6 +877,11 @@ void ValidateData()
 				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
 			}
 		}
+		if (ui.UIPower3 == IPL_DUR) {
+			if (ui.UIParam3b > 200) {
+				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
+			}
+		}
 		if (ui.UIPower4 == IPL_FASTATTACK) {
 			if (ui.UIParam4a < 1 || ui.UIParam4b > 4) {
 				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
@@ -874,6 +899,11 @@ void ValidateData()
 		}
 		if (ui.UIPower4 == IPL_FASTWALK) {
 			if (ui.UIParam4a < 1 || ui.UIParam4b > 3) {
+				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower4 == IPL_DUR) {
+			if (ui.UIParam4b > 200) {
 				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
 			}
 		}
@@ -897,6 +927,11 @@ void ValidateData()
 				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
 			}
 		}
+		if (ui.UIPower5 == IPL_DUR) {
+			if (ui.UIParam5b > 200) {
+				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
+			}
+		}
 		if (ui.UIPower6 == IPL_FASTATTACK) {
 			if (ui.UIParam6a < 1 || ui.UIParam6b > 4) {
 				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
@@ -914,6 +949,11 @@ void ValidateData()
 		}
 		if (ui.UIPower6 == IPL_FASTWALK) {
 			if (ui.UIParam6a < 1 || ui.UIParam6b > 3) {
+				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower6 == IPL_DUR) {
+			if (ui.UIParam6b > 200) {
 				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
 			}
 		}
