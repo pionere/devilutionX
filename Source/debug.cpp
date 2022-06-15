@@ -281,6 +281,8 @@ void ValidateData()
 			app_fatal("Missing closing MT_INVALID on level %s (%d)", AllLevels[i].dLevelName, i);
 		if (i != DLV_TOWN && AllLevels[i].dLevel == 0) // required by GetItemAttrs
 			app_fatal("Too low dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
+		if ((AllLevels[i].dLevel * 8 - AllLevels[i].dLevel * 2) >= 0x7FFF) // required by GetItemAttrs
+			app_fatal("Too high dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
 	}
 
 	// monsters
@@ -309,6 +311,8 @@ void ValidateData()
 			app_fatal("Invalid mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
 		if (md.mMinHP > md.mMaxHP)
 			app_fatal("Too high mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
+		if (md.mMaxHP - md.mMinHP >= 0x7FFF) // required by InitMonster
+			app_fatal("Min/MaxHP range (%d-%d) too high for %s (%d)", md.mMinHP, md.mMaxHP, md.mName, i);
 		uint16_t res = md.mMagicRes;
 		uint16_t resH = md.mMagicRes2;
 		for (int j = 0; j < 8; j++, res >>= 2, resH >>= 2) {
@@ -319,6 +323,10 @@ void ValidateData()
 	}
 	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
+		if (md.moAnimFrames[MA_STAND] > 0x7FFF) // required by InitMonster
+			app_fatal("Too many(%d) stand-frames for %s (%d).", md.moAnimFrames[MA_STAND], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_STAND] >= 0x7FFF) // required by InitMonster
+			app_fatal("Too long(%d) standing animation for %s (%d).", md.moAnimFrameLen[MA_STAND], md.moGfxFile, i);
 		if (md.moAnimFrames[MA_WALK] > 24) // required by MonWalkDir
 			app_fatal("Too many(%d) walk-frames for %s (%d).", md.moAnimFrames[MA_WALK], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK] >= SQUELCH_LOW)
@@ -452,6 +460,8 @@ void ValidateData()
 				app_fatal("Invalid type (%d) set for %s (%d), which is an armor.", ids.itype, ids.iName, i);
 			if (ids.iMinAC > ids.iMaxAC)
 				app_fatal("Too high iMinAC %d for %s (%d)", ids.iMinAC, ids.iName, i);
+			if (ids.iMaxAC - ids.iMinAC >= 0x7FFF) // required by SetItemData
+				app_fatal("Min/MaxAC range (%d-%d) too high for %s (%d)", ids.iMinAC, ids.iMaxAC, ids.iName, i);
 		} else {
 			if (ids.iMinAC != 0 || ids.iMaxAC != 0)
 				app_fatal("AC set for %s (%d), which is not an armor.", ids.iName, i);
@@ -486,7 +496,9 @@ void ValidateData()
 				app_fatal("Belt item %s (%d) is too tall.", ids.iName, i);
 		}
 		if (ids.iDurability * 3 >= DUR_INDESTRUCTIBLE)
-			app_fatal("Item %s (%d) has too high durability.", ids.iName, i);
+			app_fatal("Item %s (%d) has too high durability I.", ids.iName, i);
+		if (ids.iDurability * 3 >= 0x7FFF) // required by ItemRndDur
+			app_fatal("Item %s (%d) has too high durability II.", ids.iName, i);
 		if (ids.iUsable) {
 			switch (ids.iMiscId) {
 			case IMISC_HEAL:
@@ -528,8 +540,8 @@ void ValidateData()
 	if (rnddrops > ITEM_RNDDROP_MAX)
 		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, ITEM_RNDDROP_MAX);
 #else
-	if (rnddrops > 0xFFFF)
-		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, 0xFFFF);
+	if (rnddrops > 0x7FFF)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, 0x7FFF);
 #endif
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
@@ -545,10 +557,16 @@ void ValidateData()
 		if (pres->PLParam2 < pres->PLParam1) {
 			app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
 		}
+		if (pres->PLParam2 - pres->PLParam1 >= 0x7FFF) { // required by SaveItemPower
+			app_fatal("PLParam too high for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+		}
 		if (pres->PLPower == IPL_TOHIT_DAMP) {
 			if ((pres->PLParam2 >> 2) - (pres->PLParam1 >> 2) == 0) { // required by SaveItemPower
 				app_fatal("PLParam too low for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
 			}
+			//if ((pres->PLParam2 >> 2) - (pres->PLParam1 >> 2) >= 0x7FFF) { // required by SaveItemPower
+			//	app_fatal("PLParam too high for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			//}
 		}
 		if (pres->PLPower == IPL_FASTATTACK) {
 			if (pres->PLParam1 < 1 || pres->PLParam2 > 4) {
@@ -633,7 +651,7 @@ void ValidateData()
 			}
 		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX)
+	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
 		app_fatal("Too many suffix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
 
 #if 0
@@ -908,6 +926,8 @@ void ValidateData()
 				app_fatal("Invalid oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
 			if (od.oAnimLen <= 1) // required by SetupObject
 				app_fatal("Invalid oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
+			if (od.oAnimLen >= 0x7FFF) // required by SetupObject
+				app_fatal("Too high oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
 		}
 	}
 	// spells
@@ -956,6 +976,8 @@ void ValidateData()
 				app_fatal("Invalid sStaffLvl %d for %s (%d)", sd.sStaffLvl, sd.sNameText, i);
 			if (sd.sStaffMin > sd.sStaffMax)
 				app_fatal("Too high sStaffMin %d for %s (%d)", sd.sStaffMin, sd.sNameText, i);
+			if (sd.sStaffMax - sd.sStaffMin >= 0x7FFF) // required by GetStaffSpell
+				app_fatal("Too high sStaffMax %d for %s (%d)", sd.sStaffMin, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			//if (strlen(sd.sNameText) > sizeof(is->_iName) - (maxStaff + 4 + 1))
@@ -1006,6 +1028,9 @@ void ValidateData()
 		const int(&gl)[2] = GossipList[i];
 		if (gl[0] > gl[1]) {
 			app_fatal("Invalid GossipList (%d-%d) for %d", gl[0], gl[1], i);
+		}
+		if (gl[1] - gl[0] >= 0x7FFF) { // required by S_TalkEnter
+			app_fatal("Too high GossipList range (%d-%d) for %d", gl[0], gl[1], i);
 		}
 	}
 }

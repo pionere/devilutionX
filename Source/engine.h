@@ -80,6 +80,11 @@ inline int RandRange(int minVal, int maxVal)
 {
 	return minVal + random_(0, maxVal - minVal + 1);
 }
+/* Retrieve the next pseudo-random number in the range of minVal <= x <= maxVal, where (maxVal - minVal) is a non-negative integer and less than 0x7FFF. */
+inline int RandRangeLow(int minVal, int maxVal)
+{
+	return minVal + random_low(0, maxVal - minVal + 1);
+}
 
 #if defined(_MSC_VER)
 #define DIAG_PRAGMA(x) __pragma(warning(x))

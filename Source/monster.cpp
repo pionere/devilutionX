@@ -599,13 +599,13 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mMagicRes = mdata->mMagicRes;
 	mon->_mTreasure = mdata->mTreasure;
 	mon->_mExp = mdata->mExp;
-	mon->_mmaxhp = RandRange(mdata->mMinHP, mdata->mMaxHP) << 6;
+	mon->_mmaxhp = RandRangeLow(mdata->mMinHP, mdata->mMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].aFrameLen;
 	mon->_mAnimCnt = random_low(88, mon->_mAnimFrameLen);
 	mon->_mAnimLen = cmon->cmAnims[MA_STAND].aFrames;
-	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen);
+	mon->_mAnimFrame = mon->_mAnimLen == 0 ? 1 : RandRangeLow(1, mon->_mAnimLen);
 	mon->_mmode = MM_STAND;
 	mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
 	mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
@@ -3679,7 +3679,8 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_low(122, 4 << lessmissiles) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
-				mon->_mgoalvar1 = 4 + RandRange(2, dist); // MOVE_DISTANCE
+				static_assert(MAXDUNX + MAXDUNY <= 0x7FFF, "MAI_RoundRanged uses RandRangeLow to set distance");
+				mon->_mgoalvar1 = 4 + RandRangeLow(2, dist); // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2);        // MOVE_TURN_DIRECTION
 			}
 			/*if ((--mon->_mgoalvar1 <= 4 && MonDirOK(mnum, currEnemyInfo._meLastDir)) || mon->_mgoalvar1 == 0) {

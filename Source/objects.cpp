@@ -321,7 +321,9 @@ static void InitRndLocObj(int min, int max, int objtype)
 {
 	int i, xp, yp, numobjs;
 
-	numobjs = RandRange(min, max);
+	//assert(max >= min);
+	//assert(max - min < 0x7FFF);
+	numobjs = RandRangeLow(min, max);
 	for (i = 0; i < numobjs; i++) {
 		if (!RndLoc3x3(&xp, &yp))
 			break;
@@ -701,7 +703,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	//os->_oAnimCnt = 0;
 	if (ofd->oAnimFlag) {
 		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
-		os->_oAnimFrame = RandRange(1, os->_oAnimLen);
+		os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
 	}
 	os->_oAnimWidth = ofd->oAnimWidth * ASSET_MPL;
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
