@@ -50,7 +50,9 @@ inline const BYTE *CelGetFrameClipped(const BYTE *pCelBuff, int nCel, int *nData
 int GetDirection(int x1, int y1, int x2, int y2);
 void SetRndSeed(int32_t s);
 int32_t GetRndSeed();
+/* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a non-negative (32bit) integer. The result is zero if v is negative. */
 int random_(BYTE idx, int v);
+/* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a positive integer and less than or equal to 0x7FFF. */
 int random_low(BYTE idx, int v);
 BYTE *DiabloAllocPtr(size_t dwBytes);
 void mem_free_dbg(void *p);
@@ -73,7 +75,7 @@ inline CelImageBuf* CelLoadImage(const char* name, DWORD nWidth)
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
 void PlayInGameMovie(const char *pszMovie);
-
+/* Retrieve the next pseudo-random number in the range of minVal <= x <= maxVal, where (maxVal - minVal) is a non-negative (32bit) integer. The result is minVal if (maxVal - minVal) is negative. */
 inline int RandRange(int minVal, int maxVal)
 {
 	return minVal + random_(0, maxVal - minVal + 1);
