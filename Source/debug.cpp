@@ -279,6 +279,8 @@ void ValidateData()
 		}
 		if (j == lengthof(AllLevels[i].dMonTypes))
 			app_fatal("Missing closing MT_INVALID on level %s (%d)", AllLevels[i].dLevelName, i);
+		if (i != DLV_TOWN && AllLevels[i].dLevel == 0) // required by GetItemAttrs
+			app_fatal("Too low dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
 	}
 
 	// monsters
@@ -303,7 +305,10 @@ void ValidateData()
 			app_fatal("Invalid mLevel %d for %s (%d). Too high in hell to set the level of item-drop.", md.mLevel, md.mName, i);
 		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
 			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
-
+		if (md.mMinHP <= 0)
+			app_fatal("Invalid mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
+		if (md.mMinHP > md.mMaxHP)
+			app_fatal("Too high mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
 		uint16_t res = md.mMagicRes;
 		uint16_t resH = md.mMagicRes2;
 		for (int j = 0; j < 8; j++, res >>= 2, resH >>= 2) {
@@ -316,6 +321,12 @@ void ValidateData()
 		const MonFileData& md = monfiledata[i];
 		if (md.moAnimFrames[MA_WALK] > 24) // required by MonWalkDir
 			app_fatal("Too many(%d) walk-frames for %s (%d).", md.moAnimFrames[MA_WALK], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK] >= SQUELCH_LOW)
+			app_fatal("Too long(%d) walking animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK] >= SQUELCH_LOW)
+			app_fatal("Too long(%d) attack animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL] >= SQUELCH_LOW)
+			app_fatal("Too long(%d) special animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL], md.moGfxFile, i);
 	}
 
 	// umt checks for GetLevelMTypes
@@ -439,6 +450,8 @@ void ValidateData()
 			 && ids.itype != ITYPE_HARMOR && ids.itype != ITYPE_SHIELD
 			 && ids.itype != ITYPE_HELM)
 				app_fatal("Invalid type (%d) set for %s (%d), which is an armor.", ids.itype, ids.iName, i);
+			if (ids.iMinAC > ids.iMaxAC)
+				app_fatal("Too high iMinAC %d for %s (%d)", ids.iMinAC, ids.iName, i);
 		} else {
 			if (ids.iMinAC != 0 || ids.iMaxAC != 0)
 				app_fatal("AC set for %s (%d), which is not an armor.", ids.iName, i);
@@ -529,6 +542,14 @@ void ValidateData()
 	rnddrops = 0; i = 0;
 	for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
 		rnddrops += pres->PLDouble ? 2 : 1;
+		if (pres->PLParam2 < pres->PLParam1) {
+			app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+		}
+		if (pres->PLPower == IPL_TOHIT_DAMP) {
+			if ((pres->PLParam2 >> 2) - (pres->PLParam1 >> 2) == 0) { // required by SaveItemPower
+				app_fatal("PLParam too low for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			}
+		}
 		if (pres->PLPower == IPL_FASTATTACK) {
 			if (pres->PLParam1 < 1 || pres->PLParam2 > 4) {
 				app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
@@ -879,6 +900,16 @@ void ValidateData()
 			}
 		}
 	}
+	// objects
+	for (i = 0; i < NUM_OFILE_TYPES; i++) {
+		const ObjFileData& od = objfiledata[i];
+		if (od.oAnimFlag) {
+			if (od.oAnimFrameLen <= 0)
+				app_fatal("Invalid oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
+			if (od.oAnimLen <= 1) // required by SetupObject
+				app_fatal("Invalid oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
+		}
+	}
 	// spells
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
 	for (i = 0; i < NUM_SPELLS; i++) {
@@ -923,6 +954,8 @@ void ValidateData()
 		if (sd.sStaffLvl != SPELL_NA) {
 			if (sd.sStaffLvl < STAFF_MIN)
 				app_fatal("Invalid sStaffLvl %d for %s (%d)", sd.sStaffLvl, sd.sNameText, i);
+			if (sd.sStaffMin > sd.sStaffMax)
+				app_fatal("Too high sStaffMin %d for %s (%d)", sd.sStaffMin, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			//if (strlen(sd.sNameText) > sizeof(is->_iName) - (maxStaff + 4 + 1))
@@ -966,6 +999,13 @@ void ValidateData()
 				app_fatal("Missile %d is not drawn, but has valid mFileNum.", i);
 			if (md.miSFX != SFX_NONE)
 				app_fatal("Missile %d is not drawn, but has valid miSFX.", i);
+		}
+	}
+	for (i = 0; i < STORE_TOWNERS; i++) {
+		//const int(*gl)[2] = &GossipList[i];
+		const int(&gl)[2] = GossipList[i];
+		if (gl[0] > gl[1]) {
+			app_fatal("Invalid GossipList (%d-%d) for %d", gl[0], gl[1], i);
 		}
 	}
 }
