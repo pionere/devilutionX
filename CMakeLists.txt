@@ -838,7 +838,7 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Change __FILE__ to only show the path relative to the project folder
   if((CMAKE_CXX_COMPILER_ID MATCHES "CLANG" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
       OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8))
-    target_compile_options(${BIN_TARGET} PUBLIC "-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=")
+    target_compile_options(${BIN_TARGET} PUBLIC "-fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
   else()
     get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
     foreach(SOURCE_FILE ${devilutionx_SRCS})
