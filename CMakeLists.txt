@@ -547,7 +547,7 @@ else()
     Packaging/windows/devilutionx.rc)
 endif()
 
-# Copy devilx.mpq to the build directory to it works from the build directory
+# Copy devilx.mpq to the build directory
 file(COPY "Packaging/resources/devilx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 if(AMIGA)
   file(COPY "Packaging/amiga/devilutionx.info" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
