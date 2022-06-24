@@ -154,6 +154,7 @@ cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
 cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
 cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
 cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
+cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 option(HAS_JOYSTICK "Enable joystick support" ON)
@@ -180,6 +181,18 @@ set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 if(PIE)
   set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+endif()
+
+# Remove unused symbols in non-debug mode.
+# This is useful even with LTO (-84 KiB with MinSizeRel).
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  # For some reason, adding to CMAKE_CXX_FLAGS results in a slightly smaller
+  # binary than using `add_compile/link_options`
+  set(_extra_flags "-ffunction-sections -fdata-sections -Wl,--gc-sections")
+
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${_extra_flags}")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${_extra_flags}")
+  set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${_extra_flags}")
 endif()
 
 # Not a genexp because CMake doesn't support it
@@ -836,7 +849,7 @@ endif()
 
 if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Change __FILE__ to only show the path relative to the project folder
-  if((CMAKE_CXX_COMPILER_ID MATCHES "CLANG" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
+  if((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
       OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8))
     target_compile_options(${BIN_TARGET} PUBLIC "-fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
   else()
@@ -862,6 +875,12 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
   # Disable Run-Time Type Information
   target_compile_options(${BIN_TARGET} PRIVATE -fno-rtti)
+  # Disable Exceptions if requested
+  if(DISABLE_EXCEPTIONS)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+    endif()
+  endif()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -871,6 +890,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Disable Run-Time Type Information
   string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   target_compile_options(${BIN_TARGET} PRIVATE "/permissive-")
+  # Disable Exceptions if requested
+  if(DISABLE_EXCEPTIONS)
+    string(REGEX REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_HAS_EXCEPTIONS=0")
+  endif()
 endif()
 
 if(APPLE)
@@ -1207,6 +1231,7 @@ foreach(
   DEBUG_MODE
   DEV_MODE
   RUN_TESTS
+  DISABLE_EXCEPTIONS
   DISABLE_LTO
   PIE
   CPACK
