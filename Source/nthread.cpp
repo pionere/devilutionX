@@ -404,7 +404,9 @@ void nthread_finish(UINT uMsg)
 
 	if (uMsg == DVL_DWM_NEWGAME) {
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
+#if !NONET
 			assert(sghThread == NULL);
+#endif
 			assert(geBufferMsgs == MSG_NORMAL);
 			assert(sgbPacketCountdown == 1);
 			return;
