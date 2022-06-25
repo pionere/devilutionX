@@ -835,7 +835,7 @@ bool FastDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png
 
 	for (int yy = 0; yy < 2 * multiplier; yy++) {
 		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
-			if (yy > xx * 2) {
+			if (yy >= (xx + 1) * 2) {
 				*dst = { 0 };
 				*fm = 0;
 			}
@@ -992,7 +992,7 @@ bool FastUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_im
 
 	for (int yy = 0; yy < 2 * multiplier; yy++) {
 		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
-			if (yy > 2 * xx) {
+			if (yy >= 2 * (xx + 1)) {
 				dst->a = 255;
 				if (*(fm + imagedata.width * multiplier * (yy < multiplier ? 2 : 1)) != 0) {
 					if (*(fm - multiplier) != 0) {
