@@ -1374,9 +1374,11 @@ void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, B
 
 	// resample the pixels
 	for (int i = 0; i < numimage; i++) {
-		for (int y = 0; y < imagedata[i].height - multiplier; y += multiplier) {
+		int y;
+		for (y = 0; y < imagedata[i].height - multiplier; y += multiplier) {
 			RGBA* p0 = (RGBA*)imagedata[i].row_pointers[y];
-			for (int x = 0; x < imagedata[i].width - multiplier; x += multiplier, p0 += multiplier) {
+			int x;
+			for (x = 0; x < imagedata[i].width - multiplier; x += multiplier, p0 += multiplier) {
 				if (p0->a != 255)
 					continue; // skip transparent pixels
 				// skip 'protected' colors
@@ -1391,6 +1393,37 @@ void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, B
 						RGBA* pp = p0 + j * imagedata[i].width + k;
 						*pp = BilinearInterpolate(pp, pR, k, pD, j, pDR, multiplier/*, palette, numcolors, coloroffset, numfixcolors*/);
 					}
+				}
+			}
+			// resample right column as if the external pixels are transparent
+			if (y < imagedata[i].height - multiplier) {
+				if (p0->a != 255)
+					continue; // skip transparent pixels
+				if (imagedata[i].fixColorMask != NULL && imagedata[i].fixColorMask[x + y * imagedata[i].width] != 0)
+					continue; // skip 'protected' colors
+				RGBA pDR = { 0 };
+				RGBA* pD = p0 + multiplier * imagedata[i].width;
+				for (int j = 0; j < multiplier; j++) {
+					for (int k = 0; k < multiplier; k++) {
+						RGBA* pp = p0 + j * imagedata[i].width + k;
+						*pp = BilinearInterpolate(pp, &pDR, k, pD, j, &pDR, multiplier/*, palette, numcolors, coloroffset, numfixcolors*/);
+					}
+				}
+			}
+		}
+		// resample bottom row as if the external pixels are transparent
+		RGBA* p0 = (RGBA*)imagedata[i].row_pointers[y];
+		for (int x = 0; x < imagedata[i].width - multiplier; x += multiplier, p0 += multiplier) {
+			if (p0->a != 255)
+				continue; // skip transparent pixels
+			if (imagedata[i].fixColorMask != NULL && imagedata[i].fixColorMask[x + y * imagedata[i].width] != 0)
+				continue; // skip 'protected' colors
+			RGBA* pR = p0 + multiplier;
+			RGBA pDR = { 0 };
+			for (int j = 0; j < multiplier; j++) {
+				for (int k = 0; k < multiplier; k++) {
+					RGBA* pp = p0 + j * imagedata[i].width + k;
+					*pp = BilinearInterpolate(pp, pR, k, &pDR, j, &pDR, multiplier/*, palette, numcolors, coloroffset, numfixcolors*/);
 				}
 			}
 		}
@@ -1455,7 +1488,9 @@ void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, B
 							}
 							p += orimg_data[i].width - w;
 						}
-						if (match && ptn.fnc(x, y, multiplier, orimg_data[i], imagedata[i])) {
+						if (!match)
+							continue;
+						if (ptn.fnc(x, y, multiplier, orimg_data[i], imagedata[i])) {
 							break;
 						}
 					}
