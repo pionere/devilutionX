@@ -77,7 +77,7 @@ Items\Helmut.CEL
 Items\Innsign.CEL
 Items\LArmor.CEL
 Items\Mace.CEL
-Items\Map\MapZtown.CEL
+_Items\Map\MapZtown.CEL
 Items\mooses1.CEL
 Items\Ring.CEL
 Items\Rock.CEL

@@ -63,7 +63,7 @@ static void doom_load_graphics()
 	}
 	LoadFileWithMem(tempstr, (BYTE*)pDoomCel);
 #endif
-	pDoomCel->ciWidth = PANEL_WIDTH;
+	pDoomCel->ciWidth = DOOM_WIDTH;
 }
 
 void doom_init()
@@ -103,7 +103,7 @@ void doom_draw()
 	}
 #endif
 
-	CelDraw(PANEL_X, SCREEN_Y + SCREEN_HEIGHT - (128 + 64 + 1), pDoomCel, 1);
+	CelDraw(PANEL_CENTERX(DOOM_WIDTH), SCREEN_Y + PANEL_BOTTOM - (128 + 64 + 1), pDoomCel, 1);
 }
 
 DEVILUTION_END_NAMESPACE
