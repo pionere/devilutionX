@@ -801,7 +801,7 @@ Monsters\Hellbat\Helbata.CL2
 Monsters\Hellbat\Helbatd.CL2
 Monsters\Hellbat\Helbath.CL2
 Monsters\Hellbat\Helbatn.CL2
-Monsters\Hellbat\Helbats.CL2
+_Monsters\Hellbat\Helbats.CL2
 Monsters\Hellbat\Helbatw.CL2
 Monsters\Hellbat2\bhelbta.CL2
 Monsters\Hellbat2\bhelbtd.CL2
@@ -1204,7 +1204,7 @@ Monsters\Snake\Snakeh.CL2
 Monsters\Snake\Snakeh1.WAV
 Monsters\Snake\Snakeh2.WAV
 Monsters\Snake\Snaken.CL2
-Monsters\Snake\Snakes.CL2
+_Monsters\Snake\Snakes.CL2
 _Monsters\Snake\Snakes1.WAV
 _Monsters\Snake\Snakes2.WAV
 Monsters\Snake\Snakew.CL2
@@ -1303,7 +1303,7 @@ Monsters\Zombie\Zombieh.CL2
 Monsters\Zombie\Zombieh1.WAV
 Monsters\Zombie\Zombieh2.WAV
 Monsters\Zombie\Zombien.CL2
-Monsters\Zombie\Zombies.CL2
+_Monsters\Zombie\Zombies.CL2
 _Monsters\Zombie\Zombies1.WAV
 _Monsters\Zombie\Zombies2.WAV
 Monsters\Zombie\Zombiew.CL2
