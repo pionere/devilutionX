@@ -1088,8 +1088,8 @@ bool AnySlowDownRight(int x, int y, int multiplier, png_image_data &orimg_data, 
    a a c    aa cc cc    aa [cc] cc
             aa cc cc    aa [Ac] cc
             aa cc cc    aa [Ac] cc
-            aa aa cc    aa  aa  aa
-            aa aa cc    aa  aa  aa
+            aa aa cc    aa  aa  cc
+            aa aa cc    aa  aa  cc
  */
 BYTE patternAnyFastDownRight[] = {
 	3, 2,
@@ -2156,7 +2156,7 @@ bool TopTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_i
 	for (int yy = 0; yy < multiplier; yy++) {
 		for (int xx = 0; xx < 2 * multiplier; xx++, dst++, fm++) {
 			if (yy >= multiplier - xx / 2) {
-				*dst = *(src + orimg_data.width);
+				*dst = *(src + orimg_data.width + (xx >= multiplier ? 1 : 0));
 				*fm = *(fm + imagedata.width * multiplier);
 			}
 		}
@@ -2164,14 +2164,17 @@ bool TopTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_i
 		fm += imagedata.width - 2 * multiplier;
 	}
 
+	// now at [2; 1] (dst, fm)
+
+	// move to [4; 0]
+	src += 2;
 	dst += 2 * multiplier - imagedata.width * multiplier;
 	fm += 2 * multiplier - imagedata.width * multiplier;
-	src += 2;
 
 	for (int yy = 0; yy < multiplier; yy++) {
 		for (int xx = 0; xx < 2 * multiplier; xx++, dst++, fm++) {
 			if (yy > xx / 2) {
-				*dst = *(src + orimg_data.width);
+				*dst = *(src + orimg_data.width + (xx >= multiplier ? 1 : 0));
 				*fm = *(fm + imagedata.width * multiplier);
 			}
 		}
@@ -2228,9 +2231,12 @@ bool BottomTriangle(int x, int y, int multiplier, png_image_data &orimg_data, pn
 		fm += imagedata.width - 2 * multiplier;
 	}
 
+	// now at [2; 2] (dst, fm)
+
+	// move to [4; 1]
+	src += 2;
 	dst += 2 * multiplier - imagedata.width * multiplier;
 	fm += 2 * multiplier - imagedata.width * multiplier;
-	src += 2;
 
 	for (int yy = 0; yy < multiplier; yy++) {
 		for (int xx = 0; xx < 2 * multiplier; xx++, dst++, fm++) {
