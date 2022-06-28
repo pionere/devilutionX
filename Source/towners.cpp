@@ -745,7 +745,7 @@ void TalkToTowner(int tnum)
 		if (PlrHasStorageItem(pnum, IDI_MAPOFDOOM, &i) && quests[Q_GRAVE]._qactive == QUEST_INIT) {
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 			quests[Q_GRAVE]._qlog = TRUE;
-			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
+			//quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
 			qn = Q_GRAVE;
 			qt = TEXT_GRAVE8;
 		}
