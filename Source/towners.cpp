@@ -112,7 +112,7 @@ const int GossipList[STORE_TOWNERS][2] = {
 /* TOWN_STORY */  { TEXT_STORY2,    TEXT_STORY11    },
 /* TOWN_DRUNK */  { TEXT_FARNHAM2,  TEXT_FARNHAM13  },
 /* TOWN_WITCH */  { TEXT_ADRIA2,    TEXT_ADRIA13    },
-/* TOWN_BMAID */  { TEXT_GILLIAN2,  TEXT_GILLIAN10  },
+/* TOWN_BARMAID */{ TEXT_GILLIAN2,  TEXT_GILLIAN10  },
 /* TOWN_PEGBOY */ { TEXT_WIRT2,     TEXT_WIRT12     },
 	// clang-format on
 };
@@ -293,7 +293,7 @@ static void InitWitch()
 
 static void InitBarmaid()
 {
-	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BMAID, 33 + DBORDERX, 56 + DBORDERY, 3);
+	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BARMAID, 33 + DBORDERX, 56 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_BARMAID, TEXT_GILLIAN1);
 	InitTownerAnim(numtowners, "Towners\\TownWmn1\\WmnN.CEL", 6, 18, -1);
 	numtowners++;
@@ -741,7 +741,7 @@ void TalkToTowner(int tnum)
 			}
 		}
 		break;
-	case TOWN_BMAID:
+	case TOWN_BARMAID:
 #ifdef HELLFIRE
 		if (PlrHasStorageItem(pnum, IDI_FANG, &i) && quests[Q_GRAVE]._qactive == QUEST_INIT) {
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;

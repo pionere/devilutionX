@@ -133,7 +133,7 @@ static const char* const talkname[] = {
 /*TOWN_STORY*/  "Cain",
 /*TOWN_DRUNK*/  "Farnham",
 /*TOWN_WITCH*/  "Adria",
-/*TOWN_BMAID*/  "Gillian",
+/*TOWN_BARMAID*/"Gillian",
 /*TOWN_PEGBOY*/ "Wirt"
 	// clang-format on
 };
@@ -2301,7 +2301,7 @@ static void S_BarmaidEnter()
 	switch (stextsel) {
 	case STORE_BARMAID_GOSSIP:
 		stextlhold = STORE_BARMAID_GOSSIP;
-		talker = TOWN_BMAID;
+		talker = TOWN_BARMAID;
 		stextshold = STORE_BARMAID;
 		StartStore(STORE_GOSSIP);
 		break;
