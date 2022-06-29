@@ -3739,9 +3739,13 @@ Sfx\Towners\Bsmith55.wav
 Sfx\Towners\Bsmith56.wav
 Sfx\Towners\Cow1.wav
 Sfx\Towners\Cow2.wav
-Sfx\Towners\Cow7.wav
-Sfx\Towners\Cow8.wav
-Sfx\Towners\Deadguy2.wav
+_Sfx\Towners\Cow3.wav
+_Sfx\Towners\Cow4.wav
+_Sfx\Towners\Cow5.wav
+_Sfx\Towners\Cow6.wav
+_Sfx\Towners\Cow7.wav
+_Sfx\Towners\Cow8.wav
+_Sfx\Towners\Deadguy2.wav
 Sfx\Towners\Drunk01.wav
 Sfx\Towners\Drunk02.wav
 Sfx\Towners\Drunk03.wav

@@ -278,7 +278,7 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*TSFX_COW6*///  { sfx_MISC,                  "Sfx\\Towners\\Cow6.wav",      { 0, NULL } },
 /*TSFX_COW7*///  { sfx_MISC,                  "Sfx\\Towners\\Cow7.wav",      { 0, NULL } },
 /*TSFX_COW8*///  { sfx_MISC,                  "Sfx\\Towners\\Cow8.wav",      { 0, NULL } },
-/*TSFX_DEADGUY*/ { sfx_STREAM,                "Sfx\\Towners\\Deadguy2.wav",  { 0, NULL } },
+/*TSFX_DEADGUY*///{ sfx_STREAM,                "Sfx\\Towners\\Deadguy2.wav",  { 0, NULL } },
 /*TSFX_DRUNK1*/  { sfx_STREAM,                "Sfx\\Towners\\Drunk01.wav",   { 0, NULL } },
 /*TSFX_DRUNK2*/  { sfx_STREAM,                "Sfx\\Towners\\Drunk02.wav",   { 0, NULL } },
 /*TSFX_DRUNK3*/  { sfx_STREAM,                "Sfx\\Towners\\Drunk03.wav",   { 0, NULL } },
