@@ -302,7 +302,7 @@ static void InitBarmaid()
 static void InitBoy()
 {
 	InitTownerInfo(numtowners, "Wirt the Peg-legged boy", TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY, 3);
-	InitTownerTalk(numtowners, STORE_BOY, TEXT_PEGBOY1);
+	InitTownerTalk(numtowners, STORE_PEGBOY, TEXT_PEGBOY1);
 	InitTownerAnim(numtowners, "Towners\\TownBoy\\PegKid1.CEL", 6, 20, -1);
 	numtowners++;
 }

@@ -3508,7 +3508,7 @@ static unsigned On_STORE_1(TCmd* pCmd, int pnum)
 
 	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 	net_assert(plr._pDunLevel == DLV_TOWN);
-	net_assert(c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_BOY);
+	net_assert(c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_PEGBOY);
 	net_assert(r < NUM_INVELEM);
 
 	SyncStoreCmd(pnum, c, r, SwapLE32(cmd->stValue));
@@ -3526,7 +3526,7 @@ static unsigned On_STORE_2(TCmd* pCmd, int pnum)
 
 	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 	net_assert(plr._pDunLevel == DLV_TOWN);
-	net_assert(c == STORE_HBUY || c == STORE_SBUY || c == STORE_SPBUY || c == STORE_WBUY || c == STORE_BBOY);
+	net_assert(c == STORE_HBUY || c == STORE_SBUY || c == STORE_SPBUY || c == STORE_WBUY || c == STORE_PBUY);
 
 	UnPackPkItem(&cmd->item);
 	SyncStoreCmd(pnum, c, MAXITEMS, SwapLE32(cmd->stValue));
