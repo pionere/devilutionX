@@ -268,7 +268,7 @@ static void InitSmith()
 	numtowners++;
 }
 
-static void InitBarOwner()
+static void InitTavern()
 {
 	InitTownerInfo(numtowners, "Ogden the Tavern owner", TOWN_TAVERN, TPOS_TAVERN, 7);
 	InitTownerTalk(numtowners, STORE_TAVERN, TEXT_TAVERN1);
@@ -276,7 +276,7 @@ static void InitBarOwner()
 	numtowners++;
 }
 
-static void InitTownDead()
+static void InitDeadguy()
 {
 	InitTownerInfo(numtowners, "Wounded Townsman", TOWN_DEADGUY, 14 + DBORDERX, 22 + DBORDERY, 1);
 	InitTownerAnim(numtowners, "Towners\\Butch\\Deadguy.CEL", 6, 8, -1);
@@ -299,7 +299,7 @@ static void InitBarmaid()
 	numtowners++;
 }
 
-static void InitBoy()
+static void InitPegboy()
 {
 	InitTownerInfo(numtowners, "Wirt the Peg-legged boy", TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_PEGBOY, TEXT_PEGBOY1);
@@ -315,7 +315,7 @@ static void InitHealer()
 	numtowners++;
 }
 
-static void InitTeller()
+static void InitStory()
 {
 	InitTownerInfo(numtowners, "Cain the Elder", TOWN_STORY, 52 + DBORDERX, 61 + DBORDERY, 7);
 	InitTownerTalk(numtowners, STORE_STORY, TEXT_STORY1);
@@ -397,14 +397,14 @@ void InitTowners()
 	numtowners = MAX_MINIONS;
 	InitSmith();
 	InitHealer();
-	InitBarOwner();
-	InitTeller();
+	InitTavern();
+	InitStory();
 	InitDrunk();
 	InitWitch();
 	InitBarmaid();
-	InitBoy();
+	InitPegboy();
 	if (quests[Q_BUTCHER]._qactive != QUEST_NOTAVAIL) { // if (quests[Q_BUTCHER]._qactive != QUEST_DONE) {
-		InitTownDead(); // in vanilla game the dead body was gone after the quest is completed, but it might cause de-sync
+		InitDeadguy(); // in vanilla game the dead body was gone after the quest is completed, but it might cause de-sync
 	}
 #ifdef HELLFIRE
 	if (quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL) {
