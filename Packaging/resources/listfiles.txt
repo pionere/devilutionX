@@ -133,7 +133,7 @@ _Items\Map\MapZ0029.CEL
 _Items\Map\MapZ0030.CEL
 _Items\Map\MapZ0031.CEL
 _Items\Map\MapZDoom.CEL
-Items\Map\MapZtown.CEL
+_Items\Map\MapZtown.CEL
 Items\mooses1.CEL
 Items\Ring.CEL
 Items\Rock.CEL

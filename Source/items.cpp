@@ -3116,10 +3116,10 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int &y)
 		PrintItemString(x, y, desc);
 		break;
 #ifdef HELLFIRE
-	case IMISC_MAPOFDOOM:
-		desc = "right-click to view";
-		PrintItemString(x, y, desc);
-		return;
+	//case IMISC_MAPOFDOOM:
+	//	desc = "right-click to view";
+	//	PrintItemString(x, y, desc);
+	//	return;
 	case IMISC_RUNE:
 		desc = "right-click to activate, then";
 		PrintItemString(x, y, desc);

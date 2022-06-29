@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added unique items: Ring of Destruction, Spirit Ward
 - altered the effects of the shrines
 - most of the quests are available in multiplayer games
+- The Defiler drops a fang instead of the Cathedral Map (the fang acts the same way as the Cathedral Map)
 - Skeleton King (and Hork Demon) are summoning monsters in multiplayer games
 - added unique monsters to crypt and nest levels
 - multiple corpses are allowed on one tile

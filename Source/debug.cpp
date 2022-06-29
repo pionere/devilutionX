@@ -513,7 +513,7 @@ void ValidateData()
 #endif
 			case IMISC_BOOK:
 			case IMISC_SPECELIX:
-			case IMISC_MAPOFDOOM:
+			//case IMISC_MAPOFDOOM:
 			case IMISC_NOTE:
 			case IMISC_OILQLTY:
 			case IMISC_OILZEN:

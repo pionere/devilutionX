@@ -22,7 +22,7 @@ bool InGameMenu()
 	    || gbHelpflag
 	    || gbTalkflag
 	    || gbQtextflag
-	    || gbDoomflag
+	    //|| gbDoomflag
 	    || gmenu_is_active()
 	    || gbGamePaused
 	    || gbDeathflag;
@@ -1078,7 +1078,7 @@ void plrctrls_after_check_curs_move()
 		cursmy = -1;
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");	
 		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
-		if (gbDeathflag | gbDoomflag | gbSkillListFlag | gbQtextflag | stextflag) {
+		if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag) {
 			return;
 		}
 		if (!gbInvflag) {

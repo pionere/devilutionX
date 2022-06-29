@@ -573,7 +573,7 @@ static void ActionBtnDown(bool bShift)
 	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(gbDeathflag == MDM_ALIVE);
 	assert(!gbGamePaused);
-	assert(!gbDoomflag);
+	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
 	if (gbSkillListFlag) {
@@ -653,7 +653,7 @@ static void AltActionBtnDown(bool bShift)
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	assert(gbDeathflag == MDM_ALIVE);
 	assert(!gbGamePaused);
-	assert(!gbDoomflag);
+	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
 	if (gbSkillListFlag) {
@@ -760,10 +760,10 @@ bool PressEscKey()
 		StopPlrMsg();
 		rv = true;
 	}*/
-	if (gbDoomflag) {
+	/*if (gbDoomflag) {
 		doom_close();
 		rv = true;
-	}
+	}*/
 	if (gbHelpflag) {
 		gbHelpflag = false;
 		rv = true;
@@ -873,10 +873,10 @@ static void PressKey(int vkey)
 		return;
 	}
 
-	if (gbDoomflag) {
+	/*if (gbDoomflag) {
 		doom_close();
 		return;
-	}
+	}*/
 
 	if (gbQtextflag) {
 		gbQtextflag = false;

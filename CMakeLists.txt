@@ -350,7 +350,7 @@ set(devilutionx_SRCS
   Source/cursor.cpp
   Source/debug.cpp
   Source/diablo.cpp
-  Source/doom.cpp
+  #Source/doom.cpp
   Source/drlg_l1.cpp
   Source/drlg_l2.cpp
   Source/drlg_l3.cpp

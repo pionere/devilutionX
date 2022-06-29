@@ -44,7 +44,7 @@
 #include "cursor.h"
 #include "debug.h"
 #include "diablo.h"
-#include "doom.h"
+//#include "doom.h"
 #include "drlg_l1.h"
 #include "drlg_l2.h"
 #include "drlg_l3.h"

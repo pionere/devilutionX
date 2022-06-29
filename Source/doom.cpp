@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Cathedral map image CEL */
-CelImageBuf* pDoomCel;
+static CelImageBuf* pDoomCel;
 /** Specifies whether the cathedral map is displayed. */
 bool gbDoomflag;
 

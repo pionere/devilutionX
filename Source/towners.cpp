@@ -742,7 +742,7 @@ void TalkToTowner(int tnum)
 		break;
 	case TOWN_BMAID:
 #ifdef HELLFIRE
-		if (PlrHasStorageItem(pnum, IDI_MAPOFDOOM, &i) && quests[Q_GRAVE]._qactive == QUEST_INIT) {
+		if (PlrHasStorageItem(pnum, IDI_FANG, &i) && quests[Q_GRAVE]._qactive == QUEST_INIT) {
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 			quests[Q_GRAVE]._qlog = TRUE;
 			//quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;

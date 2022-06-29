@@ -2476,7 +2476,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		}
 		return true;
 	}
-	if (iidx == IDI_MAPOFDOOM
+	if (iidx == IDI_FANG
 	 && x >= DBORDERX + 25  && x <= DBORDERX + 28 && y >= DBORDERY + 10 && y <= DBORDERY + 14
 	 && quests[Q_GRAVE]._qactive != QUEST_DONE) {
 		quests[Q_GRAVE]._qactive = QUEST_DONE;
