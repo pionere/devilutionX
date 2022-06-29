@@ -106,14 +106,14 @@ const char AnimOrder[6][144] = {
 /** Contains the TEXT_-ranges related to gossip for each towner ID. */
 const int GossipList[STORE_TOWNERS][2] = {
 	// clang-format off
-/* TOWN_SMITH */  { TEXT_GRISWOLD2, TEXT_GRISWOLD13 },
-/* TOWN_HEALER */ { TEXT_PEPIN2,    TEXT_PEPIN11    },
-/* TOWN_TAVERN */ { TEXT_OGDEN2,    TEXT_OGDEN10    },
-/* TOWN_STORY */  { TEXT_STORY2,    TEXT_STORY11    },
-/* TOWN_DRUNK */  { TEXT_FARNHAM2,  TEXT_FARNHAM13  },
-/* TOWN_WITCH */  { TEXT_ADRIA2,    TEXT_ADRIA13    },
-/* TOWN_BARMAID */{ TEXT_GILLIAN2,  TEXT_GILLIAN10  },
-/* TOWN_PEGBOY */ { TEXT_WIRT2,     TEXT_WIRT12     },
+/* TOWN_SMITH */  { TEXT_SMITH2,   TEXT_SMITH13   },
+/* TOWN_HEALER */ { TEXT_HEALER2,  TEXT_HEALER11  },
+/* TOWN_TAVERN */ { TEXT_TAVERN2,  TEXT_TAVERN10  },
+/* TOWN_STORY */  { TEXT_STORY2,   TEXT_STORY11   },
+/* TOWN_DRUNK */  { TEXT_DRUNK2,   TEXT_DRUNK13   },
+/* TOWN_WITCH */  { TEXT_WITCH2,   TEXT_WITCH13   },
+/* TOWN_BARMAID */{ TEXT_BARMAID2, TEXT_BARMAID10 },
+/* TOWN_PEGBOY */ { TEXT_PEGBOY2,  TEXT_PEGBOY12  },
 	// clang-format on
 };
 
@@ -263,7 +263,7 @@ static void InitTownerTalk(int tnum, int store_id, int store_talk)
 static void InitSmith()
 {
 	InitTownerInfo(numtowners, "Griswold the Blacksmith", TOWN_SMITH, TPOS_SMITH, 7);
-	InitTownerTalk(numtowners, STORE_SMITH, TEXT_GRISWOLD1);
+	InitTownerTalk(numtowners, STORE_SMITH, TEXT_SMITH1);
 	InitTownerAnim(numtowners, "Towners\\Smith\\SmithN.CEL", 3, 16, 0);
 	numtowners++;
 }
@@ -271,7 +271,7 @@ static void InitSmith()
 static void InitBarOwner()
 {
 	InitTownerInfo(numtowners, "Ogden the Tavern owner", TOWN_TAVERN, TPOS_TAVERN, 7);
-	InitTownerTalk(numtowners, STORE_TAVERN, TEXT_OGDEN1);
+	InitTownerTalk(numtowners, STORE_TAVERN, TEXT_TAVERN1);
 	InitTownerAnim(numtowners, "Towners\\TwnF\\TwnFN.CEL", 3, 16, 3);
 	numtowners++;
 }
@@ -286,7 +286,7 @@ static void InitTownDead()
 static void InitWitch()
 {
 	InitTownerInfo(numtowners, "Adria the Witch", TOWN_WITCH, 70 + DBORDERX, 10 + DBORDERY, 3);
-	InitTownerTalk(numtowners, STORE_WITCH, TEXT_ADRIA1);
+	InitTownerTalk(numtowners, STORE_WITCH, TEXT_WITCH1);
 	InitTownerAnim(numtowners, "Towners\\TownWmn1\\Witch.CEL", 6, 19, 5);
 	numtowners++;
 }
@@ -294,7 +294,7 @@ static void InitWitch()
 static void InitBarmaid()
 {
 	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BARMAID, 33 + DBORDERX, 56 + DBORDERY, 3);
-	InitTownerTalk(numtowners, STORE_BARMAID, TEXT_GILLIAN1);
+	InitTownerTalk(numtowners, STORE_BARMAID, TEXT_BARMAID1);
 	InitTownerAnim(numtowners, "Towners\\TownWmn1\\WmnN.CEL", 6, 18, -1);
 	numtowners++;
 }
@@ -302,7 +302,7 @@ static void InitBarmaid()
 static void InitBoy()
 {
 	InitTownerInfo(numtowners, "Wirt the Peg-legged boy", TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY, 3);
-	InitTownerTalk(numtowners, STORE_BOY, TEXT_WIRT1);
+	InitTownerTalk(numtowners, STORE_BOY, TEXT_PEGBOY1);
 	InitTownerAnim(numtowners, "Towners\\TownBoy\\PegKid1.CEL", 6, 20, -1);
 	numtowners++;
 }
@@ -310,7 +310,7 @@ static void InitBoy()
 static void InitHealer()
 {
 	InitTownerInfo(numtowners, "Pepin the Healer", TOWN_HEALER, TPOS_HEALER, 7);
-	InitTownerTalk(numtowners, STORE_HEALER, TEXT_PEPIN1);
+	InitTownerTalk(numtowners, STORE_HEALER, TEXT_HEALER1);
 	InitTownerAnim(numtowners, "Towners\\Healer\\Healer.CEL", 6, 20, 1);
 	numtowners++;
 }
@@ -326,7 +326,7 @@ static void InitTeller()
 static void InitDrunk()
 {
 	InitTownerInfo(numtowners, "Farnham the Drunk", TOWN_DRUNK, 61 + DBORDERX, 74 + DBORDERY, 3);
-	InitTownerTalk(numtowners, STORE_DRUNK, TEXT_FARNHAM1);
+	InitTownerTalk(numtowners, STORE_DRUNK, TEXT_DRUNK1);
 	InitTownerAnim(numtowners, "Towners\\Drunk\\TwnDrunk.CEL", 3, 18, 4);
 	numtowners++;
 }
