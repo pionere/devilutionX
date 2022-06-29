@@ -1518,8 +1518,8 @@ static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 128, "Align Level
 
 typedef struct QuestStruct {
 	BYTE _qactive;
-	BYTE _qvar1;
-	BYTE _qvar2;
+	BYTE _qvar1; // quest parameter which is synchronized with the other players
+	BYTE _qvar2; // quest parameter which is NOT synchronized with the other players
 	BOOLEAN _qlog;
 	unsigned _qmsg;
 	int _qtx;

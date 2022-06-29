@@ -638,7 +638,8 @@ void TalkToTowner(int tnum)
 
 	switch (tw->_mType) { // TNR_TYPE
 	case TOWN_TAVERN:
-		if (!IsLvlVisited(DLV_CATHEDRAL1) && plr._pLevel == 1) {
+		if (!IsLvlVisited(DLV_CATHEDRAL1) && plr._pLevel == 1 && quests[Q_DIABLO]._qvar2 == 0) {
+			quests[Q_DIABLO]._qvar2 = 1;
 			qt = TEXT_INTRO;
 			break;
 		}
