@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file textdat.cpp
  *
  * Implementation of all dialog texts.
@@ -783,6 +783,8 @@ const TextData alltext[NUM_TEXTS] = {
 	    TRUE, FALSE, TxS(0), TSFX_SMITH42 },
 	{ "Your efforts are not in vain. It seems that all is as I had hoped. I trust you will find this useful in your battles below?",
 	    TRUE, FALSE, TxS(0), TSFX_SMITH43 },
+	{ "The priest Tremain. Ah, he is a solitary fellow who has no time for most of us. He seems to prefer the company of Pepin or Cain. Ah, that's fine by me. I respect his passion and his commitment to his order, but I've no time for his prattling.",
+	    TRUE, FALSE, TxS(0), TSFX_SMITH54 },
 	{ "Haha, they have you hunting worms now? What's next? Leaf collecting? Picking up mushrooms? Look, friend, you have a whole church full of demons over there to worry about. I don't see how a few little worms could be so bad.",
 	    TRUE, FALSE, TxS(0), TSFX_PEGBOY5 },
 	{ "You know, I've been looking for those lights, but I can't find them. If Gillian says they're there, I believe her, but I have yet to see them for myself.",
@@ -853,6 +855,8 @@ const TextData alltext[NUM_TEXTS] = {
 	    TRUE, FALSE, TxS(0), TSFX_STORY16 },
 	{ "The priest Tremain is a holy man from an ancient order. Their dealings with the evil forces at work are well respected, and well documented. I, too, have heard legends that speak of the cursed demonblade called Shadowfang. It is said to consume the tortured souls of its victims. These souls are trapped within its ebon blade and augment its unholy power. I have also read of a great Hellforge, where even the mightiest weapon could be created... or destroyed. Tread carefully when dealing with Shadowfang and its master, lest you be drawn into the sword as well!",
 	    TRUE, FALSE, TxS(0), TSFX_STORY17 },
+	{ "Tremain is an occasional visitor to our town, and seems to have little problem coming and going. It is strange how at times anyone who tries to leave Tristram is hunted down and slain by the cloaked riders, and other times it is a simple matter to leave. I think it is that uncertain fear that keeps some of us here. But we are glad for Tremain's bravery and luck in keeping some contact with the rest of the kingdom.",
+	    TRUE, FALSE, TxS(0), TSFX_STORY32 },
 	{ "That sounds quite disgusting, and I'm afraid that I haven't heard anything about any worms. Perhaps Cain the Storyteller could be of some help.",
 	    TRUE, FALSE, TxS(0), TSFX_TAVERN3 },
 	{ "Gillian has been going on and on about strange lights in the trees, but I haven't been able to make heads nor tails of her story. I certainly haven't seen any strange lights, and if I did, they would be the least of my worries.",
@@ -887,6 +891,8 @@ const TextData alltext[NUM_TEXTS] = {
 	    TRUE, FALSE, TxS(0), TSFX_TAVERN34 },
 	{ "I see that you have found the key - now you just need to find the chest that it belongs to.",
 	    TRUE, FALSE, TxS(0), TSFX_TAVERN35 },
+	{ "The priest Tremain is a bit of a mystery. He certainly never stays here, and he often comes and goes to many of the nearby towns.",
+	    TRUE, FALSE, TxS(0), TSFX_TAVERN42 },
 	{ "Seek out the domicile to which Pepin the Healer has directed you. It is there that your missions will become clear, and your methods evident.",
 	    TRUE, FALSE, TxS(0), TSFX_WITCH5 },
 	{ "The succubus is a demon that feasts upon the essence of mortal men. You will find that Andariel has quite an appetite. The town will soon be devoid of any adult males, unless you stop her feeding now.",
