@@ -124,24 +124,8 @@ const int GossipList[STORE_TOWNERS][2] = {
 #define TPOS_FARMER		52 + DBORDERX, 6 + DBORDERY
 #define TPOS_GIRL		67 + DBORDERX, 33 + DBORDERY
 
-/** Specifies the start X-coordinates of the cows in Tristram. */
-const int TownCowX[] = { 48 + DBORDERX, 46 + DBORDERX, 49 + DBORDERX };
-/** Specifies the start Y-coordinates of the cows in Tristram. */
-const int TownCowY[] = {  6 + DBORDERY,  4 + DBORDERY, 10 + DBORDERY };
-/** Specifies the start directions of the cows in Tristram. */
-const int TownCowDir[] = { DIR_SW, DIR_NW, DIR_N };
-/** Maps from direction to X-coordinate delta, which is used when
- * placing cows in Tristram. A single cow may require space of up
- * to three tiles when being placed on the map.
- */
-const int cowoffx[8] = { -1, 0, -1, -1, -1, 0, -1, -1 };
-/** Maps from direction to Y-coordinate delta, which is used when
- * placing cows in Tristram. A single cow may require space of up
- * to three tiles when being placed on the map.
- */
-const int cowoffy[8] = { -1, -1, -1, 0, -1, -1, -1, 0 };
 /** Specifies the active sound effect ID for interacting with cows. */
-int CowPlaying = -1;
+static int CowPlaying = -1;
 
 static void CowSFX(int pnum)
 {
@@ -333,8 +317,28 @@ static void InitDrunk()
 
 static void InitCows()
 {
+	/** Specifies the start X-coordinates of the cows. */
+	const BYTE TownCowX[] = { 48 + DBORDERX, 46 + DBORDERX, 49 + DBORDERX };
+	/** Specifies the start Y-coordinates of the cows. */
+	const BYTE TownCowY[] = {  6 + DBORDERY,  4 + DBORDERY, 10 + DBORDERY };
+	/** Specifies the start directions of the cows. */
+	const BYTE TownCowDir[] = { DIR_SW, DIR_NW, DIR_N };
+	/** Maps from direction to X-coordinate delta, which is used when
+	 * placing cows in Tristram. A single cow may require space of up
+	 * to four tiles when being placed on the map.
+	 */
+	const char cowoffx[NUM_DIRS] = { -1, 0, -1, -1, -1, 0, -1, -1 };
+	/** Maps from direction to Y-coordinate delta, which is used when
+	 * placing cows in Tristram. A single cow may require space of up
+	 * to four tiles when being placed on the map.
+	 */
+	const char cowoffy[NUM_DIRS] = { -1, -1, -1, 0, -1, -1, -1, 0 };
+	/** Specifies the offsets from the cows to reserve space on the map. */
+	const char TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]]};
+	const char TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]]};
 	int i, dir;
 	int x, y, xo, yo;
+
 	assert(pCowCels == NULL);
 	pCowCels = LoadFileInMem("Towners\\Animals\\Cow.CEL");
 	static_assert(lengthof(TownCowX) == lengthof(TownCowY), "Mismatching TownCow tables I.");
@@ -346,8 +350,8 @@ static void InitCows()
 		InitTownerInfo(numtowners, "Cow", TOWN_COW, x, y, 3);
 		InitCowAnim(numtowners, dir);
 
-		xo = x + cowoffx[dir];
-		yo = y + cowoffy[dir];
+		xo = x + TownCowXOff[i];
+		yo = y + TownCowYOff[i];
 
 		//assert(dMonster[xo][yo] == 0);
 		dMonster[xo][yo] = -(numtowners + 1);
