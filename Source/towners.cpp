@@ -403,8 +403,9 @@ void InitTowners()
 	InitWitch();
 	InitBarmaid();
 	InitBoy();
-	if (quests[Q_BUTCHER]._qactive != QUEST_NOTAVAIL && quests[Q_BUTCHER]._qactive != QUEST_DONE)
-		InitTownDead();
+	if (quests[Q_BUTCHER]._qactive != QUEST_NOTAVAIL) { // if (quests[Q_BUTCHER]._qactive != QUEST_DONE) {
+		InitTownDead(); // in vanilla game the dead body was gone after the quest is completed, but it might cause de-sync
+	}
 #ifdef HELLFIRE
 	if (quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL) {
 		InitCowFarmer();
@@ -671,19 +672,29 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_DEADGUY:
-		if (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE /*&& quests[Q_BUTCHER]._qvar1 == 1*/) {
-			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
-			if (!effect_is_playing(i)) {
-				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
-			}
-		} else if (quests[Q_BUTCHER]._qactive == QUEST_INIT /*|| (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 0)*/) {
+		switch (quests[Q_BUTCHER]._qactive) {
+		case QUEST_INIT:
 			quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
 			quests[Q_BUTCHER]._qlog = TRUE;
 			// quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
 			//quests[Q_BUTCHER]._qvar1 = 1;
 			qn = Q_BUTCHER;
 			qt = TEXT_BUTCH9;
+			break;
+		case QUEST_ACTIVE:
+			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
+			if (!effect_is_playing(i)) {
+				// tw->_mListener = pnum;  // TNR_LISTENER
+				PlaySFX(i);
+			}
+			break;
+		case QUEST_DONE:
+			i = sgSFXSets[SFXS_PLR_09][plr._pClass];
+			if (!effect_is_playing(i)) {
+				// tw->_mListener = pnum;  // TNR_LISTENER
+				PlaySFX(i);
+			}
+			break;
 		}
 		break;
 	case TOWN_SMITH:
