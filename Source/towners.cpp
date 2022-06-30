@@ -651,6 +651,58 @@ void TalkToTowner(int tnum)
 	qn = Q_INVALID;
 
 	switch (tw->_mType) { // TNR_TYPE
+	case TOWN_SMITH:
+		if (IsLvlVisited(DLV_CATACOMBS1) /*&& quests[Q_ROCK]._qactive != QUEST_NOTAVAIL*/) {
+			if (quests[Q_ROCK]._qactive == QUEST_INIT) {
+				quests[Q_ROCK]._qactive = QUEST_ACTIVE;
+				quests[Q_ROCK]._qlog = TRUE;
+				qn = Q_ROCK;
+				qt = TEXT_INFRA5;
+				break;
+			}
+			if (quests[Q_ROCK]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ROCK, &i)) {
+				NetSendCmdParam1(CMD_QTOWNER, IDI_ROCK);
+				qt = TEXT_INFRA7;
+				break;
+			}
+		}
+		if (IsLvlVisited(DLV_CAVES2) /*&& quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL*/) {
+			if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
+				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
+				quests[Q_ANVIL]._qlog = TRUE;
+				qn = Q_ANVIL;
+				qt = TEXT_ANVIL5;
+			} else if (quests[Q_ANVIL]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ANVIL, &i)) {
+				NetSendCmdParam1(CMD_QTOWNER, IDI_ANVIL);
+				qt = TEXT_ANVIL7;
+			}
+		}
+		break;
+	case TOWN_HEALER:
+		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && IsLvlVisited(DLV_CATHEDRAL2)) {
+			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
+			quests[Q_PWATER]._qlog = TRUE;
+			// quests[Q_PWATER]._qmsg = TEXT_POISON3;
+			// quests[Q_PWATER]._qvar1 = 1;
+			qn = Q_PWATER;
+			qt = TEXT_POISON3;
+		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
+		 && quests[Q_PWATER]._qvar1 == 2) {
+			quests[Q_PWATER]._qactive = QUEST_DONE;
+			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, ICM_SEND_FLIP);
+			qn = Q_PWATER;
+			qt = TEXT_POISON5;
+		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
+		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
+			if (PlrHasStorageItem(pnum, IDI_BRAIN, &i)) {
+				NetSendCmdParam1(CMD_QTOWNER, IDI_BRAIN);
+				qt = TEXT_MUSH4;
+			} else if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
+				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH3;
+				qt = TEXT_MUSH3;
+			}
+		}
+		break;
 	case TOWN_TAVERN:
 		if (!IsLvlVisited(DLV_CATHEDRAL1) && plr._pLevel == 1 && quests[Q_DIABLO]._qvar2 == 0) {
 			quests[Q_DIABLO]._qvar2 = 1;
@@ -684,58 +736,31 @@ void TalkToTowner(int tnum)
 			}
 		}
 		break;
-	case TOWN_DEADGUY:
-		switch (quests[Q_BUTCHER]._qactive) {
-		case QUEST_INIT:
-			quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
-			quests[Q_BUTCHER]._qlog = TRUE;
-			// quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
-			//quests[Q_BUTCHER]._qvar1 = 1;
-			qn = Q_BUTCHER;
-			qt = TEXT_BUTCH9;
-			break;
-		case QUEST_ACTIVE:
-			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
-			if (!effect_is_playing(i)) {
-				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
+	case TOWN_STORY:
+		if (!IsMultiGame) {
+			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_LAZSTAFF, &i)) {
+				NetSendCmdParam1(CMD_QTOWNER, IDI_LAZSTAFF);
+				qt = TEXT_VILE1;
+			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
+				quests[Q_BETRAYER]._qvar1 = 8;
+				quests[Q_DIABLO]._qlog = TRUE;
+				qt = TEXT_VILE3;
 			}
-			break;
-		case QUEST_DONE:
-			i = sgSFXSets[SFXS_PLR_09][plr._pClass];
-			if (!effect_is_playing(i)) {
-				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
+		} else {
+			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && !quests[Q_BETRAYER]._qlog) {
+				quests[Q_BETRAYER]._qlog = TRUE;
+				qn = Q_BETRAYER;
+				qt = TEXT_VILE1;
+			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
+				quests[Q_BETRAYER]._qvar1 = 8;
+				qn = Q_BETRAYER;
+				qt = TEXT_VILE3;
+				quests[Q_DIABLO]._qlog = TRUE;
+				NetSendCmdQuest(Q_DIABLO, false);
 			}
-			break;
 		}
 		break;
-	case TOWN_SMITH:
-		if (IsLvlVisited(DLV_CATACOMBS1) /*&& quests[Q_ROCK]._qactive != QUEST_NOTAVAIL*/) {
-			if (quests[Q_ROCK]._qactive == QUEST_INIT) {
-				quests[Q_ROCK]._qactive = QUEST_ACTIVE;
-				quests[Q_ROCK]._qlog = TRUE;
-				qn = Q_ROCK;
-				qt = TEXT_INFRA5;
-				break;
-			}
-			if (quests[Q_ROCK]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ROCK, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_ROCK);
-				qt = TEXT_INFRA7;
-				break;
-			}
-		}
-		if (IsLvlVisited(DLV_CAVES2) /*&& quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL*/) {
-			if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
-				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
-				quests[Q_ANVIL]._qlog = TRUE;
-				qn = Q_ANVIL;
-				qt = TEXT_ANVIL5;
-			} else if (quests[Q_ANVIL]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ANVIL, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_ANVIL);
-				qt = TEXT_ANVIL7;
-			}
-		}
+	case TOWN_DRUNK:
 		break;
 	case TOWN_WITCH:
 		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_FUNGALTM, &i)) {
@@ -776,62 +801,34 @@ void TalkToTowner(int tnum)
 		}
 #endif
 		break;
-	case TOWN_DRUNK:
-		break;
-	case TOWN_HEALER:
-		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && IsLvlVisited(DLV_CATHEDRAL2)) {
-			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
-			quests[Q_PWATER]._qlog = TRUE;
-			// quests[Q_PWATER]._qmsg = TEXT_POISON3;
-			// quests[Q_PWATER]._qvar1 = 1;
-			qn = Q_PWATER;
-			qt = TEXT_POISON3;
-		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
-		 && quests[Q_PWATER]._qvar1 == 2) {
-			quests[Q_PWATER]._qactive = QUEST_DONE;
-			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, ICM_SEND_FLIP);
-			qn = Q_PWATER;
-			qt = TEXT_POISON5;
-		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
-		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
-			if (PlrHasStorageItem(pnum, IDI_BRAIN, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_BRAIN);
-				qt = TEXT_MUSH4;
-			} else if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
-				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH3;
-				qt = TEXT_MUSH3;
-			}
-		}
-		break;
 	case TOWN_PEGBOY:
 	case TOWN_PRIEST:
 		break;
-	case TOWN_STORY:
-		if (!IsMultiGame) {
-			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_LAZSTAFF, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_LAZSTAFF);
-				qt = TEXT_VILE1;
-			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
-				quests[Q_BETRAYER]._qvar1 = 8;
-				quests[Q_DIABLO]._qlog = TRUE;
-				qt = TEXT_VILE3;
+	case TOWN_DEADGUY:
+		switch (quests[Q_BUTCHER]._qactive) {
+		case QUEST_INIT:
+			quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
+			quests[Q_BUTCHER]._qlog = TRUE;
+			// quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
+			//quests[Q_BUTCHER]._qvar1 = 1;
+			qn = Q_BUTCHER;
+			qt = TEXT_BUTCH9;
+			break;
+		case QUEST_ACTIVE:
+			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
+			if (!effect_is_playing(i)) {
+				// tw->_mListener = pnum;  // TNR_LISTENER
+				PlaySFX(i);
 			}
-		} else {
-			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && !quests[Q_BETRAYER]._qlog) {
-				quests[Q_BETRAYER]._qlog = TRUE;
-				qn = Q_BETRAYER;
-				qt = TEXT_VILE1;
-			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
-				quests[Q_BETRAYER]._qvar1 = 8;
-				qn = Q_BETRAYER;
-				qt = TEXT_VILE3;
-				quests[Q_DIABLO]._qlog = TRUE;
-				NetSendCmdQuest(Q_DIABLO, false);
+			break;
+		case QUEST_DONE:
+			i = sgSFXSets[SFXS_PLR_09][plr._pClass];
+			if (!effect_is_playing(i)) {
+				// tw->_mListener = pnum;  // TNR_LISTENER
+				PlaySFX(i);
 			}
+			break;
 		}
-		break;
-	case TOWN_COW:
-		CowSFX(pnum);
 		break;
 #ifdef HELLFIRE
 	case TOWN_FARMER:
@@ -970,6 +967,12 @@ void TalkToTowner(int tnum)
 		}
 		break;
 #endif
+	case TOWN_COW:
+		CowSFX(pnum);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 	if (qn != Q_INVALID)
 		NetSendCmdQuest(qn, false);

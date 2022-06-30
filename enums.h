@@ -3377,8 +3377,8 @@ typedef enum _talker_id {
 	TOWN_DEADGUY,
 #ifdef HELLFIRE
 	TOWN_FARMER,
-	TOWN_GIRL,
 	TOWN_COWFARM,
+	TOWN_GIRL,
 #endif
 	TOWN_COW,
 } _talker_id;
