@@ -777,7 +777,7 @@ typedef enum _sfx_id {
 	//TSFX_PEGBOY41,
 	TSFX_PEGBOY42,
 	TSFX_PEGBOY43,
-	//TSFX_PRIEST0,
+	TSFX_PRIEST0,
 	//TSFX_PRIEST1,
 	//TSFX_PRIEST2,
 	//TSFX_PRIEST3,
@@ -2337,6 +2337,7 @@ typedef enum _speech_id {
 	TEXT_PEGBOY9,
 	TEXT_PEGBOY11,
 	TEXT_PEGBOY12,
+	TEXT_PRIEST1,
 	TEXT_BONER,
 	TEXT_BLOODY,
 	TEXT_BLINDING,
@@ -2522,7 +2523,6 @@ typedef enum _speech_id {
 	TEXT_PEGBOY28,
 	TEXT_PEGBOY29,
 	TEXT_PEGBOY30,
-	TEXT_PRIEST0,
 	TEXT_PRIEST1,
 	TEXT_PRIEST2,
 	TEXT_PRIEST3,
@@ -3170,6 +3170,7 @@ typedef enum lvl_entry {
 	ENTRY_WARPLVL,
 	ENTRY_TWARPDN,
 	ENTRY_TWARPUP,
+	ENTRY_RETOWN,
 } lvl_entry;
 
 /*typedef enum game_info {
@@ -3372,13 +3373,12 @@ typedef enum _talker_id {
 	TOWN_WITCH,
 	TOWN_BARMAID,
 	TOWN_PEGBOY,
+	TOWN_PRIEST,
 	TOWN_DEADGUY,
 #ifdef HELLFIRE
 	TOWN_FARMER,
 	TOWN_GIRL,
 	TOWN_COWFARM,
-#else
-	TOWN_PRIEST,
 #endif
 	TOWN_COW,
 } _talker_id;
@@ -3779,6 +3779,7 @@ typedef enum talk_id {
 	STORE_TAVERN,
 	STORE_DRUNK,
 	STORE_BARMAID,
+	STORE_PRIEST,
 	STORE_WAIT,
 } talk_id;
 

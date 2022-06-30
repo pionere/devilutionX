@@ -404,7 +404,7 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*TSFX_PEGBOY41*///{ sfx_STREAM,                "Sfx\\Towners\\Pegboy41.wav",  { 0, NULL } },
 /*TSFX_PEGBOY42*/{ sfx_STREAM,                "Sfx\\Towners\\Pegboy42.wav",  { 0, NULL } },
 /*TSFX_PEGBOY43*/{ sfx_STREAM,                "Sfx\\Towners\\Pegboy43.wav",  { 0, NULL } },
-/*TSFX_PRIEST0*///{ sfx_STREAM,                "Sfx\\Towners\\Priest00.wav",  { 0, NULL } },
+/*TSFX_PRIEST0*/ { sfx_STREAM,                "Sfx\\Towners\\Priest00.wav",  { 0, NULL } },
 /*TSFX_PRIEST1*///{ sfx_STREAM,                "Sfx\\Towners\\Priest01.wav",  { 0, NULL } },
 /*TSFX_PRIEST2*///{ sfx_STREAM,                "Sfx\\Towners\\Priest02.wav",  { 0, NULL } },
 /*TSFX_PRIEST3*///{ sfx_STREAM,                "Sfx\\Towners\\Priest03.wav",  { 0, NULL } },

@@ -58,6 +58,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_DRUNK_GOSSIP		12
 #define STORE_DRUNK_EXIT		18
 
+#define STORE_PRIEST_GOSSIP		12
+#define STORE_PRIEST_EXIT		18
+
 // service prices
 #define STORE_ID_PRICE			100
 #define STORE_PEGBOY_PRICE		50
@@ -1157,6 +1160,18 @@ static void S_StartDrunk()
 	AddSLine(5);
 }
 
+static void S_StartPriest()
+{
+	gbWidePanel = false;
+	gbRenderGold = false;
+	gbHasScroll = false;
+	AddSText(0, 2, true, "Tremain the Priest", COL_GOLD, false);
+	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
+	//AddSText(0, STORE_PRIEST_GOSSIP, true, "Talk to Tremain", COL_BLUE, true);
+	AddSText(0, STORE_PRIEST_EXIT, true, "Say Goodbye", COL_WHITE, true);
+	AddSLine(5);
+}
+
 void StartStore(int s)
 {
 	int i;
@@ -1236,6 +1251,9 @@ void StartStore(int s)
 		break;
 	case STORE_BARMAID:
 		S_StartBarMaid();
+		break;
+	case STORE_PRIEST:
+		S_StartPriest();
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1318,6 +1336,7 @@ void STextESC()
 	case STORE_TAVERN:
 	case STORE_DRUNK:
 	case STORE_BARMAID:
+	case STORE_PRIEST:
 		stextflag = STORE_NONE;
 		break;
 	case STORE_GOSSIP:
@@ -2332,6 +2351,24 @@ static void S_DrunkEnter()
 	}
 }
 
+static void S_PriestEnter()
+{
+	switch (stextsel) {
+	/*case STORE_PRIEST_GOSSIP:
+		stextlhold = STORE_PRIEST_GOSSIP;
+		talker = TOWN_DRUNK;
+		stextshold = STORE_PRIEST;
+		StartStore(STORE_GOSSIP);
+		break;*/
+	case STORE_PRIEST_EXIT:
+		stextflag = STORE_NONE;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+}
+
 void STextEnter()
 {
 	assert(!gbQtextflag);
@@ -2404,6 +2441,9 @@ void STextEnter()
 		break;
 	case STORE_BARMAID:
 		S_BarmaidEnter();
+		break;
+	case STORE_PRIEST:
+		S_PriestEnter();
 		break;
 	case STORE_WAIT:
 		return;

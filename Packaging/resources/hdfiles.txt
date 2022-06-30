@@ -2496,6 +2496,7 @@ Towners\Farmer\mfrmrn2.CEL
 Towners\Girl\Girls1.CEL
 Towners\Girl\Girlw1.CEL
 Towners\Healer\Healer.CEL
+Towners\Priest\Priest8.CEL
 Towners\Smith\SmithN.CEL
 Towners\Strytell\Strytell.CEL
 Towners\TownBoy\PegKid1.CEL

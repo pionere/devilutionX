@@ -280,7 +280,7 @@ void CreateTown(int entry)
 	DRLG_Init_Globals();
 
 	if (entry == ENTRY_MAIN) {
-		// New game or Restart in Town
+		// New game
 		ViewX = 65 + DBORDERX;
 		ViewY = 58 + DBORDERY;
 	/*} else if (entry == ENTRY_PREV) { // Cathedral
@@ -318,6 +318,10 @@ void CreateTown(int entry)
 			ASSUME_UNREACHABLE
 			break;
 		}
+	} else if (entry == ENTRY_RETOWN) {
+		// Restart in Town
+		ViewX = 63 + DBORDERX;
+		ViewY = 70 + DBORDERY;
 	}
 
 	T_Pass3();

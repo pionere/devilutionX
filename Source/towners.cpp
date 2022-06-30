@@ -315,6 +315,14 @@ static void InitDrunk()
 	numtowners++;
 }
 
+static void InitPriest()
+{
+	InitTownerInfo(numtowners, "Tremain the Priest", TOWN_PRIEST, 63 + DBORDERX, 69 + DBORDERY, 3);
+	InitTownerTalk(numtowners, STORE_PRIEST, TEXT_PRIEST1);
+	InitTownerAnim(numtowners, "Towners\\Priest\\Priest8.CEL", 4, 33, -1);
+	numtowners++;
+}
+
 static void InitCows()
 {
 	/** Specifies the start X-coordinates of the cows. */
@@ -407,6 +415,7 @@ void InitTowners()
 	InitWitch();
 	InitBarmaid();
 	InitPegboy();
+	InitPriest();
 	if (quests[Q_BUTCHER]._qactive != QUEST_NOTAVAIL) { // if (quests[Q_BUTCHER]._qactive != QUEST_DONE) {
 		InitDeadguy(); // in vanilla game the dead body was gone after the quest is completed, but it might cause de-sync
 	}
@@ -795,6 +804,7 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_PEGBOY:
+	case TOWN_PRIEST:
 		break;
 	case TOWN_STORY:
 		if (!IsMultiGame) {
