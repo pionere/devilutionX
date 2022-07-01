@@ -23,6 +23,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 if(NINTENDO_3DS)
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/ctr")
 endif()
+if(NXDK)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/xbox_nxdk")
+endif()
 
 if(NOT VERSION_NUM)
   include(git)
@@ -149,6 +152,10 @@ endif()
 
 if(IOS)
   include(ios_defs)
+endif()
+
+if(NXDK)
+  include(xbox_nxdk_defs)
 endif()
 
 include(CMakeDependentOption)
@@ -1362,6 +1369,18 @@ if(NINTENDO_3DS)
   get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
   add_dependencies(${APP_TARGET_PREFIX}_3dsx romfs_files)
   add_dependencies(${APP_TARGET_PREFIX}_cia romfs_files)
+endif()
+
+if(NXDK)
+  set(NXDK_PKG_DIR "${CMAKE_BINARY_DIR}/pkg")
+  set(_xbe_path "${NXDK_PKG_DIR}/default.xbe")
+  add_custom_command(
+    OUTPUT "${_xbe_path}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${NXDK_PKG_DIR}"
+    COMMAND "${NXDK_DIR}/tools/cxbe/cxbe" "-OUT:${_xbe_path}" -TITLE:DevilutionX "${CMAKE_BINARY_DIR}/${BIN_TARGET}.exe"
+    DEPENDS "${BIN_TARGET}"
+  )
+  add_custom_target(nxdk_xbe DEPENDS "${_xbe_path}")
 endif()
 
 if(CPACK)
