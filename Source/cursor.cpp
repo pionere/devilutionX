@@ -501,6 +501,18 @@ void CheckCursMove()
 			return;
 	}
 	// select a player
+	if (pcursicon != CURSOR_RESURRECT) {
+		// target dead player
+	if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (plr._px == mx && plr._py == my && pnum != mypnum) {
+				cursmx = mx;
+				cursmy = my;
+				pcursplr = pnum;
+			}
+		}
+	}
+	// target live player
 	if (!flipflag) {
 		bv = dPlayer[mx + 1][my];
 		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
@@ -525,34 +537,10 @@ void CheckCursMove()
 	bv = dPlayer[mx][my];
 	if (bv != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (bv != mypnum) {
+		if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
 			cursmx = mx;
 			cursmy = my;
 			pcursplr = bv;
-		}
-	}
-	if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
-		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			if (plr._px == mx && plr._py == my && pnum != mypnum) {
-				cursmx = mx;
-				cursmy = my;
-				pcursplr = pnum;
-			}
-		}
-	}
-	if (pcursicon == CURSOR_RESURRECT) {
-		for (xx = -1; xx <= 1; xx++) {
-			for (yy = -1; yy <= 1; yy++) {
-				if ((dFlags[mx + xx][my + yy] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
-					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-						if (plr._px == mx + xx && plr._py == my + yy && pnum != mypnum) {
-							cursmx = mx + xx;
-							cursmy = my + yy;
-							pcursplr = pnum;
-						}
-					}
-				}
-			}
 		}
 	}
 	bv = dPlayer[mx + 1][my + 1];
@@ -562,6 +550,23 @@ void CheckCursMove()
 			cursmx = mx + 1;
 			cursmy = my + 1;
 			pcursplr = bv;
+		}
+	}
+	} else {
+		// search for dead players around the cursor
+		const char deltas[3] = { -1, 1, 0, };
+		for (xx = 0; xx < lengthof(deltas); xx++) {
+			for (yy = 0; yy < lengthof(deltas); yy++) {
+				if ((dFlags[mx + deltas[xx]][my + deltas[yy]] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
+					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+						if (plr._pmode == PM_DEATH && plr._px == mx + deltas[xx] && plr._py == my + deltas[yy] /*&& pnum != mypnum*/) {
+							cursmx = mx + deltas[xx];
+							cursmy = my + deltas[yy];
+							pcursplr = pnum;
+						}
+					}
+				}
+			}
 		}
 	}
 
