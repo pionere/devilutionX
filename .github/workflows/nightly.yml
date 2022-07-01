@@ -1026,6 +1026,63 @@ jobs:
         name: ${{ matrix.artifact }}
         path: ./build/devilutionx.nro
 
+  # xbox-builds
+  build_xbox:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-XBOX
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-xbox.zip'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-xbox.zip'
+    runs-on: ubuntu-24.04
+    env:
+      NXDK_DIR: /opt/nxdk
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-tags: true
+        #fetch-depth: 0
+
+    - name: Create Build Environment
+      run: sudo apt-get update && sudo apt-get install -y clang llvm lld bison flex cmake git gettext
+
+    - name: Clone NXDK Repo
+      shell: bash
+    #  #run: git clone --recursive --depth 1 --branch devilutionx https://github.com/glebm/nxdk.git "$NXDK_DIR"
+      run: git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
+    #- name: Clone NXDK Repo
+    #  uses: actions/checkout@v5
+    #  with:
+    #    repository: XboxDev/nxdk
+    #    path: "$NXDK_DIR"
+
+    - name: Build NXDK
+      shell: bash
+      run: PATH="${NXDK_DIR}/bin:$PATH" make -j $(nproc) -C "$NXDK_DIR" NXDK_ONLY=1 all cxbe
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: cmake -S. -Bbuild-xbox ${{ matrix.cmakeargs }} -DNXDK=ON -DDEVILUTIONX_SYSTEM_SDL2=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=/opt/nxdk/share/toolchain-nxdk.cmake
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: cmake --build build-xbox -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
+
+    - name: Upload-Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: build-xbox/devilutionx.zip
+
   # amiga-builds
   build_amiga:
     needs: build_check
