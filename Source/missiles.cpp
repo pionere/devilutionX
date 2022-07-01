@@ -28,10 +28,11 @@ int missileactive[MAXMISSILES];
 MissileStruct missile[MAXMISSILES];
 int nummissiles;
 
+// TODO: merge XDirAdd/YDirAdd, offset_x/offset_y, bxadd/byadd, pathxdir/pathydir, plrxoff2/plryoff2, trm3x/trm3y
 /** Maps from direction to X-offset. */
-const int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
+static const int XDirAdd[NUM_DIRS] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to Y-offset. */
-const int YDirAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
+static const int YDirAdd[NUM_DIRS] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
 static_assert(MAX_LIGHT_RAD >= 9, "FireWallLight needs at least light-radius of 9.");
 static const int FireWallLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 8, 9, 9 };
@@ -1266,8 +1267,8 @@ static void CheckSplashColFull(int mi)
 	my = mis->_miy;
 
 	// monster/player/object hit -> hit everything around
-	for (i = 0; i < lengthof(offset_x); i++) {
-		CheckMissileCol(mi, mx + offset_x[i], my + offset_y[i], MICM_NONE);
+	for (i = 0; i < lengthof(XDirAdd); i++) {
+		CheckMissileCol(mi, mx + XDirAdd[i], my + YDirAdd[i], MICM_NONE);
 	}
 }
 
@@ -1306,9 +1307,9 @@ static void CheckSplashCol(int mi)
 	//GetMissilePos(mi);
 
 	// assert(lx != mx || ly != my);
-	for (i = 0; i < lengthof(offset_x); i++) {
-		tx = mx + offset_x[i];
-		ty = my + offset_y[i];
+	for (i = 0; i < lengthof(XDirAdd); i++) {
+		tx = mx + XDirAdd[i];
+		ty = my + YDirAdd[i];
 		if (abs(tx - lx) <= 1 && abs(ty - ly) <= 1)
 			CheckMissileCol(mi, tx, ty, MICM_NONE);
 	}
@@ -3444,7 +3445,7 @@ void MI_Firewall(int mi)
 			mis->_miAnimAdd = -1;
 		}
 	}
-	PutMissileF(mi, BFLAG_HAZARD);
+	PutMissileF(mi, BFLAG_HAZARD); // TODO: do not place hazard if the source is a monster
 }
 
 /*void MI_Fireball(int mi)
@@ -3837,9 +3838,9 @@ void MI_Chain(int mi)
 						else
 							sd = MAX_MINIONS;
 						SetRndSeed(monsters[sd]._mRndSeed);*/
-						sd = random_(0, lengthof(offset_x));
-						dx = mx + offset_x[sd];
-						dy = my + offset_y[sd];
+						sd = random_(0, lengthof(XDirAdd));
+						dx = mx + XDirAdd[sd];
+						dy = my + YDirAdd[sd];
 					}
 					//SetMissDir(mi, sd);
 					GetMissileVel(mi, mx, my, dx, dy, MIS_SHIFTEDVEL(32));
