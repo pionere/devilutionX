@@ -70,9 +70,12 @@ const char *const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
  * Specifies the X and Y offsets to try when a player is entering the level or resurrected.
  * The base position is the location of the portal or the body of the dead player.
  */
-const int plrxoff2[9] = { 0, 1, 1, 0, -1, 0, -1, 1, -1 };
-const int plryoff2[9] = { 0, 1, 0, 1, -1, -1, 0, -1, 1 };
-/** Specifies the number of frames of each animation for each player class. */
+const int plrxoff2[NUM_DIRS + 1] = { 0, 1, 1, 0, -1, 0, -1, 1, -1 };
+const int plryoff2[NUM_DIRS + 1] = { 0, 1, 0, 1, -1, -1, 0, -1, 1 };
+/**
+ * Specifies the number of frames of each animation for each player class.
+   STAND, ATTACK, WALK, BLOCK, DEATH, SPELL, GOTHIT
+ */
 const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
 	// clang-format off
 	{ 10, 16, 8, 2, 20, 20, 6 },

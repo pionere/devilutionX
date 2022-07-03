@@ -193,7 +193,8 @@ void InitLvlStores()
 {
 	unsigned l;
 
-	SetRndSeed(glSeedTbl[currLvl._dLevelIdx] * SDL_GetTicks());
+	assert(currLvl._dLevelIdx == DLV_TOWN);
+	SetRndSeed(glSeedTbl[DLV_TOWN] * SDL_GetTicks());
 	l = StoresLimitedItemLvl();
 	SpawnSmith(l);
 	SpawnWitch(l);

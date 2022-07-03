@@ -3342,7 +3342,7 @@ void MI_Firebolt(int mi)
 	AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, xptype, mis->_miCaster, mis->_miSource, 0);
 
 	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
+	AddUnLight(mis->_miLid); // TODO: unlight in a central place?
 }
 
 void MI_Lightball(int mi)

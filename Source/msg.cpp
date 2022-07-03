@@ -675,6 +675,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 	pbBuf = (const BYTE*)&pHdr[1];
 	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		pSync = (TSyncMonster*)pbBuf;
+		net_assert(pSync->_mndx < MAXMONSTERS);
 		pD = &pDLvlMons[pSync->_mndx];
 		static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_sync_monster expects ordered DCMD_MON_ enum I.");
 		static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_sync_monster expects ordered DCMD_MON_ enum II.");
@@ -2252,7 +2253,7 @@ void NetSendCmdString(unsigned int pmask)
 	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = NMSG_STRING;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
-	multi_send_direct_msg(pmask, (BYTE*)&cmd, dwStrLen + 2);
+	multi_send_direct_msg(pmask, (BYTE*)&cmd, sizeof(cmd.bCmd) + dwStrLen + 1);
 }
 
 void delta_open_portal(int i, BYTE x, BYTE y, BYTE bLevel)
@@ -2983,6 +2984,8 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
 	int i, dmgtype = cmd->bParam1;
+
+	// TODO: reset cursor if not an item?
 
 	if (dmgtype == DMGTYPE_NPC) {
 		plr._pExperience -= (plr._pExperience - PlrExpLvlsTbl[plr._pLevel - 1]) >> 2;
