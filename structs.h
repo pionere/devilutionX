@@ -710,12 +710,11 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	uint16_t _mExp;
 	int mtalkmsg;
 	const char* mName;
-	MapMonData* MType;
 	int _mType;
 	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
-	ALIGNMENT(12, 5)
+	ALIGNMENT(13, 7)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

@@ -573,7 +573,6 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	SetMonsterLoc(mon, x, y);
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
-	mon->MType = cmon;
 	mon->_mType = cmon->cmType;
 	mon->_mAnimWidth = cmon->cmWidth;
 	mon->_mAnimXOffset = cmon->cmXOffset;
@@ -4797,6 +4796,7 @@ bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2,
 void SyncMonsterAnim(int mnum)
 {
 	MonsterStruct* mon;
+	MapMonData* mmdata;
 	int mode;
 	MON_ANIM anim;
 
@@ -4807,11 +4807,11 @@ void SyncMonsterAnim(int mnum)
 	if ((unsigned)mon->_mMTidx >= MAX_LVLMTYPES) {
 		dev_fatal("SyncMonsterAnim: Invalid monster type %d for %d", mon->_mMTidx, mnum);
 	}
-	mon->MType = &mapMonTypes[mon->_mMTidx];
-	mon->_mType = mon->MType->cmType;
-	mon->_mAnims = mon->MType->cmAnims;
-	mon->_mAnimWidth = mon->MType->cmWidth;
-	mon->_mAnimXOffset = mon->MType->cmXOffset;
+	mmdata = &mapMonTypes[mon->_mMTidx];
+	mon->_mType = mmdata->cmType;
+	mon->_mAnims = mmdata->cmAnims;
+	mon->_mAnimWidth = mmdata->cmWidth;
+	mon->_mAnimXOffset = mmdata->cmXOffset;
 	if (mon->_uniqtype != 0)
 		mon->mName = uniqMonData[mon->_uniqtype - 1].mName;
 	else
