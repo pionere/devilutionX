@@ -43,6 +43,8 @@ bool gbFullscreen = true;
  */
 #ifdef USE_SDL1
 int gbFrameRateControl = FRC_CPUSLEEP; // use the FPS limiter
+#elif defined(NXDK)
+int gbFrameRateControl = FRC_NONE;     // turn off vsync
 #else
 int gbFrameRateControl = FRC_VSYNC;    // use vsync
 #endif
