@@ -4,20 +4,11 @@
  * Implementation of load screens.
  */
 #include "all.h"
-#ifndef NOWIDESCREEN
-#include "DiabloUI/diabloui.h"
-#include "DiabloUI/art_draw.h"
-#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** The starting x-position of the progress bar. */
-#define BAR_POS_X		53
-/** The width of the progress bar. */
-#define BAR_WIDTH		PANEL_WIDTH - BAR_POS_X * 2
-
 /** Cutscene image CEL */
-BYTE* sgpBackCel;
+CelImageBuf* sgpBackCel;
 
 unsigned sgdwProgress;
 
@@ -29,16 +20,13 @@ static BYTE sgbLoadBarCol;
 static void FreeCutscene()
 {
 	MemFreeDbg(sgpBackCel);
-#ifndef NOWIDESCREEN
-	ArtBackgroundWidescreen.Unload();
-#endif
 }
 
 static void InitLvlCutscene(BYTE lvl)
 {
 	sgbLoadBarOnTop = AllLevels[lvl].dLoadBarOnTop;
 	sgbLoadBarCol = AllLevels[lvl].dLoadBarColor;
-	sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
+	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, PANEL_WIDTH);
 	LoadPalette(AllLevels[lvl].dLoadPal);
 }
 
@@ -69,26 +57,24 @@ static void InitCutscene(unsigned int uMsg)
 		InitLvlCutscene(lvl);
 		break;
 	case DVL_DWM_WARPLVL:
-#ifndef NOWIDESCREEN
-		LoadArt("Gendata\\Cutportlw.pcx", &ArtBackgroundWidescreen);
-#endif
-		sgpBackCel = LoadFileInMem("Gendata\\Cutportl.CEL");
+		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", PANEL_WIDTH);
 		LoadPalette("Gendata\\Cutportl.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
-#ifndef NOWIDESCREEN
-		LoadArt("Gendata\\Cutstartw.pcx", &ArtBackgroundWidescreen);
-#endif
-		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL");
+		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", PANEL_WIDTH);
 		LoadPalette("Gendata\\Cutstart.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
+	case DVL_DWM_RETOWN:
+		if (gbCineflag) {
+			gbCineflag = false;
+			DoEnding();
+		}
 	case DVL_DWM_TWARPDN:
 	case DVL_DWM_TWARPUP:
-	case DVL_DWM_RETOWN:
 		lvl = myplr._pDunLevel; // the destination level
 		InitLvlCutscene(lvl);
 		break;
@@ -106,12 +92,12 @@ static void DrawProgress()
 	int screen_x, screen_y;
 	unsigned w, i, j;
 
-	screen_x = PANEL_X + BAR_POS_X;
-	screen_y = SCREEN_Y + UI_OFFSET_Y + (sgbLoadBarOnTop ? 37 : 421);
+	screen_x = PANEL_CENTERX(BAR_WIDTH);
+	screen_y = PANEL_Y + (sgbLoadBarOnTop ? TOP_BAR_Y : BOTTOM_BAR_Y);
 	dst = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
 	col = sgbLoadBarCol;
 	w = sgdwProgress;
-	for (j = 0; j < 22; j++) {
+	for (j = 0; j < BAR_HEIGHT; j++) {
 		for (i = 0; i < w; i++, dst++) {
 			*dst = col;
 		}
@@ -122,10 +108,7 @@ static void DrawProgress()
 static void DrawCutscene()
 {
 	lock_buf(1);
-#ifndef NOWIDESCREEN
-	DrawArt(PANEL_LEFT - (ArtBackgroundWidescreen.logical_width - PANEL_WIDTH) / 2, UI_OFFSET_Y, &ArtBackgroundWidescreen);
-#endif
-	CelDraw(PANEL_X, 480 + SCREEN_Y - 1 + UI_OFFSET_Y, sgpBackCel, 1, 640);
+	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
 
 	DrawProgress();
 
@@ -148,7 +131,7 @@ void interface_msg_pump()
 void IncProgress()
 {
 	interface_msg_pump();
-	sgdwProgress += 30;
+	sgdwProgress += (BAR_WIDTH + 17) / 18;
 	if (sgdwProgress > BAR_WIDTH)
 		sgdwProgress = BAR_WIDTH;
 	// do not draw in case of quick-load
@@ -194,13 +177,13 @@ void LoadGameLevel(int lvldir)
 #endif
 
 	music_stop();
-	//if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
+	//if (pcursicon > CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 	//	NewCursor(CURSOR_HAND);
 	//}
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	IncProgress();
-	MakeLightTable();
 	InitLvlDungeon();
+	MakeLightTable();
 	IncProgress();
 
 	InitLvlAutomap();
@@ -220,13 +203,14 @@ void LoadGameLevel(int lvldir)
 		CreateLevel(lvldir);
 		IncProgress();
 		if (currLvl._dType != DTYPE_TOWN) {
-			SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			GetLevelMTypes();
 			InitThemes();
 			IncProgress();
 			InitObjectGFX();
 		} else {
 			InitLvlStores();
+			// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
+			// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			IncProgress();
 		}
 		IncProgress();
@@ -237,8 +221,6 @@ void LoadGameLevel(int lvldir)
 		if (lvldir == ENTRY_WARPLVL)
 			GetPortalLvlPos();
 
-		SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-
 		if (currLvl._dType != DTYPE_TOWN) {
 			HoldThemeRooms();
 			InitMonsters();
@@ -248,13 +230,10 @@ void LoadGameLevel(int lvldir)
 				InitItems();
 				CreateThemeRooms();
 			}
-			IncProgress();
-			InitDead();
 		} else {
 			InitTowners();
 			IncProgress();
 			InitItems();
-			IncProgress();
 		}
 	} else {
 		LoadSetMap();
@@ -264,15 +243,14 @@ void LoadGameLevel(int lvldir)
 		InitMonsters();
 		IncProgress();
 		IncProgress();
-		InitDead();
 		IncProgress();
 
 		if (lvldir == ENTRY_WARPLVL)
 			GetPortalLvlPos();
 
 		InitItems();
-		IncProgress();
 	}
+	IncProgress();
 	InitMissiles();
 	SavePreLighting();
 
@@ -384,7 +362,7 @@ void ShowCutscene(unsigned uMsg)
 		SwitchGameLevel(ENTRY_TWARPUP);
 		break;
 	case DVL_DWM_RETOWN:
-		SwitchGameLevel(ENTRY_MAIN);
+		SwitchGameLevel(ENTRY_RETOWN);
 		break;
 	default:
 		ASSUME_UNREACHABLE

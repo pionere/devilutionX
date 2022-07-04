@@ -280,7 +280,7 @@ void CreateTown(int entry)
 	DRLG_Init_Globals();
 
 	if (entry == ENTRY_MAIN) {
-		// New game or Restart in Town
+		// New game
 		ViewX = 65 + DBORDERX;
 		ViewY = 58 + DBORDERY;
 	/*} else if (entry == ENTRY_PREV) { // Cathedral
@@ -318,12 +318,18 @@ void CreateTown(int entry)
 			ASSUME_UNREACHABLE
 			break;
 		}
+	} else if (entry == ENTRY_RETOWN) {
+		// Restart in Town
+		ViewX = 63 + DBORDERX;
+		ViewY = 70 + DBORDERY;
 	}
 
 	T_Pass3();
 
-	// make the whole town visible
+	// make the whole town lit
 	memset(dLight, 0, sizeof(dLight));
+	// make the whole town visible
+	memset(dFlags, BFLAG_VISIBLE, sizeof(dFlags));
 
 	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in CreateTown.");
 	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in CreateTown.");

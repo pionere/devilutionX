@@ -133,9 +133,22 @@ int random_(BYTE idx, int v)
 {
 	if (v <= 0)
 		return 0;
-	if (v < 0xFFFF)
+	if (v < 0x7FFF)
 		return (((unsigned)GetRndSeed()) >> 16) % v;
 	return ((unsigned)GetRndSeed()) % v;
+}
+
+/**
+ * @brief Same as random_ but assumes 0 < v < 0x7FFF
+ * @param idx Unused
+ * @param v The upper limit for the return value
+ * @return A random number from 0 to (v-1)
+ */
+int random_low(BYTE idx, int v)
+{
+	// assert(v > 0);
+	// assert(v < 0x7FFF);
+	return (((unsigned)GetRndSeed()) >> 16) % v;
 }
 
 /**

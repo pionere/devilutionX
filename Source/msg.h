@@ -109,10 +109,10 @@ void NetSendCmdMonstDamage(int mnum, int hitpoints);
  * @param pnum: the id of the player who killed it
  */
 void NetSendCmdMonstKill(int mnum, int pnum);
-/** Destroy corpses at a monster
+/** Summon a monster
  * @param mnum: the id of the monster
  */
-void NetSendCmdMonstCorpse(int mnum);
+void NetSendCmdMonstSummon(int mnum);
 void NetSendCmdGolem();
 void NetSendShrineCmd(BYTE type, int seed);
 void NetSendCmdQuest(BYTE q, bool extOnly);

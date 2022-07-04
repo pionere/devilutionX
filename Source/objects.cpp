@@ -23,7 +23,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define NKR_C	7
 
 int trapid;
-BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
+static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
 int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
@@ -132,12 +132,12 @@ const int StoryText[3][3] = {
 	{ TEXT_BOOK21, TEXT_BOOK22, TEXT_BOOK23 },
 	{ TEXT_BOOK31, TEXT_BOOK32, TEXT_BOOK33 }
 };
-
-const int flickers[1][32] = {
-	{ 1, 1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 1 },
+#if FLICKER_LIGHT
+const int flickers[32] = {
+	1, 1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 1
 	//{ 0, 0, 0, 0, 0, 0, 1, 1, 1 }
 };
-
+#endif
 void InitObjectGFX()
 {
 	const ObjectData* ods;
@@ -321,7 +321,9 @@ static void InitRndLocObj(int min, int max, int objtype)
 {
 	int i, xp, yp, numobjs;
 
-	numobjs = RandRange(min, max);
+	//assert(max >= min);
+	//assert(max - min < 0x7FFF);
+	numobjs = RandRangeLow(min, max);
 	for (i = 0; i < numobjs; i++) {
 		if (!RndLoc3x3(&xp, &yp))
 			break;
@@ -430,7 +432,7 @@ static void InitRndBarrels()
 				break;
 			AddObject(o + (random_(143, 5) == 0 ? 1 : 0), xp, yp);
 			c++;
-		} while (random_(143, c >> 1) == 0);
+		} while (random_low(143, c >> 1) == 0);
 	}
 }
 
@@ -454,7 +456,7 @@ void AddL1Objs(int x1, int y1, int x2, int y2)
 }
 
 #ifdef HELLFIRE
-static void AddCryptObjs(int x1, int y1, int x2, int y2)
+static void AddL5Objs(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
 
@@ -544,7 +546,8 @@ static void AddL2Torches()
 			if (!nSolidTable[dPiece[i][j + 1]]) {
 				AddObject(OBJ_TORCHR1, i, j);
 			} else {
-				AddObject(OBJ_TORCHR2, i, j - 1);
+				if (dObject[i][j - 1] == 0)
+					AddObject(OBJ_TORCHR2, i, j - 1);
 			}
 			// skip a few tiles to prevent close placement
 			i += 4;
@@ -699,10 +702,10 @@ static void SetupObject(int oi, int x, int y, int type)
 	os->_oAnimLen = ofd->oAnimLen;
 	//os->_oAnimCnt = 0;
 	if (ofd->oAnimFlag) {
-		os->_oAnimCnt = random_(146, os->_oAnimFrameLen);
-		os->_oAnimFrame = RandRange(1, os->_oAnimLen);
+		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
+		os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
 	}
-	os->_oAnimWidth = ofd->oAnimWidth;
+	os->_oAnimWidth = ofd->oAnimWidth * ASSET_MPL;
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	os->_oSolidFlag = ofd->oSolidFlag;
 	os->_oMissFlag = ofd->oMissFlag;
@@ -842,7 +845,7 @@ static void Alloc2x2Obj(int oi)
 	dObject[ox - 1][oy - 1] = oi;
 }
 
-static void AddStoryBooks()
+static void AddStoryBook()
 {
 	int xp, yp;
 
@@ -861,7 +864,7 @@ static void AddStoryBooks()
 static void AddHookedBodies()
 {
 	int i, j, ttv, type;
-
+	// TODO: straight loop (in dlrgs)?
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			ttv = nTrapTable[dPiece[i][j]];
@@ -922,7 +925,7 @@ void InitObjects()
 	switch (currLvl._dType) {
 	case DTYPE_CATHEDRAL:
 		if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
-			AddStoryBooks();
+			AddStoryBook();
 		if (QuestStatus(Q_BUTCHER))
 			LoadMapSetObjs("Levels\\L1Data\\Butcher.DUN");
 		if (QuestStatus(Q_PWATER))
@@ -934,14 +937,12 @@ void InitObjects()
 		break;
 	case DTYPE_CATACOMBS:
 		if (currLvl._dLevelIdx == DLV_CATACOMBS4)
-			AddStoryBooks();
+			AddStoryBook();
 		if (QuestStatus(Q_ROCK))
 			InitRndLocObj5x5(OBJ_STAND);
 		if (QuestStatus(Q_SCHAMB)) {
 			AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_SCHAMB);
 		}
-		AddL2Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
-		AddL2Torches();
 		if (QuestStatus(Q_BLIND)) {
 			AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
 			LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
@@ -950,17 +951,16 @@ void InitObjects()
 			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD);
 			AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 		}
+		AddL2Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
+		AddL2Torches();
 		break;
 	case DTYPE_CAVES:
+		if (currLvl._dLevelIdx == DLV_CAVES4)
+			AddStoryBook();
+		else if (currLvl._dLevelIdx == DLV_CAVES1 && !IsMultiGame)
+			InitRndLocObj5x5(OBJ_SLAINHERO);
 		if (QuestStatus(Q_MUSHROOM))
 			InitRndLocObj5x5(OBJ_MUSHPATCH);
-		if (currLvl._dLevelIdx == DLV_CAVES1 && !IsMultiGame)
-			InitRndLocObj5x5(OBJ_SLAINHERO);
-		else if (currLvl._dLevelIdx == DLV_CAVES4)
-			AddStoryBooks();
-#ifdef HELLFIRE
-	case DTYPE_NEST:
-#endif
 		AddL3Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
 		break;
 	case DTYPE_HELL:
@@ -998,7 +998,9 @@ void InitObjects()
 			break;
 		}
 		InitRndSarcs(OBJ_L5SARC);
-		AddCryptObjs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
+		AddL5Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
+		break;
+	case DTYPE_NEST:
 		break;
 #endif
 	default:
@@ -1114,7 +1116,7 @@ static void AddChest(int oi)
 	//	|| os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3);
 	num = os->_otype;
 	num = (num >= OBJ_TCHEST1 && num <= OBJ_TCHEST3) ? num - OBJ_TCHEST1 + 1 : num - OBJ_CHEST1 + 1;
-	rnum = random_(147, num + 1); // CHEST_ITEM_SEED2
+	rnum = random_low(147, num + 1); // CHEST_ITEM_SEED2
 	if (!currLvl._dSetLvl)
 		num = rnum;
 	os->_oVar1 = num;        // CHEST_ITEM_NUM
@@ -1188,7 +1190,7 @@ static void AddTrap(int oi)
 
 	mt = currLvl._dLevel;
 	mt = mt / 6 + 1;
-	mt = random_(148, mt) & 3;
+	mt = random_low(148, mt) & 3;
 	os = &objects[oi];
 	os->_oRndSeed = GetRndSeed();
 	// TRAP_MISTYPE
@@ -1200,15 +1202,18 @@ static void AddTrap(int oi)
 	os->_oVar4 = TRAP_ACTIVE; // TRAP_LIVE
 }
 
-static void AddObjLight(int oi, int diffr)
+static void AddObjLight(int oi, int diffr, int dx, int dy)
 {
 	ObjectStruct* os;
 
 	os = &objects[oi];
 	//if (gbInitObjFlag) {
-		if (diffr != 0)
-			DoLighting(os->_ox, os->_oy, diffr, NO_LIGHT);
-		os->_olid = NO_LIGHT;
+#if FLICKER_LIGHT
+		if (diffr == 0)
+			os->_olid = NO_LIGHT;
+		else
+#endif
+			DoLighting(os->_ox + dx, os->_oy + dy, diffr, NO_LIGHT);
 	//}
 }
 
@@ -1368,29 +1373,38 @@ int AddObject(int type, int ox, int oy)
 	objectactive[numobjects] = oi;
 	numobjects++;
 //	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
+	assert(dObject[ox][oy] == 0);
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, type);
 	switch (type) {
 	case OBJ_L1LIGHT:
-		AddObjLight(oi, 0);
+#if FLICKER_LIGHT
+		AddObjLight(oi, 0, 0, 0);
+#else
+		AddObjLight(oi, 10, 0, 0);
+#endif
 		break;
 	case OBJ_SKFIRE:
 	//case OBJ_CANDLE1:
 	case OBJ_CANDLE2:
 	case OBJ_BOOKCANDLE:
-		AddObjLight(oi, 5);
+		AddObjLight(oi, 5, 0, 0);
 		break;
 	case OBJ_STORYCANDLE:
 #ifdef HELLFIRE
 	case OBJ_L5CANDLE:
 #endif
-		AddObjLight(oi, 3);
+		AddObjLight(oi, 3, 0, 0);
 		break;
 	case OBJ_TORCHL1:
-	case OBJ_TORCHL2:
+		AddObjLight(oi, 8, 1, 0);
+		break;
 	case OBJ_TORCHR1:
+		AddObjLight(oi, 8, 0, 1);
+		break;
 	case OBJ_TORCHR2:
-		AddObjLight(oi, 8);
+	case OBJ_TORCHL2:
+		AddObjLight(oi, 8, 0, 0);
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -1499,7 +1513,7 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_TBCROSS:
 		// ObjAddRndSeed(oi);
-		AddObjLight(oi, 10);
+		AddObjLight(oi, 10, 0, 0);
 		break;
 	case OBJ_TNUDEM:
 		AddTorturedMaleBody(oi);
@@ -1510,37 +1524,30 @@ int AddObject(int type, int ox, int oy)
 	}
 	return oi;
 }
-
+#if FLICKER_LIGHT
 static void Obj_Light(int oi)
 {
 	ObjectStruct* os;
-	int ox, oy, dx, dy, pnum, tr;
+	int ox, oy, tr;
 	bool turnon;
 	static_assert(MAX_LIGHT_RAD >= 9, "Obj_Light needs at least light-radius of 9.");
 	const int lr = 8;
-	const int* flicker = flickers[0];
 
 	os = &objects[oi];
 	ox = os->_ox;
 	oy = os->_oy;
-	tr = lr + 10;
 	turnon = false;
 #if DEBUG_MODE
 	if (!lightflag)
 #endif
 	{
-		for (pnum = 0; pnum < MAX_PLRS && !turnon; pnum++) {
-			if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel) {
-				dx = abs(plr._px - ox);
-				dy = abs(plr._py - oy);
-				if (dx < tr && dy < tr)
-					turnon = true;
-			}
-		}
+		tr = lr + 1 + (gsTileVp._vColumns + gsTileVp._vRows / 2) / 2;
+		turnon = abs(ViewX - ox) < tr && abs(ViewY - oy) < tr;
 	}
 	if (turnon) {
-		tr -= 10;
-		tr += flicker[os->_oAnimFrame];
+		assert(objectdata[OBJ_L1LIGHT].ofindex == OFILE_L1BRAZ);
+		assert(objfiledata[OFILE_L1BRAZ].oAnimFrameLen < lengthof(flickers));
+		tr = lr + flickers[os->_oAnimFrame];
 		if (os->_olid == NO_LIGHT)
 			os->_olid = AddLight(ox, oy, tr);
 		else {
@@ -1554,7 +1561,7 @@ static void Obj_Light(int oi)
 		}
 	}
 }
-
+#endif
 static void GetVileMissPos(int* dx, int* dy)
 {
 	int xx, yy, j, i;
@@ -1568,7 +1575,7 @@ static void GetVileMissPos(int* dx, int* dy)
 		for (j = *cr; j > 0; j--) {
 			xx = *dx + *++cr;
 			yy = *dy + *++cr;
-			if (PosOkPlayer(mypnum, xx, yy)) {
+			if (PosOkActor(xx, yy)) {
 				*dx = xx;
 				*dy = yy;
 				return;
@@ -1785,7 +1792,7 @@ static void Obj_Trap(int oi)
 		}
 	}
 
-	SetRndSeed(os->_oRndSeed);
+	// SetRndSeed(os->_oRndSeed);
 	sx = os->_ox;
 	sy = os->_oy;
 	dir = GetDirection(sx, sy, dx, dy);
@@ -1823,9 +1830,11 @@ void ProcessObjects()
 	for (i = 0; i < numobjects; ++i) {
 		oi = objectactive[i];
 		switch (objects[oi]._otype) {
+#if FLICKER_LIGHT
 		case OBJ_L1LIGHT:
 			Obj_Light(oi);
 			break;
+#endif
 		/*case OBJ_SKFIRE:
 		case OBJ_CANDLE1:
 		case OBJ_CANDLE2:
@@ -2245,6 +2254,7 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		//if (hasNewObjPiece)
 			AddL2Objs(x1, y1, x2, y2);
 	}
+	MonChangeMap();
 	RedoLightAndVision();
 }
 
@@ -2348,7 +2358,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
 		if (pnum == mypnum)
 			InitDiabloMsg(EMSG_BONECHAMB);
-		SetRndSeed(os->_oRndSeed);
+		// SetRndSeed(os->_oRndSeed);
 		AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {
@@ -2788,7 +2798,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 				cnt++;
 		}
 		if (cnt != 0) {
-			r = random_(0, cnt);
+			r = random_low(0, cnt);
 			pi = plr._pInvBody;
 			for (i = NUM_INVLOC; i != 0; i--, pi++) {
 				if (pi->_itype != ITYPE_NONE
@@ -2893,11 +2903,12 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	case SHRINE_SPIRITUAL:
 		SetRndSeed(seed);
 		cnt = plr._pDunLevel;
+		// assert(cnt != 0);
 		pi = plr._pInvList;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
 			if (pi->_itype == ITYPE_NONE) {
 				CreateBaseItem(pi, IDI_GOLD);
-				r = cnt + random_(160, 2 * cnt);
+				r = cnt + random_low(160, 2 * cnt);
 				plr._pGold += r;
 				SetGoldItemValue(pi, r);
 			}
@@ -3132,7 +3143,8 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_GLIMMERING);
 		break;
 	case SHRINE_TAINTED:
-		if (MINION_NR_INACTIVE(mypnum)) {
+		static_assert(MAX_MINIONS == MAX_PLRS, "OperateShrine requires that owner of a monster has the same id as the monster itself.");
+		if (monsters[mypnum]._mmode > MM_INGAME_LAST) {
 			AddMissile(myplr._px, myplr._py, myplr._px, myplr._py, 0, MIS_GOLEM, MST_PLAYER, mypnum, currLvl._dLevel >> 1);
 		}
 		//if (pnum != mypnum)

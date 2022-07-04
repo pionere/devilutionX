@@ -94,8 +94,14 @@
   #endif
 
   #define    PKEXPORT
-  #define    __SYS_ZLIB
-  #define    __SYS_BZLIB
+
+  #ifndef __SYS_ZLIB
+    #define    __SYS_ZLIB
+  #endif
+
+  #ifndef __SYS_BZLIB
+    #define    __SYS_BZLIB
+  #endif
 
   #ifndef __BIG_ENDIAN__
     #define STORMLIB_LITTLE_ENDIAN
@@ -363,8 +369,8 @@
   #define O_LARGEFILE 0
 #endif
 
-// Platform-specific error codes for UNIX-based platforms
-#if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
+// Platform-specific error codes for non-Windows platforms
+#ifndef ERROR_SUCCESS
   #define ERROR_SUCCESS                  0
   #define ERROR_FILE_NOT_FOUND           ENOENT
   #define ERROR_ACCESS_DENIED            EPERM
@@ -435,32 +441,5 @@
     #define    BSWAP_TMPQHEADER(a,b)            ConvertTMPQHeader((a),(b))
     #define    BSWAP_TMPKHEADER(a)              ConvertTMPKHeader((a))
 #endif
-
-//-----------------------------------------------------------------------------
-// Macro for deprecated symbols
-
-/*
-#ifdef _MSC_VER
-  #if _MSC_FULL_VER >= 140050320
-    #define STORMLIB_DEPRECATED(_Text) __declspec(deprecated(_Text))
-  #else
-    #define STORMLIB_DEPRECATED(_Text) __declspec(deprecated)
-  #endif
-#else
-  #ifdef __GNUC__
-    #define STORMLIB_DEPRECATED(_Text) __attribute__((deprecated))
-  #else
-    #define STORMLIB_DEPRECATED(_Text) __attribute__((deprecated(_Text)))
-  #endif
-#endif
-
-// When a flag is deprecated, use this macro
-#ifndef _STORMLIB_NO_DEPRECATE
-  #define STORMLIB_DEPRECATED_FLAG(type, oldflag, newflag)    \
-    const STORMLIB_DEPRECATED(#oldflag " is deprecated. Use " #newflag ". To supress this warning, define _STORMLIB_NO_DEPRECATE") static type oldflag = (type)newflag;
-#else
-#define STORMLIB_DEPRECATED_FLAG(type, oldflag, newflag) static type oldflag = (type)newflag;
-#endif
-*/
 
 #endif // __STORMPORT_H__

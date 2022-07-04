@@ -1,6 +1,7 @@
 #pragma once
 
-#include "DiabloUI/ui_item.h"
+#include "../types.h"
+//#include "DiabloUI/ui_item.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

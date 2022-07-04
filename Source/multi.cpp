@@ -250,9 +250,6 @@ void multi_deactivate_player(int pnum, int reason)
 			switch (reason) {
 			//case LEAVE_UNKNOWN:
 			//	break;
-			case LEAVE_ENDING:
-				pszFmt = "Player '%s' killed Diablo and left the game!";
-				break;
 			case LEAVE_DROP:
 				pszFmt = "Player '%s' dropped due to timeout";
 				break;
@@ -439,6 +436,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 			plr._px = pkt->px;
 			plr._py = pkt->py;
 		}
+		net_assert(plr._pActive || dwMsgSize == sizeof(TurnPktHdr) || ((TCmd*)(pkt + 1))->bCmd == CMD_JOINLEVEL);
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
 		//multi_check_left_plrs();
 	}
@@ -665,7 +663,7 @@ static void SetupLocalPlr()
 	assert(p->destAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town
-	p->_pmode = PM_NEWLVL;
+	assert(p->_pmode == PM_NEWLVL);
 
 	gbActivePlayers = 1;
 	p->_pActive = TRUE;
@@ -702,12 +700,13 @@ void NetClose()
 	_gbNetInited = false;
 	nthread_cleanup();
 	dthread_cleanup();
-	UIDisconnectGame(gbCineflag ? LEAVE_ENDING : LEAVE_UNKNOWN);
+	UIDisconnectGame();
 }
 
 static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 {
 	int i, dlgresult, pnum;
+	uint32_t seed;
 
 	while (TRUE) {
 		// mypnum = 0;
@@ -791,7 +790,10 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 	SetRndSeed(sgGameInitInfo.dwSeed);
 
 	for (i = 0; i < NUM_LEVELS; i++) {
-		glSeedTbl[i] = GetRndSeed();
+		seed = GetRndSeed();
+		seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
+		glSeedTbl[i] = seed;
+		SetRndSeed(seed);
 	}
 	SNetGetGameInfo(&szGameName, &szGamePassword);
 

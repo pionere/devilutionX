@@ -169,14 +169,14 @@ int Decompress_ZLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, i
     z.zfree     = NULL;
 
     // Initialize the decompression structure. Storm.dll uses zlib version 1.1.3
-    if((nResult = inflateInit(&z)) == 0)
+    if((nResult = inflateInit(&z)) == Z_OK)
     {
         // Call zlib to decompress the data
         nResult = inflate(&z, Z_FINISH);
         *pcbOutBuffer = z.total_out;
         inflateEnd(&z);
     }
-    return nResult;
+    return (nResult == Z_OK);
 }
 #endif // FULL
 
@@ -233,7 +233,7 @@ static void WriteOutputData(char * buf, unsigned int * size, void * param)
     pInfo->pbOutBuff += nToWrite;
     assert(pInfo->pbOutBuff <= pInfo->pbOutBuffEnd);
 }
-
+#ifdef FULL
 static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer, int * pCmpType, int nCmpLevel)
 {
     TDataInfo Info;                                      // Data information
@@ -249,7 +249,9 @@ static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBu
     if(work_buf != NULL)
     {
         // Fill data information structure
+#ifdef FULL
         memset(work_buf, 0, CMP_BUFFER_SIZE);
+#endif
         Info.pbInBuff     = (unsigned char *)pvInBuffer;
         Info.pbInBuffEnd  = (unsigned char *)pvInBuffer + cbInBuffer;
         Info.pbOutBuff    = (unsigned char *)pvOutBuffer;
@@ -264,19 +266,23 @@ static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBu
 
         if (cbInBuffer < 0x600)
             dict_size = CMP_IMPLODE_DICT_SIZE1;
-        else if(0x600 <= cbInBuffer && cbInBuffer < 0xC00)
+        else if(/*0x600 <= cbInBuffer &&*/ cbInBuffer < 0xC00)
             dict_size = CMP_IMPLODE_DICT_SIZE2;
         else
             dict_size = CMP_IMPLODE_DICT_SIZE3;
 
         // Do the compression
+#ifdef FULL
         if(implode(ReadInputData, WriteOutputData, work_buf, &Info, &ctype, &dict_size) == CMP_NO_ERROR)
+#else
+        if(implode(ReadInputData, WriteOutputData, work_buf, &Info, ctype, dict_size) == CMP_NO_ERROR)
+#endif
             *pcbOutBuffer = (int)(Info.pbOutBuff - (unsigned char *)pvOutBuffer);
 
         STORM_FREE(work_buf);
     }
 }
-
+#endif /* FULL */
 static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer)
 {
     TDataInfo Info;                             // Data information
@@ -287,7 +293,9 @@ static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInB
         return 0;
 
     // Fill data information structure
+#ifdef FULL
     memset(work_buf, 0, EXP_BUFFER_SIZE);
+#endif
     Info.pbInBuff     = (unsigned char *)pvInBuffer;
     Info.pbInBuffEnd  = (unsigned char *)pvInBuffer + cbInBuffer;
     Info.pbOutBuff    = (unsigned char *)pvOutBuffer;
@@ -360,45 +368,27 @@ static void Compress_BZIP2(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBu
 static int Decompress_BZIP2(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer)
 {
     bz_stream strm;
-    int nResult = BZ_OK;
+    int nResult;
 
     // Initialize the BZIP2 decompression
+    strm.next_in   = (char *)pvInBuffer;
+    strm.avail_in  = cbInBuffer;
+    strm.next_out  = (char *)pvOutBuffer;
+    strm.avail_out = *pcbOutBuffer;
     strm.bzalloc = NULL;
     strm.bzfree  = NULL;
     strm.opaque  = NULL;
 
     // Initialize decompression
-    if(BZ2_bzDecompressInit(&strm, 0, 0) == BZ_OK)
+    if((nResult = BZ2_bzDecompressInit(&strm, 0, 0)) == BZ_OK)
     {
-        strm.next_in   = (char *)pvInBuffer;
-        strm.avail_in  = cbInBuffer;
-        strm.next_out  = (char *)pvOutBuffer;
-        strm.avail_out = *pcbOutBuffer;
-
         // Perform the decompression
-        while(nResult != BZ_STREAM_END)
-        {
-            nResult = BZ2_bzDecompress(&strm);
-
-            // If any error there, break the loop
-            if(nResult < BZ_OK)
-                break;
-        }
-
-        // Put the stream into idle state
+        nResult = BZ2_bzDecompress(&strm);
+        *pcbOutBuffer = strm.total_out_lo32;
         BZ2_bzDecompressEnd(&strm);
-
-        // If all succeeded, set the number of output bytes
-        if(nResult >= BZ_OK)
-        {
-            *pcbOutBuffer = strm.total_out_lo32;
-            return 1;
-        }
     }
 
-    // Something failed, so set number of output bytes to zero
-    *pcbOutBuffer = 0;
-    return 1;
+    return (nResult >= BZ_OK);
 }
 
 /******************************************************************************/
@@ -670,7 +660,6 @@ static int Decompress_ADPCM_stereo(void * pvOutBuffer, int * pcbOutBuffer, void 
     *pcbOutBuffer = DecompressADPCM(pvOutBuffer, *pcbOutBuffer, pvInBuffer, cbInBuffer, 2);
     return 1;
 }
-#endif // FULL
 
 /*****************************************************************************/
 /*                                                                           */
@@ -703,7 +692,7 @@ int WINAPI SCompImplode(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffe
     *pcbOutBuffer = cbOutBuffer;
     return 1;
 }
-
+#endif // FULL
 /*****************************************************************************/
 /*                                                                           */
 /*   SCompExplode                                                            */

@@ -222,7 +222,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'
-        distribution: 'adopt'
+        distribution: 'temurin'
         cache: gradle
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
@@ -234,8 +234,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: android-project/app/.cxx
-        key: android-cmake-${{ github.sha }}
-        restore-keys: android-cmake-
+        key: android-cmake-v3-${{ github.sha }}
+        restore-keys: android-cmake-v3-
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -430,8 +430,9 @@ jobs:
         path: build-ps4/devilutionx-ps4.pkg
 
   # Releases
+  #  needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
   release:
-    needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
+    needs: [build_check, build_win, build_mac, build_ios, build_rg350, build_lepus, build_retrofw, build_ps4]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
@@ -505,17 +506,17 @@ jobs:
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/hellfire-nightly-ios.ipa
 
     # android builds
-    - name: Download a diablo android artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: diablo-nightly-android.apk
-    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
+    #- name: Download a diablo android artifact
+    #  uses: actions/download-artifact@v2
+    #  with:
+    #    name: diablo-nightly-android.apk
+    #- run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
 
-    - name: Download a hellfire android artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: hellfire-nightly-android.apk
-    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
+    #- name: Download a hellfire android artifact
+    #  uses: actions/download-artifact@v2
+    #  with:
+    #    name: hellfire-nightly-android.apk
+    #- run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
 
     # rg350 builds
     - name: Download a diablo rg350 artifact
@@ -570,6 +571,8 @@ jobs:
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4.pkg
 
     # release notes
+    #    echo '[diablo-nightly-android.apk](../../releases/download/devilx-nightly/diablo-nightly-android.apk)   | Diablo package for `Android`' >> RELEASE_NOTE.md
+    #    echo '[hellfire-nightly-android.apk](../../releases/download/devilx-nightly/hellfire-nightly-android.apk)   | Hellfire package for `Android`' >> RELEASE_NOTE.md
     - name: Create release notes
       run: |
         echo 'Latest nightly builds'         > RELEASE_NOTE.md
@@ -579,7 +582,6 @@ jobs:
         echo '### **Diablo**'               >> RELEASE_NOTE.md
         echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
         echo '------------ | -------------' >> RELEASE_NOTE.md
-        echo '[diablo-nightly-android.apk](../../releases/download/devilx-nightly/diablo-nightly-android.apk)   | Diablo package for `Android`' >> RELEASE_NOTE.md
         echo '[diablo-nightly-lepus.opk](../../releases/download/devilx-nightly/diablo-nightly-lepus.opk)   | Diablo package for `Lepus`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-retrofw.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
@@ -592,7 +594,6 @@ jobs:
         echo '### **Diablo: Hellfire**'     >> RELEASE_NOTE.md
         echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
         echo '------------ | -------------' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-android.apk](../../releases/download/devilx-nightly/hellfire-nightly-android.apk)   | Hellfire package for `Android`' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-lepus.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepus.opk)   | Hellfire package for `Lepus`'       >> RELEASE_NOTE.md
         echo '[hellfire-nightly-retrofw.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
@@ -616,6 +617,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    #      ${{github.workspace}}/diablo-nightly-android.apk
+    #      ${{github.workspace}}/hellfire-nightly-android.apk
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
@@ -624,7 +627,6 @@ jobs:
         draft: false
         prerelease: true
         files: |
-          ${{github.workspace}}/diablo-nightly-android.apk
           ${{github.workspace}}/diablo-nightly-lepus.opk
           ${{github.workspace}}/diablo-nightly-retrofw.opk
           ${{github.workspace}}/diablo-nightly-rg350.opk
@@ -633,7 +635,6 @@ jobs:
           ${{github.workspace}}/diablo-nightly-ios.ipa
           ${{github.workspace}}/diablo-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-x86.zip
-          ${{github.workspace}}/hellfire-nightly-android.apk
           ${{github.workspace}}/hellfire-nightly-lepus.opk
           ${{github.workspace}}/hellfire-nightly-retrofw.opk
           ${{github.workspace}}/hellfire-nightly-rg350.opk

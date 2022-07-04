@@ -40,7 +40,8 @@ inline const BYTE *CelGetFrameClipped(const BYTE *pCelBuff, int nCel, int *nData
 	DWORD nDataStart;
 	const BYTE *pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
 
-	nDataStart = pRLEBytes[1] << 8 | pRLEBytes[0];
+	// assert((pRLEBytes[1] << 8 | pRLEBytes[0]) == 0x000A);
+	nDataStart = 0x0A;
 	*nDataSize -= nDataStart;
 
 	return &pRLEBytes[nDataStart];
@@ -49,19 +50,40 @@ inline const BYTE *CelGetFrameClipped(const BYTE *pCelBuff, int nCel, int *nData
 int GetDirection(int x1, int y1, int x2, int y2);
 void SetRndSeed(int32_t s);
 int32_t GetRndSeed();
+/* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a non-negative (32bit) integer. The result is zero if v is negative. */
 int random_(BYTE idx, int v);
+/* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a positive integer and less than or equal to 0x7FFF. */
+int random_low(BYTE idx, int v);
 BYTE *DiabloAllocPtr(size_t dwBytes);
 void mem_free_dbg(void *p);
 BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen = NULL);
 void LoadFileWithMem(const char *pszName, BYTE *p);
 
+/* Load .CEL file and overwrite the first (unused) DWORD with nWidth */
+inline CelImageBuf* CelLoadImage(const char* name, DWORD nWidth)
+{
+	CelImageBuf* res;
+
+	res = (CelImageBuf*)LoadFileInMem(name);
+#if DEBUG_MODE
+	res->ciFrameCnt = SwapLE32(*((DWORD *)res));
+#endif
+	res->ciWidth = nWidth;
+	return res;
+}
+
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
 void PlayInGameMovie(const char *pszMovie);
-
+/* Retrieve the next pseudo-random number in the range of minVal <= x <= maxVal, where (maxVal - minVal) is a non-negative (32bit) integer. The result is minVal if (maxVal - minVal) is negative. */
 inline int RandRange(int minVal, int maxVal)
 {
 	return minVal + random_(0, maxVal - minVal + 1);
+}
+/* Retrieve the next pseudo-random number in the range of minVal <= x <= maxVal, where (maxVal - minVal) is a non-negative integer and less than 0x7FFF. */
+inline int RandRangeLow(int minVal, int maxVal)
+{
+	return minVal + random_low(0, maxVal - minVal + 1);
 }
 
 #if defined(_MSC_VER)

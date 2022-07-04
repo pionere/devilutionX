@@ -262,8 +262,7 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iMinDex);
 	LoadByte(&is->_iUsable);
 	LoadByte(&is->_iFloorFlag);
-	tbuff += 1; // Alignment
-	LoadInt(&is->_iAnimFlag);
+	LoadByte(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
 	LoadInt(&is->_iAnimCnt);
@@ -608,18 +607,9 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->mtalkmsg);
 
 	// Omit pointer mName;
-	// Omit pointer MType;
 
-	SyncMonsterAnim(mnum);
-}
-
-static void LoadTowner(int tnum)
-{
-	TownerStruct* tw = &towners[tnum];
-
-	LoadInt(&tw->_tAnimCnt);
-	LoadInt(&tw->_tAnimFrame);
-	LoadInt(&tw->_tAnimFrameCnt);
+	if (currLvl._dType != DTYPE_TOWN)
+		SyncMonsterAnim(mnum);
 }
 
 static void LoadMissile(int mi)
@@ -661,7 +651,7 @@ static void LoadMissile(int mi)
 	LoadInt(&mis->_miCaster);
 	LoadInt(&mis->_miMinDam);
 	LoadInt(&mis->_miMaxDam);
-	LoadInt(&mis->_miRndSeed);
+	// LoadInt(&mis->_miRndSeed);
 	LoadInt(&mis->_miRange);
 	LoadInt(&mis->_miDist);
 	LoadInt(&mis->_miLid);
@@ -718,7 +708,7 @@ static void LoadObject(int oi, bool full)
 
 	if (!full) {
 		// reset dynamic lights
-		os->_olid = -1;
+		os->_olid = NO_LIGHT;
 	}
 }
 
@@ -782,8 +772,6 @@ static void LoadLevelData(bool full)
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
-		if (!full)
-			SyncDeadLight();
 	}
 
 	LoadInt(&nummonsters);
@@ -792,11 +780,9 @@ static void LoadLevelData(bool full)
 	LoadInt(&numobjects);
 	LoadInt(&numitems);
 
+	for (i = 0; i < MAXMONSTERS; i++)
+		LoadMonster(i);
 	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
-			LoadInt(&monstactive[i]);
-		for (i = 0; i < nummonsters; i++)
-			LoadMonster(monstactive[i]);
 		if (full) {
 			static_assert(MAXMISSILES <= UCHAR_MAX, "LoadLevelData handles missile-ids as bytes.");
 			for (i = 0; i < MAXMISSILES; i++)
@@ -829,8 +815,8 @@ static void LoadLevelData(bool full)
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
 	}
 
+	LoadInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
 	if (currLvl._dType != DTYPE_TOWN) {
-		LoadInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
 		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
 		if (full)
@@ -874,20 +860,22 @@ void LoadGame()
 	// load player-data
 	LoadInt(&_ViewX);
 	LoadInt(&_ViewY);
-	LoadInt(&ScrollInfo._sdx);
-	LoadInt(&ScrollInfo._sdy);
+	// LoadInt(&ScrollInfo._sdx);
+	// LoadInt(&ScrollInfo._sdy);
 	LoadInt(&ScrollInfo._sxoff);
 	LoadInt(&ScrollInfo._syoff);
 	LoadInt(&ScrollInfo._sdir);
-	gbZoomInFlag = LoadBool();
-	gbInvflag = LoadBool();
-	gbChrflag = LoadBool();
-	gbLvlUp = LoadBool();
 	LoadInt(&gnHPPer);
 	LoadInt(&gnManaPer);
 
+	gbLvlUp = LoadBool();
 	gbAutomapflag = LoadBool();
-	tbuff += 3; // Alignment
+	gbZoomInFlag = LoadBool();
+	gbInvflag = LoadBool();
+	LoadInt(&gnNumActiveWindows);
+	for (i = 0; i < NUM_WNDS; i++) {
+		LoadByte(&gaActiveWindows[i]);
+	}
 	LoadInt(&AutoMapScale);
 	LoadInt(&AutoMapXOfs);
 	LoadInt(&AutoMapYOfs);
@@ -945,8 +933,6 @@ void LoadGame()
 			LoadItemData(&healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
 			LoadItemData(&witchitem[i]);
-		for (i = 0; i < MAX_TOWNERS; i++)
-			LoadTowner(i);
 	}
 
 	InitAutomapScale();
@@ -985,8 +971,7 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iMinDex);
 	SaveByte(&is->_iUsable);
 	SaveByte(&is->_iFloorFlag);
-	tbuff += 1; // Alignment
-	SaveInt(&is->_iAnimFlag);
+	SaveByte(&is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
 	SaveInt(&is->_iAnimCnt);
@@ -1338,16 +1323,6 @@ static void SaveMonster(int mnum, bool full)
 	SaveInt(&mon->mtalkmsg);
 
 	// Omit pointer mName;
-	// Omit pointer MType;
-}
-
-static void SaveTowner(int tnum)
-{
-	TownerStruct* tw = &towners[tnum];
-
-	SaveInt(&tw->_tAnimCnt);
-	SaveInt(&tw->_tAnimFrame);
-	SaveInt(&tw->_tAnimFrameCnt);
 }
 
 static void SaveMissile(int mi)
@@ -1389,7 +1364,7 @@ static void SaveMissile(int mi)
 	SaveInt(&mis->_miCaster);
 	SaveInt(&mis->_miMinDam);
 	SaveInt(&mis->_miMaxDam);
-	SaveInt(&mis->_miRndSeed);
+	// SaveInt(&mis->_miRndSeed);
 	SaveInt(&mis->_miRange);
 	SaveInt(&mis->_miDist);
 	SaveInt(&mis->_miLid);
@@ -1499,11 +1474,9 @@ static void SaveLevelData(bool full)
 	SaveInt(&numobjects);
 	SaveInt(&numitems);
 
+	for (i = 0; i < MAXMONSTERS; i++)
+		SaveMonster(i, full);
 	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
-			SaveInt(&monstactive[i]);
-		for (i = 0; i < nummonsters; i++)
-			SaveMonster(monstactive[i], full);
 		if (full) {
 			for (i = 0; i < MAXMISSILES; i++)
 				SaveByte(&missileactive[i]);
@@ -1529,8 +1502,8 @@ static void SaveLevelData(bool full)
 		CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
 	}
 
+	SaveInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
 	if (currLvl._dType != DTYPE_TOWN) {
-		SaveInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
 		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
 		if (full)
@@ -1544,7 +1517,7 @@ void SaveGame()
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 56 + 13964 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
+	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 48 + NUM_WNDS + 13964 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
 	// initial
 	i = SAVE_INITIAL;
 	SaveInt(&i);
@@ -1561,20 +1534,22 @@ void SaveGame()
 	// save player-data
 	SaveInt(&ViewX);
 	SaveInt(&ViewY);
-	SaveInt(&ScrollInfo._sdx);
-	SaveInt(&ScrollInfo._sdy);
+	// SaveInt(&ScrollInfo._sdx);
+	// SaveInt(&ScrollInfo._sdy);
 	SaveInt(&ScrollInfo._sxoff);
 	SaveInt(&ScrollInfo._syoff);
 	SaveInt(&ScrollInfo._sdir);
-	SaveBool(gbZoomInFlag);
-	SaveBool(gbInvflag);
-	SaveBool(gbChrflag);
-	SaveBool(gbLvlUp);
 	SaveInt(&gnHPPer);
 	SaveInt(&gnManaPer);
 
+	SaveBool(gbLvlUp);
 	SaveBool(gbAutomapflag);
-	tbuff += 3; // Alignment
+	SaveBool(gbZoomInFlag);
+	SaveBool(gbInvflag);
+	SaveInt(&gnNumActiveWindows);
+	for (i = 0; i < NUM_WNDS; i++) {
+		SaveByte(&gaActiveWindows[i]);
+	}
 	SaveInt(&AutoMapScale);
 	SaveInt(&AutoMapXOfs);
 	SaveInt(&AutoMapYOfs);
@@ -1595,11 +1570,11 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + /*MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
+	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
 	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
-	/* + 112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 2 + MAXMONSTERS * 184 + MAXMISSILES
+	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 176 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
@@ -1608,10 +1583,10 @@ void SaveGame()
 	// save meta-data III. (modified by LoadGameLevel)
 	constexpr size_t smt = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
 	 + 236 + SMITH_PREMIUM_ITEMS * 236 + (SMITH_ITEMS * 236 + HEALER_ITEMS * 236
-	 + WITCH_ITEMS * 236 + 12 * MAX_TOWNERS);
+	 + WITCH_ITEMS * 236);
 	constexpr size_t smd = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
 	 + 236 + SMITH_PREMIUM_ITEMS * 236 /*+ SMITH_ITEMS * 236 + HEALER_ITEMS * 236
-	 + WITCH_ITEMS * 236 + 12 * MAX_TOWNERS*/;
+	 + WITCH_ITEMS * 236*/;
 	//SaveInt(&numtowners);
 	SaveInt(&boylevel);
 	SaveInt(&numpremium);
@@ -1643,8 +1618,6 @@ void SaveGame()
 			SaveItemData(&healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
 			SaveItemData(&witchitem[i]);
-		for (i = 0; i < MAX_TOWNERS; i++)
-			SaveTowner(i);
 	}
 
 	constexpr size_t tst = ss + slt + smt;
@@ -1686,6 +1659,7 @@ void LoadLevel()
 
 	LoadLevelData(false);
 
+	SyncMonsterLight();
 	//ResyncQuests();
 	//SyncPortals();
 

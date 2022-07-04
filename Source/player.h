@@ -11,6 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define myplr					players[mypnum]
 #define plr						players[pnum]
 #define plx(x)					players[x]
+#define PLR_WALK_SHIFT 8
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +58,7 @@ void PlrDecMana(int pnum, int mana);
 void ProcessPlayers();
 void ClrPlrPath(int pnum);
 void MissToPlr(int mi, bool hit);
+bool PosOkActor(int x, int y);
 bool PosOkPlayer(int pnum, int x, int y);
 bool MakePlrPath(int pnum, int xx, int yy, bool endspace);
 void SyncPlrAnim(int pnum);

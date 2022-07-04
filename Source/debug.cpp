@@ -192,12 +192,7 @@ void PrintDebugMonster(int m)
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Mode = %d, Var1 = %d", monsters[m]._mmode, monsters[m]._mVar1);
 	NetSendCmdString(1 << mypnum);
 
-	bActive = false;
-
-	for (i = 0; i < nummonsters; i++) {
-		if (monstactive[i] == m)
-			bActive = true;
-	}
+	bActive = monsters[m]._mmode <= MM_INGAME_LAST;
 
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Active List = %d, Squelch = %d", bActive, monsters[m]._msquelch);
 	NetSendCmdString(1 << mypnum);
@@ -261,6 +256,20 @@ void ValidateData()
 {
 	int i;
 
+	// text
+	if (GetHugeStringWidth("Pause") != 135)
+		app_fatal("gmenu_draw_pause expects hardcoded width 135.");
+
+	// cursors
+	for (i = 0; i < lengthof(InvItemWidth); i++) {
+		if (i != CURSOR_NONE && InvItemWidth[i] == 0)
+			app_fatal("Invalid (zero) cursor width at %d.", i);
+	}
+	for (i = 0; i < lengthof(InvItemHeight); i++) {
+		if (i != CURSOR_NONE && InvItemHeight[i] == 0)
+			app_fatal("Invalid (zero) cursor height at %d.", i);
+	}
+
 	// quests
 	for (i = 0; i < lengthof(AllLevels); i++) {
 		int j = 0;
@@ -270,6 +279,10 @@ void ValidateData()
 		}
 		if (j == lengthof(AllLevels[i].dMonTypes))
 			app_fatal("Missing closing MT_INVALID on level %s (%d)", AllLevels[i].dLevelName, i);
+		if (i != DLV_TOWN && AllLevels[i].dLevel == 0) // required by GetItemAttrs
+			app_fatal("Too low dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
+		if ((AllLevels[i].dLevel * 8 - AllLevels[i].dLevel * 2) >= 0x7FFF) // required by GetItemAttrs
+			app_fatal("Too high dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
 	}
 
 	// monsters
@@ -280,9 +293,26 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
 		if (md.mAi == AI_COUNSLR && md.mInt > 5)
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
+		if ((md.mAi == AI_GOLUM || md.mAi == AI_SKELKING || md.mAi == AI_MEGA) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("AI_GOLUM, AI_SKELKING and AI_MEGA always check the doors (%s, %d)", md.mName, i);
+		if ((md.mAi == AI_FALLEN || md.mAi == AI_SNAKE || md.mAi == AI_SNEAK || md.mAi == AI_SKELBOW) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("AI_FALLEN,  AI_SNAKE, AI_SNEAK and AI_SKELBOW never check the doors (%s, %d)", md.mName, i);
+#ifdef HELLFIRE
+		if ((md.mAi == AI_HORKDMN) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("AI_HORKDMN never check the doors (%s, %d)", md.mName, i);
+#endif
+		if ((md.mAi == AI_CLEAVER || md.mAi == AI_FAT || md.mAi == AI_BAT) && (md.mFlags & MFLAG_CAN_OPEN_DOOR) && !(md.mFlags & MFLAG_SEARCH))
+			app_fatal("AI_CLEAVER, AI_FAT and AI_BAT only check the doors while searching (%s, %d)", md.mName, i);
 		if (md.mLevel + HELL_LEVEL_BONUS > CF_LEVEL && (md.mTreasure & 0x4000) == 0)
 			app_fatal("Invalid mLevel %d for %s (%d). Too high in hell to set the level of item-drop.", md.mLevel, md.mName, i);
-
+		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
+			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
+		if (md.mMinHP <= 0)
+			app_fatal("Invalid mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
+		if (md.mMinHP > md.mMaxHP)
+			app_fatal("Too high mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
+		if (md.mMaxHP - md.mMinHP >= 0x7FFF) // required by InitMonster
+			app_fatal("Min/MaxHP range (%d-%d) too high for %s (%d)", md.mMinHP, md.mMaxHP, md.mName, i);
 		uint16_t res = md.mMagicRes;
 		uint16_t resH = md.mMagicRes2;
 		for (int j = 0; j < 8; j++, res >>= 2, resH >>= 2) {
@@ -293,8 +323,18 @@ void ValidateData()
 	}
 	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
+		if (md.moAnimFrames[MA_STAND] > 0x7FFF) // required by InitMonster
+			app_fatal("Too many(%d) stand-frames for %s (%d).", md.moAnimFrames[MA_STAND], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_STAND] >= 0x7FFF) // required by InitMonster
+			app_fatal("Too long(%d) standing animation for %s (%d).", md.moAnimFrameLen[MA_STAND], md.moGfxFile, i);
 		if (md.moAnimFrames[MA_WALK] > 24) // required by MonWalkDir
 			app_fatal("Too many(%d) walk-frames for %s (%d).", md.moAnimFrames[MA_WALK], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK] >= SQUELCH_LOW)
+			app_fatal("Too long(%d) walking animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK] >= SQUELCH_LOW)
+			app_fatal("Too long(%d) attack animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL] >= SQUELCH_LOW)
+			app_fatal("Too long(%d) special animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL], md.moGfxFile, i);
 	}
 
 	// umt checks for GetLevelMTypes
@@ -343,6 +383,16 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
 		if (um.mAi == AI_COUNSLR && um.mInt > 5)
 			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
+		if ((um.mAi == AI_GOLUM || um.mAi == AI_SKELKING || um.mAi == AI_MEGA) && !(monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("Unique AI_GOLUM, AI_SKELKING and AI_MEGA always check the doors (%s, %d)", um.mName, i);
+		if ((um.mAi == AI_FALLEN || um.mAi == AI_SNAKE || um.mAi == AI_SNEAK || um.mAi == AI_SKELBOW) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("Unique AI_FALLEN, AI_CLEAVER, AI_SNAKE, AI_SNEAK, AI_SKELBOW and AI_FAT never check the doors (%s, %d)", um.mName, i);
+#ifdef HELLFIRE
+		if ((um.mAi == AI_HORKDMN) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("Unique AI_HORKDMN never check the doors (%s, %d)", um.mName, i);
+#endif
+		if ((um.mAi == AI_CLEAVER || um.mAi == AI_FAT) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR) && !(monsterdata[um.mtype].mFlags & MFLAG_SEARCH))
+			app_fatal("Unique AI_CLEAVER and AI_FAT only check the doors while searching (%s, %d)", um.mName, i);
 		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mTreasure & 0x4000) == 0)
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
 		if ((um.mUnqAttr & UMF_LEADER) != 0 && ((um.mUnqAttr & UMF_GROUP) == 0))
@@ -391,6 +441,8 @@ void ValidateData()
 		rnddrops += ids.iRnd;
 		if (i < IDI_RNDDROP_FIRST && ids.iRnd != 0)
 			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
+		if (ids.itype == ITYPE_NONE)
+			app_fatal("Invalid itype value for %s (%d)", ids.iName, i);
 		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor && ids.iRnd != 0)
 			minLightArmor = ids.iMinMLvl;
 		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor && ids.iRnd != 0)
@@ -406,6 +458,10 @@ void ValidateData()
 			 && ids.itype != ITYPE_HARMOR && ids.itype != ITYPE_SHIELD
 			 && ids.itype != ITYPE_HELM)
 				app_fatal("Invalid type (%d) set for %s (%d), which is an armor.", ids.itype, ids.iName, i);
+			if (ids.iMinAC > ids.iMaxAC)
+				app_fatal("Too high iMinAC %d for %s (%d)", ids.iMinAC, ids.iName, i);
+			if (ids.iMaxAC - ids.iMinAC >= 0x7FFF) // required by SetItemData
+				app_fatal("Min/MaxAC range (%d-%d) too high for %s (%d)", ids.iMinAC, ids.iMaxAC, ids.iName, i);
 		} else {
 			if (ids.iMinAC != 0 || ids.iMaxAC != 0)
 				app_fatal("AC set for %s (%d), which is not an armor.", ids.iName, i);
@@ -439,8 +495,10 @@ void ValidateData()
 			if (InvItemHeight[ids.iCurs + CURSOR_FIRSTITEM] != INV_SLOT_SIZE_PX)
 				app_fatal("Belt item %s (%d) is too tall.", ids.iName, i);
 		}
-		if (ids.iDurability * 3 >= DUR_INDESTRUCTIBLE)
-			app_fatal("Item %s (%d) has too high durability.", ids.iName, i);
+		if (ids.iDurability * 3 >= DUR_INDESTRUCTIBLE) // required by SaveItemPower/IPL_DUR
+			app_fatal("Item %s (%d) has too high durability I.", ids.iName, i);
+		if (ids.iDurability * 3 >= 0x7FFF) // required by ItemRndDur
+			app_fatal("Item %s (%d) has too high durability II.", ids.iName, i);
 		if (ids.iUsable) {
 			switch (ids.iMiscId) {
 			case IMISC_HEAL:
@@ -455,7 +513,7 @@ void ValidateData()
 #endif
 			case IMISC_BOOK:
 			case IMISC_SPECELIX:
-			case IMISC_MAPOFDOOM:
+			//case IMISC_MAPOFDOOM:
 			case IMISC_NOTE:
 			case IMISC_OILQLTY:
 			case IMISC_OILZEN:
@@ -475,10 +533,15 @@ void ValidateData()
 		}
 		if (ids.iClass == ICLASS_QUEST && ids.iLoc != ILOC_UNEQUIPABLE)
 			app_fatal("Quest item %s (%d) must be unequippable, not %d", ids.iName, i, ids.iLoc);
+		if (ids.iClass == ICLASS_QUEST && ids.itype != ITYPE_MISC)
+			app_fatal("Quest item %s (%d) must be have 'misc' itype, otherwise it might be sold at vendors.", ids.iName, i);
 	}
 #if UNOPTIMIZED_RNDITEMS
 	if (rnddrops > ITEM_RNDDROP_MAX)
 		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, ITEM_RNDDROP_MAX);
+#else
+	if (rnddrops > 0x7FFF)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, 0x7FFF);
 #endif
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
@@ -491,6 +554,20 @@ void ValidateData()
 	rnddrops = 0; i = 0;
 	for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
 		rnddrops += pres->PLDouble ? 2 : 1;
+		if (pres->PLParam2 < pres->PLParam1) {
+			app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+		}
+		if (pres->PLParam2 - pres->PLParam1 >= 0x7FFF) { // required by SaveItemPower
+			app_fatal("PLParam too high for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+		}
+		if (pres->PLPower == IPL_TOHIT_DAMP) {
+			if ((pres->PLParam2 >> 2) - (pres->PLParam1 >> 2) == 0) { // required by SaveItemPower
+				app_fatal("PLParam too low for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			}
+			//if ((pres->PLParam2 >> 2) - (pres->PLParam1 >> 2) >= 0x7FFF) { // required by SaveItemPower
+			//	app_fatal("PLParam too high for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			//}
+		}
 		if (pres->PLPower == IPL_FASTATTACK) {
 			if (pres->PLParam1 < 1 || pres->PLParam2 > 4) {
 				app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
@@ -511,8 +588,13 @@ void ValidateData()
 				app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
 			}
 		}
+		if (pres->PLPower == IPL_DUR) {
+			if (pres->PLParam2 > 200) {
+				app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2);
+			}
+		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX)
+	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
 		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
 	rnddrops = 0;
 	const AffixData* sufs = PL_Suffix;
@@ -538,6 +620,11 @@ void ValidateData()
 		if (sufs->PLPower == IPL_FASTWALK) {
 			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 3) {
 				app_fatal("Invalid PLParam set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			}
+		}
+		if (sufs->PLPower == IPL_DUR) {
+			if (sufs->PLParam2 > 200) {
+				app_fatal("PLParam too high for %d. suffix (power:%d, pparam2:%d)", i, sufs->PLPower, sufs->PLParam2);
 			}
 		}
 		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
@@ -574,7 +661,7 @@ void ValidateData()
 			}
 		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX)
+	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
 		app_fatal("Too many suffix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
 
 #if 0
@@ -740,6 +827,11 @@ void ValidateData()
 				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
 			}
 		}
+		if (ui.UIPower1 == IPL_DUR) {
+			if (ui.UIParam1b > 200) {
+				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
+			}
+		}
 		if (ui.UIPower2 == IPL_FASTATTACK) {
 			if (ui.UIParam2a < 1 || ui.UIParam2b > 4) {
 				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
@@ -757,6 +849,11 @@ void ValidateData()
 		}
 		if (ui.UIPower2 == IPL_FASTWALK) {
 			if (ui.UIParam2a < 1 || ui.UIParam2b > 3) {
+				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower2 == IPL_DUR) {
+			if (ui.UIParam2b > 200) {
 				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
 			}
 		}
@@ -780,6 +877,11 @@ void ValidateData()
 				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
 			}
 		}
+		if (ui.UIPower3 == IPL_DUR) {
+			if (ui.UIParam3b > 200) {
+				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
+			}
+		}
 		if (ui.UIPower4 == IPL_FASTATTACK) {
 			if (ui.UIParam4a < 1 || ui.UIParam4b > 4) {
 				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
@@ -797,6 +899,11 @@ void ValidateData()
 		}
 		if (ui.UIPower4 == IPL_FASTWALK) {
 			if (ui.UIParam4a < 1 || ui.UIParam4b > 3) {
+				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+		if (ui.UIPower4 == IPL_DUR) {
+			if (ui.UIParam4b > 200) {
 				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
 			}
 		}
@@ -820,6 +927,11 @@ void ValidateData()
 				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
 			}
 		}
+		if (ui.UIPower5 == IPL_DUR) {
+			if (ui.UIParam5b > 200) {
+				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
+			}
+		}
 		if (ui.UIPower6 == IPL_FASTATTACK) {
 			if (ui.UIParam6a < 1 || ui.UIParam6b > 4) {
 				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
@@ -840,11 +952,39 @@ void ValidateData()
 				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
 			}
 		}
+		if (ui.UIPower6 == IPL_DUR) {
+			if (ui.UIParam6b > 200) {
+				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
+			}
+		}
+	}
+	// objects
+	for (i = 0; i < NUM_OFILE_TYPES; i++) {
+		const ObjFileData& od = objfiledata[i];
+		if (od.oAnimFlag) {
+			if (od.oAnimFrameLen <= 0)
+				app_fatal("Invalid oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
+			if (od.oAnimLen <= 1) // required by SetupObject
+				app_fatal("Invalid oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
+			if (od.oAnimLen >= 0x7FFF) // required by SetupObject
+				app_fatal("Too high oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
+		}
 	}
 	// spells
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
+		if (i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE || i == SPL_BUCKLE || i == SPL_WHITTLE) {
+			if (sd.scCurs > CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
+			if (sd.spCurs > CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+		} else {
+			if (sd.scCurs != CURSOR_NONE && sd.scCurs <= CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
+			if (sd.spCurs != CURSOR_NONE && sd.spCurs <= CURSOR_LAST_ITEMTGT)
+				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+		}
 		ItemStruct* is = NULL;
 		if (SPELL_RUNE(i)) {
 			if (sd.sBookLvl != SPELL_NA)
@@ -874,6 +1014,10 @@ void ValidateData()
 		if (sd.sStaffLvl != SPELL_NA) {
 			if (sd.sStaffLvl < STAFF_MIN)
 				app_fatal("Invalid sStaffLvl %d for %s (%d)", sd.sStaffLvl, sd.sNameText, i);
+			if (sd.sStaffMin > sd.sStaffMax)
+				app_fatal("Too high sStaffMin %d for %s (%d)", sd.sStaffMin, sd.sNameText, i);
+			if (sd.sStaffMax - sd.sStaffMin >= 0x7FFF) // required by GetStaffSpell
+				app_fatal("Too high sStaffMax %d for %s (%d)", sd.sStaffMin, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			//if (strlen(sd.sNameText) > sizeof(is->_iName) - (maxStaff + 4 + 1))
@@ -888,6 +1032,8 @@ void ValidateData()
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Scroll of ") + 1))
 				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
+			if ((sd.sSkillFlags & SDFLAG_TARGETED) && sd.scCurs == CURSOR_NONE)
+				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
 			hasScrollSpell = true;
 		}
 	}
@@ -903,9 +1049,28 @@ void ValidateData()
 	// missiles
 	for (i = 0; i < NUM_MISTYPES; i++) {
 		const MissileData &md = missiledata[i];
-		if (i == MIS_FLASH) {
-			if (misfiledata[md.mFileNum].mfAnimLen[0] != 19)
-				app_fatal("Hardcoded missile range of MIS_FLASH(%d) does not match the mfAnimLen of the assigned mFileNum", MIS_FLASH);
+		if (md.mAddProc == NULL)
+			app_fatal("Missile %d has no valid mAddProc.", i);
+		if (md.mProc == NULL)
+			app_fatal("Missile %d has no valid mProc.", i);
+		if (md.mDraw) {
+			if (md.mFileNum == MFILE_NONE && i != MIS_RHINO && i != MIS_CHARGE)
+				app_fatal("Missile %d is drawn, but has no valid mFileNum.", i);
+		} else {
+			if (md.mFileNum != MFILE_NONE)
+				app_fatal("Missile %d is not drawn, but has valid mFileNum.", i);
+			if (md.miSFX != SFX_NONE)
+				app_fatal("Missile %d is not drawn, but has valid miSFX.", i);
+		}
+	}
+	for (i = 0; i < STORE_TOWNERS; i++) {
+		//const int(*gl)[2] = &GossipList[i];
+		const int(&gl)[2] = GossipList[i];
+		if (gl[0] > gl[1]) {
+			app_fatal("Invalid GossipList (%d-%d) for %d", gl[0], gl[1], i);
+		}
+		if (gl[1] - gl[0] >= 0x7FFF) { // required by S_TalkEnter
+			app_fatal("Too high GossipList range (%d-%d) for %d", gl[0], gl[1], i);
 		}
 	}
 }
@@ -915,8 +1080,8 @@ void ValidateData()
 void LogErrorF(const char* type, const char* msg, ...)
 {
 	char tmp[256];
-	//snprintf(tmp, sizeof(tmp), "c:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
-	snprintf(tmp, sizeof(tmp), "c:\\logdebug%d.txt", mypnum);
+	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
+	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
 	FILE *f0 = fopen(tmp, "a+");
 	if (f0 == NULL)
 		return;

@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "../types.h"
+#include "../gameui.h"
 #include <SDL.h>
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -13,6 +14,7 @@ extern "C" {
 #endif
 
 extern bool gbWndActive;
+extern bool gbFullscreen;
 extern bool gbVsyncEnabled;
 extern bool gbFPSLimit;
 extern int gnRefreshDelay;

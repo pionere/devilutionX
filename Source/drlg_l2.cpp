@@ -1902,14 +1902,16 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	if (nAw >= ROOM_MAX) {
 		nRw = RandRange(ROOM_MIN, ROOM_MAX);
 	} else if (nAw > ROOM_MIN) {
-		nRw = RandRange(ROOM_MIN, nAw);
+		static_assert(DMAXX - ROOM_MIN < 0x7FFF, "CreateRoom uses RandRangeLow to set the width.");
+		nRw = RandRangeLow(ROOM_MIN, nAw);
 	} else {
 		nRw = nAw;
 	}
 	if (nAh >= ROOM_MAX) {
 		nRh = RandRange(ROOM_MIN, ROOM_MAX);
 	} else if (nAh > ROOM_MIN) {
-		nRh = RandRange(ROOM_MIN, nAh);
+		static_assert(DMAXY - ROOM_MIN < 0x7FFF, "CreateRoom uses RandRangeLow to set the height.");
+		nRh = RandRangeLow(ROOM_MIN, nAh);
 	} else {
 		nRh = nAh;
 	}
@@ -2309,7 +2311,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 				nCurrd = nX2 <= nX1 ? HDIR_LEFT : HDIR_RIGHT;
 			continue;
 		}
-		nRp = random_(0, 2 * (nDx + nDy));
+		nRp = random_low(0, 2 * (nDx + nDy));
 		if (nRp < (nDx + nDy)) {
 			if (nRp < nDx)
 				nCurrd = nX2 <= nX1 ? HDIR_LEFT : HDIR_RIGHT;

@@ -34,16 +34,16 @@
 // Local functions - platform-specific functions
 
 #ifndef STORMLIB_WINDOWS
-static DWORD nLastError = ERROR_SUCCESS;
+static thread_local DWORD dwLastError = ERROR_SUCCESS;
 
 DWORD GetLastError()
 {
-    return nLastError;
+    return dwLastError;
 }
 
 void SetLastError(DWORD dwErrCode)
 {
-    nLastError = dwErrCode;
+    dwLastError = dwErrCode;
 }
 #endif /* !STORMLIB_WINDOWS */
 
@@ -114,7 +114,7 @@ static bool BaseFile_Create(TFileStream * pStream)
         if(handle == -1)
         {
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
-            nLastError = errno;
+            dwLastError = errno;
             return false;
         }
 
@@ -167,7 +167,7 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         if(handle == -1)
         {
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
-            nLastError = errno;
+            dwLastError = errno;
             return false;
         }
 
@@ -175,7 +175,7 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         if(fstat64(handle, &fileinfo) == -1)
         {
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
-            nLastError = errno;
+            dwLastError = errno;
             close(handle);
             return false;
         }
@@ -245,7 +245,7 @@ static bool BaseFile_Read(
             bytes_read = read((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToRead);
             if(bytes_read == -1)
             {
-                nLastError = errno;
+                dwLastError = errno;
                 return false;
             }
 
@@ -314,7 +314,7 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
         bytes_written = write((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToWrite);
         if(bytes_written == -1)
         {
-            nLastError = errno;
+            dwLastError = errno;
             return false;
         }
 
@@ -369,7 +369,7 @@ static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
     {
         if(ftruncate64((intptr_t)pStream->Base.File.hFile, (off64_t)NewFileSize) == -1)
         {
-            nLastError = errno;
+            dwLastError = errno;
             return false;
         }
 
@@ -413,7 +413,7 @@ static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
     // "rename" on Linux also works if the target file exists
     if(rename(pNewStream->szFileName, pStream->szFileName) == -1)
     {
-        nLastError = errno;
+        dwLastError = errno;
         return false;
     }
 
@@ -595,7 +595,7 @@ static bool BaseMap_Open(TFileStream * pStream, LPCTSTR szFileName, DWORD dwStre
 
     // Did the mapping fail?
     if(bResult == false)
-        nLastError = errno;
+        dwLastError = errno;
     return bResult;
 
 #else

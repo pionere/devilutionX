@@ -44,6 +44,8 @@ BYTE *gpBuffer;
 BYTE *gpBufStart;
 /** Lower bound of back buffer. */
 BYTE *gpBufEnd;
+/** The width of the back buffer. */
+int gnBufferWidth;
 
 #if DEBUG_MODE
 int locktbl[256];
@@ -52,11 +54,16 @@ static CCritSect sgMemCrit;
 
 static void dx_create_back_buffer()
 {
+	gnBufferWidth = BORDER_LEFT + SCREEN_WIDTH + BORDER_LEFT;
+	// The buffer needs to be divisible by 4 for the engine to blit correctly
+	if (gnBufferWidth & 3) {
+		gnBufferWidth += 4 - (gnBufferWidth & 3);
+	}
 	back_surface = SDL_CreateRGBSurfaceWithFormat(0, BUFFER_WIDTH, BUFFER_HEIGHT, 0, SDL_PIXELFORMAT_INDEX8);
 	if (back_surface == NULL) {
 		sdl_error(ERR_SDL_BACK_PALETTE_CREATE);
 	}
-
+	assert(back_surface->pitch == gnBufferWidth);
 	gpBuffer = (BYTE *)back_surface->pixels;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
 	//gpBufEnd = (BYTE *)(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));

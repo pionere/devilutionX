@@ -25,6 +25,11 @@ const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 	// clang-format on
 };
 
+/** Maps from direction to delta X-offset in an 3x3 area. */
+static const int area3x3_x[NUM_DIRS + 1] = { 0, 1, 0, -1, -1, -1, 0, 1, 1 };
+/** Maps from direction to delta Y-offset in an 3x3 area. */
+static const int area3x3_y[NUM_DIRS + 1] = { 0, 1, 1, 1, 0, -1, -1, -1, 0 };
+
 static void SetItemLoc(int ii, int x, int y)
 {
 	items[ii]._ix = x;
@@ -220,7 +225,7 @@ static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 		p->_pAltAtkSkillType = RSPLTYPE_INVALID;
 		//gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
-	if (p->_pAltMoveSkillType == type && !(mask & SPELL_MASK(p->_pMoveSkill))) {
+	if (p->_pAltMoveSkillType == type && !(mask & SPELL_MASK(p->_pAltMoveSkill))) {
 		p->_pAltMoveSkill = SPL_INVALID;
 		p->_pAltMoveSkillType = RSPLTYPE_INVALID;
 		//gbRedrawFlags |= REDRAW_SPELL_ICON;
@@ -810,7 +815,7 @@ void SetItemData(int ii, int idata)
 	is->_iMinMag = ids->iMinMag;
 	is->_iMinDex = ids->iMinDex;
 	is->_iUsable = ids->iUsable;
-	is->_iAC = ids->iMinAC == ids->iMaxAC ? ids->iMinAC : RandRange(ids->iMinAC, ids->iMaxAC);
+	is->_iAC = ids->iMinAC == ids->iMaxAC ? ids->iMinAC : RandRangeLow(ids->iMinAC, ids->iMaxAC);
 	is->_iDurability = ids->iUsable ? 1 : ids->iDurability; // STACK
 	is->_iMaxDur = ids->iDurability;
 	is->_ivalue = ids->iValue;
@@ -1002,43 +1007,23 @@ bool ItemSpaceOk(int x, int y)
 
 static bool GetItemSpace(int x, int y, int ii)
 {
-	int i, j, rs;
-	bool slist[9];
-	bool savail;
+	BYTE i, rs;
+	BYTE slist[NUM_DIRS + 1];
 
 	rs = 0;
-	savail = false;
-	for (j = -1; j <= 1; j++) {
-		for (i = -1; i <= 1; i++) {
-			slist[rs] = ItemSpaceOk(x + i, y + j);
-			if (slist[rs])
-				savail = true;
+	for (i = 0; i < lengthof(area3x3_x); i++) {
+		if (ItemSpaceOk(x + area3x3_x[i], y + area3x3_y[i])) {
+			slist[rs] = i;
 			rs++;
 		}
 	}
 
-	rs = random_(13, 15);
-
-	if (!savail)
+	if (rs == 0)
 		return false;
 
-	i = 0;
-	while (TRUE) {
-		if (slist[i]) {
-			if (rs == 0)
-				break;
-			rs--;
-		}
-		if (++i == 9) {
-			i = 0;
-		}
-	}
+	rs = slist[random_low(13, rs)];
 
-	x--;
-	y--;
-	x += i % 3;
-	y += i / 3;
-	SetItemLoc(ii, x, y);
+	SetItemLoc(ii, x + area3x3_x[rs], y + area3x3_y[rs]);
 	return true;
 }
 
@@ -1103,7 +1088,7 @@ static void GetBookSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_(14, ns)];
+	bs = ss[random_low(14, ns)];
 
 	is = &items[ii];
 	is->_iSpell = bs;
@@ -1157,7 +1142,7 @@ static void GetScrollSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_(14, ns)];
+	bs = ss[random_low(14, ns)];
 
 	is = &items[ii];
 	is->_iSpell = bs;
@@ -1191,7 +1176,7 @@ static void GetRuneSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_(14, ns)];
+	bs = ss[random_low(14, ns)];
 
 	is = &items[ii];
 	is->_iSpell = bs;
@@ -1241,7 +1226,7 @@ static void GetStaffSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_(18, ns)];
+	bs = ss[random_low(18, ns)];
 
 	is = &items[ii];
 	sd = &spelldata[bs];
@@ -1250,7 +1235,7 @@ static void GetStaffSpell(int ii, unsigned lvl)
 		snprintf(is->_iName, sizeof(is->_iName), "Staff of %s", sd->sNameText);
 
 	is->_iSpell = bs;
-	is->_iCharges = RandRange(sd->sStaffMin, sd->sStaffMax);
+	is->_iCharges = RandRangeLow(sd->sStaffMin, sd->sStaffMax);
 	is->_iMaxCharges = is->_iCharges;
 
 	is->_iMinMag = sd->sMinInt;
@@ -1274,7 +1259,7 @@ static int GetItemSpell()
 		}
 	}
 	// assert(ns > 0);
-	return ss[random_(19, ns)];
+	return ss[random_low(19, ns)];
 }
 
 static void GetItemAttrs(int ii, int idata, unsigned lvl)
@@ -1295,7 +1280,7 @@ static void GetItemAttrs(int ii, int idata, unsigned lvl)
 #endif
 	else if (is->_itype == ITYPE_GOLD) {
 		lvl = items_get_currlevel();
-		rndv = RandRange(2 * lvl, 8 * lvl);
+		rndv = RandRangeLow(2 * lvl, 8 * lvl);
 		if (rndv > GOLD_MAX_LIMIT)
 			rndv = GOLD_MAX_LIMIT;
 
@@ -1323,7 +1308,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	int r, r2;
 
 	is = &items[ii];
-	r = RandRange(param1, param2);
+	r = param1 == param2 ? param1 : RandRangeLow(param1, param2);
 	is->_iVAdd += PLVal(r, param1, param2, minval, maxval);
 	is->_iVMult += multval;
 	switch (power) {
@@ -1335,7 +1320,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 	case IPL_TOHIT_DAMP:
 		is->_iPLDam = r;
-		r = RandRange(param1 >> 2, param2 >> 2);
+		r = RandRangeLow(param1 >> 2, param2 >> 2);
 		is->_iPLToHit = r;
 		break;
 	case IPL_ACP:
@@ -1585,7 +1570,8 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 			}
 		}
 		if (nl != 0) {
-			pres = l[random_(23, nl)];
+			// assert(nl <= 0x7FFF);
+			pres = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			items[ii]._iPrePower = pres->PLPower;
 			SaveItemPower(
@@ -1610,7 +1596,8 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 			}
 		}
 		if (nl != 0) {
-			sufs = l[random_(23, nl)];
+			// assert(nl <= 0x7FFF);
+			sufs = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			items[ii]._iSufPower = sufs->PLPower;
 			SaveItemPower(
@@ -1722,8 +1709,8 @@ static int RndUItem(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(25, ri);
+	// assert(ri != 0 && ri <= 0x7FFF);
+	ri = random_low(25, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -1766,8 +1753,8 @@ static int RndAllItems(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(26, ri);
+	// assert(ri != 0 && ri <= 0x7FFF);
+	ri = random_low(26, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -1812,8 +1799,8 @@ static int RndTypeItems(int itype, int imid, unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(27, ri);
+	// assert(ri != 0 && ri <= 0x7FFF);
+	ri = random_low(27, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -1847,7 +1834,7 @@ static int CheckUnique(int ii, unsigned lvl, unsigned quality)
 	if (ui == 0)
 		return -1;
 
-	return uok[random_(29, ui)];
+	return uok[random_low(29, ui)];
 }
 
 static void GetUniqueItem(int ii, int uid)
@@ -1882,8 +1869,10 @@ static void GetUniqueItem(int ii, int uid)
 static void ItemRndDur(int ii)
 {
 	// skip STACKable and non-durable items
-	if (!items[ii]._iUsable && items[ii]._iMaxDur != 0 && items[ii]._iMaxDur != DUR_INDESTRUCTIBLE)
-		items[ii]._iDurability = random_(0, items[ii]._iMaxDur >> 1) + (items[ii]._iMaxDur >> 2) + 1;
+	if (!items[ii]._iUsable && items[ii]._iMaxDur > 1 && items[ii]._iMaxDur != DUR_INDESTRUCTIBLE) {
+		// assert((items[ii]._iMaxDur >> 1) <= 0x7FFF);
+		items[ii]._iDurability = random_low(0, items[ii]._iMaxDur >> 1) + (items[ii]._iMaxDur >> 2) + 1;
+	}
 }
 
 static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned quality)
@@ -2258,8 +2247,8 @@ void RespawnItem(int ii, bool FlipFlag)
 	is->_iAnimData = itemanims[it];
 	is->_iAnimLen = itemfiledata[it].iAnimLen;
 	is->_iAnimFrameLen = 1;
-	//is->_iAnimWidth = 96;
-	//is->_iAnimXOffset = 16;
+	//is->_iAnimWidth = ITEM_ANIM_WIDTH;
+	//is->_iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) / 2;
 	is->_iPostDraw = FALSE;
 	if (FlipFlag) {
 		is->_iAnimFrame = 1;
@@ -2955,19 +2944,19 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 
 static void PrintItemString(int x, int &y)
 {
-	PrintString(x, y, x + 257, tempstr, true, COL_WHITE, 1);
+	PrintString(x, y, x + 257, tempstr, true, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int &y, const char* str)
 {
-	PrintString(x, y, x + 257, str, true, COL_WHITE, 1);
+	PrintString(x, y, x + 257, str, true, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int &y, const char* str, int col)
 {
-	PrintString(x, y, x + 257, str, true, col, 1);
+	PrintString(x, y, x + 257, str, true, col, FONT_KERN_SMALL);
 	y += 24;
 }
 
@@ -2979,7 +2968,7 @@ static void PrintUniquePower(BYTE plidx, ItemStruct *is, int x, int &y)
 	}
 }
 
-void DrawUniqueInfo(ItemStruct *is, int x, int &y)
+static void DrawUniqueInfo(ItemStruct *is, int x, int &y)
 {
 	const UniqItemData *uis;
 
@@ -3127,10 +3116,10 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int &y)
 		PrintItemString(x, y, desc);
 		break;
 #ifdef HELLFIRE
-	case IMISC_MAPOFDOOM:
-		desc = "right-click to view";
-		PrintItemString(x, y, desc);
-		return;
+	//case IMISC_MAPOFDOOM:
+	//	desc = "right-click to view";
+	//	PrintItemString(x, y, desc);
+	//	return;
 	case IMISC_RUNE:
 		desc = "right-click to activate, then";
 		PrintItemString(x, y, desc);
@@ -3151,14 +3140,45 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int &y)
 void DrawInvItemDetails()
 {
 	ItemStruct* is;
-	int x = SCREEN_X + (RIGHT_PANEL - STPANEL_WIDTH) / 2;
-	int y = LTPANEL_Y;
+	int x, y, dx;
+
+	if (pcursinvitem <= INVITEM_INV_LAST) {
+		x = gnWndInvX;
+		y = gnWndInvY;
+		if (x > PANEL_MIDX(SPANEL_WIDTH)) {
+			x -= STPANEL_WIDTH;
+			dx = std::min(x, 76);
+			if (dx > 0)
+				x -= (dx >> 1);
+		} else {
+			x += SPANEL_WIDTH;
+			dx = std::min(PANEL_RIGHT - (x + STPANEL_WIDTH), 76);
+			if (dx > 0)
+				x += dx >> 1;
+		}
+		if (y > PANEL_MIDY(SPANEL_HEIGHT)) {
+			y -= TPANEL_HEIGHT - SPANEL_HEIGHT;
+		}
+	} else {
+		x = gnWndBeltX;
+		y = gnWndBeltY;
+		if (x > PANEL_MIDX(BELT_WIDTH)) {
+			x -= STPANEL_WIDTH - (76 >> 1);
+		} else {
+			x += BELT_WIDTH + (76 >> 1);
+		}
+		if (y > PANEL_MIDY(BELT_HEIGHT)) {
+			y -= TPANEL_HEIGHT - BELT_HEIGHT;
+		}
+	}
+	x += SCREEN_X;
+	y += SCREEN_Y;
 
 	// draw the background
-	DrawSTextBox(x/*, y*/);
+	DrawSTextBox(x, y);
 
 	// add separator
-	DrawTextBoxSLine(x, 74, false);
+	DrawTextBoxSLine(x, y, 74, false);
 
 	x += 8;
 	y += 44;
@@ -3283,8 +3303,8 @@ static int RndSmithItem(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(50, ri);
+	// assert(ri != 0 && ri <= 0x7FFF);
+	ri = random_low(50, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -3431,8 +3451,8 @@ static int RndWitchItem(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(51, ri);
+	// assert(ri != 0 && ri <= 0x7FFF);
+	ri = random_low(51, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)
@@ -3546,8 +3566,8 @@ static int RndHealerItem(unsigned lvl)
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
 		ri += ril[i];
-	assert(ri != 0);
-	ri = random_(50, ri);
+	// assert(ri != 0 && ri <= 0x7FFF);
+	ri = random_low(50, ri);
 	for (i = 0; ; i++) {
 		ri -= ril[i];
 		if (ri < 0)

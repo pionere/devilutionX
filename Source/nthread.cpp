@@ -404,7 +404,9 @@ void nthread_finish(UINT uMsg)
 
 	if (uMsg == DVL_DWM_NEWGAME) {
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
+#if !NONET
 			assert(sghThread == NULL);
+#endif
 			assert(geBufferMsgs == MSG_NORMAL);
 			assert(sgbPacketCountdown == 1);
 			return;
@@ -518,6 +520,12 @@ done:
 	// reset geBufferMsgs to normal
 	geBufferMsgs = MSG_NORMAL;
 	plrmsg_delay(false);
+#if DEV_MODE
+	if (gbActivePlayers > 1 && plx(0)._pDunLevel == plx(1)._pDunLevel) {
+		NetSendCmd(CMD_REQUEST_ITEMCHECK);
+		NetSendCmd(CMD_REQUEST_PLRCHECK);
+	}
+#endif
 }
 
 bool nthread_has_50ms_passed()

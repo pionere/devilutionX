@@ -1,3 +1,5 @@
+enable_language(OBJC)
+
 # Disable sanitizers. They're not supported out-of-the-box.
 set(ASAN OFF)
 set(UBSAN OFF)
@@ -16,4 +18,3 @@ set(DEVILUTIONX_SYSTEM_SDL2 OFF)
 set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 #set(DEVILUTIONX_SYSTEM_LIBPNG OFF)
 #set(DEVILUTIONX_SYSTEM_LIBFMT OFF)
-

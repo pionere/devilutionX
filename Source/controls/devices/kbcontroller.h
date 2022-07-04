@@ -9,11 +9,19 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 ControllerButton KbCtrlToControllerButton(const SDL_Event &event);
 
 bool IsKbCtrlButtonPressed(ControllerButton button);
 
 bool ProcessKbCtrlAxisMotion(const SDL_Event &event);
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 #endif
