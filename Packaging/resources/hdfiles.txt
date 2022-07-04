@@ -53,7 +53,7 @@ Items\Cleaver.CEL
 Items\cows1.CEL
 Items\CrownF.CEL
 Items\donkys1.CEL
-Items\DurIcons.CEL
+_Items\DurIcons.CEL
 Items\Fanvil.CEL
 Items\FBook.CEL
 Items\FBrain.CEL
