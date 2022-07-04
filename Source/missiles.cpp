@@ -727,9 +727,6 @@ static bool MonsterMHit(int mnum, int mi)
 #endif
 			return false;
 
-	if (CheckMonsterHit(mnum, &ret))
-		return ret;
-
 	if (mis->_miSubType == 0) {
 		// calculcate arrow-damage
 		dam = 0;
@@ -787,6 +784,9 @@ static bool MonsterMHit(int mnum, int mi)
 	}
 	if (dam == 0)
 		return false;
+
+	if (CheckMonsterHit(mnum, &ret))
+		return ret;
 
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
