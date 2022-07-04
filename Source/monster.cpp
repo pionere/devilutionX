@@ -1655,8 +1655,7 @@ static void MonStartGetHit(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
-	if (mon->_mmode == MM_DEATH)
-		return;
+	assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE);
 
 	RemoveMonFromMap(mnum);
 	MonPlace(mnum);
