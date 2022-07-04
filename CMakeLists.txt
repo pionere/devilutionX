@@ -618,6 +618,10 @@ if(NINTENDO_3DS)
     Source/platform/ctr/asio/sys/uio.c)
 endif()
 
+if(NXDK)
+  list(APPEND devilutionx_SRCS Source/platform/nxdk/nxdk_paths.cpp)
+endif()
+
 if(RUN_TESTS)
   list(APPEND devilutionx_SRCS
     test/appfat_test.cpp
@@ -744,6 +748,10 @@ if(CREATE_PATCHER)
       tools/patcher/platform/ctr/system.cpp
       tools/patcher/platform/ctr/display.cpp
       tools/patcher/platform/ctr/messagebox.cpp)
+  endif()
+
+  if(NXDK)
+    list(APPEND devil_patcher_SRCS tools/patcher/platform/nxdk/nxdk_paths.cpp)
   endif()
 
   if(ANDROID)
@@ -1373,6 +1381,9 @@ if(NINTENDO_3DS)
 endif()
 
 if(NXDK)
+  target_link_libraries(${BIN_TARGET} PRIVATE "${NXDK_DIR}/lib/libnxdk_automount_d.lib")
+  target_link_options(${BIN_TARGET} PRIVATE "-include:_automount_d_drive")
+
   set(NXDK_PKG_DIR "${CMAKE_BINARY_DIR}/pkg")
   set(_xbe_path "${NXDK_PKG_DIR}/default.xbe")
   add_custom_command(
