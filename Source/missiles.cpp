@@ -3092,6 +3092,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 	int pnum = misource;
 	int target = spllvl & 0xFFFF;
 	int type = spllvl >> 16;
+	bool ret;
 	// assert((unsigned)pnum < MAX_PLRS);
 
 	switch (type) {
@@ -3103,8 +3104,8 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		break;
 	case MTT_MONSTER:
 		// assert(target < MAXMONSTERS);
-		if (!CanTalkToMonst(target) && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pMagic &&
-			LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)) {
+		if (LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)
+		 && !CheckMonsterHit(target, &ret) && monsters[target]._mmode != MM_STONE && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pMagic) {
 			monsters[target]._msquelch = SQUELCH_MAX;
 			monsters[target]._lastx = plr._px;
 			monsters[target]._lasty = plr._py;
