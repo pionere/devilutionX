@@ -689,6 +689,12 @@ static bool MonsterTrapHit(int mnum, int mi)
 			MonStartHit(mnum, -1, dam, 0);
 		//}
 	}
+	if (mon->_msquelch != SQUELCH_MAX) {
+		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
+		// lead the monster to a fixed location
+		mon->_lastx = mis->_misx;
+		mon->_lasty = mis->_misy;
+	}
 	return true;
 }
 
@@ -772,13 +778,6 @@ static bool MonsterMHit(int mnum, int mi)
 			dam += fdam + ldam + mdam + adam;
 			AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 		}
-
-		if (plr._pILifeSteal != 0) {
-			PlrIncHp(pnum, (dam * plr._pILifeSteal) >> 7);
-		}
-		if (plr._pIManaSteal != 0) {
-			PlrIncMana(pnum, (dam * plr._pIManaSteal) >> 7);
-		}
 	} else {
 		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	}
@@ -791,6 +790,14 @@ static bool MonsterMHit(int mnum, int mi)
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
 	//}
+	if (mis->_miSubType == 0) {
+		if (plr._pILifeSteal != 0) {
+			PlrIncHp(pnum, (dam * plr._pILifeSteal) >> 7);
+		}
+		if (plr._pIManaSteal != 0) {
+			PlrIncMana(pnum, (dam * plr._pIManaSteal) >> 7);
+		}
+	}
 
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);
