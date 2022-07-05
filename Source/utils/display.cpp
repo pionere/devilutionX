@@ -251,7 +251,11 @@ void SpawnWindow()
 		sdl_error(ERR_SDL_WINDOW_CREATE);
 	}
 #else
+#ifdef NXDK
+	bool upscale = getIniBool("Graphics", "Upscale", false);
+#else
 	bool upscale = getIniBool("Graphics", "Upscale", true);
+#endif
 	int flags = SDL_WINDOW_ALLOW_HIGHDPI;
 	if (grabInput) {
 		flags |= SDL_WINDOW_INPUT_GRABBED;

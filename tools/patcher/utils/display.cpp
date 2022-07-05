@@ -236,7 +236,11 @@ void SpawnWindow()
 	height = current->current_h;
 #else
 	bool integerScalingEnabled = getIniBool("Graphics", "Integer Scaling", false);
+#ifdef NXDK
+	bool upscale = getIniBool("Graphics", "Upscale", false);
+#else
 	bool upscale = getIniBool("Graphics", "Upscale", true);
+#endif
 	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
 
 	if (upscale && fitToScreen) {
