@@ -1389,7 +1389,7 @@ if(NXDK)
   add_custom_command(
     OUTPUT "${_xbe_path}"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${NXDK_PKG_DIR}"
-    COMMAND "${NXDK_DIR}/tools/cxbe/cxbe" "-OUT:${_xbe_path}" -TITLE:DevilX "${CMAKE_BINARY_DIR}/${BIN_TARGET}.exe"
+    COMMAND "${NXDK_DIR}/tools/cxbe/cxbe" "-OUT:${_xbe_path}" -TITLE:DevilX "-Logo:${PROJECT_SOURCE_DIR}/Packaging/xbox_nxdk/xbe_logo.pgm" "${CMAKE_BINARY_DIR}/${BIN_TARGET}.exe"
     DEPENDS "${BIN_TARGET}"
   )
   add_custom_target(nxdk_xbe ALL DEPENDS "${_xbe_path}")
@@ -1398,7 +1398,7 @@ if(NXDK)
     add_custom_command(
       OUTPUT "${patcher_xbe_path}"
       COMMAND "${CMAKE_COMMAND}" -E make_directory "${NXDK_PKG_DIR}"
-      COMMAND "${NXDK_DIR}/tools/cxbe/cxbe" "-OUT:${patcher_xbe_path}" -TITLE:DevilX-Patcher "${CMAKE_BINARY_DIR}/${DEVIL_PATCHER}.exe"
+      COMMAND "${NXDK_DIR}/tools/cxbe/cxbe" "-OUT:${patcher_xbe_path}" -TITLE:DevilX-Patcher "-Logo:${PROJECT_SOURCE_DIR}/Packaging/xbox_nxdk/xbe_logo.pgm" "${CMAKE_BINARY_DIR}/${DEVIL_PATCHER}.exe"
       DEPENDS "${DEVIL_PATCHER}"
     )
     add_custom_target(nxdk_xbe_patcher ALL DEPENDS "${patcher_xbe_path}")
