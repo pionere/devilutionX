@@ -1082,6 +1082,53 @@ jobs:
         name: ${{ matrix.artifact }}
         path: build-xbox/devilutionx.zip
 
+  build_xboxone:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-XBOXONE
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-xboxone.zip'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-xboxone.zip'
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-tags: true
+        #fetch-depth: 0
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-architecture: x64
+
+    - name: Configure git
+      shell: cmd
+      run: |
+        git config --global core.filemode false
+        git config --global core.autocrlf false
+
+    - name: Build
+      shell: cmd
+      working-directory: ${{github.workspace}}
+      run: |
+        Packaging\xbox-one\build.bat ${{ matrix.cmakeargs }}
+
+    - name: Upload-Package
+      if: ${{ !env.ACT }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: ${{ env.buildDir }}/devilutionx.zip
+
   # amiga-builds
   build_amiga:
     needs: build_check
