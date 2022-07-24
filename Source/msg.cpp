@@ -2713,7 +2713,7 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 	su.from = cmd->from;
 	su.skill = SPL_DISARM;
 
-	if (CheckPlrSkillUse(pnum, su) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, su)) {
 		oi = cmd->oi;
 
 		net_assert(oi < MAXOBJECTS);
@@ -3308,7 +3308,7 @@ static void DoTelekinesis(int pnum, int x, int y, char from, int id)
 	su.from = from;
 	su.skill = SPL_TELEKINESIS;
 
-	if (CheckPlrSkillUse(pnum, su) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, su)) {
 		ClrPlrPath(pnum);
 
 		plr.destAction = ACTION_SPELL;
