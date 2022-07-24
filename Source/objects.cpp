@@ -143,7 +143,7 @@ void InitObjectGFX()
 	const ObjectData* ods;
 	bool themeload[NUM_THEMES];
 	bool fileload[NUM_OFILE_TYPES];
-	char filestr[32];
+	char filestr[DATA_ARCHIVE_MAX_PATH];
 	int i;
 
 	static_assert(false == 0, "InitObjectGFX fills fileload and themeload with 0 instead of false values.");
@@ -1024,7 +1024,7 @@ void SetMapObjects(BYTE* pMap)
 	int i, j;
 	uint16_t rw, rh, *lm, *h;
 	bool fileload[NUM_OFILE_TYPES];
-	char filestr[32];
+	char filestr[DATA_ARCHIVE_MAX_PATH];
 
 	static_assert(false == 0, "SetMapObjects fills fileload with 0 instead of false values.");
 	memset(fileload, 0, sizeof(fileload));

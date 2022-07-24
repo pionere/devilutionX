@@ -232,7 +232,7 @@ int pfile_ui_create_save(_uiheroinfo* heroinfo)
 	return NEWHERO_DONE;
 }
 
-static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
+static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[DATA_ARCHIVE_MAX_PATH])
 {
 	const char* fmt;
 
@@ -249,7 +249,7 @@ static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
 	return true;
 }
 
-static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
+static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[DATA_ARCHIVE_MAX_PATH])
 {
 	const char* fmt;
 
@@ -266,7 +266,7 @@ static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
 	return true;
 }
 
-/*bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
+/*bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH])
 {
 	if (IsMultiGame) {
 		if (lvl != 0)
@@ -316,8 +316,8 @@ void pfile_rename_temp_to_perm()
 {
 	unsigned dwIndex;
 	bool bResult;
-	char szTemp[MAX_PATH];
-	char szPerm[MAX_PATH];
+	char szTemp[DATA_ARCHIVE_MAX_PATH];
+	char szPerm[DATA_ARCHIVE_MAX_PATH];
 
 	assert(!IsMultiGame);
 	if (!pfile_open_archive())
@@ -341,7 +341,7 @@ void pfile_rename_temp_to_perm()
 void pfile_write_save_file(bool full, DWORD dwLen)
 {
 	DWORD qwLen;
-	char pszName[MAX_PATH] = SAVEFILE_GAME;
+	char pszName[DATA_ARCHIVE_MAX_PATH] = SAVEFILE_GAME;
 	BYTE* pbData = gsDeltaData.ddBuffer;
 
 	qwLen = codec_get_encoded_len(dwLen);
@@ -377,7 +377,7 @@ void pfile_read_save_file(bool full)
 {
 	DWORD len;
 	HANDLE archive, save;
-	char pszName[MAX_PATH] = SAVEFILE_GAME;
+	char pszName[DATA_ARCHIVE_MAX_PATH] = SAVEFILE_GAME;
 	int source;
 
 	archive = pfile_open_save_archive(mySaveIdx);

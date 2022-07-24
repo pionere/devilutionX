@@ -267,7 +267,7 @@ static inline void GetPlrGFXCells(int pc, const char **szCel, const char **cs)
 void LoadPlrGFX(int pnum, unsigned gfxflag)
 {
 	char prefix[16];
-	char pszName[256];
+	char pszName[DATA_ARCHIVE_MAX_PATH];
 	const char *szCel, *cs;
 	BYTE *pData;
 	BYTE *(*pAnim)[8];
@@ -369,7 +369,7 @@ static unsigned GetPlrGFXSize(const char *szCel)
 	const char *a, *w, *cc, *cst;
 	DWORD dwSize, dwMaxSize;
 	HANDLE hsFile;
-	char pszName[256];
+	char pszName[DATA_ARCHIVE_MAX_PATH];
 	char Type[16];
 
 	dwMaxSize = 0;

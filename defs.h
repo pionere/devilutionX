@@ -11,6 +11,7 @@
 #define DATA_ARCHIVE_MAIN		"diabdat.mpq"
 #define DATA_ARCHIVE_MAIN_ALT	"DIABDAT.MPQ"
 #define DATA_ARCHIVE_PATCH		"patch_rt.mpq"
+#define DATA_ARCHIVE_MAX_PATH	128
 
 #ifdef HELLFIRE
 #define INTRO_ARCHIVE			"gendata\\Hellfire.smk"

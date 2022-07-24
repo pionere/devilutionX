@@ -273,7 +273,7 @@ static void InitMonsterGFX(int midx)
 	MapMonData* cmon;
 	const MonFileData* mfdata;
 	int mtype, anim, i;
-	char strBuff[256];
+	char strBuff[DATA_ARCHIVE_MAX_PATH];
 	BYTE* celBuf;
 
 	cmon = &mapMonTypes[midx];
@@ -838,7 +838,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	int xp, yp, x, y;
 	int uniqtype;
 	int count2;
-	char filestr[64];
+	char filestr[DATA_ARCHIVE_MAX_PATH];
 	const UniqMonData* uniqm;
 	MonsterStruct* mon;
 	int mnum, count;

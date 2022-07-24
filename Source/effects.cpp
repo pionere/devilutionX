@@ -1183,7 +1183,7 @@ static void stream_update()
 
 void InitMonsterSFX(int midx)
 {
-	char name[MAX_PATH];
+	char name[DATA_ARCHIVE_MAX_PATH];
 	int i, n, j;
 	MapMonData* cmon;
 	const MonsterData* mdata;

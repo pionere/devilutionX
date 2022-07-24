@@ -1394,7 +1394,7 @@ static void SetMissDir(int mi, int dir)
 
 void LoadMissileGFX(BYTE midx)
 {
-	char pszName[256];
+	char pszName[DATA_ARCHIVE_MAX_PATH];
 	int i, n;
 	BYTE **mad, *tf, *cf;
 	const char *name;

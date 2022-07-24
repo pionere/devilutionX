@@ -112,7 +112,7 @@ static inline unsigned items_get_currlevel()
 void InitItemGFX()
 {
 	int i;
-	char filestr[32];
+	char filestr[DATA_ARCHIVE_MAX_PATH];
 
 	for (i = 0; i < NUM_IFILE; i++) {
 		snprintf(filestr, sizeof(filestr), "Items\\%s.CEL", itemfiledata[i].ifName);

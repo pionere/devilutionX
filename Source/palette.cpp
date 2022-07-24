@@ -79,7 +79,7 @@ void LoadPalette(const char* pszFileName)
 void LoadRndLvlPal()
 {
 	int rv;
-	char szFileName[MAX_PATH];
+	char szFileName[DATA_ARCHIVE_MAX_PATH];
 
 	rv = RandRange(1, 4);
 	snprintf(szFileName, sizeof(szFileName), AllLevels[currLvl._dLevelIdx].dPalName, rv);
