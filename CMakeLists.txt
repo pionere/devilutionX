@@ -141,6 +141,7 @@ cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
 option(PIE "Generate position-independent code" OFF)
 option(CPACK "Configure CPack" ON)
+option(USE_LD_MOLD "Use mold linker(GNU|Clang)" OFF)
 option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
@@ -196,6 +197,34 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${_extra_flags}")
   set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${_extra_flags}")
   set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${_extra_flags}")
+
+  if(USE_LD_MOLD)
+    if(NOT CMAKE_CROSSCOMPILING)
+      if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12)
+        find_program(
+          LD_MOLD_PATH
+          ld
+          PATHS
+          ${CMAKE_INSTALL_PREFIX}/libexec/mold
+          ENV LD_MOLD_PATH
+          NO_DEFAULT_PATH
+        )
+        if(NOT LD_MOLD_PATH STREQUAL "LD_MOLD_PATH-NOTFOUND")
+          get_filename_component(_mold_dir ${LD_MOLD_PATH} DIRECTORY)
+          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -B${_mold_dir}")
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -B${_mold_dir}")
+        else()
+          message(WARNING "-- Cannot use mold linker: mold ld directory not found")
+        endif()
+      else()
+      #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=mold")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=mold")
+      endif()
+    else()
+      message(WARNING "-- Mold linker is disabled due to CMAKE_CROSSCOMPILING")
+    endif()
+  endif()
 endif()
 
 # Not a genexp because CMake doesn't support it
@@ -1238,6 +1267,7 @@ foreach(
   DISABLE_LTO
   PIE
   CPACK
+  USE_LD_MOLD
   MACOSX_STANDALONE_APP_BUNDLE
   GPERF
   GPERF_HEAP_FIRST_GAME_ITERATION
