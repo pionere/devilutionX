@@ -267,9 +267,10 @@ struct Archive {
 		DoLog("Opening %s", name);
 #endif
 		exists = FileExists(name);
-		std::ios::openmode mode = std::ios::in | std::ios::out | std::ios::binary;
+		std::ios::openmode mode = std::ios::out | std::ios::binary;
 		std::uintmax_t size;
 		if (exists) {
+			mode |= std::ios::in;
 #if DEBUG_MODE
 			if (!GetFileSize(name, &size)) {
 				DoLog("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
