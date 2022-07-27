@@ -4196,7 +4196,7 @@ typedef enum dlrg_flag {
 
 typedef enum movie_flag {
 	MOV_SKIP       = 1 << 0, // Makes the video skippable by mouse-button or keypress (not just ESC).
-	MOV_LOOP       = 2 << 0, // Playback in loop.
+	MOV_LOOP       = 1 << 1, // Playback in loop.
 } movie_flag;
 
 typedef enum _artfonts {
@@ -4211,8 +4211,8 @@ typedef enum _artfonts {
 } _artfonts;
 
 typedef enum _gmenu_flags {
-	GMF_SLIDER	= 0x40000000,
-	GMF_ENABLED = 0x80000000
+	GMF_SLIDER  = 1 << 0,
+	GMF_ENABLED = 1 << 1,
 } _gmenu_flags;
 
 typedef enum mpq_files {

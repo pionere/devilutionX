@@ -1545,7 +1545,7 @@ typedef struct QuestData {
 typedef struct TMenuItem {
 	const char* pszStr;
 	void (*fnMenu)(bool); /* fix, should have one arg */
-	uint32_t dwFlags;
+	uint32_t dwFlags; // _gmenu_flags
 	//union {
 	//	uint32_t dwMenuParam;
 	//	struct {
