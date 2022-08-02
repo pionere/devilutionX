@@ -1337,7 +1337,7 @@ static void SyncMissAnim(int mi)
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
 	mis->_miAnimWidth = mfd->mfAnimWidth * ASSET_MPL;
-	mis->_miAnimXOffset = mfd->mfAnimXOffset;
+	mis->_miAnimXOffset = mfd->mfAnimXOffset * ASSET_MPL;
 }
 
 static void SyncRhinoAnim(int mi)
