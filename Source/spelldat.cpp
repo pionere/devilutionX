@@ -28,7 +28,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /*
 	unused icons :	20 (teleport?)
 					22 - SPL_ETHEREALIZE (only in standard)
-					30 - SPL_BONESPIRIT
 					31 - red skull
 					33 (red burning stair?)
 					// hellfire only
