@@ -555,8 +555,8 @@ static void ShiftMissilePos(int mi)
 	if (PosOkActor(x, y)) {
 		mis->_mix += dx;
 		mis->_miy += dy;
-		mis->_mixoff += (dy << 5) - (dx << 5);
-		mis->_miyoff -= (dy << 4) + (dx << 4);
+		mis->_mixoff += ((dy * 32) - (dx * 32)) * ASSET_MPL;
+		mis->_miyoff -= ((dy * 16) + (dx * 16)) * ASSET_MPL;
 	}
 }
 
@@ -2307,7 +2307,7 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	//mis->_miVar4 = 0;
 	mis->_mix++;
 	mis->_miy++;
-	mis->_miyoff -= 32;
+	mis->_miyoff -= TILE_HEIGHT;
 	return MIRES_DONE;
 }
 
@@ -3931,7 +3931,7 @@ void MI_Acidsplat(int mi)
 	 /* && mis->_miAnimCnt == 0*/) {
 		mis->_mix++;
 		mis->_miy++;
-		mis->_miyoff -= 32;
+		mis->_miyoff -= TILE_HEIGHT;
 	}
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
