@@ -1098,6 +1098,7 @@ void ValidateData()
 	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD); // required by MI_Guardian
 	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1); // required by MI_Guardian
 	assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24); // required by MI_Inferno
+	assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS); // required by MI_Acidsplat
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13); // required by MI_Rhino
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1); // required by MI_Rhino
 

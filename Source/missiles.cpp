@@ -683,7 +683,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, -1);
 	} else {
-		/*if (resist) {
+		/*if (resist != MORT_NONE) {
 			PlayEffect(mnum, MS_GOTHIT);
 		} else {*/
 			MonStartHit(mnum, -1, dam, 0);
@@ -3177,7 +3177,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miAnimType = mds->mFileNum;
 	mis->_miDrawFlag = mds->mDraw;
 
-	if (misfiledata[mis->_miAnimType].mfAnimFAmt < 8)
+	if (misfiledata[mis->_miAnimType].mfAnimFAmt < NUM_DIRS)
 		SetMissDir(mi, 0);
 	else
 		SetMissDir(mi, midir);
@@ -3938,7 +3938,8 @@ void MI_Acidsplat(int mi)
 	}
 	mis->_miDelFlag = TRUE;
 	// SetRndSeed(mis->_miRndSeed);
-	AddMissile(mis->_mix - 1, mis->_miy - 1, 0, 0, mis->_miDir, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
+	// assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);
+	AddMissile(mis->_mix - 1, mis->_miy - 1, 0, 0, 0/*mis->_miDir*/, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
 }
 
 void MI_Teleport(int mi)
