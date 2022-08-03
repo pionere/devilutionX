@@ -1632,7 +1632,7 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	int mindam, maxdam, dam;
 
 	mis = &missile[mi];
-	mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0];
+	mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0] * misfiledata[MFILE_BIGEXP].mfAnimFrameLen[0];
 
 	if (misource != -1) {
 		assert((unsigned)misource < MAX_PLRS);
@@ -2653,7 +2653,7 @@ int AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 
 	mis = &missile[mi];
 	// assert(mis->_miAnimType == MFILE_FIREPLAR);
-	mis->_miRange = misfiledata[MFILE_FIREPLAR].mfAnimLen[0];
+	mis->_miRange = misfiledata[MFILE_FIREPLAR].mfAnimLen[0] * misfiledata[MFILE_FIREPLAR].mfAnimFrameLen[0];
 	mis->_miMinDam = mis->_miMaxDam = 40 << (6 + gnDifficulty); // assert(misource == DIABLO);
 	//mis->_miVar1 = FALSE;
 	return MIRES_DONE;
@@ -2929,7 +2929,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	// mis->_mityoff = bmis->_mityoff;
 	// assert(bmis->_miVar3 < 3);
 	mis->_miVar2 = bmis->_miVar3 * 4;
-	mis->_miRange = misfiledata[MFILE_INFERNO].mfAnimLen[0];
+	mis->_miRange = misfiledata[MFILE_INFERNO].mfAnimLen[0] * misfiledata[MFILE_INFERNO].mfAnimFrameLen[0];
 	// assert(misource != -1);
 	if (micaster & MST_PLAYER) {
 		mindam = plx(misource)._pMagic;
@@ -3391,7 +3391,7 @@ void MI_Lightball(int mi)
 
 void MI_Acidpud(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	mis = &missile[mi];
 	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
@@ -3402,7 +3402,7 @@ void MI_Acidpud(int mi)
 			return;
 		} else {
 			SetMissDir(mi, 1);
-			mis->_miRange = misfiledata[MFILE_ACIDPUD].mfAnimLen[1];
+			mis->_miRange = misfiledata[MFILE_ACIDPUD].mfAnimLen[1] * misfiledata[MFILE_ACIDPUD].mfAnimFrameLen[1];
 		}
 	}
 	PutMissileF(mi, BFLAG_MISSILE_PRE);
@@ -3922,13 +3922,11 @@ void MI_MiniExp(int mi)
 
 void MI_Acidsplat(int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	mis = &missile[mi];
 	// assert(mis->_miAnimLen == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]);
-	// assert(misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen[0] == 1);
-	if (mis->_miRange == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]
-	 /* && mis->_miAnimCnt == 0*/) {
+	if (mis->_miRange == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0] * misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen[0]) {
 		mis->_mix++;
 		mis->_miy++;
 		mis->_miyoff -= TILE_HEIGHT;
@@ -4009,7 +4007,7 @@ void MI_Stone(int mi)
 		if (mis->_miAnimType != MFILE_SHATTER1) {
 			mis->_miDrawFlag = TRUE;
 			mis->_miAnimType = MFILE_SHATTER1;
-			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] - 1 + 10;
+			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] * misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] - 1 + 10;
 			mis->_mix = mon->_mx;
 			mis->_miy = mon->_my;
 			// mis->_mixoff = mon->_mxoff;
@@ -4334,7 +4332,7 @@ void MI_Cbolt(int mi)
 			mis->_miVar1 = 8;
 			mis->_miAnimType = MFILE_LGHNING;
 			SetMissDir(mi, 0);
-			mis->_miRange = misfiledata[MFILE_LGHNING].mfAnimLen[0];
+			mis->_miRange = misfiledata[MFILE_LGHNING].mfAnimLen[0] * misfiledata[MFILE_LGHNING].mfAnimFrameLen[0];
 		}
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar1);
 	}

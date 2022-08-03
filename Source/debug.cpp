@@ -1052,10 +1052,21 @@ void ValidateData()
 		const MissileData &md = missiledata[i];
 		if (md.mAddProc == NULL)
 			app_fatal("Missile %d has no valid mAddProc.", i);
+		if (md.mAddProc == AddMisexp) {
+			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
+			}
+		}
+		if (md.mAddProc == AddHorkSpawn) {
+			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
+				assert(misfiledata[md.mFileNum].mfAnimLen[j] == 9);
+			}
+		}
 		if (md.mProc == NULL)
 			app_fatal("Missile %d has no valid mProc.", i);
 		if (md.mProc == MI_Misexp || md.mProc == MI_MiniExp) {
-			for (int j = 0; j < lengthof(misfiledata[md.mFileNum].mfAnimLen); j++) {
+			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 16 /* lengthof(ExpLight) */);
 			}
 		}
@@ -1086,7 +1097,6 @@ void ValidateData()
 	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1); // required by MI_Guardian
 	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD); // required by MI_Guardian
 	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1); // required by MI_Guardian
-	assert(misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen[0] == 1); // required by MI_Acidsplat
 	assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24); // required by MI_Inferno
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13); // required by MI_Rhino
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1); // required by MI_Rhino
