@@ -127,7 +127,10 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	}
 
 	private void migrateSaveGames() {
-		for (File internalFile : getFilesDir().listFiles()) {
+		File[] files = getFilesDir().listFiles();
+		if (files == null)
+			return;
+		for (File internalFile : files) {
 			migrateFile(internalFile);
 		}
 	}
