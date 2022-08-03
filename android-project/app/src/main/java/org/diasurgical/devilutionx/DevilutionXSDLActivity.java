@@ -87,7 +87,12 @@ public class DevilutionXSDLActivity extends SDLActivity {
 				in.close();
 			}
 		} catch (IOException exception) {
-			Log.e("copyFile", exception.getMessage());
+			String message = exception.getMessage();
+			if (message == null) {
+				Log.e("copyFile", "IOException", exception);
+			} else {
+				Log.e("copyFile", message);
+			}
 			if (dst.exists()) {
 				//noinspection ResultOfMethodCallIgnored
 				dst.delete();
