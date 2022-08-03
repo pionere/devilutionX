@@ -5,6 +5,7 @@
  */
 #include <chrono>
 #include "all.h"
+#include "misproc.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -1053,6 +1054,11 @@ void ValidateData()
 			app_fatal("Missile %d has no valid mAddProc.", i);
 		if (md.mProc == NULL)
 			app_fatal("Missile %d has no valid mProc.", i);
+		if (md.mProc == MI_Misexp || md.mProc == MI_MiniExp) {
+			for (int j = 0; j < lengthof(misfiledata[md.mFileNum].mfAnimLen); j++) {
+				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 16 /* lengthof(ExpLight) */);
+			}
+		}
 		if (md.mDraw) {
 			if (md.mFileNum == MFILE_NONE && i != MIS_RHINO && i != MIS_CHARGE)
 				app_fatal("Missile %d is drawn, but has no valid mFileNum.", i);
@@ -1063,6 +1069,29 @@ void ValidateData()
 				app_fatal("Missile %d is not drawn, but has valid miSFX.", i);
 		}
 	}
+	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
+	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1); // required by MI_Firewall
+	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */); // required by MI_Firewall
+	assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP); // required by MI_Firewall
+	assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1); // required by MI_Firewall
+	assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */); // required by MI_Portal
+	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */); // required by MI_Portal
+	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]); // required by MI_Portal
+	assert(misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] == 1); // required by MI_Portal
+	assert(misfiledata[MFILE_RPORTAL].mfAnimFrameLen[0] == 1); // required by MI_Portal
+	assert(misfiledata[MFILE_BLUEXFR].mfAnimFrameLen[0] == 1); // required by MI_Flash
+	assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] == 1); // required by MI_Flash2
+	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */); // required by MI_FireWave
+	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1); // required by MI_FireWave
+	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1); // required by MI_Guardian
+	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD); // required by MI_Guardian
+	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1); // required by MI_Guardian
+	assert(misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen[0] == 1); // required by MI_Acidsplat
+	assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24); // required by MI_Inferno
+	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13); // required by MI_Rhino
+	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1); // required by MI_Rhino
+
+	// towners
 	for (i = 0; i < STORE_TOWNERS; i++) {
 		//const int(*gl)[2] = &GossipList[i];
 		const int(&gl)[2] = GossipList[i];

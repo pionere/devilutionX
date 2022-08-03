@@ -2652,7 +2652,7 @@ int AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	assert(mis->_miAnimType == MFILE_FIREPLAR);
+	// assert(mis->_miAnimType == MFILE_FIREPLAR);
 	mis->_miRange = misfiledata[MFILE_FIREPLAR].mfAnimLen[0];
 	mis->_miMinDam = mis->_miMaxDam = 40 << (6 + gnDifficulty); // assert(misource == DIABLO);
 	//mis->_miVar1 = FALSE;
@@ -3424,16 +3424,17 @@ void MI_Firewall(int mi)
 		if (mis->_miLid == NO_LIGHT) {
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, FireWallLight[0]);
 		} else {
-			assert(mis->_miAnimLen < lengthof(FireWallLight));
-			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(FireWallLight));
+			// assert(mis->_miAnimLen < lengthof(FireWallLight));
+			// assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(FireWallLight));
 			ChangeLightRadius(mis->_miLid, FireWallLight[mis->_miAnimFrame]);
 		}
-		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0] &&
-			// mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] &&
-			mis->_miAnimAdd >= 0) {
+		// assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);
+		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0]
+		// && mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] - 1
+		 && mis->_miAnimAdd >= 0) {
 			// start 'stand' after spawn
 			SetMissDir(mi, 1);
-			//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
+			// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 			mis->_miVar1 = RandRange(1, 256);
 		}
@@ -3442,13 +3443,13 @@ void MI_Firewall(int mi)
 		if (--mis->_miVar1 == 0 && mis->_miRange > 64) {
 			// add random firewall sfx, but only if the fire last more than ~2s
 			mis->_miVar1 = 255;
-			assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);
-			assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);
+			// assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);
+			// assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);
 			PlaySfxLoc(LS_WALLLOOP, mis->_mix, mis->_miy);
 		} else if (mis->_miRange == misfiledata[MFILE_FIREWAL].mfAnimLen[0] - 1) {
 			// start collapse
 			SetMissDir(mi, 0);
-			//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[0]);
+			// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[0]);
 			mis->_miAnimFrame = misfiledata[MFILE_FIREWAL].mfAnimLen[0];
 			mis->_miAnimAdd = -1;
 		}
@@ -3645,13 +3646,15 @@ void MI_Portal(int mi)
 		return;
 	}
 	if (mis->_miDir == 0) {
-		assert(mis->_miAnimLen < lengthof(ExpLight));
-		assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < lengthof(ExpLight));
-		assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < lengthof(ExpLight));
+		// assert(mis->_miAnimLen < lengthof(ExpLight));
+		// assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < lengthof(ExpLight));
+		// assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < lengthof(ExpLight));
 		ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
-		assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]);
-		if (mis->_miAnimFrame == misfiledata[MFILE_PORTAL].mfAnimLen[0] /*&&
-			mis->_miAnimCnt == misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] - 1*/) {
+		// assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]);
+		// assert(misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] == 1);
+		// assert(misfiledata[MFILE_RPORTAL].mfAnimFrameLen[0] == 1);
+		if (mis->_miAnimFrame == misfiledata[MFILE_PORTAL].mfAnimLen[0]
+		 /*&& mis->_miAnimCnt == misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] - 1*/) {
 			SetMissDir(mi, 1);
 		}
 	}
@@ -3677,7 +3680,9 @@ void MI_Flash(int mi)
 	if (mis->_miCaster == MST_OBJECT)
 		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 	// assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]);
-	if (mis->_miAnimFrame == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]) {
+	// assert(misfiledata[MFILE_BLUEXFR].mfAnimFrameLen[0] == 1);
+	if (mis->_miAnimFrame == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]
+	 /*&& mis->_miAnimCnt == misfiledata[MFILE_BLUEXFR].mfAnimFrameLen[0] - 1*/) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
@@ -3690,7 +3695,9 @@ void MI_Flash2(int mi)
 
 	mis = &missile[mi];
 	// assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXBK].mfAnimLen[0]);
-	if (mis->_miAnimFrame == misfiledata[MFILE_BLUEXBK].mfAnimLen[0]) {
+	// assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] == 1);
+	if (mis->_miAnimFrame == misfiledata[MFILE_BLUEXBK].mfAnimLen[0]
+	 /*&& mis->_miAnimCnt == misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] - 1*/) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
@@ -3725,12 +3732,13 @@ void MI_FireWave(int mi)
 		if (mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, FireWallLight[0]);
 		else {
-			assert(mis->_miAnimLen < lengthof(FireWallLight));
-			assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(FireWallLight));
+			// assert(mis->_miAnimLen < lengthof(FireWallLight));
+			// assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(FireWallLight));
 			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, FireWallLight[mis->_miAnimFrame]);
 		}
-		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0] /*&&
-			mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] - 1*/) {
+		// assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);
+		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0]
+		 /*&& mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] - 1*/) {
 			SetMissDir(mi, 1);
 			//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
@@ -3752,17 +3760,17 @@ void MI_Guardian(int mi)
 	mis = &missile[mi];
 	switch (mis->_miDir) {
 	case 0: // collapse/spawn
-		assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);
+		// assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);
 		ChangeLightRadius(mis->_miLid, (1 + mis->_miAnimFrame) >> 1);
-
-		if (mis->_miAnimFrame == misfiledata[MFILE_GUARD].mfAnimLen[0] &&
-			// mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1 &&
-			mis->_miAnimAdd >= 0) {
+		// assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1);
+		if (mis->_miAnimFrame == misfiledata[MFILE_GUARD].mfAnimLen[0]
+		 // && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1
+		 && mis->_miAnimAdd >= 0) {
 			// start stand after spawn
 			SetMissDir(mi, 1);
-		} else if (mis->_miAnimFrame == 1 &&
-			// mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1 &&
-			mis->_miAnimAdd < 0) {
+		} else if (mis->_miAnimFrame == 1
+		 // && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1
+		 && mis->_miAnimAdd < 0) {
 			// done after collapse
 			mis->_miDelFlag = TRUE;
 			AddUnLight(mis->_miLid);
@@ -3795,8 +3803,9 @@ void MI_Guardian(int mi)
 		break;
 	case 2:
 		// start stand after fire, or collapse if this was the last shot
-		if (mis->_miAnimFrame == 1 /*&&
-			mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[2] - 1*/) {
+		// assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1);
+		if (mis->_miAnimFrame == 1
+		 /* && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[2] - 1*/) {
 			ex = mis->_miRange != 0;
 			SetMissDir(mi, ex ? 1 : 0);
 			// skip check frame to add delay between attacks
@@ -3879,7 +3888,7 @@ void MI_Misexp(int mi)
 		if (mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		else {
-			assert(mis->_miAnimLen < lengthof(ExpLight));
+			// assert(mis->_miAnimLen < lengthof(ExpLight));
 			ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
 		}
 		PutMissile(mi);
@@ -3901,7 +3910,7 @@ void MI_MiniExp(int mi)
 		if (mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		else {
-			assert(mis->_miAnimLen < lengthof(ExpLight));
+			// assert(mis->_miAnimLen < lengthof(ExpLight));
 			ChangeLightRadius(mis->_miLid, ExpLight[mis->_miAnimFrame]);
 		}
 		PutMissile(mi);
@@ -3916,8 +3925,10 @@ void MI_Acidsplat(int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	assert(mis->_miAnimLen == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]);
-	if (mis->_miRange == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]) {
+	// assert(mis->_miAnimLen == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]);
+	// assert(misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen[0] == 1);
+	if (mis->_miRange == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]
+	 /* && mis->_miAnimCnt == 0*/) {
 		mis->_mix++;
 		mis->_miy++;
 		mis->_miyoff -= 32;
@@ -4049,7 +4060,8 @@ void MI_Rhino(int mi)
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
-		assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);
+		// assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);
+		// assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);
 		if (mis->_miAnimFrame == 13 || !PosOkActor(mis->_mix, mis->_miy)) {
 			MissToMonst(mi);
 			mis->_miDelFlag = TRUE;
@@ -4236,7 +4248,7 @@ void MI_Inferno(int mi)
 	}
 	k = mis->_miAnimFrame;
 	if (k > 11) {
-		assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);
+		// assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);
 		k = 24 - k;
 	}
 	static_assert(MAX_LIGHT_RAD >= 12, "MI_Inferno needs at least light-radius of 12.");
@@ -4382,7 +4394,7 @@ void MI_Elemental(int mi)
 
 void MI_Resurrect(int mi)
 {
-	assert(missile[mi]._miAnimLen == misfiledata[MFILE_RESSUR1].mfAnimLen[0]);
+	// assert(missile[mi]._miAnimLen == misfiledata[MFILE_RESSUR1].mfAnimLen[0]);
 	if (missile[mi]._miAnimFrame < misfiledata[MFILE_RESSUR1].mfAnimLen[0]) {
 		PutMissile(mi);
 		return;
