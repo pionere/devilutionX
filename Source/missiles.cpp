@@ -2286,7 +2286,7 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
  */
 int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int magic, mindam, maxdam;
 
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
@@ -2305,9 +2305,9 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis->_miRange = 255;
 	//mis->_miVar3 = 0;
 	//mis->_miVar4 = 0;
-	mis->_mix++;
+	/*mis->_mix++;
 	mis->_miy++;
-	mis->_miyoff -= TILE_HEIGHT;
+	mis->_miyoff -= TILE_HEIGHT;*/
 	return MIRES_DONE;
 }
 
@@ -3709,9 +3709,9 @@ void MI_FireWave(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	mis->_mix--;
+	/*mis->_mix--;
 	mis->_miy--;
-	mis->_miyoff += TILE_HEIGHT;
+	mis->_miyoff += TILE_HEIGHT;*/
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
@@ -3744,9 +3744,9 @@ void MI_FireWave(int mi)
 			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 		}
 	}
-	mis->_mix++;
+	/*mis->_mix++;
 	mis->_miy++;
-	mis->_miyoff -= TILE_HEIGHT;
+	mis->_miyoff -= TILE_HEIGHT;*/
 	PutMissile(mi);
 }
 
@@ -3926,11 +3926,11 @@ void MI_Acidsplat(int mi)
 
 	mis = &missile[mi];
 	// assert(mis->_miAnimLen == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]);
-	if (mis->_miRange == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0] * misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen[0]) {
+	/*if (mis->_miRange == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0] * misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen[0]) {
 		mis->_mix++;
 		mis->_miy++;
 		mis->_miyoff -= TILE_HEIGHT;
-	}
+	}*/
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -3939,7 +3939,7 @@ void MI_Acidsplat(int mi)
 	mis->_miDelFlag = TRUE;
 	// SetRndSeed(mis->_miRndSeed);
 	// assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);
-	AddMissile(mis->_mix - 1, mis->_miy - 1, 0, 0, 0/*mis->_miDir*/, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
+	AddMissile(mis->_mix/* - 1*/, mis->_miy/* - 1*/, 0, 0, 0/*mis->_miDir*/, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
 }
 
 void MI_Teleport(int mi)
