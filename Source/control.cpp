@@ -1694,19 +1694,19 @@ void DrawInfoStr()
 	} else if (gbSkillListFlag) {
 		if (currSkill == SPL_INVALID || currSkill == SPL_NULL)
 			return;
-		const char* fmt;
+		const char* src;
 		switch (currSkillType) {
 		case RSPLTYPE_ABILITY:
-			fmt = "%s Skill";
+			src = "Ability";
 			break;
 		case RSPLTYPE_SPELL:
-			fmt = "%s Spell";
+			src = "Spell";
 			break;
 		case RSPLTYPE_SCROLL:
-			fmt = SPELL_RUNE(currSkill) ? "Rune of %s" : "Scroll of %s";
+			src = SPELL_RUNE(currSkill) ? "Rune" : "Scroll";
 			break;
 		case RSPLTYPE_CHARGES:
-			fmt = "Staff of %s";
+			src = "Equipment";
 			break;
 		//case RSPLTYPE_INVALID:
 		//	break;
@@ -1714,8 +1714,7 @@ void DrawInfoStr()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		snprintf(infostr, sizeof(infostr), fmt, spelldata[currSkill].sNameText);
-		DrawTooltip(infostr, MouseX, MouseY - (SPLICONLENGTH / 4 + TOOLTIP_OFFSET), COL_WHITE);
+		DrawTooltip2(spelldata[currSkill].sNameText, src, MouseX, MouseY - (SPLICONLENGTH / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
