@@ -233,7 +233,7 @@ static BYTE GetSpellTrans(BYTE st, BYTE sn)
 	}
 }*/
 
-static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
+static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 {
 	ItemStruct* pi;
 	int t, v;
@@ -243,13 +243,16 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 		return;
 	case RSPLTYPE_SPELL:
 		t = COL_WHITE;
-		if (lvl > 0) {
-			snprintf(tempstr, sizeof(tempstr), "lvl%02d", lvl);
-		} else if (lvl == 0) {
+		if (myplr._pHasUnidItem) {
+			copy_cstr(tempstr, "?");
+			break;
+		}
+		v = myplr._pSkillLvl[sn];
+		if (v > 0) {
+			snprintf(tempstr, sizeof(tempstr), "lvl%02d", v);
+		} else {
 			copy_cstr(tempstr, "X");
 			t = COL_RED;
-		} else { // SPLLVL_UNDEF
-			copy_cstr(tempstr, "?");
 		}
 		break;
 	case RSPLTYPE_SCROLL:
@@ -289,7 +292,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 
 static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 {
-	int lvl = 0, y;
+	int lvl, y;
 
 	// BUGFIX: Move the next line into the if statement to avoid OOB (SPL_INVALID is -1) (fixed)
 	if (spl == SPL_INVALID) {
@@ -301,13 +304,11 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 		lvl = plr._pSkillLvl[spl];
 		if (lvl <= 0 || plr._pMana < GetManaAmount(pnum, spl))
 			st = RSPLTYPE_INVALID;
-		if (plr._pHasUnidItem)
-			lvl = -1; // SPLLVL_UNDEF
 	}
 	y = PANEL_Y + PANEL_HEIGHT - 1 - offset;
 	CelDrawLight(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, pSpellCels,
 		spelldata[spl].sIcon, SkillTrns[GetSpellTrans(st, spl)]);
-	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, spl, st, lvl);
+	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, spl, st);
 }
 
 bool ToggleWindow(char idx)
@@ -403,7 +404,7 @@ static bool MoveToSkill(int pnum, int sn, int st)
 
 void DrawSkillList()
 {
-	int pnum, i, j, x, y, sx, /*c,*/ sl, sn, st, lx, ly;
+	int pnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
 	uint64_t mask;
 
 	currSkill = SPL_INVALID;
@@ -451,10 +452,7 @@ void DrawSkillList()
 			}
 			st = i;
 			if (i == RSPLTYPE_SPELL) {
-				sl = plr._pSkillLvl[j];
-				st = sl > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
-				if (plr._pHasUnidItem)
-					sl = -1; // SPLLVL_UNDEF
+				st = plr._pSkillLvl[j] > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 			}
 			if ((spelldata[j].sUseFlags & plr._pSkillFlags) != spelldata[j].sUseFlags)
 				st = RSPLTYPE_INVALID;
@@ -482,7 +480,7 @@ void DrawSkillList()
 				}
 				currSkillType = st;
 
-				DrawSpellIconOverlay(x, y, sn, st, sl);
+				DrawSpellIconOverlay(x, y, sn, st);
 
 				DrawSkillIconHotKey(x, y, sn, st, 4,
 					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
