@@ -1949,8 +1949,8 @@ void DrawSpellBook()
 				currSkill = sn;
 				currSkillType = st;
 			}
-			lvl = plr._pSkillLvl[sn];
-			// assert(lvl >= 0);
+			lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
+			// assert(lvl >= 0 || lvl == -1);
 			mana = 0;
 			switch (st) {
 			case RSPLTYPE_ABILITY:
@@ -1970,17 +1970,16 @@ void DrawSpellBook()
 					snprintf(tempstr, sizeof(tempstr), "Charges: %d/%d", pi->_iCharges, pi->_iMaxCharges);
 				} else {
 					copy_cstr(tempstr, "Charge");
-					lvl = -1; // SPLLVL_UNDEF
+					// assert(lvl == -1); // SPLLVL_UNDEF
 				}
 				break;
 			case RSPLTYPE_SPELL:
 			case RSPLTYPE_INVALID:
-				if (plr._pHasUnidItem) {
+				if (lvl < 0) {
 					copy_cstr(tempstr, "Spell");
-					lvl = -1; // SPLLVL_UNDEF
 					break;
 				}
-				if (lvl > 0) {
+				if (lvl != 0) {
 					snprintf(tempstr, sizeof(tempstr), "Spell Level %d", lvl);
 				} else {
 					copy_cstr(tempstr, "Spell Level 0 - Unusable");
