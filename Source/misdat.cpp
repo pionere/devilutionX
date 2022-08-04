@@ -70,6 +70,7 @@ const MissileData missiledata[] = {
 /*MIS_INFRA*/        { &AddInfra,                  &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_INFRAVIS, SFX_NONE,    1,        1, ALIGN },
 /*MIS_FIREWAVEC*/    { &AddFireWaveC,              &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_FLAMWAVE, SFX_NONE,    1,        1, ALIGN },
 /*MIS_FIREWAVE*/     { &AddFireWave,               &MI_FireWave,       TRUE,      1,    MIF_AREA | MIF_DOT | MIF_LEAD, MISR_FIRE,      MFILE_FIREWAL,   SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
+/*MIS_METEOR*/       { &AddMeteor,                 &MI_Meteor,         TRUE,      1,                                0, MISR_BLUNT,     MFILE_SHATTER1,  LS_WALLLOOP, SFX_NONE,    1,        1, ALIGN },
 /*MIS_LIGHTNOVAC*/   { &AddNovaC,                  &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_NOVA,     SFX_NONE,    1,        1, ALIGN },
 /*MIS_APOCAC*///     { &AddApocaC,                 &MI_ApocaC,         FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_APOC,     SFX_NONE,    1,        1, ALIGN },
 /*MIS_HEAL*/         { &AddHeal,                   &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },

@@ -79,10 +79,10 @@ extern "C" {
 #define SPLROWICONLS	11
 #ifdef HELLFIRE
 #define SPLICONLAST		52
-#define SPLBOOKTABS		5
+#define SPLBOOKTABS		6
 #else
 #define SPLICONLAST		43
-#define SPLBOOKTABS		4
+#define SPLBOOKTABS		5
 #endif
 
 #define LIFE_FLASK_WIDTH	118

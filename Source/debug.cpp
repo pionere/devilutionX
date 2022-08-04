@@ -1094,6 +1094,7 @@ void ValidateData()
 	assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] == 1); // required by MI_Flash2
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */); // required by MI_FireWave
 	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1); // required by MI_FireWave
+	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1); // required by MI_Meteor
 	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1); // required by MI_Guardian
 	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD); // required by MI_Guardian
 	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1); // required by MI_Guardian

@@ -119,6 +119,10 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 			maxd += maxd >> 3;
 		}
 		break;
+	case SPL_METEOR:
+		mind = (magic >> 2) + (sl << 3) + 40;
+		maxd = (magic >> 2) + (sl << 4) + 40;
+		break;
 	case SPL_CHAIN:
 		mind = 1;
 		maxd = magic;
@@ -2311,6 +2315,48 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	return MIRES_DONE;
 }
 
+int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	int mindam, maxdam, i, j, tx, ty;
+	const char* cr;
+
+	mis = &missile[mi];
+	//if (micaster & MST_PLAYER) {
+		mindam = (plx(misource)._pMagic >> 2) + (spllvl << 3) + 40;
+		maxdam = (plx(misource)._pMagic >> 2) + (spllvl << 4) + 40;
+	/*} else if (micaster == MST_MONSTER) {
+		mindam = monsters[misource]._mMinDamage;
+		maxdam = monsters[misource]._mMaxDamage;
+	} else {
+		mindam = currLvl._dLevel;
+		maxdam = currLvl._dLevel * 2;
+	}*/
+	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
+
+	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddMeteor expects a large enough border.");
+	for (i = 0; i < 6; i++) {
+		cr = &CrawlTable[CrawlNum[i]];
+		for (j = (BYTE)*cr; j > 0; j--) {
+			tx = dx + *++cr;
+			ty = dy + *++cr;
+			assert(IN_DUNGEON_AREA(tx, ty));
+			if (LineClear(sx, sy, tx, ty)) {
+				if ((nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
+					mis->_misx = tx;
+					mis->_misy = ty;
+					mis->_mix = tx;
+					mis->_miy = ty;
+					mis->_miAnimAdd = -1;
+					mis->_miAnimFrame = misfiledata[MFILE_SHATTER1].mfAnimLen[0];
+					return MIRES_DONE;
+				}
+			}
+		}
+	}
+	return MIRES_FAIL_DELETE;
+}
+
 int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -3748,6 +3794,52 @@ void MI_FireWave(int mi)
 	mis->_miy++;
 	mis->_miyoff -= TILE_HEIGHT;*/
 	PutMissile(mi);
+}
+
+void MI_Meteor(int mi)
+{
+	MissileStruct* mis;
+	int mx, my;
+	const int MET_SHIFT_X = 16 * ASSET_MPL, MET_SHIFT_Y = 110 * ASSET_MPL, MET_SHIFT_UP = 26 * ASSET_MPL, MET_STEPS_UP = 2, MET_STEPS_DOWN = 10;
+
+	mis = &missile[mi];
+
+	if (mis->_miAnimType != MFILE_FIREBA) {
+		// assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1);
+		if (mis->_miAnimFrame == 3
+		 /*&& mis->_miAnimCnt == misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] - 1*/) {
+			mis->_miyoff -= MET_SHIFT_UP / MET_STEPS_UP;
+			mis->_mixoff += MET_SHIFT_X / MET_STEPS_UP;
+			if (mis->_miyoff < - MET_SHIFT_UP) {
+				mis->_miAnimType = MFILE_FIREBA;
+				SetMissDir(mi, 0);
+				mis->_mixoff = MET_SHIFT_X;
+				static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border."); // 96: height of the sprite, 46: transparent lines on the first frame
+				mis->_miyoff = -MET_SHIFT_Y;
+				// TODO: adjust velocity based on spllvl?
+			} else {
+				mis->_miAnimFrame = 4;
+				// mis->_miAnimCnt = 0;
+			}
+		}
+
+		PutMissile(mi);
+	} else {
+		mis->_mixoff -= MET_SHIFT_X / MET_STEPS_DOWN;
+		mis->_miyoff += MET_SHIFT_Y / MET_STEPS_DOWN;
+		if (mis->_miyoff < 0) { // TODO: use _miRange?
+			PutMissile(mi);
+			return;
+		}
+
+		mis->_miDelFlag = TRUE;
+		mx = mis->_mix;
+		my = mis->_miy;
+		CheckMissileCol(mi, mx, my, MICM_NONE);
+		PlaySfxLoc(LS_FIRIMP2, mx, my);
+
+		AddMissile(mx, my, 0, 0, 0, MIS_FIREWALL, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+	}
 }
 
 void MI_Guardian(int mi)
