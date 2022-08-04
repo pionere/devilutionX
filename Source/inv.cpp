@@ -1902,7 +1902,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		if (is->_iSpell != sn || is->_iCharges <= 0)
 			return false;
 		is->_iCharges--;
-		CalcPlrStaff(pnum);
+		CalcPlrCharges(pnum);
 		return true;
 	}
 

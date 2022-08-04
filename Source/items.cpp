@@ -682,7 +682,7 @@ void CalcPlrSpells(int pnum)
 
 void CalcPlrScrolls(int pnum)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	int i;
 
 	plr._pScrlSkills = 0;
@@ -701,9 +701,9 @@ void CalcPlrScrolls(int pnum)
 	ValidateActionSkills(pnum, RSPLTYPE_SCROLL, plr._pScrlSkills);
 }
 
-void CalcPlrStaff(int pnum)
+void CalcPlrCharges(int pnum)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 
 	plr._pISpells = 0;
 	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
@@ -785,7 +785,7 @@ void CalcPlrInv(int pnum, bool Loadgfx)
 		CalcPlrSpells(pnum);
 		//CalcPlrBookVals(pnum);
 		CalcPlrScrolls(pnum);
-		//CalcPlrStaff(pnum);
+		//CalcPlrCharges(pnum);
 	//}
 }
 
