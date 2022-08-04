@@ -704,13 +704,17 @@ void CalcPlrScrolls(int pnum)
 void CalcPlrCharges(int pnum)
 {
 	ItemStruct* pi;
+	int i;
+	uint64_t mask = 0;
 
-	plr._pISpells = 0;
-	pi = &plr._pInvBody[INVLOC_HAND_LEFT];
-	if (pi->_itype != ITYPE_NONE && pi->_iCharges > 0 && pi->_iStatFlag) {
-		plr._pISpells |= SPELL_MASK(pi->_iSpell);
+	pi = plr._pInvBody;
+	for (i = NUM_INVLOC; i > 0; i--, pi++) {
+		if (pi->_itype != ITYPE_NONE && pi->_iCharges > 0 && pi->_iStatFlag)
+			mask |= SPELL_MASK(pi->_iSpell);
 	}
-	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, plr._pISpells);
+	plr._pISpells = mask;
+
+	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, mask);
 }
 
 static void ItemStatOk(ItemStruct* is, int sa, int ma, int da)

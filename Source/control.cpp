@@ -236,13 +236,12 @@ static BYTE GetSpellTrans(BYTE st, BYTE sn)
 static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 {
 	ItemStruct* pi;
-	int t, v;
+	int t = COL_WHITE, v, mv;
 
 	switch (st) {
 	case RSPLTYPE_ABILITY:
 		return;
 	case RSPLTYPE_SPELL:
-		t = COL_WHITE;
 		if (myplr._pHasUnidItem) {
 			copy_cstr(tempstr, "?");
 			break;
@@ -272,14 +271,22 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 			}
 		}
 		snprintf(tempstr, sizeof(tempstr), "%d", v);
-		t = COL_WHITE;
 		break;
 	case RSPLTYPE_CHARGES:
-		pi = &myplr._pInvBody[INVLOC_HAND_LEFT];
-		if (pi->_iMagical != ITEM_QUALITY_NORMAL && !pi->_iIdentified)
-			return;
-		snprintf(tempstr, sizeof(tempstr), "%d/%d", pi->_iCharges, pi->_iMaxCharges);
-		t = COL_WHITE;
+		if (myplr._pHasUnidItem) {
+			copy_cstr(tempstr, "?");
+			break;
+		}
+		v = 0;
+		mv = 0;
+		pi = myplr._pInvBody;
+		for (t = NUM_INVLOC; t > 0; t--, pi++) {
+			if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iStatFlag) {
+				v += pi->_iCharges;
+				mv += pi->_iMaxCharges;
+			}
+		}
+		snprintf(tempstr, sizeof(tempstr), "%d/%d", v, mv);
 		break;
 	case RSPLTYPE_INVALID:
 		return;
