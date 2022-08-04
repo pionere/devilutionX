@@ -684,21 +684,21 @@ void CalcPlrScrolls(int pnum)
 {
 	ItemStruct* pi;
 	int i;
-
-	plr._pScrlSkills = 0;
+	uint64_t mask = 0;
 
 	pi = plr._pInvList;
 	for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++) {
 		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iStatFlag)
-			plr._pScrlSkills |= SPELL_MASK(pi->_iSpell);
+			mask |= SPELL_MASK(pi->_iSpell);
 	}
 	pi = plr._pSpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
 		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iStatFlag)
-			plr._pScrlSkills |= SPELL_MASK(pi->_iSpell);
+			mask |= SPELL_MASK(pi->_iSpell);
 	}
+	plr._pScrlSkills = mask;
 
-	ValidateActionSkills(pnum, RSPLTYPE_SCROLL, plr._pScrlSkills);
+	ValidateActionSkills(pnum, RSPLTYPE_SCROLL, mask);
 }
 
 void CalcPlrCharges(int pnum)
