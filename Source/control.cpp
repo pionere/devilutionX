@@ -1919,7 +1919,6 @@ static BYTE GetSBookTrans(int sn)
 
 void DrawSpellBook()
 {
-	ItemStruct* pi;
 	int pnum, i, sn, mana, lvl, sx, yp, offset;
 	BYTE st;
 	uint64_t spl;
@@ -1954,7 +1953,7 @@ void DrawSpellBook()
 			mana = 0;
 			switch (st) {
 			case RSPLTYPE_ABILITY:
-				copy_cstr(tempstr, "Skill");
+				copy_cstr(tempstr, "Ability");
 				// lvl = -1; // SPLLVL_UNDEF
 				break;
 			case RSPLTYPE_SCROLL:
@@ -1965,7 +1964,7 @@ void DrawSpellBook()
 				}
 				break;
 			case RSPLTYPE_CHARGES:
-				copy_cstr(tempstr, "Charge");
+				copy_cstr(tempstr, "Equipment");
 				break;
 			case RSPLTYPE_SPELL:
 			case RSPLTYPE_INVALID:
