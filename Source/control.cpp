@@ -1965,13 +1965,7 @@ void DrawSpellBook()
 				}
 				break;
 			case RSPLTYPE_CHARGES:
-				pi = &plr._pInvBody[INVLOC_HAND_LEFT];
-				if (pi->_iMagical == ITEM_QUALITY_NORMAL || pi->_iIdentified) {
-					snprintf(tempstr, sizeof(tempstr), "Charges: %d/%d", pi->_iCharges, pi->_iMaxCharges);
-				} else {
-					copy_cstr(tempstr, "Charge");
-					// assert(lvl == -1); // SPLLVL_UNDEF
-				}
+				copy_cstr(tempstr, "Charge");
 				break;
 			case RSPLTYPE_SPELL:
 			case RSPLTYPE_INVALID:
