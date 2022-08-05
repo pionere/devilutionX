@@ -45,7 +45,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease -Pcmakeargs="-DHELLFIRE=ON"
+      run: cd android-project && ./gradlew assembleRelease --info -Pcmakeargs="-DHELLFIRE=ON"
 
     - name: Upload-Package
       uses: actions/upload-artifact@v2
