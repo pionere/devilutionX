@@ -1104,9 +1104,12 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == floor && (freq == 0 || random_low(0, freq) == 0) && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
 				if (rndSize) {
+					// assert(minSize > 2);
 					min = minSize - 2;
-					themeW = RandRange(min, themeW);
-					themeH = RandRange(min, themeH);
+					static_assert(DMAXX /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeW.");
+					static_assert(DMAXY /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeH.");
+					themeW = RandRangeLow(min, themeW);
+					themeH = RandRangeLow(min, themeH);
 				}
 				themeLoc[themeCount].x = i + 1;
 				themeLoc[themeCount].y = j + 1;

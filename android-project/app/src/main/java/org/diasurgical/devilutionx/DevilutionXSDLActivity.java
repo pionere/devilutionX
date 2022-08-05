@@ -87,7 +87,12 @@ public class DevilutionXSDLActivity extends SDLActivity {
 				in.close();
 			}
 		} catch (IOException exception) {
-			Log.e("copyFile", exception.getMessage());
+			String message = exception.getMessage();
+			if (message == null) {
+				Log.e("copyFile", "IOException", exception);
+			} else {
+				Log.e("copyFile", message);
+			}
 			if (dst.exists()) {
 				//noinspection ResultOfMethodCallIgnored
 				dst.delete();
@@ -122,7 +127,10 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	}
 
 	private void migrateSaveGames() {
-		for (File internalFile : getFilesDir().listFiles()) {
+		File[] files = getFilesDir().listFiles();
+		if (files == null)
+			return;
+		for (File internalFile : files) {
 			migrateFile(internalFile);
 		}
 	}

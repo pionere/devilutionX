@@ -34,7 +34,7 @@ int GetManaAmount(int pnum, int sn)
 
 char SpellSourceInv(int sn)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	int i;
 
 	static_assert(!SPLFROM_INVALID(INVITEM_INV_FIRST), "SpellSourceInv expects the INV indices to be distinct from SPLFROM_INVALID I.");
@@ -61,14 +61,16 @@ char SpellSourceInv(int sn)
 
 char SpellSourceEquipment(int sn)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
+	int i;
 
-	static_assert(!SPLFROM_INVALID(INVITEM_HAND_LEFT), "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPLFROM_INVALID.");
-	static_assert((int)INVITEM_HAND_LEFT != (int)SPLFROM_MANA, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPL_MANA.");
-	static_assert((int)INVITEM_HAND_LEFT != (int)SPLFROM_ABILITY, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPLFROM_ABILITY.");
-	pi = &myplr._pInvBody[INVLOC_HAND_LEFT];
-	if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iCharges > 0) {
-		return INVITEM_HAND_LEFT;
+	static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_INVALID_SOURCE, "SpellSourceEquipment expects the INV indices to be distinct from SPLFROM_INVALID_SOURCE.");
+	static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_MANA, "SpellSourceEquipment expects the INV indices to be distinct from SPL_MANA.");
+	static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_ABILITY, "SpellSourceEquipment expects the INV indices to be distinct from SPLFROM_ABILITY.");
+	pi = myplr._pInvBody;
+	for (i = 0; i < NUM_INVLOC; i++, pi++) {
+		if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iCharges > 0)
+			return INVITEM_BODY_FIRST + i;
 	}
 
 	return SPLFROM_INVALID_SOURCE;

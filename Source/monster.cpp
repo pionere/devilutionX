@@ -273,7 +273,7 @@ static void InitMonsterGFX(int midx)
 	MapMonData* cmon;
 	const MonFileData* mfdata;
 	int mtype, anim, i;
-	char strBuff[256];
+	char strBuff[DATA_ARCHIVE_MAX_PATH];
 	BYTE* celBuf;
 
 	cmon = &mapMonTypes[midx];
@@ -573,7 +573,6 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	SetMonsterLoc(mon, x, y);
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
-	mon->MType = cmon;
 	mon->_mType = cmon->cmType;
 	mon->_mAnimWidth = cmon->cmWidth;
 	mon->_mAnimXOffset = cmon->cmXOffset;
@@ -599,13 +598,13 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mMagicRes = mdata->mMagicRes;
 	mon->_mTreasure = mdata->mTreasure;
 	mon->_mExp = mdata->mExp;
-	mon->_mmaxhp = RandRange(mdata->mMinHP, mdata->mMaxHP) << 6;
+	mon->_mmaxhp = RandRangeLow(mdata->mMinHP, mdata->mMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].aFrameLen;
 	mon->_mAnimCnt = random_low(88, mon->_mAnimFrameLen);
 	mon->_mAnimLen = cmon->cmAnims[MA_STAND].aFrames;
-	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen);
+	mon->_mAnimFrame = mon->_mAnimLen == 0 ? 1 : RandRangeLow(1, mon->_mAnimLen);
 	mon->_mmode = MM_STAND;
 	mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
 	mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
@@ -839,7 +838,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	int xp, yp, x, y;
 	int uniqtype;
 	int count2;
-	char filestr[64];
+	char filestr[DATA_ARCHIVE_MAX_PATH];
 	const UniqMonData* uniqm;
 	MonsterStruct* mon;
 	int mnum, count;
@@ -1656,8 +1655,7 @@ static void MonStartGetHit(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
-	if (mon->_mmode == MM_DEATH)
-		return;
+	assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE);
 
 	RemoveMonFromMap(mnum);
 	MonPlace(mnum);
@@ -1866,7 +1864,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		quests[Q_DEFILER]._qactive = QUEST_DONE;
 		if (sendmsg)
 			NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
-		SpawnQuestItemAt(IDI_MAPOFDOOM, mon->_mx, mon->_my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		SpawnQuestItemAt(IDI_FANG, mon->_mx, mon->_my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_NAKRUL:
 		//if (effect_is_playing(USFX_NAKRUL4) || effect_is_playing(USFX_NAKRUL5) || effect_is_playing(USFX_NAKRUL6))
@@ -3679,7 +3677,8 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_low(122, 4 << lessmissiles) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
-				mon->_mgoalvar1 = 4 + RandRange(2, dist); // MOVE_DISTANCE
+				static_assert(MAXDUNX + MAXDUNY <= 0x7FFF, "MAI_RoundRanged uses RandRangeLow to set distance");
+				mon->_mgoalvar1 = 4 + RandRangeLow(2, dist); // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2);        // MOVE_TURN_DIRECTION
 			}
 			/*if ((--mon->_mgoalvar1 <= 4 && MonDirOK(mnum, currEnemyInfo._meLastDir)) || mon->_mgoalvar1 == 0) {
@@ -4796,6 +4795,7 @@ bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2,
 void SyncMonsterAnim(int mnum)
 {
 	MonsterStruct* mon;
+	MapMonData* mmdata;
 	int mode;
 	MON_ANIM anim;
 
@@ -4806,11 +4806,11 @@ void SyncMonsterAnim(int mnum)
 	if ((unsigned)mon->_mMTidx >= MAX_LVLMTYPES) {
 		dev_fatal("SyncMonsterAnim: Invalid monster type %d for %d", mon->_mMTidx, mnum);
 	}
-	mon->MType = &mapMonTypes[mon->_mMTidx];
-	mon->_mType = mon->MType->cmType;
-	mon->_mAnims = mon->MType->cmAnims;
-	mon->_mAnimWidth = mon->MType->cmWidth;
-	mon->_mAnimXOffset = mon->MType->cmXOffset;
+	mmdata = &mapMonTypes[mon->_mMTidx];
+	mon->_mType = mmdata->cmType;
+	mon->_mAnims = mmdata->cmAnims;
+	mon->_mAnimWidth = mmdata->cmWidth;
+	mon->_mAnimXOffset = mmdata->cmXOffset;
 	if (mon->_uniqtype != 0)
 		mon->mName = uniqMonData[mon->_uniqtype - 1].mName;
 	else

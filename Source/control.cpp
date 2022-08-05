@@ -142,6 +142,7 @@ static BYTE SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
 	{ SPL_FIREBOLT, SPL_FIREBALL, SPL_INFERNO, SPL_FIREWALL, SPL_WAVE, SPL_GUARDIAN, SPL_ELEMENTAL },
 	{ SPL_RAGE, SPL_SWIPE, SPL_POINT_BLANK, SPL_FAR_SHOT, SPL_HBOLT, SPL_FLARE, SPL_FLASH  },
 	{ SPL_STONE, SPL_MANASHIELD, SPL_HEAL, SPL_HEALOTHER, SPL_RNDTELEPORT, SPL_TELEPORT, SPL_TOWN },
+	{ SPL_METEOR, SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID },
 #ifdef HELLFIRE
 	{ SPL_RUNEFIRE, SPL_FIRERING, SPL_RUNEWAVE, SPL_RUNELIGHT, SPL_RUNENOVA, SPL_INVALID, SPL_INVALID },
 #endif
@@ -232,23 +233,25 @@ static BYTE GetSpellTrans(BYTE st, BYTE sn)
 	}
 }*/
 
-static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
+static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 {
 	ItemStruct* pi;
-	int t, v;
+	int t = COL_WHITE, v, mv;
 
 	switch (st) {
 	case RSPLTYPE_ABILITY:
 		return;
 	case RSPLTYPE_SPELL:
-		t = COL_WHITE;
-		if (lvl > 0) {
-			snprintf(tempstr, sizeof(tempstr), "lvl%02d", lvl);
-		} else if (lvl == 0) {
+		if (myplr._pHasUnidItem) {
+			copy_cstr(tempstr, "?");
+			break;
+		}
+		v = myplr._pSkillLvl[sn];
+		if (v > 0) {
+			snprintf(tempstr, sizeof(tempstr), "lvl%02d", v);
+		} else {
 			copy_cstr(tempstr, "X");
 			t = COL_RED;
-		} else { // SPLLVL_UNDEF
-			copy_cstr(tempstr, "?");
 		}
 		break;
 	case RSPLTYPE_SCROLL:
@@ -268,14 +271,22 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 			}
 		}
 		snprintf(tempstr, sizeof(tempstr), "%d", v);
-		t = COL_WHITE;
 		break;
 	case RSPLTYPE_CHARGES:
-		pi = &myplr._pInvBody[INVLOC_HAND_LEFT];
-		if (pi->_iMagical != ITEM_QUALITY_NORMAL && !pi->_iIdentified)
-			return;
-		snprintf(tempstr, sizeof(tempstr), "%d/%d", pi->_iCharges, pi->_iMaxCharges);
-		t = COL_WHITE;
+		if (myplr._pHasUnidItem) {
+			copy_cstr(tempstr, "?");
+			break;
+		}
+		v = 0;
+		mv = 0;
+		pi = myplr._pInvBody;
+		for (t = NUM_INVLOC; t > 0; t--, pi++) {
+			if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iStatFlag) {
+				v += pi->_iCharges;
+				mv += pi->_iMaxCharges;
+			}
+		}
+		snprintf(tempstr, sizeof(tempstr), "%d/%d", v, mv);
 		break;
 	case RSPLTYPE_INVALID:
 		return;
@@ -288,7 +299,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 
 static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 {
-	int lvl = 0, y;
+	int lvl, y;
 
 	// BUGFIX: Move the next line into the if statement to avoid OOB (SPL_INVALID is -1) (fixed)
 	if (spl == SPL_INVALID) {
@@ -300,13 +311,11 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 		lvl = plr._pSkillLvl[spl];
 		if (lvl <= 0 || plr._pMana < GetManaAmount(pnum, spl))
 			st = RSPLTYPE_INVALID;
-		if (plr._pHasUnidItem)
-			lvl = -1; // SPLLVL_UNDEF
 	}
 	y = PANEL_Y + PANEL_HEIGHT - 1 - offset;
 	CelDrawLight(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, pSpellCels,
 		spelldata[spl].sIcon, SkillTrns[GetSpellTrans(st, spl)]);
-	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, spl, st, lvl);
+	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, spl, st);
 }
 
 bool ToggleWindow(char idx)
@@ -402,7 +411,7 @@ static bool MoveToSkill(int pnum, int sn, int st)
 
 void DrawSkillList()
 {
-	int pnum, i, j, x, y, sx, /*c,*/ sl, sn, st, lx, ly;
+	int pnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
 	uint64_t mask;
 
 	currSkill = SPL_INVALID;
@@ -450,10 +459,7 @@ void DrawSkillList()
 			}
 			st = i;
 			if (i == RSPLTYPE_SPELL) {
-				sl = plr._pSkillLvl[j];
-				st = sl > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
-				if (plr._pHasUnidItem)
-					sl = -1; // SPLLVL_UNDEF
+				st = plr._pSkillLvl[j] > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 			}
 			if ((spelldata[j].sUseFlags & plr._pSkillFlags) != spelldata[j].sUseFlags)
 				st = RSPLTYPE_INVALID;
@@ -481,7 +487,7 @@ void DrawSkillList()
 				}
 				currSkillType = st;
 
-				DrawSpellIconOverlay(x, y, sn, st, sl);
+				DrawSpellIconOverlay(x, y, sn, st);
 
 				DrawSkillIconHotKey(x, y, sn, st, 4,
 					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
@@ -1693,19 +1699,19 @@ void DrawInfoStr()
 	} else if (gbSkillListFlag) {
 		if (currSkill == SPL_INVALID || currSkill == SPL_NULL)
 			return;
-		const char* fmt;
+		const char* src;
 		switch (currSkillType) {
 		case RSPLTYPE_ABILITY:
-			fmt = "%s Skill";
+			src = "Ability";
 			break;
 		case RSPLTYPE_SPELL:
-			fmt = "%s Spell";
+			src = "Spell";
 			break;
 		case RSPLTYPE_SCROLL:
-			fmt = SPELL_RUNE(currSkill) ? "Rune of %s" : "Scroll of %s";
+			src = SPELL_RUNE(currSkill) ? "Rune" : "Scroll";
 			break;
 		case RSPLTYPE_CHARGES:
-			fmt = "Staff of %s";
+			src = "Equipment";
 			break;
 		//case RSPLTYPE_INVALID:
 		//	break;
@@ -1713,8 +1719,7 @@ void DrawInfoStr()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		snprintf(infostr, sizeof(infostr), fmt, spelldata[currSkill].sNameText);
-		DrawTooltip(infostr, MouseX, MouseY - (SPLICONLENGTH / 4 + TOOLTIP_OFFSET), COL_WHITE);
+		DrawTooltip2(spelldata[currSkill].sNameText, src, MouseX, MouseY - (SPLICONLENGTH / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
@@ -1918,7 +1923,6 @@ static BYTE GetSBookTrans(int sn)
 
 void DrawSpellBook()
 {
-	ItemStruct* pi;
 	int pnum, i, sn, mana, lvl, sx, yp, offset;
 	BYTE st;
 	uint64_t spl;
@@ -1948,12 +1952,12 @@ void DrawSpellBook()
 				currSkill = sn;
 				currSkillType = st;
 			}
-			lvl = plr._pSkillLvl[sn];
-			// assert(lvl >= 0);
+			lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
+			// assert(lvl >= 0 || lvl == -1);
 			mana = 0;
 			switch (st) {
 			case RSPLTYPE_ABILITY:
-				copy_cstr(tempstr, "Skill");
+				copy_cstr(tempstr, "Ability");
 				// lvl = -1; // SPLLVL_UNDEF
 				break;
 			case RSPLTYPE_SCROLL:
@@ -1964,22 +1968,15 @@ void DrawSpellBook()
 				}
 				break;
 			case RSPLTYPE_CHARGES:
-				pi = &plr._pInvBody[INVLOC_HAND_LEFT];
-				if (pi->_iMagical == ITEM_QUALITY_NORMAL || pi->_iIdentified) {
-					snprintf(tempstr, sizeof(tempstr), "Charges: %d/%d", pi->_iCharges, pi->_iMaxCharges);
-				} else {
-					copy_cstr(tempstr, "Charge");
-					lvl = -1; // SPLLVL_UNDEF
-				}
+				copy_cstr(tempstr, "Equipment");
 				break;
 			case RSPLTYPE_SPELL:
 			case RSPLTYPE_INVALID:
-				if (plr._pHasUnidItem) {
+				if (lvl < 0) {
 					copy_cstr(tempstr, "Spell");
-					lvl = -1; // SPLLVL_UNDEF
 					break;
 				}
-				if (lvl > 0) {
+				if (lvl != 0) {
 					snprintf(tempstr, sizeof(tempstr), "Spell Level %d", lvl);
 				} else {
 					copy_cstr(tempstr, "Spell Level 0 - Unusable");

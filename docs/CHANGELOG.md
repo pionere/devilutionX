@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - block only if standing or actively using the Block skill
 - separate resistance against acid
 - added Far Shot/Point Blank/Swipe/Charge skills
-- added Attract spell
+- added Attract/Meteor spells
 - skills/spells have experience counters
 - books give skill experience instead of a whole level
 - rebalanced spells (some spells removed, others damage modified, runes fire multiple times, etc...)
@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added unique items: Ring of Destruction, Spirit Ward
 - altered the effects of the shrines
 - most of the quests are available in multiplayer games
+- The Defiler drops a fang instead of the Cathedral Map (the fang acts the same way as the Cathedral Map)
 - Skeleton King (and Hork Demon) are summoning monsters in multiplayer games
 - added unique monsters to crypt and nest levels
 - multiple corpses are allowed on one tile

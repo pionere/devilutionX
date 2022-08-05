@@ -1323,11 +1323,11 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		delay = 20;
 		idx = TEXT_IM_ARMOFVAL;
 #ifdef HELLFIRE
-	} else if (idx == IDI_MAPOFDOOM) {
+	} else if (idx == IDI_FANG) {
 		if (quests[Q_GRAVE]._qactive != QUEST_INIT)
 			return;
 		delay = 10;
-		idx = TEXT_IM_MAPOFDOOM;
+		idx = TEXT_IM_FANG;
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int nn, i, x, y;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
@@ -1857,9 +1857,9 @@ bool InvUseItem(int cii)
 		return true;
 	case IMISC_BOOK:
 		break;
-	case IMISC_MAPOFDOOM:
-		doom_init();
-		return true;
+	//case IMISC_MAPOFDOOM:
+	//	doom_init();
+	//	return true;
 	case IMISC_OILQLTY:
 	case IMISC_OILZEN:
 	case IMISC_OILSTR:
@@ -1902,7 +1902,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		if (is->_iSpell != sn || is->_iCharges <= 0)
 			return false;
 		is->_iCharges--;
-		CalcPlrStaff(pnum);
+		CalcPlrCharges(pnum);
 		return true;
 	}
 
@@ -1958,7 +1958,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	case IMISC_SPECELIX:
 		RestorePlrHpVit(pnum);
 		break;
-	case IMISC_MAPOFDOOM:
+	//case IMISC_MAPOFDOOM:
 	case IMISC_NOTE:
 	case IMISC_OILQLTY:
 	case IMISC_OILZEN:

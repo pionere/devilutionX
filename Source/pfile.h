@@ -23,7 +23,7 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *));
 //void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats);
 int pfile_ui_create_save(_uiheroinfo* heroinfo);
 void pfile_ui_delete_save(_uiheroinfo* hero_info);
-//bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH]);
+//bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH]);
 void pfile_rename_temp_to_perm();
 /*
  * Write save file (game or level) from gsDeltaData.ddBuffer

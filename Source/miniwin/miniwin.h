@@ -17,10 +17,6 @@ typedef unsigned int UINT;
 typedef int32_t WPARAM;
 typedef int32_t LPARAM;
 
-#ifndef MAX_PATH
-#define MAX_PATH 260
-#endif
-
 //
 // Handles
 //

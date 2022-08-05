@@ -132,7 +132,7 @@ static void ReadOnlyTest()
 {
 	std::string path = GetPrefPath();
 	path += "Diablo1ReadOnlyTest.foo";
-	FILE* f = FileOpen(path.c_str(), "wt");
+	FILE* f = FileOpen(path.c_str(), "w");
 	if (f != NULL) {
 		fclose(f);
 		remove(path.c_str());

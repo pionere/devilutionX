@@ -675,6 +675,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 	pbBuf = (const BYTE*)&pHdr[1];
 	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		pSync = (TSyncMonster*)pbBuf;
+		net_assert(pSync->_mndx < MAXMONSTERS);
 		pD = &pDLvlMons[pSync->_mndx];
 		static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_sync_monster expects ordered DCMD_MON_ enum I.");
 		static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_sync_monster expects ordered DCMD_MON_ enum II.");
@@ -2252,7 +2253,7 @@ void NetSendCmdString(unsigned int pmask)
 	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = NMSG_STRING;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
-	multi_send_direct_msg(pmask, (BYTE*)&cmd, dwStrLen + 2);
+	multi_send_direct_msg(pmask, (BYTE*)&cmd, sizeof(cmd.bCmd) + dwStrLen + 1);
 }
 
 void delta_open_portal(int i, BYTE x, BYTE y, BYTE bLevel)
@@ -2476,7 +2477,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		}
 		return true;
 	}
-	if (iidx == IDI_MAPOFDOOM
+	if (iidx == IDI_FANG
 	 && x >= DBORDERX + 25  && x <= DBORDERX + 28 && y >= DBORDERY + 10 && y <= DBORDERY + 14
 	 && quests[Q_GRAVE]._qactive != QUEST_DONE) {
 		quests[Q_GRAVE]._qactive = QUEST_DONE;
@@ -2712,7 +2713,7 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 	su.from = cmd->from;
 	su.skill = SPL_DISARM;
 
-	if (CheckPlrSkillUse(pnum, su) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, su)) {
 		oi = cmd->oi;
 
 		net_assert(oi < MAXOBJECTS);
@@ -2983,6 +2984,8 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
 	int i, dmgtype = cmd->bParam1;
+
+	// TODO: reset cursor if not an item?
 
 	if (dmgtype == DMGTYPE_NPC) {
 		plr._pExperience -= (plr._pExperience - PlrExpLvlsTbl[plr._pLevel - 1]) >> 2;
@@ -3305,7 +3308,7 @@ static void DoTelekinesis(int pnum, int x, int y, char from, int id)
 	su.from = from;
 	su.skill = SPL_TELEKINESIS;
 
-	if (CheckPlrSkillUse(pnum, su) && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (CheckPlrSkillUse(pnum, su)) {
 		ClrPlrPath(pnum);
 
 		plr.destAction = ACTION_SPELL;
@@ -3508,7 +3511,7 @@ static unsigned On_STORE_1(TCmd* pCmd, int pnum)
 
 	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 	net_assert(plr._pDunLevel == DLV_TOWN);
-	net_assert(c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_BOY);
+	net_assert(c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_PEGBOY);
 	net_assert(r < NUM_INVELEM);
 
 	SyncStoreCmd(pnum, c, r, SwapLE32(cmd->stValue));
@@ -3526,7 +3529,7 @@ static unsigned On_STORE_2(TCmd* pCmd, int pnum)
 
 	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 	net_assert(plr._pDunLevel == DLV_TOWN);
-	net_assert(c == STORE_HBUY || c == STORE_SBUY || c == STORE_SPBUY || c == STORE_WBUY || c == STORE_BBOY);
+	net_assert(c == STORE_HBUY || c == STORE_SBUY || c == STORE_SPBUY || c == STORE_WBUY || c == STORE_PBUY);
 
 	UnPackPkItem(&cmd->item);
 	SyncStoreCmd(pnum, c, MAXITEMS, SwapLE32(cmd->stValue));

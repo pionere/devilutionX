@@ -332,24 +332,24 @@ typedef enum pattern_pixel {
 };
 
 typedef struct UpscalePatterns {
-	BYTE* pattern;
+	const BYTE* pattern;
 	bool (*fnc)(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata);
 } UpscalePatterns;
 /*
-  c c c    cc cc cc    cc  cc  cc
-  a c c X  cc cc cc -> cc  cc  cc
-  a a c    aa cc cc    aa [cc] cc
-           aa cc cc    aa [Ac] cc
-		   aa aa cc    aa  aa  cc
-		   aa aa cc    aa  aa  cc
+  c c c   cc cc cc    cc  cc  cc
+  a c c X cc cc cc -> cc  cc  cc
+  a a c   aa cc cc    aa [cc] cc
+          aa cc cc    aa [Ac] cc
+          aa aa cc    aa  aa  cc
+          aa aa cc    aa  aa  cc
  */
-BYTE patternLineDownRight[] = {
+static const BYTE patternLineDownRight[] = {
 	3, 3,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_ALPHA, PTN_COLOR,
 };
-bool LineDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool LineDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y + 1];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[(y + 1) * multiplier];
@@ -375,20 +375,20 @@ bool LineDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png
 }
 
 /*
-  c c c    cc cc cc    cc  cc  cc
-  c c a X  cc cc cc -> cc  cc  cc
-  c a a    cc cc aa    cc [cc] aa
-           cc cc aa    cc [cA] aa
-		   cc aa aa    cc  aa  aa
-		   cc aa aa    cc  aa  aa
+  c c c   cc cc cc    cc  cc  cc
+  c c a X cc cc cc -> cc  cc  cc
+  c a a   cc cc aa    cc [cc] aa
+          cc cc aa    cc [cA] aa
+          cc aa aa    cc  aa  aa
+          cc aa aa    cc  aa  aa
  */
-BYTE patternLineDownLeft[] = {
+static const BYTE patternLineDownLeft[] = {
 	3, 3,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR,
 	PTN_COLOR, PTN_COLOR, PTN_ALPHA,
 	PTN_COLOR, PTN_ALPHA, PTN_ALPHA,
 };
-bool LineDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool LineDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y + 1];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[(y + 1) * multiplier];
@@ -413,20 +413,20 @@ bool LineDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_
 }
 
 /*
-  a a c    aa aa cc     aa [aa] cc
-  a c c X  aa aa cc ->  aa [aC] cc
-  c c c    aa cc cc    [aa] cc  cc
-           aa cc cc    [aC] cc  cc
-		   cc cc cc     cc  cc  cc
-		   cc cc cc     cc  cc  cc
+  a a c   aa aa cc     aa [aa] cc
+  a c c X aa aa cc ->  aa [aC] cc
+  c c c   aa cc cc    [aa] cc  cc
+          aa cc cc    [aC] cc  cc
+          cc cc cc     cc  cc  cc
+          cc cc cc     cc  cc  cc
  */
-BYTE patternLineUpRight[] = {
+static const BYTE patternLineUpRight[] = {
 	3, 3,
 	PTN_ALPHA, PTN_ALPHA, PTN_COLOR,
 	PTN_ALPHA, PTN_COLOR, PTN_COLOR,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR,
 };
-bool LineUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool LineUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -503,20 +503,20 @@ bool LineUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_i
 }
 
 /*
-  c a a    cc aa aa    cc [aa] aa
-  c c a X  cc aa aa -> cc [Ca] aa
-  c c c    cc cc aa    cc  cc [aa]
-           cc cc aa    cc  cc [Ca]
-		   cc cc cc    cc  cc  cc
-		   cc cc cc    cc  cc  cc
+  c a a   cc aa aa    cc [aa] aa
+  c c a X cc aa aa -> cc [Ca] aa
+  c c c   cc cc aa    cc  cc [aa]
+          cc cc aa    cc  cc [Ca]
+          cc cc cc    cc  cc  cc
+          cc cc cc    cc  cc  cc
  */
-BYTE patternLineUpLeft[] = {
+static const BYTE patternLineUpLeft[] = {
 	3, 3,
 	PTN_COLOR, PTN_ALPHA, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR,
 };
-bool LineUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool LineUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -594,20 +594,20 @@ bool LineUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_im
 }
 
 /*
-  c c c c    cc cc cc cc    cc  cc cc  cc
-  a c c c X  cc cc cc cc -> cc  cc cc  cc
-  a a a c    aa cc cc cc    aa [cc cc] cc
-             aa cc cc cc    aa [AA cc] cc
-		     aa aa aa cc    aa  aa aa  cc
-		     aa aa aa cc    aa  aa aa  cc
+  c c c c   cc cc cc cc    cc  cc cc  cc
+  a c c c X cc cc cc cc -> cc  cc cc  cc
+  a a a c   aa cc cc cc    aa [cc cc] cc
+            aa cc cc cc    aa [AA cc] cc
+            aa aa aa cc    aa  aa aa  cc
+            aa aa aa cc    aa  aa aa  cc
  */
-BYTE patternSlowDownRight[] = {
+static const BYTE patternSlowDownRight[] = {
 	4, 3,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_COLOR, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_COLOR,
 };
-bool SlowDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool SlowDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -636,20 +636,20 @@ bool SlowDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png
 }
 
 /*
-  c c c c    cc cc cc cc    cc  cc cc  cc
-  c c c a X  cc cc cc cc -> cc  cc cc  cc
-  c a a a    cc cc cc aa    cc [cc cc] cc
-             cc cc cc aa    cc [cc AA] aa
-		     cc aa aa aa    cc  aa aa  aa
-		     cc aa aa aa    cc  aa aa  aa
+  c c c c   cc cc cc cc    cc  cc cc  cc
+  c c c a X cc cc cc cc -> cc  cc cc  cc
+  c a a a   cc cc cc aa    cc [cc cc] cc
+            cc cc cc aa    cc [cc AA] aa
+            cc aa aa aa    cc  aa aa  aa
+            cc aa aa aa    cc  aa aa  aa
  */
-BYTE patternSlowDownLeft[] = {
+static const BYTE patternSlowDownLeft[] = {
 	4, 3,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_ALPHA,
 	PTN_COLOR, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA,
 };
-bool SlowDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool SlowDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -679,20 +679,20 @@ bool SlowDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_
 }
 
 /*
-  a a a c    aa aa aa cc    aa [aa aa] cc
-  a c c c X  aa aa aa cc -> aa [aa CC] cc
-  c c c c    aa cc cc cc    aa  cc cc  cc
-             aa cc cc cc    aa  cc cc  cc
-		     cc cc cc cc    cc  cc cc  cc
-		     cc cc cc cc    cc  cc cc  cc
+  a a a c   aa aa aa cc    aa [aa aa] cc
+  a c c c X aa aa aa cc -> aa [aa CC] cc
+  c c c c   aa cc cc cc    aa  cc cc  cc
+            aa cc cc cc    aa  cc cc  cc
+            cc cc cc cc    cc  cc cc  cc
+            cc cc cc cc    cc  cc cc  cc
  */
-BYTE patternSlowUpRight[] = {
+static const BYTE patternSlowUpRight[] = {
 	4, 3,
 	PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_COLOR,
 	PTN_ALPHA, PTN_COLOR, PTN_COLOR, PTN_COLOR,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR,
 };
-bool SlowUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool SlowUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -740,20 +740,20 @@ bool SlowUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_i
 }
 
 /*
-  c a a a    cc aa aa aa    cc [aa aa] aa
-  c c c a X  cc aa aa aa -> cc [CC aa] aa
-  c c c c    cc cc cc aa    cc  cc cc  aa
-             cc cc cc aa    cc  cc cc  aa
-		     cc cc cc cc    cc  cc cc  cc
-		     cc cc cc cc    cc  cc cc  cc
+  c a a a   cc aa aa aa    cc [aa aa] aa
+  c c c a X cc aa aa aa -> cc [CC aa] aa
+  c c c c   cc cc cc aa    cc  cc cc  aa
+            cc cc cc aa    cc  cc cc  aa
+            cc cc cc cc    cc  cc cc  cc
+            cc cc cc cc    cc  cc cc  cc
  */
-BYTE patternSlowUpLeft[] = {
+static const BYTE patternSlowUpLeft[] = {
 	4, 3,
 	PTN_COLOR, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR,
 };
-bool SlowUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool SlowUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -802,23 +802,23 @@ bool SlowUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_im
 }
 
 /*
-  c c c    cc cc cc    cc  cc  cc
-  a c c X  cc cc cc -> cc  cc  cc
-  a c c    aa cc cc    aa [cc] cc
-  a a c    aa cc cc    aa [cc] cc
-           aa cc cc    aa [Ac] cc
-           aa cc cc    aa [Ac] cc
-		   aa aa cc    aa  aa  aa
-		   aa aa cc    aa  aa  aa
+  c c c   cc cc cc    cc  cc  cc
+  a c c X cc cc cc -> cc  cc  cc
+  a c c   aa cc cc    aa [cc] cc
+  a a c   aa cc cc    aa [cc] cc
+          aa cc cc    aa [Ac] cc
+          aa cc cc    aa [Ac] cc
+          aa aa cc    aa  aa  aa
+          aa aa cc    aa  aa  aa
  */
-BYTE patternFastDownRight[] = {
+static const BYTE patternFastDownRight[] = {
 	3, 4,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_ALPHA, PTN_COLOR,
 };
-bool FastDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool FastDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -835,7 +835,7 @@ bool FastDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png
 
 	for (int yy = 0; yy < 2 * multiplier; yy++) {
 		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
-			if (yy > xx * 2) {
+			if (yy >= (xx + 1) * 2) {
 				*dst = { 0 };
 				*fm = 0;
 			}
@@ -848,23 +848,23 @@ bool FastDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png
 }
 
 /*
-  c c c    cc cc cc    cc  cc  cc
-  c c a X  cc cc cc -> cc  cc  cc
-  c c a    cc cc aa    cc [cc] aa
-  c a a    cc cc aa    cc [cc] aa
-           cc cc aa    cc [cA] aa
-           cc cc aa    cc [cA] aa
-		   cc aa aa    cc  aa  aa
-		   cc aa aa    cc  aa  aa
+  c c c   cc cc cc    cc  cc  cc
+  c c a X cc cc cc -> cc  cc  cc
+  c c a   cc cc aa    cc [cc] aa
+  c a a   cc cc aa    cc [cc] aa
+          cc cc aa    cc [cA] aa
+          cc cc aa    cc [cA] aa
+          cc aa aa    cc  aa  aa
+          cc aa aa    cc  aa  aa
  */
-BYTE patternFastDownLeft[] = {
+static const BYTE patternFastDownLeft[] = {
 	3, 4,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR,
 	PTN_COLOR, PTN_COLOR, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_ALPHA,
 	PTN_COLOR, PTN_ALPHA, PTN_ALPHA,
 };
-bool FastDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool FastDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -894,23 +894,23 @@ bool FastDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_
 }
 
 /*
-  a a c    aa aa cc     aa  aa cc
-  a c c X  aa aa cc ->  aa  aa cc
-  a c c    aa cc cc    [aa] cc cc
-  c c c    aa cc cc    [aa] cc cc
-           aa cc cc    [aC] cc cc
-           aa cc cc    [aC] cc cc
-		   cc cc cc     cc  cc cc
-		   cc cc cc     cc  cc cc
+  a a c   aa aa cc     aa  aa cc
+  a c c X aa aa cc ->  aa  aa cc
+  a c c   aa cc cc    [aa] cc cc
+  c c c   aa cc cc    [aa] cc cc
+          aa cc cc    [aC] cc cc
+          aa cc cc    [aC] cc cc
+          cc cc cc     cc  cc cc
+          cc cc cc     cc  cc cc
  */
-BYTE patternFastUpRight[] = {
+static const BYTE patternFastUpRight[] = {
 	3, 4,
 	PTN_ALPHA, PTN_ALPHA, PTN_COLOR,
 	PTN_ALPHA, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_COLOR, PTN_COLOR,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR,
 };
-bool FastUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool FastUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -959,23 +959,23 @@ bool FastUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_i
 }
 
 /*
-  c a a    cc aa aa    cc aa  aa
-  c c a X  cc aa aa -> cc aa  aa
-  c c a    cc cc aa    cc cc [aa]
-  c c c    cc cc aa    cc cc [aa]
-           cc cc aa    cc cc [Ca]
-           cc cc aa    cc cc [Ca]
-		   cc cc cc    cc cc  cc
-		   cc cc cc    cc cc  cc
+  c a a   cc aa aa    cc aa  aa
+  c c a X cc aa aa -> cc aa  aa
+  c c a   cc cc aa    cc cc [aa]
+  c c c   cc cc aa    cc cc [aa]
+          cc cc aa    cc cc [Ca]
+          cc cc aa    cc cc [Ca]
+          cc cc cc    cc cc  cc
+          cc cc cc    cc cc  cc
  */
-BYTE patternFastUpLeft[] = {
+static const BYTE patternFastUpLeft[] = {
 	3, 4,
 	PTN_COLOR, PTN_ALPHA, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR,
 };
-bool FastUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool FastUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -992,7 +992,7 @@ bool FastUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_im
 
 	for (int yy = 0; yy < 2 * multiplier; yy++) {
 		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
-			if (yy > 2 * xx) {
+			if (yy >= 2 * (xx + 1)) {
 				dst->a = 255;
 				if (*(fm + imagedata.width * multiplier * (yy < multiplier ? 2 : 1)) != 0) {
 					if (*(fm - multiplier) != 0) {
@@ -1024,18 +1024,1659 @@ bool FastUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_im
 }
 
 /*
-  a a a a    aa aa aa aa     aa  aa  aa aa
-  a a c c    aa aa aa aa     aa  aa  aa aa
-  c c c c X  aa aa cc cc -> [aa  aa] cc cc
-  a a c c    aa aa cc cc    [aa  CC] cc cc
-  a a a a    cc cc cc cc    [cc  cc] cc cc
-		     cc cc cc cc    [AA  cc] cc cc
-		     aa aa cc cc     aa  aa  cc cc
-		     aa aa cc cc     aa  aa  cc cc
-		     aa aa aa aa     aa  aa  aa aa
-		     aa aa aa aa     aa  aa  aa aa
+  [c c] c c   cc cc cc cc    cc  cc cc  cc
+  [a c] c c X cc cc cc cc -> cc  cc cc  cc
+  [a a] a c   aa cc cc cc    aa [cc cc] cc
+              aa cc cc cc    aa [AA cc] cc
+              aa aa aa cc    aa  aa aa  cc
+              aa aa aa cc    aa  aa aa  cc
  */
-BYTE patternLeftTriangle[] = {
+static const BYTE patternAnySlowDownRight[] = {
+	2, 3,
+	PTN_COLOR, PTN_COLOR,
+	PTN_COLOR, PTN_COLOR,
+	PTN_ALPHA, PTN_COLOR,
+};
+static bool AnySlowDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (x > 0 && (src - len)->a == 255 && (src + orimg_data.width - len)->a == 255 && (src + 2 * orimg_data.width - len)->a != 255) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || (src - len)->a != 255 || (src + orimg_data.width - len)->a == 255 || (src + 2 * orimg_data.width - len)->a == 255)
+		return false;
+
+	x--;
+	src -= len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+
+	// move to [1; 1]
+	src += orimg_data.width + 1;
+	dst += (imagedata.width + 1) * multiplier;
+	fm += (imagedata.width + 1) * multiplier;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy > xx / len) {
+				*dst = { 0 };
+				*fm = 0;
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+	return true;
+}
+
+/*
+  [c c c]   cc cc cc    cc  cc  cc
+  [a c c] X cc cc cc -> cc  cc  cc
+   a c c    aa cc cc    aa [cc] cc
+   a a c    aa cc cc    aa [cc] cc
+            aa cc cc    aa [Ac] cc
+            aa cc cc    aa [Ac] cc
+            aa aa cc    aa  aa  cc
+            aa aa cc    aa  aa  cc
+ */
+static const BYTE patternAnyFastDownRight[] = {
+	3, 2,
+	PTN_ALPHA, PTN_COLOR, PTN_COLOR,
+	PTN_ALPHA, PTN_ALPHA, PTN_COLOR,
+};
+static bool AnyFastDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (y > 0 && (src - orimg_data.width * len)->a != 255 && (src - orimg_data.width * len + 1)->a == 255 && (src - orimg_data.width * len + 2)->a == 255) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || (src - orimg_data.width * len)->a != 255 || (src - orimg_data.width * len + 1)->a != 255 || (src - orimg_data.width * len + 2)->a != 255)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [1; 1]
+	src += orimg_data.width + 1;
+	dst += (imagedata.width + 1) * multiplier;
+	fm += (imagedata.width + 1) * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= (xx + 1) * len) {
+				*dst = { 0 };
+				*fm = 0;
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return true;
+}
+
+/*
+  [c c] c c   cc cc cc cc    cc  cc cc  cc
+  [c c] c a X cc cc cc cc -> cc  cc cc  cc
+  [c a] a a   cc cc cc aa    cc [cc cc] cc
+              cc cc cc aa    cc [cc AA] aa
+              cc aa aa aa    cc  aa aa  aa
+              cc aa aa aa    cc  aa aa  aa
+ */
+static const BYTE patternAnySlowDownLeft[] = {
+	2, 3,
+	PTN_COLOR, PTN_COLOR,
+	PTN_COLOR, PTN_ALPHA,
+	PTN_ALPHA, PTN_ALPHA,
+};
+static bool AnySlowDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (x > 0 && (src - len)->a == 255 && (src + orimg_data.width - len)->a == 255 && (src + 2 * orimg_data.width - len)->a != 255) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || (src - len)->a != 255 || (src + orimg_data.width - len)->a != 255 || (src + 2 * orimg_data.width - len)->a != 255)
+		return false;
+
+	x--;
+	src -= len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [1; 1]
+	src += orimg_data.width + 1;
+	dst += (imagedata.width + 1) * multiplier;
+	fm += (imagedata.width + 1) * multiplier;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy >= multiplier - xx / len) {
+				*dst = { 0 };
+				*fm = 0;
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+
+	return true;
+}
+
+/*
+  [c c c]   cc cc cc    cc  cc  cc
+  [c c a] X cc cc cc -> cc  cc  cc
+   c c a    cc cc aa    cc [cc] aa
+   c a a    cc cc aa    cc [cc] aa
+            cc cc aa    cc [cA] aa
+            cc cc aa    cc [cA] aa
+            cc aa aa    cc  aa  aa
+            cc aa aa    cc  aa  aa
+ */
+static const BYTE patternAnyFastDownLeft[] = {
+	3, 2,
+	PTN_COLOR, PTN_COLOR, PTN_ALPHA,
+	PTN_COLOR, PTN_ALPHA, PTN_ALPHA,
+};
+static bool AnyFastDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (y > 0 && (src - orimg_data.width * len)->a == 255 && (src - orimg_data.width * len + 1)->a == 255 && (src - orimg_data.width * len + 2)->a != 255) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || (src - orimg_data.width * len)->a != 255 || (src - orimg_data.width * len + 1)->a != 255 || (src - orimg_data.width * len + 2)->a != 255)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [1; 1]
+	src += orimg_data.width + 1;
+	dst += (imagedata.width + 1) * multiplier;
+	fm += (imagedata.width + 1) * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= len * (multiplier - xx)) {
+				*dst = { 0 };
+				*fm = 0;
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return true;
+}
+
+/*
+  [a a] a c   aa aa aa cc    aa [aa aa] cc
+  [a c] c c X aa aa aa cc -> aa [aa CC] cc
+  [c c] c c   aa cc cc cc    aa  cc cc  cc
+              aa cc cc cc    aa  cc cc  cc
+              cc cc cc cc    cc  cc cc  cc
+              cc cc cc cc    cc  cc cc  cc
+ */
+static const BYTE patternAnySlowUpRight[] = {
+	2, 3,
+	PTN_ALPHA, PTN_COLOR,
+	PTN_COLOR, PTN_COLOR,
+	PTN_COLOR, PTN_COLOR,
+};
+static bool AnySlowUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (x > 0 && (src - len)->a != 255 && (src + orimg_data.width - len)->a == 255 && (src + 2 * orimg_data.width - len)->a == 255) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || (src - len)->a == 255 || (src + orimg_data.width - len)->a == 255 || (src + 2 * orimg_data.width - len)->a != 255)
+		return false;
+
+	x--;
+	src -= len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [1; 0]
+	src += 1;
+	dst += multiplier;
+	fm += multiplier;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy >= multiplier - xx / len) {
+				dst->a = 255;
+				if (*(fm + imagedata.width * multiplier) != 0) {
+					if (*(fm + len * multiplier - xx) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src + len);
+						*fm = *(fm + len * multiplier - xx);
+					} else {
+						// only bottom is fixed -> use the right
+						*dst = *(src + len);
+					}
+				} else {
+					if (*(fm + len * multiplier - xx) != 0) {
+						// only right is fixed -> use the bottom
+						*dst = *(src + orimg_data.width);
+					} else {
+						// neither color is fixed -> interpolate
+						dst->r = ((src + len)->r + (src + orimg_data.width)->r) / 2;
+						dst->g = ((src + len)->g + (src + orimg_data.width)->g) / 2;
+						dst->b = ((src + len)->b + (src + orimg_data.width)->b) / 2;
+					}
+				}
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+	return true;
+}
+
+/*
+  [a a c]   aa aa cc     aa  aa cc
+  [a c c] X aa aa cc ->  aa  aa cc
+   a c c    aa cc cc    [aa] cc cc
+   c c c    aa cc cc    [aa] cc cc
+            aa cc cc    [aC] cc cc
+            aa cc cc    [aC] cc cc
+            cc cc cc     cc  cc cc
+            cc cc cc     cc  cc cc
+ */
+static const BYTE patternAnyFastUpRight[] = {
+	3, 2,
+	PTN_ALPHA, PTN_COLOR, PTN_COLOR,
+	PTN_COLOR, PTN_COLOR, PTN_COLOR,
+};
+static bool AnyFastUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (y > 0 && (src - orimg_data.width * len)->a != 255 && (src - orimg_data.width * len + 1)->a == 255 && (src - orimg_data.width * len + 2)->a == 255) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || (src - orimg_data.width * len)->a == 255 || (src - orimg_data.width * len + 1)->a == 255 || (src - orimg_data.width * len + 2)->a != 255)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [0; 1]
+	src += orimg_data.width;
+	dst += imagedata.width * multiplier;
+	fm += imagedata.width * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= len * (multiplier -  xx)) {
+				dst->a = 255;
+				if (*(fm + imagedata.width * (len * multiplier - yy)) != 0) {
+					if (*(fm + multiplier) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src + 1);
+						*fm = *(fm + multiplier);
+					} else {
+						// only bottom is fixed -> use the right
+						*dst = *(src + 1);
+					}
+				} else {
+					if (*(fm + multiplier) != 0) {
+						// only right is fixed -> use the bottom
+						*dst = *(src + orimg_data.width * len);
+					} else {
+						// neither color is fixed -> interpolate
+						dst->r = ((src + 1)->r + (src + orimg_data.width * len)->r) / 2;
+						dst->g = ((src + 1)->g + (src + orimg_data.width * len)->g) / 2;
+						dst->b = ((src + 1)->b + (src + orimg_data.width * len)->b) / 2;
+					}
+				}
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return true;
+}
+
+/*
+  [c a] a a   cc aa aa aa    cc [aa aa] aa
+  [c c] c a X cc aa aa aa -> cc [CC aa] aa
+  [c c] c c   cc cc cc aa    cc  cc cc  aa
+              cc cc cc aa    cc  cc cc  aa
+              cc cc cc cc    cc  cc cc  cc
+              cc cc cc cc    cc  cc cc  cc
+ */
+static const BYTE patternAnySlowUpLeft[] = {
+	2, 3,
+	PTN_ALPHA, PTN_ALPHA,
+	PTN_COLOR, PTN_ALPHA,
+	PTN_COLOR, PTN_COLOR,
+};
+static bool AnySlowUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (x > 0 && (src - len)->a != 255 && (src + orimg_data.width - len)->a == 255 && (src + 2 * orimg_data.width - len)->a == 255) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || (src - len)->a != 255 || (src + orimg_data.width - len)->a != 255 || (src + 2 * orimg_data.width - len)->a != 255)
+		return false;
+
+	x--;
+	src -= len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [1; 0]
+	src += 1;
+	dst += multiplier;
+	fm += multiplier;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy > xx / len) {
+				dst->a = 255;
+				if (*(fm + imagedata.width * multiplier) != 0) {
+					if (*(fm - (xx + multiplier)) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src - 1);
+						*fm = *(fm - (xx + multiplier));
+					} else {
+						// only bottom is fixed -> use the left
+						*dst = *(src - 1);
+					}
+				} else {
+					if (*(fm - (xx + multiplier)) != 0) {
+						// only left is fixed -> use the bottom
+						*dst = *(src + orimg_data.width);
+					} else {
+						// neither color is fixed -> interpolate
+						dst->r = ((src - 1)->r + (src + orimg_data.width)->r) / 2;
+						dst->g = ((src - 1)->g + (src + orimg_data.width)->g) / 2;
+						dst->b = ((src - 1)->b + (src + orimg_data.width)->b) / 2;
+					}
+				}
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+
+	return true;
+}
+
+/*
+  [c a a]   cc aa aa    cc aa  aa
+  [c c a] X cc aa aa -> cc aa  aa
+   c c a    cc cc aa    cc cc [aa]
+   c c c    cc cc aa    cc cc [aa]
+            cc cc aa    cc cc [Ca]
+            cc cc aa    cc cc [Ca]
+            cc cc cc    cc cc  cc
+            cc cc cc    cc cc  cc
+ */
+static const BYTE patternAnyFastUpLeft[] = {
+	3, 2,
+	PTN_COLOR, PTN_COLOR, PTN_ALPHA,
+	PTN_COLOR, PTN_COLOR, PTN_COLOR,
+};
+static bool AnyFastUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (y > 0 && (src - orimg_data.width * len)->a == 255 && (src - orimg_data.width * len + 1)->a == 255 && (src - orimg_data.width * len + 2)->a != 255) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || (src - orimg_data.width * len)->a != 255 || (src - orimg_data.width * len + 1)->a == 255 || (src - orimg_data.width * len + 2)->a == 255)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [2; 1]
+	src += orimg_data.width + 2;
+	dst += (imagedata.width + 2) * multiplier;
+	fm += (imagedata.width + 2) * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= len * (xx + 1)) {
+				dst->a = 255;
+				if (*(fm + imagedata.width * (len * multiplier - yy)) != 0) {
+					if (*(fm - multiplier) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src - 1);
+						*fm = *(fm - multiplier);
+					} else {
+						// only bottom is fixed -> use the left
+						*dst = *(src - 1);
+					}
+				} else {
+					if (*(fm - multiplier) != 0) {
+						// only left is fixed -> use the bottom
+						*dst = *(src + orimg_data.width * len);
+					} else {
+						// neither color is fixed -> interpolate
+						dst->r = ((src - 1)->r + (src + orimg_data.width * len)->r) / 2;
+						dst->g = ((src - 1)->g + (src + orimg_data.width * len)->g) / 2;
+						dst->b = ((src - 1)->b + (src + orimg_data.width * len)->b) / 2;
+					}
+				}
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return true;
+}
+
+/*
+  [c a] a     cc aa aa       cc [aa aa]
+  [a c] c a X cc aa aa    -> cc [CC aa]
+  [  a] a c   aa cc cc aa    aa [cc cc] aa
+              aa cc cc aa    aa [AA cc] aa
+                 aa aa cc        aa aa  cc
+                 aa aa cc        aa aa  cc
+ */
+static const BYTE patternAnySlowDownNarrow[] = {
+	2, 3,
+	PTN_ALPHA, PTN_DNC,
+	PTN_COLOR, PTN_ALPHA,
+	PTN_ALPHA, PTN_COLOR,
+};
+static bool AnySlowDownNarrow(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (x > 0 && (src - len)->a != 255 && (src + orimg_data.width - len)->a == 255 && (src + 2 * orimg_data.width - len)->a != 255) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || (src - len)->a != 255 || (src + orimg_data.width - len)->a == 255)
+		return false;
+
+	x--;
+	src -= len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [1; 0]
+	src += 1;
+	dst += multiplier;
+	fm += multiplier;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy > xx / len) {
+				dst->a = 255;
+				if (*(fm + imagedata.width * multiplier) != 0) {
+					if (*(fm - (xx + multiplier)) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src - 1);
+						*fm = *(fm - (xx + multiplier));
+					} else {
+						// only bottom is fixed -> use the left
+						*dst = *(src - 1);
+					}
+				} else {
+					if (*(fm - (xx + multiplier)) != 0) {
+						// only left is fixed -> use the bottom
+						*dst = *(src + orimg_data.width);
+					} else {
+						// neither color is fixed -> interpolate
+						dst->r = ((src - 1)->r + (src + orimg_data.width)->r) / 2;
+						dst->g = ((src - 1)->g + (src + orimg_data.width)->g) / 2;
+						dst->b = ((src - 1)->b + (src + orimg_data.width)->b) / 2;
+					}
+				}
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+	// now at [1; 1] (dst, fm)
+
+	// move to [1; 1]
+	//src += orimg_data.width + 1;
+	//dst += (imagedata.width + 1) * multiplier;
+	//fm += (imagedata.width + 1) * multiplier;
+	src += orimg_data.width;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy > xx / len) {
+				*dst = { 0 };
+				*fm = 0;
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+
+	return true;
+}
+
+/*
+  [c a  ]   cc aa       cc  aa
+  [a c a] X cc aa    -> cc  aa
+   a c a    aa cc aa    aa [cc aa]
+     a c    aa cc aa    aa [cc aa]
+            aa cc aa    aa [Ac Ca]
+            aa cc aa    aa [Ac Ca]
+               aa cc        aa  cc
+               aa cc        aa  cc
+ */
+static const BYTE patternAnyFastDownNarrow[] = {
+	3, 2,
+	PTN_ALPHA, PTN_COLOR, PTN_ALPHA,
+	PTN_DNC,   PTN_ALPHA, PTN_COLOR,
+};
+static bool AnyFastDownNarrow(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (y > 0 && (src - orimg_data.width * len)->a != 255 && (src - orimg_data.width * len + 1)->a == 255 && (src - orimg_data.width * len + 2)->a != 255) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || (src - orimg_data.width * len)->a != 255 || (src - orimg_data.width * len + 1)->a == 255)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [1; 1]
+	src += orimg_data.width + 1;
+	dst += (imagedata.width + 1) * multiplier;
+	fm += (imagedata.width + 1) * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= (xx + 1) * len) {
+				*dst = { 0 };
+				*fm = 0;
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	// now at [1; 2] (dst, fm)
+
+	// move to [2; 1]
+	//src += orimg_data.width + 2;
+	//dst += (imagedata.width + 2) * multiplier;
+	//fm += (imagedata.width + 2) * multiplier;
+	src += 1;
+	dst += (1 - imagedata.width) * multiplier;
+	fm += (1 - imagedata.width) * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= len * (xx + 1)) {
+				dst->a = 255;
+				if (*(fm + imagedata.width * (len * multiplier - yy)) != 0) {
+					if (*(fm - multiplier) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src - 1);
+						*fm = *(fm - multiplier);
+					} else {
+						// only bottom is fixed -> use the left
+						*dst = *(src - 1);
+					}
+				} else {
+					if (*(fm - multiplier) != 0) {
+						// only left is fixed -> use the bottom
+						*dst = *(src + orimg_data.width * len);
+					} else {
+						// neither color is fixed -> interpolate
+						dst->r = ((src - 1)->r + (src + orimg_data.width * len)->r) / 2;
+						dst->g = ((src - 1)->g + (src + orimg_data.width * len)->g) / 2;
+						dst->b = ((src - 1)->b + (src + orimg_data.width * len)->b) / 2;
+					}
+				}
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return true;
+}
+
+/*
+  [  a] a c      aa aa cc       [aa aa] cc
+  [a c] c a X    aa aa cc ->    [aa CC] cc
+  [c a] a     aa cc cc aa    aa [cc cc] aa
+              aa cc cc aa    aa [cc AA] aa
+              cc aa aa       cc  aa aa
+              cc aa aa       cc  aa aa
+ */
+static const BYTE patternAnySlowUpNarrow[] = {
+	2, 3,
+	PTN_ALPHA, PTN_COLOR,
+	PTN_COLOR, PTN_ALPHA,
+	PTN_ALPHA, PTN_DNC,
+};
+static bool AnySlowUpNarrow(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (x > 0 && (src - len)->a != 255 && (src + orimg_data.width - len)->a == 255 && (src + 2 * orimg_data.width - len)->a != 255) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || (src + orimg_data.width - len)->a == 255 || (src + 2 * orimg_data.width - len)->a != 255)
+		return false;
+
+	x--;
+	src -= len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [1; 0]
+	src += 1;
+	dst += multiplier;
+	fm += multiplier;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy >= multiplier - xx / len) {
+				dst->a = 255;
+				if (*(fm + imagedata.width * multiplier) != 0) {
+					if (*(fm + len * multiplier - xx) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src + len);
+						*fm = *(fm + len * multiplier - xx);
+					} else {
+						// only bottom is fixed -> use the right
+						*dst = *(src + len);
+					}
+				} else {
+					if (*(fm + len * multiplier - xx) != 0) {
+						// only right is fixed -> use the bottom
+						*dst = *(src + orimg_data.width);
+					} else {
+						// neither color is fixed -> interpolate
+						dst->r = ((src + len)->r + (src + orimg_data.width)->r) / 2;
+						dst->g = ((src + len)->g + (src + orimg_data.width)->g) / 2;
+						dst->b = ((src + len)->b + (src + orimg_data.width)->b) / 2;
+					}
+				}
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+
+	// now at [1; 1] (dst, fm)
+
+	// move to [1; 1]
+	//src += orimg_data.width + 1;
+	//dst += (imagedata.width + 1) * multiplier;
+	//fm += (imagedata.width + 1) * multiplier;
+	src += orimg_data.width;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy >= multiplier - xx / len) {
+				*dst = { 0 };
+				*fm = 0;
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+
+	return true;
+}
+
+/*
+  [  a c]      aa cc          aa  cc
+  [a c a] X    aa cc ->       aa  cc
+   a c a    aa cc aa    [aa] [cc] aa
+   c a      aa cc aa    [aa] [cc] aa
+            aa cc aa    [aC] [cA] aa
+            aa cc aa    [aC] [cA] aa
+            cc aa        cc   aa
+            cc aa        cc   aa
+ */
+static const BYTE patternAnyFastUpNarrow[] = {
+	3, 2,
+	PTN_ALPHA, PTN_COLOR, PTN_ALPHA,
+	PTN_COLOR, PTN_ALPHA, PTN_DNC,
+};
+static bool AnyFastUpNarrow(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm;
+
+	src += x;
+
+	int len = 1;
+	while (y > 0 && (src - orimg_data.width * len)->a != 255 && (src - orimg_data.width * len + 1)->a == 255 && (src - orimg_data.width * len + 2)->a != 255) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || (src - orimg_data.width * len + 1)->a == 255 || (src - orimg_data.width * len + 2)->a != 255)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+	dst += x * multiplier;
+	fm += x * multiplier;
+
+	// move to [0; 1]
+	src += orimg_data.width;
+	dst += imagedata.width * multiplier;
+	fm += imagedata.width * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= len * (multiplier -  xx)) {
+				dst->a = 255;
+				if (*(fm + imagedata.width * (len * multiplier - yy)) != 0) {
+					if (*(fm + multiplier) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src + 1);
+						*fm = *(fm + multiplier);
+					} else {
+						// only bottom is fixed -> use the right
+						*dst = *(src + 1);
+					}
+				} else {
+					if (*(fm + multiplier) != 0) {
+						// only right is fixed -> use the bottom
+						*dst = *(src + orimg_data.width * len);
+					} else {
+						// neither color is fixed -> interpolate
+						dst->r = ((src + 1)->r + (src + orimg_data.width * len)->r) / 2;
+						dst->g = ((src + 1)->g + (src + orimg_data.width * len)->g) / 2;
+						dst->b = ((src + 1)->b + (src + orimg_data.width * len)->b) / 2;
+					}
+				}
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	// now at [0; 2] (dst, fm)
+
+	// move to [1; 1]
+	//src += orimg_data.width + 1;
+	//dst += (imagedata.width + 1) * multiplier;
+	//fm += (imagedata.width + 1) * multiplier;
+	src += 1;
+	dst += (1 - imagedata.width) * multiplier;
+	fm += (1 - imagedata.width) * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= len * (multiplier - xx)) {
+				*dst = { 0 };
+				*fm = 0;
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return true;
+}
+
+static bool ColorMatch(RGBA* a, RGBA* b)
+{
+	return a->r == b->r && a->g == b->g && a->b == b->b && a->a == b->a;
+}
+
+static BYTE* FixColorCheck(int x, int y, int multiplier, png_image_data &orimg_data, const BYTE* pattern)
+{
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	BYTE* fm = &orimg_data.fixColorMask[y * orimg_data.width];
+
+	src += x;
+	fm += x;
+
+	int w = pattern[0];
+	int h = pattern[1];
+
+	BYTE* f1m = NULL;
+	const BYTE* ptnCol = &pattern[2];
+
+	for (int j = 0; j < h; j++) {
+		for (int i = 0; i < w; i++, ptnCol++, src++, fm++) {
+			if (*ptnCol != PTN_COLOR)
+				continue;
+			if (f1m == NULL) {
+				if (*fm == 0)
+					return NULL;
+				f1m = fm;
+				continue;
+			}
+			if (*fm != *f1m)
+				return NULL;
+		}
+
+		src += orimg_data.width - w;
+		fm += orimg_data.width - w;
+	}
+
+	return f1m;
+}
+
+/*
+  [f1 f1] f1 f1   f1f1 f1f1 f1f1 f1f1    f1f1  f1f1 f1f1  f1f1
+  [   f1] f1 f1 X f1f1 f1f1 f1f1 f1f1 -> f1f1  f1f1 f1f1  f1f1
+  [     ]    f1        f1f1 f1f1 f1f1         [f1f1 f1f1] f1f1
+                       f1f1 f1f1 f1f1         [???? f1f1] f1f1
+                                 f1f1                     f1f1
+                                 f1f1                     f1f1
+ */
+static const BYTE patternFixSlowDownRight[] = {
+	2, 3,
+	PTN_COLOR, PTN_COLOR,
+	PTN_COLOR, PTN_COLOR,
+	PTN_DNC,   PTN_COLOR,
+};
+static bool FixSlowDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	BYTE* f1m = FixColorCheck(x, y, multiplier, orimg_data, patternFixSlowDownRight);
+	if (f1m == NULL)
+		return false;
+
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+
+	src += x;
+	fm += x * multiplier;
+
+	if (fm[2 * multiplier * imagedata.width + 0 * multiplier] == *f1m)
+		return false;
+
+	int len = 1;
+	while (x > 0 && fm[-len * multiplier] == *f1m && fm[imagedata.width * multiplier - len * multiplier] == *f1m && fm[2 * imagedata.width * multiplier - len * multiplier] != *f1m) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || fm[-len * multiplier] != *f1m || fm[imagedata.width * multiplier - len * multiplier] == *f1m || fm[2 * imagedata.width * multiplier - len * multiplier] == *f1m)
+		return false;
+
+	x--;
+	src -= len;
+	fm -= len * multiplier;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	dst += x * multiplier;
+
+
+	// move to [1; 1]
+	src += orimg_data.width + 1;
+	dst += (imagedata.width + 1) * multiplier;
+	fm += (imagedata.width + 1) * multiplier;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy > xx / len) {
+				*fm = 0;
+				if (*(fm + imagedata.width * multiplier) != 0) {
+					if (*(fm - (xx + multiplier)) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src - 1);
+						*fm = *(fm - (xx + multiplier));
+					} else {
+						// only bottom is fixed -> use the left
+						*dst = *(src - 1);
+					}
+				} else {
+					if (*(fm - (xx + multiplier)) != 0) {
+						// only left is fixed -> use the bottom
+						*dst = *(src + orimg_data.width);
+					} else {
+						// neither color is fixed -> interpolate
+						if ((src - 1)->a == 255) {
+							if ((src + orimg_data.width)->a == 255) {
+								// both are colored
+								dst->a = 255;
+								dst->r = ((src - 1)->r + (src + orimg_data.width)->r) / 2;
+								dst->g = ((src - 1)->g + (src + orimg_data.width)->g) / 2;
+								dst->b = ((src - 1)->b + (src + orimg_data.width)->b) / 2;
+							} else {
+								// only left is colored -> use the left
+								*dst = *(src - 1);
+							}
+						} else if ((src + orimg_data.width)->a == 255) {
+							// only bottom is colored -> use the bottom
+							*dst = *(src + orimg_data.width);
+						} else {
+							// neither is colored -> make it alpha
+							dst = { 0 };
+						}
+					}
+				}
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+
+	return false;
+}
+
+/*
+  [f1 f1 f1]   f1f1 f1f1 f1f1    f1f1  f1f1  f1f1
+  [   f1 f1] X f1f1 f1f1 f1f1 -> f1f1  f1f1  f1f1
+      f1 f1         f1f1 f1f1         [f1f1] f1f1
+         f1         f1f1 f1f1         [f1f1] f1f1
+                    f1f1 f1f1         [??f1] f1f1
+                    f1f1 f1f1         [??f1] f1f1
+                         f1f1                f1f1
+                         f1f1                f1f1
+ */
+static const BYTE patternFixFastDownRight[] = {
+	3, 2,
+	PTN_DNC, PTN_COLOR, PTN_COLOR,
+	PTN_DNC, PTN_DNC,   PTN_COLOR,
+};
+static bool FixFastDownRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	BYTE* f1m = FixColorCheck(x, y, multiplier, orimg_data, patternFixFastDownRight);
+	if (f1m == NULL)
+		return false;
+
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+
+	src += x;
+	fm += x * multiplier;
+
+	if (fm[0 * multiplier * imagedata.width + 0 * multiplier] == *f1m || fm[1 * multiplier * imagedata.width + 1 * multiplier] == *f1m)
+		return false;
+
+	int len = 1;
+	while (y > 0 && fm[-len * imagedata.width * multiplier] != *f1m && fm[-len * imagedata.width * multiplier + multiplier] == *f1m && fm[-len * imagedata.width * multiplier + 2 * multiplier] == *f1m) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || fm[-len * imagedata.width * multiplier] != *f1m || fm[-len * imagedata.width * multiplier + multiplier] != *f1m || fm[-len * imagedata.width * multiplier + 2 * multiplier] != *f1m)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+	fm -= imagedata.width * len * multiplier;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	dst += x * multiplier;
+
+	// move to [1; 1]
+	src += orimg_data.width + 1;
+	dst += (imagedata.width + 1) * multiplier;
+	fm += (imagedata.width + 1) * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= (xx + 1) * len) {
+				*fm = 0;
+				if (*(fm + imagedata.width * multiplier) != 0) {
+					if (*(fm - (xx + multiplier)) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src - 1);
+						*fm = *(fm - (xx + multiplier));
+					} else {
+						// only bottom is fixed -> use the left
+						*dst = *(src - 1);
+					}
+				} else {
+					if (*(fm - (xx + multiplier)) != 0) {
+						// only left is fixed -> use the bottom
+						*dst = *(src + orimg_data.width);
+					} else {
+						// neither color is fixed -> interpolate
+						if ((src - 1)->a == 255) {
+							if ((src + orimg_data.width)->a == 255) {
+								// both are colored
+								dst->a = 255;
+								dst->r = ((src - 1)->r + (src + orimg_data.width)->r) / 2;
+								dst->g = ((src - 1)->g + (src + orimg_data.width)->g) / 2;
+								dst->b = ((src - 1)->b + (src + orimg_data.width)->b) / 2;
+							} else {
+								// only left is colored -> use the left
+								*dst = *(src - 1);
+							}
+						} else if ((src + orimg_data.width)->a == 255) {
+							// only bottom is colored -> use the bottom
+							*dst = *(src + orimg_data.width);
+						} else {
+							// neither is colored -> make it alpha
+							dst = { 0 };
+						}
+					}
+				}
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return false;
+}
+
+/*
+  [f1 f1] f1 f1   f1f1 f1f1 f1f1 f1f1    f1f1  f1f1 f1f1  f1f1
+  [f1 f1] f1    X f1f1 f1f1 f1f1 f1f1 -> f1f1  f1f1 f1f1  f1f1
+  [f1   ]         f1f1 f1f1 f1f1         f1f1 [f1f1 f1f1] f1f1
+                  f1f1 f1f1 f1f1         f1f1 [f1f1 ????] 
+                  f1f1                   f1f1
+                  f1f1                   f1f1
+ */
+static const BYTE patternFixSlowDownLeft[] = {
+	2, 3,
+	PTN_COLOR, PTN_COLOR,
+	PTN_COLOR, PTN_DNC,
+	PTN_DNC,   PTN_DNC,
+};
+static bool FixSlowDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	BYTE* f1m = FixColorCheck(x, y, multiplier, orimg_data, patternFixSlowDownLeft);
+	if (f1m == NULL)
+		return false;
+
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+
+	src += x;
+	fm += x * multiplier;
+
+	if (fm[1 * multiplier * imagedata.width + 1 * multiplier] == *f1m || fm[2 * multiplier * imagedata.width + 0 * multiplier] == *f1m)
+		return false;
+
+	int len = 1;
+	while (x > 0 && fm[-len * multiplier] == *f1m && fm[imagedata.width * multiplier - len * multiplier] == *f1m && fm[2 * imagedata.width * multiplier - len * multiplier] != *f1m) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || fm[-len * multiplier] != *f1m || fm[imagedata.width * multiplier - len * multiplier] != *f1m || fm[2 * imagedata.width * multiplier - len * multiplier] != *f1m)
+		return false;
+
+	x--;
+	src -= len;
+	fm -= len * multiplier;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	dst += x * multiplier;
+
+	// move to [1; 1]
+	src += orimg_data.width + 1;
+	dst += (imagedata.width + 1) * multiplier;
+	fm += (imagedata.width + 1) * multiplier;
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy >= multiplier - xx / len) {
+				*fm = 0;
+				if (*(fm + imagedata.width * multiplier) != 0) {
+					if (*(fm + len * multiplier - xx) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src + len);
+						*fm = *(fm + len * multiplier - xx);
+					} else {
+						// only bottom is fixed -> use the right
+						*dst = *(src + len);
+					}
+				} else {
+					if (*(fm + len * multiplier - xx) != 0) {
+						// only right is fixed -> use the bottom
+						*dst = *(src + orimg_data.width);
+					} else {
+						// neither color is fixed -> interpolate
+						if ((src + len)->a == 255) {
+							if ((src + orimg_data.width)->a == 255) {
+								// both are colored
+								dst->a = 255;
+								dst->r = ((src + len)->r + (src + orimg_data.width)->r) / 2;
+								dst->g = ((src + len)->g + (src + orimg_data.width)->g) / 2;
+								dst->b = ((src + len)->b + (src + orimg_data.width)->b) / 2;
+							} else {
+								// only right is colored -> use the right
+								*dst = *(src + len);
+							}
+						} else if ((src + orimg_data.width)->a == 255) {
+							// only bottom is colored -> use the bottom
+							*dst = *(src + orimg_data.width);
+						} else {
+							// neither is colored -> make it alpha
+							dst = { 0 };
+						}
+					}
+				}
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+
+	return false;
+}
+
+/*
+  [f1 f1 f1]   f1f1 f1f1 f1f1    f1f1  f1f1  f1f1
+  [f1 f1   ] X f1f1 f1f1 f1f1 -> f1f1  f1f1  f1f1
+   f1 f1       f1f1 f1f1         f1f1 [f1f1]
+   f1          f1f1 f1f1         f1f1 [f1f1]
+               f1f1 f1f1         f1f1 [f1??]
+               f1f1 f1f1         f1f1 [f1??]
+               f1f1 f1f1         f1f1
+               f1f1 f1f1         f1f1
+ */
+static const BYTE patternFixFastDownLeft[] = {
+	3, 2,
+	PTN_COLOR, PTN_COLOR, PTN_DNC,
+	PTN_COLOR, PTN_DNC,   PTN_DNC,
+};
+static bool FixFastDownLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	BYTE* f1m = FixColorCheck(x, y, multiplier, orimg_data, patternFixFastDownLeft);
+	if (f1m == NULL)
+		return false;
+
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+
+	src += x;
+	fm += x * multiplier;
+
+	if (fm[0 * multiplier * imagedata.width + 2 * multiplier] == *f1m || fm[1 * multiplier * imagedata.width + 1 * multiplier] == *f1m)
+		return false;
+
+	int len = 1;
+	while (y > 0 && fm[-len * imagedata.width * multiplier] == *f1m && fm[-len * imagedata.width * multiplier + multiplier] == *f1m && fm[-len * imagedata.width * multiplier + 2 * multiplier] != *f1m) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || fm[-len * imagedata.width * multiplier] != *f1m || fm[-len * imagedata.width * multiplier + multiplier] != *f1m || fm[-len * imagedata.width * multiplier + 2 * multiplier] != *f1m)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+	fm -= imagedata.width * len * multiplier;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	dst += x * multiplier;
+
+	// move to [1; 1]
+	src += orimg_data.width + 1;
+	dst += (imagedata.width + 1) * multiplier;
+	fm += (imagedata.width + 1) * multiplier;
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= len * (multiplier - xx)) {
+				*fm = 0;
+				if (*(fm + imagedata.width * multiplier) != 0) {
+					if (*(fm + len * multiplier - xx) != 0) {
+						// both colors are fixed -> use one and fix the color
+						*dst = *(src + len);
+						*fm = *(fm + len * multiplier - xx);
+					} else {
+						// only bottom is fixed -> use the right
+						*dst = *(src + len);
+					}
+				} else {
+					if (*(fm + len * multiplier - xx) != 0) {
+						// only right is fixed -> use the bottom
+						*dst = *(src + orimg_data.width);
+					} else {
+						// neither color is fixed -> interpolate
+						if ((src + len)->a == 255) {
+							if ((src + orimg_data.width)->a == 255) {
+								// both are colored
+								dst->a = 255;
+								dst->r = ((src + len)->r + (src + orimg_data.width)->r) / 2;
+								dst->g = ((src + len)->g + (src + orimg_data.width)->g) / 2;
+								dst->b = ((src + len)->b + (src + orimg_data.width)->b) / 2;
+							} else {
+								// only right is colored -> use the right
+								*dst = *(src + len);
+							}
+						} else if ((src + orimg_data.width)->a == 255) {
+							// only bottom is colored -> use the bottom
+							*dst = *(src + orimg_data.width);
+						} else {
+							// neither is colored -> make it alpha
+							dst = { 0 };
+						}
+					}
+				}
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return false;
+}
+
+/*
+  [     ]    f1                  f1f1         [         ] f1f1
+  [   f1] f1 f1 X                f1f1 ->      [     F1F1] f1f1
+  [f1 f1] f1 f1        f1f1 f1f1 f1f1          f1f1 f1f1  f1f1
+                       f1f1 f1f1 f1f1          f1f1 f1f1  f1f1
+                  f1f1 f1f1 f1f1 f1f1    f1f1  f1f1 f1f1  f1f1
+                  f1f1 f1f1 f1f1 f1f1    f1f1  f1f1 f1f1  f1f1
+ */
+static const BYTE patternFixSlowUpRight[] = {
+	2, 3,
+	PTN_DNC,   PTN_COLOR,
+	PTN_COLOR, PTN_COLOR,
+	PTN_COLOR, PTN_COLOR,
+};
+static bool FixSlowUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	BYTE* f1m = FixColorCheck(x, y, multiplier, orimg_data, patternFixSlowUpRight);
+	if (f1m == NULL)
+		return false;
+
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+
+	src += x;
+	fm += x * multiplier;
+
+	if (fm[0 * orimg_data.width + 0] == *f1m)
+		return false;
+
+	int len = 1;
+	while (x > 0 && fm[- len * multiplier] != *f1m && fm[imagedata.width * multiplier - len * multiplier] == *f1m && fm[2 * imagedata.width * multiplier - len * multiplier] == *f1m) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || fm[- len * multiplier] == *f1m || fm[imagedata.width * multiplier - len * multiplier] == *f1m || fm[2 * imagedata.width * multiplier - len * multiplier] != *f1m)
+		return false;
+
+	x--;
+	src -= len;
+	fm -= len * multiplier;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	dst += x * multiplier;
+
+	// move to [1; 0]
+	src += 1;
+	dst += multiplier;
+	fm += multiplier;
+
+	RGBA* f1 = &src[len];
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy >= multiplier - xx / len) {
+				*dst = *f1;
+				*fm = *f1m;
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+
+	return false;
+}
+
+/*
+  [      f1]             f1f1                f1f1
+  [   f1 f1] X           f1f1 ->             f1f1
+      f1 f1         f1f1 f1f1    [    ] f1f1 f1f1
+   f1 f1 f1         f1f1 f1f1    [    ] f1f1 f1f1
+                    f1f1 f1f1    [  F1] f1f1 f1f1
+                    f1f1 f1f1    [  F1] f1f1 f1f1
+               f1f1 f1f1 f1f1     f1f1  f1f1 f1f1
+               f1f1 f1f1 f1f1     f1f1  f1f1 f1f1
+ */
+static const BYTE patternFixFastUpRight[] = {
+	3, 2,
+	PTN_DNC,   PTN_COLOR, PTN_COLOR,
+	PTN_COLOR, PTN_COLOR, PTN_COLOR,
+};
+static bool FixFastUpRight(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	BYTE* f1m = FixColorCheck(x, y, multiplier, orimg_data, patternFixFastUpRight);
+	if (f1m == NULL)
+		return false;
+
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+
+	src += x;
+	fm += x * multiplier;
+
+	if (fm[0 * orimg_data.width + 0] == *f1m)
+		return false;
+
+	int len = 1;
+	while (y > 0 && fm[-len * imagedata.width * multiplier] != *f1m && fm[-len * imagedata.width * multiplier + multiplier] == *f1m && fm[-len * imagedata.width * multiplier + 2 * multiplier] == *f1m) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || fm[-len * imagedata.width * multiplier] == *f1m || fm[-len * imagedata.width * multiplier + multiplier] == *f1m || fm[-len * imagedata.width * multiplier + 2 * multiplier] != *f1m)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+	fm -= imagedata.width * len * multiplier;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	dst += x * multiplier;
+
+	// move to [0; 1]
+	src += orimg_data.width;
+	dst += imagedata.width * multiplier;
+	fm += imagedata.width * multiplier;
+
+	RGBA* f1 = &src[1];
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= len * (multiplier -  xx)) {
+				*dst = *f1;
+				*fm = *f1m;
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return false;
+}
+
+/*
+  [f1   ]         f1f1                   f1f1 [         ]
+  [f1 f1] f1    X f1f1                -> f1f1 [F1F1     ]
+  [f1 f1] f1 f1   f1f1 f1f1 f1f1         f1f1  f1f1 f1f1
+                  f1f1 f1f1 f1f1         f1f1  f1f1 f1f1
+                  f1f1 f1f1 f1f1 f1f1    f1f1  f1f1 f1f1  f1f1
+                  f1f1 f1f1 f1f1 f1f1    f1f1  f1f1 f1f1  f1f1
+ */
+static const BYTE patternFixSlowUpLeft[] = {
+	2, 3,
+	PTN_DNC,   PTN_DNC,
+	PTN_COLOR, PTN_DNC,
+	PTN_COLOR, PTN_COLOR,
+};
+static bool FixSlowUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	BYTE* f1m = FixColorCheck(x, y, multiplier, orimg_data, patternFixSlowUpLeft);
+	if (f1m == NULL)
+		return false;
+
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+
+	src += x;
+	fm += x * multiplier;
+
+	if (fm[0 * orimg_data.width + 0] == *f1m || fm[1 * orimg_data.width + 1] == *f1m)
+		return false;
+
+	int len = 1;
+	while (x > 0 && fm[-len * multiplier] != *f1m && fm[-len * multiplier + imagedata.width * multiplier] == *f1m && fm[-len * multiplier + 2 * imagedata.width * multiplier] == *f1m) {
+		len++;
+		x--;
+	}
+
+	if (x <= 0 || fm[-len * multiplier] != *f1m || fm[imagedata.width * multiplier - len * multiplier] != *f1m || fm[2 * imagedata.width * multiplier - len * multiplier] != *f1m)
+		return false;
+
+	x--;
+	src -= len;
+	fm -= len * multiplier;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	dst += x * multiplier;
+
+	// move to [1; 0]
+	src += 1;
+	dst += multiplier;
+	fm += multiplier;
+
+	RGBA* f1 = &src[-1];
+
+	for (int yy = 0; yy < multiplier; yy++) {
+		for (int xx = 0; xx < len * multiplier; xx++, dst++, fm++) {
+			if (yy > xx / len) {
+				*dst = *f1;
+				*fm = *f1m;
+			}
+		}
+		dst += imagedata.width - len * multiplier;
+		fm += imagedata.width - len * multiplier;
+	}
+
+	return false;
+}
+
+/*
+  [f1      ]   f1f1              f1f1
+  [f1 f1   ] X f1f1           -> f1f1
+   f1 f1       f1f1 f1f1         f1f1 f1f1 [    ]
+   f1 f1 f1    f1f1 f1f1         f1f1 f1f1 [    ]
+               f1f1 f1f1         f1f1 f1f1 [F1  ]
+               f1f1 f1f1         f1f1 f1f1 [F1  ]
+               f1f1 f1f1 f1f1    f1f1 f1f1  f1f1
+               f1f1 f1f1 f1f1    f1f1 f1f1  f1f1
+ */
+static const BYTE patternFixFastUpLeft[] = {
+	3, 2,
+	PTN_COLOR, PTN_COLOR, PTN_DNC,
+	PTN_COLOR, PTN_COLOR, PTN_COLOR,
+};
+static bool FixFastUpLeft(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+{
+	BYTE* f1m = FixColorCheck(x, y, multiplier, orimg_data, patternFixFastUpLeft);
+	if (f1m == NULL)
+		return false;
+
+	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
+	RGBA* dst;
+	BYTE* fm = &imagedata.fixColorMask[y * multiplier * imagedata.width];
+
+	src += x;
+	fm += x * multiplier;
+
+	if (fm[0 * orimg_data.width + 2] == *f1m)
+		return false;
+
+	int len = 1;
+	while (y > 0 && fm[-imagedata.width * len * multiplier] == *f1m && fm[-imagedata.width * len * multiplier + multiplier] == *f1m && fm[-imagedata.width * len * multiplier + 2 * multiplier] != *f1m) {
+		len++;
+		y--;
+	}
+
+	if (y <= 0 || fm[-imagedata.width * len * multiplier] != *f1m || fm[-imagedata.width * len * multiplier + multiplier] == *f1m || fm[-imagedata.width * len * multiplier + 2 * multiplier] == *f1m)
+		return false;
+
+	y--;
+	src -= orimg_data.width * len;
+	fm -= imagedata.width * len * multiplier;
+
+	dst = (RGBA*)imagedata.row_pointers[y * multiplier];
+	dst += x * multiplier;
+
+	// move to [2; 1]
+	src += orimg_data.width + 2;
+	dst += (imagedata.width + 2) * multiplier;
+	fm += (imagedata.width + 2) * multiplier;
+
+	RGBA* f1 = &src[-1];
+
+	for (int yy = 0; yy < len * multiplier; yy++) {
+		for (int xx = 0; xx < multiplier; xx++, dst++, fm++) {
+			if (yy >= len * (xx + 1)) {
+				*dst = *f1;
+				*fm = *f1m;
+			}
+		}
+		dst += imagedata.width - multiplier;
+		fm += imagedata.width - multiplier;
+	}
+
+	return false;
+}
+
+/*
+  a a a a   aa aa aa aa     aa  aa  aa aa
+  a a c c   aa aa aa aa     aa  aa  aa aa
+  c c c c X aa aa cc cc -> [aa  aa] cc cc
+  a a c c   aa aa cc cc    [aa  CC] cc cc
+  a a a a   cc cc cc cc    [cc  cc] cc cc
+            cc cc cc cc    [AA  cc] cc cc
+            aa aa cc cc     aa  aa  cc cc
+            aa aa cc cc     aa  aa  cc cc
+            aa aa aa aa     aa  aa  aa aa
+            aa aa aa aa     aa  aa  aa aa
+ */
+static const BYTE patternLeftTriangle[] = {
 	4, 5,
 	PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA,
 	PTN_ALPHA, PTN_ALPHA, PTN_COLOR, PTN_COLOR,
@@ -1043,7 +2684,7 @@ BYTE patternLeftTriangle[] = {
 	PTN_ALPHA, PTN_ALPHA, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA,
 };
-bool LeftTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool LeftTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -1110,18 +2751,18 @@ bool LeftTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_
 }
 
 /*
-  a a a a    aa aa aa aa    aa aa  aa aa
-  c c a a    aa aa aa aa    aa aa  aa aa
-  c c c c X  cc cc aa aa -> cc cc [aa aa]
-  c c a a    cc cc aa aa    cc cc [CC aa]
-  a a a a    cc cc cc cc    cc cc [cc cc]
-		     cc cc cc cc    cc cc [cc AA]
-		     cc cc aa aa    cc cc  aa aa
-		     cc cc aa aa    cc cc  aa aa
-		     aa aa aa aa    aa aa  aa aa
-		     aa aa aa aa    aa aa  aa aa
+  a a a a   aa aa aa aa    aa aa  aa aa
+  c c a a   aa aa aa aa    aa aa  aa aa
+  c c c c X cc cc aa aa -> cc cc [aa aa]
+  c c a a   cc cc aa aa    cc cc [CC aa]
+  a a a a   cc cc cc cc    cc cc [cc cc]
+            cc cc cc cc    cc cc [cc AA]
+            cc cc aa aa    cc cc  aa aa
+            cc cc aa aa    cc cc  aa aa
+            aa aa aa aa    aa aa  aa aa
+            aa aa aa aa    aa aa  aa aa
  */
-BYTE patternRightTriangle[] = {
+static const BYTE patternRightTriangle[] = {
 	4, 5,
 	PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_ALPHA, PTN_ALPHA,
@@ -1129,7 +2770,7 @@ BYTE patternRightTriangle[] = {
 	PTN_COLOR, PTN_COLOR, PTN_ALPHA, PTN_ALPHA,
 	PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA,
 };
-bool RightTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool RightTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -1197,20 +2838,20 @@ bool RightTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png
 }
 
 /*
-  a a a a a a a a    aa aa aa aa aa aa aa aa    aa aa [aa aa aa aa] aa aa
-  a a c c c c a a X  aa aa aa aa aa aa aa aa -> aa aa [aa CC CC aa] aa aa
-  c c c c c c c c    aa aa cc cc cc cc aa aa    aa aa  cc cc cc cc  aa aa
-                     aa aa cc cc cc cc aa aa    aa aa  cc cc cc cc  aa aa
-                     cc cc cc cc cc cc cc cc    cc cc  cc cc cc cc  cc cc
-                     cc cc cc cc cc cc cc cc    cc cc  cc cc cc cc  cc cc
+  a a a a a a a a   aa aa aa aa aa aa aa aa    aa aa [aa aa aa aa] aa aa
+  a a c c c c a a X aa aa aa aa aa aa aa aa -> aa aa [aa CC CC aa] aa aa
+  c c c c c c c c   aa aa cc cc cc cc aa aa    aa aa  cc cc cc cc  aa aa
+                    aa aa cc cc cc cc aa aa    aa aa  cc cc cc cc  aa aa
+                    cc cc cc cc cc cc cc cc    cc cc  cc cc cc cc  cc cc
+                    cc cc cc cc cc cc cc cc    cc cc  cc cc cc cc  cc cc
  */
-BYTE patternTopTriangle[] = {
+static const BYTE patternTopTriangle[] = {
 	8, 3,
 	PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA, PTN_ALPHA,
 	PTN_ALPHA, PTN_ALPHA, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_ALPHA, PTN_ALPHA,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR,
 };
-bool TopTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool TopTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -1224,7 +2865,7 @@ bool TopTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_i
 	for (int yy = 0; yy < multiplier; yy++) {
 		for (int xx = 0; xx < 2 * multiplier; xx++, dst++, fm++) {
 			if (yy >= multiplier - xx / 2) {
-				*dst = *(src + orimg_data.width);
+				*dst = *(src + orimg_data.width + (xx >= multiplier ? 1 : 0));
 				*fm = *(fm + imagedata.width * multiplier);
 			}
 		}
@@ -1232,14 +2873,17 @@ bool TopTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_i
 		fm += imagedata.width - 2 * multiplier;
 	}
 
+	// now at [2; 1] (dst, fm)
+
+	// move to [4; 0]
+	src += 2;
 	dst += 2 * multiplier - imagedata.width * multiplier;
 	fm += 2 * multiplier - imagedata.width * multiplier;
-	src += 2;
 
 	for (int yy = 0; yy < multiplier; yy++) {
 		for (int xx = 0; xx < 2 * multiplier; xx++, dst++, fm++) {
 			if (yy > xx / 2) {
-				*dst = *(src + orimg_data.width);
+				*dst = *(src + orimg_data.width + (xx >= multiplier ? 1 : 0));
 				*fm = *(fm + imagedata.width * multiplier);
 			}
 		}
@@ -1251,17 +2895,17 @@ bool TopTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_i
 }
 
 /*
-  c c c c c c c c    cc cc cc cc cc cc cc cc    cc cc  cc cc cc cc  cc cc
-  a a c c c c a a X  cc cc cc cc cc cc cc cc -> cc cc  cc cc cc cc  cc cc
-                     aa aa cc cc cc cc aa aa    aa aa [cc cc cc cc] aa aa
-                     aa aa cc cc cc cc aa aa    aa aa [AA cc cc AA] aa aa
+  c c c c c c c c   cc cc cc cc cc cc cc cc    cc cc  cc cc cc cc  cc cc
+  a a c c c c a a X cc cc cc cc cc cc cc cc -> cc cc  cc cc cc cc  cc cc
+                    aa aa cc cc cc cc aa aa    aa aa [cc cc cc cc] aa aa
+                    aa aa cc cc cc cc aa aa    aa aa [AA cc cc AA] aa aa
  */
-BYTE patternBottomTriangle[] = {
+static const BYTE patternBottomTriangle[] = {
 	8, 2,
 	PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR,
 	PTN_ALPHA, PTN_ALPHA, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_COLOR, PTN_ALPHA, PTN_ALPHA,
 };
-bool BottomTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
+static bool BottomTriangle(int x, int y, int multiplier, png_image_data &orimg_data, png_image_data &imagedata)
 {
 	RGBA* src = (RGBA*)orimg_data.row_pointers[y];
 	RGBA* dst = (RGBA*)imagedata.row_pointers[y * multiplier];
@@ -1296,9 +2940,12 @@ bool BottomTriangle(int x, int y, int multiplier, png_image_data &orimg_data, pn
 		fm += imagedata.width - 2 * multiplier;
 	}
 
+	// now at [2; 2] (dst, fm)
+
+	// move to [4; 1]
+	src += 2;
 	dst += 2 * multiplier - imagedata.width * multiplier;
 	fm += 2 * multiplier - imagedata.width * multiplier;
-	src += 2;
 
 	for (int yy = 0; yy < multiplier; yy++) {
 		for (int xx = 0; xx < 2 * multiplier; xx++, dst++, fm++) {
@@ -1374,9 +3021,11 @@ void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, B
 
 	// resample the pixels
 	for (int i = 0; i < numimage; i++) {
-		for (int y = 0; y < imagedata[i].height - multiplier; y += multiplier) {
+		int y;
+		for (y = 0; y < imagedata[i].height - multiplier; y += multiplier) {
 			RGBA* p0 = (RGBA*)imagedata[i].row_pointers[y];
-			for (int x = 0; x < imagedata[i].width - multiplier; x += multiplier, p0 += multiplier) {
+			int x;
+			for (x = 0; x < imagedata[i].width - multiplier; x += multiplier, p0 += multiplier) {
 				if (p0->a != 255)
 					continue; // skip transparent pixels
 				// skip 'protected' colors
@@ -1393,32 +3042,73 @@ void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, B
 					}
 				}
 			}
+			// resample right column as if the external pixels are transparent
+			if (y < imagedata[i].height - multiplier) {
+				if (p0->a != 255)
+					continue; // skip transparent pixels
+				if (imagedata[i].fixColorMask != NULL && imagedata[i].fixColorMask[x + y * imagedata[i].width] != 0)
+					continue; // skip 'protected' colors
+				RGBA pDR = { 0 };
+				RGBA* pD = p0 + multiplier * imagedata[i].width;
+				for (int j = 0; j < multiplier; j++) {
+					for (int k = 0; k < multiplier; k++) {
+						RGBA* pp = p0 + j * imagedata[i].width + k;
+						*pp = BilinearInterpolate(pp, &pDR, k, pD, j, &pDR, multiplier/*, palette, numcolors, coloroffset, numfixcolors*/);
+					}
+				}
+			}
+		}
+		// resample bottom row as if the external pixels are transparent
+		RGBA* p0 = (RGBA*)imagedata[i].row_pointers[y];
+		for (int x = 0; x < imagedata[i].width - multiplier; x += multiplier, p0 += multiplier) {
+			if (p0->a != 255)
+				continue; // skip transparent pixels
+			if (imagedata[i].fixColorMask != NULL && imagedata[i].fixColorMask[x + y * imagedata[i].width] != 0)
+				continue; // skip 'protected' colors
+			RGBA* pR = p0 + multiplier;
+			RGBA pDR = { 0 };
+			for (int j = 0; j < multiplier; j++) {
+				for (int k = 0; k < multiplier; k++) {
+					RGBA* pp = p0 + j * imagedata[i].width + k;
+					*pp = BilinearInterpolate(pp, pR, k, &pDR, j, &pDR, multiplier/*, palette, numcolors, coloroffset, numfixcolors*/);
+				}
+			}
 		}
 	}
 
 	// apply basic anti-aliasing filters
 	if (antiAliasingMode != 2) {
-		UpscalePatterns patterns[16] = {
-			{ patternLineDownRight, LineDownRight },
-			{ patternLineDownLeft, LineDownLeft },
-			{ patternLineUpRight, LineUpRight },
-			{ patternLineUpLeft, LineUpLeft },
-			{ patternSlowDownRight, SlowDownRight },
-			{ patternSlowDownLeft, SlowDownLeft },
-			{ patternSlowUpRight, SlowUpRight },
-			{ patternSlowUpLeft, SlowUpLeft },
-			{ patternFastDownRight, FastDownRight },
-			{ patternFastDownLeft, FastDownLeft },
-			{ patternFastUpRight, FastUpRight },
-			{ patternFastUpLeft, FastUpLeft },
+		UpscalePatterns patterns[24] = {
 			{ patternLeftTriangle, LeftTriangle },
 			{ patternRightTriangle, RightTriangle },
 			{ patternTopTriangle, TopTriangle },
 			{ patternBottomTriangle, BottomTriangle },
+			{ patternAnySlowDownRight, AnySlowDownRight },
+			{ patternAnySlowDownLeft, AnySlowDownLeft },
+			{ patternAnySlowUpRight, AnySlowUpRight },
+			{ patternAnySlowUpLeft, AnySlowUpLeft },
+			{ patternAnyFastDownRight, AnyFastDownRight },
+			{ patternAnyFastDownLeft, AnyFastDownLeft },
+			{ patternAnyFastUpRight, AnyFastUpRight },
+			{ patternAnyFastUpLeft, AnyFastUpLeft },
+			{ patternAnySlowDownNarrow, AnySlowDownNarrow },
+			{ patternAnySlowUpNarrow, AnySlowUpNarrow },
+			{ patternAnyFastDownNarrow, AnyFastDownNarrow },
+			{ patternAnyFastUpNarrow, AnyFastUpNarrow },
+			{ patternFixSlowDownRight, FixSlowDownRight },
+			{ patternFixSlowDownLeft, FixSlowDownLeft },
+			{ patternFixSlowUpRight, FixSlowUpRight },
+			{ patternFixSlowUpLeft, FixSlowUpLeft },
+			{ patternFixFastDownRight, FixFastDownRight },
+			{ patternFixFastDownLeft, FixFastDownLeft },
+			{ patternFixFastUpRight, FixFastUpRight },
+			{ patternFixFastUpLeft, FixFastUpLeft },
 		};
 		for (int i = 0; i < numimage; i++) {
 			bool dummyMask = imagedata[i].fixColorMask == NULL;
 			if (dummyMask) {
+				orimg_data[i].fixColorMask = (BYTE*)malloc(sizeof(BYTE) * orimg_data[i].width * orimg_data[i].height);
+				memset(orimg_data[i].fixColorMask, 0, sizeof(BYTE) * orimg_data[i].width * orimg_data[i].height);
 				imagedata[i].fixColorMask = (BYTE*)malloc(sizeof(BYTE) * imagedata[i].width * imagedata[i].height);
 				memset(imagedata[i].fixColorMask, 0, sizeof(BYTE) * imagedata[i].width * imagedata[i].height);
 			}
@@ -1433,7 +3123,7 @@ void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, B
 							continue; // pattern does not fit to width
 						if (orimg_data[i].height - y < h)
 							continue; // pattern does not fit to height
-						BYTE *ptnCol = &ptn.pattern[2];
+						const BYTE *ptnCol = &ptn.pattern[2];
 						RGBA* p = p0;
 						bool match = true;
 						for (int yy = 0; yy < h && match; yy++) {
@@ -1455,13 +3145,17 @@ void UpscalePNGImages(png_image_data* imagedata, int numimage, int multiplier, B
 							}
 							p += orimg_data[i].width - w;
 						}
-						if (match && ptn.fnc(x, y, multiplier, orimg_data[i], imagedata[i])) {
+						if (!match)
+							continue;
+						if (ptn.fnc(x, y, multiplier, orimg_data[i], imagedata[i])) {
 							break;
 						}
 					}
 				}
 			}
 			if (dummyMask) {
+				free(orimg_data[i].fixColorMask);
+				orimg_data[i].fixColorMask = NULL;
 				free(imagedata[i].fixColorMask);
 				imagedata[i].fixColorMask = NULL;
 			}

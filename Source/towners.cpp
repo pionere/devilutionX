@@ -106,14 +106,14 @@ const char AnimOrder[6][144] = {
 /** Contains the TEXT_-ranges related to gossip for each towner ID. */
 const int GossipList[STORE_TOWNERS][2] = {
 	// clang-format off
-/* TOWN_SMITH */  { TEXT_GRISWOLD2, TEXT_GRISWOLD13 },
-/* TOWN_HEALER */ { TEXT_PEPIN2,    TEXT_PEPIN11    },
-/* TOWN_TAVERN */ { TEXT_OGDEN2,    TEXT_OGDEN10    },
-/* TOWN_STORY */  { TEXT_STORY2,    TEXT_STORY11    },
-/* TOWN_DRUNK */  { TEXT_FARNHAM2,  TEXT_FARNHAM13  },
-/* TOWN_WITCH */  { TEXT_ADRIA2,    TEXT_ADRIA13    },
-/* TOWN_BMAID */  { TEXT_GILLIAN2,  TEXT_GILLIAN10  },
-/* TOWN_PEGBOY */ { TEXT_WIRT2,     TEXT_WIRT12     },
+/* TOWN_SMITH */  { TEXT_SMITH2,   TEXT_SMITH13   },
+/* TOWN_HEALER */ { TEXT_HEALER2,  TEXT_HEALER11  },
+/* TOWN_TAVERN */ { TEXT_TAVERN2,  TEXT_TAVERN10  },
+/* TOWN_STORY */  { TEXT_STORY2,   TEXT_STORY11   },
+/* TOWN_DRUNK */  { TEXT_DRUNK2,   TEXT_DRUNK13   },
+/* TOWN_WITCH */  { TEXT_WITCH2,   TEXT_WITCH13   },
+/* TOWN_BARMAID */{ TEXT_BARMAID2, TEXT_BARMAID10 },
+/* TOWN_PEGBOY */ { TEXT_PEGBOY2,  TEXT_PEGBOY12  },
 	// clang-format on
 };
 
@@ -124,24 +124,8 @@ const int GossipList[STORE_TOWNERS][2] = {
 #define TPOS_FARMER		52 + DBORDERX, 6 + DBORDERY
 #define TPOS_GIRL		67 + DBORDERX, 33 + DBORDERY
 
-/** Specifies the start X-coordinates of the cows in Tristram. */
-const int TownCowX[] = { 48 + DBORDERX, 46 + DBORDERX, 49 + DBORDERX };
-/** Specifies the start Y-coordinates of the cows in Tristram. */
-const int TownCowY[] = {  6 + DBORDERY,  4 + DBORDERY, 10 + DBORDERY };
-/** Specifies the start directions of the cows in Tristram. */
-const int TownCowDir[] = { DIR_SW, DIR_NW, DIR_N };
-/** Maps from direction to X-coordinate delta, which is used when
- * placing cows in Tristram. A single cow may require space of up
- * to three tiles when being placed on the map.
- */
-const int cowoffx[8] = { -1, 0, -1, -1, -1, 0, -1, -1 };
-/** Maps from direction to Y-coordinate delta, which is used when
- * placing cows in Tristram. A single cow may require space of up
- * to three tiles when being placed on the map.
- */
-const int cowoffy[8] = { -1, -1, -1, 0, -1, -1, -1, 0 };
 /** Specifies the active sound effect ID for interacting with cows. */
-int CowPlaying = -1;
+static int CowPlaying = -1;
 
 static void CowSFX(int pnum)
 {
@@ -263,20 +247,20 @@ static void InitTownerTalk(int tnum, int store_id, int store_talk)
 static void InitSmith()
 {
 	InitTownerInfo(numtowners, "Griswold the Blacksmith", TOWN_SMITH, TPOS_SMITH, 7);
-	InitTownerTalk(numtowners, STORE_SMITH, TEXT_GRISWOLD1);
+	InitTownerTalk(numtowners, STORE_SMITH, TEXT_SMITH1);
 	InitTownerAnim(numtowners, "Towners\\Smith\\SmithN.CEL", 3, 16, 0);
 	numtowners++;
 }
 
-static void InitBarOwner()
+static void InitTavern()
 {
 	InitTownerInfo(numtowners, "Ogden the Tavern owner", TOWN_TAVERN, TPOS_TAVERN, 7);
-	InitTownerTalk(numtowners, STORE_TAVERN, TEXT_OGDEN1);
+	InitTownerTalk(numtowners, STORE_TAVERN, TEXT_TAVERN1);
 	InitTownerAnim(numtowners, "Towners\\TwnF\\TwnFN.CEL", 3, 16, 3);
 	numtowners++;
 }
 
-static void InitTownDead()
+static void InitDeadguy()
 {
 	InitTownerInfo(numtowners, "Wounded Townsman", TOWN_DEADGUY, 14 + DBORDERX, 22 + DBORDERY, 1);
 	InitTownerAnim(numtowners, "Towners\\Butch\\Deadguy.CEL", 6, 8, -1);
@@ -286,23 +270,23 @@ static void InitTownDead()
 static void InitWitch()
 {
 	InitTownerInfo(numtowners, "Adria the Witch", TOWN_WITCH, 70 + DBORDERX, 10 + DBORDERY, 3);
-	InitTownerTalk(numtowners, STORE_WITCH, TEXT_ADRIA1);
+	InitTownerTalk(numtowners, STORE_WITCH, TEXT_WITCH1);
 	InitTownerAnim(numtowners, "Towners\\TownWmn1\\Witch.CEL", 6, 19, 5);
 	numtowners++;
 }
 
 static void InitBarmaid()
 {
-	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BMAID, 33 + DBORDERX, 56 + DBORDERY, 3);
-	InitTownerTalk(numtowners, STORE_BARMAID, TEXT_GILLIAN1);
+	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BARMAID, 33 + DBORDERX, 56 + DBORDERY, 3);
+	InitTownerTalk(numtowners, STORE_BARMAID, TEXT_BARMAID1);
 	InitTownerAnim(numtowners, "Towners\\TownWmn1\\WmnN.CEL", 6, 18, -1);
 	numtowners++;
 }
 
-static void InitBoy()
+static void InitPegboy()
 {
 	InitTownerInfo(numtowners, "Wirt the Peg-legged boy", TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY, 3);
-	InitTownerTalk(numtowners, STORE_BOY, TEXT_WIRT1);
+	InitTownerTalk(numtowners, STORE_PEGBOY, TEXT_PEGBOY1);
 	InitTownerAnim(numtowners, "Towners\\TownBoy\\PegKid1.CEL", 6, 20, -1);
 	numtowners++;
 }
@@ -310,12 +294,12 @@ static void InitBoy()
 static void InitHealer()
 {
 	InitTownerInfo(numtowners, "Pepin the Healer", TOWN_HEALER, TPOS_HEALER, 7);
-	InitTownerTalk(numtowners, STORE_HEALER, TEXT_PEPIN1);
+	InitTownerTalk(numtowners, STORE_HEALER, TEXT_HEALER1);
 	InitTownerAnim(numtowners, "Towners\\Healer\\Healer.CEL", 6, 20, 1);
 	numtowners++;
 }
 
-static void InitTeller()
+static void InitStory()
 {
 	InitTownerInfo(numtowners, "Cain the Elder", TOWN_STORY, 52 + DBORDERX, 61 + DBORDERY, 7);
 	InitTownerTalk(numtowners, STORE_STORY, TEXT_STORY1);
@@ -326,15 +310,43 @@ static void InitTeller()
 static void InitDrunk()
 {
 	InitTownerInfo(numtowners, "Farnham the Drunk", TOWN_DRUNK, 61 + DBORDERX, 74 + DBORDERY, 3);
-	InitTownerTalk(numtowners, STORE_DRUNK, TEXT_FARNHAM1);
+	InitTownerTalk(numtowners, STORE_DRUNK, TEXT_DRUNK1);
 	InitTownerAnim(numtowners, "Towners\\Drunk\\TwnDrunk.CEL", 3, 18, 4);
+	numtowners++;
+}
+
+static void InitPriest()
+{
+	InitTownerInfo(numtowners, "Tremain the Priest", TOWN_PRIEST, 63 + DBORDERX, 69 + DBORDERY, 3);
+	InitTownerTalk(numtowners, STORE_PRIEST, TEXT_PRIEST1);
+	InitTownerAnim(numtowners, "Towners\\Priest\\Priest8.CEL", 4, 33, -1);
 	numtowners++;
 }
 
 static void InitCows()
 {
+	/** Specifies the start X-coordinates of the cows. */
+	const BYTE TownCowX[] = { 48 + DBORDERX, 46 + DBORDERX, 49 + DBORDERX };
+	/** Specifies the start Y-coordinates of the cows. */
+	const BYTE TownCowY[] = {  6 + DBORDERY,  4 + DBORDERY, 10 + DBORDERY };
+	/** Specifies the start directions of the cows. */
+	const BYTE TownCowDir[] = { DIR_SW, DIR_NW, DIR_N };
+	/** Maps from direction to X-coordinate delta, which is used when
+	 * placing cows in Tristram. A single cow may require space of up
+	 * to four tiles when being placed on the map.
+	 */
+	const char cowoffx[NUM_DIRS] = { -1, 0, -1, -1, -1, 0, -1, -1 };
+	/** Maps from direction to Y-coordinate delta, which is used when
+	 * placing cows in Tristram. A single cow may require space of up
+	 * to four tiles when being placed on the map.
+	 */
+	const char cowoffy[NUM_DIRS] = { -1, -1, -1, 0, -1, -1, -1, 0 };
+	/** Specifies the offsets from the cows to reserve space on the map. */
+	const char TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]]};
+	const char TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]]};
 	int i, dir;
 	int x, y, xo, yo;
+
 	assert(pCowCels == NULL);
 	pCowCels = LoadFileInMem("Towners\\Animals\\Cow.CEL");
 	static_assert(lengthof(TownCowX) == lengthof(TownCowY), "Mismatching TownCow tables I.");
@@ -346,8 +358,8 @@ static void InitCows()
 		InitTownerInfo(numtowners, "Cow", TOWN_COW, x, y, 3);
 		InitCowAnim(numtowners, dir);
 
-		xo = x + cowoffx[dir];
-		yo = y + cowoffy[dir];
+		xo = x + TownCowXOff[i];
+		yo = y + TownCowYOff[i];
 
 		//assert(dMonster[xo][yo] == 0);
 		dMonster[xo][yo] = -(numtowners + 1);
@@ -397,14 +409,16 @@ void InitTowners()
 	numtowners = MAX_MINIONS;
 	InitSmith();
 	InitHealer();
-	InitBarOwner();
-	InitTeller();
+	InitTavern();
+	InitStory();
 	InitDrunk();
 	InitWitch();
 	InitBarmaid();
-	InitBoy();
-	if (quests[Q_BUTCHER]._qactive != QUEST_NOTAVAIL && quests[Q_BUTCHER]._qactive != QUEST_DONE)
-		InitTownDead();
+	InitPegboy();
+	InitPriest();
+	if (quests[Q_BUTCHER]._qactive != QUEST_NOTAVAIL) { // if (quests[Q_BUTCHER]._qactive != QUEST_DONE) {
+		InitDeadguy(); // in vanilla game the dead body was gone after the quest is completed, but it might cause de-sync
+	}
 #ifdef HELLFIRE
 	if (quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL) {
 		InitCowFarmer();
@@ -637,8 +651,61 @@ void TalkToTowner(int tnum)
 	qn = Q_INVALID;
 
 	switch (tw->_mType) { // TNR_TYPE
+	case TOWN_SMITH:
+		if (IsLvlVisited(DLV_CATACOMBS1) /*&& quests[Q_ROCK]._qactive != QUEST_NOTAVAIL*/) {
+			if (quests[Q_ROCK]._qactive == QUEST_INIT) {
+				quests[Q_ROCK]._qactive = QUEST_ACTIVE;
+				quests[Q_ROCK]._qlog = TRUE;
+				qn = Q_ROCK;
+				qt = TEXT_INFRA5;
+				break;
+			}
+			if (quests[Q_ROCK]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ROCK, &i)) {
+				NetSendCmdParam1(CMD_QTOWNER, IDI_ROCK);
+				qt = TEXT_INFRA7;
+				break;
+			}
+		}
+		if (IsLvlVisited(DLV_CAVES2) /*&& quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL*/) {
+			if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
+				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
+				quests[Q_ANVIL]._qlog = TRUE;
+				qn = Q_ANVIL;
+				qt = TEXT_ANVIL5;
+			} else if (quests[Q_ANVIL]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ANVIL, &i)) {
+				NetSendCmdParam1(CMD_QTOWNER, IDI_ANVIL);
+				qt = TEXT_ANVIL7;
+			}
+		}
+		break;
+	case TOWN_HEALER:
+		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && IsLvlVisited(DLV_CATHEDRAL2)) {
+			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
+			quests[Q_PWATER]._qlog = TRUE;
+			// quests[Q_PWATER]._qmsg = TEXT_POISON3;
+			// quests[Q_PWATER]._qvar1 = 1;
+			qn = Q_PWATER;
+			qt = TEXT_POISON3;
+		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
+		 && quests[Q_PWATER]._qvar1 == 2) {
+			quests[Q_PWATER]._qactive = QUEST_DONE;
+			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, ICM_SEND_FLIP);
+			qn = Q_PWATER;
+			qt = TEXT_POISON5;
+		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
+		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
+			if (PlrHasStorageItem(pnum, IDI_BRAIN, &i)) {
+				NetSendCmdParam1(CMD_QTOWNER, IDI_BRAIN);
+				qt = TEXT_MUSH4;
+			} else if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
+				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH3;
+				qt = TEXT_MUSH3;
+			}
+		}
+		break;
 	case TOWN_TAVERN:
-		if (!IsLvlVisited(DLV_CATHEDRAL1) && plr._pLevel == 1) {
+		if (!IsLvlVisited(DLV_CATHEDRAL1) && plr._pLevel == 1 && quests[Q_DIABLO]._qvar2 == 0) {
+			quests[Q_DIABLO]._qvar2 = 1;
 			qt = TEXT_INTRO;
 			break;
 		}
@@ -669,48 +736,31 @@ void TalkToTowner(int tnum)
 			}
 		}
 		break;
-	case TOWN_DEADGUY:
-		if (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE /*&& quests[Q_BUTCHER]._qvar1 == 1*/) {
-			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
-			if (!effect_is_playing(i)) {
-				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
+	case TOWN_STORY:
+		if (!IsMultiGame) {
+			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_LAZSTAFF, &i)) {
+				NetSendCmdParam1(CMD_QTOWNER, IDI_LAZSTAFF);
+				qt = TEXT_VILE1;
+			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
+				quests[Q_BETRAYER]._qvar1 = 8;
+				quests[Q_DIABLO]._qlog = TRUE;
+				qt = TEXT_VILE3;
 			}
-		} else if (quests[Q_BUTCHER]._qactive == QUEST_INIT /*|| (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 0)*/) {
-			quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
-			quests[Q_BUTCHER]._qlog = TRUE;
-			// quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
-			//quests[Q_BUTCHER]._qvar1 = 1;
-			qn = Q_BUTCHER;
-			qt = TEXT_BUTCH9;
+		} else {
+			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && !quests[Q_BETRAYER]._qlog) {
+				quests[Q_BETRAYER]._qlog = TRUE;
+				qn = Q_BETRAYER;
+				qt = TEXT_VILE1;
+			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
+				quests[Q_BETRAYER]._qvar1 = 8;
+				qn = Q_BETRAYER;
+				qt = TEXT_VILE3;
+				quests[Q_DIABLO]._qlog = TRUE;
+				NetSendCmdQuest(Q_DIABLO, false);
+			}
 		}
 		break;
-	case TOWN_SMITH:
-		if (IsLvlVisited(DLV_CATACOMBS1) /*&& quests[Q_ROCK]._qactive != QUEST_NOTAVAIL*/) {
-			if (quests[Q_ROCK]._qactive == QUEST_INIT) {
-				quests[Q_ROCK]._qactive = QUEST_ACTIVE;
-				quests[Q_ROCK]._qlog = TRUE;
-				qn = Q_ROCK;
-				qt = TEXT_INFRA5;
-				break;
-			}
-			if (quests[Q_ROCK]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ROCK, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_ROCK);
-				qt = TEXT_INFRA7;
-				break;
-			}
-		}
-		if (IsLvlVisited(DLV_CAVES2) /*&& quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL*/) {
-			if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
-				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
-				quests[Q_ANVIL]._qlog = TRUE;
-				qn = Q_ANVIL;
-				qt = TEXT_ANVIL5;
-			} else if (quests[Q_ANVIL]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_ANVIL, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_ANVIL);
-				qt = TEXT_ANVIL7;
-			}
-		}
+	case TOWN_DRUNK:
 		break;
 	case TOWN_WITCH:
 		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_FUNGALTM, &i)) {
@@ -740,72 +790,45 @@ void TalkToTowner(int tnum)
 			}
 		}
 		break;
-	case TOWN_BMAID:
+	case TOWN_BARMAID:
 #ifdef HELLFIRE
-		if (PlrHasStorageItem(pnum, IDI_MAPOFDOOM, &i) && quests[Q_GRAVE]._qactive == QUEST_INIT) {
+		if (PlrHasStorageItem(pnum, IDI_FANG, &i) && quests[Q_GRAVE]._qactive == QUEST_INIT) {
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 			quests[Q_GRAVE]._qlog = TRUE;
-			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
+			//quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
 			qn = Q_GRAVE;
 			qt = TEXT_GRAVE8;
 		}
 #endif
 		break;
-	case TOWN_DRUNK:
-		break;
-	case TOWN_HEALER:
-		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && IsLvlVisited(DLV_CATHEDRAL2)) {
-			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
-			quests[Q_PWATER]._qlog = TRUE;
-			// quests[Q_PWATER]._qmsg = TEXT_POISON3;
-			// quests[Q_PWATER]._qvar1 = 1;
-			qn = Q_PWATER;
-			qt = TEXT_POISON3;
-		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
-		 && quests[Q_PWATER]._qvar1 == 2) {
-			quests[Q_PWATER]._qactive = QUEST_DONE;
-			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, ICM_SEND_FLIP);
-			qn = Q_PWATER;
-			qt = TEXT_POISON5;
-		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
-		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
-			if (PlrHasStorageItem(pnum, IDI_BRAIN, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_BRAIN);
-				qt = TEXT_MUSH4;
-			} else if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
-				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH3;
-				qt = TEXT_MUSH3;
-			}
-		}
-		break;
 	case TOWN_PEGBOY:
+	case TOWN_PRIEST:
 		break;
-	case TOWN_STORY:
-		if (!IsMultiGame) {
-			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_LAZSTAFF, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_LAZSTAFF);
-				qt = TEXT_VILE1;
-			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
-				quests[Q_BETRAYER]._qvar1 = 8;
-				quests[Q_DIABLO]._qlog = TRUE;
-				qt = TEXT_VILE3;
+	case TOWN_DEADGUY:
+		switch (quests[Q_BUTCHER]._qactive) {
+		case QUEST_INIT:
+			quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
+			quests[Q_BUTCHER]._qlog = TRUE;
+			// quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
+			//quests[Q_BUTCHER]._qvar1 = 1;
+			qn = Q_BUTCHER;
+			qt = TEXT_BUTCH9;
+			break;
+		case QUEST_ACTIVE:
+			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
+			if (!effect_is_playing(i)) {
+				// tw->_mListener = pnum;  // TNR_LISTENER
+				PlaySFX(i);
 			}
-		} else {
-			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && !quests[Q_BETRAYER]._qlog) {
-				quests[Q_BETRAYER]._qlog = TRUE;
-				qn = Q_BETRAYER;
-				qt = TEXT_VILE1;
-			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
-				quests[Q_BETRAYER]._qvar1 = 8;
-				qn = Q_BETRAYER;
-				qt = TEXT_VILE3;
-				quests[Q_DIABLO]._qlog = TRUE;
-				NetSendCmdQuest(Q_DIABLO, false);
+			break;
+		case QUEST_DONE:
+			i = sgSFXSets[SFXS_PLR_09][plr._pClass];
+			if (!effect_is_playing(i)) {
+				// tw->_mListener = pnum;  // TNR_LISTENER
+				PlaySFX(i);
 			}
+			break;
 		}
-		break;
-	case TOWN_COW:
-		CowSFX(pnum);
 		break;
 #ifdef HELLFIRE
 	case TOWN_FARMER:
@@ -944,6 +967,12 @@ void TalkToTowner(int tnum)
 		}
 		break;
 #endif
+	case TOWN_COW:
+		CowSFX(pnum);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 	if (qn != Q_INVALID)
 		NetSendCmdQuest(qn, false);

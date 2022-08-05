@@ -28,8 +28,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /*
 	unused icons :	20 (teleport?)
 					22 - SPL_ETHEREALIZE (only in standard)
-					30 - SPL_BONESPIRIT
-					31 - red skull
 					33 (red burning stair?)
 					// hellfire only
 					51 - SPL_MANA/MAGI
@@ -62,6 +60,7 @@ const SpellData spelldata[NUM_SPELLS] = {
 /*SPL_FLASH*/       {   30, STYPE_LIGHTNING, 4,       "Flash",                     5,         8,          6, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON,                 33, IS_CAST4,    MIS_FLASH,         3,       16,        20,        40,      7500,        500, ALIGN64 },
 /*SPL_FIREWALL*/    {   28, STYPE_FIRE,      6,       "Fire Wall",                 3,         4,          4, SDFLAG_TARGETED, CURSOR_TELEPORT,    CURSOR_NONE,        SFLAG_DUNGEON,                 27, IS_CAST2,    MIS_FIREWALLC,     3,       16,         8,        16,      6000,        400, ALIGN64 },
 /*SPL_FIREBALL*/    {   16, STYPE_FIRE,      12,      "Fireball",                  8,        14,          8, SDFLAG_TARGETED, CURSOR_TELEPORT,    CURSOR_NONE,        SFLAG_DUNGEON,                 48, IS_CAST2,    MIS_FIREBALL,      2,       10,        40,        80,      8000,        300, ALIGN64 },
+/*SPL_METEOR*/      {   54, STYPE_MAGIC,     31,      "Meteor",                   24,        32,         16, SDFLAG_TARGETED, CURSOR_TELEPORT,    CURSOR_NONE,        SFLAG_DUNGEON,                 42, IS_CAST2,    MIS_METEOR,        2,       30,        20,        60,     15000,        500, ALIGN64 },
 /*SPL_CHAIN*/       {   30, STYPE_LIGHTNING, 16,      "Chain Lightning",           8,        14,         10, SDFLAG_TARGETED, CURSOR_TELEPORT,    CURSOR_NONE,        SFLAG_DUNGEON,                 54, IS_CAST2,    MIS_CHAIN,         2,       18,        20,        60,     11000,        750, ALIGN64 },
 /*SPL_WAVE*/        {   35, STYPE_FIRE,      14,      "Fire Wave",                 9,        16,         10, SDFLAG_TARGETED, CURSOR_TELEPORT,    CURSOR_NONE,        SFLAG_DUNGEON,                 54, IS_CAST2,    MIS_FIREWAVEC,     4,       20,        20,        40,     10000,        650, ALIGN64 },
 /*SPL_NOVA*/        {   60, STYPE_MAGIC,     11,      "Nova",                     14,        20,         14, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON,                 87, IS_CAST4,    MIS_LIGHTNOVAC,    5,       35,        16,        32,     21000,       1300, ALIGN64 },

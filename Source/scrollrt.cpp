@@ -1548,9 +1548,8 @@ static void DrawView()
 	DrawPlrMsg(true);
 	if (gmenu_is_active())
 		gmenu_draw();
-	if (gbDoomflag) {
-		doom_draw();
-	}
+	//if (gbDoomflag)
+	//	doom_draw();
 	//if (gbRedrawFlags & REDRAW_CTRL_BUTTONS) {
 		DrawCtrlBtns();
 	//}

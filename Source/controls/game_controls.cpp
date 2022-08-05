@@ -231,8 +231,8 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 				Uint32 vk_code = DVL_VK_L; // ACT_SKLLIST
 				if (select_modifier_active)
 					vk_code = DVL_VK_E; // ACT_SKL6
-				else if (gbDoomflag)
-					vk_code = DVL_VK_ESCAPE;
+				//else if (gbDoomflag)
+				//	vk_code = DVL_VK_ESCAPE;
 				else if (gnNumActiveWindows != 0) {
 					switch (gaActiveWindows[gnNumActiveWindows - 1]) {
 						case WND_INV:	vk_code = DVL_VK_I;	break; // ACT_INV

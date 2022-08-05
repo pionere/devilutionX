@@ -143,7 +143,7 @@ void InitObjectGFX()
 	const ObjectData* ods;
 	bool themeload[NUM_THEMES];
 	bool fileload[NUM_OFILE_TYPES];
-	char filestr[32];
+	char filestr[DATA_ARCHIVE_MAX_PATH];
 	int i;
 
 	static_assert(false == 0, "InitObjectGFX fills fileload and themeload with 0 instead of false values.");
@@ -321,7 +321,9 @@ static void InitRndLocObj(int min, int max, int objtype)
 {
 	int i, xp, yp, numobjs;
 
-	numobjs = RandRange(min, max);
+	//assert(max >= min);
+	//assert(max - min < 0x7FFF);
+	numobjs = RandRangeLow(min, max);
 	for (i = 0; i < numobjs; i++) {
 		if (!RndLoc3x3(&xp, &yp))
 			break;
@@ -701,7 +703,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	//os->_oAnimCnt = 0;
 	if (ofd->oAnimFlag) {
 		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
-		os->_oAnimFrame = RandRange(1, os->_oAnimLen);
+		os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
 	}
 	os->_oAnimWidth = ofd->oAnimWidth * ASSET_MPL;
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
@@ -862,7 +864,7 @@ static void AddStoryBook()
 static void AddHookedBodies()
 {
 	int i, j, ttv, type;
-
+	// TODO: straight loop (in dlrgs)?
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			ttv = nTrapTable[dPiece[i][j]];
@@ -1022,7 +1024,7 @@ void SetMapObjects(BYTE* pMap)
 	int i, j;
 	uint16_t rw, rh, *lm, *h;
 	bool fileload[NUM_OFILE_TYPES];
-	char filestr[32];
+	char filestr[DATA_ARCHIVE_MAX_PATH];
 
 	static_assert(false == 0, "SetMapObjects fills fileload with 0 instead of false values.");
 	memset(fileload, 0, sizeof(fileload));

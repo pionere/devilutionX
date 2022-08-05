@@ -32,7 +32,7 @@ void InitItems();
 void CalcPlrItemVals(int pnum, bool Loadgfx);
 void CalcPlrSpells(int pnum);
 void CalcPlrScrolls(int pnum);
-void CalcPlrStaff(int pnum);
+void CalcPlrCharges(int pnum);
 void ItemStatOk(int pnum, ItemStruct *is);
 void CalcPlrInv(int pnum, bool Loadgfx);
 void CreateBaseItem(ItemStruct *is, int idata);

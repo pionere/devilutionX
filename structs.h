@@ -710,12 +710,11 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	uint16_t _mExp;
 	int mtalkmsg;
 	const char* mName;
-	MapMonData* MType;
 	int _mType;
 	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
-	ALIGNMENT(12, 5)
+	ALIGNMENT(13, 7)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1518,8 +1517,8 @@ static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 128, "Align Level
 
 typedef struct QuestStruct {
 	BYTE _qactive;
-	BYTE _qvar1;
-	BYTE _qvar2;
+	BYTE _qvar1; // quest parameter which is synchronized with the other players
+	BYTE _qvar2; // quest parameter which is NOT synchronized with the other players
 	BOOLEAN _qlog;
 	unsigned _qmsg;
 	int _qtx;
@@ -1546,7 +1545,7 @@ typedef struct QuestData {
 typedef struct TMenuItem {
 	const char* pszStr;
 	void (*fnMenu)(bool); /* fix, should have one arg */
-	uint32_t dwFlags;
+	uint32_t dwFlags; // _gmenu_flags
 	//union {
 	//	uint32_t dwMenuParam;
 	//	struct {

@@ -77,6 +77,7 @@ BYTE ColorTrns[NUM_COLOR_TRNS][256];
  *    +-------> x
  */
 const char CrawlTable[2749] = {
+	// clang-format off
 	1,										//  0 - 0
 	  0,  0,
 	4,										//  1 - 3
@@ -438,6 +439,7 @@ const char CrawlTable[2749] = {
 	-18, -3, 18, -3, -18, 2, 18, 2,
 	-18, -2, 18, -2, -18, 1, 18, 1,
 	-18, -1, 18, -1, -18, 0, 18, 0
+	// clang-format on
 };
 
 /** Indices of CrawlTable to select the entries at a given distance. */

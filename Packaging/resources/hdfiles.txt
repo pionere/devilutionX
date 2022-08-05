@@ -53,7 +53,7 @@ Items\Cleaver.CEL
 Items\cows1.CEL
 Items\CrownF.CEL
 Items\donkys1.CEL
-Items\DurIcons.CEL
+_Items\DurIcons.CEL
 Items\Fanvil.CEL
 Items\FBook.CEL
 Items\FBrain.CEL
@@ -77,7 +77,7 @@ Items\Helmut.CEL
 Items\Innsign.CEL
 Items\LArmor.CEL
 Items\Mace.CEL
-Items\Map\MapZtown.CEL
+_Items\Map\MapZtown.CEL
 Items\mooses1.CEL
 Items\Ring.CEL
 Items\Rock.CEL
@@ -2496,6 +2496,7 @@ Towners\Farmer\mfrmrn2.CEL
 Towners\Girl\Girls1.CEL
 Towners\Girl\Girlw1.CEL
 Towners\Healer\Healer.CEL
+Towners\Priest\Priest8.CEL
 Towners\Smith\SmithN.CEL
 Towners\Strytell\Strytell.CEL
 Towners\TownBoy\PegKid1.CEL

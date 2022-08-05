@@ -607,7 +607,6 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->mtalkmsg);
 
 	// Omit pointer mName;
-	// Omit pointer MType;
 
 	if (currLvl._dType != DTYPE_TOWN)
 		SyncMonsterAnim(mnum);
@@ -1324,7 +1323,6 @@ static void SaveMonster(int mnum, bool full)
 	SaveInt(&mon->mtalkmsg);
 
 	// Omit pointer mName;
-	// Omit pointer MType;
 }
 
 static void SaveMissile(int mi)

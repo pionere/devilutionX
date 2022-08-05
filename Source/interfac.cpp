@@ -362,7 +362,7 @@ void ShowCutscene(unsigned uMsg)
 		SwitchGameLevel(ENTRY_TWARPUP);
 		break;
 	case DVL_DWM_RETOWN:
-		SwitchGameLevel(ENTRY_MAIN);
+		SwitchGameLevel(ENTRY_RETOWN);
 		break;
 	default:
 		ASSUME_UNREACHABLE

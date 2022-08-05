@@ -141,6 +141,7 @@ cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
 option(PIE "Generate position-independent code" OFF)
 option(CPACK "Configure CPack" ON)
+option(USE_LD_MOLD "Use mold linker(GNU|Clang)" OFF)
 option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
@@ -154,6 +155,7 @@ cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
 cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
 cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
 cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
+cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 option(HAS_JOYSTICK "Enable joystick support" ON)
@@ -172,14 +174,62 @@ if(NOT USE_SDL1)
   cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 if(PIE)
   set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+endif()
+
+# Remove unused symbols in non-debug mode.
+# This is useful even with LTO (-84 KiB with MinSizeRel).
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  # For some reason, adding to CMAKE_CXX_FLAGS results in a slightly smaller
+  # binary than using `add_compile/link_options`
+  set(_extra_flags "-ffunction-sections -fdata-sections")
+  if(APPLE)
+    set(_extra_flags "${_extra_flags} -Wl,-dead_strip")
+  else()
+    set(_extra_flags "${_extra_flags} -Wl,--gc-sections,--as-needed")
+  endif()
+
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${_extra_flags}")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${_extra_flags}")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${_extra_flags}")
+  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${_extra_flags}")
+  set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${_extra_flags}")
+  set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${_extra_flags}")
+
+  if(USE_LD_MOLD)
+    if(NOT CMAKE_CROSSCOMPILING)
+      if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12)
+        find_program(
+          LD_MOLD_PATH
+          ld
+          PATHS
+          ${CMAKE_INSTALL_PREFIX}/libexec/mold
+          ENV LD_MOLD_PATH
+          NO_DEFAULT_PATH
+        )
+        if(NOT LD_MOLD_PATH STREQUAL "LD_MOLD_PATH-NOTFOUND")
+          get_filename_component(_mold_dir ${LD_MOLD_PATH} DIRECTORY)
+          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -B${_mold_dir}")
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -B${_mold_dir}")
+        else()
+          message(WARNING "-- Cannot use mold linker: mold ld directory not found")
+        endif()
+      else()
+      #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=mold")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=mold")
+      endif()
+    else()
+      message(WARNING "-- Mold linker is disabled due to CMAKE_CROSSCOMPILING")
+    endif()
+  endif()
 endif()
 
 # Not a genexp because CMake doesn't support it
@@ -337,7 +387,7 @@ set(devilutionx_SRCS
   Source/cursor.cpp
   Source/debug.cpp
   Source/diablo.cpp
-  Source/doom.cpp
+  #Source/doom.cpp
   Source/drlg_l1.cpp
   Source/drlg_l2.cpp
   Source/drlg_l3.cpp
@@ -547,7 +597,7 @@ else()
     Packaging/windows/devilutionx.rc)
 endif()
 
-# Copy devilx.mpq to the build directory to it works from the build directory
+# Copy devilx.mpq to the build directory
 file(COPY "Packaging/resources/devilx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 if(AMIGA)
   file(COPY "Packaging/amiga/devilutionx.info" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
@@ -836,9 +886,9 @@ endif()
 
 if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Change __FILE__ to only show the path relative to the project folder
-  if((CMAKE_CXX_COMPILER_ID MATCHES "CLANG" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
+  if((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
       OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8))
-    target_compile_options(${BIN_TARGET} PUBLIC "-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=")
+    target_compile_options(${BIN_TARGET} PUBLIC "-fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
   else()
     get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
     foreach(SOURCE_FILE ${devilutionx_SRCS})
@@ -862,6 +912,12 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
   # Disable Run-Time Type Information
   target_compile_options(${BIN_TARGET} PRIVATE -fno-rtti)
+  # Disable Exceptions if requested
+  if(DISABLE_EXCEPTIONS)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+    endif()
+  endif()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -871,6 +927,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Disable Run-Time Type Information
   string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   target_compile_options(${BIN_TARGET} PRIVATE "/permissive-")
+  # Disable Exceptions if requested
+  if(DISABLE_EXCEPTIONS)
+    string(REGEX REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_HAS_EXCEPTIONS=0")
+  endif()
 endif()
 
 if(APPLE)
@@ -884,9 +945,11 @@ if(APPLE)
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${PROJECT_VERSION}")
   if(IOS)
+    set(MACOSX_BUNDLE_REQUIRED_PLATFORM IPhoneOS)
     set_target_properties(${BIN_TARGET} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "9.0")
   else()
+    set(MACOSX_BUNDLE_REQUIRED_PLATFORM Carbon)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12.0")
   endif()
   set_target_properties(${BIN_TARGET} PROPERTIES MACOSX_BUNDLE_ICON_FILE "AppIcon.icns")
@@ -1012,9 +1075,11 @@ if(NINTENDO_3DS)
     DEPENDS romfs_directory)
 
   include(Tools3DS)
+  add_3dsx_target(${BIN_TARGET})
   add_cia_target(${BIN_TARGET} ${APP_RSF} ${APP_BANNER} ${APP_AUDIO})
 
   get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
+  add_dependencies(${APP_TARGET_PREFIX}_3dsx romfs_files)
   add_dependencies(${APP_TARGET_PREFIX}_cia romfs_files)
 endif()
 
@@ -1205,9 +1270,11 @@ foreach(
   DEBUG_MODE
   DEV_MODE
   RUN_TESTS
+  DISABLE_EXCEPTIONS
   DISABLE_LTO
   PIE
   CPACK
+  USE_LD_MOLD
   MACOSX_STANDALONE_APP_BUNDLE
   GPERF
   GPERF_HEAP_FIRST_GAME_ITERATION

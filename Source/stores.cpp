@@ -42,12 +42,12 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_STORY_IDENTIFY	14
 #define STORE_STORY_EXIT		18
 
-#define STORE_BOY_GOSSIP1		8
-#define STORE_BOY_QUERY			18
-#define STORE_BOY_EXIT1			20
-#define STORE_BOY_GOSSIP2		12
-#define STORE_BOY_EXIT2			18
-#define STORE_BOY_BUY			10
+#define STORE_PEGBOY_GOSSIP1	8
+#define STORE_PEGBOY_QUERY		18
+#define STORE_PEGBOY_EXIT1		20
+#define STORE_PEGBOY_GOSSIP2	12
+#define STORE_PEGBOY_EXIT2		18
+#define STORE_PEGBOY_BUY		10
 
 #define STORE_TAVERN_GOSSIP		12
 #define STORE_TAVERN_EXIT		18
@@ -58,9 +58,12 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_DRUNK_GOSSIP		12
 #define STORE_DRUNK_EXIT		18
 
+#define STORE_PRIEST_GOSSIP		12
+#define STORE_PRIEST_EXIT		18
+
 // service prices
 #define STORE_ID_PRICE			100
-#define STORE_BOY_PRICE			50
+#define STORE_PEGBOY_PRICE		50
 
 // level limits of the premium items by the smith
 #define STORE_PITEM_MINLVL		6
@@ -133,7 +136,7 @@ static const char* const talkname[] = {
 /*TOWN_STORY*/  "Cain",
 /*TOWN_DRUNK*/  "Farnham",
 /*TOWN_WITCH*/  "Adria",
-/*TOWN_BMAID*/  "Gillian",
+/*TOWN_BARMAID*/"Gillian",
 /*TOWN_PEGBOY*/ "Wirt"
 	// clang-format on
 };
@@ -190,7 +193,8 @@ void InitLvlStores()
 {
 	unsigned l;
 
-	SetRndSeed(glSeedTbl[currLvl._dLevelIdx] * SDL_GetTicks());
+	assert(currLvl._dLevelIdx == DLV_TOWN);
+	SetRndSeed(glSeedTbl[DLV_TOWN] * SDL_GetTicks());
 	l = StoresLimitedItemLvl();
 	SpawnSmith(l);
 	SpawnWitch(l);
@@ -873,7 +877,7 @@ static void S_StartConfirm()
 	AddSTextVal(8, storeitem._iIvalue);
 
 	switch (stextshold) {
-	case STORE_BBOY:
+	case STORE_PBUY:
 		copy_cstr(tempstr, "Do we have a deal?");
 		break;
 	case STORE_SIDENTIFY:
@@ -912,18 +916,18 @@ static void S_StartBoy()
 	AddSText(0, 2, true, "Wirt the Peg-legged boy", COL_GOLD, false);
 	AddSLine(5);
 	if (boyitem._itype != ITYPE_NONE) {
-		AddSText(0, STORE_BOY_GOSSIP1, true, "Talk to Wirt", COL_BLUE, true);
+		AddSText(0, STORE_PEGBOY_GOSSIP1, true, "Talk to Wirt", COL_BLUE, true);
 		AddSText(0, 12, true, "I have something for sale,", COL_GOLD, false);
 		if (!boyitem._iIdentified) {
-			static_assert(STORE_BOY_PRICE == 50, "Hardcoded boy price is 50.");
+			static_assert(STORE_PEGBOY_PRICE == 50, "Hardcoded boy price is 50.");
 			AddSText(0, 14, true, "but it will cost 50 gold", COL_GOLD, false);
 			AddSText(0, 16, true, "just to take a look. ", COL_GOLD, false);
 		}
-		AddSText(0, STORE_BOY_QUERY, true, "What have you got?", COL_WHITE, true);
-		AddSText(0, STORE_BOY_EXIT1, true, "Say goodbye", COL_WHITE, true);
+		AddSText(0, STORE_PEGBOY_QUERY, true, "What have you got?", COL_WHITE, true);
+		AddSText(0, STORE_PEGBOY_EXIT1, true, "Say goodbye", COL_WHITE, true);
 	} else {
-		AddSText(0, STORE_BOY_GOSSIP2, true, "Talk to Wirt", COL_BLUE, true);
-		AddSText(0, STORE_BOY_EXIT2, true, "Say goodbye", COL_WHITE, true);
+		AddSText(0, STORE_PEGBOY_GOSSIP2, true, "Talk to Wirt", COL_BLUE, true);
+		AddSText(0, STORE_PEGBOY_EXIT2, true, "Say goodbye", COL_WHITE, true);
 	}
 }
 
@@ -937,8 +941,8 @@ static void S_StartBBoy()
 	AddSLine(21);
 
 	StorePrepareItemBuy(&boyitem);
-	PrintStoreItem(&boyitem, STORE_BOY_BUY, true);
-	AddSTextVal(STORE_BOY_BUY, boyitem._iIvalue);
+	PrintStoreItem(&boyitem, STORE_PEGBOY_BUY, true);
+	AddSTextVal(STORE_PEGBOY_BUY, boyitem._iIvalue);
 	AddSText(0, 22, true, "Leave", COL_WHITE, true);
 	OffsetSTextY(22, 6);
 }
@@ -1157,6 +1161,18 @@ static void S_StartDrunk()
 	AddSLine(5);
 }
 
+static void S_StartPriest()
+{
+	gbWidePanel = false;
+	gbRenderGold = false;
+	gbHasScroll = false;
+	AddSText(0, 2, true, "Tremain the Priest", COL_GOLD, false);
+	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
+	//AddSText(0, STORE_PRIEST_GOSSIP, true, "Talk to Tremain", COL_BLUE, true);
+	AddSText(0, STORE_PRIEST_EXIT, true, "Say Goodbye", COL_WHITE, true);
+	AddSLine(5);
+}
+
 void StartStore(int s)
 {
 	int i;
@@ -1199,10 +1215,10 @@ void StartStore(int s)
 	case STORE_CONFIRM:
 		S_StartConfirm();
 		break;
-	case STORE_BOY:
+	case STORE_PEGBOY:
 		S_StartBoy();
 		break;
-	case STORE_BBOY:
+	case STORE_PBUY:
 		S_StartBBoy();
 		break;
 	case STORE_HEALER:
@@ -1236,6 +1252,9 @@ void StartStore(int s)
 		break;
 	case STORE_BARMAID:
 		S_StartBarMaid();
+		break;
+	case STORE_PRIEST:
+		S_StartPriest();
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1311,13 +1330,14 @@ void STextESC()
 	switch (stextflag) {
 	case STORE_SMITH:
 	case STORE_WITCH:
-	case STORE_BOY:
-	case STORE_BBOY:
+	case STORE_PEGBOY:
+	case STORE_PBUY:
 	case STORE_HEALER:
 	case STORE_STORY:
 	case STORE_TAVERN:
 	case STORE_DRUNK:
 	case STORE_BARMAID:
+	case STORE_PRIEST:
 		stextflag = STORE_NONE;
 		break;
 	case STORE_GOSSIP:
@@ -1721,7 +1741,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 	case STORE_SBUY:
 	case STORE_SPBUY:
 	case STORE_WBUY:
-	case STORE_BBOY:
+	case STORE_PBUY:
 		// assert(ii == MAXITEMS);
 		pi = &items[MAXITEMS];
 		// TODO: validate price?
@@ -1763,12 +1783,12 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		// TODO: validate price?
 		pi->_iCharges = pi->_iMaxCharges;
 		break;
-	case STORE_BOY:
-		assert(price == STORE_BOY_PRICE);
-		if (!TakePlrsMoney(pnum, STORE_BOY_PRICE))
+	case STORE_PEGBOY:
+		assert(price == STORE_PEGBOY_PRICE);
+		if (!TakePlrsMoney(pnum, STORE_PEGBOY_PRICE))
 			return;
-		//lastshold = STORE_BOY;
-		lastshold = STORE_BBOY;
+		//lastshold = STORE_PEGBOY;
+		lastshold = STORE_PBUY;
 		break;
 	}
 
@@ -2003,33 +2023,33 @@ static void S_WRechargeEnter()
 static void S_BoyEnter()
 {
 	if (boyitem._itype != ITYPE_NONE) {
-		if (stextsel == STORE_BOY_QUERY) {
-			stextshold = STORE_BOY;
-			stextlhold = STORE_BOY_QUERY;
+		if (stextsel == STORE_PEGBOY_QUERY) {
+			stextshold = STORE_PEGBOY;
+			stextlhold = STORE_PEGBOY_QUERY;
 			stextvhold = stextsidx;
 			if (boyitem._iIdentified) {
-				StartStore(STORE_BBOY);
-			} else if (myplr._pGold < STORE_BOY_PRICE) {
+				StartStore(STORE_PBUY);
+			} else if (myplr._pGold < STORE_PEGBOY_PRICE) {
 				StartStore(STORE_NOMONEY);
 			} else {
-				SendStoreCmd1(0, STORE_BOY, STORE_BOY_PRICE);
+				SendStoreCmd1(0, STORE_PEGBOY, STORE_PEGBOY_PRICE);
 				S_StartWait();
 			}
 			return;
 		}
-		if (stextsel != STORE_BOY_GOSSIP1) {
+		if (stextsel != STORE_PEGBOY_GOSSIP1) {
 			stextflag = STORE_NONE;
 			return;
 		}
 	} else {
-		if (stextsel != STORE_BOY_GOSSIP2) {
+		if (stextsel != STORE_PEGBOY_GOSSIP2) {
 			stextflag = STORE_NONE;
 			return;
 		}
 	}
 	stextlhold = stextsel;
 	talker = TOWN_PEGBOY;
-	stextshold = STORE_BOY;
+	stextshold = STORE_PEGBOY;
 	StartStore(STORE_GOSSIP);
 }
 
@@ -2037,7 +2057,7 @@ static void BoyBuyItem()
 {
 	boyitem._itype = ITYPE_NONE;
 
-	SendStoreCmd2(STORE_BBOY);
+	SendStoreCmd2(STORE_PBUY);
 }
 
 /**
@@ -2066,10 +2086,10 @@ static void HealerBuyItem()
 
 static void S_BBuyEnter()
 {
-	if (stextsel == STORE_BOY_BUY) {
-		stextshold = STORE_BBOY;
+	if (stextsel == STORE_PEGBOY_BUY) {
+		stextshold = STORE_PBUY;
 		stextvhold = stextsidx;
-		stextlhold = STORE_BOY_BUY;
+		stextlhold = STORE_PEGBOY_BUY;
 		StoreStartBuy(&boyitem, boyitem._iIvalue);
 	} else {
 		assert(stextsel == 22);
@@ -2112,9 +2132,9 @@ static void S_ConfirmEnter()
 		case STORE_WRECHARGE:
 			WitchRechargeItem();
 			break;
-		case STORE_BBOY:
+		case STORE_PBUY:
 			BoyBuyItem();
-			//lastshold = STORE_BOY;
+			//lastshold = STORE_PEGBOY;
 			break;
 		case STORE_HBUY:
 			HealerBuyItem();
@@ -2263,7 +2283,7 @@ static void S_TalkEnter()
 	if (stextsel == sn - 2) {
 		assert(monsters[MAX_MINIONS + talker]._mType == talker);
 		SetRndSeed(monsters[MAX_MINIONS + talker]._mRndSeed); // TNR_SEED
-		tq = RandRange(GossipList[talker][0], GossipList[talker][1]);
+		tq = RandRangeLow(GossipList[talker][0], GossipList[talker][1]);
 		InitQTextMsg(tq);
 		return;
 	}
@@ -2301,7 +2321,7 @@ static void S_BarmaidEnter()
 	switch (stextsel) {
 	case STORE_BARMAID_GOSSIP:
 		stextlhold = STORE_BARMAID_GOSSIP;
-		talker = TOWN_BMAID;
+		talker = TOWN_BARMAID;
 		stextshold = STORE_BARMAID;
 		StartStore(STORE_GOSSIP);
 		break;
@@ -2324,6 +2344,24 @@ static void S_DrunkEnter()
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_DRUNK_EXIT:
+		stextflag = STORE_NONE;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+}
+
+static void S_PriestEnter()
+{
+	switch (stextsel) {
+	/*case STORE_PRIEST_GOSSIP:
+		stextlhold = STORE_PRIEST_GOSSIP;
+		talker = TOWN_DRUNK;
+		stextshold = STORE_PRIEST;
+		StartStore(STORE_GOSSIP);
+		break;*/
+	case STORE_PRIEST_EXIT:
 		stextflag = STORE_NONE;
 		break;
 	default:
@@ -2372,10 +2410,10 @@ void STextEnter()
 	case STORE_CONFIRM:
 		S_ConfirmEnter();
 		break;
-	case STORE_BOY:
+	case STORE_PEGBOY:
 		S_BoyEnter();
 		break;
-	case STORE_BBOY:
+	case STORE_PBUY:
 		S_BBuyEnter();
 		break;
 	case STORE_HEALER:
@@ -2404,6 +2442,9 @@ void STextEnter()
 		break;
 	case STORE_BARMAID:
 		S_BarmaidEnter();
+		break;
+	case STORE_PRIEST:
+		S_PriestEnter();
 		break;
 	case STORE_WAIT:
 		return;

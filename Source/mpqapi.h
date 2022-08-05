@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 void mpqapi_remove_hash_entry(const char *pszName);
-void mpqapi_remove_hash_entries(bool (*fnGetName)(unsigned, char (&)[MAX_PATH]));
+void mpqapi_remove_hash_entries(bool (*fnGetName)(unsigned, char (&)[DATA_ARCHIVE_MAX_PATH]));
 bool mpqapi_write_file(const char *pszName, const BYTE *pbData, DWORD dwLen);
 void mpqapi_rename(char *pszOld, char *pszNew);
 bool mpqapi_has_file(const char *pszName);

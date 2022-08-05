@@ -63,7 +63,7 @@ static void gamemenu_update_single()
 	bool enable;
 
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
-	// disable saving in case the player died, the player is changing the level, or diablo is dead
+	// disable saving in case the player died, the player is changing the level, or diablo is dying
 	enable = /*pcursicon == CURSOR_HAND &&*/ gbDeathflag == MDM_ALIVE && !myplr._pLvlChanging;
 	// TODO: disable saving if there is a live turn in transit? (SNetGetLiveTurnsInTransit)
 	gmenu_enable(&sgSingleMenu[0], enable);
@@ -71,6 +71,9 @@ static void gamemenu_update_single()
 
 static void gamemenu_update_multi()
 {
+	// disable new game in case the player is dying or dead
+	gmenu_enable(&sgMultiMenu[1], gbDeathflag == MDM_ALIVE);
+	// disable restart in town in case the player is not dead
 	gmenu_enable(&sgMultiMenu[2], gbDeathflag == MDM_DEAD);
 }
 

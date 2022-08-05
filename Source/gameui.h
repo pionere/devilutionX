@@ -79,10 +79,10 @@ extern "C" {
 #define SPLROWICONLS	11
 #ifdef HELLFIRE
 #define SPLICONLAST		52
-#define SPLBOOKTABS		5
+#define SPLBOOKTABS		6
 #else
 #define SPLICONLAST		43
-#define SPLBOOKTABS		4
+#define SPLBOOKTABS		5
 #endif
 
 #define LIFE_FLASK_WIDTH	118
@@ -141,6 +141,7 @@ extern "C" {
 
 #define DURICON_WIDTH		32
 #define GOLDDROP_WIDTH		261
+//#define DOOM_WIDTH			640
 
 #define GAMEMENU_HEADER_Y		(102 * ASSET_MPL)
 #define GAMEMENU_ITEM_HEIGHT	45
