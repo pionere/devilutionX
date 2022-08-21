@@ -2153,23 +2153,11 @@ void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, char from)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdPlrAttack(int pnum, BYTE skill, char from)
-{
-	TCmdPlrAttack cmd;
-
-	cmd.bCmd = (myplr._pSkillFlags & SFLAG_MELEE) ? CMD_ATTACKPID : CMD_RATTACKPID;
-	cmd.paPnum = pnum;
-	cmd.pau.skill = skill;
-	cmd.pau.from = from;
-
-	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
-}
-
 void NetSendCmdPlrSkill(int pnum, BYTE skill, char from)
 {
 	TCmdPlrSkill cmd;
 
-	cmd.bCmd = CMD_SPELLPID;
+	cmd.bCmd = CMD_SKILLPLR;
 	cmd.psPnum = pnum;
 	cmd.psu.skill = skill;
 	cmd.psu.from = from;
@@ -2678,45 +2666,6 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_ATTACKPID(TCmd* pCmd, int pnum)
-{
-	TCmdPlrAttack* cmd = (TCmdPlrAttack*)pCmd;
-	int tnum;
-
-	if (CheckPlrSkillUse(pnum, cmd->pau)) {
-		tnum = cmd->paPnum;
-
-		net_assert(tnum < MAX_PLRS);
-
-		plr.destAction = ACTION_ATTACKPLR;
-		plr.destParam1 = tnum;
-		plr.destParam3 = cmd->pau.skill; // attack skill
-		plr.destParam4 = (BYTE)cmd->pau.from; // attack skill-level (set in CheckPlrSkillUse)
-	}
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_RATTACKPID(TCmd* pCmd, int pnum)
-{
-	TCmdPlrAttack* cmd = (TCmdPlrAttack*)pCmd;
-	int tnum;
-
-	if (CheckPlrSkillUse(pnum, cmd->pau)) {
-		ClrPlrPath(pnum);
-		tnum = cmd->paPnum;
-
-		net_assert(tnum < MAX_PLRS);
-
-		plr.destAction = ACTION_RATTACKPLR;
-		plr.destParam1 = tnum;    // target id
-		plr.destParam3 = cmd->pau.skill; // attack skill
-		plr.destParam4 = (BYTE)cmd->pau.from; // attack skill-level (set in CheckPlrSkillUse)
-	}
-
-	return sizeof(*cmd);
-}
-
 static unsigned On_SKILLMON(TCmd* pCmd, int pnum)
 {
 	TCmdMonSkill* cmd = (TCmdMonSkill*)pCmd;
@@ -2737,7 +2686,7 @@ static unsigned On_SKILLMON(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_SPELLPID(TCmd* pCmd, int pnum)
+static unsigned On_SKILLPLR(TCmd* pCmd, int pnum)
 {
 	TCmdPlrSkill* cmd = (TCmdPlrSkill*)pCmd;
 	int tnum;
@@ -2748,10 +2697,10 @@ static unsigned On_SPELLPID(TCmd* pCmd, int pnum)
 
 		net_assert(tnum < MAX_PLRS);
 
-		plr.destAction = ACTION_SPELLPLR;
-		plr.destParam1 = tnum;
-		plr.destParam3 = cmd->psu.skill; // spell
-		plr.destParam4 = (BYTE)cmd->psu.from; // spllvl (set in CheckPlrSkillUse)
+		plr.destAction = spelldata[cmd->psu.skill].sType != STYPE_NONE ? ACTION_SPELLPLR : ((spelldata[cmd->psu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKPLR : ACTION_ATTACKPLR);
+		plr.destParam1 = tnum;                // target id
+		plr.destParam3 = cmd->psu.skill;      // attack spell/skill
+		plr.destParam4 = (BYTE)cmd->psu.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -4478,12 +4427,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_OPOBJXY(pCmd, pnum);
 	case CMD_DISARMXY:
 		return On_DISARMXY(pCmd, pnum);
-	case CMD_ATTACKPID:
-		return On_ATTACKPID(pCmd, pnum);
-	case CMD_RATTACKPID:
-		return On_RATTACKPID(pCmd, pnum);
-	case CMD_SPELLPID:
-		return On_SPELLPID(pCmd, pnum);
+	case CMD_SKILLPLR:
+		return On_SKILLPLR(pCmd, pnum);
 	case CMD_SKILLMON:
 		return On_SKILLMON(pCmd, pnum);
 	case CMD_BLOCK:

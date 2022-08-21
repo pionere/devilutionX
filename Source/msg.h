@@ -67,13 +67,7 @@ void NetSendCmdLocSkill(BYTE x, BYTE y, BYTE skill, char from);
  * @param from: the source of the skill
  */
 void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, char from);
-/** Attack a player with a given skill using from as a source.
- * @param pnum: the id of the targeted player
- * @param skill: the skill to be used
- * @param from: the source of the skill
- */
-void NetSendCmdPlrAttack(int pnum, BYTE skill, char from);
-/** Use a spell on a player using from as a source.
+/** Use a spell/skill on a player using from as a source.
  * @param pnum: the id of the targeted player
  * @param skill: the skill to be used
  * @param from: the source of the skill

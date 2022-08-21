@@ -1012,12 +1012,6 @@ typedef struct TCmdLocDisarm {
 	char from;
 } TCmdLocDisarm;
 
-typedef struct TCmdPlrAttack {
-	BYTE bCmd;
-	BYTE paPnum;
-	CmdSkillUse pau;
-} TCmdPlrAttack;
-
 typedef struct TCmdPlrSkill {
 	BYTE bCmd;
 	BYTE psPnum;
