@@ -80,6 +80,7 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 	case SPL_RATTACK:
 	case SPL_POINT_BLANK:
 	case SPL_FAR_SHOT:
+	case SPL_CHARGE:
 	case SPL_RAGE:
 	case SPL_STONE:
 	case SPL_INFRA:
