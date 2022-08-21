@@ -1428,7 +1428,7 @@ static bool StartWalk(int pnum)
 
 static bool StartAttack(int pnum)
 {
-	int i, dx, dy, sn, sl, dir;
+	int i, dx, dy, sn, sl, dir, ss;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartAttack: illegal player %d", pnum);
@@ -1477,7 +1477,19 @@ static bool StartAttack(int pnum)
 	}
 
 	dir = GetDirection(plr._px, plr._py, dx, dy);
+	ss = PAS_NORMAL;
+	if (plr._pIFlags & ISPL_FASTESTATTACK) {
+		ss = PAS_FASTEST;
+	} else if (plr._pIFlags & ISPL_FASTERATTACK) {
+		ss = PAS_FASTER;
+	} else if (plr._pIFlags & ISPL_FASTATTACK) {
+		ss = PAS_FAST;
+	} else if (plr._pIFlags & ISPL_QUICKATTACK) {
+		ss = PAS_QUICK;
+	}
+
 	plr._pmode = PM_ATTACK;
+	plr._pVar4 = ss; // ATTACK_SPEED
 	plr._pVar5 = sn; // ATTACK_SKILL
 	plr._pVar6 = sl; // ATTACK_SKILL_LEVEL
 	plr._pVar7 = 0;  // ATTACK_ACTION_PROGRESS : 'flags' of sfx and hit
@@ -1494,7 +1506,7 @@ static bool StartAttack(int pnum)
 
 static void StartRangeAttack(int pnum)
 {
-	int i, dx, dy, sn, sl, dir;
+	int i, dx, dy, sn, sl, dir, ss;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartRangeAttack: illegal player %d", pnum);
@@ -1520,9 +1532,20 @@ static void StartRangeAttack(int pnum)
 	}
 	sn = plr.destParam3;
 	sl = plr.destParam4;
+	ss = PAS_NORMAL;
+	if (plr._pIFlags & ISPL_FASTESTATTACK) {
+		ss = PAS_FASTEST;
+	} else if (plr._pIFlags & ISPL_FASTERATTACK) {
+		ss = PAS_FASTER;
+	} else if (plr._pIFlags & ISPL_FASTATTACK) {
+		ss = PAS_FAST;
+	} else if (plr._pIFlags & ISPL_QUICKATTACK) {
+		ss = PAS_QUICK;
+	}
 
 	plr._pVar1 = dx;    // RATTACK_TARGET_X
 	plr._pVar2 = dy;    // RATTACK_TARGET_Y
+	plr._pVar4 = ss;    // RATTACK_SPEED
 	plr._pVar5 = sn;    // RATTACK_SKILL
 	plr._pVar6 = sl;    // RATTACK_SKILL_LEVEL
 	plr._pVar7 = FALSE; // RATTACK_ACTION_PROGRESS : 'flag' of launch
@@ -2182,24 +2205,35 @@ static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 static void PlrDoAttack(int pnum)
 {
 	int dir, hitcnt;
+	bool stepAnim;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoAttack: illegal player %d", pnum);
 	}
 
 	plr._pVar8++; // ATTACK_TICK
-	if (plr._pIFlags & ISPL_FASTESTATTACK) {
-		PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTERATTACK) {
-		if ((plr._pVar8 & 1) == 1)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTATTACK) {
-		if ((plr._pVar8 & 3) == 2)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_QUICKATTACK) {
-		if ((plr._pVar8 & 7) == 4)
-			PlrStepAnim(pnum);
+	switch (plr._pVar4) { // ATTACK_SPEED
+	case PAS_NORMAL:
+		stepAnim = false;
+		break;
+	case PAS_QUICK:
+		stepAnim = (plr._pVar8 & 7) == 4;
+		break;
+	case PAS_FAST:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case PAS_FASTER:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case PAS_FASTEST:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 	}
+	if (stepAnim)
+		PlrStepAnim(pnum);
+
 	if (plr._pAnimFrame < plr._pAFNum - 1)
 		return;
 	if (plr._pVar7 == 0) { // ATTACK_ACTION_PROGRESS
@@ -2213,7 +2247,7 @@ static void PlrDoAttack(int pnum)
 	if (plr._pVar7 == 1) {
 		plr._pVar7++;
 
-		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL_LEVEL
+		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL, ATTACK_SKILL_LEVEL
 			plr._px + offset_x[dir], plr._py + offset_y[dir]);
 		if (plr._pVar5 == SPL_SWIPE) {
 			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
@@ -2238,30 +2272,42 @@ static void PlrDoAttack(int pnum)
 
 static void PlrDoRangeAttack(int pnum)
 {
+	bool stepAnim;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoRangeAttack: illegal player %d", pnum);
 	}
 
 	plr._pVar8++; // RATTACK_TICK
-	if (plr._pIFlags & ISPL_FASTESTATTACK) {
-		PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTERATTACK) {
-		if ((plr._pVar8 & 1) == 1)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTATTACK) {
-		if ((plr._pVar8 & 3) == 2)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_QUICKATTACK) {
-		if ((plr._pVar8 & 7) == 4)
-			PlrStepAnim(pnum);
+	switch (plr._pVar4) { // RATTACK_SPEED
+	case PAS_NORMAL:
+		stepAnim = false;
+		break;
+	case PAS_QUICK:
+		stepAnim = (plr._pVar8 & 7) == 4;
+		break;
+	case PAS_FAST:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case PAS_FASTER:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case PAS_FASTEST:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 	}
+	if (stepAnim)
+		PlrStepAnim(pnum);
+
 	if (plr._pAnimFrame < plr._pAFNum)
 		return;
 
 	if (!plr._pVar7) { // RATTACK_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
 		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // RATTACK_TARGET_X, RATTACK_TARGET_X
-			 spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL_LEVEL
+			 spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL, RATTACK_SKILL_LEVEL
 
 		WeaponDur(pnum, 40);
 	}
