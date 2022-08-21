@@ -2177,23 +2177,11 @@ void NetSendCmdPlrSkill(int pnum, BYTE skill, char from)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdMonstAttack(BYTE bCmd, int mnum, BYTE skill, char from)
+void NetSendCmdMonSkill(int mnum, BYTE skill, char from)
 {
-	TCmdMonstAttack cmd;
+	TCmdMonSkill cmd;
 
-	cmd.bCmd = bCmd;
-	cmd.maMnum = SwapLE16(mnum);
-	cmd.mau.skill = skill;
-	cmd.mau.from = from;
-
-	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
-}
-
-void NetSendCmdMonstSkill(int mnum, BYTE skill, char from)
-{
-	TCmdMonstSkill cmd;
-
-	cmd.bCmd = CMD_SPELLID;
+	cmd.bCmd = CMD_SKILLMON;
 	cmd.msMnum = SwapLE16(mnum);
 	cmd.msu.skill = skill;
 	cmd.msu.from = from;
@@ -2690,25 +2678,6 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_ATTACKID(TCmd* pCmd, int pnum)
-{
-	TCmdMonstAttack* cmd = (TCmdMonstAttack*)pCmd;
-	int mnum;
-
-	if (CheckPlrSkillUse(pnum, cmd->mau)) {
-		mnum = SwapLE16(cmd->maMnum);
-
-		net_assert(mnum < MAXMONSTERS);
-
-		plr.destAction = ACTION_ATTACKMON;
-		plr.destParam1 = mnum;
-		plr.destParam3 = cmd->mau.skill; // attack skill
-		plr.destParam4 = (BYTE)cmd->mau.from; // attack skill-level (set in CheckPlrSkillUse)
-	}
-
-	return sizeof(*cmd);
-}
-
 static unsigned On_ATTACKPID(TCmd* pCmd, int pnum)
 {
 	TCmdPlrAttack* cmd = (TCmdPlrAttack*)pCmd;
@@ -2723,26 +2692,6 @@ static unsigned On_ATTACKPID(TCmd* pCmd, int pnum)
 		plr.destParam1 = tnum;
 		plr.destParam3 = cmd->pau.skill; // attack skill
 		plr.destParam4 = (BYTE)cmd->pau.from; // attack skill-level (set in CheckPlrSkillUse)
-	}
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_RATTACKID(TCmd* pCmd, int pnum)
-{
-	TCmdMonstAttack* cmd = (TCmdMonstAttack*)pCmd;
-	int mnum;
-
-	if (CheckPlrSkillUse(pnum, cmd->mau)) {
-		ClrPlrPath(pnum);
-		mnum = SwapLE16(cmd->maMnum);
-
-		net_assert(mnum < MAXMONSTERS);
-
-		plr.destAction = ACTION_RATTACKMON;
-		plr.destParam1 = mnum;  // target id
-		plr.destParam3 = cmd->mau.skill; // attack skill
-		plr.destParam4 = (BYTE)cmd->mau.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -2768,9 +2717,9 @@ static unsigned On_RATTACKPID(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_SPELLID(TCmd* pCmd, int pnum)
+static unsigned On_SKILLMON(TCmd* pCmd, int pnum)
 {
-	TCmdMonstSkill* cmd = (TCmdMonstSkill*)pCmd;
+	TCmdMonSkill* cmd = (TCmdMonSkill*)pCmd;
 	int mnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->msu)) {
@@ -2779,10 +2728,10 @@ static unsigned On_SPELLID(TCmd* pCmd, int pnum)
 
 		net_assert(mnum < MAXMONSTERS);
 
-		plr.destAction = ACTION_SPELLMON;
-		plr.destParam1 = mnum;
-		plr.destParam3 = cmd->msu.skill;        // spell
-		plr.destParam4 = (BYTE)cmd->msu.from;   // spllvl (set in CheckPlrSkillUse)
+		plr.destAction = spelldata[cmd->msu.skill].sType != STYPE_NONE ? ACTION_SPELLMON : ((spelldata[cmd->msu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKMON : ACTION_ATTACKMON);
+		plr.destParam1 = mnum;                // target id
+		plr.destParam3 = cmd->msu.skill;      // attack spell/skill
+		plr.destParam4 = (BYTE)cmd->msu.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -4529,18 +4478,14 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_OPOBJXY(pCmd, pnum);
 	case CMD_DISARMXY:
 		return On_DISARMXY(pCmd, pnum);
-	case CMD_ATTACKID:
-		return On_ATTACKID(pCmd, pnum);
 	case CMD_ATTACKPID:
 		return On_ATTACKPID(pCmd, pnum);
-	case CMD_RATTACKID:
-		return On_RATTACKID(pCmd, pnum);
 	case CMD_RATTACKPID:
 		return On_RATTACKPID(pCmd, pnum);
-	case CMD_SPELLID:
-		return On_SPELLID(pCmd, pnum);
 	case CMD_SPELLPID:
 		return On_SPELLPID(pCmd, pnum);
+	case CMD_SKILLMON:
+		return On_SKILLMON(pCmd, pnum);
 	case CMD_BLOCK:
 		return On_BLOCK(pCmd, pnum);
 	case CMD_TALKXY:

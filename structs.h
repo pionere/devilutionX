@@ -1024,17 +1024,11 @@ typedef struct TCmdPlrSkill {
 	CmdSkillUse psu;
 } TCmdPlrSkill;
 
-typedef struct TCmdMonstAttack {
-	BYTE bCmd;
-	WORD maMnum;
-	CmdSkillUse mau;
-} TCmdMonstAttack;
-
-typedef struct TCmdMonstSkill {
+typedef struct TCmdMonSkill {
 	BYTE bCmd;
 	WORD msMnum;
 	CmdSkillUse msu;
-} TCmdMonstSkill;
+} TCmdMonSkill;
 
 typedef struct TCmdMonstDamage {
 	BYTE bCmd;

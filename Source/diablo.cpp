@@ -430,12 +430,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			if (CanTalkToMonst(pcursmonst)) {
 				NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			} else {
-				if (spelldata[atkSkill].sType != STYPE_NONE)
-					NetSendCmdMonstSkill(pcursmonst, atkSkill, asf);
-				else if (myplr._pSkillFlags & SFLAG_RANGED)
-					NetSendCmdMonstAttack(CMD_RATTACKID, pcursmonst, atkSkill, asf);
-				else
-					NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, atkSkill, asf);
+				NetSendCmdMonSkill(pcursmonst, atkSkill, asf);
 			}
 			return;
 		}
@@ -540,7 +535,7 @@ bool TryIconCurs(bool bShift)
 	} break;
 	case CURSOR_TELEPORT:
 		if (pcursmonst != MON_NONE)
-			NetSendCmdMonstSkill(pcursmonst, gbTSpell, gbTSplFrom);
+			NetSendCmdMonSkill(pcursmonst, gbTSpell, gbTSplFrom);
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		else
