@@ -423,10 +423,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 
 		if (bShift) {
-			if (spelldata[atkSkill].sType != STYPE_NONE)
-				NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
-			else
-				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, asf);
+			NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
 			return;
 		}
 		if (pcursmonst != MON_NONE) {
@@ -450,10 +447,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			return;
 		}
 		if (moveSkill == SPL_INVALID) {
-			if (spelldata[atkSkill].sType != STYPE_NONE)
-				NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
-			else
-				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, asf);
+			NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
 			return;
 		}
 	} else if (moveSkill == SPL_INVALID) {

@@ -997,13 +997,6 @@ typedef struct TCmdItemOp {
 	CmdSkillUse iou;
 } TCmdItemOp;
 
-typedef struct TCmdLocAttack {
-	BYTE bCmd;
-	BYTE x;
-	BYTE y;
-	CmdSkillUse lau;
-} TCmdLocAttack;
-
 typedef struct TCmdLocSkill {
 	BYTE bCmd;
 	BYTE x;

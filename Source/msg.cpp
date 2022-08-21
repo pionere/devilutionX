@@ -2127,24 +2127,11 @@ void NetSendCmdItemSkill(int cii, BYTE skill, char from)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocAttack(BYTE x, BYTE y, BYTE skill, char from)
-{
-	TCmdLocAttack cmd;
-
-	cmd.bCmd = (myplr._pSkillFlags & SFLAG_MELEE) ? CMD_SATTACKXY : CMD_RATTACKXY;
-	cmd.x = x;
-	cmd.y = y;
-	cmd.lau.skill = skill;
-	cmd.lau.from = from;
-
-	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
-}
-
 void NetSendCmdLocSkill(BYTE x, BYTE y, BYTE skill, char from)
 {
 	TCmdLocSkill cmd;
 
-	cmd.bCmd = CMD_SPELLXY;
+	cmd.bCmd = CMD_SKILLXY;
 	cmd.x = x;
 	cmd.y = y;
 	cmd.lsu.skill = skill;
@@ -2599,48 +2586,16 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 	return false;
 }
 
-static unsigned On_SATTACKXY(TCmd* pCmd, int pnum)
-{
-	TCmdLocAttack* cmd = (TCmdLocAttack*)pCmd;
-
-	if (CheckPlrSkillUse(pnum, cmd->lau)) {
-		ClrPlrPath(pnum);
-		plr.destAction = ACTION_ATTACK;
-		plr.destParam1 = cmd->x;
-		plr.destParam2 = cmd->y;
-		plr.destParam3 = cmd->lau.skill; // attack skill
-		plr.destParam4 = (BYTE)cmd->lau.from; // attack skill-level (set in CheckPlrSkillUse)
-	}
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_RATTACKXY(TCmd* pCmd, int pnum)
-{
-	TCmdLocAttack* cmd = (TCmdLocAttack*)pCmd;
-
-	if (CheckPlrSkillUse(pnum, cmd->lau)) {
-		ClrPlrPath(pnum);
-		plr.destAction = ACTION_RATTACK;
-		plr.destParam1 = cmd->x;
-		plr.destParam2 = cmd->y;
-		plr.destParam3 = cmd->lau.skill; // attack skill
-		plr.destParam4 = (BYTE)cmd->lau.from; // attack skill-level (set in CheckPlrSkillUse)
-	}
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_SPELLXY(TCmd* pCmd, int pnum)
+static unsigned On_SKILLXY(TCmd* pCmd, int pnum)
 {
 	TCmdLocSkill* cmd = (TCmdLocSkill*)pCmd;
 
 	if (CheckPlrSkillUse(pnum, cmd->lsu)) {
 		ClrPlrPath(pnum);
-		plr.destAction = ACTION_SPELL;
+		plr.destAction = spelldata[cmd->lsu.skill].sType != STYPE_NONE ? ACTION_SPELL : ((spelldata[cmd->lsu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACK : ACTION_ATTACK);
 		plr.destParam1 = cmd->x;
 		plr.destParam2 = cmd->y;
-		plr.destParam3 = cmd->lsu.skill; // spell
+		plr.destParam3 = cmd->lsu.skill; // spell/skill
 		plr.destParam4 = (BYTE)cmd->lsu.from; // spllvl (set in CheckPlrSkillUse)
 	}
 
@@ -4568,12 +4523,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_SYNCDATA(pCmd, pnum);
 	case CMD_WALKXY:
 		return On_WALKXY(pCmd, pnum);
-	case CMD_SATTACKXY:
-		return On_SATTACKXY(pCmd, pnum);
-	case CMD_RATTACKXY:
-		return On_RATTACKXY(pCmd, pnum);
-	case CMD_SPELLXY:
-		return On_SPELLXY(pCmd, pnum);
+	case CMD_SKILLXY:
+		return On_SKILLXY(pCmd, pnum);
 	case CMD_OPOBJXY:
 		return On_OPOBJXY(pCmd, pnum);
 	case CMD_DISARMXY:

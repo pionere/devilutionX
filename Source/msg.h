@@ -53,14 +53,7 @@ void NetSendCmdDelItem(BYTE bLoc);
  * @param from: the source of the skill
  */
 void NetSendCmdItemSkill(int cii, BYTE skill, char from);
-/** Attack a location with a given skill using from as a source.
- * @param x: the x coordinate of the target (MAXDUNX)
- * @param y: the y coordinate of the target (MAXDUNY)
- * @param skill: the skill to be used
- * @param from: the source of the skill
- */
-void NetSendCmdLocAttack(BYTE x, BYTE y, BYTE skill, char from);
-/** Use a spell on a given location using from as a source.
+/** Use a spell/skill on a given location using from as a source.
  * @param x: the x coordinate of the target (MAXDUNX)
  * @param y: the y coordinate of the target (MAXDUNY)
  * @param skill: the skill to be used
