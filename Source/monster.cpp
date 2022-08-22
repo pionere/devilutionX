@@ -74,7 +74,6 @@ const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBA
 /* data */
 
 /** Maps from monster walk animation length to monster velocity. */
-#define MON_WALK_SHIFT 8
 // MWVel[animLen - 1] = (TILE_WIDTH << MON_WALK_SHIFT) / animLen;
 const int MWVel[24] = {
 	// clang-format off

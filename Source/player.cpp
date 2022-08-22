@@ -1338,7 +1338,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 
 static bool StartWalk(int pnum)
 {
-	int dir, i, xvel, yvel;
+	int dir, i, mwi;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartWalk: illegal player %d", pnum);
@@ -1359,32 +1359,34 @@ static bool StartWalk(int pnum)
 	for (i = 0; i < NUM_CLASSES; i++)
 		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
 #endif
-	xvel = (TILE_WIDTH << PLR_WALK_SHIFT) / PlrGFXAnimLens[PC_WARRIOR][PA_WALK];
-	yvel = (TILE_HEIGHT << PLR_WALK_SHIFT) / PlrGFXAnimLens[PC_WARRIOR][PA_WALK];
+	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
+	static_assert(PLR_WALK_SHIFT == MON_WALK_SHIFT, "To reuse MWVel in StartWalk, PLR_WALK_SHIFT must be equal to MON_WALK_SHIFT.");
+	assert(PlrGFXAnimLens[PC_WARRIOR][PA_WALK] <= lengthof(MWVel));
+	mwi = MWVel[PlrGFXAnimLens[PC_WARRIOR][PA_WALK] - 1];
 	switch (dir) {
 	case DIR_N:
-		StartWalk1(pnum, 0, -yvel, dir);
+		StartWalk1(pnum, 0, -(mwi >> 1), dir);
 		break;
 	case DIR_NE:
-		StartWalk1(pnum, xvel/2, -yvel/2, dir);
+		StartWalk1(pnum, (mwi >> 1), -(mwi >> 2), dir);
 		break;
 	case DIR_E:
-		StartWalk2(pnum, xvel, 0, -TILE_WIDTH, 0, dir);
+		StartWalk2(pnum, mwi, 0, -TILE_WIDTH, 0, dir);
 		break;
 	case DIR_SE:
-		StartWalk2(pnum, xvel/2, yvel/2, -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, (mwi >> 1), (mwi >> 2), -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_S:
-		StartWalk2(pnum, 0, yvel, 0, -TILE_HEIGHT, dir);
+		StartWalk2(pnum, 0, (mwi >> 1), 0, -TILE_HEIGHT, dir);
 		break;
 	case DIR_SW:
-		StartWalk2(pnum, -xvel/2, yvel/2, TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, -(mwi >> 1), (mwi >> 2), TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_W:
-		StartWalk1(pnum, -xvel, 0, dir);
+		StartWalk1(pnum, -mwi, 0, dir);
 		break;
 	case DIR_NW:
-		StartWalk1(pnum, -xvel/2, -yvel/2, dir);
+		StartWalk1(pnum, -(mwi >> 1), -(mwi >> 2), dir);
 		break;
 	default:
 		ASSUME_UNREACHABLE
