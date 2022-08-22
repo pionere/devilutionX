@@ -3841,6 +3841,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 	/*BOOLEAN _pInfraFlag;
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
+	BYTE _pAlign_B0;
 	int _pISlMinDam; // min slash-damage (swords, axes)
 	int _pISlMaxDam; // max slash-damage (swords, axes)
 	int _pIBlMinDam; // min blunt-damage (maces, axes)
@@ -3862,7 +3863,10 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 	BYTE _pIBlockChance;
 	uint64_t _pISpells; // Bitmask of staff spell
 	unsigned _pIFlags;
-	unsigned _pIFlags2; // unused at the moment, but removing it causes inconsistency in case of X86_32bit_COMP...
+	BYTE _pIWalkSpeed;
+	BYTE _pIRecoverySpeed;
+	BYTE _pIBaseCastSpeed;
+	BYTE _pAlign_B1;
 	int _pIGetHit;
 	BYTE _pIBaseAttackSpeed;
 	char _pIArrowVelBonus; // _pISplCost in vanilla code
