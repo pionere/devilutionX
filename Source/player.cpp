@@ -1880,25 +1880,33 @@ static inline void PlrStepAnim(int pnum)
 static void PlrDoWalk(int pnum)
 {
 	int px, py;
-	bool skipAnim;
+	bool stepAnim;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoWalk: illegal player %d", pnum);
 	}
 
 	plr._pVar8++; // WALK_TICK
-	if (plr._pIFlags & (ISPL_FASTESTWALK | ISPL_FASTERWALK | ISPL_FASTWALK)) {
-		if (plr._pIFlags & ISPL_FASTESTWALK) {
-			skipAnim = true;
-		} else if (plr._pIFlags & ISPL_FASTERWALK) {
-			skipAnim = (plr._pVar8 & 1) == 1;
-		} else { // if (plr._pIFlags & ISPL_FASTWALK) {
-			skipAnim = (plr._pVar8 & 3) == 2;
-		}
-		if (skipAnim) {
-			PlrStepAnim(pnum);
-			PlrChangeOffset(pnum);
-		}
+	switch (plr._pIWalkSpeed) {
+	case 0:
+		stepAnim = false;
+		break;
+	case 1:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case 2:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case 3:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	if (stepAnim) {
+		PlrStepAnim(pnum);
+		PlrChangeOffset(pnum);
 	}
 	assert(PlrAnimFrameLens[PA_WALK] == 1);
 	if ((plr._pAnimFrame & 3) == 3) {
@@ -2213,9 +2221,11 @@ static void PlrDoAttack(int pnum)
 		break;
 	default:
 		ASSUME_UNREACHABLE
+		break;
 	}
-	if (stepAnim)
+	if (stepAnim) {
 		PlrStepAnim(pnum);
+	}
 
 	if (plr._pAnimFrame < plr._pAFNum - 1)
 		return;
@@ -2280,9 +2290,11 @@ static void PlrDoRangeAttack(int pnum)
 		break;
 	default:
 		ASSUME_UNREACHABLE
+		break;
 	}
-	if (stepAnim)
+	if (stepAnim) {
 		PlrStepAnim(pnum);
+	}
 
 	if (plr._pAnimFrame < plr._pAFNum)
 		return;
@@ -2414,18 +2426,31 @@ static void ArmorDur(int pnum)
 
 static void PlrDoSpell(int pnum)
 {
+	bool stepAnim;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoSpell: illegal player %d", pnum);
 	}
 	plr._pVar8++; // SPELL_TICK
-	if (plr._pIFlags & ISPL_FASTESTCAST) {
+	switch (plr._pIBaseCastSpeed) {
+	case 0:
+		stepAnim = false;
+		break;
+	case 1:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case 2:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case 3:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	if (stepAnim) {
 		PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTERCAST) {
-		if ((plr._pVar8 & 1) == 1)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTCAST) {
-		if ((plr._pVar8 & 3) == 2)
-			PlrStepAnim(pnum);
 	}
 
 	if (plr._pAnimFrame < plr._pSFNum)
@@ -2479,19 +2504,33 @@ void KnockbackPlr(int pnum, int dir)
 
 static void PlrDoGotHit(int pnum)
 {
+	bool stepAnim;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoGotHit: illegal player %d", pnum);
 	}
 	plr._pVar8++; // GOTHIT_TICK
-	if (plr._pIFlags & ISPL_FASTESTRECOVER) {
-		PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTERRECOVER) {
-		if ((plr._pVar8 & 1) == 1)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTRECOVER) {
-		if ((plr._pVar8 & 3) == 2)
-			PlrStepAnim(pnum);
+	switch (plr._pIRecoverySpeed) {
+	case 0:
+		stepAnim = false;
+		break;
+	case 1:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case 2:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case 3:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
+	if (stepAnim) {
+		PlrStepAnim(pnum);
+	}
+
 	assert(PlrAnimFrameLens[PA_GOTHIT] == 1);
 	if (plr._pAnimFrame < plr._pHFrames)
 		return;
@@ -2600,6 +2639,7 @@ static bool CheckNewPath(int pnum)
 			break;
 		default:
 			ASSUME_UNREACHABLE
+			break;
 		}
 
 		AssertFixPlayerLocation(pnum);

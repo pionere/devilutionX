@@ -185,6 +185,69 @@ void InitItems()
 }
 
 /*
+ * Calculate the walk speed from walk-speed modifiers.
+ *  ISPL_FASTWALK:    +1
+ *  ISPL_FASTERWALK:  +2
+ *  ISPL_FASTESTWALK: +3
+ */
+inline static BYTE WalkSpeed(unsigned flags)
+{
+	BYTE res = 0;
+
+	if (flags & ISPL_FASTESTWALK) {
+		res = 3;
+	} else if (flags & ISPL_FASTERWALK) {
+		res = 2;
+	} else if (flags & ISPL_FASTWALK) {
+		res = 1;
+	}
+
+	return res;
+}
+
+/*
+ * Calculate the (hit-)recovery speed from recover-speed modifiers.
+ *  ISPL_FASTRECOVER:    +1
+ *  ISPL_FASTERRECOVER:  +2
+ *  ISPL_FASTESTRECOVER: +3
+ */
+inline static BYTE RecoverySpeed(unsigned flags)
+{
+	BYTE res = 0;
+
+	if (flags & ISPL_FASTESTRECOVER) {
+		res = 3;
+	} else if (flags & ISPL_FASTERRECOVER) {
+		res = 2;
+	} else if (flags & ISPL_FASTRECOVER) {
+		res = 1;
+	}
+
+	return res;
+}
+
+/*
+ * Calculate the base cast speed from cast-speed modifiers.
+ *  ISPL_FASTCAST:    +1
+ *  ISPL_FASTERCAST:  +2
+ *  ISPL_FASTESTCAST: +3
+ */
+inline static BYTE BaseCastSpeed(unsigned flags)
+{
+	BYTE res = 0;
+
+	if (flags & ISPL_FASTESTCAST) {
+		res = 3;
+	} else if (flags & ISPL_FASTERCAST) {
+		res = 2;
+	} else if (flags & ISPL_FASTCAST) {
+		res = 1;
+	}
+
+	return res;
+}
+
+/*
  * Calculate the base attack speed from attack-speed modifiers.
  *  ISPL_QUICKATTACK:   +1
  *  ISPL_FASTATTACK:    +2
@@ -638,8 +701,17 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	// calculate block chance
 	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(200, 10 + (std::min(plr._pStrength, plr._pDexterity) >> 1)) : 0;
 
+	// calculate walk speed
+	plr._pIWalkSpeed = WalkSpeed(plr._pIFlags);
+
+	// calculate (hit-)recovery speed
+	plr._pIRecoverySpeed = RecoverySpeed(plr._pIFlags);
+
 	// calculate base attack speed
 	plr._pIBaseAttackSpeed = BaseAttackSpeed(plr._pIFlags);
+
+	// calculate base cast speed
+	plr._pIBaseCastSpeed = BaseCastSpeed(plr._pIFlags);
 
 	// calculate arrow velocity bonus
 	av = ArrowVelBonus(plr._pIFlags);

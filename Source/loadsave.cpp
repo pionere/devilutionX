@@ -464,7 +464,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
-	tbuff += 1; // Alignment
+	tbuff += 1; // _pAlign_B0
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam
@@ -487,7 +487,10 @@ static void LoadPlayer(int pnum)
 
 	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags
-	tbuff += 4; // _pIFlags2
+	tbuff += 1; // _pIWalkSpeed
+	tbuff += 1; // _pIRecoverySpeed
+	tbuff += 1; // _pIBaseCastSpeed
+	tbuff += 1; // _pAlign_B1
 	tbuff += 4; // _pIGetHit
 	tbuff += 1; // _pIBaseAttackSpeed
 	tbuff += 1; // _pIArrowVelBonus
@@ -1174,7 +1177,7 @@ static void SavePlayer(int pnum)
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
-	tbuff += 1; // Alignment
+	tbuff += 1; // _pAlign_B0
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam
@@ -1197,7 +1200,10 @@ static void SavePlayer(int pnum)
 
 	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags
-	tbuff += 4; // _pIFlags2
+	tbuff += 1; // _pIWalkSpeed
+	tbuff += 1; // _pIRecoverySpeed
+	tbuff += 1; // _pIBaseCastSpeed
+	tbuff += 1; // _pAlign_B1
 	tbuff += 4; // _pIGetHit
 	tbuff += 1; // _pIBaseAttackSpeed
 	tbuff += 1; // _pIArrowVelBonus
