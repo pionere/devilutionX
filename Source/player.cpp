@@ -1338,7 +1338,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 
 static bool StartWalk(int pnum)
 {
-	int dir, i, xvel3, xvel, yvel;
+	int dir, i, xvel, yvel;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartWalk: illegal player %d", pnum);
@@ -1359,33 +1359,32 @@ static bool StartWalk(int pnum)
 	for (i = 0; i < NUM_CLASSES; i++)
 		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
 #endif
-	xvel3 = (TILE_WIDTH << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
-	xvel = (TILE_WIDTH << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK] * 2);
-	yvel = (TILE_HEIGHT << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK] * 2);
+	xvel = (TILE_WIDTH << PLR_WALK_SHIFT) / PlrGFXAnimLens[PC_WARRIOR][PA_WALK];
+	yvel = (TILE_HEIGHT << PLR_WALK_SHIFT) / PlrGFXAnimLens[PC_WARRIOR][PA_WALK];
 	switch (dir) {
 	case DIR_N:
-		StartWalk1(pnum, 0, -xvel, dir);
+		StartWalk1(pnum, 0, -yvel, dir);
 		break;
 	case DIR_NE:
-		StartWalk1(pnum, xvel, -yvel, dir);
+		StartWalk1(pnum, xvel/2, -yvel/2, dir);
 		break;
 	case DIR_E:
-		StartWalk2(pnum, xvel3, 0, -TILE_WIDTH, 0, dir);
+		StartWalk2(pnum, xvel, 0, -TILE_WIDTH, 0, dir);
 		break;
 	case DIR_SE:
-		StartWalk2(pnum, xvel, yvel, -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, xvel/2, yvel/2, -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_S:
-		StartWalk2(pnum, 0, xvel, 0, -TILE_HEIGHT, dir);
+		StartWalk2(pnum, 0, yvel, 0, -TILE_HEIGHT, dir);
 		break;
 	case DIR_SW:
-		StartWalk2(pnum, -xvel, yvel, TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, -xvel/2, yvel/2, TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_W:
-		StartWalk1(pnum, -xvel3, 0, dir);
+		StartWalk1(pnum, -xvel, 0, dir);
 		break;
 	case DIR_NW:
-		StartWalk1(pnum, -xvel, -yvel, dir);
+		StartWalk1(pnum, -xvel/2, -yvel/2, dir);
 		break;
 	default:
 		ASSUME_UNREACHABLE
