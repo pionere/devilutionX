@@ -1477,16 +1477,7 @@ static bool StartAttack(int pnum)
 	}
 
 	dir = GetDirection(plr._px, plr._py, dx, dy);
-	ss = PAS_NORMAL;
-	if (plr._pIFlags & ISPL_FASTESTATTACK) {
-		ss = PAS_FASTEST;
-	} else if (plr._pIFlags & ISPL_FASTERATTACK) {
-		ss = PAS_FASTER;
-	} else if (plr._pIFlags & ISPL_FASTATTACK) {
-		ss = PAS_FAST;
-	} else if (plr._pIFlags & ISPL_QUICKATTACK) {
-		ss = PAS_QUICK;
-	}
+	ss = plr._pIBaseAttackSpeed;
 
 	plr._pmode = PM_ATTACK;
 	plr._pVar4 = ss; // ATTACK_SPEED
@@ -1532,16 +1523,7 @@ static void StartRangeAttack(int pnum)
 	}
 	sn = plr.destParam3;
 	sl = plr.destParam4;
-	ss = PAS_NORMAL;
-	if (plr._pIFlags & ISPL_FASTESTATTACK) {
-		ss = PAS_FASTEST;
-	} else if (plr._pIFlags & ISPL_FASTERATTACK) {
-		ss = PAS_FASTER;
-	} else if (plr._pIFlags & ISPL_FASTATTACK) {
-		ss = PAS_FAST;
-	} else if (plr._pIFlags & ISPL_QUICKATTACK) {
-		ss = PAS_QUICK;
-	}
+	ss = plr._pIBaseAttackSpeed;
 
 	plr._pVar1 = dx;    // RATTACK_TARGET_X
 	plr._pVar2 = dy;    // RATTACK_TARGET_Y
@@ -2213,19 +2195,19 @@ static void PlrDoAttack(int pnum)
 
 	plr._pVar8++; // ATTACK_TICK
 	switch (plr._pVar4) { // ATTACK_SPEED
-	case PAS_NORMAL:
+	case 0:
 		stepAnim = false;
 		break;
-	case PAS_QUICK:
+	case 1:
 		stepAnim = (plr._pVar8 & 7) == 4;
 		break;
-	case PAS_FAST:
+	case 2:
 		stepAnim = (plr._pVar8 & 3) == 2;
 		break;
-	case PAS_FASTER:
+	case 3:
 		stepAnim = (plr._pVar8 & 1) == 1;
 		break;
-	case PAS_FASTEST:
+	case 4:
 		stepAnim = true;
 		break;
 	default:
@@ -2280,19 +2262,19 @@ static void PlrDoRangeAttack(int pnum)
 
 	plr._pVar8++; // RATTACK_TICK
 	switch (plr._pVar4) { // RATTACK_SPEED
-	case PAS_NORMAL:
+	case 0:
 		stepAnim = false;
 		break;
-	case PAS_QUICK:
+	case 1:
 		stepAnim = (plr._pVar8 & 7) == 4;
 		break;
-	case PAS_FAST:
+	case 2:
 		stepAnim = (plr._pVar8 & 3) == 2;
 		break;
-	case PAS_FASTER:
+	case 3:
 		stepAnim = (plr._pVar8 & 1) == 1;
 		break;
-	case PAS_FASTEST:
+	case 4:
 		stepAnim = true;
 		break;
 	default:

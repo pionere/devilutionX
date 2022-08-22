@@ -185,6 +185,30 @@ void InitItems()
 }
 
 /*
+ * Calculate the base attack speed from attack-speed modifiers.
+ *  ISPL_QUICKATTACK:   +1
+ *  ISPL_FASTATTACK:    +2
+ *  ISPL_FASTERATTACK:  +3
+ *  ISPL_FASTESTATTACK: +4
+ */
+inline static BYTE BaseAttackSpeed(unsigned flags)
+{
+	BYTE res = 0;
+
+	if (flags & ISPL_FASTESTATTACK) {
+		res = 4;
+	} else if (flags & ISPL_FASTERATTACK) {
+		res = 3;
+	} else if (flags & ISPL_FASTATTACK) {
+		res = 2;
+	} else if (flags & ISPL_QUICKATTACK) {
+		res = 1;
+	}
+
+	return res;
+}
+
+/*
  * Calculate the arrow-velocity bonus gained from attack-speed modifiers.
  *  ISPL_QUICKATTACK:   +1
  *  ISPL_FASTATTACK:    +2
@@ -613,6 +637,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// calculate block chance
 	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(200, 10 + (std::min(plr._pStrength, plr._pDexterity) >> 1)) : 0;
+
+	// calculate base attack speed
+	plr._pIBaseAttackSpeed = BaseAttackSpeed(plr._pIFlags);
 
 	// calculate arrow velocity bonus
 	av = ArrowVelBonus(plr._pIFlags);

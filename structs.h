@@ -382,7 +382,7 @@ typedef struct PlayerStruct {
 	unsigned _pIFlags;
 	unsigned _pIFlags2; // unused at the moment, but removing it causes inconsistency in case of X86_32bit_COMP...
 	int _pIGetHit;
-	BYTE _pAlign_CB; // unused alignment
+	BYTE _pIBaseAttackSpeed;
 	char _pIArrowVelBonus; // _pISplCost in vanilla code
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;

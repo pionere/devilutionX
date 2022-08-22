@@ -489,7 +489,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // _pIFlags
 	tbuff += 4; // _pIFlags2
 	tbuff += 4; // _pIGetHit
-	tbuff += 1; // _pAlign_CB
+	tbuff += 1; // _pIBaseAttackSpeed
 	tbuff += 1; // _pIArrowVelBonus
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
@@ -1199,7 +1199,7 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // _pIFlags
 	tbuff += 4; // _pIFlags2
 	tbuff += 4; // _pIGetHit
-	tbuff += 1; // _pAlign_CB
+	tbuff += 1; // _pIBaseAttackSpeed
 	tbuff += 1; // _pIArrowVelBonus
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
