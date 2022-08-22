@@ -73,108 +73,35 @@ const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBA
 
 /* data */
 
-/** Maps from monster walk animation frame num to monster velocity. */
+/** Maps from monster walk animation length to monster velocity. */
 #define MON_WALK_SHIFT 8
-// MWVel[animLen - 1][2] = (TILE_WIDTH << MON_WALK_SHIFT) / animLen;
-// MWVel[animLen - 1][1] = MWVel[animLen - 1][2] / 2;
-// MWVel[animLen - 1][0] = ((TILE_HEIGHT << MON_WALK_SHIFT) / animLen) / 2;
-const int MWVel[24][3] = {
+// MWVel[animLen - 1] = (TILE_WIDTH << MON_WALK_SHIFT) / animLen;
+const int MWVel[24] = {
 	// clang-format off
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (1 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (1 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 1 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (2 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (2 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 2 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (3 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (3 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 3 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (4 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (4 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 4 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (5 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (5 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 5 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (6 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (6 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 6 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (7 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (7 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 7 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (8 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (8 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 8 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (9 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (9 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 9 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (10 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (10 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 10 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (11 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (11 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 11 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (12 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (12 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 12 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (13 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (13 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 13 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (14 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (14 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 14 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (15 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (15 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 15 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (16 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (16 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 16 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (17 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (17 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 17 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (18 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (18 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 18 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (19 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (19 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 19 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (20 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (20 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 20 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (21 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (21 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 21 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (22 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (22 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 22 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (23 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (23 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 23 },
-
-	{ (TILE_HEIGHT << MON_WALK_SHIFT) / (24 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / (24 * 2),
-	  (TILE_WIDTH << MON_WALK_SHIFT) / 24 },
+	(TILE_WIDTH << MON_WALK_SHIFT) / 1,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 2,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 3,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 4,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 5,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 6,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 7,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 8,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 9,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 10,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 11,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 12,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 13,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 14,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 15,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 16,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 17,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 18,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 19,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 20,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 21,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 22,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 23,
+	(TILE_WIDTH << MON_WALK_SHIFT) / 24,
 	// clang-format on
 };
 /** Maps from monster action to monster animation letter. */
@@ -2648,37 +2575,38 @@ static bool MonDoStone(int mnum)
 
 void MonWalkDir(int mnum, int md)
 {
-	const int* mwi;
+	int mwi;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonWalkDir: Invalid monster %d", mnum);
 	}
 	NewMonsterAnim(mnum, MA_WALK, md);
 	mwi = MWVel[monsters[mnum]._mAnimLen - 1];
+	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
 	switch (md) {
 	case DIR_N:
-		MonStartWalk1(mnum, 0, -mwi[1], md);
+		MonStartWalk1(mnum, 0, -(mwi >> 1), md);
 		break;
 	case DIR_NE:
-		MonStartWalk1(mnum, mwi[1], -mwi[0], md);
+		MonStartWalk1(mnum, (mwi >> 1), -(mwi >> 2), md);
 		break;
 	case DIR_E:
-		MonStartWalk2(mnum, mwi[2], 0, -TILE_WIDTH, 0, md);
+		MonStartWalk2(mnum, mwi, 0, -TILE_WIDTH, 0, md);
 		break;
 	case DIR_SE:
-		MonStartWalk2(mnum, mwi[1], mwi[0], -TILE_WIDTH/2, -TILE_HEIGHT/2, md);
+		MonStartWalk2(mnum, (mwi >> 1), (mwi >> 2), -TILE_WIDTH/2, -TILE_HEIGHT/2, md);
 		break;
 	case DIR_S:
-		MonStartWalk2(mnum, 0, mwi[1], 0, -TILE_HEIGHT, md);
+		MonStartWalk2(mnum, 0, (mwi >> 1), 0, -TILE_HEIGHT, md);
 		break;
 	case DIR_SW:
-		MonStartWalk2(mnum, -mwi[1], mwi[0], TILE_WIDTH/2, -TILE_HEIGHT/2, md);
+		MonStartWalk2(mnum, -(mwi >> 1), (mwi >> 2), TILE_WIDTH/2, -TILE_HEIGHT/2, md);
 		break;
 	case DIR_W:
-		MonStartWalk1(mnum, -mwi[2], 0, md);
+		MonStartWalk1(mnum, -mwi, 0, md);
 		break;
 	case DIR_NW:
-		MonStartWalk1(mnum, -mwi[1], -mwi[0], md);
+		MonStartWalk1(mnum, -(mwi >> 1), -(mwi >> 2), md);
 		break;
 	default:
 		ASSUME_UNREACHABLE
