@@ -1362,7 +1362,8 @@ static bool StartWalk(int pnum)
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
 	static_assert(PLR_WALK_SHIFT == MON_WALK_SHIFT, "To reuse MWVel in StartWalk, PLR_WALK_SHIFT must be equal to MON_WALK_SHIFT.");
 	assert(PlrGFXAnimLens[PC_WARRIOR][PA_WALK] <= lengthof(MWVel));
-	mwi = MWVel[PlrGFXAnimLens[PC_WARRIOR][PA_WALK] - 1];
+	assert(PlrGFXAnimLens[PC_WARRIOR][PA_WALK] == 8); // StartWalk relies on fix walk-animation length to calculate the x/y velocity
+	mwi = MWVel[PlrGFXAnimLens[PC_WARRIOR][PA_WALK] - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
 	switch (dir) {
 	case DIR_N:
 		StartWalk1(pnum, 0, -(mwi >> 1), dir);
@@ -1906,7 +1907,8 @@ static void PlrDoWalk(int pnum)
 	}
 	if (stepAnim) {
 		PlrStepAnim(pnum);
-		PlrChangeOffset(pnum);
+		// assert(PlrAnimFrameLens[PA_WALK] == 1);
+		// PlrChangeOffset(pnum); -- unnecessary in case the velocity is based on _pIWalkSpeed
 	}
 	assert(PlrAnimFrameLens[PA_WALK] == 1);
 	if ((plr._pAnimFrame & 3) == 3) {
