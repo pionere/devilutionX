@@ -1597,13 +1597,13 @@ static void StartSpell(int pnum)
 
 	plr._pVar1 = dx;                    // SPELL_TARGET_X
 	plr._pVar2 = dy;                    // SPELL_TARGET_Y
-	plr._pVar3 = plr.destParam3;        // SPELL_NUM : the spell to be cast
-	plr._pVar4 = plr.destParam4;        // SPELL_LEVEL
+	plr._pVar5 = plr.destParam3;        // SPELL_NUM : the spell to be cast
+	plr._pVar6 = plr.destParam4;        // SPELL_LEVEL
 	plr._pVar7 = FALSE;                 // SPELL_ACTION_PROGRESS : 'flag' of cast
 	plr._pVar8 = 0;                     // SPELL_TICK : speed helper
 	plr._pmode = PM_SPELL;
 
-	sd = &spelldata[plr._pVar3]; // SPELL_NUM
+	sd = &spelldata[plr._pVar5]; // SPELL_NUM
 	if (sd->sSkillFlags & SDFLAG_TARGETED)
 		plr._pdir = GetDirection(plr._px, plr._py, dx, dy);
 	switch (sd->sType) {
@@ -2462,7 +2462,7 @@ static void PlrDoSpell(int pnum)
 		plr._pVar7 = TRUE;
 
 		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // SPELL_TARGET_X, SPELL_TARGET_Y
-			spelldata[plr._pVar3].sMissile, MST_PLAYER, pnum, plr._pVar4); // SPELL_NUM, SPELL_LEVEL
+			spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // SPELL_NUM, SPELL_LEVEL
 	}
 	assert(PlrAnimFrameLens[PA_SPELL] == 1);
 	if (plr._pAnimFrame < plr._pSFrames)
@@ -3199,7 +3199,7 @@ void SyncPlrAnim(int pnum)
 		p->_pAnimLen = p->_pSFrames;
 		p->_pAnimWidth = p->_pSWidth;
 		p->_pAnimXOffset = (p->_pSWidth - TILE_WIDTH) >> 1;
-		switch (spelldata[p->_pVar3].sType) { // SPELL_NUM
+		switch (spelldata[p->_pVar5].sType) { // SPELL_NUM
 		case STYPE_FIRE:      anim = p->_pFAnim; break;
 		case STYPE_LIGHTNING: anim = p->_pLAnim; break;
 		case STYPE_MAGIC:     anim = p->_pTAnim; break;

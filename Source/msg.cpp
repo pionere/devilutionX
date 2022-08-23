@@ -1729,8 +1729,8 @@ void LevelDeltaLoad()
 			case PM_SPELL:
 				net_assert(plr._pVar1 >= DBORDERX && plr._pVar1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
 				net_assert(plr._pVar2 >= DBORDERY && plr._pVar2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
-				net_assert(plr._pVar3 < NUM_SPELLS); // SPELL_NUM
-				net_assert(plr._pVar4 >= 0); // SPELL_LEVEL
+				net_assert(plr._pVar5 < NUM_SPELLS); // SPELL_NUM
+				net_assert(plr._pVar6 >= 0); // SPELL_LEVEL
 				break;
 			}
 		}
