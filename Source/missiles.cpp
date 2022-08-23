@@ -2460,12 +2460,16 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 
 	chv = MIS_SHIFTEDVEL(16) / M_SQRT2;
 	aa = 2;
-	if (plr._pIFlags & ISPL_FASTESTWALK) {
-		chv = MIS_SHIFTEDVEL(32) / M_SQRT2;
-		aa = 4;
-	} else if (plr._pIFlags & (ISPL_FASTERWALK | ISPL_FASTWALK)) {
-		chv = MIS_SHIFTEDVEL(24) / M_SQRT2;
-		aa = 3;
+	if (plr._pIWalkSpeed != 0) {
+		if (plr._pIWalkSpeed == 3) {
+			// ISPL_FASTESTWALK
+			chv = MIS_SHIFTEDVEL(32) / M_SQRT2;
+			aa = 4;
+		} else {
+			// (ISPL_FASTERWALK | ISPL_FASTWALK)
+			chv = MIS_SHIFTEDVEL(24) / M_SQRT2;
+			aa = 3;
+		}
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, chv);
 	plr._pmode = PM_CHARGE;
