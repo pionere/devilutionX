@@ -2170,29 +2170,29 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	return true;
 }
 
-static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
+static int PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 {
 	int mpo;
 
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return PlrHitMonst(pnum, sn, sl, mpo);
+		return PlrHitMonst(pnum, sn, sl, mpo) ? 1 : 0;
 	}
 	mpo = dPlayer[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return PlrHitPlr(pnum, sn, sl, mpo);
+		return PlrHitPlr(pnum, sn, sl, mpo) ? 1 : 0;
 	}
 	mpo = dObject[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 		if (objects[mpo]._oBreak == OBM_BREAKABLE) {
 			OperateObject(pnum, mpo, false);
-			return true;
+			return 1;
 		}
 	}
-	return false;
+	return 0;
 }
 
 static void PlrDoAttack(int pnum)
