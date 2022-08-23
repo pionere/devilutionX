@@ -2189,7 +2189,7 @@ static int PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 		if (objects[mpo]._oBreak == OBM_BREAKABLE) {
 			OperateObject(pnum, mpo, false);
-			return 1;
+			return 0; // do not reduce the durability if the target is an object
 		}
 	}
 	return 0;

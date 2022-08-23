@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - players do not leave the game after Diablo is defeated (restart in town)
 - players do not lose gold on death
 - players lose experience on death
+- durability is not reduced when an object(barrel/urn/crux) is destroyed
 - items are dropped on death even on diablo-level
 - better rewards on higher difficulties
 - limited offers in stores/wirt
