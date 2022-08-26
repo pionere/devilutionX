@@ -438,8 +438,8 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 
 	BYTE* pBuf = &buf[headerSize];
 	int idx = 0;
-	for (int i = 0; i < groupNum; i++) {
-		DWORD ni = celdata[i].groupSize;
+	for (int ii = 0; ii < groupNum; ii++) {
+		DWORD ni = celdata[ii].groupSize;
 		*(DWORD*)&hdr[0] = SwapLE32(ni);
 		*(DWORD*)&hdr[4] = SwapLE32(pBuf - hdr);
 
@@ -467,8 +467,9 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 
 					colMatches = 0;
 					alpha = false;
-					first = true;
+					// first = true;
 				}
+				first = true;
 				for (int j = 0; j < image_data->width; j++) {
 					if (data[j].a == 255) {
 						// add opaque pixel
@@ -490,7 +491,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 								pBuf = pHead + 1;
 							} else*/ {
 								// bmp encoding
-								if (alpha || (char)*pHead <= -65) {
+								if (alpha || (char)*pHead <= -65 || first) {
 									pHead = pBuf;
 									pBuf++;
 									colMatches = 1;
@@ -2046,6 +2047,12 @@ int main()
 			UpscaleCl2(path, 2, &diapal[0][0], 128, 128, outpath);
 		}
 		input.close();
+	}*/
+	/*{ // special cases to upscale cl2 files (must be done manually)
+		// - width detection fails -> run in debug mode and update the width values, or alter the code to set it manually
+		UpscaleCl2("f:\\MPQE\\Work\\PlrGFX\\warrior\\wlb\\wlbat.CL2", 2, &diapal[0][0], 128, 128, "f:\\outcl2\\PlrGFX\\Warrior\\wlb\\wlbat.CL2");
+		UpscaleCl2("f:\\MPQE\\Work\\PlrGFX\\warrior\\wmb\\wmbat.CL2", 2, &diapal[0][0], 128, 128, "f:\\outcl2\\PlrGFX\\Warrior\\wmb\\wmbat.CL2");
+		UpscaleCl2("f:\\MPQE\\Work\\PlrGFX\\warrior\\whb\\whbat.CL2", 2, &diapal[0][0], 128, 128, "f:\\outcl2\\PlrGFX\\Warrior\\whb\\whbat.CL2");
 	}*/
 
 	//UpscaleCl2("f:\\plrgfx\\rogue\\rhbat.CL2", 2, &diapal[0][0], 128, 128, "f:\\rhbat.CL2");
