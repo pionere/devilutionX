@@ -115,10 +115,10 @@ jobs:
         name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-mac.dmg'
           - name: hellfire
-            cmakeargs: '-D HELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-mac.dmg'
     runs-on: macos-latest
     steps:
