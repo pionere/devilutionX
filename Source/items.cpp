@@ -1989,7 +1989,7 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 
 	items[ii]._iCreateInfo |= quality << 11;
 
-	if (items[ii]._iMiscId != IMISC_UNIQUE) {
+	//if (items[ii]._iMiscId != IMISC_UNIQUE) {
 		if (quality >= CFDQ_GOOD
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
@@ -2005,10 +2005,10 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 		}
 		// if (items[ii]._iMagical != ITEM_QUALITY_UNIQUE)
 			ItemRndDur(ii);
-	} else {
+	/*} else {
 		assert(items[ii]._iLoc != ILOC_UNEQUIPABLE);
 		GetUniqueItem(ii, iseed);
-	}
+	}*/
 }
 
 void SpawnUnique(int uid, int x, int y, int mode)
@@ -2021,7 +2021,13 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	}
 	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
 
-	SetupAllItems(MAXITEMS, idx, uid, items_get_currlevel(), CFDQ_NORMAL);
+	// SetupAllItems(MAXITEMS, idx, uid, items_get_currlevel(), CFDQ_NORMAL);
+	SetRndSeed(glSeedTbl[DLV_HELL3]);
+	do {
+		SetupAllItems(MAXITEMS, idx, GetRndSeed(), UniqueItemList[uid].UIMinLvl, CFDQ_UNIQUE);
+	} while (items[MAXITEMS]._iMagical != ITEM_QUALITY_UNIQUE);
+	assert(items[MAXITEMS]._iUid == uid);
+
 	GetSuperItemSpace(x, y, MAXITEMS);
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnUnique expects ordered ICM_ values.");
 	if (mode >= ICM_SEND)
