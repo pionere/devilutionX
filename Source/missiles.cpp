@@ -76,6 +76,8 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 	case SPL_WALK:
 	case SPL_BLOCK:
 	case SPL_ATTACK:
+	case SPL_WHIPLASH:
+	case SPL_WALLOP:
 	case SPL_SWIPE:
 	case SPL_RATTACK:
 	case SPL_POINT_BLANK:

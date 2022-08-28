@@ -1480,6 +1480,13 @@ static bool StartAttack(int pnum)
 
 	dir = GetDirection(plr._px, plr._py, dx, dy);
 	ss = plr._pIBaseAttackSpeed;
+	if (sn == SPL_WHIPLASH) {
+		ss += 3;
+		if (ss > 4)
+			ss = 4;
+	} else if (sn == SPL_WALLOP) {
+		ss -= 3;
+	}
 
 	plr._pmode = PM_ATTACK;
 	plr._pVar4 = ss; // ATTACK_SPEED
@@ -2039,9 +2046,23 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		dam <<= 1;
 	}
 
-	if (sn == SPL_SWIPE) {
+	switch (sn) {
+	case SPL_ATTACK:
+		break;
+	case SPL_SWIPE:
 		dam = (dam * (48 + sl)) >> 6;
+		break;
+	case SPL_WALLOP:
+		dam = (dam * (112 + sl)) >> 6;
+		break;
+	case SPL_WHIPLASH:
+		dam = (dam * (24 + sl)) >> 6;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
+
 	if (plr._pILifeSteal != 0) {
 		skdam = (dam * plr._pILifeSteal) >> 7;
 		PlrIncHp(pnum, skdam);
@@ -2137,9 +2158,23 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		dam <<= 1;
 	}
 
-	if (sn == SPL_SWIPE) {
+	switch (sn) {
+	case SPL_ATTACK:
+		break;
+	case SPL_SWIPE:
 		dam = (dam * (48 + sl)) >> 6;
+		break;
+	case SPL_WALLOP:
+		dam = (dam * (112 + sl)) >> 6;
+		break;
+	case SPL_WHIPLASH:
+		dam = (dam * (24 + sl)) >> 6;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
+
 	if (plx(offp)._pILifeSteal != 0) {
 		PlrIncHp(offp, (dam * plx(offp)._pILifeSteal) >> 7);
 	}
@@ -2198,7 +2233,7 @@ static int PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 static void PlrDoAttack(int pnum)
 {
 	int dir, hitcnt;
-	bool stepAnim;
+	bool stepAnim = false;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoAttack: illegal player %d", pnum);
@@ -2206,8 +2241,23 @@ static void PlrDoAttack(int pnum)
 
 	plr._pVar8++; // ATTACK_TICK
 	switch (plr._pVar4) { // ATTACK_SPEED
+	/*case -4:
+		if ((plr._pVar8 & 1) == 1)
+			plr._pAnimCnt--;
+		break;*/
+	case -3:
+		if ((plr._pVar8 % 3u) == 0)
+			plr._pAnimCnt--;
+		break;
+	case -2:
+		if ((plr._pVar8 & 3) == 2)
+			plr._pAnimCnt--;
+		break;
+	case -1:
+		if ((plr._pVar8 & 7) == 4)
+			plr._pAnimCnt--;
+		break;
 	case 0:
-		stepAnim = false;
 		break;
 	case 1:
 		stepAnim = (plr._pVar8 & 7) == 4;
