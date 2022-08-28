@@ -2112,6 +2112,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 {
 	int hper, blkper, dam, damsl, dambl, dampc;
+	unsigned tmp;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrHitPlr: illegal target player %d", pnum);
@@ -2154,7 +2155,8 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (dampc != 0)
 		dam += CalcPlrDam(pnum, MISR_PUNCTURE, plx(offp)._pIPcMinDam, dampc);
 
-	if (random_(6, sn == SPL_SWIPE ? 800 : 200) < plx(offp)._pICritChance) {
+	tmp = sn == SPL_SWIPE ? 800 : 200;
+	if (random_low(6, tmp) < plx(offp)._pICritChance) {
 		dam <<= 1;
 	}
 
