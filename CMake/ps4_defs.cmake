@@ -3,6 +3,9 @@ set(ASAN OFF)
 set(UBSAN OFF)
 
 # General build options.
+# If the executable is stripped, create-fself fails with:
+# Failed to build FSELF: no symbol section
+set(DISABLE_STRIP ON)
 set(DISABLE_LTO ON)
 set(NONET ON)
 #set(DISCORD_INTEGRATION OFF)
@@ -18,5 +21,3 @@ set(NONET ON)
 #
 # or simply use the in-tree copy as follows:
 #set(DEVILUTIONX_SYSTEM_SDL_IMAGE OFF)
-
-

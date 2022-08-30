@@ -137,7 +137,8 @@ cmake_debug_option(DEBUG_MODE "Enable debug mode in engine")
 option(DEV_MODE "Enable development mode in engine" OFF)
 option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
-option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
+option(DISABLE_LTO "Disable link-time optimization" OFF)
+option(DISABLE_STRIP "Disable binary-stripping" OFF)
 option(PIE "Generate position-independent code" OFF)
 option(CPACK "Configure CPack" ON)
 option(USE_LD_MOLD "Use mold linker(GNU|Clang)" OFF)
@@ -605,6 +606,14 @@ else()
     ${devilutionx_SRCS}
     Packaging/windows/devilutionx.exe.manifest
     Packaging/windows/devilutionx.rc)
+endif()
+
+if(CMAKE_STRIP AND NOT DISABLE_STRIP)
+  add_custom_command(
+    TARGET ${BIN_TARGET} POST_BUILD
+    DEPENDS ${BIN_TARGET}
+    COMMAND $<$<CONFIG:Release>:${CMAKE_STRIP}>
+    ARGS --strip-all $<TARGET_FILE:${BIN_TARGET}>)
 endif()
 
 if(USE_PATCH)
