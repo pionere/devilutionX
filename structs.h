@@ -630,9 +630,9 @@ typedef struct MapMonData {
 	SoundSample cmSnds[NUM_MON_SFX][2];
 	int cmWidth;
 	int cmXOffset;
-	BYTE cmDeadval;
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
+	uint16_t cmAlign_0; // unused
 	ALIGNMENT(3, 2)
 } MapMonData;
 #ifdef X86_32bit_COMP
