@@ -654,10 +654,12 @@ typedef struct MapMonData {
 	const char* cmName;
 	uint16_t cmMinHP;
 	uint16_t cmMaxHP;
-	ALIGNMENT(26, 32)
+	ALIGNMENT32(26)
 } MapMonData;
-#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+#ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
+#elif defined(X86_64bit_COMP)
+static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 640, "Align MapMonData closer to power of 2 for better performance.");
 #endif
 
 typedef struct MonsterStruct { // note: missing field _mAFNum
