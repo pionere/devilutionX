@@ -374,7 +374,7 @@ void InitLevelMonsters()
 	numSkelTypes = 0;
 	numGoatTypes = 0;
 	uniquetrans = COLOR_TRN_UNIQ;
-	monstimgtot = 4000;
+	monstimgtot = MAX_LVLMIMAGE;
 	totalmonsters = MAXMONSTERS;
 
 	// reset monsters
