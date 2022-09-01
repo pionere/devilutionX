@@ -1896,7 +1896,7 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	cmd.mkPnum = pnum;
 	cmd.mkMnum = SwapLE16(mnum);
 	mon = &monsters[mnum];
-	cmd.mkExp = SwapLE16(mon->_mExp);
+	cmd.mkExp = SwapLE32(mon->_mExp);
 	cmd.mkMonLevel = mon->_mLevel;
 	cmd.mkParam1.x = mon->_mx;
 	cmd.mkParam1.y = mon->_my;
@@ -2764,7 +2764,7 @@ static unsigned On_MONSTDEATH(TCmd* pCmd, int pnum)
 		mask >>= 1;
 	}
 	if (totplrs != 0) {
-		xp = cmd->mkExp / totplrs;
+		xp = SwapLE32(cmd->mkExp) / totplrs;
 		lvl = cmd->mkMonLevel;
 		for (i = 0; i < MAX_PLRS; i++, whoHit >>= 1) {
 			if ((whoHit & 1) && plx(i)._pmode != PM_DEATH)

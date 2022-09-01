@@ -582,8 +582,8 @@ typedef struct MonsterData {
 	BYTE mSelFlag;
 	BYTE mAi;
 	BYTE mInt;
-	int mMinHP;
-	int mMaxHP;
+	uint16_t mMinHP;
+	uint16_t mMaxHP;
 	int mFlags;
 	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE mMinDamage;
@@ -600,7 +600,7 @@ typedef struct MonsterData {
 	uint16_t mMagicRes2;
 	uint16_t mTreasure;
 	uint16_t mExp;
-	ALIGNMENT32(3)
+	ALIGNMENT(4, 1)
 } MonsterData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
@@ -628,11 +628,6 @@ typedef struct MapMonData {
 	BOOL cmPlaceScatter;
 	SoundSample cmSnds[NUM_MON_SFX][2];
 	AnimStruct cmAnims[NUM_MON_ANIM];
-	int cmWidth;
-	int cmXOffset;
-	BYTE cmAFNum;
-	BYTE cmAFNum2;
-	uint16_t cmAlign_0; // unused
 	BYTE cmLevel;
 	BYTE cmSelFlag;
 	BYTE cmAi;
@@ -652,6 +647,11 @@ typedef struct MapMonData {
 	uint16_t cmTreasure;
 	unsigned cmExp;
 	const char* cmName;
+	int cmWidth;
+	int cmXOffset;
+	BYTE cmAFNum;
+	BYTE cmAFNum2;
+	uint16_t cmAlign_0; // unused
 	uint16_t cmMinHP;
 	uint16_t cmMaxHP;
 	ALIGNMENT32(26)
@@ -705,6 +705,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _lasty; // the last known Y-coordinate of the enemy
 	int _mRndSeed;
 	int _mAISeed;
+	int mtalkmsg;
 	BYTE _uniqtype;
 	BYTE _uniqtrans;
 	BYTE _udeadval;
@@ -728,18 +729,18 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mMagic2;     // unused
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
-	BYTE _mAFNum;
-	BYTE _mAFNum2;
 	uint16_t _mMagicRes;
 	uint16_t _mTreasure;
-	uint16_t _mExp;
-	int mtalkmsg;
+	unsigned _mExp;
 	const char* mName;
-	int _mType;
-	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
-	ALIGNMENT(13, 7)
+	BYTE _mAFNum;
+	BYTE _mAFNum2;
+	uint16_t _mAlign_0; // unused
+	AnimStruct* _mAnims;
+	int _mType;
+	ALIGNMENT(12, 6)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -767,8 +768,8 @@ typedef struct UniqMonData {
 	BYTE mMaxDamage2;
 	uint16_t mMagicRes;
 	BYTE mUnqAttr;
-	BYTE mUnqHit;
-	BYTE mUnqAC;
+	BYTE mUnqHit; // to-hit bonus of the unique monster
+	BYTE mUnqAC; // armor class bonus of the unique monster
 	BYTE mQuestId;
 	int mtalkmsg;
 	ALIGNMENT64(4)
@@ -1060,7 +1061,7 @@ typedef struct TCmdMonstKill {
 	TCmdLocBParam1 mkParam1;
 	BYTE mkPnum;
 	WORD mkMnum;
-	WORD mkExp;
+	DWORD mkExp;
 	BYTE mkMonLevel;
 	BYTE mkDir;
 } TCmdMonstKill;

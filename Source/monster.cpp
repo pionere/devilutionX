@@ -325,6 +325,82 @@ static void InitMonsterGFX(int midx)
 	}
 }
 
+static void InitMonsterStats(int midx)
+{
+	MapMonData* cmon;
+	const MonsterData* mdata;
+
+	cmon = &mapMonTypes[midx];
+
+	mdata = &monsterdata[cmon->cmType];
+
+	cmon->cmLevel = mdata->mLevel;
+	cmon->cmSelFlag = mdata->mSelFlag;
+	cmon->cmAi = mdata->mAi;
+	cmon->cmInt = mdata->mInt;
+	cmon->cmFlags = mdata->mFlags;
+	cmon->cmHit = mdata->mHit;
+	cmon->cmMinDamage = mdata->mMinDamage;
+	cmon->cmMaxDamage = mdata->mMaxDamage;
+	cmon->cmHit2 = mdata->mHit2;
+	cmon->cmMinDamage2 = mdata->mMinDamage2;
+	cmon->cmMaxDamage2 = mdata->mMaxDamage2;
+	cmon->cmMagic = mdata->mMagic;
+	cmon->cmMagic2 = mdata->mMagic2;
+	cmon->cmArmorClass = mdata->mArmorClass;
+	cmon->cmEvasion = mdata->mEvasion;
+	cmon->cmMagicRes = mdata->mMagicRes;
+	cmon->cmTreasure = mdata->mTreasure;
+	cmon->cmExp = mdata->mExp;
+	cmon->cmName = mdata->mName;
+	cmon->cmMinHP = mdata->mMinHP;
+	cmon->cmMaxHP = mdata->mMaxHP;
+
+	if (gnDifficulty == DIFF_NIGHTMARE) {
+		cmon->cmMinHP = 2 * cmon->cmMinHP + 100;
+		cmon->cmMaxHP = 2 * cmon->cmMaxHP + 100;
+		cmon->cmLevel += NIGHTMARE_LEVEL_BONUS;
+		cmon->cmExp = 2 * (cmon->cmExp + DIFFICULTY_EXP_BONUS);
+		cmon->cmHit += NIGHTMARE_TO_HIT_BONUS;
+		cmon->cmMagic += NIGHTMARE_MAGIC_BONUS;
+		cmon->cmMinDamage = 2 * (cmon->cmMinDamage + 2);
+		cmon->cmMaxDamage = 2 * (cmon->cmMaxDamage + 2);
+		cmon->cmHit2 += NIGHTMARE_TO_HIT_BONUS;
+		//cmon->cmMagic2 += NIGHTMARE_MAGIC_BONUS;
+		cmon->cmMinDamage2 = 2 * (cmon->cmMinDamage2 + 2);
+		cmon->cmMaxDamage2 = 2 * (cmon->cmMaxDamage2 + 2);
+		cmon->cmArmorClass += NIGHTMARE_AC_BONUS;
+		cmon->cmEvasion += NIGHTMARE_EVASION_BONUS;
+	} else if (gnDifficulty == DIFF_HELL) {
+		cmon->cmMinHP = 4 * cmon->cmMinHP + 200;
+		cmon->cmMaxHP = 4 * cmon->cmMaxHP + 200;
+		cmon->cmLevel += HELL_LEVEL_BONUS;
+		cmon->cmExp = 4 * (cmon->cmExp + DIFFICULTY_EXP_BONUS);
+		cmon->cmHit += HELL_TO_HIT_BONUS;
+		cmon->cmMagic += HELL_MAGIC_BONUS;
+		cmon->cmMinDamage = 4 * cmon->cmMinDamage + 6;
+		cmon->cmMaxDamage = 4 * cmon->cmMaxDamage + 6;
+		cmon->cmHit2 += HELL_TO_HIT_BONUS;
+		//cmon->cmMagic2 += HELL_MAGIC_BONUS;
+		cmon->cmMinDamage2 = 4 * cmon->cmMinDamage2 + 6;
+		cmon->cmMaxDamage2 = 4 * cmon->cmMaxDamage2 + 6;
+		cmon->cmArmorClass += HELL_AC_BONUS;
+		cmon->cmEvasion += HELL_EVASION_BONUS;
+		cmon->cmMagicRes = monsterdata[cmon->cmType].mMagicRes2;
+	}
+
+	if (!IsMultiGame) {
+		cmon->cmMinHP >>= 1;
+		cmon->cmMaxHP >>= 1;
+		if (cmon->cmMinHP == 0) {
+			cmon->cmMinHP = 1;
+		}
+		if (cmon->cmMaxHP == 0) {
+			cmon->cmMaxHP = 1;
+		}
+	}
+}
+
 static bool IsSkel(int mt)
 {
 	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
@@ -360,6 +436,7 @@ static int AddMonsterType(int type, BOOL scatter)
 		monstimgtot -= monfiledata[monsterdata[type].moFileNum].moImage;
 		InitMonsterGFX(i);
 		InitMonsterSFX(i);
+		InitMonsterStats(i);
 	}
 
 	mapMonTypes[i].cmPlaceScatter |= scatter;
@@ -374,7 +451,7 @@ void InitLevelMonsters()
 	numSkelTypes = 0;
 	numGoatTypes = 0;
 	uniquetrans = COLOR_TRN_UNIQ;
-	monstimgtot = 4000;
+	monstimgtot = MAX_LVLMIMAGE;
 	totalmonsters = MAXMONSTERS;
 
 	// reset monsters
@@ -487,12 +564,40 @@ void GetLevelMTypes()
 		}
 	}
 }
+// core of MapMonData
+#pragma pack(push, 1)
+typedef struct BaseMonData {
+	BYTE cmLevel;
+	BYTE cmSelFlag;
+	BYTE cmAi;
+	BYTE cmInt;
+	int cmFlags;
+	uint16_t cmHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE cmMinDamage;
+	BYTE cmMaxDamage;
+	uint16_t cmHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE cmMinDamage2;
+	BYTE cmMaxDamage2;
+	BYTE cmMagic;
+	BYTE cmMagic2;     // unused
+	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	BYTE cmEvasion;    // evasion: used against magic-projectile
+	uint16_t cmMagicRes;
+	uint16_t cmTreasure;
+	unsigned cmExp;
+	const char* cmName;
+	int cmWidth;
+	int cmXOffset;
+	BYTE cmAFNum;
+	BYTE cmAFNum2;
+	uint16_t cmAlign_0; // unused
+} BaseMonData;
+#pragma pack(pop)
 
 void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 {
 	MapMonData* cmon = &mapMonTypes[mtidx];
 	MonsterStruct* mon = &monsters[mnum];
-	const MonsterData* mdata;
 
 	mon->_mMTidx = mtidx;
 	mon->_mdir = dir;
@@ -500,31 +605,34 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
 	mon->_mType = cmon->cmType;
+	/*mon->_mLevel = cmon->cmLevel;
+	mon->_mSelFlag = cmon->cmSelFlag;
+	mon->_mAi = cmon->cmAi;
+	mon->_mInt = cmon->cmInt;
+	mon->_mFlags = cmon->cmFlags;
+	mon->_mHit = cmon->cmHit;
+	mon->_mMinDamage = cmon->cmMinDamage;
+	mon->_mMaxDamage = cmon->cmMaxDamage;
+	mon->_mHit2 = cmon->cmHit2;
+	mon->_mMinDamage2 = cmon->cmMinDamage2;
+	mon->_mMaxDamage2 = cmon->cmMaxDamage2;
+	mon->_mMagic = cmon->cmMagic;
+	mon->_mMagic2 = cmon->cmMagic2;
+	mon->_mArmorClass = cmon->cmArmorClass;
+	mon->_mEvasion = cmon->cmEvasion;
+	mon->_mMagicRes = cmon->cmMagicRes;
+	mon->_mTreasure = cmon->cmTreasure;
+	mon->_mExp = cmon->cmExp;
+	mon->mName = cmon->cmName;
 	mon->_mAnimWidth = cmon->cmWidth;
 	mon->_mAnimXOffset = cmon->cmXOffset;
 	mon->_mAFNum = cmon->cmAFNum;
 	mon->_mAFNum2 = cmon->cmAFNum2;
-	mdata = &monsterdata[cmon->cmType];
-	mon->mName = mdata->mName;
-	mon->_mLevel = mdata->mLevel;
-	mon->_mSelFlag = mdata->mSelFlag;
-	mon->_mAi = mdata->mAi;
-	mon->_mInt = mdata->mInt;
-	mon->_mFlags = mdata->mFlags;
-	mon->_mHit = mdata->mHit;
-	mon->_mMinDamage = mdata->mMinDamage;
-	mon->_mMaxDamage = mdata->mMaxDamage;
-	mon->_mHit2 = mdata->mHit2;
-	mon->_mMinDamage2 = mdata->mMinDamage2;
-	mon->_mMaxDamage2 = mdata->mMaxDamage2;
-	mon->_mMagic = mdata->mMagic;
-	mon->_mMagic2 = mdata->mMagic2;
-	mon->_mArmorClass = mdata->mArmorClass;
-	mon->_mEvasion = mdata->mEvasion;
-	mon->_mMagicRes = mdata->mMagicRes;
-	mon->_mTreasure = mdata->mTreasure;
-	mon->_mExp = mdata->mExp;
-	mon->_mmaxhp = RandRangeLow(mdata->mMinHP, mdata->mMaxHP) << 6;
+	mon->_mAlign_0 = cmon->cmAlign_0;*/
+	static_assert(sizeof(BaseMonData) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmLevel) + sizeof(cmon->cmAlign_0), "InitMonster uses unique struct to simplify data-copy I.");
+	static_assert(sizeof(BaseMonData) == offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mLevel) + sizeof(mon->_mAlign_0), "InitMonster uses unique struct to simplify data-copy II.");
+	*(BaseMonData*)&mon->_mLevel = *(BaseMonData*)&cmon->cmLevel;
+	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].aFrameLen;
@@ -567,45 +675,6 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->leaderflag = MLEADER_NONE;
 	mon->packsize = 0;
 	mon->_mvid = NO_VISION;
-
-	if (gnDifficulty == DIFF_NIGHTMARE) {
-		mon->_mmaxhp = 2 * mon->_mmaxhp + (100 << 6);
-		mon->_mLevel += NIGHTMARE_LEVEL_BONUS;
-		mon->_mExp = 2 * (mon->_mExp + DIFFICULTY_EXP_BONUS);
-		mon->_mHit += NIGHTMARE_TO_HIT_BONUS;
-		mon->_mMagic += NIGHTMARE_MAGIC_BONUS;
-		mon->_mMinDamage = 2 * (mon->_mMinDamage + 2);
-		mon->_mMaxDamage = 2 * (mon->_mMaxDamage + 2);
-		mon->_mHit2 += NIGHTMARE_TO_HIT_BONUS;
-		//mon->_mMagic2 += NIGHTMARE_MAGIC_BONUS;
-		mon->_mMinDamage2 = 2 * (mon->_mMinDamage2 + 2);
-		mon->_mMaxDamage2 = 2 * (mon->_mMaxDamage2 + 2);
-		mon->_mArmorClass += NIGHTMARE_AC_BONUS;
-		mon->_mEvasion += NIGHTMARE_EVASION_BONUS;
-	} else if (gnDifficulty == DIFF_HELL) {
-		mon->_mmaxhp = 4 * mon->_mmaxhp + (200 << 6);
-		mon->_mLevel += HELL_LEVEL_BONUS;
-		mon->_mExp = 4 * (mon->_mExp + DIFFICULTY_EXP_BONUS);
-		mon->_mHit += HELL_TO_HIT_BONUS;
-		mon->_mMagic += HELL_MAGIC_BONUS;
-		mon->_mMinDamage = 4 * mon->_mMinDamage + 6;
-		mon->_mMaxDamage = 4 * mon->_mMaxDamage + 6;
-		mon->_mHit2 += HELL_TO_HIT_BONUS;
-		//mon->_mMagic2 += HELL_MAGIC_BONUS;
-		mon->_mMinDamage2 = 4 * mon->_mMinDamage2 + 6;
-		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
-		mon->_mArmorClass += HELL_AC_BONUS;
-		mon->_mEvasion += HELL_EVASION_BONUS;
-		mon->_mMagicRes = monsterdata[mon->_mType].mMagicRes2;
-	}
-
-	if (!IsMultiGame) {
-		mon->_mmaxhp >>= 1;
-		if (mon->_mmaxhp < 64) {
-			mon->_mmaxhp = 64;
-		}
-	}
-	mon->_mhitpoints = mon->_mmaxhp;
 
 	// mon->_mFlags |= MFLAG_NO_ENEMY;
 }
@@ -881,7 +950,7 @@ static void PlaceUniqueMonst(int uniqindex)
 
 	mon->_mExp *= 2;
 	mon->mName = uniqm->mName;
-	mon->_mmaxhp = uniqm->mmaxhp << 6;
+	mon->_mmaxhp = uniqm->mmaxhp;
 
 	mon->_mAi = uniqm->mAi;
 	mon->_mInt = uniqm->mInt;
@@ -899,46 +968,28 @@ static void PlaceUniqueMonst(int uniqindex)
 
 	mon->_uniqtrans = uniquetrans++;
 
-	if (uniqm->mUnqHit != 0) {
-		mon->_mHit = uniqm->mUnqHit;
-
-		if (gnDifficulty == DIFF_NIGHTMARE) {
-			mon->_mHit += NIGHTMARE_TO_HIT_BONUS;
-		} else if (gnDifficulty == DIFF_HELL) {
-			mon->_mHit += HELL_TO_HIT_BONUS;
-		}
-		mon->_mHit2 = mon->_mHit;
-	}
-	if (uniqm->mUnqAC != 0) {
-		mon->_mArmorClass = uniqm->mUnqAC;
-
-		if (gnDifficulty == DIFF_NIGHTMARE) {
-			mon->_mArmorClass += NIGHTMARE_AC_BONUS;
-		} else if (gnDifficulty == DIFF_HELL) {
-			mon->_mArmorClass += HELL_AC_BONUS;
-		}
-	}
+	mon->_mHit += uniqm->mUnqHit;
+	mon->_mArmorClass += uniqm->mUnqAC;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
-		mon->_mmaxhp = 2 * mon->_mmaxhp + (100 << 6);
+		mon->_mmaxhp = 2 * mon->_mmaxhp + 100;
 		mon->_mLevel += NIGHTMARE_LEVEL_BONUS;
 		mon->_mMinDamage = 2 * (mon->_mMinDamage + 2);
 		mon->_mMaxDamage = 2 * (mon->_mMaxDamage + 2);
 		mon->_mMinDamage2 = 2 * (mon->_mMinDamage2 + 2);
 		mon->_mMaxDamage2 = 2 * (mon->_mMaxDamage2 + 2);
 	} else if (gnDifficulty == DIFF_HELL) {
-		mon->_mmaxhp = 4 * mon->_mmaxhp + (200 << 6);
+		mon->_mmaxhp = 4 * mon->_mmaxhp + 200;
 		mon->_mLevel += HELL_LEVEL_BONUS;
 		mon->_mMinDamage = 4 * mon->_mMinDamage + 6;
 		mon->_mMaxDamage = 4 * mon->_mMaxDamage + 6;
 		mon->_mMinDamage2 = 4 * mon->_mMinDamage2 + 6;
 		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
 	}
+	mon->_mmaxhp <<= 6;
 	if (!IsMultiGame) {
-		mon->_mmaxhp = mon->_mmaxhp >> 1;
-		if (mon->_mmaxhp < 64) {
-			mon->_mmaxhp = 64;
-		}
+		mon->_mmaxhp >>= 1;
+		// assert(mon->_mmaxhp >= 64);
 	}
 	mon->_mhitpoints = mon->_mmaxhp;
 
@@ -4381,10 +4432,10 @@ void ProcessMonsters()
 				// reset monster state to ensure sync in multiplayer games
 				if (mon->_mmode == MM_DELAY)
 					mon->_mmode = MM_STAND;
-				if (monsterdata[mon->_mType].mFlags & MFLAG_GARG_STONE) {
+				if (mapMonTypes[mon->_mMTidx].cmFlags & MFLAG_GARG_STONE) {
 					mon->_mFlags |= MFLAG_GARG_STONE;
 					assert(mon->_mmode == MM_STAND || mon->_mmode == MM_SPATTACK);
-				} else if (monsterdata[mon->_mType].mFlags & MFLAG_HIDDEN) {
+				} else if (mapMonTypes[mon->_mMTidx].cmFlags & MFLAG_HIDDEN) {
 					mon->_mFlags |= MFLAG_HIDDEN;
 					assert(mon->_mmode == MM_STAND);
 				} else {
@@ -4738,6 +4789,8 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnims = mmdata->cmAnims;
 	mon->_mAnimWidth = mmdata->cmWidth;
 	mon->_mAnimXOffset = mmdata->cmXOffset;
+	mon->_mAFNum = mmdata->cmAFNum;
+	mon->_mAFNum2 = mmdata->cmAFNum2;
 	if (mon->_uniqtype != 0)
 		mon->mName = uniqMonData[mon->_uniqtype - 1].mName;
 	else

@@ -1989,7 +1989,7 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 
 	items[ii]._iCreateInfo |= quality << 11;
 
-	if (items[ii]._iMiscId != IMISC_UNIQUE) {
+	//if (items[ii]._iMiscId != IMISC_UNIQUE) {
 		if (quality >= CFDQ_GOOD
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
@@ -2005,10 +2005,10 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 		}
 		// if (items[ii]._iMagical != ITEM_QUALITY_UNIQUE)
 			ItemRndDur(ii);
-	} else {
+	/*} else {
 		assert(items[ii]._iLoc != ILOC_UNEQUIPABLE);
 		GetUniqueItem(ii, iseed);
-	}
+	}*/
 }
 
 void SpawnUnique(int uid, int x, int y, int mode)
@@ -2021,7 +2021,13 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	}
 	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
 
-	SetupAllItems(MAXITEMS, idx, uid, items_get_currlevel(), CFDQ_NORMAL);
+	// SetupAllItems(MAXITEMS, idx, uid, items_get_currlevel(), CFDQ_NORMAL);
+	SetRndSeed(glSeedTbl[DLV_HELL3]);
+	do {
+		SetupAllItems(MAXITEMS, idx, GetRndSeed(), UniqueItemList[uid].UIMinLvl, CFDQ_UNIQUE);
+	} while (items[MAXITEMS]._iMagical != ITEM_QUALITY_UNIQUE);
+	assert(items[MAXITEMS]._iUid == uid);
+
 	GetSuperItemSpace(x, y, MAXITEMS);
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnUnique expects ordered ICM_ values.");
 	if (mode >= ICM_SEND)
@@ -2837,31 +2843,31 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_FIRERES:
 		//if (is->_iPLFR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+d%%", is->_iPLFR);
+			snprintf(tempstr, sizeof(tempstr), "resist fire: %+d%%", is->_iPLFR);
 		//else
 		//	copy_cstr(tempstr, "Resist Fire: 75% MAX");
 		break;
 	case IPL_LIGHTRES:
 		//if (is->_iPLLR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Lightning: %+d%%", is->_iPLLR);
+			snprintf(tempstr, sizeof(tempstr), "resist lightning: %+d%%", is->_iPLLR);
 		//else
 		//	copy_cstr(tempstr, "Resist Lightning: 75% MAX");
 		break;
 	case IPL_MAGICRES:
 		//if (is->_iPLMR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Magic: %+d%%", is->_iPLMR);
+			snprintf(tempstr, sizeof(tempstr), "resist magic: %+d%%", is->_iPLMR);
 		//else
 		//	copy_cstr(tempstr, "Resist Magic: 75% MAX");
 		break;
 	case IPL_ACIDRES:
 		//if (is->_iPLAR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist Acid: %+d%%", is->_iPLAR);
+			snprintf(tempstr, sizeof(tempstr), "resist acid: %+d%%", is->_iPLAR);
 		//else
 		//	copy_cstr(tempstr, "Resist Acid: 75% MAX");
 		break;
 	case IPL_ALLRES:
 		//if (is->_iPLFR < 75)
-			snprintf(tempstr, sizeof(tempstr), "Resist All: %+d%%", is->_iPLFR);
+			snprintf(tempstr, sizeof(tempstr), "resist all: %+d%%", is->_iPLFR);
 		//else
 		//	copy_cstr(tempstr, "Resist All: 75% MAX");
 		break;
@@ -2875,7 +2881,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "%+d to skill levels", is->_iPLSkillLevels);
 		break;
 	case IPL_CHARGES:
-		copy_cstr(tempstr, "Extra charges");
+		copy_cstr(tempstr, "extra charges");
 		break;
 	case IPL_SPELL:
 		snprintf(tempstr, sizeof(tempstr), "%d %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
@@ -2923,10 +2929,10 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "%+d damage from enemies", is->_iPLGetHit);
 		break;
 	case IPL_LIFE:
-		snprintf(tempstr, sizeof(tempstr), "Hit Points: %+d", is->_iPLHP >> 6);
+		snprintf(tempstr, sizeof(tempstr), "hit points: %+d", is->_iPLHP >> 6);
 		break;
 	case IPL_MANA:
-		snprintf(tempstr, sizeof(tempstr), "Mana: %+d", is->_iPLMana >> 6);
+		snprintf(tempstr, sizeof(tempstr), "mana: %+d", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
 		copy_cstr(tempstr, "high durability");
@@ -2956,16 +2962,16 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "reduces stun threshold");
 		break;
 	case IPL_ALLRESZERO:
-		copy_cstr(tempstr, "All Resistance equals 0");
+		copy_cstr(tempstr, "all Resistance equals 0");
 		break;
 	//case IPL_NOHEALMON:
 	//	copy_cstr(tempstr, "hit monster doesn't heal");
 	//	break;
 	case IPL_STEALMANA:
-		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% mana", (is->_iPLManaSteal * 100) >> 7);
+		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% mana", (is->_iPLManaSteal * 100 + 64) >> 7);
 		break;
 	case IPL_STEALLIFE:
-		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% life", (is->_iPLLifeSteal * 100) >> 7);
+		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% life", (is->_iPLLifeSteal * 100 + 64) >> 7);
 		break;
 	case IPL_PENETRATE_PHYS:
 		copy_cstr(tempstr, "penetrates target's armor");

@@ -569,6 +569,7 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->_lasty);
 	LoadInt(&mon->_mRndSeed);
 	LoadInt(&mon->_mAISeed);
+	LoadInt(&mon->mtalkmsg);
 
 	LoadByte(&mon->_uniqtype);
 	LoadByte(&mon->_uniqtrans);
@@ -600,16 +601,19 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->_mArmorClass);
 	LoadByte(&mon->_mEvasion);
 
-	LoadByte(&mon->_mAFNum);
-	LoadByte(&mon->_mAFNum2);
 	LoadInt16(&mon->_mMagicRes);
-
 	LoadInt16(&mon->_mTreasure);
-	LoadInt16(&mon->_mExp);
 
-	LoadInt(&mon->mtalkmsg);
+	LoadInt(&mon->_mExp);
 
-	// Omit pointer mName;
+	// Skip mName
+	// Skip _mAnimWidth
+	// Skip _mAnimXOffset
+	// Skip _mAFNum
+	// Skip _mAFNum2
+	// Skip _mAlign_0
+	// Skip pointer mAnims
+	// Skip _mType
 
 	if (currLvl._dType != DTYPE_TOWN)
 		SyncMonsterAnim(mnum);
@@ -1288,6 +1292,7 @@ static void SaveMonster(int mnum, bool full)
 	SaveInt(&mon->_lasty);
 	SaveInt(&mon->_mRndSeed);
 	SaveInt(&mon->_mAISeed);
+	SaveInt(&mon->mtalkmsg);
 
 	SaveByte(&mon->_uniqtype);
 	SaveByte(&mon->_uniqtrans);
@@ -1319,16 +1324,19 @@ static void SaveMonster(int mnum, bool full)
 	SaveByte(&mon->_mArmorClass);
 	SaveByte(&mon->_mEvasion);
 
-	SaveByte(&mon->_mAFNum);
-	SaveByte(&mon->_mAFNum2);
 	SaveInt16(&mon->_mMagicRes);
-
 	SaveInt16(&mon->_mTreasure);
-	SaveInt16(&mon->_mExp);
 
-	SaveInt(&mon->mtalkmsg);
+	SaveInt(&mon->_mExp);
 
-	// Omit pointer mName;
+	// Skip mName
+	// Skip _mAnimWidth
+	// Skip _mAnimXOffset
+	// Skip _mAFNum
+	// Skip _mAFNum2
+	// Skip _mAlign_0
+	// Skip pointer mAnims
+	// Skip _mType
 }
 
 static void SaveMissile(int mi)
