@@ -654,7 +654,7 @@ typedef struct MapMonData {
 	uint16_t cmAlign_0; // unused
 	uint16_t cmMinHP;
 	uint16_t cmMaxHP;
-	ALIGNMENT32(26)
+	ALIGNMENT(26, 1)
 } MapMonData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
