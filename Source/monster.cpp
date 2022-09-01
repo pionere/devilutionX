@@ -602,7 +602,30 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mAlign_0 = cmon->cmAlign_0;*/
 	static_assert(offsetof(MapMonData, cmAlign_0) > offsetof(MapMonData, cmLevel)
 	 && offsetof(MonsterStruct, _mAlign_0) > offsetof(MonsterStruct, _mLevel)
-	 && (offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmLevel) + sizeof(cmon->cmAlign_0)) == (offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mLevel) + sizeof(mon->_mAlign_0)), "InitMonster uses DWORD-memcpy to optimize performance.");
+	 && ((offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmLevel) + sizeof(cmon->cmAlign_0)) % 4) == 0
+	 && offsetof(MonsterStruct, _mSelFlag) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmSelFlag) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mAi) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmAi) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mInt) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmInt) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mFlags) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmFlags) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mHit) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmHit) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mMinDamage) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmMinDamage) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mMaxDamage) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmMaxDamage) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mHit2) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmHit2) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mMinDamage2) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmMinDamage2) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mMaxDamage2) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmMaxDamage2) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mMagic) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmMagic) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mMagic2) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmMagic2) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mArmorClass) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmArmorClass) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mEvasion) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmEvasion) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mMagicRes) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmMagicRes) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mTreasure) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmTreasure) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmExp) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, mName) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmName) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mAnimWidth) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmWidth) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mAnimXOffset) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmXOffset) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mAFNum) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmAFNum) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mAFNum2) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmAFNum2) - offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mLevel) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmLevel), "InitMonster uses DWORD-memcpy to optimize performance.");
 	memcpy(&mon->_mLevel, &cmon->cmLevel, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmLevel) + sizeof(cmon->cmAlign_0));
 	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
