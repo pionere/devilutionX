@@ -565,6 +565,7 @@ void GetLevelMTypes()
 	}
 }
 // core of MapMonData
+#pragma pack(push, 1)
 typedef struct BaseMonData {
 	BYTE cmLevel;
 	BYTE cmSelFlag;
@@ -591,6 +592,7 @@ typedef struct BaseMonData {
 	BYTE cmAFNum2;
 	uint16_t cmAlign_0; // unused
 } BaseMonData;
+#pragma pack(pop)
 
 void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 {
