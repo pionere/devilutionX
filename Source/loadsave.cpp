@@ -607,12 +607,13 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->_mExp);
 
 	// Skip mName
-	// Skip _mType
-	// Skip pointer mAnims
 	// Skip _mAnimWidth
 	// Skip _mAnimXOffset
 	// Skip _mAFNum
 	// Skip _mAFNum2
+	// Skip _mAlign_0
+	// Skip pointer mAnims
+	// Skip _mType
 
 	if (currLvl._dType != DTYPE_TOWN)
 		SyncMonsterAnim(mnum);
@@ -1329,12 +1330,13 @@ static void SaveMonster(int mnum, bool full)
 	SaveInt(&mon->_mExp);
 
 	// Skip mName
-	// Skip _mType
-	// Skip pointer mAnims
 	// Skip _mAnimWidth
 	// Skip _mAnimXOffset
 	// Skip _mAFNum
 	// Skip _mAFNum2
+	// Skip _mAlign_0
+	// Skip pointer mAnims
+	// Skip _mType
 }
 
 static void SaveMissile(int mi)

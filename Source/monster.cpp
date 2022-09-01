@@ -329,7 +329,7 @@ static void InitMonsterStats(int midx)
 {
 	MapMonData* cmon;
 	const MonsterData* mdata;
-	MonsterStruct* mon;
+
 	cmon = &mapMonTypes[midx];
 
 	mdata = &monsterdata[cmon->cmType];
@@ -564,6 +564,33 @@ void GetLevelMTypes()
 		}
 	}
 }
+// core of MapMonData
+typedef struct BaseMonData {
+	BYTE cmLevel;
+	BYTE cmSelFlag;
+	BYTE cmAi;
+	BYTE cmInt;
+	int cmFlags;
+	uint16_t cmHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE cmMinDamage;
+	BYTE cmMaxDamage;
+	uint16_t cmHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE cmMinDamage2;
+	BYTE cmMaxDamage2;
+	BYTE cmMagic;
+	BYTE cmMagic2;     // unused
+	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	BYTE cmEvasion;    // evasion: used against magic-projectile
+	uint16_t cmMagicRes;
+	uint16_t cmTreasure;
+	unsigned cmExp;
+	const char* cmName;
+	int cmWidth;
+	int cmXOffset;
+	BYTE cmAFNum;
+	BYTE cmAFNum2;
+	uint16_t cmAlign_0; // unused
+} BaseMonData;
 
 void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 {
@@ -576,12 +603,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
 	mon->_mType = cmon->cmType;
-	mon->_mAnimWidth = cmon->cmWidth;
-	mon->_mAnimXOffset = cmon->cmXOffset;
-	mon->_mAFNum = cmon->cmAFNum;
-	mon->_mAFNum2 = cmon->cmAFNum2;
-	mon->mName = cmon->cmName;
-	mon->_mLevel = cmon->cmLevel;
+	/*mon->_mLevel = cmon->cmLevel;
 	mon->_mSelFlag = cmon->cmSelFlag;
 	mon->_mAi = cmon->cmAi;
 	mon->_mInt = cmon->cmInt;
@@ -599,6 +621,15 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mMagicRes = cmon->cmMagicRes;
 	mon->_mTreasure = cmon->cmTreasure;
 	mon->_mExp = cmon->cmExp;
+	mon->mName = cmon->cmName;
+	mon->_mAnimWidth = cmon->cmWidth;
+	mon->_mAnimXOffset = cmon->cmXOffset;
+	mon->_mAFNum = cmon->cmAFNum;
+	mon->_mAFNum2 = cmon->cmAFNum2;
+	mon->_mAlign_0 = cmon->cmAlign_0;*/
+	static_assert(sizeof(BaseMonData) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmLevel) + sizeof(cmon->cmAlign_0), "InitMonster uses unique struct to simplify data-copy I.");
+	static_assert(sizeof(BaseMonData) == offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mLevel) + sizeof(mon->_mAlign_0), "InitMonster uses unique struct to simplify data-copy II.");
+	*(BaseMonData*)&mon->_mLevel = *(BaseMonData*)&cmon->cmLevel;
 	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];

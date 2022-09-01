@@ -628,11 +628,6 @@ typedef struct MapMonData {
 	BOOL cmPlaceScatter;
 	SoundSample cmSnds[NUM_MON_SFX][2];
 	AnimStruct cmAnims[NUM_MON_ANIM];
-	int cmWidth;
-	int cmXOffset;
-	BYTE cmAFNum;
-	BYTE cmAFNum2;
-	uint16_t cmAlign_0; // unused
 	BYTE cmLevel;
 	BYTE cmSelFlag;
 	BYTE cmAi;
@@ -652,6 +647,11 @@ typedef struct MapMonData {
 	uint16_t cmTreasure;
 	unsigned cmExp;
 	const char* cmName;
+	int cmWidth;
+	int cmXOffset;
+	BYTE cmAFNum;
+	BYTE cmAFNum2;
+	uint16_t cmAlign_0; // unused
 	uint16_t cmMinHP;
 	uint16_t cmMaxHP;
 	ALIGNMENT32(26)
@@ -733,12 +733,13 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	uint16_t _mTreasure;
 	unsigned _mExp;
 	const char* mName;
-	int _mType;
-	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
 	BYTE _mAFNum;
 	BYTE _mAFNum2;
+	uint16_t _mAlign_0; // unused
+	AnimStruct* _mAnims;
+	int _mType;
 	ALIGNMENT(12, 6)
 } MonsterStruct;
 
