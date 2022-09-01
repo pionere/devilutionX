@@ -626,19 +626,40 @@ static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 64, "Align Mo
 typedef struct MapMonData {
 	int cmType;
 	BOOL cmPlaceScatter;
-	AnimStruct cmAnims[NUM_MON_ANIM];
 	SoundSample cmSnds[NUM_MON_SFX][2];
+	AnimStruct cmAnims[NUM_MON_ANIM];
 	int cmWidth;
 	int cmXOffset;
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
 	uint16_t cmAlign_0; // unused
-	ALIGNMENT(3, 2)
+	BYTE cmLevel;
+	BYTE cmSelFlag;
+	BYTE cmAi;
+	BYTE cmInt;
+	int cmFlags;
+	uint16_t cmHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE cmMinDamage;
+	BYTE cmMaxDamage;
+	uint16_t cmHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE cmMinDamage2;
+	BYTE cmMaxDamage2;
+	BYTE cmMagic;
+	BYTE cmMagic2;     // unused
+	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	BYTE cmEvasion;    // evasion: used against magic-projectile
+	uint16_t cmMagicRes;
+	uint16_t cmTreasure;
+	unsigned cmExp;
+	const char* cmName;
+	uint16_t cmMinHP;
+	uint16_t cmMaxHP;
+	ALIGNMENT32(26)
 } MapMonData;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 256, "Align MapMonData closer to power of 2 for better performance.");
+static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align MapMonData closer to power of 2 for better performance.");
+static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 640, "Align MapMonData closer to power of 2 for better performance.");
 #endif
 
 typedef struct MonsterStruct { // note: missing field _mAFNum
@@ -684,6 +705,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _lasty; // the last known Y-coordinate of the enemy
 	int _mRndSeed;
 	int _mAISeed;
+	int mtalkmsg;
 	BYTE _uniqtype;
 	BYTE _uniqtrans;
 	BYTE _udeadval;
@@ -710,7 +732,6 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	uint16_t _mMagicRes;
 	uint16_t _mTreasure;
 	unsigned _mExp;
-	int mtalkmsg;
 	const char* mName;
 	int _mType;
 	AnimStruct* _mAnims;

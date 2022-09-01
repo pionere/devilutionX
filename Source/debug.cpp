@@ -304,16 +304,40 @@ void ValidateData()
 #endif
 		if ((md.mAi == AI_CLEAVER || md.mAi == AI_FAT || md.mAi == AI_BAT) && (md.mFlags & MFLAG_CAN_OPEN_DOOR) && !(md.mFlags & MFLAG_SEARCH))
 			app_fatal("AI_CLEAVER, AI_FAT and AI_BAT only check the doors while searching (%s, %d)", md.mName, i);
-		if (md.mLevel + HELL_LEVEL_BONUS > CF_LEVEL && (md.mTreasure & 0x4000) == 0)
-			app_fatal("Invalid mLevel %d for %s (%d). Too high in hell to set the level of item-drop.", md.mLevel, md.mName, i);
+		if (md.mLevel > UINT8_MAX - HELL_LEVEL_BONUS)
+			app_fatal("Too high mLevel %d for %s (%d).", md.mLevel, md.mName, i);
+		if (md.mLevel + HELL_LEVEL_BONUS > CF_LEVEL && (md.mTreasure & NO_DROP) == 0)
+			app_fatal("Invalid mLevel %d for %s (%d). Too high to set the level of item-drop.", md.mLevel, md.mName, i);
 		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
 			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
+		if (md.mHit > UINT16_MAX - HELL_TO_HIT_BONUS)
+			app_fatal("Too high mHit %d for %s (%d).", md.mHit, md.mName, i);
+		if (md.mHit2 > UINT16_MAX - HELL_TO_HIT_BONUS)
+			app_fatal("Too high mHit2 %d for %s (%d).", md.mHit2, md.mName, i);
+		if (md.mMagic > UINT8_MAX - HELL_MAGIC_BONUS)
+			app_fatal("Too high mMagic %d for %s (%d).", md.mMagic, md.mName, i);
+		if (md.mMinDamage * 4 > UINT8_MAX - 6)
+			app_fatal("Too high mMinDamage %d for %s (%d).", md.mMinDamage, md.mName, i);
+		if (md.mMinDamage2 * 4 > UINT8_MAX - 6)
+			app_fatal("Too high mMinDamage2 %d for %s (%d).", md.mMinDamage2, md.mName, i);
+		if (md.mMaxDamage * 4 > UINT8_MAX - 6)
+			app_fatal("Too high mMaxDamage %d for %s (%d).", md.mMaxDamage, md.mName, i);
+		if (md.mMaxDamage2 * 4 > UINT8_MAX - 6)
+			app_fatal("Too high mMaxDamage2 %d for %s (%d).", md.mMaxDamage2, md.mName, i);
+		if (md.mArmorClass > UINT8_MAX - HELL_AC_BONUS)
+			app_fatal("Too high mArmorClass %d for %s (%d).", md.mArmorClass, md.mName, i);
+		if (md.mEvasion > UINT8_MAX - HELL_EVASION_BONUS)
+			app_fatal("Too high mEvasion %d for %s (%d).", md.mEvasion, md.mName, i);
 		if (md.mMinHP <= 0)
 			app_fatal("Invalid mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
 		if (md.mMinHP > md.mMaxHP)
 			app_fatal("Too high mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
-		if (md.mMaxHP - md.mMinHP >= 0x7FFF) // required by InitMonster
+		if (md.mMaxHP * 4 > UINT16_MAX - 200) // required by InitMonsterStats
+			app_fatal("Too high mMaxHP %d for %s (%d)", md.mMaxHP, md.mName, i);
+		if ((md.mMaxHP - md.mMinHP) * 4 + 200 >= 0x7FFF) // required by InitMonster
 			app_fatal("Min/MaxHP range (%d-%d) too high for %s (%d)", md.mMinHP, md.mMaxHP, md.mName, i);
+		if ((md.mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / 4))
+			app_fatal("Too high mExp %d for %s (%d)", md.mExp, md.mName, i);
 		uint16_t res = md.mMagicRes;
 		uint16_t resH = md.mMagicRes2;
 		for (int j = 0; j < 8; j++, res >>= 2, resH >>= 2) {
@@ -394,11 +418,18 @@ void ValidateData()
 #endif
 		if ((um.mAi == AI_CLEAVER || um.mAi == AI_FAT) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR) && !(monsterdata[um.mtype].mFlags & MFLAG_SEARCH))
 			app_fatal("Unique AI_CLEAVER and AI_FAT only check the doors while searching (%s, %d)", um.mName, i);
-		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mTreasure & 0x4000) == 0)
+		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mTreasure & NO_DROP) == 0)
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
 		if ((um.mUnqAttr & UMF_LEADER) != 0 && ((um.mUnqAttr & UMF_GROUP) == 0))
 			app_fatal("Unique monster %s (%d) is a leader without group.", um.mName, i);
-
+		if (um.mUnqHit + monsterdata[um.mtype].mHit > UINT16_MAX - HELL_TO_HIT_BONUS) // required by PlaceUniqueMonst
+			app_fatal("Too high mUnqHit %d for unique monster %s (%d).", um.mUnqHit, um.mName, i);
+		if (um.mUnqAC + monsterdata[um.mtype].mArmorClass > UINT8_MAX - HELL_AC_BONUS) // required by PlaceUniqueMonst
+			app_fatal("Too high mUnqAC %d for unique monster %s (%d).", um.mUnqAC, um.mName, i);
+		if (um.mmaxhp < 2) // required by PlaceUniqueMonst
+			app_fatal("Too low mmaxhp %d for unique monster %s (%d).", um.mmaxhp, um.mName, i);
+		if ((monsterdata[um.mtype].mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / (4 * 2))) // required by PlaceUniqueMonst
+			app_fatal("Too high mExp %d for %s (%d)", monsterdata[um.mtype].mExp, um.mName, i);
 #if DEBUG_MODE
 		uint16_t res = monsterdata[um.mtype].mMagicRes;
 		uint16_t resU = um.mMagicRes;

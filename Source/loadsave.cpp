@@ -569,6 +569,7 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->_lasty);
 	LoadInt(&mon->_mRndSeed);
 	LoadInt(&mon->_mAISeed);
+	LoadInt(&mon->mtalkmsg);
 
 	LoadByte(&mon->_uniqtype);
 	LoadByte(&mon->_uniqtrans);
@@ -604,7 +605,6 @@ static void LoadMonster(int mnum)
 	LoadInt16(&mon->_mTreasure);
 
 	LoadInt(&mon->_mExp);
-	LoadInt(&mon->mtalkmsg);
 
 	// Skip mName
 	// Skip _mType
@@ -1291,6 +1291,7 @@ static void SaveMonster(int mnum, bool full)
 	SaveInt(&mon->_lasty);
 	SaveInt(&mon->_mRndSeed);
 	SaveInt(&mon->_mAISeed);
+	SaveInt(&mon->mtalkmsg);
 
 	SaveByte(&mon->_uniqtype);
 	SaveByte(&mon->_uniqtrans);
@@ -1326,7 +1327,6 @@ static void SaveMonster(int mnum, bool full)
 	SaveInt16(&mon->_mTreasure);
 
 	SaveInt(&mon->_mExp);
-	SaveInt(&mon->mtalkmsg);
 
 	// Skip mName
 	// Skip _mType
