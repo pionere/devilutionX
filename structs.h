@@ -707,18 +707,18 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mMagic2;     // unused
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
-	BYTE _mAFNum;
-	BYTE _mAFNum2;
 	uint16_t _mMagicRes;
 	uint16_t _mTreasure;
-	uint16_t _mExp;
+	unsigned _mExp;
 	int mtalkmsg;
 	const char* mName;
 	int _mType;
 	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
-	ALIGNMENT(13, 7)
+	BYTE _mAFNum;
+	BYTE _mAFNum2;
+	ALIGNMENT(12, 6)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1039,7 +1039,7 @@ typedef struct TCmdMonstKill {
 	TCmdLocBParam1 mkParam1;
 	BYTE mkPnum;
 	WORD mkMnum;
-	WORD mkExp;
+	DWORD mkExp;
 	BYTE mkMonLevel;
 	BYTE mkDir;
 } TCmdMonstKill;

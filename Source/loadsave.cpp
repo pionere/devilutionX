@@ -600,12 +600,10 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->_mArmorClass);
 	LoadByte(&mon->_mEvasion);
 
-	tbuff += 2; // Alignment
 	LoadInt16(&mon->_mMagicRes);
-
 	LoadInt16(&mon->_mTreasure);
-	LoadInt16(&mon->_mExp);
 
+	LoadInt(&mon->_mExp);
 	LoadInt(&mon->mtalkmsg);
 
 	// Skip mName
@@ -1324,12 +1322,10 @@ static void SaveMonster(int mnum, bool full)
 	SaveByte(&mon->_mArmorClass);
 	SaveByte(&mon->_mEvasion);
 
-	tbuff += 2; // Alignment
 	SaveInt16(&mon->_mMagicRes);
-
 	SaveInt16(&mon->_mTreasure);
-	SaveInt16(&mon->_mExp);
 
+	SaveInt(&mon->_mExp);
 	SaveInt(&mon->mtalkmsg);
 
 	// Skip mName
