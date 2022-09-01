@@ -4721,6 +4721,8 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnims = mmdata->cmAnims;
 	mon->_mAnimWidth = mmdata->cmWidth;
 	mon->_mAnimXOffset = mmdata->cmXOffset;
+	mon->_mAFNum = mmdata->cmAFNum;
+	mon->_mAFNum2 = mmdata->cmAFNum2;
 	if (mon->_uniqtype != 0)
 		mon->mName = uniqMonData[mon->_uniqtype - 1].mName;
 	else

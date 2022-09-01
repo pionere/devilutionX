@@ -600,8 +600,7 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->_mArmorClass);
 	LoadByte(&mon->_mEvasion);
 
-	LoadByte(&mon->_mAFNum);
-	LoadByte(&mon->_mAFNum2);
+	tbuff += 2; // Alignment
 	LoadInt16(&mon->_mMagicRes);
 
 	LoadInt16(&mon->_mTreasure);
@@ -609,7 +608,13 @@ static void LoadMonster(int mnum)
 
 	LoadInt(&mon->mtalkmsg);
 
-	// Omit pointer mName;
+	// Skip mName
+	// Skip _mType
+	// Skip pointer mAnims
+	// Skip _mAnimWidth
+	// Skip _mAnimXOffset
+	// Skip _mAFNum
+	// Skip _mAFNum2
 
 	if (currLvl._dType != DTYPE_TOWN)
 		SyncMonsterAnim(mnum);
@@ -1319,8 +1324,7 @@ static void SaveMonster(int mnum, bool full)
 	SaveByte(&mon->_mArmorClass);
 	SaveByte(&mon->_mEvasion);
 
-	SaveByte(&mon->_mAFNum);
-	SaveByte(&mon->_mAFNum2);
+	tbuff += 2; // Alignment
 	SaveInt16(&mon->_mMagicRes);
 
 	SaveInt16(&mon->_mTreasure);
@@ -1328,7 +1332,13 @@ static void SaveMonster(int mnum, bool full)
 
 	SaveInt(&mon->mtalkmsg);
 
-	// Omit pointer mName;
+	// Skip mName
+	// Skip _mType
+	// Skip pointer mAnims
+	// Skip _mAnimWidth
+	// Skip _mAnimXOffset
+	// Skip _mAFNum
+	// Skip _mAFNum2
 }
 
 static void SaveMissile(int mi)
