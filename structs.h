@@ -622,7 +622,7 @@ static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align Mon
 #elif defined(X86_64bit_COMP)
 static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 64, "Align MonFileData to power of 2 for better performance.");
 #endif
-
+#pragma pack(push, 1)
 typedef struct MapMonData {
 	int cmType;
 	BOOL cmPlaceScatter;
@@ -661,7 +661,7 @@ static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMo
 #elif defined(X86_64bit_COMP)
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 640, "Align MapMonData closer to power of 2 for better performance.");
 #endif
-
+#pragma pack(pop)
 typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mmode; /* MON_MODE */
 	unsigned _msquelch;
