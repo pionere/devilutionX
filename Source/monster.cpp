@@ -899,25 +899,8 @@ static void PlaceUniqueMonst(int uniqindex)
 
 	mon->_uniqtrans = uniquetrans++;
 
-	if (uniqm->mUnqHit != 0) {
-		mon->_mHit = uniqm->mUnqHit;
-
-		if (gnDifficulty == DIFF_NIGHTMARE) {
-			mon->_mHit += NIGHTMARE_TO_HIT_BONUS;
-		} else if (gnDifficulty == DIFF_HELL) {
-			mon->_mHit += HELL_TO_HIT_BONUS;
-		}
-		mon->_mHit2 = mon->_mHit;
-	}
-	if (uniqm->mUnqAC != 0) {
-		mon->_mArmorClass = uniqm->mUnqAC;
-
-		if (gnDifficulty == DIFF_NIGHTMARE) {
-			mon->_mArmorClass += NIGHTMARE_AC_BONUS;
-		} else if (gnDifficulty == DIFF_HELL) {
-			mon->_mArmorClass += HELL_AC_BONUS;
-		}
-	}
+	mon->_mHit += uniqm->mUnqHit;
+	mon->_mArmorClass += uniqm->mUnqAC;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
 		mon->_mmaxhp = 2 * mon->_mmaxhp + (100 << 6);
