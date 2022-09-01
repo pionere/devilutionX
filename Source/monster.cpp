@@ -564,35 +564,6 @@ void GetLevelMTypes()
 		}
 	}
 }
-// core of MapMonData
-#pragma pack(push, 1)
-typedef struct BaseMonData {
-	BYTE cmLevel;
-	BYTE cmSelFlag;
-	BYTE cmAi;
-	BYTE cmInt;
-	int cmFlags;
-	uint16_t cmHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
-	BYTE cmMinDamage;
-	BYTE cmMaxDamage;
-	uint16_t cmHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
-	BYTE cmMinDamage2;
-	BYTE cmMaxDamage2;
-	BYTE cmMagic;
-	BYTE cmMagic2;     // unused
-	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
-	BYTE cmEvasion;    // evasion: used against magic-projectile
-	uint16_t cmMagicRes;
-	uint16_t cmTreasure;
-	unsigned cmExp;
-	const char* cmName;
-	int cmWidth;
-	int cmXOffset;
-	BYTE cmAFNum;
-	BYTE cmAFNum2;
-	uint16_t cmAlign_0; // unused
-} BaseMonData;
-#pragma pack(pop)
 
 void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 {
@@ -629,9 +600,10 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mAFNum = cmon->cmAFNum;
 	mon->_mAFNum2 = cmon->cmAFNum2;
 	mon->_mAlign_0 = cmon->cmAlign_0;*/
-	static_assert(sizeof(BaseMonData) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmLevel) + sizeof(cmon->cmAlign_0), "InitMonster uses unique struct to simplify data-copy I.");
-	static_assert(sizeof(BaseMonData) == offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mLevel) + sizeof(mon->_mAlign_0), "InitMonster uses unique struct to simplify data-copy II.");
-	*(BaseMonData*)&mon->_mLevel = *(BaseMonData*)&cmon->cmLevel;
+	static_assert(offsetof(MapMonData, cmAlign_0) > offsetof(MapMonData, cmLevel)
+	 && offsetof(MonsterStruct, _mAlign_0) > offsetof(MonsterStruct, _mLevel)
+	 && (offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmLevel) + sizeof(cmon->cmAlign_0)) == (offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mLevel) + sizeof(mon->_mAlign_0)), "InitMonster uses DWORD-memcpy to optimize performance.");
+	memcpy(&mon->_mLevel, &cmon->cmLevel, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmLevel) + sizeof(cmon->cmAlign_0));
 	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];

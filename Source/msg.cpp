@@ -1215,8 +1215,8 @@ void LevelDeltaExport()
 
 			tplr->spMode = plr._pmode;
 			static_assert(sizeof(plr.walkpath[0]) == 1, "LevelDeltaExport exports walkpath as a bytestream.");
+			static_assert(((MAX_PATH_LENGTH + 1) % 4 == 0) && (offsetof(TSyncLvlPlayer, spWalkpath) + MAX_PATH_LENGTH + 1) <= sizeof(TSyncLvlPlayer), "LevelDeltaExport uses DWORD-memcpy to optimize performance.");
 			memcpy(tplr->spWalkpath, plr.walkpath, MAX_PATH_LENGTH + 1);
-			assert(&tplr->spWalkpath[MAX_PATH_LENGTH] == &tplr->spManaShield);
 			tplr->spManaShield = plr._pManaShield;
 			tplr->spInvincible = plr._pInvincible;
 			tplr->spDestAction = plr.destAction;
