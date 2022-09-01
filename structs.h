@@ -582,8 +582,8 @@ typedef struct MonsterData {
 	BYTE mSelFlag;
 	BYTE mAi;
 	BYTE mInt;
-	int mMinHP;
-	int mMaxHP;
+	uint16_t mMinHP;
+	uint16_t mMaxHP;
 	int mFlags;
 	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE mMinDamage;
@@ -600,7 +600,7 @@ typedef struct MonsterData {
 	uint16_t mMagicRes2;
 	uint16_t mTreasure;
 	uint16_t mExp;
-	ALIGNMENT32(3)
+	ALIGNMENT(4, 1)
 } MonsterData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
@@ -746,8 +746,8 @@ typedef struct UniqMonData {
 	BYTE mMaxDamage2;
 	uint16_t mMagicRes;
 	BYTE mUnqAttr;
-	BYTE mUnqHit;
-	BYTE mUnqAC;
+	BYTE mUnqHit; // to-hit bonus of the unique monster
+	BYTE mUnqAC; // armor class bonus of the unique monster
 	BYTE mQuestId;
 	int mtalkmsg;
 	ALIGNMENT64(4)
