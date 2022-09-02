@@ -211,6 +211,26 @@ static bool PosOkMissile(int x, int y)
 	return (dMissile[x][y] /*| nMissileTable[dPiece[x][y]]*/) == 0;
 }
 
+/*
+ * Check if a missile can be placed at the given position.
+ */
+static bool PosOkMis2(int x, int y)
+{
+	int oi;
+
+	if (nMissileTable[dPiece[x][y]] != 0)
+		return false;
+
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSolidFlag)
+			return false;
+	}
+
+	return true;
+}
+
 static bool FindClosest(int sx, int sy, int &dx, int &dy)
 {
 	int j, i, mid, mnum, tx, ty;
@@ -1703,10 +1723,8 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		tx = sx + *++cr;
 		ty = sy + *++cr;
 		assert(IN_DUNGEON_AREA(tx, ty));
-		if ((nMissileTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
-			if (LineClear(sx, sy, tx, ty)) {
-				AddMissile(tx, ty, 0, 0, 0, mitype, micaster, misource, spllvl);
-			}
+		if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
+			AddMissile(tx, ty, 0, 0, 0, mitype, micaster, misource, spllvl);
 		}
 	}
 
@@ -2340,16 +2358,14 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (LineClear(sx, sy, tx, ty)) {
-				if ((nMissileTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
-					mis->_misx = tx;
-					mis->_misy = ty;
-					mis->_mix = tx;
-					mis->_miy = ty;
-					mis->_miAnimAdd = -1;
-					mis->_miAnimFrame = misfiledata[MFILE_SHATTER1].mfAnimLen[0];
-					return MIRES_DONE;
-				}
+			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
+				mis->_misx = tx;
+				mis->_misy = ty;
+				mis->_mix = tx;
+				mis->_miy = ty;
+				mis->_miAnimAdd = -1;
+				mis->_miAnimFrame = misfiledata[MFILE_SHATTER1].mfAnimLen[0];
+				return MIRES_DONE;
 			}
 		}
 	}
@@ -2848,20 +2864,18 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (LineClear(sx, sy, tx, ty)) {
-				if ((sx != tx || sy != ty) && (nMissileTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
-					midir = GetDirection8(sx, sy, dx, dy);
-					mis->_miVar1 = tx;
-					mis->_miVar2 = ty;
-					mis->_miVar3 = (midir - 2) & 7;
-					mis->_miVar4 = (midir + 2) & 7;
-					mis->_miVar5 = tx;
-					mis->_miVar6 = ty;
-					mis->_miVar7 = FALSE;
-					mis->_miVar8 = FALSE;
-					mis->_miRange = (spllvl >> 1);
-					return MIRES_DONE;
-				}
+			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty) && (sx != tx || sy != ty)) {
+				midir = GetDirection8(sx, sy, dx, dy);
+				mis->_miVar1 = tx;
+				mis->_miVar2 = ty;
+				mis->_miVar3 = (midir - 2) & 7;
+				mis->_miVar4 = (midir + 2) & 7;
+				mis->_miVar5 = tx;
+				mis->_miVar6 = ty;
+				mis->_miVar7 = FALSE;
+				mis->_miVar8 = FALSE;
+				mis->_miRange = (spllvl >> 1);
+				return MIRES_DONE;
 			}
 		}
 	}
