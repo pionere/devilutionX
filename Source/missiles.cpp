@@ -1692,7 +1692,7 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 
 int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	int tx, ty, j, pn, mitype;
+	int tx, ty, j, mitype;
 	const char* cr;
 
 	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
@@ -1703,13 +1703,9 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		tx = sx + *++cr;
 		ty = sy + *++cr;
 		assert(IN_DUNGEON_AREA(tx, ty));
-		pn = dPiece[tx][ty];
-		if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
+		if ((nMissileTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
 			if (LineClear(sx, sy, tx, ty)) {
-				if (nMissileTable[pn])
-					break;
-				else
-					AddMissile(tx, ty, 0, 0, 0, mitype, micaster, misource, spllvl);
+				AddMissile(tx, ty, 0, 0, 0, mitype, micaster, misource, spllvl);
 			}
 		}
 	}
@@ -2345,7 +2341,7 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (LineClear(sx, sy, tx, ty)) {
-				if ((nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
+				if ((nMissileTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
 					mis->_misx = tx;
 					mis->_misy = ty;
 					mis->_mix = tx;
@@ -2853,7 +2849,7 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (LineClear(sx, sy, tx, ty)) {
-				if ((sx != tx || sy != ty) && (nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
+				if ((sx != tx || sy != ty) && (nMissileTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
 					midir = GetDirection8(sx, sy, dx, dy);
 					mis->_miVar1 = tx;
 					mis->_miVar2 = ty;
