@@ -1241,6 +1241,7 @@ int CheckPlrCol(int pnum)
  * @param mx: the x coordinate of the target
  * @param my: the y coordinate of the target
  * @param mode: the collision mode (missile_collision_mode)
+ * @return true if an actor was hit on the tile
  */
 static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 {
@@ -1249,6 +1250,19 @@ static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 	int oi, mnum, pnum;
 	int hit = 0;
 	bool result;
+
+	oi = dObject[mx][my];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (!objects[oi]._oMissFlag) {
+			if (objects[oi]._oBreak == OBM_BREAKABLE)
+				OperateObject(-1, oi, false);
+			hit = 2;
+		}
+	}
+	if (nMissileTable[dPiece[mx][my]]) {
+		hit = 2;
+	}
 
 	mnum = dMonster[mx][my];
 	if (mnum != 0) {
@@ -1262,19 +1276,6 @@ static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 		pnum = CheckPlrCol(pnum);
 		if (pnum != -1 && PlrMissHit(pnum, mi))
 			hit = 1;
-	}
-
-	oi = dObject[mx][my];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (!objects[oi]._oMissFlag) {
-			if (objects[oi]._oBreak == OBM_BREAKABLE)
-				OperateObject(-1, oi, false);
-			hit = 2;
-		}
-	}
-	if (nMissileTable[dPiece[mx][my]]) {
-		hit = 2;
 	}
 
 	if (hit == 0)
