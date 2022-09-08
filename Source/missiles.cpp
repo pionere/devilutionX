@@ -221,12 +221,13 @@ static bool PosOkMis2(int x, int y)
 	if (nMissileTable[dPiece[x][y]] != 0)
 		return false;
 
+	/* commented out for consistent behavior (firewall is propagated over solid objects)
 	oi = dObject[x][y];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (objects[oi]._oSolidFlag)
 			return false;
-	}
+	}*/
 
 	return true;
 }
