@@ -274,10 +274,46 @@ void ValidateData()
 	// quests
 	for (i = 0; i < lengthof(AllLevels); i++) {
 		int j = 0;
+		int minscatts[MAX_LVLMTYPES] = { 0 };
+		int mintypes[MAX_LVLMTYPES];
 		for ( ; j < lengthof(AllLevels[i].dMonTypes); j++) {
 			if (AllLevels[i].dMonTypes[j] == MT_INVALID)
 				break;
+			int mfn = monsterdata[AllLevels[i].dMonTypes[j]].moFileNum;
+			for (int k = 0; k < MAX_LVLMTYPES; k++) {
+				int moi = monfiledata[mfn].moImage;
+				if (minscatts[k] < moi) {
+					if (minscatts[k] == 0) {
+						minscatts[k] = moi;
+						mintypes[k] = mfn;
+						break;
+					}
+					continue;
+				} else {
+					int nfn = mintypes[k];
+
+					minscatts[k] = moi;
+					mintypes[k] = mfn;
+
+					mfn = nfn;
+				}
+			}
 		}
+		int imgtot = monsterdata[MOFILE_GOLEM].moFileNum;
+		int k = 0;
+		for ( ; k < MAX_LVLMTYPES - 2; k++) {
+			if (minscatts[k] == 0)
+				break;
+			imgtot += minscatts[k];
+		}
+		if (i != DLV_TOWN && i < NUM_STDLVLS && imgtot < MAX_LVLMIMAGE && j > k) {
+			tempstr[0] = '\0';
+			for (int n = 0; n < std::min(j, MAX_LVLMTYPES); n++) {
+				snprintf(tempstr, sizeof(tempstr), "%s, %d (%d)", tempstr, mintypes[n], minscatts[n]);
+			}
+			app_fatal("Monsters with low complexity on level %d: total:%d, monster-types(%d):%s", i, imgtot, k, tempstr);
+		}
+
 		if (j == lengthof(AllLevels[i].dMonTypes))
 			app_fatal("Missing closing MT_INVALID on level %s (%d)", AllLevels[i].dLevelName, i);
 		if (i != DLV_TOWN && AllLevels[i].dLevel == 0) // required by GetItemAttrs

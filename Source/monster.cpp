@@ -234,7 +234,6 @@ static void InitMonsterGFX(int midx)
 		}
 	}
 
-
 	if (monsterdata[mtype].mTransFile != NULL) {
 		InitMonsterTRN(monAnims, monsterdata[mtype].mTransFile);
 	}
@@ -423,6 +422,7 @@ static int AddMonsterType(int type, BOOL scatter)
 
 	if (i == nummtypes) {
 		nummtypes++;
+		assert(nummtypes <= MAX_LVLMTYPES);
 		if (IsGoat(type)) {
 			mapGoatTypes[numGoatTypes] = i;
 			numGoatTypes++;
@@ -496,6 +496,7 @@ void GetLevelMTypes()
 		if (lvl == DLV_HELL4) {
 			AddMonsterType(MT_ADVOCATE, TRUE);
 			AddMonsterType(MT_RBLACK, TRUE);
+			// AddMonsterType(MT_NBLACK, FALSE);
 			AddMonsterType(MT_DIABLO, FALSE);
 			return;
 		}
@@ -520,13 +521,29 @@ void GetLevelMTypes()
 			AddMonsterType(MT_NGOATMC, FALSE);
 		if (QuestStatus(Q_ZHAR))
 			AddMonsterType(MT_COUNSLR, FALSE);
-		if (QuestStatus(Q_LTBANNER))
+		if (QuestStatus(Q_LTBANNER)) {
 			AddMonsterType(MT_BFALLSP, FALSE);
+			// AddMonsterType(MT_FAT, FALSE);
+		}
+		//if (QuestStatus(Q_ANVIL)) {
+		//	AddMonsterType(MT_GGOATBW, FALSE);
+		//	AddMonsterType(MT_OBLORD, FALSE);
+		//}
+		//if (QuestStatus(Q_BLIND)) {
+		//	AddMonsterType(MT_ILLWEAV, FALSE);
+		//}
+		//if (QuestStatus(Q_BLOOD)) {
+		//	AddMonsterType(MT_HORNED, FALSE);
+		//}
 		if (QuestStatus(Q_VEIL))
 			AddMonsterType(MT_RBLACK, TRUE);
 		if (QuestStatus(Q_WARLORD))
 			AddMonsterType(MT_BTBLACK, TRUE);
-
+		//if (QuestStatus(Q_BETRAYER) && IsMultiGame) {
+		//if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && IsMultiGame) {
+		//	AddMonsterType(MT_ADVOCATE, FALSE);
+		//	AddMonsterType(MT_HLSPWN, FALSE);
+		//}
 		lds = &AllLevels[lvl];
 		for (nt = 0; nt < lengthof(lds->dMonTypes); nt++) {
 			mtype = lds->dMonTypes[nt];
@@ -542,7 +559,7 @@ void GetLevelMTypes()
 			return;
 		}
 #endif
-		while (monstimgtot > 0 && nt > 0 && nummtypes < MAX_LVLMTYPES) {
+		while (monstimgtot > 0 && nt > 0/* && nummtypes < MAX_LVLMTYPES*/) { // nummtypes test is pointless, because PlaceSetMapMonsters can break it anyway...
 			for (i = 0; i < nt; ) {
 				if (monfiledata[monsterdata[montypes[i]].moFileNum].moImage > monstimgtot) {
 					montypes[i] = montypes[--nt];

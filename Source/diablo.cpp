@@ -45,6 +45,7 @@ int gnTimeoutCurs;
 static bool _gbSkipIntro = false;
 bool gbShowTooltip = false;
 #if DEBUG_MODE
+static_assert(MAX_LVLMTYPES >= 10, "DebugMonsters requires 10 slot for monster-types.");
 int DebugMonsters[10];
 BOOL visiondebug;
 /** unused */
