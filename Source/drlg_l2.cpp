@@ -3176,7 +3176,7 @@ static bool DRLG_L2PlaceMiniSets(mini_set* minisets, int n)
 			return false;
 		if (minisets[i].setview) {
 			ViewX = 2 * mpos.x + DBORDERX + 5;
-			ViewY = 2 * mpos.y + DBORDERY + 6;
+			ViewY = 2 * mpos.y + DBORDERY + 5;
 		}
 	}
 	return true;
@@ -3207,10 +3207,8 @@ static void DRLG_L2(int entry)
 				{ currLvl._dLevelIdx != DLV_CATACOMBS1 ? NULL : L2TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
 		};
 		doneflag = DRLG_L2PlaceMiniSets(stairs, 3);
-		if (entry == ENTRY_MAIN) {
-			ViewY -= 2;
-		} else if (entry == ENTRY_PREV) {
-			ViewX--;
+		if (entry == ENTRY_PREV) {
+			ViewX -= 2;
 		} else {
 			ViewY -= 2;
 		}
