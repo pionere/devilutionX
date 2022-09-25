@@ -216,7 +216,7 @@ static bool PosOkMissile(int x, int y)
  */
 static bool PosOkMis2(int x, int y)
 {
-	int oi;
+	// int oi;
 
 	if (nMissileTable[dPiece[x][y]] != 0)
 		return false;
