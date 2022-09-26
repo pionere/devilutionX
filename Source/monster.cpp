@@ -11,10 +11,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /* Limit the number of monsters to be placed. */
 int totalmonsters;
-/* Limit the number of monster-types on the current level by the required resources.
- * In CRYPT where the values are not valid).
- */
-int monstimgtot;
+/* Limit the number of (scattered) monster-types on the current level by the required resources (In CRYPT the values are not valid). */
+static int monstimgtot;
 /* Number of active monsters on the current level (minions are considered active). */
 int nummonsters;
 /* The data of the monsters on the current level. */
@@ -433,13 +431,16 @@ static int AddMonsterType(int type, BOOL scatter)
 		}
 		mapMonTypes[i].cmType = type;
 		mapMonTypes[i].cmPlaceScatter = FALSE;
-		monstimgtot -= monfiledata[monsterdata[type].moFileNum].moImage;
 		InitMonsterGFX(i);
 		InitMonsterSFX(i);
 		InitMonsterStats(i);
 	}
 
-	mapMonTypes[i].cmPlaceScatter |= scatter;
+	if (scatter && !mapMonTypes[i].cmPlaceScatter) {
+		mapMonTypes[i].cmPlaceScatter = TRUE;
+		monstimgtot -= monfiledata[monsterdata[type].moFileNum].moImage;
+	}
+
 	return i;
 }
 
@@ -451,7 +452,7 @@ void InitLevelMonsters()
 	numSkelTypes = 0;
 	numGoatTypes = 0;
 	uniquetrans = COLOR_TRN_UNIQ;
-	monstimgtot = MAX_LVLMIMAGE;
+	monstimgtot = MAX_LVLMIMAGE - monfiledata[monsterdata[MT_GOLEM].moFileNum].moImage;
 	totalmonsters = MAXMONSTERS;
 
 	// reset monsters
@@ -559,7 +560,7 @@ void GetLevelMTypes()
 			return;
 		}
 #endif
-		while (monstimgtot > 0 && nt > 0/* && nummtypes < MAX_LVLMTYPES*/) { // nummtypes test is pointless, because PlaceSetMapMonsters can break it anyway...
+		while (monstimgtot > 0/* && nummtypes < MAX_LVLMTYPES*/) { // nummtypes test is pointless, because PlaceSetMapMonsters can break it anyway...
 			for (i = 0; i < nt; ) {
 				if (monfiledata[monsterdata[montypes[i]].moFileNum].moImage > monstimgtot) {
 					montypes[i] = montypes[--nt];
@@ -569,11 +570,12 @@ void GetLevelMTypes()
 				i++;
 			}
 
-			if (nt > 0) {
-				i = random_low(88, nt);
-				AddMonsterType(montypes[i], TRUE);
-				montypes[i] = montypes[--nt];
-			}
+			if (nt == 0)
+				break;
+
+			i = random_low(88, nt);
+			AddMonsterType(montypes[i], TRUE);
+			montypes[i] = montypes[--nt];
 		}
 	} else {
 		if (lvl == SL_SKELKING) {

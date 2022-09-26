@@ -299,7 +299,9 @@ void ValidateData()
 				}
 			}
 		}
-		int imgtot = monsterdata[MOFILE_GOLEM].moFileNum;
+		int imgtot = monsterdata[monsterdata[MT_GOLEM].moFileNum].moFileNum;
+		if (i != DLV_TOWN && i < NUM_STDLVLS && minscatts[0] > MAX_LVLMIMAGE - imgtot)
+			app_fatal("Monster types on level %d do not fit to the limit (%d). Lowest complexity is %d.", i, MAX_LVLMIMAGE - imgtot, minscatts[0]);
 		int k = 0;
 		for ( ; k < MAX_LVLMTYPES - 2; k++) {
 			if (minscatts[k] == 0)
