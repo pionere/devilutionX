@@ -238,7 +238,7 @@ void LoadGameLevel(int lvldir)
 	} else {
 		LoadSetMap();
 		IncProgress();
-		GetLevelMTypes();
+		// GetLevelMTypes();
 		IncProgress();
 		InitMonsters();
 		IncProgress();

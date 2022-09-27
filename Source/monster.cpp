@@ -493,7 +493,8 @@ void GetLevelMTypes()
 	int nt; // number of types
 
 	lvl = currLvl._dLevelIdx;
-	if (!currLvl._dSetLvl) {
+	assert(!currLvl._dSetLvl);
+	//if (!currLvl._dSetLvl) {
 		if (lvl == DLV_HELL4) {
 			AddMonsterType(MT_ADVOCATE, TRUE);
 			AddMonsterType(MT_RBLACK, TRUE);
@@ -577,11 +578,11 @@ void GetLevelMTypes()
 			AddMonsterType(montypes[i], TRUE);
 			montypes[i] = montypes[--nt];
 		}
-	} else {
-		if (lvl == SL_SKELKING) {
-			AddMonsterType(MT_SKING, FALSE);
-		}
-	}
+	//} else {
+	//	if (lvl == SL_SKELKING) {
+	//		AddMonsterType(MT_SKING, FALSE);
+	//	}
+	//}
 }
 
 void InitMonster(int mnum, int dir, int mtidx, int x, int y)
@@ -1094,6 +1095,7 @@ static void PlaceSetMapMonsters()
 			mem_free_dbg(setp);
 		}
 	} else if (currLvl._dLevelIdx == SL_SKELKING) {
+		AddMonsterType(MT_SKING, FALSE);
 		PlaceUniqueMonst(UMT_SKELKING);
 	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		AddMonsterType(MT_ADVOCATE, FALSE);
