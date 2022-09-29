@@ -243,7 +243,7 @@ const BYTE MonstConvTbl[128] = {
 	0, //MT_RFALLSD,
 	0, //MT_DFALLSD,
 	MT_YFALLSD, // Q_PWATER
-	0, //MT_BFALLSD
+	MT_BFALLSD, // Q_LTBANNER
 	0, //MT_NSCAV,
 	0, //MT_BSCAV,
 	0, //MT_WSCAV,
