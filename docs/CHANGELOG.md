@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - critical hit chance is based on items
 - block only if standing or actively using the Block skill
 - separate resistance against acid
-- added Far Shot/Point Blank/Swipe/Charge skills
+- added Whiplash/Wallop/Swipe/Far Shot/Point Blank/Charge skills
 - added Attract/Meteor spells
 - skills/spells have experience counters
 - books give skill experience instead of a whole level
@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - players do not leave the game after Diablo is defeated (restart in town)
 - players do not lose gold on death
 - players lose experience on death
+- durability is not reduced when an object(barrel/urn/crux) is destroyed
 - items are dropped on death even on diablo-level
 - better rewards on higher difficulties
 - limited offers in stores/wirt

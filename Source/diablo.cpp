@@ -45,6 +45,7 @@ int gnTimeoutCurs;
 static bool _gbSkipIntro = false;
 bool gbShowTooltip = false;
 #if DEBUG_MODE
+static_assert(MAX_LVLMTYPES >= 10, "DebugMonsters requires 10 slot for monster-types.");
 int DebugMonsters[10];
 BOOL visiondebug;
 /** unused */
@@ -423,37 +424,23 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 
 		if (bShift) {
-			if (spelldata[atkSkill].sType != STYPE_NONE)
-				NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
-			else
-				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, asf);
+			NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
 			return;
 		}
 		if (pcursmonst != MON_NONE) {
 			if (CanTalkToMonst(pcursmonst)) {
 				NetSendCmdParam1(CMD_TALKXY, pcursmonst);
 			} else {
-				if (spelldata[atkSkill].sType != STYPE_NONE)
-					NetSendCmdMonstSkill(pcursmonst, atkSkill, asf);
-				else if (myplr._pSkillFlags & SFLAG_RANGED)
-					NetSendCmdMonstAttack(CMD_RATTACKID, pcursmonst, atkSkill, asf);
-				else
-					NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, atkSkill, asf);
+				NetSendCmdMonSkill(pcursmonst, atkSkill, asf);
 			}
 			return;
 		}
 		if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam) {
-			if (spelldata[atkSkill].sType != STYPE_NONE)
-				NetSendCmdPlrSkill(pcursplr, atkSkill, asf);
-			else
-				NetSendCmdPlrAttack(pcursplr, atkSkill, asf);
+			NetSendCmdPlrSkill(pcursplr, atkSkill, asf);
 			return;
 		}
 		if (moveSkill == SPL_INVALID) {
-			if (spelldata[atkSkill].sType != STYPE_NONE)
-				NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
-			else
-				NetSendCmdLocAttack(cursmx, cursmy, atkSkill, asf);
+			NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
 			return;
 		}
 	} else if (moveSkill == SPL_INVALID) {
@@ -546,7 +533,7 @@ bool TryIconCurs(bool bShift)
 	} break;
 	case CURSOR_TELEPORT:
 		if (pcursmonst != MON_NONE)
-			NetSendCmdMonstSkill(pcursmonst, gbTSpell, gbTSplFrom);
+			NetSendCmdMonSkill(pcursmonst, gbTSpell, gbTSplFrom);
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		else

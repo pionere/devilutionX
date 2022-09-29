@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MON_WALK_SHIFT 8
+
 // Ticks necessary to finish the current action and add the result to the delta
 // ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_NORMAL_MSG_SIZE / sizeof(TSyncMonster)))
 #define SQUELCH_LOW					127
@@ -90,6 +92,7 @@ inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
 
 extern const int offset_x[NUM_DIRS];
 extern const int offset_y[NUM_DIRS];
+extern const int MWVel[24];
 //extern const char walk2dir[9];
 
 #ifdef __cplusplus

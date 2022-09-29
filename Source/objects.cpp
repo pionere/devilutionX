@@ -1139,6 +1139,7 @@ static void AddDoor(int oi)
 	os->_oVar4 = DOOR_CLOSED;
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
+	//os->_oSolidFlag = FALSE; // TODO: should be TRUE;
 	//os->_oMissFlag = FALSE;
 	//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
 	os->_oVar1 = dPiece[x][y];     // DOOR_PIECE_CLOSED
@@ -2031,6 +2032,7 @@ static void OpenDoor(int oi)
 	os->_oVar4 = DOOR_OPEN;
 	os->_oPreFlag = TRUE;
 	os->_oSelFlag = 2;
+	// TODO: set os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
 	os->_oAnimFrame += 2;
 }
@@ -2047,6 +2049,7 @@ static bool CloseDoor(int oi)
 	if (os->_oVar4 == DOOR_CLOSED) {
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
+		// TODO: set os->_oSolidFlag = TRUE;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
 		return true;
@@ -3280,6 +3283,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 		return;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
+	// os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 
 	if (deltaload)
@@ -3364,6 +3368,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
+	// os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 	if (deltaload)
 		return;
@@ -3465,7 +3470,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	os->_oAnimFlag = TRUE;
 	// os->_oAnimFrame = 1;
 	// os->_oAnimFrameLen = 1;
-	os->_oSolidFlag = TRUE;
+	// os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 	os->_oBreak = OBM_BROKEN;
 
@@ -3503,7 +3508,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 	// os->_oAnimFrame = 1;
 	// os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = FALSE;
-	os->_oMissFlag = TRUE;
+	// os->_oMissFlag = TRUE;
 	os->_oBreak = OBM_BROKEN;
 	os->_oSelFlag = 0;
 	os->_oPreFlag = TRUE;

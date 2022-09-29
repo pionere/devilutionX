@@ -26,9 +26,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #endif
 
 /*
-	unused icons :	20 (teleport?)
-					22 - SPL_ETHEREALIZE (only in standard)
-					33 (red burning stair?)
+	unused icons :	22 - SPL_ETHEREALIZE (only in standard)
 					// hellfire only
 					51 - SPL_MANA/MAGI
 					50 - SPL_JESTER
@@ -47,6 +45,8 @@ const SpellData spelldata[NUM_SPELLS] = {
 /*SPL_WALK*/        {    0, STYPE_NONE,      28,      "Walk",               SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_ANY,                      0, 0,           0,                 0,        0,         0,         0,         0,          0, ALIGN64 },
 /*SPL_BLOCK*/       {    0, STYPE_NONE,      ICN_BLK, "Block",              SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_BLOCK,    0, 0,           0,                 0,        0,         0,         0,         0,          0, ALIGN64 },
 /*SPL_ATTACK*/      {    0, STYPE_NONE,      ICN_ATK, "Attack",             SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,    0, 0,           0,                 0,        0,         0,         0,         0,          0, ALIGN64 },
+/*SPL_WHIPLASH*/    {    2, STYPE_NONE,      20,      "Whiplash",                  1,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,    0, 0,           0,                 0,        2,         0,         0,      1000,          0, ALIGN64 },
+/*SPL_WALLOP*/      {    6, STYPE_NONE,      33,      "Wallop",                    2,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,    0, 0,           0,                 0,        6,         0,         0,      1500,          0, ALIGN64 },
 /*SPL_SWIPE*/       {    2, STYPE_NONE,      ICN_SWP, "Swipe",                     6,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,    0, 0,           0,                 0,        2,         0,         0,      8000,          0, ALIGN64 },
 /*SPL_RATTACK*/     {    0, STYPE_NONE,      ICN_RTK, "Ranged Attack",      SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,   0, 0,           MIS_ARROWC,        0,        0,         0,         0,         0,          0, ALIGN64 },
 /*SPL_POINT_BLANK*/ {    2, STYPE_NONE,      ICN_RPB, "Point Blank",               4,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,        CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,   0, 0,           MIS_PBARROWC,      0,        2,         0,         0,      5000,          0, ALIGN64 },

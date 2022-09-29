@@ -76,10 +76,13 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 	case SPL_WALK:
 	case SPL_BLOCK:
 	case SPL_ATTACK:
+	case SPL_WHIPLASH:
+	case SPL_WALLOP:
 	case SPL_SWIPE:
 	case SPL_RATTACK:
 	case SPL_POINT_BLANK:
 	case SPL_FAR_SHOT:
+	case SPL_CHARGE:
 	case SPL_RAGE:
 	case SPL_STONE:
 	case SPL_INFRA:
@@ -206,6 +209,27 @@ static bool PosOkMissile(int x, int y)
 		return false;
 	// nSolidTable is checked -> ignore the few additional tiles from nMissileTable
 	return (dMissile[x][y] /*| nMissileTable[dPiece[x][y]]*/) == 0;
+}
+
+/*
+ * Check if a missile can be placed at the given position.
+ */
+static bool PosOkMis2(int x, int y)
+{
+	// int oi;
+
+	if (nMissileTable[dPiece[x][y]] != 0)
+		return false;
+
+	/* commented out for consistent behavior (firewall is propagated over solid objects)
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSolidFlag)
+			return false;
+	}*/
+
+	return true;
 }
 
 static bool FindClosest(int sx, int sy, int &dx, int &dy)
@@ -1217,6 +1241,7 @@ int CheckPlrCol(int pnum)
  * @param mx: the x coordinate of the target
  * @param my: the y coordinate of the target
  * @param mode: the collision mode (missile_collision_mode)
+ * @return true if an actor was hit on the tile
  */
 static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 {
@@ -1225,6 +1250,19 @@ static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 	int oi, mnum, pnum;
 	int hit = 0;
 	bool result;
+
+	oi = dObject[mx][my];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (!objects[oi]._oMissFlag) {
+			if (objects[oi]._oBreak == OBM_BREAKABLE)
+				OperateObject(-1, oi, false);
+			hit = 2;
+		}
+	}
+	if (nMissileTable[dPiece[mx][my]]) {
+		hit = 2;
+	}
 
 	mnum = dMonster[mx][my];
 	if (mnum != 0) {
@@ -1238,19 +1276,6 @@ static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 		pnum = CheckPlrCol(pnum);
 		if (pnum != -1 && PlrMissHit(pnum, mi))
 			hit = 1;
-	}
-
-	oi = dObject[mx][my];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (!objects[oi]._oMissFlag) {
-			if (objects[oi]._oBreak == OBM_BREAKABLE)
-				OperateObject(-1, oi, false);
-			hit = 2;
-		}
-	}
-	if (nMissileTable[dPiece[mx][my]]) {
-		hit = 2;
 	}
 
 	if (hit == 0)
@@ -1689,7 +1714,7 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 
 int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	int tx, ty, j, pn, mitype;
+	int tx, ty, j, mitype;
 	const char* cr;
 
 	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
@@ -1700,14 +1725,8 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		tx = sx + *++cr;
 		ty = sy + *++cr;
 		assert(IN_DUNGEON_AREA(tx, ty));
-		pn = dPiece[tx][ty];
-		if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
-			if (LineClear(sx, sy, tx, ty)) {
-				if (nMissileTable[pn])
-					break;
-				else
-					AddMissile(tx, ty, 0, 0, 0, mitype, micaster, misource, spllvl);
-			}
+		if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
+			AddMissile(tx, ty, 0, 0, 0, mitype, micaster, misource, spllvl);
 		}
 	}
 
@@ -2341,16 +2360,14 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (LineClear(sx, sy, tx, ty)) {
-				if ((nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
-					mis->_misx = tx;
-					mis->_misy = ty;
-					mis->_mix = tx;
-					mis->_miy = ty;
-					mis->_miAnimAdd = -1;
-					mis->_miAnimFrame = misfiledata[MFILE_SHATTER1].mfAnimLen[0];
-					return MIRES_DONE;
-				}
+			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
+				mis->_misx = tx;
+				mis->_misy = ty;
+				mis->_mix = tx;
+				mis->_miy = ty;
+				mis->_miAnimAdd = -1;
+				mis->_miAnimFrame = misfiledata[MFILE_SHATTER1].mfAnimLen[0];
+				return MIRES_DONE;
 			}
 		}
 	}
@@ -2459,12 +2476,16 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 
 	chv = MIS_SHIFTEDVEL(16) / M_SQRT2;
 	aa = 2;
-	if (plr._pIFlags & ISPL_FASTESTWALK) {
-		chv = MIS_SHIFTEDVEL(32) / M_SQRT2;
-		aa = 4;
-	} else if (plr._pIFlags & (ISPL_FASTERWALK | ISPL_FASTWALK)) {
-		chv = MIS_SHIFTEDVEL(24) / M_SQRT2;
-		aa = 3;
+	if (plr._pIWalkSpeed != 0) {
+		if (plr._pIWalkSpeed == 3) {
+			// ISPL_FASTESTWALK
+			chv = MIS_SHIFTEDVEL(32) / M_SQRT2;
+			aa = 4;
+		} else {
+			// (ISPL_FASTERWALK | ISPL_FASTWALK)
+			chv = MIS_SHIFTEDVEL(24) / M_SQRT2;
+			aa = 3;
+		}
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, chv);
 	plr._pmode = PM_CHARGE;
@@ -2845,20 +2866,18 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (LineClear(sx, sy, tx, ty)) {
-				if ((sx != tx || sy != ty) && (nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
-					midir = GetDirection8(sx, sy, dx, dy);
-					mis->_miVar1 = tx;
-					mis->_miVar2 = ty;
-					mis->_miVar3 = (midir - 2) & 7;
-					mis->_miVar4 = (midir + 2) & 7;
-					mis->_miVar5 = tx;
-					mis->_miVar6 = ty;
-					mis->_miVar7 = FALSE;
-					mis->_miVar8 = FALSE;
-					mis->_miRange = (spllvl >> 1);
-					return MIRES_DONE;
-				}
+			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty) && (sx != tx || sy != ty)) {
+				midir = GetDirection8(sx, sy, dx, dy);
+				mis->_miVar1 = tx;
+				mis->_miVar2 = ty;
+				mis->_miVar3 = (midir - 2) & 7;
+				mis->_miVar4 = (midir + 2) & 7;
+				mis->_miVar5 = tx;
+				mis->_miVar6 = ty;
+				mis->_miVar7 = FALSE;
+				mis->_miVar8 = FALSE;
+				mis->_miRange = (spllvl >> 1);
+				return MIRES_DONE;
 			}
 		}
 	}

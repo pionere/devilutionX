@@ -82,7 +82,7 @@ const LevelData AllLevels[NUM_LEVELS] = {
 					},
 /*DLV_HELL4*/		{      32, FALSE,   DTYPE_HELL,      DTYPE_HELL,      TMUSIC_L4,              12,      16, "Diablo",
 						"Levels\\L4Data\\L4.AMP", "Levels\\L4Data\\L4.SOL",     "Levels\\L4Data\\L4.TMI",      "Levels\\L4Data\\L4.CEL",      "Levels\\L4Data\\L4.TIL",      "Levels\\L4Data\\L4.MIN",      "Levels\\L2Data\\L2S.CEL",     "Levels\\L4Data\\L4_%d.PAL",     "Gendata\\Cutgate.CEL",  "Gendata\\Cutgate.pal",          FALSE,            43, NULL,                          NULL,                                        0,             0,
-						{ MT_INVALID }, /* MT_RBLACK, MT_ADVOCATE */ ALIGN32
+						{ MT_INVALID }, /* MT_RBLACK, MT_ADVOCATE, MT_NBLACK, MT_DIABLO */ ALIGN32
 					},
 #ifdef HELLFIRE
 /*DLV_NEST1*/		{      18, FALSE,   DTYPE_NEST,      DTYPE_CAVES,     TMUSIC_L6,              10,      10, "Nest 1",
@@ -95,11 +95,11 @@ const LevelData AllLevels[NUM_LEVELS] = {
 					},
 /*DLV_NEST3*/		{      22, FALSE,   DTYPE_NEST,      DTYPE_CAVES,     TMUSIC_L6,              10,      10, "Nest 3",
 						"NLevels\\L6Data\\L6.AMP", "NLevels\\L6Data\\L6.SOL",   "NLevels\\L6Data\\L6.TMI",     "NLevels\\L6Data\\L6.CEL",     "NLevels\\L6Data\\L6.TIL",     "NLevels\\L6Data\\L6.MIN",     "Levels\\L1Data\\L1S.CEL",     "NLevels\\L6Data\\L6Base%d.PAL", "Nlevels\\Cutl6.CEL",    "Nlevels\\Cutl6.pal",            FALSE,            43, NULL,                          NULL,                                        0,             0,
-						{ MT_VENMTAIL, MT_NECRMORB, MT_SPIDLORD, MT_LASHWORM, MT_TORCHANT, MT_INVALID }, /* MT_HORKSPWN */ ALIGN32
+						{ MT_VENMTAIL, MT_NECRMORB, MT_SPIDLORD, MT_LASHWORM, MT_TORCHANT, MT_INVALID }, /* MT_HORKSPWN, MT_HORKDMN */ ALIGN32
 					},
 /*DLV_NEST4*/		{      24, FALSE,   DTYPE_NEST,      DTYPE_CAVES,     TMUSIC_L6,              10,      10, "Nest 4",
 						"NLevels\\L6Data\\L6.AMP", "NLevels\\L6Data\\L6.SOL",   "NLevels\\L6Data\\L6.TMI",     "NLevels\\L6Data\\L6.CEL",     "NLevels\\L6Data\\L6.TIL",     "NLevels\\L6Data\\L6.MIN",     "Levels\\L1Data\\L1S.CEL",     "NLevels\\L6Data\\L6Base%d.PAL", "Nlevels\\Cutl6.CEL",    "Nlevels\\Cutl6.pal",            FALSE,            43, NULL,                          NULL,                                        0,             0,
-						{ MT_VENMTAIL, MT_NECRMORB, MT_SPIDLORD, MT_LASHWORM, MT_TORCHANT, MT_INVALID }, ALIGN32
+						{ MT_VENMTAIL, MT_NECRMORB, MT_SPIDLORD, MT_LASHWORM, MT_TORCHANT, MT_INVALID }, /* MT_DEFILER */ ALIGN32
 					},
 /*DLV_CRYPT1*/		{      26, FALSE,   DTYPE_CRYPT,     DTYPE_CATHEDRAL, TMUSIC_L5,              10,      10, "Crypt 1",
 						"NLevels\\L5Data\\L5.AMP", "NLevels\\L5Data\\L5.SOL",   "NLevels\\L5Data\\L5.TMI",     "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5S.CEL",    "NLevels\\L5Data\\L5Base.PAL",   "Nlevels\\Cutl5.CEL",    "Nlevels\\Cutl5.pal",            FALSE,            43, NULL,                          NULL,                                        0,             0,
@@ -115,7 +115,7 @@ const LevelData AllLevels[NUM_LEVELS] = {
 					},
 /*DLV_CRYPT4*/		{      32, FALSE,   DTYPE_CRYPT,     DTYPE_CATHEDRAL, TMUSIC_L5,              10,      10, "Crypt 4",
 						"NLevels\\L5Data\\L5.AMP", "NLevels\\L5Data\\L5.SOL",   "NLevels\\L5Data\\L5.TMI",     "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5S.CEL",    "NLevels\\L5Data\\L5Base.PAL",   "Nlevels\\Cutl5.CEL",    "Nlevels\\Cutl5.pal",            FALSE,            43, NULL,                          NULL,                                        0,             0,
-						{ MT_HELLBAT, MT_BICLOPS, MT_FLESTHNG, MT_REAPER, MT_INVALID }, /* MT_ARCHLICH */ ALIGN32
+						{ MT_HELLBAT, MT_BICLOPS, MT_FLESTHNG, MT_REAPER, MT_INVALID }, /* MT_ARCHLICH, MT_NAKRUL */ ALIGN32
 					},
 #endif
 					// dLevel, dSetLvl, dType,           dDunType,        dMusic,      dMicroTileLen, dBlocks, dLevelName,
@@ -126,24 +126,24 @@ const LevelData AllLevels[NUM_LEVELS] = {
 						{ MT_INVALID }, ALIGN32
 					},*/
 /*DLV_SKELKING*/	{       6, TRUE,    DTYPE_CATHEDRAL, DTYPE_CATHEDRAL, TMUSIC_L1,              10,      10, "Skeleton King's Lair",
-						"Levels\\L1Data\\L1.AMP", "Levels\\L1Data\\L1.SOL",     "Levels\\L1Data\\L1.TMI",      "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L1Data\\L1_2.pal",      "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, "Levels\\L1Data\\SklKng1.DUN", "Levels\\L1Data\\SklKng2.DUN",   DBORDERX + 67, DBORDERY + 29,
-						{ MT_INVALID }, ALIGN32
+						"Levels\\L1Data\\L1.AMP", "Levels\\L1Data\\L1.SOL",     "Levels\\L1Data\\L1.TMI",      "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L1Data\\L1_2.pal",      "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, "Levels\\L1Data\\SklKng1.DUN", "Levels\\L1Data\\SklKng2.DUN",   DBORDERX + 67, DBORDERY + 28,
+						{ MT_INVALID }, /* MT_RSKELAX, MT_TSKELBW, MT_RSKELBW, MT_XSKELBW, MT_RSKELSD, */ ALIGN32
 					},
 /*DLV_BONECHAMB*/	{      12, TRUE,    DTYPE_CATACOMBS, DTYPE_CATACOMBS, TMUSIC_L2,              10,      10, "Chamber of Bone",
 						"Levels\\L2Data\\L2.AMP", "Levels\\L2Data\\L2.SOL",     "Levels\\L2Data\\L2.TMI",      "Levels\\L2Data\\L2.CEL",      "Levels\\L2Data\\L2.TIL",      "Levels\\L2Data\\L2.MIN",      "Levels\\L2Data\\L2S.CEL",     "Levels\\L2Data\\L2_2.pal",      "Gendata\\Cut2.CEL",     "Gendata\\Cut2.pal",              TRUE,           254, "Levels\\L2Data\\Bonecha2.DUN", "Levels\\L2Data\\Bonecha1.DUN", DBORDERX + 53, DBORDERY + 23,
-						{ MT_INVALID }, ALIGN32
+						{ MT_INVALID }, /* MT_XSKELSD, MT_UNSEEN, MT_HORNED */ ALIGN32
 					},
 /*DLV_MAZE*//*		{       0, TRUE,    DTYPE_NONE,      DTYPE_NONE,      TMUSIC_TOWN,            16,      16, "Maze",
 						NULL,                     "Levels\\TownData\\Town.SOL", "Levels\\TownData\\Town.TMI",  "Levels\\TownData\\Town.CEL",  "Levels\\TownData\\Town.TIL",  "Levels\\TownData\\Town.MIN",  "Levels\\TownData\\TownS.CEL", "Levels\\L1Data\\L1_5.pal",      "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, "Levels\\L1Data\\Lv1MazeA.DUN", "Levels\\L1Data\\Lv1MazeB.DUN", DBORDERX +  4, DBORDERY + 34,
-						{ MT_INVALID }, ALIGN32
+						{ MT_INVALID }, / * MT_MUDRUN * / ALIGN32
 					},*/
 /*DLV_POISONWATER*/	{       4, TRUE,    DTYPE_CAVES,     DTYPE_CAVES,     TMUSIC_L3,              10,      10, "Poisoned Water Supply",
 						"Levels\\L3Data\\L3.AMP", "Levels\\L3Data\\L3.SOL",     "Levels\\L3Data\\L3.TMI",      "Levels\\L3Data\\L3.CEL",      "Levels\\L3Data\\L3.TIL",      "Levels\\L3Data\\L3.MIN",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L3Data\\L3pfoul.pal",   "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, "Levels\\L3Data\\Foulwatr.DUN", "Levels\\L3Data\\Foulwatr.DUN", DBORDERX + 15, DBORDERY + 67,
-						{ MT_INVALID }, ALIGN32
+						{ MT_INVALID }, /* MT_DFALLSP, MT_YFALLSD, MT_NGOATMC, MT_NGOATBW */ ALIGN32
 					},
 /*DLV_VILEBETRAYER*/{      30, TRUE,    DTYPE_CATHEDRAL, DTYPE_CATHEDRAL, TMUSIC_L1,              10,      10, "Archbishop Lazarus' Lair",
 						"Levels\\L1Data\\L1.AMP", "Levels\\L1Data\\L1.SOL",     "Levels\\L1Data\\L1.TMI",      "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L1Data\\L1_2.pal",      "Gendata\\Cutportr.CEL", "Gendata\\Cutportr.pal",         FALSE,            43, "Levels\\L1Data\\Vile1.DUN",    "Levels\\L1Data\\Vile2.DUN",    DBORDERX + 19, DBORDERY + 20,
-						{ MT_INVALID }, ALIGN32
+						{ MT_INVALID }, /* MT_HLSPWN, MT_ADVOCATE */ ALIGN32
 					},
 	// clang-format on
 };

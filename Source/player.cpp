@@ -1338,7 +1338,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 
 static bool StartWalk(int pnum)
 {
-	int dir, i, xvel3, xvel, yvel;
+	int dir, i, mwi;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartWalk: illegal player %d", pnum);
@@ -1359,33 +1359,35 @@ static bool StartWalk(int pnum)
 	for (i = 0; i < NUM_CLASSES; i++)
 		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
 #endif
-	xvel3 = (TILE_WIDTH << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
-	xvel = (TILE_WIDTH << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK] * 2);
-	yvel = (TILE_HEIGHT << PLR_WALK_SHIFT) / (PlrGFXAnimLens[PC_WARRIOR][PA_WALK] * 2);
+	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
+	static_assert(PLR_WALK_SHIFT == MON_WALK_SHIFT, "To reuse MWVel in StartWalk, PLR_WALK_SHIFT must be equal to MON_WALK_SHIFT.");
+	assert(PlrGFXAnimLens[PC_WARRIOR][PA_WALK] <= lengthof(MWVel));
+	assert(PlrGFXAnimLens[PC_WARRIOR][PA_WALK] == 8); // StartWalk relies on fix walk-animation length to calculate the x/y velocity
+	mwi = MWVel[PlrGFXAnimLens[PC_WARRIOR][PA_WALK] - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
 	switch (dir) {
 	case DIR_N:
-		StartWalk1(pnum, 0, -xvel, dir);
+		StartWalk1(pnum, 0, -(mwi >> 1), dir);
 		break;
 	case DIR_NE:
-		StartWalk1(pnum, xvel, -yvel, dir);
+		StartWalk1(pnum, (mwi >> 1), -(mwi >> 2), dir);
 		break;
 	case DIR_E:
-		StartWalk2(pnum, xvel3, 0, -TILE_WIDTH, 0, dir);
+		StartWalk2(pnum, mwi, 0, -TILE_WIDTH, 0, dir);
 		break;
 	case DIR_SE:
-		StartWalk2(pnum, xvel, yvel, -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, (mwi >> 1), (mwi >> 2), -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_S:
-		StartWalk2(pnum, 0, xvel, 0, -TILE_HEIGHT, dir);
+		StartWalk2(pnum, 0, (mwi >> 1), 0, -TILE_HEIGHT, dir);
 		break;
 	case DIR_SW:
-		StartWalk2(pnum, -xvel, yvel, TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, -(mwi >> 1), (mwi >> 2), TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_W:
-		StartWalk1(pnum, -xvel3, 0, dir);
+		StartWalk1(pnum, -mwi, 0, dir);
 		break;
 	case DIR_NW:
-		StartWalk1(pnum, -xvel, -yvel, dir);
+		StartWalk1(pnum, -(mwi >> 1), -(mwi >> 2), dir);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1428,7 +1430,7 @@ static bool StartWalk(int pnum)
 
 static bool StartAttack(int pnum)
 {
-	int i, dx, dy, sn, sl, dir;
+	int i, dx, dy, sn, sl, dir, ss;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartAttack: illegal player %d", pnum);
@@ -1477,7 +1479,17 @@ static bool StartAttack(int pnum)
 	}
 
 	dir = GetDirection(plr._px, plr._py, dx, dy);
+	ss = plr._pIBaseAttackSpeed;
+	if (sn == SPL_WHIPLASH) {
+		ss += 3;
+		if (ss > 4)
+			ss = 4;
+	} else if (sn == SPL_WALLOP) {
+		ss -= 3;
+	}
+
 	plr._pmode = PM_ATTACK;
+	plr._pVar4 = ss; // ATTACK_SPEED
 	plr._pVar5 = sn; // ATTACK_SKILL
 	plr._pVar6 = sl; // ATTACK_SKILL_LEVEL
 	plr._pVar7 = 0;  // ATTACK_ACTION_PROGRESS : 'flags' of sfx and hit
@@ -1494,7 +1506,7 @@ static bool StartAttack(int pnum)
 
 static void StartRangeAttack(int pnum)
 {
-	int i, dx, dy, sn, sl, dir;
+	int i, dx, dy, sn, sl, dir, ss;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartRangeAttack: illegal player %d", pnum);
@@ -1520,9 +1532,11 @@ static void StartRangeAttack(int pnum)
 	}
 	sn = plr.destParam3;
 	sl = plr.destParam4;
+	ss = plr._pIBaseAttackSpeed;
 
 	plr._pVar1 = dx;    // RATTACK_TARGET_X
 	plr._pVar2 = dy;    // RATTACK_TARGET_Y
+	plr._pVar4 = ss;    // RATTACK_SPEED
 	plr._pVar5 = sn;    // RATTACK_SKILL
 	plr._pVar6 = sl;    // RATTACK_SKILL_LEVEL
 	plr._pVar7 = FALSE; // RATTACK_ACTION_PROGRESS : 'flag' of launch
@@ -1590,13 +1604,13 @@ static void StartSpell(int pnum)
 
 	plr._pVar1 = dx;                    // SPELL_TARGET_X
 	plr._pVar2 = dy;                    // SPELL_TARGET_Y
-	plr._pVar3 = plr.destParam3;        // SPELL_NUM : the spell to be cast
-	plr._pVar4 = plr.destParam4;        // SPELL_LEVEL
+	plr._pVar5 = plr.destParam3;        // SPELL_NUM : the spell to be cast
+	plr._pVar6 = plr.destParam4;        // SPELL_LEVEL
 	plr._pVar7 = FALSE;                 // SPELL_ACTION_PROGRESS : 'flag' of cast
 	plr._pVar8 = 0;                     // SPELL_TICK : speed helper
 	plr._pmode = PM_SPELL;
 
-	sd = &spelldata[plr._pVar3]; // SPELL_NUM
+	sd = &spelldata[plr._pVar5]; // SPELL_NUM
 	if (sd->sSkillFlags & SDFLAG_TARGETED)
 		plr._pdir = GetDirection(plr._px, plr._py, dx, dy);
 	switch (sd->sType) {
@@ -1874,25 +1888,34 @@ static inline void PlrStepAnim(int pnum)
 static void PlrDoWalk(int pnum)
 {
 	int px, py;
-	bool skipAnim;
+	bool stepAnim;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoWalk: illegal player %d", pnum);
 	}
 
 	plr._pVar8++; // WALK_TICK
-	if (plr._pIFlags & (ISPL_FASTESTWALK | ISPL_FASTERWALK | ISPL_FASTWALK)) {
-		if (plr._pIFlags & ISPL_FASTESTWALK) {
-			skipAnim = true;
-		} else if (plr._pIFlags & ISPL_FASTERWALK) {
-			skipAnim = (plr._pVar8 & 1) == 1;
-		} else { // if (plr._pIFlags & ISPL_FASTWALK) {
-			skipAnim = (plr._pVar8 & 3) == 2;
-		}
-		if (skipAnim) {
-			PlrStepAnim(pnum);
-			PlrChangeOffset(pnum);
-		}
+	switch (plr._pIWalkSpeed) {
+	case 0:
+		stepAnim = false;
+		break;
+	case 1:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case 2:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case 3:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	if (stepAnim) {
+		PlrStepAnim(pnum);
+		// assert(PlrAnimFrameLens[PA_WALK] == 1);
+		// PlrChangeOffset(pnum); -- unnecessary in case the velocity is based on _pIWalkSpeed
 	}
 	assert(PlrAnimFrameLens[PA_WALK] == 1);
 	if ((plr._pAnimFrame & 3) == 3) {
@@ -2023,9 +2046,23 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		dam <<= 1;
 	}
 
-	if (sn == SPL_SWIPE) {
+	switch (sn) {
+	case SPL_ATTACK:
+		break;
+	case SPL_SWIPE:
 		dam = (dam * (48 + sl)) >> 6;
+		break;
+	case SPL_WALLOP:
+		dam = (dam * (112 + sl)) >> 6;
+		break;
+	case SPL_WHIPLASH:
+		dam = (dam * (24 + sl)) >> 6;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
+
 	if (plr._pILifeSteal != 0) {
 		skdam = (dam * plr._pILifeSteal) >> 7;
 		PlrIncHp(pnum, skdam);
@@ -2075,6 +2112,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 {
 	int hper, blkper, dam, damsl, dambl, dampc;
+	unsigned tmp;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrHitPlr: illegal target player %d", pnum);
@@ -2117,13 +2155,28 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (dampc != 0)
 		dam += CalcPlrDam(pnum, MISR_PUNCTURE, plx(offp)._pIPcMinDam, dampc);
 
-	if (random_(6, sn == SPL_SWIPE ? 800 : 200) < plx(offp)._pICritChance) {
+	tmp = sn == SPL_SWIPE ? 800 : 200;
+	if (random_low(6, tmp) < plx(offp)._pICritChance) {
 		dam <<= 1;
 	}
 
-	if (sn == SPL_SWIPE) {
+	switch (sn) {
+	case SPL_ATTACK:
+		break;
+	case SPL_SWIPE:
 		dam = (dam * (48 + sl)) >> 6;
+		break;
+	case SPL_WALLOP:
+		dam = (dam * (112 + sl)) >> 6;
+		break;
+	case SPL_WHIPLASH:
+		dam = (dam * (24 + sl)) >> 6;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
+
 	if (plx(offp)._pILifeSteal != 0) {
 		PlrIncHp(offp, (dam * plx(offp)._pILifeSteal) >> 7);
 	}
@@ -2154,52 +2207,80 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	return true;
 }
 
-static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
+static int PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 {
 	int mpo;
 
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return PlrHitMonst(pnum, sn, sl, mpo);
+		return PlrHitMonst(pnum, sn, sl, mpo) ? 1 : 0;
 	}
 	mpo = dPlayer[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return PlrHitPlr(pnum, sn, sl, mpo);
+		return PlrHitPlr(pnum, sn, sl, mpo) ? 1 : 0;
 	}
 	mpo = dObject[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 		if (objects[mpo]._oBreak == OBM_BREAKABLE) {
 			OperateObject(pnum, mpo, false);
-			return true;
+			return 0; // do not reduce the durability if the target is an object
 		}
 	}
-	return false;
+	return 0;
 }
 
 static void PlrDoAttack(int pnum)
 {
 	int dir, hitcnt;
+	bool stepAnim = false;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoAttack: illegal player %d", pnum);
 	}
 
 	plr._pVar8++; // ATTACK_TICK
-	if (plr._pIFlags & ISPL_FASTESTATTACK) {
-		PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTERATTACK) {
+	switch (plr._pVar4) { // ATTACK_SPEED
+	/*case -4:
 		if ((plr._pVar8 & 1) == 1)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTATTACK) {
+			plr._pAnimCnt--;
+		break;*/
+	case -3:
+		if ((plr._pVar8 % 3u) == 0)
+			plr._pAnimCnt--;
+		break;
+	case -2:
 		if ((plr._pVar8 & 3) == 2)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_QUICKATTACK) {
+			plr._pAnimCnt--;
+		break;
+	case -1:
 		if ((plr._pVar8 & 7) == 4)
-			PlrStepAnim(pnum);
+			plr._pAnimCnt--;
+		break;
+	case 0:
+		break;
+	case 1:
+		stepAnim = (plr._pVar8 & 7) == 4;
+		break;
+	case 2:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case 3:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case 4:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
+	if (stepAnim) {
+		PlrStepAnim(pnum);
+	}
+
 	if (plr._pAnimFrame < plr._pAFNum - 1)
 		return;
 	if (plr._pVar7 == 0) { // ATTACK_ACTION_PROGRESS
@@ -2213,7 +2294,7 @@ static void PlrDoAttack(int pnum)
 	if (plr._pVar7 == 1) {
 		plr._pVar7++;
 
-		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL_LEVEL
+		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL, ATTACK_SKILL_LEVEL
 			plr._px + offset_x[dir], plr._py + offset_y[dir]);
 		if (plr._pVar5 == SPL_SWIPE) {
 			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
@@ -2238,30 +2319,44 @@ static void PlrDoAttack(int pnum)
 
 static void PlrDoRangeAttack(int pnum)
 {
+	bool stepAnim;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoRangeAttack: illegal player %d", pnum);
 	}
 
 	plr._pVar8++; // RATTACK_TICK
-	if (plr._pIFlags & ISPL_FASTESTATTACK) {
-		PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTERATTACK) {
-		if ((plr._pVar8 & 1) == 1)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTATTACK) {
-		if ((plr._pVar8 & 3) == 2)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_QUICKATTACK) {
-		if ((plr._pVar8 & 7) == 4)
-			PlrStepAnim(pnum);
+	switch (plr._pVar4) { // RATTACK_SPEED
+	case 0:
+		stepAnim = false;
+		break;
+	case 1:
+		stepAnim = (plr._pVar8 & 7) == 4;
+		break;
+	case 2:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case 3:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case 4:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
+	if (stepAnim) {
+		PlrStepAnim(pnum);
+	}
+
 	if (plr._pAnimFrame < plr._pAFNum)
 		return;
 
 	if (!plr._pVar7) { // RATTACK_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
 		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // RATTACK_TARGET_X, RATTACK_TARGET_X
-			 spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL_LEVEL
+			 spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL, RATTACK_SKILL_LEVEL
 
 		WeaponDur(pnum, 40);
 	}
@@ -2385,18 +2480,31 @@ static void ArmorDur(int pnum)
 
 static void PlrDoSpell(int pnum)
 {
+	bool stepAnim;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoSpell: illegal player %d", pnum);
 	}
 	plr._pVar8++; // SPELL_TICK
-	if (plr._pIFlags & ISPL_FASTESTCAST) {
+	switch (plr._pIBaseCastSpeed) {
+	case 0:
+		stepAnim = false;
+		break;
+	case 1:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case 2:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case 3:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	if (stepAnim) {
 		PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTERCAST) {
-		if ((plr._pVar8 & 1) == 1)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTCAST) {
-		if ((plr._pVar8 & 3) == 2)
-			PlrStepAnim(pnum);
 	}
 
 	if (plr._pAnimFrame < plr._pSFNum)
@@ -2406,7 +2514,7 @@ static void PlrDoSpell(int pnum)
 		plr._pVar7 = TRUE;
 
 		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // SPELL_TARGET_X, SPELL_TARGET_Y
-			spelldata[plr._pVar3].sMissile, MST_PLAYER, pnum, plr._pVar4); // SPELL_NUM, SPELL_LEVEL
+			spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // SPELL_NUM, SPELL_LEVEL
 	}
 	assert(PlrAnimFrameLens[PA_SPELL] == 1);
 	if (plr._pAnimFrame < plr._pSFrames)
@@ -2450,19 +2558,33 @@ void KnockbackPlr(int pnum, int dir)
 
 static void PlrDoGotHit(int pnum)
 {
+	bool stepAnim;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoGotHit: illegal player %d", pnum);
 	}
 	plr._pVar8++; // GOTHIT_TICK
-	if (plr._pIFlags & ISPL_FASTESTRECOVER) {
-		PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTERRECOVER) {
-		if ((plr._pVar8 & 1) == 1)
-			PlrStepAnim(pnum);
-	} else if (plr._pIFlags & ISPL_FASTRECOVER) {
-		if ((plr._pVar8 & 3) == 2)
-			PlrStepAnim(pnum);
+	switch (plr._pIRecoverySpeed) {
+	case 0:
+		stepAnim = false;
+		break;
+	case 1:
+		stepAnim = (plr._pVar8 & 3) == 2;
+		break;
+	case 2:
+		stepAnim = (plr._pVar8 & 1) == 1;
+		break;
+	case 3:
+		stepAnim = true;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
+	if (stepAnim) {
+		PlrStepAnim(pnum);
+	}
+
 	assert(PlrAnimFrameLens[PA_GOTHIT] == 1);
 	if (plr._pAnimFrame < plr._pHFrames)
 		return;
@@ -2571,6 +2693,7 @@ static bool CheckNewPath(int pnum)
 			break;
 		default:
 			ASSUME_UNREACHABLE
+			break;
 		}
 
 		AssertFixPlayerLocation(pnum);
@@ -3128,7 +3251,7 @@ void SyncPlrAnim(int pnum)
 		p->_pAnimLen = p->_pSFrames;
 		p->_pAnimWidth = p->_pSWidth;
 		p->_pAnimXOffset = (p->_pSWidth - TILE_WIDTH) >> 1;
-		switch (spelldata[p->_pVar3].sType) { // SPELL_NUM
+		switch (spelldata[p->_pVar5].sType) { // SPELL_NUM
 		case STYPE_FIRE:      anim = p->_pFAnim; break;
 		case STYPE_LIGHTNING: anim = p->_pLAnim; break;
 		case STYPE_MAGIC:     anim = p->_pTAnim; break;

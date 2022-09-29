@@ -44,7 +44,8 @@
 #define MAX_CHARACTERS			99
 #define MAX_TOWNERS				16
 #define STORE_TOWNERS			8
-#define MAX_LVLMTYPES			16
+#define MAX_LVLMTYPES			12
+#define MAX_LVLMIMAGE			4000
 
 #ifdef HELLFIRE
 #define MAXTRIGGERS				7

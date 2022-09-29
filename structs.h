@@ -359,6 +359,7 @@ typedef struct PlayerStruct {
 	BOOLEAN _pInfraFlag;
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
+	BYTE _pAlign_B0;
 	int _pISlMinDam; // min slash-damage (swords, axes)
 	int _pISlMaxDam; // max slash-damage (swords, axes)
 	int _pIBlMinDam; // min blunt-damage (maces, axes)
@@ -380,9 +381,12 @@ typedef struct PlayerStruct {
 	BYTE _pIBlockChance;
 	uint64_t _pISpells; // Bitmask of staff spell
 	unsigned _pIFlags;
-	unsigned _pIFlags2; // unused at the moment, but removing it causes inconsistency in case of X86_32bit_COMP...
+	BYTE _pIWalkSpeed;
+	BYTE _pIRecoverySpeed;
+	BYTE _pIBaseCastSpeed;
+	BYTE _pAlign_B1;
 	int _pIGetHit;
-	BYTE _pAlign_CB; // unused alignment
+	BYTE _pIBaseAttackSpeed;
 	char _pIArrowVelBonus; // _pISplCost in vanilla code
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
@@ -578,8 +582,8 @@ typedef struct MonsterData {
 	BYTE mSelFlag;
 	BYTE mAi;
 	BYTE mInt;
-	int mMinHP;
-	int mMaxHP;
+	uint16_t mMinHP;
+	uint16_t mMaxHP;
 	int mFlags;
 	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE mMinDamage;
@@ -596,7 +600,7 @@ typedef struct MonsterData {
 	uint16_t mMagicRes2;
 	uint16_t mTreasure;
 	uint16_t mExp;
-	ALIGNMENT32(3)
+	ALIGNMENT(4, 1)
 } MonsterData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
@@ -618,26 +622,47 @@ static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align Mon
 #elif defined(X86_64bit_COMP)
 static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 64, "Align MonFileData to power of 2 for better performance.");
 #endif
-
+#pragma pack(push, 1)
 typedef struct MapMonData {
 	int cmType;
 	BOOL cmPlaceScatter;
-	AnimStruct cmAnims[NUM_MON_ANIM];
 	SoundSample cmSnds[NUM_MON_SFX][2];
+	AnimStruct cmAnims[NUM_MON_ANIM];
+	BYTE cmLevel;
+	BYTE cmSelFlag;
+	BYTE cmAi;
+	BYTE cmInt;
+	int cmFlags;
+	uint16_t cmHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE cmMinDamage;
+	BYTE cmMaxDamage;
+	uint16_t cmHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE cmMinDamage2;
+	BYTE cmMaxDamage2;
+	BYTE cmMagic;
+	BYTE cmMagic2;     // unused
+	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	BYTE cmEvasion;    // evasion: used against magic-projectile
+	uint16_t cmMagicRes;
+	uint16_t cmTreasure;
+	unsigned cmExp;
+	const char* cmName;
 	int cmWidth;
 	int cmXOffset;
-	BYTE cmDeadval;
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
-	ALIGNMENT(3, 2)
+	uint16_t cmAlign_0; // unused
+	uint16_t cmMinHP;
+	uint16_t cmMaxHP;
+	ALIGNMENT(26, 1)
 } MapMonData;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 256, "Align MapMonData closer to power of 2 for better performance.");
+static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align MapMonData closer to power of 2 for better performance.");
+static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 640, "Align MapMonData closer to power of 2 for better performance.");
 #endif
-
-typedef struct MonsterStruct { // note: missing field _mAFNum
+#pragma pack(pop)
+typedef struct MonsterStruct {
 	int _mmode; /* MON_MODE */
 	unsigned _msquelch;
 	BYTE _mMTidx;
@@ -680,6 +705,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _lasty; // the last known Y-coordinate of the enemy
 	int _mRndSeed;
 	int _mAISeed;
+	int mtalkmsg;
 	BYTE _uniqtype;
 	BYTE _uniqtrans;
 	BYTE _udeadval;
@@ -703,18 +729,18 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mMagic2;     // unused
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
-	BYTE _mAFNum;
-	BYTE _mAFNum2;
 	uint16_t _mMagicRes;
 	uint16_t _mTreasure;
-	uint16_t _mExp;
-	int mtalkmsg;
+	unsigned _mExp;
 	const char* mName;
-	int _mType;
-	AnimStruct* _mAnims;
 	int _mAnimWidth;
 	int _mAnimXOffset;
-	ALIGNMENT(13, 7)
+	BYTE _mAFNum;
+	BYTE _mAFNum2;
+	uint16_t _mAlign_0; // unused
+	AnimStruct* _mAnims;
+	int _mType;
+	ALIGNMENT(12, 6)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -742,8 +768,8 @@ typedef struct UniqMonData {
 	BYTE mMaxDamage2;
 	uint16_t mMagicRes;
 	BYTE mUnqAttr;
-	BYTE mUnqHit;
-	BYTE mUnqAC;
+	BYTE mUnqHit; // to-hit bonus of the unique monster
+	BYTE mUnqAC; // armor class bonus of the unique monster
 	BYTE mQuestId;
 	int mtalkmsg;
 	ALIGNMENT64(4)
@@ -997,13 +1023,6 @@ typedef struct TCmdItemOp {
 	CmdSkillUse iou;
 } TCmdItemOp;
 
-typedef struct TCmdLocAttack {
-	BYTE bCmd;
-	BYTE x;
-	BYTE y;
-	CmdSkillUse lau;
-} TCmdLocAttack;
-
 typedef struct TCmdLocSkill {
 	BYTE bCmd;
 	BYTE x;
@@ -1019,29 +1038,17 @@ typedef struct TCmdLocDisarm {
 	char from;
 } TCmdLocDisarm;
 
-typedef struct TCmdPlrAttack {
-	BYTE bCmd;
-	BYTE paPnum;
-	CmdSkillUse pau;
-} TCmdPlrAttack;
-
 typedef struct TCmdPlrSkill {
 	BYTE bCmd;
 	BYTE psPnum;
 	CmdSkillUse psu;
 } TCmdPlrSkill;
 
-typedef struct TCmdMonstAttack {
-	BYTE bCmd;
-	WORD maMnum;
-	CmdSkillUse mau;
-} TCmdMonstAttack;
-
-typedef struct TCmdMonstSkill {
+typedef struct TCmdMonSkill {
 	BYTE bCmd;
 	WORD msMnum;
 	CmdSkillUse msu;
-} TCmdMonstSkill;
+} TCmdMonSkill;
 
 typedef struct TCmdMonstDamage {
 	BYTE bCmd;
@@ -1054,7 +1061,7 @@ typedef struct TCmdMonstKill {
 	TCmdLocBParam1 mkParam1;
 	BYTE mkPnum;
 	WORD mkMnum;
-	WORD mkExp;
+	DWORD mkExp;
 	BYTE mkMonLevel;
 	BYTE mkDir;
 } TCmdMonstKill;
