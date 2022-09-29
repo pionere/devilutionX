@@ -3294,6 +3294,13 @@ void MAI_Cleaver(int mnum)
 		MonStartAttack(mnum);
 }
 
+/*
+ * AI for monsters using special or standard attacks.
+ * Attempts to walk in a circle around the target.
+ *
+ * @param mnum: the id of the monster
+ * @param special: whether the monster should use its special attack
+ */
 static void MAI_Round(int mnum, bool special)
 {
 	MonsterStruct* mon;
@@ -3353,7 +3360,15 @@ void MAI_GoatMc(int mnum)
 	MAI_Round(mnum, true);
 }
 
-static void MAI_Ranged(int mnum, int mitype, int attackMode)
+/*
+ * AI for monsters using special or standard ranged attacks.
+ * Attempts to keep distance from the target.
+ *
+ * @param mnum: the id of the monster
+ * @param mitype: the missile type to be launched at the end of the attack animation.
+ * @param special: whether the monster should use its special attack
+ */
+static void MAI_Ranged(int mnum, int mitype, bool special)
 {
 	int md;
 	MonsterStruct* mon;
@@ -3378,7 +3393,7 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 			md = random_low(118, 20 - mon->_mInt); // STAND_PREV_MODE
 			if ((mon->_mVar1 == MM_DELAY || md == 0) && MON_HAS_ENEMY) {
 				// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
-				if (attackMode == MM_RSPATTACK)
+				if (special)
 					MonStartRSpAttack(mnum, mitype);
 				else
 					MonStartRAttack(mnum, mitype);
@@ -3393,65 +3408,65 @@ static void MAI_Ranged(int mnum, int mitype, int attackMode)
 
 void MAI_GoatBow(int mnum)
 {
-	MAI_Ranged(mnum, MIS_ARROWC, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_ARROWC, false);
 }
 
 void MAI_Succ(int mnum)
 {
-	MAI_Ranged(mnum, MIS_FLARE, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_FLARE, false);
 }
 
 void MAI_SnowWich(int mnum)
 {
-	MAI_Ranged(mnum, MIS_SNOWWICH, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_SNOWWICH, false);
 }
 
 void MAI_HlSpwn(int mnum)
 {
-	MAI_Ranged(mnum, MIS_HLSPWN, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_HLSPWN, false);
 }
 
 void MAI_SolBrnr(int mnum)
 {
-	MAI_Ranged(mnum, MIS_SOLBRNR, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_SOLBRNR, false);
 }
 
 #ifdef HELLFIRE
 void MAI_Lich(int mnum)
 {
-	MAI_Ranged(mnum, MIS_LICH, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_LICH, false);
 }
 
 void MAI_ArchLich(int mnum)
 {
-	MAI_Ranged(mnum, MIS_ARCHLICH, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_ARCHLICH, false);
 }
 
 void MAI_PsychOrb(int mnum)
 {
-	MAI_Ranged(mnum, MIS_PSYCHORB, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_PSYCHORB, false);
 }
 
 void MAI_NecromOrb(int mnum)
 {
-	MAI_Ranged(mnum, MIS_NECROMORB, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_NECROMORB, false);
 }
 #endif
 
 void MAI_AcidUniq(int mnum)
 {
-	MAI_Ranged(mnum, MIS_ACID, MM_RSPATTACK);
+	MAI_Ranged(mnum, MIS_ACID, true);
 }
 
 #ifdef HELLFIRE
 void MAI_Firebat(int mnum)
 {
-	MAI_Ranged(mnum, MIS_FIREBOLT, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_FIREBOLT, false);
 }
 
 void MAI_Torchant(int mnum)
 {
-	MAI_Ranged(mnum, MIS_FIREBALL, MM_RATTACK);
+	MAI_Ranged(mnum, MIS_FIREBALL, false);
 }
 #endif
 
@@ -3655,6 +3670,14 @@ void MAI_Garg(int mnum)
 	MAI_Round(mnum, false);
 }
 
+/*
+ * AI for ranged monsters using special ranged attacks or standard attacks.
+ * Attempts to walk in a circle around the target.
+ *
+ * @param mnum: the id of the monster
+ * @param mitype: the missile type to be launched at the end of the attack animation.
+ * @param lessmissiles: control parameter to reduce the frequency of ranged attacks.
+ */
 static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 {
 	MonsterStruct* mon;
@@ -3750,13 +3773,20 @@ void MAI_Diablo(int mnum)
 	MAI_RoundRanged(mnum, MIS_APOCAC2, 0);
 }
 
-static void MAI_RR2(int mnum, int mitype)
+/*
+ * AI for ranged monsters using special ranged attacks or standard attacks.
+ * Attempts to walk in a circle around the target. Ranged attack is limited to distance of 4.
+ *
+ * @param mnum: the id of the monster
+ * @param mitype: the missile type to be launched at the end of the attack animation.
+ */
+static void MAI_RoundRanged2(int mnum, int mitype)
 {
 	MonsterStruct* mon;
 	int dist, v;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MAI_RR2: Invalid monster %d", mnum);
+		dev_fatal("MAI_RoundRanged2: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
 	if (MON_ACTIVE || MON_RELAXED)
@@ -3820,7 +3850,7 @@ static void MAI_RR2(int mnum, int mitype)
 
 void MAI_Mega(int mnum)
 {
-	MAI_RR2(mnum, MIS_INFERNOC);
+	MAI_RoundRanged2(mnum, MIS_INFERNOC);
 }
 
 void MAI_Golem(int mnum)
