@@ -66,8 +66,6 @@ static MonEnemyStruct currEnemyInfo;
 
 /** Maps from walking path step to facing direction. */
 //const char walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
-/** Maps from monster intelligence factor to missile type. */
-const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBALL };
 
 /* data */
 
@@ -3114,7 +3112,6 @@ void MAI_Sneak(int mnum)
 	} else {
 		if (dist > range || --mon->_mgoalvar1 == 0) { // RETREAT_DISTANCE
 			mon->_mgoal = MGOAL_NORMAL;
-			//mon->_mgoalvar1 = 0;
 		}
 	}
 	if (mon->_mgoal == MGOAL_RETREAT) {
@@ -3218,14 +3215,14 @@ void MAI_Fallen(int mnum)
 				rad = mon->_mhitpoints + 2 * mon->_mInt + 2;
 				mon->_mhitpoints = std::min(mon->_mmaxhp, rad);
 			//}
-			rad = 2 * mon->_mInt + 4;
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (3 * 3 + 9) < SQUELCH_MAX - SQUELCH_LOW);
 			assert(mon->_mAnims[MA_ATTACK].aFrames * mon->_mAnims[MA_ATTACK].aFrameLen * (3 * 3 + 9) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
 			static_assert((3 * 3 + 9) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
 			amount = 3 * mon->_mInt + 9;
-			static_assert(DBORDERX == DBORDERY && DBORDERX >= 10, "MAI_Fallen expects a large enough border.");
+			rad = 2 * mon->_mInt + 4;
+			static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * 3 + 4, "MAI_Fallen expects a large enough border.");
 			assert(rad <= DBORDERX);
 			mx = mon->_mx;
 			my = mon->_my;
@@ -4107,6 +4104,7 @@ void MAI_Counselor(int mnum)
 		if (dist >= 2) {
 			if (v < 5 * (mon->_mInt + 10) && MON_HAS_ENEMY) {
 				// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
+				const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBALL };
 				MonStartRAttack(mnum, counsmiss[mon->_mInt]);
 			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
