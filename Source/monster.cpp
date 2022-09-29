@@ -3320,14 +3320,18 @@ static void MAI_Round(int mnum, bool special)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(116, 2); // MOVE_TURN_DIRECTION
 			}
-			if (mon->_mgoalvar1++ >= 2 * dist && MonDirOK(mnum, md)) {
+			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, md)) {
+				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
+					MonStartDelay(mnum, RandRange(10, 19));
+				}
+			} else {
 				mon->_mgoal = MGOAL_NORMAL;
-			} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-				MonStartDelay(mnum, RandRange(10, 19));
 			}
 		}
-	} else
+	} else {
 		mon->_mgoal = MGOAL_NORMAL;
+	}
+
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 2) {
 			if ((mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mInt + 28) // STAND_TICK
@@ -3692,6 +3696,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 	} else {
 		mon->_mgoal = MGOAL_NORMAL;
 	}
+
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		v = random_(124, 100);
 		if (((dist >= 3 && v < ((8 * (mon->_mInt + 2)) >> lessmissiles))
@@ -3779,11 +3784,14 @@ static void MAI_RR2(int mnum, int mitype)
 			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, currEnemyInfo._meLastDir)) {
 				if (v < 5 * (mon->_mInt + 16))
 					MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
-			} else
+			} else {
 				mon->_mgoal = MGOAL_NORMAL;
+			}
 		}
-	} else
+	} else {
 		mon->_mgoal = MGOAL_NORMAL;
+	}
+
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist < 5 && (dist >= 3 || v < 5 * (mon->_mInt + 1)) && MON_HAS_ENEMY) {
 			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
@@ -3883,21 +3891,25 @@ void MAI_SkelKing(int mnum)
 	md = currEnemyInfo._meLastDir;
 	v = random_(126, 100);
 	dist = currEnemyInfo._meRealDist;
-	if (dist < 2 || mon->_msquelch != SQUELCH_MAX) {
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(127, 4) == 0)) {
+			if (mon->_mgoal != MGOAL_MOVE) {
+				mon->_mgoal = MGOAL_MOVE;
+				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
+				mon->_mgoalvar2 = random_(128, 2); // MOVE_TURN_DIRECTION
+			}
+			if ((mon->_mgoalvar1++ < 2 * dist && MonDirOK(mnum, md)) /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
+				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
+					MonStartDelay(mnum, RandRange(10, 19));
+				}
+			} else {
+				mon->_mgoal = MGOAL_NORMAL;
+			}
+		}
+	} else {
 		mon->_mgoal = MGOAL_NORMAL;
-	} else if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(127, 4) == 0)) {
-		if (mon->_mgoal != MGOAL_MOVE) {
-			mon->_mgoal = MGOAL_MOVE;
-			mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
-			mon->_mgoalvar2 = random_(128, 2); // MOVE_TURN_DIRECTION
-		}
-		if ((mon->_mgoalvar1++ >= 2 * dist && MonDirOK(mnum, md)) /*|| dTransVal[mon->_mx][mon->_my] != dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-			mon->_mgoal = MGOAL_NORMAL;
-		} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-			MonStartDelay(mnum, RandRange(10, 19));
-		}
 	}
-		
+
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (((dist >= 3 && v < 4 * mon->_mInt + 35) || v < 6)
 			&& MON_HAS_ENEMY) {
@@ -3944,21 +3956,25 @@ void MAI_Rhino(int mnum)
 		MonstCheckDoors(mon->_mx, mon->_my);
 	v = random_(131, 100);
 	dist = currEnemyInfo._meRealDist;
-	if (dist < 2 || mon->_msquelch != SQUELCH_MAX) {
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
+			if (mon->_mgoal != MGOAL_MOVE) {
+				mon->_mgoal = MGOAL_MOVE;
+				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
+				mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
+			}
+			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
+				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
+					MonStartDelay(mnum, RandRange(10, 19));
+				}
+			} else {
+				mon->_mgoal = MGOAL_NORMAL;
+			}
+		}
+	} else {
 		mon->_mgoal = MGOAL_NORMAL;
-	} else if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
-		if (mon->_mgoal != MGOAL_MOVE) {
-			mon->_mgoal = MGOAL_MOVE;
-			mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
-			mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
-		}
-		if (mon->_mgoalvar1++ >= 2 * dist /*|| dTransVal[mon->_mx][mon->_my] != dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-			mon->_mgoal = MGOAL_NORMAL;
-		} else if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-			MonStartDelay(mnum, RandRange(10, 19));
-		}
 	}
-		
+
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 5 && v < 2 * mon->_mInt + 43
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
@@ -3999,19 +4015,23 @@ void MAI_Horkdemon(int mnum)
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	v = random_(131, 100);
 	dist = currEnemyInfo._meRealDist;
-	if (dist < 2 || mon->_msquelch != SQUELCH_MAX) {
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
+			if (mon->_mgoal != MGOAL_MOVE) {
+				mon->_mgoal = MGOAL_MOVE;
+				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
+				mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
+			}
+			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
+				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
+					MonStartDelay(mnum, RandRange(10, 19));
+				}
+			} else {
+				mon->_mgoal = MGOAL_NORMAL;
+			}
+		}
+	} else {
 		mon->_mgoal = MGOAL_NORMAL;
-	} else if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
-		if (mon->_mgoal != MGOAL_MOVE) {
-			mon->_mgoal = MGOAL_MOVE;
-			mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
-			mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
-		}
-		if (mon->_mgoalvar1++ >= 2 * dist /*|| dTransVal[mon->_mx][mon->_my] != dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-			mon->_mgoal = MGOAL_NORMAL;
-		} else if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-			MonStartDelay(mnum, RandRange(10, 19));
-		}
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
