@@ -352,6 +352,7 @@ static void InitMonsterStats(int midx)
 	cmon->cmMaxHP = mdata->mMaxHP;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
+		cmon->cmInt += 1;
 		cmon->cmMinHP = 2 * cmon->cmMinHP + 100;
 		cmon->cmMaxHP = 2 * cmon->cmMaxHP + 100;
 		cmon->cmLevel += NIGHTMARE_LEVEL_BONUS;
@@ -367,6 +368,7 @@ static void InitMonsterStats(int midx)
 		cmon->cmArmorClass += NIGHTMARE_AC_BONUS;
 		cmon->cmEvasion += NIGHTMARE_EVASION_BONUS;
 	} else if (gnDifficulty == DIFF_HELL) {
+		cmon->cmInt += 2;
 		cmon->cmMinHP = 4 * cmon->cmMinHP + 200;
 		cmon->cmMaxHP = 4 * cmon->cmMaxHP + 200;
 		cmon->cmLevel += HELL_LEVEL_BONUS;
@@ -985,6 +987,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	mon->_mArmorClass += uniqm->mUnqAC;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
+		mon->_mInt += 1;
 		mon->_mmaxhp = 2 * mon->_mmaxhp + 100;
 		mon->_mLevel += NIGHTMARE_LEVEL_BONUS;
 		mon->_mMinDamage = 2 * (mon->_mMinDamage + 2);
@@ -992,6 +995,7 @@ static void PlaceUniqueMonst(int uniqindex)
 		mon->_mMinDamage2 = 2 * (mon->_mMinDamage2 + 2);
 		mon->_mMaxDamage2 = 2 * (mon->_mMaxDamage2 + 2);
 	} else if (gnDifficulty == DIFF_HELL) {
+		mon->_mInt += 2;
 		mon->_mmaxhp = 4 * mon->_mmaxhp + 200;
 		mon->_mLevel += HELL_LEVEL_BONUS;
 		mon->_mMinDamage = 4 * mon->_mMinDamage + 6;
@@ -1697,7 +1701,8 @@ static void MonFallenFear(int x, int y)
 		 && mon->_mAi == AI_FALLEN
 		 && abs(x - mon->_mx) < 5
 		 && abs(y - mon->_my) < 5
-		 && mon->_mhitpoints >= (1 << 6)) {
+		 && mon->_mhitpoints >= (1 << 6)
+		 && mon->_mInt < 4) {
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
 			assert(mon->_mmode <= MM_INGAME_LAST);
@@ -2891,7 +2896,7 @@ void MAI_SkelSd(int mnum)
 		if (mon->_mVar1 == MM_DELAY || (random_(105, 100) < 2 * mon->_mInt + 20)) {
 			MonStartAttack(mnum);
 		} else {
-			MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mInt);
+			MonStartDelay(mnum, RandRange(11, 19) - 2 * mon->_mInt);
 		}
 	}
 }
@@ -2951,7 +2956,7 @@ void MAI_Snake(int mnum)
 		    || (random_(105, 100) < mon->_mInt + 20)) {
 			MonStartAttack(mnum);
 		} else
-			MonStartDelay(mnum, RandRange(10, 19) - mon->_mInt);
+			MonStartDelay(mnum, RandRange(11, 19) - mon->_mInt);
 	}
 }
 
@@ -3041,7 +3046,7 @@ void MAI_SkelBow(int mnum)
 			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 			MonStartRAttack(mnum, MIS_ARROWC);
 		} else
-			MonStartDelay(mnum, RandRange(20, 24) - 4 * mon->_mInt);
+			MonStartDelay(mnum, RandRange(21, 24) - 4 * mon->_mInt);
 	}
 }
 
@@ -3124,6 +3129,8 @@ void MAI_Sneak(int mnum)
 	mon->_mdir = md;
 	v = random_(112, 100);
 	range -= 2;
+	if (range < 2)
+		range = 2;
 	if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
 		MonStartFadein(mnum, mon->_mdir, false);
 	} else if ((dist > range) && !(mon->_mFlags & MFLAG_HIDDEN)) {
@@ -3216,13 +3223,13 @@ void MAI_Fallen(int mnum)
 				mon->_mhitpoints = std::min(mon->_mmaxhp, rad);
 			//}
 #if DEBUG
-			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (3 * 3 + 9) < SQUELCH_MAX - SQUELCH_LOW);
-			assert(mon->_mAnims[MA_ATTACK].aFrames * mon->_mAnims[MA_ATTACK].aFrameLen * (3 * 3 + 9) < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_ATTACK].aFrames * mon->_mAnims[MA_ATTACK].aFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
-			static_assert((3 * 3 + 9) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
-			amount = 3 * mon->_mInt + 9;
+			static_assert((2 * 5 + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
+			amount = 2 * mon->_mInt + 8;
 			rad = 2 * mon->_mInt + 4;
-			static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * 3 + 4, "MAI_Fallen expects a large enough border.");
+			static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * 5 + 4, "MAI_Fallen expects a large enough border.");
 			assert(rad <= DBORDERX);
 			mx = mon->_mx;
 			my = mon->_my;
@@ -3629,7 +3636,7 @@ void MAI_Garg(int mnum)
 			my = mon->_my - mon->_menemyy;
 			dist = std::max(abs(mx), abs(my));
 			// wake up if the enemy is close
-			static_assert(DBORDERX + DBORDERY > (3 + 2) * 2, "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is always 'far' from (0;0).");
+			static_assert(DBORDERX + DBORDERY > (5 + 2) * 2, "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is always 'far' from (0;0).");
 			if (dist < mon->_mInt + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 				return;
@@ -3734,7 +3741,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 		}
 	}
 	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(5, 14) - mon->_mInt);
+		MonStartDelay(mnum, RandRange(6, 14) - mon->_mInt);
 	}
 }
 
@@ -3841,7 +3848,7 @@ static void MAI_RoundRanged2(int mnum, int mitype)
 		}
 	}
 	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(5, 14) - mon->_mInt);
+		MonStartDelay(mnum, RandRange(6, 14) - mon->_mInt);
 	}
 }
 
@@ -4105,7 +4112,11 @@ void MAI_Counselor(int mnum)
 			if (v < 5 * (mon->_mInt + 10) && MON_HAS_ENEMY) {
 				// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 				const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBALL };
-				MonStartRAttack(mnum, counsmiss[mon->_mInt]);
+				// assert(mon->_mType >= MT_COUNSLR && mon->_mType <= MT_MT_ADVOCATE);
+				static_assert((int)MT_COUNSLR + 1 == (int)MT_MAGISTR, "MAI_Counselor expects the related monster types to be ordered I.");
+				static_assert((int)MT_COUNSLR + 2 == (int)MT_CABALIST, "MAI_Counselor expects the related monster types to be ordered II.");
+				static_assert((int)MT_COUNSLR + 3 == (int)MT_ADVOCATE, "MAI_Counselor expects the related monster types to be ordered III.");
+				MonStartRAttack(mnum, counsmiss[mon->_mType - MT_COUNSLR]);
 			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
 				assert(mon->_mAnims[MA_SPECIAL].aFrames * mon->_mAnims[MA_SPECIAL].aFrameLen * 2 + 
@@ -4153,7 +4164,7 @@ void MAI_Counselor(int mnum)
 		}
 	}
 	if (mon->_mmode == MM_STAND && mon->_mAi != AI_LAZARUS) {
-		MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mInt);
+		MonStartDelay(mnum, RandRange(11, 19) - 2 * mon->_mInt);
 	}
 }
 
