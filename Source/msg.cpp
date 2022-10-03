@@ -1273,15 +1273,15 @@ void LevelDeltaExport()
 			}
 			net_assert(mon->_mmode <= MM_INGAME_LAST);
 			TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)dst;
-			tmon->smMnum = mnum;
+			tmon->smMnum = SwapLE16(mnum);
 			tmon->smMode = mon->_mmode;
-			tmon->smSquelch = mon->_msquelch;
+			tmon->smSquelch = SwapLE32(mon->_msquelch);
 			tmon->smPathcount = mon->_mpathcount; // unused
 			tmon->smWhoHit = mon->_mWhoHit;
 			tmon->smGoal = mon->_mgoal;
-			tmon->smGoalvar1 = mon->_mgoalvar1;
-			tmon->smGoalvar2 = mon->_mgoalvar2;
-			tmon->smGoalvar3 = mon->_mgoalvar3;
+			tmon->smGoalvar1 = SwapLE32(mon->_mgoalvar1);
+			tmon->smGoalvar2 = SwapLE32(mon->_mgoalvar2);
+			tmon->smGoalvar3 = SwapLE32(mon->_mgoalvar3);
 			tmon->smx = mon->_mx;                // Tile X-position of monster
 			tmon->smy = mon->_my;                // Tile Y-position of monster
 			tmon->smfutx = mon->_mfutx;             // Future tile X-position of monster. Set at start of walking animation
@@ -1291,7 +1291,7 @@ void LevelDeltaExport()
 //	tmon->_mxoff;             // Monster sprite's pixel X-offset from tile.
 //	tmon->_myoff;             // Monster sprite's pixel Y-offset from tile.
 			tmon->smdir = mon->_mdir;              // Direction faced by monster (direction enum)
-			tmon->smEnemy = mon->_menemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
+			tmon->smEnemy = SwapLE32(mon->_menemy);            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
 			tmon->smEnemyx = mon->_menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 			tmon->smEnemyy = mon->_menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 			tmon->smListener = mon->_mListener;        // the player to whom the monster is talking to
@@ -1299,23 +1299,23 @@ void LevelDeltaExport()
 			tmon->smAnimFrame = mon->_mAnimFrame; // Current frame of animation.
 			// assert(!mon->_mDelFlag || mon->_mmode == MM_STONE);
 			tmon->smDelFlag = mon->_mDelFlag; // unused
-			tmon->smVar1 = mon->_mVar1;
-			tmon->smVar2 = mon->_mVar2;
-			tmon->smVar3 = mon->_mVar3;
-			tmon->smVar4 = mon->_mVar4;
-			tmon->smVar5 = mon->_mVar5;
-			tmon->smVar6 = mon->_mVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-			tmon->smVar7 = mon->_mVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-			tmon->smVar8 = mon->_mVar8; // Value used to measure progress for moving from one tile to another
-			tmon->smHitpoints = mon->_mhitpoints;
+			tmon->smVar1 = SwapLE32(mon->_mVar1);
+			tmon->smVar2 = SwapLE32(mon->_mVar2);
+			tmon->smVar3 = SwapLE32(mon->_mVar3);
+			tmon->smVar4 = SwapLE32(mon->_mVar4);
+			tmon->smVar5 = SwapLE32(mon->_mVar5);
+			tmon->smVar6 = SwapLE32(mon->_mVar6); // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+			tmon->smVar7 = SwapLE32(mon->_mVar7); // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+			tmon->smVar8 = SwapLE32(mon->_mVar8); // Value used to measure progress for moving from one tile to another
+			tmon->smHitpoints = SwapLE32(mon->_mhitpoints);
 			tmon->smLastx = mon->_lastx; // the last known X-coordinate of the enemy
 			tmon->smLasty = mon->_lasty; // the last known Y-coordinate of the enemy
 			//tmon->smLeader = mon->leader; // the leader of the monster
 			tmon->smLeaderflag = mon->leaderflag; // the status of the monster's leader
 			//tmon->smPacksize = mon->packsize; // the number of 'pack'-monsters close to their leader
 	//BYTE falign_CB;
-			tmon->smFlags = mon->_mFlags;
-			tmon->smTalkmsg = mon->mtalkmsg;
+			tmon->smFlags = SwapLE32(mon->_mFlags);
+			tmon->smTalkmsg = SwapLE32(mon->mtalkmsg);
 
 			dst += sizeof(TSyncLvlMonster);
 		}
@@ -1326,7 +1326,7 @@ void LevelDeltaExport()
 
 			//assert(!mis->_miDelFlag);
 			TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)dst;
-			tmis->smiMi = mi + MAXMONSTERS;
+			tmis->smiMi = SwapLE16(mi + MAXMONSTERS);
 			tmis->smiType = mis->_miType;   // Type of projectile (MIS_*)
 			//BYTE _miSubType; // unused
 			tmis->smiAnimType = mis->_miAnimType;
@@ -1342,30 +1342,30 @@ void LevelDeltaExport()
 			tmis->smisy = mis->_misy;    // Initial tile Y-position for missile
 			tmis->smix = mis->_mix;     // Tile X-position of the missile
 			tmis->smiy = mis->_miy;     // Tile Y-position of the missile
-			tmis->smixoff = mis->_mixoff;  // Sprite pixel X-offset for the missile
-			tmis->smiyoff = mis->_miyoff;  // Sprite pixel Y-offset for the missile
-			tmis->smixvel = mis->_mixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
-			tmis->smiyvel = mis->_miyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
-			tmis->smitxoff = mis->_mitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-			tmis->smityoff = mis->_mityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+			tmis->smixoff = SwapLE32(mis->_mixoff);  // Sprite pixel X-offset for the missile
+			tmis->smiyoff = SwapLE32(mis->_miyoff);  // Sprite pixel Y-offset for the missile
+			tmis->smixvel = SwapLE32(mis->_mixvel);  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
+			tmis->smiyvel = SwapLE32(mis->_miyvel);  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
+			tmis->smitxoff = SwapLE32(mis->_mitxoff); // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+			tmis->smityoff = SwapLE32(mis->_mityoff); // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 			tmis->smiDir = mis->_miDir;   // The direction of the missile
-			tmis->smiSpllvl = mis->_miSpllvl; // int?
-			tmis->smiSource = mis->_miSource; // int?
-			tmis->smiCaster = mis->_miCaster; // int?
-			tmis->smiMinDam = mis->_miMinDam;
-			tmis->smiMaxDam = mis->_miMaxDam;
+			tmis->smiSpllvl = SwapLE32(mis->_miSpllvl); // int?
+			tmis->smiSource = SwapLE32(mis->_miSource); // int?
+			tmis->smiCaster = SwapLE32(mis->_miCaster); // int?
+			tmis->smiMinDam = SwapLE32(mis->_miMinDam);
+			tmis->smiMaxDam = SwapLE32(mis->_miMaxDam);
 			// tmis->smiRndSeed = mis->_miRndSeed;
-			tmis->smiRange = mis->_miRange;
-			tmis->smiDist = mis->_miDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
+			tmis->smiRange = SwapLE32(mis->_miRange);
+			tmis->smiDist = SwapLE32(mis->_miDist); // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 			tmis->smiLidRadius = mis->_miLid == NO_LIGHT ? 0 : LightList[mis->_miLid]._lradius;
-			tmis->smiVar1 = mis->_miVar1;
-			tmis->smiVar2 = mis->_miVar2;
-			tmis->smiVar3 = mis->_miVar3;
-			tmis->smiVar4 = mis->_miVar4;
-			tmis->smiVar5 = mis->_miVar5;
-			tmis->smiVar6 = mis->_miVar6;
-			tmis->smiVar7 = mis->_miVar7;
-			tmis->smiVar8 = mis->_miVar8;
+			tmis->smiVar1 = SwapLE32(mis->_miVar1);
+			tmis->smiVar2 = SwapLE32(mis->_miVar2);
+			tmis->smiVar3 = SwapLE32(mis->_miVar3);
+			tmis->smiVar4 = SwapLE32(mis->_miVar4);
+			tmis->smiVar5 = SwapLE32(mis->_miVar5);
+			tmis->smiVar6 = SwapLE32(mis->_miVar6);
+			tmis->smiVar7 = SwapLE32(mis->_miVar7);
+			tmis->smiVar8 = SwapLE32(mis->_miVar8);
 
 			dst += sizeof(TSyncLvlMissile);
 		}
@@ -1531,7 +1531,7 @@ void LevelDeltaLoad()
 	// load monsters
 	for ( ; wLen >= sizeof(TSyncLvlMonster); wLen -= sizeof(TSyncLvlMonster)) {
 		TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)src;
-		mnum = tmon->smMnum;
+		mnum = SwapLE16(tmon->smMnum);
 		if (mnum >= MAXMONSTERS)
 			break;
 
@@ -1544,13 +1544,13 @@ void LevelDeltaLoad()
 
 		net_assert(tmon->smMode <= MM_INGAME_LAST);
 		mon->_mmode = tmon->smMode;
-		mon->_msquelch = tmon->smSquelch;
+		mon->_msquelch = SwapLE32(tmon->smSquelch);
 		mon->_mpathcount = tmon->smPathcount;
 		mon->_mWhoHit = tmon->smWhoHit;
 		mon->_mgoal = tmon->smGoal;
-		mon->_mgoalvar1 = tmon->smGoalvar1;
-		mon->_mgoalvar2 = tmon->smGoalvar2;
-		mon->_mgoalvar3 = tmon->smGoalvar3;
+		mon->_mgoalvar1 = SwapLE32(tmon->smGoalvar1);
+		mon->_mgoalvar2 = SwapLE32(tmon->smGoalvar2);
+		mon->_mgoalvar3 = SwapLE32(tmon->smGoalvar3);
 		mon->_mx = tmon->smx;                // Tile X-position of monster
 		mon->_my = tmon->smy;                // Tile Y-position of monster
 		mon->_mfutx = tmon->smfutx;             // Future tile X-position of monster. Set at start of walking animation
@@ -1561,30 +1561,30 @@ void LevelDeltaLoad()
 //	tmon->_myoff;             // Monster sprite's pixel Y-offset from tile.
 		mon->_mxoff = mon->_myoff = 0; // no need to sync these values as they are recalculated when used
 		mon->_mdir = tmon->smdir;              // Direction faced by monster (direction enum)
-		mon->_menemy = tmon->smEnemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
+		mon->_menemy = SwapLE32(tmon->smEnemy);            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
 		mon->_menemyx = tmon->smEnemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 		mon->_menemyy = tmon->smEnemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 		mon->_mListener = tmon->smListener;        // the player to whom the monster is talking to
 		mon->_mDelFlag = tmon->smDelFlag;
 		mon->_mAnimCnt = tmon->smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 		mon->_mAnimFrame = tmon->smAnimFrame; // Current frame of animation.
-		mon->_mVar1 = tmon->smVar1;
-		mon->_mVar2 = tmon->smVar2;
-		mon->_mVar3 = tmon->smVar3;
-		mon->_mVar4 = tmon->smVar4;
-		mon->_mVar5 = tmon->smVar5;
-		mon->_mVar6 = tmon->smVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-		mon->_mVar7 = tmon->smVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-		mon->_mVar8 = tmon->smVar8; // Value used to measure progress for moving from one tile to another
-		mon->_mhitpoints = tmon->smHitpoints;
+		mon->_mVar1 = SwapLE32(tmon->smVar1);
+		mon->_mVar2 = SwapLE32(tmon->smVar2);
+		mon->_mVar3 = SwapLE32(tmon->smVar3);
+		mon->_mVar4 = SwapLE32(tmon->smVar4);
+		mon->_mVar5 = SwapLE32(tmon->smVar5);
+		mon->_mVar6 = SwapLE32(tmon->smVar6); // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+		mon->_mVar7 = SwapLE32(tmon->smVar7); // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+		mon->_mVar8 = SwapLE32(tmon->smVar8); // Value used to measure progress for moving from one tile to another
+		mon->_mhitpoints = SwapLE32(tmon->smHitpoints);
 		mon->_lastx = tmon->smLastx; // the last known X-coordinate of the enemy
 		mon->_lasty = tmon->smLasty; // the last known Y-coordinate of the enemy
 //BYTE leader; // the leader of the monster
 		//mon->leaderflag = tmon->smLeaderflag; // the status of the monster's leader
 //BYTE packsize; // the number of 'pack'-monsters close to their leader
 //BYTE falign_CB;
-		mon->_mFlags = tmon->smFlags;
-		mon->mtalkmsg = tmon->smTalkmsg;
+		mon->_mFlags = SwapLE32(tmon->smFlags);
+		mon->mtalkmsg = SwapLE32(tmon->smTalkmsg);
 		// move the light of the monster
 		if (mon->mlid != NO_LIGHT)
 			ChangeLightXY(mon->mlid, mon->_moldx, mon->_moldy);
@@ -1618,8 +1618,8 @@ void LevelDeltaLoad()
 	assert(nummissiles == 0);
 	for ( ; wLen >= sizeof(TSyncLvlMissile); wLen -= sizeof(TSyncLvlMissile)) {
 		TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)src;
-		net_assert(tmis->smiMi >= MAXMONSTERS);
-		mi = tmis->smiMi - MAXMONSTERS;
+		net_assert(SwapLE16(tmis->smiMi) >= MAXMONSTERS);
+		mi = SwapLE16(tmis->smiMi) - MAXMONSTERS;
 		net_assert((unsigned)mi < MAXMISSILES);
 		net_assert(nummissiles < MAXMISSILES);
 		net_assert(missileactive[nummissiles] == mi);
@@ -1642,29 +1642,29 @@ void LevelDeltaLoad()
 		mis->_misy = tmis->smisy;    // Initial tile Y-position for missile
 		mis->_mix = tmis->smix;     // Tile X-position of the missile
 		mis->_miy = tmis->smiy;     // Tile Y-position of the missile
-		mis->_mixoff = tmis->smixoff;  // Sprite pixel X-offset for the missile
-		mis->_miyoff = tmis->smiyoff;  // Sprite pixel Y-offset for the missile
-		mis->_mixvel = tmis->smixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
-		mis->_miyvel = tmis->smiyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
-		mis->_mitxoff = tmis->smitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-		mis->_mityoff = tmis->smityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+		mis->_mixoff = SwapLE32(tmis->smixoff);  // Sprite pixel X-offset for the missile
+		mis->_miyoff = SwapLE32(tmis->smiyoff);  // Sprite pixel Y-offset for the missile
+		mis->_mixvel = SwapLE32(tmis->smixvel);  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
+		mis->_miyvel = SwapLE32(tmis->smiyvel);  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
+		mis->_mitxoff = SwapLE32(tmis->smitxoff); // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+		mis->_mityoff = SwapLE32(tmis->smityoff); // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 		mis->_miDir = tmis->smiDir;   // The direction of the missile
-		mis->_miSpllvl = tmis->smiSpllvl; // int?
-		mis->_miSource = tmis->smiSource; // int?
-		mis->_miCaster = tmis->smiCaster; // int?
-		mis->_miMinDam = tmis->smiMinDam;
-		mis->_miMaxDam = tmis->smiMaxDam;
+		mis->_miSpllvl = SwapLE32(tmis->smiSpllvl); // int?
+		mis->_miSource = SwapLE32(tmis->smiSource); // int?
+		mis->_miCaster = SwapLE32(tmis->smiCaster); // int?
+		mis->_miMinDam = SwapLE32(tmis->smiMinDam);
+		mis->_miMaxDam = SwapLE32(tmis->smiMaxDam);
 		// mis->_miRndSeed = tmis->smiRndSeed;
-		mis->_miRange = tmis->smiRange;
-		mis->_miDist = tmis->smiDist; // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
-		mis->_miVar1 = tmis->smiVar1;
-		mis->_miVar2 = tmis->smiVar2;
-		mis->_miVar3 = tmis->smiVar3;
-		mis->_miVar4 = tmis->smiVar4;
-		mis->_miVar5 = tmis->smiVar5;
-		mis->_miVar6 = tmis->smiVar6;
-		mis->_miVar7 = tmis->smiVar7;
-		mis->_miVar8 = tmis->smiVar8;
+		mis->_miRange = SwapLE32(tmis->smiRange);
+		mis->_miDist = SwapLE32(tmis->smiDist); // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
+		mis->_miVar1 = SwapLE32(tmis->smiVar1);
+		mis->_miVar2 = SwapLE32(tmis->smiVar2);
+		mis->_miVar3 = SwapLE32(tmis->smiVar3);
+		mis->_miVar4 = SwapLE32(tmis->smiVar4);
+		mis->_miVar5 = SwapLE32(tmis->smiVar5);
+		mis->_miVar6 = SwapLE32(tmis->smiVar6);
+		mis->_miVar7 = SwapLE32(tmis->smiVar7);
+		mis->_miVar8 = SwapLE32(tmis->smiVar8);
 
 		if (tmis->smiLidRadius != 0) {
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, tmis->smiLidRadius);

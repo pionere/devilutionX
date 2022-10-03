@@ -1299,9 +1299,9 @@ typedef struct TSyncLvlMissile {
 	INT smitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	INT smityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	BYTE smiDir;   // The direction of the missile
-	int smiSpllvl;
-	int smiSource;
-	int smiCaster;
+	INT smiSpllvl; // TODO: int?
+	INT smiSource; // TODO: int?
+	INT smiCaster; // TODO: int?
 	INT smiMinDam;
 	INT smiMaxDam;
 	// INT smiRndSeed;
