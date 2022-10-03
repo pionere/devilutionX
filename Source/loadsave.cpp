@@ -660,7 +660,6 @@ static void LoadMissile(int mi)
 	LoadInt(&mis->_miMaxDam);
 	// LoadInt(&mis->_miRndSeed);
 	LoadInt(&mis->_miRange);
-	LoadInt(&mis->_miDist);
 	LoadInt(&mis->_miLid);
 	LoadInt(&mis->_miVar1);
 	LoadInt(&mis->_miVar2);
@@ -1380,7 +1379,6 @@ static void SaveMissile(int mi)
 	SaveInt(&mis->_miMaxDam);
 	// SaveInt(&mis->_miRndSeed);
 	SaveInt(&mis->_miRange);
-	SaveInt(&mis->_miDist);
 	SaveInt(&mis->_miLid);
 	SaveInt(&mis->_miVar1);
 	SaveInt(&mis->_miVar2);
@@ -1585,11 +1583,11 @@ void SaveGame()
 		SavePortal(i);
 	// save level-data
 	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
-	 + MAXMISSILES * 176 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
+	 + MAXMISSILES * 172 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
 	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
-	 + MAXMISSILES * 176 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
+	 + MAXMISSILES * 172 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);

@@ -3024,7 +3024,7 @@ void MissToPlr(int mi, bool hit)
 		StartPlrHit(pnum, 0, true, OPPOSITE(plr._pdir));
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
-	dist = (int)mis->_miDist - 24;
+	dist = (int)mis->_miRange - 24; // MISRANGE
 	if (dist < 0)
 		return;
 	if (dist > 32)

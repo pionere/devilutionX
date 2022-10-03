@@ -1356,7 +1356,6 @@ void LevelDeltaExport()
 			tmis->smiMaxDam = SwapLE32(mis->_miMaxDam);
 			// tmis->smiRndSeed = mis->_miRndSeed;
 			tmis->smiRange = SwapLE32(mis->_miRange);
-			tmis->smiDist = SwapLE32(mis->_miDist); // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 			tmis->smiLidRadius = mis->_miLid == NO_LIGHT ? 0 : LightList[mis->_miLid]._lradius;
 			tmis->smiVar1 = SwapLE32(mis->_miVar1);
 			tmis->smiVar2 = SwapLE32(mis->_miVar2);
@@ -1656,7 +1655,6 @@ void LevelDeltaLoad()
 		mis->_miMaxDam = SwapLE32(tmis->smiMaxDam);
 		// mis->_miRndSeed = tmis->smiRndSeed;
 		mis->_miRange = SwapLE32(tmis->smiRange);
-		mis->_miDist = SwapLE32(tmis->smiDist); // Used for arrows to measure distance travelled (increases by 1 each game tick). Higher value is a penalty for accuracy calculation when hitting enemy
 		mis->_miVar1 = SwapLE32(tmis->smiVar1);
 		mis->_miVar2 = SwapLE32(tmis->smiVar2);
 		mis->_miVar3 = SwapLE32(tmis->smiVar3);

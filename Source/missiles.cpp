@@ -685,7 +685,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    - mon->_mArmorClass;
-		hper -= mis->_miDist << 1;
+		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
 		hper = 40;
 	}
@@ -742,7 +742,7 @@ static bool MonsterMHit(int mnum, int mi)
 	//assert((unsigned)pnum < MAX_PLRS);
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = plr._pIHitChance - mon->_mArmorClass
-		    - (mis->_miDist * mis->_miDist >> 1);
+		    - (mis->_miVar7 * mis->_miVar7 >> 1); // MISDIST
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
 			hper = 40
@@ -782,9 +782,9 @@ static bool MonsterMHit(int mnum, int mi)
 		}
 		// add modifiers from arrow-type
 		if (mis->_miType == MIS_PBARROW) {
-			dam = (dam * (64 + 32 - 16 * mis->_miDist + mis->_miSpllvl)) >> 6;
+			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 		} else if (mis->_miType == MIS_ASARROW) {
-			dam = (dam * (8 * mis->_miDist - 16 + mis->_miSpllvl)) >> 5;
+			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
 		}
 		int fdam = plr._pIFMaxDam;
 		if (fdam != 0) {
@@ -916,7 +916,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 		hper = 100 + (2 * currLvl._dLevel)
 		    + (2 * currLvl._dLevel)
 		    - plr._pIAC;
-		hper -= mis->_miDist << 1;
+		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
 		hper = 40
 			+ (2 * currLvl._dLevel)
@@ -976,7 +976,7 @@ static bool PlayerMHit(int pnum, int mi)
 		hper = 30 + mon->_mHit
 		    + (2 * mon->_mLevel)
 		    - plr._pIAC;
-		hper -= mis->_miDist << 1;
+		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
 			hper = 40
@@ -1039,7 +1039,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = plx(offp)._pIHitChance
 		    - plr._pIAC;
-		hper -= (mis->_miDist * mis->_miDist >> 1);
+		hper -= (mis->_miVar7 * mis->_miVar7 >> 1); // MISDIST
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
 			hper = 40
@@ -1086,9 +1086,9 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		}
 		// add modifiers from arrow-type
 		if (mis->_miType == MIS_PBARROW) {
-			dam = (dam * (64 + 32 - 16 * mis->_miDist + mis->_miSpllvl)) >> 6;
+			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 		} else if (mis->_miType == MIS_ASARROW) {
-			dam = (dam * (8 * mis->_miDist - 16 + mis->_miSpllvl)) >> 5;
+			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
 		}
 
 		if (plx(offp)._pILifeSteal != 0) {
@@ -1737,6 +1737,7 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 /*
  * Var1: x coordinate of the missile-target of MIS_ASARROW
  * Var2: y coordinate of the missile-target of MIS_ASARROW
+ * Var7: the distance travelled (MISDIST)
  */
 int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -1774,6 +1775,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		SetMissDir(mi, midir);
 	}
 	mis->_miRange = 255;
+	// mis->_miVar7 = 0;
 	if (micaster & MST_PLAYER) {
 		// mis->_miMinDam = plx(misource)._pIPcMinDam;
 		// mis->_miMaxDam = plx(misource)._pIPcMaxDam;
@@ -3294,7 +3296,7 @@ void MI_Arrow(int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	mis->_miDist++;
+	mis->_miVar7++; // MISDIST
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
@@ -3314,7 +3316,7 @@ void MI_AsArrow(int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	mis->_miDist++;
+	mis->_miVar7++; // MISDIST
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
@@ -4205,7 +4207,7 @@ void MI_Charge(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	mis->_miDist += mis->_miAnimAdd;
+	mis->_miRange += mis->_miAnimAdd; // MISRANGE (used in MissToPlr)
 	// restore the real coordinates
 	//GetMissilePos(mi);
 	ax = mis->_mix;
