@@ -2842,14 +2842,9 @@ int AddOpItem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 }
 
 /**
- * Var1: x coordinate of the first wave
- * Var2: y coordinate of the first wave
- * Var3: direction of the first wave
- * Var4: direction of the second wave
- * Var5: x coordinate of the second wave
- * Var6: y coordinate of the second wave
- * Var7: first wave stopped
- * Var8: second wave stopped
+ * Var1: the distance of the wave from the starting position
+ * Var2: first wave stopped
+ * Var3: second wave stopped
  */
 int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -2868,14 +2863,13 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty) && (sx != tx || sy != ty)) {
 				midir = GetDirection8(sx, sy, dx, dy);
-				mis->_miVar1 = tx;
-				mis->_miVar2 = ty;
-				mis->_miVar3 = (midir - 2) & 7;
-				mis->_miVar4 = (midir + 2) & 7;
-				mis->_miVar5 = tx;
-				mis->_miVar6 = ty;
-				mis->_miVar7 = FALSE;
-				mis->_miVar8 = FALSE;
+				mis->_mix = tx;
+				mis->_miy = ty;
+				mis->_mixvel = XDirAdd[(midir - 2) & 7];
+				mis->_miyvel = YDirAdd[(midir - 2) & 7];
+				//mis->_miVar1 = 0;
+				//mis->_miVar2 = FALSE;
+				//mis->_miVar3 = FALSE;
 				mis->_miRange = (spllvl >> 1);
 				return MIRES_DONE;
 			}
@@ -4300,7 +4294,6 @@ void MI_WallC(int mi)
 	int mitype, tx, ty;
 
 	mis = &missile[mi];
-	mis->_miDist++;
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE;
@@ -4311,30 +4304,29 @@ void MI_WallC(int mi)
 	mitype = MIS_FIREWALL;
 //#endif
 	// SetRndSeed(mis->_miRndSeed);
-	if (!mis->_miVar8) {
-		tx = mis->_miVar1;
-		ty = mis->_miVar2;
+	if (!mis->_miVar2) {
+		tx = mis->_mix + mis->_mitxoff;
+		ty = mis->_miy + mis->_mityoff;
 		assert(IN_DUNGEON_AREA(tx, ty));
 		if (!nMissileTable[dPiece[tx][ty]]) {
 			AddMissile(tx, ty, 0, 0, 0, mitype, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
-			mis->_miVar1 += XDirAdd[mis->_miVar3];
-			mis->_miVar2 += YDirAdd[mis->_miVar3];
 		} else {
-			mis->_miVar8 = TRUE;
+			mis->_miVar2 = TRUE;
 		}
 	}
-	if (!mis->_miVar7 && mis->_miDist != 1) {
-		tx = mis->_miVar5;
-		ty = mis->_miVar6;
+	if (!mis->_miVar3 && mis->_miVar1 != 0) {
+		tx = mis->_mix - mis->_mitxoff;
+		ty = mis->_miy - mis->_mityoff;
 		assert(IN_DUNGEON_AREA(tx, ty));
 		if (!nMissileTable[dPiece[tx][ty]]) {
 			AddMissile(tx, ty, 0, 0, 0, mitype, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
-			mis->_miVar5 += XDirAdd[mis->_miVar4];
-			mis->_miVar6 += YDirAdd[mis->_miVar4];
 		} else {
-			mis->_miVar7 = TRUE;
+			mis->_miVar3 = TRUE;
 		}
 	}
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	mis->_miVar1++;
 	// mis->_miRndSeed = GetRndSeed();
 }
 
