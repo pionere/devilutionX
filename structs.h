@@ -437,7 +437,7 @@ typedef struct MissileData {
 	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
 	void (*mProc)(int);
 	BOOL mDraw;
-	BYTE mType;
+	BYTE mType; // unused
 	BYTE mdFlags;
 	BYTE mResist;
 	BYTE mFileNum;
@@ -469,7 +469,7 @@ static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align Mis
 
 typedef struct MissileStruct {
 	int _miType;   // Type of projectile (MIS_*)
-	BYTE _miSubType; // Sub-Type of projectile 
+	BYTE _miSubType; // unused
 	BYTE _miFlags;
 	BYTE _miResist;
 	BYTE _miAnimType;

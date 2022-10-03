@@ -1328,7 +1328,7 @@ void LevelDeltaExport()
 			TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)dst;
 			tmis->smiMi = mi + MAXMONSTERS;
 			tmis->smiType = mis->_miType;   // Type of projectile (MIS_*)
-			//BYTE _miSubType; // Sub-Type of projectile 
+			//BYTE _miSubType; // unused
 			tmis->smiAnimType = mis->_miAnimType;
 			//BOOL _miAnimFlag;
 			tmis->smiAnimCnt = mis->_miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
@@ -1628,7 +1628,7 @@ void LevelDeltaLoad()
 		memset(mis, 0, sizeof(*mis));
 
 		mis->_miType = tmis->smiType;   // Type of projectile (MIS_*)
-		//BYTE _miSubType; // Sub-Type of projectile 
+		//BYTE _miSubType; // unused
 		mis->_miAnimType = tmis->smiAnimType;
 		//BOOL _miAnimFlag;
 		mis->_miAnimCnt = tmis->smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
