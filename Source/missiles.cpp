@@ -1224,7 +1224,7 @@ int CheckPlrCol(int pnum)
 	static_assert(PM_WALK + 1 == PM_WALK2, "CheckPlrCol expects ordered PM_WALKs.");
 	if (mode > PM_WALK2 || mode < PM_WALK)
 		return negate ? pnum : -1;
-	halfOver = plr._pAnimFrame >= (plr._pWFrames >> 1);
+	halfOver = plr._pAnimFrame > (plr._pWFrames >> 1);
 	if (mode == PM_WALK) {
 		if (negate)
 			halfOver = !halfOver;
