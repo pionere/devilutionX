@@ -682,7 +682,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	mis = &missile[mi];
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = GetRndSeed();
-	if (mis->_miSubType == 0) {
+	if (mis->_miFlags & MIF_ARROW) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    - mon->_mArmorClass;
 		hper -= mis->_miDist << 1;
@@ -740,7 +740,7 @@ static bool MonsterMHit(int mnum, int mi)
 	// mis->_miRndSeed = GetRndSeed();
 	pnum = mis->_miSource;
 	//assert((unsigned)pnum < MAX_PLRS);
-	if (mis->_miSubType == 0) {
+	if (mis->_miFlags & MIF_ARROW) {
 		hper = plr._pIHitChance - mon->_mArmorClass
 		    - (mis->_miDist * mis->_miDist >> 1);
 	} else {
@@ -761,7 +761,7 @@ static bool MonsterMHit(int mnum, int mi)
 #endif
 			return false;
 
-	if (mis->_miSubType == 0) {
+	if (mis->_miFlags & MIF_ARROW) {
 		// calculcate arrow-damage
 		dam = 0;
 		tmac = (plr._pIFlags & ISPL_PENETRATE_PHYS) != 0;
@@ -818,7 +818,7 @@ static bool MonsterMHit(int mnum, int mi)
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
 	//}
-	if (mis->_miSubType == 0) {
+	if (mis->_miFlags & MIF_ARROW) {
 		if (plr._pILifeSteal != 0) {
 			PlrIncHp(pnum, (dam * plr._pILifeSteal) >> 7);
 		}
@@ -834,7 +834,7 @@ static bool MonsterMHit(int mnum, int mi)
 			PlayEffect(mnum, MS_GOTHIT);
 		} else {*/
 			hitFlags = plr._pIFlags;
-			if (mis->_miSubType == 0) {
+			if (mis->_miFlags & MIF_ARROW) {
 				//if (hitFlags & ISPL_NOHEALMON)
 				//	mon->_mFlags |= MFLAG_NOHEAL;
 
@@ -912,7 +912,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	mis = &missile[mi];
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = GetRndSeed();
-	if (mis->_miSubType == 0) {
+	if (mis->_miFlags & MIF_ARROW) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    + (2 * currLvl._dLevel)
 		    - plr._pIAC;
@@ -972,7 +972,7 @@ static bool PlayerMHit(int pnum, int mi)
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = GetRndSeed();
 	mon = &monsters[mis->_miSource];
-	if (mis->_miSubType == 0) {
+	if (mis->_miFlags & MIF_ARROW) {
 		hper = 30 + mon->_mHit
 		    + (2 * mon->_mLevel)
 		    - plr._pIAC;
@@ -1036,7 +1036,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	}
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = GetRndSeed();
-	if (mis->_miSubType == 0) {
+	if (mis->_miFlags & MIF_ARROW) {
 		hper = plx(offp)._pIHitChance
 		    - plr._pIAC;
 		hper -= (mis->_miDist * mis->_miDist >> 1);
@@ -1067,7 +1067,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		}
 	}
 
-	if (mis->_miSubType == 0) {
+	if (mis->_miFlags & MIF_ARROW) {
 		dam = 0;
 		int sldam = plx(offp)._pISlMaxDam;
 		if (sldam != 0) {
