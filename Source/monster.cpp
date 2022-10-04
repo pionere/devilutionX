@@ -3044,7 +3044,7 @@ void MAI_SkelBow(int mnum)
 		// STAND_PREV_MODE
 		if (mon->_mVar1 == MM_DELAY && MON_HAS_ENEMY) {
 			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
-			MonStartRAttack(mnum, MIS_ARROWC);
+			MonStartRAttack(mnum, MIS_ARROW);
 		} else
 			MonStartDelay(mnum, RandRange(21, 24) - 4 * mon->_mInt);
 	}
@@ -3412,7 +3412,7 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 
 void MAI_GoatBow(int mnum)
 {
-	MAI_Ranged(mnum, MIS_ARROWC, false);
+	MAI_Ranged(mnum, MIS_ARROW, false);
 }
 
 void MAI_Succ(int mnum)

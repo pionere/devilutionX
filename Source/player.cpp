@@ -2320,6 +2320,7 @@ static void PlrDoAttack(int pnum)
 static void PlrDoRangeAttack(int pnum)
 {
 	bool stepAnim;
+	int numarrows, sx, sy, dx, dy;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoRangeAttack: illegal player %d", pnum);
@@ -2355,8 +2356,29 @@ static void PlrDoRangeAttack(int pnum)
 
 	if (!plr._pVar7) { // RATTACK_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
-		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // RATTACK_TARGET_X, RATTACK_TARGET_X
-			 spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL, RATTACK_SKILL_LEVEL
+
+		numarrows = plr._pVar5 == SPL_MULTI_SHOT ? 3 : 1; // RATTACK_SKILL
+		sx = plr._px;
+		sy = plr._py;
+		dx = plr._pVar1; // RATTACK_TARGET_X
+		dy = plr._pVar2; // RATTACK_TARGET_Y
+
+		while (--numarrows >= 0) {
+			int xoff = 0;
+			int yoff = 0;
+			if (numarrows != 0) {
+				int angle = numarrows == 2 ? -1 : 1;
+				int x = dx - sx;
+				if (x != 0)
+					yoff = x < 0 ? angle : -angle;
+				int y = dy - sy;
+				if (y != 0)
+					xoff = y < 0 ? -angle : angle;
+
+			}
+			AddMissile(sx, sy, dx + xoff, dy + yoff, plr._pdir,
+				 spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL, RATTACK_SKILL_LEVEL
+		}
 
 		WeaponDur(pnum, 40);
 	}

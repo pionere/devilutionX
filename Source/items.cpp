@@ -1543,9 +1543,6 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_LIGHT:
 		is->_iPLLight = r;
 		break;
-	case IPL_MULT_ARROWS:
-		is->_iFlags |= ISPL_MULT_ARROWS;
-		break;
 	case IPL_INVCURS:
 		is->_iCurs = param1;
 		break;
@@ -2945,9 +2942,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_LIGHT:
 		snprintf(tempstr, sizeof(tempstr), "%+d%% light radius", 10 * is->_iPLLight);
-		break;
-	case IPL_MULT_ARROWS:
-		copy_cstr(tempstr, "multiple arrows per shot");
 		break;
 	//case IPL_THORNS:
 	//	copy_cstr(tempstr, "attacker takes 1-3 damage");

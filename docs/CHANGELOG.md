@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - critical hit chance is based on items
 - block only if standing or actively using the Block skill
 - separate resistance against acid
-- added Whiplash/Wallop/Swipe/Far Shot/Point Blank/Charge skills
+- added Whiplash/Wallop/Swipe/Multi Shot/Far Shot/Point Blank/Charge skills
 - added Attract/Meteor spells
 - skills/spells have experience counters
 - books give skill experience instead of a whole level

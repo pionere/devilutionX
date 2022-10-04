@@ -795,7 +795,10 @@ static bool MonsterMHit(int mnum, int mi)
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 		} else if (mis->_miType == MIS_ASARROW) {
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
+		} else if (mis->_miType == MIS_MLARROW) {
+			dam = (dam * (16 + mis->_miSpllvl)) >> 6;
 		}
+
 		int fdam = plr._pIFMaxDam;
 		if (fdam != 0) {
 			fdam = CalcMonsterDam(mon->_mMagicRes, MISR_FIRE, plr._pIFMinDam, fdam, false);
@@ -1113,6 +1116,8 @@ static bool Plr2PlrMHit(int pnum, int mi)
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 		} else if (mis->_miType == MIS_ASARROW) {
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
+		} else if (mis->_miType == MIS_MLARROW) {
+			dam = (dam * (16 + mis->_miSpllvl)) >> 6;
 		}
 
 		if (plx(offp)._pILifeSteal != 0) {
@@ -1819,46 +1824,6 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		mis->_miMaxDam = currLvl._dLevel << (1 + 6);
 	}
 	return MIRES_DONE;
-}
-
-int AddArrowC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	MissileStruct* mis;
-	int numarrows = 1, mitype;
-
-	if (sx == dx && sy == dy) {
-		dx += XDirAdd[midir];
-		dy += YDirAdd[midir];
-	}
-	if ((micaster & MST_PLAYER) && plx(misource)._pIFlags & ISPL_MULT_ARROWS) {
-		numarrows = 3;
-		// PlaySfxLoc(IS_STING1, sx, sy);
-	}
-
-	mis = &missile[mi];
-	static_assert(MIS_ARROWC - 3 == MIS_ARROW, "AddArrowC optimization depends on the order of MIS_ARROWs I.");
-	static_assert(MIS_PBARROWC - 3 == MIS_PBARROW, "AddArrowC optimization depends on the order of MIS_ARROWs II.");
-	static_assert(MIS_ASARROWC - 3 == MIS_ASARROW, "AddArrowC optimization depends on the order of MIS_ARROWs III.");
-	static_assert(MIS_ARROWC + 1 == MIS_PBARROWC, "AddArrowC optimization depends on the order of MIS_ARROWs IV.");
-	static_assert(MIS_PBARROWC + 1 == MIS_ASARROWC, "AddArrowC optimization depends on the order of MIS_ARROWs V.");
-	assert(mis->_miType >= MIS_ARROWC && mis->_miType <= MIS_ASARROWC);
-	mitype = mis->_miType - 3;
-
-	while (--numarrows >= 0) {
-		int xoff = 0;
-		int yoff = 0;
-		if (numarrows != 0) {
-			int angle = numarrows == 2 ? -1 : 1;
-			int x = dx - sx;
-			if (x != 0)
-				yoff = x < 0 ? angle : -angle;
-			int y = dy - sy;
-			if (y != 0)
-				xoff = y < 0 ? -angle : angle;
-		}
-		AddMissile(sx, sy, dx + xoff, dy + yoff, 0, mitype, micaster, misource, 0);
-	}
-	return MIRES_DELETE;
 }
 
 int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
