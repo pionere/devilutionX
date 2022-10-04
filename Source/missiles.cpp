@@ -680,7 +680,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
-	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == mnum + 1)
 			return false;
 		mis->_miVar8 = mnum + 1;
@@ -741,7 +741,7 @@ static bool MonsterMHit(int mnum, int mi)
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
-	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == mnum + 1)
 			return false;
 		mis->_miVar8 = mnum + 1;
@@ -931,7 +931,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	int hper, tmp, dam;
 
 	mis = &missile[mi];
-	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == -(pnum + 1))
 			return false;
 		mis->_miVar8 = -(pnum + 1);
@@ -998,7 +998,7 @@ static bool PlayerMHit(int pnum, int mi)
 		return false;
 	}
 	mis = &missile[mi];
-	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == -(pnum + 1))
 			return false;
 		mis->_miVar8 = -(pnum + 1);
@@ -1064,7 +1064,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	int offp, dam, tmp, hper;
 
 	mis = &missile[mi];
-	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == -(pnum + 1))
 			return false;
 		mis->_miVar8 = -(pnum + 1);
