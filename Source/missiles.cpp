@@ -762,7 +762,7 @@ static bool MonsterMHit(int mnum, int mi)
 			return false;
 
 	if (mis->_miFlags & MIF_ARROW) {
-		// calculcate arrow-damage
+		// calculate arrow-damage
 		dam = 0;
 		tmac = (plr._pIFlags & ISPL_PENETRATE_PHYS) != 0;
 		int sldam = plr._pISlMaxDam;
@@ -2713,21 +2713,6 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	return MIRES_DELETE;
 }
 
-/**
- * Var1: target hit
- */
-int AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	MissileStruct* mis;
-
-	mis = &missile[mi];
-	// assert(mis->_miAnimType == MFILE_FIREPLAR);
-	mis->_miRange = misfiledata[MFILE_FIREPLAR].mfAnimLen[0] * misfiledata[MFILE_FIREPLAR].mfAnimFrameLen[0];
-	mis->_miMinDam = mis->_miMaxDam = 40 << (6 + gnDifficulty); // assert(misource == DIABLO);
-	//mis->_miVar1 = FALSE;
-	return MIRES_DONE;
-}
-
 int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int i, hp;
@@ -3195,21 +3180,43 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 
 int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	int pnum;
+	MissileStruct* mis;
+	int pnum, px, py;
+
+	mis = &missile[mi];
+	mis->_miMinDam = mis->_miMaxDam = 40 << (6 + gnDifficulty); // assert(misource == DIABLO);
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx
-		 && LineClear(sx, sy, plr._pfutx, plr._pfuty)) {
-			AddMissile(plr._pfutx, plr._pfuty, 0, 0, 0, MIS_EXAPOCA2, MST_MONSTER, misource, 0);
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
+			continue; // skip player if not on the current level
+		if (plr._pAnimFrame > (plr._pWFrames >> 1)) {
+			px = plr._pfutx;
+			py = plr._pfuty;
+		} else {
+			px = plr._poldx;
+			py = plr._poldy;
 		}
+		if (!LineClear(sx, sy, px, py))
+			continue; // skip player if not visible
+
+		// hit-check
+		CheckMissileCol(mi, px, py, MICM_NONE);
+
+		// add explosion effect
+		mis->_mix = plr._px;
+		mis->_miy = plr._py;
+		mis->_mixoff = plr._pxoff;
+		mis->_miyoff = plr._pyoff;
+
+		AddMissile(0, 0, mi, 0, 0, MIS_EXAPOCA2, MST_NA, 0, 0);
 	}
 	return MIRES_DELETE;
 }
 
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
-	const MissileData *mds;
+	MissileStruct* mis;
+	const MissileData* mds;
 	int idx, mi, res;
 
 	idx = nummissiles;
@@ -3544,7 +3551,7 @@ void MI_Firewall(int mi)
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi);
 
-	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
+	AddMissile(0, 0, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
 	mis->_miDelFlag = TRUE;
 	AddUnLight(mis->_miLid);
 }*/
@@ -4027,6 +4034,19 @@ void MI_MiniExp(int mi)
 	AddUnLight(mis->_miLid);
 }
 
+void MI_LongExp(int mi)
+{
+	MissileStruct* mis;
+	// TODO: add light?
+	mis = &missile[mi];
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
+		PutMissile(mi);
+		return;
+	}
+	mis->_miDelFlag = TRUE;
+}
+
 void MI_Acidsplat(int mi)
 {
 	MissileStruct* mis;
@@ -4126,23 +4146,6 @@ void MI_Stone(int mi)
 		}
 		PutMissile(mi);
 	}
-}
-
-void MI_ApocaExp(int mi)
-{
-	MissileStruct *mis;
-
-	mis = &missile[mi];
-	mis->_miRange--;
-	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		return;
-	}
-	if (!mis->_miVar1) {
-		if (CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE))
-			mis->_miVar1 = TRUE;
-	}
-	PutMissile(mi);
 }
 
 void MI_Rhino(int mi)
@@ -4490,7 +4493,7 @@ void MI_Elemental(int mi)
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi);
 
-	AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
+	AddMissile(0, 0, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
 
 	mis->_miDelFlag = TRUE;
 	AddUnLight(mis->_miLid);
