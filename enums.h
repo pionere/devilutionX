@@ -1701,7 +1701,7 @@ typedef enum missile_gfx_id {
 typedef enum missile_flags {
 	MIF_AREA    = 1 << 0, // alternative hit chance calculation
 	MIF_NOBLOCK = 1 << 1, // can not be blocked
-	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored
+	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored, hit check only once
 	MIF_LEAD    = 1 << 3, // leads the monster to the player (on impact)
 	MIF_ARROW   = 1 << 7, // alternative hit chance/damage calculation (for physical arrows)
 } missile_flags;

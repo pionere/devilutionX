@@ -512,8 +512,8 @@ typedef struct MissileStruct {
 	int _miVar4;
 	int _miVar5;
 	int _miVar6;
-	int _miVar7;
-	int _miVar8;
+	int _miVar7; // distance travelled in case of ARROW missiles
+	int _miVar8; // last target in case of non-DOT missiles
 	ALIGNMENT(6, 20)
 } MissileStruct;
 

@@ -680,6 +680,11 @@ static bool MonsterTrapHit(int mnum, int mi)
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
+	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+		if (mis->_miVar8 == mnum + 1)
+			return false;
+		mis->_miVar8 = mnum + 1;
+	}
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = GetRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
@@ -736,6 +741,11 @@ static bool MonsterMHit(int mnum, int mi)
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
+	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+		if (mis->_miVar8 == mnum + 1)
+			return false;
+		mis->_miVar8 = mnum + 1;
+	}
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = GetRndSeed();
 	pnum = mis->_miSource;
@@ -902,14 +912,18 @@ unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam)
 
 static bool PlayerTrapHit(int pnum, int mi)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int hper, tmp, dam;
 
+	mis = &missile[mi];
+	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+		if (mis->_miVar8 == -(pnum + 1));
+			return false;
+		mis->_miVar8 = -(pnum + 1);
+	}
 	if (plr._pInvincible) {
 		return false;
 	}
-
-	mis = &missile[mi];
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = GetRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
@@ -969,6 +983,11 @@ static bool PlayerMHit(int pnum, int mi)
 		return false;
 	}
 	mis = &missile[mi];
+	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+		if (mis->_miVar8 == -(pnum + 1));
+			return false;
+		mis->_miVar8 = -(pnum + 1);
+	}
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = GetRndSeed();
 	mon = &monsters[mis->_miSource];
@@ -1030,6 +1049,11 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	int offp, dam, tmp, hper;
 
 	mis = &missile[mi];
+	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
+		if (mis->_miVar8 == -(pnum + 1));
+			return false;
+		mis->_miVar8 = -(pnum + 1);
+	}
 	offp = mis->_miSource;
 	if (plr._pTeam == plx(offp)._pTeam || plr._pInvincible) {
 		return false;
