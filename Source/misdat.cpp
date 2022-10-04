@@ -16,6 +16,7 @@ const MissileData missiledata[] = {
 /*MIS_PBARROW*/      { &AddArrow,                  &MI_Arrow,          TRUE,      0,             MIF_ARROW | MIF_LEAD, MISR_NONE,      MFILE_ARROWS,    PS_BFIRE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_ASARROW*/      { &AddArrow,                  &MI_AsArrow,        TRUE,      0,             MIF_ARROW | MIF_LEAD, MISR_NONE,      MFILE_ARROWS,    PS_BFIRE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_MLARROW*/      { &AddArrow,                  &MI_Arrow,          TRUE,      0,             MIF_ARROW | MIF_LEAD, MISR_NONE,      MFILE_ARROWS,    PS_BFIRE,    SFX_NONE,    1,        1, ALIGN }, // miSFX was IS_STING
+/*MIS_PCARROW*/      { &AddArrow,                  &MI_Arrow,          TRUE,      0,             MIF_ARROW | MIF_LEAD, MISR_NONE,      MFILE_ARROWS,    PS_BFIRE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_FIREBOLT*/     { &AddFirebolt,               &MI_Firebolt,       TRUE,      1,                         MIF_LEAD, MISR_FIRE,      MFILE_FIREBA,    LS_FBOLT1,   LS_FIRIMP2,  1,        1, ALIGN },
 /*MIS_FIREBALL*/     { &AddFirebolt,               &MI_Firebolt,       TRUE,      1,                         MIF_LEAD, MISR_FIRE,      MFILE_FIREBA,    LS_FBOLT1,   LS_FIRIMP2,  1,        1, ALIGN },
 /*MIS_HBOLT*/        { &AddFirebolt,               &MI_Firebolt,       TRUE,      1,                         MIF_LEAD, MISR_ACID,      MFILE_HOLY,      LS_HOLYBOLT, LS_ELECIMP1, 1,        1, ALIGN },

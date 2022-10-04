@@ -791,12 +791,24 @@ static bool MonsterMHit(int mnum, int mi)
 			dam <<= 1;
 		}
 		// add modifiers from arrow-type
-		if (mis->_miType == MIS_PBARROW) {
+		switch (mis->_miType) {
+		case MIS_ARROW:
+			break;
+		case MIS_PBARROW:
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
-		} else if (mis->_miType == MIS_ASARROW) {
+			break;
+		case MIS_ASARROW:
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
-		} else if (mis->_miType == MIS_MLARROW) {
+			break;
+		case MIS_MLARROW:
 			dam = (dam * (16 + mis->_miSpllvl)) >> 6;
+			break;
+		case MIS_PCARROW:
+			dam = (dam * (32 + mis->_miSpllvl)) >> 6;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 
 		int fdam = plr._pIFMaxDam;
@@ -1112,12 +1124,24 @@ static bool Plr2PlrMHit(int pnum, int mi)
 			dam <<= 1;
 		}
 		// add modifiers from arrow-type
-		if (mis->_miType == MIS_PBARROW) {
+		switch (mis->_miType) {
+		case MIS_ARROW:
+			break;
+		case MIS_PBARROW:
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
-		} else if (mis->_miType == MIS_ASARROW) {
+			break;
+		case MIS_ASARROW:
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
-		} else if (mis->_miType == MIS_MLARROW) {
+			break;
+		case MIS_MLARROW:
 			dam = (dam * (16 + mis->_miSpllvl)) >> 6;
+			break;
+		case MIS_PCARROW:
+			dam = (dam * (32 + mis->_miSpllvl)) >> 6;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 
 		if (plx(offp)._pILifeSteal != 0) {
@@ -3297,7 +3321,7 @@ void MI_Arrow(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
+		CheckMissileCol(mi, mis->_mix, mis->_miy, mis->_miType != MIS_PCARROW ? MICM_BLOCK_ANY : MICM_BLOCK_WALL);
 	}
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
