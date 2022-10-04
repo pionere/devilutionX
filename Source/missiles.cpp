@@ -917,7 +917,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 
 	mis = &missile[mi];
 	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
-		if (mis->_miVar8 == -(pnum + 1));
+		if (mis->_miVar8 == -(pnum + 1))
 			return false;
 		mis->_miVar8 = -(pnum + 1);
 	}
@@ -984,7 +984,7 @@ static bool PlayerMHit(int pnum, int mi)
 	}
 	mis = &missile[mi];
 	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
-		if (mis->_miVar8 == -(pnum + 1));
+		if (mis->_miVar8 == -(pnum + 1))
 			return false;
 		mis->_miVar8 = -(pnum + 1);
 	}
@@ -1050,7 +1050,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 
 	mis = &missile[mi];
 	if (mis->_miVar8 != 0 && !(mis->_miFlags & MIF_DOT)) {
-		if (mis->_miVar8 == -(pnum + 1));
+		if (mis->_miVar8 == -(pnum + 1))
 			return false;
 		mis->_miVar8 = -(pnum + 1);
 	}
