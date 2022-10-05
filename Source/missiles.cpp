@@ -35,7 +35,7 @@ static const int XDirAdd[NUM_DIRS] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 static const int YDirAdd[NUM_DIRS] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
 static_assert(MAX_LIGHT_RAD >= 9, "FireWallLight needs at least light-radius of 9.");
-static const int FireWallLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 8, 9, 9 };
+static const int FireWallLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 8, 8, 8 };
 
 void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 {
@@ -1736,9 +1736,6 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 
 /**
  * Remark: expects damage to be shifted!
- *
- * Var1: x coordinate of the missile-light
- * Var2: y coordinate of the missile-light
  */
 /*int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -1757,8 +1754,6 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	GetMissileVel(mi, sx, sy, dx, dy, av);
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis = &missile[mi];
-	mis->_miVar1 = sx;
-	mis->_miVar2 = sy;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball2 needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 1;
@@ -1884,10 +1879,6 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 	return MIRES_DONE;
 }
 
-/**
- * Var1: x coordinate of the missile-light
- * Var2: y coordinate of the missile-light
- */
 int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -1945,18 +1936,12 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	GetMissileVel(mi, sx, sy, dx, dy, av);
 	if (misfiledata[mis->_miAnimType].mfAnimFAmt == 16)
 		SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
-	mis->_miVar1 = sx;
-	mis->_miVar2 = sy;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFirebolt needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 255;
 	return MIRES_DONE;
 }
 
-/**
- * Var1: x coordinate of the missile-light
- * Var2: y coordinate of the missile-light
- */
 int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -1969,8 +1954,6 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	mis->_miRange = 255;
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
-	mis->_miVar1 = sx;
-	mis->_miVar2 = sy;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddMagmaball needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	return MIRES_DONE;
@@ -2065,10 +2048,6 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	return MIRES_DONE;
 }
 
-/**
- * Var1: x coordinate of the missile-light
- * Var2: y coordinate of the missile-light
- */
 /*int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -2098,8 +2077,6 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
 	GetMissileVel(mi, sx, sy, dx, dy, i);
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
-	mis->_miVar1 = sx;
-	mis->_miVar2 = sy;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 255;
@@ -2318,10 +2295,6 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 	return MIRES_DELETE;
 }
 
-/**
- * Var3: x coordinate of the missile-light
- * Var4: y coordinate of the missile-light
- */
 int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -2341,8 +2314,6 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis->_miMinDam = mindam << 6;
 	mis->_miMaxDam = maxdam << 6;
 	mis->_miRange = 255;
-	//mis->_miVar3 = 0;
-	//mis->_miVar4 = 0;
 	/*mis->_mix++;
 	mis->_miy++;
 	mis->_miyoff -= TILE_HEIGHT;*/
@@ -2554,10 +2525,6 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	return MIRES_DONE;
 }*/
 
-/**
- * Var1: x coordinate of the missile-light
- * Var2: y coordinate of the missile-light
- */
 /*int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -2574,8 +2541,6 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 #endif
 	mis = &missile[mi];
 	mis->_miRange = 255;
-	mis->_miVar1 = sx;
-	mis->_miVar2 = sy;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFlare needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	//assert(misource != -1);
@@ -2590,19 +2555,13 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	return MIRES_DONE;
 }*/
 
-/**
- * Var1: x coordinate of the missile-light
- * Var2: y coordinate of the missile-light
- */
 int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis = &missile[mi];
-	mis->_miVar1 = sx;
-	mis->_miVar2 = sy;
 	mis->_miRange = 5 * (monsters[misource]._mInt + 4);
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
@@ -2797,8 +2756,6 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 }
 
 /**
- * Var1: x coordinate of the missile-light
- * Var2: y coordinate of the missile-light
  * Var3: destination reached
  * Var4: x coordinate of the destination
  * Var5: y coordinate of the destination
@@ -2816,8 +2773,6 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	SetMissDir(mi, GetDirection8(sx, sy, dx, dy));
 	mis = &missile[mi];
-	mis->_miVar1 = sx;
-	mis->_miVar2 = sy;
 	//mis->_miVar3 = FALSE;
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
@@ -3366,11 +3321,7 @@ void MI_Firebolt(int mi)
 	}
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
-		if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
-			mis->_miVar1 = mis->_mix;
-			mis->_miVar2 = mis->_miy;
-			ChangeLightXY(mis->_miLid, mis->_miVar1, mis->_miVar2);
-		}
+		CondChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
 		PutMissile(mi);
 		return;
 	}
@@ -3547,16 +3498,12 @@ void MI_Firewall(int mi)
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
 	mx = mis->_mix;
 	my = mis->_miy;
+	if (mx != mis->_misx || my != mis->_misy)
+		CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY);
 	if (mis->_miRange >= 0) {
-		if (mx != mis->_miVar1 || my != mis->_miVar2) {
-			mis->_miVar1 = mx;
-			mis->_miVar2 = my;
-			ChangeLightXY(mis->_miLid, mx, my);
-		}
+		CondChangeLightXY(mis->_miLid, mx, my);
 		PutMissile(mi);
 		return;
 	}
@@ -3803,12 +3750,7 @@ void MI_FireWave(int mi)
 		return;
 	}
 	if (mis->_miDir != 0) {
-		if (mis->_mix != mis->_miVar3 || mis->_miy != mis->_miVar4) {
-			mis->_miVar3 = mis->_mix;
-			mis->_miVar4 = mis->_miy;
-			static_assert(MAX_LIGHT_RAD >= 8, "MI_FireWave needs at least light-radius of 8.");
-			ChangeLight(mis->_miLid, mis->_miVar3, mis->_miVar4, 8);
-		}
+		CondChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
 	} else {
 		if (mis->_miLid == NO_LIGHT)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, FireWallLight[0]);
@@ -4207,7 +4149,7 @@ void MI_Rhino(int mi)
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	// assert(monsters[mnum]._mvid == NO_VISION);
 	// assert(monsters[mnum].mlid == mis->_miLid);
-	ChangeLightXY(monsters[mnum].mlid, bx, by);
+	CondChangeLightXY(monsters[mnum].mlid, bx, by);
 	ShiftMissilePos(mi);
 	PutMissile(mi);
 }
@@ -4243,7 +4185,7 @@ void MI_Charge(int mi)
 	if (ax != bx || ay != by) {
 		SetPlayerLoc(&plr, bx, by);
 		// assert(plr._plid == mis->_miLid);
-		ChangeLightXY(plr._plid, bx, by);
+		CondChangeLightXY(plr._plid, bx, by);
 		ChangeVisionXY(plr._pvid, bx, by);
 		if (bx == mis->_miVar1 && by == mis->_miVar2) {
 			MissToPlr(mi, false);
@@ -4493,12 +4435,8 @@ void MI_Elemental(int mi)
 		SetMissDir(mi, sd);
 		GetMissileVel(mi, cx, cy, dx, dy, MIS_SHIFTEDVEL(16));
 	}
-	if (cx != mis->_miVar1 || cy != mis->_miVar2) {
-		mis->_miVar1 = cx;
-		mis->_miVar2 = cy;
-		ChangeLightXY(mis->_miLid, cx, cy);
-	}
 	if (mis->_miRange >= 0) {
+		CondChangeLightXY(mis->_miLid, cx, cy);
 		PutMissile(mi);
 		return;
 	}

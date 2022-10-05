@@ -1119,6 +1119,27 @@ void ChangeLightXYOff(unsigned lnum, int x, int y)
 	gbDolighting = true;
 }
 
+void CondChangeLightXY(unsigned lnum, int x, int y)
+{
+	LightListStruct* lis;
+
+#if DEBUG_MODE
+	if (lightflag)
+		return;
+#endif
+	if (lnum >= MAXLIGHTS)
+		return;
+
+	lis = &LightList[lnum];
+	if (lis->_lx == x && lis->_ly == y)
+		return;
+
+	lis->_lunflag = true;
+	lis->_lx = x;
+	lis->_ly = y;
+	gbDolighting = true;
+}
+
 void CondChangeLightOff(unsigned lnum, int xoff, int yoff)
 {
 	LightListStruct *lis;

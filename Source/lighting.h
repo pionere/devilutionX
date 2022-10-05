@@ -47,6 +47,7 @@ void ChangeLightRadius(unsigned lnum, int r);
 void ChangeLightXY(unsigned lnum, int x, int y);
 void ChangeLightOff(unsigned lnum, int xoff, int yoff);
 void ChangeLightXYOff(unsigned lnum, int x, int y);
+void CondChangeLightXY(unsigned lnum, int x, int y);
 void CondChangeLightOff(unsigned lnum, int xoff, int yoff);
 void ChangeLight(unsigned lnum, int x, int y, int r);
 void ProcessLightList();
