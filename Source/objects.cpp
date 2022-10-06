@@ -1601,10 +1601,11 @@ static void Obj_Circle(int oi)
 			os->_oAnimFrame = 4;
 		}
 		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
-			// ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, true*/); // LEVER_EFFECT
-			ObjChangeMap(7, 11, 13, 18/*, true*/);
-			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
+			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < 4) { // BUGFIX stepping on the circle again will break the quest state (fixed)
 				quests[Q_BETRAYER]._qvar1 = 4;
+				// ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, true*/); // LEVER_EFFECT
+				ObjChangeMap(7, 11, 13, 18/*, true*/);
+			}
 			assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
 			AddMissile(0, 0, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
 			gbActionBtnDown = false;
