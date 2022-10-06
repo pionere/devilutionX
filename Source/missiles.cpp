@@ -301,6 +301,28 @@ static bool FindClosestChain(int sx, int sy, int &dx, int &dy)
 	return false;
 }
 
+static void DoTeleport(int pnum, int dx, int dy)
+{
+	int px, py;
+
+	px = plr._px;
+	py = plr._py;
+	dPlayer[px][py] = 0;
+	//PlrClrTrans(px, py);
+
+	px = dx;
+	py = dy;
+	SetPlayerLoc(&plr, px, py);
+	//PlrDoTrans(px, py);
+	dPlayer[px][py] = pnum + 1;
+	ChangeLightXY(plr._plid, px, py);
+	ChangeVisionXY(plr._pvid, px, py);
+	if (pnum == mypnum) {
+		ViewX = px; // - ScrollInfo._sdx;
+		ViewY = py; // - ScrollInfo._sdy;
+	}
+}
+
 /**
  * @brief Returns the direction a vector from p1(x1, y1) to p2(x2, y2) is pointing to.
  *
@@ -1847,7 +1869,6 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
 	int nTries;
 
 	assert((unsigned)misource < MAX_PLRS);
@@ -1857,7 +1878,7 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		do {
 			nTries++;
 			if (nTries > 500) {
-				return MIRES_DELETE;
+				return MIRES_FAIL_DELETE;
 			}
 			dx = RandRange(4, 6);
 			dy = RandRange(4, 6);
@@ -1871,12 +1892,8 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		} while (!PosOkActor(dx, dy));
 	}
 
-	mis = &missile[mi];
-	mis->_miRange = 1;
-	mis->_mix = dx;
-	mis->_miy = dy;
-	dPlayer[dx][dy] = -(misource + 1);
-	return MIRES_DONE;
+	DoTeleport(misource, dx, dy);
+	return MIRES_DELETE;
 }
 
 int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
@@ -1970,13 +1987,11 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 
 int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
 	int i, j, tx, ty;
 	const char *cr;
 
 	assert((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddTeleport expects a large enough border.");
-	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -1984,13 +1999,8 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkActor(tx, ty)) {
-				mis->_mix = tx;
-				mis->_miy = ty;
-				mis->_misx = tx;
-				mis->_misy = ty;
-				dPlayer[tx][ty] = -(misource + 1);
-				mis->_miRange = 1;
-				return MIRES_DONE;
+				DoTeleport(misource, tx, ty);
+				return MIRES_DELETE;
 			}
 		}
 	}
@@ -4022,37 +4032,6 @@ void MI_Acidsplat(int mi)
 	// SetRndSeed(mis->_miRndSeed);
 	// assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);
 	AddMissile(mis->_mix/* - 1*/, mis->_miy/* - 1*/, 0, 0, 0/*mis->_miDir*/, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
-}
-
-void MI_Teleport(int mi)
-{
-	MissileStruct *mis;
-	int pnum, px, py;
-
-	mis = &missile[mi];
-	mis->_miRange--;
-	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		return;
-	}
-	assert(mis->_miRange == 0);
-	pnum = mis->_miSource;
-	px = plr._px;
-	py = plr._py;
-	dPlayer[px][py] = 0;
-	//PlrClrTrans(px, py);
-
-	px = mis->_mix;
-	py = mis->_miy;
-	SetPlayerLoc(&plr, px, py);
-	//PlrDoTrans(px, py);
-	dPlayer[px][py] = pnum + 1;
-	ChangeLightXY(plr._plid, px, py);
-	ChangeVisionXY(plr._pvid, px, py);
-	if (pnum == mypnum) {
-		ViewX = px; // - ScrollInfo._sdx;
-		ViewY = py; // - ScrollInfo._sdy;
-	}
 }
 
 void MI_Stone(int mi)

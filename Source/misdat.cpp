@@ -38,7 +38,7 @@ const MissileData missiledata[] = {
 /*MIS_EXHLSPWN*/     { &AddMisexp,                 &MI_Misexp,         TRUE,      2,                                0, MISR_NONE,      MFILE_SCBSEXPD,  SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_EXSOLBRNR*/    { &AddMisexp,                 &MI_Misexp,         TRUE,      2,                                0, MISR_NONE,      MFILE_SCBSEXPC,  SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_GUARDIAN*/     { &AddGuardian,               &MI_Guardian,       TRUE,      1,                                0, MISR_NONE,      MFILE_GUARD,     LS_GUARD,    SFX_NONE,    1,        1, ALIGN }, // miSFX was LS_GUARDLAN
-/*MIS_RNDTELEPORT*/  { &AddRndTeleport,            &MI_Teleport,       FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_TELEPORT, SFX_NONE,    1,        1, ALIGN },
+/*MIS_RNDTELEPORT*/  { &AddRndTeleport,            &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_TELEPORT, SFX_NONE,    1,        1, ALIGN },
 /*MIS_LIGHTBALL*/    { &AddLightball,              &MI_Lightball,      TRUE,      1,               MIF_DOT | MIF_LEAD, MISR_LIGHTNING, MFILE_LGHNING,   LS_LNING1,   LS_ELECIMP1, 1,        1, ALIGN },
 /*MIS_LIGHTNINGC*/   { &AddLightningC,             &MI_LightningC,     FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_LIGHTNING*/    { &AddLightning,              &MI_Lightning,      TRUE,      1, MIF_NOBLOCK | MIF_DOT | MIF_LEAD, MISR_LIGHTNING, MFILE_LGHNING,   LS_LNING1,   LS_ELECIMP1, 1,        1, ALIGN },
@@ -55,7 +55,7 @@ const MissileData missiledata[] = {
 /*MIS_METLHIT*///    { NULL,                       NULL,               TRUE,      2,                                0, MISR_NONE,      MFILE_METLHIT,   SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_RHINO*/        { &AddRhino,                  &MI_Rhino,          TRUE,      2,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_CHARGE*/       { &AddCharge,                 &MI_Charge,         TRUE,      1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
-/*MIS_TELEPORT*/     { &AddTeleport,               &MI_Teleport,       FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_ELEMENTL, SFX_NONE,    1,        1, ALIGN },
+/*MIS_TELEPORT*/     { &AddTeleport,               &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_ELEMENTL, SFX_NONE,    1,        1, ALIGN },
 /*MIS_FARROW*///     { NULL,                       NULL,               TRUE,      0,                                0, MISR_FIRE,      MFILE_FARROW,    SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_DOOMSERP*///   { NULL,                       NULL,               FALSE,     1,                                0, MISR_MAGIC,     MFILE_DOOM,      LS_DSERP,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_STONE*/        { &AddStone,                  &MI_Stone,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_SCURIMP,  SFX_NONE,    1,        1, ALIGN },

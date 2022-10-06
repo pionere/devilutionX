@@ -101,7 +101,6 @@ void MI_Misexp(int mi);
 void MI_MiniExp(int mi);
 void MI_LongExp(int mi);
 void MI_Acidsplat(int mi);
-void MI_Teleport(int mi);
 void MI_Stone(int mi);
 void MI_Rhino(int mi);
 void MI_Charge(int mi);
