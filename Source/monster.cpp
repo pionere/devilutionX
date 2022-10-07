@@ -351,8 +351,8 @@ static void InitMonsterStats(int midx)
 	cmon->cmMinHP = mdata->mMinHP;
 	cmon->cmMaxHP = mdata->mMaxHP;
 
+	cmon->cmInt += gnDifficulty;
 	if (gnDifficulty == DIFF_NIGHTMARE) {
-		cmon->cmInt += 1;
 		cmon->cmMinHP = 2 * cmon->cmMinHP + 100;
 		cmon->cmMaxHP = 2 * cmon->cmMaxHP + 100;
 		cmon->cmLevel += NIGHTMARE_LEVEL_BONUS;
@@ -368,7 +368,6 @@ static void InitMonsterStats(int midx)
 		cmon->cmArmorClass += NIGHTMARE_AC_BONUS;
 		cmon->cmEvasion += NIGHTMARE_EVASION_BONUS;
 	} else if (gnDifficulty == DIFF_HELL) {
-		cmon->cmInt += 2;
 		cmon->cmMinHP = 4 * cmon->cmMinHP + 200;
 		cmon->cmMaxHP = 4 * cmon->cmMaxHP + 200;
 		cmon->cmLevel += HELL_LEVEL_BONUS;
@@ -985,9 +984,9 @@ static void PlaceUniqueMonst(int uniqindex)
 
 	mon->_mHit += uniqm->mUnqHit;
 	mon->_mArmorClass += uniqm->mUnqAC;
+	mon->_mInt += gnDifficulty;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
-		mon->_mInt += 1;
 		mon->_mmaxhp = 2 * mon->_mmaxhp + 100;
 		mon->_mLevel += NIGHTMARE_LEVEL_BONUS;
 		mon->_mMinDamage = 2 * (mon->_mMinDamage + 2);
@@ -995,7 +994,6 @@ static void PlaceUniqueMonst(int uniqindex)
 		mon->_mMinDamage2 = 2 * (mon->_mMinDamage2 + 2);
 		mon->_mMaxDamage2 = 2 * (mon->_mMaxDamage2 + 2);
 	} else if (gnDifficulty == DIFF_HELL) {
-		mon->_mInt += 2;
 		mon->_mmaxhp = 4 * mon->_mmaxhp + 200;
 		mon->_mLevel += HELL_LEVEL_BONUS;
 		mon->_mMinDamage = 4 * mon->_mMinDamage + 6;
@@ -4112,11 +4110,7 @@ void MAI_Counselor(int mnum)
 			if (v < 5 * (mon->_mInt + 10) && MON_HAS_ENEMY) {
 				// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 				const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBALL };
-				// assert(mon->_mType >= MT_COUNSLR && mon->_mType <= MT_MT_ADVOCATE);
-				static_assert((int)MT_COUNSLR + 1 == (int)MT_MAGISTR, "MAI_Counselor expects the related monster types to be ordered I.");
-				static_assert((int)MT_COUNSLR + 2 == (int)MT_CABALIST, "MAI_Counselor expects the related monster types to be ordered II.");
-				static_assert((int)MT_COUNSLR + 3 == (int)MT_ADVOCATE, "MAI_Counselor expects the related monster types to be ordered III.");
-				MonStartRAttack(mnum, counsmiss[mon->_mType - MT_COUNSLR]);
+				MonStartRAttack(mnum, counsmiss[mon->_mInt - gnDifficulty]);
 			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
 				assert(mon->_mAnims[MA_SPECIAL].aFrames * mon->_mAnims[MA_SPECIAL].aFrameLen * 2 + 
