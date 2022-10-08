@@ -704,7 +704,6 @@ typedef struct MonsterStruct {
 	int _lasty; // the last known Y-coordinate of the enemy
 	int _mRndSeed;
 	int _mAISeed;
-	int mtalkmsg;
 	BYTE _uniqtype;
 	BYTE _uniqtrans;
 	BYTE _udeadval;
@@ -739,7 +738,7 @@ typedef struct MonsterStruct {
 	uint16_t _mAlign_0; // unused
 	AnimStruct* _mAnims;
 	int _mType;
-	ALIGNMENT(12, 6)
+	ALIGNMENT(13, 7)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1272,7 +1271,6 @@ typedef struct TSyncLvlMonster {
 	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
 	//BYTE falign_CB;
 	INT smFlags;
-	INT smTalkmsg;
 } TSyncLvlMonster;
 
 typedef struct TSyncLvlMissile {

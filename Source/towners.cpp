@@ -212,14 +212,11 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 	// set position for DrawInfoStr, On_TALKXY and CheckTownersNearby
 	tw->_mx = x;
 	tw->_my = y;
-	// set mtalkmsg for DoActionBtnCmd(CanTalkToMonst)
-	tw->mtalkmsg = TEXT_KING1;
+	tw->_mgoal = MGOAL_TALKING;  // for CanTalkToMonst
+	tw->_mgoalvar1 = STORE_NONE; // TNR_STORE for TalkToTowner
 #if DEBUG_MODE || DEV_MODE
-	// TODO: set to prevent assert fail in CanTalkToMonst
-	tw->_mgoal = MGOAL_TALKING;
-#endif // DEBUG_MODE || DEV_MODE
-	// set _mgoalvar1 for TalkToTowner
-	tw->_mgoalvar1 = STORE_NONE; // TNR_STORE
+	tw->_mgoalvar2 = TEXT_KING1; // TALK_MESSAGE for DoActionBtnCmd(CanTalkToMonst)
+#endif
 	// set _mhitpoints, _mSelFlag and _mFlags for CheckCursMove
 	tw->_mhitpoints = 1 << 6;
 	tw->_mSelFlag = selFlag; // TNR_SELFLAG
@@ -237,7 +234,7 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 static void InitTownerTalk(int tnum, int store_id, int store_talk)
 {
 	monsters[tnum]._mgoalvar1 = store_id; // TNR_STORE
-	monsters[tnum].mtalkmsg = store_talk; // TNR_TALK
+	monsters[tnum]._mgoalvar2 = store_talk; // TNR_TALK, TALK_MESSAGE
 }
 
 /**
@@ -980,7 +977,7 @@ void TalkToTowner(int tnum)
 		// tw->_mListener = pnum; // TNR_LISTENER
 		InitQTextMsg(qt);
 	} else if (tw->_mgoalvar1 != STORE_NONE) { // TNR_STORE
-		TownerTalk(tw->_mgoalvar1, tw->mtalkmsg); // TNR_TALK
+		TownerTalk(tw->_mgoalvar1, tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
 	}
 }
 

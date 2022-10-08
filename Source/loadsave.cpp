@@ -569,7 +569,6 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->_lasty);
 	LoadInt(&mon->_mRndSeed);
 	LoadInt(&mon->_mAISeed);
-	LoadInt(&mon->mtalkmsg);
 
 	LoadByte(&mon->_uniqtype);
 	LoadByte(&mon->_uniqtrans);
@@ -1291,7 +1290,6 @@ static void SaveMonster(int mnum, bool full)
 	SaveInt(&mon->_lasty);
 	SaveInt(&mon->_mRndSeed);
 	SaveInt(&mon->_mAISeed);
-	SaveInt(&mon->mtalkmsg);
 
 	SaveByte(&mon->_uniqtype);
 	SaveByte(&mon->_uniqtrans);
@@ -1582,11 +1580,11 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
+	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 180 /*+ MAXMISSILES
 	 + MAXMISSILES * 172 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 180 + MAXMISSILES
 	 + MAXMISSILES * 172 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);

@@ -3244,7 +3244,8 @@ static void OperateBookCase(int oi, bool sendmsg)
 	if (zharlib != -1 && themes[zharlib].ttval == dTransVal[os->_ox][os->_oy]
 	 && quests[Q_ZHAR]._qvar1 <= 1) {
 		assert((monsters[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
-		monsters[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
+		//assert(monsters[MAX_MINIONS]._mgoal == MGOAL_TALKING);
+		monsters[MAX_MINIONS]._mgoalvar2 = TEXT_ZHAR2; // TALK_MESSAGE
 		//MonStartStand(MAX_MINIONS);
 		//monsters[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
 		monsters[MAX_MINIONS]._mmode = MM_TALK;

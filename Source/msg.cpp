@@ -1315,7 +1315,6 @@ void LevelDeltaExport()
 			//tmon->smPacksize = mon->packsize; // the number of 'pack'-monsters close to their leader
 	//BYTE falign_CB;
 			tmon->smFlags = SwapLE32(mon->_mFlags);
-			tmon->smTalkmsg = SwapLE32(mon->mtalkmsg);
 
 			dst += sizeof(TSyncLvlMonster);
 		}
@@ -1583,7 +1582,6 @@ void LevelDeltaLoad()
 //BYTE packsize; // the number of 'pack'-monsters close to their leader
 //BYTE falign_CB;
 		mon->_mFlags = SwapLE32(tmon->smFlags);
-		mon->mtalkmsg = SwapLE32(tmon->smTalkmsg);
 		// move the light of the monster
 		if (mon->mlid != NO_LIGHT)
 			ChangeLightXY(mon->mlid, mon->_moldx, mon->_moldy);
@@ -3519,7 +3517,6 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	"mr:%d "
 	"tr:%d "
 	"xp:%d "
-	"ms:%d "
 	"ty:%d "
 	"w:%d "
 	"xo:%d ",
@@ -3593,7 +3590,6 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mMagicRes,
 	mon->_mTreasure,
 	mon->_mExp,
-	mon->mtalkmsg,
 	mon->_mType,
 	mon->_mAnimWidth,
 	mon->_mAnimXOffset);
