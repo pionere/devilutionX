@@ -692,7 +692,7 @@ static char smk_read_in_memory(unsigned char ** buf, const unsigned long size, u
 	} \
 	if (r < 0) \
 	{ \
-		fprintf(stderr,"libsmacker::smk_read(...) - Errors encountered on read, bailing out (file: %s, line: %lu)\n", __FILE__, (unsigned long)__LINE__); \
+		LogError("libsmacker::smk_read(...) - Errors encountered on read, bailing out (file: %s, line: %lu)\n", __FILE__, (unsigned long)__LINE__); \
 		goto error; \
 	} \
 }
@@ -705,7 +705,7 @@ static char smk_read_in_memory(unsigned char ** buf, const unsigned long size, u
 	} \
 	if (r < 0) \
 	{ \
-		fprintf(stderr,"libsmacker::smk_read(...) - Errors encountered on read, bailing out (file: %s, line: %lu)\n", __FILE__, (unsigned long)__LINE__); \
+		LogError("libsmacker::smk_read(...) - Errors encountered on read, bailing out (file: %s, line: %lu)\n", __FILE__, (unsigned long)__LINE__); \
 		goto error; \
 	} \
 }

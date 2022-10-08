@@ -4,21 +4,21 @@
  * Global definitions and Macros.
  */
 
+#ifndef ASSET_MPL
+#define ASSET_MPL				1
+#endif
+
 #define DATA_ARCHIVE_MAIN		"diabdat.mpq"
 #define DATA_ARCHIVE_MAIN_ALT	"DIABDAT.MPQ"
 #define DATA_ARCHIVE_PATCH		"patch_rt.mpq"
-#define MENU_ART				"ui_art\\mainmenu.pcx"
+#define DATA_ARCHIVE_MAX_PATH	128
 
 #ifdef HELLFIRE
-#define LOGO_DATA				"Data\\hf_logo3.CEL"
-#define LOGO_WIDTH				430
 #define INTRO_ARCHIVE			"gendata\\Hellfire.smk"
 #define GAME_ID					((int)'HRTL')
 #define GAME_VERSION			34
 #define HELP_TITLE				"Hellfire Help"
 #else
-#define LOGO_DATA				"Data\\Diabsmal.CEL"
-#define LOGO_WIDTH				296
 #define INTRO_ARCHIVE			"gendata\\diablo1.smk"
 #define GAME_ID					((int)'DRTL')
 #define GAME_VERSION			42
@@ -36,9 +36,6 @@
 #define MAXDUNX					112
 #define MAXDUNY					112
 
-#define GMENU_SLIDER			0x40000000
-#define GMENU_ENABLED			0x80000000
-
 // must be unsigned to generate unsigned comparisons with pnum
 #define MAX_PLRS				4
 #define MAX_MINIONS				MAX_PLRS
@@ -47,7 +44,8 @@
 #define MAX_CHARACTERS			99
 #define MAX_TOWNERS				16
 #define STORE_TOWNERS			8
-#define MAX_LVLMTYPES			16
+#define MAX_LVLMTYPES			12
+#define MAX_LVLMIMAGE			4000
 
 #ifdef HELLFIRE
 #define MAXTRIGGERS				7
@@ -62,7 +60,7 @@
 #define NET_DEFAULT_PORT		6112
 #define MAX_SEND_STR_LEN		80
 
-#define MAXDEAD					31
+#define DEAD_MULTI				0xFF
 #define MAXITEMS				127
 #define ITEM_NONE				0xFF
 #define MAXBELTITEMS			8
@@ -91,7 +89,6 @@
 
 // number of inventory grid cells
 #define NUM_INV_GRID_ELEM		40
-#define INV_SLOT_SIZE_PX		28
 
 // Item indestructible durability
 #define DUR_INDESTRUCTIBLE		255
@@ -111,7 +108,6 @@
 #define SMITH_PREMIUM_ITEMS		8
 #define SMITH_MAX_VALUE			140000
 #define SMITH_MAX_PREMIUM_VALUE 140000
-#define STORE_LINES				24
 
 // from diablo 2 beta
 #define MAXRESIST				75
@@ -150,82 +146,6 @@
 #define PAL16_RED		224
 #define PAL16_GRAY		240
 
-#ifndef DEFAULT_WIDTH
-#define DEFAULT_WIDTH	640
-#endif
-#ifndef DEFAULT_HEIGHT
-#define DEFAULT_HEIGHT	480
-#endif
-
-// automap expects a lower than 2:1 SCREEN_WIDTH to VIEWPORT_HEIGHT ratio
-#ifndef SCREEN_WIDTH
-#define SCREEN_WIDTH	dvl::screenWidth
-#endif
-#ifndef SCREEN_HEIGHT
-#define SCREEN_HEIGHT	dvl::screenHeight
-#endif
-
-//#define VIEWPORT_HEIGHT dvl::viewportHeight
-#define VIEWPORT_HEIGHT dvl::screenHeight
-
-#define TILE_WIDTH		64
-#define TILE_HEIGHT		32
-
-#define BORDER_LEFT		TILE_WIDTH
-#define BORDER_TOP		160
-#define BORDER_RIGHT	TILE_WIDTH
-#define BORDER_BOTTOM	TILE_HEIGHT
-
-#define SCREEN_X		BORDER_LEFT
-#define SCREEN_Y		BORDER_TOP
-
-#define BUFFER_WIDTH	(BORDER_LEFT + SCREEN_WIDTH + BORDER_RIGHT)
-#define BUFFER_HEIGHT	(BORDER_TOP + SCREEN_HEIGHT + BORDER_BOTTOM)
-
-#define UI_OFFSET_Y		((SCREEN_HEIGHT - 480) / 2)
-
-#define PANEL_WIDTH     640
-#define PANEL_HEIGHT    128
-#define PANEL_TOP		(SCREEN_HEIGHT - PANEL_HEIGHT)
-#define PANEL_LEFT		(SCREEN_WIDTH - PANEL_WIDTH) / 2
-#define PANEL_X			(SCREEN_X + PANEL_LEFT)
-#define PANEL_Y			(SCREEN_Y + PANEL_TOP)
-
-#define SPANEL_WIDTH	 294
-#define SPANEL_HEIGHT	 298
-
-#define RIGHT_PANEL		(SCREEN_WIDTH - SPANEL_WIDTH)
-#define RIGHT_PANEL_X	(SCREEN_X + RIGHT_PANEL)
-
-#define DIALOG_TOP		((SCREEN_HEIGHT - PANEL_HEIGHT) / 2 - 18)
-#define DIALOG_Y		(SCREEN_Y + DIALOG_TOP)
-
-#define LTPANEL_WIDTH	591
-#define STPANEL_WIDTH	271
-#define TPANEL_HEIGHT	303
-#define TPANEL_BORDER	3
-
-#define LTPANEL_X		PANEL_X + 24
-#define LTPANEL_Y		SCREEN_Y + UI_OFFSET_Y + 24
-
-#define STORE_PNL_X		PANEL_X + 344
-
-#define SCREENXY(x, y) ((x) + SCREEN_X + ((y) + SCREEN_Y) * BUFFER_WIDTH)
-
-#define MENUBTN_WIDTH	71
-#define MENUBTN_HEIGHT	19
-#define CHRBTN_WIDTH	41
-#define CHRBTN_HEIGHT	22
-#define SPLICONLENGTH	56
-#define SPLROWICONLS	10
-#ifdef HELLFIRE
-#define SPLICONLAST		52
-#define SPLBOOKTABS		5
-#else
-#define SPLICONLAST		43
-#define SPLBOOKTABS		4
-#endif
-
 #define DIFFICULTY_EXP_BONUS   800
 
 #define NIGHTMARE_LEVEL_BONUS   16
@@ -242,6 +162,12 @@
 
 #define NIGHTMARE_MAGIC_BONUS 35
 #define HELL_MAGIC_BONUS      50
+
+#define POS_IN_RECT(x, y, rx, ry, rw, rh) \
+	((x) >= (rx)                          \
+	&& (x) < (rx + rw)                    \
+	&& (y) >= (ry)                        \
+	&& (y) < (ry + rh))
 
 #define IN_DUNGEON_AREA(x, y) \
 	(x >= 0                   \

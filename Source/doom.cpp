@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Cathedral map image CEL */
-BYTE* pDoomCel;
+static CelImageBuf* pDoomCel;
 /** Specifies whether the cathedral map is displayed. */
 bool gbDoomflag;
 
@@ -52,7 +52,7 @@ static int doom_get_frame_from_time()
 static void doom_load_graphics()
 {
 #ifdef HELLFIRE
-	LoadFileWithMem("Items\\Map\\MapZtown.CEL", pDoomCel);
+	LoadFileWithMem("Items\\Map\\MapZtown.CEL", (BYTE*)pDoomCel);
 #else
 	if (doom_quest_time == 31) {
 		copy_cstr(tempstr, "Items\\Map\\MapZDoom.CEL");
@@ -61,8 +61,9 @@ static void doom_load_graphics()
 	} else {
 		snprintf(tempstr, sizeof(tempstr), "Items\\Map\\MapZ00%d.CEL", doom_quest_time);
 	}
-	LoadFileWithMem(tempstr, pDoomCel);
+	LoadFileWithMem(tempstr, (BYTE*)pDoomCel);
 #endif
+	pDoomCel->ciWidth = DOOM_WIDTH;
 }
 
 void doom_init()
@@ -70,7 +71,7 @@ void doom_init()
 	if (gbDoomflag)
 		return;
 	assert(pDoomCel == NULL);
-	pDoomCel = DiabloAllocPtr(DOOM_CELSIZE);
+	pDoomCel = (CelImageBuf*)DiabloAllocPtr(DOOM_CELSIZE);
 	// assert(pDoomCel != NULL);
 #ifndef HELLFIRE
 	doom_quest_time = doom_get_frame_from_time() == 31 ? 31 : 0;
@@ -102,7 +103,7 @@ void doom_draw()
 	}
 #endif
 
-	CelDraw(PANEL_X, PANEL_Y - 1, pDoomCel, 1, 640);
+	CelDraw(PANEL_CENTERX(DOOM_WIDTH), SCREEN_Y + PANEL_BOTTOM - (128 + 64 + 1), pDoomCel, 1);
 }
 
 DEVILUTION_END_NAMESPACE

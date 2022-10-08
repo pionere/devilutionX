@@ -18,6 +18,7 @@ extern int cursW;
 extern int cursH;
 extern int pcursmonst;
 extern BYTE *pCursCels;
+extern BYTE pcurswnd;
 extern BYTE pcursinvitem;
 extern BYTE pcursitem;
 extern BYTE pcursobj;
@@ -25,7 +26,7 @@ extern BYTE pcursplr;
 extern int pcurstrig;
 extern int cursmx;
 extern int cursmy;
-extern int pcurs;
+extern int pcursicon;
 
 void InitCursorGFX();
 void FreeCursorGFX();

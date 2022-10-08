@@ -37,8 +37,8 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 			idx = 0;
 		}
 		mon = &monsters[idx];
-		if (mon->_msquelch != 0 && mon->_mhitpoints != 0 &&
-			(idx >= MAX_MINIONS || !MINION_INACTIVE(mon))) {
+		if (mon->_msquelch != 0 && mon->_mhitpoints != 0) {
+			// assert(mon->_mmode <= MM_INGAME_LAST);
 			symon = (TSyncMonster*)pbBuf;
 			static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs in sync_all_monsters.");
 			symon->_mndx = idx;
@@ -70,12 +70,7 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 
 void InitSync()
 {
-	int i;
-
 	sync_mnum = 16 * mypnum;
-	// ensure inactive monsters are not synchronized
-	for (i = nummonsters; i < MAXMONSTERS; i++)
-		monsters[i]._msquelch = 0;
 }
 
 DEVILUTION_END_NAMESPACE

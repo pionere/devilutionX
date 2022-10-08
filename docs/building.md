@@ -1,52 +1,49 @@
 # Building from Source
 
-Note: If you do not use git to manage the source you must provide the version to CMake manually:
-```
-cmake .. -DVERSION_NUM=1.0.0 -DVERSION_SUFFIX=FFFFFFF -DCMAKE_BUILD_TYPE=Release
-```
-
 <details><summary>Linux</summary>
 
 Note that ```pkg-config``` is an optional dependency for finding libsodium,
 although we have a fallback if necessary.
 
 ### Installing dependencies on Debian and Ubuntu
+
 ```
 sudo apt-get install git rpm cmake g++ libsdl2-dev libsodium-dev
 ```
+
 ### Installing dependencies on Fedora
+
 ```
 sudo dnf install cmake git glibc-devel SDL2-devel libsodium-devel libasan libubsan
 ```
+
 ### Installing dependencies on Alpine Linux
+
 ```
 sudo apk add git cmake g++ sdl2-dev libsodium-dev
 ```
 
 ### Compiling
-```
-// cd build
-// cmake .. -DCMAKE_BUILD_TYPE=Release
-// make -j$(nproc)
+
+```bash
 git clone https://github.com/pionere/devilutionx
 cd devilutionx
 cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(nproc) --target package
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
+
 </details>
 
 <details><summary>macOS</summary>
 
 Make sure you have [Homebrew](https://brew.sh/) installed, then run:
 
-```
-// brew install cmake libsodium pkg-config
+```bash
 brew bundle install
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(sysctl -n hw.physicalcpu)
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(sysctl -n hw.physicalcpu)
 ```
+
 </details>
 <details><summary>iOS</summary>
 
@@ -74,42 +71,51 @@ Then open the generated Xcode project and run things from there.
 <details><summary>FreeBSD</summary>
 
 ### Installing dependencies
+
 ```
 pkg install cmake libsodium
 ```
+
 ### Compiling
+
+```bash
+cmake -S. -Bbuild. -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(sysctl -n hw.ncpu)
 ```
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(sysctl -n hw.ncpu)
-```
+
 </details>
 <details><summary>NetBSD</summary>
 
 ### Installing dependencies
+
 ```
 pkgin install cmake libsodium
 ```
+
 ### Compiling
+
+```bash
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(sysctl -n hw.ncpu)
 ```
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(sysctl -n hw.ncpu)
-```
+
 </details>
 
 <details><summary>OpenBSD</summary>
 
 ### Installing dependencies
+
 ```
 pkg_add cmake libsodium gmake
 ```
+
 ### Compiling
+
+```bash
+cmake -S. -Bbuild -DCMAKE_MAKE_PROGRAM=gmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(sysctl -n hw.ncpuonline)
 ```
-cd build
-cmake .. -DCMAKE_MAKE_PROGRAM=gmake -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(sysctl -n hw.ncpuonline)
-```
+
 </details>
 
 <details><summary>Windows via MinGW</summary>
@@ -131,6 +137,7 @@ Download and place the 64bit MinGW Development Libraries of [SDL2](https://www.l
 ```
 sudo apt-get install cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64
 ```
+
 ### Compiling
 
 ```
@@ -141,22 +148,16 @@ cd devilutionx
 
 ### 32-bit
 
-```
-// cd build
-// cmake .. -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
-// make -j$(nproc)
+```bash
 cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(nproc) --target package
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 
 ### 64-bit
 
-```
-// cd build
-// cmake .. -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.cmake -DCMAKE_BUILD_TYPE=Release
-// make -j$(nproc)
+```bash
 cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(nproc) --target package
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 
 Note: If your `(i686|x86_64)-w64-mingw32` directory is not in `/usr` (e.g. when on Debian), the mingw-prep scripts and the CMake
@@ -166,6 +167,7 @@ of the `(i686|x86_64)-w64-mingw32` directory.
 <details><summary>Windows via Visual Studio</summary>
 
 ### Installing dependencies
+
 Make sure to install the `C++ CMake tools for Windows` component for Visual Studio.
 
 Execute the following commands (via cmd or powershell):
@@ -203,11 +205,13 @@ You can download the libraries manually from [SDL2](https://www.libsdl.org/downl
 ### Compiling
 
 * **Through Open->CMake in Visual Studio**
+
 1. Go to `File -> Open -> CMake`, select `CMakeLists.txt` from the project root.
 2. Select the `x64-Release` configuration (or `x86-Release` for 32 bit builds, `-Debug` for debug builds).
 3. Select `Build devilution.exe` from the `Build` menu.
 
 * **Through GCC/WSL in Visual Studio**
+
 1. Ensure the WSL environment has the build pre-requisites for both devilutionX (see "Installing dependencies on Debian and Ubuntu" under the "Linux" section above) and [WSL remote development](https://docs.microsoft.com/en-us/cpp/linux/connect-to-your-remote-linux-computer?view=msvc-160#connect-to-wsl).
 2. Select the `WSL-GCC-x64-Debug` configuration.
 3. Select `Build devilution` from the `Build` menu.
@@ -221,39 +225,49 @@ You can download the libraries manually from [SDL2](https://www.libsdl.org/downl
 5. In case you need to select any paths to dependencies manually do this right in cmake-gui window.
 6. Press `Generate` and open produced `.sln` file using Visual Studio.
 7. Use build/debug etc. commands inside Visual Studio Solution like with any normal Visual Studio project.
-</details>
 
-<details><summary>Nintendo Switch</summary>
-
-Run:
-
-```
-Packaging/switch/build.sh
-```
-
-This will install the [Switch devkit](https://switchbrew.org/wiki/Setting_up_Development_Environment) and build a DevilutionX Switch package. If you already have the devkit installed, or are on a non-Debian system, pass the the devkit path to the script like this:
-
-```
-DEVKITPRO=<path to devkit> Packaging/switch/build.sh
-```
-
-The nro-file will be generated in the build folder. Test with an emulator (RyuJinx) or real hardware.
-
-[Nintendo Switch manual](docs/manual/platforms/switch.md)
 </details>
 
 <details><summary>Android</summary>
 
 ### Installing dependencies
+
 Install [Android Studio](https://developer.android.com/studio)
 After first launch configuration, go to "Configure -> SDK Manager -> SDK Tools".
 Select "NDK (Side by side)" and "CMake" checkboxes and click "OK".
 
 ### Compiling
+
 Click "Open Existing Project" and choose "android-project" folder in DevilutionX root folder.
 Wait until Gradle sync is completed.
 In Android Studio, go to "Build -> Make Project" or use the shortcut Ctrl+F9
 You can find the compiled APK in `/android-project/app/build/outputs/apk/`
+</details>
+
+<details><summary>Nintendo Switch</summary>
+
+### Installing dependencies
+
+https://devkitpro.org/wiki/Getting_Started
+
+- Install (dkp-)pacman: https://devkitpro.org/wiki/devkitPro_pacman
+
+- Install required packages with (dkp-)pacman:
+
+```
+sudo (dkp-)pacman -S --needed - < Packaging/switch/packages.txt
+```
+
+### Compiling
+
+```bash
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+```
+
+The nro-file will be generated in the build folder. Test with an emulator (RyuJinx) or real hardware.
+
+[Nintendo Switch manual](/docs/manual/platforms/switch.md)
 </details>
 
 <details><summary>Nintendo 3DS</summary>
@@ -262,28 +276,30 @@ You can find the compiled APK in `/android-project/app/build/outputs/apk/`
 
 https://devkitpro.org/wiki/Getting_Started
 
-
 - Install (dkp-)pacman: https://devkitpro.org/wiki/devkitPro_pacman
 
 - Install required packages with (dkp-)pacman:
+
 ```
 sudo (dkp-)pacman -S devkitARM general-tools 3dstools devkitpro-pkgbuild-helpers \
 	libctru citro3d 3ds-sdl \
 	3ds-freetype 3ds-libogg 3ds-libvorbisidec 3ds-mikmod 3ds-cmake \
 	3ds-pkg-config picasso 3dslink
 ```
+
 - Download or compile [bannertool](https://github.com/Steveice10/bannertool/releases) and [makerom](https://github.com/jakcron/Project_CTR/releases)
   - Copy binaries to: `/opt/devkitpro/tools/bin/`
 
 ### Compiling
+
 _If you are compiling using MSYS2, you will need to run `export MSYS2_ARG_CONV_EXCL=-D` before compiling.
 Otherwise, MSYS will sanitize file paths in compiler flags which will likely lead to errors in the build._
 
+```bash
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
-```
+
 The output files will be generated in the build folder.
 
 [Nintendo 3DS manual](/docs/manual/platforms/3ds.md)
@@ -292,39 +308,63 @@ The output files will be generated in the build folder.
 <details><summary>PlayStation Vita</summary>
 
 ### Compiling
+
+```bash
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 ```
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-make
+
+[PlayStation Vita manual](/docs/manual/platforms/vita.md)
+</details>
+
+
+<details><summary>PlayStation 4</summary>
+
+### Installing dependencies
+
+Install [PacBrew openorbis SDK](https://github.com/PacBrew/pacbrew-packages)
+
+### Compiling
+
+```console
+devilutionX$ ./Packaging/ps4/build.sh
 ```
-[PlayStation Vita manual](docs/manual/platforms/vita.md)
+
+[PlayStation 4 manual](/docs/manual/platforms/ps4.md)
 </details>
 
 
 <details><summary>Haiku</summary>
 
 ### Installing dependencies on 32 bit Haiku
+
 ```
 pkgman install cmake_x86 devel:libsdl2_x86 devel:libsodium_x86
 ```
+
 ### Installing dependencies on 64 bit Haiku
+
 ```
 pkgman install cmake devel:libsdl2 devel:libsodium
 ```
+
 ### Compiling on 32 bit Haiku
-```
-cd build
+
+```bash
 setarch x86 #Switch to secondary compiler toolchain (GCC8+)
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(nproc)
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
+
 ### Compiling on 64 bit Haiku
+
 No setarch required, as there is no secondary toolchain on x86_64, and the primary is GCC8+
+
 ```
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(nproc)
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
+
 </details>
 
 <details><summary>OpenDingux / RetroFW</summary>
@@ -353,18 +393,20 @@ This prepares and uses the buildroot at `$HOME/buildroot-$PLATFORM-devilutionx`.
 
 End-user manuals are available here:
 
-* [RetroFW manual](docs/manual/platforms/retrofw.md)
-* [RG-350 manual](docs/manual/platforms/rg350.md)
-* [GKD350h manual](docs/manual/platforms/gkd350h.md)
+* [RetroFW manual](/docs/manual/platforms/retrofw.md)
+* [RG-350 manual](/docs/manual/platforms/rg350.md)
+* [GKD350h manual](/docs/manual/platforms/gkd350h.md)
 
 </details>
 
 <details><summary>Clockwork PI GameShell</summary>
 
 You can either call
+
 ~~~ bash
 Packaging/cpi-gamesh/build.sh
 ~~~
+
 to install dependencies and build the code.
 
 Or you create a new directory under `/home/cpi/apps/Menu` and copy [the file](Packaging/cpi-gamesh/__init__.py) there. After restarting the UI, you can download and compile the game directly from the device itself. See [the readme](Packaging/cpi-gamesh/readme.md) for more details.
@@ -406,46 +448,54 @@ Note that ```pkg-config``` is an optional dependency for finding libsodium,
 although we have a fallback if necessary.
 
 ### Installing dependencies on Debian and Ubuntu
+
 ```
 sudo apt-get install git rpm cmake g++-multilib libsdl2-dev:i386 libsodium-dev libsodium-dev:i386
 ```
 
 ### Compiling
-```
-// mkdir build
-// cd build
-// linux32 cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake ..
-// linux32 make -j$(nproc)
+
+```bash
 git clone https://github.com/pionere/devilutionx
 cd devilutionx
-linux32 cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake
-linux32 cmake --build build -j $(nproc) --target package
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
+
 </details>
 
 <details><summary>MacOS</summary>
 
 ### Installing dependencies
+
 Install [Xcode 9.4.1 and Xcode Command Line tools](https://developer.apple.com/download/more/?=xcode%209.4.1), this is the last version with **32 bits** support.
 
 Note: Be sure that your to select the command line Xcode if you have more then one installed:
+
 ```
 $ sudo xcode-select --switch /Applications/Xcode.app
 ```
+
 Install the build tools using [Homebrew](https://brew.sh/):
+
 ```
 brew install automake autoconf libtool
 ```
+
 Get SDL2 and Libsodium:
+
 ```
 ./xcode-build.sh --get-libs
 ```
+
 ### Compiling
+
 ```
 ./xcode-build.sh --build-libs
 ./xcode-build.sh --build-project
 ./xcode-build.sh --package
 ```
+
 </details>
 
 <details><summary>Windows via MinGW</summary>
@@ -457,14 +507,17 @@ Download and place the 32bit MinGW Development Libraries of [SDL2](https://www.l
 ```
 sudo apt-get install cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 wget git
 ```
+
 ### Compiling
+
 ```
 git clone https://github.com/pionere/devilutionx
 cd devilutionx
 Packaging/windows/mingw-prep.sh  
 cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(nproc) --target package  
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
+
 </details>
 
 </blockquote></details>
@@ -472,13 +525,16 @@ cmake --build build -j $(nproc) --target package
 <details><summary><b>CMake build options</b></summary>
 
 ### General
+
 - `-DCMAKE_BUILD_TYPE=Release` change build type to release and optimize for distribution.
-- `-DNONET=ON` disable network support, this also removes the need for the ASIO and Sodium.
+- `-DVERSION_NUM=XXX` set version number (project version) to the desired value.
 - `-DUSE_SDL1=ON` build for SDL v1 instead of v2, not all features are supported under SDL v1, notably upscaling.
 - `-DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake` generate 32bit builds on 64bit platforms (remember to use the `linux32` command if on Linux).
 - `-DNOSOUND=ON` disable sound support
+- `-DSTREAM_ALL_AUDIO=ON` stream all the audio. For extremely RAM-constrained platforms
 - `-DNOWIDESCREEN=ON` disable widescreen support
-- `-DNONET=ON` disable network support
+- `-DNONET=ON` disable network support, this also removes the need for the ASIO and Sodium.
+- `-DINET_MODE=ON` enable validation of network messages
 - `-DADAPTIVE_NETUPDATE=OFF` disable adaptive network
 - `-DNETENCRYPT=OFF` disable encryption of network messages
 - `-DTCPIP=OFF` disable tcp/ip support
@@ -487,13 +543,16 @@ cmake --build build -j $(nproc) --target package
 - `-DHELLFIRE=ON` build Hellfire version
 - `-DHAS_JOYSTICK=0` disable joystick support
 - `-DHAS_DPAD=0` disable dpad support
+- `-DHAS_KBCTRL=0` disable keyboard-controller support
 - `-DHAS_GAMECTRL=0` disable game-controller support
 - `-DHAS_TOUCHPAD=0` disable touchpad support
+- `-DASSET_MPL=2` use upscaled assets, requires devilx_hdX.mpq (e.g. devilx_hd2.mpq)
 - `-DSCREEN_WIDTH=640` hardcode screen width to 640 pixel
 - `-DSCREEN_HEIGHT=480` hardcode screen height to 480 pixel
 - `-DMPQONE="hellone.mpq"` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.
 
 ### Debug builds
+
 - `-DDEBUG=OFF` disable debug mode of the Diablo engine.
 - `-DASAN=OFF` disable address sanitizer.
 - `-DUBSAN=OFF` disable undefined behavior sanitizer.

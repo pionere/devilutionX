@@ -1,6 +1,7 @@
 #include "touch.h"
 #if HAS_TOUCHPAD
 #include "utils/display.h"
+#include "../gameui.h"
 #include <math.h>
 
 #ifdef __vita__

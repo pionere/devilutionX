@@ -69,16 +69,17 @@ static bool TFit_Shrine(BYTE tv)
 	numMatches = 0;
 	while (TRUE) {
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			if (nTrapTable[dPiece[xx][yy - 1]]
+			if (nTrapTable[dPiece[xx][yy - 1]] != PTT_NONE
 			 // make sure the place is wide enough
+			 // - on the inside
 			 && !nSolidTable[dPiece[xx - 1][yy]]
 			 && !nSolidTable[dPiece[xx + 1][yy]]
+			 // - on the wall (to avoid doors)
+			 && nSolidTable[dPiece[xx - 1][yy - 1]]
+			 && nSolidTable[dPiece[xx + 1][yy - 1]]
 			 // make sure it is in the same room
 			 && dTransVal[xx - 1][yy] == tv
-			 && dTransVal[xx + 1][yy] == tv
-			 // make sure there is no door on the wall
-			 && dObject[xx - 1][yy - 1] == 0
-			 && dObject[xx + 1][yy - 1] == 0) {
+			 && dTransVal[xx + 1][yy] == tv) {
 				// assert(dObject[xx][yy] == 0);
 				// assert(dObject[xx - 1][yy] == 0);
 				// assert(dObject[xx + 1][yy] == 0);
@@ -86,16 +87,17 @@ static bool TFit_Shrine(BYTE tv)
 				if (++numMatches == lengthof(matches))
 					break;
 			}
-			if (nTrapTable[dPiece[xx - 1][yy]]
+			if (nTrapTable[dPiece[xx - 1][yy]] != PTT_NONE
 			 // make sure the place is wide enough
+			 // - on the inside
 			 && !nSolidTable[dPiece[xx][yy - 1]]
 			 && !nSolidTable[dPiece[xx][yy + 1]]
+			 // - on the wall (to avoid doors)
+			 && nSolidTable[dPiece[xx - 1][yy - 1]]
+			 && nSolidTable[dPiece[xx - 1][yy + 1]]
 			 // make sure it is in the same room
 			 && dTransVal[xx][yy - 1] == tv
-			 && dTransVal[xx][yy + 1] == tv
-			 // make sure there is no door on the wall
-			 && dObject[xx - 1][yy - 1] == 0
-			 && dObject[xx - 1][yy + 1] == 0) {
+			 && dTransVal[xx][yy + 1] == tv) {
 				// assert(dObject[xx][yy] == 0);
 				// assert(dObject[xx][yy - 1] == 0);
 				// assert(dObject[xx][yy + 1] == 0);
@@ -113,7 +115,7 @@ static bool TFit_Shrine(BYTE tv)
 	if (numMatches == 0)
 		return false;
 
-	i = random_(0, numMatches);
+	i = random_low(0, numMatches);
 
 	themex = matches[i].x;
 	themey = matches[i].y;
@@ -157,7 +159,7 @@ static bool TFit_Obj5(BYTE tv)
 	if (numMatches == 0)
 		return false;
 
-	i = random_(0, numMatches);
+	i = random_low(0, numMatches);
 
 	themex = matches[i].x;
 	themey = matches[i].y;
@@ -188,7 +190,7 @@ static bool CheckThemeObj3(int x, int y, BYTE tv, int rndfrq)
 			return false;
 		if (dTransVal[xx][yy] != tv)
 			return false;
-		if (rndfrq != -1 && random_(0, rndfrq) == 0)
+		if (rndfrq != -1 && random_low(0, rndfrq) == 0)
 			return false;
 	}
 
@@ -450,12 +452,12 @@ void HoldThemeRooms()
 static void Place_Obj3(BYTE tv, int type, int rndfrq)
 {
 	int xx, yy;
-
+	// assert(rndfrq > 0);
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (CheckThemeObj3(xx, yy, tv, -1)) {
-					if (random_(0, rndfrq) == 0) {
+					if (random_low(0, rndfrq) == 0) {
 						AddObject(type, xx, yy);
 					}
 				}
@@ -474,7 +476,7 @@ static void PlaceThemeMonsts(BYTE tv, int rndfrq)
 	int xx, yy;
 	int scattertypes[MAX_LVLMTYPES];
 	int numscattypes, mtype, i;
-
+	// assert(rndfrq > 0);
 	numscattypes = 0;
 	for (i = 0; i < nummtypes; i++) {
 		if (mapMonTypes[i].cmPlaceScatter) {
@@ -482,12 +484,13 @@ static void PlaceThemeMonsts(BYTE tv, int rndfrq)
 			numscattypes++;
 		}
 	}
-	mtype = scattertypes[random_(0, numscattypes)];
+	// assert(numscattypes > 0);
+	mtype = scattertypes[random_low(0, numscattypes)];
 	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
-				if (random_(0, rndfrq) == 0) {
-					AddMonster(xx, yy, random_(0, NUM_DIRS), mtype, true);
+				if (random_low(0, rndfrq) == 0) {
+					AddMonster(xx, yy, random_(0, NUM_DIRS), mtype);
 				}
 			}
 		}
@@ -510,8 +513,8 @@ static void Theme_Barrel(BYTE tv)
 	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				if (random_(0, barrnd) == 0) {
-					r = random_(0, barrnd) == 0 ? OBJ_BARREL : OBJ_BARRELEX;
+				if (random_low(0, barrnd) == 0) {
+					r = random_low(0, barrnd) == 0 ? OBJ_BARREL : OBJ_BARRELEX;
 					AddObject(r, xx, yy);
 				}
 			}
@@ -571,14 +574,14 @@ static void Theme_MonstPit(BYTE tv)
 			}
 		}
 	}
-	CreateRndItem(xx, yy, true, ICM_DELTA);
+	CreateRndItem(xx, yy, CFDQ_GOOD, ICM_DELTA);
 	PlaceThemeMonsts(tv, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
 static void AddSkelMonster(int x, int y)
 {
-	assert(PosOkMonst(-1, x, y));
-	AddMonster(x, y, random_(11, NUM_DIRS), mapSkelTypes[random_(136, numSkelTypes)], true);
+	assert(PosOkActor(x, y));
+	AddMonster(x, y, random_(11, NUM_DIRS), mapSkelTypes[random_low(136, numSkelTypes)]);
 }
 
 /**
@@ -590,7 +593,7 @@ static void Theme_SkelRoom(BYTE tv)
 {
 	int xx, yy;
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
-	char monstrnd;
+	BYTE monstrnd;
 
 	// assert(numSkelTypes != 0);
 	//if (!TFit_SkelRoom(tv))
@@ -604,7 +607,7 @@ static void Theme_SkelRoom(BYTE tv)
 
 	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
-	if (random_(0, monstrnd) != 0) {
+	if (random_low(0, monstrnd) != 0) {
 		AddSkelMonster(xx - 1, yy - 1);
 	} else {
 		AddObject(OBJ_BANNERL, xx - 1, yy - 1);
@@ -612,22 +615,22 @@ static void Theme_SkelRoom(BYTE tv)
 
 	AddSkelMonster(xx, yy - 1);
 
-	if (random_(0, monstrnd) != 0) {
+	if (random_low(0, monstrnd) != 0) {
 		AddSkelMonster(xx + 1, yy - 1);
 	} else {
 		AddObject(OBJ_BANNERR, xx + 1, yy - 1);
 	}
-	if (random_(0, monstrnd) != 0) {
+	if (random_low(0, monstrnd) != 0) {
 		AddSkelMonster(xx - 1, yy);
 	} else {
 		AddObject(OBJ_BANNERM, xx - 1, yy);
 	}
-	if (random_(0, monstrnd) != 0) {
+	if (random_low(0, monstrnd) != 0) {
 		AddSkelMonster(xx + 1, yy);
 	} else {
 		AddObject(OBJ_BANNERM, xx + 1, yy);
 	}
-	if (random_(0, monstrnd) != 0) {
+	if (random_low(0, monstrnd) != 0) {
 		AddSkelMonster(xx - 1, yy + 1);
 	} else {
 		AddObject(OBJ_BANNERR, xx - 1, yy + 1);
@@ -635,7 +638,7 @@ static void Theme_SkelRoom(BYTE tv)
 
 	AddSkelMonster(xx, yy + 1);
 
-	if (random_(0, monstrnd) != 0) {
+	if (random_low(0, monstrnd) != 0) {
 		AddSkelMonster(xx + 1, yy + 1);
 	} else {
 		AddObject(OBJ_BANNERL, xx + 1, yy + 1);
@@ -667,10 +670,10 @@ static void Theme_Treasure(BYTE tv)
 	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				if (random_(0, treasrnd) == 0) {
-					CreateTypeItem(xx, yy, false, ITYPE_GOLD, IMISC_NONE, ICM_DELTA);
-				} else if (random_(0, treasrnd) == 0) {
-					CreateRndItem(xx, yy, false, ICM_DELTA);
+				if (random_low(0, treasrnd) == 0) {
+					CreateTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_GOLD, IMISC_NONE, ICM_DELTA);
+				} else if (random_low(0, treasrnd) == 0) {
+					CreateRndItem(xx, yy, CFDQ_NORMAL, ICM_DELTA);
 				}
 			}
 		}
@@ -688,7 +691,7 @@ static void Theme_Library(bool isZharLib, BYTE tv)
 	int xx, yy, oi;
 	const BYTE librnds[4] = { 1, 2, 2, 5 };
 	const BYTE monstrnds[4] = { 5, 7, 3, 9 };
-	char librnd, monstrnd;
+	BYTE librnd, monstrnd;
 
 	if (TFit_Shrine(tv)) {
 		if (themeVar1 == 1) {
@@ -706,9 +709,9 @@ static void Theme_Library(bool isZharLib, BYTE tv)
 	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-			if (CheckThemeObj3(xx, yy, tv, -1) && dMonster[xx][yy] == 0 && random_(0, librnd) == 0) {
+			if (CheckThemeObj3(xx, yy, tv, -1) && dMonster[xx][yy] == 0 && random_low(0, librnd) == 0) {
 				oi = AddObject(OBJ_BOOKSTAND, xx, yy);
-				if (random_(0, 2 * librnd) != 0 && oi != -1) { /// BUGFIX: check AddObject succeeded (fixed)
+				if (random_low(0, 2 * librnd) != 0 && oi != -1) { /// BUGFIX: check AddObject succeeded (fixed)
 					objects[oi]._oSelFlag = 0;
 					objects[oi]._oAnimFrame += 2;
 				}
@@ -818,9 +821,8 @@ static void Theme_GoatShrine(BYTE tv)
 	for (i = 0; i < lengthof(offset_x); i++) {
 		xx = themex + offset_x[i];
 		yy = themey + offset_y[i];
-		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			AddMonster(xx, yy, OPPOSITE(i), mapGoatTypes[0], true);
-		}
+		assert(dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]);
+		AddMonster(xx, yy, OPPOSITE(i), mapGoatTypes[0]);
 	}
 }
 

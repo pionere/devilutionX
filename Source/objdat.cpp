@@ -65,11 +65,11 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0, //OBJ_TRAPL,
 	0, //OBJ_TRAPR,
-	OBJ_TORTURE1, // Q_BUTCHER
-	OBJ_TORTURE2, // Q_BUTCHER
-	OBJ_TORTURE3, // Q_BUTCHER
-	OBJ_TORTURE4, // Q_BUTCHER
-	OBJ_TORTURE5, // Q_BUTCHER
+	OBJ_TORTUREL1, // Q_BUTCHER
+	OBJ_TORTUREL2, // Q_BUTCHER
+	OBJ_TORTURER1, // Q_BUTCHER
+	OBJ_TORTURER2, // Q_BUTCHER
+	OBJ_TORTUREL3, // Q_BUTCHER
 	0,
 	0,
 	0,
@@ -120,12 +120,12 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	OBJ_WEAPONRACKL, //OBJ_ARMORSTAND, // Q_WARLORD - swapped from original to reduce farming potential
 	OBJ_ARMORSTAND, //OBJ_WEAPONRACKL, // Q_WARLORD
-	OBJ_TORCHR2, // Q_BLOOD
-	OBJ_TORCHL2, // Q_BLOOD
+	OBJ_TORCHR1, // Q_BLOOD
+	OBJ_TORCHL1, // Q_BLOOD
 	0, //OBJ_MUSHPATCH,
 	0, //OBJ_STAND,
-	0, //OBJ_TORCHL,
-	0, //OBJ_TORCHR,
+	0, //OBJ_TORCHL2,
+	0, //OBJ_TORCHR2,
 	0, //OBJ_FLAMELVR,
 	0, //OBJ_SARC,
 	0, //OBJ_BARREL,
@@ -185,17 +185,18 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_SWITCHSKL*/	{ OFILE_SWITCH4,  DTM_HELL,                                  0,               THEME_NONE,              Q_INVALID,              1,  ODT_NONE,        1, TRUE      , ALIGN },
 /*OBJ_TNUDEM*/		{ OFILE_TNUDEM,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,              0,  ODT_NONE,        0, FALSE     , ALIGN },
 /*OBJ_TNUDEW*/		{ OFILE_TNUDEW,   DTM_HELL,                                  0,               THEME_TORTURE,           Q_BUTCHER,              0,  ODT_NONE,        0, FALSE     , ALIGN },
-/*OBJ_TORTURE1*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              1,  ODT_NONE,        0, FALSE     , ALIGN },
-/*OBJ_TORTURE2*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              2,  ODT_NONE,        0, FALSE     , ALIGN },
-/*OBJ_TORTURE3*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              3,  ODT_NONE,        0, FALSE     , ALIGN },
-/*OBJ_TORTURE4*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              4,  ODT_NONE,        0, FALSE     , ALIGN },
-/*OBJ_TORTURE5*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              5,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORTUREL1*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              1,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORTUREL2*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              2,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORTUREL3*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              5,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORTURER1*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              3,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORTURER2*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              4,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORTURER3*/	{ OFILE_TSOUL,    DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,              6,  ODT_NONE,        0, FALSE     , ALIGN },
 /*OBJ_L2LDOOR*/		{ OFILE_L2DOORS,  DTM_CATACOMBS,                             DTYPE_CATACOMBS, THEME_NONE,              Q_INVALID,              1,  ODT_LEFT,        3, TRUE      , ALIGN },
 /*OBJ_L2RDOOR*/		{ OFILE_L2DOORS,  DTM_CATACOMBS,                             DTYPE_CATACOMBS, THEME_NONE,              Q_INVALID,              2, ODT_RIGHT,        3, TRUE      , ALIGN },
-/*OBJ_TORCHL*/		{ OFILE_WTORCH4,  DTM_CATACOMBS,                             0,               THEME_NONE,              Q_INVALID,              0,  ODT_NONE,        0, FALSE     , ALIGN },
-/*OBJ_TORCHR*/		{ OFILE_WTORCH3,  DTM_CATACOMBS,                             0,               THEME_NONE,              Q_INVALID,              0,  ODT_NONE,        0, FALSE     , ALIGN },
-/*OBJ_TORCHL2*/		{ OFILE_WTORCH1,  DTM_CATACOMBS,                             0,               THEME_NONE,              Q_BLOOD,                0,  ODT_NONE,        0, FALSE     , ALIGN },
-/*OBJ_TORCHR2*/		{ OFILE_WTORCH2,  DTM_CATACOMBS,                             0,               THEME_NONE,              Q_BLOOD,                0,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORCHL1*/		{ OFILE_WTORCH1,  DTM_CATACOMBS,                             0,               THEME_NONE,              Q_BLOOD,                0,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORCHL2*/		{ OFILE_WTORCH4,  DTM_CATACOMBS,                             0,               THEME_NONE,              Q_INVALID,              0,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORCHR1*/		{ OFILE_WTORCH2,  DTM_CATACOMBS,                             0,               THEME_NONE,              Q_BLOOD,                0,  ODT_NONE,        0, FALSE     , ALIGN },
+/*OBJ_TORCHR2*/		{ OFILE_WTORCH3,  DTM_CATACOMBS,                             0,               THEME_NONE,              Q_INVALID,              0,  ODT_NONE,        0, FALSE     , ALIGN },
 /*OBJ_SARC*/		{ OFILE_SARC,     DTM_CATHEDRAL,                             0,               THEME_NONE,              Q_INVALID,              1,  ODT_NONE,        3, TRUE      , ALIGN },
 /*OBJ_FLAMEHOLE*///	{ OFILE_FLAME1,   0,                                         0,               THEME_NONE,              Q_INVALID,              1,  ODT_NONE,        0, FALSE     , ALIGN },
 /*OBJ_FLAMELVR*///	{ OFILE_LEVER,    0,                                         0,               THEME_NONE,              Q_INVALID,              1,  ODT_NONE,        1, FALSE     , ALIGN },

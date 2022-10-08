@@ -1,14 +1,24 @@
+# Disable sanitizers. They're not supported out-of-the-box.
+set(ASAN OFF)
+set(UBSAN OFF)
+
+# General build options.
 set(USE_SDL1 ON)
+#set(ZEROTIER OFF)
+# Disable system dependencies.
+set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 
 # Do not warn about unknown attributes, such as [[nodiscard]].
 # As this build uses an older compiler, there are lots of them.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
 
+# SDL video mode parameters
+set(SDL1_VIDEO_MODE_BPP 16)
+
 # GKD350h IPU scaler is broken at the moment
 set(DEFAULT_WIDTH 320)
 set(DEFAULT_HEIGHT 240)
 
-set(SDL1_VIDEO_MODE_BPP 16)
 set(PREFILL_PLAYER_NAME ON)
 
 # In joystick mode, GKD350h reports D-Pad as left stick,

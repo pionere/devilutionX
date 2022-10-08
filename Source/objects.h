@@ -18,6 +18,7 @@ extern int numobjects;
 extern ObjectStruct objects[MAXOBJECTS];
 //extern bool gbInitObjFlag;
 
+void InitLevelObjects();
 void InitObjectGFX();
 void FreeObjectGFX();
 void AddL1Objs(int x1, int y1, int x2, int y2);

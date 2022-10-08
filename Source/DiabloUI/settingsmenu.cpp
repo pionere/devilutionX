@@ -13,19 +13,17 @@ void UiSettingsDialog()
 	// enable speed setting
 	gbGameMode = 0;
 	assert(!IsMultiGame);
-	// initialize game-skeleton with active gamemenu
-	InitText();
+	// load speed setting - TODO: copy-paste from mainmenu_single_player
+	if (getIniInt("Diablo", "Game Speed", &gnTicksRate)) {
+		if (gnTicksRate < SPEED_NORMAL)
+			gnTicksRate = SPEED_NORMAL;
+		else if (gnTicksRate > SPEED_FASTEST)
+			gnTicksRate = SPEED_FASTEST;
+	}
+	// initialize gamemenu
 	InitGMenu();
 	gamemenu_settings(true);
 	settingsMenu = gpCurrentMenu;
-
-	InitCursorGFX();
-	NewCursor(CURSOR_HAND);
-
-	MakeLightTable();
-
-	LoadPalette("Levels\\TownData\\Town.pal");
-	PaletteFadeIn(true);
 
 	SDL_Event event;
 	while (settingsMenu == gpCurrentMenu) {
@@ -80,16 +78,14 @@ void UiSettingsDialog()
 				break;
 			}
 			if (keypress != DVL_VK_NONAME)
-				gmenu_presskeys(keypress);
+				gmenu_presskey(keypress);
 		}
 	}
 	PlaySFX(IS_TITLSLCT); // UiFocusNavigationSelect(); -- needs UiInitList...
-	PaletteFadeOut();
+	//PaletteFadeOut();
 
 	gmenu_set_items(NULL, 0, NULL);
-	FreeCursorGFX();
 	FreeGMenu();
-	FreeText();
 }
 
 DEVILUTION_END_NAMESPACE

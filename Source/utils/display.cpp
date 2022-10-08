@@ -35,6 +35,11 @@ DEVILUTION_BEGIN_NAMESPACE
  */
 bool gbWndActive;
 /**
+ * Specifies whether to give the game exclusive access to the
+ * screen, as needed for efficient rendering in fullscreen mode.
+ */
+bool gbFullscreen = true;
+/**
  * Specfies whether vertical sync is enabled.
  */
 bool gbVsyncEnabled;
@@ -106,7 +111,7 @@ void RecreateDisplay(int width, int height)
 	if (renderer_texture != NULL)
 		SDL_DestroyTexture(renderer_texture);
 
-	renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+	renderer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING, width, height);
 	if (renderer_texture == NULL) {
 		sdl_error(ERR_SDL_RENDERER_TEXTURE);
 	}
@@ -126,11 +131,6 @@ static void AdjustToScreenGeometry(int width, int height)
 		DoLog("Using software scaling");
 	}
 #endif
-	//viewportHeight = screenHeight;
-	/*if (screenWidth <= PANEL_WIDTH) {
-		// Part of the screen is fully obscured by the UI
-		viewportHeight -= PANEL_HEIGHT;
-	}*/
 }
 
 #ifndef USE_SDL1
@@ -225,11 +225,32 @@ void SpawnWindow(const char* lpWindowName)
 #endif
 #endif
 #endif
-
 	int width = DEFAULT_WIDTH;
 	int height = DEFAULT_HEIGHT;
+#if 0
+	int smode = 0; 
+	switch (smode) {
+	case 0: // oe
+		width = DEFAULT_WIDTH + 64;			// 704
+		height = DEFAULT_HEIGHT + 48;		// 528
+		break;
+	case 1: // oo
+		width = DEFAULT_WIDTH + 64 + 32;	// 736
+		height = DEFAULT_HEIGHT;			// 552
+		break;
+	case 2: // EE
+		width = DEFAULT_WIDTH + (32 * 4 + 2) / 3 + 1;	// 684
+		height = DEFAULT_HEIGHT;						// 513
+		break;
+	case 3:// EO
+		width = DEFAULT_WIDTH;
+		height = DEFAULT_HEIGHT;
+		break;
+	}
+#else
 	getIniInt("Graphics", "Width", &width);
 	getIniInt("Graphics", "Height", &height);
+#endif
 #ifndef __vita__
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);

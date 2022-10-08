@@ -17,10 +17,6 @@ typedef unsigned int UINT;
 typedef int32_t WPARAM;
 typedef int32_t LPARAM;
 
-#ifndef MAX_PATH
-#define MAX_PATH 260
-#endif
-
 //
 // Handles
 //
@@ -38,6 +34,7 @@ typedef struct tagMSG {
 //
 // Everything else
 //
+extern WNDPROC CurrentWndProc;
 
 void SetCursorPos(int X, int Y);
 
@@ -48,6 +45,7 @@ bool PeekMessage(LPMSG lpMsg);
 void TranslateMessage(const MSG* lpMsg);
 void DispatchMessage(const MSG *lpMsg);
 void PostMessage(UINT Msg, WPARAM wParam);
+WNDPROC SetWindowProc(WNDPROC NewProc);
 
 #ifndef TRUE
 #define TRUE true
@@ -159,10 +157,15 @@ typedef enum window_messages {
 #define DVL_VK_F 0x46
 #define DVL_VK_G 0x47
 #define DVL_VK_I 0x49
+#define DVL_VK_L 0x4C
+#define DVL_VK_M 0x4D
 #define DVL_VK_P 0x50
 #define DVL_VK_Q 0x51
+#define DVL_VK_R 0x52
 #define DVL_VK_S 0x53
+#define DVL_VK_U 0x55
 #define DVL_VK_V 0x56
+#define DVL_VK_W 0x57
 #define DVL_VK_Z 0x5A
 #define DVL_VK_LWIN 0x5B       // Left Windows key (Natural keyboard)
 #define DVL_VK_RWIN 0x5C       // Right Windows key (Natural keyboard)

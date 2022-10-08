@@ -27,28 +27,27 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static std::deque<MSG> message_queue;
 
-bool mouseWarping = false;
-int mouseWarpingX;
-int mouseWarpingY;
+/** The current input handler function */
+WNDPROC CurrentWndProc;
+
+#if __linux__ && (HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD)
+#define FIX_WARPING	1
+static bool mouseWarping = false;
+static int mouseWarpingX;
+static int mouseWarpingY;
+#else
+#define FIX_WARPING	0
+#endif
 
 void SetCursorPos(int x, int y)
 {
+#if FIX_WARPING
 	mouseWarpingX = x;
 	mouseWarpingY = y;
 	mouseWarping = true;
+#endif
 	LogicalToOutput(&x, &y);
 	SDL_WarpMouseInWindow(ghMainWnd, x, y);
-}
-
-// Moves the mouse to the first attribute "+" button.
-void FocusOnCharInfo()
-{
-	if (gbInvflag || myplr._pStatPts <= 0)
-		return;
-
-	// Jump to the first incrementable stat.
-	const RECT32 &rect = ChrBtnsRect[0];
-	SetCursorPos(rect.x + (rect.w / 2), rect.y + (rect.h / 2));
 }
 
 static int TranslateSdlKey(SDL_Keysym key)
@@ -850,7 +849,7 @@ bool PeekMessage(LPMSG lpMsg)
 	if (ProcessControllerMotion(e, ctrlEvent))
 		return true;
 
-	GameAction action;
+	GameAction action = GameAction(GameActionType_NONE);
 	if (GetGameAction(e, ctrlEvent, &action)) {
 		if (action.type != GameActionType_NONE) {
 			sgbControllerActive = true;
@@ -874,6 +873,8 @@ bool PeekMessage(LPMSG lpMsg)
 			break;
 		case GameActionType_PRIMARY_ACTION:
 			PerformPrimaryAction();
+			lpMsg->message = DVL_WM_KEYUP;
+			lpMsg->wParam = DVL_VK_LBUTTON;
 			break;
 		case GameActionType_SECONDARY_ACTION:
 			PerformSecondaryAction();
@@ -881,51 +882,10 @@ bool PeekMessage(LPMSG lpMsg)
 		case GameActionType_CAST_SPELL:
 			PerformSpellAction();
 			break;
-		case GameActionType_TOGGLE_QUICK_SPELL_MENU:
-			if (!gbSkillListFlag) {
-				ClearPanels();
-				DoSkillList(true);
-				StoreSpellCoords();
-			} else {
-				gbSkillListFlag = false;
-			}
-			break;
-		case GameActionType_TOGGLE_CHARACTER_INFO:
-			gbQuestlog = false;
-			gbSkillListFlag = false;
-			gbLvlUp = false;
-			gbChrflag = !gbChrflag;
-			if (gbChrflag) {
-				FocusOnCharInfo();
-			}
-			break;
-		case GameActionType_TOGGLE_QUEST_LOG:
-			gbChrflag = false;
-			gbSkillListFlag = false;
-			gbQuestlog = !gbQuestlog;
-			if (gbQuestlog) {
-				StartQuestlog();
-			}
-			break;
-		case GameActionType_TOGGLE_INVENTORY:
-			gbSbookflag = false;
-			gbSkillListFlag = false;
-			gbTeamFlag = false;
-			gbInvflag = !gbInvflag;
-			if (gbInvflag) {
-				FocusOnInventory();
-			}
-			break;
-		case GameActionType_TOGGLE_SPELL_BOOK:
-			gbInvflag = false;
-			gbSkillListFlag = false;
-			gbTeamFlag = false;
-			gbSbookflag = !gbSbookflag;
-			break;
 		case GameActionType_SEND_KEY:
 			lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
 			lpMsg->wParam = action.send_key.vk_code;
-			return true;
+			break;
 		case GameActionType_SEND_MOUSE_CLICK:
 			sgbControllerActive = false;
 			switch (action.send_mouse_click.button) {
@@ -946,7 +906,11 @@ bool PeekMessage(LPMSG lpMsg)
 #else
 	if (e.type < SDL_JOYAXISMOTION) {
 #endif
+#if FIX_WARPING
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
+#else
+		if (e.type != SDL_MOUSEMOTION)
+#endif // FIX_WARPING
 			sgbControllerActive = false;
 	}
 #endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -969,8 +933,10 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 	} break;
 	case SDL_MOUSEMOTION:
+#if FIX_WARPING
 		if (mouseWarping)
 			mouseWarping = false;
+#endif
 		lpMsg->message = DVL_WM_MOUSEMOVE;
 		lpMsg->wParam = PositionForMouse(e.motion.x, e.motion.y);
 		//lpMsg->lParam = KeystateForMouse(0);
@@ -1060,6 +1026,7 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 			break;
 		case SDL_WINDOWEVENT_ENTER:
+#if FIX_WARPING
 			// Bug in SDL, SDL_WarpMouseInWindow doesn't emit SDL_MOUSEMOTION
 			// and SDL_GetMouseState gives previous location if mouse was
 			// outside window (observed on Ubuntu 19.04)
@@ -1068,6 +1035,7 @@ bool PeekMessage(LPMSG lpMsg)
 				MouseY = mouseWarpingY;
 				mouseWarping = false;
 			}
+#endif
 			break;
 		case SDL_WINDOWEVENT_CLOSE:
 			// -- no need to handle, wait for the QUIT event
@@ -1242,6 +1210,27 @@ void PostMessage(UINT type, WPARAM wParam)
 	message.wParam = wParam;
 
 	message_queue.push_back(message);
+}
+
+/*void MainWndProc(UINT Msg)
+{
+	switch (Msg) {
+	case DVL_WM_PAINT:
+		gbRedrawFlags = REDRAW_ALL;
+		break;
+	//case DVL_WM_QUERYENDSESSION:
+	//	diablo_quit(0);
+	//	break;
+	}
+}*/
+
+WNDPROC SetWindowProc(WNDPROC newWndProc)
+{
+	WNDPROC oldWndProc;
+
+	oldWndProc = CurrentWndProc;
+	CurrentWndProc = newWndProc;
+	return oldWndProc;
 }
 
 DEVILUTION_END_NAMESPACE

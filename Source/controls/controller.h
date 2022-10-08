@@ -12,6 +12,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ControllerButtonEvent {
 	ControllerButton button;
 	bool up;
@@ -24,6 +28,10 @@ ControllerButtonEvent ToControllerButtonEvent(const SDL_Event &event);
 bool IsControllerButtonPressed(ControllerButton button);
 
 bool HandleControllerAddedOrRemovedEvent(const SDL_Event &event);
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 

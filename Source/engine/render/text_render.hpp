@@ -10,36 +10,43 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define FONT_KERN_SMALL		1
+#define FONT_KERN_BIG		2
+#define FONT_KERN_HUGE		2
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern BYTE *pPanelText;
-extern BYTE *pMedTextCels;
+extern CelImageBuf* pBigTextCels;
 
-extern const BYTE sfontframe[128];
-extern const BYTE mlfontframe[128];
-extern const BYTE sfontkern[68];
-extern const BYTE mfontkern[56];
-extern const BYTE gbFontTransTbl[256];
+extern const BYTE smallFontWidth[69];
+extern const BYTE bigFontWidth[69];
+extern const BYTE gbStdFontFrame[256];
 
 void InitText();
 void FreeText();
 
-int GetLargeStringWidth(const char *text);
-int GetStringWidth(const char* text);
+int GetHugeStringWidth(const char* text);
+int GetBigStringWidth(const char* text);
+int GetSmallStringWidth(const char* text);
 
 void PrintChar(int sx, int sy, int nCel, BYTE col);
+int PrintSmallChar(int sx, int sy, BYTE text, BYTE col);
+int PrintBigChar(int sx, int sy, BYTE text, BYTE col);
+int PrintHugeChar(int sx, int sy, BYTE text, BYTE col);
 void PrintString(int x, int y, int endX, const char *pszStr, bool center, BYTE col, int kern);
 void PrintGameStr(int x, int y, const char *str, BYTE color);
 int PrintLimitedString(int x, int y, const char *text, int limit, BYTE col);
-void PrintLargeString(int x, int y, const char* pszStr, int light);
+void PrintHugeString(int x, int y, const char* pszStr, int light);
 
-void DrawPentSpn(int x1, int x2, int y);
-void DrawPentSpn2(int x1, int x2, int y);
-void DrawSinglePentSpn2(int x, int y);
+void DrawHugePentSpn(int x1, int x2, int y);
+void DrawSmallPentSpn(int x1, int x2, int y);
+void DrawSingleSmallPentSpn(int x, int y);
 
+#ifdef __cplusplus
 }
+#endif
 
 DEVILUTION_END_NAMESPACE
 

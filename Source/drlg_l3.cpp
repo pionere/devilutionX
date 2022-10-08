@@ -1071,9 +1071,9 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 		y1 = y2 - blksizey;
 		x1 = x;
 		if (blksizex < obs)
-			x1 += random_(0, blksizex);
+			x1 += random_low(0, blksizex);
 		else if (blksizex > obs)
-			x1 -= random_(0, blksizex);
+			x1 -= random_low(0, blksizex);
 		x2 = blksizex + x1;
 		break;
 	case 1: // block to the east
@@ -1081,9 +1081,9 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 		x2 = x1 + blksizex;
 		y1 = y;
 		if (blksizey < obs)
-			y1 += random_(0, blksizey);
+			y1 += random_low(0, blksizey);
 		else if (blksizey > obs)
-			y1 -= random_(0, blksizey);
+			y1 -= random_low(0, blksizey);
 		y2 = y1 + blksizey;
 		break;
 	case 2: // block to the south
@@ -1091,9 +1091,9 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 		y2 = y1 + blksizey;
 		x1 = x;
 		if (blksizex < obs)
-			x1 += random_(0, blksizex);
+			x1 += random_low(0, blksizex);
 		else if (blksizex > obs)
-			x1 -= random_(0, blksizex);
+			x1 -= random_low(0, blksizex);
 		x2 = blksizex + x1;
 		break;
 	case 3: // block to the west
@@ -1101,9 +1101,9 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 		x1 = x2 - blksizex;
 		y1 = y;
 		if (blksizey < obs)
-			y1 += random_(0, blksizey);
+			y1 += random_low(0, blksizey);
 		else if (blksizey > obs)
-			y1 -= random_(0, blksizey);
+			y1 -= random_low(0, blksizey);
 		y2 = y1 + blksizey;
 		break;
 	case 4: // the central block
@@ -1584,7 +1584,7 @@ static void DRLG_L3River()
 		lpcnt = 0;
 		while (found == 0 && lpcnt < 30) {
 			lpcnt++;
-			bridge = random_(0, riveramt);
+			bridge = random_low(0, riveramt);
 			if ((river[2][bridge] == 15 || river[2][bridge] == 16)
 			 && dungeon[river[0][bridge]][river[1][bridge] - 1] == 7
 			 && dungeon[river[0][bridge]][river[1][bridge] + 1] == 7) {
@@ -2140,8 +2140,10 @@ static void DRLG_L3(int entry)
 				if (pSetPiece != NULL) {
 					setpc_w = pSetPiece[0];
 					setpc_h = pSetPiece[2];
-					setpc_x = RandRange(10, DMAXX - setpc_w - 10);
-					setpc_y = RandRange(10, DMAXY - setpc_h - 10);
+					assert(DMAXX - setpc_w - 10 > 10);
+					assert(DMAXY - setpc_h - 10 > 10);
+					setpc_x = RandRangeLow(10, DMAXX - setpc_w - 10);
+					setpc_y = RandRangeLow(10, DMAXY - setpc_h - 10);
 					DRLG_L3FloorArea(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 				}
 				do {

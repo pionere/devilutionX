@@ -191,12 +191,14 @@ static void multi_parse_turns()
 	int pnum;
 	// TODO: use pre-allocated space?
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
+	multi_process_turn(turn);
+	MemFreeDbg(turn);
 
 	if (guSendGameDelta != 0) {
 		if (!gbJoinGame) {
 			for (pnum = 0; pnum < MAX_PLRS; pnum++, guSendGameDelta >>= 1) {
 				if (guSendGameDelta & 1) {
-					DeltaExportData(pnum, turn->nmpTurn);
+					DeltaExportData(pnum);
 				}
 			}
 		}
@@ -206,16 +208,13 @@ static void multi_parse_turns()
 	if (guSendLevelData != 0) {
 #ifndef  NOHOSTING
 		if (mypnum < MAX_PLRS)
-			LevelDeltaExport(turn->nmpTurn);
+			LevelDeltaExport();
 		else
 			guSendLevelData = 0;
 #else
-			LevelDeltaExport(turn->nmpTurn);
+			LevelDeltaExport();
 #endif // ! NOHOSTING
 	}
-
-	multi_process_turn(turn);
-	MemFreeDbg(turn);
 }
 
 /**
@@ -251,9 +250,6 @@ void multi_deactivate_player(int pnum, int reason)
 			switch (reason) {
 			//case LEAVE_UNKNOWN:
 			//	break;
-			case LEAVE_ENDING:
-				pszFmt = "Player '%s' killed Diablo and left the game!";
-				break;
 			case LEAVE_DROP:
 				pszFmt = "Player '%s' dropped due to timeout";
 				break;
@@ -429,7 +425,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (pkt->wLen != SwapLE16(dwMsgSize))
+		if (SwapLE16(pkt->wLen) != dwMsgSize)
 			continue;
 		if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
 		 currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
@@ -437,8 +433,10 @@ void multi_process_turn(SNetTurnPkt* turn)
 			plr._pHitPoints = SwapLE32(pkt->php);
 			//plr._pMaxHP = SwapLE32(pkt->pmhp);
 			plr._pMana = SwapLE32(pkt->pmp);
-			SetPlayerLoc(&plr, pkt->px, pkt->py);
+			plr._px = pkt->px;
+			plr._py = pkt->py;
 		}
+		net_assert(plr._pActive || dwMsgSize == sizeof(TurnPktHdr) || ((TCmd*)(pkt + 1))->bCmd == CMD_JOINLEVEL);
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
 		//multi_check_left_plrs();
 	}
@@ -468,7 +466,7 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (pkt->wLen != SwapLE16(dwMsgSize))
+		if (SwapLE16(pkt->wLen) != dwMsgSize)
 			continue;
 		TCmd* cmd = (TCmd*)(pkt + 1);
 		if (cmd->bCmd == CMD_JOINLEVEL) {
@@ -495,7 +493,7 @@ void multi_process_msgs()
 		// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (pkt->wLen != SwapLE16(dwMsgSize))
+		if (SwapLE16(pkt->wLen) != dwMsgSize)
 			continue;
 		dwMsgSize -= sizeof(MsgPktHdr);
 		dwReadSize = ParseMsg(pnum, (TCmd*)&pkt[1]);
@@ -665,7 +663,7 @@ static void SetupLocalPlr()
 	assert(p->destAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town
-	p->_pmode = PM_NEWLVL;
+	assert(p->_pmode == PM_NEWLVL);
 
 	gbActivePlayers = 1;
 	p->_pActive = TRUE;
@@ -702,12 +700,13 @@ void NetClose()
 	_gbNetInited = false;
 	nthread_cleanup();
 	dthread_cleanup();
-	UIDisconnectGame(gbCineflag ? LEAVE_ENDING : LEAVE_UNKNOWN);
+	UIDisconnectGame();
 }
 
 static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 {
 	int i, dlgresult, pnum;
+	uint32_t seed;
 
 	while (TRUE) {
 		// mypnum = 0;
@@ -791,7 +790,10 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 	SetRndSeed(sgGameInitInfo.dwSeed);
 
 	for (i = 0; i < NUM_LEVELS; i++) {
-		glSeedTbl[i] = GetRndSeed();
+		seed = GetRndSeed();
+		seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
+		glSeedTbl[i] = seed;
+		SetRndSeed(seed);
 	}
 	SNetGetGameInfo(&szGameName, &szGamePassword);
 

@@ -2,7 +2,8 @@
 #include "utils/display.h"
 
 #include "DiabloUI/diabloui.h"
-#include "DiabloUI/selok.h"
+#include "../gameui.h"
+#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -31,7 +32,7 @@ void mainmenu_restart_repintro()
 	guAttractTc = SDL_GetTicks() + ATTRACT_TIMEOUT * 1000;
 }
 
-static void MainmenuLoad(const char* name)
+static void MainmenuLoad()
 {
 	int numOptions = 5;
 
@@ -45,20 +46,14 @@ static void MainmenuLoad(const char* name)
 	gUIListItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));
 	gUIListItems.push_back(new UiListItem("Exit Game", MAINMENU_EXIT_DIABLO));
 
-#ifndef NOWIDESCREEN
-	LoadArt("ui_art\\mainmenuw.pcx", &ArtBackgroundWidescreen);
-#endif
-	LoadBackgroundArt(MENU_ART);
+	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
 
 	UiAddBackground(&gUiItems);
 	UiAddLogo(&gUiItems);
 
 	//assert(gUIListItems.size() == numOptions);
-	SDL_Rect rect1 = { PANEL_LEFT + 64, (UI_OFFSET_Y + 192), 510, 43 * numOptions };
-	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_HUGE | UIS_GOLD));
-
-	SDL_Rect rect2 = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
-	gUiItems.push_back(new UiArtText(name, rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER));
+	SDL_Rect rect1 = { PANEL_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * numOptions };
+	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
 	UiInitList(numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
@@ -66,10 +61,7 @@ static void MainmenuLoad(const char* name)
 
 static void MainmenuFree()
 {
-#ifndef NOWIDESCREEN
-	ArtBackgroundWidescreen.Unload();
-#endif
-	ArtBackground.Unload();
+	MemFreeDbg(gbBackCel);
 
 	UiClearItems(gUiItems);
 
@@ -78,11 +70,11 @@ static void MainmenuFree()
 	//UiInitList_clear();
 }
 
-int UiMainMenuDialog(const char* name, void (*fnSound)(int sfx, int rndCnt))
+int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt))
 {
 	gfnSoundFunction = fnSound;
 
-	MainmenuLoad(name);
+	MainmenuLoad();
 
 	mainmenu_restart_repintro(); // for automatic starts
 

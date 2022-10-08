@@ -25,7 +25,7 @@ void InitQTextMsg(int m, bool showText)
 
 	tds = &alltext[m];
 	if (tds->scrlltxt && showText) {
-		ClearPanels();
+		// ClearPanels();
 		gbQtextflag = true;
 		qtextptr = tds->txtstr;
 		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;
@@ -72,8 +72,8 @@ void DrawQText()
 				endstr = sstr + 1;
 				break;
 			}
-			c = mlfontframe[gbFontTransTbl[(BYTE)*sstr++]];
-			len += mfontkern[c] + 2;
+			c = gbStdFontFrame[(BYTE)*sstr++];
+			len += bigFontWidth[c] + FONT_KERN_BIG;
 			if (c == 0) // allow wordwrap on blank glyph
 				endstr = sstr;
 			else if (len >= LTPANEL_WIDTH - 2 * 24)
@@ -82,11 +82,11 @@ void DrawQText()
 
 		tx = LTPANEL_X + 24;
 		while (str < endstr) {
-			c = mlfontframe[gbFontTransTbl[(BYTE)*str++]];
+			c = gbStdFontFrame[(BYTE)*str++];
 			if (c != 0) {
-				CelDraw(tx, ty, pMedTextCels, c, 22);
+				CelDraw(tx, ty, pBigTextCels, c);
 			}
-			tx += mfontkern[c] + 2;
+			tx += bigFontWidth[c] + FONT_KERN_BIG;
 		}
 		if (pnl == NULL) {
 			pnl = endstr;

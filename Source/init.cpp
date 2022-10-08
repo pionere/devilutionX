@@ -3,14 +3,11 @@
  *
  * Implementation of routines for initializing the environment, disable screen saver, load MPQ.
  */
-#include <string>
-
 //#if defined(_WIN64) || defined(_WIN32)
 //#include <find_steam_game.h>
 //#endif
 
 #include "all.h"
-#include <config.h>
 #include "utils/paths.h"
 #include "utils/file_util.h"
 #include <SDL.h>
@@ -27,8 +24,6 @@ int _newlib_heap_size_user = 100 * 1024 * 1024;
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** The current input handler function */
-WNDPROC CurrentWndProc;
 /** A handle to the mpq archives. */
 #ifdef MPQONE
 HANDLE diabdat_mpq;
@@ -39,9 +34,9 @@ HANDLE diabdat_mpqs[NUM_MPQS];
 static HANDLE init_test_access(const char* mpq_name)
 {
 	HANDLE archive;
-#if defined(__3DS__)
+#if defined(__3DS__) || defined(__SWITCH__)
 	const char* paths[3] = { GetBasePath(), GetPrefPath(), "romfs:/" };
-#elif defined(__linux__) && !defined(__ANDROID__)
+#elif defined(__unix__) && !defined(__ANDROID__)
 	const char* paths[4] = { GetBasePath(), GetPrefPath(),
 		"/usr/share/diasurgical/devilutionx/",
 		"/usr/local/share/diasurgical/devilutionx/" };
@@ -63,9 +58,7 @@ static HANDLE init_test_access(const char* mpq_name)
 
 /* data */
 
-const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
-
-void init_cleanup()
+void FreeArchives()
 {
 	pfile_flush(true);
 
@@ -95,12 +88,14 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	int entryCount = 0;
 	std::string line;
 	while (std::getline(input, line)) {
+		if (line[0] == '_')
+			continue;
 		std::string path = basePath + line.c_str();
 		FILE* fp = fopen(path.c_str(), "r");
-		if (fp != NULL) {
-			fclose(fp);
-			entryCount++;
-		}
+		if (fp == NULL)
+			app_fatal("Missing file: %s", path.c_str());
+		fclose(fp);
+		entryCount++;
 	}
 	input.close();
 	// TODO: use GetNearestPowerOfTwo of StormCommon.h?
@@ -137,7 +132,7 @@ static void ReadOnlyTest()
 {
 	std::string path = GetPrefPath();
 	path += "Diablo1ReadOnlyTest.foo";
-	FILE* f = FileOpen(path.c_str(), "wt");
+	FILE* f = FileOpen(path.c_str(), "w");
 	if (f != NULL) {
 		fclose(f);
 		remove(path.c_str());
@@ -146,13 +141,14 @@ static void ReadOnlyTest()
 	}
 }
 
-void init_archives()
+void InitArchives()
 {
 	InitializeMpqCryptography();
 	ReadOnlyTest();
 	SFileEnableDirectAccess(getIniBool("Diablo", "Direct FileAccess", false));
 
 	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
+	//CreateMpq("devilx_hd2.mpq", "WorkHd\\", "hdfiles.txt");
 #ifdef MPQONE
 	diabdat_mpq = init_test_access(MPQONE);
 	if (diabdat_mpq != NULL)
@@ -186,12 +182,16 @@ void init_archives()
 	diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq");
 	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
 #endif
-#ifndef NOWIDESCREEN
-	diabdat_mpqs[MPQ_DEVILUTIONX] = init_test_access("devilutionx.mpq");
-#endif
 	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq");
 	if (diabdat_mpqs[MPQ_DEVILX] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", "devilx.mpq");
+#if ASSET_MPL != 1
+	char tmpstr[32];
+	snprintf(tmpstr, lengthof(tmpstr), "devilx_hd%d.mpq", ASSET_MPL);
+	diabdat_mpqs[MPQ_DEVILHD] = init_test_access(tmpstr);
+	if (diabdat_mpqs[MPQ_DEVILHD] == NULL)
+		app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
+#endif
 
 #ifdef MPQONE
 	int i;
@@ -257,27 +257,6 @@ void init_archives()
 	diabdat_mpq = init_test_access(MPQONE);
 	assert(diabdat_mpq != NULL);
 #endif
-}
-
-/*void MainWndProc(UINT Msg)
-{
-	switch (Msg) {
-	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
-		break;
-	//case DVL_WM_QUERYENDSESSION:
-	//	diablo_quit(0);
-	//	break;
-	}
-}*/
-
-WNDPROC SetWindowProc(WNDPROC newWndProc)
-{
-	WNDPROC oldWndProc;
-
-	oldWndProc = CurrentWndProc;
-	CurrentWndProc = newWndProc;
-	return oldWndProc;
 }
 
 DEVILUTION_END_NAMESPACE

@@ -4,30 +4,19 @@
 #include <vector>
 #include <SDL.h>
 
-#include "DiabloUI/art.h"
 #include "DiabloUI/ui_item.h"
 #include "utils/display.h"
+#include "../diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SML_BUTTON_WIDTH	110
-#define SML_BUTTON_HEIGHT	28
-
-typedef enum _artFocus {
-	FOCUS_SMALL,
-	FOCUS_MED,
-	FOCUS_BIG,
-	NUM_FOCUS
-} _artFocus;
-
-extern Art ArtFocus[NUM_FOCUS];
-extern Art ArtBackground;
-#ifndef NOWIDESCREEN
-extern Art ArtBackgroundWidescreen;
+#ifdef __cplusplus
+extern "C" {
 #endif
-extern Art ArtCursor;
-extern Art ArtHero;
-extern Art ArtSmlButton;
+
+extern CelImageBuf* gbBackCel;
+extern CelImageBuf* gbHerosCel;
+extern CelImageBuf* gbSmlButtonCel;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);
 extern std::vector<UiListItem*> gUIListItems;
@@ -56,11 +45,10 @@ inline SDL_Surface* DiabloUiSurface()
 //	return output_surface;
 }
 
-void UiFadeIn();
+void UiFadeIn(bool draw_cursor);
 void UiHandleEvents(SDL_Event* event);
 void UiItemMouseEvents(SDL_Event* event);
-void DrawMouse();
-void LoadBackgroundArt(const char* pszFile, int frames = 1);
+void LoadBackgroundArt(const char* pszFile, const char* palette);
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
 void UiFocusNavigationSelect();
@@ -74,7 +62,13 @@ void UiRenderItems(const std::vector<UiItemBase*> &uiItems);
 void UiClearItems(std::vector<UiItemBase*> &uiItems);
 void UiClearListItems();
 //void UiInitList_clear();
+int GetAnimationFrame(int frames, int animFrameLenMs = 64);
 
+/* Defined in mainmenu.cpp */
 void mainmenu_restart_repintro();
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE

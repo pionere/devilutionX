@@ -1,9 +1,8 @@
 #include "text_draw.h"
 
-#include "DiabloUI/art_draw.h"
 #include "DiabloUI/diabloui.h"
-#include "DiabloUI/fonts.h"
 #include "DiabloUI/text.h"
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -20,25 +19,55 @@ void DrawArtStr(const char* text, const SDL_Rect &rect, int flags, bool drawText
 {
 	unsigned size = (flags & UIS_SIZE) >> 0;
 	unsigned color = (flags & UIS_COLOR) >> 7;
+	int w, h, dy;
+	static int (*pChar)(int sx, int sy, BYTE text, BYTE col);
 
-	Art* fontArt = &ArtFonts[size][color];
+	color = color == AFC_SILVER ? COL_WHITE : COL_GOLD;
+	switch (size) {
+	case AFT_SMALL:
+		w = GetSmallStringWidth(text);
+		dy = 1;
+		h = 11 - dy;
+		//h = 11;
+		pChar = PrintSmallChar;
+		break;
+	case AFT_MED:
+	case AFT_BIG:
+		w = GetBigStringWidth(text);
+		dy = 5 - 2;
+		h = 22 - dy;
+		//h = 22;
+		pChar = PrintBigChar;
+		break;
+	case AFT_HUGE:
+		w = GetHugeStringWidth(text);
+		dy = 10 - 4;
+		h = 46 - dy;
+		//h = 46;
+		pChar = PrintHugeChar;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
 
-	const int x = rect.x + AlignXOffset(flags, rect, GetArtStrWidth(text, size));
-	const int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - fontArt->frame_height) / 2 : 0);
+	int x = rect.x + AlignXOffset(flags, rect, w) + SCREEN_X;
+	int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - h) / 2 : 0) + SCREEN_Y + h;
+
+	y += dy;
+	h += dy;
 
 	int sx = x, sy = y;
 	for ( ; *text != '\0'; text++) {
 		if (*text == '\n') {
 			sx = x;
-			sy += fontArt->frame_height;
+			sy += h;
 			continue;
 		}
-		BYTE w = FontTables[size][*(BYTE*)text];
-		DrawArt(sx, sy, fontArt, *(BYTE*)text, w);
-		sx += w;
+		sx += pChar(sx, sy, (BYTE)*text, color);
 	}
-	if (drawTextCursor && GetAnimationFrame(2, 500) != 0) {
-		DrawArt(sx, sy, fontArt, '|');
+	if (drawTextCursor && GetAnimationFrame(2, 512) != 0) {
+		sx += pChar(sx, sy, '|', color);
 	}
 }
 

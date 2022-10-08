@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern TownerStruct towners[MAX_TOWNERS];
+extern const int GossipList[STORE_TOWNERS][2];
 extern int numtowners;
 
 void InitTowners();
