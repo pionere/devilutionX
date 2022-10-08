@@ -594,12 +594,11 @@ typedef struct MonsterData {
 	BYTE mMagic2;     // unused
 	BYTE mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE mEvasion;    // evasion: used against magic-projectile
-	BYTE mMonstClass; // unused
 	uint16_t mMagicRes;
 	uint16_t mMagicRes2;
 	uint16_t mTreasure;
 	uint16_t mExp;
-	ALIGNMENT(4, 1)
+	ALIGNMENT(5, 2)
 } MonsterData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
