@@ -4273,7 +4273,7 @@ void MAI_SnotSpil(int mnum)
 		}
 		return;
 	case 4:
-		if (mon->mtalkmsg != TEXT_NONE) {
+		if (mon->_mgoal == MGOAL_TALKING) {
 			// TODO: does not work when a player enters the level and the timer is running
 			mon->mtalkmsg = TEXT_NONE;
 			mon->_mgoal = MGOAL_NORMAL;
@@ -4435,7 +4435,7 @@ void MAI_Warlord(int mnum)
 		}
 		// mon->_msquelch = SQUELCH_MAX;
 	case 2:
-		if (mon->mtalkmsg != TEXT_NONE) {
+		if (mon->_mgoal == MGOAL_TALKING) {
 			// TODO: does not work when a player enters the level and the timer is running
 			mon->mtalkmsg = TEXT_NONE;
 			mon->_mgoal = MGOAL_NORMAL;
@@ -4446,7 +4446,7 @@ void MAI_Warlord(int mnum)
 		break;
 	}
 
-	if (mon->_mgoal == MGOAL_NORMAL)
+	// assert(mon->_mgoal == MGOAL_NORMAL);
 		MAI_SkelSd(mnum);
 }
 
@@ -5318,7 +5318,7 @@ bool CanTalkToMonst(int mnum)
 		dev_fatal("CanTalkToMonst: Invalid monster %d", mnum);
 	}
 	assert((monsters[mnum]._mgoal == MGOAL_TALKING) == (monsters[mnum].mtalkmsg != TEXT_NONE));
-	return monsters[mnum].mtalkmsg != TEXT_NONE;
+	return monsters[mnum]._mgoal == MGOAL_TALKING;
 }
 
 bool CheckMonsterHit(int mnum, bool* ret)
@@ -5330,7 +5330,7 @@ bool CheckMonsterHit(int mnum, bool* ret)
 	}
 	mon = &monsters[mnum];
 
-	if (mon->mtalkmsg != TEXT_NONE || mon->_mmode == MM_CHARGE || mon->_mhitpoints < (1 << 6)
+	if (mon->_mgoal == MGOAL_TALKING || mon->_mmode == MM_CHARGE || mon->_mhitpoints < (1 << 6)
 	 || (mon->_mAi == AI_SNEAK && mon->_mgoal == MGOAL_RETREAT)
 	 || (mon->_mAi == AI_COUNSLR && mon->_mgoal != MGOAL_NORMAL)) {
 		*ret = false;
