@@ -627,6 +627,7 @@ typedef struct MapMonData {
 	BOOL cmPlaceScatter;
 	SoundSample cmSnds[NUM_MON_SFX][2];
 	AnimStruct cmAnims[NUM_MON_ANIM];
+	const char* cmName;
 	BYTE cmLevel;
 	BYTE cmSelFlag;
 	BYTE cmAi;
@@ -645,7 +646,6 @@ typedef struct MapMonData {
 	uint16_t cmMagicRes;
 	uint16_t cmTreasure;
 	unsigned cmExp;
-	const char* cmName;
 	int cmWidth;
 	int cmXOffset;
 	BYTE cmAFNum;
@@ -712,6 +712,7 @@ typedef struct MonsterStruct {
 	BYTE leaderflag; // the status of the monster's leader
 	BYTE packsize; // the number of 'pack'-monsters close to their leader
 	BYTE _mvid; // vision id of the monster (for minions only)
+	const char* mName;
 	BYTE _mLevel;
 	BYTE _mSelFlag;
 	BYTE _mAi;
@@ -730,7 +731,6 @@ typedef struct MonsterStruct {
 	uint16_t _mMagicRes;
 	uint16_t _mTreasure;
 	unsigned _mExp;
-	const char* mName;
 	int _mAnimWidth;
 	int _mAnimXOffset;
 	BYTE _mAFNum;
@@ -738,7 +738,7 @@ typedef struct MonsterStruct {
 	uint16_t _mAlign_0; // unused
 	AnimStruct* _mAnims;
 	int _mType;
-	ALIGNMENT(13, 7)
+	ALIGNMENT(13, 8)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
