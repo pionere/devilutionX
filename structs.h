@@ -738,7 +738,7 @@ typedef struct MonsterStruct {
 	uint16_t _mAlign_0; // unused
 	AnimStruct* _mAnims;
 	int _mType;
-	ALIGNMENT(13, 7)
+	ALIGNMENT(13, 8)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
