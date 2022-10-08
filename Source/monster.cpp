@@ -974,8 +974,10 @@ static void PlaceUniqueMonst(int uniqindex)
 	mon->_mMaxDamage2 = uniqm->mMaxDamage2;
 	mon->_mMagicRes = uniqm->mMagicRes;
 	mon->mtalkmsg = uniqm->mtalkmsg;
-	if (mon->mtalkmsg != TEXT_NONE)
-		mon->_mgoal = MGOAL_INQUIRING;
+	if (mon->mtalkmsg != TEXT_NONE) {
+		mon->_mgoal = MGOAL_TALKING;
+		mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
+	}
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
 	LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
@@ -2447,10 +2449,10 @@ static bool MonDoTalk(int mnum)
 	mon = &monsters[mnum];
 	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
-	mon->_mgoal = MGOAL_TALKING;
-	if (effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
-		return false;
-	InitQTextMsg(mon->mtalkmsg, !IsMultiGame /*mon->_mListener == mypnum*/); // MON_TIMER
+	// assert(mon->_mgoal == MGOAL_TALKING);
+	mon->_mgoalvar1 = TRUE; // TALK_SPEAKING
+	if (!effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
+		InitQTextMsg(mon->mtalkmsg, !IsMultiGame /*mon->_mListener == mypnum*/); // MON_TIMER
 	return false;
 }
 
@@ -4174,23 +4176,24 @@ void MAI_Garbud(int mnum)
 		return;
 
 	mon->_mdir = MonEnemyLastDir(mnum);
-
 	if (mon->_mgoal == MGOAL_TALKING) {
-		if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER
-			//if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
-			if (quests[Q_GARBUD]._qvar1 == 4 && (IsMultiGame || !effect_is_playing(USFX_GARBUD4))) {
-				mon->_mgoal = MGOAL_NORMAL;
-				// mon->_msquelch = SQUELCH_MAX;
-				mon->mtalkmsg = TEXT_NONE;
+		if (mon->_mgoalvar1) { // TALK_SPEAKING
+			if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER
+				//if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
+				if (quests[Q_GARBUD]._qvar1 == 4 && (IsMultiGame || !effect_is_playing(USFX_GARBUD4))) {
+					mon->_mgoal = MGOAL_NORMAL;
+					// mon->_msquelch = SQUELCH_MAX;
+					mon->mtalkmsg = TEXT_NONE;
+				}
+			} else {
+				if (quests[Q_GARBUD]._qvar1 < 4)
+					mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 			}
-		} else {
-			if (quests[Q_GARBUD]._qvar1 < 4)
-				mon->_mgoal = MGOAL_INQUIRING;
+		} else if (quests[Q_GARBUD]._qvar1 == 4) {
+			// TODO: does not work when a player enters the level and the timer is running
+			mon->_mgoal = MGOAL_NORMAL;
+			mon->mtalkmsg = TEXT_NONE;
 		}
-	} else if (mon->_mgoal == MGOAL_INQUIRING && quests[Q_GARBUD]._qvar1 == 4) {
-		// TODO: does not work when a player enters the level and the timer is running
-		mon->_mgoal = MGOAL_NORMAL;
-		mon->mtalkmsg = TEXT_NONE;
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_MOVE)
@@ -4209,22 +4212,24 @@ void MAI_Zhar(int mnum)
 		return;
 
 	mon->_mdir = MonEnemyLastDir(mnum);
-
 	if (mon->_mgoal == MGOAL_TALKING) {
-		if (quests[Q_ZHAR]._qvar1 == 1)
-			mon->_mgoal = MGOAL_INQUIRING;
-		if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER - also set in objects.cpp
-			//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
-			if (quests[Q_ZHAR]._qvar1 == 2 && (IsMultiGame || !effect_is_playing(USFX_ZHAR2))) {
-				// mon->_msquelch = SQUELCH_MAX;
-				mon->mtalkmsg = TEXT_NONE;
-				mon->_mgoal = MGOAL_NORMAL;
+		if (mon->_mgoalvar1) { // TALK_SPEAKING
+			if (quests[Q_ZHAR]._qvar1 == 1) {
+				mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 			}
+			if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER - also set in objects.cpp
+				//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
+				if (quests[Q_ZHAR]._qvar1 == 2 && (IsMultiGame || !effect_is_playing(USFX_ZHAR2))) {
+					// mon->_msquelch = SQUELCH_MAX;
+					mon->mtalkmsg = TEXT_NONE;
+					mon->_mgoal = MGOAL_NORMAL;
+				}
+			}
+		} else if (quests[Q_ZHAR]._qvar1 == 2) {
+			// TODO: does not work when a player enters the level and the timer is running
+			mon->_mgoal = MGOAL_NORMAL;
+			mon->mtalkmsg = TEXT_NONE;
 		}
-	} else if (mon->_mgoal == MGOAL_INQUIRING && quests[Q_ZHAR]._qvar1 == 2) {
-		// TODO: does not work when a player enters the level and the timer is running
-		mon->_mgoal = MGOAL_NORMAL;
-		mon->mtalkmsg = TEXT_NONE;
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT || mon->_mgoal == MGOAL_MOVE)
@@ -4251,12 +4256,14 @@ void MAI_SnotSpil(int mnum)
 		// switch to new text if the player(s) left
 		if (mon->mtalkmsg == TEXT_BANNER10 && !(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
 			mon->mtalkmsg = TEXT_BANNER11;
-		if (mon->_mgoal == MGOAL_TALKING)
-			mon->_mgoal = MGOAL_INQUIRING;
+		// assert(mon->_mgoal == MGOAL_TALKING);
+		// if (mon->_mgoalvar1)
+			mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 		return;
 	case 2: // banner given to ogden -> wait to lure the player
-		if (mon->_mgoal == MGOAL_TALKING)
-			mon->_mgoal = MGOAL_INQUIRING;
+		// assert(mon->_mgoal == MGOAL_TALKING);
+		// if (mon->_mgoalvar1)
+			mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 		return;
 	case 3: // banner received or talked after the banner was given to ogden -> attack
 		//if (mon->_mVar8++ < gnTicksRate * 6) // MON_TIMER
@@ -4296,41 +4303,45 @@ void MAI_Lazarus(int mnum)
 	mon->_mdir = MonEnemyLastDir(mnum);
 
 	if (IsMultiGame) {
-		if (mon->_mgoal == MGOAL_INQUIRING) {
-			if (quests[Q_BETRAYER]._qvar1 <= 3) {
-				assert(mon->mtalkmsg == TEXT_VILE13);
-				if (mon->_msquelch != SQUELCH_MAX)
-					return;
-				mon->_mmode = MM_TALK;
-				// mon->_mListener = mypnum;
-				quests[Q_BETRAYER]._qvar1 = 6;
-				NetSendCmdQuest(Q_BETRAYER, true);
-			} else {
+		if (mon->_mgoal == MGOAL_TALKING) {
+			if (!mon->_mgoalvar1) { // TALK_INQUIRING
+				if (quests[Q_BETRAYER]._qvar1 <= 3) {
+					assert(mon->mtalkmsg == TEXT_VILE13);
+					if (mon->_msquelch != SQUELCH_MAX)
+						return;
+					mon->_mmode = MM_TALK;
+					// mon->_mListener = mypnum;
+					quests[Q_BETRAYER]._qvar1 = 6;
+					NetSendCmdQuest(Q_BETRAYER, true);
+				} else {
+					mon->mtalkmsg = TEXT_NONE;
+					mon->_mgoal = MGOAL_NORMAL;
+				}
+			} else { // TALK_SPEAKING
 				mon->mtalkmsg = TEXT_NONE;
 				mon->_mgoal = MGOAL_NORMAL;
 			}
-		} else if (mon->_mgoal == MGOAL_TALKING) {
-			mon->mtalkmsg = TEXT_NONE;
-			mon->_mgoal = MGOAL_NORMAL;
 		}
 	} else {
-		if (mon->_mgoal == MGOAL_INQUIRING) {
-			if (mon->_msquelch != SQUELCH_MAX)
-				return;
-			// assert(quests[Q_BETRAYER]._qvar1 < 5);
-			// assert(myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y);
-			PlayInGameMovie("gendata\\fprst3.smk");
-			mon->_mmode = MM_TALK;
-			// mon->_mListener = mypnum;
-		} else if (mon->_mgoal == MGOAL_TALKING) {
-			if (effect_is_playing(USFX_LAZ1) && myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y)
-				return;
-			ObjChangeMap(7, 20, 11, 22/*, false*/);
-			//RedoLightAndVision();
-			// mon->_msquelch = SQUELCH_MAX;
-			mon->mtalkmsg = TEXT_NONE;
-			mon->_mgoal = MGOAL_NORMAL;
-			quests[Q_BETRAYER]._qvar1 = 6;
+		if (mon->_mgoal == MGOAL_TALKING) {
+			if (!mon->_mgoalvar1) { // TALK_INQUIRING
+				if (mon->_msquelch != SQUELCH_MAX)
+					return;
+				// assert(quests[Q_BETRAYER]._qvar1 < 5);
+				// assert(myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y);
+				PlayInGameMovie("gendata\\fprst3.smk");
+				mon->_mmode = MM_TALK;
+				// mon->_mListener = mypnum;
+			} else { // TALK_SPEAKING
+				if (effect_is_playing(USFX_LAZ1) && myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y)
+					return;
+				ObjChangeMap(7, 20, 11, 22/*, false*/);
+				//RedoLightAndVision();
+				// mon->_msquelch = SQUELCH_MAX;
+				mon->mtalkmsg = TEXT_NONE;
+				mon->_mgoal = MGOAL_NORMAL;
+				quests[Q_BETRAYER]._qvar1 = 6;
+			}
 		}
 	}
 
@@ -4350,7 +4361,7 @@ void MAI_Lazhelp(int mnum)
 
 	mon->_mdir = MonEnemyLastDir(mnum);
 
-	if (mon->_mgoal == MGOAL_INQUIRING || mon->_mgoal == MGOAL_TALKING) {
+	if (mon->_mgoal == MGOAL_TALKING) {
 		if (!IsMultiGame && quests[Q_BETRAYER]._qvar1 <= 5)
 			return;
 		mon->mtalkmsg = TEXT_NONE;
@@ -4385,8 +4396,9 @@ void MAI_Lachdanan(int mnum)
 		if (mon->mtalkmsg == TEXT_VEIL9 && !(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
 			mon->mtalkmsg = TEXT_VEIL10;
 	}
-	//if (mon->_mgoal == MGOAL_TALKING)
-		mon->_mgoal = MGOAL_INQUIRING;
+	// assert(mon->_mgoal == MGOAL_TALKING);
+	// if (mon->_mgoalvar1)
+		mon->_mgoalvar1 = FALSE;
 }
 
 void MAI_Warlord(int mnum)
@@ -4516,7 +4528,7 @@ void ProcessMonsters()
 				mon->_menemyy = 0;
 				mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
 				mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
-				assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_INQUIRING || mon->_mgoal == MGOAL_TALKING);
+				assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_TALKING);
 			}
 		}
 
@@ -5194,7 +5206,7 @@ void TalktoMonster(int mnum, int pnum)
 		dev_fatal("TalktoMonster: Invalid player %d", pnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mgoal != MGOAL_INQUIRING)
+	if (mon->_mgoal != MGOAL_TALKING || mon->_mgoalvar1) // TALK_SPEAKING / TALK_INQUIRING
 		return; // already talking (or does not want to talk at all)
 	mon->_mmode = MM_TALK;
 	mon->_mListener = pnum;
@@ -5307,8 +5319,7 @@ bool CanTalkToMonst(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("CanTalkToMonst: Invalid monster %d", mnum);
 	}
-	assert((monsters[mnum]._mgoal == MGOAL_INQUIRING
-		|| monsters[mnum]._mgoal == MGOAL_TALKING) == (monsters[mnum].mtalkmsg != TEXT_NONE));
+	assert((monsters[mnum]._mgoal == MGOAL_TALKING) == (monsters[mnum].mtalkmsg != TEXT_NONE));
 	return monsters[mnum].mtalkmsg != TEXT_NONE;
 }
 
