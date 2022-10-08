@@ -584,19 +584,19 @@ typedef struct MonsterData {
 	uint16_t mMinHP;
 	uint16_t mMaxHP;
 	int mFlags;
-	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t mHit;    // hit chance (melee+projectile)
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
-	uint16_t mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t mHit2;   // hit chance of special melee attacks
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
-	BYTE mMagic;
+	BYTE mMagic;      // hit chance of magic-projectile
 	BYTE mMagic2;     // unused
 	BYTE mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE mEvasion;    // evasion: used against magic-projectile
-	uint16_t mMagicRes;
-	uint16_t mMagicRes2;
-	uint16_t mTreasure;
+	uint16_t mMagicRes;  // resistances in normal and nightmare difficulties
+	uint16_t mMagicRes2; // resistances in hell difficulty
+	uint16_t mTreasure;  // unique drops of monsters + no-drop flag
 	uint16_t mExp;
 	ALIGNMENT(5, 2)
 } MonsterData;
@@ -632,18 +632,18 @@ typedef struct MapMonData {
 	BYTE cmAi;
 	BYTE cmInt;
 	int cmFlags;
-	uint16_t cmHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t cmHit;    // hit chance (melee+projectile)
 	BYTE cmMinDamage;
 	BYTE cmMaxDamage;
-	uint16_t cmHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t cmHit2;   // hit chance of special melee attacks
 	BYTE cmMinDamage2;
 	BYTE cmMaxDamage2;
-	BYTE cmMagic;
+	BYTE cmMagic;      // hit chance of magic-projectile
 	BYTE cmMagic2;     // unused
 	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE cmEvasion;    // evasion: used against magic-projectile
-	uint16_t cmMagicRes;
-	uint16_t cmTreasure;
+	uint16_t cmMagicRes;  // resistances of the monster
+	uint16_t cmTreasure;  // unique drops of monsters + no-drop flag
 	unsigned cmExp;
 	int cmWidth;
 	int cmXOffset;
@@ -717,18 +717,18 @@ typedef struct MonsterStruct {
 	BYTE _mAi;
 	BYTE _mInt;
 	int _mFlags;
-	uint16_t _mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t _mHit;    // hit chance (melee+projectile)
 	BYTE _mMinDamage;
 	BYTE _mMaxDamage;
-	uint16_t _mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t _mHit2;   // hit chance of special melee attacks
 	BYTE _mMinDamage2;
 	BYTE _mMaxDamage2;
-	BYTE _mMagic;
+	BYTE _mMagic;      // hit chance of magic-projectile
 	BYTE _mMagic2;     // unused
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
-	uint16_t _mMagicRes;
-	uint16_t _mTreasure;
+	uint16_t _mMagicRes;  // resistances of the monster
+	uint16_t _mTreasure;  // unique drops of monsters + no-drop flag
 	unsigned _mExp;
 	int _mAnimWidth;
 	int _mAnimXOffset;
