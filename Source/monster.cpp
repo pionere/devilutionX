@@ -4217,13 +4217,11 @@ void MAI_Zhar(int mnum)
 			if (quests[Q_ZHAR]._qvar1 == 1) {
 				mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 			}
-			if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER - also set in objects.cpp
-				//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
-				if (quests[Q_ZHAR]._qvar1 == 2 && (IsMultiGame || !effect_is_playing(USFX_ZHAR2))) {
-					// mon->_msquelch = SQUELCH_MAX;
-					mon->mtalkmsg = TEXT_NONE;
-					mon->_mgoal = MGOAL_NORMAL;
-				}
+			//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) { // MON_TIMER - also set in objects.cpp
+			if (quests[Q_ZHAR]._qvar1 == 2 && (IsMultiGame || !effect_is_playing(USFX_ZHAR2))) {
+				// mon->_msquelch = SQUELCH_MAX;
+				mon->mtalkmsg = TEXT_NONE;
+				mon->_mgoal = MGOAL_NORMAL;
 			}
 		} else if (quests[Q_ZHAR]._qvar1 == 2) {
 			// TODO: does not work when a player enters the level and the timer is running
