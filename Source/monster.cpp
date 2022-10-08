@@ -4196,7 +4196,7 @@ void MAI_Garbud(int mnum)
 		}
 	}
 
-	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_MOVE)
+	if (mon->_mgoal != MGOAL_TALKING)
 		MAI_Round(mnum, true);
 }
 
@@ -4230,7 +4230,7 @@ void MAI_Zhar(int mnum)
 		}
 	}
 
-	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT || mon->_mgoal == MGOAL_MOVE)
+	if (mon->_mgoal != MGOAL_TALKING)
 		MAI_Counselor(mnum);
 }
 
