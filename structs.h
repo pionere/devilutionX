@@ -573,14 +573,20 @@ static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align Anim
 static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 64, "Align AnimStruct closer to power of 2 for better performance.");
 #endif
 
+typedef struct MonsterAI {
+	BYTE aiType;
+	BYTE aiInt;
+	BYTE aiParam1;
+	BYTE aiParam2;
+} MonsterAI;
+
 typedef struct MonsterData {
-	int moFileNum;
-	const char* mTransFile;
-	const char* mName;
+	uint16_t moFileNum;
 	BYTE mLevel;
 	BYTE mSelFlag;
-	BYTE mAi;
-	BYTE mInt;
+	const char* mTransFile;
+	const char* mName;
+	MonsterAI mAI;
 	uint16_t mMinHP;
 	uint16_t mMaxHP;
 	int mFlags;
@@ -629,8 +635,8 @@ typedef struct MapMonData {
 	const char* cmName;
 	BYTE cmLevel;
 	BYTE cmSelFlag;
-	BYTE cmAi;
-	BYTE cmInt;
+	uint16_t cmAlign_1; // unused
+	MonsterAI cmAI;
 	int cmFlags;
 	uint16_t cmHit;    // hit chance (melee+projectile)
 	BYTE cmMinDamage;
@@ -652,7 +658,7 @@ typedef struct MapMonData {
 	uint16_t cmAlign_0; // unused
 	uint16_t cmMinHP;
 	uint16_t cmMaxHP;
-	ALIGNMENT(26, 1)
+	ALIGNMENT32(25)
 } MapMonData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
@@ -714,8 +720,8 @@ typedef struct MonsterStruct {
 	const char* mName;
 	BYTE _mLevel;
 	BYTE _mSelFlag;
-	BYTE _mAi;
-	BYTE _mInt;
+	uint16_t _mAlign_1; // unused
+	MonsterAI _mAI;
 	int _mFlags;
 	uint16_t _mHit;    // hit chance (melee+projectile)
 	BYTE _mMinDamage;
@@ -735,9 +741,9 @@ typedef struct MonsterStruct {
 	BYTE _mAFNum;
 	BYTE _mAFNum2;
 	uint16_t _mAlign_0; // unused
-	AnimStruct* _mAnims;
 	int _mType;
-	ALIGNMENT(13, 8)
+	AnimStruct* _mAnims;
+	ALIGNMENT(12, 7)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -757,8 +763,7 @@ typedef struct UniqMonData {
 	BYTE muLevelIdx; // level-index to place the monster
 	BYTE muLevel;    // difficulty level of the monster
 	uint16_t mmaxhp;
-	BYTE mAi;
-	BYTE mInt;
+	MonsterAI mAI;
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
 	BYTE mMinDamage2;
@@ -769,7 +774,7 @@ typedef struct UniqMonData {
 	BYTE mUnqAC; // armor class bonus of the unique monster
 	BYTE mQuestId;
 	int mtalkmsg;
-	ALIGNMENT64(4)
+	ALIGNMENT(7, 3)
 } UniqMonData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

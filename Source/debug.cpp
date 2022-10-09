@@ -328,19 +328,19 @@ void ValidateData()
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
 		// check RETREAT_DISTANCE for MonFallenFear
-		if (md.mAi == AI_FALLEN && md.mInt > 3)
-			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
-		if (md.mAi == AI_COUNSLR && md.mInt > 5)
-			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
-		if ((md.mAi == AI_GOLUM || md.mAi == AI_SKELKING || md.mAi == AI_MEGA) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
+		if (md.mAI.aiType == AI_FALLEN && md.mAI.aiInt > 3)
+			app_fatal("Invalid mInt %d for %s (%d)", md.mAI.aiInt, md.mName, i);
+		if (md.mAI.aiType == AI_COUNSLR && md.mAI.aiInt > 3)
+			app_fatal("Invalid mInt %d for %s (%d)", md.mAI.aiInt, md.mName, i);
+		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING || md.mAI.aiType == AI_MEGA) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_GOLUM, AI_SKELKING and AI_MEGA always check the doors (%s, %d)", md.mName, i);
-		if ((md.mAi == AI_FALLEN || md.mAi == AI_SNAKE || md.mAi == AI_SNEAK || md.mAi == AI_SKELBOW) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
+		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_SNAKE || md.mAI.aiType == AI_SNEAK || md.mAI.aiType == AI_SKELBOW) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_FALLEN,  AI_SNAKE, AI_SNEAK and AI_SKELBOW never check the doors (%s, %d)", md.mName, i);
 #ifdef HELLFIRE
-		if ((md.mAi == AI_HORKDMN) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
+		if ((md.mAI.aiType == AI_HORKDMN) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_HORKDMN never check the doors (%s, %d)", md.mName, i);
 #endif
-		if ((md.mAi == AI_CLEAVER || md.mAi == AI_FAT || md.mAi == AI_BAT) && (md.mFlags & MFLAG_CAN_OPEN_DOOR) && !(md.mFlags & MFLAG_SEARCH))
+		if ((md.mAI.aiType == AI_CLEAVER || md.mAI.aiType == AI_FAT || md.mAI.aiType == AI_BAT) && (md.mFlags & MFLAG_CAN_OPEN_DOOR) && !(md.mFlags & MFLAG_SEARCH))
 			app_fatal("AI_CLEAVER, AI_FAT and AI_BAT only check the doors while searching (%s, %d)", md.mName, i);
 		if (md.mLevel > UINT8_MAX - HELL_LEVEL_BONUS)
 			app_fatal("Too high mLevel %d for %s (%d).", md.mLevel, md.mName, i);
@@ -442,19 +442,19 @@ void ValidateData()
 			if (AllLevels[lvl].dMonTypes[j] == MT_INVALID)
 				app_fatal("Useless unique monster %s (%d)", um.mName, i);
 		}
-		if (um.mAi == AI_FALLEN && um.mInt > 3)
-			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
-		if (um.mAi == AI_COUNSLR && um.mInt > 5)
-			app_fatal("Invalid mInt %d for %s (%d)", um.mInt, um.mName, i);
-		if ((um.mAi == AI_GOLUM || um.mAi == AI_SKELKING || um.mAi == AI_MEGA) && !(monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+		if (um.mAI.aiType == AI_FALLEN && um.mAI.aiInt > 3)
+			app_fatal("Invalid mInt %d for %s (%d)", um.mAI.aiInt, um.mName, i);
+		if (um.mAI.aiType == AI_COUNSLR && um.mAI.aiInt > 3)
+			app_fatal("Invalid mInt %d for %s (%d)", um.mAI.aiInt, um.mName, i);
+		if ((um.mAI.aiType == AI_GOLUM || um.mAI.aiType == AI_SKELKING || um.mAI.aiType == AI_MEGA) && !(monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("Unique AI_GOLUM, AI_SKELKING and AI_MEGA always check the doors (%s, %d)", um.mName, i);
-		if ((um.mAi == AI_FALLEN || um.mAi == AI_SNAKE || um.mAi == AI_SNEAK || um.mAi == AI_SKELBOW) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+		if ((um.mAI.aiType == AI_FALLEN || um.mAI.aiType == AI_SNAKE || um.mAI.aiType == AI_SNEAK || um.mAI.aiType == AI_SKELBOW) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("Unique AI_FALLEN, AI_CLEAVER, AI_SNAKE, AI_SNEAK, AI_SKELBOW and AI_FAT never check the doors (%s, %d)", um.mName, i);
 #ifdef HELLFIRE
-		if ((um.mAi == AI_HORKDMN) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+		if ((um.mAI.aiType == AI_HORKDMN) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("Unique AI_HORKDMN never check the doors (%s, %d)", um.mName, i);
 #endif
-		if ((um.mAi == AI_CLEAVER || um.mAi == AI_FAT) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR) && !(monsterdata[um.mtype].mFlags & MFLAG_SEARCH))
+		if ((um.mAI.aiType == AI_CLEAVER || um.mAI.aiType == AI_FAT) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR) && !(monsterdata[um.mtype].mFlags & MFLAG_SEARCH))
 			app_fatal("Unique AI_CLEAVER and AI_FAT only check the doors while searching (%s, %d)", um.mName, i);
 		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mTreasure & NO_DROP) == 0)
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);

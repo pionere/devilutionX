@@ -2572,7 +2572,7 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis = &missile[mi];
-	mis->_miRange = 5 * (monsters[misource]._mInt + 4);
+	mis->_miRange = 5 * (monsters[misource]._mAI.aiInt + 4);
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	//mis->_miLid = NO_LIGHT;
@@ -2594,7 +2594,7 @@ int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 		dam = monsters[misource]._mmaxhp >> (1 + 6);
 	}
 	mis->_miMinDam = mis->_miMaxDam = dam;
-	mis->_miRange = 40 * (monsters[misource]._mInt + 1) + random_(50, 16);
+	mis->_miRange = 40 * (monsters[misource]._mAI.aiInt + 1) + random_(50, 16);
 	mis->_miLightFlag = TRUE;
 	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;
@@ -4099,7 +4099,7 @@ void MI_Rhino(int mi)
 	dMonster[mis->_mix][mis->_miy] = 0;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
-	if (monsters[mnum]._mAi == AI_SNAKE) {
+	if (monsters[mnum]._mAI.aiType == AI_SNAKE) {
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);

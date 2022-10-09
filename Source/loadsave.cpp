@@ -14,7 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SAVE_INITIAL 'RETL'
 #endif
 
-BYTE* tbuff;
+static BYTE* tbuff;
 
 static bool LoadBool()
 {
@@ -580,10 +580,16 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->packsize);
 	LoadByte(&mon->_mvid);
 
+	// Skip mName
+
 	LoadByte(&mon->_mLevel);
 	LoadByte(&mon->_mSelFlag);
-	LoadByte(&mon->_mAi);
-	LoadByte(&mon->_mInt);
+	tbuff += 2; // Skip _mAlign_1
+
+	LoadByte(&mon->_mAI.aiType);
+	LoadByte(&mon->_mAI.aiInt);
+	LoadByte(&mon->_mAI.aiParam1);
+	LoadByte(&mon->_mAI.aiParam2);
 
 	LoadInt(&mon->_mFlags);
 
@@ -605,7 +611,6 @@ static void LoadMonster(int mnum)
 
 	LoadInt(&mon->_mExp);
 
-	// Skip mName
 	// Skip _mAnimWidth
 	// Skip _mAnimXOffset
 	// Skip _mAFNum
@@ -1301,10 +1306,16 @@ static void SaveMonster(int mnum, bool full)
 	SaveByte(&mon->packsize);
 	SaveByte(&mon->_mvid);
 
+	// Skip mName
+
 	SaveByte(&mon->_mLevel);
 	SaveByte(&mon->_mSelFlag);
-	SaveByte(&mon->_mAi);
-	SaveByte(&mon->_mInt);
+	tbuff += 2; // Skip _mAlign_1
+
+	SaveByte(&mon->_mAI.aiType);
+	SaveByte(&mon->_mAI.aiInt);
+	SaveByte(&mon->_mAI.aiParam1);
+	SaveByte(&mon->_mAI.aiParam2);
 
 	SaveInt(&mon->_mFlags);
 
