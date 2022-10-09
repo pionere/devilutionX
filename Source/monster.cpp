@@ -645,7 +645,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MonsterStruct, _mAFNum) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmAFNum) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIV.");
 	static_assert(offsetof(MonsterStruct, _mAFNum2) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmAFNum2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXV.");
 	static_assert(offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXVI.");
-	memcpy(&mon->_mLevel, &cmon->cmName, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0));
+	memcpy(&mon->mName, &cmon->cmName, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0));
 	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
@@ -4261,11 +4261,11 @@ void MAI_SnotSpil(int mnum)
 	case 3: // banner received or talked after the banner was given to ogden -> attack
 		//if (mon->_mVar8++ < gnTicksRate * 6) // MON_TIMER
 		//	return; // wait till the sfx is running, but don't rely on effect_is_playing
-		if (!IsMultiGame && effect_is_playing(alltext[TEXT_BANNER12].sfxnr))
+		if (IsMultiGame || effect_is_playing(alltext[TEXT_BANNER12].sfxnr))
 			return;
-		if (mon->_mListener == mypnum || !plx(mon->_mListener)._pActive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {
+		//if (mon->_mListener == mypnum || !plx(mon->_mListener)._pActive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {
 			NetSendCmd(CMD_OPENSPIL);
-		}
+		//}
 		return;
 	case 4:
 		if (mon->_mgoal == MGOAL_TALKING) {
@@ -5197,7 +5197,7 @@ void TalktoMonster(int mnum, int pnum)
 	if (mon->_mgoal != MGOAL_TALKING || mon->_mgoalvar1) // TALK_SPEAKING / TALK_INQUIRING
 		return; // already talking (or does not want to talk at all)
 	mon->_mmode = MM_TALK;
-	mon->_mListener = pnum;
+	// mon->_mListener = pnum;
 	if (mon->_mAi == AI_SNOTSPIL) {
 		assert(QuestStatus(Q_LTBANNER));
 		if (quests[Q_LTBANNER]._qvar1 == 0) {
@@ -5216,8 +5216,10 @@ void TalktoMonster(int mnum, int pnum)
 		if (mon->_mgoalvar2 == TEXT_BANNER12) { // TALK_MESSAGE
 			// mon->_mVar8 = 0; // init MON_TIMER
 			quests[Q_LTBANNER]._qvar1 = 3;
-			if (pnum == mypnum)
-				NetSendCmdQuest(Q_LTBANNER, true);
+			if (IsMultiGame && pnum == mypnum) {
+				// NetSendCmdQuest(Q_LTBANNER, true);
+				NetSendCmd(CMD_OPENSPIL);
+			}
 		}
 	} else if (mon->_mAi == AI_GARBUD) {
 		mon->_mgoalvar2 = TEXT_GARBUD1 + quests[Q_GARBUD]._qvar1; // TALK_MESSAGE

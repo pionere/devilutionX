@@ -584,22 +584,21 @@ typedef struct MonsterData {
 	uint16_t mMinHP;
 	uint16_t mMaxHP;
 	int mFlags;
-	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t mHit;    // hit chance (melee+projectile)
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
-	uint16_t mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t mHit2;   // hit chance of special melee attacks
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
-	BYTE mMagic;
+	BYTE mMagic;      // hit chance of magic-projectile
 	BYTE mMagic2;     // unused
 	BYTE mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE mEvasion;    // evasion: used against magic-projectile
-	BYTE mMonstClass; // unused
-	uint16_t mMagicRes;
-	uint16_t mMagicRes2;
-	uint16_t mTreasure;
+	uint16_t mMagicRes;  // resistances in normal and nightmare difficulties
+	uint16_t mMagicRes2; // resistances in hell difficulty
+	uint16_t mTreasure;  // unique drops of monsters + no-drop flag
 	uint16_t mExp;
-	ALIGNMENT(4, 1)
+	ALIGNMENT(5, 2)
 } MonsterData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
@@ -633,18 +632,18 @@ typedef struct MapMonData {
 	BYTE cmAi;
 	BYTE cmInt;
 	int cmFlags;
-	uint16_t cmHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t cmHit;    // hit chance (melee+projectile)
 	BYTE cmMinDamage;
 	BYTE cmMaxDamage;
-	uint16_t cmHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t cmHit2;   // hit chance of special melee attacks
 	BYTE cmMinDamage2;
 	BYTE cmMaxDamage2;
-	BYTE cmMagic;
+	BYTE cmMagic;      // hit chance of magic-projectile
 	BYTE cmMagic2;     // unused
 	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE cmEvasion;    // evasion: used against magic-projectile
-	uint16_t cmMagicRes;
-	uint16_t cmTreasure;
+	uint16_t cmMagicRes;  // resistances of the monster
+	uint16_t cmTreasure;  // unique drops of monsters + no-drop flag
 	unsigned cmExp;
 	int cmWidth;
 	int cmXOffset;
@@ -683,7 +682,7 @@ typedef struct MonsterStruct {
 	int _menemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
 	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
-	BYTE _mListener;        // the player to whom the monster is talking to
+	BYTE _mListener;        // the player to whom the monster is talking to (unused)
 	BOOLEAN _mDelFlag; // unused
 	BYTE* _mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
@@ -718,18 +717,18 @@ typedef struct MonsterStruct {
 	BYTE _mAi;
 	BYTE _mInt;
 	int _mFlags;
-	uint16_t _mHit; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t _mHit;    // hit chance (melee+projectile)
 	BYTE _mMinDamage;
 	BYTE _mMaxDamage;
-	uint16_t _mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t _mHit2;   // hit chance of special melee attacks
 	BYTE _mMinDamage2;
 	BYTE _mMaxDamage2;
-	BYTE _mMagic;
+	BYTE _mMagic;      // hit chance of magic-projectile
 	BYTE _mMagic2;     // unused
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
-	uint16_t _mMagicRes;
-	uint16_t _mTreasure;
+	uint16_t _mMagicRes;  // resistances of the monster
+	uint16_t _mTreasure;  // unique drops of monsters + no-drop flag
 	unsigned _mExp;
 	int _mAnimWidth;
 	int _mAnimXOffset;
@@ -1251,7 +1250,7 @@ typedef struct TSyncLvlMonster {
 	INT smEnemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
 	BYTE smEnemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE smEnemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
-	BYTE smListener;        // the player to whom the monster is talking to
+	BYTE smListener;        // the player to whom the monster is talking to (unused)
 	BOOLEAN smDelFlag; // unused
 	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	BYTE smAnimFrame; // Current frame of animation.
