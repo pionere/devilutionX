@@ -3572,8 +3572,8 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mvid,
 	mon->_mLevel,
 	mon->_mSelFlag,
-	mon->_mAi,
-	mon->_mInt,
+	mon->_mAI.aiType,
+	mon->_mAI.aiInt,
 	mon->_mFlags,
 	mon->_mHit, // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	mon->_mMinDamage,

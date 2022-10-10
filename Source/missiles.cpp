@@ -1453,8 +1453,8 @@ static void SyncRhinoAnim(int mi)
 	mis = &missile[mi];
 	mon = &monsters[mis->_miSource];
 	anim = &mon->_mAnims[
-		(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
-		(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
+		(mon->_mFileNum == MOFILE_RHINO) ? MA_SPECIAL :
+		(mon->_mFileNum == MOFILE_SNAKE) ? MA_ATTACK : MA_WALK];
 	mis->_miAnimData = anim->aData[mis->_miDir];
 	mis->_miAnimFrameLen = anim->aFrameLen;
 	assert(mis->_miAnimFlag == TRUE);
@@ -1462,7 +1462,7 @@ static void SyncRhinoAnim(int mi)
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
 
-	mis->_miAnimAdd = mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE ? 2 : 1;
+	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
 	mis->_miLid = mon->mlid;
 	if (mon->_uniqtype != 0) {
 		mis->_miUniqTrans = mon->_uniqtrans;
@@ -2572,7 +2572,7 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis = &missile[mi];
-	mis->_miRange = 5 * (monsters[misource]._mInt + 4);
+	mis->_miRange = 5 * (monsters[misource]._mAI.aiInt + 4);
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	//mis->_miLid = NO_LIGHT;
@@ -2594,7 +2594,7 @@ int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 		dam = monsters[misource]._mmaxhp >> (1 + 6);
 	}
 	mis->_miMinDam = mis->_miMaxDam = dam;
-	mis->_miRange = 40 * (monsters[misource]._mInt + 1) + random_(50, 16);
+	mis->_miRange = 40 * (monsters[misource]._mAI.aiInt + 1) + random_(50, 16);
 	mis->_miLightFlag = TRUE;
 	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;
@@ -4099,7 +4099,7 @@ void MI_Rhino(int mi)
 	dMonster[mis->_mix][mis->_miy] = 0;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
-	if (monsters[mnum]._mAi == AI_SNAKE) {
+	if (monsters[mnum]._mFileNum == MOFILE_SNAKE) {
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);

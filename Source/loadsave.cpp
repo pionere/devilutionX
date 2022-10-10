@@ -580,10 +580,16 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->packsize);
 	LoadByte(&mon->_mvid);
 
+	// Skip mName
+
+	LoadInt16(&mon->_mFileNum);
 	LoadByte(&mon->_mLevel);
 	LoadByte(&mon->_mSelFlag);
-	LoadByte(&mon->_mAi);
-	LoadByte(&mon->_mInt);
+
+	LoadByte(&mon->_mAI.aiType);
+	LoadByte(&mon->_mAI.aiInt);
+	LoadByte(&mon->_mAI.aiParam1);
+	LoadByte(&mon->_mAI.aiParam2);
 
 	LoadInt(&mon->_mFlags);
 
@@ -605,7 +611,6 @@ static void LoadMonster(int mnum)
 
 	LoadInt(&mon->_mExp);
 
-	// Skip mName
 	// Skip _mAnimWidth
 	// Skip _mAnimXOffset
 	// Skip _mAFNum
@@ -1301,10 +1306,16 @@ static void SaveMonster(int mnum, bool full)
 	SaveByte(&mon->packsize);
 	SaveByte(&mon->_mvid);
 
+	// Skip mName
+
+	SaveInt16(&mon->_mFileNum);
 	SaveByte(&mon->_mLevel);
 	SaveByte(&mon->_mSelFlag);
-	SaveByte(&mon->_mAi);
-	SaveByte(&mon->_mInt);
+
+	SaveByte(&mon->_mAI.aiType);
+	SaveByte(&mon->_mAI.aiInt);
+	SaveByte(&mon->_mAI.aiParam1);
+	SaveByte(&mon->_mAI.aiParam2);
 
 	SaveInt(&mon->_mFlags);
 
@@ -1326,7 +1337,6 @@ static void SaveMonster(int mnum, bool full)
 
 	SaveInt(&mon->_mExp);
 
-	// Skip mName
 	// Skip _mAnimWidth
 	// Skip _mAnimXOffset
 	// Skip _mAFNum
@@ -1580,11 +1590,11 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 180 /*+ MAXMISSILES
+	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
 	 + MAXMISSILES * 172 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 180 + MAXMISSILES
+	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 172 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
