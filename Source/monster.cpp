@@ -3686,10 +3686,8 @@ void MAI_RoundRanged2(int mnum)
 		return;
 	}*/
 
-	if (mon->_msquelch < SQUELCH_MAX) {
-		// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
-	}
 	v = random_(121, 100);
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && dist < 5)) {
