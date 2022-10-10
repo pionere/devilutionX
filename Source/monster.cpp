@@ -3692,7 +3692,7 @@ void MAI_RoundRanged2(int mnum)
 	}
 	v = random_(121, 100);
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-		if (mon->_mgoal == MGOAL_MOVE || dist >= 3) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && dist < 5)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
