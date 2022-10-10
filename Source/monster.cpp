@@ -113,37 +113,39 @@ const int offset_y[NUM_DIRS] = { 1, 1, 1, 0, -1, -1, -1, 0 };
  * - if the monster is active, the function/monster must do something otherwise the enemy might not get updated
  * - can not rely on dLight, because it might not be in sync in multiplayer games
  */
-void (*AiProc[])(int i) = {
-/*AI_ZOMBIE*/	&MAI_Zombie,
-/*AI_FAT*/		&MAI_Fat,
-/*AI_SKELSD*/	&MAI_SkelSd,
-/*AI_SKELBOW*/	&MAI_SkelBow,
-/*AI_SCAV*/		&MAI_Scav,
-/*AI_RHINO*/	&MAI_Rhino,
-/*AI_ROUND*/	&MAI_Round,
-/*AI_RANGED*/	&MAI_Ranged,
-/*AI_FALLEN*/	&MAI_Fallen,
-/*AI_ROUNDRANGED*/	&MAI_RoundRanged,
-/*AI_SKELKING*/	&MAI_SkelKing,
-/*AI_BAT*/		&MAI_Bat,
-/*AI_GARG*/		&MAI_Garg,
-/*AI_CLEAVER*/	&MAI_Cleaver,
-/*AI_SNEAK*/	&MAI_Sneak,
-/*AI_FIREMAN*///&MAI_Fireman,
-/*AI_GARBUD*/	&MAI_Garbud,
-/*AI_GOLUM*/	&MAI_Golem,
-/*AI_ZHAR*/		&MAI_Zhar,
-/*AI_SNOTSPIL*/	&MAI_SnotSpil,
-/*AI_SNAKE*/	&MAI_Snake,
-/*AI_COUNSLR*/	&MAI_Counselor,
+void (* const AiProc[])(int i) = {
+	// clang-format off
+/*AI_ZOMBIE*/       &MAI_Zombie,
+/*AI_FAT*/          &MAI_Fat,
+/*AI_SKELSD*/       &MAI_SkelSd,
+/*AI_SKELBOW*/      &MAI_SkelBow,
+/*AI_SCAV*/         &MAI_Scav,
+/*AI_RHINO*/        &MAI_Rhino,
+/*AI_ROUND*/        &MAI_Round,
+/*AI_RANGED*/       &MAI_Ranged,
+/*AI_FALLEN*/       &MAI_Fallen,
+/*AI_ROUNDRANGED*/  &MAI_RoundRanged,
+/*AI_SKELKING*/     &MAI_SkelKing,
+/*AI_BAT*/          &MAI_Bat,
+/*AI_GARG*/         &MAI_Garg,
+/*AI_CLEAVER*/      &MAI_Cleaver,
+/*AI_SNEAK*/        &MAI_Sneak,
+/*AI_FIREMAN*///    &MAI_Fireman,
+/*AI_GARBUD*/       &MAI_Garbud,
+/*AI_GOLUM*/        &MAI_Golem,
+/*AI_ZHAR*/         &MAI_Zhar,
+/*AI_SNOTSPIL*/     &MAI_SnotSpil,
+/*AI_SNAKE*/        &MAI_Snake,
+/*AI_COUNSLR*/      &MAI_Counselor,
 /*AI_ROUNDRANGED2*/ &MAI_RoundRanged2,
-/*AI_LAZARUS*/	&MAI_Lazarus,
-/*AI_LAZHELP*/	&MAI_Lazhelp,
-/*AI_LACHDAN*/	&MAI_Lachdanan,
-/*AI_WARLORD*/	&MAI_Warlord,
+/*AI_LAZARUS*/      &MAI_Lazarus,
+/*AI_LAZHELP*/      &MAI_Lazhelp,
+/*AI_LACHDAN*/      &MAI_Lachdanan,
+/*AI_WARLORD*/      &MAI_Warlord,
 #ifdef HELLFIRE
-/*AI_HORKDMN*/	&MAI_Horkdemon,
+/*AI_HORKDMN*/      &MAI_Horkdemon,
 #endif
+	// clang-format on
 };
 
 static inline void InitMonsterTRN(AnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
