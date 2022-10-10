@@ -2051,7 +2051,7 @@ static void MonStartHeal(int mnum)
 	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].aFrames;
 	mon->_mFlags |= MFLAG_REV_ANIMATION;
 	mon->_mmode = MM_HEAL;
-	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 8)); // HEAL_SPEED
+	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 7)); // HEAL_SPEED
 }
 
 static bool MonDoStand(int mnum)
@@ -2874,13 +2874,13 @@ void MAI_SkelSd(int mnum)
 		if (mon->_mVar1 == MM_DELAY || (random_(106, 100) >= 35 - 4 * mon->_mAI.aiInt)) {
 			MonDestWalk(mnum);
 		} else {
-			MonStartDelay(mnum, RandRange(15, 24) - 2 * mon->_mAI.aiInt);
+			MonStartDelay(mnum, RandRange(16, 23) - 2 * mon->_mAI.aiInt);
 		}
 	} else {
 		if (mon->_mVar1 == MM_DELAY || (random_(105, 100) < 2 * mon->_mAI.aiInt + 20)) {
 			MonStartAttack(mnum);
 		} else {
-			MonStartDelay(mnum, RandRange(11, 19) - 2 * mon->_mAI.aiInt);
+			MonStartDelay(mnum, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
 		}
 	}
 }
@@ -2932,7 +2932,7 @@ void MAI_Snake(int mnum)
 			if (!MonDumbWalk(mnum, mon->_mgoalvar2))
 				MonDestWalk(mnum);
 		} else {
-			MonStartDelay(mnum, RandRange(15, 24) - mon->_mAI.aiInt);
+			MonStartDelay(mnum, RandRange(16, 23) - mon->_mAI.aiInt);
 		}
 	} else { // STAND_PREV_MODE
 		if (mon->_mVar1 == MM_DELAY
@@ -2940,7 +2940,7 @@ void MAI_Snake(int mnum)
 		    || (random_(105, 100) < mon->_mAI.aiInt + 20)) {
 			MonStartAttack(mnum);
 		} else
-			MonStartDelay(mnum, RandRange(11, 19) - mon->_mAI.aiInt);
+			MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 	}
 }
 
@@ -3178,7 +3178,7 @@ void MAI_Sneak(int mnum)
 		} else if (LineClear(mx, my, fx, fy)) {
 			MonStartRAttack(mnum, MIS_KRULL);
 		} else {
-			MonStartDelay(mnum, RandRange(5, 14));
+			MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_RETREAT);
@@ -3317,7 +3317,7 @@ void MAI_Round(int mnum)
 			}
 			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, md)) {
 				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 				}
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3656,7 +3656,7 @@ void MAI_RoundRanged(int mnum)
 		}
 	}
 	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(6, 14) - mon->_mAI.aiInt);
+		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
 	}
 }
 
@@ -3731,7 +3731,7 @@ void MAI_RoundRanged2(int mnum)
 		}
 	}
 	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(6, 14) - mon->_mAI.aiInt);
+		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
 	}
 }
 
@@ -3812,7 +3812,7 @@ void MAI_SkelKing(int mnum)
 			}
 			if ((mon->_mgoalvar1++ < 2 * dist && MonDirOK(mnum, md)) /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
 				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 				}
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3846,7 +3846,7 @@ void MAI_SkelKing(int mnum)
 			 || (MON_JUST_WALKED && v < mon->_mAI.aiInt + 75)) {
 				MonDestWalk(mnum);
 			} else {
-				MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+				MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 			}
 		}
 	}
@@ -3877,7 +3877,7 @@ void MAI_Rhino(int mnum)
 			}
 			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
 				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 				}
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3905,7 +3905,7 @@ void MAI_Rhino(int mnum)
 			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 83)) {
 				MonDestWalk(mnum);
 			} else {
-				MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+				MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 			}
 		}
 	}
@@ -3936,7 +3936,7 @@ void MAI_Horkdemon(int mnum)
 			}
 			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
 				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 				}
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3961,7 +3961,7 @@ void MAI_Horkdemon(int mnum)
 			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 83)) {
 				MonDestWalk(mnum);
 			} else {
-				MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+				MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 			}
 		}
 	}
@@ -4044,7 +4044,7 @@ void MAI_Counselor(int mnum)
 		}
 	}
 	if (mon->_mmode == MM_STAND && mon->_mAI.aiType != AI_LAZARUS) {
-		MonStartDelay(mnum, RandRange(11, 19) - 2 * mon->_mAI.aiInt);
+		MonStartDelay(mnum, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
 	}
 }
 
