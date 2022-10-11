@@ -969,6 +969,9 @@ static void PlaceUniqueMonst(int uniqindex)
 	mon->_uniqtrans = uniquetrans++;
 
 	mon->_mHit += uniqm->mUnqHit;
+	mon->_mHit2 += uniqm->mUnqHit2;
+	mon->_mMagic += uniqm->mUnqMag;
+	mon->_mEvasion += uniqm->mUnqEva;
 	mon->_mArmorClass += uniqm->mUnqAC;
 	mon->_mAI.aiInt += gnDifficulty;
 
@@ -986,6 +989,7 @@ static void PlaceUniqueMonst(int uniqindex)
 		mon->_mMaxDamage = 4 * mon->_mMaxDamage + 6;
 		mon->_mMinDamage2 = 4 * mon->_mMinDamage2 + 6;
 		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
+		mon->_mMagicRes = uniqm->mMagicRes2;
 	}
 	mon->_mmaxhp <<= 6;
 	if (!IsMultiGame) {
@@ -994,7 +998,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	}
 	mon->_mhitpoints = mon->_mmaxhp;
 
-	if (uniqm->mUnqAttr & UMF_NODROP)
+	if (uniqm->mUnqFlags & UMF_NODROP)
 		mon->_mTreasure = NO_DROP;
 }
 
@@ -1011,9 +1015,9 @@ static void PlaceUniques()
 		for (mt = 0; mt < nummtypes; mt++) {
 			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
 				PlaceUniqueMonst(u);
-				if (uniqMonData[u].mUnqAttr & UMF_GROUP) {
+				if (uniqMonData[u].mUnqFlags & UMF_GROUP) {
 					// assert(mnum == nummonsters - 1);
-					PlaceGroup(mt, MON_PACK_SIZE - 1, uniqMonData[u].mUnqAttr, nummonsters - 1);
+					PlaceGroup(mt, MON_PACK_SIZE - 1, uniqMonData[u].mUnqFlags, nummonsters - 1);
 				}
 				break;
 			}

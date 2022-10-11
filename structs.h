@@ -769,12 +769,16 @@ typedef struct UniqMonData {
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
 	uint16_t mMagicRes;
-	BYTE mUnqAttr;
-	BYTE mUnqHit; // to-hit bonus of the unique monster
-	BYTE mUnqAC; // armor class bonus of the unique monster
+	uint16_t mMagicRes2;
+	BYTE mUnqFlags;
+	BYTE mUnqHit;  // to-hit (melee+projectile) bonus
+	BYTE mUnqHit2; // to-hit (special melee attacks) bonus
+	BYTE mUnqMag;  // to-hit (magic-projectile) bonus
+	BYTE mUnqEva;  // evasion bonus
+	BYTE mUnqAC;   // armor class bonus
 	BYTE mQuestId;
 	int mtalkmsg;
-	ALIGNMENT(7, 3)
+	ALIGNMENT(6, 2)
 } UniqMonData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
