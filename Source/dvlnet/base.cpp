@@ -69,11 +69,14 @@ void base::recv_accept(packet &pkt)
 void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 {
 	SNetEvent ev;
+
 	ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
 	ev.playerid = pnum;
 	ev._eData = reinterpret_cast<BYTE*>(&leaveinfo);
 	ev.databytes = sizeof(leaveinfo);
+
 	run_event_handler(ev);
+
 	if (pnum < MAX_PLRS) {
 		connected_table[pnum] = false;
 		turn_queue[pnum].clear();
@@ -114,6 +117,7 @@ void base::recv_local(packet &pkt)
 {
 	// FIXME: the server could still impersonate a player...
 	plr_t pkt_plr = pkt.pktSrc();
+
 	if (pkt_plr < MAX_PLRS) {
 		connected_table[pkt_plr] = true;
 	}
@@ -304,8 +308,8 @@ turn_status base::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 uint32_t base::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
 	int i;
-
 	turn_t minturn = 0, turn;
+
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (status[i] & PCS_TURN_ARRIVED) {
 			turn = SwapLE32(turn_queue[i].front().turn_id);
