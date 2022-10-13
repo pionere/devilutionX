@@ -7,8 +7,6 @@
 #include "plrctrls.h"
 #include "misproc.h"
 #include "engine/render/cl2_render.hpp"
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 DEVILUTION_BEGIN_NAMESPACE
 

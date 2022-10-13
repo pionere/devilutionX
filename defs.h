@@ -218,11 +218,6 @@
 #define SwapLE32 SDL_SwapLE32
 #define SwapLE16 SDL_SwapLE16
 
-#ifdef _MSC_VER
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
-#endif
-
 #ifdef __has_attribute
 #define DVL_HAVE_ATTRIBUTE(x) __has_attribute(x)
 #else
