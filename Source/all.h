@@ -7,6 +7,7 @@
 #define __ALL_H__
 
 #include <algorithm>
+#include <cmath>
 
 // We include `cinttypes` here so that it is included before `inttypes.h`
 // to work around a bug in older GCC versions on some platforms,
