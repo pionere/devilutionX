@@ -28,8 +28,8 @@ jobs:
 
     - name: Show content of workspace
       run: >
-        cd ..
-        find CMake
+        cd .. &&
+        find CMake &&
         cd devilutionX
       shell: bash
 
