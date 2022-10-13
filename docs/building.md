@@ -132,7 +132,7 @@ sudo apt-get install cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-ming
 
 ### 64-bit
 
-Download and place the 64bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [Libsodium](https://github.com/jedisct1/libsodium/releases) in `/usr/x86_64-w64-mingw32`. This can be done automatically by running `Packaging/windows/mingw-prep64.sh`.
+Download and place the 64bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [Libsodium](https://github.com/jedisct1/libsodium/releases) in `/usr/x86_64-w64-mingw32`. This can be done automatically by running `Packaging/windows/mingw-prep.sh`.
 
 ```
 sudo apt-get install cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64
@@ -149,14 +149,14 @@ cd devilutionx
 ### 32-bit
 
 ```bash
-cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 
 ### 64-bit
 
 ```bash
-cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.cmake -DCMAKE_BUILD_TYPE=Release
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 
