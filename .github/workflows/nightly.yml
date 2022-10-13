@@ -17,7 +17,7 @@ jobs:
     outputs:
       should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: print latest_commit
         run: echo ${{ github.sha }}
 
@@ -69,13 +69,13 @@ jobs:
             cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON -D MPQONE="hellone.mpq"'
             artifact: 'hellone-nightly-x64.zip'
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
     
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      uses: lukka/run-vcpkg@v10.1
+      uses: lukka/run-vcpkg@v10.5
       with:
         setupOnly: true
         vcpkgGitCommitId: 'b86c0c35b88e2bf3557ff49dc831689c2f085090'
@@ -100,7 +100,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -122,7 +122,7 @@ jobs:
             artifact: 'hellfire-nightly-mac.dmg'
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
     
@@ -142,7 +142,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
@@ -164,7 +164,7 @@ jobs:
             artifact: 'hellfire-nightly-ios.ipa'
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -188,7 +188,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         path: ${{ env.buildDir }}/devilutionx.ipa
         name: ${{ matrix.artifact }}
@@ -214,12 +214,12 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y gettext
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
     - name: set up JDK 11
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: '11'
         distribution: 'temurin'
@@ -231,7 +231,7 @@ jobs:
     #  run: rm /usr/local/bin/cmake
 
     - name: Cache CMake build folder
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: android-project/app/.cxx
         key: android-cmake-v5-${{ github.sha }}
@@ -243,7 +243,7 @@ jobs:
       run: cd android-project && ./gradlew assembleRelease -Pcmakeargs="${{ matrix.cmakeargs }}"
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         #name: devilutionx-debug.apk
         #path: android-project/app/build/outputs/apk/debug/app-debug.apk
@@ -268,7 +268,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -288,7 +288,7 @@ jobs:
         TOOLCHAIN: /opt/gcw0-toolchain
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         #name: devilutionx-rg350.opk.zip
         name: ${{ matrix.artifact }}
@@ -312,7 +312,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -332,7 +332,7 @@ jobs:
         TOOLCHAIN: /opt/lepus-toolchain
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         #name: devilutionx-lepus.opk.zip
         name: ${{ matrix.artifact }}
@@ -356,7 +356,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -381,7 +381,7 @@ jobs:
         TOOLCHAIN: /opt/retrofw-toolchain
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         #name: devilutionx-retrofw.opk.zip
         name: ${{ matrix.artifact }}
@@ -405,7 +405,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -424,7 +424,7 @@ jobs:
       run: Packaging/ps4/build.sh "${{ matrix.cmakeargs }}"
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.artifact }}
         path: build-ps4/devilutionx-ps4.pkg
@@ -438,134 +438,134 @@ jobs:
     steps:
     # x86 builds
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: diablo-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x86.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellfire-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellone-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellone-nightly-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellsrv-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellsrv-nightly-x86.zip
 
     # x64 builds
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: diablo-nightly-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellfire-nightly-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x64.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellone-nightly-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellone-nightly-x64.zip
 
     - name: Download a diablo mac-artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: diablo-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/diablo-nightly-mac.dmg
 
     - name: Download a hellfire mac-artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellfire-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-mac.dmg
 
     # iOS builds
     - name: Download a diablo iOS artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: diablo-nightly-ios.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/diablo-nightly-ios.ipa
 
     - name: Download a hellfire iOS artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellfire-nightly-ios.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/hellfire-nightly-ios.ipa
 
     # android builds
     #- name: Download a diablo android artifact
-    #  uses: actions/download-artifact@v2
+    #  uses: actions/download-artifact@v3
     #  with:
     #    name: diablo-nightly-android.apk
     #- run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
 
     #- name: Download a hellfire android artifact
-    #  uses: actions/download-artifact@v2
+    #  uses: actions/download-artifact@v3
     #  with:
     #    name: hellfire-nightly-android.apk
     #- run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
 
     # rg350 builds
     - name: Download a diablo rg350 artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: diablo-nightly-rg350.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/diablo-nightly-rg350.opk
 
     - name: Download a hellfire rg350 artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellfire-nightly-rg350.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/hellfire-nightly-rg350.opk
 
     # lepus builds
     - name: Download a diablo lepus artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: diablo-nightly-lepus.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/diablo-nightly-lepus.opk
 
     - name: Download a hellfire lepus artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellfire-nightly-lepus.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/hellfire-nightly-lepus.opk
 
     # retrofw builds
     - name: Download a diablo retrofw artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: diablo-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/diablo-nightly-retrofw.opk
 
     - name: Download a hellfire retrofw artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellfire-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/hellfire-nightly-retrofw.opk
 
     # ps4 builds
     - name: Download a diablo ps4 artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: diablo-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/diablo-nightly-ps4.pkg
 
     - name: Download a hellfire ps4 artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: hellfire-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4.pkg
