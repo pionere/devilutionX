@@ -27,7 +27,7 @@ jobs:
         sudo Packaging/windows/mingw-prep.sh
 
     - name: Show content of workspace
-      run: find $RUNNER_WORKSPACE
+      run: find ../CMake
       shell: bash
 
     - name: Configure CMake
