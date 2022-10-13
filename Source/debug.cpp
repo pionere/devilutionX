@@ -332,8 +332,8 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", md.mAI.aiInt, md.mName, i);
 		if (md.mAI.aiType == AI_COUNSLR && md.mAI.aiInt > 3)
 			app_fatal("Invalid mInt %d for %s (%d)", md.mAI.aiInt, md.mName, i);
-		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING || md.mAI.aiType == AI_MEGA) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
-			app_fatal("AI_GOLUM, AI_SKELKING and AI_MEGA always check the doors (%s, %d)", md.mName, i);
+		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", md.mName, i);
 		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_SNAKE || md.mAI.aiType == AI_SNEAK || md.mAI.aiType == AI_SKELBOW) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_FALLEN,  AI_SNAKE, AI_SNEAK and AI_SKELBOW never check the doors (%s, %d)", md.mName, i);
 #ifdef HELLFIRE
@@ -446,8 +446,8 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", um.mAI.aiInt, um.mName, i);
 		if (um.mAI.aiType == AI_COUNSLR && um.mAI.aiInt > 3)
 			app_fatal("Invalid mInt %d for %s (%d)", um.mAI.aiInt, um.mName, i);
-		if ((um.mAI.aiType == AI_GOLUM || um.mAI.aiType == AI_SKELKING || um.mAI.aiType == AI_MEGA) && !(monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
-			app_fatal("Unique AI_GOLUM, AI_SKELKING and AI_MEGA always check the doors (%s, %d)", um.mName, i);
+		if ((um.mAI.aiType == AI_GOLUM || um.mAI.aiType == AI_SKELKING) && !(monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("Unique AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", um.mName, i);
 		if ((um.mAI.aiType == AI_FALLEN || um.mAI.aiType == AI_SNAKE || um.mAI.aiType == AI_SNEAK || um.mAI.aiType == AI_SKELBOW) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("Unique AI_FALLEN, AI_CLEAVER, AI_SNAKE, AI_SNEAK, AI_SKELBOW and AI_FAT never check the doors (%s, %d)", um.mName, i);
 #ifdef HELLFIRE
@@ -458,7 +458,7 @@ void ValidateData()
 			app_fatal("Unique AI_CLEAVER and AI_FAT only check the doors while searching (%s, %d)", um.mName, i);
 		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mTreasure & NO_DROP) == 0)
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
-		if ((um.mUnqAttr & UMF_LEADER) != 0 && ((um.mUnqAttr & UMF_GROUP) == 0))
+		if ((um.mUnqFlags & UMF_LEADER) != 0 && ((um.mUnqFlags & UMF_GROUP) == 0))
 			app_fatal("Unique monster %s (%d) is a leader without group.", um.mName, i);
 		if (um.mUnqHit + monsterdata[um.mtype].mHit > UINT16_MAX - HELL_TO_HIT_BONUS) // required by PlaceUniqueMonst
 			app_fatal("Too high mUnqHit %d for unique monster %s (%d).", um.mUnqHit, um.mName, i);
