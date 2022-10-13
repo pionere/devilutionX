@@ -19,12 +19,16 @@ jobs:
       with:
         fetch-depth: 0
     
+    - name: Show content of workspace
+      run: find $RUNNER_WORKSPACE
+      shell: bash
+
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
         sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
         sudo rm /usr/x86_64-w64-mingw32/lib/libz.dll.a &&
-        sudo Packaging/windows/mingw-prep64.sh
+        sudo Packaging/windows/mingw-prep.sh
 
     - name: Show content of workspace
       run: find $RUNNER_WORKSPACE
