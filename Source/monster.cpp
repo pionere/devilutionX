@@ -113,53 +113,39 @@ const int offset_y[NUM_DIRS] = { 1, 1, 1, 0, -1, -1, -1, 0 };
  * - if the monster is active, the function/monster must do something otherwise the enemy might not get updated
  * - can not rely on dLight, because it might not be in sync in multiplayer games
  */
-void (*AiProc[])(int i) = {
-/*AI_ZOMBIE*/	&MAI_Zombie,
-/*AI_FAT*/		&MAI_Fat,
-/*AI_SKELSD*/	&MAI_SkelSd,
-/*AI_SKELBOW*/	&MAI_SkelBow,
-/*AI_SCAV*/		&MAI_Scav,
-/*AI_RHINO*/	&MAI_Rhino,
-/*AI_GOATMC*/	&MAI_GoatMc,
-/*AI_GOATBOW*/	&MAI_GoatBow,
-/*AI_FALLEN*/	&MAI_Fallen,
-/*AI_MAGMA*/	&MAI_Magma,
-/*AI_SKELKING*/	&MAI_SkelKing,
-/*AI_BAT*/		&MAI_Bat,
-/*AI_GARG*/		&MAI_Garg,
-/*AI_CLEAVER*/	&MAI_Cleaver,
-/*AI_SUCC*/		&MAI_Succ,
-/*AI_SNOWWICH*/	&MAI_SnowWich,
-/*AI_HLSPWN*/	&MAI_HlSpwn,
-/*AI_SOLBRNR*/	&MAI_SolBrnr,
-/*AI_SNEAK*/	&MAI_Sneak,
-/*AI_STORM*/	&MAI_Storm,
-/*AI_FIREMAN*///&MAI_Fireman,
-/*AI_GARBUD*/	&MAI_Garbud,
-/*AI_ACID*/		&MAI_Acid,
-/*AI_ACIDUNIQ*/	&MAI_AcidUniq,
-/*AI_GOLUM*/	&MAI_Golem,
-/*AI_ZHAR*/		&MAI_Zhar,
-/*AI_SNOTSPIL*/	&MAI_SnotSpil,
-/*AI_SNAKE*/	&MAI_Snake,
-/*AI_COUNSLR*/	&MAI_Counselor,
-/*AI_MEGA*/		&MAI_Mega,
-/*AI_DIABLO*/	&MAI_Diablo,
-/*AI_LAZARUS*/	&MAI_Lazarus,
-/*AI_LAZHELP*/	&MAI_Lazhelp,
-/*AI_LACHDAN*/	&MAI_Lachdanan,
-/*AI_WARLORD*/	&MAI_Warlord,
+void (* const AiProc[])(int i) = {
+	// clang-format off
+/*AI_ZOMBIE*/       &MAI_Zombie,
+/*AI_FAT*/          &MAI_Fat,
+/*AI_SKELSD*/       &MAI_SkelSd,
+/*AI_SKELBOW*/      &MAI_SkelBow,
+/*AI_SCAV*/         &MAI_Scav,
+/*AI_RHINO*/        &MAI_Rhino,
+/*AI_ROUND*/        &MAI_Round,
+/*AI_RANGED*/       &MAI_Ranged,
+/*AI_FALLEN*/       &MAI_Fallen,
+/*AI_ROUNDRANGED*/  &MAI_RoundRanged,
+/*AI_SKELKING*/     &MAI_SkelKing,
+/*AI_BAT*/          &MAI_Bat,
+/*AI_GARG*/         &MAI_Garg,
+/*AI_CLEAVER*/      &MAI_Cleaver,
+/*AI_SNEAK*/        &MAI_Sneak,
+/*AI_FIREMAN*///    &MAI_Fireman,
+/*AI_GARBUD*/       &MAI_Garbud,
+/*AI_GOLUM*/        &MAI_Golem,
+/*AI_ZHAR*/         &MAI_Zhar,
+/*AI_SNOTSPIL*/     &MAI_SnotSpil,
+/*AI_SNAKE*/        &MAI_Snake,
+/*AI_COUNSLR*/      &MAI_Counselor,
+/*AI_ROUNDRANGED2*/ &MAI_RoundRanged2,
+/*AI_LAZARUS*/      &MAI_Lazarus,
+/*AI_LAZHELP*/      &MAI_Lazhelp,
+/*AI_LACHDAN*/      &MAI_Lachdanan,
+/*AI_WARLORD*/      &MAI_Warlord,
 #ifdef HELLFIRE
-/*AI_FIREBAT*/	&MAI_Firebat,
-/*AI_TORCHANT*/	&MAI_Torchant,
-/*AI_HORKDMN*/	&MAI_Horkdemon,
-/*AI_LICH*/		&MAI_Lich,
-/*AI_ARCHLICH*/	&MAI_ArchLich,
-/*AI_PSYCHORB*/	&MAI_PsychOrb,
-/*AI_NECROMORB*/&MAI_NecromOrb,
-/*AI_BONEDEMON*/&MAI_BoneDemon,
+/*AI_HORKDMN*/      &MAI_Horkdemon,
 #endif
-/*AI_STORM2*/	&MAI_Storm2,
+	// clang-format on
 };
 
 static inline void InitMonsterTRN(AnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
@@ -199,13 +185,13 @@ static void InitMonsterGFX(int midx)
 	BYTE* celBuf;
 
 	cmon = &mapMonTypes[midx];
-	mtype = cmon->cmType;
-	mfdata = &monfiledata[monsterdata[mtype].moFileNum];
+	mfdata = &monfiledata[cmon->cmFileNum];
 	cmon->cmWidth = mfdata->moWidth * ASSET_MPL;
 	cmon->cmXOffset = (cmon->cmWidth - TILE_WIDTH) >> 1;
 	cmon->cmAFNum = mfdata->moAFNum;
 	cmon->cmAFNum2 = mfdata->moAFNum2;
 
+	mtype = cmon->cmType;
 	auto &monAnims = cmon->cmAnims;
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
@@ -330,6 +316,7 @@ static void InitMonsterStats(int midx)
 	mdata = &monsterdata[cmon->cmType];
 
 	cmon->cmName = mdata->mName;
+	cmon->cmFileNum = mdata->moFileNum;
 	cmon->cmLevel = mdata->mLevel;
 	cmon->cmSelFlag = mdata->mSelFlag;
 	cmon->cmAI = mdata->mAI;
@@ -429,9 +416,9 @@ static int AddMonsterType(int type, BOOL scatter)
 		}
 		mapMonTypes[i].cmType = type;
 		mapMonTypes[i].cmPlaceScatter = FALSE;
+		InitMonsterStats(i); // init stats first because InitMonsterGFX depends on it (cmFileNum)
 		InitMonsterGFX(i);
 		InitMonsterSFX(i);
-		InitMonsterStats(i);
 	}
 
 	if (scatter && !mapMonTypes[i].cmPlaceScatter) {
@@ -595,9 +582,9 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_myoff = 0;
 	mon->_mType = cmon->cmType;
 	/*mon->mName = cmon->cmName;
+	mon->_mFileNum = cmon->cmFileNum;
 	mon->_mLevel = cmon->cmLevel;
 	mon->_mSelFlag = cmon->cmSelFlag;
-	mon->_mAlign_1 = cmon->cmAlign_1;
 	mon->_mAI = cmon->cmAI; // aiType, aiInt, aiParam1, aiParam2
 	mon->_mFlags = cmon->cmFlags;
 	mon->_mHit = cmon->cmHit;
@@ -621,9 +608,9 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MapMonData, cmAlign_0) > offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance I.");
 	static_assert(offsetof(MonsterStruct, _mAlign_0) > offsetof(MonsterStruct, mName), "InitMonster uses DWORD-memcpy to optimize performance II.");
 	static_assert(((offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0)) % 4) == 0, "InitMonster uses DWORD-memcpy to optimize performance III.");
-	static_assert(offsetof(MonsterStruct, _mLevel) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmLevel) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance IV.");
-	static_assert(offsetof(MonsterStruct, _mSelFlag) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmSelFlag) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance V.");
-	static_assert(offsetof(MonsterStruct, _mAlign_1) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmAlign_1) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance Va.");
+	static_assert(offsetof(MonsterStruct, _mFileNum) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmFileNum) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance IV.");
+	static_assert(offsetof(MonsterStruct, _mLevel) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmLevel) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance Va.");
+	static_assert(offsetof(MonsterStruct, _mSelFlag) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmSelFlag) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance Vb.");
 	static_assert(offsetof(MonsterStruct, _mAI) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmAI) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance VI.");
 	static_assert(offsetof(MonsterStruct, _mFlags) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmFlags) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance VII.");
 	static_assert(offsetof(MonsterStruct, _mHit) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmHit) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance VIII.");
@@ -982,6 +969,9 @@ static void PlaceUniqueMonst(int uniqindex)
 	mon->_uniqtrans = uniquetrans++;
 
 	mon->_mHit += uniqm->mUnqHit;
+	mon->_mHit2 += uniqm->mUnqHit2;
+	mon->_mMagic += uniqm->mUnqMag;
+	mon->_mEvasion += uniqm->mUnqEva;
 	mon->_mArmorClass += uniqm->mUnqAC;
 	mon->_mAI.aiInt += gnDifficulty;
 
@@ -999,6 +989,7 @@ static void PlaceUniqueMonst(int uniqindex)
 		mon->_mMaxDamage = 4 * mon->_mMaxDamage + 6;
 		mon->_mMinDamage2 = 4 * mon->_mMinDamage2 + 6;
 		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
+		mon->_mMagicRes = uniqm->mMagicRes2;
 	}
 	mon->_mmaxhp <<= 6;
 	if (!IsMultiGame) {
@@ -1007,7 +998,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	}
 	mon->_mhitpoints = mon->_mmaxhp;
 
-	if (uniqm->mUnqAttr & UMF_NODROP)
+	if (uniqm->mUnqFlags & UMF_NODROP)
 		mon->_mTreasure = NO_DROP;
 }
 
@@ -1024,9 +1015,9 @@ static void PlaceUniques()
 		for (mt = 0; mt < nummtypes; mt++) {
 			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
 				PlaceUniqueMonst(u);
-				if (uniqMonData[u].mUnqAttr & UMF_GROUP) {
+				if (uniqMonData[u].mUnqFlags & UMF_GROUP) {
 					// assert(mnum == nummonsters - 1);
-					PlaceGroup(mt, MON_PACK_SIZE - 1, uniqMonData[u].mUnqAttr, nummonsters - 1);
+					PlaceGroup(mt, MON_PACK_SIZE - 1, uniqMonData[u].mUnqFlags, nummonsters - 1);
 				}
 				break;
 			}
@@ -2064,7 +2055,7 @@ static void MonStartHeal(int mnum)
 	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].aFrames;
 	mon->_mFlags |= MFLAG_REV_ANIMATION;
 	mon->_mmode = MM_HEAL;
-	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 8)); // HEAL_SPEED
+	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 7)); // HEAL_SPEED
 }
 
 static bool MonDoStand(int mnum)
@@ -2252,15 +2243,15 @@ static bool MonDoAttack(int mnum)
 		MonTryH2HHit(mnum, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
 		if (mon->_mAI.aiType != AI_SNAKE)
 			PlayEffect(mnum, MS_ATTACK);
-	} else if (mon->_mAI.aiType == AI_MAGMA && mon->_mAnimFrame == 9) {
+	} else if (mon->_mFileNum == MOFILE_MAGMA && mon->_mAnimFrame == 9) {
 		// mon->_mType >= MT_NMAGMA && mon->_mType <= MT_WMAGMA
 		MonTryH2HHit(mnum, mon->_mHit + 10, mon->_mMinDamage - 2, mon->_mMaxDamage - 2);
 		PlayEffect(mnum, MS_ATTACK);
-	} else if (mon->_mAI.aiType == AI_STORM2 && mon->_mAnimFrame == 13) {
+	} else if (mon->_mFileNum == MOFILE_THIN && mon->_mAnimFrame == 13) {
 		// mon->_mType >= MT_STORM && mon->_mType <= MT_MAEL
 		MonTryH2HHit(mnum, mon->_mHit - 20, mon->_mMinDamage + 4, mon->_mMaxDamage + 4);
 		PlayEffect(mnum, MS_ATTACK);
-	} else if (mon->_mAI.aiType == AI_SNAKE && mon->_mAnimFrame == 1)
+	} else if (mon->_mFileNum == MOFILE_SNAKE && mon->_mAnimFrame == 1)
 		PlayEffect(mnum, MS_ATTACK);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
@@ -2326,7 +2317,7 @@ static bool MonDoRSpAttack(int mnum)
 			PlayEffect(mnum, MS_SPECIAL);
 		}
 
-		if (mon->_mAI.aiType == AI_MEGA) {
+		if (mon->_mFileNum == MOFILE_MEGA) {
 			if (mon->_mAnimCnt++ == 0) {
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 			} else if (mon->_mAnimCnt == 15) {
@@ -2887,13 +2878,13 @@ void MAI_SkelSd(int mnum)
 		if (mon->_mVar1 == MM_DELAY || (random_(106, 100) >= 35 - 4 * mon->_mAI.aiInt)) {
 			MonDestWalk(mnum);
 		} else {
-			MonStartDelay(mnum, RandRange(15, 24) - 2 * mon->_mAI.aiInt);
+			MonStartDelay(mnum, RandRange(16, 23) - 2 * mon->_mAI.aiInt);
 		}
 	} else {
 		if (mon->_mVar1 == MM_DELAY || (random_(105, 100) < 2 * mon->_mAI.aiInt + 20)) {
 			MonStartAttack(mnum);
 		} else {
-			MonStartDelay(mnum, RandRange(11, 19) - 2 * mon->_mAI.aiInt);
+			MonStartDelay(mnum, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
 		}
 	}
 }
@@ -2945,7 +2936,7 @@ void MAI_Snake(int mnum)
 			if (!MonDumbWalk(mnum, mon->_mgoalvar2))
 				MonDestWalk(mnum);
 		} else {
-			MonStartDelay(mnum, RandRange(15, 24) - mon->_mAI.aiInt);
+			MonStartDelay(mnum, RandRange(16, 23) - mon->_mAI.aiInt);
 		}
 	} else { // STAND_PREV_MODE
 		if (mon->_mVar1 == MM_DELAY
@@ -2953,7 +2944,7 @@ void MAI_Snake(int mnum)
 		    || (random_(105, 100) < mon->_mAI.aiInt + 20)) {
 			MonStartAttack(mnum);
 		} else
-			MonStartDelay(mnum, RandRange(11, 19) - mon->_mAI.aiInt);
+			MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 	}
 }
 
@@ -3191,7 +3182,7 @@ void MAI_Sneak(int mnum)
 		} else if (LineClear(mx, my, fx, fy)) {
 			MonStartRAttack(mnum, MIS_KRULL);
 		} else {
-			MonStartDelay(mnum, RandRange(5, 14));
+			MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_RETREAT);
@@ -3300,9 +3291,9 @@ void MAI_Cleaver(int mnum)
  * Attempts to walk in a circle around the target.
  *
  * @param mnum: the id of the monster
- * @param special: whether the monster should use its special attack
+ * @param aiParam1: whether the monster should use its special attack
  */
-static void MAI_Round(int mnum, bool special)
+void MAI_Round(int mnum)
 {
 	MonsterStruct* mon;
 	int md;
@@ -3330,7 +3321,7 @@ static void MAI_Round(int mnum, bool special)
 			}
 			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, md)) {
 				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 				}
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3348,7 +3339,7 @@ static void MAI_Round(int mnum, bool special)
 			}
 		} else if (v < 2 * mon->_mAI.aiInt + 23) {
 			mon->_mdir = md;
-			if (special && mon->_mhitpoints < (mon->_mmaxhp >> 1) && random_(117, 2) != 0)
+			if (mon->_mAI.aiParam1 && mon->_mhitpoints < (mon->_mmaxhp >> 1) && random_(117, 2) != 0)
 				MonStartSpAttack(mnum);
 			else
 				MonStartAttack(mnum);
@@ -3356,20 +3347,15 @@ static void MAI_Round(int mnum, bool special)
 	}
 }
 
-void MAI_GoatMc(int mnum)
-{
-	MAI_Round(mnum, true);
-}
-
 /*
  * AI for monsters using special or standard ranged attacks.
- * Attempts to keep distance from the target.
+ * Attempts to keep distance from the target, but tries to follow it if its out of sight.
  *
  * @param mnum: the id of the monster
- * @param mitype: the missile type to be launched at the end of the attack animation.
- * @param special: whether the monster should use its special attack
+ * @param aiParam1: the missile type to be launched at the end of the attack animation.
+ * @param aiParam2: whether the monster should use its special attack
  */
-static void MAI_Ranged(int mnum, int mitype, bool special)
+void MAI_Ranged(int mnum)
 {
 	int md;
 	MonsterStruct* mon;
@@ -3394,10 +3380,10 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 			md = random_low(118, 20 - mon->_mAI.aiInt); // STAND_PREV_MODE
 			if ((mon->_mVar1 == MM_DELAY || md == 0) && MON_HAS_ENEMY) {
 				// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
-				if (special)
-					MonStartRSpAttack(mnum, mitype);
+				if (mon->_mAI.aiParam2)
+					MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 				else
-					MonStartRAttack(mnum, mitype);
+					MonStartRAttack(mnum, mon->_mAI.aiParam1);
 			} else {
 				MonStartDelay(mnum, md + 1);
 			}
@@ -3406,70 +3392,6 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 		MonDestWalk(mnum);
 	}
 }
-
-void MAI_GoatBow(int mnum)
-{
-	MAI_Ranged(mnum, MIS_ARROW, false);
-}
-
-void MAI_Succ(int mnum)
-{
-	MAI_Ranged(mnum, MIS_FLARE, false);
-}
-
-void MAI_SnowWich(int mnum)
-{
-	MAI_Ranged(mnum, MIS_SNOWWICH, false);
-}
-
-void MAI_HlSpwn(int mnum)
-{
-	MAI_Ranged(mnum, MIS_HLSPWN, false);
-}
-
-void MAI_SolBrnr(int mnum)
-{
-	MAI_Ranged(mnum, MIS_SOLBRNR, false);
-}
-
-#ifdef HELLFIRE
-void MAI_Lich(int mnum)
-{
-	MAI_Ranged(mnum, MIS_LICH, false);
-}
-
-void MAI_ArchLich(int mnum)
-{
-	MAI_Ranged(mnum, MIS_ARCHLICH, false);
-}
-
-void MAI_PsychOrb(int mnum)
-{
-	MAI_Ranged(mnum, MIS_PSYCHORB, false);
-}
-
-void MAI_NecromOrb(int mnum)
-{
-	MAI_Ranged(mnum, MIS_NECROMORB, false);
-}
-#endif
-
-void MAI_AcidUniq(int mnum)
-{
-	MAI_Ranged(mnum, MIS_ACID, true);
-}
-
-#ifdef HELLFIRE
-void MAI_Firebat(int mnum)
-{
-	MAI_Ranged(mnum, MIS_FIREBOLT, false);
-}
-
-void MAI_Torchant(int mnum)
-{
-	MAI_Ranged(mnum, MIS_FIREBALL, false);
-}
-#endif
 
 #ifdef HELLFIRE
 static void MonConsumeCorpse(MonsterStruct* mon)
@@ -3668,7 +3590,7 @@ void MAI_Garg(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 	}
-	MAI_Round(mnum, false);
+	MAI_Round(mnum);
 }
 
 /*
@@ -3676,10 +3598,10 @@ void MAI_Garg(int mnum)
  * Attempts to walk in a circle around the target.
  *
  * @param mnum: the id of the monster
- * @param mitype: the missile type to be launched at the end of the attack animation.
- * @param lessmissiles: control parameter to reduce the frequency of ranged attacks.
+ * @param aiParam1: the missile type to be launched at the end of the attack animation.
+ * @param aiParam2: control parameter to reduce the frequency of ranged attacks.
  */
-static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
+void MAI_RoundRanged(int mnum)
 {
 	MonsterStruct* mon;
 	int dist, v;
@@ -3696,7 +3618,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 	dist = currEnemyInfo._meRealDist;
 	//v = random_(121, 10000);
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]*/) {
-		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_low(122, 4 << lessmissiles) == 0)) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_low(122, 4 << mon->_mAI.aiParam2) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
 				static_assert(MAXDUNX + MAXDUNY <= 0x7FFF, "MAI_RoundRanged uses RandRangeLow to set distance");
@@ -3705,9 +3627,9 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 			}
 			/*if ((--mon->_mgoalvar1 <= 4 && MonDirOK(mnum, currEnemyInfo._meLastDir)) || mon->_mgoalvar1 == 0) {
 				mon->_mgoal = MGOAL_NORMAL;
-			} else if (v < ((6 * (mon->_mAI.aiInt + 1)) >> lessmissiles)
+			} else if (v < ((6 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2)
 			    && (LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy))) {
-				MonStartRSpAttack(mnum, mitype);
+				MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 			} else {
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			}*/
@@ -3723,11 +3645,11 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		v = random_(124, 100);
-		if (((dist >= 3 && v < ((8 * (mon->_mAI.aiInt + 2)) >> lessmissiles))
-		        || v < ((8 * (mon->_mAI.aiInt + 1)) >> lessmissiles))
+		if (((dist >= 3 && v < ((8 * (mon->_mAI.aiInt + 2)) >> mon->_mAI.aiParam2))
+		        || v < ((8 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2))
 			&& MON_HAS_ENEMY) {
 			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
-			MonStartRSpAttack(mnum, mitype);
+			MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 		} else if (dist >= 2) {
 			if (v < 10 * (mon->_mAI.aiInt + 5)
 			 || (MON_JUST_WALKED && v < 10 * (mon->_mAI.aiInt + 8))) {
@@ -3738,40 +3660,8 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 		}
 	}
 	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(6, 14) - mon->_mAI.aiInt);
+		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
 	}
-}
-
-void MAI_Magma(int mnum)
-{
-	MAI_RoundRanged(mnum, MIS_MAGMABALL, 0);
-}
-
-void MAI_Storm(int mnum)
-{
-	MAI_RoundRanged(mnum, MIS_LIGHTNINGC, 0);
-}
-
-void MAI_Storm2(int mnum)
-{
-	MAI_RoundRanged(mnum, MIS_LIGHTNINGC2, 0);
-}
-
-#ifdef HELLFIRE
-void MAI_BoneDemon(int mnum)
-{
-	MAI_RoundRanged(mnum, MIS_BONEDEMON, 0);
-}
-#endif
-
-void MAI_Acid(int mnum)
-{
-	MAI_RoundRanged(mnum, MIS_ACID, 1);
-}
-
-void MAI_Diablo(int mnum)
-{
-	MAI_RoundRanged(mnum, MIS_APOCAC2, 0);
 }
 
 /*
@@ -3779,9 +3669,9 @@ void MAI_Diablo(int mnum)
  * Attempts to walk in a circle around the target. Ranged attack is limited to distance of 4.
  *
  * @param mnum: the id of the monster
- * @param mitype: the missile type to be launched at the end of the attack animation.
+ * @param aiParam1: the missile type to be launched at the end of the attack animation.
  */
-static void MAI_RoundRanged2(int mnum, int mitype)
+void MAI_RoundRanged2(int mnum)
 {
 	MonsterStruct* mon;
 	int dist, v;
@@ -3800,13 +3690,11 @@ static void MAI_RoundRanged2(int mnum, int mitype)
 		return;
 	}*/
 
-	if (mon->_msquelch < SQUELCH_MAX) {
-		// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
-	}
 	v = random_(121, 100);
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-		if (mon->_mgoal == MGOAL_MOVE || dist >= 3) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && dist < 5)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
@@ -3826,7 +3714,7 @@ static void MAI_RoundRanged2(int mnum, int mitype)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist < 5 && (dist >= 3 || v < 5 * (mon->_mAI.aiInt + 1)) && MON_HAS_ENEMY) {
 			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
-			MonStartRSpAttack(mnum, mitype);
+			MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 			return;
 		}
 		v = random_(124, 100);
@@ -3840,18 +3728,13 @@ static void MAI_RoundRanged2(int mnum, int mitype)
 				if (random_(124, 2) != 0)
 					MonStartAttack(mnum);
 				else
-					MonStartRSpAttack(mnum, mitype);
+					MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 			}
 		}
 	}
 	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(6, 14) - mon->_mAI.aiInt);
+		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
 	}
-}
-
-void MAI_Mega(int mnum)
-{
-	MAI_RoundRanged2(mnum, MIS_INFERNOC);
 }
 
 void MAI_Golem(int mnum)
@@ -3931,7 +3814,7 @@ void MAI_SkelKing(int mnum)
 			}
 			if ((mon->_mgoalvar1++ < 2 * dist && MonDirOK(mnum, md)) /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
 				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 				}
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3965,7 +3848,7 @@ void MAI_SkelKing(int mnum)
 			 || (MON_JUST_WALKED && v < mon->_mAI.aiInt + 75)) {
 				MonDestWalk(mnum);
 			} else {
-				MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+				MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 			}
 		}
 	}
@@ -3996,7 +3879,7 @@ void MAI_Rhino(int mnum)
 			}
 			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
 				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 				}
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -4024,7 +3907,7 @@ void MAI_Rhino(int mnum)
 			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 83)) {
 				MonDestWalk(mnum);
 			} else {
-				MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+				MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 			}
 		}
 	}
@@ -4055,7 +3938,7 @@ void MAI_Horkdemon(int mnum)
 			}
 			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
 				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 				}
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -4080,13 +3963,20 @@ void MAI_Horkdemon(int mnum)
 			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 83)) {
 				MonDestWalk(mnum);
 			} else {
-				MonStartDelay(mnum, RandRange(10, 19) - mon->_mAI.aiInt);
+				MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 			}
 		}
 	}
 }
 #endif
 
+/*
+ * AI for monsters using ranged attacks. Uses MIS_FLASH when the target is next to the monster.
+ * Attempts to walk in a circle around the target. Uses fade in/out while moving.
+ *
+ * @param mnum: the id of the monster
+ * @param aiParam1: the missile type to be launched at the end of the attack animation when the target is far away.
+ */
 void MAI_Counselor(int mnum)
 {
 	MonsterStruct* mon;
@@ -4108,8 +3998,7 @@ void MAI_Counselor(int mnum)
 		if (dist >= 2) {
 			if (v < 5 * (mon->_mAI.aiInt + 10) && MON_HAS_ENEMY) {
 				// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
-				const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBALL };
-				MonStartRAttack(mnum, counsmiss[mon->_mAI.aiInt - gnDifficulty]);
+				MonStartRAttack(mnum, mon->_mAI.aiParam1);
 			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
 				assert(mon->_mAnims[MA_SPECIAL].aFrames * mon->_mAnims[MA_SPECIAL].aFrameLen * 2 + 
@@ -4157,7 +4046,7 @@ void MAI_Counselor(int mnum)
 		}
 	}
 	if (mon->_mmode == MM_STAND && mon->_mAI.aiType != AI_LAZARUS) {
-		MonStartDelay(mnum, RandRange(11, 19) - 2 * mon->_mAI.aiInt);
+		MonStartDelay(mnum, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
 	}
 }
 
@@ -4192,7 +4081,7 @@ void MAI_Garbud(int mnum)
 	}
 
 	if (mon->_mgoal != MGOAL_TALKING)
-		MAI_Round(mnum, true);
+		MAI_Round(mnum);
 }
 
 void MAI_Zhar(int mnum)
@@ -4354,7 +4243,7 @@ void MAI_Lazhelp(int mnum)
 		mon->_mgoal = MGOAL_NORMAL;
 	}
 
-	MAI_HlSpwn(mnum);
+	MAI_Ranged(mnum);
 }
 
 void MAI_Lachdanan(int mnum)

@@ -633,9 +633,9 @@ typedef struct MapMonData {
 	SoundSample cmSnds[NUM_MON_SFX][2];
 	AnimStruct cmAnims[NUM_MON_ANIM];
 	const char* cmName;
+	uint16_t cmFileNum;
 	BYTE cmLevel;
 	BYTE cmSelFlag;
-	uint16_t cmAlign_1; // unused
 	MonsterAI cmAI;
 	int cmFlags;
 	uint16_t cmHit;    // hit chance (melee+projectile)
@@ -718,9 +718,9 @@ typedef struct MonsterStruct {
 	BYTE packsize; // the number of 'pack'-monsters close to their leader
 	BYTE _mvid; // vision id of the monster (for minions only)
 	const char* mName;
+	uint16_t _mFileNum;
 	BYTE _mLevel;
 	BYTE _mSelFlag;
-	uint16_t _mAlign_1; // unused
 	MonsterAI _mAI;
 	int _mFlags;
 	uint16_t _mHit;    // hit chance (melee+projectile)
@@ -769,12 +769,16 @@ typedef struct UniqMonData {
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
 	uint16_t mMagicRes;
-	BYTE mUnqAttr;
-	BYTE mUnqHit; // to-hit bonus of the unique monster
-	BYTE mUnqAC; // armor class bonus of the unique monster
+	uint16_t mMagicRes2;
+	BYTE mUnqFlags;
+	BYTE mUnqHit;  // to-hit (melee+projectile) bonus
+	BYTE mUnqHit2; // to-hit (special melee attacks) bonus
+	BYTE mUnqMag;  // to-hit (magic-projectile) bonus
+	BYTE mUnqEva;  // evasion bonus
+	BYTE mUnqAC;   // armor class bonus
 	BYTE mQuestId;
 	int mtalkmsg;
-	ALIGNMENT(7, 3)
+	ALIGNMENT(6, 2)
 } UniqMonData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
