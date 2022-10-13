@@ -45,7 +45,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: diablo-test-x86.zip
