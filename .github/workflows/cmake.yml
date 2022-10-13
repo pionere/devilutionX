@@ -27,7 +27,10 @@ jobs:
         sudo Packaging/windows/mingw-prep.sh
 
     - name: Show content of workspace
-      run: find ../CMake
+      run: >
+        cd ..
+        find CMake
+        cd devilutionX
       shell: bash
 
     - name: Configure CMake
