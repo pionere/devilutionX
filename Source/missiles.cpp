@@ -1451,8 +1451,8 @@ static void SyncRhinoAnim(int mi)
 	mis = &missile[mi];
 	mon = &monsters[mis->_miSource];
 	anim = &mon->_mAnims[
-		(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
-		(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
+		(mon->_mFileNum == MOFILE_RHINO) ? MA_SPECIAL :
+		(mon->_mFileNum == MOFILE_SNAKE) ? MA_ATTACK : MA_WALK];
 	mis->_miAnimData = anim->aData[mis->_miDir];
 	mis->_miAnimFrameLen = anim->aFrameLen;
 	assert(mis->_miAnimFlag == TRUE);
@@ -1460,7 +1460,7 @@ static void SyncRhinoAnim(int mi)
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
 
-	mis->_miAnimAdd = mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE ? 2 : 1;
+	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
 	mis->_miLid = mon->mlid;
 	if (mon->_uniqtype != 0) {
 		mis->_miUniqTrans = mon->_uniqtrans;
@@ -4097,7 +4097,7 @@ void MI_Rhino(int mi)
 	dMonster[mis->_mix][mis->_miy] = 0;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
-	if (monsters[mnum]._mAI.aiType == AI_SNAKE) {
+	if (monsters[mnum]._mFileNum == MOFILE_SNAKE) {
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
