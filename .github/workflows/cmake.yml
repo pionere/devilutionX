@@ -29,12 +29,12 @@ jobs:
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     - name: Install Required Packages
       run: |
-        vcpkg install sdl2:x64-windows libsodium:x64-windows
+        vcpkg install sdl2:x86-windows libsodium:x86-windows
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+      run: cmake .. -A Win32 -D_WIN32_WINNT=0x0501 -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       working-directory: ${{ env.buildDir }}
