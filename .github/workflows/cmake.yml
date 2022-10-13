@@ -34,7 +34,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=ON -D DEVILUTIONX_SYSTEM_SDL2=OFF -D DEVILUTIONX_STATIC_SDL2=OFF -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+      run: cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       working-directory: ${{ env.buildDir }}
