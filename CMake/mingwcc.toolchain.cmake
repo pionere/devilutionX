@@ -19,8 +19,8 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-include(CMakeDetermineCCompiler)
-include(CMakeDetermineCXXCompiler)
+#include(CMakeDetermineCCompiler)
+#include(CMakeDetermineCXXCompiler)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.3)
   message(STATUS "MINGW is a toool: ${DISABLE_LTO} -- ${CMAKE_CXX_COMPILER_VERSION}")
