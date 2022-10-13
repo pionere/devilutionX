@@ -23,9 +23,9 @@ jobs:
     - name: Create Build Environment
       uses: lukka/run-vcpkg@v10.1
       with:
-        setupOnly: true
         vcpkgGitCommitId: 'b86c0c35b88e2bf3557ff49dc831689c2f085090'
         #vcpkgGitCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
+        #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     - name: Install Required Packages
       run: |
