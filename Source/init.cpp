@@ -227,7 +227,7 @@ void InitArchives()
 		app_fatal("Unable to open MPQ file %s.", path.c_str());
 	while (std::getline(input, line)) {
 #ifdef NOSOUND
-		if (line.size() >= 4 && strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)
+		if (line.size() >= 4 && SDL_strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)
 			continue;
 #endif
 		for (i = 0; i < NUM_MPQS; i++) {

@@ -159,58 +159,58 @@ static void print_help_and_exit()
 static void diablo_parse_flags(int argc, char **argv)
 {
 	for (int i = 1; i < argc; i++) {
-		if (strcasecmp("-h", argv[i]) == 0 || strcasecmp("--help", argv[i]) == 0) {
+		if (SDL_strcasecmp("-h", argv[i]) == 0 || SDL_strcasecmp("--help", argv[i]) == 0) {
 			print_help_and_exit();
-		} else if (strcasecmp("--version", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("--version", argv[i]) == 0) {
 			printf("%s\n", gszProductName);
 			diablo_quit(0);
-		} else if (strcasecmp("--data-dir", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("--data-dir", argv[i]) == 0) {
 			SetBasePath(argv[++i]);
-		} else if (strcasecmp("--save-dir", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("--save-dir", argv[i]) == 0) {
 			SetPrefPath(argv[++i]);
-		} else if (strcasecmp("--config-dir", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("--config-dir", argv[i]) == 0) {
 			SetConfigPath(argv[++i]);
-		} else if (strcasecmp("-n", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-n", argv[i]) == 0) {
 			_gbSkipIntro = true;
-		} else if (strcasecmp("-x", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
 #if DEBUG_MODE
-		} else if (strcasecmp("-^", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-^", argv[i]) == 0) {
 			debug_mode_key_inverted_v = TRUE;
 			debug_mode_god_mode = TRUE;
-		} else if (strcasecmp("-$", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-$", argv[i]) == 0) {
 			debug_mode_god_mode = TRUE;
 			/*
-		} else if (strcasecmp("-b", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-b", argv[i]) == 0) {
 			debug_mode_key_b = 1;
 		*/
-		} else if (strcasecmp("-i", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-i", argv[i]) == 0) {
 			debug_mode_key_i = TRUE;
 			/*
-		} else if (strcasecmp("-j", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-j", argv[i]) == 0) {
 			debug_mode_key_J_trigger = argv[++i];
 		*/
-		} else if (strcasecmp("-l", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-l", argv[i]) == 0) {
 			leveldebug = TRUE;
 			EnterLevel(SDL_atoi(argv[++i]));
 			players[0]._pDunLevel = currLvl._dLevelIdx;
-		} else if (strcasecmp("-m", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-m", argv[i]) == 0) {
 			monstdebug = TRUE;
 			DebugMonsters[debugmonsttypes++] = SDL_atoi(argv[++i]);
-		} else if (strcasecmp("-q", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-q", argv[i]) == 0) {
 			questdebug = SDL_atoi(argv[++i]);
-		} else if (strcasecmp("-r", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-r", argv[i]) == 0) {
 			setseed = SDL_atoi(argv[++i]);
-		} else if (strcasecmp("-s", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-s", argv[i]) == 0) {
 			debug_mode_key_s = TRUE;
-		} else if (strcasecmp("-t", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-t", argv[i]) == 0) {
 			leveldebug = TRUE;
 			EnterLevel(SDL_atoi(argv[++i]));
-		} else if (strcasecmp("-v", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-v", argv[i]) == 0) {
 			visiondebug = TRUE;
-		} else if (strcasecmp("-w", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("-w", argv[i]) == 0) {
 			debug_mode_key_w = TRUE;
-		} else if (strcasecmp("--allquests", argv[i]) == 0) {
+		} else if (SDL_strcasecmp("--allquests", argv[i]) == 0) {
 			allquests = true;
 #endif
 		} else {
