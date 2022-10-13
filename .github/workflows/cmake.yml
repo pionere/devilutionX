@@ -12,29 +12,30 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: windows-latest
+    runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
     
-    # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      uses: lukka/run-vcpkg@v10.1
-      with:
-        setupOnly: true
-        vcpkgGitCommitId: 'b86c0c35b88e2bf3557ff49dc831689c2f085090'
-        #vcpkgGitCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
-    # Now that vcpkg is installed, it is being used to run with the desired arguments.
-    - name: Install Required Packages
-      run: |
-        vcpkg install sdl2:x64-windows libsodium:x64-windows
+      run: >
+        sudo apt-get update &&
+        sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo rm /usr/x86_64-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw-prep64.sh
+
+    - name: Show content of workspace
+      run: find $RUNNER_WORKSPACE
+      shell: bash
 
     - name: Configure CMake
       shell: bash
-      working-directory: ${{ env.buildDir }}
-      run: cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=ON -D DEVILUTIONX_SYSTEM_SDL2=OFF -D DEVILUTIONX_STATIC_SDL2=OFF -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+      working-directory: ${{github.workspace}}
+      run: cmake -S. -Bbuild -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=ON -D DEVILUTIONX_SYSTEM_SDL2=OFF -D DEVILUTIONX_STATIC_SDL2=OFF -D CMAKE_TOOLCHAIN_FILE=../CMake/platforms/mingwcc64.toolchain.cmake
+    #  working-directory: ${{github.workspace}}
+    #  run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=OFF -DCPACK=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/platforms/mingwcc64.toolchain.cmake -DDEVILUTIONX_SYSTEM_BZIP2=OFF -DDEVILUTIONX_STATIC_LIBSODIUM=ON -DDISCORD_INTEGRATION=ON
 
     - name: Build
       working-directory: ${{ env.buildDir }}
