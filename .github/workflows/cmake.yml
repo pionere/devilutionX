@@ -36,7 +36,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cmake --build build -j $(nproc) --target package
+      run: cmake --build build -j $(nproc) --target package --config Release
     #  run: cmake --build . -j 2 --target package --config Release
 
     - name: Show content of workspace
