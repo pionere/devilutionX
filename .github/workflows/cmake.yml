@@ -26,6 +26,10 @@ jobs:
         sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
         sudo Packaging/windows/mingw-prep.sh
 
+    - name: Show content of workspace
+      run: find $RUNNER_WORKSPACE
+      shell: bash
+
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
