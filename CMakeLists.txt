@@ -877,7 +877,7 @@ if(WIN32)
     add_compile_options(-s
       $<$<CONFIG:RELEASE>:-Ofast>
       $<$<CONFIG:DEBUG>:-O0>)
-    target_link_libraries(${BIN_TARGET} PRIVATE stdc++_s)
+    add_link_options(-lstdc++_s)
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++_s -s -Ofast")
     target_compile_options(${BIN_TARGET} PUBLIC $<$<CONFIG:Debug>:-gstabs>)
   endif()
