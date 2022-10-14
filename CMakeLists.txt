@@ -874,14 +874,14 @@ if(WIN32)
   if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     message(STATUS "winnn set")
     #add_compile_options(-lstdc++_s -s
-    add_compile_options(
-      $<$<CONFIG:RELEASE>:-Ofast>
-      $<$<CONFIG:DEBUG>:-O0>)
+    #add_compile_options(
+    #  $<$<CONFIG:RELEASE>:-Ofast>
+    #  $<$<CONFIG:DEBUG>:-O0>)
     #add_link_options(-s -lstdc++_s)
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++_s -s -Ofast")
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -Ofast")
-    #set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Ofast")
-    #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Ofast")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast")
     #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
     target_compile_options(${BIN_TARGET} PUBLIC $<$<CONFIG:Debug>:-gstabs>)
