@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.15)
 
 if(POLICY CMP0092)
   cmake_policy(SET CMP0092 NEW)
@@ -8,6 +8,9 @@ if(POLICY CMP0083)
 endif()
 if(POLICY CMP0111)
   cmake_policy(SET CMP0111 NEW)
+endif()
+if(POLICY CMP0091)
+  cmake_policy(SET CMP0091 NEW)
 endif()
 
 # Projects added via `add_subdirectory` or `FetchContent` may have a lower
@@ -872,6 +875,9 @@ if(WIN32)
   endif()
   if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(${BIN_TARGET} PUBLIC $<$<CONFIG:Debug>:-gstabs>)
+  else()
+    message(STATUS "winnn msvc set")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
   endif()
 endif()
 
