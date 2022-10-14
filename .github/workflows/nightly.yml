@@ -28,10 +28,11 @@ jobs:
         run: test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
 
   # Windows-builds
-  build_win:
+  #  MSVC
+  build_msvc:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
-    name: Nightly-Win
+    name: Nightly-MSVC
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -103,6 +104,98 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
+        name: ${{ matrix.artifact }}
+  #  MingW 32bit
+  build_mingw:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-MingW
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [diablo, hellfire]
+        include:
+          # x86 builds
+          - name: diablo-x86
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-mingw-x86.zip'
+          - name: hellfire-x86
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
+            artifact: 'hellfire-nightly-mingw-x86.zip'
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: >
+        sudo apt-get update &&
+        sudo apt install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw-prep.sh
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -D CMAKE_BUILD_TYPE="Release" -D CMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: cmake --build build -j $(nproc) --target package
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/devilutionx.zip
+        name: ${{ matrix.artifact }}
+  #  MingW 64bit
+  build_mingw_x64:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-MingW
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [diablo, hellfire]
+        include:
+          # x64 builds
+          - name: diablo
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-mingw-x64.zip'
+          - name: hellfire
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
+            artifact: 'hellfire-nightly-mingw-x64.zip'
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: >
+        sudo apt-get update &&
+        sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 libz-mingw-w64-dev dpkg-dev wget git sudo &&
+        sudo rm /usr/x86_64-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw-prep.sh
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -D CMAKE_BUILD_TYPE="Release" -D CMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: cmake --build build -j $(nproc) --target package
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
   # Mac-builds
   build_mac:
@@ -430,9 +523,9 @@ jobs:
         path: build-ps4/devilutionx-ps4.pkg
 
   # Releases
-  #  needs: [build_check, build_win, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
+  #  needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
   release:
-    needs: [build_check, build_win, build_mac, build_ios, build_rg350, build_lepus, build_retrofw, build_ps4]
+    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_mac, build_ios, build_rg350, build_lepus, build_retrofw, build_ps4]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
@@ -460,6 +553,18 @@ jobs:
       with:
         name: hellsrv-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellsrv-nightly-x86.zip
+
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: diablo-nightly-mingw-x86.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-x86.zip
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: hellfire-nightly-mingw-x86.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
 
     # x64 builds
     - name: Download a diablo artifact
@@ -491,6 +596,18 @@ jobs:
       with:
         name: hellfire-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-mac.dmg
+
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: diablo-nightly-mingw-x64.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-x64.zip
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: hellfire-nightly-mingw-x64.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
 
     # iOS builds
     - name: Download a diablo iOS artifact
@@ -588,8 +705,10 @@ jobs:
         echo '[diablo-nightly-ps4.pkg](../../releases/download/devilx-nightly/diablo-nightly-ps4.pkg)   | Diablo package for `PS4`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-ios.ipa](../../releases/download/devilx-nightly/diablo-nightly-ios.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
-        echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x86.zip)   | Diablo build for `Windows x86`'       >> RELEASE_NOTE.md
         echo ''                             >> RELEASE_NOTE.md
         echo '### **Diablo: Hellfire**'     >> RELEASE_NOTE.md
         echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
@@ -601,7 +720,9 @@ jobs:
         echo '[hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-ios.ipa](../../releases/download/devilx-nightly/hellfire-nightly-ios.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'         >> RELEASE_NOTE.md
         echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86`'         >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'         >> RELEASE_NOTE.md
         echo '[hellone-nightly-x64.zip](../../releases/download/devilx-nightly/hellone-nightly-x64.zip) | Hellfire build for `Windows x64`<br>- merges the mpq files on the first run (takes a few minutes)'                                                                   >> RELEASE_NOTE.md
         echo '[hellone-nightly-x86.zip](../../releases/download/devilx-nightly/hellone-nightly-x86.zip) | Minimal Hellfire build for `Windows x86`<br>- no internet, controller, sound or widescreen support<br>- merges the mpq files on the first run (takes a few minutes)' >> RELEASE_NOTE.md
         echo '[hellsrv-nightly-x86.zip](../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for `Windows x86`<br>- no controller, sound or widescreen support<br>- only server functionality'                                            >> RELEASE_NOTE.md
@@ -634,7 +755,9 @@ jobs:
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-ios.ipa
           ${{github.workspace}}/diablo-nightly-x64.zip
+          ${{github.workspace}}/diablo-nightly-mingw-x64.zip
           ${{github.workspace}}/diablo-nightly-x86.zip
+          ${{github.workspace}}/diablo-nightly-mingw-x86.zip
           ${{github.workspace}}/hellfire-nightly-lepus.opk
           ${{github.workspace}}/hellfire-nightly-retrofw.opk
           ${{github.workspace}}/hellfire-nightly-rg350.opk
@@ -642,7 +765,9 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-mac.dmg
           ${{github.workspace}}/hellfire-nightly-ios.ipa
           ${{github.workspace}}/hellfire-nightly-x64.zip
+          ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
           ${{github.workspace}}/hellfire-nightly-x86.zip
+          ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
           ${{github.workspace}}/hellone-nightly-x64.zip
           ${{github.workspace}}/hellone-nightly-x86.zip
           ${{github.workspace}}/hellsrv-nightly-x86.zip
