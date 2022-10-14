@@ -873,7 +873,8 @@ if(WIN32)
   endif()
   if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     message(STATUS "winnn set")
-    add_compile_options(-lstdc++_s -s
+    #add_compile_options(-lstdc++_s -s
+    add_compile_options(-s
       $<$<CONFIG:RELEASE>:-Ofast>
       $<$<CONFIG:DEBUG>:-O0>)
     target_link_libraries(${BIN_TARGET} PRIVATE stdc++_s)
