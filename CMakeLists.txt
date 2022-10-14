@@ -864,6 +864,7 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND NOT GPERF AND NOT HAIKU AND NOT VITA)
   message(STATUS "gnnnuuu set")
   #target_link_libraries(${BIN_TARGET} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
+  target_link_libraries(${BIN_TARGET} PUBLIC "-static-libgcc")
 endif()
 
 if(WIN32)
