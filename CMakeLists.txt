@@ -931,6 +931,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   #target_compile_options(${BIN_TARGET} PRIVATE "/W1")
   target_compile_options(${BIN_TARGET} PRIVATE "-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING")
   target_compile_options(${BIN_TARGET} PRIVATE "/Zc:__cplusplus")
+  target_compile_options(${BIN_TARGET} PRIVATE "/MT")
   # Disable Run-Time Type Information
   string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   target_compile_options(${BIN_TARGET} PRIVATE "/permissive-")
