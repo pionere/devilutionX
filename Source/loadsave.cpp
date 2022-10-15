@@ -736,6 +736,7 @@ static void LoadQuest(int i)
 	LoadByte(&pQuest->_qvar1);
 	LoadByte(&pQuest->_qvar2);
 	LoadByte(&pQuest->_qlog);
+
 	LoadInt(&pQuest->_qtx);
 	LoadInt(&pQuest->_qty);
 	LoadInt(&pQuest->_qmsg);
@@ -747,12 +748,15 @@ static void LoadLight(LightListStruct* pLight)
 	LoadInt(&pLight->_ly);
 	LoadInt(&pLight->_lunx);
 	LoadInt(&pLight->_luny);
+
 	LoadByte(&pLight->_lradius);
 	LoadByte(&pLight->_lunr);
-	pLight->_ldel = LoadBool();
-	pLight->_lunflag = LoadBool();
-	pLight->_lmine = LoadBool();
+	LoadByte(&pLight->_ldel);
+	LoadByte(&pLight->_lunflag);
+
+	LoadByte(&pLight->_lmine);
 	tbuff += 3; // Alignment
+
 	LoadInt(&pLight->_xoff);
 	LoadInt(&pLight->_yoff);
 }
@@ -761,8 +765,9 @@ static void LoadPortal(int i)
 {
 	PortalStruct* pPortal = &portals[i];
 
-	pPortal->_wopen = LoadBool();
+	LoadByte(&pPortal->_wopen);
 	tbuff += 3; // Alignment
+
 	LoadInt(&pPortal->x);
 	LoadInt(&pPortal->y);
 	LoadInt(&pPortal->level);
@@ -1448,6 +1453,7 @@ static void SaveQuest(int i)
 	SaveByte(&pQuest->_qvar1);
 	SaveByte(&pQuest->_qvar2);
 	SaveByte(&pQuest->_qlog);
+
 	SaveInt(&pQuest->_qtx);
 	SaveInt(&pQuest->_qty);
 	SaveInt(&pQuest->_qmsg);
@@ -1459,12 +1465,15 @@ static void SaveLight(LightListStruct* pLight)
 	SaveInt(&pLight->_ly);
 	SaveInt(&pLight->_lunx);
 	SaveInt(&pLight->_luny);
+
 	SaveByte(&pLight->_lradius);
 	SaveByte(&pLight->_lunr);
-	SaveBool(pLight->_ldel);
-	SaveBool(pLight->_lunflag);
-	SaveBool(pLight->_lmine);
+	SaveByte(&pLight->_ldel);
+	SaveByte(&pLight->_lunflag);
+
+	SaveByte(&pLight->_lmine);
 	tbuff += 3; // Alignment
+
 	SaveInt(&pLight->_xoff);
 	SaveInt(&pLight->_yoff);
 }
@@ -1473,8 +1482,9 @@ static void SavePortal(int i)
 {
 	PortalStruct* pPortal = &portals[i];
 
-	SaveBool(pPortal->_wopen);
+	SaveByte(&pPortal->_wopen);
 	tbuff += 3; // Alignment
+
 	SaveInt(&pPortal->x);
 	SaveInt(&pPortal->y);
 	SaveInt(&pPortal->level);
