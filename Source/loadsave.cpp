@@ -526,8 +526,9 @@ static void LoadMonster(int mnum)
 {
 	LogErrorF("MON", "LoadMonster much");
 	MonsterStruct* mon = &monsters[mnum];
+	TSaveMonster* svmon = (TSaveMonster*)tbuff;
 
-	LoadInt(&mon->_mmode);
+	/*LoadInt(&mon->_mmode);
 	LoadInt(&mon->_msquelch);
 	LoadByte(&mon->_mMTidx);
 	LoadByte(&mon->_mpathcount);
@@ -610,7 +611,93 @@ static void LoadMonster(int mnum)
 	LoadInt16(&mon->_mMagicRes);
 	LoadInt16(&mon->_mTreasure);
 
-	LoadInt(&mon->_mExp);
+	LoadInt(&mon->_mExp);*/
+	mon->_mmode = (INT)SwapLE32(svmon->smmode);
+	mon->_msquelch = (DWORD)SwapLE32(svmon->smsquelch);
+	mon->_mMTidx = svmon->smMTidx;
+	mon->_mpathcount = svmon->smpathcount;
+	mon->_mWhoHit = svmon->smWhoHit;
+	mon->_mgoal = svmon->smgoal;
+	mon->_mgoalvar1 = (INT)SwapLE32(svmon->smgoalvar1);
+	mon->_mgoalvar2 = (INT)SwapLE32(svmon->smgoalvar2);
+	mon->_mgoalvar3 = (INT)SwapLE32(svmon->smgoalvar3);
+	mon->_mx = (INT)SwapLE32(svmon->smx);
+	mon->_my = (INT)SwapLE32(svmon->smy);
+	mon->_mfutx = (INT)SwapLE32(svmon->smfutx);
+	mon->_mfuty = (INT)SwapLE32(svmon->smfuty);
+	mon->_moldx = (INT)SwapLE32(svmon->smoldx);
+	mon->_moldy = (INT)SwapLE32(svmon->smoldy);
+	mon->_mxoff = (INT)SwapLE32(svmon->smxoff);
+	mon->_myoff = (INT)SwapLE32(svmon->smyoff);
+	mon->_mdir = (INT)SwapLE32(svmon->smdir);
+	mon->_menemy = (INT)SwapLE32(svmon->smenemy);
+	mon->_menemyx = svmon->smenemyx;
+	mon->_menemyy = svmon->smenemyy;
+	mon->_mListener = svmon->smListener;
+	mon->_mDelFlag = svmon->smDelFlag;
+
+	mon->_mAnimData = (BYTE*)SwapLE32(svmon->smAnimDataAlign);
+	mon->_mAnimFrameLen = (INT)SwapLE32(svmon->smAnimFrameLenAlign);
+	mon->_mAnimCnt = (INT)SwapLE32(svmon->smAnimCnt);
+	mon->_mAnimLen = (INT)SwapLE32(svmon->smAnimLenAlign);
+	mon->_mAnimFrame = (INT)SwapLE32(svmon->smAnimFrame);
+	mon->_mVar1 = (INT)SwapLE32(svmon->smVar1);
+	mon->_mVar2 = (INT)SwapLE32(svmon->smVar2);
+	mon->_mVar3 = (INT)SwapLE32(svmon->smVar3);
+	mon->_mVar4 = (INT)SwapLE32(svmon->smVar4);
+	mon->_mVar5 = (INT)SwapLE32(svmon->smVar5);
+	mon->_mVar6 = (INT)SwapLE32(svmon->smVar6);
+	mon->_mVar7 = (INT)SwapLE32(svmon->smVar7);
+	mon->_mVar8 = (INT)SwapLE32(svmon->smVar8);
+	mon->_mmaxhp = (INT)SwapLE32(svmon->smmaxhp);
+	mon->_mhitpoints = (INT)SwapLE32(svmon->smhitpoints);
+	mon->_lastx = (INT)SwapLE32(svmon->smlastx);
+	mon->_lasty = (INT)SwapLE32(svmon->smlasty);
+	mon->_mRndSeed = (INT)SwapLE32(svmon->smRndSeed);
+	mon->_mAISeed = (INT)SwapLE32(svmon->smAISeed);
+
+	mon->_uniqtype = svmon->smuniqtype;
+	mon->_uniqtrans = svmon->smuniqtrans;
+	mon->_udeadval = svmon->smudeadval;
+	mon->mlid = svmon->smlid;
+
+	mon->leader = svmon->smleader;
+	mon->leaderflag = svmon->smleaderflag;
+	mon->packsize = svmon->smpacksize;
+	mon->_mvid = svmon->smvid;
+
+	mon->mName = (const char*)SwapLE32(svmon->smNameAlign);
+
+	mon->_mFileNum = SwapLE16(svmon->smFileNum);
+	mon->_mLevel = svmon->smLevel;
+	mon->_mSelFlag = svmon->smSelFlag;
+
+	mon->_mAI.aiType = svmon->smAI.aiType;
+	mon->_mAI.aiInt = svmon->smAI.aiInt;
+	mon->_mAI.aiParam1 = svmon->smAI.aiParam1;
+	mon->_mAI.aiParam2 = svmon->smAI.aiParam2;
+
+	mon->_mFlags = (INT)SwapLE32(svmon->smFlags);
+
+	mon->_mHit = SwapLE16(svmon->smHit);
+	mon->_mMinDamage = svmon->smMinDamage;
+	mon->_mMaxDamage = svmon->smMaxDamage;
+
+	mon->_mHit2 = SwapLE16(svmon->smHit2);
+	mon->_mMinDamage2 = svmon->smMinDamage2;
+	mon->_mMaxDamage2 = svmon->smMaxDamage2;
+
+	mon->_mMagic = svmon->smMagic;
+	mon->_mMagic2 = svmon->smMagic2;
+	mon->_mArmorClass = svmon->smArmorClass;
+	mon->_mEvasion = svmon->smEvasion;
+
+	mon->_mMagicRes = SwapLE16(svmon->smMagicRes);
+	mon->_mTreasure = SwapLE16(svmon->smTreasure);
+
+	mon->_mExp = (DWORD)SwapLE32(svmon->smExp);
+
+	tbuff += sizeof(TSaveMonster);
 
 	// Skip _mAnimWidth
 	// Skip _mAnimXOffset
