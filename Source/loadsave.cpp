@@ -524,6 +524,7 @@ static void LoadPlayer(int pnum)
 
 static void LoadMonster(int mnum)
 {
+	LogErrorF("MON", "LoadMonster much");
 	MonsterStruct* mon = &monsters[mnum];
 
 	LoadInt(&mon->_mmode);
@@ -618,7 +619,7 @@ static void LoadMonster(int mnum)
 	// Skip _mAlign_0
 	// Skip pointer mAnims
 	// Skip _mType
-
+	LogErrorF("MON", "LoadMonster done");
 	if (currLvl._dType != DTYPE_TOWN)
 		SyncMonsterAnim(mnum);
 }
