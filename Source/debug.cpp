@@ -1044,7 +1044,11 @@ void ValidateData()
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
-		if (i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE || i == SPL_BUCKLE || i == SPL_WHITTLE) {
+		if (i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE
+#ifdef HELLFIRE
+			|| i == SPL_BUCKLE || i == SPL_WHITTLE
+#endif
+		) {
 			if (sd.scCurs > CURSOR_LAST_ITEMTGT)
 				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
 			if (sd.spCurs > CURSOR_LAST_ITEMTGT)
@@ -1126,12 +1130,14 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
 			}
 		}
+#ifdef HELLFIRE
 		if (md.mAddProc == AddHorkSpawn) {
 			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
 				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] == 9);
 			}
 		}
+#endif
 		if (md.mProc == NULL)
 			app_fatal("Missile %d has no valid mProc.", i);
 		if (md.mProc == MI_Misexp || md.mProc == MI_MiniExp) {
