@@ -525,8 +525,8 @@ static void LoadPlayer(int pnum)
 static void LoadMonster(int mnum)
 {
 	LogErrorF("MON", "LoadMonster much");
-	MonsterStruct* __restrict__ mon = &monsters[mnum];
-	TSaveMonster* __restrict__ svmon = (TSaveMonster*)tbuff;
+	MonsterStruct* __restrict mon = &monsters[mnum];
+	const TSaveMonster* __restrict svmon = (TSaveMonster*)tbuff;
 
 	/*LoadInt(&mon->_mmode);
 	LoadInt(&mon->_msquelch);
