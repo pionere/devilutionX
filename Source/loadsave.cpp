@@ -638,7 +638,7 @@ static void LoadMonster(int mnum)
 	static_assert(offsetof(MonsterStruct, _mListener) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smListener) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 22.");
 	static_assert(offsetof(MonsterStruct, _mDelFlag) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smDelFlag) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 23.");
 
-	static_assert(offsetof(MonsterStruct, _mAnimData) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smAnimDataAlign) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 24.");
+	/*static_assert(offsetof(MonsterStruct, _mAnimData) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smAnimDataAlign) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 24.");
 	static_assert(offsetof(MonsterStruct, _mAnimFrameLen) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smAnimFrameLenAlign) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 25.");
 	static_assert(offsetof(MonsterStruct, _mAnimCnt) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smAnimCnt) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 26.");
 	static_assert(offsetof(MonsterStruct, _mAnimLen) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smAnimLenAlign) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 27.");
@@ -697,7 +697,7 @@ static void LoadMonster(int mnum)
 	static_assert(offsetof(MonsterStruct, _mMagicRes) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smMagicRes) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 70.");
 	static_assert(offsetof(MonsterStruct, _mTreasure) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smTreasure) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 71.");
 
-	static_assert(offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smExp) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 72.");
+	static_assert(offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, _mmode) == offsetof(TSaveMonster, smExp) - offsetof(TSaveMonster, smmode), "InitMonster uses DWORD-memcpy to optimize performance 72.");*/
 
 	mon->_mmode = (INT)SwapLE32(svmon->smmode);
 	mon->_msquelch = (DWORD)SwapLE32(svmon->smsquelch);
