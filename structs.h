@@ -952,6 +952,87 @@ typedef struct PkPlayerStruct {
 } PkPlayerStruct;
 #pragma pack(pop)
 
+
+//////////////////////////////////////////////////
+// save
+//////////////////////////////////////////////////
+#pragma pack(push, 1)
+typedef struct TSaveMonster {
+	INT smmode; /* MON_MODE */
+	DWORD smsquelch;
+	BYTE smMTidx;
+	BYTE smpathcount; // unused
+	BYTE smWhoHit;
+	BYTE smgoal;
+	INT smgoalvar1;
+	INT smgoalvar2;
+	INT smgoalvar3;
+	INT smx;                // Tile X-position of monster
+	INT smy;                // Tile Y-position of monster
+	INT smfutx;             // Future tile X-position of monster. Set at start of walking animation
+	INT smfuty;             // Future tile Y-position of monster. Set at start of walking animation
+	INT smoldx;             // Most recent X-position in dMonster.
+	INT smoldy;             // Most recent Y-position in dMonster.
+	INT smxoff;             // Monster sprite's pixel X-offset from tile.
+	INT smyoff;             // Monster sprite's pixel Y-offset from tile.
+	INT smdir;              // Direction faced by monster (direction enum)
+	INT smenemy;            // The current target of the monster. An index in to either the plr or monster array based on the smeflag value.
+	BYTE smenemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
+	BYTE smenemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+	BYTE smListener;        // the player to whom the monster is talking to (unused)
+	BOOLEAN smDelFlag; // unused
+	INT smAnimDataAlign;
+	INT smAnimFrameLenAlign; // Tick length of each frame in the current animation
+	INT smAnimCnt;   // Increases by one each game tick, counting how close we are to smAnimFrameLen
+	INT smAnimLenAlign;   // Number of frames in current animation
+	INT smAnimFrame; // Current frame of animation.
+	INT smVar1;
+	INT smVar2;
+	INT smVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
+	INT smVar4;
+	INT smVar5;
+	INT smVar6; // Used as smxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	INT smVar7; // Used as smyoff but with a higher range so that we can correctly apply velocities of a smaller number
+	INT smVar8; // Value used to measure progress for moving from one tile to another
+	INT smmaxhp;
+	INT smhitpoints;
+	INT smlastx; // the last known X-coordinate of the enemy
+	INT smlasty; // the last known Y-coordinate of the enemy
+	INT smRndSeed;
+	INT smAISeed;
+	BYTE smuniqtype;
+	BYTE smuniqtrans;
+	BYTE smudeadval;
+	BYTE smlid;
+	BYTE smleader; // the leader of the monster
+	BYTE smleaderflag; // the status of the monster's leader
+	BYTE smpacksize; // the number of 'pack'-monsters close to their leader
+	BYTE smvid; // vision id of the monster (for minions only)
+	INT smNameAlign;
+	uint16_t smFileNum;
+	BYTE smLevel;
+	BYTE smSelFlag;
+	MonsterAI smAI;
+	INT smFlags;
+	uint16_t smHit;    // hit chance (melee+projectile)
+	BYTE smMinDamage;
+	BYTE smMaxDamage;
+	uint16_t smHit2;   // hit chance of special melee attacks
+	BYTE smMinDamage2;
+	BYTE smMaxDamage2;
+	BYTE smMagic;      // hit chance of magic-projectile
+	BYTE smMagic2;     // unused
+	BYTE smArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	BYTE smEvasion;    // evasion: used against magic-projectile
+	uint16_t smMagicRes;  // resistances of the monster
+	uint16_t smTreasure;  // unique drops of monsters + no-drop flag
+	DWORD smExp;
+} TSaveMonster;
+
+
+
+#pragma pack(pop)
+
 //////////////////////////////////////////////////
 // msg
 //////////////////////////////////////////////////
