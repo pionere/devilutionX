@@ -114,7 +114,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [diablo, hellfire]
+        name: [diablo-x86, hellfire-x86]
         include:
           # x86 builds
           - name: diablo-x86
@@ -155,7 +155,7 @@ jobs:
   build_mingw_x64:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
-    name: Nightly-MingW
+    name: Nightly-MingW-x64
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
