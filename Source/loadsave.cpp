@@ -631,7 +631,7 @@ static void LoadMissile(int mi)
 	LoadByte(&mis->_miSubType);
 	LoadByte(&mis->_miFlags);
 	LoadByte(&mis->_miResist);
-	LoadByte(&mis->_miAnimType);
+	LoadByte(&mis->_miFileNum);
 	tbuff += 4; // Skip _miAnimFlag
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
@@ -1359,7 +1359,7 @@ static void SaveMissile(int mi)
 	SaveByte(&mis->_miSubType);
 	SaveByte(&mis->_miFlags);
 	SaveByte(&mis->_miResist);
-	SaveByte(&mis->_miAnimType);
+	SaveByte(&mis->_miFileNum);
 	tbuff += 4; // Skip _miAnimFlag
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen

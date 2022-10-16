@@ -472,7 +472,7 @@ typedef struct MissileStruct {
 	BYTE _miSubType; // unused
 	BYTE _miFlags;
 	BYTE _miResist;
-	BYTE _miAnimType;
+	BYTE _miFileNum;
 	BOOL _miAnimFlag;
 	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
@@ -1284,7 +1284,7 @@ typedef struct TSyncLvlMonster {
 typedef struct TSyncLvlMissile {
 	WORD smiMi;
 	BYTE smiType;   // Type of projectile (MIS_*)
-	BYTE smiAnimType;
+	BYTE smiFileNum;
 	//BOOL _miAnimFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	char smiAnimAdd;

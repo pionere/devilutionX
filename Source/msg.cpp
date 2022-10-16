@@ -1328,7 +1328,7 @@ void LevelDeltaExport()
 			tmis->smiMi = SwapLE16(mi + MAXMONSTERS);
 			tmis->smiType = mis->_miType;   // Type of projectile (MIS_*)
 			//BYTE _miSubType; // unused
-			tmis->smiAnimType = mis->_miAnimType;
+			tmis->smiFileNum = mis->_miFileNum;
 			//BOOL _miAnimFlag;
 			tmis->smiAnimCnt = mis->_miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 			tmis->smiAnimAdd = mis->_miAnimAdd;
@@ -1626,7 +1626,7 @@ void LevelDeltaLoad()
 
 		mis->_miType = tmis->smiType;   // Type of projectile (MIS_*)
 		//BYTE _miSubType; // unused
-		mis->_miAnimType = tmis->smiAnimType;
+		mis->_miFileNum = tmis->smiFileNum;
 		//BOOL _miAnimFlag;
 		mis->_miAnimCnt = tmis->smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 		mis->_miAnimAdd = tmis->smiAnimAdd;
