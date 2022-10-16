@@ -423,32 +423,32 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pVar7);
 	LoadInt(&plr._pVar8);
 
-	//tbuff += 4; // Skip _pGFXLoad
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
-	LoadInt(&plr._pNFrames);
-	LoadInt(&plr._pNWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
-	LoadInt(&plr._pWFrames);
-	LoadInt(&plr._pWWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
-	LoadInt(&plr._pAFrames);
-	LoadInt(&plr._pAWidth);
-	LoadInt(&plr._pAFNum);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
-	LoadInt(&plr._pSFrames);
-	LoadInt(&plr._pSWidth);
-	LoadInt(&plr._pSFNum);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
-	LoadInt(&plr._pHFrames);
-	LoadInt(&plr._pHWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
-	LoadInt(&plr._pDFrames);
-	LoadInt(&plr._pDWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
-	LoadInt(&plr._pBFrames);
-	LoadInt(&plr._pBWidth);
+	// tbuff += 4; // Skip _pGFXLoad
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
+	// tbuff += 4; // Skip _pNFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pNWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
+	// tbuff += 4; // Skip _pWFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pWWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
+	// tbuff += 4; // Skip _pAFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pAWidth to SetPlrAnims
+	// tbuff += 4; // Skip _pAFNum to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
+	// tbuff += 4; // Skip _pSFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pSWidth to SetPlrAnims
+	// tbuff += 4; // Skip _pSFNum to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
+	// tbuff += 4; // Skip _pHFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pHWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
+	// tbuff += 4; // Skip plr._pDFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pDWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
+	// tbuff += 4; // Skip _pBFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pBWidth to SetPlrAnims
 
 	LoadItemData(&plr._pHoldItem);
 	LoadItems(plr._pInvBody, NUM_INVLOC);
@@ -524,6 +524,7 @@ static void LoadPlayer(int pnum)
 	// Omit pointer alignment
 
 	InitPlayerGFX(pnum);
+	SetPlrAnims(pnum);
 	SyncPlrAnim(pnum);
 }
 
@@ -1152,32 +1153,32 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pVar7);
 	SaveInt(&plr._pVar8);
 
-	//tbuff += 4; // Skip _pGFXLoad
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
-	SaveInt(&plr._pNFrames);
-	SaveInt(&plr._pNWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
-	SaveInt(&plr._pWFrames);
-	SaveInt(&plr._pWWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
-	SaveInt(&plr._pAFrames);
-	SaveInt(&plr._pAWidth);
-	SaveInt(&plr._pAFNum);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
-	SaveInt(&plr._pSFrames);
-	SaveInt(&plr._pSWidth);
-	SaveInt(&plr._pSFNum);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
-	SaveInt(&plr._pHFrames);
-	SaveInt(&plr._pHWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
-	SaveInt(&plr._pDFrames);
-	SaveInt(&plr._pDWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
-	SaveInt(&plr._pBFrames);
-	SaveInt(&plr._pBWidth);
+	// tbuff += 4; // Skip _pGFXLoad
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
+	// tbuff += 4; // Skip _pNFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pNWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
+	// tbuff += 4; // Skip _pWFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pWWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
+	// tbuff += 4; // Skip _pAFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pAWidth to SetPlrAnims
+	// tbuff += 4; // Skip _pAFNum to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
+	// tbuff += 4; // Skip _pSFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pSWidth to SetPlrAnims
+	// tbuff += 4; // Skip _pSFNum to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
+	// tbuff += 4; // Skip _pHFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pHWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
+	// tbuff += 4; // Skip _pDFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pDWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
+	// tbuff += 4; // Skip _pBFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pBWidth to SetPlrAnims
 
 	SaveItemData(&plr._pHoldItem);
 	SaveItems(plr._pInvBody, NUM_INVLOC);
@@ -1555,7 +1556,7 @@ void SaveGame()
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 48 + NUM_WNDS + 13964 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
+	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 48 + NUM_WNDS + 13900 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
 	// initial
 	i = SAVE_INITIAL;
 	SaveInt(&i);
