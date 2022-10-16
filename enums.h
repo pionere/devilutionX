@@ -6,7 +6,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-typedef enum _item_indexes {
+typedef enum item_indexes {
 	IDI_GOLD,
 	IDI_WARRSWORD,
 	IDI_WARRSHLD,
@@ -68,9 +68,9 @@ typedef enum _item_indexes {
 #endif
 	IDI_PHOLDER    = 0xFFFE,
 	IDI_NONE       = 0xFFFF
-} _item_indexes;
+} item_indexes;
 
-typedef enum _unique_items {
+typedef enum unique_item_indexes {
 	UITEM_CLEAVER,
 	UITEM_SKCROWN,
 	UITEM_INFRARING,
@@ -191,7 +191,7 @@ typedef enum _unique_items {
 	UITEM_GLADIATORING,
 #endif
 	NUM_UITEM
-} _unique_items;
+} unique_item_indexes;
 
 typedef enum item_class {
 	ICLASS_NONE,
@@ -262,13 +262,13 @@ typedef enum item_type {
 	ITYPE_PLACEHOLDER,
 } item_type;
 
-typedef enum _item_damage_type {
+typedef enum item_damage_type {
 	IDAM_NONE,
 	IDAM_SLASH,
 	IDAM_BLUNT,
 	IDAM_SB_MIX,
 	IDAM_PUNCTURE,
-} _item_damage_type;
+} item_damage_type;
 
 typedef enum item_quality {
 	ITEM_QUALITY_NORMAL,
@@ -276,7 +276,7 @@ typedef enum item_quality {
 	ITEM_QUALITY_UNIQUE,
 } item_quality;
 
-typedef enum unique_base_item {
+typedef enum unique_item_type {
 	UITYPE_NONE,
 	UITYPE_SHORTBOW,
 	UITYPE_LONGBOW,
@@ -347,7 +347,7 @@ typedef enum unique_base_item {
 	UITYPE_LGTFORGE, // 'unused'
 	UITYPE_LAZSTAFF, // 'unused'
 	UITYPE_BOVINE, // hellfire-only
-} unique_base_item;
+} unique_item_type;
 
 typedef enum item_effect_type {
 	IPL_TOHIT,
