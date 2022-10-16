@@ -116,10 +116,10 @@ static_assert((sizeof(ItemFileData) & (sizeof(ItemFileData) - 1)) == 0, "Align I
 #endif
 
 typedef struct ItemData {
+	const char* iName;
 	BYTE iRnd;
 	BYTE iMinMLvl;
 	BYTE iUniqType; // unique_item_type
-	const char* iName;
 	int iCurs;      // item_cursor_graphic
 	int itype;      // item_type
 	int iMiscId;    // item_misc_id
@@ -138,7 +138,7 @@ typedef struct ItemData {
 	BYTE iMaxAC;
 	BYTE iDurability;
 	int iValue;
-	ALIGNMENT(5, 2)
+	ALIGNMENT(5, 3)
 } ItemData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
