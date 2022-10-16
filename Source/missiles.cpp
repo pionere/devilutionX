@@ -3215,11 +3215,10 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_misy = sy;
 	mis->_miType = mitype;
 	mds = &missiledata[mitype];
-	mis->_miSubType = mds->mType;
 	mis->_miFlags = mds->mdFlags;
 	mis->_miResist = mds->mResist;
 	mis->_miFileNum = mds->mFileNum;
-	mis->_miDrawFlag = mds->mDraw;
+	mis->_miDrawFlag = mds->mDrawFlag;
 
 	if (misfiledata[mis->_miFileNum].mfAnimFAmt < NUM_DIRS)
 		SetMissDir(mi, 0);

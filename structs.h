@@ -436,16 +436,15 @@ typedef struct TextData {
 typedef struct MissileData {
 	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
 	void (*mProc)(int);
-	BOOL mDraw;
-	BYTE mType; // unused
 	BYTE mdFlags;
 	BYTE mResist;
 	BYTE mFileNum;
+	BOOLEAN mDrawFlag;
 	int mlSFX;
 	int miSFX;
 	BYTE mlSFXCnt;
 	BYTE miSFXCnt;
-	ALIGNMENT(1, 6)
+	ALIGNMENT(2, 7)
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -469,10 +468,10 @@ static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align Mis
 
 typedef struct MissileStruct {
 	int _miType;   // Type of projectile (MIS_*)
-	BYTE _miSubType; // unused
 	BYTE _miFlags;
 	BYTE _miResist;
 	BYTE _miFileNum;
+	BOOLEAN _miDrawFlag;
 	BOOL _miAnimFlag;
 	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
@@ -483,7 +482,6 @@ typedef struct MissileStruct {
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
 	BOOL _miDelFlag; // Indicate weather the missile should be deleted
-	BOOL _miDrawFlag;
 	BOOL _miLightFlag;
 	BOOL _miPreFlag;
 	int _miUniqTrans;
@@ -514,7 +512,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7; // distance travelled in case of ARROW missiles
 	int _miVar8; // last target in case of non-DOT missiles
-	ALIGNMENT(6, 20)
+	ALIGNMENT(7, 21)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -1285,11 +1283,11 @@ typedef struct TSyncLvlMissile {
 	WORD smiMi;
 	BYTE smiType;   // Type of projectile (MIS_*)
 	BYTE smiFileNum;
+	BOOLEAN smiDrawFlag;
 	//BOOL _miAnimFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	char smiAnimAdd;
 	BYTE smiAnimFrame; // Current frame of animation.
-	BOOLEAN smiDrawFlag;
 	BOOLEAN smiLightFlag;
 	BOOLEAN smiPreFlag;
 	BYTE smiUniqTrans;
