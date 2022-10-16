@@ -251,18 +251,27 @@ static void LoadItemData(ItemStruct* is)
 	LoadInt(&is->_itype);
 	LoadInt(&is->_iMiscId);
 	LoadInt(&is->_iSpell);
+
 	LoadByte(&is->_iClass);
 	LoadByte(&is->_iLoc);
 	LoadByte(&is->_iDamType);
 	LoadByte(&is->_iMinDam);
+
 	LoadByte(&is->_iMaxDam);
 	LoadByte(&is->_iBaseCrit);
 	LoadByte(&is->_iMinStr);
 	LoadByte(&is->_iMinMag);
+
 	LoadByte(&is->_iMinDex);
 	LoadByte(&is->_iUsable);
+	LoadByte(&is->_iPrePower);
+	LoadByte(&is->_iSufPower);
+
+	LoadByte(&is->_iMagical);
+	LoadByte(&is->_iSelFlag);
 	LoadByte(&is->_iFloorFlag);
 	LoadByte(&is->_iAnimFlag);
+
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
 	LoadInt(&is->_iAnimCnt);
@@ -273,10 +282,6 @@ static void LoadItemData(ItemStruct* is)
 	LoadInt(&is->_iPostDraw);
 	LoadInt(&is->_iIdentified);
 	CopyBytes(tbuff, sizeof(is->_iName), is->_iName);
-	LoadByte(&is->_iPrePower);
-	LoadByte(&is->_iSufPower);
-	LoadByte(&is->_iSelFlag);
-	LoadByte(&is->_iMagical);
 	LoadInt(&is->_ivalue);
 	LoadInt(&is->_iIvalue);
 	LoadInt(&is->_iAC);
@@ -974,18 +979,27 @@ static void SaveItemData(ItemStruct* is)
 	SaveInt(&is->_itype);
 	SaveInt(&is->_iMiscId);
 	SaveInt(&is->_iSpell);
+
 	SaveByte(&is->_iClass);
 	SaveByte(&is->_iLoc);
 	SaveByte(&is->_iDamType);
 	SaveByte(&is->_iMinDam);
+
 	SaveByte(&is->_iMaxDam);
 	SaveByte(&is->_iBaseCrit);
 	SaveByte(&is->_iMinStr);
 	SaveByte(&is->_iMinMag);
+
 	SaveByte(&is->_iMinDex);
 	SaveByte(&is->_iUsable);
+	SaveByte(&is->_iPrePower);
+	SaveByte(&is->_iSufPower);
+
+	SaveByte(&is->_iMagical);
+	SaveByte(&is->_iSelFlag);
 	SaveByte(&is->_iFloorFlag);
 	SaveByte(&is->_iAnimFlag);
+
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
 	SaveInt(&is->_iAnimCnt);
@@ -996,10 +1010,6 @@ static void SaveItemData(ItemStruct* is)
 	SaveInt(&is->_iPostDraw);
 	SaveInt(&is->_iIdentified);
 	CopyBytes(is->_iName, sizeof(is->_iName), tbuff);
-	SaveByte(&is->_iPrePower);
-	SaveByte(&is->_iSufPower);
-	SaveByte(&is->_iSelFlag);
-	SaveByte(&is->_iMagical);
 	SaveInt(&is->_ivalue);
 	SaveInt(&is->_iIvalue);
 	SaveInt(&is->_iAC);

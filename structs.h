@@ -160,7 +160,7 @@ typedef struct ItemStruct {
 	int _iSpell;  // spell_id
 	BYTE _iClass; // item_class enum
 	BYTE _iLoc;   // item_equip_type
-	BYTE _iDamType;
+	BYTE _iDamType; // item_damage_type
 	BYTE _iMinDam;
 	BYTE _iMaxDam;
 	BYTE _iBaseCrit;
@@ -168,6 +168,10 @@ typedef struct ItemStruct {
 	BYTE _iMinMag;
 	BYTE _iMinDex;
 	BOOLEAN _iUsable;
+	BYTE _iPrePower; // item_effect_type
+	BYTE _iSufPower; // item_effect_type
+	BYTE _iMagical;	// item_quality
+	BYTE _iSelFlag;
 	BOOLEAN _iFloorFlag;
 	BOOLEAN _iAnimFlag;
 	BYTE* _iAnimData;        // PSX name -> ItemFrame
@@ -180,10 +184,6 @@ typedef struct ItemStruct {
 	BOOL _iPostDraw;
 	BOOL _iIdentified;
 	char _iName[32];
-	BYTE _iPrePower; // item_effect_type
-	BYTE _iSufPower; // item_effect_type
-	BYTE _iSelFlag;
-	BYTE _iMagical;	// item_quality
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
@@ -226,7 +226,7 @@ typedef struct ItemStruct {
 	int _iVAdd;
 	int _iVMult;
 	BOOL _iStatFlag;
-	ALIGNMENT(6, 4)
+	ALIGNMENT(6, 5)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
