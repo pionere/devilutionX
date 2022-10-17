@@ -201,8 +201,8 @@ static void InitMonsterGFX(int midx)
 			snprintf(strBuff, sizeof(strBuff), mfdata->moGfxFile, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff);
-			assert(monAnims[anim].aCelData == NULL);
-			monAnims[anim].aCelData = celBuf;
+			assert(cmon->cmAnimData[anim] == NULL);
+			cmon->cmAnimData[anim] = celBuf;
 
 			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
 				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
@@ -4498,7 +4498,7 @@ void FreeMonsters()
 
 	for (i = 0; i < nummtypes; i++) {
 		for (j = 0; j < NUM_MON_ANIM; j++) {
-			MemFreeDbg(mapMonTypes[i].cmAnims[j].aCelData);
+			MemFreeDbg(mapMonTypes[i].cmAnimData[j]);
 		}
 	}
 
