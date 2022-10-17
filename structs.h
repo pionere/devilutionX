@@ -236,6 +236,11 @@ static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 0, "Align ItemS
 //////////////////////////////////////////////////
 // player
 //////////////////////////////////////////////////
+typedef struct PlrAnimStruct {
+	BYTE* paAnimData[NUM_DIRS];
+	unsigned paFrames;
+	int paAnimWidth;
+} PlrAnimStruct;
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
@@ -317,31 +322,17 @@ typedef struct PlayerStruct {
 	int _pVar7;
 	int _pVar8;
 	int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
-	BYTE* _pNAnim[NUM_DIRS]; // Stand animations
-	unsigned _pNFrames;
-	int _pNWidth;
-	BYTE* _pWAnim[NUM_DIRS]; // Walk animations
-	unsigned _pWFrames;
-	int _pWWidth;
-	BYTE* _pAAnim[NUM_DIRS]; // Attack animations
-	unsigned _pAFrames;
-	int _pAWidth;
+	PlrAnimStruct _pNAnim;  // Stand animations
+	PlrAnimStruct _pAAnim;  // Attack animations
+	PlrAnimStruct _pWAnim;  // Walk animations
+	PlrAnimStruct _pBAnim;  // Block animations
+	PlrAnimStruct _pDAnim;  // Death animations
+	PlrAnimStruct _pLAnim;  // Lightning spell cast animations
+	PlrAnimStruct _pFAnim;  // Fire spell cast animations
+	PlrAnimStruct _pTAnim;  // Generic spell cast animations
+	PlrAnimStruct _pHAnim;  // Getting hit animations
 	unsigned _pAFNum;
-	BYTE* _pLAnim[NUM_DIRS]; // Lightning spell cast animations
-	BYTE* _pFAnim[NUM_DIRS]; // Fire spell cast animations
-	BYTE* _pTAnim[NUM_DIRS]; // Generic spell cast animations
-	unsigned _pSFrames;
-	int _pSWidth;
 	unsigned _pSFNum;
-	BYTE* _pHAnim[NUM_DIRS]; // Getting hit animations
-	unsigned _pHFrames;
-	int _pHWidth;
-	BYTE* _pDAnim[NUM_DIRS]; // Death animations
-	unsigned _pDFrames;
-	int _pDWidth;
-	BYTE* _pBAnim[NUM_DIRS]; // Block animations
-	unsigned _pBFrames;
-	int _pBWidth;
 	ItemStruct _pHoldItem;
 	ItemStruct _pInvBody[NUM_INVLOC];
 	ItemStruct _pSpdList[MAXBELTITEMS];
@@ -407,7 +398,7 @@ typedef struct PlayerStruct {
 	BYTE* _pHData; // file-pointer of the getting hit animations
 	BYTE* _pDData; // file-pointer of the death animations
 	BYTE* _pBData; // file-pointer of the block animations
-	ALIGNMENT(191, 104)
+	ALIGNMENT(187, 100)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
