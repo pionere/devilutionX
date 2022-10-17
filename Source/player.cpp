@@ -304,7 +304,7 @@ void LoadPlrGFX(int pnum, unsigned gfxflag)
 		case PFIDX_BLOCK:
 			szCel = "BL";
 			break;
-		case PFIDX_HIT:
+		case PFIDX_GOTHIT:
 			szCel = "HT";
 			break;
 		case PFIDX_DEATH:
@@ -336,7 +336,7 @@ void InitPlayerGFX(int pnum)
 	} else {
 		gfxflag = PFILE_NONDEATH;
 		if (currLvl._dType == DTYPE_TOWN)
-			gfxflag &= ~(PFILE_ATTACK | PFILE_HIT | PFILE_BLOCK);
+			gfxflag &= ~(PFILE_ATTACK | PFILE_GOTHIT | PFILE_BLOCK);
 		else if (!(plr._pSkillFlags & SFLAG_BLOCK))
 			gfxflag &= ~PFILE_BLOCK;
 	}
@@ -424,8 +424,8 @@ void InitPlrGFXMem(int pnum)
 	plr._pAnimFileData[PFIDX_MAGIC] = DiabloAllocPtr(plr_qframe_size);
 	assert(plr._pAnimFileData[PFIDX_BLOCK] == NULL);
 	plr._pAnimFileData[PFIDX_BLOCK] = DiabloAllocPtr(plr_bframe_size);
-	assert(plr._pAnimFileData[PFIDX_HIT] == NULL);
-	plr._pAnimFileData[PFIDX_HIT] = DiabloAllocPtr(plr_hframe_size);
+	assert(plr._pAnimFileData[PFIDX_GOTHIT] == NULL);
+	plr._pAnimFileData[PFIDX_GOTHIT] = DiabloAllocPtr(plr_hframe_size);
 	assert(plr._pAnimFileData[PFIDX_DEATH] == NULL);
 	plr._pAnimFileData[PFIDX_DEATH] = DiabloAllocPtr(plr_dframe_size);
 
@@ -496,7 +496,7 @@ void SetPlrAnims(int pnum)
 	plr._pAnims[PFIDX_LIGHTNING].paAnimWidth = 96 * ASSET_MPL;
 	plr._pAnims[PFIDX_MAGIC].paAnimWidth = 96 * ASSET_MPL;
 	plr._pAnims[PFIDX_BLOCK].paAnimWidth = 96 * ASSET_MPL;
-	plr._pAnims[PFIDX_HIT].paAnimWidth = 96 * ASSET_MPL;
+	plr._pAnims[PFIDX_GOTHIT].paAnimWidth = 96 * ASSET_MPL;
 	plr._pAnims[PFIDX_DEATH].paAnimWidth = 128 * ASSET_MPL;
 
 	pc = plr._pClass;
@@ -510,7 +510,7 @@ void SetPlrAnims(int pnum)
 	plr._pAnims[PFIDX_LIGHTNING].paFrames = PlrGFXAnimLens[pc][PA_SPELL];
 	plr._pAnims[PFIDX_MAGIC].paFrames = PlrGFXAnimLens[pc][PA_SPELL];
 	plr._pAnims[PFIDX_BLOCK].paFrames = PlrGFXAnimLens[pc][PA_BLOCK];
-	plr._pAnims[PFIDX_HIT].paFrames = PlrGFXAnimLens[pc][PA_GOTHIT];
+	plr._pAnims[PFIDX_GOTHIT].paFrames = PlrGFXAnimLens[pc][PA_GOTHIT];
 	plr._pAnims[PFIDX_DEATH].paFrames = PlrGFXAnimLens[pc][PA_DEATH];
 
 	gn = plr._pgfxnum & 0xF;
@@ -565,7 +565,7 @@ void SetPlrAnims(int pnum)
 		plr._pAnims[PFIDX_LIGHTNING].paAnimWidth = 114 * ASSET_MPL;
 		plr._pAnims[PFIDX_MAGIC].paAnimWidth = 114 * ASSET_MPL;
 		plr._pAnims[PFIDX_BLOCK].paAnimWidth = 98 * ASSET_MPL;
-		plr._pAnims[PFIDX_HIT].paAnimWidth = 98 * ASSET_MPL;
+		plr._pAnims[PFIDX_GOTHIT].paAnimWidth = 98 * ASSET_MPL;
 		plr._pAnims[PFIDX_DEATH].paAnimWidth = 160 * ASSET_MPL;
 
 		switch (gn) {
@@ -1700,10 +1700,10 @@ void StartPlrHit(int pnum, int dam, bool forcehit, int dir)
 
 	dir = dir == DIR_NONE ? plr._pdir : OPPOSITE(dir);
 
-	if (!(plr._pGFXLoad & PFILE_HIT)) {
-		LoadPlrGFX(pnum, PFILE_HIT);
+	if (!(plr._pGFXLoad & PFILE_GOTHIT)) {
+		LoadPlrGFX(pnum, PFILE_GOTHIT);
 	}
-	NewPlrAnim(pnum, &plr._pAnims[PFIDX_HIT], dir, PlrAnimFrameLens[PA_GOTHIT]);
+	NewPlrAnim(pnum, &plr._pAnims[PFIDX_GOTHIT], dir, PlrAnimFrameLens[PA_GOTHIT]);
 
 	plr._pmode = PM_GOTHIT;
 	RemovePlrFromMap(pnum);
@@ -2593,7 +2593,7 @@ static void PlrDoGotHit(int pnum)
 	}
 
 	assert(PlrAnimFrameLens[PA_GOTHIT] == 1);
-	// assert(plr._pAnims[PFIDX_HIT].paFrames == plr._pAnimLen);
+	// assert(plr._pAnims[PFIDX_GOTHIT].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 	//PlrStartStand(pnum);
@@ -3229,7 +3229,7 @@ void SyncPlrAnim(int pnum)
 		break;
 	case PM_GOTHIT:
 		p->_pAnimFrameLen = PlrAnimFrameLens[PA_GOTHIT];
-		anim = &p->_pAnims[PFIDX_HIT];
+		anim = &p->_pAnims[PFIDX_GOTHIT];
 		break;
 	case PM_DYING:
 	case PM_DEATH:
