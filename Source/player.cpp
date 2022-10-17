@@ -1552,8 +1552,7 @@ static void StartBlock(int pnum, int dir)
 
 static void StartSpell(int pnum)
 {
-	int i, dx, dy;
-	player_graphic gfx;
+	int i, dx, dy, gfx;
 	PlrAnimStruct* anim;
 	const SpellData *sd;
 
@@ -1594,23 +1593,13 @@ static void StartSpell(int pnum)
 	sd = &spelldata[plr._pVar5]; // SPELL_NUM
 	if (sd->sSkillFlags & SDFLAG_TARGETED)
 		plr._pdir = GetDirection(plr._px, plr._py, dx, dy);
-	switch (sd->sType) {
-	case STYPE_FIRE:
-		gfx = PFILE_FIRE;
-		anim = &plr._pAnims[PFIDX_FIRE];
-		break;
-	case STYPE_LIGHTNING:
-		gfx = PFILE_LIGHTNING;
-		anim = &plr._pAnims[PFIDX_LIGHTNING];
-		break;
-	case STYPE_MAGIC:
-		gfx = PFILE_MAGIC;
-		anim = &plr._pAnims[PFIDX_MAGIC];
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+
+	static_assert((int)PFIDX_LIGHTNING - (int)PFIDX_FIRE == (int)STYPE_LIGHTNING - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type I.");
+	static_assert((int)PFIDX_MAGIC - (int)PFIDX_FIRE == (int)STYPE_MAGIC - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type II.");
+	static_assert((int)PFILE_FIRE == 1 << (int)PFIDX_FIRE, "StartSpell calculates player_graphic.");
+	gfx = 1 << (PFIDX_FIRE + sd->sType - STYPE_FIRE);
+	anim = &plr._pAnims[PFIDX_FIRE + sd->sType - STYPE_FIRE];
+
 	if (!(plr._pGFXLoad & gfx)) {
 		LoadPlrGFX(pnum, gfx);
 	}
