@@ -1145,7 +1145,7 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 16 /* lengthof(ExpLight) */);
 			}
 		}
-		if (md.mDraw) {
+		if (md.mDrawFlag) {
 			if (md.mFileNum == MFILE_NONE && i != MIS_RHINO && i != MIS_CHARGE)
 				app_fatal("Missile %d is drawn, but has no valid mFileNum.", i);
 		} else {
