@@ -105,8 +105,8 @@ static_assert((sizeof(UniqItemData) & (sizeof(UniqItemData) - 1)) == 64, "Align 
 
 typedef struct ItemFileData {
 	const char* ifName; // Map of item type .cel file names.
-	int idSFX;          // sounds effect of dropping the item on ground.
-	int iiSFX;          // sounds effect of placing the item in the inventory.
+	int idSFX;          // sounds effect of dropping the item on ground (_sfx_id).
+	int iiSFX;          // sounds effect of placing the item in the inventory (_sfx_id).
 	int iAnimLen;       // item drop animation length
 	ALIGNMENT64(2)
 } ItemFileData;
@@ -116,17 +116,17 @@ static_assert((sizeof(ItemFileData) & (sizeof(ItemFileData) - 1)) == 0, "Align I
 #endif
 
 typedef struct ItemData {
+	const char* iName;
 	BYTE iRnd;
 	BYTE iMinMLvl;
-	BYTE iUniqType; // unique_base_item
-	const char* iName;
-	int iCurs; // item_cursor_graphic
-	int itype; // item_type
-	int iMiscId; // item_misc_id
-	int iSpell; // spell_id
-	BYTE iClass; // item_class
-	BYTE iLoc; // item_equip_type
-	BYTE iDamType;
+	BYTE iUniqType; // unique_item_type
+	int iCurs;      // item_cursor_graphic
+	int itype;      // item_type
+	int iMiscId;    // item_misc_id
+	int iSpell;     // spell_id
+	BYTE iClass;    // item_class
+	BYTE iLoc;      // item_equip_type
+	BYTE iDamType;  // item_damage_type
 	BYTE iMinDam;
 	BYTE iMaxDam;
 	BYTE iBaseCrit;
@@ -138,7 +138,7 @@ typedef struct ItemData {
 	BYTE iMaxAC;
 	BYTE iDurability;
 	int iValue;
-	ALIGNMENT(5, 2)
+	ALIGNMENT(5, 3)
 } ItemData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -154,13 +154,13 @@ typedef struct ItemStruct {
 		int _iPHolder; // parent index of a placeholder entry in InvList
 	};
 	int _iy;
-	int _iCurs;		// item_cursor_graphic
-	int _itype;
-	int _iMiscId;	// item_misc_id
-	int _iSpell;	// spell_id
-	BYTE _iClass;	// item_class enum
-	BYTE _iLoc;		// item_equip_type
-	BYTE _iDamType;
+	int _iCurs;   // item_cursor_graphic
+	int _itype;   // item_type
+	int _iMiscId; // item_misc_id
+	int _iSpell;  // spell_id
+	BYTE _iClass; // item_class enum
+	BYTE _iLoc;   // item_equip_type
+	BYTE _iDamType; // item_damage_type
 	BYTE _iMinDam;
 	BYTE _iMaxDam;
 	BYTE _iBaseCrit;
@@ -168,6 +168,10 @@ typedef struct ItemStruct {
 	BYTE _iMinMag;
 	BYTE _iMinDex;
 	BOOLEAN _iUsable;
+	BYTE _iPrePower; // item_effect_type
+	BYTE _iSufPower; // item_effect_type
+	BYTE _iMagical;	// item_quality
+	BYTE _iSelFlag;
 	BOOLEAN _iFloorFlag;
 	BOOLEAN _iAnimFlag;
 	BYTE* _iAnimData;        // PSX name -> ItemFrame
@@ -180,10 +184,6 @@ typedef struct ItemStruct {
 	BOOL _iPostDraw;
 	BOOL _iIdentified;
 	char _iName[32];
-	BYTE _iPrePower;
-	BYTE _iSufPower;
-	BYTE _iSelFlag;
-	BYTE _iMagical;	// item_quality
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
@@ -226,7 +226,7 @@ typedef struct ItemStruct {
 	int _iVAdd;
 	int _iVMult;
 	BOOL _iStatFlag;
-	ALIGNMENT(6, 4)
+	ALIGNMENT(6, 5)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -238,7 +238,7 @@ static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 0, "Align ItemS
 //////////////////////////////////////////////////
 
 typedef struct PlayerStruct {
-	int _pmode;
+	int _pmode; // PLR_MODE
 	char walkpath[MAX_PATH_LENGTH + 1];
 	int destAction;
 	int destParam1;
@@ -248,8 +248,8 @@ typedef struct PlayerStruct {
 	BOOLEAN _pActive;
 	BYTE _pInvincible;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
-	BYTE _pDunLevel;
-	BYTE _pClass;
+	BYTE _pDunLevel; // dungeon_level
+	BYTE _pClass; // plr_class
 	BYTE _pLevel;
 	BYTE _pRank;
 	BYTE _pTeam;
@@ -275,8 +275,8 @@ typedef struct PlayerStruct {
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;
 	int _pAnimXOffset;
-	unsigned _plid;
-	unsigned _pvid;
+	unsigned _plid; // light id of the player
+	unsigned _pvid; // vision id of the player
 	BYTE _pAtkSkill;         // the selected attack skill for the primary action
 	BYTE _pAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
 	BYTE _pMoveSkill;        // the selected movement skill for the primary action
@@ -316,7 +316,7 @@ typedef struct PlayerStruct {
 	int _pVar6;
 	int _pVar7;
 	int _pVar8;
-	int _pGFXLoad;
+	int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
 	BYTE* _pNAnim[NUM_DIRS]; // Stand animations
 	unsigned _pNFrames;
 	int _pNWidth;
@@ -436,16 +436,15 @@ typedef struct TextData {
 typedef struct MissileData {
 	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
 	void (*mProc)(int);
-	BOOL mDraw;
-	BYTE mType; // unused
-	BYTE mdFlags;
-	BYTE mResist;
-	BYTE mFileNum;
-	int mlSFX;
-	int miSFX;
-	BYTE mlSFXCnt;
-	BYTE miSFXCnt;
-	ALIGNMENT(1, 6)
+	BYTE mdFlags; // missile_flags
+	BYTE mResist; // missile_resistance
+	BYTE mFileNum; // missile_gfx_id
+	BOOLEAN mDrawFlag;
+	int mlSFX; // sound effect when a missile is launched (_sfx_id)
+	int miSFX; // sound effect on impact (_sfx_id)
+	BYTE mlSFXCnt; // number of launch sound effects to choose from
+	BYTE miSFXCnt; // number of impact sound effects to choose from
+	ALIGNMENT(2, 7)
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -468,11 +467,11 @@ static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align Mis
 #endif
 
 typedef struct MissileStruct {
-	int _miType;   // Type of projectile (MIS_*)
-	BYTE _miSubType; // unused
-	BYTE _miFlags;
-	BYTE _miResist;
-	BYTE _miAnimType;
+	int _miType;   // missile_id
+	BYTE _miFlags; // missile_flags
+	BYTE _miResist; // missile_resistance
+	BYTE _miFileNum; // missile_gfx_id
+	BOOLEAN _miDrawFlag; // should be drawn
 	BOOL _miAnimFlag;
 	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
@@ -482,11 +481,10 @@ typedef struct MissileStruct {
 	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
-	BOOL _miDelFlag; // Indicate weather the missile should be deleted
-	BOOL _miDrawFlag;
-	BOOL _miLightFlag;
-	BOOL _miPreFlag;
-	int _miUniqTrans;
+	BOOL _miDelFlag; // should be deleted
+	BOOL _miLightFlag; // use light-transformation when drawing
+	BOOL _miPreFlag; // should be drawn in the pre-phase
+	int _miUniqTrans; // use unique color-transformation when drawing
 	int _misx;    // Initial tile X-position for missile
 	int _misy;    // Initial tile Y-position for missile
 	int _mix;     // Tile X-position of the missile
@@ -499,13 +497,13 @@ typedef struct MissileStruct {
 	int _mityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	int _miDir;   // The direction of the missile
 	int _miSpllvl;
-	int _miSource;
+	int _miSource; // missile_source_type
 	int _miCaster;
 	int _miMinDam;
 	int _miMaxDam;
 	// int _miRndSeed;
 	int _miRange;
-	unsigned _miLid;
+	unsigned _miLid; // light id of the missile
 	int _miVar1;
 	int _miVar2;
 	int _miVar3;
@@ -514,7 +512,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7; // distance travelled in case of ARROW missiles
 	int _miVar8; // last target in case of non-DOT missiles
-	ALIGNMENT(6, 20)
+	ALIGNMENT(7, 21)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -589,7 +587,7 @@ typedef struct MonsterData {
 	MonsterAI mAI;
 	uint16_t mMinHP;
 	uint16_t mMaxHP;
-	int mFlags;
+	int mFlags;       // _monster_flag
 	uint16_t mHit;    // hit chance (melee+projectile)
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
@@ -600,9 +598,9 @@ typedef struct MonsterData {
 	BYTE mMagic2;     // unused
 	BYTE mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE mEvasion;    // evasion: used against magic-projectile
-	uint16_t mMagicRes;  // resistances in normal and nightmare difficulties
-	uint16_t mMagicRes2; // resistances in hell difficulty
-	uint16_t mTreasure;  // unique drops of monsters + no-drop flag
+	uint16_t mMagicRes;  // resistances in normal and nightmare difficulties (_monster_resistance)
+	uint16_t mMagicRes2; // resistances in hell difficulty (_monster_resistance)
+	uint16_t mTreasure;  // unique drops of monsters + no-drop flag (unique_item_indexes + _monster_treasure)
 	uint16_t mExp;
 	ALIGNMENT(5, 2)
 } MonsterData;
@@ -712,17 +710,17 @@ typedef struct MonsterStruct {
 	BYTE _uniqtype;
 	BYTE _uniqtrans;
 	BYTE _udeadval;
-	BYTE mlid;
+	BYTE mlid; // light id of the monster
 	BYTE leader; // the leader of the monster
 	BYTE leaderflag; // the status of the monster's leader
 	BYTE packsize; // the number of 'pack'-monsters close to their leader
 	BYTE _mvid; // vision id of the monster (for minions only)
 	const char* mName;
-	uint16_t _mFileNum;
+	uint16_t _mFileNum; // _monster_gfx_id
 	BYTE _mLevel;
 	BYTE _mSelFlag;
 	MonsterAI _mAI;
-	int _mFlags;
+	int _mFlags;       // _monster_flag
 	uint16_t _mHit;    // hit chance (melee+projectile)
 	BYTE _mMinDamage;
 	BYTE _mMaxDamage;
@@ -733,15 +731,15 @@ typedef struct MonsterStruct {
 	BYTE _mMagic2;     // unused
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
-	uint16_t _mMagicRes;  // resistances of the monster
-	uint16_t _mTreasure;  // unique drops of monsters + no-drop flag
+	uint16_t _mMagicRes;  // resistances of the monster (_monster_resistance)
+	uint16_t _mTreasure;  // unique drops of monsters + no-drop flag (unique_item_indexes + _monster_treasure)
 	unsigned _mExp;
 	int _mAnimWidth;
 	int _mAnimXOffset;
 	BYTE _mAFNum;
 	BYTE _mAFNum2;
 	uint16_t _mAlign_0; // unused
-	int _mType;
+	int _mType; // _monster_id
 	AnimStruct* _mAnims;
 	ALIGNMENT(12, 7)
 } MonsterStruct;
@@ -757,7 +755,7 @@ typedef struct MonEnemyStruct {
 } MonEnemyStruct;
 
 typedef struct UniqMonData {
-	int mtype;
+	int mtype; // _monster_id
 	const char* mName;
 	const char* mTrnName;
 	BYTE muLevelIdx; // level-index to place the monster
@@ -770,14 +768,14 @@ typedef struct UniqMonData {
 	BYTE mMaxDamage2;
 	uint16_t mMagicRes;
 	uint16_t mMagicRes2;
-	BYTE mUnqFlags;
+	BYTE mUnqFlags;// _uniq_monster_flag
 	BYTE mUnqHit;  // to-hit (melee+projectile) bonus
 	BYTE mUnqHit2; // to-hit (special melee attacks) bonus
 	BYTE mUnqMag;  // to-hit (magic-projectile) bonus
 	BYTE mUnqEva;  // evasion bonus
 	BYTE mUnqAC;   // armor class bonus
-	BYTE mQuestId;
-	int mtalkmsg;
+	BYTE mQuestId; // quest_id
+	int mtalkmsg;  // _speech_id
 	ALIGNMENT(6, 2)
 } UniqMonData;
 
@@ -790,11 +788,11 @@ static_assert((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align Uni
 //////////////////////////////////////////////////
 
 typedef struct ObjectData {
-	BYTE ofindex;
-	BYTE oLvlTypes;
-	BYTE oSetLvlType;
-	BYTE otheme;
-	BYTE oquest;
+	BYTE ofindex;     // object_graphic_id
+	BYTE oLvlTypes;   // dungeon_type_mask
+	BYTE oSetLvlType; // dungeon_type
+	BYTE otheme;      // theme_id
+	BYTE oquest;      // quest_id
 	//BOOLEAN oAnimFlag;
 	BYTE oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
 	//int oAnimFrameLen; // Tick length of each frame in the current animation
@@ -806,7 +804,7 @@ typedef struct ObjectData {
 	//BOOL oMissFlag;
 	//BOOL oLightFlag;
 	//BYTE oBreak;
-	BYTE oDoorFlag;
+	BYTE oDoorFlag;   // object_door_type
 	BYTE oSelFlag;
 	BOOLEAN oTrapFlag;
 	ALIGNMENT(1, 1)
@@ -818,7 +816,7 @@ static_assert((sizeof(ObjectData) & (sizeof(ObjectData) - 1)) == 0, "Align Objec
 
 typedef struct ObjFileData {
 	const char* ofName;
-	int oSFX;
+	int oSFX; // _sfx_id
 	BYTE oSFXCnt;
 	BOOLEAN oAnimFlag;
 	int oAnimFrameLen; // Tick length of each frame in the current animation
@@ -827,7 +825,7 @@ typedef struct ObjFileData {
 	BOOLEAN oSolidFlag;
 	BOOLEAN oMissFlag;
 	BOOLEAN oLightFlag;
-	BYTE oBreak;
+	BYTE oBreak; // object_break_mode
 	ALIGNMENT32(1)
 } ObjFileData;
 
@@ -836,10 +834,10 @@ static_assert((sizeof(ObjFileData) & (sizeof(ObjFileData) - 1)) == 0, "Align Obj
 #endif
 
 typedef struct ObjectStruct {
-	int _otype;
+	int _otype; // _object_id
 	int _ox;
 	int _oy;
-	int _oSFX;
+	int _oSFX; // _sfx_id
 	BYTE _oSFXCnt;
 	BOOLEAN _oAnimFlag;
 	BYTE* _oAnimData;
@@ -855,10 +853,10 @@ typedef struct ObjectStruct {
 	BOOLEAN _oLightFlag;
 	BYTE _oBreak; // object_break_mode
 	BYTE _oDoorFlag; // object_door_type
-	BYTE _oSelFlag; // check
+	BYTE _oSelFlag;
 	BYTE _oTrapChance;
 	BOOL _oPreFlag;
-	unsigned _olid;
+	unsigned _olid; // light id of the object
 	int _oRndSeed;
 	int _oVar1;
 	int _oVar2;
@@ -1364,13 +1362,13 @@ typedef struct TSyncLvlMonster {
 
 typedef struct TSyncLvlMissile {
 	WORD smiMi;
-	BYTE smiType;   // Type of projectile (MIS_*)
-	BYTE smiAnimType;
+	BYTE smiType;   // missile_id
+	BYTE smiFileNum; // missile_gfx_id
+	BOOLEAN smiDrawFlag;
 	//BOOL _miAnimFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	char smiAnimAdd;
 	BYTE smiAnimFrame; // Current frame of animation.
-	BOOLEAN smiDrawFlag;
 	BOOLEAN smiLightFlag;
 	BOOLEAN smiPreFlag;
 	BYTE smiUniqTrans;

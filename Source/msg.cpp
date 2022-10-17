@@ -1328,12 +1328,12 @@ void LevelDeltaExport()
 			tmis->smiMi = SwapLE16(mi + MAXMONSTERS);
 			tmis->smiType = mis->_miType;   // Type of projectile (MIS_*)
 			//BYTE _miSubType; // unused
-			tmis->smiAnimType = mis->_miAnimType;
+			tmis->smiFileNum = mis->_miFileNum;
+			tmis->smiDrawFlag = mis->_miDrawFlag;
 			//BOOL _miAnimFlag;
 			tmis->smiAnimCnt = mis->_miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 			tmis->smiAnimAdd = mis->_miAnimAdd;
 			tmis->smiAnimFrame = mis->_miAnimFrame; // Current frame of animation.
-			tmis->smiDrawFlag = mis->_miDrawFlag;
 			tmis->smiLightFlag = mis->_miLightFlag;
 			tmis->smiPreFlag = mis->_miPreFlag;
 			tmis->smiUniqTrans = mis->_miUniqTrans;
@@ -1626,12 +1626,12 @@ void LevelDeltaLoad()
 
 		mis->_miType = tmis->smiType;   // Type of projectile (MIS_*)
 		//BYTE _miSubType; // unused
-		mis->_miAnimType = tmis->smiAnimType;
+		mis->_miFileNum = tmis->smiFileNum;
+		mis->_miDrawFlag = tmis->smiDrawFlag;	// could be calculated
 		//BOOL _miAnimFlag;
 		mis->_miAnimCnt = tmis->smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 		mis->_miAnimAdd = tmis->smiAnimAdd;
 		mis->_miAnimFrame = tmis->smiAnimFrame; // Current frame of animation.
-		mis->_miDrawFlag = tmis->smiDrawFlag;	// could be calculated
 		mis->_miLightFlag = tmis->smiLightFlag;	// could be calculated
 		mis->_miPreFlag = tmis->smiPreFlag;	// could be calculated
 		mis->_miUniqTrans = tmis->smiUniqTrans;
@@ -1668,7 +1668,6 @@ void LevelDeltaLoad()
 			mis->_miLid = NO_LIGHT;
 		}
 		mds = &missiledata[mis->_miType];
-		mis->_miSubType = mds->mType;
 		mis->_miFlags = mds->mdFlags;
 		mis->_miResist = mds->mResist;
 

@@ -1431,7 +1431,7 @@ static void SyncMissAnim(int mi)
 	int dir, animtype;
 
 	mis = &missile[mi];
-	animtype = mis->_miAnimType;
+	animtype = mis->_miFileNum;
 	dir = mis->_miDir;
 	mis->_miAnimData = misanimdata[animtype][dir];
 	mfd = &misfiledata[animtype];
@@ -1839,7 +1839,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	if (mtype == MFILE_ARROWS) {
 		mis->_miAnimFrame = midir + 1;
 	} else {
-		mis->_miAnimType = mtype;
+		mis->_miFileNum = mtype;
 		SetMissDir(mi, midir);
 	}
 	mis->_miRange = 255;
@@ -1949,7 +1949,7 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	}
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
 	GetMissileVel(mi, sx, sy, dx, dy, av);
-	if (misfiledata[mis->_miAnimType].mfAnimFAmt == 16)
+	if (misfiledata[mis->_miFileNum].mfAnimFAmt == 16)
 		SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFirebolt needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
@@ -2543,7 +2543,7 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 #ifdef HELLFIRE
-	if (misfiledata[missile[mi]._miAnimType].mfAnimFAmt == 16) {
+	if (misfiledata[missile[mi]._miFileNum].mfAnimFAmt == 16) {
 		SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	}
 #endif
@@ -3215,13 +3215,12 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_misy = sy;
 	mis->_miType = mitype;
 	mds = &missiledata[mitype];
-	mis->_miSubType = mds->mType;
 	mis->_miFlags = mds->mdFlags;
 	mis->_miResist = mds->mResist;
-	mis->_miAnimType = mds->mFileNum;
-	mis->_miDrawFlag = mds->mDraw;
+	mis->_miFileNum = mds->mFileNum;
+	mis->_miDrawFlag = mds->mDrawFlag;
 
-	if (misfiledata[mis->_miAnimType].mfAnimFAmt < NUM_DIRS)
+	if (misfiledata[mis->_miFileNum].mfAnimFAmt < NUM_DIRS)
 		SetMissDir(mi, 0);
 	else
 		SetMissDir(mi, midir);
@@ -3789,14 +3788,14 @@ void MI_Meteor(int mi)
 
 	mis = &missile[mi];
 
-	if (mis->_miAnimType != MFILE_FIREBA) {
+	if (mis->_miFileNum != MFILE_FIREBA) {
 		// assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1);
 		if (mis->_miAnimFrame == 3
 		 /*&& mis->_miAnimCnt == misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] - 1*/) {
 			mis->_miyoff -= MET_SHIFT_UP / MET_STEPS_UP;
 			mis->_mixoff += MET_SHIFT_X / MET_STEPS_UP;
 			if (mis->_miyoff < - MET_SHIFT_UP) {
-				mis->_miAnimType = MFILE_FIREBA;
+				mis->_miFileNum = MFILE_FIREBA;
 				SetMissDir(mi, 0);
 				mis->_mixoff = MET_SHIFT_X;
 				static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border."); // 96: height of the sprite, 46: transparent lines on the first frame
@@ -4064,9 +4063,9 @@ void MI_Stone(int mi)
 	if (!dead) {
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	} else {
-		if (mis->_miAnimType != MFILE_SHATTER1) {
+		if (mis->_miFileNum != MFILE_SHATTER1) {
 			mis->_miDrawFlag = TRUE;
-			mis->_miAnimType = MFILE_SHATTER1;
+			mis->_miFileNum = MFILE_SHATTER1;
 			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] * misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] - 1 + 10;
 			mis->_mix = mon->_mx;
 			mis->_miy = mon->_my;
@@ -4355,7 +4354,7 @@ void MI_Cbolt(int mi)
 	int bpath[16] = { -1, 0, 1, -1, 0, 1, -1, -1, 0, 0, 1, 1, 0, 1, -1, 0 };
 
 	mis = &missile[mi];
-	if (mis->_miAnimType != MFILE_LGHNING) {
+	if (mis->_miFileNum != MFILE_LGHNING) {
 		if (mis->_miVar3 == 0) {
 			md = (mis->_miVar2 + bpath[mis->_miVar4]) & 7;
 			mis->_miVar4 = (mis->_miVar4 + 1) & 0xF;
@@ -4371,7 +4370,7 @@ void MI_Cbolt(int mi)
 		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY)) {
 			static_assert(MAX_LIGHT_RAD >= 8, "MI_Cbolt needs at least light-radius of 8.");
 			mis->_miVar1 = 8;
-			mis->_miAnimType = MFILE_LGHNING;
+			mis->_miFileNum = MFILE_LGHNING;
 			SetMissDir(mi, 0);
 			mis->_miRange = misfiledata[MFILE_LGHNING].mfAnimLen[0] * misfiledata[MFILE_LGHNING].mfAnimFrameLen[0];
 		}

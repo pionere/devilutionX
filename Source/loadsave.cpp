@@ -251,18 +251,27 @@ static void LoadItemData(ItemStruct* is)
 	LoadInt(&is->_itype);
 	LoadInt(&is->_iMiscId);
 	LoadInt(&is->_iSpell);
+
 	LoadByte(&is->_iClass);
 	LoadByte(&is->_iLoc);
 	LoadByte(&is->_iDamType);
 	LoadByte(&is->_iMinDam);
+
 	LoadByte(&is->_iMaxDam);
 	LoadByte(&is->_iBaseCrit);
 	LoadByte(&is->_iMinStr);
 	LoadByte(&is->_iMinMag);
+
 	LoadByte(&is->_iMinDex);
 	LoadByte(&is->_iUsable);
+	LoadByte(&is->_iPrePower);
+	LoadByte(&is->_iSufPower);
+
+	LoadByte(&is->_iMagical);
+	LoadByte(&is->_iSelFlag);
 	LoadByte(&is->_iFloorFlag);
 	LoadByte(&is->_iAnimFlag);
+
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
 	LoadInt(&is->_iAnimCnt);
@@ -273,10 +282,6 @@ static void LoadItemData(ItemStruct* is)
 	LoadInt(&is->_iPostDraw);
 	LoadInt(&is->_iIdentified);
 	CopyBytes(tbuff, sizeof(is->_iName), is->_iName);
-	LoadByte(&is->_iPrePower);
-	LoadByte(&is->_iSufPower);
-	LoadByte(&is->_iSelFlag);
-	LoadByte(&is->_iMagical);
 	LoadInt(&is->_ivalue);
 	LoadInt(&is->_iIvalue);
 	LoadInt(&is->_iAC);
@@ -418,32 +423,32 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pVar7);
 	LoadInt(&plr._pVar8);
 
-	//tbuff += 4; // Skip _pGFXLoad
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
-	LoadInt(&plr._pNFrames);
-	LoadInt(&plr._pNWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
-	LoadInt(&plr._pWFrames);
-	LoadInt(&plr._pWWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
-	LoadInt(&plr._pAFrames);
-	LoadInt(&plr._pAWidth);
-	LoadInt(&plr._pAFNum);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
-	LoadInt(&plr._pSFrames);
-	LoadInt(&plr._pSWidth);
-	LoadInt(&plr._pSFNum);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
-	LoadInt(&plr._pHFrames);
-	LoadInt(&plr._pHWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
-	LoadInt(&plr._pDFrames);
-	LoadInt(&plr._pDWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
-	LoadInt(&plr._pBFrames);
-	LoadInt(&plr._pBWidth);
+	// tbuff += 4; // Skip _pGFXLoad
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
+	// tbuff += 4; // Skip _pNFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pNWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
+	// tbuff += 4; // Skip _pWFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pWWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
+	// tbuff += 4; // Skip _pAFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pAWidth to SetPlrAnims
+	// tbuff += 4; // Skip _pAFNum to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
+	// tbuff += 4; // Skip _pSFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pSWidth to SetPlrAnims
+	// tbuff += 4; // Skip _pSFNum to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
+	// tbuff += 4; // Skip _pHFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pHWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
+	// tbuff += 4; // Skip plr._pDFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pDWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
+	// tbuff += 4; // Skip _pBFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pBWidth to SetPlrAnims
 
 	LoadItemData(&plr._pHoldItem);
 	LoadItems(plr._pInvBody, NUM_INVLOC);
@@ -519,6 +524,7 @@ static void LoadPlayer(int pnum)
 	// Omit pointer alignment
 
 	InitPlayerGFX(pnum);
+	SetPlrAnims(pnum);
 	SyncPlrAnim(pnum);
 }
 
@@ -803,10 +809,10 @@ static void LoadMissile(int mi)
 	MissileStruct* mis = &missile[mi];
 
 	LoadInt(&mis->_miType);
-	LoadByte(&mis->_miSubType);
 	LoadByte(&mis->_miFlags);
 	LoadByte(&mis->_miResist);
-	LoadByte(&mis->_miAnimType);
+	LoadByte(&mis->_miFileNum);
+	LoadByte(&mis->_miDrawFlag);
 	tbuff += 4; // Skip _miAnimFlag
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
@@ -817,7 +823,6 @@ static void LoadMissile(int mi)
 	LoadInt(&mis->_miAnimAdd);
 	LoadInt(&mis->_miAnimFrame);
 	LoadInt(&mis->_miDelFlag);
-	LoadInt(&mis->_miDrawFlag);
 	LoadInt(&mis->_miLightFlag);
 	LoadInt(&mis->_miPreFlag);
 	LoadInt(&mis->_miUniqTrans);
@@ -911,6 +916,7 @@ static void LoadQuest(int i)
 	LoadByte(&pQuest->_qvar1);
 	LoadByte(&pQuest->_qvar2);
 	LoadByte(&pQuest->_qlog);
+
 	LoadInt(&pQuest->_qtx);
 	LoadInt(&pQuest->_qty);
 	LoadInt(&pQuest->_qmsg);
@@ -922,12 +928,15 @@ static void LoadLight(LightListStruct* pLight)
 	LoadInt(&pLight->_ly);
 	LoadInt(&pLight->_lunx);
 	LoadInt(&pLight->_luny);
+
 	LoadByte(&pLight->_lradius);
 	LoadByte(&pLight->_lunr);
-	pLight->_ldel = LoadBool();
-	pLight->_lunflag = LoadBool();
-	pLight->_lmine = LoadBool();
+	LoadByte(&pLight->_ldel);
+	LoadByte(&pLight->_lunflag);
+
+	LoadByte(&pLight->_lmine);
 	tbuff += 3; // Alignment
+
 	LoadInt(&pLight->_xoff);
 	LoadInt(&pLight->_yoff);
 }
@@ -936,8 +945,9 @@ static void LoadPortal(int i)
 {
 	PortalStruct* pPortal = &portals[i];
 
-	pPortal->_wopen = LoadBool();
+	LoadByte(&pPortal->_wopen);
 	tbuff += 3; // Alignment
+
 	LoadInt(&pPortal->x);
 	LoadInt(&pPortal->y);
 	LoadInt(&pPortal->level);
@@ -1145,18 +1155,27 @@ static void SaveItemData(ItemStruct* is)
 	SaveInt(&is->_itype);
 	SaveInt(&is->_iMiscId);
 	SaveInt(&is->_iSpell);
+
 	SaveByte(&is->_iClass);
 	SaveByte(&is->_iLoc);
 	SaveByte(&is->_iDamType);
 	SaveByte(&is->_iMinDam);
+
 	SaveByte(&is->_iMaxDam);
 	SaveByte(&is->_iBaseCrit);
 	SaveByte(&is->_iMinStr);
 	SaveByte(&is->_iMinMag);
+
 	SaveByte(&is->_iMinDex);
 	SaveByte(&is->_iUsable);
+	SaveByte(&is->_iPrePower);
+	SaveByte(&is->_iSufPower);
+
+	SaveByte(&is->_iMagical);
+	SaveByte(&is->_iSelFlag);
 	SaveByte(&is->_iFloorFlag);
 	SaveByte(&is->_iAnimFlag);
+
 	tbuff += 4; // Skip pointer _iAnimData
 	tbuff += 4; // Skip _iAnimFrameLen
 	SaveInt(&is->_iAnimCnt);
@@ -1167,10 +1186,6 @@ static void SaveItemData(ItemStruct* is)
 	SaveInt(&is->_iPostDraw);
 	SaveInt(&is->_iIdentified);
 	CopyBytes(is->_iName, sizeof(is->_iName), tbuff);
-	SaveByte(&is->_iPrePower);
-	SaveByte(&is->_iSufPower);
-	SaveByte(&is->_iSelFlag);
-	SaveByte(&is->_iMagical);
 	SaveInt(&is->_ivalue);
 	SaveInt(&is->_iIvalue);
 	SaveInt(&is->_iAC);
@@ -1313,32 +1328,32 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pVar7);
 	SaveInt(&plr._pVar8);
 
-	//tbuff += 4; // Skip _pGFXLoad
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
-	SaveInt(&plr._pNFrames);
-	SaveInt(&plr._pNWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
-	SaveInt(&plr._pWFrames);
-	SaveInt(&plr._pWWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
-	SaveInt(&plr._pAFrames);
-	SaveInt(&plr._pAWidth);
-	SaveInt(&plr._pAFNum);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
-	SaveInt(&plr._pSFrames);
-	SaveInt(&plr._pSWidth);
-	SaveInt(&plr._pSFNum);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
-	SaveInt(&plr._pHFrames);
-	SaveInt(&plr._pHWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
-	SaveInt(&plr._pDFrames);
-	SaveInt(&plr._pDWidth);
-	//tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
-	SaveInt(&plr._pBFrames);
-	SaveInt(&plr._pBWidth);
+	// tbuff += 4; // Skip _pGFXLoad
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pNAnim
+	// tbuff += 4; // Skip _pNFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pNWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pWAnim
+	// tbuff += 4; // Skip _pWFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pWWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pAAnim
+	// tbuff += 4; // Skip _pAFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pAWidth to SetPlrAnims
+	// tbuff += 4; // Skip _pAFNum to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pLAnim
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pFAnim
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pTAnim
+	// tbuff += 4; // Skip _pSFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pSWidth to SetPlrAnims
+	// tbuff += 4; // Skip _pSFNum to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pHAnim
+	// tbuff += 4; // Skip _pHFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pHWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pDAnim
+	// tbuff += 4; // Skip _pDFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pDWidth to SetPlrAnims
+	// tbuff += 4 * NUM_DIRS; // Skip pointers _pBAnim
+	// tbuff += 4; // Skip _pBFrames to SetPlrAnims
+	// tbuff += 4; // Skip _pBWidth to SetPlrAnims
 
 	SaveItemData(&plr._pHoldItem);
 	SaveItems(plr._pInvBody, NUM_INVLOC);
@@ -1526,10 +1541,10 @@ static void SaveMissile(int mi)
 	MissileStruct* mis = &missile[mi];
 
 	SaveInt(&mis->_miType);
-	SaveByte(&mis->_miSubType);
 	SaveByte(&mis->_miFlags);
 	SaveByte(&mis->_miResist);
-	SaveByte(&mis->_miAnimType);
+	SaveByte(&mis->_miFileNum);
+	SaveByte(&mis->_miDrawFlag);
 	tbuff += 4; // Skip _miAnimFlag
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
@@ -1540,7 +1555,6 @@ static void SaveMissile(int mi)
 	SaveInt(&mis->_miAnimAdd);
 	SaveInt(&mis->_miAnimFrame);
 	SaveInt(&mis->_miDelFlag);
-	SaveInt(&mis->_miDrawFlag);
 	SaveInt(&mis->_miLightFlag);
 	SaveInt(&mis->_miPreFlag);
 	SaveInt(&mis->_miUniqTrans);
@@ -1623,6 +1637,7 @@ static void SaveQuest(int i)
 	SaveByte(&pQuest->_qvar1);
 	SaveByte(&pQuest->_qvar2);
 	SaveByte(&pQuest->_qlog);
+
 	SaveInt(&pQuest->_qtx);
 	SaveInt(&pQuest->_qty);
 	SaveInt(&pQuest->_qmsg);
@@ -1634,12 +1649,15 @@ static void SaveLight(LightListStruct* pLight)
 	SaveInt(&pLight->_ly);
 	SaveInt(&pLight->_lunx);
 	SaveInt(&pLight->_luny);
+
 	SaveByte(&pLight->_lradius);
 	SaveByte(&pLight->_lunr);
-	SaveBool(pLight->_ldel);
-	SaveBool(pLight->_lunflag);
-	SaveBool(pLight->_lmine);
+	SaveByte(&pLight->_ldel);
+	SaveByte(&pLight->_lunflag);
+
+	SaveByte(&pLight->_lmine);
 	tbuff += 3; // Alignment
+
 	SaveInt(&pLight->_xoff);
 	SaveInt(&pLight->_yoff);
 }
@@ -1648,8 +1666,9 @@ static void SavePortal(int i)
 {
 	PortalStruct* pPortal = &portals[i];
 
-	SaveBool(pPortal->_wopen);
+	SaveByte(&pPortal->_wopen);
 	tbuff += 3; // Alignment
+
 	SaveInt(&pPortal->x);
 	SaveInt(&pPortal->y);
 	SaveInt(&pPortal->level);
@@ -1712,7 +1731,7 @@ void SaveGame()
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 48 + NUM_WNDS + 13964 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
+	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 48 + NUM_WNDS + 13900 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
 	// initial
 	i = SAVE_INITIAL;
 	SaveInt(&i);
@@ -1766,11 +1785,11 @@ void SaveGame()
 		SavePortal(i);
 	// save level-data
 	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
-	 + MAXMISSILES * 172 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
+	 + MAXMISSILES * 168 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
 	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
-	 + MAXMISSILES * 172 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
+	 + MAXMISSILES * 168 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);
