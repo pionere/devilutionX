@@ -14,16 +14,10 @@ PlayerStruct players[MAX_PLRS];
 BYTE gbLvlLoad;
 /** The current player while processing the players. */
 BYTE gbGameLogicPnum;
-bool _gbPlrGfxSizeLoaded = false;
-int plr_lframe_size;
-int plr_wframe_size;
-int plr_aframe_size;
-int plr_fframe_size;
-int plr_qframe_size;
-int plr_hframe_size;
-int plr_bframe_size;
-int plr_sframe_size;
-int plr_dframe_size;
+/** Cache the maximum sizes of the player gfx files. */
+static unsigned _guPlrFrameSize[NUM_PFIDXs];
+/** Whether the _guPlrFrameSize array is initalized. */
+static bool _gbPlrGfxSizeLoaded = false;
 
 /** Maps from armor animation to letter used in graphic files. */
 const char ArmourChar[4] = {
@@ -392,42 +386,22 @@ void InitPlrGFXMem(int pnum)
 		_gbPlrGfxSizeLoaded = true;
 
 		// STAND -- ST: TOWN, AS: DUNGEON
-		plr_sframe_size = std::max(GetPlrGFXSize("ST"), GetPlrGFXSize("AS"));
+		_guPlrFrameSize[PFIDX_STAND] = std::max(GetPlrGFXSize("ST"), GetPlrGFXSize("AS"));
 		// WALK -- WL: TOWN, AW: DUNGEON
-		plr_wframe_size = std::max(GetPlrGFXSize("WL"), GetPlrGFXSize("AW"));
-		// ATTACK
-		plr_aframe_size = GetPlrGFXSize("AT");
-		// LIGHTNING
-		plr_lframe_size = GetPlrGFXSize("LM");
-		// FIRE
-		plr_fframe_size = GetPlrGFXSize("FM");
-		// MAGIC
-		plr_qframe_size = GetPlrGFXSize("QM");
-		// BLOCK
-		plr_bframe_size = GetPlrGFXSize("BL");
-		// HIT
-		plr_hframe_size = GetPlrGFXSize("HT");
-		// DEATH
-		plr_dframe_size = GetPlrGFXSize("DT");
+		_guPlrFrameSize[PFIDX_WALK] = std::max(GetPlrGFXSize("WL"), GetPlrGFXSize("AW"));
+		_guPlrFrameSize[PFIDX_ATTACK] = GetPlrGFXSize("AT");
+		_guPlrFrameSize[PFIDX_FIRE] = GetPlrGFXSize("FM");
+		_guPlrFrameSize[PFIDX_LIGHTNING] = GetPlrGFXSize("LM");
+		_guPlrFrameSize[PFIDX_MAGIC] = GetPlrGFXSize("QM");
+		_guPlrFrameSize[PFIDX_BLOCK] = GetPlrGFXSize("BL");
+		_guPlrFrameSize[PFIDX_GOTHIT] = GetPlrGFXSize("HT");
+		_guPlrFrameSize[PFIDX_DEATH] = GetPlrGFXSize("DT");
 	}
-	assert(plr._pAnimFileData[PFIDX_STAND] == NULL);
-	plr._pAnimFileData[PFIDX_STAND] = DiabloAllocPtr(plr_sframe_size);
-	assert(plr._pAnimFileData[PFIDX_WALK] == NULL);
-	plr._pAnimFileData[PFIDX_WALK] = DiabloAllocPtr(plr_wframe_size);
-	assert(plr._pAnimFileData[PFIDX_ATTACK] == NULL);
-	plr._pAnimFileData[PFIDX_ATTACK] = DiabloAllocPtr(plr_aframe_size);
-	assert(plr._pAnimFileData[PFIDX_FIRE] == NULL);
-	plr._pAnimFileData[PFIDX_FIRE] = DiabloAllocPtr(plr_fframe_size);
-	assert(plr._pAnimFileData[PFIDX_LIGHTNING] == NULL);
-	plr._pAnimFileData[PFIDX_LIGHTNING] = DiabloAllocPtr(plr_lframe_size);
-	assert(plr._pAnimFileData[PFIDX_MAGIC] == NULL);
-	plr._pAnimFileData[PFIDX_MAGIC] = DiabloAllocPtr(plr_qframe_size);
-	assert(plr._pAnimFileData[PFIDX_BLOCK] == NULL);
-	plr._pAnimFileData[PFIDX_BLOCK] = DiabloAllocPtr(plr_bframe_size);
-	assert(plr._pAnimFileData[PFIDX_GOTHIT] == NULL);
-	plr._pAnimFileData[PFIDX_GOTHIT] = DiabloAllocPtr(plr_hframe_size);
-	assert(plr._pAnimFileData[PFIDX_DEATH] == NULL);
-	plr._pAnimFileData[PFIDX_DEATH] = DiabloAllocPtr(plr_dframe_size);
+
+	for (int i = 0; i < NUM_PFIDXs; i++) {
+		assert(plr._pAnimFileData[i] == NULL);
+		plr._pAnimFileData[i] = DiabloAllocPtr(_guPlrFrameSize[i]);
+	}
 
 	plr._pGFXLoad = 0;
 }
