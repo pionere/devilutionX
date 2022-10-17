@@ -322,15 +322,7 @@ typedef struct PlayerStruct {
 	int _pVar7;
 	int _pVar8;
 	int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
-	PlrAnimStruct _pNAnim;  // Stand animations
-	PlrAnimStruct _pWAnim;  // Walk animations
-	PlrAnimStruct _pAAnim;  // Attack animations
-	PlrAnimStruct _pFAnim;  // Fire spell cast animations
-	PlrAnimStruct _pLAnim;  // Lightning spell cast animations
-	PlrAnimStruct _pTAnim;  // Generic spell cast animations
-	PlrAnimStruct _pBAnim;  // Block animations
-	PlrAnimStruct _pHAnim;  // Getting hit animations
-	PlrAnimStruct _pDAnim;  // Death animations
+	PlrAnimStruct _pAnims[NUM_PFIDXs];
 	unsigned _pAFNum;
 	unsigned _pSFNum;
 	ItemStruct _pHoldItem;
@@ -389,15 +381,7 @@ typedef struct PlayerStruct {
 	int _pIMMaxDam; // max magic damage (item's added magic damage)
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
-	BYTE* _pNData; // file-pointer of the standing animations
-	BYTE* _pWData; // file-pointer of the walking animations
-	BYTE* _pAData; // file-pointer of the attack animations
-	BYTE* _pFData; // file-pointer of the fire spell animations
-	BYTE* _pLData; // file-pointer of the lightning spell animations
-	BYTE* _pTData; // file-pointer of the generic spell animations
-	BYTE* _pBData; // file-pointer of the block animations
-	BYTE* _pHData; // file-pointer of the getting hit animations
-	BYTE* _pDData; // file-pointer of the death animations
+	BYTE* _pAnimFileData[NUM_PFIDXs]; // file-pointers of the animations
 	ALIGNMENT(187, 102)
 } PlayerStruct;
 

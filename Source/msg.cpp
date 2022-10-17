@@ -3815,22 +3815,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		//LogErrorF("PLRD", "Player skill-data III. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 131);
 		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
-	/*unsigned _pNFrames;
-	int _pNWidth;
-	unsigned _pWFrames;
-	int _pWWidth;
-	unsigned _pAFrames;
-	int _pAWidth;
-	unsigned _pAFNum;
-	unsigned _pSFrames;
-	int _pSWidth;
-	unsigned _pSFNum;
-	unsigned _pHFrames;
-	int _pHWidth;
-	unsigned _pDFrames;
-	int _pDWidth;
-	unsigned _pBFrames;
-	int _pBWidth;*/
+	/*PlrAnimStruct _pAnims[NUM_PFIDXs];*/
 	/*BOOLEAN _pInfraFlag;
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
