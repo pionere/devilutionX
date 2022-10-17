@@ -1297,7 +1297,7 @@ int CheckPlrCol(int pnum)
 	static_assert(PM_WALK + 1 == PM_WALK2, "CheckPlrCol expects ordered PM_WALKs.");
 	if (mode > PM_WALK2 || mode < PM_WALK)
 		return negate ? pnum : -1;
-	halfOver = plr._pAnimFrame > (plr._pWFrames >> 1);
+	halfOver = plr._pAnimFrame > (plr._pWAnim.paFrames >> 1);
 	if (mode == PM_WALK) {
 		if (negate)
 			halfOver = !halfOver;
@@ -1476,12 +1476,12 @@ static void SyncChargeAnim(int mi)
 	mis = &missile[mi];
 	pnum = mis->_miSource;
 
-	mis->_miAnimData = plr._pWAnim[mis->_miDir];
+	mis->_miAnimData = plr._pWAnim.paAnimData[mis->_miDir];
 	mis->_miAnimFrameLen = PlrAnimFrameLens[PA_WALK];
 	assert(mis->_miAnimFlag == TRUE);
-	mis->_miAnimLen = plr._pWFrames;
-	mis->_miAnimWidth = plr._pWWidth;
-	mis->_miAnimXOffset = (plr._pWWidth - TILE_WIDTH) >> 1;
+	mis->_miAnimLen = plr._pWAnim.paFrames;
+	mis->_miAnimWidth = plr._pWAnim.paAnimWidth;
+	mis->_miAnimXOffset = (plr._pWAnim.paAnimWidth - TILE_WIDTH) >> 1;
 	mis->_miLid = plr._plid;
 }
 
@@ -3165,7 +3165,7 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
 			continue; // skip player if not on the current level
-		if (plr._pAnimFrame > (plr._pWFrames >> 1)) {
+		if (plr._pAnimFrame > (plr._pWAnim.paFrames >> 1)) {
 			px = plr._pfutx;
 			py = plr._pfuty;
 		} else {
