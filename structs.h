@@ -559,11 +559,9 @@ typedef struct SFXStruct {
 //////////////////////////////////////////////////
 
 typedef struct AnimStruct {
-	BYTE* aCelData;
 	BYTE* aData[NUM_DIRS];
 	int aFrames;
 	int aFrameLen;
-	ALIGNMENT32(1)
 } AnimStruct;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align AnimStruct closer to power of 2 for better performance.");
@@ -629,6 +627,7 @@ typedef struct MapMonData {
 	int cmType;
 	BOOL cmPlaceScatter;
 	SoundSample cmSnds[NUM_MON_SFX][2];
+	BYTE* cmAnimData[NUM_MON_ANIM];
 	AnimStruct cmAnims[NUM_MON_ANIM];
 	const char* cmName;
 	uint16_t cmFileNum;
@@ -656,7 +655,7 @@ typedef struct MapMonData {
 	uint16_t cmAlign_0; // unused
 	uint16_t cmMinHP;
 	uint16_t cmMaxHP;
-	ALIGNMENT32(25)
+	ALIGNMENT32(31)
 } MapMonData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
