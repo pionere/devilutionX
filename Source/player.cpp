@@ -837,7 +837,8 @@ void InitLvlPlayer(int pnum, bool entering)
 		plr._pdir = DIR_S;
 		PlrStartStand(pnum);
 		// TODO: randomize AnimFrame/AnimCnt for live players?
-		// plr._pAnimFrame = RandRange(1, plr._pNAnim.paFrames - 1);
+		// assert(plr._pNAnim.paFrames == plr._pAnimLen);
+		// plr._pAnimFrame = RandRange(1, plr._pAnimLen - 1);
 		// plr._pAnimCnt = random_(2, 3);
 
 		ClrPlrPath(pnum);
@@ -1929,7 +1930,8 @@ static void PlrDoWalk(int pnum)
 	}
 
 	assert(PlrAnimFrameLens[PA_WALK] == 1);
-	if (plr._pAnimFrame < plr._pWAnim.paFrames) {
+	// assert(plr._pWAnim.paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen) {
 		PlrChangeOffset(pnum);
 		return;
 	}
@@ -2315,7 +2317,8 @@ static void PlrDoAttack(int pnum)
 		}
 	}
 	assert(PlrAnimFrameLens[PA_ATTACK] == 1);
-	if (plr._pAnimFrame < plr._pAAnim.paFrames)
+	// assert(plr._pAAnim.paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 
 	//PlrStartStand(pnum);
@@ -2389,7 +2392,8 @@ static void PlrDoRangeAttack(int pnum)
 		WeaponDur(pnum, 40);
 	}
 	assert(PlrAnimFrameLens[PA_ATTACK] == 1);
-	if (plr._pAnimFrame < plr._pAAnim.paFrames)
+	// assert(plr._pAAnim.paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 
 	//PlrStartStand(pnum);
@@ -2456,8 +2460,8 @@ static void PlrDoBlock(int pnum)
 	if (plr._pIFlags & ISPL_FASTBLOCK) {
 		PlrStepAnim(pnum);
 	}
-
-	if (plr._pAnimFrame > plr._pBAnim.paFrames || (plr._pAnimFrame == plr._pBAnim.paFrames && plr._pAnimCnt >= PlrAnimFrameLens[PA_BLOCK] - 1)) {
+	// assert(plr._pBAnim.paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame > plr._pAnimLen || (plr._pAnimFrame == plr._pAnimLen && plr._pAnimCnt >= PlrAnimFrameLens[PA_BLOCK] - 1)) {
 		if (plr.destAction == ACTION_BLOCK) {
 			// extend the blocking animation TODO: does not work with too fast animations (WARRIORs) in faster/fastest games
 			plr.destAction = ACTION_NONE;
@@ -2545,7 +2549,8 @@ static void PlrDoSpell(int pnum)
 			spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // SPELL_NUM, SPELL_LEVEL
 	}
 	assert(PlrAnimFrameLens[PA_SPELL] == 1);
-	if (plr._pAnimFrame < plr._pFAnim.paFrames)
+	// assert(plr._pFAnim.paFrames == plr._pAnimLen || plr._pLAnim.paFrames == plr._pAnimLen || plr._pTAnim.paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 
 	//PlrStartStand(pnum);
@@ -2614,7 +2619,8 @@ static void PlrDoGotHit(int pnum)
 	}
 
 	assert(PlrAnimFrameLens[PA_GOTHIT] == 1);
-	if (plr._pAnimFrame < plr._pHAnim.paFrames)
+	// assert(plr._pHAnim.paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 	//PlrStartStand(pnum);
 	StartStand(pnum);
