@@ -1449,17 +1449,18 @@ static void SyncRhinoAnim(int mi)
 	MonAnimStruct* anim;
 
 	mis = &missile[mi];
+	assert(mis->_miAnimFlag);
+
 	mon = &monsters[mis->_miSource];
 	anim = &mon->_mAnims[
 		(mon->_mFileNum == MOFILE_RHINO) ? MA_SPECIAL :
 		(mon->_mFileNum == MOFILE_SNAKE) ? MA_ATTACK : MA_WALK];
+
 	mis->_miAnimData = anim->aData[mis->_miDir];
 	mis->_miAnimFrameLen = anim->aFrameLen;
-	assert(mis->_miAnimFlag == TRUE);
 	mis->_miAnimLen = anim->aFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
-
 	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
 	mis->_miLid = mon->mlid;
 	if (mon->_uniqtype != 0) {
@@ -1472,16 +1473,19 @@ static void SyncChargeAnim(int mi)
 {
 	MissileStruct* mis;
 	int pnum;
+	PlrAnimStruct* anim;
 
 	mis = &missile[mi];
-	pnum = mis->_miSource;
+	assert(mis->_miAnimFlag);
 
-	mis->_miAnimData = plr._pAnims[PFIDX_WALK].paAnimData[mis->_miDir];
+	pnum = mis->_miSource;
+	anim = &plr._pAnims[PFIDX_WALK];
+
+	mis->_miAnimData = anim->paAnimData[mis->_miDir];
 	mis->_miAnimFrameLen = PlrAnimFrameLens[PA_WALK];
-	assert(mis->_miAnimFlag == TRUE);
-	mis->_miAnimLen = plr._pAnims[PFIDX_WALK].paFrames;
-	mis->_miAnimWidth = plr._pAnims[PFIDX_WALK].paAnimWidth;
-	mis->_miAnimXOffset = (plr._pAnims[PFIDX_WALK].paAnimWidth - TILE_WIDTH) >> 1;
+	mis->_miAnimLen = anim->paFrames;
+	mis->_miAnimWidth = anim->paAnimWidth;
+	mis->_miAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
 	mis->_miLid = plr._plid;
 }
 
