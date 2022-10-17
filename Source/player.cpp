@@ -422,15 +422,19 @@ void FreePlayerGFX(int pnum)
  * @brief Sets the new Player Animation with all relevant information for rendering
 
  * @param pnum Player Id
- * @param anim Pointer to PlrAnimStruct
- * @param dir the direction of the player
+ * @param animIdx type of the animation to select (player_graphic_idx)
+ * @param dir the direction of the player (direction)
  * @param frameLen the length of a single animation frame
 */
-static void NewPlrAnim(int pnum, PlrAnimStruct* anim, int dir, int frameLen)
+static void NewPlrAnim(int pnum, unsigned animIdx, int dir, int frameLen)
 {
+	PlrAnimStruct* anim;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("NewPlrAnim: illegal player %d", pnum);
 	}
+	anim = &plr._pAnims[animIdx];
+
 	plr._pdir = dir;
 	plr._pAnimData = anim->paAnimData[dir];
 	plr._pAnimLen = anim->paFrames;
@@ -1033,7 +1037,7 @@ static void StartPlrKill(int pnum, int dmgtype)
 			LoadPlrGFX(pnum, PFILE_DEATH);
 		}
 
-		NewPlrAnim(pnum, &plr._pAnims[PFIDX_DEATH], plr._pdir, PlrAnimFrameLens[PA_DEATH]);
+		NewPlrAnim(pnum, PFIDX_DEATH, plr._pdir, PlrAnimFrameLens[PA_DEATH]);
 
 		RemovePlrFromMap(pnum);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
@@ -1125,7 +1129,7 @@ static void StartStand(int pnum)
 		LoadPlrGFX(pnum, PFILE_STAND);
 	}
 
-	NewPlrAnim(pnum, &plr._pAnims[PFIDX_STAND], plr._pdir, PlrAnimFrameLens[PA_STAND]);
+	NewPlrAnim(pnum, PFIDX_STAND, plr._pdir, PlrAnimFrameLens[PA_STAND]);
 }
 
 void PlrStartStand(int pnum)
@@ -1353,7 +1357,7 @@ static bool StartWalk(int pnum)
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
 
-	NewPlrAnim(pnum, &plr._pAnims[PFIDX_WALK], dir, PlrAnimFrameLens[PA_WALK]);
+	NewPlrAnim(pnum, PFIDX_WALK, dir, PlrAnimFrameLens[PA_WALK]);
 
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
@@ -1453,7 +1457,7 @@ static bool StartAttack(int pnum)
 	if (!(plr._pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, &plr._pAnims[PFIDX_ATTACK], dir, PlrAnimFrameLens[PA_ATTACK]);
+	NewPlrAnim(pnum, PFIDX_ATTACK, dir, PlrAnimFrameLens[PA_ATTACK]);
 
 	AssertFixPlayerLocation(pnum);
 	return true;
@@ -1503,7 +1507,7 @@ static void StartRangeAttack(int pnum)
 	if (!(plr._pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, &plr._pAnims[PFIDX_ATTACK], dir, PlrAnimFrameLens[PA_ATTACK]);
+	NewPlrAnim(pnum, PFIDX_ATTACK, dir, PlrAnimFrameLens[PA_ATTACK]);
 
 	AssertFixPlayerLocation(pnum);
 }
@@ -1519,15 +1523,14 @@ static void StartBlock(int pnum, int dir)
 	if (!(plr._pGFXLoad & PFILE_BLOCK)) {
 		LoadPlrGFX(pnum, PFILE_BLOCK);
 	}
-	NewPlrAnim(pnum, &plr._pAnims[PFIDX_BLOCK], dir, PlrAnimFrameLens[PA_BLOCK]);
+	NewPlrAnim(pnum, PFIDX_BLOCK, dir, PlrAnimFrameLens[PA_BLOCK]);
 
 	AssertFixPlayerLocation(pnum);
 }
 
 static void StartSpell(int pnum)
 {
-	int i, dx, dy, gfx;
-	PlrAnimStruct* anim;
+	int i, dx, dy, gfx, animIdx;
 	const SpellData *sd;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -1571,13 +1574,13 @@ static void StartSpell(int pnum)
 	static_assert((int)PFIDX_LIGHTNING - (int)PFIDX_FIRE == (int)STYPE_LIGHTNING - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type I.");
 	static_assert((int)PFIDX_MAGIC - (int)PFIDX_FIRE == (int)STYPE_MAGIC - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type II.");
 	static_assert((int)PFILE_FIRE == 1 << (int)PFIDX_FIRE, "StartSpell calculates player_graphic.");
-	gfx = 1 << (PFIDX_FIRE + sd->sType - STYPE_FIRE);
-	anim = &plr._pAnims[PFIDX_FIRE + sd->sType - STYPE_FIRE];
+	animIdx = PFIDX_FIRE + sd->sType - STYPE_FIRE;
+	gfx = 1 << animIdx;
 
 	if (!(plr._pGFXLoad & gfx)) {
 		LoadPlrGFX(pnum, gfx);
 	}
-	NewPlrAnim(pnum, anim, plr._pdir, PlrAnimFrameLens[PA_SPELL]);
+	NewPlrAnim(pnum, animIdx, plr._pdir, PlrAnimFrameLens[PA_SPELL]);
 
 	PlaySfxLoc(sd->sSFX, plr._px, plr._py);
 
@@ -1666,7 +1669,7 @@ void StartPlrHit(int pnum, int dam, bool forcehit, int dir)
 	if (!(plr._pGFXLoad & PFILE_GOTHIT)) {
 		LoadPlrGFX(pnum, PFILE_GOTHIT);
 	}
-	NewPlrAnim(pnum, &plr._pAnims[PFIDX_GOTHIT], dir, PlrAnimFrameLens[PA_GOTHIT]);
+	NewPlrAnim(pnum, PFIDX_GOTHIT, dir, PlrAnimFrameLens[PA_GOTHIT]);
 
 	plr._pmode = PM_GOTHIT;
 	RemovePlrFromMap(pnum);
