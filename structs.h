@@ -558,15 +558,15 @@ typedef struct SFXStruct {
 // monster
 //////////////////////////////////////////////////
 
-typedef struct AnimStruct {
+typedef struct MonAnimStruct {
 	BYTE* aData[NUM_DIRS];
 	int aFrames;
 	int aFrameLen;
-} AnimStruct;
+} MonAnimStruct;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align AnimStruct closer to power of 2 for better performance.");
+static_assert((sizeof(MonAnimStruct) & (sizeof(MonAnimStruct) - 1)) == 32, "Align MonAnimStruct closer to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 64, "Align AnimStruct closer to power of 2 for better performance.");
+static_assert((sizeof(MonAnimStruct) & (sizeof(MonAnimStruct) - 1)) == 64, "Align MonAnimStruct closer to power of 2 for better performance.");
 #endif
 
 typedef struct MonsterAI {
@@ -628,7 +628,7 @@ typedef struct MapMonData {
 	BOOL cmPlaceScatter;
 	SoundSample cmSnds[NUM_MON_SFX][2];
 	BYTE* cmAnimData[NUM_MON_ANIM];
-	AnimStruct cmAnims[NUM_MON_ANIM];
+	MonAnimStruct cmAnims[NUM_MON_ANIM];
 	const char* cmName;
 	uint16_t cmFileNum;
 	BYTE cmLevel;
@@ -739,7 +739,7 @@ typedef struct MonsterStruct {
 	BYTE _mAFNum2;
 	uint16_t _mAlign_0; // unused
 	int _mType; // _monster_id
-	AnimStruct* _mAnims;
+	MonAnimStruct* _mAnims;
 	ALIGNMENT(12, 7)
 } MonsterStruct;
 
