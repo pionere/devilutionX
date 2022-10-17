@@ -398,7 +398,7 @@ typedef struct PlayerStruct {
 	BYTE* _pHData; // file-pointer of the getting hit animations
 	BYTE* _pDData; // file-pointer of the death animations
 	BYTE* _pBData; // file-pointer of the block animations
-	ALIGNMENT(187, 100)
+	ALIGNMENT(187, 102)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
