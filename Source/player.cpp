@@ -518,12 +518,12 @@ void SetPlrAnims(int pnum)
 		dev_fatal("SetPlrAnims: illegal player %d", pnum);
 	}
 	plr._pNWidth = 96 * ASSET_MPL;
-	plr._pWWidth = 96 * ASSET_MPL;
 	plr._pAWidth = 128 * ASSET_MPL;
-	plr._pHWidth = 96 * ASSET_MPL;
-	plr._pSWidth = 96 * ASSET_MPL;
-	plr._pDWidth = 128 * ASSET_MPL;
+	plr._pWWidth = 96 * ASSET_MPL;
 	plr._pBWidth = 96 * ASSET_MPL;
+	plr._pDWidth = 128 * ASSET_MPL;
+	plr._pSWidth = 96 * ASSET_MPL;
+	plr._pHWidth = 96 * ASSET_MPL;
 
 	pc = plr._pClass;
 	plr._pAFNum = PlrGFXAnimActFrames[pc][0];
@@ -581,12 +581,12 @@ void SetPlrAnims(int pnum)
 #ifdef HELLFIRE
 	case PC_MONK:
 		plr._pNWidth = 112 * ASSET_MPL;
-		plr._pWWidth = 112 * ASSET_MPL;
 		plr._pAWidth = 130 * ASSET_MPL;
-		plr._pHWidth = 98 * ASSET_MPL;
-		plr._pSWidth = 114 * ASSET_MPL;
-		plr._pDWidth = 160 * ASSET_MPL;
+		plr._pWWidth = 112 * ASSET_MPL;
 		plr._pBWidth = 98 * ASSET_MPL;
+		plr._pDWidth = 160 * ASSET_MPL;
+		plr._pSWidth = 114 * ASSET_MPL;
+		plr._pHWidth = 98 * ASSET_MPL;
 
 		switch (gn) {
 		case ANIM_ID_UNARMED:
