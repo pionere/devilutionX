@@ -417,18 +417,18 @@ void InitPlrGFXMem(int pnum)
 		plr_wframe_size = std::max(GetPlrGFXSize("WL"), GetPlrGFXSize("AW"));
 		// ATTACK
 		plr_aframe_size = GetPlrGFXSize("AT");
-		// HIT
-		plr_hframe_size = GetPlrGFXSize("HT");
 		// LIGHTNING
 		plr_lframe_size = GetPlrGFXSize("LM");
 		// FIRE
 		plr_fframe_size = GetPlrGFXSize("FM");
 		// MAGIC
 		plr_qframe_size = GetPlrGFXSize("QM");
-		// DEATH
-		plr_dframe_size = GetPlrGFXSize("DT");
 		// BLOCK
 		plr_bframe_size = GetPlrGFXSize("BL");
+		// HIT
+		plr_hframe_size = GetPlrGFXSize("HT");
+		// DEATH
+		plr_dframe_size = GetPlrGFXSize("DT");
 	}
 	assert(plr._pNData == NULL);
 	plr._pNData = DiabloAllocPtr(plr_sframe_size);
@@ -436,18 +436,18 @@ void InitPlrGFXMem(int pnum)
 	plr._pWData = DiabloAllocPtr(plr_wframe_size);
 	assert(plr._pAData == NULL);
 	plr._pAData = DiabloAllocPtr(plr_aframe_size);
-	assert(plr._pHData == NULL);
-	plr._pHData = DiabloAllocPtr(plr_hframe_size);
-	assert(plr._pLData == NULL);
-	plr._pLData = DiabloAllocPtr(plr_lframe_size);
 	assert(plr._pFData == NULL);
 	plr._pFData = DiabloAllocPtr(plr_fframe_size);
+	assert(plr._pLData == NULL);
+	plr._pLData = DiabloAllocPtr(plr_lframe_size);
 	assert(plr._pTData == NULL);
 	plr._pTData = DiabloAllocPtr(plr_qframe_size);
-	assert(plr._pDData == NULL);
-	plr._pDData = DiabloAllocPtr(plr_dframe_size);
 	assert(plr._pBData == NULL);
 	plr._pBData = DiabloAllocPtr(plr_bframe_size);
+	assert(plr._pHData == NULL);
+	plr._pHData = DiabloAllocPtr(plr_hframe_size);
+	assert(plr._pDData == NULL);
+	plr._pDData = DiabloAllocPtr(plr_dframe_size);
 
 	plr._pGFXLoad = 0;
 }
@@ -461,12 +461,12 @@ void FreePlayerGFX(int pnum)
 	MemFreeDbg(plr._pNData);
 	MemFreeDbg(plr._pWData);
 	MemFreeDbg(plr._pAData);
-	MemFreeDbg(plr._pHData);
-	MemFreeDbg(plr._pLData);
 	MemFreeDbg(plr._pFData);
+	MemFreeDbg(plr._pLData);
 	MemFreeDbg(plr._pTData);
-	MemFreeDbg(plr._pDData);
 	MemFreeDbg(plr._pBData);
+	MemFreeDbg(plr._pHData);
+	MemFreeDbg(plr._pDData);
 	plr._pGFXLoad = 0;
 }
 
