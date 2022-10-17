@@ -1482,7 +1482,7 @@ static void SyncChargeAnim(int mi)
 	anim = &plr._pAnims[PFIDX_WALK];
 
 	mis->_miAnimData = anim->paAnimData[mis->_miDir];
-	mis->_miAnimFrameLen = PlrAnimFrameLens[PA_WALK];
+	mis->_miAnimFrameLen = PlrAnimFrameLens[PFIDX_WALK];
 	mis->_miAnimLen = anim->paFrames;
 	mis->_miAnimWidth = anim->paAnimWidth;
 	mis->_miAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
