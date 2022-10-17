@@ -78,13 +78,13 @@ const int plryoff2[NUM_DIRS + 1] = { 0, 1, 0, 1, -1, -1, 0, -1, 1 };
  */
 const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
 	// clang-format off
-	{ 10, 16, 8, 2, 20, 20, 6 },
-	{  8, 18, 8, 4, 20, 16, 7 },
-	{  8, 16, 8, 6, 20, 12, 8 },
+	{ 10, 8, 16, 20, 2, 6, 20 },
+	{  8, 8, 18, 16, 4, 7, 20 },
+	{  8, 8, 16, 12, 6, 8, 20 },
 #ifdef HELLFIRE
-	{  8, 16, 8, 3, 20, 18, 6 },
-	{  8, 18, 8, 4, 20, 16, 7 },
-	{ 10, 16, 8, 2, 20, 20, 6 },
+	{  8, 8, 16, 18, 3, 6, 20 },
+	{  8, 8, 18, 16, 4, 7, 20 },
+	{ 10, 8, 16, 20, 2, 6, 20 },
 #endif
 	// clang-format on
 };
@@ -102,7 +102,7 @@ const BYTE PlrGFXAnimActFrames[NUM_CLASSES][2] = {
 	// clang-format on
 };
 /** Specifies the length of a frame for each animation. */
-const BYTE PlrAnimFrameLens[NUM_PLR_ANIMS] = { 4, 1, 1, 3, 2, 1, 1 };
+const BYTE PlrAnimFrameLens[NUM_PLR_ANIMS] = { 4, 1, 1, 1, 3, 1, 2 };
 
 /** Maps from player_class to starting stat in strength. */
 const int StrengthTbl[NUM_CLASSES] = {
@@ -300,36 +300,36 @@ void LoadPlrGFX(int pnum, unsigned gfxflag)
 			pData = plr._pAData;
 			pAnim = &plr._pAAnim.paAnimData;
 			break;
-		case PFIDX_HIT:
-			szCel = "HT";
-			pData = plr._pHData;
-			pAnim = &plr._pHAnim.paAnimData;
+		case PFIDX_FIRE:
+			szCel = "FM";
+			pData = plr._pFData;
+			pAnim = &plr._pFAnim.paAnimData;
 			break;
 		case PFIDX_LIGHTNING:
 			szCel = "LM";
 			pData = plr._pLData;
 			pAnim = &plr._pLAnim.paAnimData;
 			break;
-		case PFIDX_FIRE:
-			szCel = "FM";
-			pData = plr._pFData;
-			pAnim = &plr._pFAnim.paAnimData;
-			break;
 		case PFIDX_MAGIC:
 			szCel = "QM";
 			pData = plr._pTData;
 			pAnim = &plr._pTAnim.paAnimData;
+			break;
+		case PFIDX_BLOCK:
+			szCel = "BL";
+			pData = plr._pBData;
+			pAnim = &plr._pBAnim.paAnimData;
+			break;
+		case PFIDX_HIT:
+			szCel = "HT";
+			pData = plr._pHData;
+			pAnim = &plr._pHAnim.paAnimData;
 			break;
 		case PFIDX_DEATH:
 			assert((plr._pgfxnum & 0xF) == ANIM_ID_UNARMED);
 			szCel = "DT";
 			pData = plr._pDData;
 			pAnim = &plr._pDAnim.paAnimData;
-			break;
-		case PFIDX_BLOCK:
-			szCel = "BL";
-			pData = plr._pBData;
-			pAnim = &plr._pBAnim.paAnimData;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -516,28 +516,28 @@ void SetPlrAnims(int pnum)
 		dev_fatal("SetPlrAnims: illegal player %d", pnum);
 	}
 	plr._pNAnim.paAnimWidth = 96 * ASSET_MPL;
-	plr._pAAnim.paAnimWidth = 128 * ASSET_MPL;
 	plr._pWAnim.paAnimWidth = 96 * ASSET_MPL;
-	plr._pBAnim.paAnimWidth = 96 * ASSET_MPL;
-	plr._pDAnim.paAnimWidth = 128 * ASSET_MPL;
-	plr._pLAnim.paAnimWidth = 96 * ASSET_MPL;
+	plr._pAAnim.paAnimWidth = 128 * ASSET_MPL;
 	plr._pFAnim.paAnimWidth = 96 * ASSET_MPL;
+	plr._pLAnim.paAnimWidth = 96 * ASSET_MPL;
 	plr._pTAnim.paAnimWidth = 96 * ASSET_MPL;
+	plr._pBAnim.paAnimWidth = 96 * ASSET_MPL;
 	plr._pHAnim.paAnimWidth = 96 * ASSET_MPL;
+	plr._pDAnim.paAnimWidth = 128 * ASSET_MPL;
 
 	pc = plr._pClass;
 	plr._pAFNum = PlrGFXAnimActFrames[pc][0];
 	plr._pSFNum = PlrGFXAnimActFrames[pc][1];
 
 	plr._pNAnim.paFrames = PlrGFXAnimLens[pc][PA_STAND];
-	plr._pAAnim.paFrames = PlrGFXAnimLens[pc][PA_ATTACK];
 	plr._pWAnim.paFrames = PlrGFXAnimLens[pc][PA_WALK];
-	plr._pBAnim.paFrames = PlrGFXAnimLens[pc][PA_BLOCK];
-	plr._pDAnim.paFrames = PlrGFXAnimLens[pc][PA_DEATH];
-	plr._pLAnim.paFrames = PlrGFXAnimLens[pc][PA_SPELL];
+	plr._pAAnim.paFrames = PlrGFXAnimLens[pc][PA_ATTACK];
 	plr._pFAnim.paFrames = PlrGFXAnimLens[pc][PA_SPELL];
+	plr._pLAnim.paFrames = PlrGFXAnimLens[pc][PA_SPELL];
 	plr._pTAnim.paFrames = PlrGFXAnimLens[pc][PA_SPELL];
+	plr._pBAnim.paFrames = PlrGFXAnimLens[pc][PA_BLOCK];
 	plr._pHAnim.paFrames = PlrGFXAnimLens[pc][PA_GOTHIT];
+	plr._pDAnim.paFrames = PlrGFXAnimLens[pc][PA_DEATH];
 
 	gn = plr._pgfxnum & 0xF;
 	switch (pc) {
@@ -567,8 +567,8 @@ void SetPlrAnims(int pnum)
 		}
 		break;
 	case PC_SORCERER:
-		plr._pLAnim.paAnimWidth = 128 * ASSET_MPL;
 		plr._pFAnim.paAnimWidth = 128 * ASSET_MPL;
+		plr._pLAnim.paAnimWidth = 128 * ASSET_MPL;
 		plr._pTAnim.paAnimWidth = 128 * ASSET_MPL;
 		if (gn == ANIM_ID_UNARMED) {
 			plr._pAAnim.paFrames = 20;
@@ -585,14 +585,14 @@ void SetPlrAnims(int pnum)
 #ifdef HELLFIRE
 	case PC_MONK:
 		plr._pNAnim.paAnimWidth = 112 * ASSET_MPL;
-		plr._pAAnim.paAnimWidth = 130 * ASSET_MPL;
 		plr._pWAnim.paAnimWidth = 112 * ASSET_MPL;
-		plr._pBAnim.paAnimWidth = 98 * ASSET_MPL;
-		plr._pDAnim.paAnimWidth = 160 * ASSET_MPL;
-		plr._pLAnim.paAnimWidth = 114 * ASSET_MPL;
+		plr._pAAnim.paAnimWidth = 130 * ASSET_MPL;
 		plr._pFAnim.paAnimWidth = 114 * ASSET_MPL;
+		plr._pLAnim.paAnimWidth = 114 * ASSET_MPL;
 		plr._pTAnim.paAnimWidth = 114 * ASSET_MPL;
+		plr._pBAnim.paAnimWidth = 98 * ASSET_MPL;
 		plr._pHAnim.paAnimWidth = 98 * ASSET_MPL;
+		plr._pDAnim.paAnimWidth = 160 * ASSET_MPL;
 
 		switch (gn) {
 		case ANIM_ID_UNARMED:
