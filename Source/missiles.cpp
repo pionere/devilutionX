@@ -1446,7 +1446,7 @@ static void SyncRhinoAnim(int mi)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	AnimStruct* anim;
+	MonAnimStruct* anim;
 
 	mis = &missile[mi];
 	mon = &monsters[mis->_miSource];
@@ -2507,7 +2507,7 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 /*int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	AnimStruct* anim;
+	MonAnimStruct* anim;
 	MonsterStruct* mon;
 
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));

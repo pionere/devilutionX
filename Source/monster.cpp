@@ -148,11 +148,11 @@ void (* const AiProc[])(int i) = {
 	// clang-format on
 };
 
-static inline void InitMonsterTRN(AnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
+static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
 {
 	BYTE *tf, *cf;
 	int i, j;
-	const AnimStruct* as;
+	const MonAnimStruct* as;
 
 	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
@@ -201,8 +201,6 @@ static void InitMonsterGFX(int midx)
 			snprintf(strBuff, sizeof(strBuff), mfdata->moGfxFile, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff);
-			//assert(monAnims[anim].aCelData == NULL);
-			//monAnims[anim].aCelData = celBuf;
 			assert(cmon->cmAnimData[anim] == NULL);
 			cmon->cmAnimData[anim] = celBuf;
 
@@ -1238,7 +1236,7 @@ void MonChangeMap()
 static void NewMonsterAnim(int mnum, int anim, int md)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	AnimStruct* as = &mon->_mAnims[anim];
+	MonAnimStruct* as = &mon->_mAnims[anim];
 
 	mon->_mdir = md;
 	mon->_mAnimData = as->aData[md];
