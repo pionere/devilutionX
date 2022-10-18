@@ -522,16 +522,16 @@ static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 		}
 	}
 
-	if (cmd->wOffset != gsDeltaData.ddSendRecvOffset) {
+	if (SwapLE16(cmd->wOffset) != gsDeltaData.ddSendRecvOffset) {
 		// lost or duplicated package -> drop the connection and quit
 		gbGameDeltaChunks = DELTA_ERROR_FAIL_2;
 		goto done;
 	}
-	net_assert((gsDeltaData.ddSendRecvOffset + cmd->wBytes) <= sizeof(gsDeltaData.ddSendRecvBuf));
-	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
-	gsDeltaData.ddSendRecvOffset += cmd->wBytes;
+	net_assert((gsDeltaData.ddSendRecvOffset + SwapLE16(cmd->wBytes)) <= sizeof(gsDeltaData.ddSendRecvBuf));
+	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf) + SwapLE16(cmd->wOffset), &cmd[1], SwapLE16(cmd->wBytes));
+	gsDeltaData.ddSendRecvOffset += SwapLE16(cmd->wBytes);
 done:
-	return cmd->wBytes + sizeof(*cmd);
+	return SwapLE16(cmd->wBytes) + sizeof(*cmd);
 }
 
 void delta_init()
@@ -1861,16 +1861,16 @@ static unsigned On_LVL_DELTA(TCmd* pCmd, int pnum)
 		}
 	}
 
-	if (cmd->wOffset != gsDeltaData.ddSendRecvOffset) {
+	if (SwapLE16(cmd->wOffset) != gsDeltaData.ddSendRecvOffset) {
 		// lost or duplicated package -> drop the connection and quit
 		//gbGameDeltaChunks = DELTA_ERROR_FAIL_2;
 		goto done;
 	}
-	net_assert((gsDeltaData.ddSendRecvOffset + cmd->wBytes) <= sizeof(gsDeltaData.ddSendRecvBuf));
-	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
-	gsDeltaData.ddSendRecvOffset += cmd->wBytes;
+	net_assert((gsDeltaData.ddSendRecvOffset + SwapLE16(cmd->wBytes)) <= sizeof(gsDeltaData.ddSendRecvBuf));
+	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf) + SwapLE16(cmd->wOffset), &cmd[1], SwapLE16(cmd->wBytes));
+	gsDeltaData.ddSendRecvOffset += SwapLE16(cmd->wBytes);
 done:
-	return cmd->wBytes + sizeof(*cmd);
+	return SwapLE16(cmd->wBytes) + sizeof(*cmd);
 }
 
 void NetSendCmd(BYTE bCmd)
@@ -3059,11 +3059,11 @@ static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
 	net_assert((unsigned)pnum < MAX_PLRS);
 
 	if (geBufferMsgs == MSG_GAME_DELTA_LOAD || geBufferMsgs == MSG_GAME_DELTA_WAIT)
-		DeltaQueuePacket(pnum, cmd, cmd->wBytes + sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, SwapLE16(cmd->wBytes) + sizeof(*cmd));
 	else if (pnum != mypnum)
 		multi_recv_plrinfo_msg(pnum, cmd);
 
-	return cmd->wBytes + sizeof(*cmd);
+	return SwapLE16(cmd->wBytes) + sizeof(*cmd);
 }
 
 static unsigned ON_PLRDROP(TCmd* pCmd, int pnum)

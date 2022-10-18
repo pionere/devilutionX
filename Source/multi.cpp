@@ -864,15 +864,15 @@ void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 {
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
-	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
+	if (sgwPackPlrOffsetTbl[pnum] != SwapLE16(piHdr->wOffset)) {
 		// invalid data -> drop
 		return;
 	}
 
 	//if (piHdr->wBytes == 0)
 	//	return; // 'invalid' data -> skip to prevent reactivation of a player
-	memcpy((char *)&netplr[pnum] + piHdr->wOffset, &piHdr[1], piHdr->wBytes); /* todo: cast? */
-	sgwPackPlrOffsetTbl[pnum] += piHdr->wBytes;
+	memcpy((char *)&netplr[pnum] + SwapLE16(piHdr->wOffset), &piHdr[1], SwapLE16(piHdr->wBytes)); /* todo: cast? */
+	sgwPackPlrOffsetTbl[pnum] += SwapLE16(piHdr->wBytes);
 	if (sgwPackPlrOffsetTbl[pnum] != sizeof(*netplr)) {
 		return;
 	}
