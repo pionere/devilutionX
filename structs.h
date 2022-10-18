@@ -1717,8 +1717,8 @@ typedef struct _uiheroinfo {
 
 #pragma pack(push, 1)
 typedef struct SNetGameData {
-	DWORD dwVersionId;
-	INT dwSeed;
+	DWORD ngVersionId;
+	INT ngSeed;
 	BYTE bPlayerId; // internal-only!
 	BYTE bDifficulty;
 	BYTE bTickRate;

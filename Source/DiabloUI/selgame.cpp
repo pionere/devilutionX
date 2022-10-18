@@ -41,15 +41,15 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	assert(pEvt->eventid == EVENT_TYPE_JOIN_ACCEPTED);
 	assert(pEvt->databytes == sizeof(SNetGameData));
 	gameData = (SNetGameData*)pEvt->_eData;
-	assert(gameData->dwVersionId == GAME_VERSION);
+	assert(gameData->ngVersionId == GAME_VERSION);
 
 	playerId = pEvt->playerid;
 	assert((DWORD)playerId < MAX_PLRS);
 
 	copy_pod(*selgame_gameData, *gameData);
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	selgame_gameData->dwSeed = SwapLE32(selgame_gameData->dwSeed);
-	selgame_gameData->dwVersionId = SwapLE32(selgame_gameData->dwVersionId);
+	selgame_gameData->ngSeed = SwapLE32(selgame_gameData->ngSeed);
+	selgame_gameData->ngVersionId = SwapLE32(selgame_gameData->ngVersionId);
 #endif
 	selgame_gameData->bPlayerId = playerId;
 }

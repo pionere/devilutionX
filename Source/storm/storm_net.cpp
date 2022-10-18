@@ -143,8 +143,8 @@ bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData, char (&
 	net::buffer_t game_init_info(gData, gData + sizeof(*gameData));
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	SNetGameData* netData = (SNetGameData*)game_init_info.data();
-	netData->dwSeed = SwapLE32(netData->dwSeed);
-	netData->dwVersionId = SwapLE32(netData->dwVersionId);
+	netData->ngSeed = SwapLE32(netData->ngSeed);
+	netData->ngVersionId = SwapLE32(netData->ngVersionId);
 #endif
 
 	dvlnet_inst->make_default_gamename(gpszGameName);

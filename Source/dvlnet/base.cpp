@@ -47,9 +47,9 @@ void base::recv_accept(packet &pkt)
 		return;
 	}
 	auto &pkt_info = pkt.pktJoinAccInfo();
-	if (GAME_VERSION != SwapLE32(pkt_info.dwVersionId)) {
+	if (GAME_VERSION != SwapLE32(pkt_info.ngVersionId)) {
 		// Invalid game version -> ignore
-		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, SwapLE32(pkt_info.dwVersionId), pkt.pktSrc(), GAME_VERSION);
+		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, SwapLE32(pkt_info.ngVersionId), pkt.pktSrc(), GAME_VERSION);
 		plr_self = PLR_BROADCAST;
 		return;
 	}

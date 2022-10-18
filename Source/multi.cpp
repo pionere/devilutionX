@@ -759,7 +759,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		}
 
 		// select game
-		//  sets sgGameInitInfo except for bPlayerId, dwSeed (if not joining a game) and dwVersionId
+		//  sets sgGameInitInfo except for bPlayerId, ngSeed (if not joining a game) and ngVersionId
 		dlgresult = UiSelectGame(&sgGameInitInfo, multi_handle_events);
 		if (dlgresult == SELGAME_PREVIOUS) {
 			if (IsGameSrv) {
@@ -787,7 +787,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 	gbNetUpdateRate = sgGameInitInfo.bNetUpdateRate;
 	assert(mypnum == sgGameInitInfo.bPlayerId);
 	gnDifficulty = sgGameInitInfo.bDifficulty;
-	SetRndSeed(sgGameInitInfo.dwSeed);
+	SetRndSeed(sgGameInitInfo.ngSeed);
 
 	for (i = 0; i < NUM_LEVELS; i++) {
 		seed = GetRndSeed();
@@ -808,8 +808,8 @@ bool NetInit(bool bSinglePlayer)
 
 	while (TRUE) {
 		SetRndSeed(0);
-		sgGameInitInfo.dwSeed = time(NULL);
-		sgGameInitInfo.dwVersionId = GAME_VERSION;
+		sgGameInitInfo.ngSeed = time(NULL);
+		sgGameInitInfo.ngVersionId = GAME_VERSION;
 		sgGameInitInfo.bPlayerId = 0;
 		//sgGameInitInfo.bDifficulty = DIFF_NORMAL;
 		//sgGameInitInfo.bTickRate = SPEED_NORMAL;
