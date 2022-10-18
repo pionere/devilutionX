@@ -675,18 +675,18 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 	pbBuf = (const BYTE*)&pHdr[1];
 	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		pSync = (TSyncMonster*)pbBuf;
-		net_assert(pSync->_mndx < MAXMONSTERS);
-		pD = &pDLvlMons[pSync->_mndx];
+		net_assert(pSync->nmndx < MAXMONSTERS);
+		pD = &pDLvlMons[pSync->nmndx];
 		static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_sync_monster expects ordered DCMD_MON_ enum I.");
 		static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_sync_monster expects ordered DCMD_MON_ enum II.");
 		if (pD->_mCmd < DCMD_MON_DEAD) {
 			pD->_mCmd = DCMD_MON_ACTIVE;
-			pD->_mx = pSync->_mx;
-			pD->_my = pSync->_my;
-			pD->_mdir = pSync->_mdir;
-			pD->_mleaderflag = pSync->_mleaderflag;
-			pD->_mactive = pSync->_mactive;
-			pD->_mhitpoints = pSync->_mhitpoints;
+			pD->_mx = pSync->nmx;
+			pD->_my = pSync->nmy;
+			pD->_mdir = pSync->nmdir;
+			pD->_mleaderflag = pSync->nmleaderflag;
+			pD->_mactive = pSync->nmactive;
+			pD->_mhitpoints = pSync->nmhitpoints;
 		}
 		pbBuf += sizeof(TSyncMonster);
 	}

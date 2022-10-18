@@ -1164,13 +1164,13 @@ typedef struct TSyncHeader {
 } TSyncHeader;
 
 typedef struct TSyncMonster {
-	BYTE _mndx;
-	BYTE _mx;
-	BYTE _my;
-	BYTE _mdir;
-	BYTE _mleaderflag;
-	DWORD _mactive;
-	INT	_mhitpoints;
+	BYTE nmndx;
+	BYTE nmx;
+	BYTE nmy;
+	BYTE nmdir;
+	BYTE nmleaderflag;
+	DWORD nmactive;
+	INT	nmhitpoints;
 } TSyncMonster;
 
 typedef struct TSyncLvlPlayer {

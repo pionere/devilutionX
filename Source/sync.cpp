@@ -41,13 +41,13 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 			// assert(mon->_mmode <= MM_INGAME_LAST);
 			symon = (TSyncMonster*)pbBuf;
 			static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs in sync_all_monsters.");
-			symon->_mndx = idx;
-			symon->_mx = mon->_mx;
-			symon->_my = mon->_my;
-			symon->_mdir = mon->_mdir;
-			symon->_mleaderflag = mon->leaderflag;
-			symon->_mhitpoints = SDL_SwapLE32(mon->_mhitpoints);
-			symon->_mactive = SDL_SwapLE32(mon->_msquelch);
+			symon->nmndx = idx;
+			symon->nmx = mon->_mx;
+			symon->nmy = mon->_my;
+			symon->nmdir = mon->_mdir;
+			symon->nmleaderflag = mon->leaderflag;
+			symon->nmhitpoints = SDL_SwapLE32(mon->_mhitpoints);
+			symon->nmactive = SDL_SwapLE32(mon->_msquelch);
 
 			pbBuf += sizeof(TSyncMonster);
 			remsize -= sizeof(TSyncMonster);
@@ -60,7 +60,7 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 		return (BYTE*)pHdr;
 	//*size = remsize;
 	symon = (TSyncMonster*)(pbBuf - sizeof(TSyncMonster));
-	sync_mnum = symon->_mndx;
+	sync_mnum = symon->nmndx;
 
 	pHdr->bCmd = CMD_SYNCDATA;
 	pHdr->bLevel = currLvl._dLevelIdx;
