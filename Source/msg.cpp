@@ -714,11 +714,11 @@ static void delta_awake_golem(TCmdGolem* pG, int mnum)
 	pD->dmCmd = DCMD_MON_ACTIVE;
 	pD->dmx = pG->goX;
 	pD->dmy = pG->goY;
-	pD->dmactive = SQUELCH_MAX;
+	pD->dmactive = SwapLE32(SQUELCH_MAX);
 	// pD->dmdir = DIR_S; -- should not matter
 	static_assert(MLEADER_NONE == 0, "delta_awake_golem expects _mleaderflag to be set by zerofill.");
 	// pD->dmleaderflag = MLEADER_NONE;
-	pD->dmhitpoints = monsters[mnum]._mmaxhp;
+	pD->dmhitpoints = SwapLE32(monsters[mnum]._mmaxhp);
 }
 
 static void delta_leave_sync(BYTE bLevel)
