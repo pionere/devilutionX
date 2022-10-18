@@ -10,7 +10,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
+// #define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
 
 /* Buffer to hold turn-chunks. */
 static TBuffer sgTurnChunkBuf;
@@ -116,16 +116,16 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 
 static void multi_init_pkt_header(TurnPktHdr &pktHdr, unsigned len)
 {
-	PlayerStruct* p;
+	// PlayerStruct* p;
 
 	pktHdr.wLen = SwapLE16(len);
 	// pktHdr.wCheck = PKT_HDR_CHECK;
-	p = &myplr;
-	pktHdr.px = p->_px;
-	pktHdr.py = p->_py;
-	pktHdr.php = SwapLE32(p->_pHitPoints);
+	// p = &myplr;
+	// pktHdr.px = p->_px;
+	// pktHdr.py = p->_py;
+	// pktHdr.php = SwapLE32(p->_pHitPoints);
 	// pktHdr.pmhp = SwapLE32(p->_pMaxHP);
-	pktHdr.pmp = SwapLE32(p->_pMana);
+	// pktHdr.pmp = SwapLE32(p->_pMana);
 	// pktHdr.pmmp = SwapLE32(p->_pMaxMana);
 }
 
@@ -427,15 +427,15 @@ void multi_process_turn(SNetTurnPkt* turn)
 		//	continue;
 		if (SwapLE16(pkt->wLen) != dwMsgSize)
 			continue;
-		if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
-		 currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
+		//if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
+		// currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
-			plr._pHitPoints = SwapLE32(pkt->php);
+		//	plr._pHitPoints = SwapLE32(pkt->php);
 			//plr._pMaxHP = SwapLE32(pkt->pmhp);
-			plr._pMana = SwapLE32(pkt->pmp);
-			plr._px = pkt->px;
-			plr._py = pkt->py;
-		}
+		//	plr._pMana = SwapLE32(pkt->pmp);
+		//	plr._px = pkt->px;
+		//	plr._py = pkt->py;
+		//}
 		net_assert(plr._pActive || dwMsgSize == sizeof(TurnPktHdr) || ((TCmd*)(pkt + 1))->bCmd == CMD_JOINLEVEL);
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
 		//multi_check_left_plrs();

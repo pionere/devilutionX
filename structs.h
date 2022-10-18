@@ -1295,12 +1295,12 @@ typedef struct TSyncLvlMissile {
 } TSyncLvlMissile;
 
 typedef struct TurnPktHdr {
-	INT php;
-	//INT pmhp;
-	INT pmp;
-	//INT pmmp;
-	BYTE px;
-	BYTE py;
+	// INT php;
+	// INT pmhp;
+	// INT pmp;
+	// INT pmmp;
+	// BYTE px;
+	// BYTE py;
 	// WORD wCheck;
 	WORD wLen;
 } TurnPktHdr;
