@@ -2194,10 +2194,10 @@ void NetSendCmdMonstSummon(int mnum)
 	cmd.mnParam1.bParam1 = currLvl._dLevelIdx;
 	cmd.mnParam1.x = mon->_mx;
 	cmd.mnParam1.y = mon->_my;
-	cmd.mnMnum = mnum;
+	cmd.mnMnum = SwapLE16(mnum);
 	cmd.mnSIdx = mon->_mMTidx;
 	cmd.mnDir = mon->_mdir;
-	cmd.mnMaxHp = mon->_mmaxhp;
+	cmd.mnMaxHp = SwapLE32(mon->_mmaxhp);
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
