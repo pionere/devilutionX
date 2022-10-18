@@ -119,7 +119,7 @@ static void msg_mask_monhit(int pnum)
 	mask = ~(1 << pnum);
 	for (i = 0; i < NUM_LEVELS; i++) {
 		for (j = 0; j < MAXMONSTERS; j++) {
-			gsDeltaData.ddLevel[i].monster[j]._mWhoHit &= mask;
+			gsDeltaData.ddLevel[i].monster[j].dmWhoHit &= mask;
 		}
 	}
 	for (i = 0; i < MAXMONSTERS; i++)
@@ -213,7 +213,7 @@ static BYTE* DeltaExportLevel(BYTE bLevel)
 	// export monsters
 	mon = gsDeltaData.ddLevel[bLevel].monster;
 	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].monster); i++, mon++) {
-		if (mon->_mCmd == DCMD_MON_INVALID) {
+		if (mon->dmCmd == DCMD_MON_INVALID) {
 			*dst = DCMD_MON_INVALID;
 			dst++;
 		} else {
@@ -560,12 +560,12 @@ static void delta_monster_corpse(const TCmdBParam2* pCmd)
 
 	bLevel = pCmd->bParam1;
 	net_assert(bLevel < NUM_LEVELS);
-	// commented out, because _mCmd must be already set at this point
+	// commented out, because dmCmd must be already set at this point
 	//gsDeltaData.ddLevelChanged[bLevel] = true;
 	net_assert(pCmd->bParam2 < MAXMONSTERS);
 	mon = &gsDeltaData.ddLevel[bLevel].monster[pCmd->bParam2];
-	if (mon->_mCmd == DCMD_MON_DEAD)
-		mon->_mCmd = DCMD_MON_DESTROYED;
+	if (mon->dmCmd == DCMD_MON_DEAD)
+		mon->dmCmd = DCMD_MON_DESTROYED;
 }
 
 static void delta_monster_summon(const TCmdMonstSummon* pCmd)
@@ -586,18 +586,18 @@ static void delta_monster_summon(const TCmdMonstSummon* pCmd)
 	gsDeltaData.ddLevelChanged[bLevel] = true;
 	net_assert(pCmd->mnMnum >= MAX_MINIONS && pCmd->mnMnum < MAXMONSTERS);
 	mon = &gsDeltaData.ddLevel[bLevel].monster[pCmd->mnMnum];
-	if (mon->_mCmd == DCMD_MON_ACTIVE)
+	if (mon->dmCmd == DCMD_MON_ACTIVE)
 		return;
-	assert(mon->_mCmd == DCMD_MON_DEAD || mon->_mCmd == DCMD_MON_DESTROYED || mon->_mCmd == DCMD_MON_INVALID);
-	mon->_mx = pCmd->mnParam1.x;
-	mon->_my = pCmd->mnParam1.y;
-	mon->_mdir = pCmd->mnDir;
-	mon->_mSIdx = pCmd->mnSIdx + 1;
-	mon->_mCmd = DCMD_MON_ACTIVE;
-	mon->_mWhoHit = 0;
-	mon->_mactive = 0;
-	mon->_mleaderflag = MLEADER_NONE;
-	mon->_mhitpoints = pCmd->mnMaxHp;
+	assert(mon->dmCmd == DCMD_MON_DEAD || mon->dmCmd == DCMD_MON_DESTROYED || mon->dmCmd == DCMD_MON_INVALID);
+	mon->dmx = pCmd->mnParam1.x;
+	mon->dmy = pCmd->mnParam1.y;
+	mon->dmdir = pCmd->mnDir;
+	mon->dmSIdx = pCmd->mnSIdx + 1;
+	mon->dmCmd = DCMD_MON_ACTIVE;
+	mon->dmWhoHit = 0;
+	mon->dmactive = 0;
+	mon->dmleaderflag = MLEADER_NONE;
+	mon->dmhitpoints = pCmd->mnMaxHp;
 }
 
 static BYTE delta_kill_monster(const TCmdMonstKill* mon)
@@ -622,15 +622,15 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
 	static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_kill_monster expects ordered DCMD_MON_ enum I.");
 	static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_kill_monster expects ordered DCMD_MON_ enum II.");
-	if (pD->_mCmd >= DCMD_MON_DEAD)
+	if (pD->dmCmd >= DCMD_MON_DEAD)
 		return 0;
-	pD->_mCmd = mon->mkDir < NUM_DIRS ? DCMD_MON_DEAD : DCMD_MON_DESTROYED;
-	pD->_mx = mon->mkParam1.x;
-	pD->_my = mon->mkParam1.y;
-	pD->_mdir = mon->mkDir;
-	pD->_mleaderflag = MLEADER_NONE; // TODO: reset leaderflag of the minions if the info is available
-	pD->_mhitpoints = 0;
-	return whoHit | pD->_mWhoHit;
+	pD->dmCmd = mon->mkDir < NUM_DIRS ? DCMD_MON_DEAD : DCMD_MON_DESTROYED;
+	pD->dmx = mon->mkParam1.x;
+	pD->dmy = mon->mkParam1.y;
+	pD->dmdir = mon->mkDir;
+	pD->dmleaderflag = MLEADER_NONE; // TODO: reset leaderflag of the minions if the info is available
+	pD->dmhitpoints = 0;
+	return whoHit | pD->dmWhoHit;
 }
 
 static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
@@ -645,16 +645,16 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 	net_assert(bLevel < NUM_LEVELS);
 	net_assert(SwapLE16(mon->mdMnum) < MAXMONSTERS);
 
-	// commented out, because these changes are ineffective unless _mCmd is already set
+	// commented out, because these changes are ineffective unless dmCmd is already set
 	//gsDeltaData.ddLevelChanged[bLevel] = true;
 	pD = &gsDeltaData.ddLevel[bLevel].monster[SwapLE16(mon->mdMnum)];
 	static_assert(MAX_PLRS < 8, "delta_monster_hp uses BYTE mask for pnum.");
-	pD->_mWhoHit |= 1 << pnum;
+	pD->dmWhoHit |= 1 << pnum;
 	// In vanilla code the value was discarded if hp was higher than the current one.
 	// That disregards the healing monsters.
 	// Now it is always updated except the monster is already dead.
-	//if (pD->_mCmd != DCMD_MON_DEAD && pD->_mCmd != DCMD_MON_DESTROYED)
-		pD->_mhitpoints = mon->mdHitpoints;
+	//if (pD->dmCmd != DCMD_MON_DEAD && pD->dmCmd != DCMD_MON_DESTROYED)
+		pD->dmhitpoints = mon->mdHitpoints;
 }
 
 static void delta_sync_monster(const TSyncHeader* pHdr)
@@ -679,14 +679,14 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 		pD = &pDLvlMons[pSync->nmndx];
 		static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_sync_monster expects ordered DCMD_MON_ enum I.");
 		static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_sync_monster expects ordered DCMD_MON_ enum II.");
-		if (pD->_mCmd < DCMD_MON_DEAD) {
-			pD->_mCmd = DCMD_MON_ACTIVE;
-			pD->_mx = pSync->nmx;
-			pD->_my = pSync->nmy;
-			pD->_mdir = pSync->nmdir;
-			pD->_mleaderflag = pSync->nmleaderflag;
-			pD->_mactive = pSync->nmactive;
-			pD->_mhitpoints = pSync->nmhitpoints;
+		if (pD->dmCmd < DCMD_MON_DEAD) {
+			pD->dmCmd = DCMD_MON_ACTIVE;
+			pD->dmx = pSync->nmx;
+			pD->dmy = pSync->nmy;
+			pD->dmdir = pSync->nmdir;
+			pD->dmleaderflag = pSync->nmleaderflag;
+			pD->dmactive = pSync->nmactive;
+			pD->dmhitpoints = pSync->nmhitpoints;
 		}
 		pbBuf += sizeof(TSyncMonster);
 	}
@@ -711,14 +711,14 @@ static void delta_awake_golem(TCmdGolem* pG, int mnum)
 
 	gsDeltaData.ddLevelChanged[bLevel] = true;
 	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
-	pD->_mCmd = DCMD_MON_ACTIVE;
-	pD->_mx = pG->goX;
-	pD->_my = pG->goY;
-	pD->_mactive = SQUELCH_MAX;
-	// pD->_mdir = DIR_S; -- should not matter
+	pD->dmCmd = DCMD_MON_ACTIVE;
+	pD->dmx = pG->goX;
+	pD->dmy = pG->goY;
+	pD->dmactive = SQUELCH_MAX;
+	// pD->dmdir = DIR_S; -- should not matter
 	static_assert(MLEADER_NONE == 0, "delta_awake_golem expects _mleaderflag to be set by zerofill.");
-	// pD->_mleaderflag = MLEADER_NONE;
-	pD->_mhitpoints = monsters[mnum]._mmaxhp;
+	// pD->dmleaderflag = MLEADER_NONE;
+	pD->dmhitpoints = monsters[mnum]._mmaxhp;
 }
 
 static void delta_leave_sync(BYTE bLevel)
@@ -999,23 +999,23 @@ void DeltaLoadLevel()
 
 		mstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].monster;
 		for (i = 0; i < MAXMONSTERS; i++, mstr++) {
-			if (mstr->_mCmd != DCMD_MON_INVALID) {
+			if (mstr->dmCmd != DCMD_MON_INVALID) {
 				mon = &monsters[i];
 				monInGame = mon->_mmode <= MM_INGAME_LAST;
 				// skip minions and prespawn skeletons
 				if (monInGame)
 					RemoveMonFromMap(i);
-				x = mstr->_mx;
-				y = mstr->_my;
+				x = mstr->dmx;
+				y = mstr->dmy;
 				SetMonsterLoc(mon, x, y);
-				mon->_mdir = mstr->_mdir;
-				UpdateLeader(i, mon->leaderflag, mstr->_mleaderflag);
-				if (mstr->_mSIdx != 0) {
-					net_assert(mstr->_mSIdx <= nummtypes);
+				mon->_mdir = mstr->dmdir;
+				UpdateLeader(i, mon->leaderflag, mstr->dmleaderflag);
+				if (mstr->dmSIdx != 0) {
+					net_assert(mstr->dmSIdx <= nummtypes);
 					assert(mon->mlid == NO_LIGHT);
 					// TODO: InitSummonedMonster ?
 					SetRndSeed(glSeedTbl[i % NUM_LEVELS]);
-					InitMonster(i, mon->_mdir, mstr->_mSIdx - 1, mon->_mx, mon->_my);
+					InitMonster(i, mon->_mdir, mstr->dmSIdx - 1, mon->_mx, mon->_my);
 					mon->_mTreasure = NO_DROP;
 					mon->_mFlags |= MFLAG_NOCORPSE;
 					if (!monInGame)
@@ -1023,20 +1023,20 @@ void DeltaLoadLevel()
 				}
 				// set hitpoints for dead monsters as well to ensure sync in multiplayer
 				// games even on the first game_logic run
-				mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
+				mon->_mhitpoints = SwapLE32(mstr->dmhitpoints);
 				// SyncMonsterLight: inline for better performance + apply to moving monsters
 				if (mon->mlid != NO_LIGHT)
 					ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
-				if (mstr->_mCmd >= DCMD_MON_DEAD) {
-					if (mstr->_mCmd != DCMD_MON_DESTROYED)
+				if (mstr->dmCmd >= DCMD_MON_DEAD) {
+					if (mstr->dmCmd != DCMD_MON_DESTROYED)
 						MonAddDead(i);
 					// assert(mon->_mhitpoints == 0);
 					// TODO: RemoveMonFromGame ?
 					// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 					mon->_msquelch = 0;
-					mon->_mmode = i >= MAX_MINIONS ? ((mstr->_mCmd == DCMD_MON_DESTROYED || (mon->_mFlags & MFLAG_NOCORPSE)) ? MM_UNUSED : MM_DEAD) : MM_RESERVED;
+					mon->_mmode = i >= MAX_MINIONS ? ((mstr->dmCmd == DCMD_MON_DESTROYED || (mon->_mFlags & MFLAG_NOCORPSE)) ? MM_UNUSED : MM_DEAD) : MM_RESERVED;
 					if (i >= MAX_MINIONS)
 						nummonsters--;
 					// SyncMonsterAnim(mnum);
@@ -1044,8 +1044,8 @@ void DeltaLoadLevel()
 					// mon->_mAnimCnt = -1;
 					mon->_mAnimData = mon->_mAnims[MA_DEATH].aData[mon->_mdir];
 				} else {
-					mon->_msquelch = mstr->_mactive;
-					mon->_mWhoHit = mstr->_mWhoHit;
+					mon->_msquelch = mstr->dmactive;
+					mon->_mWhoHit = mstr->dmWhoHit;
 					dMonster[mon->_mx][mon->_my] = i + 1;
 					// SyncMonsterAnim(mnum);
 					assert(mon->_mmode == MM_STAND);
@@ -1555,8 +1555,8 @@ void LevelDeltaLoad()
 		mon->_mfuty = tmon->smfuty;             // Future tile Y-position of monster. Set at start of walking animation
 		mon->_moldx = tmon->smoldx;             // Most recent X-position in dMonster.
 		mon->_moldy = tmon->smoldy;             // Most recent Y-position in dMonster.
-//	tmon->_mxoff;             // Monster sprite's pixel X-offset from tile.
-//	tmon->_myoff;             // Monster sprite's pixel Y-offset from tile.
+//	tmon->smxoff;             // Monster sprite's pixel X-offset from tile.
+//	tmon->smyoff;             // Monster sprite's pixel Y-offset from tile.
 		mon->_mxoff = mon->_myoff = 0; // no need to sync these values as they are recalculated when used
 		mon->_mdir = tmon->smdir;              // Direction faced by monster (direction enum)
 		mon->_menemy = SwapLE32(tmon->smEnemy);            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
@@ -3593,25 +3593,25 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mAnimWidth,
 	mon->_mAnimXOffset);
 	DMonsterStr* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].monster[mnum];
-	if (mstr->_mCmd != DCMD_MON_INVALID) {
+	if (mstr->dmCmd != DCMD_MON_INVALID) {
 		LogErrorF("D-Mon", "delta ",
-	"_mCmd:%d "
-	"_mx:%d "
-	"_my:%d "
-	"_mdir:%d "
-	"_mactive:%d "
-	"_mhitpoints:%d "
-	"_mWhoHit:%d ",
+	"dmCmd:%d "
+	"dmx:%d "
+	"dmy:%d "
+	"dmdir:%d "
+	"dmactive:%d "
+	"dmhitpoints:%d "
+	"dmWhoHit:%d ",
 
-	mstr->_mCmd,
-	mstr->_mx,
-	mstr->_my,
-	mstr->_mdir,
-	mstr->_mactive,
-	mstr->_mhitpoints,
-	mstr->_mWhoHit);
+	mstr->dmCmd,
+	mstr->dmx,
+	mstr->dmy,
+	mstr->dmdir,
+	mstr->dmactive,
+	mstr->dmhitpoints,
+	mstr->dmWhoHit);
 	} else {
-		LogErrorF("D-Mon", "delta _mCmd:0");
+		LogErrorF("D-Mon", "delta dmCmd:0");
 	}
 	}
 

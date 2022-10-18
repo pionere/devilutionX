@@ -1225,8 +1225,8 @@ typedef struct TSyncLvlMonster {
 	BYTE smfuty;             // Future tile Y-position of monster. Set at start of walking animation
 	BYTE smoldx;             // Most recent X-position in dMonster.
 	BYTE smoldy;             // Most recent Y-position in dMonster.
-//	INT _mxoff;             // Monster sprite's pixel X-offset from tile.
-//	INT _myoff;             // Monster sprite's pixel Y-offset from tile.
+//	INT smxoff;             // Monster sprite's pixel X-offset from tile.
+//	INT smyoff;             // Monster sprite's pixel Y-offset from tile.
 	BYTE smdir;              // Direction faced by monster (direction enum)
 	INT smEnemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
 	BYTE smEnemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
@@ -1321,15 +1321,15 @@ typedef struct MsgPkt {
 } MsgPkt;
 
 typedef struct DMonsterStr {
-	BYTE _mCmd;
-	BYTE _mx;
-	BYTE _my;
-	BYTE _mdir;
-	BYTE _mleaderflag;
-	BYTE _mWhoHit;
-	BYTE _mSIdx;
-	DWORD _mactive;
-	INT _mhitpoints;
+	BYTE dmCmd;
+	BYTE dmx;
+	BYTE dmy;
+	BYTE dmdir;
+	BYTE dmleaderflag;
+	BYTE dmWhoHit;
+	BYTE dmSIdx;
+	DWORD dmactive;
+	INT dmhitpoints;
 } DMonsterStr;
 
 typedef struct DObjectStr {
