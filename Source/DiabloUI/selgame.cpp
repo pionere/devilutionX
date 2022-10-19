@@ -41,7 +41,7 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	assert(pEvt->eventid == EVENT_TYPE_JOIN_ACCEPTED);
 	assert(pEvt->databytes == sizeof(SNetGameData));
 	gameData = (SNetGameData*)pEvt->_eData;
-	assert(gameData->ngVersionId == GAME_VERSION);
+	assert(SwapLE32(gameData->ngVersionId) == GAME_VERSION);
 
 	playerId = pEvt->playerid;
 	assert((DWORD)playerId < MAX_PLRS);
