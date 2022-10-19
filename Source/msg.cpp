@@ -1327,16 +1327,24 @@ void LevelDeltaExport()
 			TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)dst;
 			tmis->smiMi = static_cast<uint16_t>(mi + MAXMONSTERS);
 			tmis->smiType = mis->_miType;   // Type of projectile (MIS_*)
-			//BYTE _miSubType; // unused
+			//BYTE _miFlags;
+			//BYTE _miResist;
 			tmis->smiFileNum = mis->_miFileNum;
 			tmis->smiDrawFlag = mis->_miDrawFlag;
-			//BOOL _miAnimFlag;
+			tmis->smiUniqTrans = mis->_miUniqTrans;
+			//BOOLEAN _miDelFlag;
+			tmis->smiLightFlag = mis->_miLightFlag;
+			tmis->smiPreFlag = mis->_miPreFlag;
+			//BOOLEAN _miAnimFlag;
+			//BYTE* _miAnimData;
+			//int _miAnimFrameLen;
+			//int _miAnimLen;
+			//int _miAnimWidth;
+			//int _miAnimXOffset;
 			tmis->smiAnimCnt = mis->_miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 			tmis->smiAnimAdd = mis->_miAnimAdd;
 			tmis->smiAnimFrame = mis->_miAnimFrame; // Current frame of animation.
-			tmis->smiLightFlag = mis->_miLightFlag;
-			tmis->smiPreFlag = mis->_miPreFlag;
-			tmis->smiUniqTrans = mis->_miUniqTrans;
+			tmis->smiDir = mis->_miDir;   // The direction of the missile
 			tmis->smisx = mis->_misx;    // Initial tile X-position for missile
 			tmis->smisy = mis->_misy;    // Initial tile Y-position for missile
 			tmis->smix = mis->_mix;     // Tile X-position of the missile
@@ -1347,7 +1355,7 @@ void LevelDeltaExport()
 			tmis->smiyvel = mis->_miyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
 			tmis->smitxoff = mis->_mitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 			tmis->smityoff = mis->_mityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-			tmis->smiDir = mis->_miDir;   // The direction of the missile
+			// smiDir/_miDir reordered for better alignment
 			tmis->smiSpllvl = mis->_miSpllvl; // int?
 			tmis->smiSource = mis->_miSource; // int?
 			tmis->smiCaster = mis->_miCaster; // int?
@@ -1355,7 +1363,7 @@ void LevelDeltaExport()
 			tmis->smiMaxDam = mis->_miMaxDam;
 			// tmis->smiRndSeed = mis->_miRndSeed;
 			tmis->smiRange = mis->_miRange;
-			tmis->smiLidRadius = mis->_miLid == NO_LIGHT ? 0 : LightList[mis->_miLid]._lradius;
+			// smiLidRadius/_miLid reordered for better alignment
 			tmis->smiVar1 = mis->_miVar1;
 			tmis->smiVar2 = mis->_miVar2;
 			tmis->smiVar3 = mis->_miVar3;
@@ -1364,6 +1372,7 @@ void LevelDeltaExport()
 			tmis->smiVar6 = mis->_miVar6;
 			tmis->smiVar7 = mis->_miVar7;
 			tmis->smiVar8 = mis->_miVar8;
+			tmis->smiLidRadius = mis->_miLid == NO_LIGHT ? 0 : LightList[mis->_miLid]._lradius;
 
 			dst += sizeof(TSyncLvlMissile);
 		}
@@ -1625,16 +1634,15 @@ void LevelDeltaLoad()
 		memset(mis, 0, sizeof(*mis));
 
 		mis->_miType = tmis->smiType;   // Type of projectile (MIS_*)
-		//BYTE _miSubType; // unused
 		mis->_miFileNum = tmis->smiFileNum;
 		mis->_miDrawFlag = tmis->smiDrawFlag;	// could be calculated
+		mis->_miUniqTrans = tmis->smiUniqTrans;
+		mis->_miLightFlag = tmis->smiLightFlag;	// could be calculated
+		mis->_miPreFlag = tmis->smiPreFlag;	// could be calculated
 		//BOOL _miAnimFlag;
 		mis->_miAnimCnt = tmis->smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 		mis->_miAnimAdd = tmis->smiAnimAdd;
 		mis->_miAnimFrame = tmis->smiAnimFrame; // Current frame of animation.
-		mis->_miLightFlag = tmis->smiLightFlag;	// could be calculated
-		mis->_miPreFlag = tmis->smiPreFlag;	// could be calculated
-		mis->_miUniqTrans = tmis->smiUniqTrans;
 		mis->_misx = tmis->smisx;    // Initial tile X-position for missile
 		mis->_misy = tmis->smisy;    // Initial tile Y-position for missile
 		mis->_mix = tmis->smix;     // Tile X-position of the missile

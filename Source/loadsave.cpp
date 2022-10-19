@@ -604,11 +604,19 @@ static void LoadMissile(int mi)
 	MissileStruct* mis = &missile[mi];
 
 	LoadInt(&mis->_miType);
+
 	LoadByte(&mis->_miFlags);
 	LoadByte(&mis->_miResist);
 	LoadByte(&mis->_miFileNum);
 	LoadByte(&mis->_miDrawFlag);
-	tbuff += 4; // Skip _miAnimFlag
+
+	LoadInt(&mis->_miUniqTrans);
+
+	LoadByte(&mis->_miDelFlag);
+	LoadByte(&mis->_miLightFlag);
+	LoadByte(&mis->_miPreFlag);
+	LoadByte(&mis->_miAnimFlag); // could be skipped
+
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
 	tbuff += 4; // Skip _miAnimLen
@@ -617,10 +625,6 @@ static void LoadMissile(int mi)
 	LoadInt(&mis->_miAnimCnt);
 	LoadInt(&mis->_miAnimAdd);
 	LoadInt(&mis->_miAnimFrame);
-	LoadInt(&mis->_miDelFlag);
-	LoadInt(&mis->_miLightFlag);
-	LoadInt(&mis->_miPreFlag);
-	LoadInt(&mis->_miUniqTrans);
 	LoadInt(&mis->_misx);
 	LoadInt(&mis->_misy);
 	LoadInt(&mis->_mix);
@@ -1306,11 +1310,19 @@ static void SaveMissile(int mi)
 	MissileStruct* mis = &missile[mi];
 
 	SaveInt(&mis->_miType);
+
 	SaveByte(&mis->_miFlags);
 	SaveByte(&mis->_miResist);
 	SaveByte(&mis->_miFileNum);
 	SaveByte(&mis->_miDrawFlag);
-	tbuff += 4; // Skip _miAnimFlag
+
+	SaveInt(&mis->_miUniqTrans);
+
+	SaveByte(&mis->_miDelFlag);
+	SaveByte(&mis->_miLightFlag);
+	SaveByte(&mis->_miPreFlag);
+	SaveByte(&mis->_miAnimFlag); // could be skipped
+
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
 	tbuff += 4; // Skip _miAnimLen
@@ -1319,10 +1331,6 @@ static void SaveMissile(int mi)
 	SaveInt(&mis->_miAnimCnt);
 	SaveInt(&mis->_miAnimAdd);
 	SaveInt(&mis->_miAnimFrame);
-	SaveInt(&mis->_miDelFlag);
-	SaveInt(&mis->_miLightFlag);
-	SaveInt(&mis->_miPreFlag);
-	SaveInt(&mis->_miUniqTrans);
 	SaveInt(&mis->_misx);
 	SaveInt(&mis->_misy);
 	SaveInt(&mis->_mix);
@@ -1550,11 +1558,11 @@ void SaveGame()
 		SavePortal(i);
 	// save level-data
 	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
-	 + MAXMISSILES * 168 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
+	 + MAXMISSILES * 156 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
 	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
-	 + MAXMISSILES * 168 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
+	 + MAXMISSILES * 156 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
 	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);

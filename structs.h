@@ -447,7 +447,11 @@ typedef struct MissileStruct {
 	BYTE _miResist; // missile_resistance
 	BYTE _miFileNum; // missile_gfx_id
 	BOOLEAN _miDrawFlag; // should be drawn
-	BOOL _miAnimFlag;
+	int _miUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN _miDelFlag; // should be deleted
+	BOOLEAN _miLightFlag; // use light-transformation when drawing
+	BOOLEAN _miPreFlag; // should be drawn in the pre-phase
+	BOOLEAN _miAnimFlag;
 	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
@@ -456,10 +460,6 @@ typedef struct MissileStruct {
 	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
-	BOOL _miDelFlag; // should be deleted
-	BOOL _miLightFlag; // use light-transformation when drawing
-	BOOL _miPreFlag; // should be drawn in the pre-phase
-	int _miUniqTrans; // use unique color-transformation when drawing
 	int _misx;    // Initial tile X-position for missile
 	int _misy;    // Initial tile Y-position for missile
 	int _mix;     // Tile X-position of the missile
@@ -487,7 +487,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7; // distance travelled in case of ARROW missiles
 	int _miVar8; // last target in case of non-DOT missiles
-	ALIGNMENT(7, 21)
+	ALIGNMENT(10, 24)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -1377,13 +1377,13 @@ typedef struct TSyncLvlMissile {
 	BYTE smiType;   // missile_id
 	BYTE smiFileNum; // missile_gfx_id
 	BOOLEAN smiDrawFlag;
-	//BOOL _miAnimFlag;
+	BYTE smiUniqTrans;
+	BOOLEAN smiLightFlag;
+	BOOLEAN smiPreFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	char smiAnimAdd;
 	BYTE smiAnimFrame; // Current frame of animation.
-	BOOLEAN smiLightFlag;
-	BOOLEAN smiPreFlag;
-	BYTE smiUniqTrans;
+	BYTE smiDir;   // The direction of the missile
 	BYTE smisx;    // Initial tile X-position for missile
 	BYTE smisy;    // Initial tile Y-position for missile
 	BYTE smix;     // Tile X-position of the missile
@@ -1394,7 +1394,6 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
 	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	BYTE smiDir;   // The direction of the missile
 	LE_INT32 smiSpllvl; // TODO: int?
 	LE_INT32 smiSource; // TODO: int?
 	LE_INT32 smiCaster; // TODO: int?
@@ -1402,7 +1401,6 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiMaxDam;
 	// LE_INT32 smiRndSeed;
 	LE_INT32 smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
-	BYTE smiLidRadius;
 	LE_INT32 smiVar1;
 	LE_INT32 smiVar2;
 	LE_INT32 smiVar3;
@@ -1411,6 +1409,7 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiVar6;
 	LE_INT32 smiVar7;
 	LE_INT32 smiVar8;
+	BYTE smiLidRadius;
 } TSyncLvlMissile;
 
 typedef struct TurnPktHdr {
