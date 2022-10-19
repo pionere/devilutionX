@@ -1612,7 +1612,7 @@ static void Obj_Circle(int oi)
 			gbAltActionBtnDown = false;
 			ClrPlrPath(mypnum);
 			myplr._pdir = DIR_NW;
-			myplr._pAnimData = myplr._pNAnim.paAnimData[DIR_NW];
+			myplr._pAnimData = myplr._pAnims[PFIDX_STAND].paAnimData[DIR_NW];
 			myplr.destAction = ACTION_NONE;
 		}
 	} else {

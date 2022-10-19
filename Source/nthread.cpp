@@ -46,7 +46,7 @@ void nthread_send_turn(BYTE *data, unsigned len)
 #if !NONET
 restart:
 #endif
-	SNetSendTurn(SwapLE32(turn), data, len);
+	SNetSendTurn(turn, data, len);
 	turn++;
 	// commented out to raise the possible up-time of a game
 	// minor hickup might occur around overflow, but ignore it for the moment
@@ -182,7 +182,7 @@ static int SDLCALL nthread_handler(void* data)
 
 		switch (nthread_recv_turns()) {
 		case TS_DESYNC: {
-			uint32_t turn = /*SwapLE32(*/SNetLastTurn(player_state);//);
+			uint32_t turn = SNetLastTurn(player_state);
 			if (!(player_state[mypnum] & PCS_TURN_ARRIVED))
 				sgbSentThisCycle = turn;
 			nthread_parse_turns();

@@ -6,9 +6,19 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-void base::setup_gameinfo(buffer_t info)
+void base::setup_gameinfo(_uigamedata* gameData)
 {
-	game_init_info = std::move(info);
+	SNetGameData* netData;
+
+	game_init_info = buffer_t(sizeof(SNetGameData));
+
+	netData = (SNetGameData*)game_init_info.data();
+	netData->ngVersionId = gameData->aeVersionId;
+	netData->ngSeed = gameData->aeSeed;
+	netData->ngDifficulty = gameData->aeDifficulty;
+	netData->ngTickRate = gameData->aeTickRate;
+	netData->ngNetUpdateRate = gameData->aeNetUpdateRate;
+	netData->ngMaxPlayers = gameData->aeMaxPlayers;
 }
 
 void base::setup_password(const char* passwd)
@@ -47,9 +57,9 @@ void base::recv_accept(packet &pkt)
 		return;
 	}
 	auto &pkt_info = pkt.pktJoinAccInfo();
-	if (GAME_VERSION != SwapLE32(pkt_info.dwVersionId)) {
+	if (GAME_VERSION != pkt_info.ngVersionId) {
 		// Invalid game version -> ignore
-		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, SwapLE32(pkt_info.dwVersionId), pkt.pktSrc(), GAME_VERSION);
+		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, pkt_info.ngVersionId, pkt.pktSrc(), GAME_VERSION);
 		plr_self = PLR_BROADCAST;
 		return;
 	}
@@ -224,7 +234,7 @@ SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 
 void base::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
-	turn_queue[plr_self].emplace_back(turn, buffer_t(data, data + size));
+	turn_queue[plr_self].emplace_back(SwapLE32(turn), buffer_t(data, data + size));
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
 	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn, data, size);
 	send_packet(*pkt);

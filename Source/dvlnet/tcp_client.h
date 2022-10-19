@@ -13,7 +13,7 @@ namespace net {
 
 class tcp_client : public base {
 public:
-	bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256]);
+	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
 	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
 	virtual void SNetLeaveGame(int reason);

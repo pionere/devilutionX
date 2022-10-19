@@ -15,9 +15,9 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-bool tcp_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
+bool tcp_client::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
 {
-	setup_gameinfo(std::move(info));
+	setup_gameinfo(gameData);
 	local_server = new tcp_server(ioc, game_init_info, SRV_BASIC);
 	if (local_server->setup_server(addrstr, port, passwd, errorText)) {
 		return join_game(addrstr, port, passwd, errorText);

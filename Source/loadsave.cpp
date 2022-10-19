@@ -424,7 +424,7 @@ static void LoadPlayer(int pnum)
 	LoadInt(&plr._pVar8);
 
 	// tbuff += 4; // Skip _pGFXLoad
-	// tbuff += sizeof(PlrAnimStruct) * (NUM_PLR_ANIMS + 2); // Skip animation info to InitPlayerGFX and SetPlrAnims
+	// tbuff += sizeof(PlrAnimStruct) * (NUM_PFIDXs); // Skip _pAnims to InitPlayerGFX and SetPlrAnims
 	// tbuff += 4; // Skip _pAFNum to SetPlrAnims
 	// tbuff += 4; // Skip _pSFNum to SetPlrAnims
 
@@ -490,15 +490,7 @@ static void LoadPlayer(int pnum)
 
 	CalcPlrInv(pnum, false);
 
-	// Omit pointer _pNData
-	// Omit pointer _pWData
-	// Omit pointer _pAData
-	// Omit pointer _pLData
-	// Omit pointer _pFData
-	// Omit pointer _pTData
-	// Omit pointer _pHData
-	// Omit pointer _pDData
-	// Omit pointer _pBData
+	// Omit pointers _pAnimFileData
 	// Omit pointer alignment
 
 	InitPlayerGFX(pnum);
@@ -1307,7 +1299,7 @@ static void SavePlayer(int pnum)
 	SaveInt(&plr._pVar8);
 
 	// tbuff += 4; // Skip _pGFXLoad
-	// tbuff += sizeof(PlrAnimStruct) * (NUM_PLR_ANIMS + 2); // Skip animation info
+	// tbuff += sizeof(PlrAnimStruct) * (NUM_PFIDXs); // Skip _pAnims
 	// tbuff += 4; // Skip _pAFNum
 	// tbuff += 4; // Skip _pSFNum
 
@@ -1371,15 +1363,7 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // _pIAMinDam
 	tbuff += 4; // _pIAMaxDam*/
 
-	// Omit pointer _pNData
-	// Omit pointer _pWData
-	// Omit pointer _pAData
-	// Omit pointer _pLData
-	// Omit pointer _pFData
-	// Omit pointer  _pTData
-	// Omit pointer _pHData
-	// Omit pointer _pDData
-	// Omit pointer _pBData
+	// Omit pointers _pAnimFileData
 	// Omit pointer alignment
 }
 

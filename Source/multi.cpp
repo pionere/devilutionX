@@ -10,7 +10,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
+// #define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
 
 /* Buffer to hold turn-chunks. */
 static TBuffer sgTurnChunkBuf;
@@ -116,17 +116,17 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 
 static void multi_init_pkt_header(TurnPktHdr &pktHdr, unsigned len)
 {
-	PlayerStruct* p;
+	// PlayerStruct* p;
 
-	pktHdr.wLen = SwapLE16(len);
+	pktHdr.wLen = static_cast<uint16_t>(len);
 	// pktHdr.wCheck = PKT_HDR_CHECK;
-	p = &myplr;
-	pktHdr.px = p->_px;
-	pktHdr.py = p->_py;
-	pktHdr.php = SwapLE32(p->_pHitPoints);
-	// pktHdr.pmhp = SwapLE32(p->_pMaxHP);
-	pktHdr.pmp = SwapLE32(p->_pMana);
-	// pktHdr.pmmp = SwapLE32(p->_pMaxMana);
+	// p = &myplr;
+	// pktHdr.px = p->_px;
+	// pktHdr.py = p->_py;
+	// pktHdr.php = p->_pHitPoints;
+	// pktHdr.pmhp = p->_pMaxHP;
+	// pktHdr.pmp = p->_pMana;
+	// pktHdr.pmmp = p->_pMaxMana;
 }
 
 void multi_send_turn_packet()
@@ -157,7 +157,7 @@ void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE bLen)
 
 	memcpy(&pkt.body[0], src, len);
 	len += sizeof(pkt.hdr);
-	pkt.hdr.wLen = SwapLE16(len);
+	pkt.hdr.wLen = static_cast<uint16_t>(len);
 	// pkt.hdr.wCheck = PKT_HDR_CHECK;
 	static_assert(sizeof(pmask) * CHAR_BIT > MAX_PLRS, "Sending packets with unsigned int mask does not work.");
 	if (pmask == SNPLAYER_ALL) {
@@ -425,17 +425,18 @@ void multi_process_turn(SNetTurnPkt* turn)
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (SwapLE16(pkt->wLen) != dwMsgSize)
+		if (pkt->wLen != dwMsgSize)
 			continue;
-		if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
-		 currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
+		//if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
+		// currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
-			plr._pHitPoints = SwapLE32(pkt->php);
-			//plr._pMaxHP = SwapLE32(pkt->pmhp);
-			plr._pMana = SwapLE32(pkt->pmp);
-			plr._px = pkt->px;
-			plr._py = pkt->py;
-		}
+		//	plr._pHitPoints = pkt->php;
+			// plr._pMaxHP = pkt->pmhp;
+		//	plr._pMana = pkt->pmp;
+			// plr._pMaxMana = pkt->pmmp;
+		//	plr._px = pkt->px;
+		//	plr._py = pkt->py;
+		//}
 		net_assert(plr._pActive || dwMsgSize == sizeof(TurnPktHdr) || ((TCmd*)(pkt + 1))->bCmd == CMD_JOINLEVEL);
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
 		//multi_check_left_plrs();
@@ -466,7 +467,7 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (SwapLE16(pkt->wLen) != dwMsgSize)
+		if (pkt->wLen != dwMsgSize)
 			continue;
 		TCmd* cmd = (TCmd*)(pkt + 1);
 		if (cmd->bCmd == CMD_JOINLEVEL) {
@@ -493,7 +494,7 @@ void multi_process_msgs()
 		// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (SwapLE16(pkt->wLen) != dwMsgSize)
+		if (pkt->wLen != dwMsgSize)
 			continue;
 		dwMsgSize -= sizeof(MsgPktHdr);
 		dwReadSize = ParseMsg(pnum, (TCmd*)&pkt[1]);
@@ -593,16 +594,16 @@ void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLe
 	while (dwLen != 0) {
 		p = (TCmdPlrInfoHdr*)pkt.body;
 		p->bCmd = bCmd;
-		p->wOffset = SwapLE16(dwOffset);
+		p->wOffset = static_cast<uint16_t>(dwOffset);
 		dwBody = NET_LARGE_MSG_SIZE - sizeof(pkt.hdr) - sizeof(*p);
 		if (dwLen < dwBody) {
 			dwBody = dwLen;
 		}
 		/// ASSERT: assert(dwBody <= 0x0ffff);
-		p->wBytes = SwapLE16(dwBody);
+		p->wBytes = static_cast<uint16_t>(dwBody);
 		memcpy(&pkt.body[sizeof(*p)], pbSrc, dwBody);
 		dwMsg = dwBody + sizeof(pkt.hdr) + sizeof(*p);
-		pkt.hdr.wLen = SwapLE16(dwMsg);
+		pkt.hdr.wLen = static_cast<uint16_t>(dwMsg);
 		SNetSendMessage(pnum, (BYTE*)&pkt, dwMsg);
 		pbSrc += dwBody;
 		dwLen -= dwBody;
@@ -703,7 +704,7 @@ void NetClose()
 	UIDisconnectGame();
 }
 
-static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
+static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 {
 	int i, dlgresult, pnum;
 	uint32_t seed;
@@ -746,21 +747,21 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 		if (IsGameSrv) {
 			mypnum = SNPLAYER_MASTER;
-			sgGameInitInfo.bPlayerId = SNPLAYER_MASTER;
+			gameData.aePlayerId = SNPLAYER_MASTER;
 		} else
 			pfile_read_hero_from_save();
 
 		if (gbLoadGame) {
 			// mypnum = 0;
-			sgGameInitInfo.bMaxPlayers = 1;
-			sgGameInitInfo.bTickRate = gnTicksRate;
-			sgGameInitInfo.bNetUpdateRate = 1;
+			gameData.aeMaxPlayers = 1;
+			gameData.aeTickRate = gnTicksRate;
+			gameData.aeNetUpdateRate = 1;
 			break;
 		}
 
 		// select game
-		//  sets sgGameInitInfo except for bPlayerId, dwSeed (if not joining a game) and dwVersionId
-		dlgresult = UiSelectGame(&sgGameInitInfo, multi_handle_events);
+		//  sets gameData except for aePlayerId, aeSeed (if not joining a game) and aeVersionId
+		dlgresult = UiSelectGame(&gameData, multi_handle_events);
 		if (dlgresult == SELGAME_PREVIOUS) {
 			if (IsGameSrv) {
 				gbSelectProvider = true;
@@ -771,7 +772,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		}
 
 		if (dlgresult == SELGAME_JOIN) {
-			pnum = sgGameInitInfo.bPlayerId;
+			pnum = gameData.aePlayerId;
 			if (mypnum != pnum) {
 				copy_pod(plr, myplr);
 				mypnum = pnum;
@@ -782,12 +783,12 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		break;
 	}
 
-	gnTicksRate = sgGameInitInfo.bTickRate;
+	gnTicksRate = gameData.aeTickRate;
 	gnTickDelay = 1000 / gnTicksRate;
-	gbNetUpdateRate = sgGameInitInfo.bNetUpdateRate;
-	assert(mypnum == sgGameInitInfo.bPlayerId);
-	gnDifficulty = sgGameInitInfo.bDifficulty;
-	SetRndSeed(sgGameInitInfo.dwSeed);
+	gbNetUpdateRate = gameData.aeNetUpdateRate;
+	assert(mypnum == gameData.aePlayerId);
+	gnDifficulty = gameData.aeDifficulty;
+	SetRndSeed(gameData.aeSeed);
 
 	for (i = 0; i < NUM_LEVELS; i++) {
 		seed = GetRndSeed();
@@ -804,20 +805,20 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 
 bool NetInit(bool bSinglePlayer)
 {
-	SNetGameData sgGameInitInfo;
+	_uigamedata gameData;
 
 	while (TRUE) {
 		SetRndSeed(0);
-		sgGameInitInfo.dwSeed = time(NULL);
-		sgGameInitInfo.dwVersionId = GAME_VERSION;
-		sgGameInitInfo.bPlayerId = 0;
-		//sgGameInitInfo.bDifficulty = DIFF_NORMAL;
-		//sgGameInitInfo.bTickRate = SPEED_NORMAL;
-		//sgGameInitInfo.bNetUpdateRate = 1;
-		//sgGameInitInfo.bMaxPlayers = MAX_PLRS;
+		gameData.aeSeed = time(NULL);
+		gameData.aeVersionId = GAME_VERSION;
+		gameData.aePlayerId = 0;
+		//gameData.aeDifficulty = DIFF_NORMAL;
+		//gameData.aeTickRate = SPEED_NORMAL;
+		//gameData.aeNetUpdateRate = 1;
+		//gameData.aeMaxPlayers = MAX_PLRS;
 		gbJoinGame = false;
 		memset(players, 0, sizeof(players));
-		if (!multi_init_game(bSinglePlayer, sgGameInitInfo))
+		if (!multi_init_game(bSinglePlayer, gameData))
 			return false;
 		static_assert(LEAVE_NONE == 0, "NetInit uses memset to reset the LEAVE_ enum values.");
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
@@ -852,11 +853,11 @@ bool NetInit(bool bSinglePlayer)
 		}
 		NetClose();
 	}
-	assert(mypnum == sgGameInitInfo.bPlayerId);
-	assert(gnTicksRate == sgGameInitInfo.bTickRate);
+	assert(mypnum == gameData.aePlayerId);
+	assert(gnTicksRate == gameData.aeTickRate);
 	assert(gnTickDelay == 1000 / gnTicksRate);
-	assert(gbNetUpdateRate == sgGameInitInfo.bNetUpdateRate);
-	assert(gnDifficulty == sgGameInitInfo.bDifficulty);
+	assert(gbNetUpdateRate == gameData.aeNetUpdateRate);
+	assert(gnDifficulty == gameData.aeDifficulty);
 	return true;
 }
 

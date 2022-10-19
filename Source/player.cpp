@@ -14,16 +14,10 @@ PlayerStruct players[MAX_PLRS];
 BYTE gbLvlLoad;
 /** The current player while processing the players. */
 BYTE gbGameLogicPnum;
-bool _gbPlrGfxSizeLoaded = false;
-int plr_lframe_size;
-int plr_wframe_size;
-int plr_aframe_size;
-int plr_fframe_size;
-int plr_qframe_size;
-int plr_hframe_size;
-int plr_bframe_size;
-int plr_sframe_size;
-int plr_dframe_size;
+/** Cache the maximum sizes of the player gfx files. */
+static unsigned _guPlrFrameSize[NUM_PFIDXs];
+/** Whether the _guPlrFrameSize array is initalized. */
+static bool _gbPlrGfxSizeLoaded = false;
 
 /** Maps from armor animation to letter used in graphic files. */
 const char ArmourChar[4] = {
@@ -78,13 +72,13 @@ const int plryoff2[NUM_DIRS + 1] = { 0, 1, 0, 1, -1, -1, 0, -1, 1 };
  */
 const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
 	// clang-format off
-	{ 10, 16, 8, 2, 20, 20, 6 },
-	{  8, 18, 8, 4, 20, 16, 7 },
-	{  8, 16, 8, 6, 20, 12, 8 },
+	{ 10, 8, 16, 20, 2, 6, 20 },
+	{  8, 8, 18, 16, 4, 7, 20 },
+	{  8, 8, 16, 12, 6, 8, 20 },
 #ifdef HELLFIRE
-	{  8, 16, 8, 3, 20, 18, 6 },
-	{  8, 18, 8, 4, 20, 16, 7 },
-	{ 10, 16, 8, 2, 20, 20, 6 },
+	{  8, 8, 16, 18, 3, 6, 20 },
+	{  8, 8, 18, 16, 4, 7, 20 },
+	{ 10, 8, 16, 20, 2, 6, 20 },
 #endif
 	// clang-format on
 };
@@ -101,8 +95,8 @@ const BYTE PlrGFXAnimActFrames[NUM_CLASSES][2] = {
 #endif
 	// clang-format on
 };
-/** Specifies the length of a frame for each animation. */
-const BYTE PlrAnimFrameLens[NUM_PLR_ANIMS] = { 4, 1, 1, 3, 2, 1, 1 };
+/** Specifies the length of a frame for each animation (player_graphic_idx). */
+const BYTE PlrAnimFrameLens[NUM_PFIDXs] = { 4, 1, 1, 1, 1, 1, 3, 1, 2 };
 
 /** Maps from player_class to starting stat in strength. */
 const int StrengthTbl[NUM_CLASSES] = {
@@ -269,8 +263,6 @@ void LoadPlrGFX(int pnum, unsigned gfxflag)
 	char prefix[16];
 	char pszName[DATA_ARCHIVE_MAX_PATH];
 	const char *szCel, *cs;
-	BYTE *pData;
-	BYTE *(*pAnim)[8];
 	unsigned i, mask;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -287,49 +279,31 @@ void LoadPlrGFX(int pnum, unsigned gfxflag)
 		switch (i) {
 		case PFIDX_STAND:
 			szCel = currLvl._dType != DTYPE_TOWN ? "AS" : "ST";
-			pData = plr._pNData;
-			pAnim = &plr._pNAnim.paAnimData;
 			break;
 		case PFIDX_WALK:
 			szCel = currLvl._dType != DTYPE_TOWN ? "AW" : "WL";
-			pData = plr._pWData;
-			pAnim = &plr._pWAnim.paAnimData;
 			break;
 		case PFIDX_ATTACK:
 			szCel = "AT";
-			pData = plr._pAData;
-			pAnim = &plr._pAAnim.paAnimData;
-			break;
-		case PFIDX_HIT:
-			szCel = "HT";
-			pData = plr._pHData;
-			pAnim = &plr._pHAnim.paAnimData;
-			break;
-		case PFIDX_LIGHTNING:
-			szCel = "LM";
-			pData = plr._pLData;
-			pAnim = &plr._pLAnim.paAnimData;
 			break;
 		case PFIDX_FIRE:
 			szCel = "FM";
-			pData = plr._pFData;
-			pAnim = &plr._pFAnim.paAnimData;
+			break;
+		case PFIDX_LIGHTNING:
+			szCel = "LM";
 			break;
 		case PFIDX_MAGIC:
 			szCel = "QM";
-			pData = plr._pTData;
-			pAnim = &plr._pTAnim.paAnimData;
+			break;
+		case PFIDX_BLOCK:
+			szCel = "BL";
+			break;
+		case PFIDX_GOTHIT:
+			szCel = "HT";
 			break;
 		case PFIDX_DEATH:
 			assert((plr._pgfxnum & 0xF) == ANIM_ID_UNARMED);
 			szCel = "DT";
-			pData = plr._pDData;
-			pAnim = &plr._pDAnim.paAnimData;
-			break;
-		case PFIDX_BLOCK:
-			szCel = "BL";
-			pData = plr._pBData;
-			pAnim = &plr._pBAnim.paAnimData;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -337,8 +311,8 @@ void LoadPlrGFX(int pnum, unsigned gfxflag)
 		}
 
 		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cs, prefix, prefix, szCel);
-		LoadFileWithMem(pszName, pData);
-		SetPlayerGPtrs(pData, *pAnim);
+		LoadFileWithMem(pszName, plr._pAnimFileData[i]);
+		SetPlayerGPtrs(plr._pAnimFileData[i], plr._pAnims[i].paAnimData);
 		plr._pGFXLoad |= 1 << i;
 	}
 }
@@ -356,7 +330,7 @@ void InitPlayerGFX(int pnum)
 	} else {
 		gfxflag = PFILE_NONDEATH;
 		if (currLvl._dType == DTYPE_TOWN)
-			gfxflag &= ~(PFILE_ATTACK | PFILE_HIT | PFILE_BLOCK);
+			gfxflag &= ~(PFILE_ATTACK | PFILE_GOTHIT | PFILE_BLOCK);
 		else if (!(plr._pSkillFlags & SFLAG_BLOCK))
 			gfxflag &= ~PFILE_BLOCK;
 	}
@@ -412,42 +386,22 @@ void InitPlrGFXMem(int pnum)
 		_gbPlrGfxSizeLoaded = true;
 
 		// STAND -- ST: TOWN, AS: DUNGEON
-		plr_sframe_size = std::max(GetPlrGFXSize("ST"), GetPlrGFXSize("AS"));
+		_guPlrFrameSize[PFIDX_STAND] = std::max(GetPlrGFXSize("ST"), GetPlrGFXSize("AS"));
 		// WALK -- WL: TOWN, AW: DUNGEON
-		plr_wframe_size = std::max(GetPlrGFXSize("WL"), GetPlrGFXSize("AW"));
-		// ATTACK
-		plr_aframe_size = GetPlrGFXSize("AT");
-		// HIT
-		plr_hframe_size = GetPlrGFXSize("HT");
-		// LIGHTNING
-		plr_lframe_size = GetPlrGFXSize("LM");
-		// FIRE
-		plr_fframe_size = GetPlrGFXSize("FM");
-		// MAGIC
-		plr_qframe_size = GetPlrGFXSize("QM");
-		// DEATH
-		plr_dframe_size = GetPlrGFXSize("DT");
-		// BLOCK
-		plr_bframe_size = GetPlrGFXSize("BL");
+		_guPlrFrameSize[PFIDX_WALK] = std::max(GetPlrGFXSize("WL"), GetPlrGFXSize("AW"));
+		_guPlrFrameSize[PFIDX_ATTACK] = GetPlrGFXSize("AT");
+		_guPlrFrameSize[PFIDX_FIRE] = GetPlrGFXSize("FM");
+		_guPlrFrameSize[PFIDX_LIGHTNING] = GetPlrGFXSize("LM");
+		_guPlrFrameSize[PFIDX_MAGIC] = GetPlrGFXSize("QM");
+		_guPlrFrameSize[PFIDX_BLOCK] = GetPlrGFXSize("BL");
+		_guPlrFrameSize[PFIDX_GOTHIT] = GetPlrGFXSize("HT");
+		_guPlrFrameSize[PFIDX_DEATH] = GetPlrGFXSize("DT");
 	}
-	assert(plr._pNData == NULL);
-	plr._pNData = DiabloAllocPtr(plr_sframe_size);
-	assert(plr._pWData == NULL);
-	plr._pWData = DiabloAllocPtr(plr_wframe_size);
-	assert(plr._pAData == NULL);
-	plr._pAData = DiabloAllocPtr(plr_aframe_size);
-	assert(plr._pHData == NULL);
-	plr._pHData = DiabloAllocPtr(plr_hframe_size);
-	assert(plr._pLData == NULL);
-	plr._pLData = DiabloAllocPtr(plr_lframe_size);
-	assert(plr._pFData == NULL);
-	plr._pFData = DiabloAllocPtr(plr_fframe_size);
-	assert(plr._pTData == NULL);
-	plr._pTData = DiabloAllocPtr(plr_qframe_size);
-	assert(plr._pDData == NULL);
-	plr._pDData = DiabloAllocPtr(plr_dframe_size);
-	assert(plr._pBData == NULL);
-	plr._pBData = DiabloAllocPtr(plr_bframe_size);
+
+	for (int i = 0; i < NUM_PFIDXs; i++) {
+		assert(plr._pAnimFileData[i] == NULL);
+		plr._pAnimFileData[i] = DiabloAllocPtr(_guPlrFrameSize[i]);
+	}
 
 	plr._pGFXLoad = 0;
 }
@@ -458,15 +412,9 @@ void FreePlayerGFX(int pnum)
 		dev_fatal("FreePlayerGFX: illegal player %d", pnum);
 	}
 
-	MemFreeDbg(plr._pNData);
-	MemFreeDbg(plr._pWData);
-	MemFreeDbg(plr._pAData);
-	MemFreeDbg(plr._pHData);
-	MemFreeDbg(plr._pLData);
-	MemFreeDbg(plr._pFData);
-	MemFreeDbg(plr._pTData);
-	MemFreeDbg(plr._pDData);
-	MemFreeDbg(plr._pBData);
+	for (int i = 0; i < NUM_PFIDXs; i++)
+		MemFreeDbg(plr._pAnimFileData[i]);
+
 	plr._pGFXLoad = 0;
 }
 
@@ -474,25 +422,26 @@ void FreePlayerGFX(int pnum)
  * @brief Sets the new Player Animation with all relevant information for rendering
 
  * @param pnum Player Id
- * @param anims Pointer to Animation Data
- * @param dir the direction of the player
- * @param numFrames Number of Frames in Animation
- * @param frameLen the length of a single animation frame
- * @param width Width of sprite
+ * @param animIdx type of the animation to select (player_graphic_idx)
+ * @param dir the direction of the player (direction)
 */
-static void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLen, int width) //, int numSkippedFrames /*= 0*/, bool processAnimationPending /*= false*/, int stopDistributingAfterFrame /*= 0*/)
+static void NewPlrAnim(int pnum, unsigned animIdx, int dir)
 {
+	PlrAnimStruct* anim;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("NewPlrAnim: illegal player %d", pnum);
 	}
+	anim = &plr._pAnims[animIdx];
+
 	plr._pdir = dir;
-	plr._pAnimData = anims[dir];
-	plr._pAnimLen = numFrames;
+	plr._pAnimData = anim->paAnimData[dir];
+	plr._pAnimLen = anim->paFrames;
 	plr._pAnimFrame = 1;
 	plr._pAnimCnt = (gbGameLogicProgress < GLP_PLAYERS_DONE && gbGameLogicPnum <= pnum) ? -1 : 0;
-	plr._pAnimFrameLen = frameLen;
-	plr._pAnimWidth = width;
-	plr._pAnimXOffset = (width - TILE_WIDTH) >> 1;
+	plr._pAnimFrameLen = PlrAnimFrameLens[animIdx];
+	plr._pAnimWidth = anim->paAnimWidth;
+	plr._pAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
 }
 
 /*static void ClearPlrPVars(int pnum)
@@ -517,129 +466,129 @@ void SetPlrAnims(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("SetPlrAnims: illegal player %d", pnum);
 	}
-	plr._pNAnim.paAnimWidth = 96 * ASSET_MPL;
-	plr._pAAnim.paAnimWidth = 128 * ASSET_MPL;
-	plr._pWAnim.paAnimWidth = 96 * ASSET_MPL;
-	plr._pBAnim.paAnimWidth = 96 * ASSET_MPL;
-	plr._pDAnim.paAnimWidth = 128 * ASSET_MPL;
-	plr._pLAnim.paAnimWidth = 96 * ASSET_MPL;
-	plr._pFAnim.paAnimWidth = 96 * ASSET_MPL;
-	plr._pTAnim.paAnimWidth = 96 * ASSET_MPL;
-	plr._pHAnim.paAnimWidth = 96 * ASSET_MPL;
+	plr._pAnims[PFIDX_STAND].paAnimWidth = 96 * ASSET_MPL;
+	plr._pAnims[PFIDX_WALK].paAnimWidth = 96 * ASSET_MPL;
+	plr._pAnims[PFIDX_ATTACK].paAnimWidth = 128 * ASSET_MPL;
+	plr._pAnims[PFIDX_FIRE].paAnimWidth = 96 * ASSET_MPL;
+	plr._pAnims[PFIDX_LIGHTNING].paAnimWidth = 96 * ASSET_MPL;
+	plr._pAnims[PFIDX_MAGIC].paAnimWidth = 96 * ASSET_MPL;
+	plr._pAnims[PFIDX_BLOCK].paAnimWidth = 96 * ASSET_MPL;
+	plr._pAnims[PFIDX_GOTHIT].paAnimWidth = 96 * ASSET_MPL;
+	plr._pAnims[PFIDX_DEATH].paAnimWidth = 128 * ASSET_MPL;
 
 	pc = plr._pClass;
 	plr._pAFNum = PlrGFXAnimActFrames[pc][0];
 	plr._pSFNum = PlrGFXAnimActFrames[pc][1];
 
-	plr._pNAnim.paFrames = PlrGFXAnimLens[pc][PA_STAND];
-	plr._pAAnim.paFrames = PlrGFXAnimLens[pc][PA_ATTACK];
-	plr._pWAnim.paFrames = PlrGFXAnimLens[pc][PA_WALK];
-	plr._pBAnim.paFrames = PlrGFXAnimLens[pc][PA_BLOCK];
-	plr._pDAnim.paFrames = PlrGFXAnimLens[pc][PA_DEATH];
-	plr._pLAnim.paFrames = PlrGFXAnimLens[pc][PA_SPELL];
-	plr._pFAnim.paFrames = PlrGFXAnimLens[pc][PA_SPELL];
-	plr._pTAnim.paFrames = PlrGFXAnimLens[pc][PA_SPELL];
-	plr._pHAnim.paFrames = PlrGFXAnimLens[pc][PA_GOTHIT];
+	plr._pAnims[PFIDX_STAND].paFrames = PlrGFXAnimLens[pc][PA_STAND];
+	plr._pAnims[PFIDX_WALK].paFrames = PlrGFXAnimLens[pc][PA_WALK];
+	plr._pAnims[PFIDX_ATTACK].paFrames = PlrGFXAnimLens[pc][PA_ATTACK];
+	plr._pAnims[PFIDX_FIRE].paFrames = PlrGFXAnimLens[pc][PA_SPELL];
+	plr._pAnims[PFIDX_LIGHTNING].paFrames = PlrGFXAnimLens[pc][PA_SPELL];
+	plr._pAnims[PFIDX_MAGIC].paFrames = PlrGFXAnimLens[pc][PA_SPELL];
+	plr._pAnims[PFIDX_BLOCK].paFrames = PlrGFXAnimLens[pc][PA_BLOCK];
+	plr._pAnims[PFIDX_GOTHIT].paFrames = PlrGFXAnimLens[pc][PA_GOTHIT];
+	plr._pAnims[PFIDX_DEATH].paFrames = PlrGFXAnimLens[pc][PA_DEATH];
 
 	gn = plr._pgfxnum & 0xF;
 	switch (pc) {
 	case PC_WARRIOR:
 		if (gn == ANIM_ID_BOW) {
-			plr._pNAnim.paFrames = 8;
-			plr._pAAnim.paAnimWidth = 96 * ASSET_MPL;
+			plr._pAnims[PFIDX_STAND].paFrames = 8;
+			plr._pAnims[PFIDX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_AXE) {
-			plr._pAAnim.paFrames = 20;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 20;
 			plr._pAFNum = 10;
 		} else if (gn == ANIM_ID_STAFF) {
-			// plr._pAAnim.paFrames = 16;
+			// plr._pAnims[PFIDX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		}
 		break;
 	case PC_ROGUE:
 		if (gn == ANIM_ID_AXE) {
-			plr._pAAnim.paFrames = 22;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 22;
 			plr._pAFNum = 13;
 		} else if (gn == ANIM_ID_BOW) {
-			plr._pAAnim.paFrames = 12;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 12;
 			plr._pAFNum = 7;
 		} else if (gn == ANIM_ID_STAFF) {
-			plr._pAAnim.paFrames = 16;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		}
 		break;
 	case PC_SORCERER:
-		plr._pLAnim.paAnimWidth = 128 * ASSET_MPL;
-		plr._pFAnim.paAnimWidth = 128 * ASSET_MPL;
-		plr._pTAnim.paAnimWidth = 128 * ASSET_MPL;
+		plr._pAnims[PFIDX_FIRE].paAnimWidth = 128 * ASSET_MPL;
+		plr._pAnims[PFIDX_LIGHTNING].paAnimWidth = 128 * ASSET_MPL;
+		plr._pAnims[PFIDX_MAGIC].paAnimWidth = 128 * ASSET_MPL;
 		if (gn == ANIM_ID_UNARMED) {
-			plr._pAAnim.paFrames = 20;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 20;
 		} else if (gn == ANIM_ID_UNARMED_SHIELD) {
 			plr._pAFNum = 9;
 		} else if (gn == ANIM_ID_BOW) {
-			plr._pAAnim.paFrames = 20;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 20;
 			plr._pAFNum = 16;
 		} else if (gn == ANIM_ID_AXE) {
-			plr._pAAnim.paFrames = 24;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 24;
 			plr._pAFNum = 16;
 		}
 		break;
 #ifdef HELLFIRE
 	case PC_MONK:
-		plr._pNAnim.paAnimWidth = 112 * ASSET_MPL;
-		plr._pAAnim.paAnimWidth = 130 * ASSET_MPL;
-		plr._pWAnim.paAnimWidth = 112 * ASSET_MPL;
-		plr._pBAnim.paAnimWidth = 98 * ASSET_MPL;
-		plr._pDAnim.paAnimWidth = 160 * ASSET_MPL;
-		plr._pLAnim.paAnimWidth = 114 * ASSET_MPL;
-		plr._pFAnim.paAnimWidth = 114 * ASSET_MPL;
-		plr._pTAnim.paAnimWidth = 114 * ASSET_MPL;
-		plr._pHAnim.paAnimWidth = 98 * ASSET_MPL;
+		plr._pAnims[PFIDX_STAND].paAnimWidth = 112 * ASSET_MPL;
+		plr._pAnims[PFIDX_WALK].paAnimWidth = 112 * ASSET_MPL;
+		plr._pAnims[PFIDX_ATTACK].paAnimWidth = 130 * ASSET_MPL;
+		plr._pAnims[PFIDX_FIRE].paAnimWidth = 114 * ASSET_MPL;
+		plr._pAnims[PFIDX_LIGHTNING].paAnimWidth = 114 * ASSET_MPL;
+		plr._pAnims[PFIDX_MAGIC].paAnimWidth = 114 * ASSET_MPL;
+		plr._pAnims[PFIDX_BLOCK].paAnimWidth = 98 * ASSET_MPL;
+		plr._pAnims[PFIDX_GOTHIT].paAnimWidth = 98 * ASSET_MPL;
+		plr._pAnims[PFIDX_DEATH].paAnimWidth = 160 * ASSET_MPL;
 
 		switch (gn) {
 		case ANIM_ID_UNARMED:
 		case ANIM_ID_UNARMED_SHIELD:
-			plr._pAAnim.paFrames = 12;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 12;
 			plr._pAFNum = 7;
 			break;
 		case ANIM_ID_BOW:
-			plr._pAAnim.paFrames = 20;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 20;
 			plr._pAFNum = 14;
 			break;
 		case ANIM_ID_AXE:
-			plr._pAAnim.paFrames = 23;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 23;
 			plr._pAFNum = 14;
 			break;
 		case ANIM_ID_STAFF:
-			plr._pAAnim.paFrames = 13;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 13;
 			plr._pAFNum = 8;
 			break;
 		}
 		break;
 	case PC_BARD:
 		if (gn == ANIM_ID_AXE) {
-			plr._pAAnim.paFrames = 22;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 22;
 			plr._pAFNum = 13;
 		} else if (gn == ANIM_ID_BOW) {
-			plr._pAAnim.paFrames = 12;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 12;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
-			plr._pAAnim.paFrames = 16;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_SWORD_SHIELD || gn == ANIM_ID_SWORD) {
-			plr._pAAnim.paFrames = 10; // TODO: check for onehanded swords or daggers?
+			plr._pAnims[PFIDX_ATTACK].paFrames = 10; // TODO: check for onehanded swords or daggers?
 		}
 		break;
 	case PC_BARBARIAN:
 		if (gn == ANIM_ID_AXE) {
-			plr._pAAnim.paFrames = 20;
+			plr._pAnims[PFIDX_ATTACK].paFrames = 20;
 			plr._pAFNum = 8;
 		} else if (gn == ANIM_ID_BOW) {
-			plr._pNAnim.paFrames = 8;
-			plr._pAAnim.paAnimWidth = 96 * ASSET_MPL;
+			plr._pAnims[PFIDX_STAND].paFrames = 8;
+			plr._pAnims[PFIDX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
-			//plr._pAAnim.paFrames = 16;
+			//plr._pAnims[PFIDX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_MACE || gn == ANIM_ID_MACE_SHIELD) {
 			plr._pAFNum = 8;
@@ -651,8 +600,8 @@ void SetPlrAnims(int pnum)
 		break;
 	}
 	if (currLvl._dType == DTYPE_TOWN) {
-		plr._pNAnim.paFrames = 20;
-		//plr._pWAnim.paFrames = 8;
+		plr._pAnims[PFIDX_STAND].paFrames = 20;
+		//plr._pAnims[PFIDX_WALK].paFrames = 8;
 	}
 }
 
@@ -839,7 +788,8 @@ void InitLvlPlayer(int pnum, bool entering)
 		plr._pdir = DIR_S;
 		PlrStartStand(pnum);
 		// TODO: randomize AnimFrame/AnimCnt for live players?
-		// plr._pAnimFrame = RandRange(1, plr._pNAnim.paFrames - 1);
+		// assert(plr._pAnims[PFIDX_STAND].paFrames == plr._pAnimLen);
+		// plr._pAnimFrame = RandRange(1, plr._pAnimLen - 1);
 		// plr._pAnimCnt = random_(2, 3);
 
 		ClrPlrPath(pnum);
@@ -1086,7 +1036,7 @@ static void StartPlrKill(int pnum, int dmgtype)
 			LoadPlrGFX(pnum, PFILE_DEATH);
 		}
 
-		NewPlrAnim(pnum, plr._pDAnim.paAnimData, plr._pdir, plr._pDAnim.paFrames, PlrAnimFrameLens[PA_DEATH], plr._pDAnim.paAnimWidth);
+		NewPlrAnim(pnum, PFIDX_DEATH, plr._pdir);
 
 		RemovePlrFromMap(pnum);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
@@ -1178,7 +1128,7 @@ static void StartStand(int pnum)
 		LoadPlrGFX(pnum, PFILE_STAND);
 	}
 
-	NewPlrAnim(pnum, plr._pNAnim.paAnimData, plr._pdir, plr._pNAnim.paFrames, PlrAnimFrameLens[PA_STAND], plr._pNAnim.paAnimWidth);
+	NewPlrAnim(pnum, PFIDX_STAND, plr._pdir);
 }
 
 void PlrStartStand(int pnum)
@@ -1406,7 +1356,7 @@ static bool StartWalk(int pnum)
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
 
-	NewPlrAnim(pnum, plr._pWAnim.paAnimData, dir, plr._pWAnim.paFrames, PlrAnimFrameLens[PA_WALK], plr._pWAnim.paAnimWidth);
+	NewPlrAnim(pnum, PFIDX_WALK, dir);
 
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
@@ -1506,7 +1456,7 @@ static bool StartAttack(int pnum)
 	if (!(plr._pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, plr._pAAnim.paAnimData, dir, plr._pAAnim.paFrames, PlrAnimFrameLens[PA_ATTACK], plr._pAAnim.paAnimWidth);
+	NewPlrAnim(pnum, PFIDX_ATTACK, dir);
 
 	AssertFixPlayerLocation(pnum);
 	return true;
@@ -1556,7 +1506,7 @@ static void StartRangeAttack(int pnum)
 	if (!(plr._pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, plr._pAAnim.paAnimData, dir, plr._pAAnim.paFrames, PlrAnimFrameLens[PA_ATTACK], plr._pAAnim.paAnimWidth);
+	NewPlrAnim(pnum, PFIDX_ATTACK, dir);
 
 	AssertFixPlayerLocation(pnum);
 }
@@ -1572,16 +1522,14 @@ static void StartBlock(int pnum, int dir)
 	if (!(plr._pGFXLoad & PFILE_BLOCK)) {
 		LoadPlrGFX(pnum, PFILE_BLOCK);
 	}
-	NewPlrAnim(pnum, plr._pBAnim.paAnimData, dir, plr._pBAnim.paFrames, PlrAnimFrameLens[PA_BLOCK], plr._pBAnim.paAnimWidth);
+	NewPlrAnim(pnum, PFIDX_BLOCK, dir);
 
 	AssertFixPlayerLocation(pnum);
 }
 
 static void StartSpell(int pnum)
 {
-	int i, dx, dy;
-	player_graphic gfx;
-	BYTE **anim;
+	int i, dx, dy, gfx, animIdx;
 	const SpellData *sd;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -1621,27 +1569,17 @@ static void StartSpell(int pnum)
 	sd = &spelldata[plr._pVar5]; // SPELL_NUM
 	if (sd->sSkillFlags & SDFLAG_TARGETED)
 		plr._pdir = GetDirection(plr._px, plr._py, dx, dy);
-	switch (sd->sType) {
-	case STYPE_FIRE:
-		gfx = PFILE_FIRE;
-		anim = plr._pFAnim.paAnimData;
-		break;
-	case STYPE_LIGHTNING:
-		gfx = PFILE_LIGHTNING;
-		anim = plr._pLAnim.paAnimData;
-		break;
-	case STYPE_MAGIC:
-		gfx = PFILE_MAGIC;
-		anim = plr._pTAnim.paAnimData;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+
+	static_assert((int)PFIDX_LIGHTNING - (int)PFIDX_FIRE == (int)STYPE_LIGHTNING - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type I.");
+	static_assert((int)PFIDX_MAGIC - (int)PFIDX_FIRE == (int)STYPE_MAGIC - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type II.");
+	static_assert((int)PFILE_FIRE == 1 << (int)PFIDX_FIRE, "StartSpell calculates player_graphic.");
+	animIdx = PFIDX_FIRE + sd->sType - STYPE_FIRE;
+	gfx = 1 << animIdx;
+
 	if (!(plr._pGFXLoad & gfx)) {
 		LoadPlrGFX(pnum, gfx);
 	}
-	NewPlrAnim(pnum, anim, plr._pdir, plr._pFAnim.paFrames, PlrAnimFrameLens[PA_SPELL], plr._pFAnim.paAnimWidth);
+	NewPlrAnim(pnum, animIdx, plr._pdir);
 
 	PlaySfxLoc(sd->sSFX, plr._px, plr._py);
 
@@ -1727,10 +1665,10 @@ void StartPlrHit(int pnum, int dam, bool forcehit, int dir)
 
 	dir = dir == DIR_NONE ? plr._pdir : OPPOSITE(dir);
 
-	if (!(plr._pGFXLoad & PFILE_HIT)) {
-		LoadPlrGFX(pnum, PFILE_HIT);
+	if (!(plr._pGFXLoad & PFILE_GOTHIT)) {
+		LoadPlrGFX(pnum, PFILE_GOTHIT);
 	}
-	NewPlrAnim(pnum, plr._pHAnim.paAnimData, dir, plr._pHAnim.paFrames, PlrAnimFrameLens[PA_GOTHIT], plr._pHAnim.paAnimWidth);
+	NewPlrAnim(pnum, PFIDX_GOTHIT, dir);
 
 	plr._pmode = PM_GOTHIT;
 	RemovePlrFromMap(pnum);
@@ -1922,16 +1860,17 @@ static void PlrDoWalk(int pnum)
 	}
 	if (stepAnim) {
 		PlrStepAnim(pnum);
-		// assert(PlrAnimFrameLens[PA_WALK] == 1);
+		// assert(PlrAnimFrameLens[PFIDX_WALK] == 1);
 		// PlrChangeOffset(pnum); -- unnecessary in case the velocity is based on _pIWalkSpeed
 	}
-	assert(PlrAnimFrameLens[PA_WALK] == 1);
+	assert(PlrAnimFrameLens[PFIDX_WALK] == 1);
 	if ((plr._pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, plr._px, plr._py);
 	}
 
-	assert(PlrAnimFrameLens[PA_WALK] == 1);
-	if (plr._pAnimFrame < plr._pWAnim.paFrames) {
+	assert(PlrAnimFrameLens[PFIDX_WALK] == 1);
+	// assert(plr._pAnims[PFIDX_WALK].paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen) {
 		PlrChangeOffset(pnum);
 		return;
 	}
@@ -2316,8 +2255,9 @@ static void PlrDoAttack(int pnum)
 			WeaponDur(pnum, 40 - hitcnt * 8);
 		}
 	}
-	assert(PlrAnimFrameLens[PA_ATTACK] == 1);
-	if (plr._pAnimFrame < plr._pAAnim.paFrames)
+	assert(PlrAnimFrameLens[PFIDX_ATTACK] == 1);
+	// assert(plr._pAnims[PFIDX_ATTACK].paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 
 	//PlrStartStand(pnum);
@@ -2390,8 +2330,9 @@ static void PlrDoRangeAttack(int pnum)
 
 		WeaponDur(pnum, 40);
 	}
-	assert(PlrAnimFrameLens[PA_ATTACK] == 1);
-	if (plr._pAnimFrame < plr._pAAnim.paFrames)
+	assert(PlrAnimFrameLens[PFIDX_ATTACK] == 1);
+	// assert(plr._pAnims[PFIDX_ATTACK].paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 
 	//PlrStartStand(pnum);
@@ -2458,15 +2399,15 @@ static void PlrDoBlock(int pnum)
 	if (plr._pIFlags & ISPL_FASTBLOCK) {
 		PlrStepAnim(pnum);
 	}
-
-	if (plr._pAnimFrame > plr._pBAnim.paFrames || (plr._pAnimFrame == plr._pBAnim.paFrames && plr._pAnimCnt >= PlrAnimFrameLens[PA_BLOCK] - 1)) {
+	// assert(plr._pAnims[PFIDX_BLOCK].paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame > plr._pAnimLen || (plr._pAnimFrame == plr._pAnimLen && plr._pAnimCnt >= PlrAnimFrameLens[PFIDX_BLOCK] - 1)) {
 		if (plr.destAction == ACTION_BLOCK) {
 			// extend the blocking animation TODO: does not work with too fast animations (WARRIORs) in faster/fastest games
 			plr.destAction = ACTION_NONE;
-			plr._pAnimData = plr._pBAnim.paAnimData[plr.destParam1];
-			plr._pAnimFrame = plr._pBAnim.paFrames;
-			plr._pAnimCnt = PlrAnimFrameLens[PA_BLOCK] - 2;
-			extlen = plr._pBAnim.paFrames * 4;
+			plr._pAnimData = plr._pAnims[PFIDX_BLOCK].paAnimData[plr.destParam1];
+			plr._pAnimFrame = plr._pAnims[PFIDX_BLOCK].paFrames;
+			plr._pAnimCnt = PlrAnimFrameLens[PFIDX_BLOCK] - 2;
+			extlen = plr._pAnims[PFIDX_BLOCK].paFrames * 4;
 			if (plr._pIFlags & ISPL_FASTBLOCK) {
 				extlen >>= 1;
 				if (extlen < 8)
@@ -2546,8 +2487,9 @@ static void PlrDoSpell(int pnum)
 		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // SPELL_TARGET_X, SPELL_TARGET_Y
 			spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // SPELL_NUM, SPELL_LEVEL
 	}
-	assert(PlrAnimFrameLens[PA_SPELL] == 1);
-	if (plr._pAnimFrame < plr._pFAnim.paFrames)
+	assert(PlrAnimFrameLens[PFIDX_FIRE] == 1 && PlrAnimFrameLens[PFIDX_LIGHTNING] == 1 && PlrAnimFrameLens[PFIDX_MAGIC] == 1);
+	// assert(plr._pAnims[PFIDX_FIRE].paFrames == plr._pAnimLen || plr._pAnims[PFIDX_LIGHTNING].paFrames == plr._pAnimLen || plr._pAnims[PFIDX_MAGIC].paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 
 	//PlrStartStand(pnum);
@@ -2615,8 +2557,9 @@ static void PlrDoGotHit(int pnum)
 		PlrStepAnim(pnum);
 	}
 
-	assert(PlrAnimFrameLens[PA_GOTHIT] == 1);
-	if (plr._pAnimFrame < plr._pHAnim.paFrames)
+	assert(PlrAnimFrameLens[PFIDX_GOTHIT] == 1);
+	// assert(plr._pAnims[PFIDX_GOTHIT].paFrames == plr._pAnimLen);
+	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 	//PlrStartStand(pnum);
 	StartStand(pnum);
@@ -2631,9 +2574,9 @@ static void PlrDoDeath(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrDoDeath: illegal player %d", pnum);
 	}
-
+	// assert(plr._pAnims[PFIDX_DEATH].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame == plr._pAnimLen) {
-		assert(PlrAnimFrameLens[PA_DEATH] > 1);
+		assert(PlrAnimFrameLens[PFIDX_DEATH] > 1);
 		plr._pAnimCnt = 0;
 		if (plr._pVar7 > 0 && --plr._pVar7 == 0) { // DEATH_DELAY
 			if (pnum == mypnum) {
@@ -3222,7 +3165,8 @@ bool MakePlrPath(int pnum, int xx, int yy, bool endspace)
 void SyncPlrAnim(int pnum)
 {
 	PlayerStruct* p;
-	BYTE** anim;
+	unsigned animIdx;
+	PlrAnimStruct* anim;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("SyncPlrAnim: illegal player %d", pnum);
@@ -3231,68 +3175,45 @@ void SyncPlrAnim(int pnum)
 	switch (p->_pmode) {
 	case PM_STAND:
 	case PM_NEWLVL:
-		p->_pAnimFrameLen = PlrAnimFrameLens[PA_STAND];
-		p->_pAnimLen = p->_pNAnim.paFrames;
-		p->_pAnimWidth = p->_pNAnim.paAnimWidth;
-		p->_pAnimXOffset = (p->_pNAnim.paAnimWidth - TILE_WIDTH) >> 1;
-		anim = p->_pNAnim.paAnimData;
+		animIdx = PFIDX_STAND;
 		break;
 	case PM_WALK:
 	case PM_WALK2:
-	case PM_CHARGE: // TODO: this should be PA_SPELL + p->_pTAnim, but does not really matter...
-		p->_pAnimFrameLen = PlrAnimFrameLens[PA_WALK];
-		p->_pAnimLen = p->_pWAnim.paFrames;
-		p->_pAnimWidth = p->_pWAnim.paAnimWidth;
-		p->_pAnimXOffset = (p->_pWAnim.paAnimWidth - TILE_WIDTH) >> 1;
-		anim = p->_pWAnim.paAnimData;
+	case PM_CHARGE: // TODO: this should be PFIDX_MAGIC, but does not really matter...
+		animIdx = PFIDX_WALK;
 		break;
 	case PM_ATTACK:
 	case PM_RATTACK:
-		p->_pAnimFrameLen = PlrAnimFrameLens[PA_ATTACK];
-		p->_pAnimLen = p->_pAAnim.paFrames;
-		p->_pAnimWidth = p->_pAAnim.paAnimWidth;
-		p->_pAnimXOffset = (p->_pAAnim.paAnimWidth - TILE_WIDTH) >> 1;
-		anim = p->_pAAnim.paAnimData;
+		animIdx = PFIDX_ATTACK;
 		break;
 	case PM_BLOCK:
-		p->_pAnimFrameLen = PlrAnimFrameLens[PA_BLOCK];
-		p->_pAnimLen = p->_pBAnim.paFrames;
-		p->_pAnimWidth = p->_pBAnim.paAnimWidth;
-		p->_pAnimXOffset = (p->_pBAnim.paAnimWidth - TILE_WIDTH) >> 1;
-		anim = p->_pBAnim.paAnimData;
+		animIdx = PFIDX_BLOCK;
 		break;
 	case PM_GOTHIT:
-		p->_pAnimFrameLen = PlrAnimFrameLens[PA_GOTHIT];
-		p->_pAnimLen = p->_pHAnim.paFrames;
-		p->_pAnimWidth = p->_pHAnim.paAnimWidth;
-		p->_pAnimXOffset = (p->_pHAnim.paAnimWidth - TILE_WIDTH) >> 1;
-		anim = p->_pHAnim.paAnimData;
+		animIdx = PFIDX_GOTHIT;
 		break;
 	case PM_DYING:
 	case PM_DEATH:
-		p->_pAnimFrameLen = PlrAnimFrameLens[PA_DEATH];
-		p->_pAnimLen = p->_pDAnim.paFrames;
-		p->_pAnimWidth = p->_pDAnim.paAnimWidth;
-		p->_pAnimXOffset = (p->_pDAnim.paAnimWidth - TILE_WIDTH) >> 1;
-		anim = p->_pDAnim.paAnimData;
+		animIdx = PFIDX_DEATH;
 		break;
 	case PM_SPELL:
-		p->_pAnimFrameLen = PlrAnimFrameLens[PA_SPELL];
-		p->_pAnimLen = p->_pFAnim.paFrames;
-		p->_pAnimWidth = p->_pFAnim.paAnimWidth;
-		p->_pAnimXOffset = (p->_pFAnim.paAnimWidth - TILE_WIDTH) >> 1;
 		switch (spelldata[p->_pVar5].sType) { // SPELL_NUM
-		case STYPE_FIRE:      anim = p->_pFAnim.paAnimData; break;
-		case STYPE_LIGHTNING: anim = p->_pLAnim.paAnimData; break;
-		case STYPE_MAGIC:     anim = p->_pTAnim.paAnimData; break;
-		default: ASSUME_UNREACHABLE; anim = p->_pFAnim.paAnimData; break;
+		case STYPE_FIRE:      animIdx = PFIDX_FIRE; break;
+		case STYPE_LIGHTNING: animIdx = PFIDX_LIGHTNING; break;
+		case STYPE_MAGIC:     animIdx = PFIDX_MAGIC; break;
+		default: ASSUME_UNREACHABLE; animIdx = PFIDX_FIRE; break;
 		}
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	p->_pAnimData = anim[p->_pdir];
+	anim = &p->_pAnims[animIdx];
+	p->_pAnimFrameLen = PlrAnimFrameLens[animIdx];
+	p->_pAnimLen = anim->paFrames;
+	p->_pAnimWidth = anim->paAnimWidth;
+	p->_pAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
+	p->_pAnimData = anim->paAnimData[p->_pdir];
 }
 
 /*void CheckStats(int pnum)

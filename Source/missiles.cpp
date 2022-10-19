@@ -1297,7 +1297,7 @@ int CheckPlrCol(int pnum)
 	static_assert(PM_WALK + 1 == PM_WALK2, "CheckPlrCol expects ordered PM_WALKs.");
 	if (mode > PM_WALK2 || mode < PM_WALK)
 		return negate ? pnum : -1;
-	halfOver = plr._pAnimFrame > (plr._pWAnim.paFrames >> 1);
+	halfOver = plr._pAnimFrame > (plr._pAnims[PFIDX_WALK].paFrames >> 1);
 	if (mode == PM_WALK) {
 		if (negate)
 			halfOver = !halfOver;
@@ -1449,17 +1449,18 @@ static void SyncRhinoAnim(int mi)
 	MonAnimStruct* anim;
 
 	mis = &missile[mi];
+	assert(mis->_miAnimFlag);
+
 	mon = &monsters[mis->_miSource];
 	anim = &mon->_mAnims[
 		(mon->_mFileNum == MOFILE_RHINO) ? MA_SPECIAL :
 		(mon->_mFileNum == MOFILE_SNAKE) ? MA_ATTACK : MA_WALK];
+
 	mis->_miAnimData = anim->aData[mis->_miDir];
 	mis->_miAnimFrameLen = anim->aFrameLen;
-	assert(mis->_miAnimFlag == TRUE);
 	mis->_miAnimLen = anim->aFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
-
 	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
 	mis->_miLid = mon->mlid;
 	if (mon->_uniqtype != 0) {
@@ -1472,16 +1473,19 @@ static void SyncChargeAnim(int mi)
 {
 	MissileStruct* mis;
 	int pnum;
+	PlrAnimStruct* anim;
 
 	mis = &missile[mi];
-	pnum = mis->_miSource;
+	assert(mis->_miAnimFlag);
 
-	mis->_miAnimData = plr._pWAnim.paAnimData[mis->_miDir];
-	mis->_miAnimFrameLen = PlrAnimFrameLens[PA_WALK];
-	assert(mis->_miAnimFlag == TRUE);
-	mis->_miAnimLen = plr._pWAnim.paFrames;
-	mis->_miAnimWidth = plr._pWAnim.paAnimWidth;
-	mis->_miAnimXOffset = (plr._pWAnim.paAnimWidth - TILE_WIDTH) >> 1;
+	pnum = mis->_miSource;
+	anim = &plr._pAnims[PFIDX_WALK];
+
+	mis->_miAnimData = anim->paAnimData[mis->_miDir];
+	mis->_miAnimFrameLen = PlrAnimFrameLens[PFIDX_WALK];
+	mis->_miAnimLen = anim->paFrames;
+	mis->_miAnimWidth = anim->paAnimWidth;
+	mis->_miAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
 	mis->_miLid = plr._plid;
 }
 
@@ -3165,7 +3169,7 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
 			continue; // skip player if not on the current level
-		if (plr._pAnimFrame > (plr._pWAnim.paFrames >> 1)) {
+		if (plr._pAnimFrame > (plr._pAnims[PFIDX_WALK].paFrames >> 1)) {
 			px = plr._pfutx;
 			py = plr._pfuty;
 		} else {

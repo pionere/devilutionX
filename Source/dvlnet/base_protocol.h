@@ -14,7 +14,7 @@ namespace net {
 template <class P>
 class base_protocol : public base {
 public:
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256]);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, SNetGameData* gameData, char (&errorText)[256]);
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
 	virtual void SNetLeaveGame(int reason);
@@ -116,9 +116,9 @@ void base_protocol<P>::wait_join()
 }
 
 template <class P>
-bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
+bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
 {
-	setup_gameinfo(std::move(info));
+	setup_gameinfo(gameData);
 	// join_game
 	setup_password(passwd);
 	gamename = std::string(addrstr);

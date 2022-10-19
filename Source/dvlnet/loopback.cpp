@@ -7,7 +7,7 @@ namespace net {
 
 static constexpr plr_t PLR_SINGLE = 0;
 
-bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
+bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
 {
 	return true;
 }
@@ -59,7 +59,7 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 		dwLen += pt->payload.size();
 
 	pkt = (SNetTurnPkt*)DiabloAllocPtr(dwLen + sizeof(SNetTurnPkt) - sizeof(pkt->data));
-	pkt->nmpTurn = pt->turn_id;
+	pkt->nmpTurn = SwapLE32(pt->turn_id);
 	pkt->nmpLen = dwLen;
 	data = pkt->data;
 	*data = PLR_SINGLE;
@@ -99,7 +99,7 @@ uint32_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 
 void loopback::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
-	turn_queue.emplace_back(turn, buffer_t(data, data + size));
+	turn_queue.emplace_back(SwapLE32(turn), buffer_t(data, data + size));
 }
 
 void loopback::SNetLeaveGame(int reason)

@@ -100,7 +100,7 @@ plr_t tcp_server::next_free_conn()
 	for (i = 0; i < MAX_PLRS; i++)
 		if (connections[i] == NULL)
 			break;
-	return i < ((SNetGameData*)game_init_info.data())->bMaxPlayers ? i : MAX_PLRS;
+	return i < ((SNetGameData*)game_init_info.data())->ngMaxPlayers ? i : MAX_PLRS;
 }
 
 plr_t tcp_server::next_free_queue()
