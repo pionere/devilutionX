@@ -447,7 +447,11 @@ typedef struct MissileStruct {
 	BYTE _miResist; // missile_resistance
 	BYTE _miFileNum; // missile_gfx_id
 	BOOLEAN _miDrawFlag; // should be drawn
-	BOOL _miAnimFlag;
+	int _miUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN _miDelFlag; // should be deleted
+	BOOLEAN _miLightFlag; // use light-transformation when drawing
+	BOOLEAN _miPreFlag; // should be drawn in the pre-phase
+	BOOLEAN _miAnimFlag;
 	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
@@ -456,10 +460,6 @@ typedef struct MissileStruct {
 	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
-	BOOL _miDelFlag; // should be deleted
-	BOOL _miLightFlag; // use light-transformation when drawing
-	BOOL _miPreFlag; // should be drawn in the pre-phase
-	int _miUniqTrans; // use unique color-transformation when drawing
 	int _misx;    // Initial tile X-position for missile
 	int _misy;    // Initial tile Y-position for missile
 	int _mix;     // Tile X-position of the missile
@@ -487,7 +487,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7; // distance travelled in case of ARROW missiles
 	int _miVar8; // last target in case of non-DOT missiles
-	ALIGNMENT(7, 21)
+	ALIGNMENT(10, 24)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -1043,81 +1043,80 @@ typedef struct PkPlayerStruct {
 } PkPlayerStruct;
 #pragma pack(pop)
 
-
 //////////////////////////////////////////////////
 // save
 //////////////////////////////////////////////////
 #pragma pack(push, 1)
 typedef struct TSaveMonster {
-	INT smmode; /* MON_MODE */
-	DWORD smsquelch;
-	BYTE smMTidx;
-	BYTE smpathcount; // unused
-	BYTE smWhoHit;
-	BYTE smgoal;
-	INT smgoalvar1;
-	INT smgoalvar2;
-	INT smgoalvar3;
-	INT smx;                // Tile X-position of monster
-	INT smy;                // Tile Y-position of monster
-	INT smfutx;             // Future tile X-position of monster. Set at start of walking animation
-	INT smfuty;             // Future tile Y-position of monster. Set at start of walking animation
-	INT smoldx;             // Most recent X-position in dMonster.
-	INT smoldy;             // Most recent Y-position in dMonster.
-	INT smxoff;             // Monster sprite's pixel X-offset from tile.
-	INT smyoff;             // Monster sprite's pixel Y-offset from tile.
-	INT smdir;              // Direction faced by monster (direction enum)
-	INT smenemy;            // The current target of the monster. An index in to either the plr or monster array based on the smeflag value.
-	BYTE smenemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
-	BYTE smenemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
-	BYTE smListener;        // the player to whom the monster is talking to (unused)
-	BOOLEAN smDelFlag; // unused
-	INT smAnimDataAlign;
-	INT smAnimFrameLenAlign; // Tick length of each frame in the current animation
-	INT smAnimCnt;   // Increases by one each game tick, counting how close we are to smAnimFrameLen
-	INT smAnimLenAlign;   // Number of frames in current animation
-	INT smAnimFrame; // Current frame of animation.
-	INT smVar1;
-	INT smVar2;
-	INT smVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
-	INT smVar4;
-	INT smVar5;
-	INT smVar6; // Used as smxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	INT smVar7; // Used as smyoff but with a higher range so that we can correctly apply velocities of a smaller number
-	INT smVar8; // Value used to measure progress for moving from one tile to another
-	INT smmaxhp;
-	INT smhitpoints;
-	INT smlastx; // the last known X-coordinate of the enemy
-	INT smlasty; // the last known Y-coordinate of the enemy
-	INT smRndSeed;
-	INT smAISeed;
-	BYTE smuniqtype;
-	BYTE smuniqtrans;
-	BYTE smudeadval;
-	BYTE smlid;
-	BYTE smleader; // the leader of the monster
-	BYTE smleaderflag; // the status of the monster's leader
-	BYTE smpacksize; // the number of 'pack'-monsters close to their leader
-	BYTE smvid; // vision id of the monster (for minions only)
-	INT smNameAlign;
-	uint16_t smFileNum;
-	BYTE smLevel;
-	BYTE smSelFlag;
-	MonsterAI smAI;
-	INT smFlags;
-	uint16_t smHit;    // hit chance (melee+projectile)
-	BYTE smMinDamage;
-	BYTE smMaxDamage;
-	uint16_t smHit2;   // hit chance of special melee attacks
-	BYTE smMinDamage2;
-	BYTE smMaxDamage2;
-	BYTE smMagic;      // hit chance of magic-projectile
-	BYTE smMagic2;     // unused
-	BYTE smArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
-	BYTE smEvasion;    // evasion: used against magic-projectile
-	uint16_t smMagicRes;  // resistances of the monster
-	uint16_t smTreasure;  // unique drops of monsters + no-drop flag
-	DWORD smExp;
+	INT vmmode; /* MON_MODE */
+	DWORD vmsquelch;
+	BYTE vmMTidx;
+	BYTE vmpathcount; // unused
+	BYTE vmWhoHit;
+	BYTE vmgoal;
+	INT vmgoalvar1;
+	INT vmgoalvar2;
+	INT vmgoalvar3;
+	INT vmx;                // Tile X-position of monster
+	INT vmy;                // Tile Y-position of monster
+	INT vmfutx;             // Future tile X-position of monster. Set at start of walking animation
+	INT vmfuty;             // Future tile Y-position of monster. Set at start of walking animation
+	INT vmoldx;             // Most recent X-position in dMonster.
+	INT vmoldy;             // Most recent Y-position in dMonster.
+	INT vmxoff;             // Monster sprite's pixel X-offset from tile.
+	INT vmyoff;             // Monster sprite's pixel Y-offset from tile.
+	INT vmdir;              // Direction faced by monster (direction enum)
+	INT vmenemy;            // The current target of the monster. An index in to either the plr or monster array based on the vmeflag value.
+	BYTE vmenemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
+	BYTE vmenemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+	BYTE vmListener;        // the player to whom the monster is talking to (unused)
+	BOOLEAN vmDelFlag; // unused
+	INT vmAnimDataAlign;
+	INT vmAnimFrameLenAlign; // Tick length of each frame in the current animation
+	INT vmAnimCnt;   // Increases by one each game tick, counting how close we are to vmAnimFrameLen
+	INT vmAnimLenAlign;   // Number of frames in current animation
+	INT vmAnimFrame; // Current frame of animation.
+	INT vmVar1;
+	INT vmVar2;
+	INT vmVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
+	INT vmVar4;
+	INT vmVar5;
+	INT vmVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	INT vmVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	INT vmVar8; // Value used to measure progress for moving from one tile to another
+	INT vmmaxhp;
+	INT vmhitpoints;
+	INT vmlastx; // the last known X-coordinate of the enemy
+	INT vmlasty; // the last known Y-coordinate of the enemy
+	INT vmRndSeed;
+	INT vmAISeed;
+	BYTE vmuniqtype;
+	BYTE vmuniqtrans;
+	BYTE vmudeadval;
+	BYTE vmlid;
+	BYTE vmleader; // the leader of the monster
+	BYTE vmleaderflag; // the status of the monster's leader
+	BYTE vmpacksize; // the number of 'pack'-monsters close to their leader
+	BYTE vmvid; // vision id of the monster (for minions only)
+	INT vmNameAlign;
+	uint16_t vmFileNum;
+	BYTE vmLevel;
+	BYTE vmSelFlag;
+	MonsterAI vmAI;
+	INT vmFlags;
+	uint16_t vmHit;    // hit chance (melee+projectile)
+	BYTE vmMinDamage;
+	BYTE vmMaxDamage;
+	uint16_t vmHit2;   // hit chance of special melee attacks
+	BYTE vmMinDamage2;
+	BYTE vmMaxDamage2;
+	BYTE vmMagic;      // hit chance of magic-projectile
+	BYTE vmMagic2;     // unused
+	BYTE vmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	BYTE vmEvasion;    // evasion: used against magic-projectile
+	uint16_t vmMagicRes;  // resistances of the monster
+	uint16_t vmTreasure;  // unique drops of monsters + no-drop flag
+	DWORD vmExp;
 } TSaveMonster;
 
 
@@ -1458,13 +1457,13 @@ typedef struct TSyncLvlMissile {
 	BYTE smiType;   // missile_id
 	BYTE smiFileNum; // missile_gfx_id
 	BOOLEAN smiDrawFlag;
-	//BOOL _miAnimFlag;
+	BYTE smiUniqTrans;
+	BOOLEAN smiLightFlag;
+	BOOLEAN smiPreFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	char smiAnimAdd;
 	BYTE smiAnimFrame; // Current frame of animation.
-	BOOLEAN smiLightFlag;
-	BOOLEAN smiPreFlag;
-	BYTE smiUniqTrans;
+	BYTE smiDir;   // The direction of the missile
 	BYTE smisx;    // Initial tile X-position for missile
 	BYTE smisy;    // Initial tile Y-position for missile
 	BYTE smix;     // Tile X-position of the missile
@@ -1475,7 +1474,6 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
 	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	BYTE smiDir;   // The direction of the missile
 	LE_INT32 smiSpllvl; // TODO: int?
 	LE_INT32 smiSource; // TODO: int?
 	LE_INT32 smiCaster; // TODO: int?
@@ -1483,7 +1481,6 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiMaxDam;
 	// LE_INT32 smiRndSeed;
 	LE_INT32 smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
-	BYTE smiLidRadius;
 	LE_INT32 smiVar1;
 	LE_INT32 smiVar2;
 	LE_INT32 smiVar3;
@@ -1492,6 +1489,7 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiVar6;
 	LE_INT32 smiVar7;
 	LE_INT32 smiVar8;
+	BYTE smiLidRadius;
 } TSyncLvlMissile;
 
 typedef struct TurnPktHdr {
