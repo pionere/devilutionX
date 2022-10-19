@@ -13,8 +13,8 @@ void base::setup_gameinfo(_uigamedata* gameData)
 	game_init_info = buffer_t(sizeof(SNetGameData));
 
 	netData = (SNetGameData*)game_init_info.data();
-	netData->ngVersionId = SwapLE32(gameData->aeVersionId);
-	netData->ngSeed = SwapLE32(gameData->aeSeed);
+	netData->ngVersionId = gameData->aeVersionId;
+	netData->ngSeed = gameData->aeSeed;
 	netData->ngDifficulty = gameData->aeDifficulty;
 	netData->ngTickRate = gameData->aeTickRate;
 	netData->ngNetUpdateRate = gameData->aeNetUpdateRate;
@@ -57,9 +57,9 @@ void base::recv_accept(packet &pkt)
 		return;
 	}
 	auto &pkt_info = pkt.pktJoinAccInfo();
-	if (GAME_VERSION != SwapLE32(pkt_info.ngVersionId)) {
+	if (GAME_VERSION != pkt_info.ngVersionId) {
 		// Invalid game version -> ignore
-		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, SwapLE32(pkt_info.ngVersionId), pkt.pktSrc(), GAME_VERSION);
+		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, pkt_info.ngVersionId, pkt.pktSrc(), GAME_VERSION);
 		plr_self = PLR_BROADCAST;
 		return;
 	}

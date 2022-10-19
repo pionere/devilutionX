@@ -46,8 +46,8 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 			symon->nmy = mon->_my;
 			symon->nmdir = mon->_mdir;
 			symon->nmleaderflag = mon->leaderflag;
-			symon->nmhitpoints = SDL_SwapLE32(mon->_mhitpoints);
-			symon->nmactive = SDL_SwapLE32(mon->_msquelch);
+			symon->nmhitpoints = mon->_mhitpoints;
+			symon->nmactive = mon->_msquelch;
 
 			pbBuf += sizeof(TSyncMonster);
 			remsize -= sizeof(TSyncMonster);
@@ -64,7 +64,7 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 
 	pHdr->bCmd = CMD_SYNCDATA;
 	pHdr->bLevel = currLvl._dLevelIdx;
-	pHdr->wLen = SwapLE16(wLen);
+	pHdr->wLen = static_cast<uint16_t>(wLen);
 	return pbBuf;
 }
 

@@ -41,13 +41,13 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	assert(pEvt->eventid == EVENT_TYPE_JOIN_ACCEPTED);
 	assert(pEvt->databytes == sizeof(SNetGameData));
 	gameData = (SNetGameData*)pEvt->_eData;
-	assert(SwapLE32(gameData->ngVersionId) == GAME_VERSION);
+	assert(gameData->ngVersionId == GAME_VERSION);
 
 	playerId = pEvt->playerid;
 	assert((DWORD)playerId < MAX_PLRS);
 
-	selgame_gameData->aeVersionId = SwapLE32(gameData->ngVersionId);
-	selgame_gameData->aeSeed = SwapLE32(gameData->ngSeed);
+	selgame_gameData->aeVersionId = gameData->ngVersionId;
+	selgame_gameData->aeSeed = gameData->ngSeed;
 	selgame_gameData->aeDifficulty = gameData->ngDifficulty;
 	selgame_gameData->aeTickRate = gameData->ngTickRate;
 	selgame_gameData->aeNetUpdateRate = gameData->ngNetUpdateRate;

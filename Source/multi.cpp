@@ -118,15 +118,15 @@ static void multi_init_pkt_header(TurnPktHdr &pktHdr, unsigned len)
 {
 	// PlayerStruct* p;
 
-	pktHdr.wLen = SwapLE16(len);
+	pktHdr.wLen = static_cast<uint16_t>(len);
 	// pktHdr.wCheck = PKT_HDR_CHECK;
 	// p = &myplr;
 	// pktHdr.px = p->_px;
 	// pktHdr.py = p->_py;
-	// pktHdr.php = SwapLE32(p->_pHitPoints);
-	// pktHdr.pmhp = SwapLE32(p->_pMaxHP);
-	// pktHdr.pmp = SwapLE32(p->_pMana);
-	// pktHdr.pmmp = SwapLE32(p->_pMaxMana);
+	// pktHdr.php = p->_pHitPoints;
+	// pktHdr.pmhp = p->_pMaxHP;
+	// pktHdr.pmp = p->_pMana;
+	// pktHdr.pmmp = p->_pMaxMana;
 }
 
 void multi_send_turn_packet()
@@ -157,7 +157,7 @@ void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE bLen)
 
 	memcpy(&pkt.body[0], src, len);
 	len += sizeof(pkt.hdr);
-	pkt.hdr.wLen = SwapLE16(len);
+	pkt.hdr.wLen = static_cast<uint16_t>(len);
 	// pkt.hdr.wCheck = PKT_HDR_CHECK;
 	static_assert(sizeof(pmask) * CHAR_BIT > MAX_PLRS, "Sending packets with unsigned int mask does not work.");
 	if (pmask == SNPLAYER_ALL) {
@@ -425,14 +425,15 @@ void multi_process_turn(SNetTurnPkt* turn)
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (SwapLE16(pkt->wLen) != dwMsgSize)
+		if (pkt->wLen != dwMsgSize)
 			continue;
 		//if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
 		// currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
-		//	plr._pHitPoints = SwapLE32(pkt->php);
-			//plr._pMaxHP = SwapLE32(pkt->pmhp);
-		//	plr._pMana = SwapLE32(pkt->pmp);
+		//	plr._pHitPoints = pkt->php;
+			// plr._pMaxHP = pkt->pmhp;
+		//	plr._pMana = pkt->pmp;
+			// plr._pMaxMana = pkt->pmmp;
 		//	plr._px = pkt->px;
 		//	plr._py = pkt->py;
 		//}
@@ -466,7 +467,7 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (SwapLE16(pkt->wLen) != dwMsgSize)
+		if (pkt->wLen != dwMsgSize)
 			continue;
 		TCmd* cmd = (TCmd*)(pkt + 1);
 		if (cmd->bCmd == CMD_JOINLEVEL) {
@@ -493,7 +494,7 @@ void multi_process_msgs()
 		// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (SwapLE16(pkt->wLen) != dwMsgSize)
+		if (pkt->wLen != dwMsgSize)
 			continue;
 		dwMsgSize -= sizeof(MsgPktHdr);
 		dwReadSize = ParseMsg(pnum, (TCmd*)&pkt[1]);
@@ -593,16 +594,16 @@ void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLe
 	while (dwLen != 0) {
 		p = (TCmdPlrInfoHdr*)pkt.body;
 		p->bCmd = bCmd;
-		p->wOffset = SwapLE16(dwOffset);
+		p->wOffset = static_cast<uint16_t>(dwOffset);
 		dwBody = NET_LARGE_MSG_SIZE - sizeof(pkt.hdr) - sizeof(*p);
 		if (dwLen < dwBody) {
 			dwBody = dwLen;
 		}
 		/// ASSERT: assert(dwBody <= 0x0ffff);
-		p->wBytes = SwapLE16(dwBody);
+		p->wBytes = static_cast<uint16_t>(dwBody);
 		memcpy(&pkt.body[sizeof(*p)], pbSrc, dwBody);
 		dwMsg = dwBody + sizeof(pkt.hdr) + sizeof(*p);
-		pkt.hdr.wLen = SwapLE16(dwMsg);
+		pkt.hdr.wLen = static_cast<uint16_t>(dwMsg);
 		SNetSendMessage(pnum, (BYTE*)&pkt, dwMsg);
 		pbSrc += dwBody;
 		dwLen -= dwBody;
@@ -864,15 +865,15 @@ void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 {
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
-	if (sgwPackPlrOffsetTbl[pnum] != SwapLE16(piHdr->wOffset)) {
+	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
 		// invalid data -> drop
 		return;
 	}
 
 	//if (piHdr->wBytes == 0)
 	//	return; // 'invalid' data -> skip to prevent reactivation of a player
-	memcpy((char *)&netplr[pnum] + SwapLE16(piHdr->wOffset), &piHdr[1], SwapLE16(piHdr->wBytes)); /* todo: cast? */
-	sgwPackPlrOffsetTbl[pnum] += SwapLE16(piHdr->wBytes);
+	memcpy((char *)&netplr[pnum] + piHdr->wOffset, &piHdr[1], piHdr->wBytes); /* todo: cast? */
+	sgwPackPlrOffsetTbl[pnum] += piHdr->wBytes;
 	if (sgwPackPlrOffsetTbl[pnum] != sizeof(*netplr)) {
 		return;
 	}
