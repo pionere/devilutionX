@@ -231,7 +231,7 @@ SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 
 void base::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
-	turn_queue[plr_self].emplace_back(turn, buffer_t(data, data + size));
+	turn_queue[plr_self].emplace_back(SwapLE32(turn), buffer_t(data, data + size));
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
 	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn, data, size);
 	send_packet(*pkt);
