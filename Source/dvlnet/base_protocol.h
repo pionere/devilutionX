@@ -116,7 +116,7 @@ void base_protocol<P>::wait_join()
 }
 
 template <class P>
-bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const char* passwd, SNetGameData* gameData, char (&errorText)[256])
+bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
 {
 	setup_gameinfo(gameData);
 	// join_game

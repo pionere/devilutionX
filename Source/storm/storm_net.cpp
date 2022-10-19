@@ -130,7 +130,7 @@ void SNetInitializeProvider(unsigned provider)
 /**
  * @brief Called by engine for single, called by ui for multi
  */
-bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData, char (&errorText)[256])
+bool SNetCreateGame(const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256])
 {
 	bool result;
 

@@ -24,7 +24,7 @@ static int selgame_mode;
 static bool selgame_endMenu;
 //int selgame_heroLevel;
 
-static SNetGameData* selgame_gameData;
+static _uigamedata* selgame_gameData;
 
 #define DESCRIPTION_WIDTH	(SELGAME_LPANEL_WIDTH - 2 * 10)
 
@@ -46,12 +46,14 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	playerId = pEvt->playerid;
 	assert((DWORD)playerId < MAX_PLRS);
 
-	copy_pod(*selgame_gameData, *gameData);
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	selgame_gameData->ngSeed = SwapLE32(selgame_gameData->ngSeed);
-	selgame_gameData->ngVersionId = SwapLE32(selgame_gameData->ngVersionId);
-#endif
-	selgame_gameData->bPlayerId = playerId;
+	selgame_gameData->aeVersionId = SwapLE32(gameData->ngVersionId);
+	selgame_gameData->aeSeed = SwapLE32(gameData->ngSeed);
+	selgame_gameData->aeDifficulty = gameData->ngDifficulty;
+	selgame_gameData->aeTickRate = gameData->ngTickRate;
+	selgame_gameData->aeNetUpdateRate = gameData->ngNetUpdateRate;
+	selgame_gameData->aeMaxPlayers = gameData->ngMaxPlayers;
+
+	selgame_gameData->aePlayerId = playerId;
 }
 
 static void selgame_add_event_handlers(void (*event_handler)(SNetEvent *pEvt))
@@ -341,17 +343,17 @@ static void SelgameDiffSelect(unsigned index)
 {
 	int value = gUIListItems[index]->m_value;
 
-	selgame_gameData->bDifficulty = value;
+	selgame_gameData->aeDifficulty = value;
 
 	if (!selconn_bMulti) {
-		selgame_gameData->bMaxPlayers = 1;
-		selgame_gameData->bTickRate = gnTicksRate;
-		selgame_gameData->bNetUpdateRate = 1;
+		selgame_gameData->aeMaxPlayers = 1;
+		selgame_gameData->aeTickRate = gnTicksRate;
+		selgame_gameData->aeNetUpdateRate = 1;
 		selgame_Password[0] = '\0';
 		SelgamePasswordSelect(0);
 		return;
 	}
-	selgame_gameData->bMaxPlayers = MAX_PLRS;
+	selgame_gameData->aeMaxPlayers = MAX_PLRS;
 
 	SelgameSpeedInit();
 }
@@ -420,16 +422,16 @@ static void SelgameModeSelect(unsigned index)
 
 static void SelgameSpeedSelect(unsigned index)
 {
-	selgame_gameData->bTickRate = gUIListItems[index]->m_value;
+	selgame_gameData->aeTickRate = gUIListItems[index]->m_value;
 #ifdef ADAPTIVE_NETUPDATE
-	selgame_gameData->bNetUpdateRate = 1;
+	selgame_gameData->aeNetUpdateRate = 1;
 #else
 	int latency = 80;
 	getIniInt("Network", "Latency", &latency);
-	selgame_gameData->bNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->bTickRate));
+	selgame_gameData->aeNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->aeTickRate));
 #endif
 	if (provider == SELCONN_LOOPBACK) {
-		selgame_gameData->bNetUpdateRate = 1;
+		selgame_gameData->aeNetUpdateRate = 1;
 		selgame_Password[0] = '\0';
 		SelgamePasswordSelect(0);
 		return;
@@ -465,7 +467,7 @@ static void SelgamePasswordSelect(unsigned index)
 	SelgamePasswordInit(0);
 }
 
-int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt))
+int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
 {
 	selgame_gameData = game_data;
 

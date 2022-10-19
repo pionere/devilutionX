@@ -29,7 +29,7 @@ int UiMainMenuDialog(void(*fnSound)(int sfx, int rndCnt));
 bool UiProgressDialog(const char *msg, int(*fnfunc)());
 
 /* Defined in selgame.cpp */
-int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt));
+int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt));
 void UIDisconnectGame();
 
 /* Defined in selconn.cpp */

@@ -13,7 +13,7 @@ namespace net {
 
 class base : public abstract_net {
 public:
-	//virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, SNetGameData* gameData, char (&errorText)[256]) = 0;
+	//virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) = 0;
 	//virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) = 0;
 
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
@@ -45,7 +45,7 @@ protected:
 	packet_factory pktfty;
 
 	void setup_password(const char* passwd);
-	void setup_gameinfo(SNetGameData* gameData);
+	void setup_gameinfo(_uigamedata* gameData);
 	virtual void poll() = 0;
 	virtual void send_packet(packet &pkt) = 0;
 	virtual void disconnect_net(plr_t pnum);

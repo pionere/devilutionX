@@ -6,16 +6,19 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-void base::setup_gameinfo(SNetGameData* gameData)
+void base::setup_gameinfo(_uigamedata* gameData)
 {
-	BYTE* gData = (BYTE*)gameData;
+	SNetGameData* netData;
 
-	game_init_info = buffer_t(gData, gData + sizeof(*gameData));
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	SNetGameData* netData = (SNetGameData*)game_init_info.data();
-	netData->ngSeed = SwapLE32(netData->ngSeed);
-	netData->ngVersionId = SwapLE32(netData->ngVersionId);
-#endif
+	game_init_info = buffer_t(sizeof(SNetGameData));
+
+	netData = (SNetGameData*)game_init_info.data();
+	netData->ngVersionId = SwapLE32(gameData->aeVersionId);
+	netData->ngSeed = SwapLE32(gameData->aeSeed);
+	netData->ngDifficulty = gameData->aeDifficulty;
+	netData->ngTickRate = gameData->aeTickRate;
+	netData->ngNetUpdateRate = gameData->aeNetUpdateRate;
+	netData->ngMaxPlayers = gameData->aeMaxPlayers;
 }
 
 void base::setup_password(const char* passwd)

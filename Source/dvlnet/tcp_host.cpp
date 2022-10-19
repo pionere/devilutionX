@@ -25,7 +25,7 @@ tcp_host_client::tcp_host_client(int srvType)
 	serverType = srvType;
 }
 
-bool tcp_host_client::create_game(const char* addrstr, unsigned port, const char* passwd, SNetGameData* gameData, char (&errorText)[256])
+bool tcp_host_client::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
 {
 	setup_gameinfo(gameData);
 	local_server = new tcp_host_server(this, ioc, game_init_info, serverType);

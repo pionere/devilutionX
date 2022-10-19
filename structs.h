@@ -1711,6 +1711,16 @@ typedef struct _uiheroinfo {
 	BOOL hiHasSaved;
 } _uiheroinfo;
 
+typedef struct _uigamedata {
+	DWORD aeVersionId;
+	INT aeSeed;
+	BYTE aeDifficulty;
+	BYTE aeTickRate;
+	BYTE aeNetUpdateRate; // (was defaultturnssec in vanilla)
+	BYTE aeMaxPlayers;
+	BYTE aePlayerId;
+} _uigamedata;
+
 //////////////////////////////////////////////////
 // storm-net
 //////////////////////////////////////////////////
@@ -1719,11 +1729,10 @@ typedef struct _uiheroinfo {
 typedef struct SNetGameData {
 	DWORD ngVersionId;
 	INT ngSeed;
-	BYTE bPlayerId; // internal-only!
-	BYTE bDifficulty;
-	BYTE bTickRate;
-	BYTE bNetUpdateRate; // (was defaultturnssec in vanilla)
-	BYTE bMaxPlayers;
+	BYTE ngDifficulty;
+	BYTE ngTickRate;
+	BYTE ngNetUpdateRate; // (was defaultturnssec in vanilla)
+	BYTE ngMaxPlayers;
 } SNetGameData;
 #pragma pack(pop)
 

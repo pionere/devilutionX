@@ -703,7 +703,7 @@ void NetClose()
 	UIDisconnectGame();
 }
 
-static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
+static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 {
 	int i, dlgresult, pnum;
 	uint32_t seed;
@@ -746,21 +746,21 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 		if (IsGameSrv) {
 			mypnum = SNPLAYER_MASTER;
-			sgGameInitInfo.bPlayerId = SNPLAYER_MASTER;
+			gameData.aePlayerId = SNPLAYER_MASTER;
 		} else
 			pfile_read_hero_from_save();
 
 		if (gbLoadGame) {
 			// mypnum = 0;
-			sgGameInitInfo.bMaxPlayers = 1;
-			sgGameInitInfo.bTickRate = gnTicksRate;
-			sgGameInitInfo.bNetUpdateRate = 1;
+			gameData.aeMaxPlayers = 1;
+			gameData.aeTickRate = gnTicksRate;
+			gameData.aeNetUpdateRate = 1;
 			break;
 		}
 
 		// select game
-		//  sets sgGameInitInfo except for bPlayerId, ngSeed (if not joining a game) and ngVersionId
-		dlgresult = UiSelectGame(&sgGameInitInfo, multi_handle_events);
+		//  sets gameData except for aePlayerId, aeSeed (if not joining a game) and aeVersionId
+		dlgresult = UiSelectGame(&gameData, multi_handle_events);
 		if (dlgresult == SELGAME_PREVIOUS) {
 			if (IsGameSrv) {
 				gbSelectProvider = true;
@@ -771,7 +771,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		}
 
 		if (dlgresult == SELGAME_JOIN) {
-			pnum = sgGameInitInfo.bPlayerId;
+			pnum = gameData.aePlayerId;
 			if (mypnum != pnum) {
 				copy_pod(plr, myplr);
 				mypnum = pnum;
@@ -782,12 +782,12 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		break;
 	}
 
-	gnTicksRate = sgGameInitInfo.bTickRate;
+	gnTicksRate = gameData.aeTickRate;
 	gnTickDelay = 1000 / gnTicksRate;
-	gbNetUpdateRate = sgGameInitInfo.bNetUpdateRate;
-	assert(mypnum == sgGameInitInfo.bPlayerId);
-	gnDifficulty = sgGameInitInfo.bDifficulty;
-	SetRndSeed(sgGameInitInfo.ngSeed);
+	gbNetUpdateRate = gameData.aeNetUpdateRate;
+	assert(mypnum == gameData.aePlayerId);
+	gnDifficulty = gameData.aeDifficulty;
+	SetRndSeed(gameData.aeSeed);
 
 	for (i = 0; i < NUM_LEVELS; i++) {
 		seed = GetRndSeed();
@@ -804,20 +804,20 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 
 bool NetInit(bool bSinglePlayer)
 {
-	SNetGameData sgGameInitInfo;
+	_uigamedata gameData;
 
 	while (TRUE) {
 		SetRndSeed(0);
-		sgGameInitInfo.ngSeed = time(NULL);
-		sgGameInitInfo.ngVersionId = GAME_VERSION;
-		sgGameInitInfo.bPlayerId = 0;
-		//sgGameInitInfo.bDifficulty = DIFF_NORMAL;
-		//sgGameInitInfo.bTickRate = SPEED_NORMAL;
-		//sgGameInitInfo.bNetUpdateRate = 1;
-		//sgGameInitInfo.bMaxPlayers = MAX_PLRS;
+		gameData.aeSeed = time(NULL);
+		gameData.aeVersionId = GAME_VERSION;
+		gameData.aePlayerId = 0;
+		//gameData.aeDifficulty = DIFF_NORMAL;
+		//gameData.aeTickRate = SPEED_NORMAL;
+		//gameData.aeNetUpdateRate = 1;
+		//gameData.aeMaxPlayers = MAX_PLRS;
 		gbJoinGame = false;
 		memset(players, 0, sizeof(players));
-		if (!multi_init_game(bSinglePlayer, sgGameInitInfo))
+		if (!multi_init_game(bSinglePlayer, gameData))
 			return false;
 		static_assert(LEAVE_NONE == 0, "NetInit uses memset to reset the LEAVE_ enum values.");
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
@@ -852,11 +852,11 @@ bool NetInit(bool bSinglePlayer)
 		}
 		NetClose();
 	}
-	assert(mypnum == sgGameInitInfo.bPlayerId);
-	assert(gnTicksRate == sgGameInitInfo.bTickRate);
+	assert(mypnum == gameData.aePlayerId);
+	assert(gnTicksRate == gameData.aeTickRate);
 	assert(gnTickDelay == 1000 / gnTicksRate);
-	assert(gbNetUpdateRate == sgGameInitInfo.bNetUpdateRate);
-	assert(gnDifficulty == sgGameInitInfo.bDifficulty);
+	assert(gbNetUpdateRate == gameData.aeNetUpdateRate);
+	assert(gnDifficulty == gameData.aeDifficulty);
 	return true;
 }
 
