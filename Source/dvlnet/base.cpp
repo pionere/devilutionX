@@ -6,9 +6,16 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-void base::setup_gameinfo(buffer_t info)
+void base::setup_gameinfo(SNetGameData* gameData)
 {
-	game_init_info = std::move(info);
+	BYTE* gData = (BYTE*)gameData;
+
+	game_init_info = buffer_t(gData, gData + sizeof(*gameData));
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	SNetGameData* netData = (SNetGameData*)game_init_info.data();
+	netData->ngSeed = SwapLE32(netData->ngSeed);
+	netData->ngVersionId = SwapLE32(netData->ngVersionId);
+#endif
 }
 
 void base::setup_password(const char* passwd)

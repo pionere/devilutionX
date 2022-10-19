@@ -7,7 +7,7 @@ namespace net {
 
 static constexpr plr_t PLR_SINGLE = 0;
 
-bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
+bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, SNetGameData* gameData, char (&errorText)[256])
 {
 	return true;
 }
