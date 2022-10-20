@@ -326,13 +326,6 @@ static void LoadItemData(ItemStruct* is)
 	LoadInt(&is->_iVMult);
 }
 
-static void LoadItems(ItemStruct* pItem, const int n)
-{
-	for (int i = 0; i < n; i++) {
-		LoadItemData(&pItem[i]);
-	}
-}
-
 static void LoadPlayer(int pnum)
 {
 	LoadInt(&plr._pmode);
@@ -428,9 +421,12 @@ static void LoadPlayer(int pnum)
 	// tbuff += 4; // Skip _pSFNum to SetPlrAnims
 
 	LoadItemData(&plr._pHoldItem);
-	LoadItems(plr._pInvBody, NUM_INVLOC);
-	LoadItems(plr._pSpdList, MAXBELTITEMS);
-	LoadItems(plr._pInvList, NUM_INV_GRID_ELEM);
+	for (int i = 0; i < NUM_INVLOC; i++)
+		LoadItemData(&plr._pInvBody[i]);
+	for (int i = 0; i < MAXBELTITEMS; i++)
+		LoadItemData(&plr._pSpdList[i]);
+	for (int i = 0; i < NUM_INV_GRID_ELEM; i++)
+		LoadItemData(&plr._pInvList[i]);
 	LoadInt(&plr._pGold);
 
 	/*Skip to Calc
@@ -1027,13 +1023,6 @@ static void SaveItemData(ItemStruct* is)
 	SaveInt(&is->_iVMult);
 }
 
-static void SaveItems(ItemStruct* pItem, const int n)
-{
-	for (int i = 0; i < n; i++) {
-		SaveItemData(&pItem[i]);
-	}
-}
-
 static void SavePlayer(int pnum)
 {
 	SaveInt(&plr._pmode);
@@ -1130,9 +1119,12 @@ static void SavePlayer(int pnum)
 	// tbuff += 4; // Skip _pSFNum
 
 	SaveItemData(&plr._pHoldItem);
-	SaveItems(plr._pInvBody, NUM_INVLOC);
-	SaveItems(plr._pSpdList, MAXBELTITEMS);
-	SaveItems(plr._pInvList, NUM_INV_GRID_ELEM);
+	for (int i = 0; i < NUM_INVLOC; i++)
+		SaveItemData(&plr._pInvBody[i]);
+	for (int i = 0; i < MAXBELTITEMS; i++)
+		SaveItemData(&plr._pSpdList[i]);
+	for (int i = 0; i < NUM_INV_GRID_ELEM; i++)
+		SaveItemData(&plr._pInvList[i]);
 	SaveInt(&plr._pGold);
 
 	/*Skip to Calc
