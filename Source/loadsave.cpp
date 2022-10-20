@@ -312,7 +312,7 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iPLManaSteal);
 	LoadByte(&is->_iPLLifeSteal);
 	LoadByte(&is->_iPLCrit);
-	tbuff += 1; // Alignment
+	LoadByte(&is->_iStatFlag);
 	LoadInt(&is->_iUid);
 	LoadByte(&is->_iPLFMinDam);
 	LoadByte(&is->_iPLFMaxDam);
@@ -324,7 +324,6 @@ static void LoadItemData(ItemStruct* is)
 	LoadByte(&is->_iPLAMaxDam);
 	LoadInt(&is->_iVAdd);
 	LoadInt(&is->_iVMult);
-	LoadInt(&is->_iStatFlag);
 }
 
 static void LoadItems(ItemStruct* pItem, const int n)
@@ -1015,7 +1014,7 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iPLManaSteal);
 	SaveByte(&is->_iPLLifeSteal);
 	SaveByte(&is->_iPLCrit);
-	tbuff += 1; // Alignment
+	SaveByte(&is->_iStatFlag);
 	SaveInt(&is->_iUid);
 	SaveByte(&is->_iPLFMinDam);
 	SaveByte(&is->_iPLFMaxDam);
@@ -1027,7 +1026,6 @@ static void SaveItemData(ItemStruct* is)
 	SaveByte(&is->_iPLAMaxDam);
 	SaveInt(&is->_iVAdd);
 	SaveInt(&is->_iVMult);
-	SaveInt(&is->_iStatFlag);
 }
 
 static void SaveItems(ItemStruct* pItem, const int n)
@@ -1559,21 +1557,21 @@ void SaveGame()
 	// save level-data
 	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
 	 + MAXMISSILES * 156 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
-	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
+	 + MAXITEMS * 232 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
 	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
 	 + MAXMISSILES * 156 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
-	 + MAXITEMS * 236 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
+	 + MAXITEMS * 232 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);
 
 	// save meta-data III. (modified by LoadGameLevel)
 	constexpr size_t smt = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
-	 + 236 + SMITH_PREMIUM_ITEMS * 236 + (SMITH_ITEMS * 236 + HEALER_ITEMS * 236
-	 + WITCH_ITEMS * 236);
+	 + 232 + SMITH_PREMIUM_ITEMS * 232 + (SMITH_ITEMS * 232 + HEALER_ITEMS * 232
+	 + WITCH_ITEMS * 232);
 	constexpr size_t smd = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
-	 + 236 + SMITH_PREMIUM_ITEMS * 236 /*+ SMITH_ITEMS * 236 + HEALER_ITEMS * 236
-	 + WITCH_ITEMS * 236*/;
+	 + 232 + SMITH_PREMIUM_ITEMS * 232 /*+ SMITH_ITEMS * 232 + HEALER_ITEMS * 232
+	 + WITCH_ITEMS * 232*/;
 	//SaveInt(&numtowners);
 	SaveInt(&boylevel);
 	SaveInt(&numpremium);

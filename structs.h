@@ -214,6 +214,7 @@ typedef struct ItemStruct {
 	BYTE _iPLManaSteal;
 	BYTE _iPLLifeSteal;
 	BYTE _iPLCrit;
+	BOOLEAN _iStatFlag;
 	int _iUid;
 	BYTE _iPLFMinDam;
 	BYTE _iPLFMaxDam;
@@ -225,8 +226,7 @@ typedef struct ItemStruct {
 	BYTE _iPLAMaxDam;
 	int _iVAdd;
 	int _iVMult;
-	BOOL _iStatFlag;
-	ALIGNMENT(6, 5)
+	ALIGNMENT(7, 6)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
