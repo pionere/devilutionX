@@ -240,7 +240,7 @@ static void LoadInts(unsigned* dst, unsigned n)
 #endif
 }
 
-static void LoadItemData(ItemStruct* is)
+static void LoadItem(ItemStruct* is)
 {
 	LoadInt(&is->_iSeed);
 	LoadInt16(&is->_iCreateInfo);
@@ -420,13 +420,13 @@ static void LoadPlayer(int pnum)
 	// tbuff += 4; // Skip _pAFNum to SetPlrAnims
 	// tbuff += 4; // Skip _pSFNum to SetPlrAnims
 
-	LoadItemData(&plr._pHoldItem);
+	LoadItem(&plr._pHoldItem);
 	for (int i = 0; i < NUM_INVLOC; i++)
-		LoadItemData(&plr._pInvBody[i]);
+		LoadItem(&plr._pInvBody[i]);
 	for (int i = 0; i < MAXBELTITEMS; i++)
-		LoadItemData(&plr._pSpdList[i]);
+		LoadItem(&plr._pSpdList[i]);
 	for (int i = 0; i < NUM_INV_GRID_ELEM; i++)
-		LoadItemData(&plr._pInvList[i]);
+		LoadItem(&plr._pInvList[i]);
 	LoadInt(&plr._pGold);
 
 	/*Skip to Calc
@@ -788,7 +788,7 @@ static void LoadLevelData(bool full)
 		LoadByte(&itemactive[i]);
 	for (i = 0; i < numitems; i++) {
 		ii = itemactive[i];
-		LoadItemData(&items[ii]);
+		LoadItem(&items[ii]);
 		SyncItemAnim(ii);
 	}
 
@@ -908,16 +908,16 @@ void LoadGame()
 
 	CopyBytes(tbuff, sizeof(TransList), TransList);
 
-	LoadItemData(&boyitem);
+	LoadItem(&boyitem);
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		LoadItemData(&premiumitems[i]);
+		LoadItem(&premiumitems[i]);
 	if (currLvl._dType == DTYPE_TOWN) {
 		for (i = 0; i < SMITH_ITEMS; i++)
-			LoadItemData(&smithitem[i]);
+			LoadItem(&smithitem[i]);
 		for (i = 0; i < HEALER_ITEMS; i++)
-			LoadItemData(&healitem[i]);
+			LoadItem(&healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
-			LoadItemData(&witchitem[i]);
+			LoadItem(&witchitem[i]);
 	}
 
 	InitAutomapScale();
@@ -934,7 +934,7 @@ void LoadGame()
 	nthread_send_turn();
 }
 
-static void SaveItemData(ItemStruct* is)
+static void SaveItem(ItemStruct* is)
 {
 	SaveInt(&is->_iSeed);
 	SaveInt16(&is->_iCreateInfo);
@@ -1115,13 +1115,13 @@ static void SavePlayer(int pnum)
 	// tbuff += 4; // Skip _pAFNum
 	// tbuff += 4; // Skip _pSFNum
 
-	SaveItemData(&plr._pHoldItem);
+	SaveItem(&plr._pHoldItem);
 	for (int i = 0; i < NUM_INVLOC; i++)
-		SaveItemData(&plr._pInvBody[i]);
+		SaveItem(&plr._pInvBody[i]);
 	for (int i = 0; i < MAXBELTITEMS; i++)
-		SaveItemData(&plr._pSpdList[i]);
+		SaveItem(&plr._pSpdList[i]);
 	for (int i = 0; i < NUM_INV_GRID_ELEM; i++)
-		SaveItemData(&plr._pInvList[i]);
+		SaveItem(&plr._pInvList[i]);
 	SaveInt(&plr._pGold);
 
 	/*Skip to Calc
@@ -1465,7 +1465,7 @@ static void SaveLevelData(bool full)
 	for (i = 0; i < MAXITEMS; i++)
 		SaveByte(&itemactive[i]);
 	for (i = 0; i < numitems; i++)
-		SaveItemData(&items[itemactive[i]]);
+		SaveItem(&items[itemactive[i]]);
 	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
@@ -1580,16 +1580,16 @@ void SaveGame()
 
 	CopyBytes(TransList, sizeof(TransList), tbuff);
 
-	SaveItemData(&boyitem);
+	SaveItem(&boyitem);
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		SaveItemData(&premiumitems[i]);
+		SaveItem(&premiumitems[i]);
 	if (currLvl._dType == DTYPE_TOWN) {
 		for (i = 0; i < SMITH_ITEMS; i++)
-			SaveItemData(&smithitem[i]);
+			SaveItem(&smithitem[i]);
 		for (i = 0; i < HEALER_ITEMS; i++)
-			SaveItemData(&healitem[i]);
+			SaveItem(&healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
-			SaveItemData(&witchitem[i]);
+			SaveItem(&witchitem[i]);
 	}
 
 	constexpr size_t tst = ss + slt + smt;
