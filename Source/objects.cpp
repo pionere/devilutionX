@@ -4009,6 +4009,8 @@ void SyncObjectAnim(int oi)
 	ofidx = objectdata[type].ofindex;
 	objects[oi]._oAnimData = objanimdata[ofidx];
 	objects[oi]._oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
+	objects[oi]._oAnimWidth = objfiledata[ofidx].oAnimWidth * ASSET_MPL;
+	objects[oi]._oAnimXOffset = (objects[oi]._oAnimWidth - TILE_WIDTH) >> 1;
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:

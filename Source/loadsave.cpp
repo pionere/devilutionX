@@ -665,8 +665,8 @@ static void LoadObject(int oi, bool full)
 	LoadInt(&os->_oAnimCnt);
 	LoadInt(&os->_oAnimLen);
 	LoadInt(&os->_oAnimFrame);
-	LoadInt(&os->_oAnimWidth);
-	LoadInt(&os->_oAnimXOffset);
+	tbuff += 4; // Skip _oAnimWidth
+	tbuff += 4; // Skip _oAnimXOffset
 
 	LoadByte(&os->_oSolidFlag);
 	LoadByte(&os->_oMissFlag);
@@ -1362,8 +1362,8 @@ static void SaveObject(int oi)
 	SaveInt(&os->_oAnimCnt);
 	SaveInt(&os->_oAnimLen);
 	SaveInt(&os->_oAnimFrame);
-	SaveInt(&os->_oAnimWidth);
-	SaveInt(&os->_oAnimXOffset);
+	tbuff += 4; // Skip _oAnimWidth
+	tbuff += 4; // Skip _oAnimXOffset
 
 	SaveByte(&os->_oSolidFlag);
 	SaveByte(&os->_oMissFlag);
