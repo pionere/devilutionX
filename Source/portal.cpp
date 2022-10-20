@@ -22,15 +22,15 @@ void InitPortals()
 	int i;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		portals[i]._wopen = false;
+		portals[i]._ropen = false;
 	}
 }
 
 /*void SetPortalStats(int pidx, bool o, int x, int y, int lvl)
 {
 	portals[pidx]._wopen = o;
-	portals[pidx].x = x;
-	portals[pidx].y = y;
+	portals[pidx]._rx = x;
+	portals[pidx]._ry = y;
 	portals[pidx].level = lvl;
 }*/
 
@@ -44,14 +44,14 @@ void SyncPortals()
 	int i, lvl;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		if (!portals[i]._wopen)
+		if (!portals[i]._ropen)
 			continue;
 		lvl = currLvl._dLevelIdx;
 		if (lvl == DLV_TOWN)
 			AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
 		else {
-			if (portals[i].level == lvl)
-				AddWarpMissile(i, portals[i].x, portals[i].y);
+			if (portals[i]._rlevel == lvl)
+				AddWarpMissile(i, portals[i]._rx, portals[i]._ry);
 		}
 	}
 }
@@ -64,17 +64,17 @@ void AddInTownPortal(int pidx)
 void ActivatePortal(int pidx, int x, int y, int lvl)
 {
 	assert(lvl != DLV_TOWN);
-	portals[pidx]._wopen = true;
-	portals[pidx].x = x;
-	portals[pidx].y = y;
-	portals[pidx].level = lvl;
+	portals[pidx]._ropen = true;
+	portals[pidx]._rx = x;
+	portals[pidx]._ry = y;
+	portals[pidx]._rlevel = lvl;
 
 	delta_open_portal(pidx, x, y, lvl);
 }
 
 static bool PortalOnLevel(int pidx)
 {
-	return portals[pidx].level == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
+	return portals[pidx]._rlevel == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
 }
 
 void RemovePortalMissile(int pidx)
@@ -97,7 +97,7 @@ void RemovePortalMissile(int pidx)
 
 void DeactivatePortal(int pidx)
 {
-	portals[pidx]._wopen = false;
+	portals[pidx]._ropen = false;
 
 	RemovePortalMissile(pidx);
 	delta_close_portal(pidx);
@@ -114,8 +114,8 @@ void GetPortalLvlPos()
 		ViewX = WarpDropX[portalindex];
 		ViewY = WarpDropY[portalindex];
 	} else {
-		ViewX = portals[portalindex].x;
-		ViewY = portals[portalindex].y;
+		ViewX = portals[portalindex]._rx;
+		ViewY = portals[portalindex]._ry;
 	}
 }
 
@@ -124,13 +124,13 @@ bool PosOkPortal(int x, int y)
 	int i, lvl = currLvl._dLevelIdx;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		if (!portals[i]._wopen)
+		if (!portals[i]._ropen)
 			continue;
 		if (lvl == DLV_TOWN) {
 			if (WarpDropX[i] == x && WarpDropY[i] == y)
 				return false;
 		} else {
-			if (portals[i].x == x && portals[i].y == y)
+			if (portals[i]._rx == x && portals[i]._ry == y)
 				return false;
 		}
 	}

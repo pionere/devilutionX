@@ -852,10 +852,10 @@ static_assert((sizeof(ObjectStruct) & (sizeof(ObjectStruct) - 1)) == 0, "Align O
 //////////////////////////////////////////////////
 
 typedef struct PortalStruct {
-	BOOLEAN _wopen;
-	int x;
-	int y;
-	int level;
+	BOOLEAN _ropen;
+	int _rx;
+	int _ry;
+	int _rlevel;
 } PortalStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

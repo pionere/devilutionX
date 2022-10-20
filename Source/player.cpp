@@ -1809,7 +1809,7 @@ void StartTWarp(int pnum, int pidx)
 	if (plr._pDunLevel != DLV_TOWN) {
 		plr._pDunLevel = DLV_TOWN;
 	} else {
-		plr._pDunLevel = portals[pidx].level;
+		plr._pDunLevel = portals[pidx]._rlevel;
 		static_assert(MAXPORTAL == MAX_PLRS, "StartTWarp uses pnum as portal-id.");
 		if (pidx == pnum) {
 			DeactivatePortal(pidx);
