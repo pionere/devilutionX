@@ -814,6 +814,8 @@ typedef struct ObjectStruct {
 	int _oSFX; // _sfx_id
 	BYTE _oSFXCnt;
 	BOOLEAN _oAnimFlag;
+	BYTE _oAlign0;
+	BYTE _oAlign1;
 	BYTE* _oAnimData;
 	int _oAnimFrameLen; // Tick length of each frame in the current animation
 	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _oAnimFrameLen
@@ -853,6 +855,9 @@ static_assert((sizeof(ObjectStruct) & (sizeof(ObjectStruct) - 1)) == 0, "Align O
 
 typedef struct PortalStruct {
 	BOOLEAN _ropen;
+	BYTE _rAlign0;
+	BYTE _rAlign1;
+	BYTE _rAlign2;
 	int _rx;
 	int _ry;
 	int _rlevel;
@@ -1795,6 +1800,9 @@ typedef struct LightListStruct {
 	BOOLEAN _ldel;
 	BOOLEAN _lunflag;
 	BOOLEAN _lmine;
+	BYTE _lAlign0;
+	BYTE _lAlign1;
+	BYTE _lAlign2;
 	int _xoff;
 	int _yoff;
 } LightListStruct;
