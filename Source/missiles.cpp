@@ -745,8 +745,8 @@ static bool MonsterTrapHit(int mnum, int mi)
 	if (mon->_msquelch != SQUELCH_MAX) {
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 		// lead the monster to a fixed location
-		mon->_lastx = mis->_misx;
-		mon->_lasty = mis->_misy;
+		mon->_mlastx = mis->_misx;
+		mon->_mlasty = mis->_misy;
 	}
 	return true;
 }
@@ -904,8 +904,8 @@ static bool MonsterMHit(int mnum, int mi)
 				ly = plr._py;
 			}
 		}
-		mon->_lastx = lx;
-		mon->_lasty = ly;
+		mon->_mlastx = lx;
+		mon->_mlasty = ly;
 	}
 	return true;
 }
@@ -2635,8 +2635,8 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 					mon->_mmode = MM_STONE;
 					// ensure lastx/y are set when MI_Stone 'alerts' the monster
 					if (micaster == MST_PLAYER) {
-						mon->_lastx = plx(misource)._px;
-						mon->_lasty = plx(misource)._py;
+						mon->_mlastx = plx(misource)._px;
+						mon->_mlasty = plx(misource)._py;
 					//} else {
 					//	assert(!MON_RELAXED);
 					}
@@ -3111,9 +3111,9 @@ int AddAttract(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 			mon = &monsters[mnum];
 			if (mon->_msquelch != SQUELCH_MAX) {
 				mon->_msquelch = SQUELCH_MAX;
-				mon->_lastx = dx;
-				mon->_lasty = dy;
-			}	
+				mon->_mlastx = dx;
+				mon->_mlasty = dy;
+			}
 		}
 	}
 
@@ -3140,8 +3140,8 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		if (LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)
 		 && !CheckMonsterHit(target, &ret) && monsters[target]._mmode != MM_STONE && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pMagic) {
 			monsters[target]._msquelch = SQUELCH_MAX;
-			monsters[target]._lastx = plr._px;
-			monsters[target]._lasty = plr._py;
+			monsters[target]._mlastx = plr._px;
+			monsters[target]._mlasty = plr._py;
 			MonGetKnockback(target, plr._px, plr._py);
 			MonStartHit(target, pnum, 0, 0);
 		}

@@ -1308,8 +1308,8 @@ void LevelDeltaExport()
 			tmon->smVar7 = mon->_mVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
 			tmon->smVar8 = mon->_mVar8; // Value used to measure progress for moving from one tile to another
 			tmon->smHitpoints = mon->_mhitpoints;
-			tmon->smLastx = mon->_lastx; // the last known X-coordinate of the enemy
-			tmon->smLasty = mon->_lasty; // the last known Y-coordinate of the enemy
+			tmon->smLastx = mon->_mlastx; // the last known X-coordinate of the enemy
+			tmon->smLasty = mon->_mlasty; // the last known Y-coordinate of the enemy
 			//tmon->smLeader = mon->leader; // the leader of the monster
 			tmon->smLeaderflag = mon->leaderflag; // the status of the monster's leader
 			//tmon->smPacksize = mon->packsize; // the number of 'pack'-monsters close to their leader
@@ -1584,8 +1584,8 @@ void LevelDeltaLoad()
 		mon->_mVar7 = tmon->smVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
 		mon->_mVar8 = tmon->smVar8; // Value used to measure progress for moving from one tile to another
 		mon->_mhitpoints = tmon->smHitpoints;
-		mon->_lastx = tmon->smLastx; // the last known X-coordinate of the enemy
-		mon->_lasty = tmon->smLasty; // the last known Y-coordinate of the enemy
+		mon->_mlastx = tmon->smLastx; // the last known X-coordinate of the enemy
+		mon->_mlasty = tmon->smLasty; // the last known Y-coordinate of the enemy
 //BYTE leader; // the leader of the monster
 		//mon->leaderflag = tmon->smLeaderflag; // the status of the monster's leader
 //BYTE packsize; // the number of 'pack'-monsters close to their leader
@@ -3565,8 +3565,8 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mVar8, // Value used to measure progress for moving from one tile to another
 	mon->_mmaxhp,
 	mon->_mhitpoints,
-	mon->_lastx, // the last known X-coordinate of the enemy
-	mon->_lasty, // the last known Y-coordinate of the enemy
+	mon->_mlastx, // the last known X-coordinate of the enemy
+	mon->_mlasty, // the last known Y-coordinate of the enemy
 	mon->_mRndSeed,
 	mon->_mAISeed,
 	mon->_uniqtype,

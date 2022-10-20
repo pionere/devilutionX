@@ -677,8 +677,8 @@ typedef struct MonsterStruct {
 	int _mVar8; // Value used to measure progress for moving from one tile to another
 	int _mmaxhp;
 	int _mhitpoints;
-	int _lastx; // the last known X-coordinate of the enemy
-	int _lasty; // the last known Y-coordinate of the enemy
+	int _mlastx; // the last known X-coordinate of the enemy
+	int _mlasty; // the last known Y-coordinate of the enemy
 	int _mRndSeed;
 	int _mAISeed;
 	BYTE _uniqtype;

@@ -536,8 +536,8 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->_mVar8);
 	LoadInt(&mon->_mmaxhp);
 	LoadInt(&mon->_mhitpoints);
-	LoadInt(&mon->_lastx);
-	LoadInt(&mon->_lasty);
+	LoadInt(&mon->_mlastx);
+	LoadInt(&mon->_mlasty);
 	LoadInt(&mon->_mRndSeed);
 	LoadInt(&mon->_mAISeed);
 
@@ -1236,8 +1236,8 @@ static void SaveMonster(int mnum, bool full)
 	SaveInt(&mon->_mVar8);
 	SaveInt(&mon->_mmaxhp);
 	SaveInt(&mon->_mhitpoints);
-	SaveInt(&mon->_lastx);
-	SaveInt(&mon->_lasty);
+	SaveInt(&mon->_mlastx);
+	SaveInt(&mon->_mlasty);
 	SaveInt(&mon->_mRndSeed);
 	SaveInt(&mon->_mAISeed);
 

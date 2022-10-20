@@ -660,8 +660,8 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_menemyy = 0;
 	mon->_mListener = 0;
 	mon->_mDelFlag = FALSE;
-	//mon->_lastx = 0;	-- should be set before use
-	//mon->_lasty = 0;
+	//mon->_mlastx = 0;	-- should be set before use
+	//mon->_mlasty = 0;
 	mon->_mRndSeed = GetRndSeed();
 	// mon->_mAISeed = -- should be set before use
 
@@ -1356,7 +1356,7 @@ static void MonEnemyInfo(int mnum)
 	mx = monsters[mnum]._mx;
 	my = monsters[mnum]._my;
 
-	currEnemyInfo._meLastDir = GetDirection(mx, my, monsters[mnum]._lastx, monsters[mnum]._lasty);
+	currEnemyInfo._meLastDir = GetDirection(mx, my, monsters[mnum]._mlastx, monsters[mnum]._mlasty);
 
 	dx = monsters[mnum]._menemyx - mx;
 	dy = monsters[mnum]._menemyy - my;
@@ -1372,7 +1372,7 @@ static int MonEnemyRealDir(int mnum)
 
 static int MonEnemyLastDir(int mnum)
 {
-	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._lastx, monsters[mnum]._lasty);
+	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._mlastx, monsters[mnum]._mlasty);
 }
 
 static void FixMonLocation(int mnum)
@@ -2709,8 +2709,8 @@ static void GroupUnity(int mnum)
 		}
 		if (mon->leaderflag == MLEADER_PRESENT) {
 			if (mon->_msquelch > leader->_msquelch) {
-				leader->_lastx = mon->_lastx; // BUGFIX: use _lastx instead of _mx (fixed)
-				leader->_lasty = mon->_lasty; // BUGFIX: use _lasty instead of _my (fixed)
+				leader->_mlastx = mon->_mlastx; // BUGFIX: use _mlastx instead of _mx (fixed)
+				leader->_mlasty = mon->_mlasty; // BUGFIX: use _mlasty instead of _my (fixed)
 				leader->_msquelch = mon->_msquelch - 1;
 			}
 		}
@@ -2721,8 +2721,8 @@ static void GroupUnity(int mnum)
 			bmon = &monsters[i];
 			if (bmon->leaderflag == MLEADER_PRESENT && bmon->leader == mnum) {
 				if (mon->_msquelch > bmon->_msquelch) {
-					bmon->_lastx = mon->_lastx; // BUGFIX: use _lastx instead of _mx (fixed)
-					bmon->_lasty = mon->_lasty; // BUGFIX: use _lasty instead of _my (fixed)
+					bmon->_mlastx = mon->_mlastx; // BUGFIX: use _mlastx instead of _mx (fixed)
+					bmon->_mlasty = mon->_mlasty; // BUGFIX: use _mlasty instead of _my (fixed)
 					bmon->_msquelch = mon->_msquelch - 1;
 				}
 			}
@@ -2775,7 +2775,7 @@ static bool MonDestWalk(int mnum)
 		Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
 		if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
 			MonstCheckDoors(mon->_mx, mon->_my);
-		if (FindPath(Check, mnum, mon->_mx, mon->_my, mon->_lastx, mon->_lasty, path) > 0) {
+		if (FindPath(Check, mnum, mon->_mx, mon->_my, mon->_mlastx, mon->_mlasty, path) > 0) {
 			md = path[0];
 		} else {
 			md = currEnemyInfo._meLastDir;
@@ -3762,8 +3762,8 @@ void MAI_Golem(int mnum)
 	if (MON_HAS_ENEMY) {
 		MonEnemyInfo(mnum);
 		if (currEnemyInfo._meRealDist >= 2) {
-			mon->_lastx = mon->_menemyx;
-			mon->_lasty = mon->_menemyy;
+			mon->_mlastx = mon->_menemyx;
+			mon->_mlasty = mon->_menemyy;
 			if (MonDestWalk(mnum)) {
 				return;
 			}
@@ -4368,8 +4368,8 @@ void ProcessMonsters()
 		}
 		if (alert) {
 			assert(hasenemy);
-			mon->_lastx = mon->_menemyx;
-			mon->_lasty = mon->_menemyy;
+			mon->_mlastx = mon->_menemyx;
+			mon->_mlasty = mon->_menemyy;
 			if (mon->_msquelch == 0) {
 				if (mon->_mType == MT_CLEAVER)
 					PlaySfxLoc(USFX_CLEAVER, mon->_mx, mon->_my);
