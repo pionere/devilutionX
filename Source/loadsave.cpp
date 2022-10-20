@@ -732,12 +732,12 @@ static void LoadPortal(int i)
 {
 	PortalStruct* pPortal = &portals[i];
 
-	LoadByte(&pPortal->_wopen);
+	LoadByte(&pPortal->_ropen);
 	tbuff += 3; // Alignment
 
-	LoadInt(&pPortal->x);
-	LoadInt(&pPortal->y);
-	LoadInt(&pPortal->level);
+	LoadInt(&pPortal->_rx);
+	LoadInt(&pPortal->_ry);
+	LoadInt(&pPortal->_rlevel);
 }
 
 /*static void RedoPlayerLight()
@@ -1424,12 +1424,12 @@ static void SavePortal(int i)
 {
 	PortalStruct* pPortal = &portals[i];
 
-	SaveByte(&pPortal->_wopen);
+	SaveByte(&pPortal->_ropen);
 	tbuff += 3; // Alignment
 
-	SaveInt(&pPortal->x);
-	SaveInt(&pPortal->y);
-	SaveInt(&pPortal->level);
+	SaveInt(&pPortal->_rx);
+	SaveInt(&pPortal->_ry);
+	SaveInt(&pPortal->_rlevel);
 }
 
 static void SaveLevelData(bool full)
