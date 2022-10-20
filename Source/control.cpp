@@ -1679,7 +1679,7 @@ void DrawInfoStr()
 		x = mon->_mx;
 		y = mon->_my;
 		col = COL_WHITE;
-		strcpy(infostr, mon->mName); // TNR_NAME or a monster's name
+		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
 		if (mon->_uniqtype != 0) {
 			col = COL_GOLD;
 		}

@@ -581,7 +581,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
 	mon->_mType = cmon->cmType;
-	/*mon->mName = cmon->cmName;
+	/*mon->_mName = cmon->cmName;
 	mon->_mFileNum = cmon->cmFileNum;
 	mon->_mLevel = cmon->cmLevel;
 	mon->_mSelFlag = cmon->cmSelFlag;
@@ -606,32 +606,32 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mAFNum2 = cmon->cmAFNum2;
 	mon->_mAlign_0 = cmon->cmAlign_0;*/
 	static_assert(offsetof(MapMonData, cmAlign_0) > offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance I.");
-	static_assert(offsetof(MonsterStruct, _mAlign_0) > offsetof(MonsterStruct, mName), "InitMonster uses DWORD-memcpy to optimize performance II.");
+	static_assert(offsetof(MonsterStruct, _mAlign_0) > offsetof(MonsterStruct, _mName), "InitMonster uses DWORD-memcpy to optimize performance II.");
 	static_assert(((offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0)) % 4) == 0, "InitMonster uses DWORD-memcpy to optimize performance III.");
-	static_assert(offsetof(MonsterStruct, _mFileNum) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmFileNum) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance IV.");
-	static_assert(offsetof(MonsterStruct, _mLevel) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmLevel) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance Va.");
-	static_assert(offsetof(MonsterStruct, _mSelFlag) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmSelFlag) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance Vb.");
-	static_assert(offsetof(MonsterStruct, _mAI) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmAI) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance VI.");
-	static_assert(offsetof(MonsterStruct, _mFlags) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmFlags) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance VII.");
-	static_assert(offsetof(MonsterStruct, _mHit) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmHit) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance VIII.");
-	static_assert(offsetof(MonsterStruct, _mMinDamage) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmMinDamage) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance IX.");
-	static_assert(offsetof(MonsterStruct, _mMaxDamage) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmMaxDamage) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance X.");
-	static_assert(offsetof(MonsterStruct, _mHit2) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmHit2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XI.");
-	static_assert(offsetof(MonsterStruct, _mMinDamage2) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmMinDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XII.");
-	static_assert(offsetof(MonsterStruct, _mMaxDamage2) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmMaxDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIII.");
-	static_assert(offsetof(MonsterStruct, _mMagic) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmMagic) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIV.");
-	static_assert(offsetof(MonsterStruct, _mMagic2) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmMagic2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XV.");
-	static_assert(offsetof(MonsterStruct, _mArmorClass) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmArmorClass) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVI.");
-	static_assert(offsetof(MonsterStruct, _mEvasion) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmEvasion) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVII.");
-	static_assert(offsetof(MonsterStruct, _mMagicRes) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmMagicRes) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVIII.");
-	static_assert(offsetof(MonsterStruct, _mTreasure) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmTreasure) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIX.");
-	static_assert(offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmExp) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XX.");
-	static_assert(offsetof(MonsterStruct, _mAnimWidth) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmWidth) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXII.");
-	static_assert(offsetof(MonsterStruct, _mAnimXOffset) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmXOffset) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIII.");
-	static_assert(offsetof(MonsterStruct, _mAFNum) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmAFNum) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIV.");
-	static_assert(offsetof(MonsterStruct, _mAFNum2) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmAFNum2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXV.");
-	static_assert(offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, mName) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXVI.");
-	memcpy(&mon->mName, &cmon->cmName, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0));
+	static_assert(offsetof(MonsterStruct, _mFileNum) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmFileNum) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance IV.");
+	static_assert(offsetof(MonsterStruct, _mLevel) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmLevel) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance Va.");
+	static_assert(offsetof(MonsterStruct, _mSelFlag) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmSelFlag) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance Vb.");
+	static_assert(offsetof(MonsterStruct, _mAI) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAI) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance VI.");
+	static_assert(offsetof(MonsterStruct, _mFlags) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmFlags) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance VII.");
+	static_assert(offsetof(MonsterStruct, _mHit) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmHit) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance VIII.");
+	static_assert(offsetof(MonsterStruct, _mMinDamage) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMinDamage) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance IX.");
+	static_assert(offsetof(MonsterStruct, _mMaxDamage) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMaxDamage) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance X.");
+	static_assert(offsetof(MonsterStruct, _mHit2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmHit2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XI.");
+	static_assert(offsetof(MonsterStruct, _mMinDamage2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMinDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XII.");
+	static_assert(offsetof(MonsterStruct, _mMaxDamage2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMaxDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIII.");
+	static_assert(offsetof(MonsterStruct, _mMagic) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagic) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIV.");
+	static_assert(offsetof(MonsterStruct, _mMagic2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagic2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XV.");
+	static_assert(offsetof(MonsterStruct, _mArmorClass) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmArmorClass) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVI.");
+	static_assert(offsetof(MonsterStruct, _mEvasion) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmEvasion) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVII.");
+	static_assert(offsetof(MonsterStruct, _mMagicRes) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagicRes) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVIII.");
+	static_assert(offsetof(MonsterStruct, _mTreasure) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmTreasure) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIX.");
+	static_assert(offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmExp) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XX.");
+	static_assert(offsetof(MonsterStruct, _mAnimWidth) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmWidth) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXII.");
+	static_assert(offsetof(MonsterStruct, _mAnimXOffset) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmXOffset) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIII.");
+	static_assert(offsetof(MonsterStruct, _mAFNum) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAFNum) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIV.");
+	static_assert(offsetof(MonsterStruct, _mAFNum2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAFNum2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXV.");
+	static_assert(offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXVI.");
+	memcpy(&mon->_mName, &cmon->cmName, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0));
 	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
@@ -948,7 +948,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	mon->_mLevel = uniqm->muLevel;
 
 	mon->_mExp *= 2;
-	mon->mName = uniqm->mName;
+	mon->_mName = uniqm->mName;
 	mon->_mmaxhp = uniqm->mmaxhp;
 
 	mon->_mAI = uniqm->mAI;
@@ -4748,9 +4748,9 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAFNum = mmdata->cmAFNum;
 	mon->_mAFNum2 = mmdata->cmAFNum2;
 	if (mon->_uniqtype != 0)
-		mon->mName = uniqMonData[mon->_uniqtype - 1].mName;
+		mon->_mName = uniqMonData[mon->_uniqtype - 1].mName;
 	else
-		mon->mName = monsterdata[mon->_mType].mName;
+		mon->_mName = monsterdata[mon->_mType].mName;
 
 	mode = mon->_mmode;
 	if (mode == MM_STONE)

@@ -184,7 +184,7 @@ void PrintDebugMonster(int m)
 	bool bActive;
 	int i;
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %d = %s", m, monsters[m].mName);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %d = %s", m, monsters[m]._mName);
 	NetSendCmdString(1 << mypnum);
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "X = %d, Y = %d", monsters[m]._mx, monsters[m]._my);
 	NetSendCmdString(1 << mypnum);

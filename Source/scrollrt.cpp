@@ -336,7 +336,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->mName);
+		dev_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->_mName);
 	}
 
 	nCel = mon->_mAnimFrame;
@@ -348,7 +348,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 			szMode = szMonModeAssert[mon->_mmode];
 		dev_fatal(
 			"Draw Monster \"%s\" %s: facing %d, frame %d of %d",
-			mon->mName,
+			mon->_mName,
 			szMode,
 			mon->_mdir,
 			nCel,
@@ -388,13 +388,13 @@ static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Dead body(%s): NULL Cel Buffer", mon->mName);
+		dev_fatal("Dead body(%s): NULL Cel Buffer", mon->_mName);
 	}
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
 	int frames = SwapLE32(*(uint32_t *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("DrawDeadMonster: frame %d of %d, name:%s", nCel, frames, mon->mName);
+		dev_fatal("DrawDeadMonster: frame %d of %d, name:%s", nCel, frames, mon->_mName);
 	}
 #endif
 	nWidth = mon->_mAnimWidth;

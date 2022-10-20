@@ -551,7 +551,7 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->packsize);
 	LoadByte(&mon->_mvid);
 
-	// Skip mName
+	// Skip _mName
 
 	LoadInt16(&mon->_mFileNum);
 	LoadByte(&mon->_mLevel);
@@ -1251,7 +1251,7 @@ static void SaveMonster(int mnum, bool full)
 	SaveByte(&mon->packsize);
 	SaveByte(&mon->_mvid);
 
-	// Skip mName
+	// Skip _mName
 
 	SaveInt16(&mon->_mFileNum);
 	SaveByte(&mon->_mLevel);

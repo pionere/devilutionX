@@ -689,7 +689,7 @@ typedef struct MonsterStruct {
 	BYTE leaderflag; // the status of the monster's leader
 	BYTE packsize; // the number of 'pack'-monsters close to their leader
 	BYTE _mvid; // vision id of the monster (for minions only)
-	const char* mName;
+	const char* _mName;
 	uint16_t _mFileNum; // _monster_gfx_id
 	BYTE _mLevel;
 	BYTE _mSelFlag;

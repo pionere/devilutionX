@@ -223,8 +223,8 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 	tw->_mFlags = 0;
 	// _mmaxhp for DrawInfoStr
 	tw->_mmaxhp = 0;
-	// set mName, _uniqtype for DrawInfoStr
-	tw->mName = name; // TNR_NAME
+	// set _mName, _uniqtype for DrawInfoStr
+	tw->_mName = name; // TNR_NAME
 	// tw->_uniqtype = 0;
 	// set _mRndSeed for S_TalkEnter
 	tw->_mRndSeed = GetRndSeed(); // TNR_SEED
@@ -459,7 +459,7 @@ void ProcessTowners()
 					if (!gbQtextflag) {
 						//tw->_mAnimFrameLen = 1000;
 						tw->_mAnimFrame = 1; // TNR_ANIM_FRAME
-						tw->mName = "Slain Townsman"; // TNR_NAME
+						tw->_mName = "Slain Townsman"; // TNR_NAME
 					}
 					continue; //tw->_tAnimCnt = 0;
 				/*} else {
