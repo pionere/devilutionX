@@ -829,7 +829,7 @@ typedef struct ObjectStruct {
 	BYTE _oDoorFlag; // object_door_type
 	BYTE _oSelFlag;
 	BYTE _oTrapChance;
-	BOOL _oPreFlag;
+	BOOLEAN _oPreFlag;
 	unsigned _olid; // light id of the object
 	int _oRndSeed;
 	int _oVar1;
@@ -840,7 +840,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(7, 4)
+	ALIGNMENT(8, 5)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

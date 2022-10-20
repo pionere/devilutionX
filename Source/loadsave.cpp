@@ -680,9 +680,8 @@ static void LoadObject(int oi, bool full)
 	LoadByte(&os->_oDoorFlag);
 	LoadByte(&os->_oSelFlag);
 	LoadByte(&os->_oTrapChance);
-	tbuff += 1; // Alignment
+	LoadByte(&os->_oPreFlag);
 
-	LoadInt(&os->_oPreFlag);
 	LoadInt(&os->_olid);
 	LoadInt(&os->_oRndSeed);
 	LoadInt(&os->_oVar1);
@@ -1385,9 +1384,8 @@ static void SaveObject(int oi)
 	SaveByte(&os->_oDoorFlag);
 	SaveByte(&os->_oSelFlag);
 	SaveByte(&os->_oTrapChance);
-	tbuff += 1; // Alignment
+	SaveByte(&os->_oPreFlag);
 
-	SaveInt(&os->_oPreFlag);
 	SaveInt(&os->_olid);
 	SaveInt(&os->_oRndSeed);
 	SaveInt(&os->_oVar1);
@@ -1556,11 +1554,11 @@ void SaveGame()
 		SavePortal(i);
 	// save level-data
 	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
-	 + MAXMISSILES * 156 + 2 * MAXOBJECTS + MAXOBJECTS * 100*/ + MAXITEMS
+	 + MAXMISSILES * 156 + 2 * MAXOBJECTS + MAXOBJECTS * 96*/ + MAXITEMS
 	 + MAXITEMS * 232 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
 	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
-	 + MAXMISSILES * 156 + /*2 * */MAXOBJECTS + MAXOBJECTS * 100) + MAXITEMS
+	 + MAXMISSILES * 156 + /*2 * */MAXOBJECTS + MAXOBJECTS * 96) + MAXITEMS
 	 + MAXITEMS * 232 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
 	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
 	SaveLevelData(true);

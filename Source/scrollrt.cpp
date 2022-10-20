@@ -37,7 +37,7 @@ int light_trn_index;
 /**
  * Specifies the current draw mode.
  */
-static BOOL gbPreFlag;
+static BOOLEAN gbPreFlag;
 
 /**
  * Cursor-size
