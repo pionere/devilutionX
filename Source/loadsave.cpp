@@ -695,12 +695,6 @@ static void LoadObject(int oi, bool full)
 	}
 }
 
-static void LoadItem(int ii)
-{
-	LoadItemData(&items[ii]);
-	SyncItemAnim(ii);
-}
-
 static void LoadQuest(int i)
 {
 	QuestStruct* pQuest = &quests[i];
@@ -756,7 +750,7 @@ static void LoadPortal(int i)
 
 static void LoadLevelData(bool full)
 {
-	int i;
+	int i, ii;
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
@@ -792,8 +786,11 @@ static void LoadLevelData(bool full)
 	static_assert(MAXITEMS <= UCHAR_MAX, "LoadLevelData handles item-ids as bytes.");
 	for (i = 0; i < MAXITEMS; i++)
 		LoadByte(&itemactive[i]);
-	for (i = 0; i < numitems; i++)
-		LoadItem(itemactive[i]);
+	for (i = 0; i < numitems; i++) {
+		ii = itemactive[i];
+		LoadItemData(&items[ii]);
+		SyncItemAnim(ii);
+	}
 
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
