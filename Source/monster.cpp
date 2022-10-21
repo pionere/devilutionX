@@ -449,7 +449,7 @@ void InitLevelMonsters()
 		// reset _mlid value to simplify SyncMonsterLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
 		monsters[i]._uniqtype = 0;
 		monsters[i]._uniqtrans = 0;
-		monsters[i]._udeadval = 0;
+		monsters[i]._muniqdeadval = 0;
 		monsters[i]._mlid = NO_LIGHT;
 		// reset _mleaderflag value to simplify GroupUnity
 		monsters[i]._mleader = MON_NO_LEADER;
@@ -667,7 +667,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 
 	mon->_uniqtype = 0;
 	mon->_uniqtrans = 0;
-	mon->_udeadval = 0;
+	mon->_muniqdeadval = 0;
 	mon->_mlid = NO_LIGHT;
 
 	mon->_mleader = MON_NO_LEADER;

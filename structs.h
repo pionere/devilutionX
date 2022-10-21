@@ -683,7 +683,7 @@ typedef struct MonsterStruct {
 	int _mAISeed;
 	BYTE _uniqtype;
 	BYTE _uniqtrans;
-	BYTE _udeadval;
+	BYTE _muniqdeadval; // unused
 	BYTE _mlid; // light id of the monster
 	BYTE _mleader; // the leader of the monster
 	BYTE _mleaderflag; // the status of the monster's leader

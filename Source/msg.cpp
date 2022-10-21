@@ -3571,7 +3571,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mAISeed,
 	mon->_uniqtype,
 	mon->_uniqtrans,
-	mon->_udeadval,
+	mon->_muniqdeadval,
 	mon->_mlid,
 	mon->_mleader, // the leader of the monster
 	mon->_mleaderflag, // the status of the monster's leader

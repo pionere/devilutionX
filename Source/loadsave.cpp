@@ -543,7 +543,7 @@ static void LoadMonster(int mnum)
 
 	LoadByte(&mon->_uniqtype);
 	LoadByte(&mon->_uniqtrans);
-	LoadByte(&mon->_udeadval);
+	LoadByte(&mon->_muniqdeadval);
 	LoadByte(&mon->_mlid);
 
 	LoadByte(&mon->_mleader);
@@ -1243,7 +1243,7 @@ static void SaveMonster(int mnum, bool full)
 
 	SaveByte(&mon->_uniqtype);
 	SaveByte(&mon->_uniqtrans);
-	SaveByte(&mon->_udeadval);
+	SaveByte(&mon->_muniqdeadval);
 	SaveByte(&mon->_mlid);
 
 	SaveByte(&mon->_mleader);
