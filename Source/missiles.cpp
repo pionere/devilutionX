@@ -1462,10 +1462,10 @@ static void SyncRhinoAnim(int mi)
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
-	mis->_miLid = mon->mlid;
+	mis->_miLid = mon->_mlid;
 	if (mon->_uniqtype != 0) {
 		mis->_miUniqTrans = mon->_uniqtrans;
-		//mis->_miLid = mon->mlid;
+		//mis->_miLid = mon->_mlid;
 	}
 }
 
@@ -2499,7 +2499,7 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 		// assert(ScrollInfo._sdy == 0);
 		ScrollInfo._sdir = 1 + OPPOSITE(midir); // == dir2sdir[midir]
 	}
-	//mis->_miLid = mon->mlid;
+	//mis->_miLid = mon->_mlid;
 	//PutMissile(mi);
 	return MIRES_DONE;
 }
@@ -4128,8 +4128,8 @@ void MI_Rhino(int mi)
 	dMonster[bx][by] = -(mnum + 1);
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	// assert(monsters[mnum]._mvid == NO_VISION);
-	// assert(monsters[mnum].mlid == mis->_miLid);
-	CondChangeLightXY(monsters[mnum].mlid, bx, by);
+	// assert(monsters[mnum]._mlid == mis->_miLid);
+	CondChangeLightXY(monsters[mnum]._mlid, bx, by);
 	ShiftMissilePos(mi);
 	PutMissile(mi);
 }

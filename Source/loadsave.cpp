@@ -544,11 +544,11 @@ static void LoadMonster(int mnum)
 	LoadByte(&mon->_uniqtype);
 	LoadByte(&mon->_uniqtrans);
 	LoadByte(&mon->_udeadval);
-	LoadByte(&mon->mlid);
+	LoadByte(&mon->_mlid);
 
-	LoadByte(&mon->leader);
-	LoadByte(&mon->leaderflag);
-	LoadByte(&mon->packsize);
+	LoadByte(&mon->_mleader);
+	LoadByte(&mon->_mleaderflag);
+	LoadByte(&mon->_mpacksize);
 	LoadByte(&mon->_mvid);
 
 	// Skip _mName
@@ -1244,11 +1244,11 @@ static void SaveMonster(int mnum, bool full)
 	SaveByte(&mon->_uniqtype);
 	SaveByte(&mon->_uniqtrans);
 	SaveByte(&mon->_udeadval);
-	SaveByte(&mon->mlid);
+	SaveByte(&mon->_mlid);
 
-	SaveByte(&mon->leader);
-	SaveByte(&mon->leaderflag);
-	SaveByte(&mon->packsize);
+	SaveByte(&mon->_mleader);
+	SaveByte(&mon->_mleaderflag);
+	SaveByte(&mon->_mpacksize);
 	SaveByte(&mon->_mvid);
 
 	// Skip _mName

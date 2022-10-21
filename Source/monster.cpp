@@ -446,15 +446,15 @@ void InitLevelMonsters()
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		monsters[i]._msquelch = 0;
 		// reset _uniqtype value to simplify InitDead
-		// reset mlid value to simplify SyncMonsterLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
+		// reset _mlid value to simplify SyncMonsterLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
 		monsters[i]._uniqtype = 0;
 		monsters[i]._uniqtrans = 0;
 		monsters[i]._udeadval = 0;
-		monsters[i].mlid = NO_LIGHT;
-		// reset leaderflag value to simplify GroupUnity
-		monsters[i].leader = MON_NO_LEADER;
-		monsters[i].leaderflag = MLEADER_NONE;
-		monsters[i].packsize = 0;
+		monsters[i]._mlid = NO_LIGHT;
+		// reset _mleaderflag value to simplify GroupUnity
+		monsters[i]._mleader = MON_NO_LEADER;
+		monsters[i]._mleaderflag = MLEADER_NONE;
+		monsters[i]._mpacksize = 0;
 		monsters[i]._mvid = NO_VISION;
 	}
 	// reserve minions
@@ -668,11 +668,11 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_uniqtype = 0;
 	mon->_uniqtrans = 0;
 	mon->_udeadval = 0;
-	mon->mlid = NO_LIGHT;
+	mon->_mlid = NO_LIGHT;
 
-	mon->leader = MON_NO_LEADER;
-	mon->leaderflag = MLEADER_NONE;
-	mon->packsize = 0;
+	mon->_mleader = MON_NO_LEADER;
+	mon->_mleaderflag = MLEADER_NONE;
+	mon->_mpacksize = 0;
 	mon->_mvid = NO_VISION;
 
 	// mon->_mFlags |= MFLAG_NO_ENEMY;
@@ -726,7 +726,7 @@ int SummonMonster(int x, int y, int dir, int mtidx)
 	unsigned mnum;
 
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-		if (monsters[mnum]._mmode != MM_UNUSED || monsters[mnum].mlid != NO_LIGHT)
+		if (monsters[mnum]._mmode != MM_UNUSED || monsters[mnum]._mlid != NO_LIGHT)
 			continue;
 
 		nummonsters++;
@@ -808,8 +808,8 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 				monsters[mnum]._mAI.aiInt = monsters[leader]._mAI.aiInt;
 
 				if (leaderf & UMF_LEADER) {
-					monsters[mnum].leader = leader;
-					monsters[mnum].leaderflag = MLEADER_PRESENT;
+					monsters[mnum]._mleader = leader;
+					monsters[mnum]._mleaderflag = MLEADER_PRESENT;
 					monsters[mnum]._mAI = monsters[leader]._mAI;
 				}
 			}
@@ -822,8 +822,8 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 	}
 
 	if (leaderf & UMF_LEADER) {
-		monsters[leader].leaderflag = MLEADER_SELF;
-		monsters[leader].packsize = placed;
+		monsters[leader]._mleaderflag = MLEADER_SELF;
+		monsters[leader]._mpacksize = placed;
 	}
 }
 
@@ -942,7 +942,7 @@ static void PlaceUniqueMonst(int uniqindex)
 #ifdef HELLFIRE
 	if (uniqindex != UMT_HORKDMN)
 #endif
-		mon->mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
+		mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
 
 	uniqm = &uniqMonData[uniqindex];
 	mon->_mLevel = uniqm->muLevel;
@@ -1096,7 +1096,7 @@ static void PlaceSetMapMonsters()
 		for (i = 1; i <= 3; i++) {
 			monsters[nummonsters - i]._mmode = MM_RESERVED;
 			dMonster[monsters[nummonsters - i]._mx][monsters[nummonsters - i]._my] = 0;
-			ChangeLightRadius(monsters[nummonsters - i].mlid, 0);
+			ChangeLightRadius(monsters[nummonsters - i]._mlid, 0);
 		}
 	}
 }
@@ -1211,7 +1211,7 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 					dMonster[i][j] = mnum + 1;
 				} else {
 					monsters[mnum]._mmode = MM_RESERVED;
-					// assert(monsters[mnum].mlid == NO_LIGHT);
+					// assert(monsters[mnum]._mlid == NO_LIGHT);
 				}
 			}
 			lm++;
@@ -1228,7 +1228,7 @@ void MonChangeMap()
 		 && PosOkActor(monsters[mnum]._mx, monsters[mnum]._my)) {
 			dMonster[monsters[mnum]._mx][monsters[mnum]._my] = mnum + 1;
 			monsters[mnum]._mmode = MM_STAND;
-			ChangeLightRadius(monsters[mnum].mlid, MON_LIGHTRAD);
+			ChangeLightRadius(monsters[mnum]._mlid, MON_LIGHTRAD);
 		}
 	}
 }
@@ -1458,7 +1458,7 @@ static void MonChangeLightOff(int mnum)
 	lx = lx / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
 	ly = ly / (TILE_WIDTH / 8);
 
-	CondChangeLightOff(mon->mlid, lx, ly);
+	CondChangeLightOff(mon->_mlid, lx, ly);
 }
 
 /**
@@ -1522,8 +1522,8 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mx = mon->_mfutx = mx;
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
-	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
-		ChangeLightXY(mon->mlid, mx, my);
+	if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
+		ChangeLightXY(mon->_mlid, mx, my);
 		MonChangeLightOff(mnum);
 	}
 }
@@ -1627,8 +1627,8 @@ static void MonPlace(int mnum)
 	FixMonLocation(mnum);
 
 	mon = &monsters[mnum];
-	if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
+	if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
+		ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
 	if (mon->_mvid != NO_VISION)
 		ChangeVisionXY(mon->_mvid, mon->_mx, mon->_my);
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
@@ -2102,7 +2102,7 @@ static bool MonDoWalk(int mnum)
 			mon->_mVar7 += mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
 			mon->_mxoff = mon->_mVar6 >> MON_WALK_SHIFT;
 			mon->_myoff = mon->_mVar7 >> MON_WALK_SHIFT;
-			if (mon->mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
+			if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 				MonChangeLightOff(mnum);
 		//}
 		rv = false;
@@ -2367,9 +2367,9 @@ static bool MonDoFadein(int mnum)
 		return false;
 
 	mon->_mFlags &= ~MFLAG_REV_ANIMATION;
-	if (mon->mlid != NO_LIGHT) { // && !(mon->_mFlags & MFLAG_HIDDEN)) {
-		ChangeLightRadius(mon->mlid, MON_LIGHTRAD);
-		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
+	if (mon->_mlid != NO_LIGHT) { // && !(mon->_mFlags & MFLAG_HIDDEN)) {
+		ChangeLightRadius(mon->_mlid, MON_LIGHTRAD);
+		ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
 	}
 	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
@@ -2390,8 +2390,8 @@ static bool MonDoFadeout(int mnum)
 	mon->_mFlags &= ~MFLAG_REV_ANIMATION;
 	//if (mon->_mType < MT_INCIN || mon->_mType > MT_HELLBURN) {
 		mon->_mFlags |= MFLAG_HIDDEN;
-		if (mon->mlid != NO_LIGHT) {
-			ChangeLightRadius(mon->mlid, 0);
+		if (mon->_mlid != NO_LIGHT) {
+			ChangeLightRadius(mon->_mlid, 0);
 		}
 	//}
 	AssertFixMonLocation(mnum);
@@ -2468,22 +2468,22 @@ void MonUpdateLeader(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonUpdateLeader: Invalid monster %d", mnum);
 	}
-	if (monsters[mnum].leaderflag == MLEADER_NONE)
+	if (monsters[mnum]._mleaderflag == MLEADER_NONE)
 		return;
-	if (monsters[mnum].leaderflag == MLEADER_SELF) {
+	if (monsters[mnum]._mleaderflag == MLEADER_SELF) {
 		for (i = 0; i < MAXMONSTERS; i++) {
 			mon = &monsters[i];
-			if (/*mon->leaderflag != MLEADER_NONE && */mon->leader == mnum) {
-				mon->leader = MON_NO_LEADER;
-				mon->leaderflag = MLEADER_NONE;
+			if (/*mon->_mleaderflag != MLEADER_NONE && */mon->_mleader == mnum) {
+				mon->_mleader = MON_NO_LEADER;
+				mon->_mleaderflag = MLEADER_NONE;
 			}
 		}
-	} else if (monsters[mnum].leaderflag == MLEADER_PRESENT) {
-		monsters[monsters[mnum].leader].packsize--;
+	} else if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
+		monsters[monsters[mnum]._mleader]._mpacksize--;
 	}
-	monsters[mnum].leader = MON_NO_LEADER;
-	monsters[mnum].leaderflag = MLEADER_NONE;
-	monsters[mnum].packsize = 0;
+	monsters[mnum]._mleader = MON_NO_LEADER;
+	monsters[mnum]._mleaderflag = MLEADER_NONE;
+	monsters[mnum]._mpacksize = 0;
 	// assert(monsters[mnum]._mvid == NO_VISION);
 	monsters[mnum]._mvid = NO_VISION;
 }
@@ -2693,21 +2693,21 @@ static void GroupUnity(int mnum)
 	if (mon->_msquelch != 0)
 		MonFindEnemy(mnum);
 	// check if the leader is still available and update its squelch value + enemy location
-	if (mon->leader != MON_NO_LEADER) {
-		leader = &monsters[mon->leader];
+	if (mon->_mleader != MON_NO_LEADER) {
+		leader = &monsters[mon->_mleader];
 		clear = LineClearF(CheckNoSolid, mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
 		if (clear) {
-			if (mon->leaderflag == MLEADER_AWAY
+			if (mon->_mleaderflag == MLEADER_AWAY
 			 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
 			 && abs(mon->_my - leader->_mfuty) <= MON_PACK_DISTANCE) {
-				leader->packsize++;
-				mon->leaderflag = MLEADER_PRESENT;
+				leader->_mpacksize++;
+				mon->_mleaderflag = MLEADER_PRESENT;
 			}
-		} else if (mon->leaderflag == MLEADER_PRESENT) {
-			leader->packsize--;
-			mon->leaderflag = MLEADER_AWAY;
+		} else if (mon->_mleaderflag == MLEADER_PRESENT) {
+			leader->_mpacksize--;
+			mon->_mleaderflag = MLEADER_AWAY;
 		}
-		if (mon->leaderflag == MLEADER_PRESENT) {
+		if (mon->_mleaderflag == MLEADER_PRESENT) {
 			if (mon->_msquelch > leader->_msquelch) {
 				leader->_mlastx = mon->_mlastx; // BUGFIX: use _mlastx instead of _mx (fixed)
 				leader->_mlasty = mon->_mlasty; // BUGFIX: use _mlasty instead of _my (fixed)
@@ -2716,10 +2716,10 @@ static void GroupUnity(int mnum)
 		}
 	}
 	// update squelch value + enemy location of the pack monsters
-	if (mon->packsize != 0) {
+	if (mon->_mpacksize != 0) {
 		for (i = 0; i < MAXMONSTERS; i++) {
 			bmon = &monsters[i];
-			if (bmon->leaderflag == MLEADER_PRESENT && bmon->leader == mnum) {
+			if (bmon->_mleaderflag == MLEADER_PRESENT && bmon->_mleader == mnum) {
 				if (mon->_msquelch > bmon->_msquelch) {
 					bmon->_mlastx = mon->_mlastx; // BUGFIX: use _mlastx instead of _mx (fixed)
 					bmon->_mlasty = mon->_mlasty; // BUGFIX: use _mlasty instead of _my (fixed)
@@ -3562,7 +3562,7 @@ void MAI_Garg(int mnum)
 			}
 		}
 		if (mon->_mmode != MM_SPATTACK) {
-			if (mon->leaderflag == MLEADER_NONE) {
+			if (mon->_mleaderflag == MLEADER_NONE) {
 				MonStartSpAttack(mnum);
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 			} else {
@@ -4529,11 +4529,11 @@ bool MonDirOK(int mnum, int mdir)
 	if (!PosOkMonst(mnum, fx, fy))
 		return false;
 
-	if (monsters[mnum].leaderflag == MLEADER_PRESENT) {
-		return abs(fx - monsters[monsters[mnum].leader]._mfutx) < 4
-		    && abs(fy - monsters[monsters[mnum].leader]._mfuty) < 4;
+	if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
+		return abs(fx - monsters[monsters[mnum]._mleader]._mfutx) < 4
+		    && abs(fy - monsters[monsters[mnum]._mleader]._mfuty) < 4;
 	}
-	if (monsters[mnum].packsize == 0)
+	if (monsters[mnum]._mpacksize == 0)
 		return true;
 	mcount = 0;
 	for (x = fx - 3; x <= fx + 3; x++) {
@@ -4543,15 +4543,15 @@ bool MonDirOK(int mnum, int mdir)
 			if (ma == 0)
 				continue;
 			ma = ma >= 0 ? ma - 1 : -(ma + 1);
-			if (monsters[ma].leaderflag == MLEADER_PRESENT
-			    && monsters[ma].leader == mnum
+			if (monsters[ma]._mleaderflag == MLEADER_PRESENT
+			    && monsters[ma]._mleader == mnum
 			    && monsters[ma]._mfutx == x
 				&& monsters[ma]._mfuty == y) {
 				mcount++;
 			}
 		}
 	}
-	return mcount == monsters[mnum].packsize;
+	return mcount == monsters[mnum]._mpacksize;
 }
 
 bool CheckAllowMissile(int x, int y)
@@ -4803,8 +4803,8 @@ void SyncMonsterLight()
 
 	for (i = 0; i < MAXMONSTERS; i++) {
 		mon = &monsters[i];
-		if (mon->mlid != NO_LIGHT /*&& mon->_mmode > MM_INGAME_LAST*/) {
-			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
+		if (mon->_mlid != NO_LIGHT /*&& mon->_mmode > MM_INGAME_LAST*/) {
+			ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
 		}
 	}
 }
@@ -4830,7 +4830,7 @@ void MissToMonst(int mi)
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
 	// assert(dPlayer[mon->_mx][mon->_my] == 0);
 	// assert(!(mon->_mFlags & MFLAG_HIDDEN));
-	ChangeLightOff(mon->mlid, 0, 0);
+	ChangeLightOff(mon->_mlid, 0, 0);
 	assert(mon->_mdir == mis->_miDir);
 	MonStartStand(mnum);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {

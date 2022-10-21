@@ -628,7 +628,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	pD->dmx = mon->mkParam1.x;
 	pD->dmy = mon->mkParam1.y;
 	pD->dmdir = mon->mkDir;
-	pD->dmleaderflag = MLEADER_NONE; // TODO: reset leaderflag of the minions if the info is available
+	pD->dmleaderflag = MLEADER_NONE; // TODO: reset _mleaderflag of the minions if the info is available
 	pD->dmhitpoints = 0;
 	return whoHit | pD->dmWhoHit;
 }
@@ -970,13 +970,13 @@ static void UpdateLeader(int mnum, BYTE prevFlag, BYTE newFlag)
 		return;
 	}
 	if (prevFlag == MLEADER_NONE) {
-		// leaderflag out-of-sync because minions might be away when the leader dies
+		// _mleaderflag out-of-sync because minions might be away when the leader dies
 		assert(newFlag != MLEADER_SELF);
 		return;
 	}
 	assert(prevFlag == MLEADER_PRESENT && newFlag == MLEADER_AWAY);
-	monsters[mnum].leaderflag = newFlag;
-	monsters[monsters[mnum].leader].packsize--;
+	monsters[mnum]._mleaderflag = newFlag;
+	monsters[monsters[mnum]._mleader]._mpacksize--;
 }
 
 void DeltaLoadLevel()
@@ -1009,10 +1009,10 @@ void DeltaLoadLevel()
 				y = mstr->dmy;
 				SetMonsterLoc(mon, x, y);
 				mon->_mdir = mstr->dmdir;
-				UpdateLeader(i, mon->leaderflag, mstr->dmleaderflag);
+				UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 				if (mstr->dmSIdx != 0) {
 					net_assert(mstr->dmSIdx <= nummtypes);
-					assert(mon->mlid == NO_LIGHT);
+					assert(mon->_mlid == NO_LIGHT);
 					// TODO: InitSummonedMonster ?
 					SetRndSeed(glSeedTbl[i % NUM_LEVELS]);
 					InitMonster(i, mon->_mdir, mstr->dmSIdx - 1, mon->_mx, mon->_my);
@@ -1025,8 +1025,8 @@ void DeltaLoadLevel()
 				// games even on the first game_logic run
 				mon->_mhitpoints = mstr->dmhitpoints;
 				// SyncMonsterLight: inline for better performance + apply to moving monsters
-				if (mon->mlid != NO_LIGHT)
-					ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
+				if (mon->_mlid != NO_LIGHT)
+					ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
 				if (mstr->dmCmd >= DCMD_MON_DEAD) {
@@ -1310,9 +1310,9 @@ void LevelDeltaExport()
 			tmon->smHitpoints = mon->_mhitpoints;
 			tmon->smLastx = mon->_mlastx; // the last known X-coordinate of the enemy
 			tmon->smLasty = mon->_mlasty; // the last known Y-coordinate of the enemy
-			//tmon->smLeader = mon->leader; // the leader of the monster
-			tmon->smLeaderflag = mon->leaderflag; // the status of the monster's leader
-			//tmon->smPacksize = mon->packsize; // the number of 'pack'-monsters close to their leader
+			//tmon->smLeader = mon->_mleader; // the leader of the monster
+			tmon->smLeaderflag = mon->_mleaderflag; // the status of the monster's leader
+			//tmon->smPacksize = mon->_mpacksize; // the number of 'pack'-monsters close to their leader
 	//BYTE falign_CB;
 			tmon->smFlags = mon->_mFlags;
 
@@ -1547,7 +1547,7 @@ void LevelDeltaLoad()
 		if (dMonster[mon->_mx][mon->_my] == mnum + 1)
 			dMonster[mon->_mx][mon->_my] = 0;
 
-		UpdateLeader(mnum, mon->leaderflag, tmon->smLeaderflag);
+		UpdateLeader(mnum, mon->_mleaderflag, tmon->smLeaderflag);
 
 		net_assert(tmon->smMode <= MM_INGAME_LAST);
 		mon->_mmode = tmon->smMode;
@@ -1586,14 +1586,14 @@ void LevelDeltaLoad()
 		mon->_mhitpoints = tmon->smHitpoints;
 		mon->_mlastx = tmon->smLastx; // the last known X-coordinate of the enemy
 		mon->_mlasty = tmon->smLasty; // the last known Y-coordinate of the enemy
-//BYTE leader; // the leader of the monster
-		//mon->leaderflag = tmon->smLeaderflag; // the status of the monster's leader
-//BYTE packsize; // the number of 'pack'-monsters close to their leader
-//BYTE falign_CB;
+//BYTE _mleader; // the leader of the monster
+		//mon->_mleaderflag = tmon->smLeaderflag; // the status of the monster's leader
+//BYTE _mpacksize; // the number of 'pack'-monsters close to their leader
+//BYTE _mvid; // vision id of the monster (for minions only)
 		mon->_mFlags = tmon->smFlags;
 		// move the light of the monster
-		if (mon->mlid != NO_LIGHT)
-			ChangeLightXY(mon->mlid, mon->_moldx, mon->_moldy);
+		if (mon->_mlid != NO_LIGHT)
+			ChangeLightXY(mon->_mlid, mon->_moldx, mon->_moldy);
 		// place the monster
 		mi = mon->_mmode;
 		if (mi != MM_STONE || mon->_mhitpoints != 0) {
@@ -3499,7 +3499,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	"ut:%d "
 	"tr:%d "
 	"dv:%d "
-	"mlid:%d "
+	"lid:%d "
 	"le:%d "
 	"lf:%d "
 	"ps:%d "
@@ -3572,10 +3572,10 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_uniqtype,
 	mon->_uniqtrans,
 	mon->_udeadval,
-	mon->mlid,
-	mon->leader, // the leader of the monster
-	mon->leaderflag, // the status of the monster's leader
-	mon->packsize, // the number of 'pack'-monsters close to their leader
+	mon->_mlid,
+	mon->_mleader, // the leader of the monster
+	mon->_mleaderflag, // the status of the monster's leader
+	mon->_mpacksize, // the number of 'pack'-monsters close to their leader
 	mon->_mvid,
 	mon->_mLevel,
 	mon->_mSelFlag,
