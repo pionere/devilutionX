@@ -541,8 +541,8 @@ static void LoadMonster(int mnum)
 	LoadInt(&mon->_mRndSeed);
 	LoadInt(&mon->_mAISeed);
 
-	LoadByte(&mon->_uniqtype);
-	LoadByte(&mon->_uniqtrans);
+	LoadByte(&mon->_muniqtype);
+	LoadByte(&mon->_muniqtrans);
 	LoadByte(&mon->_muniqdeadval);
 	LoadByte(&mon->_mlid);
 
@@ -1241,8 +1241,8 @@ static void SaveMonster(int mnum, bool full)
 	SaveInt(&mon->_mRndSeed);
 	SaveInt(&mon->_mAISeed);
 
-	SaveByte(&mon->_uniqtype);
-	SaveByte(&mon->_uniqtrans);
+	SaveByte(&mon->_muniqtype);
+	SaveByte(&mon->_muniqtrans);
 	SaveByte(&mon->_muniqdeadval);
 	SaveByte(&mon->_mlid);
 

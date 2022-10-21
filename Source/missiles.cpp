@@ -1463,8 +1463,8 @@ static void SyncRhinoAnim(int mi)
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
 	mis->_miLid = mon->_mlid;
-	if (mon->_uniqtype != 0) {
-		mis->_miUniqTrans = mon->_uniqtrans;
+	if (mon->_muniqtype != 0) {
+		mis->_miUniqTrans = mon->_muniqtrans;
 		//mis->_miLid = mon->_mlid;
 	}
 }
@@ -2529,8 +2529,8 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	//mis->_miVar1 = FALSE;
 	//mis->_miVar2 = 0;
 	mis->_miLightFlag = TRUE;
-	if (mon->_uniqtype != 0)
-		mis->_miUniqTrans = mon->_uniqtrans + 4;
+	if (mon->_muniqtype != 0)
+		mis->_miUniqTrans = mon->_muniqtrans + 4;
 	dMonster[mon->_mx][mon->_my] = 0;
 	//mis->_miRange = 255;
 	//PutMissile(mi);

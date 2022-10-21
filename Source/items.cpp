@@ -2048,7 +2048,7 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 		// no drop
 		return;
 
-	if (mon->_uniqtype != 0) {
+	if (mon->_muniqtype != 0) {
 		idx = RndUItem(mon->_mLevel);
 		quality = CFDQ_UNIQUE;
 	} else if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QS_MUSHGIVEN) {

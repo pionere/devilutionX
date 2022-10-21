@@ -3243,7 +3243,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_BOOK, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 	if (zharlib != -1 && themes[zharlib].ttval == dTransVal[os->_ox][os->_oy]
 	 && quests[Q_ZHAR]._qvar1 <= 1) {
-		assert((monsters[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
+		assert((monsters[MAX_MINIONS]._muniqtype - 1) == UMT_ZHAR);
 		//assert(monsters[MAX_MINIONS]._mgoal == MGOAL_TALKING);
 		monsters[MAX_MINIONS]._mgoalvar2 = TEXT_ZHAR2; // TALK_MESSAGE
 		//MonStartStand(MAX_MINIONS);

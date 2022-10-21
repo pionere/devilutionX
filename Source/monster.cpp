@@ -445,10 +445,10 @@ void InitLevelMonsters()
 		monsters[i]._mmode = MM_UNUSED;
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		monsters[i]._msquelch = 0;
-		// reset _uniqtype value to simplify InitDead
+		// reset _muniqtype value to simplify InitDead
 		// reset _mlid value to simplify SyncMonsterLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
-		monsters[i]._uniqtype = 0;
-		monsters[i]._uniqtrans = 0;
+		monsters[i]._muniqtype = 0;
+		monsters[i]._muniqtrans = 0;
 		monsters[i]._muniqdeadval = 0;
 		monsters[i]._mlid = NO_LIGHT;
 		// reset _mleaderflag value to simplify GroupUnity
@@ -665,8 +665,8 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mRndSeed = GetRndSeed();
 	// mon->_mAISeed = -- should be set before use
 
-	mon->_uniqtype = 0;
-	mon->_uniqtrans = 0;
+	mon->_muniqtype = 0;
+	mon->_muniqtrans = 0;
 	mon->_muniqdeadval = 0;
 	mon->_mlid = NO_LIGHT;
 
@@ -937,7 +937,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	// assert(nummonsters < MAXMONSTERS);
 	mnum = PlaceMonster(uniqtype, xp, yp);
 	mon = &monsters[mnum];
-	mon->_uniqtype = uniqindex + 1;
+	mon->_muniqtype = uniqindex + 1;
 	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
 #ifdef HELLFIRE
 	if (uniqindex != UMT_HORKDMN)
@@ -966,7 +966,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
 	LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
 
-	mon->_uniqtrans = uniquetrans++;
+	mon->_muniqtrans = uniquetrans++;
 
 	mon->_mHit += uniqm->mUnqHit;
 	mon->_mHit2 += uniqm->mUnqHit2;
@@ -1825,7 +1825,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 
 	mon = &monsters[mnum];
 	SetRndSeed(mon->_mRndSeed);
-	switch (mon->_uniqtype - 1) {
+	switch (mon->_muniqtype - 1) {
 	case UMT_GARBUD:
 		assert(QuestStatus(Q_GARBUD));
 		CreateTypeItem(mon->_mx, mon->_my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
@@ -4747,8 +4747,8 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnimXOffset = mmdata->cmXOffset;
 	mon->_mAFNum = mmdata->cmAFNum;
 	mon->_mAFNum2 = mmdata->cmAFNum2;
-	if (mon->_uniqtype != 0)
-		mon->_mName = uniqMonData[mon->_uniqtype - 1].mName;
+	if (mon->_muniqtype != 0)
+		mon->_mName = uniqMonData[mon->_muniqtype - 1].mName;
 	else
 		mon->_mName = monsterdata[mon->_mType].mName;
 

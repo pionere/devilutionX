@@ -1680,7 +1680,7 @@ void DrawInfoStr()
 		y = mon->_my;
 		col = COL_WHITE;
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
-		if (mon->_uniqtype != 0) {
+		if (mon->_muniqtype != 0) {
 			col = COL_GOLD;
 		}
 		GetMousePos(x, y, &xx, &yy);

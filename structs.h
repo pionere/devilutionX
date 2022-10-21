@@ -681,8 +681,8 @@ typedef struct MonsterStruct {
 	int _mlasty; // the last known Y-coordinate of the enemy
 	int _mRndSeed;
 	int _mAISeed;
-	BYTE _uniqtype;
-	BYTE _uniqtrans;
+	BYTE _muniqtype;
+	BYTE _muniqtrans;
 	BYTE _muniqdeadval; // unused
 	BYTE _mlid; // light id of the monster
 	BYTE _mleader; // the leader of the monster

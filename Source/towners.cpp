@@ -223,9 +223,9 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 	tw->_mFlags = 0;
 	// _mmaxhp for DrawInfoStr
 	tw->_mmaxhp = 0;
-	// set _mName, _uniqtype for DrawInfoStr
+	// set _mName, _muniqtype for DrawInfoStr
 	tw->_mName = name; // TNR_NAME
-	// tw->_uniqtype = 0;
+	// tw->_muniqtype = 0;
 	// set _mRndSeed for S_TalkEnter
 	tw->_mRndSeed = GetRndSeed(); // TNR_SEED
 	// tw->_mListener = MAX_PLRS; // TNR_LISTENER

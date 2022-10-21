@@ -3569,8 +3569,8 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mlasty, // the last known Y-coordinate of the enemy
 	mon->_mRndSeed,
 	mon->_mAISeed,
-	mon->_uniqtype,
-	mon->_uniqtrans,
+	mon->_muniqtype,
+	mon->_muniqtrans,
 	mon->_muniqdeadval,
 	mon->_mlid,
 	mon->_mleader, // the leader of the monster

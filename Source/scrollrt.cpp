@@ -363,8 +363,8 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 		trans = COLOR_TRN_RED;
 	else if (mon->_mmode == MM_STONE)
 		trans = COLOR_TRN_GRAY;
-	else if (mon->_uniqtrans != 0)
-		trans = mon->_uniqtrans;
+	else if (mon->_muniqtrans != 0)
+		trans = mon->_muniqtrans;
 	else {
 		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
 		return;
@@ -398,8 +398,8 @@ static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 	}
 #endif
 	nWidth = mon->_mAnimWidth;
-	if (mon->_uniqtrans != 0) {
-		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, mon->_uniqtrans);
+	if (mon->_muniqtrans != 0) {
+		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, mon->_muniqtrans);
 	} else {
 		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
 	}
