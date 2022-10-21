@@ -449,7 +449,7 @@ void InitLevelMonsters()
 		// reset _mlid value to simplify SyncMonsterLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
 		monsters[i]._muniqtype = 0;
 		monsters[i]._muniqtrans = 0;
-		monsters[i]._muniqdeadval = 0;
+		monsters[i]._mNameColor = COL_WHITE;
 		monsters[i]._mlid = NO_LIGHT;
 		// reset _mleaderflag value to simplify GroupUnity
 		monsters[i]._mleader = MON_NO_LEADER;
@@ -667,7 +667,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 
 	mon->_muniqtype = 0;
 	mon->_muniqtrans = 0;
-	mon->_muniqdeadval = 0;
+	mon->_mNameColor = COL_WHITE;
 	mon->_mlid = NO_LIGHT;
 
 	mon->_mleader = MON_NO_LEADER;
@@ -803,6 +803,7 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 			// assert(nummonsters < MAXMONSTERS);
 			mnum = PlaceMonster(mtidx, xp, yp);
 			if (leaderf & UMF_GROUP) {
+				monsters[mnum]._mNameColor = COL_BLUE;
 				monsters[mnum]._mmaxhp *= 2;
 				monsters[mnum]._mhitpoints = monsters[mnum]._mmaxhp;
 				monsters[mnum]._mAI.aiInt = monsters[leader]._mAI.aiInt;
@@ -937,6 +938,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	// assert(nummonsters < MAXMONSTERS);
 	mnum = PlaceMonster(uniqtype, xp, yp);
 	mon = &monsters[mnum];
+	mon->_mNameColor = COL_GOLD;
 	mon->_muniqtype = uniqindex + 1;
 	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
 #ifdef HELLFIRE

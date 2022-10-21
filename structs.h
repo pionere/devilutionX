@@ -683,7 +683,7 @@ typedef struct MonsterStruct {
 	int _mAISeed;
 	BYTE _muniqtype;
 	BYTE _muniqtrans;
-	BYTE _muniqdeadval; // unused
+	BYTE _mNameColor; // color of the tooltip (white: normal, blue: pack; gold: unique)
 	BYTE _mlid; // light id of the monster
 	BYTE _mleader; // the leader of the monster
 	BYTE _mleaderflag; // the status of the monster's leader

@@ -1656,7 +1656,6 @@ static void DrawTrigInfo()
 void DrawInfoStr()
 {
 	int x, y, xx, yy;
-	BYTE col;
 
 	if (pcursitem != ITEM_NONE) {
 		ItemStruct* is = &items[pcursitem];
@@ -1678,14 +1677,10 @@ void DrawInfoStr()
 		MonsterStruct* mon = &monsters[pcursmonst];
 		x = mon->_mx;
 		y = mon->_my;
-		col = COL_WHITE;
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
-		if (mon->_muniqtype != 0) {
-			col = COL_GOLD;
-		}
 		GetMousePos(x, y, &xx, &yy);
 		yy -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
-		xx += DrawTooltip(infostr, xx, yy, col);
+		xx += DrawTooltip(infostr, xx, yy, mon->_mNameColor);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (pcursplr != PLR_NONE) {
 		PlayerStruct* p = &players[pcursplr];
