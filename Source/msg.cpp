@@ -372,6 +372,12 @@ static DWORD DeltaCompressData(BYTE* end)
 	return pkSize + sizeof(gsDeltaData.ddSendRecvBuf.compressed);
 }
 
+static void DeltaDecompressData()
+{
+	if (gsDeltaData.ddSendRecvBuf.compressed)
+		PkwareDecompress(gsDeltaData.ddSendRecvBuf.content, gsDeltaData.ddSendRecvOffset, sizeof(gsDeltaData.ddSendRecvBuf.content));
+}
+
 void DeltaExportData(int pnum)
 {
 	BYTE* dstEnd;
@@ -419,8 +425,7 @@ void DeltaExportData(int pnum)
 
 static void DeltaImportData()
 {
-	if (gsDeltaData.ddSendRecvBuf.compressed)
-		PkwareDecompress(gsDeltaData.ddSendRecvBuf.content, gsDeltaData.ddSendRecvOffset, sizeof(gsDeltaData.ddSendRecvBuf.content));
+	DeltaDecompressData();
 
 	gbGameDeltaChunks++;
 
@@ -1833,8 +1838,7 @@ static void LevelDeltaImportEnd(TCmdPlrInfoHdr* cmd, int pnum)
 
 	// decompress level data
 	//assert(gsDeltaData.ddRecvLastCmd == NMSG_LVL_DELTA);
-	if (gsDeltaData.ddSendRecvBuf.compressed)
-		PkwareDecompress((BYTE*)&gsDeltaData.ddSendRecvBuf.content, gsDeltaData.ddSendRecvOffset, sizeof(gsDeltaData.ddSendRecvBuf.content));
+	DeltaDecompressData();
 
 	guDeltaTurn = buf->turn;
 	//gbGameDeltaChunks = MAX_CHUNKS - 1;
