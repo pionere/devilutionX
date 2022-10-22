@@ -2041,11 +2041,11 @@ typedef struct _PcxHeader {
 
 typedef struct TDataInfo {
 	BYTE* const srcData;
-	DWORD srcOffset;
+	size_t srcOffset;
 	BYTE* const destData;
-	DWORD destOffset;
-	const DWORD size;
-	TDataInfo(BYTE* src, BYTE* dst, DWORD s) : srcData(src), srcOffset(0), destData(dst), destOffset(0), size(s) {
+	size_t destOffset;
+	const size_t size;
+	TDataInfo(BYTE* src, BYTE* dst, size_t s) : srcData(src), srcOffset(0), destData(dst), destOffset(0), size(s) {
 	}
 } TDataInfo;
 

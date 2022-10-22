@@ -78,7 +78,7 @@ void InitHash()
 static unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param)
 {
 	TDataInfo* pInfo;
-	DWORD sSize;
+	size_t sSize;
 
 	pInfo = (TDataInfo*)param;
 
@@ -95,7 +95,7 @@ static unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param)
 static void PkwareBufferWrite(char* buf, unsigned int* size, void* param)
 {
 	TDataInfo* pInfo;
-	DWORD sSize;
+	size_t sSize;
 
 	pInfo = (TDataInfo*)param;
 
@@ -135,18 +135,20 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 	return size;
 }
 
-void PkwareDecompress(BYTE* srcData, int recv_size, int dwMaxBytes)
+void PkwareDecompress(BYTE* srcData, unsigned recv_size, unsigned dwMaxBytes)
 {
 	BYTE* destData;
 	char* ptr;
 
-	ptr = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
+	ptr = (char*)DiabloAllocPtr(EXP_BUFFER_SIZE);
 	destData = DiabloAllocPtr(dwMaxBytes);
 
 	TDataInfo info = TDataInfo(srcData, destData, recv_size);
 
 	explode(PkwareBufferRead, PkwareBufferWrite, ptr, &info);
-	memcpy(info.srcData, info.destData, info.destOffset);
+	//if (info.destOffset > info.size) {
+		memcpy(info.srcData, info.destData, info.destOffset);
+	//}
 	mem_free_dbg(ptr);
 	mem_free_dbg(info.destData);
 }

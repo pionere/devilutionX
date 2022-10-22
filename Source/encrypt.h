@@ -12,8 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-DWORD PkwareCompress(BYTE *srcData, DWORD size);
-void PkwareDecompress(BYTE *pbInBuff, int recv_size, int dwMaxBytes);
+DWORD PkwareCompress(BYTE* srcData, DWORD size);
+void PkwareDecompress(BYTE* pbInBuff, unsigned recv_size, unsigned dwMaxBytes);
 
 #ifdef __cplusplus
 }
