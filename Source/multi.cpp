@@ -17,7 +17,7 @@ static TBuffer sgTurnChunkBuf;
 /* Buffer to hold the received player-info. */
 static PkPlayerStruct netplr[MAX_PLRS];
 /* Current offset in netplr. */
-static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
+static uint16_t sgwPackPlrOffsetTbl[MAX_PLRS];
 /* Specifies whether the player joins an existing game. */
 static bool gbJoinGame;
 /* A table in which the leaving players are registered with the reason for the leaving. (LEAVE_) */

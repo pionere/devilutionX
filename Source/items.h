@@ -46,13 +46,13 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg);
 void CreateRndItem(int x, int y, unsigned quality, int mode);
 void SpawnRndUseful(int x, int y, bool sendmsg);
 void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mode);
-void RecreateItem(int iseed, WORD wIndex, WORD wCI);
+void RecreateItem(int iseed, uint16_t wIndex, uint16_t wCI);
 void PlaceQuestItemInArea(int idx, int areasize);
 void CreateQuestItemAt(int idx, int x, int y, int mode);
 void SpawnQuestItemAt(int idx, int x, int y, int mode);
 void PlaceRock();
 #ifdef HELLFIRE
-void SpawnAmulet(WORD wCI, int x, int y/*, bool sendmsg*/);
+void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
 void DeleteItems(int ii);
@@ -70,7 +70,7 @@ void SpawnPremium(unsigned lvl);
 void SpawnWitch(unsigned lvl);
 void SpawnBoy(unsigned lvl);
 void SpawnHealer(unsigned lvl);
-void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo);
+void RecreateTownItem(int ii, int iseed, uint16_t idx, uint16_t icreateinfo);
 void SpawnSpellBook(int ispell, int x, int y, bool sendmsg);
 void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
 

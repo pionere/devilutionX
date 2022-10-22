@@ -39,7 +39,7 @@ void CheckBeltClick(bool bShift);
 void InvGetItem(int pnum, int ii);
 bool AutoGetItem(int pnum, int ii);
 bool SyncAutoGetItem(int pnum, int ii);
-int FindGetItem(int iseed, WORD wIndex, WORD wCI);
+int FindGetItem(int iseed, uint16_t wIndex, uint16_t wCI);
 bool CanPut(int x, int y);
 bool FindItemLocation(int sx, int sy, int *dx, int *dy, int rad);
 void DropItem();

@@ -147,8 +147,8 @@ static_assert((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData 
 
 typedef struct ItemStruct {
 	int _iSeed;
-	WORD _iIdx;
-	WORD _iCreateInfo;
+	uint16_t _iIdx;
+	uint16_t _iCreateInfo;
 	union {
 		int _ix;
 		int _iPHolder; // parent index of a placeholder entry in InvList
@@ -258,7 +258,7 @@ typedef struct PlayerStruct {
 	BYTE _pLevel;
 	BYTE _pRank;
 	BYTE _pTeam;
-	WORD _pStatPts;
+	uint16_t _pStatPts;
 	BYTE _pLightRad;
 	BYTE _pManaShield;
 	int16_t _pTimer[NUM_PLRTIMERS];
@@ -305,10 +305,10 @@ typedef struct PlayerStruct {
 	uint64_t _pAblSkills;  // Bitmask of abilities
 	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls or runes
 	char _pName[PLR_NAME_LEN];
-	WORD _pBaseStr;
-	WORD _pBaseMag;
-	WORD _pBaseDex;
-	WORD _pBaseVit;
+	uint16_t _pBaseStr;
+	uint16_t _pBaseMag;
+	uint16_t _pBaseDex;
+	uint16_t _pBaseVit;
 	int _pHPBase;    // the hp of the player if they would not wear an item
 	int _pMaxHPBase; // the maximum hp of the player without items
 	int _pManaBase;    // the mana of the player if they would not wear an item
@@ -1684,8 +1684,8 @@ typedef struct SpellData {
 	BYTE sMissile;
 	BYTE sManaAdj;
 	BYTE sMinMana;
-	WORD sStaffMin;
-	WORD sStaffMax;
+	uint16_t sStaffMin;
+	uint16_t sStaffMax;
 	int sBookCost;
 	int sStaffCost; // == sScrollCost == sRuneCost
 	ALIGNMENT64(6)
@@ -1818,10 +1818,10 @@ static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "A
 // TPDEF PTR FCN VOID PLAYSND
 
 typedef struct _uidefaultstats {
-	WORD dsStrength;
-	WORD dsMagic;
-	WORD dsDexterity;
-	WORD dsVitality;
+	uint16_t dsStrength;
+	uint16_t dsMagic;
+	uint16_t dsDexterity;
+	uint16_t dsVitality;
 } _uidefaultstats;
 
 typedef struct _uiheroinfo {
@@ -1944,8 +1944,8 @@ typedef struct _FILEHEADER {
 	uint32_t signature;
 	uint32_t headersize;
 	uint32_t filesize;
-	WORD version;
-	WORD sectorsizeid;
+	uint16_t version;
+	uint16_t sectorsizeid;
 	uint32_t hashoffset;
 	uint32_t blockoffset;
 	uint32_t hashcount;

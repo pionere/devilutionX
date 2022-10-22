@@ -1433,7 +1433,7 @@ bool AutoGetItem(int pnum, int ii)
 	return done;
 }
 
-int FindGetItem(int iseed, WORD wIndex, WORD wCI)
+int FindGetItem(int iseed, uint16_t wIndex, uint16_t wCI)
 {
 	int i, ii;
 

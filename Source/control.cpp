@@ -2083,7 +2083,7 @@ static void control_remove_gold()
 	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
 	static_assert((int)INVITEM_INV_LAST - (int)INVITEM_INV_FIRST < UCHAR_MAX, "control_remove_gold sends inv item index in BYTE field.");
 	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
-	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using WORD.");
+	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using uint16_t.");
 	NetSendCmdParamBW(CMD_SPLITPLRGOLD, gi, dropGoldValue);
 }
 

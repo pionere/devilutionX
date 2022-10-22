@@ -615,7 +615,7 @@ void SyncTownerQ(int pnum, int idx)
 		// quests[Q_GIRL]._qlog = FALSE;
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			if (pnum == mypnum) {
-				WORD wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
+				uint16_t wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
 				SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
 				SpawnAmulet(wCI, TPOS_GIRL/*, true*/);
 			}

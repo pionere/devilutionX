@@ -666,7 +666,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 {
 	DMonsterStr* pDLvlMons;
 	DMonsterStr* pD;
-	WORD wLen;
+	uint16_t wLen;
 	const TSyncMonster* pSync;
 	const BYTE* pbBuf;
 
@@ -857,7 +857,7 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 		dest->wValue = static_cast<uint16_t>(src->_ivalue);
 	} else {
 		dest->wIndx = static_cast<uint16_t>(IDI_EAR);
-		dest->wCI = *(WORD*)&src->_iName[7];
+		dest->wCI = *(uint16_t*)&src->_iName[7];
 		dest->dwSeed = *(INT*)&src->_iName[9];
 		dest->bId = src->_iName[13];
 		dest->bDur = src->_iName[14];
@@ -915,7 +915,7 @@ static void UnPackEar(const PkItemStruct* src)
 	static_assert(sizeof(items[MAXITEMS]._iName) >= sizeof("Ear of ") + 16, "UnPackEar might write too much data to _iName.");
 	char* cursor = &items[MAXITEMS]._iName[sizeof("Ear of ") - 1];
 
-	*(WORD*)&cursor[0] = src->wCI;
+	*(uint16_t*)&cursor[0] = src->wCI;
 	*(DWORD*)&cursor[2] = src->dwSeed;
 	cursor[6] = src->bId;
 	cursor[7] = src->bDur;
@@ -1964,7 +1964,7 @@ void NetSendCmdLocBParam2(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, WORD wParam1)
+void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, uint16_t wParam1)
 {
 	TCmdLocParam1 cmd;
 
@@ -1976,7 +1976,7 @@ void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, WORD wParam1)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdParam1(BYTE bCmd, WORD wParam1)
+void NetSendCmdParam1(BYTE bCmd, uint16_t wParam1)
 {
 	TCmdParam1 cmd;
 
@@ -1986,7 +1986,7 @@ void NetSendCmdParam1(BYTE bCmd, WORD wParam1)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdParamBW(BYTE bCmd, BYTE bParam1, WORD wParam2)
+void NetSendCmdParamBW(BYTE bCmd, BYTE bParam1, uint16_t wParam2)
 {
 	TCmdParamBW cmd;
 

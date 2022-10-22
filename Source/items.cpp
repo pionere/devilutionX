@@ -2178,7 +2178,7 @@ void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mo
 	}
 }
 
-void RecreateItem(int iseed, WORD wIndex, WORD wCI)
+void RecreateItem(int iseed, uint16_t wIndex, uint16_t wCI)
 {
 	if (wIndex == IDI_GOLD) {
 		SetItemData(MAXITEMS, IDI_GOLD);
@@ -2548,7 +2548,7 @@ static void DoRecharge(int pnum, int cii)
 static void DoClean(ItemStruct *pi, bool whittle)
 {
 	int seed, spell;
-	WORD ci, idx;
+	uint16_t ci, idx;
 
 	seed = pi->_iSeed;
 	spell = pi->_iSpell;
@@ -2597,7 +2597,7 @@ static void DoWhittle(int pnum, int cii)
 static void BuckleItem(ItemStruct *pi)
 {
 	int seed;
-	WORD ci, idx;
+	uint16_t ci, idx;
 	BYTE magic;
 
 	ci = (pi->_iCreateInfo & CF_LEVEL);
@@ -2710,7 +2710,7 @@ void DoOil(int pnum, char from, BYTE cii)
 {
 	ItemStruct *pi, *is;
 	int oilType, seed, spell;
-	WORD idx, ci;
+	uint16_t idx, ci;
 	BYTE targetPowerFrom, targetPowerTo;
 
 	// assert(plr._pmode != PM_DEATH);
@@ -3803,7 +3803,7 @@ static void RecreateCraftedItem(int ii, int iseed, int idx, unsigned lvl)
 	//items[ii]._iCreateInfo = lvl | CF_CRAFTED;
 }
 
-void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo)
+void RecreateTownItem(int ii, int iseed, uint16_t idx, uint16_t icreateinfo)
 {
 	int loc;
 	unsigned lvl;
@@ -3857,7 +3857,7 @@ void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 }
 
 #ifdef HELLFIRE
-void SpawnAmulet(WORD wCI, int x, int y/*, bool sendmsg*/)
+void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/)
 {
 	int idx;
 	unsigned lvl;
