@@ -443,9 +443,10 @@ set(devilutionx_SRCS
   Source/sync.cpp
   Source/textdat.cpp
   Source/themes.cpp
-  Source/tmsg.cpp
+  #Source/tmsg.cpp
   Source/town.cpp
   Source/towners.cpp
+  #Source/track.cpp
   Source/trigs.cpp
   Source/controls/axis_direction.cpp
   Source/controls/controller.cpp

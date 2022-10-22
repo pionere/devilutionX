@@ -98,9 +98,10 @@
 #include "sync.h"
 #include "textdat.h" // check file name
 #include "themes.h"
-#include "tmsg.h"
+//#include "tmsg.h"
 #include "town.h"
 #include "towners.h"
+//#include "track.h"
 #include "trigs.h"
 #include "engine/render/cel_render.hpp"
 #include "engine/render/text_render.hpp"
