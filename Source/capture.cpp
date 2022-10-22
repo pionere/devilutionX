@@ -20,19 +20,19 @@ DEVILUTION_BEGIN_NAMESPACE
  */
 static bool CaptureHdr(uint16_t width, uint16_t height, std::ofstream *out)
 {
-	PCXHEADER Buffer;
+	FilePcxHeader Buffer;
 
 	memset(&Buffer, 0, sizeof(Buffer));
 	Buffer.Manufacturer = 10;
 	Buffer.Version = 5;
 	Buffer.Encoding = 1;
 	Buffer.BitsPerPixel = 8;
-	Buffer.Xmax = SwapLE16(width - 1);
-	Buffer.Ymax = SwapLE16(height - 1);
-	Buffer.HDpi = SwapLE16(width);
-	Buffer.VDpi = SwapLE16(height);
+	Buffer.Xmax = static_cast<uint16_t>(width - 1);
+	Buffer.Ymax = static_cast<uint16_t>(height - 1);
+	Buffer.HDpi = width;
+	Buffer.VDpi = height;
 	Buffer.NPlanes = 1;
-	Buffer.BytesPerLine = SwapLE16(width);
+	Buffer.BytesPerLine = width;
 
 	out->write(reinterpret_cast<const char *>(&Buffer), sizeof(Buffer));
 	return !out->fail();

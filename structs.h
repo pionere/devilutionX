@@ -2014,26 +2014,26 @@ typedef struct _plrmsg {
 // capture
 //////////////////////////////////////////////////
 
-typedef struct _PcxHeader {
+typedef struct FilePcxHeader {
 	BYTE Manufacturer;
 	BYTE Version;
 	BYTE Encoding;
 	BYTE BitsPerPixel;
-	WORD Xmin;
-	WORD Ymin;
-	WORD Xmax;
-	WORD Ymax;
-	WORD HDpi;
-	WORD VDpi;
+	LE_UINT16 Xmin;
+	LE_UINT16 Ymin;
+	LE_UINT16 Xmax;
+	LE_UINT16 Ymax;
+	LE_UINT16 HDpi;
+	LE_UINT16 VDpi;
 	BYTE Colormap[48];
 	BYTE Reserved;
 	BYTE NPlanes;
-	WORD BytesPerLine;
-	WORD PaletteInfo;
-	WORD HscreenSize;
-	WORD VscreenSize;
+	LE_UINT16 BytesPerLine;
+	LE_UINT16 PaletteInfo;
+	LE_UINT16 HscreenSize;
+	LE_UINT16 VscreenSize;
 	BYTE Filler[54];
-} PCXHEADER;
+} FilePcxHeader;
 
 //////////////////////////////////////////////////
 // encrypt
