@@ -1179,6 +1179,7 @@ void LevelDeltaExport()
 
 	validDelta = currLvl._dLevelIdx != DLV_INVALID;
 	completeDelta = false;
+#ifndef NONET
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!(guSendLevelData & (1 << pnum)) || // pnum did not request a level-delta
 //		  (guReceivedLevelDelta & (1 << pnum)) ||  // got an (empty) level delta from pnum
@@ -1192,6 +1193,9 @@ void LevelDeltaExport()
 			recipients |= (1 << pnum);
 		}
 	}
+#else
+	guSendLevelData = 0;
+#endif
 	completeDelta &= validDelta;
 	// send detailed level delta only if available and appropriate
 	if (completeDelta) {
