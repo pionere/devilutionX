@@ -519,13 +519,7 @@ typedef struct SoundSample final {
 typedef struct SFXStruct {
 	BYTE bFlags; // sfx_flag
 	const char* pszName;
-	union {
-		struct {
-			Uint32 sh11;
-			void* sh01;
-		};
-		SoundSample pSnd;
-	};
+	SoundSample pSnd;
 } SFXStruct;
 //static_assert(sizeof(SoundSample) == sizeof(Uint32) + sizeof(void*), "SFXStruct initalization might fail.");
 
