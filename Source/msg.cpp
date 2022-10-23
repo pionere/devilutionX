@@ -729,7 +729,7 @@ static void delta_awake_golem(TCmdGolem* pG, int mnum)
 static void delta_leave_sync(BYTE bLevel)
 {
 	if (bLevel == DLV_TOWN) {
-		glSeedTbl[DLV_TOWN] = GetRndSeed();
+		glSeedTbl[DLV_TOWN] = NextRndSeed();
 		return;
 	}
 	memcpy(&gsDeltaData.ddLocal[bLevel].automapsv, automapview, sizeof(automapview));

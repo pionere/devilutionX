@@ -662,7 +662,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mDelFlag = FALSE;
 	//mon->_mlastx = 0;	-- should be set before use
 	//mon->_mlasty = 0;
-	mon->_mRndSeed = GetRndSeed();
+	mon->_mRndSeed = NextRndSeed();
 	// mon->_mAISeed = -- should be set before use
 
 	mon->_muniqtype = 0;
@@ -4342,7 +4342,7 @@ void ProcessMonsters()
 			continue;
 		if (IsMultiGame) {
 			SetRndSeed(mon->_mAISeed);
-			mon->_mAISeed = GetRndSeed();
+			mon->_mAISeed = NextRndSeed();
 		}
 		if (mon->_mhitpoints < mon->_mmaxhp && mon->_mhitpoints >= (1 << 6) /*&& !(mon->_mFlags & MFLAG_NOHEAL)*/) {
 			mon->_mhitpoints += (mon->_mLevel + 1) >> 1;

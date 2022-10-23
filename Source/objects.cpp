@@ -1111,7 +1111,7 @@ static void AddChest(int oi)
 	os = &objects[oi];
 	if (random_(147, 2) == 0)
 		os->_oAnimFrame += 3;
-	os->_oRndSeed = GetRndSeed(); // CHEST_ITEM_SEED1
+	os->_oRndSeed = NextRndSeed(); // CHEST_ITEM_SEED1
 	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3
 	//	|| os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3);
 	num = os->_otype;
@@ -1160,7 +1160,7 @@ static void AddSarc(int oi)
 	os = &objects[oi];
 	dObject[os->_ox][os->_oy - 1] = -(oi + 1);
 	os->_oVar1 = random_(153, 10);       // SARC_ITEM
-	os->_oRndSeed = GetRndSeed();
+	os->_oRndSeed = NextRndSeed();
 	if (os->_oVar1 >= 8)
 		os->_oVar2 = PreSpawnSkeleton(); // SARC_SKELE
 }
@@ -1193,7 +1193,7 @@ static void AddTrap(int oi)
 	mt = mt / 6 + 1;
 	mt = random_low(148, mt) & 3;
 	os = &objects[oi];
-	os->_oRndSeed = GetRndSeed();
+	os->_oRndSeed = NextRndSeed();
 	// TRAP_MISTYPE
 	os->_oVar3 = MIS_ARROW;
 	if (mt == 1)
@@ -1223,7 +1223,7 @@ static void AddBarrel(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = GetRndSeed();
+	os->_oRndSeed = NextRndSeed();
 	os->_oVar3 = random_(149, 3);  // BARREL_ITEM_TYPE
 	os->_oVar2 = random_(149, 10); // BARREL_ITEM
 	if (os->_oVar2 >= 8)
@@ -1249,7 +1249,7 @@ static void AddShrine(int oi)
 
 	os = &objects[oi];
 	os->_oPreFlag = TRUE;
-	os->_oRndSeed = GetRndSeed();
+	os->_oRndSeed = NextRndSeed();
 	os->_oVar1 = FindValidShrine(NUM_SHRINETYPE); // SHRINE_TYPE
 	if (random_(150, 2) != 0) {
 		os->_oAnimFrame = 12;
@@ -1262,13 +1262,13 @@ static void AddBookcase(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = GetRndSeed();
+	os->_oRndSeed = NextRndSeed();
 	os->_oPreFlag = TRUE;
 }
 
 static void ObjAddRndSeed(int oi)
 {
-	objects[oi]._oRndSeed = GetRndSeed();
+	objects[oi]._oRndSeed = NextRndSeed();
 }
 
 static void AddArmorStand(int oi)
@@ -1281,7 +1281,7 @@ static void AddCauldronGoatShrine(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = GetRndSeed();
+	os->_oRndSeed = NextRndSeed();
 	os->_oVar1 = FindValidShrine(SHRINE_THAUMATURGIC); // SHRINE_TYPE
 }
 
@@ -1290,7 +1290,7 @@ static void AddDecap(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = GetRndSeed();
+	os->_oRndSeed = NextRndSeed();
 	os->_oAnimFrame = RandRange(1, 8);
 	os->_oPreFlag = TRUE;
 }
@@ -1307,7 +1307,7 @@ static void AddMagicCircle(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oRndSeed = GetRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oPreFlag = TRUE;
 	os->_oVar5 = 0; // VILE_CIRCLE_PROGRESS
 }
@@ -1341,7 +1341,7 @@ static void AddTorturedMaleBody(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oRndSeed = GetRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oAnimFrame = RandRange(1, 4);
 	//os->_oPreFlag = TRUE;
 }
@@ -1351,7 +1351,7 @@ static void AddTorturedFemaleBody(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oRndSeed = GetRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oAnimFrame = RandRange(1, 3);
 	//os->_oPreFlag = TRUE;
 }
@@ -1711,7 +1711,7 @@ static void Obj_FlameTrap(int oi)
 		if (os->_oAnimFrame == 11) {
 			SetRndSeed(os->_oRndSeed);
 			AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FIRETRAP, MST_OBJECT, -1, 0);
-			os->_oRndSeed = GetRndSeed();
+			os->_oRndSeed = NextRndSeed();
 		} else if (os->_oAnimFrame <= 5) {
 			static_assert(MAX_LIGHT_RAD >= 5, "Obj_FlameTrap needs at least light-radius of 5.");
 			ChangeLightRadius(os->_olid, os->_oAnimFrame);
@@ -2440,7 +2440,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	for (i = os->_oVar1; i > 0; i--) { // CHEST_ITEM_NUM
 		SetRndSeed(os->_oRndSeed);     // CHEST_ITEM_SEEDx
 		for (k = i; k > 1; k--)
-			GetRndSeed();
+			NextRndSeed();
 		if (os->_oVar2 != 0)           // CHEST_ITEM_TYPE
 			CreateRndItem(os->_ox, os->_oy, os->_oVar2 == 8 ? CFDQ_GOOD : CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		else
@@ -2738,7 +2738,7 @@ static void CloseChest(int oi)
 	os->_oAnimFrame -= 2;
 
 	//SetRndSeed(os->_oRndSeed); -- do NOT set RndSeed, might conflict with the other chests
-	os->_oRndSeed = GetRndSeed();
+	os->_oRndSeed = NextRndSeed();
 
 	//if (sendmsg)
 	//	NetSendCmdParam1(CMD_CHESTCLOSE, oi);

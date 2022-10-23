@@ -227,7 +227,7 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 	tw->_mName = name; // TNR_NAME
 	// tw->_muniqtype = 0;
 	// set _mRndSeed for S_TalkEnter
-	tw->_mRndSeed = GetRndSeed(); // TNR_SEED
+	tw->_mRndSeed = NextRndSeed(); // TNR_SEED
 	// tw->_mListener = MAX_PLRS; // TNR_LISTENER
 }
 

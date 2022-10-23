@@ -49,7 +49,7 @@ inline const BYTE *CelGetFrameClipped(const BYTE *pCelBuff, int nCel, int *nData
 
 int GetDirection(int x1, int y1, int x2, int y2);
 void SetRndSeed(int32_t s);
-int32_t GetRndSeed();
+int32_t NextRndSeed();
 /* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a non-negative (32bit) integer. The result is zero if v is negative. */
 int random_(BYTE idx, int v);
 /* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a positive integer and less than or equal to 0x7FFF. */

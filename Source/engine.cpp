@@ -111,10 +111,10 @@ void SetRndSeed(int32_t s)
 }
 
 /**
- * @brief Get the current RNG seed
+ * @brief Get the next RNG seed
  * @return RNG seed
  */
-int32_t GetRndSeed()
+int32_t NextRndSeed()
 {
 #if DEBUG_MODE
 	SeedCount++;
@@ -134,8 +134,8 @@ int random_(BYTE idx, int v)
 	if (v <= 0)
 		return 0;
 	if (v < 0x7FFF)
-		return (((unsigned)GetRndSeed()) >> 16) % v;
-	return ((unsigned)GetRndSeed()) % v;
+		return (((unsigned)NextRndSeed()) >> 16) % v;
+	return ((unsigned)NextRndSeed()) % v;
 }
 
 /**
@@ -148,7 +148,7 @@ int random_low(BYTE idx, int v)
 {
 	// assert(v > 0);
 	// assert(v < 0x7FFF);
-	return (((unsigned)GetRndSeed()) >> 16) % v;
+	return (((unsigned)NextRndSeed()) >> 16) % v;
 }
 
 /**

@@ -131,7 +131,7 @@ static void PlaceInitItems()
 	for (i = RandRange(3, 5); i != 0; i--) {
 		ii = itemactive[numitems];
 		assert(ii == numitems);
-		seed = GetRndSeed();
+		seed = NextRndSeed();
 		SetRndSeed(seed);
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
@@ -949,7 +949,7 @@ void SetItemSData(ItemStruct *is, int idata)
  */
 void GetItemSeed(ItemStruct *is)
 {
-	is->_iSeed = GetRndSeed();
+	is->_iSeed = NextRndSeed();
 }
 
 void CreateBaseItem(ItemStruct *is, int idata)
@@ -2021,7 +2021,7 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	// SetupAllItems(MAXITEMS, idx, uid, items_get_currlevel(), CFDQ_NORMAL);
 	SetRndSeed(glSeedTbl[DLV_HELL3]);
 	do {
-		SetupAllItems(MAXITEMS, idx, GetRndSeed(), UniqueItemList[uid].UIMinLvl, CFDQ_UNIQUE);
+		SetupAllItems(MAXITEMS, idx, NextRndSeed(), UniqueItemList[uid].UIMinLvl, CFDQ_UNIQUE);
 	} while (items[MAXITEMS]._iMagical != ITEM_QUALITY_UNIQUE);
 	assert(items[MAXITEMS]._iUid == uid);
 
@@ -2062,7 +2062,7 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 			NetSendCmdQuest(Q_MUSHROOM, true);
 	}
 
-	SetupAllItems(MAXITEMS, idx, GetRndSeed(), mon->_mLevel, quality);
+	SetupAllItems(MAXITEMS, idx, NextRndSeed(), mon->_mLevel, quality);
 	GetSuperItemSpace(x, y, MAXITEMS);
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
@@ -2088,7 +2088,7 @@ void CreateRndItem(int x, int y, unsigned quality, int mode)
 		ii = itemactive[numitems];
 		numitems++;
 	}
-	SetupAllItems(ii, idx, GetRndSeed(), lvl, quality);
+	SetupAllItems(ii, idx, NextRndSeed(), lvl, quality);
 
 	GetSuperItemSpace(x, y, ii);
 
@@ -2138,7 +2138,7 @@ void SpawnRndUseful(int x, int y, bool sendmsg)
 
 	lvl = items_get_currlevel();
 
-	SetupAllUseful(MAXITEMS, GetRndSeed(), lvl);
+	SetupAllUseful(MAXITEMS, NextRndSeed(), lvl);
 	GetSuperItemSpace(x, y, MAXITEMS);
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
@@ -2163,7 +2163,7 @@ void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mo
 		ii = itemactive[numitems];
 		numitems++;
 	}
-	SetupAllItems(ii, idx, GetRndSeed(), lvl, quality);
+	SetupAllItems(ii, idx, NextRndSeed(), lvl, quality);
 
 	GetSuperItemSpace(x, y, ii);
 
@@ -2229,7 +2229,7 @@ void CreateQuestItemAt(int idx, int x, int y, int mode)
 	items[ii]._iCreateInfo = items_get_currlevel();
 	// set Seed for the bloodstones, otherwise quick successive pickup and use
 	// will be prevented by the ItemRecord logic
-	items[ii]._iSeed = GetRndSeed();
+	items[ii]._iSeed = NextRndSeed();
 
 	SetItemLoc(ii, x, y);
 
@@ -2265,7 +2265,7 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
 	//}
 	SetItemData(ii, idx);
 	items[ii]._iCreateInfo = items_get_currlevel();
-	items[ii]._iSeed = GetRndSeed();
+	items[ii]._iSeed = NextRndSeed();
 
 	GetSuperItemSpace(x, y, ii);
 
@@ -2301,7 +2301,7 @@ void PlaceQuestItemInArea(int idx, int areasize)
 	RespawnItem(ii, false);
 	//items[ii]._iPostDraw = TRUE;
 	items[ii]._iCreateInfo = items_get_currlevel();// | CF_PREGEN;
-	items[ii]._iSeed = GetRndSeed(); // make sure it is unique
+	items[ii]._iSeed = NextRndSeed(); // make sure it is unique
 
 	GetRandomItemSpace(areasize, ii);
 	DeltaAddItem(ii);
@@ -2335,7 +2335,7 @@ void PlaceRock()
 		items[i]._iAnimFrame = 11;
 		//items[i]._iAnimFlag = TRUE;
 //		items[i]._iCreateInfo = items_get_currlevel();// | CF_PREGEN;
-//		items[i]._iSeed = GetRndSeed(); // make sure it is unique
+//		items[i]._iSeed = NextRndSeed(); // make sure it is unique
 //		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
 //		DeltaAddItem(i);
 
@@ -2572,7 +2572,7 @@ static void DoClean(ItemStruct *pi, bool whittle)
 		 && items[MAXITEMS]._iSufPower == IPL_INVALID
 		 && items[MAXITEMS]._iSpell == spell)
 			break;
-		seed = GetRndSeed();
+		seed = NextRndSeed();
 	}
 	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
 	items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
@@ -2612,7 +2612,7 @@ static void BuckleItem(ItemStruct *pi)
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iMagical == magic)
 			break;
-		seed = GetRndSeed();
+		seed = NextRndSeed();
 	}
 	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
 	//items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
@@ -2808,7 +2808,7 @@ void DoOil(int pnum, char from, BYTE cii)
 		 && ((items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
 		  || (items[MAXITEMS]._iSufPower >= targetPowerFrom && items[MAXITEMS]._iSufPower <= targetPowerTo)))
 			break;
-		seed = GetRndSeed();
+		seed = NextRndSeed();
 	}
 
 	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
@@ -3456,7 +3456,7 @@ void SpawnSmith(unsigned lvl)
 	iCnt = RandRange(10, SMITH_ITEMS - 1);
 	for (i = 0; i < iCnt; i++) {
 		do {
-			seed = GetRndSeed();
+			seed = NextRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndSmithItem(lvl), lvl);
 		} while (items[0]._iIvalue > SMITH_MAX_VALUE);
@@ -3479,7 +3479,7 @@ static void SpawnOnePremium(int i, unsigned lvl)
 	if (lvl < 1)
 		lvl = 1;*/
 	do {
-		seed = GetRndSeed();
+		seed = NextRndSeed();
 		SetRndSeed(seed);
 		GetItemAttrs(0, RndSmithItem(lvl), lvl);
 		GetItemBonus(0, lvl >> 1, lvl, true, false);
@@ -3600,7 +3600,7 @@ void SpawnWitch(unsigned lvl)
 	iCnt = RandRange(10, WITCH_ITEMS - 1);
 	for (i = 3; i < iCnt; i++) {
 		do {
-			seed = GetRndSeed();
+			seed = NextRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndWitchItem(lvl), lvl);
 			// if (random_(51, 100) <= 5 || items[0]._itype == ITYPE_STAFF)
@@ -3624,7 +3624,7 @@ void SpawnBoy(unsigned lvl)
 	if (boylevel < (lvl >> 1) || boyitem._itype == ITYPE_NONE) {
 		boylevel = lvl >> 1;
 		do {
-			seed = GetRndSeed();
+			seed = NextRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndSmithItem(lvl), lvl);
 			GetItemBonus(0, lvl >> 1, lvl << 1, true, true);
@@ -3720,7 +3720,7 @@ void SpawnHealer(unsigned lvl)
 	iCnt = RandRange(10, HEALER_ITEMS - 1);
 	for (i = srnd; i < iCnt; i++) {
 		do {
-			seed = GetRndSeed();
+			seed = NextRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndHealerItem(lvl), lvl);
 		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL
@@ -3846,7 +3846,7 @@ void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 
 	while (TRUE) {
-		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, CFDQ_NORMAL);
+		SetupAllItems(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_NORMAL);
 		assert(items[MAXITEMS]._iMiscId == IMISC_BOOK);
 		if (items[MAXITEMS]._iSpell == ispell)
 			break;
@@ -3866,7 +3866,7 @@ void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/)
 
 	while (TRUE) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
-		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, CFDQ_GOOD);
+		SetupAllItems(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_GOOD);
 		if (items[MAXITEMS]._iCurs == ICURS_AMULET)
 			break;
 	}
@@ -3885,7 +3885,7 @@ void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 
 	while (TRUE) {
 		idx = RndTypeItems(itype, IMISC_NONE, lvl);
-		SetupAllItems(MAXITEMS, idx, GetRndSeed(), lvl, CFDQ_GOOD);
+		SetupAllItems(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_GOOD);
 		if (items[MAXITEMS]._iCurs == icurs)
 			break;
 	}

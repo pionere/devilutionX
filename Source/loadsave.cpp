@@ -1609,7 +1609,7 @@ void SaveLevel()
 	BYTE* fileBuff;
 
 	//if (currLvl._dLevelIdx == DLV_TOWN)
-	//	glSeedTbl[DLV_TOWN] = GetRndSeed();
+	//	glSeedTbl[DLV_TOWN] = NextRndSeed();
 
 	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;

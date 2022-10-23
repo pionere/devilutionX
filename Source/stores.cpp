@@ -1943,7 +1943,7 @@ static void WitchBuyItem()
 	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
 
 	if (idx < 3)
-		storeitem._iSeed = GetRndSeed();
+		storeitem._iSeed = NextRndSeed();
 
 	SendStoreCmd2(STORE_WBUY);
 
@@ -2071,7 +2071,7 @@ static void HealerBuyItem()
 	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
 	infinite = idx < (IsMultiGame ? 3 : 2);
 	if (infinite)
-		storeitem._iSeed = GetRndSeed();
+		storeitem._iSeed = NextRndSeed();
 
 	SendStoreCmd2(STORE_HBUY);
 

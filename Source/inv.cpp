@@ -466,7 +466,7 @@ static int GetNewItemSeed(ItemStruct* is)
 
 	seed ^= is->_iSeed;
 	SetRndSeed(seed);
-	return GetRndSeed();
+	return NextRndSeed();
 }
 
 static bool GoldAutoPlace(int pnum, ItemStruct* is)

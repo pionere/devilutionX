@@ -706,7 +706,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 		mis->_miVar8 = mnum + 1;
 	}
 	// SetRndSeed(mis->_miRndSeed);
-	// mis->_miRndSeed = GetRndSeed();
+	// mis->_miRndSeed = NextRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    - mon->_mArmorClass;
@@ -767,7 +767,7 @@ static bool MonsterMHit(int mnum, int mi)
 		mis->_miVar8 = mnum + 1;
 	}
 	// SetRndSeed(mis->_miRndSeed);
-	// mis->_miRndSeed = GetRndSeed();
+	// mis->_miRndSeed = NextRndSeed();
 	pnum = mis->_miSource;
 	//assert((unsigned)pnum < MAX_PLRS);
 	if (mis->_miFlags & MIF_ARROW) {
@@ -960,7 +960,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 		return false;
 	}
 	// SetRndSeed(mis->_miRndSeed);
-	// mis->_miRndSeed = GetRndSeed();
+	// mis->_miRndSeed = NextRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = 100 + (2 * currLvl._dLevel)
 		    + (2 * currLvl._dLevel)
@@ -1024,7 +1024,7 @@ static bool PlayerMHit(int pnum, int mi)
 		mis->_miVar8 = -(pnum + 1);
 	}
 	// SetRndSeed(mis->_miRndSeed);
-	// mis->_miRndSeed = GetRndSeed();
+	// mis->_miRndSeed = NextRndSeed();
 	mon = &monsters[mis->_miSource];
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = 30 + mon->_mHit
@@ -1094,7 +1094,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		return false;
 	}
 	// SetRndSeed(mis->_miRndSeed);
-	// mis->_miRndSeed = GetRndSeed();
+	// mis->_miRndSeed = NextRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = plx(offp)._pIHitChance
 		    - plr._pIAC;
@@ -3209,7 +3209,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis = &missile[mi];
 	memset(mis, 0, sizeof(*mis));
 
-	// mis->_miRndSeed = GetRndSeed();
+	// mis->_miRndSeed = NextRndSeed();
 	mis->_miCaster = micaster;
 	mis->_miSource = misource;
 	mis->_miSpllvl = spllvl;
@@ -3262,7 +3262,7 @@ static bool Sentfire(int mi, int sx, int sy)
 	 && LineClear(mis->_mix, mis->_miy, sx, sy)) {
 		// SetRndSeed(mis->_miRndSeed);
 		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
-		// mis->_miRndSeed = GetRndSeed();
+		// mis->_miRndSeed = NextRndSeed();
 		SetMissDir(mi, 2);
 		mis->_miAnimFrame = misfiledata[MFILE_GUARD].mfAnimLen[2];
 		mis->_miAnimAdd = -1;
@@ -3645,7 +3645,7 @@ void MI_LightningC(int mi)
 			    mis->_miCaster,
 			    mis->_miSource,
 			    mis->_miSpllvl);
-			// mis->_miRndSeed = GetRndSeed();
+			// mis->_miRndSeed = NextRndSeed();
 		} else {
 			mis->_miRange = 0;
 		}
@@ -4267,7 +4267,7 @@ void MI_WallC(int mi)
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	mis->_miVar1++;
-	// mis->_miRndSeed = GetRndSeed();
+	// mis->_miRndSeed = NextRndSeed();
 }
 
 void MI_Inferno(int mi)
@@ -4323,7 +4323,7 @@ void MI_InfernoC(int mi)
 			    mis->_miCaster,
 			    mis->_miSource,
 			    mis->_miSpllvl);
-			// mis->_miRndSeed = GetRndSeed();
+			// mis->_miRndSeed = NextRndSeed();
 		} else {
 			mis->_miRange = 0;
 		}
