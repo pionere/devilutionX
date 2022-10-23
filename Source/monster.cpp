@@ -167,9 +167,9 @@ static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const ch
 
 	for (i = 0; i < NUM_MON_ANIM; i++) {
 		as = &anims[i];
-		if (as->aFrames > 1) {
-			for (j = 0; j < lengthof(as->aData); j++) {
-				Cl2ApplyTrans(as->aData[j], tf, as->aFrames);
+		if (as->maFrames > 1) {
+			for (j = 0; j < lengthof(as->maAnimData); j++) {
+				Cl2ApplyTrans(as->maAnimData[j], tf, as->maFrames);
 			}
 		}
 	}
@@ -193,10 +193,10 @@ static void InitMonsterGFX(int midx)
 
 	mtype = cmon->cmType;
 	auto &monAnims = cmon->cmAnims;
-	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
+	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].maFrames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
-		monAnims[anim].aFrames = mfdata->moAnimFrames[anim];
-		monAnims[anim].aFrameLen = mfdata->moAnimFrameLen[anim];
+		monAnims[anim].maFrames = mfdata->moAnimFrames[anim];
+		monAnims[anim].maFrameLen = mfdata->moAnimFrameLen[anim];
 		if (mfdata->moAnimFrames[anim] > 0) {
 			snprintf(strBuff, sizeof(strBuff), mfdata->moGfxFile, animletter[anim]);
 
@@ -205,12 +205,12 @@ static void InitMonsterGFX(int midx)
 			cmon->cmAnimData[anim] = celBuf;
 
 			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
-				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
-					monAnims[anim].aData[i] = const_cast<BYTE*>(CelGetFrameStart(celBuf, i));
+				for (i = 0; i < lengthof(monAnims[anim].maAnimData); i++) {
+					monAnims[anim].maAnimData[i] = const_cast<BYTE*>(CelGetFrameStart(celBuf, i));
 				}
 			} else {
-				for (i = 0; i < lengthof(monAnims[anim].aData); i++) {
-					monAnims[anim].aData[i] = celBuf;
+				for (i = 0; i < lengthof(monAnims[anim].maAnimData); i++) {
+					monAnims[anim].maAnimData[i] = celBuf;
 				}
 			}
 		}
@@ -222,9 +222,9 @@ static void InitMonsterGFX(int midx)
 
 	// copy walk animation to the stand animation of the golem (except aCelData and alignment)
 	if (mtype == MT_GOLEM) {
-		copy_pod(monAnims[MA_STAND].aData, monAnims[MA_WALK].aData);
-		monAnims[MA_STAND].aFrames = monAnims[MA_WALK].aFrames;
-		monAnims[MA_STAND].aFrameLen = monAnims[MA_WALK].aFrameLen;
+		copy_pod(monAnims[MA_STAND].maAnimData, monAnims[MA_WALK].maAnimData);
+		monAnims[MA_STAND].maFrames = monAnims[MA_WALK].maFrames;
+		monAnims[MA_STAND].maFrameLen = monAnims[MA_WALK].maFrameLen;
 	}
 
 	// load optional missile-gfxs
@@ -634,10 +634,10 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	memcpy(&mon->_mName, &cmon->cmName, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0));
 	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
-	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
-	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].aFrameLen;
+	mon->_mAnimData = cmon->cmAnims[MA_STAND].maAnimData[dir];
+	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].maFrameLen;
 	mon->_mAnimCnt = random_low(88, mon->_mAnimFrameLen);
-	mon->_mAnimLen = cmon->cmAnims[MA_STAND].aFrames;
+	mon->_mAnimLen = cmon->cmAnims[MA_STAND].maFrames;
 	mon->_mAnimFrame = mon->_mAnimLen == 0 ? 1 : RandRangeLow(1, mon->_mAnimLen);
 	mon->_mmode = MM_STAND;
 	mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
@@ -1241,12 +1241,12 @@ static void NewMonsterAnim(int mnum, int anim, int md)
 	MonAnimStruct* as = &mon->_mAnims[anim];
 
 	mon->_mdir = md;
-	mon->_mAnimData = as->aData[md];
-	mon->_mAnimLen = as->aFrames;
+	mon->_mAnimData = as->maAnimData[md];
+	mon->_mAnimLen = as->maFrames;
 	// assert(gbGameLogicMnum <= mnum || anim == MA_STAND);
 	mon->_mAnimCnt = gbGameLogicProgress < GLP_MONSTERS_DONE ? -1 : 0;
 	mon->_mAnimFrame = 1;
-	mon->_mAnimFrameLen = as->aFrameLen;
+	mon->_mAnimFrameLen = as->maFrameLen;
 	mon->_mFlags &= ~(MFLAG_REV_ANIMATION | MFLAG_LOCK_ANIMATION);
 }
 
@@ -1694,7 +1694,7 @@ static void MonFallenFear(int x, int y)
 		 && mon->_mhitpoints >= (1 << 6)
 		 && mon->_mAI.aiInt < 4) {
 #if DEBUG
-			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
 			assert(mon->_mmode <= MM_INGAME_LAST);
 #endif
 			static_assert((8 - 2 * 0) * 12 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with retreat goal.");
@@ -1717,7 +1717,7 @@ void MonGetKnockback(int mnum, int sx, int sy)
 		oldx = mon->_mx;
 		oldy = mon->_my;
 	} else {
-		if (mon->_mAnimFrame > (mon->_mAnims[MA_WALK].aFrames >> 1)) {
+		if (mon->_mAnimFrame > (mon->_mAnims[MA_WALK].maFrames >> 1)) {
 			oldx = mon->_mfutx;
 			oldy = mon->_mfuty;
 		} else {
@@ -2053,8 +2053,8 @@ static void MonStartHeal(int mnum)
 		dev_fatal("MonStartHeal: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	mon->_mAnimData = mon->_mAnims[MA_SPECIAL].aData[mon->_mdir];
-	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].aFrames;
+	mon->_mAnimData = mon->_mAnims[MA_SPECIAL].maAnimData[mon->_mdir];
+	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].maFrames;
 	mon->_mFlags |= MFLAG_REV_ANIMATION;
 	mon->_mmode = MM_HEAL;
 	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 7)); // HEAL_SPEED
@@ -2071,7 +2071,7 @@ static bool MonDoStand(int mnum)
 	//	MonFindEnemy(mnum);
 
 	mon = &monsters[mnum];
-	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
+	mon->_mAnimData = mon->_mAnims[MA_STAND].maAnimData[mon->_mdir];
 	mon->_mVar2++; // STAND_TICK
 
 	return false;
@@ -2588,7 +2588,7 @@ static bool MonDoDelay(int mnum)
 	}
 	mon = &monsters[mnum];
 	mon->_mdir = MonEnemyLastDir(mnum);
-	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
+	mon->_mAnimData = mon->_mAnims[MA_STAND].maAnimData[mon->_mdir];
 
 	if (mon->_mVar2-- == 0) { // DELAY_TICK
 		mon->_mmode = MM_STAND;
@@ -3099,7 +3099,7 @@ void MAI_Sneak(int mnum)
 		if (mon->_mVar1 == MM_GOTHIT) { // STAND_PREV_MODE
 			mon->_mgoal = MGOAL_RETREAT;
 #if DEBUG
-			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
 #endif
 			static_assert(12 * 9 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Sneak might relax with retreat goal.");
 			mon->_mgoalvar1 = 9; // RETREAT_DISTANCE
@@ -3213,8 +3213,8 @@ void MAI_Fallen(int mnum)
 				mon->_mhitpoints = std::min(mon->_mmaxhp, rad);
 			//}
 #if DEBUG
-			assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
-			assert(mon->_mAnims[MA_ATTACK].aFrames * mon->_mAnims[MA_ATTACK].aFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
 			static_assert((2 * 5 + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
 			amount = 2 * mon->_mAI.aiInt + 8;
@@ -3257,7 +3257,7 @@ void MAI_Fallen(int mnum)
 			} else {
 				if (!MonDestWalk(mnum)) {
 					// prevent isolated fallens from burnout
-					m = 12 - 1; // mon->_mAnims[MA_WALK].aFrameLen * mon->_mAnims[MA_WALK].aFrames - 1;
+					m = 12 - 1; // mon->_mAnims[MA_WALK].maFrameLen * mon->_mAnims[MA_WALK].maFrames - 1;
 					if (mon->_msquelch > (unsigned)m)
 						mon->_msquelch -= m;
 				}
@@ -3464,8 +3464,8 @@ void MAI_Scav(int mnum)
 		mon->_mgoalvar1 = 0; // HEALING_LOCATION_X
 		//mon->_mgoalvar2 = 0;
 #if DEBUG
-		assert(mon->_mAnims[MA_SPECIAL].aFrames * mon->_mAnims[MA_SPECIAL].aFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
-		assert(mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
+		assert(mon->_mAnims[MA_SPECIAL].maFrames * mon->_mAnims[MA_SPECIAL].maFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
+		assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
 		assert(24 * 9 < SQUELCH_MAX - SQUELCH_LOW); // max delay of MAI_SkelSd
 #endif
 		static_assert(24 * 9 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Scav might relax with healing goal.");
@@ -4003,8 +4003,8 @@ void MAI_Counselor(int mnum)
 				MonStartRAttack(mnum, mon->_mAI.aiParam1);
 			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
-				assert(mon->_mAnims[MA_SPECIAL].aFrames * mon->_mAnims[MA_SPECIAL].aFrameLen * 2 + 
-					mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW);
+				assert(mon->_mAnims[MA_SPECIAL].maFrames * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 + 
+					mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
 				static_assert(2 * 20 + (6 + 4) * 1 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with move goal.");
 				mon->_mgoal = MGOAL_MOVE;
@@ -4018,8 +4018,8 @@ void MAI_Counselor(int mnum)
 				v >>= 1;
 			if (mon->_mVar1 != MM_FADEIN && mon->_mhitpoints < (mon->_mmaxhp >> 1)) {
 #if DEBUG
-				assert(mon->_mAnims[MA_SPECIAL].aFrames * mon->_mAnims[MA_SPECIAL].aFrameLen * 2 + 
-					mon->_mAnims[MA_WALK].aFrames * mon->_mAnims[MA_WALK].aFrameLen * 5 < SQUELCH_MAX - SQUELCH_LOW);
+				assert(mon->_mAnims[MA_SPECIAL].maFrames * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 + 
+					mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * 5 < SQUELCH_MAX - SQUELCH_LOW);
 #endif
 				static_assert(2 * 20 + 5 * 1 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with retreat goal.");
 				mon->_mgoal = MGOAL_RETREAT;
@@ -4793,9 +4793,9 @@ void SyncMonsterAnim(int mnum)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	mon->_mAnimData = mon->_mAnims[anim].aData[mon->_mdir];
-	mon->_mAnimFrameLen = mon->_mAnims[anim].aFrameLen;
-	mon->_mAnimLen = mon->_mAnims[anim].aFrames;
+	mon->_mAnimData = mon->_mAnims[anim].maAnimData[mon->_mdir];
+	mon->_mAnimFrameLen = mon->_mAnims[anim].maFrameLen;
+	mon->_mAnimLen = mon->_mAnims[anim].maFrames;
 }
 
 void SyncMonsterLight()

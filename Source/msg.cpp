@@ -1045,16 +1045,16 @@ void DeltaLoadLevel()
 					if (i >= MAX_MINIONS)
 						nummonsters--;
 					// SyncMonsterAnim(mnum);
-					mon->_mAnimFrame = mon->_mAnims[MA_DEATH].aFrames;
+					mon->_mAnimFrame = mon->_mAnims[MA_DEATH].maFrames;
 					// mon->_mAnimCnt = -1;
-					mon->_mAnimData = mon->_mAnims[MA_DEATH].aData[mon->_mdir];
+					mon->_mAnimData = mon->_mAnims[MA_DEATH].maAnimData[mon->_mdir];
 				} else {
 					mon->_msquelch = mstr->dmactive;
 					mon->_mWhoHit = mstr->dmWhoHit;
 					dMonster[mon->_mx][mon->_my] = i + 1;
 					// SyncMonsterAnim(mnum);
 					assert(mon->_mmode == MM_STAND);
-					mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
+					mon->_mAnimData = mon->_mAnims[MA_STAND].maAnimData[mon->_mdir];
 				}
 			}
 		}

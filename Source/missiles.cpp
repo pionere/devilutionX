@@ -1267,7 +1267,7 @@ int CheckMonCol(int mnum)
 	static_assert(MM_WALK + 1 == MM_WALK2, "CheckMonCol expects ordered MM_WALKs.");
 	if (mode > MM_WALK2 || mode < MM_WALK)
 		return (negate || mode == MM_STONE) ? mnum : -1;
-	halfOver = mon->_mAnimFrame > (mon->_mAnims[MA_WALK].aFrames >> 1);
+	halfOver = mon->_mAnimFrame > (mon->_mAnims[MA_WALK].maFrames >> 1);
 	if (mode == MM_WALK) {
 		if (negate)
 			halfOver = !halfOver;
@@ -1456,9 +1456,9 @@ static void SyncRhinoAnim(int mi)
 		(mon->_mFileNum == MOFILE_RHINO) ? MA_SPECIAL :
 		(mon->_mFileNum == MOFILE_SNAKE) ? MA_ATTACK : MA_WALK];
 
-	mis->_miAnimData = anim->aData[mis->_miDir];
-	mis->_miAnimFrameLen = anim->aFrameLen;
-	mis->_miAnimLen = anim->aFrames;
+	mis->_miAnimData = anim->maAnimData[mis->_miDir];
+	mis->_miAnimFrameLen = anim->maFrameLen;
+	mis->_miAnimLen = anim->maFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
@@ -2520,9 +2520,9 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis = &missile[mi];
 	mis->_miDir = midir;
 	mis->_miAnimFlag = TRUE;
-	mis->_miAnimData = anim->aData[midir];
-	mis->_miAnimFrameLen = anim->aFrameLen;
-	mis->_miAnimLen = anim->aFrames;
+	mis->_miAnimData = anim->maAnimData[midir];
+	mis->_miAnimFrameLen = anim->maFrameLen;
+	mis->_miAnimLen = anim->maFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = 1;
@@ -4219,7 +4219,7 @@ void MI_Charge(int mi)
 		mis->_mixvel *= -1;
 		mis->_miyvel *= -1;
 		mis->_miDir = OPPOSITE(mis->_miDir);
-		mis->_miAnimData = monsters[mnum]._mAnims[MA_WALK].aData[mis->_miDir];
+		mis->_miAnimData = monsters[mnum]._mAnims[MA_WALK].maAnimData[mis->_miDir];
 		mis->_miVar2++;
 		if (tnum > 0)
 			mis->_miVar1 = TRUE;

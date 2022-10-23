@@ -527,9 +527,9 @@ typedef struct SFXStruct {
 //////////////////////////////////////////////////
 
 typedef struct MonAnimStruct {
-	BYTE* aData[NUM_DIRS];
-	int aFrames;
-	int aFrameLen;
+	BYTE* maAnimData[NUM_DIRS];
+	int maFrames;
+	int maFrameLen;
 } MonAnimStruct;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MonAnimStruct) & (sizeof(MonAnimStruct) - 1)) == 32, "Align MonAnimStruct closer to power of 2 for better performance.");
