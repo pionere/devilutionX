@@ -521,7 +521,6 @@ typedef struct SFXStruct {
 	const char* pszName;
 	SoundSample pSnd;
 } SFXStruct;
-//static_assert(sizeof(SoundSample) == sizeof(Uint32) + sizeof(void*), "SFXStruct initalization might fail.");
 
 //////////////////////////////////////////////////
 // monster
@@ -1231,6 +1230,19 @@ typedef struct TCmdStore2 {
 	LE_INT32 stValue;
 } TCmdStore2;
 
+typedef struct TCmdJoinLevel {
+	BYTE bCmd;
+	BYTE lLevel;
+	BYTE px;
+	BYTE py;
+	LE_INT32 php;
+	LE_INT32 pmp;
+	LE_INT16 lTimer1;
+	LE_INT16 lTimer2;
+	BYTE pManaShield; // TODO: remove this and from TSyncLvlPlayer and add to PkPlayerStruct?
+	BYTE itemsDur[NUM_INVELEM + 1];
+} TCmdJoinLevel;
+
 typedef struct TCmdPlrInfoHdr {
 	BYTE bCmd;
 	LE_UINT16 wOffset;
@@ -1530,19 +1542,6 @@ typedef struct DeltaData {
 		BYTE ddBuffer[FILEBUFF];
 	};
 } DeltaData;
-
-typedef struct TCmdJoinLevel {
-	BYTE bCmd;
-	BYTE lLevel;
-	BYTE px;
-	BYTE py;
-	LE_INT32 php;
-	LE_INT32 pmp;
-	LE_INT16 lTimer1;
-	LE_INT16 lTimer2;
-	BYTE pManaShield; // TODO: remove this and from TSyncLvlPlayer and add to PkPlayerStruct?
-	BYTE itemsDur[NUM_INVELEM + 1];
-} TCmdJoinLevel;
 #pragma pack(pop)
 
 typedef struct TMegaPkt {
