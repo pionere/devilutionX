@@ -175,7 +175,7 @@ void SpawnWindow(const char* lpWindowName)
 #if SDL_VERSION_ATLEAST(2, 0, 10)
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 #endif
-#if (__WINRT__ || __ANDROID__ || __IPHONEOS__) && !USE_SDL1
+#if (__WINRT__ || __ANDROID__ || __IPHONEOS__) && !defined(USE_SDL1)
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
 

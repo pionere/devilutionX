@@ -896,7 +896,7 @@ static bool MonsterMHit(int mnum, int mi)
 		lx = mis->_misx;
 		ly = mis->_misy;
 		if (mis->_miFlags & MIF_LEAD) {
-#if HELLFIRE
+#ifdef HELLFIRE
 			if (mis->_miCaster == MST_PLAYER) // only if the missile is not from a rune
 #endif
 			{

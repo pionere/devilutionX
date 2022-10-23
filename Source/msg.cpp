@@ -583,7 +583,7 @@ static void delta_monster_summon(const TCmdMonstSummon* pCmd)
 
 	bLevel = pCmd->mnParam1.bParam1;
 	net_assert(bLevel < NUM_LEVELS);
-#if HELLFIRE
+#ifdef HELLFIRE
 	net_assert(bLevel == SL_SKELKING || bLevel == DLV_NEST3);
 #else
 	net_assert(bLevel == SL_SKELKING);

@@ -16,7 +16,7 @@ uint32_t sgbSentThisCycle;
 Uint32 guNextTick;
 /* The number of game-logic cycles between turns. */
 BYTE gbNetUpdateRate;
-#if !NONET
+#ifndef NONET
 /* The number of extra turns to be queued to ensure fluent gameplay. */
 BYTE gbEmptyTurns;
 #ifdef ADAPTIVE_NETUPDATE
@@ -43,7 +43,7 @@ void nthread_send_turn(BYTE *data, unsigned len)
 	uint32_t turn = sgbSentThisCycle;
 // enabled for everyone to allow connection with adaptive hosts
 //#ifdef ADAPTIVE_NETUPDATE
-#if !NONET
+#ifndef NONET
 restart:
 #endif
 	SNetSendTurn(turn, data, len);
@@ -53,7 +53,7 @@ restart:
 	//if (turn >= (UINT32_MAX / gbNetUpdateRate))
 	//	turn &= 0xFFFF;
 //#ifdef ADAPTIVE_NETUPDATE
-#if !NONET
+#ifndef NONET
 	if (gbEmptyTurns != 0 && SNetGetTurnsInTransit() <= gbEmptyTurns) {
 		len = 0;
 		goto restart;
@@ -111,7 +111,7 @@ int nthread_recv_turns()
 		return TS_ACTIVE;
 	}
 }
-#if !NONET
+#ifndef NONET
 static void nthread_parse_turns()
 {
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
@@ -217,7 +217,7 @@ void nthread_start()
 	_gbTickInSync = true;
 	sgbSentThisCycle = 0;
 	sgbPacketCountdown = 1;
-#if !NONET
+#ifndef NONET
 	gbEmptyTurns = 0;
 #ifdef ADAPTIVE_NETUPDATE
 	gbNetUpdateWeight = 0;
@@ -240,7 +240,7 @@ void nthread_start()
 void nthread_cleanup()
 {
 	SNetTurnPkt* tmp;
-#if !NONET
+#ifndef NONET
 	_gbThreadLive = false;
 	if (sghThread != NULL && SDL_GetThreadID(sghThread) != SDL_GetThreadID(NULL)) {
 		if (!_gbRunThread)
@@ -259,7 +259,7 @@ void nthread_cleanup()
 void nthread_run()
 {
 	gbLvlLoad = 10;
-#if !NONET
+#ifndef NONET
 	if (sghThread != NULL && !_gbRunThread) {
 		_gbRunThread = true;
 		sgThreadMutex.Leave();
@@ -310,7 +310,7 @@ bool nthread_level_turn()
 			}
 			continue;
 		}
-#if !NONET
+#ifndef NONET
 		case TS_TIMEOUT:
 			if (gbEmptyTurns < 50) {
 				SDL_Delay(1);
@@ -404,7 +404,7 @@ void nthread_finish(UINT uMsg)
 
 	if (uMsg == DVL_DWM_NEWGAME) {
 		if (gbLoadGame/*&& gbValidSaveFile*/) {
-#if !NONET
+#ifndef NONET
 			assert(sghThread == NULL);
 #endif
 			assert(geBufferMsgs == MSG_NORMAL);
@@ -418,7 +418,7 @@ void nthread_finish(UINT uMsg)
 	//  so the localized messages are considered external
 	assert(currLvl._dLevelIdx == myplr._pDunLevel);
 	currLvl._dLevelIdx = DLV_INVALID;
-#if !NONET
+#ifndef NONET
 	// process messages arrived during level-load
 	if (sghThread != NULL) {
 		nthread_process_pending_turns();
@@ -471,7 +471,7 @@ void nthread_finish(UINT uMsg)
 	gdwGameLogicTurn = lastGameTurn * gbNetUpdateRate;
 	tmp = guSendLevelData; // preserve this mask, requests of the pending turns are supposed to be handled
 	// phase 9 end
-#if !NONET
+#ifndef NONET
 	if (geBufferMsgs != MSG_LVL_DELTA_WAIT) {
 		// phase 10a - level-delta received
 		assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
