@@ -1140,6 +1140,45 @@ void DeltaLoadLevel()
 	deltaload = false;
 }
 
+static void ExportItemDurabilites(int pnum, BYTE (&itemsDur)[NUM_INVELEM + 1])
+{
+	ItemStruct* is = &plr._pHoldItem;
+	static_assert(offsetof(PlayerStruct, _pHoldItem) + sizeof(ItemStruct) == offsetof(PlayerStruct, _pInvBody), "ExportItemDurabilites assumes packed items in PlayerStruct I.");
+	static_assert(offsetof(PlayerStruct, _pInvBody) + NUM_INVLOC * sizeof(ItemStruct) == offsetof(PlayerStruct, _pSpdList), "ExportItemDurabilites assumes packed items in PlayerStruct II.");
+	static_assert(offsetof(PlayerStruct, _pSpdList) + MAXBELTITEMS * sizeof(ItemStruct) == offsetof(PlayerStruct, _pInvList), "ExportItemDurabilites assumes packed items in PlayerStruct III.");
+	static_assert(NUM_INVELEM == NUM_INVLOC + MAXBELTITEMS + NUM_INV_GRID_ELEM, "ExportItemDurabilites uses NUM_INVELEM to tool through the items in PlayerStruct.");
+	for (int i = 0; i < (1 + NUM_INVELEM); i++, is++) {
+		itemsDur[i] = is->_iDurability;
+	}
+}
+#if INET_MODE
+static void ValidateDurability(ItemStruct* is, int pnum, int dur)
+{
+	if (pnum == mypnum || !ITYPE_DURABLE(is->_itype)) {
+		net_assert(is->_iDurability == dur || is->_itype == ITYPE_NONE || is->_iIdx == IDI_PHOLDER || is->_iIdx == IDI_EAR);
+	} else {
+		net_assert(is->_iMaxDur >= dur);
+		net_assert(dur != 0);
+	}
+}
+#endif
+static void ImportItemDurabilities(int pnum, BYTE (&itemsDur)[NUM_INVELEM + 1])
+{
+	ItemStruct* is = &plr._pHoldItem;
+	int i, dur;
+	static_assert(offsetof(PlayerStruct, _pHoldItem) + sizeof(ItemStruct) == offsetof(PlayerStruct, _pInvBody), "ImportItemDurabilities assumes packed items in PlayerStruct I.");
+	static_assert(offsetof(PlayerStruct, _pInvBody) + NUM_INVLOC * sizeof(ItemStruct) == offsetof(PlayerStruct, _pSpdList), "ImportItemDurabilities assumes packed items in PlayerStruct II.");
+	static_assert(offsetof(PlayerStruct, _pSpdList) + MAXBELTITEMS * sizeof(ItemStruct) == offsetof(PlayerStruct, _pInvList), "ImportItemDurabilities assumes packed items in PlayerStruct III.");
+	static_assert(NUM_INVELEM == NUM_INVLOC + MAXBELTITEMS + NUM_INV_GRID_ELEM, "ImportItemDurabilities uses NUM_INVELEM to tool through the items in PlayerStruct.");
+	for (int i = 0; i < (1 + NUM_INVELEM); i++, is++) {
+		dur = itemsDur[i];
+#if INET_MODE
+		ValidateDurability(is, pnum, dur);
+#endif
+		is->_iDurability = dur;
+	}
+}
+
 void NetSendCmdJoinLevel()
 {
 	TCmdJoinLevel cmd;
@@ -1156,11 +1195,7 @@ void NetSendCmdJoinLevel()
 	cmd.lTimer2 = myplr._pTimer[PLTR_RAGE];
 	cmd.pManaShield = myplr._pManaShield;
 
-	for (i = 0; i < NUM_INVELEM; i++) {
-		is = PlrItem(mypnum, i);
-		cmd.itemsDur[i] = is->_iDurability;
-	}
-	cmd.itemsDur[NUM_INVELEM] = myplr._pHoldItem._iDurability;
+	ExportItemDurabilites(mypnum, cmd.itemsDur);
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -1256,23 +1291,10 @@ void LevelDeltaExport()
 			tplr->spVar6 = plr._pVar6;
 			tplr->spVar7 = plr._pVar7;
 			tplr->spVar8 = plr._pVar8;
-			tplr->bItemsDur = 0;
-			dst += sizeof(TSyncLvlPlayer);
 
-			// sync durabilities
-			for (i = 0; i <= NUM_INVELEM; i++) {
-				if (i == NUM_INVELEM)
-					is = &plr._pHoldItem;
-				else
-					is = PlrItem(pnum, i);
-				if (ITYPE_DURABLE(is->_itype)) {
-					*dst = i;
-					dst++;
-					*dst = is->_iDurability;
-					dst++;
-					tplr->bItemsDur++;
-				}
-			}
+			ExportItemDurabilites(pnum, tplr->spItemsDur);
+
+			dst += sizeof(TSyncLvlPlayer);
 		}
 		// export the monsters
 		for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
@@ -1411,7 +1433,6 @@ void LevelDeltaExport()
 void LevelDeltaLoad()
 {
 	int pnum, i, mnum, mi;
-	ItemStruct* is;
 	MonsterStruct* mon;
 	MissileStruct* mis;
 	const MissileData* mds;
@@ -1506,25 +1527,9 @@ void LevelDeltaLoad()
 		plr._pVar7 = tplr->spVar7;
 		plr._pVar8 = tplr->spVar8;
 
-		src += sizeof(TSyncLvlPlayer);
+		ImportItemDurabilities(pnum, tplr->spItemsDur);
 
-		// sync durabilities
-		for (i = tplr->bItemsDur; i > 0; i--) {
-			if (*src == NUM_INVELEM)
-				is = &plr._pHoldItem;
-			else
-				is = PlrItem(pnum, *src);
-			net_assert(ITYPE_DURABLE(is->_itype));
-			src++;
-			if (pnum == mypnum) {
-				net_assert(is->_iDurability == *src);
-			} else {
-				net_assert(is->_iMaxDur >= *src);
-				net_assert(*src != 0);
-			}
-			is->_iDurability = *src;
-			src++;
-		}
+		src += sizeof(TSyncLvlPlayer);
 		// validate data
 		for (i = 0; i < MAX_PATH_LENGTH; i++) {
 			if (plr.walkpath[i] == DIR_NONE)
@@ -3096,8 +3101,6 @@ static unsigned ON_PLRDROP(TCmd* pCmd, int pnum)
 static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 {
 	TCmdJoinLevel* cmd = (TCmdJoinLevel*)pCmd;
-	int i;
-	ItemStruct* is;
 
 	// reqister request only if not processing level-delta
 	//if (geBufferMsgs != MSG_LVL_DELTA_PROC) { -- does not cover all cases...
@@ -3151,11 +3154,7 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 			plr._pTimer[PLTR_RAGE] = cmd->lTimer2;
 			plr._pManaShield = cmd->pManaShield;
 
-			for (i = 0; i < NUM_INVELEM; i++) {
-				is = PlrItem(pnum, i);
-				is->_iDurability = cmd->itemsDur[i];
-			}
-			plr._pHoldItem._iDurability = cmd->itemsDur[NUM_INVELEM];
+			ImportItemDurabilities(pnum, cmd->itemsDur);
 
 			InitLvlPlayer(pnum, true);
 			ProcessVisionList();

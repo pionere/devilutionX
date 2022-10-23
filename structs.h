@@ -1335,7 +1335,7 @@ typedef struct TSyncLvlPlayer {
 	LE_INT32 spVar6;
 	LE_INT32 spVar7;
 	LE_INT32 spVar8;
-	BYTE bItemsDur;	// number of item-durabilites
+	BYTE spItemsDur[NUM_INVELEM + 1];
 } TSyncLvlPlayer;
 
 typedef struct TSyncLvlMonster {
