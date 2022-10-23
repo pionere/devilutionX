@@ -817,6 +817,7 @@ void LoadGame()
 	int i;
 	BYTE* fileBuff;
 	int _ViewX, _ViewY;
+	int32_t _CurrSeed;
 
 	FreeLevelMem();
 	// TODO: UIDisconnectGame() ?
@@ -842,6 +843,7 @@ void LoadGame()
 	for (i = 0; i < NUM_LEVELS; i++) {
 		LoadInt(&glSeedTbl[i]);
 	}
+	LoadInt32(&_CurrSeed);
 	// load player-data
 	LoadInt(&_ViewX);
 	LoadInt(&_ViewY);
@@ -929,6 +931,9 @@ void LoadGame()
 
 	SyncMissilesAnim();
 	CalcViewportGeometry();
+
+	// restrore RNG seed
+	SetRndSeed(_CurrSeed);
 
 	sgbSentThisCycle--;
 	nthread_send_turn();
@@ -1486,10 +1491,11 @@ static void SaveLevelData(bool full)
 void SaveGame()
 {
 	int i;
+	int32_t seed;
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 48 + NUM_WNDS + 13900 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
+	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 4 + 48 + NUM_WNDS + 13900 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
 	// initial
 	i = SAVE_INITIAL;
 	SaveInt(&i);
@@ -1503,6 +1509,8 @@ void SaveGame()
 	for (i = 0; i < NUM_LEVELS; i++) {
 		SaveInt(&glSeedTbl[i]);
 	}
+	seed = GetRndSeed();
+	SaveInt32(&seed);
 	// save player-data
 	SaveInt(&ViewX);
 	SaveInt(&ViewY);

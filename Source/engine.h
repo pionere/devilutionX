@@ -46,9 +46,13 @@ inline const BYTE *CelGetFrameClipped(const BYTE *pCelBuff, int nCel, int *nData
 
 	return &pRLEBytes[nDataStart];
 }
-
+/* Calculate direction (DIR_) from (x1;y1) to (x2;y2) */
 int GetDirection(int x1, int y1, int x2, int y2);
+/* Set the current RNG seed */
 void SetRndSeed(int32_t s);
+/* Retrieve the current RNG seed */
+int32_t GetRndSeed();
+/* Get the next RNG seed */
 int32_t NextRndSeed();
 /* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a non-negative (32bit) integer. The result is zero if v is negative. */
 int random_(BYTE idx, int v);

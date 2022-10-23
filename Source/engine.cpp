@@ -19,7 +19,7 @@ DEVILUTION_BEGIN_NAMESPACE
 int SeedCount;
 #endif
 /** Current game seed */
-Sint32 sglGameSeed;
+int32_t sglGameSeed;
 #if __cplusplus <= 199711L
 static CCritSect sgMemCrit;
 #endif
@@ -27,12 +27,12 @@ static CCritSect sgMemCrit;
 /**
  * Specifies the increment used in the Borland C/C++ pseudo-random.
  */
-const Uint32 RndInc = 1;
+static const uint32_t RndInc = 1;
 
 /**
  * Specifies the multiplier used in the Borland C/C++ pseudo-random number generator algorithm.
  */
-const Uint32 RndMult = 0x015A4E35;
+static const uint32_t RndMult = 0x015A4E35;
 
 /**
  * @brief Calculate the best fit direction between two points
@@ -108,6 +108,15 @@ void SetRndSeed(int32_t s)
 	SeedCount = 0;
 #endif
 	sglGameSeed = s;
+}
+
+/**
+ * @bried Return the current RNG seed
+ * @return RNG seed
+ */
+int32_t GetRndSeed()
+{
+	return sglGameSeed;
 }
 
 /**
