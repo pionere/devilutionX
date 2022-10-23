@@ -2440,7 +2440,7 @@ void ProcessItems()
 					// magic rock is just dropped
 					if (is->_iSelFlag == 0) {
 						is->_iSelFlag = 1;
-						is->_iAnimFrame = 1;
+						// assert(is->_iAnimFrame == 2);
 						PlaySfxLoc(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].idSFX, is->_ix, is->_iy);
 					// magic rock dropped on the floor
 					} else if (is->_iSelFlag == 1 && is->_iAnimFrame == 11)
