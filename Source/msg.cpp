@@ -1143,11 +1143,12 @@ void DeltaLoadLevel()
 static void ExportItemDurabilites(int pnum, BYTE (&itemsDur)[NUM_INVELEM + 1])
 {
 	ItemStruct* is = &plr._pHoldItem;
+	int i;
 	static_assert(offsetof(PlayerStruct, _pHoldItem) + sizeof(ItemStruct) == offsetof(PlayerStruct, _pInvBody), "ExportItemDurabilites assumes packed items in PlayerStruct I.");
 	static_assert(offsetof(PlayerStruct, _pInvBody) + NUM_INVLOC * sizeof(ItemStruct) == offsetof(PlayerStruct, _pSpdList), "ExportItemDurabilites assumes packed items in PlayerStruct II.");
 	static_assert(offsetof(PlayerStruct, _pSpdList) + MAXBELTITEMS * sizeof(ItemStruct) == offsetof(PlayerStruct, _pInvList), "ExportItemDurabilites assumes packed items in PlayerStruct III.");
 	static_assert(NUM_INVELEM == NUM_INVLOC + MAXBELTITEMS + NUM_INV_GRID_ELEM, "ExportItemDurabilites uses NUM_INVELEM to tool through the items in PlayerStruct.");
-	for (int i = 0; i < (1 + NUM_INVELEM); i++, is++) {
+	for (i = 0; i < (1 + NUM_INVELEM); i++, is++) {
 		itemsDur[i] = is->_iDurability;
 	}
 }
@@ -1170,7 +1171,7 @@ static void ImportItemDurabilities(int pnum, BYTE (&itemsDur)[NUM_INVELEM + 1])
 	static_assert(offsetof(PlayerStruct, _pInvBody) + NUM_INVLOC * sizeof(ItemStruct) == offsetof(PlayerStruct, _pSpdList), "ImportItemDurabilities assumes packed items in PlayerStruct II.");
 	static_assert(offsetof(PlayerStruct, _pSpdList) + MAXBELTITEMS * sizeof(ItemStruct) == offsetof(PlayerStruct, _pInvList), "ImportItemDurabilities assumes packed items in PlayerStruct III.");
 	static_assert(NUM_INVELEM == NUM_INVLOC + MAXBELTITEMS + NUM_INV_GRID_ELEM, "ImportItemDurabilities uses NUM_INVELEM to tool through the items in PlayerStruct.");
-	for (int i = 0; i < (1 + NUM_INVELEM); i++, is++) {
+	for (i = 0; i < (1 + NUM_INVELEM); i++, is++) {
 		dur = itemsDur[i];
 #if INET_MODE
 		ValidateDurability(is, pnum, dur);
@@ -1182,8 +1183,6 @@ static void ImportItemDurabilities(int pnum, BYTE (&itemsDur)[NUM_INVELEM + 1])
 void NetSendCmdJoinLevel()
 {
 	TCmdJoinLevel cmd;
-	int i;
-	ItemStruct* is;
 
 	cmd.bCmd = CMD_JOINLEVEL;
 	cmd.lLevel = myplr._pDunLevel;
@@ -1205,7 +1204,6 @@ void LevelDeltaExport()
 	LDLevel* lvlData;
 
 	int pnum, mnum, i, mi;
-	ItemStruct* is;
 	MonsterStruct* mon;
 	MissileStruct* mis;
 	bool validDelta, completeDelta;

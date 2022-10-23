@@ -241,6 +241,11 @@ typedef struct PlrAnimStruct {
 	unsigned paFrames;
 	int paAnimWidth;
 } PlrAnimStruct;
+#ifdef X86_32bit_COMP
+static_assert((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 32, "Align PlrAnimStruct closer to power of 2 for better performance.");
+#elif defined(X86_64bit_COMP)
+static_assert((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Align PlrAnimStruct closer to power of 2 for better performance.");
+#endif
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
