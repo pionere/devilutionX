@@ -843,7 +843,7 @@ void LoadGame()
 	for (i = 0; i < NUM_LEVELS; i++) {
 		LoadInt(&glSeedTbl[i]);
 	}
-	LoadInt32(&_CurrSeed);
+	LoadInt(&_CurrSeed);
 	// load player-data
 	LoadInt(&_ViewX);
 	LoadInt(&_ViewY);
@@ -1510,7 +1510,7 @@ void SaveGame()
 		SaveInt(&glSeedTbl[i]);
 	}
 	seed = GetRndSeed();
-	SaveInt32(&seed);
+	SaveInt(&seed);
 	// save player-data
 	SaveInt(&ViewX);
 	SaveInt(&ViewY);
