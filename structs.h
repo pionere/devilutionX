@@ -61,11 +61,11 @@ typedef struct CelImageBuf {
 //////////////////////////////////////////////////
 
 typedef struct AffixData {
-	BYTE PLPower;
+	BYTE PLPower; // item_effect_type
 	int PLParam1;
 	int PLParam2;
 	BYTE PLMinLvl;
-	int PLIType;
+	int PLIType; // affix_item_type
 	BOOLEAN PLDouble;
 	BOOLEAN PLOk;
 	int PLMinVal;
@@ -75,25 +75,25 @@ typedef struct AffixData {
 
 typedef struct UniqItemData {
 	const char* UIName;
-	BYTE UIUniqType;
+	BYTE UIUniqType; // unique_item_type
 	BYTE UIMinLvl;
 	int UIValue;
-	BYTE UIPower1;
+	BYTE UIPower1; // item_effect_type
 	int UIParam1a;
 	int UIParam1b;
-	BYTE UIPower2;
+	BYTE UIPower2; // item_effect_type
 	int UIParam2a;
 	int UIParam2b;
-	BYTE UIPower3;
+	BYTE UIPower3; // item_effect_type
 	int UIParam3a;
 	int UIParam3b;
-	BYTE UIPower4;
+	BYTE UIPower4; // item_effect_type
 	int UIParam4a;
 	int UIParam4b;
-	BYTE UIPower5;
+	BYTE UIPower5; // item_effect_type
 	int UIParam5a;
 	int UIParam5b;
-	BYTE UIPower6;
+	BYTE UIPower6; // item_effect_type
 	int UIParam6a;
 	int UIParam6b;
 	ALIGNMENT(3, 2)
@@ -147,8 +147,8 @@ static_assert((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData 
 
 typedef struct ItemStruct {
 	int _iSeed;
-	uint16_t _iIdx;
-	uint16_t _iCreateInfo;
+	uint16_t _iIdx;        // item_indexes
+	uint16_t _iCreateInfo; // icreateinfo_flag
 	union {
 		int _ix;
 		int _iPHolder; // parent index of a placeholder entry in InvList
@@ -215,7 +215,7 @@ typedef struct ItemStruct {
 	BYTE _iPLLifeSteal;
 	BYTE _iPLCrit;
 	BOOLEAN _iStatFlag;
-	int _iUid;
+	int _iUid; // unique_item_indexes
 	BYTE _iPLFMinDam;
 	BYTE _iPLFMaxDam;
 	BYTE _iPLLMinDam;
@@ -323,8 +323,8 @@ typedef struct PlayerStruct {
 	int _pVar8;
 	int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
 	PlrAnimStruct _pAnims[NUM_PFIDXs];
-	unsigned _pAFNum;
-	unsigned _pSFNum;
+	unsigned _pAFNum; // action frame number of the attack animation
+	unsigned _pSFNum; // action frame number of the spell animation
 	ItemStruct _pHoldItem;
 	ItemStruct _pInvBody[NUM_INVLOC];
 	ItemStruct _pSpdList[MAXBELTITEMS];
@@ -398,7 +398,7 @@ typedef struct TextData {
 	BOOLEAN scrlltxt;
 	BOOLEAN txtsfxset;
 	int txtspd;
-	int sfxnr;
+	int sfxnr;  // _sfx_id or sfx_set if txtsfxset is true
 } TextData;
 
 //////////////////////////////////////////////////
@@ -430,7 +430,7 @@ typedef struct MisFileData {
 	int mfAnimFAmt;
 	const char* mfName;
 	const char* mfAnimTrans;
-	int mfFlags;
+	int mfFlags; // missile_anim_flags
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
@@ -517,7 +517,7 @@ typedef struct SoundSample final {
 } SoundSample;
 
 typedef struct SFXStruct {
-	BYTE bFlags;
+	BYTE bFlags; // sfx_flag
 	const char* pszName;
 	union {
 		struct {
@@ -545,14 +545,14 @@ static_assert((sizeof(MonAnimStruct) & (sizeof(MonAnimStruct) - 1)) == 64, "Alig
 #endif
 
 typedef struct MonsterAI {
-	BYTE aiType;
+	BYTE aiType; // _monster_ai
 	BYTE aiInt;
 	BYTE aiParam1;
 	BYTE aiParam2;
 } MonsterAI;
 
 typedef struct MonsterData {
-	uint16_t moFileNum;
+	uint16_t moFileNum; // _monster_gfx_id
 	BYTE mLevel;
 	BYTE mSelFlag;
 	const char* mTransFile;
@@ -683,7 +683,7 @@ typedef struct MonsterStruct {
 	int _mAISeed;
 	BYTE _muniqtype;
 	BYTE _muniqtrans;
-	BYTE _mNameColor; // color of the tooltip (white: normal, blue: pack; gold: unique)
+	BYTE _mNameColor; // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
 	BYTE _mlid; // light id of the monster
 	BYTE _mleader; // the leader of the monster
 	BYTE _mleaderflag; // the status of the monster's leader
@@ -710,8 +710,8 @@ typedef struct MonsterStruct {
 	unsigned _mExp;
 	int _mAnimWidth;
 	int _mAnimXOffset;
-	BYTE _mAFNum;
-	BYTE _mAFNum2;
+	BYTE _mAFNum;  // action frame number of the attack animation
+	BYTE _mAFNum2; // action frame number of the special animation
 	uint16_t _mAlign_0; // unused
 	int _mType; // _monster_id
 	MonAnimStruct* _mAnims;
@@ -723,8 +723,8 @@ static_assert((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align
 #endif
 
 typedef struct MonEnemyStruct {
-	int _meLastDir;
-	int _meRealDir;
+	int _meLastDir; // direction
+	int _meRealDir; // direction
 	int _meRealDist;
 } MonEnemyStruct;
 
@@ -732,7 +732,7 @@ typedef struct UniqMonData {
 	int mtype; // _monster_id
 	const char* mName;
 	const char* mTrnName;
-	BYTE muLevelIdx; // level-index to place the monster
+	BYTE muLevelIdx; // level-index to place the monster (dungeon_level)
 	BYTE muLevel;    // difficulty level of the monster
 	uint16_t mmaxhp;
 	MonsterAI mAI;
@@ -740,8 +740,8 @@ typedef struct UniqMonData {
 	BYTE mMaxDamage;
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
-	uint16_t mMagicRes;
-	uint16_t mMagicRes2;
+	uint16_t mMagicRes;  // _monster_resistance
+	uint16_t mMagicRes2; // _monster_resistance
 	BYTE mUnqFlags;// _uniq_monster_flag
 	BYTE mUnqHit;  // to-hit (melee+projectile) bonus
 	BYTE mUnqHit2; // to-hit (special melee attacks) bonus
@@ -860,7 +860,7 @@ typedef struct PortalStruct {
 	BYTE _rAlign2;
 	int _rx;
 	int _ry;
-	int _rlevel;
+	int _rlevel; // dungeon_level
 } PortalStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
