@@ -1028,6 +1028,7 @@ void ValidateData()
 			}
 		}
 	}
+	assert(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].iAnimLen == 10); // required by ProcessItems
 	// objects
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		const ObjFileData& od = objfiledata[i];
