@@ -69,11 +69,14 @@ static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
 {
     TFileStream * pStream;
     TMPQFile * hf = NULL;
+#if defined(FULL) || defined(_UNICODE)
     TCHAR szFileNameT[MAX_PATH];
 
     // Convert the file name to UNICODE (if needed)
     StringCopy(szFileNameT, _countof(szFileNameT), szFileName);
-
+#else
+    const char * szFileNameT = szFileName;
+#endif
     // Open the file and create the TMPQFile structure
     pStream = FileStream_OpenFile(szFileNameT, STREAM_FLAG_READ_ONLY);
     if (pStream != NULL) {

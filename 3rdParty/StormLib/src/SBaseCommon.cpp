@@ -97,7 +97,7 @@ unsigned char AsciiToUpperTable_Slash[256] =
 
 //-----------------------------------------------------------------------------
 // Safe string functions (for ANSI builds)
-
+#ifdef FULL
 char * StringCopy(char * szTarget, size_t cchTarget, const char * szSource)
 {
     size_t cchSource = 0;
@@ -116,7 +116,7 @@ char * StringCopy(char * szTarget, size_t cchTarget, const char * szSource)
     return szTarget + cchSource;
 }
 
-/*void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource)
+void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource)
 {
     // Get the current length of the target
     size_t cchTarget = strlen(szTarget);
@@ -146,8 +146,8 @@ void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned in
     while(szExtension[0] == '.')
         szExtension++;
     StringCopy(szBuffer, (szBufferEnd - szBuffer), szExtension);
-}*/
-
+}
+#endif
 //-----------------------------------------------------------------------------
 // Utility functions (UNICODE) only exist in the ANSI version of the library
 // In ANSI builds, TCHAR = char, so we don't need these functions implemented
