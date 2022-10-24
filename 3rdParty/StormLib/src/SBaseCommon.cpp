@@ -14,7 +14,7 @@
 #define __STORMLIB_SELF__
 #include "StormLib.h"
 #include "StormCommon.h"
-
+#ifdef FULL_GLOBALS
 char StormLibCopyright[] = "StormLib v " STORMLIB_VERSION_STRING " Copyright Ladislav Zezula 1998-2014";
 
 //-----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ DWORD g_dwHashTableKey = MPQ_KEY_HASH_TABLE;    // Key for hash table
 DWORD g_dwBlockTableKey = MPQ_KEY_BLOCK_TABLE;  // Key for block table
 LCID  g_lcFileLocale = LANG_NEUTRAL;            // File locale
 USHORT  wPlatform = 0;                          // File platform
-
+#endif
 //-----------------------------------------------------------------------------
 // Conversion to uppercase/lowercase
 
@@ -50,7 +50,7 @@ unsigned char AsciiToLowerTable[256] =
     0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
     0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
-
+#ifdef FULL_HASH_TABLE
 // Converts ASCII characters to uppercase
 // Converts slash (0x2F) to backslash (0x5C)
 unsigned char AsciiToUpperTable[256] =
@@ -72,7 +72,7 @@ unsigned char AsciiToUpperTable[256] =
     0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
     0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
-
+#endif
 // Converts ASCII characters to uppercase
 // Does NOT convert slash (0x2F) to backslash (0x5C)
 unsigned char AsciiToUpperTable_Slash[256] =
@@ -274,6 +274,7 @@ void InitializeMpqCryptography()
 // various game versions and localizations. Even WorldEdit, after importing a file
 // with Korean characters in the name, cannot open the file back.
 //
+#ifdef FULL_HASH_TABLE
 DWORD HashString(const char * szFileName, unsigned dwHashType)
 {
     LPBYTE pbKey   = (BYTE *)szFileName;
@@ -293,7 +294,7 @@ DWORD HashString(const char * szFileName, unsigned dwHashType)
 
     return dwSeed1;
 }
-
+#endif
 DWORD HashStringSlash(const char * szFileName, unsigned dwHashType)
 {
     LPBYTE pbKey   = (BYTE *)szFileName;
@@ -619,7 +620,11 @@ DWORD DecryptFileKey(
 
     // File key is calculated from plain name
     szFileName = GetPlainFileName(szFileName);
+#ifdef FULL_HASH_TABLE
     dwFileKey = HashString(szFileName, MPQ_HASH_FILE_KEY);
+#else
+    dwFileKey = HashStringSlash(szFileName, MPQ_HASH_FILE_KEY);
+#endif
 
     // Fix the key, if needed
     if(dwFlags & MPQ_FILE_FIX_KEY)
