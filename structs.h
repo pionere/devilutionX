@@ -1938,31 +1938,35 @@ typedef struct TMsgHdr {
 // mpqapi
 //////////////////////////////////////////////////
 
-typedef struct _FILEHEADER {
-	uint32_t signature;
-	uint32_t headersize;
-	uint32_t filesize;
-	uint16_t version;
-	uint16_t sectorsizeid;
-	uint32_t hashoffset;
-	uint32_t blockoffset;
-	uint32_t hashcount;
-	uint32_t blockcount;
-	char pad[72];
-} _FILEHEADER;
+#pragma pack(push, 1)
+typedef struct FileMpqHeader {
+	uint32_t pqSignature;
+	uint32_t pqHeaderSize;
+	uint32_t pqFileSize;
+	uint16_t pqVersion;
+	uint16_t pqSectorSizeId;
+	uint32_t pqHashOffset;
+	uint32_t pqBlockOffset;
+	uint32_t pqHashCount;
+	uint32_t pqBlockCount;
+	char pqPad[72];
+} FileMpqHeader;
 
-typedef struct _HASHENTRY {
-	uint32_t hashcheck[2];
-	uint32_t lcid;
-	uint32_t block;
-} _HASHENTRY;
+typedef struct FileMpqHashEntry {
+	uint32_t hqHashA;
+	uint32_t hqHashB;
+	uint16_t hqLocale;
+	uint16_t hqPlatform;
+	uint32_t hqBlock;
+} FileMpqHashEntry;
 
-typedef struct _BLOCKENTRY {
-	uint32_t offset;
-	uint32_t sizealloc;
-	uint32_t sizefile;
-	uint32_t flags;
-} _BLOCKENTRY;
+typedef struct FileMpqBlockEntry {
+	uint32_t bqOffset;
+	uint32_t bqSizeAlloc;
+	uint32_t bqSizeFile;
+	uint32_t bqFlags;
+} FileMpqBlockEntry;
+#pragma pack(pop)
 
 // TPDEF PTR FCN UCHAR TGetNameFcn
 
