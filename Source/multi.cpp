@@ -661,7 +661,7 @@ static void SetupLocalPlr()
 		}
 	}
 #endif
-	assert(p->destAction == ACTION_NONE);
+	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town
 	assert(p->_pmode == PM_NEWLVL);

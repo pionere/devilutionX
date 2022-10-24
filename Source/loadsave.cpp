@@ -329,12 +329,12 @@ static void LoadItem(ItemStruct* is)
 static void LoadPlayer(int pnum)
 {
 	LoadInt(&plr._pmode);
-	CopyBytes(tbuff, lengthof(plr.walkpath), plr.walkpath);
-	LoadInt(&plr.destAction);
-	LoadInt(&plr.destParam1);
-	LoadInt(&plr.destParam2);
-	LoadInt(&plr.destParam3);
-	LoadInt(&plr.destParam4);
+	CopyBytes(tbuff, lengthof(plr._pWalkpath), plr._pWalkpath);
+	LoadInt(&plr._pDestAction);
+	LoadInt(&plr._pDestParam1);
+	LoadInt(&plr._pDestParam2);
+	LoadInt(&plr._pDestParam3);
+	LoadInt(&plr._pDestParam4);
 	LoadByte(&plr._pActive);
 	LoadByte(&plr._pInvincible);
 	LoadByte(&plr._pLvlChanging);
@@ -1028,13 +1028,13 @@ static void SaveItem(ItemStruct* is)
 static void SavePlayer(int pnum)
 {
 	SaveInt(&plr._pmode);
-	static_assert(sizeof(plr.walkpath) == MAX_PATH_LENGTH + 1, "Save files are no longer compatible.");
-	CopyBytes(plr.walkpath, lengthof(plr.walkpath), tbuff);
-	SaveInt(&plr.destAction);
-	SaveInt(&plr.destParam1);
-	SaveInt(&plr.destParam2);
-	SaveInt(&plr.destParam3);
-	SaveInt(&plr.destParam4);
+	static_assert(sizeof(plr._pWalkpath) == MAX_PATH_LENGTH + 1, "Save files are no longer compatible.");
+	CopyBytes(plr._pWalkpath, lengthof(plr._pWalkpath), tbuff);
+	SaveInt(&plr._pDestAction);
+	SaveInt(&plr._pDestParam1);
+	SaveInt(&plr._pDestParam2);
+	SaveInt(&plr._pDestParam3);
+	SaveInt(&plr._pDestParam4);
 	SaveByte(&plr._pActive);
 	SaveByte(&plr._pInvincible);
 	SaveByte(&plr._pLvlChanging);

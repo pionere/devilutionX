@@ -1613,7 +1613,7 @@ static void Obj_Circle(int oi)
 			ClrPlrPath(mypnum);
 			myplr._pdir = DIR_NW;
 			myplr._pAnimData = myplr._pAnims[PFIDX_STAND].paAnimData[DIR_NW];
-			myplr.destAction = ACTION_NONE;
+			myplr._pDestAction = ACTION_NONE;
 		}
 	} else {
 		if (os->_otype == OBJ_MCIRCLE1)

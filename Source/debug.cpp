@@ -162,7 +162,7 @@ void PrintDebugPlayer(bool bNextPlayer)
 		NetSendCmdString(1 << mypnum);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %d, y = %d : fx = %d, fy = %d", players[dbgplr]._px, players[dbgplr]._py, players[dbgplr]._pfutx, players[dbgplr]._pfuty);
 		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %d : daction = %d : walk[0] = %d", players[dbgplr]._pmode, players[dbgplr].destAction, players[dbgplr].walkpath[0]);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %d : daction = %d : walk[0] = %d", players[dbgplr]._pmode, players[dbgplr]._pDestAction, players[dbgplr]._pWalkpath[0]);
 		NetSendCmdString(1 << mypnum);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  inv = %d : hp = %d", players[dbgplr]._pInvincible, players[dbgplr]._pHitPoints);
 		NetSendCmdString(1 << mypnum);

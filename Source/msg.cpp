@@ -1256,16 +1256,16 @@ void LevelDeltaExport()
 			}
 
 			tplr->spMode = plr._pmode;
-			static_assert(sizeof(plr.walkpath[0]) == 1, "LevelDeltaExport exports walkpath as a bytestream.");
+			static_assert(sizeof(plr._pWalkpath[0]) == 1, "LevelDeltaExport exports walkpath as a bytestream.");
 			static_assert(((MAX_PATH_LENGTH + 1) % 4 == 0) && (offsetof(TSyncLvlPlayer, spWalkpath) + MAX_PATH_LENGTH + 1) <= sizeof(TSyncLvlPlayer), "LevelDeltaExport uses DWORD-memcpy to optimize performance.");
-			memcpy(tplr->spWalkpath, plr.walkpath, MAX_PATH_LENGTH + 1);
+			memcpy(tplr->spWalkpath, plr._pWalkpath, MAX_PATH_LENGTH + 1);
 			tplr->spManaShield = plr._pManaShield;
 			tplr->spInvincible = plr._pInvincible;
-			tplr->spDestAction = plr.destAction;
-			tplr->spDestParam1 = plr.destParam1;
-			tplr->spDestParam2 = plr.destParam2;
-			tplr->spDestParam3 = plr.destParam3;
-			tplr->spDestParam4 = plr.destParam4;
+			tplr->spDestAction = plr._pDestAction;
+			tplr->spDestParam1 = plr._pDestParam1;
+			tplr->spDestParam2 = plr._pDestParam2;
+			tplr->spDestParam3 = plr._pDestParam3;
+			tplr->spDestParam4 = plr._pDestParam4;
 			tplr->spTimer[PLTR_INFRAVISION] = plr._pTimer[PLTR_INFRAVISION];
 			tplr->spTimer[PLTR_RAGE] = plr._pTimer[PLTR_RAGE];
 			tplr->spx = plr._px;
@@ -1492,14 +1492,14 @@ void LevelDeltaLoad()
 		net_assert(tplr->spMode < NUM_PLR_MODES);
 		plr._pmode = tplr->spMode;
 		static_assert(sizeof(tplr->spWalkpath[0]) == 1, "LevelDeltaLoad imports walkpath as a bytestream.");
-		memcpy(plr.walkpath, tplr->spWalkpath, MAX_PATH_LENGTH);
+		memcpy(plr._pWalkpath, tplr->spWalkpath, MAX_PATH_LENGTH);
 		plr._pManaShield = tplr->spManaShield;
 		plr._pInvincible = tplr->spInvincible;
-		plr.destAction = tplr->spDestAction;
-		plr.destParam1 = tplr->spDestParam1;
-		plr.destParam2 = tplr->spDestParam2;
-		plr.destParam3 = tplr->spDestParam3;
-		plr.destParam4 = tplr->spDestParam4;
+		plr._pDestAction = tplr->spDestAction;
+		plr._pDestParam1 = tplr->spDestParam1;
+		plr._pDestParam2 = tplr->spDestParam2;
+		plr._pDestParam3 = tplr->spDestParam3;
+		plr._pDestParam4 = tplr->spDestParam4;
 		plr._pTimer[PLTR_INFRAVISION] = tplr->spTimer[PLTR_INFRAVISION];
 		plr._pTimer[PLTR_RAGE] = tplr->spTimer[PLTR_RAGE];
 		plr._px = tplr->spx;
@@ -1530,9 +1530,9 @@ void LevelDeltaLoad()
 		src += sizeof(TSyncLvlPlayer);
 		// validate data
 		for (i = 0; i < MAX_PATH_LENGTH; i++) {
-			if (plr.walkpath[i] == DIR_NONE)
+			if (plr._pWalkpath[i] == DIR_NONE)
 				break;
-			net_assert(plr.walkpath[i] < NUM_DIRS);
+			net_assert(plr._pWalkpath[i] < NUM_DIRS);
 		}
 		net_assert(plr._pdir < NUM_DIRS);
 		// net_assert((unsigned)plr._px < MAXDUNX);
@@ -1749,57 +1749,57 @@ void LevelDeltaLoad()
 				break;
 			}
 		}
-		switch (plr.destAction) {
+		switch (plr._pDestAction) {
 		case ACTION_NONE:
 		case ACTION_WALK:
 			break;
 		case ACTION_OPERATE:
-			net_assert(plr.destParam1 < MAXOBJECTS);
-			net_assert(plr.destParam2 < MAXDUNX);
-			net_assert(plr.destParam3 < MAXDUNY);
-			net_assert(abs(dObject[plr.destParam2][plr.destParam3]) == plr.destParam1 + 1);
+			net_assert(plr._pDestParam1 < MAXOBJECTS);
+			net_assert(plr._pDestParam2 < MAXDUNX);
+			net_assert(plr._pDestParam3 < MAXDUNY);
+			net_assert(abs(dObject[plr._pDestParam2][plr._pDestParam3]) == plr._pDestParam1 + 1);
 			break;
 		case ACTION_BLOCK:
-			net_assert(plr.destParam1 < NUM_DIRS);
+			net_assert(plr._pDestParam1 < NUM_DIRS);
 			break;
 		case ACTION_ATTACKMON:
 		case ACTION_RATTACKMON:
 		case ACTION_SPELLMON:
-			net_assert(plr.destParam1 < MAXMONSTERS);
-			net_assert(plr.destParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
-			net_assert(plr.destParam4 >= 0); // ATTACK_SKILL_LEVEL, SPELL_LEVEL
+			net_assert(plr._pDestParam1 < MAXMONSTERS);
+			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
+			net_assert(plr._pDestParam4 >= 0); // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_ATTACK:
 		case ACTION_RATTACK:
-			net_assert(plr.destParam3 < NUM_SPELLS); // ATTACK_SKILL
-			net_assert(plr.destParam4 >= 0); // ATTACK_SKILL_LEVEL
+			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL
+			net_assert(plr._pDestParam4 >= 0); // ATTACK_SKILL_LEVEL
 			break;
 		case ACTION_ATTACKPLR:
 		case ACTION_RATTACKPLR:
 		case ACTION_SPELLPLR:
-			net_assert(plr.destParam1 < MAX_PLRS);
-			net_assert(plr.destParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
-			net_assert(plr.destParam4 >= 0); // ATTACK_SKILL_LEVEL, SPELL_LEVEL
+			net_assert(plr._pDestParam1 < MAX_PLRS);
+			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
+			net_assert(plr._pDestParam4 >= 0); // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_SPELL:
-			net_assert(plr.destParam1 >= DBORDERX && plr.destParam1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
-			net_assert(plr.destParam2 >= DBORDERY && plr.destParam2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
-			net_assert(plr.destParam3 < NUM_SPELLS); // SPELL_NUM
-			net_assert(plr.destParam4 >= 0); // SPELL_LEVEL
-			if (plr.destParam3 == SPL_DISARM)
-				net_assert(plr.destParam4 < MAXOBJECTS); // fake SPELL_LEVEL
-			if (plr.destParam3 == SPL_RESURRECT)
-				net_assert(plr.destParam4 < MAX_PLRS); // fake SPELL_LEVEL
-			if (plr.destParam3 == SPL_TELEKINESIS) {
-				switch (plr.destParam4 >> 16) {
+			net_assert(plr._pDestParam1 >= DBORDERX && plr._pDestParam1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
+			net_assert(plr._pDestParam2 >= DBORDERY && plr._pDestParam2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
+			net_assert(plr._pDestParam3 < NUM_SPELLS); // SPELL_NUM
+			net_assert(plr._pDestParam4 >= 0); // SPELL_LEVEL
+			if (plr._pDestParam3 == SPL_DISARM)
+				net_assert(plr._pDestParam4 < MAXOBJECTS); // fake SPELL_LEVEL
+			if (plr._pDestParam3 == SPL_RESURRECT)
+				net_assert(plr._pDestParam4 < MAX_PLRS); // fake SPELL_LEVEL
+			if (plr._pDestParam3 == SPL_TELEKINESIS) {
+				switch (plr._pDestParam4 >> 16) {
 				case MTT_ITEM:
-					net_assert((plr.destParam4 & 0xFFFF) < MAXITEMS);
+					net_assert((plr._pDestParam4 & 0xFFFF) < MAXITEMS);
 					break;
 				case MTT_MONSTER:
-					net_assert((plr.destParam4 & 0xFFFF) < MAXMONSTERS);
+					net_assert((plr._pDestParam4 & 0xFFFF) < MAXMONSTERS);
 					break;
 				case MTT_OBJECT:
-					net_assert((plr.destParam4 & 0xFFFF) < MAXOBJECTS);
+					net_assert((plr._pDestParam4 & 0xFFFF) < MAXOBJECTS);
 					break;
 				default:
 					net_assert(0);
@@ -1809,10 +1809,10 @@ void LevelDeltaLoad()
 			break;
 		case ACTION_PICKUPITEM:  // put item in hand (inventory screen open)
 		case ACTION_PICKUPAITEM: // put item in inventory
-			net_assert(plr.destParam1 < MAXITEMS);
+			net_assert(plr._pDestParam1 < MAXITEMS);
 			break;
 		case ACTION_TALK:
-			net_assert(plr.destParam1 < MAXMONSTERS);
+			net_assert(plr._pDestParam1 < MAXMONSTERS);
 			break;
 		default:
 			net_assert(0);
@@ -2292,7 +2292,7 @@ static unsigned On_WALKXY(TCmd* pCmd, int pnum)
 	TCmdLoc* cmd = (TCmdLoc*)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel && MakePlrPath(pnum, cmd->x, cmd->y, true)) {
-		plr.destAction = ACTION_WALK;
+		plr._pDestAction = ACTION_WALK;
 	}
 
 	return sizeof(*cmd);
@@ -2337,8 +2337,8 @@ static unsigned On_BLOCK(TCmd* pCmd, int pnum)
 
 		net_assert(dir < NUM_DIRS);
 
-		plr.destAction = ACTION_BLOCK;
-		plr.destParam1 = dir;
+		plr._pDestAction = ACTION_BLOCK;
+		plr._pDestParam1 = dir;
 	}
 	return sizeof(*cmd);
 }
@@ -2353,8 +2353,8 @@ static unsigned On_GOTOGETITEM(TCmd* pCmd, int pnum)
 
 		net_assert(ii < MAXITEMS);
 
-		plr.destAction = ACTION_PICKUPITEM;
-		plr.destParam1 = ii;
+		plr._pDestAction = ACTION_PICKUPITEM;
+		plr._pDestParam1 = ii;
 	}
 
 	return sizeof(*cmd);
@@ -2396,8 +2396,8 @@ static unsigned On_GOTOAGETITEM(TCmd* pCmd, int pnum)
 
 		net_assert(ii < MAXITEMS);
 
-		plr.destAction = ACTION_PICKUPAITEM;
-		plr.destParam1 = ii;
+		plr._pDestAction = ACTION_PICKUPAITEM;
+		plr._pDestParam1 = ii;
 	}
 
 	return sizeof(*cmd);
@@ -2551,8 +2551,8 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 			static_assert((int)ACTION_RATTACKPLR + 1 == (int)ACTION_SPELL, "CheckPlrSkillUse expects ordered action-ids VI.");
 			static_assert((int)ACTION_SPELL + 1 == (int)ACTION_SPELLMON, "CheckPlrSkillUse expects ordered action-ids VII.");
 			static_assert((int)ACTION_SPELLMON + 1 == (int)ACTION_SPELLPLR, "CheckPlrSkillUse expects ordered action-ids VIII.");
-			if (sn == plr.destParam3 && ((BYTE)su.from) == plr.destParam4 &&
-			 plr.destAction >= ACTION_ATTACK && plr.destAction <= ACTION_SPELLPLR)
+			if (sn == plr._pDestParam3 && ((BYTE)su.from) == plr._pDestParam4 &&
+			 plr._pDestAction >= ACTION_ATTACK && plr._pDestAction <= ACTION_SPELLPLR)
 				return sameLvl;
 			net_assert(plr._pMemSkills & SPELL_MASK(sn));
 			// always grant skill-activity to prevent de-sync
@@ -2582,11 +2582,11 @@ static unsigned On_SKILLXY(TCmd* pCmd, int pnum)
 
 	if (CheckPlrSkillUse(pnum, cmd->lsu)) {
 		ClrPlrPath(pnum);
-		plr.destAction = spelldata[cmd->lsu.skill].sType != STYPE_NONE ? ACTION_SPELL : ((spelldata[cmd->lsu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACK : ACTION_ATTACK);
-		plr.destParam1 = cmd->x;
-		plr.destParam2 = cmd->y;
-		plr.destParam3 = cmd->lsu.skill; // spell/skill
-		plr.destParam4 = (BYTE)cmd->lsu.from; // spllvl (set in CheckPlrSkillUse)
+		plr._pDestAction = spelldata[cmd->lsu.skill].sType != STYPE_NONE ? ACTION_SPELL : ((spelldata[cmd->lsu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACK : ACTION_ATTACK);
+		plr._pDestParam1 = cmd->x;
+		plr._pDestParam2 = cmd->y;
+		plr._pDestParam3 = cmd->lsu.skill; // spell/skill
+		plr._pDestParam4 = (BYTE)cmd->lsu.from; // spllvl (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -2614,11 +2614,11 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		// add cast effect
 		ClrPlrPath(pnum);
-		plr.destAction = ACTION_SPELL;
-		plr.destParam1 = plr._px;
-		plr.destParam2 = plr._py;
-		plr.destParam3 = cmd->iou.skill; // spell
-		plr.destParam4 = 0;              // spllvl (should not matter)
+		plr._pDestAction = ACTION_SPELL;
+		plr._pDestParam1 = plr._px;
+		plr._pDestParam2 = plr._py;
+		plr._pDestParam3 = cmd->iou.skill; // spell
+		plr._pDestParam4 = 0;              // spllvl (should not matter)
 	}
 
 	return sizeof(*cmd);
@@ -2639,10 +2639,10 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_OPOBJXY expects ODT_NONE to be zero.");
 		if (MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag))) {
-			plr.destAction = ACTION_OPERATE;
-			plr.destParam1 = oi;
-			plr.destParam2 = cmd->x;
-			plr.destParam3 = cmd->y;
+			plr._pDestAction = ACTION_OPERATE;
+			plr._pDestParam1 = oi;
+			plr._pDestParam2 = cmd->x;
+			plr._pDestParam3 = cmd->y;
 		}
 	}
 
@@ -2669,11 +2669,11 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_DISARMXY expects ODT_NONE to be zero.");
 		if (MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag))) {
-			plr.destAction = ACTION_SPELL;
-			plr.destParam1 = cmd->x;
-			plr.destParam2 = cmd->y;
-			plr.destParam3 = SPL_DISARM; // spell
-			plr.destParam4 = oi;         // fake spllvl
+			plr._pDestAction = ACTION_SPELL;
+			plr._pDestParam1 = cmd->x;
+			plr._pDestParam2 = cmd->y;
+			plr._pDestParam3 = SPL_DISARM; // spell
+			plr._pDestParam4 = oi;         // fake spllvl
 		}
 	}
 
@@ -2691,10 +2691,10 @@ static unsigned On_SKILLMON(TCmd* pCmd, int pnum)
 
 		net_assert(mnum < MAXMONSTERS);
 
-		plr.destAction = spelldata[cmd->msu.skill].sType != STYPE_NONE ? ACTION_SPELLMON : ((spelldata[cmd->msu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKMON : ACTION_ATTACKMON);
-		plr.destParam1 = mnum;                // target id
-		plr.destParam3 = cmd->msu.skill;      // attack spell/skill
-		plr.destParam4 = (BYTE)cmd->msu.from; // attack skill-level (set in CheckPlrSkillUse)
+		plr._pDestAction = spelldata[cmd->msu.skill].sType != STYPE_NONE ? ACTION_SPELLMON : ((spelldata[cmd->msu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKMON : ACTION_ATTACKMON);
+		plr._pDestParam1 = mnum;                // target id
+		plr._pDestParam3 = cmd->msu.skill;      // attack spell/skill
+		plr._pDestParam4 = (BYTE)cmd->msu.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -2711,10 +2711,10 @@ static unsigned On_SKILLPLR(TCmd* pCmd, int pnum)
 
 		net_assert(tnum < MAX_PLRS);
 
-		plr.destAction = spelldata[cmd->psu.skill].sType != STYPE_NONE ? ACTION_SPELLPLR : ((spelldata[cmd->psu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKPLR : ACTION_ATTACKPLR);
-		plr.destParam1 = tnum;                // target id
-		plr.destParam3 = cmd->psu.skill;      // attack spell/skill
-		plr.destParam4 = (BYTE)cmd->psu.from; // attack skill-level (set in CheckPlrSkillUse)
+		plr._pDestAction = spelldata[cmd->psu.skill].sType != STYPE_NONE ? ACTION_SPELLPLR : ((spelldata[cmd->psu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKPLR : ACTION_ATTACKPLR);
+		plr._pDestParam1 = tnum;                // target id
+		plr._pDestParam3 = cmd->psu.skill;      // attack spell/skill
+		plr._pDestParam4 = (BYTE)cmd->psu.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -2729,8 +2729,8 @@ static unsigned On_TALKXY(TCmd* pCmd, int pnum)
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		if (MakePlrPath(pnum, monsters[mnum]._mx, monsters[mnum]._my, false)) {
-			plr.destAction = ACTION_TALK;
-			plr.destParam1 = mnum;
+			plr._pDestAction = ACTION_TALK;
+			plr._pDestParam1 = mnum;
 		}
 	}
 
@@ -3172,11 +3172,11 @@ static void DoTelekinesis(int pnum, int x, int y, char from, int id)
 	if (CheckPlrSkillUse(pnum, su)) {
 		ClrPlrPath(pnum);
 
-		plr.destAction = ACTION_SPELL;
-		plr.destParam1 = x;
-		plr.destParam2 = y;
-		plr.destParam3 = SPL_TELEKINESIS; // spell
-		plr.destParam4 = id;              // fake spllvl
+		plr._pDestAction = ACTION_SPELL;
+		plr._pDestParam1 = x;
+		plr._pDestParam2 = y;
+		plr._pDestParam3 = SPL_TELEKINESIS; // spell
+		plr._pDestParam4 = id;              // fake spllvl
 	}
 }
 
@@ -3651,19 +3651,19 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		*buf = plx(i)._pmode;
 		buf++;
 
-		//memcpy(buf, plx(i).walkpath, MAX_PATH_LENGTH + 1);
+		//memcpy(buf, plx(i)._pWalkpath, MAX_PATH_LENGTH + 1);
 		//buf += MAX_PATH_LENGTH + 1;
 
-		*buf = plx(i).destAction;
+		*buf = plx(i)._pDestAction;
 		buf++;
 
-		*(INT*)buf = plx(i).destParam1;
+		*(INT*)buf = plx(i)._pDestParam1;
 		buf += sizeof(INT);
-		*(INT*)buf = plx(i).destParam2;
+		*(INT*)buf = plx(i)._pDestParam2;
 		buf += sizeof(INT);
-		*(INT*)buf = plx(i).destParam3;
+		*(INT*)buf = plx(i)._pDestParam3;
 		buf += sizeof(INT);
-		*(INT*)buf = plx(i).destParam4;
+		*(INT*)buf = plx(i)._pDestParam4;
 		buf += sizeof(INT);
 
 		*buf = plx(i)._pInvincible;
@@ -3939,21 +3939,21 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 
 		// walkpath
 
-		if (plx(i).destAction != *src)
-			PrintPlrMismatch("destaction", plx(i).destAction, *src, pnum, i);
+		if (plx(i)._pDestAction != *src)
+			PrintPlrMismatch("destaction", plx(i)._pDestAction, *src, pnum, i);
 		src++;
 
-		if (plx(i).destAction != ACTION_NONE && plx(i).destParam1 != *(INT*)src)
-			PrintPlrMismatch("destparam1", plx(i).destParam1, *(INT*)src, pnum, i);
+		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam1 != *(INT*)src)
+			PrintPlrMismatch("destparam1", plx(i)._pDestParam1, *(INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i).destAction != ACTION_NONE && plx(i).destParam2 != *(INT*)src)
-			PrintPlrMismatch("destparam2", plx(i).destParam2, *(INT*)src, pnum, i);
+		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam2 != *(INT*)src)
+			PrintPlrMismatch("destparam2", plx(i)._pDestParam2, *(INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i).destAction != ACTION_NONE && plx(i).destParam3 != *(INT*)src)
-			PrintPlrMismatch("destparam3", plx(i).destParam3, *(INT*)src, pnum, i);
+		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam3 != *(INT*)src)
+			PrintPlrMismatch("destparam3", plx(i)._pDestParam3, *(INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i).destAction != ACTION_NONE && plx(i).destParam4 != *(INT*)src)
-			PrintPlrMismatch("destparam4", plx(i).destParam4, *(INT*)src, pnum, i);
+		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam4 != *(INT*)src)
+			PrintPlrMismatch("destparam4", plx(i)._pDestParam4, *(INT*)src, pnum, i);
 		src += sizeof(INT);
 
 		if (plx(i)._pInvincible != *src)

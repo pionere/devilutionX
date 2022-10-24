@@ -249,12 +249,12 @@ static_assert((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Alig
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
-	char walkpath[MAX_PATH_LENGTH + 1];
-	int destAction;
-	int destParam1;
-	int destParam2;
-	int destParam3;	// the skill to be used in case of skill based actions
-	int destParam4; // the level of the skill to be used in case of skill based actions
+	char _pWalkpath[MAX_PATH_LENGTH + 1];
+	int _pDestAction;
+	int _pDestParam1;
+	int _pDestParam2;
+	int _pDestParam3; // the skill to be used in case of skill based actions
+	int _pDestParam4; // the level of the skill to be used in case of skill based actions
 	BOOLEAN _pActive;
 	BYTE _pInvincible;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
