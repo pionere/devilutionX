@@ -118,7 +118,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 			BYTE* buf = DiabloAllocPtr(st.st_size);
 			int readBytes = fread(buf, 1, st.st_size, fp);
 			fclose(fp);
-			if (!mpqapi_write_file(line.c_str(), buf, st.st_size))
+			if (!mpqapi_write_entry(line.c_str(), buf, st.st_size))
 				app_fatal("Unable to write %s to the MPQ.", line.c_str());
 			mem_free_dbg(buf);
 		}
@@ -237,7 +237,7 @@ void InitArchives()
 				BYTE* buf = DiabloAllocPtr(dwLen);
 				if (!SFileReadFile(hFile, buf, dwLen))
 					app_fatal("Unable to open file archive");
-				if (!mpqapi_write_file(line.c_str(), buf, dwLen))
+				if (!mpqapi_write_entry(line.c_str(), buf, dwLen))
 					app_fatal("Unable to write %s to the MPQ.", line.c_str());
 				mem_free_dbg(buf);
 				SFileCloseFile(hFile);

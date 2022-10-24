@@ -12,11 +12,11 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void mpqapi_remove_hash_entry(const char *pszName);
-void mpqapi_remove_hash_entries(bool (*fnGetName)(unsigned, char (&)[DATA_ARCHIVE_MAX_PATH]));
-bool mpqapi_write_file(const char *pszName, const BYTE *pbData, DWORD dwLen);
-void mpqapi_rename(char *pszOld, char *pszNew);
-bool mpqapi_has_file(const char *pszName);
+void mpqapi_remove_entry(const char* pszName);
+void mpqapi_remove_entries(bool (*fnGetName)(unsigned, char (&)[DATA_ARCHIVE_MAX_PATH]));
+bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen);
+void mpqapi_rename_entry(char* pszOld, char* pszNew);
+bool mpqapi_has_entry(const char* pszName);
 bool OpenMPQ(const char *pszArchive, int hashCount, int blockCount);
 void mpqapi_flush_and_close(bool bFree);
 

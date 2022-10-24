@@ -564,7 +564,7 @@ static int FetchHandle(const char *pszName)
 	return mpqapi_get_hash_index(HashStringSlash(pszName, MPQ_HASH_TABLE_INDEX), HashStringSlash(pszName, MPQ_HASH_NAME_A), HashStringSlash(pszName, MPQ_HASH_NAME_B));
 }
 
-void mpqapi_remove_hash_entry(const char *pszName)
+void mpqapi_remove_entry(const char *pszName)
 {
 	FileMpqHashEntry* pHash;
 	FileMpqBlockEntry* pBlock;
@@ -583,16 +583,16 @@ void mpqapi_remove_hash_entry(const char *pszName)
 	}
 }
 
-void mpqapi_remove_hash_entries(bool (*fnGetName)(unsigned, char (&)[DATA_ARCHIVE_MAX_PATH]))
+void mpqapi_remove_entries(bool (*fnGetName)(unsigned, char (&)[DATA_ARCHIVE_MAX_PATH]))
 {
 	unsigned i;
 	char pszFileName[DATA_ARCHIVE_MAX_PATH];
 
 	for (i = 0; fnGetName(i, pszFileName); i++)
-		mpqapi_remove_hash_entry(pszFileName);
+		mpqapi_remove_entry(pszFileName);
 }
 
-static FileMpqBlockEntry* mpqapi_add_file(const char* pszName, FileMpqBlockEntry* pBlk, int block_index)
+static FileMpqBlockEntry* mpqapi_add_entry(const char* pszName, FileMpqBlockEntry* pBlk, int block_index)
 {
 	FileMpqHashEntry* pHash;
 	DWORD i, h1, h2, h3, hashCount;
@@ -710,21 +710,21 @@ on_error:
 	return false;
 }
 
-bool mpqapi_write_file(const char *pszName, const BYTE *pbData, DWORD dwLen)
+bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen)
 {
 	FileMpqBlockEntry* pBlock;
 
 	cur_archive.modified = true;
-	mpqapi_remove_hash_entry(pszName);
-	pBlock = mpqapi_add_file(pszName, NULL, 0);
+	mpqapi_remove_entry(pszName);
+	pBlock = mpqapi_add_entry(pszName, NULL, 0);
 	if (!mpqapi_write_file_contents(pszName, pbData, dwLen, pBlock)) {
-		mpqapi_remove_hash_entry(pszName);
+		mpqapi_remove_entry(pszName);
 		return false;
 	}
 	return true;
 }
 
-void mpqapi_rename(char *pszOld, char *pszNew)
+void mpqapi_rename_entry(char* pszOld, char* pszNew)
 {
 	int index, block;
 	FileMpqHashEntry* pHash;
@@ -736,12 +736,12 @@ void mpqapi_rename(char *pszOld, char *pszNew)
 		block = pHash->hqBlock;
 		pBlock = &cur_archive.sgpBlockTbl[block];
 		pHash->hqBlock = HASH_ENTRY_DELETED;
-		mpqapi_add_file(pszNew, pBlock, block);
+		mpqapi_add_entry(pszNew, pBlock, block);
 		cur_archive.modified = true;
 	}
 }
 
-bool mpqapi_has_file(const char *pszName)
+bool mpqapi_has_entry(const char* pszName)
 {
 	return FetchHandle(pszName) != -1;
 }
