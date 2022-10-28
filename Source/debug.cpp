@@ -1043,22 +1043,48 @@ void ValidateData()
 	}
 	// spells
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
+#define OBJ_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_DISARM)
+	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].scCurs)); // required by TryIconCurs
+	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].spCurs)); // required by TryIconCurs
+#define PLR_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_HEALOTHER || (x) == CURSOR_RESURRECT)
+	assert(PLR_TARGETING_CURSOR(spelldata[SPL_HEALOTHER].scCurs)); // required by TryIconCurs
+	assert(PLR_TARGETING_CURSOR(spelldata[SPL_HEALOTHER].spCurs)); // required by TryIconCurs
+	assert(PLR_TARGETING_CURSOR(spelldata[SPL_RESURRECT].scCurs)); // required by TryIconCurs
+	assert(PLR_TARGETING_CURSOR(spelldata[SPL_RESURRECT].spCurs)); // required by TryIconCurs
+#define ITEM_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_IDENTIFY || (x) == CURSOR_REPAIR || (x) == CURSOR_RECHARGE || (x) == CURSOR_OIL)
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_IDENTIFY].scCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_IDENTIFY].spCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_OIL].scCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_OIL].spCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_REPAIR].scCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_REPAIR].spCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_RECHARGE].scCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_RECHARGE].spCurs)); // required by TryIconCurs and CheckCursMove
+#ifdef HELLFIRE
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_BUCKLE].scCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_BUCKLE].spCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_WHITTLE].scCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_WHITTLE].spCurs)); // required by TryIconCurs and CheckCursMove
+#endif
+#define SPEC_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_TELEKINESIS)
+	assert(SPEC_TARGETING_CURSOR(spelldata[SPL_TELEKINESIS].scCurs)); // required by TryIconCurs
+	assert(SPEC_TARGETING_CURSOR(spelldata[SPL_TELEKINESIS].spCurs)); // required by TryIconCurs
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
-		if (i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE
+		if (i == SPL_DISARM
+		 || i == SPL_HEALOTHER || i == SPL_RESURRECT
+		 || i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE
 #ifdef HELLFIRE
 			|| i == SPL_BUCKLE || i == SPL_WHITTLE
 #endif
+		 || i == SPL_TELEKINESIS
 		) {
-			if (sd.scCurs > CURSOR_LAST_ITEMTGT)
-				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
-			if (sd.spCurs > CURSOR_LAST_ITEMTGT)
-				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+			; // should have been tested above -> skip
 		} else {
-			if (sd.scCurs != CURSOR_NONE && sd.scCurs <= CURSOR_LAST_ITEMTGT)
-				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
-			if (sd.spCurs != CURSOR_NONE && sd.spCurs <= CURSOR_LAST_ITEMTGT)
-				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+			if (sd.scCurs != CURSOR_NONE && sd.scCurs != CURSOR_TELEPORT)
+				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i); // required by TryIconCurs
+			if (sd.spCurs != CURSOR_NONE && sd.spCurs != CURSOR_TELEPORT)
+				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i); // required by TryIconCurs
 		}
 		ItemStruct* is = NULL;
 		if (SPELL_RUNE(i)) {
