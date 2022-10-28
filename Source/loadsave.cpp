@@ -589,9 +589,6 @@ static void LoadMonster(int mnum)
 	// Skip _mAlign_0
 	// Skip pointer mAnims
 	// Skip _mType
-
-	if (currLvl._dType != DTYPE_TOWN)
-		SyncMonsterAnim(mnum);
 }
 
 static void LoadMissile(int mi)
@@ -765,6 +762,9 @@ static void LoadLevelData(bool full)
 	for (i = 0; i < MAXMONSTERS; i++)
 		LoadMonster(i);
 	if (currLvl._dType != DTYPE_TOWN) {
+		// run in a separate loop to make it faster(?) and more conform with the other Load/Sync function calls
+		for (i = 0; i < MAXMONSTERS; i++)
+			SyncMonsterAnim(i);
 		if (full) {
 			static_assert(MAXMISSILES <= UCHAR_MAX, "LoadLevelData handles missile-ids as bytes.");
 			for (i = 0; i < MAXMISSILES; i++)

@@ -445,7 +445,12 @@ void InitLevelMonsters()
 		monsters[i]._mmode = MM_UNUSED;
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		monsters[i]._msquelch = 0;
-		// reset _muniqtype value to simplify InitDead
+		// reset _mMTidx value to simplify SyncMonsterAnim (loadsave.cpp)
+		monsters[i]._mMTidx = 0;
+		monsters[i]._mpathcount = 0;
+		monsters[i]._mWhoHit = 0;
+		monsters[i]._mgoal = MGOAL_NORMAL;
+		// reset _muniqtype value to simplify SyncMonsterAnim (loadsave.cpp)
 		// reset _mlid value to simplify SyncMonsterLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
 		monsters[i]._muniqtype = 0;
 		monsters[i]._muniqtrans = 0;
