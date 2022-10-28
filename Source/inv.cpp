@@ -1433,13 +1433,13 @@ bool AutoGetItem(int pnum, int ii)
 	return done;
 }
 
-int FindGetItem(int iseed, uint16_t wIndex, uint16_t wCI)
+int FindGetItem(const PkItemStruct* pkItem)
 {
 	int i, ii;
 
 	for (i = 0; i < numitems; i++) {
 		ii = itemactive[i];
-		if (items[ii]._iSeed == iseed && items[ii]._iIdx == wIndex && items[ii]._iCreateInfo == wCI)
+		if (pkItem->PkItemEq(items[ii]))
 			return ii;
 	}
 

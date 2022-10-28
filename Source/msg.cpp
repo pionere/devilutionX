@@ -754,14 +754,14 @@ static bool delta_get_item(const TCmdGItem* pI)
 	BYTE bLevel;
 
 	if (!IsMultiGame)
-		return FindGetItem(pI->item.dwSeed, pI->item.wIndx, pI->item.wCI) != -1;
+		return FindGetItem(&pI->item) != -1;
 
 	bLevel = pI->bLevel;
 	net_assert(bLevel < NUM_LEVELS);
 
 	pD = gsDeltaData.ddLevel[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == DCMD_INVALID || pD->item.dwSeed != pI->item.dwSeed || pD->item.wIndx != pI->item.wIndx || pD->item.wCI != pI->item.wCI)
+		if (pD->bCmd == DCMD_INVALID || !pI->item.PkItemEq(pD->item))
 			continue;
 
 		switch (pD->bCmd) {
@@ -815,9 +815,7 @@ static bool delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 	pD = gsDeltaData.ddLevel[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != DCMD_INVALID
-		 && pD->item.dwSeed == pItem->dwSeed
-		 && pD->item.wIndx == pItem->wIndx
-		 && pD->item.wCI == pItem->wCI) {
+		 && pD->item.PkItemEq(*pItem)) {
 			if (pD->bCmd == DCMD_ITM_TAKEN) {
 				pD->bCmd = DCMD_ITM_MOVED;
 				pD->x = x;
@@ -1109,7 +1107,7 @@ void DeltaLoadLevel()
 	itm = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_TAKEN || itm->bCmd == DCMD_ITM_MOVED) {
-			ii = FindGetItem(itm->item.dwSeed, itm->item.wIndx, itm->item.wCI);
+			ii = FindGetItem(&itm->item);
 			if (ii != -1) {
 				if (dItem[items[ii]._ix][items[ii]._iy] == ii + 1)
 					dItem[items[ii]._ix][items[ii]._iy] = 0;
@@ -2373,7 +2371,7 @@ static unsigned On_GETITEM(TCmd* pCmd, int pnum)
 			// plr._pHoldItem._itype = ITYPE_NONE;
 		}
 		if (currLvl._dLevelIdx == cmd->bLevel) {
-			ii = FindGetItem(cmd->item.dwSeed, cmd->item.wIndx, cmd->item.wCI);
+			ii = FindGetItem(&cmd->item);
 			assert(ii != -1);
 			InvGetItem(pnum, ii);
 		} else {
@@ -2411,7 +2409,7 @@ static unsigned On_AUTOGETITEM(TCmd* pCmd, int pnum)
 
 	if (delta_get_item(cmd)) {
 		if (currLvl._dLevelIdx == cmd->bLevel) {
-			ii = FindGetItem(cmd->item.dwSeed, cmd->item.wIndx, cmd->item.wCI);
+			ii = FindGetItem(&cmd->item);
 			assert(ii != -1);
 			result = AutoGetItem(pnum, ii);
 		} else {

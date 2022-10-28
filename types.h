@@ -13,6 +13,7 @@
 #include "utils/thread.h"
 
 #include <climits>
+#include <cstring>
 #include "defs.h"
 #include "enums.h"
 #include "structs.h"

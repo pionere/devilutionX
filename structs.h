@@ -167,7 +167,7 @@ typedef struct ItemStruct {
 	BYTE _iMinStr;
 	BYTE _iMinMag;
 	BYTE _iMinDex;
-	BOOLEAN _iUsable;
+	BOOLEAN _iUsable; // can be placed in belt, can be consumed/used or stacked (if max durability is not 1)
 	BYTE _iPrePower; // item_effect_type
 	BYTE _iSufPower; // item_effect_type
 	BYTE _iMagical;	// item_quality
@@ -181,7 +181,7 @@ typedef struct ItemStruct {
 	unsigned _iAnimFrame;    // Current frame of animation.
 	//int _iAnimWidth;
 	//int _iAnimXOffset;
-	BOOL _iPostDraw;
+	BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand)
 	BOOL _iIdentified;
 	char _iName[32];
 	int _ivalue;
@@ -1000,6 +1000,19 @@ typedef struct PkItemStruct {
 	BYTE bMCh;
 	LE_UINT16 wValue;
 	LE_UINT32 dwBuff;
+
+	bool PkItemEq(const PkItemStruct& opkItem) const {
+		return memcmp(&dwSeed, &opkItem.dwSeed, sizeof(dwSeed) + sizeof(wIndx) + sizeof(wCI)) == 0;
+	};
+	bool PkItemEq(const ItemStruct& opkItem) const {
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		return opkItem._iSeed == dwSeed && opkItem._iIdx == wIndx && opkItem._iCreateInfo == wCI;
+#else
+		static_assert(offsetof(PkItemStruct, wCI) - offsetof(PkItemStruct, dwSeed) == offsetof(ItemStruct, _iCreateInfo) - offsetof(ItemStruct, _iSeed), "PkItemStruct compares the whole memory in one step I.");
+		static_assert(offsetof(PkItemStruct, wIndx) - offsetof(PkItemStruct, dwSeed) == offsetof(ItemStruct, _iIdx) - offsetof(ItemStruct, _iSeed), "PkItemStruct compares the whole memory in one step II.");
+		return memcmp(&dwSeed, &opkItem._iSeed, sizeof(dwSeed) + sizeof(wIndx) + sizeof(wCI)) == 0;
+#endif
+	};
 } PkItemStruct;
 
 typedef struct PkPlayerStruct {
