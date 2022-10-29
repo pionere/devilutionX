@@ -262,12 +262,12 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 	my = sy + mis->_miyoff;
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Missile 2 type %d: NULL Cel Buffer", mis->_miType);
+		dev_fatal("Draw Missile type %d: NULL Cel Buffer", mis->_miType);
 	}
 	nCel = mis->_miAnimFrame;
 	frames = SwapLE32(*(uint32_t *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, mis->_miType);
+		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}
 	if (mis->_miUniqTrans != 0)
 		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mis->_miAnimWidth, mis->_miUniqTrans);
@@ -388,13 +388,13 @@ static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Dead body(%s): NULL Cel Buffer", mon->_mName);
+		dev_fatal("Draw Dead Monster \"%s\": NULL Cel Buffer", mon->_mName);
 	}
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
 	int frames = SwapLE32(*(uint32_t *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("DrawDeadMonster: frame %d of %d, name:%s", nCel, frames, mon->_mName);
+		dev_fatal("Draw Dead Monster frame %d of %d, name:%s", nCel, frames, mon->_mName);
 	}
 #endif
 	nWidth = mon->_mAnimWidth;
@@ -443,6 +443,9 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 	tw = &monsters[tnum];
 	tx = sx - tw->_mAnimXOffset;
 	pCelBuff = tw->_mAnimData;
+	if (pCelBuff == NULL) {
+		dev_fatal("Draw Towner \"%s\": NULL Cel Buffer", tw->_mName);
+	}
 	nCel = tw->_mAnimFrame;
 	nWidth = tw->_mAnimWidth;
 	if (tnum == pcursmonst) {
@@ -473,7 +476,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		py = sy + plr._pyoff;
 		pCelBuff = plr._pAnimData;
 		if (pCelBuff == NULL) {
-			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
+			dev_fatal("Draw Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 		}
 		nCel = plr._pAnimFrame;
 #if DEBUG_MODE
@@ -483,7 +486,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 			if (plr._pmode < lengthof(szPlrModeAssert))
 				szMode = szPlrModeAssert[plr._pmode];
 			dev_fatal(
-				"Drawing player %d \"%s\" %s(%d): facing %d, frame %d of %d",
+				"Draw Player %d \"%s\" %s(%d): facing %d, frame %d of %d",
 				pnum,
 				plr._pName,
 				szMode,
@@ -536,12 +539,12 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 #if DEBUG_MODE
 			BYTE *pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
-				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
+				dev_fatal("Draw Dead Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
 			int frames = SwapLE32(*(uint32_t *)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
-				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
+				dev_fatal("Draw Dead Player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
@@ -592,7 +595,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 #if DEBUG_MODE
 	int frames = pCelBuff->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, os->_otype);
+		dev_fatal("Draw Object: frame %d of %d, type %d", nCel, frames, os->_otype);
 	}
 #endif
 	nWidth = os->_oAnimWidth;
@@ -1033,13 +1036,13 @@ static void DrawItem(int ii, int sx, int sy)
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Item \"%s\" 1: NULL Cel Buffer", is->_iName);
+		dev_fatal("Draw Item \"%s\": NULL Cel Buffer", is->_iName);
 	}
 	nCel = is->_iAnimFrame;
 #if DEBUG_MODE
 	int frames = pCelBuff->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iName, nCel, frames, is->_itype);
+		dev_fatal("Draw Item \"%s\": frame %d of %d, type %d", is->_iName, nCel, frames, is->_itype);
 	}
 #endif
 	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
