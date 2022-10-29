@@ -456,7 +456,7 @@ static bool ReadMPQHeader(Archive* archive, FileMpqHeader* hdr)
 
 } // namespace
 
-static FileMpqBlockEntry* mpqapi_new_block(int* block_index)
+static uint32_t mpqapi_new_block()
 {
 	FileMpqBlockEntry* pBlock;
 	uint32_t i, blockCount;
@@ -464,37 +464,38 @@ static FileMpqBlockEntry* mpqapi_new_block(int* block_index)
 	pBlock = cur_archive.sgpBlockTbl;
 	blockCount = cur_archive.blockCount;
 	for (i = 0; i < blockCount; i++, pBlock++) {
-		if ((pBlock->bqOffset | pBlock->bqSizeAlloc | pBlock->bqFlags | pBlock->bqSizeFile) == 0) {
-			if (block_index != NULL)
-				*block_index = i;
-			return pBlock;
+		if (pBlock->bqOffset == 0) {
+			// assert((pBlock->bqSizeAlloc | pBlock->bqFlags | pBlock->bqSizeFile) == 0);
+			return i;
 		}
 	}
 
 	app_fatal("Out of free block entries");
-	return NULL;
+	return 0;
 }
 
 static void mpqapi_alloc_block(uint32_t block_offset, uint32_t block_size)
 {
 	FileMpqBlockEntry* pBlock;
 	uint32_t i;
-
+//restart:
 	pBlock = cur_archive.sgpBlockTbl;
 	for (i = cur_archive.blockCount; i != 0; i--, pBlock++) {
 		if (pBlock->bqOffset != 0 && pBlock->bqFlags == 0 && pBlock->bqSizeFile == 0) {
 			if (pBlock->bqOffset + pBlock->bqSizeAlloc == block_offset) {
+				// preceeding empty block -> mark the block-entry as unallocated and restart(?) with the merged region
 				block_offset = pBlock->bqOffset;
 				block_size += pBlock->bqSizeAlloc;
-				memset(pBlock, 0, sizeof(*pBlock));
-				mpqapi_alloc_block(block_offset, block_size);
-				return;
+				pBlock->bqOffset = 0;
+				pBlock->bqSizeAlloc = 0;
+				//goto restart;
 			}
 			if (block_offset + block_size == pBlock->bqOffset) {
+				// succeeding empty block -> mark the block-entry as unallocated and restart(?) with the merged region
 				block_size += pBlock->bqSizeAlloc;
-				memset(pBlock, 0, sizeof(*pBlock));
-				mpqapi_alloc_block(block_offset, block_size);
-				return;
+				pBlock->bqOffset = 0;
+				pBlock->bqSizeAlloc = 0;
+				//goto restart;
 			}
 		}
 	}
@@ -504,7 +505,8 @@ static void mpqapi_alloc_block(uint32_t block_offset, uint32_t block_size)
 	if (block_offset + block_size == cur_archive.archiveSize) {
 		cur_archive.archiveSize = block_offset;
 	} else {
-		pBlock = mpqapi_new_block(NULL);
+		i = mpqapi_new_block();
+		pBlock = &cur_archive.sgpBlockTbl[i];
 		pBlock->bqOffset = block_offset;
 		pBlock->bqSizeAlloc = block_size;
 		pBlock->bqSizeFile = 0;
@@ -526,8 +528,10 @@ static uint32_t mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
 			pBlock->bqOffset += size;
 			pBlock->bqSizeAlloc -= size;
 
-			if (pBlock->bqSizeAlloc == 0)
-				memset(pBlock, 0, sizeof(*pBlock));
+			if (pBlock->bqSizeAlloc == 0) {
+				pBlock->bqOffset = 0;
+				// memset(pBlock, 0, sizeof(*pBlock));
+			}
 
 			return result;
 		}
@@ -592,7 +596,7 @@ void mpqapi_remove_entries(bool (*fnGetName)(unsigned, char (&)[DATA_ARCHIVE_MAX
 		mpqapi_remove_entry(pszFileName);
 }
 
-static FileMpqBlockEntry* mpqapi_add_entry(const char* pszName, FileMpqBlockEntry* pBlk, int block_index)
+static uint32_t mpqapi_add_entry(const char* pszName, uint32_t block_index)
 {
 	FileMpqHashEntry* pHash;
 	DWORD i, h1, h2, h3, hashCount;
@@ -608,24 +612,25 @@ static FileMpqBlockEntry* mpqapi_add_entry(const char* pszName, FileMpqBlockEntr
 		h1 &= hashCount - 1;
 		pHash = &cur_archive.sgpHashTbl[h1];
 		if (pHash->hqBlock == HASH_ENTRY_FREE || pHash->hqBlock == HASH_ENTRY_DELETED) {
-			if (pBlk == NULL)
-				pBlk = mpqapi_new_block(&block_index);
+			if (block_index == HASH_ENTRY_FREE)
+				block_index = mpqapi_new_block();
 
 			pHash->hqHashA = h2;
 			pHash->hqHashB = h3;
-			pHash->hqLocale = 0;
+			pHash->hqLocale = LANG_NEUTRAL;
 			pHash->hqPlatform = 0;
 			pHash->hqBlock = block_index;
-			return pBlk;
+			return block_index;
 		}
 	}
 
 	app_fatal("Out of hash space");
-	return NULL;
+	return 0;
 }
 
-static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, DWORD dwLen, FileMpqBlockEntry* pBlk)
+static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, DWORD dwLen, uint32_t block)
 {
+	FileMpqBlockEntry* pBlk = &cur_archive.sgpBlockTbl[block];
 	const char *tmp;
 	while ((tmp = strchr(pszName, ':')))
 		pszName = tmp + 1;
@@ -712,12 +717,12 @@ on_error:
 
 bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen)
 {
-	FileMpqBlockEntry* pBlock;
+	uint32_t block;
 
 	cur_archive.modified = true;
 	mpqapi_remove_entry(pszName);
-	pBlock = mpqapi_add_entry(pszName, NULL, 0);
-	if (!mpqapi_write_file_contents(pszName, pbData, dwLen, pBlock)) {
+	block = mpqapi_add_entry(pszName, HASH_ENTRY_FREE);
+	if (!mpqapi_write_file_contents(pszName, pbData, dwLen, block)) {
 		mpqapi_remove_entry(pszName);
 		return false;
 	}
@@ -726,17 +731,16 @@ bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen)
 
 void mpqapi_rename_entry(char* pszOld, char* pszNew)
 {
-	int index, block;
+	int index;
 	FileMpqHashEntry* pHash;
-	FileMpqBlockEntry* pBlock;
+	uint32_t block;
 
 	index = FetchHandle(pszOld);
 	if (index != -1) {
 		pHash = &cur_archive.sgpHashTbl[index];
 		block = pHash->hqBlock;
-		pBlock = &cur_archive.sgpBlockTbl[block];
 		pHash->hqBlock = HASH_ENTRY_DELETED;
-		mpqapi_add_entry(pszNew, pBlock, block);
+		mpqapi_add_entry(pszNew, block);
 		cur_archive.modified = true;
 	}
 }
