@@ -669,20 +669,16 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 	LSaveGameLvlMetaStruct* lms;
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		memcpy(dDead, src, MAXDUNX * MAXDUNY);
-		src += MAXDUNX * MAXDUNY;
-	}
+		lms = (LSaveGameLvlMetaStruct*)src;
+		nummonsters = lms->vvnummonsters;
+		if (full)
+			nummissiles = lms->vvnummissiles;
+		numobjects = lms->vvnumobjects;
+		numitems = lms->vvnumitems;
+		src += sizeof(LSaveGameLvlMetaStruct);
 
-	lms = (LSaveGameLvlMetaStruct*)src;
-	nummonsters = lms->vvnummonsters;
-	nummissiles = lms->vvnummissiles;
-	numobjects = lms->vvnumobjects;
-	numitems = lms->vvnumitems;
-	src += sizeof(LSaveGameLvlMetaStruct);
-
-	for (i = 0; i < MAXMONSTERS; i++) // TODO: skip if TOWN and !full, otherwise it could cause trouble if the towners change. Or provide a SyncTownerAnim function
-		src = LoadMonster(src, i);
-	if (currLvl._dType != DTYPE_TOWN) {
+		for (i = 0; i < MAXMONSTERS; i++)
+			src = LoadMonster(src, i);
 		// run in a separate loop to make it faster(?) and more conform with the other Load/Sync function calls
 		for (i = 0; i < MAXMONSTERS; i++)
 			SyncMonsterAnim(i);
@@ -701,7 +697,21 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		// run in a separate loop because objects (e.g. crux) might depend on each other
 		for (i = 0; i < numobjects; i++)
 			SyncObjectAnim(objectactive[i]);
+	} else { // currLvl._dType == DTYPE_TOWN
+		lms = (LSaveGameLvlMetaStruct*)src;
+		if (full)
+			nummonsters = lms->vvnummonsters;
+		// nummissiles = lms->vvnummissiles;
+		// numobjects = lms->vvnumobjects;
+		numitems = lms->vvnumitems;
+		src += sizeof(LSaveGameLvlMetaStruct);
+
+		if (full) {
+			for (i = 0; i < MAX_MINIONS + MAX_TOWNERS; i++)
+				src = LoadMonster(src, i);
+		}
 	}
+
 	LE_LOAD_INTS(itemactive, src, lengthof(itemactive));
 	src += lengthof(itemactive) * sizeof(LE_INT32);
 	for (i = 0; i < numitems; i++) {
@@ -724,10 +734,14 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		src += MAXDUNX * MAXDUNY;
 	}
 
-	LE_LOAD_INTS(&dMonster[0][0], src, MAXDUNX * MAXDUNY);
-	src += MAXDUNX * MAXDUNY * sizeof(LE_INT32);
+	if (full || currLvl._dType != DTYPE_TOWN) {
+		LE_LOAD_INTS(&dMonster[0][0], src, MAXDUNX * MAXDUNY);
+		src += MAXDUNX * MAXDUNY * sizeof(LE_INT32);
+	}
 
 	if (currLvl._dType != DTYPE_TOWN) {
+		memcpy(dDead, src, MAXDUNX * MAXDUNY);
+		src += MAXDUNX * MAXDUNY;
 		memcpy(dObject, src, MAXDUNX * MAXDUNY);
 		src += MAXDUNX * MAXDUNY;
 		memcpy(automapview, src, DMAXX * DMAXY);
@@ -1490,23 +1504,21 @@ static BYTE* SavePortal(BYTE* __restrict dest, int i)
 
 static BYTE* SaveLevelData(BYTE* dest, bool full)
 {
-	LSaveGameLvlMetaStruct* lms;
 	int i;
+	LSaveGameLvlMetaStruct* lms;
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		memcpy(dest, dDead, MAXDUNX * MAXDUNY);
-		dest += MAXDUNX * MAXDUNY;
-	}
-	lms = (LSaveGameLvlMetaStruct*)dest;
-	lms->vvnummonsters = nummonsters;
-	lms->vvnummissiles = nummissiles; // used only if full
-	lms->vvnumobjects = numobjects;
-	lms->vvnumitems = numitems;
-	dest += sizeof(LSaveGameLvlMetaStruct);
+		lms = (LSaveGameLvlMetaStruct*)dest;
+		lms->vvnummonsters = nummonsters;
+		// if (full)
+			lms->vvnummissiles = nummissiles;
+		lms->vvnumobjects = numobjects;
+		lms->vvnumitems = numitems;
+		dest += sizeof(LSaveGameLvlMetaStruct);
 
-	for (i = 0; i < MAXMONSTERS; i++)
-		dest = SaveMonster(dest, i, full);
-	if (currLvl._dType != DTYPE_TOWN) {
+		for (i = 0; i < MAXMONSTERS; i++)
+			dest = SaveMonster(dest, i, full);
+
 		if (full) {
 			LE_SAVE_INTS(dest, missileactive, lengthof(missileactive));
 			dest += lengthof(missileactive) * sizeof(LE_INT32);
@@ -1519,6 +1531,19 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 //		dest += lengthof(objectavail) * sizeof(LE_INT32);
 		for (i = 0; i < numobjects; i++)
 			dest = SaveObject(dest, objectactive[i]);
+	} else {
+		lms = (LSaveGameLvlMetaStruct*)dest;
+		if (full)
+			lms->vvnummonsters = nummonsters;
+		// lms->vvnummissiles = nummissiles;
+		// lms->vvnumobjects = numobjects;
+		lms->vvnumitems = numitems;
+		dest += sizeof(LSaveGameLvlMetaStruct);
+
+		if (full) {
+			for (i = 0; i < MAX_MINIONS + MAX_TOWNERS; i++)
+				dest = SaveMonster(dest, i, true/*full*/);
+		}
 	}
 
 	LE_SAVE_INTS(dest, itemactive, lengthof(itemactive));
@@ -1540,10 +1565,14 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 		dest += MAXDUNX * MAXDUNY;
 	}
 
-	LE_SAVE_INTS(dest, &dMonster[0][0], MAXDUNX * MAXDUNY);
-	dest += MAXDUNX * MAXDUNY * sizeof(LE_INT32);
+	if (full || currLvl._dType != DTYPE_TOWN) {
+		LE_SAVE_INTS(dest, &dMonster[0][0], MAXDUNX * MAXDUNY);
+		dest += MAXDUNX * MAXDUNY * sizeof(LE_INT32);
+	}
 
 	if (currLvl._dType != DTYPE_TOWN) {
+		memcpy(dest, dDead, MAXDUNX * MAXDUNY);
+		dest += MAXDUNX * MAXDUNY;
 		memcpy(dest, dObject, MAXDUNX * MAXDUNY);
 		dest += MAXDUNX * MAXDUNY;
 		memcpy(dest, automapview, DMAXX * DMAXY);
@@ -1621,7 +1650,7 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		tbuff = SavePortal(tbuff, i);
 	// save level-data
-	constexpr size_t slt = /*MAXDUNX * MAXDUNY +*/ sizeof(LSaveGameLvlMetaStruct) + MAXMONSTERS * sizeof(LSaveMonsterStruct) /*+ MAXMISSILES * 4
+	constexpr size_t slt = /*MAXDUNX * MAXDUNY +*/ sizeof(LSaveGameLvlMetaStruct) + (MAX_MINIONS + MAX_TOWNERS) * sizeof(LSaveMonsterStruct) /*+ MAXMISSILES * 4
 	 + MAXMISSILES * sizeof(LSaveMissileStruct) + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))*/ + MAXITEMS * (4 + sizeof(LSaveItemStruct))
 	 + 5 * MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY * sizeof(INT) /*+ MAXDUNX * MAXDUNY + DMAXX * DMAXY + MAXDUNX * MAXDUNY*/;
 	constexpr size_t sld = (MAXDUNX * MAXDUNY) + sizeof(LSaveGameLvlMetaStruct) + (MAXMONSTERS * sizeof(LSaveMonsterStruct) + MAXMISSILES * 4
