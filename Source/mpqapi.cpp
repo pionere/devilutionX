@@ -617,7 +617,7 @@ static uint32_t mpqapi_add_entry(const char* pszName, uint32_t block_index)
 
 			pHash->hqHashA = h2;
 			pHash->hqHashB = h3;
-			pHash->hqLocale = LANG_NEUTRAL;
+			pHash->hqLocale = 0;
 			pHash->hqPlatform = 0;
 			pHash->hqBlock = block_index;
 			return block_index;
