@@ -14,420 +14,255 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SAVE_INITIAL 'RETL'
 #endif
 
-BYTE* tbuff;
-
-static bool LoadBool()
-{
-	return *tbuff++;
-}
-
-static void SaveBool(BOOL v)
-{
-	*tbuff++ = v != 0;
-}
-
-static void CopyBytes(const void* src, const int n, void* dst)
-{
-	memcpy(dst, src, n);
-	tbuff += n;
-}
-
-static inline void SaveByte(const char* src)
-{
-	*tbuff = *src;
-	tbuff += sizeof(BYTE);
-}
-
-static inline void SaveByte(const BYTE* src)
-{
-	*tbuff = *src;
-	tbuff += sizeof(BYTE);
-}
-
-static inline void SaveByte(const int* src)
-{
-	*tbuff = *src;
-	tbuff += sizeof(BYTE);
-}
-
-static inline void SaveInt16(const uint16_t* src)
-{
-	uint16_t buf = *src;
-
-	buf = SwapLE16(buf);
-	*(uint16_t*)tbuff = buf;
-
-	tbuff += sizeof(uint16_t);
-}
-
-static inline void SaveInt16(const int16_t* src)
-{
-	uint16_t buf = *(uint16_t*)src;
-
-	buf = SwapLE16(buf);
-	*(uint16_t*)tbuff = buf;
-
-	tbuff += sizeof(int16_t);
-}
-
-static inline void SaveInt32(const uint32_t* src)
-{
-	uint32_t buf = *(uint32_t*)src;
-
-	buf = SwapLE32(buf);
-	*(uint32_t*)tbuff = buf;
-
-	tbuff += sizeof(uint32_t);
-}
-
-static inline void SaveInt(const int* src)
-{
-	uint32_t buf = *src;
-
-	buf = SwapLE32(buf);
-	*(uint32_t*)tbuff = buf;
-
-	tbuff += sizeof(uint32_t);
-}
-
-static inline void SaveInt(const unsigned* src)
-{
-	uint32_t buf = *src;
-
-	buf = SwapLE32(buf);
-	*(uint32_t*)tbuff = buf;
-
-	tbuff += sizeof(uint32_t);
-}
-
-static inline void SaveInt64(const uint64_t* src)
-{
-	uint64_t buf = *src;
-
-	buf = SwapLE64(buf);
-	*(uint64_t*)tbuff = buf;
-
-	tbuff += sizeof(uint64_t);
-}
-
-static void SaveInts(const int* src, unsigned n)
-{
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
-	for (unsigned i = 0; i < n; i++, src++) {
-		SaveInt(src);
-	}
-#else
-	n *= sizeof(int);
-	memcpy(tbuff, src, n);
-	tbuff += n;
-#endif
+#define LE_LOAD_INTS(dest, src, n)					\
+{													\
+	LE_INT32* ssi = (LE_INT32*)src;					\
+	int* dst = dest;								\
+	for (i = 0; i < (n); i++, ssi++, dst++) {		\
+		*dest = *ssi;								\
+	}												\
 }
+#define LE_SAVE_INTS(dest, src, n)					\
+{													\
+	LE_INT32* dst = (LE_INT32*)dest;				\
+	int* ssi = src;									\
+	for (int i = 0; i < (n); i++, ssi++, dst++) {	\
+		*dst = *ssi;								\
+	}												\
+}
+#else
+#define LE_LOAD_INTS(dest, src, n)			\
+	memcpy(dest, src, (n) * sizeof(int));
+#define LE_SAVE_INTS(dest, src, n)			\
+	memcpy(dest, src, (n) * sizeof(int));
+#endif
 
-static void SaveInts(const unsigned* src, unsigned n)
+static BYTE* LoadItem(BYTE* __restrict src, ItemStruct* __restrict is)
 {
+	LSaveItemStruct* __restrict savedItem = (LSaveItemStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
-	for (unsigned i = 0; i < n; i++, src++) {
-		SaveInt(src);
-	}
+	is->_iSeed = savedItem->viSeed;
+	is->_iIdx = savedItem->viIdx;
+	is->_iCreateInfo = savedItem->viCreateInfo;
+	is->_ix = savedItem->vix;
+	is->_iy = savedItem->viy;
+	is->_iCurs = savedItem->viCurs;
+	is->_itype = savedItem->vitype;
+	is->_iMiscId = savedItem->viMiscId;
+	is->_iSpell = savedItem->viSpell;
+
+	is->_iClass = savedItem->viClass;
+	is->_iLoc = savedItem->viLoc;
+	is->_iDamType = savedItem->viDamType;
+	is->_iMinDam = savedItem->viMinDam;
+
+	is->_iMaxDam = savedItem->viMaxDam;
+	is->_iBaseCrit = savedItem->viBaseCrit;
+	is->_iMinStr = savedItem->viMinStr;
+	is->_iMinMag = savedItem->viMinMag;
+
+	is->_iMinDex = savedItem->viMinDex;
+	is->_iUsable = savedItem->viUsable;
+	is->_iPrePower = savedItem->viPrePower;
+	is->_iSufPower = savedItem->viSufPower;
+
+	is->_iMagical = savedItem->viMagical;
+	is->_iSelFlag = savedItem->viSelFlag;
+	is->_iFloorFlag = savedItem->viFloorFlag;
+	is->_iAnimFlag = savedItem->viAnimFlag;
+
+	// is->_iAnimData = savedItem->viAnimDataAlign
+	// is->_iAnimFrameLen = savedItem->viAnimFrameLenAlign
+	is->_iAnimCnt = savedItem->viAnimCnt;
+	is->_iAnimLen = savedItem->viAnimLen;
+	is->_iAnimFrame = savedItem->viAnimFrame;
+	is->_iPostDraw = savedItem->viPostDraw;
+	is->_iIdentified = savedItem->viIdentified;
+	memcpy(is->_iName, savedItem->viName, lengthof(is->_iName));
+	is->_ivalue = savedItem->vivalue;
+	is->_iIvalue = savedItem->viIvalue;
+	is->_iAC = savedItem->viAC;
+	is->_iFlags = savedItem->viFlags;
+	is->_iCharges = savedItem->viCharges;
+	is->_iMaxCharges = savedItem->viMaxCharges;
+	is->_iDurability = savedItem->viDurability;
+	is->_iMaxDur = savedItem->viMaxDur;
+	is->_iPLDam = savedItem->viPLDam;
+	is->_iPLToHit = savedItem->viPLToHit;
+	is->_iPLAC = savedItem->viPLAC;
+	is->_iPLStr = savedItem->viPLStr;
+	is->_iPLMag = savedItem->viPLMag;
+	is->_iPLDex = savedItem->viPLDex;
+	is->_iPLVit = savedItem->viPLVit;
+	is->_iPLFR = savedItem->viPLFR;
+	is->_iPLLR = savedItem->viPLLR;
+	is->_iPLMR = savedItem->viPLMR;
+	is->_iPLAR = savedItem->viPLAR;
+	is->_iPLMana = savedItem->viPLMana;
+	is->_iPLHP = savedItem->viPLHP;
+	is->_iPLDamMod = savedItem->viPLDamMod;
+	is->_iPLGetHit = savedItem->viPLGetHit;
+
+	is->_iPLLight = savedItem->viPLLight;
+	is->_iPLSkillLevels = savedItem->viPLSkillLevels;
+	is->_iPLSkill = savedItem->viPLSkill;
+	is->_iPLSkillLvl = savedItem->viPLSkillLvl;
+
+	is->_iPLManaSteal = savedItem->viPLManaSteal;
+	is->_iPLLifeSteal = savedItem->viPLLifeSteal;
+	is->_iPLCrit = savedItem->viPLCrit;
+	is->_iStatFlag = savedItem->viStatFlag;
+
+	is->_iUid = savedItem->viUid;
+
+	is->_iPLFMinDam = savedItem->viPLFMinDam;
+	is->_iPLFMaxDam = savedItem->viPLFMaxDam;
+	is->_iPLLMinDam = savedItem->viPLLMinDam;
+	is->_iPLLMaxDam = savedItem->viPLLMaxDam;
+
+	is->_iPLMMinDam = savedItem->viPLMMinDam;
+	is->_iPLMMaxDam = savedItem->viPLMMaxDam;
+	is->_iPLAMinDam = savedItem->viPLAMinDam;
+	is->_iPLAMaxDam = savedItem->viPLAMaxDam;
+
+	is->_iVAdd = savedItem->viVAdd;
+	is->_iVMult = savedItem->viVMult;
 #else
-	n *= sizeof(unsigned);
-	memcpy(tbuff, src, n);
-	tbuff += n;
-#endif
+	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viVMult) + sizeof(savedItem->viVMult)
+	 && offsetof(ItemStruct, _iVMult) == offsetof(LSaveItemStruct, viVMult), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
+	memcpy(is, savedItem, sizeof(LSaveItemStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	src += sizeof(LSaveItemStruct);
+
+	return src;
 }
 
-static inline void LoadByte(char* dst)
+static BYTE* LoadPlayer(BYTE* __restrict src, int pnum)
 {
-	*dst = *tbuff;
-	tbuff += sizeof(BYTE);
-}
+	PlayerStruct* __restrict pr = &players[pnum];
 
-static inline void LoadByte(BYTE* dst)
-{
-	*dst = *tbuff;
-	tbuff += sizeof(BYTE);
-}
-
-static inline void LoadByte(int* dst)
-{
-	*dst = *tbuff;
-	tbuff += sizeof(BYTE);
-}
-
-static inline void LoadInt16(uint16_t* dst)
-{
-	uint16_t buf = *(uint16_t*)tbuff;
-
-	buf = SwapLE16(buf);
-	*(uint16_t*)dst = buf;
-
-	tbuff += sizeof(uint16_t);
-}
-
-static inline void LoadInt16(int16_t* dst)
-{
-	uint16_t buf = *(uint16_t*)tbuff;
-
-	buf = SwapLE16(buf);
-	*(uint16_t*)dst = buf;
-
-	tbuff += sizeof(uint16_t);
-}
-
-static inline void LoadInt32(uint32_t* dst)
-{
-	uint32_t buf = *(uint32_t*)tbuff;
-
-	buf = SwapLE32(buf);
-	*(uint32_t*)dst = buf;
-
-	tbuff += sizeof(uint32_t);
-}
-
-static inline void LoadInt(int* dst)
-{
-	int32_t buf = *(uint32_t*)tbuff;
-
-	buf = SwapLE32(buf);
-	*dst = buf;
-
-	tbuff += sizeof(uint32_t);
-}
-
-static inline void LoadInt(unsigned* dst)
-{
-	uint32_t buf = *(uint32_t*)tbuff;
-
-	buf = SwapLE32(buf);
-	*dst = buf;
-
-	tbuff += sizeof(uint32_t);
-}
-
-static inline void LoadInt64(uint64_t* dst)
-{
-	uint64_t buf = *(uint64_t*)tbuff;
-
-	buf = SwapLE64(buf);
-	*dst = buf;
-
-	tbuff += sizeof(uint64_t);
-}
-
-static void LoadInts(int* dst, unsigned n)
-{
+	LSavePlayerStruct* __restrict savedPlr = (LSavePlayerStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
-	for (unsigned i = 0; i < n; i++, dst++) {
-		LoadInt(dst);
-	}
+	pr->_pmode = savedPlr->vpmode;
+	memcpy(pr->_pWalkpath, savedPlr->vpWalkpath, lengthof(pr->_pWalkpath));
+	pr->_pDestAction = savedPlr->vpDestAction;
+	pr->_pDestParam1 = savedPlr->vpDestParam1;
+	pr->_pDestParam2 = savedPlr->vpDestParam2;
+	pr->_pDestParam3 = savedPlr->vpDestParam3;
+	pr->_pDestParam4 = savedPlr->vpDestParam4;
+
+	pr->_pActive = savedPlr->vpActive;
+	pr->_pInvincible = savedPlr->vpInvincible;
+	pr->_pLvlChanging = savedPlr->vpLvlChanging;
+	pr->_pDunLevel = savedPlr->vpDunLevel;
+
+	pr->_pClass = savedPlr->vpClass;
+	pr->_pLevel = savedPlr->vpLevel;
+	pr->_pRank = savedPlr->vpRank;
+	pr->_pTeam = savedPlr->vpTeam;
+
+	pr->_pStatPts = savedPlr->vpStatPts;
+	pr->_pLightRad = savedPlr->vpLightRad;
+	pr->_pManaShield = savedPlr->vpManaShield;
+
+	static_assert(NUM_PLRTIMERS == 2, "LoadPlayer copies a fixed amount of timers.");
+	pr->_pTimer[PLTR_INFRAVISION] = savedPlr->vpTimer[PLTR_INFRAVISION];
+	pr->_pTimer[PLTR_RAGE] = savedPlr->vpTimer[PLTR_RAGE];
+
+	pr->_pExperience = savedPlr->vpExperience;
+	pr->_pNextExper = savedPlr->vpNextExper;
+	pr->_px = savedPlr->vpx;
+	pr->_py = savedPlr->vpy;
+	pr->_pfutx = savedPlr->vpfutx;
+	pr->_pfuty = savedPlr->vpfuty;
+	pr->_poldx = savedPlr->vpoldx;
+	pr->_poldy = savedPlr->vpoldy;
+	pr->_pxoff = savedPlr->vpxoff;
+	pr->_pyoff = savedPlr->vpyoff;
+	pr->_pdir = savedPlr->vpdir;
+	// savedPlr->vpAnimDataAlign = pr->_pAnimData;
+	// savedPlr->vpAnimFrameLenAlign = pr->_pAnimFrameLen;
+	pr->_pAnimCnt = savedPlr->vpAnimCnt;
+	pr->_pAnimLen = savedPlr->vpAnimLenAlign;
+	pr->_pAnimFrame = savedPlr->vpAnimFrame;
+	pr->_pAnimWidth = savedPlr->vpAnimWidthAlign;
+	pr->_pAnimXOffset = savedPlr->vpAnimXOffsetAlign;
+	pr->_plid = savedPlr->vplid;
+	pr->_pvid = savedPlr->vpvid;
+
+	pr->_pAtkSkill = savedPlr->vpAtkSkill;
+	pr->_pAtkSkillType = savedPlr->vpAtkSkillType;
+	pr->_pMoveSkill = savedPlr->vpMoveSkill;
+	pr->_pMoveSkillType = savedPlr->vpMoveSkillType;
+
+	pr->_pAltAtkSkill = savedPlr->vpAltAtkSkill;
+	pr->_pAltAtkSkillType = savedPlr->vpAltAtkSkillType;
+	pr->_pAltMoveSkill = savedPlr->vpAltMoveSkill;
+	pr->_pAltMoveSkillType = savedPlr->vpAltMoveSkillType;
+
+	memcpy(pr->_pAtkSkillHotKey, savedPlr->vpAtkSkillHotKey, lengthof(pr->_pAtkSkillHotKey));
+	memcpy(pr->_pAtkSkillTypeHotKey, savedPlr->vpAtkSkillTypeHotKey, lengthof(pr->_pAtkSkillTypeHotKey));
+	memcpy(pr->_pMoveSkillHotKey, savedPlr->vpMoveSkillHotKey, lengthof(pr->_pMoveSkillHotKey));
+	memcpy(pr->_pMoveSkillTypeHotKey, savedPlr->vpMoveSkillTypeHotKey, lengthof(pr->_pMoveSkillTypeHotKey));
+
+	memcpy(pr->_pAltAtkSkillHotKey, savedPlr->vpAltAtkSkillHotKey, lengthof(pr->_pAltAtkSkillHotKey));
+	memcpy(pr->_pAltAtkSkillTypeHotKey, savedPlr->vpAltAtkSkillTypeHotKey, lengthof(pr->_pAltAtkSkillTypeHotKey));
+	memcpy(pr->_pAltMoveSkillHotKey, savedPlr->vpAltMoveSkillHotKey, lengthof(pr->_pAltMoveSkillHotKey));
+	memcpy(pr->_pAltMoveSkillTypeHotKey, savedPlr->vpAltMoveSkillTypeHotKey, lengthof(pr->_pAltMoveSkillTypeHotKey));
+
+	memcpy(pr->_pSkillLvlBase, savedPlr->vpSkillLvlBase, lengthof(pr->_pSkillLvlBase));
+	memcpy(pr->_pSkillActivity, savedPlr->vpSkillActivity, lengthof(pr->_pSkillActivity));
+
+	for (int i = 0; i < lengthof(pr->_pSkillExp); i++)
+		pr->_pSkillExp[i] = savedPlr->vpSkillExp[i];
+
+	pr->_pMemSkills = savedPlr->vpMemSkills;
+	pr->_pAblSkills = savedPlr->vpAblSkills;
+	pr->_pScrlSkills = savedPlr->vpScrlSkills;
+	memcpy(pr->_pName, savedPlr->vpName, lengthof(pr->_pName));
+
+	pr->_pBaseStr = savedPlr->vpBaseStr;
+	pr->_pBaseMag = savedPlr->vpBaseMag;
+
+	pr->_pBaseDex = savedPlr->vpBaseDex;
+	pr->_pBaseVit = savedPlr->vpBaseVit;
+
+	pr->_pHPBase = savedPlr->vpHPBase;
+	pr->_pMaxHPBase = savedPlr->vpMaxHPBase;
+	pr->_pManaBase = savedPlr->vpManaBase;
+	pr->_pMaxManaBase = savedPlr->vpMaxManaBase;
+	pr->_pVar1 = savedPlr->vpVar1;
+	pr->_pVar2 = savedPlr->vpVar2;
+	pr->_pVar3 = savedPlr->vpVar3;
+	pr->_pVar4 = savedPlr->vpVar4;
+	pr->_pVar5 = savedPlr->vpVar5;
+	pr->_pVar6 = savedPlr->vpVar6;
+	pr->_pVar7 = savedPlr->vpVar7;
+	pr->_pVar8 = savedPlr->vpVar8;
+	//int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
+	//PlrAnimStruct _pAnims[NUM_PFIDXs];
+	//unsigned _pAFNum;
+	//unsigned _pSFNum;
 #else
-	n *= sizeof(int);
-	memcpy(dst, tbuff, n);
-	tbuff += n;
-#endif
-}
-
-static void LoadInts(unsigned* dst, unsigned n)
-{
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
-	for (unsigned i = 0; i < n; i++, dst++) {
-		LoadInt(dst);
-	}
-#else
-	n *= sizeof(unsigned);
-	memcpy(dst, tbuff, n);
-	tbuff += n;
-#endif
-}
-
-static void LoadItem(ItemStruct* is)
-{
-	LoadInt(&is->_iSeed);
-	LoadInt16(&is->_iCreateInfo);
-	LoadInt16(&is->_iIdx);
-	LoadInt(&is->_ix);
-	LoadInt(&is->_iy);
-	LoadInt(&is->_iCurs);
-	LoadInt(&is->_itype);
-	LoadInt(&is->_iMiscId);
-	LoadInt(&is->_iSpell);
-
-	LoadByte(&is->_iClass);
-	LoadByte(&is->_iLoc);
-	LoadByte(&is->_iDamType);
-	LoadByte(&is->_iMinDam);
-
-	LoadByte(&is->_iMaxDam);
-	LoadByte(&is->_iBaseCrit);
-	LoadByte(&is->_iMinStr);
-	LoadByte(&is->_iMinMag);
-
-	LoadByte(&is->_iMinDex);
-	LoadByte(&is->_iUsable);
-	LoadByte(&is->_iPrePower);
-	LoadByte(&is->_iSufPower);
-
-	LoadByte(&is->_iMagical);
-	LoadByte(&is->_iSelFlag);
-	LoadByte(&is->_iFloorFlag);
-	LoadByte(&is->_iAnimFlag);
-
-	tbuff += 4; // Skip pointer _iAnimData
-	tbuff += 4; // Skip _iAnimFrameLen
-	LoadInt(&is->_iAnimCnt);
-	LoadInt(&is->_iAnimLen);
-	LoadInt(&is->_iAnimFrame);
-	//LoadInt(&is->_iAnimWidth);
-	//LoadInt(&is->_iAnimXOffset);
-	LoadInt(&is->_iPostDraw);
-	LoadInt(&is->_iIdentified);
-	CopyBytes(tbuff, sizeof(is->_iName), is->_iName);
-	LoadInt(&is->_ivalue);
-	LoadInt(&is->_iIvalue);
-	LoadInt(&is->_iAC);
-	LoadInt(&is->_iFlags);
-	LoadInt(&is->_iCharges);
-	LoadInt(&is->_iMaxCharges);
-	LoadInt(&is->_iDurability);
-	LoadInt(&is->_iMaxDur);
-	LoadInt(&is->_iPLDam);
-	LoadInt(&is->_iPLToHit);
-	LoadInt(&is->_iPLAC);
-	LoadInt(&is->_iPLStr);
-	LoadInt(&is->_iPLMag);
-	LoadInt(&is->_iPLDex);
-	LoadInt(&is->_iPLVit);
-	LoadInt(&is->_iPLFR);
-	LoadInt(&is->_iPLLR);
-	LoadInt(&is->_iPLMR);
-	LoadInt(&is->_iPLAR);
-	LoadInt(&is->_iPLMana);
-	LoadInt(&is->_iPLHP);
-	LoadInt(&is->_iPLDamMod);
-	LoadInt(&is->_iPLGetHit);
-	LoadByte(&is->_iPLLight);
-	LoadByte(&is->_iPLSkillLevels);
-	LoadByte(&is->_iPLSkill);
-	LoadByte(&is->_iPLSkillLvl);
-	LoadByte(&is->_iPLManaSteal);
-	LoadByte(&is->_iPLLifeSteal);
-	LoadByte(&is->_iPLCrit);
-	LoadByte(&is->_iStatFlag);
-	LoadInt(&is->_iUid);
-	LoadByte(&is->_iPLFMinDam);
-	LoadByte(&is->_iPLFMaxDam);
-	LoadByte(&is->_iPLLMinDam);
-	LoadByte(&is->_iPLLMaxDam);
-	LoadByte(&is->_iPLMMinDam);
-	LoadByte(&is->_iPLMMaxDam);
-	LoadByte(&is->_iPLAMinDam);
-	LoadByte(&is->_iPLAMaxDam);
-	LoadInt(&is->_iVAdd);
-	LoadInt(&is->_iVMult);
-}
-
-static void LoadPlayer(int pnum)
-{
-	LoadInt(&plr._pmode);
-	CopyBytes(tbuff, lengthof(plr._pWalkpath), plr._pWalkpath);
-	LoadInt(&plr._pDestAction);
-	LoadInt(&plr._pDestParam1);
-	LoadInt(&plr._pDestParam2);
-	LoadInt(&plr._pDestParam3);
-	LoadInt(&plr._pDestParam4);
-	LoadByte(&plr._pActive);
-	LoadByte(&plr._pInvincible);
-	LoadByte(&plr._pLvlChanging);
-	LoadByte(&plr._pDunLevel);
-	LoadByte(&plr._pClass);
-	LoadByte(&plr._pLevel);
-	LoadByte(&plr._pRank);
-	LoadByte(&plr._pTeam);
-	LoadInt16(&plr._pStatPts);
-	LoadByte(&plr._pLightRad);
-	LoadByte(&plr._pManaShield);
-	LoadInt16(&plr._pTimer[PLTR_INFRAVISION]);
-	LoadInt16(&plr._pTimer[PLTR_RAGE]);
-	LoadInt(&plr._pExperience);
-	LoadInt(&plr._pNextExper);
-	LoadInt(&plr._px);
-	LoadInt(&plr._py);
-	LoadInt(&plr._pfutx);
-	LoadInt(&plr._pfuty);
-	LoadInt(&plr._poldx);
-	LoadInt(&plr._poldy);
-	LoadInt(&plr._pxoff);
-	LoadInt(&plr._pyoff);
-	LoadInt(&plr._pdir);
-	tbuff += 4; // Skip pointer _pAnimData
-	tbuff += 4; // Skip _pAnimFrameLen
-	LoadInt(&plr._pAnimCnt);
-	tbuff += 4; // Skip _pAnimLen
-	LoadInt(&plr._pAnimFrame);
-	tbuff += 4; // Skip _pAnimWidth
-	tbuff += 4; // Skip _pAnimXOffset
-	LoadInt(&plr._plid);
-	LoadInt(&plr._pvid);
-
-	LoadByte(&plr._pAtkSkill);
-	LoadByte(&plr._pAtkSkillType);
-	LoadByte(&plr._pMoveSkill);
-	LoadByte(&plr._pMoveSkillType);
-
-	LoadByte(&plr._pAltAtkSkill);
-	LoadByte(&plr._pAltAtkSkillType);
-	LoadByte(&plr._pAltMoveSkill);
-	LoadByte(&plr._pAltMoveSkillType);
-
-	CopyBytes(tbuff, lengthof(plr._pAtkSkillHotKey), plr._pAtkSkillHotKey);
-	CopyBytes(tbuff, lengthof(plr._pAtkSkillTypeHotKey), plr._pAtkSkillTypeHotKey);
-	CopyBytes(tbuff, lengthof(plr._pMoveSkillHotKey), plr._pMoveSkillHotKey);
-	CopyBytes(tbuff, lengthof(plr._pMoveSkillTypeHotKey), plr._pMoveSkillTypeHotKey);
-
-	CopyBytes(tbuff, lengthof(plr._pAltAtkSkillHotKey), plr._pAltAtkSkillHotKey);
-	CopyBytes(tbuff, lengthof(plr._pAltAtkSkillTypeHotKey), plr._pAltAtkSkillTypeHotKey);
-	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillHotKey), plr._pAltMoveSkillHotKey);
-	CopyBytes(tbuff, lengthof(plr._pAltMoveSkillTypeHotKey), plr._pAltMoveSkillTypeHotKey);
-
-	CopyBytes(tbuff, lengthof(plr._pSkillLvlBase), plr._pSkillLvlBase);
-	CopyBytes(tbuff, lengthof(plr._pSkillActivity), plr._pSkillActivity);
-	LoadInts(plr._pSkillExp, lengthof(plr._pSkillExp));
-	LoadInt64(&plr._pMemSkills);
-	LoadInt64(&plr._pAblSkills);
-	LoadInt64(&plr._pScrlSkills);
-	CopyBytes(tbuff, PLR_NAME_LEN, plr._pName);
-
-	LoadInt16(&plr._pBaseStr);
-	LoadInt16(&plr._pBaseMag);
-	LoadInt16(&plr._pBaseDex);
-	LoadInt16(&plr._pBaseVit);
-	LoadInt(&plr._pHPBase);
-	LoadInt(&plr._pMaxHPBase);
-	LoadInt(&plr._pManaBase);
-	LoadInt(&plr._pMaxManaBase);
-
-	LoadInt(&plr._pVar1);
-	LoadInt(&plr._pVar2);
-	LoadInt(&plr._pVar3);
-	LoadInt(&plr._pVar4);
-	LoadInt(&plr._pVar5);
-	LoadInt(&plr._pVar6);
-	LoadInt(&plr._pVar7);
-	LoadInt(&plr._pVar8);
-
-	// tbuff += 4; // Skip _pGFXLoad
-	// tbuff += sizeof(PlrAnimStruct) * (NUM_PFIDXs); // Skip _pAnims to InitPlayerGFX and SetPlrAnims
-	// tbuff += 4; // Skip _pAFNum to SetPlrAnims
-	// tbuff += 4; // Skip _pSFNum to SetPlrAnims
-
-	LoadItem(&plr._pHoldItem);
+	static_assert(offsetof(LSavePlayerStruct, vpHoldItem) == offsetof(LSavePlayerStruct, vpVar8) + sizeof(savedPlr->vpVar8)
+	 && offsetof(PlayerStruct, _pVar8) == offsetof(LSavePlayerStruct, vpVar8), "LoadPlayer uses memcpy to load most of the LSavePlayerStruct in PlayerStruct.");
+	memcpy(pr, savedPlr, offsetof(LSavePlayerStruct, vpHoldItem));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	// src = LoadItem(src, &pr->_pHoldItem);
+	LoadItem((BYTE*)&savedPlr->vpHoldItem, &pr->_pHoldItem);
 	for (int i = 0; i < NUM_INVLOC; i++)
-		LoadItem(&plr._pInvBody[i]);
+		LoadItem((BYTE*)&savedPlr->vpInvBody[i], &pr->_pInvBody[i]);
+		// src = LoadItem(src, &pr->_pInvBody[i]);
 	for (int i = 0; i < MAXBELTITEMS; i++)
-		LoadItem(&plr._pSpdList[i]);
+		LoadItem((BYTE*)&savedPlr->vpSpdList[i], &pr->_pSpdList[i]);
+		// src = LoadItem(src, &pr->_pSpdList[i]);
 	for (int i = 0; i < NUM_INV_GRID_ELEM; i++)
-		LoadItem(&plr._pInvList[i]);
-	LoadInt(&plr._pGold);
+		LoadItem((BYTE*)&savedPlr->vpInvList[i], &pr->_pInvList[i]);
+		// src = LoadItem(src, &pr->_pInvList[i]);
+	pr->_pGold = savedPlr->vpGold;
+
+	src += sizeof(LSavePlayerStruct);
 
 	/*Skip to Calc
 	tbuff += 4; // _pStrength
@@ -483,6 +318,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // _pIAMinDam
 	tbuff += 4; // _pIAMaxDam*/
 
+	// CalculateGold(pnum);
 	CalcPlrInv(pnum, false);
 
 	// Omit pointers _pAnimFileData
@@ -491,96 +327,115 @@ static void LoadPlayer(int pnum)
 	InitPlayerGFX(pnum);
 	SetPlrAnims(pnum);
 	SyncPlrAnim(pnum);
+
+	return src;
 }
 
-static void LoadMonster(int mnum)
+static BYTE* LoadMonster(BYTE* __restrict src, int mnum)
 {
-	MonsterStruct* mon = &monsters[mnum];
+	MonsterStruct* __restrict mon = &monsters[mnum];
 
-	LoadInt(&mon->_mmode);
-	LoadInt(&mon->_msquelch);
-	LoadByte(&mon->_mMTidx);
-	LoadByte(&mon->_mpathcount);
-	LoadByte(&mon->_mWhoHit);
-	LoadByte(&mon->_mgoal);
-	LoadInt(&mon->_mgoalvar1);
-	LoadInt(&mon->_mgoalvar2);
-	LoadInt(&mon->_mgoalvar3);
-	LoadInt(&mon->_mx);
-	LoadInt(&mon->_my);
-	LoadInt(&mon->_mfutx);
-	LoadInt(&mon->_mfuty);
-	LoadInt(&mon->_moldx);
-	LoadInt(&mon->_moldy);
-	LoadInt(&mon->_mxoff);
-	LoadInt(&mon->_myoff);
-	LoadInt(&mon->_mdir);
-	LoadInt(&mon->_menemy);
-	LoadByte(&mon->_menemyx);
-	LoadByte(&mon->_menemyy);
-	LoadByte(&mon->_mListener);
-	LoadByte(&mon->_mDelFlag);
+	LSaveMonsterStruct* __restrict savedMon = (LSaveMonsterStruct*)src;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	mon->_mmode = savedMon->vmmode;
+	mon->_msquelch = savedMon->vmsquelch;
 
-	tbuff += 4; // Skip pointer _mAnimData
-	tbuff += 4; // Skip _mAnimFrameLen
-	LoadInt(&mon->_mAnimCnt);
-	tbuff += 4; // Skip _mAnimLen
-	LoadInt(&mon->_mAnimFrame);
-	LoadInt(&mon->_mVar1);
-	LoadInt(&mon->_mVar2);
-	LoadInt(&mon->_mVar3);
-	LoadInt(&mon->_mVar4);
-	LoadInt(&mon->_mVar5);
-	LoadInt(&mon->_mVar6);
-	LoadInt(&mon->_mVar7);
-	LoadInt(&mon->_mVar8);
-	LoadInt(&mon->_mmaxhp);
-	LoadInt(&mon->_mhitpoints);
-	LoadInt(&mon->_mlastx);
-	LoadInt(&mon->_mlasty);
-	LoadInt(&mon->_mRndSeed);
-	LoadInt(&mon->_mAISeed);
+	mon->_mMTidx = savedMon->vmMTidx;
+	mon->_mpathcount = savedMon->vmpathcount; // unused
+	mon->_mWhoHit = savedMon->vmWhoHit;
+	mon->_mgoal = savedMon->vmgoal;
 
-	LoadByte(&mon->_muniqtype);
-	LoadByte(&mon->_muniqtrans);
-	LoadByte(&mon->_mNameColor);
-	LoadByte(&mon->_mlid);
+	mon->_mgoalvar1 = savedMon->vmgoalvar1;
+	mon->_mgoalvar2 = savedMon->vmgoalvar2;
+	mon->_mgoalvar3 = savedMon->vmgoalvar3;
+	mon->_mx = savedMon->vmx;
+	mon->_my = savedMon->vmy;
+	mon->_mfutx = savedMon->vmfutx;
+	mon->_mfuty = savedMon->vmfuty;
+	mon->_moldx = savedMon->vmoldx;
+	mon->_moldy = savedMon->vmoldy;
+	mon->_mxoff = savedMon->vmxoff;
+	mon->_myoff = savedMon->vmyoff;
+	mon->_mdir = savedMon->vmdir;
+	mon->_menemy = savedMon->vmenemy;
+	mon->_menemyx = savedMon->vmenemyx;
+	mon->_menemyy = savedMon->vmenemyy;
+	mon->_mListener = savedMon->vmListener;
+	mon->_mDelFlag = savedMon->vmDelFlag; // unused
+	// mon->_mAnimData = savedMon->vmAnimDataAlign;
+	// mon->_mAnimFrameLen = savedMon->vmAnimFrameLenAlign;
+	mon->_mAnimCnt = savedMon->vmAnimCnt;
+	mon->_mAnimLen = savedMon->vmAnimLenAlign;
+	mon->_mAnimFrame = savedMon->vmAnimFrame;
+	mon->_mVar1 = savedMon->vmVar1;
+	mon->_mVar2 = savedMon->vmVar2;
+	mon->_mVar3 = savedMon->vmVar3;
+	mon->_mVar4 = savedMon->vmVar4;
+	mon->_mVar5 = savedMon->vmVar5;
+	mon->_mVar6 = savedMon->vmVar6;
+	mon->_mVar7 = savedMon->vmVar7;
+	mon->_mVar8 = savedMon->vmVar8;
+	mon->_mmaxhp = savedMon->vmmaxhp;
+	mon->_mhitpoints = savedMon->vmhitpoints;
+	mon->_mlastx = savedMon->vmlastx;
+	mon->_mlasty = savedMon->vmlasty;
+	mon->_mRndSeed = savedMon->vmRndSeed;
+	mon->_mAISeed = savedMon->vmAISeed;
 
-	LoadByte(&mon->_mleader);
-	LoadByte(&mon->_mleaderflag);
-	LoadByte(&mon->_mpacksize);
-	LoadByte(&mon->_mvid);
+	mon->_muniqtype = savedMon->vmuniqtype;
+	mon->_muniqtrans = savedMon->vmuniqtrans;
+	mon->_mNameColor = savedMon->vmNameColor;
+	mon->_mlid = savedMon->vmlid;
 
-	// Skip _mName
+	mon->_mleader = savedMon->vmleader;
+	mon->_mleaderflag = savedMon->vmleaderflag;
+	mon->_mpacksize = savedMon->vmpacksize;
+	mon->_mvid = savedMon->vmvid;
+	// mon->_mName = savedMon->vmNameAlign;
 
-	LoadInt16(&mon->_mFileNum);
-	LoadByte(&mon->_mLevel);
-	LoadByte(&mon->_mSelFlag);
+	mon->_mFileNum = savedMon->vmFileNum;
+	mon->_mLevel = savedMon->vmLevel;
+	mon->_mSelFlag = savedMon->vmSelFlag;
 
-	LoadByte(&mon->_mAI.aiType);
-	LoadByte(&mon->_mAI.aiInt);
-	LoadByte(&mon->_mAI.aiParam1);
-	LoadByte(&mon->_mAI.aiParam2);
+	mon->_mAI.aiType = savedMon->vmAI_aiType;
+	mon->_mAI.aiInt = savedMon->vmAI_aiInt;
+	mon->_mAI.aiParam1 = savedMon->vmAI_aiParam1;
+	mon->_mAI.aiParam2 = savedMon->vmAI_aiParam2;
 
-	LoadInt(&mon->_mFlags);
+	mon->_mFlags = savedMon->vmFlags;
 
-	LoadInt16(&mon->_mHit);
-	LoadByte(&mon->_mMinDamage);
-	LoadByte(&mon->_mMaxDamage);
+	mon->_mHit = savedMon->vmHit;
+	mon->_mMinDamage = savedMon->vmMinDamage;
+	mon->_mMaxDamage = savedMon->vmMaxDamage;
 
-	LoadInt16(&mon->_mHit2);
-	LoadByte(&mon->_mMinDamage2);
-	LoadByte(&mon->_mMaxDamage2);
+	mon->_mHit2 = savedMon->vmHit2;
+	mon->_mMinDamage2 = savedMon->vmMinDamage2;
+	mon->_mMaxDamage2 = savedMon->vmMaxDamage2;
 
-	LoadByte(&mon->_mMagic);
-	LoadByte(&mon->_mMagic2);
-	LoadByte(&mon->_mArmorClass);
-	LoadByte(&mon->_mEvasion);
+	mon->_mMagic = savedMon->vmMagic;
+	mon->_mMagic2 = savedMon->vmMagic2;     // unused
+	mon->_mArmorClass = savedMon->vmArmorClass;
+	mon->_mEvasion = savedMon->vmEvasion;
 
-	LoadInt16(&mon->_mMagicRes);
-	LoadInt16(&mon->_mTreasure);
+	mon->_mMagicRes = savedMon->vmMagicRes;
+	mon->_mTreasure = savedMon->vmTreasure;
 
-	LoadInt(&mon->_mExp);
+	mon->_mExp = savedMon->vmExp;
+#else
+	// preserve AnimData, AnimFrameLen and Name members for towners to prevent the need for SyncTownerAnim
+	BYTE* tmpAnimData = mon->_mAnimData;
+	int tmpAnimFrameLen = mon->_mAnimFrameLen;
+	const char* tmpName = mon->_mName;
+
+	static_assert(sizeof(LSaveMonsterStruct) == offsetof(LSaveMonsterStruct, vmExp) + sizeof(savedMon->vmExp)
+	 && offsetof(MonsterStruct, _mExp) == offsetof(LSaveMonsterStruct, vmExp), "LoadMonster uses memcpy to load the LSaveMonsterStruct in MonsterStruct.");
+	memcpy(mon, savedMon, sizeof(LSaveMonsterStruct));
+
+	mon->_mAnimData = tmpAnimData;
+	mon->_mAnimFrameLen = tmpAnimFrameLen;
+	mon->_mName = tmpName;
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	src += sizeof(LSaveMonsterStruct);
 
 	// Skip _mAnimWidth
 	// Skip _mAnimXOffset
@@ -589,152 +444,215 @@ static void LoadMonster(int mnum)
 	// Skip _mAlign_0
 	// Skip pointer mAnims
 	// Skip _mType
+
+	return src;
 }
 
-static void LoadMissile(int mi)
+static BYTE* LoadMissile(BYTE* __restrict src, int mi)
 {
-	MissileStruct* mis = &missile[mi];
+	MissileStruct* __restrict mis = &missile[mi];
 
-	LoadInt(&mis->_miType);
+	LSaveMissileStruct* __restrict savedMis = (LSaveMissileStruct*)src;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	mis->_miType = savedMis->vmiType;
 
-	LoadByte(&mis->_miFlags);
-	LoadByte(&mis->_miResist);
-	LoadByte(&mis->_miFileNum);
-	LoadByte(&mis->_miDrawFlag);
+	mis->_miFlags = savedMis->vmiFlags;
+	mis->_miResist = savedMis->vmiResist;
+	mis->_miFileNum = savedMis->vmiFileNum;
+	mis->_miDrawFlag = savedMis->vmiDrawFlag;
 
-	LoadInt(&mis->_miUniqTrans);
+	mis->_miUniqTrans = savedMis->vmiUniqTrans;
 
-	LoadByte(&mis->_miDelFlag);
-	LoadByte(&mis->_miLightFlag);
-	LoadByte(&mis->_miPreFlag);
-	LoadByte(&mis->_miAnimFlag); // could be skipped
+	mis->_miDelFlag = savedMis->vmiDelFlag;
+	mis->_miLightFlag = savedMis->vmiLightFlag;
+	mis->_miPreFlag = savedMis->vmiPreFlag;
+	mis->_miAnimFlag = savedMis->vmiAnimFlag;
 
-	tbuff += 4; // Skip pointer _miAnimData
-	tbuff += 4; // Skip _miAnimFrameLen
-	tbuff += 4; // Skip _miAnimLen
-	tbuff += 4; // Skip _miAnimWidth
-	tbuff += 4; // Skip _miAnimXOffset
-	LoadInt(&mis->_miAnimCnt);
-	LoadInt(&mis->_miAnimAdd);
-	LoadInt(&mis->_miAnimFrame);
-	LoadInt(&mis->_misx);
-	LoadInt(&mis->_misy);
-	LoadInt(&mis->_mix);
-	LoadInt(&mis->_miy);
-	LoadInt(&mis->_mixoff);
-	LoadInt(&mis->_miyoff);
-	LoadInt(&mis->_mixvel);
-	LoadInt(&mis->_miyvel);
-	LoadInt(&mis->_mitxoff);
-	LoadInt(&mis->_mityoff);
-	LoadInt(&mis->_miDir);
-	LoadInt(&mis->_miSpllvl);
-	LoadInt(&mis->_miSource);
-	LoadInt(&mis->_miCaster);
-	LoadInt(&mis->_miMinDam);
-	LoadInt(&mis->_miMaxDam);
-	// LoadInt(&mis->_miRndSeed);
-	LoadInt(&mis->_miRange);
-	LoadInt(&mis->_miLid);
-	LoadInt(&mis->_miVar1);
-	LoadInt(&mis->_miVar2);
-	LoadInt(&mis->_miVar3);
-	LoadInt(&mis->_miVar4);
-	LoadInt(&mis->_miVar5);
-	LoadInt(&mis->_miVar6);
-	LoadInt(&mis->_miVar7);
-	LoadInt(&mis->_miVar8);
+	// mis->_miAnimData = savedMis->vmiAnimDataAlign;
+	// mis->_miAnimFrameLen = savedMis->vmiAnimFrameLenAlign;
+	// mis->_miAnimLen = savedMis->vmiAnimLenAlign;
+	// mis->_miAnimWidth = savedMis->vmiAnimWidthAlign;
+	// mis->_miAnimXOffset = savedMis->vmiAnimXOffsetAlign;
+	mis->_miAnimCnt = savedMis->vmiAnimCnt;
+	mis->_miAnimAdd = savedMis->vmiAnimAdd;
+	mis->_miAnimFrame = savedMis->vmiAnimFrame;
+	mis->_misx = savedMis->vmisx;
+	mis->_misy = savedMis->vmisy;
+	mis->_mix = savedMis->vmix;
+	mis->_miy = savedMis->vmiy;
+	mis->_mixoff = savedMis->vmixoff;
+	mis->_miyoff = savedMis->vmiyoff;
+	mis->_mixvel = savedMis->vmixvel;
+	mis->_miyvel = savedMis->vmiyvel;
+	mis->_mitxoff = savedMis->vmitxoff;
+	mis->_mityoff = savedMis->vmityoff;
+	mis->_miDir = savedMis->vmiDir;
+	mis->_miSpllvl = savedMis->vmiSpllvl;
+	mis->_miSource = savedMis->vmiSource;
+	mis->_miCaster = savedMis->vmiCaster;
+	mis->_miMinDam = savedMis->vmiMinDam;
+	mis->_miMaxDam = savedMis->vmiMaxDam;
+	mis->_miRange = savedMis->vmiRange;
+	mis->_miLid = savedMis->vmiLid;
+	mis->_miVar1 = savedMis->vmiVar1;
+	mis->_miVar2 = savedMis->vmiVar2;
+	mis->_miVar3 = savedMis->vmiVar3;
+	mis->_miVar4 = savedMis->vmiVar4;
+	mis->_miVar5 = savedMis->vmiVar5;
+	mis->_miVar6 = savedMis->vmiVar6;
+	mis->_miVar7 = savedMis->vmiVar7;
+	mis->_miVar8 = savedMis->vmiVar8;
+#else
+	static_assert(sizeof(LSaveMissileStruct) == offsetof(LSaveMissileStruct, vmiVar8) + sizeof(savedMis->vmiVar8)
+	 && offsetof(MissileStruct, _miVar8) == offsetof(LSaveMissileStruct, vmiVar8), "LoadMissile uses memcpy to load the LSaveMissileStruct in MissileStruct.");
+	memcpy(mis, savedMis, sizeof(LSaveMissileStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	src += sizeof(LSaveMissileStruct);
+
+	return src;
 }
 
-static void LoadObject(int oi, bool full)
+static BYTE* LoadObject(BYTE* __restrict src, int oi, bool full)
 {
-	ObjectStruct* os = &objects[oi];
+	ObjectStruct* __restrict os = &objects[oi];
 
-	LoadInt(&os->_otype);
-	LoadInt(&os->_ox);
-	LoadInt(&os->_oy);
-	LoadInt(&os->_oSFX);
-	LoadByte(&os->_oSFXCnt);
-	LoadByte(&os->_oAnimFlag);
-	tbuff += 2; // Alignment
-	tbuff += 4; // Skip pointer _oAnimData
-	tbuff += 4; // Skip _oAnimFrameLen
-	LoadInt(&os->_oAnimCnt);
-	LoadInt(&os->_oAnimLen);
-	LoadInt(&os->_oAnimFrame);
-	tbuff += 4; // Skip _oAnimWidth
-	tbuff += 4; // Skip _oAnimXOffset
+	LSaveObjectStruct* __restrict savedObj = (LSaveObjectStruct*)src;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	os->_otype = savedObj->votype;
+	os->_ox = savedObj->vox;
+	os->_oy = savedObj->voy;
+	os->_oSFX = savedObj->voSFX;
 
-	LoadByte(&os->_oSolidFlag);
-	LoadByte(&os->_oMissFlag);
-	LoadByte(&os->_oLightFlag);
-	LoadByte(&os->_oBreak);
+	os->_oSFXCnt = savedObj->voSFXCnt;
+	os->_oAnimFlag = savedObj->voAnimFlag;
+	os->_oAlign0 = savedObj->voAlign0;
+	os->_oAlign1 = savedObj->voAlign1;
 
-	LoadByte(&os->_oDoorFlag);
-	LoadByte(&os->_oSelFlag);
-	LoadByte(&os->_oTrapChance);
-	LoadByte(&os->_oPreFlag);
+	// os->_oAnimData = savedObj->voAnimDataAlign;
+	os->_oAnimFrameLen = savedObj->voAnimFrameLen;
+	os->_oAnimCnt = savedObj->voAnimCnt;
+	os->_oAnimLen = savedObj->voAnimLen;
+	os->_oAnimFrame = savedObj->voAnimFrame;
+	os->_oAnimWidth = savedObj->voAnimWidthAlign;
+	os->_oAnimXOffset = savedObj->voAnimXOffsetAlign;
 
-	LoadInt(&os->_olid);
-	LoadInt(&os->_oRndSeed);
-	LoadInt(&os->_oVar1);
-	LoadInt(&os->_oVar2);
-	LoadInt(&os->_oVar3);
-	LoadInt(&os->_oVar4);
-	LoadInt(&os->_oVar5);
-	LoadInt(&os->_oVar6);
-	LoadInt(&os->_oVar7);
-	LoadInt(&os->_oVar8);
+	os->_oSolidFlag = savedObj->voSolidFlag;
+	os->_oMissFlag = savedObj->voMissFlag;
+	os->_oLightFlag = savedObj->voLightFlag;
+	os->_oBreak = savedObj->voBreak;
+
+	os->_oDoorFlag = savedObj->voDoorFlag;
+	os->_oSelFlag = savedObj->voSelFlag;
+	os->_oTrapChance = savedObj->voTrapChance;
+	os->_oPreFlag = savedObj->voPreFlag;
+
+	os->_olid = savedObj->volid;
+	os->_oRndSeed = savedObj->voRndSeed;
+	os->_oVar1 = savedObj->voVar1;
+	os->_oVar2 = savedObj->voVar2;
+	os->_oVar3 = savedObj->voVar3;
+	os->_oVar4 = savedObj->voVar4;
+	os->_oVar5 = savedObj->voVar5;
+	os->_oVar6 = savedObj->voVar6;
+	os->_oVar7 = savedObj->voVar7;
+	os->_oVar8 = savedObj->voVar8;
+#else
+	static_assert(sizeof(LSaveObjectStruct) == offsetof(LSaveObjectStruct, voVar8) + sizeof(savedObj->voVar8)
+	 && offsetof(ObjectStruct, _oVar8) == offsetof(LSaveObjectStruct, voVar8), "LoadObject uses memcpy to load the LSaveObjectStruct in ObjectStruct.");
+	memcpy(os, savedObj, sizeof(LSaveObjectStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	src += sizeof(LSaveObjectStruct);
 
 	if (!full) {
 		// reset dynamic lights
 		os->_olid = NO_LIGHT;
 	}
+
+	return src;
 }
 
-static void LoadQuest(int i)
+static BYTE* LoadQuest(BYTE* __restrict src, int i)
 {
-	QuestStruct* pQuest = &quests[i];
+	QuestStruct* __restrict pQuest = &quests[i];
 
-	LoadByte(&pQuest->_qactive);
-	LoadByte(&pQuest->_qvar1);
-	LoadByte(&pQuest->_qvar2);
-	LoadByte(&pQuest->_qlog);
+	LSaveQuestStruct* __restrict savedQuest = (LSaveQuestStruct*)src;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	pQuest->_qactive = savedQuest->vqactive;
+	pQuest->_qvar1 = savedQuest->vqvar1;
+	pQuest->_qvar2 = savedQuest->vqvar2;
+	pQuest->_qlog = savedQuest->vqlog;
 
-	LoadInt(&pQuest->_qtx);
-	LoadInt(&pQuest->_qty);
-	LoadInt(&pQuest->_qmsg);
+	pQuest->_qmsg = savedQuest->vqmsg;
+	pQuest->_qtx = savedQuest->vqtx;
+	pQuest->_qty = savedQuest->vqty;
+#else
+	static_assert(sizeof(LSaveQuestStruct) == offsetof(LSaveQuestStruct, vqty) + sizeof(savedQuest->vqty)
+	 && offsetof(QuestStruct, _qty) == offsetof(LSaveQuestStruct, vqty), "LoadQuest uses memcpy to load the LSaveQuestStruct in QuestStruct.");
+	memcpy(pQuest, savedQuest, sizeof(LSaveQuestStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	src += sizeof(LSaveQuestStruct);
+
+	return src;
 }
 
-static void LoadLight(LightListStruct* pLight)
+static BYTE* LoadLight(BYTE* src, LightListStruct* __restrict pLight)
 {
-	LoadInt(&pLight->_lx);
-	LoadInt(&pLight->_ly);
-	LoadInt(&pLight->_lunx);
-	LoadInt(&pLight->_luny);
+	LSaveLightListStruct* __restrict savedLight = (LSaveLightListStruct*)src;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	pLight->_lx = savedLight->vlx;
+	pLight->_ly = savedLight->vly;
+	pLight->_lunx = savedLight->vlunx;
+	pLight->_luny = savedLight->vluny;
 
-	LoadByte(&pLight->_lradius);
-	LoadByte(&pLight->_lunr);
-	LoadByte(&pLight->_ldel);
-	LoadByte(&pLight->_lunflag);
+	pLight->_lradius = savedLight->vlradius;
+	pLight->_lunr = savedLight->vlunr;
+	pLight->_ldel = savedLight->vldel;
+	pLight->_lunflag = savedLight->vlunflag;
 
-	LoadByte(&pLight->_lmine);
-	tbuff += 3; // Alignment
+	pLight->_lmine = savedLight->vlmine;
+	pLight->_lAlign0 = savedLight->vlAlign0;
+	pLight->_lAlign1 = savedLight->vlAlign1;
+	pLight->_lAlign2 = savedLight->vlAlign2;
 
-	LoadInt(&pLight->_xoff);
-	LoadInt(&pLight->_yoff);
+	pLight->_xoff = savedLight->vxoff;
+	pLight->_yoff = savedLight->vyoff;
+#else
+	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vyoff) + sizeof(savedLight->vyoff)
+	 && offsetof(LightListStruct, _yoff) == offsetof(LSaveLightListStruct, vyoff), "LoadLight uses memcpy to load the LSaveLightListStruct in LightListStruct.");
+	memcpy(pLight, savedLight, sizeof(LSaveLightListStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	src += sizeof(LSaveLightListStruct);
+
+	return src;
 }
 
-static void LoadPortal(int i)
+static BYTE* LoadPortal(BYTE* __restrict src, int i)
 {
-	PortalStruct* pPortal = &portals[i];
+	PortalStruct* __restrict pPortal = &portals[i];
 
-	LoadByte(&pPortal->_ropen);
-	tbuff += 3; // Alignment
+	LSavePortalStruct* __restrict savedPortal = (LSavePortalStruct*)src;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	pPortal->_ropen = savedPortal->vropen;
+	pPortal->_rAlign0 = savedPortal->vrAlign0;
+	pPortal->_rAlign1 = savedPortal->vrAlign1;
+	pPortal->_rAlign2 = savedPortal->vrAlign2;
 
-	LoadInt(&pPortal->_rx);
-	LoadInt(&pPortal->_ry);
-	LoadInt(&pPortal->_rlevel);
+	pPortal->_rx = savedPortal->vrx;
+	pPortal->_ry = savedPortal->vry;
+	pPortal->_rlevel = savedPortal->vrlevel;
+#else
+	static_assert(sizeof(LSavePortalStruct) == offsetof(LSavePortalStruct, vrlevel) + sizeof(savedPortal->vrlevel)
+	 && offsetof(PortalStruct, _rlevel) == offsetof(LSavePortalStruct, vrlevel), "LoadPortal uses memcpy to load the LSavePortalStruct in PortalStruct.");
+	memcpy(pPortal, savedPortal, sizeof(LSavePortalStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	src += sizeof(LSavePortalStruct);
+
+	return src;
 }
 
 /*static void RedoPlayerLight()
@@ -745,68 +663,83 @@ static void LoadPortal(int i)
 	}
 }*/
 
-static void LoadLevelData(bool full)
+static BYTE* LoadLevelData(BYTE* src, bool full)
 {
 	int i, ii;
+	LSaveGameLvlMetaStruct* lms;
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
+		memcpy(dDead, src, MAXDUNX * MAXDUNY);
+		src += MAXDUNX * MAXDUNY;
 	}
 
-	LoadInt(&nummonsters);
-	if (full)
-		LoadInt(&nummissiles);
-	LoadInt(&numobjects);
-	LoadInt(&numitems);
+	lms = (LSaveGameLvlMetaStruct*)src;
+	nummonsters = lms->vvnummonsters;
+	nummissiles = lms->vvnummissiles;
+	numobjects = lms->vvnumobjects;
+	numitems = lms->vvnumitems;
+	src += sizeof(LSaveGameLvlMetaStruct);
 
-	for (i = 0; i < MAXMONSTERS; i++)
-		LoadMonster(i);
+	for (i = 0; i < MAXMONSTERS; i++) // TODO: skip if TOWN and !full, otherwise it could cause trouble if the towners change. Or provide a SyncTownerAnim function
+		src = LoadMonster(src, i);
 	if (currLvl._dType != DTYPE_TOWN) {
 		// run in a separate loop to make it faster(?) and more conform with the other Load/Sync function calls
 		for (i = 0; i < MAXMONSTERS; i++)
 			SyncMonsterAnim(i);
 		if (full) {
-			static_assert(MAXMISSILES <= UCHAR_MAX, "LoadLevelData handles missile-ids as bytes.");
-			for (i = 0; i < MAXMISSILES; i++)
-				LoadByte(&missileactive[i]);
+			LE_LOAD_INTS(missileactive, src, lengthof(missileactive));
+			src += lengthof(missileactive) * sizeof(LE_INT32);
 			for (i = 0; i < nummissiles; i++)
-				LoadMissile(missileactive[i]);
+				src = LoadMissile(src, missileactive[i]);
 		}
-		static_assert(MAXOBJECTS <= UCHAR_MAX, "LoadLevelData handles object-ids as bytes.");
-		for (i = 0; i < MAXOBJECTS; i++)
-			LoadByte(&objectactive[i]);
-//		for (i = 0; i < MAXOBJECTS; i++)
-//			LoadByte(&objectavail[i]);
+		LE_LOAD_INTS(objectactive, src, lengthof(objectactive));
+		src += lengthof(objectactive) * sizeof(LE_INT32);
+//		LE_LOAD_INTS(objectavail, src, lengthof(objectavail));
+//		src += lengthof(objectavail) * sizeof(LE_INT32);
 		for (i = 0; i < numobjects; i++)
-			LoadObject(objectactive[i], full);
+			src = LoadObject(src, objectactive[i], full);
 		// run in a separate loop because objects (e.g. crux) might depend on each other
 		for (i = 0; i < numobjects; i++)
 			SyncObjectAnim(objectactive[i]);
 	}
-	static_assert(MAXITEMS <= UCHAR_MAX, "LoadLevelData handles item-ids as bytes.");
-	for (i = 0; i < MAXITEMS; i++)
-		LoadByte(&itemactive[i]);
+	LE_LOAD_INTS(itemactive, src, lengthof(itemactive));
+	src += lengthof(itemactive) * sizeof(LE_INT32);
 	for (i = 0; i < numitems; i++) {
 		ii = itemactive[i];
-		LoadItem(&items[ii]);
+		src = LoadItem(src, &items[ii]);
 		SyncItemAnim(ii);
 	}
 
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
+	memcpy(dFlags, src, MAXDUNX * MAXDUNY);
+	src += MAXDUNX * MAXDUNY;
+	memcpy(dItem, src, MAXDUNX * MAXDUNY);
+	src += MAXDUNX * MAXDUNY;
+	memcpy(dPreLight, src, MAXDUNX * MAXDUNY);
+	src += MAXDUNX * MAXDUNY;
+
 	if (full) {
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
+		memcpy(dLight, src, MAXDUNX * MAXDUNY);
+		src += MAXDUNX * MAXDUNY;
+		memcpy(dPlayer, src, MAXDUNX * MAXDUNY);
+		src += MAXDUNX * MAXDUNY;
 	}
 
-	LoadInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
+	LE_LOAD_INTS(&dMonster[0][0], src, MAXDUNX * MAXDUNY);
+	src += MAXDUNX * MAXDUNY * sizeof(LE_INT32);
+
 	if (currLvl._dType != DTYPE_TOWN) {
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
-		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
-		if (full)
-			CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
+		memcpy(dObject, src, MAXDUNX * MAXDUNY);
+		src += MAXDUNX * MAXDUNY;
+		memcpy(automapview, src, DMAXX * DMAXY);
+		src += DMAXX * DMAXY;
+
+		if (full) {
+			memcpy(dMissile, src, MAXDUNX * MAXDUNY);
+			src += MAXDUNX * MAXDUNY;
+		}
 	}
+
+	return src;
 }
 
 /**
@@ -815,7 +748,9 @@ static void LoadLevelData(bool full)
 void LoadGame()
 {
 	int i;
-	BYTE* fileBuff;
+	LSaveGameHeaderStruct* ghs;
+	LSaveGameMetaStruct* gms;
+	BYTE *fileBuff, *tbuff;
 	int _ViewX, _ViewY;
 	int32_t _CurrSeed;
 
@@ -828,98 +763,103 @@ void LoadGame()
 	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	LoadInt(&i);
-	if (i != SAVE_INITIAL)
+	ghs = (LSaveGameHeaderStruct*)tbuff;
+	if (ghs->vhInitial != SAVE_INITIAL)
 		app_fatal("Invalid save file");
 	// load game-info
-	LoadInt32(&gdwGameLogicTurn);
+	gdwGameLogicTurn = ghs->vhLogicTurn;
 	// assert(gbNetUpdateRate == 1);
 	gdwLastGameTurn = gdwGameLogicTurn;
-	LoadInt32(&sgbSentThisCycle);
-	LoadInt(&i);
+	sgbSentThisCycle = ghs->vhSentCycle;
+	i = ghs->vhLvlDifficulty;
 	gnDifficulty = (i >> 8) & 0xFF;
 	currLvl._dLevelIdx = i & 0xFF;
 	EnterLevel(i & 0xFF);
 	for (i = 0; i < NUM_LEVELS; i++) {
-		LoadInt(&glSeedTbl[i]);
+		glSeedTbl[i] = ghs->vhSeeds[i];
 	}
-	LoadInt(&_CurrSeed);
+	_CurrSeed = ghs->vhCurrSeed;
 	// load player-data
-	LoadInt(&_ViewX);
-	LoadInt(&_ViewY);
-	// LoadInt(&ScrollInfo._sdx);
-	// LoadInt(&ScrollInfo._sdy);
-	LoadInt(&ScrollInfo._sxoff);
-	LoadInt(&ScrollInfo._syoff);
-	LoadInt(&ScrollInfo._sdir);
-	LoadInt(&gnHPPer);
-	LoadInt(&gnManaPer);
+	_ViewX = ghs->vhViewX;
+	_ViewY = ghs->vhViewY;
+	// ghs->vhScrollX = ScrollInfo._sdx;
+	// ghs->vhScrollY = ScrollInfo._sdy;
+	ScrollInfo._sxoff = ghs->vhScrollXOff;
+	ScrollInfo._syoff = ghs->vhScrollYOff;
+	ScrollInfo._sdir = ghs->vhScrollDir;
+	gnHPPer = ghs->vhHPPer;
+	gnManaPer = ghs->vhManaPer;
 
-	gbLvlUp = LoadBool();
-	gbAutomapflag = LoadBool();
-	gbZoomInFlag = LoadBool();
-	gbInvflag = LoadBool();
-	LoadInt(&gnNumActiveWindows);
-	for (i = 0; i < NUM_WNDS; i++) {
-		LoadByte(&gaActiveWindows[i]);
-	}
-	LoadInt(&AutoMapScale);
-	LoadInt(&AutoMapXOfs);
-	LoadInt(&AutoMapYOfs);
+	gbLvlUp = ghs->vhLvlUpFlag;
+	gbAutomapflag = ghs->vhAutomapflag;
+	gbZoomInFlag = ghs->vhZoomInFlag;
+	gbInvflag = ghs->vhInvflag;
 
-	LoadPlayer(mypnum);
+	gnNumActiveWindows = ghs->vhNumActiveWindows;
+	memcpy(gaActiveWindows, ghs->vhActiveWindows, sizeof(gaActiveWindows));
+	gbTownWarps = ghs->vhTownWarps;
+	gbWaterDone = ghs->vhWaterDone;
 
-	// load meta-data I.
-	LoadInt(&gnReturnLvlX);
-	LoadInt(&gnReturnLvlY);
-	LoadInt(&gnReturnLvl);
-	LoadByte(&gbTownWarps);
-	LoadByte(&gbWaterDone);
-	tbuff += 2; // Alignment
-	LoadInt32(&guLvlVisited);
-	// load meta-data II. (used by LoadGameLevel)
+	AutoMapScale = ghs->vhAutoMapScale;
+	AutoMapXOfs = ghs->vhAutoMapXOfs;
+	AutoMapYOfs = ghs->vhAutoMapYOfs;
+
+	gnReturnLvlX = ghs->vhReturnLvlX;
+	gnReturnLvlY = ghs->vhReturnLvlY;
+	gnReturnLvl = ghs->vhReturnLvl;
+	guLvlVisited = ghs->vhLvlVisited;
+
+	tbuff += sizeof(LSaveGameHeaderStruct);
+
+	tbuff = LoadPlayer(tbuff, mypnum);
+
+	// load meta-data I. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
-		LoadQuest(i);
+		tbuff = LoadQuest(tbuff, i);
 	for (i = 0; i < MAXPORTAL; i++)
-		LoadPortal(i);
+		tbuff = LoadPortal(tbuff, i);
 	// load level-data
 	LoadGameLevel(ENTRY_LOAD);
 	ViewX = _ViewX;
 	ViewY = _ViewY;
-	LoadLevelData(true);
+	tbuff = LoadLevelData(tbuff, true);
 
 	// load meta-data III. (modified by LoadGameLevel)
-	//LoadInt(&numtowners);
-	LoadInt(&boylevel);
-	LoadInt(&numpremium);
-	LoadInt(&premiumlevel);
-	LoadInt(&numlights);
-	LoadInt(&numvision);
-	//LoadByte(&numtrans);
-	//tbuff += 3; // Alignment
+	gms = (LSaveGameMetaStruct*)tbuff;
 
-	for (i = 0; i < MAXLIGHTS; i++)
-		LoadByte(&lightactive[i]);
+	//gms->vanumtowners = numtowners;
+	boylevel = gms->vaboylevel;
+	numpremium = gms->vanumpremium;
+	premiumlevel = gms->vapremiumlevel;
+	numlights = gms->vanumlights;
+	numvision = gms->vanumvision;
+
+	//numtrans = gms->vanumtrans;
+	tbuff += sizeof(LSaveGameMetaStruct);
+
+	memcpy(lightactive, tbuff, sizeof(lightactive));
+	tbuff += sizeof(lightactive);
 	for (i = 0; i < numlights; i++)
-		LoadLight(&LightList[lightactive[i]]);
+		tbuff = LoadLight(tbuff, &LightList[lightactive[i]]);
 
-	for (i = 0; i < MAXVISION; i++)
-		LoadByte(&visionactive[i]);
+	memcpy(visionactive, tbuff, sizeof(visionactive));
+	tbuff += sizeof(visionactive);
 	for (i = 0; i < numvision; i++)
-		LoadLight(&VisionList[visionactive[i]]);
+		tbuff = LoadLight(tbuff, &VisionList[visionactive[i]]);
 
-	CopyBytes(tbuff, sizeof(TransList), TransList);
+	memcpy(TransList, tbuff, sizeof(TransList));
+	tbuff += sizeof(TransList);
 
-	LoadItem(&boyitem);
+	tbuff = LoadItem(tbuff, &boyitem);
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		LoadItem(&premiumitems[i]);
+		tbuff = LoadItem(tbuff, &premiumitems[i]);
 	if (currLvl._dType == DTYPE_TOWN) {
 		for (i = 0; i < SMITH_ITEMS; i++)
-			LoadItem(&smithitem[i]);
+			tbuff = LoadItem(tbuff, &smithitem[i]);
 		for (i = 0; i < HEALER_ITEMS; i++)
-			LoadItem(&healitem[i]);
+			tbuff = LoadItem(tbuff, &healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
-			LoadItem(&witchitem[i]);
+			tbuff = LoadItem(tbuff, &witchitem[i]);
 	}
 
 	InitAutomapScale();
@@ -939,195 +879,232 @@ void LoadGame()
 	nthread_send_turn();
 }
 
-static void SaveItem(ItemStruct* is)
+static BYTE* SaveItem(BYTE* __restrict dest, ItemStruct* __restrict is)
 {
-	SaveInt(&is->_iSeed);
-	SaveInt16(&is->_iCreateInfo);
-	SaveInt16(&is->_iIdx);
-	SaveInt(&is->_ix);
-	SaveInt(&is->_iy);
-	SaveInt(&is->_iCurs);
-	SaveInt(&is->_itype);
-	SaveInt(&is->_iMiscId);
-	SaveInt(&is->_iSpell);
+	LSaveItemStruct* __restrict itemSave = (LSaveItemStruct*)dest;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	itemSave->viSeed = is->_iSeed;
+	itemSave->viIdx = is->_iIdx;
+	itemSave->viCreateInfo = is->_iCreateInfo;
+	itemSave->vix = is->_ix;
+	itemSave->viy = is->_iy;
+	itemSave->viCurs = is->_iCurs;
+	itemSave->vitype = is->_itype;
+	itemSave->viMiscId = is->_iMiscId;
+	itemSave->viSpell = is->_iSpell;
 
-	SaveByte(&is->_iClass);
-	SaveByte(&is->_iLoc);
-	SaveByte(&is->_iDamType);
-	SaveByte(&is->_iMinDam);
+	itemSave->viClass = is->_iClass;
+	itemSave->viLoc = is->_iLoc;
+	itemSave->viDamType = is->_iDamType;
+	itemSave->viMinDam = is->_iMinDam;
 
-	SaveByte(&is->_iMaxDam);
-	SaveByte(&is->_iBaseCrit);
-	SaveByte(&is->_iMinStr);
-	SaveByte(&is->_iMinMag);
+	itemSave->viMaxDam = is->_iMaxDam;
+	itemSave->viBaseCrit = is->_iBaseCrit;
+	itemSave->viMinStr = is->_iMinStr;
+	itemSave->viMinMag = is->_iMinMag;
 
-	SaveByte(&is->_iMinDex);
-	SaveByte(&is->_iUsable);
-	SaveByte(&is->_iPrePower);
-	SaveByte(&is->_iSufPower);
+	itemSave->viMinDex = is->_iMinDex;
+	itemSave->viUsable = is->_iUsable;
+	itemSave->viPrePower = is->_iPrePower;
+	itemSave->viSufPower = is->_iSufPower;
 
-	SaveByte(&is->_iMagical);
-	SaveByte(&is->_iSelFlag);
-	SaveByte(&is->_iFloorFlag);
-	SaveByte(&is->_iAnimFlag);
+	itemSave->viMagical = is->_iMagical;
+	itemSave->viSelFlag = is->_iSelFlag;
+	itemSave->viFloorFlag = is->_iFloorFlag;
+	itemSave->viAnimFlag = is->_iAnimFlag;
 
-	tbuff += 4; // Skip pointer _iAnimData
-	tbuff += 4; // Skip _iAnimFrameLen
-	SaveInt(&is->_iAnimCnt);
-	SaveInt(&is->_iAnimLen);
-	SaveInt(&is->_iAnimFrame);
-	//SaveInt(&is->_iAnimWidth);
-	//SaveInt(&is->_iAnimXOffset);
-	SaveInt(&is->_iPostDraw);
-	SaveInt(&is->_iIdentified);
-	CopyBytes(is->_iName, sizeof(is->_iName), tbuff);
-	SaveInt(&is->_ivalue);
-	SaveInt(&is->_iIvalue);
-	SaveInt(&is->_iAC);
-	SaveInt(&is->_iFlags);
-	SaveInt(&is->_iCharges);
-	SaveInt(&is->_iMaxCharges);
-	SaveInt(&is->_iDurability);
-	SaveInt(&is->_iMaxDur);
-	SaveInt(&is->_iPLDam);
-	SaveInt(&is->_iPLToHit);
-	SaveInt(&is->_iPLAC);
-	SaveInt(&is->_iPLStr);
-	SaveInt(&is->_iPLMag);
-	SaveInt(&is->_iPLDex);
-	SaveInt(&is->_iPLVit);
-	SaveInt(&is->_iPLFR);
-	SaveInt(&is->_iPLLR);
-	SaveInt(&is->_iPLMR);
-	SaveInt(&is->_iPLAR);
-	SaveInt(&is->_iPLMana);
-	SaveInt(&is->_iPLHP);
-	SaveInt(&is->_iPLDamMod);
-	SaveInt(&is->_iPLGetHit);
-	SaveByte(&is->_iPLLight);
-	SaveByte(&is->_iPLSkillLevels);
-	SaveByte(&is->_iPLSkill);
-	SaveByte(&is->_iPLSkillLvl);
-	SaveByte(&is->_iPLManaSteal);
-	SaveByte(&is->_iPLLifeSteal);
-	SaveByte(&is->_iPLCrit);
-	SaveByte(&is->_iStatFlag);
-	SaveInt(&is->_iUid);
-	SaveByte(&is->_iPLFMinDam);
-	SaveByte(&is->_iPLFMaxDam);
-	SaveByte(&is->_iPLLMinDam);
-	SaveByte(&is->_iPLLMaxDam);
-	SaveByte(&is->_iPLMMinDam);
-	SaveByte(&is->_iPLMMaxDam);
-	SaveByte(&is->_iPLAMinDam);
-	SaveByte(&is->_iPLAMaxDam);
-	SaveInt(&is->_iVAdd);
-	SaveInt(&is->_iVMult);
+	// itemSave->viAnimDataAlign = is->_iAnimData;
+	// itemSave->viAnimFrameLenAlign = is->_iAnimFrameLen;
+	itemSave->viAnimCnt = is->_iAnimCnt;
+	itemSave->viAnimLen = is->_iAnimLen;
+	itemSave->viAnimFrame = is->_iAnimFrame;
+	itemSave->viPostDraw = is->_iPostDraw;
+	itemSave->viIdentified = is->_iIdentified;
+	memcpy(itemSave->viName, is->_iName, lengthof(is->_iName));
+	itemSave->vivalue = is->_ivalue;
+	itemSave->viIvalue = is->_iIvalue;
+	itemSave->viAC = is->_iAC;
+	itemSave->viFlags = is->_iFlags;
+	itemSave->viCharges = is->_iCharges;
+	itemSave->viMaxCharges = is->_iMaxCharges;
+	itemSave->viDurability = is->_iDurability;
+	itemSave->viMaxDur = is->_iMaxDur;
+	itemSave->viPLDam = is->_iPLDam;
+	itemSave->viPLToHit = is->_iPLToHit;
+	itemSave->viPLAC = is->_iPLAC;
+	itemSave->viPLStr = is->_iPLStr;
+	itemSave->viPLMag = is->_iPLMag;
+	itemSave->viPLDex = is->_iPLDex;
+	itemSave->viPLVit = is->_iPLVit;
+	itemSave->viPLFR = is->_iPLFR;
+	itemSave->viPLLR = is->_iPLLR;
+	itemSave->viPLMR = is->_iPLMR;
+	itemSave->viPLAR = is->_iPLAR;
+	itemSave->viPLMana = is->_iPLMana;
+	itemSave->viPLHP = is->_iPLHP;
+	itemSave->viPLDamMod = is->_iPLDamMod;
+	itemSave->viPLGetHit = is->_iPLGetHit;
+
+	itemSave->viPLLight = is->_iPLLight;
+	itemSave->viPLSkillLevels = is->_iPLSkillLevels;
+	itemSave->viPLSkill = is->_iPLSkill;
+	itemSave->viPLSkillLvl = is->_iPLSkillLvl;
+
+	itemSave->viPLManaSteal = is->_iPLManaSteal;
+	itemSave->viPLLifeSteal = is->_iPLLifeSteal;
+	itemSave->viPLCrit = is->_iPLCrit;
+	itemSave->viStatFlag = is->_iStatFlag;
+
+	itemSave->viUid = is->_iUid;
+
+	itemSave->viPLFMinDam = is->_iPLFMinDam;
+	itemSave->viPLFMaxDam = is->_iPLFMaxDam;
+	itemSave->viPLLMinDam = is->_iPLLMinDam;
+	itemSave->viPLLMaxDam = is->_iPLLMaxDam;
+
+	itemSave->viPLMMinDam = is->_iPLMMinDam;
+	itemSave->viPLMMaxDam = is->_iPLMMaxDam;
+	itemSave->viPLAMinDam = is->_iPLAMinDam;
+	itemSave->viPLAMaxDam = is->_iPLAMaxDam;
+
+	itemSave->viVAdd = is->_iVAdd;
+	itemSave->viVMult = is->_iVMult;
+#else
+	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viVMult) + sizeof(itemSave->viVMult)
+	 && offsetof(ItemStruct, _iVMult) == offsetof(LSaveItemStruct, viVMult), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
+	memcpy(itemSave, is, sizeof(LSaveItemStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	dest += sizeof(LSaveItemStruct);
+
+	return dest;
 }
 
-static void SavePlayer(int pnum)
+static BYTE* SavePlayer(BYTE* __restrict dest, int pnum)
 {
-	SaveInt(&plr._pmode);
-	static_assert(sizeof(plr._pWalkpath) == MAX_PATH_LENGTH + 1, "Save files are no longer compatible.");
-	CopyBytes(plr._pWalkpath, lengthof(plr._pWalkpath), tbuff);
-	SaveInt(&plr._pDestAction);
-	SaveInt(&plr._pDestParam1);
-	SaveInt(&plr._pDestParam2);
-	SaveInt(&plr._pDestParam3);
-	SaveInt(&plr._pDestParam4);
-	SaveByte(&plr._pActive);
-	SaveByte(&plr._pInvincible);
-	SaveByte(&plr._pLvlChanging);
-	SaveByte(&plr._pDunLevel);
-	SaveByte(&plr._pClass);
-	SaveByte(&plr._pLevel);
-	SaveByte(&plr._pRank);
-	SaveByte(&plr._pTeam);
-	SaveInt16(&plr._pStatPts);
-	SaveByte(&plr._pLightRad);
-	SaveByte(&plr._pManaShield);
-	SaveInt16(&plr._pTimer[PLTR_INFRAVISION]);
-	SaveInt16(&plr._pTimer[PLTR_RAGE]);
-	SaveInt(&plr._pExperience);
-	SaveInt(&plr._pNextExper);
-	SaveInt(&plr._px);
-	SaveInt(&plr._py);
-	SaveInt(&plr._pfutx);
-	SaveInt(&plr._pfuty);
-	SaveInt(&plr._poldx);
-	SaveInt(&plr._poldy);
-	SaveInt(&plr._pxoff);
-	SaveInt(&plr._pyoff);
-	SaveInt(&plr._pdir);
-	tbuff += 4; // Skip pointer _pAnimData
-	tbuff += 4; // Skip _pAnimFrameLen
-	SaveInt(&plr._pAnimCnt);
-	tbuff += 4; // Skip _pAnimLen
-	SaveInt(&plr._pAnimFrame);
-	tbuff += 4; // Skip _pAnimWidth
-	tbuff += 4; // Skip _pAnimXOffset
-	SaveInt(&plr._plid);
-	SaveInt(&plr._pvid);
+	PlayerStruct* __restrict pr = &players[pnum];
 
-	SaveByte(&plr._pAtkSkill);
-	SaveByte(&plr._pAtkSkillType);
-	SaveByte(&plr._pMoveSkill);
-	SaveByte(&plr._pMoveSkillType);
+	LSavePlayerStruct* __restrict plrSave = (LSavePlayerStruct*)dest;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	plrSave->vpmode = pr->_pmode;
+	memcpy(plrSave->vpWalkpath, pr->_pWalkpath, lengthof(pr->_pWalkpath));
+	plrSave->vpDestAction = pr->_pDestAction;
+	plrSave->vpDestParam1 = pr->_pDestParam1;
+	plrSave->vpDestParam2 = pr->_pDestParam2;
+	plrSave->vpDestParam3 = pr->_pDestParam3;
+	plrSave->vpDestParam4 = pr->_pDestParam4;
 
-	SaveByte(&plr._pAltAtkSkill);
-	SaveByte(&plr._pAltAtkSkillType);
-	SaveByte(&plr._pAltMoveSkill);
-	SaveByte(&plr._pAltMoveSkillType);
+	plrSave->vpActive = pr->_pActive;
+	plrSave->vpInvincible = pr->_pInvincible;
+	plrSave->vpLvlChanging = pr->_pLvlChanging;
+	plrSave->vpDunLevel = pr->_pDunLevel;
 
-	CopyBytes(plr._pAtkSkillHotKey, lengthof(plr._pAtkSkillHotKey), tbuff);
-	CopyBytes(plr._pAtkSkillTypeHotKey, lengthof(plr._pAtkSkillTypeHotKey), tbuff);
-	CopyBytes(plr._pMoveSkillHotKey, lengthof(plr._pMoveSkillHotKey), tbuff);
-	CopyBytes(plr._pMoveSkillTypeHotKey, lengthof(plr._pMoveSkillTypeHotKey), tbuff);
+	plrSave->vpClass = pr->_pClass;
+	plrSave->vpLevel = pr->_pLevel;
+	plrSave->vpRank = pr->_pRank;
+	plrSave->vpTeam = pr->_pTeam;
 
-	CopyBytes(plr._pAltAtkSkillHotKey, lengthof(plr._pAltAtkSkillHotKey), tbuff);
-	CopyBytes(plr._pAltAtkSkillTypeHotKey, lengthof(plr._pAltAtkSkillTypeHotKey), tbuff);
-	CopyBytes(plr._pAltMoveSkillHotKey, lengthof(plr._pAltMoveSkillHotKey), tbuff);
-	CopyBytes(plr._pAltMoveSkillTypeHotKey, lengthof(plr._pAltMoveSkillTypeHotKey), tbuff);
+	plrSave->vpStatPts = pr->_pStatPts;
+	plrSave->vpLightRad = pr->_pLightRad;
+	plrSave->vpManaShield = pr->_pManaShield;
 
-	CopyBytes(plr._pSkillLvlBase, lengthof(plr._pSkillLvlBase), tbuff);
-	CopyBytes(plr._pSkillActivity, lengthof(plr._pSkillActivity), tbuff);
-	SaveInts(plr._pSkillExp, lengthof(plr._pSkillExp));
-	SaveInt64(&plr._pMemSkills);
-	SaveInt64(&plr._pAblSkills);
-	SaveInt64(&plr._pScrlSkills);
-	CopyBytes(plr._pName, PLR_NAME_LEN, tbuff);
+	static_assert(NUM_PLRTIMERS == 2, "SavePlayer copies a fixed amount of timers.");
+	plrSave->vpTimer[PLTR_INFRAVISION] = pr->_pTimer[PLTR_INFRAVISION];
+	plrSave->vpTimer[PLTR_RAGE] = pr->_pTimer[PLTR_RAGE];
 
-	SaveInt16(&plr._pBaseStr);
-	SaveInt16(&plr._pBaseMag);
-	SaveInt16(&plr._pBaseDex);
-	SaveInt16(&plr._pBaseVit);
-	SaveInt(&plr._pHPBase);
-	SaveInt(&plr._pMaxHPBase);
-	SaveInt(&plr._pManaBase);
-	SaveInt(&plr._pMaxManaBase);
+	plrSave->vpExperience = pr->_pExperience;
+	plrSave->vpNextExper = pr->_pNextExper;
+	plrSave->vpx = pr->_px;
+	plrSave->vpy = pr->_py;
+	plrSave->vpfutx = pr->_pfutx;
+	plrSave->vpfuty = pr->_pfuty;
+	plrSave->vpoldx = pr->_poldx;
+	plrSave->vpoldy = pr->_poldy;
+	plrSave->vpxoff = pr->_pxoff;
+	plrSave->vpyoff = pr->_pyoff;
+	plrSave->vpdir = pr->_pdir;
+	// plrSave->vpAnimDataAlign = pr->_pAnimData;
+	// plrSave->vpAnimFrameLenAlign = pr->_pAnimFrameLen;
+	plrSave->vpAnimCnt = pr->_pAnimCnt;
+	plrSave->vpAnimLenAlign = pr->_pAnimLen;
+	plrSave->vpAnimFrame = pr->_pAnimFrame;
+	plrSave->vpAnimWidthAlign = pr->_pAnimWidth;
+	plrSave->vpAnimXOffsetAlign = pr->_pAnimXOffset;
+	plrSave->vplid = pr->_plid;
+	plrSave->vpvid = pr->_pvid;
 
-	SaveInt(&plr._pVar1);
-	SaveInt(&plr._pVar2);
-	SaveInt(&plr._pVar3);
-	SaveInt(&plr._pVar4);
-	SaveInt(&plr._pVar5);
-	SaveInt(&plr._pVar6);
-	SaveInt(&plr._pVar7);
-	SaveInt(&plr._pVar8);
+	plrSave->vpAtkSkill = pr->_pAtkSkill;
+	plrSave->vpAtkSkillType = pr->_pAtkSkillType;
+	plrSave->vpMoveSkill = pr->_pMoveSkill;
+	plrSave->vpMoveSkillType = pr->_pMoveSkillType;
 
-	// tbuff += 4; // Skip _pGFXLoad
-	// tbuff += sizeof(PlrAnimStruct) * (NUM_PFIDXs); // Skip _pAnims
-	// tbuff += 4; // Skip _pAFNum
-	// tbuff += 4; // Skip _pSFNum
+	plrSave->vpAltAtkSkill = pr->_pAltAtkSkill;
+	plrSave->vpAltAtkSkillType = pr->_pAltAtkSkillType;
+	plrSave->vpAltMoveSkill = pr->_pAltMoveSkill;
+	plrSave->vpAltMoveSkillType = pr->_pAltMoveSkillType;
 
-	SaveItem(&plr._pHoldItem);
+	memcpy(plrSave->vpAtkSkillHotKey, pr->_pAtkSkillHotKey, lengthof(plrSave->vpAtkSkillHotKey));
+	memcpy(plrSave->vpAtkSkillTypeHotKey, pr->_pAtkSkillTypeHotKey, lengthof(plrSave->vpAtkSkillTypeHotKey));
+	memcpy(plrSave->vpMoveSkillHotKey, pr->_pMoveSkillHotKey, lengthof(plrSave->vpMoveSkillHotKey));
+	memcpy(plrSave->vpMoveSkillTypeHotKey, pr->_pMoveSkillTypeHotKey, lengthof(plrSave->vpMoveSkillTypeHotKey));
+
+	memcpy(plrSave->vpAltAtkSkillHotKey, pr->_pAltAtkSkillHotKey, lengthof(plrSave->vpAltAtkSkillHotKey));
+	memcpy(plrSave->vpAltAtkSkillTypeHotKey, pr->_pAltAtkSkillTypeHotKey, lengthof(plrSave->vpAltAtkSkillTypeHotKey));
+	memcpy(plrSave->vpAltMoveSkillHotKey, pr->_pAltMoveSkillHotKey, lengthof(plrSave->vpAltMoveSkillHotKey));
+	memcpy(plrSave->vpAltMoveSkillTypeHotKey, pr->_pAltMoveSkillTypeHotKey, lengthof(plrSave->vpAltMoveSkillTypeHotKey));
+
+	memcpy(plrSave->vpSkillLvlBase, pr->_pSkillLvlBase, lengthof(plrSave->vpSkillLvlBase));
+	memcpy(plrSave->vpSkillActivity, pr->_pSkillActivity, lengthof(plrSave->vpSkillActivity));
+
+	for (int i = 0; i < lengthof(plrSave->vpSkillExp); i++)
+		plrSave->vpSkillExp[i] = pr->_pSkillExp[i];
+
+	plrSave->vpMemSkills = pr->_pMemSkills;
+	plrSave->vpAblSkills = pr->_pAblSkills;
+	plrSave->vpScrlSkills = pr->_pScrlSkills;
+	memcpy(plrSave->vpName, pr->_pName, lengthof(plrSave->vpName));
+
+	plrSave->vpBaseStr = pr->_pBaseStr;
+	plrSave->vpBaseMag = pr->_pBaseMag;
+
+	plrSave->vpBaseDex = pr->_pBaseDex;
+	plrSave->vpBaseVit = pr->_pBaseVit;
+
+	plrSave->vpHPBase = pr->_pHPBase;
+	plrSave->vpMaxHPBase = pr->_pMaxHPBase;
+	plrSave->vpManaBase = pr->_pManaBase;
+	plrSave->vpMaxManaBase = pr->_pMaxManaBase;
+	plrSave->vpVar1 = pr->_pVar1;
+	plrSave->vpVar2 = pr->_pVar2;
+	plrSave->vpVar3 = pr->_pVar3;
+	plrSave->vpVar4 = pr->_pVar4;
+	plrSave->vpVar5 = pr->_pVar5;
+	plrSave->vpVar6 = pr->_pVar6;
+	plrSave->vpVar7 = pr->_pVar7;
+	plrSave->vpVar8 = pr->_pVar8;
+	//int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
+	//PlrAnimStruct _pAnims[NUM_PFIDXs];
+	//unsigned _pAFNum;
+	//unsigned _pSFNum;
+#else
+	static_assert(offsetof(LSavePlayerStruct, vpHoldItem) == offsetof(LSavePlayerStruct, vpVar8) + sizeof(plrSave->vpVar8)
+	 && offsetof(PlayerStruct, _pVar8) == offsetof(LSavePlayerStruct, vpVar8), "SavePlayer uses memcpy to store most of the PlayerStruct in LSavePlayerStruct.");
+	memcpy(plrSave, pr, offsetof(LSavePlayerStruct, vpHoldItem));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	// dest += offsetof(LSavePlayerStruct, vpHoldItem);
+	// dest = SaveItem(dest, &pr->_pHoldItem);
+	SaveItem((BYTE*)&plrSave->vpHoldItem, &pr->_pHoldItem);	
 	for (int i = 0; i < NUM_INVLOC; i++)
-		SaveItem(&plr._pInvBody[i]);
+		SaveItem((BYTE*)&plrSave->vpInvBody[i], &pr->_pInvBody[i]);	
+		// dest = SaveItem(dest, &pr->_pInvBody[i]);
 	for (int i = 0; i < MAXBELTITEMS; i++)
-		SaveItem(&plr._pSpdList[i]);
+		SaveItem((BYTE*)&plrSave->vpSpdList[i], &pr->_pSpdList[i]);
+		// dest = SaveItem(dest, &pr->_pSpdList[i]);
 	for (int i = 0; i < NUM_INV_GRID_ELEM; i++)
-		SaveItem(&plr._pInvList[i]);
-	SaveInt(&plr._pGold);
+		SaveItem((BYTE*)&plrSave->vpInvList[i], &pr->_pInvList[i]);
+		// dest = SaveItem(dest, &pr->_pInvList[i]);
+	plrSave->vpGold = pr->_pGold;
+
+	dest += sizeof(LSavePlayerStruct);
 
 	/*Skip to Calc
 	tbuff += 4; // _pStrength
@@ -1185,11 +1162,13 @@ static void SavePlayer(int pnum)
 
 	// Omit pointers _pAnimFileData
 	// Omit pointer alignment
+
+	return dest;
 }
 
-static void SaveMonster(int mnum, bool full)
+static BYTE* SaveMonster(BYTE* __restrict dest, int mnum, bool full)
 {
-	MonsterStruct* mon = &monsters[mnum];
+	MonsterStruct* __restrict mon = &monsters[mnum];
 
 	if (!full) {
 		// reset charging and stoned monsters, because the missiles are not saved
@@ -1202,90 +1181,99 @@ static void SaveMonster(int mnum, bool full)
 			// mon->_mVar2 = ...;
 		}
 	}
-	SaveInt(&mon->_mmode);
-	SaveInt(&mon->_msquelch);
-	SaveByte(&mon->_mMTidx);
-	SaveByte(&mon->_mpathcount);
-	SaveByte(&mon->_mWhoHit);
-	SaveByte(&mon->_mgoal);
-	SaveInt(&mon->_mgoalvar1);
-	SaveInt(&mon->_mgoalvar2);
-	SaveInt(&mon->_mgoalvar3);
-	SaveInt(&mon->_mx);
-	SaveInt(&mon->_my);
-	SaveInt(&mon->_mfutx);
-	SaveInt(&mon->_mfuty);
-	SaveInt(&mon->_moldx);
-	SaveInt(&mon->_moldy);
-	SaveInt(&mon->_mxoff);
-	SaveInt(&mon->_myoff);
-	SaveInt(&mon->_mdir);
-	SaveInt(&mon->_menemy);
-	SaveByte(&mon->_menemyx);
-	SaveByte(&mon->_menemyy);
-	SaveByte(&mon->_mListener);
-	SaveByte(&mon->_mDelFlag);
 
-	tbuff += 4; // Skip pointer _mAnimData
-	tbuff += 4; // Skip _mAnimFrameLen
-	SaveInt(&mon->_mAnimCnt);
-	tbuff += 4; // Skip _mAnimLen
-	SaveInt(&mon->_mAnimFrame);
-	SaveInt(&mon->_mVar1);
-	SaveInt(&mon->_mVar2);
-	SaveInt(&mon->_mVar3);
-	SaveInt(&mon->_mVar4);
-	SaveInt(&mon->_mVar5);
-	SaveInt(&mon->_mVar6);
-	SaveInt(&mon->_mVar7);
-	SaveInt(&mon->_mVar8);
-	SaveInt(&mon->_mmaxhp);
-	SaveInt(&mon->_mhitpoints);
-	SaveInt(&mon->_mlastx);
-	SaveInt(&mon->_mlasty);
-	SaveInt(&mon->_mRndSeed);
-	SaveInt(&mon->_mAISeed);
+	LSaveMonsterStruct* __restrict monSave = (LSaveMonsterStruct*)dest;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	monSave->vmmode = mon->_mmode;
+	monSave->vmsquelch = mon->_msquelch;
 
-	SaveByte(&mon->_muniqtype);
-	SaveByte(&mon->_muniqtrans);
-	SaveByte(&mon->_mNameColor);
-	SaveByte(&mon->_mlid);
+	monSave->vmMTidx = mon->_mMTidx;
+	monSave->vmpathcount = mon->_mpathcount; // unused
+	monSave->vmWhoHit = mon->_mWhoHit;
+	monSave->vmgoal = mon->_mgoal;
 
-	SaveByte(&mon->_mleader);
-	SaveByte(&mon->_mleaderflag);
-	SaveByte(&mon->_mpacksize);
-	SaveByte(&mon->_mvid);
+	monSave->vmgoalvar1 = mon->_mgoalvar1;
+	monSave->vmgoalvar2 = mon->_mgoalvar2;
+	monSave->vmgoalvar3 = mon->_mgoalvar3;
+	monSave->vmx = mon->_mx;
+	monSave->vmy = mon->_my;
+	monSave->vmfutx = mon->_mfutx;
+	monSave->vmfuty = mon->_mfuty;
+	monSave->vmoldx = mon->_moldx;
+	monSave->vmoldy = mon->_moldy;
+	monSave->vmxoff = mon->_mxoff;
+	monSave->vmyoff = mon->_myoff;
+	monSave->vmdir = mon->_mdir;
+	monSave->vmenemy = mon->_menemy;
+	monSave->vmenemyx = mon->_menemyx;
+	monSave->vmenemyy = mon->_menemyy;
+	monSave->vmListener = mon->_mListener;
+	monSave->vmDelFlag = mon->_mDelFlag; // unused
+	// monSave->vmAnimDataAlign = mon->_mAnimData;
+	// monSave->vmAnimFrameLenAlign = mon->_mAnimFrameLen;
+	monSave->vmAnimCnt = mon->_mAnimCnt;
+	monSave->vmAnimLenAlign = mon->_mAnimLen;
+	monSave->vmAnimFrame = mon->_mAnimFrame;
+	monSave->vmVar1 = mon->_mVar1;
+	monSave->vmVar2 = mon->_mVar2;
+	monSave->vmVar3 = mon->_mVar3;
+	monSave->vmVar4 = mon->_mVar4;
+	monSave->vmVar5 = mon->_mVar5;
+	monSave->vmVar6 = mon->_mVar6;
+	monSave->vmVar7 = mon->_mVar7;
+	monSave->vmVar8 = mon->_mVar8;
+	monSave->vmmaxhp = mon->_mmaxhp;
+	monSave->vmhitpoints = mon->_mhitpoints;
+	monSave->vmlastx = mon->_mlastx;
+	monSave->vmlasty = mon->_mlasty;
+	monSave->vmRndSeed = mon->_mRndSeed;
+	monSave->vmAISeed = mon->_mAISeed;
 
-	// Skip _mName
+	monSave->vmuniqtype = mon->_muniqtype;
+	monSave->vmuniqtrans = mon->_muniqtrans;
+	monSave->vmNameColor = mon->_mNameColor;
+	monSave->vmlid = mon->_mlid;
 
-	SaveInt16(&mon->_mFileNum);
-	SaveByte(&mon->_mLevel);
-	SaveByte(&mon->_mSelFlag);
+	monSave->vmleader = mon->_mleader;
+	monSave->vmleaderflag = mon->_mleaderflag;
+	monSave->vmpacksize = mon->_mpacksize;
+	monSave->vmvid = mon->_mvid;
+	// monSave->vmNameAlign = mon->_mName;
 
-	SaveByte(&mon->_mAI.aiType);
-	SaveByte(&mon->_mAI.aiInt);
-	SaveByte(&mon->_mAI.aiParam1);
-	SaveByte(&mon->_mAI.aiParam2);
+	monSave->vmFileNum = mon->_mFileNum;
+	monSave->vmLevel = mon->_mLevel;
+	monSave->vmSelFlag = mon->_mSelFlag;
 
-	SaveInt(&mon->_mFlags);
+	monSave->vmAI_aiType = mon->_mAI.aiType;
+	monSave->vmAI_aiInt = mon->_mAI.aiInt;
+	monSave->vmAI_aiParam1 = mon->_mAI.aiParam1;
+	monSave->vmAI_aiParam2 = mon->_mAI.aiParam2;
 
-	SaveInt16(&mon->_mHit);
-	SaveByte(&mon->_mMinDamage);
-	SaveByte(&mon->_mMaxDamage);
+	monSave->vmFlags = mon->_mFlags;
 
-	SaveInt16(&mon->_mHit2);
-	SaveByte(&mon->_mMinDamage2);
-	SaveByte(&mon->_mMaxDamage2);
+	monSave->vmHit = mon->_mHit;
+	monSave->vmMinDamage = mon->_mMinDamage;
+	monSave->vmMaxDamage = mon->_mMaxDamage;
 
-	SaveByte(&mon->_mMagic);
-	SaveByte(&mon->_mMagic2);
-	SaveByte(&mon->_mArmorClass);
-	SaveByte(&mon->_mEvasion);
+	monSave->vmHit2 = mon->_mHit2;
+	monSave->vmMinDamage2 = mon->_mMinDamage2;
+	monSave->vmMaxDamage2 = mon->_mMaxDamage2;
 
-	SaveInt16(&mon->_mMagicRes);
-	SaveInt16(&mon->_mTreasure);
+	monSave->vmMagic = mon->_mMagic;
+	monSave->vmMagic2 = mon->_mMagic2;
+	monSave->vmArmorClass = mon->_mArmorClass;
+	monSave->vmEvasion = mon->_mEvasion;
 
-	SaveInt(&mon->_mExp);
+	monSave->vmMagicRes = mon->_mMagicRes;
+	monSave->vmTreasure = mon->_mTreasure;
+
+	monSave->vmExp = mon->_mExp;
+#else
+	static_assert(sizeof(LSaveMonsterStruct) == offsetof(LSaveMonsterStruct, vmExp) + sizeof(monSave->vmExp)
+	 && offsetof(MonsterStruct, _mExp) == offsetof(LSaveMonsterStruct, vmExp), "SaveMonster uses memcpy to store the MonsterStruct in LSaveMonsterStruct.");
+	memcpy(monSave, mon, sizeof(LSaveMonsterStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	dest += sizeof(LSaveMonsterStruct);
 
 	// Skip _mAnimWidth
 	// Skip _mAnimXOffset
@@ -1294,310 +1282,393 @@ static void SaveMonster(int mnum, bool full)
 	// Skip _mAlign_0
 	// Skip pointer mAnims
 	// Skip _mType
+
+	return dest;
 }
 
-static void SaveMissile(int mi)
+static BYTE* SaveMissile(BYTE* __restrict dest, int mi)
 {
-	MissileStruct* mis = &missile[mi];
+	MissileStruct* __restrict mis = &missile[mi];
 
-	SaveInt(&mis->_miType);
+	LSaveMissileStruct* __restrict misSave = (LSaveMissileStruct*)dest;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	misSave->vmiType = mis->_miType;
 
-	SaveByte(&mis->_miFlags);
-	SaveByte(&mis->_miResist);
-	SaveByte(&mis->_miFileNum);
-	SaveByte(&mis->_miDrawFlag);
+	misSave->vmiFlags = mis->_miFlags;
+	misSave->vmiResist = mis->_miResist;
+	misSave->vmiFileNum = mis->_miFileNum;
+	misSave->vmiDrawFlag = mis->_miDrawFlag;
 
-	SaveInt(&mis->_miUniqTrans);
+	misSave->vmiUniqTrans = mis->_miUniqTrans;
 
-	SaveByte(&mis->_miDelFlag);
-	SaveByte(&mis->_miLightFlag);
-	SaveByte(&mis->_miPreFlag);
-	SaveByte(&mis->_miAnimFlag); // could be skipped
+	misSave->vmiDelFlag = mis->_miDelFlag;
+	misSave->vmiLightFlag = mis->_miLightFlag;
+	misSave->vmiPreFlag = mis->_miPreFlag;
+	misSave->vmiAnimFlag = mis->_miAnimFlag; // could be skipped
 
-	tbuff += 4; // Skip pointer _miAnimData
-	tbuff += 4; // Skip _miAnimFrameLen
-	tbuff += 4; // Skip _miAnimLen
-	tbuff += 4; // Skip _miAnimWidth
-	tbuff += 4; // Skip _miAnimXOffset
-	SaveInt(&mis->_miAnimCnt);
-	SaveInt(&mis->_miAnimAdd);
-	SaveInt(&mis->_miAnimFrame);
-	SaveInt(&mis->_misx);
-	SaveInt(&mis->_misy);
-	SaveInt(&mis->_mix);
-	SaveInt(&mis->_miy);
-	SaveInt(&mis->_mixoff);
-	SaveInt(&mis->_miyoff);
-	SaveInt(&mis->_mixvel);
-	SaveInt(&mis->_miyvel);
-	SaveInt(&mis->_mitxoff);
-	SaveInt(&mis->_mityoff);
-	SaveInt(&mis->_miDir);
-	SaveInt(&mis->_miSpllvl);
-	SaveInt(&mis->_miSource);
-	SaveInt(&mis->_miCaster);
-	SaveInt(&mis->_miMinDam);
-	SaveInt(&mis->_miMaxDam);
-	// SaveInt(&mis->_miRndSeed);
-	SaveInt(&mis->_miRange);
-	SaveInt(&mis->_miLid);
-	SaveInt(&mis->_miVar1);
-	SaveInt(&mis->_miVar2);
-	SaveInt(&mis->_miVar3);
-	SaveInt(&mis->_miVar4);
-	SaveInt(&mis->_miVar5);
-	SaveInt(&mis->_miVar6);
-	SaveInt(&mis->_miVar7);
-	SaveInt(&mis->_miVar8);
+	// misSave->vmiAnimDataAlign = mis->_miAnimData;
+	// misSave->vmiAnimFrameLenAlign = mis->_miAnimFrameLen;
+	// misSave->vmiAnimLenAlign = mis->_miAnimLen;
+	// misSave->vmiAnimWidthAlign = mis->_miAnimWidth;
+	// misSave->vmiAnimXOffsetAlign = mis->_miAnimXOffset;
+	misSave->vmiAnimCnt = mis->_miAnimCnt;
+	misSave->vmiAnimAdd = mis->_miAnimAdd;
+	misSave->vmiAnimFrame = mis->_miAnimFrame;
+	misSave->vmisx = mis->_misx;
+	misSave->vmisy = mis->_misy;
+	misSave->vmix = mis->_mix;
+	misSave->vmiy = mis->_miy;
+	misSave->vmixoff = mis->_mixoff;
+	misSave->vmiyoff = mis->_miyoff;
+	misSave->vmixvel = mis->_mixvel;
+	misSave->vmiyvel = mis->_miyvel;
+	misSave->vmitxoff = mis->_mitxoff;
+	misSave->vmityoff = mis->_mityoff;
+	misSave->vmiDir = mis->_miDir;
+	misSave->vmiSpllvl = mis->_miSpllvl;
+	misSave->vmiSource = mis->_miSource;
+	misSave->vmiCaster = mis->_miCaster;
+	misSave->vmiMinDam = mis->_miMinDam;
+	misSave->vmiMaxDam = mis->_miMaxDam;
+	misSave->vmiRange = mis->_miRange;
+	misSave->vmiLid = mis->_miLid;
+	misSave->vmiVar1 = mis->_miVar1;
+	misSave->vmiVar2 = mis->_miVar2;
+	misSave->vmiVar3 = mis->_miVar3;
+	misSave->vmiVar4 = mis->_miVar4;
+	misSave->vmiVar5 = mis->_miVar5;
+	misSave->vmiVar6 = mis->_miVar6;
+	misSave->vmiVar7 = mis->_miVar7;
+	misSave->vmiVar8 = mis->_miVar8;
+#else
+	static_assert(sizeof(LSaveMissileStruct) == offsetof(LSaveMissileStruct, vmiVar8) + sizeof(misSave->vmiVar8)
+	 && offsetof(MissileStruct, _miVar8) == offsetof(LSaveMissileStruct, vmiVar8), "SaveMissile uses memcpy to store the MissileStruct in LSaveMissileStruct.");
+	memcpy(misSave, mis, sizeof(LSaveMissileStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	dest += sizeof(LSaveMissileStruct);
+
+	return dest;
 }
 
-static void SaveObject(int oi)
+static BYTE* SaveObject(BYTE* __restrict dest, int oi)
 {
-	ObjectStruct* os = &objects[oi];
+	ObjectStruct* __restrict os = &objects[oi];
 
-	SaveInt(&os->_otype);
-	SaveInt(&os->_ox);
-	SaveInt(&os->_oy);
-	SaveInt(&os->_oSFX);
-	SaveByte(&os->_oSFXCnt);
-	SaveByte(&os->_oAnimFlag);
-	tbuff += 2; // Alignment
-	tbuff += 4; // Skip pointer _oAnimData
-	tbuff += 4; // Skip _oAnimFrameLen
-	SaveInt(&os->_oAnimCnt);
-	SaveInt(&os->_oAnimLen);
-	SaveInt(&os->_oAnimFrame);
-	tbuff += 4; // Skip _oAnimWidth
-	tbuff += 4; // Skip _oAnimXOffset
+	LSaveObjectStruct* __restrict objSave = (LSaveObjectStruct*)dest;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	objSave->votype = os->_otype;
+	objSave->vox = os->_ox;
+	objSave->voy = os->_oy;
+	objSave->voSFX = os->_oSFX;
 
-	SaveByte(&os->_oSolidFlag);
-	SaveByte(&os->_oMissFlag);
-	SaveByte(&os->_oLightFlag);
-	SaveByte(&os->_oBreak);
+	objSave->voSFXCnt = os->_oSFXCnt;
+	objSave->voAnimFlag = os->_oAnimFlag;
+	objSave->voAlign0 = os->_oAlign0;
+	objSave->voAlign1 = os->_oAlign1;
 
-	SaveByte(&os->_oDoorFlag);
-	SaveByte(&os->_oSelFlag);
-	SaveByte(&os->_oTrapChance);
-	SaveByte(&os->_oPreFlag);
+	//objSave->voAnimDataAlign = os->_oAnimData;
+	objSave->voAnimFrameLen = os->_oAnimFrameLen;
+	objSave->voAnimCnt = os->_oAnimCnt;
+	objSave->voAnimLen = os->_oAnimLen;
+	objSave->voAnimFrame = os->_oAnimFrame;
+	objSave->voAnimWidthAlign = os->_oAnimWidth;
+	objSave->voAnimXOffsetAlign = os->_oAnimXOffset;
 
-	SaveInt(&os->_olid);
-	SaveInt(&os->_oRndSeed);
-	SaveInt(&os->_oVar1);
-	SaveInt(&os->_oVar2);
-	SaveInt(&os->_oVar3);
-	SaveInt(&os->_oVar4);
-	SaveInt(&os->_oVar5);
-	SaveInt(&os->_oVar6);
-	SaveInt(&os->_oVar7);
-	SaveInt(&os->_oVar8);
+	objSave->voSolidFlag = os->_oSolidFlag;
+	objSave->voMissFlag = os->_oMissFlag;
+	objSave->voLightFlag = os->_oLightFlag;
+	objSave->voBreak = os->_oBreak;
+
+	objSave->voDoorFlag = os->_oDoorFlag;
+	objSave->voSelFlag = os->_oSelFlag;
+	objSave->voTrapChance = os->_oTrapChance;
+	objSave->voPreFlag = os->_oPreFlag;
+
+	objSave->volid = os->_olid;
+	objSave->voRndSeed = os->_oRndSeed;
+	objSave->voVar1 = os->_oVar1;
+	objSave->voVar2 = os->_oVar2;
+	objSave->voVar3 = os->_oVar3;
+	objSave->voVar4 = os->_oVar4;
+	objSave->voVar5 = os->_oVar5;
+	objSave->voVar6 = os->_oVar6;
+	objSave->voVar7 = os->_oVar7;
+	objSave->voVar8 = os->_oVar8;
+#else
+	static_assert(sizeof(LSaveObjectStruct) == offsetof(LSaveObjectStruct, voVar8) + sizeof(objSave->voVar8)
+	 && offsetof(ObjectStruct, _oVar8) == offsetof(LSaveObjectStruct, voVar8), "SaveObject uses memcpy to store the ObjectStruct in LSaveObjectStruct.");
+	memcpy(objSave, os, sizeof(LSaveObjectStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	dest += sizeof(LSaveObjectStruct);
+
+	return dest;
 }
 
-static void SaveQuest(int i)
+static BYTE* SaveQuest(BYTE* __restrict dest, int i)
 {
-	QuestStruct* pQuest = &quests[i];
+	QuestStruct* __restrict pQuest = &quests[i];
 
-	SaveByte(&pQuest->_qactive);
-	SaveByte(&pQuest->_qvar1);
-	SaveByte(&pQuest->_qvar2);
-	SaveByte(&pQuest->_qlog);
+	LSaveQuestStruct* __restrict questSave = (LSaveQuestStruct*)dest;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	questSave->vqactive = pQuest->_qactive;
+	questSave->vqvar1 = pQuest->_qvar1;
+	questSave->vqvar2 = pQuest->_qvar2;
+	questSave->vqlog = pQuest->_qlog;
 
-	SaveInt(&pQuest->_qtx);
-	SaveInt(&pQuest->_qty);
-	SaveInt(&pQuest->_qmsg);
+	questSave->vqmsg = pQuest->_qmsg;
+	questSave->vqtx = pQuest->_qtx;
+	questSave->vqty = pQuest->_qty;
+#else
+	static_assert(sizeof(LSaveQuestStruct) == offsetof(LSaveQuestStruct, vqty) + sizeof(questSave->vqty)
+	 && offsetof(QuestStruct, _qty) == offsetof(LSaveQuestStruct, vqty), "SaveQuest uses memcpy to load the QuestStruct in LSaveQuestStruct.");
+	memcpy(questSave, pQuest, sizeof(LSaveQuestStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	dest += sizeof(LSaveQuestStruct);
+
+	return dest;
 }
 
-static void SaveLight(LightListStruct* pLight)
+static BYTE* SaveLight(BYTE* __restrict dest, LightListStruct* __restrict pLight)
 {
-	SaveInt(&pLight->_lx);
-	SaveInt(&pLight->_ly);
-	SaveInt(&pLight->_lunx);
-	SaveInt(&pLight->_luny);
+	LSaveLightListStruct* __restrict lightSave = (LSaveLightListStruct*)dest;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	lightSave->vlx = pLight->_lx;
+	lightSave->vly = pLight->_ly;
+	lightSave->vlunx = pLight->_lunx;
+	lightSave->vluny = pLight->_luny;
 
-	SaveByte(&pLight->_lradius);
-	SaveByte(&pLight->_lunr);
-	SaveByte(&pLight->_ldel);
-	SaveByte(&pLight->_lunflag);
+	lightSave->vlradius = pLight->_lradius;
+	lightSave->vlunr = pLight->_lunr;
+	lightSave->vldel = pLight->_ldel;
+	lightSave->vlunflag = pLight->_lunflag;
 
-	SaveByte(&pLight->_lmine);
-	tbuff += 3; // Alignment
+	lightSave->vlmine = pLight->_lmine;
+	lightSave->vlAlign0 = pLight->_lAlign0;
+	lightSave->vlAlign1 = pLight->_lAlign1;
+	lightSave->vlAlign2 = pLight->_lAlign2;
 
-	SaveInt(&pLight->_xoff);
-	SaveInt(&pLight->_yoff);
+	lightSave->vxoff = pLight->_xoff;
+	lightSave->vyoff = pLight->_yoff;
+#else
+	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vyoff) + sizeof(lightSave->vyoff)
+	 && offsetof(LightListStruct, _yoff) == offsetof(LSaveLightListStruct, vyoff), "SaveLight uses memcpy to store the LightListStruct in LSaveLightListStruct.");
+	memcpy(lightSave, pLight, sizeof(LSaveLightListStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	dest += sizeof(LSaveLightListStruct);
+
+	return dest;
 }
 
-static void SavePortal(int i)
+static BYTE* SavePortal(BYTE* __restrict dest, int i)
 {
-	PortalStruct* pPortal = &portals[i];
+	PortalStruct* __restrict pPortal = &portals[i];
 
-	SaveByte(&pPortal->_ropen);
-	tbuff += 3; // Alignment
+	LSavePortalStruct* __restrict portalSave = (LSavePortalStruct*)dest;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+	portalSave->vropen = pPortal->_ropen;
+	portalSave->vrAlign0 = pPortal->_rAlign0;
+	portalSave->vrAlign1 = pPortal->_rAlign1;
+	portalSave->vrAlign2 = pPortal->_rAlign2;
 
-	SaveInt(&pPortal->_rx);
-	SaveInt(&pPortal->_ry);
-	SaveInt(&pPortal->_rlevel);
+	portalSave->vrx = pPortal->_rx;
+	portalSave->vry = pPortal->_ry;
+	portalSave->vrlevel = pPortal->_rlevel;
+#else
+	static_assert(sizeof(LSavePortalStruct) == offsetof(LSavePortalStruct, vrlevel) + sizeof(portalSave->vrlevel)
+	 && offsetof(PortalStruct, _rlevel) == offsetof(LSavePortalStruct, vrlevel), "SavePortal uses memcpy to store the PortalStruct in LSavePortalStruct.");
+	memcpy(portalSave, pPortal, sizeof(LSavePortalStruct));
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
+
+	dest += sizeof(LSavePortalStruct);
+
+	return dest;
 }
 
-static void SaveLevelData(bool full)
+static BYTE* SaveLevelData(BYTE* dest, bool full)
 {
+	LSaveGameLvlMetaStruct* lms;
 	int i;
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
+		memcpy(dest, dDead, MAXDUNX * MAXDUNY);
+		dest += MAXDUNX * MAXDUNY;
 	}
-
-	SaveInt(&nummonsters);
-	if (full)
-		SaveInt(&nummissiles);
-	SaveInt(&numobjects);
-	SaveInt(&numitems);
+	lms = (LSaveGameLvlMetaStruct*)dest;
+	lms->vvnummonsters = nummonsters;
+	lms->vvnummissiles = nummissiles; // used only if full
+	lms->vvnumobjects = numobjects;
+	lms->vvnumitems = numitems;
+	dest += sizeof(LSaveGameLvlMetaStruct);
 
 	for (i = 0; i < MAXMONSTERS; i++)
-		SaveMonster(i, full);
+		dest = SaveMonster(dest, i, full);
 	if (currLvl._dType != DTYPE_TOWN) {
 		if (full) {
-			for (i = 0; i < MAXMISSILES; i++)
-				SaveByte(&missileactive[i]);
+			LE_SAVE_INTS(dest, missileactive, lengthof(missileactive));
+			dest += lengthof(missileactive) * sizeof(LE_INT32);
 			for (i = 0; i < nummissiles; i++)
-				SaveMissile(missileactive[i]);
+				dest = SaveMissile(dest, missileactive[i]);
 		}
-		for (i = 0; i < MAXOBJECTS; i++)
-			SaveByte(&objectactive[i]);
-//		for (i = 0; i < MAXOBJECTS; i++)
-//			SaveByte(&objectavail[i]);
+		LE_SAVE_INTS(dest, objectactive, lengthof(objectactive));
+		dest += lengthof(objectactive) * sizeof(LE_INT32);
+//		LE_SAVE_INTS(dest, objectavail, lengthof(objectavail));
+//		dest += lengthof(objectavail) * sizeof(LE_INT32);
 		for (i = 0; i < numobjects; i++)
-			SaveObject(objectactive[i]);
-	}
-	for (i = 0; i < MAXITEMS; i++)
-		SaveByte(&itemactive[i]);
-	for (i = 0; i < numitems; i++)
-		SaveItem(&items[itemactive[i]]);
-	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
-	if (full) {
-		CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
+			dest = SaveObject(dest, objectactive[i]);
 	}
 
-	SaveInts(&dMonster[0][0], MAXDUNX * MAXDUNY);
-	if (currLvl._dType != DTYPE_TOWN) {
-		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
-		if (full)
-			CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
+	LE_SAVE_INTS(dest, itemactive, lengthof(itemactive));
+	dest += lengthof(itemactive) * sizeof(LE_INT32);
+	for (i = 0; i < numitems; i++)
+		dest = SaveItem(dest, &items[itemactive[i]]);
+
+	memcpy(dest, dFlags, MAXDUNX * MAXDUNY);
+	dest += MAXDUNX * MAXDUNY;
+	memcpy(dest, dItem, MAXDUNX * MAXDUNY);
+	dest += MAXDUNX * MAXDUNY;
+	memcpy(dest, dPreLight, MAXDUNX * MAXDUNY);
+	dest += MAXDUNX * MAXDUNY;
+
+	if (full) {
+		memcpy(dest, dLight, MAXDUNX * MAXDUNY);
+		dest += MAXDUNX * MAXDUNY;
+		memcpy(dest, dPlayer, MAXDUNX * MAXDUNY);
+		dest += MAXDUNX * MAXDUNY;
 	}
+
+	LE_SAVE_INTS(dest, &dMonster[0][0], MAXDUNX * MAXDUNY);
+	dest += MAXDUNX * MAXDUNY * sizeof(LE_INT32);
+
+	if (currLvl._dType != DTYPE_TOWN) {
+		memcpy(dest, dObject, MAXDUNX * MAXDUNY);
+		dest += MAXDUNX * MAXDUNY;
+		memcpy(dest, automapview, DMAXX * DMAXY);
+		dest += DMAXX * DMAXY;
+
+		if (full) {
+			memcpy(dest, dMissile, MAXDUNX * MAXDUNY);
+			dest += MAXDUNX * MAXDUNY;
+		}
+	}
+
+	return dest;
 }
 
 void SaveGame()
 {
 	int i;
-	int32_t seed;
+	LSaveGameHeaderStruct* __restrict ghs;
+	LSaveGameMetaStruct* __restrict gms;
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
-	tbuff = fileBuff;
+	BYTE* tbuff = fileBuff;
 
-	constexpr size_t ss = 4 + 12 + 4 * NUM_LEVELS + 4 + 48 + NUM_WNDS + 13900 + 20 + 16 * NUM_QUESTS + 16 * MAXPORTAL;
-	// initial
-	i = SAVE_INITIAL;
-	SaveInt(&i);
+
+	constexpr size_t ss = sizeof(LSaveGameHeaderStruct) + sizeof(LSavePlayerStruct) + sizeof(LSaveQuestStruct) * NUM_QUESTS + sizeof(LSavePortalStruct) * MAXPORTAL;
+	ghs = (LSaveGameHeaderStruct*)tbuff;
+	ghs->vhInitial = SAVE_INITIAL;
 	// save game-info
-	SaveInt32(&gdwGameLogicTurn);
+	ghs->vhLogicTurn = gdwGameLogicTurn;
 	assert(gdwLastGameTurn == gdwGameLogicTurn ||
 		((gdwLastGameTurn + 1) == gdwGameLogicTurn && gbNetUpdateRate == 1));
-	SaveInt32(&sgbSentThisCycle);
+	ghs->vhSentCycle = sgbSentThisCycle;
 	i = (gnDifficulty << 8) | currLvl._dLevelIdx;
-	SaveInt(&i);
+	ghs->vhLvlDifficulty = i;
 	for (i = 0; i < NUM_LEVELS; i++) {
-		SaveInt(&glSeedTbl[i]);
+		ghs->vhSeeds[i] = glSeedTbl[i];
 	}
-	seed = GetRndSeed();
-	SaveInt(&seed);
+	ghs->vhCurrSeed = GetRndSeed();
 	// save player-data
-	SaveInt(&ViewX);
-	SaveInt(&ViewY);
-	// SaveInt(&ScrollInfo._sdx);
-	// SaveInt(&ScrollInfo._sdy);
-	SaveInt(&ScrollInfo._sxoff);
-	SaveInt(&ScrollInfo._syoff);
-	SaveInt(&ScrollInfo._sdir);
-	SaveInt(&gnHPPer);
-	SaveInt(&gnManaPer);
+	ghs->vhViewX = ViewX;
+	ghs->vhViewY = ViewY;
+	// ghs->vhScrollX = ScrollInfo._sdx;
+	// ghs->vhScrollY = ScrollInfo._sdy;
+	ghs->vhScrollXOff = ScrollInfo._sxoff;
+	ghs->vhScrollYOff = ScrollInfo._syoff;
+	ghs->vhScrollDir = ScrollInfo._sdir;
+	ghs->vhHPPer = gnHPPer;
+	ghs->vhManaPer = gnManaPer;
 
-	SaveBool(gbLvlUp);
-	SaveBool(gbAutomapflag);
-	SaveBool(gbZoomInFlag);
-	SaveBool(gbInvflag);
-	SaveInt(&gnNumActiveWindows);
-	for (i = 0; i < NUM_WNDS; i++) {
-		SaveByte(&gaActiveWindows[i]);
-	}
-	SaveInt(&AutoMapScale);
-	SaveInt(&AutoMapXOfs);
-	SaveInt(&AutoMapYOfs);
+	ghs->vhLvlUpFlag = gbLvlUp;
+	ghs->vhAutomapflag = gbAutomapflag;
+	ghs->vhZoomInFlag = gbZoomInFlag;
+	ghs->vhInvflag = gbInvflag;
 
-	SavePlayer(mypnum);
+	ghs->vhNumActiveWindows = gnNumActiveWindows;
+	memcpy(ghs->vhActiveWindows, gaActiveWindows, sizeof(gaActiveWindows));
+	ghs->vhTownWarps = gbTownWarps;
+	ghs->vhWaterDone = gbWaterDone;
+
+	ghs->vhAutoMapScale = AutoMapScale;
+	ghs->vhAutoMapXOfs = AutoMapXOfs;
+	ghs->vhAutoMapYOfs = AutoMapYOfs;
+
+	ghs->vhReturnLvlX = gnReturnLvlX;
+	ghs->vhReturnLvlY = gnReturnLvlY;
+	ghs->vhReturnLvl = gnReturnLvl;
+	ghs->vhLvlVisited = guLvlVisited;
+
+	tbuff += sizeof(LSaveGameHeaderStruct);
+
+	tbuff = SavePlayer(tbuff, mypnum);
 
 	// save meta-data I.
-	SaveInt(&gnReturnLvlX);
-	SaveInt(&gnReturnLvlY);
-	SaveInt(&gnReturnLvl);
-	SaveByte(&gbTownWarps);
-	SaveByte(&gbWaterDone);
-	tbuff += 2; // Alignment
-	SaveInt32(&guLvlVisited);
-	// save meta-data II. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
-		SaveQuest(i);
+		tbuff = SaveQuest(tbuff, i);
 	for (i = 0; i < MAXPORTAL; i++)
-		SavePortal(i);
+		tbuff = SavePortal(tbuff, i);
 	// save level-data
-	constexpr size_t slt = /*112 * 112 +*/ 16 + MAXMONSTERS * 184 /*+ MAXMISSILES
-	 + MAXMISSILES * 156 + 2 * MAXOBJECTS + MAXOBJECTS * 96*/ + MAXITEMS
-	 + MAXITEMS * 232 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
-	 + 112 * 112 * 4 /*+ 112 * 112 + 40 * 40 + 112 * 112*/;
-	constexpr size_t sld = (112 * 112) + 16 + (MAXMONSTERS * 184 + MAXMISSILES
-	 + MAXMISSILES * 156 + /*2 * */MAXOBJECTS + MAXOBJECTS * 96) + MAXITEMS
-	 + MAXITEMS * 232 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112 + 112 * 112
-	 + (112 * 112 * 4 + 112 * 112 + 40 * 40 + 112 * 112);
-	SaveLevelData(true);
+	constexpr size_t slt = /*MAXDUNX * MAXDUNY +*/ sizeof(LSaveGameLvlMetaStruct) + MAXMONSTERS * sizeof(LSaveMonsterStruct) /*+ MAXMISSILES * 4
+	 + MAXMISSILES * sizeof(LSaveMissileStruct) + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))*/ + MAXITEMS * (4 + sizeof(LSaveItemStruct))
+	 + 5 * MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY * sizeof(INT) /*+ MAXDUNX * MAXDUNY + DMAXX * DMAXY + MAXDUNX * MAXDUNY*/;
+	constexpr size_t sld = (MAXDUNX * MAXDUNY) + sizeof(LSaveGameLvlMetaStruct) + (MAXMONSTERS * sizeof(LSaveMonsterStruct) + MAXMISSILES * 4
+	 + MAXMISSILES * sizeof(LSaveMissileStruct) + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))) + MAXITEMS * (4 + sizeof(LSaveItemStruct))
+	 + 5 * MAXDUNX * MAXDUNY + (MAXDUNX * MAXDUNY * 4 + MAXDUNX * MAXDUNY + DMAXX * DMAXY + MAXDUNX * MAXDUNY);
+	tbuff = SaveLevelData(tbuff, true);
 
-	// save meta-data III. (modified by LoadGameLevel)
-	constexpr size_t smt = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
-	 + 232 + SMITH_PREMIUM_ITEMS * 232 + (SMITH_ITEMS * 232 + HEALER_ITEMS * 232
-	 + WITCH_ITEMS * 232);
-	constexpr size_t smd = 5 * 4 + MAXLIGHTS + 32 * MAXLIGHTS + MAXVISION + 32 * MAXVISION + 256
-	 + 232 + SMITH_PREMIUM_ITEMS * 232 /*+ SMITH_ITEMS * 232 + HEALER_ITEMS * 232
-	 + WITCH_ITEMS * 232*/;
-	//SaveInt(&numtowners);
-	SaveInt(&boylevel);
-	SaveInt(&numpremium);
-	SaveInt(&premiumlevel);
-	SaveInt(&numlights);
-	SaveInt(&numvision);
-	//SaveByte(&numtrans);
-	//tbuff += 3; // Alignment
+	// save meta-data II. (modified by LoadGameLevel)
+	constexpr size_t smt = sizeof(LSaveGameMetaStruct) + MAXLIGHTS + sizeof(LSaveLightListStruct) * MAXLIGHTS + MAXVISION + sizeof(LSaveLightListStruct) * MAXVISION + sizeof(TransList)
+	 + (1 + SMITH_PREMIUM_ITEMS + (SMITH_ITEMS + HEALER_ITEMS + WITCH_ITEMS)) * sizeof(LSaveItemStruct);
+	constexpr size_t smd = sizeof(LSaveGameMetaStruct) + MAXLIGHTS + sizeof(LSaveLightListStruct) * MAXLIGHTS + MAXVISION + sizeof(LSaveLightListStruct) * MAXVISION + sizeof(TransList)
+	 + (1 + SMITH_PREMIUM_ITEMS/* + (SMITH_ITEMS + HEALER_ITEMS + WITCH_ITEMS)*/) * sizeof(LSaveItemStruct);
+	gms = (LSaveGameMetaStruct*)tbuff;
 
-	for (i = 0; i < MAXLIGHTS; i++)
-		SaveByte(&lightactive[i]);
+	//gms->vanumtowners = numtowners;
+	gms->vaboylevel = boylevel;
+	gms->vanumpremium = numpremium;
+	gms->vapremiumlevel = premiumlevel;
+	gms->vanumlights = numlights;
+	gms->vanumvision = numvision;
+
+	//gms->vanumtrans = numtrans;
+	tbuff += sizeof(LSaveGameMetaStruct);
+
+	memcpy(tbuff, lightactive, sizeof(lightactive));
+	tbuff += sizeof(lightactive);
 	for (i = 0; i < numlights; i++)
-		SaveLight(&LightList[lightactive[i]]);
+		tbuff = SaveLight(tbuff, &LightList[lightactive[i]]);
 
-	for (i = 0; i < MAXVISION; i++)
-		SaveByte(&visionactive[i]);
+	memcpy(tbuff, visionactive, sizeof(visionactive));
+	tbuff += sizeof(visionactive);
 	for (i = 0; i < numvision; i++)
-		SaveLight(&VisionList[visionactive[i]]);
+		tbuff = SaveLight(tbuff, &VisionList[visionactive[i]]);
 
-	CopyBytes(TransList, sizeof(TransList), tbuff);
+	memcpy(tbuff, TransList, sizeof(TransList));
+	tbuff += sizeof(TransList);
 
-	SaveItem(&boyitem);
+	tbuff = SaveItem(tbuff, &boyitem);
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		SaveItem(&premiumitems[i]);
+		tbuff = SaveItem(tbuff, &premiumitems[i]);
 	if (currLvl._dType == DTYPE_TOWN) {
 		for (i = 0; i < SMITH_ITEMS; i++)
-			SaveItem(&smithitem[i]);
+			tbuff = SaveItem(tbuff, &smithitem[i]);
 		for (i = 0; i < HEALER_ITEMS; i++)
-			SaveItem(&healitem[i]);
+			tbuff = SaveItem(tbuff, &healitem[i]);
 		for (i = 0; i < WITCH_ITEMS; i++)
-			SaveItem(&witchitem[i]);
+			tbuff = SaveItem(tbuff, &witchitem[i]);
 	}
 
 	constexpr size_t tst = ss + slt + smt;
@@ -1614,7 +1685,7 @@ void SaveGame()
 
 void SaveLevel()
 {
-	BYTE* fileBuff;
+	BYTE *fileBuff, *tbuff;
 
 	//if (currLvl._dLevelIdx == DLV_TOWN)
 	//	glSeedTbl[DLV_TOWN] = NextRndSeed();
@@ -1622,7 +1693,7 @@ void SaveLevel()
 	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	SaveLevelData(false);
+	tbuff = SaveLevelData(tbuff, false);
 
 	assert(tbuff - fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8/*sizeof(CodecSignature)*/);
 	pfile_write_save_file(false, tbuff - fileBuff);
@@ -1631,13 +1702,13 @@ void SaveLevel()
 void LoadLevel()
 {
 	int i;
-	BYTE *fileBuff, *tmp;
+	BYTE *fileBuff, *tbuff, *tmp;
 
 	pfile_read_save_file(false);
 	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
 
-	LoadLevelData(false);
+	tbuff = LoadLevelData(tbuff, false);
 
 	SyncMonsterLight();
 	//ResyncQuests();

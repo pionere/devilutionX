@@ -1060,6 +1060,422 @@ typedef struct PkPlayerStruct {
 #pragma pack(pop)
 
 //////////////////////////////////////////////////
+// load/save
+//////////////////////////////////////////////////
+
+#pragma pack(push, 1)
+typedef struct LSaveGameHeaderStruct {
+	LE_INT32 vhInitial;
+	LE_UINT32 vhLogicTurn;
+	LE_UINT32 vhSentCycle;
+	LE_INT32 vhLvlDifficulty;
+	LE_UINT32 vhSeeds[NUM_LEVELS];
+	LE_INT32 vhCurrSeed;
+	LE_INT32 vhViewX;
+	LE_INT32 vhViewY;
+	LE_INT32 vhScrollXOff;
+	LE_INT32 vhScrollYOff;
+	LE_INT32 vhScrollDir;
+	LE_INT32 vhHPPer;
+	LE_INT32 vhManaPer;
+	BYTE vhLvlUpFlag;
+	BYTE vhAutomapflag;
+	BYTE vhZoomInFlag;
+	BYTE vhInvflag;
+	LE_INT32 vhNumActiveWindows;
+	BYTE vhActiveWindows[NUM_WNDS];
+	BYTE vhTownWarps;
+	BYTE vhWaterDone;
+	LE_UINT32 vhAutoMapScale;
+	LE_INT32 vhAutoMapXOfs;
+	LE_INT32 vhAutoMapYOfs;
+	LE_INT32 vhReturnLvlX;
+	LE_INT32 vhReturnLvlY;
+	LE_INT32 vhReturnLvl;
+	LE_UINT32 vhLvlVisited;
+} LSaveGameHeaderStruct;
+
+typedef struct LSaveGameMetaStruct {
+	LE_UINT32 vaboylevel;
+	LE_INT32 vanumpremium;
+	LE_INT32 vapremiumlevel;
+	LE_INT32 vanumlights;
+	LE_INT32 vanumvision;
+} LSaveGameMetaStruct;
+
+typedef struct LSaveGameLvlMetaStruct {
+	LE_INT32 vvnummonsters;
+	LE_INT32 vvnummissiles;
+	LE_INT32 vvnumobjects;
+	LE_INT32 vvnumitems;
+} LSaveGameLvlMetaStruct;
+
+typedef struct LSaveItemStruct {
+	LE_INT32 viSeed;
+	LE_UINT16 viIdx;
+	LE_UINT16 viCreateInfo;
+	LE_INT32 vix;
+	LE_INT32 viy;
+	LE_INT32 viCurs;   // item_cursor_graphic
+	LE_INT32 vitype;   // item_type
+	LE_INT32 viMiscId; // item_misc_id
+	LE_INT32 viSpell;  // spell_id
+	BYTE viClass; // item_class enum
+	BYTE viLoc;   // item_equip_type
+	BYTE viDamType; // item_damage_type
+	BYTE viMinDam;
+	BYTE viMaxDam;
+	BYTE viBaseCrit;
+	BYTE viMinStr;
+	BYTE viMinMag;
+	BYTE viMinDex;
+	BOOLEAN viUsable;
+	BYTE viPrePower; // item_effect_type
+	BYTE viSufPower; // item_effect_type
+	BYTE viMagical;	// item_quality
+	BYTE viSelFlag;
+	BOOLEAN viFloorFlag;
+	BOOLEAN viAnimFlag;
+	int32_t viAnimDataAlign;        // PSX name -> ItemFrame
+	uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
+	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
+	LE_UINT32 viAnimLen;      // Number of frames in current animation
+	LE_UINT32 viAnimFrame;    // Current frame of animation.
+	LE_INT32 viPostDraw;
+	LE_INT32 viIdentified;
+	char viName[32];
+	LE_INT32 vivalue;
+	LE_INT32 viIvalue;
+	LE_INT32 viAC;
+	LE_INT32 viFlags;	// item_special_effect
+	LE_INT32 viCharges;
+	LE_INT32 viMaxCharges;
+	LE_INT32 viDurability;
+	LE_INT32 viMaxDur;
+	LE_INT32 viPLDam;
+	LE_INT32 viPLToHit;
+	LE_INT32 viPLAC;
+	LE_INT32 viPLStr;
+	LE_INT32 viPLMag;
+	LE_INT32 viPLDex;
+	LE_INT32 viPLVit;
+	LE_INT32 viPLFR;
+	LE_INT32 viPLLR;
+	LE_INT32 viPLMR;
+	LE_INT32 viPLAR;
+	LE_INT32 viPLMana;
+	LE_INT32 viPLHP;
+	LE_INT32 viPLDamMod;
+	LE_INT32 viPLGetHit;
+	char viPLLight;
+	char viPLSkillLevels;
+	BYTE viPLSkill;
+	char viPLSkillLvl;
+	BYTE viPLManaSteal;
+	BYTE viPLLifeSteal;
+	BYTE viPLCrit;
+	BOOLEAN viStatFlag;
+	LE_INT32 viUid;
+	BYTE viPLFMinDam;
+	BYTE viPLFMaxDam;
+	BYTE viPLLMinDam;
+	BYTE viPLLMaxDam;
+	BYTE viPLMMinDam;
+	BYTE viPLMMaxDam;
+	BYTE viPLAMinDam;
+	BYTE viPLAMaxDam;
+	LE_INT32 viVAdd;
+	LE_INT32 viVMult;
+} LSaveItemStruct;
+
+typedef struct LSavePlayerStruct {
+	LE_INT32 vpmode; // PLR_MODE
+	char vpWalkpath[MAX_PATH_LENGTH + 1];
+	LE_INT32 vpDestAction;
+	LE_INT32 vpDestParam1;
+	LE_INT32 vpDestParam2;
+	LE_INT32 vpDestParam3;	// the skill to be used in case of skill based actions
+	LE_INT32 vpDestParam4; // the level of the skill to be used in case of skill based actions
+	BOOLEAN vpActive;
+	BYTE vpInvincible;
+	BOOLEAN vpLvlChanging; // True when the player is transitioning between levels
+	BYTE vpDunLevel; // dungeon_level
+	BYTE vpClass; // plr_class
+	BYTE vpLevel;
+	BYTE vpRank;
+	BYTE vpTeam;
+	LE_UINT16 vpStatPts;
+	BYTE vpLightRad;
+	BYTE vpManaShield;
+	LE_INT16 vpTimer[NUM_PLRTIMERS];
+	LE_UINT32 vpExperience;
+	LE_UINT32 vpNextExper;
+	LE_INT32 vpx;      // Tile X-position of player
+	LE_INT32 vpy;      // Tile Y-position of player
+	LE_INT32 vpfutx;   // Future tile X-position of player. Set at start of walking animation
+	LE_INT32 vpfuty;   // Future tile Y-position of player. Set at start of walking animation
+	LE_INT32 vpoldx;   // Most recent X-position in dPlayer.
+	LE_INT32 vpoldy;   // Most recent Y-position in dPlayer.
+	LE_INT32 vpxoff;   // Player sprite's pixel X-offset from tile.
+	LE_INT32 vpyoff;   // Player sprite's pixel Y-offset from tile.
+	LE_INT32 vpdir;    // Direction faced by player (direction enum)
+	INT vpAnimDataAlign;
+	INT vpAnimFrameLenAlign; // Tick length of each frame in the current animation
+	LE_INT32 vpAnimCnt;   // Increases by one each game tick, counting how close we are to vpAnimFrameLen
+	uint32_t vpAnimLenAlign;   // Number of frames in current animation
+	LE_UINT32 vpAnimFrame; // Current frame of animation.
+	INT vpAnimWidthAlign;
+	INT vpAnimXOffsetAlign;
+	LE_UINT32 vplid; // light id of the player
+	LE_UINT32 vpvid; // vision id of the player
+	BYTE vpAtkSkill;         // the selected attack skill for the primary action
+	BYTE vpAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
+	BYTE vpMoveSkill;        // the selected movement skill for the primary action
+	BYTE vpMoveSkillType;    // the (RSPLTYPE_)type of the movement skill for the primary action
+	BYTE vpAltAtkSkill;      // the selected attack skill for the secondary action
+	BYTE vpAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
+	BYTE vpAltMoveSkill;     // the selected movement skill for the secondary action
+	BYTE vpAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
+	BYTE vpAtkSkillHotKey[4];         // the attack skill selected by the hotkey
+	BYTE vpAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
+	BYTE vpMoveSkillHotKey[4];        // the movement skill selected by the hotkey
+	BYTE vpMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
+	BYTE vpAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
+	BYTE vpAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
+	BYTE vpAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
+	BYTE vpAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
+	BYTE vpSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
+	BYTE vpSkillActivity[64];
+	LE_UINT32 vpSkillExp[64];
+	LE_UINT64 vpMemSkills;  // Bitmask of learned skills
+	LE_UINT64 vpAblSkills;  // Bitmask of abilities
+	LE_UINT64 vpScrlSkills; // Bitmask of skills available via scrolls or runes
+	char vpName[PLR_NAME_LEN];
+	LE_UINT16 vpBaseStr;
+	LE_UINT16 vpBaseMag;
+	LE_UINT16 vpBaseDex;
+	LE_UINT16 vpBaseVit;
+	LE_INT32 vpHPBase;    // the hp of the player if they would not wear an item
+	LE_INT32 vpMaxHPBase; // the maximum hp of the player without items
+	LE_INT32 vpManaBase;    // the mana of the player if they would not wear an item
+	LE_INT32 vpMaxManaBase; // the maximum mana of the player without items
+	LE_INT32 vpVar1;
+	LE_INT32 vpVar2;
+	LE_INT32 vpVar3;
+	LE_INT32 vpVar4;
+	LE_INT32 vpVar5;
+	LE_INT32 vpVar6;
+	LE_INT32 vpVar7;
+	LE_INT32 vpVar8;
+	//int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
+	//PlrAnimStruct _pAnims[NUM_PFIDXs];
+	//unsigned _pAFNum;
+	//unsigned _pSFNum;
+	LSaveItemStruct vpHoldItem;
+	LSaveItemStruct vpInvBody[NUM_INVLOC];
+	LSaveItemStruct vpSpdList[MAXBELTITEMS];
+	LSaveItemStruct vpInvList[NUM_INV_GRID_ELEM];
+	LE_INT32 vpGold;
+} LSavePlayerStruct;
+
+typedef struct LSaveMonsterStruct {
+	LE_INT32 vmmode; /* MON_MODE */
+	LE_UINT32 vmsquelch;
+	BYTE vmMTidx;
+	BYTE vmpathcount; // unused
+	BYTE vmWhoHit;
+	BYTE vmgoal;
+	LE_INT32 vmgoalvar1;
+	LE_INT32 vmgoalvar2;
+	LE_INT32 vmgoalvar3;
+	LE_INT32 vmx;           // Tile X-position of monster
+	LE_INT32 vmy;           // Tile Y-position of monster
+	LE_INT32 vmfutx;        // Future tile X-position of monster. Set at start of walking animation
+	LE_INT32 vmfuty;        // Future tile Y-position of monster. Set at start of walking animation
+	LE_INT32 vmoldx;        // Most recent X-position in dMonster.
+	LE_INT32 vmoldy;        // Most recent Y-position in dMonster.
+	LE_INT32 vmxoff;        // Monster sprite's pixel X-offset from tile.
+	LE_INT32 vmyoff;        // Monster sprite's pixel Y-offset from tile.
+	LE_INT32 vmdir;         // Direction faced by monster (direction enum)
+	LE_INT32 vmenemy;       // The current target of the monster. An index in to either the plr or monster array based on the vmeflag value.
+	BYTE vmenemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
+	BYTE vmenemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+	BYTE vmListener;        // the player to whom the monster is talking to (unused)
+	BOOLEAN vmDelFlag; // unused
+	INT vmAnimDataAlign;
+	INT vmAnimFrameLenAlign; // Tick length of each frame in the current animation
+	LE_INT32 vmAnimCnt;   // Increases by one each game tick, counting how close we are to vmAnimFrameLen
+	INT vmAnimLenAlign;   // Number of frames in current animation
+	LE_INT32 vmAnimFrame; // Current frame of animation.
+	LE_INT32 vmVar1;
+	LE_INT32 vmVar2;
+	LE_INT32 vmVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
+	LE_INT32 vmVar4;
+	LE_INT32 vmVar5;
+	LE_INT32 vmVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	LE_INT32 vmVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	LE_INT32 vmVar8; // Value used to measure progress for moving from one tile to another
+	LE_INT32 vmmaxhp;
+	LE_INT32 vmhitpoints;
+	LE_INT32 vmlastx; // the last known X-coordinate of the enemy
+	LE_INT32 vmlasty; // the last known Y-coordinate of the enemy
+	LE_INT32 vmRndSeed;
+	LE_INT32 vmAISeed;
+	BYTE vmuniqtype;
+	BYTE vmuniqtrans;
+	BYTE vmNameColor;
+	BYTE vmlid;
+	BYTE vmleader; // the leader of the monster
+	BYTE vmleaderflag; // the status of the monster's leader
+	BYTE vmpacksize; // the number of 'pack'-monsters close to their leader
+	BYTE vmvid; // vision id of the monster (for minions only)
+	INT vmNameAlign;
+	LE_UINT16 vmFileNum;
+	BYTE vmLevel;
+	BYTE vmSelFlag;
+	BYTE vmAI_aiType;   // MonsterAI.aiType
+	BYTE vmAI_aiInt;    // MonsterAI.aiInt
+	BYTE vmAI_aiParam1; // MonsterAI.aiParam1
+	BYTE vmAI_aiParam2; // MonsterAI.aiParam2
+	LE_INT32 vmFlags;
+	LE_UINT16 vmHit;    // hit chance (melee+projectile)
+	BYTE vmMinDamage;
+	BYTE vmMaxDamage;
+	LE_UINT16 vmHit2;   // hit chance of special melee attacks
+	BYTE vmMinDamage2;
+	BYTE vmMaxDamage2;
+	BYTE vmMagic;      // hit chance of magic-projectile
+	BYTE vmMagic2;     // unused
+	BYTE vmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	BYTE vmEvasion;    // evasion: used against magic-projectile
+	LE_UINT16 vmMagicRes;  // resistances of the monster
+	LE_UINT16 vmTreasure;  // unique drops of monsters + no-drop flag
+	LE_UINT32 vmExp;
+} LSaveMonsterStruct;
+
+typedef struct LSaveMissileStruct {
+	LE_INT32 vmiType;   // missile_id
+	BYTE vmiFlags; // missile_flags
+	BYTE vmiResist; // missile_resistance
+	BYTE vmiFileNum; // missile_gfx_id
+	BOOLEAN vmiDrawFlag; // should be drawn
+	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN vmiDelFlag; // should be deleted
+	BOOLEAN vmiLightFlag; // use light-transformation when drawing
+	BOOLEAN vmiPreFlag; // should be drawn in the pre-phase
+	BOOLEAN vmiAnimFlag;
+	INT vmiAnimDataAlign;
+	INT vmiAnimFrameLenAlign; // Tick length of each frame in the current animation
+	INT vmiAnimLenAlign;   // Number of frames in current animation
+	INT vmiAnimWidthAlign;
+	INT vmiAnimXOffsetAlign;
+	LE_INT32 vmiAnimCnt; // Increases by one each game tick, counting how close we are to vmiAnimFrameLen
+	LE_INT32 vmiAnimAdd;
+	LE_INT32 vmiAnimFrame; // Current frame of animation.
+	LE_INT32 vmisx;    // Initial tile X-position for missile
+	LE_INT32 vmisy;    // Initial tile Y-position for missile
+	LE_INT32 vmix;     // Tile X-position of the missile
+	LE_INT32 vmiy;     // Tile Y-position of the missile
+	LE_INT32 vmixoff;  // Sprite pixel X-offset for the missile
+	LE_INT32 vmiyoff;  // Sprite pixel Y-offset for the missile
+	LE_INT32 vmixvel;  // Missile tile X-velocity while walking. This gets added onto vmitxoff each game tick
+	LE_INT32 vmiyvel;  // Missile tile Y-velocity while walking. This gets added onto vmitxoff each game tick
+	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	LE_INT32 vmityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	LE_INT32 vmiDir;   // The direction of the missile
+	LE_INT32 vmiSpllvl;
+	LE_INT32 vmiSource; // missile_source_type
+	LE_INT32 vmiCaster;
+	LE_INT32 vmiMinDam;
+	LE_INT32 vmiMaxDam;
+	LE_INT32 vmiRange;
+	LE_UINT32 vmiLid; // light id of the missile
+	LE_INT32 vmiVar1;
+	LE_INT32 vmiVar2;
+	LE_INT32 vmiVar3;
+	LE_INT32 vmiVar4;
+	LE_INT32 vmiVar5;
+	LE_INT32 vmiVar6;
+	LE_INT32 vmiVar7; // distance travelled in case of ARROW missiles
+	LE_INT32 vmiVar8; // last target in case of non-DOT missiles
+} LSaveMissileStruct;
+
+typedef struct LSaveObjectStruct {
+	LE_INT32 votype; // _object_id
+	LE_INT32 vox;
+	LE_INT32 voy;
+	LE_INT32 voSFX; // ssfx_id
+	BYTE voSFXCnt;
+	BOOLEAN voAnimFlag;
+	BYTE voAlign0;
+	BYTE voAlign1;
+	INT voAnimDataAlign;
+	LE_INT32 voAnimFrameLen; // Tick length of each frame in the current animation
+	LE_INT32 voAnimCnt;   // Increases by one each game tick, counting how close we are to voAnimFrameLen
+	LE_INT32 voAnimLen;   // Number of frames in current animation
+	LE_INT32 voAnimFrame; // Current frame of animation.
+	INT voAnimWidthAlign;
+	INT voAnimXOffsetAlign;
+	BOOLEAN voSolidFlag;
+	BOOLEAN voMissFlag;
+	BOOLEAN voLightFlag;
+	BYTE voBreak; // object_break_mode
+	BYTE voDoorFlag; // object_door_type
+	BYTE voSelFlag;
+	BYTE voTrapChance;
+	BOOLEAN voPreFlag;
+	LE_UINT32 volid; // light id of the object
+	LE_INT32 voRndSeed;
+	LE_INT32 voVar1;
+	LE_INT32 voVar2;
+	LE_INT32 voVar3;
+	LE_INT32 voVar4;
+	LE_INT32 voVar5;
+	LE_INT32 voVar6;
+	LE_INT32 voVar7;
+	LE_INT32 voVar8;
+} LSaveObjectStruct;
+
+typedef struct LSaveQuestStruct {
+	BYTE vqactive;
+	BYTE vqvar1; // quest parameter which is synchronized with the other players
+	BYTE vqvar2; // quest parameter which is NOT synchronized with the other players
+	BOOLEAN vqlog;
+	LE_UINT32 vqmsg;
+	LE_INT32 vqtx;
+	LE_INT32 vqty;
+} LSaveQuestStruct;
+
+typedef struct LSaveLightListStruct {
+	LE_INT32 vlx;
+	LE_INT32 vly;
+	LE_INT32 vlunx;
+	LE_INT32 vluny;
+	BYTE vlradius;
+	BYTE vlunr;
+	BOOLEAN vldel;
+	BOOLEAN vlunflag;
+	BOOLEAN vlmine;
+	BYTE vlAlign0;
+	BYTE vlAlign1;
+	BYTE vlAlign2;
+	LE_INT32 vxoff;
+	LE_INT32 vyoff;
+} LSaveLightListStruct;
+
+typedef struct LSavePortalStruct {
+	BOOLEAN vropen;
+	BYTE vrAlign0;
+	BYTE vrAlign1;
+	BYTE vrAlign2;
+	LE_INT32 vrx;
+	LE_INT32 vry;
+	LE_INT32 vrlevel;
+} LSavePortalStruct;
+
+#pragma pack(pop)
+
+//////////////////////////////////////////////////
 // msg
 //////////////////////////////////////////////////
 
@@ -1494,7 +1910,9 @@ typedef struct DLevel {
 	DItemStr item[MAXITEMS];
 	DObjectStr object[MAXOBJECTS];
 	DMonsterStr monster[MAXMONSTERS];
+//	BYTE alignment[0x2000 - (sizeof(DItemStr) * MAXITEMS + sizeof(DObjectStr) * MAXOBJECTS + sizeof(DMonsterStr) * MAXMONSTERS)];
 } DLevel;
+//static_assert((sizeof(DLevel) & (sizeof(DLevel) - 1)) == 0, "Align DLevel closer to power of 2 for better performance.");
 
 typedef struct LocalLevel {
 	BOOLEAN automapsv[DMAXX][DMAXY];
@@ -1849,8 +2267,8 @@ typedef struct _uiheroinfo {
 } _uiheroinfo;
 
 typedef struct _uigamedata {
-	DWORD aeVersionId;
-	INT aeSeed;
+	uint32_t aeVersionId;
+	int32_t aeSeed;
 	BYTE aeDifficulty;
 	BYTE aeTickRate;
 	BYTE aeNetUpdateRate; // (was defaultturnssec in vanilla)
