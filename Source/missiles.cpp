@@ -33,7 +33,14 @@ static const int XDirAdd[NUM_DIRS] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 static const int YDirAdd[NUM_DIRS] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
 static_assert(MAX_LIGHT_RAD >= 9, "FireWallLight needs at least light-radius of 9.");
-static const int FireWallLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 8, 8, 8 };
+static const BYTE FireWallLight[14] = { 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 8, 8, 8 };
+
+static const BYTE BloodBoilLocs[][2] = {
+	// clang-format off
+	{ 3, 4 },  { 2, 1 },  { 3, 3 },  { 1, 1 },  { 2, 3 }, { 1, 0 },  { 4, 3 },  { 2, 2 },  { 3, 0 },  { 1, 2 }, 
+	{ 2, 4 },  { 0, 1 },  { 4, 2 },  { 0, 3 },  { 2, 0 }, { 3, 2 },  { 1, 4 },  { 4, 1 },  { 0, 2 },  { 3, 1 }, { 1, 3 }
+	// clang-format on
+};
 
 void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 {
@@ -125,6 +132,10 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 	case SPL_METEOR:
 		mind = (magic >> 2) + (sl << 3) + 40;
 		maxd = (magic >> 2) + (sl << 4) + 40;
+		break;
+	case SPL_BLOODBOIL:
+		mind = (magic >> 2) + (sl << 2) + 10;
+		maxd = (magic >> 2) + (sl << 3) + 10;
 		break;
 	case SPL_CHAIN:
 		mind = 1;
@@ -2161,6 +2172,40 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	return MIRES_DONE;
 }
 
+/**
+ * Var1: timer to place the splashes
+ * Var2: last location where the blood-splash was placed
+ */
+int AddBloodBoilC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+
+	mis = &missile[mi];
+
+	mis->_mix = dx - 2;
+	mis->_miy = dy - 2;
+	mis->_miVar1 = 0;
+	mis->_miVar2 = random_(49, lengthof(BloodBoilLocs));
+	mis->_miRange = (lengthof(BloodBoilLocs) + spllvl * 2) * misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0] / 2;
+	return MIRES_DONE;
+}
+
+int AddBloodBoil(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	int mindam, maxdam;
+
+	mis = &missile[mi];
+	// assert(micaster & MST_PLAYER);
+	mindam = (plx(misource)._pMagic >> 2) + (spllvl << 2) + 10;
+	maxdam = (plx(misource)._pMagic >> 2) + (spllvl << 3) + 10;
+
+	mis->_miMinDam = mindam << 6;
+	mis->_miMaxDam = maxdam << 6;
+	mis->_miRange = misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0];
+	return MIRES_DONE;
+}
+
 int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *bmis;
@@ -2351,7 +2396,8 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 		mindam = currLvl._dLevel;
 		maxdam = currLvl._dLevel * 2;
 	}*/
-	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
+	mis->_miMinDam = mindam << 6;
+	mis->_miMaxDam = maxdam << 6;
 
 	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddMeteor expects a large enough border.");
 	for (i = 0; i < 6; i++) {
@@ -3671,6 +3717,43 @@ void MI_Lightning(int mi)
 	}
 	mis->_miDelFlag = TRUE;
 	AddUnLight(mis->_miLid);
+}
+
+void MI_BloodBoilC(int mi)
+{
+	MissileStruct* mis;
+	int mx, my;
+
+	mis = &missile[mi];
+	assert(misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0] == 16);
+	if ((mis->_miVar1++ & 7) == 0) {
+		mis->_miVar2++;
+		if (mis->_miVar2 >= lengthof(BloodBoilLocs))
+			mis->_miVar2 = 0;
+		mx = mis->_mix + BloodBoilLocs[mis->_miVar2][0];
+		my = mis->_miy + BloodBoilLocs[mis->_miVar2][1];
+		if ((nMissileTable[dPiece[mx][my]] | dObject[mx][my]) == 0) {
+			AddMissile(mx, my, 0, 0, 0, MIS_BLOODBOIL, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+		}
+	}
+	mis->_miRange--;
+	if (mis->_miRange < 0)
+		mis->_miDelFlag = TRUE;
+}
+
+void MI_BloodBoil(int mi)
+{
+	MissileStruct* mis;
+
+	mis = &missile[mi];
+	if (mis->_miRange == misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0] / 2)
+		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE/* MICM_BLOCK_WALL */);
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
+		PutMissile(mi);
+		return;
+	}
+	mis->_miDelFlag = TRUE;
 }
 
 void MI_Portal(int mi)

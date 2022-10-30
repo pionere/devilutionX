@@ -1927,6 +1927,8 @@ typedef enum missile_id {
 	MIS_LIGHTNING,
 	MIS_LIGHTNINGC2,
 	MIS_LIGHTNING2,
+	MIS_BLOODBOILC,
+	MIS_BLOODBOIL,
 	MIS_TOWN,
 	MIS_RPORTAL,
 	MIS_FLASH,
@@ -2043,7 +2045,7 @@ typedef enum missile_gfx_id {
 	MFILE_GREENEXP,
 	//MFILE_DOOM,
 	//MFILE_DOOMEXP,
-	//MFILE_BLODBUR,
+	MFILE_BLODBURS,
 	//MFILE_NEWEXP,
 	MFILE_SHATTER1,
 	MFILE_BIGEXP,
@@ -2100,7 +2102,7 @@ typedef enum missile_gfx_id {
 typedef enum missile_flags {
 	MIF_AREA    = 1 << 0, // alternative hit chance calculation
 	MIF_NOBLOCK = 1 << 1, // can not be blocked
-	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored, hit check only once
+	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored, hit check multiple times
 	MIF_LEAD    = 1 << 3, // leads the monster to the player (on impact)
 	MIF_ARROW   = 1 << 7, // alternative hit chance/damage calculation (for physical arrows)
 } missile_flags;
@@ -2108,7 +2110,7 @@ typedef enum missile_flags {
 typedef enum missile_anim_flags {
 	MAFLAG_HIDDEN         = 1 << 0,
 	MAFLAG_LOCK_ANIMATION = 1 << 1,
-	MAFLAG_UNUSED = MAFLAG_HIDDEN,
+	//MAFLAG_UNUSED = MAFLAG_HIDDEN,
 } missile_anim_flags;
 
 typedef enum missile_add_result {
@@ -3543,6 +3545,7 @@ typedef enum spell_id {
 	SPL_FIREWALL,
 	SPL_FIREBALL,
 	SPL_METEOR,
+	SPL_BLOODBOIL,
 	SPL_CHAIN,
 	SPL_WAVE,
 	SPL_NOVA,
