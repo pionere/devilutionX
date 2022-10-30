@@ -1929,17 +1929,17 @@ static void ObjSetMicro(int dx, int dy, int pn)
 	dPiece[dx][dy] = pn;
 }
 
-static void ObjSetMini(int x, int y, int v)
+static void ObjSetMini(int x, int y, int mt)
 {
 	int xx, yy;
 	long v1, v2, v3, v4;
-	uint16_t* MegaTiles;
+	uint16_t* Tiles;
 
-	MegaTiles = (uint16_t*)&pMegaTiles[(v - 1) * 8];
-	v1 = SwapLE16(*(MegaTiles + 0)) + 1;
-	v2 = SwapLE16(*(MegaTiles + 1)) + 1;
-	v3 = SwapLE16(*(MegaTiles + 2)) + 1;
-	v4 = SwapLE16(*(MegaTiles + 3)) + 1;
+	Tiles = &pMegaTiles[(mt - 1) * 4];
+	v1 = SwapLE16(Tiles[0]) + 1;
+	v2 = SwapLE16(Tiles[1]) + 1;
+	v3 = SwapLE16(Tiles[2]) + 1;
+	v4 = SwapLE16(Tiles[3]) + 1;
 
 	xx = 2 * x + DBORDERX;
 	yy = 2 * y + DBORDERY;

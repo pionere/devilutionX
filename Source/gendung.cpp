@@ -25,7 +25,7 @@ int setpc_h;
 BYTE *pSetPiece = NULL;
 BYTE *pSpecialCels;
 /** Specifies the tile definitions of the active dungeon type; (e.g. levels/l1data/l1.til). */
-BYTE *pMegaTiles;
+uint16_t* pMegaTiles;
 /*
  * The micros of the dPieces
  */
@@ -152,13 +152,13 @@ void InitLvlDungeon()
 #if ASSET_MPL == 1
 	uint16_t blocks, *pLPFile, *pPiece, *pPTmp;
 #endif
-	const LevelData *lds;
+	const LevelData* lds;
 	assert(pMicroCels == NULL);
 	lds = &AllLevels[currLvl._dLevelIdx];
 
 	pMicroCels = LoadFileInMem(lds->dMicroCels);
 	assert(pMegaTiles == NULL);
-	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
+	pMegaTiles = (uint16_t*)LoadFileInMem(lds->dMegaTiles);
 	assert(pSpecialCels == NULL);
 	if (currLvl._dLevelIdx != DLV_TOWN)
 		pSpecialCels = LoadFileInMem(lds->dSpecCels);
@@ -167,7 +167,7 @@ void InitLvlDungeon()
 	MicroTileLen = lds->dMicroTileLen * ASSET_MPL * ASSET_MPL;
 	LoadFileWithMem(lds->dMicroFlags, microFlags);
 #if ASSET_MPL == 1
-	pLPFile = (uint16_t *)LoadFileInMem(lds->dMiniTiles, &dwTiles);
+	pLPFile = (uint16_t*)LoadFileInMem(lds->dMiniTiles, &dwTiles);
 
 	blocks = lds->dBlocks;
 	dwTiles /= (2 * blocks);
@@ -677,31 +677,31 @@ POS32 DRLG_PlaceMiniSet(const BYTE *miniset)
 	return { sx, sy };
 }
 
-void DRLG_PlaceMegaTiles(int lv)
+void DRLG_PlaceMegaTiles(int mt)
 {
 	int i, j, xx, yy;
 	int v1, v2, v3, v4;
-	uint16_t *MegaTiles;
+	uint16_t* Tiles;
 
 	/*int cursor = 0;
 	char tmpstr[1024];
 	long lvs[] = { 22, 56, 57, 58, 59, 60, 61 };
 	for (i = 0; i < lengthof(lvs); i++) {
 		lv = lvs[i];
-		MegaTiles = (uint16_t *)&pMegaTiles[lv * 8];
-		v1 = SwapLE16(*(MegaTiles + 0)) + 1;
-		v2 = SwapLE16(*(MegaTiles + 1)) + 1;
-		v3 = SwapLE16(*(MegaTiles + 2)) + 1;
-		v4 = SwapLE16(*(MegaTiles + 3)) + 1;
+		Tiles = &pMegaTiles[mt * 4];
+		v1 = SwapLE16(Tiles[0]) + 1;
+		v2 = SwapLE16(Tiles[1]) + 1;
+		v3 = SwapLE16(Tiles[2]) + 1;
+		v4 = SwapLE16(Tiles[3]) + 1;
 		cat_str(tmpstr, cursor, "- %d: %d, %d, %d, %d", lv, v1, v2, v3, v4);
 	}
 	app_fatal(tmpstr);*/
 
-	MegaTiles = (uint16_t *)&pMegaTiles[lv * 8];
-	v1 = SwapLE16(*(MegaTiles + 0)) + 1;
-	v2 = SwapLE16(*(MegaTiles + 1)) + 1;
-	v3 = SwapLE16(*(MegaTiles + 2)) + 1;
-	v4 = SwapLE16(*(MegaTiles + 3)) + 1;
+	Tiles = &pMegaTiles[mt * 4];
+	v1 = SwapLE16(Tiles[0]) + 1;
+	v2 = SwapLE16(Tiles[1]) + 1;
+	v3 = SwapLE16(Tiles[2]) + 1;
+	v4 = SwapLE16(Tiles[3]) + 1;
 
 	for (j = 0; j < MAXDUNY; j += 2) {
 		for (i = 0; i < MAXDUNX; i += 2) {
@@ -716,13 +716,13 @@ void DRLG_PlaceMegaTiles(int lv)
 	for (j = 0; j < DMAXY; j++) {
 		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
-			lv = dungeon[i][j] - 1;
-			assert(lv >= 0);
-			MegaTiles = (uint16_t *)&pMegaTiles[lv * 8];
-			v1 = SwapLE16(*(MegaTiles + 0)) + 1;
-			v2 = SwapLE16(*(MegaTiles + 1)) + 1;
-			v3 = SwapLE16(*(MegaTiles + 2)) + 1;
-			v4 = SwapLE16(*(MegaTiles + 3)) + 1;
+			mt = dungeon[i][j] - 1;
+			assert(mt >= 0);
+			Tiles = &pMegaTiles[mt * 4];
+			v1 = SwapLE16(Tiles[0]) + 1;
+			v2 = SwapLE16(Tiles[1]) + 1;
+			v3 = SwapLE16(Tiles[2]) + 1;
+			v4 = SwapLE16(Tiles[3]) + 1;
 			dPiece[xx][yy] = v1;
 			dPiece[xx + 1][yy] = v2;
 			dPiece[xx][yy + 1] = v3;

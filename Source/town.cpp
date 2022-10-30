@@ -11,18 +11,18 @@ DEVILUTION_BEGIN_NAMESPACE
  * @brief Load a tile in to dPiece
  * @param xx upper left destination
  * @param yy upper left destination
- * @param t tile id (-1)
+ * @param mt mega tile id (-1)
  */
-static void T_FillTile(int xx, int yy, int t)
+static void T_FillTile(int xx, int yy, int mt)
 {
 	int v1, v2, v3, v4;
 	uint16_t* Tiles;
 
-	Tiles = ((uint16_t*)&pMegaTiles[t * 8]);
-	v1 = SwapLE16(*(Tiles + 0)) + 1;
-	v2 = SwapLE16(*(Tiles + 1)) + 1;
-	v3 = SwapLE16(*(Tiles + 2)) + 1;
-	v4 = SwapLE16(*(Tiles + 3)) + 1;
+	Tiles = &pMegaTiles[mt * 4];
+	v1 = SwapLE16(Tiles[0]) + 1;
+	v2 = SwapLE16(Tiles[1]) + 1;
+	v3 = SwapLE16(Tiles[2]) + 1;
+	v4 = SwapLE16(Tiles[3]) + 1;
 
 	dPiece[xx][yy] = v1;
 	dPiece[xx + 1][yy] = v2;
