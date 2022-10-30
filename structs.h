@@ -2480,4 +2480,85 @@ typedef struct TDataInfo {
 	}
 } TDataInfo;
 
+/*
+//////////////////////////////////////////////////
+// data files
+//////////////////////////////////////////////////
+
+typedef struct FileDun {
+	int16_t duWidth;
+	int16_t duHeight;
+	int16_t dtMegaTiles[duHeight][duWidth]; // pMegaTiles
+	int16_t duItems[duHeight * 2][duWidth * 2]; // unused
+	int16_t duMonsters[duHeight * 2][duWidth * 2]; // MonstConvTbl
+	int16_t duObjects[duHeight * 2][duWidth * 2]; // ObjConvTbl
+} FileDun;
+
+typedef struct FileAmpFlag {
+	BYTE diType;  // MAPFLAG_TYPE
+	BYTE diFlags; // MAPFLAG_
+} FileAmpFlag;
+typedef struct FileAmp { // automaptype
+	FileAmpFlag dsMegaTileFlags[dwMegas]; // piece_flag
+} FileAmp;
+
+typedef struct FileTil { // pMegaTiles
+	int16_t dtTiles[dwMegas][4]; // dtMegaTiles: FileMin-index + 1
+} FileTil;
+
+typedef struct FileMin { // pMicroPieces
+	int16_t dmTileBlocks[dwTiles][blocks]; // dwTiles: MAXTILES, blocks: [10 | 16], dmTileBlock: ASSET_MPL == 1 ? (encoding << 12 | FileCelLvl-index + 1) : (FileCelLvl-index + 1)
+} FileMin;
+
+typedef struct FileTmi { // microFlags
+	BYTE diTileFlags[dwTiles]; // piece_micro_flag
+} FileTmi;
+typedef struct FileSol {
+	BYTE dsTileFlags[dwTiles]; // piece_flag
+} FileSol;
+
+typedef struct FileCelLvl { // pMicroCels
+	int32_t dclOffsets[dwCels]; // address of entry in dclCelData
+	BYTE dclCelData[dwCels][celSize]; // cel data depending on the encoding. if ASSET_MPL == 1, the first byte is the encoding
+} FileCelLvl;
+
+typedef struct FileCelFrame {
+	int16_t dcfHeader[5]; // address of an fragment/chunk in dcfCelData (optional in case of FileCel)
+	BYTE dcfCelData[];
+} FileCelFrame;
+
+typedef struct FileCel {
+	int32_t dcNumFrames;
+	int32_t dcOffsets[dcNumFrames]; // address of an entry in dcCelFrames
+	int32_t dcFileSize/NextOffset;
+	FileCelFrame dcCelFrames[dcNumFrames];
+} FileCelLvl;
+
+typedef struct FileCelGroup {
+	int32_t dcgCelOffsets[dcNumCels]; // address of an entry in dcgCelData
+	FileCel dcgCelData[dcNumCels];
+} FileCelLvl;
+
+typedef struct FileCl2 {
+	int32_t dlNumFrames;
+	int32_t dlOffsets[dcNumFrames]; // address of an entry in dcCelFrames
+	int32_t dcFileSize/NextOffset;
+	FileCelFrame dcCelFrames[dcNumFrames];
+} FileCl2;
+
+typedef struct FileCl2Group {
+	int32_t dlgCelOffsets[dcNumCels]; // address of an entry in dlgCl2Data
+	FileCl2 dlgCl2Data[dcNumCels];
+} FileCl2Group;
+
+typedef struct FilePal {
+	BYTE dpColors[256][3];
+} FilePal;
+
+typedef struct FileTrn {
+	BYTE drColors[256];
+} FileTrn;
+
+*/
+
 DEVILUTION_END_NAMESPACE
