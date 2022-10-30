@@ -3138,6 +3138,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 			return;
 		static_assert(sizeof(automapview) == DMAXY * DMAXX, "Linear traverse of automapview does not work in OperateShrine.");
 		memset(automapview, TRUE, DMAXX * DMAXY);
+		// TODO: set dFlags[][] |= BFLAG_EXPLORED ?
 		InitDiabloMsg(EMSG_SHRINE_SECLUDED);
 		break;
 	case SHRINE_GLIMMERING:

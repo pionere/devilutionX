@@ -1071,6 +1071,7 @@ void DeltaLoadLevel()
 		// SyncMonsterLight();
 
 		memcpy(automapview, gsDeltaData.ddLocal[currLvl._dLevelIdx].automapsv, sizeof(automapview));
+		// TODO: set dFlags[][] |= BFLAG_EXPLORED ?
 
 		dstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].object;
 		for (i = 0; i < MAXOBJECTS; i++, dstr++) {

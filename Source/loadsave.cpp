@@ -746,6 +746,7 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		src += MAXDUNX * MAXDUNY;
 		memcpy(automapview, src, DMAXX * DMAXY);
 		src += DMAXX * DMAXY;
+		// TODO: set dFlags[][] |= BFLAG_EXPLORED ?
 
 		if (full) {
 			memcpy(dMissile, src, MAXDUNX * MAXDUNY);

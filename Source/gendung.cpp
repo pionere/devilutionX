@@ -7,35 +7,34 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Contains the tile IDs of the map. */
+/** Contains the mega tile IDs of the (mega-)map. */
 BYTE dungeon[DMAXX][DMAXY];
-/** Contains a backup of the tile IDs of the map. */
+/** Contains a backup of the mega tile IDs of the (mega-)map. */
 BYTE pdungeon[DMAXX][DMAXY];
-/** Represents a tile ID map of twice the size, repeating each tile of the original map in blocks of 4. */
+/** Flags of mega tiles during dungeon generation. */
 BYTE drlgFlags[DMAXX][DMAXY];
-/** Specifies the active set level X-coordinate of the map. */
+/** Specifies the set level/piece X-coordinate of the (mega-)map. */
 int setpc_x;
-/** Specifies the active set level Y-coordinate of the map. */
+/** Specifies the set level/piece Y-coordinate of the (mega-)map. */
 int setpc_y;
-/** Specifies the width of the active set level of the map. */
+/** Specifies the width of the set level/piece of the (mega-)map. */
 int setpc_w;
-/** Specifies the height of the active set level of the map. */
+/** Specifies the height of the set level/piece of the (mega-)map. */
 int setpc_h;
-/** Contains the contents of the single player quest DUN file. */
-BYTE *pSetPiece = NULL;
-BYTE *pSpecialCels;
-/** Specifies the tile definitions of the active dungeon type; (e.g. levels/l1data/l1.til). */
+/** Contains the contents of the set piece (DUN file). */
+BYTE* pSetPiece = NULL;
+/** Specifies the mega tiles (groups of four tiles). */
 uint16_t* pMegaTiles;
 /*
  * The micros of the dPieces
  */
 uint16_t pMicroPieces[MAXTILES + 1][16 * ASSET_MPL * ASSET_MPL];
-/*
- * Micro images CEL
- */
+/** Images of the micros of normal tiles. */
 BYTE* pMicroCels;
+/** Images of the special tiles. */
+BYTE* pSpecialCels;
 /**
- * Flags to control the drawing of dPieces
+ * Flags to control the drawing of dPieces (piece_micro_flag)
  */
 BYTE microFlags[MAXTILES + 1];
 /**
@@ -54,6 +53,7 @@ BYTE nTrapTable[MAXTILES + 1];
  * List of missile blocking dPieces
  */
 bool nMissileTable[MAXTILES + 1];
+/** The difficuly level of the current game (_difficulty) */
 int gnDifficulty;
 /** Contains the data of the active dungeon level. */
 LevelStruct currLvl;
@@ -62,7 +62,7 @@ int MicroTileLen;
 BYTE numtrans;
 /** Specifies the active transparency indices. */
 bool TransList[256];
-/** Contains the piece IDs of each tile on the map. */
+/** Contains the tile IDs of each square on the map. */
 int dPiece[MAXDUNX][MAXDUNY];
 /** Specifies the transparency index at each coordinate of the map. */
 BYTE dTransVal[MAXDUNX][MAXDUNY];
@@ -70,10 +70,11 @@ BYTE dTransVal[MAXDUNX][MAXDUNY];
 BYTE dPreLight[MAXDUNX][MAXDUNY];
 /** Specifies the current darkness levels of each tile on the map. */
 BYTE dLight[MAXDUNX][MAXDUNY];
+/** Specifies the (runtime) flags of each tile on the map (dflag) */
 BYTE dFlags[MAXDUNX][MAXDUNY];
 /**
  * Contains the player numbers (players array indices) of the map.
- *   pnum + 1 : the player is on spot
+ *   pnum + 1 : the player is on the given location.
  * -(pnum + 1): reserved for a moving player
  */
 char dPlayer[MAXDUNX][MAXDUNY];
@@ -82,21 +83,22 @@ static_assert(MAX_PLRS <= CHAR_MAX, "Index of a player might not fit to dPlayer.
  * Contains the NPC numbers of the map. The NPC number represents a
  * towner number (towners array index) in Tristram and a monster number
  * (monsters array index) in the dungeon.
- *   mnum + 1 : the NPC is on spot
+ *   mnum + 1 : the NPC is on the given location.
  * -(mnum + 1): reserved for a moving NPC
  */
 int dMonster[MAXDUNX][MAXDUNY];
 /**
  * Contains the dead NPC numbers of the map (only monsters at the moment).
- *   mnum + 1 : the NPC corpse is on spot
+ *   mnum + 1 : the NPC corpse is on the given location.
+ *  DEAD_MULTI: more than one corpse on the given location.
  */
 BYTE dDead[MAXDUNX][MAXDUNY];
 static_assert(MAXMONSTERS <= UCHAR_MAX, "Index of a monster might not fit to dDead.");
 static_assert((BYTE)(MAXMONSTERS + 1) < (BYTE)DEAD_MULTI, "Multi-dead in dDead reserves one entry.");
 /**
  * Contains the object numbers (objects array indices) of the map.
- *   oi + 1 : the object is on the given location
- * -(oi + 1): a large object protrudes from its base location
+ *   oi + 1 : the object is on the given location.
+ * -(oi + 1): a large object protrudes from its base location.
  */
 char dObject[MAXDUNX][MAXDUNY];
 static_assert(MAXOBJECTS <= CHAR_MAX, "Index of an object might not fit to dObject.");
@@ -120,8 +122,9 @@ static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMiss
  * "levels/towndata/towns.cel") contains trees rather than arches.
  */
 BYTE dSpecial[MAXDUNX][MAXDUNY];
-/** Specifies the number of themes generated in the dungeon. */
+/** Specifies the number of themes generated in the dungeon (valid entries in themeLoc). */
 int themeCount;
+/** Themes on the (mega-)map. */
 THEME_LOC themeLoc[MAXTHEMES];
 
 void DRLG_Init_Globals()
