@@ -1222,7 +1222,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW)
-			hitFlags = pfx(offp)._pIFlags & ISPL_HITFLAGS_MASK;
+			hitFlags = plx(offp)._pIFlags & ISPL_HITFLAGS_MASK;
 		PlrStartAnyHit(pnum, dam, hitFlags, tmp);
 	}
 	return true;
