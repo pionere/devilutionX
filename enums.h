@@ -162,7 +162,7 @@ typedef enum unique_item_indexes {
 	UITEM_SPIRITSHLD,
 	UITEM_STORMSHLD,
 	UITEM_BRAMBLE,
-	UITEM_REGHA,
+	UITEM_LILITHCOLLAR,
 	UITEM_BLEEDER,
 	UITEM_CONSTRICT,
 	UITEM_ENGAGERING,
@@ -385,6 +385,7 @@ typedef enum item_effect_type {
 	IPL_KNOCKBACK,
 	IPL_STUN,
 	//IPL_NOHEALMON,
+	IPL_BLEED,
 	IPL_STEALMANA,
 	IPL_STEALLIFE,
 	IPL_PENETRATE_PHYS,
@@ -447,7 +448,7 @@ typedef enum item_special_effect {
 	ISPL_FASTESTCAST    = 0x00002000,
 	//ISPL_MULT_ARROWS    = 0x00004000,
 	ISPL_DRAINLIFE      = 0x00008000,
-	ISPL_KNOCKBACK      = 0x00010000,
+	ISPL_KNOCKBACK      = 0x00010000, // knock back on hit
 	//ISPL_NOHEALMON      = 0x00020000,
 	//ISPL_THORNS         = 0x00040000,
 	//ISPL_INFRAVISION    = 0x00080000,
@@ -455,10 +456,12 @@ typedef enum item_special_effect {
 	ISPL_LIFETOMANA     = 0x00200000,
 	ISPL_MANATOLIFE     = 0x00400000,
 	ISPL_PENETRATE_PHYS = 0x00800000,
-	ISPL_STUN           = 0x40000000,
+	ISPL_BLEED          = 0x20000000, // increased chance to bleed
+	ISPL_STUN           = 0x40000000, // increased chance to stun
 	ISPL_NOMANA         = 0x80000000,
 	ISPL_HITFLAGS_MASK  = 0xFFFF0000, // mask to prepare hitflags from pIFlags
 	ISPL_FAKE_FORCE_STUN= 0x00000001, // fake flag to indicate hits with forced stun effect (against players)
+	ISPL_FAKE_CAN_BLEED = 0x00000002, // fake flag to indicate hits which might cause bleeding
 } item_special_effect;
 
 
@@ -473,7 +476,7 @@ typedef enum item_cursor_graphic {
 	ICURS_RING_BLEEDER                = 8,
 	ICURS_RING_BRAMBLE                = 9,
 	ICURS_RING_OF_TRUTH               = 10,
-	ICURS_RING_REGHA                  = 11,
+	ICURS_AMULET_LILITH               = 11,
 	ICURS_RING                        = 12,
 	ICURS_RING_DESTRUCTION            = 13,
 	ICURS_RING_CONSTRICTING           = 14,
@@ -1949,7 +1952,7 @@ typedef enum missile_id {
 	//MIS_INVISIBL,
 	MIS_GOLEM,
 	//MIS_ETHEREALIZE,
-	//MIS_BLODBUR,	// TODO: Check beta
+	MIS_BLEED,
 	//MIS_EXAPOCA,
 	MIS_FIREWALLC,
 	MIS_FIREWALL,
@@ -2405,6 +2408,7 @@ typedef enum _monster_flag {
 	MFLAG_TARGETS_MONSTER = 0x0100,
 	MFLAG_NOSTONE         = 0x0200,
 	MFLAG_NOCORPSE        = 0x0400,
+	MFLAG_CAN_BLEED       = 0x0800,
 	// MFLAG_NO_ENEMY        = 0x0800,
 	// MFLAG_NOHEAL          = 0x1000,
 } _monster_flag;

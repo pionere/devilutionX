@@ -64,7 +64,7 @@ const MissileData missiledata[] = {
 /*MIS_INVISIBL*///   { NULL,                       NULL,                                               0, MISR_NONE,      MFILE_NONE,      FALSE,     LS_INVISIBL, SFX_NONE,    1,        1, ALIGN },
 /*MIS_GOLEM*/        { &AddGolem,                  &MI_Dummy,                                   MIF_AREA, MISR_NONE,      MFILE_NONE,      FALSE,     LS_GOLUM,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_ETHEREALIZE*///{ NULL,                       NULL,                                               0, MISR_NONE,      MFILE_ETHRSHLD,  TRUE,      LS_ETHEREAL, SFX_NONE,    1,        1, ALIGN },
-/*MIS_BLODBUR*///    { NULL,                       NULL,                                               0, MISR_NONE,      MFILE_BLODBUR,   TRUE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
+/*MIS_BLEED*/        { &AddBleed,                  &MI_Bleed,           MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_NONE,      MFILE_BLODBURS,  TRUE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_EXAPOCA*///    { &AddApocaExp,               &MI_ApocaExp,                                       0, MISR_NONE,      MFILE_NEWEXP,    TRUE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_FIREWALLC*/    { &AddWallC,                  &MI_WallC,                                          0, MISR_NONE,      MFILE_NONE,      FALSE,     SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_FIREWALL*/     { &AddFirewall,               &MI_Firewall,        MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_FIREWAL,   TRUE,      LS_WALLLOOP, SFX_NONE,    1,        1, ALIGN }, // miSFX was LS_FIRIMP2

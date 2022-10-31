@@ -1558,6 +1558,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_STUN:
 		is->_iFlags |= ISPL_STUN;
 		break;
+	case IPL_BLEED:
+		is->_iFlags |= ISPL_BLEED;
+		break;
 	case IPL_ALLRESZERO:
 		is->_iFlags |= ISPL_ALLRESZERO;
 		break;
@@ -2954,6 +2957,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_STUN:
 		copy_cstr(tempstr, "reduces stun threshold");
+		break;
+	case IPL_BLEED:
+		copy_cstr(tempstr, "increased chance to bleed");
 		break;
 	case IPL_ALLRESZERO:
 		copy_cstr(tempstr, "all Resistance equals 0");

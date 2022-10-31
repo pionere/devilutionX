@@ -2044,7 +2044,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);
 	} else {
-		hitFlags = plr._pIFlags & ISPL_HITFLAGS_MASK;
+		hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		//if (hitFlags & ISPL_NOHEALMON) {
 		//	mon->_mFlags |= MFLAG_NOHEAL;
 		//}

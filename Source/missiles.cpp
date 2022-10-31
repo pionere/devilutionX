@@ -893,7 +893,7 @@ static bool MonsterMHit(int mnum, int mi)
 		} else {*/
 			hitFlags = 0;
 			if (mis->_miFlags & MIF_ARROW) {
-				hitFlags = plr._pIFlags & ISPL_HITFLAGS_MASK;
+				hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 				//if (hitFlags & ISPL_NOHEALMON)
 				//	mon->_mFlags |= MFLAG_NOHEAL;
 
@@ -1222,7 +1222,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW)
-			hitFlags = plx(offp)._pIFlags & ISPL_HITFLAGS_MASK;
+			hitFlags = (plx(offp)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		PlrStartAnyHit(pnum, dam, hitFlags, tmp);
 	}
 	return true;
@@ -2209,6 +2209,41 @@ int AddBloodBoil(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	mis->_miMinDam = mindam << 6;
 	mis->_miMaxDam = maxdam << 6;
 	mis->_miRange = misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0];
+	return MIRES_DONE;
+}
+
+/**
+ * Var1: whether the target has died
+ */
+int AddBleed(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	// int pnum;
+	MonsterStruct* mon;
+
+	mis = &missile[mi];
+	static_assert(MAX_PLRS <= MAX_MINIONS, "MIS_BLEED uses a single int to store player and monster targets.");
+	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
+	//if (spllvl >= MAX_MINIONS) {
+		mon = &monsters[spllvl];
+		mis->_mix = mon->_mx;
+		mis->_miy = mon->_my;
+		mis->_mixoff = mon->_mxoff;
+		mis->_miyoff = mon->_myoff;
+		mis->_miMinDam = mon->_mmaxhp >> (2 + 4);
+		mis->_miMaxDam = mon->_mmaxhp >> (1 + 4);
+	/*} else {
+		pnum = spllvl;
+		mis->_mix = plr._px;
+		mis->_miy = plr._py;
+		mis->_mixoff = plr._pxoff;
+		mis->_miyoff = plr._pyoff;
+		mis->_miMinDam = plr._pMaxHP >> (2 + 4);
+		mis->_miMaxDam = plr._pMaxHP >> (1 + 4);
+	}*/
+
+	mis->_miRange = misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0];
+	// mis->_miVar1 = 0;
 	return MIRES_DONE;
 }
 
@@ -3757,6 +3792,44 @@ void MI_BloodBoil(int mi)
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
+		return;
+	}
+	mis->_miDelFlag = TRUE;
+}
+
+void MI_Bleed(int mi)
+{
+	MissileStruct* mis;
+	int tnum;//, pnum;
+	MonsterStruct* mon;
+
+	mis = &missile[mi];
+	if (mis->_miVar1 == 0) {
+		tnum = mis->_miSpllvl;
+		static_assert(MAX_PLRS <= MAX_MINIONS, "MIS_BLEED uses a single int to store player and monster targets.");
+		assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
+		//if (tnum >= MAX_MINIONS) {
+			mon = &monsters[tnum];
+			if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) {
+				mis->_miVar1 = 1;
+			} else if (mon->_mmode != MM_STONE) {
+				// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
+				MonMissHit(tnum, mi);
+			}
+		/*} else {
+			pnum = tnum;
+			if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints < (1 << 6)) {
+				mis->_miVar1 = 1;
+			} else {
+				// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
+				PlrMissHit(pnum, mi);
+			}
+		}*/
+	}
+
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
+		PutMissileF(mi, BFLAG_MISSILE_PRE);
 		return;
 	}
 	mis->_miDelFlag = TRUE;

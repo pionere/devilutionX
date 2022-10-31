@@ -1752,7 +1752,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags)
 	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("Invalid monster %d getting hit by player/trap", mnum);
+		dev_fatal("Invalid monster %d getting hit by player", mnum);
 	}
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("Invalid player %d hitting monster %d", pnum, mnum);
@@ -1765,7 +1765,12 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags)
 	PlayEffect(mnum, MS_GOTHIT);
 	if (mnum < MAX_MINIONS)
 		return;
-	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp && mon->_mmode != MM_STONE) {
+	if (mon->_mmode == MM_STONE)
+		return;
+	if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
+	 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
+		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
+	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp /*&& mon->_mmode != MM_STONE*/) {
 		mon->_mdir = OPPOSITE(plr._pdir);
 		if (mon->_mType == MT_BLINK)
 			MonTeleport(mnum, plr._pfutx, plr._pfuty);
