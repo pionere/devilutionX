@@ -1372,10 +1372,10 @@ static void MonEnemyInfo(int mnum)
 	currEnemyInfo._meRealDist = std::max(abs(dx), abs(dy));
 }
 
-static int MonEnemyRealDir(int mnum)
-{
-	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy);
-}
+//static int MonEnemyRealDir(int mnum)
+//{
+//	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy);
+//}
 
 static int MonEnemyLastDir(int mnum)
 {
