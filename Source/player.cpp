@@ -1647,20 +1647,20 @@ void RemovePlrFromMap(int pnum)
 	}
 }
 
-void StartPlrHit(int pnum, int dam, bool forcehit, int dir)
+void PlrStartAnyHit(int pnum, int dam, unsigned hitflags, int dir)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartPlrHit: illegal player %d", pnum);
+		dev_fatal("PlrStartAnyHit: illegal player %d", pnum);
 	}
 
 	assert(plr._pHitPoints >= (1 << 6));
 
-	if (!forcehit && plr._pManaShield != 0)
+	if (!(hitflags & ISPL_FAKE_FORCE_STUN) && plr._pManaShield != 0)
 		return;
 
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
 
-	if (!forcehit && (dam << 2) < plr._pMaxHP)
+	if (!(hitflags & ISPL_FAKE_FORCE_STUN) && (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) < plr._pMaxHP)
 		return;
 
 	dir = dir == DIR_NONE ? plr._pdir : OPPOSITE(dir);
@@ -2044,7 +2044,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);
 	} else {
-		hitFlags = plr._pIFlags;
+		hitFlags = plr._pIFlags & ISPL_HITFLAGS_MASK;
 		//if (hitFlags & ISPL_NOHEALMON) {
 		//	mon->_mFlags |= MFLAG_NOHEAL;
 		//}
@@ -2150,7 +2150,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
-		StartPlrHit(pnum, dam, false, plx(offp)._pdir);
+		PlrStartAnyHit(pnum, dam, plx(offp)._pIFlags & ISPL_HITFLAGS_MASK, plx(offp)._pdir);
 	return true;
 }
 
@@ -2508,7 +2508,7 @@ void KnockbackPlr(int pnum, int dir)
 	assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 
 	if (plr._pmode != PM_GOTHIT)
-		StartPlrHit(pnum, 0, true, dir);
+		PlrStartAnyHit(pnum, 0, ISPL_FAKE_FORCE_STUN, dir);
 
 	oldx = plr._px;
 	oldy = plr._py;
@@ -2994,7 +2994,7 @@ void MissToPlr(int mi, bool hit)
 		return;
 	}
 	//if (mis->_miSpllvl < 10)
-		StartPlrHit(pnum, 0, true, OPPOSITE(plr._pdir));
+		PlrStartAnyHit(pnum, 0, ISPL_FAKE_FORCE_STUN, OPPOSITE(plr._pdir));
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
 	dist = (int)mis->_miRange - 24; // MISRANGE
@@ -3077,7 +3077,7 @@ void MissToPlr(int mi, bool hit)
 		//if (random_(151, 200) < plr._pICritChance)
 		//	dam <<= 1;
 		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER))
-			StartPlrHit(mpnum, dam, true, plr._pdir);
+			PlrStartAnyHit(mpnum, dam, ISPL_FAKE_FORCE_STUN, plr._pdir);
 		return;
 	}
 }

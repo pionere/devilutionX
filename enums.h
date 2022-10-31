@@ -457,6 +457,8 @@ typedef enum item_special_effect {
 	ISPL_PENETRATE_PHYS = 0x00800000,
 	ISPL_STUN           = 0x40000000,
 	ISPL_NOMANA         = 0x80000000,
+	ISPL_HITFLAGS_MASK  = 0xFFFF0000, // mask to prepare hitflags from pIFlags
+	ISPL_FAKE_FORCE_STUN= 0x00000001, // fake flag to indicate hits with forced stun effect (against players)
 } item_special_effect;
 
 

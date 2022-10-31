@@ -2206,7 +2206,7 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 		return;
 	}
-	StartPlrHit(pnum, dam, false, mon->_mdir);
+	PlrStartAnyHit(pnum, dam, 0, mon->_mdir);
 	if (mon->_mFlags & MFLAG_KNOCKBACK) {
 		KnockbackPlr(pnum, mon->_mdir);
 	}

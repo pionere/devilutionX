@@ -893,7 +893,7 @@ static bool MonsterMHit(int mnum, int mi)
 		} else {*/
 			hitFlags = 0;
 			if (mis->_miFlags & MIF_ARROW) {
-				hitFlags = plr._pIFlags;
+				hitFlags = plr._pIFlags & ISPL_HITFLAGS_MASK;
 				//if (hitFlags & ISPL_NOHEALMON)
 				//	mon->_mFlags |= MFLAG_NOHEAL;
 
@@ -1018,7 +1018,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC))
-		StartPlrHit(pnum, dam, false, tmp);
+		PlrStartAnyHit(pnum, dam, 0, tmp);
 	return true;
 }
 
@@ -1088,7 +1088,7 @@ static bool PlayerMHit(int pnum, int mi)
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC))
-		StartPlrHit(pnum, dam, false, tmp);
+		PlrStartAnyHit(pnum, dam, 0, tmp);
 	return true;
 }
 
@@ -1096,6 +1096,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 {
 	MissileStruct* mis;
 	int offp, dam, tmp, hper;
+	unsigned hitFlags;
 
 	mis = &missile[mi];
 	if (!(mis->_miFlags & MIF_DOT)) {
@@ -1218,8 +1219,12 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		tmp = GetDirection(mis->_misx, mis->_misy, plr._px, plr._py);
 	}
 
-	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER))
-		StartPlrHit(pnum, dam, false, tmp);
+	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
+		hitFlags = 0;
+		if (mis->_miFlags & MIF_ARROW)
+			hitFlags = pfx(offp)._pIFlags & ISPL_HITFLAGS_MASK;
+		PlrStartAnyHit(pnum, dam, hitFlags, tmp);
+	}
 	return true;
 }
 
