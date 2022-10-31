@@ -1747,30 +1747,57 @@ void MonGetKnockback(int mnum, int sx, int sy)
 		MonStartGetHit(mnum);
 }
 
-void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags)
+void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags)
 {
 	MonsterStruct* mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("Invalid monster %d getting hit by player/trap", mnum);
 	}
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("Invalid player %d hitting monster %d", pnum, mnum);
+	}
 	mon = &monsters[mnum];
-	if ((unsigned)pnum < MAX_PLRS) {
-		mon->_mWhoHit |= 1 << pnum;
-		if (pnum == mypnum) {
-			NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
-		}
+	mon->_mWhoHit |= 1 << pnum;
+	if (pnum == mypnum) {
+		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
 	PlayEffect(mnum, MS_GOTHIT);
 	if (mnum < MAX_MINIONS)
 		return;
 	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp && mon->_mmode != MM_STONE) {
-		if ((unsigned)pnum < MAX_PLRS) {
-			mon->_mdir = MonEnemyRealDir(mnum);
-			if (mon->_mType == MT_BLINK)
-				MonTeleport(mnum, plr._pfutx, plr._pfuty);
-		}
+		mon->_mdir = OPPOSITE(plr._pdir);
+		if (mon->_mType == MT_BLINK)
+			MonTeleport(mnum, plr._pfutx, plr._pfuty);
 		MonStartGetHit(mnum);
+	}
+}
+
+void MonStartMonHit(int defm, int offm, int dam)
+{
+	MonsterStruct* dmon;
+
+	if ((unsigned)defm >= MAXMONSTERS) {
+		dev_fatal("Invalid monster %d getting hit by monster/trap", defm);
+	}
+	dmon = &monsters[defm];
+	if ((unsigned)offm < MAX_MINIONS) {
+		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
+		dmon->_mWhoHit |= 1 << offm;
+		if (offm == mypnum) {
+			NetSendCmdMonstDamage(defm, dmon->_mhitpoints);
+		}
+	}
+	PlayEffect(defm, MS_GOTHIT);
+	if (defm < MAX_MINIONS)
+		return;
+	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
+		if (offm >= 0) {
+			dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
+			if (dmon->_mType == MT_BLINK)
+				MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty);
+		}
+		MonStartGetHit(defm);
 	}
 }
 
@@ -1872,34 +1899,6 @@ static void SpawnLoot(int mnum, bool sendmsg)
 #endif
 	}
 	SpawnMonItem(mnum, mon->_mx, mon->_my, sendmsg);
-}
-
-static void M2MStartHit(int defm, int offm, int dam)
-{
-	MonsterStruct* dmon;
-
-	if ((unsigned)defm >= MAXMONSTERS) {
-		dev_fatal("Invalid monster %d getting hit by monster", defm);
-	}
-	dmon = &monsters[defm];
-	if ((unsigned)offm < MAX_MINIONS) {
-		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
-		dmon->_mWhoHit |= 1 << offm;
-		if (offm == mypnum) {
-			NetSendCmdMonstDamage(defm, dmon->_mhitpoints);
-		}
-	}
-	PlayEffect(defm, MS_GOTHIT);
-	if (defm < MAX_MINIONS)
-		return;
-	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
-		//if (offm >= 0) {
-			dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
-			if (dmon->_mType == MT_BLINK)
-				MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty);
-		//}
-		MonStartGetHit(defm);
-	}
 }
 
 static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
@@ -2135,7 +2134,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		if (monsters[defm]._mhitpoints < (1 << 6)) {
 			M2MStartKill(offm, defm);
 		} else {
-			M2MStartHit(defm, offm, dam);
+			MonStartMonHit(defm, offm, dam);
 		}
 	}
 }

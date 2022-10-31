@@ -752,7 +752,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 		/*if (resist != MORT_NONE) {
 			PlayEffect(mnum, MS_GOTHIT);
 		} else {*/
-			MonStartHit(mnum, -1, dam, 0);
+			MonStartMonHit(mnum, -1, dam);
 		//}
 	}
 	if (mon->_msquelch != SQUELCH_MAX) {
@@ -891,15 +891,16 @@ static bool MonsterMHit(int mnum, int mi)
 		/*if (resist != MORT_NONE) {
 			PlayEffect(mnum, MS_GOTHIT);
 		} else {*/
-			hitFlags = plr._pIFlags;
+			hitFlags = 0;
 			if (mis->_miFlags & MIF_ARROW) {
+				hitFlags = plr._pIFlags;
 				//if (hitFlags & ISPL_NOHEALMON)
 				//	mon->_mFlags |= MFLAG_NOHEAL;
 
 				if (hitFlags & ISPL_KNOCKBACK)
 					MonGetKnockback(mnum, mis->_misx, mis->_misy);
 			}
-			MonStartHit(mnum, pnum, dam, hitFlags);
+			MonStartPlrHit(mnum, pnum, dam, hitFlags);
 		//}
 	}
 
@@ -3191,7 +3192,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 			monsters[target]._mlastx = plr._px;
 			monsters[target]._mlasty = plr._py;
 			MonGetKnockback(target, plr._px, plr._py);
-			MonStartHit(target, pnum, 0, 0);
+			MonStartPlrHit(target, pnum, 0, 0);
 		}
 		break;
 	case MTT_OBJECT:

@@ -2051,7 +2051,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		if (hitFlags & ISPL_KNOCKBACK) {
 			MonGetKnockback(mnum, plr._px, plr._py);
 		}
-		MonStartHit(mnum, pnum, dam, hitFlags);
+		MonStartPlrHit(mnum, pnum, dam, hitFlags);
 	}
 	return true;
 }
@@ -3048,7 +3048,7 @@ void MissToPlr(int mi, bool hit)
 			if (hitFlags & ISPL_KNOCKBACK)
 				MonGetKnockback(mpnum, plr._px, plr._py);
 
-			MonStartHit(mpnum, pnum, dam, ISPL_STUN);
+			MonStartPlrHit(mpnum, pnum, dam, ISPL_STUN);
 		}
 		return;
 	}
