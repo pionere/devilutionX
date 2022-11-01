@@ -2505,7 +2505,8 @@ void KnockbackPlr(int pnum, int dir)
 		dev_fatal("PlrKnockback: illegal player %d", pnum);
 	}
 
-	assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
+	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
+		return;
 
 	if (plr._pmode != PM_GOTHIT)
 		PlrStartAnyHit(pnum, 0, ISPL_FAKE_FORCE_STUN, dir);
