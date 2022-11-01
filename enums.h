@@ -162,6 +162,7 @@ typedef enum unique_item_indexes {
 	UITEM_SPIRITSHLD,
 	UITEM_STORMSHLD,
 	UITEM_BRAMBLE,
+	UITEM_TYRAELGIFT,
 	UITEM_LILITHCOLLAR,
 	UITEM_BLEEDER,
 	UITEM_CONSTRICT,
@@ -385,6 +386,7 @@ typedef enum item_effect_type {
 	IPL_KNOCKBACK,
 	IPL_STUN,
 	//IPL_NOHEALMON,
+	IPL_NO_BLEED,
 	IPL_BLEED,
 	IPL_STEALMANA,
 	IPL_STEALLIFE,
@@ -456,6 +458,7 @@ typedef enum item_special_effect {
 	ISPL_LIFETOMANA     = 0x00200000,
 	ISPL_MANATOLIFE     = 0x00400000,
 	ISPL_PENETRATE_PHYS = 0x00800000,
+	ISPL_NO_BLEED       = 0x20000000, // immune to bleeding
 	ISPL_BLEED          = 0x20000000, // increased chance to bleed
 	ISPL_STUN           = 0x40000000, // increased chance to stun
 	ISPL_NOMANA         = 0x80000000,
@@ -503,6 +506,7 @@ typedef enum item_cursor_graphic {
 	ICURS_FANG                        = 42,
 	ICURS_OPTIC_AMULET                = 44,
 	ICURS_AMULET                      = 45,
+	ICURS_AMULET_TYRAEL               = 48,
 	ICURS_WIZARDSPIKE                 = 50,
 	ICURS_DAGGER                      = 51,
 	ICURS_BLACK_RAZOR                 = 53,

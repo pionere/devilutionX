@@ -2146,6 +2146,7 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 {
 	MonsterStruct* mon;
 	int tmp, dam, hper, blkper;
+	unsigned hitFlags;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("MonHitPlr: Invalid player %d", pnum);
@@ -2195,7 +2196,7 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		if (mon->_mhitpoints < (1 << 6))
 			MonStartKill(mnum, pnum);
 		else
-			MonStartHit(mnum, pnum, tmp, 0);
+			MonStartMonHit(mnum, pnum, tmp);
 	}*/
 	dam = RandRange(MinDam, MaxDam) << 6;
 	dam += plr._pIGetHit;
@@ -2206,12 +2207,12 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		if (mon->_mhitpoints > mon->_mmaxhp)
 			mon->_mhitpoints = mon->_mmaxhp;
 	}
-	if (PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
-		return;
-	}
-	PlrStartAnyHit(pnum, dam, 0, mon->_mdir);
-	if (mon->_mFlags & MFLAG_KNOCKBACK) {
-		KnockbackPlr(pnum, mon->_mdir);
+	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
+		hitFlags = ISPL_FAKE_CAN_BLEED;
+		PlrStartAnyHit(pnum, mnum, dam, hitFlags, mon->_mdir);
+		if (mon->_mFlags & MFLAG_KNOCKBACK) {
+			KnockbackPlr(pnum, mon->_mdir);
+		}
 	}
 }
 

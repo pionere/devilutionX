@@ -41,7 +41,7 @@ void PlrStartStand(int pnum);
 void PlrStartBlock(int pnum, int dir);
 void KnockbackPlr(int pnum, int dir);
 void RemovePlrFromMap(int pnum);
-void PlrStartAnyHit(int pnum, int dam, unsigned hitflags, int dir);
+void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int dir);
 void SyncPlrKill(int pnum, int dmgtype);
 void SyncPlrResurrect(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);

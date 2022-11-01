@@ -1558,6 +1558,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_STUN:
 		is->_iFlags |= ISPL_STUN;
 		break;
+	case IPL_NO_BLEED:
+		is->_iFlags |= ISPL_NO_BLEED;
+		break;
 	case IPL_BLEED:
 		is->_iFlags |= ISPL_BLEED;
 		break;
