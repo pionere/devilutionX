@@ -2104,10 +2104,6 @@ static bool MonDoWalk(int mnum)
 		rv = true;
 	} else {
 		//if (mon->_mAnimCnt == 0) {
-#ifdef HELLFIRE
-			if (mon->_mAnimFrame == 1 && mon->_mType == MT_FLESTHNG)
-				PlayEffect(mnum, MS_SPECIAL);
-#endif
 			//mon->_mVar8++;
 			mon->_mVar6 += mon->_mVar4; // MWALK_XOFF <- WALK_XVEL
 			mon->_mVar7 += mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
@@ -2649,6 +2645,10 @@ void MonWalkDir(int mnum, int md)
 		dev_fatal("MonWalkDir: Invalid monster %d", mnum);
 	}
 	NewMonsterAnim(mnum, MA_WALK, md);
+#ifdef HELLFIRE
+	if (monsters[mnum]._mType == MT_FLESTHNG)
+		PlayEffect(mnum, MS_SPECIAL);
+#endif
 	mwi = MWVel[monsters[mnum]._mAnimLen - 1];
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
 	switch (md) {
