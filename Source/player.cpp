@@ -2045,13 +2045,9 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		MonStartKill(mnum, pnum);
 	} else {
 		hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		//if (hitFlags & ISPL_NOHEALMON) {
+		//if (hitFlags & ISPL_NOHEALMON)
 		//	mon->_mFlags |= MFLAG_NOHEAL;
-		//}
-		if (hitFlags & ISPL_KNOCKBACK) {
-			MonGetKnockback(mnum, plr._px, plr._py);
-		}
-		MonStartPlrHit(mnum, pnum, dam, hitFlags);
+		MonStartPlrHit(mnum, pnum, dam, hitFlags, plr._px, plr._py);
 	}
 	return true;
 }
@@ -3042,14 +3038,10 @@ void MissToPlr(int mi, bool hit)
 		if (mon->_mhitpoints < (1 << 6)) {
 			MonStartKill(mpnum, pnum);
 		} else {
-			hitFlags = plr._pIFlags;
+			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
 			//if (hitFlags & ISPL_NOHEALMON)
 			//	mon->_mFlags |= MFLAG_NOHEAL;
-
-			if (hitFlags & ISPL_KNOCKBACK)
-				MonGetKnockback(mpnum, plr._px, plr._py);
-
-			MonStartPlrHit(mpnum, pnum, dam, ISPL_STUN);
+			MonStartPlrHit(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
 		}
 		return;
 	}

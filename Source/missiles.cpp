@@ -896,11 +896,8 @@ static bool MonsterMHit(int mnum, int mi)
 				hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 				//if (hitFlags & ISPL_NOHEALMON)
 				//	mon->_mFlags |= MFLAG_NOHEAL;
-
-				if (hitFlags & ISPL_KNOCKBACK)
-					MonGetKnockback(mnum, mis->_misx, mis->_misy);
 			}
-			MonStartPlrHit(mnum, pnum, dam, hitFlags);
+			MonStartPlrHit(mnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
 		//}
 	}
 
@@ -3231,8 +3228,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 			monsters[target]._msquelch = SQUELCH_MAX;
 			monsters[target]._mlastx = plr._px;
 			monsters[target]._mlasty = plr._py;
-			MonGetKnockback(target, plr._px, plr._py);
-			MonStartPlrHit(target, pnum, 0, 0);
+			MonStartPlrHit(target, pnum, 0, ISPL_KNOCKBACK, plr._px, plr._py);
 		}
 		break;
 	case MTT_OBJECT:

@@ -1711,7 +1711,7 @@ static void MonFallenFear(int x, int y)
 	}
 }
 
-void MonGetKnockback(int mnum, int sx, int sy)
+static void MonGetKnockback(int mnum, int sx, int sy)
 {
 	MonsterStruct* mon = &monsters[mnum];
 	int oldx, oldy, newx, newy, dir;
@@ -1747,7 +1747,7 @@ void MonGetKnockback(int mnum, int sx, int sy)
 		MonStartGetHit(mnum);
 }
 
-void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags)
+void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 {
 	MonsterStruct* mon;
 
@@ -1763,6 +1763,8 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags)
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
 	PlayEffect(mnum, MS_GOTHIT);
+	if (hitFlags & ISPL_KNOCKBACK)
+		MonGetKnockback(mnum, sx, sy);
 	if (mnum < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
 		return;
 	if (mon->_mmode == MM_STONE)
