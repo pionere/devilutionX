@@ -3069,8 +3069,10 @@ void MissToPlr(int mi, bool hit)
 
 		//if (random_(151, 200) < plr._pICritChance)
 		//	dam <<= 1;
-		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER))
-			PlrStartAnyHit(mpnum, dam, ISPL_FAKE_FORCE_STUN, plr._pdir);
+		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER)) {
+			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_FORCE_STUN;
+			PlrStartAnyHit(mpnum, dam, hitFlags, plr._pdir);
+		}
 		return;
 	}
 }

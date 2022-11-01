@@ -1763,7 +1763,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
 	PlayEffect(mnum, MS_GOTHIT);
-	if (hitFlags & ISPL_KNOCKBACK)
+	if (hitflags & ISPL_KNOCKBACK)
 		MonGetKnockback(mnum, sx, sy);
 	if (mnum < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
 		return;
