@@ -1645,7 +1645,7 @@ static void MonStartGetHit(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
-	assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE);
+	assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE/* && mon->_mType != MT_GOLEM */);
 
 	RemoveMonFromMap(mnum);
 	MonPlace(mnum);
@@ -1743,7 +1743,7 @@ void MonGetKnockback(int mnum, int sx, int sy)
 		}
 	}
 
-	if (mnum >= MAX_MINIONS)
+	if (mnum >= MAX_MINIONS/* mon->_mType != MT_GOLEM */) 
 		MonStartGetHit(mnum);
 }
 
@@ -1763,7 +1763,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags)
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
 	PlayEffect(mnum, MS_GOTHIT);
-	if (mnum < MAX_MINIONS)
+	if (mnum < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
 		return;
 	if (mon->_mmode == MM_STONE)
 		return;
@@ -1794,7 +1794,7 @@ void MonStartMonHit(int defm, int offm, int dam)
 		}
 	}
 	PlayEffect(defm, MS_GOTHIT);
-	if (defm < MAX_MINIONS)
+	if (defm < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
 		return;
 	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
 		if (offm >= 0) {
@@ -4869,7 +4869,7 @@ void MissToMonst(int mi)
 	if (tnum > 0) {
 		tnum--;
 		if (tnum >= MAX_MINIONS)
-			return;
+			return; // do not hit team-mate : assert(mnum >= MAX_MINIONS);
 		MonHitMon(mnum, tnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (tnum == dMonster[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
 			MonGetKnockback(tnum, mis->_misx, mis->_misy);
