@@ -2200,13 +2200,13 @@ static int PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
-		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return PlrHitMonst(pnum, sn, sl, mpo) ? 1 : 0;
+		mpo = CheckMonCol(mpo);
+		return (mpo != -1 && PlrHitMonst(pnum, sn, sl, mpo)) ? 1 : 0;
 	}
 	mpo = dPlayer[dx][dy];
 	if (mpo != 0) {
-		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return PlrHitPlr(pnum, sn, sl, mpo) ? 1 : 0;
+		mpo = CheckPlrCol(mpo);
+		return (mpo != -1 && PlrHitPlr(pnum, sn, sl, mpo)) ? 1 : 0;
 	}
 	mpo = dObject[dx][dy];
 	if (mpo != 0) {
