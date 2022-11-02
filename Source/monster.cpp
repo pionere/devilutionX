@@ -4828,9 +4828,7 @@ void MissToMonst(int mi)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	int mnum, oldx, oldy, mpnum, dam, hper, blkper;
-	unsigned hitFlags;
-	bool ret;
+	int mnum, oldx, oldy, mpnum;
 
 	if ((unsigned)mi >= MAXMISSILES) {
 		dev_fatal("MissToMonst: Invalid missile %d", mi);
@@ -4863,7 +4861,7 @@ void MissToMonst(int mi)
 	// TODO: use CheckPlrCol instead?
 	if (mpnum > 0) {
 		mpnum--;
-		// TODO: prevent bleeding if MonsterAI is AI_RHINO ? 
+		// TODO: prevent bleeding if MonsterAI is AI_RHINO ?
 		MonHitPlr(mnum, mpnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (mpnum == dPlayer[oldx][oldy] - 1 && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
 			PlrStartAnyHit(mpnum, mnum, 0, ISPL_KNOCKBACK, mis->_misx, mis->_misy);

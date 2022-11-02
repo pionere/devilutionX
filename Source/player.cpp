@@ -1718,8 +1718,7 @@ void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
 
 	if ((hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP) {
-		plr._pdir = dir;
-		PlrStartGetHit(pnum);
+		PlrStartGetHit(pnum, dir);
 	}
 }
 
