@@ -1763,12 +1763,12 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
 	PlayEffect(mnum, MS_GOTHIT);
-	if (hitflags & ISPL_KNOCKBACK)
-		MonGetKnockback(mnum, sx, sy);
 	if (mnum < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
 		return;
 	if (mon->_mmode == MM_STONE)
 		return;
+	if (hitflags & ISPL_KNOCKBACK)
+		MonGetKnockback(mnum, sx, sy);
 	if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
