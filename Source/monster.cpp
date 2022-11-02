@@ -1630,15 +1630,20 @@ void RemoveMonFromMap(int mnum)
 static void MonPlace(int mnum)
 {
 	MonsterStruct* mon;
+	int mx, my;
 
+	// set monster position to x/y with zero offset
 	FixMonLocation(mnum);
-
+	// move light/vision of the monster
 	mon = &monsters[mnum];
+	mx = mon->_mx;
+	my = mon->_my;
 	if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-		ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
+		ChangeLightXYOff(mon->_mlid, mx, my);
 	if (mon->_mvid != NO_VISION)
-		ChangeVisionXY(mon->_mvid, mon->_mx, mon->_my);
-	dMonster[mon->_mx][mon->_my] = mnum + 1;
+		ChangeVisionXY(mon->_mvid, mx, my);
+	// place monster in the new position
+	dMonster[mx][my] = mnum + 1;
 }
 
 static void MonStartGetHit(int mnum)
