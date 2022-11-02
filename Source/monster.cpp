@@ -2208,7 +2208,7 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		hitFlags = ISPL_FAKE_CAN_BLEED;
 		PlrStartAnyHit(pnum, mnum, dam, hitFlags, mon->_mdir);
 		if (mon->_mFlags & MFLAG_KNOCKBACK) {
-			KnockbackPlr(pnum, mon->_mdir);
+			PlrGetKnockback(pnum, mon->_mdir);
 		}
 	}
 }
@@ -4860,7 +4860,7 @@ void MissToMonst(int mi)
 		tnum--;
 		MonHitPlr(mnum, tnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
-			KnockbackPlr(tnum, mon->_mdir);
+			PlrGetKnockback(tnum, mon->_mdir);
 		}
 		return;
 	}

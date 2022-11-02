@@ -1647,6 +1647,38 @@ void RemovePlrFromMap(int pnum)
 	}
 }
 
+void PlrGetKnockback(int pnum, int dir)
+{
+	int oldx, oldy, newx, newy;
+
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("PlrKnockback: illegal player %d", pnum);
+	}
+
+	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
+		return;
+
+	if (plr._pmode != PM_GOTHIT)
+		PlrStartAnyHit(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, dir);
+
+	oldx = plr._px;
+	oldy = plr._py;
+	if (!PathWalkable(oldx, oldy, dir2pdir[dir]))
+		return;
+
+	newx = oldx + offset_x[dir];
+	newy = oldy + offset_y[dir];
+	if (PosOkPlayer(pnum, newx, newy)) {
+		RemovePlrFromMap(pnum);
+		plr._px = newx;
+		plr._py = newy;
+		ChangeLightXYOff(plr._plid, newx, newy);
+		ChangeVisionXY(plr._pvid, newx, newy);
+		dPlayer[newx][newy] = pnum + 1;
+		FixPlayerLocation(pnum);
+	}
+}
+
 void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -2498,38 +2530,6 @@ static void PlrDoSpell(int pnum)
 	//PlrStartStand(pnum);
 	StartStand(pnum);
 	//ClearPlrPVars(pnum);
-}
-
-void KnockbackPlr(int pnum, int dir)
-{
-	int oldx, oldy, newx, newy;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrKnockback: illegal player %d", pnum);
-	}
-
-	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
-		return;
-
-	if (plr._pmode != PM_GOTHIT)
-		PlrStartAnyHit(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, dir);
-
-	oldx = plr._px;
-	oldy = plr._py;
-	if (!PathWalkable(oldx, oldy, dir2pdir[dir]))
-		return;
-
-	newx = oldx + offset_x[dir];
-	newy = oldy + offset_y[dir];
-	if (PosOkPlayer(pnum, newx, newy)) {
-		RemovePlrFromMap(pnum);
-		plr._px = newx;
-		plr._py = newy;
-		ChangeLightXYOff(plr._plid, newx, newy);
-		ChangeVisionXY(plr._pvid, newx, newy);
-		dPlayer[newx][newy] = pnum + 1;
-		FixPlayerLocation(pnum);
-	}
 }
 
 static void PlrDoGotHit(int pnum)
