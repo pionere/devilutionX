@@ -2961,6 +2961,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_STUN:
 		copy_cstr(tempstr, "reduces stun threshold");
 		break;
+	case IPL_NO_BLEED:
+		copy_cstr(tempstr, "immnue to bleeding");
+		break;
 	case IPL_BLEED:
 		copy_cstr(tempstr, "increased chance to bleed");
 		break;
