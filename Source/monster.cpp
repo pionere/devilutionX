@@ -4855,7 +4855,7 @@ void MissToMonst(int mi)
 		return;
 	}*/
 	PlayEffect(mnum, MS_GOTHIT);
-	if (mon->_mAI.aiType == AI_BAT) /* mon->_mType == MT_GLOOM */
+	if (mon->_mType == MT_GLOOM) /* mon->_mAI.aiType == AI_BAT Foulwing? */
 		return;
 
 	oldx = mis->_mix;
