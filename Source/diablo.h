@@ -60,8 +60,6 @@ extern int debugmonsttypes;
 extern bool allquests;
 extern int questdebug;
 extern int debug_mode_key_w;
-extern int debug_mode_key_inverted_v;
-extern BOOL debug_mode_god_mode;
 extern int debug_mode_key_i;
 #endif
 

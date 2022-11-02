@@ -2160,10 +2160,7 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		+ (2 * mon->_mLevel)
 		- plr._pIAC;
 	if (!CheckHit(hper))
-#if DEBUG_MODE
-		if (!debug_mode_god_mode)
-#endif
-			return;
+		return;
 
 	blkper = plr._pIBlockChance;
 	if (blkper != 0

@@ -651,16 +651,6 @@ static void SetupLocalPlr()
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
 	CalcPlrInv(mypnum, false);
 
-#if DEBUG_MODE
-	if (debug_mode_key_inverted_v) {
-		p->_pMemSkills = SPL_INVALID;
-	} else if (debug_mode_god_mode) {
-		if (p->_pSkillLvlBase[SPL_TELEPORT] == 0) {
-			p->_pMemSkills |= SPELL_MASK(SPL_TELEPORT);
-			p->_pSkillLvlBase[SPL_TELEPORT] = 1;
-		}
-	}
-#endif
 	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town

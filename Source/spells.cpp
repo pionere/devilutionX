@@ -78,11 +78,6 @@ char SpellSourceEquipment(int sn)
 
 bool CheckSpell(int pnum, int sn)
 {
-#if DEBUG_MODE
-	if (debug_mode_key_inverted_v)
-		return true;
-#endif
-
 	return plr._pSkillLvl[sn] > 0 && plr._pMana >= GetManaAmount(pnum, sn);
 }
 

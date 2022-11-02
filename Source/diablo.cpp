@@ -59,10 +59,7 @@ int setseed;
 int debugmonsttypes;
 bool allquests;
 int questdebug = -1;
-int debug_mode_key_s;
 int debug_mode_key_w;
-int debug_mode_key_inverted_v;
-BOOL debug_mode_god_mode;
 int debug_mode_key_i;
 int arrowdebug;
 #endif
@@ -141,8 +138,6 @@ static void print_help_and_exit()
 #if DEBUG_MODE
 	printf("\nDebug options:\n");
 	printf("    %-20s %-30s\n", "-w", "Enable cheats");
-	printf("    %-20s %-30s\n", "-$", "Enable god mode");
-	printf("    %-20s %-30s\n", "-^", "Enable god mode and debug tools");
 	printf("    %-20s %-30s\n", "-v", "Highlight visibility");
 	printf("    %-20s %-30s\n", "-i", "Ignore network timeout");
 	printf("    %-20s %-30s\n", "-l <##> <##>", "Start in level as type");
@@ -175,15 +170,6 @@ static void diablo_parse_flags(int argc, char **argv)
 		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
 #if DEBUG_MODE
-		} else if (SDL_strcasecmp("-^", argv[i]) == 0) {
-			debug_mode_key_inverted_v = TRUE;
-			debug_mode_god_mode = TRUE;
-		} else if (SDL_strcasecmp("-$", argv[i]) == 0) {
-			debug_mode_god_mode = TRUE;
-			/*
-		} else if (SDL_strcasecmp("-b", argv[i]) == 0) {
-			debug_mode_key_b = 1;
-		*/
 		} else if (SDL_strcasecmp("-i", argv[i]) == 0) {
 			debug_mode_key_i = TRUE;
 			/*
@@ -201,8 +187,6 @@ static void diablo_parse_flags(int argc, char **argv)
 			questdebug = SDL_atoi(argv[++i]);
 		} else if (SDL_strcasecmp("-r", argv[i]) == 0) {
 			setseed = SDL_atoi(argv[++i]);
-		} else if (SDL_strcasecmp("-s", argv[i]) == 0) {
-			debug_mode_key_s = TRUE;
 		} else if (SDL_strcasecmp("-t", argv[i]) == 0) {
 			leveldebug = TRUE;
 			EnterLevel(SDL_atoi(argv[++i]));
@@ -1112,45 +1096,43 @@ static void PressChar(WPARAM vkey)
 	switch (vkey) {
 /*	case ')':
 	case '0':
-		if (debug_mode_key_inverted_v) {
-			if (arrowdebug > 2) {
-				arrowdebug = 0;
-			}
-			if (arrowdebug == 0) {
-				myplr._pIFlags &= ~ISPL_FIRE_ARROWS;
-				myplr._pIFlags &= ~ISPL_LIGHT_ARROWS;
-			}
-			if (arrowdebug == 1) {
-				myplr._pIFlags |= ISPL_FIRE_ARROWS;
-			}
-			if (arrowdebug == 2) {
-				myplr._pIFlags |= ISPL_LIGHT_ARROWS;
-			}
-			arrowdebug++;
+		if (arrowdebug > 2) {
+			arrowdebug = 0;
 		}
+		if (arrowdebug == 0) {
+			myplr._pIFlags &= ~ISPL_FIRE_ARROWS;
+			myplr._pIFlags &= ~ISPL_LIGHT_ARROWS;
+		}
+		if (arrowdebug == 1) {
+			myplr._pIFlags |= ISPL_FIRE_ARROWS;
+		}
+		if (arrowdebug == 2) {
+			myplr._pIFlags |= ISPL_LIGHT_ARROWS;
+		}
+		arrowdebug++;
 		break;*/
 	case '9':
-		if (debug_mode_key_inverted_v || debug_mode_key_w) {
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
 			NetSendCmd(CMD_CHEAT_EXPERIENCE);
 		}
 		break;
 	case ':':
-		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
 			SetAllSpellsCheat();
 		}
 		break;
 	case '[':
-		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
 			TakeGoldCheat();
 		}
 		break;
 	case ']':
-		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
 			MaxSpellsCheat();
 		}
 		break;
 	case 'a':
-		if (debug_mode_key_inverted_v) {
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
 			NetSendCmd(CMD_CHEAT_SPELL_LEVEL);
 		}
 		break;
@@ -1162,9 +1144,7 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'L':
 	case 'l':
-		if (debug_mode_key_inverted_v) {
-			ToggleLighting();
-		}
+		ToggleLighting();
 		break;
 	case 'M':
 		NextDebugMonster();
@@ -1179,20 +1159,18 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'T':
 	case 't':
-		if (debug_mode_key_inverted_v) {
-			snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
-			NetSendCmdString(1 << mypnum);
-			snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", cursmx, cursmy, dungeon[cursmx][cursmy]);
-			NetSendCmdString(1 << mypnum);
-		}
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
+		NetSendCmdString(1 << mypnum);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", cursmx, cursmy, dungeon[cursmx][cursmy]);
+		NetSendCmdString(1 << mypnum);
 		break;
 	case '|':
-		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
 			GiveGoldCheat();
 		}
 		break;
 	case '~':
-		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
 			StoresCheat();
 		}
 		break;
@@ -1399,7 +1377,7 @@ void game_logic()
 	ProcessVisionList();
 
 #if DEBUG_MODE
-	if (debug_mode_key_inverted_v && GetAsyncKeyState(DVL_VK_SHIFT)) {
+	if (GetAsyncKeyState(DVL_VK_SHIFT)) {
 		ScrollView();
 	}
 #endif

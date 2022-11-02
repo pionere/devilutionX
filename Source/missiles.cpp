@@ -728,10 +728,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 		hper = 40;
 	}
 	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
-#if DEBUG_MODE
-		if (!debug_mode_god_mode)
-#endif
-			return false;
+		return false;
 
 	dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	if (dam == 0)
@@ -742,10 +739,6 @@ static bool MonsterTrapHit(int mnum, int mi)
 	}
 
 	mon->_mhitpoints -= dam;
-#if DEBUG_MODE
-	if (debug_mode_god_mode)
-		mon->_mhitpoints = 0;
-#endif
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, -1);
 	} else {
@@ -799,10 +792,7 @@ static bool MonsterMHit(int mnum, int mi)
 		}
 	}
 	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
-#if DEBUG_MODE
-		if (!debug_mode_god_mode)
-#endif
-			return false;
+		return false;
 
 	if (mis->_miFlags & MIF_ARROW) {
 		// calculate arrow-damage
@@ -985,10 +975,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	}
 
 	if (!CheckHit(hper))
-#if DEBUG_MODE
-		if (!debug_mode_god_mode)
-#endif
-			return false;
+		return false;
 
 	if (!(mis->_miFlags & MIF_NOBLOCK)) {
 		tmp = plr._pIBlockChance;
@@ -1061,10 +1048,7 @@ static bool PlayerMHit(int pnum, int mi)
 	}
 
 	if (!CheckHit(hper))
-#if DEBUG_MODE
-		if (!debug_mode_god_mode)
-#endif
-			return false;
+		return false;
 
 	if (!(mis->_miFlags & MIF_NOBLOCK)) {
 		tmp = plr._pIBlockChance;

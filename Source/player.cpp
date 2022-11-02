@@ -1973,10 +1973,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		hper -= 30 - sl * 2;
 	}
 	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
-#if DEBUG_MODE
-		if (!debug_mode_god_mode)
-#endif
-			return false;
+		return false;
 
 	if (CheckMonsterHit(mnum, &ret))
 		return ret;
@@ -3025,10 +3022,7 @@ void MissToPlr(int mi, bool hit)
 
 		hper = mis->_miSpllvl * 16 - mon->_mArmorClass;
 		if (!CheckHit(hper) && mon->_mmode != MM_STONE)
-#if DEBUG_MODE
-			if (!debug_mode_god_mode)
-#endif
-				return;
+			return;
 
 		if (CheckMonsterHit(mpnum, &ret))
 			return;

@@ -2536,10 +2536,6 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse &su)
 	if (plr._pmode != PM_DEATH && (spelldata[sn].sUseFlags & plr._pSkillFlags) == spelldata[sn].sUseFlags) {
 		su.from = plr._pSkillLvl[sn];
 		if (sf == SPLFROM_MANA) {
-#if DEBUG_MODE
-			if (debug_mode_key_inverted_v)
-				return true;
-#endif
 			if (su.from == 0)
 				return false;
 			// do not deduct mana if the skill/level matches the set (skill based) action
