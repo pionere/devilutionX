@@ -1672,19 +1672,18 @@ static void PlrGetKnockback(int pnum, int dir)
 
 	oldx = plr._px;
 	oldy = plr._py;
-	if (!PathWalkable(oldx, oldy, dir2pdir[dir]))
-		return;
-
-	newx = oldx + offset_x[dir];
-	newy = oldy + offset_y[dir];
-	if (PosOkPlayer(pnum, newx, newy)) {
-		RemovePlrFromMap(pnum);
-		plr._px = newx;
-		plr._py = newy;
-		ChangeLightXYOff(plr._plid, newx, newy);
-		ChangeVisionXY(plr._pvid, newx, newy);
-		dPlayer[newx][newy] = pnum + 1;
-		FixPlayerLocation(pnum);
+	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
+		newx = oldx + offset_x[dir];
+		newy = oldy + offset_y[dir];
+		if (PosOkPlayer(pnum, newx, newy)) {
+			RemovePlrFromMap(pnum);
+			plr._px = newx;
+			plr._py = newy;
+			ChangeLightXYOff(plr._plid, newx, newy);
+			ChangeVisionXY(plr._pvid, newx, newy);
+			dPlayer[newx][newy] = pnum + 1;
+			FixPlayerLocation(pnum);
+		}
 	}
 }
 
