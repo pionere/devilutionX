@@ -1074,8 +1074,10 @@ static bool PlayerMHit(int pnum, int mi)
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 		hitFlags = 0;
-		if (mis->_miFlags & MIF_ARROW)
-			hitFlags = ISPL_FAKE_CAN_BLEED;
+		if (mis->_miFlags & MIF_ARROW) {
+			hitFlags = (mon->_mFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
+			static_assert(MFLAG_KNOCKBACK == ISPL_KNOCKBACK, "PlayerMHit uses _mFlags as hitFlags.");
+		}
 		PlrStartAnyHit(pnum, mis->_miSource, dam, hitFlags, tmp);
 	}
 	return true;

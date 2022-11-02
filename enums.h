@@ -2405,7 +2405,7 @@ typedef enum _monster_flag {
 	MFLAG_REV_ANIMATION   = 0x0002,
 	MFLAG_LOCK_ANIMATION  = 0x0004,
 	MFLAG_GARG_STONE      = 0x0008,
-	MFLAG_KNOCKBACK       = 0x0010,
+	// MFLAG_KNOCKBACK       = 0x0010,
 	MFLAG_LIFESTEAL       = 0x0020,
 	MFLAG_CAN_OPEN_DOOR   = 0x0040,
 	MFLAG_SEARCH          = 0x0080,
@@ -2415,6 +2415,8 @@ typedef enum _monster_flag {
 	MFLAG_CAN_BLEED       = 0x0800,
 	// MFLAG_NO_ENEMY        = 0x0800,
 	// MFLAG_NOHEAL          = 0x1000,
+	MFLAG_KNOCKBACK       = 0x00010000,
+	// TODO: ensure the high word does not conflict and matches with ISPL_HITFLAGS
 } _monster_flag;
 
 typedef enum _monster_treasure {

@@ -2211,11 +2211,9 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			mon->_mhitpoints = mon->_mmaxhp;
 	}
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
-		hitFlags = ISPL_FAKE_CAN_BLEED;
+		hitFlags = (mon->_mFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
+		static_assert(MFLAG_KNOCKBACK == ISPL_KNOCKBACK, "MonHitPlr uses _mFlags as hitFlags.");
 		PlrStartAnyHit(pnum, mnum, dam, hitFlags, mon->_mdir);
-		if (mon->_mFlags & MFLAG_KNOCKBACK) {
-			PlrGetKnockback(pnum, mon->_mdir);
-		}
 	}
 }
 
@@ -4828,10 +4826,11 @@ void SyncMonsterLight()
 
 void MissToMonst(int mi)
 {
-	int oldx, oldy;
-	int mnum, tnum;
 	MissileStruct* mis;
 	MonsterStruct* mon;
+	int mnum, oldx, oldy, mpnum, dam, hper, blkper;
+	unsigned hitFlags;
+	bool ret;
 
 	if ((unsigned)mi >= MAXMISSILES) {
 		dev_fatal("MissToMonst: Invalid missile %d", mi);
@@ -4860,27 +4859,61 @@ void MissToMonst(int mi)
 
 	oldx = mis->_mix;
 	oldy = mis->_miy;
-	tnum = dPlayer[oldx][oldy];
+	mpnum = dPlayer[oldx][oldy];
 	// TODO: use CheckPlrCol instead?
-	if (tnum > 0) {
-		tnum--;
-		MonHitPlr(mnum, tnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
-		if (mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
-			// assert(!(mon->_mFlags & MFLAG_KNOCKBACK));
-			PlrGetKnockback(tnum, mon->_mdir);
+	if (mpnum > 0) {
+		mpnum--;
+		// MonHitPlr(mnum, mpnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
+		if (plx(mpnum)._pInvincible)
+			return;
+
+		hper = 30 + (mon->_mHit * 8)
+			+ (2 * mon->_mLevel)
+			- plx(mpnum)._pIAC;
+		if (!CheckHit(hper))
+			return;
+
+		blkper = plx(mpnum)._pIBlockChance;
+		if (blkper != 0
+		 && (plx(mpnum)._pmode == PM_STAND || plx(mpnum)._pmode == PM_BLOCK)) {
+			// assert(plr._pSkillFlags & SFLAG_BLOCK);
+			blkper = blkper - (mon->_mLevel << 1);
+			if (blkper > random_(98, 100)) {
+				PlrStartBlock(mpnum, mis->_misx, mis->_misy);
+				return;
+			}
+		}
+		/*if (plr._pIFlags & ISPL_THORNS) {
+			tmp = RandRange(1, 3) << 6;
+			mon->_mhitpoints -= tmp;
+			if (mon->_mhitpoints < (1 << 6))
+				MonStartKill(mnum, pnum);
+			else
+				MonStartMonHit(mnum, pnum, tmp, mis->_misx, mis->_misy);
+		}*/
+		//dam = CalcPlrDam(mpnum, MISR_BLUNT, mon->_mMinDamage2, mon->_mMaxDamage2);
+		dam = RandRange(mon->_mMinDamage2, mon->_mMaxDamage2) << 6;
+		dam += plx(mpnum)._pIGetHit;
+		if (dam < 64)
+			dam = 64;
+		if (!PlrDecHp(mpnum, dam, DMGTYPE_NPC)) {
+			hitFlags = 0;
+			if (mon->_mAI.aiType == AI_RHINO) /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
+				hitFlags = ISPL_KNOCKBACK | ISPL_FAKE_FORCE_STUN;
+			PlrStartAnyHit(mpnum, mnum, dam, hitFlags, mis->_misx, mis->_misy);
 		}
 		return;
 	}
-	tnum = dMonster[oldx][oldy];
+	mpnum = dMonster[oldx][oldy];
 	// TODO: use CheckMonCol instead?
-	if (tnum > 0) {
-		tnum--;
-		if (tnum >= MAX_MINIONS)
+	if (mpnum > 0) {
+		mpnum--;
+		if (mpnum >= MAX_MINIONS)
 			return; // do not hit team-mate : assert(mnum >= MAX_MINIONS);
-		MonHitMon(mnum, tnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
+		MonHitMon(mnum, mpnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
-			// assert(!(mon->_mFlags & MFLAG_KNOCKBACK));
-			MonGetKnockback(tnum, mis->_misx, mis->_misy);
+			// TODO: prevent double displacement if knockback of monster vs. monster is implemented
+			MonGetKnockback(mpnum, mis->_misx, mis->_misy);
 		}
 	}
 }

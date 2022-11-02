@@ -1660,19 +1660,15 @@ static void PlrStartGetHit(int pnum, int dir)
 	FixPlayerLocation(pnum);
 }
 
-void PlrGetKnockback(int pnum, int dir)
+static void PlrGetKnockback(int pnum, int dir)
 {
 	int oldx, oldy, newx, newy;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrKnockback: illegal player %d", pnum);
-	}
 
 	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
 		return;
 
 	if (plr._pmode != PM_GOTHIT)
-		PlrStartAnyHit(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, dir);
+		PlrStartGetHit(pnum, dir);
 
 	oldx = plr._px;
 	oldy = plr._py;
@@ -1700,10 +1696,18 @@ void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 
 	// assert(plr._pHitPoints >= (1 << 6) && dam >= 0);
 
-	if (!(hitflags & ISPL_FAKE_FORCE_STUN) && plr._pManaShield != 0)
-		return;
+	if (plr._pManaShield != 0) {
+		hitflags &= (ISPL_FAKE_FORCE_STUN | ISPL_KNOCKBACK);
+		if (hitflags == 0)
+			return;
+		dam = 0;
+	}
 
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
+
+	if (hitflags & ISPL_KNOCKBACK) {
+		PlrGetKnockback(pnum, sx, sy);
+	}
 
 	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrStartAnyHit uses a single int to store player and monster sources.");
 	if (!(plr._pIFlags & ISPL_NO_BLEED) && plr._pManaShield == 0 && (hitflags & ISPL_FAKE_CAN_BLEED)
