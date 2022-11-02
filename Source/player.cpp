@@ -1647,6 +1647,19 @@ void RemovePlrFromMap(int pnum)
 	}
 }
 
+static void PlrStartGetHit(int pnum, int dir)
+{
+	if (!(plr._pGFXLoad & PFILE_GOTHIT)) {
+		LoadPlrGFX(pnum, PFILE_GOTHIT);
+	}
+	NewPlrAnim(pnum, PFIDX_GOTHIT, dir);
+
+	plr._pmode = PM_GOTHIT;
+	RemovePlrFromMap(pnum);
+	dPlayer[plr._px][plr._py] = pnum + 1;
+	FixPlayerLocation(pnum);
+}
+
 void PlrGetKnockback(int pnum, int dir)
 {
 	int oldx, oldy, newx, newy;
@@ -1697,20 +1710,10 @@ void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 	 && ((hitflags & ISPL_BLEED) ? random_(47, 64) == 0 : random_(48, 128) == 0))
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
 
-	if (!(hitflags & ISPL_FAKE_FORCE_STUN) && (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) < plr._pMaxHP)
-		return;
-
-	dir = dir == DIR_NONE ? plr._pdir : OPPOSITE(dir);
-
-	if (!(plr._pGFXLoad & PFILE_GOTHIT)) {
-		LoadPlrGFX(pnum, PFILE_GOTHIT);
+	if ((hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP) {
+		dir = dir == DIR_NONE ? plr._pdir : OPPOSITE(dir);
+		PlrStartGetHit(pnum, dir);
 	}
-	NewPlrAnim(pnum, PFIDX_GOTHIT, dir);
-
-	plr._pmode = PM_GOTHIT;
-	RemovePlrFromMap(pnum);
-	dPlayer[plr._px][plr._py] = pnum + 1;
-	FixPlayerLocation(pnum);
 }
 
 #if defined(__clang__) || defined(__GNUC__)
