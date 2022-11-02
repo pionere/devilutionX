@@ -325,6 +325,8 @@ void ValidateData()
 	}
 
 	// monsters
+	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK)); // required by MonStartMonHit
+	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonStartMonHit
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
 		// check RETREAT_DISTANCE for MonFallenFear

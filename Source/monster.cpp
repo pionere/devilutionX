@@ -1798,6 +1798,12 @@ void MonStartMonHit(int defm, int offm, int dam)
 	PlayEffect(defm, MS_GOTHIT);
 	if (defm < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
 		return;
+	// Knockback:
+	//	1. Golems -> other monsters. assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK));
+	//	2. other monsters -> golems : golems are immune against knockbacks
+	// Bleed:
+	//	1. Golems -> other monsters. TODO: implement?
+	//	2. other monsters -> golems. assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
 	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
 		if (offm >= 0) {
 			dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
