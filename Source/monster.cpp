@@ -2168,7 +2168,7 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		// assert(plr._pSkillFlags & SFLAG_BLOCK);
 		blkper = blkper - (mon->_mLevel << 1);
 		if (blkper > random_(98, 100)) {
-			PlrStartBlock(pnum, OPPOSITE(mon->_mdir));
+			PlrStartBlock(pnum, mon->_mx, mon->_my);
 			return;
 		}
 	}

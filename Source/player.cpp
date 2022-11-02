@@ -2084,7 +2084,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		// assert(plr._pSkillFlags & SFLAG_BLOCK);
 		blkper = blkper - (plx(offp)._pLevel << 1);
 		if (blkper > random_(5, 100)) {
-			PlrStartBlock(pnum, OPPOSITE(plx(offp)._pdir));
+			PlrStartBlock(pnum, plx(offp)._px, plx(offp)._py);
 			return true;
 		}
 	}
@@ -2360,8 +2360,10 @@ static void ShieldDur(int pnum)
 //#endif
 }
 
-void PlrStartBlock(int pnum, int dir)
+void PlrStartBlock(int pnum, int sx, int sy)
 {
+	int dir;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrStartBlock: illegal player %d", pnum);
 	}
@@ -2371,6 +2373,7 @@ void PlrStartBlock(int pnum, int dir)
 		return;
 	}
 
+	dir = GetDirection(plr._px, plr._py, sx, sy);
 	if (plr._pmode != PM_BLOCK) {
 		assert(plr._pmode == PM_STAND);
 		AssertFixPlayerLocation(pnum);
@@ -3062,7 +3065,7 @@ void MissToPlr(int mi, bool hit)
 			// assert(plr._pSkillFlags & SFLAG_BLOCK);
 			blkper = blkper - (plr._pLevel << 1);
 			if (blkper > random_(5, 100)) {
-				PlrStartBlock(mpnum, OPPOSITE(plr._pdir));
+				PlrStartBlock(mpnum, mis->_misx, mis->_misy);
 				return;
 			}
 		}
