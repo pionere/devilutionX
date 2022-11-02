@@ -993,19 +993,17 @@ static bool PlayerTrapHit(int pnum, int mi)
 	if (dam == 0)
 		return false;
 
-	tmp = DIR_NONE;
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam += plr._pIGetHit;
 		if (dam < 64)
 			dam = 64;
-		tmp = GetDirection(mis->_misx, mis->_misy, plr._px, plr._py);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW)
 			hitFlags = ISPL_FAKE_CAN_BLEED;
-		PlrStartAnyHit(pnum, -1, dam, hitFlags, tmp);
+		PlrStartAnyHit(pnum, -1, dam, hitFlags, mis->_misx, mis->_misy);
 	}
 	return true;
 }
@@ -1064,21 +1062,19 @@ static bool PlayerMHit(int pnum, int mi)
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
-	tmp = DIR_NONE;
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam += plr._pIGetHit;
 		if (dam < 64)
 			dam = 64;
-		tmp = GetDirection(mis->_misx, mis->_misy, plr._px, plr._py);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW) {
 			hitFlags = (mon->_mFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-			static_assert(MFLAG_KNOCKBACK == ISPL_KNOCKBACK, "PlayerMHit uses _mFlags as hitFlags.");
+			static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "PlayerMHit uses _mFlags as hitFlags.");
 		}
-		PlrStartAnyHit(pnum, mis->_miSource, dam, hitFlags, tmp);
+		PlrStartAnyHit(pnum, mis->_miSource, dam, hitFlags, mis->_misx, mis->_misy);
 	}
 	return true;
 }
@@ -1201,19 +1197,17 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	if (dam == 0)
 		return false;
 
-	tmp = DIR_NONE;
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam += plr._pIGetHit;
 		if (dam < 64)
 			dam = 64;
-		tmp = GetDirection(mis->_misx, mis->_misy, plr._px, plr._py);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW)
 			hitFlags = (plx(mis->_miSource)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		PlrStartAnyHit(pnum, mis->_miSource, dam, hitFlags, tmp);
+		PlrStartAnyHit(pnum, mis->_miSource, dam, hitFlags, mis->_misx, mis->_misy);
 	}
 	return true;
 }

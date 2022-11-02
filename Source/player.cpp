@@ -1688,8 +1688,10 @@ static void PlrGetKnockback(int pnum, int dir)
 	}
 }
 
-void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
+void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy)
 {
+	int dir;
+
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrStartAnyHit: illegal player %d", pnum);
 	}
@@ -1703,20 +1705,21 @@ void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 		dam = 0;
 	}
 
+	dir = GetDirection(plr._px, plr._py, sx, sy);
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
 
 	if (hitflags & ISPL_KNOCKBACK) {
-		PlrGetKnockback(pnum, sx, sy);
+		PlrGetKnockback(pnum, dir);
 	}
 
 	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrStartAnyHit uses a single int to store player and monster sources.");
-	if (!(plr._pIFlags & ISPL_NO_BLEED) && plr._pManaShield == 0 && (hitflags & ISPL_FAKE_CAN_BLEED)
+	if (!(plr._pIFlags & ISPL_NO_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && ((hitflags & ISPL_BLEED) ? random_(47, 64) == 0 : random_(48, 128) == 0))
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
 
 	if ((hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP) {
-		dir = dir == DIR_NONE ? plr._pdir : OPPOSITE(dir);
-		PlrStartGetHit(pnum, dir);
+		plr._pdir = dir;
+		PlrStartGetHit(pnum);
 	}
 }
 
@@ -2188,7 +2191,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = (plx(offp)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		PlrStartAnyHit(pnum, offp, dam, hitFlags, plx(offp)._pdir);
+		PlrStartAnyHit(pnum, offp, dam, hitFlags, plx(offp)._px, plx(offp)._py);
 	}
 	return true;
 }
@@ -3005,7 +3008,7 @@ void MissToPlr(int mi, bool hit)
 		return;
 	}
 	//if (mis->_miSpllvl < 10)
-		PlrStartAnyHit(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, OPPOSITE(plr._pdir));
+		PlrStartAnyHit(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, plr._px + (plr._px - mis->_misx), plr._py + (plr._py - mis->_misy));
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
 	dist = (int)mis->_miRange - 24; // MISRANGE
@@ -3082,7 +3085,7 @@ void MissToPlr(int mi, bool hit)
 		//	dam <<= 1;
 		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER)) {
 			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_FORCE_STUN;
-			PlrStartAnyHit(mpnum, pnum, dam, hitFlags, plr._pdir);
+			PlrStartAnyHit(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
 		}
 		return;
 	}
