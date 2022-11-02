@@ -4849,7 +4849,7 @@ void MissToMonst(int mi)
 		return;
 	}*/
 	PlayEffect(mnum, MS_GOTHIT);
-	if (mon->_mType == MT_GLOOM)
+	if (mon->_mAI.aiType == AI_BAT) /* mon->_mType == MT_GLOOM */
 		return;
 
 	oldx = mis->_mix;
@@ -4859,7 +4859,8 @@ void MissToMonst(int mi)
 	if (tnum > 0) {
 		tnum--;
 		MonHitPlr(mnum, tnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
-		if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
+		if (mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
+			// assert(!(mon->_mFlags & MFLAG_KNOCKBACK));
 			PlrGetKnockback(tnum, mon->_mdir);
 		}
 		return;
@@ -4871,7 +4872,8 @@ void MissToMonst(int mi)
 		if (tnum >= MAX_MINIONS)
 			return; // do not hit team-mate : assert(mnum >= MAX_MINIONS);
 		MonHitMon(mnum, tnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
-		if (tnum == dMonster[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
+		if (mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
+			// assert(!(mon->_mFlags & MFLAG_KNOCKBACK));
 			MonGetKnockback(tnum, mis->_misx, mis->_misy);
 		}
 	}

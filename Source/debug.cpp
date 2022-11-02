@@ -342,6 +342,8 @@ void ValidateData()
 #endif
 		if ((md.mAI.aiType == AI_CLEAVER || md.mAI.aiType == AI_FAT || md.mAI.aiType == AI_BAT) && (md.mFlags & MFLAG_CAN_OPEN_DOOR) && !(md.mFlags & MFLAG_SEARCH))
 			app_fatal("AI_CLEAVER, AI_FAT and AI_BAT only check the doors while searching (%s, %d)", md.mName, i);
+		if (md.mAI.aiType == AI_RHINO && (md.mFlags & MFLAG_KNOCKBACK))
+			app_fatal("A charging %s (%d) might knockback target twice on impact.", md.mName, i);
 		if (md.mLevel > UINT8_MAX - HELL_LEVEL_BONUS)
 			app_fatal("Too high mLevel %d for %s (%d).", md.mLevel, md.mName, i);
 		if (md.mLevel + HELL_LEVEL_BONUS > CF_LEVEL && (md.mTreasure & NO_DROP) == 0)
