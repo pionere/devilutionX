@@ -2156,7 +2156,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 {
 	MonsterStruct* mon;
-	int tmp, dam, hper, blkper;
+	int dam, hper, blkper;
 	unsigned hitFlags;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -2187,12 +2187,12 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		NetSendCmd(CMD_DECHP);
 	}
 	/*if (plr._pIFlags & ISPL_THORNS) {
-		tmp = RandRange(1, 3) << 6;
-		mon->_mhitpoints -= tmp;
+		dam = RandRange(1, 3) << 6;
+		mon->_mhitpoints -= dam;
 		if (mon->_mhitpoints < (1 << 6))
 			MonStartKill(mnum, pnum);
 		else
-			MonStartMonHit(mnum, pnum, tmp);
+			MonStartMonHit(mnum, pnum, dam);
 	}*/
 	dam = RandRange(MinDam, MaxDam) << 6;
 	dam += plr._pIGetHit;
