@@ -2183,20 +2183,8 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			return;
 		}
 	}
-	if (mon->_mType == MT_YZOMBIE) {
-		if (plr._pMaxHPBase > 64 && plr._pMaxHP > 64) {
-			// FIXME: notify players on other level or add to CMD_*_JOINLEVEL?
-			tmp = plr._pMaxHP - 64;
-			plr._pMaxHP = tmp;
-			if (plr._pHitPoints > tmp) {
-				plr._pHitPoints = tmp;
-			}
-			tmp = plr._pMaxHPBase - 64;
-			plr._pMaxHPBase = tmp;
-			if (plr._pHPBase > tmp) {
-				plr._pHPBase = tmp;
-			}
-		}
+	if (mon->_mType == MT_YZOMBIE && pnum == mypnum) {
+		NetSendCmd(CMD_DECHP);
 	}
 	/*if (plr._pIFlags & ISPL_THORNS) {
 		tmp = RandRange(1, 3) << 6;

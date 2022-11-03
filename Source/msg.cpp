@@ -2326,6 +2326,26 @@ static unsigned On_ADDVIT(TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
+static unsigned On_DECHP(TCmd* pCmd, int pnum)
+{
+	int tmp;
+
+	if (plr._pMaxHPBase > (1 << 6) && plr._pMaxHP > (1 << 6)) {
+		tmp = plr._pMaxHP - (1 << 6);
+		plr._pMaxHP = tmp;
+		if (plr._pHitPoints > tmp) {
+			plr._pHitPoints = tmp;
+		}
+		tmp = plr._pMaxHPBase - (1 << 6);
+		plr._pMaxHPBase = tmp;
+		if (plr._pHPBase > tmp) {
+			plr._pHPBase = tmp;
+		}
+	}
+
+	return sizeof(*pCmd);
+}
+
 static unsigned On_BLOCK(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
@@ -4452,6 +4472,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_ADDDEX(pCmd, pnum);
 	case CMD_ADDVIT:
 		return On_ADDVIT(pCmd, pnum);
+	case CMD_DECHP:
+		return On_DECHP(pCmd, pnum);
 	case CMD_SPLITPLRGOLD:
 		return On_SPLITPLRGOLD(pCmd, pnum);
 	case CMD_PASTEPLRITEM:
