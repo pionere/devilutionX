@@ -27,7 +27,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'
-        distribution: 'temurin'
+        distribution: 'adopt'
         cache: gradle
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
@@ -39,8 +39,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: android-project/app/.cxx
-        key: android-cmake-${{ github.sha }}
-        restore-keys: android-cmake-
+        key: android-cmake-v5-${{ github.sha }}
+        restore-keys: android-cmake-v5-
 
     - name: Build
       working-directory: ${{github.workspace}}
