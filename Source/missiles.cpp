@@ -118,6 +118,7 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 	case SPL_FIRERING:
 #endif
 	case SPL_FIREWALL:
+	case SPL_POISON:
 		mind = ((magic >> 3) + sl + 5) << (-3 + 5);
 		maxd = ((magic >> 3) + sl * 2 + 10) << (-3 + 5);
 		break;
@@ -2231,6 +2232,39 @@ int AddBleed(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	return MIRES_DONE;
 }
 
+/**
+ * Var1: the id of the affected actor [0, -(pnum + 1), (mnum + 1)]
+ */
+int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	int magic, mindam, maxdam;
+
+	if (sx == dx && sy == dy) {
+		dx += XDirAdd[midir];
+		dy += YDirAdd[midir];
+	}
+	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(12));
+
+	mis = &missile[mi];
+	mis->_miRange = 8 * spllvl + 96;
+	//if (misource != -1) {
+		assert((unsigned)misource < MAX_PLRS);
+		// TODO: add support for spell duration modifier
+		// range += (plx(misource)._pISplDur * range) >> 7;
+		magic = plx(misource)._pMagic;
+		mindam = (magic >> 3) + spllvl + 5;
+		maxdam = (magic >> 3) + spllvl * 2 + 10;
+	//} else {
+	//	mindam = 5 + currLvl._dLevel;
+	//	maxdam = 10 + currLvl._dLevel * 2;
+	//}
+	mis->_miMinDam = mindam << (-3 + 6);
+	mis->_miMaxDam = maxdam << (-3 + 6);
+	// mis->_miVar1 = 0;
+	return MIRES_DONE;
+}
+
 int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *bmis;
@@ -3813,6 +3847,85 @@ void MI_Bleed(int mi)
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissileF(mi, BFLAG_MISSILE_PRE);
+		return;
+	}
+	mis->_miDelFlag = TRUE;
+}
+
+void MI_Poison(int mi)
+{
+	MissileStruct* mis;
+	int tnum, pnum;
+	MonsterStruct* mon;
+
+	mis = &missile[mi];
+	if (mis->_miVar1 == 0) {
+		// target not acquired
+		mis->_mitxoff += mis->_mixvel;
+		mis->_mityoff += mis->_miyvel;
+		GetMissilePos(mi);
+		if (CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL)) {
+			tnum = dMonster[mis->_mix][mis->_miy];
+			if (tnum != 0) {
+				// monster target acquired
+				tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
+
+				mis->_miVar1 = tnum + 1;
+			} else {
+				tnum = dPlayer[mis->_mix][mis->_miy];
+				if (tnum != 0) {
+					// player target acquired
+					tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
+
+					mis->_miVar1 = -(tnum + 1);
+				} else {
+					// actor died and displaced -> done
+					mis->_miRange = 0;
+				}
+			}
+			mis->_miVar1 = -1;
+		}
+	} else if (mis->_miVar1 > 0) {
+		// monster target
+		tnum = mis->_miVar1 - 1;
+		mon = &monsters[tnum];
+		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) {
+			mis->_miRange = 0;
+		} else {
+			mis->_mix = mon->_mx;
+			mis->_miy = mon->_my;
+			mis->_mixoff = mon->_mxoff;
+			mis->_miyoff = mon->_myoff;
+			if (mon->_mSelFlag & 4) {
+				if (mon->_mSelFlag & 2) {
+					mis->_miyoff -= 3 * TILE_HEIGHT / 4;
+				}
+			} else {
+				if (mon->_mSelFlag & 2) {
+					mis->_miyoff -= TILE_HEIGHT / 2;
+				}
+			}
+			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
+			MonMissHit(tnum, mi);
+		}
+	} else {
+		// player target
+		pnum = -(mis->_miVar1 + 1);
+		if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints < (1 << 6)) {
+			mis->_miRange = 0;
+		} else {
+			mis->_mix = plr._px;
+			mis->_miy = plr._py;
+			mis->_mixoff = plr._pxoff;
+			mis->_miyoff = plr._pyoff - 3 * TILE_HEIGHT / 4;
+			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
+			PlrMissHit(pnum, mi);
+		}
+	}
+
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
+		PutMissile(mi);
 		return;
 	}
 	mis->_miDelFlag = TRUE;

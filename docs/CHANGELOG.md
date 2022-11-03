@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - block only if standing or actively using the Block skill
 - separate resistance against acid
 - added Whiplash/Wallop/Swipe/Multi Shot/Pierce Shot/Far Shot/Point Blank/Charge skills
-- added Attract/Meteor/Bloodboil spells
+- added Attract/Meteor/Bloodboil/Poison spells
 - skills/spells have experience counters
 - books give skill experience instead of a whole level
 - rebalanced spells (some spells removed, others damage modified, runes fire multiple times, etc...)
