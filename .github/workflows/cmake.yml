@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Install gettext
-      run: sudo apt update && sudo apt install -y gettext
+      run: sudo apt-get update && sudo apt-get install -y gettext
 
     - name: Checkout
       uses: actions/checkout@v3
@@ -27,7 +27,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '11'
-        distribution: 'adopt'
+        distribution: 'temurin'
         cache: gradle
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
@@ -39,8 +39,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: android-project/app/.cxx
-        key: android-cmake-v3-${{ github.sha }}
-        restore-keys: android-cmake-v3-
+        key: android-cmake-${{ github.sha }}
+        restore-keys: android-cmake-
 
     - name: Build
       working-directory: ${{github.workspace}}
