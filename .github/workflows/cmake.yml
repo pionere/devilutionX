@@ -13,7 +13,7 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Install gettext
       run: sudo apt update && sudo apt install -y gettext
@@ -32,8 +32,8 @@ jobs:
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
     # Removing it will cause gradle to fall back on 3.18.1 installed by the Android SDK
-    #- name: Create Build Environment
-    #  run: rm /usr/local/bin/cmake
+    - name: Create Build Environment
+      run: rm /usr/local/bin/cmake
 
     - name: Cache CMake build folder
       uses: actions/cache@v2
