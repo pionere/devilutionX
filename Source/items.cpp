@@ -1429,12 +1429,6 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_ACP:
 		is->_iPLAC = r;
 		break;
-	case IPL_SETAC:
-		is->_iAC = r;
-		break;
-	case IPL_ACMOD:
-		is->_iAC += r;
-		break;
 	case IPL_FIRERES:
 		is->_iPLFR = r;
 		break;
@@ -1474,12 +1468,6 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_CHARGES:
 		is->_iCharges *= param1;
 		is->_iMaxCharges = is->_iCharges;
-		break;
-	case IPL_SPELL:
-		is->_iSpell = param1;
-		is->_iCharges = param2;
-		is->_iMaxCharges = param2;
-		// TODO: is->_iMinMag = spelldata[param1].sMinInt; ?
 		break;
 	case IPL_FIREDAM:
 		is->_iPLFMinDam = param1;
@@ -1564,9 +1552,6 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_BLEED:
 		is->_iFlags |= ISPL_BLEED;
 		break;
-	case IPL_ALLRESZERO:
-		is->_iFlags |= ISPL_ALLRESZERO;
-		break;
 	//case IPL_NOHEALMON:
 	//	is->_iFlags |= ISPL_NOHEALMON;
 	//	break;
@@ -1608,8 +1593,20 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iDurability = param1;
 		is->_iMaxDur = param1;
 		break;
+	case IPL_NOMINSTR:
+		is->_iMinStr = 0;
+		break;
+	case IPL_SPELL:
+		is->_iSpell = param1;
+		is->_iCharges = param2;
+		is->_iMaxCharges = param2;
+		// TODO: is->_iMinMag = spelldata[param1].sMinInt; ?
+		break;
 	case IPL_ONEHAND:
 		is->_iLoc = ILOC_ONEHAND;
+		break;
+	case IPL_ALLRESZERO:
+		is->_iFlags |= ISPL_ALLRESZERO;
 		break;
 	case IPL_DRAINLIFE:
 		is->_iFlags |= ISPL_DRAINLIFE;
@@ -1617,8 +1614,11 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	//case IPL_INFRAVISION:
 	//	is->_iFlags |= ISPL_INFRAVISION;
 	//	break;
-	case IPL_NOMINSTR:
-		is->_iMinStr = 0;
+	case IPL_SETAC:
+		is->_iAC = r;
+		break;
+	case IPL_ACMOD:
+		is->_iAC += r;
 		break;
 	case IPL_MANATOLIFE:
 		is->_iFlags |= ISPL_MANATOLIFE;
@@ -2840,10 +2840,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_ACP:
 		snprintf(tempstr, sizeof(tempstr), "%+d%% armor", is->_iPLAC);
 		break;
-	case IPL_SETAC:
-	case IPL_ACMOD:
-		snprintf(tempstr, sizeof(tempstr), "armor class: %d", is->_iAC);
-		break;
 	case IPL_FIRERES:
 		//if (is->_iPLFR < 75)
 			snprintf(tempstr, sizeof(tempstr), "resist fire: %+d%%", is->_iPLFR);
@@ -2885,9 +2881,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_CHARGES:
 		copy_cstr(tempstr, "extra charges");
-		break;
-	case IPL_SPELL:
-		snprintf(tempstr, sizeof(tempstr), "%d %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
 		break;
 	case IPL_FIREDAM:
 		if (is->_iPLFMinDam != is->_iPLFMaxDam)
@@ -2949,6 +2942,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_LIGHT:
 		snprintf(tempstr, sizeof(tempstr), "%+d%% light radius", 10 * is->_iPLLight);
 		break;
+	case IPL_INVCURS:
+		copy_cstr(tempstr, " ");
+		break;
 	//case IPL_THORNS:
 	//	copy_cstr(tempstr, "attacker takes 1-3 damage");
 	//	break;
@@ -2962,13 +2958,10 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "reduces stun threshold");
 		break;
 	case IPL_NO_BLEED:
-		copy_cstr(tempstr, "immnue to bleeding");
+		copy_cstr(tempstr, "immune to bleeding");
 		break;
 	case IPL_BLEED:
 		copy_cstr(tempstr, "increased chance to bleed");
-		break;
-	case IPL_ALLRESZERO:
-		copy_cstr(tempstr, "all Resistance equals 0");
 		break;
 	//case IPL_NOHEALMON:
 	//	copy_cstr(tempstr, "hit monster doesn't heal");
@@ -3012,20 +3005,27 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_SETDUR:
 		copy_cstr(tempstr, "altered durability");
 		break;
+	case IPL_NOMINSTR:
+		copy_cstr(tempstr, "no strength requirement");
+		break;
+	case IPL_SPELL:
+		snprintf(tempstr, sizeof(tempstr), "%d %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
+		break;
 	case IPL_ONEHAND:
 		copy_cstr(tempstr, "one handed sword");
+		break;
+	case IPL_ALLRESZERO:
+		copy_cstr(tempstr, "all Resistance equals 0");
 		break;
 	case IPL_DRAINLIFE:
 		copy_cstr(tempstr, "constantly lose hit points");
 		break;
-	case IPL_NOMINSTR:
-		copy_cstr(tempstr, "no strength requirement");
-		break;
 	//case IPL_INFRAVISION:
 	//	copy_cstr(tempstr, "see with infravision");
 	//	break;
-	case IPL_INVCURS:
-		copy_cstr(tempstr, " ");
+	case IPL_SETAC:
+	case IPL_ACMOD:
+		snprintf(tempstr, sizeof(tempstr), "armor class: %d", is->_iAC);
 		break;
 	case IPL_CRYSTALLINE:
 		snprintf(tempstr, sizeof(tempstr), "low dur, %+d%% damage", is->_iPLDam);
