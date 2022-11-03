@@ -997,8 +997,8 @@ Monsters\newsfx\Lichd1.WAV
 Monsters\newsfx\Lichd2.WAV
 Monsters\newsfx\Lichh1.WAV
 Monsters\newsfx\Lichh2.WAV
-Monsters\newsfx\Lichs1.WAV
-Monsters\newsfx\Lichs2.WAV
+_Monsters\newsfx\Lichs1.WAV
+_Monsters\newsfx\Lichs2.WAV
 Monsters\newsfx\Lworma1.WAV
 Monsters\newsfx\Lworma2.WAV
 Monsters\newsfx\Lwormd1.WAV
@@ -1011,8 +1011,8 @@ Monsters\newsfx\Nakruld1.WAV
 Monsters\newsfx\Nakruld2.WAV
 Monsters\newsfx\Nakrulh1.WAV
 Monsters\newsfx\Nakrulh2.WAV
-Monsters\newsfx\Nakruls1.WAV
-Monsters\newsfx\Nakruls2.WAV
+_Monsters\newsfx\Nakruls1.WAV
+_Monsters\newsfx\Nakruls2.WAV
 Monsters\newsfx\Psycoa1.WAV
 Monsters\newsfx\Psycoa2.WAV
 Monsters\newsfx\Psycod1.WAV
@@ -1077,7 +1077,7 @@ Monsters\Nkr\Nkra.CL2
 Monsters\Nkr\Nkrd.CL2
 Monsters\Nkr\Nkrh.CL2
 Monsters\Nkr\Nkrn.CL2
-Monsters\Nkr\Nkrs.CL2
+_Monsters\Nkr\Nkrs.CL2
 Monsters\Nkr\Nkrw.CL2
 Monsters\Rat\Rata.CL2
 Monsters\Rat\Ratd.CL2
