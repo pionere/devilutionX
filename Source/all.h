@@ -51,7 +51,7 @@
 #include "drlg_l2.h"
 #include "drlg_l3.h"
 #include "drlg_l4.h"
-#include "dthread.h"
+//#include "dthread.h"
 #include "effects.h"
 #include "encrypt.h"
 #include "engine.h"

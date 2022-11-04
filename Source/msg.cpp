@@ -391,16 +391,16 @@ void DeltaExportData(int pnum)
 			continue;
 		dstEnd = DeltaExportLevel(i);
 		size = DeltaCompressData(dstEnd);
-		dthread_send_delta(pnum, NMSG_DLEVEL_DATA, (BYTE*)&gsDeltaData.ddSendRecvBuf, size);
+		multi_send_large_direct_msg(pnum, NMSG_DLEVEL_DATA, (BYTE*)&gsDeltaData.ddSendRecvBuf, size);
 		src = 0;
-		dthread_send_delta(pnum, NMSG_DLEVEL_SEP, &src, 1);
+		multi_send_large_direct_msg(pnum, NMSG_DLEVEL_SEP, &src, 1);
 		numChunks++;
 	}
 	// junk
 	if (gsDeltaData.ddJunkChanged) {
 		dstEnd = DeltaExportJunk();
 		size = DeltaCompressData(dstEnd);
-		dthread_send_delta(pnum, NMSG_DLEVEL_JUNK, (BYTE*)&gsDeltaData.ddSendRecvBuf, size);
+		multi_send_large_direct_msg(pnum, NMSG_DLEVEL_JUNK, (BYTE*)&gsDeltaData.ddSendRecvBuf, size);
 		numChunks++;
 	}
 	// players
@@ -408,9 +408,9 @@ void DeltaExportData(int pnum)
 		if (plx(i)._pActive) {
 			dstEnd = DeltaExportPlr(i);
 			size = DeltaCompressData(dstEnd);
-			dthread_send_delta(pnum, NMSG_DLEVEL_PLR, (BYTE*)&gsDeltaData.ddSendRecvBuf, size);
+			multi_send_large_direct_msg(pnum, NMSG_DLEVEL_PLR, (BYTE*)&gsDeltaData.ddSendRecvBuf, size);
 			src = 0;
-			dthread_send_delta(pnum, NMSG_DLEVEL_SEP, &src, 1);
+			multi_send_large_direct_msg(pnum, NMSG_DLEVEL_SEP, &src, 1);
 			numChunks++;
 		}
 	}
@@ -421,7 +421,7 @@ void DeltaExportData(int pnum)
 	deltaEnd.numChunks = numChunks;
 	deltaEnd.turn = gdwLastGameTurn;
 	assert(gdwLastGameTurn * gbNetUpdateRate == gdwGameLogicTurn);
-	dthread_send_delta(pnum, NMSG_DLEVEL_END, (BYTE*)&deltaEnd, sizeof(deltaEnd));
+	multi_send_large_direct_msg(pnum, NMSG_DLEVEL_END, (BYTE*)&deltaEnd, sizeof(deltaEnd));
 }
 
 static void DeltaImportData()
@@ -1411,7 +1411,7 @@ void LevelDeltaExport()
 		DWORD size = /*Level*/DeltaCompressData(dst);
 		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 			if (recipients & (1 << pnum)) {
-				dthread_send_delta(pnum, NMSG_LVL_DELTA, (BYTE*)&gsDeltaData.ddSendRecvBuf, size);
+				multi_send_large_direct_msg(pnum, NMSG_LVL_DELTA, (BYTE*)&gsDeltaData.ddSendRecvBuf, size);
 			}
 		}
 	}
@@ -1423,7 +1423,7 @@ void LevelDeltaExport()
 	deltaEnd.turn = gdwLastGameTurn;
 	for (pnum = 0; pnum < MAX_PLRS; pnum++, recipients >>= 1) {
 		if (recipients & 1) {
-			dthread_send_delta(pnum, NMSG_LVL_DELTA_END, (BYTE*)&deltaEnd, sizeof(deltaEnd));
+			multi_send_large_direct_msg(pnum, NMSG_LVL_DELTA_END, (BYTE*)&deltaEnd, sizeof(deltaEnd));
 		}
 	}
 }

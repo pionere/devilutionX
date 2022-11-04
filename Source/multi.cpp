@@ -616,7 +616,7 @@ static void multi_send_plrinfo_msg(int pnum, BYTE cmd)
 	PkPlayerStruct pkplr;
 
 	PackPlayer(&pkplr, mypnum);
-	dthread_send_delta(pnum, cmd, (BYTE*)&pkplr, sizeof(pkplr));
+	multi_send_large_direct_msg(pnum, cmd, (BYTE*)&pkplr, sizeof(pkplr));
 }
 
 static void SetupLocalPlr()
@@ -676,7 +676,7 @@ static void multi_handle_events(SNetEvent *pEvt)
 		EventPlrMsg("Server is down");
 	}
 
-	dthread_remove_player(pnum);
+	// dthread_remove_player(pnum);
 
 	if (gsDeltaData.ddDeltaSender == pnum)
 		gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
@@ -690,7 +690,7 @@ void NetClose()
 
 	_gbNetInited = false;
 	nthread_cleanup();
-	dthread_cleanup();
+	// dthread_cleanup();
 	UIDisconnectGame();
 }
 
@@ -823,7 +823,7 @@ bool NetInit(bool bSinglePlayer)
 		InitPlrMsg();
 		multi_init_buffers();
 		nthread_start();
-		dthread_start();
+		// dthread_start();
 		gdwLastGameTurn = 0;
 		gdwGameLogicTurn = 0;
 		nthread_send_turn();
