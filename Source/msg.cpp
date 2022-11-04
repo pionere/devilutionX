@@ -1156,7 +1156,7 @@ static void ExportItemDurabilites(int pnum, BYTE (&itemsDur)[NUM_INVELEM + 1])
 static void ValidateDurability(ItemStruct* is, int pnum, int dur)
 {
 	if (pnum == mypnum || !ITYPE_DURABLE(is->_itype)) {
-		net_assert(is->_iDurability == dur || is->_itype == ITYPE_NONE || is->_iIdx == IDI_PHOLDER || is->_iIdx == IDI_EAR);
+		net_assert(is->_iDurability == dur || is->_itype == ITYPE_NONE || is->_itype == ITYPE_PLACEHOLDER || is->_iIdx == IDI_EAR);
 	} else {
 		net_assert(is->_iMaxDur >= dur);
 		net_assert(dur != 0);
