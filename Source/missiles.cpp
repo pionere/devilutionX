@@ -118,7 +118,6 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 	case SPL_FIRERING:
 #endif
 	case SPL_FIREWALL:
-	case SPL_POISON:
 		mind = ((magic >> 3) + sl + 5) << (-3 + 5);
 		maxd = ((magic >> 3) + sl * 2 + 10) << (-3 + 5);
 		break;
@@ -183,6 +182,10 @@ void GetDamageAmt(int sn, int sl, int *minv, int *maxv)
 	case SPL_FLARE:
 		mind = (magic * (sl + 1)) >> 3;
 		maxd = mind;
+		break;
+	case SPL_POISON:
+		mind = ((magic >> 4) + sl + 2) << (-3 + 5);
+		maxd = ((magic >> 4) + sl + 4) << (-3 + 5);
 		break;
 #ifdef HELLFIRE
 	/*case SPL_LIGHTWALL:
@@ -2047,7 +2050,7 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	int magic, mindam, maxdam;
 
 	mis = &missile[mi];
-	mis->_miRange = 160 * (spllvl + 1);
+	mis->_miRange = 64 * spllvl + 160;
 	if (misource != -1) {
 		assert((unsigned)misource < MAX_PLRS);
 		// TODO: add support for spell duration modifier
@@ -2244,17 +2247,17 @@ int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
-	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(12));
+	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(8));
 
 	mis = &missile[mi];
-	mis->_miRange = 8 * spllvl + 96;
+	mis->_miRange = 16 * spllvl + 96;
 	//if (misource != -1) {
 		assert((unsigned)misource < MAX_PLRS);
 		// TODO: add support for spell duration modifier
 		// range += (plx(misource)._pISplDur * range) >> 7;
 		magic = plx(misource)._pMagic;
-		mindam = (magic >> 3) + spllvl + 5;
-		maxdam = (magic >> 3) + spllvl * 2 + 10;
+		mindam = (magic >> 4) + spllvl + 5;
+		maxdam = mindam + 2;
 	//} else {
 	//	mindam = 5 + currLvl._dLevel;
 	//	maxdam = 10 + currLvl._dLevel * 2;
@@ -3883,7 +3886,6 @@ void MI_Poison(int mi)
 					mis->_miRange = 0;
 				}
 			}
-			mis->_miVar1 = -1;
 		}
 	} else if (mis->_miVar1 > 0) {
 		// monster target
