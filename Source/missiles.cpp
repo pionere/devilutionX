@@ -3864,7 +3864,8 @@ void MI_Poison(int mi)
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
-		if (CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL)) {
+		if ((mis->_mix != mis->_misx || mis->_miy != mis->_misy)
+		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL)) {
 			tnum = dMonster[mis->_mix][mis->_miy];
 			if (tnum != 0) {
 				// monster target acquired
@@ -3898,6 +3899,8 @@ void MI_Poison(int mi)
 			if (mon->_mSelFlag & 4) {
 				if (mon->_mSelFlag & 2) {
 					mis->_miyoff -= 3 * TILE_HEIGHT / 4;
+				} else {
+					mis->_miyoff -= TILE_HEIGHT;
 				}
 			} else {
 				if (mon->_mSelFlag & 2) {
