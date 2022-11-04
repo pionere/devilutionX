@@ -125,7 +125,7 @@ Missiles\Arrows.CL2
 Missiles\Bigexp.CL2
 _Missiles\Blodbur1.CL2
 _Missiles\Blodbur2.CL2
-_Missiles\Blodburs.CL2
+Missiles\Blodburs.CL2
 _Missiles\Blood1.CL2
 _Missiles\Blood2.CL2
 _Missiles\Blood3.CL2
@@ -567,7 +567,7 @@ Monsters\Nkr\Nkra.CL2
 Monsters\Nkr\Nkrd.CL2
 Monsters\Nkr\Nkrh.CL2
 Monsters\Nkr\Nkrn.CL2
-Monsters\Nkr\Nkrs.CL2
+_Monsters\Nkr\Nkrs.CL2
 Monsters\Nkr\Nkrw.CL2
 Monsters\Rat\Rata.CL2
 Monsters\Rat\Ratd.CL2
