@@ -74,7 +74,7 @@ static void multi_init_buffers()
  * @param pbMsg: the content of the turn-chunk
  * @param bLen: the length of the turn-chunk
  */
-void NetSendChunk(BYTE* pbMsg, BYTE bLen)
+void NetSendChunk(const BYTE* pbMsg, BYTE bLen)
 {
 	BYTE *p;
 
@@ -147,15 +147,15 @@ void multi_send_turn_packet()
  * Send a packet to the target player(s) selected by the pmask without using the queue.
  *
  * @param pmask: The mask of the player indices to receive the data. Or SNPLAYER_ALL to send to everyone.
- * @param src: the content of the message
+ * @param pbSrc: the content of the message
  * @param bLen: the length of the message
  */
-void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE bLen)
+void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
 {
 	unsigned i, len = bLen;
 	MsgPkt pkt;
 
-	memcpy(&pkt.body[0], src, len);
+	memcpy(&pkt.body[0], pbSrc, len);
 	len += sizeof(pkt.hdr);
 	pkt.hdr.wLen = static_cast<uint16_t>(len);
 	// pkt.hdr.wCheck = PKT_HDR_CHECK;
@@ -578,7 +578,7 @@ static void RunGameServer()
  * @param pbSrc: the content of the message
  * @param dwLen: the length of the message
  */
-void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen)
+void multi_send_large_direct_msg(int pnum, BYTE bCmd, const BYTE* pbSrc, unsigned dwLen)
 {
 	unsigned dwOffset, dwBody, dwMsg;
 	MsgPkt pkt;
@@ -616,7 +616,7 @@ static void multi_send_plrinfo_msg(int pnum, BYTE cmd)
 	PkPlayerStruct pkplr;
 
 	PackPlayer(&pkplr, mypnum);
-	dthread_send_delta(pnum, cmd, &pkplr, sizeof(pkplr));
+	dthread_send_delta(pnum, cmd, (BYTE*)&pkplr, sizeof(pkplr));
 }
 
 static void SetupLocalPlr()

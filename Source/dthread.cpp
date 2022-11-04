@@ -57,7 +57,7 @@ void dthread_remove_player(int pnum)
 	sgMemCrit.Leave();
 }
 
-void dthread_send_delta(int pnum, BYTE cmd, void *pbSrc, int dwLen)
+void dthread_send_delta(int pnum, BYTE cmd, const BYTE* pbSrc, int dwLen)
 {
 	DMegaPkt *pkt;
 	DMegaPkt *p;
