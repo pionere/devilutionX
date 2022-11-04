@@ -504,13 +504,27 @@ static int GetDirection16(int x1, int y1, int x2, int y2)
 #endif
 }
 
-void DeleteMissile(int mi, int idx)
+static void DeleteMissile(int mi, int idx)
 {
 	nummissiles--;
 	assert(missileactive[idx] == mi);
 	missileactive[idx] = missileactive[nummissiles];
 	missileactive[nummissiles] = mi;
 
+}
+
+static void DeleteMissiles()
+{
+	int i, mi;
+
+	for (i = 0; i < nummissiles; ) {
+		mi = missileactive[i];
+		if (missile[mi]._miDelFlag) {
+			DeleteMissile(mi, i);
+		} else {
+			i++;
+		}
+	}
 }
 
 static void PutMissile(int mi)
@@ -4704,7 +4718,7 @@ void MI_Resurrect(int mi)
 
 void ProcessMissiles()
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int i, mi;
 
 	for (i = 0; i < nummissiles; i++) {
@@ -4714,14 +4728,7 @@ void ProcessMissiles()
 		dMissile[mis->_mix][mis->_miy] = 0;
 	}
 
-	for (i = 0; i < nummissiles; ) {
-		mi = missileactive[i];
-		if (missile[mi]._miDelFlag) {
-			DeleteMissile(mi, i);
-		} else {
-			i++;
-		}
-	}
+	DeleteMissiles();
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
@@ -4740,14 +4747,7 @@ void ProcessMissiles()
 		}
 	}
 
-	for (i = 0; i < nummissiles; ) {
-		mi = missileactive[i];
-		if (missile[mi]._miDelFlag) {
-			DeleteMissile(mi, i);
-		} else {
-			i++;
-		}
-	}
+	DeleteMissiles();
 }
 
 void SyncMissilesAnim()
