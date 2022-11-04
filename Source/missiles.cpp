@@ -1469,10 +1469,8 @@ static void SyncRhinoAnim(int mi)
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
-	mis->_miLid = mon->_mlid;
 	if (mon->_muniqtype != 0) {
 		mis->_miUniqTrans = mon->_muniqtrans;
-		//mis->_miLid = mon->_mlid;
 	}
 }
 
@@ -1493,7 +1491,6 @@ static void SyncChargeAnim(int mi)
 	mis->_miAnimLen = anim->paFrames;
 	mis->_miAnimWidth = anim->paAnimWidth;
 	mis->_miAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
-	mis->_miLid = plr._plid;
 }
 
 static void SetMissDir(int mi, int dir)
