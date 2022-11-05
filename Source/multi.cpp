@@ -622,6 +622,7 @@ void multi_send_large_msg(int pnum, BYTE bCmd, unsigned bodySize)
 
 	dwBodySize = PkwareCompress(buff->content, bodySize);
 	buff->compressed = bodySize != dwBodySize;
+	dwBodySize += sizeof(buff->compressed);
 
 	dwTotalLen = dwBodySize + sizeof(pkt->hdr) + sizeof(*msgHdr);
 
@@ -889,7 +890,7 @@ void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 	}
 
 	DBuffer* buff = (DBuffer*)&piHdr[1];
-	DWORD size = piHdr->wBytes;
+	DWORD size = piHdr->wBytes - sizeof(buff->compressed);
 
 	if (piHdr->wOffset != 0 || size > sizeof(PkPlayerStruct)) {
 		// invalid data -> drop
