@@ -41,7 +41,7 @@ bool multi_check_timeout();
 void multi_rnd_seeds();
 void NetClose();
 bool NetInit(bool bSinglePlayer);
-void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr);
+void multi_recv_plrinfo_msg(int pnum, TMsgLargeHdr* piHdr);
 
 #ifdef NONET
 #define IsLocalGame	true

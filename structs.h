@@ -1677,20 +1677,20 @@ typedef struct TCmdJoinLevel {
 	BYTE itemsDur[NUM_INVELEM + 1];
 } TCmdJoinLevel;
 
-typedef struct TCmdPlrInfoHdr {
+typedef struct TMsgLargeHdr {
 	BYTE bCmd;
 	LE_UINT16 wBytes;
-} TCmdPlrInfoHdr;
+} TMsgLargeHdr;
 
-typedef struct TCmdString {
+typedef struct TMsgString {
 	BYTE bCmd;
 	char str[MAX_SEND_STR_LEN];
-} TCmdString;
+} TMsgString;
 
-typedef struct TFakeDropPlr {
+typedef struct TMsgFakeDropPlr {
 	BYTE bCmd;
 	BYTE bReason;
-} TFakeDropPlr;
+} TMsgFakeDropPlr;
 
 typedef struct TSyncHeader {
 	BYTE bCmd;

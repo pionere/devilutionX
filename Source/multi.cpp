@@ -567,7 +567,7 @@ static void RunGameServer()
 #endif // !NOHOSTING
 
 /**
- * Send a (possible) large packet to the target player using TCmdPlrInfoHdr without using the queue.
+ * Send a (possible) large packet to the target player using TMsgLargeHdr without using the queue.
  *
  * @param pnum: The player index of the player to receive the data.
  * @param bCmd: the message type (CMD_*)
@@ -578,7 +578,7 @@ static void RunGameServer()
 {
 	unsigned dwOffset, dwBody, dwMsg;
 	MsgPkt pkt;
-	TCmdPlrInfoHdr* p;
+	TMsgLargeHdr* p;
 
 	/// ASSERT: assert(pnum != mypnum);
 	/// ASSERT: assert(pbSrc != NULL);
@@ -588,7 +588,7 @@ static void RunGameServer()
 	dwOffset = 0;
 
 	while (dwLen != 0) {
-		p = (TCmdPlrInfoHdr*)pkt.body;
+		p = (TMsgLargeHdr*)pkt.body;
 		p->bCmd = bCmd;
 		p->wOffset = static_cast<uint16_t>(dwOffset);
 		dwBody = NET_LARGE_MSG_SIZE - sizeof(pkt.hdr) - sizeof(*p);
@@ -610,7 +610,7 @@ static void RunGameServer()
 void multi_send_large_msg(unsigned pmask, BYTE bCmd, unsigned bodySize)
 {
 	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
-	TCmdPlrInfoHdr* msgHdr = (TCmdPlrInfoHdr*)pkt->body;
+	TMsgLargeHdr* msgHdr = (TMsgLargeHdr*)pkt->body;
 	DBuffer* buff = (DBuffer*)&msgHdr[1];
 	unsigned i, dwTotalLen;
 	// DeltaCompressData
@@ -645,9 +645,9 @@ void multi_send_large_msg(unsigned pmask, BYTE bCmd, unsigned bodySize)
 static void multi_broadcast_plrinfo_msg()
 {
 	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
-	DBuffer* buff = (DBuffer*)&pkt->body[sizeof(TCmdPlrInfoHdr)];
+	DBuffer* buff = (DBuffer*)&pkt->body[sizeof(TMsgLargeHdr)];
 
-	static_assert(sizeof(PkPlayerStruct) <= sizeof(gsDeltaData.ddSendRecvBuf) - offsetof(MsgPkt, body) - sizeof(TCmdPlrInfoHdr), "multi_broadcast_plrinfo_msg uses ddSendRecvBuf to prepare plrinfo.");
+	static_assert(sizeof(PkPlayerStruct) <= sizeof(gsDeltaData.ddSendRecvBuf) - offsetof(MsgPkt, body) - sizeof(TMsgLargeHdr), "multi_broadcast_plrinfo_msg uses ddSendRecvBuf to prepare plrinfo.");
 	PackPlayer((PkPlayerStruct*)buff->content, mypnum);
 
 	multi_send_large_msg(SNPLAYER_ALL, NMSG_PLRINFO, sizeof(PkPlayerStruct));
@@ -885,7 +885,7 @@ bool NetInit(bool bSinglePlayer)
 	return true;
 }
 
-void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
+void multi_recv_plrinfo_msg(int pnum, TMsgLargeHdr* piHdr)
 {
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
