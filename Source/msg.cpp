@@ -376,7 +376,7 @@ static DWORD DeltaCompressData(BYTE* end)
 static void DeltaDecompressData()
 {
 	if (gsDeltaData.ddSendRecvBuf.compressed)
-		PkwareDecompress(gsDeltaData.ddSendRecvBuf.content, gsDeltaData.ddSendRecvOffset, sizeof(gsDeltaData.ddSendRecvBuf.content));
+		PkwareDecompress(gsDeltaData.ddSendRecvBuf.content, gsDeltaData.ddSendRecvOffset - sizeof(gsDeltaData.ddSendRecvBuf.compressed), sizeof(gsDeltaData.ddSendRecvBuf.content));
 }
 
 void DeltaExportData(int pnum)
