@@ -1910,7 +1910,9 @@ typedef struct DLevel {
 	DItemStr item[MAXITEMS];
 	DObjectStr object[MAXOBJECTS];
 	DMonsterStr monster[MAXMONSTERS];
+//	BYTE alignment[0x2000 - (sizeof(DItemStr) * MAXITEMS + sizeof(DObjectStr) * MAXOBJECTS + sizeof(DMonsterStr) * MAXMONSTERS)];
 } DLevel;
+//static_assert((sizeof(DLevel) & (sizeof(DLevel) - 1)) == 0, "Align DLevel closer to power of 2 for better performance.");
 
 typedef struct LocalLevel {
 	BOOLEAN automapsv[DMAXX][DMAXY];
@@ -1947,13 +1949,13 @@ typedef struct DBuffer {
 } DBuffer;
 
 typedef struct DeltaDataEnd {
-	BOOLEAN compressed;
+	// BOOLEAN compressed;
 	BYTE numChunks;
 	LE_UINT32 turn;
 } DeltaDataEnd;
 
 typedef struct LevelDeltaEnd {
-	BOOLEAN compressed;
+	//BOOLEAN compressed;
 	BYTE numChunks;
 	BYTE level;
 	LE_UINT32 turn;
@@ -2265,8 +2267,8 @@ typedef struct _uiheroinfo {
 } _uiheroinfo;
 
 typedef struct _uigamedata {
-	DWORD aeVersionId;
-	INT aeSeed;
+	uint32_t aeVersionId;
+	int32_t aeSeed;
 	BYTE aeDifficulty;
 	BYTE aeTickRate;
 	BYTE aeNetUpdateRate; // (was defaultturnssec in vanilla)

@@ -28,8 +28,8 @@ extern uint32_t gdwGameLogicTurn;
 extern unsigned player_state[MAX_PLRS];
 
 void NetSendChunk(const BYTE* pbMsg, BYTE bLen);
+void multi_send_large_msg(int pnum, BYTE bCmd, unsigned bodySize);
 void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE len);
-void multi_send_large_direct_msg(int pnum, BYTE bCmd, const BYTE* pbSrc, unsigned dwLen);
 void multi_process_msgs();
 bool multi_handle_turn();
 void multi_send_turn_packet();

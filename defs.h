@@ -57,6 +57,8 @@
 #define NET_NORMAL_MSG_SIZE		512
 // the maximum size of a large (nmsg) message
 #define NET_LARGE_MSG_SIZE		512
+// the minimum size of a large message which needs to be compressed
+#define NET_COMP_MSG_SIZE		256
 #define NET_DEFAULT_PORT		6112
 #define MAX_SEND_STR_LEN		80
 

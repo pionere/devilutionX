@@ -578,7 +578,7 @@ static void RunGameServer()
  * @param pbSrc: the content of the message
  * @param dwLen: the length of the message
  */
-void multi_send_large_direct_msg(int pnum, BYTE bCmd, const BYTE* pbSrc, unsigned dwLen)
+/*void multi_send_large_direct_msg(int pnum, BYTE bCmd, const BYTE* pbSrc, unsigned dwLen)
 {
 	unsigned dwOffset, dwBody, dwMsg;
 	MsgPkt pkt;
@@ -609,7 +609,7 @@ void multi_send_large_direct_msg(int pnum, BYTE bCmd, const BYTE* pbSrc, unsigne
 		dwLen -= dwBody;
 		dwOffset += dwBody;
 	}
-}
+}*/
 
 void multi_send_large_msg(int pnum, BYTE bCmd, unsigned bodySize)
 {
@@ -620,7 +620,11 @@ void multi_send_large_msg(int pnum, BYTE bCmd, unsigned bodySize)
 	// DeltaCompressData
 	DWORD dwBodySize;
 
-	dwBodySize = PkwareCompress(buff->content, bodySize);
+	if (bodySize >= NET_COMP_MSG_SIZE) {
+		dwBodySize = PkwareCompress(buff->content, bodySize);
+	} else {
+		dwBodySize = bodySize;
+	}
 	buff->compressed = bodySize != dwBodySize;
 	dwBodySize += sizeof(buff->compressed);
 
