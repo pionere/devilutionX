@@ -471,11 +471,6 @@ static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 		// gsDeltaData.ddSendRecvOffset = 0;
 	}
 
-	if (cmd->wOffset != 0) {
-		// invalid data starting offset -> drop the packet
-		gbGameDeltaChunks = DELTA_ERROR_FAIL_1;
-		goto done;
-	}
 	if (cmd->bCmd == NMSG_DLEVEL_END) {
 		// gsDeltaData.ddRecvLastCmd = NMSG_DLEVEL_END;
 		DeltaImportEnd(cmd);
@@ -487,7 +482,7 @@ static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 	}
 
 	net_assert((gsDeltaData.ddSendRecvOffset + cmd->wBytes) <= sizeof(gsDeltaData.ddSendRecvBuf));
-	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
+	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf), &cmd[1], cmd->wBytes);
 	gsDeltaData.ddRecvLastCmd = cmd->bCmd;
 	gsDeltaData.ddSendRecvOffset = cmd->wBytes;
 	DeltaImportData();
@@ -1818,12 +1813,6 @@ static unsigned On_LVL_DELTA(TCmd* pCmd, int pnum)
 	if (geBufferMsgs != MSG_LVL_DELTA_WAIT)
 		goto done; // the player is already active -> drop the packet
 
-	if (cmd->wOffset != 0) {
-		// invalid data starting offset -> drop the packet
-		//gbGameDeltaChunks = DELTA_ERROR_FAIL_1;
-		goto done;
-	}
-
 	if (cmd->bCmd == NMSG_LVL_DELTA_END) {
 		// final package -> done
 		LevelDeltaImportEnd(cmd, pnum);
@@ -1836,7 +1825,7 @@ static unsigned On_LVL_DELTA(TCmd* pCmd, int pnum)
 		goto done;
 	}
 	net_assert((gsDeltaData.ddSendRecvOffset + cmd->wBytes) <= sizeof(gsDeltaData.ddSendRecvBuf));
-	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
+	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf), &cmd[1], cmd->wBytes);
 	gsDeltaData.ddRecvLastCmd = cmd->bCmd;
 	gsDeltaData.ddSendRecvOffset = cmd->wBytes;
 done:
