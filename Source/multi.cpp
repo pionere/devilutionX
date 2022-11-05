@@ -16,8 +16,8 @@ DEVILUTION_BEGIN_NAMESPACE
 static TBuffer sgTurnChunkBuf;
 /* Buffer to hold the received player-info. */
 static PkPlayerStruct netplr[MAX_PLRS];
-/* Current offset in netplr. */
-static uint16_t sgwPackPlrOffsetTbl[MAX_PLRS];
+/* Specifies whether the player-info is received. */
+static bool sgbPackPlrTbl[MAX_PLRS];
 /* Specifies whether the player joins an existing game. */
 static bool gbJoinGame;
 /* A table in which the leaving players are registered with the reason for the leaving. (LEAVE_) */
@@ -256,7 +256,7 @@ void multi_deactivate_player(int pnum, int reason)
 			}
 			EventPlrMsg(pszFmt, plr._pName);
 		}
-		sgwPackPlrOffsetTbl[pnum] = 0;
+		sgbPackPlrTbl[pnum] = false;
 		plr._pActive = FALSE;
 		plr._pName[0] = '\0';
 		guTeamInviteRec &= ~(1 << pnum);
@@ -611,12 +611,37 @@ void multi_send_large_direct_msg(int pnum, BYTE bCmd, const BYTE* pbSrc, unsigne
 	}
 }
 
-static void multi_send_plrinfo_msg(int pnum, BYTE cmd)
+void multi_send_large_msg(int pnum, BYTE bCmd, unsigned bodySize)
 {
-	PkPlayerStruct pkplr;
+	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
+	TCmdPlrInfoHdr* msgHdr = (TCmdPlrInfoHdr*)pkt->body;
+	DBuffer* buff = (DBuffer*)&msgHdr[1];
+	unsigned dwTotalLen;
+	// DeltaCompressData
+	DWORD dwBodySize;
 
-	PackPlayer(&pkplr, mypnum);
-	multi_send_large_direct_msg(pnum, cmd, (BYTE*)&pkplr, sizeof(pkplr));
+	dwBodySize = PkwareCompress(buff->content, bodySize);
+	buff->compressed = bodySize != dwBodySize;
+
+	dwTotalLen = dwBodySize + sizeof(pkt->hdr) + sizeof(*msgHdr);
+
+	msgHdr->bCmd = bCmd;
+	msgHdr->wOffset = static_cast<uint16_t>(0);
+	msgHdr->wBytes = static_cast<uint16_t>(dwBodySize);
+	pkt->hdr.wLen = static_cast<uint16_t>(dwTotalLen);
+
+	SNetSendMessage(pnum, (BYTE*)pkt, dwTotalLen);
+}
+
+static void multi_broadcast_plrinfo_msg()
+{
+	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
+	DBuffer* buff = (DBuffer*)&pkt->body[sizeof(TCmdPlrInfoHdr)];
+
+	static_assert(sizeof(PkPlayerStruct) <= sizeof(gsDeltaData.ddSendRecvBuf) - offsetof(MsgPkt, body) - sizeof(TCmdPlrInfoHdr), "multi_broadcast_plrinfo_msg uses ddSendRecvBuf to prepare plrinfo.");
+	PackPlayer((PkPlayerStruct*)buff->content, mypnum);
+
+	multi_send_large_msg(SNPLAYER_ALL, NMSG_PLRINFO, sizeof(PkPlayerStruct));
 }
 
 static void SetupLocalPlr()
@@ -812,7 +837,7 @@ bool NetInit(bool bSinglePlayer)
 			return false;
 		static_assert(LEAVE_NONE == 0, "NetInit uses memset to reset the LEAVE_ enum values.");
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
-		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
+		memset(sgbPackPlrTbl, false, sizeof(sgbPackPlrTbl));
 		memset(player_state, 0, sizeof(player_state));
 		guSendGameDelta = 0;
 		guSendLevelData = 0;
@@ -836,7 +861,7 @@ bool NetInit(bool bSinglePlayer)
 		SetupLocalPlr();
 		if (!gbJoinGame)
 			break;
-		multi_send_plrinfo_msg(SNPLAYER_ALL, NMSG_PLRINFO);
+		multi_broadcast_plrinfo_msg();
 		if (DownloadDeltaInfo()) {
 			//nthread_finish(); - do not, because it would send a join-level message
 			break;
@@ -855,22 +880,33 @@ void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
 {
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
-	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
+	if (sgbPackPlrTbl[pnum]) {
+		// invalid data -> drop
+		return;
+	}
+	if (plr._pActive) {
+		return; // player was imported during delta-load -> skip
+	}
+
+	DBuffer* buff = (DBuffer*)&piHdr[1];
+	DWORD size = piHdr->wBytes;
+
+	if (piHdr->wOffset != 0 || size > sizeof(PkPlayerStruct)) {
 		// invalid data -> drop
 		return;
 	}
 
-	//if (piHdr->wBytes == 0)
-	//	return; // 'invalid' data -> skip to prevent reactivation of a player
-	memcpy((char *)&netplr[pnum] + piHdr->wOffset, &piHdr[1], piHdr->wBytes); /* todo: cast? */
-	sgwPackPlrOffsetTbl[pnum] += piHdr->wBytes;
-	if (sgwPackPlrOffsetTbl[pnum] != sizeof(*netplr)) {
-		return;
+	memcpy(&netplr[pnum], buff->content, size);
+	// DeltaDecompressData
+	if (buff->compressed) {
+		PkwareDecompress((BYTE*)&netplr[pnum], size, sizeof(PkPlayerStruct));
 	}
-
-	//sgwPackPlrOffsetTbl[pnum] = 0; - do NOT reset the offset to prevent reactivation of a player
-	if (plr._pActive)
-		return; // player was imported during delta-load -> skip
+	// TODO: check (decompressed) size ?
+	//if (size != sizeof(PkPlayerStruct)) {
+	//	// invalid data -> drop
+	//	return;
+	//}
+	sgbPackPlrTbl[pnum] = true; // register data to prevent reactivation of a player
 	// TODO: validate PkPlayerStruct coming from internet?
 	UnPackPlayer(&netplr[pnum], pnum);
 }
