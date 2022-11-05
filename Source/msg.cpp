@@ -368,7 +368,7 @@ static void DeltaDecompressData()
 		PkwareDecompress(gsDeltaData.ddSendRecvBuf.content, gsDeltaData.ddSendRecvOffset - sizeof(gsDeltaData.ddSendRecvBuf.compressed), sizeof(gsDeltaData.ddSendRecvBuf.content));
 }
 
-void DeltaExportData(int pnum)
+void DeltaExportData(int pmask)
 {
 	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
 	TCmdPlrInfoHdr* msgHdr = (TCmdPlrInfoHdr*)pkt->body;
@@ -382,20 +382,20 @@ void DeltaExportData(int pnum)
 		if (!gsDeltaData.ddLevelChanged[i])
 			continue;
 		dstEnd = DeltaExportLevel(i, buff->content);
-		multi_send_large_msg(pnum, NMSG_DLEVEL_DATA, (size_t)dstEnd - (size_t)buff->content);
+		multi_send_large_msg(pmask, NMSG_DLEVEL_DATA, (size_t)dstEnd - (size_t)buff->content);
 		numChunks++;
 	}
 	// junk
 	if (gsDeltaData.ddJunkChanged) {
 		dstEnd = DeltaExportJunk(buff->content);
-		multi_send_large_msg(pnum, NMSG_DLEVEL_JUNK, (size_t)dstEnd - (size_t)buff->content);
+		multi_send_large_msg(pmask, NMSG_DLEVEL_JUNK, (size_t)dstEnd - (size_t)buff->content);
 		numChunks++;
 	}
 	// players
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (plx(i)._pActive) {
 			dstEnd = DeltaExportPlr(i, buff->content);
-			multi_send_large_msg(pnum, NMSG_DLEVEL_PLR, (size_t)dstEnd - (size_t)buff->content);
+			multi_send_large_msg(pmask, NMSG_DLEVEL_PLR, (size_t)dstEnd - (size_t)buff->content);
 			numChunks++;
 		}
 	}
@@ -405,7 +405,7 @@ void DeltaExportData(int pnum)
 	deltaEnd->numChunks = numChunks;
 	deltaEnd->turn = gdwLastGameTurn;
 	assert(gdwLastGameTurn * gbNetUpdateRate == gdwGameLogicTurn);
-	multi_send_large_msg(pnum, NMSG_DLEVEL_END, sizeof(*deltaEnd));
+	multi_send_large_msg(pmask, NMSG_DLEVEL_END, sizeof(*deltaEnd));
 }
 
 static void DeltaImportData()
@@ -1361,22 +1361,14 @@ void LevelDeltaExport()
 
 		lvlData->wLen = static_cast<uint16_t>((size_t)dst - (size_t)&lvlData->ldContent[0]);
 		// send the data to the recipients
-		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			if (recipients & (1 << pnum)) {
-				multi_send_large_msg(pnum, NMSG_LVL_DELTA, (size_t)dst - (size_t)buff->content);
-			}
-		}
+		multi_send_large_msg(recipients, NMSG_LVL_DELTA, (size_t)dst - (size_t)buff->content);
 	}
 	// current number of chunks sent + level + turn-id + end
 	LevelDeltaEnd* deltaEnd = (LevelDeltaEnd*)buff->content;
 	deltaEnd->numChunks = completeDelta ? 1 : 0;
 	deltaEnd->level = currLvl._dLevelIdx;
 	deltaEnd->turn = gdwLastGameTurn;
-	for (pnum = 0; pnum < MAX_PLRS; pnum++, recipients >>= 1) {
-		if (recipients & 1) {
-			multi_send_large_msg(pnum, NMSG_LVL_DELTA_END, sizeof(*deltaEnd));
-		}
-	}
+	multi_send_large_msg(recipients, NMSG_LVL_DELTA_END, sizeof(*deltaEnd));
 }
 
 void LevelDeltaLoad()

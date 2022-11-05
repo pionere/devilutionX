@@ -25,7 +25,7 @@ void msg_send_drop_plr(int pnum, BYTE reason);
 // download game-delta
 bool DownloadDeltaInfo();
 // send game-delta
-void DeltaExportData(int pnum);
+void DeltaExportData(int pmask);
 void delta_init();
 // add items which are part of the dungeon to the game-delta
 void DeltaAddItem(int ii);

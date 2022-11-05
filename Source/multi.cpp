@@ -196,11 +196,7 @@ static void multi_parse_turns()
 
 	if (guSendGameDelta != 0) {
 		if (!gbJoinGame) {
-			for (pnum = 0; pnum < MAX_PLRS; pnum++, guSendGameDelta >>= 1) {
-				if (guSendGameDelta & 1) {
-					DeltaExportData(pnum);
-				}
-			}
+			DeltaExportData(guSendGameDelta);
 		}
 		guSendGameDelta = 0;
 	}
@@ -611,12 +607,12 @@ static void RunGameServer()
 	}
 }*/
 
-void multi_send_large_msg(int pnum, BYTE bCmd, unsigned bodySize)
+void multi_send_large_msg(unsigned pmask, BYTE bCmd, unsigned bodySize)
 {
 	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
 	TCmdPlrInfoHdr* msgHdr = (TCmdPlrInfoHdr*)pkt->body;
 	DBuffer* buff = (DBuffer*)&msgHdr[1];
-	unsigned dwTotalLen;
+	unsigned i, dwTotalLen;
 	// DeltaCompressData
 	DWORD dwBodySize;
 
@@ -634,7 +630,16 @@ void multi_send_large_msg(int pnum, BYTE bCmd, unsigned bodySize)
 	msgHdr->wBytes = static_cast<uint16_t>(dwBodySize);
 	pkt->hdr.wLen = static_cast<uint16_t>(dwTotalLen);
 
-	SNetSendMessage(pnum, (BYTE*)pkt, dwTotalLen);
+	if (pmask == SNPLAYER_ALL) {
+		static_assert(SNPLAYER_ALL >= (1 << MAX_PLRS), "SNPLAYER_ALL does not work with pnum masks.");
+		SNetSendMessage(SNPLAYER_ALL, (BYTE*)pkt, dwTotalLen);
+	} else {
+		for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
+			if (pmask & 1) {
+				SNetSendMessage(i, (BYTE*)pkt, dwTotalLen);
+			}
+		}
+	}
 }
 
 static void multi_broadcast_plrinfo_msg()
