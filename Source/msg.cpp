@@ -189,7 +189,7 @@ static BYTE* DeltaExportLevel(BYTE bLevel)
 	int i;
 	BYTE* dst = gsDeltaData.ddSendRecvBuf.content;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(DLevel) + 1, "Delta-Level might not fit to the buffer.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(DLevel) + 1, "DLevel might not fit to the buffer in DeltaExportLevel.");
 
 	// level-index
 	*dst = bLevel;
@@ -233,7 +233,7 @@ static void DeltaImportLevel()
 	int i;
 	BYTE *src, bLvl;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= (sizeof(DLevel) + 1), "DLevel does not fit to the buffer.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(DLevel) + 1, "DLevel might not fit to the buffer in DeltaImportLevel.");
 
 	src = gsDeltaData.ddSendRecvBuf.content;
 	// level-index
@@ -285,7 +285,7 @@ static BYTE* DeltaExportJunk()
 		mq++;
 	}
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(gsDeltaData.ddJunk), "Delta-Junk does not fit to the buffer.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaExportJunk.");
 	// export portals + quests + golems
 	memcpy(dst, &gsDeltaData.ddJunk, sizeof(gsDeltaData.ddJunk));
 	dst += sizeof(gsDeltaData.ddJunk);
@@ -299,6 +299,8 @@ static void DeltaImportJunk()
 	DQuest* mq;
 	int i;
 	BYTE* src = gsDeltaData.ddSendRecvBuf.content;
+
+	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaImportJunk.");
 
 	gsDeltaData.ddJunkChanged = true;
 
@@ -329,7 +331,7 @@ static BYTE* DeltaExportPlr(int pnum)
 {
 	BYTE* dst = gsDeltaData.ddSendRecvBuf.content;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= (sizeof(PkPlayerStruct) + 1), "Delta-Plr does not fit to the buffer.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(PkPlayerStruct) + 1, "DPlayer does not fit to the buffer in DeltaExportPlr.");
 
 	// player-index
 	*dst = pnum;
@@ -344,6 +346,8 @@ static void DeltaImportPlr()
 {
 	int pnum;
 	BYTE* src = gsDeltaData.ddSendRecvBuf.content;
+
+	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(PkPlayerStruct) + 1, "DPlayer does not fit to the buffer in DeltaImportPlr.");
 
 	// player-index
 	pnum = *src;
