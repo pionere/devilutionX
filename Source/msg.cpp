@@ -3069,13 +3069,12 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 				// joined and left while waiting for level-delta
 				return sizeof(*cmd);
 			}
-			if (plr._pName[0] == '\0') {
+			if (!multi_plrinfo_received(pnum)) {
 				// plrinfo_msg did not arrive -> drop the player
 				SNetDropPlayer(pnum);
 				return sizeof(*cmd);
 			}
 			// TODO: validate data from internet
-			net_assert(plr._pTeam == pnum);
 			net_assert(cmd->pManaShield == 0);
 			net_assert(cmd->lLevel == DLV_TOWN);
 			net_assert(cmd->lTimer1 == 0);

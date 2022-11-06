@@ -42,6 +42,7 @@ void multi_rnd_seeds();
 void NetClose();
 bool NetInit(bool bSinglePlayer);
 void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg);
+bool multi_plrinfo_received(int pnum);
 
 #ifdef NONET
 #define IsLocalGame	true

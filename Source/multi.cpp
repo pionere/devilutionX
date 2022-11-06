@@ -253,7 +253,6 @@ void multi_deactivate_player(int pnum, int reason)
 		}
 		sgbPackPlrTbl[pnum] = false;
 		plr._pActive = FALSE;
-		plr._pName[0] = '\0';
 		guTeamInviteRec &= ~(1 << pnum);
 		guTeamInviteSent &= ~(1 << pnum);
 		guReceivedLevelDelta &= ~(1 << pnum);
@@ -910,9 +909,26 @@ void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
 	//	// invalid data -> drop
 	//	return;
 	//}
+#if INET_MODE
+	// TODO: extend validation of PkPlayerStruct?
+	if (netplr[pnum].pName[0] == '\0'
+	 || netplr[pnum].pTeam != pnum
+	 || netplr[pnum].pDunLevel != DLV_TOWN
+	 //|| !netplr[pnum].pLvlChanging
+	 || netplr[pnum].pLevel > MAXCHARLEVEL
+	 || netplr[pnum].pClass >= NUM_CLASSES) {
+		// invalid data -> drop
+		return;
+	}
+	netplr[pnum].pName[lengthof(netplr[pnum].pName) - 1] = '\0'; // ensure the name is null terminated
+#endif
 	sgbPackPlrTbl[pnum] = true; // register data to prevent reactivation of a player
-	// TODO: validate PkPlayerStruct coming from internet?
 	UnPackPlayer(&netplr[pnum], pnum);
+}
+
+bool multi_plrinfo_received(int pnum)
+{
+	return sgbPackPlrTbl[pnum];
 }
 
 DEVILUTION_END_NAMESPACE
