@@ -1942,7 +1942,7 @@ typedef struct LDLevel {
 
 typedef struct DBuffer {
 	BOOLEAN compressed;
-	BYTE content[0x7FFF];
+	BYTE content[0x8000 - sizeof(BOOLEAN) - sizeof(TMsgLargeHdr) - sizeof(MsgPktHdr)];
 } DBuffer;
 
 typedef struct DeltaDataEnd {
@@ -1956,6 +1956,16 @@ typedef struct LevelDeltaEnd {
 	LE_UINT32 turn;
 } LevelDeltaEnd;
 
+typedef struct TMsgLarge {
+	TMsgLargeHdr tpHdr;
+	DBuffer tpData;
+} TMsgLarge;
+
+typedef struct LargeMsgPkt {
+	MsgPktHdr apHdr;
+	TMsgLarge apMsg;
+} LargeMsgPkt;
+
 typedef struct DeltaData {
 	union {
 		struct {
@@ -1965,7 +1975,7 @@ typedef struct DeltaData {
 			bool ddLevelChanged[NUM_LEVELS];
 			bool ddJunkChanged;
 
-			DBuffer ddSendRecvBuf;     // Buffer to send/receive delta info
+			LargeMsgPkt ddSendRecvPkt; // Buffer to send/receive delta info
 			unsigned ddSendRecvOffset; // offset in the buffer
 			BYTE ddDeltaSender;        // the pnum of the delta-sender
 			BYTE ddRecvLastCmd;        // type of the last received delta-chunk (NMSG_DLEVEL_ or NMSG_LVL_DELTA_)

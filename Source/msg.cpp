@@ -188,7 +188,7 @@ static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 	DMonsterStr* mon;
 	int i;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf) - offsetof(MsgPkt, body) - sizeof(TMsgLargeHdr) - sizeof(gsDeltaData.ddSendRecvBuf.compressed) >= sizeof(DLevel) + 1, "DLevel might not fit to the buffer in DeltaExportLevel.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(DLevel) + 1, "DLevel might not fit to the buffer in DeltaExportLevel.");
 
 	// level-index
 	*dst = bLevel;
@@ -232,9 +232,9 @@ static void DeltaImportLevel()
 	int i;
 	BYTE *src, bLvl;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(DLevel) + 1, "DLevel might not fit to the buffer in DeltaImportLevel.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(DLevel) + 1, "DLevel might not fit to the buffer in DeltaImportLevel.");
 
-	src = gsDeltaData.ddSendRecvBuf.content;
+	src = gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
 	// level-index
 	bLvl = *src;
 	src++;
@@ -283,7 +283,7 @@ static BYTE* DeltaExportJunk(BYTE* dst)
 		mq++;
 	}
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf) - offsetof(MsgPkt, body) - sizeof(TMsgLargeHdr) - sizeof(gsDeltaData.ddSendRecvBuf.compressed) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaExportJunk.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaExportJunk.");
 	// export portals + quests + golems
 	memcpy(dst, &gsDeltaData.ddJunk, sizeof(gsDeltaData.ddJunk));
 	dst += sizeof(gsDeltaData.ddJunk);
@@ -296,9 +296,9 @@ static void DeltaImportJunk()
 	DPortal* pD;
 	DQuest* mq;
 	int i;
-	BYTE* src = gsDeltaData.ddSendRecvBuf.content;
+	BYTE* src = gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaImportJunk.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaImportJunk.");
 
 	gsDeltaData.ddJunkChanged = true;
 
@@ -327,7 +327,7 @@ static void DeltaImportJunk()
 
 static BYTE* DeltaExportPlr(int pnum, BYTE* dst)
 {
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf) - offsetof(MsgPkt, body) - sizeof(TMsgLargeHdr) - sizeof(gsDeltaData.ddSendRecvBuf.compressed) >= sizeof(PkPlayerStruct) + 1, "DPlayer does not fit to the buffer in DeltaExportPlr.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(PkPlayerStruct) + 1, "DPlayer does not fit to the buffer in DeltaExportPlr.");
 
 	// player-index
 	*dst = pnum;
@@ -341,9 +341,9 @@ static BYTE* DeltaExportPlr(int pnum, BYTE* dst)
 static void DeltaImportPlr()
 {
 	int pnum;
-	BYTE* src = gsDeltaData.ddSendRecvBuf.content;
+	BYTE* src = gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvBuf.content) >= sizeof(PkPlayerStruct) + 1, "DPlayer does not fit to the buffer in DeltaImportPlr.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(PkPlayerStruct) + 1, "DPlayer does not fit to the buffer in DeltaImportPlr.");
 
 	// player-index
 	pnum = *src;
@@ -364,15 +364,13 @@ static void DeltaImportPlr()
 
 static void DeltaDecompressData()
 {
-	if (gsDeltaData.ddSendRecvBuf.compressed)
-		PkwareDecompress(gsDeltaData.ddSendRecvBuf.content, gsDeltaData.ddSendRecvOffset - sizeof(gsDeltaData.ddSendRecvBuf.compressed), sizeof(gsDeltaData.ddSendRecvBuf.content));
+	if (gsDeltaData.ddSendRecvPkt.apMsg.tpData.compressed)
+		PkwareDecompress(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content, gsDeltaData.ddSendRecvOffset - sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.compressed), sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content));
 }
 
 void DeltaExportData(int pmask)
 {
-	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
-	TMsgLargeHdr* msgHdr = (TMsgLargeHdr*)pkt->body;
-	DBuffer* buff = (DBuffer*)&msgHdr[1];
+	DBuffer* buff = &gsDeltaData.ddSendRecvPkt.apMsg.tpData;
 	BYTE* dstEnd;
 	int i;
 	BYTE numChunks = 0;
@@ -424,18 +422,17 @@ static void DeltaImportData()
 	}
 }
 
-static void DeltaImportEnd(TMsgLargeHdr* cmd)
+static void DeltaImportEnd(TMsgLarge* cmd)
 {
-	DBuffer* dbuff;
 	DeltaDataEnd* buf;
 
 	// stop nthread from processing the delta messages
 	geBufferMsgs = MSG_NORMAL;
 
-	dbuff = (DBuffer*)&cmd[1];
-	net_assert(cmd->wBytes == sizeof(dbuff->compressed) + sizeof(DeltaDataEnd));
-	net_assert(!dbuff->compressed);
-	buf = (DeltaDataEnd*)dbuff->content;
+	net_assert(cmd->tpHdr.wBytes == sizeof(cmd->tpData.compressed) + sizeof(DeltaDataEnd));
+	static_assert(NET_COMP_MSG_SIZE > sizeof(DeltaDataEnd), "DeltaImportEnd does not decompress the final message.");
+	net_assert(!cmd->tpData.compressed);
+	buf = (DeltaDataEnd*)cmd->tpData.content;
 	if (gbGameDeltaChunks != buf->numChunks) {
 		// not all chunks arrived -> quit
 		gbGameDeltaChunks = DELTA_ERROR_FAIL_3;
@@ -447,7 +444,7 @@ static void DeltaImportEnd(TMsgLargeHdr* cmd)
 
 static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 {
-	TMsgLargeHdr* cmd = (TMsgLargeHdr*)pCmd;
+	TMsgLarge* cmd = (TMsgLarge*)pCmd;
 
 	if (geBufferMsgs != MSG_GAME_DELTA_LOAD)
 		goto done; // the player is already active -> drop the packet
@@ -471,23 +468,23 @@ static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
 		// gsDeltaData.ddSendRecvOffset = 0;
 	}
 
-	if (cmd->bCmd == NMSG_DLEVEL_END) {
+	if (cmd->tpHdr.bCmd == NMSG_DLEVEL_END) {
 		// gsDeltaData.ddRecvLastCmd = NMSG_DLEVEL_END;
 		DeltaImportEnd(cmd);
 		goto done;
 	}
-	if (cmd->bCmd != NMSG_DLEVEL_DATA && cmd->bCmd != NMSG_DLEVEL_JUNK && cmd->bCmd != NMSG_DLEVEL_PLR) {
+	if (cmd->tpHdr.bCmd != NMSG_DLEVEL_DATA && cmd->tpHdr.bCmd != NMSG_DLEVEL_JUNK && cmd->tpHdr.bCmd != NMSG_DLEVEL_PLR) {
 		// invalid data starting type -> drop the packet
 		goto done;
 	}
 
-	net_assert((gsDeltaData.ddSendRecvOffset + cmd->wBytes) <= sizeof(gsDeltaData.ddSendRecvBuf));
-	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf), &cmd[1], cmd->wBytes);
-	gsDeltaData.ddRecvLastCmd = cmd->bCmd;
-	gsDeltaData.ddSendRecvOffset = cmd->wBytes;
+	net_assert((gsDeltaData.ddSendRecvOffset + cmd->tpHdr.wBytes) <= sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData));
+	memcpy(((BYTE*)&gsDeltaData.ddSendRecvPkt.apMsg.tpData), &cmd->tpData, cmd->tpHdr.wBytes);
+	gsDeltaData.ddRecvLastCmd = cmd->tpHdr.bCmd;
+	gsDeltaData.ddSendRecvOffset = cmd->tpHdr.wBytes;
 	DeltaImportData();
 done:
-	return cmd->wBytes + sizeof(*cmd);
+	return cmd->tpHdr.wBytes + sizeof(cmd->tpHdr);
 }
 
 void delta_init()
@@ -1151,9 +1148,8 @@ void NetSendCmdJoinLevel()
 
 void LevelDeltaExport()
 {
-	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
-	TMsgLargeHdr* msgHdr = (TMsgLargeHdr*)pkt->body;
-	DBuffer* buff = (DBuffer*)&msgHdr[1];
+	LargeMsgPkt* pkt = &gsDeltaData.ddSendRecvPkt;
+	DBuffer* buff = &pkt->apMsg.tpData;
 	LDLevel* lvlData;
 
 	int pnum, mnum, i, mi;
@@ -1187,7 +1183,7 @@ void LevelDeltaExport()
 	if (completeDelta) {
 		// can not be done during lvl-delta load, otherwise a separate buffer should be used
 		assert(geBufferMsgs != MSG_LVL_DELTA_WAIT && geBufferMsgs != MSG_LVL_DELTA_PROC);
-		static_assert(sizeof(LDLevel) <= sizeof(gsDeltaData.ddSendRecvBuf.content) - offsetof(MsgPkt, body) - sizeof(TMsgLargeHdr) - sizeof(gsDeltaData.ddSendRecvBuf.compressed), "Level-Delta does not fit to the buffer.");
+		static_assert(sizeof(LDLevel) <= sizeof(buff->content), "Level-Delta does not fit to the buffer.");
 		lvlData = (LDLevel*)buff->content;
 
 		static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs I.");
@@ -1394,7 +1390,7 @@ void LevelDeltaLoad()
 		monsters[mnum]._msquelch = 0;
 	}
 
-	lvlData = (LDLevel*)&gsDeltaData.ddSendRecvBuf.content[0];
+	lvlData = (LDLevel*)gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
 	// load static metadata
 	static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs II.");
 	assert(nummonsters <= lvlData->ldNumMonsters);
@@ -1767,17 +1763,16 @@ void LevelDeltaLoad()
 	ProcessVisionList();
 }
 
-static void LevelDeltaImportEnd(TMsgLargeHdr* cmd, int pnum)
+static void LevelDeltaImportEnd(TMsgLarge* cmd, int pnum)
 {
-	DBuffer* dbuff;
 	LevelDeltaEnd* buf;
 
 	guReceivedLevelDelta |= 1 << pnum;
 
-	dbuff = (DBuffer*)&cmd[1];
-	net_assert(cmd->wBytes == sizeof(dbuff->compressed) + sizeof(LevelDeltaEnd));
-	net_assert(!dbuff->compressed);
-	buf = (LevelDeltaEnd*)dbuff->content;
+	net_assert(cmd->tpHdr.wBytes == sizeof(cmd->tpData.compressed) + sizeof(LevelDeltaEnd));
+	static_assert(NET_COMP_MSG_SIZE > sizeof(LevelDeltaEnd), "LevelDeltaImportEnd does not decompress the final message.");
+	net_assert(!cmd->tpData.compressed);
+	buf = (LevelDeltaEnd*)cmd->tpData.content;
 	if (buf->numChunks == 0)
 		return; // empty delta -> not done yet
 	net_assert(buf->level == myplr._pDunLevel);
@@ -1800,28 +1795,28 @@ static void LevelDeltaImportEnd(TMsgLargeHdr* cmd, int pnum)
 
 static unsigned On_LVL_DELTA(TCmd* pCmd, int pnum)
 {
-	TMsgLargeHdr* cmd = (TMsgLargeHdr*)pCmd;
+	TMsgLarge* cmd = (TMsgLarge*)pCmd;
 
 	if (geBufferMsgs != MSG_LVL_DELTA_WAIT)
 		goto done; // the player is already active -> drop the packet
 
-	if (cmd->bCmd == NMSG_LVL_DELTA_END) {
+	if (cmd->tpHdr.bCmd == NMSG_LVL_DELTA_END) {
 		// final package -> done
 		LevelDeltaImportEnd(cmd, pnum);
 		goto done;
 	}
 
-	if (cmd->bCmd != NMSG_LVL_DELTA) {
+	if (cmd->tpHdr.bCmd != NMSG_LVL_DELTA) {
 		// invalid data type -> drop the packet
 		//gbGameDeltaChunks = DELTA_ERROR_FAIL_2;
 		goto done;
 	}
-	net_assert((gsDeltaData.ddSendRecvOffset + cmd->wBytes) <= sizeof(gsDeltaData.ddSendRecvBuf));
-	memcpy(((BYTE*)&gsDeltaData.ddSendRecvBuf), &cmd[1], cmd->wBytes);
-	gsDeltaData.ddRecvLastCmd = cmd->bCmd;
-	gsDeltaData.ddSendRecvOffset = cmd->wBytes;
+	net_assert((gsDeltaData.ddSendRecvOffset + cmd->tpHdr.wBytes) <= sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData));
+	memcpy(((BYTE*)&gsDeltaData.ddSendRecvPkt.apMsg.tpData), &cmd->tpData, cmd->tpHdr.wBytes);
+	gsDeltaData.ddRecvLastCmd = cmd->tpHdr.bCmd;
+	gsDeltaData.ddSendRecvOffset = cmd->tpHdr.wBytes;
 done:
-	return cmd->wBytes + sizeof(*cmd);
+	return cmd->tpHdr.wBytes + sizeof(cmd->tpHdr);
 }
 
 void NetSendCmd(BYTE bCmd)

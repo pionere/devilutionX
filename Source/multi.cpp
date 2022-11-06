@@ -609,26 +609,24 @@ static void RunGameServer()
 
 void multi_send_large_msg(unsigned pmask, BYTE bCmd, unsigned bodySize)
 {
-	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
-	TMsgLargeHdr* msgHdr = (TMsgLargeHdr*)pkt->body;
-	DBuffer* buff = (DBuffer*)&msgHdr[1];
+	LargeMsgPkt* pkt = &gsDeltaData.ddSendRecvPkt;
 	unsigned i, dwTotalLen;
 	// DeltaCompressData
 	DWORD dwBodySize;
 
 	if (bodySize >= NET_COMP_MSG_SIZE) {
-		dwBodySize = PkwareCompress(buff->content, bodySize);
+		dwBodySize = PkwareCompress(pkt->apMsg.tpData.content, bodySize);
 	} else {
 		dwBodySize = bodySize;
 	}
-	buff->compressed = bodySize != dwBodySize;
-	dwBodySize += sizeof(buff->compressed);
+	pkt->apMsg.tpData.compressed = bodySize != dwBodySize;
+	dwBodySize += sizeof(pkt->apMsg.tpData.compressed);
 
-	dwTotalLen = dwBodySize + sizeof(pkt->hdr) + sizeof(*msgHdr);
+	dwTotalLen = dwBodySize + sizeof(pkt->apHdr) + sizeof(pkt->apMsg.tpHdr);
 
-	msgHdr->bCmd = bCmd;
-	msgHdr->wBytes = static_cast<uint16_t>(dwBodySize);
-	pkt->hdr.wLen = static_cast<uint16_t>(dwTotalLen);
+	pkt->apMsg.tpHdr.bCmd = bCmd;
+	pkt->apMsg.tpHdr.wBytes = static_cast<uint16_t>(dwBodySize);
+	pkt->apHdr.wLen = static_cast<uint16_t>(dwTotalLen);
 
 	if (pmask == SNPLAYER_ALL) {
 		static_assert(SNPLAYER_ALL >= (1 << MAX_PLRS), "SNPLAYER_ALL does not work with pnum masks.");
@@ -644,10 +642,9 @@ void multi_send_large_msg(unsigned pmask, BYTE bCmd, unsigned bodySize)
 
 static void multi_broadcast_plrinfo_msg()
 {
-	MsgPkt* pkt = (MsgPkt*)&gsDeltaData.ddSendRecvBuf;
-	DBuffer* buff = (DBuffer*)&pkt->body[sizeof(TMsgLargeHdr)];
+	DBuffer* buff = &gsDeltaData.ddSendRecvPkt.apMsg.tpData;
 
-	static_assert(sizeof(PkPlayerStruct) <= sizeof(gsDeltaData.ddSendRecvBuf) - offsetof(MsgPkt, body) - sizeof(TMsgLargeHdr), "multi_broadcast_plrinfo_msg uses ddSendRecvBuf to prepare plrinfo.");
+	static_assert(sizeof(PkPlayerStruct) <= sizeof(buff->content), "Plrinfo does not fit to the buffer in multi_broadcast_plrinfo_msg.");
 	PackPlayer((PkPlayerStruct*)buff->content, mypnum);
 
 	multi_send_large_msg(SNPLAYER_ALL, NMSG_PLRINFO, sizeof(PkPlayerStruct));
