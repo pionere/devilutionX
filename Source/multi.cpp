@@ -188,7 +188,6 @@ void multi_rnd_seeds()
 
 static void multi_parse_turns()
 {
-	int pnum;
 	// TODO: use pre-allocated space?
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
 	multi_process_turn(turn);
@@ -882,7 +881,7 @@ bool NetInit(bool bSinglePlayer)
 	return true;
 }
 
-void multi_recv_plrinfo_msg(int pnum, TMsgLargeHdr* piHdr)
+void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
 {
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
@@ -894,17 +893,16 @@ void multi_recv_plrinfo_msg(int pnum, TMsgLargeHdr* piHdr)
 		return; // player was imported during delta-load -> skip
 	}
 
-	DBuffer* buff = (DBuffer*)&piHdr[1];
-	DWORD size = piHdr->wBytes - sizeof(buff->compressed);
+	DWORD size = piMsg->tpHdr.wBytes - sizeof(piMsg->tpData.compressed);
 
 	if (size > sizeof(PkPlayerStruct)) {
 		// invalid data -> drop
 		return;
 	}
 
-	memcpy(&netplr[pnum], buff->content, size);
+	memcpy(&netplr[pnum], piMsg->tpData.content, size);
 	// DeltaDecompressData
-	if (buff->compressed) {
+	if (piMsg->tpData.compressed) {
 		PkwareDecompress((BYTE*)&netplr[pnum], size, sizeof(PkPlayerStruct));
 	}
 	// TODO: check (decompressed) size ?

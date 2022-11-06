@@ -3016,19 +3016,19 @@ static unsigned On_SEND_GAME_DELTA(TCmd* pCmd, int pnum)
 
 static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
 {
-	TMsgLargeHdr* cmd = (TMsgLargeHdr*)pCmd;
+	TMsgLarge* cmd = (TMsgLarge*)pCmd;
 
 	net_assert((unsigned)pnum < MAX_PLRS);
 
 	if (geBufferMsgs == MSG_GAME_DELTA_LOAD || geBufferMsgs == MSG_GAME_DELTA_WAIT)
-		DeltaQueuePacket(pnum, cmd, cmd->wBytes + sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, cmd->tpHdr.wBytes + sizeof(cmd->tpHdr));
 	else if (pnum != mypnum)
 		multi_recv_plrinfo_msg(pnum, cmd);
 
-	return cmd->wBytes + sizeof(*cmd);
+	return cmd->tpHdr.wBytes + sizeof(cmd->tpHdr);
 }
 
-static unsigned ON_PLRDROP(TCmd* pCmd, int pnum)
+static unsigned On_PLRDROP(TCmd* pCmd, int pnum)
 {
 	TMsgFakeDropPlr* cmd = (TMsgFakeDropPlr*)pCmd;
 
@@ -4340,7 +4340,7 @@ unsigned ParseMsg(int pnum, TCmd* pCmd)
 	case NMSG_STRING:
 		return On_STRING(pCmd, pnum);
 	case NMSG_PLRDROP:
-		return ON_PLRDROP(pCmd, pnum);
+		return On_PLRDROP(pCmd, pnum);
 	}
 
 	SNetDropPlayer(pnum);
