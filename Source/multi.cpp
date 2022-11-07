@@ -153,7 +153,7 @@ void multi_send_turn_packet()
 void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
 {
 	unsigned i, len = bLen;
-	MsgPkt pkt;
+	NormalMsgPkt pkt;
 
 	memcpy(&pkt.body[0], pbSrc, len);
 	len += sizeof(pkt.hdr);
@@ -575,7 +575,7 @@ static void RunGameServer()
 /*void multi_send_large_direct_msg(int pnum, BYTE bCmd, const BYTE* pbSrc, unsigned dwLen)
 {
 	unsigned dwOffset, dwBody, dwMsg;
-	MsgPkt pkt;
+	NormalMsgPkt pkt;
 	TMsgLargeHdr* p;
 
 	/// ASSERT: assert(pnum != mypnum);
@@ -589,7 +589,7 @@ static void RunGameServer()
 		p = (TMsgLargeHdr*)pkt.body;
 		p->bCmd = bCmd;
 		p->wOffset = static_cast<uint16_t>(dwOffset);
-		dwBody = NET_LARGE_MSG_SIZE - sizeof(pkt.hdr) - sizeof(*p);
+		dwBody = NET_NORMAL_MSG_SIZE - sizeof(pkt.hdr) - sizeof(*p);
 		if (dwLen < dwBody) {
 			dwBody = dwLen;
 		}

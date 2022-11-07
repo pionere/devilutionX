@@ -2153,7 +2153,7 @@ void NetSendCmdString(unsigned int pmask)
 	int dwStrLen;
 	TMsgString cmd;
 
-	static_assert((sizeof(gbNetMsg) + 2) <= (sizeof(MsgPkt) - sizeof(MsgPktHdr)), "String message does not fit in MsgPkt.");
+	static_assert((sizeof(gbNetMsg) + 2) <= (sizeof(NormalMsgPkt) - sizeof(MsgPktHdr)), "String message does not fit in NormalMsgPkt.");
 	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = NMSG_STRING;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);

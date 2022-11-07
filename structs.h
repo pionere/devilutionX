@@ -1877,10 +1877,10 @@ typedef struct MsgPktHdr {
 	LE_UINT16 wLen;
 } MsgPktHdr;
 
-typedef struct MsgPkt {
+typedef struct NormalMsgPkt {
 	MsgPktHdr hdr;
-	BYTE body[NET_LARGE_MSG_SIZE - sizeof(MsgPktHdr)];
-} MsgPkt;
+	BYTE body[NET_NORMAL_MSG_SIZE - sizeof(MsgPktHdr)];
+} NormalMsgPkt;
 
 typedef struct DMonsterStr {
 	BYTE dmCmd;
