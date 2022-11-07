@@ -506,6 +506,8 @@ static int GetDirection16(int x1, int y1, int x2, int y2)
 
 static void DeleteMissile(int mi, int idx)
 {
+	AddUnLight(missile[mi]._miLid);
+
 	nummissiles--;
 	assert(missileactive[idx] == mi);
 	missileactive[idx] = missileactive[nummissiles];
@@ -3512,8 +3514,7 @@ void MI_Firebolt(int mi)
 	// SetRndSeed(mis->_miRndSeed); // used by MIS_EXACIDP
 	AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, xptype, mis->_miCaster, mis->_miSource, 0);
 
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid); // TODO: unlight in a central place?
+	mis->_miDelFlag = TRUE; // + AddUnLight
 }
 
 void MI_Lightball(int mi)
@@ -3579,8 +3580,7 @@ void MI_Firewall(int mi)
 	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
+		mis->_miDelFlag = TRUE; // AddUnLight
 		return;
 	}
 	if (mis->_miDir == 0) {
@@ -3643,8 +3643,7 @@ void MI_Firewall(int mi)
 	CheckSplashCol(mi);
 
 	AddMissile(0, 0, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
+	mis->_miDelFlag = TRUE; // + AddUnLight
 }*/
 
 #ifdef HELLFIRE
@@ -3691,8 +3690,7 @@ void MI_Rune(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
+		mis->_miDelFlag = TRUE; // + AddUnLight
 		return;
 	}
 	if (--mis->_miVar3 < 0) {
@@ -3787,8 +3785,7 @@ void MI_Lightning(int mi)
 		PutMissile(mi);
 		return;
 	}
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
+	mis->_miDelFlag = TRUE; // + AddUnLight
 }
 
 void MI_BloodBoilC(int mi)
@@ -3956,8 +3953,7 @@ void MI_Portal(int mi)
 
 	mis = &missile[mi];
 	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
+		mis->_miDelFlag = TRUE; // + AddUnLight
 		return;
 	}
 	if (mis->_miDir == 0) {
@@ -4032,8 +4028,7 @@ void MI_FireWave(int mi)
 	GetMissilePos(mi);
 	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
 	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
+		mis->_miDelFlag = TRUE; // + AddUnLight
 		return;
 	}
 	if (mis->_miDir != 0) {
@@ -4128,8 +4123,7 @@ void MI_Guardian(int mi)
 		 // && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1
 		 && mis->_miAnimAdd < 0) {
 			// done after collapse
-			mis->_miDelFlag = TRUE;
-			AddUnLight(mis->_miLid);
+			mis->_miDelFlag = TRUE; // + AddUnLight
 			return;
 		}
 		break;
@@ -4228,8 +4222,7 @@ void MI_Chain(int mi)
 		PutMissile(mi);
 		return;
 	}
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
+	mis->_miDelFlag = TRUE; // + AddUnLight
 }
 
 void MI_Misexp(int mi)
@@ -4250,8 +4243,7 @@ void MI_Misexp(int mi)
 		PutMissile(mi);
 		return;
 	}
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
+	mis->_miDelFlag = TRUE; // + AddUnLight
 }
 
 void MI_MiniExp(int mi)
@@ -4272,8 +4264,7 @@ void MI_MiniExp(int mi)
 		PutMissile(mi);
 		return;
 	}
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
+	mis->_miDelFlag = TRUE; // + AddUnLight
 }
 
 void MI_LongExp(int mi)
@@ -4560,8 +4551,7 @@ void MI_Inferno(int mi)
 	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
+		mis->_miDelFlag = TRUE; // + AddUnLight
 		return;
 	}
 	k = mis->_miAnimFrame;
@@ -4661,8 +4651,7 @@ void MI_Cbolt(int mi)
 		PutMissile(mi);
 		return;
 	}
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
+	mis->_miDelFlag = TRUE; // + AddUnLight
 }
 
 void MI_Elemental(int mi)
@@ -4702,8 +4691,7 @@ void MI_Elemental(int mi)
 
 	AddMissile(0, 0, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
 
-	mis->_miDelFlag = TRUE;
-	AddUnLight(mis->_miLid);
+	mis->_miDelFlag = TRUE; // + AddUnLight
 }
 
 void MI_Resurrect(int mi)
