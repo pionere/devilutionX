@@ -18,31 +18,44 @@ DEVILUTION_BEGIN_NAMESPACE
 #endif
 static const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
 
+/** The pseudo random seeds to generate the levels. */
 uint32_t glSeedTbl[NUM_LEVELS];
+/** The X-coordinate of the mouse on the screen. */
 int MouseX;
+/** The Y-coordinate of the mouse on the screen. */
 int MouseY;
+/** Controlls whether the main game-loop should run. */
 bool gbRunGame;
+/** Specifies whether the application should go to the menu after leaving a game. */
 bool gbRunGameResult;
+/** Specifies whether the view is zoomed in. */
 bool gbZoomInFlag;
+/** Specifies whether a game should be loaded. */
 bool gbLoadGame;
+/** Specifies whether the ending cinematics should be played before the cutscene. */
 bool gbCineflag;
+/** The state of the game-logic progession. */
 BYTE gbGameLogicProgress = GLP_NONE;
+/** Specifies which part of the screen should be redrawn. */
 int gbRedrawFlags;
 bool gbGamePaused;
 /** Specifies the 'dead' state of the local player (MYPLR_DEATH_MODE). */
 BYTE gbDeathflag = MDM_ALIVE;
+/** Specifies whether the main action button is pressed. */
 bool gbActionBtnDown;
+/** Specifies whether the secondary action button is pressed. */
 bool gbAltActionBtnDown;
-static Uint32 guLastABD, guLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
+/** tick counter when the last time one of the mouse-buttons were pressed down. */
+static Uint32 guLastABD, guLastAABD;
 static int actionBtnKey, altActionBtnKey;
+/** Specifies the speed of the game. */
 int gnTicksRate = SPEED_NORMAL;
 unsigned gnTickDelay = 1000 / SPEED_NORMAL;
-/* Cursor before a timeout happened. */
+/** Cursor before a timeout happened. */
 int gnTimeoutCurs;
-
-/* rdata */
-
+/** Specifies whether the intro should be skipped at startup. */
 static bool _gbSkipIntro = false;
+/** Specifies whether the in-game tooltip is always active. */
 bool gbShowTooltip = false;
 #if DEBUG_MODE
 static_assert(MAX_LVLMTYPES >= 10, "DebugMonsters requires 10 slot for monster-types.");
@@ -1557,8 +1570,7 @@ bool StartGame(bool bSinglePlayer)
 
 	while (TRUE) {
 		if (!NetInit(bSinglePlayer)) {
-			gbRunGameResult = true;
-			break;
+			return true;
 		}
 #ifndef HOSTONLY
 		// Save 2.8 MiB of RAM by freeing all main menu resources before starting the game.
@@ -1566,15 +1578,13 @@ bool StartGame(bool bSinglePlayer)
 
 		run_game();
 		if (!gbRunGameResult)
-			break;
+			return false;
 		// If the player left the game into the main menu,
 		// initialize main menu resources.
 		UiInitialize();
 		pfile_read_hero_from_save();
 #endif
 	}
-
-	return gbRunGameResult;
 }
 
 DEVILUTION_END_NAMESPACE
