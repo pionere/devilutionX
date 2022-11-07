@@ -27,6 +27,9 @@ void play_movie(const char *pszMovie, int movieFlags)
 {
 	HANDLE video_stream;
 
+	if (gbRunGame && !gbRunGameResult)
+		return; // skip playback if in-game, but the quitting process is initiated
+
 	gbMoviePlaying = true;
 
 	sound_disable_music();
@@ -51,8 +54,13 @@ void play_movie(const char *pszMovie, int movieFlags)
 					break;
 				continue;
 			case DVL_WM_QUIT:
-				SVidPlayEnd();
-				diablo_quit(0);
+				if (gbRunGame) {
+					NetSendCmd(CMD_DISCONNECT);
+					gbRunGameResult = false;
+				} else {
+					SVidPlayEnd();
+					diablo_quit(0);
+				}
 				break;
 			default:
 				continue;

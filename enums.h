@@ -3328,7 +3328,7 @@ typedef enum turn_status {
 
 typedef enum leave_reason {
 	LEAVE_NONE,
-	LEAVE_UNKNOWN,
+	LEAVE_NORMAL,
 	LEAVE_DROP,   // was 0x40000006
 } leave_reason;
 
@@ -3668,6 +3668,7 @@ typedef enum _cmd_id {
 	CMD_TWARP,
 	CMD_RETOWN,
 	CMD_JOINLEVEL,
+	CMD_DISCONNECT,
 	CMD_INVITE,
 	CMD_ACK_INVITE,
 	CMD_DEC_INVITE,

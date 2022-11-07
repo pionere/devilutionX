@@ -104,7 +104,7 @@ static void gamemenu_previous(bool bActivate)
 static void gamemenu_new_game(bool bActivate)
 {
 	gamemenu_off();
-	gbRunGame = false;
+	NetSendCmd(CMD_DISCONNECT);
 }
 
 static void gamemenu_exit_game(bool bActivate)

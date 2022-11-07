@@ -1219,7 +1219,8 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 	//case DVL_WM_SYSCOMMAND:
 		return;
 	case DVL_WM_QUIT:
-		diablo_quit(0);
+		NetSendCmd(CMD_DISCONNECT);
+		gbRunGameResult = false;
 		return;
 	case DVL_WM_MOUSEMOVE:
 		GetMousePos(wParam);
@@ -1269,7 +1270,7 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	//		break;
 	//	/* fall-through */
 	case DVL_WM_QUIT:
-		gbRunGame = false;
+		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
 		return;
 	case DVL_WM_MOUSEMOVE:

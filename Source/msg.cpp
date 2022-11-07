@@ -3104,6 +3104,17 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
+{
+	TCmd* cmd = (TCmd*)pCmd;
+
+	multi_deactivate_player(pnum, LEAVE_NORMAL);
+	if (pnum == mypnum)
+		gbRunGame = false;
+
+	return sizeof(*cmd);
+}
+
 static void DoTelekinesis(int pnum, int x, int y, char from, int id)
 {
 	CmdSkillUse su;
@@ -4455,6 +4466,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_RETOWN(pCmd, pnum);
 	case CMD_JOINLEVEL:
 		return On_JOINLEVEL(pCmd, pnum);
+	case CMD_DISCONNECT:
+		return On_DISCONNECT(pCmd, pnum);
 	case CMD_INVITE:
 		return On_INVITE(pCmd, pnum);
 	case CMD_ACK_INVITE:

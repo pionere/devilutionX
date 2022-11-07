@@ -243,10 +243,10 @@ void multi_deactivate_player(int pnum, int reason)
 		if (reason != LEAVE_NONE) {
 			pszFmt = "Player '%s' left the game";
 			switch (reason) {
-			//case LEAVE_UNKNOWN:
+			//case LEAVE_NORMAL:
 			//	break;
 			case LEAVE_DROP:
-				pszFmt = "Player '%s' dropped due to timeout";
+				pszFmt = "Player '%s' is disconnected";
 				break;
 			}
 			EventPlrMsg(pszFmt, plr._pName);
