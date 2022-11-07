@@ -1869,7 +1869,7 @@ typedef struct TurnPktHdr {
 
 typedef struct TurnPkt {
 	TurnPktHdr hdr;
-	BYTE body[NET_NORMAL_MSG_SIZE - sizeof(TurnPktHdr)];
+	BYTE body[NET_TURN_MSG_SIZE - sizeof(TurnPktHdr)];
 } TurnPkt;
 
 typedef struct MsgPktHdr {

@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define MON_WALK_SHIFT 8
 
 // Ticks necessary to finish the current action and add the result to the delta
-// ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_NORMAL_MSG_SIZE / sizeof(TSyncMonster)))
+// ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_TURN_MSG_SIZE / sizeof(TSyncMonster)))
 #define SQUELCH_LOW					127
 #define SQUELCH_MAX					(SQUELCH_LOW + 240)
 #define OPPOSITE(x)					(((x) + 4) & 7)

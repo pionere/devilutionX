@@ -53,8 +53,8 @@
 #define MAXTRIGGERS				5
 #endif
 
-// the maximum size of normal (cmd) message
-#define NET_NORMAL_MSG_SIZE		512
+// the maximum size of turn packets
+#define NET_TURN_MSG_SIZE		512
 // the maximum size of a large (nmsg) message
 #define NET_LARGE_MSG_SIZE		512
 // the minimum size of a large message which needs to be compressed

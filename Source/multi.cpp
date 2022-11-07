@@ -135,7 +135,7 @@ void multi_send_turn_packet()
 	unsigned remsize, len;
 	TurnPkt pkt;
 
-	remsize = NET_NORMAL_MSG_SIZE - sizeof(TurnPktHdr);
+	remsize = NET_TURN_MSG_SIZE - sizeof(TurnPktHdr);
 	dstEnd = multi_add_chunks(&pkt.body[0], &remsize);
 	dstEnd = sync_all_monsters(dstEnd, remsize);
 	len = (size_t)dstEnd - (size_t)&pkt;
