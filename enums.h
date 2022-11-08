@@ -4197,6 +4197,12 @@ typedef enum movie_flag {
 	MOV_LOOP       = 1 << 1, // Playback in loop.
 } movie_flag;
 
+typedef enum movie_playback_result {
+	MPR_DONE,   // the movie is finished
+	MPR_CANCEL, // the movie is cancelled
+	MPR_QUIT,   // the user wants to leave the game
+} movie_playback_result;
+
 typedef enum _artfonts {
 	AF_SMALL,
 	AF_SMALLGRAY,

@@ -52,16 +52,18 @@ static bool mainmenu_multi_player()
 	return mainmenu_init_menu(false);
 }
 
-static void mainmenu_play_intro()
+static int mainmenu_play_intro()
 {
+	int result = MPR_DONE;
 #ifndef HOSTONLY
 	// music_stop(); -- no need to stop/start music, play_movie takes care about it
 	// Set the background to black.
 	ClearScreenBuffer();
 	scrollrt_draw_screen(false);
-	play_movie(INTRO_ARCHIVE, MOV_SKIP);
+	result = play_movie(INTRO_ARCHIVE, MOV_SKIP);
 	// mainmenu_refresh_music();
 #endif
+	return result;
 }
 
 void mainmenu_loop()
@@ -83,8 +85,8 @@ void mainmenu_loop()
 			continue;
 		case MAINMENU_ATTRACT_MODE:
 		case MAINMENU_REPLAY_INTRO:
-			if (gbWndActive)
-				mainmenu_play_intro();
+			if (gbWndActive && mainmenu_play_intro() == MPR_QUIT)
+				break;
 			continue;
 		case MAINMENU_SHOW_CREDITS:
 			UiCreditsDialog();

@@ -22,13 +22,12 @@ static void GetMousePos(WPARAM wParam)
  * @brief Start playback of a given video.
  * @param pszMovie The file name of the video
  * @param movieFlags flags to control the playback, see movie_flags enum.
+ * @return the reason why playback ended (movie_playback_result)
  */
-void play_movie(const char *pszMovie, int movieFlags)
+int play_movie(const char *pszMovie, int movieFlags)
 {
+	int result = MPR_DONE;
 	HANDLE video_stream;
-
-	if (gbRunGame && !gbRunGameResult)
-		return; // skip playback if in-game, but the quitting process is initiated
 
 	gbMoviePlaying = true;
 
@@ -46,21 +45,23 @@ void play_movie(const char *pszMovie, int movieFlags)
 				GetMousePos(Msg.wParam);
 				continue;
 			case DVL_WM_KEYDOWN:
-				if (Msg.wParam == DVL_VK_ESCAPE)
+				if (Msg.wParam == DVL_VK_ESCAPE) {
+					result = MPR_CANCEL;
 					break;
+				}
 			case DVL_WM_LBUTTONDOWN:
 			case DVL_WM_RBUTTONDOWN:
-				if (movieFlags & MOV_SKIP)
+				if (movieFlags & MOV_SKIP) {
+					result = MPR_CANCEL;
 					break;
+				}
 				continue;
 			case DVL_WM_QUIT:
 				if (gbRunGame) {
 					NetSendCmd(CMD_DISCONNECT);
 					gbRunGameResult = false;
-				} else {
-					SVidPlayEnd();
-					diablo_quit(0);
 				}
+				result = MPR_QUIT;
 				break;
 			default:
 				continue;
@@ -77,6 +78,8 @@ void play_movie(const char *pszMovie, int movieFlags)
 	sound_restart_music();
 
 	gbMoviePlaying = false;
+
+	return result;
 }
 
 DEVILUTION_END_NAMESPACE

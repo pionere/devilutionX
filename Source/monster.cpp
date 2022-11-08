@@ -2502,12 +2502,11 @@ void DoEnding()
 		, "gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk"
 #endif
 	};
-	play_movie(vicSets[myplr._pClass], 0);
-	play_movie("gendata\\Diabend.smk", 0);
-
+	if (play_movie(vicSets[myplr._pClass], 0) == MPR_DONE
+	 && play_movie("gendata\\Diabend.smk", 0) == MPR_DONE
 	// they tried to play TMUSIC_L2 in vanilla but failed, because
 	// music is stopped/paused in play_movie
-	if (!IsMultiGame) // skip movie in multiplayer games to prevent overflow due to pending turns
+	 && !IsMultiGame) // skip movie in multiplayer games to prevent overflow due to pending turns
 		play_movie("gendata\\loopdend.smk", MOV_SKIP | MOV_LOOP);
 }
 
