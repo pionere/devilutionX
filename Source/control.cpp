@@ -861,25 +861,6 @@ void InitControlPan()
 	pFlaskCels = LoadFileInMem("CtrlPan\\Flasks.CEL");;
 	assert(pChrPanelCel == NULL);
 	pChrPanelCel = CelLoadImage("Data\\Char.CEL", SPANEL_WIDTH);
-	assert(pSpellCels == NULL);
-#ifdef HELLFIRE
-	pSpellCels = CelLoadImage("Data\\SpelIcon.CEL", SPLICON_WIDTH);
-#else
-	pSpellCels = CelLoadImage("CtrlPan\\SpelIcon.CEL", SPLICON_WIDTH);
-#endif
-	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
-		for (j = 0; j < 256; j++)
-			SplTransTbl[j] = j;
-		SplTransTbl[255] = 0;
-	}*/
-	LoadFileWithMem("PlrGFX\\SNone.TRN", SkillTrns[RSPLTYPE_ABILITY]);
-	LoadFileWithMem("PlrGFX\\SBlue.TRN", SkillTrns[RSPLTYPE_SPELL]);
-	LoadFileWithMem("PlrGFX\\SRed.TRN", SkillTrns[RSPLTYPE_SCROLL]);
-	LoadFileWithMem("PlrGFX\\SOrange.TRN", SkillTrns[RSPLTYPE_CHARGES]);
-	LoadFileWithMem("PlrGFX\\SGray.TRN", SkillTrns[RSPLTYPE_INVALID]);
-#ifdef HELLFIRE
-	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[NUM_RSPLTYPES]);
-#endif
 	gnNumActiveWindows = 0;
 	gbDragWnd = WND_NONE;
 	gbInvflag = false;
@@ -909,11 +890,34 @@ void InitControlPan()
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbLvlUp = false;
 	gbSkillListFlag = false;
+	guBooktab = 0;
 	assert(pSpellBkCel == NULL);
 	pSpellBkCel = CelLoadImage("Data\\SpellBk.CEL", SPANEL_WIDTH);
 	assert(pSBkIconCels == NULL);
 	pSBkIconCels = CelLoadImage("Data\\SpellI2.CEL", SBOOK_CELWIDTH);
-	guBooktab = 0;
+	assert(pSpellCels == NULL);
+#if ASSET_MPL == 1
+	pSpellCels = pSBkIconCels;
+#else
+#ifdef HELLFIRE
+	pSpellCels = CelLoadImage("Data\\SpelIcon.CEL", SPLICON_WIDTH);
+#else
+	pSpellCels = CelLoadImage("CtrlPan\\SpelIcon.CEL", SPLICON_WIDTH);
+#endif // HELLFIRE
+#endif // ASSET_MPL == 1
+	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
+		for (j = 0; j < 256; j++)
+			SplTransTbl[j] = j;
+		SplTransTbl[255] = 0;
+	}*/
+	LoadFileWithMem("PlrGFX\\SNone.TRN", SkillTrns[RSPLTYPE_ABILITY]);
+	LoadFileWithMem("PlrGFX\\SBlue.TRN", SkillTrns[RSPLTYPE_SPELL]);
+	LoadFileWithMem("PlrGFX\\SRed.TRN", SkillTrns[RSPLTYPE_SCROLL]);
+	LoadFileWithMem("PlrGFX\\SOrange.TRN", SkillTrns[RSPLTYPE_CHARGES]);
+	LoadFileWithMem("PlrGFX\\SGray.TRN", SkillTrns[RSPLTYPE_INVALID]);
+#ifdef HELLFIRE
+	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[NUM_RSPLTYPES]);
+#endif
 	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
 	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);
@@ -1161,7 +1165,6 @@ void FreeControlPan()
 {
 	MemFreeDbg(pFlaskCels);
 	MemFreeDbg(pChrPanelCel);
-	MemFreeDbg(pSpellCels);
 	MemFreeDbg(pPanelButtonCels);
 	MemFreeDbg(pChrButtonCels);
 	MemFreeDbg(pSTextBoxCels);
@@ -1169,6 +1172,12 @@ void FreeControlPan()
 	MemFreeDbg(pTextBoxCels);
 	MemFreeDbg(pDurIconCels);
 	MemFreeDbg(pSpellBkCel);
+#if ASSET_MPL == 1
+	assert(pSpellCels == pSBkIconCels);
+	pSpellCels = NULL;
+#else
+	MemFreeDbg(pSpellCels);
+#endif
 	MemFreeDbg(pSBkIconCels);
 	MemFreeDbg(pGoldDropCel);
 }
