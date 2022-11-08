@@ -680,8 +680,8 @@ static bool HSExists(int x, int y)
 {
 	for (int r = 0; r < speedspellcount; r++) {
 		if (POS_IN_RECT(x, y,
-			speedspellscoords[r].x - SPLICONLENGTH / 2,  speedspellscoords[r].y - SPLICONLENGTH / 2,
-			SPLICONLENGTH, SPLICONLENGTH)) {
+			speedspellscoords[r].x - SPLICON_WIDTH / 2,  speedspellscoords[r].y - SPLICON_HEIGHT / 2,
+			SPLICON_WIDTH, SPLICON_HEIGHT)) {
 			return true;
 		}
 	}
@@ -700,8 +700,8 @@ static void HotSpellMove(AxisDirection dir)
 		spbslot = myplr._pAltMoveSkill;
 	for (int r = 0; r < speedspellcount; r++) {
 		if (POS_IN_RECT(MouseX, MouseY,
-			speedspellscoords[r].x - SPLICONLENGTH / 2,  speedspellscoords[r].y - SPLICONLENGTH / 2,
-			SPLICONLENGTH, SPLICONLENGTH)) {
+			speedspellscoords[r].x - SPLICON_WIDTH / 2,  speedspellscoords[r].y - SPLICON_HEIGHT / 2,
+			SPLICON_WIDTH, SPLICON_HEIGHT)) {
 			spbslot = r;
 			break;
 		}
@@ -723,12 +723,12 @@ static void HotSpellMove(AxisDirection dir)
 	}
 
 	if (dir.y == AxisDirectionY_UP) {
-		if (HSExists(x, y - SPLICONLENGTH)) {
-			y -= SPLICONLENGTH;
+		if (HSExists(x, y - SPLICON_HEIGHT)) {
+			y -= SPLICON_HEIGHT;
 		}
 	} else if (dir.y == AxisDirectionY_DOWN) {
-		if (HSExists(x, y + SPLICONLENGTH)) {
-			y += SPLICONLENGTH;
+		if (HSExists(x, y + SPLICON_HEIGHT)) {
+			y += SPLICON_HEIGHT;
 		}
 	}
 
@@ -951,9 +951,9 @@ struct RightStickAccumulator {
 
 void StoreSpellCoords()
 {
-	const int START_X = PANEL_LEFT + 12 + SPLICONLENGTH / 2;
-	const int END_X = START_X + SPLICONLENGTH * SPLROWICONLS;
-	const int END_Y = PANEL_BOTTOM - (128 + 17) - SPLICONLENGTH / 2;
+	const int START_X = PANEL_LEFT + 12 + SPLICON_WIDTH / 2;
+	const int END_X = START_X + SPLICON_WIDTH * SPLROWICONLS;
+	const int END_Y = PANEL_BOTTOM - (128 + 17) - SPLICON_HEIGHT / 2;
 	speedspellcount = 0;
 	int xo = END_X;
 	int yo = END_Y;

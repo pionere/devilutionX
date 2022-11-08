@@ -295,7 +295,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 		ASSUME_UNREACHABLE
 		return;
 	}
-	PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, true, t, FONT_KERN_SMALL);
+	PrintString(x + 4, y, x + SPLICON_WIDTH, tempstr, true, t, FONT_KERN_SMALL);
 }
 
 static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
@@ -314,9 +314,9 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 			st = RSPLTYPE_INVALID;
 	}
 	y = PANEL_Y + PANEL_HEIGHT - 1 - offset;
-	CelDrawLight(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, pSpellCels,
+	CelDrawLight(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, pSpellCels,
 		spelldata[spl].sIcon, SkillTrns[GetSpellTrans(st, spl)]);
-	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICONLENGTH, y, spl, st);
+	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, spl, st);
 }
 
 bool ToggleWindow(char idx)
@@ -363,7 +363,7 @@ void DrawSkillIcons()
 		spl = plr._pAltAtkSkill;
 		type = plr._pAltAtkSkillType;
 	}
-	DrawSkillIcon(pnum, spl, type, SPLICONLENGTH);
+	DrawSkillIcon(pnum, spl, type, SPLICON_WIDTH);
 }
 
 static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
@@ -380,7 +380,7 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
 		else
 			continue;
 		snprintf(tempstr, sizeof(tempstr), "#%d", i + 1);
-		PrintGameStr(x + offset, y - SPLICONLENGTH + 16, tempstr, col);
+		PrintGameStr(x + offset, y - SPLICON_HEIGHT + 16, tempstr, col);
 	}
 }
 
@@ -416,8 +416,8 @@ void DrawSkillList()
 	uint64_t mask;
 
 	currSkill = SPL_INVALID;
-	sx = PANEL_CENTERX(SPLICONLENGTH * SPLROWICONLS);
-	x = sx + SPLICONLENGTH * SPLROWICONLS - SPLICONLENGTH;
+	sx = PANEL_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
+	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
 	y = SCREEN_Y + PANEL_BOTTOM - (128 + 17);
 	//y = PANEL_CENTERY(190) + 190;
 	pnum = mypnum;
@@ -468,13 +468,13 @@ void DrawSkillList()
 				st = GetSpellTrans(st, j);
 			CelDrawLight(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
 			lx = x - BORDER_LEFT;
-			ly = y - BORDER_TOP - SPLICONLENGTH;
+			ly = y - BORDER_TOP - SPLICON_HEIGHT;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 			if (MoveToSkill(pnum, j, i)) {
-				SetCursorPos(lx + SPLICONLENGTH / 2, ly + SPLICONLENGTH / 2);
+				SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
 			}
 #endif
-			if (POS_IN_RECT(MouseX, MouseY, lx, ly, SPLICONLENGTH, SPLICONLENGTH)) {
+			if (POS_IN_RECT(MouseX, MouseY, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT)) {
 				//CelDrawLight(x, y, pSpellCels, c, SkillTrns[st]);
 				CelDrawLight(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
@@ -494,21 +494,21 @@ void DrawSkillList()
 					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
 					plr._pMoveSkillHotKey, plr._pMoveSkillTypeHotKey);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICONLENGTH - 18, 
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - 18, 
 					plr._pAltAtkSkillHotKey, plr._pAltAtkSkillTypeHotKey,
 					plr._pAltMoveSkillHotKey, plr._pAltMoveSkillTypeHotKey);
 			}
-			x -= SPLICONLENGTH;
-			if (x == sx - SPLICONLENGTH) {
-				x = sx + SPLICONLENGTH * SPLROWICONLS - SPLICONLENGTH;
-				y -= SPLICONLENGTH;
+			x -= SPLICON_WIDTH;
+			if (x == sx - SPLICON_WIDTH) {
+				x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
+				y -= SPLICON_HEIGHT;
 			}
 		}
-		if (j != 0 && x != sx + SPLICONLENGTH * SPLROWICONLS - SPLICONLENGTH) {
-			x -= SPLICONLENGTH;
-			if (x == sx - SPLICONLENGTH) {
-				x = sx + SPLICONLENGTH * SPLROWICONLS - SPLICONLENGTH;
-				y -= SPLICONLENGTH;
+		if (j != 0 && x != sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH) {
+			x -= SPLICON_WIDTH;
+			if (x == sx - SPLICON_WIDTH) {
+				x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
+				y -= SPLICON_HEIGHT;
 			}
 		}
 	}
@@ -863,9 +863,9 @@ void InitControlPan()
 	pChrPanelCel = CelLoadImage("Data\\Char.CEL", SPANEL_WIDTH);
 	assert(pSpellCels == NULL);
 #ifdef HELLFIRE
-	pSpellCels = CelLoadImage("Data\\SpelIcon.CEL", SPLICONLENGTH);
+	pSpellCels = CelLoadImage("Data\\SpelIcon.CEL", SPLICON_WIDTH);
 #else
-	pSpellCels = CelLoadImage("CtrlPan\\SpelIcon.CEL", SPLICONLENGTH);
+	pSpellCels = CelLoadImage("CtrlPan\\SpelIcon.CEL", SPLICON_WIDTH);
 #endif
 	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
 		for (j = 0; j < 256; j++)
@@ -1043,9 +1043,9 @@ bool TryPanBtnClick()
 		}
 	}
 	if (POS_IN_RECT(mx, my,
-		PANEL_LEFT + PANEL_WIDTH - SPLICONLENGTH,  PANEL_BOTTOM - 2 * SPLICONLENGTH,
-		SPLICONLENGTH + 1, 2 * SPLICONLENGTH + 1)) {
-		HandleSkillBtn(my < PANEL_BOTTOM - SPLICONLENGTH);
+		PANEL_LEFT + PANEL_WIDTH - SPLICON_WIDTH,  PANEL_BOTTOM - 2 * SPLICON_HEIGHT,
+		SPLICON_WIDTH + 1, 2 * SPLICON_HEIGHT + 1)) {
+		HandleSkillBtn(my < PANEL_BOTTOM - SPLICON_HEIGHT);
 		return true;
 	}
 	if (gbLvlUp && InLvlUpRect())
@@ -1715,7 +1715,7 @@ void DrawInfoStr()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		DrawTooltip2(spelldata[currSkill].sNameText, src, MouseX, MouseY - (SPLICONLENGTH / 4 + TOOLTIP_OFFSET), COL_WHITE);
+		DrawTooltip2(spelldata[currSkill].sNameText, src, MouseX, MouseY - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
@@ -1888,7 +1888,7 @@ void DrawDurIcon()
 	ItemStruct* inv;
 	int x;
 
-	x = SCREEN_X + PANEL_RIGHT - (SPLICONLENGTH + MANA_FLASK_WIDTH + DURICON_WIDTH);
+	x = SCREEN_X + PANEL_RIGHT - (SPLICON_WIDTH + MANA_FLASK_WIDTH + DURICON_WIDTH);
 
 	inv = myplr._pInvBody;
 	x = DrawDurIcon4Item(&inv[INVLOC_HEAD], x);
