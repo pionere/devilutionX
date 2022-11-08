@@ -138,11 +138,10 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 bool gbWasUiInit = false;
 bool gbSndInited = false;
 
-static void print_help_and_exit()
+static void print_help()
 {
 	printf("Options:\n");
 	printf("    %-20s %-30s\n", "-h, --help", "Print this message and exit");
-	printf("    %-20s %-30s\n", "--version", "Print the version and exit");
 	printf("    %-20s %-30s\n", "--data-dir", "Specify the folder of diabdat.mpq");
 	printf("    %-20s %-30s\n", "--save-dir", "Specify the folder of save files");
 	printf("    %-20s %-30s\n", "--config-dir", "Specify the location of diablo.ini");
@@ -160,18 +159,17 @@ static void print_help_and_exit()
 	printf("    %-20s %-30s\n", "-t <##>", "Set current quest level");
 	printf("    %-20s %-30s\n", "--allquests", "Force all quests to generate in a singleplayer game");
 #endif
-	printf("\nReport bugs at https://github.com/diasurgical/devilutionX/\n");
-	diablo_quit(0);
+	printf("\nVersion: %s. Report bugs at https://github.com/pionere/devilutionX/\n", gszProductName);
 }
 
-static void diablo_parse_flags(int argc, char **argv)
+static bool diablo_parse_flags(int argc, char **argv)
 {
-	for (int i = 1; i < argc; i++) {
+	int i;
+
+	for (i = 1; i < argc; i++) {
 		if (SDL_strcasecmp("-h", argv[i]) == 0 || SDL_strcasecmp("--help", argv[i]) == 0) {
-			print_help_and_exit();
-		} else if (SDL_strcasecmp("--version", argv[i]) == 0) {
-			printf("%s\n", gszProductName);
-			diablo_quit(0);
+			print_help();
+			break;
 		} else if (SDL_strcasecmp("--data-dir", argv[i]) == 0) {
 			SetBasePath(argv[++i]);
 		} else if (SDL_strcasecmp("--save-dir", argv[i]) == 0) {
@@ -212,9 +210,11 @@ static void diablo_parse_flags(int argc, char **argv)
 #endif
 		} else {
 			printf("unrecognized option '%s'\n", argv[i]);
-			print_help_and_exit();
+			print_help();
+			break;
 		}
 	}
+	return i >= argc;
 }
 
 static void diablo_init_screen()
@@ -320,11 +320,12 @@ static void diablo_deinit()
 
 int DiabloMain(int argc, char **argv)
 {
-	diablo_parse_flags(argc, argv);
-	diablo_init();
-	diablo_splash();
-	mainmenu_loop();
-	diablo_deinit();
+	if (diablo_parse_flags(argc, argv)) {
+		diablo_init();
+		diablo_splash();
+		mainmenu_loop();
+		diablo_deinit();
+	}
 
 	return 0;
 }
