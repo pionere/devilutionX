@@ -980,19 +980,19 @@ void StoreSpellCoords()
 			if ((spell & spells) != 0) {
 				speedspellscoords[speedspellcount] = { xo, yo };
 				++speedspellcount;
-				xo -= SPLICONLENGTH;
+				xo -= SPLICON_WIDTH;
 				if (xo < START_X) {
 					xo = END_X;
-					yo -= SPLICONLENGTH;
+					yo -= SPLICON_HEIGHT;
 				}
 			}
 			spell <<= 1;
 		}
 		if (spells != 0 && xo != END_X)
-			xo -= SPLICONLENGTH;
+			xo -= SPLICON_WIDTH;
 		if (xo < START_X) {
 			xo = END_X;
-			yo -= SPLICONLENGTH;
+			yo -= SPLICON_HEIGHT;
 		}
 	}
 }
