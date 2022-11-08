@@ -295,7 +295,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 		ASSUME_UNREACHABLE
 		return;
 	}
-	PrintString(x + 4, y, x + SPLICON_WIDTH, tempstr, true, t, FONT_KERN_SMALL);
+	PrintString(x + SPLICON_OVERX, y, x + SPLICON_WIDTH - SPLICON_OVERX, tempstr, true, t, FONT_KERN_SMALL);
 }
 
 static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
@@ -380,7 +380,7 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
 		else
 			continue;
 		snprintf(tempstr, sizeof(tempstr), "#%d", i + 1);
-		PrintGameStr(x + offset, y - SPLICON_HEIGHT + 16, tempstr, col);
+		PrintGameStr(x + offset, y - SPLICON_HEIGHT + SMALL_FONT_HEIGHT + SPLICON_OVERY, tempstr, col);
 	}
 }
 
@@ -490,11 +490,11 @@ void DrawSkillList()
 
 				DrawSpellIconOverlay(x, y, sn, st);
 
-				DrawSkillIconHotKey(x, y, sn, st, 4,
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_OVERX,
 					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
 					plr._pMoveSkillHotKey, plr._pMoveSkillTypeHotKey);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - 18, 
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), 
 					plr._pAltAtkSkillHotKey, plr._pAltAtkSkillTypeHotKey,
 					plr._pAltMoveSkillHotKey, plr._pAltMoveSkillTypeHotKey);
 			}

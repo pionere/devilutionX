@@ -77,7 +77,8 @@ extern "C" {
 #define CHRBTN_HEIGHT	22
 #define SPLICON_WIDTH	56
 #define SPLICON_HEIGHT	56
-#define SPLROWICONLS	11
+#define SPLICON_OVERX	4
+#define SPLICON_OVERY	4
 #ifdef HELLFIRE
 #define SPLICONLAST		52
 #define SPLBOOKTABS		7
