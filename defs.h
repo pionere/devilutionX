@@ -57,6 +57,8 @@
 #define NET_TURN_MSG_SIZE		512
 // the maximum size of a normal (nmsg) message
 #define NET_NORMAL_MSG_SIZE		512
+// the maximum size of a large (nmsg) message used during delta-load
+#define NET_LARGE_MSG_SIZE		0x8000
 // the minimum size of a large message which needs to be compressed
 #define NET_COMP_MSG_SIZE		256
 #define NET_DEFAULT_PORT		6112

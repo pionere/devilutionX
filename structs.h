@@ -1942,7 +1942,7 @@ typedef struct LDLevel {
 
 typedef struct DBuffer {
 	BOOLEAN compressed;
-	BYTE content[0x8000 - sizeof(BOOLEAN) - sizeof(TMsgLargeHdr) - sizeof(MsgPktHdr)];
+	BYTE content[NET_LARGE_MSG_SIZE - sizeof(BOOLEAN) - sizeof(TMsgLargeHdr) - sizeof(MsgPktHdr)];
 } DBuffer;
 
 typedef struct DeltaDataEnd {
