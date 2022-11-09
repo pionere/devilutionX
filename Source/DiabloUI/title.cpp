@@ -5,6 +5,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define TITLE_TIMEOUT_SEC 7
 CelImageBuf* gbLogoBig;
 
 static void TitleLoad()
@@ -31,7 +32,7 @@ bool UiTitleDialog()
 	TitleLoad();
 
 	int endMenu = 0;
-	Uint32 timeOut = SDL_GetTicks() + 7000;
+	Uint32 timeOut = SDL_GetTicks() + TITLE_TIMEOUT_SEC * 1000;
 
 	SDL_Event event;
 	do {

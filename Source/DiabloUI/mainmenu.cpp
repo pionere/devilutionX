@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static const int ATTRACT_TIMEOUT = 30; //seconds
+#define ATTRACT_TIMEOUT_SEC 30
 static Uint32 guAttractTc;
 
 static int _gnMainMenuResult;
@@ -29,7 +29,7 @@ static void MainmenuEsc()
 
 void mainmenu_restart_repintro()
 {
-	guAttractTc = SDL_GetTicks() + ATTRACT_TIMEOUT * 1000;
+	guAttractTc = SDL_GetTicks() + ATTRACT_TIMEOUT_SEC * 1000;
 }
 
 static void MainmenuLoad()
