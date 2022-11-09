@@ -155,8 +155,7 @@ bool UiSelectProvider(bool bMulti)
 	}
 
 	while (!selconn_EndMenu) {
-		UiClearScreen();
-		UiRenderAndPoll();
+		UiRenderAndPoll(NULL);
 	}
 	SelconnFree();
 

@@ -69,9 +69,7 @@ void UiSelOkDialog(const char* title, const char* body)
 
 	_gbSelokEndMenu = false;
 	do {
-		UiClearScreen();
-		//UiRenderItems(gUiItems);
-		UiRenderAndPoll();
+		UiRenderAndPoll(NULL);
 	} while (!_gbSelokEndMenu);
 
 	SelokFree();

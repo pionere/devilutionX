@@ -568,8 +568,11 @@ void UiClearScreen()
 		SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 }
 
-void UiRenderAndPoll()
+void UiRenderAndPoll(std::vector<UiItemBase *>* addUiItems)
 {
+	UiClearScreen();
+	if (addUiItems != NULL)
+		UiRenderItems(*addUiItems);
 	UiRenderItems(gUiItems);
 	UiFadeIn(true);
 
