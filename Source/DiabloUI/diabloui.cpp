@@ -220,8 +220,18 @@ static void UiSetName(char* inBuf)
 static bool HandleMenuAction(MenuAction menuAction)
 {
 	switch (menuAction) {
+	case MenuAction_NONE:
+		break;
 	case MenuAction_SELECT:
 		UiFocusNavigationSelect();
+		return true;
+	case MenuAction_BACK:
+		if (gfnListEsc == NULL)
+			break;
+		UiFocusNavigationEsc();
+		return true;
+	case MenuAction_DELETE:
+		UiFocusNavigationYesNo();
 		return true;
 	case MenuAction_UP:
 		UiFocusUp();
@@ -229,26 +239,22 @@ static bool HandleMenuAction(MenuAction menuAction)
 	case MenuAction_DOWN:
 		UiFocusDown();
 		return true;
+	case MenuAction_LEFT:
+	case MenuAction_RIGHT:
+		break;
 	case MenuAction_PAGE_UP:
 		UiFocusPageUp();
 		return true;
 	case MenuAction_PAGE_DOWN:
 		UiFocusPageDown();
 		return true;
-	case MenuAction_DELETE:
-		UiFocusNavigationYesNo();
-		return true;
-	case MenuAction_BACK:
-		if (gfnListEsc == NULL)
-			return false;
-		UiFocusNavigationEsc();
-		return true;
 	default:
-		return false;
+		ASSUME_UNREACHABLE
 	}
+	return false;
 }
 
-static void UiFocusNavigation(SDL_Event* event)
+static void UiHandleItemEvents(SDL_Event* event)
 {
 	/*switch (event->type) {
 	case SDL_KEYUP:
@@ -367,28 +373,31 @@ void UiHandleEvents(SDL_Event *event)
 		return;
 	}
 
-	if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_RETURN) {
-		if (GetAsyncKeyState(DVL_VK_MENU)) {
+	if (event->type == SDL_KEYDOWN) {
+		if (event->key.keysym.sym == SDLK_RETURN && GetAsyncKeyState(DVL_VK_MENU)) {
 			ToggleFullscreen();
-			return;
 		}
+		return;
 	}
 
-	if (event->type == SDL_QUIT)
+	if (event->type == SDL_QUIT) {
 		diablo_quit(0);
+		return;
+	}
 
 #ifndef USE_SDL1
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	HandleControllerAddedOrRemovedEvent(*event);
-#endif
-
 	if (event->type == SDL_WINDOWEVENT) {
 		if (event->window.event == SDL_WINDOWEVENT_SHOWN)
 			gbWndActive = true;
 		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN)
 			gbWndActive = false;
+		return;
 	}
+
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	HandleControllerAddedOrRemovedEvent(*event);
 #endif
+#endif // !USE_SDL1
 }
 
 void UiFocusNavigationSelect()
@@ -578,7 +587,7 @@ void UiRenderAndPoll(std::vector<UiItemBase *>* addUiItems)
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0) {
-		UiFocusNavigation(&event);
+		UiHandleItemEvents(&event);
 		UiHandleEvents(&event);
 	}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
