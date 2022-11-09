@@ -81,7 +81,7 @@ int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt))
 	_gnMainMenuResult = NUM_MAINMENU;
 	do {
 		UiClearScreen();
-		UiPollAndRender();
+		UiRenderAndPoll();
 		if (SDL_GetTicks() >= guAttractTc) {
 			_gnMainMenuResult = MAINMENU_ATTRACT_MODE;
 		}

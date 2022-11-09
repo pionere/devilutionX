@@ -568,7 +568,7 @@ void UiClearScreen()
 		SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 }
 
-void UiPollAndRender()
+void UiRenderAndPoll()
 {
 	UiRenderItems(gUiItems);
 	UiFadeIn(true);

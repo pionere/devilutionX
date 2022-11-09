@@ -487,7 +487,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 		do {
 			UiClearScreen();
 			UiRenderItems(vecSelHeroDialog);
-			UiPollAndRender();
+			UiRenderAndPoll();
 		} while (!selhero_endMenu && !selhero_navigateYesNo);
 		SelheroFree();
 
