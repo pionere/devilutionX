@@ -26,11 +26,11 @@ static void TitleFree()
 	UiClearItems(gUiItems);
 }
 
-void UiTitleDialog()
+bool UiTitleDialog()
 {
 	TitleLoad();
 
-	bool endMenu = false;
+	int endMenu = 0;
 	Uint32 timeOut = SDL_GetTicks() + 7000;
 
 	SDL_Event event;
@@ -40,20 +40,24 @@ void UiTitleDialog()
 
 		while (SDL_PollEvent(&event) != 0) {
 			if (GetMenuAction(event) != MenuAction_NONE) {
-				endMenu = true;
+				endMenu = 1;
 				break;
 			}
-			switch (event.type) {
-			case SDL_KEYDOWN:
-			case SDL_MOUSEBUTTONDOWN:
-				endMenu = true;
+			if (event.type == SDL_KEYDOWN || event.type == SDL_MOUSEBUTTONDOWN) {
+				endMenu = 1;
+				break;
+			}
+			if (event.type == SDL_QUIT) {
+				endMenu = 2;
 				break;
 			}
 			UiHandleEvents(&event);
 		}
-	} while (!endMenu && SDL_GetTicks() < timeOut);
+	} while (endMenu == 0 && SDL_GetTicks() < timeOut);
 
 	TitleFree();
+
+	return endMenu != 2;
 }
 
 DEVILUTION_END_NAMESPACE

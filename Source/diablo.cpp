@@ -279,21 +279,17 @@ static void diablo_init()
 	InitControls();
 }
 
-static void diablo_splash()
+static bool diablo_splash()
 {
-#ifndef HOSTONLY
-	if (_gbSkipIntro)
-		return;
-
-	play_movie("gendata\\logo.smk", MOV_SKIP);
-
-	if (getIniBool("Diablo", "Intro", true)) {
-		play_movie(INTRO_ARCHIVE, MOV_SKIP);
+	if (play_movie("gendata\\logo.smk", MOV_SKIP) == MPR_QUIT)
+		return false;
+	 if (getIniBool("Diablo", "Intro", true)) {
 		setIniInt("Diablo", "Intro", false);
+		if (play_movie(INTRO_ARCHIVE, MOV_SKIP) == MPR_QUIT)
+			return false;
 	}
 
-	UiTitleDialog();
-#endif
+	return UiTitleDialog();
 }
 
 static void diablo_deinit()
@@ -322,8 +318,10 @@ int DiabloMain(int argc, char **argv)
 {
 	if (diablo_parse_flags(argc, argv)) {
 		diablo_init();
-		diablo_splash();
-		mainmenu_loop();
+#ifndef HOSTONLY
+		if (!_gbSkipIntro && diablo_splash())
+#endif
+			mainmenu_loop();
 		diablo_deinit();
 	}
 
