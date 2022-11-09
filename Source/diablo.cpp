@@ -1269,8 +1269,11 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	//		break;
 	//	/* fall-through */
 	case DVL_WM_QUIT:
+		if (gmenu_is_active())
+			gamemenu_off();
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
+		gbGamePaused = false;
 		return;
 	case DVL_WM_MOUSEMOVE:
 		GetMousePos(wParam);
