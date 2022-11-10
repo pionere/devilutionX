@@ -11,6 +11,18 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+static bool _gbCreditsEnd;
+
+static void CreditsEsc()
+{
+	_gbCreditsEnd = true;
+}
+
+static void CreditsSelect(unsigned index)
+{
+	_gbCreditsEnd = true;
+}
+
 static bool CreditsRender(int offsetY)
 {
 	BYTE *pStart, *pEnd;
@@ -49,13 +61,15 @@ static bool CreditsRender(int offsetY)
 
 void UiCreditsDialog()
 {
-	bool endMenu = false;
 	Uint32 ticks_begin_;
 	int prev_offset_y_ = 0;
 
 	LoadBackgroundArt("ui_art\\credits.CEL", "ui_art\\credits.pal");
 	UiAddBackground(&gUiItems);
+	UiInitList(0, NULL, CreditsSelect, CreditsEsc);
 	ticks_begin_ = SDL_GetTicks();
+
+	_gbCreditsEnd = false;
 
 	SDL_Event event;
 	do {
@@ -66,24 +80,9 @@ void UiCreditsDialog()
 
 		UiFadeIn(false);
 		while (SDL_PollEvent(&event) != 0) {
-			switch (event.type) {
-			case SDL_KEYDOWN:
-			case SDL_MOUSEBUTTONDOWN:
-				endMenu = true;
-				break;
-			default:
-				switch (GetMenuAction(event)) {
-				case MenuAction_BACK:
-				case MenuAction_SELECT:
-					endMenu = true;
-					break;
-				default:
-					break;
-				}
-			}
 			UiHandleEvents(&event);
 		}
-	} while (!endMenu);
+	} while (!_gbCreditsEnd);
 
 	MemFreeDbg(gbBackCel);
 	UiClearItems(gUiItems);

@@ -16,7 +16,12 @@ static CelImageBuf* gbProgEmptyCel;
 static BYTE* gbProgFillBmp;
 static int _gnProgress;
 
-static void DialogActionCancel()
+static void ProgressEsc()
+{
+	_gnProgress = PROGRESS_CANCEL;
+}
+
+static void ProgressSelect(unsigned index)
 {
 	_gnProgress = PROGRESS_CANCEL;
 }
@@ -44,7 +49,9 @@ static void ProgressLoad(const char *msg)
 	SDL_Rect rect1 = { PANEL_LEFT, y + 20, PANEL_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
 	SDL_Rect rect2 = { PANEL_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
-	gUiItems.push_back(new UiButton("Cancel", &DialogActionCancel, rect2));
+	gUiItems.push_back(new UiButton("Cancel", &ProgressEsc, rect2));
+
+	UiInitList(0, NULL, ProgressSelect, ProgressEsc);
 }
 
 static void ProgressFree()
@@ -94,22 +101,6 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 		UiFadeIn(true);
 
 		while (SDL_PollEvent(&event) != 0) {
-			switch (event.type) {
-			case SDL_MOUSEBUTTONDOWN:
-			case SDL_MOUSEBUTTONUP:
-				UiItemMouseEvents(&event);
-				break;
-			default:
-				switch (GetMenuAction(event)) {
-				case MenuAction_BACK:
-				case MenuAction_SELECT:
-					_gnProgress = PROGRESS_CANCEL;
-					break;
-				default:
-					break;
-				}
-				break;
-			}
 			UiHandleEvents(&event);
 		}
 	} while (_gnProgress < 100);

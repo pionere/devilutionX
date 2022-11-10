@@ -339,8 +339,10 @@ static void UiHandleItemEvents(SDL_Event* event)
 	}
 }
 
-void UiHandleEvents(SDL_Event *event)
+void UiHandleEvents(SDL_Event* event)
 {
+	UiHandleItemEvents(event);
+
 	if (event->type == SDL_MOUSEMOTION) {
 #ifdef USE_SDL1
 		OutputToLogical(&event->motion.x, &event->motion.y);
@@ -564,7 +566,6 @@ void UiRenderAndPoll(std::vector<UiItemBase *>* addUiItems)
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0) {
-		UiHandleItemEvents(&event);
 		UiHandleEvents(&event);
 	}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

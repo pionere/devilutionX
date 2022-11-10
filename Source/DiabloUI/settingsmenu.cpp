@@ -20,6 +20,8 @@ void UiSettingsDialog()
 		else if (gnTicksRate > SPEED_FASTEST)
 			gnTicksRate = SPEED_FASTEST;
 	}
+	// initialize the UI
+	UiInitList(0);
 	// initialize gamemenu
 	InitGMenu();
 	gamemenu_settings(true);
