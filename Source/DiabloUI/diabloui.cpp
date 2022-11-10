@@ -57,7 +57,7 @@ struct ScrollBarState {
 };
 ScrollBarState scrollBarState;
 
-void UiInitList(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)())
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)())
 {
 	SelectedItem = 0;
 	SelectedItemMax = listSize != 0 ? listSize - 1 : 0;
@@ -102,18 +102,6 @@ void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize)
 	scrollBarState.upPressCounter = -1;
 	scrollBarState.downPressCounter = -1;
 }
-
-/*void UiInitList_clear()
-{
-	SelectedItem = 0;
-	SelectedItemMax = 0;
-	ListViewportSize = 1;
-	gfnListFocus = NULL;
-	gfnListSelect = NULL;
-	gfnListEsc = NULL;
-	gfnListYesNo = NULL;
-	gUiItems->clear();
-}*/
 
 static void UiPlayMoveSound()
 {
@@ -333,7 +321,6 @@ void UiInitialize()
 void UiDestroy()
 {
 	UnloadUiGFX();
-	//UiInitList_clear();
 }
 
 void LoadBackgroundArt(const char* pszFile, const char* palette)

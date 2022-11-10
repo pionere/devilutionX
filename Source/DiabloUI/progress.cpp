@@ -51,7 +51,7 @@ static void ProgressLoad(const char *msg)
 	SDL_Rect rect2 = { PANEL_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiButton("Cancel", &ProgressEsc, rect2));
 
-	UiInitList(0, NULL, ProgressSelect, ProgressEsc);
+	UiInitScreen(0, NULL, ProgressSelect, ProgressEsc);
 }
 
 static void ProgressFree()

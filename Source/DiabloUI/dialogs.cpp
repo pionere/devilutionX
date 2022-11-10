@@ -200,7 +200,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		gUiItems.push_back(new UiButton("OK", &DialogEsc, rect4));
 	//}
 
-	UiInitList(0, NULL, DialogSelect, DialogEsc);
+	UiInitScreen(0, NULL, DialogSelect, DialogEsc);
 }
 
 static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)

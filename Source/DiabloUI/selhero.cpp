@@ -143,8 +143,6 @@ static void SelheroFree()
 	UiClearItems(vecSelHeroDialog);
 
 	SelheroFreeDlgItems();
-
-	//UiInitList_clear();
 }
 
 static void SelheroSetStats()
@@ -281,7 +279,7 @@ static void SelheroListInit()
 	SDL_Rect rect6 = { SELHERO_RPANEL_LEFT + 2 * SELHERO_RPANEL_WIDTH / 3, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 3, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo);
+	UiInitScreen(selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo);
 	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS);
 	snprintf(selhero_title, sizeof(selhero_title), "%s Player Characters", selconn_bMulti ? "Multi" : "Single");
 }
@@ -354,7 +352,7 @@ static void SelheroListSelect(unsigned index)
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == NUM_CLASSES);
-		UiInitList(NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
+		UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
 		memset(&selhero_heroInfo.hiName, 0, sizeof(selhero_heroInfo.hiName));
 		snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 		return;
@@ -378,7 +376,7 @@ static void SelheroListSelect(unsigned index)
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == 2);
-		UiInitList(2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit);
+		UiInitScreen(2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit);
 		copy_cstr(selhero_title, "Single Player Characters");
 		return;
 	}
@@ -415,7 +413,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(0, NULL, SelheroNameSelect, SelheroNameEsc);
+	UiInitScreen(0, NULL, SelheroNameSelect, SelheroNameEsc);
 }
 
 static void SelheroNameSelect(unsigned index)
@@ -446,7 +444,6 @@ static void SelheroNameSelect(unsigned index)
 
 	MemFreeDbg(gbBackCel);
 	SelheroFreeDlgItems();
-	//UiInitList_clear();
 	UiSelOkDialog(selhero_title, err);
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 	SelheroClassSelectorSelect(0);

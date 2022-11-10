@@ -66,7 +66,7 @@ void UiCreditsDialog()
 
 	LoadBackgroundArt("ui_art\\credits.CEL", "ui_art\\credits.pal");
 	UiAddBackground(&gUiItems);
-	UiInitList(0, NULL, CreditsSelect, CreditsEsc);
+	UiInitScreen(0, NULL, CreditsSelect, CreditsEsc);
 	ticks_begin_ = SDL_GetTicks();
 
 	_gbCreditsEnd = false;

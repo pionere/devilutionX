@@ -21,7 +21,7 @@ void UiSettingsDialog()
 			gnTicksRate = SPEED_FASTEST;
 	}
 	// initialize the UI
-	UiInitList(0);
+	UiInitScreen(0);
 	// initialize gamemenu
 	InitGMenu();
 	gamemenu_settings(true);

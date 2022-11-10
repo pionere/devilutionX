@@ -48,7 +48,7 @@ static void MainmenuLoad()
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
-	UiInitList(numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
+	UiInitScreen(numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
 }
 
 static void MainmenuFree()
@@ -58,8 +58,6 @@ static void MainmenuFree()
 	UiClearItems(gUiItems);
 
 	UiClearListItems();
-
-	//UiInitList_clear();
 }
 
 int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt))

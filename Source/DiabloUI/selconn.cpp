@@ -120,7 +120,7 @@ static void SelconnLoad()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(numOptions == gUIListItems.size());
-	UiInitList(numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
+	UiInitScreen(numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
 }
 
 static void SelconnFree()
@@ -129,8 +129,6 @@ static void SelconnFree()
 	UiClearListItems();
 
 	UiClearItems(gUiItems);
-
-	//UiInitList_clear();
 }
 
 static void SelconnSelect(unsigned index)
