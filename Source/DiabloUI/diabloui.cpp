@@ -254,131 +254,6 @@ static bool HandleMenuAction(MenuAction menuAction)
 	return false;
 }
 
-static void UiHandleItemEvents(SDL_Event* event)
-{
-	if (HandleMenuAction(GetMenuAction(*event)))
-		return;
-
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	if (event->type == SDL_MOUSEWHEEL) {
-		if (event->wheel.y > 0) {
-			UiFocusUp();
-		} else if (event->wheel.y < 0) {
-			UiFocusDown();
-		}
-		return;
-	}
-#else
-	if (event->type == SDL_MOUSEBUTTONDOWN) {
-		switch (event->button.button) {
-		case SDL_BUTTON_WHEELUP:
-			UiFocusUp();
-			return;
-		case SDL_BUTTON_WHEELDOWN:
-			UiFocusDown();
-			return;
-		}
-	}
-#endif
-	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-		UiItemMouseEvents(event);
-		return;
-	}
-
-	if (gUiEditField != NULL) {
-		switch (event->type) {
-		case SDL_KEYDOWN: {
-			switch (event->key.keysym.sym) {
-#ifndef USE_SDL1
-			case SDLK_v:
-				if (SDL_GetModState() & KMOD_CTRL) {
-					char *clipboard = SDL_GetClipboardText();
-					if (clipboard != NULL) {
-						UiCatToName(clipboard);
-						SDL_free(clipboard);
-					}
-				}
-				return;
-#endif
-			case SDLK_BACKSPACE:
-			case SDLK_LEFT: {
-				int nameLen = strlen(gUiEditField->m_value);
-				if (nameLen > 0) {
-					gUiEditField->m_value[nameLen - 1] = '\0';
-				}
-				return;
-			}
-			default:
-				break;
-			}
-#ifdef USE_SDL1
-			if ((event->key.keysym.mod & KMOD_CTRL) == 0) {
-				Uint16 unicode = event->key.keysym.unicode;
-				if (unicode && (unicode & 0xFF80) == 0) {
-					char utf8[SDL_TEXTINPUTEVENT_TEXT_SIZE];
-					utf8[0] = (char)unicode;
-					utf8[1] = '\0';
-					UiCatToName(utf8);
-				}
-			}
-#endif
-			break;
-		}
-#ifndef USE_SDL1
-		case SDL_TEXTINPUT:
-#ifdef __vita__
-			UiSetName(event->text.text);
-#else
-			UiCatToName(event->text.text);
-#endif
-			return;
-#endif
-		default:
-			break;
-		}
-	}
-}
-
-void UiHandleEvents(SDL_Event* event)
-{
-	UiHandleItemEvents(event);
-
-	if (event->type == SDL_MOUSEMOTION) {
-#ifdef USE_SDL1
-		OutputToLogical(&event->motion.x, &event->motion.y);
-#endif
-		MouseX = event->motion.x;
-		MouseY = event->motion.y;
-		return;
-	}
-
-	if (event->type == SDL_KEYDOWN) {
-		if (event->key.keysym.sym == SDLK_RETURN && GetAsyncKeyState(DVL_VK_MENU)) {
-			ToggleFullscreen();
-		}
-		return;
-	}
-
-	if (event->type == SDL_QUIT) {
-		diablo_quit(0);
-		return;
-	}
-
-#ifndef USE_SDL1
-	if (event->type == SDL_WINDOWEVENT) {
-		if (event->window.event == SDL_WINDOWEVENT_SHOWN)
-			gbWndActive = true;
-		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN)
-			gbWndActive = false;
-		return;
-	}
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	HandleControllerAddedOrRemovedEvent(*event);
-#endif
-#endif // !USE_SDL1
-}
-
 void UiFocusNavigationSelect()
 {
 	UiPlaySelectSound();
@@ -801,9 +676,149 @@ static bool HandleMouseEvent(const SDL_Event &event, UiItemBase* item)
 	}
 }
 
-static void HandleGlobalMouseUpButton(UiButton* button)
+void UiHandleEvents(SDL_Event* event)
 {
-	button->m_pressed = false;
+	if (HandleMenuAction(GetMenuAction(*event)))
+		return;
+
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+	if (event->type == SDL_MOUSEWHEEL) {
+		if (event->wheel.y > 0) {
+			UiFocusUp();
+		} else if (event->wheel.y < 0) {
+			UiFocusDown();
+		}
+		return;
+	}
+#else
+	if (event->type == SDL_MOUSEBUTTONDOWN) {
+		switch (event->button.button) {
+		case SDL_BUTTON_WHEELUP:
+			UiFocusUp();
+			return;
+		case SDL_BUTTON_WHEELDOWN:
+			UiFocusDown();
+			return;
+		}
+	}
+#endif
+	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
+		if (event->button.button != SDL_BUTTON_LEFT)
+			return; // false;
+
+	// In SDL2 mouse events already use logical coordinates.
+#ifdef USE_SDL1
+		OutputToLogical(&event->button.x, &event->button.y);
+#endif
+
+		//bool handled = false;
+		for (unsigned i = 0; i < gUiItems.size(); i++) {
+			if (HandleMouseEvent(*event, gUiItems[i])) {
+				//handled = true;
+				break;
+			}
+		}
+
+		if (event->type == SDL_MOUSEBUTTONUP) {
+			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
+			for (unsigned i = 0; i < gUiItems.size(); i++) {
+				UiItemBase *item = gUiItems[i];
+				if (item->m_type == UI_BUTTON)
+					static_cast<UiButton *>(item)->m_pressed = false;
+			}
+		}
+
+		//return handled;
+		return;
+	}
+
+	if (gUiEditField != NULL) {
+		switch (event->type) {
+		case SDL_KEYDOWN: {
+			switch (event->key.keysym.sym) {
+#ifndef USE_SDL1
+			case SDLK_v:
+				if (SDL_GetModState() & KMOD_CTRL) {
+					char *clipboard = SDL_GetClipboardText();
+					if (clipboard != NULL) {
+						UiCatToName(clipboard);
+						SDL_free(clipboard);
+					}
+				}
+				return;
+#endif
+			case SDLK_BACKSPACE:
+			case SDLK_LEFT: {
+				int nameLen = strlen(gUiEditField->m_value);
+				if (nameLen > 0) {
+					gUiEditField->m_value[nameLen - 1] = '\0';
+				}
+				return;
+			}
+			default:
+				break;
+			}
+#ifdef USE_SDL1
+			if ((event->key.keysym.mod & KMOD_CTRL) == 0) {
+				Uint16 unicode = event->key.keysym.unicode;
+				if (unicode && (unicode & 0xFF80) == 0) {
+					char utf8[SDL_TEXTINPUTEVENT_TEXT_SIZE];
+					utf8[0] = (char)unicode;
+					utf8[1] = '\0';
+					UiCatToName(utf8);
+				}
+			}
+#endif
+			break;
+		}
+#ifndef USE_SDL1
+		case SDL_TEXTINPUT:
+#ifdef __vita__
+			UiSetName(event->text.text);
+#else
+			UiCatToName(event->text.text);
+#endif
+			return;
+#endif
+		default:
+			break;
+		}
+	}
+
+	if (event->type == SDL_MOUSEMOTION) {
+#ifdef USE_SDL1
+		OutputToLogical(&event->motion.x, &event->motion.y);
+#endif
+		MouseX = event->motion.x;
+		MouseY = event->motion.y;
+		return;
+	}
+
+	if (event->type == SDL_KEYDOWN) {
+		if (event->key.keysym.sym == SDLK_RETURN && GetAsyncKeyState(DVL_VK_MENU)) {
+			ToggleFullscreen();
+		}
+		return;
+	}
+
+	if (event->type == SDL_QUIT) {
+		diablo_quit(0);
+		return;
+	}
+
+#ifndef USE_SDL1
+	if (event->type == SDL_WINDOWEVENT) {
+		if (event->window.event == SDL_WINDOWEVENT_SHOWN)
+			gbWndActive = true;
+		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN)
+			gbWndActive = false;
+		return;
+	}
+
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	HandleControllerAddedOrRemovedEvent(*event);
+#endif
+#endif // !USE_SDL1
 }
 
 void UiRenderItems(const std::vector<UiItemBase *> &uiItems)
@@ -829,36 +844,6 @@ void UiClearListItems()
 		delete pUIItem;
 	}
 	gUIListItems.clear();
-}
-
-void UiItemMouseEvents(SDL_Event* event)
-{
-	if (event->button.button != SDL_BUTTON_LEFT)
-		return; // false;
-
-	// In SDL2 mouse events already use logical coordinates.
-#ifdef USE_SDL1
-	OutputToLogical(&event->button.x, &event->button.y);
-#endif
-
-	//bool handled = false;
-	for (unsigned i = 0; i < gUiItems.size(); i++) {
-		if (HandleMouseEvent(*event, gUiItems[i])) {
-			//handled = true;
-			break;
-		}
-	}
-
-	if (event->type == SDL_MOUSEBUTTONUP) {
-		scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
-		for (unsigned i = 0; i < gUiItems.size(); i++) {
-			UiItemBase *item = gUiItems[i];
-			if (item->m_type == UI_BUTTON)
-				HandleGlobalMouseUpButton(static_cast<UiButton *>(item));
-		}
-	}
-
-	//return handled;
 }
 
 DEVILUTION_END_NAMESPACE

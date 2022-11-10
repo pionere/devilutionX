@@ -47,7 +47,6 @@ inline SDL_Surface* DiabloUiSurface()
 
 void UiFadeIn(bool draw_cursor);
 void UiHandleEvents(SDL_Event* event);
-void UiItemMouseEvents(SDL_Event* event);
 void LoadBackgroundArt(const char* pszFile, const char* palette);
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
 void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
