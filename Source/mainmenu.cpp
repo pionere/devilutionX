@@ -83,9 +83,8 @@ void mainmenu_loop()
 		case MAINMENU_SETTINGS:
 			UiSettingsDialog();
 			continue;
-		case MAINMENU_ATTRACT_MODE:
 		case MAINMENU_REPLAY_INTRO:
-			if (gbWndActive && mainmenu_play_intro() == MPR_QUIT)
+			if (mainmenu_play_intro() == MPR_QUIT)
 				break;
 			continue;
 		case MAINMENU_SHOW_CREDITS:

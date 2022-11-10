@@ -256,29 +256,6 @@ static bool HandleMenuAction(MenuAction menuAction)
 
 static void UiHandleItemEvents(SDL_Event* event)
 {
-	/*switch (event->type) {
-	case SDL_KEYUP:
-	case SDL_MOUSEBUTTONUP:
-	case SDL_MOUSEMOTION:
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	case SDL_MOUSEWHEEL:
-#endif
-	case SDL_JOYBUTTONUP:
-	case SDL_JOYAXISMOTION:
-	case SDL_JOYBALLMOTION:
-	case SDL_JOYHATMOTION:
-#ifndef USE_SDL1
-	case SDL_FINGERUP:
-	case SDL_FINGERMOTION:
-	case SDL_CONTROLLERBUTTONUP:
-	case SDL_CONTROLLERAXISMOTION:
-	case SDL_WINDOWEVENT:
-#endif
-	case SDL_SYSWMEVENT:*/
-		mainmenu_restart_repintro();
-	//	break;
-	//}
-
 	if (HandleMenuAction(GetMenuAction(*event)))
 		return;
 

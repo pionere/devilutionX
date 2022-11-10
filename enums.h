@@ -3770,7 +3770,6 @@ typedef enum _mainmenu_selections {
 	MAINMENU_REPLAY_INTRO,
 	MAINMENU_SHOW_CREDITS,
 	MAINMENU_EXIT_DIABLO,
-	MAINMENU_ATTRACT_MODE,
 	NUM_MAINMENU,
 } _mainmenu_selections;
 

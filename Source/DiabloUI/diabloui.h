@@ -64,9 +64,6 @@ void UiClearListItems();
 //void UiInitList_clear();
 int GetAnimationFrame(int frames, int animFrameLenMs = 64);
 
-/* Defined in mainmenu.cpp */
-void mainmenu_restart_repintro();
-
 #ifdef __cplusplus
 }
 #endif

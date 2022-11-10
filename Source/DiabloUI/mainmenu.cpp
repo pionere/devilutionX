@@ -7,9 +7,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define ATTRACT_TIMEOUT_SEC 30
-static Uint32 guAttractTc;
-
 static int _gnMainMenuResult;
 
 static void UiMainMenuSelect(unsigned index)
@@ -25,11 +22,6 @@ static void MainmenuEsc()
 	} else {
 		SelectedItem = last;
 	}
-}
-
-void mainmenu_restart_repintro()
-{
-	guAttractTc = SDL_GetTicks() + ATTRACT_TIMEOUT_SEC * 1000;
 }
 
 static void MainmenuLoad()
@@ -76,14 +68,9 @@ int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt))
 
 	MainmenuLoad();
 
-	mainmenu_restart_repintro(); // for automatic starts
-
 	_gnMainMenuResult = NUM_MAINMENU;
 	do {
 		UiRenderAndPoll(NULL);
-		if (SDL_GetTicks() >= guAttractTc) {
-			_gnMainMenuResult = MAINMENU_ATTRACT_MODE;
-		}
 	} while (_gnMainMenuResult == NUM_MAINMENU);
 
 	MainmenuFree();
