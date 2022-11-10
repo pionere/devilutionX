@@ -547,6 +547,9 @@ static void Render(const UiEdit* uiEdit)
 
 static void RenderItem(UiItemBase* item)
 {
+	if (item->m_iFlags & UIS_HIDDEN)
+		return;
+
 	switch (item->m_type) {
 	case UI_TEXT:
 		Render(static_cast<UiText *>(item));
@@ -585,12 +588,12 @@ static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiTxtBut
 
 static bool HandleMouseEventButton(const SDL_Event &event, UiButton* button)
 {
-	if (event.type == SDL_MOUSEBUTTONDOWN)
+	if (event.type == SDL_MOUSEBUTTONDOWN) {
 		button->m_pressed = true;
-	else if (event.type == SDL_MOUSEBUTTONUP)
+	} else {
+		// assert(event.type == SDL_MOUSEBUTTONUP);
 		button->m_action();
-	else
-		return false;
+	}
 	return true;
 }
 
@@ -626,36 +629,36 @@ static bool HandleMouseEventList(const SDL_Event &event, UiList* uiList)
 
 static bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar* uiSb)
 {
-	if (event.type == SDL_MOUSEBUTTONDOWN) {
-		int y = event.button.y - uiSb->m_rect.y;
-		if (y >= uiSb->m_rect.h - SCROLLBAR_ARROW_HEIGHT) {
-			// down arrow
-			//scrollBarState.downArrowPressed = true;
-			scrollBarState.downPressCounter--;
-			if (scrollBarState.downPressCounter < 0) {
-				scrollBarState.downPressCounter = 2;
-				UiFocusDown();
-			}
-		} else if (y < SCROLLBAR_ARROW_HEIGHT) {
-			// up arrow
-			//scrollBarState.upArrowPressed = true;
-			scrollBarState.upPressCounter--;
-			if (scrollBarState.upPressCounter < 0) {
-				scrollBarState.upPressCounter = 2;
-				UiFocusUp();
-			}
-		} else {
-			// Scroll up or down based on thumb position.
-			const SDL_Rect thumbRect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
-			if (event.button.y < thumbRect.y) {
-				UiFocusPageUp();
-			} else if (event.button.y > thumbRect.y + thumbRect.h) {
-				UiFocusPageDown();
-			}
+	if (event.type != SDL_MOUSEBUTTONDOWN)
+		return false;
+
+	int y = event.button.y - uiSb->m_rect.y;
+	if (y >= uiSb->m_rect.h - SCROLLBAR_ARROW_HEIGHT) {
+		// down arrow
+		//scrollBarState.downArrowPressed = true;
+		scrollBarState.downPressCounter--;
+		if (scrollBarState.downPressCounter < 0) {
+			scrollBarState.downPressCounter = 2;
+			UiFocusDown();
 		}
-		return true;
+	} else if (y < SCROLLBAR_ARROW_HEIGHT) {
+		// up arrow
+		//scrollBarState.upArrowPressed = true;
+		scrollBarState.upPressCounter--;
+		if (scrollBarState.upPressCounter < 0) {
+			scrollBarState.upPressCounter = 2;
+			UiFocusUp();
+		}
+	} else {
+		// Scroll up or down based on thumb position.
+		const SDL_Rect thumbRect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
+		if (event.button.y < thumbRect.y) {
+			UiFocusPageUp();
+		} else if (event.button.y > thumbRect.y + thumbRect.h) {
+			UiFocusPageDown();
+		}
 	}
-	return false;
+	return true;
 }
 
 static bool HandleMouseEvent(const SDL_Event &event, UiItemBase* item)
@@ -706,7 +709,7 @@ void UiHandleEvents(SDL_Event* event)
 		if (event->button.button != SDL_BUTTON_LEFT)
 			return; // false;
 
-	// In SDL2 mouse events already use logical coordinates.
+		// In SDL2 mouse events already use logical coordinates.
 #ifdef USE_SDL1
 		OutputToLogical(&event->button.x, &event->button.y);
 #endif
@@ -727,9 +730,7 @@ void UiHandleEvents(SDL_Event* event)
 					static_cast<UiButton *>(item)->m_pressed = false;
 			}
 		}
-
-		//return handled;
-		return;
+		return; // handled
 	}
 
 	if (gUiEditField != NULL) {
@@ -786,6 +787,7 @@ void UiHandleEvents(SDL_Event* event)
 	}
 
 	if (event->type == SDL_MOUSEMOTION) {
+		// In SDL2 mouse events already use logical coordinates
 #ifdef USE_SDL1
 		OutputToLogical(&event->motion.x, &event->motion.y);
 #endif
@@ -824,8 +826,7 @@ void UiHandleEvents(SDL_Event* event)
 void UiRenderItems(const std::vector<UiItemBase *> &uiItems)
 {
 	for (size_t i = 0; i < uiItems.size(); i++)
-		if (!(uiItems[i]->m_iFlags & UIS_HIDDEN))
-			RenderItem(uiItems[i]);
+		RenderItem(uiItems[i]);
 }
 
 void UiClearItems(std::vector<UiItemBase *> &uiItems)
