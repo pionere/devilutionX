@@ -46,6 +46,7 @@ unsigned SelectedItem;
 static unsigned SelectedItemMax;
 static unsigned ListViewportSize;
 unsigned ListOffset;
+/** The edit field on the current screen (if exists) */
 UiEdit* gUiEditField;
 /** Specifies whether the cursor should be shown on the current screen */
 bool gUiDrawCursor;
@@ -74,13 +75,12 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 		fnFocus(0);
 
 	gUiEditField = NULL;
-#ifndef __SWITCH__
-	SDL_StopTextInput(); // input is enabled by default
+#if  !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
+	SDL_StopTextInput(); // input is enabled by default if !SDL_HasScreenKeyboardSupport
 #endif
 	for (unsigned i = 0; i < gUiItems.size(); i++) {
 		if (gUiItems[i]->m_type == UI_EDIT) {
 			gUiEditField = (UiEdit*)gUiItems[i];
-			SDL_SetTextInputRect(&gUiEditField->m_rect);
 #ifdef __SWITCH__
 			switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
 #elif defined(__vita__)
@@ -88,6 +88,7 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 #elif defined(__3DS__)
 			ctr_vkbdInput(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_value, gUiEditField->m_max_length);
 #else
+			SDL_SetTextInputRect(&gUiEditField->m_rect);
 			SDL_StartTextInput();
 #endif
 		}
@@ -248,15 +249,18 @@ static bool HandleMenuAction(MenuAction menuAction)
 void UiFocusNavigationSelect()
 {
 	UiPlaySelectSound();
+#if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 	if (gUiEditField != NULL) {
 		if (gUiEditField->m_value[0] == '\0') {
 			return;
 		}
 		gUiEditField = NULL;
-#ifndef __SWITCH__
-		SDL_StopTextInput();
-#endif
+		//if (SDL_IsTextInputShown()) {
+			SDL_StopTextInput();
+		//	return;
+		//}
 	}
+#endif
 	if (gfnListSelect != NULL)
 		gfnListSelect(SelectedItem);
 }
@@ -264,12 +268,6 @@ void UiFocusNavigationSelect()
 void UiFocusNavigationEsc()
 {
 	UiPlaySelectSound();
-	if (gUiEditField != NULL) {
-		gUiEditField = NULL;
-#ifndef __SWITCH__
-		SDL_StopTextInput();
-#endif
-	}
 	if (gfnListEsc != NULL)
 		gfnListEsc();
 }
