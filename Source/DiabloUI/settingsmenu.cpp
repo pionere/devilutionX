@@ -35,23 +35,22 @@ void UiSettingsDialog()
 		while (SDL_PollEvent(&event) != 0) {
 			UiHandleEvents(&event);
 
-			keypress = DVL_VK_NONAME;
 			switch (GetMenuAction(event)) {
 			case MenuAction_NONE:
 				switch (event.type) {
 				case SDL_MOUSEMOTION:
 					gmenu_on_mouse_move();
-					break;
+					continue;
 				case SDL_MOUSEBUTTONDOWN:
 					if (event.button.button != SDL_BUTTON_LEFT)
-						break;
+						continue;
 					keypress = DVL_VK_LBUTTON;
 					break;
 				case SDL_MOUSEBUTTONUP:
 					gmenu_left_mouse(false);
-					break;
+					continue;
 				default:
-					break;
+					continue;
 				}
 				break;
 			case MenuAction_SELECT:
@@ -61,7 +60,7 @@ void UiSettingsDialog()
 				keypress = DVL_VK_ESCAPE;
 				break;
 			case MenuAction_DELETE:
-				break;
+				continue;
 			case MenuAction_UP:
 				keypress = DVL_VK_UP;
 				break;
@@ -76,16 +75,15 @@ void UiSettingsDialog()
 				break;
 			case MenuAction_PAGE_UP:
 			case MenuAction_PAGE_DOWN:
-				break;
+				continue;
 			default:
 				ASSUME_UNREACHABLE
-				break;
+				continue;
 			}
-			if (keypress != DVL_VK_NONAME)
-				gmenu_presskey(keypress);
+			gmenu_presskey(keypress);
 		}
 	}
-	PlaySFX(IS_TITLSLCT); // UiFocusNavigationSelect(); -- needs UiInitList...
+	PlaySFX(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
 	//PaletteFadeOut();
 
 	gmenu_set_items(NULL, 0, NULL);
