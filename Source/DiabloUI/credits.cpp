@@ -67,6 +67,7 @@ void UiCreditsDialog()
 	LoadBackgroundArt("ui_art\\credits.CEL", "ui_art\\credits.pal");
 	UiAddBackground(&gUiItems);
 	UiInitScreen(0, NULL, CreditsSelect, CreditsEsc);
+	gUiDrawCursor = false;
 	ticks_begin_ = SDL_GetTicks();
 
 	_gbCreditsEnd = false;
@@ -78,7 +79,7 @@ void UiCreditsDialog()
 			break;
 		prev_offset_y_ = offsetY;
 
-		UiFadeIn(false);
+		UiFadeIn();
 		while (SDL_PollEvent(&event) != 0) {
 			UiHandleEvents(&event);
 		}

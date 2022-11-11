@@ -20,6 +20,7 @@ static void TitleLoad()
 	gUiItems.push_back(new UiImage(gbLogoBig, 15, rect1, true));
 
 	UiInitScreen(0);
+	gUiDrawCursor = false;
 }
 
 static void TitleFree()
@@ -39,7 +40,7 @@ bool UiTitleDialog()
 	SDL_Event event;
 	do {
 		UiRenderItems(gUiItems);
-		UiFadeIn(false);
+		UiFadeIn();
 
 		while (SDL_PollEvent(&event) != 0) {
 			if (GetMenuAction(event) != MenuAction_NONE) {

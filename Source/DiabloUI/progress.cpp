@@ -98,7 +98,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 		UiClearScreen();
 		ProgressRender();
 		UiRenderItems(gUiItems);
-		UiFadeIn(true);
+		UiFadeIn();
 
 		while (SDL_PollEvent(&event) != 0) {
 			UiHandleEvents(&event);

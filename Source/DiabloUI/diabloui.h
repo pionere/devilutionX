@@ -24,6 +24,7 @@ extern std::vector<UiItemBase*> gUiItems;
 extern unsigned SelectedItem;
 extern unsigned ListOffset;
 extern UiEdit* gUiEditField;
+extern bool gUiDrawCursor;
 
 inline SDL_Surface* DiabloUiSurface()
 {
@@ -45,7 +46,7 @@ inline SDL_Surface* DiabloUiSurface()
 //	return output_surface;
 }
 
-void UiFadeIn(bool draw_cursor);
+void UiFadeIn();
 void UiHandleEvents(SDL_Event* event);
 void LoadBackgroundArt(const char* pszFile, const char* palette);
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog);

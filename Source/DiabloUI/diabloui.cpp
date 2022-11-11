@@ -47,6 +47,8 @@ static unsigned SelectedItemMax;
 static unsigned ListViewportSize;
 unsigned ListOffset;
 UiEdit* gUiEditField;
+/** Specifies whether the cursor should be shown on the current screen */
+bool gUiDrawCursor;
 
 static Uint32 _gdwFadeTc;
 static int _gnFadeValue = 0;
@@ -59,6 +61,7 @@ ScrollBarState scrollBarState;
 
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)())
 {
+	gUiDrawCursor = true;
 	SelectedItem = 0;
 	SelectedItemMax = listSize != 0 ? listSize - 1 : 0;
 	ListViewportSize = listSize;
@@ -360,7 +363,7 @@ void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
 	vecDialog->push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 
-void UiFadeIn(bool draw_cursor)
+void UiFadeIn()
 {
 	Uint32 currTc;
 
@@ -375,7 +378,7 @@ void UiFadeIn(bool draw_cursor)
 		}
 		SetFadeLevel(_gnFadeValue);
 	}
-	scrollrt_draw_screen(draw_cursor);
+	scrollrt_draw_screen(gUiDrawCursor);
 }
 
 int GetAnimationFrame(int frames, int animFrameLenMs)
@@ -420,7 +423,7 @@ void UiRenderAndPoll(std::vector<UiItemBase *>* addUiItems)
 	if (addUiItems != NULL)
 		UiRenderItems(*addUiItems);
 	UiRenderItems(gUiItems);
-	UiFadeIn(true);
+	UiFadeIn();
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0) {
