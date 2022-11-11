@@ -375,10 +375,6 @@ void UiFadeIn(bool draw_cursor)
 		}
 		SetFadeLevel(_gnFadeValue);
 	}
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive)
-		draw_cursor = false;
-#endif
 	scrollrt_draw_screen(draw_cursor);
 }
 

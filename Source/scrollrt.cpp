@@ -1675,6 +1675,10 @@ static void DrawFPS()
  */
 void scrollrt_draw_screen(bool draw_cursor)
 {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (sgbControllerActive)
+		draw_cursor = false;
+#endif
 	if (draw_cursor) {
 		lock_buf(0);
 		scrollrt_draw_cursor();
