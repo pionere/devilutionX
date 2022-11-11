@@ -38,9 +38,9 @@ static void ProgressLoad(const char *msg)
 
 	gbProgFillBmp = DiabloAllocPtr(PRBAR_HEIGHT * PRBAR_WIDTH);
 	gbProgFillCel = CelLoadImage("ui_art\\prog_fil.CEL", PRBAR_WIDTH);
-	CelDraw(SCREEN_X, SCREEN_Y + PRBAR_HEIGHT - 1, gbProgFillCel, 1);
+	CelDraw(PANEL_X, PANEL_Y + PRBAR_HEIGHT - 1, gbProgFillCel, 1);
 	for (i = 0; i < PRBAR_HEIGHT; i++) {
-		memcpy(&gbProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[SCREEN_X + (SCREEN_Y + i) * BUFFER_WIDTH], PRBAR_WIDTH);
+		memcpy(&gbProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[PANEL_X + (PANEL_Y + i) * BUFFER_WIDTH], PRBAR_WIDTH);
 	}
 	MemFreeDbg(gbProgFillCel);
 
