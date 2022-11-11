@@ -57,10 +57,9 @@ static int mainmenu_play_intro()
 	int result = MPR_DONE;
 #ifndef HOSTONLY
 	// music_stop(); -- no need to stop/start music, play_movie takes care about it
-	// Set the background to black.
-	ClearScreenBuffer();
-	scrollrt_draw_screen(false);
+	PaletteFadeOut();
 	result = play_movie(INTRO_ARCHIVE, MOV_SKIP);
+	// PaletteFadeIn(false); -- no need, the mainmenu is going to fade in
 	// mainmenu_refresh_music();
 #endif
 	return result;
