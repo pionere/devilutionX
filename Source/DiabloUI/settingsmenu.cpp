@@ -43,6 +43,8 @@ void UiSettingsDialog()
 					gmenu_on_mouse_move();
 					break;
 				case SDL_MOUSEBUTTONDOWN:
+					if (event.button.button != SDL_BUTTON_LEFT)
+						break;
 					keypress = DVL_VK_LBUTTON;
 					break;
 				case SDL_MOUSEBUTTONUP:
