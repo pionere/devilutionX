@@ -21,6 +21,8 @@ void UiSettingsDialog()
 			gnTicksRate = SPEED_FASTEST;
 	}
 	// initialize the UI
+	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+	UiAddBackground(&gUiItems);
 	UiInitScreen(0);
 	// initialize gamemenu
 	InitGMenu();
@@ -29,9 +31,10 @@ void UiSettingsDialog()
 
 	SDL_Event event;
 	while (settingsMenu == gpCurrentMenu) {
-		ClearScreenBuffer();
+		UiClearScreen();
+		UiRenderItems(gUiItems);
 		gmenu_draw();
-		scrollrt_draw_screen(true);
+		UiFadeIn();
 		while (SDL_PollEvent(&event) != 0) {
 			UiHandleEvents(&event);
 
@@ -85,9 +88,12 @@ void UiSettingsDialog()
 	}
 	PlaySFX(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
 	//PaletteFadeOut();
-
+	// free gamemenu
 	gmenu_set_items(NULL, 0, NULL);
 	FreeGMenu();
+	// free the UI
+	MemFreeDbg(gbBackCel);
+	UiClearItems(gUiItems);
 }
 
 DEVILUTION_END_NAMESPACE
