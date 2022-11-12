@@ -27,15 +27,14 @@ static bool CreditsRender(int offsetY)
 {
 	BYTE *pStart, *pEnd;
 
-	UiClearScreen();
-	UiRenderItems(gUiItems);
-
 	int linesBegin = std::max(offsetY / CREDITS_LINE_H, 0);
 	int linesEnd = std::min((CREDITS_HEIGHT + offsetY + CREDITS_LINE_H - 1) / CREDITS_LINE_H, (int)CREDITS_LINES_SIZE);
 
-	if (linesBegin >= linesEnd) {
-		return linesEnd != CREDITS_LINES_SIZE;
-	}
+	if (linesBegin >= CREDITS_LINES_SIZE)
+		return false;
+
+	UiClearScreen();
+	UiRenderItems(gUiItems);
 
 	pStart = gpBufStart;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + CREDITS_TOP )];
