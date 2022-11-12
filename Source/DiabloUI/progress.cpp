@@ -2,10 +2,6 @@
 #include "controls/menu_controls.h"
 #include "DiabloUI/diabloui.h"
 #include "all.h"
-//#include "../dx.h"
-//#include "../engine.h"
-//#include "../engine/render/cel_render.hpp"
-//#include "../palette.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -32,11 +28,13 @@ static void ProgressRender()
 
 	x = PANEL_CENTERX(SMALL_POPUP_WIDTH);
 	y = PANEL_CENTERY(SMALL_POPUP_HEIGHT);
-
+	// draw the popup window
 	CelDraw(x, y + SMALL_POPUP_HEIGHT, gbProgBackCel, 1);
 	x += (SMALL_POPUP_WIDTH - PRBAR_WIDTH) / 2;
 	y += 46 + PRBAR_HEIGHT;
+	// draw the frame of the progress bar
 	CelDraw(x, y - 1, gbProgEmptyCel, 1);
+	// draw the progress bar
 	dx = _gnProgress;
 	if (dx > 100)
 		dx = 100;
@@ -46,9 +44,9 @@ static void ProgressRender()
 	}
 }
 
-static void ProgressLoad(const char *msg)
+static void ProgressLoad(const char* msg)
 {
-	CelImageBuf* gbProgFillCel;
+	CelImageBuf* progFillCel;
 	int i, y;
 
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
@@ -58,12 +56,12 @@ static void ProgressLoad(const char *msg)
 	gbProgEmptyCel = CelLoadImage("ui_art\\prog_bg.CEL", PRBAR_WIDTH);
 
 	gbProgFillBmp = DiabloAllocPtr(PRBAR_HEIGHT * PRBAR_WIDTH);
-	gbProgFillCel = CelLoadImage("ui_art\\prog_fil.CEL", PRBAR_WIDTH);
-	CelDraw(PANEL_X, PANEL_Y + PRBAR_HEIGHT - 1, gbProgFillCel, 1);
+	progFillCel = CelLoadImage("ui_art\\prog_fil.CEL", PRBAR_WIDTH);
+	CelDraw(PANEL_X, PANEL_Y + PRBAR_HEIGHT - 1, progFillCel, 1);
 	for (i = 0; i < PRBAR_HEIGHT; i++) {
 		memcpy(&gbProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[PANEL_X + (PANEL_Y + i) * BUFFER_WIDTH], PRBAR_WIDTH);
 	}
-	MemFreeDbg(gbProgFillCel);
+	mem_free_dbg(progFillCel);
 
 	UiAddBackground(&gUiItems);
 
@@ -90,7 +88,7 @@ static void ProgressFree()
 	UiClearItems(gUiItems);
 }
 
-bool UiProgressDialog(const char *msg, int (*fnfunc)())
+bool UiProgressDialog(const char* msg, int (*fnfunc)())
 {
 	ProgressLoad(msg);
 	SetFadeLevel(256);
