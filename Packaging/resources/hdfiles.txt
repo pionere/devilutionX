@@ -2510,6 +2510,7 @@ ui_art\focus16.CEL
 ui_art\focus42.CEL
 ui_art\heros.CEL
 ui_art\logo.CEL
+ui_art\lpopup.CEL
 ui_art\lrpopup.CEL
 ui_art\mainmenu.CEL
 ui_art\prog_bg.CEL
