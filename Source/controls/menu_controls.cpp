@@ -88,7 +88,7 @@ MenuAction GetMenuAction(const SDL_Event &event)
 		case SDLK_PAGEDOWN:
 			return MenuAction_PAGE_DOWN;
 		case SDLK_RETURN: {
-			if (!GetAsyncKeyState(DVL_VK_MENU)) {
+			if (!(SDL_GetModState() & KMOD_ALT)) {
 				return MenuAction_SELECT;
 			}
 			break;

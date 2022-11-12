@@ -784,7 +784,7 @@ void UiHandleEvents(SDL_Event* event)
 	}
 
 	if (event->type == SDL_KEYDOWN) {
-		if (event->key.keysym.sym == SDLK_RETURN && GetAsyncKeyState(DVL_VK_MENU)) {
+		if (event->key.keysym.sym == SDLK_RETURN && (SDL_GetModState() & KMOD_ALT)) {
 			ToggleFullscreen();
 		}
 		return;

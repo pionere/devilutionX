@@ -38,8 +38,6 @@ extern WNDPROC CurrentWndProc;
 
 void SetCursorPos(int X, int Y);
 
-BYTE GetAsyncKeyState(int vKey);
-
 bool PeekMessage(LPMSG lpMsg);
 
 void TranslateMessage(const MSG* lpMsg);

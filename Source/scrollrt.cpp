@@ -1529,7 +1529,7 @@ static void DrawView()
 		if (gbSkillListFlag) {
 			DrawSkillList();
 		}
-		if (gbShowTooltip || GetAsyncKeyState(DVL_VK_MENU)) {
+		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
 			DrawInfoStr();
 		}
 		if (gbHelpflag) {

@@ -488,7 +488,7 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	}
 
 #if DEBUG_MODE
-	if (GetAsyncKeyState(DVL_VK_MENU)) {
+	if (SDL_GetModState() & KMOD_ALT) {
 		mask = &SolidMask[MICRO_HEIGHT - 1];
 	}
 #endif

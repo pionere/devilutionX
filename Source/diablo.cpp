@@ -825,7 +825,7 @@ static void PressKey(int vkey)
 		return;
 	}
 #if !__IPHONEOS__ && !__ANDROID__
-	if (vkey == DVL_VK_RETURN && GetAsyncKeyState(DVL_VK_MENU)) {
+	if (vkey == DVL_VK_RETURN && (SDL_GetModState() & KMOD_ALT)) {
 		ToggleFullscreen();
 		return;
 	}
@@ -874,14 +874,14 @@ static void PressKey(int vkey)
 		if (!gbActionBtnDown) {
 			gbActionBtnDown = true;
 			guLastABD = SDL_GetTicks();
-			ActionBtnDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
+			ActionBtnDown((SDL_GetModState() & KMOD_SHIFT));
 		}
 		break;
 	case ACT_ALTACT:
 		if (!gbAltActionBtnDown) {
 			gbAltActionBtnDown = true;
 			guLastAABD = SDL_GetTicks();
-			AltActionBtnDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
+			AltActionBtnDown((SDL_GetModState() & KMOD_SHIFT));
 		}
 		break;
 	case ACT_SKL0:
@@ -1030,7 +1030,7 @@ static void PressKey(int vkey)
 		break;
 	case ACT_VER:
 		EventPlrMsg(gszProductName);
-		if (!GetAsyncKeyState(DVL_VK_SHIFT)) {
+		if (!(SDL_GetModState() & KMOD_SHIFT)) {
 			if (!IsLocalGame) {
 				EventPlrMsg(szGameName);
 				if (szGamePassword[0] != '\0') {
@@ -1393,7 +1393,7 @@ void game_logic()
 	ProcessVisionList();
 
 #if DEBUG_MODE
-	if (GetAsyncKeyState(DVL_VK_SHIFT)) {
+	if ((SDL_GetModState() & KMOD_SHIFT)) {
 		ScrollView();
 	}
 #endif
