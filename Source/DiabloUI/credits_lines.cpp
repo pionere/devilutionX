@@ -2,7 +2,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-const char *const CREDITS_LINES[] = {
+const char* const CREDITS_LINES[CREDITS_LINES_SIZE] = {
 #ifdef HELLFIRE
 	"		Synergistic Software",
 	"",
@@ -548,12 +548,10 @@ const char *const CREDITS_LINES[] = {
 	"	No souls were sold in the making of this game.",
 	"",
 	"",
-	" ",
-	" ",
-	" "
+	"",
+	"",
+	""
 #endif
 };
-
-const int CREDITS_LINES_SIZE = sizeof(CREDITS_LINES) / sizeof(CREDITS_LINES[0]);
 
 DEVILUTION_END_NAMESPACE
