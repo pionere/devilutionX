@@ -91,9 +91,9 @@ const char* const CREDITS_LINES[CREDITS_LINES_SIZE] = {
 	"",
 	"Thanks to",
 	"	Cindy Vanous, Joshua Bentley, Robert Zimmerman, Robert Jerauld,",
-	"	Dennis Ham, Andrea Stone, Beth Quintana, Jennifer Keenan, Gary Brown,",
-	"	Ken Eaton, Matt Eslick, Kate Powell, Bryon Mcpherson, David Beetlestone",
-	"",
+	"	Dennis Ham, Andrea Stone, Beth Quintana, Jennifer Keenan,",
+	"	Gary Brown, Ken Eaton, Matt Eslick, Kate Powell,",
+	"	Bryon Mcpherson, David Beetlestone",
 	""
 #else
 	"Game Design",
@@ -499,7 +499,7 @@ const char* const CREDITS_LINES[CREDITS_LINES_SIZE] = {
 	"	Robert Slifka, Brent Smith, C. Eric Smith, Jared Smith, Jeffrey",
 	"	Smith, Owen Smith, Shannon Smith, Steven Smith, Edward Smola,",
 	"	Matthew Sneep, Eric Snow, Brad Sobel, Jean-Pierre Solignac, Rasmus",
-	"	Sørensen, Andrew Sorg, Poppy Southcott, Ross Specter, Erik Spencer,",
+	"	S0rensen, Andrew Sorg, Poppy Southcott, Ross Specter, Erik Spencer,", // Sørensen
 	"	Keith Spencer, Chris Springer, Erikson Squier, Dean St. Onge, Stewart",
 	"	Stanfield, John Stanley, Terrence Staton, Benjamin Stein, James",
 	"	Steiner, David Steyer, William Stickney, Chris Stiff, James Stofer,",
