@@ -20,6 +20,7 @@ enum UiType : uint8_t {
 	UI_LIST,
 	UI_SCROLLBAR,
 	UI_EDIT,
+	UI_CUSTOM,
 };
 
 enum UiAlignment {
@@ -214,6 +215,21 @@ public:
 	//private:
 	int m_height;
 	std::vector<UiListItem*>* m_vecItems;
+};
+
+//=============================================================================
+
+class UiCustom : public UiItemBase {
+public:
+	UiCustom(void (*renderFn)(), SDL_Rect &rect)
+	    : UiItemBase(UI_CUSTOM, rect, 0), m_render(renderFn)
+	{
+	}
+
+	~UiCustom() = default;
+
+	//private:
+	void (*m_render)();
 };
 
 DEVILUTION_END_NAMESPACE

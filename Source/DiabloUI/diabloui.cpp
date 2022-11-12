@@ -556,6 +556,9 @@ static void RenderItem(UiItemBase* item)
 	case UI_EDIT:
 		Render(static_cast<UiEdit *>(item));
 		break;
+	case UI_CUSTOM:
+		static_cast<UiCustom *>(item)->m_render();
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;

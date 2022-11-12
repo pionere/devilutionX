@@ -26,12 +26,33 @@ static void ProgressSelect(unsigned index)
 	_gnProgress = PROGRESS_CANCEL;
 }
 
+static void ProgressRender()
+{
+	int x, y, i, dx;
+
+	x = PANEL_CENTERX(SMALL_POPUP_WIDTH);
+	y = PANEL_CENTERY(SMALL_POPUP_HEIGHT);
+
+	CelDraw(x, y + SMALL_POPUP_HEIGHT, gbProgBackCel, 1);
+	x += (SMALL_POPUP_WIDTH - PRBAR_WIDTH) / 2;
+	y += 46 + PRBAR_HEIGHT;
+	CelDraw(x, y - 1, gbProgEmptyCel, 1);
+	dx = _gnProgress;
+	if (dx > 100)
+		dx = 100;
+	dx = PRBAR_WIDTH * dx / 100;
+	for (i = 0; i < PRBAR_HEIGHT && dx != 0; i++) {
+		memcpy(&gpBuffer[x + (y + i - PRBAR_HEIGHT) * BUFFER_WIDTH], &gbProgFillBmp[0 + i * PRBAR_WIDTH], dx);
+	}
+}
+
 static void ProgressLoad(const char *msg)
 {
 	CelImageBuf* gbProgFillCel;
 	int i, y;
 
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+
 	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
 	gbProgBackCel = CelLoadImage("ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
 	gbProgEmptyCel = CelLoadImage("ui_art\\prog_bg.CEL", PRBAR_WIDTH);
@@ -44,8 +65,12 @@ static void ProgressLoad(const char *msg)
 	}
 	MemFreeDbg(gbProgFillCel);
 
+	UiAddBackground(&gUiItems);
+
 	y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
 
+	SDL_Rect rect0 = { 0, 0, 0, 0 };
+	gUiItems.push_back(new UiCustom(ProgressRender, rect0));
 	SDL_Rect rect1 = { PANEL_LEFT, y + 20, PANEL_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
 	SDL_Rect rect2 = { PANEL_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
@@ -65,44 +90,14 @@ static void ProgressFree()
 	UiClearItems(gUiItems);
 }
 
-static void ProgressRender()
-{
-	int x, y, i, dx;
-
-	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, gbBackCel, 1);
-
-	x = PANEL_CENTERX(SMALL_POPUP_WIDTH);
-	y = PANEL_CENTERY(SMALL_POPUP_HEIGHT);
-
-	CelDraw(x, y + SMALL_POPUP_HEIGHT, gbProgBackCel, 1);
-	x += (SMALL_POPUP_WIDTH - PRBAR_WIDTH) / 2;
-	y += 46 + PRBAR_HEIGHT;
-	CelDraw(x, y - 1, gbProgEmptyCel, 1);
-	dx = _gnProgress;
-	if (dx > 100)
-		dx = 100;
-	dx = PRBAR_WIDTH * dx / 100;
-	for (i = 0; i < PRBAR_HEIGHT && dx != 0; i++) {
-		memcpy(&gpBuffer[x + (y + i - PRBAR_HEIGHT) * BUFFER_WIDTH], &gbProgFillBmp[0 + i * PRBAR_WIDTH], dx);
-	}
-}
-
 bool UiProgressDialog(const char *msg, int (*fnfunc)())
 {
 	ProgressLoad(msg);
 	SetFadeLevel(256);
 
-	SDL_Event event;
 	do {
 		_gnProgress = fnfunc();
-		UiClearScreen();
-		ProgressRender();
-		UiRenderItems(gUiItems);
-		UiFadeIn();
-
-		while (SDL_PollEvent(&event) != 0) {
-			UiHandleEvents(&event);
-		}
+		UiRenderAndPoll(NULL);
 	} while (_gnProgress < 100);
 	ProgressFree();
 
