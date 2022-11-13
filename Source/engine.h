@@ -15,7 +15,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-inline const BYTE *CelGetFrameStart(const BYTE *pCelBuff, int nCel)
+inline const BYTE* CelGetFrameStart(const BYTE* pCelBuff, int nCel)
 {
 	const DWORD *pFrameTable;
 
@@ -24,7 +24,7 @@ inline const BYTE *CelGetFrameStart(const BYTE *pCelBuff, int nCel)
 	return &pCelBuff[SwapLE32(pFrameTable[nCel])];
 }
 
-inline const BYTE *CelGetFrame(const BYTE *pCelBuff, int nCel, int *nDataSize)
+inline const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
 {
 	const DWORD* pFrameTable;
 	DWORD nCellStart;
@@ -35,10 +35,10 @@ inline const BYTE *CelGetFrame(const BYTE *pCelBuff, int nCel, int *nDataSize)
 	return &pCelBuff[nCellStart];
 }
 
-inline const BYTE *CelGetFrameClipped(const BYTE *pCelBuff, int nCel, int *nDataSize)
+inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize)
 {
 	DWORD nDataStart;
-	const BYTE *pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
+	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
 
 	// assert((pRLEBytes[1] << 8 | pRLEBytes[0]) == 0x000A);
 	nDataStart = 0x0A;
@@ -58,10 +58,17 @@ int32_t NextRndSeed();
 int random_(BYTE idx, int v);
 /* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a positive integer and less than or equal to 0x7FFF. */
 int random_low(BYTE idx, int v);
-BYTE *DiabloAllocPtr(size_t dwBytes);
-void mem_free_dbg(void *p);
-BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen = NULL);
-void LoadFileWithMem(const char *pszName, BYTE *p);
+BYTE* DiabloAllocPtr(size_t dwBytes);
+void mem_free_dbg(void* p);
+#define MemFreeDbg(p)       \
+	{                       \
+		void *p__p;         \
+		p__p = p;           \
+		p = NULL;           \
+		mem_free_dbg(p__p); \
+	}
+BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen = NULL);
+void LoadFileWithMem(const char* pszName, BYTE* p);
 
 /* Load .CEL file and overwrite the first (unused) DWORD with nWidth */
 inline CelImageBuf* CelLoadImage(const char* name, DWORD nWidth)
@@ -78,7 +85,7 @@ inline CelImageBuf* CelLoadImage(const char* name, DWORD nWidth)
 
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
-void PlayInGameMovie(const char *pszMovie);
+void PlayInGameMovie(const char* pszMovie);
 /* Retrieve the next pseudo-random number in the range of minVal <= x <= maxVal, where (maxVal - minVal) is a non-negative (32bit) integer. The result is minVal if (maxVal - minVal) is negative. */
 inline int RandRange(int minVal, int maxVal)
 {

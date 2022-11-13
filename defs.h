@@ -179,14 +179,6 @@
 	&& y >= 0                 \
 	&& y < MAXDUNY)
 
-#define MemFreeDbg(p)       \
-	{                       \
-		void *p__p;         \
-		p__p = p;           \
-		p = NULL;           \
-		mem_free_dbg(p__p); \
-	}
-
 #undef assert
 
 #if DEBUG_MODE || DEV_MODE
