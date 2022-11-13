@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-unsigned _guCowMsg;
+int _guCowMsg;
 int numtowners;
 unsigned _guCowClicks;
 BYTE* pCowCels;
@@ -125,29 +125,27 @@ const int GossipList[STORE_TOWNERS][2] = {
 #define TPOS_GIRL		67 + DBORDERX, 33 + DBORDERY
 
 /** Specifies the active sound effect ID for interacting with cows. */
-static int CowPlaying = -1;
+static int CowPlaying = SFX_NONE;
 
-static void CowSFX(int pnum)
+static void CowSFX(MonsterStruct* cow, int pnum)
 {
-	PlayerStruct* p;
-	if (CowPlaying != -1 && effect_is_playing(CowPlaying))
+	if (CowPlaying != SFX_NONE && effect_is_playing(CowPlaying))
 		return;
 
 	_guCowClicks++;
 
-	p = &plr;
-	if (_guCowClicks >= 8) {
-		PlaySfxLoc(TSFX_COW1, p->_px, p->_py + 5);
-		_guCowClicks = 4;
-		CowPlaying = snSFX[_guCowMsg][p->_pClass]; /* snSFX is local */
-		_guCowMsg++;
-		if (_guCowMsg >= 3)
-			_guCowMsg = 0;
-	} else {
+	if (_guCowClicks < 8) {
 		CowPlaying = _guCowClicks == 4 ? TSFX_COW2 : TSFX_COW1;
+		PlaySfxLoc(CowPlaying, cow->_mx, cow->_my);
+		return;
 	}
 
-	PlaySfxLoc(CowPlaying, p->_px, p->_py);
+	_guCowClicks = 4;
+	CowPlaying = snSFX[_guCowMsg][plr._pClass];
+	PlaySfxLoc(CowPlaying, plr._px, plr._py);
+	_guCowMsg++;
+	if (_guCowMsg >= lengthof(snSFX))
+		_guCowMsg = 0;
 }
 
 static void InitCowAnim(int tnum, int dir)
@@ -966,7 +964,7 @@ void TalkToTowner(int tnum)
 		break;
 #endif
 	case TOWN_COW:
-		CowSFX(pnum);
+		CowSFX(tw, pnum);
 		break;
 	default:
 		ASSUME_UNREACHABLE
