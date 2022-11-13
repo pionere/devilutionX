@@ -249,7 +249,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 		}
 		v = myplr._pSkillLvl[sn];
 		if (v > 0) {
-			snprintf(tempstr, sizeof(tempstr), "lvl%02d", v);
+			snprintf(tempstr, sizeof(tempstr), "l%02d", v);
 		} else {
 			copy_cstr(tempstr, "X");
 			t = COL_RED;
