@@ -518,19 +518,6 @@ static bool PlrHasBeltItem(int pnum, int item)
 	return false;
 }
 
-static void TownerTalk(int store, int talk)
-{
-	if (gbQtextflag)
-		return;
-
-	_guCowClicks = 0;
-	_guCowMsg = 0;
-	ClearPanels();
-	// gamemenu_off();
-	InitQTextMsg(talk);
-	StartStore(store);
-}
-
 void SyncTownerQ(int pnum, int idx)
 {
 	int i;
@@ -965,7 +952,7 @@ void TalkToTowner(int tnum)
 #endif
 	case TOWN_COW:
 		CowSFX(tw, pnum);
-		break;
+		return;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -976,8 +963,14 @@ void TalkToTowner(int tnum)
 		// tw->_mListener = pnum; // TNR_LISTENER
 		InitQTextMsg(qt);
 	} else if (tw->_mgoalvar1 != STORE_NONE) { // TNR_STORE
-		TownerTalk(tw->_mgoalvar1, tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
+		// assert(!gbQtextflag);
+		ClearPanels();
+		// gamemenu_off();
+		InitQTextMsg(tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
+		StartStore(tw->_mgoalvar1); // TNR_STORE
 	}
+	_guCowClicks = 0;
+	_guCowMsg = 0;
 }
 
 DEVILUTION_END_NAMESPACE
