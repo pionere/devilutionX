@@ -253,11 +253,67 @@ void DumpDungeon()
 #endif /* DEBUG_MODE */
 
 #if DEBUG_MODE || DEV_MODE
+static const char* ReadTextLine(const char* str, char lineSep, int limit)
+{
+	int w;
+	BYTE c;
+
+	c = 0;
+	w = 0;
+	while (*str != lineSep && w < limit) {
+		tempstr[c] = *str;
+		w += smallFontWidth[gbStdFontFrame[(BYTE)tempstr[c]]] + FONT_KERN_SMALL;
+		c++;
+		str++;
+	}
+	if (w >= limit) {
+		c--;
+		while (tempstr[c] != ' ') {
+			str--;
+			c--;
+		}
+	}
+	tempstr[c] = '\0';
+	return str;
+}
+
+static void PrintText(const char* text, char lineSep, int limit)
+{
+	const char *s = text;
+	int i = 0, w;
+	BYTE col;
+	FILE* textFile = fopen("f:\\sample.txt", "wb");
+
+	while (*s != '\0') {
+		if (*s == '$') {
+			s++;
+			col = COL_RED;
+		} else {
+			col = COL_WHITE;
+		}
+		s = ReadTextLine(s, lineSep, limit);
+		w = GetSmallStringWidth(tempstr);
+
+		// LogErrorF("TXT", "%03d(%04d):%s", i++, w, tempstr);
+		if (col == COL_RED)
+			fputc('$', textFile);
+		fputs(tempstr, textFile);
+		fputc('\n', textFile);
+		if (*s == lineSep) {
+			s++;
+		}
+	}
+
+	fclose(textFile);
+}
+
 void ValidateData()
 {
 	int i;
 
 	// text
+	//PrintText(gszHelpText, '|', LTPANEL_WIDTH - 2 * 7);
+
 	if (GetHugeStringWidth("Pause") != 135)
 		app_fatal("gmenu_draw_pause expects hardcoded width 135.");
 
