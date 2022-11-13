@@ -200,14 +200,15 @@ void gmenu_draw()
 		gmenu_draw_menu_item(i, y);
 }
 
-bool gmenu_presskey(int vkey)
+void gmenu_presskey(int vkey)
 {
 	assert(gmUpdateFunc != NULL);
 	gmUpdateFunc();
 
 	switch (vkey) {
 	case DVL_VK_LBUTTON:
-		return gmenu_left_mouse(true);
+		gmenu_left_mouse(true);
+		break;
 	case DVL_VK_RETURN:
 		if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
 			gpCurrentMenu[guCurrItemIdx].fnMenu(true);
@@ -230,7 +231,6 @@ bool gmenu_presskey(int vkey)
 		gmenu_up_down(true);
 		break;
 	}
-	return true;
 }
 
 static void gmenu_mouse_slider()
@@ -263,43 +263,40 @@ void gmenu_on_mouse_move()
 	// return TRUE;
 }
 
-bool gmenu_left_mouse(bool isDown)
+void gmenu_left_mouse(bool isDown)
 {
-	TMenuItem *pItem;
+	TMenuItem* pItem;
 	int i, w;
 
 	assert(gmenu_is_active());
 	if (!isDown) {
-		if (_gbMouseNavigation) {
+		//if (_gbMouseNavigation) {
 			_gbMouseNavigation = false;
-			return true;
-		} else {
-			return false;
-		}
+		//}
+		return;
 	}
 
 	i = MouseY - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
 	if (i < 0) {
-		return true;
+		return;
 	}
 	i /= GAMEMENU_ITEM_HEIGHT;
 	if (i >= guCurrentMenuSize) {
-		return true;
+		return;
 	}
 	pItem = &gpCurrentMenu[i];
 	if (!(pItem->dwFlags & GMF_ENABLED)) {
-		return true;
+		return;
 	}
 	w = gmenu_get_lfont(pItem) / 2;
 	if (abs(MouseX - SCREEN_WIDTH / 2) > w)
-		return true;
+		return;
 	guCurrItemIdx = i;
 	if (pItem->dwFlags & GMF_SLIDER) {
 		gmenu_mouse_slider();
 	} else {
 		pItem->fnMenu(true);
 	}
-	return true;
 }
 
 void gmenu_enable(TMenuItem *pMenuItem, bool enable)

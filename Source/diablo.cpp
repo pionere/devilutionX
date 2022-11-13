@@ -551,7 +551,7 @@ bool TryIconCurs(bool bShift)
 static void ActionBtnDown(bool bShift)
 {
 	assert(!gbDropGoldFlag);
-	assert(!gmenu_is_active() || !gmenu_left_mouse(true));
+	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(gbDeathflag == MDM_ALIVE);
@@ -795,19 +795,19 @@ void ClearPanels()
 static void ClearUI()
 {
 	ClearPanels();
+	//gamemenu_off();
 	assert(!gbQtextflag);
 	gbAutomapflag = false;
 	msgdelay = 0;
 	gabPanbtn[PANBTN_MAINMENU] = false;
-	gamemenu_off();
 	//doom_close();
 }
 
 static void PressKey(int vkey)
 {
 	if (gmenu_is_active()) {
-		if (gmenu_presskey(vkey))
-			return;
+		gmenu_presskey(vkey);
+		return;
 	}
 	if (gbTalkflag) {
 		if (plrmsg_presskey(vkey))
@@ -1049,6 +1049,7 @@ static void PressKey(int vkey)
 			gbHelpflag = false;
 		} else if (stextflag == STORE_NONE) {
 			ClearPanels();
+			//gamemenu_off();
 			DisplayHelp();
 		}
 		break;

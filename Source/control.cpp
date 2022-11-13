@@ -997,7 +997,7 @@ void HandleSkillBtn(bool altSkill)
 {
 	if (!gbSkillListFlag) {
 		ClearPanels();
-		gamemenu_off();
+		// gamemenu_off();
 		DoSkillList(altSkill);
 	} else {
 		gbSkillListFlag = false;

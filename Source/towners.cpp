@@ -528,6 +528,7 @@ static void TownerTalk(int store, int talk)
 	_guCowClicks = 0;
 	_guCowMsg = 0;
 	ClearPanels();
+	// gamemenu_off();
 	InitQTextMsg(talk);
 	StartStore(store);
 }
