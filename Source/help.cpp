@@ -8,10 +8,11 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 bool gbHelpflag;
-int helpFirstLine;
-int HelpTop;
+static int helpFirstLine;
+static int HelpTop;
 
-const char gszHelpText[] = {
+static const char gszHelpText[] = {
+	// clang-format off
 	"$Default Keyboard Shortcuts|"
 	"F1:  Open Help Screen|"
 	"Esc: Display Main Menu|"
@@ -40,15 +41,15 @@ const char gszHelpText[] = {
 	"You can attack without moving by holding down the shift key.|"
 	"|"
 	"$Auto-map|"
-	"Besides the hotkey, auto-map can be accessed in the menu."
-	"You can zoom in and out of the map or scroll "
-	"it with the configured keys (arrows by default).|"
+	"Besides the hotkey, auto-map can be accessed in the menu. You "
+	"can zoom in and out of the map or scroll it with the "
+	"configured keys (arrows by default).|"
 	"|"
 	"$Picking up Objects|"
-	"Useable items such as potions or scrolls are automatically placed "
-	"in your 'belt' located on the left side above the menu button. "
-	"Items in belt may be used by either pressing "
-	"the corresponding number or right-clicking on the item.|"
+	"Useable items such as potions or scrolls are automatically "
+	"placed in your 'belt' located on the left side above the menu "
+	"button. Items in belt may be used by either pressing the "
+	"corresponding number or right-clicking on the item.|"
 	"|"
 	"$Gold|"
 	"You can select a specific amount of gold to drop by "
@@ -56,24 +57,26 @@ const char gszHelpText[] = {
 	"|"
 	"$Skills & Spells|"
 	"You can access your list of skills in the menu as well. Learned "
-	"skills and those available through staff, scrolls or runes are listed here. "
-	"Left- or right-clicking on the icon of the skill will select it for "
-	"the corresponing mouse button. By holding the SHIFT the skill is added "
-	"(one movement skill and one attack skill can be selected for each action button) "
-	"otherwise it is set.|"
+	"skills and those available through staff, scrolls or runes are "
+	"listed here. Left- or right-clicking on the icon of the skill will "
+	"select it for the corresponing mouse button. By holding the SHIFT "
+	"the skill is added (one movement skill and one attack skill can be "
+	"selected for each action button) otherwise it is set.|"
 	"|"
 	"$Using the SkillList|"
-	"This is the complete list of available skills and spells to the character. "
-	"Select one as described in the section above.|"
+	"This is the complete list of available skills and spells to the "
+	"character. Select one as described in the section above.|"
 	"|"
 	"$Setting Skill Hotkeys|"
-	"You can assign up to four Hotkeys for skills/spells for both action buttons. "
-	"Open the SkillList then press the Hotkey you wish "
+	"You can assign up to four Hotkeys for skills/spells for both "
+	"action buttons. Open the SkillList then press the Hotkey you wish "
 	"to assign after highlighting the skill.|"
 	"|"
 	"$Skill Books|"
 	"Reading more than one book increases your knowledge of that "
-	"skill, allowing you to use it more effectively.|" };
+	"skill, allowing you to use it more effectively."
+	// clang-format on
+};
 
 void InitHelp()
 {
