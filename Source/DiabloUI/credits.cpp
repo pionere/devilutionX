@@ -37,14 +37,14 @@ static bool CreditsRender(int offsetY)
 	UiRenderItems(gUiItems);
 
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + CREDITS_TOP )];
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP )];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (PANEL_Y + CREDITS_TOP + CREDITS_HEIGHT)];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP + CREDITS_HEIGHT)];
 
-	int destY = PANEL_TOP + CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
+	int destY = CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
 	for (int i = linesBegin; i < linesEnd; ++i, destY += CREDITS_LINE_H) {
 		const char* text = CREDITS_LINES[i];
-		int destX = PANEL_LEFT + 10;
+		int destX = CREDITS_LEFT;
 		for ( ; *text == '\t'; text++) {
 			destX += 11;
 		}
