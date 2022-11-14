@@ -748,7 +748,7 @@ bool PressEscKey()
 		rv = true;
 	}*/
 	if (gbHelpflag) {
-		gbHelpflag = false;
+		StopHelp();
 		rv = true;
 	}
 	if (gbQtextflag) {
@@ -785,7 +785,7 @@ bool PressEscKey()
 
 void ClearPanels()
 {
-	gbHelpflag = false;
+	StopHelp();
 	gbInvflag = false;
 	gnNumActiveWindows = 0;
 	gbSkillListFlag = false;
@@ -1046,11 +1046,11 @@ static void PressKey(int vkey)
 		break;
 	case ACT_HELP:
 		if (gbHelpflag) {
-			gbHelpflag = false;
+			StopHelp();
 		} else if (stextflag == STORE_NONE) {
 			ClearPanels();
 			//gamemenu_off();
-			DisplayHelp();
+			StartHelp();
 		}
 		break;
 	case ACT_PAUSE:
@@ -1219,6 +1219,7 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 	//case DVL_WM_SYSCOMMAND:
 		return;
 	case DVL_WM_QUIT:
+		// TODO: StopHelp(), ClearPanels() ?
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
 		return;
@@ -1272,6 +1273,7 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_WM_QUIT:
 		if (gmenu_is_active())
 			gamemenu_off();
+		// TODO: StopHelp(), ClearPanels() ?
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
 		gbGamePaused = false;
@@ -1461,7 +1463,7 @@ static WNDPROC InitGameFX()
 	int i;
 
 	InitAutomapOnce(); // values
-	InitHelp(); // values
+	// InitHelp(); // values -- unnecessary since the player can not leave the game with active help
 	InitControlPan(); // gfx + values
 	InitInv(); // gfx + values
 	InitGMenu(); // gfx

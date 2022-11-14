@@ -245,6 +245,7 @@ Meta\credits.txt
 Meta\credits_hf.txt
 Meta\Dark.tbl
 Meta\Dist.tbl
+Meta\help.txt
 Missiles\Acidbf1.CL2
 Missiles\Acidbf10.CL2
 Missiles\Acidbf11.CL2

@@ -8,10 +8,12 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 bool gbHelpflag;
+static char** gbHelpLines;
 static int helpFirstLine;
-static int HelpTop;
 
-static const char gszHelpText[] = {
+#define HELP_LINES_SIZE 62
+#define HELP_TXT        "Meta\\help.txt"
+/*static const char gszHelpText[] = {
 	// clang-format off
 	"$Default Keyboard Shortcuts|"
 	"F1:  Open Help Screen|"
@@ -76,37 +78,12 @@ static const char gszHelpText[] = {
 	"Reading more than one book increases your knowledge of that "
 	"skill, allowing you to use it more effectively."
 	// clang-format on
-};
+};*/
 
-void InitHelp()
-{
-	gbHelpflag = false;
-}
-
-static const char* ReadHelpLine(const char* str)
-{
-	const int limit = LTPANEL_WIDTH - 2 * 7;
-	int w;
-	BYTE c;
-
-	c = 0;
-	w = 0;
-	while (*str != '|' && w < limit) {
-		tempstr[c] = *str;
-		w += smallFontWidth[gbStdFontFrame[(BYTE)tempstr[c]]] + FONT_KERN_SMALL;
-		c++;
-		str++;
-	}
-	if (w >= limit) {
-		c--;
-		while (tempstr[c] != ' ') {
-			str--;
-			c--;
-		}
-	}
-	tempstr[c] = '\0';
-	return str;
-}
+//void InitHelp()
+//{
+//	gbHelpflag = false;
+//}
 
 void DrawHelp()
 {
@@ -119,49 +96,37 @@ void DrawHelp()
 	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);
 	DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 5 * 12 + 14, true);
 
-	s = &gszHelpText[0];
 
-	for (i = 0; i < helpFirstLine; i++) {
-		if (*s == '\0') {
-			break;
-		}
-		if (*s == '$') {
-			s++;
-		}
-		s = ReadHelpLine(s);
-		if (*s == '|') {
-			s++;
-		}
-	}
 	for (i = 7; i < 22; i++) {
-		if (*s == '\0') {
-			HelpTop = helpFirstLine;
-			break;
-		}
+		s = gbHelpLines[helpFirstLine + i - 7];
 		if (*s == '$') {
 			s++;
 			col = COL_RED;
 		} else {
 			col = COL_WHITE;
 		}
-		s = ReadHelpLine(s);
-		PrintSString(0, i, false, tempstr, col);
-		if (*s == '|') {
-			s++;
-		}
+		PrintSString(0, i, false, s, col);
 	}
 	static_assert(STORE_LINES > 23, "Help text must fit to the store lines.");
 	PrintSString(0, 23, true, "Press ESC to end or the arrow keys to scroll.", COL_GOLD);
 }
 
-void DisplayHelp()
+void StartHelp()
 {
 	gbHelpflag = true;
-
 	helpFirstLine = 0;
-	HelpTop = 5000;
+	gbHelpLines = LoadTxtFile(HELP_TXT, HELP_LINES_SIZE);
 
 	InitSTextHelp();
+}
+
+void StopHelp()
+{
+	if (!gbHelpflag)
+		return;
+
+	gbHelpflag = false;
+	MemFreeTxtFile(gbHelpLines);
 }
 
 void HelpScrollUp()
@@ -172,7 +137,7 @@ void HelpScrollUp()
 
 void HelpScrollDown()
 {
-	if (helpFirstLine < HelpTop)
+	if (helpFirstLine < (HELP_LINES_SIZE - (22 - 7)))
 		helpFirstLine++;
 }
 

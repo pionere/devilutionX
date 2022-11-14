@@ -1128,7 +1128,7 @@ void HandlePanBtn(int i)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	gbHelpflag = false;
+	StopHelp();
 	gamemenu_off();
 }
 
