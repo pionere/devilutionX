@@ -2444,7 +2444,7 @@ static bool MonDoTalk(int mnum)
 	// assert(mon->_mgoal == MGOAL_TALKING);
 	mon->_mgoalvar1 = TRUE; // TALK_SPEAKING
 	if (!effect_is_playing(alltext[mon->_mgoalvar2].sfxnr)) // TALK_MESSAGE
-		InitQTextMsg(mon->_mgoalvar2, !IsMultiGame /*mon->_mListener == mypnum*/); // TALK_MESSAGE
+		StartQTextMsg(mon->_mgoalvar2, !IsMultiGame /*mon->_mListener == mypnum*/); // TALK_MESSAGE
 	return false;
 }
 

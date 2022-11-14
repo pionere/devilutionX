@@ -2284,14 +2284,14 @@ static void S_TalkEnter()
 		assert(monsters[MAX_MINIONS + talker]._mType == talker);
 		SetRndSeed(monsters[MAX_MINIONS + talker]._mRndSeed); // TNR_SEED
 		tq = RandRangeLow(GossipList[talker][0], GossipList[talker][1]);
-		InitQTextMsg(tq);
+		StartQTextMsg(tq);
 		return;
 	}
 
 	for (i = 0; i < NUM_QUESTS; i++) {
 		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
 			if (sn == stextsel) {
-				InitQTextMsg(Qtalklist[talker][i]);
+				StartQTextMsg(Qtalklist[talker][i]);
 			}
 			sn += la;
 		}

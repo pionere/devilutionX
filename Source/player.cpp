@@ -2866,7 +2866,7 @@ void ProcessPlayers()
 	if (gnSfxDelay > 0) {
 		gnSfxDelay--;
 		if (gnSfxDelay == 0) {
-			InitQTextMsg(gnSfxNum);
+			StartQTextMsg(gnSfxNum);
 		}
 	}
 #endif

@@ -1875,7 +1875,7 @@ bool InvUseItem(int cii)
 		return true;
 #ifdef HELLFIRE
 	case IMISC_NOTE:
-		InitQTextMsg(TEXT_BOOK9);
+		StartQTextMsg(TEXT_BOOK9);
 		return true;
 #endif
 	default:

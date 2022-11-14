@@ -961,12 +961,12 @@ void TalkToTowner(int tnum)
 		NetSendCmdQuest(qn, false);
 	if (qt != TEXT_NONE) {
 		// tw->_mListener = pnum; // TNR_LISTENER
-		InitQTextMsg(qt);
+		StartQTextMsg(qt);
 	} else if (tw->_mgoalvar1 != STORE_NONE) { // TNR_STORE
 		// assert(!gbQtextflag);
 		ClearPanels();
 		// gamemenu_off();
-		InitQTextMsg(tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
+		StartQTextMsg(tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
 		StartStore(tw->_mgoalvar1); // TNR_STORE
 	}
 	_guCowClicks = 0;

@@ -2402,7 +2402,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	if (deltaload)
 		return;
 	if (pnum == mypnum)
-		InitQTextMsg(questlist[qn]._qdmsg);
+		StartQTextMsg(questlist[qn]._qdmsg);
 	if (quests[qn]._qvar1 == 0) {
 		quests[qn]._qvar1 = 1;
 		quests[qn]._qactive = QUEST_ACTIVE;
@@ -3437,7 +3437,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	}
 #endif
 	if (pnum == mypnum)
-		InitQTextMsg(os->_oVar2); // STORY_BOOK_MSG
+		StartQTextMsg(os->_oVar2); // STORY_BOOK_MSG
 }
 
 static void OperateLazStand(int oi, bool sendmsg)

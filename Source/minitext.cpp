@@ -18,7 +18,7 @@ bool gbQtextflag;
 /** Vertical speed of the scrolling text in ms/px */
 static int scrolltexty;
 
-void InitQTextMsg(int m, bool showText)
+void StartQTextMsg(int m, bool showText)
 {
 	const TextData* tds;
 	int sfxnr;

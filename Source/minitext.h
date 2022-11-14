@@ -14,7 +14,7 @@ extern "C" {
 
 extern bool gbQtextflag;
 
-void InitQTextMsg(int m, bool showText = true);
+void StartQTextMsg(int m, bool showText = true);
 void DrawQText();
 
 #ifdef __cplusplus
