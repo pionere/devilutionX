@@ -5118,7 +5118,7 @@ void TalktoMonster(int mnum, int pnum)
 			}
 		}
 	} else if (mon->_mAI.aiType == AI_GARBUD) {
-		mon->_mgoalvar2 = TEXT_GARBUD1 + quests[Q_GARBUD]._qvar1; // TALK_MESSAGE
+		mon->_mgoalvar2 = TEXT_GARBUD1 + quests[Q_GARBUD]._qvar1; // TALK_MESSAGE (TEXT_GARBUD1, TEXT_GARBUD2, TEXT_GARBUD3, TEXT_GARBUD4)
 		if (mon->_mgoalvar2 == TEXT_GARBUD1) { // TALK_MESSAGE
 			quests[Q_GARBUD]._qactive = QUEST_ACTIVE;
 			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
