@@ -3,7 +3,6 @@
 #include "controls/menu_controls.h"
 
 #include "DiabloUI/diabloui.h"
-#include "DiabloUI/credits_lines.h"
 #include "DiabloUI/text_draw.h"
 #include "../gameui.h"
 #include "../engine.h"
@@ -12,6 +11,14 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static bool _gbCreditsEnd;
+#ifdef HELLFIRE
+#define CREDITS_LINES_SIZE 91
+#define CREDITS_TXT        "Meta\\credits_hf.txt"
+#else
+#define CREDITS_LINES_SIZE 455
+#define CREDITS_TXT        "Meta\\credits.txt"
+#endif
+static char** CREDITS_LINES;
 
 static void CreditsEsc()
 {
@@ -63,6 +70,8 @@ void UiCreditsDialog()
 	Uint32 ticks_begin_;
 	int prev_offset_y_ = 0;
 
+	CREDITS_LINES = LoadTxtFile(CREDITS_TXT, CREDITS_LINES_SIZE);
+
 	LoadBackgroundArt("ui_art\\credits.CEL", "ui_art\\credits.pal");
 	UiAddBackground(&gUiItems);
 	UiInitScreen(0, NULL, CreditsSelect, CreditsEsc);
@@ -86,6 +95,7 @@ void UiCreditsDialog()
 
 	MemFreeDbg(gbBackCel);
 	UiClearItems(gUiItems);
+	MemFreeTxtFile(CREDITS_LINES);
 }
 
 DEVILUTION_END_NAMESPACE

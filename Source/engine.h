@@ -67,8 +67,17 @@ void mem_free_dbg(void* p);
 		p = NULL;           \
 		mem_free_dbg(p__p); \
 	}
+#define MemFreeTxtFile(p)      \
+	{                          \
+		char** p__p;           \
+		p__p = p;              \
+		p = NULL;              \
+		mem_free_dbg(p__p[0]); \
+		mem_free_dbg(p__p);    \
+	}
 BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen = NULL);
 void LoadFileWithMem(const char* pszName, BYTE* p);
+char** LoadTxtFile(const char* name, int lines);
 
 /* Load .CEL file and overwrite the first (unused) DWORD with nWidth */
 inline CelImageBuf* CelLoadImage(const char* name, DWORD nWidth)

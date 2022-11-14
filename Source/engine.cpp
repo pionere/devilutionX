@@ -253,6 +253,25 @@ void LoadFileWithMem(const char* pszName, BYTE* p)
 	SFileCloseFile(hsFile);
 }
 
+char** LoadTxtFile(const char* name, int lines)
+{
+	BYTE* textFile = LoadFileInMem(name, NULL);
+	char** textLines = (char**)DiabloAllocPtr(sizeof(char*) * lines);
+
+	for (int i = 0; i < lines; i++) {
+		textLines[i] = (char*)textFile;
+
+		while (*textFile != '\n') {
+			assert(*textFile != '\0');
+			textFile++;
+		}
+		*textFile = '\0';
+		textFile++;
+	}
+
+	return textLines;
+}
+
 #define LOAD_LE32(b) (SwapLE32(*((DWORD*)(b))))
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 {

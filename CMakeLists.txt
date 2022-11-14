@@ -469,7 +469,7 @@ set(devilutionx_SRCS
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp
   Source/DiabloUI/credits.cpp
-  Source/DiabloUI/credits_lines.cpp
+  #Source/DiabloUI/credits_lines.cpp
   Source/DiabloUI/diabloui.cpp
   Source/DiabloUI/dialogs.cpp
   Source/DiabloUI/errorart.cpp

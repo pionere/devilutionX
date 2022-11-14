@@ -241,6 +241,8 @@ Levels\TownData\Town.SOL
 Levels\TownData\Town.TIL
 Levels\TownData\Town.TMI
 Levels\TownData\TownS.CEL
+Meta\credits.txt
+Meta\credits_hf.txt
 Meta\Dark.tbl
 Meta\Dist.tbl
 Missiles\Acidbf1.CL2
