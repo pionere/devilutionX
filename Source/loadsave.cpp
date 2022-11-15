@@ -1706,8 +1706,8 @@ void SaveGame()
 	constexpr size_t mss = sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8/*sizeof(CodecSignature)*/;
 	static_assert(tst < mss, "Town might not fit to the preallocated buffer.");
 	static_assert(tsd < mss, "Dungeon might not fit to the preallocated buffer.");
-	assert(tbuff - fileBuff < mss);
-	pfile_write_save_file(true, tbuff - fileBuff);
+	assert((size_t)tbuff - (size_t)fileBuff < mss);
+	pfile_write_save_file(true, (size_t)tbuff - (size_t)fileBuff);
 	gbValidSaveFile = true;
 	pfile_rename_temp_to_perm();
 	pfile_write_hero(true);
