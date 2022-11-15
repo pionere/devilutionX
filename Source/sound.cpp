@@ -100,6 +100,19 @@ void sound_stream(const char* path, SoundSample* pSnd, int lVolume, int lPan)
 	pSnd->Play(lVolume, lPan, SFX_STREAM_CHANNEL);
 }
 
+void sound_stop()
+{
+	Mix_HaltChannel(-1);
+}
+
+void sound_pause(bool pause)
+{
+	if (pause)
+		Mix_Pause(-1);
+	else
+		Mix_Resume(-1);
+}
+
 void sound_file_load(const char* path, SoundSample* pSnd)
 {
 	BYTE* wave_file;

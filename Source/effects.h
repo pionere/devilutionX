@@ -27,8 +27,6 @@ void FreeMonsterSFX();
 void PlayEffect(int mnum, int mode);
 void PlaySFX(int psfx, int rndCnt = 1);
 void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1);
-void sound_stop();
-void sound_pause(bool pause);
 void FreeGameSFX();
 void FreeUiSFX();
 void InitGameSFX();
@@ -42,8 +40,6 @@ inline void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1) { PlaySFX(-1, rnd
 inline void InitMonsterSFX(int midx) { }
 inline void FreeMonsterSFX() { }
 inline void PlayEffect(int mnum, int mode) { PlaySFX(-1, 2); }
-inline void sound_stop() { }
-inline void sound_pause(bool pause) { }
 inline void FreeGameSFX() { }
 inline void FreeUiSFX() { }
 inline void InitGameSFX() { }

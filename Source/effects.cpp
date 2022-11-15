@@ -1327,19 +1327,6 @@ void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
 	PlaySFX_priv(psfx, true, x, y);
 }
 
-void sound_stop()
-{
-	Mix_HaltChannel(-1);
-}
-
-void sound_pause(bool pause)
-{
-	if (pause)
-		Mix_Pause(-1);
-	else
-		Mix_Resume(-1);
-}
-
 static void priv_sound_free(BYTE bLoadMask)
 {
 	int i;
