@@ -1079,7 +1079,6 @@ void HandlePanBtn(int i)
 
 	switch (i) {
 	case PANBTN_MAINMENU:
-		gbQtextflag = false;
 		break;
 	case PANBTN_OPTIONS:
 		gamemenu_on();
@@ -1128,6 +1127,8 @@ void HandlePanBtn(int i)
 		ASSUME_UNREACHABLE
 		break;
 	}
+	if (gbQtextflag)
+		StopQTextMsg();
 	StopHelp();
 	gamemenu_off();
 }

@@ -27,6 +27,7 @@ void StartQTextMsg(int m, bool showText)
 	if (tds->scrlltxt && showText) {
 		// ClearPanels();
 		// gamemenu_off();
+		// StopQTextMsg();
 		gbQtextflag = true;
 		qtextptr = tds->txtstr;
 		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;
@@ -38,6 +39,12 @@ void StartQTextMsg(int m, bool showText)
 		sfxnr = sgSFXSets[sfxnr][myplr._pClass];
 	}
 	PlaySFX(sfxnr);
+}
+
+void StopQTextMsg()
+{
+	gbQtextflag = false;
+	stream_stop();
 }
 
 void DrawQText()
@@ -109,6 +116,7 @@ void DrawQText()
 			qtexty += 38;
 			qtextptr = pnl;
 			if (*pnl == '\0') {
+				// StopQTextMsg(); ?
 				gbQtextflag = false;
 			}
 			break;

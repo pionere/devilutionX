@@ -295,7 +295,7 @@ static bool diablo_splash()
 static void diablo_deinit()
 {
 	NetClose();
-	// FreeGameFX(); -- TODO: enable if necessary
+	// FreeGameFX(); StopHelp/ClearPanels(); -- TODO: enable if the OS cares about non-freed memory
 	if (gbSndInited) {
 		sound_stop(); // stop click-effect
 		FreeUiSFX();
@@ -752,8 +752,7 @@ bool PressEscKey()
 		rv = true;
 	}
 	if (gbQtextflag) {
-		gbQtextflag = false;
-		stream_stop();
+		StopQTextMsg();
 		rv = true;
 	} else if (stextflag != STORE_NONE) {
 		STextESC();
@@ -862,8 +861,7 @@ static void PressKey(int vkey)
 	}*/
 
 	if (gbQtextflag) {
-		gbQtextflag = false;
-		stream_stop();
+		StopQTextMsg();
 		return;
 	}
 
@@ -1219,7 +1217,6 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 	//case DVL_WM_SYSCOMMAND:
 		return;
 	case DVL_WM_QUIT:
-		// TODO: StopHelp(), ClearPanels() ?
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
 		return;
@@ -1273,7 +1270,6 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 	case DVL_WM_QUIT:
 		if (gmenu_is_active())
 			gamemenu_off();
-		// TODO: StopHelp(), ClearPanels() ?
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
 		gbGamePaused = false;
@@ -1320,8 +1316,7 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
 		if (gbQtextflag) {
-			gbQtextflag = false;
-			stream_stop();
+			StopQTextMsg();
 		}
 		ShowCutscene(uMsg);
 		if (gbRunGame) {
