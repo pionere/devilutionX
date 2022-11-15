@@ -221,7 +221,7 @@ static void scrollrt_draw_cursor()
 	sgCursHgt -= sgCursY;
 	sgCursHgt++;
 
-	assert(sgCursWdt * sgCursHgt <= sizeof sgSaveBack);
+	assert((unsigned)(sgCursWdt * sgCursHgt) <= sizeof(sgSaveBack));
 	assert(gpBuffer != NULL);
 	dst = sgSaveBack;
 	src = &gpBuffer[SCREENXY(sgCursX, sgCursY)];

@@ -874,7 +874,7 @@ bool NetInit(bool bSinglePlayer)
 	}
 	assert(mypnum == gameData.aePlayerId);
 	assert(gnTicksRate == gameData.aeTickRate);
-	assert(gnTickDelay == 1000 / gnTicksRate);
+	assert(gnTickDelay == 1000u / gnTicksRate);
 	assert(gbNetUpdateRate == gameData.aeNetUpdateRate);
 	assert(gnDifficulty == gameData.aeDifficulty);
 	return true;

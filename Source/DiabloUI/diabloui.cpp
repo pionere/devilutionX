@@ -54,11 +54,11 @@ bool gUiDrawCursor;
 static Uint32 _gdwFadeTc;
 static int _gnFadeValue = 0;
 
-struct ScrollBarState {
+typedef struct ScrollBarState {
 	char upPressCounter;
 	char downPressCounter;
-};
-ScrollBarState scrollBarState;
+} ScrollBarState;
+static ScrollBarState scrollBarState;
 
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)())
 {
@@ -218,8 +218,6 @@ static bool HandleMenuAction(MenuAction menuAction)
 		UiFocusNavigationSelect();
 		return true;
 	case MenuAction_BACK:
-		if (gfnListEsc == NULL)
-			break;
 		UiFocusNavigationEsc();
 		return true;
 	case MenuAction_DELETE:
