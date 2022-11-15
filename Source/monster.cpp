@@ -1884,7 +1884,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		return;
 	case UMT_LAZARUS:
 		//if (effect_is_playing(USFX_LAZ1))
-			stream_stop();
+			StopStreamSFX();
 		break;
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
@@ -1895,7 +1895,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		break;
 	case UMT_DEFILER:
 		//if (effect_is_playing(USFX_DEFILER8))
-			stream_stop();
+			StopStreamSFX();
 		// quests[Q_DEFILER]._qlog = FALSE;
 		quests[Q_DEFILER]._qactive = QUEST_DONE;
 		if (sendmsg)
@@ -1904,7 +1904,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		return;
 	case UMT_NAKRUL:
 		//if (effect_is_playing(USFX_NAKRUL4) || effect_is_playing(USFX_NAKRUL5) || effect_is_playing(USFX_NAKRUL6))
-			stream_stop();
+			StopStreamSFX();
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
 		quests[Q_NAKRUL]._qvar1 = 5; // set to higher than 4 so innocent monters are not 'woke'
 		if (sendmsg)

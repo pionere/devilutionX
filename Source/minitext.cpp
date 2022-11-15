@@ -44,7 +44,7 @@ void StartQTextMsg(int m, bool showText)
 void StopQTextMsg()
 {
 	gbQtextflag = false;
-	stream_stop();
+	StopStreamSFX();
 }
 
 void DrawQText()

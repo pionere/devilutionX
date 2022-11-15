@@ -336,7 +336,7 @@ void diablo_quit(int exitStatus)
 
 void FreeLevelMem()
 {
-	stream_stop();
+	StopStreamSFX();
 	music_stop();
 	sound_stop();
 

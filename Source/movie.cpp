@@ -32,7 +32,7 @@ int play_movie(const char *pszMovie, int movieFlags)
 	gbMoviePlaying = true;
 
 	sound_disable_music();
-	stream_stop();
+	StopStreamSFX();
 	sound_stop();
 
 	//video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);

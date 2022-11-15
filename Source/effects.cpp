@@ -1152,7 +1152,7 @@ bool effect_is_playing(int nSFX)
 	return sfx->pSnd.IsPlaying();
 }
 
-void stream_stop()
+void StopStreamSFX()
 {
 	if (sgpStreamSFX != NULL) {
 		Mix_HaltChannel(SFX_STREAM_CHANNEL);
@@ -1161,14 +1161,14 @@ void stream_stop()
 	}
 }
 
-static void stream_play(SFXStruct* pSFX, int lVolume, int lPan)
+static void StartStreamSFX(SFXStruct* pSFX, int lVolume, int lPan)
 {
 	// assert(pSFX != NULL);
 	// assert(pSFX->bFlags & sfx_STREAM);
 	// assert(pSFX->pSnd != NULL);
 	if (pSFX == sgpStreamSFX)
 		return;
-	stream_stop();
+	StopStreamSFX();
 	sgpStreamSFX = pSFX;
 
 	sound_stream(pSFX->pszName, &pSFX->pSnd, lVolume, lPan);
@@ -1177,7 +1177,7 @@ static void stream_play(SFXStruct* pSFX, int lVolume, int lPan)
 static void stream_update()
 {
 	if (sgpStreamSFX != NULL && !sgpStreamSFX->pSnd.IsPlaying()) {
-		stream_stop();
+		StopStreamSFX();
 	}
 }
 
@@ -1263,13 +1263,13 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 
 	pSFX = &sgSFX[psfx];
 	/* not necessary, since non-streamed sfx should be loaded at this time
-	   streams are loaded in stream_play
+	   streams are loaded in StartStreamSFX
 	if (!pSFX->pSnd.IsLoaded()) {
 		sound_file_load(pSFX->pszName, &pSFX->pSnd);
 		// assert(pSFX->pSnd.IsLoaded());
 	}*/
 	if (pSFX->bFlags & sfx_STREAM) {
-		stream_play(pSFX, lVolume, lPan);
+		StartStreamSFX(pSFX, lVolume, lPan);
 		return;
 	}
 	assert(pSFX->pSnd.IsLoaded());

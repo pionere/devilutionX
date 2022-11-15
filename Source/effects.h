@@ -20,7 +20,7 @@ extern const int sgSFXSets[NUM_SFXSets][NUM_CLASSES];
 
 #ifndef NOSOUND
 bool effect_is_playing(int nSFX);
-void stream_stop();
+void StopStreamSFX();
 void InitMonsterSFX(int midx);
 void FreeMonsterSFX();
 void PlayEffect(int mnum, int mode);
@@ -35,7 +35,7 @@ void InitGameSFX();
 void InitUiSFX();
 #else
 inline bool effect_is_playing(int nSFX) { return false; }
-inline void stream_stop() { }
+inline void StopStreamSFX() { }
 inline void PlaySFX(int psfx, int rndCnt = 1) { if (rndCnt > 1) random_low(165, rndCnt); }
 inline void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1) { PlaySFX(-1, rndCnt); }
 inline void InitMonsterSFX(int midx) { }
