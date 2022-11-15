@@ -1143,7 +1143,7 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 	// clang-format on
 };
 
-bool effect_is_playing(int nSFX)
+bool IsSFXPlaying(int nSFX)
 {
 	SFXStruct* sfx = &sgSFX[nSFX];
 
