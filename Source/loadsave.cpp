@@ -1725,8 +1725,8 @@ void SaveLevel()
 
 	tbuff = SaveLevelData(tbuff, false);
 
-	assert(tbuff - fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8/*sizeof(CodecSignature)*/);
-	pfile_write_save_file(false, tbuff - fileBuff);
+	assert((size_t)tbuff - (size_t)fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8/*sizeof(CodecSignature)*/);
+	pfile_write_save_file(false, (size_t)tbuff - (size_t)fileBuff);
 }
 
 void LoadLevel()
