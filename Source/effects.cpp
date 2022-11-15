@@ -1280,7 +1280,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 	sound_play(&pSFX->pSnd, lVolume, lPan);
 }
 
-void PlayEffect(int mnum, int mode)
+void PlayMonSFX(int mnum, int mode)
 {
 	MonsterStruct* mon;
 	int sndIdx, lVolume, lPan;

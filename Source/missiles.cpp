@@ -763,7 +763,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 		MonStartKill(mnum, -1);
 	} else {
 		/*if (resist != MORT_NONE) {
-			PlayEffect(mnum, MS_GOTHIT);
+			PlayMonSFX(mnum, MS_GOTHIT);
 		} else {*/
 			MonStartMonHit(mnum, -1, dam);
 		//}
@@ -899,7 +899,7 @@ static bool MonsterMHit(int mnum, int mi)
 		MonStartKill(mnum, pnum);
 	} else {
 		/*if (resist != MORT_NONE) {
-			PlayEffect(mnum, MS_GOTHIT);
+			PlayMonSFX(mnum, MS_GOTHIT);
 		} else {*/
 			hitFlags = 0;
 			if (mis->_miFlags & MIF_ARROW) {

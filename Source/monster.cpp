@@ -702,7 +702,7 @@ void WakeUberDiablo()
 	MonsterStruct* mon;
 
 	if (!deltaload)
-		PlayEffect(MAX_MINIONS, MS_DEATH);
+		PlayMonSFX(MAX_MINIONS, MS_DEATH);
 	mon = &monsters[MAX_MINIONS];
 	mon->_mArmorClass -= 50;
 	//mon->_mEvasion -= 20;
@@ -1767,7 +1767,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 	if (pnum == mypnum) {
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
-	PlayEffect(mnum, MS_GOTHIT);
+	PlayMonSFX(mnum, MS_GOTHIT);
 	if (mnum < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
 		return;
 	if (mon->_mmode == MM_STONE)
@@ -1800,7 +1800,7 @@ void MonStartMonHit(int defm, int offm, int dam)
 			NetSendCmdMonstDamage(defm, dmon->_mhitpoints);
 		}
 	}
-	PlayEffect(defm, MS_GOTHIT);
+	PlayMonSFX(defm, MS_GOTHIT);
 	if (defm < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
 		return;
 	// Knockback:
@@ -1955,7 +1955,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	if (mon->_mType == MT_DIABLO)
 		MonDiabloDeath(mnum, sendmsg);
 	else
-		PlayEffect(mnum, MS_DEATH);
+		PlayMonSFX(mnum, MS_DEATH);
 
 	MonFallenFear(mon->_mx, mon->_my);
 #ifdef HELLFIRE
@@ -2246,17 +2246,17 @@ static bool MonDoAttack(int mnum)
 	if (mon->_mAnimFrame == mon->_mAFNum) {
 		MonTryH2HHit(mnum, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
 		if (mon->_mAI.aiType != AI_SNAKE)
-			PlayEffect(mnum, MS_ATTACK);
+			PlayMonSFX(mnum, MS_ATTACK);
 	} else if (mon->_mFileNum == MOFILE_MAGMA && mon->_mAnimFrame == 9) {
 		// mon->_mType >= MT_NMAGMA && mon->_mType <= MT_WMAGMA
 		MonTryH2HHit(mnum, mon->_mHit + 10, mon->_mMinDamage - 2, mon->_mMaxDamage - 2);
-		PlayEffect(mnum, MS_ATTACK);
+		PlayMonSFX(mnum, MS_ATTACK);
 	} else if (mon->_mFileNum == MOFILE_THIN && mon->_mAnimFrame == 13) {
 		// mon->_mType >= MT_STORM && mon->_mType <= MT_MAEL
 		MonTryH2HHit(mnum, mon->_mHit - 20, mon->_mMinDamage + 4, mon->_mMaxDamage + 4);
-		PlayEffect(mnum, MS_ATTACK);
+		PlayMonSFX(mnum, MS_ATTACK);
 	} else if (mon->_mFileNum == MOFILE_SNAKE && mon->_mAnimFrame == 1)
-		PlayEffect(mnum, MS_ATTACK);
+		PlayMonSFX(mnum, MS_ATTACK);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		AssertFixMonLocation(mnum);
@@ -2286,7 +2286,7 @@ static bool MonDoRAttack(int mnum)
 		    MST_MONSTER,
 		    mnum,
 		    0);
-		PlayEffect(mnum, MS_ATTACK);
+		PlayMonSFX(mnum, MS_ATTACK);
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
@@ -2318,7 +2318,7 @@ static bool MonDoRSpAttack(int mnum)
 				MST_MONSTER,
 				mnum,
 				0);
-			PlayEffect(mnum, MS_SPECIAL);
+			PlayMonSFX(mnum, MS_SPECIAL);
 		}
 
 		if (mon->_mFileNum == MOFILE_MEGA) {
@@ -2569,7 +2569,7 @@ static bool MonDoSpStand(int mnum)
 	}
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum2)
-		PlayEffect(mnum, MS_SPECIAL);
+		PlayMonSFX(mnum, MS_SPECIAL);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		AssertFixMonLocation(mnum);
@@ -2643,7 +2643,7 @@ void MonWalkDir(int mnum, int md)
 	NewMonsterAnim(mnum, MA_WALK, md);
 #ifdef HELLFIRE
 	if (monsters[mnum]._mType == MT_FLESTHNG)
-		PlayEffect(mnum, MS_SPECIAL);
+		PlayMonSFX(mnum, MS_SPECIAL);
 #endif
 	mwi = MWVel[monsters[mnum]._mAnimLen - 1];
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
@@ -2915,7 +2915,7 @@ void MAI_Snake(int mnum)
 	if (dist >= 2) { // STAND_PREV_MODE
 		if (dist == 2 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy) && mon->_mVar1 != MM_CHARGE) {
 			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
-				PlayEffect(mnum, MS_ATTACK);
+				PlayMonSFX(mnum, MS_ATTACK);
 			}
 		} else if (mon->_mVar1 == MM_DELAY || random_(106, 100) >= 35 - 2 * mon->_mAI.aiInt) {
 			// calculate the desired direction
@@ -3901,7 +3901,7 @@ void MAI_Rhino(int mnum)
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
 			mon->_mdir = currEnemyInfo._meLastDir;
 			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
-				PlayEffect(mnum, MS_SPECIAL);
+				PlayMonSFX(mnum, MS_SPECIAL);
 				MonUpdateLeader(mnum);
 			}
 		} else if (dist < 2) {
@@ -4843,7 +4843,7 @@ void MissToMonst(int mi)
 		MonStartFadein(mnum, mon->_mdir, false);
 		return;
 	}*/
-	PlayEffect(mnum, MS_GOTHIT);
+	PlayMonSFX(mnum, MS_GOTHIT);
 	if (mon->_mType == MT_GLOOM) /* mon->_mAI.aiType == AI_BAT Foulwing? */
 		return;
 
@@ -4870,7 +4870,7 @@ void MissToMonst(int mi)
 		if (mpnum == dMonster[oldx][oldy] - 1 && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
 			// TODO: use MonStartMonHit ?
 			MonGetKnockback(mpnum, mis->_misx, mis->_misy);
-			PlayEffect(mnum, MS_GOTHIT);
+			PlayMonSFX(mnum, MS_GOTHIT);
 		}
 	}
 }
