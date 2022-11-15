@@ -297,7 +297,7 @@ static void diablo_deinit()
 	NetClose();
 	// FreeGameFX(); StopHelp/ClearPanels(); -- TODO: enable if the OS cares about non-freed memory
 	if (gbSndInited) {
-		sound_stop(); // stop click-effect
+		StopSFX(); // stop click-effect
 		FreeUiSFX();
 		FreeSound();
 	}
@@ -336,9 +336,8 @@ void diablo_quit(int exitStatus)
 
 void FreeLevelMem()
 {
-	StopStreamSFX();
+	StopSFX();
 	music_stop();
-	sound_stop();
 
 	FreeLvlDungeon();
 	FreeMonsters();

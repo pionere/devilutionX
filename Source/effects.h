@@ -22,6 +22,7 @@ extern const int sgSFXSets[NUM_SFXSets][NUM_CLASSES];
 bool IsSFXPlaying(int nSFX);
 void CheckStreamSFX();
 void StopStreamSFX();
+void StopSFX();
 void InitMonsterSFX(int midx);
 void FreeMonsterSFX();
 void PlayMonSFX(int mnum, int mode);
@@ -35,6 +36,7 @@ void InitUiSFX();
 inline bool IsSFXPlaying(int nSFX) { return false; }
 inline void CheckStreamSFX() { }
 inline void StopStreamSFX() { }
+inline void StopSFX() { }
 inline void PlaySFX(int psfx, int rndCnt = 1) { if (rndCnt > 1) random_low(165, rndCnt); }
 inline void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1) { PlaySFX(-1, rndCnt); }
 inline void InitMonsterSFX(int midx) { }

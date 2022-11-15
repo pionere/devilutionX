@@ -1161,6 +1161,12 @@ void StopStreamSFX()
 	}
 }
 
+void StopSFX()
+{
+	StopStreamSFX();
+	sound_stop();
+}
+
 static void StartStreamSFX(SFXStruct* pSFX, int lVolume, int lPan)
 {
 	// assert(pSFX != NULL);

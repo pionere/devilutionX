@@ -273,7 +273,7 @@ static void gamemenu_sound_volume(bool bActivate)
 	if (volume == VOLUME_MIN) {
 		// assert(!gbSoundOn);
 		if (soundOn)
-			sound_stop();
+			StopSFX();
 	} else {
 		; // assert(gbSoundOn);
 	}
