@@ -1174,7 +1174,7 @@ static void StartStreamSFX(SFXStruct* pSFX, int lVolume, int lPan)
 	sound_stream(pSFX->pszName, &pSFX->pSnd, lVolume, lPan);
 }
 
-static void stream_update()
+void CheckStreamSFX()
 {
 	if (sgpStreamSFX != NULL && !sgpStreamSFX->pSnd.IsPlaying()) {
 		StopStreamSFX();
@@ -1338,13 +1338,6 @@ void sound_pause(bool pause)
 		Mix_Pause(-1);
 	else
 		Mix_Resume(-1);
-}
-
-void sound_update()
-{
-	assert(gbSndInited);
-
-	stream_update();
 }
 
 static void priv_sound_free(BYTE bLoadMask)

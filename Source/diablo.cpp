@@ -1396,7 +1396,7 @@ void game_logic()
 	}
 #endif
 
-	sound_update();
+	CheckStreamSFX();
 	CheckTriggers();
 	CheckQuests();
 	pfile_update(false);
