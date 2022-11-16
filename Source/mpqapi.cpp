@@ -222,6 +222,7 @@ private:
 //constexpr DWORD MPQ_BLOCK_COUNT = MPQ_BLOCK_SIZE / sizeof(FileMpqBlockEntry);
 //constexpr DWORD MPQ_HASH_COUNT = MPQ_HASH_SIZE / sizeof(FileMpqHashEntry);
 constexpr uint32_t MPQ_BLOCK_OFFSET = sizeof(FileMpqHeader);
+constexpr uint32_t MPQ_SECTOR_SIZE = 512 << MPQ_SECTOR_SIZE_SHIFT_V1; // 4096
 //constexpr std::ios::off_type MPQ_HASH_OFFSET = MPQ_BLOCK_OFFSET + MPQ_BLOCK_COUNT * sizeof(FileMpqBlockEntry);
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -637,8 +638,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 	while ((tmp = strchr(pszName, '\\')))
 		pszName = tmp + 1;
 
-	constexpr uint32_t kSectorSize = 4096;
-	const uint32_t num_sectors = (dwLen + (kSectorSize - 1)) / kSectorSize;
+	const uint32_t num_sectors = (dwLen + (MPQ_SECTOR_SIZE - 1)) / MPQ_SECTOR_SIZE;
 	const uint32_t offset_table_bytesize = sizeof(uint32_t) * (num_sectors + 1);
 	pBlk->bqOffset = mpqapi_find_free_block(dwLen + offset_table_bytesize, &pBlk->bqSizeAlloc);
 	pBlk->bqSizeFile = dwLen;
@@ -676,10 +676,10 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 #endif
 
 	uint32_t destsize = offset_table_bytesize;
-	BYTE mpq_buf[kSectorSize];
+	BYTE mpq_buf[MPQ_SECTOR_SIZE];
 	std::size_t cur_sector = 0;
 	while (true) {
-		uint32_t len = std::min(dwLen, kSectorSize);
+		uint32_t len = std::min(dwLen, MPQ_SECTOR_SIZE);
 		memcpy(mpq_buf, pbData, len);
 		pbData += len;
 		len = PkwareCompress(mpq_buf, len);
@@ -687,8 +687,8 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 			goto on_error;
 		sectoroffsettable[cur_sector++] = SwapLE32(destsize);
 		destsize += len; // compressed length
-		if (dwLen > kSectorSize)
-			dwLen -= kSectorSize;
+		if (dwLen > MPQ_SECTOR_SIZE)
+			dwLen -= MPQ_SECTOR_SIZE;
 		else
 			break;
 	}
@@ -702,10 +702,10 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 		goto on_error;
 
 	if (destsize < pBlk->bqSizeAlloc) {
-		const uint32_t block_size = pBlk->bqSizeAlloc - destsize;
-		if (block_size >= 1024) {
+		const uint32_t emptyBlockSize = pBlk->bqSizeAlloc - destsize;
+		if (emptyBlockSize >= (MPQ_SECTOR_SIZE / 4)) {
 			pBlk->bqSizeAlloc = destsize;
-			mpqapi_alloc_block(pBlk->bqSizeAlloc + pBlk->bqOffset, block_size);
+			mpqapi_alloc_block(pBlk->bqSizeAlloc + pBlk->bqOffset, emptyBlockSize);
 		}
 	}
 	return true;
