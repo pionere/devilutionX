@@ -1765,14 +1765,16 @@ static void DRLG_LoadL2SP()
 	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_BLIND)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blind1.DUN");
-		// 'patch' the map to place pieces with closed doors
+		// patch the map - Blind1.DUN
+		// place pieces with closed doors
 		pSetPiece[(2 + 4 + 3 * 11) * 2] = 150;
 		pSetPiece[(2 + 6 + 7 * 11) * 2] = 150;
 	} else if (QuestStatus(Q_BLOOD)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
 	} else if (QuestStatus(Q_SCHAMB)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
-		// 'patch' the map to place shadows
+		// patch the map - Bonestr2.DUN
+		// place shadows
 		// NE-wall
 		pSetPiece[(2 + 1 + 0 * 7) * 2] = 49;
 		pSetPiece[(2 + 2 + 0 * 7) * 2] = 46;
@@ -3374,9 +3376,10 @@ static void DRLG_L2SetMapFix()
 {
 	// this logic should not be applied to 'proper' set-levels.
 	assert(currLvl._dLevelIdx == SL_BONECHAMB);
-	// 'patch' the map to place pieces with closed doors
+	// patch the map - Bonecha1.DUN
+	// place pieces with closed doors
 	dungeon[17][11] = 150;
-	// 'patch' the map to remove shadows
+	// remove shadows
 	dungeon[12][5] = 33;
 	dungeon[12][13] = 84;
 }

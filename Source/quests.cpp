@@ -318,7 +318,7 @@ static void DrawSChamber()
 	quests[Q_SCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
 
 	DrawMap("Levels\\L2Data\\Bonestr1.DUN", 3);
-	// 'patch' the map to place shadows
+	// patch the map - Bonestr1.DUN
 	// shadow of the external-left column
 	dungeon[setpc_x][setpc_y + 4] = 48;
 	dungeon[setpc_x][setpc_y + 5] = 50;
@@ -361,18 +361,19 @@ static void DrawLTBanner()
 static void DrawBlind()
 {
 	DrawMap("Levels\\L2Data\\Blind2.DUN", 3);
-	// 'patch' the map to replace the door with wall
+	// patch the map - Blind2.DUN
+	// replace the door with wall
 	dungeon[setpc_x + 4][setpc_y + 3] = 25;
 }
 
 static void DrawBlood()
 {
 	DrawMap("Levels\\L2Data\\Blood2.DUN", 3);
-	// 'patch' the map to place pieces with closed doors
+	// patch the map - Blood2.DUN
+	// place pieces with closed doors
 	dungeon[setpc_x + 4][setpc_y + 10] = 151;
 	dungeon[setpc_x + 4][setpc_y + 15] = 151;
 	dungeon[setpc_x + 5][setpc_y + 15] = 151;
-	// 'patch' the map to place shadows
 	// shadow of the external-left column -- do not place to prevent overwriting large decorations
 	//dungeon[setpc_x - 1][setpc_y + 7] = 48;
 	//dungeon[setpc_x - 1][setpc_y + 8] = 50;

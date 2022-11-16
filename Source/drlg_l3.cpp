@@ -479,8 +479,8 @@ const BYTE L3HORZWALLFIX2[] = {
 	// clang-format on
 };*/
 #ifdef HELLFIRE
-/** Miniset: Small acid patch 1. */
-const BYTE L6PATCH1[] = {
+/** Miniset: Small acid puddle 1. */
+const BYTE L6PUDDLE1[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -493,8 +493,8 @@ const BYTE L6PATCH1[] = {
 	0,   0, 0,
 	// clang-format on
 };
-/** Miniset: Small acid patch 2. */
-const BYTE L6PATCH2[] = {
+/** Miniset: Small acid puddle 2. */
+const BYTE L6PUDDLE2[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -2243,8 +2243,8 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(L6MITE8, 45);
 		DRLG_L3PlaceRndSet(L6MITE9, 50);
 		DRLG_L3PlaceRndSet(L6MITE10, 60);
-		DRLG_L3PlaceRndSet(L6PATCH1, 50);
-		DRLG_L3PlaceRndSet(L6PATCH2, 90);
+		DRLG_L3PlaceRndSet(L6PUDDLE1, 50);
+		DRLG_L3PlaceRndSet(L6PUDDLE2, 90);
 		DRLG_L3PlaceRndSet(L6VERTLPOOL1, 10);
 		DRLG_L3PlaceRndSet(L6VERTLPOOL2, 15);
 		DRLG_L3PlaceRndSet(L6VERTLPOOL3, 15);
