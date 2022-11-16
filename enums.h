@@ -2399,6 +2399,11 @@ typedef enum _uniq_monsterid {
 	UMT_HORKDMN,
 	UMT_DEFILER,
 	UMT_NAKRUL,
+	UMT_STEELMACE = 46,
+	UMT_BARON     = 49,
+#else
+	UMT_STEELMACE = 43,
+	UMT_BARON     = 46,
 #endif
 } _uniq_monsterid;
 
