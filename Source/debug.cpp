@@ -677,8 +677,10 @@ void ValidateData()
 		app_fatal("No medium armor for OperateArmorStand. Current minimum is level %d", minMediumArmor);
 	if (minHeavyArmor > 24)
 		app_fatal("No heavy armor for OperateArmorStand. Current minimum is level %d", minHeavyArmor);
+#ifdef HELLFIRE
 	if (uniqMonData[UMT_HORKDMN].muLevel < minAmu)
 		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, uniqMonData[UMT_HORKDMN].muLevel);
+#endif
 	rnddrops = 0; i = 0;
 	for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
 		rnddrops += pres->PLDouble ? 2 : 1;

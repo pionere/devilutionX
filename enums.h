@@ -2395,10 +2395,11 @@ typedef enum _uniq_monsterid {
 	UMT_LACHDAN,
 	UMT_WARLORD,
 	UMT_BUTCHER,
-	// hellfire only
+#ifdef HELLFIRE
 	UMT_HORKDMN,
 	UMT_DEFILER,
 	UMT_NAKRUL,
+#endif
 } _uniq_monsterid;
 
 typedef enum _monster_flag {
