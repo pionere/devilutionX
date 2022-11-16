@@ -1542,10 +1542,6 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
     {
         // Reset the base position to zero
         BaseFile_Read(pStream, &ByteOffset, NULL, 0);
-
-        // Setup stream size and position
-        pStream->StreamSize = pStream->Base.File.FileSize;
-        pStream->StreamPos = 0;
     }
 #endif // FULL
     return pStream;
