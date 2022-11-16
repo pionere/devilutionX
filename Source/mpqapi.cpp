@@ -80,13 +80,13 @@ void PrintError(const char *fmt, PrintFArgs... args)
 	DoLog(fmt_with_error.c_str(), args..., errno);
 }*/
 #endif /* DEBUG_MODE */
-
+// TODO: use TFileStream ?
 struct FStreamWrapper {
 public:
-	bool Open(const char *path, std::ios::openmode mode)
+	bool Open(const char* path, std::ios::openmode mode)
 	{
-		s_ = new std::fstream(path, mode);
-		if (!s_->fail()) {
+		s_.open(path, mode);
+		if (!s_.fail()) {
 #if DEBUG_MODE
 			DoLog("Open(\"%s\", %s)", path, OpenModeToString(mode).c_str());
 #endif
@@ -98,19 +98,18 @@ public:
 
 	void Close()
 	{
-		delete s_;
-		s_ = NULL;
+		s_.close();
 	}
 
 	bool IsOpen() const
 	{
-		return s_ != NULL;
+		return s_.is_open();
 	}
 #ifdef FULL
 	bool seekg(std::streampos pos)
 	{
-		s_->seekg(pos);
-		if (!s_->fail()) {
+		s_.seekg(pos);
+		if (!s_.fail()) {
 #if DEBUG_MODE
 			DoLog("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
 #endif
@@ -122,8 +121,8 @@ public:
 
 	bool seekg(std::streamoff pos, std::ios::seekdir dir)
 	{
-		s_->seekg(pos, dir);
-		if (!s_->fail()) {
+		s_.seekg(pos, dir);
+		if (!s_.fail()) {
 #if DEBUG_MODE
 			DoLog("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
 #endif
@@ -135,8 +134,8 @@ public:
 
 	bool seekp(std::streampos pos)
 	{
-		s_->seekp(pos);
-		if (!s_->fail()) {
+		s_.seekp(pos);
+		if (!s_.fail()) {
 #if DEBUG_MODE
 			DoLog("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
 #endif
@@ -148,8 +147,8 @@ public:
 #endif
 	bool seekp(std::streamoff pos, std::ios::seekdir dir)
 	{
-		s_->seekp(pos, dir);
-		if (!s_->fail()) {
+		s_.seekp(pos, dir);
+		if (!s_.fail()) {
 #if DEBUG_MODE
 			DoLog("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
 #endif
@@ -159,10 +158,10 @@ public:
 		return false;
 	}
 #ifdef FULL
-	bool tellg(std::streampos *result)
+	bool tellg(std::streampos* result)
 	{
-		*result = s_->tellg();
-		if (!s_->fail()) {
+		*result = s_.tellg();
+		if (!s_.fail()) {
 #if DEBUG_MODE
 			DoLog("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 #endif
@@ -171,11 +170,12 @@ public:
 		PrintError("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 		return false;
 	}
-#endif
-	bool tellp(std::streampos *result)
+#endif // FULL
+#ifndef CAN_SEEKP_BEYOND_EOF
+	bool tellp(std::streampos* result)
 	{
-		*result = s_->tellp();
-		if (!s_->fail()) {
+		*result = s_.tellp();
+		if (!s_.fail()) {
 #if DEBUG_MODE
 			DoLog("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 #endif
@@ -184,11 +184,11 @@ public:
 		PrintError("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 		return false;
 	}
-
-	bool write(const char *data, std::streamsize size)
+#endif // !CAN_SEEKP_BEYOND_EOF
+	bool write(const char* data, std::streamsize size)
 	{
-		s_->write(data, size);
-		if (!s_->fail()) {
+		s_.write(data, size);
+		if (!s_.fail()) {
 #if DEBUG_MODE
 			DoLog("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
@@ -198,10 +198,10 @@ public:
 		return false;
 	}
 
-	bool read(char *out, std::streamsize size)
+	bool read(char* out, std::streamsize size)
 	{
-		s_->read(out, size);
-		if (!s_->fail()) {
+		s_.read(out, size);
+		if (!s_.fail()) {
 #if DEBUG_MODE
 			DoLog("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
@@ -213,7 +213,7 @@ public:
 
 private:
 
-	std::fstream *s_;
+	std::fstream s_;
 };
 
 //#define MPQ_BLOCK_SIZE			0x8000
