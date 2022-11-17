@@ -1522,7 +1522,7 @@ void LoadMissileGFX(BYTE midx)
 {
 	char pszName[DATA_ARCHIVE_MAX_PATH];
 	int i, n;
-	BYTE **mad, *tf, *cf;
+	BYTE **mad, *tf;
 	const char *name;
 	const MisFileData* mfd;
 
@@ -1544,14 +1544,7 @@ void LoadMissileGFX(BYTE midx)
 		}
 	}
 	if (mfd->mfAnimTrans != NULL) {
-		// TODO: copy paste from monster.cpp (InitMonsterTRN)
-		tf = cf = LoadFileInMem(mfd->mfAnimTrans);
-		for (i = 0; i < 256; i++) {
-			if (*cf == 255) {
-				*cf = 0;
-			}
-			cf++;
-		}
+		tf = LoadFileInMem(mfd->mfAnimTrans);
 
 		for (i = 0; i < n; i++) {
 			Cl2ApplyTrans(mad[i], tf, mfd->mfAnimLen[i]);
