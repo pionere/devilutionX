@@ -484,9 +484,8 @@ int SDL_BlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
 
 // = Filesystem
 
-namespace {
 #if !defined(__QNXNTO__)
-char *readSymLink(const char* path)
+static char* readSymLink(const char* path)
 {
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 	char *retval = NULL;
@@ -517,10 +516,12 @@ char *readSymLink(const char* path)
 	return NULL;
 }
 #endif
-} // namespace
 
 char *SDL_GetBasePath()
 {
+#if defined(__3DS__)
+	return SDL_strdup("file:sdmc:/3ds/devilutionx/");
+#else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 
 	char *retval = NULL;
@@ -564,10 +565,6 @@ char *SDL_GetBasePath()
 			return NULL;
 		}
 	}
-#endif
-#if defined(__3DS__)
-	retval = SDL_strdup("file:sdmc:/3ds/devilutionx/");
-	return retval;
 #endif
 
 	/* is a Linux-style /proc filesystem available? */
@@ -617,10 +614,14 @@ char *SDL_GetBasePath()
 	}
 
 	return retval;
+#endif // __3DS__
 }
 
 char *SDL_GetPrefPath(const char* org, const char* app)
 {
+#if defined(__3DS__)
+	return SDL_strdup("sdmc:/3ds/devilutionx/");
+#else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 	/*
      * We use XDG's base directory spec, even if you're not on Linux.
@@ -634,11 +635,6 @@ char *SDL_GetPrefPath(const char* org, const char* app)
 	char *retval = NULL;
 	char *ptr = NULL;
 	size_t len = 0;
-
-#if defined(__3DS__)
-	retval = SDL_strdup("sdmc:/3ds/devilutionx/");
-	return retval;
-#endif
 
 	if (!app) {
 		SDL_InvalidParamError("app");
@@ -705,4 +701,5 @@ char *SDL_GetPrefPath(const char* org, const char* app)
 	}
 
 	return retval;
+#endif // __3DS__
 }
