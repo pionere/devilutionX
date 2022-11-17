@@ -1522,7 +1522,7 @@ void LoadMissileGFX(BYTE midx)
 {
 	char pszName[DATA_ARCHIVE_MAX_PATH];
 	int i, n;
-	BYTE **mad, *tf;
+	BYTE** mad;
 	const char *name;
 	const MisFileData* mfd;
 
@@ -1544,12 +1544,12 @@ void LoadMissileGFX(BYTE midx)
 		}
 	}
 	if (mfd->mfAnimTrans != NULL) {
-		tf = LoadFileInMem(mfd->mfAnimTrans);
+		BYTE trn[NUM_COLORS];
+		LoadFileWithMem(mfd->mfAnimTrans, trn);
 
 		for (i = 0; i < n; i++) {
-			Cl2ApplyTrans(mad[i], tf, mfd->mfAnimLen[i]);
+			Cl2ApplyTrans(mad[i], trn, mfd->mfAnimLen[i]);
 		}
-		mem_free_dbg(tf);
 	}
 }
 

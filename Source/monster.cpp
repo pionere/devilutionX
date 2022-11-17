@@ -150,15 +150,17 @@ void (* const AiProc[])(int i) = {
 
 static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
 {
-	BYTE *tf, *cf;
+	BYTE* cf;
 	int i, j;
 	const MonAnimStruct* as;
+	BYTE trn[NUM_COLORS];
 
 	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
-	// TODO: this filter should have been done in 'compile time'
-	tf = cf = LoadFileInMem(transFile);
-	for (i = 0; i < 256; i++) {
+	LoadFileWithMem(transFile, trn);
+	// patch TRN files - Monsters/*.TRN
+	cf = trn;
+	for (i = 0; i < NUM_COLORS; i++) {
 		if (*cf == 255) {
 			*cf = 0;
 		}
@@ -169,11 +171,10 @@ static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const ch
 		as = &anims[i];
 		if (as->maFrames > 1) {
 			for (j = 0; j < lengthof(as->maAnimData); j++) {
-				Cl2ApplyTrans(as->maAnimData[j], tf, as->maFrames);
+				Cl2ApplyTrans(as->maAnimData[j], trn, as->maFrames);
 			}
 		}
 	}
-	mem_free_dbg(tf);
 }
 
 static void InitMonsterGFX(int midx)
@@ -972,12 +973,12 @@ static void PlaceUniqueMonst(int uniqindex)
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
 	LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
-	// patch trn for 'Blighthorn Steelmace' - BHSM.TRN
+	// patch TRN for 'Blighthorn Steelmace' - BHSM.TRN
 	if (uniqindex == UMT_STEELMACE) {
 		// assert(ColorTrns[uniquetrans][188] == 255);
 		ColorTrns[uniquetrans][188] = 0;
 	}
-	// patch trn for 'Baron Sludge' - BSM.TRN
+	// patch TRN for 'Baron Sludge' - BSM.TRN
 	if (uniqindex == UMT_BARON) {
 		// assert(ColorTrns[uniquetrans][241] == 255);
 		ColorTrns[uniquetrans][241] = 0;
