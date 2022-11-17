@@ -3745,7 +3745,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		buf += sizeof(uint64_t);
 		*(uint64_t*)buf = plx(i)._pAblSkills;
 		buf += sizeof(uint64_t);
-		*(uint64_t*)buf = plx(i)._pScrlSkills;
+		*(uint64_t*)buf = plx(i)._pInvSkills;
 		buf += sizeof(uint64_t);
 
 		//LogErrorF("PLRD", "Player skill-data I. %d", (size_t)buf - (size_t)plrdata);
@@ -4060,8 +4060,8 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 		if (plx(i)._pAblSkills != *(uint64_t*)src)
 			PrintPlrMismatch("AblSkills", plx(i)._pAblSkills, *(uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
-		if (plx(i)._pScrlSkills != *(uint64_t*)src)
-			PrintPlrMismatch("ScrlSkills", plx(i)._pScrlSkills, *(uint64_t*)src, pnum, i);
+		if (plx(i)._pInvSkills != *(uint64_t*)src)
+			PrintPlrMismatch("InvSkills", plx(i)._pInvSkills, *(uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
 		break;
 	case 2: // skill data

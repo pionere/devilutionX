@@ -308,7 +308,7 @@ typedef struct PlayerStruct {
 	unsigned _pSkillExp[64];
 	uint64_t _pMemSkills;  // Bitmask of learned skills
 	uint64_t _pAblSkills;  // Bitmask of abilities
-	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls or runes
+	uint64_t _pInvSkills;  // Bitmask of skills available via items in inventory (scrolls or runes)
 	char _pName[PLR_NAME_LEN];
 	uint16_t _pBaseStr;
 	uint16_t _pBaseMag;
@@ -367,7 +367,7 @@ typedef struct PlayerStruct {
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pICritChance; // 200 == 100%
 	BYTE _pIBlockChance;
-	uint64_t _pISpells; // Bitmask of staff spell
+	uint64_t _pISpells; // Bitmask of skills available via equipped items (staff)
 	unsigned _pIFlags;
 	BYTE _pIWalkSpeed;
 	BYTE _pIRecoverySpeed;
@@ -1249,7 +1249,7 @@ typedef struct LSavePlayerStruct {
 	LE_UINT32 vpSkillExp[64];
 	LE_UINT64 vpMemSkills;  // Bitmask of learned skills
 	LE_UINT64 vpAblSkills;  // Bitmask of abilities
-	LE_UINT64 vpScrlSkills; // Bitmask of skills available via scrolls or runes
+	LE_UINT64 vpInvSkills;  // Bitmask of skills available via items in inventory (scrolls or runes)
 	char vpName[PLR_NAME_LEN];
 	LE_UINT16 vpBaseStr;
 	LE_UINT16 vpBaseMag;

@@ -957,6 +957,10 @@ void StoreSpellCoords()
 	speedspellcount = 0;
 	int xo = END_X;
 	int yo = END_Y;
+	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 1.");
+	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 2.");
+	static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 3.");
+	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 4.");
 	for (int i = 0; i < 4; i++) {
 		std::uint64_t spells;
 		switch (i) {
@@ -967,7 +971,7 @@ void StoreSpellCoords()
 			spells = myplr._pMemSkills;
 			break;
 		case RSPLTYPE_SCROLL:
-			spells = myplr._pScrlSkills;
+			spells = myplr._pInvSkills;
 			break;
 		case RSPLTYPE_CHARGES:
 			spells = myplr._pISpells;

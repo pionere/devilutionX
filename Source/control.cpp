@@ -176,57 +176,57 @@ static BYTE GetSpellTrans(BYTE st, BYTE sn)
 
 	switch (st) {
 	case RSPLTYPE_ABILITY:
-		SplTransTbl[PAL8_YELLOW] = PAL8_YELLOW + 1;
-		SplTransTbl[PAL8_YELLOW + 1] = PAL8_YELLOW + 1;
-		SplTransTbl[PAL8_YELLOW + 2] = PAL8_YELLOW + 2;
+		SkillTrns[PAL8_YELLOW] = PAL8_YELLOW + 1;
+		SkillTrns[PAL8_YELLOW + 1] = PAL8_YELLOW + 1;
+		SkillTrns[PAL8_YELLOW + 2] = PAL8_YELLOW + 2;
 		for (i = 0; i < 16; i++) {
-			SplTransTbl[PAL16_BEIGE + i] = PAL16_BEIGE + i;
-			SplTransTbl[PAL16_YELLOW + i] = PAL16_YELLOW + i;
-			SplTransTbl[PAL16_ORANGE + i] = PAL16_ORANGE + i;
+			SkillTrns[PAL16_BEIGE + i] = PAL16_BEIGE + i;
+			SkillTrns[PAL16_YELLOW + i] = PAL16_YELLOW + i;
+			SkillTrns[PAL16_ORANGE + i] = PAL16_ORANGE + i;
 		}
 		break;
 	case RSPLTYPE_SPELL:
-		SplTransTbl[PAL8_YELLOW] = PAL16_BLUE + 1;
-		SplTransTbl[PAL8_YELLOW + 1] = PAL16_BLUE + 3;
-		SplTransTbl[PAL8_YELLOW + 2] = PAL16_BLUE + 5;
+		SkillTrns[PAL8_YELLOW] = PAL16_BLUE + 1;
+		SkillTrns[PAL8_YELLOW + 1] = PAL16_BLUE + 3;
+		SkillTrns[PAL8_YELLOW + 2] = PAL16_BLUE + 5;
 		for (i = PAL16_BLUE; i < PAL16_BLUE + 16; i++) {
-			SplTransTbl[PAL16_BEIGE - PAL16_BLUE + i] = i;
-			SplTransTbl[PAL16_YELLOW - PAL16_BLUE + i] = i;
-			SplTransTbl[PAL16_ORANGE - PAL16_BLUE + i] = i;
+			SkillTrns[PAL16_BEIGE - PAL16_BLUE + i] = i;
+			SkillTrns[PAL16_YELLOW - PAL16_BLUE + i] = i;
+			SkillTrns[PAL16_ORANGE - PAL16_BLUE + i] = i;
 		}
 		break;
-	case RSPLTYPE_SCROLL:
-		SplTransTbl[PAL8_YELLOW] = PAL16_BEIGE + 1;
-		SplTransTbl[PAL8_YELLOW + 1] = PAL16_BEIGE + 3;
-		SplTransTbl[PAL8_YELLOW + 2] = PAL16_BEIGE + 5;
+	case RSPLTYPE_INV:
+		SkillTrns[PAL8_YELLOW] = PAL16_BEIGE + 1;
+		SkillTrns[PAL8_YELLOW + 1] = PAL16_BEIGE + 3;
+		SkillTrns[PAL8_YELLOW + 2] = PAL16_BEIGE + 5;
 		for (i = PAL16_BEIGE; i < PAL16_BEIGE + 16; i++) {
-			SplTransTbl[i] = i;
-			SplTransTbl[PAL16_YELLOW - PAL16_BEIGE + i] = i;
-			SplTransTbl[PAL16_ORANGE - PAL16_BEIGE + i] = i;
+			SkillTrns[i] = i;
+			SkillTrns[PAL16_YELLOW - PAL16_BEIGE + i] = i;
+			SkillTrns[PAL16_ORANGE - PAL16_BEIGE + i] = i;
 		}
 		break;
 	case RSPLTYPE_CHARGES:
-		SplTransTbl[PAL8_YELLOW] = PAL16_ORANGE + 1;
-		SplTransTbl[PAL8_YELLOW + 1] = PAL16_ORANGE + 3;
-		SplTransTbl[PAL8_YELLOW + 2] = PAL16_ORANGE + 5;
+		SkillTrns[PAL8_YELLOW] = PAL16_ORANGE + 1;
+		SkillTrns[PAL8_YELLOW + 1] = PAL16_ORANGE + 3;
+		SkillTrns[PAL8_YELLOW + 2] = PAL16_ORANGE + 5;
 		for (i = PAL16_ORANGE; i < PAL16_ORANGE + 16; i++) {
-			SplTransTbl[PAL16_BEIGE - PAL16_ORANGE + i] = i;
-			SplTransTbl[PAL16_YELLOW - PAL16_ORANGE + i] = i;
-			SplTransTbl[i] = i;
+			SkillTrns[PAL16_BEIGE - PAL16_ORANGE + i] = i;
+			SkillTrns[PAL16_YELLOW - PAL16_ORANGE + i] = i;
+			SkillTrns[i] = i;
 		}
 		break;
 	case RSPLTYPE_INVALID:
-		SplTransTbl[PAL8_YELLOW] = PAL16_GRAY + 1;
-		SplTransTbl[PAL8_YELLOW + 1] = PAL16_GRAY + 3;
-		SplTransTbl[PAL8_YELLOW + 2] = PAL16_GRAY + 5;
+		SkillTrns[PAL8_YELLOW] = PAL16_GRAY + 1;
+		SkillTrns[PAL8_YELLOW + 1] = PAL16_GRAY + 3;
+		SkillTrns[PAL8_YELLOW + 2] = PAL16_GRAY + 5;
 		for (i = PAL16_GRAY; i < PAL16_GRAY + 15; i++) {
-			SplTransTbl[PAL16_BEIGE - PAL16_GRAY + i] = i;
-			SplTransTbl[PAL16_YELLOW - PAL16_GRAY + i] = i;
-			SplTransTbl[PAL16_ORANGE - PAL16_GRAY + i] = i;
+			SkillTrns[PAL16_BEIGE - PAL16_GRAY + i] = i;
+			SkillTrns[PAL16_YELLOW - PAL16_GRAY + i] = i;
+			SkillTrns[PAL16_ORANGE - PAL16_GRAY + i] = i;
 		}
-		SplTransTbl[PAL16_BEIGE + 15] = 0;
-		SplTransTbl[PAL16_YELLOW + 15] = 0;
-		SplTransTbl[PAL16_ORANGE + 15] = 0;
+		SkillTrns[PAL16_BEIGE + 15] = 0;
+		SkillTrns[PAL16_YELLOW + 15] = 0;
+		SkillTrns[PAL16_ORANGE + 15] = 0;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -436,7 +436,7 @@ void DrawSkillList()
 			//c = SPLICONLAST + 4;
 			break;
 		case RSPLTYPE_SCROLL:
-			mask = plr._pScrlSkills;
+			mask = plr._pInvSkills;
 			//c = SPLICONLAST + 1;
 			break;
 		case RSPLTYPE_CHARGES:
@@ -907,8 +907,8 @@ void InitControlPan()
 #endif // ASSET_MPL == 1
 	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
 		for (j = 0; j < NUM_COLORS; j++)
-			SplTransTbl[j] = j;
-		SplTransTbl[NUM_COLORS - 1] = 0;
+			SkillTrns[j] = j;
+		SkillTrns[NUM_COLORS - 1] = 0;
 	}*/
 	LoadFileWithMem("PlrGFX\\SNone.TRN", SkillTrns[RSPLTYPE_ABILITY]);
 	LoadFileWithMem("PlrGFX\\SBlue.TRN", SkillTrns[RSPLTYPE_SPELL]);
@@ -1917,7 +1917,7 @@ static BYTE GetSBookTrans(int sn)
 		st = RSPLTYPE_ABILITY;
 	} else if (p->_pISpells & SPELL_MASK(sn)) {
 		st = RSPLTYPE_CHARGES;
-	} else if (p->_pScrlSkills & SPELL_MASK(sn)) {
+	} else if (p->_pInvSkills & SPELL_MASK(sn)) {
 		st = RSPLTYPE_SCROLL;
 	} else if (CheckSpell(mypnum, sn)) {
 		st = RSPLTYPE_SPELL;
@@ -1944,7 +1944,7 @@ void DrawSpellBook()
 	currSkill = SPL_INVALID;
 
 	pnum = mypnum;
-	spl = plr._pMemSkills | plr._pISpells | plr._pAblSkills | plr._pScrlSkills;
+	spl = plr._pMemSkills | plr._pISpells | plr._pAblSkills | plr._pInvSkills;
 
 	yp += SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
 	sx += SBOOK_CELBORDER;

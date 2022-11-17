@@ -795,7 +795,7 @@ void CalcPlrScrolls(int pnum)
 		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iStatFlag)
 			mask |= SPELL_MASK(pi->_iSpell);
 	}
-	plr._pScrlSkills = mask;
+	plr._pInvSkills = mask;
 
 	ValidateActionSkills(pnum, RSPLTYPE_SCROLL, mask);
 }
