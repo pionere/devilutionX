@@ -797,7 +797,7 @@ void CalcPlrScrolls(int pnum)
 	}
 	plr._pInvSkills = mask;
 
-	ValidateActionSkills(pnum, RSPLTYPE_SCROLL, mask);
+	ValidateActionSkills(pnum, RSPLTYPE_INV, mask);
 }
 
 void CalcPlrCharges(int pnum)

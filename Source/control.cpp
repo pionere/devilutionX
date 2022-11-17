@@ -80,11 +80,7 @@ static bool _gabChrbtn[NUM_ATTRIBS];
 /** Specifies whether any attribute-button is pressed on Character-Panel. */
 bool gbChrbtnactive;
 /** Color translations for the skill icons. */
-#ifdef HELLFIRE
-static BYTE SkillTrns[NUM_RSPLTYPES + 1][NUM_COLORS];
-#else
 static BYTE SkillTrns[NUM_RSPLTYPES][NUM_COLORS];
-#endif
 /** Specifies whether the Skill-List is displayed. */
 bool gbSkillListFlag;
 /** Skill-List images CEL */
@@ -159,8 +155,8 @@ static BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 static BYTE GetSpellTrans(BYTE st, BYTE sn)
 {
 #ifdef HELLFIRE
-	if (st != RSPLTYPE_SCROLL) return st;
-	return SPELL_RUNE(sn) ? NUM_RSPLTYPES : RSPLTYPE_SCROLL;
+	if (st != RSPLTYPE_INV) return st;
+	return SPELL_RUNE(sn) ? RSPLTYPE_RUNE : RSPLTYPE_SCROLL;
 #else
 	return st;
 #endif
@@ -255,7 +251,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 			t = COL_RED;
 		}
 		break;
-	case RSPLTYPE_SCROLL:
+	case RSPLTYPE_INV:
 		v = 0;
 		pi = myplr._pInvList;
 		for (t = NUM_INV_GRID_ELEM; t > 0; t--, pi++) {
@@ -423,7 +419,7 @@ void DrawSkillList()
 	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
-	static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
+	static_assert(RSPLTYPE_INV == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
 	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 4.");
 	for (i = 0; i < 4; i++) {
 		switch (i) {
@@ -435,7 +431,7 @@ void DrawSkillList()
 			mask = plr._pMemSkills;
 			//c = SPLICONLAST + 4;
 			break;
-		case RSPLTYPE_SCROLL:
+		case RSPLTYPE_INV:
 			mask = plr._pInvSkills;
 			//c = SPLICONLAST + 1;
 			break;
@@ -916,7 +912,7 @@ void InitControlPan()
 	LoadFileWithMem("PlrGFX\\SOrange.TRN", SkillTrns[RSPLTYPE_CHARGES]);
 	LoadFileWithMem("PlrGFX\\SGray.TRN", SkillTrns[RSPLTYPE_INVALID]);
 #ifdef HELLFIRE
-	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[NUM_RSPLTYPES]);
+	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[RSPLTYPE_RUNE]);
 #endif
 	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
@@ -1713,7 +1709,7 @@ void DrawInfoStr()
 		case RSPLTYPE_SPELL:
 			src = "Spell";
 			break;
-		case RSPLTYPE_SCROLL:
+		case RSPLTYPE_INV:
 			src = SPELL_RUNE(currSkill) ? "Rune" : "Scroll";
 			break;
 		case RSPLTYPE_CHARGES:
@@ -1918,7 +1914,7 @@ static BYTE GetSBookTrans(int sn)
 	} else if (p->_pISpells & SPELL_MASK(sn)) {
 		st = RSPLTYPE_CHARGES;
 	} else if (p->_pInvSkills & SPELL_MASK(sn)) {
-		st = RSPLTYPE_SCROLL;
+		st = RSPLTYPE_INV;
 	} else if (CheckSpell(mypnum, sn)) {
 		st = RSPLTYPE_SPELL;
 	} else {
@@ -1966,7 +1962,7 @@ void DrawSpellBook()
 				copy_cstr(tempstr, "Ability");
 				// lvl = -1; // SPLLVL_UNDEF
 				break;
-			case RSPLTYPE_SCROLL:
+			case RSPLTYPE_INV:
 				if (SPELL_RUNE(sn)) {
 					copy_cstr(tempstr, "Rune");
 				} else {

@@ -3454,8 +3454,12 @@ typedef enum spell_type {
 	RSPLTYPE_SPELL,
 	RSPLTYPE_SCROLL,
 	RSPLTYPE_CHARGES,
+#ifdef HELLFIRE
+	RSPLTYPE_RUNE,
+#endif
 	RSPLTYPE_INVALID,
-	NUM_RSPLTYPES
+	NUM_RSPLTYPES,
+	RSPLTYPE_INV = RSPLTYPE_SCROLL,
 } spell_type;
 
 typedef enum spell_from_type {

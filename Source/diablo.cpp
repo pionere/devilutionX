@@ -368,7 +368,7 @@ static char ValidateSkill(BYTE sn, BYTE splType)
 		else
 			result = SPLFROM_INVALID_LEVEL;
 		break;
-	case RSPLTYPE_SCROLL:
+	case RSPLTYPE_INV:
 		result = SpellSourceInv(sn);
 		break;
 	case RSPLTYPE_CHARGES:
