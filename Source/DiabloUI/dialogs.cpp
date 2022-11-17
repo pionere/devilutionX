@@ -216,7 +216,7 @@ static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 
 static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 {
-	SetFadeLevel(256);
+	SetFadeLevel(FADE_LEVELS);
 
 	_gbDialogEnd = false;
 	do {

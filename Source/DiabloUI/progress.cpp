@@ -91,7 +91,7 @@ static void ProgressFree()
 bool UiProgressDialog(const char* msg, int (*fnfunc)())
 {
 	ProgressLoad(msg);
-	SetFadeLevel(256);
+	SetFadeLevel(FADE_LEVELS);
 
 	do {
 		_gnProgress = fnfunc();

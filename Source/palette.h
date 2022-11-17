@@ -12,6 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+#define FADE_LEVELS	256
+
 extern bool gbColorCyclingEnabled;
 
 extern SDL_Color logical_palette[NUM_COLORS];
