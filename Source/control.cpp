@@ -81,9 +81,9 @@ static bool _gabChrbtn[NUM_ATTRIBS];
 bool gbChrbtnactive;
 /** Color translations for the skill icons. */
 #ifdef HELLFIRE
-static BYTE SkillTrns[NUM_RSPLTYPES + 1][256];
+static BYTE SkillTrns[NUM_RSPLTYPES + 1][NUM_COLORS];
 #else
-static BYTE SkillTrns[NUM_RSPLTYPES][256];
+static BYTE SkillTrns[NUM_RSPLTYPES][NUM_COLORS];
 #endif
 /** Specifies whether the Skill-List is displayed. */
 bool gbSkillListFlag;
@@ -906,9 +906,9 @@ void InitControlPan()
 #endif // HELLFIRE
 #endif // ASSET_MPL == 1
 	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
-		for (j = 0; j < 256; j++)
+		for (j = 0; j < NUM_COLORS; j++)
 			SplTransTbl[j] = j;
-		SplTransTbl[255] = 0;
+		SplTransTbl[NUM_COLORS - 1] = 0;
 	}*/
 	LoadFileWithMem("PlrGFX\\SNone.TRN", SkillTrns[RSPLTYPE_ABILITY]);
 	LoadFileWithMem("PlrGFX\\SBlue.TRN", SkillTrns[RSPLTYPE_SPELL]);

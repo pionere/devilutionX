@@ -71,7 +71,7 @@ static void dx_create_back_buffer()
 
 #ifndef USE_SDL1
 	// In SDL2, `back_surface` points to the global `back_palette`.
-	back_palette = SDL_AllocPalette(256);
+	back_palette = SDL_AllocPalette(NUM_COLORS);
 	if (back_palette == NULL)
 		sdl_error(ERR_SDL_BACK_PALETTE_ALLOC);
 	if (SDL_SetSurfacePalette(back_surface, back_palette) < 0)

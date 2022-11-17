@@ -7,9 +7,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-SDL_Color logical_palette[256];
-SDL_Color system_palette[256];
-SDL_Color orig_palette[256];
+SDL_Color logical_palette[NUM_COLORS];
+SDL_Color system_palette[NUM_COLORS];
+SDL_Color orig_palette[NUM_COLORS];
 
 /** Specifies the gamma correction level. */
 int _gnGammaCorrection = 100;
@@ -23,7 +23,7 @@ void palette_update()
 #ifndef USE_SDL1
 	assert(back_palette != NULL);
 #endif
-	if (SDLC_SetSurfaceAndPaletteColors(back_surface, back_palette, system_palette, 0, 256) < 0) {
+	if (SDLC_SetSurfaceAndPaletteColors(back_surface, back_palette, system_palette, 0, NUM_COLORS) < 0) {
 		sdl_error(ERR_SDL_PALETTE_UPDATE);
 	}
 	back_surface_palette_version++;
@@ -35,13 +35,13 @@ void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
 	double g;
 
 	if (_gnGammaCorrection == 100) {
-		memcpy(dst, src, sizeof(SDL_Color) * 256);
+		memcpy(dst, src, sizeof(SDL_Color) * NUM_COLORS);
 		return;
 	}
 
 	g = _gnGammaCorrection / 100.0;
 
-	for (i = 0; i < 256; i++) {
+	for (i = 0; i < NUM_COLORS; i++) {
 		dst[i].r = pow(src[i].r / 256.0, g) * 256.0;
 		dst[i].g = pow(src[i].g / 256.0, g) * 256.0;
 		dst[i].b = pow(src[i].b / 256.0, g) * 256.0;
@@ -67,7 +67,7 @@ void palette_init()
 
 void LoadPalette(const char* pszFileName)
 {
-	BYTE PalData[256][3];
+	BYTE PalData[NUM_COLORS][3];
 
 	assert(pszFileName != NULL);
 
@@ -126,7 +126,7 @@ void SetFadeLevel(unsigned fadeval)
 {
 	int i;
 
-	for (i = 0; i < 256; i++) { // BUGFIX: should be 256 (fixed)
+	for (i = 0; i < NUM_COLORS; i++) { // BUGFIX: should be 256 (fixed)
 		system_palette[i].r = (fadeval * logical_palette[i].r) >> 8;
 		system_palette[i].g = (fadeval * logical_palette[i].g) >> 8;
 		system_palette[i].b = (fadeval * logical_palette[i].b) >> 8;

@@ -51,7 +51,7 @@ static BYTE distMatrix[MAX_OFFSET][MAX_OFFSET][MAX_TILE_DIST][MAX_TILE_DIST];
  * MAXDARKNESS+3: CORAL color translation.
  * MAXDARKNESS+4.. translations of unique monsters.
  */
-BYTE ColorTrns[NUM_COLOR_TRNS][256];
+BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
 
 /**
  * CrawlTable specifies X- and Y-coordinate deltas from a missile target coordinate.
@@ -824,7 +824,7 @@ void MakeLightTable()
 
 	// assert(tbl == ColorTrns[MAXDARKNESS]);
 	tbl = ColorTrns[0];
-	memset(ColorTrns[MAXDARKNESS], 0, 256);
+	memset(ColorTrns[MAXDARKNESS], 0, sizeof(ColorTrns[MAXDARKNESS]));
 
 	if (currLvl._dType == DTYPE_HELL) {
 		for (i = 0; i < MAXDARKNESS; i++) {
@@ -1369,7 +1369,7 @@ void lighting_color_cycling()
 			tbl++;
 		}
 		*tbl = col;
-		tbl += 225;
+		tbl += NUM_COLORS - 31;
 	}
 }
 

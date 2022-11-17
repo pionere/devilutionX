@@ -133,6 +133,7 @@
 // Diablo uses a 256 color palette
 // Entry 0-127 (0x00-0x7F) are level specific
 // Entry 128-255 (0x80-0xFF) are global
+#define NUM_COLORS		256
 
 // standard palette for all levels
 // 8 or 16 shades per color

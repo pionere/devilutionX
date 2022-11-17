@@ -37,7 +37,7 @@ static void DialogSelect(unsigned index)
 static void LoadFallbackPalette()
 {
 	// clang-format off
-	static const SDL_Color FallbackPalette[256] = {
+	static const SDL_Color FallbackPalette[NUM_COLORS] = {
 		{ 0x00, 0x00, 0x00, 0 },
 		BLANKCOLOR, BLANKCOLOR, BLANKCOLOR,
 		BLANKCOLOR, BLANKCOLOR, BLANKCOLOR,

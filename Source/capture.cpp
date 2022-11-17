@@ -11,6 +11,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define PCX_COLORS	256
+
 /**
  * @brief Write the PCX-file header
  * @param width Image width
@@ -44,13 +46,13 @@ static bool CaptureHdr(uint16_t width, uint16_t height, std::ofstream *out)
  * @param out File stream for the PCX file.
  * @return True if successful, else false
  */
-static bool CapturePal(SDL_Color *palette, std::ofstream *out)
+static bool CapturePal(SDL_Color (&palette)[NUM_COLORS], std::ofstream *out)
 {
-	BYTE pcx_palette[1 + 256 * 3];
+	BYTE pcx_palette[1 + PCX_COLORS * 3];
 	int i;
-
+	static_assert(NUM_COLORS == PCX_COLORS, "Mismatching PCX and game palette.");
 	pcx_palette[0] = 12;
-	for (i = 0; i < 256; i++) {
+	for (i = 0; i < PCX_COLORS; i++) {
 		pcx_palette[1 + 3 * i + 0] = palette[i].r;
 		pcx_palette[1 + 3 * i + 1] = palette[i].g;
 		pcx_palette[1 + 3 * i + 2] = palette[i].b;
@@ -150,7 +152,7 @@ static std::ofstream *CaptureFile(std::string *dst_path)
  */
 static void RedPalette()
 {
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < NUM_COLORS; i++) {
 		system_palette[i].g = 0;
 		system_palette[i].b = 0;
 	}

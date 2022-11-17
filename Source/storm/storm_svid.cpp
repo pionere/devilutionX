@@ -21,6 +21,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define SMK_COLORS	256
+
 static double SVidFrameEnd;
 static double SVidFrameLength;
 static bool SVidLoop;
@@ -211,26 +213,24 @@ static void UpdatePalette()
 {
 	SDL_Color* colors = SVidPalette->colors;
 
-	palette_create_sdl_colors(colors, *(BYTE (*)[256][3])smk_get_palette(SVidSMK));
+	palette_create_sdl_colors(*(SDL_Color (*)[NUM_COLORS])colors, *(BYTE (*)[SMK_COLORS][3])smk_get_palette(SVidSMK));
 	ApplyGamma(colors, colors);
 
 #ifdef USE_SDL1
-	const int firstcolor = 0;
-	const int ncolors = 256;
 #if SDL1_VIDEO_MODE_BPP == 8
 	// When the video surface is 8bit, we need to set the output palette as well.
-	SDL_SetColors(SDL_GetVideoSurface(), colors, firstcolor, ncolors);
+	SDL_SetColors(SDL_GetVideoSurface(), colors, 0, NUM_COLORS);
 #endif
 	// In SDL1, the surface always has its own distinct palette, so we need to
 	// update it as well.
-	if (SDL_SetPalette(SVidSurface, SDL_LOGPAL, colors, firstcolor, ncolors) <= 0)
+	if (SDL_SetPalette(SVidSurface, SDL_LOGPAL, colors, 0, NUM_COLORS) <= 0)
 		sdl_error(ERR_SDL_VIDEO_SURFACE);
 #else // !USE_SDL1
 	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) <= -1) {
 		sdl_error(ERR_SDL_VIDEO_SURFACE);
 	}
 #endif
-	//if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, 256) < 0) {
+	//if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, NUM_COLORS) < 0) {
 	//	sdl_error(ERR_SDL_VIDEO_SURFACE);
 	//}
 }
@@ -330,7 +330,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 		sdl_error(ERR_SDL_VIDEO_CREATE);
 	}
 
-	SVidPalette = SDL_AllocPalette(256);
+	SVidPalette = SDL_AllocPalette(NUM_COLORS);
 	if (SVidPalette == NULL) {
 		sdl_error(ERR_SDL_VIDEO_PALETTE);
 	}
