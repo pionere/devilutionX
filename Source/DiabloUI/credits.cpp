@@ -51,11 +51,7 @@ static bool CreditsRender(int offsetY)
 	int destY = CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
 	for (int i = linesBegin; i < linesEnd; ++i, destY += CREDITS_LINE_H) {
 		const char* text = CREDITS_LINES[i];
-		int destX = CREDITS_LEFT;
-		for ( ; *text == '\t'; text++) {
-			destX += 11;
-		}
-		SDL_Rect dstRect = { destX, destY, 0, 0 };
+		SDL_Rect dstRect = { CREDITS_LEFT, destY, 0, 0 };
 		DrawArtStr(text, dstRect, UIS_LEFT | UIS_SMALL | UIS_GOLD);
 	}
 
