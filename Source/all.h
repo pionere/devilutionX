@@ -7,7 +7,9 @@
 #define __ALL_H__
 
 #include <algorithm>
+#if defined(_MSC_VER) && !defined(_USE_MATH_DEFINES)
 #define _USE_MATH_DEFINES
+#endif
 #include <cmath>
 
 // We include `cinttypes` here so that it is included before `inttypes.h`
