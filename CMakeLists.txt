@@ -271,7 +271,7 @@ if(NOT NONET)
 endif()
 
 if(USE_SDL1)
-  find_package(SDL REQUIRED)
+  find_package(SDL 1.2.10 REQUIRED)
   include_directories(${SDL_INCLUDE_DIR})
 elseif(DEVILUTIONX_SYSTEM_SDL2)
   find_package(SDL2 REQUIRED)
