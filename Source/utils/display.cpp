@@ -82,9 +82,11 @@ void SetVideoMode(int width, int height, int bpp, uint32_t flags)
 	if (ghMainWnd == NULL) {
 		sdl_error(ERR_SDL_DISPLAY_MODE_SET);
 	}
-	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
+#if DEBUG_MODE
+	SDL_VideoInfo* current = SDL_GetVideoInfo();
 	DoLog("Video mode is now %dx%d bpp=%d flags=0x%08X",
-	    current.current_w, current.current_h, current.vfmt->BitsPerPixel, SDL_GetVideoSurface()->flags);
+	    current->current_w, current->current_h, current->vfmt->BitsPerPixel, SDL_GetVideoSurface()->flags);
+#endif
 }
 
 void SetVideoModeToPrimary(bool fullscreen, int width, int height)
@@ -264,9 +266,9 @@ void SpawnWindow(const char* lpWindowName)
 	if (grabInput)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	atexit(SDL_VideoQuit); // Without this video mode is not restored after fullscreen.
-	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
-	width = current.current_w;
-	height = current.current_h;
+	SDL_VideoInfo* current = SDL_GetVideoInfo();
+	width = current->current_w;
+	height = current->current_h;
 #else
 	bool integerScalingEnabled = getIniBool("Graphics", "Integer Scaling", false);
 	bool upscale = getIniBool("Graphics", "Upscale", true);

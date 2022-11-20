@@ -53,7 +53,7 @@ int pcursicon;
 /*  Maps from objcurs.cel frame number to frame width.
  **If the values are modified, make sure validateCursorAreas does not fail.**
  */
-/*constexpr*/ const int InvItemWidth[CURSOR_FIRSTITEM + NUM_ICURS] = {
+/*constexpr*/ const int InvItemWidth[(int)CURSOR_FIRSTITEM + (int)NUM_ICURS] = {
 	// clang-format off
 	// Cursors
 	0, 33, 32, 32, 32, 32, 32, 32, 32, 32, 32, 23,
@@ -89,7 +89,7 @@ int pcursicon;
 /*  Maps from objcurs.cel frame number to frame height.
  **If the values are modified, make sure validateCursorAreas does not fail.**
  */
-/*constexpr*/ const int InvItemHeight[CURSOR_FIRSTITEM + NUM_ICURS] = {
+/*constexpr*/ const int InvItemHeight[(int)CURSOR_FIRSTITEM + (int)NUM_ICURS] = {
 	// clang-format off
 	// Cursors
 	0, 29, 32, 32, 32, 32, 32, 32, 32, 32, 32, 35,

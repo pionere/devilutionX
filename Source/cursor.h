@@ -37,8 +37,8 @@ void CheckCursMove();
 
 /* rdata */
 #define MAX_CURSOR_AREA		8192
-extern const int InvItemWidth[CURSOR_FIRSTITEM + NUM_ICURS];
-extern const int InvItemHeight[CURSOR_FIRSTITEM + NUM_ICURS];
+extern const int InvItemWidth[(int)CURSOR_FIRSTITEM + (int)NUM_ICURS];
+extern const int InvItemHeight[(int)CURSOR_FIRSTITEM + (int)NUM_ICURS];
 
 #ifdef __cplusplus
 }
