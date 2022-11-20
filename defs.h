@@ -239,3 +239,7 @@
 #else
 #define DVL_ATTRIBUTE_HOT
 #endif
+
+#ifndef M_SQRT2
+#define M_SQRT2    1.41421356237309504880   // sqrt(2)
+#endif
