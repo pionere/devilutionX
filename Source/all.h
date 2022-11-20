@@ -7,7 +7,7 @@
 #define __ALL_H__
 
 #include <algorithm>
-#if defined(_MSC_VER) && !defined(_USE_MATH_DEFINES)
+#if (defined(_MSC_VER) || defined(__MINGW32__)) && !defined(_USE_MATH_DEFINES)
 #define _USE_MATH_DEFINES
 #endif
 #include <cmath>
