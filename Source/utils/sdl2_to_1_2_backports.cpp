@@ -484,7 +484,7 @@ int SDL_BlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
 
 // = Filesystem
 
-#if !defined(__QNXNTO__)
+#if !defined(__QNXNTO__) && !defined(__amigaos__)
 static char* readSymLink(const char* path)
 {
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
@@ -517,14 +517,16 @@ static char* readSymLink(const char* path)
 }
 #endif
 
-char *SDL_GetBasePath()
+char* SDL_GetBasePath()
 {
 #if defined(__3DS__)
 	return SDL_strdup("file:sdmc:/3ds/devilutionx/");
+#elif defined(__amigaos__)
+	return SDL_strdup("PROGDIR:");
 #else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 
-	char *retval = NULL;
+	char* retval = NULL;
 
 #if defined(__FREEBSD__)
 	char fullpath[PATH_MAX];
@@ -617,10 +619,12 @@ char *SDL_GetBasePath()
 #endif // __3DS__
 }
 
-char *SDL_GetPrefPath(const char* org, const char* app)
+char* SDL_GetPrefPath(const char* org, const char* app)
 {
 #if defined(__3DS__)
 	return SDL_strdup("sdmc:/3ds/devilutionx/");
+#elif defined(__amigaos__)
+	return SDL_strdup("PROGDIR:");
 #else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 	/*
@@ -632,8 +636,8 @@ char *SDL_GetPrefPath(const char* org, const char* app)
      */
 	const char* envr = SDL_getenv("XDG_DATA_HOME");
 	const char* append;
-	char *retval = NULL;
-	char *ptr = NULL;
+	char* retval = NULL;
+	char* ptr = NULL;
 	size_t len = 0;
 
 	if (!app) {

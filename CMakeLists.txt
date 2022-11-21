@@ -804,7 +804,7 @@ if(AMIGA)
     ${FREETYPE_LIBRARY}
     ${ZLIB_LIBRARY})
   if(NOT WARPOS)
-    target_link_libraries(${BIN_TARGET} PRIVATE -ldebug)
+    target_link_libraries(${BIN_TARGET} PRIVATE -ldebug -noixemul)
   endif()
 endif()
 
