@@ -183,22 +183,18 @@ endif()
 
 # Remove unused symbols in non-debug mode.
 # This is useful even with LTO (-84 KiB with MinSizeRel).
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+#
+# PS4 toolchain crashes in `create-fself` when linking with these flags, so we exclude it:
+# https://github.com/PacBrew/ps4-openorbis/issues/8
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT PS4)
   # For some reason, adding to CMAKE_CXX_FLAGS results in a slightly smaller
   # binary than using `add_compile/link_options`
-  set(_extra_flags "-ffunction-sections -fdata-sections")
+  add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-ffunction-sections;-fdata-sections>")
   if(APPLE)
-    set(_extra_flags "${_extra_flags} -Wl,-dead_strip")
+    add_link_options("$<$<NOT:$<CONFIG:Debug>>:LINKER:-dead_strip>")
   else()
-    set(_extra_flags "${_extra_flags} -Wl,--gc-sections,--as-needed")
+    add_link_options("$<$<NOT:$<CONFIG:Debug>>:LINKER:--gc-sections,--as-needed>")
   endif()
-
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${_extra_flags}")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${_extra_flags}")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${_extra_flags}")
-  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${_extra_flags}")
-  set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${_extra_flags}")
-  set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${_extra_flags}")
 
   if(USE_LD_MOLD)
     if(NOT CMAKE_CROSSCOMPILING)
