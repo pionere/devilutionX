@@ -745,7 +745,7 @@ jobs:
     #      ${{github.workspace}}/diablo-nightly-android.apk
     #      ${{github.workspace}}/hellfire-nightly-android.apk
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v0.1.14
       with:
         tag_name: devilx-nightly
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
