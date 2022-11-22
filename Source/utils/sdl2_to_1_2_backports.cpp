@@ -1,9 +1,9 @@
 #include "./sdl2_to_1_2_backports.h"
 
-#define DEFAULT_PRIORITY SDL_LOG_PRIORITY_CRITICAL
-#define DEFAULT_ASSERT_PRIORITY SDL_LOG_PRIORITY_WARN
+#define DEFAULT_PRIORITY             SDL_LOG_PRIORITY_CRITICAL
+#define DEFAULT_ASSERT_PRIORITY      SDL_LOG_PRIORITY_WARN
 #define DEFAULT_APPLICATION_PRIORITY SDL_LOG_PRIORITY_INFO
-#define DEFAULT_TEST_PRIORITY SDL_LOG_PRIORITY_VERBOSE
+#define DEFAULT_TEST_PRIORITY        SDL_LOG_PRIORITY_VERBOSE
 
 namespace {
 
@@ -54,7 +54,7 @@ void SDL_LogSetPriority(SDL_LogCategory category, SDL_LogPriority priority)
 		}
 	}
 
-	entry = static_cast<SDL_LogLevel *>(SDL_malloc(sizeof(*entry)));
+	entry = static_cast<SDL_LogLevel*>(SDL_malloc(sizeof(*entry)));
 	if (entry != NULL) {
 		entry->category = category;
 		entry->priority = priority;
@@ -160,7 +160,7 @@ void SDL_LogMessageV(SDL_LogCategory category, SDL_LogPriority priority, const c
 namespace {
 
 #define DEFINE_COPY_ROW(name, type)                       \
-	void name(type *src, int src_w, type *dst, int dst_w) \
+	void name(type* src, int src_w, type* dst, int dst_w) \
 	{                                                     \
 		int i;                                            \
 		int pos, inc;                                     \
@@ -181,7 +181,7 @@ DEFINE_COPY_ROW(copy_row1, Uint8)
 DEFINE_COPY_ROW(copy_row2, Uint16)
 DEFINE_COPY_ROW(copy_row4, Uint32)
 
-void copy_row3(Uint8 *src, int src_w, Uint8 *dst, int dst_w)
+void copy_row3(Uint8* src, int src_w, Uint8* dst, int dst_w)
 {
 	int i;
 	int pos, inc;
@@ -205,8 +205,8 @@ void copy_row3(Uint8 *src, int src_w, Uint8 *dst, int dst_w)
 
 } // namespace
 
-int SDL_SoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
-    SDL_Surface *dst, const SDL_Rect *dstrect)
+int SDL_SoftStretch(SDL_Surface* src, const SDL_Rect* srcrect,
+    SDL_Surface* dst, const SDL_Rect* dstrect)
 {
 	// All the ASM support has been removed, as the platforms that the ASM
 	// implementation exists for support SDL2 anyway.
@@ -215,8 +215,8 @@ int SDL_SoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
 	int pos, inc;
 	int dst_maxrow;
 	int src_row, dst_row;
-	Uint8 *srcp = NULL;
-	Uint8 *dstp;
+	Uint8* srcp = NULL;
+	Uint8* dstp;
 	SDL_Rect full_src;
 	SDL_Rect full_dst;
 	const int bpp = dst->format->BytesPerPixel;
@@ -282,10 +282,10 @@ int SDL_SoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
 
 	/* Perform the stretch blit */
 	for (dst_maxrow = dst_row + dstrect->h; dst_row < dst_maxrow; ++dst_row) {
-		dstp = (Uint8 *)dst->pixels + (dst_row * dst->pitch)
+		dstp = (Uint8*)dst->pixels + (dst_row * dst->pitch)
 		    + (dstrect->x * bpp);
 		while (pos >= 0x10000L) {
-			srcp = (Uint8 *)src->pixels + (src_row * src->pitch)
+			srcp = (Uint8*)src->pixels + (src_row * src->pitch)
 			    + (srcrect->x * bpp);
 			++src_row;
 			pos -= 0x10000L;
@@ -295,15 +295,15 @@ int SDL_SoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
 			copy_row1(srcp, srcrect->w, dstp, dstrect->w);
 			break;
 		case 2:
-			copy_row2((Uint16 *)srcp, srcrect->w,
-			    (Uint16 *)dstp, dstrect->w);
+			copy_row2((Uint16*)srcp, srcrect->w,
+			    (Uint16*)dstp, dstrect->w);
 			break;
 		case 3:
 			copy_row3(srcp, srcrect->w, dstp, dstrect->w);
 			break;
 		case 4:
-			copy_row4((Uint32 *)srcp, srcrect->w,
-			    (Uint32 *)dstp, dstrect->w);
+			copy_row4((Uint32*)srcp, srcrect->w,
+			    (Uint32*)dstp, dstrect->w);
 			break;
 		}
 		pos += inc;
@@ -319,8 +319,8 @@ int SDL_SoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
 	return 0;
 }
 
-int SDL_BlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
-    SDL_Surface *dst, SDL_Rect *dstrect)
+int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
+    SDL_Surface* dst, SDL_Rect* dstrect)
 {
 	if (!SDLBackport_PixelFormatFormatEq(src->format, dst->format) || SDLBackport_IsPixelFormatIndexed(src->format)) {
 		return SDL_BlitSurface(src, srcrect, dst, dstrect);
@@ -493,7 +493,7 @@ static char* readSymLink(const char* path)
 	ssize_t rc = -1;
 
 	while (1) {
-		char *ptr = (char *)SDL_realloc(retval, (size_t)len);
+		char* ptr = (char*)SDL_realloc(retval, (size_t)len);
 		if (ptr == NULL) {
 			SDL_OutOfMemory();
 			break;
@@ -599,7 +599,7 @@ char* SDL_GetBasePath()
         or troll through $PATH looking for it, too. */
 
 	if (retval != NULL) { /* chop off filename. */
-		char *ptr = SDL_strrchr(retval, '/');
+		char* ptr = SDL_strrchr(retval, '/');
 		if (ptr != NULL) {
 			*(ptr + 1) = '\0';
 		} else { /* shouldn't happen, but just in case... */
@@ -610,7 +610,7 @@ char* SDL_GetBasePath()
 
 	if (retval != NULL) {
 		/* try to shrink buffer... */
-		char *ptr = (char *)SDL_realloc(retval, strlen(retval) + 1);
+		char* ptr = (char*)SDL_realloc(retval, strlen(retval) + 1);
 		if (ptr != NULL)
 			retval = ptr; /* oh well if it failed. */
 	}
@@ -670,7 +670,7 @@ char* SDL_GetPrefPath(const char* org, const char* app)
 		append += 1;
 
 	len += SDL_strlen(append) + SDL_strlen(org) + SDL_strlen(app) + 3;
-	retval = (char *)SDL_malloc(len);
+	retval = (char*)SDL_malloc(len);
 	if (!retval) {
 		SDL_OutOfMemory();
 		return NULL;

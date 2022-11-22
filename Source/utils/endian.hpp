@@ -5,7 +5,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 template <typename T>
-constexpr std::uint16_t LoadLE16(const T *b)
+constexpr std::uint16_t LoadLE16(const T* b)
 {
 	static_assert(sizeof(T) == 1, "invalid argument");
 	// NOLINTNEXTLINE(readability-magic-numbers)
@@ -13,7 +13,7 @@ constexpr std::uint16_t LoadLE16(const T *b)
 }
 
 template <typename T>
-constexpr std::uint32_t LoadLE32(const T *b)
+constexpr std::uint32_t LoadLE32(const T* b)
 {
 	static_assert(sizeof(T) == 1, "invalid argument");
 	// NOLINTNEXTLINE(readability-magic-numbers)
@@ -21,7 +21,7 @@ constexpr std::uint32_t LoadLE32(const T *b)
 }
 
 template <typename T>
-constexpr std::uint32_t LoadBE32(const T *b)
+constexpr std::uint32_t LoadBE32(const T* b)
 {
 	static_assert(sizeof(T) == 1, "invalid argument");
 	// NOLINTNEXTLINE(readability-magic-numbers)

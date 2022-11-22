@@ -3,33 +3,33 @@
 #include <SDL.h>
 
 #ifndef USE_SDL1
-#define SDLC_KEYSTATE(x) SDL_SCANCODE_##x
-#define SDLC_KEYSTATE_LEFTCTRL SDL_SCANCODE_LCTRL
-#define SDLC_KEYSTATE_RIGHTCTRL SDL_SCANCODE_RCTRL
-#define SDLC_KEYSTATE_LEFTSHIFT SDL_SCANCODE_LSHIFT
+#define SDLC_KEYSTATE(x)         SDL_SCANCODE_##x
+#define SDLC_KEYSTATE_LEFTCTRL   SDL_SCANCODE_LCTRL
+#define SDLC_KEYSTATE_RIGHTCTRL  SDL_SCANCODE_RCTRL
+#define SDLC_KEYSTATE_LEFTSHIFT  SDL_SCANCODE_LSHIFT
 #define SDLC_KEYSTATE_RIGHTSHIFT SDL_SCANCODE_RSHIFT
-#define SDLC_KEYSTATE_LALT SDL_SCANCODE_LALT
-#define SDLC_KEYSTATE_RALT SDL_SCANCODE_RALT
-#define SDLC_KEYSTATE_UP SDL_SCANCODE_UP
-#define SDLC_KEYSTATE_DOWN SDL_SCANCODE_DOWN
-#define SDLC_KEYSTATE_LEFT SDL_SCANCODE_LEFT
-#define SDLC_KEYSTATE_RIGHT SDL_SCANCODE_RIGHT
+#define SDLC_KEYSTATE_LALT       SDL_SCANCODE_LALT
+#define SDLC_KEYSTATE_RALT       SDL_SCANCODE_RALT
+#define SDLC_KEYSTATE_UP         SDL_SCANCODE_UP
+#define SDLC_KEYSTATE_DOWN       SDL_SCANCODE_DOWN
+#define SDLC_KEYSTATE_LEFT       SDL_SCANCODE_LEFT
+#define SDLC_KEYSTATE_RIGHT      SDL_SCANCODE_RIGHT
 #else
 //#define SDLC_KEYSTATE(x) SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_##x)
-#define SDLC_KEYSTATE(x) SDLK_##x
-#define SDLC_KEYSTATE_LEFTCTRL SDLK_LCTRL
-#define SDLC_KEYSTATE_RIGHTCTRL SDLK_RCTRL
-#define SDLC_KEYSTATE_LEFTSHIFT SDLK_LSHIFT
+#define SDLC_KEYSTATE(x)         SDLK_##x
+#define SDLC_KEYSTATE_LEFTCTRL   SDLK_LCTRL
+#define SDLC_KEYSTATE_RIGHTCTRL  SDLK_RCTRL
+#define SDLC_KEYSTATE_LEFTSHIFT  SDLK_LSHIFT
 #define SDLC_KEYSTATE_RIGHTSHIFT SDLK_LSHIFT
-#define SDLC_KEYSTATE_LALT SDLK_LALT
-#define SDLC_KEYSTATE_RALT SDLK_RALT
-#define SDLC_KEYSTATE_UP SDLK_UP
-#define SDLC_KEYSTATE_DOWN SDLK_DOWN
-#define SDLC_KEYSTATE_LEFT SDLK_LEFT
-#define SDLC_KEYSTATE_RIGHT SDLK_RIGHT
+#define SDLC_KEYSTATE_LALT       SDLK_LALT
+#define SDLC_KEYSTATE_RALT       SDLK_RALT
+#define SDLC_KEYSTATE_UP         SDLK_UP
+#define SDLC_KEYSTATE_DOWN       SDLK_DOWN
+#define SDLC_KEYSTATE_LEFT       SDLK_LEFT
+#define SDLC_KEYSTATE_RIGHT      SDLK_RIGHT
 #endif
 
-inline const Uint8 *SDLC_GetKeyState()
+inline const Uint8* SDLC_GetKeyState()
 {
 #ifdef USE_SDL1
 	return SDL_GetKeyState(NULL);
@@ -38,7 +38,7 @@ inline const Uint8 *SDLC_GetKeyState()
 #endif
 }
 
-inline int SDLC_SetColorKey(SDL_Surface *surface, Uint32 key)
+inline int SDLC_SetColorKey(SDL_Surface* surface, Uint32 key)
 {
 #ifdef USE_SDL1
 	return SDL_SetColorKey(surface, SDL_SRCCOLORKEY | SDL_RLEACCEL, key);
@@ -49,7 +49,7 @@ inline int SDLC_SetColorKey(SDL_Surface *surface, Uint32 key)
 }
 
 // Copies the colors into the surface's palette.
-inline int SDLC_SetSurfaceColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
+inline int SDLC_SetSurfaceColors(SDL_Surface* surface, SDL_Color* colors, int firstcolor, int ncolors)
 {
 #ifdef USE_SDL1
 	return SDL_SetPalette(surface, SDL_LOGPAL, colors, firstcolor, ncolors) - 1;
@@ -62,7 +62,7 @@ inline int SDLC_SetSurfaceColors(SDL_Surface *surface, SDL_Color *colors, int fi
  * SDL1: Copies the colors into the surface's palette.
  * SDL2: Sets the surface's palette to the input palette.
  */
-inline int SDLC_SetSurfaceColors(SDL_Surface *surface, SDL_Palette *palette)
+inline int SDLC_SetSurfaceColors(SDL_Surface* surface, SDL_Palette* palette)
 {
 #ifdef USE_SDL1
 	return SDLC_SetSurfaceColors(surface, palette->colors, 0, palette->ncolors);
@@ -78,7 +78,7 @@ inline int SDLC_SetSurfaceColors(SDL_Surface *surface, SDL_Palette *palette)
  * SDL1: Sets the surface's colors.
  * SDL2: Sets the palette's colors.
  */
-inline int SDLC_SetSurfaceAndPaletteColors(SDL_Surface *surface, SDL_Palette *palette, SDL_Color *colors, int firstcolor, int ncolors)
+inline int SDLC_SetSurfaceAndPaletteColors(SDL_Surface* surface, SDL_Palette* palette, SDL_Color* colors, int firstcolor, int ncolors)
 {
 #ifdef USE_SDL1
 	//if (ncolors > (palette->ncolors - firstcolor)) {

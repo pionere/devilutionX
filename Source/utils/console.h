@@ -8,7 +8,7 @@
 
 namespace dvl {
 
-void printInConsole(const char *fmt, ...)
+void printInConsole(const char* fmt, ...)
 {
 	static HANDLE stderrHandle = NULL;
 	if (stderrHandle == NULL) {

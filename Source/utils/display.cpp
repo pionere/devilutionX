@@ -102,7 +102,8 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height)
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
 }
 
-bool IsFullScreen() {
+bool IsFullScreen()
+{
 	return (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
 	// ifndef USE_SDL1:
 	//   return (SDL_GetWindowFlags(ghMainWnd) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
@@ -136,7 +137,7 @@ static void AdjustToScreenGeometry(int width, int height)
 }
 
 #ifndef USE_SDL1
-static void CalculatePreferredWindowSize(int &width, int &height, bool useIntegerScaling)
+static void CalculatePreferredWindowSize(int& width, int& height, bool useIntegerScaling)
 {
 	SDL_DisplayMode mode;
 	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
@@ -180,12 +181,6 @@ void SpawnWindow(const char* lpWindowName)
 #if (__WINRT__ || __ANDROID__ || __IPHONEOS__) && !defined(USE_SDL1)
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
-
-//#ifdef _WIN32
-//	// The default WASAPI backend causes distortions
-//	// https://github.com/diasurgical/devilutionX/issues/1434
-//	SDL_setenv("SDL_AUDIODRIVER", "winmm", /*overwrite=*/false);
-//#endif
 
 	int initFlags = SDL_INIT_VIDEO;
 #ifndef NOSOUND

@@ -24,7 +24,7 @@ static std::string configPath;
 #define SLASH '/'
 #endif
 
-static void AddTrailingSlash(std::string &path)
+static void AddTrailingSlash(std::string& path)
 {
 	if (path.empty())
 		path = " "; // make sure the path is not set during InitPaths
@@ -32,7 +32,7 @@ static void AddTrailingSlash(std::string &path)
 		path += SLASH;
 }
 
-static void FromSDL(std::string &path, bool base)
+static void FromSDL(std::string& path, bool base)
 {
 	char* s;
 

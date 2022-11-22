@@ -87,15 +87,13 @@ void SoundSample::SetChunk(BYTE* fileData, size_t dwBytes, bool stream)
 	Mix_RWops buf;
 
 	Mix_RWFromMem(&buf, fileData, dwBytes);
-	//if (buf != NULL) {
 #if STREAM_ALL_AUDIO
-		soundData = Mix_LoadWAV_RW(&buf, SDL_TRUE);
+	soundData = Mix_LoadWAV_RW(&buf, SDL_TRUE);
 #else
-		soundData = Mix_LoadWAV_RW(&buf, stream ? SDL_TRUE : SDL_FALSE);
+	soundData = Mix_LoadWAV_RW(&buf, stream ? SDL_TRUE : SDL_FALSE);
 #endif
-		if (soundData != NULL)
-			return; // 0;
-	//}
+	if (soundData != NULL)
+		return; // 0;
 
 	sdl_error(ERR_SDL_SOUND_FILE);
 	//return -1;

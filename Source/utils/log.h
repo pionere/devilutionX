@@ -1,7 +1,7 @@
 #pragma once
 
 #if DEBUG_MODE
-#define DoLog            SDL_Log
+#define DoLog SDL_Log
 #else
-#define DoLog(x, ...)   do { } while(0);
+#define DoLog(x, ...) ((void)0)
 #endif

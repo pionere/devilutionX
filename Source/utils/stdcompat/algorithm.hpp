@@ -7,7 +7,7 @@ namespace dvl {
 using std::clamp; // NOLINT(misc-unused-using-decls)
 #else
 template <typename T>
-constexpr const T &clamp(const T &x, const T &lower, const T &upper)
+constexpr const T& clamp(const T& x, const T& lower, const T& upper)
 {
 	return std::min(std::max(x, lower), upper);
 }
