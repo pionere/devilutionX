@@ -10,9 +10,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define FONT_KERN_SMALL		1
-#define FONT_KERN_BIG		2
-#define FONT_KERN_HUGE		2
+#define FONT_KERN_SMALL 1
+#define FONT_KERN_BIG   2
+#define FONT_KERN_HUGE  2
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,9 +35,9 @@ void PrintChar(int sx, int sy, int nCel, BYTE col);
 int PrintSmallChar(int sx, int sy, BYTE text, BYTE col);
 int PrintBigChar(int sx, int sy, BYTE text, BYTE col);
 int PrintHugeChar(int sx, int sy, BYTE text, BYTE col);
-void PrintString(int x, int y, int endX, const char *pszStr, bool center, BYTE col, int kern);
-void PrintGameStr(int x, int y, const char *str, BYTE color);
-int PrintLimitedString(int x, int y, const char *text, int limit, BYTE col);
+void PrintString(int x, int y, int endX, const char* pszStr, bool center, BYTE col, int kern);
+void PrintGameStr(int x, int y, const char* str, BYTE color);
+int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col);
 void PrintHugeString(int x, int y, const char* pszStr, int light);
 
 void DrawHugePentSpn(int x1, int x2, int y);

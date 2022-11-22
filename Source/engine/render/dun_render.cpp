@@ -484,7 +484,7 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	default:
 		ASSUME_UNREACHABLE;
 		mask = &SolidMask[MICRO_HEIGHT - 1];
-		break; 
+		break;
 	}
 
 #if DEBUG_MODE

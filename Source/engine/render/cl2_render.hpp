@@ -20,7 +20,7 @@ extern "C" {
  * @param ttbl Palette translation table
  * @param nCel number of frames in the CL2 file
  */
-void Cl2ApplyTrans(BYTE *p, const BYTE *ttbl, int nCel);
+void Cl2ApplyTrans(BYTE* p, const BYTE* ttbl, int nCel);
 
 /**
  * @brief Blit CL2 sprite, to the back buffer at the given coordinates
@@ -30,7 +30,7 @@ void Cl2ApplyTrans(BYTE *p, const BYTE *ttbl, int nCel);
  * @param nCel CL2 frame number
  * @param nWidth CL2 width of the frame
  */
-void Cl2Draw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
+void Cl2Draw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 
 /**
  * @brief Blit an outline one pixel larger than the given sprite shape to the back buffer at the given coordinates
@@ -41,7 +41,7 @@ void Cl2Draw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
  * @param nCel CL2 frame number
  * @param nWidth CL2 width of the frame
  */
-void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
+void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 
 /**
  * @brief Blit CL2 sprite, and apply a given lighting, to the given buffer at the given coordinates
@@ -62,7 +62,7 @@ void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth,
  * @param nCel CL2 frame number
  * @param nWidth CL2 width of the frame
  */
-void Cl2DrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
+void Cl2DrawLight(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 
 #ifdef __cplusplus
 }

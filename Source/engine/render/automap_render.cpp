@@ -27,7 +27,7 @@ bool _gbNotInView;
  */
 void AutomapDrawPixel(int sx, int sy, BYTE col)
 {
-	BYTE *dst;
+	BYTE* dst;
 
 	//assert(gpBuffer != NULL);
 
@@ -47,7 +47,7 @@ void AutomapDrawPixel(int sx, int sy, BYTE col)
  */
 void engine_draw_pixel(int sx, int sy)
 {
-	BYTE *dst;
+	BYTE* dst;
 
 	assert(gpBuffer != NULL);
 
