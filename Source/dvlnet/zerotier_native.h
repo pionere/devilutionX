@@ -16,4 +16,4 @@ const unsigned char dvl_multicast_addr[16] = {
 
 }
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // ZEROTIER

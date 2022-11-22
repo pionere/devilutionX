@@ -92,15 +92,15 @@ typedef struct NetPktInfoReply {
 
 class packet {
 protected:
-	const key_t &key;
+	const key_t& key;
 	buffer_t encrypted_buffer;
 	buffer_t decrypted_buffer;
 
 public:
-	packet(const key_t &k)
+	packet(const key_t& k)
 	    : key(k) {};
 
-	const buffer_t &encrypted_data();
+	const buffer_t& encrypted_data();
 
 	packet_type pktType() const {
 		return reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_type;
@@ -139,7 +139,7 @@ public:
 	cookie_t pktJoinAccCookie() const {
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_cookie;
 	}
-	SNetGameData &pktJoinAccInfo() {
+	SNetGameData& pktJoinAccInfo() {
 		return reinterpret_cast<NetPktJoinAccept*>(decrypted_buffer.data())->m_info;
 	}
 	// PT_INFO_REPLY
@@ -299,9 +299,9 @@ public:
 	std::unique_ptr<packet> make_fake_out_packet(Args... args);
 
 	template <class T>
-	static const BYTE* begin(const T &x);
+	static const BYTE* begin(const T& x);
 	template <class T>
-	static const BYTE* end(const T &x);
+	static const BYTE* end(const T& x);
 };
 
 inline std::unique_ptr<packet> packet_factory::make_in_packet(buffer_t buf)
@@ -331,13 +331,13 @@ std::unique_ptr<packet> packet_factory::make_fake_out_packet(Args... args)
 }
 
 template <class T>
-const BYTE* packet_factory::begin(const T &x)
+const BYTE* packet_factory::begin(const T& x)
 {
 	return reinterpret_cast<const BYTE*>(&x);
 }
 
 template <class T>
-const BYTE* packet_factory::end(const T &x)
+const BYTE* packet_factory::end(const T& x)
 {
 	return reinterpret_cast<const BYTE*>(&x) + sizeof(T);
 }

@@ -24,7 +24,7 @@ public:
 
 protected:
 	virtual void poll();
-	virtual void send_packet(packet &pkt);
+	virtual void send_packet(packet& pkt);
 
 private:
 	frame_queue recv_queue;
@@ -34,7 +34,7 @@ private:
 	asio::ip::tcp::socket sock = asio::ip::tcp::socket(ioc);
 	tcp_server* local_server = NULL;
 
-	void handle_recv(const asio::error_code &ec, size_t bytesRead);
+	void handle_recv(const asio::error_code& ec, size_t bytesRead);
 	void start_recv();
 	void close();
 };

@@ -3,7 +3,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-const buffer_t &packet::encrypted_data()
+const buffer_t& packet::encrypted_data()
 {
 	return encrypted_buffer;
 }
@@ -67,7 +67,7 @@ void packet_factory::setup_password(const char* passwd)
 	salt.resize(crypto_pwhash_argon2id_SALTBYTES, 0);
 	if (crypto_pwhash(key.data, crypto_secretbox_KEYBYTES,
 	        pw.data(), pw.size(),
-	        reinterpret_cast<const unsigned char *>(salt.data()),
+	        reinterpret_cast<const unsigned char*>(salt.data()),
 	        3 * crypto_pwhash_argon2id_OPSLIMIT_MIN,
 	        2 * crypto_pwhash_argon2id_MEMLIMIT_MIN,
 	        crypto_pwhash_ALG_ARGON2ID13))

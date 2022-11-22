@@ -102,7 +102,7 @@ void base_protocol<P>::send_info_request()
 template <class P>
 void base_protocol<P>::wait_join()
 {
-	randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
+	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self),
 	    sizeof(cookie_t));
 	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
 	    PLR_MASTER, cookie_self);
@@ -157,7 +157,7 @@ void base_protocol<P>::poll()
 }
 
 template <class P>
-void base_protocol<P>::send_packet(packet &pkt)
+void base_protocol<P>::send_packet(packet& pkt)
 {
 	plr_t pkt_plr = pkt.pktDest();
 
@@ -167,7 +167,7 @@ void base_protocol<P>::send_packet(packet &pkt)
 		if (peers[pkt_plr])
 			proto.send(peers[pkt_plr], pkt.encrypted_data());
 	} else if (pkt_plr == PLR_BROADCAST) {
-		for (auto &peer : peers)
+		for (auto& peer : peers)
 			if (peer)
 				proto.send(peer, pkt.encrypted_data());
 	} else if (pkt_plr == PLR_MASTER) {
@@ -198,14 +198,14 @@ void base_protocol<P>::recv()
 				}
 			}
 		}
-	} catch (std::exception &e) {
+	} catch (std::exception& e) {
 		DoLog(e.what());
 		return;
 	}
 }
 
 template <class P>
-void base_protocol<P>::handle_join_request(packet &pkt, endpoint sender)
+void base_protocol<P>::handle_join_request(packet& pkt, endpoint sender)
 {
 	plr_t i;
 	for (i = 0; i < MAX_PLRS; ++i) {
@@ -231,7 +231,7 @@ void base_protocol<P>::handle_join_request(packet &pkt, endpoint sender)
 }
 
 template <class P>
-void base_protocol<P>::recv_decrypted(packet &pkt, endpoint sender)
+void base_protocol<P>::recv_decrypted(packet& pkt, endpoint sender)
 {
 	plr_t pkt_plr = pkt.pktSrc();
 
@@ -282,7 +282,7 @@ std::vector<std::string> base_protocol<P>::get_gamelist()
 {
 	recv();
 	std::vector<std::string> ret;
-	for (auto &s : game_list) {
+	for (auto& s : game_list) {
 		ret.push_back(s.first);
 	}
 	return ret;
@@ -303,4 +303,4 @@ void base_protocol<P>::make_default_gamename(char (&gamename)[128])
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // ZEROTIER

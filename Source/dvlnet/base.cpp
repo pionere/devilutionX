@@ -26,7 +26,7 @@ void base::setup_password(const char* passwd)
 	pktfty.setup_password(passwd);
 }
 
-void base::run_event_handler(SNetEvent &ev)
+void base::run_event_handler(SNetEvent& ev)
 {
 	auto f = registered_handlers[ev.eventid];
 	if (f != NULL) {
@@ -38,12 +38,12 @@ void base::disconnect_net(plr_t pnum)
 {
 }
 
-void base::recv_connect(packet &pkt)
+void base::recv_connect(packet& pkt)
 {
 	//	connected_table[pkt.pktConnectPlr()] = true; // this can probably be removed
 }
 
-void base::recv_accept(packet &pkt)
+void base::recv_accept(packet& pkt)
 {
 	if (plr_self != PLR_BROADCAST || pkt.pktJoinAccCookie() != cookie_self) {
 		// ignore the packet if player id is set or the cookie does not match
@@ -100,7 +100,7 @@ void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 	    message_queue.end());
 }
 
-void base::recv_disconnect(packet &pkt)
+void base::recv_disconnect(packet& pkt)
 {
 	plr_t pkt_src = pkt.pktSrc();
 	plr_t pkt_plr = pkt.pktDisconnectPlr();
@@ -123,7 +123,7 @@ void base::recv_disconnect(packet &pkt)
 	}
 }
 
-void base::recv_local(packet &pkt)
+void base::recv_local(packet& pkt)
 {
 	// FIXME: the server could still impersonate a player...
 	plr_t pkt_plr = pkt.pktSrc();

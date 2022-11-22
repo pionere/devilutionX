@@ -47,14 +47,14 @@ protected:
 	void setup_password(const char* passwd);
 	void setup_gameinfo(_uigamedata* gameData);
 	virtual void poll() = 0;
-	virtual void send_packet(packet &pkt) = 0;
+	virtual void send_packet(packet& pkt) = 0;
 	virtual void disconnect_net(plr_t pnum);
-	void recv_local(packet &pkt);
-	virtual void recv_connect(packet &pkt);
+	void recv_local(packet& pkt);
+	virtual void recv_connect(packet& pkt);
 private:
-	void recv_accept(packet &pkt);
-	void recv_disconnect(packet &pkt);
-	void run_event_handler(SNetEvent &ev);
+	void recv_accept(packet& pkt);
+	void recv_disconnect(packet& pkt);
+	void run_event_handler(SNetEvent& ev);
 	void disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo);
 };
 

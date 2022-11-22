@@ -50,7 +50,7 @@ static constexpr uint8_t PLR_BROADCAST = SNPLAYER_ALL;
 
 class dvlnet_exception : public std::exception {
 public:
-	const char *what() const throw() override
+	const char* what() const throw() override
 	{
 		return "Network error";
 	}

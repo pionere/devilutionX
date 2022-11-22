@@ -36,13 +36,13 @@ void protocol_zt::set_nonblock(int fd)
 void protocol_zt::set_nodelay(int fd)
 {
 	const int yes = 1;
-	lwip_setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (void *)&yes, sizeof(yes));
+	lwip_setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (void*)&yes, sizeof(yes));
 }
 
 void protocol_zt::set_reuseaddr(int fd)
 {
 	const int yes = 1;
-	lwip_setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void *)&yes, sizeof(yes));
+	lwip_setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void*)&yes, sizeof(yes));
 }
 
 bool protocol_zt::network_online()
@@ -59,7 +59,7 @@ bool protocol_zt::network_online()
 	if (fd_udp == -1) {
 		fd_udp = lwip_socket(AF_INET6, SOCK_DGRAM, 0);
 		set_reuseaddr(fd_udp);
-		auto ret = lwip_bind(fd_udp, (struct sockaddr *)&in6, sizeof(in6));
+		auto ret = lwip_bind(fd_udp, (struct sockaddr*)&in6, sizeof(in6));
 		if (ret < 0) {
 			DoLog("lwip, (udp) bind: %s\n", strerror(errno));
 			throw protocol_exception();
@@ -69,7 +69,7 @@ bool protocol_zt::network_online()
 	if (fd_tcp == -1) {
 		fd_tcp = lwip_socket(AF_INET6, SOCK_STREAM, 0);
 		set_reuseaddr(fd_tcp);
-		auto r1 = lwip_bind(fd_tcp, (struct sockaddr *)&in6, sizeof(in6));
+		auto r1 = lwip_bind(fd_tcp, (struct sockaddr*)&in6, sizeof(in6));
 		if (r1 < 0) {
 			DoLog("lwip, (tcp) bind: %s\n", strerror(errno));
 			throw protocol_exception();
@@ -85,31 +85,31 @@ bool protocol_zt::network_online()
 	return true;
 }
 
-bool protocol_zt::send(const endpoint &peer, const buffer_t &data)
+bool protocol_zt::send(const endpoint& peer, const buffer_t& data)
 {
 	peer_list[peer].send_queue.push_back(frame_queue::make_frame(data));
 	return true;
 }
 
-bool protocol_zt::send_oob(const endpoint &peer, const buffer_t &data) const
+bool protocol_zt::send_oob(const endpoint& peer, const buffer_t& data) const
 {
 	struct sockaddr_in6 in6 {
 	};
 	in6.sin6_port = htons(default_port);
 	in6.sin6_family = AF_INET6;
 	std::copy(peer.addr.begin(), peer.addr.end(), in6.sin6_addr.s6_addr);
-	lwip_sendto(fd_udp, data.data(), data.size(), 0, (const struct sockaddr *)&in6, sizeof(in6));
+	lwip_sendto(fd_udp, data.data(), data.size(), 0, (const struct sockaddr*)&in6, sizeof(in6));
 	return true;
 }
 
-bool protocol_zt::send_oob_mc(const buffer_t &data) const
+bool protocol_zt::send_oob_mc(const buffer_t& data) const
 {
 	endpoint mc;
 	std::copy(dvl_multicast_addr, dvl_multicast_addr + 16, mc.addr.begin());
 	return send_oob(mc, data);
 }
 
-bool protocol_zt::send_queued_peer(const endpoint &peer)
+bool protocol_zt::send_queued_peer(const endpoint& peer)
 {
 	if (peer_list[peer].fd == -1) {
 		peer_list[peer].fd = lwip_socket(AF_INET6, SOCK_STREAM, 0);
@@ -120,7 +120,7 @@ bool protocol_zt::send_queued_peer(const endpoint &peer)
 		in6.sin6_port = htons(default_port);
 		in6.sin6_family = AF_INET6;
 		std::copy(peer.addr.begin(), peer.addr.end(), in6.sin6_addr.s6_addr);
-		lwip_connect(peer_list[peer].fd, (const struct sockaddr *)&in6, sizeof(in6));
+		lwip_connect(peer_list[peer].fd, (const struct sockaddr*)&in6, sizeof(in6));
 	}
 	while (!peer_list[peer].send_queue.empty()) {
 		auto len = peer_list[peer].send_queue.front().size();
@@ -144,7 +144,7 @@ bool protocol_zt::send_queued_peer(const endpoint &peer)
 	return true;
 }
 
-bool protocol_zt::recv_peer(const endpoint &peer)
+bool protocol_zt::recv_peer(const endpoint& peer)
 {
 	unsigned char buf[PKTBUF_LEN];
 	while (true) {
@@ -159,7 +159,7 @@ bool protocol_zt::recv_peer(const endpoint &peer)
 
 bool protocol_zt::send_queued_all()
 {
-	for (auto &peer : peer_list) {
+	for (auto& peer : peer_list) {
 		if (!send_queued_peer(peer.first)) {
 			// handle error?
 		}
@@ -169,7 +169,7 @@ bool protocol_zt::send_queued_all()
 
 bool protocol_zt::recv_from_peers()
 {
-	for (auto &peer : peer_list) {
+	for (auto& peer : peer_list) {
 		if (peer.second.fd != -1) {
 			if (!recv_peer(peer.first)) {
 				disconnect_queue.push_back(peer.first);
@@ -185,7 +185,7 @@ bool protocol_zt::recv_from_udp()
 	struct sockaddr_in6 in6 {
 	};
 	socklen_t addrlen = sizeof(in6);
-	auto len = lwip_recvfrom(fd_udp, buf, sizeof(buf), 0, (struct sockaddr *)&in6, &addrlen);
+	auto len = lwip_recvfrom(fd_udp, buf, sizeof(buf), 0, (struct sockaddr*)&in6, &addrlen);
 	if (len < 0)
 		return false;
 	buffer_t data(buf, buf + len);
@@ -201,7 +201,7 @@ bool protocol_zt::accept_all()
 	};
 	socklen_t addrlen = sizeof(in6);
 	while (true) {
-		auto newfd = lwip_accept(fd_tcp, (struct sockaddr *)&in6, &addrlen);
+		auto newfd = lwip_accept(fd_tcp, (struct sockaddr*)&in6, &addrlen);
 		if (newfd < 0)
 			break;
 		endpoint ep;
@@ -217,7 +217,7 @@ bool protocol_zt::accept_all()
 	return true;
 }
 
-bool protocol_zt::recv(endpoint &peer, buffer_t &data)
+bool protocol_zt::recv(endpoint& peer, buffer_t& data)
 {
 	accept_all();
 	send_queued_all();
@@ -231,7 +231,7 @@ bool protocol_zt::recv(endpoint &peer, buffer_t &data)
 		return true;
 	}
 
-	for (auto &p : peer_list) {
+	for (auto& p : peer_list) {
 		if (p.second.recv_queue.packet_ready()) {
 			peer = p.first;
 			data = p.second.recv_queue.read_packet();
@@ -241,7 +241,7 @@ bool protocol_zt::recv(endpoint &peer, buffer_t &data)
 	return false;
 }
 
-bool protocol_zt::get_disconnected(endpoint &peer)
+bool protocol_zt::get_disconnected(endpoint& peer)
 {
 	if (!disconnect_queue.empty()) {
 		peer = disconnect_queue.front();
@@ -251,7 +251,7 @@ bool protocol_zt::get_disconnected(endpoint &peer)
 	return false;
 }
 
-void protocol_zt::disconnect(const endpoint &peer)
+void protocol_zt::disconnect(const endpoint& peer)
 {
 	if (peer_list.count(peer) != 0) {
 		if (peer_list[peer].fd != -1) {
@@ -273,7 +273,7 @@ void protocol_zt::close_all()
 		lwip_close(fd_udp);
 		fd_udp = -1;
 	}
-	for (auto &peer : peer_list) {
+	for (auto& peer : peer_list) {
 		if (peer.second.fd != -1)
 			lwip_close(peer.second.fd);
 	}
@@ -285,14 +285,14 @@ protocol_zt::~protocol_zt()
 	close_all();
 }
 
-void protocol_zt::endpoint::from_string(const std::string &str)
+void protocol_zt::endpoint::from_string(const std::string& str)
 {
 	ip_addr_t a;
 	if (ipaddr_aton(str.c_str(), &a) == 0)
 		return;
 	if (!IP_IS_V6_VAL(a))
 		return;
-	const auto *r = reinterpret_cast<const unsigned char *>(a.u_addr.ip6.addr);
+	const auto* r = reinterpret_cast<const unsigned char*>(a.u_addr.ip6.addr);
 	std::copy(r, r + 16, addr.begin());
 }
 
@@ -316,4 +316,4 @@ void protocol_zt::make_default_gamename(char (&gamename)[128])
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // ZEROTIER

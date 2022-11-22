@@ -27,7 +27,7 @@ static std::atomic_bool zt_node_online(false);
 static std::atomic_bool zt_started(false);
 static std::atomic_bool zt_joined(false);
 
-static void Callback(struct zts_callback_msg *msg)
+static void Callback(struct zts_callback_msg* msg)
 {
 	//printf("callback %d\n", msg->eventCode);
 	if (msg->eventCode == ZTS_EVENT_NODE_ONLINE) {
@@ -65,10 +65,10 @@ void zerotier_network_start()
 		return;
 	std::string ztpath = GetPrefPath();
 	ztpath += "zerotier";
-	zts_start(ztpath.c_str(), (void (*)(void *))Callback, 0);
+	zts_start(ztpath.c_str(), (void (*)(void*))Callback, 0);
 	std::atexit(zerotier_network_stop);
 }
 
 }
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // ZEROTIER

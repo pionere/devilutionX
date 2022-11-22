@@ -11,7 +11,7 @@ namespace net {
 
 class frame_queue_exception : public std::exception {
 public:
-	const char *what() const throw() override
+	const char* what() const throw() override
 	{
 		return "Incorrect frame size";
 	}
