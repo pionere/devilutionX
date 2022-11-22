@@ -26,7 +26,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static bool directFileAccess = false;
 
-radon::File &getIni()
+radon::File& getIni()
 {
 	static radon::File ini(std::string(GetConfigPath()) + "diablo.ini");
 	return ini;
@@ -86,7 +86,7 @@ HANDLE SFileOpenFile(const char* filename)
 	return result;
 }
 
-bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue)
+bool getIniBool(const char* sectionName, const char* keyName, bool defaultValue)
 {
 	char string[2];
 
@@ -96,13 +96,13 @@ bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue)
 	return strtol(string, NULL, 10) != 0;
 }
 
-bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize)
+bool getIniValue(const char* sectionName, const char* keyName, char* string, int stringSize)
 {
-	radon::Section *section = getIni().getSection(sectionName);
+	radon::Section* section = getIni().getSection(sectionName);
 	if (section == NULL)
 		return false;
 
-	radon::Key *key = section->getKey(keyName);
+	radon::Key* key = section->getKey(keyName);
 	if (key == NULL)
 		return false;
 
@@ -114,9 +114,9 @@ bool getIniValue(const char *sectionName, const char *keyName, char *string, int
 	return true;
 }
 
-void setIniValue(const char *sectionName, const char *keyName, const char *value)
+void setIniValue(const char* sectionName, const char* keyName, const char* value)
 {
-	radon::File &ini = getIni();
+	radon::File& ini = getIni();
 
 	const std::string stringSection(sectionName);
 	radon::Section* section = ini.getSection(stringSection);
@@ -139,7 +139,7 @@ void setIniValue(const char *sectionName, const char *keyName, const char *value
 	ini.saveToFile();
 }
 
-bool getIniInt(const char *sectionName, const char *keyName, int *value)
+bool getIniInt(const char* sectionName, const char* keyName, int* value)
 {
 	char string[10];
 	if (getIniValue(sectionName, keyName, string, 10)) {
@@ -150,7 +150,7 @@ bool getIniInt(const char *sectionName, const char *keyName, int *value)
 	return false;
 }
 
-void setIniInt(const char *sectionName, const char *keyName, int value)
+void setIniInt(const char* sectionName, const char* keyName, int value)
 {
 	char str[10];
 	snprintf(str, 10, "%d", value);
@@ -167,7 +167,7 @@ void SErrSetLastError(DWORD dwErrCode)
 	::SetLastError(dwErrCode);
 }
 
-void SStrCopy(char *dest, const char *src, int max_length)
+void SStrCopy(char* dest, const char* src, int max_length)
 {
 	if (memccpy(dest, src, '\0', max_length) == NULL)
 		dest[max_length - 1] = '\0';
@@ -183,8 +183,8 @@ void SLoadKeyMap(BYTE (&map)[256])
 {
 	char entryKey[16];
 	int i;
-	radon::Section *section;
-	radon::Key *key;
+	radon::Section* section;
+	radon::Key* key;
 
 	// load controls
 	section = getIni().getSection("Controls");

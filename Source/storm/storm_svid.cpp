@@ -27,9 +27,9 @@ static double SVidFrameEnd;
 static double SVidFrameLength;
 static bool SVidLoop;
 static smk SVidSMK;
-static SDL_Palette *SVidPalette;
-static SDL_Surface *SVidSurface;
-static BYTE *SVidBuffer;
+static SDL_Palette* SVidPalette;
+static SDL_Surface* SVidSurface;
+static BYTE* SVidBuffer;
 static unsigned long SVidWidth, SVidHeight;
 #ifndef NOSOUND
 static BYTE SVidAudioDepth;
@@ -48,7 +48,7 @@ static bool IsSVidVideoMode = false;
 // Set the video mode close to the SVid resolution while preserving aspect ratio.
 void TrySetVideoModeToSVidForSDL1()
 {
-	const SDL_Surface *display = SDL_GetVideoSurface();
+	const SDL_Surface* display = SDL_GetVideoSurface();
 #if defined(SDL1_VIDEO_MODE_SVID_FLAGS)
 	const int flags = SDL1_VIDEO_MODE_SVID_FLAGS;
 #elif defined(SDL1_VIDEO_MODE_FLAGS)
@@ -77,11 +77,11 @@ void TrySetVideoModeToSVidForSDL1()
 #ifndef SDL1_FORCE_SVID_VIDEO_MODE
 	if (!SDL_VideoModeOK(w, h, /*bpp=*/display->format->BitsPerPixel, flags)) {
 		// Get available fullscreen/hardware modes
-		SDL_Rect **modes = SDL_ListModes(NULL, flags);
+		SDL_Rect** modes = SDL_ListModes(NULL, flags);
 
 		// Check is there are any modes available.
 		if (modes == NULL
-		    || modes == reinterpret_cast<SDL_Rect **>(-1)) { // should not happen, since the first try was rejected...
+		    || modes == reinterpret_cast<SDL_Rect**>(-1)) { // should not happen, since the first try was rejected...
 			return;
 		}
 
@@ -119,25 +119,25 @@ static bool HaveAudio()
 
 #if !SDL_VERSION_ATLEAST(2, 0, 4)
 struct AudioQueueItem {
-	unsigned char *data;
+	unsigned char* data;
 	unsigned long len;
-	const unsigned char *pos;
+	const unsigned char* pos;
 };
 
 class AudioQueue {
 public:
-	static void Callback(void *userdata, Uint8 *out, int out_len)
+	static void Callback(void* userdata, Uint8* out, int out_len)
 	{
-		static_cast<AudioQueue *>(userdata)->Dequeue(out, out_len);
+		static_cast<AudioQueue*>(userdata)->Dequeue(out, out_len);
 	}
 
-	void Subscribe(SDL_AudioSpec *spec)
+	void Subscribe(SDL_AudioSpec* spec)
 	{
 		spec->userdata = this;
 		spec->callback = AudioQueue::Callback;
 	}
 
-	void Enqueue(const unsigned char *data, unsigned long len)
+	void Enqueue(const unsigned char* data, unsigned long len)
 	{
 //#if SDL_VERSION_ATLEAST(2, 0, 4)
 //		SDL_LockAudioDevice(deviceId);
@@ -157,7 +157,7 @@ public:
 	}
 
 private:
-	void EnqueueUnsafe(const unsigned char *data, unsigned long len)
+	void EnqueueUnsafe(const unsigned char* data, unsigned long len)
 	{
 		AudioQueueItem item;
 		item.data = new unsigned char[len];
@@ -167,9 +167,9 @@ private:
 		queue_.push(item);
 	}
 
-	void Dequeue(Uint8 *out, int out_len)
+	void Dequeue(Uint8* out, int out_len)
 	{
-		AudioQueueItem *item;
+		AudioQueueItem* item;
 		while ((item = Next()) != NULL) {
 			if (static_cast<unsigned long>(out_len) <= item->len) {
 				memcpy(out, item->pos, out_len);
@@ -189,7 +189,7 @@ private:
 		SDL_memset(out, SVidAudioDepth == 16 ? 0 : 0x80, out_len);
 	}
 
-	AudioQueueItem *Next()
+	AudioQueueItem* Next()
 	{
 		if (queue_.empty())
 			return NULL;
@@ -205,7 +205,7 @@ private:
 	std::queue<AudioQueueItem> queue_;
 };
 
-static AudioQueue *sVidAudioQueue = new AudioQueue();
+static AudioQueue* sVidAudioQueue = new AudioQueue();
 #endif
 #endif // !NOSOUND
 
@@ -213,7 +213,7 @@ static void UpdatePalette()
 {
 	SDL_Color* colors = SVidPalette->colors;
 
-	palette_create_sdl_colors(*(SDL_Color (*)[NUM_COLORS])colors, *(BYTE (*)[SMK_COLORS][3])smk_get_palette(SVidSMK));
+	palette_create_sdl_colors(*(SDL_Color(*)[NUM_COLORS])colors, *(BYTE (*)[SMK_COLORS][3])smk_get_palette(SVidSMK));
 	ApplyGamma(colors, colors);
 
 #ifdef USE_SDL1
@@ -235,13 +235,14 @@ static void UpdatePalette()
 	//}
 }
 
-HANDLE SVidPlayBegin(const char *filename, int flags)
+HANDLE SVidPlayBegin(const char* filename, int flags)
 {
 	//if (flags & (0x10000 | 0x20000000)) {
 	//	return NULL;
 	//}
 
 	SVidLoop = (flags & MOV_LOOP) != 0; // (flags & 0x40000) != 0;
+
 	bool enableVideo = true; //!(flags & 0x100000);
 #ifndef NOSOUND
 	bool enableAudio = true; //!(flags & 0x1000000);
@@ -320,7 +321,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 
 	// Copy frame to buffer
 	SVidSurface = SDL_CreateRGBSurfaceWithFormatFrom(
-	    (unsigned char *)smk_get_video(SVidSMK),
+	    (unsigned char*)smk_get_video(SVidSMK),
 	    SVidWidth,
 	    SVidHeight,
 	    0,
@@ -347,7 +348,7 @@ static bool SVidLoadNextFrame()
 	SVidFrameEnd += SVidFrameLength;
 
 	result = smk_next(SVidSMK);
-	if (result != SMK_MORE/* && result != SMK_LAST*/) {
+	if (result != SMK_MORE /* && result != SMK_LAST*/) {
 		if (result == SMK_ERROR || !SVidLoop) {
 			return false;
 		}
@@ -386,7 +387,7 @@ bool SVidPlayContinue()
 #ifndef NOSOUND
 	if (HaveAudio()) {
 		unsigned long len = smk_get_audio_size(SVidSMK, 0);
-		BYTE *audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
+		BYTE* audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 		if (SDL_QueueAudio(deviceId, audio, len) < 0) {
 			sdl_error(ERR_SDL_VIDEO_AUDIO);
@@ -441,9 +442,9 @@ bool SVidPlayContinue()
 			// The source surface is always 8-bit, and the output surface is never 8-bit in this branch.
 			// We must convert to the output format before calling SDL_BlitScaled.
 #ifdef USE_SDL1
-			SDL_Surface *tmp = SDL_ConvertSurface(SVidSurface, ghMainWnd->format, 0);
+			SDL_Surface* tmp = SDL_ConvertSurface(SVidSurface, ghMainWnd->format, 0);
 #else
-			SDL_Surface *tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
+			SDL_Surface* tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
 #endif
 			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
 				sdl_error(ERR_SDL_VIDEO_BLIT_SCALED);

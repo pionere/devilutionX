@@ -31,12 +31,12 @@ static std::deque<MSG> message_queue;
 WNDPROC CurrentWndProc;
 
 #if __linux__ && (HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD)
-#define FIX_WARPING	1
+#define FIX_WARPING 1
 static bool mouseWarping = false;
 static int mouseWarpingX;
 static int mouseWarpingY;
 #else
-#define FIX_WARPING	0
+#define FIX_WARPING 0
 #endif
 
 void SetCursorPos(int x, int y)
@@ -59,7 +59,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 	switch (ksc) {
 	case SDLK_BACKSPACE:
 		return DVL_VK_BACK;
-	case SDLK_TAB:	
+	case SDLK_TAB:
 		return DVL_VK_TAB;
 	case SDLK_CLEAR:
 		return DVL_VK_OEM_CLEAR;
@@ -385,7 +385,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 	case SDL_SCANCODE_SELECT:
 		return DVL_VK_SELECT;
 	case SDL_SCANCODE_STOP:
-		return DVL_VK_ATTN;	// remap?
+		return DVL_VK_ATTN; // remap?
 	case SDL_SCANCODE_AGAIN:
 		return DVL_VK_OEM_12; // remap?
 	case SDL_SCANCODE_UNDO:
@@ -426,24 +426,24 @@ static int TranslateSdlKey(SDL_Keysym key)
 		return DVL_VK_IME_ON; // remap?
 	case SDL_SCANCODE_INTERNATIONAL9:
 		return DVL_VK_IME_ON; // remap?
-	case SDL_SCANCODE_LANG1: /**< Hangul/English toggle */
-		return DVL_VK_HANGUL;
-	case SDL_SCANCODE_LANG2: /**< Hanja conversion */
-		return DVL_VK_HANJA;
-	case SDL_SCANCODE_LANG3: /**< Katakana */
-		return DVL_VK_HANGUL; // remap?
-	case SDL_SCANCODE_LANG4: /**< Hiragana */
-		return DVL_VK_JUNJA; // remap?
-	case SDL_SCANCODE_LANG5: /**< Zenkaku/Hankaku */
-		return DVL_VK_FINAL; // remap?
-	case SDL_SCANCODE_LANG6: /**< reserved */
-		return DVL_VK_IME_OFF; // remap?
-	case SDL_SCANCODE_LANG7: /**< reserved */
-		return DVL_VK_IME_OFF; // remap?
-	case SDL_SCANCODE_LANG8: /**< reserved */
-		return DVL_VK_IME_OFF; // remap?
-	case SDL_SCANCODE_LANG9: /**< reserved */
-		return DVL_VK_IME_OFF; // remap?
+	case SDL_SCANCODE_LANG1:
+		return DVL_VK_HANGUL; /**< Hangul/English toggle */
+	case SDL_SCANCODE_LANG2:
+		return DVL_VK_HANJA; /**< Hanja conversion */
+	case SDL_SCANCODE_LANG3:
+		return DVL_VK_HANGUL; // remap? /**< Katakana */
+	case SDL_SCANCODE_LANG4:
+		return DVL_VK_JUNJA; // remap? /**< Hiragana */
+	case SDL_SCANCODE_LANG5:
+		return DVL_VK_FINAL; // remap? /**< Zenkaku/Hankaku */
+	case SDL_SCANCODE_LANG6:
+		return DVL_VK_IME_OFF; // remap? /**< reserved */
+	case SDL_SCANCODE_LANG7:
+		return DVL_VK_IME_OFF; // remap? /**< reserved */
+	case SDL_SCANCODE_LANG8:
+		return DVL_VK_IME_OFF; // remap? /**< reserved */
+	case SDL_SCANCODE_LANG9:
+		return DVL_VK_IME_OFF; // remap? /**< reserved */
 	case SDL_SCANCODE_ALTERASE:
 		return DVL_VK_EREOF; // remap?
 	case SDL_SCANCODE_SYSREQ:
@@ -793,7 +793,7 @@ static WPARAM PositionForMouse(Sint32 x, Sint32 y)
 }*/
 
 #if DEBUG_MODE
-static bool FalseAvail(const char *name, int value)
+static bool FalseAvail(const char* name, int value)
 {
 	DoLog("Unhandled SDL event: %s %d", name, value);
 	return true;
@@ -927,8 +927,8 @@ bool PeekMessage(LPMSG lpMsg)
 		lpMsg->message = e.type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
 		lpMsg->wParam = (WPARAM)key;
 #if DEBUG_MODE
-//		// HACK: Encode modifier in lParam for TranslateMessage later
-//		lpMsg->lParam = e.key.keysym.mod << 16;
+		// HACK: Encode modifier in lParam for TranslateMessage later
+		//lpMsg->lParam = e.key.keysym.mod << 16;
 		lpMsg->wParam |= e.key.keysym.mod << 16;
 #endif
 	} break;
@@ -1083,7 +1083,7 @@ void TranslateMessage(const MSG* lpMsg)
 				const char shkeys[] = { ')', '!', '@', '#', '$', '%', '^', '&', '*', '(' };
 				key = shkeys[key - '0'];
 			}
-		} else if (key == DVL_VK_SPACE) {// || key == DVL_VK_BACK || key == DVL_VK_ESCAPE || key == DVL_VK_TAB || key == DVL_VK_RETURN) {
+		} else if (key == DVL_VK_SPACE) { // || key == DVL_VK_BACK || key == DVL_VK_ESCAPE || key == DVL_VK_TAB || key == DVL_VK_RETURN) {
 			// control keys
 			key = ' ';
 		} else if (key >= DVL_VK_NUMPAD0 && key <= DVL_VK_DIVIDE) {
@@ -1159,7 +1159,7 @@ void TranslateMessage(const MSG* lpMsg)
 #endif
 }
 
-void DispatchMessage(const MSG *lpMsg)
+void DispatchMessage(const MSG* lpMsg)
 {
 	assert(CurrentWndProc != NULL);
 

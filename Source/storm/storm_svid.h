@@ -4,7 +4,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-HANDLE SVidPlayBegin(const char *filename, int flags);
+HANDLE SVidPlayBegin(const char* filename, int flags);
 bool SVidPlayContinue();
 void SVidPlayEnd();
 

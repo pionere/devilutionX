@@ -28,9 +28,9 @@ void SNetDropPlayer(int playerid);
  *  @param name:         The address and port of the game
  *  @param password:     The password of the game
  */
-void SNetGetGameInfo(const char **name, const char **password);
+void SNetGetGameInfo(const char** name, const char** password);
 
-bool SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword, char (&errorText)[256]);
+bool SNetJoinGame(const char* gameName, unsigned port, const char* gamePassword, char (&errorText)[256]);
 
 /*  SNetLeaveGame @ 119
  *
@@ -64,7 +64,7 @@ uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
  */
 unsigned SNetGetTurnsInTransit();
 
-typedef void (*SEVTHANDLER)(SNetEvent* );
+typedef void (*SEVTHANDLER)(SNetEvent*);
 
 /*  SNetSendMessage @ 127
  *
