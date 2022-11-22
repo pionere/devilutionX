@@ -488,7 +488,7 @@ int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
 static char* readSymLink(const char* path)
 {
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
-	char *retval = NULL;
+	char* retval = NULL;
 	ssize_t len = 64;
 	ssize_t rc = -1;
 
@@ -541,7 +541,7 @@ char* SDL_GetBasePath()
 	}
 #endif
 #if defined(__OPENBSD__)
-	char **retvalargs;
+	char** retvalargs;
 	size_t len;
 	const int mib[] = { CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_ARGV };
 	if (sysctl(mib, 4, NULL, &len, NULL, 0) != -1) {

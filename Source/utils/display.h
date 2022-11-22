@@ -88,7 +88,7 @@ void OutputToLogical(T* x, T* y)
 template <
     typename T,
     typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
-void LogicalToOutput(T *x, T *y)
+void LogicalToOutput(T* x, T* y)
 {
 #ifndef USE_SDL1
 	if (renderer == NULL)

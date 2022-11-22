@@ -48,7 +48,7 @@ void BilinearScale32(SDL_Surface* src, SDL_Surface* dst)
 	auto* srcPixels = static_cast<std::uint8_t*>(src->pixels);
 	auto* dstPixels = static_cast<std::uint8_t*>(dst->pixels);
 
-	unsigned *curMixY = &mixYs[0];
+	unsigned* curMixY = &mixYs[0];
 	unsigned srcY = 0;
 	for (unsigned y = 0; y < static_cast<unsigned>(dst->h); ++y) {
 		std::uint8_t* s[4] = {

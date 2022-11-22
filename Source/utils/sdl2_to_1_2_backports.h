@@ -23,7 +23,7 @@
 #ifndef SDLCALL
 #define SDLCALL
 #endif
-typedef int (SDLCALL* SDL_ThreadFunction) (void* data);
+typedef int(SDLCALL* SDL_ThreadFunction) (void* data);
 
 #define SDL_Keysym  SDL_keysym
 #define SDL_Keycode SDLKey
@@ -55,8 +55,7 @@ typedef int (SDLCALL* SDL_ThreadFunction) (void* data);
 #define SDL_JoystickID           Sint32
 #define SDL_JoystickNameForIndex SDL_JoystickName
 
-typedef enum SDL_LogPriority
-{
+typedef enum SDL_LogPriority {
 	SDL_LOG_PRIORITY_VERBOSE = 1,
 	SDL_LOG_PRIORITY_DEBUG,
 	SDL_LOG_PRIORITY_INFO,
@@ -230,10 +229,10 @@ inline bool SDL_HasColorKey(SDL_Surface* surface)
 
 //= Pixel formats
 
-#define SDL_PIXELFORMAT_INDEX8 1
-#define SDL_PIXELFORMAT_RGB888 2
+#define SDL_PIXELFORMAT_INDEX8   1
+#define SDL_PIXELFORMAT_RGB888   2
 #define SDL_PIXELFORMAT_RGBA8888 3
-#define SDL_BITSPERPIXEL(X) (((X) >> 8) & 0xFF)
+#define SDL_BITSPERPIXEL(X)      (((X) >> 8) & 0xFF)
 
 inline void SDLBackport_PixelformatToMask(int pixelformat, Uint32* rmask,
     Uint32* gmask,
@@ -299,8 +298,8 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
 
 inline SDL_Surface*
 SDL_CreateRGBSurfaceWithFormatFrom(void* pixels,
-                         int width, int height, int depth, int pitch,
-                         Uint32 format)
+    int width, int height, int depth, int pitch,
+    Uint32 format)
 {
 	Uint32 rmask, gmask, bmask, amask;
 	depth = SDL_BITSPERPIXEL(format);
