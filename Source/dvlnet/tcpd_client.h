@@ -24,8 +24,8 @@ public:
 
 protected:
 	virtual void poll();
-	virtual void send_packet(packet &pkt);
-	void recv_connect(packet &pkt);
+	virtual void send_packet(packet& pkt);
+	void recv_connect(packet& pkt);
 
 private:
 	frame_queue recv_queue;
@@ -55,7 +55,7 @@ private:
 	void drop_connection(const tcp_server::scc& con);
 	void disconnect_net(plr_t pnum);
 
-	void handle_recv(const asio::error_code &ec, size_t bytesRead);
+	void handle_recv(const asio::error_code& ec, size_t bytesRead);
 	void start_recv();
 	void close();
 };

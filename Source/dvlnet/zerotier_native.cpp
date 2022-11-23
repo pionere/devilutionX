@@ -69,6 +69,6 @@ void zerotier_network_start()
 	std::atexit(zerotier_network_stop);
 }
 
-}
+} // namespace net
 DEVILUTION_END_NAMESPACE
 #endif // ZEROTIER

@@ -18,7 +18,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-void print_ip6_addr(void *x)
+void print_ip6_addr(void* x)
 {
 	char ipstr[INET6_ADDRSTRLEN];
 	auto* in = static_cast<sockaddr_in6*>(x);

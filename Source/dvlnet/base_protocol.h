@@ -26,7 +26,7 @@ public:
 	virtual ~base_protocol() = default;
 protected:
 	virtual void poll();
-	virtual void send_packet(packet &pkt);
+	virtual void send_packet(packet& pkt);
 	virtual void disconnect_net(plr_t pnum);
 private:
 	P proto;
@@ -39,8 +39,8 @@ private:
 
 	plr_t get_master();
 	void recv();
-	void handle_join_request(packet &pkt, endpoint sender);
-	void recv_decrypted(packet &pkt, endpoint sender);
+	void handle_join_request(packet& pkt, endpoint sender);
+	void recv_decrypted(packet& pkt, endpoint sender);
 
 	bool wait_network();
 	bool wait_firstpeer();

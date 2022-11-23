@@ -35,7 +35,8 @@ public:
 	 */
 	buffer_t read_packet();
 	void write(buffer_t buf);
-	void clear() {
+	void clear()
+	{
 		buffer_deque.clear();
 	}
 

@@ -31,7 +31,9 @@ typedef DWORD cookie_t;
 typedef uint32_t turn_t;
 typedef uint8_t leaveinfo_t;
 #ifdef NETENCRYPT
-typedef struct key_t { BYTE data[crypto_secretbox_KEYBYTES]; } key_t;
+typedef struct key_t {
+	BYTE data[crypto_secretbox_KEYBYTES];
+} key_t;
 #else
 // Stub out the key_t definition as we're not doing any encryption.
 using key_t = uint8_t;
@@ -102,68 +104,87 @@ public:
 
 	const buffer_t& encrypted_data();
 
-	packet_type pktType() const {
+	packet_type pktType() const
+	{
 		return reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_type;
 	}
-	plr_t pktSrc() const {
+	plr_t pktSrc() const
+	{
 		return reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_src;
 	}
-	plr_t pktDest() const {
+	plr_t pktDest() const
+	{
 		return reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_dest;
 	}
 	// PT_MESSAGE
-	buffer_t::const_iterator pktMessageBegin() const {
+	buffer_t::const_iterator pktMessageBegin() const
+	{
 		return decrypted_buffer.begin() + sizeof(NetPktHdr);
 	}
-	buffer_t::const_iterator pktMessageEnd() const {
+	buffer_t::const_iterator pktMessageEnd() const
+	{
 		return decrypted_buffer.end();
 	}
 	// PT_TURN
-	turn_t pktTurn() const {
+	turn_t pktTurn() const
+	{
 		return reinterpret_cast<const NetPktTurn*>(decrypted_buffer.data())->m_turn;
 	}
-	buffer_t::const_iterator pktTurnBegin() const {
+	buffer_t::const_iterator pktTurnBegin() const
+	{
 		return decrypted_buffer.begin() + sizeof(NetPktTurn);
 	}
-	buffer_t::const_iterator pktTurnEnd() const {
+	buffer_t::const_iterator pktTurnEnd() const
+	{
 		return decrypted_buffer.end();
 	}
 	// PT_JOIN_REQUEST
-	cookie_t pktJoinReqCookie() const {
+	cookie_t pktJoinReqCookie() const
+	{
 		return reinterpret_cast<const NetPktJoinRequest*>(decrypted_buffer.data())->m_cookie;
 	}
 	// PT_JOIN_ACCEPT
-	plr_t pktJoinAccPlr() const {
+	plr_t pktJoinAccPlr() const
+	{
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_newplr;
 	}
-	cookie_t pktJoinAccCookie() const {
+	cookie_t pktJoinAccCookie() const
+	{
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_cookie;
 	}
-	SNetGameData& pktJoinAccInfo() {
+	SNetGameData& pktJoinAccInfo()
+	{
 		return reinterpret_cast<NetPktJoinAccept*>(decrypted_buffer.data())->m_info;
 	}
 	// PT_INFO_REPLY
-	buffer_t::const_iterator pktInfoReplyNameBegin() const {
+	buffer_t::const_iterator pktInfoReplyNameBegin() const
+	{
 		return decrypted_buffer.begin() + sizeof(NetPktHdr);
 	}
-	buffer_t::const_iterator pktInfoReplyNameEnd() const {
+	buffer_t::const_iterator pktInfoReplyNameEnd() const
+	{
 		return decrypted_buffer.end();
 	}
 	// PT_CONNECT
-	plr_t pktConnectPlr() const {
+	plr_t pktConnectPlr() const
+	{
 		return reinterpret_cast<const NetPktConnect*>(decrypted_buffer.data())->m_newplr;
 	}
-	buffer_t::const_iterator pktConnectAddrBegin() const {
+	buffer_t::const_iterator pktConnectAddrBegin() const
+	{
 		return decrypted_buffer.begin() + sizeof(NetPktConnect);
 	}
-	buffer_t::const_iterator pktConnectAddrEnd() const {
+	buffer_t::const_iterator pktConnectAddrEnd() const
+	{
 		return decrypted_buffer.end();
 	}
 	// PT_DISCONNECT
-	plr_t pktDisconnectPlr() const {
+	plr_t pktDisconnectPlr() const
+	{
 		return reinterpret_cast<const NetPktDisconnect*>(decrypted_buffer.data())->m_newplr;
 	}
-	leaveinfo_t pktDisconnectInfo() const {
+	leaveinfo_t pktDisconnectInfo() const
+	{
 		return reinterpret_cast<const NetPktDisconnect*>(decrypted_buffer.data())->m_leaveinfo;
 	}
 };

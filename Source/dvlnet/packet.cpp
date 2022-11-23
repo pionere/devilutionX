@@ -17,17 +17,15 @@ bool packet_in::decrypt()
 {
 #ifdef NETENCRYPT
 	if (encrypted_buffer.size() < crypto_secretbox_NONCEBYTES
-		 + crypto_secretbox_MACBYTES + sizeof(NetPktHdr))
+	     + crypto_secretbox_MACBYTES + sizeof(NetPktHdr))
 		return false;
-	auto pktlen = (encrypted_buffer.size()
-		 - crypto_secretbox_NONCEBYTES
-		 - crypto_secretbox_MACBYTES);
+	auto pktlen = encrypted_buffer.size() - crypto_secretbox_NONCEBYTES -  crypto_secretbox_MACBYTES;
 	decrypted_buffer.resize(pktlen);
 	if (crypto_secretbox_open_easy(decrypted_buffer.data(),
-			encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
-			encrypted_buffer.size() - crypto_secretbox_NONCEBYTES,
-			encrypted_buffer.data(),
-			key.data))
+	        encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
+	        encrypted_buffer.size() - crypto_secretbox_NONCEBYTES,
+	        encrypted_buffer.data(),
+	        key.data))
 		return false;
 #else
 	if (encrypted_buffer.size() < sizeof(NetPktHdr))
@@ -47,10 +45,10 @@ void packet_out::encrypt()
 	encrypted_buffer.insert(encrypted_buffer.end(), crypto_secretbox_MACBYTES, 0);
 	randombytes_buf(encrypted_buffer.data(), crypto_secretbox_NONCEBYTES);
 	if (crypto_secretbox_easy(encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
-			encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
-			lenCleartext,
-			encrypted_buffer.data(),
-			key.data))
+	        encrypted_buffer.data() + crypto_secretbox_NONCEBYTES,
+	        lenCleartext,
+	        encrypted_buffer.data(),
+	        key.data))
 		app_error(ERR_APP_PACKET_ENCRYPT);
 #endif
 }

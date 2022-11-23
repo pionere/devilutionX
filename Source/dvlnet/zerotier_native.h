@@ -14,6 +14,6 @@ const unsigned char dvl_multicast_addr[16] = {
 	0x04, 0x12, 0xfd, 0x73, 0x37, 0x86, 0x6f, 0xb7
 };
 
-}
+} // // namespace net
 DEVILUTION_END_NAMESPACE
 #endif // ZEROTIER

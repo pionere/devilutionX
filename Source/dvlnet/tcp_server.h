@@ -13,6 +13,7 @@ namespace net {
 
 class tcp_server {
 	friend class tcpd_client;
+
 public:
 	tcp_server(asio::io_context& ioc, buffer_t info, unsigned serverType);
 	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd, char (&errorText)[256]);
@@ -22,6 +23,7 @@ public:
 	static void make_default_gamename(char (&gamename)[128]);
 	static void connect_acceptor(asio::ip::tcp::acceptor& acceptor, const asio::ip::tcp::endpoint& ep, asio::error_code& ec);
 	static void connect_socket(asio::ip::tcp::socket& sock, const char* addrstr, unsigned port, asio::io_context& ioc, asio::error_code& ec);
+
 private:
 	static constexpr int TIMEOUT_CONNECT = 30;
 	static constexpr int TIMEOUT_ACTIVE = 60;
@@ -40,7 +42,7 @@ private:
 
 	typedef std::shared_ptr<client_connection> scc;
 
-	asio::io_context &ioc;
+	asio::io_context& ioc;
 	asio::ip::tcp::acceptor acceptor;
 	asio::steady_timer connTimer;
 	packet_factory pktfty;
@@ -61,11 +63,12 @@ private:
 	void handle_recv(const scc& con, const asio::error_code& ec, size_t bytesRead);
 	bool handle_recv_newplr(const scc& con, packet& pkt);
 	bool handle_recv_packet(const scc& con, packet& pkt);
-	//void send_connect(const scc &con);
+	//void send_connect(const scc& con);
 	void start_send(const scc& con, packet& pkt);
 	void start_timeout();
 	void handle_timeout(const asio::error_code& ec);
 	void drop_connection(const scc& con);
+
 protected:
 	virtual bool send_packet(packet& pkt);
 };

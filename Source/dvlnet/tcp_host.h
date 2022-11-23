@@ -18,6 +18,7 @@ public:
 	tcp_host_server(tcp_host_client* client, asio::io_context& ioc, buffer_t info, unsigned serverType);
 
 	bool send_packet(packet& pkt);
+
 private:
 	tcp_host_client* local_client;
 };
@@ -45,6 +46,7 @@ public:
 protected:
 	virtual void send_packet(packet& pkt);
 	virtual void poll();
+
 private:
 	asio::io_context ioc;
 	tcp_host_server* local_server = NULL;

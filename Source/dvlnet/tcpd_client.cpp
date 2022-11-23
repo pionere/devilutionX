@@ -33,8 +33,7 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 
 	memset(connected_table, 0, sizeof(connected_table));
 	plr_self = PLR_BROADCAST;
-	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self),
-		sizeof(cookie_t));
+	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self), sizeof(cookie_t));
 	setup_password(passwd);
 	// connect to the server
 	asio::error_code err;
@@ -55,8 +54,7 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 	start_accept_conn();
 	start_timeout();
 
-	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
-		PLR_MASTER, cookie_self);
+	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	send_packet(*pkt);
 	for (i = 0; i < NUM_SLEEP; i++) {
 		poll();
@@ -80,8 +78,7 @@ void tcpd_client::poll()
 void tcpd_client::start_timeout()
 {
 	connTimer.expires_after(std::chrono::seconds(1));
-	connTimer.async_wait(std::bind(&tcpd_client::handle_timeout, this,
-		std::placeholders::_1));
+	connTimer.async_wait(std::bind(&tcpd_client::handle_timeout, this, std::placeholders::_1));
 }
 
 void tcpd_client::handle_timeout(const asio::error_code& ec)
@@ -153,7 +150,7 @@ void tcpd_client::recv_connect(packet& pkt)
 
 	auto cliCon = tcp_server::make_connection(ioc);
 	asio::error_code err;
-	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc,  err);
+	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc, err);
 	if (err) {
 		DoLog("Failed to connect %s", err.message().c_str());
 		return;
@@ -162,8 +159,7 @@ void tcpd_client::recv_connect(packet& pkt)
 	cliCon->timeout = tcp_server::TIMEOUT_ACTIVE;
 	connections[pnum] = cliCon;
 	start_recv_conn(cliCon);
-	auto joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self,
-		PLR_BROADCAST, cookie_self);
+	auto joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self, PLR_BROADCAST, cookie_self);
 	start_send(cliCon, *joinPkt);
 }
 
@@ -171,14 +167,11 @@ void tcpd_client::start_accept_conn()
 {
 	if (next_free_queue() != MAX_PLRS) {
 		nextcon = tcp_server::make_connection(ioc);
-		acceptor.async_accept(nextcon->socket,
-			std::bind(&tcpd_client::handle_accept_conn,
-				this, true, std::placeholders::_1));
+		acceptor.async_accept(nextcon->socket, std::bind(&tcpd_client::handle_accept_conn, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
 		connTimer.expires_after(std::chrono::seconds(10));
-		connTimer.async_wait(std::bind(&tcpd_client::handle_accept_conn,
-			this, false, std::placeholders::_1));
+		connTimer.async_wait(std::bind(&tcpd_client::handle_accept_conn, this, false, std::placeholders::_1));
 	}
 }
 
@@ -239,7 +232,7 @@ void tcpd_client::start_send(const tcp_server::scc& con, packet& pkt)
 bool tcpd_client::handle_recv_newplr(const tcp_server::scc& con, packet& pkt)
 {
 	plr_t i, pnum;
-	
+
 	if (pkt.pktType() != PT_JOIN_REQUEST) {
 		// DoLog("Invalid join packet.");
 		return false;

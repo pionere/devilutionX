@@ -65,7 +65,7 @@ void tcp_server::connect_socket(asio::ip::tcp::socket& sock, const char* addrstr
 void tcp_server::endpoint_to_string(const scc& con, std::string& addr)
 {
 	asio::error_code err;
-	const auto &ep = con->socket.remote_endpoint(err);
+	const auto& ep = con->socket.remote_endpoint(err);
 	assert(!err);
 	char buf[PORT_LENGTH + 2];
 	snprintf(buf, sizeof(buf), ":%05d", ep.port());
@@ -134,7 +134,7 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 	start_recv(con);
 }
 
-/*void tcp_server::send_connect(const scc &con)
+/*void tcp_server::send_connect(const scc& con)
 {
 	auto pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST,
 	    con->pnum);
@@ -209,7 +209,7 @@ bool tcp_server::send_packet(packet& pkt)
 
 void tcp_server::start_send(const scc& con, packet& pkt)
 {
-	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
+	const auto* frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
 	auto buf = asio::buffer(*frame);
 	asio::async_write(con->socket, buf,
 		[frame](const asio::error_code& ec, size_t bytesSent) {

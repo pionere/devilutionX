@@ -5,8 +5,8 @@ DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 tcp_host_server::tcp_host_server(tcp_host_client* client, asio::io_context& ioc, buffer_t info, unsigned srvType)
-    : tcp_server(ioc, info, srvType),
-    local_client(client)
+    : tcp_server(ioc, info, srvType)
+    , local_client(client)
 {
 }
 
@@ -54,17 +54,15 @@ void tcp_host_client::poll()
 void tcp_host_client::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
 	plr_t dest;
-	if (receiver == SNPLAYER_ALL /* || receiver == SNPLAYER_OTHERS*/)
+	if (receiver == SNPLAYER_ALL /* || receiver == SNPLAYER_OTHERS*/) {
 		dest = PLR_BROADCAST;
-	else {
+	} else {
 		assert((unsigned)receiver < MAX_PLRS);
 		dest = receiver;
 	}
-	//if (dest != plr_self) {
-		auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
-		send_packet(*pkt);
-	//}
-
+	// assert(dest != plr_self);
+	auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
+	send_packet(*pkt);
 }
 
 void tcp_host_client::send_packet(packet& pkt)
