@@ -29,7 +29,7 @@ extern "C" const char* __asan_default_options() // NOLINT(bugprone-reserved-iden
 //#else
 //int main(int argc, char** argv)
 //#endif
-extern "C" int main(int argc, char **argv)
+extern "C" int main(int argc, char** argv)
 {
 #ifdef RUN_TESTS
 	testing::InitGoogleTest(&argc, argv);

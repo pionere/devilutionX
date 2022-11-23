@@ -70,7 +70,7 @@ void DrawTextBoxSLine(int x, int y, int dy, bool widePanel);
 void DrawDurIcon();
 void DrawSpellBook();
 void CheckBookClick(bool shift, bool altSkill);
-const char *get_pieces_str(int nGold);
+const char* get_pieces_str(int nGold);
 void DrawGoldSplit(int amount);
 void control_drop_gold(char vkey);
 void DrawTeamBook();

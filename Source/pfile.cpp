@@ -12,25 +12,25 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SAVEFILE_GAME				"game"
-#define SAVEFILE_HERO				"hero"
-#define PFILE_SAVE_MPQ_HASHCOUNT	2048
-#define PFILE_SAVE_MPQ_BLOCKCOUNT	2048
-#define PFILE_SAVE_INTERVAL			60000
+#define SAVEFILE_GAME             "game"
+#define SAVEFILE_HERO             "hero"
+#define PFILE_SAVE_MPQ_HASHCOUNT  2048
+#define PFILE_SAVE_MPQ_BLOCKCOUNT 2048
+#define PFILE_SAVE_INTERVAL       60000
 
 unsigned mySaveIdx;
 bool gbValidSaveFile;
 static Uint32 guNextSaveTc;
 
-static const char* PASSWORD_SINGLE = "xrgyrkj1";
-static const char* PASSWORD_MULTI = "szqnlsk1";
+#define PASSWORD_SINGLE "xrgyrkj1"
+#define PASSWORD_MULTI  "szqnlsk1"
 
 #ifdef HELLFIRE
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.hsv"
-#define SAVE_FILE_FORMAT_MULTI "multi_%d.hsv"
+#define SAVE_FILE_FORMAT_MULTI  "multi_%d.hsv"
 #else
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.sv"
-#define SAVE_FILE_FORMAT_MULTI "multi_%d.sv"
+#define SAVE_FILE_FORMAT_MULTI  "multi_%d.sv"
 #endif
 
 static std::string GetSavePath(unsigned save_num)
@@ -177,7 +177,7 @@ static bool pfile_archive_contains_game(HANDLE hsArchive)
 	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
 
-void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
+void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo*))
 {
 	int i;
 

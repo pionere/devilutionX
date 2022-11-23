@@ -580,10 +580,10 @@ void SetSkill(bool shift, bool altSkill)
 				p->_pAltMoveSkillType = RSPLTYPE_INVALID;
 			}
 		}
-		
+
 		gbSkillListFlag = false;
 	}
-	
+
 	//gbRedrawFlags = REDRAW_ALL;
 }
 
@@ -601,7 +601,6 @@ static void SetSkillHotKey(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], i
 	}
 	hotKeyGroup[slot] = sn;
 	hotKeyTypeGroup[slot] = currSkillType;
-
 }
 
 /*
@@ -625,12 +624,12 @@ void SetSkillHotKey(int slot, bool altSkill)
 		if (!altSkill) {
 			if (moveskill)
 				SetSkillHotKey(p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey, slot, sn);
-			else 
+			else
 				SetSkillHotKey(p->_pAtkSkillHotKey, p->_pAtkSkillTypeHotKey, slot, sn);
 		} else {
 			if (moveskill)
 				SetSkillHotKey(p->_pAltMoveSkillHotKey, p->_pAltMoveSkillTypeHotKey, slot, sn);
-			else 
+			else
 				SetSkillHotKey(p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey, slot, sn);
 		}
 	}
@@ -854,7 +853,7 @@ void InitControlPan()
 	int i;
 
 	assert(pFlaskCels == NULL);
-	pFlaskCels = LoadFileInMem("CtrlPan\\Flasks.CEL");;
+	pFlaskCels = LoadFileInMem("CtrlPan\\Flasks.CEL");
 	assert(pChrPanelCel == NULL);
 	pChrPanelCel = CelLoadImage("Data\\Char.CEL", SPANEL_WIDTH);
 	gnNumActiveWindows = 0;
@@ -1474,11 +1473,11 @@ static void GetItemInfo(ItemStruct* is)
 		snprintf(infostr, sizeof(infostr), "%d gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 	}
 }
-#define TOOLTIP_OFFSET		32
-#define TOOLTIP_HEIGHT		16
-#define TOOLTIP2_HEIGHT		26
-#define HEALTHBAR_HEIGHT	4
-#define HEALTHBAR_WIDTH		66
+#define TOOLTIP_OFFSET   32
+#define TOOLTIP_HEIGHT   16
+#define TOOLTIP2_HEIGHT  26
+#define HEALTHBAR_HEIGHT 4
+#define HEALTHBAR_WIDTH  66
 static int DrawTooltip(const char* text, int x, int y, BYTE col)
 {
 	int width, result = 0;
@@ -2160,7 +2159,7 @@ static bool PlrHasTeam()
 	return false;
 }
 
-#define TBOOKTABS		((MAX_PLRS + NUM_BOOK_ENTRIES - 1) / NUM_BOOK_ENTRIES)
+#define TBOOKTABS ((MAX_PLRS + NUM_BOOK_ENTRIES - 1) / NUM_BOOK_ENTRIES)
 void DrawTeamBook()
 {
 	int i, pnum, sx, yp;

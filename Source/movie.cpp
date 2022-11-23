@@ -24,7 +24,7 @@ static void GetMousePos(WPARAM wParam)
  * @param movieFlags flags to control the playback, see movie_flags enum.
  * @return the reason why playback ended (movie_playback_result)
  */
-int play_movie(const char *pszMovie, int movieFlags)
+int play_movie(const char* pszMovie, int movieFlags)
 {
 	int result = MPR_DONE;
 	HANDLE video_stream;

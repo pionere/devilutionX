@@ -117,12 +117,12 @@ const int GossipList[STORE_TOWNERS][2] = {
 	// clang-format on
 };
 
-#define TPOS_SMITH		52 + DBORDERX, 53 + DBORDERY
-#define TPOS_TAVERN		45 + DBORDERX, 52 + DBORDERY
-#define TPOS_HEALER		45 + DBORDERX, 69 + DBORDERY
-#define TPOS_COWFARM	51 + DBORDERX, 12 + DBORDERY
-#define TPOS_FARMER		52 + DBORDERX, 6 + DBORDERY
-#define TPOS_GIRL		67 + DBORDERX, 33 + DBORDERY
+#define TPOS_SMITH   52 + DBORDERX, 53 + DBORDERY
+#define TPOS_TAVERN  45 + DBORDERX, 52 + DBORDERY
+#define TPOS_HEALER  45 + DBORDERX, 69 + DBORDERY
+#define TPOS_COWFARM 51 + DBORDERX, 12 + DBORDERY
+#define TPOS_FARMER  52 + DBORDERX, 6 + DBORDERY
+#define TPOS_GIRL    67 + DBORDERX, 33 + DBORDERY
 
 /** Specifies the active sound effect ID for interacting with cows. */
 static int CowPlaying = SFX_NONE;
@@ -155,13 +155,13 @@ static void InitCowAnim(int tnum, int dir)
 	tw = &monsters[tnum];
 
 	tw->_mAnimData = const_cast<BYTE*>(CelGetFrameStart(pCowCels, dir)); // TNR_ANIM_DATA
-	tw->_mAnimFrameLen = 3;             // TNR_ANIM_FRAME_LEN
-	tw->_mAnimLen = 12;                 // TNR_ANIM_LEN
-	tw->_mVar1 = -1;                    // TNR_ANIM_ORDER
-	tw->_mAnimCnt = 0;                  // TNR_ANIM_CNT
-	tw->_mAnimFrame = RandRange(1, 11); // TNR_ANIM_FRAME
-	tw->_mAnimWidth = 128 * ASSET_MPL;  // TNR_ANIM_WIDTH
-	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
+	tw->_mAnimFrameLen = 3;                                              // TNR_ANIM_FRAME_LEN
+	tw->_mAnimLen = 12;                                                  // TNR_ANIM_LEN
+	tw->_mVar1 = -1;                                                     // TNR_ANIM_ORDER
+	tw->_mAnimCnt = 0;                                                   // TNR_ANIM_CNT
+	tw->_mAnimFrame = RandRange(1, 11);                                  // TNR_ANIM_FRAME
+	tw->_mAnimWidth = 128 * ASSET_MPL;                                   // TNR_ANIM_WIDTH
+	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1;             // TNR_ANIM_X_OFFSET
 }
 
 static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFrames, int ao)
@@ -172,14 +172,14 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFr
 
 	// commented out, because it might be populated by InitMonster
 	// assert(tw->_mAnimData == NULL);	
-	tw->_mAnimData = LoadFileInMem(pAnimFile); // TNR_ANIM_DATA
-	tw->_mAnimFrameLen = Delay;        // TNR_ANIM_FRAME_LEN
-	tw->_mAnimLen = numFrames;         // TNR_ANIM_LEN
-	tw->_mVar1 = ao;                   // TNR_ANIM_ORDER
-	tw->_mVar2 = 0;                    // TNR_ANIM_FRAME_CNT
-	tw->_mAnimCnt = 0;                 // TNR_ANIM_CNT
-	tw->_mAnimFrame = 1;               // TNR_ANIM_FRAME
-	tw->_mAnimWidth = 96 * ASSET_MPL;  // TNR_ANIM_WIDTH
+	tw->_mAnimData = LoadFileInMem(pAnimFile);               // TNR_ANIM_DATA
+	tw->_mAnimFrameLen = Delay;                              // TNR_ANIM_FRAME_LEN
+	tw->_mAnimLen = numFrames;                               // TNR_ANIM_LEN
+	tw->_mVar1 = ao;                                         // TNR_ANIM_ORDER
+	tw->_mVar2 = 0;                                          // TNR_ANIM_FRAME_CNT
+	tw->_mAnimCnt = 0;                                       // TNR_ANIM_CNT
+	tw->_mAnimFrame = 1;                                     // TNR_ANIM_FRAME
+	tw->_mAnimWidth = 96 * ASSET_MPL;                        // TNR_ANIM_WIDTH
 	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
@@ -231,7 +231,7 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 
 static void InitTownerTalk(int tnum, int store_id, int store_talk)
 {
-	monsters[tnum]._mgoalvar1 = store_id; // TNR_STORE
+	monsters[tnum]._mgoalvar1 = store_id;   // TNR_STORE
 	monsters[tnum]._mgoalvar2 = store_talk; // TNR_TALK, TALK_MESSAGE
 }
 
@@ -337,8 +337,8 @@ static void InitCows()
 	 */
 	const char cowoffy[NUM_DIRS] = { -1, -1, -1, 0, -1, -1, -1, 0 };
 	/** Specifies the offsets from the cows to reserve space on the map. */
-	const char TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]]};
-	const char TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]]};
+	const char TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]] };
+	const char TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]] };
 	int i, dir;
 	int x, y, xo, yo;
 
@@ -434,7 +434,7 @@ void FreeTownerGFX()
 
 	for (i = MAX_MINIONS; i < numtowners; i++) {
 		if (monsters[i]._mType == TOWN_COW) { // TNR_TYPE
-			monsters[i]._mAnimData = NULL; // TNR_ANIM_DATA
+			monsters[i]._mAnimData = NULL;    // TNR_ANIM_DATA
 		} else {
 			MemFreeDbg(monsters[i]._mAnimData);
 		}
@@ -456,7 +456,7 @@ void ProcessTowners()
 				//if (quests[Q_BUTCHER]._qactive != QUEST_ACTIVE || quests[Q_BUTCHER]._qlog) {
 					if (!gbQtextflag) {
 						//tw->_mAnimFrameLen = 1000;
-						tw->_mAnimFrame = 1; // TNR_ANIM_FRAME
+						tw->_mAnimFrame = 1;           // TNR_ANIM_FRAME
 						tw->_mName = "Slain Townsman"; // TNR_NAME
 					}
 					continue; //tw->_tAnimCnt = 0;
@@ -479,7 +479,7 @@ void ProcessTowners()
 
 				tw->_mAnimFrame = AnimOrder[ao][tw->_mVar2]; // TNR_ANIM_FRAME, TNR_ANIM_FRAME_CNT
 			} else {
-				tw->_mAnimFrame++; // TNR_ANIM_FRAME
+				tw->_mAnimFrame++;                   // TNR_ANIM_FRAME
 				if (tw->_mAnimFrame > tw->_mAnimLen) // TNR_ANIM_LEN
 					tw->_mAnimFrame = 1;
 			}
@@ -601,8 +601,8 @@ void SyncTownerQ(int pnum, int idx)
 		// quests[Q_GIRL]._qlog = FALSE;
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			if (pnum == mypnum) {
-				uint16_t wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
-				SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
+				uint16_t wCI = plr._pInvList[i]._iCreateInfo; // the amulet inherits the level of THEODORE
+				SetRndSeed(plr._pInvList[i]._iSeed);          // and uses its seed
 				SpawnAmulet(wCI, TPOS_GIRL/*, true*/);
 			}
 			ReInitTownerAnim(TOWN_GIRL, "Towners\\Girl\\Girls1.CEL");
@@ -967,7 +967,7 @@ void TalkToTowner(int tnum)
 		ClearPanels();
 		// gamemenu_off();
 		StartQTextMsg(tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
-		StartStore(tw->_mgoalvar1); // TNR_STORE
+		StartStore(tw->_mgoalvar1);    // TNR_STORE
 	}
 	_guCowClicks = 0;
 	_guCowMsg = 0;

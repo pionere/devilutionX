@@ -27,7 +27,7 @@ static _plrmsg plr_msgs[PLRMSG_COUNT + 1];
 void plrmsg_delay(bool delay)
 {
 	/*int i;
-	_plrmsg *pMsg;
+	_plrmsg* pMsg;
 	Uint32 deltaTc;
 
 	deltaTc = SDL_GetTicks();
@@ -53,7 +53,7 @@ static _plrmsg* AddPlrMsg(int pnum)
 }
 
 #if DEV_MODE
-void ErrorPlrMsg(const char *pszMsg)
+void ErrorPlrMsg(const char* pszMsg)
 {
 	_plrmsg* pMsg;
 	
@@ -62,7 +62,7 @@ void ErrorPlrMsg(const char *pszMsg)
 }
 #endif
 
-void EventPlrMsg(const char *pszFmt, ...)
+void EventPlrMsg(const char* pszFmt, ...)
 {
 	_plrmsg* pMsg;
 	va_list va;
@@ -73,7 +73,7 @@ void EventPlrMsg(const char *pszFmt, ...)
 	va_end(va);
 }
 
-void ReceivePlrMsg(int pnum, const char *pszStr)
+void ReceivePlrMsg(int pnum, const char* pszStr)
 {
 	_plrmsg* pMsg;
 
@@ -84,7 +84,7 @@ void ReceivePlrMsg(int pnum, const char *pszStr)
 /*void ClearPlrMsg(int pnum)
 {
 	int i;
-	_plrmsg *pMsg = plr_msgs;
+	_plrmsg* pMsg = plr_msgs;
 
 	for (i = 0; i < PLRMSG_COUNT; i++, pMsg++) {
 		if (pMsg->player == pnum)
@@ -103,12 +103,12 @@ void InitPlrMsg()
 	// plr_msgs[PLRMSG_COUNT].str[0] = '\0';
 }
 
-static int PrintPlrMsg(int x, int y, _plrmsg *pMsg)
+static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 {
 	BYTE c, col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
 	int sx, line, len, width = PANEL_WIDTH - 20;
 	const char *sstr, *endstr;
-	const char *str = pMsg->str;
+	const char* str = pMsg->str;
 
 	line = GetSmallStringWidth(str) >= width ? 2 : 1;
 	line *= PLRMSG_TEXT_HEIGHT;
@@ -240,13 +240,13 @@ static void SendPlrMsg()
 				team = myplr._pTeam;
 			} else {
 				// "/tX msg" -> send message to the team N
-				team= strtol(&msg[2], &msg, 10);
+				team = strtol(&msg[2], &msg, 10);
 				if (msg == &plr_msgs[PLRMSG_COUNT].str[2]) {
 					team = -1;
 					msg = &plr_msgs[PLRMSG_COUNT].str[0];
 				}
 			}
-			if (team!= -1) {
+			if (team != -1) {
 				pmask = 0;
 				for (i = 0; i < MAX_PLRS; i++) {
 					if (players[i]._pTeam == team)

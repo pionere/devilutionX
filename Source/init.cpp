@@ -44,7 +44,7 @@ static HANDLE init_test_access(const char* mpq_name)
 	const char* paths[2] = { GetBasePath(), GetPrefPath() };
 #endif
 	std::string mpq_abspath;
-	for (int i = 0; i < lengthof(paths); i++) { 
+	for (int i = 0; i < lengthof(paths); i++) {
 		mpq_abspath = paths[i];
 		mpq_abspath += mpq_name;
 		archive = SFileOpenArchive(mpq_abspath.c_str(), MPQ_OPEN_READ_ONLY);
@@ -103,11 +103,11 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	while (hashCount < entryCount) {
 		hashCount <<= 1;
 	}
-	
+
 	std::string path = std::string(GetBasePath()) + destMpqName;
 	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
 		app_fatal("Unable to open MPQ file %s.", path.c_str());
-	
+
 	input = std::ifstream(std::string(GetBasePath()) + files);
 	while (std::getline(input, line)) {
 		std::string path = basePath + line.c_str();

@@ -16,7 +16,7 @@ extern int missileactive[MAXMISSILES];
 extern MissileStruct missile[MAXMISSILES];
 extern int nummissiles;
 
-void GetDamageAmt(int sn, int sl, int *mind, int *maxd);
+void GetDamageAmt(int sn, int sl, int* mind, int* maxd);
 unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates);
 unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam);
 int CheckMonCol(int _mnum_);
@@ -38,7 +38,7 @@ inline bool CheckHit(int hitper)
 	} else if (hitper < 25) {
 		hitper = 25 + ((hitper - 25) >> 2);
 	}
-	return random_(0, 100) < hitper; 
+	return random_(0, 100) < hitper;
 }
 
 #ifdef __cplusplus

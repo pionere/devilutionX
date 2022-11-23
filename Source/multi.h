@@ -45,21 +45,21 @@ void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg);
 bool multi_plrinfo_received(int pnum);
 
 #ifdef NONET
-#define IsLocalGame	true
-#define IsMultiGame	(gbGameMode >= 1)
-#define IsGameSrv	false
+#define IsLocalGame true
+#define IsMultiGame (gbGameMode >= 1)
+#define IsGameSrv   false
 #elif defined(HOSTONLY)
-#define IsLocalGame	false
-#define IsMultiGame	true
-#define IsGameSrv	true
+#define IsLocalGame false
+#define IsMultiGame true
+#define IsGameSrv   true
 #elif defined(NOHOSTING)
-#define IsLocalGame	(gbGameMode <= 1)
-#define IsMultiGame	(gbGameMode >= 1)
-#define IsGameSrv	false
+#define IsLocalGame (gbGameMode <= 1)
+#define IsMultiGame (gbGameMode >= 1)
+#define IsGameSrv   false
 #else
-#define IsLocalGame	(gbGameMode <= 1)
-#define IsMultiGame	(gbGameMode >= 1)
-#define IsGameSrv	(gbGameMode == 3)
+#define IsLocalGame (gbGameMode <= 1)
+#define IsMultiGame (gbGameMode >= 1)
+#define IsGameSrv   (gbGameMode == 3)
 #endif
 
 #ifdef __cplusplus

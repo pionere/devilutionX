@@ -138,7 +138,7 @@ static void gmenu_draw_rectangle(int x, int y, int width, int height)
 	}
 }
 
-static int gmenu_get_lfont(TMenuItem *pItem)
+static int gmenu_get_lfont(TMenuItem* pItem)
 {
 	if (pItem->dwFlags & GMF_SLIDER)
 		return SLIDER_ROW_WIDTH;
@@ -299,7 +299,7 @@ void gmenu_left_mouse(bool isDown)
 	}
 }
 
-void gmenu_enable(TMenuItem *pMenuItem, bool enable)
+void gmenu_enable(TMenuItem* pMenuItem, bool enable)
 {
 	if (enable)
 		pMenuItem->dwFlags |= GMF_ENABLED;
@@ -307,7 +307,7 @@ void gmenu_enable(TMenuItem *pMenuItem, bool enable)
 		pMenuItem->dwFlags &= ~GMF_ENABLED;
 }
 
-void gmenu_slider_set(TMenuItem *pItem, int min, int max, int value)
+void gmenu_slider_set(TMenuItem* pItem, int min, int max, int value)
 {
 	int nSteps;
 
@@ -316,7 +316,7 @@ void gmenu_slider_set(TMenuItem *pItem, int min, int max, int value)
 	pItem->wMenuParam2 = ((max - min) / 2 + (value - min) * nSteps) / (max - min);
 }
 
-int gmenu_slider_get(TMenuItem *pItem, int min, int max)
+int gmenu_slider_get(TMenuItem* pItem, int min, int max)
 {
 	int nSteps, step;
 
@@ -327,7 +327,7 @@ int gmenu_slider_get(TMenuItem *pItem, int min, int max)
 	return min + step * (max - min) / nSteps;
 }
 
-void gmenu_slider_steps(TMenuItem *pItem, int steps)
+void gmenu_slider_steps(TMenuItem* pItem, int steps)
 {
 	//assert(pItem != NULL);
 	// assert(steps >= 1);

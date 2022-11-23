@@ -1304,7 +1304,7 @@ static void DRLG_L3Edges()
 static int DRLG_L3GetFloorArea()
 {
 	int i, rv;
-	BYTE *pTmp;
+	BYTE* pTmp;
 
 	rv = 0;
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3GetFloorArea.");
@@ -1734,7 +1734,7 @@ static void DRLG_L3Pool()
 	}
 }
 
-static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
+static void DRLG_L3PlaceRndSet(const BYTE* miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
 	bool found;
@@ -1785,7 +1785,7 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 }
 
 #ifdef HELLFIRE
-static void DRLG_L6PlaceRndPool(const BYTE *miniset, int rndper)
+static void DRLG_L6PlaceRndPool(const BYTE* miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
 	bool found, placed;
@@ -1988,7 +1988,7 @@ static void DRLG_L3Wood()
 static void DRLG_L3SetRoom(int rx1, int ry1)
 {
 	int rw, rh, i, j;
-	BYTE *sp;
+	BYTE* sp;
 
 	rw = pSetPiece[0];
 	rh = pSetPiece[2];
@@ -2078,7 +2078,7 @@ static void DRLG_L3LockRec(int x, int y)
 static bool DRLG_L3Lockout()
 {
 	int i, j;
-	BYTE *pTmp;
+	BYTE* pTmp;
 
 	static_assert(sizeof(dungeon) == sizeof(_gabLockout), "_gabLockout vs dungeon mismatch.");
 	memcpy(_gabLockout, dungeon, sizeof(dungeon));
@@ -2175,9 +2175,9 @@ static void DRLG_L3(int entry)
 			{
 				// assert(currLvl._dType == DTYPE_CAVES);
 				mini_set stairs[3] = {
-					{ L3USTAIRS,  entry == ENTRY_MAIN },
+					{ L3USTAIRS, entry == ENTRY_MAIN },
 					{ L3DSTAIRS, entry == ENTRY_PREV },
-					{ currLvl._dLevelIdx != DLV_CAVES1 ? NULL : L3TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV },
+					{ currLvl._dLevelIdx != DLV_CAVES1 ? NULL : L3TWARP, entry != ENTRY_MAIN && entry != ENTRY_PREV },
 				};
 				doneflag = DRLG_L3PlaceMiniSets(stairs, 3);
 				if (entry == ENTRY_PREV) {

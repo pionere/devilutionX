@@ -186,7 +186,7 @@ void InitLvlDungeon()
 			pPTmp[1] = SwapLE16(pPiece[1]);
 #else
 			*((uint32_t*)pPTmp) = *((uint32_t*)pPiece);
-#endif			
+#endif
 			pPTmp += 2;
 		}
 	}
@@ -233,8 +233,8 @@ void InitLvlDungeon()
 	case DTYPE_TOWN:
 		// patch dSolidTable - Town.SOL
 		nSolidTable[553] = false; // allow walking on the left side of the pot at Adria
-		nSolidTable[761] = true; // make the tile of the southern window of the church non-walkable
-		nSolidTable[945] = true; // make the eastern side of Griswold's house consistent (non-walkable)
+		nSolidTable[761] = true;  // make the tile of the southern window of the church non-walkable
+		nSolidTable[945] = true;  // make the eastern side of Griswold's house consistent (non-walkable)
 
 		// patch dMiniTiles - Town.MIN
 		// pointless tree micros (re-drawn by dSpecial)
@@ -380,7 +380,7 @@ void InitLvlDungeon()
 		nTrapTable[30] = PTT_RIGHT;
 		nTrapTable[31] = PTT_LEFT;
 		nTrapTable[34] = PTT_RIGHT;
-		nTrapTable[57] = PTT_LEFT; // added
+		nTrapTable[57] = PTT_LEFT;  // added
 		nTrapTable[59] = PTT_RIGHT; // added
 		nTrapTable[60] = PTT_LEFT;
 		nTrapTable[62] = PTT_LEFT;
@@ -459,12 +459,12 @@ void InitLvlDungeon()
 		nTrapTable[512] = PTT_LEFT;
 		nTrapTable[514] = PTT_RIGHT;
 		nTrapTable[515] = PTT_RIGHT;
-		nTrapTable[539] = PTT_LEFT; // added
-		nTrapTable[543] = PTT_LEFT; // added
-		nTrapTable[545] = PTT_LEFT; // added
+		nTrapTable[539] = PTT_LEFT;  // added
+		nTrapTable[543] = PTT_LEFT;  // added
+		nTrapTable[545] = PTT_LEFT;  // added
 		nTrapTable[547] = PTT_RIGHT; // added
 		nTrapTable[548] = PTT_RIGHT; // added
-		nTrapTable[552] = PTT_LEFT; // added
+		nTrapTable[552] = PTT_LEFT;  // added
 		// enable torches on (southern) walls
 		// nTrapTable[37] = PTT_LEFT;
 		// nTrapTable[39] = PTT_LEFT;
@@ -493,8 +493,8 @@ void InitLvlDungeon()
 	case DTYPE_HELL:
 		// patch dSolidTable - L4.SOL
 		nMissileTable[141] = false; // fix missile-blocking tile of down-stairs.
-		nSolidTable[130] = true; // make the inner tiles of the down-stairs non-walkable I.
-		nSolidTable[132] = true; // make the inner tiles of the down-stairs non-walkable II.
+		nSolidTable[130] = true;    // make the inner tiles of the down-stairs non-walkable I.
+		nSolidTable[132] = true;    // make the inner tiles of the down-stairs non-walkable II.
 		// fix all-blocking tile on the diablo-level
 		nSolidTable[211] = false;
 		nMissileTable[211] = false;
@@ -628,7 +628,7 @@ void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper)
 	}
 }
 
-POS32 DRLG_PlaceMiniSet(const BYTE *miniset)
+POS32 DRLG_PlaceMiniSet(const BYTE* miniset)
 {
 	int sx, sy, sw, sh, xx, yy, ii, tries;
 	bool done;
@@ -771,7 +771,7 @@ void DRLG_RectTrans(int x1, int y1, int x2, int y2)
 	numtrans++;
 }
 
-void DRLG_ListTrans(int num, const BYTE *List)
+void DRLG_ListTrans(int num, const BYTE* List)
 {
 	int i;
 	BYTE x1, y1, x2, y2;
@@ -785,7 +785,7 @@ void DRLG_ListTrans(int num, const BYTE *List)
 	}
 }
 
-void DRLG_AreaTrans(int num, const BYTE *List)
+void DRLG_AreaTrans(int num, const BYTE* List)
 {
 	int i;
 	BYTE x1, y1, x2, y2;
@@ -939,7 +939,7 @@ void Make_SetPC(int x, int y, int w, int h)
  * @param height the height of the room if found
  * @return true if a room is found
  */
-static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int *width, int *height)
+static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int* width, int* height)
 {
 	int xmax, ymax, i, j, smallest;
 	int xArray[20], yArray[20];

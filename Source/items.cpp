@@ -293,7 +293,7 @@ inline static int ArrowVelBonus(unsigned flags)
 
 static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 
 	p = &plr;
 	// check if the current RSplType is a valid/allowed spell
@@ -321,20 +321,20 @@ static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 
 void CalcPlrItemVals(int pnum, bool Loadgfx)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	ItemStruct *wRight, *wLeft;
 
-	BYTE gfx;		// graphics
-	int wt;			// weapon-type
-	bool bf;		// blockflag
-	int av;			// arrow velocity bonus
-	unsigned pdmod;	// player damage mod
+	BYTE gfx;       // graphics
+	int wt;         // weapon-type
+	bool bf;        // blockflag
+	int av;         // arrow velocity bonus
+	unsigned pdmod; // player damage mod
 
 	int i;
 
 	BOOL idi = TRUE; // items are identified
 
-	int tac = 0;  // armor class
+	int tac = 0;    // armor class
 	int btohit = 0; // bonus chance to hit
 
 	int iflgs = ISPL_NONE; // item_special_effect flags
@@ -354,7 +354,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// temporary values to calculate armor class/damage of the current item
 	int cac, cdmod, cdmodp, mindam, maxdam;
-	int ghit = 0;   // increased damage from enemies
+	int ghit = 0; // increased damage from enemies
 	BYTE manasteal = 0;
 	BYTE lifesteal = 0;
 
@@ -363,7 +363,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	int ihp = 0;   // increased HP
 	int imana = 0; // increased mana
 
-	int skillLvl; // temporary value to calculate skill levels
+	int skillLvl;          // temporary value to calculate skill levels
 	char skillLvlAdds = 0; // increased skill level
 	BYTE skillLvlMods[NUM_SPELLS] = { 0 };
 
@@ -525,7 +525,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		imana -= plr._pMaxManaBase >> 1;
 	}
 	if (iflgs & ISPL_NOMANA) {
-		imana = - plr._pManaBase;
+		imana = -plr._pManaBase;
 	}
 	if (iflgs & ISPL_ALLRESZERO) {
 		// reset resistances to zero if the respective special effect is active
@@ -762,7 +762,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 void CalcPlrSpells(int pnum)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 
 	p = &plr;
 	// switch between normal attacks
@@ -894,8 +894,8 @@ void CalcPlrInv(int pnum, bool Loadgfx)
 
 void SetItemData(int ii, int idata)
 {
-	ItemStruct *is;
-	const ItemData *ids;
+	ItemStruct* is;
+	const ItemData* ids;
 
 	is = &items[ii];
 	// zero-initialize struct
@@ -937,7 +937,7 @@ void SetItemData(int ii, int idata)
 	//is->_iPLSkill = SPL_NULL;
 }
 
-void SetItemSData(ItemStruct *is, int idata)
+void SetItemSData(ItemStruct* is, int idata)
 {
 	SetItemData(MAXITEMS, idata);
 	copy_pod(*is, items[MAXITEMS]);
@@ -947,18 +947,18 @@ void SetItemSData(ItemStruct *is, int idata)
  * @brief Set a new unique seed value on the given item
  * @param is Item to update
  */
-void GetItemSeed(ItemStruct *is)
+void GetItemSeed(ItemStruct* is)
 {
 	is->_iSeed = NextRndSeed();
 }
 
-void CreateBaseItem(ItemStruct *is, int idata)
+void CreateBaseItem(ItemStruct* is, int idata)
 {
 	SetItemSData(is, idata);
 	GetItemSeed(is);
 }
 
-void SetGoldItemValue(ItemStruct *is, int value)
+void SetGoldItemValue(ItemStruct* is, int value)
 {
 	is->_ivalue = value;
 	if (value >= GOLD_MEDIUM_LIMIT)
@@ -971,7 +971,7 @@ void SetGoldItemValue(ItemStruct *is, int value)
 
 void CreatePlrItems(int pnum)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	//int i;
 
 	static_assert(ITYPE_NONE == 0, "CreatePlrItems skips item initialization by expecting ITYPE_NONE to be zero.");
@@ -1407,7 +1407,7 @@ static int PLVal(int pv, int p1, int p2, int minv, int maxv)
 
 static void SaveItemPower(int ii, int power, int param1, int param2, int minval, int maxval, int multval)
 {
-	ItemStruct *is;
+	ItemStruct* is;
 	int r, r2;
 
 	is = &items[ii];
@@ -1649,7 +1649,7 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 {
 	int nl, v;
 	const AffixData *pres, *sufs;
-	const AffixData *l[ITEM_RNDAFFIX_MAX];
+	const AffixData* l[ITEM_RNDAFFIX_MAX];
 	BYTE affix;
 	BOOLEAN good;
 
@@ -1945,7 +1945,7 @@ static int CheckUnique(int ii, unsigned lvl, unsigned quality)
 
 static void GetUniqueItem(int ii, int uid)
 {
-	const UniqItemData *ui;
+	const UniqItemData* ui;
 
 	ui = &UniqueItemList[uid];
 	SaveItemPower(ii, ui->UIPower1, ui->UIParam1a, ui->UIParam1b, 0, 0, 1);
@@ -2351,7 +2351,7 @@ void PlaceRock()
 
 void RespawnItem(int ii, bool FlipFlag)
 {
-	ItemStruct *is;
+	ItemStruct* is;
 	int it;
 
 	is = &items[ii];
@@ -2423,7 +2423,7 @@ static void ItemDoppel()
 
 void ProcessItems()
 {
-	ItemStruct *is;
+	ItemStruct* is;
 	int i;
 
 	for (i = 0; i < numitems; i++) {
@@ -2485,7 +2485,7 @@ static void DoIdentify(int pnum, int cii)
 	CalcPlrInv(pnum, true);
 }
 
-static void RepairItem(ItemStruct *is, int lvl)
+static void RepairItem(ItemStruct* is, int lvl)
 {
 	int rep, d, md;
 
@@ -2519,7 +2519,7 @@ static void DoRepair(int pnum, int cii)
 	}
 }
 
-static void RechargeItem(ItemStruct *is, int r)
+static void RechargeItem(ItemStruct* is, int r)
 {
 	int cc, mc;
 
@@ -2551,7 +2551,7 @@ static void DoRecharge(int pnum, int cii)
 	}
 }
 
-static void DoClean(ItemStruct *pi, bool whittle)
+static void DoClean(ItemStruct* pi, bool whittle)
 {
 	int seed, spell;
 	uint16_t ci, idx;
@@ -2600,7 +2600,7 @@ static void DoWhittle(int pnum, int cii)
 /*
  * Convert a shield to a (spiked-)club.
  */
-static void BuckleItem(ItemStruct *pi)
+static void BuckleItem(ItemStruct* pi)
 {
 	int seed;
 	uint16_t ci, idx;
@@ -2627,7 +2627,7 @@ static void BuckleItem(ItemStruct *pi)
 
 static void DoBuckle(int pnum, int cii)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 
 	if (cii >= NUM_INVLOC) {
 		return; //pi = &plr._pInvList[cii - NUM_INVLOC];
@@ -2825,7 +2825,7 @@ void DoOil(int pnum, char from, BYTE cii)
 	CalcPlrInv(pnum, true);
 }
 
-void PrintItemPower(BYTE plidx, const ItemStruct *is)
+void PrintItemPower(BYTE plidx, const ItemStruct* is)
 {
 	switch (plidx) {
 	case IPL_TOHIT:
@@ -3057,25 +3057,25 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	}
 }
 
-static void PrintItemString(int x, int &y)
+static void PrintItemString(int x, int& y)
 {
 	PrintString(x, y, x + 257, tempstr, true, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
-static void PrintItemString(int x, int &y, const char* str)
+static void PrintItemString(int x, int& y, const char* str)
 {
 	PrintString(x, y, x + 257, str, true, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
-static void PrintItemString(int x, int &y, const char* str, int col)
+static void PrintItemString(int x, int& y, const char* str, int col)
 {
 	PrintString(x, y, x + 257, str, true, col, FONT_KERN_SMALL);
 	y += 24;
 }
 
-static void PrintUniquePower(BYTE plidx, ItemStruct *is, int x, int &y)
+static void PrintUniquePower(BYTE plidx, ItemStruct* is, int x, int& y)
 {
 	if (plidx != IPL_INVCURS) {
 		PrintItemPower(plidx, is);
@@ -3083,9 +3083,9 @@ static void PrintUniquePower(BYTE plidx, ItemStruct *is, int x, int &y)
 	}
 }
 
-static void DrawUniqueInfo(ItemStruct *is, int x, int &y)
+static void DrawUniqueInfo(ItemStruct* is, int x, int& y)
 {
-	const UniqItemData *uis;
+	const UniqItemData* uis;
 
 	uis = &UniqueItemList[is->_iUid];
 	PrintUniquePower(uis->UIPower1, is, x, y);
@@ -3106,9 +3106,9 @@ static void DrawUniqueInfo(ItemStruct *is, int x, int &y)
 	PrintUniquePower(uis->UIPower6, is, x, y);
 }
 
-const char *ItemName(const ItemStruct* is)
+const char* ItemName(const ItemStruct* is)
 {
-	const char *name;
+	const char* name;
 
 	name = is->_iName;
 	if (is->_iMagical == ITEM_QUALITY_UNIQUE && is->_iIdentified)
@@ -3116,7 +3116,7 @@ const char *ItemName(const ItemStruct* is)
 	return name;
 }
 
-static int ItemColor(ItemStruct *is)
+static int ItemColor(ItemStruct* is)
 {
 	if (is->_iMagical == ITEM_QUALITY_MAGIC)
 		return COL_BLUE;
@@ -3125,7 +3125,7 @@ static int ItemColor(ItemStruct *is)
 	return COL_WHITE;
 }
 
-static void PrintItemMiscInfo(const ItemStruct* is, int x, int &y)
+static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 {
 	const char* desc;
 
@@ -3376,7 +3376,7 @@ void DrawInvItemDetails()
 	}
 }
 
-void ItemStatOk(int pnum, ItemStruct *is)
+void ItemStatOk(int pnum, ItemStruct* is)
 {
 	is->_iStatFlag = plr._pStrength >= is->_iMinStr
 				  && plr._pDexterity >= is->_iMinDex
@@ -3429,7 +3429,7 @@ static int RndSmithItem(unsigned lvl)
 #endif
 }
 
-static void BubbleSwapItem(ItemStruct *a, ItemStruct *b)
+static void BubbleSwapItem(ItemStruct* a, ItemStruct* b)
 {
 	ItemStruct h;
 

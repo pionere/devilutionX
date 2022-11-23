@@ -17,7 +17,7 @@ extern ViewportStruct gsMouseVp;
 extern int cursW;
 extern int cursH;
 extern int pcursmonst;
-extern BYTE *pCursCels;
+extern BYTE* pCursCels;
 extern BYTE pcurswnd;
 extern BYTE pcursinvitem;
 extern BYTE pcursitem;
@@ -36,7 +36,7 @@ void CheckTownPortal();
 void CheckCursMove();
 
 /* rdata */
-#define MAX_CURSOR_AREA		8192
+#define MAX_CURSOR_AREA 8192
 extern const int InvItemWidth[(int)CURSOR_FIRSTITEM + (int)NUM_ICURS];
 extern const int InvItemHeight[(int)CURSOR_FIRSTITEM + (int)NUM_ICURS];
 

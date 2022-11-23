@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static void PackItem(PkItemStruct *pis, const ItemStruct *is)
+static void PackItem(PkItemStruct* pis, const ItemStruct* is)
 {
 	if (is->_itype == ITYPE_NONE) {
 		pis->wIndx = static_cast<uint16_t>(IDI_NONE);
@@ -19,12 +19,12 @@ static void PackItem(PkItemStruct *pis, const ItemStruct *is)
 	}
 }
 
-void PackPlayer(PkPlayerStruct *pPack, int pnum)
+void PackPlayer(PkPlayerStruct* pPack, int pnum)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	int i;
-	ItemStruct *pi;
-	PkItemStruct *pki;
+	ItemStruct* pi;
+	PkItemStruct* pki;
 
 	memset(pPack, 0, sizeof(*pPack));
 	p = &plr;

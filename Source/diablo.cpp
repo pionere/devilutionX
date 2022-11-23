@@ -162,7 +162,7 @@ static void print_help()
 	printf("\nVersion: %s. Report bugs at https://github.com/pionere/devilutionX/\n", gszProductName);
 }
 
-static bool diablo_parse_flags(int argc, char **argv)
+static bool diablo_parse_flags(int argc, char** argv)
 {
 	int i;
 
@@ -283,7 +283,7 @@ static bool diablo_splash()
 {
 	if (play_movie("gendata\\logo.smk", MOV_SKIP) == MPR_QUIT)
 		return false;
-	 if (getIniBool("Diablo", "Intro", true)) {
+	if (getIniBool("Diablo", "Intro", true)) {
 		setIniInt("Diablo", "Intro", false);
 		if (play_movie(INTRO_ARCHIVE, MOV_SKIP) == MPR_QUIT)
 			return false;
@@ -314,7 +314,7 @@ static void diablo_deinit()
 	//}
 }
 
-int DiabloMain(int argc, char **argv)
+int DiabloMain(int argc, char** argv)
 {
 	if (diablo_parse_flags(argc, argv)) {
 		diablo_init();
@@ -439,7 +439,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			return;
 		}
 	} else if (moveSkill == SPL_INVALID) {
-		const int *sfx;
+		const int* sfx;
 		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA)
 			sfx = sgSFXSets[SFXS_PLR_35]; // no mana
 		else
@@ -1037,7 +1037,7 @@ static void PressKey(int vkey)
 				}
 			}
 		} else {
-			const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
+			const char* difficulties[3] = { "Normal", "Nightmare", "Hell" };
 			EventPlrMsg(difficulties[gnDifficulty]);
 		}
 		break;
@@ -1063,8 +1063,7 @@ static void PressKey(int vkey)
 
 #if DEBUG_MODE
 	if (vkey == DVL_VK_F2) {
-	}
-	else if (vkey == DVL_VK_F3) {
+	} else if (vkey == DVL_VK_F3) {
 		if (pcursitem != ITEM_NONE) {
 			snprintf(
 			    gbNetMsg,
@@ -1077,8 +1076,7 @@ static void PressKey(int vkey)
 		}
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %d", numitems);
 		NetSendCmdString(1 << mypnum);
-	}
-	else if (vkey == DVL_VK_F4) {
+	} else if (vkey == DVL_VK_F4) {
 		PrintDebugQuest();
 	}
 #endif
@@ -1459,16 +1457,16 @@ static WNDPROC InitGameFX()
 	InitAutomapOnce(); // values
 	// InitHelp(); // values -- unnecessary since the player can not leave the game with active help
 	InitControlPan(); // gfx + values
-	InitInv(); // gfx + values
-	InitGMenu(); // gfx
-	InitQuestGFX(); // gfx + values
+	InitInv();        // gfx + values
+	InitGMenu();      // gfx
+	InitQuestGFX();   // gfx + values
 	InitStoresOnce(); // values (some stored in savefiles)
 	for (i = 0; i < (IsLocalGame ? 1 : MAX_PLRS); i++)
 		InitPlrGFXMem(i); // gfx
-	InitItemGFX(); // gfx + values (some stored in savefiles)
+	InitItemGFX();        // gfx + values (some stored in savefiles)
 	InitGameMissileGFX(); // gfx
-	InitLightGFX(); // 'values'
-	InitGameSFX(); // sfx
+	InitLightGFX();       // 'values'
+	InitGameSFX();        // sfx
 
 	gbDeathflag = MDM_ALIVE;
 	gbZoomInFlag = false;
@@ -1544,8 +1542,8 @@ static void run_game()
 		game_loop();
 		scrollrt_draw_game();
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
-	if (run_game_iteration++ == 0)
-		HeapProfilerDump("first_game_iteration");
+		if (run_game_iteration++ == 0)
+			HeapProfilerDump("first_game_iteration");
 #endif
 	}
 	NetClose();

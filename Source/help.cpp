@@ -89,7 +89,7 @@ void DrawHelp()
 {
 	int i;
 	BYTE col;
-	const char *s;
+	const char* s;
 
 	DrawTextBox();
 

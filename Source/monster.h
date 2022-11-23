@@ -12,9 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 
 // Ticks necessary to finish the current action and add the result to the delta
 // ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_TURN_MSG_SIZE / sizeof(TSyncMonster)))
-#define SQUELCH_LOW					127
-#define SQUELCH_MAX					(SQUELCH_LOW + 240)
-#define OPPOSITE(x)					(((x) + 4) & 7)
+#define SQUELCH_LOW 127
+#define SQUELCH_MAX (SQUELCH_LOW + 240)
+#define OPPOSITE(x) (((x) + 4) & 7)
 /** Maps from direction to the opposite direction. */
 //const int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
 
@@ -40,7 +40,7 @@ void GetLevelMTypes();
 void WakeUberDiablo();
 #endif
 void InitMonsters();
-void SetMapMonsters(BYTE *pMap, int startx, int starty);
+void SetMapMonsters(BYTE* pMap, int startx, int starty);
 void MonChangeMap();
 void InitMonster(int mnum, int dir, int mtidx, int x, int y);
 void AddMonster(int x, int y, int dir, int mtidx);
@@ -80,7 +80,7 @@ void TalktoMonster(int mnum, int pnum);
 void InitGolemStats(int mnum, int level);
 void SpawnGolem(int mnum, int x, int y, int level);
 bool CanTalkToMonst(int mnum);
-bool CheckMonsterHit(int mnum, bool *ret);
+bool CheckMonsterHit(int mnum, bool* ret);
 
 inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
 {

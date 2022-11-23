@@ -38,7 +38,7 @@ static bool _gbTickInSync;
 static bool _gbThreadLive;
 static bool _gbRunThread;
 
-void nthread_send_turn(BYTE *data, unsigned len)
+void nthread_send_turn(BYTE* data, unsigned len)
 {
 	uint32_t turn = sgbSentThisCycle;
 // enabled for everyone to allow connection with adaptive hosts

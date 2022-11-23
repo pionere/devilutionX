@@ -22,8 +22,8 @@ extern int gnSfxDelay;
 extern int gnSfxNum;
 extern QuestStruct quests[NUM_QUESTS];
 
-#define LEVEL_MASK(x)			((uint32_t)1 << (x))
-#define IsLvlVisited(x)			((guLvlVisited & LEVEL_MASK(x)) != 0)
+#define LEVEL_MASK(x)   ((uint32_t)1 << (x))
+#define IsLvlVisited(x) ((guLvlVisited & LEVEL_MASK(x)) != 0)
 
 void InitQuests();
 void InitQuestGFX();

@@ -8,9 +8,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define myplr					players[mypnum]
-#define plr						players[pnum]
-#define plx(x)					players[x]
+#define myplr          players[mypnum]
+#define plr            players[pnum]
+#define plx(x)         players[x]
 #define PLR_WALK_SHIFT 8
 
 #ifdef __cplusplus
@@ -26,7 +26,7 @@ void InitPlayerGFX(int pnum);
 void InitPlrGFXMem(int pnum);
 void FreePlayerGFX(int pnum);
 void SetPlrAnims(int pnum);
-void CreatePlayer(const _uiheroinfo &heroinfo);
+void CreatePlayer(const _uiheroinfo& heroinfo);
 #if DEBUG_MODE
 void NextPlrLevel(int pnum);
 #endif
@@ -84,7 +84,7 @@ extern const int MagicTbl[NUM_CLASSES];
 extern const int DexterityTbl[NUM_CLASSES];
 extern const int VitalityTbl[NUM_CLASSES];
 extern const BYTE Abilities[NUM_CLASSES];
-extern const char *const ClassStrTbl[NUM_CLASSES];
+extern const char* const ClassStrTbl[NUM_CLASSES];
 extern const unsigned PlrExpLvlsTbl[MAXCHARLEVEL + 1];
 extern const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1];
 

@@ -16,7 +16,7 @@ int seed_index;
 int level_seeds[NUM_LEVELS + 1];
 int seed_table[DEBUGSEEDS];
 
-BYTE *pSquareCel;
+BYTE* pSquareCel;
 int dbgplr;
 int dbgqst;
 int dbgmon;
@@ -53,7 +53,7 @@ void CheckDungeonClear()
 
 void GiveGoldCheat()
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	int i;
 
 	pi = myplr._pInvList;
@@ -229,9 +229,9 @@ void NextDebugMonster()
 
 void DumpDungeon()
 {
-	FILE *f0 = fopen("f:\\dundump0.txt", "wb");
-	FILE *f1 = fopen("f:\\dundump1.txt", "wb");
-	FILE *f2 = fopen("f:\\dundump2.txt", "wb");
+	FILE* f0 = fopen("f:\\dundump0.txt", "wb");
+	FILE* f1 = fopen("f:\\dundump1.txt", "wb");
+	FILE* f2 = fopen("f:\\dundump2.txt", "wb");
 	for (int j = 0; j < 48; j++)
 		for (int i = 0; i < 48; i++) {
 			BYTE v;
@@ -279,7 +279,7 @@ static const char* ReadTextLine(const char* str, char lineSep, int limit)
 
 static void PrintText(const char* text, char lineSep, int limit)
 {
-	const char *s = text;
+	const char* s = text;
 	int i = 0, w;
 	BYTE col;
 	FILE* textFile = fopen("f:\\sample.txt", "wb");
@@ -682,7 +682,7 @@ void ValidateData()
 		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, uniqMonData[UMT_HORKDMN].muLevel);
 #endif
 	rnddrops = 0; i = 0;
-	for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
+	for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
 		rnddrops += pres->PLDouble ? 2 : 1;
 		if (pres->PLParam2 < pres->PLParam1) {
 			app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
@@ -757,7 +757,7 @@ void ValidateData()
 				app_fatal("PLParam too high for %d. suffix (power:%d, pparam2:%d)", i, sufs->PLPower, sufs->PLParam2);
 			}
 		}
-		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if ((sufs->PLIType & pres->PLIType) == 0)
 				continue;
 			if (sufs->PLPower == pres->PLPower) {
@@ -797,7 +797,7 @@ void ValidateData()
 #if 0
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
-		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if (pres->PLMinLvl > i) {
 				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
 					c++;
@@ -814,7 +814,7 @@ void ValidateData()
 			}
 		}
 		int as = 0, bs = 0, cs = 0, ws = 0;
-		for (const AffixData *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
+		for (const AffixData* pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
 			if (pres->PLMinLvl > i) {
 				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
 					cs++;
@@ -1285,7 +1285,7 @@ void LogErrorF(const char* type, const char* msg, ...)
 	char tmp[256];
 	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
 	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
-	FILE *f0 = fopen(tmp, "a+");
+	FILE* f0 = fopen(tmp, "a+");
 	if (f0 == NULL)
 		return;
 
@@ -1300,7 +1300,7 @@ void LogErrorF(const char* type, const char* msg, ...)
 	fputs(tmp, f0);
 
 	using namespace std::chrono;
-	milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+	milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
 	snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
 	fputs(tmp, f0);

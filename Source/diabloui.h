@@ -18,15 +18,15 @@ void UiDestroy();
 /* Defined in title.cpp */
 bool UiTitleDialog();
 /* Defined in selhero.cpp */
-int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo*)), int(*fncreate)(_uiheroinfo*), void(*fnremove)(_uiheroinfo*), unsigned* saveIdx);
+int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)), int (*fncreate)(_uiheroinfo*), void (*fnremove)(_uiheroinfo*), unsigned* saveIdx);
 /* Defined in settingsmenu.cpp */
 void UiSettingsDialog();
 /* Defined in credits.cpp */
 void UiCreditsDialog();
 /* Defined in mainmenu.cpp */
-int UiMainMenuDialog(void(*fnSound)(int sfx, int rndCnt));
+int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt));
 /* Defined in progress.cpp */
-bool UiProgressDialog(const char *msg, int(*fnfunc)());
+bool UiProgressDialog(const char* msg, int(*fnfunc)());
 
 /* Defined in selgame.cpp */
 int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt));

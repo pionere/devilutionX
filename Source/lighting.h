@@ -12,9 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#define NO_LIGHT			MAXLIGHTS
-#define NO_VISION			MAXVISION
-#define MAX_LIGHT_RAD		15
+#define NO_LIGHT      MAXLIGHTS
+#define NO_VISION     MAXVISION
+#define MAX_LIGHT_RAD 15
 
 extern BYTE visionactive[MAXVISION];
 extern LightListStruct VisionList[MAXVISION];
@@ -23,13 +23,12 @@ extern LightListStruct LightList[MAXLIGHTS];
 extern int numlights;
 extern int numvision;
 
-#define MAXDARKNESS 15
-#define NUM_COLOR_TRNS	MAXDARKNESS + 12
-
-#define COLOR_TRN_RED	MAXDARKNESS + 1
-#define COLOR_TRN_GRAY	MAXDARKNESS + 2
-#define COLOR_TRN_CORAL	MAXDARKNESS + 3
-#define COLOR_TRN_UNIQ	MAXDARKNESS + 4
+#define MAXDARKNESS     15
+#define NUM_COLOR_TRNS  MAXDARKNESS + 12
+#define COLOR_TRN_RED   MAXDARKNESS + 1
+#define COLOR_TRN_GRAY  MAXDARKNESS + 2
+#define COLOR_TRN_CORAL MAXDARKNESS + 3
+#define COLOR_TRN_UNIQ  MAXDARKNESS + 4
 extern BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
 
 void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum);

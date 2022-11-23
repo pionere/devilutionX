@@ -10,17 +10,20 @@ DEVILUTION_BEGIN_NAMESPACE
 #define DOOR_CLOSED  0
 #define DOOR_OPEN    1
 #define DOOR_BLOCKED 2
+
 #define TRAP_ACTIVE   0
 #define TRAP_INACTIVE 1
-#define FLAMETRAP_DIR_X 2
-#define FLAMETRAP_DIR_Y 0
+
+#define FLAMETRAP_DIR_X          2
+#define FLAMETRAP_DIR_Y          0
 #define FLAMETRAP_FIRE_ACTIVE    1
 #define FLAMETRAP_FIRE_INACTIVE  0
 #define FLAMETRAP_ACTIVE_FRAME   1
 #define FLAMETRAP_INACTIVE_FRAME 2
-#define NKR_A	5
-#define NKR_B	6
-#define NKR_C	7
+
+#define NKR_A 5
+#define NKR_B 6
+#define NKR_C 7
 
 int trapid;
 static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
@@ -1723,7 +1726,7 @@ static void Obj_Trap(int oi)
 {
 	ObjectStruct *os, *on;
 	int i, dir, trigNum;
-	const POS32 *trigArea;
+	const POS32* trigArea;
 	const POS32 baseTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 } , { -1, 1 }, { 0, -1 }, { -1, -1 }, { 1, -1 } };
 	const POS32 sarcTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 } , { -1, 1 }, { 0, -2 }, { -1, -2 }, { 1, -2 }, { -1, -1 }, { 1, -1 } };
 

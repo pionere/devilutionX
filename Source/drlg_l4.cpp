@@ -10,12 +10,12 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
-#define BASE_MEGATILE_L4	(30 - 1)
+#define BASE_MEGATILE_L4 (30 - 1)
 
 static_assert(DMAXX % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even width.");
-#define L4BLOCKX		(DMAXX / 2)
+#define L4BLOCKX (DMAXX / 2)
 static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even height.");
-#define L4BLOCKY		(DMAXY / 2)
+#define L4BLOCKY (DMAXY / 2)
 static_assert(DQUAD_ROOM_SIZE <= L4BLOCKX, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 I.");
 static_assert(DQUAD_ROOM_SIZE <= L4BLOCKY, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 II.");
 static BYTE dungBlock[L4BLOCKX][L4BLOCKY];
@@ -231,7 +231,7 @@ static void DRLG_FreeL4SP()
 static void DRLG_L4SetSPRoom(int rx1, int ry1)
 {
 	int rw, rh, i, j;
-	BYTE *sp;
+	BYTE* sp;
 
 	rw = pSetPiece[0];
 	rh = pSetPiece[2];
@@ -1022,7 +1022,7 @@ static void L4ConnectBlock()
 static int GetArea()
 {
 	int i, rv;
-	BYTE *pTmp;
+	BYTE* pTmp;
 
 	rv = 0;
 	static_assert(sizeof(dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in GetArea.");
@@ -1239,7 +1239,7 @@ static void L4FirstRoom()
 static void DRLG_L4SetRoom(int rx1, int ry1)
 {
 	int rx2, ry2, i, j;
-	BYTE *sp;
+	BYTE* sp;
 
 	rx2 = pSetPiece[0] + rx1;
 	ry2 = pSetPiece[2] + ry1;
@@ -1919,10 +1919,10 @@ void CreateL4Dungeon(int entry)
 	DRLG_SetPC();
 }
 
-/*static BYTE *LoadL4DungeonData(const char *sFileName)
+/*static BYTE* LoadL4DungeonData(const char* sFileName)
 {
 	int i, j;
-	BYTE *pMap;
+	BYTE* pMap;
 	uint16_t rw, rh, *lm;
 
 	pMap = LoadFileInMem(sFileName);
@@ -1930,7 +1930,7 @@ void CreateL4Dungeon(int entry)
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL4DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L4 + 1, sizeof(dungeon));
 
-	lm = (uint16_t *)pMap;
+	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);

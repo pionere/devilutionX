@@ -39,11 +39,11 @@ DEVILUTION_BEGIN_NAMESPACE
 unsigned _guLockCount;
 #endif
 /** Back buffer */
-BYTE *gpBuffer;
+BYTE* gpBuffer;
 /** Upper bound of back buffer. */
-BYTE *gpBufStart;
+BYTE* gpBufStart;
 /** Lower bound of back buffer. */
-BYTE *gpBufEnd;
+BYTE* gpBufEnd;
 /** The width of the back buffer. */
 int gnBufferWidth;
 
@@ -64,9 +64,9 @@ static void dx_create_back_buffer()
 		sdl_error(ERR_SDL_BACK_PALETTE_CREATE);
 	}
 	assert(back_surface->pitch == gnBufferWidth);
-	gpBuffer = (BYTE *)back_surface->pixels;
+	gpBuffer = (BYTE*)back_surface->pixels;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
-	//gpBufEnd = (BYTE *)(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));
+	//gpBufEnd = (BYTE )(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
 
 #ifndef USE_SDL1
@@ -127,7 +127,7 @@ static void lock_buf_priv()
 		return;
 	}
 	assert(gpBuffer == back_surface->pixels);
-	//gpBuffer = (BYTE *)back_surface->pixels;
+	//gpBuffer = (BYTE*)back_surface->pixels;
 	//gpBufEnd += (uintptr_t)gpBuffer;
 	_guLockCount++;
 #elif DEV_MODE
@@ -276,7 +276,7 @@ void RedBack()
 void trans_rect(int sx, int sy, int width, int height)
 {
 	int row, col;
-	BYTE *pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	BYTE* pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
 	// TODO: use SSE2?
 	for (row = 0; row < height; row++) {
 		for (col = 0; col < width; col++) {
@@ -317,7 +317,7 @@ static void Blit(SDL_Surface* src, const SDL_Rect* src_rect, SDL_Rect* dst_rect)
 
 	// If the surface has a color key, we must stretch first and can then call BlitSurface.
 	if (SDL_HasColorKey(src)) {
-		SDL_Surface *stretched = SDL_CreateRGBSurface(SDL_SWSURFACE, dst_rect->w, dst_rect->h, src->format->BitsPerPixel,
+		SDL_Surface* stretched = SDL_CreateRGBSurface(SDL_SWSURFACE, dst_rect->w, dst_rect->h, src->format->BitsPerPixel,
 		    src->format->Rmask, src->format->Gmask, src->format->BitsPerPixel, src->format->Amask);
 		SDL_SetColorKey(stretched, SDL_SRCCOLORKEY, src->format->colorkey);
 		if (src->format->palette != NULL)
@@ -334,7 +334,7 @@ static void Blit(SDL_Surface* src, const SDL_Rect* src_rect, SDL_Rect* dst_rect)
 
 	// A surface with a non-output pixel format but without a color key needs scaling.
 	// We can convert the format and then call BlitScaled.
-	SDL_Surface *converted = SDL_ConvertSurface(src, dst->format, 0);
+	SDL_Surface* converted = SDL_ConvertSurface(src, dst->format, 0);
 	if (SDL_BlitScaled(converted, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0) {
 		SDL_FreeSurface(converted);
 		sdl_error(ERR_SDL_DX_BLIT_CONVERTED);

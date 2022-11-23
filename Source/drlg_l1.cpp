@@ -8,11 +8,11 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the base megatiles. */
-#define BASE_MEGATILE_L1	(22 - 1)
+#define BASE_MEGATILE_L1 (22 - 1)
 /** Size of the main chambers in the dungeon. */
-#define CHAMBER_SIZE		10
+#define CHAMBER_SIZE 10
 /** Shadow type of the base floor(13). */
-#define SF					4
+#define SF 4
 
 /** Specifies whether to generate a vertical or horizontal rooms in the Cathedral. */
 BOOLEAN ChambersVertical;
@@ -247,7 +247,7 @@ const BYTE L1BTYPES[] = {
 
 	  0,  0,     0,  0,     0,  0,     0,  0,
 	  0,  0,     0,  0,     0,  0,     0,  0, */
-	// clang-format on
+//	// clang-format on
 //};
 #ifdef HELLFIRE
 const BYTE L5USTAIRS[] = {

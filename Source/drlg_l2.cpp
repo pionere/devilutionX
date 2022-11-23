@@ -14,13 +14,13 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L2 (12 - 1)
 /** Shadow type of the base floor(3). */
-#define SF					3
+#define SF 3
 
 /** The number of generated rooms. */
-#define L2_MAXROOMS   32
-#define AREA_MIN 2
-#define ROOM_MAX 10
-#define ROOM_MIN 4
+#define L2_MAXROOMS 32
+#define AREA_MIN    2
+#define ROOM_MAX    10
+#define ROOM_MIN    4
 enum HALL_DIR {
 	HDIR_NONE,
 	HDIR_UP,
@@ -1942,7 +1942,7 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	RoomList[nRoomCnt].nRoomx2 = nRx2;
 	RoomList[nRoomCnt].nRoomy2 = nRy2;
 	if (nRDest >= 0) {
-		ROOMHALLNODE &parentRoom = RoomList[nRDest];
+		ROOMHALLNODE& parentRoom = RoomList[nRDest];
 		switch (nHDir) {
 		case HDIR_UP:
 			nHx1 = RandRange(nRx1 + 1, nRx2 - 1);
@@ -2187,7 +2187,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 			case HDIR_UP:
 				// proceed up till a wall is hit
 				do {
-					 nY1--;
+					nY1--;
 				} while (pdungeon[nX1][nY1] == 46);
 				if (nY1 <= nY2) {
 					// the room is too large -> walk back and left/right
@@ -2200,12 +2200,12 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 					//assert(pdungeon[nX1][nY1] == 46);
 					if (nX1 > nX2) {
 						do {
-							 nX1--;
+							nX1--;
 						} while (pdungeon[nX1][nY1] == 46);
 						nCurrd = HDIR_LEFT;
 					} else {
 						do {
-							 nX1++;
+							nX1++;
 						} while (pdungeon[nX1][nY1] == 46);
 						nCurrd = HDIR_RIGHT;
 					}
@@ -2214,7 +2214,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 			case HDIR_RIGHT:
 				// proceed up till a wall is hit
 				do {
-					 nX1++;
+					nX1++;
 				} while (pdungeon[nX1][nY1] == 46);
 				if (nX1 >= nX2) {
 					// the room is too large -> walk back and up/down
@@ -2227,12 +2227,12 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 					//assert(pdungeon[nX1][nY1] == 46);
 					if (nY1 > nY2) {
 						do {
-							 nY1--;
+							nY1--;
 						} while (pdungeon[nX1][nY1] == 46);
 						nCurrd = HDIR_UP;
 					} else {
 						do {
-							 nY1++;
+							nY1++;
 						} while (pdungeon[nX1][nY1] == 46);
 						nCurrd = HDIR_DOWN;
 					}
@@ -2241,7 +2241,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 			case HDIR_DOWN:
 				// proceed up till a wall is hit
 				do {
-					 nY1++;
+					nY1++;
 				} while (pdungeon[nX1][nY1] == 46);
 				if (nY1 >= nY2) {
 					// the room is too large -> walk back and left/right
@@ -2254,12 +2254,12 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 					//assert(pdungeon[nX1][nY1] == 46);
 					if (nX1 > nX2) {
 						do {
-							 nX1--;
+							nX1--;
 						} while (pdungeon[nX1][nY1] == 46);
 						nCurrd = HDIR_LEFT;
 					} else {
 						do {
-							 nX1++;
+							nX1++;
 						} while (pdungeon[nX1][nY1] == 46);
 						nCurrd = HDIR_RIGHT;
 					}
@@ -2268,7 +2268,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 			case HDIR_LEFT:
 				// proceed up till a wall is hit
 				do {
-					 nX1--;
+					nX1--;
 				} while (pdungeon[nX1][nY1] == 46);
 				if (nX1 <= nX2) {
 					// the room is too large -> walk back and up/down
@@ -2281,12 +2281,12 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 					//assert(pdungeon[nX1][nY1] == 46);
 					if (nY1 > nY2) {
 						do {
-							 nY1--;
+							nY1--;
 						} while (pdungeon[nX1][nY1] == 46);
 						nCurrd = HDIR_UP;
 					} else {
 						do {
-							 nY1++;
+							nY1++;
 						} while (pdungeon[nX1][nY1] == 46);
 						nCurrd = HDIR_DOWN;
 					}

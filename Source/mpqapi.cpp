@@ -25,7 +25,7 @@ DEVILUTION_BEGIN_NAMESPACE
 namespace {
 
 #if DEBUG_MODE
-const char *DirToString(std::ios::seekdir dir)
+const char* DirToString(std::ios::seekdir dir)
 {
 	switch (dir) {
 	case std::ios::beg:
@@ -60,19 +60,19 @@ std::string OpenModeToString(std::ios::openmode mode)
 }
 
 template <typename... PrintFArgs>
-void PrintError(const char *fmt, PrintFArgs... args)
+void PrintError(const char* fmt, PrintFArgs... args)
 {
 	std::string fmt_with_error = fmt;
 	fmt_with_error.append(": failed with \"%s\"");
-	const char *error_message = std::strerror(errno);
+	const char* error_message = std::strerror(errno);
 	if (error_message == NULL)
 		error_message = "";
 	DoLog(fmt_with_error.c_str(), args..., error_message);
 }
 #else
-#define PrintError(fmt, ...)   do { } while(0);
+#define PrintError(fmt, ...) ((void)0)
 /*template <typename... PrintFArgs>
-void PrintError(const char *fmt, PrintFArgs... args)
+void PrintError(const char* fmt, PrintFArgs... args)
 {
 	std::string fmt_with_error = fmt;
 	fmt_with_error.append(" failed (%d)");
@@ -285,7 +285,7 @@ struct Archive {
 	FileMpqHashEntry* sgpHashTbl;
 	FileMpqBlockEntry* sgpBlockTbl;
 
-	bool OpenArchive(const char *name)
+	bool OpenArchive(const char* name)
 	{
 		CloseArchive(this->name != name);
 #if DEBUG_MODE
@@ -380,7 +380,7 @@ private:
 		fhdr.pqBlockCount = SwapLE32(blockCount);
 		memset(&fhdr.pqPad[0], 0, sizeof(fhdr.pqPad));
 
-		return stream.write(reinterpret_cast<const char *>(&fhdr), sizeof(fhdr));
+		return stream.write(reinterpret_cast<const char*>(&fhdr), sizeof(fhdr));
 	}
 
 	bool WriteBlockTable()
@@ -393,7 +393,7 @@ private:
 		blockSize = blockCount * sizeof(FileMpqBlockEntry);
 
 		EncryptMpqBlock(blockTbl, blockSize, key);
-		const bool success = stream.write(reinterpret_cast<const char *>(blockTbl), blockSize);
+		const bool success = stream.write(reinterpret_cast<const char*>(blockTbl), blockSize);
 		DecryptMpqBlock(blockTbl, blockSize, key);
 		ByteSwapBlockTbl(blockTbl, blockCount);
 		return success;
@@ -409,7 +409,7 @@ private:
 		hashSize = hashCount * sizeof(FileMpqHashEntry);
 
 		EncryptMpqBlock(hashTbl, hashSize, key);
-		const bool success = stream.write(reinterpret_cast<const char *>(hashTbl), hashSize);
+		const bool success = stream.write(reinterpret_cast<const char*>(hashTbl), hashSize);
 		DecryptMpqBlock(hashTbl, hashSize, key);
 		ByteSwapHashTbl(hashTbl, hashCount);
 		return success;
@@ -436,7 +436,7 @@ static bool ReadMPQHeader(Archive* archive, FileMpqHeader* hdr)
 {
 	const bool has_hdr = archive->archiveSize >= sizeof(*hdr);
 	if (has_hdr) {
-		if (!archive->stream.read(reinterpret_cast<char *>(hdr), sizeof(*hdr)))
+		if (!archive->stream.read(reinterpret_cast<char*>(hdr), sizeof(*hdr)))
 			return false;
 		ByteSwapHdr(hdr);
 	}
@@ -515,7 +515,7 @@ static void mpqapi_alloc_block(uint32_t block_offset, uint32_t block_size)
 	}
 }
 
-static uint32_t mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
+static uint32_t mpqapi_find_free_block(uint32_t size, uint32_t* block_size)
 {
 	FileMpqBlockEntry* pBlock;
 	uint32_t i, result;
@@ -564,12 +564,12 @@ static int mpqapi_get_hash_index(DWORD index, DWORD hash_a, DWORD hash_b)
 	return -1;
 }
 
-static int FetchHandle(const char *pszName)
+static int FetchHandle(const char* pszName)
 {
 	return mpqapi_get_hash_index(HashStringSlash(pszName, MPQ_HASH_TABLE_INDEX), HashStringSlash(pszName, MPQ_HASH_NAME_A), HashStringSlash(pszName, MPQ_HASH_NAME_B));
 }
 
-void mpqapi_remove_entry(const char *pszName)
+void mpqapi_remove_entry(const char* pszName)
 {
 	FileMpqHashEntry* pHash;
 	FileMpqBlockEntry* pBlock;
@@ -632,7 +632,7 @@ static uint32_t mpqapi_add_entry(const char* pszName, uint32_t block_index)
 static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, DWORD dwLen, uint32_t block)
 {
 	FileMpqBlockEntry* pBlk = &cur_archive.sgpBlockTbl[block];
-	const char *tmp;
+	const char* tmp;
 	while ((tmp = strchr(pszName, ':')))
 		pszName = tmp + 1;
 	while ((tmp = strchr(pszName, '\\')))
@@ -647,7 +647,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 	// We populate the table of sector offset while we write the data.
 	// We can't pre-populate it because we don't know the compressed sector sizes yet.
 	// First offset is the start of the first sector, last offset is the end of the last sector.
-	uint32_t *sectoroffsettable = (uint32_t *)DiabloAllocPtr((num_sectors + 1) * sizeof(uint32_t));
+	uint32_t* sectoroffsettable = (uint32_t*)DiabloAllocPtr((num_sectors + 1) * sizeof(uint32_t));
 	{
 #ifdef CAN_SEEKP_BEYOND_EOF
 	if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize, std::ios::beg))
@@ -661,13 +661,13 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 	if (curSize < pBlk->bqOffset + offset_table_bytesize) {
 		if (curSize < pBlk->bqOffset) {
 			curSize = pBlk->bqOffset - curSize;
-			char *filler = (char *)DiabloAllocPtr(curSize);
+			char* filler = (char*)DiabloAllocPtr(curSize);
 			bool res = cur_archive.stream.write(filler, curSize);
 			mem_free_dbg(filler);
 			if (!res)
 				goto on_error;
 		}
-		if (!cur_archive.stream.write(reinterpret_cast<const char *>(sectoroffsettable), offset_table_bytesize))
+		if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
 			goto on_error;
 	} else {
 		if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize, std::ios::beg))
@@ -683,7 +683,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 		memcpy(mpq_buf, pbData, len);
 		pbData += len;
 		len = PkwareCompress(mpq_buf, len);
-		if (!cur_archive.stream.write(reinterpret_cast<const char *>(mpq_buf), len))
+		if (!cur_archive.stream.write(reinterpret_cast<const char*>(mpq_buf), len))
 			goto on_error;
 		sectoroffsettable[cur_sector++] = SwapLE32(destsize);
 		destsize += len; // compressed length
@@ -696,7 +696,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 	sectoroffsettable[num_sectors] = SwapLE32(destsize);
 	if (!cur_archive.stream.seekp(pBlk->bqOffset, std::ios::beg))
 		goto on_error;
-	if (!cur_archive.stream.write(reinterpret_cast<const char *>(sectoroffsettable), offset_table_bytesize))
+	if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
 		goto on_error;
 	if (!cur_archive.stream.seekp(destsize - offset_table_bytesize, std::ios::cur))
 		goto on_error;
@@ -750,7 +750,7 @@ bool mpqapi_has_entry(const char* pszName)
 	return FetchHandle(pszName) != -1;
 }
 
-bool OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
+bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 {
 	DWORD blockSize, hashSize, key;
 	FileMpqHeader fhdr;
@@ -770,7 +770,7 @@ bool OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 		blockSize = blockCount * sizeof(FileMpqBlockEntry);
 		cur_archive.sgpBlockTbl = (FileMpqBlockEntry*)DiabloAllocPtr(blockSize);
 		if (fhdr.pqBlockCount != 0) {
-			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpBlockTbl), blockSize))
+			if (!cur_archive.stream.read(reinterpret_cast<char*>(cur_archive.sgpBlockTbl), blockSize))
 				goto on_error;
 			key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
@@ -781,7 +781,7 @@ bool OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 		hashSize = hashCount * sizeof(FileMpqHashEntry);
 		cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
 		if (fhdr.pqHashCount != 0) {
-			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpHashTbl), hashSize))
+			if (!cur_archive.stream.read(reinterpret_cast<char*>(cur_archive.sgpHashTbl), hashSize))
 				goto on_error;
 			key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);

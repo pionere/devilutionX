@@ -31,7 +31,7 @@ unsigned AmLine4;
 /** color used to draw the player's arrow */
 #define COLOR_PLAYER (PAL8_ORANGE + 1)
 #define COLOR_FRIEND (PAL8_BLUE + 0)
-#define COLOR_ENEMY (PAL8_RED + 2)
+#define COLOR_ENEMY  (PAL8_RED + 2)
 /** color for bright map lines (doors, stairs etc.) */
 #define COLOR_BRIGHT PAL8_YELLOW
 /** color for dim map lines/dots */
@@ -43,18 +43,18 @@ unsigned AmLine4;
 #define MAP_SCALE_MIN 64
 
 // base mapflags set in the corresponding .AMP file (only the lower byte is used)
-#define MAPFLAG_TYPE 0x00FF
-#define MAPFLAG_VERTDOOR 0x0100
-#define MAPFLAG_HORZDOOR 0x0200
-#define MAPFLAG_VERTARCH 0x0400
-#define MAPFLAG_HORZARCH 0x0800
+#define MAPFLAG_TYPE      0x00FF
+#define MAPFLAG_VERTDOOR  0x0100
+#define MAPFLAG_HORZDOOR  0x0200
+#define MAPFLAG_VERTARCH  0x0400
+#define MAPFLAG_HORZARCH  0x0800
 #define MAPFLAG_VERTGRATE 0x1000
 #define MAPFLAG_HORZGRATE 0x2000
-#define MAPFLAG_DIRT 0x4000
-#define MAPFLAG_STAIRS 0x8000
+#define MAPFLAG_DIRT      0x4000
+#define MAPFLAG_STAIRS    0x8000
 // calculated mapflags
-#define MAPFLAG_DOVERT 0x0010
-#define MAPFLAG_DOHORZ 0x0020
+#define MAPFLAG_DOVERT      0x0010
+#define MAPFLAG_DOHORZ      0x0020
 #define MAPFLAG_DOVERT_CAVE 0x0040
 #define MAPFLAG_DOHORZ_CAVE 0x0080
 
@@ -94,8 +94,8 @@ void InitAutomapScale()
 void InitLvlAutomap()
 {
 	size_t dwTiles, i;
-	BYTE *pAFile;
-	uint16_t *lm;
+	BYTE* pAFile;
+	uint16_t* lm;
 	const char* mapData;
 
 	/* commented out because the flags are reset in gendung.cpp anyway
@@ -392,7 +392,7 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 
 static void SearchAutomapItem()
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	int x, y;
 	int x1, y1, x2, y2, xoff, yoff;
 	int i, j;
@@ -443,7 +443,7 @@ static void SearchAutomapItem()
  */
 static void DrawAutomapPlr(int pnum, int playerColor)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	int px, py;
 	int x, y;
 

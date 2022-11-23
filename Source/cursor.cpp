@@ -26,7 +26,7 @@ int cursH;
 /** Current highlighted monster */
 int pcursmonst = MON_NONE;
 /** Cursor images CEL */
-BYTE *pCursCels;
+BYTE* pCursCels;
 
 /** Current active window */
 BYTE pcurswnd;
@@ -185,7 +185,7 @@ void InitLevelCursor()
 
 void CheckTownPortal()
 {
-	MissileStruct *mis;
+	MissileStruct* mis;
 	int i;
 
 	for (i = 0; i < nummissiles; i++) {
@@ -200,8 +200,8 @@ void CheckTownPortal()
 			 */
 			int dx = cursmx - (mis->_mix - 1);
 			int dy = cursmy - (mis->_miy - 1);
-			if (abs(dx) <= 1 && abs(dy) <= 1 &&	// select the 3x3 square around (-1;-1)
-				abs(dx - dy) < 2) {				// exclude the top left and bottom right positions
+			if (abs(dx) <= 1 && abs(dy) <= 1 // select the 3x3 square around (-1;-1)
+			 && abs(dx - dy) < 2) {          // exclude the top left and bottom right positions
 				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
 				cursmx = mis->_mix;
 				cursmy = mis->_miy;
@@ -229,7 +229,7 @@ void CheckCursMove()
 	pcurstrig = -1;
 	pcurswnd = WND_NONE;
 
-	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");	
+	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");
 	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
 	if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag)
 		return;

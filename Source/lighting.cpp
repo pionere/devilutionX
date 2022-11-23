@@ -8,11 +8,11 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /* Maximum offset in a tile */
-#define MAX_OFFSET		8
+#define MAX_OFFSET 8
 /* Maximum tile-distance till the precalculated tables are maintained. */
-#define MAX_TILE_DIST	(MAX_LIGHT_RAD + 1)
+#define MAX_TILE_DIST (MAX_LIGHT_RAD + 1)
 /* Maximum light-distance till the precalculated tables are maintained. */
-#define MAX_LIGHT_DIST	(MAX_TILE_DIST * MAX_OFFSET - 1)
+#define MAX_LIGHT_DIST (MAX_TILE_DIST * MAX_OFFSET - 1)
 
 /* The list of the indices of the active visions. */
 BYTE visionactive[MAXVISION];
@@ -445,7 +445,7 @@ const char CrawlTable[2749] = {
 /** Indices of CrawlTable to select the entries at a given distance. */
 const int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
 
-static void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int *bx, int *by)
+static void RotateRadius(int* x, int* y, int* dx, int* dy, int* lx, int* ly, int* bx, int* by)
 {
 	int swap;
 
@@ -1004,7 +1004,7 @@ void InitLighting()
 
 unsigned AddLight(int x, int y, int r)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 	int lnum;
 
 #if DEBUG_MODE
@@ -1045,7 +1045,7 @@ void AddUnLight(unsigned lnum)
 
 void ChangeLightRadius(unsigned lnum, int r)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1062,7 +1062,7 @@ void ChangeLightRadius(unsigned lnum, int r)
 
 void ChangeLightXY(unsigned lnum, int x, int y)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1080,7 +1080,7 @@ void ChangeLightXY(unsigned lnum, int x, int y)
 
 void ChangeLightOff(unsigned lnum, int xoff, int yoff)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1101,7 +1101,7 @@ void ChangeLightOff(unsigned lnum, int xoff, int yoff)
  */
 void ChangeLightXYOff(unsigned lnum, int x, int y)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1142,7 +1142,7 @@ void CondChangeLightXY(unsigned lnum, int x, int y)
 
 void CondChangeLightOff(unsigned lnum, int xoff, int yoff)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 	int lx, ly;
 	int offx, offy;
 
@@ -1170,7 +1170,7 @@ void CondChangeLightOff(unsigned lnum, int xoff, int yoff)
 
 void ChangeLight(unsigned lnum, int x, int y, int r)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1189,7 +1189,7 @@ void ChangeLight(unsigned lnum, int x, int y, int r)
 
 void ProcessLightList()
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 	int i, j;
 	BYTE temp;
 
@@ -1253,7 +1253,7 @@ void RedoLightAndVision()
 
 int AddVision(int x, int y, int r, bool mine)
 {
-	LightListStruct *vis;
+	LightListStruct* vis;
 	int vnum;
 
 	assert(numvision < MAXVISION);
@@ -1280,7 +1280,7 @@ void AddUnVision(unsigned vnum)
 
 void ChangeVisionRadius(unsigned vnum, int r)
 {
-	LightListStruct *vis;
+	LightListStruct* vis;
 
 	if (vnum >= MAXVISION)
 		return;
@@ -1293,7 +1293,7 @@ void ChangeVisionRadius(unsigned vnum, int r)
 
 void ChangeVisionXY(unsigned vnum, int x, int y)
 {
-	LightListStruct *vis;
+	LightListStruct* vis;
 
 	if (vnum >= MAXVISION)
 		return;
@@ -1354,11 +1354,11 @@ void lighting_color_cycling()
 {
 	int i, j, l;
 	BYTE col;
-	BYTE *tbl;
+	BYTE* tbl;
 
 	// assert(currLvl._dType == DTYPE_HELL);
 
-	l = MAXDARKNESS;// + 1;
+	l = MAXDARKNESS; // + 1;
 	tbl = ColorTrns[0];
 
 	for (j = 0; j < l; j++) {
