@@ -91,6 +91,7 @@ typedef enum window_messages {
 	DVL_DWM_WARPLVL, //  = 0x406, // portal
 	DVL_DWM_RETOWN,  //   = 0x409, // restart in town
 	DVL_DWM_NEWGAME, //  = 0x40A,
+
 	// WM_LEIGHSKIP = 0x40C, // psx only
 	// WM_DIAVNEWLVL = 0x40D, // psx only
 } window_messages;
@@ -255,14 +256,14 @@ typedef enum window_messages {
 #define DVL_VK_OEM_22 0xF3 // OEM specific
 #define DVL_VK_OEM_23 0xF4 // OEM specific
 #define DVL_VK_OEM_24 0xF5 // OEM specific
-#define DVL_VK_ATTN 0xF6   // Attn key
-#define DVL_VK_CRSEL 0xF7  // CrSel key
-#define DVL_VK_EXSEL 0xF8  // ExSel key
-#define DVL_VK_EREOF 0xF9  // Erase EOF key
-#define DVL_VK_PLAY 0xFA   // Play key
-#define DVL_VK_ZOOM 0xFB   // Zoom key
+#define DVL_VK_ATTN   0xF6 // Attn key
+#define DVL_VK_CRSEL  0xF7 // CrSel key
+#define DVL_VK_EXSEL  0xF8 // ExSel key
+#define DVL_VK_EREOF  0xF9 // Erase EOF key
+#define DVL_VK_PLAY   0xFA // Play key
+#define DVL_VK_ZOOM   0xFB // Zoom key
 #define DVL_VK_NONAME 0xFC // Reserved
-#define DVL_VK_PA1 0xFD    // PA1 key
+#define DVL_VK_PA1    0xFD // PA1 key
 
 #define DVL_VK_OEM_CLEAR 0xFE // Clear button
 

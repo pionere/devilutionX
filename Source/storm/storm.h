@@ -63,18 +63,18 @@ extern "C" {
 #define MPQ_OPEN_READ_ONLY       0x00000100
 #define MPQ_FILE_IMPLODE         0x00000100
 #define MPQ_FILE_EXISTS          0x80000000
-#define ID_MPQ                   0x1A51504D  // MPQ archive header ID ('MPQ\x1A')
+#define ID_MPQ                   0x1A51504D // MPQ archive header ID ('MPQ\x1A')
 #define MPQ_HEADER_SIZE_V1       0x20
 #define MPQ_FORMAT_VERSION_1     0
 #define MPQ_SECTOR_SIZE_SHIFT_V1 3
-#define MPQ_KEY_HASH_TABLE       0xC3AF3770  // Obtained by HashString("(hash table)", MPQ_HASH_FILE_KEY)
-#define MPQ_KEY_BLOCK_TABLE      0xEC83B3A3  // Obtained by HashString("(block table)", MPQ_HASH_FILE_KEY)
+#define MPQ_KEY_HASH_TABLE       0xC3AF3770 // Obtained by HashString("(hash table)", MPQ_HASH_FILE_KEY)
+#define MPQ_KEY_BLOCK_TABLE      0xEC83B3A3 // Obtained by HashString("(block table)", MPQ_HASH_FILE_KEY)
 #define MPQ_HASH_TABLE_INDEX     0x000
 #define MPQ_HASH_NAME_A          0x100
 #define MPQ_HASH_NAME_B          0x200
 #define MPQ_HASH_FILE_KEY        0x300
-#define HASH_ENTRY_DELETED       0xFFFFFFFE  // Block index for deleted entry in the hash table
-#define HASH_ENTRY_FREE          0xFFFFFFFF  // Block index for free entry in the hash table
+#define HASH_ENTRY_DELETED       0xFFFFFFFE // Block index for deleted entry in the hash table
+#define HASH_ENTRY_FREE          0xFFFFFFFF // Block index for free entry in the hash table
 #define SFILE_OPEN_FROM_MPQ      0
 #define SFILE_OPEN_LOCAL_FILE    0xFFFFFFFF
 #define SFILE_OPEN_CHECK_EXISTS  0xFFFFFFFC
@@ -95,7 +95,7 @@ bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead
 bool getIniBool(const char* sectionName, const char* keyName, bool defaultValue);
 bool getIniValue(const char* sectionName, const char* keyName, char* string, int stringSize);
 void setIniValue(const char* sectionName, const char* keyName, const char* value);
-bool getIniInt(const char* sectionName, const char* keyName, int *value);
+bool getIniInt(const char* sectionName, const char* keyName, int* value);
 void setIniInt(const char* sectionName, const char* keyName, int value);
 
 // These error codes are used and returned by StormLib.
@@ -127,10 +127,10 @@ DWORD SErrGetLastError();
 void SErrSetLastError(DWORD dwErrCode);
 
 // Values for dwErrCode
-#define STORM_ERROR_GAME_TERMINATED              0x85100069
-#define STORM_ERROR_INVALID_PLAYER               0x8510006a
-//#define STORM_ERROR_NO_MESSAGES_WAITING          0x8510006b
-#define STORM_ERROR_NOT_IN_GAME                  0x85100070
+#define STORM_ERROR_GAME_TERMINATED 0x85100069
+#define STORM_ERROR_INVALID_PLAYER  0x8510006a
+//#define STORM_ERROR_NO_MESSAGES_WAITING 0x8510006b
+#define STORM_ERROR_NOT_IN_GAME     0x85100070
 
 /*  SStrCopy @ 501
  *
@@ -144,9 +144,9 @@ void SErrSetLastError(DWORD dwErrCode);
  */
 void SStrCopy(char* dest, const char* src, int max_length);
 
-void  InitializeMpqCryptography();
-void  EncryptMpqBlock(void* pvDataBlock, DWORD dwLength, DWORD dwKey);
-void  DecryptMpqBlock(void* pvDataBlock, DWORD dwLength, DWORD dwKey);
+void InitializeMpqCryptography();
+void EncryptMpqBlock(void* pvDataBlock, DWORD dwLength, DWORD dwKey);
+void DecryptMpqBlock(void* pvDataBlock, DWORD dwLength, DWORD dwKey);
 DWORD HashStringSlash(const char* szFileName, unsigned dwHashType);
 void SFileEnableDirectAccess(bool enable);
 void SLoadKeyMap(BYTE (&map)[256]);

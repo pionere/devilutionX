@@ -21,7 +21,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SMK_COLORS	256
+#define SMK_COLORS 256
 
 static double SVidFrameEnd;
 static double SVidFrameLength;
@@ -213,7 +213,7 @@ static void UpdatePalette()
 {
 	SDL_Color* colors = SVidPalette->colors;
 
-	palette_create_sdl_colors(*(SDL_Color(*)[NUM_COLORS])colors, *(BYTE (*)[SMK_COLORS][3])smk_get_palette(SVidSMK));
+	palette_create_sdl_colors(*(SDL_Color(*)[NUM_COLORS])colors, *(BYTE(*)[SMK_COLORS][3])smk_get_palette(SVidSMK));
 	ApplyGamma(colors, colors);
 
 #ifdef USE_SDL1
