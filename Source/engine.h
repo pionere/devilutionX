@@ -17,9 +17,9 @@ DEVILUTION_BEGIN_NAMESPACE
 
 inline const BYTE* CelGetFrameStart(const BYTE* pCelBuff, int nCel)
 {
-	const DWORD *pFrameTable;
+	const DWORD* pFrameTable;
 
-	pFrameTable = (const DWORD *)pCelBuff;
+	pFrameTable = (const DWORD*)pCelBuff;
 
 	return &pCelBuff[SwapLE32(pFrameTable[nCel])];
 }
@@ -29,7 +29,7 @@ inline const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
 	const DWORD* pFrameTable;
 	DWORD nCellStart;
 
-	pFrameTable = (const DWORD *)&pCelBuff[nCel * 4];
+	pFrameTable = (const DWORD*)&pCelBuff[nCel * 4];
 	nCellStart = SwapLE32(pFrameTable[0]);
 	*nDataSize = SwapLE32(pFrameTable[1]) - nCellStart;
 	return &pCelBuff[nCellStart];
@@ -62,7 +62,7 @@ BYTE* DiabloAllocPtr(size_t dwBytes);
 void mem_free_dbg(void* p);
 #define MemFreeDbg(p)       \
 	{                       \
-		void *p__p;         \
+		void* p__p;         \
 		p__p = p;           \
 		p = NULL;           \
 		mem_free_dbg(p__p); \
@@ -86,7 +86,7 @@ inline CelImageBuf* CelLoadImage(const char* name, DWORD nWidth)
 
 	res = (CelImageBuf*)LoadFileInMem(name);
 #if DEBUG_MODE
-	res->ciFrameCnt = SwapLE32(*((DWORD *)res));
+	res->ciFrameCnt = SwapLE32(*((DWORD*)res));
 #endif
 	res->ciWidth = nWidth;
 	return res;

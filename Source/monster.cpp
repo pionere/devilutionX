@@ -113,7 +113,7 @@ const int offset_y[NUM_DIRS] = { 1, 1, 1, 0, -1, -1, -1, 0 };
  * - if the monster is active, the function/monster must do something otherwise the enemy might not get updated
  * - can not rely on dLight, because it might not be in sync in multiplayer games
  */
-void (* const AiProc[])(int i) = {
+void (*const AiProc[])(int i) = {
 	// clang-format off
 /*AI_ZOMBIE*/       &MAI_Zombie,
 /*AI_FAT*/          &MAI_Fat,
@@ -193,7 +193,7 @@ static void InitMonsterGFX(int midx)
 	cmon->cmAFNum2 = mfdata->moAFNum2;
 
 	mtype = cmon->cmType;
-	auto &monAnims = cmon->cmAnims;
+	auto& monAnims = cmon->cmAnims;
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].maFrames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
 		monAnims[anim].maFrames = mfdata->moAnimFrames[anim];
@@ -646,7 +646,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mAnimLen = cmon->cmAnims[MA_STAND].maFrames;
 	mon->_mAnimFrame = mon->_mAnimLen == 0 ? 1 : RandRangeLow(1, mon->_mAnimLen);
 	mon->_mmode = MM_STAND;
-	mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
+	mon->_mVar1 = MM_STAND;           // STAND_PREV_MODE
 	mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
 	//mon->_mVar3 = 0;	-- should be set before use
 	//mon->_mVar4 = 0;
@@ -967,7 +967,7 @@ static void PlaceUniqueMonst(int uniqindex)
 	mon->_mMagicRes = uniqm->mMagicRes;
 	if (uniqm->mtalkmsg != TEXT_NONE) {
 		mon->_mgoal = MGOAL_TALKING;
-		mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
+		mon->_mgoalvar1 = FALSE;           // TALK_INQUIRING
 		mon->_mgoalvar2 = uniqm->mtalkmsg; // TALK_MESSAGE
 	}
 
@@ -1437,7 +1437,7 @@ static void MonStartDelay(int mnum, int len)
 	// assert(len > 0);
 
 	mon = &monsters[mnum];
-	mon->_mVar2 = len;      // DELAY_TICK : length of the delay
+	mon->_mVar2 = len; // DELAY_TICK : length of the delay
 	mon->_mmode = MM_DELAY;
 }
 
@@ -1489,8 +1489,8 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
 
 	mon = &monsters[mnum];
 	mon->_mmode = MM_WALK;
-	mon->_mVar4 = xvel;   // WALK_XVEL : velocity of the monster in the X-direction
-	mon->_mVar5 = yvel;   // WALK_YVEL : velocity of the monster in the Y-direction
+	mon->_mVar4 = xvel; // WALK_XVEL : velocity of the monster in the X-direction
+	mon->_mVar5 = yvel; // WALK_YVEL : velocity of the monster in the Y-direction
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
 	//mon->_mVar1 = xadd; // dx after the movement
@@ -1522,8 +1522,8 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 
 	mon = &monsters[mnum];
 	mon->_mmode = MM_WALK2;
-	mon->_mVar4 = xvel;   // WALK_XVEL : velocity of the monster in the X-direction
-	mon->_mVar5 = yvel;   // WALK_YVEL : velocity of the monster in the Y-direction
+	mon->_mVar4 = xvel; // WALK_XVEL : velocity of the monster in the X-direction
+	mon->_mVar5 = yvel; // WALK_YVEL : velocity of the monster in the Y-direction
 	mon->_mxoff = xoff;
 	mon->_myoff = yoff;
 	mon->_mVar6 = xoff << MON_WALK_SHIFT; // MWALK_XOFF : _mxoff in a higher range
@@ -2051,9 +2051,9 @@ static void MonStartFadein(int mnum, int md, bool backwards)
 	if (backwards) {
 		mon->_mFlags |= MFLAG_REV_ANIMATION;
 		mon->_mAnimFrame = mon->_mAnimLen;
-		mon->_mVar8 = 1;				// FADE_END : target frame to end the fade mode
+		mon->_mVar8 = 1;              // FADE_END : target frame to end the fade mode
 	} else {
-		mon->_mVar8 = mon->_mAnimLen;	// FADE_END : target frame to end the fade mode
+		mon->_mVar8 = mon->_mAnimLen; // FADE_END : target frame to end the fade mode
 	}
 }
 
@@ -2508,9 +2508,9 @@ void DoEnding()
 	// music_stop(); -- no need, music is already stopped at this point
 
 	const char* vicSets[NUM_CLASSES] = {
-		"gendata\\DiabVic2.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic1.smk"
+		"gendata\\DiabVic2.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic1.smk",
 #ifdef HELLFIRE
-		, "gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk"
+		"gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk",
 #endif
 	};
 	if (play_movie(vicSets[myplr._pClass], 0) == MPR_DONE
@@ -4419,7 +4419,7 @@ void ProcessMonsters()
 				// mon->_mFlags |= MFLAG_NO_ENEMY;
 				mon->_menemyx = 0;
 				mon->_menemyy = 0;
-				mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
+				mon->_mVar1 = MM_STAND;           // STAND_PREV_MODE
 				mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
 				assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_TALKING);
 			}

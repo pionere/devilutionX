@@ -307,7 +307,7 @@ void ShowCutscene(unsigned uMsg)
 	if (uMsg != DVL_DWM_NEWGAME) {
 		if (IsMultiGame)
 			pfile_write_hero(false);
-		// turned off to have a consistent fade in/out logic + reduces de-sync by 
+		// turned off to have a consistent fade in/out logic + reduces de-sync by
 		// eliminating the need for special handling in InitLevelChange (player.cpp)
 		//PaletteFadeOut();
 	}

@@ -1209,7 +1209,7 @@ void ValidateData()
 
 	// missiles
 	for (i = 0; i < NUM_MISTYPES; i++) {
-		const MissileData &md = missiledata[i];
+		const MissileData& md = missiledata[i];
 		if (md.mAddProc == NULL)
 			app_fatal("Missile %d has no valid mAddProc.", i);
 		if (md.mAddProc == AddMisexp) {

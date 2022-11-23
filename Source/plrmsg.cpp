@@ -56,7 +56,7 @@ static _plrmsg* AddPlrMsg(int pnum)
 void ErrorPlrMsg(const char* pszMsg)
 {
 	_plrmsg* pMsg;
-	
+
 	pMsg = AddPlrMsg(MAX_PLRS);
 	SStrCopy(pMsg->str, pszMsg, sizeof(pMsg->str));
 }

@@ -430,7 +430,7 @@ static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct* is)
 	if ((ii % 10) + sx > 10
 	 || (ii / 10) + sy > NUM_INV_GRID_ELEM / 10)
 		done = false;
-	
+
 	xx = ii;
 	for (j = 0; j < sy && done; j++) {
 		for (i = 0; i < sx && done; i++, xx++) {
@@ -1546,7 +1546,7 @@ void DropItem()
 		return; // false;
 
 	NetSendCmdPutItem(x, y);
-	return;// true;
+	return; // true;
 }
 
 /**
@@ -1759,15 +1759,15 @@ static void InvAddMana(int pnum)
 	// mana = ((mana >> 1) + random_(40, mana)) << 6;
 	mana = p->_pMaxMana >> (8 - 6);
 	switch (p->_pClass) {
-	case PC_WARRIOR:				break;
-	case PC_SORCERER: mana <<= 1;	break;
+	case PC_WARRIOR:              break;
+	case PC_SORCERER: mana <<= 1; break;
 #ifdef HELLFIRE
-	case PC_BARBARIAN:				break;
+	case PC_BARBARIAN:            break;
 	case PC_MONK:
 	case PC_BARD:
 #endif
 	case PC_ROGUE:
-		mana += mana >> 1;			break;
+		mana += mana >> 1;        break;
 	default:
 		ASSUME_UNREACHABLE
 	}

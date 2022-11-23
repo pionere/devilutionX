@@ -56,9 +56,9 @@ static bool _gbTimeout;
 uint32_t guDeltaTurn;
 static bool _gbNetInited;
 /* The name/address of the current game. (multiplayer games) */
-const char *szGameName;
+const char* szGameName;
 /* The password of the current game. (multiplayer games) */
-const char *szGamePassword;
+const char* szGamePassword;
 /* The network-state of the players. (PCS_) */
 unsigned player_state[MAX_PLRS];
 
@@ -76,7 +76,7 @@ static void multi_init_buffers()
  */
 void NetSendChunk(const BYTE* pbMsg, BYTE bLen)
 {
-	BYTE *p;
+	BYTE* p;
 
 	if (sgTurnChunkBuf.dwDataSize + bLen + 1 >= sizeof(sgTurnChunkBuf.bData)) {
 		// TODO: should this be fatal?
@@ -93,7 +93,7 @@ void NetSendChunk(const BYTE* pbMsg, BYTE bLen)
 
 static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 {
-	BYTE *src_ptr;
+	BYTE* src_ptr;
 	size_t chunk_size;
 
 	if (sgTurnChunkBuf.dwDataSize != 0) {
@@ -114,7 +114,7 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 	return dest;
 }
 
-static void multi_init_pkt_header(TurnPktHdr &pktHdr, unsigned len)
+static void multi_init_pkt_header(TurnPktHdr& pktHdr, unsigned len)
 {
 	// PlayerStruct* p;
 
@@ -201,7 +201,7 @@ static void multi_parse_turns()
 	}
 
 	if (guSendLevelData != 0) {
-#ifndef  NOHOSTING
+#ifndef NOHOSTING
 		if (mypnum < MAX_PLRS)
 			LevelDeltaExport();
 		else
@@ -385,12 +385,12 @@ bool multi_handle_turn()
 	return true;
 }
 
-static void multi_process_turn_packet(int pnum, BYTE *pData, int nSize)
+static void multi_process_turn_packet(int pnum, BYTE* pData, int nSize)
 {
 	int nLen;
 
 	while (nSize > 0) {
-		nLen = ParseCmd(pnum, (TCmd *)pData);
+		nLen = ParseCmd(pnum, (TCmd*)pData);
 		// assert(nLen != 0);
 		pData += nLen;
 		nSize -= nLen;
@@ -481,7 +481,7 @@ void multi_process_msgs()
 
 	multi_check_left_plrs();
 	//multi_process_tmsgs();
-	while (SNetReceiveMessage(&pnum, (BYTE **)&pkt, &dwMsgSize)) {
+	while (SNetReceiveMessage(&pnum, (BYTE**)&pkt, &dwMsgSize)) {
 		multi_check_left_plrs();
 		if (dwMsgSize < sizeof(MsgPktHdr))
 			continue;
@@ -650,7 +650,7 @@ static void multi_broadcast_plrinfo_msg()
 
 static void SetupLocalPlr()
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 
 #if DEBUG_MODE
 	if (!leveldebug || !IsLocalGame) {
@@ -689,7 +689,7 @@ static void SetupLocalPlr()
 	p->_pActive = TRUE;
 }
 
-static void multi_handle_events(SNetEvent *pEvt)
+static void multi_handle_events(SNetEvent* pEvt)
 {
 	unsigned pnum, LeftReason;
 

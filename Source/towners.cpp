@@ -171,7 +171,7 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFr
 	tw = &monsters[tnum];
 
 	// commented out, because it might be populated by InitMonster
-	// assert(tw->_mAnimData == NULL);	
+	// assert(tw->_mAnimData == NULL);
 	tw->_mAnimData = LoadFileInMem(pAnimFile);               // TNR_ANIM_DATA
 	tw->_mAnimFrameLen = Delay;                              // TNR_ANIM_FRAME_LEN
 	tw->_mAnimLen = numFrames;                               // TNR_ANIM_LEN

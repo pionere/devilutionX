@@ -47,14 +47,14 @@ const char CharChar[NUM_CLASSES] = { 'W', 'R', 'S',
 #endif
 };
 /** Maps from player class to the folder of graphic files. */
-const char *const gfxClassTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
+const char* const gfxClassTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
 #ifdef HELLFIRE
 //	"Monk", "Bard", "Barbarian"
 	"Monk", "Rogue", "Warrior"
 #endif
 };
 /** Maps from player class to the string shown to the player. */
-const char *const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
+const char* const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
 #ifdef HELLFIRE
 	"Monk", "Bard", "Barbarian"
 #endif
@@ -151,9 +151,9 @@ const int VitalityTbl[NUM_CLASSES] = {
 	// clang-format on
 };
 const BYTE Abilities[NUM_CLASSES] = {
-	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE
+	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE,
 #ifdef HELLFIRE
-	, SPL_WHITTLE, SPL_IDENTIFY, SPL_BUCKLE
+	SPL_WHITTLE, SPL_IDENTIFY, SPL_BUCKLE,
 #endif
 };
 
@@ -237,16 +237,16 @@ const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
 static const char dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
 #endif
 
-static void SetPlayerGPtrs(BYTE *pData, BYTE *(&pAnim)[8])
+static void SetPlayerGPtrs(BYTE* pData, BYTE* (&pAnim)[8])
 {
 	int i;
 
 	for (i = 0; i < lengthof(pAnim); i++) {
-		pAnim[i] = const_cast<BYTE *>(CelGetFrameStart(pData, i));
+		pAnim[i] = const_cast<BYTE*>(CelGetFrameStart(pData, i));
 	}
 }
 
-static inline void GetPlrGFXCells(int pc, const char **szCel, const char **cs)
+static inline void GetPlrGFXCells(int pc, const char** szCel, const char** cs)
 {
 /*#ifdef HELLFIRE
 	if (pc == PC_BARD && diabdat_mpqs[MPQ_HF_BARD] == NULL)
@@ -337,7 +337,7 @@ void InitPlayerGFX(int pnum)
 	LoadPlrGFX(pnum, gfxflag);
 }
 
-static unsigned GetPlrGFXSize(const char *szCel)
+static unsigned GetPlrGFXSize(const char* szCel)
 {
 	int c;
 	const char *a, *w, *cc, *cst;
@@ -608,7 +608,7 @@ void SetPlrAnims(int pnum)
 /**
  * @param c plr_classes value
  */
-void CreatePlayer(const _uiheroinfo &heroinfo)
+void CreatePlayer(const _uiheroinfo& heroinfo)
 {
 	int val, hp, mana;
 	int i, pnum = 0;
@@ -767,9 +767,9 @@ void InitLvlPlayer(int pnum, bool entering)
 	}
 	assert(plr._pDunLevel == currLvl._dLevelIdx);
 	if (currLvl._dLevelIdx != DLV_TOWN) {
-		plr._pSkillFlags	|= SFLAG_DUNGEON;
+		plr._pSkillFlags |= SFLAG_DUNGEON;
 	} else {
-		plr._pSkillFlags	&= ~SFLAG_DUNGEON;
+		plr._pSkillFlags &= ~SFLAG_DUNGEON;
 	}
 
 	CalcPlrItemVals(pnum, false);
@@ -1230,14 +1230,14 @@ static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 	int px, py;
 
 	plr._pmode = PM_WALK;
-	plr._pVar4 = xvel;   // WALK_XVEL : velocity of the player in the X-direction
-	plr._pVar5 = yvel;   // WALK_YVEL : velocity of the player in the Y-direction
+	plr._pVar4 = xvel; // WALK_XVEL : velocity of the player in the X-direction
+	plr._pVar5 = yvel; // WALK_YVEL : velocity of the player in the Y-direction
 	plr._pxoff = 0;
 	plr._pyoff = 0;
-	//plr._pVar3 = dir; // Player's direction when ending movement.
-	plr._pVar6 = 0;      // WALK_XOFF : _pxoff value in a higher range
-	plr._pVar7 = 0;      // WALK_YOFF : _pyoff value in a higher range
-	plr._pVar8 = 0;      // WALK_TICK : speed helper
+	//plr._pVar3 = dir;  // Player's direction when ending movement.
+	plr._pVar6 = 0;    // WALK_XOFF : _pxoff value in a higher range
+	plr._pVar7 = 0;    // WALK_YOFF : _pyoff value in a higher range
+	plr._pVar8 = 0;    // WALK_TICK : speed helper
 
 	px = plr._px;
 	py = plr._py;
@@ -1530,7 +1530,7 @@ static void StartBlock(int pnum, int dir)
 static void StartSpell(int pnum)
 {
 	int i, dx, dy, gfx, animIdx;
-	const SpellData *sd;
+	const SpellData* sd;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("StartSpell: illegal player %d", pnum);
@@ -1558,12 +1558,12 @@ static void StartSpell(int pnum)
 		break;
 	}
 
-	plr._pVar1 = dx;                    // SPELL_TARGET_X
-	plr._pVar2 = dy;                    // SPELL_TARGET_Y
-	plr._pVar5 = plr._pDestParam3;      // SPELL_NUM : the spell to be cast
-	plr._pVar6 = plr._pDestParam4;      // SPELL_LEVEL
-	plr._pVar7 = FALSE;                 // SPELL_ACTION_PROGRESS : 'flag' of cast
-	plr._pVar8 = 0;                     // SPELL_TICK : speed helper
+	plr._pVar1 = dx;               // SPELL_TARGET_X
+	plr._pVar2 = dy;               // SPELL_TARGET_Y
+	plr._pVar5 = plr._pDestParam3; // SPELL_NUM : the spell to be cast
+	plr._pVar6 = plr._pDestParam4; // SPELL_LEVEL
+	plr._pVar7 = FALSE;            // SPELL_ACTION_PROGRESS : 'flag' of cast
+	plr._pVar8 = 0;                // SPELL_TICK : speed helper
 	plr._pmode = PM_SPELL;
 
 	sd = &spelldata[plr._pVar5]; // SPELL_NUM
@@ -2228,7 +2228,7 @@ static void PlrDoAttack(int pnum)
 		dev_fatal("PlrDoAttack: illegal player %d", pnum);
 	}
 
-	plr._pVar8++; // ATTACK_TICK
+	plr._pVar8++;         // ATTACK_TICK
 	switch (plr._pVar4) { // ATTACK_SPEED
 	/*case -4:
 		if ((plr._pVar8 & 1) == 1)
@@ -2314,7 +2314,7 @@ static void PlrDoRangeAttack(int pnum)
 		dev_fatal("PlrDoRangeAttack: illegal player %d", pnum);
 	}
 
-	plr._pVar8++; // RATTACK_TICK
+	plr._pVar8++;         // RATTACK_TICK
 	switch (plr._pVar4) { // RATTACK_SPEED
 	case 0:
 		stepAnim = false;
@@ -2365,7 +2365,7 @@ static void PlrDoRangeAttack(int pnum)
 
 			}
 			AddMissile(sx, sy, dx + xoff, dy + yoff, plr._pdir,
-				 spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL, RATTACK_SKILL_LEVEL
+				spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL, RATTACK_SKILL_LEVEL
 		}
 
 		WeaponDur(pnum, 40);
@@ -2382,7 +2382,7 @@ static void PlrDoRangeAttack(int pnum)
 
 static void ShieldDur(int pnum)
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("ShieldDur: illegal player %d", pnum);
@@ -2716,8 +2716,8 @@ static bool CheckNewPath(int pnum)
 #if DEBUG_MODE || DEV_MODE
 static void ValidatePlayer(int pnum)
 {
-	PlayerStruct *p;
-	ItemStruct *pi;
+	PlayerStruct* p;
+	ItemStruct* pi;
 	uint64_t msk;
 	int gt, i;
 

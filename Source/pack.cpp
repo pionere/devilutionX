@@ -227,7 +227,7 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	net_assert(plr._pExperience < PlrExpLvlsTbl[plr._pLevel]);
 	net_assert(plr._pDunLevel < NUM_LEVELS);
 	net_assert(plr._pTeam < MAX_PLRS);
-	net_assert((plr._pMemSkills & ~(SPELL_MASK(NUM_SPELLS) - 1)) == 0);	
+	net_assert((plr._pMemSkills & ~(SPELL_MASK(NUM_SPELLS) - 1)) == 0);
 	for (i = 0; i < NUM_SPELLS; i++) {
 		if (plr._pMemSkills & SPELL_MASK(i))
 			net_assert(spelldata[i].sBookLvl != SPELL_NA);
@@ -271,8 +271,8 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 		} else {
 			// - allow only shield or one handed weapon in right hand with weapon in the left hand
 			pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
-			net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD ||
-			 (pi->_iClass == ICLASS_WEAPON && !TWOHAND_WIELD(&plr, pi)));
+			net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD
+			 || (pi->_iClass == ICLASS_WEAPON && !TWOHAND_WIELD(&plr, pi)));
 		}
 	}
 #endif /* INET_MODE */

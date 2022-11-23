@@ -2306,8 +2306,8 @@ void PlaceQuestItemInArea(int idx, int areasize)
 	// assert(gbLvlLoad != 0);
 	RespawnItem(ii, false);
 	//items[ii]._iPostDraw = TRUE;
-	items[ii]._iCreateInfo = items_get_currlevel();// | CF_PREGEN;
-	items[ii]._iSeed = NextRndSeed(); // make sure it is unique
+	items[ii]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
+	items[ii]._iSeed = NextRndSeed();               // make sure it is unique
 
 	GetRandomItemSpace(areasize, ii);
 	DeltaAddItem(ii);
@@ -2340,8 +2340,8 @@ void PlaceRock()
 		items[i]._iPostDraw = TRUE;
 		items[i]._iAnimFrame = 11;
 		//items[i]._iAnimFlag = TRUE;
-//		items[i]._iCreateInfo = items_get_currlevel();// | CF_PREGEN;
-//		items[i]._iSeed = NextRndSeed(); // make sure it is unique
+//		items[i]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
+//		items[i]._iSeed = NextRndSeed();               // make sure it is unique
 //		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
 //		DeltaAddItem(i);
 

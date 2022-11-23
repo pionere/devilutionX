@@ -1437,7 +1437,7 @@ static void GetMousePos(int x, int y, int* outx, int* outy)
 
 	x -= ViewX;
 	y -= ViewY;
-	
+
 	px = 0;
 	py = 0;
 	SHIFT_GRID(px, py, -y, x);
@@ -1825,7 +1825,7 @@ void DrawSTextBox(int x, int y)
 void DrawTextBoxSLine(int x, int y, int dy, bool widePanel)
 {
 	int sxy, dxy, width, length;
-	
+
 	width = BUFFER_WIDTH;
 	sxy = x + 2 + width * (y + 1);
 	dxy = x + 2 + width * (y + dy);

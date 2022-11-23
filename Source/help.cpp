@@ -96,7 +96,6 @@ void DrawHelp()
 	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);
 	DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 5 * 12 + 14, true);
 
-
 	for (i = 7; i < 22; i++) {
 		s = gbHelpLines[helpFirstLine + i - 7];
 		if (*s == '$') {
