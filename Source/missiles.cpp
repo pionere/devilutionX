@@ -247,7 +247,7 @@ static bool PosOkMis2(int x, int y)
 	return true;
 }
 
-static bool FindClosest(int sx, int sy, int &dx, int &dy)
+static bool FindClosest(int sx, int sy, int& dx, int& dy)
 {
 	int j, i, mid, mnum, tx, ty;
 	const char* cr;
@@ -281,7 +281,7 @@ static bool FindClosest(int sx, int sy, int &dx, int &dy)
 	return false;
 }
 
-static bool FindClosestChain(int sx, int sy, int &dx, int &dy)
+static bool FindClosestChain(int sx, int sy, int& dx, int& dy)
 {
 	int j, i, mid, mnum, tx, ty;
 	const char* cr;
@@ -498,7 +498,7 @@ static int GetDirection16(int x1, int y1, int x2, int y2)
 		dir += DeltaDir[5 * adx < ady ? 3 : 2];
 	} else if (3 * ady <= (adx << 1)) {
 		dir += DeltaDir[5 * ady < adx ? 0 : 1];
-	}// else
+	} // else
 	//	dir += DeltaDir[2];
 	return dir & 15;
 #endif

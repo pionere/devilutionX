@@ -3103,7 +3103,7 @@ void MAI_Sneak(int mnum)
 	// + dynamic light is now localized
 	// TODO: change MonstPlace to prefer non-lit tiles in case of AI_SNEAK?
 	//if (dLight[mx][my] == MAXDARKNESS && (dFlags[mx][my] & BFLAG_ALERT) == 0)) {
-	//	return;	
+	//	return;
 	//}
 
 	MonEnemyInfo(mnum);

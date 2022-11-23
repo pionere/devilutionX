@@ -3725,7 +3725,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 	//int _pMaxMana;   // the maximum mana of the player
 
 		// LogErrorF("PLRD", "Player base-data %d", (size_t)buf - (size_t)plrdata);
-		
+
 		assert((size_t)buf - (size_t)plrdata == 114);
 		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
 
@@ -4090,7 +4090,7 @@ static BYTE* SendItem(ItemStruct* is, BYTE* dst)
 
 	*(INT*)dst = is->_iSeed;
 	dst += sizeof(INT);
-	
+
 	*(WORD*)dst = is->_iIdx;
 	dst += sizeof(WORD);
 	*(WORD*)dst = is->_iCreateInfo;
@@ -4188,7 +4188,7 @@ static BYTE* CheckItem(ItemStruct* is, BYTE* src, int pnum, int loc, int subloc,
 		PrintItemMismatch(is, "seed", is->_iSeed, *(INT*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(INT);
-	
+
 	if (!none && !placeholder && is->_iIdx != *(WORD*)src) {
 		PrintItemMismatch(is, "idx", is->_iIdx, *(WORD*)src, sp, pnum, loc, subloc);
 	}
