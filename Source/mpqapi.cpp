@@ -418,7 +418,7 @@ private:
 
 static Archive cur_archive;
 
-static bool IsValidMPQHeader(const Archive &archive, FileMpqHeader* hdr)
+static bool IsValidMPQHeader(const Archive& archive, FileMpqHeader* hdr)
 {
 	return hdr->pqSignature == ID_MPQ
 		&& hdr->pqHeaderSize == MPQ_HEADER_SIZE_V1

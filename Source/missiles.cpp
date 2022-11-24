@@ -4062,7 +4062,7 @@ void MI_Meteor(int mi)
 		 /*&& mis->_miAnimCnt == misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] - 1*/) {
 			mis->_miyoff -= MET_SHIFT_UP / MET_STEPS_UP;
 			mis->_mixoff += MET_SHIFT_X / MET_STEPS_UP;
-			if (mis->_miyoff < - MET_SHIFT_UP) {
+			if (mis->_miyoff < -MET_SHIFT_UP) {
 				mis->_miFileNum = MFILE_FIREBA;
 				SetMissDir(mi, 0);
 				mis->_mixoff = MET_SHIFT_X;
@@ -4658,9 +4658,9 @@ void MI_Elemental(int mi)
 	GetMissilePos(mi);
 	cx = mis->_mix;
 	cy = mis->_miy;
-	if ((cx != mis->_misx || cy != mis->_misy)                       // not on the starting position
-	 && (CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY) || mis->_miRange >= 0)   // did not hit a wall
-	 && !mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) { // destination reached the first time
+	if ((cx != mis->_misx || cy != mis->_misy)                              // not on the starting position
+	 && (CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY) || mis->_miRange >= 0) // did not hit a wall
+	 && !mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) {        // destination reached the first time
 		mis->_miVar3 = TRUE;
 		mis->_miRange = 0;
 		if (FindClosest(cx, cy, dx, dy)) {

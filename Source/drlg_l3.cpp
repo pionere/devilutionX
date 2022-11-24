@@ -717,7 +717,7 @@ const BYTE L6SPOOL3[] = {
 	  7, 108, // replace
 	109, 112,
 	// clang-format on
-};	
+};
 const BYTE L6SPOOL4[] = {
 	// clang-format off
 	2, 2, // width, height
@@ -758,7 +758,7 @@ const BYTE L6VERTLPOOLBASE[] = {
 	// clang-format on
 };
 const BYTE L6VERTLPOOL1[] = {
-	// clang-format off +
+	// clang-format off
 	2, 3, // width, height
 
 	107, 115, // search
@@ -771,7 +771,7 @@ const BYTE L6VERTLPOOL1[] = {
 	// clang-format on
 };
 const BYTE L6VERTLPOOL2[] = {
-	// clang-format off +
+	// clang-format off
 	2, 3, // width, height
 
 	107, 115, // search
@@ -784,7 +784,7 @@ const BYTE L6VERTLPOOL2[] = {
 	// clang-format on
 };
 const BYTE L6VERTLPOOL3[] = {
-	// clang-format off   +
+	// clang-format off
 	2, 3, // width, height
 
 	107, 115, // search
@@ -797,7 +797,7 @@ const BYTE L6VERTLPOOL3[] = {
 	// clang-format on
 };
 const BYTE L6VERTLPOOL4[] = {
-	// clang-format off  +
+	// clang-format off
 	2, 3, // width, height
 
 	107, 115, // search
@@ -810,7 +810,7 @@ const BYTE L6VERTLPOOL4[] = {
 	// clang-format on
 };
 const BYTE L6VERTLPOOL5[] = {
-	// clang-format off  +
+	// clang-format off
 	2, 3, // width, height
 
 	107, 115, // search
@@ -823,7 +823,7 @@ const BYTE L6VERTLPOOL5[] = {
 	// clang-format on
 };
 const BYTE L6VERTLPOOL6[] = {
-	// clang-format off   +
+	// clang-format off
 	2, 3, // width, height
 
 	107, 115, // search
@@ -1913,11 +1913,11 @@ static void DRLG_L3Wood()
 				while (TRUE) {
 					y1--;
 					bv = dungeon[i][y1];
-					if (bv == 10 || bv == 126 || bv == 129	// other wall reached
-					 || bv == 134 || bv == 136)				// or crossing fence -> done
+					if (bv == 10 || bv == 126 || bv == 129 // other wall reached
+					 || bv == 134 || bv == 136)            // or crossing fence -> done
 						break;
 					if (bv != 7) {
-						bv = 7;		// mismatching tile -> stop
+						bv = 7; // mismatching tile -> stop
 						break;
 					}
 					bv = dungeon[i + 1][y1];
@@ -1926,14 +1926,14 @@ static void DRLG_L3Wood()
 						if (bv == 7)
 							continue;
 					}
-					bv = 7;			// too close to other obstacles -> stop
+					bv = 7; // too close to other obstacles -> stop
 					break;
 				}
 				if (bv == 7 || j - y1 <= 1)
 					continue;
 				if ((bv == 134 || bv == 136 || dungeon[i][j] != 2)
 				 && (NearThemeRoom(i, j) && NearThemeRoom(i, y1)))
-					continue;		// in a theme room (or between theme rooms) -> skip
+					continue; // in a theme room (or between theme rooms) -> skip
 				// replace first/last tile
 				dungeon[i][y1] = bv == 10 ? 131 : (bv == 126 || bv == 129 ? 133 : 151);
 				dungeon[i][j] = dungeon[i][j] == 2 ? 139 : 142;
@@ -1948,12 +1948,12 @@ static void DRLG_L3Wood()
 				while (TRUE) {
 					x1--;
 					bv = dungeon[x1][j];
-					if (bv == 9 || bv == 121 || bv == 124	// other wall reached
-					 || bv == 135 || bv == 137) 			// or crossing fence -> done
+					if (bv == 9 || bv == 121 || bv == 124 // other wall reached
+					 || bv == 135 || bv == 137)           // or crossing fence -> done
 						break;
 					if (bv != 7) {
 						bv = 7;
-						break;		// mismatching tile -> stop
+						break; // mismatching tile -> stop
 					}
 					bv = dungeon[x1][j + 1];
 					if (bv == 7) {
@@ -1962,7 +1962,7 @@ static void DRLG_L3Wood()
 							continue;
 					}
 					bv = 7;
-					break;			// too close to other obstacles -> stop
+					break; // too close to other obstacles -> stop
 				}
 
 				if (bv == 7 || i - x1 <= 1)
@@ -1970,7 +1970,7 @@ static void DRLG_L3Wood()
 
 				if ((bv == 135 || bv == 137 || dungeon[i][j] != 4)
 				 && (NearThemeRoom(i, j) && NearThemeRoom(x1, j)))
-					continue;		// in a theme room (or between theme rooms) -> skip
+					continue; // in a theme room (or between theme rooms) -> skip
 				// replace first/last tile
 				dungeon[x1][j] = bv == 9 ? 130 : (bv == 121 || bv == 124 ? 132 : 152);
 				dungeon[i][j] = dungeon[i][j] == 4 ? 140 : 143;

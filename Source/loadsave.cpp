@@ -15,26 +15,26 @@ DEVILUTION_BEGIN_NAMESPACE
 #endif
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
-#define LE_LOAD_INTS(dest, src, n)					\
-{													\
-	LE_INT32* ssi = (LE_INT32*)src;					\
-	int* dst = dest;								\
-	for (i = 0; i < (n); i++, ssi++, dst++) {		\
-		*dest = *ssi;								\
-	}												\
-}
-#define LE_SAVE_INTS(dest, src, n)					\
-{													\
-	LE_INT32* dst = (LE_INT32*)dest;				\
-	int* ssi = src;									\
-	for (int i = 0; i < (n); i++, ssi++, dst++) {	\
-		*dst = *ssi;								\
-	}												\
-}
+#define LE_LOAD_INTS(dest, src, n)                \
+	{                                             \
+		LE_INT32* ssi = (LE_INT32*)src;           \
+		int* dst = dest;                          \
+		for (i = 0; i < (n); i++, ssi++, dst++) { \
+			*dest = *ssi;                         \
+		}                                         \
+	}
+#define LE_SAVE_INTS(dest, src, n)                    \
+	{                                                 \
+		LE_INT32* dst = (LE_INT32*)dest;              \
+		int* ssi = src;                               \
+		for (int i = 0; i < (n); i++, ssi++, dst++) { \
+			*dst = *ssi;                              \
+		}                                             \
+	}
 #else
-#define LE_LOAD_INTS(dest, src, n)			\
+#define LE_LOAD_INTS(dest, src, n) \
 	memcpy(dest, src, (n) * sizeof(int));
-#define LE_SAVE_INTS(dest, src, n)			\
+#define LE_SAVE_INTS(dest, src, n) \
 	memcpy(dest, src, (n) * sizeof(int));
 #endif
 
@@ -413,7 +413,7 @@ static BYTE* LoadMonster(BYTE* __restrict src, int mnum)
 	mon->_mMaxDamage2 = savedMon->vmMaxDamage2;
 
 	mon->_mMagic = savedMon->vmMagic;
-	mon->_mMagic2 = savedMon->vmMagic2;     // unused
+	mon->_mMagic2 = savedMon->vmMagic2; // unused
 	mon->_mArmorClass = savedMon->vmArmorClass;
 	mon->_mEvasion = savedMon->vmEvasion;
 
@@ -1109,7 +1109,7 @@ static BYTE* SavePlayer(BYTE* __restrict dest, int pnum)
 	// dest = SaveItem(dest, &pr->_pHoldItem);
 	SaveItem((BYTE*)&plrSave->vpHoldItem, &pr->_pHoldItem);	
 	for (int i = 0; i < NUM_INVLOC; i++)
-		SaveItem((BYTE*)&plrSave->vpInvBody[i], &pr->_pInvBody[i]);	
+		SaveItem((BYTE*)&plrSave->vpInvBody[i], &pr->_pInvBody[i]);
 		// dest = SaveItem(dest, &pr->_pInvBody[i]);
 	for (int i = 0; i < MAXBELTITEMS; i++)
 		SaveItem((BYTE*)&plrSave->vpSpdList[i], &pr->_pSpdList[i]);

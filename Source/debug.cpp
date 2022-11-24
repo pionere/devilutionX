@@ -1114,15 +1114,15 @@ void ValidateData()
 #define ITEM_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_IDENTIFY || (x) == CURSOR_REPAIR || (x) == CURSOR_RECHARGE || (x) == CURSOR_OIL)
 	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_IDENTIFY].scCurs)); // required by TryIconCurs and CheckCursMove
 	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_IDENTIFY].spCurs)); // required by TryIconCurs and CheckCursMove
-	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_OIL].scCurs)); // required by TryIconCurs and CheckCursMove
-	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_OIL].spCurs)); // required by TryIconCurs and CheckCursMove
-	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_REPAIR].scCurs)); // required by TryIconCurs and CheckCursMove
-	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_REPAIR].spCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_OIL].scCurs));      // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_OIL].spCurs));      // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_REPAIR].scCurs));   // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_REPAIR].spCurs));   // required by TryIconCurs and CheckCursMove
 	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_RECHARGE].scCurs)); // required by TryIconCurs and CheckCursMove
 	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_RECHARGE].spCurs)); // required by TryIconCurs and CheckCursMove
 #ifdef HELLFIRE
-	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_BUCKLE].scCurs)); // required by TryIconCurs and CheckCursMove
-	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_BUCKLE].spCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_BUCKLE].scCurs));  // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_BUCKLE].spCurs));  // required by TryIconCurs and CheckCursMove
 	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_WHITTLE].scCurs)); // required by TryIconCurs and CheckCursMove
 	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_WHITTLE].spCurs)); // required by TryIconCurs and CheckCursMove
 #endif
@@ -1243,27 +1243,27 @@ void ValidateData()
 		}
 	}
 	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
-	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1); // required by MI_Firewall
-	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */); // required by MI_Firewall
-	assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP); // required by MI_Firewall
-	assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1); // required by MI_Firewall
-	assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */); // required by MI_Portal
-	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */); // required by MI_Portal
-	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]); // required by MI_Portal
-	assert(misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] == 1); // required by MI_Portal
-	assert(misfiledata[MFILE_RPORTAL].mfAnimFrameLen[0] == 1); // required by MI_Portal
-	assert(misfiledata[MFILE_BLUEXFR].mfAnimFrameLen[0] == 1); // required by MI_Flash
-	assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] == 1); // required by MI_Flash2
-	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */); // required by MI_FireWave
-	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1); // required by MI_FireWave
-	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1); // required by MI_Meteor
-	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1); // required by MI_Guardian
-	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD); // required by MI_Guardian
-	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1); // required by MI_Guardian
-	assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24); // required by MI_Inferno
-	assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS); // required by MI_Acidsplat
-	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13); // required by MI_Rhino
-	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1); // required by MI_Rhino
+	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Firewall
+	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall
+	assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);                                      // required by MI_Firewall
+	assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);                                             // required by MI_Firewall
+	assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */);               // required by MI_Portal
+	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */);                // required by MI_Portal
+	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]);   // required by MI_Portal
+	assert(misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] == 1);                                    // required by MI_Portal
+	assert(misfiledata[MFILE_RPORTAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Portal
+	assert(misfiledata[MFILE_BLUEXFR].mfAnimFrameLen[0] == 1);                                   // required by MI_Flash
+	assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] == 1);                                   // required by MI_Flash2
+	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_FireWave
+	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_FireWave
+	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1);                                    // required by MI_Meteor
+	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1);                                     // required by MI_Guardian
+	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);                 // required by MI_Guardian
+	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1);                                     // required by MI_Guardian
+	assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);                                        // required by MI_Inferno
+	assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);                // required by MI_Acidsplat
+	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
+	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
 
 	// towners
 	for (i = 0; i < STORE_TOWNERS; i++) {
