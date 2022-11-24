@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 std::vector<GameController> GameController::controllers_;
 
-ControllerButton GameController::ToControllerButton(const SDL_Event &event)
+ControllerButton GameController::ToControllerButton(const SDL_Event& event)
 {
 	switch (event.type) {
 	case SDL_CONTROLLERAXISMOTION:
@@ -163,13 +163,13 @@ void GameController::Add(int joystickIndex)
 		DoLog(SDL_GetError());
 		return;
 	}
-	const SDL_Joystick* sdlJoystick = SDL_GameControllerGetJoystick(result.sdl_game_controller_);
+	SDL_Joystick* sdlJoystick = SDL_GameControllerGetJoystick(result.sdl_game_controller_);
 	result.instance_id_ = SDL_JoystickInstanceID(sdlJoystick);
 	controllers_.push_back(result);
 	sgbControllerActive = true;
 
-	const SDL_JoystickGUID guid = SDL_JoystickGetGUID(sdlJoystick);
-	char *mapping = SDL_GameControllerMappingForGUID(guid);
+	SDL_JoystickGUID guid = SDL_JoystickGetGUID(sdlJoystick);
+	char* mapping = SDL_GameControllerMappingForGUID(guid);
 	DoLog("Opened game controller with mapping:\n%s", mapping);
 	SDL_free(mapping);
 }
@@ -178,7 +178,7 @@ void GameController::Remove(SDL_JoystickID instanceId)
 {
 	DoLog("Removing game controller with instance id %d", instanceId);
 	for (unsigned i = 0; i < controllers_.size(); ++i) {
-		const GameController &controller = controllers_[i];
+		const GameController& controller = controllers_[i];
 		if (controller.instance_id_ != instanceId)
 			continue;
 		SDL_GameControllerClose(controller.sdl_game_controller_);

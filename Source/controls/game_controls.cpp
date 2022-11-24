@@ -304,18 +304,18 @@ bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, Game
 	}
 
 #ifndef USE_SDL1
- #if HAS_JOYSTICK && HAS_GAMECTRL
+#if HAS_JOYSTICK && HAS_GAMECTRL
 	// Ignore unhandled joystick events where a GameController is open for this joystick.
 	// This is because SDL sends both game controller and joystick events in this case.
-	const Joystick* joystick = Joystick::Get(event);
+	Joystick* joystick = Joystick::Get(event);
 	if (joystick != NULL && GameController::Get(joystick->instance_id()) != NULL) {
 		return true;
 	}
-#endif
+#endif // HAS_JOYSTICK && HAS_GAMECTRL
 	if (event.type == SDL_CONTROLLERAXISMOTION) {
 		return true; // Ignore releasing the trigger buttons
 	}
-#endif
+#endif // !USE_SDL1
 
 	return false;
 }

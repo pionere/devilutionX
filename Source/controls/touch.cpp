@@ -25,9 +25,18 @@ inline T clip(T v, T amin, T amax)
 		return v;
 }
 
-#define TOUCH_PORT_MAX_NUM 1
+#define TOUCH_PORT_MAX_NUM   1
 #define TOUCH_PORT_CLICK_NUM 2
-#define NO_TOUCH (-1) // finger id setting if finger is not touching the screen
+// finger id setting if finger is not touching the screen
+#define NO_TOUCH (-1)
+// number of fingers to track per panel
+#define MAX_NUM_FINGERS 3
+// taps longer than this will not result in mouse click events (ms)
+#define MAX_TAP_TIME 250
+// max distance finger motion in Vita screen pixels to be considered a tap
+#define MAX_TAP_MOTION_DISTANCE 10
+// duration of a simulated mouse click (ms)
+#define SIMULATED_CLICK_DURATION 50
 
 static void InitTouch();
 static void PreprocessEvents(SDL_Event* event);
@@ -42,19 +51,13 @@ static void SetMouseButtonEvent(SDL_Event* event, uint32_t type, uint8_t button,
 static void SetMouseMotionEvent(SDL_Event* event, int32_t x, int32_t y, int32_t xrel, int32_t yrel);
 
 static bool touch_initialized = false;
-static unsigned int simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NUM]; // initiation time of last simulated left or right click (zero if no click)
-static bool direct_touch = true;                                       // pointer jumps to finger
-static int mouse_x      = 0;                                           // always reflects current mouse position
-static int mouse_y      = 0;
-
-enum {
-	// clang-format off
-	MAX_NUM_FINGERS          = 3,   // number of fingers to track per panel
-	MAX_TAP_TIME             = 250, // taps longer than this will not result in mouse click events
-	MAX_TAP_MOTION_DISTANCE  = 10,  // max distance finger motion in Vita screen pixels to be considered a tap
-	SIMULATED_CLICK_DURATION = 50,  // time in ms how long simulated mouse clicks should be
-	// clang-format on
-};                                  // track three fingers per panel
+// initiation time of last simulated left or right click (zero if no click)
+static unsigned int simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NUM];
+// pointer jumps to finger
+static bool direct_touch = true;
+// current mouse position
+static int mouse_x;
+static int mouse_y;
 
 struct Touch {
 	SDL_FingerID id; // -1: not touching
