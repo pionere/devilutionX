@@ -384,7 +384,7 @@ int GetAnimationFrame(int frames, int animFrameLenMs)
 	return (SDL_GetTicks() / animFrameLenMs) % frames;
 }
 
-static void DrawSelector(const SDL_Rect &rect)
+static void DrawSelector(const SDL_Rect& rect)
 {
 	int size, frame, x, y;
 	CelImageBuf* selCel;
@@ -564,7 +564,7 @@ static void RenderItem(UiItemBase* item)
 	}
 }
 
-static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiTxtButton* uiButton)
+static bool HandleMouseEventArtTextButton(const SDL_Event& event, const UiTxtButton* uiButton)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
 		return false;
@@ -572,7 +572,7 @@ static bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiTxtBut
 	return true;
 }
 
-static bool HandleMouseEventButton(const SDL_Event &event, UiButton* button)
+static bool HandleMouseEventButton(const SDL_Event& event, UiButton* button)
 {
 	if (event.type == SDL_MOUSEBUTTONDOWN) {
 		button->m_pressed = true;
@@ -587,7 +587,7 @@ static bool HandleMouseEventButton(const SDL_Event &event, UiButton* button)
 Uint32 dbClickTimer;
 #endif
 
-static bool HandleMouseEventList(const SDL_Event &event, UiList* uiList)
+static bool HandleMouseEventList(const SDL_Event& event, UiList* uiList)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
 		return false;
@@ -613,7 +613,7 @@ static bool HandleMouseEventList(const SDL_Event &event, UiList* uiList)
 	return true;
 }
 
-static bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar* uiSb)
+static bool HandleMouseEventScrollBar(const SDL_Event& event, const UiScrollBar* uiSb)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
 		return false;
@@ -647,7 +647,7 @@ static bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar*
 	return true;
 }
 
-static bool HandleMouseEvent(const SDL_Event &event, UiItemBase* item)
+static bool HandleMouseEvent(const SDL_Event& event, UiItemBase* item)
 {
 	if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
 		return false;
@@ -809,13 +809,13 @@ void UiHandleEvents(SDL_Event* event)
 #endif // !USE_SDL1
 }
 
-void UiRenderItems(const std::vector<UiItemBase*> &uiItems)
+void UiRenderItems(const std::vector<UiItemBase*>& uiItems)
 {
 	for (size_t i = 0; i < uiItems.size(); i++)
 		RenderItem(uiItems[i]);
 }
 
-void UiClearItems(std::vector<UiItemBase*> &uiItems)
+void UiClearItems(std::vector<UiItemBase*>& uiItems)
 {
 	for (size_t i = 0; i < uiItems.size(); i++) {
 		UiItemBase* pUIItem = uiItems[i];

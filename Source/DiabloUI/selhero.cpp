@@ -23,7 +23,7 @@ static bool selhero_endMenu;
 static bool selhero_navigateYesNo;
 static bool selhero_deleteEnabled;
 
-static int(*gfnHeroCreate)(_uiheroinfo*);
+static int (*gfnHeroCreate)(_uiheroinfo*);
 //static void (*gfnHeroStats)(unsigned int, _uidefaultstats*);
 
 static std::vector<UiItemBase*> vecSelHeroDialog;
