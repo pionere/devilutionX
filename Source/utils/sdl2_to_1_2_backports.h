@@ -23,7 +23,7 @@
 #ifndef SDLCALL
 #define SDLCALL
 #endif
-typedef int(SDLCALL* SDL_ThreadFunction) (void* data);
+typedef int(SDLCALL* SDL_ThreadFunction)(void* data);
 
 #define SDL_Keysym  SDL_keysym
 #define SDL_Keycode SDLKey

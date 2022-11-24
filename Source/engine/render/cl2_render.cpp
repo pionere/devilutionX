@@ -25,7 +25,7 @@ void Cl2ApplyTrans(BYTE* p, const BYTE* ttbl, int nCel)
 	assert(ttbl != NULL);
 
 	for (i = 1; i <= nCel; i++) {
-		dst = const_cast<BYTE* >(CelGetFrame(p, i, &nDataSize)) + 10;
+		dst = const_cast<BYTE*>(CelGetFrame(p, i, &nDataSize)) + 10;
 		nDataSize -= 10;
 		while (nDataSize != 0) {
 			width = *dst++;
