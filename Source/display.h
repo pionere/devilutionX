@@ -24,7 +24,7 @@ extern SDL_Palette* back_palette;
 extern SDL_Surface* back_surface;
 extern unsigned int back_surface_palette_version;
 
-void SpawnWindow(const char* lpWindowName);
+void SpawnWindow();
 
 #ifdef __cplusplus
 }

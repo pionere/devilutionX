@@ -23,7 +23,6 @@
  *   video_surface    -- RenderPresent/SDL_Flip --> window
  */
 #include "all.h"
-#include <config.h>
 #include "utils/display.h"
 #include <SDL.h>
 #if HAS_GAMECTRL
@@ -104,7 +103,7 @@ static void dx_create_primary_surface()
 
 void dx_init()
 {
-	SpawnWindow(PROJECT_NAME);
+	SpawnWindow();
 #ifndef USE_SDL1
 	SDL_RaiseWindow(ghMainWnd);
 	SDL_ShowWindow(ghMainWnd);

@@ -7,6 +7,7 @@
 #endif
 
 #include "all.h"
+#include <config.h>
 
 #include "DiabloUI/diabloui.h"
 #include "control.h"
@@ -162,8 +163,10 @@ static void CalculatePreferredWindowSize(int& width, int& height, bool useIntege
 }
 #endif
 
-void SpawnWindow(const char* lpWindowName)
+void SpawnWindow()
 {
+	const char* lpWindowName = PROJECT_NAME;
+
 #if SDL_VERSION_ATLEAST(2, 0, 6) && defined(__vita__)
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 #endif
