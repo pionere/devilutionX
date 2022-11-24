@@ -218,7 +218,7 @@ bool Joystick::IsPressed(ControllerButton button) const
 	return joyButton != -1 && SDL_JoystickGetButton(sdl_joystick_, joyButton) != 0;
 }
 
-bool Joystick::ProcessAxisMotion(const SDL_Event &event)
+bool Joystick::ProcessAxisMotion(const SDL_Event& event)
 {
 	if (event.type != SDL_JOYAXISMOTION)
 		return false;
@@ -288,7 +288,7 @@ void Joystick::Remove(SDL_JoystickID instanceId)
 #endif
 }
 
-const std::vector<Joystick> &Joystick::All()
+const std::vector<Joystick>& Joystick::All()
 {
 	return joysticks_;
 }
@@ -296,7 +296,7 @@ const std::vector<Joystick> &Joystick::All()
 Joystick* Joystick::Get(SDL_JoystickID instanceId)
 {
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {
-		Joystick &joystick = joysticks_[i];
+		Joystick& joystick = joysticks_[i];
 		if (joystick.instance_id_ == instanceId)
 			return &joystick;
 	}
