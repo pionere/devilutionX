@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 // Re-maps a keyboard key as per the REMAP_KEYBOARD_KEYS define.
-inline void remap_keyboard_key(SDL_Keycode *sym)
+inline void remap_keyboard_key(SDL_Keycode* sym)
 {
 #ifdef REMAP_KEYBOARD_KEYS
 

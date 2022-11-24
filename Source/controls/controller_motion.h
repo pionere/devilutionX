@@ -2,12 +2,12 @@
 
 // Processes and stores mouse and joystick motion.
 
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+
 #include <SDL.h>
 
 #include "./axis_direction.h"
 #include "./controller.h"
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -25,7 +25,7 @@ extern float leftStickX, leftStickY, rightStickX, rightStickY;
 extern bool leftStickNeedsScaling, rightStickNeedsScaling;
 
 // Updates motion state for mouse and joystick sticks.
-bool ProcessControllerMotion(const SDL_Event &event, ControllerButtonEvent ctrlEvent);
+bool ProcessControllerMotion(const SDL_Event& event, ControllerButtonEvent ctrlEvent);
 
 // Returns direction of the left thumb stick or DPad (if allow_dpad = true).
 AxisDirection GetLeftStickOrDpadDirection(bool allow_dpad = true);
@@ -35,5 +35,4 @@ AxisDirection GetLeftStickOrDpadDirection(bool allow_dpad = true);
 #endif
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

@@ -206,7 +206,7 @@ static void FindRangedTarget()
 		const bool newCanTalk = CanTalkToMonst(mnum);
 		if (!canTalk && newCanTalk)
 			continue;
-		const MonsterStruct &mon = monsters[mnum];
+		const MonsterStruct& mon = monsters[mnum];
 		const int mx = mon._mfutx;
 		const int my = mon._mfuty;
 		const int newDdistance = GetDistanceRanged(mx, my);
@@ -811,7 +811,7 @@ static bool IsPathBlocked(int x, int y, int dir)
 
 static bool CanChangeDirection()
 {
-	PlayerStruct *p = &myplr;
+	PlayerStruct* p = &myplr;
 
 	if (p->_pmode == PM_STAND)
 		return true;
@@ -923,7 +923,7 @@ struct RightStickAccumulator {
 		hiresDY = 0;
 	}
 
-	void Pool(int *x, int *y, int slowdown)
+	void Pool(int* x, int* y, int slowdown)
 	{
 		const Uint32 tc = SDL_GetTicks();
 		const int dtc = tc - lastTc;
@@ -1064,7 +1064,7 @@ void FocusOnCharInfo()
 		return;
 
 	// Jump to the first incrementable stat.
-	const RECT32 &rect = ChrBtnsRect[0];
+	const RECT32& rect = ChrBtnsRect[0];
 	SetCursorPos(gnWndCharX + rect.x + (rect.w / 2), gnWndCharY + rect.y + (rect.h / 2));
 }
 
@@ -1212,10 +1212,10 @@ static void UpdateSpellTarget()
 	pcursplr = PLR_NONE;
 	pcursmonst = MON_NONE;
 
-	const PlayerStruct &player = myplr;
+	const PlayerStruct& player = myplr;
 
 	int range = 1;
-	if (myplr._pAltMoveSkill == SPL_TELEPORT)
+	if (player._pAltMoveSkill == SPL_TELEPORT)
 		range = 4;
 
 	cursmx = player._pfutx + offset_x[player._pdir] * range;
@@ -1264,7 +1264,7 @@ void PerformSpellAction()
 
 static void CtrlUseInvItem()
 {
-	ItemStruct *is;
+	ItemStruct* is;
 
 	if (pcursinvitem == INVITEM_NONE)
 		return;
@@ -1315,5 +1315,4 @@ void PerformSecondaryAction()
 }
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

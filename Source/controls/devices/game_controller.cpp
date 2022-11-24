@@ -127,7 +127,7 @@ bool GameController::IsPressed(ControllerButton button) const
 	return gcButton != SDL_CONTROLLER_BUTTON_INVALID && SDL_GameControllerGetButton(sdl_game_controller_, gcButton) != 0;
 }
 
-bool GameController::ProcessAxisMotion(const SDL_Event &event)
+bool GameController::ProcessAxisMotion(const SDL_Event& event)
 {
 	if (event.type != SDL_CONTROLLERAXISMOTION)
 		return false;
@@ -163,7 +163,7 @@ void GameController::Add(int joystickIndex)
 		DoLog(SDL_GetError());
 		return;
 	}
-	SDL_Joystick *const sdlJoystick = SDL_GameControllerGetJoystick(result.sdl_game_controller_);
+	const SDL_Joystick* sdlJoystick = SDL_GameControllerGetJoystick(result.sdl_game_controller_);
 	result.instance_id_ = SDL_JoystickInstanceID(sdlJoystick);
 	controllers_.push_back(result);
 	sgbControllerActive = true;
@@ -189,17 +189,17 @@ void GameController::Remove(SDL_JoystickID instanceId)
 	DoLog("Game controller not found with instance id: %d", instanceId);
 }
 
-GameController *GameController::Get(SDL_JoystickID instanceId)
+GameController* GameController::Get(SDL_JoystickID instanceId)
 {
 	for (unsigned i = 0; i < controllers_.size(); ++i) {
-		GameController &controller = controllers_[i];
+		GameController& controller = controllers_[i];
 		if (controller.instance_id_ == instanceId)
 			return &controller;
 	}
 	return NULL;
 }
 
-GameController *GameController::Get(const SDL_Event &event)
+GameController* GameController::Get(const SDL_Event& event)
 {
 	switch (event.type) {
 	case SDL_CONTROLLERAXISMOTION:
@@ -219,7 +219,7 @@ void GameController::ReleaseAll()
 	}
 }
 
-const std::vector<GameController> &GameController::All()
+const std::vector<GameController>& GameController::All()
 {
 	return controllers_;
 }
@@ -233,4 +233,4 @@ bool GameController::IsPressedOnAnyController(ControllerButton button)
 }
 
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // HAS_GAMECTRL

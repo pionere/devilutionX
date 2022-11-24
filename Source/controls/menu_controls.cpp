@@ -1,11 +1,14 @@
 #include "menu_controls.h"
 
-#include "DiabloUI/diabloui.h"
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+#include "controls/controller.h"
+#include "controls/controller_motion.h"
 #include "controls/axis_direction.h"
 #include "controls/plrctrls.h"
-#include "controls/controller_motion.h"
+#endif
+
+#include "DiabloUI/diabloui.h"
 #include "controls/remap_keyboard.h"
-#include "utils/sdl_compat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -25,7 +28,7 @@ MenuAction GetMenuHeldUpDownAction()
 }
 #endif
 
-MenuAction GetMenuAction(const SDL_Event &event)
+MenuAction GetMenuAction(const SDL_Event& event)
 {
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(event);

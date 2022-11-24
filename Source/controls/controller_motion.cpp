@@ -12,7 +12,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static void ScaleJoystickAxes(float *x, float *y)
+static void ScaleJoystickAxes(float* x, float* y)
 {
 	// radial and scaled dead-zone
 	// https://web.archive.org/web/20200130014626/www.third-helix.com:80/2013/04/12/doing-thumbstick-dead-zones-right.html
@@ -115,17 +115,17 @@ static void ScaleJoysticks()
 }
 
 // Updates motion state for mouse and joystick sticks.
-bool ProcessControllerMotion(const SDL_Event &event, ControllerButtonEvent ctrlEvent)
+bool ProcessControllerMotion(const SDL_Event& event, ControllerButtonEvent ctrlEvent)
 {
 #if HAS_GAMECTRL
-	GameController *const controller = GameController::Get(event);
+	const GameController* controller = GameController::Get(event);
 	if (controller != NULL && GameController::ProcessAxisMotion(event)) {
 		ScaleJoysticks();
 		return true;
 	}
 #endif
 #if HAS_JOYSTICK
-	Joystick *const joystick = Joystick::Get(event);
+	const Joystick* joystick = Joystick::Get(event);
 	if (joystick != NULL && Joystick::ProcessAxisMotion(event)) {
 		ScaleJoysticks();
 		return true;
@@ -167,5 +167,4 @@ AxisDirection GetLeftStickOrDpadDirection(bool allowDpad)
 }
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

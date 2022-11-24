@@ -23,14 +23,14 @@ class Joystick {
 public:
 	static void Add(int device_index);
 	static void Remove(SDL_JoystickID instance_id);
-	static Joystick *Get(SDL_JoystickID instance_id);
-	static Joystick *Get(const SDL_Event &event);
-	static const std::vector<Joystick> &All();
+	static Joystick* Get(SDL_JoystickID instance_id);
+	static Joystick* Get(const SDL_Event &event);
+	static const std::vector<Joystick>& All();
 	static bool IsPressedOnAnyJoystick(ControllerButton button);
 
-	static ControllerButton ToControllerButton(const SDL_Event &event);
+	static ControllerButton ToControllerButton(const SDL_Event& event);
 	bool IsPressed(ControllerButton button) const;
-	static bool ProcessAxisMotion(const SDL_Event &event);
+	static bool ProcessAxisMotion(const SDL_Event& event);
 
 	SDL_JoystickID instance_id() const
 	{
@@ -42,9 +42,9 @@ private:
 
 	bool IsHatButtonPressed(ControllerButton button) const;
 
-	SDL_Joystick *sdl_joystick_ = NULL;
+	SDL_Joystick* sdl_joystick_ = NULL;
 	SDL_JoystickID instance_id_ = -1;
 };
 
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // HAS_JOYSTICK

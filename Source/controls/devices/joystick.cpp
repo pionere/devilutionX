@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 std::vector<Joystick> Joystick::joysticks_;
 
-ControllerButton Joystick::ToControllerButton(const SDL_Event &event)
+ControllerButton Joystick::ToControllerButton(const SDL_Event& event)
 {
 	switch (event.type) {
 	case SDL_JOYBUTTONDOWN:
@@ -277,7 +277,7 @@ void Joystick::Remove(SDL_JoystickID instanceId)
 #ifndef USE_SDL1
 	DoLog("Removing joystick (instance id: %d)", instanceId);
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {
-		const Joystick &joystick = joysticks_[i];
+		const Joystick& joystick = joysticks_[i];
 		if (joystick.instance_id_ != instanceId)
 			continue;
 		joysticks_.erase(joysticks_.begin() + i);
@@ -293,7 +293,7 @@ const std::vector<Joystick> &Joystick::All()
 	return joysticks_;
 }
 
-Joystick *Joystick::Get(SDL_JoystickID instanceId)
+Joystick* Joystick::Get(SDL_JoystickID instanceId)
 {
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {
 		Joystick &joystick = joysticks_[i];
@@ -303,7 +303,7 @@ Joystick *Joystick::Get(SDL_JoystickID instanceId)
 	return NULL;
 }
 
-Joystick *Joystick::Get(const SDL_Event &event)
+Joystick* Joystick::Get(const SDL_Event& event)
 {
 	switch (event.type) {
 #ifndef USE_SDL1
@@ -337,4 +337,4 @@ bool Joystick::IsPressedOnAnyJoystick(ControllerButton button)
 }
 
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // HAS_JOYSTICK

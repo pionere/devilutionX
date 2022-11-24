@@ -45,7 +45,7 @@ static uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton
 	}
 }
 
-static bool HandleStartAndSelect(const ControllerButtonEvent &ctrlEvent, GameAction *action)
+static bool HandleStartAndSelect(const ControllerButtonEvent& ctrlEvent, GameAction* action)
 {
 	const bool inGameMenu = InGameMenu();
 
@@ -88,7 +88,7 @@ static bool HandleStartAndSelect(const ControllerButtonEvent &ctrlEvent, GameAct
 	return false;
 }
 
-bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, GameAction *action)
+bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, GameAction* action)
 {
 	const bool inGameMenu = InGameMenu();
 
@@ -307,7 +307,7 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
  #if HAS_JOYSTICK && HAS_GAMECTRL
 	// Ignore unhandled joystick events where a GameController is open for this joystick.
 	// This is because SDL sends both game controller and joystick events in this case.
-	const Joystick *const joystick = Joystick::Get(event);
+	const Joystick* joystick = Joystick::Get(event);
 	if (joystick != NULL && GameController::Get(joystick->instance_id()) != NULL) {
 		return true;
 	}
@@ -326,5 +326,4 @@ AxisDirection GetMoveDirection()
 }
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

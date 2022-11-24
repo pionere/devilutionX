@@ -4,9 +4,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-ControllerButtonEvent ToControllerButtonEvent(const SDL_Event &event)
+ControllerButtonEvent ToControllerButtonEvent(const SDL_Event& event)
 {
 	ControllerButtonEvent result { ControllerButton_NONE, false };
+
 	switch (event.type) {
 #ifndef USE_SDL1
 	case SDL_CONTROLLERBUTTONUP:
@@ -26,7 +27,7 @@ ControllerButtonEvent ToControllerButtonEvent(const SDL_Event &event)
 #endif
 
 #if HAS_GAMECTRL
-	GameController *const controller = GameController::Get(event);
+	const GameController* controller = GameController::Get(event);
 	if (controller != NULL) {
 		result.button = controller->ToControllerButton(event);
 		if (result.button != ControllerButton_NONE)
@@ -35,7 +36,7 @@ ControllerButtonEvent ToControllerButtonEvent(const SDL_Event &event)
 #endif
 
 #if HAS_JOYSTICK
-	const Joystick *joystick = Joystick::Get(event);
+	const Joystick* joystick = Joystick::Get(event);
 	if (joystick != NULL)
 		result.button = Joystick::ToControllerButton(event);
 #endif
@@ -59,7 +60,7 @@ bool IsControllerButtonPressed(ControllerButton button)
 	return false;
 }
 
-bool HandleControllerAddedOrRemovedEvent(const SDL_Event &event)
+bool HandleControllerAddedOrRemovedEvent(const SDL_Event& event)
 {
 #ifndef USE_SDL1
 	switch (event.type) {
@@ -89,5 +90,4 @@ bool HandleControllerAddedOrRemovedEvent(const SDL_Event &event)
 }
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

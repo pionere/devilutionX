@@ -14,7 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void handle_touch(SDL_Event *event, int current_mouse_x, int current_mouse_y);
+void handle_touch(SDL_Event* event, int current_mouse_x, int current_mouse_y);
 void finish_simulated_mouse_clicks(int current_mouse_x, int current_mouse_y);
 
 #ifdef __cplusplus
@@ -22,5 +22,4 @@ void finish_simulated_mouse_clicks(int current_mouse_x, int current_mouse_y);
 #endif
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_TOUCHPAD

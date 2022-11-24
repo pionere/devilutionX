@@ -1,11 +1,11 @@
 #pragma once
 // Controller actions implementation
 
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+
 #include "all.h"
 #include "controller.h"
 #include "../plrctrls.h"
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -31,5 +31,4 @@ extern bool sgbControllerActive;
 #endif
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

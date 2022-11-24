@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
-int CalculateTextWidth(const char *s)
+int CalculateTextWidth(const char* s)
 {
 	return *s == '\0' ? 0 : GetSmallStringWidth(s);
 }
@@ -23,7 +23,7 @@ int SpaceWidth()
 }
 
 struct CircleMenuHint {
-	CircleMenuHint(bool isDpad, const char *top, const char *right, const char *bottom, const char *left)
+	CircleMenuHint(bool isDpad, const char* top, const char* right, const char* bottom, const char* left)
 	    : is_dpad(isDpad)
 	    , top(top)
 	    , top_w(CalculateTextWidth(top))
@@ -44,40 +44,40 @@ struct CircleMenuHint {
 
 	bool is_dpad;
 
-	const char *top;
+	const char* top;
 	int top_w;
-	const char *right;
+	const char* right;
 	int right_w;
-	const char *bottom;
+	const char* bottom;
 	int bottom_w;
-	const char *left;
+	const char* left;
 	int left_w;
 
 	int x_mid;
 };
 
-bool IsTopActive(const CircleMenuHint &hint)
+bool IsTopActive(const CircleMenuHint& hint)
 {
 	if (hint.is_dpad)
 		return IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_UP);
 	return IsControllerButtonPressed(ControllerButton_BUTTON_Y);
 }
 
-bool IsRightActive(const CircleMenuHint &hint)
+bool IsRightActive(const CircleMenuHint& hint)
 {
 	if (hint.is_dpad)
 		return IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_RIGHT);
 	return IsControllerButtonPressed(ControllerButton_BUTTON_B);
 }
 
-bool IsBottomActive(const CircleMenuHint &hint)
+bool IsBottomActive(const CircleMenuHint& hint)
 {
 	if (hint.is_dpad)
 		return IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_DOWN);
 	return IsControllerButtonPressed(ControllerButton_BUTTON_A);
 }
 
-bool IsLeftActive(const CircleMenuHint &hint)
+bool IsLeftActive(const CircleMenuHint& hint)
 {
 	if (hint.is_dpad)
 		return IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_LEFT);
@@ -89,7 +89,7 @@ text_color CircleMenuHintTextColor(bool active)
 	return active ? COL_BLUE : COL_GOLD;
 }
 
-void DrawCircleMenuHint(const CircleMenuHint &hint, int x, int y)
+void DrawCircleMenuHint(const CircleMenuHint& hint, int x, int y)
 {
 	const int lineHeight = 25;
 	x += SCREEN_X;
@@ -139,5 +139,4 @@ void DrawControllerModifierHints()
 }
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

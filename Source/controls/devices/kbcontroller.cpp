@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-ControllerButton KbCtrlToControllerButton(const SDL_Event &event)
+ControllerButton KbCtrlToControllerButton(const SDL_Event& event)
 {
 	switch (event.type) {
 	case SDL_KEYDOWN:
@@ -89,9 +89,7 @@ ControllerButton KbCtrlToControllerButton(const SDL_Event &event)
 	}
 }
 
-namespace {
-
-SDL_Keycode ControllerButtonToKbCtrlKeyCode(ControllerButton button)
+static SDL_Keycode ControllerButtonToKbCtrlKeyCode(ControllerButton button)
 {
 	switch (button) {
 #ifdef KBCTRL_BUTTON_A
@@ -163,8 +161,6 @@ SDL_Keycode ControllerButtonToKbCtrlKeyCode(ControllerButton button)
 	}
 }
 
-} // namespace
-
 bool IsKbCtrlButtonPressed(ControllerButton button)
 {
 	SDL_Keycode key_code = ControllerButtonToKbCtrlKeyCode(button);
@@ -177,11 +173,11 @@ bool IsKbCtrlButtonPressed(ControllerButton button)
 #endif
 }
 
-bool ProcessKbCtrlAxisMotion(const SDL_Event &event)
+bool ProcessKbCtrlAxisMotion(const SDL_Event& event)
 {
 	// Mapping keyboard to right stick axis not implemented.
 	return false;
 }
 
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // HAS_KBCTRL
