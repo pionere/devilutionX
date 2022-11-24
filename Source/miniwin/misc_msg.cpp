@@ -837,11 +837,6 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (e.type == SDL_QUIT) {
-		lpMsg->message = DVL_WM_QUIT;
-		return true;
-	}
-
 	if (HandleControllerAddedOrRemovedEvent(e))
 		return true;
 

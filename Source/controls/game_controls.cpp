@@ -45,10 +45,8 @@ static uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton
 	}
 }
 
-static bool HandleStartAndSelect(const ControllerButtonEvent& ctrlEvent, GameAction* action)
+static bool HandleStartAndSelect(bool inGameMenu, const ControllerButtonEvent& ctrlEvent, GameAction* action)
 {
-	const bool inGameMenu = InGameMenu();
-
 	const bool startIsDown = IsControllerButtonPressed(ControllerButton_BUTTON_START);
 	const bool selectIsDown = IsControllerButtonPressed(ControllerButton_BUTTON_BACK);
 	start_modifier_active = !inGameMenu && startIsDown;
@@ -92,7 +90,7 @@ bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, Game
 {
 	const bool inGameMenu = InGameMenu();
 
-	if (HandleStartAndSelect(ctrlEvent, action))
+	if (HandleStartAndSelect(inGameMenu, ctrlEvent, action))
 		return true;
 
 	// Stick clicks simulate the mouse both in menus and in-game.
