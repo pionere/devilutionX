@@ -2,10 +2,6 @@
 
 #include <algorithm>
 
-#ifdef __vita__
-#include <psp2/power.h>
-#endif
-
 #ifdef __3DS__
 #include "platform/ctr/display.hpp"
 #endif
@@ -168,10 +164,6 @@ static void CalculatePreferredWindowSize(int& width, int& height, bool useIntege
 
 void SpawnWindow(const char* lpWindowName)
 {
-#ifdef __vita__
-	scePowerSetArmClockFrequency(444);
-#endif
-
 #if SDL_VERSION_ATLEAST(2, 0, 6) && defined(__vita__)
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 #endif

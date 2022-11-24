@@ -8,6 +8,9 @@
 #ifdef __3DS__
 #include "platform/ctr/system.h"
 #endif
+#ifdef __vita__
+#include <psp2/power.h>
+#endif
 #ifdef RUN_TESTS
 #include <gtest/gtest.h>
 #endif
@@ -44,6 +47,7 @@ extern "C" int main(int argc, char** argv)
 	ctr_sys_init();
 #endif
 #ifdef __vita__
+	scePowerSetArmClockFrequency(444);
 	vita_enable_network();
 	randombytes_vitarandom_init();
 #endif
