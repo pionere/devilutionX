@@ -21,8 +21,8 @@ extern float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightS
 // Axis values scaled to [-1, 1] range and clamped to a deadzone.
 extern float leftStickX, leftStickY, rightStickX, rightStickY;
 
-// Whether stick positions have been updated and need rescaling.
-extern bool leftStickNeedsScaling, rightStickNeedsScaling;
+// update left/rightStickX/Y values from the *Unscaled values
+void ScaleJoystickAxes(bool rightAxes);
 
 // Updates motion state for mouse and joystick sticks.
 bool ProcessControllerMotion(const SDL_Event& event, ControllerButtonEvent ctrlEvent);

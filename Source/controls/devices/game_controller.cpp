@@ -131,22 +131,24 @@ bool GameController::ProcessAxisMotion(const SDL_Event& event)
 {
 	if (event.type != SDL_CONTROLLERAXISMOTION)
 		return false;
+	if (Get(event.caxis.which) == NULL)
+		return false;
 	switch (event.caxis.axis) {
 	case SDL_CONTROLLER_AXIS_LEFTX:
 		leftStickXUnscaled = event.caxis.value;
-		leftStickNeedsScaling = true;
+		ScaleJoystickAxes(false);
 		break;
 	case SDL_CONTROLLER_AXIS_LEFTY:
 		leftStickYUnscaled = -event.caxis.value;
-		leftStickNeedsScaling = true;
+		ScaleJoystickAxes(false);
 		break;
 	case SDL_CONTROLLER_AXIS_RIGHTX:
 		rightStickXUnscaled = event.caxis.value;
-		rightStickNeedsScaling = true;
+		ScaleJoystickAxes(true);
 		break;
 	case SDL_CONTROLLER_AXIS_RIGHTY:
 		rightStickYUnscaled = -event.caxis.value;
-		rightStickNeedsScaling = true;
+		ScaleJoystickAxes(true);
 		break;
 	default:
 		return false;

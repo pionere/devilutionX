@@ -222,29 +222,31 @@ bool Joystick::ProcessAxisMotion(const SDL_Event& event)
 {
 	if (event.type != SDL_JOYAXISMOTION)
 		return false;
+	if (Get(event.jaxis.which) == NULL)
+		return false;
 	switch (event.jaxis.axis) {
 #ifdef JOY_AXIS_LEFTX
 	case JOY_AXIS_LEFTX:
 		leftStickXUnscaled = event.jaxis.value;
-		leftStickNeedsScaling = true;
+		ScaleJoystickAxes(false);
 		break;
 #endif
 #ifdef JOY_AXIS_LEFTY
 	case JOY_AXIS_LEFTY:
 		leftStickYUnscaled = -event.jaxis.value;
-		leftStickNeedsScaling = true;
+		ScaleJoystickAxes(false);
 		break;
 #endif
 #ifdef JOY_AXIS_RIGHTX
 	case JOY_AXIS_RIGHTX:
 		rightStickXUnscaled = event.jaxis.value;
-		rightStickNeedsScaling = true;
+		ScaleJoystickAxes(true);
 		break;
 #endif
 #ifdef JOY_AXIS_RIGHTY
 	case JOY_AXIS_RIGHTY:
 		rightStickYUnscaled = -event.jaxis.value;
-		rightStickNeedsScaling = true;
+		ScaleJoystickAxes(true);
 		break;
 #endif
 	default:
