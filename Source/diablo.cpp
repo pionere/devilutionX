@@ -255,7 +255,7 @@ static void diablo_init()
 {
 	InitPaths();
 
-	dx_init();
+	dx_init(); // inititalize SDL + create the window
 
 	InitArchives();
 #if DEBUG_MODE || DEV_MODE
@@ -308,10 +308,7 @@ static void diablo_deinit()
 	//if (_gbWasArchivesInit)
 		FreeArchives();
 	//if (_gbWasWindowInit) {
-		dx_cleanup(); // Cleanup SDL surfaces stuff, so we have to do it before SDL_Quit().
-	//if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC) != 0)
-		SDL_Quit();
-	//}
+		dx_cleanup(); // close the window + SDL
 }
 
 int DiabloMain(int argc, char** argv)

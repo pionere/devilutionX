@@ -209,6 +209,8 @@ void dx_cleanup()
 	}
 #endif
 	SDL_DestroyWindow(ghMainWnd);
+
+	SDL_Quit();
 }
 
 void ToggleFullscreen()
