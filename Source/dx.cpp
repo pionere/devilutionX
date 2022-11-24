@@ -175,9 +175,6 @@ void unlock_buf(BYTE idx)
 
 void dx_cleanup()
 {
-#if HAS_GAMECTRL
-	GameController::ReleaseAll();
-#endif
 #ifndef USE_SDL1
 	if (ghMainWnd != NULL)
 		SDL_HideWindow(ghMainWnd);
@@ -209,6 +206,14 @@ void dx_cleanup()
 	}
 #endif
 	SDL_DestroyWindow(ghMainWnd);
+
+/* commented out, because SDL_Quit should do this
+#if HAS_GAMECTRL
+	GameController::ReleaseAll();
+#endif
+#if HAS_JOYSTICK
+	Joystick::ReleaseAll();
+#endif*/
 
 	SDL_Quit();
 }

@@ -23,6 +23,7 @@ class Joystick {
 public:
 	static void Add(int device_index);
 	static void Remove(SDL_JoystickID instance_id);
+	static void ReleaseAll();
 	static Joystick* Get(SDL_JoystickID instance_id);
 	static Joystick* Get(const SDL_Event& event);
 	static bool IsPressedOnAnyJoystick(ControllerButton button);

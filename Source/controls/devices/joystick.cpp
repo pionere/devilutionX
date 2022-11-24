@@ -280,6 +280,7 @@ void Joystick::Remove(SDL_JoystickID instanceId)
 		const Joystick& joystick = joysticks_[i];
 		if (joystick.instance_id_ != instanceId)
 			continue;
+		SDL_JoystickClose(joystick.sdl_joystick_);
 		joysticks_.erase(joysticks_.begin() + i);
 		sgbControllerActive = !joysticks_.empty();
 		return;
@@ -321,6 +322,13 @@ Joystick* Joystick::Get(const SDL_Event& event)
 #endif
 	}
 	return NULL;
+}
+
+void Joystick::ReleaseAll()
+{
+	while (!joysticks_.empty()) {
+		Joystick::Remove(joysticks_.front().instance_id_);
+	}
 }
 
 bool Joystick::IsPressedOnAnyJoystick(ControllerButton button)
