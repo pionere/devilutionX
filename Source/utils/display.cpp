@@ -167,14 +167,17 @@ void SpawnWindow()
 {
 	const char* lpWindowName = PROJECT_NAME;
 
+#if !defined(USE_SDL1) && (__WINRT__ || __ANDROID__ || __IPHONEOS__)
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 2) && __ANDROID__ && (HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD)
+	SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+#endif
 #if SDL_VERSION_ATLEAST(2, 0, 6) && defined(__vita__)
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 #endif
 #if SDL_VERSION_ATLEAST(2, 0, 10)
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
-#endif
-#if (__WINRT__ || __ANDROID__ || __IPHONEOS__) && !defined(USE_SDL1)
-	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
 
 	int initFlags = SDL_INIT_VIDEO;
