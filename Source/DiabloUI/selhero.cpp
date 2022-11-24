@@ -7,11 +7,11 @@
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selconn.h"
 #include "controls/plrctrls.h"
-#include "../engine.h"
+#include "../all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define MAX_VIEWPORT_ITEMS		((unsigned)((SELHERO_RPANEL_HEIGHT - 22) / 26))
+#define MAX_VIEWPORT_ITEMS ((unsigned)((SELHERO_RPANEL_HEIGHT - 22) / 26))
 
 static _uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
@@ -23,10 +23,10 @@ static bool selhero_endMenu;
 static bool selhero_navigateYesNo;
 static bool selhero_deleteEnabled;
 
-static int(*gfnHeroCreate)(_uiheroinfo *);
-//static void (*gfnHeroStats)(unsigned int, _uidefaultstats *);
+static int(*gfnHeroCreate)(_uiheroinfo*);
+//static void (*gfnHeroStats)(unsigned int, _uidefaultstats*);
 
-static std::vector<UiItemBase *> vecSelHeroDialog;
+static std::vector<UiItemBase*> vecSelHeroDialog;
 static UiTxtButton* SELLIST_DIALOG_DELETE_BUTTON;
 static UiImage* SELHERO_DIALOG_HERO_IMG;
 
@@ -36,9 +36,10 @@ static void SelheroClassSelectorSelect(unsigned index);
 static void SelheroNameSelect(unsigned index);
 
 #if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-static const char *SelheroGenerateName(BYTE hero_class)
+static const char* SelheroGenerateName(BYTE hero_class)
 {
-	static const char *const kNames[NUM_CLASSES][10] = {
+	static const char* const kNames[NUM_CLASSES][10] = {
+		// clang-format off
 		{ // WARRIOR
 		    "Aidan",
 		    "Qarak",
@@ -113,6 +114,7 @@ static const char *SelheroGenerateName(BYTE hero_class)
 		    "Ulf",
 		}
 #endif
+		// clang-format on
 	};
 	SetRndSeed(time(NULL));
 	int iRand = random_(0, lengthof(kNames[hero_class]));
@@ -310,10 +312,10 @@ static void SelheroClassSelectorFocus(unsigned index)
 	selhero_heroInfo.hiLevel = 1;
 	selhero_heroInfo.hiClass = index;
 	//selhero_heroInfo.hiRank = 0;
-	selhero_heroInfo.hiStrength = StrengthTbl[index]; //defaults.dsStrength;
-	selhero_heroInfo.hiMagic = MagicTbl[index]; //defaults.dsMagic;
+	selhero_heroInfo.hiStrength = StrengthTbl[index];   //defaults.dsStrength;
+	selhero_heroInfo.hiMagic = MagicTbl[index];         //defaults.dsMagic;
 	selhero_heroInfo.hiDexterity = DexterityTbl[index]; //defaults.dsDexterity;
-	selhero_heroInfo.hiVitality = VitalityTbl[index]; //defaults.dsVitality;
+	selhero_heroInfo.hiVitality = VitalityTbl[index];   //defaults.dsVitality;
 	//selhero_heroInfo.hiHasSaved = FALSE;
 
 	SelheroSetStats();
@@ -449,16 +451,16 @@ static void SelheroNameSelect(unsigned index)
 	SelheroClassSelectorSelect(0);
 }
 
-static void SelHeroGetHeroInfo(_uiheroinfo *pInfo)
+static void SelHeroGetHeroInfo(_uiheroinfo* pInfo)
 {
 	selhero_heros.emplace_back(*pInfo);
 	selhero_SaveCount++;
 }
 
-int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
-	int (*fncreate)(_uiheroinfo *),
-	void (*fnremove)(_uiheroinfo *),
-	//void (*fnstats)(unsigned int, _uidefaultstats *),
+int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)),
+	int (*fncreate)(_uiheroinfo*),
+	void (*fnremove)(_uiheroinfo*),
+	//void (*fnstats)(unsigned int, _uidefaultstats*),
 	unsigned* saveIdx)
 {
 	gfnHeroCreate = fncreate;

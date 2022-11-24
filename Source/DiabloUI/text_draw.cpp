@@ -6,7 +6,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static int AlignXOffset(int flags, const SDL_Rect &dest, int w)
+static int AlignXOffset(int flags, const SDL_Rect& dest, int w)
 {
 	if (flags & UIS_CENTER)
 		return (dest.w - w) / 2;
@@ -15,7 +15,7 @@ static int AlignXOffset(int flags, const SDL_Rect &dest, int w)
 	return 0;
 }
 
-void DrawArtStr(const char* text, const SDL_Rect &rect, int flags, bool drawTextCursor)
+void DrawArtStr(const char* text, const SDL_Rect& rect, int flags, bool drawTextCursor)
 {
 	unsigned size = (flags & UIS_SIZE) >> 0;
 	unsigned color = (flags & UIS_COLOR) >> 7;

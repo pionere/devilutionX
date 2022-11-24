@@ -9,6 +9,7 @@
 #include "DiabloUI/text_draw.h"
 #include "DiabloUI/dialogs.h"
 #include "controls/plrctrls.h"
+#include "all.h"
 
 #ifdef __SWITCH__
 // for virtual keyboard on Switch
@@ -25,7 +26,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define FOCUS_FRAME_COUNT	8
+#define FOCUS_FRAME_COUNT 8
 
 CelImageBuf* gbBackCel;
 static CelImageBuf* gbLogoCelSmall;
@@ -75,7 +76,7 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 		fnFocus(0);
 
 	gUiEditField = NULL;
-#if  !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
+#if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 	SDL_StopTextInput(); // input is enabled by default if !SDL_HasScreenKeyboardSupport
 #endif
 	for (unsigned i = 0; i < gUiItems.size(); i++) {
@@ -279,7 +280,7 @@ void UiFocusNavigationYesNo()
 		UiPlaySelectSound();
 }
 
-static SDL_bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
+static SDL_bool IsInsideRect(const SDL_Event& event, const SDL_Rect& rect)
 {
 	const SDL_Point point = { event.button.x, event.button.y };
 	return SDL_PointInRect(&point, &rect);
@@ -336,7 +337,7 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 	_gdwFadeTc = 0;
 	_gnFadeValue = 0;
 	SetFadeLevel(0);
-/* unnecessary, because the render loops are supposed to start with this.
+	/* unnecessary, because the render loops are supposed to start with this.
 	UiClearScreen();
 //#ifdef USE_SDL1
 //	if (DiabloUiSurface() == back_surface)
@@ -413,7 +414,7 @@ void UiClearScreen()
 		SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 }
 
-void UiRenderAndPoll(std::vector<UiItemBase *>* addUiItems)
+void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems)
 {
 	UiClearScreen();
 	if (addUiItems != NULL)
@@ -534,28 +535,28 @@ static void RenderItem(UiItemBase* item)
 
 	switch (item->m_type) {
 	case UI_TEXT:
-		Render(static_cast<UiText *>(item));
+		Render(static_cast<UiText*>(item));
 		break;
 	case UI_IMAGE:
-		Render(static_cast<UiImage *>(item));
+		Render(static_cast<UiImage*>(item));
 		break;
 	case UI_TXT_BUTTON:
-		Render(static_cast<UiTxtButton *>(item));
+		Render(static_cast<UiTxtButton*>(item));
 		break;
 	case UI_BUTTON:
-		Render(static_cast<UiButton *>(item));
+		Render(static_cast<UiButton*>(item));
 		break;
 	case UI_LIST:
-		Render(static_cast<UiList *>(item));
+		Render(static_cast<UiList*>(item));
 		break;
 	case UI_SCROLLBAR:
-		Render(static_cast<UiScrollBar *>(item));
+		Render(static_cast<UiScrollBar*>(item));
 		break;
 	case UI_EDIT:
-		Render(static_cast<UiEdit *>(item));
+		Render(static_cast<UiEdit*>(item));
 		break;
 	case UI_CUSTOM:
-		static_cast<UiCustom *>(item)->m_render();
+		static_cast<UiCustom*>(item)->m_render();
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -652,13 +653,13 @@ static bool HandleMouseEvent(const SDL_Event &event, UiItemBase* item)
 		return false;
 	switch (item->m_type) {
 	case UI_TXT_BUTTON:
-		return HandleMouseEventArtTextButton(event, static_cast<UiTxtButton *>(item));
+		return HandleMouseEventArtTextButton(event, static_cast<UiTxtButton*>(item));
 	case UI_BUTTON:
-		return HandleMouseEventButton(event, static_cast<UiButton *>(item));
+		return HandleMouseEventButton(event, static_cast<UiButton*>(item));
 	case UI_LIST:
-		return HandleMouseEventList(event, static_cast<UiList *>(item));
+		return HandleMouseEventList(event, static_cast<UiList*>(item));
 	case UI_SCROLLBAR:
-		return HandleMouseEventScrollBar(event, static_cast<UiScrollBar *>(item));
+		return HandleMouseEventScrollBar(event, static_cast<UiScrollBar*>(item));
 	default:
 		return false;
 	}
@@ -710,9 +711,9 @@ void UiHandleEvents(SDL_Event* event)
 		if (event->type == SDL_MOUSEBUTTONUP) {
 			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
 			for (unsigned i = 0; i < gUiItems.size(); i++) {
-				UiItemBase *item = gUiItems[i];
+				UiItemBase* item = gUiItems[i];
 				if (item->m_type == UI_BUTTON)
-					static_cast<UiButton *>(item)->m_pressed = false;
+					static_cast<UiButton*>(item)->m_pressed = false;
 			}
 		}
 		return; // handled
@@ -725,7 +726,7 @@ void UiHandleEvents(SDL_Event* event)
 #ifndef USE_SDL1
 			case SDLK_v:
 				if (SDL_GetModState() & KMOD_CTRL) {
-					char *clipboard = SDL_GetClipboardText();
+					char* clipboard = SDL_GetClipboardText();
 					if (clipboard != NULL) {
 						UiCatToName(clipboard);
 						SDL_free(clipboard);
@@ -808,13 +809,13 @@ void UiHandleEvents(SDL_Event* event)
 #endif // !USE_SDL1
 }
 
-void UiRenderItems(const std::vector<UiItemBase *> &uiItems)
+void UiRenderItems(const std::vector<UiItemBase*> &uiItems)
 {
 	for (size_t i = 0; i < uiItems.size(); i++)
 		RenderItem(uiItems[i]);
 }
 
-void UiClearItems(std::vector<UiItemBase *> &uiItems)
+void UiClearItems(std::vector<UiItemBase*> &uiItems)
 {
 	for (size_t i = 0; i < uiItems.size(); i++) {
 		UiItemBase* pUIItem = uiItems[i];

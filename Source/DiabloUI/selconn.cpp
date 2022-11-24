@@ -18,7 +18,7 @@ static char selconn_Description[64];
 static bool selconn_ReturnValue;
 static bool selconn_EndMenu;
 
-#define DESCRIPTION_WIDTH	(SELCONN_LPANEL_WIDTH - 2 * 10)
+#define DESCRIPTION_WIDTH (SELCONN_LPANEL_WIDTH - 2 * 10)
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelconnSelect(unsigned index);

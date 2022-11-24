@@ -26,7 +26,7 @@ static bool selgame_endMenu;
 
 static _uigamedata* selgame_gameData;
 
-#define DESCRIPTION_WIDTH	(SELGAME_LPANEL_WIDTH - 2 * 10)
+#define DESCRIPTION_WIDTH (SELGAME_LPANEL_WIDTH - 2 * 10)
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelgameModeSelect(unsigned index);
@@ -56,7 +56,7 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	selgame_gameData->aePlayerId = playerId;
 }
 
-static void selgame_add_event_handlers(void (*event_handler)(SNetEvent *pEvt))
+static void selgame_add_event_handlers(void (*event_handler)(SNetEvent* pEvt))
 {
 	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, event_handler);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);

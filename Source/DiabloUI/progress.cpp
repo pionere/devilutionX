@@ -5,7 +5,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define PROGRESS_CANCEL	101
+#define PROGRESS_CANCEL 101
 
 static CelImageBuf* gbProgBackCel;
 static CelImageBuf* gbProgEmptyCel;

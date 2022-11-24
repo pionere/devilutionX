@@ -11,7 +11,6 @@ DEVILUTION_BEGIN_NAMESPACE
  *
  * This method is slow. Caching the result is recommended.
  */
-SDL_Surface *RenderUTF8_Solid_Wrapped(
-    TTF_Font *font, const char *text, SDL_Color fg, Uint32 wrapLength, const int x_align);
+SDL_Surface* RenderUTF8_Solid_Wrapped(TTF_Font* font, const char* text, SDL_Color fg, Uint32 wrapLength, const int x_align);
 
 DEVILUTION_END_NAMESPACE

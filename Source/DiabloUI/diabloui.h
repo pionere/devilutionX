@@ -57,9 +57,9 @@ void UiFocusNavigationYesNo();
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL);
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
 void UiClearScreen();
-void UiRenderAndPoll(std::vector<UiItemBase *>* addUiItems);
-void UiRenderItems(const std::vector<UiItemBase*> &uiItems);
-void UiClearItems(std::vector<UiItemBase*> &uiItems);
+void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems);
+void UiRenderItems(const std::vector<UiItemBase*>& uiItems);
+void UiClearItems(std::vector<UiItemBase*>& uiItems);
 void UiClearListItems();
 int GetAnimationFrame(int frames, int animFrameLenMs = 64);
 

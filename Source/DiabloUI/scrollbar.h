@@ -20,7 +20,7 @@ typedef enum ScrollBarArrowFrame {
 	ScrollBarArrowFrame_DOWN,
 } ScrollBarArrowFrame;
 
-inline SDL_Rect UpArrowRect(const UiScrollBar *sb)
+inline SDL_Rect UpArrowRect(const UiScrollBar* sb)
 {
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x;
@@ -31,7 +31,7 @@ inline SDL_Rect UpArrowRect(const UiScrollBar *sb)
 	return Tmp;
 }
 
-inline SDL_Rect DownArrowRect(const UiScrollBar *sb)
+inline SDL_Rect DownArrowRect(const UiScrollBar* sb)
 {
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x;
@@ -42,12 +42,12 @@ inline SDL_Rect DownArrowRect(const UiScrollBar *sb)
 	return Tmp;
 }
 
-inline int BarHeight(const UiScrollBar *sb)
+inline int BarHeight(const UiScrollBar* sb)
 {
 	return sb->m_rect.h - 2 * SCROLLBAR_ARROW_HEIGHT;
 }
 
-inline SDL_Rect BarRect(const UiScrollBar *sb)
+inline SDL_Rect BarRect(const UiScrollBar* sb)
 {
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x;

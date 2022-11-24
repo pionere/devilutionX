@@ -44,7 +44,7 @@ static bool CreditsRender(int offsetY)
 	UiRenderItems(gUiItems);
 
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP )];
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP)];
 	pEnd = gpBufEnd;
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP + CREDITS_HEIGHT)];
 
