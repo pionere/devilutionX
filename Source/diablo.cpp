@@ -1343,7 +1343,7 @@ static bool ProcessInput()
 
 	if (gnTimeoutCurs == CURSOR_NONE && gbDragWnd == WND_NONE) {
 #if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks(MouseX, MouseY);
+		finish_simulated_mouse_clicks();
 #endif
 		CheckCursMove();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

@@ -33,7 +33,7 @@ void FocusOnInventory();
 void FocusOnCharInfo();
 
 // defined in touch.cpp
-void finish_simulated_mouse_clicks(int current_mouse_x, int current_mouse_y);
+void finish_simulated_mouse_clicks();
 
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();

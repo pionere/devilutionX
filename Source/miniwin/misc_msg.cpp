@@ -821,7 +821,7 @@ bool PeekMessage(LPMSG lpMsg)
 	lpMsg->wParam = 0;
 
 #if HAS_TOUCHPAD
-	handle_touch(&e, MouseX, MouseY);
+	handle_touch(&e);
 #endif
 
 #ifdef USE_SDL1

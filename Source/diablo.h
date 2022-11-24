@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern uint32_t glSeedTbl[NUM_LEVELS];
+// current mouse position
 extern int MouseX;
 extern int MouseY;
 extern bool gbWasUiInit;
