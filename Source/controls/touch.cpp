@@ -10,6 +10,8 @@
 static bool back_touch = false;
 #endif
 
+DEVILUTION_BEGIN_NAMESPACE
+
 static int visible_width;
 static int visible_height;
 static int x_borderwidth;
@@ -409,8 +411,6 @@ static void PreprocessFingerMotion(SDL_Event* event)
 	}
 }
 
-DEVILUTION_BEGIN_NAMESPACE
-
 void handle_touch(SDL_Event* event)
 {
 	if (!touch_initialized) {
@@ -455,8 +455,6 @@ void finish_simulated_mouse_clicks()
 	}
 }
 
-DEVILUTION_END_NAMESPACE
-
 static void SetMouseButtonEvent(SDL_Event* event, uint32_t type, uint8_t button, int32_t x, int32_t y)
 {
 	event->type = type;
@@ -478,4 +476,6 @@ static void SetMouseMotionEvent(SDL_Event* event, int32_t x, int32_t y, int32_t 
 	event->motion.xrel = xrel;
 	event->motion.yrel = yrel;
 }
+
+DEVILUTION_END_NAMESPACE
 #endif // HAS_TOUCHPAD
