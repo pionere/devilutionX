@@ -17,9 +17,9 @@ float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUn
 
 void ScaleJoystickAxes(bool rightAxes)
 {
-	float* x, float* y;
+	float *x, *y;
 
-	if (rightAxis) {
+	if (rightAxes) {
 		rightStickX = rightStickXUnscaled;
 		rightStickY = rightStickYUnscaled;
 		x = &rightStickX;
