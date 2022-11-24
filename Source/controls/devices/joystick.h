@@ -25,7 +25,6 @@ public:
 	static void Remove(SDL_JoystickID instance_id);
 	static Joystick* Get(SDL_JoystickID instance_id);
 	static Joystick* Get(const SDL_Event& event);
-	static const std::vector<Joystick>& All();
 	static bool IsPressedOnAnyJoystick(ControllerButton button);
 
 	static ControllerButton ToControllerButton(const SDL_Event& event);

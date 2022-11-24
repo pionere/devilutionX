@@ -288,11 +288,6 @@ void Joystick::Remove(SDL_JoystickID instanceId)
 #endif
 }
 
-const std::vector<Joystick>& Joystick::All()
-{
-	return joysticks_;
-}
-
 Joystick* Joystick::Get(SDL_JoystickID instanceId)
 {
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {

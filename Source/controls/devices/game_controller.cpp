@@ -219,11 +219,6 @@ void GameController::ReleaseAll()
 	}
 }
 
-const std::vector<GameController>& GameController::All()
-{
-	return controllers_;
-}
-
 bool GameController::IsPressedOnAnyController(ControllerButton button)
 {
 	for (unsigned i = 0; i < controllers_.size(); ++i)

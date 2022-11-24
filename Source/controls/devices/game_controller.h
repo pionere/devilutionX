@@ -24,7 +24,6 @@ public:
 	static void ReleaseAll();
 	static GameController* Get(SDL_JoystickID instance_id);
 	static GameController* Get(const SDL_Event& event);
-	static const std::vector<GameController>& All();
 	static bool IsPressedOnAnyController(ControllerButton button);
 
 	// NOTE: Not idempotent.
