@@ -81,7 +81,7 @@ private:
 
 	struct peer_state {
 		int fd = -1;
-		std::deque<buffer_t> send_queue;
+		std::deque<buffer_t*> send_queue;
 		frame_queue recv_queue;
 	};
 

@@ -123,19 +123,21 @@ bool protocol_zt::send_queued_peer(const endpoint& peer)
 		lwip_connect(peer_list[peer].fd, (const struct sockaddr*)&in6, sizeof(in6));
 	}
 	while (!peer_list[peer].send_queue.empty()) {
-		auto len = peer_list[peer].send_queue.front().size();
-		auto r = lwip_send(peer_list[peer].fd, peer_list[peer].send_queue.front().data(), len, 0);
+		auto frame = peer_list[peer].send_queue.front();
+		auto len = frame->size();
+		auto r = lwip_send(peer_list[peer].fd, frame->data(), len, 0);
 		if (r < 0) {
 			// handle error
 			return false;
 		}
 		if (decltype(len)(r) < len) {
 			// partial send
-			auto it = peer_list[peer].send_queue.front().begin();
-			peer_list[peer].send_queue.front().erase(it, it + r);
+			auto it = frame->begin();
+			frame->erase(it, it + r);
 			return true;
 		}
 		if (decltype(len)(r) == len) {
+			delete frame;
 			peer_list[peer].send_queue.pop_front();
 		} else {
 			throw protocol_exception();
@@ -273,6 +275,10 @@ void protocol_zt::close_all()
 		lwip_close(fd_udp);
 		fd_udp = -1;
 	}
+	for (auto frame : send_queue) {
+		delete frame;
+	}
+	send_queue.clear();
 	for (auto& peer : peer_list) {
 		if (peer.second.fd != -1)
 			lwip_close(peer.second.fd);

@@ -207,7 +207,7 @@ bool tcp_server::send_packet(packet& pkt)
 
 void tcp_server::start_send(const scc& con, packet& pkt)
 {
-	const auto* frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
+	const auto* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);
 	asio::async_write(con->socket, buf,
 		[frame](const asio::error_code& ec, size_t bytesSent) {

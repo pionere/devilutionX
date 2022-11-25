@@ -59,14 +59,18 @@ buffer_t frame_queue::read_packet()
 	return ret;
 }
 
-buffer_t frame_queue::make_frame(buffer_t packetbuf)
+buffer_t* frame_queue::make_frame(buffer_t packetbuf)
 {
-	buffer_t ret;
-	if (packetbuf.size() > MAX_FRAME_SIZE)
+	buffer_t* ret;
+	uint32_t size = packetbuf.size();
+	//if (size > (MAX_FRAME_SIZE - sizeof(uint32_t)))
+	//	app_error(ERR_APP_FRAME_BUFSIZE);
+	ret = new buffer_t(sizeof(uint32_t) + size);
+	if (ret == NULL)
 		app_error(ERR_APP_FRAME_BUFSIZE);
-	uint32_t size = SwapLE32(packetbuf.size());
-	ret.insert(ret.end(), packet_factory::begin(size), packet_factory::end(size));
-	ret.insert(ret.end(), packetbuf.begin(), packetbuf.end());
+	BYTE* data = ret->data();
+	*(uint32_t*)data = SwapLE32(size);
+	memcpy(data + sizeof(uint32_t), packetbuf.data(), size);
 	return ret;
 }
 

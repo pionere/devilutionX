@@ -42,7 +42,7 @@ public:
 		buffer_deque.clear();
 	}
 
-	static buffer_t make_frame(buffer_t packetbuf);
+	static buffer_t* make_frame(buffer_t packetbuf);
 };
 
 } // namespace net
