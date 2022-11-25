@@ -376,8 +376,7 @@ void base::SNetLeaveGame(int reason)
 {
 	int i;
 
-	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
-	    plr_self, (leaveinfo_t)reason);
+	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self, (leaveinfo_t)reason);
 	send_packet(*pkt);
 
 	message_last.payload.clear();
@@ -388,10 +387,7 @@ void base::SNetLeaveGame(int reason)
 
 void base::SNetDropPlayer(int playerid)
 {
-	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self,
-	    PLR_BROADCAST,
-	    (plr_t)playerid,
-	    (leaveinfo_t)LEAVE_DROP);
+	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, (plr_t)playerid, (leaveinfo_t)LEAVE_DROP);
 	send_packet(*pkt);
 	recv_local(*pkt);
 }

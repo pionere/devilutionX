@@ -316,8 +316,6 @@ public:
 	std::unique_ptr<packet> make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
 	std::unique_ptr<packet> make_out_packet(Args... args);
-	template <packet_type t, typename... Args>
-	std::unique_ptr<packet> make_fake_out_packet(Args... args);
 
 	template <class T>
 	static const BYTE* begin(const T& x);
@@ -341,14 +339,6 @@ std::unique_ptr<packet> packet_factory::make_out_packet(Args... args)
 	ret->create<t>(args...);
 	ret->encrypt();
 	return ret;
-}
-
-template <packet_type t, typename... Args>
-std::unique_ptr<packet> packet_factory::make_fake_out_packet(Args... args)
-{
-	std::unique_ptr<packet_out> ret(new packet_out(key));
-	ret->create<t>(args...);
-	return std::unique_ptr<packet>(std::move(ret));
 }
 
 template <class T>

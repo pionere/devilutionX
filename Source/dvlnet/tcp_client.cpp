@@ -46,8 +46,7 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 	}
 	start_recv();
 
-	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
-	    PLR_MASTER, cookie_self);
+	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	send_packet(*pkt);
 	for (i = 0; i < NUM_SLEEP; i++) {
 		poll();

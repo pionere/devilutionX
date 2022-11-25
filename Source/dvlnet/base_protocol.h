@@ -94,8 +94,7 @@ bool base_protocol<P>::wait_firstpeer()
 template <class P>
 void base_protocol<P>::send_info_request()
 {
-	auto pkt = pktfty.make_out_packet<PT_INFO_REQUEST>(PLR_BROADCAST,
-	    PLR_MASTER);
+	auto pkt = pktfty.make_out_packet<PT_INFO_REQUEST>(PLR_BROADCAST, PLR_MASTER);
 	proto.send_oob_mc(pkt->encrypted_data());
 }
 
@@ -104,8 +103,7 @@ void base_protocol<P>::wait_join()
 {
 	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self),
 	    sizeof(cookie_t));
-	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
-	    PLR_MASTER, cookie_self);
+	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	proto.send(firstpeer, pkt->encrypted_data());
 	for (auto i = 0; i < 500; ++i) {
 		recv();
@@ -224,9 +222,7 @@ void base_protocol<P>::handle_join_request(packet& pkt, endpoint sender)
 			proto.send(sender, infopkt->encrypted_data());
 		}
 	}
-	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST,
-	    pkt.pktJoinReqCookie(), i,
-	    game_init_info);
+	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), i, game_init_info);
 	proto.send(sender, reply->encrypted_data());
 }
 
@@ -247,9 +243,7 @@ void base_protocol<P>::recv_decrypted(packet& pkt, endpoint sender)
 				buffer_t buf;
 				buf.resize(gamename.size());
 				std::memcpy(buf.data(), &gamename[0], gamename.size());
-				auto reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST,
-				    PLR_MASTER,
-				    buf);
+				auto reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, buf);
 				proto.send_oob(sender, reply->encrypted_data());
 			}
 		}

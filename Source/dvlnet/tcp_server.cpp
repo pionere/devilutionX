@@ -136,8 +136,7 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 
 /*void tcp_server::send_connect(const scc& con)
 {
-	auto pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST,
-	    con->pnum);
+	auto pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, con->pnum);
 	send_packet(*pkt);
 }*/
 
@@ -161,8 +160,7 @@ bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 	pending_connections[i] = NULL;
 	connections[pnum] = con;
 	con->pnum = pnum;
-	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
-	    pkt.pktJoinReqCookie(), pnum, game_init_info);
+	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info);
 	start_send(con, *reply);
 	//send_connect(con);
 	if (serverType == SRV_DIRECT) {
