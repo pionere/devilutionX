@@ -1,7 +1,7 @@
 #pragma once
 
 #include <deque>
-#include <exception>
+//#include <exception>
 #include <cstdint>
 
 #include "packet.h"
@@ -9,13 +9,13 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-class frame_queue_exception : public std::exception {
+/*class frame_queue_exception : public std::exception {
 public:
 	const char* what() const throw() override
 	{
 		return "Incorrect frame size";
 	}
-};
+};*/
 
 class frame_queue {
 public:
@@ -37,6 +37,8 @@ public:
 	void write(buffer_t buf);
 	void clear()
 	{
+		nextsize = 0;
+		current_size = 0;
 		buffer_deque.clear();
 	}
 
