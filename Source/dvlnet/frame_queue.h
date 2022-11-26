@@ -26,7 +26,7 @@ private:
 	std::deque<buffer_t> buffer_deque;
 	uint32_t nextsize = 0;
 
-	buffer_t read(uint32_t s);
+	void read(uint32_t s, BYTE* dest);
 
 public:
 	bool packet_ready();

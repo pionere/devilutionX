@@ -5,28 +5,23 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-buffer_t frame_queue::read(uint32_t s)
+void frame_queue::read(uint32_t s, BYTE* dest)
 {
 	//if (current_size < s)
 	//	throw frame_queue_exception();
-	buffer_t ret;
 	while (s > 0 && s >= buffer_deque.front().size()) {
 		s -= buffer_deque.front().size();
 		current_size -= buffer_deque.front().size();
-		ret.insert(ret.end(),
-		    buffer_deque.front().begin(),
-		    buffer_deque.front().end());
+		memcpy(dest, buffer_deque.front().data(), buffer_deque.front().size());
+		dest += buffer_deque.front().size();
 		buffer_deque.pop_front();
 	}
 	if (s > 0) {
-		ret.insert(ret.end(),
-		    buffer_deque.front().begin(),
-		    buffer_deque.front().begin() + s);
+		memcpy(dest, buffer_deque.front().data(), s);
 		buffer_deque.front().erase(buffer_deque.front().begin(),
 		    buffer_deque.front().begin() + s);
 		current_size -= s;
 	}
-	return ret;
 }
 
 void frame_queue::write(buffer_t buf)
@@ -40,8 +35,7 @@ bool frame_queue::packet_ready()
 	if (nextsize == 0) {
 		if (current_size < sizeof(uint32_t))
 			return false;
-		auto szbuf = read(sizeof(uint32_t));
-		std::memcpy(&nextsize, &szbuf[0], sizeof(uint32_t));
+		read(sizeof(uint32_t), (BYTE*)&nextsize);
 		nextsize = SwapLE32(nextsize);
 		if (nextsize == 0)
 			// should not happen. Ignore the packet to avoid crash
@@ -54,7 +48,8 @@ buffer_t frame_queue::read_packet()
 {
 	//if (nextsize == 0 || current_size < nextsize)
 	//	throw frame_queue_exception();
-	auto ret = read(nextsize);
+	buffer_t ret(nextsize);
+	read(nextsize, ret.data());
 	nextsize = 0;
 	return ret;
 }
