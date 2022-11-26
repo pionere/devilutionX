@@ -4019,7 +4019,7 @@ typedef enum quest_nakrul_book {
 	QNB_BOOK_A,
 	QNB_BOOK_B,
 	QNB_BOOK_C,
-} quest_state;
+} quest_nakrul_book;
 
 typedef enum talk_id {
 	STORE_NONE,
