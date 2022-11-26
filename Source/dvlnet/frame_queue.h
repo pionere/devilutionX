@@ -24,7 +24,7 @@ public:
 private:
 	uint32_t current_size = 0;
 	std::deque<buffer_t> buffer_deque;
-	uint32_t nextsize = 0;
+	uint32_t next_size = 0;
 	uint32_t current_offset = 0;
 
 	void read(uint32_t s, BYTE* dest);
@@ -38,7 +38,7 @@ public:
 	void write(buffer_t buf);
 	void clear()
 	{
-		nextsize = 0;
+		next_size = 0;
 		current_size = 0;
 		current_offset = 0;
 		buffer_deque.clear();

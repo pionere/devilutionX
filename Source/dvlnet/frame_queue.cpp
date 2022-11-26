@@ -41,25 +41,25 @@ void frame_queue::write(buffer_t buf)
 
 bool frame_queue::packet_ready()
 {
-	if (nextsize == 0) {
+	if (next_size == 0) {
 		if (current_size < sizeof(uint32_t))
 			return false;
-		read(sizeof(uint32_t), (BYTE*)&nextsize);
-		nextsize = SwapLE32(nextsize);
-		if (nextsize == 0)
+		read(sizeof(uint32_t), (BYTE*)&next_size);
+		next_size = SwapLE32(next_size);
+		if (next_size == 0)
 			// should not happen. Ignore the packet to avoid crash
 			return false; // throw frame_queue_exception();
 	}
-	return current_size >= nextsize;
+	return current_size >= next_size;
 }
 
 buffer_t frame_queue::read_packet()
 {
-	//if (nextsize == 0 || current_size < nextsize)
+	//if (next_size == 0 || current_size < next_size)
 	//	throw frame_queue_exception();
-	buffer_t ret(nextsize);
-	read(nextsize, ret.data());
-	nextsize = 0;
+	buffer_t ret(next_size);
+	read(next_size, ret.data());
+	next_size = 0;
 	return ret;
 }
 
