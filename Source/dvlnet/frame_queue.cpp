@@ -9,18 +9,27 @@ void frame_queue::read(uint32_t s, BYTE* dest)
 {
 	//if (current_size < s)
 	//	throw frame_queue_exception();
-	while (s > 0 && s >= buffer_deque.front().size()) {
-		s -= buffer_deque.front().size();
-		current_size -= buffer_deque.front().size();
-		memcpy(dest, buffer_deque.front().data(), buffer_deque.front().size());
-		dest += buffer_deque.front().size();
-		buffer_deque.pop_front();
-	}
-	if (s > 0) {
-		memcpy(dest, buffer_deque.front().data(), s);
-		buffer_deque.front().erase(buffer_deque.front().begin(),
-		    buffer_deque.front().begin() + s);
+	uint32_t bs;
+	BYTE* src;
+
+	while (s > 0) {
+		auto& next_buf = buffer_deque.front();
+		bs = next_buf.size() - current_offset;
+		src = next_buf.data() + current_offset;
+		if (s >= bs) {
+			// read the whole entry
+			s -= bs;
+			current_size -= bs;
+			memcpy(dest, src, bs);
+			buffer_deque.pop_front();
+			current_offset = 0;
+			continue;
+		}
+		// read part of the entry
+		memcpy(dest, src, s);
 		current_size -= s;
+		current_offset += s;
+		break;
 	}
 }
 
