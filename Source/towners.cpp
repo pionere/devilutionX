@@ -934,12 +934,12 @@ void TalkToTowner(int tnum)
 			if (PlrHasStorageItem(pnum, IDI_THEODORE, &i)) {
 				NetSendCmdParam1(CMD_QTOWNER, IDI_THEODORE);
 				qt = TEXT_GIRL4;
-			} else if (quests[Q_GIRL]._qvar1 == 0) {
+			} else if (quests[Q_GIRL]._qvar1 == QV_INIT) {
 				if (quests[Q_GIRL]._qvar2++ == 0) {
 					qt = TEXT_GIRL1;
 				} else {
 					qt = TEXT_GIRL2;
-					quests[Q_GIRL]._qvar1 = 1;
+					quests[Q_GIRL]._qvar1 = QV_GIRL_TALK1;
 					quests[Q_GIRL]._qlog = TRUE;
 					// quests[Q_GIRL]._qmsg = TEXT_GIRL2;
 					qn = Q_GIRL;

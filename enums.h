@@ -4011,6 +4011,7 @@ typedef enum quest_var1_state {
 	QV_JERSEY_BOMBGIVEN = 1,
 	QV_FARMER_BOMBGIVEN = 1,
 	QV_FARMER_BOMBUSED = 2, // with pnum added to identify the player who opened the entrance
+	QV_GIRL_TALK1 = 1,
 } quest_var1_state;
 
 typedef enum quest_nakrul_book {
