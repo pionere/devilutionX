@@ -21,10 +21,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define FLAMETRAP_ACTIVE_FRAME   1
 #define FLAMETRAP_INACTIVE_FRAME 2
 
-#define NKR_A 5
-#define NKR_B 6
-#define NKR_C 7
-
 int trapid;
 static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
 int objectactive[MAXOBJECTS];
@@ -743,15 +739,15 @@ static void AddHBooks(int bookidx, int ox, int oy)
 	os = &objects[oi];
 	// os->_oVar1 = bookframe;
 	os->_oAnimFrame = 5 - 2 * bookframe;
-	os->_oVar4 = os->_oAnimFrame + 1;       // STORY_BOOK_READ_FRAME
-	if (bookidx >= NKR_A) {
-		os->_oVar2 = TEXT_BOOKA + bookidx - NKR_A; // STORY_BOOK_MSG
-		os->_oVar3 = 14;                    // STORY_BOOK_NAME
-		os->_oVar8 = bookidx;               // STORY_BOOK_NAKRUL_IDX
+	os->_oVar4 = os->_oAnimFrame + 1; // STORY_BOOK_READ_FRAME
+	if (bookidx >= QNB_BOOK_A) {
+		os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A; // STORY_BOOK_MSG
+		os->_oVar3 = 14;                                // STORY_BOOK_NAME
+		os->_oVar8 = bookidx;                           // STORY_BOOK_NAKRUL_IDX
 	} else {
-		os->_oVar2 = TEXT_BOOK4 + bookidx;  // STORY_BOOK_MSG
-		os->_oVar3 = bookidx + 9;           // STORY_BOOK_NAME
-		os->_oVar8 = 0;                     // STORY_BOOK_NAKRUL_IDX
+		os->_oVar2 = TEXT_BOOK4 + bookidx; // STORY_BOOK_MSG
+		os->_oVar3 = bookidx + 9;          // STORY_BOOK_NAME
+		os->_oVar8 = 0;                    // STORY_BOOK_NAKRUL_IDX
 	}
 }
 
@@ -786,22 +782,22 @@ static void AddLvl24Books()
 	AddUberLever();
 	switch (random_(0, 6)) {
 	case 0:
-		books[0] = NKR_A; books[1] = NKR_B; books[2] = NKR_C; books[3] = 0;
+		books[0] = QNB_BOOK_A; books[1] = QNB_BOOK_B; books[2] = QNB_BOOK_C; books[3] = 0;
 		break;
 	case 1:
-		books[0] = NKR_A; books[1] = NKR_C; books[2] = NKR_B; books[3] = 0;
+		books[0] = QNB_BOOK_A; books[1] = QNB_BOOK_C; books[2] = QNB_BOOK_B; books[3] = 0;
 		break;
 	case 2:
-		books[0] = NKR_B; books[1] = NKR_A; books[2] = NKR_C; books[3] = 0;
+		books[0] = QNB_BOOK_B; books[1] = QNB_BOOK_A; books[2] = QNB_BOOK_C; books[3] = 0;
 		break;
 	case 3:
-		books[0] = NKR_B; books[1] = NKR_C; books[2] = NKR_A; books[3] = 0;
+		books[0] = QNB_BOOK_B; books[1] = QNB_BOOK_C; books[2] = QNB_BOOK_A; books[3] = 0;
 		break;
 	case 4:
-		books[0] = NKR_C; books[1] = NKR_B; books[2] = NKR_A; books[3] = 0;
+		books[0] = QNB_BOOK_C; books[1] = QNB_BOOK_B; books[2] = QNB_BOOK_A; books[3] = 0;
 		break;
 	case 5:
-		books[0] = NKR_C; books[1] = NKR_A; books[2] = NKR_B; books[3] = 0;
+		books[0] = QNB_BOOK_C; books[1] = QNB_BOOK_A; books[2] = QNB_BOOK_B; books[3] = 0;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -818,11 +814,11 @@ static int ProgressUberLever(int bookidx, int status)
 		return status;
 
 	switch (bookidx) {
-	case NKR_A:
+	case QNB_BOOK_A:
 		return 1;
-	case NKR_B:
+	case QNB_BOOK_B:
 		return status == 1 ? 2 : 0;
-	case NKR_C:
+	case QNB_BOOK_C:
 		return status == 2 ? 3 : 0;
 	default:
 		ASSUME_UNREACHABLE
@@ -979,15 +975,15 @@ void InitObjects()
 	case DTYPE_CRYPT:
 		switch (currLvl._dLevelIdx) {
 		case DLV_CRYPT1:
-			AddLvl2xBooks(0);
+			AddLvl2xBooks(QNB_BOOK_1);
 			break;
 		case DLV_CRYPT2:
-			AddLvl2xBooks(1);
-			AddLvl2xBooks(2);
+			AddLvl2xBooks(QNB_BOOK_2);
+			AddLvl2xBooks(QNB_BOOK_3);
 			break;
 		case DLV_CRYPT3:
-			AddLvl2xBooks(3);
-			AddLvl2xBooks(4);
+			AddLvl2xBooks(QNB_BOOK_4);
+			AddLvl2xBooks(QNB_BOOK_5);
 			break;
 		case DLV_CRYPT4:
 			AddLvl24Books();
@@ -3399,7 +3395,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
 #ifdef HELLFIRE // STORY_BOOK_NAKRUL_IDX
-		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == NKR_C && quests[Q_NAKRUL]._qvar1 >= 4) {
+		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == QNB_BOOK_C && quests[Q_NAKRUL]._qvar1 >= 4) {
 			if (quests[Q_NAKRUL]._qvar1 == 4)
 				WakeUberDiablo();
 			OpenUberRoom();

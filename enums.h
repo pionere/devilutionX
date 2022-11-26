@@ -4002,6 +4002,17 @@ typedef enum quest_var1_state {
 	QV_MUSHROOM_BRAINGIVEN = 7,
 } quest_var1_state;
 
+typedef enum quest_nakrul_book {
+	QNB_BOOK_1,
+	QNB_BOOK_2,
+	QNB_BOOK_3,
+	QNB_BOOK_4,
+	QNB_BOOK_5,
+	QNB_BOOK_A,
+	QNB_BOOK_B,
+	QNB_BOOK_C,
+} quest_state;
+
 typedef enum talk_id {
 	STORE_NONE,
 	STORE_SMITH,
