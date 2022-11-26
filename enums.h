@@ -4009,6 +4009,8 @@ typedef enum quest_var1_state {
 	QV_BETRAYER_DEAD = 7, // Lazarus dead
 	QV_BETRAYER_CAIN = 8, // Cain talked
 	QV_JERSEY_BOMBGIVEN = 1,
+	QV_FARMER_BOMBGIVEN = 1,
+	QV_FARMER_BOMBUSED = 2, // with pnum added to identify the player who opened the entrance
 } quest_var1_state;
 
 typedef enum quest_nakrul_book {

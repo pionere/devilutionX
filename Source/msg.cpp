@@ -2385,7 +2385,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 	 && x >= DBORDERX + 69 && x <= DBORDERX + 72 && y >= DBORDERY + 51 && y <= DBORDERY + 54
 	 && quests[Q_FARMER]._qactive != QUEST_DONE) {
 		quests[Q_FARMER]._qactive = QUEST_DONE;
-		quests[Q_FARMER]._qvar1 = 2 + pnum;
+		quests[Q_FARMER]._qvar1 = QV_FARMER_BOMBUSED + pnum;
 		quests[Q_FARMER]._qlog = TRUE;
 		// open hive
 		if (currLvl._dLevelIdx == DLV_TOWN) {

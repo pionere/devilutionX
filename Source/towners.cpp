@@ -821,7 +821,7 @@ void TalkToTowner(int tnum)
 		case QUEST_INIT:
 			if (PlrHasStorageItem(pnum, IDI_RUNEBOMB, &i)) {
 				quests[Q_FARMER]._qactive = QUEST_ACTIVE;
-				quests[Q_FARMER]._qvar1 = 1;
+				quests[Q_FARMER]._qvar1 = QV_FARMER_BOMBGIVEN;
 				quests[Q_FARMER]._qlog = TRUE;
 				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
@@ -837,7 +837,7 @@ void TalkToTowner(int tnum)
 					qt = TEXT_FARMER8;
 			} else {
 				quests[Q_FARMER]._qactive = QUEST_ACTIVE;
-				quests[Q_FARMER]._qvar1 = 1;
+				quests[Q_FARMER]._qvar1 = QV_FARMER_BOMBGIVEN;
 				quests[Q_FARMER]._qlog = TRUE;
 				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
@@ -849,9 +849,9 @@ void TalkToTowner(int tnum)
 			qt = PlrHasStorageItem(pnum, IDI_RUNEBOMB, &i) ? TEXT_FARMER2 : TEXT_FARMER3;
 			break;
 		case QUEST_DONE:
-			if (quests[Q_FARMER]._qlog && quests[Q_FARMER]._qvar1 == pnum + 2) {
+			if (quests[Q_FARMER]._qlog && quests[Q_FARMER]._qvar1 == pnum + QV_FARMER_BOMBUSED) {
 				quests[Q_FARMER]._qlog = FALSE;
-				qn = Q_FARMER;
+				qn = Q_FARMER; // not necessary...
 				qt = TEXT_FARMER4;
 				SpawnQuestItemAt(IDI_MANA, TPOS_FARMER, ICM_SEND_FLIP);
 			}
