@@ -112,15 +112,15 @@ void InitQuests()
 #endif
 
 	if (quests[Q_PWATER]._qactive == QUEST_NOTAVAIL)
-		quests[Q_PWATER]._qvar1 = 2;
+		quests[Q_PWATER]._qvar1 = QV_PWATER_CLEAN;
 }
 
 void CheckQuests()
 {
 	if (currLvl._dLevelIdx == SL_POISONWATER) {
-		if (quests[Q_PWATER]._qvar1 != 2
+		if (quests[Q_PWATER]._qvar1 != QV_PWATER_CLEAN
 		 && nummonsters == MAX_MINIONS) {
-			quests[Q_PWATER]._qvar1 = 2;
+			quests[Q_PWATER]._qvar1 = QV_PWATER_CLEAN;
 			NetSendCmdQuest(Q_PWATER, true);
 			PlaySfxLoc(IS_QUESTDN, myplr._px, myplr._py);
 			gbWaterDone = 32;
@@ -472,7 +472,7 @@ void LoadPWaterPalette()
 	if (currLvl._dLevelIdx != SL_POISONWATER)
 		return;
 
-	if (quests[Q_PWATER]._qvar1 == 2) {
+	if (quests[Q_PWATER]._qvar1 == QV_PWATER_CLEAN) {
 		//if (gbWaterDone == 0)
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 		//else

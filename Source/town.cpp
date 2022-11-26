@@ -238,7 +238,7 @@ static void T_Pass3()
 	mem_free_dbg(pBuf);
 #endif
 
-	if (quests[Q_PWATER]._qvar1 != 2) {
+	if (quests[Q_PWATER]._qvar1 != QV_PWATER_CLEAN) {
 		T_FillTile(50 + DBORDERX, 60 + DBORDERY, 342 - 1);
 	}
 

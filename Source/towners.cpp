@@ -662,7 +662,7 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_HEALER:
-		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && IsLvlVisited(DLV_CATHEDRAL2)) {
+		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != QV_PWATER_CLEAN && IsLvlVisited(DLV_CATHEDRAL2)) {
 			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 			quests[Q_PWATER]._qlog = TRUE;
 			// quests[Q_PWATER]._qmsg = TEXT_POISON3;
@@ -670,7 +670,7 @@ void TalkToTowner(int tnum)
 			qn = Q_PWATER;
 			qt = TEXT_POISON3;
 		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
-		 && quests[Q_PWATER]._qvar1 == 2) {
+		 && quests[Q_PWATER]._qvar1 == QV_PWATER_CLEAN) {
 			quests[Q_PWATER]._qactive = QUEST_DONE;
 			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, ICM_SEND_FLIP);
 			qn = Q_PWATER;
