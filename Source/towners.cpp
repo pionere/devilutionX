@@ -558,18 +558,18 @@ void SyncTownerQ(int pnum, int idx)
 			return;
 		quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
 		quests[Q_MUSHROOM]._qlog = TRUE;
-		quests[Q_MUSHROOM]._qvar1 = QS_TOMEGIVEN;
+		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_TOMEGIVEN;
 		break;
 	case IDI_MUSHROOM:
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN)
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
 			return;
-		quests[Q_MUSHROOM]._qvar1 = QS_MUSHGIVEN;
+		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_MUSHGIVEN;
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
 		break;
 	case IDI_BRAIN:
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN)
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
 			return;
-		quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
+		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_BRAINGIVEN;
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
 		if (pnum == mypnum)
 			SpawnQuestItemAt(IDI_SPECELIX, TPOS_HEALER + 1, ICM_SEND_FLIP);
@@ -676,11 +676,11 @@ void TalkToTowner(int tnum)
 			qn = Q_PWATER;
 			qt = TEXT_POISON5;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
-		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
+		 && quests[Q_MUSHROOM]._qvar1 < QV_MUSHROOM_BRAINGIVEN) {
 			if (PlrHasStorageItem(pnum, IDI_BRAIN, &i)) {
 				NetSendCmdParam1(CMD_QTOWNER, IDI_BRAIN);
 				qt = TEXT_MUSH4;
-			} else if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
+			} else if (quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
 				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH3;
 				qt = TEXT_MUSH3;
 			}
@@ -750,7 +750,7 @@ void TalkToTowner(int tnum)
 			NetSendCmdParam1(CMD_QTOWNER, IDI_FUNGALTM);
 			qt = TEXT_MUSH8;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
-			if (quests[Q_MUSHROOM]._qvar1 < QS_MUSHGIVEN) {
+			if (quests[Q_MUSHROOM]._qvar1 < QV_MUSHROOM_MUSHGIVEN) {
 				if (PlrHasStorageItem(pnum, IDI_MUSHROOM, &i)) {
 					NetSendCmdParam1(CMD_QTOWNER, IDI_MUSHROOM);
 					qt = TEXT_MUSH10;

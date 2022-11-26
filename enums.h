@@ -3985,16 +3985,16 @@ typedef enum quest_state {
 	QUEST_DONE      // quest log closed and finished
 } quest_state;
 
-typedef enum quest_mush_state {
-	QS_INIT,
-	QS_TOMESPAWNED,
-	QS_TOMEGIVEN,
-	QS_MUSHSPAWNED,
-	QS_MUSHPICKED,
-	QS_MUSHGIVEN,
-	QS_BRAINSPAWNED,
-	QS_BRAINGIVEN,
-} quest_mush_state;
+typedef enum quest_var1_state {
+	QV_INIT = 0,
+	QV_MUSHROOM_TOMESPAWNED = 1, // unused
+	QV_MUSHROOM_TOMEGIVEN = 2,
+	QV_MUSHROOM_MUSHSPAWNED = 3, // unused
+	QV_MUSHROOM_MUSHPICKED = 4, // unused
+	QV_MUSHROOM_MUSHGIVEN = 5,
+	QV_MUSHROOM_BRAINSPAWNED = 6,
+	QV_MUSHROOM_BRAINGIVEN = 7,
+} quest_var1_state;
 
 typedef enum talk_id {
 	STORE_NONE,
