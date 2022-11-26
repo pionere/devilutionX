@@ -79,7 +79,7 @@ void InitQuests()
 	qdata = questlist;
 	for (i = 0; i < NUM_QUESTS; i++, qs++, qdata++) {
 		qs->_qactive = QUEST_INIT;
-		qs->_qvar1 = 0;
+		qs->_qvar1 = QV_INIT;
 		qs->_qvar2 = 0;
 		qs->_qlog = FALSE;
 		qs->_qtx = 0;
@@ -199,7 +199,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 	case UMT_LAZARUS: //"Arch-Bishop Lazarus" - multi
 		if (IsMultiGame) {
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
-			quests[Q_BETRAYER]._qvar1 = 7;
+			quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_DEAD;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
 
 			InitTriggers();
@@ -208,7 +208,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			}
 		} else { //"Arch-Bishop Lazarus" - single
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
-			quests[Q_BETRAYER]._qvar1 = 7;
+			quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_DEAD;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
 			InitVPReturnTrigger(false);
 		}
@@ -555,19 +555,19 @@ void ResyncQuests()
 		}
 	} else {
 		if (lvl == SL_VILEBETRAYER) {
-			if (quests[Q_BETRAYER]._qvar1 >= 4)
+			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_CENTRALOPEN)
 				ObjChangeMap(7, 11, 13, 18/*, true*/);
-			if (quests[Q_BETRAYER]._qvar1 >= 6)
+			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_TALK1)
 				ObjChangeMap(7, 20, 11, 22/*, false*/);
-			if (quests[Q_BETRAYER]._qvar1 >= 7)
+			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD)
 				InitVPReturnTrigger(true);
 			//for (i = 0; i < numobjects; i++)
 			//	SyncObjectAnim(objectactive[i]);
 		}
 		if (lvl == questlist[Q_BETRAYER]._qdlvl) {
-			if (quests[Q_BETRAYER]._qvar1 >= 2) {
-				if (quests[Q_BETRAYER]._qvar1 == 2) {
-					quests[Q_BETRAYER]._qvar1 = 3;
+			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_STAFFGIVEN) {
+				if (quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_STAFFGIVEN) {
+					quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_PORTALOPEN;
 					InitVPEntryTrigger(false);
 				} else {
 					InitVPEntryTrigger(true);

@@ -180,18 +180,6 @@ const QuestData questlist[NUM_QUESTS] = {
 	// clang-format on
 };
 
-/**
-Q_BETRAYER qvar1    multi    check        single         check
-             1
-             2                          staff given    staff, portal
-             3	            laz-talk    portal open
-             4                          central open      map
-             5
-             6     laz spoken           laz spoken     helpers, map
-             7     laz dead             laz dead       back-portal
-             8     cain spoken          cain spoken
- */
-
 /** Contains the data related to quest gossip for each towner ID. */
 const int Qtalklist[STORE_TOWNERS][NUM_QUESTS] = {
 	// clang-format off

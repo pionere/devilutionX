@@ -4202,13 +4202,13 @@ void MAI_Lazarus(int mnum)
 	if (IsMultiGame) {
 		if (mon->_mgoal == MGOAL_TALKING) {
 			if (!mon->_mgoalvar1) { // TALK_INQUIRING
-				if (quests[Q_BETRAYER]._qvar1 <= 3) {
+				if (quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_TALK1) {
 					assert(mon->_mgoalvar2 == TEXT_VILE13); // TALK_MESSAGE
 					if (mon->_msquelch != SQUELCH_MAX)
 						return;
 					mon->_mmode = MM_TALK;
 					// mon->_mListener = mypnum;
-					quests[Q_BETRAYER]._qvar1 = 6;
+					quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_TALK1;
 					NetSendCmdQuest(Q_BETRAYER, true);
 				} else {
 					mon->_mgoal = MGOAL_NORMAL;
@@ -4222,7 +4222,7 @@ void MAI_Lazarus(int mnum)
 			if (!mon->_mgoalvar1) { // TALK_INQUIRING
 				if (mon->_msquelch != SQUELCH_MAX)
 					return;
-				// assert(quests[Q_BETRAYER]._qvar1 < 5);
+				// assert(quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_TALK1);
 				// assert(myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y);
 				PlayInGameMovie("gendata\\fprst3.smk");
 				mon->_mmode = MM_TALK;
@@ -4234,7 +4234,7 @@ void MAI_Lazarus(int mnum)
 				//RedoLightAndVision();
 				// mon->_msquelch = SQUELCH_MAX;
 				mon->_mgoal = MGOAL_NORMAL;
-				quests[Q_BETRAYER]._qvar1 = 6;
+				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_TALK1;
 			}
 		}
 	}
@@ -4256,7 +4256,7 @@ void MAI_Lazhelp(int mnum)
 	mon->_mdir = MonEnemyLastDir(mnum);
 
 	if (mon->_mgoal == MGOAL_TALKING) {
-		if (!IsMultiGame && quests[Q_BETRAYER]._qvar1 <= 5)
+		if (!IsMultiGame && quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_TALK1)
 			return;
 		mon->_mgoal = MGOAL_NORMAL;
 	}

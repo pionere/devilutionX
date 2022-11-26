@@ -575,9 +575,9 @@ void SyncTownerQ(int pnum, int idx)
 			SpawnQuestItemAt(IDI_SPECELIX, TPOS_HEALER + 1, ICM_SEND_FLIP);
 		break;
 	case IDI_LAZSTAFF:
-		if (quests[Q_BETRAYER]._qvar1 >= 2 /*|| quests[Q_BETRAYER]._qactive != QUEST_ACTIVE*/)
+		if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_STAFFGIVEN /*|| quests[Q_BETRAYER]._qactive != QUEST_ACTIVE*/)
 			return;
-		quests[Q_BETRAYER]._qvar1 = 2;
+		quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_STAFFGIVEN;
 		quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 		quests[Q_BETRAYER]._qlog = TRUE;
 		break;
@@ -724,8 +724,8 @@ void TalkToTowner(int tnum)
 			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_LAZSTAFF, &i)) {
 				NetSendCmdParam1(CMD_QTOWNER, IDI_LAZSTAFF);
 				qt = TEXT_VILE1;
-			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
-				quests[Q_BETRAYER]._qvar1 = 8;
+			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_DEAD) {
+				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_CAIN;
 				quests[Q_DIABLO]._qlog = TRUE;
 				qt = TEXT_VILE3;
 			}
@@ -734,8 +734,8 @@ void TalkToTowner(int tnum)
 				quests[Q_BETRAYER]._qlog = TRUE;
 				qn = Q_BETRAYER;
 				qt = TEXT_VILE1;
-			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
-				quests[Q_BETRAYER]._qvar1 = 8;
+			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_DEAD) {
+				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_CAIN;
 				qn = Q_BETRAYER;
 				qt = TEXT_VILE3;
 				quests[Q_DIABLO]._qlog = TRUE;

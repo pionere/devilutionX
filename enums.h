@@ -4000,6 +4000,12 @@ typedef enum quest_var1_state {
 	QV_MUSHROOM_MUSHGIVEN = 5,
 	QV_MUSHROOM_BRAINSPAWNED = 6,
 	QV_MUSHROOM_BRAINGIVEN = 7,
+	QV_BETRAYER_STAFFGIVEN = 2,
+	QV_BETRAYER_PORTALOPEN = 3, // portal to the setlevel is opened
+	QV_BETRAYER_CENTRALOPEN = 4,
+	QV_BETRAYER_TALK1 = 6, // Lazarus talked
+	QV_BETRAYER_DEAD = 7, // Lazarus dead
+	QV_BETRAYER_CAIN = 8, // Cain talked
 } quest_var1_state;
 
 typedef enum quest_nakrul_book {
