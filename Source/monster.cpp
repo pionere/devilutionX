@@ -4116,15 +4116,15 @@ void MAI_Zhar(int mnum)
 	mon->_mdir = MonEnemyLastDir(mnum);
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (mon->_mgoalvar1) { // TALK_SPEAKING
-			if (quests[Q_ZHAR]._qvar1 == 1) {
+			if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_TALK1) {
 				mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 			}
-			//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!IsSFXPlaying(USFX_ZHAR2)*/) { // MON_TIMER - also set in objects.cpp
-			if (quests[Q_ZHAR]._qvar1 == 2 && (IsMultiGame || !IsSFXPlaying(USFX_ZHAR2))) {
+			//if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && mon->_mVar8++ >= gnTicksRate * 4/*!IsSFXPlaying(USFX_ZHAR2)*/) { // MON_TIMER - also set in objects.cpp
+			if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && (IsMultiGame || !IsSFXPlaying(USFX_ZHAR2))) {
 				// mon->_msquelch = SQUELCH_MAX;
 				mon->_mgoal = MGOAL_NORMAL;
 			}
-		} else if (quests[Q_ZHAR]._qvar1 == 2) {
+		} else if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK) {
 			// TODO: does not work when a player enters the level and the timer is running
 			mon->_mgoal = MGOAL_NORMAL;
 		}
@@ -5158,7 +5158,7 @@ void TalktoMonster(int mnum, int pnum)
 	} else if (mon->_mAI.aiType == AI_ZHAR) {
 		if (quests[Q_ZHAR]._qactive == QUEST_INIT) {
 			quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
-			quests[Q_ZHAR]._qvar1 = 1;
+			quests[Q_ZHAR]._qvar1 = QV_ZHAR_TALK1;
 			quests[Q_ZHAR]._qlog = TRUE;
 			if (pnum == mypnum)
 				NetSendCmdQuest(Q_ZHAR, true);
@@ -5169,10 +5169,10 @@ void TalktoMonster(int mnum, int pnum)
 				iv = SPL_LIGHTNING;
 			SetRndSeed(mon->_mRndSeed);
 			SpawnSpellBook(iv, plr._px, plr._py, pnum == mypnum);
-		} else if (quests[Q_ZHAR]._qvar1 == 1) {
+		} else if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_TALK1) {
 			mon->_mgoalvar2 = TEXT_ZHAR2; // TALK_MESSAGE
 			//mon->_mVar8 = 0; // init MON_TIMER
-			quests[Q_ZHAR]._qvar1 = 2;
+			quests[Q_ZHAR]._qvar1 = QV_ZHAR_ATTACK;
 			if (pnum == mypnum)
 				NetSendCmdQuest(Q_ZHAR, true);
 		}

@@ -3987,6 +3987,8 @@ typedef enum quest_state {
 
 typedef enum quest_var1_state {
 	QV_INIT = 0,
+	QV_ZHAR_TALK1 = 1,   // talked once
+	QV_ZHAR_ATTACK = 2,  // (talked twice and) is now attacking
 	QV_MUSHROOM_TOMESPAWNED = 1, // unused
 	QV_MUSHROOM_TOMEGIVEN = 2,
 	QV_MUSHROOM_MUSHSPAWNED = 3, // unused
