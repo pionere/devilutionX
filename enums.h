@@ -4008,6 +4008,7 @@ typedef enum quest_var1_state {
 	QV_BETRAYER_TALK1 = 6, // Lazarus talked
 	QV_BETRAYER_DEAD = 7, // Lazarus dead
 	QV_BETRAYER_CAIN = 8, // Cain talked
+	QV_JERSEY_BOMBGIVEN = 1,
 } quest_var1_state;
 
 typedef enum quest_nakrul_book {

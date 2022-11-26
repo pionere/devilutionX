@@ -868,7 +868,7 @@ void TalkToTowner(int tnum)
 		case QUEST_INIT:
 			if (PlrHasStorageItem(pnum, IDI_RUNEBOMB, &i)) {
 				quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
-				quests[Q_JERSEY]._qvar1 = 1;
+				quests[Q_JERSEY]._qvar1 = QV_JERSEY_BOMBGIVEN;
 				// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
 				quests[Q_JERSEY]._qlog = TRUE;
 				qn = Q_JERSEY;
@@ -895,7 +895,7 @@ void TalkToTowner(int tnum)
 				qt = TEXT_JERSEY8;
 				break;
 			}
-			if (quests[Q_JERSEY]._qvar1 != 0) {
+			if (quests[Q_JERSEY]._qvar1 != QV_INIT) {
 				qt = TEXT_JERSEY5;
 			} else if (!IsLvlVisited(DLV_CAVES1) && plr._pLevel < 15) {
 				switch (random_(0, 4)) {
@@ -913,7 +913,7 @@ void TalkToTowner(int tnum)
 					break;
 				}
 			} else {
-				quests[Q_JERSEY]._qvar1 = 1;
+				quests[Q_JERSEY]._qvar1 = QV_JERSEY_BOMBGIVEN;
 				// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
 				quests[Q_JERSEY]._qlog = TRUE;
 				qn = Q_JERSEY;
