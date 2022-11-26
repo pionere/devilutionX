@@ -4083,16 +4083,16 @@ void MAI_Garbud(int mnum)
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (mon->_mgoalvar1) { // TALK_SPEAKING
 			if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER
-				//if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
-				if (quests[Q_GARBUD]._qvar1 == 4 && (IsMultiGame || !IsSFXPlaying(USFX_GARBUD4))) {
+				//if (quests[Q_GARBUD]._qvar1 == QV_GARBUD_ATTACK && mon->_mVar8++ >= gnTicksRate * 6) {
+				if (quests[Q_GARBUD]._qvar1 == QV_GARBUD_ATTACK && (IsMultiGame || !IsSFXPlaying(USFX_GARBUD4))) {
 					mon->_mgoal = MGOAL_NORMAL;
 					// mon->_msquelch = SQUELCH_MAX;
 				}
 			} else {
-				if (quests[Q_GARBUD]._qvar1 < 4)
+				if (quests[Q_GARBUD]._qvar1 < QV_GARBUD_ATTACK)
 					mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 			}
-		} else if (quests[Q_GARBUD]._qvar1 == 4) {
+		} else if (quests[Q_GARBUD]._qvar1 == QV_GARBUD_ATTACK) {
 			// TODO: does not work when a player enters the level and the timer is running
 			mon->_mgoal = MGOAL_NORMAL;
 		}
@@ -5138,9 +5138,9 @@ void TalktoMonster(int mnum, int pnum)
 			SpawnMonItem(mnum, plr._px, plr._py, pnum == mypnum);
 		} //else if (mon->_mgoalvar2 == TEXT_GARBUD4) // TALK_MESSAGE
 		//	mon->_mVar8 = 0; // init MON_TIMER
-		quests[Q_GARBUD]._qvar1++;
-		if (quests[Q_GARBUD]._qvar1 > 4)
-			quests[Q_GARBUD]._qvar1 = 4;
+		quests[Q_GARBUD]._qvar1++; // (QV_GARBUD_TALK1, QV_GARBUD_TALK2, QV_GARBUD_TALK3, QV_GARBUD_ATTACK)
+		if (quests[Q_GARBUD]._qvar1 > QV_GARBUD_ATTACK)
+			quests[Q_GARBUD]._qvar1 = QV_GARBUD_ATTACK;
 		if (pnum == mypnum)
 			NetSendCmdQuest(Q_GARBUD, true);
 	} else if (mon->_mAI.aiType == AI_LACHDAN) {
