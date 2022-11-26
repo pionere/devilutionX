@@ -731,10 +731,14 @@ static void AddDiabObjs()
 }
 
 #ifdef HELLFIRE
-static void SetupHBook(int oi, int bookidx)
+static void AddHBooks(int bookidx, int ox, int oy)
 {
 	ObjectStruct* os;
-	int bookframe = 1;
+	constexpr int bookframe = 1;
+	int oi = AddObject(OBJ_L5BOOK, ox, oy);
+
+	if (oi == -1)
+		return;
 
 	os = &objects[oi];
 	// os->_oVar1 = bookframe;
@@ -749,14 +753,6 @@ static void SetupHBook(int oi, int bookidx)
 		os->_oVar3 = bookidx + 9;           // STORY_BOOK_NAME
 		os->_oVar8 = 0;                     // STORY_BOOK_NAKRUL_IDX
 	}
-}
-
-static void AddHBooks(int bookidx, int ox, int oy)
-{
-	int oi = AddObject(OBJ_L5BOOK, ox, oy);
-
-	if (oi != -1)
-		SetupHBook(oi, bookidx);
 }
 
 static void AddLvl2xBooks(int bookidx)
