@@ -3398,8 +3398,8 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 
 	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
-#ifdef HELLFIRE
-		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == 8 && quests[Q_NAKRUL]._qvar1 >= 4) {
+#ifdef HELLFIRE // STORY_BOOK_NAKRUL_IDX
+		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == NKR_C && quests[Q_NAKRUL]._qvar1 >= 4) {
 			if (quests[Q_NAKRUL]._qvar1 == 4)
 				WakeUberDiablo();
 			OpenUberRoom();
