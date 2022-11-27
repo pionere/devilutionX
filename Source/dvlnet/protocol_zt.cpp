@@ -52,7 +52,7 @@ bool protocol_zt::network_online()
 
 	struct sockaddr_in6 in6 {
 	};
-	in6.sin6_port = htons(default_port);
+	in6.sin6_port = htons(DEFAULT_PORT);
 	in6.sin6_family = AF_INET6;
 	in6.sin6_addr = in6addr_any;
 
@@ -95,7 +95,7 @@ bool protocol_zt::send_oob(const endpoint& peer, const buffer_t& data) const
 {
 	struct sockaddr_in6 in6 {
 	};
-	in6.sin6_port = htons(default_port);
+	in6.sin6_port = htons(DEFAULT_PORT);
 	in6.sin6_family = AF_INET6;
 	std::copy(peer.addr.begin(), peer.addr.end(), in6.sin6_addr.s6_addr);
 	lwip_sendto(fd_udp, data.data(), data.size(), 0, (const struct sockaddr*)&in6, sizeof(in6));
@@ -117,14 +117,14 @@ bool protocol_zt::send_queued_peer(const endpoint& peer)
 		set_nonblock(peer_list[peer].fd);
 		struct sockaddr_in6 in6 {
 		};
-		in6.sin6_port = htons(default_port);
+		in6.sin6_port = htons(DEFAULT_PORT);
 		in6.sin6_family = AF_INET6;
 		std::copy(peer.addr.begin(), peer.addr.end(), in6.sin6_addr.s6_addr);
 		lwip_connect(peer_list[peer].fd, (const struct sockaddr*)&in6, sizeof(in6));
 	}
 	while (!peer_list[peer].send_queue.empty()) {
-		auto frame = peer_list[peer].send_queue.front();
-		auto len = frame->size();
+		buffer_t* frame = peer_list[peer].send_queue.front();
+		size_t len = frame->size();
 		auto r = lwip_send(peer_list[peer].fd, frame->data(), len, 0);
 		if (r < 0) {
 			// handle error

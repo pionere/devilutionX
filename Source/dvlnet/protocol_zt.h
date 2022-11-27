@@ -77,7 +77,7 @@ public:
 
 private:
 	static constexpr uint32_t PKTBUF_LEN = 65536;
-	static constexpr uint16_t default_port = 6112;
+	static constexpr uint16_t DEFAULT_PORT = 6112;
 
 	struct peer_state {
 		int fd = -1;
