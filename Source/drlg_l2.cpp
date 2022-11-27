@@ -1771,7 +1771,7 @@ static void DRLG_LoadL2SP()
 		pSetPiece[(2 + 6 + 7 * 11) * 2] = 150;
 	} else if (QuestStatus(Q_BLOOD)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
-	} else if (QuestStatus(Q_SCHAMB)) {
+	} else if (QuestStatus(Q_BCHAMB)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
 		// patch the map - Bonestr2.DUN
 		// place shadows

@@ -3955,7 +3955,7 @@ typedef enum quest_id {
 	Q_GARBUD,
 	Q_ROCK,
 	Q_BLOOD,
-	Q_SCHAMB,
+	Q_BCHAMB,
 	Q_BLIND,
 	Q_ZHAR,
 	Q_MUSHROOM,

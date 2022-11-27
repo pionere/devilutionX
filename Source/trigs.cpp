@@ -155,7 +155,7 @@ static void InitL2Triggers()
 	numtrigs = 0;
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
-			if (dPiece[i][j] == 267 && (quests[Q_SCHAMB]._qactive == QUEST_NOTAVAIL || abs(quests[Q_SCHAMB]._qtx - i) > 1 || abs(quests[Q_SCHAMB]._qty - j) > 1)) {
+			if (dPiece[i][j] == 267 && (quests[Q_BCHAMB]._qactive == QUEST_NOTAVAIL || abs(quests[Q_BCHAMB]._qtx - i) > 1 || abs(quests[Q_BCHAMB]._qty - j) > 1)) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
@@ -435,7 +435,7 @@ static int ForceL2Trig()
 {
 	int i;
 
-	if (L2_UP_WARP && (quests[Q_SCHAMB]._qactive == QUEST_NOTAVAIL || abs(quests[Q_SCHAMB]._qtx - cursmx) > 1 || abs(quests[Q_SCHAMB]._qty - cursmy) > 1)) {
+	if (L2_UP_WARP && (quests[Q_BCHAMB]._qactive == QUEST_NOTAVAIL || abs(quests[Q_BCHAMB]._qtx - cursmx) > 1 || abs(quests[Q_BCHAMB]._qty - cursmy) > 1)) {
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
 				// Up to level (currLvl._dLevelIdx - 1)
@@ -657,7 +657,7 @@ static int ForceSKingTrig()
 static int ForceSChambTrig()
 {
 	if (L2_DOWN_WARP) {
-		// Back to Level (questlist[Q_SCHAMB]._qdlvl)
+		// Back to Level (questlist[Q_BCHAMB]._qdlvl)
 		return 0;
 	}
 

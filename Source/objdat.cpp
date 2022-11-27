@@ -24,12 +24,12 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	OBJ_BOOK2L, // Q_SCHAMB, Q_BETRAYER
+	OBJ_BOOK2L, // Q_BCHAMB, Q_BETRAYER
 	0, //OBJ_BOOK2R,
-	OBJ_TBCROSS, // Q_SCHAMB
+	OBJ_TBCROSS, // Q_BCHAMB
 	0,
 	0, //OBJ_CANDLE1,
-	OBJ_CANDLE2, // Q_SCHAMB
+	OBJ_CANDLE2, // Q_BCHAMB
 	0, //OBJ_CANDLEO,
 	0, //OBJ_CAULDRON,
 	0,
@@ -61,7 +61,7 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	OBJ_SWITCHSKL, // Q_SCHAMB, Q_DIABLO
+	OBJ_SWITCHSKL, // Q_BCHAMB, Q_DIABLO
 	0,
 	0, //OBJ_TRAPL,
 	0, //OBJ_TRAPR,
@@ -94,7 +94,7 @@ const BYTE ObjConvTbl[128] = {
 	OBJ_CHEST2, // Q_SKELKING
 	0, //OBJ_CHEST2,
 	0, //OBJ_CHEST3,
-	OBJ_CHEST3, // Q_SCHAMB
+	OBJ_CHEST3, // Q_BCHAMB
 	0, //OBJ_CHEST3,
 	0,
 	0,
@@ -218,7 +218,7 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_TCHEST2*/     { OFILE_CHEST2,   DTM_ANY,                                   0,               THEME_NONE,              Q_INVALID,              1,  ODT_NONE,        1, FALSE     , ALIGN },
 /*OBJ_TCHEST3*/     { OFILE_CHEST3,   DTM_ANY,                                   0,               THEME_NONE,              Q_INVALID,              1,  ODT_NONE,        1, FALSE     , ALIGN },
 /*OBJ_BOOK2L*/      { OFILE_BOOK2,    0,                                         0,               THEME_NONE,              Q_INVALID,              1,  ODT_NONE,        3, FALSE     , ALIGN },
-/*OBJ_BOOK2R*/      { OFILE_BOOK2,    0,                                         0,               THEME_NONE,              Q_SCHAMB,               4,  ODT_NONE,        3, FALSE     , ALIGN },
+/*OBJ_BOOK2R*/      { OFILE_BOOK2,    0,                                         0,               THEME_NONE,              Q_BCHAMB,               4,  ODT_NONE,        3, FALSE     , ALIGN },
 /*OBJ_BOOKSTAND*/   { OFILE_BOOK2,    0,                                         0,               THEME_LIBRARY,           Q_INVALID,              1,  ODT_NONE,        3, FALSE     , ALIGN },
 /*OBJ_SKELBOOK*/    { OFILE_BOOK2,    0,                                         0,               THEME_SKELROOM,          Q_INVALID,              4,  ODT_NONE,        3, FALSE     , ALIGN },
 /*OBJ_BOOKLVR*/ //  { OFILE_BOOK1,    0,                                         0,               THEME_NONE,              Q_INVALID,              1,  ODT_NONE,        3, FALSE     , ALIGN },

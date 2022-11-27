@@ -935,8 +935,8 @@ void InitObjects()
 			AddStoryBook();
 		if (QuestStatus(Q_ROCK))
 			InitRndLocObj5x5(OBJ_STAND);
-		if (QuestStatus(Q_SCHAMB)) {
-			AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_SCHAMB);
+		if (QuestStatus(Q_BCHAMB)) {
+			AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BCHAMB);
 		}
 		if (QuestStatus(Q_BLIND)) {
 			AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
@@ -2359,9 +2359,9 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 			InitDiabloMsg(EMSG_BONECHAMB);
 		// SetRndSeed(os->_oRndSeed);
 		AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
-		quests[Q_SCHAMB]._qactive = QUEST_DONE;
+		quests[Q_BCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {
-			NetSendCmdQuest(Q_SCHAMB, true); // recipient should not matter
+			NetSendCmdQuest(Q_BCHAMB, true); // recipient should not matter
 			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 		}
 	} //else if (currLvl._dLevelIdx == SL_VILEBETRAYER) { NULL_LVR_EFFECT

@@ -314,8 +314,8 @@ static void DrawWarLord()
 
 static void DrawSChamber()
 {
-	quests[Q_SCHAMB]._qtx = 2 * setpc_x + DBORDERX + 6;
-	quests[Q_SCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
+	quests[Q_BCHAMB]._qtx = 2 * setpc_x + DBORDERX + 6;
+	quests[Q_BCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
 
 	DrawMap("Levels\\L2Data\\Bonestr1.DUN", 3);
 	// patch the map - Bonestr1.DUN
@@ -417,7 +417,7 @@ void DRLG_CheckQuests()
 			case Q_SKELKING:
 				DrawSkelKing();
 				break;
-			case Q_SCHAMB:
+			case Q_BCHAMB:
 				DrawSChamber();
 				break;
 #ifdef HELLFIRE
@@ -439,9 +439,9 @@ void SetReturnLvlPos()
 		gnReturnLvl = questlist[Q_SKELKING]._qdlvl;
 		break;
 	case SL_BONECHAMB:
-		gnReturnLvlX = quests[Q_SCHAMB]._qtx + 1;
-		gnReturnLvlY = quests[Q_SCHAMB]._qty;
-		gnReturnLvl = questlist[Q_SCHAMB]._qdlvl;
+		gnReturnLvlX = quests[Q_BCHAMB]._qtx + 1;
+		gnReturnLvlY = quests[Q_BCHAMB]._qty;
+		gnReturnLvl = questlist[Q_BCHAMB]._qdlvl;
 		break;
 	case SL_POISONWATER:
 		gnReturnLvlX = quests[Q_PWATER]._qtx;

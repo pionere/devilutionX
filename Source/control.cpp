@@ -1586,7 +1586,7 @@ static void DrawTrigInfo()
 				qn = Q_SKELKING;
 				break;
 			case SL_BONECHAMB:
-				qn = Q_SCHAMB;
+				qn = Q_BCHAMB;
 				break;
 			case SL_POISONWATER:
 				qn = Q_PWATER;
