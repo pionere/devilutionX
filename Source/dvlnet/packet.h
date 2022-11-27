@@ -341,17 +341,5 @@ std::unique_ptr<packet> packet_factory::make_out_packet(Args... args)
 	return ret;
 }
 
-template <class T>
-const BYTE* packet_factory::begin(const T& x)
-{
-	return reinterpret_cast<const BYTE*>(&x);
-}
-
-template <class T>
-const BYTE* packet_factory::end(const T& x)
-{
-	return reinterpret_cast<const BYTE*>(&x) + sizeof(T);
-}
-
 } // namespace net
 DEVILUTION_END_NAMESPACE
