@@ -3987,44 +3987,59 @@ typedef enum quest_state {
 
 typedef enum quest_var1_state {
 	QV_INIT = 0,
-	QV_PWATER_TALK1 = 1,
+
+	QV_PWATER_TALK1 = 1, // unused
 	QV_PWATER_CLEAN = 2,
+
 	QV_BANNER_TALK1 = 1,  // talked to snotspil
 	QV_BANNER_GIVEN = 2,  // banner given to ogden
 	QV_BANNER_TALK2 = 3,  // banner received or talked after the banner was given to ogden -> release teammates
 	QV_BANNER_ATTACK = 4, // group is ready to attack
-	QV_GARBUD_TALK1 = 1, // talked once
-	QV_GARBUD_TALK2 = 2, // talked twice
-	QV_GARBUD_TALK3 = 3, // talked three times
+
+	QV_GARBUD_TALK1 = 1,  // talked once
+	QV_GARBUD_TALK2 = 2,  // talked twice
+	QV_GARBUD_TALK3 = 3,  // talked three times
 	QV_GARBUD_ATTACK = 4, // talked four times and is now attacking
+
 	QV_BLOOD_BOOK = 1,   // book read
 	QV_BLOOD_STONE1 = 2, // first stone placed
 	QV_BLOOD_STONE2 = 3, // second stone placed
 	QV_BLOOD_STONE3 = 4, // third stone placed
+
 	QV_BCHAMB_BOOK = 1,
+
 	QV_BLIND_BOOK = 1,
-	QV_ZHAR_TALK1 = 1,   // talked once
-	QV_ZHAR_ATTACK = 2,  // (talked twice and) is now attacking
+
+	QV_ZHAR_TALK1 = 1,
+	QV_ZHAR_ATTACK = 2,
+
 	QV_MUSHROOM_TOMESPAWNED = 1, // unused
 	QV_MUSHROOM_TOMEGIVEN = 2,
 	QV_MUSHROOM_MUSHSPAWNED = 3, // unused
-	QV_MUSHROOM_MUSHPICKED = 4, // unused
+	QV_MUSHROOM_MUSHPICKED = 4,  // unused
 	QV_MUSHROOM_MUSHGIVEN = 5,
 	QV_MUSHROOM_BRAINSPAWNED = 6,
 	QV_MUSHROOM_BRAINGIVEN = 7,
+
 	QV_WARLORD_BOOK = 1,
 	QV_WARLORD_TALK = 2,
-	QV_WARLORD_ATTACK = 3, 
+	QV_WARLORD_ATTACK = 3,
+
 	QV_BETRAYER_STAFFGIVEN = 2,
-	QV_BETRAYER_PORTALOPEN = 3, // portal to the setlevel is opened
-	QV_BETRAYER_CENTRALOPEN = 4,
-	QV_BETRAYER_TALK1 = 6, // Lazarus talked
-	QV_BETRAYER_DEAD = 7, // Lazarus dead
-	QV_BETRAYER_CAIN = 8, // Cain talked
+	QV_BETRAYER_PORTALOPEN = 3,  // portal to the setlevel is opened
+	QV_BETRAYER_CENTRALOPEN = 4, // central block on the setlevel is open
+	QV_BETRAYER_TALK1 = 6,       // Lazarus talked
+	QV_BETRAYER_DEAD = 7,        // Lazarus dead
+	QV_BETRAYER_CAIN = 8,        // Cain talked
+	// hellfire-only
 	QV_JERSEY_BOMBGIVEN = 1,
+
 	QV_FARMER_BOMBGIVEN = 1,
 	QV_FARMER_BOMBUSED = 2, // with pnum added to identify the player who opened the entrance
+
 	QV_GIRL_TALK1 = 1,
+
+	//QV_DIABLO 0-2: -- bookframe index for the story books
 } quest_var1_state;
 
 typedef enum quest_nakrul_book {
