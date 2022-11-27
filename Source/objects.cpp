@@ -2691,6 +2691,8 @@ bool SyncBloodPass(int pnum, int oi)
 {
 	int iv;
 
+	if (quests[Q_BLOOD]._qvar1 < 1 || quests[Q_BLOOD]._qvar1 >= 4)
+		return false; // prevent interaction with the pedistal before reading the book or after the 3. stone is placed
 	if (!PlrHasStorageItem(pnum, IDI_BLDSTONE, &iv))
 		return false;
 	SyncPlrStorageRemove(pnum, iv);
