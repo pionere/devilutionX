@@ -3997,6 +3997,12 @@ typedef enum quest_var1_state {
 	QV_GARBUD_TALK2 = 2, // talked twice
 	QV_GARBUD_TALK3 = 3, // talked three times
 	QV_GARBUD_ATTACK = 4, // talked four times and is now attacking
+	QV_BLOOD_BOOK = 1,   // book read
+	QV_BLOOD_STONE1 = 2, // first stone placed
+	QV_BLOOD_STONE2 = 3, // second stone placed
+	QV_BLOOD_STONE3 = 4, // third stone placed
+	QV_BCHAMB_BOOK = 1,
+	QV_BLIND_BOOK = 1,
 	QV_ZHAR_TALK1 = 1,   // talked once
 	QV_ZHAR_ATTACK = 2,  // (talked twice and) is now attacking
 	QV_MUSHROOM_TOMESPAWNED = 1, // unused
@@ -4006,6 +4012,9 @@ typedef enum quest_var1_state {
 	QV_MUSHROOM_MUSHGIVEN = 5,
 	QV_MUSHROOM_BRAINSPAWNED = 6,
 	QV_MUSHROOM_BRAINGIVEN = 7,
+	QV_WARLORD_BOOK = 1,
+	QV_WARLORD_TALK = 2,
+	QV_WARLORD_ATTACK = 3, 
 	QV_BETRAYER_STAFFGIVEN = 2,
 	QV_BETRAYER_PORTALOPEN = 3, // portal to the setlevel is opened
 	QV_BETRAYER_CENTRALOPEN = 4,

@@ -4308,11 +4308,11 @@ void MAI_Warlord(int mnum)
 	mon->_mdir = MonEnemyLastDir(mnum);
 
 	switch (quests[Q_WARLORD]._qvar1) {
-	case 0: // quest not started
-	case 1: // book read
+	case QV_INIT: // quest not started
+	case QV_WARLORD_BOOK:
 		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
 			return;
-		quests[Q_WARLORD]._qvar1 = IsMultiGame ? 3 : 2;
+		quests[Q_WARLORD]._qvar1 = IsMultiGame ? QV_WARLORD_ATTACK : QV_WARLORD_TALK;
 		if (mon->_menemy == mypnum || !plx(mon->_menemy)._pActive || plx(mon->_menemy)._pDunLevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
@@ -4320,18 +4320,18 @@ void MAI_Warlord(int mnum)
 		//mon->_mListener = mon->_menemy;
 		//mon->_mVar8 = 0; // MON_TIMER
 		return;
-	case 2: // warlord spotted
+	case QV_WARLORD_TALK:
 		//if (mon->_mVar8++ < gnTicksRate * 8) // MON_TIMER
 		//	return; // wait till the sfx is running, but don't rely on IsSFXPlaying
 		// assert(!IsMultiGame);
 		if (/*!IsMultiGame && */IsSFXPlaying(alltext[TEXT_WARLRD9].sfxnr))
 			return;
-		quests[Q_WARLORD]._qvar1 = 3;
+		quests[Q_WARLORD]._qvar1 = QV_WARLORD_ATTACK;
 		//if (mon->_mListener == mypnum || !plx(mon->_mListener)._pActive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {
 		//	NetSendCmdQuest(Q_WARLORD, true);
 		//}
 		// mon->_msquelch = SQUELCH_MAX;
-	case 3:
+	case QV_WARLORD_ATTACK:
 		if (mon->_mgoal == MGOAL_TALKING) {
 			// TODO: does not work when a player enters the level and the timer is running
 			mon->_mgoal = MGOAL_NORMAL;

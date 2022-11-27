@@ -2398,8 +2398,10 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 		return;
 	if (pnum == mypnum)
 		StartQTextMsg(questlist[qn]._qdmsg);
-	if (quests[qn]._qvar1 == 0) {
-		quests[qn]._qvar1 = 1;
+	if (quests[qn]._qvar1 == QV_INIT) {
+		// assert(qn == [Q_BLOOD, Q_BCHAMB, Q_BLIND, Q_WARLORD]);
+		static_assert(QV_BLOOD_BOOK == QV_BCHAMB_BOOK && QV_BLOOD_BOOK == QV_BLIND_BOOK && QV_BLOOD_BOOK == QV_WARLORD_BOOK, "OperateBookLever sets qvar1 of multiple quests in one statement.");
+		quests[qn]._qvar1 = QV_BLOOD_BOOK;
 		quests[qn]._qactive = QUEST_ACTIVE;
 		quests[qn]._qlog = TRUE;
 		if (qn == Q_BLOOD) {
@@ -2614,16 +2616,16 @@ static void OperateSarc(int oi, bool sendmsg)
 static void SyncPedistal(/*int oi*/)
 {
 	switch (quests[Q_BLOOD]._qvar1) {
-	case 0:
-	case 1:
+	case QV_INIT:
+	case QV_BLOOD_BOOK:
 		break;
-	case 3:
+	case QV_BLOOD_STONE2:
 		ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + 9/*setpc_w*/, setpc_y + 7/*, false*/);
 		/* fall-through */
-	case 2:
+	case QV_BLOOD_STONE1:
 		ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7/*, false*/);
 		break;
-	case 4:
+	case QV_BLOOD_STONE3:
 		//ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
 		ObjChangeMap(setpc_x /*+ 2*/, setpc_y, setpc_x + 9/*6*/, setpc_y + 8/*, false*/);
 		LoadPreLighting();
@@ -2660,43 +2662,43 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	}
 
 	os->_oAnimFrame = quests[Q_BLOOD]._qvar1;
-	if (quests[Q_BLOOD]._qvar1 == 4)
+	if (quests[Q_BLOOD]._qvar1 == QV_BLOOD_STONE3)
 		os->_oSelFlag = 0;
 	SyncPedistal();
 
 	if (deltaload)
 		return;
 	iv = sendmsg ? ICM_SEND : ICM_DUMMY;
-	SetRndSeed(os->_oRndSeed - (quests[Q_BLOOD]._qvar1 - 2)); // used for IDI_BLDSTONE
+	SetRndSeed(os->_oRndSeed - (quests[Q_BLOOD]._qvar1 - QV_BLOOD_STONE1)); // used for IDI_BLDSTONE
 	switch (quests[Q_BLOOD]._qvar1) {
-	case 1:
+	case QV_BLOOD_BOOK:
 		break; // should not really happen
-	case 2:
+	case QV_BLOOD_STONE1:
 		CreateQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, iv);
 		break;
-	case 3:
+	case QV_BLOOD_STONE2:
 		CreateQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, iv);
 		break;
-	case 4:
+	case QV_BLOOD_STONE3:
 		SpawnUnique(UITEM_ARMOFVAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 3, iv);
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	PlaySfxLoc(quests[Q_BLOOD]._qvar1 == 4 ? LS_BLODSTAR : LS_PUDDLE, os->_ox, os->_oy);
+	PlaySfxLoc(quests[Q_BLOOD]._qvar1 == QV_BLOOD_STONE3 ? LS_BLODSTAR : LS_PUDDLE, os->_ox, os->_oy);
 }
 
 bool SyncBloodPass(int pnum, int oi)
 {
 	int iv;
 
-	if (quests[Q_BLOOD]._qvar1 < 1 || quests[Q_BLOOD]._qvar1 >= 4)
+	if (quests[Q_BLOOD]._qvar1 < QV_BLOOD_BOOK || quests[Q_BLOOD]._qvar1 >= QV_BLOOD_STONE3)
 		return false; // prevent interaction with the pedistal before reading the book or after the 3. stone is placed
 	if (!PlrHasStorageItem(pnum, IDI_BLDSTONE, &iv))
 		return false;
 	SyncPlrStorageRemove(pnum, iv);
-	quests[Q_BLOOD]._qvar1++;
+	quests[Q_BLOOD]._qvar1++; // QV_BLOOD_STONE1, QV_BLOOD_STONE2, QV_BLOOD_STONE3
 	if (plr._pDunLevel == currLvl._dLevelIdx)
 		OperatePedistal(-1, oi, pnum == mypnum);
 	return true;
