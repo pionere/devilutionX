@@ -530,10 +530,10 @@ void SyncTownerQ(int pnum, int idx)
 
 	switch (idx) {
 	case IDI_BANNER:
-		if (quests[Q_BANNER]._qvar1 >= 2)
+		if (quests[Q_BANNER]._qvar1 >= QV_BANNER_GIVEN)
 			return;
 		quests[Q_BANNER]._qlog = FALSE;
-		quests[Q_BANNER]._qvar1 = 2;
+		quests[Q_BANNER]._qvar1 = QV_BANNER_GIVEN;
 		if (pnum == mypnum)
 			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, ICM_SEND_FLIP);
 		break;

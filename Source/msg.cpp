@@ -4318,7 +4318,7 @@ static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 	net_assert(quests[Q_BANNER]._qactive != QUEST_NOTAVAIL);
 
 	quests[Q_BANNER]._qactive = QUEST_DONE;
-	quests[Q_BANNER]._qvar1 = 4;
+	quests[Q_BANNER]._qvar1 = QV_BANNER_ATTACK;
 
 	//if (QuestStatus(Q_BANNER))
 	if (currLvl._dLevelIdx == questlist[Q_BANNER]._qdlvl) {

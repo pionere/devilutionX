@@ -4148,9 +4148,9 @@ void MAI_SnotSpil(int mnum)
 	mon->_mdir = MonEnemyLastDir(mnum);
 
 	switch (quests[Q_BANNER]._qvar1) {
-	case 0: // quest not started -> skip
+	case QV_INIT: // quest not started -> skip
 		return;
-	case 1: // quest just started -> waiting for the banner
+	case QV_BANNER_TALK1:
 		// switch to new text if the player(s) left
 		// assert(mon->_mgoal == MGOAL_TALKING);
 		if (mon->_mgoalvar2 == TEXT_BANNER10 && !(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
@@ -4158,12 +4158,12 @@ void MAI_SnotSpil(int mnum)
 		// if (mon->_mgoalvar1)
 			mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 		return;
-	case 2: // banner given to ogden -> wait to lure the player
+	case QV_BANNER_GIVEN:
 		// assert(mon->_mgoal == MGOAL_TALKING);
 		// if (mon->_mgoalvar1)
 			mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 		return;
-	case 3: // banner received or talked after the banner was given to ogden -> attack
+	case QV_BANNER_TALK2:
 		//if (mon->_mVar8++ < gnTicksRate * 6) // MON_TIMER
 		//	return; // wait till the sfx is running, but don't rely on IsSFXPlaying
 		if (IsMultiGame || IsSFXPlaying(alltext[TEXT_BANNER12].sfxnr))
@@ -4172,7 +4172,7 @@ void MAI_SnotSpil(int mnum)
 			NetSendCmd(CMD_OPENSPIL);
 		//}
 		return;
-	case 4:
+	case QV_BANNER_ATTACK:
 		if (mon->_mgoal == MGOAL_TALKING) {
 			// TODO: does not work when a player enters the level and the timer is running
 			mon->_mgoal = MGOAL_NORMAL;
@@ -5107,22 +5107,22 @@ void TalktoMonster(int mnum, int pnum)
 	// mon->_mListener = pnum;
 	if (mon->_mAI.aiType == AI_SNOTSPIL) {
 		assert(QuestStatus(Q_BANNER));
-		if (quests[Q_BANNER]._qvar1 == 0) {
+		if (quests[Q_BANNER]._qvar1 == QV_INIT) {
 			assert(mon->_mgoalvar2 == TEXT_BANNER10); // TALK_MESSAGE
-			quests[Q_BANNER]._qvar1 = 1;
+			quests[Q_BANNER]._qvar1 = QV_BANNER_TALK1;
 			if (pnum == mypnum)
 				NetSendCmdQuest(Q_BANNER, true);
-		} else if (quests[Q_BANNER]._qvar1 == 1) {
+		} else if (quests[Q_BANNER]._qvar1 == QV_BANNER_TALK1) {
 			if (PlrHasStorageItem(pnum, IDI_BANNER, &iv)) {
 				mon->_mgoalvar2 = TEXT_BANNER12; // TALK_MESSAGE
 				NetSendCmdParam1(CMD_QMONSTER, IDI_BANNER);
 			}
-		} else if (quests[Q_BANNER]._qvar1 == 2) {
+		} else if (quests[Q_BANNER]._qvar1 == QV_BANNER_GIVEN) {
 			mon->_mgoalvar2 = TEXT_BANNER12; // TALK_MESSAGE
 		}
 		if (mon->_mgoalvar2 == TEXT_BANNER12) { // TALK_MESSAGE
 			// mon->_mVar8 = 0; // init MON_TIMER
-			quests[Q_BANNER]._qvar1 = 3;
+			quests[Q_BANNER]._qvar1 = QV_BANNER_TALK2;
 			if (IsMultiGame && pnum == mypnum) {
 				// NetSendCmdQuest(Q_BANNER, true);
 				NetSendCmd(CMD_OPENSPIL);

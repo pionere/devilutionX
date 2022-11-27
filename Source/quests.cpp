@@ -484,14 +484,13 @@ void LoadPWaterPalette()
 
 void ResyncBanner()
 {
-	if (quests[Q_BANNER]._qvar1 != 4) {
+	if (quests[Q_BANNER]._qvar1 != QV_BANNER_ATTACK) {
 		// open the entrance of the setmap -> TODO: add these to Banner2.DUN ?
 		ObjChangeMap(
 		    setpc_w + setpc_x - 2,
 		    setpc_h + setpc_y - 2,
 		    setpc_w + setpc_x + 1,
 		    setpc_h + setpc_y + 1/*, false*/);
-		// TODO: add the opening of the entrance to Banner2.DUN?
 	} else {
 		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
 		//for (i = 0; i < numobjects; i++)
@@ -508,13 +507,13 @@ void ResyncQuests()
 
 	if (QuestStatus(Q_BANNER)) {
 		ResyncBanner();
-		/*if (quests[Q_BANNER]._qvar1 == 1)
+		/*if (quests[Q_BANNER]._qvar1 == QV_BANNER_TALK1)
 			ObjChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
 			    setpc_w + setpc_x + 1,
 			    setpc_h + setpc_y + 1, false);
-		if (quests[Q_BANNER]._qvar1 == 2) {
+		if (quests[Q_BANNER]._qvar1 == QV_BANNER_GIVEN) {
 			ObjChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
@@ -525,7 +524,7 @@ void ResyncQuests()
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
-		if (quests[Q_BANNER]._qvar1 == 3) {
+		if (quests[Q_BANNER]._qvar1 == QV_BANNER_TALK2) {
 			ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1, false);
 			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);

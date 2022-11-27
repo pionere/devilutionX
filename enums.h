@@ -3989,6 +3989,10 @@ typedef enum quest_var1_state {
 	QV_INIT = 0,
 	QV_PWATER_TALK1 = 1,
 	QV_PWATER_CLEAN = 2,
+	QV_BANNER_TALK1 = 1,  // talked to snotspil
+	QV_BANNER_GIVEN = 2,  // banner given to ogden
+	QV_BANNER_TALK2 = 3,  // banner received or talked after the banner was given to ogden -> release teammates
+	QV_BANNER_ATTACK = 4, // group is ready to attack
 	QV_GARBUD_TALK1 = 1, // talked once
 	QV_GARBUD_TALK2 = 2, // talked twice
 	QV_GARBUD_TALK3 = 3, // talked three times
