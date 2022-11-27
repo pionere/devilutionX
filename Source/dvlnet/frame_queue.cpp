@@ -33,12 +33,6 @@ void frame_queue::read(uint32_t s, BYTE* dest)
 	}
 }
 
-void frame_queue::write(buffer_t buf)
-{
-	current_size += buf.size();
-	buffer_deque.push_back(std::move(buf));
-}
-
 bool frame_queue::packet_ready()
 {
 	if (next_size == 0) {
@@ -61,6 +55,20 @@ buffer_t frame_queue::read_packet()
 	read(next_size, ret.data());
 	next_size = 0;
 	return ret;
+}
+
+void frame_queue::write(buffer_t buf)
+{
+	current_size += buf.size();
+	buffer_deque.push_back(std::move(buf));
+}
+
+void frame_queue::clear()
+{
+	next_size = 0;
+	current_size = 0;
+	current_offset = 0;
+	buffer_deque.clear();
 }
 
 buffer_t* frame_queue::make_frame(buffer_t packetbuf)

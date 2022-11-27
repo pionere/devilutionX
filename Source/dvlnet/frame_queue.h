@@ -30,19 +30,14 @@ private:
 	void read(uint32_t s, BYTE* dest);
 
 public:
+	/* Report whether the frame contains a completed packet. */
 	bool packet_ready();
-	/*
-	 * Read the next packet from the queue. Assumes the packet is ready (packet_ready returns true).
-	 */
+	/* Read the next packet from the queue. Assumes the packet is ready (packet_ready returns true). */
 	buffer_t read_packet();
+	/* Append the content of a buffer to the frame. */
 	void write(buffer_t buf);
-	void clear()
-	{
-		next_size = 0;
-		current_size = 0;
-		current_offset = 0;
-		buffer_deque.clear();
-	}
+	/* Clear the content of the frame. */
+	void clear();
 
 	static buffer_t* make_frame(buffer_t packetbuf);
 };
