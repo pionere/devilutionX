@@ -925,7 +925,7 @@ void InitObjects()
 			LoadMapSetObjs("Levels\\L1Data\\Butcher.DUN");
 		if (QuestStatus(Q_PWATER))
 			AddCandles();
-		if (QuestStatus(Q_LTBANNER))
+		if (QuestStatus(Q_BANNER))
 			AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
 		InitRndSarcs(OBJ_SARC);
 		AddL1Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
@@ -2509,7 +2509,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	if (quests[Q_LTBANNER]._qvar1 != 1 && !deltaload) {
+	if (quests[Q_BANNER]._qvar1 != 1 && !deltaload) {
 		if (sendmsg) // if (pnum == mypnum)
 			PlaySFX(sgSFXSets[SFXS_PLR_24][plr._pClass]);
 		return;

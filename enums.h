@@ -3951,7 +3951,7 @@ typedef enum quest_id {
 	Q_BUTCHER,
 	Q_PWATER,
 	Q_SKELKING,
-	Q_LTBANNER,
+	Q_BANNER,
 	Q_GARBUD,
 	Q_ROCK,
 	Q_BLOOD,

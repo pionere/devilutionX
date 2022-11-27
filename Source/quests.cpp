@@ -34,7 +34,7 @@ int gnReturnLvl;
  * Ogden's Sign and Gharbad the Weak, which ensures that exactly
  * two of these three quests appear in any game.
  */
-static const int QuestGroup1[3] = { Q_BUTCHER, Q_LTBANNER, Q_GARBUD };
+static const int QuestGroup1[3] = { Q_BUTCHER, Q_BANNER, Q_GARBUD };
 /**
  * A quest group containing the three quests Halls of the Blind,
  * the Magic Rock and Valor, which ensures that exactly two of
@@ -402,7 +402,7 @@ void DRLG_CheckQuests()
 			case Q_BUTCHER:
 				DrawButcher();
 				break;
-			case Q_LTBANNER:
+			case Q_BANNER:
 				DrawLTBanner();
 				break;
 			case Q_BLIND:
@@ -484,7 +484,7 @@ void LoadPWaterPalette()
 
 void ResyncBanner()
 {
-	if (quests[Q_LTBANNER]._qvar1 != 4) {
+	if (quests[Q_BANNER]._qvar1 != 4) {
 		// open the entrance of the setmap -> TODO: add these to Banner2.DUN ?
 		ObjChangeMap(
 		    setpc_w + setpc_x - 2,
@@ -506,15 +506,15 @@ void ResyncQuests()
 	//int i;
 	BYTE lvl = currLvl._dLevelIdx;
 
-	if (QuestStatus(Q_LTBANNER)) {
+	if (QuestStatus(Q_BANNER)) {
 		ResyncBanner();
-		/*if (quests[Q_LTBANNER]._qvar1 == 1)
+		/*if (quests[Q_BANNER]._qvar1 == 1)
 			ObjChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
 			    setpc_w + setpc_x + 1,
 			    setpc_h + setpc_y + 1, false);
-		if (quests[Q_LTBANNER]._qvar1 == 2) {
+		if (quests[Q_BANNER]._qvar1 == 2) {
 			ObjChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
@@ -525,7 +525,7 @@ void ResyncQuests()
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
-		if (quests[Q_LTBANNER]._qvar1 == 3) {
+		if (quests[Q_BANNER]._qvar1 == 3) {
 			ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1, false);
 			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);

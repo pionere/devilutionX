@@ -243,7 +243,7 @@ const BYTE MonstConvTbl[128] = {
 	0, //MT_RFALLSD,
 	0, //MT_DFALLSD,
 	MT_YFALLSD, // Q_PWATER
-	MT_BFALLSD, // Q_LTBANNER
+	MT_BFALLSD, // Q_BANNER
 	0, //MT_NSCAV,
 	0, //MT_BSCAV,
 	0, //MT_WSCAV,
@@ -277,7 +277,7 @@ const BYTE MonstConvTbl[128] = {
 	0, //MT_BACID,
 	0, //MT_XACID,
 	0, //MT_SKING,
-	MT_FAT, // Q_LTBANNER
+	MT_FAT, // Q_BANNER
 	0, //MT_MUDMAN,
 	0, //MT_TOAD,
 	0, //MT_FLAYED,
@@ -397,7 +397,7 @@ const UniqMonData uniqMonData[] = {
 /*UMT_GARBUD*/    {  MT_NGOATMC,  "Gharbad the Weak",         "BSDB",    DLV_CATHEDRAL4,      8,     120, { AI_GARBUD,       3, TRUE,            0     },          8,         16,           8,          16, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED |                                        MORS_LIGHTNING_IMMUNE | MORS_ACID_IMMUNE, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED |                                        MORS_LIGHTNING_IMMUNE | MORS_ACID_IMMUNE,          0,        0,        0,       0,       0,      0, Q_GARBUD,   TEXT_GARBUD1   , ALIGN },
 /*UMT_SKELKING*/  {  MT_SKING,    "Skeleton King",            "GENRL",           0,          14,     240, { AI_SKELKING,     3, 0,               0     },          6,         16,           0,           0,    MORS_SLASH_RESIST |                        MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE | MORS_FIRE_RESIST | MORS_LIGHTNING_RESIST                   ,    MORS_SLASH_RESIST |                        MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE | MORS_FIRE_IMMUNE | MORS_LIGHTNING_IMMUNE                   ,          0,        0,        0,       0,       0,      0, Q_INVALID,  TEXT_NONE      , ALIGN },
 /*UMT_ZHAR*/      {  MT_COUNSLR,  "Zhar the Mad",             "GENERAL", DLV_CATACOMBS4,     16,     360, { AI_ZHAR,         3, MIS_FIREBALL,    0     },         16,         40,           0,           0, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE | MORS_FIRE_RESIST | MORS_LIGHTNING_RESIST | MORS_ACID_IMMUNE, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE | MORS_FIRE_RESIST | MORS_LIGHTNING_RESIST | MORS_ACID_IMMUNE,          0,        0,        0,       0,       0,      0, Q_ZHAR,     TEXT_ZHAR1     , ALIGN },
-/*UMT_SNOTSPIL*/  {  MT_BFALLSP,  "Snotspill",                "BNG",     DLV_CATHEDRAL4,      8,     220, { AI_SNOTSPIL,     3, 0,               0     },         10,         18,           0,           0,                           MORS_BLUNT_RESIST | MORS_PUNCTURE_PROTECTED |                                        MORS_LIGHTNING_RESIST | MORS_ACID_IMMUNE,                           MORS_BLUNT_RESIST | MORS_PUNCTURE_PROTECTED |                                        MORS_LIGHTNING_IMMUNE | MORS_ACID_IMMUNE,          0,        0,        0,       0,       0,      0, Q_LTBANNER, TEXT_BANNER10  , ALIGN },
+/*UMT_SNOTSPIL*/  {  MT_BFALLSP,  "Snotspill",                "BNG",     DLV_CATHEDRAL4,      8,     220, { AI_SNOTSPIL,     3, 0,               0     },         10,         18,           0,           0,                           MORS_BLUNT_RESIST | MORS_PUNCTURE_PROTECTED |                                        MORS_LIGHTNING_RESIST | MORS_ACID_IMMUNE,                           MORS_BLUNT_RESIST | MORS_PUNCTURE_PROTECTED |                                        MORS_LIGHTNING_IMMUNE | MORS_ACID_IMMUNE,          0,        0,        0,       0,       0,      0, Q_BANNER,   TEXT_BANNER10  , ALIGN },
 /*UMT_LAZARUS*/   {  MT_ADVOCATE, "Arch-Bishop Lazarus",      "GENERAL",         0,          32,     600, { AI_LAZARUS,      3, MIS_FIREBALL,    0     },         30,         50,           0,           0, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE | MORS_FIRE_RESIST | MORS_LIGHTNING_RESIST | MORS_ACID_IMMUNE, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE | MORS_FIRE_RESIST | MORS_LIGHTNING_RESIST | MORS_ACID_IMMUNE,          0,        0,        0,       0,       0,      0, Q_INVALID,  TEXT_VILE13    , ALIGN },
 /*UMT_RED_VEX*/   {  MT_HLSPWN,   "Red Vex",                  "REDV",            0,          31,     400, { AI_LAZHELP,      3, MIS_HLSPWN,      FALSE },         30,         50,           0,           0, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE | MORS_FIRE_RESIST |                         MORS_ACID_IMMUNE, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE | MORS_FIRE_IMMUNE | MORS_LIGHTNING_RESIST | MORS_ACID_IMMUNE,          0,        0,        0,       0,       0,      0, Q_INVALID,  TEXT_VILE13    , ALIGN },
 /*UMT_BLACKJADE*/ {  MT_HLSPWN,   "Black Jade",               "BLKJD",           0,          31,     400, { AI_LAZHELP,      3, MIS_HLSPWN,      FALSE },         30,         50,           0,           0, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE |                    MORS_LIGHTNING_RESIST | MORS_ACID_IMMUNE, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_IMMUNE | MORS_FIRE_RESIST | MORS_LIGHTNING_IMMUNE | MORS_ACID_IMMUNE,          0,        0,        0,       0,       0,      0, Q_INVALID,  TEXT_VILE13    , ALIGN },

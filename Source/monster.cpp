@@ -514,7 +514,7 @@ void GetLevelMTypes()
 			AddMonsterType(MT_NGOATMC, FALSE);
 		if (QuestStatus(Q_ZHAR))
 			AddMonsterType(MT_COUNSLR, FALSE);
-		if (QuestStatus(Q_LTBANNER)) {
+		if (QuestStatus(Q_BANNER)) {
 			AddMonsterType(MT_BFALLSP, FALSE);
 			// AddMonsterType(MT_FAT, FALSE);
 		}
@@ -1049,7 +1049,7 @@ static void PlaceSetMapMonsters()
 	BYTE* setp;
 
 	if (!currLvl._dSetLvl) {
-		if (QuestStatus(Q_LTBANNER)) {
+		if (QuestStatus(Q_BANNER)) {
 			setp = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
@@ -4147,7 +4147,7 @@ void MAI_SnotSpil(int mnum)
 
 	mon->_mdir = MonEnemyLastDir(mnum);
 
-	switch (quests[Q_LTBANNER]._qvar1) {
+	switch (quests[Q_BANNER]._qvar1) {
 	case 0: // quest not started -> skip
 		return;
 	case 1: // quest just started -> waiting for the banner
@@ -5106,25 +5106,25 @@ void TalktoMonster(int mnum, int pnum)
 	mon->_mmode = MM_TALK;
 	// mon->_mListener = pnum;
 	if (mon->_mAI.aiType == AI_SNOTSPIL) {
-		assert(QuestStatus(Q_LTBANNER));
-		if (quests[Q_LTBANNER]._qvar1 == 0) {
+		assert(QuestStatus(Q_BANNER));
+		if (quests[Q_BANNER]._qvar1 == 0) {
 			assert(mon->_mgoalvar2 == TEXT_BANNER10); // TALK_MESSAGE
-			quests[Q_LTBANNER]._qvar1 = 1;
+			quests[Q_BANNER]._qvar1 = 1;
 			if (pnum == mypnum)
-				NetSendCmdQuest(Q_LTBANNER, true);
-		} else if (quests[Q_LTBANNER]._qvar1 == 1) {
+				NetSendCmdQuest(Q_BANNER, true);
+		} else if (quests[Q_BANNER]._qvar1 == 1) {
 			if (PlrHasStorageItem(pnum, IDI_BANNER, &iv)) {
 				mon->_mgoalvar2 = TEXT_BANNER12; // TALK_MESSAGE
 				NetSendCmdParam1(CMD_QMONSTER, IDI_BANNER);
 			}
-		} else if (quests[Q_LTBANNER]._qvar1 == 2) {
+		} else if (quests[Q_BANNER]._qvar1 == 2) {
 			mon->_mgoalvar2 = TEXT_BANNER12; // TALK_MESSAGE
 		}
 		if (mon->_mgoalvar2 == TEXT_BANNER12) { // TALK_MESSAGE
 			// mon->_mVar8 = 0; // init MON_TIMER
-			quests[Q_LTBANNER]._qvar1 = 3;
+			quests[Q_BANNER]._qvar1 = 3;
 			if (IsMultiGame && pnum == mypnum) {
-				// NetSendCmdQuest(Q_LTBANNER, true);
+				// NetSendCmdQuest(Q_BANNER, true);
 				NetSendCmd(CMD_OPENSPIL);
 			}
 		}

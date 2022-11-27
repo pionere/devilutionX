@@ -248,7 +248,7 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_MUSHPATCH*/   { OFILE_MUSHPTCH, 0,                                         0,               THEME_NONE,              Q_MUSHROOM,             1,  ODT_NONE,        3, FALSE     , ALIGN },
 /*OBJ_LAZSTAND*/    { OFILE_LZSTAND,  0,                                         0,               THEME_NONE,              Q_BETRAYER,             1,  ODT_NONE,        3, FALSE     , ALIGN },
 /*OBJ_SLAINHERO*/   { OFILE_DECAP,    DTM_CAVES,                                 0,               THEME_NONE,              Q_INVALID,              2,  ODT_NONE,        1, FALSE     , ALIGN },
-/*OBJ_SIGNCHEST*/   { OFILE_CHEST3,   0,                                         0,               THEME_NONE,              Q_LTBANNER,             1,  ODT_NONE,        1, FALSE     , ALIGN },
+/*OBJ_SIGNCHEST*/   { OFILE_CHEST3,   0,                                         0,               THEME_NONE,              Q_BANNER,               1,  ODT_NONE,        1, FALSE     , ALIGN },
 /*OBJ_BOOKSHELFR*///{ OFILE_BCASE,    0,                                         0,               THEME_NONE,              Q_INVALID,              2,  ODT_NONE,        0, FALSE     , ALIGN },
 #ifdef HELLFIRE
 /*OBJ_L5LDOOR*/     { OFILE_L5DOOR,   DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,              1,  ODT_LEFT,        3, TRUE      , ALIGN },

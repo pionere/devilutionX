@@ -530,10 +530,10 @@ void SyncTownerQ(int pnum, int idx)
 
 	switch (idx) {
 	case IDI_BANNER:
-		if (quests[Q_LTBANNER]._qvar1 >= 2)
+		if (quests[Q_BANNER]._qvar1 >= 2)
 			return;
-		quests[Q_LTBANNER]._qlog = FALSE;
-		quests[Q_LTBANNER]._qvar1 = 2;
+		quests[Q_BANNER]._qlog = FALSE;
+		quests[Q_BANNER]._qvar1 = 2;
 		if (pnum == mypnum)
 			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, ICM_SEND_FLIP);
 		break;
@@ -707,13 +707,13 @@ void TalkToTowner(int tnum)
 				break;
 			}
 		}
-		if (IsLvlVisited(DLV_CATHEDRAL4) && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_LTBANNER]._qactive == QUEST_INIT) {
-				quests[Q_LTBANNER]._qactive = QUEST_ACTIVE;
-				quests[Q_LTBANNER]._qlog = TRUE;
-				qn = Q_LTBANNER;
+		if (IsLvlVisited(DLV_CATHEDRAL4) && quests[Q_BANNER]._qactive != QUEST_NOTAVAIL) {
+			if (quests[Q_BANNER]._qactive == QUEST_INIT) {
+				quests[Q_BANNER]._qactive = QUEST_ACTIVE;
+				quests[Q_BANNER]._qlog = TRUE;
+				qn = Q_BANNER;
 				qt = TEXT_BANNER2;
-			} else if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_BANNER, &i)) {
+			} else if (quests[Q_BANNER]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_BANNER, &i)) {
 				NetSendCmdParam1(CMD_QTOWNER, IDI_BANNER);
 				qt = TEXT_BANNER3;
 			}

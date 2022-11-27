@@ -865,7 +865,7 @@ static void DRLG_L1Floor()
 static void DRLG_LoadL1SP()
 {
 	assert(pSetPiece == NULL);
-	if (QuestStatus(Q_LTBANNER)) {
+	if (QuestStatus(Q_BANNER)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN");
 	} else if (QuestStatus(Q_SKELKING)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN");
@@ -2549,7 +2549,7 @@ static void DRLG_L1(int entry)
 				doneflag = false;
 			}
 		}
-		if (QuestStatus(Q_LTBANNER)) {
+		if (QuestStatus(Q_BANNER)) {
 			// fix transVal behind the stairs
 			// - uncommented since the set-map is 'populated' -> monsters are not spawn there
 			//DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x, setpc_y + 5,

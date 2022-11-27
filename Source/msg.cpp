@@ -4315,13 +4315,13 @@ static unsigned On_BLOODPASS(TCmd* pCmd, int pnum)
 
 static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 {
-	net_assert(quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL);
+	net_assert(quests[Q_BANNER]._qactive != QUEST_NOTAVAIL);
 
-	quests[Q_LTBANNER]._qactive = QUEST_DONE;
-	quests[Q_LTBANNER]._qvar1 = 4;
+	quests[Q_BANNER]._qactive = QUEST_DONE;
+	quests[Q_BANNER]._qvar1 = 4;
 
-	//if (QuestStatus(Q_LTBANNER))
-	if (currLvl._dLevelIdx == questlist[Q_LTBANNER]._qdlvl) {
+	//if (QuestStatus(Q_BANNER))
+	if (currLvl._dLevelIdx == questlist[Q_BANNER]._qdlvl) {
 		ResyncBanner();
 		//RedoLightAndVision();
 	}
