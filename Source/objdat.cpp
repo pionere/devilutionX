@@ -118,8 +118,8 @@ const BYTE ObjConvTbl[128] = {
 	OBJ_ALTBOY, // Q_BETRAYER
 	0,
 	0,
-	OBJ_WEAPONRACKL, //OBJ_ARMORSTAND, // Q_WARLORD - swapped from original to reduce farming potential
-	OBJ_ARMORSTAND, //OBJ_WEAPONRACKL, // Q_WARLORD
+	OBJ_ARMORSTANDN, //OBJ_ARMORSTAND, // Q_WARLORD - changed to inactive versions to eliminate farming potential
+	OBJ_WEAPONRACKLN, //OBJ_WEAPONRACKL, // Q_WARLORD
 	OBJ_TORCHR1, // Q_BLOOD
 	OBJ_TORCHL1, // Q_BLOOD
 	0, //OBJ_MUSHPATCH,
