@@ -895,9 +895,7 @@ bool PeekMessage(LPMSG lpMsg)
 		// Keyboard or Mouse (or Touch) events -> switch to standard input
 #if FIX_WARPING
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
-#else
-		if (e.type != SDL_MOUSEMOTION)
-#endif // FIX_WARPING
+#endif
 			sgbControllerActive = false;
 	}
 #endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -914,15 +912,14 @@ bool PeekMessage(LPMSG lpMsg)
 		lpMsg->message = e.type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
 		lpMsg->wParam = (WPARAM)key;
 #if DEBUG_MODE
-		// HACK: Encode modifier in lParam for TranslateMessage later
+		// HACK: Encode modifier in lParam for TranslateKey2Char later ?
 		//lpMsg->lParam = e.key.keysym.mod << 16;
 		lpMsg->wParam |= e.key.keysym.mod << 16;
 #endif
 	} break;
 	case SDL_MOUSEMOTION:
 #if FIX_WARPING
-		if (mouseWarping)
-			mouseWarping = false;
+		mouseWarping = false;
 #endif
 		lpMsg->message = DVL_WM_MOUSEMOVE;
 		lpMsg->wParam = PositionForMouse(e.motion.x, e.motion.y);
@@ -959,10 +956,8 @@ bool PeekMessage(LPMSG lpMsg)
 			lpMsg->wParam = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_PLUS : DVL_VK_UP;
 		} else if (e.wheel.y < 0) {
 			lpMsg->wParam = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_MINUS : DVL_VK_DOWN;
-		} else if (e.wheel.x > 0) {
-			lpMsg->wParam = DVL_VK_LEFT;
-		} else if (e.wheel.x < 0) {
-			lpMsg->wParam = DVL_VK_RIGHT;
+		} else {
+			lpMsg->wParam = e.wheel.x >= 0 ? DVL_VK_LEFT : DVL_VK_RIGHT;
 		}
 		break;
 #if DEBUG_MODE
