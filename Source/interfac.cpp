@@ -122,7 +122,6 @@ void interface_msg_pump()
 
 	while (PeekMessage(&Msg)) {
 		//if (Msg.message != DVL_WM_QUIT) {
-			TranslateMessage(&Msg);
 			DispatchMessage(&Msg);
 		//}
 	}

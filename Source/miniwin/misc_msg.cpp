@@ -1052,28 +1052,29 @@ bool PeekMessage(LPMSG lpMsg)
 	return true;
 }
 
-/*
- * Translate keydown events to char events only if gbTalkflag is set (or in debug mode).
- *
- * 'Translation' is no longer necessary. The input text is handled using
- * SDL_StartTextInput/SDL_StopTextInput in case 'gbTalkflag' is set.
- *
- * Remark: HACK in PeekMessage needs to be re-enabled in case TranslateMessage is used
- *  in a non-debug environment.
- */
-void TranslateMessage(const MSG* lpMsg)
-{
 #if DEBUG_MODE
-	if (lpMsg->message == DVL_WM_KEYDOWN) {
-		int key = lpMsg->wParam;
+/*
+ * Translate keys of keydown events to chars.
+ *
+ * 'Translation' is necessary to process debug messages.
+ *
+ * @param key: the key which was pressed (DVL_VK_*)
+ * @return the char value of the key, or zero if it can not be translated
+ */
+int TranslateKey2Char(int key)
+{
 		//unsigned mod = lpMsg->lParam >> 16;
-		unsigned mod = lpMsg->wParam >> 16;
+		SDL_Keymod mod = SDL_GetModState();
 
 		bool shift = (mod & KMOD_SHIFT) != 0;
-		if (key >= 'A' && key <= 'Z') {
+		if (key >= DVL_VK_A && key <= DVL_VK_Z) {
+			static_assert(DVL_VK_A == 'A', "Translation from DVL_VK_A-Z to A-Z is a NOP in TranslateKey2Char I.");
+			static_assert(DVL_VK_Z == 'Z', "Translation from DVL_VK_A-Z to A-Z is a NOP in TranslateKey2Char II.");
 			if (shift == ((mod & KMOD_CAPS) != 0))
 				key = tolower(key);
-		} else if (key >= '0' && key <= '9') {
+		} else if (key >= DVL_VK_0 && key <= DVL_VK_9) {
+			static_assert(DVL_VK_0 == '0', "Translation from DVL_VK_0-9 to 0-9 is a NOP in TranslateKey2Char I.");
+			static_assert(DVL_VK_9 == '9', "Translation from DVL_VK_0-9 to 0-9 is a NOP in TranslateKey2Char II.");
 			if (shift) {
 				const char shkeys[] = { ')', '!', '@', '#', '$', '%', '^', '&', '*', '(' };
 				key = shkeys[key - '0'];
@@ -1143,16 +1144,14 @@ void TranslateMessage(const MSG* lpMsg)
 				key = '?'; // UNIMPLEMENTED();
 			}
 		} else
-			return;
+			return 0;
 
-		if (key >= 32) {
+		if (key >= ' ') {
 			DoLog("char: %c", key);
 		}
-		// XXX: This does not add extended info to lParam
-		PostMessage(DVL_WM_CHAR, key);
-	}
-#endif
+		return key;
 }
+#endif
 
 void DispatchMessage(const MSG* lpMsg)
 {

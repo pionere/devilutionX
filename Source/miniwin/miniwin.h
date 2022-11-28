@@ -40,7 +40,9 @@ void SetCursorPos(int X, int Y);
 
 bool PeekMessage(LPMSG lpMsg);
 
-void TranslateMessage(const MSG* lpMsg);
+#if DEBUG_MODE
+int TranslateKey2Char(int vkey);
+#endif
 void DispatchMessage(const MSG* lpMsg);
 void PostMessage(UINT Msg, WPARAM wParam);
 WNDPROC SetWindowProc(WNDPROC NewProc);

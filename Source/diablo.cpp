@@ -798,6 +798,94 @@ static void ClearUI()
 	//doom_close();
 }
 
+#if DEBUG_MODE
+static void PressDebugChar(int vkey)
+{
+	switch (vkey) {
+/*	case ')':
+	case '0':
+		if (arrowdebug > 2) {
+			arrowdebug = 0;
+		}
+		if (arrowdebug == 0) {
+			myplr._pIFlags &= ~ISPL_FIRE_ARROWS;
+			myplr._pIFlags &= ~ISPL_LIGHT_ARROWS;
+		}
+		if (arrowdebug == 1) {
+			myplr._pIFlags |= ISPL_FIRE_ARROWS;
+		}
+		if (arrowdebug == 2) {
+			myplr._pIFlags |= ISPL_LIGHT_ARROWS;
+		}
+		arrowdebug++;
+		break;*/
+	case '9':
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
+			NetSendCmd(CMD_CHEAT_EXPERIENCE);
+		}
+		break;
+	case ':':
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
+			SetAllSpellsCheat();
+		}
+		break;
+	case '[':
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
+			TakeGoldCheat();
+		}
+		break;
+	case ']':
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
+			MaxSpellsCheat();
+		}
+		break;
+	case 'a':
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
+			NetSendCmd(CMD_CHEAT_SPELL_LEVEL);
+		}
+		break;
+	case 'D':
+		PrintDebugPlayer(true);
+		break;
+	case 'd':
+		PrintDebugPlayer(false);
+		break;
+	case 'L':
+	case 'l':
+		ToggleLighting();
+		break;
+	case 'M':
+		NextDebugMonster();
+		break;
+	case 'm':
+		GetDebugMonster();
+		break;
+	case 'R':
+	case 'r':
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
+		NetSendCmdString(1 << mypnum);
+		break;
+	case 'T':
+	case 't':
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
+		NetSendCmdString(1 << mypnum);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", cursmx, cursmy, dungeon[cursmx][cursmy]);
+		NetSendCmdString(1 << mypnum);
+		break;
+	case '|':
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
+			GiveGoldCheat();
+		}
+		break;
+	case '~':
+		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
+			StoresCheat();
+		}
+		break;
+	}
+}
+#endif
+
 static void PressKey(int vkey)
 {
 	if (gmenu_is_active()) {
@@ -863,6 +951,10 @@ static void PressKey(int vkey)
 
 	switch (transKey) {
 	case ACT_NONE:
+#if DEBUG_MODE
+		transKey = TranslateKey2Char(vkey);
+		PressDebugChar(transKey);
+#endif
 		break;
 	case ACT_ACT:
 		if (!gbActionBtnDown) {
@@ -1091,96 +1183,6 @@ static void PressChar(WPARAM vkey)
 		if (plrmsg_presschar(vkey))
 			return;
 	}
-#if DEBUG_MODE
-	if (gnTimeoutCurs != CURSOR_NONE || gbDeathflag != MDM_ALIVE)
-		return;
-
-	if (gbGamePaused) {
-		return;
-	}
-	switch (vkey) {
-/*	case ')':
-	case '0':
-		if (arrowdebug > 2) {
-			arrowdebug = 0;
-		}
-		if (arrowdebug == 0) {
-			myplr._pIFlags &= ~ISPL_FIRE_ARROWS;
-			myplr._pIFlags &= ~ISPL_LIGHT_ARROWS;
-		}
-		if (arrowdebug == 1) {
-			myplr._pIFlags |= ISPL_FIRE_ARROWS;
-		}
-		if (arrowdebug == 2) {
-			myplr._pIFlags |= ISPL_LIGHT_ARROWS;
-		}
-		arrowdebug++;
-		break;*/
-	case '9':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			NetSendCmd(CMD_CHEAT_EXPERIENCE);
-		}
-		break;
-	case ':':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			SetAllSpellsCheat();
-		}
-		break;
-	case '[':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			TakeGoldCheat();
-		}
-		break;
-	case ']':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			MaxSpellsCheat();
-		}
-		break;
-	case 'a':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			NetSendCmd(CMD_CHEAT_SPELL_LEVEL);
-		}
-		break;
-	case 'D':
-		PrintDebugPlayer(true);
-		break;
-	case 'd':
-		PrintDebugPlayer(false);
-		break;
-	case 'L':
-	case 'l':
-		ToggleLighting();
-		break;
-	case 'M':
-		NextDebugMonster();
-		break;
-	case 'm':
-		GetDebugMonster();
-		break;
-	case 'R':
-	case 'r':
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
-		NetSendCmdString(1 << mypnum);
-		break;
-	case 'T':
-	case 't':
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
-		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", cursmx, cursmy, dungeon[cursmx][cursmy]);
-		NetSendCmdString(1 << mypnum);
-		break;
-	case '|':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			GiveGoldCheat();
-		}
-		break;
-	case '~':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			StoresCheat();
-		}
-		break;
-	}
-#endif
 }
 
 static void GetMousePos(WPARAM wParam)
@@ -1525,7 +1527,6 @@ static void run_game()
 #endif
 	while (TRUE) {
 		while (gbRunGame && PeekMessage(&msg)) {
-			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 		if (!gbRunGame)
