@@ -1052,12 +1052,13 @@ bool PeekMessage(LPMSG lpMsg)
 	return true;
 }
 
-#if DEBUG_MODE
+#if defined(USE_SDL1) || DEBUG_MODE
 /*
  * Translate keys of keydown events to chars.
  *
- * 'Translation' is necessary to process debug messages.
- *
+ * 'Translation' is necessary in case of SDL1 and to process debug messages.
+ * In case of SDL2, the input text is handled using
+ * SDL_StartTextInput/SDL_StopTextInput in case 'gbTalkflag' is set.
  * @param key: the key which was pressed (DVL_VK_*)
  * @return the char value of the key, or zero if it can not be translated
  */

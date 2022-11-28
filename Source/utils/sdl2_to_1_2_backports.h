@@ -100,10 +100,12 @@ SDL_LogPriority SDL_LogGetPriority(SDL_LogCategory category);
 
 inline void SDL_StartTextInput()
 {
+	SDL_EnableUNICODE(1);
 }
 
 inline void SDL_StopTextInput()
 {
+	SDL_EnableUNICODE(0);
 }
 
 inline void SDL_SetTextInputRect(const SDL_Rect* r)

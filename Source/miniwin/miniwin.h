@@ -40,7 +40,7 @@ void SetCursorPos(int X, int Y);
 
 bool PeekMessage(LPMSG lpMsg);
 
-#if DEBUG_MODE
+#if defined(USE_SDL1) || DEBUG_MODE
 int TranslateKey2Char(int vkey);
 #endif
 void DispatchMessage(const MSG* lpMsg);

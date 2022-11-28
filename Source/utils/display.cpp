@@ -207,7 +207,6 @@ void SpawnWindow()
 #endif
 
 #ifdef USE_SDL1
-	SDL_EnableUNICODE(1);
 #if HAS_JOYSTICK
 	// On SDL 1, there are no ADDED/REMOVED events.
 	// Always try to initialize the first joystick.
