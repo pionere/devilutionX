@@ -888,10 +888,11 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 	}
 #if (HAS_TOUCHPAD || HAS_DPAD) && !defined(USE_SDL1)
-	if (e.type < SDL_JOYAXISMOTION || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
+	if ((e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
 #else
-	if (e.type < SDL_JOYAXISMOTION) {
+	if (e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) {
 #endif
+		// Keyboard or Mouse (or Touch) events -> switch to standard input
 #if FIX_WARPING
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
 #else
