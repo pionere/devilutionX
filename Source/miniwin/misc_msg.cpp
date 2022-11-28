@@ -1,6 +1,5 @@
 #include <SDL.h>
 #include <cstdint>
-#include <deque>
 #include "utils/utf8.h"
 
 #include "all.h"
@@ -24,8 +23,6 @@
  */
 
 DEVILUTION_BEGIN_NAMESPACE
-
-static std::deque<MSG> message_queue;
 
 /** The current input handler function */
 WNDPROC CurrentWndProc;
@@ -806,12 +803,6 @@ bool PeekMessage(LPMSG lpMsg)
 	HandleDocking();
 #endif
 
-	if (!message_queue.empty()) {
-		*lpMsg = message_queue.front();
-		message_queue.pop_front();
-		return true;
-	}
-
 	SDL_Event e;
 	if (!SDL_PollEvent(&e)) {
 		return false;
@@ -1044,6 +1035,10 @@ bool PeekMessage(LPMSG lpMsg)
 
 		break;
 #endif // !USE_SDL1
+	case SDL_USEREVENT:
+		// lpMsg->wParam = e.user.data1;
+		lpMsg->message = e.user.code;
+		break;
 #if DEBUG_MODE
 	default:
 		return FalseAvail("unknown", e.type);
@@ -1161,14 +1156,15 @@ void DispatchMessage(const MSG* lpMsg)
 	CurrentWndProc(lpMsg->message, lpMsg->wParam);
 }
 
-void PostMessage(UINT type, WPARAM wParam)
+void PostMessage(UINT type /*, WPARAM wParam*/)
 {
-	MSG message;
+	SDL_Event e;
 
-	message.message = type;
-	message.wParam = wParam;
+	e.user.type = SDL_USEREVENT;
+	e.user.code = type;
+	//e.user.data1 = (void*)wParam;
 
-	message_queue.push_back(message);
+	SDL_PushEvent(&e);
 }
 
 /*void MainWndProc(UINT Msg)

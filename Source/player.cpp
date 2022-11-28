@@ -1820,7 +1820,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 	net_assert(lvl < NUM_LEVELS);
 	plr._pDunLevel = lvl;
 	if (pnum == mypnum) {
-		PostMessage(fom, 0);
+		PostMessage(fom);
 	}
 }
 
@@ -1840,7 +1840,7 @@ void RestartTownLvl(int pnum)
 	if (pnum == mypnum) {
 		gbDeathflag = MDM_ALIVE;
 		gamemenu_off();
-		PostMessage(DVL_DWM_RETOWN, 0);
+		PostMessage(DVL_DWM_RETOWN);
 	}
 }
 
@@ -1863,7 +1863,7 @@ void StartTWarp(int pnum, int pidx)
 
 	if (pnum == mypnum) {
 		UseCurrentPortal(pidx);
-		PostMessage(DVL_DWM_WARPLVL, 0);
+		PostMessage(DVL_DWM_WARPLVL);
 	}
 }
 

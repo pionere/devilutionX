@@ -44,7 +44,7 @@ bool PeekMessage(LPMSG lpMsg);
 int TranslateKey2Char(int vkey);
 #endif
 void DispatchMessage(const MSG* lpMsg);
-void PostMessage(UINT Msg, WPARAM wParam);
+void PostMessage(UINT Msg /*, WPARAM wParam*/);
 WNDPROC SetWindowProc(WNDPROC NewProc);
 
 #ifndef TRUE
