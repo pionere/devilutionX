@@ -705,6 +705,7 @@ void WakeUberDiablo()
 	if (!deltaload)
 		PlayMonSFX(MAX_MINIONS, MS_DEATH);
 	mon = &monsters[MAX_MINIONS];
+	// assert(mon->_mType == MT_NAKRUL);
 	mon->_mArmorClass -= 50;
 	//mon->_mEvasion -= 20;
 	mon->_mLevel /= 2;
@@ -1917,7 +1918,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		//if (IsSFXPlaying(USFX_NAKRUL4) || IsSFXPlaying(USFX_NAKRUL5) || IsSFXPlaying(USFX_NAKRUL6))
 			StopStreamSFX();
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
-		quests[Q_NAKRUL]._qvar1 = 5; // set to higher than 4 so innocent monters are not 'woke'
+		// quests[Q_NAKRUL]._qvar1 = quests[Q_NAKRUL]._qvar1 == 4 ? 7 : 6; // set to new state so innocent monsters are not 'woke'
 		if (sendmsg)
 			NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 		/*SpawnMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
@@ -4587,7 +4588,7 @@ bool CheckNoSolid(int x, int y)
  * Walks from (x1; y1) to (x2; y2) and calls the Clear check for 
  * every position inbetween.
  * The target and source positions are NOT checked.
- * @returns TRUE if the Clear checks succeeded.
+ * @return TRUE if the Clear checks succeeded.
  */
 bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
 {

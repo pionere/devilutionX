@@ -2309,10 +2309,14 @@ static void OperateLever(int oi, bool sendmsg)
 		return;
 #ifdef HELLFIRE
 	if (currLvl._dLevelIdx == DLV_CRYPT4 && !deltaload) {
-		if (quests[Q_NAKRUL]._qactive == QUEST_DONE)
-			return;
+		if (quests[Q_NAKRUL]._qactive != QUEST_DONE) {
+			// assert(quests[Q_NAKRUL]._qvar1 < 4);
+			quests[Q_NAKRUL]._qactive = QUEST_DONE;
+			// quests[Q_NAKRUL]._qvar1 = 5;
+			if (sendmsg)
+				NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
+		}
 		PlaySfxLoc(IS_CROPEN, os->_ox - 3, os->_oy + 1);
-		quests[Q_NAKRUL]._qactive = QUEST_DONE;
 	}
 #endif
 	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
@@ -3399,10 +3403,11 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
 #ifdef HELLFIRE // STORY_BOOK_NAKRUL_IDX
-		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == QNB_BOOK_C && quests[Q_NAKRUL]._qvar1 >= 4) {
+		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == QNB_BOOK_C) {
 			if (quests[Q_NAKRUL]._qvar1 == 4)
 				WakeUberDiablo();
-			OpenUberRoom();
+			if (quests[Q_NAKRUL]._qvar1 == 4 /*|| quests[Q_NAKRUL]._qvar1 == 7*/)
+				OpenUberRoom();
 		}
 #endif
 		return;
