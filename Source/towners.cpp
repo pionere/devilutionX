@@ -392,7 +392,7 @@ static void InitGirl()
 	const char* pAnimFile;
 
 	InitTownerInfo(numtowners, "Celia", TOWN_GIRL, TPOS_GIRL, 3);
-	pAnimFile = quests[Q_GIRL]._qactive == QUEST_ACTIVE ? "Towners\\Girl\\Girlw1.CEL" : "Towners\\Girl\\Girls1.CEL";
+	pAnimFile = quests[Q_GIRL]._qactive != QUEST_DONE ? "Towners\\Girl\\Girlw1.CEL" : "Towners\\Girl\\Girls1.CEL";
 	InitTownerAnim(numtowners, pAnimFile, 6, 20, -1);
 	numtowners++;
 }
@@ -931,15 +931,16 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_GIRL:
-		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
-			if (PlrHasStorageItem(pnum, IDI_THEODORE, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_THEODORE);
-				qt = TEXT_GIRL4;
-			} else if (quests[Q_GIRL]._qvar1 == QV_INIT) {
+		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_THEODORE, &i)) {
+			NetSendCmdParam1(CMD_QTOWNER, IDI_THEODORE);
+			qt = TEXT_GIRL4;
+		} else if (quests[Q_GIRL]._qactive != QUEST_DONE) {
+			if (quests[Q_GIRL]._qvar1 == QV_INIT) {
 				if (quests[Q_GIRL]._qvar2++ == 0) {
 					qt = TEXT_GIRL1;
 				} else {
 					qt = TEXT_GIRL2;
+					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
 					quests[Q_GIRL]._qvar1 = QV_GIRL_TALK1;
 					quests[Q_GIRL]._qlog = TRUE;
 					// quests[Q_GIRL]._qmsg = TEXT_GIRL2;

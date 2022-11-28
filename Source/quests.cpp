@@ -588,11 +588,11 @@ void ResyncQuests()
 	//	quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 	//	NetSendCmdQuest(Q_JERSEY, false); // recipient should not matter
 	//}
-	if (quests[Q_GIRL]._qactive == QUEST_INIT && lvl == questlist[Q_GIRL]._qdlvl) {
-		quests[Q_GIRL]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(Q_GIRL, false); // recipient should not matter
-		// TODO: send message to reinit the towners?
-	}
+	//if (quests[Q_GIRL]._qactive == QUEST_INIT && lvl == questlist[Q_GIRL]._qdlvl) {
+	//	quests[Q_GIRL]._qactive = QUEST_ACTIVE;
+	//	NetSendCmdQuest(Q_GIRL, false); // recipient should not matter
+	//	// TODO: send message to reinit the towners?
+	//}
 #endif
 }
 
