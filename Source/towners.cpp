@@ -731,7 +731,7 @@ void TalkToTowner(int tnum)
 			}
 		} else {
 			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && IsLvlVisited(DLV_HELL2)) {
-				quests[Q_BETRAYER]._qactive == QUEST_ACTIVE;
+				quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 				quests[Q_BETRAYER]._qlog = TRUE;
 				qn = Q_BETRAYER;
 				qt = TEXT_VILE1;
