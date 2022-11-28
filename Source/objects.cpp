@@ -810,16 +810,17 @@ static void AddLvl24Books()
 
 static int ProgressUberLever(int bookidx, int status)
 {
-	if (status >= 4)
+	static_assert((int)QV_NAKRUL_BOOKOPEN < (int)QV_NAKRUL_LEVEROPEN, "ProgressUberLever might reset QV_NAKRUL_LEVEROPEN.");
+	if (status >= QV_NAKRUL_BOOKOPEN)
 		return status;
 
 	switch (bookidx) {
 	case QNB_BOOK_A:
-		return 1;
+		return QV_NAKRUL_BOOKA;
 	case QNB_BOOK_B:
-		return status == 1 ? 2 : 0;
+		return status == QV_NAKRUL_BOOKA ? QV_NAKRUL_BOOKB : QV_INIT;
 	case QNB_BOOK_C:
-		return status == 2 ? 3 : 0;
+		return status == QV_NAKRUL_BOOKB ? QV_NAKRUL_BOOKC : QV_INIT;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -2310,9 +2311,9 @@ static void OperateLever(int oi, bool sendmsg)
 #ifdef HELLFIRE
 	if (currLvl._dLevelIdx == DLV_CRYPT4 && !deltaload) {
 		if (quests[Q_NAKRUL]._qactive != QUEST_DONE) {
-			// assert(quests[Q_NAKRUL]._qvar1 < 4);
+			// assert(quests[Q_NAKRUL]._qvar1 < QV_NAKRUL_BOOKOPEN);
 			quests[Q_NAKRUL]._qactive = QUEST_DONE;
-			// quests[Q_NAKRUL]._qvar1 = 5;
+			// quests[Q_NAKRUL]._qvar1 = QV_NAKRUL_LEVEROPEN;
 			if (sendmsg)
 				NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 		}
@@ -3404,9 +3405,9 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	if (deltaload) {
 #ifdef HELLFIRE // STORY_BOOK_NAKRUL_IDX
 		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == QNB_BOOK_C) {
-			if (quests[Q_NAKRUL]._qvar1 == 4)
+			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN)
 				WakeUberDiablo();
-			if (quests[Q_NAKRUL]._qvar1 == 4 /*|| quests[Q_NAKRUL]._qvar1 == 7*/)
+			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN /*|| quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_DEADOPEN*/)
 				OpenUberRoom();
 		}
 #endif
@@ -3424,8 +3425,8 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 				if (sendmsg)
 					NetSendCmdQuest(Q_NAKRUL, true);
 			}
-			if (quests[Q_NAKRUL]._qvar1 == 3) {
-				quests[Q_NAKRUL]._qvar1 = 4;
+			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKC) {
+				quests[Q_NAKRUL]._qvar1 = QV_NAKRUL_BOOKOPEN;
 				quests[Q_NAKRUL]._qactive = QUEST_DONE;
 				if (sendmsg)
 					NetSendCmdQuest(Q_NAKRUL, true);

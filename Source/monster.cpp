@@ -1918,7 +1918,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		//if (IsSFXPlaying(USFX_NAKRUL4) || IsSFXPlaying(USFX_NAKRUL5) || IsSFXPlaying(USFX_NAKRUL6))
 			StopStreamSFX();
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
-		// quests[Q_NAKRUL]._qvar1 = quests[Q_NAKRUL]._qvar1 == 4 ? 7 : 6; // set to new state so innocent monsters are not 'woke'
+		// quests[Q_NAKRUL]._qvar1 = quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? QV_NAKRUL_DEADOPEN : QV_NAKRUL_DEAD; // set to new state so innocent monsters are not 'woke'
 		if (sendmsg)
 			NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 		/*SpawnMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
@@ -4395,8 +4395,7 @@ void ProcessMonsters()
 					PlaySfxLoc(USFX_CLEAVER, mon->_mx, mon->_my);
 #ifdef HELLFIRE
 				else if (mon->_mType == MT_NAKRUL)
-					// quests[Q_NAKRUL]._qvar1 == 4 -> UberRoom was opened by the books
-					PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == 4 ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mx, mon->_my);
+					PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mx, mon->_my);
 				else if (mon->_mType == MT_DEFILER)
 					PlaySfxLoc(USFX_DEFILER8, mon->_mx, mon->_my);
 #endif

@@ -4039,6 +4039,14 @@ typedef enum quest_var1_state {
 
 	QV_GIRL_TALK1 = 1,
 
+	QV_NAKRUL_BOOKA = 1,     // book A was read first
+	QV_NAKRUL_BOOKB = 2,     // book B was read in the correct order
+	QV_NAKRUL_BOOKC = 3,     // book C was read in the correct order
+	QV_NAKRUL_BOOKOPEN = 4,  // room opened by the books
+	QV_NAKRUL_LEVEROPEN = 5, // room opened by the lever - unused
+	QV_NAKRUL_DEAD = 6,      // Nakrul is killed  - unused
+	QV_NAKRUL_DEADOPEN = 7,  // Nakrul is killed and the room was opened by the books - unused
+
 	//QV_DIABLO 0-2: -- bookframe index for the story books
 } quest_var1_state;
 
