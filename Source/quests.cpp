@@ -548,10 +548,10 @@ void ResyncQuests()
 		//	quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
 		//	NetSendCmdQuest(Q_BUTCHER, false); // recipient should not matter
 		//}
-		if (lvl == questlist[Q_BETRAYER]._qdlvl - 1 && quests[Q_BETRAYER]._qactive == QUEST_INIT) {
-			quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
-			NetSendCmdQuest(Q_BETRAYER, false); // recipient should not matter
-		}
+		//if (lvl == questlist[Q_BETRAYER]._qdlvl - 1 && quests[Q_BETRAYER]._qactive == QUEST_INIT) {
+		//	quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
+		//	NetSendCmdQuest(Q_BETRAYER, false); // recipient should not matter
+		//}
 	} else {
 		if (lvl == SL_VILEBETRAYER) {
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_CENTRALOPEN)
