@@ -342,7 +342,7 @@ bool plrmsg_presskey(int vkey)
 		return false;
 #ifdef USE_SDL1
 	} else {
-		/ SDL1 does not support TEXTINPUT events, so we need to handle them here.
+		// SDL1 does not support TEXTINPUT events, so we need to handle them here.
 		vkey = TranslateKey2Char(vkey);
 		plrmsg_presschar(vkey);
 #endif
