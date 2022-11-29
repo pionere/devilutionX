@@ -40,6 +40,11 @@ target_include_directories(${libzt_LIB_NAME} INTERFACE
   "${libzt_SOURCE_DIR}/ext/lwip/src/include")
 
 if(WIN32)
+  # the code below might be necessary to build when SDL_LIBC is OFF.
+  #  See https://github.com/libsdl-org/SDL/issues/5156 .
+  #target_compile_definitions(natpmp_pic PRIVATE WIN32)
+  #target_compile_definitions(libnatpmp_obj PRIVATE WIN32)
+  #target_compile_definitions(${libzt_LIB_NAME} PRIVATE WIN32)
   target_include_directories(${libzt_LIB_NAME} INTERFACE
     "${libzt_SOURCE_DIR}/ext/lwip-contrib/ports/win32/include")
 else()
