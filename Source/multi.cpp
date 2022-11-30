@@ -414,13 +414,14 @@ void multi_process_turn(SNetTurnPkt* turn)
 		data += sizeof(unsigned);
 		pkt = (TurnPktHdr*)data;
 		data += dwMsgSize;
-		if (dwMsgSize < sizeof(TurnPktHdr))
+		if (dwMsgSize <= sizeof(TurnPktHdr))
 			continue;
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
 		if (pkt->wLen != dwMsgSize)
 			continue;
+		dwMsgSize -= sizeof(TurnPktHdr);
 		//if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
 		// currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
@@ -431,8 +432,9 @@ void multi_process_turn(SNetTurnPkt* turn)
 		//	plr._px = pkt->px;
 		//	plr._py = pkt->py;
 		//}
-		net_assert(plr._pActive || dwMsgSize == sizeof(TurnPktHdr) || ((TCmd*)(pkt + 1))->bCmd == CMD_JOINLEVEL);
-		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
+		if (!plr._pActive && ((TCmd*)(pkt + 1))->bCmd != CMD_JOINLEVEL)
+			continue; // player is disconnected -> ignore the turn
+		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize);
 		//multi_check_left_plrs();
 	}
 	gdwLastGameTurn = turn->nmpTurn;
