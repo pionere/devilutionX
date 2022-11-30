@@ -1255,9 +1255,6 @@ static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 /**
  * @brief Starting a move action towards SW, S, SE or E
  */
-#if defined(__clang__) || defined(__GNUC__)
-__attribute__((no_sanitize("shift-base")))
-#endif
 static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir)
 {
 	int px, py;
@@ -1721,9 +1718,6 @@ void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int
 	}
 }
 
-#if defined(__clang__) || defined(__GNUC__)
-__attribute__((no_sanitize("shift-base")))
-#endif
 void SyncPlrKill(int pnum, int dmgtype)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {

@@ -395,9 +395,6 @@ inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int li
 	//(*dst) += n;
 }
 
-#if defined(__clang__) || defined(__GNUC__)
-__attribute__((no_sanitize("shift-base")))
-#endif
 /**
  * @brief Blit a micro CEL to the given buffer
  * @param pBuff Output buffer
