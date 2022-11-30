@@ -789,6 +789,21 @@ static bool delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 	return false;
 }
 
+static void PackEar(PkItemStruct* dest, const ItemStruct* src)
+{
+	dest->wIndx = static_cast<uint16_t>(IDI_EAR);
+	dest->wCI = *(uint16_t*)&src->_iName[7];
+	dest->dwSeed = *(int32_t*)&src->_iName[9];
+	dest->bId = src->_iName[13];
+	dest->bDur = src->_iName[14];
+	dest->bMDur = src->_iName[15];
+	dest->bCh = src->_iName[16];
+	dest->bMCh = src->_iName[17];
+	static_assert(MAXCHARLEVEL < (1 << 6), "PackPkItem stores the player level of ears in 6 bits.");
+	dest->wValue = static_cast<uint16_t>(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
+	dest->dwBuff = *(uint32_t*)&src->_iName[19];
+}
+
 void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 {
 	if (src->_iIdx != IDI_EAR) {
@@ -802,17 +817,7 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 		dest->bMCh = src->_iMaxCharges;
 		dest->wValue = static_cast<uint16_t>(src->_ivalue);
 	} else {
-		dest->wIndx = static_cast<uint16_t>(IDI_EAR);
-		dest->wCI = *(uint16_t*)&src->_iName[7];
-		dest->dwSeed = *(int32_t*)&src->_iName[9];
-		dest->bId = src->_iName[13];
-		dest->bDur = src->_iName[14];
-		dest->bMDur = src->_iName[15];
-		dest->bCh = src->_iName[16];
-		dest->bMCh = src->_iName[17];
-		static_assert(MAXCHARLEVEL < (1 << 6), "PackPkItem stores the player level of ears in 6 bits.");
-		dest->wValue = static_cast<uint16_t>(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
-		dest->dwBuff = *(uint32_t*)&src->_iName[19];
+		PackEar(dest, src);
 	}
 }
 
