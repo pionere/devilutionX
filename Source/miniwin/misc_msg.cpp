@@ -1055,93 +1055,93 @@ bool PeekMessage(LPMSG lpMsg)
  */
 int TranslateKey2Char(int key)
 {
-		//unsigned mod = lpMsg->lParam >> 16;
-		SDL_Keymod mod = SDL_GetModState();
+	//unsigned mod = lpMsg->lParam >> 16;
+	SDL_Keymod mod = SDL_GetModState();
 
-		bool shift = (mod & KMOD_SHIFT) != 0;
-		if (key >= DVL_VK_A && key <= DVL_VK_Z) {
-			static_assert(DVL_VK_A == 'A', "Translation from DVL_VK_A-Z to A-Z is a NOP in TranslateKey2Char I.");
-			static_assert(DVL_VK_Z == 'Z', "Translation from DVL_VK_A-Z to A-Z is a NOP in TranslateKey2Char II.");
-			if (shift == ((mod & KMOD_CAPS) != 0))
-				key = tolower(key);
-		} else if (key >= DVL_VK_0 && key <= DVL_VK_9) {
-			static_assert(DVL_VK_0 == '0', "Translation from DVL_VK_0-9 to 0-9 is a NOP in TranslateKey2Char I.");
-			static_assert(DVL_VK_9 == '9', "Translation from DVL_VK_0-9 to 0-9 is a NOP in TranslateKey2Char II.");
-			if (shift) {
-				const char shkeys[] = { ')', '!', '@', '#', '$', '%', '^', '&', '*', '(' };
-				key = shkeys[key - '0'];
-			}
-		} else if (key == DVL_VK_SPACE) { // || key == DVL_VK_BACK || key == DVL_VK_ESCAPE || key == DVL_VK_TAB || key == DVL_VK_RETURN) {
-			// control keys
-			key = ' ';
-		} else if (key >= DVL_VK_NUMPAD0 && key <= DVL_VK_DIVIDE) {
-			// numpad buttons
-			switch (key) {
-			case DVL_VK_MULTIPLY:
-				key = '*';
-				break;
-			case DVL_VK_ADD:
-				key = '+';
-				break;
-			case DVL_VK_SUBTRACT:
-				key = '-';
-				break;
-			case DVL_VK_DECIMAL:
-				key = ',';
-				break;
-			case DVL_VK_DIVIDE:
-				key = '/';
-				break;
-			default:
-				key = '0' + (key - DVL_VK_NUMPAD0);
-				break;
-			}
-		} else if (key >= DVL_VK_OEM_1 && key <= 0xFF) {
-			// oem keys - This probably only supports US keyboard layout
-			switch (key) {
-			case DVL_VK_OEM_1:
-				key = shift ? ':' : ';';
-				break;
-			case DVL_VK_OEM_2:
-				key = shift ? '?' : '/';
-				break;
-			case DVL_VK_OEM_3:
-				key = shift ? '~' : '`';
-				break;
-			case DVL_VK_OEM_4:
-				key = shift ? '{' : '[';
-				break;
-			case DVL_VK_OEM_5:
-				key = shift ? '|' : '\\';
-				break;
-			case DVL_VK_OEM_6:
-				key = shift ? '}' : ']';
-				break;
-			case DVL_VK_OEM_7:
-				key = shift ? '"' : '\'';
-				break;
-			case DVL_VK_OEM_MINUS:
-				key = shift ? '_' : '-';
-				break;
-			case DVL_VK_OEM_PLUS:
-				key = shift ? '+' : '=';
-				break;
-			case DVL_VK_OEM_PERIOD:
-				key = shift ? '>' : '.';
-				break;
-			case DVL_VK_OEM_COMMA:
-				key = shift ? '<' : ',';
-				break;
-			default:
-				key = '?'; // UNIMPLEMENTED();
-			}
-		} else
-			return 0;
-
-		if (key >= ' ') {
-			DoLog("char: %c", key);
+	bool shift = (mod & KMOD_SHIFT) != 0;
+	if (key >= DVL_VK_A && key <= DVL_VK_Z) {
+		static_assert(DVL_VK_A == 'A', "Translation from DVL_VK_A-Z to A-Z is a NOP in TranslateKey2Char I.");
+		static_assert(DVL_VK_Z == 'Z', "Translation from DVL_VK_A-Z to A-Z is a NOP in TranslateKey2Char II.");
+		if (shift == ((mod & KMOD_CAPS) != 0))
+			key = tolower(key);
+	} else if (key >= DVL_VK_0 && key <= DVL_VK_9) {
+		static_assert(DVL_VK_0 == '0', "Translation from DVL_VK_0-9 to 0-9 is a NOP in TranslateKey2Char I.");
+		static_assert(DVL_VK_9 == '9', "Translation from DVL_VK_0-9 to 0-9 is a NOP in TranslateKey2Char II.");
+		if (shift) {
+			const char shkeys[] = { ')', '!', '@', '#', '$', '%', '^', '&', '*', '(' };
+			key = shkeys[key - '0'];
 		}
-		return key;
+	} else if (key == DVL_VK_SPACE) { // || key == DVL_VK_BACK || key == DVL_VK_ESCAPE || key == DVL_VK_TAB || key == DVL_VK_RETURN) {
+		// control keys
+		key = ' ';
+	} else if (key >= DVL_VK_NUMPAD0 && key <= DVL_VK_DIVIDE) {
+		// numpad buttons
+		switch (key) {
+		case DVL_VK_MULTIPLY:
+			key = '*';
+			break;
+		case DVL_VK_ADD:
+			key = '+';
+			break;
+		case DVL_VK_SUBTRACT:
+			key = '-';
+			break;
+		case DVL_VK_DECIMAL:
+			key = ',';
+			break;
+		case DVL_VK_DIVIDE:
+			key = '/';
+			break;
+		default:
+			key = '0' + (key - DVL_VK_NUMPAD0);
+			break;
+		}
+	} else if (key >= DVL_VK_OEM_1 && key <= 0xFF) {
+		// oem keys - This probably only supports US keyboard layout
+		switch (key) {
+		case DVL_VK_OEM_1:
+			key = shift ? ':' : ';';
+			break;
+		case DVL_VK_OEM_2:
+			key = shift ? '?' : '/';
+			break;
+		case DVL_VK_OEM_3:
+			key = shift ? '~' : '`';
+			break;
+		case DVL_VK_OEM_4:
+			key = shift ? '{' : '[';
+			break;
+		case DVL_VK_OEM_5:
+			key = shift ? '|' : '\\';
+			break;
+		case DVL_VK_OEM_6:
+			key = shift ? '}' : ']';
+			break;
+		case DVL_VK_OEM_7:
+			key = shift ? '"' : '\'';
+			break;
+		case DVL_VK_OEM_MINUS:
+			key = shift ? '_' : '-';
+			break;
+		case DVL_VK_OEM_PLUS:
+			key = shift ? '+' : '=';
+			break;
+		case DVL_VK_OEM_PERIOD:
+			key = shift ? '>' : '.';
+			break;
+		case DVL_VK_OEM_COMMA:
+			key = shift ? '<' : ',';
+			break;
+		default:
+			key = '?'; // UNIMPLEMENTED();
+		}
+	} else
+		return 0;
+
+	if (key >= ' ') {
+		DoLog("char: %c", key);
+	}
+	return key;
 }
 #endif
 

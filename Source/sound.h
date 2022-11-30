@@ -22,7 +22,7 @@ void sound_play(SoundSample* pSnd, int lVolume, int lPan);
 void sound_stream(const char* path, SoundSample* pSnd, int lVolume, int lPan);
 void sound_stop();
 void sound_pause(bool pause);
-void sound_file_load(const char *path, SoundSample* pSnd);
+void sound_file_load(const char* path, SoundSample* pSnd);
 void InitSound();
 void FreeSound();
 void RestartMixer();

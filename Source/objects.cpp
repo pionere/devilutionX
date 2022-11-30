@@ -944,7 +944,7 @@ void InitObjects()
 			LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
 		}
 		if (QuestStatus(Q_BLOOD)) {
-			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD);
+			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD); // NULL_LVR_EFFECT
 			AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 		}
 		AddL2Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
@@ -1322,9 +1322,9 @@ static void AddStoryBook(int oi)
 	os = &objects[oi];
 	// os->_oVar1 = bookframe;
 	os->_oVar2 = StoryText[bookframe][idx]; // STORY_BOOK_MSG
-	os->_oVar3 = 3 * bookframe + idx; // STORY_BOOK_NAME
-	os->_oAnimFrame = 5 - 2 * bookframe;
-	os->_oVar4 = os->_oAnimFrame + 1; // STORY_BOOK_READ_FRAME
+	os->_oVar3 = 3 * bookframe + idx;       // STORY_BOOK_NAME
+	os->_oAnimFrame = 5 - 2 * bookframe;    //
+	os->_oVar4 = os->_oAnimFrame + 1;       // STORY_BOOK_READ_FRAME
 }
 
 static void AddWeaponRack(int oi)
@@ -1720,8 +1720,8 @@ static void Obj_Trap(int oi)
 	ObjectStruct *os, *on;
 	int i, dir, trigNum;
 	const POS32* trigArea;
-	const POS32 baseTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 } , { -1, 1 }, { 0, -1 }, { -1, -1 }, { 1, -1 } };
-	const POS32 sarcTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 } , { -1, 1 }, { 0, -2 }, { -1, -2 }, { 1, -2 }, { -1, -1 }, { 1, -1 } };
+	const POS32 baseTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { -1, -1 }, { 1, -1 } };
+	const POS32 sarcTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 }, { -1, 1 }, { 0, -2 }, { -1, -2 }, { 1, -2 }, { -1, -1 }, { 1, -1 } };
 
 	int sx, sy, dx, dy, x, y;
 
@@ -2386,11 +2386,12 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	}
 	os = &objects[oi];
 	// assert(os->_oSelFlag != 0);
-	qn = os->_oVar7;     // LEVER_BOOK_QUEST
+	qn = os->_oVar7; // LEVER_BOOK_QUEST
+
 	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
-		os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_ANIM
+		os->_oAnimFrame = os->_oVar6;    // LEVER_BOOK_ANIM
 		//if (qn != Q_BLOOD) NULL_LVR_EFFECT
-			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, qn == Q_BLIND*/);    // LEVER_EFFECT
+			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4 /*, qn == Q_BLIND*/); // LEVER_EFFECT
 		if (qn == Q_BLIND) {
 			if (!deltaload)
 				SpawnUnique(UITEM_OPTAMULET, 2 * os->_oVar1 + DBORDERX + 5, 2 * os->_oVar2 + DBORDERY + 5, sendmsg ? ICM_SEND : ICM_DUMMY);
@@ -2835,7 +2836,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	case SHRINE_WEIRD:
 		pi = &plr._pInvBody[INVLOC_HEAD];
 		pi->_iDurability = pi->_iMaxDur;
-		
+
 		pi = &plr._pInvBody[INVLOC_CHEST];
 		pi->_iDurability = std::max(1, pi->_iDurability >> 1);
 		break;
@@ -3388,7 +3389,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	static_assert(ITYPE_AXE + 1 == ITYPE_BOW, "OperateWeaponRack expects an ordered ITYPE_ for weapons II.");
 	static_assert(ITYPE_BOW + 1 == ITYPE_MACE, "OperateWeaponRack expects an ordered ITYPE_ for weapons III.");
 	SetRndSeed(os->_oRndSeed);
-	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, ITYPE_SWORD + random_(0, 4),	IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, ITYPE_SWORD + random_(0, 4), IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 /**
@@ -3554,8 +3555,8 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 			}
 		}
 	} else {
-		if (os->_oVar2 <= 1) {    // BARREL_ITEM
-			if (os->_oVar3 == 0)  // BARREL_ITEM_TYPE
+		if (os->_oVar2 <= 1) {   // BARREL_ITEM
+			if (os->_oVar3 == 0) // BARREL_ITEM_TYPE
 				SpawnRndUseful(os->_ox, os->_oy, sendmsg);
 			else
 				CreateRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
@@ -3717,7 +3718,7 @@ void SyncDoorClose(int oi)
 
 void SyncTrapDisable(int oi)
 {
-	objects[oi]._oVar4 = TRAP_INACTIVE; // TRAP_LIVE
+	objects[oi]._oVar4 = TRAP_INACTIVE;           // TRAP_LIVE
 	objects[objects[oi]._oVar1]._oTrapChance = 0; // TRAP_OI_REF
 }
 
@@ -4051,6 +4052,7 @@ void SyncObjectAnim(int oi)
 		break;
 	case OBJ_BOOK2R:
 	case OBJ_BLINDBOOK:
+	//case OBJ_BLOODBOOK: -- NULL_LVR_EFFECT
 	case OBJ_STEELTOME:
 		SyncBookLever(oi);
 		break;

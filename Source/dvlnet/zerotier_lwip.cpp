@@ -36,6 +36,6 @@ void zt_ip6setup()
 	UNLOCK_TCPIP_CORE();
 }
 
-}
+} // namespace net
 DEVILUTION_END_NAMESPACE
 #endif // ZEROTIER

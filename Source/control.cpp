@@ -155,7 +155,8 @@ static BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 static BYTE GetSpellTrans(BYTE st, BYTE sn)
 {
 #ifdef HELLFIRE
-	if (st != RSPLTYPE_INV) return st;
+	if (st != RSPLTYPE_INV)
+		return st;
 	return SPELL_RUNE(sn) ? RSPLTYPE_RUNE : RSPLTYPE_SCROLL;
 #else
 	return st;
@@ -1730,7 +1731,6 @@ void DrawInfoStr()
 		DrawTooltip(infostr, MouseX + cursW / 2, MouseY - TOOLTIP_OFFSET, infoclr);
 	}
 }
-
 
 void CheckChrBtnClick()
 {

@@ -59,7 +59,7 @@ int sgCursYOld;
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
 bool gbCelTransparencyActive;
-void (*DrawPlrProc)(int, int, int, int, int, BYTE *, int, int, int, int);
+void (*DrawPlrProc)(int, int, int, int, int, BYTE*, int, int, int, int);
 /**
  * Buffer to store the cursor image.
  */
@@ -71,7 +71,7 @@ static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
 #if DEBUG_MODE
-const char *const szMonModeAssert[NUM_MON_MODES] = {
+const char* const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -94,7 +94,7 @@ const char *const szMonModeAssert[NUM_MON_MODES] = {
 	"reserved",
 };
 
-const char *const szPlrModeAssert[NUM_PLR_MODES] = {
+const char* const szPlrModeAssert[NUM_PLR_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -253,7 +253,7 @@ static void scrollrt_draw_cursor()
 static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 {
 	int mx, my, nCel, frames;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
 	if (mis->_miPreFlag != gbPreFlag || !mis->_miDrawFlag)
 		return;
@@ -265,7 +265,7 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 		dev_fatal("Draw Missile type %d: NULL Cel Buffer", mis->_miType);
 	}
 	nCel = mis->_miAnimFrame;
-	frames = SwapLE32(*(uint32_t *)pCelBuff);
+	frames = SwapLE32(*(uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}
@@ -287,7 +287,7 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 static void DrawMissile(int mi, int x, int y, int sx, int sy)
 {
 	int i;
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	if (mi != MIS_MULTI) {
 		mis = &missile[mi - 1];
@@ -313,11 +313,11 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy)
  */
 static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, nCel, nWidth;
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
 	if (!visFlag && !myplr._pInfraFlag)
 		return;
@@ -341,9 +341,9 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(uint32_t *)pCelBuff);
+	int frames = SwapLE32(*(uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		const char *szMode = "unknown action";
+		const char* szMode = "unknown action";
 		if (mon->_mmode < lengthof(szMonModeAssert))
 			szMode = szMonModeAssert[mon->_mmode];
 		dev_fatal(
@@ -392,7 +392,7 @@ static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 	}
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(uint32_t *)pCelBuff);
+	int frames = SwapLE32(*(uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Dead Monster frame %d of %d, name:%s", nCel, frames, mon->_mName);
 	}
@@ -438,7 +438,7 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 {
 	MonsterStruct* tw;
 	int tx, nCel, nWidth;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
 	tw = &monsters[tnum];
 	tx = sx - tw->_mAnimXOffset;
@@ -469,7 +469,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 {
 	int px, py, nCel, nWidth, l;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
 	if (visFlag || myplr._pInfraFlag) {
 		px = sx + plr._pxoff - plr._pAnimXOffset;
@@ -480,9 +480,9 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		}
 		nCel = plr._pAnimFrame;
 #if DEBUG_MODE
-		int frames = SwapLE32(*(uint32_t *)pCelBuff);
+		int frames = SwapLE32(*(uint32_t*)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
-			const char *szMode = "unknown action";
+			const char* szMode = "unknown action";
 			if (plr._pmode < lengthof(szPlrModeAssert))
 				szMode = szPlrModeAssert[plr._pmode];
 			dev_fatal(
@@ -537,12 +537,12 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pActive && plr._pHitPoints < (1 << 6) && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
 #if DEBUG_MODE
-			BYTE *pCelBuff = plr._pAnimData;
+			BYTE* pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
 				dev_fatal("Draw Dead Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
-			int frames = SwapLE32(*(uint32_t *)pCelBuff);
+			int frames = SwapLE32(*(uint32_t*)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
 				dev_fatal("Draw Dead Player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
 			}
@@ -616,7 +616,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
  */
 static void drawCell(int pn, int sx, int sy)
 {
-	BYTE *dst;
+	BYTE* dst;
 	uint16_t levelCelBlock, i, limit;
 	uint16_t* pMap;
 	int tmp, mask;
@@ -777,11 +777,11 @@ static void drawCell(int pn, int sx, int sy)
 						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
 						// clang-format on
 					};
-					mask = (k & 1)									// odd
-					 | ((j == (ASSET_MPL + k) / 2) << 1)			// onUpperTop
-					 | (((j + 1) == (ASSET_MPL - k + 1) / 2) << 2)	// onLowerBottom
-					 | ((j > (ASSET_MPL + k) / 2) << 3) 			// upperTop
-					 | (((j + 1) < (ASSET_MPL - k + 1) / 2) << 4);	// lowerBottom
+					mask = (k & 1)                                 // odd
+					 | ((j == (ASSET_MPL + k) / 2) << 1)           // onUpperTop
+					 | (((j + 1) == (ASSET_MPL - k + 1) / 2) << 2) // onLowerBottom
+					 | ((j > (ASSET_MPL + k) / 2) << 3)            // upperTop
+					 | (((j + 1) < (ASSET_MPL - k + 1) / 2) << 4); // lowerBottom
 					if (tmp & TMIF_LEFT_WALL_TRANS) {
 						if (ASSET_EVEN)
 							mask = leftTrnMasksEven[mask];
@@ -810,9 +810,9 @@ static void drawCell(int pn, int sx, int sy)
 						mask = DMT_NONE;
 #if ASSET_MPL == 1
 						if (tmp & TMIF_RIGHT_WALL_TRANS) {
-							mask = DMT_RTFLOOR;	// &RightMask[MICRO_HEIGHT - 1];
+							mask = DMT_RTFLOOR; // &RightMask[MICRO_HEIGHT - 1];
 						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
-							mask = DMT_RFLOOR;	// &RightFoliageMask[MICRO_HEIGHT - 1];
+							mask = DMT_RFLOOR; // &RightFoliageMask[MICRO_HEIGHT - 1];
 						}
 #elif ASSET_MPL == 2
 						if (tmp & TMIF_RIGHT_WALL_TRANS) {
@@ -924,11 +924,11 @@ static void drawCell(int pn, int sx, int sy)
 						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
 						// clang-format on
 					};
-					mask = ((ASSET_MPL - 1 - k) & 1)									// odd
-					 | ((j == (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 1)				// onUpperTop
-					 | (((j + 1) == (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 2)	// onLowerBottom
-					 | ((j > (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 3)				// upperTop
-					 | (((j + 1) < (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 4);	// lowerBottom
+					mask = ((ASSET_MPL - 1 - k) & 1)                                 // odd
+					 | ((j == (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 1)           // onUpperTop
+					 | (((j + 1) == (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 2) // onLowerBottom
+					 | ((j > (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 3)            // upperTop
+					 | (((j + 1) < (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 4); // lowerBottom
 					if (tmp & TMIF_RIGHT_WALL_TRANS) {
 						if (ASSET_EVEN)
 							mask = rightTrnMasksEven[mask];
@@ -1204,7 +1204,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 	}
 }
 
-#define IsWall(x, y) (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || dSpecial[x][y] != 0)
+#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || dSpecial[x][y] != 0)
 #define IsWalkable(x, y) (/*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]])
 
 /**
@@ -1276,8 +1276,8 @@ static void Zoom()
 	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2 - 1, VIEWPORT_HEIGHT / 2 - 1);
 	int nDstOff = SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1);
 
-	BYTE *src = &gpBuffer[nSrcOff];
-	BYTE *dst = &gpBuffer[nDstOff];
+	BYTE* src = &gpBuffer[nSrcOff];
+	BYTE* dst = &gpBuffer[nDstOff];
 
 	for (int hgt = 0; hgt < VIEWPORT_HEIGHT / 2; hgt++) {
 		for (int i = 0; i < wdt; i++) {
@@ -1296,7 +1296,7 @@ static void Zoom()
  * @param offsetX Offset in pixels
  * @param offsetY Offset in pixels
  */
-static void CalcTileOffset(int *offsetX, int *offsetY)
+static void CalcTileOffset(int* offsetX, int* offsetY)
 {
 	unsigned x, y;
 
@@ -1515,12 +1515,12 @@ static void DrawView()
 		}
 		for (int i = 0; i < gnNumActiveWindows; i++) {
 			switch (gaActiveWindows[i]) {
-			case WND_INV:	DrawInv();		break;
-			case WND_CHAR:	DrawChr();		break;
-			case WND_BOOK:	DrawSpellBook();break;
-			case WND_TEAM:	DrawTeamBook();	break;
-			case WND_QUEST:	DrawQuestLog();	break;
-			default: ASSUME_UNREACHABLE;	break;
+			case WND_INV:   DrawInv();       break;
+			case WND_CHAR:  DrawChr();       break;
+			case WND_BOOK:  DrawSpellBook(); break;
+			case WND_TEAM:  DrawTeamBook();  break;
+			case WND_QUEST: DrawQuestLog();  break;
+			default: ASSUME_UNREACHABLE;     break;
 			}
 		}
 		if (gbDropGoldFlag) {

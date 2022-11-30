@@ -140,7 +140,7 @@ static_assert(validateCursorAreas(), "One of the cursor area does not fit to the
 void InitCursorGFX()
 {
 	assert(pCursCels == NULL);
-	
+
 #ifdef HELLFIRE
 	size_t sizeA, sizeB;
 	BYTE *aCursCels, *bCursCels;

@@ -24,10 +24,12 @@ public:
 	virtual std::vector<std::string> get_gamelist();
 
 	virtual ~base_protocol() = default;
+
 protected:
 	virtual void poll();
 	virtual void send_packet(packet& pkt);
 	virtual void disconnect_net(plr_t pnum);
+
 private:
 	P proto;
 	typedef typename P::endpoint endpoint;

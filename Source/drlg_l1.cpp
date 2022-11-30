@@ -1767,8 +1767,8 @@ static void L1TileFix()
 		for (j = DMAXY - 1; j > 0; j--) {
 			switch (dungeon[i][j]) {
 			case 1:
-			//			[ 13(6) ]
-			// [ 2(6) ]  	1
+			//          [ 13(6) ]
+			// [ 2(6) ]     1
 			// 2(6) -- the possible values on the top are 1, 4 and 13.
 			//         in case of 1 and 4 the conversion is not necessary.
 			//         in case of 13, the same conversion is triggered.
@@ -1776,8 +1776,8 @@ static void L1TileFix()
 					dungeon[i][j] = 6; // cut/connect
 				break;
 			case 2:
-			//			[ 1(7) ]
-			// [ 13(7) ]	2
+			//          [ 1(7) ]
+			// [ 13(7) ]    2
 			// 1(7) -- the possible values on the left are 2, 4 and 13.
 			//         in case of 2 and 4 the conversion is not necessary.
 			//         in case of 13, the same conversion is triggered.
@@ -1788,8 +1788,8 @@ static void L1TileFix()
 			case 4:
 				break;
 			case 13:
-			//		[ 1(16) ]
-			// [ 2(17) ] 13
+			//          [ 1(16) ]
+			// [ 2(17) ]    13
 				// Impossible case ([2 13]) if there is an empty tile between walls.
 				assert(dungeon[i - 1][j] != 2);
 				if (dungeon[i][j - 1] == 1) {
@@ -1805,8 +1805,8 @@ static void L1TileFix()
 				}*/
 				break;
 			case 16:
-			//				[ 13(17) ]
-			// [ 2(3), 4(3) ]	16
+			//              [ 13(17) ]
+			// [ 2(3), 4(3) ]   16
 				if (dungeon[i - 1][j] == 2 || dungeon[i - 1][j] == 4) {
 					if (dungeon[i][j - 1] == 13) {
 						dungeon[i][j] = 17; // cut + connect
@@ -1821,8 +1821,8 @@ static void L1TileFix()
 				}
 				break;
 			case 22:
-			//			[ 1(24!), 13(19!) ]
-			// [ 2(23!), 13(18!) ]	22
+			//          [ 1(24!), 13(19!) ]
+			// [ 2(23!), 13(18!) ]  22
 				if (dungeon[i - 1][j] == 2) {
 					if (dungeon[i][j - 1] == 1 || dungeon[i][j - 1] == 13) {
 						dungeon[i][j] = 21; // new wall (SW, SE)
@@ -1859,12 +1859,12 @@ static void L1TileFix()
 	for (i = DMAXX - 1; i > 0; i--) {
 		/* Impossible case ([2 13]) if there is an empty tile between walls.
 		if (dungeon[i][0] == 13) {
-			// [ 2(17) ] 13
+			// [ 2(17) ]   13
 			if (dungeon[i - 1][0] == 2) {
 				dungeon[i][0] = 17; // connect
 			}
 		} else*/ if (dungeon[i][0] == 22) {
-			// [ 2(23) ]	22
+			// [ 2(23) ]   22
 			if (dungeon[i - 1][0] == 2) {
 				dungeon[i][0] = 23; // new wall (SW)
 			}
@@ -1873,7 +1873,7 @@ static void L1TileFix()
 	for (j = DMAXY - 1; j > 0; j--) {
 		if (dungeon[0][j] == 22) {
 			// [ 1(24) ]
-			//	22
+			//    22
 			if (dungeon[0][j - 1] == 1) {
 				dungeon[0][j] = 24; // new wall (SE)
 			} else {

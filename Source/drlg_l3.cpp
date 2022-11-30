@@ -686,7 +686,7 @@ const BYTE L6SPOOLBASE[] = {
 	// clang-format on
 };
 const BYTE L6SPOOL1[] = {
-	// clang-format off +
+	// clang-format off
 	2, 2, // width, height
 
 	107, 115, // search
@@ -708,7 +708,7 @@ const BYTE L6SPOOL2[] = {
 	// clang-format on
 };
 const BYTE L6SPOOL3[] = {
-	// clang-format off  +
+	// clang-format off
 	2, 2, // width, height
 
 	107, 115, // search
@@ -941,7 +941,7 @@ const BYTE L6HORZLPOOL7[] = {
 	// clang-format on
 };
 const BYTE L6WALLSPOOL1[] = {
-	// clang-format off +
+	// clang-format off
 	4, 3, // width, height
 
 	0, 10,  0, 0, // search

@@ -1304,7 +1304,7 @@ void LevelDeltaExport()
 			//assert(!mis->_miDelFlag);
 			TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)dst;
 			tmis->smiMi = static_cast<uint16_t>(mi + MAXMONSTERS);
-			tmis->smiType = mis->_miType;   // Type of projectile (MIS_*)
+			tmis->smiType = mis->_miType; // Type of projectile (MIS_*)
 			//BYTE _miFlags;
 			//BYTE _miResist;
 			tmis->smiFileNum = mis->_miFileNum;
@@ -1589,7 +1589,7 @@ void LevelDeltaLoad()
 		mis->_miDrawFlag = tmis->smiDrawFlag;   // could be calculated
 		mis->_miUniqTrans = tmis->smiUniqTrans; //
 		mis->_miLightFlag = tmis->smiLightFlag; // could be calculated
-		mis->_miPreFlag = tmis->smiPreFlag;	    // could be calculated
+		mis->_miPreFlag = tmis->smiPreFlag;     // could be calculated
 		//BOOL _miAnimFlag;
 		mis->_miAnimCnt = tmis->smiAnimCnt;     // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 		mis->_miAnimAdd = tmis->smiAnimAdd;     //
@@ -1706,25 +1706,25 @@ void LevelDeltaLoad()
 		case ACTION_SPELLMON:
 			net_assert(plr._pDestParam1 < MAXMONSTERS);
 			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
-			net_assert(plr._pDestParam4 >= 0); // ATTACK_SKILL_LEVEL, SPELL_LEVEL
+			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_ATTACK:
 		case ACTION_RATTACK:
 			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL
-			net_assert(plr._pDestParam4 >= 0); // ATTACK_SKILL_LEVEL
+			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL
 			break;
 		case ACTION_ATTACKPLR:
 		case ACTION_RATTACKPLR:
 		case ACTION_SPELLPLR:
 			net_assert(plr._pDestParam1 < MAX_PLRS);
 			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
-			net_assert(plr._pDestParam4 >= 0); // ATTACK_SKILL_LEVEL, SPELL_LEVEL
+			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_SPELL:
 			net_assert(plr._pDestParam1 >= DBORDERX && plr._pDestParam1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
 			net_assert(plr._pDestParam2 >= DBORDERY && plr._pDestParam2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
-			net_assert(plr._pDestParam3 < NUM_SPELLS); // SPELL_NUM
-			net_assert(plr._pDestParam4 >= 0); // SPELL_LEVEL
+			net_assert(plr._pDestParam3 < NUM_SPELLS);                                        // SPELL_NUM
+			net_assert(plr._pDestParam4 >= 0);                                                // SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_DISARM)
 				net_assert(plr._pDestParam4 < MAXOBJECTS); // fake SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_RESURRECT)
@@ -3628,15 +3628,15 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		buf++;
 		*buf = plx(i)._pDunLevel;
 		buf++;
-	//BYTE _pClass;
+		//BYTE _pClass;
 		*buf = plx(i)._pLevel;
 		buf++;
-	//BYTE _pRank;
+		//BYTE _pRank;
 		*buf = plx(i)._pTeam;
 		buf++;
 		*(WORD*)buf = plx(i)._pStatPts;
 		buf += sizeof(WORD);
-	//BYTE _pLightRad;
+		//BYTE _pLightRad;
 		*buf = plx(i)._pManaShield;
 		buf++;
 
@@ -3663,19 +3663,19 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		buf++;
 		*buf = plx(i)._poldy;
 		buf++;
-	//int _pxoff;   // Player sprite's pixel X-offset from tile.
-	//int _pyoff;   // Player sprite's pixel Y-offset from tile.
+		//int _pxoff;   // Player sprite's pixel X-offset from tile.
+		//int _pyoff;   // Player sprite's pixel Y-offset from tile.
 		*buf = plx(i)._pdir;
 		buf++;
-	//int _pAnimFrameLen; // Tick length of each frame in the current animation
-	//int _pAnimCnt;
-	//unsigned _pAnimLen;   // Number of frames in current animation
-	//int _pAnimFrame;
-	//int _pAnimWidth;
-	//int _pAnimXOffset;
-	//unsigned _plid;
-	//unsigned _pvid;
-	// char _pName[PLR_NAME_LEN];
+		//int _pAnimFrameLen; // Tick length of each frame in the current animation
+		//int _pAnimCnt;
+		//unsigned _pAnimLen;   // Number of frames in current animation
+		//int _pAnimFrame;
+		//int _pAnimWidth;
+		//int _pAnimXOffset;
+		//unsigned _plid;
+		//unsigned _pvid;
+		// char _pName[PLR_NAME_LEN];
 		*(WORD*)buf = plx(i)._pBaseStr;
 		buf += sizeof(WORD);
 		*(WORD*)buf = plx(i)._pBaseMag;
@@ -3713,16 +3713,16 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 
 		*(INT*)buf = plx(i)._pGold;
 		buf += sizeof(INT);
-	//int _pStrength;
-	//int _pMagic;
-	//int _pDexterity;
-	//int _pVitality;
+		//int _pStrength;
+		//int _pMagic;
+		//int _pDexterity;
+		//int _pVitality;
 		*(INT*)buf = plx(i)._pHitPoints;
 		buf += sizeof(INT);
-	//int _pMaxHP;     // the maximum hp of the player
+		//int _pMaxHP;     // the maximum hp of the player
 		*(INT*)buf = plx(i)._pMana;
 		buf += sizeof(INT);
-	//int _pMaxMana;   // the maximum mana of the player
+		//int _pMaxMana;   // the maximum mana of the player
 
 		// LogErrorF("PLRD", "Player base-data %d", (size_t)buf - (size_t)plrdata);
 
@@ -3784,49 +3784,49 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		//LogErrorF("PLRD", "Player skill-data III. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 131);
 		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
-	/*PlrAnimStruct _pAnims[NUM_PFIDXs];*/
-	/*BOOLEAN _pInfraFlag;
-	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
-	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
-	BYTE _pAlign_B0;
-	int _pISlMinDam; // min slash-damage (swords, axes)
-	int _pISlMaxDam; // max slash-damage (swords, axes)
-	int _pIBlMinDam; // min blunt-damage (maces, axes)
-	int _pIBlMaxDam; // max blunt-damage (maces, axes)
-	int _pIPcMinDam; // min puncture-damage (bows, daggers)
-	int _pIPcMaxDam; // max puncture-damage (bows, daggers)
-	int _pIChMinDam; // min charge-damage (shield charge)
-	int _pIChMaxDam; // max charge-damage (shield charge)
-	int _pIEvasion;
-	int _pIAC;
-	char _pMagResist;
-	char _pFireResist;
-	char _pLghtResist;
-	char _pAcidResist;
-	int _pIHitChance;
-	BYTE _pSkillFlags;    // Bitmask of allowed skill-types (SFLAG_*)
-	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
-	BYTE _pICritChance; // 200 == 100%
-	BYTE _pIBlockChance;
-	uint64_t _pISpells; // Bitmask of staff spell
-	unsigned _pIFlags;
-	BYTE _pIWalkSpeed;
-	BYTE _pIRecoverySpeed;
-	BYTE _pIBaseCastSpeed;
-	BYTE _pAlign_B1;
-	int _pIGetHit;
-	BYTE _pIBaseAttackSpeed;
-	char _pIArrowVelBonus; // _pISplCost in vanilla code
-	BYTE _pILifeSteal;
-	BYTE _pIManaSteal;
-	int _pIFMinDam; // min fire damage (item's added fire damage)
-	int _pIFMaxDam; // max fire damage (item's added fire damage)
-	int _pILMinDam; // min lightning damage (item's added lightning damage)
-	int _pILMaxDam; // max lightning damage (item's added lightning damage)
-	int _pIMMinDam; // min magic damage (item's added magic damage)
-	int _pIMMaxDam; // max magic damage (item's added magic damage)
-	int _pIAMinDam; // min acid damage (item's added acid damage)
-	int _pIAMaxDam; // max acid damage (item's added acid damage)*/
+		/*PlrAnimStruct _pAnims[NUM_PFIDXs];*/
+		/*BOOLEAN _pInfraFlag;
+		BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
+		BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
+		BYTE _pAlign_B0;
+		int _pISlMinDam; // min slash-damage (swords, axes)
+		int _pISlMaxDam; // max slash-damage (swords, axes)
+		int _pIBlMinDam; // min blunt-damage (maces, axes)
+		int _pIBlMaxDam; // max blunt-damage (maces, axes)
+		int _pIPcMinDam; // min puncture-damage (bows, daggers)
+		int _pIPcMaxDam; // max puncture-damage (bows, daggers)
+		int _pIChMinDam; // min charge-damage (shield charge)
+		int _pIChMaxDam; // max charge-damage (shield charge)
+		int _pIEvasion;
+		int _pIAC;
+		char _pMagResist;
+		char _pFireResist;
+		char _pLghtResist;
+		char _pAcidResist;
+		int _pIHitChance;
+		BYTE _pSkillFlags;    // Bitmask of allowed skill-types (SFLAG_*)
+		BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
+		BYTE _pICritChance; // 200 == 100%
+		BYTE _pIBlockChance;
+		uint64_t _pISpells; // Bitmask of staff spell
+		unsigned _pIFlags;
+		BYTE _pIWalkSpeed;
+		BYTE _pIRecoverySpeed;
+		BYTE _pIBaseCastSpeed;
+		BYTE _pAlign_B1;
+		int _pIGetHit;
+		BYTE _pIBaseAttackSpeed;
+		char _pIArrowVelBonus; // _pISplCost in vanilla code
+		BYTE _pILifeSteal;
+		BYTE _pIManaSteal;
+		int _pIFMinDam; // min fire damage (item's added fire damage)
+		int _pIFMaxDam; // max fire damage (item's added fire damage)
+		int _pILMinDam; // min lightning damage (item's added lightning damage)
+		int _pILMaxDam; // max lightning damage (item's added lightning damage)
+		int _pIMMinDam; // min magic damage (item's added magic damage)
+		int _pIMMaxDam; // max magic damage (item's added magic damage)
+		int _pIAMinDam; // min acid damage (item's added acid damage)
+		int _pIAMaxDam; // max acid damage (item's added acid damage)*/
 	}
 
 	return sizeof(*pCmd);
@@ -3882,7 +3882,7 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 	k = *src;
 	src++;
 
-//	LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
+	//	LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
 	if (!plx(i)._pActive)
 		msg_errorf("%d received inactive plr%d from %d", mypnum, i, pnum);
 
@@ -3921,11 +3921,11 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 		if (plx(i)._pDunLevel != *src)
 			PrintPlrMismatch("dunlevel", plx(i)._pDunLevel, *src, pnum, i);
 		src++;
-	//BYTE _pClass;
+		//BYTE _pClass;
 		if (plx(i)._pLevel != *src)
 			PrintPlrMismatch("level", plx(i)._pLevel, *src, pnum, i);
 		src++;
-	//BYTE _pRank;
+		//BYTE _pRank;
 		if (plx(i)._pTeam != *src)
 			PrintPlrMismatch("team", plx(i)._pTeam, *src, pnum, i);
 		src++;
@@ -3934,7 +3934,7 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 			PrintPlrMismatch("statpts", plx(i)._pStatPts, *(WORD*)src, pnum, i);
 		src += sizeof(WORD);
 
-	//BYTE _pLightRad;
+		//BYTE _pLightRad;
 		if (plx(i)._pManaShield != *src)
 			PrintPlrMismatch("manashield", plx(i)._pManaShield, *src, pnum, i);
 		src++;
@@ -3968,20 +3968,20 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 			PrintPlrMismatch("poldy", plx(i)._poldy, *src, pnum, i);
 		src++;
 
-	//int _pxoff;   // Player sprite's pixel X-offset from tile.
-	//int _pyoff;   // Player sprite's pixel Y-offset from tile.
+		//int _pxoff;   // Player sprite's pixel X-offset from tile.
+		//int _pyoff;   // Player sprite's pixel Y-offset from tile.
 		if (plx(i)._pdir != *src)
 			PrintPlrMismatch("dir", plx(i)._pdir, *src, pnum, i);
 		src++;
-	//int _pAnimFrameLen; // Tick length of each frame in the current animation
-	//int _pAnimCnt;
-	//unsigned _pAnimLen;   // Number of frames in current animation
-	//int _pAnimFrame;
-	//int _pAnimWidth;
-	//int _pAnimXOffset;
-	//unsigned _plid;
-	//unsigned _pvid;
-	// char _pName[PLR_NAME_LEN];
+		//int _pAnimFrameLen; // Tick length of each frame in the current animation
+		//int _pAnimCnt;
+		//unsigned _pAnimLen;   // Number of frames in current animation
+		//int _pAnimFrame;
+		//int _pAnimWidth;
+		//int _pAnimXOffset;
+		//unsigned _plid;
+		//unsigned _pvid;
+		// char _pName[PLR_NAME_LEN];
 		if (plx(i)._pBaseStr != *(WORD*)src)
 			PrintPlrMismatch("basestr", plx(i)._pBaseStr, *(WORD*)src, pnum, i);
 		src += sizeof(WORD);
@@ -4036,18 +4036,18 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 		if (plx(i)._pGold != *(INT*)src)
 			PrintPlrMismatch("Gold", plx(i)._pGold, *(INT*)src, pnum, i);
 		src += sizeof(INT);
-	//int _pStrength;
-	//int _pMagic;
-	//int _pDexterity;
-	//int _pVitality;
+		//int _pStrength;
+		//int _pMagic;
+		//int _pDexterity;
+		//int _pVitality;
 		if (plx(i)._pHitPoints != *(INT*)src)
 			PrintPlrMismatch("HitPoints", plx(i)._pHitPoints, *(INT*)src, pnum, i);
 		src += sizeof(INT);
-	//int _pMaxHP;     // the maximum hp of the player
+		//int _pMaxHP;     // the maximum hp of the player
 		if (plx(i)._pMana != *(INT*)src)
 			PrintPlrMismatch("Mana", plx(i)._pMana, *(INT*)src, pnum, i);
 		src += sizeof(INT);
-	//int _pMaxMana;   // the maximum mana of the player
+		//int _pMaxMana;   // the maximum mana of the player
 		break;
 	case 1: // skill data
 		CmpPlrArray("SkillLvl", src, plx(i)._pSkillLvl, sizeof(plx(i)._pSkillLvl[0]), lengthof(plx(i)._pSkillLvl), i, pnum);
@@ -4259,7 +4259,7 @@ static unsigned On_DO_ITEMCHECK(TCmd* pCmd, int pnum)
 		break;
 	}
 
-//	LogErrorF("Item", "ItemCheck done. %d", (size_t)src - (size_t)pCmd);
+	//	LogErrorF("Item", "ItemCheck done. %d", (size_t)src - (size_t)pCmd);
 	return (size_t)src - (size_t)pCmd;
 }
 

@@ -1918,7 +1918,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		//if (IsSFXPlaying(USFX_NAKRUL4) || IsSFXPlaying(USFX_NAKRUL5) || IsSFXPlaying(USFX_NAKRUL6))
 			StopStreamSFX();
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
-		// quests[Q_NAKRUL]._qvar1 = quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? QV_NAKRUL_DEADOPEN : QV_NAKRUL_DEAD; // set to new state so innocent monsters are not 'woke'
+		// quests[Q_NAKRUL]._qvar1 = quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? QV_NAKRUL_DEADOPEN : QV_NAKRUL_DEAD; // set to new state so innocent monsters are not 'woke' -- does not sync if quest was done
 		if (sendmsg)
 			NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 		/*SpawnMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
@@ -2053,7 +2053,7 @@ static void MonStartFadein(int mnum, int md, bool backwards)
 		mon->_mFlags |= MFLAG_REV_ANIMATION;
 		mon->_mAnimFrame = mon->_mAnimLen;
 		mon->_mVar8 = 1;              // FADE_END : target frame to end the fade mode
-	} else {
+	} else {                          //
 		mon->_mVar8 = mon->_mAnimLen; // FADE_END : target frame to end the fade mode
 	}
 }
@@ -2073,9 +2073,9 @@ static void MonStartFadeout(int mnum, int md, bool backwards)
 	if (backwards) {
 		mon->_mFlags |= MFLAG_REV_ANIMATION;
 		mon->_mAnimFrame = mon->_mAnimLen;
-		mon->_mVar8 = 1;				// FADE_END : target frame to end the fade mode
-	} else {
-		mon->_mVar8 = mon->_mAnimLen;	// FADE_END : target frame to end the fade mode
+		mon->_mVar8 = 1;              // FADE_END : target frame to end the fade mode
+	} else {                          //
+		mon->_mVar8 = mon->_mAnimLen; // FADE_END : target frame to end the fade mode
 	}
 }
 
@@ -3642,7 +3642,7 @@ void MAI_RoundRanged(int mnum)
 				mon->_mgoal = MGOAL_MOVE;
 				static_assert(MAXDUNX + MAXDUNY <= 0x7FFF, "MAI_RoundRanged uses RandRangeLow to set distance");
 				mon->_mgoalvar1 = 4 + RandRangeLow(2, dist); // MOVE_DISTANCE
-				mon->_mgoalvar2 = random_(123, 2);        // MOVE_TURN_DIRECTION
+				mon->_mgoalvar2 = random_(123, 2);           // MOVE_TURN_DIRECTION
 			}
 			/*if ((--mon->_mgoalvar1 <= 4 && MonDirOK(mnum, currEnemyInfo._meLastDir)) || mon->_mgoalvar1 == 0) {
 				mon->_mgoal = MGOAL_NORMAL;

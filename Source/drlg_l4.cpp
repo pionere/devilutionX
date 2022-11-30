@@ -164,6 +164,7 @@ const BYTE L4PENTA2[] = {
  * Values with a single entry are commented out, because pointless to randomize a single option.
  */
 const BYTE L4BTYPES[140] = {
+	// clang-format off
 	0, 1, 2, 0 /*3*/, 4, 5, 6, 7, 0/*8*/, 9,
 	0/*10*/, 0/*11*/, 12, 0/*13*/, 0/*14*/, 15, 16, 0/*17*/, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -178,6 +179,7 @@ const BYTE L4BTYPES[140] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	// clang-format on
 };
 
 /*

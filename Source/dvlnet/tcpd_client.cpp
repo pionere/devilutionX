@@ -61,7 +61,7 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 		if (plr_self != PLR_BROADCAST)
 			return true; // join successful
 		SDL_Delay(MS_SLEEP);
-	}	
+	}
 	if (i == NUM_SLEEP)
 		copy_cstr(errorText, "Unable to connect");
 	close();

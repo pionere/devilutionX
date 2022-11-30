@@ -185,7 +185,7 @@ inline void cat_str(char (&dest)[N], int& pos, const char* fmt, ...)
 	va_list va;
 
 	va_start(va, fmt);
-	
+
 	n = N - pos;
 	pos += std::min(vsnprintf(&dest[pos], n, fmt, va), n - 1);
 
