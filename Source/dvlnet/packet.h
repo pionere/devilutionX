@@ -190,15 +190,19 @@ public:
 };
 
 class packet_in : public packet {
-public:
+	friend class packet_factory;
 	using packet::packet;
+
+protected:
 	void create(buffer_t buf);
 	bool decrypt();
 };
 
 class packet_out : public packet {
-public:
+	friend class packet_factory;
 	using packet::packet;
+
+protected:
 	template <packet_type t, typename... Args>
 	void create(Args... args);
 	void encrypt();
@@ -316,11 +320,6 @@ public:
 	std::unique_ptr<packet> make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
 	std::unique_ptr<packet> make_out_packet(Args... args);
-
-	template <class T>
-	static const BYTE* begin(const T& x);
-	template <class T>
-	static const BYTE* end(const T& x);
 };
 
 inline std::unique_ptr<packet> packet_factory::make_in_packet(buffer_t buf)

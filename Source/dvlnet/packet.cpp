@@ -17,8 +17,8 @@ void packet_in::create(buffer_t buf)
 
 bool packet_in::decrypt()
 {
-#ifdef NETENCRYPT
 	size_t insize = encrypted_buffer.size();
+#ifdef NETENCRYPT
 	if (insize < PKT_META_LEN)
 		return false;
 	size_t pktlen = insize - crypto_secretbox_NONCEBYTES - crypto_secretbox_MACBYTES;
@@ -31,7 +31,7 @@ bool packet_in::decrypt()
 	        key.data))
 		return false;
 #else
-	if (encrypted_buffer.size() < sizeof(NetPktHdr))
+	if (insize < sizeof(NetPktHdr))
 		return false;
 	decrypted_buffer = encrypted_buffer;
 #endif
@@ -40,16 +40,17 @@ bool packet_in::decrypt()
 
 void packet_out::encrypt()
 {
-	assert(decrypted_buffer.size() >= sizeof(NetPktHdr));
-#ifdef NETENCRYPT
 	size_t insize = decrypted_buffer.size();
+
+	assert(insize >= sizeof(NetPktHdr));
+#ifdef NETENCRYPT
 	encrypted_buffer.resize(crypto_secretbox_NONCEBYTES + insize + crypto_secretbox_MACBYTES);
 	BYTE* outdata = encrypted_buffer.data();
 	randombytes_buf(outdata, crypto_secretbox_NONCEBYTES);
-	memcpy(&outdata[crypto_secretbox_NONCEBYTES], decrypted_buffer.data(), insize);
-	memset(&outdata[crypto_secretbox_NONCEBYTES + insize], 0, crypto_secretbox_MACBYTES);
+	//memcpy(&outdata[crypto_secretbox_NONCEBYTES], decrypted_buffer.data(), insize);
+	//memset(&outdata[crypto_secretbox_NONCEBYTES + insize], 0, crypto_secretbox_MACBYTES);
 	if (crypto_secretbox_easy(&outdata[crypto_secretbox_NONCEBYTES],
-	        &outdata[crypto_secretbox_NONCEBYTES],
+	        decrypted_buffer.data(), // &outdata[crypto_secretbox_NONCEBYTES]
 	        insize,
 	        &outdata[0],
 	        key.data))
