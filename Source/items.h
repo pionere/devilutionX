@@ -52,7 +52,7 @@ void CreateQuestItemAt(int idx, int x, int y, int mode);
 void SpawnQuestItemAt(int idx, int x, int y, int mode);
 void PlaceRock();
 #ifdef HELLFIRE
-void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/);
+void SpawnAmulet(uint16_t wCI, int x, int y /*, bool sendmsg*/);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
 void DeleteItems(int ii);

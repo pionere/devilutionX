@@ -399,9 +399,9 @@ static int GetDirection8(int x1, int y1, int x2, int y2)
 	//                        SE  NE  SW  NW
 	const int BaseDirs[4] = {  7,  5,  1,  3 };
 	int dir = BaseDirs[2 * (dx < 0) + (dy < 0)];
-	//const int DeltaDirs[2][4] = {{0, 1, 2}, {2, 1, 0}};
-	const int DeltaDirs[2][4] = {{1, 0, 2}, {1, 2, 0}};
-	const int (&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
+	//const int DeltaDirs[2][4] = { {0, 1, 2}, {2, 1, 0} };
+	const int DeltaDirs[2][4] = { { 1, 0, 2 }, { 1, 2, 0 } };
+	const int(&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
 	//dir += DeltaDir[5 * adx <= (ady << 1) ? 2 : (5 * ady <= (adx << 1) ? 0 : 1)];
 	dir += DeltaDir[5 * adx <= (ady << 1) ? 2 : (5 * ady <= (adx << 1) ? 1 : 0)];
 	return dir & 7;
@@ -487,12 +487,12 @@ static int GetDirection16(int x1, int y1, int x2, int y2)
 	unsigned ady = abs(dy);
 	//                        SE  NE  SW  NW
 	//const int BaseDirs[4] = { 14, 10,  2,  6 };
-	const int BaseDirs[4] = { 14 + 2, 10 + 2,  2 + 2,  6 + 2 };
+	const int BaseDirs[4] = { 14 + 2, 10 + 2, 2 + 2, 6 + 2 };
 	int dir = BaseDirs[2 * (dx < 0) + (dy < 0)];
-	//const int DeltaDirs[2][8] = {{ 0, 1, 2, 3, 4 }, { 4, 3, 2, 1, 0 }};
-	const int DeltaDirs[2][4] = {{ 0 - 2, 1 - 2, 3 - 2, 4 - 2 }, { 4 - 2, 3 -2 , 1 - 2, 0 - 2 }};
-	//const int (&DeltaDir)[8] = DeltaDirs[(dx < 0) ^ (dy < 0)];
-	const int (&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
+	//const int DeltaDirs[2][8] = { { 0, 1, 2, 3, 4 }, { 4, 3, 2, 1, 0 } };
+	const int DeltaDirs[2][4] = { { 0 - 2, 1 - 2, 3 - 2, 4 - 2 }, { 4 - 2, 3 -2 , 1 - 2, 0 - 2 } };
+	//const int(&DeltaDir)[8] = DeltaDirs[(dx < 0) ^ (dy < 0)];
+	const int(&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
 	if (3 * adx <= (ady << 1)) {
 		//dir += DeltaDir[5 * adx < ady ? 4 : 3];
 		dir += DeltaDir[5 * adx < ady ? 3 : 2];
