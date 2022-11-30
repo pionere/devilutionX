@@ -174,8 +174,8 @@ void InitItems()
 				PlaceQuestItemInArea(IDI_GRAYSUIT, 3);
 		}
 #endif
-		// TODO: eliminate level range-check?
-		if (currLvl._dLevelIdx > 0 && currLvl._dLevelIdx < 16)
+		if ((currLvl._dLevelIdx >= DLV_CATHEDRAL1 && currLvl._dLevelIdx <= DLV_CATHEDRAL4)
+		 || (currLvl._dLevelIdx >= DLV_CATACOMBS1 && currLvl._dLevelIdx <= DLV_CATACOMBS4))
 			PlaceInitItems();
 #ifdef HELLFIRE
 		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3)
