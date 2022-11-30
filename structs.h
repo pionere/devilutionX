@@ -2272,8 +2272,8 @@ typedef struct _uiheroinfo {
 } _uiheroinfo;
 
 typedef struct _uigamedata {
-	DWORD aeVersionId;
-	INT aeSeed;
+	uint32_t aeVersionId;
+	int32_t aeSeed;
 	BYTE aeDifficulty;
 	BYTE aeTickRate;
 	BYTE aeNetUpdateRate; // (was defaultturnssec in vanilla)

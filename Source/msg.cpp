@@ -804,7 +804,7 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 	} else {
 		dest->wIndx = static_cast<uint16_t>(IDI_EAR);
 		dest->wCI = *(uint16_t*)&src->_iName[7];
-		dest->dwSeed = *(INT*)&src->_iName[9];
+		dest->dwSeed = *(int32_t*)&src->_iName[9];
 		dest->bId = src->_iName[13];
 		dest->bDur = src->_iName[14];
 		dest->bMDur = src->_iName[15];
@@ -812,7 +812,7 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 		dest->bMCh = src->_iName[17];
 		static_assert(MAXCHARLEVEL < (1 << 6), "PackPkItem stores the player level of ears in 6 bits.");
 		dest->wValue = static_cast<uint16_t>(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
-		dest->dwBuff = *(DWORD*)&src->_iName[19];
+		dest->dwBuff = *(uint32_t*)&src->_iName[19];
 	}
 }
 
@@ -862,14 +862,14 @@ static void UnPackEar(const PkItemStruct* src)
 	char* cursor = &items[MAXITEMS]._iName[sizeof("Ear of ") - 1];
 
 	*(uint16_t*)&cursor[0] = src->wCI;
-	*(DWORD*)&cursor[2] = src->dwSeed;
+	*(int32_t*)&cursor[2] = src->dwSeed;
 	cursor[6] = src->bId;
 	cursor[7] = src->bDur;
 	cursor[8] = src->bMDur;
 	cursor[9] = src->bCh;
 	cursor[10] = src->bMCh;
 	cursor[11] = src->wValue >> 8;
-	*(DWORD*)&cursor[12] = src->dwBuff;
+	*(uint32_t*)&cursor[12] = src->dwBuff;
 	cursor[16] = '\0';
 	items[MAXITEMS]._iCurs = ((src->wValue >> 6) & 3) + ICURS_EAR_SORCERER;
 	items[MAXITEMS]._ivalue = src->wValue & 0x3F;
