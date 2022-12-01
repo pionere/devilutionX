@@ -2128,7 +2128,7 @@ int main()
 	}*/
 	/*{ // sample code to convert CEL to PNGs, then convert the PNGs back to CEL
 		BYTE* pal = LoadPal("f:\\L1_1.PAL");
-		Cel2PNG("f:\\L1Doors.CEL", 0, false, "f:\\", pal, 256);
+		Cel2PNG("f:\\L1Doors.CEL", 0, false, "f:\\", pal, 0);
 		const char* doors[] = {
 			"f:\\L1Doors_CEL_frame0000.png",
 			"f:\\L1Doors_CEL_frame0001.png",
@@ -2139,7 +2139,7 @@ int main()
 	}*/
 	/*{ // sample code to convert CEL to a PNG with multiple frames, then convert the PNG back to CEL
 		BYTE* pal = LoadPal("f:\\L1_1.PAL");
-		Cel2PNG("f:\\L1Doors.CEL", 0, true, "f:\\", pal, 256);
+		Cel2PNG("f:\\L1Doors.CEL", 0, true, "f:\\", pal, 0);
 		const char* doors[] = {
 			"f:\\L1Doors.png" };
 		PNG2Cel(doors, 4, true, "f:\\L1Doors_mul.CEL", true, pal, 256, 0);
