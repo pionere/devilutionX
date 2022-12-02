@@ -922,7 +922,7 @@ void InvPasteItem(int pnum, BYTE r)
 			if (wRight->_itype != ITYPE_NONE) {
 				// replace if there was something
 				cn = SwapItem(wRight, holditem);
-			} else if (is->_itype != ITYPE_NONE && is->_iLoc == ILOC_TWOHAND) {
+			} else if (is->_itype != ITYPE_NONE && TWOHAND_WIELD(p, is)) {
 				// pick two-handed weapons and place the shield in the right hand
 				SwapItem(wRight, is);
 				cn = SwapItem(wRight, holditem);

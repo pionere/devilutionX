@@ -600,9 +600,13 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 #endif*/
 	maxdam = plr._pMaxHP >> (2 - 1 + 1); // ~1/4 hp - halved by resists, doubled by MissToPlr
-	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
+	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag
+	 && (gfx == ANIM_ID_UNARMED || gfx == ANIM_ID_SWORD || gfx == ANIM_ID_MACE)) {
 		tac += ((plr._pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
 		bf = true;
+		static_assert((int)ANIM_ID_UNARMED + 1 == (int)ANIM_ID_UNARMED_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield I.");
+		static_assert((int)ANIM_ID_SWORD + 1 == (int)ANIM_ID_SWORD_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield II.");
+		static_assert((int)ANIM_ID_MACE + 1 == (int)ANIM_ID_MACE_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield III.");
 		gfx++;
 
 		maxdam += wRight->_iAC << (6 + 1 - 1); // 2*AC - halved by resists, doubled by MissToPlr
