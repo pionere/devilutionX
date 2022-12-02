@@ -20,7 +20,7 @@ static unsigned _guPlrFrameSize[NUM_PFIDXs];
 static bool _gbPlrGfxSizeLoaded = false;
 
 /** Maps from armor animation to letter used in graphic files. */
-const char ArmourChar[4] = {
+const char ArmorChar[4] = {
 	'L', // light
 	'M', // medium
 	'H', // heavy
@@ -258,19 +258,22 @@ static inline void GetPlrGFXCells(int pc, const char** szCel, const char** cs)
 	*cs = gfxClassTbl[pc];
 }
 
-void LoadPlrGFX(int pnum, unsigned gfxflag)
+static void LoadPlrGFX(int pnum, unsigned gfxflag)
 {
-	char prefix[16];
+	char prefix[4];
 	char pszName[DATA_ARCHIVE_MAX_PATH];
-	const char *szCel, *cs;
+	const char *szCel, *chrClass, *strClass;
 	unsigned i, mask;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("LoadPlrGFX: illegal player %d", pnum);
 	}
 
-	GetPlrGFXCells(plr._pClass, &szCel, &cs);
-	snprintf(prefix, sizeof(prefix), "%c%c%c", *szCel, ArmourChar[plr._pgfxnum >> 4], WepChar[plr._pgfxnum & 0xF]);
+	GetPlrGFXCells(plr._pClass, &chrClass, &strClass);
+	prefix[0] = *chrClass;
+	prefix[1] = ArmorChar[plr._pgfxnum >> 4];
+	prefix[2] = WepChar[plr._pgfxnum & 0xF];
+	prefix[3] = '\0';
 
 	for (i = 0, mask = gfxflag; i < NUM_PFIDXs; i++, mask >>= 1) {
 		if (!(mask & 1))
@@ -310,7 +313,7 @@ void LoadPlrGFX(int pnum, unsigned gfxflag)
 			break;
 		}
 
-		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cs, prefix, prefix, szCel);
+		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
 		LoadFileWithMem(pszName, plr._pAnimFileData[i]);
 		SetPlayerGPtrs(plr._pAnimFileData[i], plr._pAnims[i].paAnimData);
 		plr._pGFXLoad |= 1 << i;
@@ -340,27 +343,30 @@ void InitPlayerGFX(int pnum)
 static unsigned GetPlrGFXSize(const char* szCel)
 {
 	int c;
-	const char *a, *w, *cc, *cst;
+	const char *chrArmor, *chrWeapon, *chrClass, *strClass;
 	DWORD dwSize, dwMaxSize;
 	HANDLE hsFile;
 	char pszName[DATA_ARCHIVE_MAX_PATH];
-	char Type[16];
+	char prefix[4];
 
 	dwMaxSize = 0;
 
 	for (c = 0; c < NUM_CLASSES; c++) {
-		GetPlrGFXCells(c, &cc, &cst);
-		for (a = &ArmourChar[0]; *a != '\0'; a++) {
-			for (w = &WepChar[0]; *w != '\0'; w++) { // BUGFIX loads non-existing animations; DT is only for N, BL is only for U, D & H (fixed)
-				if (szCel[0] == 'D' /*&& szCel[1] == 'T'*/ && *a != 'L' && *w != 'N') {
+		GetPlrGFXCells(c, &chrClass, &strClass);
+		for (chrArmor = &ArmorChar[0]; *chrArmor != '\0'; chrArmor++) {
+			for (chrWeapon = &WepChar[0]; *chrWeapon != '\0'; chrWeapon++) { // BUGFIX loads non-existing animations; DT is only for N, BL is only for U, D & H (fixed)
+				if (szCel[0] == 'D' /*&& szCel[1] == 'T'*/ && *chrArmor != 'L' && *chrWeapon != 'N') {
 					continue; //Death has no weapon or armor
 				}
 				/* BUGFIX monks can block unarmed and without shield (fixed)
-				if (szCel[0] == 'B' && szCel[1] == 'L' && (*w != 'U' && *w != 'D' && *w != 'H')) {
+				if (szCel[0] == 'B' && szCel[1] == 'L' && (*chrWeapon != 'U' && *chrWeapon != 'D' && *chrWeapon != 'H')) {
 					continue; //No block without weapon
 				}*/
-				snprintf(Type, sizeof(Type), "%c%c%c", *cc, *a, *w);
-				snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
+				prefix[0] = *chrClass;
+				prefix[1] = *chrArmor;
+				prefix[2] = *chrWeapon;
+				prefix[3] = '\0';
+				snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
 				hsFile = SFileOpenFile(pszName);
 				if (hsFile != NULL) {
 					dwSize = SFileGetFileSize(hsFile);

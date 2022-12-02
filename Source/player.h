@@ -21,7 +21,6 @@ extern int mypnum;
 extern PlayerStruct players[MAX_PLRS];
 extern BYTE gbLvlLoad;
 
-void LoadPlrGFX(int pnum, unsigned gfxflag);
 void InitPlayerGFX(int pnum);
 void InitPlrGFXMem(int pnum);
 void FreePlayerGFX(int pnum);
