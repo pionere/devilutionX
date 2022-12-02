@@ -15,7 +15,7 @@ BYTE gbLvlLoad;
 /** The current player while processing the players. */
 BYTE gbGameLogicPnum;
 /** Cache the maximum sizes of the player gfx files. */
-static unsigned _guPlrFrameSize[NUM_PFIDXs];
+static unsigned _guPlrFrameSize[NUM_PFIDXs + 1];
 /** Whether the _guPlrFrameSize array is initalized. */
 static bool _gbPlrGfxSizeLoaded = false;
 
@@ -379,6 +379,9 @@ static unsigned GetPlrGFXSize(const char* szCel)
 		}
 	}
 
+	dwMaxSize += sizeof(int) - 1;
+	dwMaxSize -= dwMaxSize % sizeof(int);
+
 	return dwMaxSize;
 }
 
@@ -402,11 +405,16 @@ void InitPlrGFXMem(int pnum)
 		_guPlrFrameSize[PFIDX_BLOCK] = GetPlrGFXSize("BL");
 		_guPlrFrameSize[PFIDX_GOTHIT] = GetPlrGFXSize("HT");
 		_guPlrFrameSize[PFIDX_DEATH] = GetPlrGFXSize("DT");
+		for (int i = 0; i < NUM_PFIDXs; i++) {
+			_guPlrFrameSize[NUM_PFIDXs] += _guPlrFrameSize[i];
+		}
 	}
 
+	assert(plr._pAnimFileData[0] == NULL);
+	BYTE* animFileData = DiabloAllocPtr(_guPlrFrameSize[NUM_PFIDXs]);
 	for (int i = 0; i < NUM_PFIDXs; i++) {
-		assert(plr._pAnimFileData[i] == NULL);
-		plr._pAnimFileData[i] = DiabloAllocPtr(_guPlrFrameSize[i]);
+		plr._pAnimFileData[i] = animFileData;
+		animFileData += _guPlrFrameSize[i];
 	}
 
 	plr._pGFXLoad = 0;
@@ -418,8 +426,7 @@ void FreePlayerGFX(int pnum)
 		dev_fatal("FreePlayerGFX: illegal player %d", pnum);
 	}
 
-	for (int i = 0; i < NUM_PFIDXs; i++)
-		MemFreeDbg(plr._pAnimFileData[i]);
+	MemFreeDbg(plr._pAnimFileData[0]);
 
 	plr._pGFXLoad = 0;
 }
