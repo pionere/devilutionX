@@ -306,6 +306,7 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 			break;
 		case PFIDX_DEATH:
 			assert((plr._pgfxnum & 0xF) == ANIM_ID_UNARMED);
+			// assert(plr._pGFXLoad == 0 && mask == 1);// MEM_DEATH
 			szCel = "DT";
 			break;
 		default:
@@ -329,7 +330,7 @@ void InitPlayerGFX(int pnum)
 	plr._pGFXLoad = 0;
 	if (plr._pHitPoints < (1 << 6)) {
 		plr._pgfxnum = ANIM_ID_UNARMED;
-		gfxflag = PFILE_DEATH;
+		gfxflag = PFILE_DEATH; // MEM_DEATH: gfxflag is either for death or non-death animations
 	} else {
 		gfxflag = PFILE_NONDEATH;
 		if (currLvl._dType == DTYPE_TOWN)
@@ -405,14 +406,16 @@ void InitPlrGFXMem(int pnum)
 		_guPlrFrameSize[PFIDX_BLOCK] = GetPlrGFXSize("BL");
 		_guPlrFrameSize[PFIDX_GOTHIT] = GetPlrGFXSize("HT");
 		_guPlrFrameSize[PFIDX_DEATH] = GetPlrGFXSize("DT");
-		for (int i = 0; i < NUM_PFIDXs; i++) {
+		static_assert((int)PFIDX_DEATH + 1 == NUM_PFIDXs, "PFIDX_DEATH must be the last player_graphic_idx to reuse memory for the death animation (MEM_DEATH)");
+		for (int i = 0; i < PFIDX_DEATH; i++) {
 			_guPlrFrameSize[NUM_PFIDXs] += _guPlrFrameSize[i];
 		}
 	}
 
 	assert(plr._pAnimFileData[0] == NULL);
 	BYTE* animFileData = DiabloAllocPtr(_guPlrFrameSize[NUM_PFIDXs]);
-	for (int i = 0; i < NUM_PFIDXs; i++) {
+	plr._pAnimFileData[PFIDX_DEATH] = animFileData; // MEM_DEATH
+	for (int i = 0; i < PFIDX_DEATH; i++) {
 		plr._pAnimFileData[i] = animFileData;
 		animFileData += _guPlrFrameSize[i];
 	}
@@ -1046,6 +1049,7 @@ static void StartPlrKill(int pnum, int dmgtype)
 		}
 
 		if (!(plr._pGFXLoad & PFILE_DEATH)) {
+			plr._pGFXLoad = 0; // MEM_DEATH: reset _pGFXLoad to make death and non-death animations exclusive
 			LoadPlrGFX(pnum, PFILE_DEATH);
 		}
 
@@ -1766,6 +1770,7 @@ void SyncPlrResurrect(int pnum)
 	plr._pDestAction = ACTION_NONE;
 	plr._pmode = PM_STAND;
 	plr._pInvincible = FALSE;
+	plr._pGFXLoad = 0; // MEM_DEATH
 
 	PlrSetHp(pnum, std::min(10 << 6, plr._pMaxHP));
 
