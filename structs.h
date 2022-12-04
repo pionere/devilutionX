@@ -326,8 +326,8 @@ typedef struct PlayerStruct {
 	int _pVar6;
 	int _pVar7;
 	int _pVar8;
-	int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
-	PlrAnimStruct _pAnims[NUM_PFIDXs];
+	int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic_flag)
+	PlrAnimStruct _pAnims[NUM_PGXS];
 	unsigned _pAFNum; // action frame number of the attack animation
 	unsigned _pSFNum; // action frame number of the spell animation
 	ItemStruct _pHoldItem;
@@ -386,7 +386,7 @@ typedef struct PlayerStruct {
 	int _pIMMaxDam; // max magic damage (item's added magic damage)
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
-	BYTE* _pAnimFileData[NUM_PFIDXs]; // file-pointers of the animations
+	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
 	ALIGNMENT(187, 102)
 } PlayerStruct;
 
@@ -1267,8 +1267,8 @@ typedef struct LSavePlayerStruct {
 	LE_INT32 vpVar6;
 	LE_INT32 vpVar7;
 	LE_INT32 vpVar8;
-	//int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
-	//PlrAnimStruct _pAnims[NUM_PFIDXs];
+	//int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic_flag)
+	//PlrAnimStruct _pAnims[NUM_PGXS];
 	//unsigned _pAFNum;
 	//unsigned _pSFNum;
 	LSaveItemStruct vpHoldItem;
