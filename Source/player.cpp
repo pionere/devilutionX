@@ -3216,12 +3216,9 @@ void SyncPlrAnim(int pnum)
 		animIdx = PGX_DEATH;
 		break;
 	case PM_SPELL:
-		switch (spelldata[p->_pVar5].sType) { // SPELL_NUM
-		case STYPE_FIRE:      animIdx = PGX_FIRE; break;
-		case STYPE_LIGHTNING: animIdx = PGX_LIGHTNING; break;
-		case STYPE_MAGIC:     animIdx = PGX_MAGIC; break;
-		default: ASSUME_UNREACHABLE; animIdx = PGX_FIRE; break;
-		}
+		static_assert((int)PGX_LIGHTNING - (int)PGX_FIRE == (int)STYPE_LIGHTNING - (int)STYPE_FIRE, "SyncPlrAnim expects ordered player_graphic_idx and magic_type I.");
+		static_assert((int)PGX_MAGIC - (int)PGX_FIRE == (int)STYPE_MAGIC - (int)STYPE_FIRE, "SyncPlrAnim expects ordered player_graphic_idx and magic_type II.");
+		animIdx = PGX_FIRE + spelldata[p->_pVar5].sType - STYPE_FIRE; // SPELL_NUM
 		break;
 	default:
 		ASSUME_UNREACHABLE
