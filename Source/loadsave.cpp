@@ -240,8 +240,8 @@ static BYTE* LoadPlayer(BYTE* __restrict src, int pnum)
 	pr->_pVar6 = savedPlr->vpVar6;
 	pr->_pVar7 = savedPlr->vpVar7;
 	pr->_pVar8 = savedPlr->vpVar8;
-	//int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
-	//PlrAnimStruct _pAnims[NUM_PFIDXs];
+	//int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic_flag)
+	//PlrAnimStruct _pAnims[NUM_PGXS];
 	//unsigned _pAFNum;
 	//unsigned _pSFNum;
 #else
@@ -1096,8 +1096,8 @@ static BYTE* SavePlayer(BYTE* __restrict dest, int pnum)
 	plrSave->vpVar6 = pr->_pVar6;
 	plrSave->vpVar7 = pr->_pVar7;
 	plrSave->vpVar8 = pr->_pVar8;
-	//int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic)
-	//PlrAnimStruct _pAnims[NUM_PFIDXs];
+	//int _pGFXLoad; // flags of the loaded gfx('s)  (player_graphic_flag)
+	//PlrAnimStruct _pAnims[NUM_PGXS];
 	//unsigned _pAFNum;
 	//unsigned _pSFNum;
 #else

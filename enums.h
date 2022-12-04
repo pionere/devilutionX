@@ -4044,7 +4044,7 @@ typedef enum quest_var1_state {
 	QV_NAKRUL_BOOKC = 3,     // book C was read in the correct order
 	QV_NAKRUL_BOOKOPEN = 4,  // room opened by the books
 	QV_NAKRUL_LEVEROPEN = 5, // room opened by the lever - unused
-	QV_NAKRUL_DEAD = 6,      // Nakrul is killed  - unused
+	QV_NAKRUL_DEAD = 6,      // Nakrul is killed - unused
 	QV_NAKRUL_DEADOPEN = 7,  // Nakrul is killed and the room was opened by the books - unused
 
 	//QV_DIABLO 0-2: -- bookframe index for the story books
@@ -4145,31 +4145,31 @@ typedef enum window_active {
 } window_active;
 
 typedef enum player_graphic_idx {
-	PFIDX_STAND,
-	PFIDX_WALK,
-	PFIDX_ATTACK,
-	PFIDX_FIRE,
-	PFIDX_LIGHTNING,
-	PFIDX_MAGIC,
-	PFIDX_BLOCK,
-	PFIDX_GOTHIT,
-	PFIDX_DEATH,
-	NUM_PFIDXs
+	PGX_STAND,
+	PGX_WALK,
+	PGX_ATTACK,
+	PGX_FIRE,
+	PGX_LIGHTNING,
+	PGX_MAGIC,
+	PGX_BLOCK,
+	PGX_GOTHIT,
+	PGX_DEATH,
+	NUM_PGXS
 } player_graphic_idx;
 
-typedef enum player_graphic {
-	PFILE_STAND     = 1 << PFIDX_STAND,
-	PFILE_WALK      = 1 << PFIDX_WALK,
-	PFILE_ATTACK    = 1 << PFIDX_ATTACK,
-	PFILE_FIRE      = 1 << PFIDX_FIRE,
-	PFILE_LIGHTNING = 1 << PFIDX_LIGHTNING,
-	PFILE_MAGIC     = 1 << PFIDX_MAGIC,
-	PFILE_BLOCK     = 1 << PFIDX_BLOCK,
-	PFILE_GOTHIT    = 1 << PFIDX_GOTHIT,
-	PFILE_DEATH     = 1 << PFIDX_DEATH,
-	// everything except PFILE_DEATH
-	PFILE_NONDEATH = (PFILE_STAND |	PFILE_WALK | PFILE_ATTACK | PFILE_FIRE | PFILE_LIGHTNING | PFILE_MAGIC | PFILE_BLOCK | PFILE_GOTHIT)
-} player_graphic;
+typedef enum player_graphic_flag {
+	PGF_STAND     = 1 << PGX_STAND,
+	PGF_WALK      = 1 << PGX_WALK,
+	PGF_ATTACK    = 1 << PGX_ATTACK,
+	PGF_FIRE      = 1 << PGX_FIRE,
+	PGF_LIGHTNING = 1 << PGX_LIGHTNING,
+	PGF_MAGIC     = 1 << PGX_MAGIC,
+	PGF_BLOCK     = 1 << PGX_BLOCK,
+	PGF_GOTHIT    = 1 << PGX_GOTHIT,
+	PGF_DEATH     = 1 << PGX_DEATH,
+	// everything except PGF_DEATH
+	PGF_NONDEATH = (PGF_STAND |	PGF_WALK | PGF_ATTACK | PGF_FIRE | PGF_LIGHTNING | PGF_MAGIC | PGF_BLOCK | PGF_GOTHIT)
+} player_graphic_flag;
 
 typedef enum player_timer {
 	PLTR_INFRAVISION,
