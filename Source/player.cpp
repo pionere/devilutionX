@@ -59,7 +59,6 @@ const char* const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
 	"Monk", "Bard", "Barbarian"
 #endif
 };
-
 /*
  * Specifies the X and Y offsets to try when a player is entering the level or resurrected.
  * The base position is the location of the portal or the body of the dead player.
@@ -265,10 +264,6 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 	const char *szCel, *chrClass, *strClass;
 	unsigned i, mask;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("LoadPlrGFX: illegal player %d", pnum);
-	}
-
 	GetPlrGFXCells(plr._pClass, &chrClass, &strClass);
 	prefix[0] = *chrClass;
 	prefix[1] = ArmorChar[plr._pgfxnum >> 4];
@@ -445,9 +440,6 @@ static void NewPlrAnim(int pnum, unsigned animIdx, int dir)
 {
 	PlrAnimStruct* anim;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("NewPlrAnim: illegal player %d", pnum);
-	}
 	anim = &plr._pAnims[animIdx];
 
 	plr._pdir = dir;
@@ -994,10 +986,6 @@ static bool PlrDirOK(int pnum, int dir)
 {
 	int px, py;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrDirOK: illegal player %d", pnum);
-	}
-
 	px = plr._px + offset_x[dir];
 	py = plr._py + offset_y[dir];
 
@@ -1115,9 +1103,6 @@ void FixPlayerLocation(int pnum)
 
 static void AssertFixPlayerLocation(int pnum)
 {
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("FixPlayerLocation: illegal player %d", pnum);
-	}
 	assert(plr._pfutx == plr._px);
 	assert(plr._poldx == plr._px);
 	assert(plr._pfuty == plr._py);
@@ -1135,10 +1120,6 @@ static void AssertFixPlayerLocation(int pnum)
 
 static void StartStand(int pnum)
 {
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartStand: illegal player %d", pnum);
-	}
-
 	plr._pmode = PM_STAND;
 
 	if (!(plr._pGFXLoad & PGF_STAND)) {
@@ -1192,9 +1173,6 @@ static void PlrChangeLightOff(int pnum)
 {
 	int x, y;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrChangeLightOff: illegal player %d", pnum);
-	}
 	x = plr._pxoff + 2 * plr._pyoff;
 	y = 2 * plr._pyoff - plr._pxoff;
 
@@ -1207,10 +1185,6 @@ static void PlrChangeLightOff(int pnum)
 static void PlrChangeOffset(int pnum)
 {
 	// int px, py;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrChangeOffset: illegal player %d", pnum);
-	}
 
 	// px = plr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
 	// py = plr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
@@ -1312,10 +1286,6 @@ static bool StartWalk(int pnum)
 {
 	int dir, i, mwi;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartWalk: illegal player %d", pnum);
-	}
-
 	assert(plr._pWalkpath[MAX_PATH_LENGTH] == DIR_NONE);
 	dir = plr._pWalkpath[0];
 	for (i = 0; i < MAX_PATH_LENGTH; i++) {
@@ -1404,10 +1374,6 @@ static bool StartAttack(int pnum)
 {
 	int i, dx, dy, sn, sl, dir, ss;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartAttack: illegal player %d", pnum);
-	}
-
 	i = plr._pDestParam1;
 	switch (plr._pDestAction) {
 	case ACTION_ATTACK:
@@ -1480,10 +1446,6 @@ static void StartRangeAttack(int pnum)
 {
 	int i, dx, dy, sn, sl, dir, ss;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartRangeAttack: illegal player %d", pnum);
-	}
-
 	i = plr._pDestParam1;
 	switch (plr._pDestAction) {
 	case ACTION_RATTACK:
@@ -1527,10 +1489,6 @@ static void StartRangeAttack(int pnum)
 
 static void StartBlock(int pnum, int dir)
 {
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartBlock: illegal player %d", pnum);
-	}
-
 	plr._pmode = PM_BLOCK;
 	plr._pVar1 = 0; // BLOCK_EXTENSION : extended blocking
 	if (!(plr._pGFXLoad & PGF_BLOCK)) {
@@ -1545,10 +1503,6 @@ static void StartSpell(int pnum)
 {
 	int i, dx, dy, gfx, animIdx;
 	const SpellData* sd;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartSpell: illegal player %d", pnum);
-	}
 
 	i = plr._pDestParam1;
 	switch (plr._pDestAction) {
@@ -1621,9 +1575,6 @@ static void StartPickItem(int pnum)
 static void StartTalk(int pnum)
 {
 	int mnum, x, y;
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartTalk: illegal player %d", pnum);
-	}
 
 	mnum = plr._pDestParam1;
 	x = abs(plr._px - monsters[mnum]._mx);
@@ -1893,10 +1844,6 @@ static void PlrDoWalk(int pnum)
 	int px, py;
 	bool stepAnim;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrDoWalk: illegal player %d", pnum);
-	}
-
 	plr._pVar8++; // WALK_TICK
 	switch (plr._pIWalkSpeed) {
 	case 0:
@@ -1971,9 +1918,6 @@ static void WeaponDur(int pnum, int durrnd)
 {
 	ItemStruct* pi;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("WeaponDur: illegal player %d", pnum);
-	}
 	// assert(durrnd > 0 && durrnd < 0xFFFF);
 	if (random_low(3, durrnd) != 0) {
 		return;
@@ -2012,10 +1956,6 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("PlrHitMonst: illegal monster %d", mnum);
-	}
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrHitMonst: illegal player %d", pnum);
 	}
 
 	mon = &monsters[mnum];
@@ -2110,10 +2050,6 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 {
 	int hper, blkper, dam, damsl, dambl, dampc;
 	unsigned tmp, hitFlags;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrHitPlr: illegal target player %d", pnum);
-	}
 
 	if ((unsigned)offp >= MAX_PLRS) {
 		dev_fatal("PlrHitPlr: illegal attacking player %d", offp);
@@ -2236,10 +2172,6 @@ static void PlrDoAttack(int pnum)
 	int dir, hitcnt;
 	bool stepAnim = false;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrDoAttack: illegal player %d", pnum);
-	}
-
 	plr._pVar8++;         // ATTACK_TICK
 	switch (plr._pVar4) { // ATTACK_SPEED
 	/*case -4:
@@ -2321,10 +2253,6 @@ static void PlrDoRangeAttack(int pnum)
 {
 	bool stepAnim;
 	int numarrows, sx, sy, dx, dy;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrDoRangeAttack: illegal player %d", pnum);
-	}
 
 	plr._pVar8++;         // RATTACK_TICK
 	switch (plr._pVar4) { // RATTACK_SPEED
@@ -2442,9 +2370,6 @@ static void PlrDoBlock(int pnum)
 {
 	int extlen;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrDoBlock: illegal player %d", pnum);
-	}
 	if (plr._pVar1 != 0) { // BLOCK_EXTENSION
 		plr._pVar1--;
 		plr._pAnimCnt--;
@@ -2508,9 +2433,6 @@ static void PlrDoSpell(int pnum)
 {
 	bool stepAnim;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrDoSpell: illegal player %d", pnum);
-	}
 	plr._pVar8++; // SPELL_TICK
 	switch (plr._pIBaseCastSpeed) {
 	case 0:
@@ -2556,9 +2478,6 @@ static void PlrDoGotHit(int pnum)
 {
 	bool stepAnim;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrDoGotHit: illegal player %d", pnum);
-	}
 	plr._pVar8++; // GOTHIT_TICK
 	switch (plr._pIRecoverySpeed) {
 	case 0:
@@ -2595,9 +2514,6 @@ static void PlrDoGotHit(int pnum)
 
 static void PlrDoDeath(int pnum)
 {
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrDoDeath: illegal player %d", pnum);
-	}
 	// assert(plr._pAnims[PGX_DEATH].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame == plr._pAnimLen) {
 		assert(PlrAnimFrameLens[PGX_DEATH] > 1);
@@ -2616,9 +2532,6 @@ static void PlrDoDeath(int pnum)
 
 static bool CheckNewPath(int pnum)
 {
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("CheckNewPath: illegal player %d", pnum);
-	}
 	if (plr._pHitPoints < (1 << 6)) {
 		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
 		return false;
