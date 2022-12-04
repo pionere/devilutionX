@@ -100,7 +100,7 @@ const int MWVel[24] = {
 	// clang-format on
 };
 /** Maps from monster action to monster animation letter. */
-const char animletter[NUM_MON_ANIM] = { 'n', 'w', 'a', 'h', 'd', 's' };
+static const char animletter[NUM_MON_ANIM] = { 'n', 'w', 'a', 'h', 'd', 's' };
 /** Maps from direction to delta X-offset. */
 const int offset_x[NUM_DIRS] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to delta Y-offset. */
@@ -113,7 +113,7 @@ const int offset_y[NUM_DIRS] = { 1, 1, 1, 0, -1, -1, -1, 0 };
  * - if the monster is active, the function/monster must do something otherwise the enemy might not get updated
  * - can not rely on dLight, because it might not be in sync in multiplayer games
  */
-void (*const AiProc[])(int i) = {
+static void (*const AiProc[])(int i) = {
 	// clang-format off
 /*AI_ZOMBIE*/       &MAI_Zombie,
 /*AI_FAT*/          &MAI_Fat,
@@ -2645,7 +2645,7 @@ static bool MonDoStone(int mnum)
 	return false;
 }
 
-void MonWalkDir(int mnum, int md)
+static void MonWalkDir(int mnum, int md)
 {
 	int mwi;
 
@@ -2747,6 +2747,54 @@ static void GroupUnity(int mnum)
 			}
 		}
 	}
+}
+
+bool MonDirOK(int mnum, int mdir)
+{
+	int fx, fy;
+	int x, y;
+	int mcount, ma;
+
+	if ((unsigned)mnum >= MAXMONSTERS) {
+		dev_fatal("DirOK: Invalid monster %d", mnum);
+	}
+
+	x = monsters[mnum]._mx;
+	y = monsters[mnum]._my;
+	if (!PathWalkable(x, y, dir2pdir[mdir]))
+		return false;
+
+	fx = x + offset_x[mdir];
+	fy = y + offset_y[mdir];
+	static_assert(DBORDERX >= 3, "DirOK expects a large enough border I.");
+	static_assert(DBORDERY >= 3, "DirOK expects a large enough border II.");
+	assert(IN_DUNGEON_AREA(fx, fy));
+	if (!PosOkMonst(mnum, fx, fy))
+		return false;
+
+	if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
+		return abs(fx - monsters[monsters[mnum]._mleader]._mfutx) < 4
+		    && abs(fy - monsters[monsters[mnum]._mleader]._mfuty) < 4;
+	}
+	if (monsters[mnum]._mpacksize == 0)
+		return true;
+	mcount = 0;
+	for (x = fx - 3; x <= fx + 3; x++) {
+		for (y = fy - 3; y <= fy + 3; y++) {
+			assert(IN_DUNGEON_AREA(x, y));
+			ma = dMonster[x][y];
+			if (ma == 0)
+				continue;
+			ma = ma >= 0 ? ma - 1 : -(ma + 1);
+			if (monsters[ma]._mleaderflag == MLEADER_PRESENT
+			    && monsters[ma]._mleader == mnum
+			    && monsters[ma]._mfutx == x
+				&& monsters[ma]._mfuty == y) {
+				mcount++;
+			}
+		}
+	}
+	return mcount == monsters[mnum]._mpacksize;
 }
 
 static bool MonCallWalk(int mnum, int md)
@@ -4523,54 +4571,6 @@ void FreeMonsters()
 
 	FreeMonMissileGFX();
 	FreeMonsterSFX();
-}
-
-bool MonDirOK(int mnum, int mdir)
-{
-	int fx, fy;
-	int x, y;
-	int mcount, ma;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("DirOK: Invalid monster %d", mnum);
-	}
-
-	x = monsters[mnum]._mx;
-	y = monsters[mnum]._my;
-	if (!PathWalkable(x, y, dir2pdir[mdir]))
-		return false;
-
-	fx = x + offset_x[mdir];
-	fy = y + offset_y[mdir];
-	static_assert(DBORDERX >= 3, "DirOK expects a large enough border I.");
-	static_assert(DBORDERY >= 3, "DirOK expects a large enough border II.");
-	assert(IN_DUNGEON_AREA(fx, fy));
-	if (!PosOkMonst(mnum, fx, fy))
-		return false;
-
-	if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
-		return abs(fx - monsters[monsters[mnum]._mleader]._mfutx) < 4
-		    && abs(fy - monsters[monsters[mnum]._mleader]._mfuty) < 4;
-	}
-	if (monsters[mnum]._mpacksize == 0)
-		return true;
-	mcount = 0;
-	for (x = fx - 3; x <= fx + 3; x++) {
-		for (y = fy - 3; y <= fy + 3; y++) {
-			assert(IN_DUNGEON_AREA(x, y));
-			ma = dMonster[x][y];
-			if (ma == 0)
-				continue;
-			ma = ma >= 0 ? ma - 1 : -(ma + 1);
-			if (monsters[ma]._mleaderflag == MLEADER_PRESENT
-			    && monsters[ma]._mleader == mnum
-			    && monsters[ma]._mfutx == x
-				&& monsters[ma]._mfuty == y) {
-				mcount++;
-			}
-		}
-	}
-	return mcount == monsters[mnum]._mpacksize;
 }
 
 bool CheckAllowMissile(int x, int y)
