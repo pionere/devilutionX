@@ -905,9 +905,6 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Warnings for devilutionX
   target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-char-subscripts -Wno-missing-braces)
 
-  # For ARM and other default unsigned char platforms
-  target_compile_options(${BIN_TARGET} PRIVATE -fsigned-char)
-
   # Disable Run-Time Type Information
   target_compile_options(${BIN_TARGET} PRIVATE -fno-rtti)
   # Disable Exceptions if requested
