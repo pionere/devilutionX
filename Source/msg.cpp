@@ -1202,7 +1202,7 @@ void LevelDeltaExport()
 		dst = &lvlData->ldContent[0];
 		// export the players
 		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			TSyncLvlPlayer* __restrict tplr = (TSyncLvlPlayer*)dst;
+			TSyncLvlPlayer* DVL_RESTRICT tplr = (TSyncLvlPlayer*)dst;
 			if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging) {
 				tplr->spMode = PM_INVALID;
 				dst++;
@@ -1255,7 +1255,7 @@ void LevelDeltaExport()
 				continue; // assume it is the same as in delta
 			}
 			net_assert(mon->_mmode <= MM_INGAME_LAST);
-			TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)dst;
+			TSyncLvlMonster* DVL_RESTRICT tmon = (TSyncLvlMonster*)dst;
 			tmon->smMnum = static_cast<uint16_t>(mnum);
 			tmon->smMode = mon->_mmode;
 			tmon->smSquelch = mon->_msquelch;
@@ -1307,7 +1307,7 @@ void LevelDeltaExport()
 			mis = &missile[mi];
 
 			//assert(!mis->_miDelFlag);
-			TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)dst;
+			TSyncLvlMissile* DVL_RESTRICT tmis = (TSyncLvlMissile*)dst;
 			tmis->smiMi = static_cast<uint16_t>(mi + MAXMONSTERS);
 			tmis->smiType = mis->_miType; // Type of projectile (MIS_*)
 			//BYTE _miFlags;
@@ -1411,7 +1411,7 @@ void LevelDeltaLoad()
 	src = &lvlData->ldContent[0];
 	// load players
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		TSyncLvlPlayer* __restrict tplr = (TSyncLvlPlayer*)src;
+		TSyncLvlPlayer* DVL_RESTRICT tplr = (TSyncLvlPlayer*)src;
 		if (tplr->spMode == PM_INVALID) {
 			src++;
 			continue;
@@ -1493,7 +1493,7 @@ void LevelDeltaLoad()
 	wLen -= ((size_t)src - size_t(&lvlData->ldContent[0]));
 	// load monsters
 	for ( ; wLen >= sizeof(TSyncLvlMonster); wLen -= sizeof(TSyncLvlMonster)) {
-		TSyncLvlMonster* __restrict tmon = (TSyncLvlMonster*)src;
+		TSyncLvlMonster* DVL_RESTRICT tmon = (TSyncLvlMonster*)src;
 		mnum = tmon->smMnum;
 		if (mnum >= MAXMONSTERS)
 			break;
@@ -1579,7 +1579,7 @@ void LevelDeltaLoad()
 	// load missiles
 	assert(nummissiles == 0);
 	for ( ; wLen >= sizeof(TSyncLvlMissile); wLen -= sizeof(TSyncLvlMissile)) {
-		TSyncLvlMissile* __restrict tmis = (TSyncLvlMissile*)src;
+		TSyncLvlMissile* DVL_RESTRICT tmis = (TSyncLvlMissile*)src;
 		net_assert(tmis->smiMi >= MAXMONSTERS);
 		mi = tmis->smiMi - MAXMONSTERS;
 		net_assert((unsigned)mi < MAXMISSILES);

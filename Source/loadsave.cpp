@@ -38,9 +38,9 @@ DEVILUTION_BEGIN_NAMESPACE
 	memcpy(dest, src, (n) * sizeof(int));
 #endif
 
-static BYTE* LoadItem(BYTE* __restrict src, ItemStruct* __restrict is)
+static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 {
-	LSaveItemStruct* __restrict savedItem = (LSaveItemStruct*)src;
+	LSaveItemStruct* DVL_RESTRICT savedItem = (LSaveItemStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	is->_iSeed = savedItem->viSeed;
 	is->_iIdx = savedItem->viIdx;
@@ -138,11 +138,11 @@ static BYTE* LoadItem(BYTE* __restrict src, ItemStruct* __restrict is)
 	return src;
 }
 
-static BYTE* LoadPlayer(BYTE* __restrict src, int pnum)
+static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 {
-	PlayerStruct* __restrict pr = &players[pnum];
+	PlayerStruct* DVL_RESTRICT pr = &players[pnum];
 
-	LSavePlayerStruct* __restrict savedPlr = (LSavePlayerStruct*)src;
+	LSavePlayerStruct* DVL_RESTRICT savedPlr = (LSavePlayerStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	pr->_pmode = savedPlr->vpmode;
 	memcpy(pr->_pWalkpath, savedPlr->vpWalkpath, lengthof(pr->_pWalkpath));
@@ -331,11 +331,11 @@ static BYTE* LoadPlayer(BYTE* __restrict src, int pnum)
 	return src;
 }
 
-static BYTE* LoadMonster(BYTE* __restrict src, int mnum)
+static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum)
 {
-	MonsterStruct* __restrict mon = &monsters[mnum];
+	MonsterStruct* DVL_RESTRICT mon = &monsters[mnum];
 
-	LSaveMonsterStruct* __restrict savedMon = (LSaveMonsterStruct*)src;
+	LSaveMonsterStruct* DVL_RESTRICT savedMon = (LSaveMonsterStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	mon->_mmode = savedMon->vmmode;
 	mon->_msquelch = savedMon->vmsquelch;
@@ -448,11 +448,11 @@ static BYTE* LoadMonster(BYTE* __restrict src, int mnum)
 	return src;
 }
 
-static BYTE* LoadMissile(BYTE* __restrict src, int mi)
+static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 {
-	MissileStruct* __restrict mis = &missile[mi];
+	MissileStruct* DVL_RESTRICT mis = &missile[mi];
 
-	LSaveMissileStruct* __restrict savedMis = (LSaveMissileStruct*)src;
+	LSaveMissileStruct* DVL_RESTRICT savedMis = (LSaveMissileStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	mis->_miType = savedMis->vmiType;
 
@@ -513,11 +513,11 @@ static BYTE* LoadMissile(BYTE* __restrict src, int mi)
 	return src;
 }
 
-static BYTE* LoadObject(BYTE* __restrict src, int oi, bool full)
+static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 {
-	ObjectStruct* __restrict os = &objects[oi];
+	ObjectStruct* DVL_RESTRICT os = &objects[oi];
 
-	LSaveObjectStruct* __restrict savedObj = (LSaveObjectStruct*)src;
+	LSaveObjectStruct* DVL_RESTRICT savedObj = (LSaveObjectStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	os->_otype = savedObj->votype;
 	os->_ox = savedObj->vox;
@@ -573,11 +573,11 @@ static BYTE* LoadObject(BYTE* __restrict src, int oi, bool full)
 	return src;
 }
 
-static BYTE* LoadQuest(BYTE* __restrict src, int i)
+static BYTE* LoadQuest(BYTE* DVL_RESTRICT src, int i)
 {
-	QuestStruct* __restrict pQuest = &quests[i];
+	QuestStruct* DVL_RESTRICT pQuest = &quests[i];
 
-	LSaveQuestStruct* __restrict savedQuest = (LSaveQuestStruct*)src;
+	LSaveQuestStruct* DVL_RESTRICT savedQuest = (LSaveQuestStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	pQuest->_qactive = savedQuest->vqactive;
 	pQuest->_qvar1 = savedQuest->vqvar1;
@@ -598,9 +598,9 @@ static BYTE* LoadQuest(BYTE* __restrict src, int i)
 	return src;
 }
 
-static BYTE* LoadLight(BYTE* src, LightListStruct* __restrict pLight)
+static BYTE* LoadLight(BYTE* src, LightListStruct* DVL_RESTRICT pLight)
 {
-	LSaveLightListStruct* __restrict savedLight = (LSaveLightListStruct*)src;
+	LSaveLightListStruct* DVL_RESTRICT savedLight = (LSaveLightListStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	pLight->_lx = savedLight->vlx;
 	pLight->_ly = savedLight->vly;
@@ -630,11 +630,11 @@ static BYTE* LoadLight(BYTE* src, LightListStruct* __restrict pLight)
 	return src;
 }
 
-static BYTE* LoadPortal(BYTE* __restrict src, int i)
+static BYTE* LoadPortal(BYTE* DVL_RESTRICT src, int i)
 {
-	PortalStruct* __restrict pPortal = &portals[i];
+	PortalStruct* DVL_RESTRICT pPortal = &portals[i];
 
-	LSavePortalStruct* __restrict savedPortal = (LSavePortalStruct*)src;
+	LSavePortalStruct* DVL_RESTRICT savedPortal = (LSavePortalStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	pPortal->_ropen = savedPortal->vropen;
 	pPortal->_rAlign0 = savedPortal->vrAlign0;
@@ -894,9 +894,9 @@ void LoadGame()
 	nthread_send_turn();
 }
 
-static BYTE* SaveItem(BYTE* __restrict dest, ItemStruct* __restrict is)
+static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 {
-	LSaveItemStruct* __restrict itemSave = (LSaveItemStruct*)dest;
+	LSaveItemStruct* DVL_RESTRICT itemSave = (LSaveItemStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	itemSave->viSeed = is->_iSeed;
 	itemSave->viIdx = is->_iIdx;
@@ -994,11 +994,11 @@ static BYTE* SaveItem(BYTE* __restrict dest, ItemStruct* __restrict is)
 	return dest;
 }
 
-static BYTE* SavePlayer(BYTE* __restrict dest, int pnum)
+static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 {
-	PlayerStruct* __restrict pr = &players[pnum];
+	PlayerStruct* DVL_RESTRICT pr = &players[pnum];
 
-	LSavePlayerStruct* __restrict plrSave = (LSavePlayerStruct*)dest;
+	LSavePlayerStruct* DVL_RESTRICT plrSave = (LSavePlayerStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	plrSave->vpmode = pr->_pmode;
 	memcpy(plrSave->vpWalkpath, pr->_pWalkpath, lengthof(pr->_pWalkpath));
@@ -1181,9 +1181,9 @@ static BYTE* SavePlayer(BYTE* __restrict dest, int pnum)
 	return dest;
 }
 
-static BYTE* SaveMonster(BYTE* __restrict dest, int mnum, bool full)
+static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum, bool full)
 {
-	MonsterStruct* __restrict mon = &monsters[mnum];
+	MonsterStruct* DVL_RESTRICT mon = &monsters[mnum];
 
 	if (!full) {
 		// reset charging and stoned monsters, because the missiles are not saved
@@ -1197,7 +1197,7 @@ static BYTE* SaveMonster(BYTE* __restrict dest, int mnum, bool full)
 		}
 	}
 
-	LSaveMonsterStruct* __restrict monSave = (LSaveMonsterStruct*)dest;
+	LSaveMonsterStruct* DVL_RESTRICT monSave = (LSaveMonsterStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	monSave->vmmode = mon->_mmode;
 	monSave->vmsquelch = mon->_msquelch;
@@ -1301,11 +1301,11 @@ static BYTE* SaveMonster(BYTE* __restrict dest, int mnum, bool full)
 	return dest;
 }
 
-static BYTE* SaveMissile(BYTE* __restrict dest, int mi)
+static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 {
-	MissileStruct* __restrict mis = &missile[mi];
+	MissileStruct* DVL_RESTRICT mis = &missile[mi];
 
-	LSaveMissileStruct* __restrict misSave = (LSaveMissileStruct*)dest;
+	LSaveMissileStruct* DVL_RESTRICT misSave = (LSaveMissileStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	misSave->vmiType = mis->_miType;
 
@@ -1366,11 +1366,11 @@ static BYTE* SaveMissile(BYTE* __restrict dest, int mi)
 	return dest;
 }
 
-static BYTE* SaveObject(BYTE* __restrict dest, int oi)
+static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 {
-	ObjectStruct* __restrict os = &objects[oi];
+	ObjectStruct* DVL_RESTRICT os = &objects[oi];
 
-	LSaveObjectStruct* __restrict objSave = (LSaveObjectStruct*)dest;
+	LSaveObjectStruct* DVL_RESTRICT objSave = (LSaveObjectStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	objSave->votype = os->_otype;
 	objSave->vox = os->_ox;
@@ -1421,11 +1421,11 @@ static BYTE* SaveObject(BYTE* __restrict dest, int oi)
 	return dest;
 }
 
-static BYTE* SaveQuest(BYTE* __restrict dest, int i)
+static BYTE* SaveQuest(BYTE* DVL_RESTRICT dest, int i)
 {
-	QuestStruct* __restrict pQuest = &quests[i];
+	QuestStruct* DVL_RESTRICT pQuest = &quests[i];
 
-	LSaveQuestStruct* __restrict questSave = (LSaveQuestStruct*)dest;
+	LSaveQuestStruct* DVL_RESTRICT questSave = (LSaveQuestStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	questSave->vqactive = pQuest->_qactive;
 	questSave->vqvar1 = pQuest->_qvar1;
@@ -1446,9 +1446,9 @@ static BYTE* SaveQuest(BYTE* __restrict dest, int i)
 	return dest;
 }
 
-static BYTE* SaveLight(BYTE* __restrict dest, LightListStruct* __restrict pLight)
+static BYTE* SaveLight(BYTE* DVL_RESTRICT dest, LightListStruct* DVL_RESTRICT pLight)
 {
-	LSaveLightListStruct* __restrict lightSave = (LSaveLightListStruct*)dest;
+	LSaveLightListStruct* DVL_RESTRICT lightSave = (LSaveLightListStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	lightSave->vlx = pLight->_lx;
 	lightSave->vly = pLight->_ly;
@@ -1478,11 +1478,11 @@ static BYTE* SaveLight(BYTE* __restrict dest, LightListStruct* __restrict pLight
 	return dest;
 }
 
-static BYTE* SavePortal(BYTE* __restrict dest, int i)
+static BYTE* SavePortal(BYTE* DVL_RESTRICT dest, int i)
 {
-	PortalStruct* __restrict pPortal = &portals[i];
+	PortalStruct* DVL_RESTRICT pPortal = &portals[i];
 
-	LSavePortalStruct* __restrict portalSave = (LSavePortalStruct*)dest;
+	LSavePortalStruct* DVL_RESTRICT portalSave = (LSavePortalStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	portalSave->vropen = pPortal->_ropen;
 	portalSave->vrAlign0 = pPortal->_rAlign0;
@@ -1591,8 +1591,8 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 void SaveGame()
 {
 	int i;
-	LSaveGameHeaderStruct* __restrict ghs;
-	LSaveGameMetaStruct* __restrict gms;
+	LSaveGameHeaderStruct* DVL_RESTRICT ghs;
+	LSaveGameMetaStruct* DVL_RESTRICT gms;
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	BYTE* tbuff = fileBuff;
 

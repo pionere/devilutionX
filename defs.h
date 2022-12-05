@@ -240,6 +240,12 @@
 #define DVL_ATTRIBUTE_HOT
 #endif
 
+#ifdef _MSC_VER
+#define DVL_RESTRICT __restrict
+#else
+#define DVL_RESTRICT __restrict__
+#endif
+
 #ifndef M_SQRT2
 #define M_SQRT2    1.41421356237309504880   // sqrt(2)
 #endif

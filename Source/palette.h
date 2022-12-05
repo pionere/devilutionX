@@ -40,7 +40,7 @@ void palette_update_hive();
 void palette_update_quest_palette(int n);
 
 // Create a palette of SDL_Colors.
-inline void palette_create_sdl_colors(SDL_Color (&__restrict colors)[NUM_COLORS], BYTE (&__restrict paldata)[NUM_COLORS][3])
+inline void palette_create_sdl_colors(SDL_Color (&DVL_RESTRICT colors)[NUM_COLORS], BYTE (&DVL_RESTRICT paldata)[NUM_COLORS][3])
 {
 	for (int i = 0; i < NUM_COLORS; i++) {
 		colors[i].r = paldata[i][0];
