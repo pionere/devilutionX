@@ -65,7 +65,7 @@ static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE
 static MonEnemyStruct currEnemyInfo;
 
 /** Maps from walking path step to facing direction. */
-//const char walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
+//const int8_t walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
 
 /* data */
 
@@ -2757,7 +2757,7 @@ static bool MonCallWalk(int mnum, int md)
 static bool MonDestWalk(int mnum)
 {
 	MonsterStruct* mon;
-	char path[MAX_PATH_LENGTH];
+	int8_t path[MAX_PATH_LENGTH];
 	bool (*Check)(int, int, int);
 	int md;
 
@@ -3403,7 +3403,7 @@ void MAI_Scav(int mnum)
 {
 	MonsterStruct* mon;
 	int i, j, tx, ty, maxhp, tmp;
-	const char* cr;
+	const int8_t* cr;
 
 	mon = &monsters[mnum];
 	if (MON_ACTIVE || MON_RELAXED)

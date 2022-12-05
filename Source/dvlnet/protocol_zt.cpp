@@ -148,7 +148,7 @@ bool protocol_zt::send_queued_peer(const endpoint& peer)
 
 bool protocol_zt::recv_peer(const endpoint& peer)
 {
-	unsigned char buf[PKTBUF_LEN];
+	BYTE buf[PKTBUF_LEN];
 	while (true) {
 		auto len = lwip_recv(peer_list[peer].fd, buf, sizeof(buf), 0);
 		if (len >= 0) {
@@ -183,7 +183,7 @@ bool protocol_zt::recv_from_peers()
 
 bool protocol_zt::recv_from_udp()
 {
-	unsigned char buf[PKTBUF_LEN];
+	BYTE buf[PKTBUF_LEN];
 	struct sockaddr_in6 in6 {
 	};
 	socklen_t addrlen = sizeof(in6);

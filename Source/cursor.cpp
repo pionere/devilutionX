@@ -214,7 +214,8 @@ void CheckCursMove()
 {
 	int pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, xx, yy, mi;
 	int pcurstemp; // Previously highlighted monster
-	char bv;
+	int8_t bv;
+	BYTE ii;
 	bool flipflag, flipx, flipy;
 
 	pcurstemp = pcursmonst;
@@ -555,7 +556,7 @@ void CheckCursMove()
 		}
 	} else {
 		// search for dead players around the cursor
-		const char deltas[3] = { -1, 1, 0, };
+		const int8_t deltas[3] = { -1, 1, 0, };
 		for (xx = 0; xx < lengthof(deltas); xx++) {
 			for (yy = 0; yy < lengthof(deltas); yy++) {
 				if ((dFlags[mx + deltas[xx]][my + deltas[yy]] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
@@ -619,42 +620,42 @@ void CheckCursMove()
 		return;
 	// select an item
 	if (!flipflag) {
-		bv = dItem[mx + 1][my];
-		if (bv > 0) {
-			bv--;
-			if (items[bv]._iSelFlag & 2) {
+		ii = dItem[mx + 1][my];
+		if (ii > 0) {
+			ii--;
+			if (items[ii]._iSelFlag & 2) {
 				cursmx = mx + 1;
 				cursmy = my;
-				pcursitem = bv;
+				pcursitem = ii;
 			}
 		}
 	} else {
-		bv = dItem[mx][my + 1];
-		if (bv > 0) {
-			bv--;
-			if (items[bv]._iSelFlag & 2) {
+		ii = dItem[mx][my + 1];
+		if (ii > 0) {
+			ii--;
+			if (items[ii]._iSelFlag & 2) {
 				cursmx = mx;
 				cursmy = my + 1;
-				pcursitem = bv;
+				pcursitem = ii;
 			}
 		}
 	}
-	bv = dItem[mx][my];
-	if (bv > 0) {
-		bv--;
-		if (items[bv]._iSelFlag & 1) {
+	ii = dItem[mx][my];
+	if (ii > 0) {
+		ii--;
+		if (items[ii]._iSelFlag & 1) {
 			cursmx = mx;
 			cursmy = my;
-			pcursitem = bv;
+			pcursitem = ii;
 		}
 	}
-	bv = dItem[mx + 1][my + 1];
-	if (bv > 0) {
-		bv--;
-		if (items[bv]._iSelFlag & 2) {
+	ii = dItem[mx + 1][my + 1];
+	if (ii > 0) {
+		ii--;
+		if (items[ii]._iSelFlag & 2) {
 			cursmx = mx + 1;
 			cursmy = my + 1;
-			pcursitem = bv;
+			pcursitem = ii;
 		}
 	}
 	if (pcursitem == ITEM_NONE) {

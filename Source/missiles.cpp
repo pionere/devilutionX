@@ -250,7 +250,7 @@ static bool PosOkMis2(int x, int y)
 static bool FindClosest(int sx, int sy, int& dx, int& dy)
 {
 	int j, i, mid, mnum, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 	MonsterStruct* mon;
 
 	mid = dMonster[sx][sy];
@@ -284,7 +284,7 @@ static bool FindClosest(int sx, int sy, int& dx, int& dy)
 static bool FindClosestChain(int sx, int sy, int& dx, int& dy)
 {
 	int j, i, mid, mnum, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 	MonsterStruct* mon;
 
 	mid = dMonster[sx][sy];
@@ -934,7 +934,7 @@ static bool MonsterMHit(int mnum, int mi)
 unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam)
 {
 	int dam;
-	char resist;
+	int8_t resist;
 
 	switch (mRes) {
 	case MISR_NONE:
@@ -1617,7 +1617,7 @@ void InitMissiles()
 static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 {
 	int i, j, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 	MissileStruct* mis;
 
 	mis = &missile[mi];
@@ -1800,7 +1800,7 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int tx, ty, j, mitype;
-	const char* cr;
+	const int8_t* cr;
 
 	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
 
@@ -2003,7 +2003,7 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int i, j, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 
 	assert((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddTeleport expects a large enough border.");
@@ -2314,7 +2314,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 {
 	MissileStruct* mis;
 	int i, j, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 	// the position of portals in town and recreated portals are fixed
 	if (currLvl._dType != DTYPE_TOWN && spllvl >= 0) {
 		const int RANGE = 6;
@@ -2451,7 +2451,7 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 {
 	MissileStruct* mis;
 	int mindam, maxdam, i, j, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 
 	mis = &missile[mi];
 	//if (micaster & MST_PLAYER) {
@@ -2492,7 +2492,7 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 {
 	MissileStruct* mis;
 	int i, j, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 
 	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -2727,7 +2727,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	MissileStruct* mis;
 	MonsterStruct* mon;
 	int i, j, tx, ty, mid, range;
-	const char* cr;
+	const int8_t* cr;
 
 	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -2779,7 +2779,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 {
 	MonsterStruct* mon;
 	int tx, ty, i, j;
-	const char* cr;
+	const int8_t* cr;
 
 	assert((unsigned)misource < MAX_PLRS);
 
@@ -2933,7 +2933,7 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 {
 	MissileStruct* mis;
 	int i, j, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 
 	assert((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddWallC expects a large enough border.");
@@ -3010,7 +3010,7 @@ int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int i, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 
 	cr = &CrawlTable[CrawlNum[3]];
 	for (i = *cr; i > 0; i--) {
@@ -3201,7 +3201,7 @@ int AddAttract(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	MissileStruct* mis;
 	MonsterStruct* mon;
 	int dist, i, j, tx, ty, mnum;
-	const char* cr;
+	const int8_t* cr;
 
 	if (!LineClear(sx, sy, dx, dy))
 		return MIRES_FAIL_DELETE;
@@ -3644,7 +3644,7 @@ void MI_HorkSpawn(int mi)
 {
 	MissileStruct* mis;
 	int i, j, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 
 	mis = &missile[mi];
 	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
@@ -3678,7 +3678,7 @@ void MI_Rune(int mi)
 {
 	MissileStruct* mis;
 	int j, mnum, tx, ty;
-	const char* cr;
+	const int8_t* cr;
 
 	mis = &missile[mi];
 	mis->_miRange--;
@@ -4099,7 +4099,7 @@ void MI_Guardian(int mi)
 	MissileStruct* mis;
 	int i, j, tx, ty;
 	bool ex;
-	const char* cr;
+	const int8_t* cr;
 
 	mis = &missile[mi];
 	switch (mis->_miDir) {

@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #if DEBUG_MODE
 /** automap pixel color 8-bit (palette entry) */
-char gbPixelCol;
+BYTE gbPixelCol;
 /** flip - if y < x */
 bool _gbRotateMap;
 /** valid - if x/y are in bounds */

@@ -363,8 +363,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	int ihp = 0;   // increased HP
 	int imana = 0; // increased mana
 
-	int skillLvl;          // temporary value to calculate skill levels
-	char skillLvlAdds = 0; // increased skill level
+	int skillLvl;            // temporary value to calculate skill levels
+	int8_t skillLvlAdds = 0; // increased skill level
 	BYTE skillLvlMods[NUM_SPELLS] = { 0 };
 
 	unsigned minsl = 0; // min slash-damage
@@ -2678,7 +2678,7 @@ ItemStruct* PlrItem(int pnum, int cii)
  * @param from: whether an item should be used to identify some other item, or the ability of the player used.
  * @param cii: the id of the item on which the ability is used
  */
-void DoAbility(int pnum, char from, BYTE cii)
+void DoAbility(int pnum, int8_t from, BYTE cii)
 {
 	// assert(plr._pmode != PM_DEATH);
 
@@ -2716,7 +2716,7 @@ void DoAbility(int pnum, char from, BYTE cii)
 	}
 }
 
-void DoOil(int pnum, char from, BYTE cii)
+void DoOil(int pnum, int8_t from, BYTE cii)
 {
 	ItemStruct *pi, *is;
 	int oilType, seed, spell;

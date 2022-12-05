@@ -16,8 +16,8 @@ extern "C" {
 
 extern bool gbInvflag;
 extern BYTE gbTSpell;   // the spell to cast after the target is selected
-extern char gbTSplFrom; // the source of the spell after the target is selected
-extern char gbOilFrom;
+extern int8_t gbTSplFrom; // the source of the spell after the target is selected
+extern int8_t gbOilFrom;
 
 extern const InvXY InvRect[NUM_XY_SLOTS];
 extern const BYTE InvSlotTbl[NUM_XY_SLOTS];

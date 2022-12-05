@@ -32,7 +32,7 @@ int GetManaAmount(int pnum, int sn)
 	return ma;
 }
 
-char SpellSourceInv(int sn)
+int8_t SpellSourceInv(int sn)
 {
 	ItemStruct* pi;
 	int i;
@@ -59,7 +59,7 @@ char SpellSourceInv(int sn)
 	return SPLFROM_INVALID_SOURCE;
 }
 
-char SpellSourceEquipment(int sn)
+int8_t SpellSourceEquipment(int sn)
 {
 	ItemStruct* pi;
 	int i;

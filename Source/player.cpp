@@ -233,7 +233,7 @@ const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
 
 #if DEBUG_MODE
 /** Maps from facing direction to scroll-direction. */
-static const char dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
+static const int8_t dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
 #endif
 
 static void SetPlayerGPtrs(BYTE* pData, BYTE* (&pAnim)[8])
@@ -711,7 +711,7 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 static void PlacePlayer(int pnum)
 {
 	int i, j, nx, ny;
-	const char* cr;
+	const int8_t* cr;
 
 	for (i = 0; i < lengthof(plrxoff2); i++) {
 		nx = plr._px + plrxoff2[i];

@@ -2049,10 +2049,10 @@ static void DRLG_L1Subs()
 {
 	int x, y;
 	BYTE i, c;
-	char rv;
+	int8_t rv;
 	const unsigned MAX_MATCH = 11;
 	const unsigned NUM_L1TYPES = 139;
-	static_assert(MAX_MATCH <= CHAR_MAX, "MAX_MATCH does not fit to rv(char) in DRLG_L1Subs.");
+	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L1Subs.");
 	static_assert(NUM_L1TYPES <= UCHAR_MAX, "NUM_L1TYPES does not fit to i(BYTE) in DRLG_L1Subs.");
 #if DEBUG_MODE
 	for (i = sizeof(L1BTYPES) - 1; i >= 0; i--) {

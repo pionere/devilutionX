@@ -57,7 +57,7 @@ char infostr[256];
 /** Number of active windows on the screen. */
 int gnNumActiveWindows;
 /** The list of active windows on the screen. */
-char gaActiveWindows[NUM_WNDS];
+BYTE gaActiveWindows[NUM_WNDS];
 BYTE gbDragWnd;
 int gnDragWndX;
 int gnDragWndY;
@@ -163,7 +163,7 @@ static BYTE GetSpellTrans(BYTE st, BYTE sn)
 #endif
 }
 
-/*static void SetSpellTrans(char st)
+/*static void SetSpellTrans(BYTE st)
 {
 	int i;
 
@@ -316,12 +316,12 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, spl, st);
 }
 
-bool ToggleWindow(char idx)
+bool ToggleWindow(BYTE wnd)
 {
 	int i;
 
 	for (i = 0; i < gnNumActiveWindows; i++) {
-		if (gaActiveWindows[i] == idx) {
+		if (gaActiveWindows[i] == wnd) {
 			gnNumActiveWindows--;
 			for ( ; i < gnNumActiveWindows; i++) {
 				gaActiveWindows[i] = gaActiveWindows[i + 1];
@@ -330,7 +330,7 @@ bool ToggleWindow(char idx)
 		}
 	}
 
-	gaActiveWindows[gnNumActiveWindows] = idx;
+	gaActiveWindows[gnNumActiveWindows] = wnd;
 	gnNumActiveWindows++;
 	return true;
 }
@@ -750,7 +750,7 @@ static void DrawFlask2(int sx, int filled, int emptyCel, int fullCel, int w)
 {
 	const BYTE *empty, *full;
 	int sy, dataSize, i;
-	char width;
+	int8_t width;
 
 	sy = PANEL_Y + PANEL_HEIGHT - 1;
 
@@ -2093,7 +2093,7 @@ static void control_remove_gold()
 	NetSendCmdParamBW(CMD_SPLITPLRGOLD, gi, dropGoldValue);
 }
 
-void control_drop_gold(char vkey)
+void control_drop_gold(int vkey)
 {
 	int newValue;
 

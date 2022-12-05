@@ -2061,7 +2061,7 @@ void NetSendCmdDelItem(BYTE bLoc)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdItemSkill(int cii, BYTE skill, char from)
+void NetSendCmdItemSkill(int cii, BYTE skill, int8_t from)
 {
 	TCmdItemOp cmd;
 
@@ -2073,7 +2073,7 @@ void NetSendCmdItemSkill(int cii, BYTE skill, char from)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocSkill(BYTE x, BYTE y, BYTE skill, char from)
+void NetSendCmdLocSkill(BYTE x, BYTE y, BYTE skill, int8_t from)
 {
 	TCmdLocSkill cmd;
 
@@ -2086,7 +2086,7 @@ void NetSendCmdLocSkill(BYTE x, BYTE y, BYTE skill, char from)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, char from)
+void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, int8_t from)
 {
 	TCmdLocDisarm cmd;
 
@@ -2099,7 +2099,7 @@ void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, char from)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdPlrSkill(int pnum, BYTE skill, char from)
+void NetSendCmdPlrSkill(int pnum, BYTE skill, int8_t from)
 {
 	TCmdPlrSkill cmd;
 
@@ -2111,7 +2111,7 @@ void NetSendCmdPlrSkill(int pnum, BYTE skill, char from)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdMonSkill(int mnum, BYTE skill, char from)
+void NetSendCmdMonSkill(int mnum, BYTE skill, int8_t from)
 {
 	TCmdMonSkill cmd;
 
@@ -2480,7 +2480,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse& su)
 {
 	int ma;
 	BYTE sn = su.skill;
-	char sf = su.from;
+	int8_t sf = su.from;
 	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
 
 	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
@@ -3120,7 +3120,7 @@ static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static void DoTelekinesis(int pnum, int x, int y, char from, int id)
+static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)
 {
 	CmdSkillUse su;
 
@@ -3804,10 +3804,10 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		int _pIChMaxDam; // max charge-damage (shield charge)
 		int _pIEvasion;
 		int _pIAC;
-		char _pMagResist;
-		char _pFireResist;
-		char _pLghtResist;
-		char _pAcidResist;
+		int8_t _pMagResist;
+		int8_t _pFireResist;
+		int8_t _pLghtResist;
+		int8_t _pAcidResist;
 		int _pIHitChance;
 		BYTE _pSkillFlags;    // Bitmask of allowed skill-types (SFLAG_*)
 		BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
@@ -3821,7 +3821,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		BYTE _pAlign_B1;
 		int _pIGetHit;
 		BYTE _pIBaseAttackSpeed;
-		char _pIArrowVelBonus; // _pISplCost in vanilla code
+		int8_t _pIArrowVelBonus; // _pISplCost in vanilla code
 		BYTE _pILifeSteal;
 		BYTE _pIManaSteal;
 		int _pIFMinDam; // min fire damage (item's added fire damage)

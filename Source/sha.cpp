@@ -107,7 +107,7 @@ static void SHA1ProcessMessageBlock(SHA1Context* context)
 	context->state[4] += E;
 }
 
-static void SHA1Input(SHA1Context* context, const char* message_array, DWORD len)
+static void SHA1Input(SHA1Context* context, const BYTE* message_array, DWORD len)
 {
 	DWORD i;
 #if DEBUG_MODE
@@ -132,7 +132,7 @@ void SHA1Clear()
 	memset(sgSHA1, 0, sizeof(sgSHA1));
 }
 
-void SHA1Result(int n, char Message_Digest[SHA1HashSize])
+void SHA1Result(int n, BYTE Message_Digest[SHA1HashSize])
 {
 	DWORD* Message_Digest_Block;
 	int i;
@@ -145,7 +145,7 @@ void SHA1Result(int n, char Message_Digest[SHA1HashSize])
 	}
 }
 
-void SHA1Calculate(int n, const char* data, char Message_Digest[SHA1HashSize])
+void SHA1Calculate(int n, const BYTE* data, BYTE Message_Digest[SHA1HashSize])
 {
 	SHA1Input(&sgSHA1[n], data, SHA1BlockSize);
 	if (Message_Digest != NULL)

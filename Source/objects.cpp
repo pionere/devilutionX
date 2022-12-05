@@ -557,7 +557,7 @@ static void AddL2Torches()
 static void AddObjTraps()
 {
 	int i, j, tx, ty, on, rndv;
-	char oi;
+	int8_t oi;
 
 	rndv = 10 + (currLvl._dLevel >> 1);
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
@@ -611,7 +611,7 @@ static void AddObjTraps()
 static void AddChestTraps()
 {
 	int i, j;
-	char oi;
+	int8_t oi;
 
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
@@ -1562,7 +1562,7 @@ static void Obj_Light(int oi)
 static void GetVileMissPos(int* dx, int* dy)
 {
 	int xx, yy, j, i;
-	const char* cr;
+	const int8_t* cr;
 
 	i = dObject[*dx][*dy] - 1;
 	assert(objects[i]._otype == OBJ_MCIRCLE1 || objects[i]._otype == OBJ_MCIRCLE2);
@@ -3185,7 +3185,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		static_assert(MIS_RUNEFIRE + 1 == MIS_RUNELIGHT, "SHRINE_SOLAR expects runes in a given order I.");
 		static_assert(MIS_RUNEFIRE + 2 == MIS_RUNENOVA, "SHRINE_SOLAR expects runes in a given order II.");
 		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEWAVE, "SHRINE_SOLAR expects runes in a given order III.");
-		const char* cr = &CrawlTable[CrawlNum[3]];
+		const int8_t* cr = &CrawlTable[CrawlNum[3]];
 		mode = sendmsg ? ICM_SEND : ICM_DUMMY;
 		for (i = (BYTE)*cr; i > 0; i--) {
 			xx = plr._px + *++cr;

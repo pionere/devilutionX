@@ -117,15 +117,15 @@ static int stextsmax;
 /** Copies of the players items as presented in the store */
 static ItemStruct storehold[STORAGE_LIMIT];
 /** Map of inventory items being presented in the store */
-static char storehidx[STORAGE_LIMIT];
+static int8_t storehidx[STORAGE_LIMIT];
 /** The number of valid entries in storehidx/storehold */
 static int storenumh;
 /** Remember stextsidx while displaying a dialog */
 static int stextvhold;
 /** Count down for the push state of the scroll up button */
-static char stextscrlubtn;
+static int8_t stextscrlubtn;
 /** Count down for the push state of the scroll down button */
-static char stextscrldbtn;
+static int8_t stextscrldbtn;
 
 /** Maps from towner IDs to NPC names. */
 static const char* const talkname[] = {

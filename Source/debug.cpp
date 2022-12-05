@@ -114,7 +114,7 @@ void MaxSpellsCheat()
 	CalcPlrItemVals(mypnum, false);
 }
 
-static void SetSpellLevelCheat(char spl, int spllvl)
+static void SetSpellLevelCheat(BYTE spl, int spllvl)
 {
 	myplr._pMemSkills |= SPELL_MASK(spl);
 	myplr._pSkillLvlBase[spl] = spllvl;

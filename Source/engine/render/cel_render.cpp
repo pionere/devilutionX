@@ -19,7 +19,7 @@ DEVILUTION_BEGIN_NAMESPACE
 static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth)
 {
 	int i;
-	char width;
+	int8_t width;
 	const BYTE *src, *end;
 	BYTE* dst;
 
@@ -60,7 +60,7 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 static void CelBlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth, const BYTE* tbl)
 {
 	int i;
-	char width;
+	int8_t width;
 	const BYTE *src, *end;
 	BYTE* dst;
 
@@ -222,7 +222,7 @@ static void CelBlitLightTrans(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataS
 {
 	int i;
 	BOOLEAN shift;
-	char width;
+	int8_t width;
 	const BYTE *tbl, *src, *end;
 	BYTE* dst;
 
@@ -368,7 +368,7 @@ void CelClippedDrawLightRed(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
 	assert(pBuff != NULL);
 
 	int i, nDataSize;
-	char width;
+	int8_t width;
 
 	pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
 	end = &pRLEBytes[nDataSize];
@@ -404,7 +404,7 @@ void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int n
 	int nDataSize, i;
 	const BYTE *src, *end;
 	BYTE* dst;
-	char width;
+	int8_t width;
 
 	assert(pCelBuff != NULL);
 	assert(gpBuffer != NULL);

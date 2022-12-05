@@ -10,8 +10,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 bool gbInvflag;
 BYTE gbTSpell;   // the spell to cast after the target is selected
-char gbTSplFrom; // the source of the spell after the target is selected
-char gbOilFrom;
+int8_t gbTSplFrom; // the source of the spell after the target is selected
+int8_t gbOilFrom;
 
 CelImageBuf* pInvCels;
 CelImageBuf* pBeltCels;

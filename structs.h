@@ -207,10 +207,10 @@ typedef struct ItemStruct {
 	int _iPLHP;
 	int _iPLDamMod;
 	int _iPLGetHit;
-	char _iPLLight;
-	char _iPLSkillLevels;
+	int8_t _iPLLight;
+	int8_t _iPLSkillLevels;
 	BYTE _iPLSkill;
-	char _iPLSkillLvl;
+	int8_t _iPLSkillLvl;
 	BYTE _iPLManaSteal;
 	BYTE _iPLLifeSteal;
 	BYTE _iPLCrit;
@@ -249,7 +249,7 @@ static_assert((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Alig
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
-	char _pWalkpath[MAX_PATH_LENGTH + 1];
+	int8_t _pWalkpath[MAX_PATH_LENGTH + 1];
 	int _pDestAction;
 	int _pDestParam1;
 	int _pDestParam2;
@@ -358,10 +358,10 @@ typedef struct PlayerStruct {
 	int _pIChMaxDam; // max charge-damage (shield charge)
 	int _pIEvasion;
 	int _pIAC;
-	char _pMagResist;
-	char _pFireResist;
-	char _pLghtResist;
-	char _pAcidResist;
+	int8_t _pMagResist;
+	int8_t _pFireResist;
+	int8_t _pLghtResist;
+	int8_t _pAcidResist;
 	int _pIHitChance;
 	BYTE _pSkillFlags;    // Bitmask of allowed skill-types (SFLAG_*)
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
@@ -375,7 +375,7 @@ typedef struct PlayerStruct {
 	BYTE _pAlign_B1;
 	int _pIGetHit;
 	BYTE _pIBaseAttackSpeed;
-	char _pIArrowVelBonus; // _pISplCost in vanilla code
+	int8_t _pIArrowVelBonus; // _pISplCost in vanilla code
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
 	int _pIFMinDam; // min fire damage (item's added fire damage)
@@ -1054,7 +1054,7 @@ typedef struct PkPlayerStruct {
 	PkItemStruct pInvBody[NUM_INVLOC];
 	PkItemStruct pSpdList[MAXBELTITEMS];
 	PkItemStruct pInvList[NUM_INV_GRID_ELEM];
-	char pInvGrid[NUM_INV_GRID_ELEM];
+	int8_t pInvGrid[NUM_INV_GRID_ELEM];
 	LE_INT32 pNumInv; // unused
 } PkPlayerStruct;
 #pragma pack(pop)
@@ -1167,10 +1167,10 @@ typedef struct LSaveItemStruct {
 	LE_INT32 viPLHP;
 	LE_INT32 viPLDamMod;
 	LE_INT32 viPLGetHit;
-	char viPLLight;
-	char viPLSkillLevels;
+	int8_t viPLLight;
+	int8_t viPLSkillLevels;
 	BYTE viPLSkill;
-	char viPLSkillLvl;
+	int8_t viPLSkillLvl;
 	BYTE viPLManaSteal;
 	BYTE viPLLifeSteal;
 	BYTE viPLCrit;
@@ -1190,7 +1190,7 @@ typedef struct LSaveItemStruct {
 
 typedef struct LSavePlayerStruct {
 	LE_INT32 vpmode; // PLR_MODE
-	char vpWalkpath[MAX_PATH_LENGTH + 1];
+	int8_t vpWalkpath[MAX_PATH_LENGTH + 1];
 	LE_INT32 vpDestAction;
 	LE_INT32 vpDestParam1;
 	LE_INT32 vpDestParam2;
@@ -1482,7 +1482,7 @@ typedef struct LSavePortalStruct {
 #pragma pack(push, 1)
 typedef struct CmdSkillUse {
 	BYTE skill;
-	char from;
+	int8_t from;
 } CmdSkillUse;
 
 typedef struct TCmd {
@@ -1564,7 +1564,7 @@ typedef struct TCmdLocDisarm {
 	BYTE x;
 	BYTE y;
 	BYTE oi;
-	char from;
+	int8_t from;
 } TCmdLocDisarm;
 
 typedef struct TCmdPlrSkill {
@@ -1825,7 +1825,7 @@ typedef struct TSyncLvlMissile {
 	BOOLEAN smiLightFlag;
 	BOOLEAN smiPreFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
-	char smiAnimAdd;
+	int8_t smiAnimAdd;
 	BYTE smiAnimFrame; // Current frame of animation.
 	BYTE smiDir;   // The direction of the missile
 	BYTE smisx;    // Initial tile X-position for missile

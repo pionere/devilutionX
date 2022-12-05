@@ -56,8 +56,8 @@ static Uint32 _gdwFadeTc;
 static int _gnFadeValue = 0;
 
 typedef struct ScrollBarState {
-	char upPressCounter;
-	char downPressCounter;
+	int8_t upPressCounter;
+	int8_t downPressCounter;
 } ScrollBarState;
 static ScrollBarState scrollBarState;
 

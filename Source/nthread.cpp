@@ -21,7 +21,7 @@ BYTE gbNetUpdateRate;
 BYTE gbEmptyTurns;
 #ifdef ADAPTIVE_NETUPDATE
 /* The 'health' of the connection. Incremented on timeout, decremented if a turn is received on time. */
-char gbNetUpdateWeight;
+int8_t gbNetUpdateWeight;
 #endif // ADAPTIVE_NETUPDATE
 /* The thread to handle turns while connecting or loading a level. */
 static SDL_Thread* sghThread = NULL;

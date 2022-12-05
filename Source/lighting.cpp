@@ -76,7 +76,7 @@ BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
  *    |  526
  *    +-------> x
  */
-const char CrawlTable[2749] = {
+const int8_t CrawlTable[2749] = {
 	// clang-format off
 	1,										//  0 - 0
 	  0,  0,
@@ -334,7 +334,7 @@ const char CrawlTable[2749] = {
 	-15, -3,   15, -3,  -15,  2,   15,  2,
 	-15, -2,   15, -2,  -15,  1,   15,  1,
 	-15, -1,   15, -1,  -15,  0,   15,  0,
-	(char)128,								// 16 - 1930
+	(int8_t)128,							// 16 - 1930
 	0, 16, 0, -16, -1, 16, 1, 16,
 	-1, -16, 1, -16, -2, 16, 2, 16,
 	-2, -16, 2, -16, -3, 16, 3, 16,
@@ -367,7 +367,7 @@ const char CrawlTable[2749] = {
 	-16, -3, 16, -3, -16, 2, 16, 2,
 	-16, -2, 16, -2, -16, 1, 16, 1,
 	-16, -1, 16, -1, -16, 0, 16, 0,
-	(char)136,								// 17 - 2187
+	(int8_t)136,							// 17 - 2187
 	0, 17, 0, -17, -1, 17, 1, 17,
 	-1, -17, 1, -17, -2, 17, 2, 17,
 	-2, -17, 2, -17, -3, 17, 3, 17,
@@ -402,7 +402,7 @@ const char CrawlTable[2749] = {
 	-17, -3, 17, -3, -17, 2, 17, 2,
 	-17, -2, 17, -2, -17, 1, 17, 1,
 	-17, -1, 17, -1, -17, 0, 17, 0,
-	(char)144,								// 18 - 2460
+	(int8_t)144,							// 18 - 2460
 	0, 18, 0, -18, -1, 18, 1, 18,
 	-1, -18, 1, -18, -2, 18, 2, 18,
 	-2, -18, 2, -18, -3, 18, 3, 18,
@@ -685,7 +685,7 @@ static bool LightPos(int x1, int y1)
  */
 void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 {
-	const char* cr;
+	const int8_t* cr;
 	int i, x1, y1, limit;
 	int d, dx, dy, xinc, yinc;
 	vFlags = local ? BFLAG_VISIBLE | BFLAG_ALERT : BFLAG_ALERT;

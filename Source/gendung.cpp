@@ -77,7 +77,7 @@ BYTE dFlags[MAXDUNX][MAXDUNY];
  *   pnum + 1 : the player is on the given location.
  * -(pnum + 1): reserved for a moving player
  */
-char dPlayer[MAXDUNX][MAXDUNY];
+int8_t dPlayer[MAXDUNX][MAXDUNY];
 static_assert(MAX_PLRS <= CHAR_MAX, "Index of a player might not fit to dPlayer.");
 /**
  * Contains the NPC numbers of the map. The NPC number represents a
@@ -100,7 +100,7 @@ static_assert((BYTE)(MAXMONSTERS + 1) < (BYTE)DEAD_MULTI, "Multi-dead in dDead r
  *   oi + 1 : the object is on the given location.
  * -(oi + 1): a large object protrudes from its base location.
  */
-char dObject[MAXDUNX][MAXDUNY];
+int8_t dObject[MAXDUNX][MAXDUNY];
 static_assert(MAXOBJECTS <= CHAR_MAX, "Index of an object might not fit to dObject.");
 /**
  * Contains the item numbers (items array indices) of the map.

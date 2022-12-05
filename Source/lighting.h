@@ -69,7 +69,7 @@ void lighting_color_cycling();
 
 /* rdata */
 
-extern const char CrawlTable[2749];
+extern const int8_t CrawlTable[2749];
 extern const int CrawlNum[19];
 
 #ifdef __cplusplus

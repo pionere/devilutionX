@@ -407,7 +407,7 @@ inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int li
 void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 {
 	int i, j, light;
-	char v;
+	int8_t v;
 	BYTE *src, *dst, encoding;
 	uint32_t m, *mask, *pFrameTable;
 

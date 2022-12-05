@@ -34,7 +34,7 @@ const int snSFX[3][NUM_CLASSES] = {
 };
 
 /** Specifies the animation frame sequence of a given NPC. */
-const char AnimOrder[6][144] = {
+const int8_t AnimOrder[6][144] = {
 	// clang-format off
 	{ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
@@ -330,15 +330,15 @@ static void InitCows()
 	 * placing cows in Tristram. A single cow may require space of up
 	 * to four tiles when being placed on the map.
 	 */
-	const char cowoffx[NUM_DIRS] = { -1, 0, -1, -1, -1, 0, -1, -1 };
+	const int8_t cowoffx[NUM_DIRS] = { -1, 0, -1, -1, -1, 0, -1, -1 };
 	/** Maps from direction to Y-coordinate delta, which is used when
 	 * placing cows in Tristram. A single cow may require space of up
 	 * to four tiles when being placed on the map.
 	 */
-	const char cowoffy[NUM_DIRS] = { -1, -1, -1, 0, -1, -1, -1, 0 };
+	const int8_t cowoffy[NUM_DIRS] = { -1, -1, -1, 0, -1, -1, -1, 0 };
 	/** Specifies the offsets from the cows to reserve space on the map. */
-	const char TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]] };
-	const char TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]] };
+	const int8_t TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]] };
+	const int8_t TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]] };
 	int i, dir;
 	int x, y, xo, yo;
 

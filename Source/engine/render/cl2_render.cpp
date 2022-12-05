@@ -18,7 +18,7 @@ DEVILUTION_BEGIN_NAMESPACE
 void Cl2ApplyTrans(BYTE* p, const BYTE* ttbl, int nCel)
 {
 	int i, nDataSize;
-	char width;
+	int8_t width;
 	BYTE* dst;
 
 	assert(p != NULL);
@@ -61,7 +61,7 @@ void Cl2ApplyTrans(BYTE* p, const BYTE* ttbl, int nCel)
 static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth)
 {
 	int w;
-	char width;
+	int8_t width;
 	BYTE fill, *dst;
 	const BYTE* src;
 
@@ -140,7 +140,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth, BYTE col)
 {
 	int w;
-	char width;
+	int8_t width;
 	const BYTE* src;
 	BYTE* dst;
 
@@ -226,7 +226,7 @@ static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth, const BYTE* pTable)
 {
 	int w, spriteWidth;
-	char width;
+	int8_t width;
 	BYTE fill, *dst;
 	const BYTE* src;
 

@@ -1646,10 +1646,10 @@ static void DRLG_L2Subs()
 {
 	int x, y; //, i, j;
 	BYTE c, k;
-	char rv;
+	int8_t rv;
 	const unsigned MAX_MATCH = 16;
 	const unsigned NUM_L2TYPES = 112;
-	static_assert(MAX_MATCH <= CHAR_MAX, "MAX_MATCH does not fit to rv(char) in DRLG_L2Subs.");
+	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L2Subs.");
 	static_assert(NUM_L2TYPES <= UCHAR_MAX, "NUM_L2TYPES does not fit to i(BYTE) in DRLG_L2Subs.");
 #if DEBUG_MODE
 	for (int i = sizeof(L2BTYPES) - 1; i >= 0; i--) {

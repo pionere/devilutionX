@@ -9,7 +9,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #define SPELL_MASK(sn)     ((uint64_t)1 << (sn - 1))
-#define SPLFROM_INVALID(x) ((char)x <= SPLFROM_INVALID_SOURCE)
+#define SPLFROM_INVALID(x) ((int8_t)x <= SPLFROM_INVALID_SOURCE)
 
 #ifdef HELLFIRE
 static_assert((int)SPL_RUNESTONE + 1 == (int)NUM_SPELLS, "SPELL_RUNE expects ordered spell_id enum");
@@ -23,8 +23,8 @@ extern "C" {
 #endif
 
 int GetManaAmount(int pnum, int sn);
-char SpellSourceInv(int sn);
-char SpellSourceEquipment(int sn);
+int8_t SpellSourceInv(int sn);
+int8_t SpellSourceEquipment(int sn);
 bool CheckSpell(int pnum, int sn);
 
 inline void IncreasePlrSkillLvl(int pnum, int sn)

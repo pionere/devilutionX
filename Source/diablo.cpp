@@ -342,9 +342,9 @@ void FreeLevelMem()
 	FreeTownerGFX();
 }
 
-static char ValidateSkill(BYTE sn, BYTE splType)
+static int8_t ValidateSkill(BYTE sn, BYTE splType)
 {
-	char result;
+	int8_t result;
 	assert(sn != SPL_INVALID);
 
 	if ((spelldata[sn].sUseFlags & myplr._pSkillFlags) != spelldata[sn].sUseFlags) {
@@ -385,7 +385,7 @@ static char ValidateSkill(BYTE sn, BYTE splType)
 
 static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BYTE atkSkillType, bool bShift)
 {
-	char msf = 0, asf = 0;
+	int8_t msf = 0, asf = 0;
 
 	if (bShift)
 		moveSkill = SPL_INVALID;
