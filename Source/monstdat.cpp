@@ -176,7 +176,7 @@ const MonFileData monfiledata[NUM_MOFILE] = {
 /*MOFILE_CLEAVER*/ {  980, "Monsters\\FatC\\FatC%c.CL2",       "Monsters\\FatC\\FatC%c%d.WAV",      { 10,  8, 12,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 }, 128, FALSE,              8,        0 },
 /*MOFILE_FAT*/     { 1130, "Monsters\\Fat\\Fat%c.CL2",         "Monsters\\Fat\\Fat%c%d.WAV",        {  8, 10, 15,  6, 16, 10 }, { 4, 1, 1, 1, 1, 1 }, 128, FALSE,              8,        6 },
 /*MOFILE_WORM*///  { 2420, "Monsters\\Worm\\Worm%c.CL2",       "Monsters\\Fat\\Fat%c%d.WAV",        { 13, 13, 13, 11, 19,  0 }, { 1, 1, 1, 1, 1, 0 }, 160, FALSE,              8,        0 },
-/*MOFILE_MAGMA*/   { 1680, "Monsters\\Magma\\Magma%c.CL2",     "Monsters\\Magma\\Magma%c%d.WAV",    {  8, 10, 14,  7, 18, 18 }, { 2, 1, 1, 1, 1, 1 }, 128,  TRUE,              4,       14 },
+/*MOFILE_MAGMA*/   { 1680, "Monsters\\Magma\\Magma%c.CL2",     "Monsters\\Magma\\Magma%c%d.WAV",    {  8, 10, 14,  7, 18, 18 }, { 2, 1, 1, 1, 1, 1 }, 128,  TRUE,              4,       13 },
 /*MOFILE_RHINO*/   { 1630, "Monsters\\Rhino\\Rhino%c.CL2",     "Monsters\\Rhino\\Rhino%c%d.WAV",    {  8,  8, 14,  6, 16,  6 }, { 2, 1, 1, 1, 1, 1 }, 160,  TRUE,              7,        0 },
 /*MOFILE_FIREMAN*///{ 1460, "Monsters\\Fireman\\FireM%c.CL2",   "Monsters\\Acid\\Acid%c%d.WAV",      { 14, 19, 20,  8, 14, 23 }, { 1, 1, 1, 1, 1, 1 }, 128, FALSE,              8,        0 },
 /*MOFILE_THIN*/    { 1740, "Monsters\\Thin\\Thin%c.CL2",       "Monsters\\Thin\\Thin%c%d.WAV",      {  8,  8, 18,  4, 17, 14 }, { 3, 1, 1, 1, 1, 1 }, 160,  TRUE,              5,        8 },

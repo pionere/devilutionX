@@ -1951,8 +1951,8 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	mis = &missile[mi];
-	mis->_mitxoff += 3 * mis->_mixvel;
-	mis->_mityoff += 3 * mis->_miyvel;
+	mis->_mitxoff += 4 * mis->_mixvel;
+	mis->_mityoff += 4 * mis->_miyvel;
 	GetMissilePos(mi);
 	mis->_miRange = 255;
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
@@ -2308,7 +2308,6 @@ int AddBleed(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	// mis->_miVar1 = 0;
 	return MIRES_DONE;
 }
-
 
 int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
