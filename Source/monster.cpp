@@ -242,13 +242,13 @@ static void InitMonsterGFX(int midx)
 	case MT_HELLBURN:
 		LoadMissileGFX(MFILE_KRULL);
 		break;*/
-	case MT_STORM:
-	case MT_RSTORM:
-	case MT_STORML:
-	case MT_MAEL:
+	case MT_RTHIN:
+	case MT_NTHIN:
+	case MT_XTHIN:
+	case MT_GTHIN:
 		LoadMissileGFX(MFILE_THINLGHT);
 		break;
-	/*case MT_SUCCUBUS:
+	/*case MT_NSUCC:
 		LoadMissileGFX(MFILE_FLARE);
 		LoadMissileGFX(MFILE_FLAREEXP);
 		break;*/
@@ -263,15 +263,15 @@ static void InitMonsterGFX(int midx)
 		LoadMissileGFX(MFILE_ACIDSPLA);
 		LoadMissileGFX(MFILE_ACIDPUD);
 		break;
-	case MT_SNOWWICH:
+	case MT_GSUCC:
 		LoadMissileGFX(MFILE_SCUBMISB);
 		LoadMissileGFX(MFILE_SCBSEXPB);
 		break;
-	case MT_HLSPWN:
+	case MT_RSUCC:
 		LoadMissileGFX(MFILE_SCUBMISD);
 		LoadMissileGFX(MFILE_SCBSEXPD);
 		break;
-	case MT_SOLBRNR:
+	case MT_BSUCC:
 		LoadMissileGFX(MFILE_SCUBMISC);
 		LoadMissileGFX(MFILE_SCBSEXPC);
 		break;
@@ -487,8 +487,8 @@ void GetLevelMTypes()
 	assert(!currLvl._dSetLvl);
 	//if (!currLvl._dSetLvl) {
 		if (lvl == DLV_HELL4) {
-			AddMonsterType(MT_ADVOCATE, TRUE);
-			AddMonsterType(MT_RBLACK, TRUE);
+			AddMonsterType(MT_BMAGE, TRUE);
+			AddMonsterType(MT_GBLACK, TRUE);
 			// AddMonsterType(MT_NBLACK, FALSE);
 			AddMonsterType(MT_DIABLO, FALSE);
 			return;
@@ -513,29 +513,29 @@ void GetLevelMTypes()
 		if (QuestStatus(Q_GARBUD))
 			AddMonsterType(MT_NGOATMC, FALSE);
 		if (QuestStatus(Q_ZHAR))
-			AddMonsterType(MT_COUNSLR, FALSE);
+			AddMonsterType(MT_NMAGE, FALSE);
 		if (QuestStatus(Q_BANNER)) {
 			AddMonsterType(MT_BFALLSP, FALSE);
-			// AddMonsterType(MT_FAT, FALSE);
+			// AddMonsterType(MT_NFAT, FALSE);
 		}
 		//if (QuestStatus(Q_ANVIL)) {
 		//	AddMonsterType(MT_GGOATBW, FALSE);
-		//	AddMonsterType(MT_OBLORD, FALSE);
+		//	AddMonsterType(MT_DRHINO, FALSE);
 		//}
 		//if (QuestStatus(Q_BLIND)) {
-		//	AddMonsterType(MT_ILLWEAV, FALSE);
+		//	AddMonsterType(MT_YSNEAK, FALSE);
 		//}
 		//if (QuestStatus(Q_BLOOD)) {
-		//	AddMonsterType(MT_HORNED, FALSE);
+		//	AddMonsterType(MT_NRHINO, FALSE);
 		//}
 		if (QuestStatus(Q_VEIL))
-			AddMonsterType(MT_RBLACK, TRUE);
+			AddMonsterType(MT_GBLACK, TRUE);
 		if (QuestStatus(Q_WARLORD))
-			AddMonsterType(MT_BTBLACK, TRUE);
+			AddMonsterType(MT_BBLACK, TRUE);
 		//if (QuestStatus(Q_BETRAYER) && IsMultiGame) {
 		//if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && IsMultiGame) {
-		//	AddMonsterType(MT_ADVOCATE, FALSE);
-		//	AddMonsterType(MT_HLSPWN, FALSE);
+		//	AddMonsterType(MT_BMAGE, FALSE);
+		//	AddMonsterType(MT_RSUCC, FALSE);
 		//}
 		lds = &AllLevels[lvl];
 		for (nt = 0; nt < lengthof(lds->dMonTypes); nt++) {
@@ -1082,8 +1082,8 @@ static void PlaceSetMapMonsters()
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 
-			AddMonsterType(MT_ADVOCATE, FALSE);
-			AddMonsterType(MT_HLSPWN, FALSE);
+			AddMonsterType(MT_BMAGE, FALSE);
+			AddMonsterType(MT_RSUCC, FALSE);
 			PlaceUniqueMonst(UMT_LAZARUS);
 			PlaceUniqueMonst(UMT_RED_VEX);
 			PlaceUniqueMonst(UMT_BLACKJADE);
@@ -1107,8 +1107,8 @@ static void PlaceSetMapMonsters()
 		AddMonsterType(MT_SKING, FALSE);
 		PlaceUniqueMonst(UMT_SKELKING);
 	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		AddMonsterType(MT_ADVOCATE, FALSE);
-		AddMonsterType(MT_HLSPWN, FALSE);
+		AddMonsterType(MT_BMAGE, FALSE);
+		AddMonsterType(MT_RSUCC, FALSE);
 		PlaceUniqueMonst(UMT_LAZARUS);
 		PlaceUniqueMonst(UMT_RED_VEX);
 		PlaceUniqueMonst(UMT_BLACKJADE);
@@ -1785,7 +1785,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
 	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp /*&& mon->_mmode != MM_STONE*/) {
 		mon->_mdir = OPPOSITE(plr._pdir);
-		if (mon->_mType == MT_BLINK)
+		if (mon->_mType == MT_NBAT)
 			MonTeleport(mnum, plr._pfutx, plr._pfuty);
 		MonStartGetHit(mnum);
 	}
@@ -1818,7 +1818,7 @@ void MonStartMonHit(int defm, int offm, int dam)
 	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
 		if (offm >= 0) {
 			dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
-			if (dmon->_mType == MT_BLINK)
+			if (dmon->_mType == MT_NBAT)
 				MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty);
 		}
 		MonStartGetHit(defm);
@@ -2234,7 +2234,7 @@ static bool MonDoAttack(int mnum)
 		MonTryH2HHit(mnum, mon->_mHit + 10, mon->_mMinDamage - 2, mon->_mMaxDamage - 2);
 		PlayMonSFX(mnum, MS_ATTACK);
 	} else if (mon->_mFileNum == MOFILE_THIN && mon->_mAnimFrame == 13) {
-		// mon->_mType >= MT_STORM && mon->_mType <= MT_MAEL
+		// mon->_mType >= MT_RTHIN && mon->_mType <= MT_GTHIN
 		MonTryH2HHit(mnum, mon->_mHit - 20, mon->_mMinDamage + 4, mon->_mMaxDamage + 4);
 		PlayMonSFX(mnum, MS_ATTACK);
 	} else if (mon->_mFileNum == MOFILE_SNAKE && mon->_mAnimFrame == 1)
@@ -2960,7 +2960,7 @@ void MAI_Bat(int mnum)
 
 	v = random_(107, 100);
 	dist = currEnemyInfo._meRealDist;
-	if (mon->_mType == MT_GLOOM
+	if (mon->_mType == MT_GBAT
 	    && dist >= 5
 	    && v < 4 * mon->_mAI.aiInt + 33
 	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
@@ -2976,7 +2976,7 @@ void MAI_Bat(int mnum)
 		MonStartAttack(mnum);
 		mon->_mgoal = MGOAL_RETREAT;
 		mon->_mgoalvar1 = 0; // RETREAT_FINISHED
-		if (mon->_mType == MT_FAMILIAR) {
+		if (mon->_mType == MT_XBAT) {
 			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, MST_MONSTER, mnum, -1);
 		}
 	}
@@ -3079,7 +3079,7 @@ void MAI_Sneak(int mnum)
 	}
 	if (mon->_mgoal == MGOAL_RETREAT) {
 		md = OPPOSITE(currEnemyInfo._meLastDir);
-		if (mon->_mType == MT_UNSEEN) {
+		if (mon->_mType == MT_BSNEAK) {
 			//md = random_(112, 2) != 0 ? left[md] : right[md];
 			md = (md + 2 * random_(112, 2) - 1) & 7;
 		}
@@ -4696,7 +4696,7 @@ void MissToMonst(int mi)
 		return;
 	}*/
 	PlayMonSFX(mnum, MS_GOTHIT);
-	if (mon->_mType == MT_GLOOM) /* mon->_mAI.aiType == AI_BAT Foulwing? */
+	if (mon->_mType == MT_GBAT) /* mon->_mAI.aiType == AI_BAT Foulwing? */
 		return;
 
 	oldx = mis->_mix;

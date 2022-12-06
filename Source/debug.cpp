@@ -466,14 +466,14 @@ void ValidateData()
 #endif
 	assert(uniqMonData[UMT_BUTCHER].mtype == MT_CLEAVER);
 	assert(uniqMonData[UMT_GARBUD].mtype == MT_NGOATMC);
-	assert(uniqMonData[UMT_ZHAR].mtype == MT_COUNSLR);
+	assert(uniqMonData[UMT_ZHAR].mtype == MT_NMAGE);
 	assert(uniqMonData[UMT_SNOTSPIL].mtype == MT_BFALLSP);
-	assert(uniqMonData[UMT_LACHDAN].mtype == MT_RBLACK);
-	assert(uniqMonData[UMT_WARLORD].mtype == MT_BTBLACK);
+	assert(uniqMonData[UMT_LACHDAN].mtype == MT_GBLACK);
+	assert(uniqMonData[UMT_WARLORD].mtype == MT_BBLACK);
 	// umt checks for PlaceQuestMonsters
-	assert(uniqMonData[UMT_LAZARUS].mtype == MT_ADVOCATE);
-	assert(uniqMonData[UMT_BLACKJADE].mtype == MT_HLSPWN);
-	assert(uniqMonData[UMT_RED_VEX].mtype == MT_HLSPWN);
+	assert(uniqMonData[UMT_LAZARUS].mtype == MT_BMAGE);
+	assert(uniqMonData[UMT_BLACKJADE].mtype == MT_RSUCC);
+	assert(uniqMonData[UMT_RED_VEX].mtype == MT_RSUCC);
 
 	for (i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
 		const UniqMonData& um = uniqMonData[i];
@@ -486,7 +486,7 @@ void ValidateData()
 		if (lvl != 0 && um.mQuestId != Q_INVALID && lvl != questlist[um.mQuestId]._qdlvl)
 			app_fatal("Inconsistent unique monster %s (%d). Has a quest, but its level-idx (%d) does not match the quest-level (%d).", um.mName, i, lvl, questlist[um.mQuestId]._qdlvl);
 		if (lvl != 0 && um.mQuestId == Q_INVALID
-		 && (lvl != DLV_HELL4 || (um.mtype != MT_ADVOCATE && um.mtype != MT_RBLACK))
+		 && (lvl != DLV_HELL4 || (um.mtype != MT_BMAGE && um.mtype != MT_GBLACK))
 #ifdef HELLFIRE
 		 && ((lvl != DLV_NEST2 && lvl != DLV_NEST3) || (um.mtype != MT_HORKSPWN))
 		 && (lvl != DLV_CRYPT4 || (um.mtype != MT_ARCHLICH))

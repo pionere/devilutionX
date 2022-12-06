@@ -2222,7 +2222,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 			mindam = monsters[misource]._mMinDamage;
 			maxdam = monsters[misource]._mMaxDamage << 1;
 		} else {
-			// lightning from a retreating MT_FAMILIAR
+			// lightning from a retreating MT_XBAT
 			mindam = 1;
 			maxdam = monsters[misource]._mLevel;
 		}
