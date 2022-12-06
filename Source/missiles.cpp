@@ -3028,7 +3028,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	// mis->_mitxoff = bmis->_mitxoff;
 	// mis->_mityoff = bmis->_mityoff;
 	// assert(bmis->_miVar3 < 3);
-	mis->_miVar2 = bmis->_miVar3 * 4;
+	mis->_miVar2 = (2 - bmis->_miRange) * 4;
 	mis->_miRange = misfiledata[MFILE_INFERNO].mfAnimLen[0] * misfiledata[MFILE_INFERNO].mfAnimFrameLen[0];
 	// assert(misource != -1);
 	if (micaster & MST_PLAYER) {
@@ -3046,7 +3046,6 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 /**
  * Var1: x coordinate of the missile
  * Var2: y coordinate of the missile
- * Var3: timer to dissipate
  */
 int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -3060,8 +3059,7 @@ int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
-	//mis->_miVar3 = 0;
-	mis->_miRange = 255;
+	mis->_miRange = 3 - 1;
 	return MIRES_DONE;
 }
 
@@ -4569,9 +4567,11 @@ void MI_InfernoC(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
+		mis->_miVar1 = mis->_mix;
+		mis->_miVar2 = mis->_miy;
 		if (!nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
 			// SetRndSeed(mis->_miRndSeed);
-			// mis->_miVar3 used by MIS_INFERNO !
+			// mis->_miRange used by MIS_INFERNO !
 			AddMissile(
 			    mis->_mix,
 			    mis->_miy,
@@ -4586,12 +4586,9 @@ void MI_InfernoC(int mi)
 		} else {
 			mis->_miRange = 0;
 		}
-		mis->_miVar1 = mis->_mix;
-		mis->_miVar2 = mis->_miy;
-		mis->_miVar3++;
+		mis->_miRange--;
 	}
-	mis->_miRange--;
-	if (mis->_miRange < 0 || mis->_miVar3 == 3)
+	if (mis->_miRange < 0)
 		mis->_miDelFlag = TRUE;
 }
 
