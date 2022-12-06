@@ -1882,35 +1882,6 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	return MIRES_DONE;
 }
 
-int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	int nTries;
-
-	assert((unsigned)misource < MAX_PLRS);
-	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddRndTeleport expects a large enough border.");
-	if ((micaster & MST_PLAYER) || (dx == 0 && dy == 0)) {
-		nTries = 0;
-		do {
-			nTries++;
-			if (nTries > 500) {
-				return MIRES_FAIL_DELETE;
-			}
-			dx = RandRange(4, 6);
-			dy = RandRange(4, 6);
-			if (random_(58, 2) == 1)
-				dx = -dx;
-			if (random_(58, 2) == 1)
-				dy = -dy;
-			dx += sx;
-			dy += sy;
-			assert(IN_DUNGEON_AREA(dx, dy));
-		} while (!PosOkActor(dx, dy));
-	}
-
-	DoTeleport(misource, dx, dy);
-	return MIRES_DELETE;
-}
-
 int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -1991,6 +1962,99 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	return MIRES_DONE;
 }
 
+int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	int mindam, maxdam;
+
+	if (sx == dx && sy == dy) {
+		dx += XDirAdd[midir];
+		dy += YDirAdd[midir];
+	}
+	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
+
+	mindam = 1;
+	if (misource != -1) {
+		maxdam = (plx(misource)._pMagic >> 1) + (spllvl << 5);
+	} else {
+		maxdam = 6 + currLvl._dLevel;
+	}
+	mis = &missile[mi];
+	mis->_miRange = 3 * TILE_WIDTH / 16 + 2; // 4 normal tiles
+	mis->_miMinDam = mindam << (6 - 2);      // * 16 / 64
+	mis->_miMaxDam = maxdam << (6 - 2);      // * 16 / 64
+	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
+	return MIRES_DONE;
+}
+
+/**
+ * Var1: the id of the affected actor [0, -(pnum + 1), (mnum + 1)]
+ */
+int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	int magic, mindam, maxdam;
+
+	if (sx == dx && sy == dy) {
+		dx += XDirAdd[midir];
+		dy += YDirAdd[midir];
+	}
+	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(8));
+
+	mis = &missile[mi];
+	mis->_miRange = 16 * spllvl + 96;
+	//if (misource != -1) {
+		assert((unsigned)misource < MAX_PLRS);
+		// TODO: add support for spell duration modifier
+		// range += (plx(misource)._pISplDur * range) >> 7;
+		magic = plx(misource)._pMagic;
+		mindam = (magic >> 4) + spllvl + 5;
+		maxdam = mindam + 2;
+	//} else {
+	//	mindam = 5 + currLvl._dLevel;
+	//	maxdam = 10 + currLvl._dLevel * 2;
+	//}
+	mis->_miMinDam = mindam << (-3 + 6);
+	mis->_miMaxDam = maxdam << (-3 + 6);
+	// mis->_miVar1 = 0;
+	return MIRES_DONE;
+}
+
+int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+
+	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
+	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
+	mis = &missile[mi];
+	mis->_miRange = 5 * (monsters[misource]._mAI.aiInt + 4);
+	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
+	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
+	//mis->_miLid = NO_LIGHT;
+	//PutMissile(mi);
+	return MIRES_DONE;
+}
+
+int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	int dam;
+
+	mis = &missile[mi];
+	if (spllvl == 0) {
+		// pud from a missile
+		dam = currLvl._dLevel << 2;
+	} else {
+		// pud from a corpse
+		dam = monsters[misource]._mmaxhp >> (1 + 6);
+	}
+	mis->_miMinDam = mis->_miMaxDam = dam;
+	mis->_miRange = 40 * (monsters[misource]._mAI.aiInt + 1) + random_(50, 16);
+	mis->_miLightFlag = TRUE;
+	mis->_miPreFlag = TRUE;
+	return MIRES_DONE;
+}
+
 /*int AddKrull(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
@@ -2022,29 +2086,33 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	return MIRES_FAIL_DELETE;
 }
 
-int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct* mis;
-	int mindam, maxdam;
+	int nTries;
 
-	if (sx == dx && sy == dy) {
-		dx += XDirAdd[midir];
-		dy += YDirAdd[midir];
+	assert((unsigned)misource < MAX_PLRS);
+	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddRndTeleport expects a large enough border.");
+	if ((micaster & MST_PLAYER) || (dx == 0 && dy == 0)) {
+		nTries = 0;
+		do {
+			nTries++;
+			if (nTries > 500) {
+				return MIRES_FAIL_DELETE;
+			}
+			dx = RandRange(4, 6);
+			dy = RandRange(4, 6);
+			if (random_(58, 2) == 1)
+				dx = -dx;
+			if (random_(58, 2) == 1)
+				dy = -dy;
+			dx += sx;
+			dy += sy;
+			assert(IN_DUNGEON_AREA(dx, dy));
+		} while (!PosOkActor(dx, dy));
 	}
-	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 
-	mindam = 1;
-	if (misource != -1) {
-		maxdam = (plx(misource)._pMagic >> 1) + (spllvl << 5);
-	} else {
-		maxdam = 6 + currLvl._dLevel;
-	}
-	mis = &missile[mi];
-	mis->_miRange = 3 * TILE_WIDTH / 16 + 2; // 4 normal tiles
-	mis->_miMinDam = mindam << (6 - 2);      // * 16 / 64
-	mis->_miMaxDam = maxdam << (6 - 2);      // * 16 / 64
-	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
-	return MIRES_DONE;
+	DoTeleport(misource, dx, dy);
+	return MIRES_DELETE;
 }
 
 /**
@@ -2241,38 +2309,6 @@ int AddBleed(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	return MIRES_DONE;
 }
 
-/**
- * Var1: the id of the affected actor [0, -(pnum + 1), (mnum + 1)]
- */
-int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	MissileStruct* mis;
-	int magic, mindam, maxdam;
-
-	if (sx == dx && sy == dy) {
-		dx += XDirAdd[midir];
-		dy += YDirAdd[midir];
-	}
-	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(8));
-
-	mis = &missile[mi];
-	mis->_miRange = 16 * spllvl + 96;
-	//if (misource != -1) {
-		assert((unsigned)misource < MAX_PLRS);
-		// TODO: add support for spell duration modifier
-		// range += (plx(misource)._pISplDur * range) >> 7;
-		magic = plx(misource)._pMagic;
-		mindam = (magic >> 4) + spllvl + 5;
-		maxdam = mindam + 2;
-	//} else {
-	//	mindam = 5 + currLvl._dLevel;
-	//	maxdam = 10 + currLvl._dLevel * 2;
-	//}
-	mis->_miMinDam = mindam << (-3 + 6);
-	mis->_miMaxDam = maxdam << (-3 + 6);
-	// mis->_miVar1 = 0;
-	return MIRES_DONE;
-}
 
 int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -2409,19 +2445,6 @@ int AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	return MIRES_DONE;
 }
 
-int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	assert((unsigned)misource < MAX_PLRS);
-
-	if (misource == mypnum) {
-		if (plx(misource)._pManaShield == 0)
-			NetSendCmdBParam1(CMD_SETSHIELD, spllvl);
-		else
-			NetSendCmd(CMD_REMSHIELD);
-	}
-	return MIRES_DELETE;
-}
-
 int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -2482,39 +2505,6 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 				mis->_miAnimAdd = -1;
 				mis->_miAnimFrame = misfiledata[MFILE_SHATTER1].mfAnimLen[0];
 				return MIRES_DONE;
-			}
-		}
-	}
-	return MIRES_FAIL_DELETE;
-}
-
-int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	MissileStruct* mis;
-	int i, j, tx, ty;
-	const int8_t* cr;
-
-	assert((unsigned)misource < MAX_PLRS);
-	mis = &missile[mi];
-
-	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddGuardian expects a large enough border.");
-	for (i = 0; i < 6; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = dx + *++cr;
-			ty = dy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			if (LineClear(sx, sy, tx, ty)) {
-				if (PosOkMissile(tx, ty)) {
-					mis->_mix = tx;
-					mis->_miy = ty;
-					mis->_misx = tx;
-					mis->_misy = ty;
-					static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
-					mis->_miLid = AddLight(tx, ty, 1);
-					mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
-					return MIRES_DONE;
-				}
 			}
 		}
 	}
@@ -2683,41 +2673,6 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	return MIRES_DONE;
 }*/
 
-int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	MissileStruct* mis;
-
-	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
-	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
-	mis = &missile[mi];
-	mis->_miRange = 5 * (monsters[misource]._mAI.aiInt + 4);
-	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
-	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
-	//mis->_miLid = NO_LIGHT;
-	//PutMissile(mi);
-	return MIRES_DONE;
-}
-
-int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	MissileStruct* mis;
-	int dam;
-
-	mis = &missile[mi];
-	if (spllvl == 0) {
-		// pud from a missile
-		dam = currLvl._dLevel << 2;
-	} else {
-		// pud from a corpse
-		dam = monsters[misource]._mmaxhp >> (1 + 6);
-	}
-	mis->_miMinDam = mis->_miMaxDam = dam;
-	mis->_miRange = 40 * (monsters[misource]._mAI.aiInt + 1) + random_(50, 16);
-	mis->_miLightFlag = TRUE;
-	mis->_miPreFlag = TRUE;
-	return MIRES_DONE;
-}
-
 /**
  * Var1: mmode of the monster
  * Var2: mnum of the monster
@@ -2767,6 +2722,39 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 					if (range > 239)
 						range = 239;
 					mis->_miRange = range;
+					return MIRES_DONE;
+				}
+			}
+		}
+	}
+	return MIRES_FAIL_DELETE;
+}
+
+int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	int i, j, tx, ty;
+	const int8_t* cr;
+
+	assert((unsigned)misource < MAX_PLRS);
+	mis = &missile[mi];
+
+	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddGuardian expects a large enough border.");
+	for (i = 0; i < 6; i++) {
+		cr = &CrawlTable[CrawlNum[i]];
+		for (j = (BYTE)*cr; j > 0; j--) {
+			tx = dx + *++cr;
+			ty = dy + *++cr;
+			assert(IN_DUNGEON_AREA(tx, ty));
+			if (LineClear(sx, sy, tx, ty)) {
+				if (PosOkMissile(tx, ty)) {
+					mis->_mix = tx;
+					mis->_miy = ty;
+					mis->_misx = tx;
+					mis->_misy = ty;
+					static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
+					mis->_miLid = AddLight(tx, ty, 1);
+					mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
 					return MIRES_DONE;
 				}
 			}
@@ -2961,21 +2949,6 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	return MIRES_FAIL_DELETE;
 }
 
-int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	int i, range;
-
-	assert((unsigned)misource < MAX_PLRS);
-	range = 1584;
-	for (i = spllvl; i > 0; i--) {
-		range += range >> 3;
-	}
-	// TODO: add support for spell duration modifier
-	//range += range * plx(misource)._pISplDur >> 7;
-	plx(misource)._pTimer[PLTR_INFRAVISION] = range;
-	return MIRES_DELETE;
-}
-
 int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	assert((unsigned)misource < MAX_PLRS);
@@ -3019,20 +2992,6 @@ int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		AddMissile(sx, sy, tx, ty, 0, MIS_LIGHTBALL, micaster, misource, spllvl);
 	}
 
-	return MIRES_DELETE;
-}
-
-int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	int pnum;
-
-	pnum = misource;
-	assert((unsigned)pnum < MAX_PLRS);
-	if (plr._pTimer[PLTR_RAGE] == 0) {
-		plr._pTimer[PLTR_RAGE] = 32 * spllvl + 245;
-		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][plr._pClass], plr._px, plr._py);
-		CalcPlrItemVals(pnum, false); // last parameter should not matter
-	}
 	return MIRES_DELETE;
 }
 
@@ -3308,6 +3267,48 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	return MIRES_DELETE;
 }
 
+int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	assert((unsigned)misource < MAX_PLRS);
+
+	if (misource == mypnum) {
+		if (plx(misource)._pManaShield == 0)
+			NetSendCmdBParam1(CMD_SETSHIELD, spllvl);
+		else
+			NetSendCmd(CMD_REMSHIELD);
+	}
+	return MIRES_DELETE;
+}
+
+int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	int i, range;
+
+	assert((unsigned)misource < MAX_PLRS);
+	range = 1584;
+	for (i = spllvl; i > 0; i--) {
+		range += range >> 3;
+	}
+	// TODO: add support for spell duration modifier
+	//range += range * plx(misource)._pISplDur >> 7;
+	plx(misource)._pTimer[PLTR_INFRAVISION] = range;
+	return MIRES_DELETE;
+}
+
+int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	int pnum;
+
+	pnum = misource;
+	assert((unsigned)pnum < MAX_PLRS);
+	if (plr._pTimer[PLTR_RAGE] == 0) {
+		plr._pTimer[PLTR_RAGE] = 32 * spllvl + 245;
+		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][plr._pClass], plr._px, plr._py);
+		CalcPlrItemVals(pnum, false); // last parameter should not matter
+	}
+	return MIRES_DELETE;
+}
+
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -3508,6 +3509,87 @@ void MI_Firebolt(int mi)
 	AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, xptype, mis->_miCaster, mis->_miSource, 0);
 
 	mis->_miDelFlag = TRUE; // + AddUnLight
+}
+
+void MI_Poison(int mi)
+{
+	MissileStruct* mis;
+	int tnum, pnum;
+	MonsterStruct* mon;
+
+	mis = &missile[mi];
+	if (mis->_miVar1 == 0) {
+		// target not acquired
+		mis->_mitxoff += mis->_mixvel;
+		mis->_mityoff += mis->_miyvel;
+		GetMissilePos(mi);
+		if ((mis->_mix != mis->_misx || mis->_miy != mis->_misy)
+		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL)) {
+			tnum = dMonster[mis->_mix][mis->_miy];
+			if (tnum != 0) {
+				// monster target acquired
+				tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
+
+				mis->_miVar1 = tnum + 1;
+			} else {
+				tnum = dPlayer[mis->_mix][mis->_miy];
+				if (tnum != 0) {
+					// player target acquired
+					tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
+
+					mis->_miVar1 = -(tnum + 1);
+				} else {
+					// actor died and displaced -> done
+					mis->_miRange = 0;
+				}
+			}
+		}
+	} else if (mis->_miVar1 > 0) {
+		// monster target
+		tnum = mis->_miVar1 - 1;
+		mon = &monsters[tnum];
+		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) {
+			mis->_miRange = 0;
+		} else {
+			mis->_mix = mon->_mx;
+			mis->_miy = mon->_my;
+			mis->_mixoff = mon->_mxoff;
+			mis->_miyoff = mon->_myoff;
+			if (mon->_mSelFlag & 4) {
+				if (mon->_mSelFlag & 2) {
+					mis->_miyoff -= 3 * TILE_HEIGHT / 4;
+				} else {
+					mis->_miyoff -= TILE_HEIGHT;
+				}
+			} else {
+				if (mon->_mSelFlag & 2) {
+					mis->_miyoff -= TILE_HEIGHT / 2;
+				}
+			}
+			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
+			MonMissHit(tnum, mi);
+		}
+	} else {
+		// player target
+		pnum = -(mis->_miVar1 + 1);
+		if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints < (1 << 6)) {
+			mis->_miRange = 0;
+		} else {
+			mis->_mix = plr._px;
+			mis->_miy = plr._py;
+			mis->_mixoff = plr._pxoff;
+			mis->_miyoff = plr._pyoff - 3 * TILE_HEIGHT / 4;
+			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
+			PlrMissHit(pnum, mi);
+		}
+	}
+
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
+		PutMissile(mi);
+		return;
+	}
+	mis->_miDelFlag = TRUE;
 }
 
 void MI_Lightball(int mi)
@@ -3851,87 +3933,6 @@ void MI_Bleed(int mi)
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissileF(mi, BFLAG_MISSILE_PRE);
-		return;
-	}
-	mis->_miDelFlag = TRUE;
-}
-
-void MI_Poison(int mi)
-{
-	MissileStruct* mis;
-	int tnum, pnum;
-	MonsterStruct* mon;
-
-	mis = &missile[mi];
-	if (mis->_miVar1 == 0) {
-		// target not acquired
-		mis->_mitxoff += mis->_mixvel;
-		mis->_mityoff += mis->_miyvel;
-		GetMissilePos(mi);
-		if ((mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL)) {
-			tnum = dMonster[mis->_mix][mis->_miy];
-			if (tnum != 0) {
-				// monster target acquired
-				tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
-
-				mis->_miVar1 = tnum + 1;
-			} else {
-				tnum = dPlayer[mis->_mix][mis->_miy];
-				if (tnum != 0) {
-					// player target acquired
-					tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
-
-					mis->_miVar1 = -(tnum + 1);
-				} else {
-					// actor died and displaced -> done
-					mis->_miRange = 0;
-				}
-			}
-		}
-	} else if (mis->_miVar1 > 0) {
-		// monster target
-		tnum = mis->_miVar1 - 1;
-		mon = &monsters[tnum];
-		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) {
-			mis->_miRange = 0;
-		} else {
-			mis->_mix = mon->_mx;
-			mis->_miy = mon->_my;
-			mis->_mixoff = mon->_mxoff;
-			mis->_miyoff = mon->_myoff;
-			if (mon->_mSelFlag & 4) {
-				if (mon->_mSelFlag & 2) {
-					mis->_miyoff -= 3 * TILE_HEIGHT / 4;
-				} else {
-					mis->_miyoff -= TILE_HEIGHT;
-				}
-			} else {
-				if (mon->_mSelFlag & 2) {
-					mis->_miyoff -= TILE_HEIGHT / 2;
-				}
-			}
-			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
-			MonMissHit(tnum, mi);
-		}
-	} else {
-		// player target
-		pnum = -(mis->_miVar1 + 1);
-		if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints < (1 << 6)) {
-			mis->_miRange = 0;
-		} else {
-			mis->_mix = plr._px;
-			mis->_miy = plr._py;
-			mis->_mixoff = plr._pxoff;
-			mis->_miyoff = plr._pyoff - 3 * TILE_HEIGHT / 4;
-			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
-			PlrMissHit(pnum, mi);
-		}
-	}
-
-	mis->_miRange--;
-	if (mis->_miRange >= 0) {
-		PutMissile(mi);
 		return;
 	}
 	mis->_miDelFlag = TRUE;
