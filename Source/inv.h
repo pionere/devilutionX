@@ -41,7 +41,7 @@ bool AutoGetItem(int pnum, int ii);
 bool SyncAutoGetItem(int pnum, int ii);
 int FindGetItem(const PkItemStruct* pkItem);
 bool CanPut(int x, int y);
-bool FindItemLocation(int sx, int sy, int* dx, int* dy, int rad);
+bool FindItemLocation(int sx, int sy, POS32& pos, int rad);
 void DropItem();
 void SyncPutItem(int pnum, int x, int y, bool flipFlag);
 void SyncSplitGold(int pnum, int cii, int value);

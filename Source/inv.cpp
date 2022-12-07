@@ -1484,47 +1484,47 @@ bool CanPut(int x, int y)
 	return true;
 }
 
-bool FindItemLocation(int sx, int sy, int* dx, int* dy, int rad)
+bool FindItemLocation(int sx, int sy, POS32& pos, int rad)
 {
 	int dir;
 	int xx, yy, i, j, k;
 
-	if (sx != *dx || sy != *dy) {
-		dir = GetDirection(sx, sy, *dx, *dy);
-		*dx = sx + offset_x[dir];
-		*dy = sy + offset_y[dir];
-		if (CanPut(*dx, *dy))
+	if (sx != pos.x || sy != pos.y) {
+		dir = GetDirection(sx, sy, pos.x, pos.y);
+		pos.x = sx + offset_x[dir];
+		pos.y = sy + offset_y[dir];
+		if (CanPut(pos.x, pos.y))
 			return true;
 
 		dir = (dir - 1) & 7;
-		*dx = sx + offset_x[dir];
-		*dy = sy + offset_y[dir];
-		if (CanPut(*dx, *dy))
+		pos.x = sx + offset_x[dir];
+		pos.y = sy + offset_y[dir];
+		if (CanPut(pos.x, pos.y))
 			return true;
 
 		dir = (dir + 2) & 7;
-		*dx = sx + offset_x[dir];
-		*dy = sy + offset_y[dir];
-		if (CanPut(*dx, *dy))
+		pos.x = sx + offset_x[dir];
+		pos.y = sy + offset_y[dir];
+		if (CanPut(pos.x, pos.y))
 			return true;
 
-		*dx = sx;
-		*dy = sy;
+		pos.x = sx;
+		pos.y = sy;
 	}
 
-	if (CanPut(*dx, *dy))
+	if (CanPut(pos.x, pos.y))
 		return true;
 
-	xx = *dx;
-	yy = *dy;
+	xx = pos.x;
+	yy = pos.y;
 	for (k = 1; k <= rad; k++) {
 		for (j = -k; j <= k; j++) {
 			yy = j + sy;
 			for (i = -k; i <= k; i++) {
 				xx = i + sx;
 				if (CanPut(xx, yy)) {
-					*dx = xx;
-					*dy = yy;
+					pos.x = xx;
+					pos.y = yy;
 					return true;
 				}
 			}
@@ -1535,17 +1535,17 @@ bool FindItemLocation(int sx, int sy, int* dx, int* dy, int rad)
 
 void DropItem()
 {
-	int x, y;
+	POS32 pos;
 
 	if (numitems >= MAXITEMS)
 		return; // false;
 
-	x = cursmx;
-	y = cursmy;
-	if (!FindItemLocation(myplr._px, myplr._py, &x, &y, 1))
+	pos.x = cursmx;
+	pos.y = cursmy;
+	if (!FindItemLocation(myplr._px, myplr._py, pos, 1))
 		return; // false;
 
-	NetSendCmdPutItem(x, y);
+	NetSendCmdPutItem(pos.x, pos.y);
 	return; // true;
 }
 
@@ -1558,31 +1558,32 @@ void DropItem()
  */
 void SyncPutItem(int pnum, int x, int y, bool flipFlag)
 {
-	int xx, yy, ii;
+	int ii;
 	ItemStruct* is;
+	POS32 tpos, pos = { x, y };
 
 	// assert(plr._pDunLevel == currLvl._dLevelIdx);
 	if (numitems >= MAXITEMS)
 		return; // -1;
 
 	if ((unsigned)pnum < MAX_PLRS) {
-		xx = plr._px;
-		yy = plr._py;
+		tpos.x = plr._px;
+		tpos.y = plr._py;
 	} else {
-		xx = x;
-		yy = y;
+		tpos.x = pos.x;
+		tpos.y = pos.y;
 	}
-	if (!FindItemLocation(xx, yy, &x, &y, DSIZEX / 2))
+	if (!FindItemLocation(tpos.x, tpos.y, pos, DSIZEX / 2))
 		return; // -1;
 
 	is = &items[MAXITEMS];
 
 	ii = itemactive[numitems];
-	dItem[x][y] = ii + 1;
+	dItem[pos.x][pos.y] = ii + 1;
 	numitems++;
 	copy_pod(items[ii], *is);
-	items[ii]._ix = x;
-	items[ii]._iy = y;
+	items[ii]._ix = pos.x;
+	items[ii]._iy = pos.y;
 	RespawnItem(ii, flipFlag);
 	//return ii;
 }
