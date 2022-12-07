@@ -4,6 +4,7 @@
  * Implementation of cursor tracking functionality.
  */
 #include "all.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
