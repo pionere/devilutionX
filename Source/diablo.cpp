@@ -1278,19 +1278,19 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 			DoWndDrag();
 		return;
 	case DVL_WM_LBUTTONDOWN:
-		GetMousePos(wParam);
+		//GetMousePos(wParam); -- disabled to prevent inconsistent MouseX/Y vs. CheckCursMove state
 		PressKey(DVL_VK_LBUTTON);
 		return;
 	case DVL_WM_LBUTTONUP:
-		GetMousePos(wParam);
+		//GetMousePos(wParam);
 		ReleaseKey(DVL_VK_LBUTTON);
 		return;
 	case DVL_WM_RBUTTONDOWN:
-		GetMousePos(wParam);
+		//GetMousePos(wParam);
 		PressKey(DVL_VK_RBUTTON);
 		return;
 	case DVL_WM_RBUTTONUP:
-		GetMousePos(wParam);
+		//GetMousePos(wParam);
 		ReleaseKey(DVL_VK_RBUTTON);
 		return;
 	case DVL_WM_CAPTURECHANGED:

@@ -174,13 +174,12 @@ void NewCursor(int i)
 void InitLevelCursor()
 {
 	NewCursor(myplr._pHoldItem._itype == ITYPE_NONE ? CURSOR_HAND : myplr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
-	cursmx = ViewX;
-	cursmy = ViewY;
-	pcursmonst = MON_NONE;
-	pcursobj = OBJ_NONE;
-	pcursitem = ITEM_NONE;
-	pcursplr = PLR_NONE;
 	ClearCursor();
+	pcursmonst = MON_NONE;
+	CheckCursMove();
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	plrctrls_after_check_curs_move();
+#endif
 }
 
 void CheckTownPortal()

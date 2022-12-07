@@ -377,6 +377,8 @@ static void PreprocessFingerMotion(SDL_Event* event)
 					multi_finger_dragging[port] = DRAG_THREE_FINGER;
 				}
 				SDL_Event ev;
+				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY, 0, 0); // TODO: xrel/yrel?
+				SDL_PushEvent(&ev);
 				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, mouseDownX, mouseDownY);
 				SDL_PushEvent(&ev);
 			}
@@ -447,6 +449,8 @@ void finish_simulated_mouse_clicks()
 				simulatedButton = SDL_BUTTON_RIGHT;
 			}
 			SDL_Event ev;
+			SetMouseMotionEvent(&ev, mouse_x, mouse_y, 0, 0); // TODO: xrel/yrel?
+			SDL_PushEvent(&ev);
 			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, mouse_x, mouse_y);
 			SDL_PushEvent(&ev);
 

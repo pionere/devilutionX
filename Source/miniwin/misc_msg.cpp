@@ -882,7 +882,7 @@ bool PeekMessage(LPMSG lpMsg)
 				lpMsg->message = action.send_mouse_click.up ? DVL_WM_RBUTTONUP : DVL_WM_RBUTTONDOWN;
 				break;
 			}
-			lpMsg->wParam = PositionForMouse(MouseX, MouseY);
+			//lpMsg->wParam = PositionForMouse(MouseX, MouseY); -- BUTTON_POSITION: assume correct order of events (1: MOTION, 2: button down, [3: MOTION], 4: up)
 			break;
 		}
 		return true;
@@ -923,30 +923,30 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 		lpMsg->message = DVL_WM_MOUSEMOVE;
 		lpMsg->wParam = PositionForMouse(e.motion.x, e.motion.y);
-		//lpMsg->lParam = KeystateForMouse(0);
+		//lpMsg->lParam = KeystateForMouse(0); -- unused
 		break;
 	case SDL_MOUSEBUTTONDOWN: {
 		int button = e.button.button;
 		if (button == SDL_BUTTON_LEFT) {
 			lpMsg->message = DVL_WM_LBUTTONDOWN;
-			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
-			//lpMsg->lParam = KeystateForMouse(DVL_MK_LBUTTON);
+			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
+			//lpMsg->lParam = KeystateForMouse(DVL_MK_LBUTTON); -- unused
 		} else if (button == SDL_BUTTON_RIGHT) {
 			lpMsg->message = DVL_WM_RBUTTONDOWN;
-			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
-			//lpMsg->lParam = KeystateForMouse(DVL_MK_RBUTTON);
+			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
+			//lpMsg->lParam = KeystateForMouse(DVL_MK_RBUTTON); -- unused
 		}
 	} break;
 	case SDL_MOUSEBUTTONUP: {
 		int button = e.button.button;
 		if (button == SDL_BUTTON_LEFT) {
 			lpMsg->message = DVL_WM_LBUTTONUP;
-			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
-			//lpMsg->lParam = KeystateForMouse(0);
+			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
+			//lpMsg->lParam = KeystateForMouse(0); -- unused
 		} else if (button == SDL_BUTTON_RIGHT) {
 			lpMsg->message = DVL_WM_RBUTTONUP;
-			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
-			//lpMsg->lParam = KeystateForMouse(0);
+			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
+			//lpMsg->lParam = KeystateForMouse(0); -- unused
 		}
 	} break;
 #ifndef USE_SDL1
