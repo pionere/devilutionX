@@ -2462,16 +2462,16 @@ void TryStoreBtnClick()
 	assert(!gbQtextflag);
 	if (stextsel != -1 && stextflag != STORE_WAIT) {
 		if (gbWidePanel) {
-			if (MouseX < LTPANEL_X - SCREEN_X || MouseX > LTPANEL_X + LTPANEL_WIDTH - SCREEN_X)
+			if (MousePos.x < LTPANEL_X - SCREEN_X || MousePos.x > LTPANEL_X + LTPANEL_WIDTH - SCREEN_X)
 				return;
 		} else {
-			if (MouseX < STORE_PNL_X - SCREEN_X || MouseX > STORE_PNL_X + STPANEL_WIDTH - SCREEN_X)
+			if (MousePos.x < STORE_PNL_X - SCREEN_X || MousePos.x > STORE_PNL_X + STPANEL_WIDTH - SCREEN_X)
 				return;
 		}
-		y = (MouseY - (LTPANEL_Y - SCREEN_Y + 8)) / 12;
+		y = (MousePos.y - (LTPANEL_Y - SCREEN_Y + 8)) / 12;
 		//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
-		//if (MouseX >= STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
-		if (MouseX >= LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
+		//if (MousePos.x >= STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
+		if (MousePos.x >= LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
 			assert(gbWidePanel);
 			if (stextsmax != 0 && y >= STORE_SCROLL_UP && y <= STORE_SCROLL_DOWN) {
 				if (y == STORE_SCROLL_DOWN) {

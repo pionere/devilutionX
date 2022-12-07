@@ -471,7 +471,7 @@ void DrawSkillList()
 				SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
 			}
 #endif
-			if (POS_IN_RECT(MouseX, MouseY, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT)) {
+			if (POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT)) {
 				//CelDrawLight(x, y, pSpellCels, c, SkillTrns[st]);
 				CelDrawLight(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
@@ -926,22 +926,22 @@ void InitControlPan()
 void StartWndDrag(BYTE wnd)
 {
 	gbDragWnd = wnd;
-	gnDragWndX = MouseX;
-	gnDragWndY = MouseY;
+	gnDragWndX = MousePos.x;
+	gnDragWndY = MousePos.y;
 }
 
 void DoWndDrag()
 {
-	int dx = MouseX - gnDragWndX;
-	int dy = MouseY - gnDragWndY;
+	int dx = MousePos.x - gnDragWndX;
+	int dy = MousePos.y - gnDragWndY;
 
 	// assert(gbDragWnd != WND_NONE);
 	if (dx == 0 && dy == 0)
 		return;
 
 	if (MoveWndPos(gbDragWnd, dx, dy)) {
-		gnDragWndX = MouseX;
-		gnDragWndY = MouseY;
+		gnDragWndX = MousePos.x;
+		gnDragWndY = MousePos.y;
 	} else {
 		SetCursorPos(gnDragWndX, gnDragWndY);
 	}
@@ -1013,7 +1013,7 @@ static void control_set_button_down(int btn_id)
 
 static bool InLvlUpRect()
 {
-	return POS_IN_RECT(MouseX, MouseY,
+	return POS_IN_RECT(MousePos.x, MousePos.y,
 		LVLUP_LEFT, PANEL_BOTTOM - LVLUP_OFFSET - CHRBTN_HEIGHT,
 		CHRBTN_WIDTH, CHRBTN_HEIGHT);
 }
@@ -1032,8 +1032,8 @@ bool TryPanBtnClick()
 {
 	int i, mx, my;
 
-	mx = MouseX;
-	my = MouseY;
+	mx = MousePos.x;
+	my = MousePos.y;
 	for (i = gabPanbtn[PANBTN_MAINMENU] ? numpanbtns - 1 : 0; i >= 0; i--) {
 		if (POS_IN_RECT(mx, my,
 			PANEL_LEFT + PanBtnPos[i][0],  PANEL_BOTTOM - PanBtnPos[i][1],
@@ -1055,12 +1055,12 @@ bool TryPanBtnClick()
 
 void TryLimitedPanBtnClick()
 {
-	if (POS_IN_RECT(MouseX, MouseY,
+	if (POS_IN_RECT(MousePos.x, MousePos.y,
 		PANEL_LEFT + PanBtnPos[PANBTN_MAINMENU][0],  PANEL_BOTTOM - PanBtnPos[PANBTN_MAINMENU][1],
 		MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 		control_set_button_down(PANBTN_MAINMENU);
 	} else if (gabPanbtn[PANBTN_MAINMENU] && !IsLocalGame) {
-		if (POS_IN_RECT(MouseX, MouseY,
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
 			PANEL_LEFT + PanBtnPos[PANBTN_SENDMSG][0],  PANEL_BOTTOM - PanBtnPos[PANBTN_SENDMSG][1],
 			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 			control_set_button_down(PANBTN_SENDMSG);
@@ -1145,7 +1145,7 @@ void ReleasePanBtn()
 		}
 
 		gabPanbtn[i] = false;
-		if (!POS_IN_RECT(MouseX, MouseY,
+		if (!POS_IN_RECT(MousePos.x, MousePos.y,
 			PANEL_LEFT + PanBtnPos[i][0],  PANEL_BOTTOM - PanBtnPos[i][1],
 			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 			continue;
@@ -1711,14 +1711,14 @@ void DrawInfoStr()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		DrawTooltip2(spelldata[currSkill].sNameText, src, MouseX, MouseY - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
+		DrawTooltip2(spelldata[currSkill].sNameText, src, MousePos.x, MousePos.y - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
 		DrawTrigInfo();
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
-		DrawTooltip(infostr, MouseX + cursW / 2, MouseY - TOOLTIP_OFFSET, infoclr);
+		DrawTooltip(infostr, MousePos.x + cursW / 2, MousePos.y - TOOLTIP_OFFSET, infoclr);
 	}
 }
 
@@ -1728,7 +1728,7 @@ void CheckChrBtnClick()
 
 	if (myplr._pStatPts != 0 && !gbChrbtnactive) {
 		for (i = 0; i < lengthof(ChrBtnsRect); i++) {
-			if (!POS_IN_RECT(MouseX, MouseY,
+			if (!POS_IN_RECT(MousePos.x, MousePos.y,
 				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
 				ChrBtnsRect[i].w, ChrBtnsRect[i].h))
 				continue;
@@ -1752,7 +1752,7 @@ void ReleaseChrBtn()
 	for (i = 0; i < lengthof(_gabChrbtn); ++i) {
 		if (_gabChrbtn[i]) {
 			_gabChrbtn[i] = false;
-			if (POS_IN_RECT(MouseX, MouseY,
+			if (POS_IN_RECT(MousePos.x, MousePos.y,
 				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
 				ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
 				switch (i) {
@@ -1937,7 +1937,7 @@ void DrawSpellBook()
 		sn = SpellPages[guBooktab][i];
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn);
-			if (POS_IN_RECT(MouseX, MouseY,
+			if (POS_IN_RECT(MousePos.x, MousePos.y,
 				sx - BORDER_LEFT, yp - BORDER_TOP - SBOOK_CELHEIGHT,
 				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
 				currSkill = sn;
@@ -2017,8 +2017,8 @@ void CheckBookClick(bool shift, bool altSkill)
 		return;
 	}
 
-	dx = MouseX - (gnWndBookX + SBOOK_LEFT_BORDER);
-	dy = MouseY - (gnWndBookY + SBOOK_TOP_BORDER);
+	dx = MousePos.x - (gnWndBookX + SBOOK_LEFT_BORDER);
+	dy = MousePos.y - (gnWndBookY + SBOOK_TOP_BORDER);
 	if (dx < 0 || dy < 0)
 		return;
 
@@ -2220,8 +2220,8 @@ void CheckTeamClick(bool shift)
 {
 	int dx, dy;
 
-	dx = MouseX - (gnWndTeamX + SBOOK_LEFT_BORDER);
-	dy = MouseY - (gnWndTeamY + SBOOK_TOP_BORDER);
+	dx = MousePos.x - (gnWndTeamX + SBOOK_LEFT_BORDER);
+	dy = MousePos.y - (gnWndTeamY + SBOOK_TOP_BORDER);
 	if (dx < 0 || dy < 0) {
 		return;
 	}

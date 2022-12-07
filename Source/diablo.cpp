@@ -20,10 +20,8 @@ static const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
 
 /** The pseudo random seeds to generate the levels. */
 uint32_t glSeedTbl[NUM_LEVELS];
-/** The X-coordinate of the mouse on the screen. */
-int MouseX;
-/** The Y-coordinate of the mouse on the screen. */
-int MouseY;
+/** The X/Y-coordinate of the mouse on the screen. */
+POS32 MousePos;
 /** Controlls whether the main game-loop should run. */
 bool gbRunGame;
 /** Specifies whether the application should go to the menu after leaving a game. */
@@ -219,12 +217,12 @@ static bool diablo_parse_flags(int argc, char** argv)
 
 static void diablo_init_screen()
 {
-	MouseX = SCREEN_WIDTH / 2;
-	MouseY = SCREEN_HEIGHT / 2;
+	MousePos.x = SCREEN_WIDTH / 2;
+	MousePos.y = SCREEN_HEIGHT / 2;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (!sgbControllerActive)
 #endif
-		SetCursorPos(MouseX, MouseY);
+		SetCursorPos(MousePos.x, MousePos.y);
 	static_assert(EMSG_NONE == 0, "ClrDiabloMsg is not called, because zero initialization cares about it.");
 	// not the best place to call this, since it is an in-game 'system'
 	// InitGameFX would be more appropriate place, but calling it once would
@@ -1187,8 +1185,8 @@ static void PressChar(WPARAM vkey)
 
 static void GetMousePos(WPARAM wParam)
 {
-	MouseX = (int16_t)(wParam & 0xFFFF);
-	MouseY = (int16_t)((wParam >> 16) & 0xFFFF);
+	MousePos.x = (int16_t)(wParam & 0xFFFF);
+	MousePos.y = (int16_t)((wParam >> 16) & 0xFFFF);
 }
 
 static void UpdateActionBtnState(int vKey, bool dir)
@@ -1278,7 +1276,7 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 			DoWndDrag();
 		return;
 	case DVL_WM_LBUTTONDOWN:
-		//GetMousePos(wParam); -- disabled to prevent inconsistent MouseX/Y vs. CheckCursMove state
+		//GetMousePos(wParam); -- disabled to prevent inconsistent MousePos.x/y vs. CheckCursMove state
 		PressKey(DVL_VK_LBUTTON);
 		return;
 	case DVL_WM_LBUTTONUP:

@@ -416,7 +416,7 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	// first, find our cursor location
 	int slot = 0;
 	for (int i = 0; i < lengthof(ChrBtnsRect); i++) {
-		if (POS_IN_RECT(MouseX, MouseY,
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
 			gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
 			ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
 			slot = i;
@@ -466,8 +466,8 @@ static void InvMove(AxisDirection dir)
 	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE)
 		return;
 
-	int x = MouseX;
-	int y = MouseY;
+	int x = MousePos.x;
+	int y = MousePos.y;
 	int r;
 
 	// check which inventory rectangle the mouse is in, if any
@@ -660,12 +660,12 @@ static void InvMove(AxisDirection dir)
 		}
 	}
 
-	if (x == MouseX && y == MouseY) {
+	if (x == MousePos.x && y == MousePos.y) {
 		return; // Avoid wobbling when scaled
 	}
 
 	if (pcursicon > CURSOR_HAND) { // [3] Keep item in the same slot, don't jump it up
-		if (x != MouseX) {         // without this, the cursor keeps moving -10
+		if (x != MousePos.x) {         // without this, the cursor keeps moving -10
 			x -= 10;
 			y -= 10;
 		}
@@ -699,7 +699,7 @@ static void HotSpellMove(AxisDirection dir)
 	if (spbslot == SPL_INVALID)
 		spbslot = myplr._pAltMoveSkill;
 	for (int r = 0; r < speedspellcount; r++) {
-		if (POS_IN_RECT(MouseX, MouseY,
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
 			speedspellscoords[r].x - SPLICON_WIDTH / 2,  speedspellscoords[r].y - SPLICON_HEIGHT / 2,
 			SPLICON_WIDTH, SPLICON_HEIGHT)) {
 			spbslot = r;
@@ -732,7 +732,7 @@ static void HotSpellMove(AxisDirection dir)
 		}
 	}
 
-	if (x != MouseX || y != MouseY) {
+	if (x != MousePos.x || y != MousePos.y) {
 		SetCursorPos(x, y);
 	}
 }
@@ -1031,8 +1031,8 @@ static void HandleRightStickMotion()
 
 	{ // move cursor
 		sgbControllerActive = false;
-		int x = MouseX;
-		int y = MouseY;
+		int x = MousePos.x;
+		int y = MousePos.y;
 		acc.Pool(&x, &y, 2);
 		x = std::min(std::max(x, 0), SCREEN_WIDTH - 1);
 		y = std::min(std::max(y, 0), SCREEN_HEIGHT - 1);

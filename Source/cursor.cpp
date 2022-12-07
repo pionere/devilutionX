@@ -234,8 +234,8 @@ void CheckCursMove()
 	if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag)
 		return;
 
-	sx = MouseX;
-	sy = MouseY;
+	sx = MousePos.x;
+	sy = MousePos.y;
 
 	if (POS_IN_RECT(sx, sy, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
 		pcurswnd = WND_BELT;

@@ -14,8 +14,8 @@ bool gbMoviePlaying = false;
 
 static void GetMousePos(WPARAM wParam)
 {
-	MouseX = (int16_t)(wParam & 0xFFFF);
-	MouseY = (int16_t)((wParam >> 16) & 0xFFFF);
+	MousePos.x = (int16_t)(wParam & 0xFFFF);
+	MousePos.y = (int16_t)((wParam >> 16) & 0xFFFF);
 }
 
 /**

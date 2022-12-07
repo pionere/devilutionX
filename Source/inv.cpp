@@ -749,8 +749,8 @@ static void CheckInvPaste()
 
 	sx = cursW;
 	sy = cursH;
-	i = MouseX + (sx >> 1);
-	j = MouseY + (sy >> 1);
+	i = MousePos.x + (sx >> 1);
+	j = MousePos.y + (sy >> 1);
 	sx /= INV_SLOT_SIZE_PX;
 	sy /= INV_SLOT_SIZE_PX;
 
@@ -1038,7 +1038,7 @@ void InvPasteItem(int pnum, BYTE r)
 	if (pnum == mypnum) {
 		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		if (cn == CURSOR_HAND) {
-			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
+			SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
 		}
 		NewCursor(cn);
 	}
@@ -1048,8 +1048,8 @@ static void CheckBeltPaste()
 {
 	int r, i, j;
 
-	i = MouseX + INV_SLOT_SIZE_PX / 2;
-	j = MouseY + INV_SLOT_SIZE_PX / 2;
+	i = MousePos.x + INV_SLOT_SIZE_PX / 2;
+	j = MousePos.y + INV_SLOT_SIZE_PX / 2;
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
 		if (POS_IN_RECT(i, j,
@@ -1091,7 +1091,7 @@ void InvPasteBeltItem(int pnum, BYTE r)
 		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 		if (cn == CURSOR_HAND)
-			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
+			SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
 		NewCursor(cn);
 	}
 }
@@ -1191,7 +1191,7 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 	if (pnum == mypnum) {
 		PlaySFX(IS_IGRAB);
 		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
-		SetCursorPos(MouseX - (cursW >> 1), MouseY - (cursH >> 1));
+		SetCursorPos(MousePos.x - (cursW >> 1), MousePos.y - (cursH >> 1));
 	}
 }
 
@@ -1626,7 +1626,7 @@ BYTE CheckInvBelt()
 	int r;
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
-		if (POS_IN_RECT(MouseX, MouseY,
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
 			gnWndBeltX + InvRect[r].X, gnWndBeltY + InvRect[r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
@@ -1649,7 +1649,7 @@ BYTE CheckInvItem()
 	BYTE rv;
 
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
-		if (POS_IN_RECT(MouseX, MouseY,
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
 			gnWndInvX + InvRect[r].X, gnWndInvY + InvRect[r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;

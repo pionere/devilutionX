@@ -238,7 +238,7 @@ static void gmenu_mouse_slider()
 	TMenuItem* pItem;
 	int offset;
 
-	offset = MouseX - (SCREEN_WIDTH / 2 - SLIDER_ROW_WIDTH / 2 + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
+	offset = MousePos.x - (SCREEN_WIDTH / 2 - SLIDER_ROW_WIDTH / 2 + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
 	if (offset < 0) {
 		if (offset < -(SLIDER_BUTTON_WIDTH / 2))
 			return;
@@ -276,7 +276,7 @@ void gmenu_left_mouse(bool isDown)
 		return;
 	}
 
-	i = MouseY - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
+	i = MousePos.y - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
 	if (i < 0) {
 		return;
 	}
@@ -289,7 +289,7 @@ void gmenu_left_mouse(bool isDown)
 		return;
 	}
 	w = gmenu_get_lfont(pItem) / 2;
-	if (abs(MouseX - SCREEN_WIDTH / 2) > w)
+	if (abs(MousePos.x - SCREEN_WIDTH / 2) > w)
 		return;
 	guCurrItemIdx = i;
 	if (pItem->dwFlags & GMF_SLIDER) {

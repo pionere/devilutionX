@@ -161,8 +161,8 @@ static void PreprocessFingerDown(SDL_Event* event)
 	// id (for multitouch)
 	SDL_FingerID id = event->tfinger.fingerId;
 
-	int x = MouseX;
-	int y = MouseY;
+	int x = MousePos.x;
+	int y = MousePos.y;
 
 	if (direct_touch) {
 		TouchToLogical(event, x, y);
@@ -237,8 +237,8 @@ static void PreprocessFingerUp(SDL_Event* event)
 		}
 	}
 
-	int x = MouseX;
-	int y = MouseY;
+	int x = MousePos.x;
+	int y = MousePos.y;
 
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != id) {
@@ -318,14 +318,14 @@ static void PreprocessFingerMotion(SDL_Event* event)
 
 			// convert touch events to relative mouse pointer events
 			// Whenever an SDL_event involving the mouse is processed,
-			x = MouseX + (int)(event->tfinger.dx * 1.25 * speedFactor * dvl::GetOutputSurface()->w);
-			y = MouseY + (int)(event->tfinger.dy * 1.25 * speedFactor * dvl::GetOutputSurface()->h);
+			x = MousePos.x + (int)(event->tfinger.dx * 1.25 * speedFactor * dvl::GetOutputSurface()->w);
+			y = MousePos.y + (int)(event->tfinger.dy * 1.25 * speedFactor * dvl::GetOutputSurface()->h);
 		}
 
 		x = clip(x, 0, dvl::GetOutputSurface()->w);
 		y = clip(y, 0, dvl::GetOutputSurface()->h);
-		xrel = x - MouseX;
-		yrel = y - MouseY;
+		xrel = x - MousePos.x;
+		yrel = y - MousePos.y;
 
 		// update the current finger's coordinates so we can track it later
 		for (int i = 0; i < MAX_NUM_FINGERS; i++) {
@@ -348,8 +348,8 @@ static void PreprocessFingerMotion(SDL_Event* event)
 				}
 			}
 			if (numFingersDownlong >= 2) {
-				int mouseDownX = MouseX;
-				int mouseDownY = MouseY;
+				int mouseDownX = MousePos.x;
+				int mouseDownY = MousePos.y;
 				if (direct_touch) {
 					for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 						if (finger[port][i].id == id) {
@@ -428,8 +428,8 @@ void handle_touch(SDL_Event* event)
 
 void finish_simulated_mouse_clicks()
 {
-	int mouse_x = MouseX;
-	int mouse_y = MouseY;
+	int mouse_x = MousePos.x;
+	int mouse_y = MousePos.y;
 
 	for (int port = 0; port < TOUCH_PORT_MAX_NUM; port++) {
 		for (int i = 0; i < TOUCH_PORT_CLICK_NUM; i++) {

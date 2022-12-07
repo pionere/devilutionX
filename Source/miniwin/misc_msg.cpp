@@ -30,8 +30,7 @@ WNDPROC CurrentWndProc;
 #if __linux__ && (HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD)
 #define FIX_WARPING 1
 static bool mouseWarping = false;
-static int mouseWarpingX;
-static int mouseWarpingY;
+static POS32 mouseWarpingPos;
 #else
 #define FIX_WARPING 0
 #endif
@@ -39,8 +38,8 @@ static int mouseWarpingY;
 void SetCursorPos(int x, int y)
 {
 #if FIX_WARPING
-	mouseWarpingX = x;
-	mouseWarpingY = y;
+	mouseWarpingPos.x = x;
+	mouseWarpingPos.y = y;
 	mouseWarping = true;
 #endif
 	LogicalToOutput(&x, &y);
@@ -882,7 +881,7 @@ bool PeekMessage(LPMSG lpMsg)
 				lpMsg->message = action.send_mouse_click.up ? DVL_WM_RBUTTONUP : DVL_WM_RBUTTONDOWN;
 				break;
 			}
-			//lpMsg->wParam = PositionForMouse(MouseX, MouseY); -- BUTTON_POSITION: assume correct order of events (1: MOTION, 2: button down, [3: MOTION], 4: up)
+			//lpMsg->wParam = PositionForMouse(MousePos.x, MousePos.y); -- BUTTON_POSITION: assume correct order of events (1: MOTION, 2: button down, [3: MOTION], 4: up)
 			break;
 		}
 		return true;
@@ -1013,8 +1012,7 @@ bool PeekMessage(LPMSG lpMsg)
 			// and SDL_GetMouseState gives previous location if mouse was
 			// outside window (observed on Ubuntu 19.04)
 			if (mouseWarping) {
-				MouseX = mouseWarpingX;
-				MouseY = mouseWarpingY;
+				MousePos = mouseWarpingPos;
 				mouseWarping = false;
 			}
 #endif

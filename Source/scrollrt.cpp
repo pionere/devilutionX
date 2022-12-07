@@ -188,14 +188,14 @@ static void scrollrt_draw_cursor()
 		return;
 #endif
 
-	mx = MouseX - 1;
+	mx = MousePos.x - 1;
 	if (mx < 0 - cursW - 1) {
 		return;
 	}
 	if (mx > SCREEN_WIDTH - 1) {
 		return;
 	}
-	my = MouseY - 1;
+	my = MousePos.y - 1;
 	if (my < 0 - cursH - 1) {
 		return;
 	}
@@ -1571,7 +1571,7 @@ void ScrollView()
 
 	scroll = false;
 
-	if (MouseX < 20) {
+	if (MousePos.x < 20) {
 		if (DSIZEY + DBORDERY - 1 <= ViewY || DBORDERX >= ViewX) {
 			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
@@ -1587,7 +1587,7 @@ void ScrollView()
 			scroll = true;
 		}
 	}
-	if (MouseX > SCREEN_WIDTH - 20) {
+	if (MousePos.x > SCREEN_WIDTH - 20) {
 		if (DSIZEX + DBORDERX - 1 <= ViewX || DBORDERY >= ViewY) {
 			if (DSIZEX + DBORDERX - 1 > ViewX) {
 				ViewX++;
@@ -1603,7 +1603,7 @@ void ScrollView()
 			scroll = true;
 		}
 	}
-	if (MouseY < 20) {
+	if (MousePos.y < 20) {
 		if (DBORDERY >= ViewY || DBORDERX >= ViewX) {
 			if (DBORDERY < ViewY) {
 				ViewY--;
@@ -1619,7 +1619,7 @@ void ScrollView()
 			scroll = true;
 		}
 	}
-	if (MouseY > SCREEN_HEIGHT - 20) {
+	if (MousePos.y > SCREEN_HEIGHT - 20) {
 		if (DSIZEY + DBORDERY - 1 <= ViewY || DSIZEX + DBORDERX - 1 <= ViewX) {
 			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
