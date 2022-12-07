@@ -777,8 +777,8 @@ void UiHandleEvents(SDL_Event* event)
 #ifdef USE_SDL1
 		OutputToLogical(&event->motion.x, &event->motion.y);
 #endif
-		MouseX = event->motion.x;
-		MouseY = event->motion.y;
+		MousePos.x = event->motion.x;
+		MousePos.y = event->motion.y;
 		return;
 	}
 
