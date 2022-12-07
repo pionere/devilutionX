@@ -923,7 +923,7 @@ struct RightStickAccumulator {
 		hiresDY = 0;
 	}
 
-	void Pool(int* x, int* y, int slowdown)
+	void Pool(POS32& pos, int slowdown)
 	{
 		const Uint32 tc = SDL_GetTicks();
 		const int dtc = tc - lastTc;
@@ -931,8 +931,8 @@ struct RightStickAccumulator {
 		hiresDY += rightStickY * dtc;
 		const int dx = hiresDX / slowdown;
 		const int dy = hiresDY / slowdown;
-		*x += dx;
-		*y -= dy;
+		pos.x = dx;
+		pos.y = dy;
 		lastTc = tc;
 		// keep track of remainder for sub-pixel motion
 		hiresDX -= dx * slowdown;
@@ -1022,18 +1022,19 @@ static void HandleRightStickMotion()
 	}
 
 	if (IsAutomapActive()) { // move map
-		int dx = 0, dy = 0;
-		acc.Pool(&dx, &dy, 32);
-		AutoMapXOfs += dy + dx;
-		AutoMapYOfs += dy - dx;
+		POS32 pos;
+		acc.Pool(pos, 32);
+		AutoMapXOfs += pos.y + pos.x;
+		AutoMapYOfs += pos.y - pos.x;
 		return;
 	}
 
 	{ // move cursor
 		sgbControllerActive = false;
-		int x = MousePos.x;
-		int y = MousePos.y;
-		acc.Pool(&x, &y, 2);
+		POS32 pos;
+		acc.Pool(pos, 2);
+		pos.x += MousePos.x;
+		pos.y += MousePos.y;
 		x = std::min(std::max(x, 0), SCREEN_WIDTH - 1);
 		y = std::min(std::max(y, 0), SCREEN_HEIGHT - 1);
 
