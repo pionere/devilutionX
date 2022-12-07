@@ -196,10 +196,10 @@ static bool RndLocOk(int xp, int yp)
 	//return false;
 }
 
-static bool RndLoc3x3(int* x, int* y)
+static POS32 RndLoc3x3()
 {
 	int xp, yp, i, j, tries;
-
+	static_assert(DBORDERX != 0, "RndLoc3x3 returns 0;0 position as a failed location.");
 	tries = 0;
 	while (TRUE) {
 		xp = random_(140, DSIZEX) + DBORDERX;
@@ -210,20 +210,18 @@ static bool RndLoc3x3(int* x, int* y)
 					goto fail;
 			}
 		}
-		*x = xp;
-		*y = yp;
-		return true;
+		return { xp, yp };
 fail:
 		if (++tries > 20000)
 			break;
 	}
-	return false;
+	return { 0, 0 };
 }
 
-static bool RndLoc3x4(int* x, int* y)
+static POS32 RndLoc3x4()
 {
 	int xp, yp, i, j, tries;
-
+	static_assert(DBORDERX != 0, "RndLoc3x4 returns 0;0 position as a failed location.");
 	tries = 0;
 	while (TRUE) {
 		xp = random_(140, DSIZEX) + DBORDERX;
@@ -234,20 +232,18 @@ static bool RndLoc3x4(int* x, int* y)
 					goto fail;
 			}
 		}
-		*x = xp;
-		*y = yp;
-		return true;
+		return { xp, yp };
 fail:
 		if (++tries > 20000)
 			break;
 	}
-	return false;
+	return { 0, 0 };
 }
 
-static bool RndLoc5x5(int* x, int* y)
+static POS32 RndLoc5x5()
 {
 	int xp, yp, i, j, tries;
-
+	static_assert(DBORDERX != 0, "RndLoc5x5 returns 0;0 position as a failed location.");
 	tries = 0;
 	while (TRUE) {
 		xp = random_(140, DSIZEX) + DBORDERX;
@@ -258,20 +254,18 @@ static bool RndLoc5x5(int* x, int* y)
 					goto fail;
 			}
 		}
-		*x = xp;
-		*y = yp;
-		return true;
+		return { xp, yp };
 fail:
 		if (++tries > 20000)
 			break;
 	}
-	return false;
+	return { 0, 0 };
 }
 
-static bool RndLoc7x5(int* x, int* y)
+static POS32 RndLoc7x5()
 {
 	int xp, yp, i, j, tries;
-
+	static_assert(DBORDERX != 0, "RndLoc7x5 returns 0;0 position as a failed location.");
 	tries = 0;
 	while (TRUE) {
 		xp = random_(140, DSIZEX) + DBORDERX;
@@ -282,20 +276,18 @@ static bool RndLoc7x5(int* x, int* y)
 					goto fail;
 			}
 		}
-		*x = xp;
-		*y = yp;
-		return true;
+		return { xp, yp };
 fail:
 		if (++tries > 20000)
 			break;
 	}
-	return false;
+	return { 0, 0 };
 }
 
-static bool RndLoc6x7(int* x, int* y)
+static POS32 RndLoc6x7()
 {
 	int xp, yp, i, j, tries;
-
+	static_assert(DBORDERX != 0, "RndLoc6x7 returns 0;0 position as a failed location.");
 	tries = 0;
 	while (TRUE) {
 		xp = random_(140, DSIZEX) + DBORDERX;
@@ -306,48 +298,50 @@ static bool RndLoc6x7(int* x, int* y)
 					goto fail;
 			}
 		}
-		*x = xp;
-		*y = yp;
-		return true;
+		return { xp, yp };
 fail:
 		if (++tries > 20000)
 			break;
 	}
-	return false;
+	return { 0, 0 };
 }
 
 static void InitRndLocObj(int min, int max, int objtype)
 {
-	int i, xp, yp, numobjs;
+	int i, numobjs;
+	POS32 pos;
 
 	//assert(max >= min);
 	//assert(max - min < 0x7FFF);
 	numobjs = RandRangeLow(min, max);
 	for (i = 0; i < numobjs; i++) {
-		if (!RndLoc3x3(&xp, &yp))
+		pos = RndLoc3x3();
+		if (pos.x == 0)
 			break;
-		AddObject(objtype, xp, yp);
+		AddObject(objtype, pos.x, pos.y);
 	}
 }
 
 static void InitRndSarcs(int objtype)
 {
-	int i, xp, yp, numobjs;
+	int i, numobjs;
+	POS32 pos;
 
 	numobjs = RandRange(10, 15);
 	for (i = 0; i < numobjs; i++) {
-		if (!RndLoc3x4(&xp, &yp))
+		pos = RndLoc3x4();
+		if (pos.x == 0)
 			break;
-		AddObject(objtype, xp, yp);
+		AddObject(objtype, pos.x, pos.y);
 	}
 }
 
 static void InitRndLocObj5x5(int objtype)
 {
-	int xp, yp;
+	POS32 pos = RndLoc5x5();
 
-	if (RndLoc5x5(&xp, &yp))
-		AddObject(objtype, xp, yp);
+	if (pos.x != 0)
+		AddObject(objtype, pos.x, pos.y);
 }
 
 void InitLevelObjects()
@@ -381,9 +375,15 @@ static void AddCandles()
 static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2, int qn)
 {
 	int oi;
+	POS32 pos;
 
-	if (x == -1 && !RndLoc5x5(&x, &y))
-		return;
+	if (x == -1) {
+		pos = RndLoc5x5();
+		if (pos.x == 0)
+			return;
+		x = pos.x;
+		y = pos.y;
+	}
 
 	oi = AddObject(type, x, y);
 	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
@@ -753,18 +753,18 @@ static void AddHBooks(int bookidx, int ox, int oy)
 
 static void AddLvl2xBooks(int bookidx)
 {
-	int xp, yp;
+	POS32 pos = RndLoc7x5();
 
-	if (!RndLoc7x5(&xp, &yp))
+	if (pos.x == 0)
 		return;
 
-	AddHBooks(bookidx, xp, yp);
-	AddObject(OBJ_L5CANDLE, xp - 2, yp + 1);
-	AddObject(OBJ_L5CANDLE, xp - 2, yp);
-	AddObject(OBJ_L5CANDLE, xp - 1, yp - 1);
-	AddObject(OBJ_L5CANDLE, xp + 1, yp - 1);
-	AddObject(OBJ_L5CANDLE, xp + 2, yp);
-	AddObject(OBJ_L5CANDLE, xp + 2, yp + 1);
+	AddHBooks(bookidx, pos.x, pos.y);
+	AddObject(OBJ_L5CANDLE, pos.x - 2, pos.y + 1);
+	AddObject(OBJ_L5CANDLE, pos.x - 2, pos.y);
+	AddObject(OBJ_L5CANDLE, pos.x - 1, pos.y - 1);
+	AddObject(OBJ_L5CANDLE, pos.x + 1, pos.y - 1);
+	AddObject(OBJ_L5CANDLE, pos.x + 2, pos.y);
+	AddObject(OBJ_L5CANDLE, pos.x + 2, pos.y + 1);
 }
 
 static void AddUberLever()
@@ -843,18 +843,18 @@ static void Alloc2x2Obj(int oi)
 
 static void AddStoryBook()
 {
-	int xp, yp;
+	POS32 pos = RndLoc7x5();
 
-	if (!RndLoc7x5(&xp, &yp))
+	if (pos.x == 0)
 		return;
 
-	AddObject(OBJ_STORYBOOK, xp, yp);
-	AddObject(OBJ_STORYCANDLE, xp - 2, yp + 1);
-	AddObject(OBJ_STORYCANDLE, xp - 2, yp);
-	AddObject(OBJ_STORYCANDLE, xp - 1, yp - 1);
-	AddObject(OBJ_STORYCANDLE, xp + 1, yp - 1);
-	AddObject(OBJ_STORYCANDLE, xp + 2, yp);
-	AddObject(OBJ_STORYCANDLE, xp + 2, yp + 1);
+	AddObject(OBJ_STORYBOOK, pos.x, pos.y);
+	AddObject(OBJ_STORYCANDLE, pos.x - 2, pos.y + 1);
+	AddObject(OBJ_STORYCANDLE, pos.x - 2, pos.y);
+	AddObject(OBJ_STORYCANDLE, pos.x - 1, pos.y - 1);
+	AddObject(OBJ_STORYCANDLE, pos.x + 1, pos.y - 1);
+	AddObject(OBJ_STORYCANDLE, pos.x + 2, pos.y);
+	AddObject(OBJ_STORYCANDLE, pos.x + 2, pos.y + 1);
 }
 
 static void AddHookedBodies()
@@ -893,26 +893,27 @@ static void AddL4Goodies()
 
 static void AddLazStand()
 {
-	int xp, yp;
+	POS32 pos;
 
 	if (IsMultiGame) {
 		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 		return;
 	}
-	if (!RndLoc6x7(&xp, &yp)) {
+	pos = RndLoc6x7();
+	if (pos.x == 0) {
 		InitRndLocObj(1, 1, OBJ_LAZSTAND);
 		return;
 	}
-	AddObject(OBJ_LAZSTAND, xp, yp);
-	AddObject(OBJ_TNUDEM, xp, yp + 2);
-	AddObject(OBJ_STORYCANDLE, xp + 1, yp + 2);
-	AddObject(OBJ_TNUDEM, xp + 2, yp + 2);
-	AddObject(OBJ_TNUDEW, xp, yp - 2);
-	AddObject(OBJ_STORYCANDLE, xp + 1, yp - 2);
-	AddObject(OBJ_TNUDEW, xp + 2, yp - 2);
-	AddObject(OBJ_STORYCANDLE, xp - 1, yp - 1);
-	AddObject(OBJ_TNUDEW, xp - 1, yp);
-	AddObject(OBJ_STORYCANDLE, xp - 1, yp + 1);
+	AddObject(OBJ_LAZSTAND, pos.x, pos.y);
+	AddObject(OBJ_TNUDEM, pos.x, pos.y + 2);
+	AddObject(OBJ_STORYCANDLE, pos.x + 1, pos.y + 2);
+	AddObject(OBJ_TNUDEM, pos.x + 2, pos.y + 2);
+	AddObject(OBJ_TNUDEW, pos.x, pos.y - 2);
+	AddObject(OBJ_STORYCANDLE, pos.x + 1, pos.y - 2);
+	AddObject(OBJ_TNUDEW, pos.x + 2, pos.y - 2);
+	AddObject(OBJ_STORYCANDLE, pos.x - 1, pos.y - 1);
+	AddObject(OBJ_TNUDEW, pos.x - 1, pos.y);
+	AddObject(OBJ_STORYCANDLE, pos.x - 1, pos.y + 1);
 }
 
 void InitObjects()
