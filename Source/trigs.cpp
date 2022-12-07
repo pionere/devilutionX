@@ -13,7 +13,7 @@ TriggerStruct trigs[MAXTRIGGERS];
 BYTE gbOpenWarps;
 BYTE gbTWarpFrom;
 
-#define PIECE dPiece[cursmx][cursmy]
+#define PIECE dPiece[pcurspos.x][pcurspos.y]
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the cathedral from town. */
 #define TOWN_L1_WARP     (PIECE == 716 || (PIECE >= 723 && PIECE <= 728))
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the catacombs from town. */
@@ -435,7 +435,7 @@ static int ForceL2Trig()
 {
 	int i;
 
-	if (L2_UP_WARP && (quests[Q_BCHAMB]._qactive == QUEST_NOTAVAIL || abs(quests[Q_BCHAMB]._qtx - cursmx) > 1 || abs(quests[Q_BCHAMB]._qty - cursmy) > 1)) {
+	if (L2_UP_WARP && (quests[Q_BCHAMB]._qactive == QUEST_NOTAVAIL || abs(quests[Q_BCHAMB]._qtx - pcurspos.x) > 1 || abs(quests[Q_BCHAMB]._qty - pcurspos.y) > 1)) {
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
 				// Up to level (currLvl._dLevelIdx - 1)
@@ -472,7 +472,7 @@ static int ForceL3Trig()
 	int i;
 
 	if (L3_UP_WARP
-	 || L3_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
+	 || L3_UP_WARPx(dPiece[pcurspos.x][pcurspos.y + 1])) {
 		// Up to level (currLvl._dLevelIdx - 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL) {
@@ -482,9 +482,9 @@ static int ForceL3Trig()
 	}
 
 	if (L3_DOWN_WARP
-	 || L3_DOWN_WARPx(dPiece[cursmx + 1][cursmy])
-	 || L3_DOWN_WARPx(dPiece[cursmx + 1][cursmy + 1])
-	 || L3_DOWN_WARPx(dPiece[cursmx + 2][cursmy + 1])) {
+	 || L3_DOWN_WARPx(dPiece[pcurspos.x + 1][pcurspos.y])
+	 || L3_DOWN_WARPx(dPiece[pcurspos.x + 1][pcurspos.y + 1])
+	 || L3_DOWN_WARPx(dPiece[pcurspos.x + 2][pcurspos.y + 1])) {
 		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
@@ -495,7 +495,7 @@ static int ForceL3Trig()
 
 	if (currLvl._dLevelIdx == DLV_CAVES1) {
 		if (L3_TOWN_WARP
-		 || L3_TOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
+		 || L3_TOWN_WARPx(dPiece[pcurspos.x][pcurspos.y + 1])) {
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
@@ -568,7 +568,7 @@ static int ForceL5Trig()
 		}
 	}
 	if (L5_DOWN_WARP
-	 || L5_DOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
+	 || L5_DOWN_WARPx(dPiece[pcurspos.x][pcurspos.y + 1])) {
 		// Down to Crypt level (currLvl._dLevelIdx - 19)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
@@ -594,7 +594,7 @@ static int ForceL6Trig()
 	int i;
 
 	if (L6_UP_WARP
-	 || L6_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
+	 || L6_UP_WARPx(dPiece[pcurspos.x][pcurspos.y + 1])) {
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_PREVLVL // Up to Nest level (currLvl._dLevelIdx - 17)
 			 || trigs[i]._tmsg == DVL_DWM_TWARPUP) { // Up to town
@@ -603,8 +603,8 @@ static int ForceL6Trig()
 		}
 	}
 
-	if (L6_DOWN_WARPx(dPiece[cursmx][cursmy])
-	 || L6_DOWN_WARPx(dPiece[cursmx + 1][cursmy])) {
+	if (L6_DOWN_WARPx(dPiece[pcurspos.x][pcurspos.y])
+	 || L6_DOWN_WARPx(dPiece[pcurspos.x + 1][pcurspos.y])) {
 		// Down to level (currLvl._dLevelIdx - 15)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == DVL_DWM_NEXTLVL) {
@@ -615,7 +615,7 @@ static int ForceL6Trig()
 
 	/*if (currLvl._dLevelIdx == DLV_NEST1) {
 		if (L6_TOWN_WARP
-		 || L6_TOWN_WARPx(dPiece[cursmx][cursmy + 1]) ) {
+		 || L6_TOWN_WARPx(dPiece[pcurspos.x][pcurspos.y + 1]) ) {
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == DVL_DWM_TWARPUP) {
 					// Up to town
@@ -788,8 +788,8 @@ void CheckTrigForce()
 	}
 	pcurstrig = trignum;
 	if (trignum != -1) {
-		cursmx = trigs[trignum]._tx;
-		cursmy = trigs[trignum]._ty;
+		pcurspos.x = trigs[trignum]._tx;
+		pcurspos.y = trigs[trignum]._ty;
 	}
 }
 

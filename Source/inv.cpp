@@ -1540,8 +1540,8 @@ void DropItem()
 	if (numitems >= MAXITEMS)
 		return; // false;
 
-	pos.x = cursmx;
-	pos.y = cursmy;
+	pos.x = pcurspos.x;
+	pos.y = pcurspos.y;
 	if (!FindItemLocation(myplr._px, myplr._py, pos, 1))
 		return; // false;
 
@@ -1853,7 +1853,7 @@ bool InvUseItem(int cii)
 			gbTSplFrom = cii;
 			NewCursor(spelldata[sn].scCurs);
 		} else {
-			NetSendCmdLocSkill(cursmx, cursmy, sn, cii);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, sn, cii);
 		}
 		return true;
 	case IMISC_BOOK:

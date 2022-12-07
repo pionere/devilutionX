@@ -401,7 +401,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 	if (atkSkill != SPL_INVALID) {
 		if (atkSkill == SPL_BLOCK) {
-			int dir = GetDirection(myplr._px, myplr._py, cursmx, cursmy);
+			int dir = GetDirection(myplr._px, myplr._py, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
@@ -414,7 +414,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 
 		if (bShift) {
-			NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, atkSkill, asf);
 			return;
 		}
 		if (pcursmonst != MON_NONE) {
@@ -430,7 +430,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			return;
 		}
 		if (moveSkill == SPL_INVALID) {
-			NetSendCmdLocSkill(cursmx, cursmy, atkSkill, asf);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, atkSkill, asf);
 			return;
 		}
 	} else if (moveSkill == SPL_INVALID) {
@@ -462,25 +462,25 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	}
 
 	if (pcursobj != OBJ_NONE) {
-		bool bNear = abs(myplr._px - cursmx) < 2 && abs(myplr._py - cursmy) < 2;
+		bool bNear = abs(myplr._px - pcurspos.x) < 2 && abs(myplr._py - pcurspos.y) < 2;
 		if (moveSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
-			NetSendCmdLocParam1(CMD_OPOBJXY, cursmx, cursmy, pcursobj);
+			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
 			return;
 		}
 		//return; // TODO: proceed in case moveSkill != SPL_WALK?
 	}
 	if (moveSkill != SPL_WALK) {
-		// TODO: check if cursmx/y == _px/y ?
-		NetSendCmdLocSkill(cursmx, cursmy, moveSkill, msf);
+		// TODO: check if pcurspos.x/y == _px/y ?
+		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, moveSkill, msf);
 		return;
 	}
 
 	if (pcursitem != ITEM_NONE) {
-		NetSendCmdLocParam1(gbInvflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
+		NetSendCmdLocParam1(gbInvflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 		return;
 	}
 
-	NetSendCmdLoc(CMD_WALKXY, cursmx, cursmy);
+	NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 }
 
 void ActionBtnCmd(bool bShift)
@@ -505,9 +505,9 @@ bool TryIconCurs(bool bShift)
 	case CURSOR_DISARM:
 		if (pcursobj != OBJ_NONE && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
 			if (!bShift ||
-			 (abs(myplr._px - cursmx) < 2 && abs(myplr._py - cursmy) < 2)) {
+			 (abs(myplr._px - pcurspos.x) < 2 && abs(myplr._py - pcurspos.y) < 2)) {
 				// assert(gbTSpell == SPL_DISARM);
-				NetSendCmdLocDisarm(cursmx, cursmy, pcursobj, gbTSplFrom);
+				NetSendCmdLocDisarm(pcurspos.x, pcurspos.y, pcursobj, gbTSplFrom);
 			}
 		}
 		break;
@@ -527,7 +527,7 @@ bool TryIconCurs(bool bShift)
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
 		else
-			NetSendCmdLocSkill(cursmx, cursmy, gbTSpell, gbTSplFrom);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSpell, gbTSplFrom);
 		break;
 	case CURSOR_HEALOTHER:
 	case CURSOR_RESURRECT:
@@ -867,7 +867,7 @@ static void PressDebugChar(int vkey)
 	case 't':
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
 		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", cursmx, cursmy, dungeon[cursmx][cursmy]);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
 		NetSendCmdString(1 << mypnum);
 		break;
 	case '|':

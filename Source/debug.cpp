@@ -205,7 +205,7 @@ void GetDebugMonster()
 
 	mi1 = pcursmonst;
 	if (mi1 == -1) {
-		mi2 = dMonster[cursmx][cursmy];
+		mi2 = dMonster[pcurspos.x][pcurspos.y];
 		if (mi2 != 0) {
 			mi1 = mi2 - 1;
 			if (mi2 <= 0)

@@ -119,8 +119,8 @@ static void FindItemOrObject()
 				continue;
 			rotations = newRotations;
 			pcursitem = ii;
-			cursmx = mx + xx;
-			cursmy = my + yy;
+			pcurspos.x = mx + xx;
+			pcurspos.y = my + yy;
 		}
 	}
 
@@ -144,8 +144,8 @@ static void FindItemOrObject()
 				continue;
 			rotations = newRotations;
 			pcursobj = oi;
-			cursmx = mx + xx;
-			cursmy = my + yy;
+			pcurspos.x = mx + xx;
+			pcurspos.y = my + yy;
 		}
 	}
 }
@@ -369,8 +369,8 @@ static void FindTrigger()
 		const int newDistance = GetDistance(tx, ty, 2);
 		if (newDistance < 0)
 			continue;
-		cursmx = tx;
-		cursmy = ty;
+		pcurspos.x = tx;
+		pcurspos.y = ty;
 		pcurstrig = i;
 	}
 
@@ -387,15 +387,15 @@ static void FindTrigger()
 			const int newRotations = GetRotaryDistance(mix, miy);
 			if (distance == newDistance && rotations < newRotations)
 				continue;
-			cursmx = mix;
-			cursmy = miy;
+			pcurspos.x = mix;
+			pcurspos.y = miy;
 			pcurstrig = MAXTRIGGERS + mi + 1;
 			distance = newDistance;
 			rotations = newRotations;
 		}
 	}
 
-	/* commented out because it would just set the cursmx/y and pcurstrig fields again
+	/* commented out because it would just set the pcurspos.x/y and pcurstrig fields again
 	if (pcursmonst != MON_NONE || pcursplr != PLR_NONE || pcurstrig == -1)
 		return; // Prefer monster/player info text
 
@@ -1079,8 +1079,8 @@ void plrctrls_after_check_curs_move()
 		pcursitem = ITEM_NONE;
 		pcursobj = OBJ_NONE;
 		pcurstrig = -1;
-		cursmx = -1;
-		cursmy = -1;
+		pcurspos.x = -1;
+		pcurspos.y = -1;
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
 		if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag) {
@@ -1198,8 +1198,8 @@ static bool SpellHasActorTarget()
 		return false;
 
 	if (spl == SPL_FIREWALL && pcursmonst != MON_NONE) {
-		cursmx = monsters[pcursmonst]._mx;
-		cursmy = monsters[pcursmonst]._my;
+		pcurspos.x = monsters[pcursmonst]._mx;
+		pcurspos.y = monsters[pcursmonst]._my;
 	}
 
 	return pcursplr != PLR_NONE || pcursmonst != MON_NONE;
@@ -1219,8 +1219,8 @@ static void UpdateSpellTarget()
 	if (player._pAltMoveSkill == SPL_TELEPORT)
 		range = 4;
 
-	cursmx = player._pfutx + offset_x[player._pdir] * range;
-	cursmy = player._pfuty + offset_y[player._pdir] * range;
+	pcurspos.x = player._pfutx + offset_x[player._pdir] * range;
+	pcurspos.y = player._pfuty + offset_y[player._pdir] * range;
 }
 
 /**
@@ -1228,8 +1228,8 @@ static void UpdateSpellTarget()
  */
 static void TryDropItem()
 {
-	cursmx = myplr._pfutx + 1;
-	cursmy = myplr._pfuty;
+	pcurspos.x = myplr._pfutx + 1;
+	pcurspos.y = myplr._pfuty;
 	DropItem();
 }
 
@@ -1307,11 +1307,11 @@ void PerformSecondaryAction()
 	}
 
 	if (pcursitem != ITEM_NONE) {
-		NetSendCmdLocParam1(CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
+		NetSendCmdLocParam1(CMD_GOTOAGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 	} else if (pcursobj != OBJ_NONE) {
-		NetSendCmdLocParam1(CMD_OPOBJXY, cursmx, cursmy, pcursobj);
+		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
 	} else if (pcurstrig != -1) {
-		NetSendCmdLoc(CMD_WALKXY, cursmx, cursmy);
+		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 	}
 }
 

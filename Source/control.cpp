@@ -1553,7 +1553,7 @@ static void DrawTrigInfo()
 		if (mis->_miType == MIS_TOWN) {
 			copy_cstr(infostr, "Town Portal");
 			snprintf(tempstr, sizeof(tempstr), "(%s)", players[mis->_miSource]._pName);
-			pos = GetMousePos(cursmx, cursmy);
+			pos = GetMousePos(pcurspos.x, pcurspos.y);
 			pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip2(infostr, tempstr, pos.x, pos.y, COL_WHITE);
 		} else {
@@ -1562,7 +1562,7 @@ static void DrawTrigInfo()
 			} else {
 				copy_cstr(infostr, "Portal back to hell");
 			}
-			pos = GetMousePos(cursmx, cursmy);
+			pos = GetMousePos(pcurspos.x, pcurspos.y);
 			pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 		}
@@ -1653,7 +1653,7 @@ static void DrawTrigInfo()
 		}
 	}
 
-	pos = GetMousePos(cursmx, cursmy);
+	pos = GetMousePos(pcurspos.x, pcurspos.y);
 	pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 	DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 }
