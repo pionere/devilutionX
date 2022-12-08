@@ -2149,12 +2149,12 @@ static int PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
 		mpo = CheckMonCol(mpo);
-		return (mpo != -1 && PlrHitMonst(pnum, sn, sl, mpo)) ? 1 : 0;
+		return (mpo >= 0 && PlrHitMonst(pnum, sn, sl, mpo)) ? 1 : 0;
 	}
 	mpo = dPlayer[dx][dy];
 	if (mpo != 0) {
 		mpo = CheckPlrCol(mpo);
-		return (mpo != -1 && PlrHitPlr(pnum, sn, sl, mpo)) ? 1 : 0;
+		return (mpo >= 0 && PlrHitPlr(pnum, sn, sl, mpo)) ? 1 : 0;
 	}
 	mpo = dObject[dx][dy];
 	if (mpo != 0) {

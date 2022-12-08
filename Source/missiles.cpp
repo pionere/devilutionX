@@ -1371,14 +1371,14 @@ static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 	mnum = dMonster[mx][my];
 	if (mnum != 0) {
 		mnum = CheckMonCol(mnum);
-		if (mnum != -1 && MonMissHit(mnum, mi))
+		if (mnum >= 0 && MonMissHit(mnum, mi))
 			hit = 1;
 	}
 
 	pnum = dPlayer[mx][my];
 	if (pnum != 0) {
 		pnum = CheckPlrCol(pnum);
-		if (pnum != -1 && PlrMissHit(pnum, mi))
+		if (pnum >= 0 && PlrMissHit(pnum, mi))
 			hit = 1;
 	}
 

@@ -2206,7 +2206,7 @@ static void MonTryH2HHit(int mnum, int Hit, int MinDam, int MaxDam)
 		if (mpnum == 0)
 			return;
 		mpnum = CheckPlrCol(mpnum);
-		if (mpnum == -1)
+		if (mpnum < 0)
 			return;
 		MonHitPlr(mnum, mpnum, Hit, MinDam, MaxDam);
 	} else {
@@ -2214,7 +2214,7 @@ static void MonTryH2HHit(int mnum, int Hit, int MinDam, int MaxDam)
 		if (mpnum == 0)
 			return;
 		mpnum = CheckMonCol(mpnum);
-		if (mpnum == -1)
+		if (mpnum < 0)
 			return;
 		MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
 	}
