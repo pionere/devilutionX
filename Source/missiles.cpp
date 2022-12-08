@@ -762,7 +762,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	if (dam == 0)
 		return false;
 
-	if (CheckMonsterHit(mnum, &ret)) {
+	if (!CheckMonsterHit(mnum, &ret)) {
 		return ret;
 	}
 
@@ -888,7 +888,7 @@ static bool MonsterMHit(int mnum, int mi)
 	if (dam == 0)
 		return false;
 
-	if (CheckMonsterHit(mnum, &ret))
+	if (!CheckMonsterHit(mnum, &ret))
 		return ret;
 
 	//if (pnum == mypnum) {
@@ -3288,7 +3288,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 	case MTT_MONSTER:
 		// assert(target < MAXMONSTERS);
 		if (LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)
-		 && !CheckMonsterHit(target, &ret) && monsters[target]._mmode != MM_STONE && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pMagic) {
+		 && CheckMonsterHit(target, &ret) && monsters[target]._mmode != MM_STONE && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pMagic) {
 			monsters[target]._msquelch = SQUELCH_MAX;
 			monsters[target]._mlastx = plr._px;
 			monsters[target]._mlasty = plr._py;

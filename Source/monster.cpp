@@ -2123,7 +2123,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 	if ((unsigned)defm >= MAXMONSTERS) {
 		dev_fatal("MonHitMon: Invalid monster %d", defm);
 	}
-	if (CheckMonsterHit(defm, &ret))
+	if (!CheckMonsterHit(defm, &ret))
 		return;
 
 	hper = hper + (monsters[offm]._mLevel << 1) - (monsters[defm]._mLevel << 1);
@@ -5074,17 +5074,17 @@ bool CheckMonsterHit(int mnum, bool* ret)
 	 || (mon->_mAI.aiType == AI_SNEAK && mon->_mgoal == MGOAL_RETREAT)
 	 || (mon->_mAI.aiType == AI_COUNSLR && mon->_mgoal != MGOAL_NORMAL)) {
 		*ret = false;
-		return true;
+		return false;
 	}
 
 	if (mon->_mAI.aiType == AI_GARG && mon->_mFlags & MFLAG_GARG_STONE) {
 		mon->_mFlags &= ~(MFLAG_GARG_STONE | MFLAG_LOCK_ANIMATION);
 		// mon->_mmode = MM_SPATTACK;
 		*ret = true;
-		return true;
+		return false;
 	}
 
-	return false;
+	return true;
 }
 
 DEVILUTION_END_NAMESPACE

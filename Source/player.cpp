@@ -1967,7 +1967,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
 		return false;
 
-	if (CheckMonsterHit(mnum, &ret))
+	if (!CheckMonsterHit(mnum, &ret))
 		return ret;
 
 	dam = 0;
@@ -2960,7 +2960,7 @@ void MissToPlr(int mi, bool hit)
 		if (!CheckHit(hper) && mon->_mmode != MM_STONE)
 			return;
 
-		if (CheckMonsterHit(mpnum, &ret))
+		if (!CheckMonsterHit(mpnum, &ret))
 			return;
 
 		dam = CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, minbl, maxbl, false);
