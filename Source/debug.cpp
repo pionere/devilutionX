@@ -1242,6 +1242,11 @@ void ValidateData()
 				app_fatal("Missile %d is not drawn, but has valid miSFX.", i);
 		}
 	}
+	for (i = 0; i < NUM_MFILE; i++) {
+		const MisFileData& mfd = misfiledata[i];
+		if (mfd.mfAnimXOffset != (mfd.mfAnimWidth - TILE_WIDTH) / 2)
+			app_fatal("Missile %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);
+	}
 	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
 	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Firewall
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall
@@ -1267,6 +1272,7 @@ void ValidateData()
 	assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);                // required by MI_Acidsplat
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
+	assert(monfiledata[MOFILE_MAGMA].moAnimFrameLen[MA_SPECIAL] == 1);                           // required by MonDoRSpAttack
 
 	// towners
 	for (i = 0; i < STORE_TOWNERS; i++) {
