@@ -2949,9 +2949,9 @@ void MissToPlr(int mi, bool hit)
 	oldx = mis->_mix;
 	oldy = mis->_miy;
 	mpnum = dMonster[oldx][oldy];
-	if (mpnum > 0) {
-		mpnum--;
-		if (mpnum < MAX_MINIONS)
+	if (mpnum != 0) {
+		mpnum = CheckMonCol(mpnum);
+		if (/*mpnum < 0 ||*/ mpnum < MAX_MINIONS)
 			return;
 		//PlrHitMonst(pnum, SPL_CHARGE, mis->_miSpllvl, mpnum);
 		mon = &monsters[mpnum];
@@ -2983,8 +2983,10 @@ void MissToPlr(int mi, bool hit)
 		return;
 	}
 	mpnum = dPlayer[oldx][oldy];
-	if (mpnum > 0) {
-		mpnum--;
+	if (mpnum != 0) {
+		mpnum = CheckPlrCol(mpnum);
+		if (mpnum < 0)
+			return;
 		//PlrHitPlr(pnum, SPL_CHARGE, mis->_miSpllvl, mpnum);
 		if (plx(mpnum)._pTeam == plr._pTeam || plx(mpnum)._pInvincible)
 			return;

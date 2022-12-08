@@ -4672,7 +4672,7 @@ void MissToMonst(int mi)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	int mnum, oldx, oldy, mpnum;
+	int mnum, oldx, oldy, mpnum, pnum, defm;
 
 	if ((unsigned)mi >= MAXMISSILES) {
 		dev_fatal("MissToMonst: Invalid missile %d", mi);
@@ -4702,26 +4702,26 @@ void MissToMonst(int mi)
 	oldx = mis->_mix;
 	oldy = mis->_miy;
 	mpnum = dPlayer[oldx][oldy];
-	// TODO: use CheckPlrCol instead?
-	if (mpnum > 0) {
-		mpnum--;
+	if (mpnum != 0) {
+		pnum = CheckPlrCol(mpnum);
+		if (pnum < 0)
+			return;
 		// TODO: prevent bleeding if MonsterAI is AI_RHINO ?
-		MonHitPlr(mnum, mpnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
-		if (mpnum == dPlayer[oldx][oldy] - 1 && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
-			PlrStartAnyHit(mpnum, mnum, 0, ISPL_KNOCKBACK, mis->_misx, mis->_misy);
+		MonHitPlr(mnum, pnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
+		if (mpnum == dPlayer[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
+			PlrStartAnyHit(pnum, mnum, 0, ISPL_KNOCKBACK, mis->_misx, mis->_misy);
 		}
 		return;
 	}
 	mpnum = dMonster[oldx][oldy];
-	// TODO: use CheckMonCol instead?
-	if (mpnum > 0) {
-		mpnum--;
-		if (mpnum >= MAX_MINIONS)
+	if (mpnum != 0) {
+		defm = CheckMonCol(mpnum);
+		if (defm < 0 || defm >= MAX_MINIONS)
 			return; // do not hit team-mate : assert(mnum >= MAX_MINIONS);
-		MonHitMon(mnum, mpnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
-		if (mpnum == dMonster[oldx][oldy] - 1 && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
+		MonHitMon(mnum, defm, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
+		if (mpnum == dMonster[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
 			// TODO: use MonStartMonHit ?
-			MonGetKnockback(mpnum, mis->_misx, mis->_misy);
+			MonGetKnockback(defm, mis->_misx, mis->_misy);
 			PlayMonSFX(mnum, MS_GOTHIT);
 		}
 	}
