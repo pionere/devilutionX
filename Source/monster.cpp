@@ -1252,12 +1252,12 @@ void MonChangeMap()
 	}
 }
 
-bool CheckAllowMissile(int x, int y)
+static bool CheckAllowMissile(int x, int y)
 {
 	return !nMissileTable[dPiece[x][y]];
 }
 
-bool CheckNoSolid(int x, int y)
+static bool CheckNoSolid(int x, int y)
 {
 	return !nSolidTable[dPiece[x][y]];
 }
@@ -1268,8 +1268,9 @@ bool CheckNoSolid(int x, int y)
  * The target and source positions are NOT checked.
  * @return TRUE if the Clear checks succeeded.
  */
-bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
+static bool LineClearF(int fType, int x1, int y1, int x2, int y2)
 {
+	bool (*Clear)(int, int) = fType == 0 ? &CheckAllowMissile : &CheckNoSolid;
 	int dx, dy;
 	int tmp, d, xyinc;
 
@@ -1344,14 +1345,15 @@ bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
 
 bool LineClear(int x1, int y1, int x2, int y2)
 {
-	return LineClearF(CheckAllowMissile, x1, y1, x2, y2);
+	return LineClearF(0, x1, y1, x2, y2);
 }
 
 /**
  * Same as LineClearF, only with a different Clear function.
  */
-bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2)
+static bool LineClearMon(int mnum, int x1, int y1, int x2, int y2)
 {
+	bool (*Clear)(int, int, int) = &PosOkMonst;
 	int dx, dy;
 	int tmp, d, xyinc;
 
@@ -2814,7 +2816,7 @@ static void GroupUnity(int mnum)
 	// check if the leader is still available and update its squelch value + enemy location
 	if (mon->_mleader != MON_NO_LEADER) {
 		leader = &monsters[mon->_mleader];
-		clear = LineClearF(CheckNoSolid, mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
+		clear = LineClearF(1, mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
 		if (clear) {
 			if (mon->_mleaderflag == MLEADER_AWAY
 			 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
@@ -3060,7 +3062,7 @@ void MAI_Snake(int mnum)
 	mon->_mdir = currEnemyInfo._meLastDir;
 	dist = currEnemyInfo._meRealDist;
 	if (dist >= 2) { // STAND_PREV_MODE
-		if (dist == 2 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy) && mon->_mVar1 != MM_CHARGE) {
+		if (dist == 2 && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy) && mon->_mVar1 != MM_CHARGE) {
 			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSFX(mnum, MS_ATTACK);
 			}
@@ -3135,7 +3137,7 @@ void MAI_Bat(int mnum)
 	if (mon->_mType == MT_GBAT
 	    && dist >= 5
 	    && v < 4 * mon->_mAI.aiInt + 33
-	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+	    && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
 		if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 			MonUpdateLeader(mnum);
 		}
@@ -3630,7 +3632,7 @@ void MAI_Scav(int mnum)
 							tx = mon->_mx + *++cr;
 							ty = mon->_my + *++cr;
 							if (dDead[tx][ty] != 0
-							 && LineClearF(CheckNoSolid, mon->_mx, mon->_my, tx, ty)) {
+							 && LineClearF(1, mon->_mx, mon->_my, tx, ty)) {
 								corpseLocs[tmp] = tx;
 								tmp++;
 								corpseLocs[tmp] = ty;
@@ -3997,7 +3999,7 @@ void MAI_Rhino(int mnum)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 5 && v < 2 * mon->_mAI.aiInt + 43
-		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+		    && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
 			mon->_mdir = currEnemyInfo._meLastDir;
 			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSFX(mnum, MS_SPECIAL);
