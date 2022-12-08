@@ -1560,20 +1560,17 @@ static void Obj_Light(int oi)
 	}
 }
 #endif
-static void GetVileMissPos(int* dx, int* dy)
+static void FindClosestPlr(int* dx, int* dy)
 {
 	int xx, yy, j, i;
 	const int8_t* cr;
-
-	i = dObject[*dx][*dy] - 1;
-	assert(objects[i]._otype == OBJ_MCIRCLE1 || objects[i]._otype == OBJ_MCIRCLE2);
 
 	for (i = 0; i < 10; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = *cr; j > 0; j--) {
 			xx = *dx + *++cr;
 			yy = *dy + *++cr;
-			if (PosOkActor(xx, yy)) {
+			if (PosOkActor(xx, yy) && PosOkPortal(xx, yy)) {
 				*dx = xx;
 				*dy = yy;
 				return;
@@ -2327,7 +2324,7 @@ static void OperateLever(int oi, bool sendmsg)
 static void OperateVileBook(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
-	int dx, dy;
+	int dx, dy, on;
 
 	assert(currLvl._dSetLvl);
 
@@ -2346,7 +2343,10 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 			dx = DBORDERX + 27;
 			dy = DBORDERY + 13;
 		}
-		GetVileMissPos(&dx, &dy);
+		on = dObject[dx][dy] - 1;
+		assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
+
+		FindClosestPlr(&dx, &dy);
 		AddMissile(0, 0, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 		objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 	}
@@ -3186,6 +3186,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		static_assert(MIS_RUNEFIRE + 1 == MIS_RUNELIGHT, "SHRINE_SOLAR expects runes in a given order I.");
 		static_assert(MIS_RUNEFIRE + 2 == MIS_RUNENOVA, "SHRINE_SOLAR expects runes in a given order II.");
 		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEWAVE, "SHRINE_SOLAR expects runes in a given order III.");
+		static_assert(DBORDERX >= 3 && DBORDERY >= 3, "SHRINE_SOLAR expects a large enough border.");
 		const int8_t* cr = &CrawlTable[CrawlNum[3]];
 		mode = sendmsg ? ICM_SEND : ICM_DUMMY;
 		for (i = (BYTE)*cr; i > 0; i--) {
