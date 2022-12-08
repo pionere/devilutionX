@@ -58,6 +58,10 @@ Missiles\Larrow7.CL2
 Missiles\Larrow8.CL2
 Missiles\Larrow9.CL2
 Missiles\Magicexp.CL2
+Missiles\Shroud1.CL2
+Missiles\Shroud2.CL2
+Missiles\Wind1.CL2
+Missiles\Wind2.CL2
 Monsters\Diablo\Diablod1.WAV
 Monsters\Diablo\Diablod2.WAV
 NLevels\L5Data\L5.TMI

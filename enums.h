@@ -1931,6 +1931,7 @@ typedef enum missile_id {
 	MIS_EXHLSPWN,
 	MIS_EXSOLBRNR,
 	MIS_POISON,
+	MIS_WIND,
 	MIS_LIGHTBALL,
 	MIS_LIGHTNINGC,
 	MIS_LIGHTNING,
@@ -1953,6 +1954,7 @@ typedef enum missile_id {
 	//MIS_FARROW,
 	//MIS_DOOMSERP,
 	MIS_STONE,
+	MIS_SHROUD,
 	//MIS_INVISIBL,
 	MIS_GUARDIAN,
 	MIS_GOLEM,
@@ -2059,6 +2061,8 @@ typedef enum missile_gfx_id {
 	//MFILE_NEWEXP,
 	MFILE_SHATTER1,
 	MFILE_BIGEXP,
+	MFILE_WIND,
+	MFILE_SHROUD,
 	MFILE_INFERNO,
 	MFILE_THINLGHT,
 	MFILE_FLARE,
@@ -2114,6 +2118,7 @@ typedef enum missile_flags {
 	MIF_NOBLOCK = 1 << 1, // can not be blocked
 	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored, hit check multiple times
 	MIF_LEAD    = 1 << 3, // leads the monster to the player (on impact)
+	MIF_SHROUD  = 1 << 4, // interacts with MIS_SHROUD
 	MIF_ARROW   = 1 << 7, // alternative hit chance/damage calculation (for physical arrows)
 } missile_flags;
 
@@ -3575,6 +3580,8 @@ typedef enum spell_id {
 	SPL_ELEMENTAL,
 	SPL_FLARE,
 	SPL_POISON,
+	SPL_WIND,
+	SPL_SHROUD,
 	SPL_GUARDIAN,
 	SPL_GOLEM,
 	SPL_STONE,

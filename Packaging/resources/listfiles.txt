@@ -491,6 +491,8 @@ Missiles\Scubmisb.CL2
 Missiles\Scubmisc.CL2
 Missiles\Scubmisd.CL2
 Missiles\Shatter1.CL2
+Missiles\Shroud1.CL2
+Missiles\Shroud2.CL2
 _Missiles\Sklball1.CL2
 _Missiles\Sklball2.CL2
 _Missiles\Sklball3.CL2
@@ -509,6 +511,8 @@ Missiles\spawns6.CL2
 Missiles\spawns7.CL2
 Missiles\spawns8.CL2
 Missiles\Thinlght.CL2
+Missiles\Wind1.CL2
+Missiles\Wind2.CL2
 Monsters\Acid\Acida.CL2
 Monsters\Acid\Acida1.WAV
 Monsters\Acid\Acida2.WAV
