@@ -21,9 +21,6 @@ typedef enum belt_item_type {
 // Whether we're in a dialog menu that the game handles natively with keyboard controls.
 bool InGameMenu();
 
-// Whether the automap is being displayed.
-bool IsAutomapActive();
-
 extern bool sgbControllerActive;
 
 #ifdef __cplusplus

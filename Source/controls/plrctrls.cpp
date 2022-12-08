@@ -1001,11 +1001,6 @@ void StoreSpellCoords()
 	}
 }
 
-bool IsAutomapActive()
-{
-	return gbAutomapflag && currLvl._dType != DTYPE_TOWN;
-}
-
 bool IsMovingMouseCursorWithController()
 {
 	return rightStickX != 0 || rightStickY != 0;

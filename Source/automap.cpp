@@ -145,6 +145,11 @@ void InitLvlAutomap()
 	AutoMapYOfs = 0;
 }
 
+bool IsAutomapActive()
+{
+	return gbAutomapflag && _gbAutomapData;
+}
+
 /**
  * @brief Display/Hides the automap.
  */

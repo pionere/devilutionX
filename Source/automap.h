@@ -38,6 +38,9 @@ void InitAutomapScale();
  */
 void InitLvlAutomap();
 
+// Whether the automap is being displayed.
+bool IsAutomapActive();
+
 /**
  * @brief Display/Hide the automap.
  */
