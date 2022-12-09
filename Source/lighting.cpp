@@ -1140,9 +1140,10 @@ void CondChangeLightXY(unsigned lnum, int x, int y)
 	gbDolighting = true;
 }
 
-void CondChangeLightOff(unsigned lnum, int xoff, int yoff)
+void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 {
 	LightListStruct* lis;
+	int xoff, yoff;
 	int lx, ly;
 	int offx, offy;
 
@@ -1152,8 +1153,14 @@ void CondChangeLightOff(unsigned lnum, int xoff, int yoff)
 #endif
 	if (lnum >= MAXLIGHTS)
 		return;
-
 	lis = &LightList[lnum];
+	// convert screen-offset to tile-offset
+	xoff = xsoff + 2 * ysoff;
+	yoff = 2 * ysoff - xsoff;
+
+	xoff = xoff / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
+	yoff = yoff / (TILE_WIDTH / 8);
+	// check if offset-change is meaningful
 	lx = xoff + (lis->_lx << 3);
 	ly = yoff + (lis->_ly << 3);
 	offx = lis->_xoff + (lis->_lx << 3);

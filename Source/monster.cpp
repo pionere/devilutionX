@@ -1636,21 +1636,6 @@ static void MonStartSpStand(int mnum, int md)
 	mon->_mmode = MM_SPSTAND;
 }
 
-static void MonChangeLightOff(int mnum)
-{
-	MonsterStruct* mon;
-	int lx, ly;
-
-	mon = &monsters[mnum];
-	lx = mon->_mxoff + 2 * mon->_myoff;
-	ly = 2 * mon->_myoff - mon->_mxoff;
-
-	lx = lx / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
-	ly = ly / (TILE_WIDTH / 8);
-
-	CondChangeLightOff(mon->_mlid, lx, ly);
-}
-
 /**
  * @brief Starting a move action towards NW, N, NE or W
  */
@@ -1713,8 +1698,8 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
 	if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
-		ChangeLightXY(mon->_mlid, mx, my);
-		MonChangeLightOff(mnum);
+		ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
+		CondChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
 	}
 }
 
@@ -2282,7 +2267,7 @@ static bool MonDoWalk(int mnum)
 			mon->_mxoff = mon->_mVar6 >> MON_WALK_SHIFT;
 			mon->_myoff = mon->_mVar7 >> MON_WALK_SHIFT;
 			if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-				MonChangeLightOff(mnum);
+				CondChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
 		//}
 		rv = false;
 	}
@@ -4690,6 +4675,7 @@ void MissToMonst(int mi)
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
 	// assert(dPlayer[mon->_mx][mon->_my] == 0);
 	// assert(!(mon->_mFlags & MFLAG_HIDDEN));
+	//ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
 	ChangeLightOff(mon->_mlid, 0, 0);
 	assert(mon->_mdir == mis->_miDir);
 	MonStartStand(mnum);

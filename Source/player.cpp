@@ -1169,19 +1169,6 @@ static void StartWalkStand(int pnum)
 	}
 }*/
 
-static void PlrChangeLightOff(int pnum)
-{
-	int x, y;
-
-	x = plr._pxoff + 2 * plr._pyoff;
-	y = 2 * plr._pyoff - plr._pxoff;
-
-	x = x / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
-	y = y / (TILE_WIDTH / 8);
-
-	CondChangeLightOff(plr._plid, x, y);
-}
-
 static void PlrChangeOffset(int pnum)
 {
 	// int px, py;
@@ -1210,7 +1197,7 @@ static void PlrChangeOffset(int pnum)
 	}
 
 	//if (plr._plid != NO_LIGHT)
-		PlrChangeLightOff(pnum);
+		CondChangeLightScreenOff(plr._plid, plr._pxoff, plr._pyoff);
 }
 
 /**
@@ -1271,14 +1258,14 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
 	if (pnum == mypnum) {
-		ViewX = px;
-		ViewY = py;
-		ScrollInfo._sxoff = -xoff;
-		ScrollInfo._syoff = -yoff;
+		ViewX = plr._px;
+		ViewY = plr._py;
+		ScrollInfo._sxoff = -plr._pxoff;
+		ScrollInfo._syoff = -plr._pyoff;
 	}
 	//if (plr._plid != NO_LIGHT) {
 		ChangeLightXY(plr._plid, plr._px, plr._py);
-		PlrChangeLightOff(pnum);
+		CondChangeLightScreenOff(plr._plid, plr._pxoff, plr._pyoff);
 	//}
 }
 
@@ -2461,7 +2448,7 @@ static void PlrDoSpell(int pnum)
 	if (!plr._pVar7) { // SPELL_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
 
-		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir, // SPELL_TARGET_X, SPELL_TARGET_Y
+		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir,    // SPELL_TARGET_X, SPELL_TARGET_Y
 			spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // SPELL_NUM, SPELL_LEVEL
 	}
 	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1);

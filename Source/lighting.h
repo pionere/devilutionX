@@ -47,7 +47,7 @@ void ChangeLightXY(unsigned lnum, int x, int y);
 void ChangeLightOff(unsigned lnum, int xoff, int yoff);
 void ChangeLightXYOff(unsigned lnum, int x, int y);
 void CondChangeLightXY(unsigned lnum, int x, int y);
-void CondChangeLightOff(unsigned lnum, int xoff, int yoff);
+void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff);
 void ChangeLight(unsigned lnum, int x, int y, int r);
 void ProcessLightList();
 inline void SavePreLighting()
