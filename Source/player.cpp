@@ -1265,7 +1265,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	}
 	//if (plr._plid != NO_LIGHT) {
 		ChangeLightXY(plr._plid, plr._px, plr._py);
-		CondChangeLightScreenOff(plr._plid, plr._pxoff, plr._pyoff);
+		ChangeLightScreenOff(plr._plid, plr._pxoff, plr._pyoff);
 	//}
 }
 
@@ -2911,7 +2911,7 @@ void MissToPlr(int mi, bool hit)
 		FixPlayerLocation(pnum);*/
 	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
-	ChangeLightOff(plr._plid, 0, 0);
+	ChangeLightScreenOff(plr._plid, 0, 0); // ChangeLightOff(plr._plid, 0, 0);
 	if (!hit || plr._pHitPoints < (1 << 6)) {
 		assert(plr._pdir == mis->_miDir);
 		PlrStartStand(pnum);

@@ -1699,7 +1699,7 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	dMonster[mx][my] = mnum + 1;
 	if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
-		CondChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
+		ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
 	}
 }
 
@@ -4676,7 +4676,7 @@ void MissToMonst(int mi)
 	// assert(dPlayer[mon->_mx][mon->_my] == 0);
 	// assert(!(mon->_mFlags & MFLAG_HIDDEN));
 	//ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
-	ChangeLightOff(mon->_mlid, 0, 0);
+	ChangeLightScreenOff(mon->_mlid, 0, 0); // ChangeLightOff(mon->_mlid, 0, 0);
 	assert(mon->_mdir == mis->_miDir);
 	MonStartStand(mnum);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {

@@ -1078,9 +1078,10 @@ void ChangeLightXY(unsigned lnum, int x, int y)
 	gbDolighting = true;
 }
 
-void ChangeLightOff(unsigned lnum, int xoff, int yoff)
+void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 {
 	LightListStruct* lis;
+	int xoff, yoff;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1088,6 +1089,12 @@ void ChangeLightOff(unsigned lnum, int xoff, int yoff)
 #endif
 	if (lnum >= MAXLIGHTS)
 		return;
+	// convert screen-offset to tile-offset
+	xoff = xsoff + 2 * ysoff;
+	yoff = 2 * ysoff - xsoff;
+
+	xoff = xoff / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
+	yoff = yoff / (TILE_WIDTH / 8);
 
 	lis = &LightList[lnum];
 	lis->_lunflag = true;
