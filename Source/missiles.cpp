@@ -583,7 +583,7 @@ static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
 static void GetMissilePos(int mi)
 {
 	MissileStruct* mis;
-	int mx, my, dx, dy;
+	int mx, my, dx, dy, dqx, dqy;
 
 	mis = &missile[mi];
 	mx = mis->_mitxoff >> (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT);
@@ -591,13 +591,16 @@ static void GetMissilePos(int mi)
 
 	dx = mx + my;
 	dy = my - mx;
-	dx = dx / 64;
-	dy = dy / 64;
 
-	mis->_mix = dx + mis->_misx;
-	mis->_miy = dy + mis->_misy;
-	mis->_mixoff = (mx + (dy * 32) - (dx * 32)) * ASSET_MPL;
-	mis->_miyoff = ((my >> 1) - (dx * 16) - (dy * 16)) * ASSET_MPL;
+	dqx = dx / 64;
+	//drx = dx % 64;
+	dqy = dy / 64;
+	//dry = dy % 64;
+
+	mis->_mix = dqx + mis->_misx;
+	mis->_miy = dqy + mis->_misy;
+	mis->_mixoff = (mx - (dqx - dqy) * 32) * ASSET_MPL;        // ((drx - dry) >> 1) * ASSET_MPL;
+	mis->_miyoff = ((my >> 1) - (dqx + dqy) * 16) * ASSET_MPL; // ((drx + dry) >> 2) * ASSET_MPL;
 	ChangeLightScreenOff(mis->_miLid, mis->_mixoff, mis->_miyoff);
 }
 
