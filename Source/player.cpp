@@ -2911,7 +2911,6 @@ void MissToPlr(int mi, bool hit)
 		FixPlayerLocation(pnum);*/
 	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
-	ChangeLightScreenOff(plr._plid, 0, 0); // ChangeLightOff(plr._plid, 0, 0);
 	if (!hit || plr._pHitPoints < (1 << 6)) {
 		assert(plr._pdir == mis->_miDir);
 		PlrStartStand(pnum);

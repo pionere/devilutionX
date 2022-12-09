@@ -4543,14 +4543,15 @@ void MI_Rhino(int mi)
 	}
 	bx = mis->_mix;
 	by = mis->_miy;
-	SetMonsterLoc(&monsters[mnum], bx, by);
 	//assert(dMonster[bx][by] == 0);
 	//assert(dPlayer[bx][by] == 0);
 	dMonster[bx][by] = -(mnum + 1);
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
-	// assert(monsters[mnum]._mvid == NO_VISION);
-	// assert(monsters[mnum]._mlid == mis->_miLid);
-	CondChangeLightXY(monsters[mnum]._mlid, bx, by);
+	if (monsters[mnum]._mx != bx || monsters[mnum]._my != by) {
+		SetMonsterLoc(&monsters[mnum], bx, by);
+		// assert(monsters[mnum]._mvid == NO_VISION);
+		ChangeLightXY(monsters[mnum]._mlid, bx, by);
+	}
 	ShiftMissilePos(mi);
 	PutMissile(mi);
 }
@@ -4558,7 +4559,7 @@ void MI_Rhino(int mi)
 void MI_Charge(int mi)
 {
 	MissileStruct* mis;
-	int ax, ay, bx, by, pnum;
+	int bx, by, pnum;
 
 	mis = &missile[mi];
 	pnum = mis->_miSource;
@@ -4569,9 +4570,7 @@ void MI_Charge(int mi)
 	mis->_miRange += mis->_miAnimAdd; // MISRANGE (used in MissToPlr)
 	// restore the real coordinates
 	//GetMissilePos(mi);
-	ax = mis->_mix;
-	ay = mis->_miy;
-	dPlayer[ax][ay] = 0;
+	dPlayer[mis->_mix][mis->_miy] = 0;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
@@ -4583,10 +4582,10 @@ void MI_Charge(int mi)
 	bx = mis->_mix;
 	by = mis->_miy;
 	dPlayer[bx][by] = -(pnum + 1);
-	if (ax != bx || ay != by) {
+	if (plr._px != bx || plr._py != by) {
 		SetPlayerLoc(&plr, bx, by);
 		// assert(plr._plid == mis->_miLid);
-		CondChangeLightXY(plr._plid, bx, by);
+		ChangeLightXY(plr._plid, bx, by);
 		ChangeVisionXY(plr._pvid, bx, by);
 		if (bx == mis->_miVar1 && by == mis->_miVar2) {
 			MissToPlr(mi, false);
@@ -4598,10 +4597,10 @@ void MI_Charge(int mi)
 		assert(ScrollInfo._sdir != SDIR_NONE);
 		ScrollInfo._sxoff = -mis->_mixoff;
 		ScrollInfo._syoff = -mis->_miyoff;
-		if (ViewX != bx || ViewY != by) {
+		//if (ViewX != bx || ViewY != by) {
 			ViewX = bx; // - ScrollInfo._sdx;
 			ViewY = by; // - ScrollInfo._sdy;
-		}
+		//}
 	}
 	//ShiftMissilePos(mi);
 	PutMissile(mi);
