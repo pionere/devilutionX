@@ -160,20 +160,30 @@ static void print_help()
 	printf("\nVersion: %s. Report bugs at https://github.com/pionere/devilutionX/\n", gszProductName);
 }
 
-static bool diablo_parse_flags(int argc, char** argv)
+static int diablo_parse_flags(int argc, char** argv)
 {
 	int i;
 
+	static_assert(EX_USAGE + 1 != EX_OK, "diablo_parse_flags shifts the return values.");
 	for (i = 1; i < argc; i++) {
 		if (SDL_strcasecmp("-h", argv[i]) == 0 || SDL_strcasecmp("--help", argv[i]) == 0) {
 			print_help();
-			break;
+			return EX_OK + 1;
 		} else if (SDL_strcasecmp("--data-dir", argv[i]) == 0) {
-			SetBasePath(argv[++i]);
+			i++;
+			if (i == argc)
+				return EX_USAGE + 1;
+			SetBasePath(argv[i]);
 		} else if (SDL_strcasecmp("--save-dir", argv[i]) == 0) {
-			SetPrefPath(argv[++i]);
+			i++;
+			if (i == argc)
+				return EX_USAGE + 1;
+			SetPrefPath(argv[i]);
 		} else if (SDL_strcasecmp("--config-dir", argv[i]) == 0) {
-			SetConfigPath(argv[++i]);
+			i++;
+			if (i == argc)
+				return EX_USAGE + 1;
+			SetConfigPath(argv[i]);
 		} else if (SDL_strcasecmp("-n", argv[i]) == 0) {
 			_gbSkipIntro = true;
 		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
@@ -183,22 +193,40 @@ static bool diablo_parse_flags(int argc, char** argv)
 			debug_mode_key_i = TRUE;
 			/*
 		} else if (SDL_strcasecmp("-j", argv[i]) == 0) {
-			debug_mode_key_J_trigger = argv[++i];
+			i++;
+			if (i == argc)
+				return EX_USAGE + 1;
+			debug_mode_key_J_trigger = argv[i];
 		*/
 		} else if (SDL_strcasecmp("-l", argv[i]) == 0) {
+			i++;
+			if (i == argc)
+				return EX_USAGE + 1;
 			leveldebug = TRUE;
-			EnterLevel(SDL_atoi(argv[++i]));
+			EnterLevel(SDL_atoi(argv[i]));
 			players[0]._pDunLevel = currLvl._dLevelIdx;
 		} else if (SDL_strcasecmp("-m", argv[i]) == 0) {
+			i++;
+			if (i == argc)
+				return EX_USAGE + 1;
 			monstdebug = TRUE;
-			DebugMonsters[debugmonsttypes++] = SDL_atoi(argv[++i]);
+			DebugMonsters[debugmonsttypes++] = SDL_atoi(argv[i]);
 		} else if (SDL_strcasecmp("-q", argv[i]) == 0) {
-			questdebug = SDL_atoi(argv[++i]);
+			i++;
+			if (i == argc)
+				return EX_USAGE + 1;
+			questdebug = SDL_atoi(argv[i]);
 		} else if (SDL_strcasecmp("-r", argv[i]) == 0) {
-			setseed = SDL_atoi(argv[++i]);
+			i++;
+			if (i == argc)
+				return EX_USAGE + 1;
+			setseed = SDL_atoi(argv[i]);
 		} else if (SDL_strcasecmp("-t", argv[i]) == 0) {
+			i++;
+			if (i == argc)
+				return EX_USAGE + 1;
 			leveldebug = TRUE;
-			EnterLevel(SDL_atoi(argv[++i]));
+			EnterLevel(SDL_atoi(argv[i]));
 		} else if (SDL_strcasecmp("-v", argv[i]) == 0) {
 			visiondebug = TRUE;
 		} else if (SDL_strcasecmp("-w", argv[i]) == 0) {
@@ -207,12 +235,12 @@ static bool diablo_parse_flags(int argc, char** argv)
 			allquests = true;
 #endif
 		} else {
-			printf("unrecognized option '%s'\n", argv[i]);
+			// printf("unrecognized option '%s'\n", argv[i]);
 			print_help();
-			break;
+			return EX_USAGE + 1;
 		}
 	}
-	return i >= argc;
+	return EX_OK;
 }
 
 static void diablo_init_screen()
@@ -311,15 +339,16 @@ static void diablo_deinit()
 
 int DiabloMain(int argc, char** argv)
 {
-	if (diablo_parse_flags(argc, argv)) {
-		diablo_init();
-#ifndef HOSTONLY
-		if (!_gbSkipIntro && diablo_splash())
-#endif
-			mainmenu_loop();
-		diablo_deinit();
-	}
+	int res = diablo_parse_flags(argc, argv);
+	if (res != EX_OK)
+		return res - 1;
 
+	diablo_init();
+#ifndef HOSTONLY
+	if (!_gbSkipIntro && diablo_splash())
+#endif
+		mainmenu_loop();
+	diablo_deinit();
 	return 0;
 }
 

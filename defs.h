@@ -249,3 +249,21 @@
 #ifndef M_SQRT2
 #define M_SQRT2    1.41421356237309504880   // sqrt(2)
 #endif
+
+#ifndef EX_OK
+#define EX_OK 0
+#endif
+#ifndef EX_USAGE
+#if __linux__
+#define EX_USAGE 64
+#else
+#define EX_USAGE 2
+#endif
+#endif
+#ifndef EX_SOFTWARE
+#if __linux__
+#define EX_SOFTWARE 71
+#else
+#define EX_SOFTWARE 1
+#endif
+#endif

@@ -790,7 +790,7 @@ void UiHandleEvents(SDL_Event* event)
 	}
 
 	if (event->type == SDL_QUIT) {
-		diablo_quit(0);
+		diablo_quit(EX_OK);
 		return;
 	}
 

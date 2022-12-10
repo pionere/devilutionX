@@ -1168,7 +1168,7 @@ void PostMessage(UINT type /*, WPARAM wParam*/)
 		gbRedrawFlags = REDRAW_ALL;
 		break;
 	//case DVL_WM_QUERYENDSESSION:
-	//	diablo_quit(0);
+	//	diablo_quit(EX_OK);
 	//	break;
 	}
 }*/
