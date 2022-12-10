@@ -1343,6 +1343,7 @@ static bool LineClearF(int fType, int x1, int y1, int x2, int y2)
 	return false;
 }
 
+// test if the destination (x2;y2) is 'visible' from the source (x1;y1)
 bool LineClear(int x1, int y1, int x2, int y2)
 {
 	return LineClearF(0, x1, y1, x2, y2);
@@ -2801,7 +2802,7 @@ static void GroupUnity(int mnum)
 	// check if the leader is still available and update its squelch value + enemy location
 	if (mon->_mleader != MON_NO_LEADER) {
 		leader = &monsters[mon->_mleader];
-		clear = LineClearF(1, mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
+		clear = LineClear(mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
 		if (clear) {
 			if (mon->_mleaderflag == MLEADER_AWAY
 			 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
@@ -3617,7 +3618,7 @@ void MAI_Scav(int mnum)
 							tx = mon->_mx + *++cr;
 							ty = mon->_my + *++cr;
 							if (dDead[tx][ty] != 0
-							 && LineClearF(1, mon->_mx, mon->_my, tx, ty)) {
+							 && LineClear(mon->_mx, mon->_my, tx, ty)) {
 								corpseLocs[tmp] = tx;
 								tmp++;
 								corpseLocs[tmp] = ty;
