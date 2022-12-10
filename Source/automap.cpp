@@ -228,12 +228,44 @@ void AutomapZoomOut()
 	}
 }
 
+static void DrawAutomapDirt(int x, int y)
+{
+	int d32 = AmLine32, d16 = AmLine16, d8 = AmLine8, d4 = AmLine4;
+
+	AutomapDrawPixel(x, y, COLOR_DIM);
+	AutomapDrawPixel(x - d8, y - d4, COLOR_DIM);
+	AutomapDrawPixel(x - d8, y + d4, COLOR_DIM);
+	AutomapDrawPixel(x + d8, y - d4, COLOR_DIM);
+	AutomapDrawPixel(x + d8, y + d4, COLOR_DIM);
+	AutomapDrawPixel(x - d16, y, COLOR_DIM);
+	AutomapDrawPixel(x + d16, y, COLOR_DIM);
+	AutomapDrawPixel(x, y - d8, COLOR_DIM);
+	AutomapDrawPixel(x, y + d8, COLOR_DIM);
+	AutomapDrawPixel(x + d8 - d32, y + d4, COLOR_DIM);
+	AutomapDrawPixel(x - d8 + d32, y + d4, COLOR_DIM);
+	AutomapDrawPixel(x - d16, y + d8, COLOR_DIM);
+	AutomapDrawPixel(x + d16, y + d8, COLOR_DIM);
+	AutomapDrawPixel(x - d8, y + d16 - d4, COLOR_DIM);
+	AutomapDrawPixel(x + d8, y + d16 - d4, COLOR_DIM);
+	AutomapDrawPixel(x, y + d16, COLOR_DIM);
+}
+
+static void DrawAutomapStairs(int x, int y)
+{
+	int d16 = AmLine16, d8 = AmLine8, d4 = AmLine4;
+
+	AutomapDrawLine(x - d8, y - d8 - d4, x + d8 + d16, y + d4, COLOR_BRIGHT);
+	AutomapDrawLine(x - d16, y - d8, x + d16, y + d8, COLOR_BRIGHT);
+	AutomapDrawLine(x - d16 - d8, y - d4, x + d8, y + d8 + d4, COLOR_BRIGHT);
+	AutomapDrawLine(x - AmLine32, y, x, y + d16, COLOR_BRIGHT);
+}
+
 static void DrawAutomapHorzDoor(int x, int y)
 {
-	int d16 = AmLine16, d8 = AmLine8;
+	int d16 = AmLine16, d8 = AmLine8, d4 = AmLine4;
 
-	AutomapDrawLine(x - d16, y - d8, x - d8, y - AmLine4, COLOR_DIM);
-	AutomapDrawLine(x + d16, y + d8, x + d8, y + AmLine4, COLOR_DIM);
+	AutomapDrawLine(x - d16, y - d8, x - d8, y - d4, COLOR_DIM);
+	AutomapDrawLine(x + d16, y + d8, x + d8, y + d4, COLOR_DIM);
 	AutomapDrawLine(x, y - d8, x - d16, y, COLOR_BRIGHT);
 	AutomapDrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT);
 	AutomapDrawLine(x, y + d8, x - d16, y, COLOR_BRIGHT);
@@ -242,10 +274,10 @@ static void DrawAutomapHorzDoor(int x, int y)
 
 static void DrawAutomapVertDoor(int x, int y)
 {
-	int d16 = AmLine16, d8 = AmLine8;
+	int d16 = AmLine16, d8 = AmLine8, d4 = AmLine4;
 
-	AutomapDrawLine(x + d16, y - d8, x + d8, y - AmLine4, COLOR_DIM);
-	AutomapDrawLine(x - d16, y + d8, x - d8, y + AmLine4, COLOR_DIM);
+	AutomapDrawLine(x + d16, y - d8, x + d8, y - d4, COLOR_DIM);
+	AutomapDrawLine(x - d16, y + d8, x - d8, y + d4, COLOR_DIM);
 	AutomapDrawLine(x, y - d8, x - d16, y, COLOR_BRIGHT);
 	AutomapDrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT);
 	AutomapDrawLine(x, y + d8, x - d16, y, COLOR_BRIGHT);
@@ -272,29 +304,11 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 	uint8_t type;
 
 	if (automap_type & MAPFLAG_DIRT) {
-		AutomapDrawPixel(sx, sy, COLOR_DIM);
-		AutomapDrawPixel(sx - AmLine8, sy - AmLine4, COLOR_DIM);
-		AutomapDrawPixel(sx - AmLine8, sy + AmLine4, COLOR_DIM);
-		AutomapDrawPixel(sx + AmLine8, sy - AmLine4, COLOR_DIM);
-		AutomapDrawPixel(sx + AmLine8, sy + AmLine4, COLOR_DIM);
-		AutomapDrawPixel(sx - AmLine16, sy, COLOR_DIM);
-		AutomapDrawPixel(sx + AmLine16, sy, COLOR_DIM);
-		AutomapDrawPixel(sx, sy - AmLine8, COLOR_DIM);
-		AutomapDrawPixel(sx, sy + AmLine8, COLOR_DIM);
-		AutomapDrawPixel(sx + AmLine8 - AmLine32, sy + AmLine4, COLOR_DIM);
-		AutomapDrawPixel(sx - AmLine8 + AmLine32, sy + AmLine4, COLOR_DIM);
-		AutomapDrawPixel(sx - AmLine16, sy + AmLine8, COLOR_DIM);
-		AutomapDrawPixel(sx + AmLine16, sy + AmLine8, COLOR_DIM);
-		AutomapDrawPixel(sx - AmLine8, sy + AmLine16 - AmLine4, COLOR_DIM);
-		AutomapDrawPixel(sx + AmLine8, sy + AmLine16 - AmLine4, COLOR_DIM);
-		AutomapDrawPixel(sx, sy + AmLine16, COLOR_DIM);
+		DrawAutomapDirt(sx, sy);
 	}
 
 	if (automap_type & MAPFLAG_STAIRS) {
-		AutomapDrawLine(sx - AmLine8, sy - AmLine8 - AmLine4, sx + AmLine8 + AmLine16, sy + AmLine4, COLOR_BRIGHT);
-		AutomapDrawLine(sx - AmLine16, sy - AmLine8, sx + AmLine16, sy + AmLine8, COLOR_BRIGHT);
-		AutomapDrawLine(sx - AmLine16 - AmLine8, sy - AmLine4, sx + AmLine8, sy + AmLine8 + AmLine4, COLOR_BRIGHT);
-		AutomapDrawLine(sx - AmLine32, sy, sx, sy + AmLine16, COLOR_BRIGHT);
+		DrawAutomapStairs(sx, sy);
 	}
 
 	type = automap_type & MAPFLAG_TYPE;
