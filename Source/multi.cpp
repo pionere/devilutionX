@@ -686,6 +686,7 @@ static void SetupLocalPlr()
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town
 	assert(p->_pmode == PM_NEWLVL);
+	assert(p->_pGFXLoad == 0);
 
 	gbActivePlayers = 1;
 	p->_pActive = TRUE;

@@ -214,6 +214,7 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	plr._pDestAction = ACTION_NONE;
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;
+	plr._pGFXLoad = 0;
 	// commented out, because these should not matter
 	//plr._plid = NO_LIGHT;
 	//plr._pvid = NO_VISION;

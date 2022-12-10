@@ -65,6 +65,22 @@ const char* const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
  */
 const int plrxoff2[NUM_DIRS + 1] = { 0, 1, 1, 0, -1, 0, -1, 1, -1 };
 const int plryoff2[NUM_DIRS + 1] = { 0, 1, 0, 1, -1, -1, 0, -1, 1 };
+/* Data related to the player-animation types. */
+static const PlrAnimType PlrAnimTypes[NUM_PGTS] = {
+	// clang-format off
+	{ "ST", PGX_STAND },     // PGT_STAND_TOWN
+	{ "AS", PGX_STAND },     // PGT_STAND_DUNGEON
+	{ "WL", PGX_WALK },      // PGT_WALK_TOWN
+	{ "AW", PGX_WALK },      // PGT_WALK_DUNGEON
+	{ "AT", PGX_ATTACK },    // PGT_ATTACK
+	{ "FM", PGX_FIRE },      // PGT_FIRE
+	{ "LM", PGX_LIGHTNING }, // PGT_LIGHTNING
+	{ "QM", PGX_MAGIC },     // PGT_MAGIC
+	{ "BL", PGX_BLOCK },     // PGT_BLOCK
+	{ "HT", PGX_GOTHIT },    // PGT_GOTHIT
+	{ "DT", PGX_DEATH },     // PGT_DEATH
+	// clang-format on
+};
 /**
  * Specifies the number of frames of each animation for each player class.
    STAND, ATTACK, WALK, BLOCK, DEATH, SPELL, GOTHIT
@@ -262,7 +278,7 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 	char prefix[4];
 	char pszName[DATA_ARCHIVE_MAX_PATH];
 	const char *szCel, *chrClass, *strClass;
-	unsigned i, mask;
+	unsigned mask;
 
 	GetPlrGFXCells(plr._pClass, &chrClass, &strClass);
 	prefix[0] = *chrClass;
@@ -270,49 +286,23 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 	prefix[2] = WepChar[plr._pgfxnum & 0xF];
 	prefix[3] = '\0';
 
-	for (i = 0, mask = gfxflag; i < NUM_PGXS; i++, mask >>= 1) {
+	mask = gfxflag;
+	if (currLvl._dType != DTYPE_TOWN)
+		mask &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
+	else
+		mask &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
+	for (auto pAnimType = &PlrAnimTypes[0]; mask != 0; pAnimType++, mask >>= 1) {
 		if (!(mask & 1))
 			continue;
 
-		switch (i) {
-		case PGX_STAND:
-			szCel = currLvl._dType != DTYPE_TOWN ? "AS" : "ST";
-			break;
-		case PGX_WALK:
-			szCel = currLvl._dType != DTYPE_TOWN ? "AW" : "WL";
-			break;
-		case PGX_ATTACK:
-			szCel = "AT";
-			break;
-		case PGX_FIRE:
-			szCel = "FM";
-			break;
-		case PGX_LIGHTNING:
-			szCel = "LM";
-			break;
-		case PGX_MAGIC:
-			szCel = "QM";
-			break;
-		case PGX_BLOCK:
-			szCel = "BL";
-			break;
-		case PGX_GOTHIT:
-			szCel = "HT";
-			break;
-		case PGX_DEATH:
-			assert((plr._pgfxnum & 0xF) == ANIM_ID_UNARMED);
-			// assert(plr._pGFXLoad == 0 && mask == 1);// MEM_DEATH
-			szCel = "DT";
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
+		szCel = pAnimType->patTxt;
+		assert(pAnimType->patGfxIdx != PGX_DEATH || plr._pgfxnum == ANIM_ID_UNARMED);
+		// assert(pAnimType->patGfxIdx != PGX_DEATH || (plr._pGFXLoad == 0 && mask == 1));// MEM_DEATH
 
 		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
-		LoadFileWithMem(pszName, plr._pAnimFileData[i]);
-		SetPlayerGPtrs(plr._pAnimFileData[i], plr._pAnims[i].paAnimData);
-		plr._pGFXLoad |= 1 << i;
+		LoadFileWithMem(pszName, plr._pAnimFileData[pAnimType->patGfxIdx]);
+		SetPlayerGPtrs(plr._pAnimFileData[pAnimType->patGfxIdx], plr._pAnims[pAnimType->patGfxIdx].paAnimData);
+		plr._pGFXLoad |= 1 << (pAnimType - &PlrAnimTypes[0]);
 	}
 }
 
@@ -322,17 +312,34 @@ void InitPlayerGFX(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("InitPlayerGFX: illegal player %d", pnum);
 	}
-	plr._pGFXLoad = 0;
-	if (plr._pHitPoints < (1 << 6)) {
-		plr._pgfxnum = ANIM_ID_UNARMED;
-		gfxflag = PGF_DEATH; // MEM_DEATH: gfxflag is either for death or non-death animations
-	} else {
+	// reset gfx-flags which are no longer usable
+	if (currLvl._dType == DTYPE_TOWN)
+		plr._pGFXLoad &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
+	else
+		plr._pGFXLoad &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
+	// select appropriate flags based on player-status and location
+	if (plr._pHitPoints >= (1 << 6)) {
 		gfxflag = PGF_NONDEATH;
-		if (currLvl._dType == DTYPE_TOWN)
-			gfxflag &= ~(PGF_ATTACK | PGF_GOTHIT | PGF_BLOCK);
-		else if (!(plr._pSkillFlags & SFLAG_BLOCK))
-			gfxflag &= ~PGF_BLOCK;
+		// commented out because it is preferable to load everything at once
+		//if (currLvl._dType == DTYPE_TOWN)
+		//	gfxflag &= ~(PGF_ATTACK | PGF_GOTHIT | PGF_FIRE | PGF_LIGHTNING | PGF_BLOCK);
+		//else if (!(plr._pSkillFlags & SFLAG_BLOCK))
+		//	gfxflag &= ~PGF_BLOCK;
+		if (plr._pGFXLoad & PGF_DEATH) // MEM_DEATH: gfxflag is either for death or non-death animations
+			plr._pGFXLoad = 0;
+	} else {
+		gfxflag = PGF_DEATH;
+		// protect against warping deads
+		if (plr._pgfxnum != ANIM_ID_UNARMED) {
+			plr._pgfxnum = ANIM_ID_UNARMED;
+			plr._pGFXLoad = 0;
+		}
+		if (plr._pGFXLoad & PGF_NONDEATH)// MEM_DEATH
+			plr._pGFXLoad = 0;
 	}
+	// mask gfx-flags which are already loaded
+	gfxflag &= ~plr._pGFXLoad;
+
 	LoadPlrGFX(pnum, gfxflag);
 }
 
@@ -415,7 +422,7 @@ void InitPlrGFXMem(int pnum)
 		animFileData += _guPlrFrameSize[i];
 	}
 
-	plr._pGFXLoad = 0;
+	// assert(plr._pGFXLoad == 0 || !plr._pActive);
 }
 
 void FreePlayerGFX(int pnum)
@@ -426,7 +433,7 @@ void FreePlayerGFX(int pnum)
 
 	MemFreeDbg(plr._pAnimFileData[0]);
 
-	plr._pGFXLoad = 0;
+	// plr._pGFXLoad = 0;
 }
 
 /**
@@ -1527,9 +1534,12 @@ static void StartSpell(int pnum)
 
 	static_assert((int)PGX_LIGHTNING - (int)PGX_FIRE == (int)STYPE_LIGHTNING - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type I.");
 	static_assert((int)PGX_MAGIC - (int)PGX_FIRE == (int)STYPE_MAGIC - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type II.");
-	static_assert((int)PGF_FIRE == 1 << (int)PGX_FIRE, "StartSpell calculates player_graphic_flag.");
 	animIdx = PGX_FIRE + sd->sType - STYPE_FIRE;
-	gfx = 1 << animIdx;
+	static_assert((int)PGX_FIRE + 2 == (int)PGT_FIRE, "StartSpell calculates player_graphic_flag I.");
+	static_assert((int)PGX_LIGHTNING + 2 == (int)PGT_LIGHTNING, "StartSpell calculates player_graphic_flag II.");
+	static_assert((int)PGX_MAGIC + 2 == (int)PGT_MAGIC, "StartSpell calculates player_graphic_flag III.");
+	static_assert((int)PGF_FIRE == 1 << (int)PGT_FIRE, "StartSpell calculates player_graphic_flag.");
+	gfx = 1 << (animIdx + 2);
 
 	if (!(plr._pGFXLoad & gfx)) {
 		LoadPlrGFX(pnum, gfx);
@@ -1782,6 +1792,7 @@ void RestartTownLvl(int pnum)
 	InitLevelChange(pnum);
 
 	plr._pDunLevel = DLV_TOWN;
+	// plr._pGFXLoad = 0; // MEM_DEATH
 
 	PlrSetHp(pnum, (1 << 6));
 

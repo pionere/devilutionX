@@ -752,8 +752,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 	if (plr._pgfxnum != gfx) {
 		plr._pgfxnum = gfx;
+		plr._pGFXLoad = 0;
 		if (Loadgfx) {
-			plr._pGFXLoad = 0;
 			SetPlrAnims(pnum);
 
 			PlrStartStand(pnum);

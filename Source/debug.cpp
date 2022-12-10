@@ -1197,6 +1197,8 @@ void ValidateData()
 				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
 			hasScrollSpell = true;
 		}
+		//if (!(sd.sUseFlags & SFLAG_DUNGEON) && sd.sType != STYPE_NONE && sd.sType != STYPE_MAGIC && i != SPL_NULL)
+		//	app_fatal("GFX is not loaded in town for skill %s (%d).", sd.sNameText, i); // required by InitPlayerGFX
 	}
 	if (!hasBookSpell)
 		app_fatal("No book spell for GetBookSpell.");

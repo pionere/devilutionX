@@ -236,6 +236,16 @@ static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 0, "Align ItemS
 //////////////////////////////////////////////////
 // player
 //////////////////////////////////////////////////
+
+typedef struct PlrAnimType {
+	char patTxt[4]; // suffix to select the player animation CL2
+	int patGfxIdx;  // player_graphic_idx
+} PlrAnimType;
+
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_assert((sizeof(PlrAnimType) & (sizeof(PlrAnimType) - 1)) == 0, "Align PlrAnimType closer to power of 2 for better performance.");
+#endif
+
 typedef struct PlrAnimStruct {
 	BYTE* paAnimData[NUM_DIRS];
 	unsigned paFrames;

@@ -4164,16 +4164,36 @@ typedef enum player_graphic_idx {
 	NUM_PGXS
 } player_graphic_idx;
 
+typedef enum player_graphic_type {
+	PGT_STAND_TOWN,
+	PGT_STAND_DUNGEON,
+	PGT_WALK_TOWN,
+	PGT_WALK_DUNGEON,
+	PGT_ATTACK,
+	PGT_FIRE,
+	PGT_LIGHTNING,
+	PGT_MAGIC,
+	PGT_BLOCK,
+	PGT_GOTHIT,
+	PGT_DEATH,
+	NUM_PGTS
+} player_graphic_type;
+
 typedef enum player_graphic_flag {
-	PGF_STAND     = 1 << PGX_STAND,
-	PGF_WALK      = 1 << PGX_WALK,
-	PGF_ATTACK    = 1 << PGX_ATTACK,
-	PGF_FIRE      = 1 << PGX_FIRE,
-	PGF_LIGHTNING = 1 << PGX_LIGHTNING,
-	PGF_MAGIC     = 1 << PGX_MAGIC,
-	PGF_BLOCK     = 1 << PGX_BLOCK,
-	PGF_GOTHIT    = 1 << PGX_GOTHIT,
-	PGF_DEATH     = 1 << PGX_DEATH,
+	PGF_STAND_TOWN    = 1 << PGT_STAND_TOWN,
+	PGF_STAND_DUNGEON = 1 << PGT_STAND_DUNGEON,
+	PGF_WALK_TOWN     = 1 << PGT_WALK_TOWN,
+	PGF_WALK_DUNGEON  = 1 << PGT_WALK_DUNGEON,
+	PGF_ATTACK        = 1 << PGT_ATTACK,
+	PGF_FIRE          = 1 << PGT_FIRE,
+	PGF_LIGHTNING     = 1 << PGT_LIGHTNING,
+	PGF_MAGIC         = 1 << PGT_MAGIC,
+	PGF_BLOCK         = 1 << PGT_BLOCK,
+	PGF_GOTHIT        = 1 << PGT_GOTHIT,
+	PGF_DEATH         = 1 << PGT_DEATH,
+
+	PGF_STAND    = PGF_STAND_TOWN | PGF_STAND_DUNGEON,
+	PGF_WALK     = PGF_WALK_TOWN | PGF_WALK_DUNGEON,
 	// everything except PGF_DEATH
 	PGF_NONDEATH = (PGF_STAND |	PGF_WALK | PGF_ATTACK | PGF_FIRE | PGF_LIGHTNING | PGF_MAGIC | PGF_BLOCK | PGF_GOTHIT)
 } player_graphic_flag;
