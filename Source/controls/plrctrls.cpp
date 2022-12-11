@@ -103,7 +103,7 @@ static void FindItemOrObject()
 	int my = myplr._pfuty;
 	int rotations = 5;
 
-	// As the player can not stand on the edge fo the map this is safe from OOB
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
 			int ii = dItem[mx + xx][my + yy];
@@ -173,26 +173,26 @@ static bool HasRangedSpell()
 	    && (spelldata[spl].sUseFlags & myplr._pSkillFlags) == spelldata[spl].sUseFlags;
 }
 
-static bool CanTargetMonster(int mnum)
+static int CanTargetMonster(int mnum)
 {
 	MonsterStruct* mon;
 
 	// The first MAX_MINIONS monsters are reserved for players' golems.
 	if (mnum < MAX_MINIONS)
-		return false;
+		return 0;
 
 	mon = &monsters[mnum];
 	if (mon->_mmode > MM_INGAME_LAST)
-		return false;
+		return 0;
 	if (mon->_mFlags & MFLAG_HIDDEN)
-		return false;
+		return 0;
 	if (mon->_mhitpoints < (1 << 6)) // dead
-		return false;
+		return 0;
 
 	if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
-		return false;
+		return 0;
 
-	return true;
+	return CanTalkToMonst(mnum) ? 2 : 1;
 }
 
 static void FindRangedTarget()
@@ -201,9 +201,10 @@ static void FindRangedTarget()
 	bool canTalk = true;
 
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-		if (!CanTargetMonster(mnum))
+		const int tgtMode = CanTargetMonster(mnum);
+		if (tgtMode == 0)
 			continue;
-		const bool newCanTalk = CanTalkToMonst(mnum);
+		const bool newCanTalk = tgtMode - 1;
 		if (!canTalk && newCanTalk)
 			continue;
 		const MonsterStruct& mon = monsters[mnum];
@@ -262,8 +263,9 @@ static void FindMeleeTarget()
 				int mi = dMonster[dx][dy];
 				if (mi != 0) {
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (CanTargetMonster(mi)) {
-						const bool newCanTalk = CanTalkToMonst(mi);
+					const int tgtMode = CanTargetMonster(mi);
+					if (tgtMode != 0) {
+						const bool newCanTalk = tgtMode - 1;
 						if (!canTalk && newCanTalk)
 							continue;
 						const int newRotations = GetRotaryDistance(dx, dy);
