@@ -746,7 +746,7 @@ void SelectHotKeySkill(int slot, bool altSkill)
 	}
 }*/
 
-static void DrawFlask2(int sx, int filled, int emptyCel, int fullCel, int w)
+static void DrawFlask2(int sx, unsigned filled, int emptyCel, int fullCel, int w)
 {
 	const BYTE *empty, *full;
 	int sy, dataSize, i;
@@ -755,9 +755,8 @@ static void DrawFlask2(int sx, int filled, int emptyCel, int fullCel, int w)
 	sy = PANEL_Y + PANEL_HEIGHT - 1;
 
 	filled += FLASK_TOTAL_HEIGHT - FLASK_BULB_HEIGHT;
-	int emptied = FLASK_TOTAL_HEIGHT - filled;
-	empty = CelGetFrame(pFlaskCels, emptyCel, &dataSize);
-	full = CelGetFrame(pFlaskCels, fullCel, &dataSize);
+	unsigned emptied = FLASK_TOTAL_HEIGHT - filled;
+	full = CelGetFrameClipped(pFlaskCels, fullCel, &dataSize);
 
 	BYTE* dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 	for ( ; filled-- != 0; dst -= BUFFER_WIDTH + w) {
@@ -773,6 +772,17 @@ static void DrawFlask2(int sx, int filled, int emptyCel, int fullCel, int w)
 				i += width;
 			}
 		}
+	}
+
+	if (emptied == 0)
+		return;
+
+	filled = FLASK_TOTAL_HEIGHT - emptied;
+	unsigned blocks = filled / 32;
+	static_assert(FLASK_TOTAL_HEIGHT < 32 * 4, "Cel frame header is too small to store every possible clipping point.");
+	empty = CelGetFrameClippedAt(pFlaskCels, emptyCel, blocks);
+	filled = filled % 32; // -= blocks * 32;
+	while (filled-- != 0) {
 		for (i = w; i != 0; ) {
 			width = *empty++;
 			if (width >= 0) {

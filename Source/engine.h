@@ -13,6 +13,8 @@
 #ifndef __ENGINE_H__
 #define __ENGINE_H__
 
+//#include "appfat.h"
+
 DEVILUTION_BEGIN_NAMESPACE
 
 inline const BYTE* CelGetFrameStart(const BYTE* pCelBuff, int nCel)
@@ -37,7 +39,7 @@ inline const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
 
 inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize)
 {
-	DWORD nDataStart;
+	WORD nDataStart;
 	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
 
 	// assert((pRLEBytes[1] << 8 | pRLEBytes[0]) == 0x000A);
@@ -46,6 +48,21 @@ inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nData
 
 	return &pRLEBytes[nDataStart];
 }
+inline const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int block)
+{
+	const WORD* pFrameTable;
+	WORD nDataStart;
+	int nDataSize;
+	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
+
+	pFrameTable = (const WORD*)&pRLEBytes[0];
+	// assert(SwapLE16(pFrameTable[0]) == 0x000A);
+	nDataStart = SwapLE16(pFrameTable[block]);
+	//*nDataSize -= nDataStart;
+
+	return &pRLEBytes[nDataStart];
+}
+
 /* Calculate direction (DIR_) from (x1;y1) to (x2;y2) */
 int GetDirection(int x1, int y1, int x2, int y2);
 /* Set the current RNG seed */
