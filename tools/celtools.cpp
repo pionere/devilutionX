@@ -137,7 +137,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
 			pBuf++;
 			bool alpha = false;
 			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-			if (i == 32 + 1 && celdata[n].clipped) { // TODO: write more entries if necessary?
+			if (celdata[n].clipped && (i % 32) == 1 && (i / 32) * 2 < SUB_HEADER_SIZE) {
 				*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 			}
 			for (int j = 0; j < image_data->width; j++) {
@@ -296,7 +296,7 @@ static bool WritePNG2CelComp(png_image_data* imagedata, int numimage, celcmp_ima
 				pBuf++;
 				bool alpha = false;
 				RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-				if (i == 32 + 1 && celdata[idx].clipped) { // TODO: write more entries if necessary?
+				if (celdata[n].clipped && (i % 32) == 1 && (i / 32) * 2 < SUB_HEADER_SIZE) {
 					*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 				}
 				for (int j = 0; j < image_data->width; j++) {
