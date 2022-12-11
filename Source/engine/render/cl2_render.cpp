@@ -20,27 +20,25 @@ void Cl2ApplyTrans(BYTE* p, const BYTE* ttbl, int nCel)
 	int i, nDataSize;
 	int8_t width;
 	BYTE* dst;
+	const BYTE* end;
 
 	assert(p != NULL);
 	assert(ttbl != NULL);
 
 	for (i = 1; i <= nCel; i++) {
-		dst = const_cast<BYTE*>(CelGetFrame(p, i, &nDataSize)) + 10;
-		nDataSize -= 10;
-		while (nDataSize != 0) {
+		dst = const_cast<BYTE*>(CelGetFrameClipped(p, i, &nDataSize));
+		end = &dst[nDataSize];
+		while (dst != end) {
 			width = *dst++;
-			nDataSize--;
-			assert(nDataSize >= 0);
+			assert(dst <= end);
 			if (width < 0) {
 				width = -width;
 				if (width > 65) {
-					nDataSize--;
-					assert(nDataSize >= 0);
 					*dst = ttbl[*dst];
 					dst++;
+					assert(dst <= end);
 				} else {
-					nDataSize -= width;
-					assert(nDataSize >= 0);
+					assert(dst + width <= end);
 					while (width--) {
 						*dst = ttbl[*dst];
 						dst++;
@@ -63,20 +61,19 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 	int w;
 	int8_t width;
 	BYTE fill, *dst;
-	const BYTE* src;
+	const BYTE *src, *end;
 
 	src = pRLEBytes;
+	end = &pRLEBytes[nDataSize];
 	dst = pDecodeTo;
 	w = nWidth;
 
-	while (nDataSize != 0) {
+	while (src != end) {
 		width = *src++;
-		nDataSize--;
 		if (width < 0) {
 			width = -width;
 			if (width > 65) {
 				width -= 65;
-				nDataSize--;
 				fill = *src++;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
 					w -= width;
@@ -92,7 +89,6 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 					continue;
 				}
 			} else {
-				nDataSize -= width;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
 					w -= width;
 					while (width != 0) {
@@ -141,21 +137,20 @@ static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 {
 	int w;
 	int8_t width;
-	const BYTE* src;
+	const BYTE *src, *end;
 	BYTE* dst;
 
 	src = pRLEBytes;
+	end = &pRLEBytes[nDataSize];
 	dst = pDecodeTo;
 	w = nWidth;
 
-	while (nDataSize != 0) {
+	while (src != end) {
 		width = *src++;
-		nDataSize--;
 		if (width < 0) {
 			width = -width;
 			if (width > 65) {
 				width -= 65;
-				nDataSize--;
 				if (*src++ != 0 && dst < gpBufEnd && dst >= gpBufStart) {
 					w -= width;
 					dst[-1] = col;
@@ -173,7 +168,6 @@ static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 					continue;
 				}
 			} else {
-				nDataSize -= width;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
 					w -= width;
 					while (width != 0) {
@@ -228,21 +222,20 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 	int w, spriteWidth;
 	int8_t width;
 	BYTE fill, *dst;
-	const BYTE* src;
+	const BYTE *src, *end;
 
 	src = pRLEBytes;
+	end = &pRLEBytes[nDataSize];
 	dst = pDecodeTo;
 	w = nWidth;
 	spriteWidth = nWidth;
 
-	while (nDataSize != 0) {
+	while (src != end) {
 		width = *src++;
-		nDataSize--;
 		if (width < 0) {
 			width = -width;
 			if (width > 65) {
 				width -= 65;
-				nDataSize--;
 				fill = pTable[*src++];
 				if (dst < gpBufEnd && dst >= gpBufStart) {
 					w -= width;
@@ -258,7 +251,6 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 					continue;
 				}
 			} else {
-				nDataSize -= width;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
 					w -= width;
 					while (width != 0) {
