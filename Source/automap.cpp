@@ -438,7 +438,7 @@ static void SearchAutomapItem()
 	x = 2 * AutoMapXOfs + ViewX;
 	y = 2 * AutoMapYOfs + ViewY;
 	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
-	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (AmLine16 >> 1);
+	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
 
 	p = &myplr;
 	if (p->_pmode == PM_WALK2) {

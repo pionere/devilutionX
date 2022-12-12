@@ -498,7 +498,7 @@ static int GetDirection16(int x1, int y1, int x2, int y2)
 	const int BaseDirs[4] = { 14 + 2, 10 + 2, 2 + 2, 6 + 2 };
 	int dir = BaseDirs[2 * (dx < 0) + (dy < 0)];
 	//const int DeltaDirs[2][8] = { { 0, 1, 2, 3, 4 }, { 4, 3, 2, 1, 0 } };
-	const int DeltaDirs[2][4] = { { 0 - 2, 1 - 2, 3 - 2, 4 - 2 }, { 4 - 2, 3 -2 , 1 - 2, 0 - 2 } };
+	const int DeltaDirs[2][4] = { { 0 - 2, 1 - 2, 3 - 2, 4 - 2 }, { 4 - 2, 3 - 2 , 1 - 2, 0 - 2 } };
 	//const int(&DeltaDir)[8] = DeltaDirs[(dx < 0) ^ (dy < 0)];
 	const int(&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
 	if (3 * adx <= (ady << 1)) {
@@ -750,8 +750,8 @@ static bool MonsterTrapHit(int mnum, int mi)
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
-		hper = 100 + (2 * currLvl._dLevel)
-		    - mon->_mArmorClass;
+		hper = 100 + (2 * currLvl._dLevel);
+		hper -= mon->_mArmorClass;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
 		hper = 40;
@@ -806,18 +806,17 @@ static bool MonsterMHit(int mnum, int mi)
 	pnum = mis->_miSource;
 	//assert((unsigned)pnum < MAX_PLRS);
 	if (mis->_miFlags & MIF_ARROW) {
-		hper = plr._pIHitChance - mon->_mArmorClass
-		    - (mis->_miVar7 * mis->_miVar7 >> 1); // MISDIST
+		hper = plr._pIHitChance;
+		hper -= mon->_mArmorClass;
+		hper -= (mis->_miVar7 * mis->_miVar7 >> 1); // MISDIST
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
-			hper = 40
-				+ (plr._pLevel << 1)
-				- (mon->_mLevel << 1);
+			hper = 40 + (plr._pLevel << 1);
+			hper -= (mon->_mLevel << 1);
 		} else {
-			hper = 50 + plr._pMagic
-				- (mon->_mLevel << 1)
-				- mon->_mEvasion
-				/*- dist*/; // TODO: either don't care about it, or set it!
+			hper = 50 + plr._pMagic;
+			hper -= (mon->_mLevel << 1) + mon->_mEvasion;
+			// hper -= dist; // TODO: either don't care about it, or set it!
 		}
 	}
 	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
@@ -993,14 +992,12 @@ static bool PlayerTrapHit(int pnum, int mi)
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
-		hper = 100 + (2 * currLvl._dLevel)
-		    + (2 * currLvl._dLevel)
-		    - plr._pIAC;
+		hper = 100 + (4 * currLvl._dLevel);
+		hper -= plr._pIAC;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
-		hper = 40
-			+ (2 * currLvl._dLevel)
-			- (2 * plr._pLevel);
+		hper = 40 + (2 * currLvl._dLevel);
+		hper -= (2 * plr._pLevel);
 	}
 
 	if (!CheckHit(hper))
@@ -1057,19 +1054,17 @@ static bool PlayerMHit(int pnum, int mi)
 	// mis->_miRndSeed = NextRndSeed();
 	mon = &monsters[mis->_miSource];
 	if (mis->_miFlags & MIF_ARROW) {
-		hper = 30 + mon->_mHit
-		    + (2 * mon->_mLevel)
-		    - plr._pIAC;
+		hper = 30 + mon->_mHit + (2 * mon->_mLevel);
+		hper -= plr._pIAC;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
-			hper = 40
-				+ (2 * mon->_mLevel)
-				- (2 * plr._pLevel);
+			hper = 40 + (2 * mon->_mLevel);
+			hper -= (2 * plr._pLevel);
 		} else {
-			hper = 50 + mon->_mMagic
-				- plr._pIEvasion
-				/*- dist*/; // TODO: either don't care about it, or set it!
+			hper = 50 + mon->_mMagic;
+			hper -= plr._pIEvasion;
+			// hper -= dist; // TODO: either don't care about it, or set it!
 		}
 	}
 
@@ -1127,18 +1122,17 @@ static bool Plr2PlrMHit(int pnum, int mi)
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
-		hper = plx(offp)._pIHitChance
-		    - plr._pIAC;
+		hper = plx(offp)._pIHitChance;
+		hper -= plr._pIAC;
 		hper -= (mis->_miVar7 * mis->_miVar7 >> 1); // MISDIST
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
-			hper = 40
-				+ (2 * plx(offp)._pLevel)
-				- (2 * plr._pLevel);
+			hper = 40 + (2 * plx(offp)._pLevel);
+			hper -= (2 * plr._pLevel);
 		} else {
-			hper = 50 + plx(offp)._pMagic
-				- plr._pIEvasion
-				/*- dist*/; // TODO: either don't care about it, or set it!
+			hper = 50 + plx(offp)._pMagic;
+			hper -= plr._pIEvasion;
+			// hper -= dist; // TODO: either don't care about it, or set it!
 		}
 	}
 	if (!CheckHit(hper))
@@ -2777,7 +2771,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			mid = mid >= 0 ? mid - 1 : -(mid + 1);
 			mon = &monsters[mid];
 			if (!(mon->_mFlags & MFLAG_NOSTONE)) {
-				if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mmode != MM_DEATH/*mon->_mhitpoints >= (1 << 6*/) {
+				if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mmode != MM_DEATH /*mon->_mhitpoints >= (1 << 6*/) {
 					mis->_miVar1 = mon->_mmode;
 					mis->_miVar2 = mid;
 					mon->_mVar3 = mon->_mmode;
@@ -3282,8 +3276,8 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 	switch (type) {
 	case MTT_ITEM:
 		// assert(target < MAXITEMS);
-		if (pnum == mypnum && dx == items[target]._ix && dy == items[target]._iy &&
-			LineClear(plr._px, plr._py, items[target]._ix, items[target]._iy))
+		if (pnum == mypnum && dx == items[target]._ix && dy == items[target]._iy
+		 &&	LineClear(plr._px, plr._py, items[target]._ix, items[target]._iy))
 			NetSendCmdGItem(CMD_AUTOGETITEM, target);
 		break;
 	case MTT_MONSTER:
@@ -3994,7 +3988,7 @@ void MI_BloodBoil(int mi)
 
 	mis = &missile[mi];
 	if (mis->_miRange == misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0] / 2)
-		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE/* MICM_BLOCK_WALL */);
+		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE /* MICM_BLOCK_WALL */);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -4069,7 +4063,7 @@ void MI_Portal(int mi)
 
 	if (mis->_miType == MIS_TOWN) {
 		p = &myplr;
-		if (p->_px == mis->_mix && p->_py == mis->_miy && /*!p->_pLvlChanging && */p->_pmode == PM_STAND && !mis->_miVar3) {
+		if (p->_px == mis->_mix && p->_py == mis->_miy && /*!p->_pLvlChanging &&*/ p->_pmode == PM_STAND && !mis->_miVar3) {
 			mis->_miVar3 = TRUE;
 			NetSendCmdBParam1(CMD_TWARP, mis->_miSource);
 		}
@@ -4397,7 +4391,7 @@ void MI_Acidsplat(int mi)
 	mis->_miDelFlag = TRUE;
 	// SetRndSeed(mis->_miRndSeed);
 	// assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);
-	AddMissile(mis->_mix/* - 1*/, mis->_miy/* - 1*/, 0, 0, 0/*mis->_miDir*/, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
+	AddMissile(mis->_mix /* - 1*/, mis->_miy /* - 1*/, 0, 0, 0 /* mis->_miDir */, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
 }
 
 void MI_Stone(int mi)

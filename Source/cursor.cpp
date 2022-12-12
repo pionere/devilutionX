@@ -554,7 +554,7 @@ void CheckCursMove()
 		}
 	} else {
 		// search for dead players around the cursor
-		const int8_t deltas[3] = { -1, 1, 0, };
+		const int8_t deltas[3] = { -1, 1, 0 };
 		for (xx = 0; xx < lengthof(deltas); xx++) {
 			for (yy = 0; yy < lengthof(deltas); yy++) {
 				if ((dFlags[mx + deltas[xx]][my + deltas[yy]] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {

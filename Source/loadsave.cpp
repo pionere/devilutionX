@@ -1602,8 +1602,8 @@ void SaveGame()
 	ghs->vhInitial = SAVE_INITIAL;
 	// save game-info
 	ghs->vhLogicTurn = gdwGameLogicTurn;
-	assert(gdwLastGameTurn == gdwGameLogicTurn ||
-		((gdwLastGameTurn + 1) == gdwGameLogicTurn && gbNetUpdateRate == 1));
+	assert(gdwLastGameTurn == gdwGameLogicTurn
+	 || ((gdwLastGameTurn + 1) == gdwGameLogicTurn && gbNetUpdateRate == 1));
 	ghs->vhSentCycle = sgbSentThisCycle;
 	i = (gnDifficulty << 8) | currLvl._dLevelIdx;
 	ghs->vhLvlDifficulty = i;
@@ -1703,7 +1703,7 @@ void SaveGame()
 
 	constexpr size_t tst = ss + slt + smt;
 	constexpr size_t tsd = ss + sld + smd;
-	constexpr size_t mss = sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8/*sizeof(CodecSignature)*/;
+	constexpr size_t mss = sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/;
 	static_assert(tst < mss, "Town might not fit to the preallocated buffer.");
 	static_assert(tsd < mss, "Dungeon might not fit to the preallocated buffer.");
 	assert((size_t)tbuff - (size_t)fileBuff < mss);
@@ -1725,7 +1725,7 @@ void SaveLevel()
 
 	tbuff = SaveLevelData(tbuff, false);
 
-	assert((size_t)tbuff - (size_t)fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8/*sizeof(CodecSignature)*/);
+	assert((size_t)tbuff - (size_t)fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/);
 	pfile_write_save_file(false, (size_t)tbuff - (size_t)fileBuff);
 }
 

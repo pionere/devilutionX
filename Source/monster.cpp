@@ -1775,7 +1775,7 @@ static void MonStartGetHit(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
-	assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE/* && mon->_mType != MT_GOLEM */);
+	assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE /*&& mon->_mType != MT_GOLEM */);
 
 	RemoveMonFromMap(mnum);
 	MonPlace(mnum);
@@ -1870,7 +1870,7 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 		}
 	}
 
-	if (mnum >= MAX_MINIONS/* mon->_mType != MT_GOLEM */) 
+	if (mnum >= MAX_MINIONS) // mon->_mType != MT_GOLEM
 		MonStartGetHit(mnum);
 }
 
@@ -1890,7 +1890,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
 	PlayMonSFX(mnum, MS_GOTHIT);
-	if (mnum < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
+	if (mnum < MAX_MINIONS) // mon->_mType == MT_GOLEM
 		return;
 	if (mon->_mmode == MM_STONE)
 		return;
@@ -2242,7 +2242,8 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 	if (!CheckMonsterHit(defm, &ret))
 		return;
 
-	hper = hper + (monsters[offm]._mLevel << 1) - (monsters[defm]._mLevel << 1);
+	hper += (monsters[offm]._mLevel << 1);
+	hper -= (monsters[defm]._mLevel << 1);
 	if (CheckHit(hper) || monsters[defm]._mmode == MM_STONE) {
 		int dam = RandRange(mind, maxd) << 6;
 		monsters[defm]._mhitpoints -= dam;
@@ -2254,10 +2255,10 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 	}
 }
 
-static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
+static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 {
 	MonsterStruct* mon;
-	int dam, hper, blkper;
+	int dam, blkper;
 	unsigned hitFlags;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -2268,9 +2269,8 @@ static void MonHitPlr(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (plr._pInvincible)
 		return;
 
-	hper = 30 + Hit
-		+ (2 * mon->_mLevel)
-		- plr._pIAC;
+	hper += 30 + (2 * mon->_mLevel);
+	hper -= plr._pIAC;
 	if (!CheckHit(hper))
 		return;
 
@@ -2857,10 +2857,10 @@ static bool MonCallWalk(int mnum, int md)
 			// Randomly go further left or right
 			if (random_(102, 2) != 0)
 				ok = (md = (mdtemp + 2) & 7, MonDirOK(mnum, md))
-				 || (md = (mdtemp - 2) & 7, MonDirOK(mnum, md));
+				  || (md = (mdtemp - 2) & 7, MonDirOK(mnum, md));
 			else
 				ok = (md = (mdtemp - 2) & 7, MonDirOK(mnum, md))
-				 || (md = (mdtemp + 2) & 7, MonDirOK(mnum, md));
+				  || (md = (mdtemp + 2) & 7, MonDirOK(mnum, md));
 		}
 	}
 	if (ok)
@@ -4332,7 +4332,7 @@ void MAI_Warlord(int mnum)
 		//if (mon->_mVar8++ < gnTicksRate * 8) // MON_TIMER
 		//	return; // wait till the sfx is running, but don't rely on IsSFXPlaying
 		// assert(!IsMultiGame);
-		if (/*!IsMultiGame && */IsSFXPlaying(alltext[TEXT_WARLRD9].sfxnr))
+		if (/*!IsMultiGame &&*/ IsSFXPlaying(alltext[TEXT_WARLRD9].sfxnr))
 			return;
 		quests[Q_WARLORD]._qvar1 = QV_WARLORD_ATTACK;
 		//if (mon->_mListener == mypnum || !plx(mon->_mListener)._pActive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {

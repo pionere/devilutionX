@@ -31,7 +31,7 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 	end = &pRLEBytes[nDataSize];
 	dst = pDecodeTo;
 
-	for (; src != end; dst -= BUFFER_WIDTH + nWidth) {
+	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
 			width = *src++;
 			if (width >= 0) {
@@ -374,7 +374,7 @@ void CelClippedDrawLightRed(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
 	end = &pRLEBytes[nDataSize];
 	dst = &pBuff[y * wdt + x];
 
-	for (; pRLEBytes != end; dst -= wdt + nWidth) {
+	for ( ; pRLEBytes != end; dst -= wdt + nWidth) {
 		for (i = nWidth; i != 0; ) {
 			width = *pRLEBytes++;
 			if (width >= 0) {

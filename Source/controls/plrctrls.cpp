@@ -667,7 +667,7 @@ static void InvMove(AxisDirection dir)
 	}
 
 	if (pcursicon > CURSOR_HAND) { // [3] Keep item in the same slot, don't jump it up
-		if (x != MousePos.x) {         // without this, the cursor keeps moving -10
+		if (x != MousePos.x) {     // without this, the cursor keeps moving -10
 			x -= 10;
 			y -= 10;
 		}
@@ -682,7 +682,7 @@ static bool HSExists(int x, int y)
 {
 	for (int r = 0; r < speedspellcount; r++) {
 		if (POS_IN_RECT(x, y,
-			speedspellscoords[r].x - SPLICON_WIDTH / 2,  speedspellscoords[r].y - SPLICON_HEIGHT / 2,
+			speedspellscoords[r].x - SPLICON_WIDTH / 2, speedspellscoords[r].y - SPLICON_HEIGHT / 2,
 			SPLICON_WIDTH, SPLICON_HEIGHT)) {
 			return true;
 		}
@@ -702,7 +702,7 @@ static void HotSpellMove(AxisDirection dir)
 		spbslot = myplr._pAltMoveSkill;
 	for (int r = 0; r < speedspellcount; r++) {
 		if (POS_IN_RECT(MousePos.x, MousePos.y,
-			speedspellscoords[r].x - SPLICON_WIDTH / 2,  speedspellscoords[r].y - SPLICON_HEIGHT / 2,
+			speedspellscoords[r].x - SPLICON_WIDTH / 2, speedspellscoords[r].y - SPLICON_HEIGHT / 2,
 			SPLICON_WIDTH, SPLICON_HEIGHT)) {
 			spbslot = r;
 			break;
@@ -881,12 +881,12 @@ static HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
 	}
 	if (gnNumActiveWindows != 0) {
 		switch (gaActiveWindows[gnNumActiveWindows - 1]) {
-		case WND_INV:	return &InvMove;
-		case WND_CHAR:	return myplr._pStatPts > 0 ? &AttrIncBtnSnap : NULL;
-		case WND_BOOK:	return &SpellBookMove;
-		case WND_TEAM:	return NULL;
-		case WND_QUEST:	return &QuestLogMove;
-		default: ASSUME_UNREACHABLE;	break;
+		case WND_INV:   return &InvMove;
+		case WND_CHAR:  return myplr._pStatPts > 0 ? &AttrIncBtnSnap : NULL;
+		case WND_BOOK:  return &SpellBookMove;
+		case WND_TEAM:  return NULL;
+		case WND_QUEST: return &QuestLogMove;
+		default: ASSUME_UNREACHABLE; break;
 		}
 	}
 	return NULL;

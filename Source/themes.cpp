@@ -228,22 +228,22 @@ static bool CheckThemeReqs(int theme)
 		return true;
 	case THEME_SHRINE:
 	case THEME_SKELROOM:
-	case THEME_LIBRARY: // TODO: use dType instead
-		return currLvl._dDunType != DTYPE_CAVES && currLvl._dDunType != DTYPE_HELL;
+	case THEME_LIBRARY:
+		return currLvl._dDunType != DTYPE_CAVES && currLvl._dDunType != DTYPE_HELL; // TODO: use dType instead
 	case THEME_BLOODFOUNTAIN:
 		return _gbBFountainFlag;
 	case THEME_PURIFYINGFOUNTAIN:
 		return _gbPFountainFlag;
 	case THEME_ARMORSTAND:
 		return currLvl._dDunType != DTYPE_CATHEDRAL; // TODO: use dType instead
-	case THEME_CAULDRON: // TODO: use dType instead
-		return currLvl._dDunType == DTYPE_HELL && _gbCauldronFlag;
+	case THEME_CAULDRON:
+		return currLvl._dDunType == DTYPE_HELL && _gbCauldronFlag; // TODO: use dType instead
 	case THEME_MURKYFOUNTAIN:
 		return _gbMFountainFlag;
 	case THEME_TEARFOUNTAIN:
 		return _gbTFountainFlag;
-	case THEME_WEAPONRACK: // TODO: use dType instead
-		return currLvl._dDunType != DTYPE_CATHEDRAL;
+	case THEME_WEAPONRACK:
+		return currLvl._dDunType != DTYPE_CATHEDRAL; // TODO: use dType instead
 	case THEME_TREASURE:
 		return _gbTreasureFlag;
 	default:
@@ -507,7 +507,7 @@ static void Theme_Barrel(BYTE tv)
 	int r, xx, yy;
 	const BYTE barrnds[4] = { 2, 6, 4, 8 };
 	const BYTE monstrnds[4] = { 5, 7, 3, 9 };
-	const BYTE barrnd = barrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE barrnd = barrnds[currLvl._dDunType - 1];     // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
@@ -705,7 +705,7 @@ static void Theme_Library(bool isZharLib, BYTE tv)
 		}
 	}
 
-	librnd = librnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	librnd = librnds[currLvl._dDunType - 1];     // TODO: use dType instead?
 	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
@@ -732,9 +732,9 @@ static void Theme_Library(bool isZharLib, BYTE tv)
  */
 static void Theme_Torture(BYTE tv)
 {
-	const BYTE tortrnds[4] = { 6 * 2, 8 * 2, 3 * 2, 8 * 2};
+	const BYTE tortrnds[4] = { 6 * 2, 8 * 2, 3 * 2, 8 * 2 };
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
-	const BYTE tortrnd = tortrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE tortrnd = tortrnds[currLvl._dDunType - 1];   // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	Place_Obj3(tv, OBJ_TNUDEM, tortrnd);
@@ -878,7 +878,7 @@ static void Theme_BrnCross(BYTE tv)
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 	const BYTE bcrossrnds[4] = { 5, 7, 3, 8 };
 	const BYTE bcrossrnd = bcrossrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
-	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1];   // TODO: use dType instead?
 
 	Place_Obj3(tv, OBJ_TBCROSS, bcrossrnd);
 	PlaceThemeMonsts(tv, monstrnd);
@@ -895,7 +895,7 @@ static void Theme_WeaponRack(BYTE tv)
 	const BYTE weaponrnds[4] = { 6, 8, 5, 8 };
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	const BYTE weaponrnd = weaponrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
-	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1];   // TODO: use dType instead?
 
 	static_assert(OBJ_WEAPONRACKL + 2 == OBJ_WEAPONRACKR, "Theme_WeaponRack depends on the order of WEAPONRACKL/R");
 	type = OBJ_WEAPONRACKL + 2 * random_(0, 2);

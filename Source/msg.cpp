@@ -172,9 +172,9 @@ bool DownloadDeltaInfo()
 		} else {
 			success = false;
 #if DEBUG_MODE || DEV_MODE
-			app_warn(/*gbGameDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended %d" :*/"Unable to get game data %d", gbGameDeltaChunks);
+			app_warn(/*gbGameDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended %d" :*/ "Unable to get game data %d", gbGameDeltaChunks);
 #else
-			app_warn(/*gbGameDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended" :*/"Unable to get game data");
+			app_warn(/*gbGameDeltaChunks == DELTA_ERROR_DISCONNECT ? "The game ended" :*/ "Unable to get game data");
 #endif
 		}
 	}
@@ -1170,9 +1170,9 @@ void LevelDeltaExport()
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!(guSendLevelData & (1 << pnum)) || // pnum did not request a level-delta
 //		  (guReceivedLevelDelta & (1 << pnum)) ||  // got an (empty) level delta from pnum
-		  (!validDelta && !myplr._pLvlChanging && // both players are 'actively' loading
-		   plr._pDunLevel == myplr._pDunLevel &&  // the same level ->
-			(guRequestLevelData[pnum] > guRequestLevelData[mypnum] || (guRequestLevelData[pnum] == guRequestLevelData[mypnum] && pnum > mypnum)))) { // ignore lower priority requests 	TODO: overflow hickup
+		  (!validDelta && !myplr._pLvlChanging   // both players are 'actively' loading
+		   && plr._pDunLevel == myplr._pDunLevel // the same level ->
+		   && (guRequestLevelData[pnum] > guRequestLevelData[mypnum] || (guRequestLevelData[pnum] == guRequestLevelData[mypnum] && pnum > mypnum)))) { // ignore lower priority requests 	TODO: overflow hickup
 			; // skip
 		} else {
 			guSendLevelData &= ~(1 << pnum);
@@ -1417,8 +1417,8 @@ void LevelDeltaLoad()
 			continue;
 		}
 		if (pnum == mypnum) {
-			net_assert(tplr->spMode == PM_STAND ||
-				((tplr->spMode == PM_DEATH || tplr->spMode == PM_DYING) && plr._pHitPoints < (1 << 6)));
+			net_assert(tplr->spMode == PM_STAND
+			 || ((tplr->spMode == PM_DEATH || tplr->spMode == PM_DYING) && plr._pHitPoints < (1 << 6)));
 			net_assert(tplr->spWalkpath[0] == DIR_NONE);
 			net_assert(tplr->spDestAction == ACTION_NONE);
 			net_assert(tplr->spInvincible == 40);
@@ -2467,8 +2467,7 @@ static unsigned On_SPAWNITEM(TCmd* pCmd, int pnum)
 {
 	TCmdRPItem* cmd = (TCmdRPItem*)pCmd;
 
-	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) &&
-	 currLvl._dLevelIdx == cmd->bLevel) {
+	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) && currLvl._dLevelIdx == cmd->bLevel) {
 		UnPackPkItem(&cmd->item);
 		SyncPutItem(-1, cmd->x, cmd->y, cmd->bFlipFlag);
 	}
@@ -2499,8 +2498,8 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse& su)
 			static_assert((int)ACTION_RATTACKPLR + 1 == (int)ACTION_SPELL, "CheckPlrSkillUse expects ordered action-ids VI.");
 			static_assert((int)ACTION_SPELL + 1 == (int)ACTION_SPELLMON, "CheckPlrSkillUse expects ordered action-ids VII.");
 			static_assert((int)ACTION_SPELLMON + 1 == (int)ACTION_SPELLPLR, "CheckPlrSkillUse expects ordered action-ids VIII.");
-			if (sn == plr._pDestParam3 && ((BYTE)su.from) == plr._pDestParam4 &&
-			 plr._pDestAction >= ACTION_ATTACK && plr._pDestAction <= ACTION_SPELLPLR)
+			if (sn == plr._pDestParam3 && ((BYTE)su.from) == plr._pDestParam4
+			 && plr._pDestAction >= ACTION_ATTACK && plr._pDestAction <= ACTION_SPELLPLR)
 				return sameLvl;
 			net_assert(plr._pMemSkills & SPELL_MASK(sn));
 			// always grant skill-activity to prevent de-sync
@@ -3216,7 +3215,7 @@ static unsigned On_INVITE(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
 
-	 // TODO: check (cmd->bParam1 == mypnum) should not be necessary in a server/client solution
+	// TODO: check (cmd->bParam1 == mypnum) should not be necessary in a server/client solution
 	if (cmd->bParam1 == mypnum && plr._pTeam == pnum) {
 		guTeamInviteRec |= (1 << pnum);
 		EventPlrMsg("%s invited to their team.", plr._pName);
@@ -3887,7 +3886,7 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 	k = *src;
 	src++;
 
-	//	LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
+	// LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
 	if (!plx(i)._pActive)
 		msg_errorf("%d received inactive plr%d from %d", mypnum, i, pnum);
 
@@ -4242,7 +4241,7 @@ static unsigned On_DO_ITEMCHECK(TCmd* pCmd, int pnum)
 	k = *src;
 	src++;
 
-//	LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
+	// LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
 
 	switch (k) {
 	case 0: // hold+body items

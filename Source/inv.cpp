@@ -9,7 +9,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 bool gbInvflag;
-BYTE gbTSpell;   // the spell to cast after the target is selected
+BYTE gbTSpell;     // the spell to cast after the target is selected
 int8_t gbTSplFrom; // the source of the spell after the target is selected
 int8_t gbOilFrom;
 
@@ -1823,7 +1823,7 @@ bool InvUseItem(int cii)
 #else
 	 && is->_iMiscId == IMISC_SCROLL
 #endif
-		&& (spelldata[is->_iSpell].sUseFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
+	 && (spelldata[is->_iSpell].sUseFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
 		return true;
 	}
 

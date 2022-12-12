@@ -19,10 +19,10 @@ extern "C" {
  * @param vertical Shift the screen up or down
  */
 #define SHIFT_GRID(x, y, horizontal, vertical) \
-{                                              \
-	x += (vertical) + (horizontal);            \
-	y += (vertical) - (horizontal);            \
-}
+	{                                          \
+		x += (vertical) + (horizontal);        \
+		y += (vertical) - (horizontal);        \
+	}
 
 extern int ViewX;
 extern int ViewY;

@@ -206,7 +206,7 @@ void dx_cleanup()
 #endif
 	SDL_DestroyWindow(ghMainWnd);
 
-/* commented out, because SDL_Quit should do this
+	/* commented out, because SDL_Quit should do this
 #if HAS_GAMECTRL
 	GameController::ReleaseAll();
 #endif

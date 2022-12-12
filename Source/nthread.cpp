@@ -403,7 +403,7 @@ void nthread_finish(UINT uMsg)
 	unsigned tmp;
 
 	if (uMsg == DVL_DWM_NEWGAME) {
-		if (gbLoadGame/*&& gbValidSaveFile*/) {
+		if (gbLoadGame /*&& gbValidSaveFile*/) {
 #ifndef NONET
 			assert(sghThread == NULL);
 #endif
@@ -465,8 +465,8 @@ void nthread_finish(UINT uMsg)
 		}
 	}
 	IncProgress();
-	assert(geBufferMsgs == MSG_LVL_DELTA_WAIT ||
-		(gdwLastGameTurn >= guDeltaTurn && guDeltaTurn > lastGameTurn));	// TODO: overflow hickup
+	assert(geBufferMsgs == MSG_LVL_DELTA_WAIT
+	 || (gdwLastGameTurn >= guDeltaTurn && guDeltaTurn > lastGameTurn)); // TODO: overflow hickup
 	gdwLastGameTurn = lastGameTurn;
 	gdwGameLogicTurn = lastGameTurn * gbNetUpdateRate;
 	tmp = guSendLevelData; // preserve this mask, requests of the pending turns are supposed to be handled

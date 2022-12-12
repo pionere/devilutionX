@@ -1139,7 +1139,7 @@ static void AddDoor(int oi)
 	//os->_oSolidFlag = FALSE; // TODO: should be TRUE;
 	//os->_oMissFlag = FALSE;
 	//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
-	os->_oVar1 = dPiece[x][y];     // DOOR_PIECE_CLOSED
+	os->_oVar1 = dPiece[x][y]; // DOOR_PIECE_CLOSED
 	// DOOR_SIDE_PIECE_CLOSED
 	bx = x;
 	by = y;

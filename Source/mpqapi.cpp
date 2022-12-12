@@ -421,14 +421,14 @@ static Archive cur_archive;
 static bool IsValidMPQHeader(const Archive& archive, FileMpqHeader* hdr)
 {
 	return hdr->pqSignature == ID_MPQ
-		&& hdr->pqHeaderSize == MPQ_HEADER_SIZE_V1
-		&& hdr->pqVersion == MPQ_FORMAT_VERSION_1
-		&& hdr->pqSectorSizeId == MPQ_SECTOR_SIZE_SHIFT_V1
-		&& hdr->pqFileSize == archive.archiveSize
-		&& hdr->pqHashOffset == archive.HashOffset()
-		&& hdr->pqBlockOffset == MPQ_BLOCK_OFFSET
-		&& hdr->pqHashCount == archive.hashCount
-		&& hdr->pqBlockCount == archive.blockCount;
+	 && hdr->pqHeaderSize == MPQ_HEADER_SIZE_V1
+	 && hdr->pqVersion == MPQ_FORMAT_VERSION_1
+	 && hdr->pqSectorSizeId == MPQ_SECTOR_SIZE_SHIFT_V1
+	 && hdr->pqFileSize == archive.archiveSize
+	 && hdr->pqHashOffset == archive.HashOffset()
+	 && hdr->pqBlockOffset == MPQ_BLOCK_OFFSET
+	 && hdr->pqHashCount == archive.hashCount
+	 && hdr->pqBlockCount == archive.blockCount;
 }
 
 // Read the header info from the archive, or setup a skeleton

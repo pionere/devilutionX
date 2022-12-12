@@ -449,7 +449,7 @@ typedef struct MisFileData {
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
-	int mfAnimXOffset;
+	int mfAnimXOffset; // could be calculated
 	ALIGNMENT(2, 14)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -817,9 +817,9 @@ static_assert((sizeof(ObjFileData) & (sizeof(ObjFileData) - 1)) == 0, "Align Obj
 
 typedef struct ObjectStruct {
 	int _otype; // _object_id
-	int _ox;
-	int _oy;
-	int _oSFX; // _sfx_id
+	int _ox;    // Tile X-position of the object
+	int _oy;    // Tile Y-position of the object
+	int _oSFX;  // _sfx_id
 	BYTE _oSFXCnt;
 	BOOLEAN _oAnimFlag;
 	BYTE _oAlign0;
@@ -2549,12 +2549,12 @@ typedef struct FileCel {
 	int32_t dcOffsets[dcNumFrames]; // address of an entry in dcCelFrames
 	int32_t dcFileSize/NextOffset;
 	FileCelFrame dcCelFrames[dcNumFrames];
-} FileCelLvl;
+} FileCel;
 
 typedef struct FileCelGroup {
 	int32_t dcgCelOffsets[dcNumCels]; // address of an entry in dcgCelData
 	FileCel dcgCelData[dcNumCels];
-} FileCelLvl;
+} FileCelGroup;
 
 typedef struct FileCl2 {
 	int32_t dlNumFrames;

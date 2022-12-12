@@ -334,7 +334,7 @@ void InitPlayerGFX(int pnum)
 			plr._pgfxnum = ANIM_ID_UNARMED;
 			plr._pGFXLoad = 0;
 		}
-		if (plr._pGFXLoad & PGF_NONDEATH)// MEM_DEATH
+		if (plr._pGFXLoad & PGF_NONDEATH) // MEM_DEATH
 			plr._pGFXLoad = 0;
 	}
 	// mask gfx-flags which are already loaded
@@ -649,14 +649,14 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	plr._pBaseVit = val;
 
 	hp = val << (6 + 1);
-	/*plr._pHitPoints = plr._pMaxHP = */plr._pHPBase = plr._pMaxHPBase = hp;
+	/*plr._pHitPoints = plr._pMaxHP =*/ plr._pHPBase = plr._pMaxHPBase = hp;
 
 	val = heroinfo.hiMagic;
 	//plr._pMagic = val;
 	plr._pBaseMag = val;
 
 	mana = val << (6 + 1);
-	/*plr._pMana = plr._pMaxMana = */plr._pManaBase = plr._pMaxManaBase = mana;
+	/*plr._pMana = plr._pMaxMana =*/ plr._pManaBase = plr._pMaxManaBase = mana;
 
 	//plr._pNextExper = PlrExpLvlsTbl[1];
 	plr._pLightRad = 10;
@@ -766,8 +766,7 @@ void InitPlayer(int pnum)
 	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
 
 	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
-	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
-		| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
+	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
 
 	plr._pWalkpath[MAX_PATH_LENGTH] = DIR_NONE;
 }
@@ -2060,7 +2059,6 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (sn == SPL_SWIPE) {
 		hper -= 30 - sl * 2;
 	}
-
 	if (!CheckHit(hper))
 		return false;
 
@@ -2987,10 +2985,11 @@ void MissToPlr(int mi, bool hit)
 		//PlrHitPlr(pnum, SPL_CHARGE, mis->_miSpllvl, mpnum);
 		if (plx(mpnum)._pTeam == plr._pTeam || plx(mpnum)._pInvincible)
 			return;
-		hper = mis->_miSpllvl * 16 - plx(mpnum)._pIAC;
 
+		hper = mis->_miSpllvl * 16 - plx(mpnum)._pIAC;
 		if (!CheckHit(hper))
 			return;
+
 		blkper = plx(mpnum)._pIBlockChance;
 		if (blkper != 0
 		 && (plx(mpnum)._pmode == PM_STAND || plx(mpnum)._pmode == PM_BLOCK)) {
@@ -3061,7 +3060,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 			// check commented out because a player should not walk over a dying player (looks bad)
-			return mpo == pnum/*|| plx(mpo)._pHitPoints < (1 << 6)*/;
+			return mpo == pnum /*|| plx(mpo)._pHitPoints < (1 << 6)*/;
 		}
 
 		return true;
