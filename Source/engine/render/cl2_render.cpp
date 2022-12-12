@@ -69,48 +69,48 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-		width = *src++;
-		if (width < 0) {
-			width = -width;
-			if (width > 65) {
-				width -= 65;
-				fill = *src++;
-				if (dst < gpBufEnd && dst >= gpBufStart) {
-					i -= width;
-					while (width != 0) {
-						*dst = fill;
-						dst++;
-						width--;
+			width = *src++;
+			if (width < 0) {
+				width = -width;
+				if (width > 65) {
+					width -= 65;
+					fill = *src++;
+					if (dst < gpBufEnd && dst >= gpBufStart) {
+						i -= width;
+						while (width != 0) {
+							*dst = fill;
+							dst++;
+							width--;
+						}
+						continue;
 					}
-					continue;
-				}
-			} else {
-				if (dst < gpBufEnd && dst >= gpBufStart) {
-					i -= width;
-					while (width != 0) {
-						*dst = *src;
-						src++;
-						dst++;
-						width--;
-					}
-					continue;
 				} else {
-					src += width;
+					if (dst < gpBufEnd && dst >= gpBufStart) {
+						i -= width;
+						while (width != 0) {
+							*dst = *src;
+							src++;
+							dst++;
+							width--;
+						}
+						continue;
+					} else {
+						src += width;
+					}
 				}
 			}
-		}
-		while (true) {
-			if (width <= i) {
-				dst += width;
-				i -= width;
-				break;
-			} else {
-				dst += i;
-				width -= i;
-				i = nWidth;
-				dst -= BUFFER_WIDTH + nWidth;
+			while (true) {
+				if (width <= i) {
+					dst += width;
+					i -= width;
+					break;
+				} else {
+					dst += i;
+					width -= i;
+					i = nWidth;
+					dst -= BUFFER_WIDTH + nWidth;
+				}
 			}
-		}
 		}
 	}
 }
@@ -136,55 +136,55 @@ static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-		width = *src++;
-		if (width < 0) {
-			width = -width;
-			if (width > 65) {
-				width -= 65;
-				if (*src++ != 0 && dst < gpBufEnd && dst >= gpBufStart) {
-					i -= width;
-					dst[-1] = col;
-					dst[width] = col;
-					while (width != 0) {
-						dst[-BUFFER_WIDTH] = col;
-						dst[BUFFER_WIDTH] = col;
-						dst++;
-						width--;
-					}
-					continue;
-				}
-			} else {
-				if (dst < gpBufEnd && dst >= gpBufStart) {
-					i -= width;
-					while (width != 0) {
-						if (*src++ != 0) {
-							dst[-1] = col;
-							dst[1] = col;
+			width = *src++;
+			if (width < 0) {
+				width = -width;
+				if (width > 65) {
+					width -= 65;
+					if (*src++ != 0 && dst < gpBufEnd && dst >= gpBufStart) {
+						i -= width;
+						dst[-1] = col;
+						dst[width] = col;
+						while (width != 0) {
 							dst[-BUFFER_WIDTH] = col;
-							// BUGFIX: only set `if (dst+BUFFER_WIDTH < gpBufEnd)`
 							dst[BUFFER_WIDTH] = col;
+							dst++;
+							width--;
 						}
-						dst++;
-						width--;
+						continue;
 					}
-					continue;
 				} else {
-					src += width;
+					if (dst < gpBufEnd && dst >= gpBufStart) {
+						i -= width;
+						while (width != 0) {
+							if (*src++ != 0) {
+								dst[-1] = col;
+								dst[1] = col;
+								dst[-BUFFER_WIDTH] = col;
+								// BUGFIX: only set `if (dst+BUFFER_WIDTH < gpBufEnd)`
+								dst[BUFFER_WIDTH] = col;
+							}
+							dst++;
+							width--;
+						}
+						continue;
+					} else {
+						src += width;
+					}
 				}
 			}
-		}
-		while (true) {
-			if (width <= i) {
-				dst += width;
-				i -= width;
-				break;
-			} else {
-				dst += i;
-				width -= i;
-				i = nWidth;
-				dst -= BUFFER_WIDTH + nWidth;
+			while (true) {
+				if (width <= i) {
+					dst += width;
+					i -= width;
+					break;
+				} else {
+					dst += i;
+					width -= i;
+					i = nWidth;
+					dst -= BUFFER_WIDTH + nWidth;
+				}
 			}
-		}
 		}
 	}
 }
@@ -210,48 +210,48 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-		width = *src++;
-		if (width < 0) {
-			width = -width;
-			if (width > 65) {
-				width -= 65;
-				fill = pTable[*src++];
-				if (dst < gpBufEnd && dst >= gpBufStart) {
-					i -= width;
-					while (width != 0) {
-						*dst = fill;
-						dst++;
-						width--;
+			width = *src++;
+			if (width < 0) {
+				width = -width;
+				if (width > 65) {
+					width -= 65;
+					fill = pTable[*src++];
+					if (dst < gpBufEnd && dst >= gpBufStart) {
+						i -= width;
+						while (width != 0) {
+							*dst = fill;
+							dst++;
+							width--;
+						}
+						continue;
 					}
-					continue;
-				}
-			} else {
-				if (dst < gpBufEnd && dst >= gpBufStart) {
-					i -= width;
-					while (width != 0) {
-						*dst = pTable[*src];
-						src++;
-						dst++;
-						width--;
-					}
-					continue;
 				} else {
-					src += width;
+					if (dst < gpBufEnd && dst >= gpBufStart) {
+						i -= width;
+						while (width != 0) {
+							*dst = pTable[*src];
+							src++;
+							dst++;
+							width--;
+						}
+						continue;
+					} else {
+						src += width;
+					}
 				}
 			}
-		}
-		while (true) {
-			if (width <= i) {
-				dst += width;
-				i -= width;
-				break;
-			} else {
-				dst += i;
-				width -= i;
-				i = nWidth;
-				dst -= BUFFER_WIDTH + nWidth;
+			while (true) {
+				if (width <= i) {
+					dst += width;
+					i -= width;
+					break;
+				} else {
+					dst += i;
+					width -= i;
+					i = nWidth;
+					dst -= BUFFER_WIDTH + nWidth;
+				}
 			}
-		}
 		}
 	}
 }
