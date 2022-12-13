@@ -1305,6 +1305,14 @@ static bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
 			y2 = tmp;
 			dx = -dx;
 			dy = -dy;
+			// shift start/end positions to account for the missile trajectory
+			// (starting from the back of the tile, ending at the front of the tile)
+			x1++;
+			y1 += dy < 0 ? -1 : (dy != 0 ? 1 : 0);
+			if (dx == 1) // x1 == x2
+				return true;
+			if (!Clear(x1, y1))
+				return false; // dy == 0 && dx == 1;
 		}
 		// find out step size and direction on the y coordinate
 		if (dy >= 0) {
@@ -1313,20 +1321,23 @@ static bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
 			dy = -dy;
 			xyinc = -1;
 		}
-		// multiply by 2 so we round up
-		dy *= 2;
+		// multiply by 2 so we round up -- keep in sync with GetMissilePos + handle swap above!
+		//dy *= 2;
 		d = 0;
 		do {
 			d += dy;
 			if (d >= dx) {
-				d -= 2 * dx; // multiply by 2 to support rounding
+				d -= /*2 **/ dx; // multiply by 2 to support rounding
 				y1 += xyinc;
+				if (d != 0 && !Clear(x1, y1))
+					break;
 			}
 			x1++;
 			if (x1 == x2)
 				return true;
 		} while (Clear(x1, y1));
 	} else {
+		// alway proceed from lower to higher y
 		if (dy < 0) {
 			tmp = y1;
 			y1 = y2;
@@ -1336,20 +1347,32 @@ static bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
 			x2 = tmp;
 			dy = -dy;
 			dx = -dx;
+			// shift start/end positions to account for the missile trajectory
+			// (starting from the back of the tile, ending at the front of the tile)
+			y1++;
+			x1 += dx < 0 ? -1 : (dx != 0 ? 1 : 0);
+			if (dy == 1) // y1 == y2
+				return true;
+			if (!Clear(x1, y1))
+				return false; // dx == 0 && dy == 1;
 		}
+		// find out step size and direction on the x coordinate
 		if (dx >= 0) {
 			xyinc = 1;
 		} else {
 			dx = -dx;
 			xyinc = -1;
 		}
-		dx *= 2;
+		// multiply by 2 so we round up
+		//dx *= 2; -- keep in sync with GetMissilePos + handle swap above!
 		d = 0;
 		do {
 			d += dx;
 			if (d >= dy) {
-				d -= 2 * dy;
+				d -= /*2 **/ dy; // multiply by 2 to support rounding
 				x1 += xyinc;
+				if (d != 0 && !Clear(x1, y1))
+					break;
 			}
 			y1++;
 			if (y1 == y2)

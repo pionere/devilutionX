@@ -550,9 +550,9 @@ if(RUN_TESTS)
   list(APPEND devilutionx_SRCS
     test/appfat_test.cpp
     test/automap_test.cpp
+    test/codec_test.cpp
     test/control_test.cpp
     test/cursor_test.cpp
-    test/codec_test.cpp
     test/diablo_test.cpp
     test/doom_test.cpp
     test/drlg_l1_test.cpp
@@ -564,6 +564,7 @@ if(RUN_TESTS)
     test/lighting_test.cpp
     test/missiles_test.cpp
     test/player_test.cpp
+    test/projectile_test.cpp
     test/scrollrt_test.cpp
     test/stores_test.cpp)
 endif()

@@ -591,6 +591,9 @@ static void GetMissilePos(int mi)
 
 	dx = mx + my;
 	dy = my - mx;
+	// -- keep in sync with LineClearF + do it in GetMissileVel?
+	//dx += dx >= 0 ? 32 : -32;
+	//dy += dy >= 0 ? 32 : -32;
 
 	dqx = dx / 64;
 	//drx = dx % 64;
