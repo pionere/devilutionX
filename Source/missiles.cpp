@@ -2017,7 +2017,7 @@ int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 		// TODO: add support for spell duration modifier
 		// range += (plx(misource)._pISplDur * range) >> 7;
 		magic = plx(misource)._pMagic;
-		mindam = (magic >> 4) + spllvl + 5;
+		mindam = (magic >> 4) + spllvl + 2;
 		maxdam = mindam + 2;
 	//} else {
 	//	mindam = 5 + currLvl._dLevel;
@@ -3280,7 +3280,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 	case MTT_ITEM:
 		// assert(target < MAXITEMS);
 		if (pnum == mypnum && dx == items[target]._ix && dy == items[target]._iy
-		 &&	LineClear(plr._px, plr._py, items[target]._ix, items[target]._iy))
+		 && LineClear(plr._px, plr._py, items[target]._ix, items[target]._iy))
 			NetSendCmdGItem(CMD_AUTOGETITEM, target);
 		break;
 	case MTT_MONSTER:
