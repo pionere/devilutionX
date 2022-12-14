@@ -7,7 +7,6 @@ Data\Inv\Belt.CEL
 Data\Inv\Inv.CEL
 Data\MedTextS.CEL
 Data\SpellBk.CEL
-Data\SpellBkB.CEL
 Data\Quest.CEL
 Levels\L1Data\Butcher.DUN
 Levels\L1Data\L1.TMI
