@@ -23,16 +23,6 @@ extern "C" {
 void Cl2ApplyTrans(BYTE* p, const BYTE* ttbl, int nCel);
 
 /**
- * @brief Blit CL2 sprite, to the back buffer at the given coordinates
- * @param sx Output buffer coordinate
- * @param sy Output buffer coordinate
- * @param pCelBuff CL2 buffer
- * @param nCel CL2 frame number
- * @param nWidth CL2 width of the frame
- */
-void Cl2Draw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
-
-/**
  * @brief Blit an outline one pixel larger than the given sprite shape to the back buffer at the given coordinates
  * @param col Color index from current palette
  * @param sx Output buffer coordinate

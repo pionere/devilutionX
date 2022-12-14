@@ -257,32 +257,6 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 }
 
 /**
- * @brief Blit CL2 sprite, to the back buffer at the given coordinates
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- * @param pCelBuff CL2 buffer
- * @param nCel CL2 frame number
- * @param nWidth Width of sprite
- */
-void Cl2Draw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
-{
-	int nDataSize;
-	const BYTE* pRLEBytes;
-
-	assert(gpBuffer != NULL);
-	assert(pCelBuff != NULL);
-	assert(nCel > 0);
-
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-
-	Cl2Blit(
-	    &gpBuffer[sx + BUFFER_WIDTH * sy],
-	    pRLEBytes,
-	    nDataSize,
-	    nWidth);
-}
-
-/**
  * @brief Blit an outline one pixel larger then the given sprite shape to the back buffer at the given coordinates
  * @param col Color index from current palette
  * @param sx Back buffer coordinate

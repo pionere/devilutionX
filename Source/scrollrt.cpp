@@ -272,14 +272,7 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}
 	nWidth = mis->_miAnimWidth;
-	if (mis->_miUniqTrans != 0) {
-		trans = mis->_miUniqTrans;
-	} else if (mis->_miLightFlag) {
-		trans = light_trn_index;
-	} else {
-		Cl2Draw(mx, my, pCelBuff, nCel, nWidth);
-		return;
-	}
+	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? light_trn_index : 0) : mis->_miUniqTrans;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
@@ -503,13 +496,12 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		if (pnum == pcursplr)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == mypnum) {
-			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
+			trans = 0;
 		} else if (!visFlag || (myplr._pInfraFlag && light_trn_index > 8)) {
-			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, COLOR_TRN_RED);
+			trans = COLOR_TRN_RED;
 		} else {
 			trans = light_trn_index;
 			trans = trans <= 5 ? 0 : (trans - 5);
-			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
 			/*if (plr.pManaShield != 0)
 				Cl2DrawLightTbl(
 				    px + plr._pAnimXOffset - misfiledata[MFILE_MANASHLD].mfAnimXOffset,
@@ -518,6 +510,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 				    1,
 				    misfiledata[MFILE_MANASHLD].mfAnimWidth, trans);*/
 		}
+		Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
 	}
 }
 
