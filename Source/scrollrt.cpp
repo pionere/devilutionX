@@ -148,7 +148,7 @@ static void scrollrt_remove_back_buffer_cursor()
 
 void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 {
-	BYTE col;
+	BYTE col, trans;
 
 	col = ICOL_YELLOW;
 	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
@@ -161,11 +161,8 @@ void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, cons
 	if (outline) {
 		CelClippedDrawOutline(col, sx, sy, pCelBuff, nCel, nWidth);
 	}
-	if (col != ICOL_RED) {
-		CelClippedDraw(sx, sy, pCelBuff, nCel, nWidth);
-	} else {
-		CelClippedDrawLightRed(sx, sy, pCelBuff, nCel, nWidth);
-	}
+	trans = col != ICOL_RED ? 0 : COLOR_TRN_RED;
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
@@ -558,6 +555,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	ObjectStruct* os;
 	int sx, sy, xx, yy, nCel, nWidth;
 	bool mainTile;
+	BYTE trans;
 	BYTE* pCelBuff;
 
 	if (light_trn_index >= MAXDARKNESS)
@@ -594,11 +592,8 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	if (oi == pcursobj) {
 		CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, nWidth);
 	}
-	if (os->_oLightFlag) {
-		CelClippedDrawLight(sx, sy, pCelBuff, nCel, nWidth);
-	} else {
-		CelClippedDraw(sx, sy, pCelBuff, nCel, nWidth);
-	}
+	trans = os->_oLightFlag ? light_trn_index : 0;
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
@@ -1042,7 +1037,7 @@ static void DrawItem(int ii, int sx, int sy)
 	if (ii == pcursitem) {
 		CelClippedDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); // is->_iAnimWidth);
 	}
-	CelClippedDrawLight(sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); //is->_iAnimWidth);
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH, light_trn_index); //is->_iAnimWidth);
 }
 
 /**

@@ -44,16 +44,6 @@ void CelClippedDraw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 void CelDrawLight(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const BYTE* tbl);
 
 /**
- * @brief Blit CEL sprite with frame header, and apply lighting, to the back buffer at the given coordinates
- * @param sx Target buffer coordinate
- * @param sy Target buffer coordinate
- * @param pCelBuff CEL buffer
- * @param nCel CEL frame number
- * @param nWidth CEL width of the frame
- */
-void CelClippedDrawLight(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
-
-/**
  * @brief Same as CelClippedDrawLight optionally drawing in stippled-transparent mode
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
@@ -64,14 +54,15 @@ void CelClippedDrawLight(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWi
 void CelClippedDrawLightTrans(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 
 /**
- * @brief Apply red hue to the CEL sprite and blit to the back buffer at the given coordinates
+ * @brief Blit CL2 sprite, and apply a given lighting/trn, to the given buffer at the given coordinates
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
  * @param pCelBuff CEL buffer
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
+ * @param light index of the light shade/trn to use
  */
-void CelClippedDrawLightRed(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
+void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light);
 
 /**
  * @brief Blit an outline one pixel larger then the given sprite shape to the target buffer at the given coordinates

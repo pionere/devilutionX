@@ -186,32 +186,6 @@ void CelDrawLight(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const B
 }
 
 /**
- * @brief Same as CelDrawLight with the option to skip parts of the top and bottom of the sprite
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
- * @param nCel CEL frame number
- * @param nWidth Width of sprite
- */
-void CelClippedDrawLight(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
-{
-	int nDataSize;
-	const BYTE* pRLEBytes;
-	BYTE* pDecodeTo;
-
-	assert(gpBuffer != NULL);
-	assert(pCelBuff != NULL);
-
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
-
-	if (light_trn_index != 0)
-		CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light_trn_index]);
-	else
-		CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
-}
-
-/**
  * @brief Same as CelBlitLight with stippled transparency applied
  * @param pDecodeTo The output buffer
  * @param pRLEBytes CEL pixel stream (run-length encoded)
@@ -328,14 +302,15 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE* pCelBuff, int nCel, in
 }
 
 /**
- * @brief Apply red hue to the CEL sprite and blit to the back buffer at the given coordinates
+ * @brief Blit CL2 sprite, and apply a given lighting/trn, to the given buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  * @param pCelBuff Cel data
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
+ * @param light index of the light shade/trn to use
  */
-void CelClippedDrawLightRed(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
+void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light)
 {
 	int nDataSize;
 	const BYTE* pRLEBytes;
@@ -347,7 +322,10 @@ void CelClippedDrawLightRed(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[COLOR_TRN_RED]);
+	if (light != 0)
+		CelBlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light]);
+	else
+		CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
 
 /**
