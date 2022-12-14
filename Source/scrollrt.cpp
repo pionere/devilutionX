@@ -158,8 +158,9 @@ void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, cons
 		col = ICOL_RED;
 	}
 
-	if (outline)
+	if (outline) {
 		CelClippedDrawOutline(col, sx, sy, pCelBuff, nCel, nWidth);
+	}
 	if (col != ICOL_RED) {
 		CelClippedDraw(sx, sy, pCelBuff, nCel, nWidth);
 	} else {
@@ -252,7 +253,8 @@ static void scrollrt_draw_cursor()
  */
 static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 {
-	int mx, my, nCel, frames;
+	int mx, my, nCel, frames, nWidth;
+	BYTE trans;
 	BYTE* pCelBuff;
 
 	if (mis->_miPreFlag != gbPreFlag || !mis->_miDrawFlag)
@@ -269,12 +271,16 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}
-	if (mis->_miUniqTrans != 0)
-		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mis->_miAnimWidth, mis->_miUniqTrans);
-	else if (mis->_miLightFlag)
-		Cl2DrawLight(mx, my, pCelBuff, nCel, mis->_miAnimWidth);
-	else
-		Cl2Draw(mx, my, pCelBuff, nCel, mis->_miAnimWidth);
+	nWidth = mis->_miAnimWidth;
+	if (mis->_miUniqTrans != 0) {
+		trans = mis->_miUniqTrans;
+	} else if (mis->_miLightFlag) {
+		trans = light_trn_index;
+	} else {
+		Cl2Draw(mx, my, pCelBuff, nCel, nWidth);
+		return;
+	}
+	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
@@ -365,10 +371,8 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 		trans = COLOR_TRN_GRAY;
 	else if (mon->_muniqtrans != 0)
 		trans = mon->_muniqtrans;
-	else {
-		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
-		return;
-	}
+	else
+		trans = light_trn_index;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
@@ -381,6 +385,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 {
 	int mx, my, nCel, nWidth;
+	BYTE trans;
 	BYTE* pCelBuff;
 
 	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
@@ -398,11 +403,8 @@ static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 	}
 #endif
 	nWidth = mon->_mAnimWidth;
-	if (mon->_muniqtrans != 0) {
-		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, mon->_muniqtrans);
-	} else {
-		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
-	}
+	trans = mon->_muniqtrans == 0 ? light_trn_index : mon->_muniqtrans;
+	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
 static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
@@ -467,8 +469,9 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
  */
 static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 {
-	int px, py, nCel, nWidth, l;
+	int px, py, nCel, nWidth;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
+	BYTE trans;
 	BYTE* pCelBuff;
 
 	if (visFlag || myplr._pInfraFlag) {
@@ -504,20 +507,16 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		} else if (!visFlag || (myplr._pInfraFlag && light_trn_index > 8)) {
 			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, COLOR_TRN_RED);
 		} else {
-			l = light_trn_index;
-			if (light_trn_index <= 5)
-				light_trn_index = 0;
-			else
-				light_trn_index -= 5;
-			Cl2DrawLight(px, py, pCelBuff, nCel, nWidth);
+			trans = light_trn_index;
+			trans = trans <= 5 ? 0 : (trans - 5);
+			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
 			/*if (plr.pManaShield != 0)
-				Cl2DrawLight(
+				Cl2DrawLightTbl(
 				    px + plr._pAnimXOffset - misfiledata[MFILE_MANASHLD].mfAnimXOffset,
 				    py,
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mfAnimWidth);*/
-			light_trn_index = l;
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth, trans);*/
 		}
 	}
 }
@@ -599,8 +598,9 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	}
 #endif
 	nWidth = os->_oAnimWidth;
-	if (oi == pcursobj)
+	if (oi == pcursobj) {
 		CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, nWidth);
+	}
 	if (os->_oLightFlag) {
 		CelClippedDrawLight(sx, sy, pCelBuff, nCel, nWidth);
 	} else {

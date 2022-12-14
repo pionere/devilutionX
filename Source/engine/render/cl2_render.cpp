@@ -319,39 +319,9 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, in
  * @param pCelBuff CL2 buffer
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
- * @param light index of the light shade to use (!= 0)
+ * @param light index of the light shade to use
  */
 void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light)
-{
-	int nDataSize;
-	const BYTE *pRLEBytes, *tbl;
-	BYTE* pDecodeTo;
-
-	assert(gpBuffer != NULL);
-	assert(pCelBuff != NULL);
-	assert(nCel > 0);
-
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
-	tbl = ColorTrns[light];
-
-	Cl2BlitLight(
-	    pDecodeTo,
-	    pRLEBytes,
-	    nDataSize,
-	    nWidth,
-	    tbl);
-}
-
-/**
- * @brief Blit CL2 sprite, and apply lighting, to the back buffer at the given coordinates
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- * @param pCelBuff CL2 buffer
- * @param nCel CL2 frame number
- * @param nWidth Width of sprite
- */
-void Cl2DrawLight(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 {
 	int nDataSize;
 	const BYTE* pRLEBytes;
@@ -364,8 +334,8 @@ void Cl2DrawLight(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	if (light_trn_index != 0)
-		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light_trn_index]);
+	if (light != 0)
+		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light]);
 	else
 		Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
