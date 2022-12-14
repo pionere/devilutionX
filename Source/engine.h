@@ -17,6 +17,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define CEL_FRAME_HEADER_SIZE 0x0A
+#define CEL_BLOCK_HEIGHT      32
+#define CEL_BLOCK_MAX         (CEL_FRAME_HEADER_SIZE / 2 - 1)
+
 inline const BYTE* CelGetFrameStart(const BYTE* pCelBuff, int nCel)
 {
 	const DWORD* pFrameTable;
@@ -42,12 +46,13 @@ inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nData
 	WORD nDataStart;
 	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
 
-	// assert((pRLEBytes[1] << 8 | pRLEBytes[0]) == 0x000A);
-	nDataStart = 0x0A;
+	// assert((pRLEBytes[1] << 8 | pRLEBytes[0]) == CEL_FRAME_HEADER_SIZE);
+	nDataStart = CEL_FRAME_HEADER_SIZE;
 	*nDataSize -= nDataStart;
 
 	return &pRLEBytes[nDataStart];
 }
+
 inline const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int block)
 {
 	const WORD* pFrameTable;
@@ -56,7 +61,7 @@ inline const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int bloc
 	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
 
 	pFrameTable = (const WORD*)&pRLEBytes[0];
-	// assert(SwapLE16(pFrameTable[0]) == 0x000A);
+	// assert(SwapLE16(pFrameTable[0]) == CEL_FRAME_HEADER_SIZE);
 	nDataStart = SwapLE16(pFrameTable[block]);
 	//*nDataSize -= nDataStart;
 

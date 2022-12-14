@@ -778,10 +778,10 @@ static void DrawFlask2(int sx, unsigned filled, int emptyCel, int fullCel, int w
 		return;
 
 	filled = FLASK_TOTAL_HEIGHT - emptied;
-	unsigned blocks = filled / 32;
-	static_assert(FLASK_TOTAL_HEIGHT < 32 * 4, "Cel frame header is too small to store every possible clipping point.");
+	unsigned blocks = filled / CEL_BLOCK_HEIGHT;
+	static_assert(FLASK_TOTAL_HEIGHT < CEL_BLOCK_HEIGHT * CEL_BLOCK_MAX, "Cel frame header is too small to store every possible clipping point.");
 	empty = CelGetFrameClippedAt(pFlaskCels, emptyCel, blocks);
-	filled = filled % 32; // -= blocks * 32;
+	filled = filled % CEL_BLOCK_HEIGHT; // -= blocks * CEL_BLOCK_HEIGHT;
 	while (filled-- != 0) {
 		for (i = w; i != 0; ) {
 			width = *empty++;
