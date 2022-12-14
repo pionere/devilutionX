@@ -24,17 +24,6 @@ extern "C" {
 void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel);
 
 /**
- * @brief Blit CEL sprite with frame header to the back buffer at the given coordinates
- * @param out Target buffer
- * @param sx Target buffer coordinate
- * @param sy Target buffer coordinate
- * @param pCelBuff CEL buffer
- * @param nCel CEL frame number
- * @param nWidth CEL width of the frame
- */
-void CelClippedDraw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
-
-/**
  * @brief Blit CEL sprite, and apply lighting, to the back buffer at the given coordinates
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate

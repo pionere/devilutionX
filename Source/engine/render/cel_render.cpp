@@ -135,27 +135,6 @@ void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
 }
 
 /**
- * @brief Same as CelDraw but with the option to skip parts of the top and bottom of the sprite
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
- * @param nCel CEL frame number
- * @param nWidth Width of sprite
- */
-void CelClippedDraw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
-{
-	int nDataSize;
-	const BYTE* pRLEBytes;
-
-	assert(gpBuffer != NULL);
-	assert(pCelBuff != NULL);
-
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-
-	CelBlit(&gpBuffer[sx + BUFFER_WIDTH * sy], pRLEBytes, nDataSize, nWidth);
-}
-
-/**
  * @brief Apply lighting to the CEL sprite and blit to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate

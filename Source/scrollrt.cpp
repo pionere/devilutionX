@@ -236,7 +236,7 @@ static void scrollrt_draw_cursor()
 	frame = pcursicon;
 	cCels = pCursCels;
 	if (frame < CURSOR_FIRSTITEM) {
-		CelClippedDraw(mx, my, cCels, frame, cursW);
+		CelClippedDrawLightTbl(mx, my, cCels, frame, cursW, 0);
 	} else {
 		scrollrt_draw_item(&myplr._pHoldItem, true, mx, my, cCels, frame, cursW);
 	}
@@ -443,7 +443,7 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 	if (tnum == pcursmonst) {
 		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
 	}
-	CelClippedDraw(tx, sy, pCelBuff, nCel, nWidth);
+	CelClippedDrawLightTbl(tx, sy, pCelBuff, nCel, nWidth, 0);
 }
 
 /**
@@ -1083,7 +1083,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 
 #if DEBUG_MODE
 	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
-		CelClippedDraw(dx, dy, pSquareCel, 1, TILE_WIDTH);
+		CelClippedDrawLightTbl(dx, dy, pSquareCel, 1, TILE_WIDTH, 0);
 	}
 #endif
 
