@@ -17,7 +17,7 @@ static std::vector<POS32x> checkPosOffB;
 static bool CheckAllowPos(int x, int y)
 {
 	//LogErrorF("MIS", "PosCheck(%d) - %d:%d", mode, x, y);
-	std::vector<POS32x> *checks;
+	std::vector<POS32x>* checks;
 	if (mode == 0)
 		checks = &checkPosA;
 	else
@@ -77,7 +77,7 @@ static void GetMissilePos2(int mi)
 	//dx += dx >= 0 ? 32 : -32;
 	//dy += dy >= 0 ? 32 : -32;
 	dqx = dx / 64;
-	drx = dx % 64;	
+	drx = dx % 64;
 	dqy = dy / 64;
 	dry = dy % 64;
 
@@ -114,7 +114,7 @@ static void GetMissilePos3(int mi)
 	//dx += dx >= 0 ? 32 : -32;
 	//dy += dy >= 0 ? 32 : -32;
 	dqx = dx / 64;
-	drx = dx % 64;	
+	drx = dx % 64;
 	dqy = dy / 64;
 	dry = dy % 64;
 
@@ -164,7 +164,7 @@ static void GetMissilePos4(int mi)
 	//dx += dx >= 0 ? 32 : -32;
 	//dy += dy >= 0 ? 32 : -32;
 	dqx = dx / 64;
-	drx = dx % 64;	
+	drx = dx % 64;
 	dqy = dy / 64;
 	dry = dy % 64;
 
@@ -225,18 +225,19 @@ static void FilterPosMatch()
 }
 
 struct {
-	bool operator()(POS32x a, POS32x b) const {
+	bool operator()(POS32x a, POS32x b) const
+	{
 		int av = abs(a.x) + abs(a.y);
 		av <<= 3;
 		av |= a.x < a.y ? 1 << 0 : 0;
 		av |= a.x < 0 ? 1 << 1 : 0;
 		av |= a.y < 0 ? 1 << 2 : 0;
-		int bv =  abs(b.x) + abs(b.y);
+		int bv = abs(b.x) + abs(b.y);
 		bv <<= 3;
 		bv |= b.x < b.y ? 1 << 0 : 0;
 		bv |= b.x < 0 ? 1 << 1 : 0;
 		bv |= b.y < 0 ? 1 << 2 : 0;
-		return av < bv; 
+		return av < bv;
 	}
 } checkComp;
 
