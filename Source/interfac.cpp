@@ -327,7 +327,7 @@ void ShowCutscene(unsigned uMsg)
 	case DVL_DWM_NEWGAME:
 		IncProgress();
 		IncProgress();
-		if (gbLoadGame/*&& gbValidSaveFile*/) {
+		if (gbLoadGame /*&& gbValidSaveFile*/) {
 			LoadGame();
 		} else {
 			//FreeLevelMem();

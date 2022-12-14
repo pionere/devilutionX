@@ -89,8 +89,8 @@ int GetDirection(int x1, int y1, int x2, int y2)
 	//                        SE  NE  SW  NW
 	const int BaseDirs[4] = {  7,  5,  1,  3 };
 	int dir = BaseDirs[2 * (dx < 0) + (dy < 0)];
-	//const int DeltaDir[2][4] = { {0, 1, 2 }, { 2, 1, 0 } };
-	const int DeltaDirs[2][4] = { {1, 0, 2 }, { 1, 2, 0 } };
+	//const int DeltaDir[2][4] = { { 0, 1, 2 }, { 2, 1, 0 } };
+	const int DeltaDirs[2][4] = { { 1, 0, 2 }, { 1, 2, 0 } };
 	const int(&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
 	//dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 0 : 1)];
 	dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 1 : 0)];

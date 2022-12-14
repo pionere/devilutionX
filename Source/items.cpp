@@ -719,8 +719,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// calculate arrow velocity bonus
 	av = ArrowVelBonus(plr._pIFlags);
-/*  No other velocity bonus for the moment, 
-   otherwise POINT_BLANK and FAR_SHOT do not work well...
+	/*  No other velocity bonus for the moment, otherwise POINT_BLANK and FAR_SHOT do not work well...
 #ifdef HELLFIRE
 	if (plr._pClass == PC_ROGUE)
 		av += (plr._pLevel - 1) >> 2;
@@ -3740,7 +3739,7 @@ void SpawnHealer(unsigned lvl)
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndHealerItem(lvl), lvl);
 		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL
-			&& (items[0]._iSpell != SPL_HEALOTHER || !IsMultiGame));
+			 && (items[0]._iSpell != SPL_HEALOTHER || !IsMultiGame));
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_HEALER;
 		copy_pod(healitem[i], items[0]);

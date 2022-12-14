@@ -546,16 +546,14 @@ static void AddStoreSell(ItemStruct* is, int i)
 static bool SmithSellOk(const ItemStruct* is)
 {
 	return /* commented out because _ivalue of stackable items are not maintained
-		   (ITYPE_DURABLE(is->_itype) || is->_itype == ITYPE_MISC)
+		(ITYPE_DURABLE(is->_itype) || is->_itype == ITYPE_MISC)
 #ifdef HELLFIRE
-		&& (is->_itype != ITYPE_MISC
-		 || (is->_iMiscId > IMISC_OILFIRST && is->_iMiscId < IMISC_OILLAST))
+	 && (is->_itype != ITYPE_MISC || (is->_iMiscId > IMISC_OILFIRST && is->_iMiscId < IMISC_OILLAST))
 #else
-		&& is->_itype != ITYPE_MISC
+	 && is->_itype != ITYPE_MISC
 #endif
-		&& is->_iClass != ICLASS_QUEST*/
-		ITYPE_DURABLE(is->_itype)
-		&& (is->_itype != ITYPE_STAFF || is->_iSpell == SPL_NULL);
+	 && is->_iClass != ICLASS_QUEST*/
+		ITYPE_DURABLE(is->_itype) && (is->_itype != ITYPE_STAFF || is->_iSpell == SPL_NULL);
 }
 
 static void S_ScrollSSell()
@@ -1531,9 +1529,7 @@ bool TakePlrsMoney(int pnum, int cost)
 
 static bool StoreAutoPlace(int pnum, ItemStruct* is, bool saveflag)
 {
-	return /*WeaponAutoPlace(pnum, is, saveflag)
-		|| */AutoPlaceBelt(pnum, is, saveflag)
-		|| AutoPlaceInv(pnum, is, saveflag);
+	return /*WeaponAutoPlace(pnum, is, saveflag) ||*/ AutoPlaceBelt(pnum, is, saveflag) || AutoPlaceInv(pnum, is, saveflag);
 }
 
 /**

@@ -952,7 +952,7 @@ void InvPasteItem(int pnum, BYTE r)
 		} else {
 			copy_pod(*is, *holditem);
 		}*/
-		if (/*is->_itype == ITYPE_NONE && */wRight->_itype != ITYPE_NONE) {
+		if (/*is->_itype == ITYPE_NONE &&*/ wRight->_itype != ITYPE_NONE) {
 			SwapItem(is, wRight);
 			cn = SwapItem(is, holditem);
 		} else {
