@@ -16,7 +16,8 @@
 #define PNG_TRANSFORM_VFLIP 0x10000
 #define PNG_TRANSFORM_HFLIP 0x20000
 
-#define SUB_HEADER_SIZE		0x0A
+#define SUB_HEADER_SIZE  0x0A
+#define CEL_BLOCK_HEIGHT 32
 
 static bool stringicomp(const char* str1, const char* str2)
 {
@@ -137,8 +138,8 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
 			pBuf++;
 			bool alpha = false;
 			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-			if (celdata[n].clipped && (i % 32) == 1 && (i / 32) * 2 < SUB_HEADER_SIZE) {
-				*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+			if (celdata[n].clipped && (i % CEL_BLOCK_HEIGHT) == 1 && (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE) {
+				*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 			}
 			for (int j = 0; j < image_data->width; j++) {
 				if (data[j].a == 255) {
@@ -296,8 +297,8 @@ static bool WritePNG2CelComp(png_image_data* imagedata, int numimage, celcmp_ima
 				pBuf++;
 				bool alpha = false;
 				RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-				if (celdata[n].clipped && (i % 32) == 1 && (i / 32) * 2 < SUB_HEADER_SIZE) {
-					*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+				if (celdata[n].clipped && (i % CEL_BLOCK_HEIGHT) == 1 && (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE) {
+					*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 				}
 				for (int j = 0; j < image_data->width; j++) {
 					if (data[j].a == 255) {
@@ -461,9 +462,9 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 			bool first = true;
 			for (int i = 1; i <= image_data->height; i++) {
 				RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-				if ((i % 32) == 1 && (i / 32) * 2 < SUB_HEADER_SIZE) {
+				if ((i % CEL_BLOCK_HEIGHT) == 1 && (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE) {
 					pHead = pBuf;
-					*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+					*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 
 					colMatches = 0;
 					alpha = false;
@@ -877,8 +878,8 @@ static int CelGetFrameWidth(bool clipped, BYTE* frameData, int frameLen)
 				else
 					w = 1; // dummy value to skip the further testing
 			}
-			if (w % 32 == 0) {
-				w /= 32;
+			if (w % CEL_BLOCK_HEIGHT == 0) {
+				w /= CEL_BLOCK_HEIGHT;
 				if (CelValidWidth(w, pixels, lineBreaks, colorBreaks))
 					return w;
 			}
