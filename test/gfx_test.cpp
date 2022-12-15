@@ -1,3 +1,8 @@
+/**
+ * @file gfx_test.cpp
+ *
+ * Test whether the headers (CEL_FRAME_HEADER) of the clipped CEL/CL2 files are correct.
+ */
 #include <gtest/gtest.h>
 #include "all.h"
 
@@ -120,7 +125,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 	}
 }
 //int currClass, currAnim, currGfx, currGfxIdx;
-bool checkOneCl2(BYTE* cl2Data, int nCel, int nWidth, const char* filename, int group)
+static bool checkOneCl2(BYTE* cl2Data, int nCel, int nWidth, const char* filename, int group)
 {
 	for (int iCel = 1; iCel <= nCel; iCel++) {
 		//LogErrorF("PLR", "Checking %s (idx %d of %d, w:%d, group %d) anim:%d gfx:%d gxi:%d class%d", filename, iCel, nCel, nWidth, group, currAnim, currGfx, currGfxIdx, currClass);
@@ -165,7 +170,7 @@ bool checkOneCl2(BYTE* cl2Data, int nCel, int nWidth, const char* filename, int 
 	return true;
 }
 
-bool checkCl2(const char* filename, int nCel, int nWidth, int numGroups)
+static bool checkCl2(const char* filename, int nCel, int nWidth, int numGroups)
 {
 	bool result;
 	BYTE* cl2Data = LoadFileInMem(filename);
@@ -218,12 +223,10 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 	}
 }
 
-bool checkCel(const char* filename, int nCel, int nWidth)
+static bool checkOneCel(BYTE* celData, int nCel, int nWidth, const char* filename, int group)
 {
-	BYTE* celData = LoadFileInMem(filename);
-
 	for (int iCel = 1; iCel <= nCel; iCel++) {
-		//LogErrorF("PLR", "Checking %s (idx %d of %d, w:%d)", filename, iCel, nCel, nWidth);
+		//LogErrorF("PLR", "Checking %s (idx %d of %d, w:%d in group %d)", filename, iCel, nCel, nWidth, group);
 		memset(gpBuffer, 0, BUFFER_WIDTH * BUFFER_HEIGHT);
 
 		for (int cb = 0; cb <= CEL_BLOCK_MAX; cb++) {
@@ -237,8 +240,7 @@ bool checkCel(const char* filename, int nCel, int nWidth)
 			for (int yy = sy - CEL_BLOCK_HEIGHT; yy >= 0; yy--) {
 				for (int xx = 0; xx < 320; xx++) {
 					if (gpBuffer[xx + BUFFER_WIDTH * yy] != 0) {
-						app_fatal("Failed to block-draw %s (%d of %d) with width %d. Current block %d", filename, iCel, nCel, nWidth, cb);
-						mem_free_dbg(celData);
+						app_fatal("Failed to block-draw %s (%d of %d in group %d) with width %d. Current block %d", filename, iCel, nCel, group, nWidth, cb);
 						return false;
 					}
 				}
@@ -255,8 +257,7 @@ bool checkCel(const char* filename, int nCel, int nWidth)
 		for (int yy = sy; yy >= 0; yy--) {
 			for (int xx = 0; xx < 320; xx++) {
 				if (gpBuffer[xx + BUFFER_WIDTH * yy] != gpBuffer[(xx + 320) + BUFFER_WIDTH * yy]) {
-					app_fatal("Mismatching draw %s (%d of %d) with width %d.", filename, iCel, nCel, nWidth);
-					mem_free_dbg(celData);
+					app_fatal("Mismatching draw %s (%d of %d in group %d) with width %d.", filename, iCel, nCel, group, nWidth);
 					return false;
 				}
 			}
@@ -264,8 +265,26 @@ bool checkCel(const char* filename, int nCel, int nWidth)
 		//LogErrorF("PLR", "Check done.");
 	}
 
-	mem_free_dbg(celData);
 	return true;
+}
+
+static bool checkCel(const char* filename, int nCel, int nWidth, int numGroups)
+{
+	BYTE* celData = LoadFileInMem(filename);
+	bool result;
+
+	if (numGroups != 0) {
+		result = true;
+		for (int i = 0; i < numGroups; i++) {
+			BYTE* oneCl2Data = const_cast<BYTE*>(CelGetFrameStart(celData, i));
+			result &= checkOneCel(oneCl2Data, nCel, nWidth, filename, i);
+		}
+	} else {
+		result = checkOneCel(celData, nCel, nWidth, filename, 0);
+	}
+
+	mem_free_dbg(celData);
+	return result;
 }
 
 TEST(Gfx, Missiles)
@@ -383,7 +402,7 @@ TEST(Gfx, Objects)
 		char strBuff[DATA_ARCHIVE_MAX_PATH];
 		auto& ofdata = objfiledata[i];
 		snprintf(strBuff, sizeof(strBuff), "Objects\\%s.CEL", ofdata.ofName);
-		checkCel(strBuff, ofdata.oAnimLen, ofdata.oAnimWidth);
+		checkCel(strBuff, ofdata.oAnimLen, ofdata.oAnimWidth, 0);
 	}
 }
 
@@ -393,6 +412,33 @@ TEST(Gfx, Items)
 		char strBuff[DATA_ARCHIVE_MAX_PATH];
 		auto& ifdata = itemfiledata[i];
 		snprintf(strBuff, sizeof(strBuff), "Items\\%s.CEL", ifdata.ifName);
-		checkCel(strBuff, ifdata.iAnimLen, ITEM_ANIM_WIDTH);
+		checkCel(strBuff, ifdata.iAnimLen, ITEM_ANIM_WIDTH, 0);
 	}
+}
+
+TEST(Gfx, Towners)
+{
+	typedef struct TownerData {
+		const char* tfName;
+		int tAnimLen;
+	} TownerData;
+	const TownerData townerfiledata[] = {
+		{ "Towners\\Smith\\SmithN.CEL", 16 },
+		{ "Towners\\TwnF\\TwnFN.CEL", 16 },
+		{ "Towners\\Butch\\Deadguy.CEL", 8 },
+		{ "Towners\\TownWmn1\\Witch.CEL", 19 },
+		{ "Towners\\TownWmn1\\WmnN.CEL", 18 },
+		{ "Towners\\TownBoy\\PegKid1.CEL", 20 },
+		{ "Towners\\Healer\\Healer.CEL", 20 },
+		{ "Towners\\Strytell\\Strytell.CEL", 25 },
+		{ "Towners\\Drunk\\TwnDrunk.CEL", 18 },
+		{ "Towners\\Priest\\Priest8.CEL", 33 },
+	};
+
+	for (i = 0; i < lengthof(townerfiledata); i++) {
+		auto& tfdata = townerfiledata[i];
+		checkCel(tfdata.tfName, tfdata.tAnimLen, 96 * ASSET_MPL, 0);
+	}
+
+	checkCel("Towners\\Animals\\Cow.CEL", 12, 128 * ASSET_MPL, NUM_DIRS);
 }
