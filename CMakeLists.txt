@@ -561,6 +561,7 @@ if(RUN_TESTS)
     test/drlg_l4_test.cpp
     test/effects_test.cpp
     test/file_util_test.cpp
+    test/gfx_test.cpp
     test/lighting_test.cpp
     test/missiles_test.cpp
     test/player_test.cpp
