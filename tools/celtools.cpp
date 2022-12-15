@@ -549,8 +549,11 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 	return result;
 }
 
-bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset)
+bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset, int numgroups = 0)
 {
+	if (numgroups != 0 && (numimage % numgroups) != 0)
+		return false;
+
 	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	for (int n = 0; n < numimage; n++) {
 		if (!ReadPNG(pngnames[n], imagedata[n])) {
@@ -564,8 +567,9 @@ bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* cel
 	}
 
 	cl2_image_data* celdata = (cl2_image_data*)malloc(sizeof(cl2_image_data) * numimage);
+	int groupSize = numgroups == 0 ? numimage : (numimage / numgroups);
 	for (int n = 0; n < numimage; n++) {
-		celdata[n].groupSize = numimage;
+		celdata[n].groupSize = groupSize;
 	}
 	return WritePNG2Cl2(imagedata, numimage, celdata, celname, palette, numcolors, coloroffset);
 }
