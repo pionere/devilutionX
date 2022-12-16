@@ -749,14 +749,14 @@ void SelectHotKeySkill(int slot, bool altSkill)
 static void DrawFlask2(int sx, unsigned filled, int emptyCel, int fullCel, int w)
 {
 	const BYTE *empty, *full;
-	int sy, dataSize, i;
+	int sy, i;
 	int8_t width;
 
 	sy = PANEL_Y + PANEL_HEIGHT - 1;
 
 	filled += FLASK_TOTAL_HEIGHT - FLASK_BULB_HEIGHT;
 	unsigned emptied = FLASK_TOTAL_HEIGHT - filled;
-	full = CelGetFrameClipped(pFlaskCels, fullCel, &dataSize);
+	full = CelGetFrameClippedAt(pFlaskCels, fullCel, 0);
 
 	BYTE* dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 	for ( ; filled-- != 0; dst -= BUFFER_WIDTH + w) {
