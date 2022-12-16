@@ -10,13 +10,8 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #if DEBUG_MODE
-/** automap pixel color 8-bit (palette entry) */
-BYTE gbPixelCol;
 /** flip - if y < x */
 bool _gbRotateMap;
-/** valid - if x/y are in bounds */
-bool _gbNotInView;
-/** Number of times the current seed has been fetched */
 #endif
 
 /**
@@ -25,7 +20,7 @@ bool _gbNotInView;
  * @param sy Back buffer coordinate
  * @param col Color index from current palette
  */
-void AutomapDrawPixel(int sx, int sy, BYTE col)
+void DrawPixel(int sx, int sy, BYTE col)
 {
 	BYTE* dst;
 
@@ -41,28 +36,29 @@ void AutomapDrawPixel(int sx, int sy, BYTE col)
 
 #if DEBUG_MODE
 /**
- * @brief Set the value of a single pixel in the back buffer to that of gbPixelCol, checks bounds
+ * @brief Set the value of a single pixel in the back buffer, checks bounds
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
+ * @param col Color index from current palette
  */
-void engine_draw_pixel(int sx, int sy)
+void DrawPixelSafe(int sx, int sy, BYTE col)
 {
 	BYTE* dst;
 
 	assert(gpBuffer != NULL);
 
 	if (_gbRotateMap) {
-		if (_gbNotInView && (sx < 0 || sx >= SCREEN_HEIGHT + SCREEN_Y || sy < SCREEN_X || sy >= SCREEN_WIDTH + SCREEN_X))
+		if (sx < 0 || sx >= SCREEN_HEIGHT + SCREEN_Y || sy < SCREEN_X || sy >= SCREEN_WIDTH + SCREEN_X)
 			return;
 		dst = &gpBuffer[sy + BUFFER_WIDTH * sx];
 	} else {
-		if (_gbNotInView && (sy < 0 || sy >= SCREEN_HEIGHT + SCREEN_Y || sx < SCREEN_X || sx >= SCREEN_WIDTH + SCREEN_X))
+		if (sy < 0 || sy >= SCREEN_HEIGHT + SCREEN_Y || sx < SCREEN_X || sx >= SCREEN_WIDTH + SCREEN_X)
 			return;
 		dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 	}
 
 	if (dst < gpBufEnd && dst >= gpBufStart)
-		*dst = gbPixelCol;
+		*dst = col;
 }
 #endif
 
@@ -74,7 +70,7 @@ void engine_draw_pixel(int sx, int sy)
  * @param y1 Back buffer coordinate
  * @param col Color index from current palette
  */
-void AutomapDrawLine(int x0, int y0, int x1, int y1, BYTE col)
+void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 {
 	int d, xyinc, dx, dy, tmp;
 
@@ -107,7 +103,7 @@ void AutomapDrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		// draw to the final position as well
 		x1++;
 		while (true) {
-			AutomapDrawPixel(x0, y0, col);
+			DrawPixel(x0, y0, col);
 			d += dy;
 			if (d >= dx) {
 				d -= /*2 **/ dx; // multiply by 2 to support rounding
@@ -142,7 +138,7 @@ void AutomapDrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		// draw to the final position as well
 		y1++;
 		while (true) {
-			AutomapDrawPixel(x0, y0, col);
+			DrawPixel(x0, y0, col);
 			d += dx;
 			if (d >= dy) {
 				d -= /*2 **/ dy; // multiply by 2 to support rounding

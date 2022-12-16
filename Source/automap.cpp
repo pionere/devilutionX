@@ -226,22 +226,22 @@ static void DrawAutomapDirt(int x, int y)
 	unsigned d32 = AmLine32;
 	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
 
-	AutomapDrawPixel(x, y, COLOR_DIM);
-	AutomapDrawPixel(x - d8, y - d4, COLOR_DIM);
-	AutomapDrawPixel(x - d8, y + d4, COLOR_DIM);
-	AutomapDrawPixel(x + d8, y - d4, COLOR_DIM);
-	AutomapDrawPixel(x + d8, y + d4, COLOR_DIM);
-	AutomapDrawPixel(x - d16, y, COLOR_DIM);
-	AutomapDrawPixel(x + d16, y, COLOR_DIM);
-	AutomapDrawPixel(x, y - d8, COLOR_DIM);
-	AutomapDrawPixel(x, y + d8, COLOR_DIM);
-	AutomapDrawPixel(x + d8 - d32, y + d4, COLOR_DIM);
-	AutomapDrawPixel(x - d8 + d32, y + d4, COLOR_DIM);
-	AutomapDrawPixel(x - d16, y + d8, COLOR_DIM);
-	AutomapDrawPixel(x + d16, y + d8, COLOR_DIM);
-	AutomapDrawPixel(x - d8, y + d16 - d4, COLOR_DIM);
-	AutomapDrawPixel(x + d8, y + d16 - d4, COLOR_DIM);
-	AutomapDrawPixel(x, y + d16, COLOR_DIM);
+	DrawPixel(x, y, COLOR_DIM);
+	DrawPixel(x - d8, y - d4, COLOR_DIM);
+	DrawPixel(x - d8, y + d4, COLOR_DIM);
+	DrawPixel(x + d8, y - d4, COLOR_DIM);
+	DrawPixel(x + d8, y + d4, COLOR_DIM);
+	DrawPixel(x - d16, y, COLOR_DIM);
+	DrawPixel(x + d16, y, COLOR_DIM);
+	DrawPixel(x, y - d8, COLOR_DIM);
+	DrawPixel(x, y + d8, COLOR_DIM);
+	DrawPixel(x + d8 - d32, y + d4, COLOR_DIM);
+	DrawPixel(x - d8 + d32, y + d4, COLOR_DIM);
+	DrawPixel(x - d16, y + d8, COLOR_DIM);
+	DrawPixel(x + d16, y + d8, COLOR_DIM);
+	DrawPixel(x - d8, y + d16 - d4, COLOR_DIM);
+	DrawPixel(x + d8, y + d16 - d4, COLOR_DIM);
+	DrawPixel(x, y + d16, COLOR_DIM);
 }
 
 static void DrawAutomapStairs(int x, int y)
@@ -249,10 +249,10 @@ static void DrawAutomapStairs(int x, int y)
 	unsigned d32 = AmLine32;
 	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
 
-	AutomapDrawLine(x - d8, y - d8 - d4, x + d8 + d16, y + d4, COLOR_BRIGHT);
-	AutomapDrawLine(x - d16, y - d8, x + d16, y + d8, COLOR_BRIGHT);
-	AutomapDrawLine(x - d16 - d8, y - d4, x + d8, y + d8 + d4, COLOR_BRIGHT);
-	AutomapDrawLine(x - d32, y, x, y + d16, COLOR_BRIGHT);
+	DrawLine(x - d8, y - d8 - d4, x + d8 + d16, y + d4, COLOR_BRIGHT);
+	DrawLine(x - d16, y - d8, x + d16, y + d8, COLOR_BRIGHT);
+	DrawLine(x - d16 - d8, y - d4, x + d8, y + d8 + d4, COLOR_BRIGHT);
+	DrawLine(x - d32, y, x, y + d16, COLOR_BRIGHT);
 }
 
 static void DrawAutomapHorzDoor(int x, int y)
@@ -260,12 +260,12 @@ static void DrawAutomapHorzDoor(int x, int y)
 	unsigned d16 = AmLine16;
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 
-	AutomapDrawLine(x - d16, y - d8, x - d8, y - d4, COLOR_DIM);
-	AutomapDrawLine(x + d16, y + d8, x + d8, y + d4, COLOR_DIM);
-	AutomapDrawLine(x, y - d8, x - d16, y, COLOR_BRIGHT);
-	AutomapDrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT);
-	AutomapDrawLine(x, y + d8, x - d16, y, COLOR_BRIGHT);
-	AutomapDrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT);
+	DrawLine(x - d16, y - d8, x - d8, y - d4, COLOR_DIM);
+	DrawLine(x + d16, y + d8, x + d8, y + d4, COLOR_DIM);
+	DrawLine(x, y - d8, x - d16, y, COLOR_BRIGHT);
+	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT);
+	DrawLine(x, y + d8, x - d16, y, COLOR_BRIGHT);
+	DrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT);
 }
 
 static void DrawAutomapVertDoor(int x, int y)
@@ -273,12 +273,12 @@ static void DrawAutomapVertDoor(int x, int y)
 	unsigned d16 = AmLine16;
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 
-	AutomapDrawLine(x + d16, y - d8, x + d8, y - d4, COLOR_DIM);
-	AutomapDrawLine(x - d16, y + d8, x - d8, y + d4, COLOR_DIM);
-	AutomapDrawLine(x, y - d8, x - d16, y, COLOR_BRIGHT);
-	AutomapDrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT);
-	AutomapDrawLine(x, y + d8, x - d16, y, COLOR_BRIGHT);
-	AutomapDrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT);
+	DrawLine(x + d16, y - d8, x + d8, y - d4, COLOR_DIM);
+	DrawLine(x - d16, y + d8, x - d8, y + d4, COLOR_DIM);
+	DrawLine(x, y - d8, x - d16, y, COLOR_BRIGHT);
+	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT);
+	DrawLine(x, y + d8, x - d16, y, COLOR_BRIGHT);
+	DrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT);
 }
 
 static void DrawAutomapDiamond(int x, int y)
@@ -287,10 +287,10 @@ static void DrawAutomapDiamond(int x, int y)
 
 	y2 = y - (d16 >> 1);
 
-	AutomapDrawLine(x, y - d16, x + d16, y2, COLOR_DIM);
-	AutomapDrawLine(x, y - d16, x - d16, y2, COLOR_DIM);
-	AutomapDrawLine(x, y, x - d16, y2, COLOR_DIM);
-	AutomapDrawLine(x, y, x + d16, y2, COLOR_DIM);
+	DrawLine(x, y - d16, x + d16, y2, COLOR_DIM);
+	DrawLine(x, y - d16, x - d16, y2, COLOR_DIM);
+	DrawLine(x, y, x - d16, y2, COLOR_DIM);
+	DrawLine(x, y, x + d16, y2, COLOR_DIM);
 }
 
 /**
@@ -357,7 +357,7 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 		if (automap_type & MAPFLAG_VERTGRATE) { // right-facing half-wall
 			unsigned d32 = AmLine32;
 			unsigned d16 = (d32 >> 1), d8 = (d32 >> 2);
-			AutomapDrawLine(sx - d16, sy - d8, sx - d32, sy, COLOR_DIM);
+			DrawLine(sx - d16, sy - d8, sx - d32, sy, COLOR_DIM);
 		}
 		if (automap_type & (MAPFLAG_VERTGRATE | MAPFLAG_VERTARCH)) { // window or passable column
 			DrawAutomapDiamond(sx, sy);
@@ -365,7 +365,7 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 		if ((automap_type & (MAPFLAG_VERTDOOR | MAPFLAG_VERTGRATE | MAPFLAG_VERTARCH)) == 0) {
 			unsigned d32 = AmLine32;
 			unsigned d16 = (d32 >> 1);
-			AutomapDrawLine(sx, sy - d16, sx - d32, sy, COLOR_DIM);
+			DrawLine(sx, sy - d16, sx - d32, sy, COLOR_DIM);
 		}
 	}
 
@@ -378,7 +378,7 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 		if (automap_type & MAPFLAG_HORZGRATE) {
 			unsigned d32 = AmLine32;
 			unsigned d16 = (d32 >> 1), d8 = (d32 >> 2);
-			AutomapDrawLine(sx + d16, sy - d8, sx + d32, sy, COLOR_DIM);
+			DrawLine(sx + d16, sy - d8, sx + d32, sy, COLOR_DIM);
 		}
 		if (automap_type & (MAPFLAG_HORZGRATE | MAPFLAG_HORZARCH)) {
 			DrawAutomapDiamond(sx, sy);
@@ -386,7 +386,7 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 		if ((automap_type & (MAPFLAG_HORZDOOR | MAPFLAG_HORZGRATE | MAPFLAG_HORZARCH)) == 0) {
 			unsigned d32 = AmLine32;
 			unsigned d16 = (d32 >> 1);
-			AutomapDrawLine(sx, sy - d16, sx + d32, sy, COLOR_DIM);
+			DrawLine(sx, sy - d16, sx + d32, sy, COLOR_DIM);
 		}
 	}
 
@@ -398,7 +398,7 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 			unsigned d8 = (d32 >> 2);
 			DrawAutomapHorzDoor(sx - d16, sy + d8);
 		} else {
-			AutomapDrawLine(sx, sy + d16, sx - d32, sy, COLOR_DIM);
+			DrawLine(sx, sy + d16, sx - d32, sy, COLOR_DIM);
 		}
 	}
 
@@ -409,7 +409,7 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 			unsigned d8 = (d32 >> 2);
 			DrawAutomapVertDoor(sx + d16, sy + d8);
 		} else {
-			AutomapDrawLine(sx, sy + d16, sx + d32, sy, COLOR_DIM);
+			DrawLine(sx, sy + d16, sx + d32, sy, COLOR_DIM);
 		}
 	}
 }
@@ -422,10 +422,10 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 	y1 = y - AmLine16 / 2;
 	x2 = x1 + AmLine64 / 2;
 	y2 = y1 + AmLine32 / 2;
-	AutomapDrawLine(x, y1, x1, y, color);
-	AutomapDrawLine(x, y1, x2, y, color);
-	AutomapDrawLine(x, y2, x1, y, color);
-	AutomapDrawLine(x, y2, x2, y, color);
+	DrawLine(x, y1, x1, y, color);
+	DrawLine(x, y1, x2, y, color);
+	DrawLine(x, y2, x1, y, color);
+	DrawLine(x, y2, x2, y, color);
 }
 
 static void SearchAutomapItem()
@@ -511,44 +511,44 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 	switch (p->_pdir) {
 	case DIR_N: {
-		AutomapDrawLine(x, y, x, y - d16, playerColor);
-		AutomapDrawLine(x, y - d16, x - d4, y - d8, playerColor);
-		AutomapDrawLine(x, y - d16, x + d4, y - d8, playerColor);
+		DrawLine(x, y, x, y - d16, playerColor);
+		DrawLine(x, y - d16, x - d4, y - d8, playerColor);
+		DrawLine(x, y - d16, x + d4, y - d8, playerColor);
 	} break;
 	case DIR_NE: {
-		AutomapDrawLine(x, y, x + d16, y - d8, playerColor);
-		AutomapDrawLine(x + d16, y - d8, x + d4, y - d8, playerColor);
-		AutomapDrawLine(x + d16, y - d8, x + d8 + d4, y, playerColor);
+		DrawLine(x, y, x + d16, y - d8, playerColor);
+		DrawLine(x + d16, y - d8, x + d4, y - d8, playerColor);
+		DrawLine(x + d16, y - d8, x + d8 + d4, y, playerColor);
 	} break;
 	case DIR_E: {
-		AutomapDrawLine(x, y, x + d16, y, playerColor);
-		AutomapDrawLine(x + d16, y, x + d8, y - d4, playerColor);
-		AutomapDrawLine(x + d16, y, x + d8, y + d4, playerColor);
+		DrawLine(x, y, x + d16, y, playerColor);
+		DrawLine(x + d16, y, x + d8, y - d4, playerColor);
+		DrawLine(x + d16, y, x + d8, y + d4, playerColor);
 	} break;
 	case DIR_SE: {
-		AutomapDrawLine(x, y, x + d16, y + d8, playerColor);
-		AutomapDrawLine(x + d16, y + d8, x + d8 + d4, y, playerColor);
-		AutomapDrawLine(x + d16, y + d8, x + d4, y + d8, playerColor);
+		DrawLine(x, y, x + d16, y + d8, playerColor);
+		DrawLine(x + d16, y + d8, x + d8 + d4, y, playerColor);
+		DrawLine(x + d16, y + d8, x + d4, y + d8, playerColor);
 	} break;
 	case DIR_S: {
-		AutomapDrawLine(x, y, x, y + d16, playerColor);
-		AutomapDrawLine(x, y + d16, x + d4, y + d8, playerColor);
-		AutomapDrawLine(x, y + d16, x - d4, y + d8, playerColor);
+		DrawLine(x, y, x, y + d16, playerColor);
+		DrawLine(x, y + d16, x + d4, y + d8, playerColor);
+		DrawLine(x, y + d16, x - d4, y + d8, playerColor);
 	} break;
 	case DIR_SW: {
-		AutomapDrawLine(x, y, x - d16, y + d8, playerColor);
-		AutomapDrawLine(x - d16, y + d8, x - d4 - d8, y, playerColor);
-		AutomapDrawLine(x - d16, y + d8, x - d4, y + d8, playerColor);
+		DrawLine(x, y, x - d16, y + d8, playerColor);
+		DrawLine(x - d16, y + d8, x - d4 - d8, y, playerColor);
+		DrawLine(x - d16, y + d8, x - d4, y + d8, playerColor);
 	} break;
 	case DIR_W: {
-		AutomapDrawLine(x, y, x - d16, y, playerColor);
-		AutomapDrawLine(x - d16, y, x - d8, y - d4, playerColor);
-		AutomapDrawLine(x - d16, y, x - d8, y + d4, playerColor);
+		DrawLine(x, y, x - d16, y, playerColor);
+		DrawLine(x - d16, y, x - d8, y - d4, playerColor);
+		DrawLine(x - d16, y, x - d8, y + d4, playerColor);
 	} break;
 	case DIR_NW: {
-		AutomapDrawLine(x, y, x - d16, y - d8, playerColor);
-		AutomapDrawLine(x - d16, y - d8, x - d4, y - d8, playerColor);
-		AutomapDrawLine(x - d16, y - d8, x - d4 - d8, y, playerColor);
+		DrawLine(x, y, x - d16, y - d8, playerColor);
+		DrawLine(x - d16, y - d8, x - d4, y - d8, playerColor);
+		DrawLine(x - d16, y - d8, x - d4 - d8, y, playerColor);
 	} break;
 	default:
 		ASSUME_UNREACHABLE

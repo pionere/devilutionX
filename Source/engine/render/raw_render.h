@@ -12,8 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void AutomapDrawPixel(int sx, int sy, BYTE col);
-void AutomapDrawLine(int x0, int y0, int x1, int y1, BYTE col);
+void DrawPixel(int sx, int sy, BYTE col);
+void DrawLine(int x0, int y0, int x1, int y1, BYTE col);
 
 #ifdef __cplusplus
 }
