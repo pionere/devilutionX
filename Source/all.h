@@ -102,8 +102,8 @@
 #include "towners.h"
 //#include "track.h"
 #include "trigs.h"
-#include "engine/render/cel_render.hpp"
-#include "engine/render/text_render.hpp"
+#include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 
 #include "storm/storm.h"
 

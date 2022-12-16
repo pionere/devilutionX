@@ -3,7 +3,7 @@
  *
  * CL2 rendering.
  */
-#include "cl2_render.hpp"
+#include "cl2_render.h"
 
 #include "all.h"
 

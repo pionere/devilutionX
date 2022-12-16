@@ -4,7 +4,7 @@
  * Implementation of the in-game map overlay.
  */
 #include "all.h"
-#include "engine/render/automap_render.hpp"
+#include "engine/render/automap_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

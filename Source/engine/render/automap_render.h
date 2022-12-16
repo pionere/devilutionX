@@ -1,5 +1,5 @@
 /**
- * @file automap_render.hpp
+ * @file automap_render.h
  */
 #ifndef __AUTOMAP_RENDER_H__
 #define __AUTOMAP_RENDER_H__

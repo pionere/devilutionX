@@ -5,7 +5,7 @@
  */
 #include "all.h"
 #include "plrctrls.h"
-#include "engine/render/text_render.hpp"
+#include "engine/render/text_render.h"
 #include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE

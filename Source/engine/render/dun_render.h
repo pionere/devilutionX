@@ -1,5 +1,5 @@
 /**
- * @file dun_render.hpp
+ * @file dun_render.h
  *
  * Interface of functionality for rendering the level tiles.
  */

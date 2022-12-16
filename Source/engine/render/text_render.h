@@ -1,5 +1,5 @@
 /**
- * @file text_render.hpp
+ * @file text_render.h
  *
  * Text rendering.
  */

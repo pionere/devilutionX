@@ -3,7 +3,7 @@
  *
  * CEL rendering.
  */
-#include "cel_render.hpp"
+#include "cel_render.h"
 
 #include "all.h"
 

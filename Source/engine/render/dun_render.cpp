@@ -3,7 +3,7 @@
  *
  * Implementation of functionality for rendering the level tiles.
  */
-#include "dun_render.hpp"
+#include "dun_render.h"
 
 #include "all.h"
 

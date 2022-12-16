@@ -1,5 +1,5 @@
 /**
- * @file cl2_render.hpp
+ * @file cl2_render.h
  *
  * CL2 rendering.
  */

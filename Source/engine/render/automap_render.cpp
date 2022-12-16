@@ -3,7 +3,7 @@
  *
  * Line drawing routines for the automap.
  */
-#include "automap_render.hpp"
+#include "automap_render.h"
 
 #include "all.h"
 

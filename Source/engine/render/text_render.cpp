@@ -3,7 +3,7 @@
  *
  * Text rendering.
  */
-#include "text_render.hpp"
+#include "text_render.h"
 
 #include "all.h"
 
