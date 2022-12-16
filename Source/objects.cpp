@@ -137,6 +137,7 @@ const int flickers[32] = {
 	//{ 0, 0, 0, 0, 0, 0, 1, 1, 1 }
 };
 #endif
+
 void InitObjectGFX()
 {
 	const ObjectData* ods;
@@ -691,6 +692,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	ods = &objectdata[type];
 	os->_oSelFlag = ods->oSelFlag;
 	os->_oDoorFlag = ods->oDoorFlag;
+	os->_oProc = ods->oProc;
 	os->_oAnimFrame = ods->oAnimBaseFrame;
 	os->_oAnimData = objanimdata[ods->ofindex];
 	ofd = &objfiledata[ods->ofindex];
@@ -1809,64 +1811,28 @@ static void Obj_BCrossDamage(int oi)
 	}
 }
 
+static void (*const OiProc[])(int i) = {
+	// clang-format off
+/*OPF_NONE*/        NULL,
+/*OPF_DOOR*/        &Obj_Door,
+/*OPF_FLAMETRAP*/// &Obj_FlameTrap,
+/*OPF_TRAP*/        &Obj_Trap,
+/*OPF_CIRCLE*/      &Obj_Circle,
+/*OPF_BCROSS*/      &Obj_BCrossDamage,
+#if FLICKER_LIGHT
+/*OPF_LIGHT*/       &Obj_Light,
+#endif
+	// clang-format on
+};
 void ProcessObjects()
 {
 	int i, oi;
 
 	for (i = 0; i < numobjects; ++i) {
 		oi = objectactive[i];
-		switch (objects[oi]._otype) {
-#if FLICKER_LIGHT
-		case OBJ_L1LIGHT:
-			Obj_Light(oi);
-			break;
-#endif
-		/*case OBJ_SKFIRE:
-		case OBJ_CANDLE1:
-		case OBJ_CANDLE2:
-		case OBJ_BOOKCANDLE:
-			Obj_Light(oi, 5);
-			break;
-		case OBJ_STORYCANDLE:
-#ifdef HELLFIRE
-	case OBJ_L5CANDLE:
-#endif
-			Obj_Light(oi, 3);
-			break;*/
-		case OBJ_L1LDOOR:
-		case OBJ_L1RDOOR:
-		case OBJ_L2LDOOR:
-		case OBJ_L2RDOOR:
-		case OBJ_L3LDOOR:
-		case OBJ_L3RDOOR:
-#ifdef HELLFIRE
-		case OBJ_L5LDOOR:
-		case OBJ_L5RDOOR:
-#endif
-			Obj_Door(oi);
-			break;
-		/*case OBJ_TORCHL1:
-		case OBJ_TORCHL2:
-		case OBJ_TORCHR1:
-		case OBJ_TORCHR2:
-			Obj_Light(oi, 5, flickers[1]);
-			break;*/
-		//case OBJ_FLAMEHOLE:
-		//	Obj_FlameTrap(oi);
-		//	break;
-		case OBJ_TRAPL:
-		case OBJ_TRAPR:
-			Obj_Trap(oi);
-			break;
-		case OBJ_MCIRCLE1:
-		case OBJ_MCIRCLE2:
-			Obj_Circle(oi);
-			break;
-		case OBJ_TBCROSS:
-			//Obj_Light(oi, 5);
-			Obj_BCrossDamage(oi);
-			break;
-		}
+		if (objects[oi]._oProc != OPF_NONE)
+			OiProc[objects[oi]._oProc](oi);
+
 		if (objects[oi]._oAnimFlag == OAM_NONE)
 			continue;
 

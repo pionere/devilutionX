@@ -775,6 +775,7 @@ typedef struct ObjectData {
 	BYTE oSetLvlType; // dungeon_type
 	BYTE otheme;      // theme_id
 	BYTE oquest;      // quest_id
+	BYTE oProc;       // object_proc_func
 	//BYTE oAnimFlag;
 	BYTE oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
 	//int oAnimFrameLen; // Tick length of each frame in the current animation
@@ -822,7 +823,7 @@ typedef struct ObjectStruct {
 	int _oSFX;  // _sfx_id
 	BYTE _oSFXCnt;
 	BYTE _oAnimFlag; // object_anim_mode
-	BYTE _oAlign0;
+	BYTE _oProc;     // object_proc_func
 	BYTE _oAlign1;
 	BYTE* _oAnimData;
 	int _oAnimFrameLen; // Tick length of each frame in the current animation
@@ -1417,7 +1418,7 @@ typedef struct LSaveObjectStruct {
 	LE_INT32 voSFX; // ssfx_id
 	BYTE voSFXCnt;
 	BYTE voAnimFlag;
-	BYTE voAlign0;
+	BYTE voProc;
 	BYTE voAlign1;
 	INT voAnimDataAlign;
 	LE_INT32 voAnimFrameLen; // Tick length of each frame in the current animation

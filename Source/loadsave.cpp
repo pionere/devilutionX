@@ -526,7 +526,7 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 
 	os->_oSFXCnt = savedObj->voSFXCnt;
 	os->_oAnimFlag = savedObj->voAnimFlag;
-	os->_oAlign0 = savedObj->voAlign0;
+	os->_oProc = savedObj->voProc;
 	os->_oAlign1 = savedObj->voAlign1;
 
 	// os->_oAnimData = savedObj->voAnimDataAlign;
@@ -1379,7 +1379,7 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 
 	objSave->voSFXCnt = os->_oSFXCnt;
 	objSave->voAnimFlag = os->_oAnimFlag;
-	objSave->voAlign0 = os->_oAlign0;
+	objSave->voProc = os->_oProc;
 	objSave->voAlign1 = os->_oAlign1;
 
 	//objSave->voAnimDataAlign = os->_oAnimData;

@@ -3076,6 +3076,18 @@ typedef enum object_graphic_id {
 	NUM_OFILE_TYPES
 } object_graphic_id;
 
+typedef enum object_proc_func {
+	OPF_NONE,
+	OPF_DOOR,
+	//OPF_FLAMETRAP,
+	OPF_TRAP,
+	OPF_CIRCLE,
+	OPF_BCROSS,
+#if FLICKER_LIGHT
+	OPF_LIGHT,
+#endif
+} object_proc_func;
+
 typedef enum object_anim_mode {
 	OAM_NONE,
 	OAM_SINGLE,
