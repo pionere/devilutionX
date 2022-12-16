@@ -452,15 +452,6 @@ set(devilutionx_SRCS
   Source/controls/modifier_hints.cpp
   Source/controls/plrctrls.cpp
   Source/controls/touch.cpp
-  Source/engine/render/raw_render.cpp
-  Source/engine/render/cel_render.cpp
-  Source/engine/render/cl2_render.cpp
-  Source/engine/render/dun_render.cpp
-  Source/engine/render/text_render.cpp
-  Source/utils/display.cpp
-  Source/utils/paths.cpp
-  Source/utils/soundsample.cpp
-  Source/utils/thread.cpp
   Source/DiabloUI/credits.cpp
   #Source/DiabloUI/credits_lines.cpp
   Source/DiabloUI/diabloui.cpp
@@ -484,10 +475,19 @@ set(devilutionx_SRCS
   Source/dvlnet/frame_queue.cpp
   Source/dvlnet/loopback.cpp
   Source/dvlnet/packet.cpp
+  Source/engine/render/cel_render.cpp
+  Source/engine/render/cl2_render.cpp
+  Source/engine/render/dun_render.cpp
+  Source/engine/render/raw_render.cpp
+  Source/engine/render/text_render.cpp
+  Source/miniwin/misc_msg.cpp
   Source/storm/storm.cpp
   Source/storm/storm_net.cpp
   Source/storm/storm_svid.cpp
-  Source/miniwin/misc_msg.cpp)
+  Source/utils/display.cpp
+  Source/utils/paths.cpp
+  Source/utils/soundsample.cpp
+  Source/utils/thread.cpp)
 
 if(IOS)
   list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
