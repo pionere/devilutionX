@@ -31,7 +31,7 @@ void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel);
  * @param nCel CEL frame number
  * @param tbl Palette translation table
  */
-void CelDrawLight(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const BYTE* tbl);
+void CelDrawTrnTbl(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const BYTE* tbl);
 
 /**
  * @brief Blit CEL sprite, and optionally use stippled-transparency or light trn, to the given buffer at the given coordinates

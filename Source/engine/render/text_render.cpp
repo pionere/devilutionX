@@ -184,7 +184,7 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	CelDrawLight(sx, sy, pSmallTextCels, nCel, tbl);
+	CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
 }
 
 int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
@@ -213,7 +213,7 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawLight(sx, sy, pBigTextCels, nCel, tbl);
+		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, tbl);
 	}
 
 	return bigFontWidth[nCel] + FONT_KERN_BIG;*/
@@ -224,7 +224,7 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 			CelDraw(sx, sy, pBigTextCels, nCel);
 		} else {
 			// assert(col == COL_WHITE);
-			CelDrawLight(sx, sy, pBigTextCels, nCel, FONT_TRN_SILVER);
+			CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, FONT_TRN_SILVER);
 		}
 	}
 
@@ -257,7 +257,7 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawLight(sx, sy, pSmallTextCels, nCel, tbl);
+		CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
 	}
 
 	return smallFontWidth[nCel] + FONT_KERN_SMALL;
@@ -289,7 +289,7 @@ int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawLight(sx, sy, pHugeGoldTextCels, nCel, tbl);*/
+		CelDrawTrnTbl(sx, sy, pHugeGoldTextCels, nCel, tbl);*/
 		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
 	}
 
@@ -409,7 +409,7 @@ void PrintHugeString(int x, int y, const char* text, int light)
 			// if (tbl == NULL)
 			//	CelDraw(x, y, pHugeGoldTextCels, c);
 			// else
-			CelDrawLight(x, y, pHugeGoldTextCels, c, tbl);
+			CelDrawTrnTbl(x, y, pHugeGoldTextCels, c, tbl);
 		}
 		x += hugeFontWidth[c] + FONT_KERN_HUGE;
 	}

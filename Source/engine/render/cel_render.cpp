@@ -142,7 +142,7 @@ void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
  * @param nCel CEL frame number
  * @param tbl Palette translation table
  */
-void CelDrawLight(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const BYTE* tbl)
+void CelDrawTrnTbl(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const BYTE* tbl)
 {
 	int nDataSize;
 	BYTE* pDecodeTo;

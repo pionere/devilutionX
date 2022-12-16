@@ -312,7 +312,7 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 			st = RSPLTYPE_INVALID;
 	}
 	y = PANEL_Y + PANEL_HEIGHT - 1 - offset;
-	CelDrawLight(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, pSpellCels,
+	CelDrawTrnTbl(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, pSpellCels,
 		spelldata[spl].sIcon, SkillTrns[GetSpellTrans(st, spl)]);
 	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, spl, st);
 }
@@ -464,7 +464,7 @@ void DrawSkillList()
 				st = RSPLTYPE_INVALID;
 			else
 				st = GetSpellTrans(st, j);
-			CelDrawLight(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
+			CelDrawTrnTbl(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICON_HEIGHT;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -473,8 +473,8 @@ void DrawSkillList()
 			}
 #endif
 			if (POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT)) {
-				//CelDrawLight(x, y, pSpellCels, c, SkillTrns[st]);
-				CelDrawLight(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
+				//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
+				CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
 				currSkill = j;
 				if (j == SPL_NULL) {
@@ -2008,11 +2008,11 @@ void DrawSpellBook()
 
 			if ((spelldata[sn].sUseFlags & plr._pSkillFlags) != spelldata[sn].sUseFlags)
 				st = RSPLTYPE_INVALID;
-			CelDrawLight(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[GetSpellTrans(st, sn)]);
+			CelDrawTrnTbl(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[GetSpellTrans(st, sn)]);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
 			if ((sn == plr._pAltAtkSkill && st == plr._pAltAtkSkillType)
 			 || (sn == plr._pAltMoveSkill && st == plr._pAltMoveSkillType)) {
-				CelDrawLight(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
+				CelDrawTrnTbl(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
 			}
 		}
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
@@ -2221,7 +2221,7 @@ void DrawTeamBook()
 
 		// icon
 		st = plr._pDunLevel == DLV_TOWN ? RSPLTYPE_ABILITY : (plr._pmode == PM_DEATH ? RSPLTYPE_INVALID : RSPLTYPE_SPELL);
-		CelDrawLight(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SkillTrns[st]);
+		CelDrawTrnTbl(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SkillTrns[st]);
 
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}
