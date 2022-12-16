@@ -452,7 +452,7 @@ set(devilutionx_SRCS
   Source/controls/modifier_hints.cpp
   Source/controls/plrctrls.cpp
   Source/controls/touch.cpp
-  Source/engine/render/automap_render.cpp
+  Source/engine/render/raw_render.cpp
   Source/engine/render/cel_render.cpp
   Source/engine/render/cl2_render.cpp
   Source/engine/render/dun_render.cpp
