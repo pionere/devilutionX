@@ -1,9 +1,9 @@
 /**
- * @file automap_render.cpp
+ * @file raw_render.cpp
  *
- * Line drawing routines for the automap.
+ * Basic drawing routines.
  */
-#include "automap_render.h"
+#include "raw_render.h"
 
 #include "all.h"
 

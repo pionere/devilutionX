@@ -1,8 +1,8 @@
 /**
- * @file automap_render.h
+ * @file raw_render.h
  */
-#ifndef __AUTOMAP_RENDER_H__
-#define __AUTOMAP_RENDER_H__
+#ifndef __RAW_RENDER_H__
+#define __RAW_RENDER_H__
 
 #include "../types.h"
 
@@ -21,4 +21,4 @@ void AutomapDrawLine(int x0, int y0, int x1, int y1, BYTE col);
 
 DEVILUTION_END_NAMESPACE
 
-#endif /* __AUTOMAP_RENDER_H__ */
+#endif /* __RAW_RENDER_H__ */
