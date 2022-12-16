@@ -24,16 +24,17 @@ extern "C" {
 void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel);
 
 /**
- * @brief Blit CEL sprite, and apply lighting, to the back buffer at the given coordinates
+ * @brief Blit CEL sprite, and apply trn, to the back buffer at the given coordinates
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
  * @param pCelBuff CEL buffer
  * @param nCel CEL frame number
+ * @param tbl Palette translation table
  */
 void CelDrawLight(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const BYTE* tbl);
 
 /**
- * @brief Same as CelClippedDrawLight optionally drawing in stippled-transparent mode
+ * @brief Blit CEL sprite, and optionally use stippled-transparency or light trn, to the given buffer at the given coordinates
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
  * @param pCelBuff CEL buffer
@@ -43,7 +44,7 @@ void CelDrawLight(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const B
 void CelClippedDrawLightTrans(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 
 /**
- * @brief Blit CL2 sprite, and apply a given lighting/trn, to the given buffer at the given coordinates
+ * @brief Blit CEL sprite, and apply a given lighting/trn, to the given buffer at the given coordinates
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
  * @param pCelBuff CEL buffer
@@ -54,8 +55,8 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE* pCelBuff, int nCel, in
 void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light);
 
 /**
- * @brief Blit an outline one pixel larger then the given sprite shape to the target buffer at the given coordinates
- * @param col Color index from current palette
+ * @brief Blit CEL sprite with an outline one pixel larger then the given sprite shape to the target buffer at the given coordinates
+ * @param col color of the sprite and the outline (Color index from current palette)
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
  * @param pCelBuff CEL buffer
