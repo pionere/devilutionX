@@ -4,6 +4,7 @@
  * Implementation of functionality for printing the ingame chat messages.
  */
 #include "all.h"
+#include "engine/render/text_render.h"
 #include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE

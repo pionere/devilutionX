@@ -10,6 +10,7 @@
 #include "DiabloUI/dialogs.h"
 #include "controls/plrctrls.h"
 #include "all.h"
+#include "engine/render/cel_render.h"
 
 #ifdef __SWITCH__
 // for virtual keyboard on Switch

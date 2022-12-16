@@ -4,6 +4,8 @@
  * Implementation of in-game message functions.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

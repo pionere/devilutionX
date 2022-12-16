@@ -6,8 +6,10 @@
 #include "all.h"
 #include "utils/display.h"
 #include "plrctrls.h"
+#include "engine/render/cel_render.h"
 #include "engine/render/cl2_render.h"
 #include "engine/render/dun_render.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

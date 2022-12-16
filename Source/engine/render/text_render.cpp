@@ -6,6 +6,7 @@
 #include "text_render.h"
 
 #include "all.h"
+#include "engine/render/cel_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

@@ -4,6 +4,7 @@
  * Implementation of load screens.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

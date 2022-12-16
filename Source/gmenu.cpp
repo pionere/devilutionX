@@ -4,6 +4,8 @@
  * Implementation of the in-game navigation and interaction.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #include "controls/axis_direction.h"

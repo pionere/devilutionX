@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include <config.h>
+#include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
 #include "diabloui.h"

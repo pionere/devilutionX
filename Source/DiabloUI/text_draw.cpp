@@ -3,6 +3,7 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 #include "all.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
