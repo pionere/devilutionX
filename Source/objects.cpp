@@ -700,7 +700,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	os->_oAnimFrameLen = ofd->oAnimFrameLen;
 	os->_oAnimLen = ofd->oAnimLen;
 	//os->_oAnimCnt = 0;
-	if (ofd->oAnimFlag) {
+	if (ofd->oAnimFlag != OAM_NONE) {
 		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
 		os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
 	}
@@ -1619,16 +1619,6 @@ static void Obj_Circle(int oi)
 	}
 }
 
-static void Obj_StopAnim(int oi)
-{
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	if (os->_oAnimFrame == os->_oAnimLen) {
-		os->_oAnimFlag = FALSE;
-	}
-}
-
 static void Obj_Door(int oi)
 {
 	ObjectStruct* os;
@@ -1653,7 +1643,7 @@ static void Obj_Door(int oi)
 		os = &objects[objectactive[i]];
 		if (os->_otype == OBJ_FLAMEHOLE && os->_oVar1 == tid) { // FLAMETRAP_ID
 			os->_oVar4 = FLAMETRAP_FIRE_ACTIVE;
-			os->_oAnimFlag = TRUE;
+			os->_oAnimFlag = OAM_LOOP;
 			//os->_oAnimFrameLen = 1;
 			static_assert(MAX_LIGHT_RAD >= 1, "ActivateTrapLine needs at least light-radius of 1.");
 			os->_olid = AddLight(os->_ox, os->_oy, 1);
@@ -1843,23 +1833,6 @@ void ProcessObjects()
 #endif
 			Obj_Light(oi, 3);
 			break;*/
-		case OBJ_CRUXM:
-		case OBJ_CRUXR:
-		case OBJ_CRUXL:
-		case OBJ_SARC:
-#ifdef HELLFIRE
-		case OBJ_L5SARC:
-		case OBJ_URN:
-		case OBJ_URNEX:
-		case OBJ_POD:
-		case OBJ_PODEX:
-#endif
-		case OBJ_BARREL:
-		case OBJ_BARRELEX:
-		case OBJ_SHRINEL:
-		case OBJ_SHRINER:
-			Obj_StopAnim(oi);
-			break;
 		case OBJ_L1LDOOR:
 		case OBJ_L1RDOOR:
 		case OBJ_L2LDOOR:
@@ -1894,7 +1867,7 @@ void ProcessObjects()
 			Obj_BCrossDamage(oi);
 			break;
 		}
-		if (!objects[oi]._oAnimFlag)
+		if (objects[oi]._oAnimFlag == OAM_NONE)
 			continue;
 
 		objects[oi]._oAnimCnt++;
@@ -1904,8 +1877,14 @@ void ProcessObjects()
 
 		objects[oi]._oAnimCnt = 0;
 		objects[oi]._oAnimFrame++;
-		if (objects[oi]._oAnimFrame > objects[oi]._oAnimLen)
-			objects[oi]._oAnimFrame = 1;
+		if (objects[oi]._oAnimFrame > objects[oi]._oAnimLen) {
+			if (objects[oi]._oAnimFlag == OAM_LOOP) {
+				objects[oi]._oAnimFrame = 1;
+			} else {
+				objects[oi]._oAnimFrame--; 
+				objects[oi]._oAnimFlag = OAM_NONE;
+			}
+		}
 	}
 	/*for (i = 0; i < numobjects; ) {
 		oi = objectactive[i];
@@ -2611,7 +2590,7 @@ static void OperateSarc(int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_SARC, os->_ox, os->_oy);
 
-	os->_oAnimFlag = TRUE;
+	os->_oAnimFlag = OAM_SINGLE;
 	//os->_oAnimFrameLen = 3;
 	SetRndSeed(os->_oRndSeed);
 	if (os->_oVar1 <= 2) // SARC_ITEM
@@ -2984,7 +2963,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	os->_oSelFlag = 0;
 
 	if (deltaload) {
-		os->_oAnimFlag = FALSE;
+		// os->_oAnimFlag = OAM_NONE;
 		os->_oAnimFrame = os->_oAnimLen;
 		return;
 	}
@@ -2995,7 +2974,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	SetRndSeed(os->_oRndSeed);
 
 	PlaySfxLoc(os->_oSFX, os->_ox, os->_oy, os->_oSFXCnt);
-	os->_oAnimFlag = TRUE;
+	os->_oAnimFlag = OAM_SINGLE;
 	//os->_oAnimFrameLen = 1;
 
 	switch (os->_oVar1) { // SHRINE_TYPE
@@ -3312,7 +3291,8 @@ static void OperateArmorStand(int oi, bool sendmsg)
 static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
 {
 	OperateShrine(pnum, oi, sendmsg);
-	objects[oi]._oAnimFlag = TRUE;
+	// restore state
+	objects[oi]._oAnimFlag = OAM_LOOP;
 }
 
 static void OperateCauldron(int pnum, int oi, bool sendmsg)
@@ -3320,7 +3300,7 @@ static void OperateCauldron(int pnum, int oi, bool sendmsg)
 	OperateShrine(pnum, oi, sendmsg);
 	// restore state
 	objects[oi]._oAnimFrame = 3;
-	objects[oi]._oAnimFlag = FALSE;
+	objects[oi]._oAnimFlag = OAM_NONE;
 }
 
 static void OperateFountains(int pnum, int oi, bool sendmsg)
@@ -3478,7 +3458,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
-	os->_oAnimFlag = TRUE;
+	os->_oAnimFlag = OAM_SINGLE;
 	// os->_oAnimFrame = 1;
 	// os->_oAnimFrameLen = 1;
 	// os->_oSolidFlag = TRUE;
@@ -3515,7 +3495,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 		return;
 
 	// os->_oVar1 = 0;
-	// os->_oAnimFlag = TRUE;
+	// os->_oAnimFlag = OAM_SINGLE;
 	// os->_oAnimFrame = 1;
 	// os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = FALSE;
@@ -3529,7 +3509,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 		// os->_oAnimFrameLen = 1000;
 		return;
 	}
-	os->_oAnimFlag = TRUE;
+	os->_oAnimFlag = OAM_SINGLE;
 	// os->_oAnimFrame = 1;
 
 	assert(os->_oSFXCnt == 1);

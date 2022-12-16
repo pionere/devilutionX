@@ -3076,6 +3076,12 @@ typedef enum object_graphic_id {
 	NUM_OFILE_TYPES
 } object_graphic_id;
 
+typedef enum object_anim_mode {
+	OAM_NONE,
+	OAM_SINGLE,
+	OAM_LOOP,
+} object_anim_mode;
+
 typedef enum object_break_mode {
 	OBM_UNBREAKABLE,
 	OBM_BREAKABLE,
