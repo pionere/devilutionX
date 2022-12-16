@@ -53,17 +53,16 @@ inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nData
 	return &pRLEBytes[nDataStart];
 }
 
-inline const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int block)
+inline const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int block, int* nDataSize)
 {
 	const WORD* pFrameTable;
 	WORD nDataStart;
-	int nDataSize;
-	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
+	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
 
 	pFrameTable = (const WORD*)&pRLEBytes[0];
-	// assert(SwapLE16(pFrameTable[0]) == CEL_FRAME_HEADER_SIZE);
 	nDataStart = SwapLE16(pFrameTable[block]);
-	//*nDataSize -= nDataStart;
+	// assert(nDataStart != 0);
+	*nDataSize -= nDataStart;
 
 	return &pRLEBytes[nDataStart];
 }
