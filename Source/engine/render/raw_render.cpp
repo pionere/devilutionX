@@ -151,4 +151,26 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 	}
 }
 
+/**
+ * @brief Draw a half-transparent, black rectangle using stippled-transparency
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
+ * @param width Rectangle width
+ * @param height Rectangle height
+ */
+void DrawRectTrans(int sx, int sy, int width, int height)
+{
+	int row, col;
+	BYTE* pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	// TODO: use SSE2?
+	for (row = 0; row < height; row++) {
+		for (col = 0; col < width; col++) {
+			if (((row ^ col) & 1) == 0)
+				*pix = 0;
+			pix++;
+		}
+		pix += BUFFER_WIDTH - width;
+	}
+}
+
 DEVILUTION_END_NAMESPACE

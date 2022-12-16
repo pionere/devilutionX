@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "engine/render/cel_render.h"
+#include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -139,7 +140,7 @@ void DrawDiabloMsg()
 		}
 	}
 	// make the center transparent
-	trans_rect(x + SLIDER_BORDER, y - SLIDER_BOX_HEIGHT + SLIDER_BORDER, (3 * SLIDER_BOX_WIDTH) / 2 - 2 * SLIDER_BORDER, (SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER));
+	DrawRectTrans(x + SLIDER_BORDER, y - SLIDER_BOX_HEIGHT + SLIDER_BORDER, (3 * SLIDER_BOX_WIDTH) / 2 - 2 * SLIDER_BORDER, (SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER));
 	// print the message
 	SStrCopy(tempstr, MsgStrings[currmsg], sizeof(tempstr));
 	PrintString(x, y - (SLIDER_BOX_HEIGHT - SMALL_FONT_HEIGHT) / 2, x + (3 * SLIDER_BOX_WIDTH) / 2, tempstr, true, COL_GOLD, FONT_KERN_SMALL);

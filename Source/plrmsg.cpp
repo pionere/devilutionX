@@ -4,6 +4,7 @@
  * Implementation of functionality for printing the ingame chat messages.
  */
 #include "all.h"
+#include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
 #include "storm/storm_net.h"
 
@@ -115,7 +116,7 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 	line *= PLRMSG_TEXT_HEIGHT;
 	y -= line;
 
-	trans_rect(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER);
+	DrawRectTrans(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER);
 
 	line = 0;
 	while (*str != '\0') {

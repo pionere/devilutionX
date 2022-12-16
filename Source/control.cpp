@@ -6,6 +6,7 @@
 #include "all.h"
 #include "plrctrls.h"
 #include "engine/render/cel_render.h"
+#include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
 #include "storm/storm_net.h"
 
@@ -1800,7 +1801,7 @@ void DrawTextBox()
 	y = LTPANEL_Y;
 
 	CelDraw(x, y + TPANEL_HEIGHT, pTextBoxCels, 1);
-	trans_rect(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
+	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
 }
 
 /**
@@ -1812,7 +1813,7 @@ void DrawTextBox()
 void DrawSTextBox(int x, int y)
 {
 	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1);
-	trans_rect(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
+	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
 }
 
 /**

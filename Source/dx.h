@@ -28,7 +28,6 @@ void dx_cleanup();
 void ToggleFullscreen();
 void ClearScreenBuffer();
 void RedBack();
-void trans_rect(int sx, int sy, int width, int height);
 void BltFast();
 void RenderPresent();
 
