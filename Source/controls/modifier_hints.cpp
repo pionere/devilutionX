@@ -5,6 +5,7 @@
 #include <cstddef>
 
 #include "all.h"
+#include "engine/render/text_render.h"
 #include "controls/game_controls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
