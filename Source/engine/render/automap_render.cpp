@@ -76,30 +76,81 @@ void engine_draw_pixel(int sx, int sy)
  */
 void AutomapDrawLine(int x0, int y0, int x1, int y1, BYTE col)
 {
-	int di, ip, dx, dy, ax, ay, steps;
-	float df, fp;
+	int d, xyinc, dx, dy, tmp;
 
 	dx = x1 - x0;
 	dy = y1 - y0;
-	ax = abs(dx);
-	ay = abs(dy);
-	if (ax > ay) {
-		steps = ax;
-		di = dx / ax;
-		df = dy / (float)steps;
-		ip = x0;
-		fp = (float)y0;
-		for ( ; steps >= 0; steps--, ip += di, fp += df) {
-			AutomapDrawPixel(ip, (int)fp, col);
+	if (abs(dx) >= abs(dy)) {
+		if (dx == 0)
+			return; // this should never happen, and if this is the case, we might want to draw at least once?
+		// alway proceed from lower to higher x
+		if (dx < 0) {
+			tmp = x0;
+			x0 = x1;
+			x1 = tmp;
+			tmp = y0;
+			y0 = y1;
+			y1 = tmp;
+			dx = -dx;
+			dy = -dy;
+		}
+		// find out step size and direction on the y coordinate
+		if (dy >= 0) {
+			xyinc = 1;
+		} else {
+			dy = -dy;
+			xyinc = -1;
+		}
+		// multiply by 2 so we round up
+		//dy *= 2;
+		d = 0;
+		// draw to the final position as well
+		x1++;
+		while (true) {
+			AutomapDrawPixel(x0, y0, col);
+			d += dy;
+			if (d >= dx) {
+				d -= /*2 **/ dx; // multiply by 2 to support rounding
+				y0 += xyinc;
+			}
+			x0++;
+			if (x0 == x1)
+				return;
 		}
 	} else {
-		steps = ay;
-		di = dy / ay;
-		df = dx / float(steps);
-		fp = (float)x0;
-		ip = y0;
-		for ( ; steps >= 0; steps--, fp += df, ip += di) {
-			AutomapDrawPixel((int)fp, ip, col);
+		// alway proceed from lower to higher y
+		if (dy < 0) {
+			tmp = y0;
+			y0 = y1;
+			y1 = tmp;
+			tmp = x0;
+			x0 = x1;
+			x1 = tmp;
+			dy = -dy;
+			dx = -dx;
+		}
+		// find out step size and direction on the x coordinate
+		if (dx >= 0) {
+			xyinc = 1;
+		} else {
+			dx = -dx;
+			xyinc = -1;
+		}
+		// multiply by 2 so we round up
+		//dx *= 2;
+		d = 0;
+		// draw to the final position as well
+		y1++;
+		while (true) {
+			AutomapDrawPixel(x0, y0, col);
+			d += dx;
+			if (d >= dy) {
+				d -= /*2 **/ dy; // multiply by 2 to support rounding
+				x0 += xyinc;
+			}
+			y0++;
+			if (y0 == y1)
+				return;
 		}
 	}
 }
