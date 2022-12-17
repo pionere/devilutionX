@@ -243,8 +243,8 @@ static void DrawAutomapDirt(int x, int y)
 	DrawPixel(x + d16, y, COLOR_DIM);           // 06
 	DrawPixel(x, y - d8, COLOR_DIM);            // 07
 	DrawPixel(x, y + d8, COLOR_DIM);            // 08
-	DrawPixel(x + d8 - d32, y + d4, COLOR_DIM); // 09
-	DrawPixel(x - d8 + d32, y + d4, COLOR_DIM); // 10
+	DrawPixel(x - d32 + d8, y + d4, COLOR_DIM); // 09
+	DrawPixel(x + d32 - d8, y + d4, COLOR_DIM); // 10
 	DrawPixel(x - d16, y + d8, COLOR_DIM);      // 11
 	DrawPixel(x + d16, y + d8, COLOR_DIM);      // 12
 	DrawPixel(x - d8, y + d16 - d4, COLOR_DIM); // 13
@@ -272,10 +272,10 @@ static void DrawAutomapHorzDoor(int x, int y)
 	DrawLine(x + d8, y + d4, x + d16, y + d8, COLOR_DIM); // right wall
 
 	// DrawAutomapDiamond(x, y + d8, COLOR_BRIGHT)
-	DrawLine(x - d16, y, x, y - d8, COLOR_BRIGHT); // bottom left
-	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT); // bottom right
 	DrawLine(x - d16, y, x, y + d8, COLOR_BRIGHT); // top left
 	DrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT); // top right
+	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT); // bottom right
+	DrawLine(x - d16, y, x, y - d8, COLOR_BRIGHT); // bottom left
 }
 
 static void DrawAutomapVertDoor(int x, int y)
@@ -283,14 +283,14 @@ static void DrawAutomapVertDoor(int x, int y)
 	unsigned d16 = AmLine16;
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 
-	DrawLine(x + d8, y - d4, x + d16, y - d8, COLOR_DIM); // right wall
 	DrawLine(x - d16, y + d8, x - d8, y + d4, COLOR_DIM); // left wall
+	DrawLine(x + d8, y - d4, x + d16, y - d8, COLOR_DIM); // right wall
 
 	// DrawAutomapDiamond(x, y + d8, COLOR_BRIGHT)
-	DrawLine(x - d16, y, x, y - d8, COLOR_BRIGHT); // bottom left
-	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT); // bottom right
 	DrawLine(x - d16, y, x, y + d8, COLOR_BRIGHT); // top left
 	DrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT); // top right
+	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT); // bottom right
+	DrawLine(x - d16, y, x, y - d8, COLOR_BRIGHT); // bottom left
 }
 
 static void DrawAutomapDiamond(int x, int y)
@@ -299,10 +299,10 @@ static void DrawAutomapDiamond(int x, int y)
 
 	y2 = y - (d16 >> 1);
 
-	DrawLine(x, y - d16, x + d16, y2, COLOR_DIM); // bottom right
-	DrawLine(x - d16, y2, x, y - d16, COLOR_DIM); // bottom left
 	DrawLine(x - d16, y2, x, y, COLOR_DIM);       // top left
 	DrawLine(x, y, x + d16, y2, COLOR_DIM);       // top right
+	DrawLine(x, y - d16, x + d16, y2, COLOR_DIM); // bottom right
+	DrawLine(x - d16, y2, x, y - d16, COLOR_DIM); // bottom left
 }
 
 /**
