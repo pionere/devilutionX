@@ -544,6 +544,7 @@ static void PutMissile(int mi)
 	x = missile[mi]._mix;
 	y = missile[mi]._miy;
 	assert(IN_DUNGEON_AREA(x, y));
+	//assert(missile[mi]._miDrawFlag); -- not really necessary, but otherwise it is pointless
 	if (!missile[mi]._miDelFlag) {
 		dMissile[x][y] = dMissile[x][y] == 0 ? mi + 1 : MIS_MULTI;
 		assert(!missile[mi]._miPreFlag);
@@ -4167,7 +4168,8 @@ void MI_Meteor(int mi)
 				mis->_miFileNum = MFILE_FIREBA;
 				SetMissDir(mi, 0);
 				mis->_mixoff = MET_SHIFT_X;
-				static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border."); // 96: height of the sprite, 46: transparent lines on the first frame
+				// -- 96: height of the sprite, 46: transparent lines on the first frame -- unnecessary, since Cl2DrawLightTbl is safe
+				//static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border.");
 				mis->_miyoff = -MET_SHIFT_Y;
 				// TODO: adjust velocity based on spllvl?
 			} else {
