@@ -261,10 +261,10 @@ static void DrawAutomapHorzDoor(int x, int y)
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 
 	DrawLine(x - d16, y - d8, x - d8, y - d4, COLOR_DIM);
-	DrawLine(x + d16, y + d8, x + d8, y + d4, COLOR_DIM);
-	DrawLine(x, y - d8, x - d16, y, COLOR_BRIGHT);
+	DrawLine(x + d8, y + d4, x + d16, y + d8, COLOR_DIM);
+	DrawLine(x - d16, y, x, y - d8, COLOR_BRIGHT);
 	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT);
-	DrawLine(x, y + d8, x - d16, y, COLOR_BRIGHT);
+	DrawLine(x - d16, y, x, y + d8, COLOR_BRIGHT);
 	DrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT);
 }
 
@@ -273,11 +273,11 @@ static void DrawAutomapVertDoor(int x, int y)
 	unsigned d16 = AmLine16;
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 
-	DrawLine(x + d16, y - d8, x + d8, y - d4, COLOR_DIM);
+	DrawLine(x + d8, y - d4, x + d16, y - d8, COLOR_DIM);
 	DrawLine(x - d16, y + d8, x - d8, y + d4, COLOR_DIM);
-	DrawLine(x, y - d8, x - d16, y, COLOR_BRIGHT);
+	DrawLine(x - d16, y, x, y - d8, COLOR_BRIGHT);
 	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT);
-	DrawLine(x, y + d8, x - d16, y, COLOR_BRIGHT);
+	DrawLine(x - d16, y, x, y + d8, COLOR_BRIGHT);
 	DrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT);
 }
 
@@ -288,8 +288,8 @@ static void DrawAutomapDiamond(int x, int y)
 	y2 = y - (d16 >> 1);
 
 	DrawLine(x, y - d16, x + d16, y2, COLOR_DIM);
-	DrawLine(x, y - d16, x - d16, y2, COLOR_DIM);
-	DrawLine(x, y, x - d16, y2, COLOR_DIM);
+	DrawLine(x - d16, y2, x, y - d16, COLOR_DIM);
+	DrawLine(x - d16, y2, x, y, COLOR_DIM);
 	DrawLine(x, y, x + d16, y2, COLOR_DIM);
 }
 
@@ -511,42 +511,42 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 	switch (p->_pdir) {
 	case DIR_N: {
-		DrawLine(x, y, x, y - d16, playerColor);
+		DrawLine(x, y - d16, x, y, playerColor);
 		DrawLine(x, y - d16, x - d4, y - d8, playerColor);
 		DrawLine(x, y - d16, x + d4, y - d8, playerColor);
 	} break;
 	case DIR_NE: {
 		DrawLine(x, y, x + d16, y - d8, playerColor);
-		DrawLine(x + d16, y - d8, x + d4, y - d8, playerColor);
+		DrawLine(x + d4, y - d8, x + d16, y - d8, playerColor);
 		DrawLine(x + d16, y - d8, x + d16 - d4, y, playerColor);
 	} break;
 	case DIR_E: {
 		DrawLine(x, y, x + d16, y, playerColor);
-		DrawLine(x + d16, y, x + d8, y - d4, playerColor);
-		DrawLine(x + d16, y, x + d8, y + d4, playerColor);
+		DrawLine(x + d8, y - d4, x + d16, y, playerColor);
+		DrawLine(x + d8, y + d4, x + d16, y, playerColor);
 	} break;
 	case DIR_SE: {
 		DrawLine(x, y, x + d16, y + d8, playerColor);
-		DrawLine(x + d16, y + d8, x + d16 - d4, y, playerColor);
-		DrawLine(x + d16, y + d8, x + d4, y + d8, playerColor);
+		DrawLine(x + d16 - d4, y, x + d16, y + d8, playerColor);
+		DrawLine(x + d4, y + d8, x + d16, y + d8, playerColor);
 	} break;
 	case DIR_S: {
 		DrawLine(x, y, x, y + d16, playerColor);
 		DrawLine(x, y + d16, x + d4, y + d8, playerColor);
-		DrawLine(x, y + d16, x - d4, y + d8, playerColor);
+		DrawLine(x - d4, y + d8, x, y + d16, playerColor);
 	} break;
 	case DIR_SW: {
-		DrawLine(x, y, x - d16, y + d8, playerColor);
-		DrawLine(x - d16, y + d8, x - d16 + d4, y, playerColor);
+		DrawLine(x - d16, y + d8, x, y, playerColor);
+		DrawLine(x - d16 + d4, y, x - d16, y + d8, playerColor);
 		DrawLine(x - d16, y + d8, x - d4, y + d8, playerColor);
 	} break;
 	case DIR_W: {
-		DrawLine(x, y, x - d16, y, playerColor);
+		DrawLine(x - d16, y, x, y, playerColor);
 		DrawLine(x - d16, y, x - d8, y - d4, playerColor);
 		DrawLine(x - d16, y, x - d8, y + d4, playerColor);
 	} break;
 	case DIR_NW: {
-		DrawLine(x, y, x - d16, y - d8, playerColor);
+		DrawLine(x - d16, y - d8, x, y, playerColor);
 		DrawLine(x - d16, y - d8, x - d4, y - d8, playerColor);
 		DrawLine(x - d16, y - d8, x - d16 + d4, y, playerColor);
 	} break;
