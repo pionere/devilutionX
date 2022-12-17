@@ -249,9 +249,9 @@ static void DrawAutomapStairs(int x, int y)
 	unsigned d32 = AmLine32;
 	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
 
-	DrawLine(x - d8, y - d8 - d4, x + d8 + d16, y + d4, COLOR_BRIGHT);
+	DrawLine(x - d8, y - d16 + d4, x + d32 - d8, y + d4, COLOR_BRIGHT);
 	DrawLine(x - d16, y - d8, x + d16, y + d8, COLOR_BRIGHT);
-	DrawLine(x - d16 - d8, y - d4, x + d8, y + d8 + d4, COLOR_BRIGHT);
+	DrawLine(x - d32 + d8, y - d4, x + d8, y + d16 - d4, COLOR_BRIGHT);
 	DrawLine(x - d32, y, x, y + d16, COLOR_BRIGHT);
 }
 
@@ -518,7 +518,7 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	case DIR_NE: {
 		DrawLine(x, y, x + d16, y - d8, playerColor);
 		DrawLine(x + d16, y - d8, x + d4, y - d8, playerColor);
-		DrawLine(x + d16, y - d8, x + d8 + d4, y, playerColor);
+		DrawLine(x + d16, y - d8, x + d16 - d4, y, playerColor);
 	} break;
 	case DIR_E: {
 		DrawLine(x, y, x + d16, y, playerColor);
@@ -527,7 +527,7 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	} break;
 	case DIR_SE: {
 		DrawLine(x, y, x + d16, y + d8, playerColor);
-		DrawLine(x + d16, y + d8, x + d8 + d4, y, playerColor);
+		DrawLine(x + d16, y + d8, x + d16 - d4, y, playerColor);
 		DrawLine(x + d16, y + d8, x + d4, y + d8, playerColor);
 	} break;
 	case DIR_S: {
@@ -537,7 +537,7 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	} break;
 	case DIR_SW: {
 		DrawLine(x, y, x - d16, y + d8, playerColor);
-		DrawLine(x - d16, y + d8, x - d4 - d8, y, playerColor);
+		DrawLine(x - d16, y + d8, x - d16 + d4, y, playerColor);
 		DrawLine(x - d16, y + d8, x - d4, y + d8, playerColor);
 	} break;
 	case DIR_W: {
@@ -548,7 +548,7 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	case DIR_NW: {
 		DrawLine(x, y, x - d16, y - d8, playerColor);
 		DrawLine(x - d16, y - d8, x - d4, y - d8, playerColor);
-		DrawLine(x - d16, y - d8, x - d4 - d8, y, playerColor);
+		DrawLine(x - d16, y - d8, x - d16 + d4, y, playerColor);
 	} break;
 	default:
 		ASSUME_UNREACHABLE
