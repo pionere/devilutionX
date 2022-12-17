@@ -73,6 +73,7 @@ void DrawPixelSafe(int sx, int sy, BYTE col)
 void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 {
 	int d, xyinc, dx, dy, tmp;
+	BYTE* dst;
 
 	dx = x1 - x0;
 	dy = y1 - y0;
@@ -91,25 +92,27 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 			dy = -dy;
 		}
 		// find out step size and direction on the y coordinate
-		if (dy >= 0) {
-			xyinc = 1;
-		} else {
+		xyinc = BUFFER_WIDTH;
+		if (dy < 0) {
 			dy = -dy;
-			xyinc = -1;
+			xyinc = -xyinc;
 		}
 		// multiply by 2 so we round up
 		//dy *= 2;
 		d = 0;
 		// draw to the final position as well
 		x1++;
+		// initialize the buffer-pointer
+		dst = &gpBuffer[x0 + BUFFER_WIDTH * y0];
 		while (true) {
-			DrawPixel(x0, y0, col);
+			*dst = col; // DrawPixel
 			d += dy;
 			if (d >= dx) {
 				d -= /*2 **/ dx; // multiply by 2 to support rounding
-				y0 += xyinc;
+				dst += xyinc;
 			}
 			x0++;
+			dst++;
 			if (x0 == x1)
 				return;
 		}
@@ -137,14 +140,17 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		d = 0;
 		// draw to the final position as well
 		y1++;
+		// initialize the buffer-pointer
+		dst = &gpBuffer[x0 + BUFFER_WIDTH * y0];
 		while (true) {
-			DrawPixel(x0, y0, col);
+			*dst = col; // DrawPixel
 			d += dx;
 			if (d >= dy) {
 				d -= /*2 **/ dy; // multiply by 2 to support rounding
-				x0 += xyinc;
+				dst += xyinc;
 			}
 			y0++;
+			dst += BUFFER_WIDTH;
 			if (y0 == y1)
 				return;
 		}
