@@ -347,6 +347,27 @@ void CheckCursMove()
 		return;
 	}
 
+	if (pcursicon == CURSOR_RESURRECT) {
+		pcurspos.x = mx;
+		pcurspos.y = my;
+
+		// search for dead players around the cursor
+		const int8_t deltas[3] = { -1, 1, 0 };
+		for (xx = 0; xx < lengthof(deltas); xx++) {
+			for (yy = 0; yy < lengthof(deltas); yy++) {
+				if ((dFlags[mx + deltas[xx]][my + deltas[yy]] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
+					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+						if (plr._pmode == PM_DEATH && plr._px == mx + deltas[xx] && plr._py == my + deltas[yy] /*&& pnum != mypnum*/) {
+							pcurspos.x = mx + deltas[xx];
+							pcurspos.y = my + deltas[yy];
+							pcursplr = pnum;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "Borders are too small to skip the OOB checks.");
 	// select a monster
 	if (pcurstemp != MON_NONE
@@ -501,72 +522,54 @@ void CheckCursMove()
 			return;
 	}
 	// select a player
-	if (pcursicon != CURSOR_RESURRECT) {
-		// target dead player
-		if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
-			for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-				if (plr._px == mx && plr._py == my && pnum != mypnum) {
-					pcurspos.x = mx;
-					pcurspos.y = my;
-					pcursplr = pnum;
-				}
+	// target dead player
+	if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (plr._px == mx && plr._py == my && pnum != mypnum) {
+				pcurspos.x = mx;
+				pcurspos.y = my;
+				pcursplr = pnum;
 			}
 		}
-		// target live player
-		if (!flipflag) {
-			bv = dPlayer[mx + 1][my];
-			if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-					pcurspos.x = mx + 1;
-					pcurspos.y = my;
-					pcursplr = bv;
-				}
-			}
-		} else {
-			bv = dPlayer[mx][my + 1];
-			if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-					pcurspos.x = mx;
-					pcurspos.y = my + 1;
-					pcursplr = bv;
-				}
-			}
-		}
-		bv = dPlayer[mx][my];
-		if (bv != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
+	}
+	// target live player
+	if (!flipflag) {
+		bv = dPlayer[mx + 1][my];
+		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-				pcurspos.x = mx;
+				pcurspos.x = mx + 1;
 				pcurspos.y = my;
 				pcursplr = bv;
 			}
 		}
-		bv = dPlayer[mx + 1][my + 1];
-		if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
+	} else {
+		bv = dPlayer[mx][my + 1];
+		if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-				pcurspos.x = mx + 1;
+				pcurspos.x = mx;
 				pcurspos.y = my + 1;
 				pcursplr = bv;
 			}
 		}
-	} else {
-		// search for dead players around the cursor
-		const int8_t deltas[3] = { -1, 1, 0 };
-		for (xx = 0; xx < lengthof(deltas); xx++) {
-			for (yy = 0; yy < lengthof(deltas); yy++) {
-				if ((dFlags[mx + deltas[xx]][my + deltas[yy]] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
-					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-						if (plr._pmode == PM_DEATH && plr._px == mx + deltas[xx] && plr._py == my + deltas[yy] /*&& pnum != mypnum*/) {
-							pcurspos.x = mx + deltas[xx];
-							pcurspos.y = my + deltas[yy];
-							pcursplr = pnum;
-						}
-					}
-				}
-			}
+	}
+	bv = dPlayer[mx][my];
+	if (bv != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
+		bv = bv >= 0 ? bv - 1 : -(bv + 1);
+		if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
+			pcurspos.x = mx;
+			pcurspos.y = my;
+			pcursplr = bv;
+		}
+	}
+	bv = dPlayer[mx + 1][my + 1];
+	if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
+		bv = bv >= 0 ? bv - 1 : -(bv + 1);
+		if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
+			pcurspos.x = mx + 1;
+			pcurspos.y = my + 1;
+			pcursplr = bv;
 		}
 	}
 
