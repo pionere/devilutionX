@@ -350,22 +350,28 @@ void CheckCursMove()
 	if (pcursicon == CURSOR_RESURRECT) {
 		pcurspos.x = mx;
 		pcurspos.y = my;
-
 		// search for dead players around the cursor
-		const int8_t deltas[3] = { -1, 1, 0 };
-		for (xx = 0; xx < lengthof(deltas); xx++) {
-			for (yy = 0; yy < lengthof(deltas); yy++) {
-				if ((dFlags[mx + deltas[xx]][my + deltas[yy]] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
+		int i, j;
+		const int8_t* cr;
+		static_assert(DBORDERX >= 1 && DBORDERY >= 1, "CheckCursMove expects a large enough border.");
+		for (i = 1; i >= 0; i--) {
+			cr = &CrawlTable[CrawlNum[i]];
+			for (j = *cr; j > 0; j--) {
+				xx = mx + *++cr;
+				yy = my + *++cr;
+				//assert(IN_DUNGEON_AREA(xx, yy));
+				if ((dFlags[xx][yy] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
 					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-						if (plr._pmode == PM_DEATH && plr._px == mx + deltas[xx] && plr._py == my + deltas[yy] /*&& pnum != mypnum*/) {
-							pcurspos.x = mx + deltas[xx];
-							pcurspos.y = my + deltas[yy];
+						if (plr._pmode == PM_DEATH && plr._px == xx && plr._py == yy /*&& pnum != mypnum*/) {
+							pcurspos.x = xx;
+							pcurspos.y = yy;
 							pcursplr = pnum;
 						}
 					}
 				}
 			}
 		}
+		return;
 	}
 
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "Borders are too small to skip the OOB checks.");
