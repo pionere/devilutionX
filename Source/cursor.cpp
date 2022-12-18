@@ -339,38 +339,124 @@ void CheckCursMove()
 	else if (my > MAXDUNY - 1 - DBORDERY)
 		my = MAXDUNY - 1 - DBORDERY;
 
-	// skip monster/player/object/etc targeting if the player is holding an item
-	// Could be skipped when using a skill/spell to target an item, but there is not much point to it yet...
-	if (pcursicon >= CURSOR_FIRSTITEM /*|| pcursicon == CURSOR_IDENTIFY || pcursicon == CURSOR_REPAIR || pcursicon == CURSOR_RECHARGE || pcursicon == CURSOR_OIL)*/) {
-		pcurspos.x = mx;
-		pcurspos.y = my;
-		return;
-	}
+	pcurspos.x = mx;
+	pcurspos.y = my;
 
-	if (pcursicon == CURSOR_RESURRECT) {
-		pcurspos.x = mx;
-		pcurspos.y = my;
-		// search for dead players around the cursor
-		int i, j;
-		const int8_t* cr;
-		static_assert(DBORDERX >= 1 && DBORDERY >= 1, "CheckCursMove expects a large enough border.");
-		for (i = 1; i >= 0; i--) {
-			cr = &CrawlTable[CrawlNum[i]];
-			for (j = *cr; j > 0; j--) {
-				xx = mx + *++cr;
-				yy = my + *++cr;
-				//assert(IN_DUNGEON_AREA(xx, yy));
-				if ((dFlags[xx][yy] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
-					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-						if (/*pnum != mypnum &&*/ plr._pmode == PM_DEATH && plr._px == xx && plr._py == yy && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
-							pcurspos.x = xx;
-							pcurspos.y = yy;
-							pcursplr = pnum;
-						}
-					}
+	switch (pcursicon) {
+	case CURSOR_NONE:
+	case CURSOR_HAND:
+		break;
+	case CURSOR_IDENTIFY:
+	case CURSOR_REPAIR:
+	case CURSOR_RECHARGE:
+	case CURSOR_OIL:
+		// skip monster/player/object/etc targeting if the player is using a skill/spell to target an item
+		return;
+	case CURSOR_DISARM:
+		// select an object
+		if (!flipflag) {
+			bv = dObject[mx + 1][my];
+			if (bv != 0) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (objects[bv]._oSelFlag & 2) {
+					pcurspos.x = mx + 1;
+					pcurspos.y = my;
+					pcursobj = bv;
+				}
+			}
+		} else {
+			bv = dObject[mx][my + 1];
+			if (bv != 0) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (objects[bv]._oSelFlag & 2) {
+					pcurspos.x = mx;
+					pcurspos.y = my + 1;
+					pcursobj = bv;
 				}
 			}
 		}
+		bv = dObject[mx][my];
+		if (bv != 0) {
+			bv = bv >= 0 ? bv - 1 : -(bv + 1);
+			if (objects[bv]._oSelFlag & 1) {
+				pcurspos.x = mx;
+				pcurspos.y = my;
+				pcursobj = bv;
+			}
+		}
+		bv = dObject[mx + 1][my + 1];
+		if (bv != 0) {
+			bv = bv >= 0 ? bv - 1 : -(bv + 1);
+			if (objects[bv]._oSelFlag & 2) {
+				pcurspos.x = mx + 1;
+				pcurspos.y = my + 1;
+				pcursobj = bv;
+			}
+		}
+		return;
+	case CURSOR_TELEKINESIS:
+		break;
+	case CURSOR_RESURRECT:
+		// target dead player
+		if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
+			for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+				if (/*pnum != mypnum &&*/ plr._pmode == PM_DEATH && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
+					pcurspos.x = mx;
+					pcurspos.y = my;
+					pcursplr = pnum;
+				}
+			}
+		}
+		return;
+	case CURSOR_TELEPORT:
+		break;
+	case CURSOR_HEALOTHER:
+		// target live player
+		if (!flipflag) {
+			bv = dPlayer[mx + 1][my];
+			if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
+					pcurspos.x = mx + 1;
+					pcurspos.y = my;
+					pcursplr = bv;
+				}
+			}
+		} else {
+			bv = dPlayer[mx][my + 1];
+			if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
+					pcurspos.x = mx;
+					pcurspos.y = my + 1;
+					pcursplr = bv;
+				}
+			}
+		}
+		bv = dPlayer[mx][my];
+		if (bv != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
+			bv = bv >= 0 ? bv - 1 : -(bv + 1);
+			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
+				pcurspos.x = mx;
+				pcurspos.y = my;
+				pcursplr = bv;
+			}
+		}
+		bv = dPlayer[mx + 1][my + 1];
+		if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
+			bv = bv >= 0 ? bv - 1 : -(bv + 1);
+			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
+				pcurspos.x = mx + 1;
+				pcurspos.y = my + 1;
+				pcursplr = bv;
+			}
+		}
+		return;
+	case CURSOR_HOURGLASS:
+		break;
+	default:
+		// pcursicon >= CURSOR_FIRSTITEM
+		// skip monster/player/object/etc targeting if the player is holding an item
 		return;
 	}
 
