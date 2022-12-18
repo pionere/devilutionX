@@ -362,7 +362,7 @@ void CheckCursMove()
 				//assert(IN_DUNGEON_AREA(xx, yy));
 				if ((dFlags[xx][yy] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
 					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-						if (plr._pmode == PM_DEATH && plr._px == xx && plr._py == yy /*&& pnum != mypnum*/) {
+						if (/*pnum != mypnum &&*/ plr._pmode == PM_DEATH && plr._px == xx && plr._py == yy && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
 							pcurspos.x = xx;
 							pcurspos.y = yy;
 							pcursplr = pnum;
@@ -531,7 +531,7 @@ void CheckCursMove()
 	// target dead player
 	if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
 		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			if (plr._px == mx && plr._py == my && pnum != mypnum) {
+			if (/*pnum != mypnum && plr._pmode == PM_DEATH &&*/ plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
 				pcurspos.x = mx;
 				pcurspos.y = my;
 				pcursplr = pnum;
