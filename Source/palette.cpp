@@ -183,68 +183,55 @@ void palette_update_caves()
 }
 
 #ifdef HELLFIRE
-int dword_6E2D58;
-int dword_6E2D54;
+static int cryptCycleCounter = 3;
 void palette_update_crypt()
 {
 	int i;
 	SDL_Color col;
 
-	if (dword_6E2D58 > 1) {
+	if (--cryptCycleCounter == 0) {
+		cryptCycleCounter = 3;
+
 		col = system_palette[15];
 		for (i = 15; i > 1; i--) {
 			system_palette[i] = system_palette[i - 1];
 		}
 		system_palette[i] = col;
 
-		dword_6E2D58 = 0;
-	} else {
-		dword_6E2D58++;
 	}
-	if (dword_6E2D54 > 0) {
-		col = system_palette[31];
-		for (i = 31; i > 16; i--) {
-			system_palette[i] = system_palette[i - 1];
-		}
-		system_palette[i] = col;
+	col = system_palette[31];
+	for (i = 31; i > 16; i--) {
+		system_palette[i] = system_palette[i - 1];
+	}
+	system_palette[i] = col;
 
-		palette_update();
-		dword_6E2D54++;
-	} else {
-		dword_6E2D54 = 1;
-	}
+	palette_update();
 }
 
-int dword_6E2D5C;
-int dword_6E2D60;
+static int hiveCycleCounter = 3;
 void palette_update_hive()
 {
 	int i;
 	SDL_Color col;
 
-	if (dword_6E2D60 == 2) {
-		col = system_palette[8];
-		for (i = 8; i > 1; i--) {
-			system_palette[i] = system_palette[i - 1];
-		}
-		system_palette[i] = col;
-
-		dword_6E2D60 = 0;
-	} else {
-		dword_6E2D60++;
+	if (--hiveCycleCounter != 0) {
+		return;
 	}
-	if (dword_6E2D5C == 2) {
-		col = system_palette[15];
-		for (i = 15; i > 9; i--) {
-			system_palette[i] = system_palette[i - 1];
-		}
-		system_palette[i] = col;
+	hiveCycleCounter = 3;
 
-		palette_update();
-		dword_6E2D5C = 0;
-	} else {
-		dword_6E2D5C++;
+	col = system_palette[8];
+	for (i = 8; i > 1; i--) {
+		system_palette[i] = system_palette[i - 1];
 	}
+	system_palette[i] = col;
+
+	col = system_palette[15];
+	for (i = 15; i > 9; i--) {
+		system_palette[i] = system_palette[i - 1];
+	}
+	system_palette[i] = col;
+
+	palette_update();
 }
 #endif
 
