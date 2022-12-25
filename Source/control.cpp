@@ -781,7 +781,6 @@ static void DrawFlask2(int sx, unsigned filled, int emptyCel, int fullCel, int w
 
 	filled = FLASK_TOTAL_HEIGHT - emptied;
 	unsigned blocks = filled / CEL_BLOCK_HEIGHT;
-	static_assert(FLASK_TOTAL_HEIGHT < CEL_BLOCK_HEIGHT * CEL_BLOCK_MAX, "Cel frame header is too small to store every possible clipping point.");
 	empty = CelGetFrameClippedAt(pFlaskCels, emptyCel, blocks, &dataSize);
 	filled = filled % CEL_BLOCK_HEIGHT; // -= blocks * CEL_BLOCK_HEIGHT;
 	while (filled-- != 0) {
