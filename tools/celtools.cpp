@@ -113,7 +113,7 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
 		if (celdata[n].clipped) {
-			int hs = (image_data->width - 1) / CEL_BLOCK_HEIGHT;
+			int hs = (image_data->height - 1) / CEL_BLOCK_HEIGHT;
 			hs = (hs + 1) * sizeof(WORD);
 			subHeaderSize = std::max(subHeaderSize, hs);
 		}
@@ -273,7 +273,7 @@ static bool WritePNG2CelComp(png_image_data* imagedata, int numimage, celcmp_ima
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
 		if (celdata[n].clipped) {
-			int hs = (image_data->width - 1) / CEL_BLOCK_HEIGHT;
+			int hs = (image_data->height - 1) / CEL_BLOCK_HEIGHT;
 			hs = (hs + 1) * sizeof(WORD);
 			subHeaderSize = std::max(subHeaderSize, hs);
 		}
@@ -441,7 +441,7 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 	int subHeaderSize = SUB_HEADER_SIZE;
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
-		int hs = (image_data->width - 1) / CEL_BLOCK_HEIGHT;
+		int hs = (image_data->height - 1) / CEL_BLOCK_HEIGHT;
 		hs = (hs + 1) * sizeof(WORD);
 		subHeaderSize = std::max(subHeaderSize, hs);
 	}
