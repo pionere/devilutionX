@@ -49,6 +49,7 @@ jobs:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # Upload the created artifact
     - name: Upload
+      if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v3
       with:
         path: ${{github.workspace}}/build/devilutionx.dmg
