@@ -1,13 +1,7 @@
 call VsDevCmd.bat
 
-cd ..\..\uwp-project
-
-makecert /n CN=devilutionX /r /h 0 /eku "1.3.6.1.5.5.7.3.3,1.3.6.1.4.1.311.10.3.13" /sv devilutionX_Certificate.pvk devilutionX_Certificate.cert
-
-pvk2pfx /pvk devilutionX_Certificate.pvk /spc devilutionX_Certificate.cert /pfx devilutionX_TemporaryKey.pfx
-
-mkdir ..\build
-cd ..\build
+mkdir ..\..\build
+cd ..\..\build
 
 git clone https://github.com/pionere/SDL.git
 git -C SDL checkout 8b86e0ac1dd48f5c35a2b789845e248a701088b9
