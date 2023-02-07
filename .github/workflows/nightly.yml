@@ -531,7 +531,8 @@ jobs:
   release:
     needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_mac, build_ios, build_rg350, build_lepus, build_retrofw, build_ps4]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
-    runs-on: windows-latest
+    #runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     # x86 builds
     - name: Download a diablo artifact
@@ -735,7 +736,9 @@ jobs:
     #  run: find $RUNNER_WORKSPACE
     #  shell: bash
 
-    - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+    # uses: dev-drprasad/delete-tag-and-release@v0.2.0
+    - name: Delete tag and release
+      uses: pionere/delete-tag-and-release@v1
       with:
         delete_release: true
         tag_name: devilx-nightly
