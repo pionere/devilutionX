@@ -1356,7 +1356,7 @@ NLevels\L6Data\L6Base5.PAL
 NLevels\L6Data\L6Base6.PAL
 NLevels\TownData\Town.CEL
 NLevels\TownData\Town.MIN
-_NLevels\TownData\Town.SOL
+NLevels\TownData\Town.SOL
 NLevels\TownData\Town.TIL
 NLevels\TownData\Town.TMI
 Objects\Altboy.CEL

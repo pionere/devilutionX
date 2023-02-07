@@ -67,6 +67,7 @@ NLevels\L5Data\L5.TMI
 NLevels\L5Data\Nakrul1.DUN
 NLevels\L5Data\Nakrul2.DUN
 NLevels\L6Data\L6.TMI
+NLevels\TownData\Town.SOL
 NLevels\TownData\Town.TMI
 Objects\L1Doors.CEL
 Objects\Sarc.CEL
