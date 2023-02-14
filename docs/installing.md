@@ -31,6 +31,16 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 </details>
 
+<details><summary>FreeBSD</summary>
+
+- Copy the MPQ files to the folder containing the DevilutionX application, or to the data folder `~/.local/share/diasurgical/devilution/`
+- To install the port: `cd /usr/ports/games/devilutionX/ && make install clean`
+- To add the package, run one of these commands:
+  `pkg install games/devilutionX` || `pkg install devilutionX`
+- Run `devilutionx`
+
+</details>
+
 <details><summary>iOS & iPadOS</summary>
 
 Certain sideloading applications exist which can let you install IPA packages to your device such as AltStore (https://altstore.io/) and Sideloadly (https://sideloadly.io/). Using such a sideloading application, install the .ipa file to your iDevice.
@@ -39,17 +49,17 @@ Once the App is installed, launch it once. It will say that it cannot find the d
 
 There are 3 way to get install the MPQs. Make sure to have installed the app and have launched it once before attempting to copy over the MPQ files.
 
-Method 1: Using the files.app
+~~Method 1~~ (***May no longer work***): ~~Using the files.app~~
 
-- Using the files.app, navigate to "On My iPhone / On My iPad"
+~~- Using the files.app, navigate to "On My iPhone / On My iPad"~~
 
 ![ios_mpq_files01](https://user-images.githubusercontent.com/1339414/145088910-5664aed6-3a53-43f4-8088-834796792f68.png)
 
-- Copy the MPQs to the devilutionx directory. Your directory should look like on the picture below
+~~- Copy the MPQs to the devilutionx directory. Your directory should look like on the picture below~~
 
 ![ios_mpq_files02](https://user-images.githubusercontent.com/1339414/145089068-2c87887b-58c3-4759-9270-9d8934fe90bb.png)
 
-- Go back to your home screen and launch the game
+~~- Go back to your home screen and launch the game~~
 
 Method 2: Using Finder (MacOS)
 
@@ -102,6 +112,31 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 </details>
 
+<details><summary>Xbox One/Series</summary>
+
+- Go to https://gamr13.github.io/ and follow the instructions in the Discord server
+- Install DevilutionX and FTP-server from the given URLs
+- Open DevilutionX
+- Open and start the FTP-server
+- Press `View` on DevilutionX and select `Manage game and add-ons`
+- Go to `File info` and note `FullName`
+- Copy the MPQ files to `/LOCALFOLDER/*FullName*/LocalState/diasurgical/devilution` using a FTP-client on your PC
+  
+![image](https://user-images.githubusercontent.com/204594/187104388-fc5648da-5629-4335-ae8b-403600721e2a.png)
+
+</details>
+
+<details><summary>Playstation 4</summary>
+
+**Requires Playstation 4 capable of running homebrew**
+
+- Install [Diablo 1](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/diablo-nightly-ps4.pkg) or [Hellfire](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/hellfire-nightly-ps4.pkg) pkg
+- Copy the MPQ files (e.g., using ftp) to `/user/data/diasurgical/devilution/`
+
+[PS4 manual](/docs/manual/platforms/ps4.md)
+
+</details>
+
 <details><summary>Playstation Vita</summary>
 
 - Install [devilutionx.vpk](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-vita.vpk)
@@ -111,16 +146,6 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 </details>
 
-<details><summary>Playstation 4</summary>
-
-**Requires Playstation 4 capable of running homebrew**
-
-- Install the devilutionX PS4 pkg
-- Copy the MPQ files (e.g., via ftp) to `/user/data/diasurgical/devilution/`
-
-[PS4 manual](/docs/manual/platforms/ps4.md)
-
-</details>
 <details><summary>ClockworkPi GameShell</summary>
 
 - Copy the `__init__.py` to a newly created folder under /home/cpi/apps/Menu and run it from the menu. The folder then symbolizes the devilutionX icon.
@@ -142,7 +167,7 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 **Requires RetroFW 2.0+.**
 
-- Copy the OPK file to the apps directory.
+- Copy [Diablo 1](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/diablo-nightly-retrofw.opk) or [Hellfire](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/hellfire-nightly-retrofw.opk) OPK file to the apps directory.
 - Copy the MPQ files to `~/.local/share/diasurgical/devilution`
 
 `~` is your home directory, `/home/retrofw` by default.
@@ -155,7 +180,7 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 **Requires firmware v1.5+**
 
-- Copy the OPK file to `/media/sdcard/APPS/`.
+- Copy [Diablo 1](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/diablo-nightly-rg350.opk) or [Hellfire](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/hellfire-nightly-rg350.opk) OPK file to `/media/sdcard/APPS/`.
 - Copy the MPQ files to `/media/home/.local/share/diasurgical/devilution/`
 
  **NOTE:** You can copy the MPQ files to sdcard instead and create a symlink at the expected location. To do this, SSH into your RG350 and run:
@@ -166,4 +191,13 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 [RG350 manual](/docs/manual/platforms/rg350.md)
 
+</details>
+
+<details><summary>Miyoo Mini</summary>
+
+**Requires OnionOS to be installed**
+
+- Activate the ports collection by using the onion installer on the device
+- Copy the contents of the released .zip-file onto the root of your SD card
+- Copy the MPQ files to `/Emu/PORTS/Binaries/Diablo.port/FILES_HERE/`
 </details>
