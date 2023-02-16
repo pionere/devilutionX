@@ -9,7 +9,8 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 <details><summary>Windows</summary>
 
-- Copy the MPQ files to the folder containing the DevilutionX exe (or to the data folder, which is normally `%AppData%\diasurgical\devilx`).
+- Unzip the downloaded file to the desired folder
+- Copy the MPQ files to the folder containing the DevilutionX exe (`devilx.mpq` should be already there)
 - Run `devilutionx.exe`
 
 </details>
@@ -92,7 +93,7 @@ Method 3: Using iTunes (Windows and older MacOS)
 
 <details><summary>Android</summary>
 
-- Copy the APK file to device and tap on it on device's file explorer or install via `adb install` (if USB debugging is enabled on device).
+- Copy the downloaded apk file to device and tap on it on device's file explorer or install via `adb install` (if USB debugging is enabled on device).
 - Place the MPQ-files in `/sdcard/Android/data/org.diasurgical.devilutionx/files` folder
 
 </details>
@@ -130,7 +131,7 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 **Requires Playstation 4 capable of running homebrew**
 
-- Install [Diablo 1](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/diablo-nightly-ps4.pkg) or [Hellfire](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/hellfire-nightly-ps4.pkg) pkg
+- Install the downloaded pkg file
 - Copy the MPQ files (e.g., using ftp) to `/user/data/diasurgical/devilution/`
 
 [PS4 manual](/docs/manual/platforms/ps4.md)
@@ -167,7 +168,7 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 **Requires RetroFW 2.0+.**
 
-- Copy [Diablo 1](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/diablo-nightly-retrofw.opk) or [Hellfire](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/hellfire-nightly-retrofw.opk) OPK file to the apps directory.
+- Copy the downloaded opk file to the apps directory
 - Copy the MPQ files to `~/.local/share/diasurgical/devilution`
 
 `~` is your home directory, `/home/retrofw` by default.
@@ -180,7 +181,7 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 **Requires firmware v1.5+**
 
-- Copy [Diablo 1](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/diablo-nightly-rg350.opk) or [Hellfire](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/hellfire-nightly-rg350.opk) OPK file to `/media/sdcard/APPS/`.
+- Copy the downloaded opk file to `/media/sdcard/APPS/`
 - Copy the MPQ files to `/media/home/.local/share/diasurgical/devilution/`
 
  **NOTE:** You can copy the MPQ files to sdcard instead and create a symlink at the expected location. To do this, SSH into your RG350 and run:
