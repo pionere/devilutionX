@@ -45,12 +45,25 @@ public class DevilutionXSDLActivity extends SDLActivity {
 			Toast toast = Toast.makeText(DevilutionXSDLActivity.this, getString(R.string.missing_game_data), Toast.LENGTH_SHORT);
 			toast.show();
 
-			new Handler().postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					DevilutionXSDLActivity.this.finish();
-				}
-			}, Toast.LENGTH_SHORT * 1000);
+			if (Build.VERSION.SDK_INT >= 30) {
+				toast.addCallback(new android.widget.Toast.Callback(){
+					public void onToastShown() {
+						super.onToastShown();
+					}
+
+					public void onToastHidden() {
+						super.onToastHidden();
+						DevilutionXSDLActivity.this.finish();
+					}
+				  });
+			} else {
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						DevilutionXSDLActivity.this.finish();
+					}
+				}, Toast.LENGTH_SHORT * 1000);
+			}
 			return;
 		}
 	}
