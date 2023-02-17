@@ -24,7 +24,7 @@ public class DataActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		externalDir = getExternalFilesDir(null).getAbsolutePath();
+		externalDir = DataActivity.chooseExternalFilesDir(this);
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_data);
@@ -59,6 +59,27 @@ public class DataActivity extends Activity {
 		//	unregisterReceiver(mReceiver);
 
 		super.onDestroy();
+	}
+
+	/* package */ static String chooseExternalFilesDir(Context context) {
+		if (Build.VERSION.SDK_INT >= 19) {
+			File[] externalDirs = context.getExternalFilesDirs(null);
+
+			for (int i = 0; i < externalDirs.length; i++) {
+				File dir = externalDirs[i];
+				File[] iniFiles = dir.listFiles((dir1, name) -> name == "diablo.ini");
+				if (iniFiles.length > 0)
+					return dir.getAbsolutePath();
+			}
+
+			for (int i = 0; i < externalDirs.length; i++) {
+				File dir = externalDirs[i];
+				if (dir.listFiles().length > 0)
+					return dir.getAbsolutePath();
+			}
+		}
+
+		return context.getExternalFilesDir(null).getAbsolutePath();
 	}
 
 	/**

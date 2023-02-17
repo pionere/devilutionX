@@ -28,7 +28,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		if (Build.VERSION.SDK_INT >= 25)
 			trackVisibleSpace();
 
-		externalDir = chooseExternalFilesDir();
+		externalDir = DataActivity.chooseExternalFilesDir(this);
 
 		migrateSaveGames();
 
@@ -46,27 +46,6 @@ public class DevilutionXSDLActivity extends SDLActivity {
 			startActivity(intent);
 			this.finish();
 		}
-	}
-
-	private String chooseExternalFilesDir() {
-		if (Build.VERSION.SDK_INT >= 19) {
-			File[] externalDirs = getExternalFilesDirs(null);
-
-			for (int i = 0; i < externalDirs.length; i++) {
-				File dir = externalDirs[i];
-				File[] iniFiles = dir.listFiles((dir1, name) -> name == "diablo.ini");
-				if (iniFiles.length > 0)
-					return dir.getAbsolutePath();
-			}
-
-			for (int i = 0; i < externalDirs.length; i++) {
-				File dir = externalDirs[i];
-				if (dir.listFiles().length > 0)
-					return dir.getAbsolutePath();
-			}
-		}
-
-		return getExternalFilesDir(null).getAbsolutePath();
 	}
 
 	private void trackVisibleSpace() {
