@@ -28,7 +28,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		if (Build.VERSION.SDK_INT >= 25)
 			trackVisibleSpace();
 
-		externalDir = DataActivity.chooseExternalFilesDir(this);
+		externalDir = chooseExternalFilesDir();
 
 		migrateSaveGames();
 
@@ -41,11 +41,64 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	protected void onStart() {
 		super.onStart();
 
-		if (DataActivity.missingGameData(externalDir)) {
-			Intent intent = new Intent(this, DataActivity.class);
-			startActivity(intent);
-			this.finish();
+		if (missingGameData()) {
+			Toast toast = Toast.makeText(DevilutionXSDLActivity.this, getString(R.string.missing_game_data), Toast.LENGTH_SHORT);
+			toast.show();
+
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					DevilutionXSDLActivity.this.finish();
+				}
+			}, Toast.LENGTH_SHORT * 1000);
+			return;
 		}
+	}
+
+	/**
+	 * When the user exits the game, use System.exit(0)
+	 * to clear memory and prevent errors on restart
+	 */
+	protected void onDestroy() {
+		super.onDestroy();
+
+		System.exit(0);
+	}
+
+	private String chooseExternalFilesDir() {
+		if (Build.VERSION.SDK_INT >= 19) {
+			File[] externalDirs = getExternalFilesDirs(null);
+
+			for (int i = 0; i < externalDirs.length; i++) {
+				File dir = externalDirs[i];
+				File[] iniFiles = dir.listFiles((dir1, name) -> name == "diablo.ini");
+				if (iniFiles.length > 0)
+					return dir.getAbsolutePath();
+			}
+
+			for (int i = 0; i < externalDirs.length; i++) {
+				File dir = externalDirs[i];
+				if (dir.listFiles().length > 0)
+					return dir.getAbsolutePath();
+			}
+		}
+
+		return getExternalFilesDir(null).getAbsolutePath();
+	}
+
+	/**
+	 * Check if the game data is present
+	 */
+	private boolean missingGameData() {
+		File fileDev = new File(externalDir + "/devilx.mpq");
+		if (!fileDev.exists())
+			return true;
+
+		File fileLower = new File(externalDir + "/diabdat.mpq");
+		File fileUpper = new File(externalDir + "/DIABDAT.MPQ");
+		//File spawnFile = new File(externalDir + "/spawn.mpq");
+
+		return !fileUpper.exists() && !fileLower.exists(); // && (!spawnFile.exists() || isDownloading);
 	}
 
 	private void trackVisibleSpace() {
