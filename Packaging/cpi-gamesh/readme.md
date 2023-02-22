@@ -11,6 +11,8 @@ Once installed, 'X' pulls the updated code and does the compiling. Note that any
 When the compile is finished and the diabdat.mpq is in place at '/home/cpi/.local/share/diasurgical/devilution/', you can play the game.
 To run the Diablo: Hellfire expansion you will need to also copy hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq. Enjoy!
 
+For ClockworkOS v0.5, buster-backports are required to have updated libraries: https://backports.debian.org/Instructions/
+
 ## Play devilutionX on the CPi GameShell
 
 When the game is compiled and the mpq files are in place, you can press "A" in the devilutionX menu to play.
