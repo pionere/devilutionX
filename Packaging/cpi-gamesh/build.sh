@@ -9,7 +9,7 @@ cd "$DIR"
 declare -r ABSDIR="$(pwd)"
 
 usage() {
-	echo "${BASH_SOURCE[0]} [--target /path/to/devliution/in/gameshell/menu] [--usage]"
+	echo "${BASH_SOURCE[0]} [--target /path/to/devilutionx/in/gameshell/menu] [--usage]"
 	exit 1
 }
 
@@ -51,7 +51,8 @@ build() {
 	cd ../..
 	rm -f CMakeCache.txt
 
-	cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DTARGET_PLATFORM=cpigamesh -DDISABLE_LTO=ON
+	#cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DTARGET_PLATFORM=cpigamesh -DDISABLE_LTO=ON
+	cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DTARGET_PLATFORM=cpigamesh
 	cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 	cd -
 }

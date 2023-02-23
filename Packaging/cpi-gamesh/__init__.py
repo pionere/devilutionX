@@ -27,7 +27,7 @@ class DevilutionPage(Page):
 	_GameExecutableRevision = _GameExecutable + ".rev"
 	_GameBuildScript = _GamePath + "/Packaging/cpi-gamesh/build.sh -t " + pipes.quote(os.path.dirname(os.path.abspath( __file__ )))
 	_GamePNG = _GamePath + "/Packaging/cpi-gamesh/Devilution.png"
-	_DevilutionDiabdatmpq = "/home/cpi/.local/share/diasurgical/devilution/diabdat.mpq"
+	_DevilutionDiabdatmpq = "/home/cpi/.local/share/diasurgical/devilutionx/diabdat.mpq"
 	_DevilutionDiabdatmpqPresent = False
 	_GameInstalled = False
 
@@ -38,7 +38,7 @@ class DevilutionPage(Page):
 	_CiteDone = "You must venture through the portal..."
 	_CiteFailed = "Game Over. Better luck next time!"
 
-	_GitURL = "https://github.com/diasurgical/devilutionX.git"
+	_GitURL = "https://github.com/pionere/devilutionX.git"
 	_GitBranch = "master"
 	_GitRevision = ""
 

@@ -8,7 +8,7 @@ To install devilutionX, just copy the [\_\_init__.py](__init__.py) to a newly cr
 From this menu, you can press 'X' to clone the git repository for devilutionX and compile the code. Dependencies are installed automatically (cmake and SDL development packages).
 Once installed, 'X' pulls the updated code and does the compiling. Note that any changes made locally to the source are reverted before pulling.
 
-When the compile is finished and the diabdat.mpq is in place at '/home/cpi/.local/share/diasurgical/devilution/', you can play the game.
+When the compile is finished and the diabdat.mpq is in place at '/home/cpi/.local/share/diasurgical/devilutionx/', you can play the game.
 To run the Diablo: Hellfire expansion you will need to also copy hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq. Enjoy!
 
 For ClockworkOS v0.5, buster-backports are required to have updated libraries: https://backports.debian.org/Instructions/
