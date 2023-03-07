@@ -3379,9 +3379,26 @@ static void DRLG_L2SetMapFix()
 	// patch the map - Bonecha1.DUN
 	// place pieces with closed doors
 	dungeon[17][11] = 150;
-	// remove shadows
-	dungeon[12][5] = 33;
-	dungeon[12][13] = 84;
+	// place shadows
+	// - right corridor
+	dungeon[12][6] = 47;
+	dungeon[12][7] = 51;
+	dungeon[16][6] = 47;
+	dungeon[16][7] = 51;
+	dungeon[16][8] = 47;
+	// - central room (top)
+	dungeon[17][8] = 49;
+	dungeon[18][8] = 46;
+	dungeon[19][8] = 49;
+	dungeon[20][8] = 46;
+	// - central room (bottom)
+	dungeon[18][12] = 46;
+	dungeon[19][12] = 49;
+	// - left corridor
+	dungeon[12][14] = 47;
+	dungeon[12][15] = 51;
+	dungeon[16][14] = 47;
+	dungeon[16][15] = 51;
 }
 
 static BYTE* LoadL2DungeonData(const char* sFileName)
