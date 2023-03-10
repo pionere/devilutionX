@@ -738,9 +738,12 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
         //    *pdwFileSizeHigh = (DWORD)(FileSize >> 32);
         return (DWORD)FileSize;
     }
-
+#ifdef FULL
     SetLastError(ERROR_INVALID_HANDLE);
     return SFILE_INVALID_SIZE;
+#else
+    return 0;
+#endif
 }
 
 DWORD WINAPI SFileGetFilePointer(HANDLE hFile)

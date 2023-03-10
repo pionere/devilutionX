@@ -207,7 +207,7 @@ void mem_free_dbg(void* p)
 BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen)
 {
 	HANDLE file;
-	BYTE* buf;
+	BYTE* buf = NULL;
 	size_t fileLen;
 
 	file = SFileOpenFile(pszName);
@@ -216,12 +216,11 @@ BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen)
 	if (pdwFileLen != NULL)
 		*pdwFileLen = fileLen;
 
-	if (fileLen == 0)
-		app_fatal("Zero length SFILE:\n%s", pszName);
+	if (fileLen != 0) {
+		buf = (BYTE*)DiabloAllocPtr(fileLen);
+		SFileReadFile(file, buf, fileLen);
+	}
 
-	buf = (BYTE*)DiabloAllocPtr(fileLen);
-
-	SFileReadFile(file, buf, fileLen);
 	SFileCloseFile(file);
 
 	return buf;
@@ -238,18 +237,17 @@ void LoadFileWithMem(const char* pszName, BYTE* p)
 	HANDLE hsFile;
 
 	assert(pszName != NULL);
-	if (p == NULL) {
+	/*if (p == NULL) {
 		app_fatal("LoadFileWithMem(NULL):\n%s", pszName);
-	}
+	}*/
 
 	hsFile = SFileOpenFile(pszName);
 
 	dwFileLen = SFileGetFileSize(hsFile);
-	if (dwFileLen == 0) {
-		app_fatal("Zero length SFILE:\n%s", pszName);
+	if (dwFileLen != 0) {
+		SFileReadFile(hsFile, p, dwFileLen);
 	}
 
-	SFileReadFile(hsFile, p, dwFileLen);
 	SFileCloseFile(hsFile);
 }
 
