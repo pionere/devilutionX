@@ -2316,17 +2316,6 @@ static void DRLG_L3(int entry)
 			FixL3Warp();
 		FixL3HallofHeroes();
 		DRLG_L3River();
-		if (QuestStatus(Q_ANVIL)) {
-			dungeon[setpc_x + 7][setpc_y + 5] = 7;
-			dungeon[setpc_x + 8][setpc_y + 5] = 7;
-			dungeon[setpc_x + 9][setpc_y + 5] = 7;
-			if (dungeon[setpc_x + 10][setpc_y + 5] == 17 || dungeon[setpc_x + 10][setpc_y + 5] == 18) {
-				dungeon[setpc_x + 10][setpc_y + 5] = 45;
-			}
-			dTransVal[DBORDERX + (setpc_x + 7) * 2][DBORDERY + (setpc_y + 5) * 2] = 1;
-			dTransVal[DBORDERX + (setpc_x + 8) * 2][DBORDERY + (setpc_y + 5) * 2] = 1;
-			dTransVal[DBORDERX + (setpc_x + 9) * 2][DBORDERY + (setpc_y + 5) * 2] = 1;
-		}
 		DRLG_PlaceThemeRooms(5, 10, 7, 0, false);
 
 		DRLG_L3Wood();
