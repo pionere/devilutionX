@@ -968,35 +968,6 @@ static void DRLG_L1SetMapFix()
 	}
 }
 
-static void SetMapTrans(BYTE* pMap)
-{
-	int i, j;
-	BYTE tv;
-	uint16_t rw, rh, *lm;
-
-	lm = (uint16_t*)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
-	lm += rw * rh; // skip dun
-	rw <<= 1;
-	rh <<= 1;
-	lm += 3 * rw * rh; // skip items?, monsters, objects
-
-	rw += DBORDERX;
-	rh += DBORDERY;
-	for (j = DBORDERY; j < rh; j++) {
-		for (i = DBORDERX; i < rw; i++) {
-			tv = SwapLE16(*lm);
-			dTransVal[i][j] = tv;
-			if (tv >= numtrans)
-				numtrans = tv + 1;
-			lm++;
-		}
-	}
-}
-
 static BYTE* LoadL1DungeonData(const char* sFileName)
 {
 	int i, j;
@@ -1042,7 +1013,7 @@ void LoadL1Dungeon(const LevelData* lds)
 
 	DRLG_InitTrans();
 	//DRLG_FloodTVal(13);
-	SetMapTrans(pMap);
+	DRLG_SetMapTrans(pMap);
 
 	mem_free_dbg(pMap);
 

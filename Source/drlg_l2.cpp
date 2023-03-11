@@ -3461,6 +3461,10 @@ void LoadL2Dungeon(const LevelData* lds)
 	// load pre-dungeon
 	pMap = LoadL2DungeonData(lds->dSetLvlPreDun);
 
+	DRLG_InitTrans();
+	//DRLG_FloodTVal(3);
+	DRLG_SetMapTrans(pMap);
+
 	mem_free_dbg(pMap);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
@@ -3469,9 +3473,6 @@ void LoadL2Dungeon(const LevelData* lds)
 	pMap = LoadL2DungeonData(lds->dSetLvlDun);
 
 	DRLG_L2SetMapFix();
-	// TODO: should be done on (loaded from) pre-dungeon...
-	DRLG_InitTrans();
-	DRLG_FloodTVal(3);
 
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);

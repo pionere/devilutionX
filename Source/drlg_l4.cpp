@@ -1967,15 +1967,16 @@ void LoadL4Dungeon(const LevelData* lds)
 	// load pre-dungeon
 	pMap = LoadL4DungeonData(lds->dSetLvlPreDun);
 
+	DRLG_InitTrans();
+	//DRLG_FloodTVal(6);
+	DRLG_SetMapTrans(pMap);
+
 	mem_free_dbg(pMap);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
 	pMap = LoadL4DungeonData(lds->dSetLvlDun);
-
-	// TODO: should be done on (loaded from) pre-dungeon...
-	DRLG_InitTrans();
 
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);

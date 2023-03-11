@@ -2467,16 +2467,16 @@ void LoadL3Dungeon(const LevelData* lds)
 	// load pre-dungeon
 	pMap = LoadL3DungeonData(lds->dSetLvlPreDun);
 
+	DRLG_InitTrans();
+	DRLG_L3FloodTVal();
+	DRLG_SetMapTrans(pMap);
+
 	mem_free_dbg(pMap);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
 	pMap = LoadL3DungeonData(lds->dSetLvlDun);
-
-	// TODO: should be done on (loaded from) pre-dungeon...
-	DRLG_InitTrans();
-	DRLG_L3FloodTVal();
 
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
