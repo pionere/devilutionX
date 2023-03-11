@@ -347,8 +347,9 @@ void InitLvlDungeon()
 		pMicroPieces[1212][0] = 0;
 		pMicroPieces[1219][0] = 0;
 #ifdef HELLFIRE
-		// fix bad artifact
+		// fix bad artifacts
 		pMicroPieces[1273][7] = 0;
+		//pMicroPieces[1303][7] = 0; - unused
 #endif
 #endif /* ASSET_MPL == 1 */
 		break;
@@ -810,32 +811,32 @@ static void DRLG_FTVR(int i, int j, int x, int y, int dir)
 {
 	if (dungeon[i][j] != TVfloor) {
 		switch (dir) {
-		case 1:
+		case 0:
 			dTransVal[x][y] = numtrans;
 			dTransVal[x][y + 1] = numtrans;
 			break;
-		case 2:
+		case 1:
 			dTransVal[x + 1][y] = numtrans;
 			dTransVal[x + 1][y + 1] = numtrans;
 			break;
-		case 3:
+		case 2:
 			dTransVal[x][y] = numtrans;
 			dTransVal[x + 1][y] = numtrans;
 			break;
-		case 4:
+		case 3:
 			dTransVal[x][y + 1] = numtrans;
+			dTransVal[x + 1][y + 1] = numtrans;
+			break;
+		case 4:
 			dTransVal[x + 1][y + 1] = numtrans;
 			break;
 		case 5:
-			dTransVal[x + 1][y + 1] = numtrans;
-			break;
-		case 6:
 			dTransVal[x][y + 1] = numtrans;
 			break;
-		case 7:
+		case 6:
 			dTransVal[x + 1][y] = numtrans;
 			break;
-		case 8:
+		case 7:
 			dTransVal[x][y] = numtrans;
 			break;
 		default:
@@ -851,14 +852,14 @@ static void DRLG_FTVR(int i, int j, int x, int y, int dir)
 		dTransVal[x + 1][y] = numtrans;
 		dTransVal[x][y + 1] = numtrans;
 		dTransVal[x + 1][y + 1] = numtrans;
-		DRLG_FTVR(i + 1, j, x + 2, y, 1);
-		DRLG_FTVR(i - 1, j, x - 2, y, 2);
-		DRLG_FTVR(i, j + 1, x, y + 2, 3);
-		DRLG_FTVR(i, j - 1, x, y - 2, 4);
-		DRLG_FTVR(i - 1, j - 1, x - 2, y - 2, 5);
-		DRLG_FTVR(i + 1, j - 1, x + 2, y - 2, 6);
-		DRLG_FTVR(i - 1, j + 1, x - 2, y + 2, 7);
-		DRLG_FTVR(i + 1, j + 1, x + 2, y + 2, 8);
+		DRLG_FTVR(i + 1, j, x + 2, y, 0);
+		DRLG_FTVR(i - 1, j, x - 2, y, 1);
+		DRLG_FTVR(i, j + 1, x, y + 2, 2);
+		DRLG_FTVR(i, j - 1, x, y - 2, 3);
+		DRLG_FTVR(i - 1, j - 1, x - 2, y - 2, 4);
+		DRLG_FTVR(i + 1, j - 1, x + 2, y - 2, 5);
+		DRLG_FTVR(i - 1, j + 1, x - 2, y + 2, 6);
+		DRLG_FTVR(i + 1, j + 1, x + 2, y + 2, 7);
 	}
 }
 
