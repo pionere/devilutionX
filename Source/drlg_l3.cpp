@@ -11,6 +11,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L3 (8 - 1)
+/** Default megatile if the tile is zero. */
+#define DEFAULT_MEGATILE_L3 7
 /** The required number of lava pools.*/
 #define MIN_LAVA_POOL 3
 /** Helper variable to check if sufficient number of lava pools have been generated */
@@ -2032,7 +2034,7 @@ static void DRLG_L3SetRoom(int rx1, int ry1)
 	rh += ry1;
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : 7;
+			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L3;
 			drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
@@ -2344,7 +2346,7 @@ static void DRLG_L3(int entry)
 			FixL3Warp();
 		FixL3HallofHeroes();
 		DRLG_L3River();
-		DRLG_PlaceThemeRooms(5, 10, 7, 0, false);
+		DRLG_PlaceThemeRooms(5, 10, DEFAULT_MEGATILE_L3, 0, false);
 
 		DRLG_L3Wood();
 		DRLG_L3PlaceRndSet(L3TITE1, 10);
@@ -2448,7 +2450,7 @@ static BYTE* LoadL3DungeonData(const char* sFileName)
 			if (*lm != 0) {
 				dungeon[i][j] = SwapLE16(*lm);
 			} else {
-				dungeon[i][j] = 7;
+				dungeon[i][j] = DEFAULT_MEGATILE_L3;
 			}
 			lm++;
 		}

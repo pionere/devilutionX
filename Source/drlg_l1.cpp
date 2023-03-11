@@ -9,6 +9,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the base megatiles. */
 #define BASE_MEGATILE_L1 (22 - 1)
+/** Default megatile if the tile is zero. */
+#define DEFAULT_MEGATILE_L1 13
 /** Size of the main chambers in the dungeon. */
 #define CHAMBER_SIZE 10
 /** Shadow type of the base floor(13). */
@@ -992,7 +994,7 @@ static BYTE* LoadL1DungeonData(const char* sFileName)
 				// no need to protect the fields, DRLG_L1Floor is a harmless floor-replacement
 				//drlgFlags[i][j] = DLRG_PROTECTED;
 			} else {
-				dungeon[i][j] = 13;
+				dungeon[i][j] = DEFAULT_MEGATILE_L1;
 			}
 			lm++;
 		}
@@ -1622,7 +1624,7 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 	rh += ry1;
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : 13;
+			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L1;
 			drlgFlags[i][j] |= *sp != 0 ? DLRG_PROTECTED : 0;
 			sp += 2;
 		}

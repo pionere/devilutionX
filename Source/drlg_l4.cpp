@@ -11,6 +11,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L4 (30 - 1)
+/** Default megatile if the tile is zero. */
+#define DEFAULT_MEGATILE_L4 6
 
 static_assert(DMAXX % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even width.");
 #define L4BLOCKX (DMAXX / 2)
@@ -223,9 +225,9 @@ static void DRLG_LoadL4SP()
 	} else if (QuestStatus(Q_WARLORD)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
 		// ensure the changing tiles are reserved
-		pSetPiece[(2 + 7 + 2 * 8) * 2] = 6;
-		pSetPiece[(2 + 7 + 3 * 8) * 2] = 6;
-		pSetPiece[(2 + 7 + 4 * 8) * 2] = 6;
+		pSetPiece[(2 + 7 + 2 * 8) * 2] = DEFAULT_MEGATILE_L4;
+		pSetPiece[(2 + 7 + 3 * 8) * 2] = DEFAULT_MEGATILE_L4;
+		pSetPiece[(2 + 7 + 4 * 8) * 2] = DEFAULT_MEGATILE_L4;
 	}
 }
 
@@ -253,7 +255,7 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	rh += ry1;
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : 6;
+			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L4;
 			drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; //|= DLRG_PROTECTED;
 			sp += 2;
 		}
@@ -1884,7 +1886,7 @@ static void DRLG_L4(int entry)
 	DRLG_L4TransFix();
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
-		DRLG_PlaceThemeRooms(7, 10, 6, 8, true);
+		DRLG_PlaceThemeRooms(7, 10, DEFAULT_MEGATILE_L4, 8, true);
 	}
 
 	DRLG_L4Shadows();
@@ -1948,7 +1950,7 @@ void CreateL4Dungeon(int entry)
 				dungeon[i][j] = SwapLE16(*lm);
 				//drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED; - unused on setmaps
 			} else {
-				dungeon[i][j] = 6;
+				dungeon[i][j] = DEFAULT_MEGATILE_L4;
 			}
 			lm++;
 		}

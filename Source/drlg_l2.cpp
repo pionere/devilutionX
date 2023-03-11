@@ -13,6 +13,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L2 (12 - 1)
+/** Default megatile if the tile is zero. */
+#define DEFAULT_MEGATILE_L2 3
 /** Shadow type of the base floor(3). */
 #define SF 3
 
@@ -1773,7 +1775,7 @@ static void DRLG_LoadL2SP()
 		for (int y = 0; y < 11; y++) {
 			for (int x = 0; x < 11; x++) {
 				if (pSetPiece[(2 + x + y * 11) * 2] == 0)
-					pSetPiece[(2 + x + y * 11) * 2] = 3;
+					pSetPiece[(2 + x + y * 11) * 2] = DEFAULT_MEGATILE_L2;
 			}
 		}
 	} else if (QuestStatus(Q_BLOOD)) {
@@ -1811,7 +1813,7 @@ static void DRLG_LoadL2SP()
 		for (int y = 0; y < 7; y++) {
 			for (int x = 0; x < 7; x++) {
 				if (pSetPiece[(2 + x + y * 7) * 2] == 0)
-					pSetPiece[(2 + x + y * 7) * 2] = 3;
+					pSetPiece[(2 + x + y * 7) * 2] = DEFAULT_MEGATILE_L2;
 			}
 		}
 	}
@@ -1844,7 +1846,7 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	rh += ry1;
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : 3;
+			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L2;
 			drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
@@ -3240,7 +3242,7 @@ static void DRLG_L2(int entry)
 	L2DoorFix();
 	DRLG_L2Corners();
 
-	DRLG_PlaceThemeRooms(6, 10, 3, 0, false);
+	DRLG_PlaceThemeRooms(6, 10, DEFAULT_MEGATILE_L2, 0, false);
 
 	L2DoorFix2();
 
@@ -3442,7 +3444,7 @@ static BYTE* LoadL2DungeonData(const char* sFileName)
 				dungeon[i][j] = SwapLE16(*lm);
 				//drlgFlags[i][j] |= DLRG_PROTECTED; - unused on setmaps
 			} else {
-				dungeon[i][j] = 3;
+				dungeon[i][j] = DEFAULT_MEGATILE_L2;
 			}
 			lm++;
 		}
