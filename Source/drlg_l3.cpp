@@ -1387,232 +1387,260 @@ static void DRLG_L3FloodTVal()
 	numtrans = 2;
 }
 
+typedef enum DIR4 {
+	DR4_UP,
+	DR4_DOWN,
+	DR4_RIGHT,
+	DR4_LEFT,
+	NUM_DIR4,
+} DIR4;
+
+typedef struct RiverTile {
+	int locX;
+	int locY;
+	int dir;
+	int tile;
+} RiverTile;
+/*
+ * Draw lava rivers.
+ * Assumes the border of dungeon was empty.
+ * New dungeon values: 19 20 21 22 23 24 38 39 40 41 42 43 44 45
+ */
 static void DRLG_L3River()
 {
 	int rx, ry, px, py, dir, pdir, nodir, nodir2, dircheck;
-	int river[3][100];
-	int rivercnt, riveramt;
-	int i, tries, found, bridge, lpcnt;
+	constexpr int MIN_RIVER_LEN = 7;
+	constexpr int MAX_RIVER_LEN = 100;
+	constexpr int MAX_RIVER_COUNT = 4;
+	constexpr int diroff_x[NUM_DIR4] = { 0,  0,  1, -1 };
+	constexpr int diroff_y[NUM_DIR4] = { -1,  1,  0,  0 };
+	constexpr int opposite[NUM_DIR4] = { DR4_DOWN, DR4_UP, DR4_LEFT, DR4_RIGHT };
+	RiverTile river[MAX_RIVER_LEN];
+	int rivercnt, riverlen;
+	int i, tries, bridgeTile, bridgeIndex, lpcnt;
 	bool done;
 
-	rivercnt = 0;
-	tries = 0;
+	rivercnt = MAX_RIVER_COUNT;
 
-	while (tries < 200 && rivercnt < 4) {
-		done = false;
-		while (!done && tries < 200) {
-			tries++;
-			lpcnt = 0;
-			do {
-				rx = random_(0, DMAXX);
-				ry = random_(0, DMAXY);
-				while (dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) {
-					if (++rx == DMAXX) {
-						rx = 0;
-						if (++ry == DMAXY)
-							break;
-					}
-				}
-			} while (ry == DMAXY && ++lpcnt < 100);
-			if (lpcnt == 100)
-				continue;
-
-			switch (dungeon[rx][ry]) {
-			case 25:
-				dir = 3;
-				nodir = 2;
-				river[2][0] = 40;
-				break;
-			case 26:
-				dir = 0;
-				nodir = 1;
-				river[2][0] = 38;
-				break;
-			case 27:
-				dir = 1;
-				nodir = 0;
-				river[2][0] = 41;
-				break;
-			case 28:
-				dir = 2;
-				nodir = 3;
-				river[2][0] = 39;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-			}
-			river[0][0] = rx;
-			river[1][0] = ry;
-			/// BUGFIX: pdir is uninitialized, add code `pdir = -1;`(fixed)
-			pdir = -1;
-			riveramt = 1;
-			nodir2 = 4;
-			dircheck = 0;
-			while (dircheck < 4 && riveramt < 100) {
-				px = rx;
-				py = ry;
-				if (dircheck == 0) {
-					dir = random_(0, 4);
-				} else {
-					dir = (dir + 1) & 3;
-				}
-				dircheck++;
-				while (dir == nodir || dir == nodir2) {
-					dir = (dir + 1) & 3;
-					dircheck++;
-				}
-				switch (dir) {
-				case 0:
-					if (ry > 0)
-						ry--;
-					break;
-				case 1:
-					if (ry < DMAXY - 1)
-						ry++;
-					break;
-				case 2:
-					if (rx < DMAXX - 1)
-						rx++;
-					break;
-				case 3:
-					if (rx > 0)
-						rx--;
-					break;
-				default:
-					ASSUME_UNREACHABLE
-				}
-				if (dungeon[rx][ry] == 7) {
-					dircheck = 0;
-					river[0][riveramt] = rx;
-					river[1][riveramt] = ry;
-					river[2][riveramt] = RandRange(15, 16) + (1 - (dir >> 1)) * 2;
-					riveramt++;
-					if ((dir == 0 && pdir == 2) || (dir == 3 && pdir == 1)) {
-						if (riveramt > 2) {
-							river[2][riveramt - 2] = 22;
-						}
-						nodir2 = dir == 0 ? 1 : 2;
-					}
-					if ((dir == 0 && pdir == 3) || (dir == 2 && pdir == 1)) {
-						if (riveramt > 2) {
-							river[2][riveramt - 2] = 21;
-						}
-						nodir2 = dir + 1; // dir == 0 ? 1 : 3;
-					}
-					if ((dir == 1 && pdir == 2) || (dir == 3 && pdir == 0)) {
-						if (riveramt > 2) {
-							river[2][riveramt - 2] = 20;
-						}
-						nodir2 = dir - 1; // dir == 1 ? 0 : 2;
-					}
-					if ((dir == 1 && pdir == 3) || (dir == 2 && pdir == 0)) {
-						if (riveramt > 2) {
-							river[2][riveramt - 2] = 19;
-						}
-						nodir2 = dir == 1 ? 0 : 3;
-					}
-					pdir = dir;
-				} else {
-					rx = px;
-					ry = py;
+	for (tries = 0; tries < 200; tries++) {
+		// select starting position
+		lpcnt = 100;
+		do {
+			rx = random_(0, DMAXX);
+			ry = random_(0, DMAXY);
+			while (dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) {
+				if (++rx == DMAXX) {
+					rx = 0;
+					if (++ry == DMAXY)
+						break;
 				}
 			}
-			switch (dir) {
-			case 0:
-				// BUGFIX: Check `ry >= 2` (fixed)
-				if (ry >= 2 && dungeon[rx][ry - 1] == 10 && dungeon[rx][ry - 2] == 8) {
-					river[0][riveramt] = rx;
-					river[1][riveramt] = ry - 1;
-					river[2][riveramt] = 24;
-					if (pdir == 2) {
-						river[2][riveramt - 1] = 22;
-					} else if (pdir == 3) {
-						river[2][riveramt - 1] = 21;
-					}
-					done = true;
-				}
-				break;
-			case 1:
-				// BUGFIX: Check `ry + 2 < DMAXY` (fixed)
-				if (ry + 2 < DMAXY && dungeon[rx][ry + 1] == 2 && dungeon[rx][ry + 2] == 8) {
-					river[0][riveramt] = rx;
-					river[1][riveramt] = ry + 1;
-					river[2][riveramt] = 42;
-					if (pdir == 2) {
-						river[2][riveramt - 1] = 20;
-					} else if (pdir == 3) {
-						river[2][riveramt - 1] = 19;
-					}
-					done = true;
-				}
-				break;
-			case 2:
-				// BUGFIX: Check `rx + 2 < DMAXX` (fixed)
-				if (rx + 2 < DMAXX && dungeon[rx + 1][ry] == 4 && dungeon[rx + 2][ry] == 8) {
-					river[0][riveramt] = rx + 1;
-					river[1][riveramt] = ry;
-					river[2][riveramt] = 43;
-					if (pdir == 0) {
-						river[2][riveramt - 1] = 19;
-					} else if (pdir == 1) {
-						river[2][riveramt - 1] = 21;
-					}
-					done = true;
-				}
-				break;
-			case 3:
-				// BUGFIX: Check `rx >= 2` (fixed)
-				if (rx >= 2 && dungeon[rx - 1][ry] == 9 && dungeon[rx - 2][ry] == 8) {
-					river[0][riveramt] = rx - 1;
-					river[1][riveramt] = ry;
-					river[2][riveramt] = 23;
-					if (pdir == 0) {
-						river[2][riveramt - 1] = 20;
-					} else if (pdir == 1) {
-						river[2][riveramt - 1] = 22;
-					}
-					done = true;
-				}
-				break;
-			default:
-				ASSUME_UNREACHABLE
-			}
-		}
-		if (!done || riveramt < 7)
+		} while (ry == DMAXY && --lpcnt != 0);
+		if (ry == DMAXY)
 			continue;
-		found = 0;
-		lpcnt = 0;
-		while (found == 0 && lpcnt < 30) {
-			lpcnt++;
-			bridge = random_low(0, riveramt);
-			if ((river[2][bridge] == 15 || river[2][bridge] == 16)
-			 && dungeon[river[0][bridge]][river[1][bridge] - 1] == 7
-			 && dungeon[river[0][bridge]][river[1][bridge] + 1] == 7) {
-				found = 44;
-				for (i = 0; i < riveramt && found != 0; i++) {
-					if ((river[1][bridge] - 1 == river[1][i] || river[1][bridge] + 1 == river[1][i])
-					 && river[0][bridge] == river[0][i]) {
-						found = 0;
+		// walk through normal tiles till it is possible
+		switch (dungeon[rx][ry]) {
+		case 25:
+			dir = DR4_LEFT;
+			break;
+		case 26:
+			dir = DR4_UP;
+			break;
+		case 27:
+			dir = DR4_DOWN;
+			break;
+		case 28:
+			dir = DR4_RIGHT;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
+		river[0].locX = rx;
+		river[0].locY = ry;
+		// river[0].dir = dir;
+		riverlen = 1;
+		nodir = opposite[dir];
+		nodir2 = NUM_DIR4;
+
+		while (true) {
+			dir = random_(0, NUM_DIR4);
+			for (dircheck = NUM_DIR4; dircheck != 0; dircheck--, dir = (dir + 1) & 3) {
+				if (dir == nodir || dir == nodir2) {
+					continue;
+				}
+				px = rx + diroff_x[dir];
+				py = ry + diroff_y[dir];
+				assert(px >= 0 && px < DMAXX);
+				assert(py >= 0 && py < DMAXY);
+				if (dungeon[px][py] == 7)
+					break;
+			}
+
+			if (dircheck != 0) {
+				nodir2 = opposite[dir];
+
+				rx += diroff_x[dir];
+				ry += diroff_y[dir];
+				river[riverlen].locX = rx;
+				river[riverlen].locY = ry;
+				river[riverlen - 1].dir = dir;
+				riverlen++;
+				if (riverlen != MAX_RIVER_LEN - 1)
+					continue;
+			}
+			break;
+		}
+
+		if (riverlen < MIN_RIVER_LEN)
+			continue;
+		// connect to a wall
+		done = false;
+		assert(ry > 0);
+		assert(ry < DMAXY - 1);
+		assert(rx > 0);
+		assert(rx < DMAXX - 1);
+		if (dungeon[rx][ry - 1] == 10 && (ry < 2 || dungeon[rx][ry - 2] == 8)) {
+			river[riverlen].locX = rx;
+			river[riverlen].locY = ry - 1;
+			river[riverlen - 1].dir = DR4_UP;
+			done = true;
+		} else if (dungeon[rx][ry + 1] == 2 && (ry >= DMAXY - 2 || dungeon[rx][ry + 2] == 8)) {
+			river[riverlen].locX = rx;
+			river[riverlen].locY = ry + 1;
+			river[riverlen - 1].dir = DR4_DOWN;
+			done = true;
+		} else if (dungeon[rx + 1][ry] == 4 && (rx >= DMAXX - 2 || dungeon[rx + 2][ry] == 8)) {
+			river[riverlen].locX = rx + 1;
+			river[riverlen].locY = ry;
+			river[riverlen - 1].dir = DR4_RIGHT;
+			done = true;
+		} else if (dungeon[rx - 1][ry] == 9 && (rx < 2 || dungeon[rx - 2][ry] == 8)) {
+			river[riverlen].locX = rx - 1;
+			river[riverlen].locY = ry;
+			river[riverlen - 1].dir = DR4_LEFT;
+			done = true;
+		}
+		if (!done)
+			continue;
+		// add a bridge over the river
+		bridgeIndex = random_(1, 256);
+		bridgeTile = 0;
+		for (lpcnt = riverlen - 2; lpcnt != 0 && bridgeTile == 0; lpcnt--) {
+			bridgeIndex = 1 + bridgeIndex % (riverlen - 3);
+			if (river[bridgeIndex - 1].locY == river[bridgeIndex + 1].locY
+				&& dungeon[river[bridgeIndex].locX][river[bridgeIndex + 1].locY - 1] == 7
+				&& dungeon[river[bridgeIndex].locX][river[bridgeIndex + 1].locY + 1] == 7) {
+				// straight horizontal river
+				bridgeTile = 44;
+				// if (river[0].dir != DR4_RIGHT && river[0].dir != DR4_LEFT)
+				// check if the bridge is blocked by the river
+				for (i = 1; i < riverlen && bridgeTile != 0; i++) {
+					if ((river[bridgeIndex].locY - 1 == river[i].locY || river[bridgeIndex].locY + 1 == river[i].locY)
+						&& river[bridgeIndex].locX == river[i].locX) {
+						bridgeTile = 0;
 					}
 				}
-			} else if ((river[2][bridge] == 17 || river[2][bridge] == 18)
-			 && dungeon[river[0][bridge] - 1][river[1][bridge]] == 7
-			 && dungeon[river[0][bridge] + 1][river[1][bridge]] == 7) {
-				found = 45;
-				for (i = 0; i < riveramt && found != 0; i++) {
-					if ((river[0][bridge] - 1 == river[0][i] || river[0][bridge] + 1 == river[0][i])
-					 && river[1][bridge] == river[1][i]) {
-						found = 0;
+			} else if (river[bridgeIndex - 1].locX == river[bridgeIndex + 1].locX
+				&& dungeon[river[bridgeIndex].locX - 1][river[bridgeIndex].locY] == 7
+				&& dungeon[river[bridgeIndex].locX + 1][river[bridgeIndex].locY] == 7) {
+				// straight vertical river
+				bridgeTile = 45;
+				// if (river[0].dir != DR4_UP && river[0].dir != DR4_DOWN)
+				// check if the bridge is blocked by the river
+				for (i = 1; i < riverlen && bridgeTile != 0; i++) {
+					if ((river[bridgeIndex].locX - 1 == river[i].locX || river[bridgeIndex].locX + 1 == river[i].locX)
+						&& river[bridgeIndex].locY == river[i].locY) {
+						bridgeTile = 0;
 					}
 				}
 			}
 		}
-		if (found != 0) {
-			river[2][bridge] = found;
-			rivercnt++;
-			for (i = 0; i <= riveramt; i++) {
-				dungeon[river[0][i]][river[1][i]] = river[2][i];
+		if (bridgeTile == 0)
+			continue;
+		// select appropriate tiles
+		// - starting tile
+		dir = river[0].dir;
+		int rTile;
+		switch (dir) {
+		case DR4_LEFT:
+			rTile = 40;
+			break;
+		case DR4_UP:
+			rTile = 38;
+			break;
+		case DR4_DOWN:
+			rTile = 41;
+			break;
+		case DR4_RIGHT:
+			rTile = 39;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
+		river[0].tile = rTile;
+		// - inner tiles
+		for (i = 1; i < riverlen; i++) {
+			pdir = dir;
+			dir = river[i].dir;
+			/*rTile = 0;
+			if ((dir == DR4_UP && pdir == DR4_RIGHT) || (dir == DR4_LEFT && pdir == DR4_DOWN)) {
+				rTile = 22;
 			}
+			if ((dir == DR4_UP && pdir == DR4_LEFT) || (dir == DR4_RIGHT && pdir == DR4_DOWN)) {
+				rTile = 21;
+			}
+			if ((dir == DR4_DOWN && pdir == DR4_RIGHT) || (dir == DR4_LEFT && pdir == DR4_UP)) {
+				rTile = 20;
+			}
+			if ((dir == DR4_DOWN && pdir == DR4_LEFT) || (dir == DR4_RIGHT && pdir == DR4_UP)) {
+				rTile = 19;
+			}
+			if (rTile == 0) {
+				 rTile = RandRange(15, 16) + (1 - (dir >> 1)) * 2; // (DR4_LEFT || DR4_RIGHT) ? 0 : 2;
+			}*/
+			const BYTE dirXPdirTiles[NUM_DIR4][NUM_DIR4] = {
+			//          UP,DOWN,RIGHT,LEFT
+			/*UP*/   {  17,   0,  22,  21 },
+			/*DOWN*/ {   0,  17,  20,  19 },
+			/*RIGHT*/{  19,  21,  15,   0 },
+			/*LEFT*/ {  20,  22,   0,  15 },
+			};
+			rTile = dirXPdirTiles[dir][pdir];
+			assert(rTile != 0);
+			// if (rTile == 15 || rTile == 17) {
+			if (rTile <= 17) {
+				rTile += random_(0, 2);
+			}
+
+			river[i].tile = rTile;
+		}
+		// - last tile
+		switch (dir) {
+		case DR4_LEFT:
+			rTile = 23;
+			break;
+		case DR4_UP:
+			rTile = 24;
+			break;
+		case DR4_DOWN:
+			rTile = 42;
+			break;
+		case DR4_RIGHT:
+			rTile = 43;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
+		river[riverlen].tile = rTile;
+		// - overwrite the bridge tile
+		river[bridgeIndex].tile = bridgeTile;
+		// add the river
+		for (i = 0; i <= riverlen; i++) {
+			dungeon[river[i].locX][river[i].locY] = river[i].tile;
+		}
+		rivercnt--;
+		if (rivercnt == 0) {
+			break;
 		}
 	}
 }
