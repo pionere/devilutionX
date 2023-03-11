@@ -774,7 +774,7 @@ static void AddUberLever()
 	int oi;
 
 	oi = AddObject(OBJ_L5LEVER, 2 * setpc_x + DBORDERX + 7, 2 * setpc_y + DBORDERY + 5);
-	SetObjMapRange(oi, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, 1);
+	SetObjMapRange(oi, setpc_x + 2, setpc_y + 2, setpc_x + 2, setpc_y + 3, 1);
 }
 
 static void AddLvl24Books()
@@ -968,7 +968,7 @@ void InitObjects()
 			return;
 		}
 		if (QuestStatus(Q_WARLORD)) {
-			AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, Q_WARLORD);
+			AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x + 7, setpc_y + 1, setpc_x + 7, setpc_y + 5, Q_WARLORD);
 			LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
 		}
 		if (QuestStatus(Q_BETRAYER))
