@@ -1769,8 +1769,17 @@ static void DRLG_LoadL2SP()
 		// place pieces with closed doors
 		pSetPiece[(2 + 4 + 3 * 11) * 2] = 150;
 		pSetPiece[(2 + 6 + 7 * 11) * 2] = 150;
+		// ensure the changing tiles are reserved
+		for (int y = 0; y < 11; y++) {
+			for (int x = 0; x < 11; x++) {
+				if (pSetPiece[(2 + x + y * 11) * 2] == 0)
+					pSetPiece[(2 + x + y * 11) * 2] = 3;
+			}
+		}
 	} else if (QuestStatus(Q_BLOOD)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
+		// ensure the inner tiles are reserved
+		pSetPiece[(2 + 5 + 12 * 10) * 2] = 3;
 	} else if (QuestStatus(Q_BCHAMB)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
 		// patch the map - Bonestr2.DUN
@@ -1798,6 +1807,13 @@ static void DRLG_LoadL2SP()
 		pSetPiece[(2 + 4 + 3 * 7) * 2] = 50; // 51;
 		// commented out because there is no matching shadow type
 		//pSetPiece[(2 + 4 + 5 * 7) * 2] = 47;
+		// ensure the changing tiles are reserved
+		for (int y = 0; y < 7; y++) {
+			for (int x = 0; x < 7; x++) {
+				if (pSetPiece[(2 + x + y * 7) * 2] == 0)
+					pSetPiece[(2 + x + y * 7) * 2] = 3;
+			}
+		}
 	}
 }
 
@@ -1829,7 +1845,7 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : 3;
-			drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED;
+			drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}

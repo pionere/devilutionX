@@ -222,6 +222,10 @@ static void DRLG_LoadL4SP()
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
 	} else if (QuestStatus(Q_WARLORD)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
+		// ensure the changing tiles are reserved
+		pSetPiece[(2 + 7 + 2 * 8) * 2] = 6;
+		pSetPiece[(2 + 7 + 3 * 8) * 2] = 6;
+		pSetPiece[(2 + 7 + 4 * 8) * 2] = 6;
 	}
 }
 
@@ -250,7 +254,7 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : 6;
-			drlgFlags[i][j] = TRUE; //|= DLRG_PROTECTED;
+			drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; //|= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}
