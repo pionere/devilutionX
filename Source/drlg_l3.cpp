@@ -2396,8 +2396,9 @@ static void DRLG_L3LightTiles()
 	if (currLvl._dType == DTYPE_NEST) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
-				if (dPiece[i][j] >= 382 && dPiece[i][j] <= 457) {
-					DoLighting(i, j, 9, NO_LIGHT);
+				pn = dPiece[i][j];
+				if ((pn >= 386 && pn <= 496) || (pn >= 534 && pn <= 537)) {
+					DoLighting(i, j, 6, NO_LIGHT); // 9
 				}
 			}
 		}
