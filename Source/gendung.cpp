@@ -927,18 +927,7 @@ void DRLG_InitSetPC()
 
 void DRLG_SetPC()
 {
-	int i, j, x0, y0, x1, y1;
-
-	x0 = 2 * setpc_x + DBORDERX;
-	y0 = 2 * setpc_y + DBORDERY;
-	x1 = 2 * setpc_w + x0;
-	y1 = 2 * setpc_h + y0;
-
-	for (j = y0; j < y1; j++) {
-		for (i = x0; i < x1; i++) {
-			dFlags[i][j] |= BFLAG_POPULATED;
-		}
-	}
+	Make_SetPC(setpc_x, setpc_y, setpc_w, setpc_h);
 }
 
 void Make_SetPC(int x, int y, int w, int h)
