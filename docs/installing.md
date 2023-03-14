@@ -104,6 +104,7 @@ Download [devilutionx.cia](https://github.com/diasurgical/devilutionX/releases/l
 This file will be used later to install the game on the 3DS console.
 
 Copy the MPQ files to the `devilutionx` subfolder under the `3ds` folder on your SD card (`/3ds/devilutionx`). The game will read these files from this location.
+Note, all file and folder names should be lowercase.
 
 Put the SD card back into the 3DS console and then power it on.
 Use a title manager such as [FBI](https://github.com/Steveice10/FBI) to install `devilutionx.cia`.
