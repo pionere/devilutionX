@@ -925,12 +925,7 @@ void DRLG_InitSetPC()
 	setpc_h = 0;
 }
 
-void DRLG_SetPC()
-{
-	Make_SetPC(setpc_x, setpc_y, setpc_w, setpc_h);
-}
-
-void Make_SetPC(int x, int y, int w, int h)
+static void Make_SetPC(int x, int y, int w, int h)
 {
 	int i, j, x0, x1, y0, y1;
 
@@ -944,6 +939,11 @@ void Make_SetPC(int x, int y, int w, int h)
 			dFlags[i][j] |= BFLAG_POPULATED;
 		}
 	}
+}
+
+void DRLG_SetPC()
+{
+	Make_SetPC(setpc_x, setpc_y, setpc_w, setpc_h);
 }
 
 /**

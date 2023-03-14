@@ -1144,6 +1144,9 @@ void InitMonsters()
 				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false);
 		}
 	}
+	// if (currLvl._dLevelIdx == DLV_HELL3) {
+	//	DoVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
+	// }
 	// place the setmap/setpiece monsters
 	PlaceSetMapMonsters();
 	if (!currLvl._dSetLvl) {
@@ -1185,6 +1188,7 @@ void InitMonsters()
 			PlaceGroup(mtidx, na, 0, 0);
 		}
 	}
+	// revert entry/exit area reservation
 	for (i = 0; i < numtrigs; i++) {
 		ts = &trigs[i];
 		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL
@@ -1193,6 +1197,9 @@ void InitMonsters()
 				DoUnVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15);
 		}
 	}
+	// if (currLvl._dLevelIdx == DLV_HELL3) {
+	//	DoUnVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
+	// }
 }
 
 void SetMapMonsters(BYTE* pMap, int startx, int starty)

@@ -64,7 +64,6 @@ void DRLG_FloodTVal(BYTE floor);
 void DRLG_SetMapTrans(BYTE* pMap);
 void DRLG_InitSetPC();
 void DRLG_SetPC();
-void Make_SetPC(int x, int y, int w, int h);
 void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rndSize);
 void DRLG_HoldThemeRooms();
 bool NearThemeRoom(int x, int y);
