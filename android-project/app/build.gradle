@@ -11,6 +11,7 @@ android {
 	aaptOptions { // probably does not matter...
 		noCompress 'mpq'
 	}
+	namespace 'org.diasurgical.devilutionx'
 	defaultConfig {
 		if (buildAsApplication) {
 			applicationId "org.diasurgical.devilutionx"

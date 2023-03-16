@@ -35,6 +35,11 @@ jobs:
     #- name: Create Build Environment
     #  run: rm /usr/local/bin/cmake
 
+    - name: Test CMake
+      shell: bash
+      working-directory: ${{ env.buildDir }}
+      run: cmake --version
+
     - name: Cache CMake build folder
       uses: actions/cache@v3
       with:
