@@ -2487,6 +2487,7 @@ static void DRLG_L1(int entry)
 	int i;
 	int minarea;
 	bool doneflag;
+	bool placeWater = QuestStatus(Q_PWATER);
 
 	switch (currLvl._dLevelIdx) {
 	case DLV_CATHEDRAL1:
@@ -2513,18 +2514,9 @@ static void DRLG_L1(int entry)
 		L1FillChambers();
 		L1AddWall();
 		L1ClearChamberFlags();
-		DRLG_InitTrans();
-		DRLG_FloodTVal(13);
-
-		doneflag = true;
-
-		if (QuestStatus(Q_PWATER)) {
+		if (placeWater) {
 			POS32 mpos = DRLG_PlaceMiniSet(PWATERIN);
 			if (mpos.x != DMAXX) {
-				// fix transVal of the set-map
-				// - uncommented since the pieces are blocked anyway
-				//DRLG_MRectTrans(mpos.x + 1, mpos.y + 1, mpos.x + 4, mpos.y + 2, 0);
-
 				quests[Q_PWATER]._qtx = 2 * mpos.x + DBORDERX + 5;
 				quests[Q_PWATER]._qty = 2 * mpos.y + DBORDERY + 6;
 				if (entry == ENTRY_RTNLVL) {
@@ -2533,13 +2525,13 @@ static void DRLG_L1(int entry)
 				}
 			} else {
 				doneflag = false;
+				continue;
 			}
 		}
+		DRLG_InitTrans();
+		DRLG_FloodTVal(13);
+
 		if (setpc_type == SPT_BANNER) {
-			// fix transVal behind the stairs
-			// - uncommented since the set-map is 'populated' -> monsters are not spawn there
-			//DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x, setpc_y + 5,
-			//	dTransVal[2 * setpc_x + DBORDERX + 1][2 * setpc_y + DBORDERY + 11]);
 			if (entry == ENTRY_PREV) {
 				ViewX = 2 * setpc_x + DBORDERX + 3;
 				ViewY = 2 * setpc_y + DBORDERY + 11;
@@ -2564,7 +2556,7 @@ static void DRLG_L1(int entry)
 				{ L1USTAIRS, entry == ENTRY_MAIN || entry == ENTRY_TWARPDN }, // was STAIRSUP in hellfire
 				{ L1DSTAIRS, entry == ENTRY_PREV },
 			};
-			doneflag &= DRLG_L1PlaceMiniSets(stairs, 2);
+			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
 				ViewY++;
 			}
@@ -2579,6 +2571,17 @@ static void DRLG_L1(int entry)
 		}
 	} while (!doneflag);
 
+	if (placeWater) {
+		int x, y;
+
+		x = quests[Q_PWATER]._qtx;
+		y = quests[Q_PWATER]._qty + 1;
+		// fix transVal of the set-map (entrance)
+		DRLG_CopyTrans(x + 0, y + 2, x + 0, y + 0);
+		DRLG_CopyTrans(x + 1, y + 2, x + 1, y + 0);
+		DRLG_CopyTrans(x + 0, y + 2, x + 0, y + 1);
+		DRLG_CopyTrans(x + 1, y + 2, x + 1, y + 1);
+	}
 	DRLG_L1TransFix();
 	DRLG_L1Corners();
 	DRLG_L1CornerFix();
@@ -2659,6 +2662,10 @@ static void DRLG_L1(int entry)
 		// patch the map - Banner2.DUN
 		// replace the wall with door
 		dungeon[setpc_x + 7][setpc_y + 6] = 193;
+		// fix transVal behind the stairs
+		// - uncommented since the set-map is 'populated' -> monsters are not spawn there
+		//DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x, setpc_y + 5,
+		//	dTransVal[2 * setpc_x + DBORDERX + 1][2 * setpc_y + DBORDERY + 11]);
 	} else if (setpc_type == SPT_SKELKING) {
 		int x, y;
 
