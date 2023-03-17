@@ -317,8 +317,8 @@ static void InitQuestTriggers()
 static void InitSKingTriggers()
 {
 	numtrigs = 1;
-	trigs[0]._tx = DBORDERX + 66;
-	trigs[0]._ty = DBORDERY + 26;
+	trigs[0]._tx = AllLevels[SL_SKELKING].dSetLvlDunX - 1; // DBORDERX + 66
+	trigs[0]._ty = AllLevels[SL_SKELKING].dSetLvlDunY - 2; // DBORDERY + 26
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 	trigs[0]._tlvl = questlist[Q_SKELKING]._qdlvl;
 }
@@ -326,8 +326,8 @@ static void InitSKingTriggers()
 static void InitSChambTriggers()
 {
 	numtrigs = 1;
-	trigs[0]._tx = DBORDERX + 54;
-	trigs[0]._ty = DBORDERY + 23;
+	trigs[0]._tx = AllLevels[SL_BONECHAMB].dSetLvlDunY + 1; // DBORDERX + 54
+	trigs[0]._ty = AllLevels[SL_BONECHAMB].dSetLvlDunY - 0; // DBORDERY + 23
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 	trigs[0]._tlvl = questlist[Q_BCHAMB]._qdlvl;
 }
@@ -335,8 +335,8 @@ static void InitSChambTriggers()
 static void InitPWaterTriggers()
 {
 	numtrigs = 1;
-	trigs[0]._tx = DBORDERX + 14;
-	trigs[0]._ty = DBORDERY + 67;
+	trigs[0]._tx = AllLevels[SL_POISONWATER].dSetLvlDunY - 1; // DBORDERX + 14
+	trigs[0]._ty = AllLevels[SL_POISONWATER].dSetLvlDunY - 0; // DBORDERY + 67
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 	trigs[0]._tlvl = questlist[Q_PWATER]._qdlvl;
 }
@@ -353,18 +353,18 @@ void InitVPEntryTrigger(bool recreate)
 	trigs[i]._tlvl = questlist[Q_BETRAYER]._qslvl;
 	numtrigs = i + 1;
 
-	AddMissile(0, 0, quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
+	AddMissile(0, 0, trigs[i]._tx, trigs[i]._ty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
 }
 
 void InitVPReturnTrigger(bool recreate)
 {
 	numtrigs = 1;
-	trigs[0]._tx = DBORDERX + 19;
-	trigs[0]._ty = DBORDERX + 16;
+	trigs[0]._tx = AllLevels[SL_VILEBETRAYER].dSetLvlDunY - 0; // DBORDERX + 19
+	trigs[0]._ty = AllLevels[SL_VILEBETRAYER].dSetLvlDunY - 4; // DBORDERX + 16
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 	trigs[0]._tlvl = questlist[Q_BETRAYER]._qdlvl;
 
-	AddMissile(0, 0, DBORDERX + 19, DBORDERY + 16, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
+	AddMissile(0, 0, trigs[0]._tx, trigs[0]._ty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
 }
 
 static int ForceTownTrig()

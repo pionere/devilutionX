@@ -119,7 +119,7 @@ const LevelData AllLevels[NUM_LEVELS] = {
 					},
 #endif
 					// dLevel, dSetLvl, dType,           dDunType,        dMusic,      dMicroTileLen, dBlocks, dLevelName,
-/*DLV_BUTCHCHAMB*//*	{       0, TRUE,    DTYPE_NONE,      DTYPE_NONE,      TMUSIC_TOWN,            16,      16, "",
+/*SL_BUTCHCHAMB*//*	{       0, TRUE,    DTYPE_NONE,      DTYPE_NONE,      TMUSIC_TOWN,            16,      16, "",
 					//  dAutomapData,             dSolidTable,                   dMicroFlags,                   dMicroCels,                    dMegaTiles,                    dMiniTiles,                    dSpecCels,                     dPalName,                        dLoadCels,               dLoadPal,                dLoadBarOnTop, dLoadBarColor, dSetLvlPreDun,                 dSetLvlDun,                        dSetLvlDunX,   dSetLvlDunY,
 						NULL,                     "Levels\\TownData\\Town.SOL",  "Levels\\TownData\\Town.TMI",  "Levels\\TownData\\Town.CEL",  "Levels\\TownData\\Town.TIL",  "Levels\\TownData\\Town.MIN",  "Levels\\TownData\\TownS.CEL", "",                              "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, NULL,                          NULL,                                        0,             0,
 					//  dMonTypes,
