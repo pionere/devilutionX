@@ -2442,8 +2442,8 @@ static BYTE* LoadL3DungeonData(const char* sFileName)
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L3 + 1, sizeof(dungeon));
 
-	rw = pMap[0];
-	rh = pMap[2];
+	rw = SwapLE16(*(uint16_t*)&pMap[0]);
+	rh = SwapLE16(*(uint16_t*)&pMap[2]);
 
 	sp = &pMap[4];
 
