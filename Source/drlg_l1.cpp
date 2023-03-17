@@ -2646,7 +2646,7 @@ static void DRLG_L1(int entry)
 		DRLG_L1Subs();
 		DRLG_L1Shadows();
 		for (i = RandRange(5, 9); i > 0; i--)
-			DRLG_L1PlaceMiniSet(LAMPS, false);
+			DRLG_PlaceMiniSet(LAMPS);
 		DRLG_L1Floor();
 	}
 
