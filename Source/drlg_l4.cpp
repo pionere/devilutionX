@@ -1898,8 +1898,9 @@ static void DRLG_L4(int entry)
 
 	DRLG_Init_Globals();
 
-	DRLG_CheckQuests();
-
+	if (QuestStatus(Q_WARLORD)) {
+		DRLG_DrawMap("Levels\\L4Data\\Warlord2.DUN", DEFAULT_MEGATILE_L4);
+	}
 	if (currLvl._dLevelIdx == DLV_HELL3) {
 		for (j = 0; j < DMAXY; j++) {
 			for (i = 0; i < DMAXX; i++) {

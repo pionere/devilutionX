@@ -3354,7 +3354,40 @@ static void DRLG_L2(int entry)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	DRLG_Init_Globals();
-	DRLG_CheckQuests();
+
+	if (QuestStatus(Q_BCHAMB)) {
+		quests[Q_BCHAMB]._qtx = 2 * setpc_x + DBORDERX + 6;
+		quests[Q_BCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
+
+		DRLG_DrawMap("Levels\\L2Data\\Bonestr1.DUN", DEFAULT_MEGATILE_L2);
+		// patch the map - Bonestr1.DUN
+		// shadow of the external-left column
+		dungeon[setpc_x][setpc_y + 4] = 48;
+		dungeon[setpc_x][setpc_y + 5] = 50;
+	}
+	if (QuestStatus(Q_BLIND)) {
+		DRLG_DrawMap("Levels\\L2Data\\Blind2.DUN", DEFAULT_MEGATILE_L2);
+		// patch the map - Blind2.DUN
+		// replace the door with wall
+		dungeon[setpc_x + 4][setpc_y + 3] = 25;
+	}
+	if (QuestStatus(Q_BLOOD)) {
+		DRLG_DrawMap("Levels\\L2Data\\Blood2.DUN", DEFAULT_MEGATILE_L2);
+		// patch the map - Blood2.DUN
+		// place pieces with closed doors
+		dungeon[setpc_x + 4][setpc_y + 10] = 151;
+		dungeon[setpc_x + 4][setpc_y + 15] = 151;
+		dungeon[setpc_x + 5][setpc_y + 15] = 151;
+		// shadow of the external-left column -- do not place to prevent overwriting large decorations
+		//dungeon[setpc_x - 1][setpc_y + 7] = 48;
+		//dungeon[setpc_x - 1][setpc_y + 8] = 50;
+		// shadow of the bottom-left column(s) -- one is missing
+		dungeon[setpc_x + 1][setpc_y + 13] = 48;
+		dungeon[setpc_x + 1][setpc_y + 14] = 50;
+		// shadow of the internal column next to the pedistal
+		dungeon[setpc_x + 5][setpc_y + 7] = 142;
+		dungeon[setpc_x + 5][setpc_y + 8] = 50;
+	}
 }
 
 void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)

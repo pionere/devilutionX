@@ -737,6 +737,32 @@ void DRLG_PlaceMegaTiles(int mt)
 	}
 }
 
+void DRLG_DrawMap(const char* name, int bv)
+{
+	int x, y, rw, rh, i, j;
+	BYTE* pMap;
+	BYTE* sp;
+
+	pMap = LoadFileInMem(name);
+	rw = pMap[0];
+	rh = pMap[2];
+
+	sp = &pMap[4];
+	assert(setpc_w == rw);
+	assert(setpc_h == rh);
+	x = setpc_x;
+	y = setpc_y;
+	rw += x;
+	rh += y;
+	for (j = y; j < rh; j++) {
+		for (i = x; i < rw; i++) {
+			dungeon[i][j] = *sp != 0 ? *sp : bv;
+			sp += 2;
+		}
+	}
+	mem_free_dbg(pMap);
+}
+
 void DRLG_InitTrans()
 {
 	memset(dTransVal, 0, sizeof(dTransVal));

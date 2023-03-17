@@ -2634,7 +2634,48 @@ static void DRLG_L1(int entry)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	DRLG_Init_Globals();
-	DRLG_CheckQuests();
+
+	if (QuestStatus(Q_BUTCHER)) {
+		int x, y;
+
+		assert(setpc_w == 6);
+		assert(setpc_h == 6);
+		x = 2 * setpc_x + DBORDERX;
+		y = 2 * setpc_y + DBORDERY;
+		// fix transVal on the bottom left corner of the room
+		DRLG_CopyTrans(x, y + 9, x + 1, y + 9);
+		DRLG_CopyTrans(x, y + 10, x + 1, y + 10);
+		// set transVal in the room
+		DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
+	}
+	if (QuestStatus(Q_BANNER)) {
+		DRLG_DrawMap("Levels\\L1Data\\Banner2.DUN", DEFAULT_MEGATILE_L1);
+		// patch the map - Banner2.DUN
+		// replace the wall with door
+		dungeon[setpc_x + 7][setpc_y + 6] = 193;
+	}
+	if (QuestStatus(Q_SKELKING)) {
+		int x, y;
+
+		x = 2 * setpc_x + DBORDERX;
+		y = 2 * setpc_y + DBORDERY;
+		// fix transVal on the bottom left corner of the box
+		DRLG_CopyTrans(x, y + 11, x + 1, y + 11);
+		DRLG_CopyTrans(x, y + 12, x + 1, y + 12);
+		// fix transVal at the entrance - commented out because it makes the wall transparent
+		//DRLG_CopyTrans(x + 13, y + 7, x + 12, y + 7);
+		//DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
+		// patch dSolidTable - L1.SOL - commented out because 299 is used elsewhere
+		//nSolidTable[299] = true;
+
+		quests[Q_SKELKING]._qtx = x + 12;
+		quests[Q_SKELKING]._qty = y + 7;
+	}
+#ifdef HELLFIRE
+	if (QuestStatus(Q_NAKRUL)) {
+		DRLG_DrawMap("NLevels\\L5Data\\Nakrul1.DUN", DEFAULT_MEGATILE_L1);
+	}
+#endif
 }
 
 void CreateL1Dungeon(int entry)
