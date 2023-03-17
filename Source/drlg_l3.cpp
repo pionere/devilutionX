@@ -2431,29 +2431,26 @@ void CreateL3Dungeon(int entry)
 
 static BYTE* LoadL3DungeonData(const char* sFileName)
 {
-	int i, j;
+	int rw, rh, i, j;
 	BYTE* pMap;
-	uint16_t rw, rh, *lm;
+	BYTE* sp;
 
 	pMap = LoadFileInMem(sFileName);
 
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L3 + 1, sizeof(dungeon));
 
-	lm = (uint16_t*)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
+	rw = pMap[0];
+	rh = pMap[2];
+
+	sp = &pMap[4];
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
-			if (*lm != 0) {
-				dungeon[i][j] = SwapLE16(*lm);
-			} else {
-				dungeon[i][j] = DEFAULT_MEGATILE_L3;
-			}
-			lm++;
+			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L3;
+			// no need to protect the fields, unused on setmaps
+			// drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED;
+			sp += 2;
 		}
 	}
 

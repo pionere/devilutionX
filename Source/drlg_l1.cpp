@@ -972,31 +972,26 @@ static void DRLG_L1SetMapFix()
 
 static BYTE* LoadL1DungeonData(const char* sFileName)
 {
-	int i, j;
+	int rw, rh, i, j;
 	BYTE* pMap;
-	uint16_t rw, rh, *lm;
+	BYTE *sp;
 
 	pMap = LoadFileInMem(sFileName);
 
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
 
-	lm = (uint16_t*)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
+	rw = pMap[0];
+	rh = pMap[2];
+
+	sp = &pMap[4];
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
-			if (*lm != 0) {
-				dungeon[i][j] = SwapLE16(*lm);
-				// no need to protect the fields, DRLG_L1Floor is a harmless floor-replacement
-				//drlgFlags[i][j] = DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = DEFAULT_MEGATILE_L1;
-			}
-			lm++;
+			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L1;
+			// no need to protect the fields, DRLG_L1Floor is commented out because Vile1 is not protected
+			// drlgFlags[i][j] |= *sp != 0 ? DLRG_PROTECTED : 0;
+			sp += 2;
 		}
 	}
 

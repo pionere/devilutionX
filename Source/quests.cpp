@@ -279,16 +279,15 @@ static void DrawSkelKing()
 
 static void DrawMap(const char* name, int bv)
 {
-	int x, y, i, j, v;
+	int x, y, rw, rh, i, j;
 	BYTE* pMap;
-	uint16_t rw, rh, *lm;
+	BYTE* sp;
 
 	pMap = LoadFileInMem(name);
-	lm = (uint16_t*)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
+	rw = pMap[0];
+	rh = pMap[2];
+
+	sp = &pMap[4];
 	assert(setpc_w == rw);
 	assert(setpc_h == rh);
 	x = setpc_x;
@@ -297,13 +296,8 @@ static void DrawMap(const char* name, int bv)
 	rh += y;
 	for (j = y; j < rh; j++) {
 		for (i = x; i < rw; i++) {
-			if (*lm != 0) {
-				v = SwapLE16(*lm);
-			} else {
-				v = bv;
-			}
-			dungeon[i][j] = v;
-			lm++;
+			dungeon[i][j] = *sp != 0 ? *sp : bv;
+			sp += 2;
 		}
 	}
 	mem_free_dbg(pMap);
@@ -328,16 +322,15 @@ static void DrawSChamber()
 
 static void DrawPreMap(const char* name)
 {
-	int x, y, i, j;
+	int x, y, rw, rh, i, j;
 	BYTE* pMap;
-	uint16_t rw, rh, *lm;
+	BYTE* sp;
 
 	pMap = LoadFileInMem(name);
-	lm = (uint16_t*)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
+	rw = pMap[0];
+	rh = pMap[2];
+
+	sp = &pMap[4];
 	assert(setpc_w == rw);
 	assert(setpc_h == rh);
 	x = setpc_x;
@@ -346,10 +339,10 @@ static void DrawPreMap(const char* name)
 	rh += y;
 	for (j = y; j < rh; j++) {
 		for (i = x; i < rw; i++) {
-			if (*lm != 0) {
-				pdungeon[i][j] = SwapLE16(*lm);
+			if (*sp != 0) {
+				pdungeon[i][j] = *sp;
 			}
-			lm++;
+			sp += 2;
 		}
 	}
 	mem_free_dbg(pMap);
