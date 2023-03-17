@@ -1196,7 +1196,7 @@ static void L4FirstRoom()
 	if (currLvl._dLevelIdx != DLV_HELL4) {
 		if (pSetPiece != NULL) {
 			w = SwapLE16(*(uint16_t*)&pSetPiece[0]) + 4; // TODO: add border to the setmaps
-			h = SwapLE16(*(uint16_t*)&pSetPiece[0]) + 2;
+			h = SwapLE16(*(uint16_t*)&pSetPiece[2]) + 2;
 			if (setpc_type == SPT_WARLORD)
 				w--;
 		} else {
@@ -1265,7 +1265,7 @@ static void DRLG_L4SetRoom(int rx1, int ry1)
 	}
 }
 
-static void DRLG_LoadDiabQuads(bool preflag)
+static void DRLG_LoadDiabQuads(bool postflag)
 {
 	assert(pSetPiece == NULL);
 
@@ -1273,15 +1273,15 @@ static void DRLG_LoadDiabQuads(bool preflag)
 	DRLG_L4SetRoom(DIAB_QUAD_1X, DIAB_QUAD_1Y);
 	MemFreeDbg(pSetPiece);
 
-	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab2b.DUN" : "Levels\\L4Data\\diab2a.DUN");
+	pSetPiece = LoadFileInMem(postflag ? "Levels\\L4Data\\diab2b.DUN" : "Levels\\L4Data\\diab2a.DUN");
 	DRLG_L4SetRoom(DIAB_QUAD_2X, DIAB_QUAD_2Y);
 	MemFreeDbg(pSetPiece);
 
-	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab3b.DUN" : "Levels\\L4Data\\diab3a.DUN");
+	pSetPiece = LoadFileInMem(postflag ? "Levels\\L4Data\\diab3b.DUN" : "Levels\\L4Data\\diab3a.DUN");
 	DRLG_L4SetRoom(DIAB_QUAD_3X, DIAB_QUAD_3Y);
 	MemFreeDbg(pSetPiece);
 
-	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab4b.DUN" : "Levels\\L4Data\\diab4a.DUN");
+	pSetPiece = LoadFileInMem(postflag ? "Levels\\L4Data\\diab4b.DUN" : "Levels\\L4Data\\diab4a.DUN");
 	DRLG_L4SetRoom(DIAB_QUAD_4X, DIAB_QUAD_4Y);
 	MemFreeDbg(pSetPiece);
 }
