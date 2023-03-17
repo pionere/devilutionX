@@ -1050,33 +1050,32 @@ static void PlaceSetMapMonsters()
 	BYTE* setp;
 
 	if (!currLvl._dSetLvl) {
-		if (QuestStatus(Q_BANNER)) {
+		if (setpc_type == SPT_BANNER) { // QuestStatus(Q_BANNER)
 			setp = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
-		if (QuestStatus(Q_BLOOD)) {
+		if (setpc_type == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
 			setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
-		if (QuestStatus(Q_BLIND)) {
+		if (setpc_type == SPT_BLIND) { // QuestStatus(Q_BLIND)
 			setp = LoadFileInMem("Levels\\L2Data\\Blind2.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
-		if (QuestStatus(Q_ANVIL)) {
+		if (setpc_type == SPT_ANVIL) { // QuestStatus(Q_ANVIL)
 			setp = LoadFileInMem("Levels\\L3Data\\Anvil.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
-		if (QuestStatus(Q_WARLORD)) {
+		if (setpc_type == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
 			setp = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
-
-		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && IsMultiGame) {
+		if (setpc_type == SPT_BETRAYER) { // QuestStatus(Q_BETRAYER) && IsMultiGame
 			// assert(quests[Q_BETRAYER]._qactive != QUEST_NOTAVAIL);
 			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);

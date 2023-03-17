@@ -925,11 +925,11 @@ void InitObjects()
 	case DTYPE_CATHEDRAL:
 		if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
 			AddStoryBook();
-		if (QuestStatus(Q_BUTCHER))
-			LoadMapSetObjs("Levels\\L1Data\\Butcher.DUN");
 		if (QuestStatus(Q_PWATER))
 			AddCandles();
-		if (QuestStatus(Q_BANNER))
+		if (setpc_type == SPT_BUTCHER) // QuestStatus(Q_BUTCHER)
+			LoadMapSetObjs("Levels\\L1Data\\Butcher.DUN");
+		if (setpc_type == SPT_BANNER) // QuestStatus(Q_BANNER)
 			AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
 		InitRndSarcs(OBJ_SARC);
 		AddL1Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
@@ -939,14 +939,14 @@ void InitObjects()
 			AddStoryBook();
 		if (QuestStatus(Q_ROCK))
 			InitRndLocObj5x5(OBJ_STAND);
-		if (QuestStatus(Q_BCHAMB)) {
+		if (setpc_type == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
 			AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BCHAMB);
 		}
-		if (QuestStatus(Q_BLIND)) {
+		if (setpc_type == SPT_BLIND) { // QuestStatus(Q_BLIND)
 			AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
 			LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
 		}
-		if (QuestStatus(Q_BLOOD)) {
+		if (setpc_type == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
 			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD); // NULL_LVR_EFFECT
 			AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 		}
@@ -967,11 +967,11 @@ void InitObjects()
 			AddDiabObjs();
 			return;
 		}
-		if (QuestStatus(Q_WARLORD)) {
+		if (setpc_type == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
 			AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x + 7, setpc_y + 1, setpc_x + 7, setpc_y + 5, Q_WARLORD);
 			LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
 		}
-		if (QuestStatus(Q_BETRAYER))
+		if (setpc_type == SPT_BETRAYER) // QuestStatus(Q_BETRAYER)
 			AddLazStand();
 		AddL4Goodies();
 	break;
