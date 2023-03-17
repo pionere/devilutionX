@@ -1199,7 +1199,7 @@ static void L4FirstRoom()
 	if (currLvl._dLevelIdx != DLV_HELL4) {
 		if (setpc_type != SPT_NONE) {
 			w = setpc_w + 4; // TODO: add border to the setmaps
-			h = setpc_h + 2;
+			h = setpc_h + 4;
 			if (setpc_type == SPT_WARLORD)
 				w--;
 		} else {
@@ -1859,7 +1859,7 @@ static void DRLG_L4(int entry)
 		if (setpc_type == SPT_WARLORD) {
 			mini_set stairs[2] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
-				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
+				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN && entry != ENTRY_PREV }
 			};
 			doneflag = DRLG_L4PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
@@ -1870,7 +1870,7 @@ static void DRLG_L4(int entry)
 			mini_set stairs[3] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
 				{ currLvl._dLevelIdx != DLV_HELL4 ? L4DSTAIRS : NULL, entry == ENTRY_PREV },
-				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
+				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN && entry != ENTRY_PREV }
 			};
 			doneflag = DRLG_L4PlaceMiniSets(stairs, 3);
 			if (entry == ENTRY_PREV) {
