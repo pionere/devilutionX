@@ -792,8 +792,8 @@ void DRLG_RectTrans(int x1, int y1, int x2, int y2)
 {
 	int i, j;
 
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
+	for (i = x1; i <= x2; i++) {
+		for (j = y1; j <= y2; j++) {
 			dTransVal[i][j] = numtrans;
 		}
 	}
