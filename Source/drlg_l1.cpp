@@ -866,6 +866,7 @@ static void DRLG_L1Floor()
 
 static void DRLG_LoadL1SP()
 {
+	DRLG_InitSetPC();
 	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_BANNER)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
@@ -2638,7 +2639,6 @@ static void DRLG_L1(int entry)
 
 void CreateL1Dungeon(int entry)
 {
-	DRLG_InitSetPC();
 	DRLG_LoadL1SP();
 	DRLG_L1(entry);
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);

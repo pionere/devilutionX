@@ -219,6 +219,7 @@ static void DRLG_L4Shadows()
 
 static void DRLG_LoadL4SP()
 {
+	DRLG_InitSetPC();
 	assert(pSetPiece == NULL);
 	if (IsMultiGame && QuestStatus(Q_BETRAYER)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
@@ -1917,7 +1918,6 @@ static void DRLG_L4(int entry)
 
 void CreateL4Dungeon(int entry)
 {
-	DRLG_InitSetPC();
 	DRLG_LoadL4SP();
 	DRLG_L4(entry);
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);

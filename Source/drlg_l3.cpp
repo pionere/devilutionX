@@ -1004,6 +1004,7 @@ const BYTE L6WALLLPOOL2[] = {
 
 static void DRLG_LoadL3SP()
 {
+	DRLG_InitSetPC();
 	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_ANVIL)) {
 		pSetPiece = LoadFileInMem("Levels\\L3Data\\Anvil.DUN");
@@ -2420,7 +2421,6 @@ static void DRLG_L3LightTiles()
 
 void CreateL3Dungeon(int entry)
 {
-	DRLG_InitSetPC();
 	DRLG_LoadL3SP();
 	DRLG_L3(entry);
 	DRLG_FreeL3SP();

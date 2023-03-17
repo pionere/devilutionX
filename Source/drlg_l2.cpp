@@ -1764,6 +1764,7 @@ static void DRLG_L2Shadows()
 
 static void DRLG_LoadL2SP()
 {
+	DRLG_InitSetPC();
 	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_BLIND)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blind1.DUN");
@@ -3489,7 +3490,6 @@ void CreateL2Dungeon(int entry)
 	// could have been to share the same layout between levels, but that does not make too
 	// much sense due to the stairs placement are 'wrong' anyway. Just to have a reasonable
 	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
-	DRLG_InitSetPC();
 	DRLG_LoadL2SP();
 	DRLG_L2(entry);
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
