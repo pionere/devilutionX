@@ -944,7 +944,7 @@ void InitObjects()
 		}
 		if (setpc_type == SPT_BLIND) { // QuestStatus(Q_BLIND)
 			AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
-			LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
+			// LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
 		}
 		if (setpc_type == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
 			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD); // NULL_LVR_EFFECT
