@@ -223,12 +223,14 @@ static void DRLG_LoadL4SP()
 	assert(pSetPiece == NULL);
 	if (IsMultiGame && QuestStatus(Q_BETRAYER)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
+		setpc_type = SPT_BETRAYER;
 	} else if (QuestStatus(Q_WARLORD)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
 		// ensure the changing tiles are reserved
 		pSetPiece[(2 + 7 + 2 * 8) * 2] = DEFAULT_MEGATILE_L4;
 		pSetPiece[(2 + 7 + 3 * 8) * 2] = DEFAULT_MEGATILE_L4;
 		pSetPiece[(2 + 7 + 4 * 8) * 2] = DEFAULT_MEGATILE_L4;
+		setpc_type = SPT_WARLORD;
 	}
 }
 
@@ -1195,7 +1197,7 @@ static void L4FirstRoom()
 		if (pSetPiece != NULL) {
 			w = pSetPiece[0] + 4; // TODO: add border to the setmaps
 			h = pSetPiece[0] + 2;
-			if (QuestStatus(Q_WARLORD))
+			if (setpc_type == SPT_WARLORD)
 				w--;
 		} else {
 			w = RandRange(2, 6) & ~1;
@@ -1850,7 +1852,7 @@ static void DRLG_L4(int entry)
 		L4AddWall();
 		DRLG_InitTrans();
 		DRLG_FloodTVal(6);
-		if (QuestStatus(Q_WARLORD)) {
+		if (setpc_type == SPT_WARLORD) {
 			mini_set stairs[2] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
 				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
@@ -1898,7 +1900,7 @@ static void DRLG_L4(int entry)
 
 	DRLG_Init_Globals();
 
-	if (QuestStatus(Q_WARLORD)) {
+	if (setpc_type == SPT_WARLORD) {
 		DRLG_DrawMap("Levels\\L4Data\\Warlord2.DUN", DEFAULT_MEGATILE_L4);
 	}
 	if (currLvl._dLevelIdx == DLV_HELL3) {

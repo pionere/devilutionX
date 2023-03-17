@@ -3184,6 +3184,22 @@ typedef enum _setlevels {
 	DLV_INVALID = NUM_LEVELS
 } _setlevels;
 
+typedef enum _setpiece_type {
+	SPT_NONE,
+	SPT_BANNER,
+	SPT_SKELKING,
+	SPT_BUTCHER,
+	SPT_BLIND,
+	SPT_BLOOD,
+	SPT_BCHAMB,
+	SPT_ANVIL,
+	SPT_BETRAYER,
+	SPT_WARLORD,
+#ifdef HELLFIRE
+	SPT_NAKRUL,
+#endif
+} _setpiece_type;
+
 typedef enum piece_flag {
 	PFLAG_BLOCK_PATH       = 1 << 0,
 	PFLAG_BLOCK_LIGHT      = 1 << 1,

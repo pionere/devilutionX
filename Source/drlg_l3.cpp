@@ -1008,6 +1008,7 @@ static void DRLG_LoadL3SP()
 	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_ANVIL)) {
 		pSetPiece = LoadFileInMem("Levels\\L3Data\\Anvil.DUN");
+		setpc_type = SPT_ANVIL;
 	}
 }
 

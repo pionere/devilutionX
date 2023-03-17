@@ -1779,10 +1779,12 @@ static void DRLG_LoadL2SP()
 					pSetPiece[(2 + x + y * 11) * 2] = DEFAULT_MEGATILE_L2;
 			}
 		}
+		setpc_type = SPT_BLIND;
 	} else if (QuestStatus(Q_BLOOD)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
 		// ensure the inner tiles are reserved
 		pSetPiece[(2 + 5 + 12 * 10) * 2] = 3;
+		setpc_type = SPT_BLOOD;
 	} else if (QuestStatus(Q_BCHAMB)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
 		// patch the map - Bonestr2.DUN
@@ -1817,6 +1819,7 @@ static void DRLG_LoadL2SP()
 					pSetPiece[(2 + x + y * 7) * 2] = DEFAULT_MEGATILE_L2;
 			}
 		}
+		setpc_type = SPT_BCHAMB;
 	}
 }
 
@@ -3355,7 +3358,7 @@ static void DRLG_L2(int entry)
 
 	DRLG_Init_Globals();
 
-	if (QuestStatus(Q_BCHAMB)) {
+	if (setpc_type == SPT_BCHAMB) {
 		quests[Q_BCHAMB]._qtx = 2 * setpc_x + DBORDERX + 6;
 		quests[Q_BCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
 
@@ -3365,13 +3368,13 @@ static void DRLG_L2(int entry)
 		dungeon[setpc_x][setpc_y + 4] = 48;
 		dungeon[setpc_x][setpc_y + 5] = 50;
 	}
-	if (QuestStatus(Q_BLIND)) {
+	if (setpc_type == SPT_BLIND) {
 		DRLG_DrawMap("Levels\\L2Data\\Blind2.DUN", DEFAULT_MEGATILE_L2);
 		// patch the map - Blind2.DUN
 		// replace the door with wall
 		dungeon[setpc_x + 4][setpc_y + 3] = 25;
 	}
-	if (QuestStatus(Q_BLOOD)) {
+	if (setpc_type == SPT_BLOOD) {
 		DRLG_DrawMap("Levels\\L2Data\\Blood2.DUN", DEFAULT_MEGATILE_L2);
 		// patch the map - Blood2.DUN
 		// place pieces with closed doors

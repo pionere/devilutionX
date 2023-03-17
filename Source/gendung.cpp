@@ -21,6 +21,8 @@ int setpc_y;
 int setpc_w;
 /** Specifies the height of the set level/piece of the (mega-)map. */
 int setpc_h;
+/** Specifies the type of the set level/piece of the (mega-)map (_setpiece_type). */
+int setpc_type;
 /** Contains the contents of the set piece (DUN file). */
 BYTE* pSetPiece = NULL;
 /** Specifies the mega tiles (groups of four tiles). */
@@ -949,6 +951,7 @@ void DRLG_InitSetPC()
 	setpc_y = 0;
 	setpc_w = 0;
 	setpc_h = 0;
+	setpc_type = SPT_NONE;
 }
 
 static void Make_SetPC(int x, int y, int w, int h)

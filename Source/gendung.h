@@ -19,6 +19,7 @@ extern int setpc_x;
 extern int setpc_y;
 extern int setpc_w;
 extern int setpc_h;
+extern int setpc_type;
 extern BYTE* pSetPiece;
 extern BYTE* pSpecialCels;
 extern uint16_t* pMegaTiles;

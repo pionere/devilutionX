@@ -870,6 +870,7 @@ static void DRLG_LoadL1SP()
 	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_BANNER)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
+		setpc_type = SPT_BANNER;
 	} else if (QuestStatus(Q_SKELKING)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN");
 		// patch set-piece to use common tiles - SKngDO.DUN
@@ -877,11 +878,14 @@ static void DRLG_LoadL1SP()
 		pSetPiece[(2 + 5 + 4 * 7) * 2] = 22;
 		// patch set-piece to use common tiles and make the inner tile at the entrance non-walkable - SKngDO.DUN
 		pSetPiece[(2 + 5 + 2 * 7) * 2] = 203;
+		setpc_type = SPT_SKELKING;
 	} else if (QuestStatus(Q_BUTCHER)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
+		setpc_type = SPT_BUTCHER;
 #ifdef HELLFIRE
 	} else if (QuestStatus(Q_NAKRUL)) {
 		pSetPiece = LoadFileInMem("NLevels\\L5Data\\Nakrul2.DUN");
+		setpc_type = SPT_NAKRUL;
 #endif
 	}
 }
@@ -2524,7 +2528,7 @@ static void DRLG_L1(int entry)
 				doneflag = false;
 			}
 		}
-		if (QuestStatus(Q_BANNER)) {
+		if (setpc_type == SPT_BANNER) {
 			// fix transVal behind the stairs
 			// - uncommented since the set-map is 'populated' -> monsters are not spawn there
 			//DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x, setpc_y + 5,
@@ -2635,7 +2639,7 @@ static void DRLG_L1(int entry)
 
 	DRLG_Init_Globals();
 
-	if (QuestStatus(Q_BUTCHER)) {
+	if (setpc_type == SPT_BUTCHER) {
 		int x, y;
 
 		assert(setpc_w == 6);
@@ -2648,13 +2652,13 @@ static void DRLG_L1(int entry)
 		// set transVal in the room
 		DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
 	}
-	if (QuestStatus(Q_BANNER)) {
+	if (setpc_type == SPT_BANNER) {
 		DRLG_DrawMap("Levels\\L1Data\\Banner2.DUN", DEFAULT_MEGATILE_L1);
 		// patch the map - Banner2.DUN
 		// replace the wall with door
 		dungeon[setpc_x + 7][setpc_y + 6] = 193;
 	}
-	if (QuestStatus(Q_SKELKING)) {
+	if (setpc_type == SPT_SKELKING) {
 		int x, y;
 
 		x = 2 * setpc_x + DBORDERX;
@@ -2672,7 +2676,7 @@ static void DRLG_L1(int entry)
 		quests[Q_SKELKING]._qty = y + 7;
 	}
 #ifdef HELLFIRE
-	if (QuestStatus(Q_NAKRUL)) {
+	if (setpc_type == SPT_NAKRUL) {
 		DRLG_DrawMap("NLevels\\L5Data\\Nakrul1.DUN", DEFAULT_MEGATILE_L1);
 	}
 #endif
