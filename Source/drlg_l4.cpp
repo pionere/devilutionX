@@ -244,8 +244,8 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE* sp;
 
-	rw = pSetPiece[0];
-	rh = pSetPiece[2];
+	rw = SwapLE16(*(uint16_t*)&pSetPiece[0]);
+	rh = SwapLE16(*(uint16_t*)&pSetPiece[2]);
 
 	// assert(setpc_x == rx1);
 	// assert(setpc_y == ry1);
@@ -1195,8 +1195,8 @@ static void L4FirstRoom()
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
 		if (pSetPiece != NULL) {
-			w = pSetPiece[0] + 4; // TODO: add border to the setmaps
-			h = pSetPiece[0] + 2;
+			w = SwapLE16(*(uint16_t*)&pSetPiece[0]) + 4; // TODO: add border to the setmaps
+			h = SwapLE16(*(uint16_t*)&pSetPiece[0]) + 2;
 			if (setpc_type == SPT_WARLORD)
 				w--;
 		} else {
@@ -1252,8 +1252,8 @@ static void DRLG_L4SetRoom(int rx1, int ry1)
 	int rx2, ry2, i, j;
 	BYTE* sp;
 
-	rx2 = pSetPiece[0] + rx1;
-	ry2 = pSetPiece[2] + ry1;
+	rx2 = rx1 + SwapLE16(*(uint16_t*)&pSetPiece[0]);
+	ry2 = ry1 + SwapLE16(*(uint16_t*)&pSetPiece[2]);
 	sp = &pSetPiece[4];
 
 	for (j = ry1; j < ry2; j++) {
@@ -1939,8 +1939,8 @@ void CreateL4Dungeon(int entry)
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL4DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L4 + 1, sizeof(dungeon));
 
-	rw = pMap[0];
-	rh = pMap[2];
+	rw = SwapLE16(*(uint16_t*)&pMap[0]);
+	rh = SwapLE16(*(uint16_t*)&pMap[2]);
 
 	sp = &pMap[4];
 

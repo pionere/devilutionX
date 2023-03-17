@@ -986,8 +986,8 @@ static BYTE* LoadL1DungeonData(const char* sFileName)
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
 
-	rw = pMap[0];
-	rh = pMap[2];
+	rw = SwapLE16(*(uint16_t*)&pMap[0]);
+	rh = SwapLE16(*(uint16_t*)&pMap[2]);
 
 	sp = &pMap[4];
 
@@ -1610,8 +1610,8 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE* sp;
 
-	rw = pSetPiece[0];
-	rh = pSetPiece[2];
+	rw = SwapLE16(*(uint16_t*)&pSetPiece[0]);
+	rh = SwapLE16(*(uint16_t*)&pSetPiece[2]);
 
 	setpc_x = rx1;
 	setpc_y = ry1;

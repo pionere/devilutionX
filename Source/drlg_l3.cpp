@@ -2022,8 +2022,8 @@ static void DRLG_L3SetRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE* sp;
 
-	rw = pSetPiece[0];
-	rh = pSetPiece[2];
+	rw = SwapLE16(*(uint16_t*)&pSetPiece[0]);
+	rh = SwapLE16(*(uint16_t*)&pSetPiece[2]);
 
 	// assert(setpc_x == rx1);
 	// assert(setpc_y == ry1);
@@ -2170,8 +2170,8 @@ static void DRLG_L3(int entry)
 				memset(dungeon, 0, sizeof(dungeon));
 				DRLG_L3CreateBlock(RandRange(10, 29), RandRange(10, 29), 0, 4);
 				if (pSetPiece != NULL) {
-					setpc_w = pSetPiece[0];
-					setpc_h = pSetPiece[2];
+					setpc_w = SwapLE16(*(uint16_t*)&pSetPiece[0]);
+					setpc_h = SwapLE16(*(uint16_t*)&pSetPiece[2]);
 					assert(DMAXX - setpc_w - 10 > 10);
 					assert(DMAXY - setpc_h - 10 > 10);
 					setpc_x = RandRangeLow(10, DMAXX - setpc_w - 10);

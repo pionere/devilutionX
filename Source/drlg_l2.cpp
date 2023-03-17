@@ -1836,8 +1836,8 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE* sp;
 
-	rw = pSetPiece[0];
-	rh = pSetPiece[2];
+	rw = SwapLE16(*(uint16_t*)&pSetPiece[0]);
+	rh = SwapLE16(*(uint16_t*)&pSetPiece[2]);
 
 	// assert(setpc_x == rx1);
 	// assert(setpc_y == ry1);
@@ -2821,8 +2821,8 @@ static void DRLG_L2CreateDungeon()
 	ForceH = 0;
 
 	if (pSetPiece != NULL) {
-		ForceW = pSetPiece[0] + 3; // TODO: add border to the setmaps?
-		ForceH = pSetPiece[2] + 3;
+		ForceW = SwapLE16(*(uint16_t*)&pSetPiece[0]) + 3; // TODO: add border to the setmaps?
+		ForceH = SwapLE16(*(uint16_t*)&pSetPiece[2]) + 3;
 	}
 
 	nRoomCnt = 0;
@@ -3469,8 +3469,8 @@ static BYTE* LoadL2DungeonData(const char* sFileName)
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L2 + 1, sizeof(dungeon));
 
-	rw = pMap[0];
-	rh = pMap[2];
+	rw = SwapLE16(*(uint16_t*)&pMap[0]);
+	rh = SwapLE16(*(uint16_t*)&pMap[2]);
 
 	sp = &pMap[4];
 

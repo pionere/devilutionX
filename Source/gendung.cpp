@@ -746,8 +746,8 @@ void DRLG_DrawMap(const char* name, int bv)
 	BYTE* sp;
 
 	pMap = LoadFileInMem(name);
-	rw = pMap[0];
-	rh = pMap[2];
+	rw = SwapLE16(*(uint16_t*)&pMap[0]);
+	rh = SwapLE16(*(uint16_t*)&pMap[2]);
 
 	sp = &pMap[4];
 	assert(setpc_w == rw);
