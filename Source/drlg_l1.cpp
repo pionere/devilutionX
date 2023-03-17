@@ -868,7 +868,7 @@ static void DRLG_LoadL1SP()
 {
 	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_BANNER)) {
-		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN");
+		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
 	} else if (QuestStatus(Q_SKELKING)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN");
 		// patch set-piece to use common tiles - SKngDO.DUN
@@ -880,7 +880,7 @@ static void DRLG_LoadL1SP()
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
 #ifdef HELLFIRE
 	} else if (QuestStatus(Q_NAKRUL)) {
-		pSetPiece = LoadFileInMem("NLevels\\L5Data\\Nakrul1.DUN");
+		pSetPiece = LoadFileInMem("NLevels\\L5Data\\Nakrul2.DUN");
 #endif
 	}
 }

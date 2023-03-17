@@ -320,37 +320,12 @@ static void DrawSChamber()
 	dungeon[setpc_x][setpc_y + 5] = 50;
 }
 
-static void DrawPreMap(const char* name)
-{
-	int x, y, rw, rh, i, j;
-	BYTE* pMap;
-	BYTE* sp;
-
-	pMap = LoadFileInMem(name);
-	rw = pMap[0];
-	rh = pMap[2];
-
-	sp = &pMap[4];
-	assert(setpc_w == rw);
-	assert(setpc_h == rh);
-	x = setpc_x;
-	y = setpc_y;
-	rw += x;
-	rh += y;
-	for (j = y; j < rh; j++) {
-		for (i = x; i < rw; i++) {
-			if (*sp != 0) {
-				pdungeon[i][j] = *sp;
-			}
-			sp += 2;
-		}
-	}
-	mem_free_dbg(pMap);
-}
-
 static void DrawLTBanner()
 {
-	DrawPreMap("Levels\\L1Data\\Banner1.DUN");
+	DrawMap("Levels\\L1Data\\Banner2.DUN", 13);
+	// patch the map - Banner2.DUN
+	// replace the wall with door
+	dungeon[setpc_x + 7][setpc_y + 6] = 193;
 }
 
 static void DrawBlind()
@@ -383,7 +358,7 @@ static void DrawBlood()
 #ifdef HELLFIRE
 static void DrawNakrul()
 {
-	DrawPreMap("NLevels\\L5Data\\Nakrul2.DUN");
+	DrawMap("NLevels\\L5Data\\Nakrul1.DUN", 13);
 }
 #endif
 
@@ -479,14 +454,7 @@ void LoadPWaterPalette()
 
 void ResyncBanner()
 {
-	if (quests[Q_BANNER]._qvar1 != QV_BANNER_ATTACK) {
-		// open the entrance of the setmap -> TODO: add these to Banner2.DUN ?
-		ObjChangeMap(
-		    setpc_w + setpc_x - 2,
-		    setpc_h + setpc_y - 2,
-		    setpc_w + setpc_x + 1,
-		    setpc_h + setpc_y + 1/*, false*/);
-	} else {
+	if (quests[Q_BANNER]._qvar1 == QV_BANNER_ATTACK) {
 		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
 		//for (i = 0; i < numobjects; i++)
 		//	SyncObjectAnim(objectactive[i]);
