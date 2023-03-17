@@ -27,9 +27,6 @@ static_assert(NUM_LEVELS <= 32, "guLvlVisited can not maintain too many levels."
 uint32_t guLvlVisited;
 int gnSfxDelay;
 int gnSfxNum;
-int gnReturnLvlX;
-int gnReturnLvlY;
-int gnReturnLvl;
 
 /**
  * A quest group containing the three quests the Butcher,
@@ -241,42 +238,6 @@ void CheckQuestKill(int mnum, bool sendmsg)
 	}
 	if (sendmsg)
 		NetSendCmdQuest(qn, false); // recipient should not matter
-}
-
-void SetReturnLvlPos()
-{
-	switch (myplr._pDunLevel) {
-	case SL_SKELKING:
-		gnReturnLvlX = quests[Q_SKELKING]._qtx + 1;
-		gnReturnLvlY = quests[Q_SKELKING]._qty;
-		gnReturnLvl = questlist[Q_SKELKING]._qdlvl;
-		break;
-	case SL_BONECHAMB:
-		gnReturnLvlX = quests[Q_BCHAMB]._qtx + 1;
-		gnReturnLvlY = quests[Q_BCHAMB]._qty;
-		gnReturnLvl = questlist[Q_BCHAMB]._qdlvl;
-		break;
-	case SL_POISONWATER:
-		gnReturnLvlX = quests[Q_PWATER]._qtx;
-		gnReturnLvlY = quests[Q_PWATER]._qty + 1;
-		gnReturnLvl = questlist[Q_PWATER]._qdlvl;
-		break;
-	case SL_VILEBETRAYER:
-		gnReturnLvlX = quests[Q_BETRAYER]._qtx + 1;
-		gnReturnLvlY = quests[Q_BETRAYER]._qty - 1;
-		gnReturnLvl = questlist[Q_BETRAYER]._qdlvl;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-}
-
-void GetReturnLvlPos()
-{
-	ViewX = gnReturnLvlX;
-	ViewY = gnReturnLvlY;
-	//EnterLevel(gnReturnLvl);
 }
 
 void LoadPWaterPalette()

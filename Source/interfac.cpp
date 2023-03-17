@@ -216,8 +216,6 @@ void LoadGameLevel(int lvldir)
 		IncProgress();
 		IncProgress();
 
-		if (lvldir == ENTRY_RTNLVL)
-			GetReturnLvlPos();
 		if (lvldir == ENTRY_WARPLVL)
 			GetPortalLvlPos();
 
@@ -345,11 +343,9 @@ void ShowCutscene(unsigned uMsg)
 		SwitchGameLevel(ENTRY_PREV);
 		break;
 	case DVL_DWM_SETLVL:
-		SetReturnLvlPos();
 		SwitchGameLevel(ENTRY_SETLVL);
 		break;
 	case DVL_DWM_RTNLVL:
-		assert(myplr._pDunLevel == gnReturnLvl);
 		SwitchGameLevel(ENTRY_RTNLVL);
 		break;
 	case DVL_DWM_WARPLVL:

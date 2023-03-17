@@ -2195,7 +2195,7 @@ static void DRLG_L3(int entry)
 #ifdef HELLFIRE
 			if (currLvl._dType == DTYPE_NEST) {
 				mini_set stairs[2] = {
-					{ /*currLvl._dLevelIdx != DLV_NEST1 ?*/ L6USTAIRS /*: L6TWARP*/, entry != ENTRY_PREV },
+					{ /*currLvl._dLevelIdx != DLV_NEST1 ?*/ L6USTAIRS /*: L6TWARP*/, entry != ENTRY_PREV /* entry == ENTRY_TWARPDN || entry == ENTRY_MAIN */ },
 					{ currLvl._dLevelIdx != DLV_NEST4 ? L6DSTAIRS : NULL, entry == ENTRY_PREV }
 				};
 				doneflag = DRLG_L3PlaceMiniSets(stairs, 2);
@@ -2210,7 +2210,7 @@ static void DRLG_L3(int entry)
 				mini_set stairs[3] = {
 					{ L3USTAIRS, entry == ENTRY_MAIN },
 					{ L3DSTAIRS, entry == ENTRY_PREV },
-					{ currLvl._dLevelIdx != DLV_CAVES1 ? NULL : L3TWARP, entry != ENTRY_MAIN && entry != ENTRY_PREV },
+					{ currLvl._dLevelIdx != DLV_CAVES1 ? NULL : L3TWARP, entry == ENTRY_TWARPDN },
 				};
 				doneflag = DRLG_L3PlaceMiniSets(stairs, 3);
 				if (entry == ENTRY_PREV) {

@@ -819,9 +819,6 @@ void LoadGame()
 	AutoMapXOfs = ghs->vhAutoMapXOfs;
 	AutoMapYOfs = ghs->vhAutoMapYOfs;
 
-	gnReturnLvlX = ghs->vhReturnLvlX;
-	gnReturnLvlY = ghs->vhReturnLvlY;
-	gnReturnLvl = ghs->vhReturnLvl;
 	guLvlVisited = ghs->vhLvlVisited;
 
 	tbuff += sizeof(LSaveGameHeaderStruct);
@@ -1636,9 +1633,6 @@ void SaveGame()
 	ghs->vhAutoMapXOfs = AutoMapXOfs;
 	ghs->vhAutoMapYOfs = AutoMapYOfs;
 
-	ghs->vhReturnLvlX = gnReturnLvlX;
-	ghs->vhReturnLvlY = gnReturnLvlY;
-	ghs->vhReturnLvl = gnReturnLvl;
 	ghs->vhLvlVisited = guLvlVisited;
 
 	tbuff += sizeof(LSaveGameHeaderStruct);

@@ -1100,9 +1100,6 @@ typedef struct LSaveGameHeaderStruct {
 	LE_UINT32 vhAutoMapScale;
 	LE_INT32 vhAutoMapXOfs;
 	LE_INT32 vhAutoMapYOfs;
-	LE_INT32 vhReturnLvlX;
-	LE_INT32 vhReturnLvlY;
-	LE_INT32 vhReturnLvl;
 	LE_UINT32 vhLvlVisited;
 } LSaveGameHeaderStruct;
 

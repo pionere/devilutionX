@@ -12,9 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int gnReturnLvlX;
-extern int gnReturnLvlY;
-extern int gnReturnLvl;
 extern BYTE gbTownWarps;
 extern BYTE gbWaterDone;
 extern uint32_t guLvlVisited;

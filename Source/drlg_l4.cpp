@@ -1859,7 +1859,7 @@ static void DRLG_L4(int entry)
 		if (setpc_type == SPT_WARLORD) {
 			mini_set stairs[2] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
-				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN && entry != ENTRY_PREV }
+				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN /* entry == ENTRY_TWARPDN */ }
 			};
 			doneflag = DRLG_L4PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
@@ -1870,7 +1870,7 @@ static void DRLG_L4(int entry)
 			mini_set stairs[3] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
 				{ currLvl._dLevelIdx != DLV_HELL4 ? L4DSTAIRS : NULL, entry == ENTRY_PREV },
-				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN && entry != ENTRY_PREV }
+				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry == ENTRY_TWARPDN }
 			};
 			doneflag = DRLG_L4PlaceMiniSets(stairs, 3);
 			if (entry == ENTRY_PREV) {
@@ -1881,11 +1881,24 @@ static void DRLG_L4(int entry)
 			mini_set stairs[2] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
 				{ (!IsMultiGame && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) ?
-					L4PENTA : L4PENTA2, entry != ENTRY_MAIN }
+					L4PENTA : L4PENTA2, entry != ENTRY_MAIN /* entry == ENTRY_PREV */ }
 			};
 			doneflag = DRLG_L4PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_MAIN)
 				ViewY++;
+			for (j = 0; j < DMAXY; j++) {
+				for (i = 0; i < DMAXX; i++) {
+					if (dungeon[i][j] == 98 || dungeon[i][j] == 107) {
+						// set the rportal position of Q_BETRAYER and help InitMonsters to find the exit
+						quests[Q_BETRAYER]._qtx = 2 * i + DBORDERX;
+						quests[Q_BETRAYER]._qty = 2 * j + DBORDERY;
+						if (entry == ENTRY_RTNLVL) {
+							ViewX = quests[Q_BETRAYER]._qtx + 1;
+							ViewY = quests[Q_BETRAYER]._qty - 1;
+						}
+					}
+				}
+			}
 		}
 	} while (!doneflag);
 
@@ -1906,17 +1919,6 @@ static void DRLG_L4(int entry)
 
 	if (setpc_type == SPT_WARLORD) {
 		DRLG_DrawMap("Levels\\L4Data\\Warlord2.DUN", DEFAULT_MEGATILE_L4);
-	}
-	if (currLvl._dLevelIdx == DLV_HELL3) {
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++) {
-				if (dungeon[i][j] == 98 || dungeon[i][j] == 107) {
-					// set the rportal position of Q_BETRAYER and help InitMonsters to find the exit
-					quests[Q_BETRAYER]._qtx = 2 * i + DBORDERX;
-					quests[Q_BETRAYER]._qty = 2 * j + DBORDERY;
-				}
-			}
-		}
 	}
 	if (currLvl._dLevelIdx == DLV_HELL4) {
 		DRLG_LoadDiabQuads(false);

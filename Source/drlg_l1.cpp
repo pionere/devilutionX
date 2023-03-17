@@ -2527,6 +2527,10 @@ static void DRLG_L1(int entry)
 
 				quests[Q_PWATER]._qtx = 2 * mpos.x + DBORDERX + 5;
 				quests[Q_PWATER]._qty = 2 * mpos.y + DBORDERY + 6;
+				if (entry == ENTRY_RTNLVL) {
+					ViewX = quests[Q_PWATER]._qtx;
+					ViewY = quests[Q_PWATER]._qty + 1;
+				}
 			} else {
 				doneflag = false;
 			}
@@ -2540,11 +2544,11 @@ static void DRLG_L1(int entry)
 				ViewX = 2 * setpc_x + DBORDERX + 3;
 				ViewY = 2 * setpc_y + DBORDERY + 11;
 			}
-			doneflag = DRLG_L1PlaceMiniSet(L1USTAIRS, entry != ENTRY_PREV); // was STAIRSUP, entry == ENTRY_MAIN
+			doneflag = DRLG_L1PlaceMiniSet(L1USTAIRS, entry != ENTRY_PREV /* entry == ENTRY_MAIN */); // was STAIRSUP, entry == ENTRY_MAIN
 #ifdef HELLFIRE
 		} else if (currLvl._dType == DTYPE_CRYPT) {
 			mini_set stairs[2] = {
-				{ /*currLvl._dLevelIdx != DLV_CRYPT1 ?*/ L5USTAIRS /*: L5TWARP*/, entry != ENTRY_PREV },
+				{ /*currLvl._dLevelIdx != DLV_CRYPT1 ?*/ L5USTAIRS /*: L5TWARP*/, entry != ENTRY_PREV /* entry == ENTRY_MAIN || entry == ENTRY_TWARPDN */ },
 				{ currLvl._dLevelIdx != DLV_CRYPT4 ? L5DSTAIRS : NULL, entry == ENTRY_PREV },
 			};
 			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);
@@ -2557,12 +2561,20 @@ static void DRLG_L1(int entry)
 		} else {
 			// assert(currLvl._dType == DTYPE_CATHEDRAL);
 			mini_set stairs[2] = {
-				{ L1USTAIRS, entry != ENTRY_PREV }, // was STAIRSUP in hellfire
+				{ L1USTAIRS, entry == ENTRY_MAIN || entry == ENTRY_TWARPDN }, // was STAIRSUP in hellfire
 				{ L1DSTAIRS, entry == ENTRY_PREV },
 			};
 			doneflag &= DRLG_L1PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
 				ViewY++;
+			}
+			if (setpc_type == SPT_SKELKING) {
+				quests[Q_SKELKING]._qtx = 2 * setpc_x + DBORDERX + 12;
+				quests[Q_SKELKING]._qty = 2 * setpc_y + DBORDERX + 7;
+				if (entry == ENTRY_RTNLVL) {
+					ViewX = quests[Q_SKELKING]._qtx + 1;
+					ViewY = quests[Q_SKELKING]._qty;
+				}
 			}
 		}
 	} while (!doneflag);
@@ -2660,9 +2672,6 @@ static void DRLG_L1(int entry)
 		//DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
 		// patch dSolidTable - L1.SOL - commented out because 299 is used elsewhere
 		//nSolidTable[299] = true;
-
-		quests[Q_SKELKING]._qtx = x + 12;
-		quests[Q_SKELKING]._qty = y + 7;
 	} else if (setpc_type == SPT_BUTCHER) {
 		int x, y;
 

@@ -320,6 +320,7 @@ static void InitSKingTriggers()
 	trigs[0]._tx = DBORDERX + 66;
 	trigs[0]._ty = DBORDERY + 26;
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
+	trigs[0]._tlvl = questlist[Q_SKELKING]._qdlvl;
 }
 
 static void InitSChambTriggers()
@@ -328,6 +329,7 @@ static void InitSChambTriggers()
 	trigs[0]._tx = DBORDERX + 54;
 	trigs[0]._ty = DBORDERY + 23;
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
+	trigs[0]._tlvl = questlist[Q_BCHAMB]._qdlvl;
 }
 
 static void InitPWaterTriggers()
@@ -336,6 +338,7 @@ static void InitPWaterTriggers()
 	trigs[0]._tx = DBORDERX + 14;
 	trigs[0]._ty = DBORDERY + 67;
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
+	trigs[0]._tlvl = questlist[Q_PWATER]._qdlvl;
 }
 
 void InitVPEntryTrigger(bool recreate)
@@ -359,6 +362,7 @@ void InitVPReturnTrigger(bool recreate)
 	trigs[0]._tx = DBORDERX + 19;
 	trigs[0]._ty = DBORDERX + 16;
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
+	trigs[0]._tlvl = questlist[Q_BETRAYER]._qdlvl;
 
 	AddMissile(0, 0, DBORDERX + 19, DBORDERY + 16, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
 }
@@ -816,8 +820,6 @@ void CheckTriggers()
 			lvl = currLvl._dLevelIdx - 1;
 			break;
 		case DVL_DWM_RTNLVL:
-			lvl = gnReturnLvl;
-			break;
 		case DVL_DWM_SETLVL:
 			lvl = trigs[i]._tlvl;
 			break;
