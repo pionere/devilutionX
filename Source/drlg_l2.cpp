@@ -3359,23 +3359,12 @@ static void DRLG_L2(int entry)
 
 	DRLG_Init_Globals();
 
-	if (setpc_type == SPT_BCHAMB) {
-		quests[Q_BCHAMB]._qtx = 2 * setpc_x + DBORDERX + 6;
-		quests[Q_BCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
-
-		DRLG_DrawMap("Levels\\L2Data\\Bonestr1.DUN", DEFAULT_MEGATILE_L2);
-		// patch the map - Bonestr1.DUN
-		// shadow of the external-left column
-		dungeon[setpc_x][setpc_y + 4] = 48;
-		dungeon[setpc_x][setpc_y + 5] = 50;
-	}
 	if (setpc_type == SPT_BLIND) {
 		DRLG_DrawMap("Levels\\L2Data\\Blind2.DUN", DEFAULT_MEGATILE_L2);
 		// patch the map - Blind2.DUN
 		// replace the door with wall
 		dungeon[setpc_x + 4][setpc_y + 3] = 25;
-	}
-	if (setpc_type == SPT_BLOOD) {
+	} else if (setpc_type == SPT_BLOOD) {
 		DRLG_DrawMap("Levels\\L2Data\\Blood2.DUN", DEFAULT_MEGATILE_L2);
 		// patch the map - Blood2.DUN
 		// place pieces with closed doors
@@ -3391,6 +3380,15 @@ static void DRLG_L2(int entry)
 		// shadow of the internal column next to the pedistal
 		dungeon[setpc_x + 5][setpc_y + 7] = 142;
 		dungeon[setpc_x + 5][setpc_y + 8] = 50;
+	} else if (setpc_type == SPT_BCHAMB) {
+		quests[Q_BCHAMB]._qtx = 2 * setpc_x + DBORDERX + 6;
+		quests[Q_BCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
+
+		DRLG_DrawMap("Levels\\L2Data\\Bonestr1.DUN", DEFAULT_MEGATILE_L2);
+		// patch the map - Bonestr1.DUN
+		// shadow of the external-left column
+		dungeon[setpc_x][setpc_y + 4] = 48;
+		dungeon[setpc_x][setpc_y + 5] = 50;
 	}
 }
 
