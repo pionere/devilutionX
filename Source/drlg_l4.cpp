@@ -232,6 +232,10 @@ static void DRLG_LoadL4SP()
 		pSetPiece[(2 + 7 + 4 * 8) * 2] = DEFAULT_MEGATILE_L4;
 		setpc_type = SPT_WARLORD;
 	}
+	if (setpc_type != SPT_NONE) {
+		setpc_w = SwapLE16(*(uint16_t*)&pSetPiece[0]);
+		setpc_h = SwapLE16(*(uint16_t*)&pSetPiece[2]);
+	}
 }
 
 static void DRLG_FreeL4SP()
@@ -244,14 +248,13 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE* sp;
 
-	rw = SwapLE16(*(uint16_t*)&pSetPiece[0]);
-	rh = SwapLE16(*(uint16_t*)&pSetPiece[2]);
-
 	// assert(setpc_x == rx1);
 	// assert(setpc_y == ry1);
-	setpc_w = rw;
-	setpc_h = rh;
 
+	// assert(setpc_w == SwapLE16(*(uint16_t*)&pSetPiece[0]));
+	// assert(setpc_h == SwapLE16(*(uint16_t*)&pSetPiece[2]));
+	rw = setpc_w;
+	rh = setpc_h;
 	sp = &pSetPiece[4];
 
 	rw += rx1;
@@ -1194,9 +1197,9 @@ static void L4FirstRoom()
 	int x, y, w, h, xmin, xmax, ymin, ymax;
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
-		if (pSetPiece != NULL) {
-			w = SwapLE16(*(uint16_t*)&pSetPiece[0]) + 4; // TODO: add border to the setmaps
-			h = SwapLE16(*(uint16_t*)&pSetPiece[2]) + 2;
+		if (setpc_type != SPT_NONE) {
+			w = setpc_w + 4; // TODO: add border to the setmaps
+			h = setpc_h + 2;
 			if (setpc_type == SPT_WARLORD)
 				w--;
 		} else {
@@ -1216,11 +1219,12 @@ static void L4FirstRoom()
 	ymin = (ymax + 1) >> 1;
 	y = RandRange(ymin, ymax);
 
-	if (currLvl._dLevelIdx == DLV_HELL4) {
-		setpc_x = x + 1;
-		setpc_y = y + 1;
-	}
-	if (pSetPiece != NULL) {
+	if (currLvl._dLevelIdx != DLV_HELL4) {
+		if (setpc_type != SPT_NONE) {
+			setpc_x = x + 1;
+			setpc_y = y + 1;
+		}
+	} else {
 		setpc_x = x + 1;
 		setpc_y = y + 1;
 	}
@@ -1842,7 +1846,7 @@ static void DRLG_L4(int entry)
 		DRLG_L4MakeMegas();
 		L4TileFix();
 		memset(drlgFlags, 0, sizeof(drlgFlags));
-		if (pSetPiece != NULL) {
+		if (pSetPiece != NULL) { // setpc_type != SPT_NONE
 			DRLG_L4SetSPRoom(setpc_x, setpc_y);
 		}
 		if (currLvl._dLevelIdx == DLV_HELL4) {

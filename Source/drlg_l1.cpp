@@ -888,6 +888,10 @@ static void DRLG_LoadL1SP()
 		setpc_type = SPT_NAKRUL;
 #endif
 	}
+	if (setpc_type != SPT_NONE) {
+		setpc_w = SwapLE16(*(uint16_t*)&pSetPiece[0]);
+		setpc_h = SwapLE16(*(uint16_t*)&pSetPiece[2]);
+	}
 }
 
 static void DRLG_FreeL1SP()
@@ -1610,14 +1614,13 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE* sp;
 
-	rw = SwapLE16(*(uint16_t*)&pSetPiece[0]);
-	rh = SwapLE16(*(uint16_t*)&pSetPiece[2]);
-
 	setpc_x = rx1;
 	setpc_y = ry1;
-	setpc_w = rw;
-	setpc_h = rh;
 
+	// assert(setpc_w == SwapLE16(*(uint16_t*)&pSetPiece[0]));
+	// assert(setpc_h == SwapLE16(*(uint16_t*)&pSetPiece[2]));
+	rw = setpc_w;
+	rh = setpc_h;
 	sp = &pSetPiece[4];
 
 	rw += rx1;
@@ -1677,7 +1680,7 @@ static void L1FillChambers()
 		}
 	}
 
-	if (pSetPiece != NULL) {
+	if (pSetPiece != NULL) { // setpc_type != SPT_NONE
 		c = ChambersFirst + ChambersMiddle + ChambersLast;
 		c = random_low(0, c);
 		if (ChambersFirst) {
@@ -2642,8 +2645,6 @@ static void DRLG_L1(int entry)
 	if (setpc_type == SPT_BUTCHER) {
 		int x, y;
 
-		assert(setpc_w == 6);
-		assert(setpc_h == 6);
 		x = 2 * setpc_x + DBORDERX;
 		y = 2 * setpc_y + DBORDERY;
 		// fix transVal on the bottom left corner of the room

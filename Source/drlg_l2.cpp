@@ -1821,6 +1821,10 @@ static void DRLG_LoadL2SP()
 		}
 		setpc_type = SPT_BCHAMB;
 	}
+	if (setpc_type != SPT_NONE) {
+		setpc_w = SwapLE16(*(uint16_t*)&pSetPiece[0]);
+		setpc_h = SwapLE16(*(uint16_t*)&pSetPiece[2]);
+	}
 }
 
 static void DRLG_FreeL2SP()
@@ -1836,14 +1840,13 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE* sp;
 
-	rw = SwapLE16(*(uint16_t*)&pSetPiece[0]);
-	rh = SwapLE16(*(uint16_t*)&pSetPiece[2]);
-
 	// assert(setpc_x == rx1);
 	// assert(setpc_y == ry1);
-	assert(setpc_w == rw);
-	assert(setpc_h == rh);
 
+	// assert(setpc_w == SwapLE16(*(uint16_t*)&pSetPiece[0]));
+	// assert(setpc_h == SwapLE16(*(uint16_t*)&pSetPiece[2]));
+	rw = setpc_w;
+	rh = setpc_h;
 	sp = &pSetPiece[4];
 
 	rw += rx1;
@@ -2820,17 +2823,15 @@ static void DRLG_L2CreateDungeon()
 	ForceW = 0;
 	ForceH = 0;
 
-	if (pSetPiece != NULL) {
-		ForceW = SwapLE16(*(uint16_t*)&pSetPiece[0]) + 3; // TODO: add border to the setmaps?
-		ForceH = SwapLE16(*(uint16_t*)&pSetPiece[2]) + 3;
+	if (pSetPiece != NULL) { // setpc_type != SPT_NONE
+		ForceW = setpc_w + 3; // TODO: add border to the setmaps?
+		ForceH = setpc_h + 3;
 	}
 
 	nRoomCnt = 0;
 	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, -1, HDIR_NONE, ForceW, ForceH);
 
-	if (pSetPiece != NULL) {
-		setpc_w = ForceW - 3;
-		setpc_h = ForceH - 3;
+	if (pSetPiece != NULL) { // setpc_type != SPT_NONE
 		setpc_x = RoomList[0].nRoomx1 + 2;
 		setpc_y = RoomList[0].nRoomy1 + 2;
 	}
@@ -3221,7 +3222,7 @@ static void DRLG_L2(int entry)
 
 		L2TileFix();
 		memset(drlgFlags, 0, sizeof(drlgFlags));
-		if (pSetPiece != NULL) {
+		if (pSetPiece != NULL) { // setpc_type != SPT_NONE
 			DRLG_L2SetRoom(setpc_x, setpc_y);
 		}
 

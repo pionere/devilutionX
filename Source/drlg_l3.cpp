@@ -1010,6 +1010,10 @@ static void DRLG_LoadL3SP()
 		pSetPiece = LoadFileInMem("Levels\\L3Data\\Anvil.DUN");
 		setpc_type = SPT_ANVIL;
 	}
+	if (setpc_type != SPT_NONE) {
+		setpc_w = SwapLE16(*(uint16_t*)&pSetPiece[0]);
+		setpc_h = SwapLE16(*(uint16_t*)&pSetPiece[2]);
+	}
 }
 
 static void DRLG_FreeL3SP()
@@ -2022,14 +2026,13 @@ static void DRLG_L3SetRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE* sp;
 
-	rw = SwapLE16(*(uint16_t*)&pSetPiece[0]);
-	rh = SwapLE16(*(uint16_t*)&pSetPiece[2]);
-
 	// assert(setpc_x == rx1);
 	// assert(setpc_y == ry1);
-	assert(setpc_w == rw);
-	assert(setpc_h == rh);
 
+	// assert(setpc_w == SwapLE16(*(uint16_t*)&pSetPiece[0]));
+	// assert(setpc_h == SwapLE16(*(uint16_t*)&pSetPiece[2]));
+	rw = setpc_w;
+	rh = setpc_h;
 	sp = &pSetPiece[4];
 
 	rw += rx1;
@@ -2169,9 +2172,7 @@ static void DRLG_L3(int entry)
 				static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3.");
 				memset(dungeon, 0, sizeof(dungeon));
 				DRLG_L3CreateBlock(RandRange(10, 29), RandRange(10, 29), 0, 4);
-				if (pSetPiece != NULL) {
-					setpc_w = SwapLE16(*(uint16_t*)&pSetPiece[0]);
-					setpc_h = SwapLE16(*(uint16_t*)&pSetPiece[2]);
+				if (pSetPiece != NULL) { // setpc_type != SPT_NONE
 					assert(DMAXX - setpc_w - 10 > 10);
 					assert(DMAXY - setpc_h - 10 > 10);
 					setpc_x = RandRangeLow(10, DMAXX - setpc_w - 10);
@@ -2187,7 +2188,7 @@ static void DRLG_L3(int entry)
 			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
 			memset(drlgFlags, 0, sizeof(drlgFlags));
-			if (pSetPiece != NULL) {
+			if (pSetPiece != NULL) { // setpc_type != SPT_NONE
 				DRLG_L3SetRoom(setpc_x, setpc_y);
 			}
 
