@@ -849,13 +849,6 @@ static void PlaceUniqueMonst(int uniqindex)
 		return;
 	}
 
-	for (uniqtype = 0; uniqtype < nummtypes; uniqtype++) {
-		if (mapMonTypes[uniqtype].cmType == uniqMonData[uniqindex].mtype) {
-			break;
-		}
-	}
-
-	xp = -1;
 	switch (uniqindex) {
 	case UMT_SKELKING:
 		xp = DBORDERX + 19;
@@ -914,9 +907,7 @@ static void PlaceUniqueMonst(int uniqindex)
 		yp = 2 * setpc_y + DBORDERY + 6;
 		break;
 #endif
-	}
-
-	if (xp == -1) {
+	default:
 		count = 0;
 		while (TRUE) {
 			xp = random_(91, DSIZEX) + DBORDERX;
@@ -943,6 +934,11 @@ static void PlaceUniqueMonst(int uniqindex)
 		}
 	}
 	// assert(nummonsters < MAXMONSTERS);
+	for (uniqtype = 0; uniqtype < nummtypes; uniqtype++) {
+		if (mapMonTypes[uniqtype].cmType == uniqMonData[uniqindex].mtype) {
+			break;
+		}
+	}
 	mnum = PlaceMonster(uniqtype, xp, yp);
 	mon = &monsters[mnum];
 	mon->_mNameColor = COL_GOLD;
