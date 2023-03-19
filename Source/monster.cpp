@@ -866,7 +866,7 @@ static void PlaceUniqueMonst(int uniqindex)
 		yp = 2 * setpc_y + DBORDERY + 12;
 		break;
 	case UMT_LAZARUS:
-		if (IsMultiGame) {
+		if (!currLvl._dSetLvl) {
 			xp = 2 * setpc_x + DBORDERX + 3;
 			yp = 2 * setpc_y + DBORDERY + 6;
 		} else {
@@ -875,7 +875,7 @@ static void PlaceUniqueMonst(int uniqindex)
 		}
 		break;
 	case UMT_RED_VEX:
-		if (IsMultiGame) {
+		if (!currLvl._dSetLvl) {
 			xp = 2 * setpc_x + DBORDERX + 5;
 			yp = 2 * setpc_y + DBORDERY + 3;
 		} else {
@@ -884,7 +884,7 @@ static void PlaceUniqueMonst(int uniqindex)
 		}
 		break;
 	case UMT_BLACKJADE:
-		if (IsMultiGame) {
+		if (!currLvl._dSetLvl) {
 			xp = 2 * setpc_x + DBORDERX + 5;
 			yp = 2 * setpc_y + DBORDERY + 9;
 		} else {
