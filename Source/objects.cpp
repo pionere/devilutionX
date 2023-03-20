@@ -971,7 +971,7 @@ void InitObjects()
 			AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x + 7, setpc_y + 1, setpc_x + 7, setpc_y + 5, Q_WARLORD);
 			LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
 		}
-		if (setpc_type == SPT_BETRAYER) // QuestStatus(Q_BETRAYER)
+		if (currLvl._dLevelIdx == DLV_HELL3) // QuestStatus(Q_BETRAYER) / setpc_type == SPT_BETRAYER (single?)
 			AddLazStand();
 		AddL4Goodies();
 	break;
