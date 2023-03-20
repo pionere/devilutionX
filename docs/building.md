@@ -369,27 +369,30 @@ cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 
 <details><summary>OpenDingux / RetroFW</summary>
 
-DevilutionX uses buildroot to build packages for OpenDingux and RetroFW.
+DevilutionX uses buildroot-based toolchains to build packages for OpenDingux and RetroFW.
 
-The build script does the following:
+For OpenDingux / RetroFW builds, `mksquashfs` needs to be installed on your machine.
 
-1. Downloads and configures the buildroot if necessary.
-2. Builds the executable (using CMake).
-3. Packages the executable and all related resources into an `.ipk` or `.opk` package.
-
-The buildroot uses ~2.5 GiB of disk space and can take 20 minutes to build.
-
-For OpenDingux builds `mksquashfs` needs to be installed.
-
-To build, run the following command
+To build, run the following command:
 
 ~~~ bash
-Packaging/OpenDingux/build.sh <platform>
+TOOLCHAIN=<path/to/toolchain> Packaging/OpenDingux/build.sh <platform>
 ~~~
 
-Replace `<platform>` with one of: `retrofw`, `rg350`, or `gkd350h`.
+Replace `<platform>` with one of: `lepus`, `retrofw`, `rg99`, `rg350`, or `gkd350h`.
 
-This prepares and uses the buildroot at `$HOME/buildroot-$PLATFORM-devilutionx`.
+For example:
+
+~~~ bash
+TOOLCHAIN=/opt/gcw0-toolchain Packaging/OpenDingux/build.sh rg350
+~~~
+
+You can download the prebuilt toolchains for `x86_64` hosts here:
+
+* OpenDingux: https://github.com/OpenDingux/buildroot/releases
+* RetroFW: https://github.com/Poligraf/retrofw_buildroot_gcc11/releases
+
+Remember to run `./relocate-sdk.sh` in the toolchain directory after unpacking it.
 
 End-user manuals are available here:
 
