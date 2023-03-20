@@ -1555,7 +1555,6 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 
 static void DrawTrigInfo()
 {
-	int qn;
 	POS32 pos;
 
 	if (pcurstrig >= MAXTRIGGERS + 1) {
@@ -1591,21 +1590,7 @@ static void DrawTrigInfo()
 				snprintf(infostr, sizeof(infostr), "Up to %s", AllLevels[currLvl._dLevelIdx - 1].dLevelName);
 			break;
 		case DVL_DWM_RTNLVL:
-			switch (currLvl._dLevelIdx) {
-			case SL_SKELKING:
-				qn = Q_SKELKING;
-				break;
-			case SL_BONECHAMB:
-				qn = Q_BCHAMB;
-				break;
-			case SL_POISONWATER:
-				qn = Q_PWATER;
-				break;
-			default:
-				ASSUME_UNREACHABLE;
-				break;
-			}
-			snprintf(infostr, sizeof(infostr), "Back to %s", AllLevels[questlist[qn]._qdlvl].dLevelName);
+			snprintf(infostr, sizeof(infostr), "Back to %s", AllLevels[trigs[pcurstrig]._tlvl].dLevelName);
 			break;
 		case DVL_DWM_SETLVL:
 			// quest trigger
