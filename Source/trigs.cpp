@@ -326,7 +326,7 @@ static void InitSKingTriggers()
 static void InitSChambTriggers()
 {
 	numtrigs = 1;
-	trigs[0]._tx = AllLevels[SL_BONECHAMB].dSetLvlDunY + 1; // DBORDERX + 54
+	trigs[0]._tx = AllLevels[SL_BONECHAMB].dSetLvlDunX + 1; // DBORDERX + 54
 	trigs[0]._ty = AllLevels[SL_BONECHAMB].dSetLvlDunY - 0; // DBORDERY + 23
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 	trigs[0]._tlvl = questlist[Q_BCHAMB]._qdlvl;
@@ -335,7 +335,7 @@ static void InitSChambTriggers()
 static void InitPWaterTriggers()
 {
 	numtrigs = 1;
-	trigs[0]._tx = AllLevels[SL_POISONWATER].dSetLvlDunY - 1; // DBORDERX + 14
+	trigs[0]._tx = AllLevels[SL_POISONWATER].dSetLvlDunX - 1; // DBORDERX + 14
 	trigs[0]._ty = AllLevels[SL_POISONWATER].dSetLvlDunY - 0; // DBORDERY + 67
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 	trigs[0]._tlvl = questlist[Q_PWATER]._qdlvl;
