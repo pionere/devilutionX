@@ -359,7 +359,7 @@ void InitVPEntryTrigger(bool recreate)
 void InitVPReturnTrigger(bool recreate)
 {
 	numtrigs = 1;
-	trigs[0]._tx = AllLevels[SL_VILEBETRAYER].dSetLvlDunY - 0; // DBORDERX + 19
+	trigs[0]._tx = AllLevels[SL_VILEBETRAYER].dSetLvlDunX - 0; // DBORDERX + 19
 	trigs[0]._ty = AllLevels[SL_VILEBETRAYER].dSetLvlDunY - 4; // DBORDERX + 16
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 	trigs[0]._tlvl = questlist[Q_BETRAYER]._qdlvl;
