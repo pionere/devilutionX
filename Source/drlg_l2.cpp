@@ -3186,8 +3186,6 @@ static void L2DoorFix2()
 
 static void DRLG_L2(int entry)
 {
-	bool doneflag;
-
 	while (true) {
 		do {
 			static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L2.");

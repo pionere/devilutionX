@@ -225,8 +225,8 @@ static void InitL4Triggers()
 			trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 			numtrigs++;
 		} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE) {
-			trigs[numtrigs]._tx = pWarps[DWARP_EXIT]._wx;
-			trigs[numtrigs]._ty = pWarps[DWARP_EXIT]._wy;
+			trigs[numtrigs]._tx = pWarps[DWARP_EXIT]._wx + 1;
+			trigs[numtrigs]._ty = pWarps[DWARP_EXIT]._wy + 1;
 			trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 			numtrigs++;
 		}
@@ -470,7 +470,7 @@ static int ForceL4Trig()
 	}
 
 	if (currLvl._dLevelIdx == DLV_HELL3) {
-		if (L4_PENTA_WARP) {
+		if (L4_PENTA_WARP && numtrigs != 1) {
 			// Down to Diablo
 			// assert(trigs[1]._tmsg == DVL_DWM_NEXTLVL);
 			return 1;
