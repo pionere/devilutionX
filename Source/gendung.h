@@ -21,6 +21,7 @@ extern int setpc_w;
 extern int setpc_h;
 extern int setpc_type;
 extern BYTE* pSetPiece;
+extern WarpStruct pWarps[NUM_DWARP];
 extern BYTE* pSpecialCels;
 extern uint16_t* pMegaTiles;
 extern uint16_t pMicroPieces[MAXTILES + 1][16 * ASSET_MPL * ASSET_MPL];

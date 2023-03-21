@@ -365,8 +365,8 @@ static void AddCandles()
 {
 	int tx, ty;
 
-	tx = quests[Q_PWATER]._qtx;
-	ty = quests[Q_PWATER]._qty;
+	tx = pWarps[DWARP_SIDE]._wx + 1;
+	ty = pWarps[DWARP_SIDE]._wy;
 	AddObject(OBJ_STORYCANDLE, tx - 2, ty + 1);
 	AddObject(OBJ_STORYCANDLE, tx + 3, ty + 1);
 	AddObject(OBJ_STORYCANDLE, tx - 1, ty + 2);

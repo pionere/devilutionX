@@ -3184,34 +3184,11 @@ static void L2DoorFix2()
 	}
 }
 
-struct mini_set {
-	const BYTE* data;
-	bool setview;
-};
-static bool DRLG_L2PlaceMiniSets(mini_set* minisets, int n)
-{
-	int i;
-	POS32 mpos;
-
-	for (i = 0; i < n; i++) {
-		if (minisets[i].data == NULL)
-			continue;
-		mpos = DRLG_PlaceMiniSet(minisets[i].data);
-		if (mpos.x == DMAXX)
-			return false;
-		if (minisets[i].setview) {
-			ViewX = 2 * mpos.x + DBORDERX + 5;
-			ViewY = 2 * mpos.y + DBORDERY + 5;
-		}
-	}
-	return true;
-}
-
 static void DRLG_L2(int entry)
 {
 	bool doneflag;
 
-	do {
+	while (true) {
 		do {
 			static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L2.");
 			memset(pdungeon, 32, sizeof(pdungeon));
@@ -3226,27 +3203,67 @@ static void DRLG_L2(int entry)
 			DRLG_L2SetRoom(setpc_x, setpc_y);
 		}
 
-		mini_set stairs[3] = {
-				{ L2USTAIRS, entry == ENTRY_MAIN },
-				{ L2DSTAIRS, entry == ENTRY_PREV },
-				{ currLvl._dLevelIdx != DLV_CATACOMBS1 ? NULL : L2TWARP, entry == ENTRY_TWARPDN }
-		};
-		doneflag = DRLG_L2PlaceMiniSets(stairs, 3);
-		if (entry == ENTRY_PREV) {
-			ViewX -= 2;
-		} else {
-			ViewY -= 2;
+		memset(pWarps, 0, sizeof(pWarps));
+		POS32 warpPos = DRLG_PlaceMiniSet(L2USTAIRS); // L2USTAIRS (5, 3)
+		if (warpPos.x < 0) {
+			continue;
 		}
-		if (setpc_type == SPT_BCHAMB) {
-			quests[Q_BCHAMB]._qtx = 2 * setpc_x + DBORDERX + 6;
-			quests[Q_BCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
-
-			if (entry == ENTRY_RTNLVL) {
-				ViewX = quests[Q_BCHAMB]._qtx + 1;
-				ViewY = quests[Q_BCHAMB]._qty;
+		pWarps[DWARP_ENTRY]._wx = warpPos.x + 2;
+		pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
+		pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
+		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+		warpPos = DRLG_PlaceMiniSet(L2DSTAIRS); // L2DSTAIRS (3, 5)
+		if (warpPos.x < 0) {
+			continue;
+		}
+		pWarps[DWARP_EXIT]._wx = warpPos.x + 2;
+		pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
+		pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
+		pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+		if (currLvl._dLevelIdx == DLV_CATACOMBS1) {
+			warpPos = DRLG_PlaceMiniSet(L2TWARP); // L2TWARP (5, 3)
+			if (warpPos.x < 0) {
+				continue;
 			}
+			pWarps[DWARP_TOWN]._wx = warpPos.x + 2;
+			pWarps[DWARP_TOWN]._wy = warpPos.y + 1;
+			pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
+			pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
 		}
-	} while (!doneflag);
+
+		if (setpc_type == SPT_BCHAMB) {
+			pWarps[DWARP_SIDE]._wx = setpc_x + 3; // L2USTAIRS (5, 3)
+			pWarps[DWARP_SIDE]._wy = setpc_y + 3;
+			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
+			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
+		}
+
+		if (entry == ENTRY_MAIN) {
+			ViewX = pWarps[DWARP_ENTRY]._wx;
+			ViewY = pWarps[DWARP_ENTRY]._wy;
+			ViewX += 1;
+			ViewY += 1;
+		}
+		if (entry == ENTRY_PREV) {
+			ViewX = pWarps[DWARP_EXIT]._wx;
+			ViewY = pWarps[DWARP_EXIT]._wy;
+			ViewX += -1;
+			ViewY += 1;
+		}
+		if (entry == ENTRY_TWARPDN) {
+			ViewX = pWarps[DWARP_TOWN]._wx;
+			ViewY = pWarps[DWARP_TOWN]._wy;
+			ViewX += 1;
+			ViewY += 1;
+		}
+		if (entry == ENTRY_RTNLVL) {
+			ViewX = pWarps[DWARP_SIDE]._wx;
+			ViewY = pWarps[DWARP_SIDE]._wy;
+			ViewX += 1;
+			ViewY += 1;
+		}
+		break;
+	}
 
 	DRLG_InitTrans();
 	DRLG_FloodTVal(3);

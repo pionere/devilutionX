@@ -3141,6 +3141,14 @@ typedef enum townwarp_dest {
 	NUM_TWARP
 } townwarp_dest;
 
+typedef enum dungeon_warp {
+	DWARP_ENTRY,
+	DWARP_EXIT,
+	DWARP_TOWN,
+	DWARP_SIDE,
+	NUM_DWARP
+} dungeon_warp;
+
 typedef enum dungeon_level {
 	DLV_TOWN,
 	DLV_CATHEDRAL1,

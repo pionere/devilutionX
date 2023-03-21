@@ -1450,8 +1450,6 @@ typedef struct LSaveQuestStruct {
 	BYTE vqvar2; // quest parameter which is NOT synchronized with the other players
 	BOOLEAN vqlog;
 	LE_UINT32 vqmsg;
-	LE_INT32 vqtx;
-	LE_INT32 vqty;
 } LSaveQuestStruct;
 
 typedef struct LSaveLightListStruct {
@@ -2059,6 +2057,11 @@ static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 0, "Align LevelDa
 static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 128, "Align LevelData to power of 2 for better performance.");
 #endif
 
+typedef struct WarpStruct {
+	int _wx;
+	int _wy;
+} WarpStruct;
+
 //////////////////////////////////////////////////
 // quests
 //////////////////////////////////////////////////
@@ -2069,8 +2072,6 @@ typedef struct QuestStruct {
 	BYTE _qvar2; // quest parameter which is NOT synchronized with the other players
 	BOOLEAN _qlog;
 	unsigned _qmsg;
-	int _qtx;
-	int _qty;
 } QuestStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

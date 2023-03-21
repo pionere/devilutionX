@@ -25,6 +25,8 @@ int setpc_h;
 int setpc_type;
 /** Contains the contents of the set piece (DUN file). */
 BYTE* pSetPiece = NULL;
+/** List of the warp-points on the current level */
+WarpStruct pWarps[NUM_DWARP];
 /** Specifies the mega tiles (groups of four tiles). */
 uint16_t* pMegaTiles;
 /*
@@ -641,14 +643,14 @@ POS32 DRLG_PlaceMiniSet(const BYTE* miniset)
 	// assert(sw < DMAXX && sh < DMAXY);
 	tries = 0;
 	while (TRUE) {
-		done = true;
 		if ((tries & 0xFF) == 0) {
 			sx = random_low(0, DMAXX - sw);
 			sy = random_low(0, DMAXY - sh);
 		}
 		if (++tries == DMAXX * DMAXY)
-			return { DMAXX, DMAXY };
+			return { -1, 0 };
 		ii = 2;
+		done = true;
 		for (yy = sy; yy < sy + sh && done; yy++) {
 			for (xx = sx; xx < sx + sw && done; xx++) {
 				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {

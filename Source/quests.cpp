@@ -81,8 +81,6 @@ void InitQuests()
 		qs->_qvar1 = QV_INIT;
 		qs->_qvar2 = 0;
 		qs->_qlog = FALSE;
-		qs->_qtx = 0;
-		qs->_qty = 0;
 		qs->_qmsg = qdata->_qdmsg;
 	}
 

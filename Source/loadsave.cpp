@@ -585,11 +585,9 @@ static BYTE* LoadQuest(BYTE* DVL_RESTRICT src, int i)
 	pQuest->_qlog = savedQuest->vqlog;
 
 	pQuest->_qmsg = savedQuest->vqmsg;
-	pQuest->_qtx = savedQuest->vqtx;
-	pQuest->_qty = savedQuest->vqty;
 #else
-	static_assert(sizeof(LSaveQuestStruct) == offsetof(LSaveQuestStruct, vqty) + sizeof(savedQuest->vqty)
-	 && offsetof(QuestStruct, _qty) == offsetof(LSaveQuestStruct, vqty), "LoadQuest uses memcpy to load the LSaveQuestStruct in QuestStruct.");
+	static_assert(sizeof(LSaveQuestStruct) == offsetof(LSaveQuestStruct, vqmsg) + sizeof(savedQuest->vqmsg)
+	 && offsetof(QuestStruct, _qmsg) == offsetof(LSaveQuestStruct, vqmsg), "LoadQuest uses memcpy to load the LSaveQuestStruct in QuestStruct.");
 	memcpy(pQuest, savedQuest, sizeof(LSaveQuestStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 
@@ -1430,11 +1428,9 @@ static BYTE* SaveQuest(BYTE* DVL_RESTRICT dest, int i)
 	questSave->vqlog = pQuest->_qlog;
 
 	questSave->vqmsg = pQuest->_qmsg;
-	questSave->vqtx = pQuest->_qtx;
-	questSave->vqty = pQuest->_qty;
 #else
-	static_assert(sizeof(LSaveQuestStruct) == offsetof(LSaveQuestStruct, vqty) + sizeof(questSave->vqty)
-	 && offsetof(QuestStruct, _qty) == offsetof(LSaveQuestStruct, vqty), "SaveQuest uses memcpy to load the QuestStruct in LSaveQuestStruct.");
+	static_assert(sizeof(LSaveQuestStruct) == offsetof(LSaveQuestStruct, vqmsg) + sizeof(questSave->vqmsg)
+	 && offsetof(QuestStruct, _qmsg) == offsetof(LSaveQuestStruct, vqmsg), "SaveQuest uses memcpy to load the QuestStruct in LSaveQuestStruct.");
 	memcpy(questSave, pQuest, sizeof(LSaveQuestStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 

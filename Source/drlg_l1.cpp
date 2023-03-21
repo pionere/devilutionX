@@ -843,21 +843,6 @@ static void DRLG_L1Shadows()
 	}
 }
 
-static bool DRLG_L1PlaceMiniSet(const BYTE* miniset, bool setview)
-{
-	POS32 result;
-
-	result = DRLG_PlaceMiniSet(miniset);
-	if (result.x == DMAXX)
-		return false;
-
-	if (setview) {
-		ViewX = 2 * result.x + DBORDERX + 3;
-		ViewY = 2 * result.y + DBORDERY + 4;
-	}
-	return true;
-}
-
 static void DRLG_L1Floor()
 {
 	DRLG_PlaceRndTile(13, 162, 33);
@@ -2466,27 +2451,10 @@ static void DRLG_L1CornerFix()
 	}*/
 }
 
-struct mini_set {
-	const BYTE* data;
-	bool setview;
-};
-static bool DRLG_L1PlaceMiniSets(mini_set* minisets, int n)
-{
-	int i;
-
-	for (i = 0; i < n; i++) {
-		if (minisets[i].data != NULL && !DRLG_L1PlaceMiniSet(minisets[i].data, minisets[i].setview)) {
-			return false;
-		}
-	}
-	return true;
-}
-
 static void DRLG_L1(int entry)
 {
 	int i;
 	int minarea;
-	bool doneflag;
 	bool placeWater = QuestStatus(Q_PWATER);
 
 	switch (currLvl._dLevelIdx) {
@@ -2501,7 +2469,7 @@ static void DRLG_L1(int entry)
 		break;
 	}
 
-	do {
+	while (true) {
 		do {
 			static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L1.");
 			memset(dungeon, 0, sizeof(dungeon));
@@ -2514,68 +2482,98 @@ static void DRLG_L1(int entry)
 		L1FillChambers();
 		L1AddWall();
 		L1ClearChamberFlags();
+		memset(pWarps, 0, sizeof(pWarps));
 		if (placeWater) {
-			POS32 mpos = DRLG_PlaceMiniSet(PWATERIN);
-			if (mpos.x != DMAXX) {
-				quests[Q_PWATER]._qtx = 2 * mpos.x + DBORDERX + 5;
-				quests[Q_PWATER]._qty = 2 * mpos.y + DBORDERY + 6;
-				if (entry == ENTRY_RTNLVL) {
-					ViewX = quests[Q_PWATER]._qtx;
-					ViewY = quests[Q_PWATER]._qty + 1;
-				}
-			} else {
-				doneflag = false;
+			POS32 warpPos = DRLG_PlaceMiniSet(PWATERIN);
+			if (warpPos.x < 0) {
 				continue;
 			}
+			pWarps[DWARP_SIDE]._wx = warpPos.x + 2;
+			pWarps[DWARP_SIDE]._wy = warpPos.y + 3;
+			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
+			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
 		}
 		DRLG_InitTrans();
 		DRLG_FloodTVal(13);
 
-		if (setpc_type == SPT_BANNER) {
-			if (entry == ENTRY_PREV) {
-				ViewX = 2 * setpc_x + DBORDERX + 3;
-				ViewY = 2 * setpc_y + DBORDERY + 11;
-			}
-			doneflag = DRLG_L1PlaceMiniSet(L1USTAIRS, entry != ENTRY_PREV /* entry == ENTRY_MAIN */); // was STAIRSUP, entry == ENTRY_MAIN
 #ifdef HELLFIRE
-		} else if (currLvl._dType == DTYPE_CRYPT) {
-			mini_set stairs[2] = {
-				{ /*currLvl._dLevelIdx != DLV_CRYPT1 ?*/ L5USTAIRS /*: L5TWARP*/, entry != ENTRY_PREV /* entry == ENTRY_MAIN || entry == ENTRY_TWARPDN */ },
-				{ currLvl._dLevelIdx != DLV_CRYPT4 ? L5DSTAIRS : NULL, entry == ENTRY_PREV },
-			};
-			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);
-			if (entry == ENTRY_PREV) {
-				ViewY += 3;
-			} else {
-				ViewY += 2;
+		if (currLvl._dType == DTYPE_CRYPT) {
+			POS32 warpPos = DRLG_PlaceMiniSet(L5USTAIRS); // L5USTAIRS (3, 6), was STAIRSUP, entry == ENTRY_MAIN
+			if (warpPos.x < 0) {
+				continue;
 			}
-#endif
-		} else {
-			// assert(currLvl._dType == DTYPE_CATHEDRAL);
-			mini_set stairs[2] = {
-				{ L1USTAIRS, entry == ENTRY_MAIN || entry == ENTRY_TWARPDN }, // was STAIRSUP in hellfire
-				{ L1DSTAIRS, entry == ENTRY_PREV },
-			};
-			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);
-			if (entry == ENTRY_PREV) {
-				ViewY++;
-			}
-			if (setpc_type == SPT_SKELKING) {
-				quests[Q_SKELKING]._qtx = 2 * setpc_x + DBORDERX + 12;
-				quests[Q_SKELKING]._qty = 2 * setpc_y + DBORDERX + 7;
-				if (entry == ENTRY_RTNLVL) {
-					ViewX = quests[Q_SKELKING]._qtx + 1;
-					ViewY = quests[Q_SKELKING]._qty;
+			pWarps[DWARP_ENTRY]._wx = warpPos.x + 1;
+			pWarps[DWARP_ENTRY]._wy = warpPos.y + 2;
+			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
+			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+			if (currLvl._dLevelIdx != DLV_CRYPT4) {
+				warpPos = DRLG_PlaceMiniSet(L5DSTAIRS); // L5DSTAIRS (3, 7)
+				if (warpPos.x < 0) {
+					continue;
 				}
+				pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
+				pWarps[DWARP_EXIT]._wy = warpPos.y + 3;
+				pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
+				pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
 			}
+		} else
+#endif
+		{
+			// assert(currLvl._dType == DTYPE_CATHEDRAL);
+			POS32 warpPos = DRLG_PlaceMiniSet(L1USTAIRS); // L1USTAIRS (3, 4)
+			if (warpPos.x < 0) {
+				continue;
+			}
+			pWarps[DWARP_ENTRY]._wx = warpPos.x + 1;
+			pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
+			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
+			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+			if (setpc_type == SPT_SKELKING) {
+				pWarps[DWARP_SIDE]._wx = setpc_x + 6; // L1DSTAIRS (3, 5)
+				pWarps[DWARP_SIDE]._wy = setpc_y + 3;
+				pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
+				pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
+			}
+			if (setpc_type == SPT_BANNER) {
+				pWarps[DWARP_EXIT]._wx = setpc_x + 1; // L1DSTAIRS (3, 5)
+				pWarps[DWARP_EXIT]._wy = setpc_y + 5;
+			} else {
+				warpPos = DRLG_PlaceMiniSet(L1DSTAIRS); // L1DSTAIRS (3, 5)
+				if (warpPos.x < 0) {
+					continue;
+				}
+				pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
+				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
+			}
+			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
+			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
 		}
-	} while (!doneflag);
+		if (entry == ENTRY_MAIN || entry == ENTRY_TWARPDN) {
+			ViewX = pWarps[DWARP_ENTRY]._wx;
+			ViewY = pWarps[DWARP_ENTRY]._wy;
+			ViewX += 1;
+			ViewY += 2;
+		}
+		if (entry == ENTRY_PREV) {
+			ViewX = pWarps[DWARP_EXIT]._wx;
+			ViewY = pWarps[DWARP_EXIT]._wy;
+			ViewX += 1;
+			ViewY += 1;
+		}
+		if (entry == ENTRY_RTNLVL) {
+			ViewX = pWarps[DWARP_SIDE]._wx;
+			ViewY = pWarps[DWARP_SIDE]._wy;
+			ViewX += 1;
+			ViewY += 1;
+		}
+		break;
+	}
 
 	if (placeWater) {
 		int x, y;
 
-		x = quests[Q_PWATER]._qtx;
-		y = quests[Q_PWATER]._qty + 1;
+		x = pWarps[DWARP_SIDE]._wx + 1;
+		y = pWarps[DWARP_SIDE]._wy + 1;
 		// fix transVal of the set-map (entrance)
 		DRLG_CopyTrans(x + 0, y + 2, x + 0, y + 0);
 		DRLG_CopyTrans(x + 1, y + 2, x + 1, y + 0);
