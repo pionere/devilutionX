@@ -1827,7 +1827,7 @@ static void DRLG_L4(int entry)
 		}
 		L4AddWall();
 		DRLG_InitTrans();
-		DRLG_FloodTVal(6);
+		DRLG_FloodTVal(DEFAULT_MEGATILE_L4);
 
 		memset(pWarps, 0, sizeof(pWarps));
 		POS32 warpPos = DRLG_PlaceMiniSet(L4USTAIRS); // L4USTAIRS (5, 6)

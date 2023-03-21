@@ -2494,7 +2494,7 @@ static void DRLG_L1(int entry)
 			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
 		}
 		DRLG_InitTrans();
-		DRLG_FloodTVal(13);
+		DRLG_FloodTVal(DEFAULT_MEGATILE_L1);
 
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT) {

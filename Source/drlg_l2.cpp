@@ -3266,7 +3266,7 @@ static void DRLG_L2(int entry)
 	}
 
 	DRLG_InitTrans();
-	DRLG_FloodTVal(3);
+	DRLG_FloodTVal(DEFAULT_MEGATILE_L2);
 	DRLG_L2TransFix();
 
 	L2LockoutFix();
