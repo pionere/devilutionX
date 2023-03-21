@@ -119,7 +119,7 @@ const LevelData AllLevels[NUM_LEVELS] = {
 					},
 #endif
 					// dLevel, dSetLvl, dType,           dDunType,        dMusic,      dMicroTileLen, dBlocks, dLevelName,
-/*SL_BUTCHCHAMB*//*	{       0, TRUE,    DTYPE_NONE,      DTYPE_NONE,      TMUSIC_TOWN,            16,      16, "",
+/*SL_BUTCHCHAMB*//*	{       0, TRUE,    DTYPE_CATHEDRAL, DTYPE_CATHEDRAL, TMUSIC_TOWN,            16,      16, "",
 					//  dAutomapData,             dSolidTable,                   dMicroFlags,                   dMicroCels,                    dMegaTiles,                    dMiniTiles,                    dSpecCels,                     dPalName,                        dLoadCels,               dLoadPal,                dLoadBarOnTop, dLoadBarColor, dSetLvlPreDun,                 dSetLvlDun,                        dSetLvlDunX,   dSetLvlDunY,
 						NULL,                     "Levels\\TownData\\Town.SOL",  "Levels\\TownData\\Town.TMI",  "Levels\\TownData\\Town.CEL",  "Levels\\TownData\\Town.TIL",  "Levels\\TownData\\Town.MIN",  "Levels\\TownData\\TownS.CEL", "",                              "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, NULL,                          NULL,                                        0,             0,
 					//  dMonTypes,
@@ -133,7 +133,7 @@ const LevelData AllLevels[NUM_LEVELS] = {
 						"Levels\\L2Data\\L2.AMP", "Levels\\L2Data\\L2.SOL",      "Levels\\L2Data\\L2.TMI",      "Levels\\L2Data\\L2.CEL",      "Levels\\L2Data\\L2.TIL",      "Levels\\L2Data\\L2.MIN",      "Levels\\L2Data\\L2S.CEL",     "Levels\\L2Data\\L2_2.pal",      "Gendata\\Cut2.CEL",     "Gendata\\Cut2.pal",              TRUE,           254, "Levels\\L2Data\\Bonecha2.DUN", "Levels\\L2Data\\Bonecha1.DUN", DBORDERX + 53, DBORDERY + 23,
 						{ MT_INVALID }, /* MT_XSKELSD, MT_BSNEAK, MT_NRHINO */ ALIGN32
 					},
-/*SL_MAZE*//*		{       0, TRUE,    DTYPE_NONE,      DTYPE_NONE,      TMUSIC_TOWN,            16,      16, "Maze",
+/*SL_MAZE*//*		{       0, TRUE,    DTYPE_CATHEDRAL, DTYPE_CATHEDRAL, TMUSIC_TOWN,            16,      16, "Maze",
 						NULL,                     "Levels\\TownData\\Town.SOL",  "Levels\\TownData\\Town.TMI",  "Levels\\TownData\\Town.CEL",  "Levels\\TownData\\Town.TIL",  "Levels\\TownData\\Town.MIN",  "Levels\\TownData\\TownS.CEL", "Levels\\L1Data\\L1_5.pal",      "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, "Levels\\L1Data\\Lv1MazeA.DUN", "Levels\\L1Data\\Lv1MazeB.DUN", DBORDERX +  4, DBORDERY + 34,
 						{ MT_INVALID }, / * MT_XRHINO * / ALIGN32
 					},*/
