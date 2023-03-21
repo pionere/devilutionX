@@ -1862,17 +1862,14 @@ void ProcessObjects()
 	}*/
 }
 
-static void ObjSetMicro(int dx, int dy, int pn)
-{
-	// assert(pn != 0 && pn < MAXTILES);
-	dPiece[dx][dy] = pn;
-}
-
 static void ObjSetMini(int x, int y, int mt)
 {
 	int xx, yy;
 	long v1, v2, v3, v4;
 	uint16_t* Tiles;
+
+	xx = 2 * x + DBORDERX;
+	yy = 2 * y + DBORDERY;
 
 	Tiles = &pMegaTiles[(mt - 1) * 4];
 	v1 = SwapLE16(Tiles[0]) + 1;
@@ -1880,12 +1877,10 @@ static void ObjSetMini(int x, int y, int mt)
 	v3 = SwapLE16(Tiles[2]) + 1;
 	v4 = SwapLE16(Tiles[3]) + 1;
 
-	xx = 2 * x + DBORDERX;
-	yy = 2 * y + DBORDERY;
-	ObjSetMicro(xx, yy, v1);
-	ObjSetMicro(xx + 1, yy, v2);
-	ObjSetMicro(xx, yy + 1, v3);
-	ObjSetMicro(xx + 1, yy + 1, v4);
+	dPiece[xx][yy] = v1;
+	dPiece[xx + 1][yy] = v2;
+	dPiece[xx][yy + 1] = v3;
+	dPiece[xx + 1][yy + 1] = v4;
 }
 
 #ifdef HELLFIRE
