@@ -490,7 +490,7 @@ void GetLevelMTypes()
 			AddMonsterType(MT_BMAGE, TRUE);
 			AddMonsterType(MT_GBLACK, TRUE);
 			// AddMonsterType(MT_NBLACK, FALSE);
-			AddMonsterType(MT_DIABLO, FALSE);
+			// AddMonsterType(MT_DIABLO, FALSE);
 			return;
 		}
 
