@@ -226,10 +226,6 @@ static void DRLG_LoadL4SP()
 		setpc_type = SPT_BETRAYER;
 	} else if (QuestStatus(Q_WARLORD)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
-		// ensure the changing tiles are reserved
-		pSetPiece[(2 + 7 + 2 * 8) * 2] = DEFAULT_MEGATILE_L4;
-		pSetPiece[(2 + 7 + 3 * 8) * 2] = DEFAULT_MEGATILE_L4;
-		pSetPiece[(2 + 7 + 4 * 8) * 2] = DEFAULT_MEGATILE_L4;
 		setpc_type = SPT_WARLORD;
 	}
 	if (setpc_type != SPT_NONE) {
@@ -262,7 +258,8 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L4;
-			drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED;
+			// drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED; - commented out because it requires too many patches to the setpieces
+			drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}
@@ -1263,6 +1260,7 @@ static void DRLG_L4SetRoom(int rx1, int ry1)
 	for (j = ry1; j < ry2; j++) {
 		for (i = rx1; i < rx2; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L4;
+			// drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED; - commented out because it requires too many patches to the setpieces
 			drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
