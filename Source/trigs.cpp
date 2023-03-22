@@ -146,7 +146,7 @@ static void InitL1Triggers()
 		trigs[numtrigs]._ty = pWarps[DWARP_SIDE]._wy;
 		if (currLvl._dLevelIdx == questlist[Q_SKELKING]._qdlvl) { // TODO: add qn to pWarps?
 			trigs[numtrigs]._tlvl = questlist[Q_SKELKING]._qslvl;
-			trigs[numtrigs]._tx += 1;
+			trigs[numtrigs]._ty += 1;
 		} else {
 			trigs[numtrigs]._tlvl = questlist[Q_PWATER]._qslvl;
 			trigs[numtrigs]._tx += 1;
