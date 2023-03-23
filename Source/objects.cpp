@@ -2262,7 +2262,7 @@ static void OperateLever(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++;
+	os->_oAnimFrame++; // 2
 
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
@@ -2316,7 +2316,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	}
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++;
+	os->_oAnimFrame++; // 2
 
 	if (currLvl._dLevelIdx == SL_BONECHAMB) {
 		if (deltaload)
@@ -2464,7 +2464,7 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++;
+	os->_oAnimFrame++; // 2
 	if (deltaload)
 		return;
 
@@ -3429,7 +3429,7 @@ static void OperateLazStand(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++;
+	os->_oAnimFrame++; // 2
 
 	if (deltaload)
 		return;
@@ -3523,7 +3523,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 				mpo = dObject[xp][yp];
 				if (mpo > 0) {
 					mpo--;
-					if (objects[mpo]._otype == xotype && objects[mpo]._oBreak != OBM_BROKEN)
+					if (objects[mpo]._otype == xotype && objects[mpo]._oBreak == OBM_BREAKABLE)
 						OperateBarrel(pnum, mpo, sendmsg);
 				}
 			}
