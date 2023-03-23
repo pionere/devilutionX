@@ -1002,6 +1002,9 @@ void DeltaLoadLevel()
 				} else {
 					mon->_msquelch = mstr->dmactive;
 					// mon->_mWhoHit = mstr->dmWhoHit;
+					if (mon->_mmode == MM_RESERVED) {
+						mon->_mmode = MM_STAND;
+					}
 					dMonster[mon->_mx][mon->_my] = i + 1;
 					// SyncMonsterAnim(mnum);
 					assert(mon->_mmode == MM_STAND);
