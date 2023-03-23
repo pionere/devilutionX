@@ -1034,7 +1034,8 @@ void DeltaLoadLevel()
 			if (dstr->bCmd != DCMD_INVALID) {
 				switch (dstr->bCmd) {
 				case CMD_OPERATEOBJ:
-					SyncOpObject(-1, i);
+					// SyncOpObject(-1, i);
+					SyncOpObject(i);
 					break;
 				case CMD_DOOROPEN:
 					SyncDoorOpen(i);

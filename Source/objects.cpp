@@ -3651,12 +3651,12 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 void SyncDoorOpen(int oi)
 {
 	if (objects[oi]._oVar4 == DOOR_CLOSED)
-		SyncOpObject(-1, oi);
+		SyncOpObject(oi);
 }
 void SyncDoorClose(int oi)
 {
 	if (objects[oi]._oVar4 == DOOR_OPEN)
-		SyncOpObject(-1, oi);
+		SyncOpObject(oi);
 }
 
 void SyncTrapDisable(int oi)
@@ -3668,17 +3668,19 @@ void SyncTrapDisable(int oi)
 void SyncTrapOpen(int oi)
 {
 	if (objects[oi]._oAnimFrame == FLAMETRAP_INACTIVE_FRAME)
-		SyncOpObject(-1, oi);
+		SyncOpObject(oi);
 }
 void SyncTrapClose(int oi)
 {
 	if (objects[oi]._oAnimFrame == FLAMETRAP_ACTIVE_FRAME)
-		SyncOpObject(-1, oi);
+		SyncOpObject(oi);
 }
 
-void SyncOpObject(int pnum, int oi)
+void SyncOpObject(/*int pnum,*/ int oi)
 {
-	switch (objects[oi]._otype) {
+	OperateObject(-1, oi, true);
+
+	/*switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
 		OperateL1Door(oi, false);
@@ -3770,6 +3772,8 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_CAULDRON:
 		OperateCauldron(pnum, oi, false);
 		break;
+	// case OBJ_BLOODFTN:
+	// case OBJ_PURIFYINGFTN:
 	case OBJ_MURKYFTN:
 	case OBJ_TEARFTN:
 		OperateFountains(pnum, oi, false);
@@ -3802,7 +3806,7 @@ void SyncOpObject(int pnum, int oi)
 	default:
 		ASSUME_UNREACHABLE
 		break;
-	}
+	}*/
 }
 
 static void SyncLever(int oi)
