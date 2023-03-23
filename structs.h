@@ -775,7 +775,6 @@ typedef struct ObjectData {
 	BYTE oSetLvlType; // dungeon_type
 	BYTE otheme;      // theme_id
 	BYTE oquest;      // quest_id
-	BYTE oProc;       // object_proc_func
 	//BYTE oAnimFlag;
 	BYTE oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
 	//int oAnimFrameLen; // Tick length of each frame in the current animation
@@ -783,6 +782,8 @@ typedef struct ObjectData {
 	//int oAnimWidth;
 	//int oSFX;
 	//BYTE oSFXCnt;
+	BYTE oProc;       // object_proc_func
+	BYTE oModeFlags;  // object_mode_flags
 	//BOOL oSolidFlag;
 	//BOOL oMissFlag;
 	//BOOL oLightFlag;
@@ -822,9 +823,9 @@ typedef struct ObjectStruct {
 	int _oy;    // Tile Y-position of the object
 	int _oSFX;  // _sfx_id
 	BYTE _oSFXCnt;
-	BYTE _oAnimFlag; // object_anim_mode
-	BYTE _oProc;     // object_proc_func
-	BYTE _oAlign1;
+	BYTE _oAnimFlag;  // object_anim_mode
+	BYTE _oProc;      // object_proc_func
+	BYTE _oModeFlags; // object_mode_flags
 	BYTE* _oAnimData;
 	int _oAnimFrameLen; // Tick length of each frame in the current animation
 	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _oAnimFrameLen
@@ -1416,7 +1417,7 @@ typedef struct LSaveObjectStruct {
 	BYTE voSFXCnt;
 	BYTE voAnimFlag;
 	BYTE voProc;
-	BYTE voAlign1;
+	BYTE voModeFlags;
 	INT voAnimDataAlign;
 	LE_INT32 voAnimFrameLen; // Tick length of each frame in the current animation
 	LE_INT32 voAnimCnt;   // Increases by one each game tick, counting how close we are to voAnimFrameLen

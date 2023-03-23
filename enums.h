@@ -3079,7 +3079,7 @@ typedef enum object_graphic_id {
 typedef enum object_proc_func {
 	OPF_NONE,
 	OPF_DOOR,
-	//OPF_FLAMETRAP,
+	//OPF_FLTRP,
 	OPF_TRAP,
 	OPF_CIRCLE,
 	OPF_BCROSS,
@@ -3087,6 +3087,13 @@ typedef enum object_proc_func {
 	OPF_LIGHT,
 #endif
 } object_proc_func;
+
+typedef enum object_mode_flags { // TODO: merge with object_break_mode?
+	OMF_NONE,
+	OMF_ACTIVE   = 1 << 0, // interactive object
+	OMF_RESERVED = 1 << 1, // inactive till it its not placed
+	OMF_FLOOR    = 1 << 2, // must have a non-blocked piece to be placed
+} object_mode_flags;
 
 typedef enum object_anim_mode {
 	OAM_NONE,

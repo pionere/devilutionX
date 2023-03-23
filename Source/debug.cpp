@@ -1093,13 +1093,24 @@ void ValidateData()
 	// objects
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		const ObjFileData& od = objfiledata[i];
-		if (od.oAnimFlag) {
+		if (od.oAnimFlag != OAM_NONE) {
+			if (od.oAnimFlag == OAM_SINGLE)
+				app_fatal("Incorrect oAnimFlag %d for %s (%d)", od.oAnimFlag, od.ofName, i);
 			if (od.oAnimFrameLen <= 0)
 				app_fatal("Invalid oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
 			if (od.oAnimLen <= 1) // required by SetupObject
 				app_fatal("Invalid oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
 			if (od.oAnimLen >= 0x7FFF) // required by SetupObject
 				app_fatal("Too high oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
+		}
+	}
+	for (i = 0; i < NUM_OBJECTS; i++) {
+		const ObjectData& od = objectdata[i];
+		if (od.oModeFlags & OMF_RESERVED) {
+			app_fatal("Invalid oModeFlags for %d.", i);
+		}
+		if (((od.oModeFlags & OMF_ACTIVE) != 0) != (od.oSelFlag != 0)) {
+			app_fatal("Inconsistent oModeFlags and oSelFlag for %d.", i);
 		}
 	}
 	// spells

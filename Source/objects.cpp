@@ -679,20 +679,19 @@ static void LoadMapSetObjs(const char* map)
 	LoadMapSetObjects(map, 2 * setpc_x, 2 * setpc_y, NULL);
 }
 
-static void SetupObject(int oi, int x, int y, int type)
+static void SetupObject(int oi, int type)
 {
 	ObjectStruct* os;
 	const ObjectData* ods;
 	const ObjFileData* ofd;
 
 	os = &objects[oi];
-	os->_ox = x;
-	os->_oy = y;
 	os->_otype = type;
 	ods = &objectdata[type];
 	os->_oSelFlag = ods->oSelFlag;
 	os->_oDoorFlag = ods->oDoorFlag;
 	os->_oProc = ods->oProc;
+	os->_oModeFlags = ods->oModeFlags;
 	os->_oAnimFrame = ods->oAnimBaseFrame;
 	os->_oAnimData = objanimdata[ods->ofindex];
 	ofd = &objfiledata[ods->ofindex];
@@ -1373,9 +1372,20 @@ int AddObject(int type, int ox, int oy)
 	objectactive[numobjects] = oi;
 	numobjects++;
 //	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
+	SetupObject(oi, type);
+	// place object
+	ObjectStruct* os = &objects[oi];
+	os->_ox = ox;
+	os->_oy = oy;
 	assert(dObject[ox][oy] == 0);
 	dObject[ox][oy] = oi + 1;
-	SetupObject(oi, ox, oy, type);
+	dFlags[ox][oy] |= BFLAG_POPULATED;
+	if (nSolidTable[dPiece[ox][oy]] && (os->_oModeFlags & OMF_FLOOR)) {
+		dObject[ox][oy] = 0;
+		os->_oModeFlags |= OMF_RESERVED;
+		os->_oSelFlag = 0;
+	}
+	// init object
 	switch (type) {
 	case OBJ_L1LIGHT:
 #if FLICKER_LIGHT
@@ -1741,7 +1751,7 @@ static void Obj_Trap(int oi)
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
 	case OBJ_SWITCHSKL:
-		if (on->_oSelFlag == 0) {
+		if (!(on->_oModeFlags & OMF_ACTIVE)) {
 			trigArea = baseTrigArea;
 			trigNum = lengthof(baseTrigArea);
 		}
@@ -1750,7 +1760,7 @@ static void Obj_Trap(int oi)
 #ifdef HELLFIRE
 	case OBJ_L5SARC:
 #endif
-		if (on->_oSelFlag == 0) {
+		if (!(on->_oModeFlags & OMF_ACTIVE)) {
 			trigArea = sarcTrigArea;
 			trigNum = lengthof(sarcTrigArea);
 		}
@@ -2183,6 +2193,20 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
+	// activate objects
+	for (i = 0; i < numobjects; i++) {
+		int oi = objectactive[i];
+		ObjectStruct* os = &objects[oi];
+		if (!(os->_oModeFlags & OMF_RESERVED))
+			continue;
+		if (nSolidTable[dPiece[os->_ox][os->_oy]])
+			continue;
+		// assert(os->_ox >= x1 && os->_ox <= x2 && os->_oy >= y1 && os->_oy <= y2);
+		dObject[os->_ox][os->_oy] = oi + 1;
+		os->_oModeFlags &= ~OMF_RESERVED;
+		os->_oSelFlag = objectdata[os->_otype].oSelFlag;
+	}
+	// add new objects (doors + light)
 	if (currLvl._dType == DTYPE_CATHEDRAL) {
 		DRLG_InitL1Specials(x1, y1, x2, y2);
 		//if (hasNewObjPiece)
@@ -2192,6 +2216,7 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		//if (hasNewObjPiece)
 			AddL2Objs(x1, y1, x2, y2);
 	}
+	// activate monsters
 	MonChangeMap();
 	RedoLightAndVision();
 }
@@ -2205,7 +2230,7 @@ static bool CheckLeverGroup(int type, int lvrIdx)
 		os = &objects[objectactive[i]]; 
 		if (os->_otype != type) // OBJ_SWITCHSKL, OBJ_LEVER, OBJ_BOOK2L or OBJ_L5LEVER
 			continue;
-		if (lvrIdx != os->_oVar8 || os->_oSelFlag == 0) // LEVER_INDEX
+		if (lvrIdx != os->_oVar8 || !(os->_oModeFlags & OMF_ACTIVE)) // LEVER_INDEX
 			continue;
 		return false;
 	}
@@ -2234,8 +2259,8 @@ static void OperateLever(int oi, bool sendmsg)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
 
@@ -2269,10 +2294,9 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	assert(currLvl._dSetLvl);
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
 	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		// assert(plr._pmode == PM_STAND);
+		// assert(plr._pmode == PM_STAND && !deltaload);
 		if (plr._px != os->_ox || plr._py != os->_oy + 1)
 			return;
 		if (os->_ox == DBORDERX + 10) {
@@ -2290,6 +2314,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		AddMissile(0, 0, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 		objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 	}
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
 
@@ -2326,6 +2351,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 		return;
 	}
 	os = &objects[oi];
+	// assert(os->_oModeFlags & OMF_ACTIVE);
 	// assert(os->_oSelFlag != 0);
 	qn = os->_oVar7; // LEVER_BOOK_QUEST
 
@@ -2368,9 +2394,8 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	int i, k, mtype, mdir;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
-
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame += 2;
 
@@ -2436,8 +2461,8 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 	}
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
 	if (deltaload)
@@ -2464,8 +2489,8 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 		return;
 	}
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame += 2;
 	if (deltaload)
@@ -2484,8 +2509,8 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	BYTE pc;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 
 	if (deltaload)
@@ -2538,8 +2563,8 @@ static void OperateSarc(int oi, bool sendmsg)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	if (deltaload) {
 		os->_oAnimFrame = os->_oAnimLen;
@@ -2595,7 +2620,7 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	int iv;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
+	if (!(os->_oModeFlags & OMF_ACTIVE))
 		return;
 	if (!deltaload && pnum != -1) { // TODO: possible desync of player-items?
 		if (numitems >= MAXITEMS)
@@ -2609,8 +2634,10 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	}
 
 	os->_oAnimFrame = quests[Q_BLOOD]._qvar1;
-	if (quests[Q_BLOOD]._qvar1 == QV_BLOOD_STONE3)
+	if (quests[Q_BLOOD]._qvar1 == QV_BLOOD_STONE3) {
+		os->_oModeFlags &= ~OMF_ACTIVE;
 		os->_oSelFlag = 0;
+	}
 	SyncPedistal();
 
 	if (deltaload)
@@ -2678,9 +2705,12 @@ static void CloseChest(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (os->_oSelFlag != 0)
+	if (!(os->_oModeFlags & OMF_ACTIVE))
 		return;
-	os->_oSelFlag = 1;
+	os->_oModeFlags |= OMF_ACTIVE;
+	if (!(os->_oModeFlags & OMF_RESERVED)) {
+		os->_oSelFlag = 1;
+	}
 	os->_oAnimFrame -= 2;
 
 	//SetRndSeed(os->_oRndSeed); -- do NOT set RndSeed, might conflict with the other chests
@@ -2919,8 +2949,8 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	assert((unsigned)oi < MAXOBJECTS);
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 
 	if (deltaload) {
@@ -3154,8 +3184,8 @@ static void OperateSkelBook(int oi, bool sendmsg)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame += 2;
 
@@ -3176,8 +3206,8 @@ static void OperateBookCase(int oi, bool sendmsg)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame -= 2;
 	if (deltaload)
@@ -3209,8 +3239,8 @@ static void OperateDecap(int oi, bool sendmsg)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 
 	if (deltaload)
@@ -3229,8 +3259,8 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	int itype;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
 	// os->_oSolidFlag = TRUE;
@@ -3283,8 +3313,8 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		PlrIncMana(pnum, 64);
 		break;
 	case OBJ_MURKYFTN:
-		if (os->_oSelFlag == 0)
-			return;
+		// assert(os->_oModeFlags & OMF_ACTIVE);
+		os->_oModeFlags &= ~OMF_ACTIVE;
 		os->_oSelFlag = 0;
 		if (deltaload)
 			return;
@@ -3314,9 +3344,8 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
-
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
 	// os->_oSolidFlag = TRUE;
@@ -3343,6 +3372,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	ObjectStruct* os;
 
 	os = &objects[oi];
+	// assert(os->_oModeFlags & OMF_ACTIVE);
 	// assert(os->_oSelFlag != 0);
 
 	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
@@ -3396,8 +3426,8 @@ static void OperateLazStand(int oi, bool sendmsg)
 	if (numitems >= MAXITEMS) {
 		return;
 	}
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
 
@@ -3416,8 +3446,8 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	bool triggered;
 
 	os = &objects[oi];
-	if (os->_oSelFlag == 0)
-		return;
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFlag = OAM_SINGLE;
 	// os->_oAnimFrame = 1;
@@ -3452,8 +3482,9 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 	int xotype, mpo;
 	int xp, yp;
 
-	if (os->_oSelFlag == 0)
+	if (!(os->_oModeFlags & OMF_ACTIVE))
 		return;
+	os->_oModeFlags &= ~OMF_ACTIVE;
 
 	// os->_oVar1 = 0;
 	// os->_oAnimFlag = OAM_SINGLE;
@@ -3515,6 +3546,8 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	bool sendmsg;
 
 	sendmsg = (pnum == mypnum);
+	if (!(objects[oi]._oModeFlags & OMF_ACTIVE))
+		return;
 	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -3680,7 +3713,9 @@ void SyncOpObject(/*int pnum,*/ int oi)
 {
 	OperateObject(-1, oi, true);
 
-	/*switch (objects[oi]._otype) {
+	/*if (!(objects[oi]._oModeFlags & OMF_ACTIVE))
+		return;
+	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
 		OperateL1Door(oi, false);
