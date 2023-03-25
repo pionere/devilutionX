@@ -175,8 +175,7 @@ void unlock_buf(BYTE idx)
 void dx_cleanup()
 {
 #ifndef USE_SDL1
-	if (ghMainWnd != NULL)
-		SDL_HideWindow(ghMainWnd);
+	SDL_HideWindow(ghMainWnd);
 #endif
 #if DEBUG_MODE
 	sgMemCrit.Enter();
@@ -190,8 +189,6 @@ void dx_cleanup()
 	gpBuffer = NULL;
 #endif
 
-	if (back_surface == NULL)
-		return;
 	SDL_FreeSurface(back_surface);
 	back_surface = NULL;
 #ifndef USE_SDL1
