@@ -505,19 +505,19 @@ void GetLevelMTypes()
 			AddMonsterType(MT_DEFILER, FALSE);
 		if (lvl == DLV_CRYPT4) {
 			AddMonsterType(MT_ARCHLICH, TRUE);
-			AddMonsterType(MT_NAKRUL, FALSE);
+			// AddMonsterType(MT_NAKRUL, FALSE);
 		}
 #endif
-		if (QuestStatus(Q_BUTCHER))
-			AddMonsterType(MT_CLEAVER, FALSE);
+		//if (QuestStatus(Q_BUTCHER))
+		//	AddMonsterType(MT_CLEAVER, FALSE);
 		if (QuestStatus(Q_GARBUD))
 			AddMonsterType(MT_NGOATMC, FALSE);
 		if (QuestStatus(Q_ZHAR))
 			AddMonsterType(MT_NMAGE, FALSE);
-		if (QuestStatus(Q_BANNER)) {
-			AddMonsterType(MT_BFALLSP, FALSE);
-			// AddMonsterType(MT_NFAT, FALSE);
-		}
+		//if (QuestStatus(Q_BANNER)) {
+		//	AddMonsterType(MT_BFALLSP, FALSE);
+		//	// AddMonsterType(MT_NFAT, FALSE);
+		//}
 		//if (QuestStatus(Q_ANVIL)) {
 		//	AddMonsterType(MT_GGOATBW, FALSE);
 		//	AddMonsterType(MT_DRHINO, FALSE);
@@ -830,14 +830,11 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 	}
 }
 
-static void PlaceUniqueMonst(int uniqindex)
+static void InitUniqueMonster(int mnum, int uniqindex);
+static void PlaceUniqueMonst(int uniqindex, int mtidx)
 {
 	int xp, yp, x, y;
-	int uniqtype;
 	int count2;
-	char filestr[DATA_ARCHIVE_MAX_PATH];
-	const UniqMonData* uniqm;
-	MonsterStruct* mon;
 	int mnum, count;
 	static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
 	if (uniquetrans >= NUM_COLOR_TRNS) {
@@ -845,10 +842,6 @@ static void PlaceUniqueMonst(int uniqindex)
 	}
 
 	switch (uniqindex) {
-	case UMT_SKELKING:
-		xp = DBORDERX + 19;
-		yp = DBORDERY + 31;
-		break;
 	case UMT_ZHAR:
 		assert(nummonsters == MAX_MINIONS);
 		if (zharlib == -1)
@@ -856,52 +849,6 @@ static void PlaceUniqueMonst(int uniqindex)
 		xp = 2 * themeLoc[zharlib].x + DBORDERX + 4;
 		yp = 2 * themeLoc[zharlib].y + DBORDERY + 4;
 		break;
-	case UMT_SNOTSPIL:
-		xp = 2 * setpc_x + DBORDERX + 8;
-		yp = 2 * setpc_y + DBORDERY + 12;
-		break;
-	case UMT_LAZARUS:
-		if (!currLvl._dSetLvl) {
-			xp = 2 * setpc_x + DBORDERX + 3;
-			yp = 2 * setpc_y + DBORDERY + 6;
-		} else {
-			xp = DBORDERX + 16;
-			yp = DBORDERY + 30;
-		}
-		break;
-	case UMT_RED_VEX:
-		if (!currLvl._dSetLvl) {
-			xp = 2 * setpc_x + DBORDERX + 5;
-			yp = 2 * setpc_y + DBORDERY + 3;
-		} else {
-			xp = DBORDERX + 24;
-			yp = DBORDERY + 29;
-		}
-		break;
-	case UMT_BLACKJADE:
-		if (!currLvl._dSetLvl) {
-			xp = 2 * setpc_x + DBORDERX + 5;
-			yp = 2 * setpc_y + DBORDERY + 9;
-		} else {
-			xp = DBORDERX + 22;
-			yp = DBORDERY + 33;
-		}
-		break;
-	case UMT_WARLORD:
-		xp = 2 * setpc_x + DBORDERX + 6;
-		yp = 2 * setpc_y + DBORDERY + 7;
-		break;
-	case UMT_BUTCHER:
-		xp = 2 * setpc_x + DBORDERX + 3;
-		yp = 2 * setpc_y + DBORDERY + 3;
-		break;
-#ifdef HELLFIRE
-	case UMT_NAKRUL:
-		assert(nummonsters == MAX_MINIONS);
-		xp = 2 * setpc_x + DBORDERX + 2;
-		yp = 2 * setpc_y + DBORDERY + 6;
-		break;
-#endif
 	default:
 		count = 0;
 		while (TRUE) {
@@ -929,12 +876,16 @@ static void PlaceUniqueMonst(int uniqindex)
 		}
 	}
 	// assert(nummonsters < MAXMONSTERS);
-	for (uniqtype = 0; uniqtype < nummtypes; uniqtype++) {
-		if (mapMonTypes[uniqtype].cmType == uniqMonData[uniqindex].mtype) {
-			break;
-		}
-	}
-	mnum = PlaceMonster(uniqtype, xp, yp);
+	mnum = PlaceMonster(mtidx, xp, yp);
+	InitUniqueMonster(mnum, uniqindex);
+}
+
+static void InitUniqueMonster(int mnum, int uniqindex)
+{
+	char filestr[DATA_ARCHIVE_MAX_PATH];
+	const UniqMonData* uniqm;
+	MonsterStruct* mon;
+
 	mon = &monsters[mnum];
 	mon->_mNameColor = COL_GOLD;
 	mon->_muniqtype = uniqindex + 1;
@@ -1024,7 +975,7 @@ static void PlaceUniques()
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
 			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
-				PlaceUniqueMonst(u);
+				PlaceUniqueMonst(u, mt);
 				if (uniqMonData[u].mUnqFlags & UMF_GROUP) {
 					// assert(mnum == nummonsters - 1);
 					PlaceGroup(mt, MON_PACK_SIZE - 1, uniqMonData[u].mUnqFlags, nummonsters - 1);
@@ -1037,12 +988,20 @@ static void PlaceUniques()
 
 static void PlaceSetMapMonsters()
 {
-	int i;
 	BYTE* setp;
+	uint16_t* lm;
 
 	if (!currLvl._dSetLvl) {
+		if (setpc_type == SPT_BUTCHER) {
+			setp = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
+			SetMapMonsters(setp, setpc_x, setpc_y);
+			mem_free_dbg(setp);
+		}
 		if (setpc_type == SPT_BANNER) { // QuestStatus(Q_BANNER)
 			setp = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
+			// patch set-piece to add monsters - Banner1.DUN
+			lm = (uint16_t*)setp;
+			lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 + 12 * 8 * 2] = SwapLE16((UMT_SNOTSPIL + 1) | (1 << 15));
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
@@ -1063,21 +1022,30 @@ static void PlaceSetMapMonsters()
 		}
 		if (setpc_type == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
 			setp = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
+			// patch set-piece to add monsters - Warlord.DUN
+			lm = (uint16_t*)setp;
+			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 7 * 8 * 2] = SwapLE16((UMT_WARLORD + 1) | (1 << 15));
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (setpc_type == SPT_BETRAYER) { // QuestStatus(Q_BETRAYER) && IsMultiGame
 			// assert(quests[Q_BETRAYER]._qactive != QUEST_NOTAVAIL);
 			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
+			// patch set-piece to add monsters - Vile1.DUN
+			lm = (uint16_t*)setp;
+			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
+			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
+			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
-
-			AddMonsterType(MT_BMAGE, FALSE);
-			AddMonsterType(MT_RSUCC, FALSE);
-			PlaceUniqueMonst(UMT_LAZARUS);
-			PlaceUniqueMonst(UMT_RED_VEX);
-			PlaceUniqueMonst(UMT_BLACKJADE);
 		}
+#ifdef HELLFIRE
+		if (setpc_type == SPT_NAKRUL) {
+			setp = LoadFileInMem("NLevels\\L5Data\\Nakrul1.DUN"); // pre
+			SetMapMonsters(setp, setpc_x, setpc_y);
+			mem_free_dbg(setp);
+		}
+#endif
 		if (currLvl._dLevelIdx == DLV_HELL4) {
 			// assert(quests[Q_DIABLO]._qactive != QUEST_NOTAVAIL);
 			setp = LoadFileInMem("Levels\\L4Data\\diab1.DUN");
@@ -1092,20 +1060,6 @@ static void PlaceSetMapMonsters()
 			setp = LoadFileInMem("Levels\\L4Data\\diab4a.DUN");
 			SetMapMonsters(setp, DIAB_QUAD_4X, DIAB_QUAD_4Y);
 			mem_free_dbg(setp);
-		}
-	} else if (currLvl._dLevelIdx == SL_SKELKING) {
-		AddMonsterType(MT_SKING, FALSE);
-		PlaceUniqueMonst(UMT_SKELKING);
-	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		AddMonsterType(MT_BMAGE, FALSE);
-		AddMonsterType(MT_RSUCC, FALSE);
-		PlaceUniqueMonst(UMT_LAZARUS);
-		PlaceUniqueMonst(UMT_RED_VEX);
-		PlaceUniqueMonst(UMT_BLACKJADE);
-		for (i = 1; i <= 3; i++) {
-			monsters[nummonsters - i]._mmode = MM_RESERVED;
-			dMonster[monsters[nummonsters - i]._mx][monsters[nummonsters - i]._my] = 0;
-			ChangeLightRadius(monsters[nummonsters - i]._mlid, 0);
 		}
 	}
 }
@@ -1194,9 +1148,10 @@ void InitMonsters()
 
 void SetMapMonsters(BYTE* pMap, int startx, int starty)
 {
-	uint16_t rw, rh, *lm;
+	uint16_t rw, rh, *lm, mtype;
 	int i, j;
 	int mtidx, mnum;
+	bool posOk;
 
 	lm = (uint16_t*)pMap;
 	rw = SwapLE16(*lm);
@@ -1217,17 +1172,23 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				assert(SwapLE16(*lm) < lengthof(MonstConvTbl) && MonstConvTbl[SwapLE16(*lm)] != 0);
-				mtidx = AddMonsterType(MonstConvTbl[SwapLE16(*lm)], FALSE);
+				mtype = SwapLE16(*lm);
 				// assert(nummonsters < MAXMONSTERS);
-				mnum = nummonsters;
-				nummonsters++;
-				InitMonster(mnum, random_(90, NUM_DIRS), mtidx, i, j);
-				if (PosOkActor(i, j)) {
-					dMonster[i][j] = mnum + 1;
+				posOk = PosOkActor(i, j);
+				if ((mtype & (1 << 15)) == 0) {
+					mtidx = AddMonsterType(MonstConvTbl[mtype], FALSE);
+					mnum = PlaceMonster(mtidx, i, j);
 				} else {
+					mtype = (mtype & INT16_MAX) - 1;
+					mtidx = AddMonsterType(uniqMonData[mtype].mtype, FALSE);
+					// assert(uniquetrans < NUM_COLOR_TRNS);
+					mnum = PlaceMonster(mtidx, i, j);
+					InitUniqueMonster(mnum, mtype);
+				}
+				if (!posOk) {
+					dMonster[i][j] = 0;
 					monsters[mnum]._mmode = MM_RESERVED;
-					// assert(monsters[mnum]._mlid == NO_LIGHT);
+					ChangeLightRadius(monsters[mnum]._mlid, 0);
 				}
 			}
 			lm++;

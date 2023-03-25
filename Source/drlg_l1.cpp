@@ -945,8 +945,10 @@ static void DRLG_InitL5Specials()
 }
 #endif
 
-static void DRLG_L1SetMapFix()
+static void DRLG_L1SetMapFix(BYTE* pMap)
 {
+	uint16_t* lm = (uint16_t*)pMap;
+
 	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		// patch set-piece to fix empty tiles - Vile2.DUN
 		// assert(pMap[(2 + 8 + 16 * 21) * 2] == 0);
@@ -961,6 +963,13 @@ static void DRLG_L1SetMapFix()
 		// assert(pMap[(2 + 14 + 22 * 21) * 2] == 0);
 		// assert(dungeon[14][22] == 13);
 		dungeon[14][22] = 203;
+		// add monsters
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 16 + 30 * 21 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 24 + 29 * 21 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 22 + 33 * 21 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
+	} else if (currLvl._dLevelIdx == SL_SKELKING) {
+		// patch set-piece to add monsters - SklKng2.DUN
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 19 + 31 * 37 * 2] = SwapLE16((UMT_SKELKING + 1) | (1 << 15));
 	}
 }
 
@@ -1016,7 +1025,7 @@ void LoadL1Dungeon(const LevelData* lds)
 	// load dungeon
 	pMap = LoadL1DungeonData(lds->dSetLvlDun);
 
-	DRLG_L1SetMapFix();
+	DRLG_L1SetMapFix(pMap);
 
 	//DRLG_L1Floor();
 
