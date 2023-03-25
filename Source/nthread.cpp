@@ -409,6 +409,9 @@ void nthread_finish(UINT uMsg)
 #endif
 			assert(geBufferMsgs == MSG_NORMAL);
 			assert(sgbPacketCountdown == 1);
+			// IncProgress();
+			// IncProgress();
+			// IncProgress();
 			return;
 		}
 	}
@@ -434,8 +437,11 @@ void nthread_finish(UINT uMsg)
 	// phase 6 end
 	// phase 7 begin - clear queued outgoing messages (e.g. CMD_DEACTIVATEPORTAL)
 	for (int i = SNetGetTurnsInTransit(); i > 0; i--) {
-		if (!nthread_level_turn())
+		if (!nthread_level_turn()) {
+			// IncProgress();
+			// IncProgress();
 			goto done;
+		}
 	}
 	IncProgress();
 	// phase 7 end
@@ -453,8 +459,10 @@ void nthread_finish(UINT uMsg)
 	assert((gdwLastGameTurn * gbNetUpdateRate) == gdwGameLogicTurn);
 	lastGameTurn = gdwLastGameTurn;
 	while (geBufferMsgs == MSG_LVL_DELTA_WAIT) {
-		if (!nthread_level_turn())
+		if (!nthread_level_turn()) {
+			// IncProgress();
 			goto done;
+		}
 		unsigned allPlayers = 0;
 		for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 			if (plr._pActive)

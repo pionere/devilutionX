@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -104,6 +105,31 @@ static void DrawProgress()
 		}
 		dst += BUFFER_WIDTH - w;
 	}
+#if DEBUG_MODE || DEV_MODE
+	const char* progession[] {
+		"Startup", // 0
+		"Save", // 1
+		"Memfree", // 2
+		"Music stop", // 3
+		"Light Table", // 4
+		"Init Level", // 5
+		"Create Dungeon", // 6
+		"MonsterFX", // 7
+		"ObjectsGFX", // 8
+		"Monsters", // 9
+		"Objects/Items", // 10
+		"Missiles/Light", // 11
+		"Quest/Load", // 12
+		"Music start", // 13
+		"Network - Pending Turns", // 14
+		"Network - Msg Queue", // 15
+		"Network - Join Level", // 16
+		"Network - Sync delta", // 17
+		"Fadeout", // 18
+	};
+	unsigned progress = sgdwProgress / ((BAR_WIDTH + 18) / 19);
+	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", false, COL_WHITE, 1);
+#endif
 }
 
 static void DrawCutscene()
@@ -132,7 +158,7 @@ void interface_msg_pump()
 void IncProgress()
 {
 	interface_msg_pump();
-	sgdwProgress += (BAR_WIDTH + 17) / 18;
+	sgdwProgress += (BAR_WIDTH + 18) / 19;
 	if (sgdwProgress > BAR_WIDTH)
 		sgdwProgress = BAR_WIDTH;
 	// do not draw in case of quick-load
@@ -212,7 +238,6 @@ void LoadGameLevel(int lvldir)
 			IncProgress();
 		}
 		IncProgress();
-		IncProgress();
 
 		if (currLvl._dType != DTYPE_TOWN) {
 			HoldThemeRooms();
@@ -233,9 +258,8 @@ void LoadGameLevel(int lvldir)
 		IncProgress();
 		// GetLevelMTypes();
 		IncProgress();
-		InitMonsters();
 		IncProgress();
-		IncProgress();
+		// InitMonsters();
 		IncProgress();
 
 		InitItems();

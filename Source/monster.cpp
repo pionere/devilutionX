@@ -997,7 +997,7 @@ static void PlaceSetMapMonsters()
 	BYTE* setp;
 	uint16_t* lm;
 
-	if (!currLvl._dSetLvl) {
+	// if (!currLvl._dSetLvl) {
 		if (setpc_type == SPT_BUTCHER) {
 			setp = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
@@ -1070,7 +1070,7 @@ static void PlaceSetMapMonsters()
 			SetMapMonsters(setp, DIAB_QUAD_4X, DIAB_QUAD_4Y);
 			mem_free_dbg(setp);
 		}
-	}
+	// }
 }
 
 void InitMonsters()
@@ -1102,7 +1102,7 @@ void InitMonsters()
 	// }
 	// place the setmap/setpiece monsters
 	PlaceSetMapMonsters();
-	if (!currLvl._dSetLvl) {
+	// if (!currLvl._dSetLvl) {
 		// calculate the available space for monsters
 		na = 0;
 		for (xx = DBORDERX; xx < DSIZEX + DBORDERX; xx++)
@@ -1140,7 +1140,7 @@ void InitMonsters()
 				na = RandRange(3, 5);
 			PlaceGroup(mtidx, na, 0, 0);
 		}
-	}
+	// }
 	// revert entry/exit area reservation
 	for (i = 0; i < numtrigs; i++) {
 		ts = &trigs[i];
