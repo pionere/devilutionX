@@ -499,23 +499,23 @@ void GetLevelMTypes()
 			AddMonsterType(MT_HORKSPWN, TRUE);
 		if (lvl == DLV_NEST3) {
 			AddMonsterType(MT_HORKSPWN, TRUE);
-			AddMonsterType(MT_HORKDMN, FALSE);
+			AddMonsterType(uniqMonData[UMT_HORKDMN].mtype, FALSE);
 		}
 		if (lvl == DLV_NEST4)
-			AddMonsterType(MT_DEFILER, FALSE);
+			AddMonsterType(uniqMonData[UMT_DEFILER].mtype, FALSE);
 		if (lvl == DLV_CRYPT4) {
 			AddMonsterType(MT_ARCHLICH, TRUE);
-			// AddMonsterType(MT_NAKRUL, FALSE);
+			// AddMonsterType(uniqMonData[UMT_NAKRUL].mtype, FALSE);
 		}
 #endif
 		//if (QuestStatus(Q_BUTCHER))
-		//	AddMonsterType(MT_CLEAVER, FALSE);
+		//	AddMonsterType(uniqMonData[UMT_BUTCHER].mtype, FALSE);
 		if (QuestStatus(Q_GARBUD))
-			AddMonsterType(MT_NGOATMC, FALSE);
+			AddMonsterType(uniqMonData[UMT_GARBUD].mtype, FALSE);
 		if (QuestStatus(Q_ZHAR))
-			AddMonsterType(MT_NMAGE, FALSE);
+			AddMonsterType(uniqMonData[UMT_ZHAR].mtype, FALSE);
 		//if (QuestStatus(Q_BANNER)) {
-		//	AddMonsterType(MT_BFALLSP, FALSE);
+		//	AddMonsterType(uniqMonData[UMT_SNOTSPIL].mtype, FALSE);
 		//	// AddMonsterType(MT_NFAT, FALSE);
 		//}
 		//if (QuestStatus(Q_ANVIL)) {
@@ -529,13 +529,14 @@ void GetLevelMTypes()
 		//	AddMonsterType(MT_NRHINO, FALSE);
 		//}
 		if (QuestStatus(Q_VEIL))
-			AddMonsterType(MT_GBLACK, TRUE);
+			AddMonsterType(uniqMonData[UMT_LACHDAN].mtype, TRUE);
 		if (QuestStatus(Q_WARLORD))
-			AddMonsterType(MT_BBLACK, TRUE);
+			AddMonsterType(uniqMonData[UMT_WARLORD].mtype, TRUE);
 		//if (QuestStatus(Q_BETRAYER) && IsMultiGame) {
 		//if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && IsMultiGame) {
-		//	AddMonsterType(MT_BMAGE, FALSE);
-		//	AddMonsterType(MT_RSUCC, FALSE);
+		//	AddMonsterType(uniqMonData[UMT_LAZARUS].mtype, FALSE);
+		//	AddMonsterType(uniqMonData[UMT_RED_VEX].mtype, FALSE);
+		//  assert(uniqMonData[UMT_RED_VEX].mtype == uniqMonData[UMT_BLACKJADE].mtype);
 		//}
 		lds = &AllLevels[lvl];
 		for (nt = 0; nt < lengthof(lds->dMonTypes); nt++) {
@@ -571,7 +572,11 @@ void GetLevelMTypes()
 		}
 	//} else {
 	//	if (lvl == SL_SKELKING) {
-	//		AddMonsterType(MT_SKING, FALSE);
+	//		AddMonsterType(uniqMonData[UMT_SKELKING].mtype, FALSE);
+	//	} else if (lvl == SL_VILEBETRAYER) {
+	//		AddMonsterType(uniqMonData[UMT_LAZARUS].mtype, FALSE);
+	//		AddMonsterType(uniqMonData[UMT_RED_VEX].mtype, FALSE);
+	//		assert(uniqMonData[UMT_RED_VEX].mtype == uniqMonData[UMT_BLACKJADE].mtype);
 	//	}
 	//}
 }
