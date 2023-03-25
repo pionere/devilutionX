@@ -490,7 +490,7 @@ void GetLevelMTypes()
 			AddMonsterType(MT_BMAGE, TRUE);
 			AddMonsterType(MT_GBLACK, TRUE);
 			// AddMonsterType(MT_NBLACK, FALSE);
-			// AddMonsterType(MT_DIABLO, FALSE);
+			// AddMonsterType(uniqMonData[UMT_DIABLO].mtype, FALSE);
 			return;
 		}
 
@@ -845,10 +845,12 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 	mon->_mNameColor = COL_GOLD;
 	mon->_muniqtype = uniqindex + 1;
 	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
+	if (uniqindex != UMT_DIABLO) {
 #ifdef HELLFIRE
-	if (uniqindex != UMT_HORKDMN)
+		if (uniqindex != UMT_HORKDMN)
 #endif
-		mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
+			mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
+	}
 
 	uniqm = &uniqMonData[uniqindex];
 	mon->_mLevel = uniqm->muLevel;
@@ -1062,6 +1064,9 @@ static void PlaceSetMapMonsters()
 			SetMapMonsters(setp, DIAB_QUAD_3X, DIAB_QUAD_3Y);
 			mem_free_dbg(setp);
 			setp = LoadFileInMem("Levels\\L4Data\\diab4a.DUN");
+			// patch set-piece to replace diablo - Diab4a.DUN
+			lm = (uint16_t*)setp;
+			lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 8 + 8 * 9 * 2] = SwapLE16((UMT_DIABLO + 1) | (1 << 15));
 			SetMapMonsters(setp, DIAB_QUAD_4X, DIAB_QUAD_4Y);
 			mem_free_dbg(setp);
 		}
