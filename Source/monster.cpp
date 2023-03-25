@@ -830,56 +830,6 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 	}
 }
 
-static void InitUniqueMonster(int mnum, int uniqindex);
-static void PlaceUniqueMonst(int uniqindex, int mtidx)
-{
-	int xp, yp, x, y;
-	int count2;
-	int mnum, count;
-	static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
-	if (uniquetrans >= NUM_COLOR_TRNS) {
-		return;
-	}
-
-	switch (uniqindex) {
-	case UMT_ZHAR:
-		assert(nummonsters == MAX_MINIONS);
-		if (zharlib == -1)
-			return;
-		xp = 2 * themeLoc[zharlib].x + DBORDERX + 4;
-		yp = 2 * themeLoc[zharlib].y + DBORDERY + 4;
-		break;
-	default:
-		count = 0;
-		while (TRUE) {
-			xp = random_(91, DSIZEX) + DBORDERX;
-			yp = random_(91, DSIZEY) + DBORDERY;
-			count2 = 0;
-			for (x = xp - MON_PACK_DISTANCE; x <= xp + MON_PACK_DISTANCE; x++) {
-				for (y = yp - MON_PACK_DISTANCE; y <= yp + MON_PACK_DISTANCE; y++) {
-					if (MonstPlace(x, y)) {
-						count2++;
-					}
-				}
-			}
-
-			if (count2 < 2 * MON_PACK_SIZE) {
-				count++;
-				if (count < 1000) {
-					continue;
-				}
-			}
-
-			if (MonstPlace(xp, yp)) {
-				break;
-			}
-		}
-	}
-	// assert(nummonsters < MAXMONSTERS);
-	mnum = PlaceMonster(mtidx, xp, yp);
-	InitUniqueMonster(mnum, uniqindex);
-}
-
 static void InitUniqueMonster(int mnum, int uniqindex)
 {
 	char filestr[DATA_ARCHIVE_MAX_PATH];
@@ -963,6 +913,55 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mTreasure = NO_DROP;
 }
 
+static void PlaceUniqueMonst(int uniqindex, int mtidx)
+{
+	int xp, yp, x, y;
+	int count2;
+	int mnum, count;
+	static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
+	if (uniquetrans >= NUM_COLOR_TRNS) {
+		return;
+	}
+
+	switch (uniqindex) {
+	case UMT_ZHAR:
+		assert(nummonsters == MAX_MINIONS);
+		if (zharlib == -1)
+			return;
+		xp = 2 * themeLoc[zharlib].x + DBORDERX + 4;
+		yp = 2 * themeLoc[zharlib].y + DBORDERY + 4;
+		break;
+	default:
+		count = 0;
+		while (TRUE) {
+			xp = random_(91, DSIZEX) + DBORDERX;
+			yp = random_(91, DSIZEY) + DBORDERY;
+			count2 = 0;
+			for (x = xp - MON_PACK_DISTANCE; x <= xp + MON_PACK_DISTANCE; x++) {
+				for (y = yp - MON_PACK_DISTANCE; y <= yp + MON_PACK_DISTANCE; y++) {
+					if (MonstPlace(x, y)) {
+						count2++;
+					}
+				}
+			}
+
+			if (count2 < 2 * MON_PACK_SIZE) {
+				count++;
+				if (count < 1000) {
+					continue;
+				}
+			}
+
+			if (MonstPlace(xp, yp)) {
+				break;
+			}
+		}
+	}
+	// assert(nummonsters < MAXMONSTERS);
+	mnum = PlaceMonster(mtidx, xp, yp);
+	InitUniqueMonster(mnum, uniqindex);
+}
+
 static void PlaceUniques()
 {
 	int u, mt;
@@ -1041,7 +1040,7 @@ static void PlaceSetMapMonsters()
 		}
 #ifdef HELLFIRE
 		if (setpc_type == SPT_NAKRUL) {
-			setp = LoadFileInMem("NLevels\\L5Data\\Nakrul1.DUN"); // pre
+			setp = LoadFileInMem("NLevels\\L5Data\\Nakrul1.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
