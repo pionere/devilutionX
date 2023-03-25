@@ -163,6 +163,9 @@ void InitLvlDungeon()
 	assert(pMicroCels == NULL);
 	lds = &AllLevels[currLvl._dLevelIdx];
 
+	static_assert((int)WRPT_NONE == 0, "InitLvlDungeon fills pWarps with 0 instead of WRPT_NONE values.");
+	memset(pWarps, 0, sizeof(pWarps));
+
 	pMicroCels = LoadFileInMem(lds->dMicroCels);
 	assert(pMegaTiles == NULL);
 	pMegaTiles = (uint16_t*)LoadFileInMem(lds->dMegaTiles);

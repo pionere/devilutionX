@@ -1005,8 +1005,9 @@ void LoadL1Dungeon(const LevelData* lds)
 {
 	BYTE* pMap;
 
-	ViewX = lds->dSetLvlDunX;
-	ViewY = lds->dSetLvlDunY;
+	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
+	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
+	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
 
 	// load pre-dungeon
 	pMap = LoadL1DungeonData(lds->dSetLvlPreDun);
@@ -2460,7 +2461,7 @@ static void DRLG_L1CornerFix()
 	}*/
 }
 
-static void DRLG_L1(int entry)
+static void DRLG_L1()
 {
 	int i;
 	int minarea;
@@ -2491,7 +2492,6 @@ static void DRLG_L1(int entry)
 		L1FillChambers();
 		L1AddWall();
 		L1ClearChamberFlags();
-		memset(pWarps, 0, sizeof(pWarps));
 		if (placeWater) {
 			POS32 warpPos = DRLG_PlaceMiniSet(PWATERIN);
 			if (warpPos.x < 0) {
@@ -2501,6 +2501,7 @@ static void DRLG_L1(int entry)
 			pWarps[DWARP_SIDE]._wy = warpPos.y + 3;
 			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
 			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
+			pWarps[DWARP_SIDE]._wtype = WRPT_L1_PWATER;
 		}
 		DRLG_InitTrans();
 		DRLG_FloodTVal(DEFAULT_MEGATILE_L1);
@@ -2515,6 +2516,7 @@ static void DRLG_L1(int entry)
 			pWarps[DWARP_ENTRY]._wy = warpPos.y + 2;
 			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
 			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+			pWarps[DWARP_ENTRY]._wtype = WRPT_L1_UP;
 			if (currLvl._dLevelIdx != DLV_CRYPT4) {
 				warpPos = DRLG_PlaceMiniSet(L5DSTAIRS); // L5DSTAIRS (3, 7)
 				if (warpPos.x < 0) {
@@ -2524,6 +2526,7 @@ static void DRLG_L1(int entry)
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 3;
 				pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
 				pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+				pWarps[DWARP_EXIT]._wtype = WRPT_L1_DOWN;
 			}
 		} else
 #endif
@@ -2537,11 +2540,13 @@ static void DRLG_L1(int entry)
 			pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
 			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
 			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+			pWarps[DWARP_ENTRY]._wtype = WRPT_L1_UP;
 			if (setpc_type == SPT_SKELKING) {
 				pWarps[DWARP_SIDE]._wx = setpc_x + 6; // L1DSTAIRS (3, 5)
 				pWarps[DWARP_SIDE]._wy = setpc_y + 3;
 				pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
 				pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
+				pWarps[DWARP_SIDE]._wtype = WRPT_L1_SKING;
 			}
 			if (setpc_type == SPT_BANNER) {
 				pWarps[DWARP_EXIT]._wx = setpc_x + 1; // L1DSTAIRS (3, 5)
@@ -2556,24 +2561,7 @@ static void DRLG_L1(int entry)
 			}
 			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
 			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
-		}
-		if (entry == ENTRY_MAIN || entry == ENTRY_TWARPDN) {
-			ViewX = pWarps[DWARP_ENTRY]._wx;
-			ViewY = pWarps[DWARP_ENTRY]._wy;
-			ViewX += 1;
-			ViewY += 2;
-		}
-		if (entry == ENTRY_PREV) {
-			ViewX = pWarps[DWARP_EXIT]._wx;
-			ViewY = pWarps[DWARP_EXIT]._wy;
-			ViewX += 1;
-			ViewY += 1;
-		}
-		if (entry == ENTRY_RTNLVL) {
-			ViewX = pWarps[DWARP_SIDE]._wx;
-			ViewY = pWarps[DWARP_SIDE]._wy;
-			ViewX += 1;
-			ViewY += 1;
+			pWarps[DWARP_EXIT]._wtype = WRPT_L1_DOWN;
 		}
 		break;
 	}
@@ -2703,10 +2691,10 @@ static void DRLG_L1(int entry)
 	}
 }
 
-void CreateL1Dungeon(int entry)
+void CreateL1Dungeon()
 {
 	DRLG_LoadL1SP();
-	DRLG_L1(entry);
+	DRLG_L1();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
 	DRLG_FreeL1SP();
 

@@ -1802,7 +1802,7 @@ static void DRLG_L4GeneralFix()
 	}*/
 }
 
-static void DRLG_L4(int entry)
+static void DRLG_L4()
 {
 	while (true) {
 		do {
@@ -1829,7 +1829,6 @@ static void DRLG_L4(int entry)
 		DRLG_InitTrans();
 		DRLG_FloodTVal(DEFAULT_MEGATILE_L4);
 
-		memset(pWarps, 0, sizeof(pWarps));
 		POS32 warpPos = DRLG_PlaceMiniSet(L4USTAIRS); // L4USTAIRS (5, 6)
 		if (warpPos.x < 0) {
 			continue;
@@ -1838,6 +1837,7 @@ static void DRLG_L4(int entry)
 		pWarps[DWARP_ENTRY]._wy = warpPos.y + 2;
 		pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
 		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+		pWarps[DWARP_ENTRY]._wtype = WRPT_L4_UP;
 		if (currLvl._dLevelIdx != DLV_HELL4) {
 			if (currLvl._dLevelIdx == DLV_HELL1) {
 				warpPos = DRLG_PlaceMiniSet(L4TWARP); // L4TWARP (5, 6)
@@ -1848,6 +1848,7 @@ static void DRLG_L4(int entry)
 				pWarps[DWARP_TOWN]._wy = warpPos.y + 2;
 				pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
 				pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
+				pWarps[DWARP_TOWN]._wtype = WRPT_L4_UP;
 			}
 			if (currLvl._dLevelIdx == DLV_HELL3) {
 				warpPos = DRLG_PlaceMiniSet((!IsMultiGame && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) ? L4PENTA : L4PENTA2); // L4PENTA (5, 6)
@@ -1856,9 +1857,11 @@ static void DRLG_L4(int entry)
 				}
 				pWarps[DWARP_EXIT]._wx = warpPos.x + 2;
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
+				pWarps[DWARP_EXIT]._wtype = WRPT_L4_PENTA;
 			} else if (setpc_type == SPT_WARLORD) {
 				pWarps[DWARP_EXIT]._wx = setpc_x + 3; // L4DSTAIRS (6, 4)
 				pWarps[DWARP_EXIT]._wy = setpc_y + 3;
+				pWarps[DWARP_EXIT]._wtype = WRPT_L4_DOWN;
 			} else {
 				warpPos = DRLG_PlaceMiniSet(L4DSTAIRS); // L4DSTAIRS (6, 4)
 				if (warpPos.x < 0) {
@@ -1866,38 +1869,10 @@ static void DRLG_L4(int entry)
 				}
 				pWarps[DWARP_EXIT]._wx = warpPos.x + 3;
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
+				pWarps[DWARP_EXIT]._wtype = WRPT_L4_DOWN;
 			}
 			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
 			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
-		}
-		if (entry == ENTRY_MAIN) {
-			ViewX = pWarps[DWARP_ENTRY]._wx;
-			ViewY = pWarps[DWARP_ENTRY]._wy;
-			ViewX += 1;
-			ViewY += 2;
-		}
-		if (entry == ENTRY_TWARPDN) {
-			ViewX = pWarps[DWARP_TOWN]._wx;
-			ViewY = pWarps[DWARP_TOWN]._wy;
-			ViewX += 1;
-			ViewY += 2;
-		}
-		if (entry == ENTRY_PREV) {
-			ViewX = pWarps[DWARP_EXIT]._wx;
-			ViewY = pWarps[DWARP_EXIT]._wy;
-			if (currLvl._dLevelIdx != DLV_HELL3) {
-				ViewX += 1;
-				ViewY += 1;
-			} else {
-				ViewX += 1;
-				ViewY += 2;
-			}
-		}
-		if (entry == ENTRY_RTNLVL) {
-			ViewX = pWarps[DWARP_EXIT]._wx;
-			ViewY = pWarps[DWARP_EXIT]._wy;
-			ViewX += -1;
-			ViewY += -1;
 		}
 		break;
 	}
@@ -1925,10 +1900,10 @@ static void DRLG_L4(int entry)
 	}
 }
 
-void CreateL4Dungeon(int entry)
+void CreateL4Dungeon()
 {
 	DRLG_LoadL4SP();
-	DRLG_L4(entry);
+	DRLG_L4();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
 	DRLG_FreeL4SP();
 	DRLG_SetPC();
@@ -1966,8 +1941,9 @@ void LoadL4Dungeon(const LevelData* lds)
 {
 	BYTE* pMap;
 
-	ViewX = lds->dSetLvlDunX;
-	ViewY = lds->dSetLvlDunY;
+	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
+	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
+	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
 
 	// load pre-dungeon
 	pMap = LoadL4DungeonData(lds->dSetLvlPreDun);

@@ -3156,6 +3156,22 @@ typedef enum dungeon_warp {
 	NUM_DWARP
 } dungeon_warp;
 
+typedef enum dungeon_warp_type {
+	WRPT_NONE,
+	WRPT_L1_UP,
+	WRPT_L1_DOWN,
+	WRPT_L1_SKING,
+	WRPT_L1_PWATER,
+	WRPT_L2_UP,
+	WRPT_L2_DOWN,
+	WRPT_L3_UP,
+	WRPT_L3_DOWN,
+	WRPT_L4_UP,
+	WRPT_L4_DOWN,
+	WRPT_L4_PENTA,
+	WRPT_CIRCLE,
+} dungeon_warp_type;
+
 typedef enum dungeon_level {
 	DLV_TOWN,
 	DLV_CATHEDRAL1,

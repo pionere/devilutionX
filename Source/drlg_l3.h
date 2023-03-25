@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 void LoadL3Dungeon(const LevelData* lds);
-void CreateL3Dungeon(int entry);
+void CreateL3Dungeon();
 
 #ifdef __cplusplus
 }

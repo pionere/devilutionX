@@ -44,7 +44,7 @@ extern "C" {
 #define LAZ_CIRCLE_X (DBORDERX + 19)
 #define LAZ_CIRCLE_Y (DBORDERY + 30)
 
-void CreateL4Dungeon(int entry);
+void CreateL4Dungeon();
 
 #ifdef __cplusplus
 }

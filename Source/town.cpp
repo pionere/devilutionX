@@ -269,60 +269,14 @@ static void T_Pass3()
 
 /**
  * @brief Initialize town level
- * @param entry Methode of entry
  */
-void CreateTown(int entry)
+void CreateTown()
 {
 	int i, *dp;
 	BYTE pc, *dsp;
 
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
-
-	if (entry == ENTRY_MAIN) {
-		// New game
-		ViewX = 65 + DBORDERX;
-		ViewY = 58 + DBORDERY;
-	/*} else if (entry == ENTRY_PREV) { // Cathedral
-		ViewX = 15 + DBORDERX;
-		ViewY = 21 + DBORDERY;*/
-	} else if (entry == ENTRY_TWARPUP) {
-		switch (gbTWarpFrom) {
-		case TWARP_CATHEDRAL:
-			ViewX = 15 + DBORDERX;
-			ViewY = 21 + DBORDERY;
-			break;
-		case TWARP_CATACOMB:
-			ViewX = 39 + DBORDERX;
-			ViewY = 12 + DBORDERY;
-			break;
-		case TWARP_CAVES:
-			ViewX = 8 + DBORDERX;
-			ViewY = 59 + DBORDERY;
-			break;
-		case TWARP_HELL:
-			ViewX = 31 + DBORDERX;
-			ViewY = 71 + DBORDERY;
-			break;
-#ifdef HELLFIRE
-		case TWARP_CRYPT:
-			ViewX = 26 + DBORDERX;
-			ViewY = 15 + DBORDERY;
-			break;
-		case TWARP_NEST:
-			ViewX = 69 + DBORDERX;
-			ViewY = 52 + DBORDERY;
-			break;
-#endif
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-	} else if (entry == ENTRY_RETOWN) {
-		// Restart in Town
-		ViewX = 63 + DBORDERX;
-		ViewY = 70 + DBORDERY;
-	}
 
 	T_Pass3();
 

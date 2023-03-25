@@ -3184,7 +3184,7 @@ static void L2DoorFix2()
 	}
 }
 
-static void DRLG_L2(int entry)
+static void DRLG_L2()
 {
 	while (true) {
 		do {
@@ -3201,7 +3201,6 @@ static void DRLG_L2(int entry)
 			DRLG_L2SetRoom(setpc_x, setpc_y);
 		}
 
-		memset(pWarps, 0, sizeof(pWarps));
 		POS32 warpPos = DRLG_PlaceMiniSet(L2USTAIRS); // L2USTAIRS (5, 3)
 		if (warpPos.x < 0) {
 			continue;
@@ -3210,6 +3209,7 @@ static void DRLG_L2(int entry)
 		pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
 		pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
 		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+		pWarps[DWARP_ENTRY]._wtype = WRPT_L2_UP;
 		warpPos = DRLG_PlaceMiniSet(L2DSTAIRS); // L2DSTAIRS (3, 5)
 		if (warpPos.x < 0) {
 			continue;
@@ -3218,6 +3218,7 @@ static void DRLG_L2(int entry)
 		pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
 		pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
 		pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+		pWarps[DWARP_EXIT]._wtype = WRPT_L2_DOWN;
 		if (currLvl._dLevelIdx == DLV_CATACOMBS1) {
 			warpPos = DRLG_PlaceMiniSet(L2TWARP); // L2TWARP (5, 3)
 			if (warpPos.x < 0) {
@@ -3227,6 +3228,7 @@ static void DRLG_L2(int entry)
 			pWarps[DWARP_TOWN]._wy = warpPos.y + 1;
 			pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
 			pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
+			pWarps[DWARP_TOWN]._wtype = WRPT_L2_UP;
 		}
 
 		if (setpc_type == SPT_BCHAMB) {
@@ -3234,31 +3236,7 @@ static void DRLG_L2(int entry)
 			pWarps[DWARP_SIDE]._wy = setpc_y + 3;
 			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
 			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
-		}
-
-		if (entry == ENTRY_MAIN) {
-			ViewX = pWarps[DWARP_ENTRY]._wx;
-			ViewY = pWarps[DWARP_ENTRY]._wy;
-			ViewX += 1;
-			ViewY += 1;
-		}
-		if (entry == ENTRY_PREV) {
-			ViewX = pWarps[DWARP_EXIT]._wx;
-			ViewY = pWarps[DWARP_EXIT]._wy;
-			ViewX += -1;
-			ViewY += 1;
-		}
-		if (entry == ENTRY_TWARPDN) {
-			ViewX = pWarps[DWARP_TOWN]._wx;
-			ViewY = pWarps[DWARP_TOWN]._wy;
-			ViewX += 1;
-			ViewY += 1;
-		}
-		if (entry == ENTRY_RTNLVL) {
-			ViewX = pWarps[DWARP_SIDE]._wx;
-			ViewY = pWarps[DWARP_SIDE]._wy;
-			ViewX += 1;
-			ViewY += 1;
+			pWarps[DWARP_SIDE]._wtype = WRPT_L2_UP;
 		}
 		break;
 	}
@@ -3510,8 +3488,9 @@ void LoadL2Dungeon(const LevelData* lds)
 {
 	BYTE* pMap;
 
-	ViewX = lds->dSetLvlDunX;
-	ViewY = lds->dSetLvlDunY;
+	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
+	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
+	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
 
 	// load pre-dungeon
 	pMap = LoadL2DungeonData(lds->dSetLvlPreDun);
@@ -3539,7 +3518,7 @@ void LoadL2Dungeon(const LevelData* lds)
 	mem_free_dbg(pMap);
 }
 
-void CreateL2Dungeon(int entry)
+void CreateL2Dungeon()
 {
 	// in the original version the function was executed twice in case the quest of the
 	// current level was not available (only in single player mode). The point of this
@@ -3547,7 +3526,7 @@ void CreateL2Dungeon(int entry)
 	// much sense due to the stairs placement are 'wrong' anyway. Just to have a reasonable
 	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
 	DRLG_LoadL2SP();
-	DRLG_L2(entry);
+	DRLG_L2();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
 	DRLG_FreeL2SP();
 	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);

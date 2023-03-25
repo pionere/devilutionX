@@ -141,26 +141,23 @@ void IncProgress()
 	//return sgdwProgress >= BAR_WIDTH;
 }
 
-/**
- * @param lvldir method of entry
- */
-static void CreateLevel(int lvldir)
+static void CreateLevel()
 {
 	switch (currLvl._dDunType) {
 	case DTYPE_TOWN:
-		CreateTown(lvldir);
+		CreateTown();
 		break;
 	case DTYPE_CATHEDRAL:
-		CreateL1Dungeon(lvldir);
+		CreateL1Dungeon();
 		break;
 	case DTYPE_CATACOMBS:
-		CreateL2Dungeon(lvldir);
+		CreateL2Dungeon();
 		break;
 	case DTYPE_CAVES:
-		CreateL3Dungeon(lvldir);
+		CreateL3Dungeon();
 		break;
 	case DTYPE_HELL:
-		CreateL4Dungeon(lvldir);
+		CreateL4Dungeon();
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -201,7 +198,7 @@ void LoadGameLevel(int lvldir)
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
 	if (!currLvl._dSetLvl) {
-		CreateLevel(lvldir);
+		CreateLevel();
 		IncProgress();
 		if (currLvl._dType != DTYPE_TOWN) {
 			GetLevelMTypes();
@@ -216,9 +213,6 @@ void LoadGameLevel(int lvldir)
 		}
 		IncProgress();
 		IncProgress();
-
-		if (lvldir == ENTRY_WARPLVL)
-			GetPortalLvlPos();
 
 		if (currLvl._dType != DTYPE_TOWN) {
 			HoldThemeRooms();
@@ -244,14 +238,12 @@ void LoadGameLevel(int lvldir)
 		IncProgress();
 		IncProgress();
 
-		if (lvldir == ENTRY_WARPLVL)
-			GetPortalLvlPos();
-
 		InitItems();
 	}
 	IncProgress();
 	InitMissiles();
 	SavePreLighting();
+	InitView(lvldir);
 
 	IncProgress();
 
