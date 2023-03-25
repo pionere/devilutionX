@@ -1379,7 +1379,7 @@ int AddObject(int type, int ox, int oy)
 	os->_oy = oy;
 	assert(dObject[ox][oy] == 0);
 	dObject[ox][oy] = oi + 1;
-	dFlags[ox][oy] |= BFLAG_POPULATED;
+	// dFlags[ox][oy] |= BFLAG_POPULATED;
 	if (nSolidTable[dPiece[ox][oy]] && (os->_oModeFlags & OMF_FLOOR)) {
 		dObject[ox][oy] = 0;
 		os->_oModeFlags |= OMF_RESERVED;
