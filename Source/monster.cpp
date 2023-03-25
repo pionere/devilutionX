@@ -716,18 +716,6 @@ void WakeUberDiablo()
 }
 #endif
 
-void AddMonster(int x, int y, int dir, int mtidx)
-{
-	int mnum;
-
-	if (nummonsters < MAXMONSTERS) {
-		mnum = nummonsters;
-		nummonsters++;
-		dMonster[x][y] = mnum + 1;
-		InitMonster(mnum, dir, mtidx, x, y);
-	}
-}
-
 int SummonMonster(int x, int y, int dir, int mtidx)
 {
 	unsigned mnum;
@@ -760,6 +748,13 @@ static int PlaceMonster(int mtidx, int x, int y)
 	dir = random_(90, NUM_DIRS);
 	InitMonster(mnum, dir, mtidx, x, y);
 	return mnum;
+}
+
+void AddMonster(int mtidx, int x, int y)
+{
+	if (nummonsters < MAXMONSTERS) {
+		PlaceMonster(mtidx, x, y);
+	}
 }
 
 static void PlaceGroup(int mtidx, int num, int leaderf, int leader)

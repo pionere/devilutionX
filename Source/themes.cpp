@@ -490,7 +490,7 @@ static void PlaceThemeMonsts(BYTE tv, int rndfrq)
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
 				if (random_low(0, rndfrq) == 0) {
-					AddMonster(xx, yy, random_(0, NUM_DIRS), mtype);
+					AddMonster(mtype, xx, yy);
 				}
 			}
 		}
@@ -581,7 +581,7 @@ static void Theme_MonstPit(BYTE tv)
 static void AddSkelMonster(int x, int y)
 {
 	assert(PosOkActor(x, y));
-	AddMonster(x, y, random_(11, NUM_DIRS), mapSkelTypes[random_low(136, numSkelTypes)]);
+	AddMonster(mapSkelTypes[random_low(136, numSkelTypes)], x, y);
 }
 
 /**
@@ -822,7 +822,7 @@ static void Theme_GoatShrine(BYTE tv)
 		xx = themex + offset_x[i];
 		yy = themey + offset_y[i];
 		assert(dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]);
-		AddMonster(xx, yy, OPPOSITE(i), mapGoatTypes[0]);
+		AddMonster(mapGoatTypes[0], xx, yy); // OPPOSITE(i)
 	}
 }
 

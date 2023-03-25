@@ -43,7 +43,7 @@ void InitMonsters();
 void SetMapMonsters(BYTE* pMap, int startx, int starty);
 void MonChangeMap();
 void InitMonster(int mnum, int dir, int mtidx, int x, int y);
-void AddMonster(int x, int y, int dir, int mtidx);
+void AddMonster(int mtidx, int x, int y);
 int SummonMonster(int x, int y, int dir, int mtidx);
 void RemoveMonFromMap(int mnum);
 void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy);
