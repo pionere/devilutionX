@@ -1192,8 +1192,8 @@ static void L4FirstRoom()
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
 		if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
-			w = pSetPieces[0]._spData[0] + 4; // TODO: add border to the setmaps
-			h = pSetPieces[0]._spData[2] + 4;
+			w = SwapLE16(*(uint16_t*)&pSetPieces[0]._spData[0]) + 4; // TODO: add border to the setmaps
+			h = SwapLE16(*(uint16_t*)&pSetPieces[0]._spData[2]) + 4;
 			if (pSetPieces[0]._sptype == SPT_WARLORD)
 				w--;
 		} else {

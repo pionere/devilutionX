@@ -2812,8 +2812,8 @@ static void DRLG_L2CreateDungeon()
 	ForceH = 0;
 
 	if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
-		ForceW = pSetPieces[0]._spData[0] + 3; // TODO: add border to the setmaps?
-		ForceH = pSetPieces[0]._spData[2] + 3;
+		ForceW = SwapLE16(*(uint16_t*)&pSetPieces[0]._spData[0]) + 3; // TODO: add border to the setmaps?
+		ForceH = SwapLE16(*(uint16_t*)&pSetPieces[0]._spData[2]) + 3;
 	}
 
 	nRoomCnt = 0;

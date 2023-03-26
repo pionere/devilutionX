@@ -958,27 +958,28 @@ void DRLG_SetMapTrans(BYTE* pMap)
 	}
 }
 
-static void Make_SetPC(int x, int y, int w, int h)
-{
-	int i, j, x0, x1, y0, y1;
-
-	x0 = 2 * x + DBORDERX;
-	y0 = 2 * y + DBORDERY;
-	x1 = 2 * w + x0;
-	y1 = 2 * h + y0;
-
-	for (j = y0; j < y1; j++) {
-		for (i = x0; i < x1; i++) {
-			dFlags[i][j] |= BFLAG_POPULATED;
-		}
-	}
-}
-
 void DRLG_SetPC()
 {
-	for (int i = 0; i < lengthof(pSetPieces); i++) {
-		if (pSetPieces[i]._spData != NULL) // pSetPieces[i]._sptype != SPT_NONE)
-			Make_SetPC(pSetPieces[i]._spx, pSetPieces[i]._spy, pSetPieces[i]._spData[0], pSetPieces[i]._spData[2]);
+	int x, y, w, h, i, j, x0, x1, y0, y1;
+
+	for (int n = lengthof(pSetPieces) - 1; n >= 0; n--) {
+		if (pSetPieces[n]._spData != NULL) { // pSetPieces[n]._sptype != SPT_NONE
+			x = pSetPieces[n]._spx;
+			y = pSetPieces[n]._spy;
+			w = SwapLE16(*(uint16_t*)&pSetPieces[n]._spData[0]);
+			h = SwapLE16(*(uint16_t*)&pSetPieces[n]._spData[2]);
+
+			x0 = 2 * x + DBORDERX;
+			y0 = 2 * y + DBORDERY;
+			x1 = 2 * w + x0;
+			y1 = 2 * h + y0;
+
+			for (j = y0; j < y1; j++) {
+				for (i = x0; i < x1; i++) {
+					dFlags[i][j] |= BFLAG_POPULATED;
+				}
+			}
+		}
 	}
 }
 
