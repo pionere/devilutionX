@@ -4212,7 +4212,7 @@ void GetObjectStr(int oi)
 #ifdef HELLFIRE
 void OpenUberRoom()
 {
-	ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
+	ObjChangeMap(setpc_x + 2, setpc_y + 2, setpc_x + 2, setpc_y + 3/*, false*/);
 }
 #endif
 
