@@ -23,7 +23,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int trapid;
 static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
-int objectactive[MAXOBJECTS];
+// int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
 int leverid;
@@ -1374,7 +1374,7 @@ int AddObject(int type, int ox, int oy)
 
 //	oi = objectavail[0];
 	oi = numobjects;
-	objectactive[numobjects] = oi;
+	// objectactive[numobjects] = oi;
 	numobjects++;
 //	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
 	SetupObject(oi, type);
@@ -1844,7 +1844,7 @@ void ProcessObjects()
 	int i, oi;
 
 	for (i = 0; i < numobjects; ++i) {
-		oi = objectactive[i];
+		oi = i; // objectactive[i];
 		if (objects[oi]._oProc != OPF_NONE)
 			OiProc[objects[oi]._oProc](oi);
 
@@ -2200,7 +2200,7 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	y2 = 2 * y2 + DBORDERY + 1;
 	// activate objects
 	for (i = 0; i < numobjects; i++) {
-		int oi = objectactive[i];
+		int oi = i; // objectactive[i];
 		ObjectStruct* os = &objects[oi];
 		if (!(os->_oModeFlags & OMF_RESERVED))
 			continue;
@@ -2232,7 +2232,7 @@ static bool CheckLeverGroup(int type, int lvrIdx)
 	int i;
 
 	for (i = 0; i < numobjects; i++) {
-		os = &objects[objectactive[i]]; 
+		os = &objects[i]; // objects[objectactive[i]]
 		if (os->_otype != type) // OBJ_SWITCHSKL, OBJ_LEVER, OBJ_BOOK2L or OBJ_L5LEVER
 			continue;
 		if (lvrIdx != os->_oVar8 || !(os->_oModeFlags & OMF_ACTIVE)) // LEVER_INDEX
@@ -2248,7 +2248,7 @@ static bool CheckCrux(int lvrIdx)
 	int i;
 
 	for (i = 0; i < numobjects; i++) {
-		os = &objects[objectactive[i]];
+		os = &objects[i]; // objects[objectactive[i]]
 		if (os->_otype != OBJ_CRUXM && os->_otype != OBJ_CRUXR && os->_otype != OBJ_CRUXL)
 			continue;
 		if (os->_oVar8 != lvrIdx || os->_oBreak == OBM_BROKEN) // LEVER_INDEX
@@ -3020,10 +3020,10 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		break;
 	case SHRINE_THAUMATURGIC:
 		for (i = 0; i < numobjects; i++) {
-			os = &objects[objectactive[i]];
+			os = &objects[i]; // objects[objectactive[i]];
 			if ((os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3)
 			 || (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3)) {
-				CloseChest(objectactive[i]);
+				CloseChest(i); // objectactive[i]
 			}
 		}
 		assert(pnum == mypnum);

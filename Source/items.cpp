@@ -2328,7 +2328,7 @@ void PlaceRock()
 		return; // should never be the case
 
 	for (i = 0; i < numobjects; i++) {
-		oi = objectactive[i];
+		oi = i; // objectactive[i];
 		if (objects[oi]._otype == OBJ_STAND)
 			break;
 	}

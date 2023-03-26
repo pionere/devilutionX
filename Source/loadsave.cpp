@@ -686,15 +686,15 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 			for (i = 0; i < nummissiles; i++)
 				src = LoadMissile(src, missileactive[i]);
 		}
-		LE_LOAD_INTS(objectactive, src, lengthof(objectactive));
-		src += lengthof(objectactive) * sizeof(LE_INT32);
+//		LE_LOAD_INTS(objectactive, src, lengthof(objectactive));
+//		src += lengthof(objectactive) * sizeof(LE_INT32);
 //		LE_LOAD_INTS(objectavail, src, lengthof(objectavail));
 //		src += lengthof(objectavail) * sizeof(LE_INT32);
 		for (i = 0; i < numobjects; i++)
-			src = LoadObject(src, objectactive[i], full);
+			src = LoadObject(src, i, full); // objectactive[i]
 		// run in a separate loop because objects (e.g. crux) might depend on each other
 		for (i = 0; i < numobjects; i++)
-			SyncObjectAnim(objectactive[i]);
+			SyncObjectAnim(i); // objectactive[i]
 	} else { // currLvl._dType == DTYPE_TOWN
 		lms = (LSaveGameLvlMetaStruct*)src;
 		if (full)
@@ -1519,12 +1519,12 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 			for (i = 0; i < nummissiles; i++)
 				dest = SaveMissile(dest, missileactive[i]);
 		}
-		LE_SAVE_INTS(dest, objectactive, lengthof(objectactive));
-		dest += lengthof(objectactive) * sizeof(LE_INT32);
+//		LE_SAVE_INTS(dest, objectactive, lengthof(objectactive));
+//		dest += lengthof(objectactive) * sizeof(LE_INT32);
 //		LE_SAVE_INTS(dest, objectavail, lengthof(objectavail));
 //		dest += lengthof(objectavail) * sizeof(LE_INT32);
 		for (i = 0; i < numobjects; i++)
-			dest = SaveObject(dest, objectactive[i]);
+			dest = SaveObject(dest, i); // objectactive[i]
 	} else {
 		lms = (LSaveGameLvlMetaStruct*)dest;
 		if (full)

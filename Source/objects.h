@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int objectactive[MAXOBJECTS];
+//extern int objectactive[MAXOBJECTS];
 extern int numobjects;
 //extern int objectavail[MAXOBJECTS];
 extern ObjectStruct objects[MAXOBJECTS];
