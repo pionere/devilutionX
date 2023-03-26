@@ -1764,90 +1764,78 @@ static void DRLG_L2Shadows()
 
 static void DRLG_LoadL2SP()
 {
-	DRLG_InitSetPC();
-	assert(pSetPiece == NULL);
+	// assert(pSetPieces[0]._spData == NULL);
 	if (QuestStatus(Q_BLIND)) {
-		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blind1.DUN");
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blind1.DUN");
 		// patch the map - Blind1.DUN
 		// place pieces with closed doors
-		pSetPiece[(2 + 4 + 3 * 11) * 2] = 150;
-		pSetPiece[(2 + 6 + 7 * 11) * 2] = 150;
+		pSetPieces[0]._spData[(2 + 4 + 3 * 11) * 2] = 150;
+		pSetPieces[0]._spData[(2 + 6 + 7 * 11) * 2] = 150;
 		// ensure the changing tiles are reserved
 		for (int y = 0; y < 11; y++) {
 			for (int x = 0; x < 11; x++) {
-				if (pSetPiece[(2 + x + y * 11) * 2] == 0)
-					pSetPiece[(2 + x + y * 11) * 2] = DEFAULT_MEGATILE_L2;
+				if (pSetPieces[0]._spData[(2 + x + y * 11) * 2] == 0)
+					pSetPieces[0]._spData[(2 + x + y * 11) * 2] = DEFAULT_MEGATILE_L2;
 			}
 		}
-		setpc_type = SPT_BLIND;
+		pSetPieces[0]._sptype = SPT_BLIND;
 	} else if (QuestStatus(Q_BLOOD)) {
-		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
 		// ensure the inner tiles are reserved
-		pSetPiece[(2 + 5 + 12 * 10) * 2] = 3;
-		setpc_type = SPT_BLOOD;
+		pSetPieces[0]._spData[(2 + 5 + 12 * 10) * 2] = 3;
+		pSetPieces[0]._sptype = SPT_BLOOD;
 	} else if (QuestStatus(Q_BCHAMB)) {
-		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
 		// patch the map - Bonestr2.DUN
 		// place shadows
 		// NE-wall
-		pSetPiece[(2 + 1 + 0 * 7) * 2] = 49;
-		pSetPiece[(2 + 2 + 0 * 7) * 2] = 46;
-		pSetPiece[(2 + 3 + 0 * 7) * 2] = 49;
-		pSetPiece[(2 + 4 + 0 * 7) * 2] = 46;
+		pSetPieces[0]._spData[(2 + 1 + 0 * 7) * 2] = 49;
+		pSetPieces[0]._spData[(2 + 2 + 0 * 7) * 2] = 46;
+		pSetPieces[0]._spData[(2 + 3 + 0 * 7) * 2] = 49;
+		pSetPieces[0]._spData[(2 + 4 + 0 * 7) * 2] = 46;
 		// SW-wall
-		pSetPiece[(2 + 1 + 4 * 7) * 2] = 49;
-		pSetPiece[(2 + 2 + 4 * 7) * 2] = 46;
-		pSetPiece[(2 + 3 + 4 * 7) * 2] = 49;
-		pSetPiece[(2 + 4 + 4 * 7) * 2] = 46;
+		pSetPieces[0]._spData[(2 + 1 + 4 * 7) * 2] = 49;
+		pSetPieces[0]._spData[(2 + 2 + 4 * 7) * 2] = 46;
+		pSetPieces[0]._spData[(2 + 3 + 4 * 7) * 2] = 49;
+		pSetPieces[0]._spData[(2 + 4 + 4 * 7) * 2] = 46;
 		// NW-wall
-		pSetPiece[(2 + 0 + 0 * 7) * 2] = 48;
-		pSetPiece[(2 + 0 + 1 * 7) * 2] = 51;
-		pSetPiece[(2 + 0 + 2 * 7) * 2] = 47;
-		pSetPiece[(2 + 0 + 3 * 7) * 2] = 51;
-		pSetPiece[(2 + 0 + 4 * 7) * 2] = 47;
-		pSetPiece[(2 + 0 + 5 * 7) * 2] = 50;
+		pSetPieces[0]._spData[(2 + 0 + 0 * 7) * 2] = 48;
+		pSetPieces[0]._spData[(2 + 0 + 1 * 7) * 2] = 51;
+		pSetPieces[0]._spData[(2 + 0 + 2 * 7) * 2] = 47;
+		pSetPieces[0]._spData[(2 + 0 + 3 * 7) * 2] = 51;
+		pSetPieces[0]._spData[(2 + 0 + 4 * 7) * 2] = 47;
+		pSetPieces[0]._spData[(2 + 0 + 5 * 7) * 2] = 50;
 		// SE-wall
-		pSetPiece[(2 + 4 + 1 * 7) * 2] = 51;
-		pSetPiece[(2 + 4 + 2 * 7) * 2] = 47;
-		pSetPiece[(2 + 4 + 3 * 7) * 2] = 50; // 51;
+		pSetPieces[0]._spData[(2 + 4 + 1 * 7) * 2] = 51;
+		pSetPieces[0]._spData[(2 + 4 + 2 * 7) * 2] = 47;
+		pSetPieces[0]._spData[(2 + 4 + 3 * 7) * 2] = 50; // 51;
 		// commented out because there is no matching shadow type
-		//pSetPiece[(2 + 4 + 5 * 7) * 2] = 47;
+		//pSetPieces[0]._spData[(2 + 4 + 5 * 7) * 2] = 47;
 		// ensure the changing tiles are reserved
 		for (int y = 0; y < 7; y++) {
 			for (int x = 0; x < 7; x++) {
-				if (pSetPiece[(2 + x + y * 7) * 2] == 0)
-					pSetPiece[(2 + x + y * 7) * 2] = DEFAULT_MEGATILE_L2;
+				if (pSetPieces[0]._spData[(2 + x + y * 7) * 2] == 0)
+					pSetPieces[0]._spData[(2 + x + y * 7) * 2] = DEFAULT_MEGATILE_L2;
 			}
 		}
-		setpc_type = SPT_BCHAMB;
+		pSetPieces[0]._sptype = SPT_BCHAMB;
 	}
-	if (setpc_type != SPT_NONE) {
-		setpc_w = SwapLE16(*(uint16_t*)&pSetPiece[0]);
-		setpc_h = SwapLE16(*(uint16_t*)&pSetPiece[2]);
-	}
-}
-
-static void DRLG_FreeL2SP()
-{
-	MemFreeDbg(pSetPiece);
 }
 
 /*
  * Draw set-room + reserve its tiles.
  */
-static void DRLG_L2SetRoom(int rx1, int ry1)
+static void DRLG_L2SetRoom(int idx)
 {
-	int rw, rh, i, j;
+	int rx1, ry1, rw, rh, i, j;
 	BYTE* sp;
 
-	// assert(setpc_x == rx1);
-	// assert(setpc_y == ry1);
+	rx1 = pSetPieces[idx]._spx;
+	ry1 = pSetPieces[idx]._spy;
 
-	// assert(setpc_w == SwapLE16(*(uint16_t*)&pSetPiece[0]));
-	// assert(setpc_h == SwapLE16(*(uint16_t*)&pSetPiece[2]));
-	rw = setpc_w;
-	rh = setpc_h;
-	sp = &pSetPiece[4];
+	rw = SwapLE16(*(uint16_t*)&pSetPieces[idx]._spData[0]);
+	rh = SwapLE16(*(uint16_t*)&pSetPieces[idx]._spData[2]);
+	sp = &pSetPieces[idx]._spData[4];
 
 	rw += rx1;
 	rh += ry1;
@@ -2823,17 +2811,17 @@ static void DRLG_L2CreateDungeon()
 	ForceW = 0;
 	ForceH = 0;
 
-	if (pSetPiece != NULL) { // setpc_type != SPT_NONE
-		ForceW = setpc_w + 3; // TODO: add border to the setmaps?
-		ForceH = setpc_h + 3;
+	if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
+		ForceW = pSetPieces[0]._spData[0] + 3; // TODO: add border to the setmaps?
+		ForceH = pSetPieces[0]._spData[2] + 3;
 	}
 
 	nRoomCnt = 0;
 	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, -1, HDIR_NONE, ForceW, ForceH);
 
-	if (pSetPiece != NULL) { // setpc_type != SPT_NONE
-		setpc_x = RoomList[0].nRoomx1 + 2;
-		setpc_y = RoomList[0].nRoomy1 + 2;
+	if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
+		pSetPieces[0]._spx = RoomList[0].nRoomx1 + 2;
+		pSetPieces[0]._spy = RoomList[0].nRoomy1 + 2;
 	}
 
 	for (i = 1; i < nRoomCnt; i++) {
@@ -3197,8 +3185,8 @@ static void DRLG_L2()
 
 		L2TileFix();
 		memset(drlgFlags, 0, sizeof(drlgFlags));
-		if (pSetPiece != NULL) { // setpc_type != SPT_NONE
-			DRLG_L2SetRoom(setpc_x, setpc_y);
+		if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
+			DRLG_L2SetRoom(0);
 		}
 
 		POS32 warpPos = DRLG_PlaceMiniSet(L2USTAIRS); // L2USTAIRS (5, 3)
@@ -3231,9 +3219,9 @@ static void DRLG_L2()
 			pWarps[DWARP_TOWN]._wtype = WRPT_L2_UP;
 		}
 
-		if (setpc_type == SPT_BCHAMB) {
-			pWarps[DWARP_SIDE]._wx = setpc_x + 3; // L2USTAIRS (5, 3)
-			pWarps[DWARP_SIDE]._wy = setpc_y + 3;
+		if (pSetPieces[0]._sptype == SPT_BCHAMB) {
+			pWarps[DWARP_SIDE]._wx = pSetPieces[0]._spx + 3; // L2USTAIRS (5, 3)
+			pWarps[DWARP_SIDE]._wy = pSetPieces[0]._spy + 3;
 			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
 			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
 			pWarps[DWARP_SIDE]._wtype = WRPT_L2_UP;
@@ -3361,33 +3349,42 @@ static void DRLG_L2()
 
 	DRLG_Init_Globals();
 
-	if (setpc_type == SPT_BLIND) {
-		DRLG_DrawMap("Levels\\L2Data\\Blind2.DUN");
+	if (pSetPieces[0]._sptype == SPT_BLIND) {
+		// load pre-map
+		MemFreeDbg(pSetPieces[0]._spData);
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blind2.DUN");
 		// patch the map - Blind2.DUN
 		// replace the door with wall
-		dungeon[setpc_x + 4][setpc_y + 3] = 25;
-	} else if (setpc_type == SPT_BLOOD) {
-		DRLG_DrawMap("Levels\\L2Data\\Blood2.DUN");
+		pSetPieces[0]._spData[(2 + 4 + 3 * 11) * 2] = 25;
+		DRLG_DrawMap(0);
+	} else if (pSetPieces[0]._sptype == SPT_BLOOD) {
+		// load pre-map
+		MemFreeDbg(pSetPieces[0]._spData);
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
 		// patch the map - Blood2.DUN
 		// place pieces with closed doors
-		dungeon[setpc_x + 4][setpc_y + 10] = 151;
-		dungeon[setpc_x + 4][setpc_y + 15] = 151;
-		dungeon[setpc_x + 5][setpc_y + 15] = 151;
+		pSetPieces[0]._spData[(2 + 4 + 10 * 10) * 2] = 151;
+		pSetPieces[0]._spData[(2 + 4 + 15 * 10) * 2] = 151;
+		pSetPieces[0]._spData[(2 + 5 + 15 * 10) * 2] = 151;
 		// shadow of the external-left column -- do not place to prevent overwriting large decorations
-		//dungeon[setpc_x - 1][setpc_y + 7] = 48;
-		//dungeon[setpc_x - 1][setpc_y + 8] = 50;
+		//dungeon[pSetPieces[0]._spx - 1][pSetPieces[0]._spy + 7] = 48;
+		//dungeon[pSetPieces[0]._spx - 1][pSetPieces[0]._spy + 8] = 50;
 		// shadow of the bottom-left column(s) -- one is missing
-		dungeon[setpc_x + 1][setpc_y + 13] = 48;
-		dungeon[setpc_x + 1][setpc_y + 14] = 50;
+		pSetPieces[0]._spData[(2 + 1 + 13 * 10) * 2] = 48;
+		pSetPieces[0]._spData[(2 + 1 + 14 * 10) * 2] = 50;
 		// shadow of the internal column next to the pedistal
-		dungeon[setpc_x + 5][setpc_y + 7] = 142;
-		dungeon[setpc_x + 5][setpc_y + 8] = 50;
-	} else if (setpc_type == SPT_BCHAMB) {
-		DRLG_DrawMap("Levels\\L2Data\\Bonestr1.DUN");
+		pSetPieces[0]._spData[(2 + 5 + 7 * 10) * 2] = 142;
+		pSetPieces[0]._spData[(2 + 5 + 8 * 10) * 2] = 50;
+		DRLG_DrawMap(0);
+	} else if (pSetPieces[0]._sptype == SPT_BCHAMB) {
+		// load pre-map
+		MemFreeDbg(pSetPieces[0]._spData);
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Bonestr1.DUN");
 		// patch the map - Bonestr1.DUN
 		// shadow of the external-left column
-		dungeon[setpc_x][setpc_y + 4] = 48;
-		dungeon[setpc_x][setpc_y + 5] = 50;
+		pSetPieces[0]._spData[(2 + 0 + 4 * 7) * 2] = 48;
+		pSetPieces[0]._spData[(2 + 0 + 5 * 7) * 2] = 50;
+		DRLG_DrawMap(0);
 	}
 }
 
@@ -3528,7 +3525,6 @@ void CreateL2Dungeon()
 	DRLG_LoadL2SP();
 	DRLG_L2();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
-	DRLG_FreeL2SP();
 	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 	DRLG_SetPC();
 }

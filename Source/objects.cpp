@@ -636,9 +636,9 @@ typedef struct LeverRect {
 	int y2;
 	int leveridx;
 } LeverRect;
-static void LoadMapSetObjects(const char* map, int startx, int starty, const LeverRect* lvrRect)
+static void LoadMapSetObjects(const BYTE* map, int startx, int starty, const LeverRect* lvrRect)
 {
-	BYTE* pMap = LoadFileInMem(map);
+	const BYTE* pMap = map;
 	int i, j, oi;
 	uint16_t rw, rh, *lm;
 
@@ -670,13 +670,11 @@ static void LoadMapSetObjects(const char* map, int startx, int starty, const Lev
 		}
 	}
 	//gbInitObjFlag = false;
-
-	mem_free_dbg(pMap);
 }
 
-static void LoadMapSetObjs(const char* map)
+static void LoadMapSetObjs(const BYTE* map)
 {
-	LoadMapSetObjects(map, 2 * setpc_x, 2 * setpc_y, NULL);
+	LoadMapSetObjects(map, 2 * pSetPieces[0]._spx, 2 * pSetPieces[0]._spy, NULL);
 }
 
 static void SetupObject(int oi, int type)
@@ -719,12 +717,12 @@ static void SetupObject(int oi, int type)
 static void AddDiabObjs()
 {
 	LeverRect lr;
-	lr = { DIAB_QUAD_2X, DIAB_QUAD_2Y, DIAB_QUAD_2X + 11, DIAB_QUAD_2Y + 12, 1 };
-	LoadMapSetObjects("Levels\\L4Data\\diab1.DUN", 2 * DIAB_QUAD_1X, 2 * DIAB_QUAD_1Y, &lr);
-	lr = { DIAB_QUAD_3X, DIAB_QUAD_3Y, DIAB_QUAD_3X + 11, DIAB_QUAD_3Y + 11, 2 };
-	LoadMapSetObjects("Levels\\L4Data\\diab2a.DUN", 2 * DIAB_QUAD_2X, 2 * DIAB_QUAD_2Y, &lr);
-	lr = { DIAB_QUAD_4X, DIAB_QUAD_4Y, DIAB_QUAD_4X + 9, DIAB_QUAD_4Y + 9, 3 };
-	LoadMapSetObjects("Levels\\L4Data\\diab3a.DUN", 2 * DIAB_QUAD_3X, 2 * DIAB_QUAD_3Y, &lr);
+	lr = { pSetPieces[1]._spx, pSetPieces[1]._spy, pSetPieces[1]._spx + 11, pSetPieces[1]._spy + 12, 1 };
+	LoadMapSetObjects(pSetPieces[0]._spData, 2 * pSetPieces[0]._spx, 2 * pSetPieces[0]._spy, &lr);
+	lr = { pSetPieces[2]._spx, pSetPieces[2]._spy, pSetPieces[2]._spx + 11, pSetPieces[2]._spy + 11, 2 };
+	LoadMapSetObjects(pSetPieces[1]._spData, 2 * pSetPieces[1]._spx, 2 * pSetPieces[1]._spy, &lr);
+	lr = { pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3 };
+	LoadMapSetObjects(pSetPieces[2]._spData, 2 * pSetPieces[2]._spx, 2 * pSetPieces[2]._spy, &lr);
 }
 
 #ifdef HELLFIRE
@@ -772,8 +770,8 @@ static void AddUberLever()
 {
 	int oi;
 
-	oi = AddObject(OBJ_L5LEVER, 2 * setpc_x + DBORDERX + 7, 2 * setpc_y + DBORDERY + 5);
-	SetObjMapRange(oi, setpc_x + 2, setpc_y + 2, setpc_x + 2, setpc_y + 3, 1);
+	oi = AddObject(OBJ_L5LEVER, 2 * pSetPieces[0]._spx + DBORDERX + 7, 2 * pSetPieces[0]._spy + DBORDERY + 5);
+	SetObjMapRange(oi, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3, 1);
 }
 
 static void AddLvl24Books()
@@ -804,9 +802,9 @@ static void AddLvl24Books()
 		ASSUME_UNREACHABLE
 		break;
 	}
-	AddHBooks(books[0], 2 * setpc_x + DBORDERX + 7, 2 * setpc_y + DBORDERY + 6);
-	AddHBooks(books[1], 2 * setpc_x + DBORDERX + 6, 2 * setpc_y + DBORDERY + 3);
-	AddHBooks(books[2], 2 * setpc_x + DBORDERX + 6, 2 * setpc_y + DBORDERY + 8);
+	AddHBooks(books[0], 2 * pSetPieces[0]._spx + DBORDERX + 7, 2 * pSetPieces[0]._spy + DBORDERY + 6);
+	AddHBooks(books[1], 2 * pSetPieces[0]._spx + DBORDERX + 6, 2 * pSetPieces[0]._spy + DBORDERY + 3);
+	AddHBooks(books[2], 2 * pSetPieces[0]._spx + DBORDERX + 6, 2 * pSetPieces[0]._spy + DBORDERY + 8);
 }
 
 static int ProgressUberLever(int bookidx, int status)
@@ -897,7 +895,7 @@ static void AddLazStand()
 	POS32 pos;
 
 	if (IsMultiGame) {
-		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
+		AddObject(OBJ_ALTBOY, 2 * pSetPieces[0]._spx + DBORDERX + 4, 2 * pSetPieces[0]._spy + DBORDERY + 6);
 		return;
 	}
 	pos = RndLoc6x7();
@@ -926,10 +924,10 @@ void InitObjects()
 			AddStoryBook();
 		if (QuestStatus(Q_PWATER))
 			AddCandles();
-		if (setpc_type == SPT_BUTCHER) // QuestStatus(Q_BUTCHER)
-			LoadMapSetObjs("Levels\\L1Data\\Butcher.DUN");
-		if (setpc_type == SPT_BANNER) // QuestStatus(Q_BANNER)
-			AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
+		if (pSetPieces[0]._sptype == SPT_BUTCHER) // QuestStatus(Q_BUTCHER)
+			LoadMapSetObjs(pSetPieces[0]._spData);
+		if (pSetPieces[0]._sptype == SPT_BANNER) // QuestStatus(Q_BANNER)
+			AddObject(OBJ_SIGNCHEST, 2 * pSetPieces[0]._spx + DBORDERX + 10, 2 * pSetPieces[0]._spy + DBORDERY + 3);
 		InitRndSarcs(OBJ_SARC);
 		AddL1Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
 		break;
@@ -938,16 +936,16 @@ void InitObjects()
 			AddStoryBook();
 		if (QuestStatus(Q_ROCK))
 			InitRndLocObj5x5(OBJ_STAND);
-		if (setpc_type == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
-			AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BCHAMB);
+		if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
+			AddBookLever(OBJ_BOOK2R, -1, 0, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spData[0] + pSetPieces[0]._spx, pSetPieces[0]._spData[2] + pSetPieces[0]._spy, Q_BCHAMB);
 		}
-		if (setpc_type == SPT_BLIND) { // QuestStatus(Q_BLIND)
-			AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
-			// LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
+		if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
+			AddBookLever(OBJ_BLINDBOOK, -1, 0, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spData[0] + pSetPieces[0]._spx, pSetPieces[0]._spData[2] + pSetPieces[0]._spy, Q_BLIND);
+			// LoadMapSetObjs(pSetPieces[0]._spData);
 		}
-		if (setpc_type == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
-			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD); // NULL_LVR_EFFECT
-			AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
+		if (pSetPieces[0]._sptype == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
+			AddBookLever(OBJ_BLOODBOOK, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD); // NULL_LVR_EFFECT
+			AddObject(OBJ_PEDISTAL, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 16);
 		}
 		AddL2Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
 		AddL2Torches();
@@ -966,9 +964,17 @@ void InitObjects()
 			AddDiabObjs();
 			return;
 		}
-		if (setpc_type == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
-			AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x + 7, setpc_y + 1, setpc_x + 7, setpc_y + 5, Q_WARLORD);
-			LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
+		if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
+			AddBookLever(OBJ_STEELTOME, -1, 0, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
+			// patch set-piece to add objects - Warlord2.DUN
+			uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 3 * 8 * 2] = 108;
+			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 9 * 8 * 2] = 108;
+			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 2 * 8 * 2] = 109;
+			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 2 * 8 * 2] = 109;
+			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 10 * 8 * 2] = 109;
+			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 10 * 8 * 2] = 109;
+			LoadMapSetObjs(pSetPieces[0]._spData);
 		}
 		if (currLvl._dLevelIdx == DLV_HELL3) // QuestStatus(Q_BETRAYER) / setpc_type == SPT_BETRAYER (single?)
 			AddLazStand();
@@ -2379,7 +2385,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 		quests[qn]._qlog = TRUE;
 		if (qn == Q_BLOOD) {
 			SetRndSeed(os->_oRndSeed);
-			CreateQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, sendmsg ? ICM_SEND : ICM_DUMMY);
+			CreateQuestItemAt(IDI_BLDSTONE, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 17, sendmsg ? ICM_SEND : ICM_DUMMY);
 		}
 		if (sendmsg) {
 			NetSendCmdQuest(qn, true);
@@ -2592,19 +2598,21 @@ static void SyncPedistal(/*int oi*/)
 	case QV_BLOOD_BOOK:
 		break;
 	case QV_BLOOD_STONE2:
-		ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + 9/*setpc_w*/, setpc_y + 7/*, false*/);
+		ObjChangeMap(pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 9/*setpc_w*/, pSetPieces[0]._spy + 7/*, false*/);
 		/* fall-through */
 	case QV_BLOOD_STONE1:
-		ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7/*, false*/);
+		ObjChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 7/*, false*/);
 		break;
-	case QV_BLOOD_STONE3:
+	case QV_BLOOD_STONE3: {
 		//ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
-		ObjChangeMap(setpc_x /*+ 2*/, setpc_y, setpc_x + 9/*6*/, setpc_y + 8/*, false*/);
+		ObjChangeMap(pSetPieces[0]._spx /*+ 2*/, pSetPieces[0]._spy, pSetPieces[0]._spx + 9/*6*/, pSetPieces[0]._spy + 8/*, false*/);
 		LoadPreLighting();
-		LoadMapSetObjs("Levels\\L2Data\\Blood2.DUN");
+		BYTE* setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
+		LoadMapSetObjs(setp);
+		mem_free_dbg(setp);
 		SavePreLighting();
 		//RedoLightAndVision();
-		break;
+	} break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -2648,13 +2656,13 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	case QV_BLOOD_BOOK:
 		break; // should not really happen
 	case QV_BLOOD_STONE1:
-		CreateQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, iv);
+		CreateQuestItemAt(IDI_BLDSTONE, 2 * pSetPieces[0]._spx + DBORDERX + 3, 2 * pSetPieces[0]._spy + DBORDERY + 10, iv);
 		break;
 	case QV_BLOOD_STONE2:
-		CreateQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, iv);
+		CreateQuestItemAt(IDI_BLDSTONE, 2 * pSetPieces[0]._spx + DBORDERX + 15, 2 * pSetPieces[0]._spy + DBORDERY + 10, iv);
 		break;
 	case QV_BLOOD_STONE3:
-		SpawnUnique(UITEM_ARMOFVAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 3, iv);
+		SpawnUnique(UITEM_ARMOFVAL, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 3, iv);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -4212,7 +4220,7 @@ void GetObjectStr(int oi)
 #ifdef HELLFIRE
 void OpenUberRoom()
 {
-	ObjChangeMap(setpc_x + 2, setpc_y + 2, setpc_x + 2, setpc_y + 3/*, false*/);
+	ObjChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3/*, false*/);
 }
 #endif
 

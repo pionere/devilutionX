@@ -851,37 +851,27 @@ static void DRLG_L1Floor()
 
 static void DRLG_LoadL1SP()
 {
-	DRLG_InitSetPC();
-	assert(pSetPiece == NULL);
+	// assert(pSetPieces[0]._spData == NULL);
 	if (QuestStatus(Q_BANNER)) {
-		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
-		setpc_type = SPT_BANNER;
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
+		pSetPieces[0]._sptype = SPT_BANNER;
 	} else if (QuestStatus(Q_SKELKING)) {
-		pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN");
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN");
 		// patch set-piece to use common tiles - SKngDO.DUN
-		pSetPiece[(2 + 5 + 3 * 7) * 2] = 203;
-		pSetPiece[(2 + 5 + 4 * 7) * 2] = 22;
+		pSetPieces[0]._spData[(2 + 5 + 3 * 7) * 2] = 203;
+		pSetPieces[0]._spData[(2 + 5 + 4 * 7) * 2] = 22;
 		// patch set-piece to use common tiles and make the inner tile at the entrance non-walkable - SKngDO.DUN
-		pSetPiece[(2 + 5 + 2 * 7) * 2] = 203;
-		setpc_type = SPT_SKELKING;
+		pSetPieces[0]._spData[(2 + 5 + 2 * 7) * 2] = 203;
+		pSetPieces[0]._sptype = SPT_SKELKING;
 	} else if (QuestStatus(Q_BUTCHER)) {
-		pSetPiece = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
-		setpc_type = SPT_BUTCHER;
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
+		pSetPieces[0]._sptype = SPT_BUTCHER;
 #ifdef HELLFIRE
 	} else if (QuestStatus(Q_NAKRUL)) {
-		pSetPiece = LoadFileInMem("NLevels\\L5Data\\Nakrul2.DUN");
-		setpc_type = SPT_NAKRUL;
+		pSetPieces[0]._spData = LoadFileInMem("NLevels\\L5Data\\Nakrul2.DUN");
+		pSetPieces[0]._sptype = SPT_NAKRUL;
 #endif
 	}
-	if (setpc_type != SPT_NONE) {
-		setpc_w = SwapLE16(*(uint16_t*)&pSetPiece[0]);
-		setpc_h = SwapLE16(*(uint16_t*)&pSetPiece[2]);
-	}
-}
-
-static void DRLG_FreeL1SP()
-{
-	MemFreeDbg(pSetPiece);
 }
 
 void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
@@ -1609,14 +1599,12 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE* sp;
 
-	setpc_x = rx1;
-	setpc_y = ry1;
+	pSetPieces[0]._spx = rx1;
+	pSetPieces[0]._spy = ry1;
 
-	// assert(setpc_w == SwapLE16(*(uint16_t*)&pSetPiece[0]));
-	// assert(setpc_h == SwapLE16(*(uint16_t*)&pSetPiece[2]));
-	rw = setpc_w;
-	rh = setpc_h;
-	sp = &pSetPiece[4];
+	rw = SwapLE16(*(uint16_t*)&pSetPieces[0]._spData[0]);
+	rh = SwapLE16(*(uint16_t*)&pSetPieces[0]._spData[2]);
+	sp = &pSetPieces[0]._spData[4];
 
 	rw += rx1;
 	rh += ry1;
@@ -1675,7 +1663,7 @@ static void L1FillChambers()
 		}
 	}
 
-	if (pSetPiece != NULL) { // setpc_type != SPT_NONE
+	if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
 		c = ChambersFirst + ChambersMiddle + ChambersLast;
 		c = random_low(0, c);
 		if (ChambersFirst) {
@@ -2541,16 +2529,16 @@ static void DRLG_L1()
 			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
 			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
 			pWarps[DWARP_ENTRY]._wtype = WRPT_L1_UP;
-			if (setpc_type == SPT_SKELKING) {
-				pWarps[DWARP_SIDE]._wx = setpc_x + 6; // L1DSTAIRS (3, 5)
-				pWarps[DWARP_SIDE]._wy = setpc_y + 3;
+			if (pSetPieces[0]._sptype == SPT_SKELKING) {
+				pWarps[DWARP_SIDE]._wx = pSetPieces[0]._spx + 6; // L1DSTAIRS (3, 5)
+				pWarps[DWARP_SIDE]._wy = pSetPieces[0]._spy + 3;
 				pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
 				pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
 				pWarps[DWARP_SIDE]._wtype = WRPT_L1_SKING;
 			}
-			if (setpc_type == SPT_BANNER) {
-				pWarps[DWARP_EXIT]._wx = setpc_x + 1; // L1DSTAIRS (3, 5)
-				pWarps[DWARP_EXIT]._wy = setpc_y + 5;
+			if (pSetPieces[0]._sptype == SPT_BANNER) {
+				pWarps[DWARP_EXIT]._wx = pSetPieces[0]._spx + 1; // L1DSTAIRS (3, 5)
+				pWarps[DWARP_EXIT]._wy = pSetPieces[0]._spy + 5;
 			} else {
 				warpPos = DRLG_PlaceMiniSet(L1DSTAIRS); // L1DSTAIRS (3, 5)
 				if (warpPos.x < 0) {
@@ -2652,20 +2640,23 @@ static void DRLG_L1()
 
 	DRLG_Init_Globals();
 
-	if (setpc_type == SPT_BANNER) {
-		DRLG_DrawMap("Levels\\L1Data\\Banner2.DUN");
+	if (pSetPieces[0]._sptype == SPT_BANNER) {
+		// load pre-map
+		MemFreeDbg(pSetPieces[0]._spData);
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L1Data\\Banner2.DUN");
 		// patch the map - Banner2.DUN
 		// replace the wall with door
-		dungeon[setpc_x + 7][setpc_y + 6] = 193;
+		pSetPieces[0]._spData[(2 + 7 + 6 * 8) * 2] = 193;
 		// fix transVal behind the stairs
 		// - uncommented since the set-map is 'populated' -> monsters are not spawn there
 		//DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x, setpc_y + 5,
 		//	dTransVal[2 * setpc_x + DBORDERX + 1][2 * setpc_y + DBORDERY + 11]);
-	} else if (setpc_type == SPT_SKELKING) {
+		DRLG_DrawMap(0);
+	} else if (pSetPieces[0]._sptype == SPT_SKELKING) {
 		int x, y;
 
-		x = 2 * setpc_x + DBORDERX;
-		y = 2 * setpc_y + DBORDERY;
+		x = 2 * pSetPieces[0]._spx + DBORDERX;
+		y = 2 * pSetPieces[0]._spy + DBORDERY;
 		// fix transVal on the bottom left corner of the box
 		DRLG_CopyTrans(x, y + 11, x + 1, y + 11);
 		DRLG_CopyTrans(x, y + 12, x + 1, y + 12);
@@ -2674,19 +2665,22 @@ static void DRLG_L1()
 		//DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
 		// patch dSolidTable - L1.SOL - commented out because 299 is used elsewhere
 		//nSolidTable[299] = true;
-	} else if (setpc_type == SPT_BUTCHER) {
+	} else if (pSetPieces[0]._sptype == SPT_BUTCHER) {
 		int x, y;
 
-		x = 2 * setpc_x + DBORDERX;
-		y = 2 * setpc_y + DBORDERY;
+		x = 2 * pSetPieces[0]._spx + DBORDERX;
+		y = 2 * pSetPieces[0]._spy + DBORDERY;
 		// fix transVal on the bottom left corner of the room
 		DRLG_CopyTrans(x, y + 9, x + 1, y + 9);
 		DRLG_CopyTrans(x, y + 10, x + 1, y + 10);
 		// set transVal in the room
 		DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
 #ifdef HELLFIRE
-	} else if (setpc_type == SPT_NAKRUL) {
-		DRLG_DrawMap("NLevels\\L5Data\\Nakrul1.DUN");
+	} else if (pSetPieces[0]._sptype == SPT_NAKRUL) {
+		// load pre-map
+		MemFreeDbg(pSetPieces[0]._spData);
+		pSetPieces[0]._spData = LoadFileInMem("NLevels\\L5Data\\Nakrul1.DUN");
+		DRLG_DrawMap(0);
 #endif
 	}
 }
@@ -2696,7 +2690,6 @@ void CreateL1Dungeon()
 	DRLG_LoadL1SP();
 	DRLG_L1();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
-	DRLG_FreeL1SP();
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT)

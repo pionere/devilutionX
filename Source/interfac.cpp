@@ -253,6 +253,7 @@ void LoadGameLevel(int lvldir)
 			IncProgress();
 			InitItems();
 		}
+		FreeSetPieces();
 	} else {
 		LoadSetMap();
 		IncProgress();

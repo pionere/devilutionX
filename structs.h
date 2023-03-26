@@ -2065,6 +2065,13 @@ typedef struct WarpStruct {
 	int _wtype; // dungeon_warp_type
 } WarpStruct;
 
+typedef struct SetPieceStruct {
+	BYTE* _spData;
+	int _spx;
+	int _spy;
+	int _sptype; // _setpiece_type
+} SetPieceStruct;
+
 //////////////////////////////////////////////////
 // quests
 //////////////////////////////////////////////////

@@ -3226,6 +3226,10 @@ typedef enum _setpiece_type {
 	SPT_ANVIL,
 	SPT_BETRAYER,
 	SPT_WARLORD,
+	SPT_DIAB_QUAD_1,
+	SPT_DIAB_QUAD_2,
+	SPT_DIAB_QUAD_3,
+	SPT_DIAB_QUAD_4,
 #ifdef HELLFIRE
 	SPT_NAKRUL,
 #endif
