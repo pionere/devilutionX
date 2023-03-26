@@ -1893,7 +1893,7 @@ static void DRLG_L4()
 	DRLG_Init_Globals();
 
 	if (setpc_type == SPT_WARLORD) {
-		DRLG_DrawMap("Levels\\L4Data\\Warlord2.DUN", DEFAULT_MEGATILE_L4);
+		DRLG_DrawMap("Levels\\L4Data\\Warlord2.DUN");
 	}
 	if (currLvl._dLevelIdx == DLV_HELL4) {
 		DRLG_LoadDiabQuads(false);

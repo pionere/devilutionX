@@ -2653,7 +2653,7 @@ static void DRLG_L1()
 	DRLG_Init_Globals();
 
 	if (setpc_type == SPT_BANNER) {
-		DRLG_DrawMap("Levels\\L1Data\\Banner2.DUN", DEFAULT_MEGATILE_L1);
+		DRLG_DrawMap("Levels\\L1Data\\Banner2.DUN");
 		// patch the map - Banner2.DUN
 		// replace the wall with door
 		dungeon[setpc_x + 7][setpc_y + 6] = 193;
@@ -2686,7 +2686,7 @@ static void DRLG_L1()
 		DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
 #ifdef HELLFIRE
 	} else if (setpc_type == SPT_NAKRUL) {
-		DRLG_DrawMap("NLevels\\L5Data\\Nakrul1.DUN", DEFAULT_MEGATILE_L1);
+		DRLG_DrawMap("NLevels\\L5Data\\Nakrul1.DUN");
 #endif
 	}
 }

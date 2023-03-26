@@ -57,7 +57,7 @@ void DRLG_Init_Globals();
 void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper);
 POS32 DRLG_PlaceMiniSet(const BYTE* miniset);
 void DRLG_PlaceMegaTiles(int idx);
-void DRLG_DrawMap(const char* name, int bv);
+void DRLG_DrawMap(const char* name);
 void DRLG_InitTrans();
 void DRLG_MRectTrans(int x1, int y1, int x2, int y2, int tv);
 void DRLG_RectTrans(int x1, int y1, int x2, int y2);

@@ -748,7 +748,7 @@ void DRLG_PlaceMegaTiles(int mt)
 	}
 }
 
-void DRLG_DrawMap(const char* name, int bv)
+void DRLG_DrawMap(const char* name)
 {
 	int x, y, rw, rh, i, j;
 	BYTE* pMap;
@@ -767,7 +767,10 @@ void DRLG_DrawMap(const char* name, int bv)
 	rh += y;
 	for (j = y; j < rh; j++) {
 		for (i = x; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : bv;
+			// dungeon[i][j] = *sp != 0 ? *sp : bv;
+			if (*sp != 0) {
+				dungeon[i][j] = *sp;
+			}
 			sp += 2;
 		}
 	}
