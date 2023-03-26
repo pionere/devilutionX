@@ -648,13 +648,13 @@ POS32 DRLG_PlaceMiniSet(const BYTE* miniset)
 	sw = miniset[0];
 	sh = miniset[1];
 	// assert(sw < DMAXX && sh < DMAXY);
-	tries = 0;
+	tries = (DMAXX * DMAXY) & ~0xFF;
 	while (TRUE) {
 		if ((tries & 0xFF) == 0) {
 			sx = random_low(0, DMAXX - sw);
 			sy = random_low(0, DMAXY - sh);
 		}
-		if (++tries == DMAXX * DMAXY)
+		if (--tries == 0)
 			return { -1, 0 };
 		ii = 2;
 		done = true;
