@@ -1141,9 +1141,21 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 	}
 }
 
-static void DRLG_L3FloorArea(int x1, int y1, int x2, int y2)
+static void DRLG_L3FloorArea()
 {
-	int i, j;
+	int xr, yb, x1, y1, x2, y2, i, j;
+
+	xr = DMAXX - setpc_w - 10;
+	yb = DMAXY - setpc_h - 10;
+	assert(xr > 10);
+	assert(yb > 10);
+
+	x1 = RandRangeLow(10, xr);
+	y1 = RandRangeLow(10, yb);
+	setpc_x = x1;
+	setpc_y = y1;
+	x2 = x1 + setpc_w;
+	y2 = y1 + setpc_h;
 
 	for (j = y1; j <= y2; j++) {
 		for (i = x1; i <= x2; i++) {
@@ -2150,11 +2162,7 @@ static void DRLG_L3()
 				memset(dungeon, 0, sizeof(dungeon));
 				DRLG_L3CreateBlock(RandRange(10, 29), RandRange(10, 29), 0, 4);
 				if (pSetPiece != NULL) { // setpc_type != SPT_NONE
-					assert(DMAXX - setpc_w - 10 > 10);
-					assert(DMAXY - setpc_h - 10 > 10);
-					setpc_x = RandRangeLow(10, DMAXX - setpc_w - 10);
-					setpc_y = RandRangeLow(10, DMAXY - setpc_h - 10);
-					DRLG_L3FloorArea(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+					DRLG_L3FloorArea();
 				}
 				do {
 					doneflag = !DRLG_L3FillDiags();
