@@ -629,14 +629,7 @@ static void AddChestTraps()
 	}
 }
 
-typedef struct LeverRect {
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-	int leveridx;
-} LeverRect;
-static void LoadMapSetObjects(const BYTE* map, int startx, int starty, const LeverRect* lvrRect)
+static void LoadMapSetObjects(const BYTE* map, int startx, int starty)
 {
 	const BYTE* pMap = map;
 	int i, j, oi;
@@ -663,8 +656,6 @@ static void LoadMapSetObjects(const BYTE* map, int startx, int starty, const Lev
 				assert(SwapLE16(*lm) < lengthof(ObjConvTbl) && ObjConvTbl[SwapLE16(*lm)] != 0);
 				assert(objanimdata[objectdata[ObjConvTbl[SwapLE16(*lm)]].ofindex] != NULL);
 				oi = AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
-				if (lvrRect != NULL)
-					SetObjMapRange(oi, lvrRect->x1, lvrRect->y1, lvrRect->x2, lvrRect->y2, lvrRect->leveridx);
 			}
 			lm++;
 		}
@@ -674,7 +665,7 @@ static void LoadMapSetObjects(const BYTE* map, int startx, int starty, const Lev
 
 static void LoadMapSetObjs(const BYTE* map)
 {
-	LoadMapSetObjects(map, 2 * pSetPieces[0]._spx, 2 * pSetPieces[0]._spy, NULL);
+	LoadMapSetObjects(map, 2 * pSetPieces[0]._spx, 2 * pSetPieces[0]._spy);
 }
 
 static void SetupObject(int oi, int type)
@@ -714,15 +705,27 @@ static void SetupObject(int oi, int type)
 	os->_oTrapChance = 0;
 }
 
+static int ObjIndex(int x, int y)
+{
+	int oi = dObject[x][y];
+#if DEBUG_MODE
+	if (oi == 0) {
+		app_fatal("ObjIndex: Active object not found at (%d,%d)", x, y);
+	}
+#endif
+	oi = oi >= 0 ? oi - 1 : -(oi + 1);
+	return oi;
+}
+
 static void AddDiabObjs()
 {
-	LeverRect lr;
-	lr = { pSetPieces[1]._spx, pSetPieces[1]._spy, pSetPieces[1]._spx + 11, pSetPieces[1]._spy + 12, 1 };
-	LoadMapSetObjects(pSetPieces[0]._spData, 2 * pSetPieces[0]._spx, 2 * pSetPieces[0]._spy, &lr);
-	lr = { pSetPieces[2]._spx, pSetPieces[2]._spy, pSetPieces[2]._spx + 11, pSetPieces[2]._spy + 11, 2 };
-	LoadMapSetObjects(pSetPieces[1]._spData, 2 * pSetPieces[1]._spx, 2 * pSetPieces[1]._spy, &lr);
-	lr = { pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3 };
-	LoadMapSetObjects(pSetPieces[2]._spData, 2 * pSetPieces[2]._spx, 2 * pSetPieces[2]._spy, &lr);
+	LoadMapSetObjects(pSetPieces[0]._spData, 2 * pSetPieces[0]._spx, 2 * pSetPieces[0]._spy);
+	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[0]._spx + 5, DBORDERY + 2 * pSetPieces[0]._spy + 5), pSetPieces[1]._spx, pSetPieces[1]._spy, pSetPieces[1]._spx + 11, pSetPieces[1]._spy + 12, 1);
+	LoadMapSetObjects(pSetPieces[1]._spData, 2 * pSetPieces[1]._spx, 2 * pSetPieces[1]._spy);
+	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[1]._spx + 13, DBORDERY + 2 * pSetPieces[1]._spy + 10), pSetPieces[2]._spx, pSetPieces[2]._spy, pSetPieces[2]._spx + 11, pSetPieces[2]._spy + 11, 2);
+	LoadMapSetObjects(pSetPieces[2]._spData, 2 * pSetPieces[2]._spx, 2 * pSetPieces[2]._spy);
+	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[2]._spx + 8, DBORDERY + 2 * pSetPieces[2]._spy + 2), pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3);
+	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[2]._spx + 8, DBORDERY + 2 * pSetPieces[2]._spy + 14), pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3);
 }
 
 #ifdef HELLFIRE

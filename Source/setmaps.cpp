@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 // BUGFIX: constant data should be const
-const BYTE SkelChamTrans1[] = {
+const BYTE BoneChamTrans1[] = {
 	DBORDERX + 27, DBORDERY + 3, DBORDERX + 34, DBORDERY + 10,
 	DBORDERX + 35, DBORDERY + 3, DBORDERX + 43, DBORDERY + 10,
 	DBORDERX + 19, DBORDERY + 11, DBORDERX + 26, DBORDERY + 18,
@@ -16,12 +16,12 @@ const BYTE SkelChamTrans1[] = {
 	DBORDERX + 34, DBORDERY + 11, DBORDERX + 43, DBORDERY + 18
 };
 
-const BYTE SkelChamTrans2[] = {
+const BYTE BoneChamTrans2[] = {
 	DBORDERX + 3, DBORDERY + 15, DBORDERX + 18, DBORDERY + 31,
 	DBORDERX + 18, DBORDERY + 19, DBORDERX + 26, DBORDERY + 26
 };
 
-const BYTE SkelChamTrans3[] = {
+const BYTE BoneChamTrans3[] = {
 	DBORDERX + 27, DBORDERY + 19, DBORDERX + 34, DBORDERY + 26,
 	DBORDERX + 35, DBORDERY + 19, DBORDERX + 46, DBORDERY + 26,
 	DBORDERX + 47, DBORDERY + 15, DBORDERX + 50, DBORDERY + 30,
@@ -46,17 +46,13 @@ const BYTE SkelChamTrans3[] = {
 static int ObjIndex(int x, int y)
 {
 	int oi = dObject[x][y];
-
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		return oi;
-	}
 #if DEBUG_MODE
-	app_fatal("ObjIndex: Active object not found at (%d,%d)", x, y);
-#else
-	app_error(ERR_APP_SETMAP);
+	if (oi == 0) {
+		app_fatal("ObjIndex: Active object not found at (%d,%d)", x, y);
+	}
 #endif
-	return -1;
+	oi = oi >= 0 ? oi - 1 : -(oi + 1);
+	return oi;
 }
 
 static void AddSKingObjs()
@@ -124,9 +120,9 @@ void LoadSetMap()
 		break;
 	case SL_BONECHAMB:
 		numtrans = 1;
-		DRLG_ListTrans(sizeof(SkelChamTrans1) / 4, &SkelChamTrans1[0]);
-		DRLG_AreaTrans(sizeof(SkelChamTrans2) / 4, &SkelChamTrans2[0]);
-		DRLG_ListTrans(sizeof(SkelChamTrans3) / 4, &SkelChamTrans3[0]);
+		DRLG_ListTrans(sizeof(BoneChamTrans1) / 4, &BoneChamTrans1[0]);
+		DRLG_AreaTrans(sizeof(BoneChamTrans2) / 4, &BoneChamTrans2[0]);
+		DRLG_ListTrans(sizeof(BoneChamTrans3) / 4, &BoneChamTrans3[0]);
 		AddSChamObjs();
 		// gbInitObjFlag = false;
 		break;
