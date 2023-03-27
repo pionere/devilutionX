@@ -1510,7 +1510,7 @@ int AddObject(int type, int ox, int oy)
 #endif
 	case OBJ_BOOKSTAND:
 	case OBJ_SKELBOOK:
-	case OBJ_PEDISTAL:
+	case OBJ_PEDESTAL:
 	case OBJ_ARMORSTAND:
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
@@ -2615,7 +2615,7 @@ static void OperateSarc(int oi, bool sendmsg)
 		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy, DIR_NONE);
 }
 
-static void SyncPedistal(/*int oi*/)
+static void SyncPedestal(/*int oi*/)
 {
 	switch (quests[Q_BLOOD]._qvar1) {
 	case QV_INIT:
@@ -2646,7 +2646,7 @@ static void SyncPedistal(/*int oi*/)
 /**
  * Handle the using the pedistal of Q_BLOOD-quest.
  */
-static void OperatePedistal(int pnum, int oi, bool sendmsg)
+static void OperatePedestal(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 	int iv;
@@ -2670,7 +2670,7 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 		os->_oModeFlags &= ~OMF_ACTIVE;
 		os->_oSelFlag = 0;
 	}
-	SyncPedistal();
+	SyncPedestal();
 
 	if (deltaload)
 		return;
@@ -2706,7 +2706,7 @@ bool SyncBloodPass(int pnum, int oi)
 	SyncPlrStorageRemove(pnum, iv);
 	quests[Q_BLOOD]._qvar1++; // QV_BLOOD_STONE1, QV_BLOOD_STONE2, QV_BLOOD_STONE3
 	if (plr._pDunLevel == currLvl._dLevelIdx)
-		OperatePedistal(-1, oi, pnum == mypnum);
+		OperatePedestal(-1, oi, pnum == mypnum);
 	return true;
 }
 
@@ -3688,8 +3688,8 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 #endif
 		OperateStoryBook(pnum, oi, sendmsg);
 		break;
-	case OBJ_PEDISTAL:
-		OperatePedistal(pnum, oi, sendmsg);
+	case OBJ_PEDESTAL:
+		OperatePedestal(pnum, oi, sendmsg);
 		break;
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
@@ -3851,8 +3851,8 @@ void SyncOpObject(/*int pnum,*/ int oi)
 #endif
 		OperateStoryBook(-1, oi, false);
 		break;
-	case OBJ_PEDISTAL:
-		OperatePedistal(-1, oi, false);
+	case OBJ_PEDESTAL:
+		OperatePedestal(-1, oi, false);
 		break;
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
@@ -4070,8 +4070,8 @@ void SyncObjectAnim(int oi)
 	case OBJ_STEELTOME:
 		SyncBookLever(oi);
 		break;
-	case OBJ_PEDISTAL:
-		SyncPedistal(/*oi*/);
+	case OBJ_PEDESTAL:
+		SyncPedestal(/*oi*/);
 		break;
 	}
 }
@@ -4186,7 +4186,7 @@ void GetObjectStr(int oi)
 	case OBJ_BLOODBOOK:
 		copy_cstr(infostr, "Book of Blood");
 		break;
-	case OBJ_PEDISTAL:
+	case OBJ_PEDESTAL:
 		copy_cstr(infostr, "Pedestal of Blood");
 		break;
 	case OBJ_PURIFYINGFTN:

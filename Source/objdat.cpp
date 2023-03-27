@@ -101,7 +101,7 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	OBJ_SIGNCHEST, // Q_BANNER
-	OBJ_PEDISTAL, // Q_BLOOD,
+	OBJ_PEDESTAL, // Q_BLOOD,
 	0,
 	0,
 	0,
@@ -225,7 +225,7 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_BLINDBOOK*/   { OFILE_BOOK1,    0,                                         0,               THEME_NONE,              Q_BLIND,               1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_BLOODBOOK*/   { OFILE_BOOK1,    0,                                         0,               THEME_NONE,              Q_BLOOD,               4, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_STEELTOME*/   { OFILE_BOOK1,    0,                                         0,               THEME_NONE,              Q_WARLORD,             4, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
-/*OBJ_PEDISTAL*/    { OFILE_PEDISTL,  0,                                         0,               THEME_NONE,              Q_BLOOD,               1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
+/*OBJ_PEDESTAL*/    { OFILE_PEDISTL,  0,                                         0,               THEME_NONE,              Q_BLOOD,               1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_L3LDOOR*/     { OFILE_L3DOORS,  DTM_CAVES,                                 DTYPE_CAVES,     THEME_NONE,              Q_INVALID,             2, OPF_DOOR,   OMF_ACTIVE,             ODT_LEFT,         3, TRUE      , ALIGN },
 /*OBJ_L3RDOOR*/     { OFILE_L3DOORS,  DTM_CAVES,                                 DTYPE_CAVES,     THEME_NONE,              Q_INVALID,             1, OPF_DOOR,   OMF_ACTIVE,             ODT_RIGHT,        3, TRUE      , ALIGN },
 /*OBJ_PURIFYINGFTN*/{ OFILE_PFOUNTN,  0,                                         0,               THEME_PURIFYINGFOUNTAIN, Q_INVALID,             0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
