@@ -94,13 +94,9 @@ void LoadSetMap()
 	switch (lds->dDunType) {
 	case DTYPE_CATHEDRAL:
 		LoadL1Dungeon(lds);
-		// gbInitObjFlag = true;
-		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		break;
 	case DTYPE_CATACOMBS:
 		LoadL2Dungeon(lds);
-		// gbInitObjFlag = true;
-		AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
 		break;
 	case DTYPE_CAVES:
 		LoadL3Dungeon(lds);

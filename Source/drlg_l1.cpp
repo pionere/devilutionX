@@ -914,23 +914,21 @@ void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 }
 
 #ifdef HELLFIRE
-static void DRLG_InitL5Specials()
+void DRLG_InitL5Specials(int x1, int y1, int x2, int y2)
 {
-	int i, *dp;
-	BYTE pc, *dsp;
+	int i, j, pn;
 
-	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL5Vals.");
-	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL5Vals.");
-	dsp = &dSpecial[0][0];
-	dp = &dPiece[0][0];
-	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
-		if (*dp == 77)
-			pc = 1;
-		else if (*dp == 80)
-			pc = 2;
-		else
-			continue;
-		*dsp = pc;
+	for (i = x1; i <= x2; ++i) {
+		for (j = y1; j <= y2; ++j) {
+			pn = dPiece[i][j];
+			if (pn == 77)
+				pn = 1;
+			else if (pn == 80)
+				pn = 2;
+			else
+				pn = 0;
+			dSpecial[i][j] = pn;
+		}
 	}
 }
 #endif
@@ -2649,8 +2647,8 @@ static void DRLG_L1()
 		pSetPieces[0]._spData[(2 + 7 + 6 * 8) * 2] = 193;
 		// fix transVal behind the stairs
 		// - uncommented since the set-map is 'populated' -> monsters are not spawn there
-		//DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x, setpc_y + 5,
-		//	dTransVal[2 * setpc_x + DBORDERX + 1][2 * setpc_y + DBORDERY + 11]);
+		//DRLG_MRectTrans(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx, pSetPieces[0]._spy + 5,
+		//	dTransVal[2 * pSetPieces[0]._spx + DBORDERX + 1][2 * pSetPieces[0]._spy + DBORDERY + 11]);
 		DRLG_DrawMap(0);
 	} else if (pSetPieces[0]._sptype == SPT_SKELKING) {
 		int x, y;
@@ -2693,7 +2691,7 @@ void CreateL1Dungeon()
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT)
-		DRLG_InitL5Specials();
+		DRLG_InitL5Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 	else
 #endif
 		// assert(currLvl._dType == DTYPE_CATHEDRAL);

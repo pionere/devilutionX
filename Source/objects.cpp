@@ -138,12 +138,23 @@ const int flickers[32] = {
 };
 #endif
 
+void AddObjectType(int ofindex)
+{
+	char filestr[DATA_ARCHIVE_MAX_PATH];
+
+	if (objanimdata[ofindex] != NULL) {
+		return;
+	}
+
+	snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[ofindex].ofName);
+	objanimdata[ofindex] = LoadFileInMem(filestr);
+}
+
 void InitObjectGFX()
 {
 	const ObjectData* ods;
 	bool themeload[NUM_THEMES];
 	bool fileload[NUM_OFILE_TYPES];
-	char filestr[DATA_ARCHIVE_MAX_PATH];
 	int i;
 
 	static_assert(false == 0, "InitObjectGFX fills fileload and themeload with 0 instead of false values.");
@@ -156,19 +167,16 @@ void InitObjectGFX()
 	BYTE lvlMask = 1 << currLvl._dType;
 	for (i = 0; i < NUM_OBJECTS; i++) {
 		ods = &objectdata[i];
-		if ((ods->oLvlTypes & lvlMask)
-		 || (ods->otheme != THEME_NONE && themeload[ods->otheme])
-		 || (ods->oquest != Q_INVALID && QuestStatus(ods->oquest))) {
-			fileload[ods->ofindex] = true;
+		if (!(ods->oLvlTypes & lvlMask)
+		 && (ods->otheme == THEME_NONE || !themeload[ods->otheme])
+		 && (ods->oquest == Q_INVALID || !QuestStatus(ods->oquest))) {
+			continue;
 		}
-	}
-
-	for (i = 0; i < NUM_OFILE_TYPES; i++) {
-		if (fileload[i]) {
-			snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[i].ofName);
-			assert(objanimdata[i] == NULL);
-			objanimdata[i] = LoadFileInMem(filestr);
+		if (fileload[ods->ofindex]) {
+			continue;
 		}
+		fileload[ods->ofindex] = true;
+		AddObjectType(ods->ofindex);
 	}
 }
 
@@ -393,23 +401,17 @@ static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2,
 	objects[oi]._oVar7 = qn; // LEVER_BOOK_QUEST
 }
 
-static void InitRndBarrels()
+static void InitRndBarrels(int otype)
 {
 	int i, xp, yp;
-	int o; // type of the object
 	int dir;
 	int t; // number of tries of placing next barrel in current group
 	int c; // number of barrels in current group
 
 	static_assert((int)OBJ_BARREL + 1 == (int)OBJ_BARRELEX, "InitRndBarrels expects ordered BARREL enum I.");
-	o = OBJ_BARREL;
 #ifdef HELLFIRE
 	static_assert((int)OBJ_URN + 1 == (int)OBJ_URNEX, "InitRndBarrels expects ordered BARREL enum II.");
 	static_assert((int)OBJ_POD + 1 == (int)OBJ_PODEX, "InitRndBarrels expects ordered BARREL enum III.");
-	if (currLvl._dType == DTYPE_CRYPT)
-		o = OBJ_URN;
-	else if (currLvl._dType == DTYPE_NEST)
-		o = OBJ_POD;
 #endif
 
 	// generate i number of groups of barrels
@@ -418,7 +420,7 @@ static void InitRndBarrels()
 			xp = random_(143, DSIZEX) + DBORDERX;
 			yp = random_(143, DSIZEY) + DBORDERY;
 		} while (!RndLocOk(xp, yp));
-		AddObject(o + (random_(143, 4) == 0 ? 1 : 0), xp, yp);
+		AddObject(otype + (random_(143, 4) == 0 ? 1 : 0), xp, yp);
 		c = 1;
 		do {
 			for (t = 0; t < 3; t++) {
@@ -430,80 +432,89 @@ static void InitRndBarrels()
 			}
 			if (t == 3)
 				break;
-			AddObject(o + (random_(143, 5) == 0 ? 1 : 0), xp, yp);
+			AddObject(otype + (random_(143, 5) == 0 ? 1 : 0), xp, yp);
 			c++;
 		} while (random_low(143, c >> 1) == 0);
 	}
 }
 
-void AddL1Objs(int x1, int y1, int x2, int y2)
+static void AddDunObjs(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
 
-	for (j = y1; j < y2; j++) {
-		for (i = x1; i < x2; i++) {
-			pn = dPiece[i][j];
-			if (pn == 270)
-				AddObject(OBJ_L1LIGHT, i, j);
-			// these pieces are closed doors which are placed directly
-			assert(pn != 51 && pn != 56);
-			if (pn == 44 || /*pn == 51 ||*/ pn == 214)
-				AddObject(OBJ_L1LDOOR, i, j);
-			if (pn == 46 /*|| pn == 56*/)
-				AddObject(OBJ_L1RDOOR, i, j);
-		}
-	}
-}
-
+	assert((objectdata[OBJ_L1LDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1RDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1LIGHT].oLvlTypes & DTM_CATHEDRAL));
+	assert(objectdata[OBJ_L1LDOOR].oSetLvlType == DTYPE_CATHEDRAL && objectdata[OBJ_L1RDOOR].oSetLvlType == DTYPE_CATHEDRAL && objectdata[OBJ_L1LIGHT].oSetLvlType == DTYPE_CATHEDRAL);
+	assert((objectdata[OBJ_L2LDOOR].oLvlTypes & DTM_CATACOMBS) && (objectdata[OBJ_L2RDOOR].oLvlTypes & DTM_CATACOMBS));
+	assert(objectdata[OBJ_L2LDOOR].oSetLvlType == DTYPE_CATACOMBS && objectdata[OBJ_L2RDOOR].oSetLvlType == DTYPE_CATACOMBS);
+	assert((objectdata[OBJ_L3LDOOR].oLvlTypes & DTM_CAVES) && (objectdata[OBJ_L3RDOOR].oLvlTypes & DTM_CAVES));
+	assert(objectdata[OBJ_L3LDOOR].oSetLvlType == DTYPE_CAVES && objectdata[OBJ_L3RDOOR].oSetLvlType == DTYPE_CAVES);
 #ifdef HELLFIRE
-static void AddL5Objs(int x1, int y1, int x2, int y2)
-{
-	int i, j, pn;
-
-	for (j = y1; j < y2; j++) {
-		for (i = x1; i < x2; i++) {
-			pn = dPiece[i][j];
-			// 77 and 80 pieces are closed doors which are placed directly
-			if (pn == 77)
-				AddObject(OBJ_L5LDOOR, i, j);
-			if (pn == 80)
-				AddObject(OBJ_L5RDOOR, i, j);
-		}
-	}
-}
+	assert((objectdata[OBJ_L5LDOOR].oLvlTypes & DTM_CRYPT) && (objectdata[OBJ_L5RDOOR].oLvlTypes & DTM_CRYPT));
+	assert(objectdata[OBJ_L5LDOOR].oSetLvlType == DTYPE_CRYPT && objectdata[OBJ_L5RDOOR].oSetLvlType == DTYPE_CRYPT);
 #endif
-
-void AddL2Objs(int x1, int y1, int x2, int y2)
-{
-	int i, j, pn;
-
-	for (j = y1; j < y2; j++) {
-		for (i = x1; i < x2; i++) {
-			pn = dPiece[i][j];
-			// 13 and 17 pieces are open doors and not handled at the moment
-			// 541 and 542 are doorways which are no longer handled as doors
-			// 538 and 540 pieces are closed doors
-			if (/*pn == 13 ||*/ pn == 538 /*|| pn == 541*/)
-				AddObject(OBJ_L2LDOOR, i, j);
-			if (/*pn == 17 ||*/ pn == 540 /*|| pn == 542*/)
-				AddObject(OBJ_L2RDOOR, i, j);
+	switch (currLvl._dType) {
+	case DTYPE_CATHEDRAL:
+		for (j = y1; j <= y2; j++) {
+			for (i = x1; i <= x2; i++) {
+				pn = dPiece[i][j];
+				if (pn == 270)
+					AddObject(OBJ_L1LIGHT, i, j);
+				// these pieces are closed doors which are placed directly
+				assert(pn != 51 && pn != 56);
+				if (pn == 44 || /*pn == 51 ||*/ pn == 214)
+					AddObject(OBJ_L1LDOOR, i, j);
+				if (pn == 46 /*|| pn == 56*/)
+					AddObject(OBJ_L1RDOOR, i, j);
+			}
 		}
-	}
-}
-
-static void AddL3Objs(int x1, int y1, int x2, int y2)
-{
-	int i, j, pn;
-
-	for (j = y1; j < y2; j++) {
-		for (i = x1; i < x2; i++) {
-			pn = dPiece[i][j];
-			// 531 and 534 pieces are closed doors which are placed directly
-			if (pn == 534)
-				AddObject(OBJ_L3LDOOR, i, j);
-			if (pn == 531)
-				AddObject(OBJ_L3RDOOR, i, j);
+		break;
+	case DTYPE_CATACOMBS:
+		for (j = y1; j <= y2; j++) {
+			for (i = x1; i <= x2; i++) {
+				pn = dPiece[i][j];
+				// 13 and 17 pieces are open doors and not handled at the moment
+				// 541 and 542 are doorways which are no longer handled as doors
+				// 538 and 540 pieces are closed doors
+				if (/*pn == 13 ||*/ pn == 538 /*|| pn == 541*/)
+					AddObject(OBJ_L2LDOOR, i, j);
+				if (/*pn == 17 ||*/ pn == 540 /*|| pn == 542*/)
+					AddObject(OBJ_L2RDOOR, i, j);
+			}
 		}
+		break;
+	case DTYPE_CAVES:
+		for (j = y1; j <= y2; j++) {
+			for (i = x1; i <= x2; i++) {
+				pn = dPiece[i][j];
+				// 531 and 534 pieces are closed doors which are placed directly
+				if (pn == 534)
+					AddObject(OBJ_L3LDOOR, i, j);
+				if (pn == 531)
+					AddObject(OBJ_L3RDOOR, i, j);
+			}
+		}
+		break;
+	case DTYPE_HELL:
+		break;
+#ifdef HELLFIRE
+	case DTYPE_CRYPT:
+		for (j = y1; j <= y2; j++) {
+			for (i = x1; i <= x2; i++) {
+				pn = dPiece[i][j];
+				// 77 and 80 pieces are closed doors which are placed directly
+				if (pn == 77)
+					AddObject(OBJ_L5LDOOR, i, j);
+				if (pn == 80)
+					AddObject(OBJ_L5RDOOR, i, j);
+			}
+		}
+		break;
+	case DTYPE_NEST:
+		break;
+#endif
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 }
 
@@ -632,8 +643,8 @@ static void AddChestTraps()
 static void LoadMapSetObjects(const BYTE* map, int startx, int starty)
 {
 	const BYTE* pMap = map;
-	int i, j, oi;
-	uint16_t rw, rh, *lm;
+	int i, j;
+	uint16_t rw, rh, *lm, oidx;
 
 	//gbInitObjFlag = true;
 	lm = (uint16_t*)pMap;
@@ -653,14 +664,17 @@ static void LoadMapSetObjects(const BYTE* map, int startx, int starty)
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				assert(SwapLE16(*lm) < lengthof(ObjConvTbl) && ObjConvTbl[SwapLE16(*lm)] != 0);
-				assert(objanimdata[objectdata[ObjConvTbl[SwapLE16(*lm)]].ofindex] != NULL);
-				oi = AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
+				oidx = SwapLE16(*lm); // index of ObjConvTbl
+				assert(oidx < lengthof(ObjConvTbl));
+				oidx = ObjConvTbl[oidx]; // index of objectdata
+				assert(oidx != 0);
+				AddObjectType(objectdata[oidx].ofindex);
+				AddObject(oidx, i, j);
 			}
 			lm++;
 		}
 	}
-	//gbInitObjFlag = false;
+	//gbInitObjFlag = false; -- setpieces, setmap levers?
 }
 
 static void LoadMapSetObjs(const BYTE* map)
@@ -921,168 +935,144 @@ static void AddLazStand()
 void InitObjects()
 {
 	//gbInitObjFlag = true;
-	switch (currLvl._dType) {
-	case DTYPE_CATHEDRAL:
-		if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
-			AddStoryBook();
-		if (QuestStatus(Q_PWATER))
-			AddCandles();
-		if (pSetPieces[0]._sptype == SPT_BUTCHER) // QuestStatus(Q_BUTCHER)
-			LoadMapSetObjs(pSetPieces[0]._spData);
-		if (pSetPieces[0]._sptype == SPT_BANNER) // QuestStatus(Q_BANNER)
-			AddObject(OBJ_SIGNCHEST, 2 * pSetPieces[0]._spx + DBORDERX + 10, 2 * pSetPieces[0]._spy + DBORDERY + 3);
-		InitRndSarcs(OBJ_SARC);
-		AddL1Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
+	if (QuestStatus(Q_ROCK)) // place first to make the life of PlaceRock easier
+		InitRndLocObj5x5(OBJ_STAND);
+	if (QuestStatus(Q_PWATER))
+		AddCandles();
+	if (QuestStatus(Q_MUSHROOM))
+		InitRndLocObj5x5(OBJ_MUSHPATCH);
+	if (pSetPieces[0]._sptype == SPT_BUTCHER) // QuestStatus(Q_BUTCHER)
+		LoadMapSetObjs(pSetPieces[0]._spData);
+	if (pSetPieces[0]._sptype == SPT_BANNER) // QuestStatus(Q_BANNER)
+		AddObject(OBJ_SIGNCHEST, 2 * pSetPieces[0]._spx + DBORDERX + 10, 2 * pSetPieces[0]._spy + DBORDERY + 3);
+	if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
+		AddBookLever(OBJ_BOOK2R, -1, 0, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
+	}
+	if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
+		AddBookLever(OBJ_BLINDBOOK, -1, 0, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
+	}
+	if (pSetPieces[0]._sptype == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
+		AddBookLever(OBJ_BLOODBOOK, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD); // NULL_LVR_EFFECT
+		AddObject(OBJ_PEDISTAL, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 16);
+	}
+	if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
+		AddBookLever(OBJ_STEELTOME, -1, 0, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
+		// patch set-piece to add objects - Warlord2.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 3 * 8 * 2] = 108;
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 9 * 8 * 2] = 108;
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 2 * 8 * 2] = 109;
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 2 * 8 * 2] = 109;
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 10 * 8 * 2] = 109;
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 10 * 8 * 2] = 109;
+		LoadMapSetObjs(pSetPieces[0]._spData);
+	}
+	switch (currLvl._dLevelIdx) {
+	case DLV_CATHEDRAL4:
+		AddStoryBook();
 		break;
-	case DTYPE_CATACOMBS:
-		if (currLvl._dLevelIdx == DLV_CATACOMBS4)
-			AddStoryBook();
-		if (QuestStatus(Q_ROCK))
-			InitRndLocObj5x5(OBJ_STAND);
-		if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
-			AddBookLever(OBJ_BOOK2R, -1, 0, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
-		}
-		if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
-			AddBookLever(OBJ_BLINDBOOK, -1, 0, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
-		}
-		if (pSetPieces[0]._sptype == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
-			AddBookLever(OBJ_BLOODBOOK, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD); // NULL_LVR_EFFECT
-			AddObject(OBJ_PEDISTAL, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 16);
-		}
-		AddL2Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
-		AddL2Torches();
+	case DLV_CATACOMBS4:
+		AddStoryBook();
 		break;
-	case DTYPE_CAVES:
-		if (currLvl._dLevelIdx == DLV_CAVES4)
-			AddStoryBook();
-		else if (currLvl._dLevelIdx == DLV_CAVES1 && !IsMultiGame)
+	case DLV_CAVES1:
+		if (!IsMultiGame)
 			InitRndLocObj5x5(OBJ_SLAINHERO);
-		if (QuestStatus(Q_MUSHROOM))
-			InitRndLocObj5x5(OBJ_MUSHPATCH);
-		AddL3Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
 		break;
-	case DTYPE_HELL:
-		if (currLvl._dLevelIdx == DLV_HELL4) {
-			AddDiabObjs();
-			return;
-		}
-		if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
-			AddBookLever(OBJ_STEELTOME, -1, 0, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
-			// patch set-piece to add objects - Warlord2.DUN
-			uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 3 * 8 * 2] = 108;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 9 * 8 * 2] = 108;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 2 * 8 * 2] = 109;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 2 * 8 * 2] = 109;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 10 * 8 * 2] = 109;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 10 * 8 * 2] = 109;
-			LoadMapSetObjs(pSetPieces[0]._spData);
-		}
-		if (currLvl._dLevelIdx == DLV_HELL3) // QuestStatus(Q_BETRAYER) / setpc_type == SPT_BETRAYER (single?)
-			AddLazStand();
-		AddL4Goodies();
-	break;
+	case DLV_CAVES4:
+		AddStoryBook();
+		break;
+	case DLV_HELL4:
+		AddDiabObjs();
+		return;
+	case DLV_HELL3: // QuestStatus(Q_BETRAYER) / setpc_type == SPT_BETRAYER (single?)
+		AddLazStand();
+		break;
 #ifdef HELLFIRE
-	case DTYPE_CRYPT:
-		switch (currLvl._dLevelIdx) {
-		case DLV_CRYPT1:
-			AddLvl2xBooks(QNB_BOOK_1);
-			break;
-		case DLV_CRYPT2:
-			AddLvl2xBooks(QNB_BOOK_2);
-			AddLvl2xBooks(QNB_BOOK_3);
-			break;
-		case DLV_CRYPT3:
-			AddLvl2xBooks(QNB_BOOK_4);
-			AddLvl2xBooks(QNB_BOOK_5);
-			break;
-		case DLV_CRYPT4:
-			AddLvl24Books();
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-		InitRndSarcs(OBJ_L5SARC);
-		AddL5Objs(DBORDERX, DBORDERY, DBORDERX + DSIZEX, DBORDERY + DSIZEY);
+	case DLV_CRYPT1:
+		AddLvl2xBooks(QNB_BOOK_1);
 		break;
-	case DTYPE_NEST:
+	case DLV_CRYPT2:
+		AddLvl2xBooks(QNB_BOOK_2);
+		AddLvl2xBooks(QNB_BOOK_3);
+		break;
+	case DLV_CRYPT3:
+		AddLvl2xBooks(QNB_BOOK_4);
+		AddLvl2xBooks(QNB_BOOK_5);
+		break;
+	case DLV_CRYPT4:
+		AddLvl24Books();
 		break;
 #endif
-	default:
-		ASSUME_UNREACHABLE
-		break;
 	}
-	InitRndBarrels();
+	AddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
+	BYTE lvlMask = 1 << currLvl._dType;
+	if (lvlMask & objectdata[OBJ_SARC].oLvlTypes) {
+		InitRndSarcs(OBJ_SARC);
+	}
+#ifdef HELLFIRE
+	if (lvlMask & objectdata[OBJ_L5SARC].oLvlTypes) {
+		InitRndSarcs(OBJ_L5SARC);
+	}
+#endif
+	assert(objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHL2].oLvlTypes && objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHR1].oLvlTypes && objectdata[OBJ_TORCHR1].oLvlTypes == objectdata[OBJ_TORCHR2].oLvlTypes);
+	if (lvlMask & objectdata[OBJ_TORCHL1].oLvlTypes) {
+		AddL2Torches();
+	}
+	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TNUDEW].oLvlTypes);
+	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_DECAP].oLvlTypes);
+	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_CAULDRON].oLvlTypes);
+	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTUREL1].oLvlTypes);
+	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTUREL2].oLvlTypes);
+	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTUREL3].oLvlTypes);
+	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTURER1].oLvlTypes);
+	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTURER2].oLvlTypes);
+	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTURER3].oLvlTypes);
+	if (lvlMask & objectdata[OBJ_TNUDEM].oLvlTypes) {
+		AddL4Goodies();
+	}
+	assert(objectdata[OBJ_BARREL].oLvlTypes == objectdata[OBJ_BARRELEX].oLvlTypes);
+	if (lvlMask & objectdata[OBJ_BARREL].oLvlTypes) {
+		InitRndBarrels(OBJ_BARREL);
+	}
+#ifdef HELLFIRE
+	assert(objectdata[OBJ_URN].oLvlTypes == objectdata[OBJ_URNEX].oLvlTypes);
+	if (lvlMask & objectdata[OBJ_URN].oLvlTypes) {
+		InitRndBarrels(OBJ_URN);
+	}
+	assert(objectdata[OBJ_POD].oLvlTypes == objectdata[OBJ_PODEX].oLvlTypes);
+	if (lvlMask & objectdata[OBJ_POD].oLvlTypes) {
+		InitRndBarrels(OBJ_POD);
+	}
+#endif
+	assert(objectdata[OBJ_CHEST1].oLvlTypes == DTM_ANY && objectdata[OBJ_CHEST2].oLvlTypes == DTM_ANY && objectdata[OBJ_CHEST3].oLvlTypes == DTM_ANY);
 	InitRndLocObj(5, 10, OBJ_CHEST1);
 	InitRndLocObj(3, 6, OBJ_CHEST2);
 	InitRndLocObj(1, 5, OBJ_CHEST3);
-	// TODO: use dType instead?
-	if (currLvl._dDunType != DTYPE_HELL && currLvl._dDunType != DTYPE_CAVES)
+	assert(objectdata[OBJ_TRAPL].oLvlTypes == objectdata[OBJ_TRAPR].oLvlTypes);
+	if (lvlMask & objectdata[OBJ_TRAPL].oLvlTypes) {
 		AddObjTraps();
-	if (currLvl._dType != DTYPE_CATHEDRAL)
+	}
+	assert(objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST2].oLvlTypes && objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST3].oLvlTypes);
+	if (lvlMask & objectdata[OBJ_TCHEST1].oLvlTypes) {
 		AddChestTraps();
+	}
 	//gbInitObjFlag = false;
 }
 
 void SetMapObjects(BYTE* pMap)
 {
-	int i, j;
-	uint16_t rw, rh, *lm, *h;
-	bool fileload[NUM_OFILE_TYPES];
-	char filestr[DATA_ARCHIVE_MAX_PATH];
-
-	static_assert(false == 0, "SetMapObjects fills fileload with 0 instead of false values.");
-	memset(fileload, 0, sizeof(fileload));
+	int i;
 	//gbInitObjFlag = true;
 
-	for (i = 0; i < NUM_OBJECTS; i++) { // TODO: use dType instead?
-		if (currLvl._dDunType == objectdata[i].oSetLvlType)
-			fileload[objectdata[i].ofindex] = true;
+	for (i = 0; i < NUM_OBJECTS; i++) {
+		if (currLvl._dType == objectdata[i].oSetLvlType)
+			AddObjectType(objectdata[i].ofindex);
 	}
 
-	lm = (uint16_t*)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
-	lm += rw * rh; // skip dun
-	rw <<= 1;
-	rh <<= 1;
-	lm += 2 * rw * rh; // skip items?, monsters
+	AddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
-	h = lm;
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (*lm != 0) {
-				assert(SwapLE16(*lm) < lengthof(ObjConvTbl) && ObjConvTbl[SwapLE16(*lm)] != 0);
-				fileload[objectdata[ObjConvTbl[SwapLE16(*lm)]].ofindex] = true;
-			}
-			lm++;
-		}
-	}
-
-	for (i = 0; i < NUM_OFILE_TYPES; i++) {
-		if (!fileload[i])
-			continue;
-
-		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[i].ofName);
-		assert(objanimdata[i] == NULL);
-		objanimdata[i] = LoadFileInMem(filestr);
-	}
-
-	lm = h;
-	rw += DBORDERX;
-	rh += DBORDERY;
-	for (j = DBORDERY; j < rh; j++) {
-		for (i = DBORDERX; i < rw; i++) {
-			if (*lm != 0)
-				AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
-			lm++;
-		}
-	}
-	//gbInitObjFlag = false;
+	LoadMapSetObjects(pMap, 0, 0);
+	//gbInitObjFlag = false; -- setmap levers?
 }
 
 /*static void DeleteObject_(int oi, int idx)
@@ -2201,6 +2191,16 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
+	// init special pieces
+	if (currLvl._dType == DTYPE_CATHEDRAL) {
+		DRLG_InitL1Specials(x1, y1, x2, y2);
+	} else if (currLvl._dType == DTYPE_CATACOMBS) {
+		DRLG_InitL2Specials(x1, y1, x2, y2);
+#ifdef HELLFIRE
+	} else if (currLvl._dType == DTYPE_CRYPT) {
+		DRLG_InitL5Specials(x1, y1, x2, y2);
+#endif
+	}
 	// activate objects
 	for (i = 0; i < numobjects; i++) {
 		int oi = i; // objectactive[i];
@@ -2215,15 +2215,7 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		os->_oSelFlag = objectdata[os->_otype].oSelFlag;
 	}
 	// add new objects (doors + light)
-	if (currLvl._dType == DTYPE_CATHEDRAL) {
-		DRLG_InitL1Specials(x1, y1, x2, y2);
-		//if (hasNewObjPiece)
-			AddL1Objs(x1, y1, x2, y2);
-	} else if (currLvl._dType == DTYPE_CATACOMBS) {
-		DRLG_InitL2Specials(x1, y1, x2, y2);
-		//if (hasNewObjPiece)
-			AddL2Objs(x1, y1, x2, y2);
-	}
+	AddDunObjs(x1, y1, x2, y2);
 	// activate monsters
 	MonChangeMap();
 	RedoLightAndVision();

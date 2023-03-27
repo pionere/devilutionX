@@ -2320,19 +2320,21 @@ void PlaceQuestItemInArea(int idx, int areasize)
 /**
  * Place a rock(item) on a stand (OBJ_STAND).
  */
-void PlaceRock()
+/*static*/ void PlaceRock()
 {
 	int i, oi;
 
 	if (numitems >= MAXITEMS)
 		return; // should never be the case
 
-	for (i = 0; i < numobjects; i++) {
+	/*for (i = 0; i < numobjects; i++) {
 		oi = i; // objectactive[i];
 		if (objects[oi]._otype == OBJ_STAND)
 			break;
 	}
-	if (i != numobjects) {
+	if (i != numobjects) {*/
+	oi = 0; // objectactive[0];
+	if (objects[oi]._otype == OBJ_STAND) {
 		i = itemactive[numitems];
 		assert(i == numitems);
 		CreateQuestItemAt(IDI_ROCK, objects[oi]._ox, objects[oi]._oy, ICM_DELTA);
