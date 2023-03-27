@@ -995,7 +995,6 @@ static void PlaceUniques()
 static void PlaceSetMapMonsters()
 {
 	BYTE* setp;
-	uint16_t* lm;
 
 	// if (!currLvl._dSetLvl) {
 		if (pSetPieces[0]._sptype == SPT_BUTCHER) {
@@ -1003,21 +1002,6 @@ static void PlaceSetMapMonsters()
 			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
 		}
 		if (pSetPieces[0]._sptype == SPT_BANNER) { // QuestStatus(Q_BANNER)
-			setp = pSetPieces[0]._spData;
-			lm = (uint16_t*)setp;
-			// patch set-piece to add monsters - Banner2.DUN
-			// - replace monsters from Banner1.DUN
-			for (int y = 7; y <= 9; y++) {
-				for (int x = 7; x <= 13; x++) {
-					lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + x + y * 8 * 2] = 16;
-				}
-			}
-			// - remove monsters
-			lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 1 + 4 * 8 * 2] = 0;
-			lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 13 + 5 * 8 * 2] = 0;
-			lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 7 + 12 * 8 * 2] = 0;
-			// - add unique
-			lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 + 12 * 8 * 2] = SwapLE16((UMT_SNOTSPIL + 1) | (1 << 15));
 			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
 		}
 		if (pSetPieces[0]._sptype == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
@@ -1034,32 +1018,11 @@ static void PlaceSetMapMonsters()
 		}
 		if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
 			setp = pSetPieces[0]._spData;
-			// patch set-piece to add monsters - Warlord2.DUN
-			lm = (uint16_t*)setp;
-			// replace monsters
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 2 + 2 * 8 * 2] = 100;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 2 + 10 * 8 * 2] = 100;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 13 + 4 * 8 * 2] = 100;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 13 + 9 * 8 * 2] = 100;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 10 + 2 * 8 * 2] = 100;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 10 + 10 * 8 * 2] = 100;
-			// add monsters
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 2 * 8 * 2] = 100;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 10 * 8 * 2] = 100;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 11 + 2 * 8 * 2] = 100;
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 11 + 10 * 8 * 2] = 100;
-			// - add unique
-			lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 7 * 8 * 2] = SwapLE16((UMT_WARLORD + 1) | (1 << 15));
 			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
 		}
 		if (pSetPieces[0]._sptype == SPT_BETRAYER) { // QuestStatus(Q_BETRAYER) && IsMultiGame
 			// assert(quests[Q_BETRAYER]._qactive != QUEST_NOTAVAIL);
 			setp = pSetPieces[0]._spData;
-			// patch set-piece to add monsters - Vile1.DUN
-			lm = (uint16_t*)setp;
-			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
-			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
-			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
 			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
 		}
 #ifdef HELLFIRE
@@ -1069,17 +1032,13 @@ static void PlaceSetMapMonsters()
 		}
 #endif
 		if (currLvl._dLevelIdx == DLV_HELL4) {
-			// assert(quests[Q_DIABLO]._qactive != QUEST_NOTAVAIL);
 			setp = pSetPieces[0]._spData;
 			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
 			setp = pSetPieces[1]._spData;
 			SetMapMonsters(setp, pSetPieces[1]._spx, pSetPieces[1]._spy);
 			setp = pSetPieces[2]._spData;
 			SetMapMonsters(setp, pSetPieces[2]._spx, pSetPieces[2]._spy);
-			setp = pSetPieces[0]._spData;
-			// patch set-piece to replace diablo - Diab4a.DUN
-			lm = (uint16_t*)setp;
-			lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 8 + 8 * 9 * 2] = SwapLE16((UMT_DIABLO + 1) | (1 << 15));
+			setp = pSetPieces[3]._spData;
 			SetMapMonsters(setp, pSetPieces[3]._spx, pSetPieces[3]._spy);
 		}
 	// }

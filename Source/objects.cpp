@@ -939,49 +939,19 @@ void InitObjects()
 		InitRndLocObj5x5(OBJ_MUSHPATCH);
 	if (pSetPieces[0]._sptype == SPT_BUTCHER) // QuestStatus(Q_BUTCHER)
 		LoadMapSetObjs(pSetPieces[0]._spData);
-	if (pSetPieces[0]._sptype == SPT_BANNER) { // QuestStatus(Q_BANNER)
-		if (pSetPieces[0]._spData != NULL) {
-		// patch set-piece to add objects - Banner2.DUN
-		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
-		// add chest
-		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 * 8 * 2 * 2 + 10 + 3 * 8 * 2] = 90;
-		}
+	if (pSetPieces[0]._sptype == SPT_BANNER) // QuestStatus(Q_BANNER)
 		LoadMapSetObjs(pSetPieces[0]._spData);
+	if (pSetPieces[0]._sptype == SPT_BLOOD) // QuestStatus(Q_BLOOD)
+		LoadMapSetObjs(pSetPieces[0]._spData);
+	if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
+		LoadMapSetObjs(pSetPieces[0]._spData);
+		AddBookLever(OBJ_STEELTOME, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
 	}
 	if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
 		AddBookLever(OBJ_BOOK2R, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
 	}
 	if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
 		AddBookLever(OBJ_BLINDBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
-	}
-	if (pSetPieces[0]._sptype == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
-		if (pSetPieces[0]._spData != NULL) {
-		// patch set-piece to add objects - Blood2.DUN
-		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
-		// add book and pedistal
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 24 * 10 * 2] = 15;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 16 * 10 * 2] = 91;
-		// remove torches
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 8 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 10 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 12 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 8 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 10 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 12 * 10 * 2] = 0;
-		}
-		LoadMapSetObjs(pSetPieces[0]._spData);
-	}
-	if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
-		AddBookLever(OBJ_STEELTOME, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
-		// patch set-piece to add objects - Warlord2.DUN
-		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
-		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 3 * 8 * 2] = 108;
-		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 9 * 8 * 2] = 108;
-		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 2 * 8 * 2] = 109;
-		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 2 * 8 * 2] = 109;
-		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 10 * 8 * 2] = 109;
-		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 10 * 8 * 2] = 109;
-		LoadMapSetObjs(pSetPieces[0]._spData);
 	}
 	switch (currLvl._dLevelIdx) {
 	case DLV_CATHEDRAL4:
