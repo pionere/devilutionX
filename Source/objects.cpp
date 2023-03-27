@@ -381,20 +381,16 @@ static void AddCandles()
 	AddObject(OBJ_STORYCANDLE, tx + 2, ty + 2);
 }
 
-static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2, int qn)
+static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
 {
 	int oi;
 	POS32 pos;
 
-	if (x == -1) {
-		pos = RndLoc5x5();
-		if (pos.x == 0)
-			return;
-		x = pos.x;
-		y = pos.y;
-	}
+	pos = RndLoc5x5();
+	if (pos.x == 0)
+		return;
 
-	oi = AddObject(type, x, y);
+	oi = AddObject(type, pos.x, pos.y);
 	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
 	leverid++;
 	objects[oi]._oVar6 = objects[oi]._oAnimFrame + 1; // LEVER_BOOK_ANIM
@@ -943,20 +939,40 @@ void InitObjects()
 		InitRndLocObj5x5(OBJ_MUSHPATCH);
 	if (pSetPieces[0]._sptype == SPT_BUTCHER) // QuestStatus(Q_BUTCHER)
 		LoadMapSetObjs(pSetPieces[0]._spData);
-	if (pSetPieces[0]._sptype == SPT_BANNER) // QuestStatus(Q_BANNER)
-		AddObject(OBJ_SIGNCHEST, 2 * pSetPieces[0]._spx + DBORDERX + 10, 2 * pSetPieces[0]._spy + DBORDERY + 3);
+	if (pSetPieces[0]._sptype == SPT_BANNER) { // QuestStatus(Q_BANNER)
+		if (pSetPieces[0]._spData != NULL) {
+		// patch set-piece to add objects - Banner2.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// add chest
+		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 * 8 * 2 * 2 + 10 + 3 * 8 * 2] = 90;
+		}
+		LoadMapSetObjs(pSetPieces[0]._spData);
+	}
 	if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
-		AddBookLever(OBJ_BOOK2R, -1, 0, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
+		AddBookLever(OBJ_BOOK2R, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
 	}
 	if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
-		AddBookLever(OBJ_BLINDBOOK, -1, 0, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
+		AddBookLever(OBJ_BLINDBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
 	}
 	if (pSetPieces[0]._sptype == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
-		AddBookLever(OBJ_BLOODBOOK, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 24, 0, 0, 0, 0, Q_BLOOD); // NULL_LVR_EFFECT
-		AddObject(OBJ_PEDISTAL, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 16);
+		if (pSetPieces[0]._spData != NULL) {
+		// patch set-piece to add objects - Blood2.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// add book and pedistal
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 24 * 10 * 2] = 15;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 16 * 10 * 2] = 91;
+		// remove torches
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 8 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 10 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 12 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 8 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 10 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 12 * 10 * 2] = 0;
+		}
+		LoadMapSetObjs(pSetPieces[0]._spData);
 	}
 	if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
-		AddBookLever(OBJ_STEELTOME, -1, 0, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
+		AddBookLever(OBJ_STEELTOME, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
 		// patch set-piece to add objects - Warlord2.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 3 * 8 * 2] = 108;
@@ -1267,6 +1283,18 @@ static void ObjAddRndSeed(int oi)
 	objects[oi]._oRndSeed = NextRndSeed();
 }
 
+static void ObjAddBloodBook(int oi)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	os->_oRndSeed = NextRndSeed();
+	os->_oVar6 = os->_oAnimFrame + 1; // LEVER_BOOK_ANIM
+	os->_oVar7 = Q_BLOOD; // LEVER_BOOK_QUEST
+	SetObjMapRange(oi, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
+	leverid++;
+}
+
 static void AddArmorStand(int oi)
 {
 	objects[oi]._oMissFlag = TRUE;
@@ -1482,13 +1510,15 @@ int AddObject(int type, int ox, int oy)
 #endif
 	case OBJ_BOOKSTAND:
 	case OBJ_SKELBOOK:
-	case OBJ_BLOODBOOK:
 	case OBJ_PEDISTAL:
 	case OBJ_ARMORSTAND:
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
 	case OBJ_SLAINHERO:
 		ObjAddRndSeed(oi);
+		break;
+	case OBJ_BLOODBOOK:
+		ObjAddBloodBook(oi);
 		break;
 	case OBJ_ARMORSTANDN:
 		AddArmorStand(oi);

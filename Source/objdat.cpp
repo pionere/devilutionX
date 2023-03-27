@@ -25,7 +25,7 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	OBJ_BOOK2L, // Q_BCHAMB, Q_BETRAYER
-	0, //OBJ_BOOK2R,
+	OBJ_BLOODBOOK, //Q_BLOOD
 	OBJ_TBCROSS, // Q_BCHAMB
 	0,
 	0, //OBJ_CANDLE1,
@@ -100,8 +100,8 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	0,
-	0, //OBJ_PEDISTAL,
+	OBJ_SIGNCHEST, // Q_BANNER
+	OBJ_PEDISTAL, // Q_BLOOD,
 	0,
 	0,
 	0,
