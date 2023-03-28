@@ -948,7 +948,7 @@ void InitObjects()
 		AddBookLever(OBJ_STEELTOME, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
 	}
 	if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
-		AddBookLever(OBJ_BOOK2R, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
+		AddBookLever(OBJ_MYTHICBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
 	}
 	if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
 		AddBookLever(OBJ_BLINDBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
@@ -3604,7 +3604,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
 	//case OBJ_BOOKLVR:
-	case OBJ_BOOK2R:
+	case OBJ_MYTHICBOOK:
 		OperateBookLever(pnum, oi, sendmsg);
 		break;
 	case OBJ_CRUXM:
@@ -3767,7 +3767,7 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
 	//case OBJ_BOOKLVR:
-	case OBJ_BOOK2R:
+	case OBJ_MYTHICBOOK:
 		OperateBookLever(pnum, oi, false);
 		break;
 	case OBJ_CRUXM:
@@ -4034,7 +4034,7 @@ void SyncObjectAnim(int oi)
 	//case OBJ_CRUXL:
 		SyncCrux(oi);
 		break;
-	case OBJ_BOOK2R:
+	case OBJ_MYTHICBOOK:
 	case OBJ_BLINDBOOK:
 	//case OBJ_BLOODBOOK: -- NULL_LVR_EFFECT
 	case OBJ_STEELTOME:
@@ -4089,10 +4089,9 @@ void GetObjectStr(int oi)
 	case OBJ_SWITCHSKL:
 		copy_cstr(infostr, "Skull Lever");
 		break;
-	case OBJ_BOOK2R:
+	case OBJ_MYTHICBOOK:
 		copy_cstr(infostr, "Mythical Book");
 		break;
-
 	case OBJ_CHEST2:
 	case OBJ_TCHEST2:
 		copy_cstr(infostr, "Chest");
