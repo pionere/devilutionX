@@ -994,54 +994,11 @@ static void PlaceUniques()
 
 static void PlaceSetMapMonsters()
 {
-	BYTE* setp;
-
-	// if (!currLvl._dSetLvl) {
-		if (pSetPieces[0]._sptype == SPT_BUTCHER) {
-			setp = pSetPieces[0]._spData;
-			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
+	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
+		if (pSetPieces[i]._spData != NULL) { // pSetPieces[i]._sptype != SPT_NONE
+			SetMapMonsters(pSetPieces[i]._spData, pSetPieces[i]._spx, pSetPieces[i]._spy);
 		}
-		if (pSetPieces[0]._sptype == SPT_BANNER) { // QuestStatus(Q_BANNER)
-			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
-		}
-		if (pSetPieces[0]._sptype == SPT_BLOOD) { // QuestStatus(Q_BLOOD)
-			setp = pSetPieces[0]._spData;
-			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
-		}
-		if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
-			setp = pSetPieces[0]._spData;
-			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
-		}
-		if (pSetPieces[0]._sptype == SPT_ANVIL) { // QuestStatus(Q_ANVIL)
-			setp = pSetPieces[0]._spData;
-			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
-		}
-		if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
-			setp = pSetPieces[0]._spData;
-			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
-		}
-		if (pSetPieces[0]._sptype == SPT_BETRAYER) { // QuestStatus(Q_BETRAYER) && IsMultiGame
-			// assert(quests[Q_BETRAYER]._qactive != QUEST_NOTAVAIL);
-			setp = pSetPieces[0]._spData;
-			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
-		}
-#ifdef HELLFIRE
-		if (pSetPieces[0]._sptype == SPT_NAKRUL) {
-			setp = pSetPieces[0]._spData;
-			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
-		}
-#endif
-		if (currLvl._dLevelIdx == DLV_HELL4) {
-			setp = pSetPieces[0]._spData;
-			SetMapMonsters(setp, pSetPieces[0]._spx, pSetPieces[0]._spy);
-			setp = pSetPieces[1]._spData;
-			SetMapMonsters(setp, pSetPieces[1]._spx, pSetPieces[1]._spy);
-			setp = pSetPieces[2]._spData;
-			SetMapMonsters(setp, pSetPieces[2]._spx, pSetPieces[2]._spy);
-			setp = pSetPieces[3]._spData;
-			SetMapMonsters(setp, pSetPieces[3]._spx, pSetPieces[3]._spy);
-		}
-	// }
+	}
 }
 
 void InitMonsters()
