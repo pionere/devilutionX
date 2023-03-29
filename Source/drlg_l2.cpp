@@ -34,52 +34,6 @@ static int nRoomCnt;
 static ROOMHALLNODE RoomList[L2_MAXROOMS];
 const int Dir_Xadd[5] = { 0, 0, 1, 0, -1 };
 const int Dir_Yadd[5] = { 0, -1, 0, 1, 0 };
-const ShadowStruct L2SPATS[] = {
-	// clang-format off
-	//sh11, 01, 10,  00,   mask11    01    10    00    nv1, nv2, nv3
-	{ { SF,  0, SF,   6 }, { 0xFF, 0xFF, 0xFF, 0xFF },  48,   0,  50 },
-#if DEBUG_MODE
-	{ { SF, SF,  0,   6 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0,  2,   6 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0,  0,   6 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0,  0,   6 }, { 0xFF, 0x00, 0x00, 0xFF },   0,   0,   0 }, // shadow is not necessary
-#endif
-	{ { SF,  0, SF,   9 }, { 0xFF, 0x00, 0xFF, 0xFF },  48,   0,  50 },
-	//{ { SF,  1, SF,   9 }, { 0xFF, 0xFF, 0xFF, 0xFF },  48,   0,  50 }, // covered by above
-#if DEBUG_MODE
-	{ {  0,  0,  2,   9 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0,  0,   9 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0,  0,   9 }, { 0xFF, 0x00, 0x00, 0xFF },   0,   0,   0 }, // shadow is not necessary
-#endif
-	{ {  2,  0, SF,   9 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 142,   0,  50 },
-	{ {  0,  0,  0, 255 }, {    0,    0,    0,    0 },   0,   0,   0 }
-	// clang-format on
-};
-/*
- * Maps tile IDs to their corresponding shadow types.
- * SFs, 2s are commented out to prevent overwriting 'hardcoded' shadows, large decorations
- */
-const BYTE BSTYPESL2[161] = {
-	// clang-format off
-	0, 1, 2, SF, 0, 0, 6, 0, 0, 9,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 2, 2, 1, 1, 1, 1, 1, 1, 2,
-	2, 2, 2, 2, 0, 0, 0, 0, 0, 6,
-	6, 6, 9, 0, 0, 0/*SF*/, 0/*SF*/, 0/*SF*/, SF, 0/*SF*/,
-	0/*SF*/, 0/*SF*/, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-	1, 0, 0, 2, 2, 2, 0, 0, 0, 1,
-	1, 1, 1, 6, 2, 2, 2, 0, SF, SF,
-	SF, SF, 0, 0, 0, 0, SF, 0, 0, 0,
-	0, 0, 0, SF, 0, SF, SF, SF, SF, SF, // 100...
-	SF, SF, SF, SF, SF, SF, 1, 1, 2, 2,
-	SF, SF, SF, SF, 1, 1, 2, 2, 0/*SF*/, 0/*SF*/,
-	0/*SF*/, 0/*SF*/, 1, 1, 0/*SF*/, 0/*SF*/, 0/*2*/, 0/*2*/, SF, SF,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0
-	// clang-format on
-};
 /*
  * Maps tile IDs to their corresponding undecorated tile ID.
  * Values with a single entry are commented out, because pointless to randomize a single option.
@@ -103,1110 +57,6 @@ const BYTE L2BTYPES[161] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH1[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 1,
-	3, 4,
-	0, 7,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH2[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 1,
-	3, 4,
-	0, 8,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH3[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 1,
-	3, 4,
-	0, 6,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH4[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 1,
-	3, 4,
-	0, 9,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH5[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 1,
-	3, 4,
-	0, 14,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH6[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 1,
-	3, 4,
-	0, 13,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH7[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 1,
-	3, 4,
-	0, 16,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH8[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 1,
-	3, 4,
-	0, 15,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - corner. */
-const BYTE VARCH9[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 8,
-	3, 4,
-	0, 7,
-
-	48,  0, // replace
-	51, 42,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - corner. */
-const BYTE VARCH10[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 8,
-	3, 4,
-	0, 8,
-
-	48,  0, // replace
-	51, 42,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - corner. */
-const BYTE VARCH11[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 8,
-	3, 4,
-	0, 6,
-
-	48,  0, // replace
-	51, 42,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - corner. */
-const BYTE VARCH12[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 8,
-	3, 4,
-	0, 9,
-
-	48,  0, // replace
-	51, 42,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - corner. */
-const BYTE VARCH13[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3,  0, // search
-	3,  8,
-	3,  4,
-	0, 14,
-
-	48,  0, // replace
-	51, 42,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - corner. */
-const BYTE VARCH14[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3,  0, // search
-	3,  8,
-	3,  4,
-	0, 13,
-
-	48,  0, // replace
-	51, 42,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - corner. */
-const BYTE VARCH15[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3,  0, // search
-	3,  8,
-	3,  4,
-	0, 16,
-
-	48,  0, // replace
-	51, 42,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - corner. */
-const BYTE VARCH16[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3,  0, // search
-	3,  8,
-	3,  4,
-	0, 15,
-
-	48,  0, // replace
-	51, 42,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - open wall. */
-const BYTE VARCH17[] = {
-	// clang-format off
-	2, 3, // width, height
-
-	2, 7, // search
-	3, 4,
-	0, 7,
-
-	141, 39, // replace
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - open wall. */
-const BYTE VARCH18[] = {
-	// clang-format off
-	2, 3, // width, height
-
-	2, 7, // search
-	3, 4,
-	0, 8,
-
-	141, 39, // replace
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - open wall. */
-const BYTE VARCH19[] = {
-	// clang-format off
-	2, 3, // width, height
-
-	2, 7, // search
-	3, 4,
-	0, 6,
-
-	141, 39, // replace
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - open wall. */
-const BYTE VARCH20[] = {
-	// clang-format off
-	2, 3, // width, height
-
-	2, 7, // search
-	3, 4,
-	0, 9,
-
-	141, 39, // replace
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - open wall. */
-const BYTE VARCH21[] = {
-	// clang-format off
-	2, 3, // width, height
-
-	2,  7, // search
-	3,  4,
-	0, 14,
-
-	141, 39, // replace
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - open wall. */
-const BYTE VARCH22[] = {
-	// clang-format off
-	2, 3, // width, height
-
-	2,  7, // search
-	3,  4,
-	0, 13,
-
-	141, 39, // replace
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - open wall. */
-const BYTE VARCH23[] = {
-	// clang-format off
-	2, 3, // width, height
-
-	2,  7, // search
-	3,  4,
-	0, 16,
-
-	141, 39, // replace
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - open wall. */
-const BYTE VARCH24[] = {
-	// clang-format off
-	2, 3, // width, height
-
-	2,  7, // search
-	3,  4,
-	0, 15,
-
-	141, 39, // replace
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH25[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 4,
-	3, 1,
-	0, 7,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH26[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 4,
-	3, 1,
-	0, 8,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH27[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 4,
-	3, 1,
-	0, 6,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH28[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3, 0, // search
-	3, 4,
-	3, 1,
-	0, 9,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH29[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3,  0, // search
-	3,  4,
-	3,  1,
-	0, 14,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH30[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3,  0, // search
-	3,  4,
-	3,  1,
-	0, 13,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH31[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3,  0, // search
-	3,  4,
-	3,  1,
-	0, 16,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical. */
-const BYTE VARCH32[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	3,  0, // search
-	3,  4,
-	3,  1,
-	0, 15,
-
-	48,  0, // replace
-	51, 39,
-	47, 44,
-	 0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - room west entrance. */
-const BYTE VARCH33[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	2, 0, // search
-	3, 8,
-	3, 4,
-	0, 7,
-
-	142,  0, // replace
-	 51, 42,
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - room west entrance. */
-const BYTE VARCH34[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	2, 0, // search
-	3, 8,
-	3, 4,
-	0, 8,
-
-	142,  0, // replace
-	 51, 42,
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - room west entrance. */
-const BYTE VARCH35[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	2, 0, // search
-	3, 8,
-	3, 4,
-	0, 6,
-
-	142,  0, // replace
-	 51, 42,
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - room west entrance. */
-const BYTE VARCH36[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	2, 0, // search
-	3, 8,
-	3, 4,
-	0, 9,
-
-	142,  0, // replace
-	 51, 42,
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - room west entrance. */
-const BYTE VARCH37[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	2,  0, // search
-	3,  8,
-	3,  4,
-	0, 14,
-
-	142,  0, // replace
-	 51, 42,
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - room west entrance. */
-const BYTE VARCH38[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	2,  0, // search
-	3,  8,
-	3,  4,
-	0, 13,
-
-	142,  0, // replace
-	 51, 42,
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - room west entrance. */
-const BYTE VARCH39[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	2,  0, // search
-	3,  8,
-	3,  4,
-	0, 16,
-
-	142,  0, // replace
-	 51, 42,
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch vertical - room west entrance. */
-const BYTE VARCH40[] = {
-	// clang-format off
-	2, 4, // width, height
-
-	2,  0, // search
-	3,  8,
-	3,  4,
-	0, 15,
-
-	142,  0, // replace
-	 51, 42,
-	 47, 44,
-	  0,  0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH1[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	2, 5, 9,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH2[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	2, 5, 6,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH3[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	2, 5, 8,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH4[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	2, 5, 7,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH5[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	2, 5, 15,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH6[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	2, 5, 16,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH7[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	2, 5, 13,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH8[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	2, 5, 14,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - north corner. */
-const BYTE HARCH9[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	8, 5, 9,
-
-	49, 46, 0, // replace
-	43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - north corner. */
-const BYTE HARCH10[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	8, 5, 6,
-
-	49, 46, 0, // replace
-	43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - north corner. */
-const BYTE HARCH11[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	8, 5, 8,
-
-	49, 46, 0, // replace
-	43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - north corner. */
-const BYTE HARCH12[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	8, 5, 7,
-
-	49, 46, 0, // replace
-	43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - north corner. */
-const BYTE HARCH13[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	8, 5, 15,
-
-	49, 46, 0, // replace
-	43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - north corner. */
-const BYTE HARCH14[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	8, 5, 16,
-
-	49, 46, 0, // replace
-	43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - north corner. */
-const BYTE HARCH15[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	8, 5, 13,
-
-	49, 46, 0, // replace
-	43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - north corner. */
-const BYTE HARCH16[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	8, 5, 14,
-
-	49, 46, 0, // replace
-	43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - wall. */
-const BYTE HARCH17[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	8, 5, 9,
-
-	140, 46, 0, // replace
-	 43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - wall. */
-const BYTE HARCH18[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	8, 5, 6,
-
-	140, 46, 0, // Replace
-	 43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - wall. */
-const BYTE HARCH19[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	8, 5, 8,
-
-	140, 46, 0, // replace
-	 43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - wall. */
-const BYTE HARCH20[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	8, 5, 7,
-
-	140, 46, 0, // replace
-	 43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - wall. */
-const BYTE HARCH21[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	8, 5, 15,
-
-	140, 46, 0, // replace
-	 43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - wall. */
-const BYTE HARCH22[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	8, 5, 16,
-
-	140, 46, 0, // replace
-	 43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - wall. */
-const BYTE HARCH23[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	8, 5, 13,
-
-	140, 46, 0, // replace
-	 43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - wall. */
-const BYTE HARCH24[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	8, 5, 14,
-
-	140, 46, 0, // replace
-	 43, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH25[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	5, 2, 9,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH26[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	5, 2, 6,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH27[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	5, 2, 8,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH28[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3, 0, // search
-	5, 2, 7,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH29[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	5, 2, 15,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH30[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	5, 2, 16,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH31[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	5, 2, 13,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal. */
-const BYTE HARCH32[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	3, 3,  0, // search
-	5, 2, 14,
-
-	49, 46, 0, // replace
-	40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - west corner. */
-const BYTE HARCH33[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	9, 5, 9,
-
-	140, 46, 0, // replace
-	 40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - west corner. */
-const BYTE HARCH34[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	9, 5, 6,
-
-	140, 46, 0, // replace
-	 40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - west corner. */
-const BYTE HARCH35[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	9, 5, 8,
-
-	140, 46, 0, // replace
-	 40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - west corner. */
-const BYTE HARCH36[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	9, 5, 7,
-
-	140, 46, 0, // replace
-	 40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - west corner. */
-const BYTE HARCH37[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3, 0, // search
-	9, 5, 15,
-
-	140, 46, 0, // replace
-	 40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - west corner. */
-const BYTE HARCH38[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3,  0, // search
-	9, 5, 16,
-
-	140, 46, 0, // replace
-	 40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - west corner. */
-const BYTE HARCH39[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3,  0, // search
-	9, 5, 13,
-
-	140, 46, 0, // replace
-	 40, 45, 0,
-	// clang-format on
-};
-/** Miniset: Arch horizontal - west corner. */
-const BYTE HARCH40[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	1, 3,  0, // search
-	9, 5, 14,
-
-	140, 46, 0, // replace
-	 40, 45, 0,
 	// clang-format on
 };
 /** Miniset: Stairs up. */
@@ -1731,30 +581,196 @@ static void DRLG_L2DoorSubs()
 	}
 }
 
+/*
+ * Place shadows under arches and pillars.
+ * New dungeon values: 45..51   72   140 141 142
+ * TODO: use DRLG_PlaceMiniSet instead?
+ */
 static void DRLG_L2Shadows()
 {
-	const ShadowStruct* ss;
+	BYTE bv;
+	bool pillar, harch, varch;
 	int x, y;
-	ShadowPattern sdp;
 
-	for (y = 1; y < DMAXY; y++) {
-		for (x = 1; x < DMAXX; x++) {
-			sdp.sh00 = BSTYPESL2[dungeon[x][y]];
-			sdp.sh10 = BSTYPESL2[dungeon[x - 1][y]];
-			sdp.sh01 = BSTYPESL2[dungeon[x][y - 1]];
-			sdp.sh11 = BSTYPESL2[dungeon[x - 1][y - 1]];
-			for (ss = L2SPATS; ss->shPattern.sh00 <= sdp.sh00; ss++) {
-				if (ss->shPattern.sh00 == sdp.sh00) {
-					if ((sdp.asUInt32 & ss->shMask.asUInt32) != ss->shPattern.asUInt32)
-						continue;
-					if (ss->nv1 != 0 && drlgFlags[x - 1][y - 1] == 0) {
-						dungeon[x - 1][y - 1] = ss->nv1;
+	for (x = 1; x < DMAXX; x++) {
+		for (y = 1; y < DMAXY; y++) {
+			bv = dungeon[x][y];
+			pillar = false;
+			harch = false;
+			varch = false;
+			switch (bv) {
+			case 6:
+			case 9:
+			case 78:
+				pillar = true;
+				break;
+			case 77:
+				// stairs
+				if (dungeon[x - 1][y] == 3) {
+					dungeon[x - 1][y] = 72;
+				}
+				break;
+			case 4:
+				// fake shadow of the vertical doors
+				if (dungeon[x - 1][y] == 3) {
+					dungeon[x - 1][y] = 47;
+				}
+				if (dungeon[x - 1][y - 1] == 3) {
+					dungeon[x - 1][y - 1] = 51;
+				}
+				break;
+			case 5:
+				// fake shadow of the horizontal doors
+				if (dungeon[x][y - 1] == 3) {
+					dungeon[x][y - 1] = 46;
+				}
+				if (dungeon[x - 1][y - 1] == 3) {
+					dungeon[x - 1][y - 1] = 49;
+				}
+				break;
+			case 41:
+				// arch to both directions
+				pillar = true;
+				harch = true;
+				varch = true;
+				break;
+			case 39:
+			case 42:
+				// - vertical arch
+				pillar = true;
+				varch = true;
+				break;
+			case 40:
+				// horizontal arch - ending
+				pillar = true;
+				harch = true;
+				break;
+			case 43:
+				harch = true;
+				break;
+			}
+			if (varch) {
+				if (dungeon[x - 1][y] == 3) {
+					if (dungeon[x - 1][y + 1] == 3 || dungeon[x - 1][y + 1] == 46) { // overlapping shadows (missing tile to match the other part)
+						if (dungeon[x - 1][y - 1] == 3) {
+							// 3, 0,  search
+							// 3, 39/41/42,
+							// 3/46, 0,
+
+							//48, 0, replace
+							//51, 0,
+							//47, 0,
+							dungeon[x - 1][y - 1] = 48;
+							dungeon[x - 1][y] = 51;
+							dungeon[x - 1][y + 1] = 47;
+							pillar = false;
+						} else if (dungeon[x - 1][y - 1] == 2) {
+							// 2, 0,  search
+							// 3, 39/41/42,
+							// 3/46, 0,
+
+							//142, 0, replace
+							//51, 0,
+							//47, 0,
+							dungeon[x - 1][y - 1] = 142;
+							dungeon[x - 1][y] = 51;
+							dungeon[x - 1][y + 1] = 47;
+							pillar = false;
+						} else if (dungeon[x - 1][y - 1] == 47 || dungeon[x - 1][y - 1] == 46) { // overlapping shadows
+							// 46/47, 0,  search
+							// 3, 39/41/42,
+							// 3/46, 0,
+
+							// 0, 0, replace
+							//51, 0,
+							//47, 0,
+							dungeon[x - 1][y] = 51;
+							dungeon[x - 1][y + 1] = 47;
+							pillar = false;
+						}
 					}
-					if (ss->nv2 != 0 && drlgFlags[x][y - 1] == 0) {
-						dungeon[x][y - 1] = ss->nv2;
+				} else if (dungeon[x - 1][y] == 2) {
+					if (dungeon[x - 1][y + 1] == 3) {
+						// 2, 39/41/42,  search
+						// 3, 0,
+
+						//141, 0, replace
+						//47, 0,
+						dungeon[x - 1][y] = 141;
+						dungeon[x - 1][y + 1] = 47;
+						pillar = false;
+					} else if (dungeon[x - 1][y + 1] == 46) { // overlapping shadows (missing tile to match the other part)
+						// 2, 39/41/42,  search
+						// 46, 0,
+
+						//141, 0, replace
+						// 0, 0,
+						dungeon[x - 1][y] = 141;
+						pillar = false;
 					}
-					if (ss->nv3 != 0 && drlgFlags[x - 1][y] == 0) {
-						dungeon[x - 1][y] = ss->nv3;
+				}
+			}
+			if (harch) {
+				// - horizontal arch
+				if (dungeon[x][y - 1] == 3) {
+					if (dungeon[x + 1][y - 1] == 3) {
+						// 3, 3,  search
+						// 40/41/43, 0
+
+						//49,46, replace
+						// 0, 0,
+						dungeon[x][y - 1] = 49;
+						dungeon[x + 1][y - 1] = 46;
+					//} else if (dungeon[x + 1][y - 1] == 47) { // overlapping shadows (missing tile to match the other part)
+					//	dungeon[x][y - 1] = 49;
+					}
+				} else if (dungeon[x][y - 1] == 1) {
+					if (dungeon[x + 1][y - 1] == 3) {
+						// 1, 3,  search
+						// 40/41/43, 0
+
+						//140,46, replace
+						// 0, 0,
+						dungeon[x][y - 1] = 140;
+						dungeon[x + 1][y - 1] = 46;
+					//} else if (dungeon[x + 1][y - 1] == 47) { // overlapping shadows (missing tile to match the other part)
+					//	dungeon[x][y - 1] = 49;
+					}
+				}
+			}
+			if (pillar) {
+				// pillars
+				if (dungeon[x - 1][y] == 3) {
+					if (dungeon[x - 1][y - 1] == 3) {
+						// 3, 0,  search
+						// 3, 6/7/39/40/41/42/78
+
+						//48, 0, replace
+						//50, 0,
+						dungeon[x - 1][y] = 50;
+						dungeon[x - 1][y - 1] = 48;
+					} else if (dungeon[x - 1][y - 1] == 2) {
+						// 2, 0,  search
+						// 3, 6/7/39/40/41/42/78
+
+						//142, 0, replace
+						//50, 0,
+						dungeon[x - 1][y] = 50;
+						dungeon[x - 1][y - 1] = 142;
+					} else if (dungeon[x - 1][y - 1] == 47) { // overlapping shadows
+						//47, 0,  search
+						// 3, 6/7/39/40/41/42/78
+
+						// 0, 0, replace
+						//50, 0,
+						dungeon[x - 1][y] = 50;
+					} else if (dungeon[x - 1][y - 1] == 46) { // overlapping shadows
+						//46, 0,  search
+						// 3, 6/7/39/40/41/42/78
+
+						// 0, 0, replace
+						//45, 0,
+						dungeon[x - 1][y] = 45;
 					}
 				}
 			}
@@ -1787,37 +803,8 @@ static void DRLG_LoadL2SP()
 	} else if (QuestStatus(Q_BCHAMB)) {
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
 		// patch the map - Bonestr2.DUN
-		// place shadows
-		// NE-wall
-		pSetPieces[0]._spData[(2 + 1 + 0 * 7) * 2] = 49;
-		pSetPieces[0]._spData[(2 + 2 + 0 * 7) * 2] = 46;
-		pSetPieces[0]._spData[(2 + 3 + 0 * 7) * 2] = 49;
-		pSetPieces[0]._spData[(2 + 4 + 0 * 7) * 2] = 46;
-		// SW-wall
-		pSetPieces[0]._spData[(2 + 1 + 4 * 7) * 2] = 49;
-		pSetPieces[0]._spData[(2 + 2 + 4 * 7) * 2] = 46;
-		pSetPieces[0]._spData[(2 + 3 + 4 * 7) * 2] = 49;
-		pSetPieces[0]._spData[(2 + 4 + 4 * 7) * 2] = 46;
-		// NW-wall
-		pSetPieces[0]._spData[(2 + 0 + 0 * 7) * 2] = 48;
-		pSetPieces[0]._spData[(2 + 0 + 1 * 7) * 2] = 51;
-		pSetPieces[0]._spData[(2 + 0 + 2 * 7) * 2] = 47;
-		pSetPieces[0]._spData[(2 + 0 + 3 * 7) * 2] = 51;
-		pSetPieces[0]._spData[(2 + 0 + 4 * 7) * 2] = 47;
-		pSetPieces[0]._spData[(2 + 0 + 5 * 7) * 2] = 50;
-		// SE-wall
-		pSetPieces[0]._spData[(2 + 4 + 1 * 7) * 2] = 51;
-		pSetPieces[0]._spData[(2 + 4 + 2 * 7) * 2] = 47;
-		pSetPieces[0]._spData[(2 + 4 + 3 * 7) * 2] = 50; // 51;
-		// commented out because there is no matching shadow type
-		//pSetPieces[0]._spData[(2 + 4 + 5 * 7) * 2] = 47;
-		// ensure the changing tiles are reserved
-		for (int y = 0; y < 7; y++) {
-			for (int x = 0; x < 7; x++) {
-				if (pSetPieces[0]._spData[(2 + x + y * 7) * 2] == 0)
-					pSetPieces[0]._spData[(2 + x + y * 7) * 2] = DEFAULT_MEGATILE_L2;
-			}
-		}
+		// - remove tile to leave space for shadow
+		pSetPieces[0]._spData[(2 + 2 + 4 * 7) * 2] = 0;
 		pSetPieces[0]._sptype = SPT_BCHAMB;
 	}
 }
@@ -2336,6 +1323,10 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 	}
 }
 
+/*
+ * Prepare the dungeon
+ * Dungeon values: 1 .. 16
+ */
 static void DRLG_L2MakeMegas()
 {
 	int x, y, i, j, xx, yy;
@@ -2940,7 +1931,8 @@ static void DRLG_L2TransFix()
 
 /*
  * Replace tiles with complete ones to hide rendering glitch of transparent corners.
- * New dungeon values: 143 144  146 147 148
+ * New dungeon values: 143 144  146 147 148 149
+ * Obsolete dungeon values: 10 11  13 14 15 16
  */
 static void DRLG_L2Corners()
 {
@@ -2950,7 +1942,7 @@ static void DRLG_L2Corners()
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L2Corners.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		if (*pTmp >= 10 && *pTmp <= 15 && *pTmp != 12)
+		if (*pTmp >= 10 && *pTmp <= 16 && *pTmp != 12)
 			*pTmp += 133;
 	}
 	/*int i, j;
@@ -3001,6 +1993,9 @@ static void DRLG_L2Corners()
 	}*/
 }
 
+/*
+ * Ensure the dungeon is 'minimally' traversible.
+ */
 static void L2LockoutFix()
 {
 	int i, j;
@@ -3097,7 +2092,7 @@ static void L2DoorFix()
 
 static bool IsPillar(BYTE bv)
 {
-	return (bv >= 6 && bv <= 9) || (bv >= 13 && bv <= 16);
+	return (bv >= 6 && bv <= 9) || (bv >= 146 && bv <= 149);
 }
 
 /*
@@ -3172,6 +2167,106 @@ static void L2DoorFix2()
 	}
 }
 
+/*
+ * Replace doors with arches.
+ * TODO: skip if there is no corresponding shadow?
+ * New dungeon values: (3) 39 40 41 42 43
+ */
+static void L2CreateArches()
+{
+	BYTE pn;
+	int x, y;
+	// TODO: skip replace if there is no matching shadow?
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
+			if (drlgFlags[x][y])
+				continue;
+			if (dungeon[x][y] == 4) {
+				// vertical door
+				// assert(y > 0 && y < DMAXY - 1);
+				if (IsPillar(dungeon[x][y + 1])) {
+					pn = dungeon[x][y - 1];
+					// assert(!drlgFlags[x][y - 1]);
+					if (pn == 1 || pn == 7) {
+						// 1/7,  search
+						// 4,
+						// P,
+
+						//39, replace
+						//3,
+						//0,
+						dungeon[x][y - 1] = 39;
+						dungeon[x][y] = 3;
+					} else if (pn == 8) {
+						// 8,  search
+						// 4,
+						// P,
+
+						//42, replace
+						//3,
+						//0,
+						dungeon[x][y - 1] = 42;
+						dungeon[x][y] = 3;
+					} else if (pn == 43) {
+						// 43,  search
+						// 4,
+						// P,
+
+						//41, replace
+						//3,
+						//0,
+						dungeon[x][y - 1] = 41;
+						dungeon[x][y] = 3;
+					}
+				} else if (pn == 1 && y < DMAXY - 2) {
+					if (IsPillar(dungeon[x][y + 2])) { // TODO: is this possible after L2DoorFix2?
+						// 4,  search
+						// 1,
+						// P,
+
+						//39, replace
+						//3,
+						//0,
+						// assert(!drlgFlags[x][y + 1]);
+						dungeon[x][y + 1] = 3;
+						dungeon[x][y] = 39;
+					}
+				}
+			} else if (dungeon[x][y] == 5) {
+				// horizontal door
+				// assert(x > 0 && x < DMAXX - 1);
+				pn = dungeon[x + 1][y];
+				if (IsPillar(pn)) {
+					pn = dungeon[x - 1][y];
+					// assert(!drlgFlags[x - 1][y]);
+					if (pn == 2 || pn == 9) {
+						// 2/9, 5, P,  search
+
+						//40, 3, 0, replace
+						dungeon[x - 1][y] = 40;
+						dungeon[x][y] = 3;
+					} else if (pn == 8) {
+						// 8, 5, P,  search
+
+						//43, 3, 0, replace
+						dungeon[x - 1][y] = 43;
+						dungeon[x][y] = 3;
+					}
+				} else if (pn == 2 && x < DMAXX - 2) {
+					if (IsPillar(dungeon[x + 2][y])) { // TODO: is this possible after L2DoorFix2?
+						// 5, 2, P,  search
+
+						//40, 3, 0, replace
+						// assert(!drlgFlags[x + 1][y]);
+						dungeon[x + 1][y] = 3;
+						dungeon[x][y] = 40;
+					}
+				}
+			}
+		}
+	}
+}
+
 static void DRLG_L2()
 {
 	while (true) {
@@ -3240,87 +2335,10 @@ static void DRLG_L2()
 	DRLG_PlaceThemeRooms(6, 10, DEFAULT_MEGATILE_L2, 0, false);
 
 	L2DoorFix2();
+	L2CreateArches();
 
-	DRLG_L2PlaceRndSet(VARCH33, 100);
-	DRLG_L2PlaceRndSet(VARCH34, 100);
-	DRLG_L2PlaceRndSet(VARCH35, 100);
-	DRLG_L2PlaceRndSet(VARCH36, 100);
-	DRLG_L2PlaceRndSet(VARCH37, 100);
-	DRLG_L2PlaceRndSet(VARCH38, 100);
-	DRLG_L2PlaceRndSet(VARCH39, 100);
-	DRLG_L2PlaceRndSet(VARCH40, 100);
-	DRLG_L2PlaceRndSet(VARCH1, 100);
-	DRLG_L2PlaceRndSet(VARCH2, 100);
-	DRLG_L2PlaceRndSet(VARCH3, 100);
-	DRLG_L2PlaceRndSet(VARCH4, 100);
-	DRLG_L2PlaceRndSet(VARCH5, 100);
-	DRLG_L2PlaceRndSet(VARCH6, 100);
-	DRLG_L2PlaceRndSet(VARCH7, 100);
-	DRLG_L2PlaceRndSet(VARCH8, 100);
-	DRLG_L2PlaceRndSet(VARCH9, 100);
-	DRLG_L2PlaceRndSet(VARCH10, 100);
-	DRLG_L2PlaceRndSet(VARCH11, 100);
-	DRLG_L2PlaceRndSet(VARCH12, 100);
-	DRLG_L2PlaceRndSet(VARCH13, 100);
-	DRLG_L2PlaceRndSet(VARCH14, 100);
-	DRLG_L2PlaceRndSet(VARCH15, 100);
-	DRLG_L2PlaceRndSet(VARCH16, 100);
-	DRLG_L2PlaceRndSet(VARCH17, 100);
-	DRLG_L2PlaceRndSet(VARCH18, 100);
-	DRLG_L2PlaceRndSet(VARCH19, 100);
-	DRLG_L2PlaceRndSet(VARCH20, 100);
-	DRLG_L2PlaceRndSet(VARCH21, 100);
-	DRLG_L2PlaceRndSet(VARCH22, 100);
-	DRLG_L2PlaceRndSet(VARCH23, 100);
-	DRLG_L2PlaceRndSet(VARCH24, 100);
-	DRLG_L2PlaceRndSet(VARCH25, 100);
-	DRLG_L2PlaceRndSet(VARCH26, 100);
-	DRLG_L2PlaceRndSet(VARCH27, 100);
-	DRLG_L2PlaceRndSet(VARCH28, 100);
-	DRLG_L2PlaceRndSet(VARCH29, 100);
-	DRLG_L2PlaceRndSet(VARCH30, 100);
-	DRLG_L2PlaceRndSet(VARCH31, 100);
-	DRLG_L2PlaceRndSet(VARCH32, 100);
-	DRLG_L2PlaceRndSet(HARCH1, 100);
-	DRLG_L2PlaceRndSet(HARCH2, 100);
-	DRLG_L2PlaceRndSet(HARCH3, 100);
-	DRLG_L2PlaceRndSet(HARCH4, 100);
-	DRLG_L2PlaceRndSet(HARCH5, 100);
-	DRLG_L2PlaceRndSet(HARCH6, 100);
-	DRLG_L2PlaceRndSet(HARCH7, 100);
-	DRLG_L2PlaceRndSet(HARCH8, 100);
-	DRLG_L2PlaceRndSet(HARCH9, 100);
-	DRLG_L2PlaceRndSet(HARCH10, 100);
-	DRLG_L2PlaceRndSet(HARCH11, 100);
-	DRLG_L2PlaceRndSet(HARCH12, 100);
-	DRLG_L2PlaceRndSet(HARCH13, 100);
-	DRLG_L2PlaceRndSet(HARCH14, 100);
-	DRLG_L2PlaceRndSet(HARCH15, 100);
-	DRLG_L2PlaceRndSet(HARCH16, 100);
-	DRLG_L2PlaceRndSet(HARCH17, 100);
-	DRLG_L2PlaceRndSet(HARCH18, 100);
-	DRLG_L2PlaceRndSet(HARCH19, 100);
-	DRLG_L2PlaceRndSet(HARCH20, 100);
-	DRLG_L2PlaceRndSet(HARCH21, 100);
-	DRLG_L2PlaceRndSet(HARCH22, 100);
-	DRLG_L2PlaceRndSet(HARCH23, 100);
-	DRLG_L2PlaceRndSet(HARCH24, 100);
-	DRLG_L2PlaceRndSet(HARCH25, 100);
-	DRLG_L2PlaceRndSet(HARCH26, 100);
-	DRLG_L2PlaceRndSet(HARCH27, 100);
-	DRLG_L2PlaceRndSet(HARCH28, 100);
-	DRLG_L2PlaceRndSet(HARCH29, 100);
-	DRLG_L2PlaceRndSet(HARCH30, 100);
-	DRLG_L2PlaceRndSet(HARCH31, 100);
-	DRLG_L2PlaceRndSet(HARCH32, 100);
-	DRLG_L2PlaceRndSet(HARCH33, 100);
-	DRLG_L2PlaceRndSet(HARCH34, 100);
-	DRLG_L2PlaceRndSet(HARCH35, 100);
-	DRLG_L2PlaceRndSet(HARCH36, 100);
-	DRLG_L2PlaceRndSet(HARCH37, 100);
-	DRLG_L2PlaceRndSet(HARCH38, 100);
-	DRLG_L2PlaceRndSet(HARCH39, 100);
-	DRLG_L2PlaceRndSet(HARCH40, 100);
+	DRLG_L2Shadows();
+
 	DRLG_L2PlaceRndSet(CRUSHCOL, 99);
 	//DRLG_L2PlaceRndSet(RUINS1, 10);
 	//DRLG_L2PlaceRndSet(RUINS2, 10);
@@ -3343,7 +2361,6 @@ static void DRLG_L2()
 	DRLG_L2PlaceRndSet(BIG10, 20);
 	DRLG_L2Subs();
 	DRLG_L2DoorSubs();
-	DRLG_L2Shadows();
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
