@@ -24,7 +24,7 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	OBJ_BOOK2L, // Q_BCHAMB, Q_BETRAYER
+	OBJ_ANCIENTTOME, // Q_BCHAMB
 	OBJ_BLOODBOOK, //Q_BLOOD
 	OBJ_TBCROSS, // Q_BCHAMB
 	0,
@@ -57,7 +57,7 @@ const BYTE ObjConvTbl[128] = {
 	0, //OBJ_SKSTICK5,
 	0,
 	0,
-	0,
+	OBJ_VILEBOOK, // Q_BETRAYER
 	0,
 	0,
 	0,
@@ -217,7 +217,8 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_TCHEST1*/     { OFILE_CHEST1,   DTM_ANY & ~DTM_CATHEDRAL,                  0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
 /*OBJ_TCHEST2*/     { OFILE_CHEST2,   DTM_ANY & ~DTM_CATHEDRAL,                  0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
 /*OBJ_TCHEST3*/     { OFILE_CHEST3,   DTM_ANY & ~DTM_CATHEDRAL,                  0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
-/*OBJ_BOOK2L*/      { OFILE_BOOK2,    0,                                         0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
+/*OBJ_ANCIENTTOME*/ { OFILE_BOOK2,    0,                                         0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
+/*OBJ_VILEBOOK*/    { OFILE_BOOK2,    0,                                         0,               THEME_NONE,              Q_INVALID,             4, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_MYTHICBOOK*/  { OFILE_BOOK2,    0,                                         0,               THEME_NONE,              Q_BCHAMB,              4, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_BOOKSTAND*/   { OFILE_BOOK2,    0,                                         0,               THEME_LIBRARY,           Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_SKELBOOK*/    { OFILE_BOOK2,    0,                                         0,               THEME_SKELROOM,          Q_INVALID,             4, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },

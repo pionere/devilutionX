@@ -553,7 +553,7 @@ static void AddL2Torches()
 			if (!nSolidTable[dPiece[i][j + 1]]) {
 				AddObject(OBJ_TORCHR1, i, j);
 			} else {
-				if (dObject[i][j - 1] == 0)
+				if (dObject[i][j - 1] == 0) // check torches from the previous loop
 					AddObject(OBJ_TORCHR2, i, j - 1);
 			}
 			// skip a few tiles to prevent close placement
@@ -1289,13 +1289,6 @@ static void AddDecap(int oi)
 	os->_oPreFlag = TRUE;
 }
 
-static void AddVileBook(int oi)
-{
-	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		objects[oi]._oAnimFrame = 4;
-	}
-}
-
 static void AddMagicCircle(int oi)
 {
 	ObjectStruct* os;
@@ -1509,9 +1502,6 @@ int AddObject(int type, int ox, int oy)
 	//case OBJ_TEARFTN:
 	//	ObjAddRndSeed(oi);
 	//	break;
-	case OBJ_BOOK2L:
-		AddVileBook(oi);
-		break;
 	case OBJ_MCIRCLE1:
 	case OBJ_MCIRCLE2:
 		AddMagicCircle(oi);
@@ -2228,7 +2218,7 @@ static bool CheckLeverGroup(int type, int lvrIdx)
 
 	for (i = 0; i < numobjects; i++) {
 		os = &objects[i]; // objects[objectactive[i]]
-		if (os->_otype != type) // OBJ_SWITCHSKL, OBJ_LEVER, OBJ_BOOK2L or OBJ_L5LEVER
+		if (os->_otype != type) // OBJ_SWITCHSKL, OBJ_LEVER, OBJ_VILEBOOK or OBJ_L5LEVER
 			continue;
 		if (lvrIdx != os->_oVar8 || !(os->_oModeFlags & OMF_ACTIVE)) // LEVER_INDEX
 			continue;
@@ -2291,55 +2281,65 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	ObjectStruct* os;
 	int dx, dy, on;
 
-	assert(currLvl._dSetLvl);
+	// assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
 
 	os = &objects[oi];
 	// assert(os->_oModeFlags & OMF_ACTIVE);
-	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		// assert(plr._pmode == PM_STAND && !deltaload);
-		if (plr._px != os->_ox || plr._py != os->_oy + 1)
-			return;
-		if (os->_ox == DBORDERX + 10) {
-			dx = DBORDERX + 11;
-			dy = DBORDERY + 13;
-		} else {
-			assert(os->_ox == DBORDERX + 29);
-			dx = DBORDERX + 27;
-			dy = DBORDERY + 13;
-		}
-		on = dObject[dx][dy] - 1;
-		assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
-
-		FindClosestPlr(&dx, &dy);
-		AddMissile(0, 0, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
-		objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
+	// assert(plr._pmode == PM_STAND && !deltaload);
+	if (plr._px != os->_ox || plr._py != os->_oy + 1)
+		return;
+	if (os->_ox == DBORDERX + 10) {
+		dx = DBORDERX + 11;
+		dy = DBORDERY + 13;
+	} else {
+		assert(os->_ox == DBORDERX + 29);
+		dx = DBORDERX + 27;
+		dy = DBORDERY + 13;
 	}
+	on = dObject[dx][dy] - 1;
+	assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
+
+	FindClosestPlr(&dx, &dy);
+	AddMissile(0, 0, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+	objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
+
+	os->_oModeFlags &= ~OMF_ACTIVE;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame++; // 5
+
+	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
+	//for (i = 0; i < numobjects; i++)
+	//	SyncObjectAnim(objectactive[i]);
+}
+
+static void OperateAncientTome(int pnum, int oi, bool sendmsg)
+{
+	ObjectStruct* os;
+
+	// assert(currLvl._dLevelIdx == SL_BONECHAMB);
+
+	os = &objects[oi];
+	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++; // 2
 
-	if (currLvl._dLevelIdx == SL_BONECHAMB) {
-		if (deltaload)
-			return;
-		if (plr._pSkillLvlBase[SPL_GUARDIAN] == 0) {
-			plr._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
-			IncreasePlrSkillLvl(pnum, SPL_GUARDIAN);
-		}
-		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
-		if (pnum == mypnum)
-			InitDiabloMsg(EMSG_BONECHAMB);
-		// SetRndSeed(os->_oRndSeed);
-		AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
-		quests[Q_BCHAMB]._qactive = QUEST_DONE;
-		if (sendmsg) {
-			NetSendCmdQuest(Q_BCHAMB, true); // recipient should not matter
-			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-		}
-	} //else if (currLvl._dLevelIdx == SL_VILEBETRAYER) { NULL_LVR_EFFECT
-		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
-		//for (i = 0; i < numobjects; i++)
-		//	SyncObjectAnim(objectactive[i]);
-	//}
+	if (deltaload)
+		return;
+	if (plr._pSkillLvlBase[SPL_GUARDIAN] == 0) {
+		plr._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
+		IncreasePlrSkillLvl(pnum, SPL_GUARDIAN);
+	}
+	PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
+	if (pnum == mypnum)
+		InitDiabloMsg(EMSG_BONECHAMB);
+	// SetRndSeed(os->_oRndSeed);
+	AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
+	quests[Q_BCHAMB]._qactive = QUEST_DONE;
+	if (sendmsg) {
+		NetSendCmdQuest(Q_BCHAMB, true); // recipient should not matter
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
+	}
 }
 
 static void OperateBookLever(int pnum, int oi, bool sendmsg)
@@ -3580,7 +3580,10 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, sendmsg);
 		break;
-	case OBJ_BOOK2L:
+	case OBJ_ANCIENTTOME:
+		OperateAncientTome(pnum, oi, sendmsg);
+		break;
+	case OBJ_VILEBOOK:
 		OperateVileBook(pnum, oi, sendmsg);
 		break;
 	case OBJ_CHEST1:
@@ -3743,7 +3746,10 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, false);
 		break;
-	case OBJ_BOOK2L:
+	case OBJ_ANCIENTTOME:
+		OperateAncientTome(pnum, oi, false);
+		break;
+	case OBJ_VILEBOOK:
 		OperateVileBook(pnum, oi, false);
 		break;
 	case OBJ_CHEST1:
@@ -4025,7 +4031,7 @@ void SyncObjectAnim(int oi)
 #ifdef HELLFIRE
 	case OBJ_L5LEVER:
 #endif
-	case OBJ_BOOK2L: // TODO: only if currLvl._dLevelIdx == SL_VILEBETRAYER? NULL_LVR_EFFECT
+	case OBJ_VILEBOOK:
 	case OBJ_SWITCHSKL:
 		SyncLever(oi);
 		break;
@@ -4080,11 +4086,11 @@ void GetObjectStr(int oi)
 		else // if (os->_oVar4 == DOOR_BLOCKED)
 			copy_cstr(infostr, "Blocked Door");
 		break;
-	case OBJ_BOOK2L:
-		if (currLvl._dLevelIdx == SL_BONECHAMB)
-			copy_cstr(infostr, "Ancient Tome");
-		else if (currLvl._dLevelIdx == SL_VILEBETRAYER)
-			copy_cstr(infostr, "Book of Vileness");
+	case OBJ_ANCIENTTOME:
+		copy_cstr(infostr, "Ancient Tome");
+		break;
+	case OBJ_VILEBOOK:
+		copy_cstr(infostr, "Book of Vileness");
 		break;
 	case OBJ_SWITCHSKL:
 		copy_cstr(infostr, "Skull Lever");
