@@ -2184,7 +2184,8 @@ static void L2CreateArches()
 			if (dungeon[x][y] == 4) {
 				// vertical door
 				// assert(y > 0 && y < DMAXY - 1);
-				if (IsPillar(dungeon[x][y + 1])) {
+				pn = dungeon[x][y + 1];
+				if (IsPillar(pn)) {
 					pn = dungeon[x][y - 1];
 					// assert(!drlgFlags[x][y - 1]);
 					if (pn == 1 || pn == 7) {
