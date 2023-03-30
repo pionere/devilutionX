@@ -166,6 +166,33 @@ void InitLvlDungeon()
 	pMicroCels = LoadFileInMem(lds->dMicroCels);
 	assert(pMegaTiles == NULL);
 	pMegaTiles = (uint16_t*)LoadFileInMem(lds->dMegaTiles);
+	// patch mega tiles
+	if (currLvl._dType == DTYPE_CATHEDRAL) {
+		// patch L1.TIL
+		// - remove lower layer of tile 203
+		// assert(pMegaTiles[(203 - 1) * 4 + 0] == SwapLE16(447 - 1));
+		// assert(pMegaTiles[(203 - 1) * 4 + 1] == SwapLE16(438 - 1));
+		// assert(pMegaTiles[(203 - 1) * 4 + 2] == SwapLE16(443 - 1));
+		// assert(pMegaTiles[(203 - 1) * 4 + 3] == SwapLE16(440 - 1));
+		pMegaTiles[(203 - 1) * 4 + 0] = 40 - 1;
+		pMegaTiles[(203 - 1) * 4 + 1] = 31 - 1;
+		pMegaTiles[(203 - 1) * 4 + 2] = 36 - 1;
+		pMegaTiles[(203 - 1) * 4 + 3] = 33 - 1;
+	}
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT) {
+		// patch L5.TIL
+		// - remove lower layer of tile 86
+		// assert(pMegaTiles[(86 - 1) * 4 + 0] == SwapLE16(245 - 1));
+		// assert(pMegaTiles[(86 - 1) * 4 + 1] == SwapLE16(237 - 1));
+		// assert(pMegaTiles[(86 - 1) * 4 + 2] == SwapLE16(242 - 1));
+		// assert(pMegaTiles[(86 - 1) * 4 + 3] == SwapLE16(239 - 1));
+		pMegaTiles[(86 - 1) * 4 + 0] = 72 - 1;
+		pMegaTiles[(86 - 1) * 4 + 1] = 64 - 1;
+		pMegaTiles[(86 - 1) * 4 + 2] = 69 - 1;
+		pMegaTiles[(86 - 1) * 4 + 3] = 66 - 1;
+	}
+#endif
 	assert(pSpecialCels == NULL);
 	if (currLvl._dLevelIdx != DLV_TOWN)
 		pSpecialCels = LoadFileInMem(lds->dSpecCels);
@@ -847,10 +874,10 @@ void DRLG_AreaTrans(int num, const BYTE* List)
 #pragma GCC push_options
 #pragma GCC optimize("O0")
 #endif
-static BYTE TVfloor;
+static const bool *TVfloor;
 static void DRLG_FTVR(int i, int j, int x, int y, int dir)
 {
-	if (dungeon[i][j] != TVfloor) {
+	if (!TVfloor[dungeon[i][j]]) {
 		switch (dir) {
 		case 0:
 			dTransVal[x][y] = numtrans;
@@ -904,7 +931,7 @@ static void DRLG_FTVR(int i, int j, int x, int y, int dir)
 	}
 }
 
-void DRLG_FloodTVal(BYTE floor)
+void DRLG_FloodTVal(const bool *floor)
 {
 	int xx, yy, i, j;
 
@@ -916,7 +943,7 @@ void DRLG_FloodTVal(BYTE floor)
 		xx = DBORDERX;
 
 		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == TVfloor && dTransVal[xx][yy] == 0) {
+			if (TVfloor[dungeon[i][j]] && dTransVal[xx][yy] == 0) {
 				DRLG_FTVR(i, j, xx, yy, 0);
 				numtrans++;
 			}
@@ -1140,14 +1167,14 @@ static void DRLG_CreateThemeRoom(int themeIndex)
 			dungeon[hx - 1][yy - 1] = 53;
 			dungeon[hx - 1][yy] = 6;
 			dungeon[hx - 1][yy + 1] = 52;
-			dungeon[hx - 2][yy - 1] = 54;
+			//dungeon[hx - 2][yy - 1] = 54;
 		} else {
 			xx = (lx + hx) / 2;
 			dungeon[xx - 1][hy - 1] = 57;
 			dungeon[xx][hy - 1] = 6;
 			dungeon[xx + 1][hy - 1] = 56;
-			dungeon[xx][hy - 2] = 59;
-			dungeon[xx - 1][hy - 2] = 58;
+			//dungeon[xx][hy - 2] = 59;
+			//dungeon[xx - 1][hy - 2] = 58;
 		}
 	}
 }
@@ -1185,7 +1212,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 					x2--;
 					y2--;
 				}
-				DRLG_RectTrans(x1, y1, x2, y2);
+				// DRLG_RectTrans(x1, y1, x2, y2);
 				DRLG_CreateThemeRoom(themeCount);
 				themeCount++;
 			}

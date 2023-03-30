@@ -160,12 +160,11 @@ const BYTE L4PENTA2[] = {
 	0,   0,   0,   0, 0,
 	// clang-format on
 };
-
 /*
  * Maps tile IDs to their corresponding undecorated tile ID.
  * Values with a single entry are commented out, because pointless to randomize a single option.
  */
-const BYTE L4BTYPES[140] = {
+const BYTE L4BTYPES[138] = {
 	// clang-format off
 	0, 1, 2, 0 /*3*/, 4, 5, 6, 7, 0/*8*/, 9,
 	0/*10*/, 0/*11*/, 12, 0/*13*/, 0/*14*/, 15, 16, 0/*17*/, 0, 0,
@@ -180,10 +179,30 @@ const BYTE L4BTYPES[140] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	0, 0, 0, 0, 0, 0, 0, 0
 	// clang-format on
 };
-
+/*
+ * Specifies whether the given tile ID should spread the room ID (transval).
+ */
+const bool L4FTYPES[138] = {
+	// clang-format off
+	false, false, false, false, false, false,  true, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, // 10..
+	false, false, false, false, false, false, false, false, false, false, // 20..
+	false,  true,  true, false, false, false,  true,  true, false,  true, // 30..
+	 true,  true, false, false, false,  true,  true,  true,  true,  true, // 40..
+	 true,  true, false, false,  true,  true, false, false,  true,  true, // 50..
+	 true, false, false, false, false, false, false, false, false, false, // 60..
+	false,  true,  true, false,  true,  true, false, false, false, false, // 70..
+	false, false, false, false,  true,  true,  true,  true,  true,  true, // 80..
+	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true, // 90..
+	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true, //100..
+	 true,  true,  true,  true,  true, false, false, false, false, false, //110..
+	false, false, false, false, false, false, false, false, false,  true, //120..
+	 true, false, false, false,  true,  true, false, false,               //130..
+	// clang-format on
+};
 /*
  * Miniset replacement to add shadows.
  * New dungeon values: 47 48   54 55   58 59 60  71 72   74 75
@@ -272,50 +291,6 @@ static void DRGL_L4PatchSetPiece(BYTE *pMap)
 		for (int x = 0; x < w; x++) {
 			int pn = lm[x + y * w];
 			
-			// remove generic shadows (going to be regenerated)
-			if ((pn == 3 || pn == 4 || pn == 8 || pn == 15 || pn == 81) && x != 0 && y != 0) {
-				if (lm[x - 1 + y * w] == 47 && lm[x - 1 + (y - 1) * w] == 48) {
-					lm[x - 1 + y * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-					lm[x - 1 + (y - 1) * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-				}
-			} else if (pn == 53 && x != 0) {
-				if (lm[x - 1 + y * w] == 54) {
-					lm[x - 1 + y * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-				}
-				if (y != 0 && lm[x - 1 + (y - 1) * w] == 55) {
-					lm[x - 1 + (y - 1) * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-				}
-			} else if (pn == 56 && x >= 2 && y != 0) {
-				if (lm[x - 1 + y * w] == 60 && lm[x - 1 + (y - 1) * w] == 59 && lm[x - 2 + (y - 1) * w] == 58) {
-					lm[x - 1 + y * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-					lm[x - 1 + (y - 1) * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-					lm[x - 2 + (y - 1) * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-				}
-			} else if (pn == 73 && x != 0 && y != 0) {
-				if (lm[x - 1 + y * w] == 71 && lm[x - 1 + (y - 1) * w] == 72) {
-					lm[x - 1 + y * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-					lm[x - 1 + (y - 1) * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-				}
-			} else if ((pn == 76 || pn == 77) && x != 0 && y != 0) {
-				if (lm[x - 1 + y * w] == 74 && lm[x - 1 + (y - 1) * w] == 75) {
-					lm[x - 1 + y * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-					lm[x - 1 + (y - 1) * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-				}
-			//} else if ((pn == 78 || pn == 16) && x != 0 && y != 0) {
-			//	if (lm[x - 1 + (y - 1) * w] == 72) {
-			//		lm[x - 1 + (y - 1) * w] = SwapLE16(DEFAULT_MEGATILE_L4);
-			//	}
-			}
-			// remove standard decorations -- TODO: vanilla only?
-			if (pn == 95 || pn == 96 || pn == 97) {
-				lm[x + y * w] = SwapLE16(0);
-				pn = 0;
-			}
-			// remove standard substitutions -- TODO: vanilla only?
-			if (L4BTYPES[pn] == DEFAULT_MEGATILE_L4) {
-				lm[x + y * w] = SwapLE16(0);
-				pn = 0;
-			}
 			// protect tiles
 			if (pn == 0) {
 				// - tiles with objects
@@ -1381,6 +1356,22 @@ static void DRLG_LoadDiabQuads()
 	DRLG_L4SetRoom(3);
 }
 
+/* Block arches with walls to stop the spread of transVals */
+static void DRLG_L4BlockArches()
+{
+	int i, j;
+
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			if (dungeon[i][j] == 53) {
+				dungeon[i][j + 1] = 1;
+			} else if (dungeon[i][j] == 57) {
+				dungeon[i + 1][j] = 2;
+			}
+		}
+	}
+}
+
 /*
  * Spread transVals further.
  * - spread transVals on corner tiles to make transparency smoother.
@@ -1389,7 +1380,7 @@ static void DRLG_LoadDiabQuads()
 static void DRLG_L4TransFix()
 {
 	int i, j, xx, yy;
-	BYTE tv;
+	// BYTE tv;
 
 	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
@@ -1422,22 +1413,22 @@ static void DRLG_L4TransFix()
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;*/
 			// fix transVals of corners
-			case 24:
+			case 122: // 24:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 18:
-			case 25:
+			case 116: // 18:
+			case 123: // 25:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 19:
-			case 26:
+			case 117: // 19:
+			case 124: // 26:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			// fix transVals of 'doors'
+			/*// fix transVals of 'doors'
 			case 52:
 				DRLG_CopyTrans(xx + 1, yy + 1, xx, yy);
 				break;
@@ -1719,7 +1710,7 @@ static void DRLG_L4TransFix()
 				// fix the corner on south-east
 				if (dTransVal[xx + 1][yy + 2] == 0)
 					dTransVal[xx + 1][yy + 2] = tv;
-				break;
+				break;*/
 			// fix transVals around the stairs - necessary only if DRLG_FloodTVal is run after the placement
 			// - due to complex cases with the horizontal/vertical 'doors', this is not really feasible
 			/*case 36:
@@ -1769,6 +1760,7 @@ static void DRLG_L4TransFix()
 /*
  * Replace tiles with complete ones to hide rendering glitch of transparent corners.
  * New dungeon values: 116..128
+ * Obsolete dungeon values: 18..29
  */
 static void DRLG_L4Corners()
 {
@@ -1829,8 +1821,6 @@ static void DRLG_L4()
 			DRLG_L4SetRoom(0);
 		}
 		L4AddWall();
-		DRLG_InitTrans();
-		DRLG_FloodTVal(DEFAULT_MEGATILE_L4);
 
 		POS32 warpPos = DRLG_PlaceMiniSet(L4USTAIRS); // L4USTAIRS (5, 6)
 		if (warpPos.x < 0) {
@@ -1880,8 +1870,7 @@ static void DRLG_L4()
 		break;
 	}
 
-	DRLG_L4GeneralFix();
-	DRLG_L4TransFix();
+	// DRLG_L4GeneralFix();
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
 		DRLG_PlaceThemeRooms(7, 10, DEFAULT_MEGATILE_L4, 8, true);
@@ -1893,55 +1882,17 @@ static void DRLG_L4()
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
+	// create rooms (transvals)
+	DRLG_L4BlockArches();
+	DRLG_InitTrans();
+	DRLG_FloodTVal(L4FTYPES);
+	DRLG_L4TransFix();
+	// restore arches
+	memcpy(dungeon, pdungeon, sizeof(pdungeon));
+
 	DRLG_Init_Globals();
 
 	if (currLvl._dLevelIdx == DLV_HELL4) {
-		int x, y;
-		BYTE tv;
-		// fix transVal under diab2*.DUN
-		x = 2 * pSetPieces[1]._spx + DBORDERX;
-		y = 2 * pSetPieces[1]._spy + DBORDERY;
-		tv = dTransVal[x][y];
-		// assert(tv != 0);
-		x += 11;
-		y += 9;
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 6; j++) {
-				dTransVal[x + i][y + j] = tv;
-			}
-		}
-
-		// fix transVal under diab3*.DUN
-		x = 2 * pSetPieces[2]._spx + DBORDERX;
-		y = 2 * pSetPieces[2]._spy + DBORDERY;
-		tv = dTransVal[x][y];
-		// assert(tv != 0);
-		x += 17;
-		y += 1;
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 4; j++) {
-				dTransVal[x + i][y + j] = tv;
-			}
-		}
-		y += 16;
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				dTransVal[x + i][y + j] = tv;
-			}
-		}
-
-		// fix transVal under diab4*.DUN
-		x = 2 * pSetPieces[3]._spx + DBORDERX;
-		y = 2 * pSetPieces[3]._spy + DBORDERY;
-		tv = dTransVal[x][y];
-		// assert(tv != 0);
-		x += 3;
-		y += 3;
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				dTransVal[x + i][y + j] = tv;
-			}
-		}
 		// LoadFileWithMem("Levels\\L4Data\\diab1.DUN", pSetPieces[0]._spData);
 		LoadFileWithMem("Levels\\L4Data\\diab2a.DUN", pSetPieces[1]._spData);
 		LoadFileWithMem("Levels\\L4Data\\diab3a.DUN", pSetPieces[2]._spData);
@@ -1984,15 +1935,6 @@ static void DRLG_L4()
 		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 10 * 8 * 2] = SwapLE16(109);
 		DRLG_DrawMap(0);
 	} else if (pSetPieces[0]._sptype == SPT_BETRAYER) {
-		// fix transVal under Vile1.DUN
-		int x = 2 * pSetPieces[0]._spx + DBORDERX;
-		int y = 2 * pSetPieces[0]._spy + DBORDERY;
-		BYTE tv = dTransVal[x + 4][y + 4];
-		// assert(tv != 0);
-		dTransVal[x + 7][y + 5] = tv;
-		dTransVal[x + 8][y + 5] = tv;
-		dTransVal[x + 7][y + 6] = tv;
-		dTransVal[x + 8][y + 6] = tv;
 		// patch set-piece - Vile1.DUN - done in DRLG_LoadL4SP
 		//	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		//	lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));

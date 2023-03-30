@@ -59,6 +59,30 @@ const BYTE L2BTYPES[161] = {
 	0
 	// clang-format on
 };
+/*
+ * Specifies whether the given tile ID should spread the room ID (transval).
+ */
+const bool L2FTYPES[161] = {
+	// clang-format off
+	false, false, false,  true, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, // 10..
+	false, false, false, false, false, false, false, false, false, false, // 20..
+	false, false, false, false, false, false, false, false, false, false, // 30..
+	false, false, false, false,  true,  true,  true,  true,  true,  true, // 40..
+	 true,  true, false, false, false, false, false, false, false,  true, // 50..
+	 true,  true,  true,  true,  true,  true,  true,  true, false, false, // 60..
+	false,  true,  true, false, false, false,  true, false, false, false, // 70..
+	false, false, false, false, false, false, false, false,  true,  true, // 80..
+	 true,  true,  true,  true,  true, false,  true,  true,  true,  true, // 90..
+	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true, //100..
+	 true,  true,  true,  true,  true,  true, false, false, false, false, //110..
+	 true,  true,  true,  true, false, false, false, false,  true,  true, //120..
+	 true,  true, false, false,  true,  true, false, false,  true,  true, //130..
+	false, false, false, false, false, false, false, false, false, false, //140..
+	false, false, false, false, false, false, false, false,  true,  true, //150..
+	false
+	// clang-format on
+};
 /** Miniset: Stairs up. */
 const BYTE L2USTAIRS[] = {
 	// clang-format off
@@ -1883,6 +1907,31 @@ static void DRLG_L2CreateDungeon()
 	}
 }
 
+/* Block arches with walls to stop the spread of transVals */
+static void DRLG_L2BlockArches()
+{
+	int i, j;
+
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			switch (dungeon[i][j]) {
+			case 39:
+			case 42:
+				dungeon[i][j + 1] = 1;
+				break;
+			case 41:
+				dungeon[i][j + 1] = 1;
+				dungeon[i + 1][j] = 2;
+				break;
+			case 40:
+			case 43:
+				dungeon[i + 1][j] = 2;
+				break;
+			}
+		}
+	}
+}
+
 /*
  * Spread transVals further.
  * - spread transVals on corner tiles to make the bottom room-tiles visible.
@@ -1897,27 +1946,27 @@ static void DRLG_L2TransFix()
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
 			// fix transVals of corners
-			case 10:
+			case 143: // 10:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 11:
+			case 144: // 11:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 14:
+			case 147: // 14:
 				if (dungeon[i][j - 1] == 10) {
 					DRLG_CopyTrans(xx, yy, xx + 1, yy);
 					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
 				break;
-			case 15:
+			case 148: // 15:
 				//if (dungeon[i + 1][j] == 11) {
 					DRLG_CopyTrans(xx, yy, xx, yy + 1);
 					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				//}
 				break;
-			case 16:
+			case 149: // 16:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
@@ -1931,8 +1980,8 @@ static void DRLG_L2TransFix()
 
 /*
  * Replace tiles with complete ones to hide rendering glitch of transparent corners.
- * New dungeon values: 143 144  146 147 148 149
- * Obsolete dungeon values: 10 11  13 14 15 16
+ * New dungeon values: 143..149
+ * Obsolete dungeon values: 10..16
  */
 static void DRLG_L2Corners()
 {
@@ -1942,7 +1991,7 @@ static void DRLG_L2Corners()
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L2Corners.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		if (*pTmp >= 10 && *pTmp <= 16 && *pTmp != 12)
+		if (*pTmp >= 10 && *pTmp <= 16 /*&& *pTmp != 12*/)
 			*pTmp += 133;
 	}
 	/*int i, j;
@@ -2220,7 +2269,7 @@ static void L2CreateArches()
 						dungeon[x][y] = 3;
 					}
 				} else if (pn == 1 && y < DMAXY - 2) {
-					if (IsPillar(dungeon[x][y + 2])) { // TODO: is this possible after L2DoorFix2?
+					if (IsPillar(dungeon[x][y + 2])) {
 						// 4,  search
 						// 1,
 						// P,
@@ -2254,7 +2303,7 @@ static void L2CreateArches()
 						dungeon[x][y] = 3;
 					}
 				} else if (pn == 2 && x < DMAXX - 2) {
-					if (IsPillar(dungeon[x + 2][y])) { // TODO: is this possible after L2DoorFix2?
+					if (IsPillar(dungeon[x + 2][y])) {
 						// 5, 2, P,  search
 
 						//40, 3, 0, replace
@@ -2325,20 +2374,16 @@ static void DRLG_L2()
 		break;
 	}
 
-	DRLG_InitTrans();
-	DRLG_FloodTVal(DEFAULT_MEGATILE_L2);
-	DRLG_L2TransFix();
-
 	L2LockoutFix();
-	L2DoorFix();
-	DRLG_L2Corners();
+	// L2DoorFix();
 
 	DRLG_PlaceThemeRooms(6, 10, DEFAULT_MEGATILE_L2, 0, false);
 
-	L2DoorFix2();
 	L2CreateArches();
+	L2DoorFix2();
 
 	DRLG_L2Shadows();
+	DRLG_L2Corners();
 
 	DRLG_L2PlaceRndSet(CRUSHCOL, 99);
 	//DRLG_L2PlaceRndSet(RUINS1, 10);
@@ -2364,6 +2409,14 @@ static void DRLG_L2()
 	DRLG_L2DoorSubs();
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
+	// create rooms (transvals)
+	DRLG_L2BlockArches();
+	DRLG_InitTrans();
+	DRLG_FloodTVal(L2FTYPES);
+	DRLG_L2TransFix();
+	// restore arches
+	memcpy(dungeon, pdungeon, sizeof(pdungeon));
 
 	DRLG_Init_Globals();
 

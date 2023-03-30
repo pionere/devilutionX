@@ -213,6 +213,65 @@ const BYTE L1BTYPES[] = {
 	0, 0, 0, 0, 0, 0, 0
 	// clang-format on
 };
+/*
+ * Specifies whether the given tile ID should spread the room ID (transval).
+ */
+const bool L1FTYPES[] = {
+	// clang-format off
+	false, false, false, false, false, false, false, false, false, false,
+	false, false, false,  true, false,  true, false, false, false, false, // 10..
+	false, false, false, false, false, false, false, false, false, false, // 20..
+	false, false, false, false, false, false, false, false, false, false, // 30..
+	false, false, false, false, false,  true,  true,  true,  true,  true, // 40..
+	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true, // 50..
+	 true,  true,  true, false, false, false, false,  true,  true,  true, // 60..
+	 true, false, false,  true,  true,  true,  true,  true,  true, false, // 70..
+	false, false, false, false, false, false, false, false, false, false, // 80..
+	false, false, false, false, false, false, false, false, false, false, // 90..
+	false, false, false, false,  true,  true,  true, false, false, false, //100..
+	false, false, false, false, false, false, false, false, false, false, //110..
+	false, false, false, false, false,  true, false, false,  true,  true, //120..
+	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true, //130..
+	 true,  true,  true,  true,  true, false, false, false, false, false, //140..
+	 true,  true,  true, false, false, false, false, false, false, false, //150..
+	false, false,  true,  true, false, false, false, false, false, false, //160..
+	false,  true,  true,  true,  true, false, false, false, false, false, //170..
+	false, false, false, false, false, false, false, false, false, false, //180..
+	false, false, false, false, false, false, false, false, false, false, //190..
+	false, false, false, false, false, false, false
+	// clang-format on
+};
+#ifdef HELLFIRE
+/*
+ * Specifies whether the given tile ID should spread the room ID (transval).
+ */
+const bool L5FTYPES[] = {
+	// clang-format off
+	false, false, false, false, false, false, false, false, false, false,
+	false, false, false,  true, false,  true, false, false, false, false, // 10..
+	false, false, false, false, false, false, false, false, false, false, // 20..
+	false, false, false, false, false, false, false, false, false, false, // 30..
+	false, false, false, false, false,  true,  true,  true,  true,  true, // 40..
+	 true,  true,  true, false, false, false, false, false,  true,  true, // 50..
+	 true, false, false, false, false, false,  true,  true,  true, false, // 60..
+	false, false, false, false, false, false, false, false, false, false, // 70..
+	false, false, false, false, false, false, false, false, false, false, // 80..
+	false, false, false, false, false, false, false,  true,  true,  true, // 90..
+	 true,  true, false, false, false, false,  true,  true,  true,  true, //100..
+	 true,  true, false, false, false, false, false, false, false, false, //110..
+	false, false, false, false,  true, false,  true, false, false, false, //120..
+	false, false, false, false, false, false, false, false, false, false, //130..
+	false,  true, false, false, false, false, false, false, false, false, //140..
+	false, false, false, false, false, false, false, false,  true, false, //150..
+	 true, false, false,  true,  true,  true,  true,  true,  true,  true, //160..
+	 true,  true,  true, false, false, false, false, false, false, false, //170..
+	false, false, false, false, false, false, false, false, false,  true, //180..
+	 true,  true,  true,  true,  true,  true,  true,  true,  true, false, //190..
+	false, false, false,  true,  true,  true,  true,  true,  true,  true, //200..
+	 true,  true,  true,  true,  true,  true,  true,  true,               //210..
+	// clang-format on
+};
+#endif
 /** Miniset: stairs up on a corner wall. */
 //const BYTE STAIRSUP[] = {
 //	// clang-format off
@@ -2321,19 +2380,19 @@ static void DRLG_L1TransFix()
 				}
 				break;*/
 			// fix transVals of corners
-			case 20:
-			case 22:
+			case 201: // 20:
+			case 203: // 22:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 18:
-			case 23:
+			case 199: // 18:
+			case 204: // 23:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 19:
-			case 24:
+			case 200: // 19:
+			case 205: // 24:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
@@ -2369,9 +2428,105 @@ static void DRLG_L1TransFix()
 	}
 }
 
+#ifdef HELLFIRE
+/*
+ * Spread transVals further.
+ * - spread transVals on corner tiles to make transparency smoother.
+ */
+static void DRLG_L5TransFix()
+{
+	int xx, yy, i, j;
+	//BYTE tv;
+
+	yy = DBORDERY;
+
+	for (j = 0; j < DMAXY; j++) {
+		xx = DBORDERX;
+
+		for (i = 0; i < DMAXX; i++) {
+			switch (dungeon[i][j]) {
+			/* commented out because a simplified version is added below
+			case 18:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 19:
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 20:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 23:
+				// BUGFIX: Should check for `j > 0` first. (fixed)
+				if (j > 0 && dungeon[i][j - 1] == 18) {
+					DRLG_CopyTrans(xx, yy, xx + 1, yy);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				}
+				break;
+			case 24:
+				// BUGFIX: Should check for `i + 1 < DMAXX` first. (fixed)
+				if (i < DMAXX - 1 && dungeon[i + 1][j] == 19) {
+					DRLG_CopyTrans(xx, yy, xx, yy + 1);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				}
+				break;*/
+			// fix transVals of corners
+			case 84: // 20:
+			case 86: // 22:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 82: // 18:
+			case 87: // 23:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 83: // 19:
+			case 88: // 24:
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			/* fix transVals around the stairs - necessary only if DRLG_FloodTVal is run after the placement
+			// - due to id conflict between hellfire and diablo, this does not work on tile 63
+			case 55:
+			case 58:
+			case 61:
+			case 62:
+			case 63:
+			case 66:
+				tv = dTransVal[xx + 6][yy];
+				dTransVal[xx][yy] = tv;
+				dTransVal[xx + 1][yy] = tv;
+				dTransVal[xx][yy + 1] = tv;
+				dTransVal[xx + 1][yy + 1] = tv;
+				// fix walls on the west side
+				//if (dTransVal[xx - 1][yy] == 0)
+					dTransVal[xx - 1][yy] = tv;
+				//if (dTransVal[xx - 1][yy + 1] == 0)
+					dTransVal[xx - 1][yy + 1] = tv;
+				break;
+			case 67:
+				DRLG_CopyTrans(xx, yy + 1, xx + 1, yy);
+				break;
+			case 68:
+				DRLG_CopyTrans(xx, yy + 1, xx, yy);
+				break;*/
+			}
+			xx += 2;
+		}
+		yy += 2;
+	}
+}
+#endif
+
 /*
  * Replace tiles with complete ones to hide rendering glitch of transparent corners.
- * New dungeon values: 199 200 202 204 205 / 82 83 85 87 88
+ * New dungeon values: 199..205 / 82..88
+ * Obsolete dungeon values: 18..24
  */
 static void DRLG_L1Corners()
 {
@@ -2387,7 +2542,7 @@ static void DRLG_L1Corners()
 	// assert(currLvl._dType == DTYPE_CATHEDRAL);
 #endif
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		if (*pTmp >= 18 && *pTmp <= 24 && *pTmp != 22 /* && *pTmp != 20*/)
+		if (*pTmp >= 18 && *pTmp <= 24 /*&& *pTmp != 22 && *pTmp != 20*/)
 			*pTmp += dv;
 	}
 	/*for (j = 0; j < DMAXY - 1; j++) {
@@ -2493,9 +2648,6 @@ static void DRLG_L1()
 			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
 			pWarps[DWARP_SIDE]._wtype = WRPT_L1_PWATER;
 		}
-		DRLG_InitTrans();
-		DRLG_FloodTVal(DEFAULT_MEGATILE_L1);
-
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT) {
 			POS32 warpPos = DRLG_PlaceMiniSet(L5USTAIRS); // L5USTAIRS (3, 6), was STAIRSUP, entry == ENTRY_MAIN
@@ -2556,7 +2708,7 @@ static void DRLG_L1()
 		break;
 	}
 
-	if (placeWater) {
+	/*if (placeWater) {
 		int x, y;
 
 		x = pWarps[DWARP_SIDE]._wx + 1;
@@ -2566,10 +2718,9 @@ static void DRLG_L1()
 		DRLG_CopyTrans(x + 1, y + 2, x + 1, y + 0);
 		DRLG_CopyTrans(x + 0, y + 2, x + 0, y + 1);
 		DRLG_CopyTrans(x + 1, y + 2, x + 1, y + 1);
-	}
-	DRLG_L1TransFix();
+	}*/
 	DRLG_L1Corners();
-	DRLG_L1CornerFix();
+	// DRLG_L1CornerFix();
 
 	DRLG_L1PlaceDoors();
 
@@ -2640,6 +2791,18 @@ static void DRLG_L1()
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
+	DRLG_InitTrans();
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT) {
+		DRLG_FloodTVal(L5FTYPES);
+		DRLG_L5TransFix();
+	} else
+#endif
+	{
+		DRLG_FloodTVal(L1FTYPES);
+		DRLG_L1TransFix();
+	}
+
 	DRLG_Init_Globals();
 
 	if (pSetPieces[0]._sptype == SPT_BANNER) {
@@ -2670,20 +2833,20 @@ static void DRLG_L1()
 		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 * 8 * 2 * 2 + 10 + 3 * 8 * 2] = SwapLE16(90);
 		DRLG_DrawMap(0);
 	} else if (pSetPieces[0]._sptype == SPT_SKELKING) {
-		int x, y;
+		/*int x, y;
 
 		x = 2 * pSetPieces[0]._spx + DBORDERX;
 		y = 2 * pSetPieces[0]._spy + DBORDERY;
 		// fix transVal on the bottom left corner of the box
 		DRLG_CopyTrans(x, y + 11, x + 1, y + 11);
-		DRLG_CopyTrans(x, y + 12, x + 1, y + 12);
+		DRLG_CopyTrans(x, y + 12, x + 1, y + 12);*/
 		// fix transVal at the entrance - commented out because it makes the wall transparent
 		//DRLG_CopyTrans(x + 13, y + 7, x + 12, y + 7);
 		//DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
 		// patch dSolidTable - L1.SOL - commented out because 299 is used elsewhere
 		//nSolidTable[299] = true;
 	} else if (pSetPieces[0]._sptype == SPT_BUTCHER) {
-		int x, y;
+		/*int x, y;
 
 		x = 2 * pSetPieces[0]._spx + DBORDERX;
 		y = 2 * pSetPieces[0]._spy + DBORDERY;
@@ -2691,7 +2854,7 @@ static void DRLG_L1()
 		DRLG_CopyTrans(x, y + 9, x + 1, y + 9);
 		DRLG_CopyTrans(x, y + 10, x + 1, y + 10);
 		// set transVal in the room
-		DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
+		DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);*/
 #ifdef HELLFIRE
 	} else if (pSetPieces[0]._sptype == SPT_NAKRUL) {
 		// load pre-map
