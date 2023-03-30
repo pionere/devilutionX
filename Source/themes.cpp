@@ -396,7 +396,10 @@ void InitThemes()
 	}
 	for (i = 0; i < themeCount; i++) {
 		themes[i].ttype = THEME_NONE;
-		themes[i].ttval = themeLoc[i].ttval;
+		if (currLvl._dDunType == DTYPE_CATHEDRAL)
+			themes[i].ttval = themeLoc[i].ttval;
+		else
+			themes[i].ttval = themeLoc[i].ttval = dTransVal[DBORDERX + 2 * themeLoc[i].x + themeLoc[i].width][DBORDERY + 2 * themeLoc[i].y + themeLoc[i].height];
 	}
 	if (QuestStatus(Q_ZHAR)) {
 		for (i = 0; i < themeCount; i++) {
@@ -439,7 +442,6 @@ void HoldThemeRooms()
 	} else {
 		// assert((currLvl._dLevelIdx < DLV_HELL4 && numthemes == themeCount) || (currLvl._dLevelIdx >= DLV_HELL4 && numthemes == 0));
 		for (i = 0; i < numthemes; i++) {
-			themes[i].ttval = themeLoc[i].ttval = dTransVal[DBORDERX + 2 * themeLoc[i].x + themeLoc[i].width][DBORDERY + 2 * themeLoc[i].y + themeLoc[i].height];
 			for (x = themeLoc[i].x; x < themeLoc[i].x + themeLoc[i].width; x++) {
 				for (y = themeLoc[i].y; y < themeLoc[i].y + themeLoc[i].height; y++) {
 					xx = 2 * x + DBORDERX;
