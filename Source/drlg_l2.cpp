@@ -2120,9 +2120,8 @@ static void L2LockoutFix()
 	}
 }
 
-static void L2DoorFix()
+/*static void L2DoorFix()
 {
-	/* commented out, because this is no longer necessary
 	int i, j;
 
 	for (j = 1; j < DMAXY; j++) {
@@ -2136,8 +2135,8 @@ static void L2DoorFix()
 				dungeon[i][j] = 9;
 			}
 		}
-	}*/
-}
+	}
+}*/
 
 static bool IsPillar(BYTE bv)
 {
@@ -2375,7 +2374,7 @@ static void DRLG_L2()
 	}
 
 	L2LockoutFix();
-	// L2DoorFix();
+	// L2DoorFix(); - commented out, because this is no longer necessary
 
 	DRLG_PlaceThemeRooms(6, 10, DEFAULT_MEGATILE_L2, 0, false);
 

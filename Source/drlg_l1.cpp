@@ -2578,9 +2578,8 @@ static void DRLG_L1Corners()
  * New dungeon values: (8 16)
  * TODO: use DRLG_PlaceMiniSet instead?
  */
-static void DRLG_L1CornerFix()
+/*static void DRLG_L1CornerFix()
 {
-	/* commented out because this is no longer necessary
 	int i, j;
 
 	for (j = 1; j < DMAXY - 1; j++) {
@@ -2603,8 +2602,8 @@ static void DRLG_L1CornerFix()
 				dungeon[i][j] = 8;
 			}
 		}
-	}*/
-}
+	}
+}*/
 
 static void DRLG_L1()
 {
@@ -2720,7 +2719,7 @@ static void DRLG_L1()
 		DRLG_CopyTrans(x + 1, y + 2, x + 1, y + 1);
 	}*/
 	DRLG_L1Corners();
-	// DRLG_L1CornerFix();
+	// DRLG_L1CornerFix(); - commented out because this is no longer necessary
 
 	DRLG_L1PlaceDoors();
 

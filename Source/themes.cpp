@@ -950,7 +950,6 @@ void CreateThemeRooms()
 	//gbInitObjFlag = true;
 	for (i = 0; i < numthemes; i++) {
 		tv = themes[i].ttval;
-LogErrorF("NO", "CreateThemeRooms %d of %d: %d - %d", i, numthemes, tv, themes[i].ttype);
 		switch (themes[i].ttype) {
 		case THEME_BARREL:
 			Theme_Barrel(tv);

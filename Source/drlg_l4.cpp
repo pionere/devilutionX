@@ -1770,7 +1770,7 @@ static void DRLG_L4Corners()
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4Corners.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		if (*pTmp >= 18 && *pTmp < 30 /*&& *pTmp != 20 && *pTmp != 24*/)
+		if (*pTmp >= 18 && *pTmp <= 29 /*&& *pTmp != 20 && *pTmp != 24*/)
 			*pTmp += 98;
 	}
 }
@@ -1780,9 +1780,8 @@ static void DRLG_L4Corners()
  * New dungeon values: (17)
  * TODO: use DRLG_PlaceMiniSet instead?
  */
-static void DRLG_L4GeneralFix()
+/*static void DRLG_L4GeneralFix()
 {
-	/* commented out because this is no longer necessary
 	int i, j;
 
 	for (j = 0; j < DMAXY - 1; j++) {
@@ -1796,8 +1795,8 @@ static void DRLG_L4GeneralFix()
 				dungeon[i][j] = 17;
 			}
 		}
-	}*/
-}
+	}
+}*/
 
 static void DRLG_L4()
 {
@@ -1817,7 +1816,7 @@ static void DRLG_L4()
 		memset(drlgFlags, 0, sizeof(drlgFlags));
 		if (currLvl._dLevelIdx == DLV_HELL4) {
 			DRLG_LoadDiabQuads();
-		} else if (pSetPieces[0]._spData != NULL) { // setpc_type != SPT_NONE
+		} else if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
 			DRLG_L4SetRoom(0);
 		}
 		L4AddWall();
@@ -1870,7 +1869,7 @@ static void DRLG_L4()
 		break;
 	}
 
-	// DRLG_L4GeneralFix();
+	// DRLG_L4GeneralFix(); - commented out because this is no longer necessary
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
 		DRLG_PlaceThemeRooms(7, 10, DEFAULT_MEGATILE_L4, 8, true);
@@ -1936,10 +1935,10 @@ static void DRLG_L4()
 		DRLG_DrawMap(0);
 	} else if (pSetPieces[0]._sptype == SPT_BETRAYER) {
 		// patch set-piece - Vile1.DUN - done in DRLG_LoadL4SP
-		//	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
-		//	lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
-		//	lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
-		//	lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
+		//uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		//lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
+		//lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
+		//lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
 	}
 }
 
