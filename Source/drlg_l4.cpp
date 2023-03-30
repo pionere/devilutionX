@@ -1011,24 +1011,47 @@ static void L4TileFix()
  */
 static void DRLG_L4Subs()
 {
-	int x, y, i, rv;
-	BYTE c;
+	int x, y;
+	BYTE c, i;
+	int8_t rv;
+	const unsigned MAX_MATCH = 8; // 6;
+	const unsigned NUM_L4TYPES = 84;
+	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L4Subs.");
+	static_assert(NUM_L4TYPES <= UCHAR_MAX, "NUM_L4TYPES does not fit to i(BYTE) in DRLG_L4Subs.");
+#if DEBUG_MODE
+	for (i = sizeof(L4BTYPES) - 1; i >= 0; i--) {
+		if (L4BTYPES[i] != 0) {
+			if (i >= NUM_L4TYPES)
+				app_fatal("Value %d is ignored in L4BTYPES at %d", L4BTYPES[i], i);
+			break;
+		}
+	}
 
-	for (y = 0; y < DMAXY; y++) {
-		for (x = 0; x < DMAXX; x++) {
+	for (i = 0; i < sizeof(L4BTYPES); i++) {
+		c = L4BTYPES[i];
+		if (c == 0)
+			continue;
+		x = 0;
+		for (int j = 0; j < sizeof(L4BTYPES); j++) {
+			if (c == L4BTYPES[j])
+				x++;
+		}
+		if (x > MAX_MATCH)
+			app_fatal("Too many(%d) matching('%d') values in L4BTYPES", x, c);
+	}
+#endif
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
 			if (random_(0, 3) == 0) {
 				c = L4BTYPES[dungeon[x][y]];
 				if (c != 0 && !drlgFlags[x][y]) {
-					rv = random_(0, 16);
-					i = -1;
-					while (rv >= 0) {
-						i++;
-						if (i == sizeof(L4BTYPES)) {
+					rv = random_(0, MAX_MATCH);
+					i = 0;
+					while (TRUE) {
+						if (c == L4BTYPES[i] && --rv < 0)
+							break;
+						if (++i == NUM_L4TYPES)
 							i = 0;
-						}
-						if (c == L4BTYPES[i]) {
-							rv--;
-						}
 					}
 					dungeon[x][y] = i;
 				}
@@ -1036,8 +1059,8 @@ static void DRLG_L4Subs()
 		}
 	}
 	// TODO: second round of replacement? why not merge with the first one?
-	for (y = 0; y < DMAXY; y++) {
-		for (x = 0; x < DMAXX; x++) {
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
 			if (random_(0, 10) == 0) {
 				if (L4BTYPES[dungeon[x][y]] == 6 && !drlgFlags[x][y]) {
 					dungeon[x][y] = RandRange(95, 97);
