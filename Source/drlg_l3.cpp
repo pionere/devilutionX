@@ -2256,8 +2256,6 @@ static void DRLG_L3()
 	// not possible because of DRLG_L3FillDiags and DRLG_L3FillSingles
 	// DRLG_L3PlaceRndSet(L3ISLE5, 90);
 
-	DRLG_InitTrans();
-	DRLG_L3FloodTVal();
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {
 		/** Miniset: Use random external connection 1. */
@@ -2393,6 +2391,21 @@ static void DRLG_L3()
 	}
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
+	// create rooms (transvals)
+	DRLG_InitTrans();
+	DRLG_L3FloodTVal();
+	for (int i = 0; i < numthemes; i++) {
+		int x = themes[i]._tsx - 1;
+		int y = themes[i]._tsy - 1;
+		int themeW = themes[i]._tsWidth;
+		int themeH = themes[i]._tsHeight;
+		int x1 = 2 * x + DBORDERX + 4;
+		int y1 = 2 * y + DBORDERY + 4;
+		int x2 = 2 * (x + themeW) + DBORDERX - 1;
+		int y2 = 2 * (y + themeH) + DBORDERY - 1;
+		DRLG_RectTrans(x1, y1, x2, y2);
+	}
 
 	DRLG_Init_Globals();
 }

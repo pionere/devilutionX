@@ -1196,19 +1196,6 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 				themes[numthemes]._tsy = j + 1;
 				themes[numthemes]._tsWidth = themeW;
 				themes[numthemes]._tsHeight = themeH;
-				//themeLoc[themeCount].ttval = numtrans;
-				int x1 = 2 * i + DBORDERX + 3;
-				int y1 = 2 * j + DBORDERY + 3;
-				int x2 = 2 * (i + themeW) + DBORDERX;
-				int y2 = 2 * (j + themeH) + DBORDERY;
-				if (currLvl._dDunType == DTYPE_CAVES) { // TODO: use dType instead?
-					x1++;
-					y1++;
-					x2--;
-					y2--;
-					DRLG_RectTrans(x1, y1, x2, y2);
-				}
-				//DRLG_RectTrans(x1, y1, x2, y2);
 				DRLG_CreateThemeRoom(numthemes);
 				numthemes++;
 			}
