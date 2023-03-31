@@ -366,11 +366,16 @@ static bool CheckThemeRoom(BYTE tv)
 	return true;
 }
 
+void InitLvlThemes()
+{
+	numthemes = 0;
+	zharlib = -1;
+}
+
 void InitThemes()
 {
 	int i, j;
 
-	numthemes = 0;
 	// assert(currLvl._dType != DTYPE_TOWN);
 	if (currLvl._dLevelIdx >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
 		return;
@@ -383,7 +388,6 @@ void InitThemes()
 	_gbTFountainFlag = true;
 	_gbTreasureFlag = true;
 	_gbWeaponFlag = true;
-	zharlib = -1;
 
 	if (currLvl._dDunType == DTYPE_CATHEDRAL) { // TODO: use dType instead?
 		themeCount = 0;

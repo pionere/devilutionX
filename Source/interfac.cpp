@@ -219,6 +219,7 @@ void LoadGameLevel(int lvldir)
 
 	InitLevelMonsters();
 	InitLevelObjects();
+	InitLvlThemes();
 	IncProgress();
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
