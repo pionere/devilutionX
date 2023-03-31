@@ -398,7 +398,7 @@ static void DRLG_L4MakeMegas()
  * @param dx: the length of the wall
  * @return true if after the change a check for vertical wall is necessary.
  */
-static bool L4HorizWall(int i, int j, int dx)
+static void L4HorizWall(int i, int j, int dx)
 {
 	int xx;
 	BYTE bv;
@@ -409,16 +409,17 @@ static bool L4HorizWall(int i, int j, int dx)
 	// convert the last tile
 	bv = dungeon[i + dx][j];
 	switch (bv) {
+	case 7:
+		bv = 16;
+		break;
+	case 9:
+		bv = 11;
+		break;
 	case 10:
 		bv = 17;
 		break;
-	case 12:
-	case 13:
-		break;
 	case 15:
 		bv = 14;
-		break;
-	case 16:
 		break;
 	case 21:
 		bv = 23;
@@ -438,27 +439,24 @@ static bool L4HorizWall(int i, int j, int dx)
 	dungeon[i + xx + 1][j] = 50;
 
 	// convert the first tile
-	if (dungeon[i][j] == 13) {
+	if (dungeon[i][j] == 13)
 		dungeon[i][j] = 17;
-	} else if (dungeon[i][j] == 16) {
+	else if (dungeon[i][j] == 7)
+		dungeon[i][j] = 9;
+	else if (dungeon[i][j] == 16)
 		dungeon[i][j] = 11;
-		return true;
-	} else if (dungeon[i][j] == 12) {
+	else // if (dungeon[i][j] == 12)
 		dungeon[i][j] = 14;
-		return true;
-	}
-	return false;
 }
 
 static constexpr uint32_t HORIZ_WALL_ENDS =
-	  (1 << 10)
-	| (1 << 12)
-	| (1 << 13)
+	  (1 << 7)
+	| (1 << 9)
+	| (1 << 10)
 	| (1 << 15)
-	| (1 << 16)
 	| (1 << 21)
 	| (1 << 22);
-static bool L4AddHWall(int x, int y)
+static void L4AddHWall(int x, int y)
 {
 	int i;
 	BYTE bv;
@@ -479,12 +477,10 @@ static bool L4AddHWall(int x, int y)
 
 	i -= x;
 	if (i > 3
-	// && (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22)) {
+	// && (bv == 7 || bv == 9 || bv == 10 || bv == 15 || bv == 21 || bv == 22)) {
 	 && (bv < 23 && (HORIZ_WALL_ENDS & (1 << bv)))) {
-		return L4HorizWall(x, y, i);
+		L4HorizWall(x, y, i);
 	}
-
-	return false;
 }
 
 /*
@@ -505,6 +501,8 @@ static void L4VertWall(int i, int j, int dy)
 		dungeon[i][j] = 9;
 	else if (dungeon[i][j] == 15)
 		dungeon[i][j] = 10;
+	else // if (dungeon[i][j] == 12)
+		dungeon[i][j] = 13;
 	// convert the internal tiles
 	for (yy = 1; yy < dy; yy++) {
 		dungeon[i][j + yy] = 1;
@@ -513,15 +511,13 @@ static void L4VertWall(int i, int j, int dy)
 	bv = dungeon[i][j + dy];
 	switch (bv) {
 	case 8:
+		bv = 15;
 		break;
 	case 9:
 		bv = 10;
 		break;
 	case 11:
 		bv = 17;
-		break;
-	case 14:
-	case 15:
 		break;
 	case 16:
 		bv = 13;
@@ -548,8 +544,6 @@ static constexpr uint32_t VERT_WALL_ENDS =
 	  (1 << 8)
 	| (1 << 9)
 	| (1 << 11)
-	| (1 << 14)
-	| (1 << 15)
 	| (1 << 16)
 	| (1 << 21)
 	| (1 << 23);
@@ -574,12 +568,10 @@ static void L4AddVWall(int x, int y)
 
 	j -= y;
 	if (j > 3
-	 //&& (bv == 8 || bv == 9 || bv == 11 || bv == 14 || bv == 15 || bv == 16 || bv == 21 || bv == 23)) {
+	 //&& (bv == 8 || bv == 9 || bv == 11 || bv == 16 || bv == 21 || bv == 23)) {
 	 && (bv < 24 && (VERT_WALL_ENDS & (1 << bv)))) {
-		/*return*/ L4VertWall(x, y, j);
+		L4VertWall(x, y, j);
 	}
-
-	//return false;
 }
 
 /*
@@ -590,35 +582,36 @@ static void L4AddVWall(int x, int y)
 static void L4AddWall()
 {
 	int i, j;
-	bool checkVert;
+	bool checkHoriz, checkVert;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
 			if (drlgFlags[i][j]) {
 				continue;
 			}
+			checkHoriz = false;
 			checkVert = false;
 			switch (dungeon[i][j]) {
-			case 15:
-			case 16:
-			case 21:
-				checkVert = true;
-				/* fall-through */
-			case 10:
 			case 12:
-			case 13:
-			case 22:
-				checkVert |= L4AddHWall(i, j);
-				if (!checkVert)
-					break;
-				/* fall-through */
-			case 8:
-			case 9:
-			case 11:
-			case 14:
-			case 23:
-				L4AddVWall(i, j);
+				checkHoriz = true;
+				checkVert = true;
 				break;
+			case 7:
+			case 13:
+			case 16:
+				checkHoriz = true;
+				break;
+			case 8:
+			case 14:
+			case 15:
+				checkVert = true;
+				break;
+			}
+			if (checkHoriz) {
+				L4AddHWall(i, j);
+			}
+			if (checkVert) {
+				L4AddVWall(i, j);
 			}
 		}
 	}
