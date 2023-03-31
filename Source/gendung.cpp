@@ -1014,11 +1014,9 @@ void DRLG_SetPC()
  * @param y the y-coordinate of the starting position
  * @param minSize the minimum size of the room (must be less than 20)
  * @param maxSize the maximum size of the room (must be less than 20)
- * @param width the width of the room if found
- * @param height the height of the room if found
- * @return true if a room is found
+ * @return the size of the room
  */
-static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int* width, int* height)
+static POS32 DRLG_FitThemeRoom(int floor, int x, int y, int minSize, int maxSize)
 {
 	int xmax, ymax, i, j, smallest;
 	int xArray[20], yArray[20];
@@ -1029,12 +1027,8 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 	xmax = std::min(maxSize, DMAXX - x);
 	ymax = std::min(maxSize, DMAXY - y);
 	// BUGFIX: change '&&' to '||' (fixed)
-	if (xmax < minSize || ymax < minSize) {
-		return false;
-	}
-	//if (NearThemeRoom(x, y)) {
-	//	return false;
-	//}
+	if (xmax < minSize || ymax < minSize)
+		return { 0, 0 };
 
 	memset(xArray, 0, sizeof(xArray));
 	memset(yArray, 0, sizeof(yArray));
@@ -1053,7 +1047,7 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 		xArray[++i] = smallest;
 	}
 	if (i < minSize)
-		return false;
+		return { 0, 0 };
 
 	// find vertical(y) limits
 	smallest = ymax;
@@ -1069,7 +1063,7 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 		yArray[++i] = smallest;
 	}
 	if (i < minSize)
-		return false;
+		return { 0, 0 };
 
 	// select the best option
 	xmax = std::max(xmax, ymax);
@@ -1089,9 +1083,7 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 		}
 	}
 	assert(bestSize != 0);
-	*width = w - 2;
-	*height = h - 2;
-	return true;
+	return { w - 2, h - 2 };
 }
 
 static void DRLG_CreateThemeRoom(int themeIndex)
@@ -1178,27 +1170,51 @@ static void DRLG_CreateThemeRoom(int themeIndex)
 void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rndSize)
 {
 	int i, j;
-	int themeW, themeH;
 	int min;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == floor && (freq == 0 || random_low(0, freq) == 0) && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
-				if (rndSize) {
-					// assert(minSize > 2);
-					min = minSize - 2;
-					static_assert(DMAXX /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeW.");
-					static_assert(DMAXY /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeH.");
-					themeW = RandRangeLow(min, themeW);
-					themeH = RandRangeLow(min, themeH);
-				}
-				themes[numthemes]._tsx = i + 1;
-				themes[numthemes]._tsy = j + 1;
-				themes[numthemes]._tsWidth = themeW;
-				themes[numthemes]._tsHeight = themeH;
-				DRLG_CreateThemeRoom(numthemes);
-				numthemes++;
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			// always start from a floor tile
+			if (dungeon[i][j] != floor) {
+				continue;
 			}
+			if (freq != 0 && random_low(0, freq) != 0) {
+				continue;
+			}
+			// check if there is enough space
+			POS32 tArea = DRLG_FitThemeRoom(floor, i, j, minSize, maxSize);
+			if (tArea.x <= 0) {
+				continue;
+			}
+			// randomize the size
+			if (rndSize) {
+				// assert(minSize > 2);
+				min = minSize - 2;
+				static_assert(DMAXX /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeW.");
+				static_assert(DMAXY /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeH.");
+				tArea.x = RandRangeLow(min, tArea.x);
+				tArea.y = RandRangeLow(min, tArea.y);
+			}
+			// ensure there is no overlapping with previous themes
+			int n = numthemes - 1;
+			for ( ; n >= 0; n--) {
+				if (themes[n]._tsx <= i + tArea.x && themes[n]._tsx + themes[n]._tsWidth >= i) {
+					break;
+				}
+				if (themes[n]._tsy <= j + tArea.y && themes[n]._tsy + themes[n]._tsHeight >= j) {
+					break;
+				}
+			}
+			if (n >= 0) {
+				continue;
+			}
+			// create the room
+			themes[numthemes]._tsx = i + 1;
+			themes[numthemes]._tsy = j + 1;
+			themes[numthemes]._tsWidth = tArea.x;
+			themes[numthemes]._tsHeight = tArea.y;
+			DRLG_CreateThemeRoom(numthemes);
+			numthemes++;
 		}
 	}
 }
