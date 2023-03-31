@@ -1067,41 +1067,33 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 	case 0: // block to the north
 		y2 = y - 1;
 		y1 = y2 - blksizey;
-		x1 = x;
-		if (blksizex < obs)
-			x1 += random_low(0, blksizex);
-		else if (blksizex > obs)
-			x1 -= random_low(0, blksizex);
+		x1 = random_low(0, blksizex);
+		x1 = blksizex < obs ? x1 : -x1;
+		x1 = x + x1;
 		x2 = blksizex + x1;
 		break;
 	case 1: // block to the east
 		x1 = x + 1;
 		x2 = x1 + blksizex;
-		y1 = y;
-		if (blksizey < obs)
-			y1 += random_low(0, blksizey);
-		else if (blksizey > obs)
-			y1 -= random_low(0, blksizey);
+		y1 = random_low(0, blksizey);
+		y1 = blksizey < obs ? y1 : -y1;
+		y1 = y + y1;
 		y2 = y1 + blksizey;
 		break;
 	case 2: // block to the south
 		y1 = y + 1;
 		y2 = y1 + blksizey;
-		x1 = x;
-		if (blksizex < obs)
-			x1 += random_low(0, blksizex);
-		else if (blksizex > obs)
-			x1 -= random_low(0, blksizex);
+		x1 = random_low(0, blksizex);
+		x1 = blksizex < obs ? x1 : -x1;
+		x1 = x + x1;
 		x2 = blksizex + x1;
 		break;
 	case 3: // block to the west
 		x2 = x - 1;
 		x1 = x2 - blksizex;
-		y1 = y;
-		if (blksizey < obs)
-			y1 += random_low(0, blksizey);
-		else if (blksizey > obs)
-			y1 -= random_low(0, blksizey);
+		y1 = random_low(0, blksizey);
+		y1 = blksizey < obs ? y1 : -y1;
+		y1 = y + y1;
 		y2 = y1 + blksizey;
 		break;
 	case 4: // the central block
@@ -1117,16 +1109,16 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 
 	if (DRLG_L3FillRoom(x1, y1, x2, y2) && (random_(0, 4) != 0 || dir == 4)) {
 		if (dir != 2) {
-			DRLG_L3CreateBlock(x1, y1, blksizey, 0);
+			DRLG_L3CreateBlock(x1, y1, blksizex, 0); // to north
 		}
 		if (dir != 3) {
-			DRLG_L3CreateBlock(x2, y1, blksizex, 1);
+			DRLG_L3CreateBlock(x2, y1, blksizey, 1); // to east
 		}
 		if (dir != 0) {
-			DRLG_L3CreateBlock(x1, y2, blksizey, 2);
+			DRLG_L3CreateBlock(x1, y2, blksizex, 2); // to south
 		}
 		if (dir != 1) {
-			DRLG_L3CreateBlock(x1, y1, blksizex, 3);
+			DRLG_L3CreateBlock(x1, y1, blksizey, 3); // to west
 		}
 	}
 }
@@ -1297,9 +1289,8 @@ static BYTE DRLG_L3FillStraights()
 /*
  * Validate the dungeon to prevent OOB in DRLG_L3LockRec.
  */
-static void DRLG_L3Edges()
+/*static void DRLG_L3Edges()
 {
-	/* Commented out because it is no longer necessary
 	int i, j;
 
 	for (j = 0; j < DMAXY; j++) {
@@ -1311,8 +1302,8 @@ static void DRLG_L3Edges()
 		assert(dungeon[i][DMAXY - 1] == 0);
 		assert(dungeon[i][0] == 0);
 		//dungeon[i][DMAXY - 1] = 0;
-	}*/
-}
+	}
+}*/
 
 static int DRLG_L3GetFloorArea()
 {
@@ -2149,7 +2140,6 @@ static void DRLG_L3()
 	do {
 		while (true) {
 			do {
-				static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3.");
 				memset(dungeon, 0, sizeof(dungeon));
 				DRLG_L3CreateBlock(RandRange(10, 29), RandRange(10, 29), 0, 4);
 				if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
@@ -2160,7 +2150,7 @@ static void DRLG_L3()
 					doneflag &= !DRLG_L3FillStraights();
 				} while (!doneflag);
 				DRLG_L3FillSingles();
-				DRLG_L3Edges();
+				// DRLG_L3Edges(); - Commented out because it is no longer necessary
 			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
 			memset(drlgFlags, 0, sizeof(drlgFlags));
